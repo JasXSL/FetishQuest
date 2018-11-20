@@ -1,6 +1,5 @@
-GITHUB THIS SHIT
-	- Remove the assets to not clog the git
-	
+Editor:
+	- Build dungeon cell editor
 
 new Gameplay elements:
 	- Learning/unlearning actions
@@ -9,8 +8,6 @@ new Gameplay elements:
 	
 Action ideas:
 	- Cleric: Sacrament of Sin: Free, 10 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 10% per point of arousal.
-
-
 
 Generic code:
 	- Make the modal full width
@@ -51,11 +48,6 @@ Large 3d Tasks:
 Audio tasks:
 	- UI sounds
 		- Generic click
-
-
-Other stuff:
-	- Publish on GitHub
-
 
 
 

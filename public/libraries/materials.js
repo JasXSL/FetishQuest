@@ -259,6 +259,11 @@ LibMaterial.library = {
 			metalness : 0.1,
 			roughness : 0.8,
 		}),
+		YuugPortMid : new LibMaterial({
+			map : 'land/yuug_port_mid.jpg',
+			metalness : 0.1,
+			roughness : 0.8,
+		}),
 	},
 
 	Water : {

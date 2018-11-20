@@ -1278,10 +1278,137 @@ LibMesh.library = {
 					libMat.StoneTile.DungeonWall,
 					libMat.Wood.Crate,
 				],
+				
 			}),
-			
+		
+
+			Port : {
+				LandMid : new LibMesh({
+					url : 'land/yuug/yuug_port_mid_land.JD',
+					materials : [
+						libMat.Land.YuugPortMid,
+					],
+					width: 10,
+					height:10,
+				}),
+				JettyMid : new LibMesh({
+					url : 'land/yuug/yuug_port_mid_dock.JD',
+					materials : [
+						libMat.Wood.Logs,
+						libMat.Wood.Crate
+					],
+				}),
+			},
+		},
+	},
+
+	Structure : {
+		Cottage : new LibMesh({
+			url : 'structure/cottage.JD',
+			materials : [
+				libMat.Wood.Logs,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+		CottageBent : new LibMesh({
+			url : 'structure/cottage_bent.JD',
+			materials : [
+				libMat.Wood.Logs,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+		CottageSquared : new LibMesh({
+			url : 'structure/cottage_squared.JD',
+			materials : [
+				libMat.Structure.CottageRoof,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+		CottageThatched : new LibMesh({
+			url : 'structure/cottage_thatched.JD',
+			materials : [
+				libMat.Structure.StrawRoof,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+		Cottage2StoryA : new LibMesh({
+			url : 'structure/cottage_2story_a.JD',
+			materials : [
+				libMat.Wood.Logs,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+		Cottage2StoryB : new LibMesh({
+			url : 'structure/cottage_2story_b.JD',
+			materials : [
+				libMat.Wood.Logs,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+
+		WatchTowerWood : new LibMesh({
+			url : 'structure/wood_tower.JD',
+			materials : [
+				libMat.Wood.Logs,
+				libMat.Metal.DarkGeneric,
+			],
+		}),
+		WatchTowerLarge : new LibMesh({
+			url : 'structure/big_tower.JD',
+			materials : [
+				libMat.Brick.Small,
+				libMat.StoneTile.DungeonWall,
+				libMat.Wood.Board,
+			],
+		}),
+		WatchTowerSmall : new LibMesh({
+			url : 'structure/closed_tower.JD',
+			materials : [
+				libMat.Brick.Small,
+				libMat.StoneTile.DungeonWall,
+			],
+		}),
+
+	},
+
+	Nature : {
+		Trees : {
+			RoundA : new LibMesh({
+				url : 'nature/tree_a.JD',
+				materials : [
+					libMat.Solids.Brown,
+					libMat.Solids.GreenA,
+				],
+			}),
+			RoundB : new LibMesh({
+				url : 'nature/tree_b.JD',
+				materials : [
+					libMat.Solids.Brown,
+					libMat.Solids.GreenB,
+				],
+			}),
+			RoundC : new LibMesh({
+				url : 'nature/tree_c.JD',
+				materials : [
+					libMat.Solids.Brown,
+					libMat.Solids.GreenC,
+				],
+			}),
 		}
 	}
+	
 
 
 };

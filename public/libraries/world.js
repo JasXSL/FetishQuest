@@ -9,7 +9,7 @@ const library = {
 export default library;
 
 
-// World maps
+// Yuug
 library.World.Yuug = new Dungeon({
 	name : 'Yuug',
 	tags : [],
@@ -182,3 +182,41 @@ library.World.Yuug = new Dungeon({
 		}),
 	],
 });
+
+library.Place.Yuug = {};
+library.Place.Yuug.Port = new Dungeon({
+	name : 'Yuug Port',
+	tags : [],
+	rooms : [
+		new DungeonRoom({
+			outdoors : true,
+			discovered : false,
+			assets : [
+				new DungeonRoomAsset({
+					absolute : true,
+					model : 'Land.Yuug.Port.LandMid',
+					type : DungeonRoomAsset.Types.Room,
+					data : {},
+				}),
+				// Water
+				new DungeonRoomAsset({
+					absolute : true,
+					model : 'Land.Yuug.Ocean',
+					type : DungeonRoomAsset.Types.Prop,
+					data : {},
+				}),
+				// Docks
+				new DungeonRoomAsset({
+					absolute : true,
+					model : 'Land.Yuug.Port.JettyMid',
+					type : DungeonRoomAsset.Types.Prop,
+					absolute : true,
+					data : {},
+				}),
+			],
+			ambiance : 'media/audio/ambiance/dungeon.ogg',
+			ambiance_volume : 0.2,
+		}),
+	]
+});
+

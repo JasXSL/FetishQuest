@@ -53,7 +53,6 @@ export default class Game extends Generic{
 		this.libAsset = [];
 		this.libAction = [];
 
-
 		this.audio_fx = new Audio("fx");
 		this.audio_ambient = new Audio('ambient', false);
 		this.audio_music = new Audio('music', false);
@@ -1274,6 +1273,8 @@ export default class Game extends Generic{
 			return this.libAsset;
 		if( asset === "Action" )
 			return this.libAction;
+		if( asset === "Text" )
+			return this.libText;
 
 		console.error("No library implemented yet for", asset.constructor.name);
 		return false;
