@@ -1,0 +1,85 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+	<title>FetishQuest</title>
+	<meta name="description" content="A lewd dungeon game!">
+	<meta name="author" content="JasX">
+</head>
+
+<body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.2.0/Tween.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/deep-diff@1/dist/deep-diff.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="globalFunctions.js"></script>
+	<script>
+		console.log("Entry point for debugging is 'game'");
+		// Globals
+		var game, g_Condition, g_GameEvent, g_Audio;
+	</script>
+	<script type="module">
+		import Game from './classes/Game.js';
+		import Player from './classes/Player.js';
+		import Condition from './classes/Condition.js';
+		import GameEvent from './classes/GameEvent.js';
+		import Audio from './classes/Audio.js';
+		g_Condition = Condition;
+		g_GameEvent = GameEvent;
+		g_Audio = Audio;
+		window.Player = Player;
+		Game.load()
+		.then(() => {
+			console.log("Game initialized. Globals:\ngame = Active game\ng_Condition = Condition class\ng_GameEvent = GameEvent class\ng_Audio = Audio class");
+		})
+		.catch(err => console.error(err));
+		
+	</script>
+	<div id="bg"></div>
+	<div id="content">
+	
+		<div class="middle">
+			<div class="text">
+				<div class="content"></div>
+			</div>
+			<div class="chat" contenteditable></div>
+		</div>
+		<div class="players">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="action_selector hidden"></div>
+	</div>
+	<div id="dm_tools"></div>
+	<div id="mainMenu">
+		<div id="audioToggle" class="icon" style="background-image: url(media/wrapper_icons/speaker.svg)">
+			<div class="rollout">
+				Ambient:
+				<input type="range" min=0 max=100 step=1 id="ambientSoundVolume" />
+				Music:
+				<input type="range" min=0 max=100 step=1 id="musicSoundVolume" />
+				FX:
+				<input type="range" min=0 max=100 step=1 id="fxSoundVolume" />	
+				Master:
+				<input type="range" min=0 max=100 step=1 id="masterSoundVolume" />
+			</div>
+		</div>
+		<div id="netgameToggle" class="icon" style="background-image: url(media/wrapper_icons/multiplayer.svg)"></div>
+		<div id="mainMenuButton">Game</div>
+	</div>
+	<div id="netgamePlayers"></div>
+	<div id="gameIcons"></div>
+	<div id="modal" class="hidden">
+		<div class="wrapper">
+			<div class="content"></div>
+			<input type="button" value="Close" />
+		</div>
+	</div>
+	<div id="selectionbox" class="selectionbox hidden"></div>
+	<div id="notices"></div>
+</body>
+</html>

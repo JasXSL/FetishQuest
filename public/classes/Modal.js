@@ -1,0 +1,171 @@
+/*
+
+	The modal is the overlay which has the player info, 3d dungeon map etc
+	You can bind events on it to force refresh for an instance when user data is received to keep the UI up to date with the network
+
+*/
+export default class Modal{
+
+	constructor(parent){
+
+		this.parent = parent;
+		this.bg = $("#modal");
+		this.wrapper = $("#modal > div.wrapper");
+		this.content = $("#modal > div.wrapper > div.content");
+		this.closebutton = $("#modal > div.wrapper > input");
+		this.selectionbox = $("div.selectionbox");
+		
+		this.open = false;
+		this._onPlayerChange = {};		// playerUUID : function
+		this.onMapChange = [];			// callbacks
+		this.selBoxOpened = Date.now();		// Prevents misclicks
+		this._onSelectionBoxClose = null;
+
+		this.bg.on('click', () => {
+			this.close();
+		});
+		this.closebutton.on('click', () => {
+			this.close();
+		});
+
+		this.wrapper.on('click', event => {
+			event.stopImmediatePropagation();
+			if( this.selBoxOpened+100 < Date.now() )
+				this.closeSelectionBox();
+		});
+
+		$(document).on('click', () => {
+			if( this.selBoxOpened+100 < Date.now() )
+				this.closeSelectionBox();
+		});
+
+		this.selectionbox.on('click', event => {
+			event.stopImmediatePropagation();
+		});
+
+	}
+
+	
+	/* PRIMARY FUNCTIONALITY */
+	// If canvas is set, it sets up the canvas in a backdrop
+	set( html, canvas ){
+
+		// Close the selection box (the small selection tooltip)
+		if( !canvas )
+			this.closeSelectionBox();
+		this.wipeEvents();
+		this.content.html(html);
+		this.bg.toggleClass("hidden", false).toggleClass('canvas', !!canvas);
+		this.open = true;
+
+		// If canvas is included, start rendering
+		if( canvas ){
+			game.renderer.start();
+			this.content.prepend('<div class="CANVAS_HOLDER"></div>');
+			$("> div.CANVAS_HOLDER", this.content).append(canvas);
+		}
+
+	}
+
+	close(){
+		this.open = false;
+		this.wipeEvents();
+		game.renderer.stop();
+		this.bg.toggleClass("hidden", true);
+	}
+
+	
+
+
+
+
+	/* EVENT BINDERS */
+	// Needs to be called after set, since set and close wipes all events
+	onPlayerChange(player, fn){
+		this._onPlayerChange[player] = fn;
+	}
+	// The map has been changed
+	onMapUpdate(fn){
+		this.onMapChange.push(fn);
+	}
+	// The small selectionBox tooltip has been closed
+	onSelectionBoxClose( callback ){
+		this._onSelectionBoxClose = callback;
+	}
+	wipeEvents(){
+		this._onPlayerChange = {};
+		this.onMapChange = [];
+	}
+
+
+	/* EVENT HANDLERS */
+	// Game update received from the netcode
+	onGameUpdate( changes ){
+
+		let playersChanged = {}, dungeonChanged;
+		for( let c of changes ){
+
+			if( !c.path )
+				continue;
+
+			// Many players can have changed
+			if( c.path[0] === 'players' && game.players[c.path[1]] && this._onPlayerChange[game.players[c.path[1]].id] && !playersChanged[game.players[c.path[1]].id] ){
+				playersChanged[game.players[c.path[1]].id] = true;	// makes sure onPlayerChange only gets called once per player
+				this._onPlayerChange[game.players[c.path[1]].id]();		
+			}
+			
+			if( c.path[0] === 'dungeon' )
+				dungeonChanged = true;
+
+		}
+
+		if( dungeonChanged && !game.is_host )
+			this.onMapChange.map(fn => fn());
+
+	}
+	
+
+	/* VISUALS */	
+	// Flashes the screen when an encounter starts
+	battleVis(){
+		this.bg.toggleClass("battleStart", true);
+		setTimeout(() => {
+			this.close();
+			this.bg.toggleClass("battleStart", false);
+		}, 2000);
+	}
+
+
+	/* SELECTION BOX (small option tooltip) */
+	// Draws a hot menu (small tooltip) at the mouse location
+	prepareSelectionBox( keepPosition ){
+
+		this.selectionbox.html("").toggleClass('hidden', false);
+		if( !keepPosition )
+			this.selectionbox.css({left:game.renderer.mouseAbs.x, top:game.renderer.mouseAbs.y});
+		this.selBoxOpened = Date.now();
+
+	}
+	// Adds an item to above menu, item is the name, tooltip gets put into a tooltip, and id gets put as data-id
+	addSelectionBoxItem( item, tooltip, id, classes = [] ){
+		let html = '';
+		html += '<div data-id="'+esc(id)+'" class="item '+(tooltip ? ' tooltipParent ' : '')+classes.join(' ')+'">';
+			html += esc(item);
+			if( tooltip )
+				html += '<div class="tooltip">'+tooltip+'</div>';
+		html += '</div>';
+		this.selectionbox.append(html);
+	}
+	// Binds clicks to all items set above
+	onSelectionBox( callback ){
+		$("div.item", this.selectionbox).on('click', callback);
+	}
+	closeSelectionBox(){
+		if( typeof this._onSelectionBoxClose === "function" ){
+			this._onSelectionBoxClose();
+			this._onSelectionBoxClose = null;
+		}
+		this.selectionbox.toggleClass('hidden', true);
+	}
+
+}
