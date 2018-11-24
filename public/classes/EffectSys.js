@@ -5,7 +5,6 @@ import stdTag from '../libraries/stdTag.js';
 import Action from './Action.js';
 import Calculator from './Calculator.js';
 import Player from './Player.js';
-import Game from './Game.js';
 
 /*
 	A wrapper is a container for multiple effects

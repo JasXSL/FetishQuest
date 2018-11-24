@@ -11,7 +11,6 @@ import { LibMaterial } from '../libraries/materials.js';
 import Sky from '../ext/Sky.js';
 
 // Enables a grid for debugging asset positions
-const ENABLE_GRID = false;
 const CAM_DIST = 1414;
 
 class WebGL{
@@ -101,7 +100,7 @@ class WebGL{
 		this.camera.position.y = 1200;
 		this.camera.lookAt(0,0,0);
 
-		if( ENABLE_GRID ){
+		if( config.enableGrid ){
 			let helper = new THREE.AxesHelper(100);
 			helper.position.y = 100;
 			this.scene.add(helper);

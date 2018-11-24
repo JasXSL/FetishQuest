@@ -19,6 +19,7 @@ export default class Condition extends Generic{
 
 		// If this.conditions is not empty, it becomes a multi condition and the data below is disregarded
 		// It works this way because an array child of a Generic class needs to be only ONE class. Otherwise you'll confuse the netcode.
+		this.label = '';
 		this.conditions = [];		// Sub 
 		this.min = 1;				// min conditions
 		this.max = Infinity;		// max conditions
@@ -29,14 +30,12 @@ export default class Condition extends Generic{
 		this.targnr = -1;			// -1 gets checked against ALL players, 0 gets checked against the first player and so forth
 		this.inverse = false;		// Return true if the condition does NOT validate
 		this.anyPlayer = false;		// Check against any player
-		
 
 		this.load(data);
 	}
 
 	save( full ){
 		let out = {
-			id : this.id,
 			type : this.type,
 			data : this.data,
 			inverse : this.inverse,
@@ -48,7 +47,8 @@ export default class Condition extends Generic{
 			max : this.max
 		};
 
-		if( full ){}
+		if( full )
+			out.label = this.label;
 		return out;
 
 	}

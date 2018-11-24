@@ -1,91 +1,55 @@
-<!doctype html>
+import {default as WebGL, Stage} from '../classes/WebGL.js';
+import {default as libMeshes, LibMesh} from '../libraries/meshes.js';
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.module.js';
+import TransformControls from '../ext/TransformControls.js';
+import Mod from '../classes/Mod.js';
 
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<link rel="stylesheet" href="style.css" />
-	<title>Blue Pandas oh mai</title>
-	<meta name="description" content="Zeralus' Dangly parts">
-	<meta name="author" content="JasX">
-	<script src="globalFunctions.js"></script>
-	<style>
-		#meshControls{
-			position: fixed;
-			top: 0; right:0;
-			left:0;
-			height:15vh;
-			padding:0.5vmax;
-			overflow:visible;
-			background:rgba(255,255,255,.25);
-		}
-		#meshCanvas{
-			position:fixed;
-			left:0; top:0; right:0; bottom:0;
-		}
-		#meshControls > select{
-			height:100%;
-		}
-		#anims{
-			position:fixed;
-			bottom: 0;
-			left: 50%;
-			transform:translateX(-50%);
-		}
-		#children{
-			font-size:0.75vmax;
-			position:fixed;
-			bottom: 1vmax;
-			right: 1vmax;
-			max-width:25%;
-		}
+export default class Modtools{
+
+	constructor(){
 		
-	</style>
-</head>
-
-<body>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.2.0/Tween.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<script>
-		console.log("Entry point is renderer");
-		function shuffle(a){
-			for( let i = a.length - 1; i > 0; i-- ){
-				const j = Math.floor(Math.random() * (i + 1));
-				[a[i], a[j]] = [a[j], a[i]];
-			}
-			return a;
-		}
-		function esc( text, ignorenl2br ){
-			text = String(text);
-			const map = {
-			  '&': '&amp;',
-			  '<': '&lt;',
-			  '>': '&gt;',
-			  '"': '&quot;',
-			  "'": '&#039;'
-			};
-			let out = text.replace(/[&<>"']/g, function(m) { return map[m]; });
-			if( !ignorenl2br )
-				out = out.split("\n").join('<br />');
-			return out;
-		}
-		var renderer;
-	</script>
-	<script type="module">
-		import {default as WebGL, Stage} from './classes/WebGL.js';
-		import {default as libMeshes, LibMesh} from './libraries/meshes.js';
-		import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.module.js';
-		import TransformControls from './ext/TransformControls.js';
-		renderer = new WebGL({
+		this.content = $("#content");
+		this.renderer = new WebGL({
 			width:window.innerWidth, 
 			height:window.innerHeight,
 			fullControls : true,
+			enableGrid : true
 		});
-		renderer.setOutdoorTime(14);
-		renderer.toggleOutdoors(true);
+		this.mod = new Mod();
+
+		this.drawModSelect();
+
+	}
+
+
+	// Mod selection
+	async drawModSelect(){
+
+		let html = '<h1>Select mod to edit</h1>';
+		
+		let games = await Mod.getNames();
+		console.log("Mods", games);
+		
+		this.content.html(html);
+
+	}
+
+
+	// ModAssetSelect
+	drawModAssetSelect(){
+
+	}
+
+
+
+}
+
+/*
 		let active_model, active_mesh;
 
 		window.onload = () => {
 
+			
 			let drawChilds = function(){
 
 				let out = '';
@@ -264,15 +228,4 @@
 			
 
 		};	
-	</script>
-
-	<div id="meshCanvas"></div>
-
-	<div id="meshControls">
-		<select multiple id="meshToTest"></select>
-	</div>
-	<div id="anims"></div>
-	<div id="children"></div>
-
-</body>
-</html>
+*/

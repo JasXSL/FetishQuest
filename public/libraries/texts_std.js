@@ -1,4 +1,5 @@
 import Text from '../classes/Text.js';
+
 import libCond from './conditions.js';
 const C = libCond;
 import {default as Condition, ConditionPackage} from '../classes/Condition.js';

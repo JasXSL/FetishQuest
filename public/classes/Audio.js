@@ -1,5 +1,6 @@
 import Condition from "./Condition.js";
 import stdTag from "../libraries/stdTag.js";
+import Generic from "./helpers/Generic.js";
 
 const master = new AudioContext();
 const masterGain = master.createGain();
@@ -166,11 +167,30 @@ class AudioSound{
 }
 
 // Kit that can play
-class AudioKit{
+class AudioKit extends Generic{
 
-	constructor(){
+	constructor( data ){
+		super(data);
+		this.label = '';
 		this.sounds = [];		// {s:(AudioSound)sound, t:(int)predelay_ms}
 		this.conditions = [];
+		this.load(data);
+	}
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.conditions = Condition.loadThese(this.conditions);
+	}
+
+	save(complete){
+		return {
+			label : this.label,
+			sounds : this.sounds,
+			conditions : Condition.saveThese(this.conditions)
+		};
 	}
 
 

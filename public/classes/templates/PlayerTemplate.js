@@ -48,12 +48,56 @@ class PlayerTemplate extends Generic{
 		this.hetero_max = 1;						// 0 = gay, 0.5 = bi, 1 = straight
 		this.intelligence_min = 0.6;				// Starts off at human level
 		this.intelligence_max = 0.6;
-		this.required_assets = [];
+		this.required_assets = [];				// labels of assets that MUST be on this character
 		this.load(...args);
 	}
 
 	load(data){
 		this.g_autoload(data);
+	}
+
+	save( full ){
+		return {
+			label : this.label,
+			name : this.name,
+			icon : this.icon,
+			species : this.species,
+			description : this.description,
+			classes : this.classes,
+			max_actions : this.max_actions,
+			tags : this.tags,
+			min_level : this.min_level,
+			max_level : this.max_level,
+			primary_stats : this.primary_stats,
+			sv : this.sv,
+			bon : this.bon,
+			viable_asset_materials : this.viable_asset_materials,
+			viable_asset_templates : this.viable_asset_templates,
+			viable_gear : this.viable_gear,
+			gear_chance : this.gear_chance,
+			min_size : this.min_size,
+			max_size : this.max_size,
+			difficulty : this.difficulty,
+			viable_consumables : this.viable_consumables,
+
+			sadistic_min : this.sadistic_min,
+			sadistic_max : this.sadistic_max,
+			dominant_min : this.dominant_min,
+			dominant_max : this.dominant_max,
+			extraversion_min : this.extraversion_min,
+			extraversion_max : this.extraversion_max,
+			sensing_min : this.sensing_min,
+			sensing_max : this.sensing_max,
+			thinking_min : this.thinking_min,
+			thinking_max : this.thinking_max,
+			judging_min : this.judging_min,
+			judging_max : this.judging_max,
+			hetero_min : this.hetero_min,
+			hetero_max : this.hetero_max,
+			intelligence_min : this.intelligence_min,
+			intelligence_max : this.intelligence_max,
+			required_assets : this.required_assets
+		};
 	}
 
 	rebase(){

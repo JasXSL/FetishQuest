@@ -21,7 +21,8 @@ import glibCondition from '../libraries/conditions.js';
 import stdTag from '../libraries/stdTag.js';
 import glibAudio from '../libraries/audioKits.js';
 import glibWorld from '../libraries/world.js';
-
+import Mod from './Mod.js';
+import MAIN_MOD from '../libraries/_main_mod.js';
 
 export default class Game extends Generic{
 
@@ -61,6 +62,24 @@ export default class Game extends Generic{
 		this.active_ambient_file = null;
 		this.active_music = null;						// Only one song can play at a time
 		this.active_ambient = null;						// Only one ambient track can play at once 
+
+		this.mods_enabled = [];							// __MAIN__ is always added
+		this.library = {								// Builds the content library from mods
+			dungeons : [],
+			quests : [],
+			playerClasses : [],
+			actions : [],
+			assets : [],
+
+			playerTemplates : [],
+			assetTemplates : [],
+
+			texts : [],
+			audioKits : [],
+			meshes : [],
+			particles : [],
+			
+		};
 
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
 	}
@@ -129,14 +148,16 @@ export default class Game extends Generic{
 	}
 
 	// Std load
-	load( data ){
+	async load( data ){
 
 		this.initialized = false;		// prevents text sounds from being played when a netgame loads
 		this.g_autoload(data);
 
-		// Libraries do not need to be rebased
+		// Custom ad-hoc libraries do not need to be rebased
 		this.libAsset = this.libAsset.map(el => new Asset(el));
 		this.libAction = this.libAction.map(el => new Action(el));
+
+		await this.assembleLibrary();
 
 		this.ui.draw();
 		
@@ -203,6 +224,19 @@ export default class Game extends Generic{
 		this.save();
 	}
 
+	// Builds the library
+	async assembleLibrary(){
+		let mods = [];
+		// Make sure the main mod is up to date
+		let mainMod = new Mod(MAIN_MOD);
+		mods.push(mainMod);
+		mainMod.texts = glibText;
+		mainMod.actions = glibAction;
+		mainMod.audioKits = glibAudio;
+		mainMod.playerClasses = glibPlayerClass;
+		mainMod.save();
+
+	}
 
 
 

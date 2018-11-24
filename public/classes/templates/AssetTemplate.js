@@ -9,9 +9,10 @@ class AssetTemplate extends Generic{
 	constructor(data){
 		super(data);
 
+		this.label = '';
 		this.slots = [Asset.Slots.upperbody];
 		this.name = "";
-		this.materials = [Materials.cloth];	// Available materials, "" is treated as cloth
+		this.materials = ['cotton'];	// Available material labels
 		this.svStats = {};
 		this.bonStats = {};
 		this.description = "";
@@ -23,6 +24,20 @@ class AssetTemplate extends Generic{
 
 	load(data){
 		this.g_autoload(data);
+	}
+
+	save(full ){
+		return {
+			label : this.label,
+			slots : this.slots,
+			name : this.name,
+			materials : this.materials,
+			svStats : this.svStats,
+			bonStats : this.bonStats,
+			description : this.description,
+			tags : this.tags,
+			size : this.size,
+		};
 	}
 
 	// Automatically invoked after g_autoload
@@ -158,20 +173,40 @@ AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, vi
 
 
 
-class Material{
+class Material extends Generic{
 	constructor(data){
+		super(data);
 
-		if( typeof data !== "object" )
-			data = {};
-		this.name = data.name || "";
-		this.tags = Array.isArray(data.tags) ? data.tags : [];
-		this.weight = isNaN(data.weight) ? 400 : data.weight;			// Weight of an average chestpiece
-		this.level = isNaN(data.level) ? 1 : data.level;
-		this.durability_bonus = isNaN(data.durability_bonus) ? 1 : data.durability_bonus;		// Multiplier. Actual durability is based on level.
-		this.svBons = data.svBons && data.svBons.constructor === Object ? data.svBons : {};	// type : bon 
-		this.bonBons = data.bonBons && data.bonBons.constructor === Object ? data.bonBons : {}; // == || ==
-		this.stat_bonus = isNaN(data.stat_bonus) ? 0 : data.stat_bonus;		// Adds additional stat points to generator
+		this.label = '';
+		this.name = "";
+		this.tags = [];
+		this.weight = 400;			// Weight of an average chestpiece
+		this.level = 1;
+		this.durability_bonus = 1;		// Multiplier. Actual durability is based on level.
+		this.svBons = {};	// type : bon 
+		this.bonBons = {}; // == || ==
+		this.stat_bonus = 0;		// Adds additional stat points to generator
+		this.load(data);
 	}
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	save(full){
+		return {
+			label : this.label,
+			name : this.name,
+			tags : this.tags,
+			weight : this.weight,
+			level : this.level,
+			durability_bonus : this.durability_bonus,
+			svBons : this.svBons,
+			bonBons : this.bonBons,
+			stat_bonus : this.stat_bonus,
+		};
+	}
+
 }
 
 

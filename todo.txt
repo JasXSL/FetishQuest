@@ -1,5 +1,6 @@
-Editor:
-	- Build dungeon cell editor
+Mod Editor:
+	- 
+
 
 new Gameplay elements:
 	- Learning/unlearning actions
@@ -48,7 +49,6 @@ Large 3d Tasks:
 Audio tasks:
 	- UI sounds
 		- Generic click
-
 
 
 Bugs:

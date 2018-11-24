@@ -1,12 +1,12 @@
 import Condition from '../classes/Condition.js';
-import tag from './stdTag.js';
 import GameEvent from '../classes/GameEvent.js';
 import stdTag from './stdTag.js';
-import { Effect } from '../classes/EffectSys.js';
+import { Effect as Effect, Wrapper as Wrapper } from '../classes/EffectSys.js';
+
 const out = {
 	'targetAlive' : new Condition({
 		type : Condition.Types.tag,
-		data : {tags:[tag.dead]},
+		data : {tags:[stdTag.dead]},
 		inverse : true,
 		caster : false
 	}),
@@ -27,7 +27,7 @@ const out = {
 	'senderIsWrapperParent' : new Condition({type:Condition.Types.isWrapperParent, anyPlayer:true, caster:true}),			// The sender of this event was the condition's parent's parent
 
 	// Action tags
-	'actionDamaging' : new Condition({type:Condition.Types.actionTag, data:{tags:[tag.acDamage]}}),		// Action was not a miss
+	'actionDamaging' : new Condition({type:Condition.Types.actionTag, data:{tags:[stdTag.acDamage]}}),		// Action was not a miss
 
 	'wrapperIsStun' : new Condition({type:Condition.Types.wrapperHasEffect, data:{filters:{type:Effect.Types.stun}}}),
 

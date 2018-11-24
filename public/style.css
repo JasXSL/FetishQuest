@@ -729,6 +729,9 @@ div.fxHeal{
 		display:inline-block;
 		margin:0.1vmax;
 	}
+	#gameIcons > div.button.autoWidth{
+		width:auto;
+	}
 
 /**/
 

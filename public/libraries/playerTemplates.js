@@ -2,7 +2,6 @@ import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import stdTag from './stdTag.js';
 import Player from '../classes/Player.js';
 import Action from '../classes/Action.js';
-import AssetTemplate, { Materials } from '../classes/templates/AssetTemplate.js';
 
 const out = [];
 // Tentacle fiends
