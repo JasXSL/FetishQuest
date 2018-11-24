@@ -51,3 +51,6 @@ Audio tasks:
 
 
 
+Bugs:
+	- Upon starting a new game, the loot bags that drop can't be clicked
+	- 

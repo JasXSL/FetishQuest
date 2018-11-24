@@ -28,11 +28,9 @@ Calculator.run = function( formula, event, customMathVars ){
 
 	if( typeof event.sender === "object" )
 		event.sender.appendMathVars('se_', vars, event);
-		// How many damaging attacks the target has done to sender since sender's last turn
-		vars['se_TaDamagingSinceLast'] = event.sender.damagingSinceLastByPlayer(event.target);
-	if( typeof event.target === "object" ){
+	if( typeof event.target === "object" )
 		event.target.appendMathVars('ta_', vars, event);
-	}
+	
 
 	// Run the calculation
 	let out = 0;

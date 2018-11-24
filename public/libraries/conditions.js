@@ -148,6 +148,7 @@ const out = {
 	// TurnTags
 	ttGroinExposed : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttGroinExposed]}}),
 	ttButtExposed : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttButtExposed]}}),
+	ttButtNotExposed : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttButtExposed]}, inverse:true}),
 	ttBreastsExposed : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttGroinExposed]}}),
 	ttWedgie : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttWedgie]}}),
 	ttPussyWedgie : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttPussyWedgie]}}),

@@ -228,6 +228,9 @@ export default class Game extends Generic{
 		let losers = shuffle(this.getPlayersNotOnTeam(winningTeam)),
 			armorSteal = losers.slice();
 
+		this.encounter.started = false;
+		this.encounter.completed = false;
+
 		// allow enemies to punish
 		await delay(2000);
 		let winners = shuffle(this.getAlivePlayersInTeam(winningTeam));
@@ -235,7 +238,7 @@ export default class Game extends Generic{
 			if( !this.dm_writes_texts && winner.auto_play ){	// Async function, check before each call
 				let l = armorSteal.shift();
 				// Allow steal
-				if( l ){
+				if( l && !winner.isBeast() ){
 					let gear = l.getEquippedAssetsBySlots([Asset.Slots.lowerbody, Asset.Slots.upperbody], true);
 					let item = shuffle(gear).shift();
 					if( item && Math.random() < 0.5 ){
@@ -251,10 +254,16 @@ export default class Game extends Generic{
 
 		for( let player of this.players )
 			player.fullRegen();
+
+		// Only regenerate nondead
+		for( let winner of winners )
+			winner.fullRegen();
 		
+		this.removeEnemies();
 		// Return to the dungeon entrance
 		this.ui.draw();
 
+		
 		game.ui.addText( "The players wake up at the dungeon's entrance!", undefined, undefined, undefined, 'center' );
 		this.dungeon.goToRoom(losers[0], 0);
 		
@@ -859,7 +868,7 @@ export default class Game extends Generic{
 			this.removeEnemies();
 			for( let pl of encounter.players ){
 				pl.auto_play = true;
-				pl.addHP(Infinity);
+				//pl.addHP(Infinity);
 				game.addPlayer(pl);
 			}
 		}
@@ -883,6 +892,7 @@ export default class Game extends Generic{
 		// Purge is needed after each overwrite
 		this.net.purgeFromLastPush(["encounter"]);		
 		game.save();
+		this.ui.draw();
 		
 	}
 

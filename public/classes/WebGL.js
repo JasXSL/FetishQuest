@@ -595,6 +595,8 @@ class Stage{
 
 
 		let sprite = sprites.bearing;
+		if( sprite )
+			sprite.material.opacity = 1;
 		if( asset.isExit() )
 			sprite = sprites.exit;
 		else if( linkedRoom && linkedRoom.discovered )
@@ -1095,6 +1097,7 @@ class Stage{
 		}
 		let material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true, alphaTest:0.5 } );
 		let sprite = new THREE.Sprite( material );
+		sprite.name = text;
 		sprite.scale.set(125*scale,125*scale,1);
 
 		if( Object.keys(mesh.userData.hoverTexts).length )

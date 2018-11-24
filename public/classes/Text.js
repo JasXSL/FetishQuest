@@ -22,6 +22,7 @@ import audioKits from '../libraries/audioKits.js';
 		%Tbreast - Synonym for breast
 		%Tpenis - Synonym for penis
 		%Tbutt - Synonym for butt
+		%Tpsize, %Tbsize, %Trsize - Grants a size tag for penis, breasts, rear in that order. Must be preceded by a space, which gets removed if the size is average.
 		%Tvagina - Synonym for vagina
 		%Tgenitals - Automatically pick a genital synonym. Herms get picked at random, so only use this if it doesn't matter which part was targeted.
 		%TclothUpper - Upperbody armor name

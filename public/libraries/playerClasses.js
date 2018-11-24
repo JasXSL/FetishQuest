@@ -83,9 +83,9 @@ const out = [
 	new PlayerClass({
 		label : 'cleric',
 		name : 'Cleric',
-		description : 'Upholding the morals, clerics chastise their enemies and heal their friends. Clerics may interest players into chastity and bondage.',
+		description : 'Upholding the morals, clerics chastise their enemies and make highly potent healers. Clerics may interest players into chastity and bondage.',
 		primaryStat : Player.primaryStats.stamina,
-		actions : ['cleric_heal','cleric_chastise','cleric_paddling'],
+		actions : ['cleric_heal','cleric_chastise','cleric_smite'],
 		
 		svPhysical : 2,
 		svElemental : 0,

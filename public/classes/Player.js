@@ -83,7 +83,14 @@ export default class Player extends Generic{
 		this._turns = 0;						// Total turns played in combat
 		this._turn_ap_spent = 0;				// AP spent on actions this turn
 		this._threat = {};						// playerID : threatAmount
-		this._damaging_since_last = {};			// playerID : nrDamagingAttacks - nr damaging actions received since last turn. Not the actual damage.
+
+		// These are incoming damage
+		this._damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
+		this._damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
+		// Same as above, but DONE by this player
+		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
+		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
+		
 		
 		this._turn_tags = [];					// {tag:(str)tag, s:(Player)sender}... These are wiped whenever an action text is used
 		
@@ -187,6 +194,9 @@ export default class Player extends Generic{
 			out._threat = this._threat;
 			out._turn_ap_spent = this._turn_ap_spent;
 			out._damaging_since_last = this._damaging_since_last;
+			out._damage_since_last = this._damage_since_last;
+			out._d_damaging_since_last = this._d_damaging_since_last;
+			out._d_damage_since_last = this._d_damage_since_last;
 			out._turns = this._turns;
 		}
 
@@ -199,14 +209,68 @@ export default class Player extends Generic{
 
 
 	/* Metadata */
+
+	// For these functions, type is an Action.Types value, if undefined, it counts ALL types
 	// Returns how many damaging actions a player has used since this one's last turn
-	damagingSinceLastByPlayer( player ){
+	damagingSinceLastByPlayer( player, type ){
 		if( player && player.constructor === Player )
 			player = player.id;
 		if( !this._damaging_since_last[player] )
 			return 0;
-		return this._damaging_since_last[player];
+		let out = 0;
+		for( let i in this._damaging_since_last[player] ){
+			if( i === type || type === undefined )
+				out += this._damaging_since_last[player][i];
+		}
+		return out;
 	}
+	damageSinceLastByPlayer( player, type ){
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._damage_since_last[player] )
+			return 0;
+		let out = 0;
+		for( let i in this._damage_since_last[player] )
+			if( i === undefined || i === type )
+			out += this._damage_since_last[player][i];
+		return out;
+	}
+	damagingDoneSinceLastToPlayer( player, type ){
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._d_damaging_since_last[player] )
+			return 0;
+		let out = 0;
+		for( let i in this._d_damaging_since_last[player] ){
+			if( i === type || type === undefined )
+				out += this._d_damaging_since_last[player][i];
+		}
+		return out;
+	}
+	damageDoneSinceLastToPlayer( player, type ){
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._d_damage_since_last[player] )
+			return 0;
+		let out = 0;
+		for( let i in this._d_damage_since_last[player] )
+			if( i === undefined || i === type )
+			out += this._d_damage_since_last[player][i];
+		return out;
+	}
+	// Calculates a total number for any of the above, allowing you to filter by type 
+	// Use the object property as input, and it returns the sum
+	datTotal( input, type ){
+		let out = 0;
+		for( let i in input ){
+			for( let t in input[i] ){
+				if( t === type || type === undefined )
+					out += input[i][t];
+			}
+		}
+		return out;
+	}
+
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
 	appendMathVars(prefix, vars, event){
@@ -244,10 +308,24 @@ export default class Player extends Generic{
 		for( let tag of tags )
 			vars[prefix+'Tag_'+tag] = 1;
 
-		let sinceLast = 0;
-		for( let i in this._damaging_since_last )
-			sinceLast+= this._damaging_since_last[i];
-		vars[prefix+'damagingAttacksSinceLast'] = sinceLast;
+		// Get a total value
+		vars[prefix+'damagingReceivedSinceLast'] = this.datTotal( this._damage_since_last );
+		vars[prefix+'damageReceivedSinceLast'] = this.datTotal( this._damage_since_last );
+		vars[prefix+'damagingDoneSinceLast'] = this.datTotal( this._d_damaging_since_last );
+		vars[prefix+'damageDoneSinceLast'] = this.datTotal( this._d_damage_since_last );
+		for( let i in Action.Types ){
+			let type = Action.Types[i];
+			vars[prefix+'damagingReceivedSinceLast'+type] = this.datTotal( this._damage_since_last, type );
+			vars[prefix+'damageReceivedSinceLast'+type] = this.datTotal( this._damage_since_last, type );
+			vars[prefix+'damagingDoneSinceLast'+type] = this.datTotal( this._d_damaging_since_last, type );
+			vars[prefix+'damageDoneSinceLast'+type] = this.datTotal( this._d_damage_since_last, type );
+		}
+
+		// We're the recipient, if a sender exists we can add how much damage the sender has done to us
+		if( event && this === event.target && event.sender ){
+			vars['se_TaDamagingReceivedSinceLast'] = this.damagingSinceLastByPlayer(event.sender);
+			vars['se_TaDamageReceivedSinceLast'] = this.damageSinceLastByPlayer(event.sender);
+		}
 
 		for( let i in Asset.Slots ){
 			let slot = Asset.Slots[i];
@@ -423,9 +501,13 @@ export default class Player extends Generic{
 		if( this._stun_diminishing_returns > 0 )
 			--this._stun_diminishing_returns;
 		this._damaging_since_last = {};
+		this._damage_since_last = {};
 		++this._turns;
 	}
 	onTurnStart(){
+
+		this._d_damaging_since_last = {};
+		this._d_damage_since_last = {};
 
 		// Wipe turnTags on start
 		this._turn_tags = [];
@@ -497,7 +579,41 @@ export default class Player extends Generic{
 		this.used_punish = true;
 	}
 
-
+	onDamagingAttackReceived( sender, type ){
+		if(!this._damaging_since_last[sender.id])
+			this._damaging_since_last[sender.id] = {};
+		if(!this._damaging_since_last[sender.id][type])
+			this._damaging_since_last[sender.id][type] = 0;
+		
+		++this._damaging_since_last[sender.id][type];
+	}
+	onDamagingAttackDone(target, type){
+		if(!this._d_damaging_since_last[target.id])
+			this._d_damaging_since_last[target.id] = {};
+		if(!this._d_damaging_since_last[target.id][type])
+			this._d_damaging_since_last[target.id][type] = 0;
+		
+		++this._d_damaging_since_last[target.id][type];
+	}
+	onDamageTaken( sender, type, amount = 0 ){
+		if( isNaN(amount) )
+			return;
+		if(!this._damage_since_last[sender.id])
+			this._damage_since_last[sender.id] = {};
+		if(!this._damage_since_last[sender.id][type])
+			this._damage_since_last[sender.id][type] = 0;
+		
+		this._damage_since_last[sender.id][type] += amount;
+	}
+	onDamageDone( target, type, amount = 0 ){
+		if( isNaN(amount) )
+			return;
+		if(!this._d_damage_since_last[target.id])
+			this._d_damage_since_last[target.id] = {};
+		if(!this._d_damage_since_last[target.id][type])
+			this._d_damage_since_last[target.id][type] = 0;
+		this._d_damage_since_last[target.id][type] += amount;
+	}
 
 
 	/* TurnTags */

@@ -410,6 +410,7 @@ LibMesh.library = {
 				],
 			}),
 			Default : new LibMesh({
+				auto_bounding_box : true,
 				url : 'gates/dungeon_door_2x1.JD',
 				materials : [
 					libMat.Solids.Black,
@@ -510,6 +511,7 @@ LibMesh.library = {
 				}
 			}),
 			WallLever : new LibMesh({
+				auto_bounding_box : true,
 				url : 'gates/lever_wall_1x1.JD',
 				materials : [
 					libMat.Metal.Rust,

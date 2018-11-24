@@ -664,6 +664,16 @@ const humanAVConds = [
 		conditions : [libCond.actionHit,libCond.eventIsActionUsed,actionCond,libCond.targetNotBeast]
 	}));
 
+
+	// Smite
+	actionCond = new Condition({type : Condition.Types.actionLabel, data:{label:'cleric_smite'}, targnr:0});
+	out.push(new Text({
+		text : "%S smites %T with holy magic!",
+		soundkits : 'holySmite',
+		conditions : [libCond.actionHit,libCond.eventIsActionUsed,actionCond]
+	}));
+	
+
 	// Chastise
 	actionCond = new Condition({type : Condition.Types.actionLabel, data:{label:'cleric_chastise'}, targnr:0});
 	out.push(new Text({

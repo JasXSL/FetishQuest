@@ -103,6 +103,11 @@ let kit;
 	kit.addSound({path : basePath+'chastise.ogg', volume : 0.4});
 	out.holyChastise = kit;
 
+// holySmite
+	kit = new AudioKit();
+	kit.addSound({path : basePath+'smite.ogg', volume : 0.4});
+	out.holySmite = kit;
+
 // monkKick
 	kit = new AudioKit();
 	kit.addSound({path : basePath+'swing_small.ogg', volume : 0.2}, true);

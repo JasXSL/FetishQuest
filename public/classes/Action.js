@@ -270,6 +270,7 @@ class Action extends Generic{
 	// Returns an array of Player objects
 	getViableTargets( isChargeFinish = false ){
 		
+		let parent = this.getPlayerParent();
 		let pl = game.players;
 		if( this.detrimental && !isChargeFinish )
 			pl = this.getPlayerParent().getTauntedBy();
@@ -279,7 +280,7 @@ class Action extends Generic{
 
 		for( let p of pl ){
 
-			if( this.getViableWrappersAgainst(p, isChargeFinish).length )
+			if( (p !== parent || !this.detrimental) && this.getViableWrappersAgainst(p, isChargeFinish).length )
 				targets.push(p);
 			
 		}
@@ -366,6 +367,8 @@ class Action extends Generic{
 		if( !this.castable(true, isChargeFinish) )
 			return;
 
+		let sender = this.getPlayerParent();
+
 		if( !Array.isArray(targets) )
 			targets = [targets];
 
@@ -374,7 +377,7 @@ class Action extends Generic{
 			targets = this.getViableTargets();
 			
 		if( this.target_type === Action.TargetTypes.self )
-			targets = [this.getPlayerParent()];
+			targets = [sender];
 
 		
 		// Handle taunt on charge finish
@@ -421,12 +424,12 @@ class Action extends Generic{
 			this._cast_time = this.cast_time;
 			this._cast_targets = targets.map(t => t.id);
 			// AP and charges are consumed immediately, but MP is consumed when it succeeds
-			this.getPlayerParent().addAP(-this.ap);
-			this.getPlayerParent()._turn_ap_spent += this.ap;
+			sender.addAP(-this.ap);
+			sender._turn_ap_spent += this.ap;
 			this.consumeCharges();
 			new GameEvent({
 				type : GameEvent.Types.actionCharged,
-				sender : this.getPlayerParent(),
+				sender : sender,
 				target : targets,
 				action : this,
 			}).raise();
@@ -441,23 +444,23 @@ class Action extends Generic{
 			if( this.detrimental ){
 
 				let chance = Math.random()*100,
-					hit = Player.getHitChance(this.getPlayerParent(), target, this)
+					hit = Player.getHitChance(sender, target, this)
 				;
 
 				if( chance > hit ){
 
 					// Riposte
 					chance = Math.random()*100;
-					hit = Player.getHitChance(target, this.getPlayerParent(), this);
+					hit = Player.getHitChance(target, sender, this);
 					if( chance <= hit && this.riposte.length ){
 
 						for( let r of this.riposte )
-							r.useAgainst(target, this.getPlayerParent(), false);
+							r.useAgainst(target, sender, false);
 						
 						new GameEvent({
 							type : GameEvent.Types.actionRiposte,
 							sender : target,
-							target : [this.getPlayerParent()],
+							target : [sender],
 							action : this,
 						}).raise();
 
@@ -466,7 +469,7 @@ class Action extends Generic{
 					}else{
 						new GameEvent({
 							type : GameEvent.Types.actionUsed,
-							sender : this.getPlayerParent(),
+							sender : sender,
 							target : [target],
 							action : this,
 							custom : {
@@ -484,15 +487,15 @@ class Action extends Generic{
 
 			let successes = 0;
 			for( let wrapper of this.wrappers )
-				successes += wrapper.useAgainst(this.getPlayerParent(), target, false, isChargeFinish, netPlayer);
+				successes += wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer);
 
 			if( successes )
 				hits.push(target);
 
+			// Add damaging since last
 			if( this.hasTag(stdTag.acDamage) && successes ){
-				if(!target._damaging_since_last[this.getPlayerParent().id])
-					target._damaging_since_last[this.getPlayerParent().id] = 0;
-				++target._damaging_since_last[this.getPlayerParent().id];
+				target.onDamagingAttackReceived(sender, this.type);
+				sender.onDamagingAttackDone(target, this.type);
 			}
 
 			game.dmHitMessage(this, successes);

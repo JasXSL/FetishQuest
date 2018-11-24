@@ -210,6 +210,8 @@ class PlayerTemplate extends Generic{
 			player['bon'+Action.Types[i]] += penalty;
 		}
 
+		player.fullRegen();
+
 		return player;
 
 	}

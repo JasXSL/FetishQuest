@@ -211,7 +211,7 @@ actionCond = new Condition({type : Condition.Types.actionLabel, data:{label:'std
 		conditions : humanVConds.concat(actionCond, C.senderHasTentacles, C.targetLowerbodyHard)
 	}));
 	out.push(new Text({
-		text : "%S flicks %T's %Tgroin with a small tentacle, lashing the front of %This %TclotLower around!",
+		text : "%S flicks %T's %Tgroin with a small tentacle, lashing the front of %This %TclothLower around!",
 		audiokits : 'tentacleWhip',
 		armor_slot : Asset.Slots.lowerbody,
 		conditions : humanVConds.concat(actionCond, C.senderHasTentacles, C.targetLowerbodyNotHard, C.targetWearsLowerbody, C.targetPenis)
@@ -230,6 +230,12 @@ actionCond = new Condition({type : Condition.Types.actionLabel, data:{label:'std
 		text : "%S slithers a tendril inside %T's %TclothLower, coiling around %This %Tpenis and constricting it!",
 		audiokits : 'tentacleTwist',
 		conditions : humanVConds.concat(actionCond, C.senderHasTentacles, C.targetWearsLowerbody, C.targetPenis)
+	}));
+	
+	out.push(new Text({
+		text : "%S smacks %T's %Tpsize exposed %Tpenis with a tentacle!",
+		audiokits : 'tentacleWhip',
+		conditions : humanVConds.concat(actionCond, C.senderHasTentacles, cOR(C.targetNoLowerbody,C.ttGroinExposed), C.targetPenis)
 	}));
 	
 
@@ -265,7 +271,7 @@ actionCond = new Condition({type : Condition.Types.actionLabel, data:{label:'std
 	}));
 
 	out.push(new Text({
-		text : "%S spots %T bent over and lashes %Shis %Sgear across the %Trace's %Trsize %Tbutt!",
+		text : "%S takes advantage of %T being bent over and lashes %Shis %Sgear across the %Trace's %Trsize %Tbutt!",
 		soundkits : commonSounds.whipGeneric,
 		turnTags : [T.ttBentOver],
 		conditions : humanAVConds.concat(actionCond, C.ttBentOver, C.senderHasWhip)
@@ -440,6 +446,16 @@ actionCond = new Condition({type : Condition.Types.actionLabel, data:{label:'std
 		conditions : [C.actionHit,C.eventIsActionUsed,actionCond,C.senderHasTentacles,C.targetWearsLowerbody,C.targetWearsThong]
 	}));
 	out.push(new Text({
+		text : "%S pushes a thick tentacke up between %T's buttcheeks, giving %This rear some rapid prods through %This buttstring!",
+		audiokits : 'tentacleMultipleThrusts',
+		conditions : humanVConds.concat(actionCond,C.senderHasTentacles,C.targetWearsLowerbody,C.targetWearsThong,C.ttButtNotExposed)
+	}));
+	out.push(new Text({
+		text : "%S latches a thick tentacke with suction cups onto %T's %Tgroin and performs a few rapid tugs and prods at %This %TclothLower!",
+		audiokits : 'tentacleMultipleThrusts',
+		conditions : humanVConds.concat(actionCond,C.senderHasTentacles,C.targetWearsLowerbody,C.targetWearsThong,C.ttButtNotExposed)
+	}));
+	out.push(new Text({
 		text : "%S takes advantage of %T's frontal wedgie and slips a flat tentacle with wiggly nubs between %This legs, pushing it up against %This %groin where it intensely tickles %T's exposed mound!",
 		audiokits : 'gooRub',
 		conditions : [C.actionHit,C.eventIsActionUsed,actionCond,C.senderHasTentacles,C.targetWearsLowerbody,C.ttPussyWedgie]
@@ -448,6 +464,12 @@ actionCond = new Condition({type : Condition.Types.actionLabel, data:{label:'std
 		text : "%S slips small tendrils between %T's legs, rapidly tickling the exposed sides of %This %Tvagina and leaving a little slimy residue behind!",
 		audiokits : 'gooRub',
 		conditions : [C.targetNotBeast,C.actionHit,C.eventIsActionUsed,actionCond,C.senderHasTentacles,  C.ttPussyWedgie,C.targetWearsLowerbody]
+	}));
+
+	out.push(new Text({
+		text : "%S wraps a tentacle around %T's %Tpsize %Tpenis, allowing a small tendril to slip under %This foreskin, tickling the tip of %This %Tpenis!",
+		audiokits : 'tentacleTwist',
+		conditions : humanVConds.concat(actionCond, C.senderHasTentacles, cOR(C.targetNoLowerbody,C.ttGroinExposed), C.targetPenis, C.targetNotCircumcised)
 	}));
 
 

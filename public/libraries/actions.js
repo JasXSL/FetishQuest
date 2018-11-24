@@ -598,16 +598,17 @@ const out = [
 
 
 	// Cleric class
-		// Paddling
+		// Smite
 		new Action({
 			level : 1,
-			label : 'cleric_paddling',
-			name : "Paddling",
-			description : "Summon a divine paddle to mete out justice on your target. Between 4 and 8 damage based on how many damaging actions your target did to you during the last round.",
-			ap : 2,
-			mp : 0,
+			label : 'cleric_smite',
+			name : "Smite",
+			description : "Smites your opponent for 4 holy damage, increased by 10% per corruption damage your target dealt last turn, up to 15 damage.",
+			ap : 1,
+			mp : 1,
 			type : Action.Types.holy,
 			cooldown : 1,
+			ranged : true,
 			tags : [
 				stdTag.acDamage,
 			],
@@ -625,7 +626,7 @@ const out = [
 						new Effect({
 							type : Effect.Types.damage,
 							data : {
-								amount : "4+min(se_TaDamagingSinceLast,2)*2"
+								amount : "4*(1+min(ta_damageDoneSinceLastCorruption*0.1,3.75))"
 							}
 						}),
 						effects.visTargTakeDamageHoly
@@ -633,12 +634,13 @@ const out = [
 				}),
 			]
 		}),
+
 		// Chastise
 		new Action({
 			level : 2,
 			label : 'cleric_chastise',
 			name : "Chastise",
-			description : "Chastises up to 2 targets, dealing 2 damage every time they use a damaging action until the end of their next turn, and reducing the damage they do to you by 2. Generates extra anger.",
+			description : "Chastises up to 2 targets, dealing 3 holy damage every time they use a damaging action until the end of their next turn and reducing all their damage done by 1.",
 			ap : 1,
 			mp : 1,
 			max_targets : 2,
@@ -655,7 +657,7 @@ const out = [
 					duration : 1,
 					name : "Chastise",
 					icon : "holy-hand-grenade.svg",
-					description : "Using damaging actions will damage you. Dealing 2 damage less to %caster.",
+					description : "Using damaging actions deals 3 holy damage back to the caster. Damage done reduced by 1.",
 					detrimental : true,
 					add_conditions : conditions.collections.std, 
 					stay_conditions : conditions.collections.std,
@@ -665,32 +667,23 @@ const out = [
 							events : [GameEvent.Types.actionUsed],
 							conditions : [conditions.senderIsWrapperParent, conditions.actionNotHidden, conditions.actionDamaging],
 							data : {
-								amount : 2,
-								threatMod : 3
+								amount : 3,
 							},
 							label : 'cleric_chastise_proc'
 						}),
 						new Effect({
 							type : Effect.Types.globalDamageDoneMod,
 							data : {
-								amount : -2,
-								casterOnly : true
+								amount : -1,
 							},
 						}),
-						
 					]
 				}),
 				new Wrapper({
 					add_conditions : conditions.collections.std, 
 					detrimental : true,
 					effects : [
-						effects.visTargTakeDamageHoly,
-						new Effect({
-							type : Effect.Types.addThreat,
-							data : {
-								amount : 20
-							},
-						}),
+						effects.visTargTakeDamageHoly
 					]
 				})
 			]
@@ -733,6 +726,45 @@ const out = [
 				}),
 			]
 		}),
+
+
+		// Paddling
+		/* Good for later, since texts already exist
+		new Action({
+			level : 1,
+			label : 'cleric_paddling',
+			name : "Paddling",
+			description : "Summon a divine paddle to mete out justice on your target. Between 4 and 8 damage based on how many damaging actions your target did to you during the last round.",
+			ap : 2,
+			mp : 0,
+			type : Action.Types.holy,
+			cooldown : 1,
+			tags : [
+				stdTag.acDamage,
+			],
+			show_conditions : [conditions.inCombat],
+			wrappers : [
+				new Wrapper({
+					target: Wrapper.TARGET_AUTO,
+					duration : 0,
+					name : "",
+					icon : "",
+					description : "",
+					detrimental : true,
+					add_conditions : conditions.collections.std, 
+					effects : [
+						new Effect({
+							type : Effect.Types.damage,
+							data : {
+								amount : "4+min(se_TaDamagingReceivedSinceLast,2)*2"
+							}
+						}),
+						effects.visTargTakeDamageHoly
+					]
+				}),
+			]
+		}),
+		*/
 
 
 	// Tentaclemancer class
@@ -870,7 +902,7 @@ const out = [
 						new Effect({
 							type : Effect.Types.damage,
 							data : {
-								amount : "2+se_damagingAttacksSinceLast*2",
+								amount : "2+se_damagingReceivedSinceLast*2",
 								threatMod : 4,
 							}
 						}),
@@ -1428,9 +1460,9 @@ const out = [
 		new Action({
 			label : 'tentacle_fiend_tentacleMilker',
 			name : "Tentacle Milker",
-			description : "Latches a sucker to breasts or a penis, dealing 6 corruption damage and healing for the same amount.",
+			description : "Latches a sucker to breasts or a penis, dealing 4 corruption damage and healing for the same amount.",
 			ap : 2,
-			mp : 2,
+			mp : 3,
 			cooldown : 3,
 			detrimental : true,
 			type : Action.Types.corruption,
@@ -1451,7 +1483,7 @@ const out = [
 						new Effect({
 							type : Effect.Types.damage,
 							data : {
-								amount : 6,
+								amount : 4,
 								leech : 1
 							}
 						}),

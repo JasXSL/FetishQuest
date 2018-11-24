@@ -577,6 +577,8 @@ class Effect extends Generic{
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
 				amt *= this.parent.stacks;
+
+				// Healing
 				if( amt > 0 ){
 
 					e = GameEvent.Types.healingDone;
@@ -599,6 +601,7 @@ class Effect extends Generic{
 
 					
 				}
+				// Damage
 				else{
 					
 					/*
@@ -682,6 +685,9 @@ class Effect extends Generic{
 				let died = t.addHP(amt);
 				
 				if( amt < 0 ){
+
+					t.onDamageTaken(s, this.data.type, Math.abs(amt));
+					s.onDamageDone(t, this.data.type, Math.abs(amt));
 					let threat = amt * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
 					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(amt*this.data.leech)) : 0;
 					t.addThreat( s.id, -threat );
@@ -690,9 +696,12 @@ class Effect extends Generic{
 						s.addHP(leech);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
 					}
-				}else{
+
+				}else if(amt > 0){
 					game.ui.addText( t.getColoredName()+" gained "+amt+" HP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage healing' );
 				}
+
+
 
 				new GameEvent({
 					type : e,
