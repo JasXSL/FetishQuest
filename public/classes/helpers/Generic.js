@@ -111,9 +111,25 @@ export default class Generic{
 
 	}
 
-	
+	clone( parent ){
+		if( parent === undefined )
+			parent = this.parent;
+		else if( !parent )
+			parent = undefined;
+		return new this.constructor(this.save(true), parent);
+	}
+
+	// Returns a library tied to this asset type if possible
+	getLib(){
+		return this.constructor.getLib();
+	}
 
 }
+
+// Tries to return a library tied to this asset
+Generic.getLib = function(){
+	return glib.getFull(this.name);
+};
 
 Generic.loadThese = function( entries = [], parent ){
 
@@ -135,9 +151,9 @@ Generic.loadThese = function( entries = [], parent ){
 Generic.loadThis = function( entry, parent ){
 
 	if( typeof entry === "string" ){
-		let n = game.lib.get(entry, this.name);
+		let n = glib.get(entry, this.name);
 		if( !n ){
-			console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", game.lib.getLibraryByConstructorName(this.name));
+			console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", glib.getFull(this.name));
 			return false;
 		}
 		entry = n;

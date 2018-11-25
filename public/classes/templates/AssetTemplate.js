@@ -45,25 +45,36 @@ class AssetTemplate extends Generic{
 		
 	}
 
-	// Checks if it has one of these materials
-	getMaterialIntersect( materials ){
+	// Returns objects of materials
+	getMats(){
+		let out = [];
+		let lib = MaterialTemplate.getLib();
+		for( let mat of this.materials ){
+			if( lib[mat] )
+				out.push(lib[mat]);
+		}
+		return out;
+	}
+
+	// Checks if it has one of these materials (materials are strings), if materials isn't an array, allow ALL
+	getMaterialIntersect( materials, level ){
 
 		if( !Array.isArray(materials) )
 			return this.materials;
 
+		let mats = this.getMats();
 		let out = [];
-		for( let mat of this.materials ){
-			if( materials.indexOf(mat) )
-				out.push(mat);
+		for( let mat of mats ){
+			if( ~materials.indexOf(mat.label) && (!level || mat.level <= level) )
+				out.push(mat.label);
 		}
 		return out;
 
 	}
 
 	testLevel(level){
-		for( let mat of this.materials ){
-			if( !mat )
-				return false;
+		let mats = this.getMats();
+		for( let mat of mats ){
 			if( mat.level <= level )
 				return true;
 		}
@@ -94,7 +105,12 @@ class AssetTemplate extends Generic{
 
 		};
 
-		let viableMats = this.getMaterialIntersect(allowed_materials).filter(el => el.level <= level);
+		let mats = MaterialTemplate.getLib();
+
+		let viableMats = this.getMaterialIntersect(allowed_materials)
+			.map(el => mats[el])
+			.filter(el => el.level <= level);
+		
 		let mat = viableMats[Math.floor(Math.random()*viableMats.length)];
 		
 		return new AssetOutput({
@@ -142,25 +158,32 @@ class AssetOutput extends Generic{
 // Creates an assetoutput
 AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, viable_asset_materials ){
 
-	let lib = game.getFullLibrary( "AssetTemplate" );
-
+	let lib = Object.values(glib.getFull( "AssetTemplate" ));
 	level = Math.max(1,level);
+
+	if( typeof viable_asset_templates === "string" )
+		viable_asset_templates = [viable_asset_templates];
+
 	let candidates = [];
 	for( let asset of lib ){
 
 		// Check if slot was preset
-		if( (slot && asset.slots.indexOf(slot) === -1) || !asset.testLevel(level) )
+		if( (slot && asset.slots.indexOf(slot) === -1) || !asset.testLevel(level) ){
 			continue;
+		}
 		// If viabl_asset_templates is an array, make sure it's in there
-		if( Array.isArray(viable_asset_templates) && viable_asset_templates.indexOf(asset.name) === -1 )
+		if( Array.isArray(viable_asset_templates) && viable_asset_templates.indexOf(asset.name) === -1 ){
 			continue;
+		}
 		// make sure it has an allowed material
-		if( Array.isArray(viable_asset_materials) && !asset.getMaterialIntersect(viable_asset_materials).length )
+		if( Array.isArray(viable_asset_materials) && !asset.getMaterialIntersect(viable_asset_materials, level).length ){
 			continue;
+		} 
 
 		candidates.push(asset);
 
 	}
+
 
 	if( !candidates.length )
 		return false;

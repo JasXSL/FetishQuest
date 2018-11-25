@@ -62,7 +62,7 @@ export default class PlayerClass extends Generic{
 			level = Infinity;
 
 		let out = [];
-		let lib = game.getFullLibrary("Action");
+		let lib = glib.getFull("Action");
 		for( let i in lib ){
 			let a = lib[i];
 			if( a.level <= level && ~this.actions.indexOf(a.label) )

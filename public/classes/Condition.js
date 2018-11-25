@@ -391,28 +391,14 @@ Condition.all = function( conditions, event, debug ){
 	// The root condition array is ALWAYS ANDed
 	for( let cond of conditions ){
 		
-		// Check if it's a condition
-		if( cond instanceof Condition ){
-			if( !cond.test(event, debug) )
-				return false;
-			continue;
+		if( !(cond instanceof Condition) ){
+			console.error("Condition type is invalid", cond, "expected Condition");
+			return false;
 		}
 
-		// Check if it's a package
-		let c = cond;
-		if( Array.isArray(c) )
-			c = new ConditionPackage({mode:"OR", conditions:c});		
-		if( c instanceof ConditionPackage ){
-			
-			if( !c.validate(event, debug) )
-				return false;
-			continue;
+		if( !cond.test(event, debug) )
+			return false;
 
-		}
-		
-		// Not a condition or package
-		console.error("Condition type is invalid", c, "got", c.constructor.name, "expected", ConditionPackage.name, "or", Condition.name);
-		return false;
 		
 	}
 
@@ -439,7 +425,7 @@ Condition.loadThese = function( conditions, parent ){
 		let pre = condition;
 		// Try to convert it
 		if( typeof condition !== 'object')
-			condition = game.lib.get(condition, this.name);
+			condition = glib.get(condition, this.name);
 		
 		if( typeof condition !== 'object'){
 			console.error("Trying to load invalid condition", pre);

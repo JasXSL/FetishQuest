@@ -12,7 +12,6 @@ import Quest from './Quest.js';
 import {default as Audio, setMasterVolume}  from './Audio.js';
 import stdTag from '../libraries/stdTag.js';
 import Mod from './Mod.js';
-import MAIN_MOD from '../libraries/_main_mod.js';
 import GameLib from './GameLib.js';
 
 export default class Game extends Generic{
@@ -40,11 +39,9 @@ export default class Game extends Generic{
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new DungeonEncounter({}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.quests = [];								// Quest Objects of quests the party is on
-		this.lib = new GameLib();
 
 		// Library of custom items
-		this.libAsset = [];
-		this.libAction = [];
+		this.libAsset = {};
 
 		this.audio_fx = new Audio("fx");
 		this.audio_ambient = new Audio('ambient', false);
@@ -87,8 +84,9 @@ export default class Game extends Generic{
 
 		
 		if( full ){
-			out.libAsset = this.libAsset.map(el => el.save(full));
-			out.libAction = this.libAction.map(el => el.save(full));
+			out.libAsset = {};
+
+			Object.values(this.libAsset).map(el => out.libAsset[el.label] = el.save(full));
 			out.name = this.name;
 			out.id = this.id;
 			out.dm_writes_texts = this.dm_writes_texts;
@@ -130,10 +128,10 @@ export default class Game extends Generic{
 		this.g_autoload(data);
 
 		// Custom ad-hoc libraries do not need to be rebased
-		this.libAsset = this.libAsset.map(el => new Asset(el));
-		this.libAction = this.libAction.map(el => new Action(el));
-
-		await this.assembleLibrary();
+		for( let i in this.libAsset )
+			this.libAsset[i] = new Asset(this.libAsset[i]);
+		
+		glib.setCustomAssets(this.libAsset);
 
 		this.ui.draw();
 		
@@ -198,12 +196,6 @@ export default class Game extends Generic{
 		for(let p of this.players)
 			p.refetchActions();
 		this.save();
-	}
-
-	// Builds the library
-	async assembleLibrary(){
-		let mods = [MAIN_MOD];
-		this.lib.loadMods(mods);
 	}
 
 
@@ -302,6 +294,7 @@ export default class Game extends Generic{
 	// Plays a sound. armor_slot is only needed for when a "punch/hit" sound specific to the armor of the player should be played
 	// Internal only lets you play the sound without sharing it with the other players (if DM)
 	playFxAudioKitById(id, sender, target, armor_slot, global = false ){
+		const glibAudio = glib.audioKits;
 		let kit = glibAudio[id];
 		if( !kit )
 			return console.error("Audio kit missing", id);
@@ -313,7 +306,6 @@ export default class Game extends Generic{
 			tid = target.id;
 		if( this.is_host && global )
 			this.net.dmPlaySoundOnPlayer(sid, tid, id, armor_slot);
-
 	}
 	setMasterVolume( volume = 1.0 ){
 		setMasterVolume(volume);
@@ -1238,8 +1230,11 @@ export default class Game extends Generic{
 
 
 
-	/* LIBRARY MANAGEMENT */
-	/*
+	/* GAME-LIBRARY MANAGEMENT 
+		The game library is separate from GameLib in that it handles ad-hoc DM created assets and NPCs
+		Assets in this library are pushed into glib when a game is loaded
+	*/
+
 	// Adds an asset to a library by Asset.constructor
 	// This is primarily useful for custom assets or actions you want to reuse
 	addToLibrary( asset ){
@@ -1247,29 +1242,28 @@ export default class Game extends Generic{
 		let library = this.getLibrary( asset );
 		if( !library )
 			return false;
+		
 		this.removeFromLibrary( asset );
-		library.push(asset);
+		library[asset.label] = asset;
+
+		glib.rebase();
 		return true;
 
 	}
 
 	// Removes an asset from a library by Asset.constructor
 	removeFromLibrary( asset ){
+
 		let library = this.getLibrary(asset);
 		if( !library )
 			return false;
 
-		for(let i in library){
-			if( library[i].label === asset.label ){
-				library.splice(i,1);
-				return true;
-			}
-		}
-		return false;
+		delete library[asset.label];
+		glib.rebase();
+
 	}
 
-	// Returns a library of only custom items
-	// You probably want to use getFullLibrary instead
+	// Helper for the above methods Returns a library of only custom items
 	// Asset can be an object or string
 	getLibrary( asset ){
 
@@ -1283,75 +1277,11 @@ export default class Game extends Generic{
 
 		if( asset === "Asset" )
 			return this.libAsset;
-		if( asset === "Action" )
-			return this.libAction;
-		if( asset === "Text" )
-			return this.libText;
 
-		console.error("No library implemented yet for", asset.constructor.name);
+		console.error("No local library implemented yet for", asset.constructor.name);
 		return false;
-	}
-
-	// Converts a library into an object where id becomes the object key
-	objectizeLibrary( arr ){
-		let out = {};
-		for( let item of arr ){
-			out[item.label] = item;
-		}
-		return out;
-	}
-
-	// Returns a library where custom items are overwriting library items
-	getFullLibrary( type ){
-
-		let out = {};
-
-		// Fetch an asset
-		if( type === "Asset" ){
-			for( let a of glibAsset )
-				out[a.label] = a;
-			let sub = this.getLibrary("Asset");
-			for( let a of sub ){
-				out[a.label] = a;
-				a._custom = true;
-			}
-		}
-
-		else if( type === "Action" ){
-			for( let a of glibAction )
-				out[a.label] = a;
-			let sub = this.getLibrary("Action");
-			for( let a of sub ){
-				out[a.label] = a;
-				a._custom = true;
-			}
-		}
-
-		else if( type === "Text" )
-			out = glibText;
-
-		else if( type === "AssetTemplate" )
-			out = glibAssetTemplate;
-		
-		else if( type === "PlayerClass" )
-			out = this.objectizeLibrary(glibPlayerClass);
-		else if( type === "PlayerTemplate" )
-			return this.objectizeLibrary(glibPlayerTemplate);
-		else if( type === "DungeonTemplate" )
-			return this.objectizeLibrary(glibDungeonTemplate);
-		else if( type == "Condition" )
-			return glibCondition;
-		else{
-			console.error("No such library", type);
-			return false;
-		}
-		return out;
 
 	}
-	*/
-	
-
-
 
 }
 
@@ -1391,16 +1321,13 @@ Game.new = async name => {
 		game.destructor();
 	game = new Game(name);
 
-	await game.assembleLibrary();
-	
-	let clib = game.getFullLibrary('PlayerClass');
 	// Add template characters
 	let player = new Player({
 		name : 'Wolfess',
 		species : 'wolf',
 		description : 'A female wolf template character. A good template for a female character. Click Edit Player or Delete.',
 		icon : '/media/characters/wolf.jpg',
-		class : clib.monk.save(true),
+		class : glib.get('monk', 'PlayerClass').save(true),
 	});
 	player.setTags([stdTag.plFurry, stdTag.vagina, stdTag.breasts, stdTag.plFangs, stdTag.plHair, stdTag.plLongHair, stdTag.plTail]).addActionsForClass();
 	game.addPlayer(player);
@@ -1410,7 +1337,7 @@ Game.new = async name => {
 		species : 'otter',
 		description : 'A male otter template character. A good template for a male character. Click Edit Player or Delete.',
 		icon : '/media/characters/otter.jpg',
-		class : clib.elementalist.save(true),
+		class : glib.get('elementalist', 'PlayerClass').save(true),
 	});
 	player.setTags([stdTag.plFurry, stdTag.penis, stdTag.plHair, stdTag.plTail]).addActionsForClass();
 	game.addPlayer(player);

@@ -106,8 +106,8 @@ class PlayerTemplate extends Generic{
 	// Generates a new player from this template
 	generate( level ){
 
-		let libClasses = game.getFullLibrary('PlayerClass'),
-			libActions = game.getFullLibrary('Action')
+		let libClasses = glib.getFull('PlayerClass'),
+			libActions = glib.getFull('Action')
 		;
 
 		// Generates a random value between min and max and between 0 and 1 
@@ -151,7 +151,7 @@ class PlayerTemplate extends Generic{
 		}
 
 		
-		let libAssets = game.getFullLibrary('Asset');
+		let libAssets = glib.getFull('Asset');
 		for( let asset of this.required_assets ){
 			let item = libAssets[asset];
 			if( !item )
@@ -266,7 +266,7 @@ class PlayerTemplate extends Generic{
 
 PlayerTemplate.generate = function( level, labels ){
 	
-	let lib = Object.values(game.getFullLibrary('PlayerTemplate'));
+	let lib = Object.values(glib.getFull('PlayerTemplate'));
 
 	let viable = [];
 	for( let t of lib ){

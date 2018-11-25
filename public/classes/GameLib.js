@@ -10,6 +10,7 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 import DungeonTemplate, { RoomTemplate } from './templates/DungeonTemplate.js';
 import { AudioKit } from './Audio.js';
+import MAIN_MOD from '../libraries/_main_mod.js';
 
 
 const LIB_TYPES = {
@@ -29,6 +30,11 @@ const LIB_TYPES = {
 	'audioKits' : AudioKit,
 	'dungeonRoomTemplates' : RoomTemplate,
 	'dungeonTemplates' : DungeonTemplate,
+};
+
+// Maps lib_types to caches used only in outputs
+const CACHE_MAP = {
+	'assets' : '_cache_assets'
 };
 
 /*
@@ -53,11 +59,17 @@ export default class GameLib{
 		this.effects = {};
 		this.wrappers = {};
 
-		
+		this._cache_assets = {};
+		this._custom_assets = {};
 
 		this.texts = [];
 
 
+	}
+
+	async ini(){
+		let mods = [MAIN_MOD];
+		this.loadMods(mods);
 	}
 
 	// Loads a mod db array onto one of this objects
@@ -102,34 +114,65 @@ export default class GameLib{
 				this.texts = this.texts.concat(mod.texts.map(el => new Text(el)));
 
 		}
+
+		// Builds caches
+		this.rebase();
+
 		console.log("MODS FINISHED LOADING. LIBRARY:", this);
 
 	}
 
-	// Adds from game specific custom library
-	addCustomPlayers(){
+	// Rebuild caches
+	rebase(){
 
+		this._cache_assets = {};
+		for( let i in this.assets )
+			this._cache_assets[i] = this.assets[i];
+		for( let i in this._custom_assets ){
+			this._cache_assets[i] = this._custom_assets[i];
+			this._cache_assets[i]._custom = true;
+		}
 	}
 
-	addCustomAssets(){
+	// Adds from game specific custom library
+	setCustomAssets( assets ){
 
+		if( typeof assets !== "object" )
+			assets = {};
+
+		this._custom_assets = assets;
+		
+		this.rebase();
+		
 	}
 
 	// Gets by asset constructor name
 	get( label, constructorName ){
 
-		for( let i in LIB_TYPES ){
-			if( constructorName === LIB_TYPES[i].name )
-				return this[i][label];
+		let lib = this.getFull(constructorName);
+		if( !lib )
+			return;
+		
+	
+		if( !lib[label] ){
+			console.error("Asset", label, "not found in", lib);
+			return false;
 		}
+		return lib[label].clone();
 
 	}
 
-	getLibraryByConstructorName( cName ){
+	
+
+	getFull( cName ){
 		for( let i in LIB_TYPES ){
-			if( cName === LIB_TYPES[i].name )
+			if( cName === LIB_TYPES[i].name ){
+				if( CACHE_MAP[i] )
+					return this[CACHE_MAP[i]];
 				return this[i];
+			}
 		}
+		console.error("Asset type", cName, "not in library");
 	}
 
 }

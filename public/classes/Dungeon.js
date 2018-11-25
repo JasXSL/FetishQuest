@@ -1154,6 +1154,9 @@ class DungeonEncounter extends Generic{
 // In a SemiLinear one, the room number is multiplied by 1.5, 50% being the side rooms
 Dungeon.generate = function( numRooms, kit, settings ){
 
+	const conditions = glib.conditions,
+		stdCond = [conditions.targetAlive, conditions.senderNotDead, conditions.targetNotDead];
+
 	let out = new this(settings);
 	numRooms = Math.max(numRooms, 1);
 	let maxAttempts = 1000;
@@ -1183,7 +1186,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	}
 
 	// Fetch a dungeon kit
-	let dungeonTemplateLib = game.getFullLibrary("DungeonTemplate");
+	let dungeonTemplateLib = glib.getFull("DungeonTemplate");
 	if( dungeonTemplateLib[kit] )
 		kit = dungeonTemplateLib[kit];
 
@@ -1203,7 +1206,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	let monsterKit = shuffle(kit.monster_types.slice());
 	let viableMonsters = [];
 	let averageLevel = game.getAveragePlayerLevel();
-	let npcLib = game.getFullLibrary("PlayerTemplate");
+	let npcLib = glib.getFull("PlayerTemplate");
 
 	// Pick a random monsterkit
 	for( let v of monsterKit ){
@@ -1228,8 +1231,9 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		let templates = shuffle(kit.rooms.slice());
 
 		// Try to find a template that can fit all the required assets
-		for(let roomTemplate of templates){
+		for(let rt of templates){
 
+			const roomTemplate = glib.get(rt, "RoomTemplate");
 			room.assets = [];	// Reset room assets
 			let requiredAssetsPlaced = true;
 
@@ -1352,8 +1356,8 @@ Dungeon.generate = function( numRooms, kit, settings ){
 									description : "Knocked down on your %knockdown, tentacles spreading your legs",
 									trigger_immediate : true,
 									tags : [stdTag.wrLegsSpread],
-									add_conditions : conditions.collections.std.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast]), 
-									stay_conditions : conditions.collections.std,
+									add_conditions : stdCond.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast]), 
+									stay_conditions : stdCond,
 									effects : [
 										new Effect({
 											type : Effect.Types.knockdown,

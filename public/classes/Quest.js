@@ -271,6 +271,7 @@ class QuestObjective extends Generic{
 
 // helpers
 QuestObjective.buildMonsterKillObjective = function( quest, nrMonsters =1 ){
+	let libCond = glib.conditions;
 	return new QuestObjective({
 		amount : nrMonsters,
 		label : 'monsters_killed',
@@ -281,6 +282,7 @@ QuestObjective.buildMonsterKillObjective = function( quest, nrMonsters =1 ){
 	});
 };
 QuestObjective.buildDungeonExitObjective = function( quest){
+	let libCond = glib.conditions;
 	return new QuestObjective({
 		label : 'dungeon_exit',
 		name : 'Exit the dungeon',

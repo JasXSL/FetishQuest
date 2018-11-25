@@ -38,7 +38,7 @@ class DungeonTemplate extends Generic{
 	// Returns a consumable in a weighted list
 	getRandomConsumable(){
 
-		let assetLib = game.getFullLibrary("Asset");
+		let assetLib = glib.getFull("Asset");
 		let assets = [];
 		for( let c of this.consumables ){
 			if( assetLib[c] )

@@ -1291,7 +1291,7 @@ export default class UI{
 			th = this
 		;
 
-		let lib = game.getFullLibrary('Asset');
+		let lib = glib.getFull('Asset');
 		html+= '<div class="inventory tooltipShrink">';
 			html += '<h3>Add Item to '+esc(player.name)+'</h3>';
 		for( let id in lib ){
@@ -1312,7 +1312,7 @@ export default class UI{
 		$("#modal div.list.item[data-id]").on('click', async function(event){
 
 			let id = $(this).attr('data-id'),
-				asset = th.parent.getFullLibrary("Asset")[id]
+				asset = lib[id]
 			;
 			if(event.ctrlKey){
 
@@ -1356,7 +1356,7 @@ export default class UI{
 			th = this
 		;
 
-		let libActions = this.parent.getFullLibrary('Action'); 
+		let libActions = glib.getFull('Action'); 
 		html+= '<div class="inventory tooltipShrink">';
 			html += '<h3>Learn Action for '+esc(player.name)+'</h3>';
 		for( let id in libActions ){
@@ -1417,7 +1417,7 @@ export default class UI{
 					html+= '<div class="top centered">';
 						html += '<select name="randomize_type">';
 							html += '<option value="_RANDOM_">-RANDOM-</option>';
-							let libtemplates = Object.values(game.getFullLibrary('PlayerTemplate'));
+							let libtemplates = Object.values(glib.getFull('PlayerTemplate'));
 							libtemplates.sort((a,b) => a.name < b.name ? -1 : 1);
 							for( let t of libtemplates )
 								html += '<option value="'+esc(t.label)+'">'+esc(t.name)+'</option>';
@@ -1440,7 +1440,7 @@ export default class UI{
 						'Name:<br /><input type="text" name="name" placeholder="Player Name" value="'+esc(player.name)+'" /><br />'+
 						'Species:<br /><input type="text" name="species" value="'+esc(player.species)+'" /><br />'+
 						'Class:<br /><select name="class"><option value="">'+esc(player.class.name)+' (Unchanged)</option>';
-						let clib = Object.values(game.getFullLibrary('PlayerClass'));
+						let clib = Object.values(glib.getFull('PlayerClass'));
 						clib.sort((a,b) => {
 							if(a.label === 'none')
 								return -1;
@@ -1565,7 +1565,7 @@ export default class UI{
 
 			let cName = $('#modal select[name=class]').val().trim();
 			if( cName ){
-				let lib = game.getFullLibrary('PlayerClass');
+				let lib = glib.getFull('PlayerClass');
 				let cl = lib[cName];
 				if( cl ){
 					player.class = cl;

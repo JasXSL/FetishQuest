@@ -114,6 +114,7 @@ class Action extends Generic{
 		this.riposte = Wrapper.loadThese(this.riposte, this);
 		this.show_conditions = Condition.loadThese(this.show_conditions, this);
 		this.conditions = Condition.loadThese(this.conditions, this);
+		this.add_conditions = Condition.loadThese(this.add_conditions, this);
 	}
 
 	getPlayerParent(){

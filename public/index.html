@@ -20,7 +20,7 @@
 	<script>
 		console.log("Entry point for debugging is 'game'");
 		// Globals
-		var game, g_Condition, g_GameEvent, g_Audio, g_Mod;
+		var game, glib, g_Condition, g_GameEvent, g_Audio, g_Mod;
 	</script>
 	<script type="module">
 		import Game from './classes/Game.js';
@@ -29,15 +29,19 @@
 		import GameEvent from './classes/GameEvent.js';
 		import Audio from './classes/Audio.js';
 		import Mod from './classes/Mod.js';
+		import GameLib from './classes/GameLib.js';
 		
 		g_Condition = Condition;
 		g_GameEvent = GameEvent;
 		g_Audio = Audio;
 		g_Mod = Mod;
+		glib = new GameLib();
 		window.Player = Player;
-		Game.load()
+
+		glib.ini()
+		.then(Game.load())
 		.then(() => {
-			console.log("Game initialized. Globals:\ngame = Active game\ng_Condition = Condition class\ng_Mod = Mod class\ng_GameEvent = GameEvent class\ng_Audio = Audio class");
+			console.log("Game initialized. Globals:\ngame = Active game\nglib = Game asset library\ng_Condition = Condition class\ng_Mod = Mod class\ng_GameEvent = GameEvent class\ng_Audio = Audio class");
 		})
 		.catch(err => console.error(err));
 		

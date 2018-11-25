@@ -654,7 +654,7 @@ export default class Player extends Generic{
 	}
 	addLibraryAsset( label ){
 
-		let asset = game.getFullLibrary('Asset')[label];
+		let asset = glib.getFull('Asset')[label];
 		if( !asset ){
 			console.error("Invalid library asset", label);
 			return false;
@@ -786,7 +786,7 @@ export default class Player extends Generic{
 	// Overwrite inventory items with defaults from database
 	refetchInventory(){
 
-		let lib = game.getFullLibrary('Asset');
+		let lib = glib.getFull('Asset');
 		for(let i in this.assets){
 
 			let asset = this.assets[i];
@@ -1110,7 +1110,7 @@ export default class Player extends Generic{
 	/* Actions */
 	addDefaultActions(){
 
-		let lib = game.getFullLibrary('Action');
+		let lib = glib.getFull('Action');
 		let needed = [
 			lib.stdEscape,
 			lib.stdArouse,
@@ -1130,7 +1130,7 @@ export default class Player extends Generic{
 	}
 	addActionFromLibrary( label ){
 
-		let asset = game.getFullLibrary('Action')[label];
+		let asset = glib.getFull('Action')[label];
 		if( !asset ){
 			console.error("Invalid library asset", label);
 			return false;
@@ -1171,7 +1171,7 @@ export default class Player extends Generic{
 	// Tries to update actions from database, you should not do this if you've modified actions via the console or spell editor
 	refetchActions(){
 
-		let lib = game.getFullLibrary('Action');
+		let lib = glib.getFull('Action');
 		for(let i in this.actions){
 
 			let action = this.actions[i];
