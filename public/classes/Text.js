@@ -4,7 +4,6 @@ import Condition from './Condition.js';
 import Player from './Player.js';
 import Asset from './Asset.js';
 import stdTag from '../libraries/stdTag.js';
-import audioKits from '../libraries/audioKits.js';
 /*
 	List of tags you can use:
 	GENERIC
@@ -77,6 +76,20 @@ class Text extends Generic{
 			if( !audioKits[sound] )
 				console.error("AudioKit not found", sound);
 		}
+	}
+
+	save(full){
+		return {
+			text : this.text,
+			conditions : Condition.saveThese(this.conditions),
+			alwaysAuto : this.alwaysAuto,
+			numTargets : this.numTargets,
+			debug : this.debug,
+			alwaysOutput : this.alwaysOutput,
+			turnTags : this.turnTags,
+			audiokits : this.audiokits,
+			armor_slot : this.armor_slot,
+		};
 	}
 	
 

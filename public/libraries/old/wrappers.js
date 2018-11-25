@@ -5,7 +5,7 @@ import conditions from './conditions.js';
 import Condition from '../classes/Condition.js';
 import GameEvent from '../classes/GameEvent.js';
 const wrappers = {}
-wrappers.soak = new Wrapper({
+wrappers.soak = {
 	target: Wrapper.TARGET_AUTO,
 	max_stacks : 3,
 	duration : 2,
@@ -18,16 +18,16 @@ wrappers.soak = new Wrapper({
 	stay_conditions : conditions.collections.std, 
 	tags : [stdTag.wrSoaked],
 	effects : [
-		new Effect({
+		{
 			type : Effect.Types.svElemental,
 			data : {
 				amount : -2
 			}
-		}),
+		},
 	]
-});
+};
 
-wrappers.stun1turn = new Wrapper({
+wrappers.stun1turn = {
 	duration : 1,
 	name : "Stun",
 	description : 'Stunned',
@@ -37,14 +37,14 @@ wrappers.stun1turn = new Wrapper({
 	stay_conditions : conditions.collections.std,
 	tags : [],
 	effects : [
-		new Effect({
+		{
 			type : Effect.Types.stun,
-		}),
+		},
 	]
-});
+};
 
 
-wrappers.corruptingOoze = new Wrapper({
+wrappers.corruptingOoze = {
 	target: Wrapper.TARGET_AUTO,
 	max_stacks : 6,
 	duration : 3,
@@ -61,48 +61,48 @@ wrappers.corruptingOoze = new Wrapper({
 		'wr_corrupting_ooze'
 	],
 	effects : [
-		new Effect({
+		{
 			type : Effect.Types.svCorruption,
 			data : {
 				amount : -1
 			}
-		}),
-		new Effect({
+		},
+		{
 			type : Effect.Types.addStacks,
 			data : {
 				amount : 1
 			}
-		}),
-		new Effect({
+		},
+		{
 			type : Effect.Types.runWrappers,
 			label : 'corrupting_ooze_proc',
 			conditions : [
-				new Condition({
+				{
 					events : [GameEvent.Types.internalWrapperStackChange, GameEvent.Types.internalWrapperTick],
 					type : Condition.Types.wrapperStacks,
 					data : {
 						operation : ">",
 						amount : 5
 					}
-				})
+				}
 			],
 			data : {wrappers:[wrappers.stun1turn]}
-		}),
-		new Effect({
+		},
+		{
 			events : [GameEvent.Types.internalWrapperStackChange, GameEvent.Types.internalWrapperTick],
 			type : Effect.Types.removeParentWrapper,
 			conditions : [
-				new Condition({
+				{
 					type : Condition.Types.wrapperStacks,
 					data : {
 						operation : ">",
 						amount : 5
 					}
-				})
+				}
 			]
-		}),
+		},
 	]
-});
+};
 
 
 export default wrappers;

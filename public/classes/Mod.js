@@ -1,10 +1,6 @@
 import Generic from './helpers/Generic.js';
-
-import Action from '../classes/Action.js';
-import {Effect,Wrapper} from '../classes/EffectSys.js';
-
-import glibPlayerClass from '../libraries/playerClasses.js';
-import convertLib from '../libraries/assets.js';
+const AUTO_LABEL = true;
+const REQUIRE_SAVE = false;
 
 export default class Mod extends Generic{
 
@@ -25,6 +21,8 @@ export default class Mod extends Generic{
 		this.playerTemplates = [];		// NPC generator templates
 		this.assetTemplates = [];		// Asset templates
 		this.materialTemplates = [];	// AssetTemplate Material
+		this.dungeonTemplates = [];
+		this.effects = [];
 		this.load(data);
 	}
 
@@ -80,14 +78,18 @@ Mod.convertDeleteme = function(){
 	*/
 	let out = [];
 	let scan = convertLib;
+
+	//console.log(JSON.stringify(scan));
+	//return;
+
 	console.log("Flattening", Object.keys(scan).length, "objects");
 	for( let i in scan ){
 		let o = scan[i];
-		if( typeof o.save !== "function" )
+		if( typeof o.save !== "function" && REQUIRE_SAVE )
 			continue;
-		if( !o.label )
+		if( !o.label && AUTO_LABEL )
 			o.label = i;
-		out.push(o.save(true));
+		out.push(o);
 	}
 	console.log(JSON.stringify(out));
 	

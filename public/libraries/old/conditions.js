@@ -164,9 +164,9 @@ const out = {
 out.collections = {
 	// Std for actions
 	std : [
-		out.targetAlive,
-		out.senderNotDead,
-		out.targetNotDead
+		"targetAlive",
+		"senderNotDead",
+		"targetNotDead"
 	],
 
 };

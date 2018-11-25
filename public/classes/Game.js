@@ -10,19 +10,10 @@ import WebGL from './WebGL.js';
 import Text from './Text.js';
 import Quest from './Quest.js';
 import {default as Audio, setMasterVolume}  from './Audio.js';
-import glibAsset from '../libraries/assets.js';
-import glibAction from '../libraries/actions.js';
-import glibAssetTemplate from '../libraries/assetTemplates.js';
-import glibText from '../libraries/texts.js';
-import glibPlayerClass from '../libraries/playerClasses.js';
-import glibPlayerTemplate from '../libraries/playerTemplates.js';
-import glibDungeonTemplate from '../libraries/dungeonTemplates.js';
-import glibCondition from '../libraries/conditions.js';
 import stdTag from '../libraries/stdTag.js';
-import glibAudio from '../libraries/audioKits.js';
-import glibWorld from '../libraries/world.js';
 import Mod from './Mod.js';
 import MAIN_MOD from '../libraries/_main_mod.js';
+import GameLib from './GameLib.js';
 
 export default class Game extends Generic{
 
@@ -49,6 +40,7 @@ export default class Game extends Generic{
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new DungeonEncounter({}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.quests = [];								// Quest Objects of quests the party is on
+		this.library = new GameLib();
 
 		// Library of custom items
 		this.libAsset = [];
@@ -64,22 +56,6 @@ export default class Game extends Generic{
 		this.active_ambient = null;						// Only one ambient track can play at once 
 
 		this.mods_enabled = [];							// __MAIN__ is always added
-		this.library = {								// Builds the content library from mods
-			dungeons : [],
-			quests : [],
-			playerClasses : [],
-			actions : [],
-			assets : [],
-
-			playerTemplates : [],
-			assetTemplates : [],
-
-			texts : [],
-			audioKits : [],
-			meshes : [],
-			particles : [],
-			
-		};
 
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
 	}

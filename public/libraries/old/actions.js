@@ -1,108 +1,100 @@
 import Action from '../classes/Action.js';
 import { Wrapper, Effect } from '../classes/EffectSys.js';
-import conditions from './conditions.js';
-import effects from './effects.js';
 import stdTag from './stdTag.js';
 import {default as Condition, ConditionPackage} from '../classes/Condition.js';
 import GameEvent from '../classes/GameEvent.js';
-import wrappers from './wrappers.js';
 import Asset from '../classes/Asset.js';
-
-const cAND = (...args) => ConditionPackage.buildAND(...args);
-const cOR =  (...args) => ConditionPackage.buildOR(...args);
-
-
 
 const out = [
 	// STD
 
 	// Attack
-	new Action({
+	{
 		name : "Attack",
 		description : "Deals 4 physical damage. Shares cooldown with Arouse on successful attacks.",
 		ap : 2,
 		cooldown : 1,
 		label : 'stdAttack',
-		show_conditions : [conditions.inCombat],
+		show_conditions : ["inCombat"],
 		tags : [
 			stdTag.acDamage,
 			stdTag.acPainful
 		],
 		wrappers : [
-			new Wrapper({
+			{
 				target: Wrapper.TARGET_AUTO,
 				duration : 0,
 				name : "",
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : conditions.collections.std, 
-				stay_conditions : conditions.collections.std,
+				add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+				stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 				effects : [
-					new Effect({
+					{
 						type : Effect.Types.damage,
 						data : {
 							amount : 4
 						}
-					}),
-					new Effect({
+					},
+					{
 						targets : [Wrapper.TARGET_CASTER],
 						type : Effect.Types.addActionCharges,
 						data : {
 							actions : 'stdArouse',
 							amount : -1
 						}
-					}),
-					effects.visTargTakeDamage
+					},
+					"visTargTakeDamage"
 				]
-			})
+			}
 		]
-	}),
+	},
 	// Arouse
-	new Action({
+	{
 		name : "Arouse",
 		description : "Deals 4 corruption damage. Shares cooldown with Attack on successful attacks.",
 		ap : 2,
 		cooldown : 1,
 		label : 'stdArouse',
 		type : Action.Types.corruption,
-		show_conditions : [conditions.inCombat],
+		show_conditions : ["inCombat"],
 		tags : [
 			stdTag.acDamage,
 			stdTag.acArousing
 		],
 		wrappers : [
-			new Wrapper({
+			{
 				target: Wrapper.TARGET_AUTO,
 				duration : 0,
 				name : "",
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : conditions.collections.std, 
-				stay_conditions : conditions.collections.std,
+				add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+				stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 				effects : [
-					new Effect({
+					{
 						type : Effect.Types.damage,
 						data : {
 							amount : 4
 						}
-					}),
-					new Effect({
+					},
+					{
 						targets : [Wrapper.TARGET_CASTER],
 						type : Effect.Types.addActionCharges,
 						data : {
 							actions : 'stdAttack',
 							amount : -1
 						}
-					}),
-					effects.visTargTakeDamageCorruption
+					},
+					"visTargTakeDamageCorruption"
 				]
-			})
+			}
 		]
-	}),
+	},
 	// End Turn
-	new Action({
+	{
 		label : "stdEndTurn",
 		name : "End Turn",
 		description : "End your turn.",
@@ -111,9 +103,9 @@ const out = [
 		detrimental : false,
 		hidden : true,
 		allow_when_charging : true,
-		show_conditions : [conditions.inCombat],
+		show_conditions : ["inCombat"],
 		wrappers : [
-			new Wrapper({
+			{
 				duration : 0,
 				name : "",
 				icon : "",
@@ -122,15 +114,15 @@ const out = [
 				add_conditions : [], 
 				stay_conditions : [],
 				effects : [
-					new Effect({
+					{
 						type : Effect.Types.endTurn,
-					})
+					}
 				]
-			})
+			}
 		]
-	}),
+	},
 	// Escape
-	new Action({
+	{
 		label : "stdEscape",
 		name : "Escape",
 		description : "Flee from combat.",
@@ -140,7 +132,7 @@ const out = [
 		hidden : true,
 		allow_when_charging : true,
 		wrappers : [
-			new Wrapper({
+			{
 				duration : 0,
 				name : "",
 				icon : "",
@@ -149,16 +141,16 @@ const out = [
 				add_conditions : [], 
 				stay_conditions : [],
 				effects : [
-					new Effect({
+					{
 						type : Effect.Types.flee,
-					})
+					}
 				]
-			})
+			}
 		]
-	}),
+	},
 
 	// Dom punishment
-	new Action({
+	{
 		label : "stdPunishDom",
 		name : "Punish Dominant",
 		description : "Use a dominant punishment on a defeated enemy.",
@@ -167,24 +159,24 @@ const out = [
 		semi_hidden : true,
 		detrimental : false,
 		allow_when_charging : true,
-		show_conditions : [conditions.notInCombat, conditions.senderHasNotPunished],
+		show_conditions : ["notInCombat", "senderHasNotPunished"],
 		hide_if_no_targets: true,
 		wrappers : [
 			// needs at least 1 wrapper for actions to work
-			new Wrapper({
-				add_conditions : [conditions.targetDead, conditions.senderNotDead, conditions.targetNotFriendly],
+			{
+				add_conditions : ["targetDead", "senderNotDead", "targetNotFriendly"],
 				effects : [
-					new Effect({
+					{
 						targets : [Wrapper.TARGET_CASTER],
 						type : Effect.Types.punishmentUsed,
-					}),
-					effects.visTargTakeDamageCorruption
+					},
+					"visTargTakeDamageCorruption"
 				],
 				detrimental : false,
-			})
+			}
 		]
-	}),
-	new Action({
+	},
+	{
 		label : "stdPunishSub",
 		name : "Punish Submissive",
 		description : "Use a submissive punishment on a defeated enemy.",
@@ -193,24 +185,24 @@ const out = [
 		semi_hidden : true,
 		detrimental : false,
 		allow_when_charging : true,
-		show_conditions : [conditions.notInCombat, conditions.senderHasNotPunished],
+		show_conditions : ["notInCombat", "senderHasNotPunished"],
 		hide_if_no_targets: true,
 		wrappers : [
 			// needs at least 1 wrapper for actions to work
-			new Wrapper({
-				add_conditions : [conditions.targetDead, conditions.senderNotDead, conditions.targetNotFriendly],
+			{
+				add_conditions : ["targetDead", "senderNotDead", "targetNotFriendly"],
 				effects : [
-					new Effect({
+					{
 						targets : [Wrapper.TARGET_CASTER],
 						type : Effect.Types.punishmentUsed,
-					}),
-					effects.visTargTakeDamageCorruption
+					},
+					"visTargTakeDamageCorruption"
 				],
 				detrimental : false,
-			})
+			}
 		]
-	}),
-	new Action({
+	},
+	{
 		label : "stdPunishSad",
 		name : "Punish Sadistic",
 		description : "Use a sadistic punishment on a defeated enemy.",
@@ -219,23 +211,23 @@ const out = [
 		semi_hidden : true,
 		detrimental : false,
 		allow_when_charging : true,
-		show_conditions : [conditions.notInCombat, conditions.senderHasNotPunished],
+		show_conditions : ["notInCombat", "senderHasNotPunished"],
 		hide_if_no_targets: true,
 		wrappers : [
 			// needs at least 1 wrapper for actions to work
-			new Wrapper({
-				add_conditions : [conditions.targetDead, conditions.senderNotDead, conditions.targetNotFriendly],
+			{
+				add_conditions : ["targetDead", "senderNotDead", "targetNotFriendly"],
 				effects : [
-					new Effect({
+					{
 						targets : [Wrapper.TARGET_CASTER],
 						type : Effect.Types.punishmentUsed,
-					}),
-					effects.visTargTakeDamage
+					},
+					"visTargTakeDamage"
 				],
 				detrimental : false,
-			})
+			}
 		]
-	}),
+	},
 
 
 
@@ -249,7 +241,7 @@ const out = [
 
 	// GENERIC CLASS SPELLS
 	// lowBlow
-	new Action({
+	{
 		level : 1,
 		label : 'lowBlow',
 		name : "Low Blow",
@@ -260,37 +252,37 @@ const out = [
 			stdTag.acDamage,
 			stdTag.acPainful
 		],
-		show_conditions : [conditions.inCombat],
+		show_conditions : ["inCombat"],
 		wrappers : [
-			new Wrapper({
+			{
 				target: Wrapper.TARGET_AUTO,
 				duration : 0,
 				name : "",
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : conditions.collections.std, 
+				add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 				effects : [
-					new Effect({
+					{
 						type : Effect.Types.damage,
 						data : {
 							amount : 5,
 						}
-					}),
-					new Effect({
+					},
+					{
 						type : Effect.Types.interrupt,
-					}),
-					effects.visTargTakeDamage
+					},
+					"visTargTakeDamage"
 				]
-			}),
+			},
 		]
-	}),
+	},
 
 
 
 	// Elementalist class
 		// iceBlast
-		new Action({
+		{
 			level : 1,
 			label : 'elementalist_iceBlast',
 			name : "Ice Blast",
@@ -303,40 +295,40 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 6
 							}
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.addAP,
 							data : {
 								amount : -1
 							},
 							conditions : [
-								conditions.targetSoaked
+								"targetSoaked"
 							]
-						}),
-						effects.visTargTakeDamageElemental
+						},
+						"visTargTakeDamageElemental"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// healingSurge
-		new Action({
+		{
 			level : 2,
 			label : 'elementalist_healingSurge',
 			name : "Healing Surge",
@@ -351,28 +343,28 @@ const out = [
 			tags : [
 				stdTag.acHeal,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
 					detrimental : false,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : -8
 							}
-						}),
-						effects.visTargHeal
+						},
+						"visTargHeal"
 					]
-				}),
-				new Wrapper({
+				},
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 3,
 					name : "Healing Surge",
@@ -380,22 +372,22 @@ const out = [
 					description : "Healing at the start of each turn.",
 					detrimental : false,
 					tags : [],
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : -2
 							}
-						})
+						}
 					]
-				}),
+				},
 
 			]
-		}),
+		},
 		// waterSpout
-		new Action({
+		{
 			level : 3,
 			label : 'elementalist_waterSpout',
 			name : "Water Spout",
@@ -409,54 +401,54 @@ const out = [
 			tags : [
 				stdTag.acDebuff,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					duration : 1,
 					name : "Water Spout",
 					icon : "droplet-splash.svg",
 					description : "Actions will debuff the target and restore MP to the caster.",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.runWrappers,
 							events : [GameEvent.Types.actionUsed],
-							conditions : [conditions.senderIsWrapperParent, conditions.actionNotHidden],
+							conditions : ["senderIsWrapperParent", "actionNotHidden"],
 							data : {
 								wrappers : [
-									wrappers.soak
+									"soak"
 								]
 							},
 							label : 'elementalistWaterSpout_proc'
-						}),
-						new Effect({
+						},
+						{
 							targets : [Wrapper.TARGET_CASTER],
 							type : Effect.Types.addMP,
 							events : [GameEvent.Types.actionUsed],
-							conditions : [conditions.senderIsWrapperParent, conditions.actionNotHidden],
+							conditions : ["senderIsWrapperParent", "actionNotHidden"],
 							data : {
 								amount : 1
 							}
-						}),
+						},
 						
 					]
-				}),
-				new Wrapper({
+				},
+				{
 					detrimental : false,
-					add_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects:[
-						effects.visTargTakeDamageElemental
+						"visTargTakeDamageElemental"
 					]
-				})
+				}
 			]
-		}),
+		},
 		// Later: Earth pillar
 
 	// Rogue class
 		// Exploit
-		new Action({
+		{
 			level : 1,
 			label : 'rogue_exploit',
 			name : "Exploit",
@@ -468,31 +460,31 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : "8-ta_lowerbody*2-ta_upperbody*2"
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// Corrupting Poison
-		new Action({
+		{
 			level : 2,
 			label : 'rogue_corruptingPoison',
 			name : "Corrupting Poison",
@@ -506,49 +498,49 @@ const out = [
 				stdTag.acDamage,
 				stdTag.acDebuff
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					effects : [
-						effects.visTargTakeDamage
+						"visTargTakeDamage"
 					]
-				}),
-				new Wrapper({
+				},
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 3,
 					name : "Corrupting Poison",
 					icon : "poison-bottle.svg",
 					description : "Taking corruption damage each turn. Corruption resist reduced.",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 2,
 								type : Action.Types.corruption
 							}
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.svCorruption,
 							data : {
 								amount : -4
 							},
-						}),
+						},
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// Dirty Tricks
-		new Action({
+		{
 			level : 3,
 			label : 'rogue_dirtyTricks',
 			name : "Dirty Tricks",
@@ -560,46 +552,46 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 8
 							}
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.disrobe,
 							data : {
 								slots : [Asset.Slots.lowerbody, Asset.Slots.upperbody],
 								numSlots : 1,
 							},
-							conditions : [new Condition({
+							conditions : [{
 								type : Condition.Types.rng,
 								data : {
 									chance : "5*(se_BonCorruption-ta_SvCorruption)"
 								}
-							})]
-						}),
-						effects.visTargTakeDamageCorruption
+							}]
+						},
+						"visTargTakeDamageCorruption"
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 
 	// Cleric class
 		// Smite
-		new Action({
+		{
 			level : 1,
 			label : 'cleric_smite',
 			name : "Smite",
@@ -612,31 +604,31 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : "4*(1+min(ta_damageDoneSinceLastCorruption*0.1,3.75))"
 							}
-						}),
-						effects.visTargTakeDamageHoly
+						},
+						"visTargTakeDamageHoly"
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 		// Chastise
-		new Action({
+		{
 			level : 2,
 			label : 'cleric_chastise',
 			name : "Chastise",
@@ -650,46 +642,46 @@ const out = [
 			tags : [
 				stdTag.acDebuff,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 1,
 					name : "Chastise",
 					icon : "holy-hand-grenade.svg",
 					description : "Using damaging actions deals 3 holy damage back to the caster. Damage done reduced by 1.",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							events : [GameEvent.Types.actionUsed],
-							conditions : [conditions.senderIsWrapperParent, conditions.actionNotHidden, conditions.actionDamaging],
+							conditions : ["senderIsWrapperParent", "actionNotHidden", "actionDamaging"],
 							data : {
 								amount : 3,
 							},
 							label : 'cleric_chastise_proc'
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.globalDamageDoneMod,
 							data : {
 								amount : -1,
 							},
-						}),
+						},
 					]
-				}),
-				new Wrapper({
-					add_conditions : conditions.collections.std, 
+				},
+				{
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					detrimental : true,
 					effects : [
-						effects.visTargTakeDamageHoly
+						"visTargTakeDamageHoly"
 					]
-				})
+				}
 			]
-		}),
+		},
 		// Heal
-		new Action({
+		{
 			level : 3,
 			label : 'cleric_heal',
 			name : "Heal",
@@ -704,33 +696,33 @@ const out = [
 			tags : [
 				stdTag.acHeal,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : ".",
 					detrimental : false,
-					add_conditions : conditions.collections.std, 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : "-4-(ta_HP<(ta_MaxHP/2))*4"
 							}
-						}),
-						effects.visTargHeal	
+						},
+						"visTargHeal"	
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 
 		// Paddling
 		/* Good for later, since texts already exist
-		new Action({
+		{
 			level : 1,
 			label : 'cleric_paddling',
 			name : "Paddling",
@@ -742,34 +734,34 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : "4+min(se_TaDamagingReceivedSinceLast,2)*2"
 							}
-						}),
-						effects.visTargTakeDamageHoly
+						},
+						"visTargTakeDamageHoly"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		*/
 
 
 	// Tentaclemancer class
 		// Tentacle Whip
-		new Action({
+		{
 			level : 1,
 			label : 'tentaclemancer_tentacleWhip',
 			name : "Tentacle Whip",
@@ -782,30 +774,30 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : "4+ta_Tag_wr_corrupting_ooze*2"
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// Corrupting ooze
-		new Action({
+		{
 			level : 2,
 			label : 'tentaclemancer_corruptingOoze',
 			name : "Corrupting Ooze",
@@ -818,19 +810,19 @@ const out = [
 			tags : [
 				stdTag.acDebuff,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				wrappers.corruptingOoze,
-				new Wrapper({
-					add_conditions : conditions.collections.std, 
+				"corruptingOoze",
+				{
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					effects : [
-						effects.visTargTakeDamageCorruption
+						"visTargTakeDamageCorruption"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// Siphon Corruption
-		new Action({
+		{
 			level : 3,
 			label : 'tentaclemancer_siphonCorruption',
 			name : "Siphon Corruption",
@@ -844,43 +836,43 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
-					add_conditions : conditions.collections.std.concat([
-						new Condition({
+				{
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat([
+						{
 							type : Condition.Types.hasWrapper,
 							data : {
 								label : 'corruptingOoze',
 								byCaster : true
 							}
-						})
+						}
 					]), 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : { amount : "ta_Wrapper_corruptingOoze*2" }
-						}),
-						new Effect({
+						},
+						{
 							targets : [Wrapper.TARGET_CASTER],
 							type : Effect.Types.damage,
 							data : { amount : "-se_Wrapper_corruptingOoze*2" }	// Sender and target have been reversed
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.removeWrapperByLabel,
 							data : { label : "corruptingOoze", casterOnly : true }
-						}),
-						effects.visTargTakeDamageCorruption
+						},
+						"visTargTakeDamageCorruption"
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 
 
 	// Warrior class
 		// revenge
-		new Action({
+		{
 			level : 1,
 			label : 'warrior_revenge',
 			name : "Revenge",
@@ -890,29 +882,29 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : "2+se_damagingReceivedSinceLast*2",
 								threatMod : 4,
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// bolster
-		new Action({
+		{
 			level : 2,
 			label : 'warrior_bolster',
 			name : "Bolster",
@@ -925,52 +917,52 @@ const out = [
 			],
 			detrimental : false,
 			target_type : Action.TargetTypes.self,
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					duration : 1,
 					name : "Bolster",
 					icon : "bolster.svg",
 					description : "-2 damage taken from all attacks. Taking damage grants you AP.",
 					detrimental : false,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
 						// Damage taken mod
-						new Effect({
+						{
 							type : Effect.Types.globalDamageTakenMod,
 							data : {
 								amount : -2
 							}
-						}),
+						},
 						// Arousal
-						new Effect({
+						{
 							events : [GameEvent.Types.internalWrapperAdded],
 							type : Effect.Types.addArousal,
 							data : {
 								amount : -2
 							}
-						}),
+						},
 						// AP proc
-						new Effect({
+						{
 							type : Effect.Types.addAP,
 							events : [GameEvent.Types.actionUsed],	// An action hit
 							conditions : [
-								conditions.targetIsWrapperParent,
-								conditions.actionHit,
-								conditions.actionDamaging,
+								"targetIsWrapperParent",
+								"actionHit",
+								"actionDamaging",
 							],
 							data : {
 								amount : 1
 							}
-						}),
-						effects.visTargShield
+						},
+						"visTargShield"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// warrior_viceGrip
-		new Action({
+		{
 			level : 3,
 			label : 'warrior_viceGrip',
 			name : "Vice Grip",
@@ -985,53 +977,53 @@ const out = [
 			],
 			detrimental : false,
 			target_type : Action.TargetTypes.target,
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					duration : 1,
 					name : "Squeeze",
 					icon : "grab.svg",
 					description : "Taunted by %caster.",
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					tags : [],
 					effects : [
 						// Do damage
-						new Effect({
+						{
 							events : [GameEvent.Types.internalWrapperAdded],
 							type : Effect.Types.damage,
 							data : {
 								amount : 4,
 								threatMod : 4
 							}
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.taunt,
-						}),
-						effects.visAddTargTakeDamage
+						},
+						"visAddTargTakeDamage"
 					]
-				}),
-				new Wrapper({
+				},
+				{
 					detrimental : false,
-					add_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					target : Wrapper.TARGET_CASTER,
 					effects : [
-						new Effect({
+						{
 							events : [GameEvent.Types.internalWrapperAdded],
 							type : Effect.Types.endTurn
-						}),
+						},
 					]
-				})
+				}
 			]
-		}),
+		},
 		
 
 
 
 	// Monk class
 		// Roundkick
-		new Action({
+		{
 			level : 1,
 			label : 'monk_roundKick',
 			name : "Round Kick",
@@ -1044,46 +1036,46 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 8
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				})
+				}
 			],
 			riposte : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 8
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				})
+				}
 			]
-		}),
+		},
 		// Disable
-		new Action({
+		{
 			level : 2,
 			label : 'monk_disablingStrike',
 			name : "Disabling Strike",
@@ -1097,53 +1089,53 @@ const out = [
 				stdTag.acDamage,
 				stdTag.acDebuff,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 3
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				}),
-				new Wrapper({
+				},
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 1,
 					detrimental : true,
 					name : "Disabling Strike",
 					description : '-5 Physical Proficiency and Resistance',
 					icon : 'weaken.svg',
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					tags : [stdTag.acDebuff],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.bonPhysical,
 							data : {
 								amount : -5
 							},
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.svPhysical,
 							data : {
 								amount : -5
 							},
-						}),
+						},
 					]
-				}),
+				},
 			],
-		}),
+		},
 		// Uplifting Strike
-		new Action({
+		{
 			level : 3,
 			label : 'monk_upliftingStrike',
 			name : "Uplifting Strike",
@@ -1155,42 +1147,42 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					detrimental : true,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 3
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				}),
-				new Wrapper({
+				},
+				{
 					target: Wrapper.TARGET_SMART_HEAL,
 					duration : 0,
 					detrimental : false,
-					add_conditions : conditions.collections.std, 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : "-se_apSpentThisTurn*2"
 							}
-						}),
-						effects.visTargHeal
+						},
+						"visTargHeal"
 					]
-				}),
+				},
 			],
-		}),
+		},
 
 	//
 
@@ -1199,7 +1191,7 @@ const out = [
 
 	// IMP
 		// Special delivery
-		new Action({
+		{
 			label : 'imp_specialDelivery',
 			name : "Special Delivery",
 			description : "Jump on and try to cream on or in your target, doing 4 corruption damage and reduces the target's corruption resistance by 1 for 2 turns. Stacks up to 3 times.",
@@ -1212,37 +1204,37 @@ const out = [
 				stdTag.acDamage,
 				stdTag.acDebuff
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 2,
 					max_stacks : 3,
 					name : "Imp Cum",
 					icon : "blood.svg",
 					description : "Corruption resistance reduced by 1 per stack",
-					add_conditions : conditions.collections.std.concat([conditions.targetNotBeast]), 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotBeast"]), 
 					effects : [
-						new Effect({
-							conditions : [conditions.eventIsWrapperAdded],
+						{
+							conditions : ["eventIsWrapperAdded"],
 							type : Effect.Types.damage,
 							data : {
 								amount : 4,
 							}
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.svCorruption,
 							data : {
 								amount : -1
 							}
-						}),
-						effects.visAddTargTakeDamageCorruption
+						},
+						"visAddTargTakeDamageCorruption"
 					]
-				})
+				}
 			]
-		}),
+		},
 		// blow from below
-		new Action({
+		{
 			label : 'imp_blowFromBelow',
 			name : "Blow From Below",
 			description : "Attacks up to 2 larger targets from below, doing 5 physical damage.",
@@ -1254,26 +1246,26 @@ const out = [
 			tags : [
 				stdTag.acDamage,
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
-					add_conditions : conditions.collections.std.concat([conditions.targetNotBeast, conditions.targetTaller]), 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotBeast", "targetTaller"]), 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 5,
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				})
+				}
 			]
-		}),
+		},
 		// Ankle Bite
-		new Action({
+		{
 			label : 'imp_ankleBite',
 			name : "Ankle Bite",
 			description : "Bite your target's ankles, dealing 4 physical damage. Has a 10% chance to knock your target down for 1 turn.",
@@ -1286,22 +1278,22 @@ const out = [
 				stdTag.acDamage,
 				stdTag.acDebuff
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
-					add_conditions : conditions.collections.std.concat([conditions.targetNotBeast]), 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotBeast"]), 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 4,
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				}),
-				new Wrapper({
+				},
+				{
 					label : 'knockdown',
 					target: Wrapper.TARGET_AUTO,
 					duration : 1,
@@ -1309,19 +1301,19 @@ const out = [
 					icon : "falling.svg",
 					detrimental : true,
 					description : "Knocked down on your %knockdown",
-					add_conditions : conditions.collections.std.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast,conditions.rand10]), 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotKnockedDown","targetNotBeast","rand10"]), 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							events : [GameEvent.Types.internalWrapperAdded],
 							type : Effect.Types.knockdown,
-						})
+						}
 					]
-				})
+				}
 			]
-		}),
+		},
 		// Demonic Pinch
-		new Action({
+		{
 			label : 'imp_demonicPinch',
 			name : "Demonic Pinch",
 			description : "Pinch your target using magic, dealing 2-6 corruption damage.",
@@ -1334,30 +1326,30 @@ const out = [
 				stdTag.acDamage,
 				stdTag.acPainful
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
-					add_conditions : conditions.collections.std.concat([conditions.targetNotBeast]), 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotBeast"]), 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : "1+ceil(random(5))",
 							}
-						}),
-						effects.visTargTakeDamageCorruption
+						},
+						"visTargTakeDamageCorruption"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		
 
 
 	// WHIPS
 		// whip_legLash
-		new Action({
+		{
 			label : 'whip_legLash',
 			name : "Leg Lash",
 			description : "Whips your target's legs, dealing 4 damage. Has a 20% chance of knocking your target down for 1 round.",
@@ -1370,25 +1362,25 @@ const out = [
 				stdTag.acDamage,
 				stdTag.acPainful
 			],
-			add_conditions : [conditions.senderHasWhip],
-			conditions : [conditions.senderHasWhip],
-			show_conditions : [conditions.inCombat],
+			add_conditions : ["senderHasWhip"],
+			conditions : ["senderHasWhip"],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
-					add_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 4,
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				}),
-				new Wrapper({
+				},
+				{
 					label : 'knockdown',
 					target: Wrapper.TARGET_AUTO,
 					duration : 1,
@@ -1396,19 +1388,19 @@ const out = [
 					icon : "falling.svg",
 					description : "Knocked down on your %knockdown",
 					tags : [],
-					add_conditions : conditions.collections.std.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast,conditions.rand20]), 
-					stay_conditions : conditions.collections.std,
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotKnockedDown","targetNotBeast","rand20"]), 
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.knockdown,
-						})
+						}
 					]
-				})
+				}
 			]
-		}),
+		},
 
 		// whip_powerLash
-		new Action({
+		{
 			label : 'whip_powerLash',
 			name : "Powerlash",
 			description : "Whips your target's genitals unless they're wearing hardened armor, dealing 8 damage and interrupting any charged actions.",
@@ -1422,42 +1414,46 @@ const out = [
 				stdTag.acInterrupt,
 				stdTag.acPainful
 			],
-			conditions : [conditions.senderHasWhip],
-			add_conditions : [conditions.senderHasWhip],
-			show_conditions : [conditions.inCombat],
+			conditions : ["senderHasWhip"],
+			add_conditions : ["senderHasWhip"],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
-					add_conditions : conditions.collections.std.concat([
-						conditions.targetNotBeast, 
-						cOR(
-							conditions.targetLowerbodyNotHard, 
-							cAND(
-								conditions.targetUpperbodyNotHard,
-								conditions.targetBreasts
-							)
-						),
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat([
+						"targetNotBeast", 
+						{
+							conditions : [
+								"targetLowerbodyNotHard", 
+								{
+									conditions: [
+										"targetUpperbodyNotHard",
+										"targetBreasts"
+									]
+								}
+							]
+						}
 					]),
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 8,
 							}
-						}),
-						effects.interrupt,
-						effects.visTargTakeDamage
+						},
+						"interrupt",
+						"visTargTakeDamage"
 					]
-				}),
+				},
 			]
-		}),
+		},
 	//
 
 	// Tentacle Fiend
 
 		// Tentacle Milker
-		new Action({
+		{
 			label : 'tentacle_fiend_tentacleMilker',
 			name : "Tentacle Milker",
 			description : "Latches a sucker to breasts or a penis, dealing 4 corruption damage and healing for the same amount.",
@@ -1470,31 +1466,31 @@ const out = [
 				stdTag.acDamage,
 				stdTag.acSelfHeal
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : "",
-					add_conditions : conditions.collections.std.concat([conditions.targetNotBeast, [conditions.targetBreasts, conditions.targetPenis]]), 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotBeast", ["targetBreasts", "targetPenis"]]), 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : 4,
 								leech : 1
 							}
-						}),
-						effects.visTargTakeDamage
+						},
+						"visTargTakeDamage"
 					]
-				})
+				}
 			]
-		}),
+		},
 
 		// Tentacle Leg Wrap
-		new Action({
+		{
 			label : 'tentacle_fiend_legWrap',
 			name : "Leg Wrap",
 			description : "Wraps tentacles around your target's legs, knocking them down for 1 turn.",
@@ -1505,9 +1501,9 @@ const out = [
 				stdTag.acDebuff,
 				stdTag.acNpcImportant
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					label : 'legWrap',
 					target: Wrapper.TARGET_AUTO,
 					duration : 1,
@@ -1516,22 +1512,22 @@ const out = [
 					description : "Knocked down on your %knockdown, tentacles spreading your legs",
 					trigger_immediate : true,
 					tags : [stdTag.wrLegsSpread],
-					add_conditions : conditions.collections.std.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast,
-						new Condition({type:Condition.Types.apValue, data:{amount:2}, caster:true})
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotKnockedDown","targetNotBeast",
+						{type:Condition.Types.apValue, data:{amount:2}, caster:true}
 					]), 
-					stay_conditions : conditions.collections.std,
+					stay_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	],
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.knockdown,
-						}),
-						effects.visAddTargTakeDamage
+						},
+						"visAddTargTakeDamage"
 					]
-				})
+				}
 			]
-		}),
+		},
 
 		// Injectacle
-		new Action({
+		{
 			label : 'tentacle_fiend_injectacle',
 			name : "Injectacle",
 			description : "Injects a player not wearing lowerbody armor with tentacle goo, doing 4 corruption damage immediately and leaving tentacle goo behind. Tentacle goo deals 1 at the start of their turn in and lowers their corruption resist by 1 for 3 turns.",
@@ -1544,9 +1540,9 @@ const out = [
 				stdTag.acDebuff,
 				stdTag.acDamage
 			],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					label : 'tentacleGoo',
 					target: Wrapper.TARGET_AUTO,
 					duration : 3,
@@ -1555,29 +1551,29 @@ const out = [
 					description : "Injectected with tentacle goo, taking corruption damage at the start of your turn",
 					detrimental : true,
 					tags : [],
-					add_conditions : conditions.collections.std.concat([conditions.targetNotBeast,conditions.targetNoLowerbody]), 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotBeast","targetNoLowerbody"]), 
 					effects : [
-						new Effect({
+						{
 							events : [GameEvent.Types.internalWrapperAdded],
 							type : Effect.Types.damage,
 							data : {amount:4}
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.damage,
 							data : {amount:1}
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.svCorruption,
 							data : {amount:-1}
-						}),
-						effects.visAddTargTakeDamageCorruption
+						},
+						"visAddTargTakeDamageCorruption"
 					]
-				})
+				}
 			]
-		}),
+		},
 
 		// Tentatug
-		new Action({
+		{
 			label : 'tentacle_fiend_tentatug',
 			name : "Tentatug",
 			description : "Tugs as your target's lowerbody armor, doing 2 cloth damage. Has a 30% chance to pull the piece off.",
@@ -1586,29 +1582,29 @@ const out = [
 			detrimental : true,
 			type : Action.Types.physical,
 			tags : [],
-			show_conditions : [conditions.inCombat],
+			show_conditions : ["inCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					detrimental : true,
 					tags : [],
-					add_conditions : conditions.collections.std.concat([conditions.targetNotBeast,conditions.targetWearsLowerbody]), 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	].concat(["targetNotBeast","targetWearsLowerbody"]), 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damageArmor,
 							data : {amount:2,slots:Asset.Slots.lowerbody}
-						}),
-						new Effect({
+						},
+						{
 							type : Effect.Types.disrobe,
 							data : {slots:Asset.Slots.lowerbody},
-							conditions : [conditions.rand30]
-						}),
-						effects.visTargTakeDamage
+							conditions : ["rand30"]
+						},
+						"visTargTakeDamage"
 					]
-				})
+				}
 			]
-		}),
+		},
 
 
 		
@@ -1620,7 +1616,7 @@ const out = [
 
 	// Consumables
 		// Minor repair kit
-		new Action({
+		{
 			label : 'minorRepairKit',
 			name : "Minor Repair",
 			description : "Restores 25% of a damaged item's durability (min 5).",
@@ -1632,28 +1628,28 @@ const out = [
 			tags : [],
 			no_use_text : true,
 			no_action_selector : true,
-			conditions : [conditions.targetHasRepairable],
-			show_conditions : [conditions.notInCombat],
+			conditions : ["targetHasRepairable"],
+			show_conditions : ["notInCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.repair,
 							data : {
 								amount : 0.25,
 								multiplier : true,
 								min : 5
 							}
-						}),
+						},
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 		// Repair kit
-		new Action({
+		{
 			label : 'repairKit',
 			name : "Armor Repair",
 			description : "Restores 50% of a damaged item's durability (min 10).",
@@ -1663,28 +1659,28 @@ const out = [
 			tags : [],
 			no_use_text : true,
 			no_action_selector : true,
-			conditions : [conditions.targetHasRepairable],
-			show_conditions : [conditions.notInCombat],
+			conditions : ["targetHasRepairable"],
+			show_conditions : ["notInCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.repair,
 							data : {
 								amount : 0.50,
 								multiplier : true,
 								min : 10
 							}
-						}),
+						},
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 		// Major repair kit
-		new Action({
+		{
 			label : 'majorRepairKit',
 			name : "Major Repair",
 			description : "Fully restores a damaged item's durability.",
@@ -1694,29 +1690,29 @@ const out = [
 			tags : [],
 			no_use_text : true,
 			no_action_selector : true,
-			conditions : [conditions.targetHasRepairable],
-			show_conditions : [conditions.notInCombat],
+			conditions : ["targetHasRepairable"],
+			show_conditions : ["notInCombat"],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.repair,
 							data : {
 								amount : 1,
 								multiplier : true,
 							}
-						}),
+						},
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 
 
 		// Minor health potion
-		new Action({
+		{
 			label : 'minorHealingPotion',
 			name : "Minor Healing Potion",
 			description : "Restores 8 HP to the user.",
@@ -1729,23 +1725,23 @@ const out = [
 			],
 			target_type : Action.TargetTypes.self,
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : -8,
 							}
-						}),
-						effects.visTargHeal
+						},
+						"visTargHeal"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// Healing potion
-		new Action({
+		{
 			label : 'healingPotion',
 			name : "Healing Potion",
 			description : "Restores 15 HP to the user.",
@@ -1758,23 +1754,23 @@ const out = [
 			],
 			target_type : Action.TargetTypes.self,
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : -15,
 							}
-						}),
-						effects.visTargHeal
+						},
+						"visTargHeal"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// Major Healing potion
-		new Action({
+		{
 			label : 'majorHealingPotion',
 			name : "Major Healing Potion",
 			description : "Restores 30 HP to the user.",
@@ -1787,25 +1783,25 @@ const out = [
 			],
 			target_type : Action.TargetTypes.self,
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : -30,
 							}
-						}),
-						effects.visTargHeal
+						},
+						"visTargHeal"
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 
 		// Mana potion
-		new Action({
+		{
 			label : 'manaPotion',
 			name : "Mana Potion",
 			description : "Restores 5 mana to the user.",
@@ -1818,23 +1814,23 @@ const out = [
 			],
 			target_type : Action.TargetTypes.self,
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.addMP,
 							data : {
 								amount : 5,
 							}
-						}),
-						effects.visTargHeal
+						},
+						"visTargHeal"
 					]
-				}),
+				},
 			]
-		}),
+		},
 		// Major mana potion
-		new Action({
+		{
 			label : 'majorManaPotion',
 			name : "Major Mana Potion",
 			description : "Restores 10 mana to the user.",
@@ -1847,25 +1843,25 @@ const out = [
 			],
 			target_type : Action.TargetTypes.self,
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.addMP,
 							data : {
 								amount : 10,
 							}
-						}),
-						effects.visTargHeal
+						},
+						"visTargHeal"
 					]
-				}),
+				},
 			]
-		}),
+		},
 
 
 	// Debugging
-		new Action({
+		{
 			level : 1,
 			label : 'debug_charged_spell',
 			name : "1t Charged",
@@ -1880,26 +1876,26 @@ const out = [
 				stdTag.acDamage,
 			],
 			wrappers : [
-				new Wrapper({
+				{
 					target: Wrapper.TARGET_AUTO,
 					duration : 0,
 					name : "",
 					icon : "",
 					description : ".",
 					detrimental : false,
-					add_conditions : conditions.collections.std, 
+					add_conditions : [ 		"targetAlive", 		"senderNotDead", 		"targetNotDead" 	], 
 					effects : [
-						new Effect({
+						{
 							type : Effect.Types.damage,
 							data : {
 								amount : -10
 							}
-						}),
-						effects.visTargTakeDamage	
+						},
+						"visTargTakeDamage"	
 					]
-				}),
+				},
 			]
-		}),
+		},
 ];
 
 

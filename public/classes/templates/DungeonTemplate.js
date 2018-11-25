@@ -9,7 +9,7 @@ class DungeonTemplate extends Generic{
 		super(...args);
 
 		this.label = 'dark';	// Generic dark dungeon
-		this.rooms = [];		// Viable room meshes
+		this.rooms = [];		// Roomtemplates
 		this.doors_hor = [];		// Doors are picked by the dungeon
 		this.doors_down = [];
 		this.doors_up = [];
@@ -22,6 +22,17 @@ class DungeonTemplate extends Generic{
 		];
 		this.load(...args);
 
+	}
+
+	save( full ){
+		return {
+			label : this.label,
+			rooms : this.rooms,
+			doors_hor : this.doors_hor,
+			doors_down : this.doors_down,
+			monster_types : this.monster_types,
+			consumables : this.consumables,
+		};
 	}
 
 	// Returns a consumable in a weighted list
@@ -48,6 +59,7 @@ class RoomTemplate extends Generic{
 	constructor(...args){
 		super(...args);
 		
+		this.label = '';
 		this.basemeshes = [];		// Viable room basemeshes
 		this.props = [];
 		this.tags = [];
@@ -57,6 +69,19 @@ class RoomTemplate extends Generic{
 
 		this.load(...args);
 	}
+
+	save( full ){
+		return {
+			label : this.label,
+			basemeshes : this.basemeshes,
+			props : this.props,
+			tags : this.tags,
+			containers : this.containers,
+			ambiance : this.ambiance,
+			ambiance_volume : this.ambiance_volume,
+		};
+	}
+
 
 	load(data){
 		this.g_autoload(data);

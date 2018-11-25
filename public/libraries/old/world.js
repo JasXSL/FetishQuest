@@ -10,26 +10,26 @@ export default library;
 
 
 // Yuug
-library.World.Yuug = new Dungeon({
+library.World.Yuug = {
 	name : 'Yuug',
 	tags : [],
 	rooms : [
-		new DungeonRoom({
+		{
 			outdoors : true,
 			zoom : 700,
 			discovered : true,
 			assets : [
 				// Main
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Yuug',
 					type : DungeonRoomAsset.Types.Room,
 					data : {},
 					attachments : [0],
 					locked : false,	
-				}),
+				},
 				// Capital
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Capital',
 					type : DungeonRoomAsset.Types.Exit,
@@ -38,9 +38,9 @@ library.World.Yuug = new Dungeon({
 					},
 					attachments : [0],
 					locked : true,	
-				}),
+				},
 				// Wallburg
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Wallburg',
 					type : DungeonRoomAsset.Types.Exit,
@@ -48,9 +48,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Wallburg',
 					},
 					locked : true,	
-				}),
+				},
 				// Westwood
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Westwood',
 					type : DungeonRoomAsset.Types.Exit,
@@ -58,9 +58,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Westwood',
 					},
 					locked : true,	
-				}),
+				},
 				// Eastwood
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Eastwood',
 					type : DungeonRoomAsset.Types.Exit,
@@ -68,9 +68,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Eastwood',
 					},
 					locked : true,	
-				}),
+				},
 				// Southwood
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Southwood',
 					type : DungeonRoomAsset.Types.Exit,
@@ -78,9 +78,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Southwood',
 					},
 					locked : true,	
-				}),
+				},
 				// MidwayFarm
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.MidwayFarm',
 					type : DungeonRoomAsset.Types.Exit,
@@ -88,9 +88,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Midway Farm',
 					},
 					locked : true,	
-				}),
+				},
 				// Cottaga
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Cottaga',
 					type : DungeonRoomAsset.Types.Exit,
@@ -98,9 +98,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Cottaga',
 					},
 					locked : true,	
-				}),
+				},
 				// Eaststead
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Eaststead',
 					type : DungeonRoomAsset.Types.Exit,
@@ -108,9 +108,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Eaststead',
 					},
 					locked : true,	
-				}),
+				},
 				// Wallway Farm
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.WallwayFarm',
 					type : DungeonRoomAsset.Types.Exit,
@@ -118,9 +118,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Wallway Farm',
 					},
 					locked : true,	
-				}),
+				},
 				// EastwoodFarm
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.EastwoodFarm',
 					type : DungeonRoomAsset.Types.Exit,
@@ -128,9 +128,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Eastwood Farm',
 					},
 					locked : true,	
-				}),
+				},
 				// Seawatch
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Seawatch',
 					type : DungeonRoomAsset.Types.Exit,
@@ -138,10 +138,10 @@ library.World.Yuug = new Dungeon({
 						label : 'Seawatch',
 					},
 					locked : true,	
-				}),
+				},
 
 				// AbandonedCottage
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.AbandonedCottage',
 					type : DungeonRoomAsset.Types.Exit,
@@ -149,9 +149,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Abandoned Cottage',
 					},
 					locked : true,	
-				}),
+				},
 				// WestwallFarm
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.WestwallFarm',
 					type : DungeonRoomAsset.Types.Exit,
@@ -159,9 +159,9 @@ library.World.Yuug = new Dungeon({
 						label : 'Westwall Farm',
 					},
 					locked : true,	
-				}),
+				},
 				// Port
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Port',
 					type : DungeonRoomAsset.Types.Exit,
@@ -169,54 +169,54 @@ library.World.Yuug = new Dungeon({
 						label : 'Yuug Port',
 					},
 					locked : true,	
-				}),
+				},
 				// Wall
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Wall',
 					type : DungeonRoomAsset.Types.Prop,
-				}),
+				},
 			],
 			ambiance : 'media/audio/ambiance/dungeon.ogg',
 			ambiance_volume : 0.2,
-		}),
+		},
 	],
-});
+};
 
 library.Place.Yuug = {};
-library.Place.Yuug.Port = new Dungeon({
+library.Place.Yuug.Port = {
 	name : 'Yuug Port',
 	tags : [],
 	rooms : [
-		new DungeonRoom({
+		{
 			outdoors : true,
 			discovered : false,
 			assets : [
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Port.LandMid',
 					type : DungeonRoomAsset.Types.Room,
 					data : {},
-				}),
+				},
 				// Water
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Ocean',
 					type : DungeonRoomAsset.Types.Prop,
 					data : {},
-				}),
+				},
 				// Docks
-				new DungeonRoomAsset({
+				{
 					absolute : true,
 					model : 'Land.Yuug.Port.JettyMid',
 					type : DungeonRoomAsset.Types.Prop,
 					absolute : true,
 					data : {},
-				}),
+				},
 			],
 			ambiance : 'media/audio/ambiance/dungeon.ogg',
 			ambiance_volume : 0.2,
-		}),
+		},
 	]
-});
+};
 
