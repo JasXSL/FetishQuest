@@ -73,7 +73,7 @@ class Text extends Generic{
 		}
 
 		for( let sound of this.audiokits ){
-			if( !audioKits[sound] )
+			if( !game.lib.audioKits[sound] )
 				console.error("AudioKit not found", sound);
 		}
 	}
@@ -227,7 +227,7 @@ class Text extends Generic{
 		if( this.audiokits.length ){
 			let kits = shuffle(this.audiokits.slice());
 			for( let kit of kits ){
-				let kd = audioKits[kit];
+				let kd = game.lib.audioKits[kit];
 				if( !kd )
 					continue;
 				if( Condition.all(kd.conditions, event) ){

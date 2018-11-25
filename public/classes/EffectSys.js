@@ -89,11 +89,7 @@ class Wrapper extends Generic{
 		//console.error("Add conditions", this.add_conditions);
 		this.add_conditions = Condition.loadThese(this.add_conditions, this);
 		this.stay_conditions = Condition.loadThese(this.stay_conditions, this);
-		this.effects = this.effects.map(el => {
-			if( typeof el !== "object" )
-				console.error("Invalid Effect loaded to Wrapper: ", el);
-			return new Effect(el, this);
-		});	
+		this.effects = Effect.loadThese(this.effects, this);
 
 		this.tags = this.tags.slice();
 	}

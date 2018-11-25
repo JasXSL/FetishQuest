@@ -173,7 +173,7 @@ AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, vi
 
 
 
-class Material extends Generic{
+class MaterialTemplate extends Generic{
 	constructor(data){
 		super(data);
 
@@ -209,7 +209,7 @@ class Material extends Generic{
 
 }
 
-
+/*
 const Materials = {
 
 	// Cloth
@@ -314,9 +314,9 @@ const Materials = {
 		stat_bonus : 1
 	}),
 };
+*/
 
 
 
-
-export {Materials, Material};
+export {MaterialTemplate};
 export default AssetTemplate;

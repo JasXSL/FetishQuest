@@ -111,4 +111,42 @@ export default class Generic{
 
 	}
 
+	
+
+}
+
+Generic.loadThese = function( entries = [], parent ){
+
+	let out = [];
+	if( !Array.isArray(entries) && typeof entries !== "object" ){
+		console.error("Trying to batch load invalid assets:", entries);
+		return;
+	}
+
+	for( let entry of entries ){
+		let obj = this.loadThis(entry, parent);
+		if( obj )
+			out.push(obj);
+	}
+	return out;
+
+}
+
+Generic.loadThis = function( entry, parent ){
+
+	if( typeof entry === "string" ){
+		let n = game.lib.get(entry, this.name);
+		if( !n ){
+			console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", game.lib.getLibraryByConstructorName(this.name));
+			return false;
+		}
+		entry = n;
+	}
+	return new this(entry, parent);
+
+
+}
+
+Generic.saveThese = function( entries = [], full = false ){
+	return entries.map(el => el.save(full));
 }

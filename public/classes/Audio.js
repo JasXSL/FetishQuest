@@ -182,14 +182,14 @@ class AudioKit extends Generic{
 	}
 
 	rebase(){
-		this.conditions = Condition.loadThese(this.conditions);
+		this.conditions = Condition.loadThese(this.conditions, this);
 	}
 
 	save(complete){
 		return {
 			label : this.label,
 			sounds : this.sounds,
-			conditions : Condition.saveThese(this.conditions)
+			conditions : Condition.saveThese(this.conditions, complete)
 		};
 	}
 

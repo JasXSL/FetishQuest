@@ -435,8 +435,14 @@ Condition.loadThese = function( conditions, parent ){
 			c.parent = parent;
 			continue;
 		}
+
+		let pre = condition;
+		// Try to convert it
+		if( typeof condition !== 'object')
+			condition = game.lib.get(condition, this.name);
+		
 		if( typeof condition !== 'object'){
-			console.error("Trying to load invalid condition", condition);
+			console.error("Trying to load invalid condition", pre);
 			continue;
 		}
 

@@ -50,10 +50,10 @@ class Quest extends Generic{
 	}
 
 	rebase(){
-		this.objectives = this.objectives.map(el => new QuestObjective(el, this));
-		this.rewards_assets = this.rewards_assets.map(el => new Asset(el, this));
-		this.completion_objectives = this.completion_objectives.map(el => new QuestObjective(el, this));
-		this.dungeon = new Dungeon(this.dungeon, this);
+		this.objectives = QuestObjective.loadThese(this.objectives, this);
+		this.rewards_assets = Asset.loadThese(this.rewards_assets, this);
+		this.completion_objectives = QuestObjective.loadThese(this.completion_objectives, this);
+		this.dungeon = Dungeon.loadThis(this.dungeon, this);
 	}
 
 	addObjective( objective, isCompletionObjective = false ){
@@ -249,7 +249,7 @@ class QuestObjective extends Generic{
 	}
 
 	rebase(){
-		this.events = this.events.map(el => new QuestObjectiveEvent(el, this));
+		this.events = QuestObjectiveEvent.loadThese(this.events, this);
 	}
 
 	onEvent( event ){

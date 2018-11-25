@@ -40,7 +40,7 @@ export default class Game extends Generic{
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new DungeonEncounter({}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.quests = [];								// Quest Objects of quests the party is on
-		this.library = new GameLib();
+		this.lib = new GameLib();
 
 		// Library of custom items
 		this.libAsset = [];
@@ -166,7 +166,7 @@ export default class Game extends Generic{
 				return new Player(el);
 			return el;
 		});
-		this.quests = this.quests.map(el => new Quest(el));		
+		this.quests = Quest.loadThese(this.quests, this);		
 		this.dungeon = new Dungeon(this.dungeon, this);
 		this.encounter = new DungeonEncounter(this.encounter, this);
 
@@ -202,16 +202,8 @@ export default class Game extends Generic{
 
 	// Builds the library
 	async assembleLibrary(){
-		let mods = [];
-		// Make sure the main mod is up to date
-		let mainMod = new Mod(MAIN_MOD);
-		mods.push(mainMod);
-		mainMod.texts = glibText;
-		mainMod.actions = glibAction;
-		mainMod.audioKits = glibAudio;
-		mainMod.playerClasses = glibPlayerClass;
-		mainMod.save();
-
+		let mods = [MAIN_MOD];
+		this.lib.loadMods(mods);
 	}
 
 
@@ -1247,7 +1239,7 @@ export default class Game extends Generic{
 
 
 	/* LIBRARY MANAGEMENT */
-
+	/*
 	// Adds an asset to a library by Asset.constructor
 	// This is primarily useful for custom assets or actions you want to reuse
 	addToLibrary( asset ){
@@ -1356,7 +1348,7 @@ export default class Game extends Generic{
 		return out;
 
 	}
-
+	*/
 	
 
 
@@ -1398,6 +1390,8 @@ Game.new = async name => {
 	if( game )
 		game.destructor();
 	game = new Game(name);
+
+	await game.assembleLibrary();
 	
 	let clib = game.getFullLibrary('PlayerClass');
 	// Add template characters

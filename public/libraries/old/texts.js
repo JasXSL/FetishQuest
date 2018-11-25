@@ -253,7 +253,7 @@ out = out.concat(stdt, punTexts);
 		text : "%S grabs a hold of and spreads %T's legs while %The's still bent over the table, followed briefly by the %Srace ramming %Shis knee up into %T's %Tgroin!",
 		soundkits : 'punchGeneric',
 		turnTags : [T.ttBentOverTable,T.ttBentOver],
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond, "ttBentOverTable"),
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond, "ttBentOverTable"),
 	});
 	out.push({
 		numTargets : 2,
@@ -320,7 +320,7 @@ out = out.concat(stdt, punTexts);
 	out.push({
 		text : "%S lashes %Shis whip across %T's %leftright thigh!",
 		soundkits : 'whipGeneric',
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond)
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond)
 	});
 
 
@@ -365,7 +365,7 @@ out = out.concat(stdt, punTexts);
 		text : "%S surprises %T while %The bent over by lashing %Shis %Sgear from below up across the %Trace's %Tgroin!",
 		soundkits : 'whipGeneric',
 		turnTags : [T.ttBentOver],
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond, "targetVagina", "targetWearsLowerbody", "ttBentOver")
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond, "targetVagina", "targetWearsLowerbody", "ttBentOver")
 	});
 
 
@@ -458,7 +458,7 @@ out = out.concat(stdt, punTexts);
 	out.push({
 		text : "%S grabs a firm hold of %T's %Tgroin and squeezes down hard!",
 		soundkits : 'squeezeGeneric',
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond)
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond)
 	});
 	out.push({
 		text : "%S grabs at %T!",
@@ -468,35 +468,35 @@ out = out.concat(stdt, punTexts);
 	out.push({
 		text : "%S grabs a firm hold of %T's %leftright %Tbreast and squeezes down hard!",
 		soundkits : 'squeezeGeneric',
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond, "targetBreasts")
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond, "targetBreasts")
 	});
 	out.push({
 		text : "%S grabs a firm hold of %T's %Tpenis and firmly squeezes down on it!",
 		soundkits : 'squeezeGeneric',
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond, "targetPenis", [["ttGroinExposed", "targetNoLowerbody"]])
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond, "targetPenis", [["ttGroinExposed", "targetNoLowerbody"]])
 	});
 	out.push({
 		text : "%S grabs a firm hold of %T's %Tbutt and squeezes down firmly!",
 		soundkits : 'squeezeGeneric',
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond)
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond)
 	});
 	out.push({
 		text : "%S grabs a firm hold of %T and %T2's groins and squeezes down hard!",
 		numTargets : 2,
 		soundkits : 'squeezeGeneric',
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond)
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond)
 	});
 	out.push({
 		text : "%S grabs a firm hold of %T and %T2's butts and squeezes down hard!",
 		numTargets : 2,
 		soundkits : 'squeezeGeneric',
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond)
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond)
 	});
 	out.push({
 		text : "%S grabs a firm hold of one of %T and %T2's %Tbreasts each and squeezes down hard!",
 		numTargets : 2,
 		soundkits : 'squeezeGeneric',
-		conditions : ["targetNotBeast","actionHit","eventIsActionused","senderNotBeast"].concat(actionCond, "targetBreasts")
+		conditions : ["targetNotBeast","actionHit","eventIsActionUsed","senderNotBeast"].concat(actionCond, "targetBreasts")
 	});
 
 

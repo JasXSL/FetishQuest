@@ -50,7 +50,7 @@ class Dungeon extends Generic{
 	}
 
 	rebase(){
-		this.rooms = this.rooms.map(el => new DungeonRoom(el, this));
+		this.rooms = DungeonRoom.loadThese(this.rooms, this);
 	}
 
 	save( full ){
@@ -447,8 +447,8 @@ class DungeonRoom extends Generic{
 	}
 
 	rebase(){
-		this.assets = this.assets.map(el => new DungeonRoomAsset(el, this));
-		this.encounter = new DungeonEncounter(this.encounter, this);
+		this.assets = DungeonRoomAsset.loadThese(this.assets, this);
+		this.encounter = DungeonEncounter.loadThis(this.encounter, this);
 	}
 
 	isEntrance(){
@@ -861,8 +861,8 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	rebase(){
-		this.interactEncounter = new DungeonEncounter(this.interactEncounter, this);
-		this.loot = this.loot.map(el => new Asset(el, this));
+		this.interactEncounter = DungeonEncounter.loadThis(this.interactEncounter, this);
+		this.loot = Asset.loadThese(this.loot, this);
 		this.updateInteractivity();
 	}
 
@@ -1103,8 +1103,8 @@ class DungeonEncounter extends Generic{
 	}
 
 	rebase(){
-		this.players = this.players.map(el => new Player(el));
-		this.wrappers = this.wrappers.map(el => new Wrapper(el, this));	
+		this.players = Player.loadThese(this.players, this);
+		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 	}
 
 	save( full ){

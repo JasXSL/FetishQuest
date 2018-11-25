@@ -73,9 +73,9 @@ export default class Asset extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
-		this.wrappers = this.wrappers.map(el => new Wrapper(el, this));
+		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.equip_conditions = Condition.loadThese(this.equip_conditions, this);
-		this.use_action = new Action(this.use_action, this);
+		this.use_action = Action.loadThis(this.use_action, this);
 	}
 
 	clone(parent){

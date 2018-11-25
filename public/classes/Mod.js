@@ -1,6 +1,4 @@
 import Generic from './helpers/Generic.js';
-const AUTO_LABEL = true;
-const REQUIRE_SAVE = false;
 
 export default class Mod extends Generic{
 
@@ -23,6 +21,8 @@ export default class Mod extends Generic{
 		this.materialTemplates = [];	// AssetTemplate Material
 		this.dungeonTemplates = [];
 		this.effects = [];
+		this.dungeonRoomTemplates = [];	
+		this.wrappers = [];
 		this.load(data);
 	}
 
@@ -68,29 +68,4 @@ Mod.getByID = async function( id ){
 	return false;
 };
 
-// Helps convert the library files into a single JSON mod file
-Mod.convertDeleteme = function(){
-	/*
-	let mainMod = new Mod({
-		id : '__MAIN__',
-		name : 'FetishQuest Main',
-	});
-	*/
-	let out = [];
-	let scan = convertLib;
 
-	//console.log(JSON.stringify(scan));
-	//return;
-
-	console.log("Flattening", Object.keys(scan).length, "objects");
-	for( let i in scan ){
-		let o = scan[i];
-		if( typeof o.save !== "function" && REQUIRE_SAVE )
-			continue;
-		if( !o.label && AUTO_LABEL )
-			o.label = i;
-		out.push(o);
-	}
-	console.log(JSON.stringify(out));
-	
-}

@@ -122,10 +122,10 @@ export default class Player extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
-		this.actions = this.actions.map(el => new Action(el, this));
-		this.assets = this.assets.map(el => new Asset(el, this));
-		this.wrappers = this.wrappers.map(el => new Wrapper(el, this));
-		this.class = new PlayerClass(this.class);
+		this.actions = Action.loadThese(this.actions, this);
+		this.assets = Asset.loadThese(this.assets, this);
+		this.wrappers = Wrapper.loadThese(this.wrappers, this);
+		this.class = PlayerClass.loadThis(this.class, this);
 
 		if( game.is_host )
 			this.updateAutoWrappers();

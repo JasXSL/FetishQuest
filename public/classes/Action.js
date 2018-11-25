@@ -110,16 +110,8 @@ class Action extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
-		this.wrappers = this.wrappers.map(el => {
-			if( typeof el !== "object" )
-				game.ui.addError("Invalid action wrapper loaded "+typeof el);
-			return new Wrapper(el, this);
-		});
-		this.riposte = this.riposte.map(el => {
-			if( typeof el !== "object" )
-				game.ui.addError("Invalid action riposte loaded "+typeof el);
-			return new Wrapper(el, this);
-		});
+		this.wrappers = Wrapper.loadThese(this.wrappers, this);
+		this.riposte = Wrapper.loadThese(this.riposte, this);
 		this.show_conditions = Condition.loadThese(this.show_conditions, this);
 		this.conditions = Condition.loadThese(this.conditions, this);
 	}
