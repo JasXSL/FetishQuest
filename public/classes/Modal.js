@@ -70,7 +70,8 @@ export default class Modal{
 	close(){
 		this.open = false;
 		this.wipeEvents();
-		game.renderer.stop();
+		if( window.game )
+			game.renderer.stop();
 		this.bg.toggleClass("hidden", true);
 	}
 

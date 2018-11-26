@@ -164,5 +164,11 @@ Generic.loadThis = function( entry, parent ){
 }
 
 Generic.saveThese = function( entries = [], full = false ){
-	return entries.map(el => el.save(full));
+	return entries.map(el => {
+		if( typeof el.save !== "function" ){
+			console.error(el, "has no save method");
+			throw "Save function missing error";
+		}
+		el.save(full);
+	});
 }

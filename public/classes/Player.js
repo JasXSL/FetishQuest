@@ -547,6 +547,7 @@ export default class Player extends Generic{
 		
 	}
 	onBattleStart(){
+		this._turn_tags = [];
 		this.ap = 0;
 		this._threat = {};
 		let actions = this.getActions();

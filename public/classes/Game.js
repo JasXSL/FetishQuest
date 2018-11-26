@@ -11,8 +11,6 @@ import Text from './Text.js';
 import Quest from './Quest.js';
 import {default as Audio, setMasterVolume}  from './Audio.js';
 import stdTag from '../libraries/stdTag.js';
-import Mod from './Mod.js';
-import GameLib from './GameLib.js';
 
 export default class Game extends Generic{
 

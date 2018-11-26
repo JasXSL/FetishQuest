@@ -862,6 +862,7 @@ div.fxHeal{
 
 
 
+
 /* Portraits based on player size */
 	#content > div.players div.p2 div.player{
 		height:34vh;
@@ -1182,6 +1183,57 @@ div.fxHeal{
 
 /**/
 
+
+
+/* DEVTOOLS */
+table.editor{
+	width:100%;
+	box-sizing: border-box;
+	border-collapse: collapse;
+}
+table.editor.textEditor td:first-child{
+	width:40%;
+	font-size:1.25em;
+}
+table.editor.listing{
+	font-size:0.8em;
+}
+table.editor.listing td{
+	padding:0.2vmax;
+}
+
+table.editor tr{
+	background:rgba(0,0,0,.5);
+}
+table.editor.clickable tr:hover{
+	background:rgba(255,255,255,.5);
+	cursor:pointer;
+}
+table.editor tr:nth-child(odd){
+	background:rgba(0,0,0, 0.75);
+}
+table.editor tr:first-child, table.editor.clickable tr:first-child:hover{
+	background:rgba(0,0,0);
+	cursor: auto;;
+}
+
+table.editor td, table.editor th{
+	padding:0.5vmax;
+}
+
+
+div.modButtons div.button{
+	display:inline-block;
+}
+
+#modGenericInfo input{
+	width:auto;
+	display:inline-block;
+}
+
+
+
+/* */
 
 
 /* Tooltip */

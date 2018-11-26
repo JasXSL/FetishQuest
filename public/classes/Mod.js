@@ -7,6 +7,8 @@ export default class Mod extends Generic{
 
 		// x = not yet implemented
 		this.name = '';
+		this.description = '';
+		this.author = '';
 		this.dungeons = [];		//x mod prefab dungeons
 		this.quests = [];		//x mod prefab quests
 		this.vars = {};			//x default modvars. Modvars are stored in Game, these are just defaults
@@ -26,6 +28,10 @@ export default class Mod extends Generic{
 		this.load(data);
 	}
 
+	clone(){
+		return new this.constructor(JSON.parse(JSON.stringify(this.getSaveData())));
+	}
+
 	
 	load( data ){
 		this.g_autoload(data);
@@ -34,13 +40,42 @@ export default class Mod extends Generic{
 	rebase(){
 	}
 
-	save( full ){
+	getSaveData(){
 		const out = {
 			id : this.id,
-
+			name : this.name,
+			author : this.author,
+			description : this.description,
+			dungeons : this.dungeons,
+			quests : this.quests,
+			vars : this.vars,
+			texts : this.texts,
+			actions : this.actions,
+			assets : this.assets,
+			audioKits : this.audioKits,
+			playerClasses : this.playerClasses,
+			conditions : this.conditions,
+			playerTemplates : this.playerTemplates,
+			assetTemplates : this.assetTemplates,
+			materialTemplates: this.materialTemplates,
+			dungeonTemplates: this.dungeonTemplates,
+			effects : this.effects,
+			dungeonRoomTemplates : this.dungeonRoomTemplates,
+			wrappers : this.wrappers,
 		};
-		// Not really gonna need a full because these are never output to webplayers
 		return out;
+	}
+
+	// mod save goes to databse
+	async save(){
+		
+		if( this.id === '__MAIN__' )
+			return;
+
+		const out = this.getSaveData();
+		let ret = await Mod.db.mods.put(out);
+		return ret;
+
 	}
 
 }
@@ -59,6 +94,14 @@ Mod.getNames = async function(){
 		names[g.id] = name;
 	});
 	return names;
+};
+
+Mod.getAll = async function(){
+	let out = [];	// id:name
+	await Mod.db.mods.each(g => {
+		out.push(new this(g));
+	});
+	return out;
 };
 
 Mod.getByID = async function( id ){

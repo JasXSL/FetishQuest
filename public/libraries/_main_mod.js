@@ -1,5 +1,4 @@
 import stdTag from "./stdTag.js";
-import { DungeonRoomAsset } from "../classes/Dungeon.js";
 import Mod from '../classes/Mod.js';
 
 // This is a special mod 
@@ -24,7 +23,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Yuug',
-							type : DungeonRoomAsset.Types.Room,
+							type : "room",
 							data : {},
 							attachments : [0],
 							locked : false,	
@@ -33,7 +32,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Capital',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Capital',
 							},
@@ -44,7 +43,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Wallburg',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Wallburg',
 							},
@@ -54,7 +53,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Westwood',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Westwood',
 							},
@@ -64,7 +63,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Eastwood',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Eastwood',
 							},
@@ -74,7 +73,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Southwood',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Southwood',
 							},
@@ -84,7 +83,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.MidwayFarm',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Midway Farm',
 							},
@@ -94,7 +93,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Cottaga',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Cottaga',
 							},
@@ -104,7 +103,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Eaststead',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Eaststead',
 							},
@@ -114,7 +113,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.WallwayFarm',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Wallway Farm',
 							},
@@ -124,7 +123,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.EastwoodFarm',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Eastwood Farm',
 							},
@@ -134,7 +133,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Seawatch',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Seawatch',
 							},
@@ -145,7 +144,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.AbandonedCottage',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Abandoned Cottage',
 							},
@@ -155,7 +154,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.WestwallFarm',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Westwall Farm',
 							},
@@ -165,7 +164,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Port',
-							type : DungeonRoomAsset.Types.Exit,
+							type : "exit",
 							data : {
 								label : 'Yuug Port',
 							},
@@ -175,7 +174,7 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Wall',
-							type : DungeonRoomAsset.Types.Prop,
+							type : "prop",
 						},
 					],
 					ambiance : 'media/audio/ambiance/dungeon.ogg',
@@ -196,21 +195,21 @@ const mod = new Mod({
 						{
 							absolute : true,
 							model : 'Land.Yuug.Port.LandMid',
-							type : DungeonRoomAsset.Types.Room,
+							type : "room",
 							data : {},
 						},
 						// Water
 						{
 							absolute : true,
 							model : 'Land.Yuug.Ocean',
-							type : DungeonRoomAsset.Types.Prop,
+							type : "prop",
 							data : {},
 						},
 						// Docks
 						{
 							absolute : true,
 							model : 'Land.Yuug.Port.JettyMid',
-							type : DungeonRoomAsset.Types.Prop,
+							type : "prop",
 							absolute : true,
 							data : {},
 						},

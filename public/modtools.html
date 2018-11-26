@@ -38,7 +38,9 @@
 			right: 1vmax;
 			max-width:25%;
 		}
-		
+		#content{
+			padding: 1vmax 10vw;
+		}
 	</style>
 </head>
 
@@ -47,7 +49,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script>
-		console.log("Entry point is mod, you can also use renderer");
+		console.log("Entry point mod and glib, you can also use renderer");
 		function shuffle(a){
 			for( let i = a.length - 1; i > 0; i-- ){
 				const j = Math.floor(Math.random() * (i + 1));
@@ -69,10 +71,12 @@
 				out = out.split("\n").join('<br />');
 			return out;
 		}
-		var renderer, mod;
+		var renderer, mod, glib;
 	</script>
 	<script type="module">
 		import Modtools from './modtools/Modtools.js';
+		import GameLib from './classes/GameLib.js';
+		glib = new GameLib();
 		mod = new Modtools();
 	</script>
 
@@ -87,11 +91,17 @@
 	-->
 
 	<div id="wrap">
-		<div id="content">
+		<div id="content" style="overflow:auto">
 		</div>
 		<div id="gameIcons"><!-- Bottom main menu -->
 			<div class="button autoWidth" data-id="back">Back</div>
 		</div>	
+		<div id="modal" class="hidden">
+			<div class="wrapper">
+				<div class="content"></div>
+				<input type="button" value="Close" />
+			</div>
+		</div>
 	</div>
 
 	
