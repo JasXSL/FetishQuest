@@ -66,3 +66,23 @@ function valsToKeys( input = [] ){
 		out[v] = true;
 	return out;
 }
+
+// Turns color tags into HTML
+function stylizeText( txt ){
+
+	txt = esc(txt);
+	txt = txt.split('|s|').join('<strong>').split('|/s|').join('</strong>')
+		.split('|em|').join('<em>').split('|/em|').join('</em>')
+	;
+	// Update color
+	txt = txt.split('|c');
+	let out = txt.shift();
+	for( let t of txt ){
+		let a = t.split('|');
+		let color = a.shift();
+		a = '<span style="color:'+esc(color)+'">'+a.join('|').split('|/c|').join('</span>');
+		out+=a;
+	}
+	return out;
+
+}

@@ -825,21 +825,7 @@ export default class UI{
 
 		
 
-		let txt = esc(text)
-			.split('|s|').join('<strong>').split('|/s|').join('</strong>')
-			.split('|em|').join('<em>').split('|/em|').join('</em>')
-		;
-		// Update color
-		txt = txt.split('|c');
-		let out = txt.shift();
-		for( let t of txt ){
-			let a = t.split('|');
-			let color = a.shift();
-			a = '<span style="color:'+esc(color)+'">'+a.join('|').split('|/c|').join('</span>');
-			out+=a;
-		}
-		txt = out;
-
+		let txt = stylizeText(text);
 		if( ~acn.indexOf('sided') )
 			txt = '<div class="sub">'+txt+'</div>';
 

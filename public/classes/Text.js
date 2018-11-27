@@ -171,7 +171,7 @@ class Text extends Generic{
 	}
 
 	// Main entrypoint
-	run( event ){
+	run( event, returnResult = false ){
 
 		let text = this.text;
 		text = text.split('%leftright').join(Math.random()<0.5 ? 'left' : 'right');
@@ -223,6 +223,9 @@ class Text extends Generic{
 		if( event.action )
 			text = text.split('%action').join(event.action.name);
 
+		if( returnResult )
+			return text;
+		
 		let audio;
 		if( this.audiokits.length ){
 			let kits = shuffle(this.audiokits.slice());

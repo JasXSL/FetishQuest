@@ -127,10 +127,10 @@ export default class Player extends Generic{
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.class = PlayerClass.loadThis(this.class, this);
 
-		if( game.is_host )
+		if( window.game && game.is_host )
 			this.updateAutoWrappers();
 		else
-			this.auto_wrappers = this.auto_wrappers.map(el => new Wrapper(el, this));
+			this.auto_wrappers = Wrapper.loadThese(this.auto_wrappers, this);
 	}
 
 	// Data that should be saved to drive
@@ -429,9 +429,11 @@ export default class Player extends Generic{
 		if( this.hp <= 0 )
 			out.push(stdTag.dead);
 
-		for( let tag of this.tags )
-			out.push('pl_'+tag.toLowerCase());
-
+		for( let tag of this.tags ){
+			if( !tag.startsWith('pl_') )
+				tag = 'pl_'+tag;
+			out.push(tag.toLowerCase());
+		}
 		let assets = this.getAssetsEquipped();
 		for( let asset of assets )
 			out = out.concat(asset.getTags());
@@ -442,7 +444,7 @@ export default class Player extends Generic{
 		if( this.species )
 			out.push('p_'+this.species.toLowerCase());
 
-		if( game.dungeon instanceof Dungeon )
+		if( window.game && game.dungeon instanceof Dungeon )
 			out = out.concat(game.dungeon.getTags());
 		
 		for( let i in out )

@@ -8,6 +8,9 @@ import MAIN_MOD from '../libraries/_main_mod.js';
 import Modal from '../classes/Modal.js';
 import stdTag from '../libraries/stdTag.js';
 import Asset from '../classes/Asset.js';
+import Player from '../classes/Player.js';
+import GameEvent from '../classes/GameEvent.js';
+import Text from '../classes/Text.js';
 
 export default class Modtools{
 
@@ -35,6 +38,22 @@ export default class Modtools{
 		}catch(err){ this.searchFilters = {}; }
 		
 		window.addEventListener("hashchange", () => this.navigate(), false);
+
+		$("#jsonEditor, #jsonEditor div.buttons > input.cancel").on('click', () => {
+			$("#jsonEditor").toggleClass("hidden", true);
+		});
+		$("#jsonEditor > div").on('click', event => {
+			event.stopImmediatePropagation();
+		});
+		$("#jsonEditor div.buttons > input.validate").off('click').on('click', () => {
+			try{
+				const area = $("#jsonEditor textarea");
+				let t = JSON.parse(area.val());
+				area.val(JSON.stringify(t, null, 3));
+			}catch(err){
+				alert(err);
+			}
+		});
 
 		this.navigate();
 
@@ -152,7 +171,7 @@ export default class Modtools{
 					mod.materialTemplates.length+'m'+
 				'</td>'+
 				'<td>'+mod.assets.length+'</td>'+
-				'<td>'+mod.audiokits.length+'</td>'+
+				'<td>'+(mod.audiokits ? mod.audiokits.length : 0)+'</td>'+
 				'<td>'+mod.conditions.length+'</td>'+
 				'<td>'+mod.dungeons.length+'</td>'+
 				'<td>'+mod.effects.length+'</td>'+
@@ -178,9 +197,15 @@ export default class Modtools{
 			}
 		});
 
-		$("#newMod").on('click', () => {
+		$("#newMod").on('click', async () => {
 
 			console.log("Creating new mod");
+			glib = new GameLib();
+			this.mod = new Mod({
+				name : 'Unnamed Mod'
+			});
+			await this.mod.save();
+			this.setPage(this.mod.id);
 
 		});
 		$("#cloneOfficial").on('click', async () => {
@@ -203,7 +228,7 @@ export default class Modtools{
 
 		glib.loadMods([this.main_mod, this.mod]);
 		this.refreshDataLists();
-		let mod = this.mod;
+		const mod = this.mod;
 
 		let html = '<h1>Editing '+esc(mod.name)+'</h1>';
 		html += '<div id="modGenericInfo" class="flexTwoColumns">'+
@@ -213,6 +238,8 @@ export default class Modtools{
 				'Description:<br />'+
 				'<textarea name="description">'+esc(mod.description)+'</textarea><br />'+
 				'<input type="submit" value="Save" />'+
+				'<input type="button" value="Copy" id="cloneMod" />'+
+				'<input type="button" value="Delete" id="deleteMod" />'+
 			'</form></div>'+
 			'<div class="right">'+
 				'<input type="button" value="Export File" id="exportFile" /> '+
@@ -257,6 +284,23 @@ export default class Modtools{
 			return false;
 		});
 
+		$("#deleteMod").on('click', async () => {
+			if( !confirm('Are you sure you want to delete this mod? You may want to back it up first.') )
+				return;
+			await this.mod.delete();
+			this.setPage('');
+		});
+
+		$("#cloneMod").on('click', async () => {
+
+			glib = new GameLib();
+			this.mod = this.mod.clone();
+			this.mod.g_resetID();
+			this.mod.name += ' [Clone]';
+			await this.mod.save();
+			this.setPage(this.mod.id);
+
+		});
 		
 
 		$("#exportFile").on('click', () => {
@@ -277,15 +321,13 @@ export default class Modtools{
 			this.modal.set('<textarea style="width:100%;height:100%">'+esc(JSON.stringify(mod.getSaveData()))+'</textarea>');
 		});
 
-		const assetList = $("div.assetList");
+		
 		$("div.modButtons div.button[data-id]").on('click', function(){
 			const id = $(this).attr('data-id');
-			if( typeof th['mml_'+id] === 'function' ){
-				th['mml_'+id](assetList);
-				
-			}
+			if( typeof th['mml_'+id] === 'function' )
+				th['mml_'+id]();
 		});
-		this.mml_texts(assetList);
+		this.mml_texts();
 
 	}
 
@@ -350,13 +392,21 @@ export default class Modtools{
 
 	}
 
-	// ModMenuList Helpers for above
-	mml_texts(wrapper){
 
+
+
+
+
+
+
+
+	// ModMenuList Helpers for above
+	mml_texts(){
+		const wrapper = $("div.assetList");
 		let texts = this.mod.texts;
 		const sfType = 'texts';
 
-		let html = '<br /><h3>Texts</h3><table class="editor listing clickable textEditor searchable">';
+		let html = '<br /><h3>Texts</h3><input type="button" id="insertText" value="Insert" /><br /><table class="editor listing clickable textEditor searchable">';
 			html += '<tr>';
 				html += '<th>Text</th>';
 				html += '<th>Conditions</th>';
@@ -383,7 +433,7 @@ export default class Modtools{
 			html += '<tr data-index="'+(i++)+'">';
 
 				html += '<td>'+esc(text.text)+'</td>';
-				html += '<td>'+text.conditions.map(el => typeof el === "string" ? esc(el) : 'Custom').join(', ')+'</td>';
+				html += '<td>'+(text.conditions ? text.conditions.map(el => typeof el === "string" ? esc(el) : 'Custom').join(', ') : '')+'</td>';
 				html += '<td>'+(text.turnTags ? text.turnTags.map(el => esc(el)) : '')+'</td>';	
 				html += '<td>'+(text.armor_slot ? esc(text.armor_slot) : '')+'</td>';
 				html += '<td>'+(text.audiokits ? text.audiokits.map(el => typeof el === "string" ? esc(el) : 'Custom') : '')+'</td>';
@@ -402,69 +452,42 @@ export default class Modtools{
 		wrapper.html(html);
 		this.mmlMakeSearchable(sfType);
 
+		// Attach the editor
 		let th = this;
 		$("table.textEditor tr[data-index]").on('click', function(){
 			const index = +$(this).attr('data-index');
 			const text = texts[index];
+			th.editor_text(text);
+		});
 
-			let html = '<form id="assetForm">';
-				html += 'Text: <input type="text" name="text" value="'+esc(text.text)+'" /><br />';
-				html += 'Nr Players: <input type="number" min=1 step=1 name="numTargets" value="'+(+text.numTargets || 1)+'" /><br />';
-				html += 'Conditions: '+th.formConditions(text.conditions)+'<br />';
-				html += 'TextTags: '+th.formTags(text.turnTags, 'turnTags', 'tagsTT')+'<br />';
-				html += 'Armor Slot: '+th.formArmorSlot(text.armor_slot)+'<br />';
-				html += 'Audio: '+th.formSoundKits(text.audiokits)+'<br />';
-				html += '<span title="Always output this text even if DM mode is enabled">Always Auto</span>: <input type="checkbox" value="1" name="alwaysAuto" '+(text.alwaysAuto ? 'checked' : '')+' /><br />';
-				html += '<span title="Status texts are grouped and output after an action text is output. This bypasses that.">Always Out</span>: <input type="checkbox" value="1" name="alwaysOutput" '+(text.alwaysOutput ? 'checked' : '')+' /><br />';
-				html += '<span title="Outputs debugging info when this text conditions are checked">Debug</span>: <input type="checkbox" value="1" name="debug" '+(text.debug ? 'checked' : '')+' /><br />';
-
-				html += '<input type="submit" value="Save" />';
-				html += '<input type="button" value="Save Copy" />';
-				html += '<input type="button" value="Delete" />';
-			html += '</form>';
-
-			th.modal.set(html);
-			th.bindFormHelpers();
-
-			$("#assetForm").on('submit', () => {
-
-				const form = $("#assetForm");
-				text.text = $("input[name=text]", form).val();
-				text.numTargets = +$("input[name=numTargets]", form).val();
-				text.alwaysAuto = $("input[name=alwaysAuto]", form).is(':checked');
-				text.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
-				text.debug = $("input[name=debug]", form).is(':checked');
-				text.turnTags = th.compileTags();
-				text.armor_slot = th.compileArmorSlot();
-				text.audiokits = th.compileSoundKits();
-				
-
-				console.log("assetForm onSubmit", text);
-				return false;
-			});
-
+		$("#insertText").on('click', async () => {
+			let text = {text:"Insert your text here"};
+			texts.push(text);
+			this.editor_text(text);
+			await this.mod.save();
+			this.mml_texts();
 		});
 
 	}
 
-	mml_conditions(wrapper){
+	mml_conditions(){
 
 	}
 
-	mml_quests(wrapper){
+	mml_quests(){
 
 	}
 
-	mml_dungeons(wrapper){
+	mml_dungeons(){
 
 	}
-	mml_playerClasses(wrapper){
+	mml_playerClasses(){
 
 	}
-	mml_action(wrapper){
+	mml_action(){
 
 	}
-	mml_wrappers(wrapper){
+	mml_wrappers(){
 
 	}
 	mml_effects(wrapper){
@@ -496,12 +519,189 @@ export default class Modtools{
 
 
 
+
+	// EDITORS
+	editor_text( text = {} ){
+
+		// Helper function
+		const save = async () => {
+			const form = $("#assetForm");
+			text.text = $("input[name=text]", form).val();
+			text.numTargets = +$("input[name=numTargets]", form).val();
+			text.alwaysAuto = $("input[name=alwaysAuto]", form).is(':checked');
+			text.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
+			text.debug = $("input[name=debug]", form).is(':checked');
+			text.turnTags = this.compileTags();
+			text.armor_slot = this.compileArmorSlot();
+			text.audiokits = this.compileSoundKits();
+			text.conditions = this.compileConditions();
+
+			console.log("assetForm onSubmit", text);
+			await this.mod.save();
+			this.mml_texts();
+			this.modal.close();
+		}
+
+		// Updates the display underneath the text where you can see a real world example
+		const updateTextDisplay = () => {
+
+			const attacker = new Player({
+				name : 'Attacker',
+				species : 'dog',
+				color : '#FAA',
+				tags : [stdTag.penis, stdTag.vagina, stdTag.breasts, stdTag.plBigPenis, stdTag.plBigButt, stdTag.plBigBreasts],
+				assets : [
+					new Asset({name:'Breastplate', slots:[Asset.Slots.upperbody], equipped:true}),
+					new Asset({name:'Crotchplate', slots:[Asset.Slots.lowerbody], equipped:true}),
+					new Asset({name:'Whip', slots:[Asset.Slots.hands], equipped:true}),
+				]
+			});
+			const victim = new Player({
+				name : 'Victim',
+				species : 'cat',
+				color : '#AFA',
+				tags : [stdTag.penis, stdTag.vagina, stdTag.breasts, stdTag.plBigPenis, stdTag.plBigButt, stdTag.plBigBreasts],
+				assets : [
+					new Asset({name:'Leather Shirt', slots:[Asset.Slots.upperbody]}),
+					new Asset({name:'Leather Thong', slots:[Asset.Slots.lowerbody]}),
+					new Asset({name:'Whip', slots:[Asset.Slots.hands], equipped:true}),
+				]
+			});
+			const converted = new Text(text);
+			converted.text = $("#assetForm input[name=text]").val().trim();
+			const out = converted.run( new GameEvent({
+				sender : attacker,
+				target : victim
+			}), true );
+			
+
+			$("#textPreview").html(stylizeText(out));
+
+		}
+
+		let tUpdateTimer;
+
+		let html = '<form id="assetForm">';
+			html += 'Text: <input type="text" name="text" value="'+esc(text.text)+'" style="display:block;width:100%" />';
+			html += 'Preview: <span id="textPreview"></span><br /><br />';
+			html += 'Nr Players: <input type="number" min=1 step=1 name="numTargets" value="'+(+text.numTargets || 1)+'" /><br />';
+			html += 'Conditions: '+this.formConditions(text.conditions)+'<br />';
+
+			html += this.presetConditions({
+				'HumOnHum' : ['targetNotBeast','actionHit','senderNotBeast','eventIsActionUsed'],
+				'AnyOnHum' : ['targetNotBeast','actionHit','eventIsActionUsed'],
+				'MonOnHum' : ['targetNotBeast','actionHit','eventIsActionUsed','senderBeast'],
+				'GenAction' : ['actionHit','eventIsActionUsed'],
+			});
+			html += '<br />';
+			html += '<br />';
+			html += 'TextTags: '+this.formTags(text.turnTags, 'turnTags', 'tagsTT')+'<br />';
+			html += 'Armor Slot: '+this.formArmorSlot(text.armor_slot)+'<br />';
+			html += 'Audio: '+this.formSoundKits(text.audiokits)+'<br />';
+			html += '<span title="Always output this text even if DM mode is enabled">Always Auto</span>: <input type="checkbox" value="1" name="alwaysAuto" '+(text.alwaysAuto ? 'checked' : '')+' /><br />';
+			html += '<span title="Status texts are grouped and output after an action text is output. This bypasses that.">Always Out</span>: <input type="checkbox" value="1" name="alwaysOutput" '+(text.alwaysOutput ? 'checked' : '')+' /><br />';
+			html += '<span title="Outputs debugging info when this text conditions are checked">Debug</span>: <input type="checkbox" value="1" name="debug" '+(text.debug ? 'checked' : '')+' /><br />';
+
+			html += '<input type="submit" value="Save" />';
+			html += '<input type="button" value="Save Copy" id="textSaveCopy" />';
+			html += '<input type="button" value="Delete" id="textDelete" />';
+		html += '</form>';
+
+		this.modal.set(html);
+		this.bindFormHelpers();
+
+		updateTextDisplay();
+
+		$("#assetForm input[name=text]").on('input change', () => {
+			clearTimeout(tUpdateTimer);
+			tUpdateTimer = setTimeout(() => {
+				updateTextDisplay();
+			}, 250); 
+		});
+		
+		$("#textSaveCopy").on('click', async () => {
+			text = JSON.parse(JSON.stringify(text));
+			this.mod.texts.push(text);
+			await save();
+			this.editor_text(text);
+			$("#textSaveCopy").val("Saved!");
+			setTimeout(() => $("#textSaveCopy").val("Save Copy"), 1000);
+			
+		});
+
+		$("#textDelete").on('click', async () => {
+			if( !confirm('Are you sure you want to delete this text?') )
+				return;
+			for( let t in this.mod.texts ){
+				if( this.mod.texts[t] === text ){
+					this.mod.texts.splice(t, 1);
+					await this.mod.save();
+					this.modal.close();
+					this.mml_texts();
+					return;
+				}
+			}
+		});
+
+		$("#assetForm").on('submit', () => {
+			save();
+			return false;
+		});
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 	// FORM HELPERS
 	bindFormHelpers(){
 		this.bindTags();
 		this.bindSoundKits();
 		this.bindConditions();
 	}
+
+	// Draws a JSON editor for an element
+	drawJsonEditorFor( element ){
+		let text = $(element).val().trim();
+		if( !text )
+			text = "{}";
+		try{
+			text = JSON.parse(text);
+		}catch(err){
+			console.error("JSON error", err);
+		}
+
+		if( typeof text !== "string" )
+			text = JSON.stringify(text, null, 3);
+
+		const area = $("#jsonEditor textarea");
+		area.val(text);
+
+		const pos = $(element).offset();
+		$("#jsonEditor > div").css({'top':pos.top, 'left':pos.left});
+		$("#jsonEditor").toggleClass("hidden", false);
+		$("#jsonEditor div.buttons > input.save").off('click').on('click', () => {
+			let val = $("#jsonEditor textarea").val();
+			try{
+				val = JSON.parse(val);
+				val = JSON.stringify(val);
+			}catch(err){}
+			$(element).val(val);
+			$("#jsonEditor").toggleClass("hidden", true);
+		});
+
+	}
+
+
+
+
 
 	// Tags (bindable)
 	bindTags(){
@@ -545,48 +745,101 @@ export default class Modtools{
 	// CONDITIONS (Bindable)
 	bindConditions(){
 		let th = this;
+		// Add/Change Type
 		$("#assetForm div.condPanel span").off('click')
 			.on('click', function(event){
 				const el = $(this);
 				if( el.hasClass('add') ){
 					el.parent().parent().append(th.inputConditions(""));
 				}
-				else if( el.hasClass('addAnd') ){
-					el.parent().parent().append(th.formConditions([{}], 'subConditions', false));
-				}
 				else if( el.hasClass('addOr') ){
 					el.parent().parent().append(th.formConditions([{}], 'subConditions', true));
 				}
 				else if( el.hasClass('convertToAnd') ){
-					
+					$('> span', el.parent()).toggleClass('hlt', false);
+					el.toggleClass('hlt', true);
 				}
 				else if( el.hasClass('convertToOr') ){
-					
+					$('> span', el.parent()).toggleClass('hlt', false);
+					el.toggleClass('hlt', true);				
 				}
 				
 				th.bindConditions();
 				//
 			});
 
-			$("#assetForm div.condWrapper.subConditions, #assetForm div.condWrapper > input[name=condition]").off('click').on('click', function(event){
-				if( !event.ctrlKey )
-					return;
-				event.stopImmediatePropagation();
-				$(this).remove();
-				return false;
-			});
+		// Control & shift click
+		$("#assetForm div.condWrapper.subConditions, #assetForm div.condWrapper > input[name=condition]").off('click').on('click', function(event){
+
+			if( event.shiftKey ){
+				if( $(this).is('input') ){
+					th.drawJsonEditorFor( this );
+				}
+				return;
+			}
+
+			if( !event.ctrlKey )
+				return;
+
+			event.stopImmediatePropagation();
+			$(this).remove();
+			return false;
+		});
+
+		// Todo: Shift click
+
+		// Templates
+		$("div.presetConditions > input").off('click').on('click', function(){
+
+			const cName = $(this).parent().attr('data-cname');
+			const conds = JSON.parse($(this).attr('data-conds'));
+			const baselevel = $("#assetForm div.condWrapper."+cName+" > input[name=condition]");
+
+			for( let cond of conds ){
+				if( typeof cond !== "string" )
+					cond = JSON.stringify(cond);
+				if( baselevel.filter((_,el) => $(el).val() === cond).length )
+					continue;
+
+				$("#assetForm div.condWrapper."+cName).append(th.inputConditions(cond));
+			}
+
+		});
+	
+	}
+
+	compileConditionElement( base ){
+
+		const isOr = base.hasClass('subConditions') && $('span.convertToOr',base).hasClass('hlt');
+		const out = {
+			conditions : [],
+			min : isOr ? 1 : -1
+		};
+
+		$('>',base).each((index, value) => {
+			const el = $(value);
+			if( el.is('input[name=condition]') ){
+				let base = el.val().trim(), val = base;
+				try{
+					base = JSON.parse(base);
+					val = base;
+				}catch(err){}
+				if( val )
+					out.conditions.push(val);
+			}
+			else if( el.is('div.subConditions') ){
+				out.conditions.push(this.compileConditionElement(el));
+			}
+		});
+		return out;
+
 	}
 
 	compileConditions( cName = 'conditions' ){
-		const base = $('#assetForm div.'+cName+' input[name=condition]');
-		const out = [];
-		base.each((index, value) => {
-			const el = $(value);
-			const val = el.val().trim();
-			if( val )
-				out.push(val);
-		});
-		return out;
+
+		const base = $('#assetForm div.'+cName);
+		return this.compileConditionElement(base).conditions;
+		
 	}
 
 	inputConditions( cond = '' ){
@@ -597,36 +850,27 @@ export default class Modtools{
 
 	}
 
-	formGetHeaders( isRoot = false, isOr = false ){
-		let out = '';
+	formConditions( conds = [], cName = 'conditions', isOr = false ){
+
+		// TODO:
+		/*
+			Shift-click to open a JSON editor
+		*/
+		let out = '<div class="condWrapper '+cName+'">';
 		out += '<div class="condPanel">'+
-			'<span class="add">+</span> '+
-			'<span class="addAnd">+AND</span> '+
-			'<span class="addOr">+OR</span>'+
-			(!isRoot ? 
+			'<span class="add">+Cond</span> '+
+			'<span class="addOr">+Logic</span> '+
+			(cName === 'subConditions' ? 
 				' | '+
 				'<span class="convertToAnd '+(!isOr ? 'hlt' : '')+'">AND</span>'+
 				'<span class="convertToOr '+(isOr ? 'hlt' : '')+'">OR</span>' 
 			: '')+
 		'</div>';
-		return out;
-	}
-
-	formConditions( conds = [], cName = 'conditions', isOr = false ){
-
-		// TODO:
-		/*
-			Needs to be able to handle sub-conditions and arrays
-			Convert arrays to objects
-		*/
-		console.log("Getting formConditions", conds);
-		let out = '<div class="condWrapper '+cName+'">';
-		out+= this.formGetHeaders(true, isOr);
 		for( let cond of conds ){
 			if( Array.isArray(cond) )
 				cond = {conditions:cond};
 			if( Array.isArray(cond.conditions) && cond.conditions.length ){
-				out += this.formConditions(cond.conditions, 'subConditions');
+				out += this.formConditions(cond.conditions, 'subConditions', cond.min != -1);
 			}
 			else
 				out+= this.inputConditions(cond);
@@ -635,6 +879,17 @@ export default class Modtools{
 		return out;
 
 	}
+
+	// Builds preset condition buttons
+	// Accepts an object with label : [conditions...]
+	presetConditions( buttons = {}, cName = 'conditions' ){
+		let out = 'Collections: <div class="presetConditions" data-cname="'+esc(cName)+'">';
+		for( let i in buttons )
+			out += '<input type="button" value="'+i+'" data-conds="'+esc(JSON.stringify(buttons[i]))+'" />';
+		out += '</div>';
+		return out;
+	}
+
 
 	
 
@@ -680,8 +935,9 @@ export default class Modtools{
 	}
 
 	formSoundKits( kits = [], cName = 'soundKits' ){
-		
-		console.log("kits", kits);
+
+		if( !Array.isArray(kits) )
+			kits = [];
 		let out = '<div class="'+cName+'">';
 		out += '<input type="button" class="addSoundKitHere" value="Add SoundKit" />';
 		for( let kit of kits )

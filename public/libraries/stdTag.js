@@ -13,6 +13,7 @@ export default {
 	breasts : 'pl_breasts',
 	plBigBreasts : 'pl_big_breasts',
 	butt : 'pl_butt',
+	plBigButt : 'pl_big_butt',
 	
 	// Species tags for players
 	plFurry : 'pl_furry',			// Player has fur

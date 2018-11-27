@@ -78,6 +78,11 @@ export default class Mod extends Generic{
 
 	}
 
+	async delete(){
+		let ret = await Mod.db.mods.delete(this.id);
+		return ret;
+	}
+
 }
 
 Mod.db = new Dexie("mod");
