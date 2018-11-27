@@ -11,6 +11,8 @@ import Asset from '../classes/Asset.js';
 import Player from '../classes/Player.js';
 import GameEvent from '../classes/GameEvent.js';
 import Text from '../classes/Text.js';
+import Generic from '../classes/helpers/Generic.js';
+import Condition from '../classes/Condition.js';
 
 export default class Modtools{
 
@@ -324,10 +326,16 @@ export default class Modtools{
 		
 		$("div.modButtons div.button[data-id]").on('click', function(){
 			const id = $(this).attr('data-id');
-			if( typeof th['mml_'+id] === 'function' )
+			if( typeof th['mml_'+id] === 'function' ){
+				localStorage.devMML = id;
 				th['mml_'+id]();
+			}
 		});
-		this.mml_texts();
+
+		if( localStorage.devMML && typeof th['mml_'+localStorage.devMML] === "function" )
+			this['mml_'+localStorage.devMML]();
+		else
+			this.mml_texts();
 
 	}
 
@@ -470,7 +478,75 @@ export default class Modtools{
 
 	}
 
+
+
+	// Todo: Find similarities in this, and make a generic mma to lower the amount of code needed for the rest of these assets
+
+
+	
 	mml_conditions(){
+
+		const wrapper = $("div.assetList");
+		let table = this.mod.conditions;
+		const sfType = 'conditions';
+
+		let html = '<br /><h3>Conditions</h3>'+
+			'<input type="button" id="insertAsset" value="Insert" /><br />'+
+			'<table class="editor listing clickable conditionsEditor searchable">';
+			html += '<tr>';
+				html += '<th>Label</th>';
+				html += '<th>Type</th>';
+				html += '<th>IsCol.</th>';
+				html += '<th>Data</th>';
+				html += '<th>TargNr</th>';
+				html += '<th>Sender</th>';
+				html += '<th>Inverse</th>';
+				html += '<th>Any Player</th>';
+			html += '</tr>';
+
+		for( let i in table ){
+
+			const asset = table[i];
+			html += '<tr data-index="'+esc(i)+'">';
+
+				html += '<td>'+esc(asset.label)+'</td>';
+				html += '<td>'+esc(asset.type)+'</td>';
+				html += '<td>'+(Array.isArray(asset.conditions) && asset.conditions.length ? 'X' : '')+'</td>';
+				html += '<td>'+(asset.data ? esc(JSON.stringify(asset.data)) : '{}')+'</td>';
+				html += '<td>'+(+asset.targnr ? asset.targnr : -1)+'</td>';
+				html += '<td>'+(asset.sender ? 'X' : '')+'</td>';
+				html += '<td>'+(asset.inverse ? 'X' : '')+'</td>';
+				html += '<td>'+(asset.anyPlayer ? 'X' : '')+'</td>';
+
+			html += '</tr>';
+
+		}
+
+		html += '</table>';
+
+
+		wrapper.html(html);
+		this.mmlMakeSearchable(sfType);
+
+		// Attach the editor
+		let th = this;
+		$("table.editor tr[data-index]").on('click', function(){
+			const index = +$(this).attr('data-index');
+			const asset = table[index];
+			th.editor_condition(asset);
+		});
+
+		$("#insertAsset").on('click', async () => {
+			
+			let asset = new Condition({label:Generic.generateUUID().substr(0,8), type:Condition.Types.event}).save(true);
+			asset.min = 1;
+			asset.max = -1;
+			table.push(asset);
+			this.editor_condition(asset);
+			await this.mod.save();
+			this.mml_conditions();
+
+		});
 
 	}
 
@@ -650,6 +726,90 @@ export default class Modtools{
 	}
 
 
+	editor_condition( asset = {} ){
+
+		const table = this.mod.conditions;
+
+		// Helper function
+		const save = async () => {
+
+			const form = $("#assetForm");
+			asset.label = $("input[name=label]", form).val().trim();
+			asset.type = this.compileConditionTypes();
+			asset.data = $("input[name=data]", form).val().trim();
+			try{
+				asset.data = JSON.parse(asset.data);
+			}catch(err){}
+			asset.anyPlayer = $("input[name=anyPlayer]", form).is(':checked');
+			asset.caster = $("input[name=caster]", form).is(':checked');
+			asset.inverse = $("input[name=inverse]", form).is(':checked');
+			asset.targnr = +$("input[name=targnr]", form).val();
+			asset.conditions = this.compileConditions();
+			asset.min = +$("input[name=min]", form).val();
+			asset.max = +$("input[name=max]", form).val();
+			
+			await this.mod.save();
+			this.mml_conditions();
+			this.modal.close();
+		}
+
+		let html = '<form id="assetForm">';
+			html += '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_conditionName.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Type: '+this.formConditionTypes()+'<br />';
+			html += 'Data: <input type="text" name="data" class="json" value="'+(asset.data && typeof asset.data !== "string" ? esc(JSON.stringify(asset.data)) : esc(asset.data))+'" /><br />';
+			html += '<span title="If multiple players are in the event, only one needs this">AnyPlayer</span>: <input type="checkbox" value="1" name="anyPlayer" '+(asset.anyPlayer ? 'checked' : '')+' /><br />';
+			html += '<span title="Target sender of an event instead of targets">Sender</span>: <input type="checkbox" value="1" name="caster" '+(asset.caster ? 'checked' : '')+' /><br />';
+			html += '<span title="Returns TRUE if condition is NOT valid">Inverse</span>: <input type="checkbox" value="1" name="inverse" '+(asset.inverse ? 'checked' : '')+' /><br />';
+			html += '<span title="Target to check against, -1 for ALL">TargNr</span>: <input type="number" min=-1 step=1 value="'+(isNaN(asset.targnr) ? -1 : +asset.targnr)+'" name="targnr" /><br />';
+			
+			html += '<hr />';
+			html += '<p>Note: Using a subcondition turns this into a collection, and data above will be ignored.</p>';
+			html += 'Subconditions: '+this.formConditions(asset.conditions)+'<br />';
+			html += '<br />';
+			html += '<p>For AND, use -1 for both values. For OR use 1 for min and -1 for max.</p>';
+			html += '<span title="Use -1 for infinity">Min Subconditions: <input type="number" name="min" step=1 min=-1 value="'+(isNaN(asset.min) ? 1 : +asset.min)+'"  /></span><br />';
+			html += '<span title="Use -1 for infinity">Max Subconditions: <input type="number" name="max" step=1 min=-1 value="'+(isNaN(asset.max) ? -1 : +asset.max)+'"  /></span><br />';
+			
+			html += '<input type="submit" value="Save" />';
+			html += '<input type="button" value="Save Copy" id="assetSaveCopy" />';
+			html += '<input type="button" value="Delete" id="assetDelete" />';
+		html += '</form>';
+
+		this.modal.set(html);
+		this.bindFormHelpers();
+
+		$("#assetDelete").on('click', async () => {
+			if( !confirm('Are you sure you want to delete this?') )
+				return;
+			for( let t in table ){
+				if( table[t] === asset ){
+					table.splice(t, 1);
+					await this.mod.save();
+					this.modal.close();
+					this.mml_conditions();
+					return;
+				}
+			}
+		});
+
+		$("#assetSaveCopy").on('click', async () => {
+			asset = JSON.parse(JSON.stringify(asset));
+			table.push(asset);
+			await save();
+			this.editor_condition(text);
+			const el = $("#assetSaveCopy");
+			el.val("Saved!");
+			setTimeout(() => el.val("Save Copy"), 1000);
+		});
+
+
+		$("#assetForm").on('submit', () => {
+			save();
+			return false;
+		});
+
+	}
 
 
 
@@ -662,9 +822,26 @@ export default class Modtools{
 
 	// FORM HELPERS
 	bindFormHelpers(){
+
+		// Binds JSOn as well
+		// Has to go above bindConditions since that one binds control clicks
+		const th = this;
+		$("#assetForm input.json").off('click').on('click', function(){
+			if( event.shiftKey ){
+				if( $(this).is('input') ){
+					th.drawJsonEditorFor( this );
+				}
+				return;
+			}
+		});
+
+
 		this.bindTags();
 		this.bindSoundKits();
 		this.bindConditions();
+
+		
+
 	}
 
 	// Draws a JSON editor for an element
@@ -739,6 +916,21 @@ export default class Modtools{
 	}
 
 
+	// Condition types
+	compileConditionTypes( cName = 'conditionType' ){
+		return $("#assetForm div."+cName+" > select").val();
+	}
+	formConditionTypes( type = '', cName = 'conditionType' ){
+		const lib = Condition.Types;
+		let out = '<div class="'+cName+'">';
+			out += '<select name="conditionType">';
+			for( let i in lib )
+				out += '<option title="'+esc(Condition.descriptions[lib[i]])+'" value="'+lib[i]+'" '+(lib[i] === type ? 'selected' : '')+'>'+i+'</option>';
+			out += '</select>';
+		out += '</div>';
+		return out;
+	}
+
 
 
 
@@ -764,20 +956,13 @@ export default class Modtools{
 					el.toggleClass('hlt', true);				
 				}
 				
-				th.bindConditions();
+				th.bindFormHelpers();
 				//
 			});
 
 		// Control & shift click
-		$("#assetForm div.condWrapper.subConditions, #assetForm div.condWrapper > input[name=condition]").off('click').on('click', function(event){
-
-			if( event.shiftKey ){
-				if( $(this).is('input') ){
-					th.drawJsonEditorFor( this );
-				}
-				return;
-			}
-
+		$("#assetForm div.condWrapper.subConditions, #assetForm div.condWrapper > input[name=condition]:not(.json)").off('click');
+		$("#assetForm div.condWrapper.subConditions, #assetForm div.condWrapper > input[name=condition]").on('click', function(event){
 			if( !event.ctrlKey )
 				return;
 
@@ -785,8 +970,6 @@ export default class Modtools{
 			$(this).remove();
 			return false;
 		});
-
-		// Todo: Shift click
 
 		// Templates
 		$("div.presetConditions > input").off('click').on('click', function(){
@@ -846,16 +1029,12 @@ export default class Modtools{
 		
 		if( typeof cond !== 'string' )
 			cond = JSON.stringify(cond);
-		return '<input type="text" name="condition" value="'+esc(cond)+'" list="conditions" />';
+		return '<input type="text" class="json" name="condition" value="'+esc(cond)+'" list="conditions" />';
 
 	}
 
 	formConditions( conds = [], cName = 'conditions', isOr = false ){
 
-		// TODO:
-		/*
-			Shift-click to open a JSON editor
-		*/
 		let out = '<div class="condWrapper '+cName+'">';
 		out += '<div class="condPanel">'+
 			'<span class="add">+Cond</span> '+

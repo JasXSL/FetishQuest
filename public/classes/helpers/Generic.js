@@ -67,13 +67,7 @@ export default class Generic{
 	}
 
 	g_guid(){
-		let s4 = () => {
-			return Math.floor((1 + Math.random()) * 0x10000)
-			  .toString(16)
-			  .substring(1);
-		};
-		return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-		  s4() + '-' + s4() + s4() + s4();
+		return Generic.generateUUID();
 	}
 
 	g_resetID(){
@@ -171,4 +165,14 @@ Generic.saveThese = function( entries = [], full = false ){
 		}
 		el.save(full);
 	});
+}
+
+Generic.generateUUID = function(){
+	let s4 = () => {
+		return Math.floor((1 + Math.random()) * 0x10000)
+		  .toString(16)
+		  .substring(1);
+	};
+	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+	  s4() + '-' + s4() + s4() + s4();
 }

@@ -22,7 +22,7 @@ export default class Condition extends Generic{
 		this.label = '';
 		this.conditions = [];		// Sub 
 		this.min = 1;				// min conditions
-		this.max = Infinity;		// max conditions
+		this.max = -1;		// max conditions
 
 		this.type = "";				// Type of condition
 		this.data = {};				// Condition data, variable type, but must be json encodable
@@ -67,6 +67,8 @@ export default class Condition extends Generic{
 
 		if( this.min === -1 )
 			this.min = Infinity;
+		if( this.max === -1 )
+			this.max = Infinity;
 
 		// This lets you set min to infinity to have an AND
 		if( this.min > this.conditions.length )
@@ -444,33 +446,62 @@ Condition.loadThese = function( conditions, parent ){
 
 
 Condition.Types = {
-	tag : "tag",					// {tags:(arr)(str)tag} one or many tags, many tags are ORed
-	wrapperTag : "wrapperTag",		// {tags:(arr)(str)tag} one or more tags searched in any attached wrapper
-	actionTag : "actionTag",		// {tags:(arr)(str)tag} one or more tags searched in any attached action
+	tag : "tag",					// 
+	wrapperTag : "wrapperTag",		// 
+	actionTag : "actionTag",		// 
 	sameTeam : "sameTeam",
-	event : "event",				// {event:(arr)(str)event} one or many event types, many types are ORed
-	actionLabel : "actionLabel",	// {label:(arr)(str)label} Data is one or many action labels
-	actionDetrimental : "actionDetrimental",	// Data is void
-	actionResisted : "actionResisted",			// Data is optional, but can also be {type:(str)/(arr)Action.Type}
-	rng : "rng",								// {chance:(nr)(str)chance} number/str that outputs an int between 0 and 100%
-	isWrapperParent : 'isWrapperParent',		// void - Target was the wrapper's parent. Used to check if a wrapper, effect, or action hit a player with an effect
-	actionHidden : 'actionHidden',				// void - Action exists and is hidden
-	effectLabel : 'effectLabel',				// {label:(arr)(str)label}
-	wrapperStacks : 'wrapperStacks',			// {amount:(int)stacks, operation:(str)">" "<" "="} - Operation is = by default
-	hasWrapper : 'hasWrapper',		// {label:(arr)(str)label, byCaster:(bool)byCaster}
-	apValue : 'apValue', 			// {amount:(int)amount, operation:(str)<>=} - Default >
-	mpValue : 'mpValue', 			// {amount:(int)amount, operation:(str)<>=} - Default >
-	hpValue : 'hpValue', 			// {amount:(int)amount, operation:(str)<>=} - Default >
-	textTag : 'textTag',			// {tags:(arr)(str)tag} - Checks special text tags that are wiped on turn end or when a player receives an action text
-	sizeValue : 'sizeValue',		// Same as the other nValue conditions
-	genitalSizeValue : 'genitalSizeValue',		// {amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >
-	notInCombat : 'notInCombat',				// void - Combat isn't active
-	hasRepairable : 'hasRepairable',			// void - Has repairable items in their inventory
-	questIs : 'questIs',						// obj - Compares properties of the event quest property to obj properties. Simple check of ===
-	team : 'team',								// {team:(int arr)team(s)}
-	defeated : 'defeated',						// void - Player is defeated
-	punishNotUsed : 'punishNotUsed',			// void - Player has not yet used a punishment since the end of the battle 
-	wrapperHasEffect : 'wrapperHasEffect',		// {filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches
+	event : "event",				// 
+	actionLabel : "actionLabel",	// 
+	actionDetrimental : "actionDetrimental",	// 
+	actionResisted : "actionResisted",			// 
+	rng : "rng",								// 
+	isWrapperParent : 'isWrapperParent',		// 
+	actionHidden : 'actionHidden',				// 
+	effectLabel : 'effectLabel',				// 
+	wrapperStacks : 'wrapperStacks',			// 
+	hasWrapper : 'hasWrapper',		// 
+	apValue : 'apValue', 			// 
+	mpValue : 'mpValue', 			// 
+	hpValue : 'hpValue', 			// 
+	textTag : 'textTag',			// 
+	sizeValue : 'sizeValue',		// 
+	genitalSizeValue : 'genitalSizeValue',		// 
+	notInCombat : 'notInCombat',				// 
+	hasRepairable : 'hasRepairable',			// 
+	questIs : 'questIs',						// 
+	team : 'team',								// 
+	defeated : 'defeated',						// 
+	punishNotUsed : 'punishNotUsed',			//  
+	wrapperHasEffect : 'wrapperHasEffect',		// 
+};
+
+Condition.descriptions = {
+	[Condition.Types.tag] : '{tags:(arr)(str)tag} one or many tags, many tags are ORed',
+	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached wrapper',
+	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
+	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
+	[Condition.Types.actionLabel] : '{label:(arr)(str)label} Data is one or many action labels',
+	[Condition.Types.actionDetrimental] : 'Data is void',
+	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
+	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100%',
+	[Condition.Types.isWrapperParent] : 'void - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
+	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
+	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
+	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "="} - Operation is = by default',
+	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster}',
+	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
+	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
+	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
+	[Condition.Types.textTag] : '{tags:(arr)(str)tag} - Checks special text tags that are wiped on turn end or when a player receives an action text',
+	[Condition.Types.sizeValue] : 'Same as the other nValue conditions',
+	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >',
+	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',
+	[Condition.Types.hasRepairable] : 'void - Has repairable items in their inventory',
+	[Condition.Types.questIs] : 'obj - Compares properties of the event quest property to obj properties. Simple check of ===',
+	[Condition.Types.team] : '{team:(int arr)team(s)}',
+	[Condition.Types.defeated] : 'void - Player is defeated',
+	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
+	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches',	
 };
 
 
