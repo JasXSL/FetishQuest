@@ -29,6 +29,10 @@ export default class Modtools{
 
 		this.searchTimer = null;								// Timer for searching in tables
 
+		this.searchFilters = {};
+		try{
+			this.searchFilters = JSON.parse(localStorage.devSearchFilters);
+		}catch(err){ this.searchFilters = {}; }
 		
 		window.addEventListener("hashchange", () => this.navigate(), false);
 
@@ -65,7 +69,8 @@ export default class Modtools{
 
 		let tagFullSel = '', 
 			tagTtSel = '',
-			soundKits = ''
+			soundKits = '',
+			conditions = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -77,16 +82,35 @@ export default class Modtools{
 
 		const kits = glib.getFull('AudioKit');
 		for( let kit in kits )
-			soundKits += '<option value="'+kit+'" />';
+			soundKits += '<option value="'+esc(kit)+'" />';
+
+		const conds = glib.getFull('Condition');
+		for( let cond in conds )
+			conditions += '<option value="'+esc(cond)+'">';
 		
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
 			'<datalist id="tagsTT"><select>'+tagTtSel+'</select></datalist>'+
-			'<datalist id="soundKits"><select>'+soundKits+'</select></datalist>'
+			'<datalist id="soundKits"><select>'+soundKits+'</select></datalist>'+
+			'<datalist id="conditions"><select>'+conditions+'</select></datalist>'
 		);
 
 	}
 
+	getSearchFilter( type, field ){
+		if( !this.searchFilters[type] )
+			return '';
+		if( !this.searchFilters[type][field] )
+			return '';
+		return this.searchFilters[type][field];
+	}
+
+	setSearchFilter( type, field, val ){
+		if( !this.searchFilters[type] )
+			this.searchFilters[type] = {};
+		this.searchFilters[type][field] = val;
+		localStorage.devSearchFilters = JSON.stringify(this.searchFilters);
+	}
 
 	// Mod selection
 	async drawModSelect(){
@@ -267,28 +291,38 @@ export default class Modtools{
 
 
 	// Makes a table.editor.searchable searchable
-	mmlMakeSearchable(){
+	mmlMakeSearchable( sfType = '' ){
 
 		const header = $("table.editor.searchable");
 		const topRow = $("tr:first", header);
-		const numElements = $("> th", topRow).length;
+		const elements = $("> th", topRow);
+		const numElements = elements.length;
+
 		let html = '<tr class="search">';
-		for( let i=0; i<numElements; ++i )
-			html += '<td contenteditable></td>';
+		for( let i=0; i<numElements; ++i ){
+			html += '<td contenteditable>'+(this.getSearchFilter(sfType, $(elements[i]).text().trim()))+'</td>';
+		}
 		html += '</tr>';
 		topRow.after(html);
-
+		
 		let th = this;
 		$("tr.search td", header).on('input', function(){
 			clearTimeout(th.searchTimer);
-			th.searchTimer = setTimeout(() => th.mmlPerformSearch(), 500);
+			th.searchTimer = setTimeout(() => {
+				th.mmlPerformSearch( sfType );
+			}, 500);
 		});
+
+		this.mmlPerformSearch( sfType );
 
 	}
 
-	mmlPerformSearch(){
-		let searchable = [];
-		$("table.editor.searchable tr.search td").each((v,el) => searchable.push($(el).text().trim()));
+	mmlPerformSearch( sfType ){
+		const searchable = [];
+		$("table.editor.searchable tr.search td").each((v,el) => searchable.push($(el).text().trim().toLowerCase()));
+		$("table.editor.searchable th").each((index,el) => {
+			this.setSearchFilter( sfType, $(el).text().trim(), searchable[index] );
+		});
 		
 		$("table.editor.searchable tr[data-index]").each((v,el) => {
 
@@ -320,6 +354,7 @@ export default class Modtools{
 	mml_texts(wrapper){
 
 		let texts = this.mod.texts;
+		const sfType = 'texts';
 
 		let html = '<br /><h3>Texts</h3><table class="editor listing clickable textEditor searchable">';
 			html += '<tr>';
@@ -365,7 +400,7 @@ export default class Modtools{
 
 
 		wrapper.html(html);
-		this.mmlMakeSearchable();
+		this.mmlMakeSearchable(sfType);
 
 		let th = this;
 		$("table.textEditor tr[data-index]").on('click', function(){
@@ -465,6 +500,7 @@ export default class Modtools{
 	bindFormHelpers(){
 		this.bindTags();
 		this.bindSoundKits();
+		this.bindConditions();
 	}
 
 	// Tags (bindable)
@@ -509,9 +545,35 @@ export default class Modtools{
 	// CONDITIONS (Bindable)
 	bindConditions(){
 		let th = this;
-		$("#assetForm input.addConditionHere").off('click')
-			.on('click', function(){
-				$(this).parent().append(th.inputSoundKit(""));
+		$("#assetForm div.condPanel span").off('click')
+			.on('click', function(event){
+				const el = $(this);
+				if( el.hasClass('add') ){
+					el.parent().parent().append(th.inputConditions(""));
+				}
+				else if( el.hasClass('addAnd') ){
+					el.parent().parent().append(th.formConditions([{}], 'subConditions', false));
+				}
+				else if( el.hasClass('addOr') ){
+					el.parent().parent().append(th.formConditions([{}], 'subConditions', true));
+				}
+				else if( el.hasClass('convertToAnd') ){
+					
+				}
+				else if( el.hasClass('convertToOr') ){
+					
+				}
+				
+				th.bindConditions();
+				//
+			});
+
+			$("#assetForm div.condWrapper.subConditions, #assetForm div.condWrapper > input[name=condition]").off('click').on('click', function(event){
+				if( !event.ctrlKey )
+					return;
+				event.stopImmediatePropagation();
+				$(this).remove();
+				return false;
 			});
 	}
 
@@ -528,24 +590,47 @@ export default class Modtools{
 	}
 
 	inputConditions( cond = '' ){
-		console.log("Cond", cond, typeof cond);
-		if( typeof cond === 'object' )
+		
+		if( typeof cond !== 'string' )
 			cond = JSON.stringify(cond);
-		return '<input type="text" name="soundKit" value="'+esc(cond)+'" list="soundKits" />';
+		return '<input type="text" name="condition" value="'+esc(cond)+'" list="conditions" />';
+
 	}
 
-	formConditions( conds = [], cName = 'conditions' ){
+	formGetHeaders( isRoot = false, isOr = false ){
+		let out = '';
+		out += '<div class="condPanel">'+
+			'<span class="add">+</span> '+
+			'<span class="addAnd">+AND</span> '+
+			'<span class="addOr">+OR</span>'+
+			(!isRoot ? 
+				' | '+
+				'<span class="convertToAnd '+(!isOr ? 'hlt' : '')+'">AND</span>'+
+				'<span class="convertToOr '+(isOr ? 'hlt' : '')+'">OR</span>' 
+			: '')+
+		'</div>';
+		return out;
+	}
+
+	formConditions( conds = [], cName = 'conditions', isOr = false ){
 
 		// TODO:
 		/*
 			Needs to be able to handle sub-conditions and arrays
 			Convert arrays to objects
 		*/
-		
-		let out = '<div class="'+cName+'">';
-		out += '<input type="button" class="addConditionHere" value="Add Condition" />';
-		for( let cond of conds )
-			out+= this.inputSoundKit(cond);
+		console.log("Getting formConditions", conds);
+		let out = '<div class="condWrapper '+cName+'">';
+		out+= this.formGetHeaders(true, isOr);
+		for( let cond of conds ){
+			if( Array.isArray(cond) )
+				cond = {conditions:cond};
+			if( Array.isArray(cond.conditions) && cond.conditions.length ){
+				out += this.formConditions(cond.conditions, 'subConditions');
+			}
+			else
+				out+= this.inputConditions(cond);
+		}
 		out += '</div>';
 		return out;
 

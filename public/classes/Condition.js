@@ -65,6 +65,9 @@ export default class Condition extends Generic{
 		// Load subs
 		this.conditions = Condition.loadThese(this.conditions, this);
 
+		if( this.min === -1 )
+			this.min = Infinity;
+
 		// This lets you set min to infinity to have an AND
 		if( this.min > this.conditions.length )
 			this.min = this.conditions.length;
