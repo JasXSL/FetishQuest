@@ -6,6 +6,8 @@ import Mod from '../classes/Mod.js';
 import GameLib from '../classes/GameLib.js';
 import MAIN_MOD from '../libraries/_main_mod.js';
 import Modal from '../classes/Modal.js';
+import stdTag from '../libraries/stdTag.js';
+import Asset from '../classes/Asset.js';
 
 export default class Modtools{
 
@@ -22,6 +24,10 @@ export default class Modtools{
 		this.mod = new Mod();
 		this.main_mod = MAIN_MOD;
 		this.modal = new Modal();
+
+		this.datalists = $("#datalists");
+
+		this.searchTimer = null;								// Timer for searching in tables
 
 		
 		window.addEventListener("hashchange", () => this.navigate(), false);
@@ -53,6 +59,32 @@ export default class Modtools{
 	setPage( hash ){
 		window.location.hash = hash;
 		this.navigate();
+	}
+
+	refreshDataLists(){
+
+		let tagFullSel = '', 
+			tagTtSel = '',
+			soundKits = ''
+		;
+		for( let t in stdTag ){
+			const tag = stdTag[t];
+			const opt = '<option value="'+tag+'" />';
+			if( t.substr(0,2) === 'tt' )
+				tagTtSel += opt;
+			tagFullSel += opt;
+		}
+
+		const kits = glib.getFull('AudioKit');
+		for( let kit in kits )
+			soundKits += '<option value="'+kit+'" />';
+		
+		this.datalists.html(
+			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
+			'<datalist id="tagsTT"><select>'+tagTtSel+'</select></datalist>'+
+			'<datalist id="soundKits"><select>'+soundKits+'</select></datalist>'
+		);
+
 	}
 
 
@@ -96,7 +128,7 @@ export default class Modtools{
 					mod.materialTemplates.length+'m'+
 				'</td>'+
 				'<td>'+mod.assets.length+'</td>'+
-				'<td>'+mod.audioKits.length+'</td>'+
+				'<td>'+mod.audiokits.length+'</td>'+
 				'<td>'+mod.conditions.length+'</td>'+
 				'<td>'+mod.dungeons.length+'</td>'+
 				'<td>'+mod.effects.length+'</td>'+
@@ -146,6 +178,7 @@ export default class Modtools{
 		this.backButton.show().on('click', () => this.setPage(""));
 
 		glib.loadMods([this.main_mod, this.mod]);
+		this.refreshDataLists();
 		let mod = this.mod;
 
 		let html = '<h1>Editing '+esc(mod.name)+'</h1>';
@@ -179,7 +212,7 @@ export default class Modtools{
 			'<div class="button" data-id="dungeonTemplates">Dungeon Templates</div>'+
 			'<div class="button" data-id="dungeonRoomTemplates">Room Templates</div>'+
 			'<div class="button" data-id="materialTemplates">Material Templates</div>'+
-			'<div class="button" data-id="audioKits">Audio Kits</div>'+
+			'<div class="button" data-id="audiokits">Audio Kits</div>'+
 		'</div>';
 
 		html += '<div class="assetList"></div>';
@@ -225,17 +258,70 @@ export default class Modtools{
 			const id = $(this).attr('data-id');
 			if( typeof th['mml_'+id] === 'function' ){
 				th['mml_'+id](assetList);
+				
 			}
 		});
 		this.mml_texts(assetList);
 
 	}
 
+
+	// Makes a table.editor.searchable searchable
+	mmlMakeSearchable(){
+
+		const header = $("table.editor.searchable");
+		const topRow = $("tr:first", header);
+		const numElements = $("> th", topRow).length;
+		let html = '<tr class="search">';
+		for( let i=0; i<numElements; ++i )
+			html += '<td contenteditable></td>';
+		html += '</tr>';
+		topRow.after(html);
+
+		let th = this;
+		$("tr.search td", header).on('input', function(){
+			clearTimeout(th.searchTimer);
+			th.searchTimer = setTimeout(() => th.mmlPerformSearch(), 500);
+		});
+
+	}
+
+	mmlPerformSearch(){
+		let searchable = [];
+		$("table.editor.searchable tr.search td").each((v,el) => searchable.push($(el).text().trim()));
+		
+		$("table.editor.searchable tr[data-index]").each((v,el) => {
+
+			const tds = $('> td', el);
+			let i = 0;
+			for( let td of tds ){
+
+				// Accept all here
+				const searchFor = searchable[i++];
+				if( !searchFor )
+					continue;
+				
+				// search here
+				const text = $(td).text().toLowerCase().trim();
+				if( text.indexOf(searchFor) === -1 ){
+					$(el).hide();
+					return;
+				}
+					
+			}
+
+			$(el).show();
+
+		});
+
+	}
+
 	// ModMenuList Helpers for above
 	mml_texts(wrapper){
+
 		let texts = this.mod.texts;
 
-		let html = '<br /><h3>Texts</h3><table class="editor listing clickable textEditor">';
+		let html = '<br /><h3>Texts</h3><table class="editor listing clickable textEditor searchable">';
 			html += '<tr>';
 				html += '<th>Text</th>';
 				html += '<th>Conditions</th>';
@@ -245,21 +331,31 @@ export default class Modtools{
 				html += '<th>aAuto</th>';
 				html += '<th>nTarg</th>';
 				html += '<th>aOut</th>';
+				html += '<th>Debug</th>';
 			html += '</tr>';
 
 		let i = 0;
 		for( let text of texts ){
 
+			// This can be removed later, it's legacy
+			if( text.soundkits ){
+				text.audiokits = text.soundkits;
+				delete text.soundkits;
+			}
+			if( !Array.isArray(text.audiokits) )
+				text.audiokits = [text.audiokits];
+
 			html += '<tr data-index="'+(i++)+'">';
-			
+
 				html += '<td>'+esc(text.text)+'</td>';
 				html += '<td>'+text.conditions.map(el => typeof el === "string" ? esc(el) : 'Custom').join(', ')+'</td>';
 				html += '<td>'+(text.turnTags ? text.turnTags.map(el => esc(el)) : '')+'</td>';	
 				html += '<td>'+(text.armor_slot ? esc(text.armor_slot) : '')+'</td>';
-				html += '<td>'+(text.audioKits ? text.audioKits.map(el => typeof el === "string" ? esc(el) : 'Custom') : '')+'</td>';
+				html += '<td>'+(text.audiokits ? text.audiokits.map(el => typeof el === "string" ? esc(el) : 'Custom') : '')+'</td>';
 				html += '<td>'+(text.alwaysAuto ? 'X' : '')+'</td>';
 				html += '<td>'+(isNaN(text.numTargets) ? 1 : +text.numTargets)+'</td>';
 				html += '<td>'+(text.alwaysOutput ? 'X' : '')+'</td>';
+				html += '<td>'+(text.debug ? 'X' : '')+'</td>';
 
 			html += '</tr>';
 
@@ -269,6 +365,7 @@ export default class Modtools{
 
 
 		wrapper.html(html);
+		this.mmlMakeSearchable();
 
 		let th = this;
 		$("table.textEditor tr[data-index]").on('click', function(){
@@ -278,12 +375,13 @@ export default class Modtools{
 			let html = '<form id="assetForm">';
 				html += 'Text: <input type="text" name="text" value="'+esc(text.text)+'" /><br />';
 				html += 'Nr Players: <input type="number" min=1 step=1 name="numTargets" value="'+(+text.numTargets || 1)+'" /><br />';
-				html += 'Conditions: TODO: CONDITION EDITOR<br />';
-				html += 'TextTags: TODO: TT EDITOR<br />';
-				html += 'Armor Slot: TODO: Slot selector<br />';
-				html += 'Audio: TODO: Soundkit selector<br />';
+				html += 'Conditions: '+th.formConditions(text.conditions)+'<br />';
+				html += 'TextTags: '+th.formTags(text.turnTags, 'turnTags', 'tagsTT')+'<br />';
+				html += 'Armor Slot: '+th.formArmorSlot(text.armor_slot)+'<br />';
+				html += 'Audio: '+th.formSoundKits(text.audiokits)+'<br />';
 				html += '<span title="Always output this text even if DM mode is enabled">Always Auto</span>: <input type="checkbox" value="1" name="alwaysAuto" '+(text.alwaysAuto ? 'checked' : '')+' /><br />';
-				html += '<span title="Status texts are grouped and output after an action text is output. This bypasses that.">Always Out</span>: <input type="checkbox" value="1" name="alwaysOut" '+(text.alwaysOut ? 'checked' : '')+' /><br />';
+				html += '<span title="Status texts are grouped and output after an action text is output. This bypasses that.">Always Out</span>: <input type="checkbox" value="1" name="alwaysOutput" '+(text.alwaysOutput ? 'checked' : '')+' /><br />';
+				html += '<span title="Outputs debugging info when this text conditions are checked">Debug</span>: <input type="checkbox" value="1" name="debug" '+(text.debug ? 'checked' : '')+' /><br />';
 
 				html += '<input type="submit" value="Save" />';
 				html += '<input type="button" value="Save Copy" />';
@@ -291,6 +389,24 @@ export default class Modtools{
 			html += '</form>';
 
 			th.modal.set(html);
+			th.bindFormHelpers();
+
+			$("#assetForm").on('submit', () => {
+
+				const form = $("#assetForm");
+				text.text = $("input[name=text]", form).val();
+				text.numTargets = +$("input[name=numTargets]", form).val();
+				text.alwaysAuto = $("input[name=alwaysAuto]", form).is(':checked');
+				text.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
+				text.debug = $("input[name=debug]", form).is(':checked');
+				text.turnTags = th.compileTags();
+				text.armor_slot = th.compileArmorSlot();
+				text.audiokits = th.compileSoundKits();
+				
+
+				console.log("assetForm onSubmit", text);
+				return false;
+			});
 
 		});
 
@@ -337,7 +453,7 @@ export default class Modtools{
 	mml_materialTemplates(wrapper){
 
 	}
-	mml_audioKits(wrapper){
+	mml_audiokits(wrapper){
 
 	}
 
@@ -346,19 +462,147 @@ export default class Modtools{
 
 
 	// FORM HELPERS
-	formConditionEditor( conditions = [] ){
-		
+	bindFormHelpers(){
+		this.bindTags();
+		this.bindSoundKits();
 	}
 
-	formTextTags( tags = [] ){
+	// Tags (bindable)
+	bindTags(){
+		let th = this;
+		$("#assetForm input.addTagHere").off('click').on('click', function(){
+			const dList = $(this).parent().attr('data-list');
+			$(this).parent().append(th.inputTags("", dList));
+		});
+	}
 
+	inputTags( tag = '', dataList = 'tagsFull' ){
+		return '<input type="text" name="tag" value="'+esc(tag)+'" list="'+dataList+'" />';
+	}
+
+	// Compiles text tags into an array
+	compileTags( cName ){
+		const base = $('#assetForm div.'+cName+' input[name=tag]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			const val = el.val().trim();
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formTags( tags = [], cName = '', dataList = 'tagsFull' ){
+		let out = '<div class="'+cName+'" data-list="'+dataList+'">';
+		out += '<input type="button" class="addTagHere" value="Add Tag" />';
+		for( let tag of tags )
+			out+= this.inputTags(tag, dataList);
+		out += '</div>';
+		return out;
+	}
+
+
+
+
+
+	// CONDITIONS (Bindable)
+	bindConditions(){
+		let th = this;
+		$("#assetForm input.addConditionHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputSoundKit(""));
+			});
+	}
+
+	compileConditions( cName = 'conditions' ){
+		const base = $('#assetForm div.'+cName+' input[name=condition]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			const val = el.val().trim();
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputConditions( cond = '' ){
+		console.log("Cond", cond, typeof cond);
+		if( typeof cond === 'object' )
+			cond = JSON.stringify(cond);
+		return '<input type="text" name="soundKit" value="'+esc(cond)+'" list="soundKits" />';
+	}
+
+	formConditions( conds = [], cName = 'conditions' ){
+
+		// TODO:
+		/*
+			Needs to be able to handle sub-conditions and arrays
+			Convert arrays to objects
+		*/
+		
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addConditionHere" value="Add Condition" />';
+		for( let cond of conds )
+			out+= this.inputSoundKit(cond);
+		out += '</div>';
+		return out;
+
+	}
+
+	
+
+	// ARMOR SLOTS - NO BIND
+	compileArmorSlot(){
+		const base = $('#assetForm select[name=armorSlot]');
+		return base.val();
 	}
 
 	formArmorSlot( slot ){
-
+		let out = '<select name="armorSlot">';
+		for( let t in Asset.Slots )
+			out += '<option value="'+Asset.Slots[t]+'" '+(slot === t ? 'selected' : '')+'>'+t+'</option>';
+		out += '</select>';
+		return out;
 	}
 
-	formSoundKits( kits = [] ){
+
+
+	// SOUND KITS (Bindable)
+	bindSoundKits(){
+		let th = this;
+		$("#assetForm input.addSoundKitHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputSoundKit(""));
+			});
+	}
+
+	compileSoundKits( cName = 'soundKits' ){
+		const base = $('#assetForm div.'+cName+' input[name=soundKit]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			const val = el.val().trim();
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputSoundKit( kit = '' ){
+		return '<input type="text" name="soundKit" value="'+esc(kit)+'" list="soundKits" />';
+	}
+
+	formSoundKits( kits = [], cName = 'soundKits' ){
+		
+		console.log("kits", kits);
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addSoundKitHere" value="Add SoundKit" />';
+		for( let kit of kits )
+			out+= this.inputSoundKit(kit);
+		out += '</div>';
+		return out;
 
 	}
 

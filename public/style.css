@@ -1231,6 +1231,19 @@ div.modButtons div.button{
 	display:inline-block;
 }
 
+#assetForm input{
+	width:auto;
+}
+
+table.editor tr.search{
+	background:rgba(255,200,155,.25);
+	font-style: italic;
+}
+table.editor tr.search:hover{
+	cursor: auto;
+	background:rgba(255,200,155,.25);
+
+}
 
 
 /* */
