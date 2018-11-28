@@ -499,12 +499,6 @@ export default class Modtools{
 
 	}
 
-
-
-	// Todo: Find similarities in this, and make a generic mma to lower the amount of code needed for the rest of these assets
-
-
-
 	mml_conditions(){
 
 		this.mml_generic( 
@@ -533,43 +527,67 @@ export default class Modtools{
 
 	}
 
+	// Todo Later (need 3d editor)
 	mml_quests(){
 		console.log("Todo: Quests");
 	}
 
+	// Todo Later (need 3d editor)
 	mml_dungeons(){
 		console.log("Todo: Dungeons");
 	}
+
+	// Todo now
 	mml_playerClasses(){
 
 	}
+
+	// Todo now
 	mml_action(){
 
 	}
+
+	// Todo now
 	mml_wrappers(){
 
 	}
+
+	// Todo now
 	mml_effects(wrapper){
 
 	}
+
+	// Todo now
 	mml_assets(wrapper){
 
 	}
+
+	// Todo now
 	mml_playerTemplates(wrapper){
 
 	}
+
+	// Todo now
 	mml_assetTemplates(wrapper){
 
 	}
+
+	// Todo now
 	mml_dungeonTemplates(wrapper){
 
 	}
+
+	// Todo now
 	mml_dungeonRoomTemplates(wrapper){
 
 	}
+
+	// Todo now
 	mml_materialTemplates(wrapper){
 
 	}
+
+	// Todo now
 	mml_audiokits(wrapper){
 
 	}
