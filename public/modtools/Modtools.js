@@ -405,123 +405,35 @@ export default class Modtools{
 
 
 
-
-
-
-	// ModMenuList Helpers for above
-	mml_texts(){
-		const wrapper = $("div.assetList");
-		let texts = this.mod.texts;
-		const sfType = 'texts';
-
-		let html = '<br /><h3>Texts</h3><input type="button" id="insertText" value="Insert" /><br /><table class="editor listing clickable textEditor searchable">';
-			html += '<tr>';
-				html += '<th>Text</th>';
-				html += '<th>Conditions</th>';
-				html += '<th>turnTags</th>';
-				html += '<th>armor_slot</th>';
-				html += '<th>Audio</th>';
-				html += '<th>aAuto</th>';
-				html += '<th>nTarg</th>';
-				html += '<th>aOut</th>';
-				html += '<th>Debug</th>';
-			html += '</tr>';
-
-		let i = 0;
-		for( let text of texts ){
-
-			// This can be removed later, it's legacy
-			if( text.soundkits ){
-				text.audiokits = text.soundkits;
-				delete text.soundkits;
-			}
-			if( !Array.isArray(text.audiokits) )
-				text.audiokits = [text.audiokits];
-
-			html += '<tr data-index="'+(i++)+'">';
-
-				html += '<td>'+esc(text.text)+'</td>';
-				html += '<td>'+(text.conditions ? text.conditions.map(el => typeof el === "string" ? esc(el) : 'Custom').join(', ') : '')+'</td>';
-				html += '<td>'+(text.turnTags ? text.turnTags.map(el => esc(el)) : '')+'</td>';	
-				html += '<td>'+(text.armor_slot ? esc(text.armor_slot) : '')+'</td>';
-				html += '<td>'+(text.audiokits ? text.audiokits.map(el => typeof el === "string" ? esc(el) : 'Custom') : '')+'</td>';
-				html += '<td>'+(text.alwaysAuto ? 'X' : '')+'</td>';
-				html += '<td>'+(isNaN(text.numTargets) ? 1 : +text.numTargets)+'</td>';
-				html += '<td>'+(text.alwaysOutput ? 'X' : '')+'</td>';
-				html += '<td>'+(text.debug ? 'X' : '')+'</td>';
-
-			html += '</tr>';
-
-		}
-
-		html += '</table>';
-
-
-		wrapper.html(html);
-		this.mmlMakeSearchable(sfType);
-
-		// Attach the editor
-		let th = this;
-		$("table.textEditor tr[data-index]").on('click', function(){
-			const index = +$(this).attr('data-index');
-			const text = texts[index];
-			th.editor_text(text);
-		});
-
-		$("#insertText").on('click', async () => {
-			let text = {text:"Insert your text here"};
-			texts.push(text);
-			this.editor_text(text);
-			await this.mod.save();
-			this.mml_texts();
-		});
-
-	}
-
-
-
-	// Todo: Find similarities in this, and make a generic mma to lower the amount of code needed for the rest of these assets
-
-
-	
-	mml_conditions(){
+	/*
+		ModMenuList Creates a searchable table
+		sfType should correspond to mml_<type>
+		headers is an array of table heads
+		table is an array of all the assets to populate the table with
+		fnAssetTds is a function that gets run on each asset and should return an array of values to put into each table cell
+		fnInsert is a function that should generate a new asset for insertion
+	*/
+	mml_generic( sfType, headers = [], table, fnAssetTds, fnInsert ){
 
 		const wrapper = $("div.assetList");
-		let table = this.mod.conditions;
-		const sfType = 'conditions';
-
-		let html = '<br /><h3>Conditions</h3>'+
+		let html = '<br /><h3>'+esc(sfType)+'</h3>'+
 			'<input type="button" id="insertAsset" value="Insert" /><br />'+
-			'<table class="editor listing clickable conditionsEditor searchable">';
+			'<table class="editor listing clickable searchable">';
 			html += '<tr>';
-				html += '<th>Label</th>';
-				html += '<th>Type</th>';
-				html += '<th>IsCol.</th>';
-				html += '<th>Data</th>';
-				html += '<th>TargNr</th>';
-				html += '<th>Sender</th>';
-				html += '<th>Inverse</th>';
-				html += '<th>Any Player</th>';
+			for( let header of headers )
+				html += '<th>'+header+'</th>';
 			html += '</tr>';
 
 		for( let i in table ){
 
 			const asset = table[i];
+			const tds = fnAssetTds(asset);
 			html += '<tr data-index="'+esc(i)+'">';
-
-				html += '<td>'+esc(asset.label)+'</td>';
-				html += '<td>'+esc(asset.type)+'</td>';
-				html += '<td>'+(Array.isArray(asset.conditions) && asset.conditions.length ? 'X' : '')+'</td>';
-				html += '<td>'+(asset.data ? esc(JSON.stringify(asset.data)) : '{}')+'</td>';
-				html += '<td>'+(+asset.targnr ? asset.targnr : -1)+'</td>';
-				html += '<td>'+(asset.sender ? 'X' : '')+'</td>';
-				html += '<td>'+(asset.inverse ? 'X' : '')+'</td>';
-				html += '<td>'+(asset.anyPlayer ? 'X' : '')+'</td>';
-
+			for( let td of tds )
+				html += '<td>'+esc(td)+'</td>';
 			html += '</tr>';
 
 		}
-
 		html += '</table>';
 
 
@@ -533,29 +445,100 @@ export default class Modtools{
 		$("table.editor tr[data-index]").on('click', function(){
 			const index = +$(this).attr('data-index');
 			const asset = table[index];
-			th.editor_condition(asset);
+			th['editor_'+sfType](asset);
 		});
 
 		$("#insertAsset").on('click', async () => {
 			
-			let asset = new Condition({label:Generic.generateUUID().substr(0,8), type:Condition.Types.event}).save(true);
-			asset.min = 1;
-			asset.max = -1;
+			const asset = fnInsert();
 			table.push(asset);
-			this.editor_condition(asset);
+			
+			this['editor_'+sfType](asset);
 			await this.mod.save();
-			this.mml_conditions();
+			this['mml_'+sfType]();
 
 		});
+
+
+	}
+
+
+
+	// ModMenuList Helpers for above
+	mml_texts(){
+
+		this.mml_generic( 
+			'texts', 
+			['Text','Conditions','TurnTags','HitSlot','Audio','aAuto','nTarg','aOut','Debug'],
+			this.mod.texts,
+			text => {
+				// This can be removed later, it's legacy
+				if( text.soundkits ){
+					text.audiokits = text.soundkits;
+					delete text.soundkits;
+				}
+				if( !Array.isArray(text.audiokits) )
+					text.audiokits = [text.audiokits];
+
+				return [
+					text.text,
+					(text.conditions ? text.conditions.map(el => typeof el === "string" ? el : 'Custom').join(', ') : ''),
+					(text.turnTags ? text.turnTags.map(el => el) : ''),
+					(text.armor_slot ? text.armor_slot : ''),
+					(text.audiokits ? text.audiokits.map(el => typeof el === "string" ? el : 'Custom') : ''),
+					(text.alwaysAuto ? 'X' : ''),
+					(isNaN(text.numTargets) ? 1 : +text.numTargets),
+					(text.alwaysOutput ? 'X' : ''),
+					(text.debug ? 'X' : ''),
+				];
+			},
+			() => {
+				return {text:"Insert your text here"};
+			}
+		);
+
+	}
+
+
+
+	// Todo: Find similarities in this, and make a generic mma to lower the amount of code needed for the rest of these assets
+
+
+
+	mml_conditions(){
+
+		this.mml_generic( 
+			'conditions', 
+			['Label','Type','IsCol.','Data','TargNr','Sender','Inverse','Any Player'],
+			this.mod.conditions,
+			asset => {
+				return [
+					asset.label,
+					asset.type,
+					(Array.isArray(asset.conditions) && asset.conditions.length ? 'X' : ''),
+					(asset.data ? JSON.stringify(asset.data) : '{}'),
+					(+asset.targnr ? asset.targnr : -1),
+					(asset.sender ? 'X' : ''),
+					(asset.inverse ? 'X' : ''),
+					(asset.anyPlayer ? 'X' : ''),
+				];
+			},
+			() => {
+				let asset = new Condition({label:Generic.generateUUID().substr(0,8), type:Condition.Types.event}).save(true);
+				asset.min = 1;
+				asset.max = -1;
+				return asset;
+			}
+		);
 
 	}
 
 	mml_quests(){
-
+		console.log("Todo: Quests");
 	}
 
 	mml_dungeons(){
-
+		console.log("Todo: Dungeons");
 	}
 	mml_playerClasses(){
 
@@ -597,26 +580,60 @@ export default class Modtools{
 
 
 	// EDITORS
-	editor_text( text = {} ){
+	editor_generic( sfType, asset, library, formData, onSave ){
+
+		let html = '<form id="assetForm">';
+			html += formData;
+			html += '<input type="submit" value="Save" />';
+			html += '<input type="button" value="Save Copy" id="assetSaveCopy" />';
+			html += '<input type="button" value="Delete" id="assetDelete" />';
+		html += '</form>';
+
+		this.modal.set(html);
+		this.bindFormHelpers();
+
+		const save = async () => {
+			onSave(asset);
+			await this.mod.save();
+			this['mml_'+sfType]();
+			this.modal.close();
+		};
+
+		$("#assetSaveCopy").on('click', async () => {
+			asset = JSON.parse(JSON.stringify(asset));
+			library.push(asset);
+			await save(asset);
+			this['editor_'+sfType](asset);
+			const dom = $("#assetSaveCopy");
+			dom.val("Saved!");
+			setTimeout(() => dom.val("Save Copy"), 1000);
+		});
+
+		$("#assetDelete").on('click', async () => {
+			if( !confirm('Are you sure you want to delete this?') )
+				return;
+			for( let t in library ){
+				if( library[t] === asset ){
+					library.splice(t, 1);
+					await this.mod.save();
+					this['mml_'+sfType]();
+					this.modal.close();
+					return;
+				}
+			}
+		});
+
+		$("#assetForm").on('submit', () => {
+			save();
+			this.mod.save();
+			return false;
+		});
+
+	}
+
+	editor_texts( text = {} ){
 
 		// Helper function
-		const save = async () => {
-			const form = $("#assetForm");
-			text.text = $("input[name=text]", form).val();
-			text.numTargets = +$("input[name=numTargets]", form).val();
-			text.alwaysAuto = $("input[name=alwaysAuto]", form).is(':checked');
-			text.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
-			text.debug = $("input[name=debug]", form).is(':checked');
-			text.turnTags = this.compileTags();
-			text.armor_slot = this.compileArmorSlot();
-			text.audiokits = this.compileSoundKits();
-			text.conditions = this.compileConditions();
-
-			console.log("assetForm onSubmit", text);
-			await this.mod.save();
-			this.mml_texts();
-			this.modal.close();
-		}
 
 		// Updates the display underneath the text where you can see a real world example
 		const updateTextDisplay = () => {
@@ -657,8 +674,7 @@ export default class Modtools{
 
 		let tUpdateTimer;
 
-		let html = '<form id="assetForm">';
-			html += 'Text: <input type="text" name="text" value="'+esc(text.text)+'" style="display:block;width:100%" />';
+		let html = 'Text: <input type="text" name="text" value="'+esc(text.text)+'" style="display:block;width:100%" />';
 			html += 'Preview: <span id="textPreview"></span><br /><br />';
 			html += 'Nr Players: <input type="number" min=1 step=1 name="numTargets" value="'+(+text.numTargets || 1)+'" /><br />';
 			html += 'Conditions: '+this.formConditions(text.conditions)+'<br />';
@@ -678,16 +694,21 @@ export default class Modtools{
 			html += '<span title="Status texts are grouped and output after an action text is output. This bypasses that.">Always Out</span>: <input type="checkbox" value="1" name="alwaysOutput" '+(text.alwaysOutput ? 'checked' : '')+' /><br />';
 			html += '<span title="Outputs debugging info when this text conditions are checked">Debug</span>: <input type="checkbox" value="1" name="debug" '+(text.debug ? 'checked' : '')+' /><br />';
 
-			html += '<input type="submit" value="Save" />';
-			html += '<input type="button" value="Save Copy" id="textSaveCopy" />';
-			html += '<input type="button" value="Delete" id="textDelete" />';
-		html += '</form>';
-
-		this.modal.set(html);
-		this.bindFormHelpers();
-
+		this.editor_generic('texts', text, this.mod.texts, html, saveAsset => {
+			const form = $("#assetForm");
+			saveAsset.text = $("input[name=text]", form).val();
+			saveAsset.numTargets = +$("input[name=numTargets]", form).val();
+			saveAsset.alwaysAuto = $("input[name=alwaysAuto]", form).is(':checked');
+			saveAsset.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
+			saveAsset.debug = $("input[name=debug]", form).is(':checked');
+			saveAsset.turnTags = this.compileTags();
+			saveAsset.armor_slot = this.compileArmorSlot();
+			saveAsset.audiokits = this.compileSoundKits();
+			saveAsset.conditions = this.compileConditions();
+		});
 		updateTextDisplay();
 
+		// Text update
 		$("#assetForm input[name=text]").on('input change', () => {
 			clearTimeout(tUpdateTimer);
 			tUpdateTimer = setTimeout(() => {
@@ -695,66 +716,13 @@ export default class Modtools{
 			}, 250); 
 		});
 		
-		$("#textSaveCopy").on('click', async () => {
-			text = JSON.parse(JSON.stringify(text));
-			this.mod.texts.push(text);
-			await save();
-			this.editor_text(text);
-			$("#textSaveCopy").val("Saved!");
-			setTimeout(() => $("#textSaveCopy").val("Save Copy"), 1000);
-			
-		});
-
-		$("#textDelete").on('click', async () => {
-			if( !confirm('Are you sure you want to delete this text?') )
-				return;
-			for( let t in this.mod.texts ){
-				if( this.mod.texts[t] === text ){
-					this.mod.texts.splice(t, 1);
-					await this.mod.save();
-					this.modal.close();
-					this.mml_texts();
-					return;
-				}
-			}
-		});
-
-		$("#assetForm").on('submit', () => {
-			save();
-			return false;
-		});
+		
 	}
 
 
-	editor_condition( asset = {} ){
+	editor_conditions( asset = {} ){
 
-		const table = this.mod.conditions;
-
-		// Helper function
-		const save = async () => {
-
-			const form = $("#assetForm");
-			asset.label = $("input[name=label]", form).val().trim();
-			asset.type = this.compileConditionTypes();
-			asset.data = $("input[name=data]", form).val().trim();
-			try{
-				asset.data = JSON.parse(asset.data);
-			}catch(err){}
-			asset.anyPlayer = $("input[name=anyPlayer]", form).is(':checked');
-			asset.caster = $("input[name=caster]", form).is(':checked');
-			asset.inverse = $("input[name=inverse]", form).is(':checked');
-			asset.targnr = +$("input[name=targnr]", form).val();
-			asset.conditions = this.compileConditions();
-			asset.min = +$("input[name=min]", form).val();
-			asset.max = +$("input[name=max]", form).val();
-			
-			await this.mod.save();
-			this.mml_conditions();
-			this.modal.close();
-		}
-
-		let html = '<form id="assetForm">';
-			html += '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_conditionName.</p>';
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_conditionName.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Type: '+this.formConditionTypes()+'<br />';
 			html += 'Data: <input type="text" name="data" class="json" value="'+(asset.data && typeof asset.data !== "string" ? esc(JSON.stringify(asset.data)) : esc(asset.data))+'" /><br />';
@@ -771,42 +739,21 @@ export default class Modtools{
 			html += '<span title="Use -1 for infinity">Min Subconditions: <input type="number" name="min" step=1 min=-1 value="'+(isNaN(asset.min) ? 1 : +asset.min)+'"  /></span><br />';
 			html += '<span title="Use -1 for infinity">Max Subconditions: <input type="number" name="max" step=1 min=-1 value="'+(isNaN(asset.max) ? -1 : +asset.max)+'"  /></span><br />';
 			
-			html += '<input type="submit" value="Save" />';
-			html += '<input type="button" value="Save Copy" id="assetSaveCopy" />';
-			html += '<input type="button" value="Delete" id="assetDelete" />';
-		html += '</form>';
-
-		this.modal.set(html);
-		this.bindFormHelpers();
-
-		$("#assetDelete").on('click', async () => {
-			if( !confirm('Are you sure you want to delete this?') )
-				return;
-			for( let t in table ){
-				if( table[t] === asset ){
-					table.splice(t, 1);
-					await this.mod.save();
-					this.modal.close();
-					this.mml_conditions();
-					return;
-				}
-			}
-		});
-
-		$("#assetSaveCopy").on('click', async () => {
-			asset = JSON.parse(JSON.stringify(asset));
-			table.push(asset);
-			await save();
-			this.editor_condition(text);
-			const el = $("#assetSaveCopy");
-			el.val("Saved!");
-			setTimeout(() => el.val("Save Copy"), 1000);
-		});
-
-
-		$("#assetForm").on('submit', () => {
-			save();
-			return false;
+		this.editor_generic('conditions', asset, this.mod.conditions, html, saveAsset => {
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.type = this.compileConditionTypes();
+			saveAsset.data = $("input[name=data]", form).val().trim();
+			try{
+				saveAsset.data = JSON.parse(saveAsset.data);
+			}catch(err){}
+			saveAsset.anyPlayer = $("input[name=anyPlayer]", form).is(':checked');
+			saveAsset.caster = $("input[name=caster]", form).is(':checked');
+			saveAsset.inverse = $("input[name=inverse]", form).is(':checked');
+			saveAsset.targnr = +$("input[name=targnr]", form).val();
+			saveAsset.conditions = this.compileConditions();
+			saveAsset.min = +$("input[name=min]", form).val();
+			saveAsset.max = +$("input[name=max]", form).val();
 		});
 
 	}
