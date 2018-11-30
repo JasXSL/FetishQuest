@@ -13,6 +13,7 @@ import GameEvent from '../classes/GameEvent.js';
 import Text from '../classes/Text.js';
 import Generic from '../classes/helpers/Generic.js';
 import Condition from '../classes/Condition.js';
+import Action from '../classes/Action.js';
 
 export default class Modtools{
 
@@ -91,7 +92,9 @@ export default class Modtools{
 		let tagFullSel = '', 
 			tagTtSel = '',
 			soundKits = '',
-			conditions = ''
+			conditions = '',
+			actions = '',
+			wrappers = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -107,13 +110,24 @@ export default class Modtools{
 
 		const conds = glib.getFull('Condition');
 		for( let cond in conds )
-			conditions += '<option value="'+esc(cond)+'">';
+			conditions += '<option value="'+esc(cond)+'"/>';
 		
+		const actionLib = glib.getFull('Action');
+		for( let action in actionLib )
+			actions += '<option value="'+esc(action)+'"/>';
+
+		const wrapperLib = glib.getFull('Wrapper');
+		for( let wrapper in wrapperLib )
+			wrappers += '<option value="'+esc(wrapper)+'"/>';
+		
+
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
 			'<datalist id="tagsTT"><select>'+tagTtSel+'</select></datalist>'+
 			'<datalist id="soundKits"><select>'+soundKits+'</select></datalist>'+
-			'<datalist id="conditions"><select>'+conditions+'</select></datalist>'
+			'<datalist id="conditions"><select>'+conditions+'</select></datalist>'+
+			'<datalist id="actions"><select>'+actions+'</select></datalist>'+
+			'<datalist id="wrappers"><select>'+wrappers+'</select></datalist>'
 		);
 
 	}
@@ -256,7 +270,7 @@ export default class Modtools{
 			'<div class="button" data-id="quests">Quests</div>'+
 			'<div class="button" data-id="dungeons">Dungeons</div>'+
 			'<div class="button" data-id="playerClasses">Classes</div>'+
-			'<div class="button" data-id="action">Action</div>'+
+			'<div class="button" data-id="actions">Actions</div>'+
 			'<div class="button" data-id="wrappers">Wrappers</div>'+
 			'<div class="button" data-id="effects">Effects</div>'+
 			'<div class="button" data-id="assets">Assets</div>'+
@@ -537,15 +551,59 @@ export default class Modtools{
 		console.log("Todo: Dungeons");
 	}
 
-	// Todo now
 	mml_playerClasses(){
-
+		this.mml_generic( 
+			'playerClasses', 
+			['Label','Name','pStat','#Actions'],
+			this.mod.playerClasses,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					asset.primaryStat,
+					(Array.isArray(asset.actions) ? asset.actions.length : 0),
+				];
+			},
+			() => {
+				let asset = new Action({label:'UNKNOWN_CLASS'}).save(true);
+				return asset;
+			}
+		);
 	}
 
 	// Todo now
-	mml_action(){
-
+	mml_actions(){
+		this.mml_generic( 
+			'actions', 
+			['Label','Name','AP','MP','CT','CH','CD','Detri','Hidden','Hit','lv','maxTa','minTa','Ranged','Targ','Type'],
+			this.mod.actions,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					asset.ap,
+					asset.mp,
+					asset.cast_time,
+					asset.charges,
+					asset.cooldown,
+					asset.detrimental ? 'X' : '',
+					asset.hidden ? 'X' : '',
+					asset.hit_chance,
+					asset.level,
+					asset.max_targets,
+					asset.min_targets,
+					asset.ranged ? 'X' : '',
+					asset.target_type,
+					asset.type,
+				];
+			},
+			() => {
+				let asset = new Action({label:'UNKNOWN_ACTION'}).save(true);
+				return asset;
+			}
+		);
 	}
+	
 
 	// Todo now
 	mml_wrappers(){
@@ -742,7 +800,7 @@ export default class Modtools{
 
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_conditionName.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
-			html += 'Type: '+this.formConditionTypes()+'<br />';
+			html += 'Type: '+this.formConditionTypes(asset.type)+'<br />';
 			html += 'Data: <input type="text" name="data" class="json" value="'+(asset.data && typeof asset.data !== "string" ? esc(JSON.stringify(asset.data)) : esc(asset.data))+'" /><br />';
 			html += '<span title="If multiple players are in the event, only one needs this">AnyPlayer</span>: <input type="checkbox" value="1" name="anyPlayer" '+(asset.anyPlayer ? 'checked' : '')+' /><br />';
 			html += '<span title="Target sender of an event instead of targets">Sender</span>: <input type="checkbox" value="1" name="caster" '+(asset.caster ? 'checked' : '')+' /><br />';
@@ -777,10 +835,122 @@ export default class Modtools{
 	}
 
 
+	editor_playerClasses( asset = {} ){
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Primary Stat: '+this.inputPrimaryStat(asset.primaryStat)+'<br />';
+			html += '<textarea name="description">'+esc(asset.description)+'</textarea>';
+			html += 'Actions: '+this.formActions(asset.actions)+'<br />';
+			html += '<span title="Lists it separately">MonsterClass</span>: <input type="checkbox" value="1" name="isMonsterClass" '+(asset.isMonsterClass ? 'checked' : '')+' /><br />';
+			const stats = Action.Types;
+			for( let i in stats )
+				html += 'Bon '+stats[i]+': <input type="number" name="bon'+stats[i]+'" step=1 min=-1 value="'+(+asset['bon'+stats[i]] || 0)+'"  /><br />';
+			for( let i in stats )
+				html += 'SV '+stats[i]+': <input type="number" name="sv'+stats[i]+'" step=1 min=-1 value="'+(+asset['sv'+stats[i]] || 0)+'"  /><br />';
+			
+		this.editor_generic('playerClasses', asset, this.mod.playerClasses, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=label]", form).val().trim();
+			saveAsset.primaryStat = $("select[name=primaryStat]", form).val().trim();
+			saveAsset.description = $("textarea[name=description]", form).val().trim();
+			saveAsset.actions = this.compileAction();
+			saveAsset.isMonsterClass = $("input[name=isMonsterClass]", form).val().trim();
+
+			for( let i in stats ){
+				const stat = stats[i];
+				saveAsset['bon'+stat] = +$("input[name=bon"+stat+"]", form).val().trim();
+				saveAsset['sv'+stat] = +$("input[name=sv"+stat+"]", form).val().trim();
+			}
+
+		});
+	}
+
+
+	editor_actions( asset = {} ){
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Type: '+this.inputActionType(asset.type)+'<br />';
+			html += 'Target Type: '+this.inputTargetType(asset.target_type, 'target_type')+'<br />';
+			html += '<label>Detrimental: <input type="checkbox" name="detrimental" '+(asset.detrimental ? 'checked' : '')+' /></label><br />';
+			html += '<label>Ranged: <input type="checkbox" name="ranged" '+(asset.ranged ? 'checked' : '')+' /></label><br />';
+			html += '<textarea name="description">'+esc(asset.description)+'</textarea><br />';
+			html += 'Level: <input required type="number" min=1 step=1 name="level" value="'+esc(asset.level)+'" /><br />';
+			html += 'AP: <input required type="number" min=0 step=1 name="ap" value="'+esc(asset.ap)+'" />';
+			html += 'MP: <input required type="number" min=0 step=1 name="mp" value="'+esc(asset.mp)+'" /><br />';
+			html += 'Hit Chance: <input required type="number" min=0 step=1 name="hit_chance" value="'+esc(asset.hit_chance)+'" /><br />';
+			html += 'Cast Time: <input required type="number" min=0 step=1 name="cast_time" value="'+esc(asset.cast_time)+'" /><br />';
+			html += 'Cooldown: <input required type="number" min=0 step=1 name="cooldown" value="'+esc(asset.cooldown)+'" /><br />';
+			html += 'Charges: <input required type="number" min=1 step=1 name="charges" value="'+esc(asset.charges)+'" /><br />';
+			html += 'Min Targets: <input required type="number" min=1 step=1 name="min_targets" value="'+esc(asset.min_targets)+'" /><br />';
+			html += 'Max Targets: <input required type="number" min=1 step=1 name="max_targets" value="'+esc(asset.max_targets)+'" /><br />';
+
+			html += '<span title="Conditions required to learn this.">Add Conditions:</span> '+this.formConditions(asset.add_conditions, 'addConditions')+'<br />';
+			html += '<span title="Conditions to cast.">Conditions:</span> '+this.formConditions(asset.conditions, 'conditions')+'<br />';
+			html += '<span title="Conditions to cast and show it in the cast bar.">Show Conditions:</span> '+this.formConditions(asset.show_conditions, 'showConditions')+'<br />';
+			
+			html += '<label>Allow when charging: <input type="checkbox" name="allow_when_charging" '+(asset.allow_when_charging ? 'checked' : '')+' /></label><br />';
+			html += '<label>Hidden: <input type="checkbox" name="hidden" '+(asset.hidden ? 'checked' : '')+' /></label><br />';
+			html += '<label>Hide if no targets: <input type="checkbox" name="hide_if_no_targets" '+(asset.hide_if_no_targets ? 'checked' : '')+' /></label><br />';
+			html += '<label>No action selector: <input type="checkbox" name="no_action_selector" '+(asset.no_action_selector ? 'checked' : '')+' /></label><br />';
+			html += '<label>No Interrupt: <input type="checkbox" name="no_interrupt" '+(asset.no_interrupt ? 'checked' : '')+' /></label><br />';
+			html += '<label>No Use Text: <input type="checkbox" name="no_use_text" '+(asset.no_use_text ? 'checked' : '')+' /></label><br />';
+			html += '<label>Semi hidden: <input type="checkbox" name="semi_hidden" '+(asset.semi_hidden ? 'checked' : '')+' /></label><br />';
+			
+			html += 'Tags: '+this.formTags(asset.tags)+'<br />';
+			html += 'Wrappers: '+this.formWrappers(asset.wrappers, 'wrappers')+'<br />';
+			html += 'Riposte: '+this.formWrappers(asset.riposte, 'riposte')+'<br />';
+
+		this.editor_generic('actions', asset, this.mod.actions, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=label]", form).val().trim();
+			saveAsset.type = $("select[name=actionType]", form).val().trim();
+			saveAsset.description = $("textarea[name=description]", form).val().trim();
+			saveAsset.target_type = $("select[name=target_type]", form).val().trim();
+			saveAsset.detrimental = $("input[name=detrimental]", form).is(':checked');
+			saveAsset.ranged = $("input[name=ranged]", form).is(':checked');
+			saveAsset.level = +$("input[name=level]", form).val();
+			saveAsset.ap = +$("input[name=ap]", form).val();
+			saveAsset.mp = +$("input[name=mp]", form).val();
+			saveAsset.hit_chance = +$("input[name=hit_chance]", form).val();
+			saveAsset.cast_time = +$("input[name=cast_time]", form).val();
+			saveAsset.cooldown = +$("input[name=cooldown]", form).val();
+			saveAsset.charges = +$("input[name=charges]", form).val();
+			saveAsset.min_targets = +$("input[name=min_targets]", form).val();
+			saveAsset.max_targets = +$("input[name=max_targets]", form).val();
+
+			saveAsset.add_conditions = this.compileConditions('addConditions');
+			saveAsset.conditions = this.compileConditions('conditions');
+			saveAsset.show_conditions = this.compileConditions('showConditions');
+			
+
+			saveAsset.allow_when_charging = $("input[name=allow_when_charging]", form).is(':checked');
+			saveAsset.hidden = $("input[name=hidden]", form).is(':checked');
+			saveAsset.hide_if_no_targets = $("input[name=hide_if_no_targets]", form).is(':checked');
+			saveAsset.no_action_selector = $("input[name=no_action_selector]", form).is(':checked');
+			saveAsset.no_interrupt = $("input[name=no_interrupt]", form).is(':checked');
+			saveAsset.no_use_text = $("input[name=no_use_text]", form).is(':checked');
+			saveAsset.semi_hidden = $("input[name=semi_hidden]", form).is(':checked');
+
+			saveAsset.tags = this.compileTags();
+			saveAsset.wrappers = this.compileWrappers('wrappers');
+			saveAsset.riposte = this.compileWrappers('riposte');			
+
+		});
+	}
 
 
 
 
+
+
+	
 
 
 
@@ -804,7 +974,8 @@ export default class Modtools{
 		this.bindTags();
 		this.bindSoundKits();
 		this.bindConditions();
-
+		this.bindActions();
+		this.bindWrappers();
 		
 
 	}
@@ -859,7 +1030,7 @@ export default class Modtools{
 	}
 
 	// Compiles text tags into an array
-	compileTags( cName ){
+	compileTags( cName = 'tags' ){
 		const base = $('#assetForm div.'+cName+' input[name=tag]');
 		const out = [];
 		base.each((index, value) => {
@@ -871,7 +1042,7 @@ export default class Modtools{
 		return out;
 	}
 
-	formTags( tags = [], cName = '', dataList = 'tagsFull' ){
+	formTags( tags = [], cName = 'tags', dataList = 'tagsFull' ){
 		let out = '<div class="'+cName+'" data-list="'+dataList+'">';
 		out += '<input type="button" class="addTagHere" value="Add Tag" />';
 		for( let tag of tags )
@@ -896,6 +1067,32 @@ export default class Modtools{
 		return out;
 	}
 
+
+	// Single stats
+	inputPrimaryStat( stat, name = 'primaryStat' ){
+		let out = '<select name="'+esc(name)+'">';
+		for( let i in Player.primaryStats )
+			out += '<option value="'+i+'" '+(stat === i ? 'selected' : '')+'>'+i+'</option>';
+		out += '</select>';
+		return out;
+	}
+
+	// Action target types
+	inputTargetType( type, name = 'targetType' ){
+		let out = '<select name="'+esc(name)+'">';
+		for( let i in Action.TargetTypes )
+			out += '<option value="'+i+'" '+(type === i ? 'selected' : '')+'>'+i+'</option>';
+		out += '</select>';
+		return out;
+	}
+
+	inputActionType( type, name = 'actionType' ){
+		let out = '<select name="'+esc(name)+'">';
+		for( let i in Action.Types )
+			out += '<option value="'+Action.Types[i]+'" '+(type === Action.Types[i] ? 'selected' : '')+'>'+Action.Types[i]+'</option>';
+		out += '</select>';
+		return out;
+	}
 
 
 
@@ -1035,6 +1232,58 @@ export default class Modtools{
 	}
 
 
+
+	// Wrappers (Bindable)
+	bindWrappers(){
+		let th = this;
+		$("#assetForm input.addWrapperHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputWrapper(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileWrappers( cName = 'wrappers' ){
+		const base = $('#assetForm div.'+cName+' input[name=wrapper]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputWrapper( data = '' ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="wrapper" value="'+esc(data)+'" list="wrappers" />';
+	}
+
+	formWrappers( names = [], cName = 'wrappers' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addWrapperHere" value="Add Wrapper" />';
+		for( let name of names )
+			out+= this.inputWrapper(name);
+		out += '</div>';
+		return out;
+
+	}
+
+	//formWrappers
+	// inputWrappers
+
+
+	//inputTargetTypes
+
 	
 
 	// ARMOR SLOTS - NO BIND
@@ -1090,6 +1339,51 @@ export default class Modtools{
 		return out;
 
 	}
+
+
+
+
+
+	// Actions (Bindable)
+	bindActions(){
+		let th = this;
+		$("#assetForm input.addActionHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputAction(""));
+			});
+	}
+
+	compileAction( cName = 'actions' ){
+		const base = $('#assetForm div.'+cName+' input[name=action]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			const val = el.val().trim();
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputAction( name = '' ){
+		return '<input type="text" name="action" value="'+esc(name)+'" list="actions" />';
+	}
+
+	formActions( names = [], cName = 'actions' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addActionHere" value="Add Action" />';
+		for( let name of names )
+			out+= this.inputAction(name);
+		out += '</div>';
+		return out;
+
+	}
+
+	
+
 
 }
 

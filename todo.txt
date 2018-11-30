@@ -1,6 +1,7 @@
 Mod Editor:
-	- 
-
+	- Add all mod tools except quest and dungeon
+	- Make a mod that adds a new monster, gear, and texts
+	- Add a way to install and manage mods on the main page
 
 new Gameplay elements:
 	- Learning/unlearning actions
