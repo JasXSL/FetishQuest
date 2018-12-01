@@ -454,6 +454,14 @@ Wrapper.TARGET_SMART_HEAL = "SMART_HEAL";	// Targets the lowest HP viable player
 Wrapper.TARGET_EVENT_RAISER = "EVENT_RAISER";	// Used only for Effect.Types.runWrappers, targets the player that raised the event that triggered the effect
 Wrapper.TARGET_EVENT_TARGETS = "EVENT_TARGETS";	// Used only for Effect.Types.runWrappers, targets the player(s) that were the targets of the event that triggered the effect
 
+Wrapper.Targets = {
+	auto : Wrapper.TARGET_AUTO,
+	caster : Wrapper.TARGET_CASTER,
+	aoe : Wrapper.TARGET_AOE,
+	smart_heal : Wrapper.TARGET_SMART_HEAL,
+	event_raiser : Wrapper.TARGET_EVENT_RAISER,
+	event_targets : Wrapper.TARGET_EVENT_TARGETS,
+};
 
 
 /*

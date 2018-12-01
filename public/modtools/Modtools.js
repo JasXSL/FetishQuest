@@ -14,6 +14,7 @@ import Text from '../classes/Text.js';
 import Generic from '../classes/helpers/Generic.js';
 import Condition from '../classes/Condition.js';
 import Action from '../classes/Action.js';
+import { Wrapper } from '../classes/EffectSys.js';
 
 export default class Modtools{
 
@@ -94,7 +95,8 @@ export default class Modtools{
 			soundKits = '',
 			conditions = '',
 			actions = '',
-			wrappers = ''
+			wrappers = '',
+			effects = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -119,6 +121,10 @@ export default class Modtools{
 		const wrapperLib = glib.getFull('Wrapper');
 		for( let wrapper in wrapperLib )
 			wrappers += '<option value="'+esc(wrapper)+'"/>';
+
+		const effectLib = glib.getFull('Effect');
+		for( let effect in effectLib )
+			effects += '<option value="'+esc(effect)+'"/>';
 		
 
 		this.datalists.html(
@@ -127,7 +133,8 @@ export default class Modtools{
 			'<datalist id="soundKits"><select>'+soundKits+'</select></datalist>'+
 			'<datalist id="conditions"><select>'+conditions+'</select></datalist>'+
 			'<datalist id="actions"><select>'+actions+'</select></datalist>'+
-			'<datalist id="wrappers"><select>'+wrappers+'</select></datalist>'
+			'<datalist id="wrappers"><select>'+wrappers+'</select></datalist>'+
+			'<datalist id="effects"><select>'+effects+'</select></datalist>'
 		);
 
 	}
@@ -571,7 +578,6 @@ export default class Modtools{
 		);
 	}
 
-	// Todo now
 	mml_actions(){
 		this.mml_generic( 
 			'actions', 
@@ -607,11 +613,31 @@ export default class Modtools{
 
 	// Todo now
 	mml_wrappers(){
-
+		this.mml_generic( 
+			'wrappers', 
+			['Label','Name','Description','Target',"Dur","Detr","Icon","Stacks"],
+			this.mod.wrappers,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					asset.description,
+					asset.target,
+					asset.duration,
+					asset.detrimental ? 'X' : '',
+					asset.icon,
+					asset.max_stacks,
+				];
+			},
+			() => {
+				let asset = new Action({label:'UNKNOWN_WRAPPER'}).save(true);
+				return asset;
+			}
+		);
 	}
 
 	// Todo now
-	mml_effects(wrapper){
+	mml_effects(){
 
 	}
 
@@ -946,6 +972,43 @@ export default class Modtools{
 	}
 
 
+	editor_wrappers( asset = {} ){
+
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += '<textarea name="description">'+esc(asset.description)+'</textarea><br />';
+			html += 'Target Type: '+this.inputWrapperTargetType(asset.target, 'target')+'<br />';
+			html += '<label>Detrimental: <input type="checkbox" name="detrimental" '+(asset.detrimental ? 'checked' : '')+' /></label><br />';
+			html += 'Duration: <input required type="number" min=-1 step=1 name="duration" value="'+esc(asset.duration)+'" /><br />';
+			html += 'Icon: <input type="text" name="icon" value="'+esc(asset.icon)+'" /><br />';
+			html += 'Max Stacks: <input required type="number" min=1 step=1 name="max_stacks" value="'+esc(asset.max_stacks)+'" /><br />';
+			html += 'Tags: '+this.formTags(asset.tags)+'<br />';
+
+			html += '<span title="Conditions required to add this wrapper.">Add Conditions:</span> '+this.formConditions(asset.add_conditions, 'add_conditions')+'<br />';
+			html += '<span title="Conditions needed to remain.">Stay Conditions:</span> '+this.formConditions(asset.stay_conditions, 'stay_conditions')+'<br />';
+			html += 'Effects: '+this.formEffects(asset.effects, 'effects')+'<br />';
+
+
+		this.editor_generic('wrappers', asset, this.mod.wrappers, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=label]", form).val().trim();
+			saveAsset.target = $("select[name=target]", form).val().trim();
+			saveAsset.description = $("textarea[name=description]", form).val().trim();
+			saveAsset.detrimental = $("input[name=detrimental]", form).is(':checked');
+			saveAsset.duration = +$("input[name=duration]", form).val();
+			saveAsset.icon = $("input[name=icon]", form).val().trim();
+			saveAsset.max_stacks = +$("input[name=max_stacks]", form).val();
+
+			saveAsset.add_conditions = this.compileConditions('add_conditions');
+			saveAsset.stay_conditions = this.compileConditions('stay_conditions');
+			saveAsset.tags = this.compileTags();
+			saveAsset.effects = this.compileEffects('effects');
+
+		});
+	}
 
 
 
@@ -976,6 +1039,7 @@ export default class Modtools{
 		this.bindConditions();
 		this.bindActions();
 		this.bindWrappers();
+		this.bindEffects();
 		
 
 	}
@@ -1090,6 +1154,15 @@ export default class Modtools{
 		let out = '<select name="'+esc(name)+'">';
 		for( let i in Action.Types )
 			out += '<option value="'+Action.Types[i]+'" '+(type === Action.Types[i] ? 'selected' : '')+'>'+Action.Types[i]+'</option>';
+		out += '</select>';
+		return out;
+	}
+
+	// Wrapper target type
+	inputWrapperTargetType( type, name = 'target' ){
+		let out = '<select name="'+esc(name)+'">';
+		for( let i in Wrapper.Targets )
+			out += '<option value="'+Wrapper.Targets[i]+'" '+(type === Wrapper.Targets[i] ? 'selected' : '')+'>'+i+'</option>';
 		out += '</select>';
 		return out;
 	}
@@ -1278,13 +1351,63 @@ export default class Modtools{
 
 	}
 
-	//formWrappers
-	// inputWrappers
-
-
-	//inputTargetTypes
-
 	
+
+
+
+
+	// Effects (bindable)
+	bindEffects(){
+		let th = this;
+		$("#assetForm input.addEffectHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputEffect(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileEffects( cName = 'effects' ){
+		const base = $('#assetForm div.'+cName+' input[name=effect]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputEffect( data = '' ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="effect" value="'+esc(data)+'" list="effects" />';
+	}
+
+	formEffects( names = [], cName = 'effects' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addEffectsHere" value="Add Effects" />';
+		for( let name of names )
+			out+= this.inputEffect(name);
+		out += '</div>';
+		return out;
+
+	}	
+
+
+
+
+
+
+
+
 
 	// ARMOR SLOTS - NO BIND
 	compileArmorSlot(){
