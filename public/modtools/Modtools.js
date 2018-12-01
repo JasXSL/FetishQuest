@@ -14,7 +14,7 @@ import Text from '../classes/Text.js';
 import Generic from '../classes/helpers/Generic.js';
 import Condition from '../classes/Condition.js';
 import Action from '../classes/Action.js';
-import { Wrapper } from '../classes/EffectSys.js';
+import { Wrapper, Effect } from '../classes/EffectSys.js';
 
 export default class Modtools{
 
@@ -611,7 +611,6 @@ export default class Modtools{
 	}
 	
 
-	// Todo now
 	mml_wrappers(){
 		this.mml_generic( 
 			'wrappers', 
@@ -630,15 +629,29 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new Action({label:'UNKNOWN_WRAPPER'}).save(true);
+				let asset = new Wrapper({label:'UNKNOWN_WRAPPER'}).save(true);
 				return asset;
 			}
 		);
 	}
 
-	// Todo now
 	mml_effects(){
-
+		this.mml_generic( 
+			'effects', 
+			['Label','Type','Targets'],
+			this.mod.effects,
+			asset => {
+				return [
+					asset.label,
+					asset.type,
+					Array.isArray(asset.targets) ? asset.targets.join(', ') : '',
+				];
+			},
+			() => {
+				let asset = new Effect({label:'UNKNOWN_EFFECT'}).save(true);
+				return asset;
+			}
+		);
 	}
 
 	// Todo now
@@ -978,7 +991,7 @@ export default class Modtools{
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
 			html += '<textarea name="description">'+esc(asset.description)+'</textarea><br />';
-			html += 'Target Type: '+this.inputWrapperTargetType(asset.target, 'target')+'<br />';
+			html += 'Target Type: '+this.inputWrapperTargetType(asset.target)+'<br />';
 			html += '<label>Detrimental: <input type="checkbox" name="detrimental" '+(asset.detrimental ? 'checked' : '')+' /></label><br />';
 			html += 'Duration: <input required type="number" min=-1 step=1 name="duration" value="'+esc(asset.duration)+'" /><br />';
 			html += 'Icon: <input type="text" name="icon" value="'+esc(asset.icon)+'" /><br />';
@@ -1011,6 +1024,33 @@ export default class Modtools{
 	}
 
 
+	editor_effects( asset = {} ){
+		
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Type: '+this.inputEffectType(asset.type, 'type')+'<br />';
+			html += 'Data: <input required class="json" type="text" name="data" value="'+esc(JSON.stringify(asset.data))+'" /><br />';
+			html += 'Events: '+this.formEvents(asset.events, 'events')+'<br />';
+			html += 'Targets: '+this.formWrapperTargetTypes(asset.targets, 'targets')+'<br />';
+			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />';
+			
+
+
+		this.editor_generic('effects', asset, this.mod.effects, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.data = {};
+			try{ saveAsset.data = JSON.parse($("input[name=data]", form).val().trim()); }catch(err){}
+			saveAsset.events = this.compileEvents('events');
+			console.log("Events", saveAsset.events);
+			saveAsset.type = $('select[name=type]', form).val();
+			saveAsset.targets = this.compileWrapperTargetTypes('targets');
+			saveAsset.conditions = this.compileConditions('conditions');
+
+		});
+
+	}
 
 
 	
@@ -1040,7 +1080,8 @@ export default class Modtools{
 		this.bindActions();
 		this.bindWrappers();
 		this.bindEffects();
-		
+		this.bindWrapperTargetTypes();
+		this.bindEvents();
 
 	}
 
@@ -1158,14 +1199,16 @@ export default class Modtools{
 		return out;
 	}
 
-	// Wrapper target type
-	inputWrapperTargetType( type, name = 'target' ){
+	inputEffectType( type, name = 'effectType' ){
 		let out = '<select name="'+esc(name)+'">';
-		for( let i in Wrapper.Targets )
-			out += '<option value="'+Wrapper.Targets[i]+'" '+(type === Wrapper.Targets[i] ? 'selected' : '')+'>'+i+'</option>';
+		for( let i in Effect.Types )
+			out += '<option title="'+esc(Effect.TypeDescs[i])+'" value="'+Effect.Types[i]+'" '+(type === Effect.Types[i] ? 'selected' : '')+'>'+Effect.Types[i]+'</option>';
 		out += '</select>';
 		return out;
 	}
+
+
+
 
 
 
@@ -1306,6 +1349,115 @@ export default class Modtools{
 
 
 
+
+
+
+
+	// Events (bindable)
+	inputEvent( type ){
+		let out = '<select name="event">';
+		for( let i in GameEvent.Types )
+			out += '<option title="'+esc(GameEvent.TypeDescs[i])+'" value="'+GameEvent.Types[i]+'" '+(type === GameEvent.Types[i] ? 'selected' : '')+'>'+GameEvent.Types[i]+'</option>';
+		out += '</select>';
+		return out;
+	}
+	bindEvents(){
+		let th = this;
+		$("#assetForm input.addEventHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputEvent(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileEvents( cName = 'events' ){
+		const base = $('#assetForm div.'+cName+' select[name=event]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val && val !== "none" )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formEvents( names = [], cName = 'events' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addEventHere" value="Add Event" />';
+		for( let name of names )
+			out+= this.inputEvent(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+
+
+
+
+	// Wrapper target (bindable)
+	inputWrapperTargetType( type, name = 'wrapperTT' ){
+		let out = '<select name="'+esc(name)+'">';
+		for( let i in Wrapper.Targets )
+			out += '<option value="'+Wrapper.Targets[i]+'" '+(type === Wrapper.Targets[i] ? 'selected' : '')+'>'+i+'</option>';
+		out += '</select>';
+		return out;
+	}
+	bindWrapperTargetTypes(){
+		let th = this;
+		$("#assetForm input.addWrapperTTHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputWrapperTargetType(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileWrapperTargetTypes( cName = 'wrapperTTs' ){
+		const base = $('#assetForm div.'+cName+' select[name=wrapperTT]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+			if( val && val !== "none" )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formWrapperTargetTypes( names = [], cName = 'wrapperTTs' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addWrapperTTHere" value="Add Wrapper Target" />';
+		for( let name of names )
+			out+= this.inputWrapperTargetType(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+
+
+
+	
 	// Wrappers (Bindable)
 	bindWrappers(){
 		let th = this;

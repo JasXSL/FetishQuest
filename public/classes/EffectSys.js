@@ -455,6 +455,7 @@ Wrapper.TARGET_EVENT_RAISER = "EVENT_RAISER";	// Used only for Effect.Types.runW
 Wrapper.TARGET_EVENT_TARGETS = "EVENT_TARGETS";	// Used only for Effect.Types.runWrappers, targets the player(s) that were the targets of the event that triggered the effect
 
 Wrapper.Targets = {
+	none : 'none',	// used in the editor to delete a target  
 	auto : Wrapper.TARGET_AUTO,
 	caster : Wrapper.TARGET_CASTER,
 	aoe : Wrapper.TARGET_AOE,
@@ -1050,60 +1051,114 @@ Effect.createStatBonus = function( type, bonus ){
 
 // These are the actual effect types that the game runs off of
 Effect.Types = {
-	damage : "damage",		// {amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier} - If type is left out, it can be auto supplied by an asset
+	damage : "damage",
 	endTurn : "endTurn",
-	visual : "visual",							// CSS Visual on target. {class:css_class}
-	damageArmor : "damageArmor",							// {amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random  
-	addAP : "addAP",										// {amount:(str)(nr)amount}, Adds AP
-	addMP : "addMP",										// {amount:(str)(nr)amount}, Adds MP
-	addArousal : "addArousal",								// {amount:(str)(nr)amount} - Adds arousal points
-	interrupt : "interrupt",								// void - Interrupts all charged actions
-	globalHitChanceMod : 'globalHitChanceMod',				// Modifies your hit chance with ALL types by percentage {amount:(float)(string)amount}
-	globalDamageTakenMod : 'globalDamageTakenMod',			// {amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier, casterOnly:(bool)limit_to_caster} - If casterOnly is set, it only affects damage dealt from the caster
-	globalDamageDoneMod : 'globalDamageDoneMod',			// == || ==
+	visual : "visual",
+	damageArmor : "damageArmor",
+	addAP : "addAP",			
+	addMP : "addMP",			
+	addArousal : "addArousal",	
+	interrupt : "interrupt",				
+	globalHitChanceMod : 'globalHitChanceMod',
+	globalDamageTakenMod : 'globalDamageTakenMod',
+	globalDamageDoneMod : 'globalDamageDoneMod',
 	
-	addActionCharges : 'addActionCharges',					// {amount:(nr/str)amount, }
+	addActionCharges : 'addActionCharges',		
 
 	// Stamina
-	staminaModifier : "staminaModifier",					// Adds or subtracts max HP by 2 per point {amount:(int)amount}
+	staminaModifier : "staminaModifier",		
 	// Agility
-	agilityModifier : "agilityModifier",					// Adds or subtracts max AP by 1 per point {amount:(int)amount}
+	agilityModifier : "agilityModifier",		
 	// Intellect
-	intellectModifier : "intellectModifier",				// Adds or subtracts max MP by 1 per point {amount:(int)amount}
+	intellectModifier : "intellectModifier",	
 
-	svPhysical : 'svPhysical',					// {amount:(int)(str)amount, multiplier:(bool)is_multiplier}, Save vs physical damage/arousal. Grants a 5% chance to resist a spell type based on the caster's level
-	svElemental : 'svElemental',				// 
-	svHoly : 'svHoly',						// 
-	svCorruption : 'svCorruption',				// Generally magically pleasuring attacks
+	svPhysical : 'svPhysical',				
+	svElemental : 'svElemental',			
+	svHoly : 'svHoly',						
+	svCorruption : 'svCorruption',			
 
-	bonPhysical : 'bonPhysical',				// Bonus hit chance in physical combat, this value is added to your level
-	bonElemental : 'bonElemental',				// 
-	bonHoly : 'bonHoly',						// 
-	bonCorruption : 'bonCorruption',			// 
+	bonPhysical : 'bonPhysical',			
+	bonElemental : 'bonElemental',			
+	bonHoly : 'bonHoly',					
+	bonCorruption : 'bonCorruption',		
 
-	runWrappers : "runWrappers",					// Runs wrappers. Auto target is victim, or caster if effect caster property is true. {wrappers:(arr)wrappers} 
+	runWrappers : "runWrappers",			
 
-	disrobe : "disrobe",						// {slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}
+	disrobe : "disrobe",					
 
-	addStacks : 'addStacks',						// {stacks:(int)(str)stacks, effect:(str)effectWrapper(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks
-	removeParentWrapper : 'removeParentWrapper',	// void - Removes the effect's parent wrapper
-	removeWrapperByLabel : 'removeWrapperByLabel',	// { label:(arr)(str)label, casterOnly:(bool)=false)}
+	addStacks : 'addStacks',				
+	removeParentWrapper : 'removeParentWrapper',	
+	removeWrapperByLabel : 'removeWrapperByLabel',	
 
-	activateCooldown : 'activateCooldown',			// {actions:(str)(arr)actionLabels} - Activates cooldowns for learned abilities with actionLabels
+	activateCooldown : 'activateCooldown',			
 
-	knockdown : 'knockdown',						// {forwards:(bool)fwd} - If forwards is true, it's on stomach, false = back, nonboolean will be randomized when the effect event runs
-	daze : 'daze',									// void
+	knockdown : 'knockdown',						
+	daze : 'daze',									
 
-	repair : 'repair',								// {amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}
-	flee : 'flee',									// void - Custom action sent to server to flee combat
-	addThreat : 'addThreat',								// {amount:(str/nr)amount} - Generates threat on the target
-	punishmentUsed : 'punishmentUsed',				// void - Sets the punishment used flag on the target to prevent them from using further punishments
+	repair : 'repair',								
+	flee : 'flee',									
+	addThreat : 'addThreat',						
+	punishmentUsed : 'punishmentUsed',				
 
-	stun : 'stun',									// void
-	taunt : 'taunt',								// void
-
+	stun : 'stun',									
+	taunt : 'taunt',								
 };
 
+
+Effect.TypeDescs = {
+	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier} - If type is left out, it can be auto supplied by an asset",
+	[Effect.Types.endTurn] : "void - Ends turn",
+	[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
+	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
+	[Effect.Types.addAP] : "{amount:(str)(nr)amount}, Adds AP",										// 
+	[Effect.Types.addMP] : "{amount:(str)(nr)amount}, Adds MP",										// 
+	[Effect.Types.addArousal] : "{amount:(str)(nr)amount} - Adds arousal points",								// 
+	[Effect.Types.interrupt] : "void - Interrupts all charged actions",								// 
+	[Effect.Types.globalHitChanceMod] : 'Modifies your hit chance with ALL types by percentage {amount:(float)(string)amount}',
+	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier, casterOnly:(bool)limit_to_caster} - If casterOnly is set, it only affects damage dealt from the caster', 
+	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier, casterOnly:(bool)limit_to_caster} - If casterOnly is set, it only affects damage done to the caster',
+	
+	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
+
+	// Stamina
+	[Effect.Types.staminaModifier] : '{amount:(int)amount}',
+	// Agility
+	[Effect.Types.agilityModifier] : '{amount:(int)amount}',
+	// Intellect
+	[Effect.Types.intellectModifier] : '{amount:(int)amount}',
+
+	[Effect.Types.svPhysical] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+	[Effect.Types.svElemental] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+	[Effect.Types.svHoly] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+	[Effect.Types.svCorruption] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+
+	[Effect.Types.bonPhysical] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+	[Effect.Types.bonElemental] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+	[Effect.Types.bonHoly] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+	[Effect.Types.bonCorruption] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+
+	[Effect.Types.runWrappers] : 'Runs wrappers. Auto target is victim, or caster if effect caster property is true. {wrappers:(arr)wrappers}',
+
+	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
+
+	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks, effect:(str)effectWrapper(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks',
+	[Effect.Types.removeParentWrapper] : 'void - Removes the effect\'s parent wrapper',
+	[Effect.Types.removeWrapperByLabel] : '{ label:(arr)(str)label, casterOnly:(bool)=false)}',
+
+	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels} - Activates cooldowns for learned abilities with actionLabels',
+
+	[Effect.Types.knockdown] : '{forwards:(bool)fwd} - If forwards is true, it\'s on stomach, false = back, nonboolean will be randomized when the effect event runs',
+	[Effect.Types.daze] : 'void',
+
+	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
+	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',
+	[Effect.Types.addThreat] : '{amount:(str/nr)amount} - Generates threat on the target',
+	[Effect.Types.punishmentUsed] : 'void - Sets the punishment used flag on the target to prevent them from using further punishments',
+
+	[Effect.Types.stun] : 'void',
+	[Effect.Types.taunt] : 'void',
+
+};
 
 
 export {Wrapper, Effect};

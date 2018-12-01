@@ -81,43 +81,80 @@ GameEvent.off = function(binding){
 
 
 GameEvent.Types = {
-	none : 'none',						// Can be used internally
-	all : 'all',						//* Varied, raised on every event
-	damageDone : 'damageDone',			//* sender, target, action, wrapper
-	damageTaken : 'damageTaken',		//* sender, target, action, wrapper
-	healingDone : 'healingDone',		// 
-	healingTaken : 'healingTaken',		// 
-	interrupt : 'interrupt',			// A charged action was interrupted
-	actionCharged : 'actionCharged',	// Used a charged action
-	actionUsed : 'actionUsed',			//* target(is an array of targets here) {resist:true(on resist)}. Note that when this is used in an event check, a wrapper and effect is added by the checker
-	actionRiposte : 'actionRiposte',	//* target is the player that cast the original spell, sender is the original victim
-	wrapperAdded : 'wrapperAdded',		//* Duration effects only, sender, target, action, wrapper, 
-	wrapperRemoved : 'wrapperRemoved',	//* Duration effects only. sender, target, action, wrapper
-	wrapperTick : 'wrapperTick',		//* Duration ticks and trigger immediates, == || ==
-	turnChanged : 'turnChanged',		//* Sender is the previous player, Target is the new player
-	playerDefeated : 'playerDefeated',	// Player was defeated, sender was the player that defeated target, action might be included, wrapper is included
-	diminishingResist : 'diminishingResist',		// target resisted sender's wrapper due to diminishing returns
-	effectTrigger : 'effectTrigger',				// Raised when an effect has been triggered
-	armorBroken : 'armorBroken',		// An armor piece has been broken. Sender is the player that triggered the break, Target is the player who wears it
+	none : 'none',						
+	all : 'all',						
+	damageDone : 'damageDone',			
+	damageTaken : 'damageTaken',		
+	healingDone : 'healingDone',		
+	healingTaken : 'healingTaken',		
+	interrupt : 'interrupt',			
+	actionCharged : 'actionCharged',	
+	actionUsed : 'actionUsed',			
+	actionRiposte : 'actionRiposte',	
+	wrapperAdded : 'wrapperAdded',		
+	wrapperRemoved : 'wrapperRemoved',	
+	wrapperTick : 'wrapperTick',		
+	turnChanged : 'turnChanged',		
+	playerDefeated : 'playerDefeated',	
+	diminishingResist : 'diminishingResist',
+	effectTrigger : 'effectTrigger',		
+	armorBroken : 'armorBroken',		
 
 	// These are only raised internally within a wrapper/effect
-	internalWrapperAdded : 'internalWrapperAdded',		// Duration effects only, sender, target, action, wrapper. Custom: {isChargeFinish:(bool)isChargeFinish}
-	internalWrapperRemoved : 'internalWrapperRemoved',	// *Duration effects only. sender, target, action, wrapper
-	internalWrapperTick : 'internalWrapperTick',		// *Duration ticks and trigger immediates, == || ==
-	internalWrapperStackChange : 'internalWrapperStackChange',		// Raised when a stack changes through an effect. Combine with add/tick. For now, sender/target correspond to the affected wrapper, not the person who raised the event
+	internalWrapperAdded : 'internalWrapperAdded',
+	internalWrapperRemoved : 'internalWrapperRemoved',
+	internalWrapperTick : 'internalWrapperTick',	
+	internalWrapperStackChange : 'internalWrapperStackChange',
 	
 	battleStarted : 'battleStarted',
 	battleEnded : 'battleEnded',
-	encounterDefeated : 'encounterDefeated',			// encounter, Raised when the players defeat an encounter. Generally you want to attach a .quest to it with the quest checking a condition
-	encounterLost : 'encounterLost',					// encounter, Same as above but players lost
-	assetUsed : 'assetUsed',							// Asset used
+	encounterDefeated : 'encounterDefeated',
+	encounterLost : 'encounterLost',		
+	assetUsed : 'assetUsed',				
 
-	encounterStarted : 'encounterStarted',				// encounter, Currently only used for the encounter start text
+	encounterStarted : 'encounterStarted',	
 	
-	dungeonExited : 'dungeonExited',					// Raised with the dungeon being the dungeon you just left
-	dungeonEntered : 'dungeonEntered',					// Raised with the dungeon being the dungeon you just entered
+	dungeonExited : 'dungeonExited',		
+	dungeonEntered : 'dungeonEntered',		
 };
 
+GameEvent.TypeDescs = {
+	[GameEvent.Types.none] : 'Can be used internally',	
+	[GameEvent.Types.all] : 'Varied, raised on every event',
+	[GameEvent.Types.damageDone] : 'sender, target, action, wrapper',			//* 
+	[GameEvent.Types.damageTaken] : 'sender, target, action, wrapper',
+	[GameEvent.Types.healingDone] : '',
+	[GameEvent.Types.healingTaken] : '',
+	[GameEvent.Types.interrupt] : 'A charged action was interrupted',			// 
+	[GameEvent.Types.actionCharged] : 'Used a charged action',	// 
+	[GameEvent.Types.actionUsed] : 'target(is an array of targets here) {resist:true(on resist)}. Note that when this is used in an event check, a wrapper and effect is added by the checker',			//* 
+	[GameEvent.Types.actionRiposte] : 'target is the player that cast the original spell, sender is the original victim',
+	[GameEvent.Types.wrapperAdded] : 'Duration effects only, sender, target, action, wrapper',		//* , 
+	[GameEvent.Types.wrapperRemoved] : 'Duration effects only. sender, target, action, wrapper',	//* 
+	[GameEvent.Types.wrapperTick] : 'Duration ticks and trigger immediates',		//* , == || ==
+	[GameEvent.Types.turnChanged] : 'Sender is the previous player, Target is the new player',		//* 
+	[GameEvent.Types.playerDefeated] : 'Player was defeated, sender was the player that defeated target, action might be included, wrapper is included',	// 
+	[GameEvent.Types.diminishingResist] : 'target resisted sender\'s wrapper due to diminishing returns',		// 
+	[GameEvent.Types.effectTrigger] : 'Raised when an effect has been triggered',				// 
+	[GameEvent.Types.armorBroken] : 'An armor piece has been broken. Sender is the player that triggered the break, Target is the player who wears it',		// 
+
+	// These are only raised internally within a wrapper/effect
+	[GameEvent.Types.internalWrapperAdded] : 'Duration effects only, sender, target, action, wrapper. Custom: {isChargeFinish:(bool)isChargeFinish}',		// 
+	[GameEvent.Types.internalWrapperRemoved] : 'Duration effects only. sender, target, action, wrapper',	// *
+	[GameEvent.Types.internalWrapperTick] : 'Duration ticks and trigger immediates',		// *, == || ==
+	[GameEvent.Types.internalWrapperStackChange] : 'Raised when a stack changes through an effect. Combine with add/tick. For now, sender/target correspond to the affected wrapper, not the person who raised the event',		// 
+	
+	[GameEvent.Types.battleStarted] : 'battleStarted',
+	[GameEvent.Types.battleEnded] : 'battleEnded',
+	[GameEvent.Types.encounterDefeated] : 'encounter, Raised when the players defeat an encounter. Generally you want to attach a .quest to it with the quest checking a condition',			// 
+	[GameEvent.Types.encounterLost] : 'encounter, Same as encounterDefeated but players lost',					// 
+	[GameEvent.Types.assetUsed] : 'Asset used',							// 
+
+	[GameEvent.Types.encounterStarted] : 'encounter, Currently only used for the encounter start text',				// 
+	
+	[GameEvent.Types.dungeonExited] : 'Raised with the dungeon being the dungeon you just left',					// 
+	[GameEvent.Types.dungeonEntered] : 'Raised with the dungeon being the dungeon you just entered',					// 
+};
 
 
 
