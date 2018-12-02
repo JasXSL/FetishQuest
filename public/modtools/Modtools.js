@@ -654,10 +654,29 @@ export default class Modtools{
 		);
 	}
 
-	// Todo now
-	mml_assets(wrapper){
-
+	mml_assets(){
+		this.mml_generic( 
+			'assets', 
+			['Label','Name','Lv','DurBon','Rarity','Slots','Wt'],
+			this.mod.assets,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					asset.level,
+					asset.durability_bonus,
+					asset.rarity,
+					Array.isArray(asset.slots) ? asset.slots.join(', ') : '',
+					asset.weight
+				];
+			},
+			() => {
+				let asset = new Asset({label:'UNKNOWN_ASSET'}).save(true);
+				return asset;
+			}
+		);
 	}
+	
 
 	// Todo now
 	mml_playerTemplates(wrapper){
@@ -690,6 +709,13 @@ export default class Modtools{
 	}
 
 
+
+
+
+
+
+
+	
 
 
 
@@ -1053,6 +1079,49 @@ export default class Modtools{
 	}
 
 
+	editor_assets( asset = {} ){
+
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Description: <textarea name="description">'+esc(asset.description)+'</textarea><br />';
+			html += 'Slots: '+this.formAssetSlots(asset.slots)+'<br />';
+			html += 'Tags: '+this.formTags(asset.tags)+'<br />';
+			html += 'Use action: '+this.inputAction(typeof asset.use_action !== "string" ? JSON.stringify(asset.use_action) : asset.use_action)+'<br />';
+			html += 'Passive wrappers: '+this.formWrappers(asset.wrappers)+'<br />';
+			html += 'Weight: <input required type="number" min=0 step=1 name="weight" value="'+esc(asset.weight)+'" /><br />';
+			html += 'Charges: <input required type="number" min=0 step=1 name="charges" value="'+esc(asset.charges)+'" /><br />';
+			html += 'Durability Bonus: <input required type="number" min=0 step=1 name="durability_bonus" value="'+esc(asset.durability_bonus)+'" /><br />';
+			html += 'Level: <input required type="number" min=0 step=1 name="level" value="'+esc(asset.level)+'" /><br />';
+			html += 'Rarity: <input required type="number" min=0 step=1 max=4 name="rarity" value="'+esc(asset.rarity)+'" /><br />';
+			html += 'Charges: <input required type="number" min=-1 step=1 name="charges" value="'+esc(asset.charges)+'" /><br />';
+			html += 'Loot Sound: <input type="text" name="loot_sound" value="'+esc(asset.loot_sound)+'" /><br />';
+			html += '<label>No auto consume: <input type="checkbox" name="no_auto_consume" '+(asset.no_auto_consume ? 'checked' : '')+' /></label><br />';
+			
+
+		this.editor_generic('assets', asset, this.mod.assets, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.description = $("textarea[name=description]", form).val().trim();
+			saveAsset.slots = this.compileAssetSlots();
+			saveAsset.tags = this.compileTags();
+			saveAsset.use_action = {};
+			try{ saveAsset.use_action = JSON.parse($("input[name=action]", form).val().trim()); }catch(err){}
+			saveAsset.wrappers = this.compileWrappers();
+			saveAsset.weight = +$("input[name=weight]", form).val();
+			saveAsset.charges = +$("input[name=charges]", form).val();
+			saveAsset.durability_bonus = +$("input[name=durability_bonus]", form).val();
+			saveAsset.level = +$("input[name=level]", form).val();
+			saveAsset.rarity = +$("input[name=rarity]", form).val();
+			saveAsset.charges = +$("input[name=charges]", form).val();
+			saveAsset.loot_sound = $("input[name=loot_sound]", form).val().trim();
+			saveAsset.no_auto_consume = $("input[name=no_auto_consume]", form).is(':checked');
+
+		});
+
+	}
 	
 
 
@@ -1082,6 +1151,7 @@ export default class Modtools{
 		this.bindEffects();
 		this.bindWrapperTargetTypes();
 		this.bindEvents();
+		this.bindAssetSlots();
 
 	}
 
@@ -1401,7 +1471,48 @@ export default class Modtools{
 
 
 
+	
+	// AssetSlots (bindable)
+	inputAssetSlot( slot ){
+		let out = '<select name="assetSlot">';
+		for( let i in Asset.Slots )
+			out += '<option value="'+Asset.Slots[i]+'" '+(slot === Asset.Slots[i] ? 'selected' : '')+'>'+Asset.Slots[i]+'</option>';
+		out += '</select>';
+		return out;
+	}
+	bindAssetSlots(){
+		let th = this;
+		$("#assetForm input.addAssetSlotHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputAssetSlot(""));
+				th.bindFormHelpers();
+			});
+	}
 
+	compileAssetSlots( cName = 'assetSlots' ){
+		const base = $('#assetForm div.'+cName+' select[name=assetSlot]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formAssetSlots( names = [], cName = 'assetSlots' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addAssetSlotHere" value="Add Asset Slot" />';
+		for( let name of names )
+			out+= this.inputAssetSlot(name);
+		out += '</div>';
+		return out;
+
+	}
 
 
 
@@ -1641,7 +1752,7 @@ export default class Modtools{
 	}
 
 	inputAction( name = '' ){
-		return '<input type="text" name="action" value="'+esc(name)+'" list="actions" />';
+		return '<input type="text" class="json" name="action" value="'+esc(name)+'" list="actions" />';
 	}
 
 	formActions( names = [], cName = 'actions' ){
