@@ -15,6 +15,7 @@ import Generic from '../classes/helpers/Generic.js';
 import Condition from '../classes/Condition.js';
 import Action from '../classes/Action.js';
 import { Wrapper, Effect } from '../classes/EffectSys.js';
+import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 
 export default class Modtools{
 
@@ -96,7 +97,11 @@ export default class Modtools{
 			conditions = '',
 			actions = '',
 			wrappers = '',
-			effects = ''
+			effects = '',
+			materialTemplates = '',
+			assetTemplates = '',
+			classes = '',
+			assets = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -125,7 +130,22 @@ export default class Modtools{
 		const effectLib = glib.getFull('Effect');
 		for( let effect in effectLib )
 			effects += '<option value="'+esc(effect)+'"/>';
+
+		const matLib = glib.getFull('MaterialTemplate');
+		for( let i in matLib )
+			materialTemplates += '<option value="'+esc(i)+'"/>';
+
+		const assetTempLib = glib.getFull('AssetTemplate');
+		for( let i in assetTempLib )
+			assetTemplates += '<option value="'+esc(i)+'"/>';
 		
+		const classLib = glib.getFull('PlayerClass');
+		for( let i in classLib )
+			classes += '<option value="'+esc(i)+'"/>';
+
+		const assetLib = glib.getFull('Asset');
+		for( let i in assetLib )
+			assets += '<option value="'+esc(i)+'"/>';
 
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
@@ -134,7 +154,11 @@ export default class Modtools{
 			'<datalist id="conditions"><select>'+conditions+'</select></datalist>'+
 			'<datalist id="actions"><select>'+actions+'</select></datalist>'+
 			'<datalist id="wrappers"><select>'+wrappers+'</select></datalist>'+
-			'<datalist id="effects"><select>'+effects+'</select></datalist>'
+			'<datalist id="effects"><select>'+effects+'</select></datalist>'+
+			'<datalist id="materialTemplates"><select>'+materialTemplates+'</select></datalist>'+
+			'<datalist id="assetTemplates"><select>'+assetTemplates+'</select></datalist>'+
+			'<datalist id="classes"><select>'+classes+'</select></datalist>'+
+			'<datalist id="assets"><select>'+assets+'</select></datalist>'
 		);
 
 	}
@@ -678,10 +702,35 @@ export default class Modtools{
 	}
 	
 
-	// Todo now
 	mml_playerTemplates(wrapper){
-
+		this.mml_generic( 
+			'playerTemplates', 
+			['Label','Name','Difficulty','Species','Classes','MaxAct','MinSize','MaxSize','MinLevel','MaxLevel','Primary','Bon','SV'],
+			this.mod.playerTemplates,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					asset.difficulty,
+					asset.species,
+					asset.classes,
+					asset.max_actions,
+					asset.min_size,
+					asset.max_size,
+					asset.min_level,
+					asset.max_level,
+					typeof asset.primary_stats === "object" ? Object.entries(asset.primary_stats).map(ar => ar[0]+':'+ar[1]).join(', ') : '',
+					typeof asset.bon === "object" ? Object.entries(asset.bon).map(ar => ar[0]+':'+ar[1]).join(', ') : '',
+					typeof asset.sv === "object" ? Object.entries(asset.sv).map(ar => ar[0]+':'+ar[1]).join(', ') : '',
+				];
+			},
+			() => {
+				let asset = new PlayerTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				return asset;
+			}
+		);
 	}
+	
 
 	// Todo now
 	mml_assetTemplates(wrapper){
@@ -1122,6 +1171,152 @@ export default class Modtools{
 		});
 
 	}
+
+	editor_playerTemplates( asset = {} ){
+		
+		if( typeof asset.sv !== "object" )
+			asset.sv = {};
+		if( typeof asset.bon !== "object" )
+			asset.bon = {};
+		if( typeof asset.primary_stats !== "object" )
+			asset.primary_stats = {};
+		
+
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Description: <textarea name="description">'+esc(asset.description)+'</textarea><br />';
+			html += 'Icon: <input type="text" name="icon" value="'+esc(asset.icon)+'" /><br />';
+			html += 'Species: <input type="text" name="species" value="'+esc(asset.species)+'" /><br />';
+			html += 'Viable classes: '+this.formClasses(asset.classes, 'classes')+'<br />';
+
+
+			html += 'Difficulty: <input required type="number" min=0.01 step=0.01 name="difficulty" value="'+esc(asset.difficulty)+'" /><br />';
+			html += 'Max Actions: <input required type="number" min=-1 step=1 name="max_actions" value="'+esc(asset.max_actions)+'" /><br />';
+			html += '<label title="Chance of having gear">Gear Chance: <input required type="range" min=0 step=0.01 max=1 name="gear_chance" value="'+esc(asset.gear_chance)+'" /></label><br />';
+
+			html += 'Min Level: <input required type="number" min=0 step=1 name="min_level" value="'+esc(asset.min_level)+'" /><br />';
+			html += 'Max Level: <input required type="number" min=0 step=1 name="max_level" value="'+esc(asset.max_level)+'" /><br />';
+
+			html += 'Min Size: <input required type="range" min=0 step=1 max=4 name="min_size" value="'+esc(asset.min_size)+'" /><br />';
+			html += 'Max Size: <input required type="range" min=0 step=1 max=4 name="max_size" value="'+esc(asset.max_size)+'" /><br />';
+
+
+			html += 'Viable asset templates: '+this.formAssetTemplates(asset.viable_asset_templates, 'viable_asset_templates')+'<br />';
+			html += 'Viable asset materials: '+this.formMaterialTemplates(asset.viable_asset_materials, 'viable_asset_materials')+'<br />';
+			html += 'Viable consumables: '+this.formAssets(asset.viable_consumables, 'viable_consumables')+'<br />';
+			html += 'Viable gear: '+this.formAssets(asset.viable_gear, 'viable_gear')+'<br />';
+			html += 'Required assets: '+this.formAssets(asset.required_assets, 'required_assets')+'<br />';
+			
+			html += 'Primary stats:<br />';
+			for( let stat in Player.primaryStats )
+				html += Player.primaryStats[stat]+': <input required type="number" step=1 name="'+Player.primaryStats[stat]+'" value="'+(asset.primary_stats[Player.primaryStats[stat]] || 0)+'" /> ';
+
+			html += '<br />SV:<br />';
+			for( let stat in Action.Types )
+				html += Action.Types[stat]+': <input required type="number" step=1 name="sv_'+Action.Types[stat]+'" value="'+(asset.sv[Action.Types[stat]] || 0)+'" /> ';
+			
+			html += '<br />Bon:<br />';
+			for( let stat in Action.Types )
+				html += Action.Types[stat]+': <input required type="number" step=1 name="bon_'+Action.Types[stat]+'" value="'+(asset.bon[Action.Types[stat]] || 0)+'" /> ';
+			
+
+		html += '<br />Tags: '+this.formTags(asset.tags, 'tags')+'<br />';
+
+		html += 'Personality traits:<br />';
+		html += '<label>Sadistic: '+
+			'Min: <input type="range" min=0 step=0.01 max=1 name="sadistic_min" value="'+esc(asset.sadistic_min)+'" /> '+
+			'Max: <input type="range" min=0 step=0.01 max=1 name="sadistic_max" value="'+esc(asset.sadistic_max)+'" />'+
+		'</label><br />';
+		html += '<label>Dominant: '+
+			'Min: <input type="range" min=0 step=0.01 max=1 name="dominant_min" value="'+esc(asset.dominant_min)+'" /> '+
+			'Max: <input type="range" min=0 step=0.01 max=1 name="dominant_max" value="'+esc(asset.dominant_max)+'" />'+
+		'</label><br />';
+		html += '<label>Extraverted: '+
+			'Min: <input type="range" min=0 step=0.01 max=1 name="extraversion_min" value="'+esc(asset.extraversion_min)+'" /> '+
+			'Max: <input type="range" min=0 step=0.01 max=1 name="extraversion_max" value="'+esc(asset.extraversion_max)+'" />'+
+		'</label><br />';
+		html += '<label>Sensing: '+
+			'Min: <input type="range" min=0 step=0.01 max=1 name="sensing_min" value="'+esc(asset.sensing_min)+'" /> '+
+			'Max: <input type="range" min=0 step=0.01 max=1 name="sensing_max" value="'+esc(asset.sensing_max)+'" />'+
+		'</label><br />';
+		html += '<label>Thinking: '+
+			'Min: <input type="range" min=0 step=0.01 max=1 name="thinking_min" value="'+esc(asset.thinking_min)+'" /> '+
+			'Max: <input type="range" min=0 step=0.01 max=1 name="thinking_max" value="'+esc(asset.thinking_max)+'" />'+
+		'</label><br />';
+		html += '<label>Judging: '+
+			'Min: <input type="range" min=0 step=0.01 max=1 name="judging_min" value="'+esc(asset.judging_min)+'" /> '+
+			'Max: <input type="range" min=0 step=0.01 max=1 name="judging_max" value="'+esc(asset.judging_max)+'" />'+
+		'</label><br />';
+		html += '<label>Heterosexuality: '+
+			'Min: <input type="range" min=0 step=0.01 max=1 name="hetero_min" value="'+esc(asset.hetero_min)+'" /> '+
+			'Max: <input type="range" min=0 step=0.01 max=1 name="hetero_max" value="'+esc(asset.hetero_max)+'" />'+
+		'</label><br />';
+		html += '<label>Intelligence: '+
+			'Min: <input type="range" min=0 step=0.01 max=1 name="intelligence_min" value="'+esc(asset.intelligence_min)+'" /> '+
+			'Max: <input type="range" min=0 step=0.01 max=1 name="intelligence_max" value="'+esc(asset.intelligence_max)+'" />'+
+		'</label><br />';
+
+
+		this.editor_generic('playerTemplates', asset, this.mod.playerTemplates, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.description = $("textarea[name=description]", form).val().trim();
+			saveAsset.icon = $("input[name=icon]", form).val().trim();
+			saveAsset.species = $("input[name=species]", form).val().trim();
+			saveAsset.classes = this.compileClasses('classes');
+			saveAsset.difficulty = +$("input[name=difficulty]", form).val().trim();
+			saveAsset.max_actions = +$("input[name=max_actions]", form).val().trim();
+			saveAsset.gear_chance = +$("input[name=gear_chance]", form).val().trim();
+			saveAsset.min_level = +$("input[name=min_level]", form).val().trim();
+			saveAsset.max_level = +$("input[name=max_level]", form).val().trim();
+			saveAsset.min_size = +$("input[name=min_size]", form).val().trim();
+			saveAsset.max_size = +$("input[name=max_size]", form).val().trim();
+			saveAsset.viable_asset_templates = this.compileAssetTemplates('viable_asset_templates');
+			saveAsset.viable_asset_materials = this.compileMaterialTemplates('viable_asset_materials');
+			saveAsset.viable_consumables = this.compileAssets('viable_consumables');
+			saveAsset.viable_gear = this.compileAssets('viable_gear');
+			saveAsset.required_assets = this.compileAssets('required_assets');
+			saveAsset.tags = this.compileTags('tags');
+			saveAsset.primary_stats = {};
+			for( let stat in Player.primaryStats )
+				saveAsset.primary_stats[Player.primaryStats[stat]] = +$("input[name="+Player.primaryStats[stat]+"]", form).val().trim();
+			saveAsset.sv = {};
+			saveAsset.bon = {};
+			for( let stat in Action.Types ){
+				saveAsset.sv[Action.Types[stat]] = +$("input[name=sv_"+Action.Types[stat]+"]", form).val().trim();
+				saveAsset.bon[Action.Types[stat]] = +$("input[name=bon_"+Action.Types[stat]+"]", form).val().trim();
+			}
+			saveAsset.sadistic_min = +$("input[name=sadistic_min]", form).val().trim();
+			saveAsset.sadistic_max = +$("input[name=sadistic_max]", form).val().trim();
+
+			saveAsset.dominant_min = +$("input[name=dominant_min]", form).val().trim();
+			saveAsset.dominant_max = +$("input[name=dominant_max]", form).val().trim();
+
+			saveAsset.extraversion_min = +$("input[name=extraversion_min]", form).val().trim();
+			saveAsset.extraversion_max = +$("input[name=extraversion_max]", form).val().trim();
+
+			saveAsset.sensing_min = +$("input[name=sensing_min]", form).val().trim();
+			saveAsset.sensing_max = +$("input[name=sensing_max]", form).val().trim();
+
+			saveAsset.thinking_min = +$("input[name=thinking_min]", form).val().trim();
+			saveAsset.thinking_max = +$("input[name=thinking_max]", form).val().trim();
+
+			saveAsset.judging_min = +$("input[name=judging_min]", form).val().trim();
+			saveAsset.judging_max = +$("input[name=judging_max]", form).val().trim();
+
+			saveAsset.hetero_min = +$("input[name=hetero_min]", form).val().trim();
+			saveAsset.hetero_max = +$("input[name=hetero_max]", form).val().trim();
+
+			saveAsset.intelligence_min = +$("input[name=intelligence_min]", form).val().trim();
+			saveAsset.intelligence_max = +$("input[name=intelligence_max]", form).val().trim();
+
+
+		});
+
+	}
 	
 
 
@@ -1152,6 +1347,10 @@ export default class Modtools{
 		this.bindWrapperTargetTypes();
 		this.bindEvents();
 		this.bindAssetSlots();
+		this.bindClasses();
+		this.bindAssetTemplates();
+		this.bindMaterialTemplates();
+		this.bindAssets();
 
 	}
 
@@ -1614,7 +1813,204 @@ export default class Modtools{
 
 	}
 
+
+
+	// Classes (Bindable)
+	bindClasses(){
+		let th = this;
+		$("#assetForm input.addClassHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputClass(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileClasses( cName = 'classes' ){
+		const base = $('#assetForm div.'+cName+' input[name=class]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputClass( data = '' ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="class" value="'+esc(data)+'" list="classes" />';
+	}
+
+	formClasses( names = [], cName = 'classes' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addClassHere" value="Add Class" />';
+		for( let name of names )
+			out+= this.inputClass(name);
+		out += '</div>';
+		return out;
+
+	}
+
 	
+
+
+
+	// Asset templates (Bindable)
+	bindAssetTemplates(){
+		let th = this;
+		$("#assetForm input.addAssetTemplateHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputAssetTemplate(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileAssetTemplates( cName = 'assetTemplates' ){
+		const base = $('#assetForm div.'+cName+' input[name=assetTemplate]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputAssetTemplate( data = '' ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="assetTemplate" value="'+esc(data)+'" list="assetTemplates" />';
+	}
+
+	formAssetTemplates( names = [], cName = 'assetTemplates' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addAssetTemplateHere" value="Add Asset Template" />';
+		for( let name of names )
+			out+= this.inputAssetTemplate(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+
+	// Matierial templates (Bindable)
+	bindMaterialTemplates(){
+		let th = this;
+		$("#assetForm input.addMaterialTemplateHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputMaterialTemplate(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileMaterialTemplates( cName = 'materialTemplates' ){
+		const base = $('#assetForm div.'+cName+' input[name=materialTemplate]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputMaterialTemplate( data = '' ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="materialTemplate" value="'+esc(data)+'" list="materialTemplates" />';
+	}
+
+	formMaterialTemplates( names = [], cName = 'materialTemplates' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addMaterialTemplateHere" value="Add Material Template" />';
+		for( let name of names )
+			out+= this.inputMaterialTemplate(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+
+
+	// Matierial templates (Bindable)
+	bindAssets(){
+		let th = this;
+		$("#assetForm input.addAssetHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputAsset(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileAssets( cName = 'assets' ){
+		const base = $('#assetForm div.'+cName+' input[name=asset]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputAsset( data = '' ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="asset" value="'+esc(data)+'" list="assets" />';
+	}
+
+	formAssets( names = [], cName = 'assets' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addAssetHere" value="Add Asset" />';
+		for( let name of names )
+			out+= this.inputAsset(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
 
 
 
