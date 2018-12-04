@@ -16,6 +16,7 @@ import Condition from '../classes/Condition.js';
 import Action from '../classes/Action.js';
 import { Wrapper, Effect } from '../classes/EffectSys.js';
 import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
+import AssetTemplate from '../classes/templates/AssetTemplate.js';
 
 export default class Modtools{
 
@@ -734,7 +735,27 @@ export default class Modtools{
 
 	// Todo now
 	mml_assetTemplates(wrapper){
-
+		this.mml_generic( 
+			'assetTemplates', 
+			['Label','Name','Slots','Materials','SV','Bon','Size','Tags'],
+			this.mod.assetTemplates,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					Array.isArray(asset.slots) ? asset.slots.join(', ') : '!NONE!',
+					Array.isArray(asset.materials) ? asset.materials.join(', ') : '!NONE!',
+					JSON.stringify(asset.svStats),
+					JSON.stringify(asset.bonStats),
+					asset.size,
+					Array.isArray(asset.tags) ? asset.tags.join(', ') : '!NONE!',
+				];
+			},
+			() => {
+				let asset = new AssetTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				return asset;
+			}
+		);
 	}
 
 	// Todo now
@@ -1317,7 +1338,52 @@ export default class Modtools{
 		});
 
 	}
-	
+
+	editor_assetTemplates( asset = {} ){
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Description: <textarea name="description">'+esc(asset.description)+'</textarea><br />';
+			html += 'Size: <input required type="number" name="size" value="'+esc(asset.size)+'" /><br />';
+
+			html += 'Slots: '+this.formAssetSlots(asset.slots)+'<br />';
+			html += 'Tags: '+this.formTags(asset.tags)+'<br />';
+			
+			html += 'Materials: '+this.formMaterialTemplates(asset.materials)+'<br />';
+
+			html += '<br />SV:<br />';
+			for( let stat in Action.Types )
+				html += Action.Types[stat]+': <input required type="number" step=1 name="sv_'+Action.Types[stat]+'" value="'+(asset.svStats[Action.Types[stat]] || 0)+'" /> ';
+			
+			html += '<br />Bon:<br />';
+			for( let stat in Action.Types )
+				html += Action.Types[stat]+': <input required type="number" step=1 name="bon_'+Action.Types[stat]+'" value="'+(asset.bonStats[Action.Types[stat]] || 0)+'" /> ';
+			
+			
+		this.editor_generic('assetTemplates', asset, this.mod.assetTemplates, html, saveAsset => {
+
+			const form = $("#assetForm");
+
+			saveAsset.svStats = {};
+			saveAsset.bonStats = {};
+			for( let stat in Action.Types ){
+				saveAsset.svStats[Action.Types[stat]] = +$("input[name=sv_"+Action.Types[stat]+"]", form).val().trim();
+				saveAsset.bonStats[Action.Types[stat]] = +$("input[name=bon_"+Action.Types[stat]+"]", form).val().trim();
+			}
+
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.description = $("textarea[name=description]", form).val().trim();
+			saveAsset.size = +$("input[name=size]", form).val().trim();
+			saveAsset.slots = this.compileAssetSlots();
+			saveAsset.tags = this.compileTags();
+			saveAsset.materials = this.compileMaterialTemplates();
+
+		});
+
+	}
+
+
 
 
 
