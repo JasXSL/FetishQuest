@@ -17,6 +17,7 @@ import Action from '../classes/Action.js';
 import { Wrapper, Effect } from '../classes/EffectSys.js';
 import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate from '../classes/templates/AssetTemplate.js';
+import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
 
 const meshLib = LibMesh.getFlatLib();
 
@@ -718,7 +719,7 @@ export default class Modtools{
 	}
 	
 
-	mml_playerTemplates(wrapper){
+	mml_playerTemplates(){
 		this.mml_generic( 
 			'playerTemplates', 
 			['Label','Name','Difficulty','Species','Classes','MaxAct','MinSize','MaxSize','MinLevel','MaxLevel','Primary','Bon','SV'],
@@ -748,7 +749,7 @@ export default class Modtools{
 	}
 	
 
-	mml_assetTemplates(wrapper){
+	mml_assetTemplates(){
 		this.mml_generic( 
 			'assetTemplates', 
 			['Label','Name','Slots','Materials','SV','Bon','Size','Tags'],
@@ -773,7 +774,7 @@ export default class Modtools{
 	}
 
 	
-	mml_dungeonTemplates(wrapper){
+	mml_dungeonTemplates(){
 		this.mml_generic( 
 			'dungeonTemplates', 
 			['Label','Rooms','Doors_Hor','Doors_Down','Doors_Up','Monster_Types','Consumables'],
@@ -796,9 +797,28 @@ export default class Modtools{
 		);
 	}
 
-	// Todo now
-	mml_dungeonRoomTemplates(wrapper){
-
+	mml_dungeonRoomTemplates(){
+		
+		this.mml_generic( 
+			'dungeonRoomTemplates', 
+			['Label','RoomMeshes','Props','Tags','Containers','Ambiance','Volume'],
+			this.mod.dungeonRoomTemplates,
+			asset => {
+				return [
+					asset.label,
+					Array.isArray(asset.basemeshes) ? asset.basemeshes.join(', ') : '!NONE!',
+					Array.isArray(asset.props) ? asset.props.join(', ') : '!NONE!',
+					Array.isArray(asset.tags) ? asset.tags.join(', ') : '!NONE!',
+					Array.isArray(asset.containers) ? asset.containers.join(', ') : '!NONE!',
+					asset.ambiance,
+					+asset.ambiance_volume					
+				];
+			},
+			() => {
+				let asset = new RoomTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				return asset;
+			}
+		);
 	}
 
 	// Todo now
@@ -1438,6 +1458,36 @@ export default class Modtools{
 			saveAsset.doors_up = this.compileMeshes('doors_up');
 			saveAsset.monster_types = this.compileMeshes('monster_types');
 			saveAsset.consumables = this.compileAssets('consumables');
+			
+		});
+
+	}
+
+	editor_dungeonRoomTemplates( asset = {} ){
+
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			
+			html += 'Room Meshes: '+this.formMeshes(asset.basemeshes, 'basemeshes')+'<br />';
+			html += 'Props: '+this.formMeshes(asset.props,'props')+'<br />';
+			html += 'Containers: '+this.formMeshes(asset.containers,'containers')+'<br />';
+			html += 'Tags: '+this.formTags(asset.tags,'tags')+'<br />';
+			
+			html += 'Ambiance: <input type="text" name="ambiance" value="'+esc(asset.ambiance)+'" /><br />';
+			html += 'Volume: <input type="range" min=0 max=1 step=0.01 name="ambiance_volume" value="'+esc(asset.ambiance_volume)+'" /><br />';
+			
+			
+		this.editor_generic('dungeonRoomTemplates', asset, this.mod.dungeonRoomTemplates, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.ambiance = $("input[name=ambiance]", form).val().trim();
+			saveAsset.ambiance_volume = +$("input[name=ambiance_volume]", form).val().trim();
+
+			saveAsset.basemeshes = this.compileMeshes('basemeshes');
+			saveAsset.props = this.compileMeshes('props');
+			saveAsset.containers = this.compileMeshes('containers');
+			saveAsset.tags = this.compileTags('tags');
 			
 		});
 
