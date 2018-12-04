@@ -18,6 +18,9 @@ import { Wrapper, Effect } from '../classes/EffectSys.js';
 import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate from '../classes/templates/AssetTemplate.js';
 
+const meshLib = LibMesh.getFlatLib();
+
+
 export default class Modtools{
 
 	constructor(){
@@ -102,7 +105,9 @@ export default class Modtools{
 			materialTemplates = '',
 			assetTemplates = '',
 			classes = '',
-			assets = ''
+			assets = '',
+			roomTemplates = '',
+			playerTemplates = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -148,6 +153,14 @@ export default class Modtools{
 		for( let i in assetLib )
 			assets += '<option value="'+esc(i)+'"/>';
 
+		const roomTempLib = glib.getFull('RoomTemplate');
+		for( let i in roomTempLib )
+			roomTemplates += '<option value="'+esc(i)+'"/>';
+		
+		const playerTempLib = glib.getFull('PlayerTemplate');
+		for( let i in playerTempLib )
+			playerTemplates += '<option value="'+esc(i)+'"/>';
+
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
 			'<datalist id="tagsTT"><select>'+tagTtSel+'</select></datalist>'+
@@ -159,7 +172,9 @@ export default class Modtools{
 			'<datalist id="materialTemplates"><select>'+materialTemplates+'</select></datalist>'+
 			'<datalist id="assetTemplates"><select>'+assetTemplates+'</select></datalist>'+
 			'<datalist id="classes"><select>'+classes+'</select></datalist>'+
-			'<datalist id="assets"><select>'+assets+'</select></datalist>'
+			'<datalist id="assets"><select>'+assets+'</select></datalist>'+
+			'<datalist id="roomTemplates"><select>'+roomTemplates+'</select></datalist>'+
+			'<datalist id="playerTemplates"><select>'+playerTemplates+'</select></datalist>'
 		);
 
 	}
@@ -733,7 +748,6 @@ export default class Modtools{
 	}
 	
 
-	// Todo now
 	mml_assetTemplates(wrapper){
 		this.mml_generic( 
 			'assetTemplates', 
@@ -758,9 +772,28 @@ export default class Modtools{
 		);
 	}
 
-	// Todo now
+	
 	mml_dungeonTemplates(wrapper){
-
+		this.mml_generic( 
+			'dungeonTemplates', 
+			['Label','Rooms','Doors_Hor','Doors_Down','Doors_Up','Monster_Types','Consumables'],
+			this.mod.dungeonTemplates,
+			asset => {
+				return [
+					asset.label,
+					Array.isArray(asset.rooms) ? asset.rooms.join(', ') : '!NONE!',
+					Array.isArray(asset.doors_hor) ? asset.doors_hor.join(', ') : '!NONE!',
+					Array.isArray(asset.doors_down) ? asset.doors_down.join(', ') : '!NONE!',
+					Array.isArray(asset.doors_up) ? asset.doors_up.join(', ') : '!NONE!',
+					Array.isArray(asset.monster_types) ? asset.monster_types.join(', ') : '!NONE!',
+					Array.isArray(asset.consumables) ? asset.consumables.join(', ') : 'Default',					
+				];
+			},
+			() => {
+				let asset = new DungeonTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				return asset;
+			}
+		);
 	}
 
 	// Todo now
@@ -1383,9 +1416,34 @@ export default class Modtools{
 
 	}
 
+	editor_dungeonTemplates( asset = {} ){
 
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			
+			html += 'Rooms: '+this.formDungeonRoomTemplates(asset.rooms, 'rooms')+'<br />';
+			html += 'Doors Horizontal: '+this.formMeshes(asset.doors_hor,'doors_hor')+'<br />';
+			html += 'Doors Down: '+this.formMeshes(asset.doors_down,'doors_down')+'<br />';
+			html += 'Doors Up: '+this.formMeshes(asset.doors_up,'doors_up')+'<br />';
+			html += 'Monster Types: '+this.formPlayerTemplates(asset.monster_types,'monster_types')+'<br />';
+			html += 'Consumables: '+this.formAssets(asset.consumables,'consumables')+'<br />';
+			
+		this.editor_generic('dungeonTemplates', asset, this.mod.dungeonTemplates, html, saveAsset => {
 
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.rooms = this.compileDungeonRoomTemplates('rooms');
+			saveAsset.doors_hor = this.compileMeshes('doors_hor');
+			saveAsset.doors_down = this.compileMeshes('doors_down');
+			saveAsset.doors_up = this.compileMeshes('doors_up');
+			saveAsset.monster_types = this.compileMeshes('monster_types');
+			saveAsset.consumables = this.compileAssets('consumables');
+			
+		});
 
+	}
+
+	
 
 
 	// FORM HELPERS
@@ -1417,7 +1475,9 @@ export default class Modtools{
 		this.bindAssetTemplates();
 		this.bindMaterialTemplates();
 		this.bindAssets();
-
+		this.bindDungeonRoomTemplates();
+		this.bindMeshes();
+		this.bindPlayerTemplates();
 	}
 
 	// Draws a JSON editor for an element
@@ -1774,6 +1834,149 @@ export default class Modtools{
 		out += '<input type="button" class="addAssetSlotHere" value="Add Asset Slot" />';
 		for( let name of names )
 			out+= this.inputAssetSlot(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+	// DungeonRoomTemplates (bindable)
+	inputDungeonRoomTemplate( data ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="dungeonRoomTemplate" value="'+esc(data)+'" list="roomTemplates" />';
+	}
+	
+	bindDungeonRoomTemplates(){
+		let th = this;
+		$("#assetForm input.addDungeonRoomTemplateHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputDungeonRoomTemplate(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileDungeonRoomTemplates( cName = 'dungeonRoomTemplates' ){
+		const base = $('#assetForm div.'+cName+' select[name=dungeonRoomTemplate]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+			if( val && val !== "none" )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formDungeonRoomTemplates( names = [], cName = 'dungeonRoomTemplates' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addDungeonRoomTemplateHere" value="Add Room Template" />';
+		for( let name of names )
+			out+= this.inputDungeonRoomTemplate(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+
+	// formMeshes (bindable)
+	inputMesh( data ){
+		
+		let out = '<select name="mesh">';
+		for( let mesh of meshLib )
+			out += '<option value="'+esc(mesh)+'" '+(data === mesh ? 'selected' : '')+'>'+esc(mesh)+'</option>';
+		out += '</select>';
+		return out;
+
+	}
+
+	bindMeshes(){
+		let th = this;
+		$("#assetForm input.addMeshHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputMesh(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileMeshes( cName = 'meshes' ){
+		const base = $('#assetForm div.'+cName+' select[name=mesh]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			if( val && val !== "none" )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formMeshes( names = [], cName = 'meshes' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addMeshHere" value="Add Mesh" />';
+		for( let name of names )
+			out+= this.inputMesh(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+	// formMeshes (bindable)
+	inputPlayerTemplate( data ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="playerTemplate" value="'+esc(data)+'" list="playerTemplates" />';
+	}
+
+	bindPlayerTemplates(){
+		let th = this;
+		$("#assetForm input.addPlayerTemplateHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputPlayerTemplate(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compilePlayerTemplates( cName = 'playerTemplates' ){
+		const base = $('#assetForm div.'+cName+' select[name=playerTemplate]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+			if( val && val !== "none" )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formPlayerTemplates( names = [], cName = 'playerTemplates' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addPlayerTemplateHere" value="Add Player Template" />';
+		for( let name of names )
+			out+= this.inputPlayerTemplate(name);
 		out += '</div>';
 		return out;
 

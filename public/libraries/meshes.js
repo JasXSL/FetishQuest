@@ -261,6 +261,23 @@ LibMesh.playSound = function( mesh, asset, url, volume, loop, id ){
 	stage.playSound(mesh, url, volume, loop, id);
 };
 
+// Creates an array with paths to the library
+LibMesh.getFlatLib = function( base, label = '' ){
+	
+	if( !base )
+		base = this.library;
+	let out = [];
+	for( let i in base ){
+		if( base[i] instanceof this )
+			out.push((label ? label+'.' : '')+i);
+		else
+			out = out.concat(this.getFlatLib(base[i], (label ? label+'.' : '')+i));
+	}
+	out.sort();
+	return out;
+
+};
+
 class LibMeshAttachment{
 	constructor(data){
 		if( typeof data !== "object" )
