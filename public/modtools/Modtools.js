@@ -16,8 +16,9 @@ import Condition from '../classes/Condition.js';
 import Action from '../classes/Action.js';
 import { Wrapper, Effect } from '../classes/EffectSys.js';
 import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
-import AssetTemplate from '../classes/templates/AssetTemplate.js';
+import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTemplate.js';
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
+import { AudioKit } from '../classes/Audio.js';
 
 const meshLib = LibMesh.getFlatLib();
 
@@ -821,14 +822,50 @@ export default class Modtools{
 		);
 	}
 
-	// Todo now
-	mml_materialTemplates(wrapper){
-
+	mml_materialTemplates(){
+		this.mml_generic( 
+			'materialTemplates', 
+			['Label','Name','Tags','Weight','Lv','DurMult','statBon'],
+			this.mod.materialTemplates,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					Array.isArray(asset.tags) ? asset.tags.join(', ') : '!NONE!',
+					asset.weight,
+					asset.level,
+					asset.durability_bonus,
+					//JSON.stringify(asset.svBons),
+					//JSON.stringify(asset.bonBons),
+					asset.stat_bonus,
+				];
+			},
+			() => {
+				let asset = new MaterialTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				return asset;
+			}
+		);
 	}
 
-	// Todo now
-	mml_audiokits(wrapper){
 
+	mml_audiokits(){
+
+		this.mml_generic( 
+			'audiokits', 
+			['Label','Sounds','Conditions'],
+			this.mod.audioKits,
+			asset => {
+				return [
+					asset.label,
+					Array.isArray(asset.sounds) ? asset.sounds.length : 0,
+					Array.isArray(asset.conditions) ? asset.conditions.length : 0,
+				];
+			},
+			() => {
+				let asset = new AudioKit({label:'UNKNOWN_KIT'}).save(true);
+				return asset;
+			}
+		);
 	}
 
 
@@ -1404,6 +1441,7 @@ export default class Modtools{
 			
 			html += 'Materials: '+this.formMaterialTemplates(asset.materials)+'<br />';
 
+			
 			html += '<br />SV:<br />';
 			for( let stat in Action.Types )
 				html += Action.Types[stat]+': <input required type="number" step=1 name="sv_'+Action.Types[stat]+'" value="'+(asset.svStats[Action.Types[stat]] || 0)+'" /> ';
@@ -1411,7 +1449,7 @@ export default class Modtools{
 			html += '<br />Bon:<br />';
 			for( let stat in Action.Types )
 				html += Action.Types[stat]+': <input required type="number" step=1 name="bon_'+Action.Types[stat]+'" value="'+(asset.bonStats[Action.Types[stat]] || 0)+'" /> ';
-			
+		
 			
 		this.editor_generic('assetTemplates', asset, this.mod.assetTemplates, html, saveAsset => {
 
@@ -1493,6 +1531,68 @@ export default class Modtools{
 
 	}
 
+	editor_materialTemplates( asset = {} ){
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Tags: '+this.formTags(asset.tags,'tags')+'<br />';
+			html += 'Weight (Grams): <input type="number" min=0 step=1 name="weight" value="'+esc(asset.weight)+'" /><br />';
+			html += 'Min Level: <input type="number" min=0 step=1 name="level" value="'+esc(asset.level)+'" /><br />';
+			html += 'Durability Multiplier: <input type="number" min=0 step=0.01 name="durability_bonus" value="'+esc(asset.durability_bonus)+'" /><br />';
+			html += 'Bonus stats: <input type="number" min=0 step=1 name="stat_bonus" value="'+esc(asset.stat_bonus)+'" /><br />';
+			/*
+			html += '<br />SV:<br />';
+			for( let stat in Action.Types )
+				html += Action.Types[stat]+': <input required type="number" step=1 name="sv_'+Action.Types[stat]+'" value="'+(asset.svBons[Action.Types[stat]] || 0)+'" /> ';
+			
+			html += '<br />Bon:<br />';
+			for( let stat in Action.Types )
+				html += Action.Types[stat]+': <input required type="number" step=1 name="bon_'+Action.Types[stat]+'" value="'+(asset.bonBons[Action.Types[stat]] || 0)+'" /> ';
+			*/
+			
+			
+		this.editor_generic('materialTemplates', asset, this.mod.materialTemplates, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.tags = this.compileTags('tags');
+			saveAsset.weight = +$("input[name=weight]", form).val().trim();
+			saveAsset.level = +$("input[name=level]", form).val().trim();
+			saveAsset.durability_bonus = +$("input[name=durability_bonus]", form).val().trim();
+			saveAsset.stat_bonus = +$("input[name=stat_bonus]", form).val().trim();
+			/*
+			for( let stat in Action.Types ){
+				saveAsset.svBons[Action.Types[stat]] = +$("input[name=sv_"+Action.Types[stat]+"]", form).val().trim();
+				saveAsset.bonBons[Action.Types[stat]] = +$("input[name=bon_"+Action.Types[stat]+"]", form).val().trim();
+			}
+			*/
+			
+		});
+
+	}
+
+	editor_audiokits( asset = {} ){
+
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Sounds: '+this.formSoundkitSubs(asset.sounds, 'sounds')+'<br />';
+			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />';
+
+		this.editor_generic('audiokits', asset, this.mod.audioKits, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.conditions = this.compileConditions('conditions');
+			saveAsset.sounds = this.compileSoundkitSubs('sounds');
+			
+
+		});
+
+
+	}
+
+
 	
 
 
@@ -1528,6 +1628,7 @@ export default class Modtools{
 		this.bindDungeonRoomTemplates();
 		this.bindMeshes();
 		this.bindPlayerTemplates();
+		this.bindSoundkitSubs();
 	}
 
 	// Draws a JSON editor for an element
@@ -1940,7 +2041,7 @@ export default class Modtools{
 
 
 
-	// formMeshes (bindable)
+	// Mesh (bindable)
 	inputMesh( data ){
 		
 		let out = '<select name="mesh">';
@@ -1988,7 +2089,7 @@ export default class Modtools{
 
 
 
-	// formMeshes (bindable)
+	// PlayerTemplate (bindable)
 	inputPlayerTemplate( data ){
 		if( typeof data === "object" )
 			data = JSON.stringify(data);
@@ -2032,6 +2133,64 @@ export default class Modtools{
 
 	}
 
+
+
+	inputSoundkitSub( data ){
+		if( typeof data !== "object" )
+			data = {};
+		if( typeof data.s !== "object" )
+			data.s = {};
+		return '<div class="soundkitPack">URL: <input type="text" name="soundkit_url" value="'+esc(data.s.path)+'" />'+
+			'Volume: <input type="range" min=0 max=1 step=0.01 name="soundkit_vol" value="'+esc(data.s.volume)+'" />'+
+			'Sender: <input type="checkbox" name="soundkit_sender" '+(data.se ? 'checked':'')+' />'+
+			'Predelay MS: <input type="number" min=0 step=1 name="soundkit_predelay" value="'+esc(data.t)+'" />'+
+		'</div>';
+	}
+
+	bindSoundkitSubs(){
+		let th = this;
+		$("#assetForm input.addSoundkitSubHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputSoundkitSub(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileSoundkitSubs( cName = 'soundkitSubs' ){
+		const base = $('#assetForm div.'+cName+' div.soundkitPack');
+		console.log("Compiling", base.length);
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			const obj = {
+				s : {
+					path : $("input[name=soundkit_url]", el).val(),
+					volume : +$("input[name=soundkit_vol]", el).val(),
+				},
+				se : $("input[name=soundkit_sender]", el).is(':checked'),
+				t : +$("input[name=soundkit_predelay]", el).val(),
+			};
+			if( obj.s.path )
+				out.push(obj);
+		});
+		return out;
+	}
+
+	formSoundkitSubs( names = [], cName = 'soundkitSubs' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addSoundkitSubHere" value="Add Sound" />';
+		for( let name of names )
+			out+= this.inputSoundkitSub(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+	
 
 
 
@@ -2079,6 +2238,9 @@ export default class Modtools{
 		return out;
 
 	}
+
+
+
 
 
 
