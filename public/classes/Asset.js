@@ -331,7 +331,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 	// Pick a random template
 	let template = AssetTemplate.generateOutput( slot, level, viable_asset_templates, viable_asset_materials );
 	if( !template ){
-		game.ui.addError("Unable to generate a viable template");
+		//console.error("Unable to generate a viable template from", viable_asset_templates, viable_asset_materials);
 		return false;
 	}
 

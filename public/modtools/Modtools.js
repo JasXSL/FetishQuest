@@ -1009,6 +1009,47 @@ export default class Modtools{
 		});
 		updateTextDisplay();
 
+		html = '';
+		html += '<hr /><h2>Legend</h2>';
+		html += '<p>Texts can use special placeholders, starting with a percent sign. These will be replaced in the actual text. If a tag is in singular form (such as %Tbreast) just add an S after it to make it multiple. Ex: %Tbreasts. Or %Tbreast\'s if you want a breast subject etc.</p>';
+		html += '<h3>Targeted</h3>';
+		html += '<p>These are prefixed with %T for target, %S for sender of an action. Advanced: In multi target texts you can use %T2 for player 2, %T3 etc. If using TextTags (special tags set by texts until target receives another text), you can use %RtagName, such as %Rbent_over. And that will target the player that bent the target over.</p>';
+		html += '<p>In the examples below, only %T will be used for reference.</p>';
+		html += '<table>'+
+			'<tr><td>%T</td><td>Target name</td></tr>'+
+			'<tr><td>%Tbreast</td><td>Synonym for breast</td></tr>'+
+			'<tr><td>%Tpenis</td><td>Synonym for penis</td></tr>'+
+			'<tr><td>%Tbutt</td><td>Synonym for butt</td></tr>'+
+			'<tr><td>%Tpsize</td><td>Target penis size.</td></tr>'+
+			'<tr><td>%Tbsize</td><td>Target breast size.</td></tr>'+
+			'<tr><td>%Trsize</td><td>Target rear (butt) size.</td></tr>'+
+			'<tr><td>%Tvagina</td><td>Synonym for vagina.</td></tr>'+
+			'<tr><td>%Tgenitals</td><td>Automatically picks a genital the target has between their legs, ex for males it\'s the same as %Tpenis. If a herm, it\'s picked at random. Good to use for texts that make sense against all sexes.</td></tr>'+
+			'<tr><td>%TclothUpper</td><td>Replaced with target upperbody armor name. Make sure to use with a condition such as targetWearsUpperbody for this to make sense.</td></tr>'+
+			'<tr><td>%TclothLower</td><td>Replaced with target lowerbody armor name. Make sure to use with a condition such as targetWearsLowerbody for this to make sense.</td></tr>'+
+			'<tr><td>%Thead</td><td>Replaced with target head armor name. Make sure to use with an appropriate condition.</td></tr>'+
+			'<tr><td>%Tgear</td><td>Replaced with whatever target is wearing in their hands. Make sure to use with an appropriate condition.</td></tr>'+
+			'<tr><td>%Trace</td><td>Replaced with target race.</td></tr>'+
+			'<tr><td>%Tgroin</td><td>Same as %groin.</td></tr>'+
+			'<tr><td>%The</td><td>Replaced with he, she, shi, or it based on target sex.</td></tr>'+
+			'<tr><td>%Thim</td><td>Replaced with him, her, hir, or its based on target sex.</td></tr>'+
+			'<tr><td>%This</td><td>Replaced with his, her, hir, or its based on target sex.</td></tr>'+
+			
+		'</table>';
+
+		html += '<h3>Generic</h3>';
+		html += '<p>These are generic synonym tags. They\'re not targeted but can be used to vary your text a bit each time it\'s shown.</p>';
+		html += '<table>'+
+			'<tr><td>%leftright</td><td>Replaced with left or right at random.</td></tr>'+
+			'<tr><td>%groin</td><td>Replacfed with a synonym for groin</td></tr>'+
+			'<tr><td>%crotch</td><td>Same as above</td></tr>'+
+			'<tr><td>%cum</td><td>Synonym for cum</td></tr>'+
+			'<tr><td>%couple</td><td>Synonym for a couple, a few, etc.</td></tr>'+
+			'<tr><td>%thrusting</td><td>Synonym for thrusting (sexually), such as pounding/humping.</td></tr>'+
+		'</table>';
+
+		$("#assetForm").after(html);
+
 		// Text update
 		$("#assetForm input[name=text]").on('input change', () => {
 			clearTimeout(tUpdateTimer);
