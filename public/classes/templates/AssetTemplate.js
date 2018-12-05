@@ -168,18 +168,15 @@ AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, vi
 	for( let asset of lib ){
 
 		// Check if slot was preset
-		if( (slot && asset.slots.indexOf(slot) === -1) || !asset.testLevel(level) ){
+		if( (slot && asset.slots.indexOf(slot) === -1) || !asset.testLevel(level) )
 			continue;
-		}
+		
 		// If viabl_asset_templates is an array, make sure it's in there
-		if( Array.isArray(viable_asset_templates) && viable_asset_templates.indexOf(asset.name) === -1 ){
+		if( Array.isArray(viable_asset_templates) && viable_asset_templates.indexOf(asset.label) === -1 )
 			continue;
-		}
 		// make sure it has an allowed material
-		if( Array.isArray(viable_asset_materials) && !asset.getMaterialIntersect(viable_asset_materials, level).length ){
+		if( Array.isArray(viable_asset_materials) && !asset.getMaterialIntersect(viable_asset_materials, level).length )
 			continue;
-		} 
-
 		candidates.push(asset);
 
 	}

@@ -39,7 +39,9 @@
 		window.Player = Player;
 
 		glib.ini()
-		.then(Game.load())
+		.then(() => {
+			Game.load();
+		})
 		.then(() => {
 			console.log("Game initialized. Globals:\ngame = Active game\nglib = Game asset library\ng_Condition = Condition class\ng_Mod = Mod class\ng_GameEvent = GameEvent class\ng_Audio = Audio class");
 		})

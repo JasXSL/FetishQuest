@@ -166,8 +166,12 @@ class PlayerTemplate extends Generic{
 			for( let template of this.viable_asset_templates ){
 
 				let asset = Asset.generate(undefined, level-2, template, this.viable_asset_materials);
+				if( !asset )
+					continue;
 				if( player.getEquippedAssetsBySlots(asset.slots).length )
 					continue;
+
+				
 				asset.randomizeDurability();
 				asset.equipped = true;
 				player.addAsset(asset);

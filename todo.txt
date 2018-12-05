@@ -1,7 +1,7 @@
 Mod Editor:
-	- Add all mod tools except quest and dungeon
-	- Make a mod that adds a new monster, gear, and texts
 	- Add a way to install and manage mods on the main page
+		- Rebuild library after changing load order, enabled, or loading a new mod
+		- Allow install via JSON file
 
 new Gameplay elements:
 	- Learning/unlearning actions
@@ -16,6 +16,8 @@ Generic code:
 	- Make raycaster stop while the mouse is held down
 	- Make clicking outside the viewer close it on mousedown
 	- Figure out how to do netcode arrays
+	- Character export/import
+	- Equipped armor in repair selector should be highlighted
 
 Dungeon editor:
 	- Use the current editor but allow you to select dungeon cells. When a cell is selected, you get an ADD option for the mesh

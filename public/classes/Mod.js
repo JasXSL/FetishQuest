@@ -116,4 +116,39 @@ Mod.getByID = async function( id ){
 	return false;
 };
 
+// Returns an array of objects sorted by load order: 
+// {id:modUUID, name:modName, enabled:modIsEnabled, index:load_order_index(lower first)}
+Mod.getModsOrdered = async function(){
+	const modNames = await Mod.getNames();
+	let modLoadOrder = {};
+	const sortedMods = [];
+	try{
+		modLoadOrder = JSON.parse(localStorage.modLoadOrder);
+	}catch(err){
+		console.error("Mod load order error", err);
+	}
+
+	console.log("loadOrder", modLoadOrder);
+	for( let mod in modNames ){
+		if( !modLoadOrder[mod] )
+			modLoadOrder[mod] = {en:true,idx:-1};
+		sortedMods.push({id:mod, name:modNames[mod], enabled:modLoadOrder[mod].en, index:modLoadOrder[mod].idx});
+	}
+	sortedMods.sort((a,b) => {
+		if( a.index === -1 && b.index !== -1 )
+			return 1;
+		if( a.index !== -1 && b.index === -1 )
+			return -1;
+		if( a.index === b.index )
+			return 0;
+		return a.index < b.index ? -1 : 1;
+	});
+	return sortedMods;
+}
+
+// Stores the mod load order in localStorage
+Mod.saveLoadOrder = async function( order ){
+	localStorage.modLoadOrder = JSON.stringify(order);
+}
+
 

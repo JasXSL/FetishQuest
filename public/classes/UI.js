@@ -7,6 +7,7 @@ import {Wrapper, Effect} from './EffectSys.js';
 import NetworkManager from './NetworkManager.js';
 import PlayerTemplate from "./templates/PlayerTemplate.js";
 import stdTag from "../libraries/stdTag.js";
+import Mod from './Mod.js';
 
 export default class UI{
 
@@ -849,41 +850,90 @@ export default class UI{
 
 	async drawMainMenu(){
 
-		let html = '<div style="text-align:center">',
-			modal = this.parent.modal	
+		let html = '<div class="mainMenu flexTwoColumns">',
+			modal = this.parent.modal,
+			modNames = await Mod.getNames(),
+			sortedMods = await Mod.getModsOrdered()
 		;
 
-		
+		for( let i in sortedMods )
+			sortedMods[i].index = +i;
+			
+			html += '<div class="left">';
 
-		html += '<input type="button" class="green" name="newGame" value="New Game" /><br />';
-		let names = await Game.getNames();
-		if( Object.keys(names).length ){
+				html += '<input type="button" class="green" name="newGame" value="New Game" /><br />';
+				let names = await Game.getNames();
+				if( Object.keys(names).length ){
 
-			html += '<h3>Load Game</h3>';
-			for(let id in names){
-				let name = names[id];
-				html+= '<div class="gameListing" data-id="'+esc(id)+'">'+esc(name)+'</div>';
-			}
-		}
+					html += '<h3>Load Game</h3>';
+					for(let id in names){
+						let name = names[id];
+						html+= '<div class="gameListing" data-id="'+esc(id)+'">'+esc(name)+'</div>';
+					}
+				}
 
-		if( !game.net.isConnected() )
-			html += '<hr /><form id="joinGame">'+
-				'<input type="text" placeholder="Nickname" name="nickname" style="width:auto" value="'+esc(game.net.getStandardNick())+'" />'+
-				'<input type="text" placeholder="Game ID" name="gameID" style="width:auto" />'+
-				'<input type="submit" value="Join Online Game"  />'+
-			'</form>';
-		
+				if( !game.net.isConnected() )
+					html += '<hr /><form id="joinGame">'+
+						'<input type="text" placeholder="Nickname" name="nickname" style="width:auto" value="'+esc(game.net.getStandardNick())+'" />'+
+						'<input type="text" placeholder="Game ID" name="gameID" style="width:auto" />'+
+						'<input type="submit" value="Join Online Game"  />'+
+					'</form>';
 				
-		html += '<br />';
-		
-		
-		
+			
+			html += '</div>';
+
+			html += '<div class="right">';
+
+				html += '<h3>Mod Order</h3>';
+				html += '<table class="editor"><tr><th>Name</th><th>Enabled</th><th>Load Order</th></tr>';
+				if( !Object.keys(modNames).length )
+					html += '<tr><td colspan=3>No mods installed</td></tr>';
+				for( let mod of sortedMods ){
+					
+					html += '<tr data-mod="'+esc(mod.id)+'">';
+						html += '<td>'+esc(mod.name)+'</td>';
+						html += '<td><input type="checkbox" class="enableMod" '+(mod.enabled ? 'checked' : '')+' /></td>';
+						html += '<td><input type="button" value="Up" class="moveUp" /><input type="button" value="Down" class="moveDown" /></td>';
+					html += '</tr>';
+
+				}
+				html += '</table>';
+
+				html += 'Install Mod: <input type="file" id="modFile" />';
+
+			html += '</div>';
+			
 
 		html += '</div>';
+		
 		
 
 		let th = this;
 		modal.set(html);
+
+		function saveLoadOrder(){
+			// Save order
+			const order = {};
+			$("#modal div.right table tr[data-mod]").each((idx, el) => {
+				order[$(el).attr('data-mod')] = {idx:idx, en:$("input.enableMod", el).is(':checked')};
+			});
+			Mod.saveLoadOrder(order);
+			glib.autoloadMods();
+
+		}
+
+		$("tr[data-mod] input.moveUp, tr[data-mod] input.moveDown").on('click', event => {
+			const targ = $(event.target);
+			const up = targ.hasClass('moveUp');
+			const row = targ.closest("tr");
+			if( up && !row.prev().is('tr:first') )
+				row.insertBefore(row.prev());
+			else if(!up)
+				row.insertAfter(row.next());
+			saveLoadOrder();
+		});
+
+		$("tr[data-mod] input.enableMod").on('change', saveLoadOrder);
 
 		$("#modal input[name=newGame]").on('click', () => {
 			let html = '<h1>Pick a name for your new game</h1>'+
@@ -934,6 +984,32 @@ export default class UI{
 			return false;
 		});
 		
+		$("#modFile").on('change', event => {
+			const file = event.target.files[0];
+			if( !file )
+				return;
+			if( file.type.toLowerCase() !== 'application/json' ){
+				alert("Invalid file type "+file.type+". Needs to be JSON");
+				return;
+			}
+			
+			const reader = new FileReader();
+			reader.onload = async e => {
+				try{
+					const m = new Mod(JSON.parse(e.target.result));
+					if( modNames[m.id] && !confirm("This mod already exists. Overwrite?") )
+						return;
+					await m.save();
+					this.drawMainMenu();
+					this.addNotice("Mod "+esc(m.name)+" installed!");
+				}catch(err){
+					alert("File failed to load: "+err);
+				}
+			};
+			reader.readAsText(file);
+		
+
+		});
 		
 		
 

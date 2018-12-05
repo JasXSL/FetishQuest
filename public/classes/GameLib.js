@@ -11,6 +11,7 @@ import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 import DungeonTemplate, { RoomTemplate } from './templates/DungeonTemplate.js';
 import { AudioKit } from './Audio.js';
 import MAIN_MOD from '../libraries/_main_mod.js';
+import Mod from './Mod.js';
 
 
 const LIB_TYPES = {
@@ -43,7 +44,11 @@ const CACHE_MAP = {
 export default class GameLib{
 
 	constructor(){
+		this._custom_assets = {};
+		this.reset();
+	}
 
+	reset(){
 		this.conditions = {};			//x Condition library
 		this.playerClasses = {};
 		this.dungeons = {};
@@ -60,16 +65,12 @@ export default class GameLib{
 		this.wrappers = {};
 
 		this._cache_assets = {};
-		this._custom_assets = {};
-
 		this.texts = [];
-
-
 	}
 
+
 	async ini(){
-		let mods = [MAIN_MOD];
-		this.loadMods(mods);
+		await this.autoloadMods();
 	}
 
 	// Loads a mod db array onto one of this objects
@@ -121,6 +122,25 @@ export default class GameLib{
 		console.log("MODS FINISHED LOADING. LIBRARY:", this);
 
 	}
+
+	
+
+	// Tries to auto load enabled mods
+	async autoloadMods(){
+		let mods = await Mod.getModsOrdered();
+		mods = mods.filter(el => el.enabled);
+		let promises = [];
+		for( let mod of mods )
+			promises.push(Mod.getByID(mod.id));
+		mods = await Promise.all(promises);
+		
+		mods = mods.filter(el => el);
+		mods.unshift(MAIN_MOD);
+		this.reset();
+		return this.loadMods(mods);
+	}
+
+	
 
 	// Rebuild caches
 	rebase(){

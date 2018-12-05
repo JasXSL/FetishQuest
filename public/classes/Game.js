@@ -50,8 +50,6 @@ export default class Game extends Generic{
 		this.active_music = null;						// Only one song can play at a time
 		this.active_ambient = null;						// Only one ambient track can play at once 
 
-		this.mods_enabled = [];							// __MAIN__ is always added
-
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
 	}
 
@@ -129,6 +127,7 @@ export default class Game extends Generic{
 		for( let i in this.libAsset )
 			this.libAsset[i] = new Asset(this.libAsset[i]);
 		
+		await glib.autoloadMods();
 		glib.setCustomAssets(this.libAsset);
 
 		this.ui.draw();

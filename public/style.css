@@ -373,6 +373,10 @@ div.fxHeal{
 
 
 /* Modal editor */
+	#modal div.mainMenu > div{
+		padding:1vmax;
+	}
+
 	#modal div.playerInspector,
 	div.flexTwoColumns,
 	div.flexThreeColumns,
