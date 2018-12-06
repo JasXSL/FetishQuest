@@ -741,9 +741,9 @@ export default class UI{
 		}
 		game.modal.onSelectionBox(event => {
 			
-			let element = event.target,
+			let element = event.currentTarget,
 				id = $(element).attr('data-id');
-			console.log("Element", element);
+				
 			if( asset )
 				game.useRepairAsset(sender, target, asset.id, id);
 			else
@@ -939,7 +939,7 @@ export default class UI{
 		}
 
 		$("tr[data-mod] input.moveUp, tr[data-mod] input.moveDown").on('click', event => {
-			const targ = $(event.target);
+			const targ = $(event.currentTarget);
 			const up = targ.hasClass('moveUp');
 			const row = targ.closest("tr");
 			if( up && !row.prev().is('tr:first') )

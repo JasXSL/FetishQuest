@@ -61,20 +61,25 @@ class WebGL{
 		this.mouse = new THREE.Vector2();
 		this.mouseAbs = new THREE.Vector2();
 		this.intersecting = [];	// Currently intersecting objects
-		window.addEventListener('mousemove', event => this.onMouseMove(event));
+		$(window).on('mousemove touchstart', event => this.onMouseMove(event));
 
 		this.mouseDownPos = {x:0,y:0};
-		$(this.renderer.domElement).on('mousedown', event => {
+		const touchStart = event => {
 			this.mouseDownPos.x = event.offsetX;
 			this.mouseDownPos.y = event.offsetY;
-		});
-		$(this.renderer.domElement).on('mouseup', event => {
+		};
+		const touchEnd = event => {
 			const a = new THREE.Vector2(this.mouseDownPos.x, this.mouseDownPos.y);
 			const b = new THREE.Vector2(event.offsetX,event.offsetY);
 			if( a.distanceTo(b) > 5 )
 				return;
 			this.onMouseClick(event);
-		});
+		};
+		this.renderer.domElement.addEventListener('mousedown', event => touchStart(event));
+		this.renderer.domElement.addEventListener('touchstart', event => touchStart(event));
+		this.renderer.domElement.addEventListener('mouseup', event => touchEnd(event));
+		this.renderer.domElement.addEventListener('touchend', event => touchEnd(event));
+		
 		
 		
 		// outdoor skybox
@@ -159,7 +164,7 @@ class WebGL{
 		this.cache_active_room = null;		// ID of active room for room detection
 
 		$(window).off('resize').on('resize', () => {
-			let width = Math.round(window.innerWidth*0.8),
+			let width = window.innerWidth,
 				height = Math.round(window.innerHeight*0.8);
 			this.renderer.setSize(width, height);
 			this.camera.aspect = width / height;
@@ -413,14 +418,18 @@ class WebGL{
 
 
 	/* EVENTS */
-	onMouseMove( event ){
+	onMouseMove( event, debug ){
 		const offset = $(this.renderer.domElement).offset();
+
+		if( event.type === 'touchstart' )
+			event = event.changedTouches[0];
 		// Then refer to 
 		//var x = evt.pageX - offset.left;
 		this.mouseAbs.x = event.clientX;
 		this.mouseAbs.y = event.clientY;
 		this.mouse.x = ( (event.clientX-offset.left) / this.renderer.domElement.width ) * 2 - 1;
 		this.mouse.y = - ( (event.clientY-offset.top) / this.renderer.domElement.height ) * 2 + 1;
+		
 	}
 
 	onMouseClick( event ){

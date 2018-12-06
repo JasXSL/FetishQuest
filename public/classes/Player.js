@@ -309,7 +309,7 @@ export default class Player extends Generic{
 			vars[prefix+'Tag_'+tag] = 1;
 
 		// Get a total value
-		vars[prefix+'damagingReceivedSinceLast'] = this.datTotal( this._damage_since_last );
+		vars[prefix+'damagingReceivedSinceLast'] = this.datTotal( this._damaging_since_last );
 		vars[prefix+'damageReceivedSinceLast'] = this.datTotal( this._damage_since_last );
 		vars[prefix+'damagingDoneSinceLast'] = this.datTotal( this._d_damaging_since_last );
 		vars[prefix+'damageDoneSinceLast'] = this.datTotal( this._d_damage_since_last );

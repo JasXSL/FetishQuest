@@ -26,13 +26,13 @@ Calculator.run = function( formula, event, customMathVars ){
 			vars[i] = customMathVars[i];
 	}
 
+	
 	if( typeof event.sender === "object" )
 		event.sender.appendMathVars('se_', vars, event);
 	if( typeof event.target === "object" )
 		event.target.appendMathVars('ta_', vars, event);
 	
-
-	// Run the calculation
+		// Run the calculation
 	let out = 0;
 	while(true){
 		try{
