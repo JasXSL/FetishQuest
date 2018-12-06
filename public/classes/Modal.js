@@ -21,14 +21,14 @@ export default class Modal{
 		this.selBoxOpened = Date.now();		// Prevents misclicks
 		this._onSelectionBoxClose = null;
 
-		this.bg.on('click', () => {
+		this.bg.on('mousedown', () => {
 			this.close();
 		});
 		this.closebutton.on('click', () => {
 			this.close();
 		});
 
-		this.wrapper.on('click', event => {
+		this.wrapper.on('mousedown', event => {
 			event.stopImmediatePropagation();
 			if( this.selBoxOpened+100 < Date.now() )
 				this.closeSelectionBox();
@@ -148,10 +148,13 @@ export default class Modal{
 
 	}
 	// Adds an item to above menu, item is the name, tooltip gets put into a tooltip, and id gets put as data-id
-	addSelectionBoxItem( item, tooltip, id, classes = [] ){
+	addSelectionBoxItem( item, tooltip, id, classes = [], escape = true ){
 		let html = '';
 		html += '<div data-id="'+esc(id)+'" class="item '+(tooltip ? ' tooltipParent ' : '')+classes.join(' ')+'">';
-			html += esc(item);
+			if( escape )
+				item = esc(item);
+			html += item;
+
 			if( tooltip )
 				html += '<div class="tooltip">'+tooltip+'</div>';
 		html += '</div>';

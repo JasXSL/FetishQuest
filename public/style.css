@@ -314,14 +314,16 @@ div.fxHeal{
 	#modal > div.wrapper{
 		position: absolute;
 		display:flex;
-		left:10vw;
-		right:10vw;
+		left:0vw;
+		right:0vw;
 		top:10vh;
 		bottom:10vh;
 		background:rgba(50,50,50,.95);
 		color:#FFF;
 		border:2px solid #AAA;
 		box-shadow:0.5vmax 0.5vmax 5vmax rgba(0,0,0,1);
+		border-left:none;
+		border-right:none;
 	}
 	#modal > div.wrapper > div.content{
 		padding:3vmax;
@@ -518,6 +520,41 @@ div.fxHeal{
 	}
 	#modal div.modalQuests > div.left > div.completed{
 		background:rgba(100,200,100, 0.5);
+	}
+
+
+	#modal div.newGame{
+		padding:0 10vw;
+		text-align: center;
+	}
+
+	#modal div.newGame input.gameName{
+		width:auto;
+		display: inline-block;
+		font-size:2vmax;
+		text-align: center;
+	}
+
+	#modal div.newGame div.galleryEntry{
+		width:10vmax; height:10vmax;
+		background-size: cover;
+		display:inline-block;
+		margin:0.5vmax;
+	}
+	#modal div.newGame div.portrait{
+		border: 0.2vmax solid #FFF;
+		border-radius:0.5vmax;
+		width:20vmax;
+		height:15vmax;
+		display:inline-block;
+		margin-bottom:1vmax;
+		background-size:cover;
+	}
+	
+	#modal div.newGame div.tags input{
+		width:auto;
+		display:inline-block;
+		width:6em;
 	}
 
 /**/

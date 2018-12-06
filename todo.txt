@@ -1,7 +1,8 @@
 Mod Editor:
-	- Add a way to install and manage mods on the main page
-		- Rebuild library after changing load order, enabled, or loading a new mod
-		- Allow install via JSON file
+	- Dungeon Editor
+		- Need room asset which opens up to the 3d view room editor
+	- Quest editor
+	- ModVars - Custom data that can be set and read by conditions
 
 new Gameplay elements:
 	- Learning/unlearning actions
@@ -12,15 +13,8 @@ Action ideas:
 	- Cleric: Sacrament of Sin: Free, 10 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 10% per point of arousal.
 
 Generic code:
-	- Make the modal full width
-	- Make raycaster stop while the mouse is held down
-	- Make clicking outside the viewer close it on mousedown
 	- Figure out how to do netcode arrays
 	- Character export/import
-	- Equipped armor in repair selector should be highlighted
-
-Dungeon editor:
-	- Use the current editor but allow you to select dungeon cells. When a cell is selected, you get an ADD option for the mesh
 
 Dungeon design:
 	- Players start in the port tavern. Make a port "dungeon":
@@ -28,22 +22,14 @@ Dungeon design:
 		- Shop
 		- Tavern
 		- Exit to world map
-	
-Mods:
-	- New library asset "mods" which contains the mod data
-	- Dungeons
-	- Quests
-	- ModVars - Custom data that can be set and read by conditions
-	- Texts
-	- Templates of various kinds
 
-UI Tasks:
+UI Overhaul:
+	- Character creator
 	- User inventory page
 		- Netgame players should be able to destroy items
-	- Don't send player inventory to netcode players
+	- Don't send npc inventory to netcode players
 	- Quest start and finish splash screens
 	- Show what mods a quest belongs to
-	- Allow mods to be disabled
 
 Large 3d Tasks:
 	- Combat background
@@ -52,7 +38,6 @@ Large 3d Tasks:
 Audio tasks:
 	- UI sounds
 		- Generic click
-
 
 Bugs:
 	- Upon starting a new game, the loot bags that drop can't be clicked

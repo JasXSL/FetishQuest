@@ -1034,7 +1034,6 @@ export default class Modtools{
 			'<tr><td>%The</td><td>Replaced with he, she, shi, or it based on target sex.</td></tr>'+
 			'<tr><td>%Thim</td><td>Replaced with him, her, hir, or its based on target sex.</td></tr>'+
 			'<tr><td>%This</td><td>Replaced with his, her, hir, or its based on target sex.</td></tr>'+
-			
 		'</table>';
 
 		html += '<h3>Generic</h3>';

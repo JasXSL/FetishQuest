@@ -1313,32 +1313,15 @@ Game.load = async () => {
 };
 
 // Create a new game
-Game.new = async name => {
+Game.new = async (name, players) => {
 	if( game )
 		game.destructor();
 	game = new Game(name);
 
-	// Add template characters
-	let player = new Player({
-		name : 'Wolfess',
-		species : 'wolf',
-		description : 'A female wolf template character. A good template for a female character. Click Edit Player or Delete.',
-		icon : '/media/characters/wolf.jpg',
-		class : glib.get('monk', 'PlayerClass').save(true),
-	});
-	player.setTags([stdTag.plFurry, stdTag.vagina, stdTag.breasts, stdTag.plFangs, stdTag.plHair, stdTag.plLongHair, stdTag.plTail]).addActionsForClass();
-	game.addPlayer(player);
-
-	player = new Player({
-		name : 'Otter',
-		species : 'otter',
-		description : 'A male otter template character. A good template for a male character. Click Edit Player or Delete.',
-		icon : '/media/characters/otter.jpg',
-		class : glib.get('elementalist', 'PlayerClass').save(true),
-	});
-	player.setTags([stdTag.plFurry, stdTag.penis, stdTag.plHair, stdTag.plTail]).addActionsForClass();
-	game.addPlayer(player);
-
+	if( Array.isArray(players) ){
+		for( let player of players )
+			game.addPlayer(player);
+	}
 	game.initialized = true;
 	await game.save( true );
 };

@@ -28,7 +28,7 @@ class WebGL{
 		// Optional event bindings
 		this.onRender = undefined;
 
-		const width = config.width || Math.round(window.innerWidth*0.8),
+		const width = config.width || window.innerWidth,
 			height = config.height || Math.round(window.innerHeight*0.8),
 			viewAngle = 50,
 			nearClipping = 0.1,
@@ -62,7 +62,19 @@ class WebGL{
 		this.mouseAbs = new THREE.Vector2();
 		this.intersecting = [];	// Currently intersecting objects
 		window.addEventListener('mousemove', event => this.onMouseMove(event));
-		this.renderer.domElement.addEventListener('click', event => this.onMouseClick(event));
+
+		this.mouseDownPos = {x:0,y:0};
+		$(this.renderer.domElement).on('mousedown', event => {
+			this.mouseDownPos.x = event.offsetX;
+			this.mouseDownPos.y = event.offsetY;
+		});
+		$(this.renderer.domElement).on('mouseup', event => {
+			const a = new THREE.Vector2(this.mouseDownPos.x, this.mouseDownPos.y);
+			const b = new THREE.Vector2(event.offsetX,event.offsetY);
+			if( a.distanceTo(b) > 5 )
+				return;
+			this.onMouseClick(event);
+		});
 		
 		
 		// outdoor skybox
@@ -145,13 +157,16 @@ class WebGL{
 		this.stages = [];					// Stores all stages for a dungeon
 		this.cache_dungeon = null;			// ID of active dungeon
 		this.cache_active_room = null;		// ID of active room for room detection
-		window.addEventListener('resize', () => {
+
+		$(window).off('resize').on('resize', () => {
 			let width = Math.round(window.innerWidth*0.8),
 				height = Math.round(window.innerHeight*0.8);
 			this.renderer.setSize(width, height);
 			this.camera.aspect = width / height;
 			this.camera.updateProjectionMatrix();
 		});
+
+		
 
 		this.render();
 

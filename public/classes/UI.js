@@ -713,21 +713,37 @@ export default class UI{
 		if( action && action.isAssetAction() )
 			asset = action.parent;
 
-		let inventory = target.getRepairableAssets();
+		const inventory = target.getRepairableAssets();
+		inventory.sort((a,b) => {
+			if( a.equipped && !b.equipped )
+				return -1;
+			if( b.equipped && !a.equipped )
+				return 1;
+			if( a.level > b.level )
+				return -1;
+			if( b.level > a.level )
+				return 1;
+			if( a.name === b.name )
+				return 0;
+			return a.name < b.name ? -1 : 1;
+		});
 
 		game.modal.prepareSelectionBox();
 		for( let item of inventory ){
+
 			game.modal.addSelectionBoxItem( 
-				esc(item.name), 
+				(item.equipped ? '<strong>' : '')+esc(item.name)+(item.equipped ? '</strong>' : ''), 
 				item.getTooltipText(), 
 				esc(item.id),
-				[Asset.RarityNames[item.rarity]]
+				[Asset.RarityNames[item.rarity]],
+				false
 			);
 		}
 		game.modal.onSelectionBox(event => {
 			
 			let element = event.target,
 				id = $(element).attr('data-id');
+			console.log("Element", element);
 			if( asset )
 				game.useRepairAsset(sender, target, asset.id, id);
 			else
@@ -935,29 +951,7 @@ export default class UI{
 
 		$("tr[data-mod] input.enableMod").on('change', saveLoadOrder);
 
-		$("#modal input[name=newGame]").on('click', () => {
-			let html = '<h1>Pick a name for your new game</h1>'+
-				'<form id="newGameForm">'+
-					'<input type="text" class="gameName" value="Unnamed Adventure" /><br />'+
-					'<input type="submit" value="Start Game">'+
-				'</form>'
-			;
-			modal.set(html);
-			$('#newGameForm').on('submit', () => {
-
-				game.net.disconnect();
-				let name = $("input.gameName").val().trim();
-				if( !name ){
-					game.ui.addError("Name is empty");
-					return false;
-				}
-
-				Game.new(name);
-				modal.close();
-				return false;
-
-			});
-		});
+		$("#modal input[name=newGame]").on('click', () => this.drawNewGame());
 		
 		$("#modal div.gameListing[data-id]").on('click', function(event){
 
@@ -1012,6 +1006,132 @@ export default class UI{
 		});
 		
 		
+
+	}
+
+
+	drawNewGame(){
+
+		const gallery = [
+			{name : 'Otter', size:2, 'icon':'/media/characters/otter.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair]},
+			{name : 'Wolfess', size:2, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', class:'monk', tags:[stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair]},
+		];
+
+		let html = '<div class="newGame">'+
+			'<h1>New Game</h1>'+
+			'<form id="newGameForm">'+
+				'<input type="text" class="gameName" value="Unnamed Adventure" /><br />'+
+				'<div class="flexTwoColumns">'+
+					'<div class="left">'+
+						'<h3>Character</h3>'+
+						'<div style="text-align:center"><div class="portrait"></div></div>'+
+						'<input type="text" name="name" placeholder="Character Name" required /><br />'+
+						'<input type="text" name="icon" placeholder="Character Art" /><br />'+
+						'<input type="text" name="species" placeholder="Species" required /><br />'+
+						'Size: <input type="range" name="size" min=0 max=4 /><br />'+
+						'Class: <select name="class">';
+						const classes = glib.getFull('PlayerClass');
+						for( let c in classes )
+							html += '<option value="'+esc(c)+'">'+esc(classes[c].name)+'</option>';
+						html += '</select><br />';
+						html += 'Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />';
+						html += '<div class="tags"></div>';
+					html += '</div>'+
+					'<div class="right"><h3>Gallery</h3>';
+					for( let item of gallery )
+						html += '<div class="galleryEntry button" data-data="'+esc(JSON.stringify(item))+'" style="background-image:url('+esc(item.icon)+')"></div>';
+					html += '</div>'+
+				'</div>'+
+				'<hr />'+
+				'<input type="submit" value="Start Game">'+
+			'</form>'
+		;
+		html += '<div id="datalist" class="hidden">';
+			html += '<datalist id="tags"><select>';
+			for( let tag in stdTag ){
+				const spl = stdTag[tag].split('_');
+				if( spl[0] === 'pl' ){
+					spl.shift();
+					html += '<option value="'+esc(spl.join('_'))+'" />';
+				}
+			}
+			html += '</select></datalist>'
+		html += '</div>';
+
+		html += '</div>';
+		game.modal.set(html);
+
+		const reloadIcon = () => {
+			$("#newGameForm div.portrait").css('background-image', 'url('+esc($("#newGameForm input[name=icon]").val().trim())+')');
+		};
+
+		const addTag = tag => {
+			tag = tag.split('_');
+			tag.shift();
+			tag = tag.join('_');
+			$("#newGameForm div.tags").append('<input type="text" value="'+esc(tag)+'" name="tag" class="tag" list="tags" />');
+			$("#newGameForm input.tag").off('click').on('click', function(event){
+				if( event.ctrlKey )
+					$(this).remove();
+			});
+		};
+
+		$("#newGameForm div.galleryEntry").on('click', event => {
+			const el = $(event.currentTarget);
+			const data = JSON.parse(el.attr('data-data'));
+			$("#newGameForm input[name=name]").val(data.name);
+			$("#newGameForm input[name=icon]").val(data.icon);
+			$("#newGameForm select[name=class]").val(data.class);
+			$("#newGameForm input[name=species]").val(data.species);
+			$("#newGameForm input[name=size]").val(data.size || 0);
+			$("#newGameForm div.tags").html('');
+			for( let tag of data.tags )
+				addTag(tag);
+			reloadIcon();
+		});
+
+		$("#newGameForm input[name=icon]").on('change', reloadIcon);
+		$("#newGameForm input.addTag").on('change', reloadIcon);
+
+		$("#newGameForm div.galleryEntry:first").click();
+
+
+		$('#newGameForm').on('submit', () => {
+
+			game.net.disconnect();
+			const name = $("input.gameName").val().trim();
+			const base = $("#newGameForm");
+			const c = glib.get($("select[name=class]").val().trim(), 'PlayerClass');
+			if( !c )
+				return game.ui.addError("Class not found");
+			const player = new Player({
+				name : $("input[name=name]", base).val().trim() || 'Player',
+				species : $("input[name=species]", base).val().trim().toLowerCase() || 'human',
+				icon : $("input[name=icon]", base).val().trim(),
+				size : +$("input[name=icon]", base).val().trim() || 0,
+				class : c.save(true),
+			});
+			const tags = [];
+			$("div.tags input.tag", base).each((idx, el) => {
+				const val = $(el).val().trim();
+				if( val )
+					tags.push('pl_'+val);
+			});
+			player.setTags(tags).addActionsForClass();
+			
+
+			if( !name ){
+				game.ui.addError("Name is empty");
+				return false;
+			}
+
+			Game.new(name, [player]);
+			game.modal.close();
+			return false;
+
+		});
+
+		$("#newGameForm input.addTag").on('click', () => addTag(''));
 
 	}
 
