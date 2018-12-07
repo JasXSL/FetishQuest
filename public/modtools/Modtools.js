@@ -532,7 +532,7 @@ export default class Modtools{
 
 		this.mml_generic( 
 			'texts', 
-			['Text','Conditions','TurnTags','HitSlot','Audio','aAuto','nTarg','aOut','Debug'],
+			['Text','Action','Conditions','TurnTags','HitSlot','Audio','aAuto','nTarg','aOut','Debug'],
 			this.mod.texts,
 			text => {
 				// This can be removed later, it's legacy
@@ -545,6 +545,36 @@ export default class Modtools{
 
 				return [
 					text.text,
+					Array.isArray(text.conditions) ? 
+						text.conditions.map(el => {
+							if( typeof el === "object" ){
+								if( el.type === Condition.Types.actionLabel ){
+									let data = el.data;
+									if( typeof data === "string" )
+										data = [data];
+									if( !Array.isArray(data) )
+										return false;
+									return data.map(d => {
+										d = d.split('_');
+										if( d.shift() !== "action" )
+											return false;
+										return d.join('_');
+									}).filter(d => d).join(', ');
+								}
+							}
+
+							if( typeof el === "string" ){
+								el = el.split('_');
+								if(el.shift() !== "action")
+									return false;
+								return el.join('_');
+							}
+
+							return false;
+						})
+						.filter(el => el)
+						.join(', ') : 
+						'',
 					(text.conditions ? text.conditions.map(el => typeof el === "string" ? el : 'Custom').join(', ') : ''),
 					(text.turnTags ? text.turnTags.map(el => el) : ''),
 					(text.armor_slot ? text.armor_slot : ''),
@@ -1215,12 +1245,14 @@ export default class Modtools{
 
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
-			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
-			html += '<textarea name="description">'+esc(asset.description)+'</textarea><br />';
-			html += 'Target Type: '+this.inputWrapperTargetType(asset.target)+'<br />';
+			html += 'Name: <input type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Description:<br /><textarea name="description">'+esc(asset.description)+'</textarea><br />';
+			html += 'Target Type: '+this.inputWrapperTargetType(asset.target, 'target')+'<br />';
 			html += '<label>Detrimental: <input type="checkbox" name="detrimental" '+(asset.detrimental ? 'checked' : '')+' /></label><br />';
 			html += 'Duration: <input required type="number" min=-1 step=1 name="duration" value="'+esc(asset.duration)+'" /><br />';
+			html += '<label>Trigger immediate (duration only): <input type="checkbox" name="trigger_immediate" '+(asset.trigger_immediate === undefined || asset.trigger_immediate ? 'checked' : '')+' /></label><br />';
 			html += 'Icon: <input type="text" name="icon" value="'+esc(asset.icon)+'" /><br />';
+			html += '<em>Icons provided by <a href="https://game-icons.net" target="_blank">game-icons.net</a> - Simply go there, find the icon you want and copy the name from the URL. EX if you want to use: https://game-icons.net/delapouite/originals/ancient-screw.html then enter ancient-screw in the above field</em><br />';
 			html += 'Max Stacks: <input required type="number" min=1 step=1 name="max_stacks" value="'+esc(asset.max_stacks)+'" /><br />';
 			html += 'Tags: '+this.formTags(asset.tags)+'<br />';
 
@@ -1228,15 +1260,20 @@ export default class Modtools{
 			html += '<span title="Conditions needed to remain.">Stay Conditions:</span> '+this.formConditions(asset.stay_conditions, 'stay_conditions')+'<br />';
 			html += 'Effects: '+this.formEffects(asset.effects, 'effects')+'<br />';
 
+			html += '<label>Tick on turn start: <input type="checkbox" name="tick_on_turn_start" '+(asset.tick_on_turn_start === undefined || asset.tick_on_turn_start ? 'checked' : '')+' /></label><br />';
+			html += '<label>Tick on turn end: <input type="checkbox" name="tick_on_turn_end" '+(asset.tick_on_turn_end ? 'checked' : '')+' /></label><br />';
 
 		this.editor_generic('wrappers', asset, this.mod.wrappers, html, saveAsset => {
 
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();
-			saveAsset.name = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=name]", form).val().trim();
 			saveAsset.target = $("select[name=target]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
 			saveAsset.detrimental = $("input[name=detrimental]", form).is(':checked');
+			saveAsset.trigger_immediate = $("input[name=trigger_immediate]", form).is(':checked');
+			saveAsset.tick_on_turn_start = $("input[name=tick_on_turn_start]", form).is(':checked');
+			saveAsset.tick_on_turn_end = $("input[name=tick_on_turn_end]", form).is(':checked');
 			saveAsset.duration = +$("input[name=duration]", form).val();
 			saveAsset.icon = $("input[name=icon]", form).val().trim();
 			saveAsset.max_stacks = +$("input[name=max_stacks]", form).val();
@@ -1642,7 +1679,7 @@ export default class Modtools{
 		// Binds JSOn as well
 		// Has to go above bindConditions since that one binds control clicks
 		const th = this;
-		$("#assetForm input.json").off('click').on('click', function(){
+		$("#assetForm input.json").off('click').on('click', function(event){
 			if( event.shiftKey ){
 				if( $(this).is('input') ){
 					th.drawJsonEditorFor( this );
@@ -2573,7 +2610,7 @@ export default class Modtools{
 		if( !Array.isArray(names) )
 			names = [];
 		let out = '<div class="'+cName+'">';
-		out += '<input type="button" class="addEffectsHere" value="Add Effects" />';
+		out += '<input type="button" class="addEffectHere" value="Add Effects" />';
 		for( let name of names )
 			out+= this.inputEffect(name);
 		out += '</div>';

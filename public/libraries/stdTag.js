@@ -27,6 +27,7 @@ export default {
 	plHorns : 'pl_horns',
 	plCircumcised : 'pl_circumcised',
 	plImmobile : 'pl_immobile',		// Immobile
+	plElectric : "pl_electric",
 
 	// Action tags
 	acBuff : 'ac_buff',

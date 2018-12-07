@@ -47,6 +47,7 @@ class Wrapper extends Generic{
 		this.load(data);
 	}
 
+
 	// Data that should be saved to drive
 	save( full ){
 		const out = {
@@ -311,7 +312,8 @@ class Wrapper extends Generic{
 	/* UI */
 	// Returns the texture path to the icon
 	getIconPath(){
-		return 'media/wrapper_icons/'+esc(this.icon);
+		const icon = this.icon.split('.svg').shift();
+		return 'media/wrapper_icons/'+esc(icon)+'.svg';
 	}
 
 	// Gets the object description, allows for some % values
@@ -515,7 +517,7 @@ class Effect extends Generic{
 			this.data.type = this.parent.parent.type;
 
 		if( !Effect.Types[this.type] )
-			console.error("Unknown effect type", this.type);
+			console.error("Unknown effect type", this.type, "in", this);
 
 		this.conditions = Condition.loadThese(this.conditions, this);		
 	}
@@ -836,10 +838,23 @@ class Effect extends Generic{
 				let label = this.data.label;
 				if( !Array.isArray(label) )
 					label = [label];
-				let wrappers = t.wrappers;		// Use temporary wrappers only
+				let wrappers = t.wrappers.slice();		// Use temporary wrappers only
 				for( let wrapper of wrappers ){
 					if(
 						~label.indexOf(wrapper.label) &&
+						(!this.data.casterOnly || wrapper.caster === s.id)
+					)wrapper.remove();					
+				}
+			}
+
+			else if( this.type === Effect.Types.removeWrapperByTag ){
+				let tags = this.data.tag;
+				if( !Array.isArray(tags) )
+					tags = [tags];
+				let wrappers = t.wrappers.slice();		// Use temporary wrappers only
+				for( let wrapper of wrappers ){
+					if(
+						label.hasTag(tags) &&
 						(!this.data.casterOnly || wrapper.caster === s.id)
 					)wrapper.remove();					
 				}
@@ -1089,6 +1104,7 @@ Effect.Types = {
 	addStacks : 'addStacks',				
 	removeParentWrapper : 'removeParentWrapper',	
 	removeWrapperByLabel : 'removeWrapperByLabel',	
+	removeWrapperByTag : 'removeWrapperByTag',	
 
 	activateCooldown : 'activateCooldown',			
 
@@ -1144,6 +1160,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks, effect:(str)effectWrapper(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks',
 	[Effect.Types.removeParentWrapper] : 'void - Removes the effect\'s parent wrapper',
 	[Effect.Types.removeWrapperByLabel] : '{ label:(arr)(str)label, casterOnly:(bool)=false)}',
+	[Effect.Types.removeWrapperByTag] : '{tag:(str/arr)tags}',
 
 	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels} - Activates cooldowns for learned abilities with actionLabels',
 
@@ -1157,7 +1174,7 @@ Effect.TypeDescs = {
 
 	[Effect.Types.stun] : 'void',
 	[Effect.Types.taunt] : 'void',
-
+	
 };
 
 
