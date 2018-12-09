@@ -13,6 +13,7 @@ const lib = {
 	action_imp_blowFromBelow : {"type":"actionLabel","data":{"label":"imp_blowFromBelow"},"targnr":0},
 	action_imp_ankleBite : {"type":"actionLabel","data":{"label":"imp_ankleBite"},"targnr":0},
 	action_imp_demonicPinch : {"type":"actionLabel","data":{"label":"imp_demonicPinch"},"targnr":0},
+	action_imp_claws : {"type":"actionLabel","data":{"label":"imp_claws"},"targnr":0},
 	action_whip_legLash : {"type":"actionLabel","data":{"label":"whip_legLash"},"targnr":0},
 	action_whip_powerLash : {"type":"actionLabel","data":{"label":"whip_powerLash"},"targnr":0},
 	action_minorHealingPotion : {"type":"actionLabel","data":{"label":"minorHealingPotion"},"targnr":0},

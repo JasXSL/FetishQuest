@@ -1,67 +1,69 @@
 import Text from '../../classes/Text.js';
 import conditions from './conditions.js';
-
+import audioKits from './audioKits.js';
+import stdTag from '../stdTag.js';
 const baseCond = ['actionHit', 'eventIsActionUsed'];
 const anyOnHumCond = baseCond.concat('targetNotBeast');
 const humOnHumCond = anyOnHumCond.concat('senderNotBeast');
 const humOnAnyCond = baseCond.concat('senderNotBeast');
+const C = conditions;
 
 const lib = [
 	// Turn changed
-	{ "text":"%T's turn!",
-		"conditions":[
+	{ text : "%T's turn!",
+		conditions : [
 			{"type":"event","data":{"event":"turnChanged"}}
 		],
 		"alwaysAuto":true,
 		"alwaysOutput":true,
-		"audiokits":["turnChanged"]
+		audiokits : ["turnChanged"]
 	},
 	// battle started
-	{ "text":"Battle Started!",
-		"conditions":[
+	{ text : "Battle Started!",
+		conditions : [
 			{"type":"event","data":{"event":"battleStarted"}}
 		],
 		"alwaysAuto":true,
-		"audiokits":["battleStart"]
+		audiokits : ["battleStart"]
 	},
 	// battle finished
-	{ "text":"The battle has finished...",
-		"conditions":[
+	{ text : "The battle has finished...",
+		conditions : [
 			{"type":"event","data":{"event":"battleEnded"}}
 		],
 		"alwaysAuto":true,
-		"audiokits":["battleFinished"]
+		audiokits : ["battleFinished"]
 	},
 	// player defeated
-	{ "text":"%T was defeated!",
+	{ text : "%T was defeated!",
 		"alwaysAuto":true,
-		"conditions":[
+		conditions : [
 			{"type":"event","data":{"event":"playerDefeated"}}
 		],
-		"audiokits":["knockout"]
+		audiokits : ["knockout"]
 	},
 	// miss
-	{ "text":"%S tries to use %action on %T, but fails!",
-		"conditions":["actionResist"],
-		"audiokits":["spellFail"]
+	{ text : "%S tries to use %action on %T, but fails!",
+		conditions : ["actionResist"],
+		audiokits : ["spellFail"]
 	},
 	// Stun resist
-	{ "text":"%S resisted the stun portion of the attack!",
-		"conditions":["eventIsDiminishingResist","wrapperIsStun"],
-		"audiokits":["spellFail"]
+	{ text : "%S resisted the stun portion of the attack!",
+		conditions : ["eventIsDiminishingResist","wrapperIsStun"],
+		audiokits : ["spellFail"]
 	},
 
 	// STDAttack
-	{ "text":"%S throws a punch at %T!",
+	{ text : "%S throws a punch at %T!",
 		"conditions":humOnAnyCond.concat("action_stdAttack"),
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slaps %T's %Tbutt, jiggling %This %Trsize buttcheeks around!",
+	{ text : "%S slaps %T's %Tbutt, jiggling %This %Trsize buttcheeks around!",
 		"conditions": humOnHumCond.concat('action_stdAttack','targetButtLarge'),
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%S jumps onto the knocked down %Trace's stomach, throwing two rapid slaps across %T's %Tbsize %Tbreasts!",
-		"conditions":[
+	{ text : "%S jumps onto the knocked down %Trace's stomach, throwing two rapid slaps across %T's %Tbsize %Tbreasts!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -72,14 +74,14 @@ const lib = [
 			"targetTaller",
 			{ conditions: ["targetUpperbodyNotHard","targetNoUpperbody"] }
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%S shoves %T from behind, bending %Thim over a table before slapping %This %Trsize %Tbutt!",
+	{ text : "%S shoves %T from behind, bending %Thim over a table before slapping %This %Trsize %Tbutt!",
 		"turnTags":[
 			"bent_over",
 			"bent_over_table"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -87,21 +89,21 @@ const lib = [
 			"action_stdAttack",
 			"roomTable"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%S grabs a hold of %T's %Trsize buttcheeks and squeezes down hard!",
-		"conditions":[
+	{ text : "%S grabs a hold of %T's %Trsize buttcheeks and squeezes down hard!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_stdAttack",
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S throws at punch at the front of %T's %TclothLower, most of the impact being absorbed by the piece.",
+	{ text : "%S throws at punch at the front of %T's %TclothLower, most of the impact being absorbed by the piece.",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -109,11 +111,11 @@ const lib = [
 			"action_stdAttack",
 			"targetLowerbodyHard"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S throws at punch at the front of %T's %TclothUpper, most of the impact being absorbed by the piece.",
+	{ text : "%S throws at punch at the front of %T's %TclothUpper, most of the impact being absorbed by the piece.",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -121,12 +123,12 @@ const lib = [
 			"action_stdAttack",
 			"targetUpperbodyHard"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S lashes tentacles around %T's nipples, tugging outwards!",
-		"audiokits":["tentacleTwist"
+	{ text : "%S lashes tentacles around %T's nipples, tugging outwards!",
+		audiokits : ["tentacleTwist"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -135,10 +137,10 @@ const lib = [
 			"targetBreasts",
 			"targetUpperbodyNotHard"]
 	},
-	{ "text":"%S slips a couple of tendrils around %T's exposed %Tbreasts, firmly squeezing them!",
-		"audiokits":["tentacleTwist"
+	{ text : "%S slips a couple of tendrils around %T's exposed %Tbreasts, firmly squeezing them!",
+		audiokits : ["tentacleTwist"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -147,31 +149,31 @@ const lib = [
 			"targetBreasts",
 			"targetNoUpperbody"]
 	},
-	{ "text":"%S lashes %T's %Trsize %Tbutt with a tentacle!",
-		"audiokits":["tentacleWhip"
+	{ text : "%S lashes %T's %Trsize %Tbutt with a tentacle!",
+		audiokits : ["tentacleWhip"
 		],
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdAttack",
 			"senderHasTentacles"]
 	},
-	{ "text":"%S lashes %T's %leftright buttcheek with a tentacle!",
-		"audiokits":["tentacleWhip"
+	{ text : "%S lashes %T's %leftright buttcheek with a tentacle!",
+		audiokits : ["tentacleWhip"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdAttack",
 			"senderHasTentacles"]
 	},
-	{ "text":"%S slips two tendrils up between %T's legs, slipping part-way inside %This %Tvagina and stretching at it!",
-		"audiokits":["tentacleTwist"
+	{ text : "%S slips two tendrils up between %T's legs, slipping part-way inside %This %Tvagina and stretching at it!",
+		audiokits : ["tentacleTwist"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -179,17 +181,17 @@ const lib = [
 			"senderHasTentacles",
 			"targetVagina",
 			{
-				"conditions":[
+				conditions : [
 				"targetNoLowerbody",
 				"ttGroinExposed"
 				]
 			}
 		]
 	},
-	{ "text":"%S wraps tentacles around %T's ankles and begins spreading %This legs, further stretching at %This %TclothLower!",
-		"audiokits":["tentacleStretch"
+	{ text : "%S wraps tentacles around %T's ankles and begins spreading %This legs, further stretching at %This %TclothLower!",
+		audiokits : ["tentacleStretch"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -198,10 +200,10 @@ const lib = [
 			"ttWedgie",
 			"targetWearsLowerbody"]
 	},
-	{ "text":"Two of %S's tentacles wrap around %T's %Tbsize %Tbreasts, squeezing down firmly!",
-		"audiokits":["tentacleTwist"
+	{ text : "Two of %S's tentacles wrap around %T's %Tbsize %Tbreasts, squeezing down firmly!",
+		audiokits : ["tentacleTwist"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -210,11 +212,11 @@ const lib = [
 			"targetUpperbodyNotHard",
 			"targetBreasts"]
 	},
-	{ "text":"%S lashes a thick tentacle across the front of %T's %TclothUpper, most of the impact being absorbed by the armor!",
-		"audiokits":["tentacleWhip"
+	{ text : "%S lashes a thick tentacle across the front of %T's %TclothUpper, most of the impact being absorbed by the armor!",
+		audiokits : ["tentacleWhip"
 		],
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -223,11 +225,11 @@ const lib = [
 			"targetUpperbodyHard",
 			"targetBreasts"]
 	},
-	{ "text":"%S lashes a thick tentacle across the front of %T's %TclothLower, most of the impact being absorbed by the armor!",
-		"audiokits":["tentacleWhip"
+	{ text : "%S lashes a thick tentacle across the front of %T's %TclothLower, most of the impact being absorbed by the armor!",
+		audiokits : ["tentacleWhip"
 		],
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -235,11 +237,11 @@ const lib = [
 			"senderHasTentacles",
 			"targetLowerbodyHard"]
 	},
-	{ "text":"%S flicks %T's %Tgroin with a small tentacle, lashing the front of %This %TclothLower around!",
-		"audiokits":["tentacleWhip"
+	{ text : "%S flicks %T's %Tgroin with a small tentacle, lashing the front of %This %TclothLower around!",
+		audiokits : ["tentacleWhip"
 		],
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -249,10 +251,10 @@ const lib = [
 			"targetWearsLowerbody",
 			"targetPenis"]
 	},
-	{ "text":"%S slithers a tendril around the front of %T's %TclothLower, constricting around %This package!",
-		"audiokits":["tentacleTwist"
+	{ text : "%S slithers a tendril around the front of %T's %TclothLower, constricting around %This package!",
+		audiokits : ["tentacleTwist"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -262,10 +264,10 @@ const lib = [
 			"targetWearsLowerbody",
 			"targetPenis"]
 	},
-	{ "text":"%S slithers a tendril inside %T's %TclothLower, slithering down beneath %This balls and up over %This %Tpenis before constricting %This package!",
-		"audiokits":["tentacleTwist"
+	{ text : "%S slithers a tendril inside %T's %TclothLower, slithering down beneath %This balls and up over %This %Tpenis before constricting %This package!",
+		audiokits : ["tentacleTwist"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -274,10 +276,10 @@ const lib = [
 			"targetWearsLowerbody",
 			"targetPenis"]
 	},
-	{ "text":"%S slithers a tendril inside %T's %TclothLower, coiling around %This %Tpenis and constricting it!",
-		"audiokits":["tentacleTwist"
+	{ text : "%S slithers a tendril inside %T's %TclothLower, coiling around %This %Tpenis and constricting it!",
+		audiokits : ["tentacleTwist"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -286,55 +288,55 @@ const lib = [
 			"targetWearsLowerbody",
 			"targetPenis"]
 	},
-	{ "text":"%S smacks %T's %Tpsize exposed %Tpenis with a tentacle!",
-		"audiokits":["tentacleWhip"
+	{ text : "%S smacks %T's %Tpsize exposed %Tpenis with a tentacle!",
+		audiokits : ["tentacleWhip"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdAttack",
 			"senderHasTentacles",
 			{
-				"conditions":[
+				conditions : [
 				"targetNoLowerbody",
 				"ttGroinExposed"
 				]
 			},
 			"targetPenis"]
 	},
-	{ "text":"%S swings %Shis %Sgear at %T, whapping the %Trace across the %Tbutt!",
-		"conditions":[
+	{ text : "%S swings %Shis %Sgear at %T, whapping the %Trace across the %Tbutt!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdAttack",
 			"senderHasWhip"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S swings %Shis %Sgear at %T, whapping the %Trace's %leftright buttcheek!",
-		"conditions":[
+	{ text : "%S swings %Shis %Sgear at %T, whapping the %Trace's %leftright buttcheek!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdAttack",
 			"senderHasWhip"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S swings %Shis %Sgear at %T, flicking against %This chest!",
-		"conditions":[
+	{ text : "%S swings %Shis %Sgear at %T, flicking against %This chest!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdAttack",
 			"senderHasWhip"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S wraps %Shis %Sgear around %T's chest, chafing into the %Trace's %Tbreasts!",
-		"conditions":[
+	{ text : "%S wraps %Shis %Sgear around %T's chest, chafing into the %Trace's %Tbreasts!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -343,10 +345,10 @@ const lib = [
 			"targetBreasts",
 			"targetUpperbodyNotHard"
 		],
-		"audiokits":["stretchGeneric"]
+		audiokits : ["stretchGeneric"]
 	},
-	{ "text":"%S takes advantate of %T being knocked on their belly, lashing %Shis %Sgear multiple times across %T's %Tbutt!",
-		"conditions":[
+	{ text : "%S takes advantate of %T being knocked on their belly, lashing %Shis %Sgear multiple times across %T's %Tbutt!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -354,13 +356,13 @@ const lib = [
 			"senderHasWhip",
 			"targetKnockedDownFront"
 		],
-		"audiokits":["whipDouble"]
+		audiokits : ["whipDouble"]
 	},
-	{ "text":"%S takes advantage of %T being bent over and lashes %Shis %Sgear across the %Trace's %Trsize %Tbutt!",
+	{ text : "%S takes advantage of %T being bent over and lashes %Shis %Sgear across the %Trace's %Trsize %Tbutt!",
 		"turnTags":[
 			"bent_over"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -369,50 +371,50 @@ const lib = [
 			"ttBentOver",
 			"senderHasWhip"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
 
 	// stdArouse
-	{ "text":"%S tickles %T!",
-		"conditions":[
+	{ text : "%S tickles %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"senderBeast"
 		],
-		"audiokits":["tickleGeneric"]
+		audiokits : ["tickleGeneric"]
 	},
-	{ "text":"%S tickles %T!",
-		"conditions":[
+	{ text : "%S tickles %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"targetBeast"
 		],
-		"audiokits":["tickleGeneric"]
+		audiokits : ["tickleGeneric"]
 	},
-	{ "text":"%S grabs a hold of and rubs %T's %Tbutt!",
-		"conditions":[
+	{ text : "%S grabs a hold of and rubs %T's %Tbutt!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"targetNotBeast",
 			"senderNotBeast"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S slips %Shis hand between %T's legs and rubs %This %Tgroin!",
-		"conditions":[
+	{ text : "%S slips %Shis hand between %T's legs and rubs %This %Tgroin!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"targetNotBeast",
 			"senderNotBeast"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S pushes %Shis hands against %T's chest and rubs %This %Tbsize %Tbreasts!",
-		"conditions":[
+	{ text : "%S pushes %Shis hands against %T's chest and rubs %This %Tbsize %Tbreasts!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -422,10 +424,10 @@ const lib = [
 			"senderNotBeast",
 			"targetUpperbodyNotHard"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S pushes %Shis hands against %T's chest and rubs the front of %This %TclothUpper!",
-		"conditions":[
+	{ text : "%S pushes %Shis hands against %T's chest and rubs the front of %This %TclothUpper!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -435,10 +437,10 @@ const lib = [
 			"senderNotBeast",
 			"targetUpperbodyHard"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S jumps onto the knocked down %Trace's back, reaching around %T's chest and rubs %This %Tbsize %Tbreasts!",
-		"conditions":[
+	{ text : "%S jumps onto the knocked down %Trace's back, reaching around %T's chest and rubs %This %Tbsize %Tbreasts!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -448,10 +450,10 @@ const lib = [
 			"targetKnockedDownFront",
 			"targetTaller"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S jumps onto the knocked down %Trace's stomach, grabbing a firm hold of %T's %Tbreasts before jiggling them around!",
-		"conditions":[
+	{ text : "%S jumps onto the knocked down %Trace's stomach, grabbing a firm hold of %T's %Tbreasts before jiggling them around!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -465,10 +467,10 @@ const lib = [
 				"targetNoUpperbody"
 			]
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S jumps onto the knocked down %Trace's back, squeezes a firm hold of %T's %Trsize buttcheeks and jiggles them around!",
-		"conditions":[
+	{ text : "%S jumps onto the knocked down %Trace's back, squeezes a firm hold of %T's %Trsize buttcheeks and jiggles them around!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -481,10 +483,10 @@ const lib = [
 				"targetNoLowerbody"
 			]
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S reaches down towards %T's bulge and teasingly squeezes it!",
-		"conditions":[
+	{ text : "%S reaches down towards %T's bulge and teasingly squeezes it!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -493,13 +495,13 @@ const lib = [
 			"senderNotBeast",
 			"targetPenis"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S spots %T bent over and fondles %This %Tgroin!",
+	{ text : "%S spots %T bent over and fondles %This %Tgroin!",
 		"turnTags":[
 			"bent_over"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -507,13 +509,13 @@ const lib = [
 			"action_stdArouse",
 			"ttBentOver"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Tvagina, landing a %couple of thrusts!",
+	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Tvagina, landing a %couple of thrusts!",
 		"turnTags":[
 			"bent_over"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -525,13 +527,13 @@ const lib = [
 			"targetNoLowerbody",
 			"senderNoLowerbody"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Trsize %Tbutt, landing a %couple of thrusts!",
+	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Trsize %Tbutt, landing a %couple of thrusts!",
 		"turnTags":[
 			"bent_over"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -542,22 +544,22 @@ const lib = [
 			"targetNoLowerbody",
 			"senderNoLowerbody"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%S slips a couple of tendrils up between %T's legs, rubbing across %This %groin!",
-		"audiokits":["squishTiny"
+	{ text : "%S slips a couple of tendrils up between %T's legs, rubbing across %This %groin!",
+		audiokits : ["squishTiny"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"senderHasTentacles",
 			"targetNotBeast"]
 	},
-	{ "text":"%S slips a tendril up between %T's buttcheeks, tickling between them!",
-		"audiokits":["squishLong"
+	{ text : "%S slips a tendril up between %T's buttcheeks, tickling between them!",
+		audiokits : ["squishLong"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -570,10 +572,10 @@ const lib = [
 			]
 		]
 	},
-	{ "text":"%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tvagina and thrusting a couple of times!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tvagina and thrusting a couple of times!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -586,10 +588,10 @@ const lib = [
 			]
 		]
 	},
-	{ "text":"%S thrusts two tentacles up between %T's legs, forcing one inside %This %Tvagina, and the other into %This %Trsize %Tbutt. Pumping rythmically in and out of %T!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S thrusts two tentacles up between %T's legs, forcing one inside %This %Tvagina, and the other into %This %Trsize %Tbutt. Pumping rythmically in and out of %T!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -598,10 +600,10 @@ const lib = [
 			"targetVagina",
 			"targetNoLowerbody"]
 	},
-	{ "text":"%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tbutt where it thrusts a couple of times!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tbutt where it thrusts a couple of times!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -613,10 +615,10 @@ const lib = [
 			]
 		]
 	},
-	{ "text":"%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle plunges inside and starts rapidly thrusting into %This %Tvagina!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle plunges inside and starts rapidly thrusting into %This %Tvagina!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -628,10 +630,10 @@ const lib = [
 			],
 			"targetVagina"]
 	},
-	{ "text":"%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle wiggles inside %This %TclothLower and up %This %Tvagina, rapidly thrusting inside %Thim!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle wiggles inside %This %TclothLower and up %This %Tvagina, rapidly thrusting inside %Thim!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -640,10 +642,10 @@ const lib = [
 			"targetWearsThong",
 			"targetVagina"]
 	},
-	{ "text":"%S slips a slimy cock-tipped tentacle towards %T's %Trsize exposed %Tbutt. The tentacle wiggles inside and starts rapidly thrusting inside %Thim!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S slips a slimy cock-tipped tentacle towards %T's %Trsize exposed %Tbutt. The tentacle wiggles inside and starts rapidly thrusting inside %Thim!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -656,10 +658,10 @@ const lib = [
 			],
 			"targetVagina"]
 	},
-	{ "text":"%S takes advantage of %T being knocked down and surprises %Thim with a slimy cock-tipped tentacle slipping inside %This mouth, squirming around and tickling %This cheeks!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S takes advantage of %T being knocked down and surprises %Thim with a slimy cock-tipped tentacle slipping inside %This mouth, squirming around and tickling %This cheeks!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -668,29 +670,29 @@ const lib = [
 			"targetKnockedDownFront",
 			"targetNotBeast"]
 	},
-	{ "text":"%S surprises %T with a thick tentacle shoved into %This mouth! The tentacle thrusts a couple of times, leaving a gooey residue behind.",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S surprises %T with a thick tentacle shoved into %This mouth! The tentacle thrusts a couple of times, leaving a gooey residue behind.",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"senderHasTentacles"]
 	},
-	{ "text":"%S slips a gooey tentacle into %T's %TclothLower! The tentacle pushes its way into %This %Tbsize %Tbutt and lands some rapid thrusts, making %This %Tbutt somewhat sticky!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S slips a gooey tentacle into %T's %TclothLower! The tentacle pushes its way into %This %Tbsize %Tbutt and lands some rapid thrusts, making %This %Tbutt somewhat sticky!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"senderHasTentacles",
 			"targetWearsLowerbody"]
 	},
-	{ "text":"%S slips a thick gooey tendril into %T's %TclothLower! The tentacle pushes its way into %This %Tvagina and lands some rapid thrusts, leaving a sticky liquid behind!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S slips a thick gooey tendril into %T's %TclothLower! The tentacle pushes its way into %This %Tvagina and lands some rapid thrusts, leaving a sticky liquid behind!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -698,10 +700,10 @@ const lib = [
 			"targetWearsLowerbody",
 			"targetVagina"]
 	},
-	{ "text":"One of %S's small tentacles loop around the bottom of %T's %TclothLower and tugs it aside. Before %T can react, a thick and slimy tentacle pushes inside %This %Tvagina and lands some rapid thrusts inside %Thim!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "One of %S's small tentacles loop around the bottom of %T's %TclothLower and tugs it aside. Before %T can react, a thick and slimy tentacle pushes inside %This %Tvagina and lands some rapid thrusts inside %Thim!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -710,10 +712,10 @@ const lib = [
 			"targetVagina",
 			"targetLowerbodyNotHard"]
 	},
-	{ "text":"%S slithers a gooey tentacle around %T's butt-string and pushes inside %Thim, landing some rapid thrusts and leaving a slippery substance behind!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S slithers a gooey tentacle around %T's butt-string and pushes inside %Thim, landing some rapid thrusts and leaving a slippery substance behind!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -721,10 +723,10 @@ const lib = [
 			"targetWearsLowerbody",
 			"targetWearsThong"]
 	},
-	{ "text":"%S pushes a thick tentacke up between %T's buttcheeks, giving %This rear some rapid prods through %This buttstring!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S pushes a thick tentacke up between %T's buttcheeks, giving %This rear some rapid prods through %This buttstring!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -734,10 +736,10 @@ const lib = [
 			"targetWearsThong",
 			"ttButtNotExposed"]
 	},
-	{ "text":"%S latches a thick tentacke with suction cups onto %T's %Tgroin and performs a few rapid tugs and prods at %This %TclothLower!",
-		"audiokits":["tentacleMultipleThrusts"
+	{ text : "%S latches a thick tentacke with suction cups onto %T's %Tgroin and performs a few rapid tugs and prods at %This %TclothLower!",
+		audiokits : ["tentacleMultipleThrusts"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -747,10 +749,10 @@ const lib = [
 			"targetWearsThong",
 			"ttButtNotExposed"]
 	},
-	{ "text":"%S takes advantage of %T's frontal wedgie and slips a flat tentacle with wiggly nubs between %This legs, pushing it up against %This %groin where it intensely tickles %T's exposed mound!",
-		"audiokits":["gooRub"
+	{ text : "%S takes advantage of %T's frontal wedgie and slips a flat tentacle with wiggly nubs between %This legs, pushing it up against %This %groin where it intensely tickles %T's exposed mound!",
+		audiokits : ["gooRub"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
@@ -758,10 +760,10 @@ const lib = [
 			"targetWearsLowerbody",
 			"ttPussyWedgie"]
 	},
-	{ "text":"%S slips small tendrils between %T's legs, rapidly tickling the exposed sides of %This %Tvagina and leaving a little slimy residue behind!",
-		"audiokits":["gooRub"
+	{ text : "%S slips small tendrils between %T's legs, rapidly tickling the exposed sides of %This %Tvagina and leaving a little slimy residue behind!",
+		audiokits : ["gooRub"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -770,21 +772,21 @@ const lib = [
 			"ttPussyWedgie",
 			"targetWearsLowerbody"]
 	},
-	{ "text":"%S wraps a tentacle around %T's %Tpsize %Tpenis, allowing a small tendril to slip under %This foreskin, tickling the tip of %This %Tpenis!",
-		"audiokits":["tentacleTwist"],
-		"conditions":[
+	{ text : "%S wraps a tentacle around %T's %Tpsize %Tpenis, allowing a small tendril to slip under %This foreskin, tickling the tip of %This %Tpenis!",
+		audiokits : ["tentacleTwist"],
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"senderHasTentacles",
-			{"conditions":["targetNoLowerbody","ttGroinExposed"]},
+			{conditions : ["targetNoLowerbody","ttGroinExposed"]},
 			"targetPenis",
 			"targetNotCircumcised"
 		]
 	},
-	{ "text":"%S slips %Shis %Sgear between %T's legs, grinding it back and fort across the %Trace's %Tgroin!",
-		"conditions":[
+	{ text : "%S slips %Shis %Sgear between %T's legs, grinding it back and fort across the %Trace's %Tgroin!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -793,10 +795,10 @@ const lib = [
 			"targetVagina",
 			"targetNotKnockedDown"
 		],
-		"audiokits":["stretchGeneric"]
+		audiokits : ["stretchGeneric"]
 	},
-	{ "text":"%S slips %Shis %Sgear between %T's buttcheeks, grinding it back and fort!",
-		"conditions":[
+	{ text : "%S slips %Shis %Sgear between %T's buttcheeks, grinding it back and fort!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -804,13 +806,13 @@ const lib = [
 			"senderHasWhip",
 			"targetVagina",
 			{
-				"conditions":[
+				conditions : [
 				"targetWearsThong",
 				"targetNoLowerbody"
 				]
 			}
 		],
-		"audiokits":["stretchGeneric"]
+		audiokits : ["stretchGeneric"]
 	},
 
 
@@ -827,9 +829,9 @@ const lib = [
 	// DEFEATS
 
 	// stdPunishDom
-	{ "text":"%S bends the defeated %Trace over a table and spreads %This legs, exposing %This %Trsize %Tbutt before shoving %Shis %Spsize %Spenis inside! %S begins forcefully pounding %T...",
+	{ text : "%S bends the defeated %Trace over a table and spreads %This legs, exposing %This %Trsize %Tbutt before shoving %Shis %Spsize %Spenis inside! %S begins forcefully pounding %T...",
 		"turnTags":["bent_over", "bent_over_table"],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
@@ -837,14 +839,14 @@ const lib = [
 			"senderPenis",
 			"roomTable"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%S bends the defeated %Trace over a table and spreads %This legs, exposing %This %Tvagina before shoving %Shis %Spsize %Spenis inside! %S begins forcefully pounding %T...",
+	{ text : "%S bends the defeated %Trace over a table and spreads %This legs, exposing %This %Tvagina before shoving %Shis %Spsize %Spenis inside! %S begins forcefully pounding %T...",
 		"turnTags":[
 			"bent_over",
 			"bent_over_table"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
@@ -853,14 +855,14 @@ const lib = [
 			"roomTable",
 			"targetVagina"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Trsize %Tbutt...",
+	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Trsize %Tbutt...",
 		"turnTags":[
 			"bent_over",
 			"bent_over_table"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
@@ -868,14 +870,14 @@ const lib = [
 			"senderPenis",
 			"ttBentOver"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Tvagina...",
+	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Tvagina...",
 		"turnTags":[
 			"bent_over",
 			"bent_over_table"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
@@ -884,20 +886,20 @@ const lib = [
 			"ttBentOver",
 			"targetVagina"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's arms from behind and forcing %Shis %Spsize %Spenis iside %T's %Trsize %Tbutt. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
-		"conditions":[
+	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's arms from behind and forcing %Shis %Spsize %Spenis iside %T's %Trsize %Tbutt. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_stdPunishDom",
 			"senderPenis"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's hips and forcing %Shis %Spsize %Spenis iside %T's %Tvagina. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
-		"conditions":[
+	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's hips and forcing %Shis %Spsize %Spenis iside %T's %Tvagina. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
@@ -905,24 +907,24 @@ const lib = [
 			"senderPenis",
 			"targetVagina"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%S pushes the defeated %Trace to the ground and seats %Shimself on %T's face. %S begins riding %T's face...",
-		"conditions":[
+	{ text : "%S pushes the defeated %Trace to the ground and seats %Shimself on %T's face. %S begins riding %T's face...",
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_stdPunishDom",
 			"senderVagina"
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
 
 
 
 	// stdPunishSub
-	{ "text":"%S used a SUBMISSIVE text against %T!",
-		"conditions":[
+	{ text : "%S used a SUBMISSIVE text against %T!",
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
@@ -933,27 +935,27 @@ const lib = [
 
 
 	// stdPunishSad
-	{ "text":"%S bends the defeated %Trace over a table. Raising %Shis palm high in the air, the %Srace starts forcefully slapping %T's %Trsize %Tbutt...",
+	{ text : "%S bends the defeated %Trace over a table. Raising %Shis palm high in the air, the %Srace starts forcefully slapping %T's %Trsize %Tbutt...",
 		"turnTags":[
 			"bent_over",
 			"bent_over_table",
 			"spanked"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_stdPunishSad",
 			"roomTable"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S continues the punishment, vigorously spanking the %Trace's already punished %Tbutt...",
+	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S continues the punishment, vigorously spanking the %Trace's already punished %Tbutt...",
 		"turnTags":[
 			"bent_over",
 			"spanked"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
@@ -961,14 +963,14 @@ const lib = [
 			"ttBentOver",
 			"ttSpanked"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S raises %Shis palm and starts vigorously spanking the %Trace's %Trsize exposed %Tbutt...",
+	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S raises %Shis palm and starts vigorously spanking the %Trace's %Trsize exposed %Tbutt...",
 		"turnTags":[
 			"bent_over",
 			"spanked"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"eventIsActionUsed",
 			"senderNotBeast",
@@ -976,7 +978,7 @@ const lib = [
 			"ttBentOver",
 			"ttNotSpanked"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
 
 
@@ -996,9 +998,9 @@ const lib = [
 	// NPC ACTIONS
 
 	// tentacle_fiend_tentacleMilker
-	{ "text":"%S slips suction cup tipped tentacles inside %T's %TclothUpper, latching them onto %This nipples and coating them in a sticky liquid. A few moments later, the tendrils start milking %Thim.",
-		"audiokits":["tentacleSuction"],
-		"conditions":[
+	{ text : "%S slips suction cup tipped tentacles inside %T's %TclothUpper, latching them onto %This nipples and coating them in a sticky liquid. A few moments later, the tendrils start milking %Thim.",
+		audiokits : ["tentacleSuction"],
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentacleMilker",
@@ -1006,30 +1008,30 @@ const lib = [
 			"targetWearsUpperbody"
 		]
 	},
-	{ "text":"%S assaults %T with suction cup tipped tentacles, latching them onto %This nipples and coating them in a sticky liquid. A few moments later, the tendrils start milking %Thim.",
-		"audiokits":["tentacleSuction"
+	{ text : "%S assaults %T with suction cup tipped tentacles, latching them onto %This nipples and coating them in a sticky liquid. A few moments later, the tendrils start milking %Thim.",
+		audiokits : ["tentacleSuction"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentacleMilker",
 			"targetBreasts",
 			"targetNoUpperbody"]
 	},
-	{ "text":"%S slips a hollow tentacle inside %T's %TclothLower, enveloping %This %Tpenis and coating it in sticky liquid. A few moments later, the tentacle start milking %Thim.",
-		"audiokits":["tentacleSuction"
+	{ text : "%S slips a hollow tentacle inside %T's %TclothLower, enveloping %This %Tpenis and coating it in sticky liquid. A few moments later, the tentacle start milking %Thim.",
+		audiokits : ["tentacleSuction"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentacleMilker",
 			"targetPenis",
 			"targetWearsLowerbody"]
 	},
-	{ "text":"%S envelops %T's %Tpenis with a hollow tentacle, coating it in sticky liquid. A few moments later, the tentacle start milking %Thim.",
-		"audiokits":["tentacleSuction"
+	{ text : "%S envelops %T's %Tpenis with a hollow tentacle, coating it in sticky liquid. A few moments later, the tentacle start milking %Thim.",
+		audiokits : ["tentacleSuction"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentacleMilker",
@@ -1039,9 +1041,9 @@ const lib = [
 
 
 	// tentacle_fiend_legWrap
-	{ "text":"%S hoops tentacles around %T's ankles, pulling %Thim to the ground and spreading %This legs!",
-		"audiokits":["tentacleSuction"],
-		"conditions":[
+	{ text : "%S hoops tentacles around %T's ankles, pulling %Thim to the ground and spreading %This legs!",
+		audiokits : ["tentacleSuction"],
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_legWrap",
@@ -1050,61 +1052,68 @@ const lib = [
 
 
 	// tentacle_fiend_injectacle
-	{ "text":"%S's thick tentacle slips into %T's %Tbsize %Tbutt and lands some rapid thrusts before flooding %T's %Tbutt with a sticky liquid!",
-		"audiokits":["tentacleMultipleThrusts"],
-		"conditions":[
-			"actionHit",
-			"eventIsActionUsed",
+	{ text : "%S's thick tentacle slips into %T's %Tbsize %Tbutt and lands some rapid thrusts before flooding %T's %Tbutt with a sticky liquid!",
+		audiokits : ["tentacleMultipleThrusts"],
+		conditions : anyOnHumCond.concat(
 			"action_tentacle_fiend_injectacle",
-			"targetNoLowerbody"
-		]
+			{conditions:[
+				"targetNoLowerbody", "ttButtExposed"
+			]}
+		)
 	},
-	{ "text":"%S's thick tentacle slips into %T's %Tvagina, landing some rapid thrusts before flooding it with a sticky liquid!",
-		"audiokits":["tentacleMultipleThrusts"
-		],
-		"conditions":[
-			"actionHit",
-			"eventIsActionUsed",
+	{ text : "%S's thick tentacle slips into %T's %Tvagina, landing some rapid thrusts before flooding it with a sticky liquid!",
+		audiokits : ["tentacleMultipleThrusts"],
+		conditions : anyOnHumCond.concat(
 			"action_tentacle_fiend_injectacle",
-			"targetNoLowerbody",
-			"targetVagina"]
+			{conditions:[
+				"targetNoLowerbody", "ttGroinExposed"
+			]},
+			"targetVagina"
+		)
 	},
-	{ "text":"Two of %S's tentacles slither up between %T's legs, one pushing into %This %Trsize %Tbutt, the other slightly larger one into %This %Tvagina. The tentacles start thrusting into %T in sync, eventually shooting a sizable amount sticky liquid inside %Thim!",
-		"audiokits":["tentacleMultipleThrusts"
-		],
-		"conditions":[
-			"actionHit",
-			"eventIsActionUsed",
+	{ text : "Two of %S's tentacles slither up between %T's legs, one pushing into %This %Trsize %Tbutt, the other slightly larger one into %This %Tvagina. The tentacles start thrusting into %T in sync, eventually shooting a sizable amount sticky liquid inside %Thim!",
+		audiokits : ["tentacleMultipleThrusts"],
+		conditions : anyOnHumCond.concat(
 			"action_tentacle_fiend_injectacle",
-			"targetNoLowerbody",
-			"targetVagina"]
-	},
-	{ "text":"%S takes advantage of %T's legs being restrained, shoves a thick tentacle into %This %Tvagina and starts thrusting rapidly. Some time later the tentacle finally slows down, squirting a large enough wad of sticky goo into %T that some of it immediately squirts out!",
-		"audiokits":["tentacleMultipleThrusts"
-		],
-		"conditions":[
-			"actionHit",
-			"eventIsActionUsed",
-			"action_tentacle_fiend_injectacle",
-			"targetNoLowerbody",
 			"targetVagina",
-			"targetLegsSpread"]
+			{conditions:[
+				"targetNoLowerbody", 
+				{conditions:[
+					"ttGroinExposed",
+					"ttButtExposed"
+				], min:-1}
+			]},
+			"targetNoLowerbody",
+		)
+	},
+	{ text : "%S takes advantage of %T's legs being restrained, shoves a thick tentacle into %This %Tvagina and starts thrusting rapidly. Some time later the tentacle finally slows down, squirting a large enough wad of sticky goo into %T that some of it immediately squirts out!",
+		audiokits : ["tentacleMultipleThrusts"],
+		conditions : anyOnHumCond.concat(
+			"actionHit",
+			"eventIsActionUsed",
+			"action_tentacle_fiend_injectacle",
+			{conditions:[
+				"targetNoLowerbody", "ttGroinExposed"
+			]},
+			"targetVagina",
+			"targetLegsSpread"
+		)
 	},
 
 
 	// tentacle_fiend_tentatug
-	{ "text":"%S latches tentacles onto %T's %TclothLower, tugging at the piece.",
-		"audiokits":["tentacleStretch"],
-		"conditions":[
+	{ text : "%S latches tentacles onto %T's %TclothLower, tugging at the piece.",
+		audiokits : ["tentacleStretch"],
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentatug",
 		]
 	},
-	{ "text":"%S latches tentacles around the sides of %T's %TclothLower, tugging up and out, giving %T a wedgie!",
-		"audiokits":["tentacleStretch"
+	{ text : "%S latches tentacles around the sides of %T's %TclothLower, tugging up and out, giving %T a wedgie!",
+		audiokits : ["tentacleStretch"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentatug",
@@ -1114,10 +1123,10 @@ const lib = [
 		"turnTags":[
 			"wedgie"]
 	},
-	{ "text":"%S latches tentacles around the bottom of %T's %TclothLower and give a hard tug down, exposing %This %Tgenitals!",
-		"audiokits":["tentacleStretch"
+	{ text : "%S latches tentacles around the bottom of %T's %TclothLower and give a hard tug down, exposing %This %Tgenitals!",
+		audiokits : ["tentacleStretch"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentatug",
@@ -1126,10 +1135,10 @@ const lib = [
 		"turnTags":[
 			"groin_exposed"]
 	},
-	{ "text":"%S latches tentacles around the back of %T's %TclothLower and tugs down, exposing %This %Tbutt!",
-		"audiokits":["tentacleStretch"
+	{ text : "%S latches tentacles around the back of %T's %TclothLower and tugs down, exposing %This %Tbutt!",
+		audiokits : ["tentacleStretch"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentatug",
@@ -1138,10 +1147,10 @@ const lib = [
 		"turnTags":[
 			"butt_exposed"]
 	},
-	{ "text":"%S's tentacles wrap around the front of %T's %TclothLower and rigidly tugs upwards, chafing into %This %Tvagina!",
-		"audiokits":["tentacleStretch"
+	{ text : "%S's tentacles wrap around the front of %T's %TclothLower and rigidly tugs upwards, chafing into %This %Tvagina!",
+		audiokits : ["tentacleStretch"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentatug",
@@ -1152,29 +1161,29 @@ const lib = [
 			"pussy_wedgie",
 			"wedgie"]
 	},
-	{ "text":"%S's tentacles wrap around the front of %T's %TclothLower and rigidly tugs upwards, making %This junk flop free!",
-		"audiokits":["tentacleStretch"
+	{ text : "%S's tentacles wrap around the front of %T's %TclothLower and rigidly tugs upwards, making %This junk flop free!",
+		audiokits : ["tentacleStretch"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentatug",
 			"targetWearsThong",
 			"targetPenis"]
 	},
-	{ "text":"%S's tentacles wrap around the bottom of %T's %TclothLower and tugs down before letting go and allowing the piece to snap onto %T's %groin!",
-		"audiokits":["tentacleStretch"
+	{ text : "%S's tentacles wrap around the bottom of %T's %TclothLower and tugs down before letting go and allowing the piece to snap onto %T's %groin!",
+		audiokits : ["tentacleStretch"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentatug",
 			"targetWearsSlingBikini"]
 	},
-	{ "text":"%S's tentacles wrap around the front straps of %T's %TclothLower and tugs back before letting go, allowing the piece to snap painfully onto %T's %Tbsize %Tbreasts!",
-		"audiokits":["tentacleStretchWhip"
+	{ text : "%S's tentacles wrap around the front straps of %T's %TclothLower and tugs back before letting go, allowing the piece to snap painfully onto %T's %Tbsize %Tbreasts!",
+		audiokits : ["tentacleStretchWhip"
 		],
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_tentatug",
@@ -1184,46 +1193,46 @@ const lib = [
 
 
 	// imp_specialDelivery
-	{ "text":"%S jumps onto %T's head and shoves %Shis %Spsize %Spenis into %T's mouth, humping at an overwhelming speed until %She shoots a large squirt of demonic jizz down %T's throat.",
-		"conditions":[
+	{ text : "%S jumps onto %T's head and shoves %Shis %Spsize %Spenis into %T's mouth, humping at an overwhelming speed until %She shoots a large squirt of demonic jizz down %T's throat.",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
 			"targetNotBeast"
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S jumps onto %T's head and shoves %Shis %Spsize %Spenis into %T's mouth, humping at an overwhelming speed! A few moments later, the %Srace pulls out, shooting a long streak of demonic jizz across %T's face.",
-		"conditions":[
+	{ text : "%S jumps onto %T's head and shoves %Shis %Spsize %Spenis into %T's mouth, humping at an overwhelming speed! A few moments later, the %Srace pulls out, shooting a long streak of demonic jizz across %T's face.",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
 			"targetNotBeast"
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S jumps onto %T's head and grabs a firm hold of %This horn and shoves %Shis %Spsize %Spenis in %T's mouth. The small imp starts thrashing the %Spenis around, eventually flooding %T's mouth with a long squirt of demonic jizz!",
-		"conditions":[
+	{ text : "%S jumps onto %T's head and grabs a firm hold of %This horn and shoves %Shis %Spsize %Spenis in %T's mouth. The small imp starts thrashing the %Spenis around, eventually flooding %T's mouth with a long squirt of demonic jizz!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
 			"targetNotBeast",
 			"targetHorn"
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S jumps onto %T's head and grabs a firm hold of %This horns and shoves %Shis %Spsize %Spenis in %T's mouth. The small imp starts thrashing the %Spenis around, eventually flooding %T's mouth with a long squirt of demonic jizz!",
-		"conditions":[
+	{ text : "%S jumps onto %T's head and grabs a firm hold of %This horns and shoves %Shis %Spsize %Spenis in %T's mouth. The small imp starts thrashing the %Spenis around, eventually flooding %T's mouth with a long squirt of demonic jizz!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
 			"targetNotBeast",
 			"targetHorns"
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis into %This %Tvagina! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
-		"conditions":[
+	{ text : "%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis into %This %Tvagina! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
@@ -1234,10 +1243,10 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis inside! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
-		"conditions":[
+	{ text : "%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis inside! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
@@ -1247,10 +1256,10 @@ const lib = [
 				"ttButtExposed"
 			]
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S jumps onto %T, latching %Shis legs around the %Trace's chest and grabbing a firm hold of %This nipples, squishing %Shis %Spsize %Spenis between %T's %Tbsize %Tbreasts. The %Srace begins rapidly humping, eventually reaching climax, shooting %Shis load into %T's face!",
-		"conditions":[
+	{ text : "%S jumps onto %T, latching %Shis legs around the %Trace's chest and grabbing a firm hold of %This nipples, squishing %Shis %Spsize %Spenis between %T's %Tbsize %Tbreasts. The %Srace begins rapidly humping, eventually reaching climax, shooting %Shis load into %T's face!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
@@ -1261,10 +1270,10 @@ const lib = [
 				"ttBreastsExposed"
 			]
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S jumps onto the knocked down %Trace slipping %Shis %Spsize %Spenis between %T's %Tbsize %Tbreasts, pushes them together and starts rapidly thrusting. A short while later %S pulls back, shooting a long streak of demonic cum across %T's %Tbreasts!",
-		"conditions":[
+	{ text : "%S jumps onto the knocked down %Trace slipping %Shis %Spsize %Spenis between %T's %Tbsize %Tbreasts, pushes them together and starts rapidly thrusting. A short while later %S pulls back, shooting a long streak of demonic cum across %T's %Tbreasts!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
@@ -1276,20 +1285,20 @@ const lib = [
 				"ttBreastsExposed"
 			]
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S surprises the knocked down %Trace by squatting near %This face and shoving %Shis %Spsize %Spenis in %This mouth. The %Srace pumps a few times before forcing a large squirt of demon cum inside %T's mouth!",
-		"conditions":[
+	{ text : "%S surprises the knocked down %Trace by squatting near %This face and shoving %Shis %Spsize %Spenis in %This mouth. The %Srace pumps a few times before forcing a large squirt of demon cum inside %T's mouth!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
 			"targetNotBeast",
 			"targetKnockedDownBack"
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S surprises the knocked down %Trace by lifting %This hips and shoving %Shis %Spsize %Spenis into %This %Tvagina. The %Srace starts humping rapidly, eventually reaching climax and flooding %T with demonic spunk!",
-		"conditions":[
+	{ text : "%S surprises the knocked down %Trace by lifting %This hips and shoving %Shis %Spsize %Spenis into %This %Tvagina. The %Srace starts humping rapidly, eventually reaching climax and flooding %T with demonic spunk!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
@@ -1301,10 +1310,10 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
-	{ "text":"%S squats by %T's %Trsize %Tbutt and slips %Shis %Spsize %Spenis inside. The %Srace starts rapidly humping, eventually reaching climax and flooding %T's %Tbutt with demonic spunk!",
-		"conditions":[
+	{ text : "%S squats by %T's %Trsize %Tbutt and slips %Shis %Spsize %Spenis inside. The %Srace starts rapidly humping, eventually reaching climax and flooding %T's %Tbutt with demonic spunk!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_specialDelivery",
@@ -1315,41 +1324,41 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
-		"audiokits":["thrustCum"]
+		audiokits : ["thrustCum"]
 	},
 
 
 	// imp_blowFromBelow
-	{ "text":"%S slips between %T's legs and throws a punch upwards, smacking across %This %groin!",
+	{ text : "%S slips between %T's legs and throws a punch upwards, smacking across %This %groin!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slips between %T's legs and throws a punch upwards, smacking the %Trace's %Trsize %leftright buttcheek!",
-		"conditions":[
+	{ text : "%S slips between %T's legs and throws a punch upwards, smacking the %Trace's %Trsize %leftright buttcheek!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slips between %T's legs and throws a punch at each of the %Trace's %Trsize buttcheeks!",
-		"conditions":[
+	{ text : "%S slips between %T's legs and throws a punch at each of the %Trace's %Trsize buttcheeks!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slips between %T's legs and throws a couple of slaps across the front of %T's %TclothLower around, smacking %This %Tpenis around!",
-		"conditions":[
+	{ text : "%S slips between %T's legs and throws a couple of slaps across the front of %T's %TclothLower around, smacking %This %Tpenis around!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
@@ -1357,10 +1366,10 @@ const lib = [
 			"targetPenis",
 			"targetLowerbodyStretchy"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%S slips between %T's legs and forces %Shis fist up into the %Trace's %Tvagina, thrusting a few times!",
-		"conditions":[
+	{ text : "%S slips between %T's legs and forces %Shis fist up into the %Trace's %Tvagina, thrusting a few times!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
@@ -1371,11 +1380,11 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%S slips between %T and %T2's legs and forces %Shis fist up into both of their %Tvaginas, thrusting a few times!",
+	{ text : "%S slips between %T and %T2's legs and forces %Shis fist up into both of their %Tvaginas, thrusting a few times!",
 		"numTargets":2,
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
@@ -1386,32 +1395,32 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
-		"audiokits":["slowThrusts"]
+		audiokits : ["slowThrusts"]
 	},
-	{ "text":"%S slips between %T and %T2's legs and rams %Shis fist into both of their groins!",
+	{ text : "%S slips between %T and %T2's legs and rams %Shis fist into both of their groins!",
 		"numTargets":2,
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slips underneath %T and %T2, giving a hard smack across both of their %Tbutts!",
+	{ text : "%S slips underneath %T and %T2, giving a hard smack across both of their %Tbutts!",
 		"numTargets":2,
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
 			"targetNotBeast"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast, jiggling it around!",
+	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast, jiggling it around!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
@@ -1419,11 +1428,11 @@ const lib = [
 			"targetBreasts",
 			"targetUpperbodyNotHard"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast!",
+	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
@@ -1431,10 +1440,10 @@ const lib = [
 			"targetBreasts",
 			"targetUpperbodyHard"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slips underneath %T and throws a few rapid slaps across %This %Tbreasts!",
-		"conditions":[
+	{ text : "%S slips underneath %T and throws a few rapid slaps across %This %Tbreasts!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
@@ -1442,14 +1451,14 @@ const lib = [
 			"targetBreasts",
 			"targetUpperbodyNotHard"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%S grabs a hold of and spreads %T's legs while %The's still bent over the table, followed briefly by the %Srace ramming %Shis knee up into %T's %Tgroin!",
+	{ text : "%S grabs a hold of and spreads %T's legs while %The's still bent over the table, followed briefly by the %Srace ramming %Shis knee up into %T's %Tgroin!",
 		"turnTags":[
 			"bent_over_table",
 			"bent_over"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -1457,12 +1466,12 @@ const lib = [
 			"action_imp_blowFromBelow",
 			"ttBentOverTable"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast and %T2's %T2bsize %T2breast, jiggling them both around!",
+	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast and %T2's %T2bsize %T2breast, jiggling them both around!",
 		"numTargets":2,
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_blowFromBelow",
@@ -1470,34 +1479,82 @@ const lib = [
 			"targetBreasts",
 			"targetUpperbodyNotHard"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
+	},
+	
+
+	// action_imp_claws
+	{ text : "%S uses %Shis claws to rip at %T's outfit!",
+		"conditions" : anyOnHumCond.concat(
+			"action_imp_claws"
+		),
+		audiokits : ["stretchGeneric"]
+	},
+	{ text : "%S slips %Shis claws under %T's waistband from behind, tugging up firmly!",
+		"conditions" : anyOnHumCond.concat(
+			"action_imp_claws", "targetLowerbodyWaistband"
+		),
+		turnTags : [stdTag.ttWedgie],
+		audiokits : ["stretchGeneric"]
+	},
+	{ text : "%S slips %Shis claws around %T's butt-string grabbing a firm hold of it and giving it a hard yank!",
+		"conditions" : anyOnHumCond.concat(
+			"action_imp_claws", "targetWearsThong"
+		),
+		turnTags : [stdTag.ttWedgie],
+		audiokits : ["stretchGeneric"]
+	},
+	{ text : "%S slips %Shis claws under %T's waistband from the front, giving it a hard tug upwards!",
+		"conditions" : anyOnHumCond.concat(
+			"action_imp_claws", "targetLowerbodyWaistband"
+		),
+		turnTags : [stdTag.ttPussyWedgie],
+		audiokits : ["stretchGeneric"]
+	},
+	{ text : "%S grabs a firm hold of %T's %TclothUpper from behind, pulling it backwards and causing the piece to constrict %This %Tbsize %Tbreasts!",
+		"conditions" : anyOnHumCond.concat(
+			"action_imp_claws", "targetUpperbodyNotHard", "targetBreasts", "targetWearsUpperbody"
+		),
+		turnTags : [stdTag.ttBreastsWedgie],
+		audiokits : ["stretchGeneric"]
+	},
+	{ text : "%S grabs around the front strings of %T's %TclothUpper, giving it a hard yank out and letting it set back on the side, exposing the %Trace's %Tbsize %Tbreasts!",
+		"conditions" : anyOnHumCond.concat(
+			"action_imp_claws", "targetBreasts", "targetWearsSlingBikini"
+		),
+		turnTags : [stdTag.ttBreastsExposed],
+		audiokits : ["stretchGeneric"]
 	},
 
 
+
+
+
+
 	// imp_ankleBite
-	{ "text":"%S jumps at %T's legs and starts chewing on %This ankle!",
-		"conditions":[
+	{ text : "%S jumps at %T's legs and starts chewing on %This ankle!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_ankleBite",
 			"targetNotBeast"
 		],
-		"audiokits":["biteGeneric"]
+		audiokits : ["biteGeneric"]
 	},
 
 
 	// imp_demonicPinch
-	{ "text":"%S casts a spell, surprising %T with a demonic pinch to %This %Trsize %leftright buttcheek!",
-		"conditions":[
+	{ text : "%S casts a spell, surprising %T with a demonic pinch to %This %Trsize %leftright buttcheek!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_demonicPinch",
 			"targetNotBeast"
 		],
-		"audiokits":["pinchGeneric"]
+		audiokits : ["pinchGeneric"]
 	},
-	{ "text":"%S casts a spell. %T suddenly feels something pinch %This foreskin, tugging it forwards in %This %TclothLower!",
-		"conditions":[
+	{ text : "%S casts a spell. %T suddenly feels something pinch %This foreskin, tugging it forwards in %This %TclothLower!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_demonicPinch",
@@ -1506,10 +1563,10 @@ const lib = [
 			"targetPenis",
 			"targetNotCircumcised"
 		],
-		"audiokits":["pinchGeneric"]
+		audiokits : ["pinchGeneric"]
 	},
-	{ "text":"%S casts a spell. %T suddenly feels something pinch %This foreskin, tugging it forwards and jiggling %This %Tpsize %Tpenis around!",
-		"conditions":[
+	{ text : "%S casts a spell. %T suddenly feels something pinch %This foreskin, tugging it forwards and jiggling %This %Tpsize %Tpenis around!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_demonicPinch",
@@ -1521,30 +1578,30 @@ const lib = [
 			"targetPenis",
 			"targetNotCircumcised"
 		],
-		"audiokits":["pinchGeneric"]
+		audiokits : ["pinchGeneric"]
 	},
-	{ "text":"%S casts a spell, surprising %T with a demonic pinch to %This clit!",
-		"conditions":[
+	{ text : "%S casts a spell, surprising %T with a demonic pinch to %This clit!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_demonicPinch",
 			"targetNotBeast",
 			"targetVagina"
 		],
-		"audiokits":["pinchGeneric"]
+		audiokits : ["pinchGeneric"]
 	},
-	{ "text":"%S casts a spell, surprising %T as something suddenly pinches down on %This %leftright nipple!",
-		"conditions":[
+	{ text : "%S casts a spell, surprising %T as something suddenly pinches down on %This %leftright nipple!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_demonicPinch",
 			"targetNotBeast",
 			"targetBreasts"
 		],
-		"audiokits":["pinchGeneric"]
+		audiokits : ["pinchGeneric"]
 	},
-	{ "text":"%S casts a spell, surprising %T as something suddenly pinches down on %This nipples and starts jiggling them around in %This %TclothUpper!",
-		"conditions":[
+	{ text : "%S casts a spell, surprising %T as something suddenly pinches down on %This nipples and starts jiggling them around in %This %TclothUpper!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_imp_demonicPinch",
@@ -1552,78 +1609,78 @@ const lib = [
 			"targetBreasts",
 			"targetWearsUpperbody"
 		],
-		"audiokits":["pinchGeneric"]
+		audiokits : ["pinchGeneric"]
 	},
 
 
 	// whip_legLash
-	{ "text":"%S lashes %Shis whip across %T's legs!",
-		"conditions":[
+	{ text : "%S lashes %Shis whip across %T's legs!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_whip_legLash",
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S lashes %Shis whip across %T's %leftright thigh!",
-		"conditions":[
+	{ text : "%S lashes %Shis whip across %T's %leftright thigh!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_whip_legLash",
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
 
 
 	// whip_powerLash
-	{ "text":"%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %Tgroin!",
+	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %Tgroin!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_whip_powerLash",
 			"targetLowerbodyNotHard"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %Tbreasts, whapping them around!",
+	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %Tbreasts, whapping them around!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_whip_powerLash",
 			"targetBreasts",
 			"targetUpperbodyNotHard"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %leftright %Tbreast, whapping it around!",
+	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %leftright %Tbreast, whapping it around!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_whip_powerLash",
 			"targetBreasts",
 			"targetUpperbodyNotHard"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S forcefully swings %Shis %Sgear at %T, cracking multiple times across %This %Tbreasts!",
+	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking multiple times across %This %Tbreasts!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_whip_powerLash",
 			"targetBreasts",
 			"targetUpperbodyHard"
 		],
-		"audiokits":["whipDouble"]
+		audiokits : ["whipDouble"]
 	},
-	{ "text":"%S forcefully swings %Shis %Sgear at %T't %Tgroin, smacking %This bulge around!",
+	{ text : "%S forcefully swings %Shis %Sgear at %T't %Tgroin, smacking %This bulge around!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_whip_powerLash",
@@ -1631,23 +1688,23 @@ const lib = [
 			"targetLowerbodyStretchy",
 			"targetPenis"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S forcefully swings %Shis %Sgear at %T't %Tgroin, smacking %This %Tpenis around!",
-		"conditions":[
+	{ text : "%S forcefully swings %Shis %Sgear at %T't %Tgroin, smacking %This %Tpenis around!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_whip_powerLash",
 			"targetNoLowerbody",
 			"targetPenis"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
-	{ "text":"%S surprises %T while %The bent over by lashing %Shis %Sgear from below up across the %Trace's %Tgroin!",
+	{ text : "%S surprises %T while %The bent over by lashing %Shis %Sgear from below up across the %Trace's %Tgroin!",
 		"turnTags":[
 			"bent_over"
 		],
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -1657,7 +1714,7 @@ const lib = [
 			"targetWearsLowerbody",
 			"ttBentOver"
 		],
-		"audiokits":["whipGeneric"]
+		audiokits : ["whipGeneric"]
 	},
 
 
@@ -1673,45 +1730,45 @@ const lib = [
 
 
 	// Potions
-	{ "text":"%S chugs a small bottle of red liquid!",
-		"conditions":[
+	{ text : "%S chugs a small bottle of red liquid!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_minorHealingPotion",
 		],
-		"audiokits":["potionUse"]
+		audiokits : ["potionUse"]
 	},
-	{ "text":"%S chugs a bottle of red liquid!",
-		"conditions":[
+	{ text : "%S chugs a bottle of red liquid!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_healingPotion",
 		],
-		"audiokits":["potionUse"]
+		audiokits : ["potionUse"]
 	},
-	{ "text":"%S chugs a large bottle of red liquid!",
-		"conditions":[
+	{ text : "%S chugs a large bottle of red liquid!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_majorHealingPotion",
 		],
-		"audiokits":["potionUse"]
+		audiokits : ["potionUse"]
 	},
-	{ "text":"%S chugs a bottle of blue liquid!",
-		"conditions":[
+	{ text : "%S chugs a bottle of blue liquid!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_manaPotion",
 		],
-		"audiokits":["potionUse"]
+		audiokits : ["potionUse"]
 	},
-	{ "text":"%S chugs a large bottle of blue liquid!",
-		"conditions":[
+	{ text : "%S chugs a large bottle of blue liquid!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_majorManaPotion",
 		],
-		"audiokits":["potionUse"]
+		audiokits : ["potionUse"]
 	},
 
 
@@ -1731,39 +1788,39 @@ const lib = [
 	// GENERIC ACTIONS
 
 	// lowBlow
-	{ "text":"%S throws a punch at %T's %Tbsize %leftright %Tbreast!",
+	{ text : "%S throws a punch at %T's %Tbsize %leftright %Tbreast!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_lowBlow",
 			"targetBreasts"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S throws a punch at %T's %Tbsize %leftright %Tbreast, jiggling it around in %This %TclothUpper!",
+	{ text : "%S throws a punch at %T's %Tbsize %leftright %Tbreast, jiggling it around in %This %TclothUpper!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_lowBlow",
 			"targetBreasts",
 			"targetUpperbodyStretchy"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S throws a punch at %T's %groin!",
+	{ text : "%S throws a punch at %T's %groin!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_lowBlow",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S grabs a hold of %T's nipples through %This %TclothUpper, giving them both a painful twist while tugging them out!",
-		"conditions":[
+	{ text : "%S grabs a hold of %T's nipples through %This %TclothUpper, giving them both a painful twist while tugging them out!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_lowBlow",
@@ -1771,10 +1828,10 @@ const lib = [
 			"targetUpperbodyNotHard",
 			"targetWearsUpperbody"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S grabs a hold of %T's %groin, painfully squeezing between %This legs!",
-		"conditions":[
+	{ text : "%S grabs a hold of %T's %groin, painfully squeezing between %This legs!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_lowBlow",
@@ -1782,16 +1839,16 @@ const lib = [
 			"targetWearsLowerbody",
 			"targetNotBeast"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S catches %T unaware, throwing a hard punch at its weak spot!",
-		"conditions":[
+	{ text : "%S catches %T unaware, throwing a hard punch at its weak spot!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_lowBlow",
 			"targetBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
 
 
@@ -1807,27 +1864,27 @@ const lib = [
 
 	// WARRIOR
 	// warrior_viceGrip
-	{ "text":"%S grabs a firm hold of %T's %Tgroin and squeezes down hard!",
-		"conditions":[
+	{ text : "%S grabs a firm hold of %T's %Tgroin and squeezes down hard!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_warrior_viceGrip",
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S grabs at %T!",
-		"conditions":[
+	{ text : "%S grabs at %T!",
+		conditions : [
 			"action_warrior_viceGrip",
 			"actionHit",
 			"eventIsActionUsed",
 			"targetBeast"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S grabs a firm hold of %T's %leftright %Tbreast and squeezes down hard!",
-		"conditions":[
+	{ text : "%S grabs a firm hold of %T's %leftright %Tbreast and squeezes down hard!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -1835,10 +1892,10 @@ const lib = [
 			"action_warrior_viceGrip",
 			"targetBreasts"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S grabs a firm hold of %T's %Tpenis and firmly squeezes down on it!",
-		"conditions":[
+	{ text : "%S grabs a firm hold of %T's %Tpenis and firmly squeezes down on it!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -1850,43 +1907,43 @@ const lib = [
 				"targetNoLowerbody"
 			]
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S grabs a firm hold of %T's %Tbutt and squeezes down firmly!",
-		"conditions":[
+	{ text : "%S grabs a firm hold of %T's %Tbutt and squeezes down firmly!",
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_warrior_viceGrip",
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S grabs a firm hold of %T and %T2's groins and squeezes down hard!",
+	{ text : "%S grabs a firm hold of %T and %T2's groins and squeezes down hard!",
 		"numTargets":2,
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_warrior_viceGrip",
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S grabs a firm hold of %T and %T2's butts and squeezes down hard!",
+	{ text : "%S grabs a firm hold of %T and %T2's butts and squeezes down hard!",
 		"numTargets":2,
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
 			"senderNotBeast",
 			"action_warrior_viceGrip",
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S grabs a firm hold of one of %T and %T2's %Tbreasts each and squeezes down hard!",
+	{ text : "%S grabs a firm hold of one of %T and %T2's %Tbreasts each and squeezes down hard!",
 		"numTargets":2,
-		"conditions":[
+		conditions : [
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -1894,67 +1951,67 @@ const lib = [
 			"action_warrior_viceGrip",
 			"targetBreasts"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
 
 	// warrior_bolster
-	{ "text":"%S readies %Thimself for combat!",
-		"conditions":[
+	{ text : "%S readies %Thimself for combat!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_warrior_bolster",
 		],
-		"audiokits":["warriorShield"]
+		audiokits : ["warriorShield"]
 	},
 
 
 	// warrior_revenge
-	{ "text":"%S retaliates, striking %T hard!",
-		"conditions":[
+	{ text : "%S retaliates, striking %T hard!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_warrior_revenge",
 			"targetBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S counters %T with a rapid jab to %This %Tbsize %leftright %Tbreast!",
+	{ text : "%S counters %T with a rapid jab to %This %Tbsize %leftright %Tbreast!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_warrior_revenge",
 			"targetBreasts"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S counters %T with a rapid jab to the %groin!",
+	{ text : "%S counters %T with a rapid jab to the %groin!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_warrior_revenge",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S counters %T with a rapid jab at %This %Trsize %leftright buttcheeck!",
-		"conditions":[
+	{ text : "%S counters %T with a rapid jab at %This %Trsize %leftright buttcheeck!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_warrior_revenge",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S counters %T with a rapid jab to the stomach!",
-		"conditions":[
+	{ text : "%S counters %T with a rapid jab to the stomach!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_warrior_revenge",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
 
 
@@ -1966,18 +2023,18 @@ const lib = [
 	// ROGUE
 
 	// action_rogue_exploit
-	{ "text":"%S exploits an opening in %T's defenses, throwing a punch at %Thim!",
-		"conditions":[
+	{ text : "%S exploits an opening in %T's defenses, throwing a punch at %Thim!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_exploit",
 			"targetWearsUpperbody",
 			"targetWearsLowerbody"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S exploits an opening in %T's defenses, throwing a powerful punch at %Thim!",
-		"conditions":[
+	{ text : "%S exploits an opening in %T's defenses, throwing a powerful punch at %Thim!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_exploit",
@@ -1985,147 +2042,147 @@ const lib = [
 			"targetNoUpperbody",
 			"targetBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S slips some fingers up %T's %Tvagina, wiggling them around briefly!",
-		"conditions":[
+	{ text : "%S slips some fingers up %T's %Tvagina, wiggling them around briefly!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_exploit",
 			"targetNoLowerbody",
 			"targetVagina"
 		],
-		"audiokits":["squishTiny"]
+		audiokits : ["squishTiny"]
 	},
-	{ "text":"%S slips %Shis between %T's legs, tickling %This clit!",
-		"conditions":[
+	{ text : "%S slips %Shis between %T's legs, tickling %This clit!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_exploit",
 			"targetNoLowerbody",
 			"targetVagina"
 		],
-		"audiokits":["squishTiny"]
+		audiokits : ["squishTiny"]
 	},
-	{ "text":"%S slips %Shis between %T's legs and grabs a hold of %T's %Tpsize %Tpenis, giving it a couple of rapid tugs!",
-		"conditions":[
+	{ text : "%S slips %Shis between %T's legs and grabs a hold of %T's %Tpsize %Tpenis, giving it a couple of rapid tugs!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_exploit",
 			"targetNoLowerbody",
 			"targetPenis"
 		],
-		"audiokits":["squishTiny"]
+		audiokits : ["squishTiny"]
 	},
-	{ "text":"%S exploits an opening in %T's defenses, grabs a hold of and rubs %This exposed nipples!",
-		"conditions":[
+	{ text : "%S exploits an opening in %T's defenses, grabs a hold of and rubs %This exposed nipples!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_exploit",
 			"targetNoUpperbody",
 			"targetNotBeast"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S exploits an opening in %T's defenses, grabs a hold of and jiggles %This %Tbsize exposed %Tbreasts around!",
-		"conditions":[
+	{ text : "%S exploits an opening in %T's defenses, grabs a hold of and jiggles %This %Tbsize exposed %Tbreasts around!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_exploit",
 			"targetNoUpperbody",
 			"targetBreasts"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
 
 
 	// action_rogue_corruptingPoison
-	{ "text":"%S poisons %T, causing a warm feeling to course throughout %This body!",
-		"conditions":[
+	{ text : "%S poisons %T, causing a warm feeling to course throughout %This body!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_corruptingPoison",
 		],
-		"audiokits":["poisonGeneric"]
+		audiokits : ["poisonGeneric"]
 	},
 
 
 	// action_rogue_dirtyTricks
-	{ "text":"%S distracts %T, allowing %Shim to attack from behind!",
-		"conditions":[
+	{ text : "%S distracts %T, allowing %Shim to attack from behind!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_dirtyTricks",
 			"targetBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S distracts %T and sneaks behind %Thim, throwing a powerful slap across %T's %Trsize %Tbutt!",
-		"conditions":[
+	{ text : "%S distracts %T and sneaks behind %Thim, throwing a powerful slap across %T's %Trsize %Tbutt!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_dirtyTricks",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S distracts %T, slipping a hand into %T's %TclothLower and a finger down %This buttcrack, tickling at %This rear!",
-		"conditions":[
+	{ text : "%S distracts %T, slipping a hand into %T's %TclothLower and a finger down %This buttcrack, tickling at %This rear!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_dirtyTricks",
 			"targetWearsLowerbody"
 		],
-		"audiokits":["tickleGeneric"]
+		audiokits : ["tickleGeneric"]
 	},
-	{ "text":"%S distracts %T, slipping a hand into %T's %TclothLower and grabs a hold of %This %Tpsize %Tpenis, rubbing the glans with %Shis index finger!",
-		"conditions":[
+	{ text : "%S distracts %T, slipping a hand into %T's %TclothLower and grabs a hold of %This %Tpsize %Tpenis, rubbing the glans with %Shis index finger!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_dirtyTricks",
 			"targetWearsLowerbody",
 			"targetPenis"
 		],
-		"audiokits":["squishTiny"]
+		audiokits : ["squishTiny"]
 	},
-	{ "text":"%S distracts %T, slipping a hand into %T's %TclothLower and rubs %This clit!",
-		"conditions":[
+	{ text : "%S distracts %T, slipping a hand into %T's %TclothLower and rubs %This clit!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_dirtyTricks",
 			"targetWearsLowerbody",
 			"targetVagina"
 		],
-		"audiokits":["squishTiny"]
+		audiokits : ["squishTiny"]
 	},
-	{ "text":"%S distracts %T, slipping a hand into %T's %TclothLower and wiggles %Shis long finger up inside %T's %Tvagina!",
-		"conditions":[
+	{ text : "%S distracts %T, slipping a hand into %T's %TclothLower and wiggles %Shis long finger up inside %T's %Tvagina!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_dirtyTricks",
 			"targetWearsLowerbody",
 			"targetVagina"
 		],
-		"audiokits":["squishTiny"]
+		audiokits : ["squishTiny"]
 	},
-	{ "text":"%S distracts %T, slipping both hands into %T's %TclothUpper and massages %This %Tnipples!",
-		"conditions":[
+	{ text : "%S distracts %T, slipping both hands into %T's %TclothUpper and massages %This %Tnipples!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_dirtyTricks",
 			"targetWearsUpperbody",
 			"targetBreasts"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%S shoves %T from behind. As %T stumbles forward, %S slips %Shis hand between %T's legs and slides %Shis fingers across %This %groin and %Tbutt!",
-		"conditions":[
+	{ text : "%S shoves %T from behind. As %T stumbles forward, %S slips %Shis hand between %T's legs and slides %Shis fingers across %This %groin and %Tbutt!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_rogue_dirtyTricks",
 			"targetVagina"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
 
 
@@ -2134,191 +2191,191 @@ const lib = [
 	// CLERIC
 
 	// action_cleric_paddling
-	{ "text":"%S whacks %T with a divine paddle!",
-		"conditions":[
+	{ text : "%S whacks %T with a divine paddle!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_paddling",
 			"targetBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S whaps %T's %Trsize %Tbutt with a divine paddle!",
-		"conditions":[
+	{ text : "%S whaps %T's %Trsize %Tbutt with a divine paddle!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_paddling",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
-	{ "text":"%S summons a divine paddle, using it to repeatedly whack %T across %This buttcheeks!",
-		"conditions":[
+	{ text : "%S summons a divine paddle, using it to repeatedly whack %T across %This buttcheeks!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_paddling",
 			"targetNotBeast"
 		],
-		"audiokits":["punchGeneric"]
+		audiokits : ["punchGeneric"]
 	},
 
 	// action_cleric_smite
-	{ "text":"%S smites %T with holy magic!",
-		"conditions":[
+	{ text : "%S smites %T with holy magic!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_smite",
 		],
-		"audiokits":["holySmite"]
+		audiokits : ["holySmite"]
 	},
 
 
 	// action_cleric_chastise
-	{ "text":"%S chastises %T with divine might!",
-		"conditions":[
+	{ text : "%S chastises %T with divine might!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_chastise",
 			"targetBeast"
 		],
-		"audiokits":["holyChastise"]
+		audiokits : ["holyChastise"]
 	},
-	{ "text":"Divine magic wraps around %T's %Tpsize %Tpenis!",
-		"conditions":[
+	{ text : "Divine magic wraps around %T's %Tpsize %Tpenis!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_chastise",
 			"targetPenis"
 		],
-		"audiokits":["holyChastise"]
+		audiokits : ["holyChastise"]
 	},
-	{ "text":"%T's %Tvagina tingles as divine magic flows across it!",
-		"conditions":[
+	{ text : "%T's %Tvagina tingles as divine magic flows across it!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_chastise",
 			"targetVagina"
 		],
-		"audiokits":["holyChastise"]
+		audiokits : ["holyChastise"]
 	},
-	{ "text":"Divine chains wrap around %T's nipples, magically restraining them!",
-		"conditions":[
+	{ text : "Divine chains wrap around %T's nipples, magically restraining them!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_chastise",
 			"targetBreasts"
 		],
-		"audiokits":["holyChastise"]
+		audiokits : ["holyChastise"]
 	},
 
 
 	// action_cleric_heal
-	{ "text":"Divine magic from %S's heal washes across %T!",
-		"conditions":[
+	{ text : "Divine magic from %S's heal washes across %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_cleric_heal",
 		],
-		"audiokits":["holyGeneric"]
+		audiokits : ["holyGeneric"]
 	},
 
 	// TENTACLEMANCER
 
 	// action_tentaclemancer_tentacleWhip
-	{ "text":"%S summons a tentacle, commanding it to lash at %T!",
-		"conditions":[
+	{ text : "%S summons a tentacle, commanding it to lash at %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_tentacleWhip",
 			"targetBeast"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
-	{ "text":"%S summons a tentacle behind %T whacking across %This %Trsize %Tbutt!",
-		"conditions":[
+	{ text : "%S summons a tentacle behind %T whacking across %This %Trsize %Tbutt!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_tentacleWhip",
 			"targetNotBeast"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
-	{ "text":"%S summons a slimy tentacle beneath %T, slapping up across %This %groin!",
+	{ text : "%S summons a slimy tentacle beneath %T, slapping up across %This %groin!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_tentacleWhip",
 			"targetNotBeast"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
-	{ "text":"%S summons a slimy tentacle beneath %T, giving %This %Tpsize %Tpenis a couple of lashes!",
-		"conditions":[
+	{ text : "%S summons a slimy tentacle beneath %T, giving %This %Tpsize %Tpenis a couple of lashes!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_tentacleWhip",
 			"targetPenis",
 			"targetNoLowerbody"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
-	{ "text":"%S summons a slimy tentacle behind %T, lashing across %This %Trsize %leftright buttcheek!",
-		"conditions":[
+	{ text : "%S summons a slimy tentacle behind %T, lashing across %This %Trsize %leftright buttcheek!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_tentacleWhip",
 			"targetNotBeast"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
-	{ "text":"%S summons a slimy tentacle near %T, lashing across %This %Tbsize %leftright %Tbreast!",
+	{ text : "%S summons a slimy tentacle near %T, lashing across %This %Tbsize %leftright %Tbreast!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_tentacleWhip",
 			"targetBreasts",
 			"targetUpperbodyHard"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
-	{ "text":"%S summons a slimy tentacle near %T, giving a jiggling lash across %This %Tbsize %leftright %Tbreast!",
+	{ text : "%S summons a slimy tentacle near %T, giving a jiggling lash across %This %Tbsize %leftright %Tbreast!",
 		"armor_slot":"upperbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_tentacleWhip",
 			"targetBreasts",
 			"targetUpperbodyNotHard"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
-	{ "text":"%S summons a slimy tentacle beneath %T, smacking %This %Tpsize %Tpenis around!",
+	{ text : "%S summons a slimy tentacle beneath %T, smacking %This %Tpsize %Tpenis around!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_tentacleWhip",
 			"targetPenis",
 			"targetLowerbodyNotHard"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
 
 	// action_tentaclemancer_corruptingOoze
-	{ "text":"%S flings a purple bolt of sludge at %T, coating %This body!",
-		"conditions":[
+	{ text : "%S flings a purple bolt of sludge at %T, coating %This body!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_corruptingOoze",
 			"targetNoLowerbody",
 			"targetNoUpperbody"
 		],
-		"audiokits":["tentacleSuction"]
+		audiokits : ["tentacleSuction"]
 	},
-	{ "text":"%S flings a purple bolt of sludge at %T, slipping into %This outfit!",
-		"conditions":[
+	{ text : "%S flings a purple bolt of sludge at %T, slipping into %This outfit!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_corruptingOoze",
@@ -2327,10 +2384,10 @@ const lib = [
 				"targetWearsUpperbody"
 			]
 		],
-		"audiokits":["tentacleSuction"]
+		audiokits : ["tentacleSuction"]
 	},
-	{ "text":"The corrupting ooze constricts around %T's body, immobilizing %Thim!",
-		"conditions":[
+	{ text : "The corrupting ooze constricts around %T's body, immobilizing %Thim!",
+		conditions : [
 			"eventIsEffectTrigger",
 			{
 				"type":"effectLabel",
@@ -2340,41 +2397,41 @@ const lib = [
 				"targnr":0
 			}
 		],
-		"audiokits":["tentacleStretch"]
+		audiokits : ["tentacleStretch"]
 	},
 
 
 	// action_tentaclemancer_siphonCorruption
-	{ "text":"The living ooze wiggles around %T's body, allowing %S to absorb its energy!",
-		"conditions":[
+	{ text : "The living ooze wiggles around %T's body, allowing %S to absorb its energy!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_siphonCorruption",
 			"targetBeast"]
 	},
-	{ "text":"The living ooze attached to %T protrudes into %This %Tbutt, causing a warm sensation as it wiggles and bubbles inside! %S absorbs energy from the stimulation.",
-		"conditions":[
+	{ text : "The living ooze attached to %T protrudes into %This %Tbutt, causing a warm sensation as it wiggles and bubbles inside! %S absorbs energy from the stimulation.",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_siphonCorruption",
 			"targetNotBeast"]
 	},
-	{ "text":"The living ooze attached to %T protrudes into %This %Tvagina, causing a warm sensation as it wriggles and bubbles inside %Thim! %S absorbs energy from the stimulation.",
-		"conditions":[
+	{ text : "The living ooze attached to %T protrudes into %This %Tvagina, causing a warm sensation as it wriggles and bubbles inside %Thim! %S absorbs energy from the stimulation.",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_siphonCorruption",
 			"targetVagina"]
 	},
-	{ "text":"The living ooze attached to %T wraps around %This %Tpenis, causing a warm sensation as it wriggles and bubbles! %S absorbs energy from the stimulation.",
-		"conditions":[
+	{ text : "The living ooze attached to %T wraps around %This %Tpenis, causing a warm sensation as it wriggles and bubbles! %S absorbs energy from the stimulation.",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_siphonCorruption",
 			"targetPenis"]
 	},
-	{ "text":"The living ooze attached to %T wraps around %This nipples, causing a tingling senation as it wriggles and bubbles! %S absorbs energy from the stimulation.",
-		"conditions":[
+	{ text : "The living ooze attached to %T wraps around %This nipples, causing a tingling senation as it wriggles and bubbles! %S absorbs energy from the stimulation.",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentaclemancer_siphonCorruption",
@@ -2388,55 +2445,55 @@ const lib = [
 
 	// MONK
 	// action_monk_roundKick
-	{ "text":"%S spins around, throwing a rapid kick at %T!",
-		"conditions":[
+	{ text : "%S spins around, throwing a rapid kick at %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_monk_roundKick",
 		],
-		"audiokits":["monkKick"]
+		audiokits : ["monkKick"]
 	},
-	{ "text":"%T spins around, attempting a rapid kick at %S, but %S ducks underneath and throws a rapid jab at %T's %groin!",
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and throws a rapid jab at %T's %groin!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsRiposte",
 			"action_monk_roundKick",
 			"senderNotBeast"
 		],
-		"audiokits":["monkKick"]
+		audiokits : ["monkKick"]
 	},
-	{ "text":"%T spins around, attempting a rapid kick at %S, but %S ducks underneath and swipes %Shis palm right across %T's %groin!",
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and swipes %Shis palm right across %T's %groin!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsRiposte",
 			"action_monk_roundKick",
 			"senderNotBeast"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%T spins around, attempting a rapid kick at %S, but %S ducks underneath and smacks %Shis palm right across %T's %Trsize %Tbutt!",
-		"conditions":[
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and smacks %Shis palm right across %T's %Trsize %Tbutt!",
+		conditions : [
 			"actionHit",
 			"eventIsRiposte",
 			"action_monk_roundKick",
 			"senderNotBeast"
 		],
-		"audiokits":["slapGeneric"]
+		audiokits : ["slapGeneric"]
 	},
-	{ "text":"%T spins around, attempting a rapid kick at %S, but %S ducks underneath, forcing %Shis hand between %T's legs, rapidly rubbing %This %Tvagina!",
-		"conditions":[
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath, forcing %Shis hand between %T's legs, rapidly rubbing %This %Tvagina!",
+		conditions : [
 			"actionHit",
 			"eventIsRiposte",
 			"action_monk_roundKick",
 			"senderNotBeast",
 			"targetVagina"
 		],
-		"audiokits":["squishTiny"]
+		audiokits : ["squishTiny"]
 	},
-	{ "text":"%T spins around, attempting a rapid kick at %S, but %S ducks underneath, grabbing a hold of and squeezing %This package!",
-		"conditions":[
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath, grabbing a hold of and squeezing %This package!",
+		conditions : [
 			"actionHit",
 			"eventIsRiposte",
 			"action_monk_roundKick",
@@ -2444,10 +2501,10 @@ const lib = [
 			"targetPenis",
 			"targetLowerbodyNotHard"
 		],
-		"audiokits":["squeezeGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
-	{ "text":"%T spins around, attempting a rapid kick at %S, but %S ducks underneath and thrusts a few fingers inside %T's %Tvagina, briefly wiggling them around!",
-		"conditions":[
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and thrusts a few fingers inside %T's %Tvagina, briefly wiggling them around!",
+		conditions : [
 			"actionHit",
 			"eventIsRiposte",
 			"action_monk_roundKick",
@@ -2455,21 +2512,21 @@ const lib = [
 			"targetVagina",
 			"targetNoLowerbody"
 		],
-		"audiokits":["squishTiny"]
+		audiokits : ["squishTiny"]
 	},
-	{ "text":"%T spins around, attempting a rapid kick at %S. But %S ducks under and lashes %T's exposed %groin with a tentacle!",
+	{ text : "%T spins around, attempting a rapid kick at %S. But %S ducks under and lashes %T's exposed %groin with a tentacle!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsRiposte",
 			"action_monk_roundKick",
 			"senderHasTentacles"
 		],
-		"audiokits":["tentacleWhip"]
+		audiokits : ["tentacleWhip"]
 	},
-	{ "text":"%T spins around attempting a rapid kick at %S. But %S ducks under and thrusts a tentacle up inside %T's exposed %Tvagina!",
+	{ text : "%T spins around attempting a rapid kick at %S. But %S ducks under and thrusts a tentacle up inside %T's exposed %Tvagina!",
 		"armor_slot":"lowerbody",
-		"conditions":[
+		conditions : [
 			"actionHit",
 			"eventIsRiposte",
 			"action_monk_roundKick",
@@ -2477,68 +2534,68 @@ const lib = [
 			"targetNoLowerbody",
 			"targetVagina"
 		],
-		"audiokits":["gooRub"]
+		audiokits : ["gooRub"]
 	},
 
 
 	// action_monk_disablingStrike
-	{ "text":"%S lands a mystical touch on %T, lowering their physical ability!",
-		"conditions":[
+	{ text : "%S lands a mystical touch on %T, lowering their physical ability!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_monk_disablingStrike",
 		],
-		"audiokits":["darkPunch"]
+		audiokits : ["darkPunch"]
 	},
 
 	// action_monk_upliftingStrike
-	{ "text":"%S throws a mystical strike at %T, allowing some chi to slip out and surround a nearby ally!",
-		"conditions":[
+	{ text : "%S throws a mystical strike at %T, allowing some chi to slip out and surround a nearby ally!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_monk_upliftingStrike",
 		],
-		"audiokits":["healingPunch"]
+		audiokits : ["healingPunch"]
 	},
 
 
 	// action_elementalist_iceBlast
-	{ "text":"%S sends a chilling blast across %T!",
-		"conditions":[
+	{ text : "%S sends a chilling blast across %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_elementalist_iceBlast",
 		],
-		"audiokits":["coldBlast"]
+		audiokits : ["coldBlast"]
 	},
-	{ "text":"%S sends a chilling blast across %T's %Tbreasts, hardening %This nipples!",
-		"conditions":[
+	{ text : "%S sends a chilling blast across %T's %Tbreasts, hardening %This nipples!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_elementalist_iceBlast",
 			"targetBreasts"
 		],
-		"audiokits":["coldBlast"]
+		audiokits : ["coldBlast"]
 	},
 
 	// action_elementalist_healingSurge
-	{ "text":"%S summons a splash of healing water that flows across %T's body!",
-		"conditions":[
+	{ text : "%S summons a splash of healing water that flows across %T's body!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_elementalist_healingSurge",
 		],
-		"audiokits":["waterHealing"]
+		audiokits : ["waterHealing"]
 	},
 
 	// action_elementalist_waterSpout
-	{ "text":"%S summons a water spout beneath %T!",
-		"conditions":[
+	{ text : "%S summons a water spout beneath %T!",
+		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_elementalist_waterSpout",
 		],
-		"audiokits":["waterSpell"]
+		audiokits : ["waterSpell"]
 	}
 ];
 

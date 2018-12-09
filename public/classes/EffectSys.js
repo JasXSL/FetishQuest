@@ -5,6 +5,7 @@ import stdTag from '../libraries/stdTag.js';
 import Action from './Action.js';
 import Calculator from './Calculator.js';
 import Player from './Player.js';
+import Asset from './Asset.js';
 
 /*
 	A wrapper is a container for multiple effects
@@ -807,7 +808,8 @@ class Effect extends Generic{
 
 				let slots = this.data.slots;
 				if( typeof slots !== "string" && !Array.isArray(slots) )
-					return;
+					slots = [Asset.Slots.upperbody, Asset.Slots.lowerbody];
+					
 				if( !Array.isArray(slots) )
 					slots = [slots];
 				let max = this.data.numSlots;
@@ -921,6 +923,8 @@ class Effect extends Generic{
 					continue;
 
 				let slots = this.data.slots;
+				if( !slots )
+					slots = [Asset.Slots.upperbody, Asset.Slots.lowerbody];
 				if( !Array.isArray(slots) )
 					slots = [slots];
 

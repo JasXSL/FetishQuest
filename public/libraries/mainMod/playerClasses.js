@@ -194,15 +194,7 @@ const lib = {
     },
     "imp": {
         "name": "Imp",
-        "primaryStat": "intellect",
-        "svPhysical": 0,
-        "svElemental": 0,
-        "svHoly": 0,
-        "svCorruption": 0,
-        "bonPhysical": 0,
-        "bonElemental": 0,
-        "bonHoly": 0,
-        "bonCorruption": 0,
+        "primaryStat": Player.primaryStats.intellect,
         "description": "",
         "label": "imp",
         "isMonsterClass": true,
@@ -212,7 +204,8 @@ const lib = {
             "imp_ankleBite",
             "imp_demonicPinch",
             "whip_legLash",
-            "whip_powerLash"
+			"whip_powerLash",
+			"imp_claws",
         ]
     }
 };

@@ -1,47 +1,59 @@
+import Action from "../../classes/Action.js";
+import stdTag from "../stdTag.js";
+import { Wrapper, Effect } from "../../classes/EffectSys.js";
+import Asset from "../../classes/Asset.js";
+import GameEvent from "../../classes/GameEvent.js";
+import Player from "../../classes/Player.js";
+import C from './conditions.js';
+
+
+// Standard wrapper conditions
+const stdCond = ["targetAlive","senderNotDead","targetNotDead"];
+
 const lib = {
 	"stdAttack": {
-		"name": "Attack",
-		"description": "Deals 4 physical damage. Shares cooldown with Arouse on successful attacks.",
-		"ap": 2,
-		"cooldown": 1,
-		"show_conditions": [
+		name : "Attack",
+		description : "Deals 4 physical damage. Shares cooldown with Arouse on successful attacks.",
+		ap : 2,
+		cooldown : 1,
+		show_conditions : [
 			"inCombat"
 		],
-		"tags": [
+		tags : [
 			"ac_damage",
 			"ac_painful"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 4
 						}
 					},
 					{
-						"targets": [
+						targets : [
 							"CASTER"
 						],
-						"type": "addActionCharges",
-						"data": {
+						type : "addActionCharges",
+						data : {
 							"actions": "stdArouse",
 							"amount": -1
 						}
@@ -52,49 +64,49 @@ const lib = {
 		]
 	},
 	"stdArouse": {
-		"name": "Arouse",
-		"description": "Deals 4 corruption damage. Shares cooldown with Attack on successful attacks.",
-		"ap": 2,
-		"cooldown": 1,
-		"type": "Corruption",
-		"show_conditions": [
+		name : "Arouse",
+		description : "Deals 4 corruption damage. Shares cooldown with Attack on successful attacks.",
+		ap : 2,
+		cooldown : 1,
+		type : "Corruption",
+		show_conditions : [
 			"inCombat"
 		],
-		"tags": [
+		tags : [
 			"ac_damage",
 			"ac_arousing"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 4
 						}
 					},
 					{
-						"targets": [
+						targets : [
 							"CASTER"
 						],
-						"type": "addActionCharges",
-						"data": {
+						type : "addActionCharges",
+						data : {
 							"actions": "stdAttack",
 							"amount": -1
 						}
@@ -105,192 +117,192 @@ const lib = {
 		]
 	},
 	"stdEndTurn": {
-		"name": "End Turn",
-		"description": "End your turn.",
-		"ap": 0,
-		"cooldown": 0,
-		"detrimental": false,
+		name : "End Turn",
+		description : "End your turn.",
+		ap : 0,
+		cooldown : 0,
+		detrimental : false,
 		"hidden": true,
 		"allow_when_charging": true,
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [],
-				"stay_conditions": [],
-				"effects": [
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [],
+				stay_conditions : [],
+				effects : [
 					{
-						"type": "endTurn"
+						type : "endTurn"
 					}
 				]
 			}
 		]
 	},
 	"stdEscape": {
-		"name": "Escape",
-		"description": "Flee from combat.",
-		"ap": 0,
-		"cooldown": 1,
-		"detrimental": false,
+		name : "Escape",
+		description : "Flee from combat.",
+		ap : 0,
+		cooldown : 1,
+		detrimental : false,
 		"hidden": true,
 		"allow_when_charging": true,
-		"wrappers": [
+		wrappers : [
 			{
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [],
-				"stay_conditions": [],
-				"effects": [
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [],
+				stay_conditions : [],
+				effects : [
 					{
-						"type": "flee"
+						type : "flee"
 					}
 				]
 			}
 		]
 	},
 	"stdPunishDom": {
-		"name": "Punish Dominant",
-		"description": "Use a dominant punishment on a defeated enemy.",
-		"ap": 0,
-		"cooldown": 0,
+		name : "Punish Dominant",
+		description : "Use a dominant punishment on a defeated enemy.",
+		ap : 0,
+		cooldown : 0,
 		"semi_hidden": true,
-		"detrimental": false,
+		detrimental : false,
 		"allow_when_charging": true,
-		"show_conditions": [
+		show_conditions : [
 			"notInCombat",
 			"senderHasNotPunished"
 		],
 		"hide_if_no_targets": true,
-		"wrappers": [
+		wrappers : [
 			{
-				"add_conditions": [
+				add_conditions : [
 					"targetDead",
 					"senderNotDead",
 					"targetNotFriendly"
 				],
-				"effects": [
+				effects : [
 					{
-						"targets": [
+						targets : [
 							"CASTER"
 						],
-						"type": "punishmentUsed"
+						type : "punishmentUsed"
 					},
 					"visTargTakeDamageCorruption"
 				],
-				"detrimental": false
+				detrimental : false
 			}
 		]
 	},
 	"stdPunishSub": {
-		"name": "Punish Submissive",
-		"description": "Use a submissive punishment on a defeated enemy.",
-		"ap": 0,
-		"cooldown": 0,
+		name : "Punish Submissive",
+		description : "Use a submissive punishment on a defeated enemy.",
+		ap : 0,
+		cooldown : 0,
 		"semi_hidden": true,
-		"detrimental": false,
+		detrimental : false,
 		"allow_when_charging": true,
-		"show_conditions": [
+		show_conditions : [
 			"notInCombat",
 			"senderHasNotPunished"
 		],
 		"hide_if_no_targets": true,
-		"wrappers": [
+		wrappers : [
 			{
-				"add_conditions": [
+				add_conditions : [
 					"targetDead",
 					"senderNotDead",
 					"targetNotFriendly"
 				],
-				"effects": [
+				effects : [
 					{
-						"targets": [
+						targets : [
 							"CASTER"
 						],
-						"type": "punishmentUsed"
+						type : "punishmentUsed"
 					},
 					"visTargTakeDamageCorruption"
 				],
-				"detrimental": false
+				detrimental : false
 			}
 		]
 	},
 	"stdPunishSad": {
-		"name": "Punish Sadistic",
-		"description": "Use a sadistic punishment on a defeated enemy.",
-		"ap": 0,
-		"cooldown": 0,
+		name : "Punish Sadistic",
+		description : "Use a sadistic punishment on a defeated enemy.",
+		ap : 0,
+		cooldown : 0,
 		"semi_hidden": true,
-		"detrimental": false,
+		detrimental : false,
 		"allow_when_charging": true,
-		"show_conditions": [
+		show_conditions : [
 			"notInCombat",
 			"senderHasNotPunished"
 		],
 		"hide_if_no_targets": true,
-		"wrappers": [
+		wrappers : [
 			{
-				"add_conditions": [
+				add_conditions : [
 					"targetDead",
 					"senderNotDead",
 					"targetNotFriendly"
 				],
-				"effects": [
+				effects : [
 					{
-						"targets": [
+						targets : [
 							"CASTER"
 						],
-						"type": "punishmentUsed"
+						type : "punishmentUsed"
 					},
 					"visTargTakeDamage"
 				],
-				"detrimental": false
+				detrimental : false
 			}
 		]
 	},
 	"lowBlow": {
 		"level": 1,
-		"name": "Low Blow",
-		"description": "Fight dishonorably. Deals 5 damage and interrupts any active charged actions your opponent is readying.",
-		"ap": 3,
-		"cooldown": 3,
-		"tags": [
+		name : "Low Blow",
+		description : "Fight dishonorably. Deals 5 damage and interrupts any active charged actions your opponent is readying.",
+		ap : 3,
+		cooldown : 3,
+		tags : [
 			"ac_damage",
 			"ac_painful"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 5
 						}
 					},
 					{
-						"type": "interrupt"
+						type : "interrupt"
 					},
 					"visTargTakeDamage"
 				]
@@ -301,50 +313,50 @@ const lib = {
 	// Elementalist
 	"elementalist_iceBlast": {
 		"level": 1,
-		"name": "Ice Blast",
+		name : "Ice Blast",
 		"ranged": true,
-		"description": "Blast your opponent with frost, dealing 6 elemental damage, plus 1 AP damage if your target is soaked.",
-		"ap": 2,
-		"mp": 1,
-		"type": "Elemental",
-		"cooldown": 1,
-		"tags": [
+		description : "Blast your opponent with frost, dealing 6 elemental damage, plus 1 AP damage if your target is soaked.",
+		ap : 2,
+		mp : 1,
+		type : "Elemental",
+		cooldown : 1,
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 6
 						}
 					},
 					{
-						"type": "addAP",
-						"data": {
+						type : "addAP",
+						data : {
 							"amount": -1
 						},
-						"conditions": [
+						conditions : [
 							"targetSoaked"
 						]
 					},
@@ -355,43 +367,43 @@ const lib = {
 	},
 	"elementalist_healingSurge": {
 		"level": 2,
-		"name": "Healing Surge",
-		"description": "Restores 8 HP to your target. Also heals 2 HP at the start of their turn for 3 turns.",
-		"ap": 1,
-		"mp": 2,
+		name : "Healing Surge",
+		description : "Restores 8 HP to your target. Also heals 2 HP at the start of their turn for 3 turns.",
+		ap : 1,
+		mp : 2,
 		"ranged": true,
-		"cooldown": 1,
+		cooldown : 1,
 		"charges": 2,
-		"detrimental": false,
-		"type": "Elemental",
-		"tags": [
+		detrimental : false,
+		type : "Elemental",
+		tags : [
 			"ac_heal"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": false,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : false,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": -8
 						}
 					},
@@ -399,26 +411,26 @@ const lib = {
 				]
 			},
 			{
-				"target": "VICTIM",
-				"duration": 3,
-				"name": "Healing Surge",
-				"icon": "wave-crest",
-				"description": "Healing at the start of each turn.",
-				"detrimental": false,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 3,
+				name : "Healing Surge",
+				icon : "wave-crest",
+				description : "Healing at the start of each turn.",
+				detrimental : false,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": -2
 						}
 					}
@@ -428,80 +440,80 @@ const lib = {
 	},
 	"elementalist_waterSpout": {
 		"level": 3,
-		"name": "Water Spout",
-		"description": "Places a water spout under your target for 1 turn. The spout activates when the target uses an action, soaking them and reducing their elemental resistance by 2, and restores 1 MP to the caster. Stacks 3 times.",
-		"ap": 2,
-		"mp": 1,
-		"cooldown": 2,
+		name : "Water Spout",
+		description : "Places a water spout under your target for 1 turn. The spout activates when the target uses an action, soaking them and reducing their elemental resistance by 2, and restores 1 MP to the caster. Stacks 3 times.",
+		ap : 2,
+		mp : 1,
+		cooldown : 2,
 		"ranged": true,
-		"detrimental": true,
-		"type": "Elemental",
-		"tags": [
+		detrimental : true,
+		type : "Elemental",
+		tags : [
 			"ac_debuff"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"duration": 1,
-				"name": "Water Spout",
-				"icon": "droplet-splash",
-				"description": "Actions will debuff the target and restore MP to the caster.",
-				"detrimental": true,
-				"add_conditions": [
+				duration : 1,
+				name : "Water Spout",
+				icon : "droplet-splash",
+				description : "Actions will debuff the target and restore MP to the caster.",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "runWrappers",
-						"events": [
+						type : "runWrappers",
+						events : [
 							"actionUsed"
 						],
-						"conditions": [
+						conditions : [
 							"senderIsWrapperParent",
 							"actionNotHidden"
 						],
-						"data": {
-							"wrappers": [
+						data : {
+							wrappers : [
 								"soak"
 							]
 						},
-						"label": "elementalistWaterSpout_proc"
+						label : "elementalistWaterSpout_proc"
 					},
 					{
-						"targets": [
+						targets : [
 							"CASTER"
 						],
-						"type": "addMP",
-						"events": [
+						type : "addMP",
+						events : [
 							"actionUsed"
 						],
-						"conditions": [
+						conditions : [
 							"senderIsWrapperParent",
 							"actionNotHidden"
 						],
-						"data": {
+						data : {
 							"amount": 1
 						}
 					}
 				]
 			},
 			{
-				"detrimental": false,
-				"add_conditions": [
+				detrimental : false,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					"visTargTakeDamageElemental"
 				]
 			}
@@ -511,40 +523,40 @@ const lib = {
 	// Rogue
 	"rogue_exploit": {
 		"level": 1,
-		"name": "Exploit",
-		"description": "Deals 4 physical damage plus another 2 per slot of upperbody and/or lowerbody armor missing from your target.",
-		"ap": 2,
-		"mp": 0,
-		"type": "Physical",
-		"cooldown": 1,
-		"tags": [
+		name : "Exploit",
+		description : "Deals 4 physical damage plus another 2 per slot of upperbody and/or lowerbody armor missing from your target.",
+		ap : 2,
+		mp : 0,
+		type : "Physical",
+		cooldown : 1,
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "8-ta_lowerbody*2-ta_upperbody*2"
 						}
 					},
@@ -555,65 +567,65 @@ const lib = {
 	},
 	"rogue_corruptingPoison": {
 		"level": 2,
-		"name": "Corrupting Poison",
-		"description": "Inflicts your target with a corrupting poison, dealing 2 corruption damage at the start of their turn for 3 turns, and reduces corruption resist by 4.",
-		"ap": 2,
-		"mp": 2,
-		"type": "Physical",
-		"cooldown": 1,
+		name : "Corrupting Poison",
+		description : "Inflicts your target with a corrupting poison, dealing 2 corruption damage at the start of their turn for 3 turns, and reduces corruption resist by 4.",
+		ap : 2,
+		mp : 2,
+		type : "Physical",
+		cooldown : 1,
 		"charges": 2,
-		"tags": [
+		tags : [
 			"ac_damage",
 			"ac_debuff"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					"visTargTakeDamage"
 				]
 			},
 			{
-				"target": "VICTIM",
-				"duration": 3,
-				"name": "Corrupting Poison",
-				"icon": "poison-bottle",
-				"description": "Taking corruption damage each turn. Corruption resist reduced.",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 3,
+				name : "Corrupting Poison",
+				icon : "poison-bottle",
+				description : "Taking corruption damage each turn. Corruption resist reduced.",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 2,
-							"type": "Corruption"
+							type : "Corruption"
 						}
 					},
 					{
-						"type": "svCorruption",
-						"data": {
+						type : "svCorruption",
+						data : {
 							"amount": -4
 						}
 					}
@@ -623,51 +635,51 @@ const lib = {
 	},
 	"rogue_dirtyTricks": {
 		"level": 3,
-		"name": "Dirty Tricks",
-		"description": "Use a dirty trick on your target, doing 8 corruption damage. Has a 5% chance per corruption advantage to unequip their lower or upperbody armor.",
-		"ap": 2,
-		"mp": 3,
-		"type": "Corruption",
-		"cooldown": 3,
-		"tags": [
+		name : "Dirty Tricks",
+		description : "Use a dirty trick on your target, doing 8 corruption damage. Has a 5% chance per corruption advantage to unequip their lower or upperbody armor.",
+		ap : 2,
+		mp : 3,
+		type : "Corruption",
+		cooldown : 3,
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 8
 						}
 					},
 					{
-						"type": "disrobe",
-						"data": {
+						type : "disrobe",
+						data : {
 							"slots": [
 								"lowerbody",
 								"upperbody"
 							],
 							"numSlots": 1
 						},
-						"conditions": [
+						conditions : [
 							{
-								"type": "rng",
-								"data": {
+								type : "rng",
+								data : {
 									"chance": "5*(se_BonCorruption-ta_SvCorruption)"
 								}
 							}
@@ -682,36 +694,36 @@ const lib = {
 	// Cleric
 	"cleric_smite": {
 		"level": 1,
-		"name": "Smite",
-		"description": "Smites your opponent for 4 holy damage, increased by 10% per corruption damage your target dealt last turn, up to 15 damage.",
-		"ap": 1,
-		"mp": 1,
-		"type": "Holy",
-		"cooldown": 1,
+		name : "Smite",
+		description : "Smites your opponent for 4 holy damage, increased by 10% per corruption damage your target dealt last turn, up to 15 damage.",
+		ap : 1,
+		mp : 1,
+		type : "Holy",
+		cooldown : 1,
 		"ranged": true,
-		"tags": [
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "4*(1+min(ta_damageDoneSinceLastCorruption*0.1,3.75))"
 						}
 					},
@@ -722,70 +734,70 @@ const lib = {
 	},
 	"cleric_chastise": {
 		"level": 2,
-		"name": "Chastise",
-		"description": "Chastises up to 2 targets, dealing 3 holy damage every time they use a damaging action until the end of their next turn and reducing all their damage done by 1.",
-		"ap": 1,
-		"mp": 1,
-		"max_targets": 2,
+		name : "Chastise",
+		description : "Chastises up to 2 targets, dealing 3 holy damage every time they use a damaging action until the end of their next turn and reducing all their damage done by 1.",
+		ap : 1,
+		mp : 1,
+		max_targets : 2,
 		"ranged": true,
-		"type": "Holy",
-		"cooldown": 2,
-		"tags": [
+		type : "Holy",
+		cooldown : 2,
+		tags : [
 			"ac_debuff"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 1,
-				"name": "Chastise",
-				"icon": "holy-hand-grenade",
-				"description": "Using damaging actions deals 3 holy damage back to the caster. Damage done reduced by 1.",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 1,
+				name : "Chastise",
+				icon : "holy-hand-grenade",
+				description : "Using damaging actions deals 3 holy damage back to the caster. Damage done reduced by 1.",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"events": [
+						type : "damage",
+						events : [
 							"actionUsed"
 						],
-						"conditions": [
+						conditions : [
 							"senderIsWrapperParent",
 							"actionNotHidden",
 							"actionDamaging"
 						],
-						"data": {
+						data : {
 							"amount": 3
 						},
-						"label": "cleric_chastise_proc"
+						label : "cleric_chastise_proc"
 					},
 					{
-						"type": "globalDamageDoneMod",
-						"data": {
+						type : "globalDamageDoneMod",
+						data : {
 							"amount": -1
 						}
 					}
 				]
 			},
 			{
-				"add_conditions": [
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"detrimental": true,
-				"effects": [
+				detrimental : true,
+				effects : [
 					"visTargTakeDamageHoly"
 				]
 			}
@@ -793,38 +805,38 @@ const lib = {
 	},
 	"cleric_heal": {
 		"level": 3,
-		"name": "Heal",
+		name : "Heal",
 		"ranged": true,
-		"description": "Restores 4 HP, plus an additional 4 if your target's max health is less than 50%",
-		"ap": 2,
-		"mp": 2,
-		"type": "Holy",
-		"cooldown": 1,
+		description : "Restores 4 HP, plus an additional 4 if your target's max health is less than 50%",
+		ap : 2,
+		mp : 2,
+		type : "Holy",
+		cooldown : 1,
 		"charges": 3,
-		"detrimental": false,
-		"tags": [
+		detrimental : false,
+		tags : [
 			"ac_heal"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": ".",
-				"detrimental": false,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : ".",
+				detrimental : false,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "-4-(ta_HP<(ta_MaxHP/2))*4"
 						}
 					},
@@ -837,36 +849,36 @@ const lib = {
 	// Tentaclemancer
 	"tentaclemancer_tentacleWhip": {
 		"level": 1,
-		"name": "Tentacle Whip",
-		"description": "Deals 4 physical damage. 6 if your target is affected by corrupting ooze.",
-		"ap": 2,
-		"mp": 0,
+		name : "Tentacle Whip",
+		description : "Deals 4 physical damage. 6 if your target is affected by corrupting ooze.",
+		ap : 2,
+		mp : 0,
 		"ranged": true,
-		"type": "Physical",
-		"cooldown": 1,
-		"tags": [
+		type : "Physical",
+		cooldown : 1,
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "4+ta_Tag_wr_corrupting_ooze*2"
 						}
 					},
@@ -877,28 +889,28 @@ const lib = {
 	},
 	"tentaclemancer_corruptingOoze": {
 		"level": 2,
-		"name": "Corrupting Ooze",
-		"description": "Adds a stack of corrupting ooze on your target. Corrupting ooze lowers their corruption resistance by 1 per stack, and at the start of the affected players turn an additional stack is added. If it goes over 5 stacks, the target gets stunned for 1 turn.",
-		"ap": 1,
-		"mp": 2,
-		"type": "Corruption",
-		"cooldown": 0,
+		name : "Corrupting Ooze",
+		description : "Adds a stack of corrupting ooze on your target. Corrupting ooze lowers their corruption resistance by 1 per stack, and at the start of the affected players turn an additional stack is added. If it goes over 5 stacks, the target gets stunned for 1 turn.",
+		ap : 1,
+		mp : 2,
+		type : "Corruption",
+		cooldown : 0,
 		"ranged": true,
-		"tags": [
+		tags : [
 			"ac_debuff"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			"corruptingOoze",
 			{
-				"add_conditions": [
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					"visTargTakeDamageCorruption"
 				]
 			}
@@ -906,54 +918,54 @@ const lib = {
 	},
 	"tentaclemancer_siphonCorruption": {
 		"level": 3,
-		"name": "Siphon Corruption",
-		"description": "Consumes all charges of corrupting ooze on your target, dealing damage equal to 2x the amount of stacks consumed, and healing you for the same amount.",
-		"ap": 1,
-		"mp": 1,
-		"type": "Corruption",
+		name : "Siphon Corruption",
+		description : "Consumes all charges of corrupting ooze on your target, dealing damage equal to 2x the amount of stacks consumed, and healing you for the same amount.",
+		ap : 1,
+		mp : 1,
+		type : "Corruption",
 		"hit_chance": 90,
-		"cooldown": 3,
+		cooldown : 3,
 		"ranged": true,
-		"tags": [
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"add_conditions": [
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
 					{
-						"type": "hasWrapper",
-						"data": {
-							"label": "corruptingOoze",
+						type : "hasWrapper",
+						data : {
+							label : "corruptingOoze",
 							"byCaster": true
 						}
 					}
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "ta_Wrapper_corruptingOoze*2"
 						}
 					},
 					{
-						"targets": [
+						targets : [
 							"CASTER"
 						],
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "-se_Wrapper_corruptingOoze*2"
 						}
 					},
 					{
-						"type": "removeWrapperByLabel",
-						"data": {
-							"label": "corruptingOoze",
+						type : "removeWrapperByLabel",
+						data : {
+							label : "corruptingOoze",
 							"casterOnly": true
 						}
 					},
@@ -966,35 +978,35 @@ const lib = {
 	// Warrior
 	"warrior_revenge": {
 		"level": 1,
-		"name": "Revenge",
-		"description": "Deals 2 damage to an opponent plus 2 for every damaging effect you were a victim of since your last turn.",
-		"ap": 2,
-		"cooldown": 1,
-		"tags": [
+		name : "Revenge",
+		description : "Deals 2 damage to an opponent plus 2 for every damaging effect you were a victim of since your last turn.",
+		ap : 2,
+		cooldown : 1,
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "2+se_damagingReceivedSinceLast*2",
 							"threatMod": 4
 						}
@@ -1006,63 +1018,63 @@ const lib = {
 	},
 	"warrior_bolster": {
 		"level": 2,
-		"name": "Bolster",
-		"description": "Reduces your damage taken by 2 for one turn and clears 20% of your arousal. Taking damage while this effect is active grants the caster 1 AP.",
-		"ap": 1,
-		"mp": 1,
-		"cooldown": 2,
-		"tags": [
+		name : "Bolster",
+		description : "Reduces your damage taken by 2 for one turn and clears 20% of your arousal. Taking damage while this effect is active grants the caster 1 AP.",
+		ap : 1,
+		mp : 1,
+		cooldown : 2,
+		tags : [
 			"ac_buff"
 		],
-		"detrimental": false,
+		detrimental : false,
 		"target_type": "self",
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"duration": 1,
-				"name": "Bolster",
-				"icon": "bolster",
-				"description": "-2 damage taken from all attacks. Taking damage grants you AP.",
-				"detrimental": false,
-				"add_conditions": [
+				duration : 1,
+				name : "Bolster",
+				icon : "bolster",
+				description : "-2 damage taken from all attacks. Taking damage grants you AP.",
+				detrimental : false,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "globalDamageTakenMod",
-						"data": {
+						type : "globalDamageTakenMod",
+						data : {
 							"amount": -2
 						}
 					},
 					{
-						"events": [
+						events : [
 							"internalWrapperAdded"
 						],
-						"type": "addArousal",
-						"data": {
+						type : "addArousal",
+						data : {
 							"amount": -2
 						}
 					},
 					{
-						"type": "addAP",
-						"events": [
+						type : "addAP",
+						events : [
 							"actionUsed"
 						],
-						"conditions": [
+						conditions : [
 							"targetIsWrapperParent",
 							"actionHit",
 							"actionDamaging"
 						],
-						"data": {
+						data : {
 							"amount": 1
 						}
 					},
@@ -1073,69 +1085,69 @@ const lib = {
 	},
 	"warrior_viceGrip": {
 		"level": 3,
-		"name": "Vice Grip",
-		"description": "Grabs up to two targets and squeezes, dealing 4 damage and preventing them from attacking any other targets for 1 turn, and ends your turn.",
-		"ap": 3,
-		"mp": 0,
-		"cooldown": 2,
-		"max_targets": 2,
-		"tags": [
+		name : "Vice Grip",
+		description : "Grabs up to two targets and squeezes, dealing 4 damage and preventing them from attacking any other targets for 1 turn, and ends your turn.",
+		ap : 3,
+		mp : 0,
+		cooldown : 2,
+		max_targets : 2,
+		tags : [
 			"ac_taunt",
 			"ac_damage"
 		],
-		"detrimental": false,
+		detrimental : false,
 		"target_type": "target",
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"duration": 1,
-				"name": "Squeeze",
-				"icon": "grab",
-				"description": "Taunted by %caster.",
-				"detrimental": true,
-				"add_conditions": [
+				duration : 1,
+				name : "Squeeze",
+				icon : "grab",
+				description : "Taunted by %caster.",
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"events": [
+						events : [
 							"internalWrapperAdded"
 						],
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 4,
 							"threatMod": 4
 						}
 					},
 					{
-						"type": "taunt"
+						type : "taunt"
 					},
 					"visAddTargTakeDamage"
 				]
 			},
 			{
-				"detrimental": false,
-				"add_conditions": [
+				detrimental : false,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"target": "CASTER",
-				"effects": [
+				target : "CASTER",
+				effects : [
 					{
-						"events": [
+						events : [
 							"internalWrapperAdded"
 						],
-						"type": "endTurn"
+						type : "endTurn"
 					}
 				]
 			}
@@ -1146,38 +1158,38 @@ const lib = {
 	// Monk
 	"monk_roundKick": {
 		"level": 1,
-		"name": "Round Kick",
-		"description": "A chi infused kick, dealing 8 physical damage to an enemy. Misses with this ability may allow your target to riposte, doing the same amount of damage back to you.",
-		"ap": 2,
-		"mp": 1,
+		name : "Round Kick",
+		description : "A chi infused kick, dealing 8 physical damage to an enemy. Misses with this ability may allow your target to riposte, doing the same amount of damage back to you.",
+		ap : 2,
+		mp : 1,
 		"hit_chance": 70,
-		"cooldown": 1,
-		"detrimental": true,
-		"tags": [
+		cooldown : 1,
+		detrimental : true,
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 8
 						}
 					},
@@ -1187,23 +1199,23 @@ const lib = {
 		],
 		"riposte": [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 8
 						}
 					},
@@ -1214,39 +1226,39 @@ const lib = {
 	},
 	"monk_disablingStrike": {
 		"level": 2,
-		"name": "Disabling Strike",
-		"description": "Deals 3 damage and reduces your target's physical proficiency and resistance by 5 for 1 turn. Always hits.",
-		"ap": 1,
-		"mp": 1,
-		"cooldown": 3,
-		"detrimental": true,
+		name : "Disabling Strike",
+		description : "Deals 3 damage and reduces your target's physical proficiency and resistance by 5 for 1 turn. Always hits.",
+		ap : 1,
+		mp : 1,
+		cooldown : 3,
+		detrimental : true,
 		"hit_chance": 9001,
-		"tags": [
+		tags : [
 			"ac_damage",
 			"ac_debuff"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 3
 						}
 					},
@@ -1254,35 +1266,35 @@ const lib = {
 				]
 			},
 			{
-				"target": "VICTIM",
-				"duration": 1,
-				"detrimental": true,
-				"name": "Disabling Strike",
-				"description": "-5 Physical Proficiency and Resistance",
-				"icon": "weaken",
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 1,
+				detrimental : true,
+				name : "Disabling Strike",
+				description : "-5 Physical Proficiency and Resistance",
+				icon : "weaken",
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"tags": [
+				tags : [
 					"ac_debuff"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "bonPhysical",
-						"data": {
+						type : "bonPhysical",
+						data : {
 							"amount": -5
 						}
 					},
 					{
-						"type": "svPhysical",
-						"data": {
+						type : "svPhysical",
+						data : {
 							"amount": -5
 						}
 					}
@@ -1292,37 +1304,37 @@ const lib = {
 	},
 	"monk_upliftingStrike": {
 		"level": 3,
-		"name": "Uplifting Strike",
-		"description": "Deals 3 damage to an enemy and heals the lowest HP party member for 2 HP per AP spent this turn.",
-		"ap": 1,
-		"mp": 2,
-		"cooldown": 2,
+		name : "Uplifting Strike",
+		description : "Deals 3 damage to an enemy and heals the lowest HP party member for 2 HP per AP spent this turn.",
+		ap : 1,
+		mp : 2,
+		cooldown : 2,
 		"hit_chance": 80,
-		"tags": [
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 3
 						}
 					},
@@ -1330,23 +1342,23 @@ const lib = {
 				]
 			},
 			{
-				"target": "SMART_HEAL",
-				"duration": 0,
-				"detrimental": false,
-				"add_conditions": [
+				target : "SMART_HEAL",
+				duration : 0,
+				detrimental : false,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "-se_apSpentThisTurn*2"
 						}
 					},
@@ -1360,39 +1372,39 @@ const lib = {
 
 	// Item specific
 	"whip_legLash": {
-		"name": "Leg Lash",
-		"description": "Whips your target's legs, dealing 4 damage. Has a 20% chance of knocking your target down for 1 round.",
-		"ap": 2,
-		"cooldown": 5,
-		"max_targets": 1,
-		"detrimental": true,
-		"type": "Physical",
-		"tags": [
+		name : "Leg Lash",
+		description : "Whips your target's legs, dealing 4 damage. Has a 20% chance of knocking your target down for 1 round.",
+		ap : 2,
+		cooldown : 5,
+		max_targets : 1,
+		detrimental : true,
+		type : "Physical",
+		tags : [
 			"ac_damage",
 			"ac_painful"
 		],
-		"add_conditions": [
+		add_conditions : [
 			"senderHasWhip"
 		],
-		"conditions": [
+		conditions : [
 			"senderHasWhip"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 4
 						}
 					},
@@ -1400,13 +1412,13 @@ const lib = {
 				]
 			},
 			{
-				"label": "knockdown",
-				"target": "VICTIM",
-				"duration": 1,
-				"name": "Knockdown",
-				"icon": "falling",
-				"description": "Knocked down on your %knockdown",
-				"add_conditions": [
+				label : "knockdown",
+				target : "VICTIM",
+				duration : 1,
+				name : "Knockdown",
+				icon : "falling",
+				description : "Knocked down on your %knockdown",
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
@@ -1414,55 +1426,55 @@ const lib = {
 					"targetNotBeast",
 					"rand20"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "knockdown"
+						type : "knockdown"
 					}
 				]
 			}
 		]
 	},
 	"whip_powerLash": {
-		"name": "Powerlash",
-		"description": "Whips your target's genitals unless they're wearing hardened armor, dealing 8 damage and interrupting any charged actions.",
-		"ap": 2,
-		"cooldown": 6,
-		"max_targets": 1,
-		"detrimental": true,
-		"type": "Physical",
-		"tags": [
+		name : "Powerlash",
+		description : "Whips your target's genitals unless they're wearing hardened armor, dealing 8 damage and interrupting any charged actions.",
+		ap : 2,
+		cooldown : 6,
+		max_targets : 1,
+		detrimental : true,
+		type : "Physical",
+		tags : [
 			"ac_damage",
 			"ac_interrupt",
 			"ac_painful"
 		],
-		"conditions": [
+		conditions : [
 			"senderHasWhip"
 		],
-		"add_conditions": [
+		add_conditions : [
 			"senderHasWhip"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
 					"targetNotBeast",
 					{
-						"conditions": [
+						conditions : [
 							"targetLowerbodyNotHard",
 							{
-								"conditions": [
+								conditions : [
 									"targetUpperbodyNotHard",
 									"targetBreasts"
 								]
@@ -1470,10 +1482,10 @@ const lib = {
 						]
 					}
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 8
 						}
 					},
@@ -1490,47 +1502,47 @@ const lib = {
 
 	// Imp
 	"imp_specialDelivery": {
-		"name": "Special Delivery",
-		"description": "Jump on and try to cream on or in your target, doing 4 corruption damage and reduces the target's corruption resistance by 1 for 2 turns. Stacks up to 3 times.",
-		"ap": 2,
-		"mp": 2,
-		"cooldown": 3,
-		"detrimental": true,
-		"type": "Corruption",
-		"tags": [
+		name : "Special Delivery",
+		description : "Jump on and try to cream on or in your target, doing 4 corruption damage and reduces the target's corruption resistance by 1 for 2 turns. Stacks up to 3 times.",
+		ap : 2,
+		mp : 2,
+		cooldown : 3,
+		detrimental : true,
+		type : "Corruption",
+		tags : [
 			"ac_damage",
 			"ac_debuff"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 2,
+				target : "VICTIM",
+				duration : 2,
 				"max_stacks": 3,
-				"name": "Imp Cum",
-				"icon": "blood",
-				"description": "Corruption resistance reduced by 1 per stack",
-				"add_conditions": [
+				name : "Imp Cum",
+				icon : "blood",
+				description : "Corruption resistance reduced by 1 per stack",
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
 					"targetNotBeast"
 				],
-				"effects": [
+				effects : [
 					{
-						"conditions": [
+						conditions : [
 							"eventIsWrapperAdded"
 						],
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 4
 						}
 					},
 					{
-						"type": "svCorruption",
-						"data": {
+						type : "svCorruption",
+						data : {
 							"amount": -1
 						}
 					},
@@ -1540,34 +1552,34 @@ const lib = {
 		]
 	},
 	"imp_blowFromBelow": {
-		"name": "Blow From Below",
-		"description": "Attacks up to 2 larger targets from below, doing 5 physical damage.",
-		"ap": 3,
-		"cooldown": 3,
-		"max_targets": 2,
-		"detrimental": true,
-		"type": "Physical",
-		"tags": [
+		name : "Blow From Below",
+		description : "Attacks up to 2 larger targets from below, doing 5 physical damage.",
+		ap : 3,
+		cooldown : 3,
+		max_targets : 2,
+		detrimental : true,
+		type : "Physical",
+		tags : [
 			"ac_damage"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
 					"targetNotBeast",
 					"targetTaller"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 5
 						}
 					},
@@ -1577,33 +1589,33 @@ const lib = {
 		]
 	},
 	"imp_ankleBite": {
-		"name": "Ankle Bite",
-		"description": "Bite your target's ankles, dealing 4 physical damage. Has a 10% chance to knock your target down for 1 turn.",
-		"ap": 2,
-		"mp": 0,
-		"cooldown": 1,
-		"detrimental": true,
-		"type": "Physical",
-		"tags": [
+		name : "Ankle Bite",
+		description : "Bite your target's ankles, dealing 4 physical damage. Has a 10% chance to knock your target down for 1 turn.",
+		ap : 2,
+		mp : 0,
+		cooldown : 1,
+		detrimental : true,
+		type : "Physical",
+		tags : [
 			"ac_damage",
 			"ac_debuff"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"add_conditions": [
+				target : "VICTIM",
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
 					"targetNotBeast"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 4
 						}
 					},
@@ -1611,14 +1623,14 @@ const lib = {
 				]
 			},
 			{
-				"label": "knockdown",
-				"target": "VICTIM",
-				"duration": 1,
-				"name": "Knockdown",
-				"icon": "falling",
-				"detrimental": true,
-				"description": "Knocked down on your %knockdown",
-				"add_conditions": [
+				label : "knockdown",
+				target : "VICTIM",
+				duration : 1,
+				name : "Knockdown",
+				icon : "falling",
+				detrimental : true,
+				description : "Knocked down on your %knockdown",
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
@@ -1626,55 +1638,95 @@ const lib = {
 					"targetNotBeast",
 					"rand10"
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"events": [
+						events : [
 							"internalWrapperAdded"
 						],
-						"type": "knockdown"
+						type : "knockdown"
 					}
 				]
 			}
 		]
 	},
 	"imp_demonicPinch": {
-		"name": "Demonic Pinch",
-		"description": "Pinch your target using magic, dealing 2-6 corruption damage.",
-		"ap": 1,
-		"mp": 2,
-		"cooldown": 1,
-		"detrimental": true,
-		"type": "Corruption",
-		"tags": [
+		name : "Demonic Pinch",
+		description : "Pinch your target using magic, dealing 2-6 corruption damage.",
+		ap : 1,
+		mp : 2,
+		cooldown : 1,
+		detrimental : true,
+		type : "Corruption",
+		tags : [
 			"ac_damage",
 			"ac_painful"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
 					"targetNotBeast"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": "1+ceil(random(5))"
 						}
 					},
 					"visTargTakeDamageCorruption"
+				]
+			}
+		]
+	},
+	"imp_claws": {
+		name : "Imp Claws",
+		description : "Assault your target's clothes for 2 cloth damage, has a 10% chance of unequipping a random clothing item on your target.",
+		ap : 3,
+		mp : 0,
+		cooldown : 3,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : true,
+				add_conditions : stdCond.concat(
+					"targetNotBeast",
+					{conditions : 
+						["targetWearsLowerbody", "targetWearsUpperbody"]
+					}
+				),
+				effects : [
+					{
+						type : "damageArmor",
+						data : {
+							"amount": 2,
+						}
+					},
+					{
+						type : "disrobe",
+						data : {
+							numSlots : 1
+						},
+						conditions : ["rand10"]
+					},
+					"visTargTakeDamage"
 				]
 			}
 		]
@@ -1684,28 +1736,28 @@ const lib = {
 
 	// Tentacle fiend
 	"tentacle_fiend_tentacleMilker": {
-		"name": "Tentacle Milker",
-		"description": "Latches a sucker to breasts or a penis, dealing 4 corruption damage and healing for the same amount.",
-		"ap": 2,
-		"mp": 3,
-		"cooldown": 3,
-		"detrimental": true,
-		"type": "Corruption",
-		"tags": [
+		name : "Tentacle Milker",
+		description : "Latches a sucker to breasts or a penis, dealing 4 corruption damage and healing for the same amount.",
+		ap : 2,
+		mp : 3,
+		cooldown : 3,
+		detrimental : true,
+		type : "Corruption",
+		tags : [
 			"ac_damage",
 			"ac_self_heal"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": "",
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : "",
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
@@ -1715,10 +1767,10 @@ const lib = {
 						"targetPenis"
 					]
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": 4,
 							"leech": 1
 						}
@@ -1729,52 +1781,52 @@ const lib = {
 		]
 	},
 	"tentacle_fiend_legWrap": {
-		"name": "Leg Wrap",
-		"description": "Wraps tentacles around your target's legs, knocking them down for 1 turn.",
-		"ap": 1,
-		"cooldown": 6,
-		"detrimental": true,
-		"tags": [
+		name : "Leg Wrap",
+		description : "Wraps tentacles around your target's legs, knocking them down for 1 turn.",
+		ap : 1,
+		cooldown : 6,
+		detrimental : true,
+		tags : [
 			"ac_debuff",
 			"ac_npc_important"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"label": "legWrap",
-				"target": "VICTIM",
-				"duration": 1,
-				"name": "Leg Wrap",
-				"icon": "daemon-pull",
-				"description": "Knocked down on your %knockdown, tentacles spreading your legs",
+				label : "legWrap",
+				target : "VICTIM",
+				duration : 1,
+				name : "Leg Wrap",
+				icon : "daemon-pull",
+				description : "Knocked down on your %knockdown, tentacles spreading your legs",
 				"trigger_immediate": true,
-				"tags": [
+				tags : [
 					"wr_legs_spread"
 				],
-				"add_conditions": [
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
 					"targetNotKnockedDown",
 					"targetNotBeast",
 					{
-						"type": "apValue",
-						"data": {
+						type : "apValue",
+						data : {
 							"amount": 2
 						},
 						"caster": true
 					}
 				],
-				"stay_conditions": [
+				stay_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "knockdown"
+						type : "knockdown"
 					},
 					"visAddTargTakeDamage"
 				]
@@ -1782,57 +1834,48 @@ const lib = {
 		]
 	},
 	"tentacle_fiend_injectacle": {
-		"name": "Injectacle",
-		"description": "Injects a player not wearing lowerbody armor with tentacle goo, doing 4 corruption damage immediately and leaving tentacle goo behind. Tentacle goo deals 1 at the start of their turn in and lowers their corruption resist by 1 for 3 turns.",
-		"ap": 1,
-		"mp": 3,
-		"cooldown": 3,
-		"detrimental": true,
-		"type": "Corruption",
-		"tags": [
-			"ac_debuff",
-			"ac_damage"
+		name: "Injectacle",
+		description: "Injects a player's exposed groin with tentacle goo, doing 4 corruption damage immediately and leaving tentacle goo behind. Tentacle goo deals 1 at the start of their turn in and lowers their corruption resist by 1 for 3 turns.",
+		ap: 1,
+		mp: 3,
+		cooldown: 3,
+		detrimental: true,
+		type: Action.Types.corruption,
+		tags: [
+			stdTag.acDebuff,
+			stdTag.acDamage,
 		],
-		"show_conditions": [
-			"inCombat"
-		],
-		"wrappers": [
+		show_conditions: ["inCombat"],
+		wrappers: [
 			{
-				"label": "tentacleGoo",
-				"target": "VICTIM",
-				"duration": 3,
-				"name": "Tentacle Goo",
-				"icon": "death-juice",
-				"description": "Injectected with tentacle goo, taking corruption damage at the start of your turn",
-				"detrimental": true,
-				"add_conditions": [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				label: "tentacleGoo",
+				target: Wrapper.TARGET_AUTO,
+				duration: 3,
+				name: "Tentacle Goo",
+				icon: "death-juice",
+				description: "Injectected with tentacle goo, taking corruption damage at the start of your turn",
+				detrimental: true,
+				add_conditions: stdCond.concat(
 					"targetNotBeast",
-					"targetNoLowerbody"
-				],
-				"effects": [
+					{conditions : [
+						"targetNoLowerbody",
+						"ttGroinExposed",
+						"ttButtExposed",
+					]}
+				),
+				effects : [
 					{
-						"events": [
-							"internalWrapperAdded"
-						],
-						"type": "damage",
-						"data": {
-							"amount": 4
-						}
+						events: [GameEvent.Types.internalWrapperAdded],
+						type: "damage",
+						data: {"amount": 4}
 					},
 					{
-						"type": "damage",
-						"data": {
-							"amount": 1
-						}
+						type: "damage",
+						data: {"amount": 1}
 					},
 					{
-						"type": "svCorruption",
-						"data": {
-							"amount": -1
-						}
+						type: Effect.Types.svCorruption,
+						data: {"amount": -1}
 					},
 					"visAddTargTakeDamageCorruption"
 				]
@@ -1840,42 +1883,42 @@ const lib = {
 		]
 	},
 	"tentacle_fiend_tentatug": {
-		"name": "Tentatug",
-		"description": "Tugs as your target's lowerbody armor, doing 2 cloth damage. Has a 30% chance to pull the piece off.",
-		"ap": 3,
-		"cooldown": 2,
-		"detrimental": true,
-		"type": "Physical",
-		"tags": [],
-		"show_conditions": [
+		name : "Tentatug",
+		description : "Tugs as your target's lowerbody armor, doing 2 cloth damage. Has a 30% chance to pull the piece off.",
+		ap : 3,
+		cooldown : 2,
+		detrimental : true,
+		type : "Physical",
+		tags : [],
+		show_conditions : [
 			"inCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"detrimental": true,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				detrimental : true,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead",
 					"targetNotBeast",
 					"targetWearsLowerbody"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damageArmor",
-						"data": {
+						type : "damageArmor",
+						data : {
 							"amount": 2,
 							"slots": "lowerbody"
 						}
 					},
 					{
-						"type": "disrobe",
-						"data": {
+						type : "disrobe",
+						data : {
 							"slots": "lowerbody"
 						},
-						"conditions": [
+						conditions : [
 							"rand30"
 						]
 					},
@@ -1888,30 +1931,30 @@ const lib = {
 
 	// assets
 	"minorRepairKit": {
-		"name": "Minor Repair",
-		"description": "Restores 25% of a damaged item's durability (min 5).",
-		"ap": 0,
-		"cooldown": 0,
-		"max_targets": 1,
-		"detrimental": false,
-		"type": "Physical",
-		"tags": [],
+		name : "Minor Repair",
+		description : "Restores 25% of a damaged item's durability (min 5).",
+		ap : 0,
+		cooldown : 0,
+		max_targets : 1,
+		detrimental : false,
+		type : "Physical",
+		tags : [],
 		"no_use_text": true,
 		"no_action_selector": true,
-		"conditions": [
+		conditions : [
 			"targetHasRepairable"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"notInCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"effects": [
+				target : "VICTIM",
+				duration : 0,
+				effects : [
 					{
-						"type": "repair",
-						"data": {
+						type : "repair",
+						data : {
 							"amount": 0.25,
 							"multiplier": true,
 							"min": 5
@@ -1922,28 +1965,28 @@ const lib = {
 		]
 	},
 	"repairKit": {
-		"name": "Armor Repair",
-		"description": "Restores 50% of a damaged item's durability (min 10).",
-		"ap": 0,
-		"cooldown": 0,
-		"detrimental": false,
-		"tags": [],
+		name : "Armor Repair",
+		description : "Restores 50% of a damaged item's durability (min 10).",
+		ap : 0,
+		cooldown : 0,
+		detrimental : false,
+		tags : [],
 		"no_use_text": true,
 		"no_action_selector": true,
-		"conditions": [
+		conditions : [
 			"targetHasRepairable"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"notInCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"effects": [
+				target : "VICTIM",
+				duration : 0,
+				effects : [
 					{
-						"type": "repair",
-						"data": {
+						type : "repair",
+						data : {
 							"amount": 0.5,
 							"multiplier": true,
 							"min": 10
@@ -1954,28 +1997,28 @@ const lib = {
 		]
 	},
 	"majorRepairKit": {
-		"name": "Major Repair",
-		"description": "Fully restores a damaged item's durability.",
-		"ap": 0,
-		"cooldown": 0,
-		"detrimental": false,
-		"tags": [],
+		name : "Major Repair",
+		description : "Fully restores a damaged item's durability.",
+		ap : 0,
+		cooldown : 0,
+		detrimental : false,
+		tags : [],
 		"no_use_text": true,
 		"no_action_selector": true,
-		"conditions": [
+		conditions : [
 			"targetHasRepairable"
 		],
-		"show_conditions": [
+		show_conditions : [
 			"notInCombat"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"effects": [
+				target : "VICTIM",
+				duration : 0,
+				effects : [
 					{
-						"type": "repair",
-						"data": {
+						type : "repair",
+						data : {
 							"amount": 1,
 							"multiplier": true
 						}
@@ -1985,24 +2028,24 @@ const lib = {
 		]
 	},
 	"minorHealingPotion": {
-		"name": "Minor Healing Potion",
-		"description": "Restores 8 HP to the user.",
-		"ap": 1,
-		"cooldown": 0,
-		"detrimental": false,
-		"tags": [
+		name : "Minor Healing Potion",
+		description : "Restores 8 HP to the user.",
+		ap : 1,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
 			"ac_heal",
 			"ac_item"
 		],
 		"target_type": "self",
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"effects": [
+				target : "VICTIM",
+				duration : 0,
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": -8
 						}
 					},
@@ -2012,24 +2055,24 @@ const lib = {
 		]
 	},
 	"healingPotion": {
-		"name": "Healing Potion",
-		"description": "Restores 15 HP to the user.",
-		"ap": 1,
-		"cooldown": 0,
-		"detrimental": false,
-		"tags": [
+		name : "Healing Potion",
+		description : "Restores 15 HP to the user.",
+		ap : 1,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
 			"ac_heal",
 			"ac_item"
 		],
 		"target_type": "self",
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"effects": [
+				target : "VICTIM",
+				duration : 0,
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": -15
 						}
 					},
@@ -2039,24 +2082,24 @@ const lib = {
 		]
 	},
 	"majorHealingPotion": {
-		"name": "Major Healing Potion",
-		"description": "Restores 30 HP to the user.",
-		"ap": 1,
-		"cooldown": 0,
-		"detrimental": false,
-		"tags": [
+		name : "Major Healing Potion",
+		description : "Restores 30 HP to the user.",
+		ap : 1,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
 			"ac_heal",
 			"ac_item"
 		],
 		"target_type": "self",
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"effects": [
+				target : "VICTIM",
+				duration : 0,
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": -30
 						}
 					},
@@ -2066,24 +2109,24 @@ const lib = {
 		]
 	},
 	"manaPotion": {
-		"name": "Mana Potion",
-		"description": "Restores 5 mana to the user.",
-		"ap": 1,
-		"cooldown": 0,
-		"detrimental": false,
-		"tags": [
+		name : "Mana Potion",
+		description : "Restores 5 mana to the user.",
+		ap : 1,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
 			"ac_mana_heal",
 			"ac_item"
 		],
 		"target_type": "self",
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"effects": [
+				target : "VICTIM",
+				duration : 0,
+				effects : [
 					{
-						"type": "addMP",
-						"data": {
+						type : "addMP",
+						data : {
 							"amount": 5
 						}
 					},
@@ -2093,24 +2136,24 @@ const lib = {
 		]
 	},
 	"majorManaPotion": {
-		"name": "Major Mana Potion",
-		"description": "Restores 10 mana to the user.",
-		"ap": 1,
-		"cooldown": 0,
-		"detrimental": false,
-		"tags": [
+		name : "Major Mana Potion",
+		description : "Restores 10 mana to the user.",
+		ap : 1,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
 			"ac_mana_heal",
 			"ac_item"
 		],
 		"target_type": "self",
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"effects": [
+				target : "VICTIM",
+				duration : 0,
+				effects : [
 					{
-						"type": "addMP",
-						"data": {
+						type : "addMP",
+						data : {
 							"amount": 10
 						}
 					},
@@ -2124,34 +2167,34 @@ const lib = {
 	// Debug
 	"debug_charged_spell": {
 		"level": 1,
-		"name": "1t Charged",
+		name : "1t Charged",
 		"ranged": true,
-		"description": "Deals 10 holy damage.",
-		"ap": 2,
-		"mp": 3,
-		"type": "Holy",
-		"cooldown": 1,
+		description : "Deals 10 holy damage.",
+		ap : 2,
+		mp : 3,
+		type : "Holy",
+		cooldown : 1,
 		"cast_time": 1,
-		"tags": [
+		tags : [
 			"ac_damage"
 		],
-		"wrappers": [
+		wrappers : [
 			{
-				"target": "VICTIM",
-				"duration": 0,
-				"name": "",
-				"icon": "",
-				"description": ".",
-				"detrimental": false,
-				"add_conditions": [
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : ".",
+				detrimental : false,
+				add_conditions : [
 					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
-				"effects": [
+				effects : [
 					{
-						"type": "damage",
-						"data": {
+						type : "damage",
+						data : {
 							"amount": -10
 						}
 					},

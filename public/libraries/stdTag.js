@@ -113,7 +113,9 @@ export default {
 	ttBentOver : 'bent_over',
 	ttBentOverTable : 'bent_over_table',
 	ttSpanked : 'spanked',
+	ttBreastsWedgie : 'breasts_wedgie',
 
+	
 	// Dungeon tags
 	duDark : 'du_dark',					// Dark dungeon set
 	duIndoor : 'du_dark',					// Dark dungeon set

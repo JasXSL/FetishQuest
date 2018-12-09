@@ -677,6 +677,7 @@ export default class Modtools{
 			},
 			() => {
 				let asset = new Action({label:'UNKNOWN_ACTION'}).save(true);
+				asset.show_conditions = ['inCombat'];
 				return asset;
 			}
 		);

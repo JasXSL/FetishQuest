@@ -35,7 +35,7 @@ class Action extends Generic{
 		this.tags = [];
 		this.add_conditions = [];				// ADD conditions. These aren't saved, because they're only used for NPCs
 		this.conditions = [];					// Conditions run against all targets regardless of wrapper
-		this.show_conditions = [];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
+		this.show_conditions = ["inCombat"];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
 		this.no_use_text = false;				// Disable use texts.
 		this.no_action_selector = false;		// Hide from combat action selector
 		this.cast_time = 0;						// Set to > 0 to make this a charged spell needing this many turns to complete
