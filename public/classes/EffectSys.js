@@ -326,10 +326,13 @@ class Wrapper extends Generic{
 	*/
 	getDescription(){
 		let out = this.description;
-		let knockdown = '';
+		let knockdown = 'stomach';
 		for( let effect of this.effects ){
 			if( effect.type === Effect.Types.knockdown ){
-				knockdown = effect.data.forwards ? 'stomach' : 'back';
+				if( effect.data.type === Effect.KnockdownTypes.Back )
+					knockdown = "back";
+				else if( effect.data.type === Effect.KnockdownTypes.Grapple )
+					knockdown = 'grapple';
 			}
 		}
 
@@ -353,7 +356,12 @@ class Wrapper extends Generic{
 		for( let effect of this.effects ){
 			if( effect.type === Effect.Types.knockdown ){
 				tags.push(stdTag.wrKnockdown);
-				tags.push(effect.data.forwards ? stdTag.wrKnockdownFront : stdTag.wrKnockdownBack);
+				let type = stdTag.wrKnockdownFront;
+				if( effect.data.type === Effect.KnockdownTypes.Back )
+					type = stdTag.wrKnockdownBack;
+				else if( effect.data.type === Effect.KnockdownTypes.Grapple )
+					type = stdTag.wrKnockdownGrapple;
+				tags.push(type);
 			}
 			else if( effect.type === Effect.Types.daze )
 				tags.push(stdTag.wrDazed);
@@ -903,11 +911,13 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.knockdown ){
-				if( typeof this.data.forwards !== "boolean" ){
-					this.data.forwards = Math.random() < 0.5 ? true : false;
-				}
+				if( isNaN(this.data.type) )
+					this.data.type = Math.floor(Math.random()*2);
 				if( !this.data.ini ){
-					game.ui.addText( t.getColoredName()+" was knocked down on their "+(this.data.forwards ? 'stomach' : 'back')+".", undefined, t.id, t.id, 'statMessage' );
+					let text = "knocked down on their "+(this.data.type === Effect.KnockdownTypes.Forward ? 'stomach' : 'back');
+					if( this.data.type === Effect.KnockdownTypes.Grapple )
+						text = "was grappled";
+					game.ui.addText( t.getColoredName()+" was "+text+".", undefined, t.id, t.id, 'statMessage' );
 					this.data.ini = true;
 				}
 			}
@@ -1124,6 +1134,12 @@ Effect.Types = {
 	taunt : 'taunt',								
 };
 
+Effect.KnockdownTypes = {
+	Forward : 0,
+	Back : 1,
+	Grapple : 2
+};
+
 
 Effect.TypeDescs = {
 	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier} - If type is left out, it can be auto supplied by an asset",
@@ -1168,7 +1184,7 @@ Effect.TypeDescs = {
 
 	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels} - Activates cooldowns for learned abilities with actionLabels',
 
-	[Effect.Types.knockdown] : '{forwards:(bool)fwd} - If forwards is true, it\'s on stomach, false = back, nonboolean will be randomized when the effect event runs',
+	[Effect.Types.knockdown] : '{type:(int)type} - Use Effect.KnockdownTypes. If not an int it becomes either backwards of forwards',
 	[Effect.Types.daze] : 'void',
 
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',

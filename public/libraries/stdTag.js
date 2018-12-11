@@ -96,24 +96,25 @@ export default {
 	wrDazed : 'wr_dazed',
 	wrKnockdownBack : 'wr_knocked_down_back',
 	wrKnockdownFront : 'wr_knocked_down_front',
+	wrKnockdownGrapple : 'wr_knocked_down_grapple',
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
+	wrTentacleRide : 'wr_tentacle_ride',
 	
 	// Custom wrapper tags that can be added to wrappers
 	wrSoaked : 'wr_soaked',				// Player is soaked
 	wrLegsSpread : 'wr_legs_spread',
 	
 
-	// Turn tags, these are special case in that they're only added and removed from texts and turns changing. They're not visible
-	// Theyre's also in a separate list from the other tags, so they don't need a prefix
-	ttButtExposed : 'butt_exposed',
-	ttGroinExposed : 'groin_exposed',
-	ttBreastsExposed : 'breasts_exposed',
-	ttWedgie : 'wedgie',
-	ttPussyWedgie : 'pussy_wedgie',
-	ttBentOver : 'bent_over',
-	ttBentOverTable : 'bent_over_table',
-	ttSpanked : 'spanked',
-	ttBreastsWedgie : 'breasts_wedgie',
+	// Turn tags
+	ttButtExposed : 'tt_butt_exposed',
+	ttGroinExposed : 'tt_groin_exposed',
+	ttBreastsExposed : 'tt_breasts_exposed',
+	ttWedgie : 'tt_wedgie',
+	ttPussyWedgie : 'tt_pussy_wedgie',
+	ttBentOver : 'tt_bent_over',
+	ttBentOverTable : 'tt_bent_over_table',
+	ttSpanked : 'tt_spanked',
+	ttBreastsWedgie : 'tt_breasts_wedgie',
 
 	
 	// Dungeon tags

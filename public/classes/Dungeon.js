@@ -1362,10 +1362,10 @@ Dungeon.generate = function( numRooms, kit, settings ){
 										new Effect({
 											type : Effect.Types.knockdown,
 											data: {
-												forwards : false
+												type : Effect.KnockdownTypes.Back
 											}
 										}),
-										effects.visAddTargTakeDamage
+										"visAddTargTakeDamage"
 									]
 								})
 							],

@@ -425,32 +425,53 @@ export default class Player extends Generic{
 	// Overrides the generic definition for this
 	getTags(){
 
-		let out = [];
+		let out = {};
 		if( this.hp <= 0 )
-			out.push(stdTag.dead);
+			out[stdTag.dead] = true;
 
 		for( let tag of this.tags ){
 			if( !tag.startsWith('pl_') )
 				tag = 'pl_'+tag;
-			out.push(tag.toLowerCase());
+			out[tag.toLowerCase()] = true;
 		}
 		let assets = this.getAssetsEquipped();
 		for( let asset of assets )
-			out = out.concat(asset.getTags());
+			asset.getTags().map(t => out[t.toLowerCase()] = true);
 		let fx = this.getWrappers();
 		for( let f of fx )
-			out = out.concat(f.getTags());
+			f.getTags().map(t => out[t.toLowerCase()] = true);
+
+		this._turn_tags.map(t => out[t.tag.toLowerCase()] = true);
 
 		if( this.species )
-			out.push('p_'+this.species.toLowerCase());
+			out['p_'+this.species.toLowerCase()] = true;
 
 		if( window.game && game.dungeon instanceof Dungeon )
-			out = out.concat(game.dungeon.getTags());
-		
-		for( let i in out )
-			out[i] = out[i].toLowerCase();
+			game.dungeon.getTags().map(t => out[t.toLowerCase()] = true);
 
-		return out;
+		return Object.keys(out);
+
+	}
+
+	// overrides generic class
+	hasTagBy( tags, sender ){
+
+		if( !Array.isArray(tags) )
+			tags = [tags];
+
+		// Start by checking turn tags
+		for( let tt of this._turn_tags ){
+			if( sender.id === tt.s.id && ~tags.indexOf(tt.tag) )
+				return true;
+		}
+
+		// Next check the wrappers
+		for( let wrapper of this.wrappers ){
+			if( wrapper.caster === sender.id && wrapper.hasTag(tags) )
+				return true;
+		}
+		
+		return false;
 
 	}
 

@@ -1,3 +1,7 @@
+import stdTag from "../stdTag.js";
+import { Effect } from "../../classes/EffectSys.js";
+import Condition from "../../classes/Condition.js";
+
 const lib = {
 	
 	action_stdAttack : {"type":"actionLabel","data":{"label":"stdAttack"},"targnr":0},
@@ -9,6 +13,8 @@ const lib = {
 	action_tentacle_fiend_legWrap : {"type":"actionLabel","data":{"label":"tentacle_fiend_legWrap"},"targnr":0},
 	action_tentacle_fiend_injectacle : {"type":"actionLabel","data":{"label":"tentacle_fiend_injectacle"},"targnr":0},
 	action_tentacle_fiend_tentatug : {"type":"actionLabel","data":{"label":"tentacle_fiend_tentatug"},"targnr":0},
+	action_tentacle_ride : {"type":"actionLabel","data":{"label":"tentacle_ride"},"targnr":0},
+	action_shocktacle_zap : {"type":"actionLabel","data":{"label":"shocktacle_zap"},"targnr":0},
 	action_imp_specialDelivery : {"type":"actionLabel","data":{"label":"imp_specialDelivery"},"targnr":0},
 	action_imp_blowFromBelow : {"type":"actionLabel","data":{"label":"imp_blowFromBelow"},"targnr":0},
 	action_imp_ankleBite : {"type":"actionLabel","data":{"label":"imp_ankleBite"},"targnr":0},
@@ -71,7 +77,21 @@ const lib = {
 	targetLowerbodyHard : {"type":"tag","data":{"tags":["as_hard_lowerbody"]}},
 	targetUpperbodyStretchy : {"type":"tag","data":{"tags":["as_stretchy_upperbody"]}},
 	targetLowerbodyStretchy : {"type":"tag","data":{"tags":["as_stretchy_lowerbody"]}},
+	targetLowerbodyMetal : {"type":"tag","data":{"tags":["as_metal_lowerbody"]}},
+	targetUpperbodyMetal : {"type":"tag","data":{"tags":["as_metal_upperbody"]}},
 	targetLowerbodyWaistband : {"type":"tag","data":{"tags":["as_waistband_lowerbody"]}},
+
+	targetButtExposed : {conditions:[
+		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true},
+		{type:"tag", data:{tags:[stdTag.ttButtExposed]}}
+	]},
+	targetGroinExposed : {conditions:[
+		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true},
+		{type:"tag", data:{tags:[stdTag.ttGroinExposed]}}
+	]},
+
+
+
 	targetHasRepairable : {"type":"hasRepairable"},
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
 	targetNotBeast : {"type":"tag","data":{"tags":["pl_beast"]},"inverse":true},
@@ -131,16 +151,20 @@ const lib = {
 	targetDead : {"type":"defeated"},
 	targetNotDead : {"type":"defeated","inverse":true},
 	senderPunishmentNotUsed : {"type":"punishNotUsed","caster":true},
-	ttGroinExposed : {"type":"textTag","data":{"tags":["groin_exposed"]}},
-	ttButtExposed : {"type":"textTag","data":{"tags":["butt_exposed"]}},
-	ttButtNotExposed : {"type":"textTag","data":{"tags":["butt_exposed"]},"inverse":true},
-	ttBreastsExposed : {"type":"textTag","data":{"tags":["groin_exposed"]}},
-	ttWedgie : {"type":"textTag","data":{"tags":["wedgie"]}},
-	ttPussyWedgie : {"type":"textTag","data":{"tags":["pussy_wedgie"]}},
-	ttBentOver : {"type":"textTag","data":{"tags":["bent_over"]}},
-	ttBentOverTable : {"type":"textTag","data":{"tags":["bent_over_table"]}},
-	ttSpanked : {"type":"textTag","data":{"tags":["spanked"]}},
-	ttNotSpanked : {"type":"textTag","data":{"tags":["spanked"]},"inverse":true},
+
+	 targetRidingOnMyTentacle : {type:Condition.Types.tag,data:{tags:[stdTag.wrTentacleRide], sender:true}},
+
+
+	ttGroinExposed : {"type":"tag","data":{"tags":[stdTag.ttGroinExposed]}},
+	ttButtExposed : {"type":"tag","data":{"tags":[stdTag.ttButtExposed]}},
+	ttButtNotExposed : {"type":"tag","data":{"tags":[stdTag.ttButtExposed]},"inverse":true},
+	ttBreastsExposed : {"type":"tag","data":{"tags":[stdTag.ttGroinExposed]}},
+	ttWedgie : {"type":"tag","data":{"tags":[stdTag.ttWedgie]}},
+	ttPussyWedgie : {"type":"tag","data":{"tags":[stdTag.ttPussyWedgie]}},
+	ttBentOver : {"type":"tag","data":{"tags":[stdTag.ttBentOver]}},
+	ttBentOverTable : {"type":"tag","data":{"tags":[stdTag.ttBentOverTable]}},
+	ttSpanked : {"type":"tag","data":{"tags":[stdTag.ttSpanked]}},
+	ttNotSpanked : {"type":"tag","data":{"tags":[stdTag.ttSpanked]},"inverse":true},
 
 };
 

@@ -71,6 +71,7 @@ const out = {
 	'targetKnockedDown' : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.wrKnockdown]}}),
 	'targetKnockedDownBack' : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.wrKnockdownBack]}}),
 	'targetKnockedDownFront' : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.wrKnockdownFront]}}),
+	targetKnockedDownGrapple : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.wrKnockdownGrapple]}}),
 	
 	// Prop conditions
 	'senderHasWhip' : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.asWhip]}, caster:true}),
@@ -146,16 +147,16 @@ const out = {
 	senderPunishmentNotUsed : new Condition({type:Condition.Types.punishNotUsed, caster:true}),
 
 	// TurnTags
-	ttGroinExposed : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttGroinExposed]}}),
-	ttButtExposed : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttButtExposed]}}),
-	ttButtNotExposed : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttButtExposed]}, inverse:true}),
-	ttBreastsExposed : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttGroinExposed]}}),
-	ttWedgie : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttWedgie]}}),
-	ttPussyWedgie : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttPussyWedgie]}}),
-	ttBentOver : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttBentOver]}}),
-	ttBentOverTable : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttBentOverTable]}}),
-	ttSpanked : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttSpanked]}}),
-	ttNotSpanked : new Condition({type:Condition.Types.textTag, data:{tags:[stdTag.ttSpanked]}, inverse:true}),
+	ttGroinExposed : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttGroinExposed]}}),
+	ttButtExposed : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttButtExposed]}}),
+	ttButtNotExposed : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttButtExposed]}, inverse:true}),
+	ttBreastsExposed : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttGroinExposed]}}),
+	ttWedgie : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttWedgie]}}),
+	ttPussyWedgie : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttPussyWedgie]}}),
+	ttBentOver : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttBentOver]}}),
+	ttBentOverTable : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttBentOverTable]}}),
+	ttSpanked : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttSpanked]}}),
+	ttNotSpanked : new Condition({type:Condition.Types.tag, data:{tags:[stdTag.ttSpanked]}, inverse:true}),
 
 };
 

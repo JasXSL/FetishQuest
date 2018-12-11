@@ -158,7 +158,16 @@ export default class Condition extends Generic{
 
 			// Check the types
 			if( this.type === T.tag ){
-				success = t && t.hasTag(this.data.tags);
+				// Only tags applied by sender
+				if( this.data.sender ){
+					let tagTarg = t;
+					if( this.caster )
+						tagTarg = s;
+					success = tagTarg && tagTarg.hasTagBy(this.data.tags, this.caster ? t : s);
+				}
+				// Any tag applied by anyone
+				else
+					success = t && t.hasTag(this.data.tags, this.data.sender);
 			}
 			else if( this.type === T.wrapperTag ){
 				// Searches any attached wrapper for a tag
@@ -293,20 +302,6 @@ export default class Condition extends Generic{
 			
 			else if( this.type === T.hasRepairable )
 				success = t.getRepairableAssets().length;
-
-			else if( this.type === T.textTag ){
-				if( t ){
-					let tags = this.data.tags;
-					if( !Array.isArray(tags) )
-						tags = [tags];
-					for( let tag of tags ){
-						if( t.getTurnTag(tag) ){
-							success = true;
-							break;
-						}
-					}
-				}
-			}
 
 			else if( this.type === T.questIs ){
 				if( event.quest && typeof this.data === "object" )
@@ -463,7 +458,6 @@ Condition.Types = {
 	apValue : 'apValue', 			// 
 	mpValue : 'mpValue', 			// 
 	hpValue : 'hpValue', 			// 
-	textTag : 'textTag',			// 
 	sizeValue : 'sizeValue',		// 
 	genitalSizeValue : 'genitalSizeValue',		// 
 	notInCombat : 'notInCombat',				// 
@@ -476,7 +470,7 @@ Condition.Types = {
 };
 
 Condition.descriptions = {
-	[Condition.Types.tag] : '{tags:(arr)(str)tag} one or many tags, many tags are ORed',
+	[Condition.Types.tag] : '{tags:(arr)(str)tag, sender:(bool)limit_by_sender} one or many tags, many tags are ORed. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached wrapper',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
@@ -492,7 +486,6 @@ Condition.descriptions = {
 	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
-	[Condition.Types.textTag] : '{tags:(arr)(str)tag} - Checks special text tags that are wiped on turn end or when a player receives an action text',
 	[Condition.Types.sizeValue] : 'Same as the other nValue conditions',
 	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >',
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',

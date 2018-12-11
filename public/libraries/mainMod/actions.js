@@ -1645,9 +1645,7 @@ const lib = {
 				],
 				effects : [
 					{
-						events : [
-							"internalWrapperAdded"
-						],
+						events : ["internalWrapperAdded"],
 						type : "knockdown"
 					}
 				]
@@ -1882,7 +1880,7 @@ const lib = {
 			}
 		]
 	},
-	"tentacle_fiend_tentatug": {
+	tentacle_fiend_tentatug: {
 		name : "Tentatug",
 		description : "Tugs as your target's lowerbody armor, doing 2 cloth damage. Has a 30% chance to pull the piece off.",
 		ap : 3,
@@ -1923,6 +1921,72 @@ const lib = {
 						]
 					},
 					"visTargTakeDamage"
+				]
+			}
+		]
+	},
+
+	tentacle_ride : {
+		name : "Tentaride",
+		description : "Lifts your target off the ground, grappling them for 2 turns.",
+		ap : 5,
+		cooldown : 8,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				label : 'knockdown',
+				target : Wrapper.TARGET_AUTO,
+				duration : 2,
+				detrimental : true,
+				name : "Tentacle Ride",
+				icon : "falling",
+				description : "Lifted onto a tentacle, grappled.",
+				trigger_immediate : true,
+				add_conditions : stdCond.concat(
+					"targetNotBeast", C.targetNotKnockedDown
+				),
+				tags : [stdTag.wrTentacleRide],
+				effects : [
+					{
+						type : Effect.Types.knockdown,
+						data : {
+							type : Effect.KnockdownTypes.Grapple
+						},
+					},
+					"visAddTargTakeDamage"
+				]
+			}
+		]
+	},
+	shocktacle_zap : {
+		name : "Zap",
+		description : "Shock a player with a tentacle, dealing 4 elemental damage.",
+		ap : 2,
+		cooldown : 1,
+		mp : 4,
+		detrimental : true,
+		type : Action.Types.elemental,
+		tags : [
+			stdTag.acDamage
+		],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : true,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {
+							amount : 4
+						}
+					},
+					"visTargTakeDamageElemental"
 				]
 			}
 		]

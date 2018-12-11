@@ -233,10 +233,9 @@ class Text extends Generic{
 				let kd = glib.audioKits[kit];
 				if( !kd )
 					continue;
-				if( Condition.all(kd.conditions, event) ){
+				if( Condition.all(kd.conditions, event) )
 					audio = {id:kit, slot:this.armor_slot};
-					break;
-				}
+				
 			}
 			
 		}

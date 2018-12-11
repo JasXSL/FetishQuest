@@ -45,10 +45,10 @@ const lib = [
 		viable_consumables : [
 
 		],
-		"sadistic_min":0,
-		"sadistic_max":1,
-		"dominant_min":0,
-		"dominant_max":1,
+		sadistic_min : 0,
+		sadistic_max : 1,
+		dominant_min : 0,
+		dominant_max : 1,
 		"extraversion_min":0,
 		"extraversion_max":1,
 		"sensing_min":0,
@@ -59,8 +59,8 @@ const lib = [
 		"judging_max":1,
 		"hetero_min":0,
 		"hetero_max":1,
-		"intelligence_min":0.2,
-		"intelligence_max":0.3,
+		intelligence_min : 0.2,
+		intelligence_max : 0.3,
 		required_assets : [
 
 		]
@@ -106,10 +106,10 @@ const lib = [
 		viable_consumables : [
 
 		],
-		"sadistic_min":0,
-		"sadistic_max":1,
-		"dominant_min":0,
-		"dominant_max":1,
+		sadistic_min : 0,
+		sadistic_max : 1,
+		dominant_min : 0,
+		dominant_max : 1,
 		"extraversion_min":0,
 		"extraversion_max":1,
 		"sensing_min":0,
@@ -120,8 +120,8 @@ const lib = [
 		"judging_max":1,
 		"hetero_min":0,
 		"hetero_max":1,
-		"intelligence_min":0.2,
-		"intelligence_max":0.3,
+		intelligence_min : 0.2,
+		intelligence_max : 0.3,
 		required_assets : [
 
 		]
@@ -157,10 +157,10 @@ const lib = [
 		max_size : 3,
 		difficulty : 1,
 		viable_consumables : [],
-		"sadistic_min":0,
-		"sadistic_max":1,
-		"dominant_min":0,
-		"dominant_max":1,
+		sadistic_min : 0,
+		sadistic_max : 1,
+		dominant_min : 0,
+		dominant_max : 1,
 		"extraversion_min":0,
 		"extraversion_max":1,
 		"sensing_min":0,
@@ -171,11 +171,11 @@ const lib = [
 		"judging_max":1,
 		"hetero_min":0,
 		"hetero_max":1,
-		"intelligence_min":0.3,
-		"intelligence_max":0.4,
+		intelligence_min : 0.3,
+		intelligence_max : 0.4,
 		required_assets : []
 	},
-	{ "label":"shocktacle",
+	{label:"shocktacle",
 		name : "Shocktacle",
 		icon : "",
 		species : "tentacle monster",
@@ -211,12 +211,12 @@ const lib = [
 		max_size : 3,
 		difficulty : 1,
 		viable_consumables : [],
-		"sadistic_min":1,
-		"sadistic_max":1,
-		"dominant_min":1,
-		"dominant_max":1,
-		"intelligence_min":0.2,
-		"intelligence_max":0.3,
+		sadistic_min : 1,
+		sadistic_max : 1,
+		dominant_min : 1,
+		dominant_max : 1,
+		intelligence_min : 0.2,
+		intelligence_max : 0.3,
 		required_assets : []
 	},
 	{"label":"stunted_imp",
@@ -270,10 +270,10 @@ const lib = [
 		viable_consumables : [
 
 		],
-		"sadistic_min":0.5,
-		"sadistic_max":1,
-		"dominant_min":0.8,
-		"dominant_max":1,
+		sadistic_min : 0.5,
+		sadistic_max : 1,
+		dominant_min : 0.8,
+		dominant_max : 1,
 		"extraversion_min":0.5,
 		"extraversion_max":1,
 		"sensing_min":0,
@@ -284,8 +284,8 @@ const lib = [
 		"judging_max":1,
 		"hetero_min":0,
 		"hetero_max":1,
-		"intelligence_min":0.4,
-		"intelligence_max":0.5,
+		intelligence_min : 0.4,
+		intelligence_max : 0.5,
 		required_assets : [
 
 		]
@@ -345,10 +345,10 @@ const lib = [
 		viable_consumables : [
 			"minorHealingPotion"
 		],
-		"sadistic_min":0.5,
-		"sadistic_max":1,
-		"dominant_min":0.8,
-		"dominant_max":1,
+		sadistic_min : 0.5,
+		sadistic_max : 1,
+		dominant_min : 0.8,
+		dominant_max : 1,
 		"extraversion_min":0.5,
 		"extraversion_max":1,
 		"sensing_min":0,
@@ -359,8 +359,8 @@ const lib = [
 		"judging_max":1,
 		"hetero_min":0,
 		"hetero_max":1,
-		"intelligence_min":0.4,
-		"intelligence_max":0.6,
+		intelligence_min : 0.4,
+		intelligence_max : 0.6,
 		required_assets : [
 
 		]
@@ -420,10 +420,10 @@ const lib = [
 			"minorHealingPotion",
 			"healingPotion"
 		],
-		"sadistic_min":0.5,
-		"sadistic_max":1,
-		"dominant_min":0.8,
-		"dominant_max":1,
+		sadistic_min : 0.5,
+		sadistic_max : 1,
+		dominant_min : 0.8,
+		dominant_max : 1,
 		"extraversion_min":0.5,
 		"extraversion_max":1,
 		"sensing_min":0,
@@ -434,8 +434,8 @@ const lib = [
 		"judging_max":0.5,
 		"hetero_min":0,
 		"hetero_max":1,
-		"intelligence_min":0.4,
-		"intelligence_max":0.6,
+		intelligence_min : 0.4,
+		intelligence_max : 0.6,
 		required_assets : [
 
 		]
@@ -485,10 +485,10 @@ const lib = [
 		viable_consumables : [
 
 		],
-		"sadistic_min":0,
-		"sadistic_max":1,
-		"dominant_min":0,
-		"dominant_max":1,
+		sadistic_min : 0,
+		sadistic_max : 1,
+		dominant_min : 0,
+		dominant_max : 1,
 		"extraversion_min":0,
 		"extraversion_max":1,
 		"sensing_min":0,
@@ -499,8 +499,8 @@ const lib = [
 		"judging_max":1,
 		"hetero_min":0,
 		"hetero_max":1,
-		"intelligence_min":0.2,
-		"intelligence_max":0.2,
+		intelligence_min : 0.2,
+		intelligence_max : 0.2,
 		required_assets : [
 
 		]

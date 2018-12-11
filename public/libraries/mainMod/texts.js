@@ -1192,6 +1192,62 @@ const lib = [
 	},
 
 
+
+
+	// action_tentacle_ride
+	{ text : "%S slips a thick tentacle between %T's legs, lifting %Thim off the ground!",
+		audiokits : ["tentacleStretch"],
+		conditions : baseCond.concat("action_tentacle_ride")
+	},
+
+
+	// action_shocktacle_zap
+	{ text : "%S wraps charged tentacles around %T's %Tbsize %Tbreasts, squeezing down and sending an electric shock through them!",
+		audiokits : ["tentacleZap"],
+		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetBreasts", "targetUpperbodyNotHard")
+	},
+	{ text : "%S wraps a charged tentacle around %T's %Tgroin, squeezing down and sending an electric shock through %This %Tpenis!",
+		audiokits : ["tentacleZap"],
+		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetPenis", {conditions:[
+			"ttGroinExposed", "targetLowerbodyStretchy"
+		]})
+	},
+	{ text : "%S wraps charged tentacles around %T's %Trsize buttcheecks, squeezing down and sending an electric shock through them!",
+		audiokits : ["tentacleZap"],
+		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetLowerbodyNotHard")
+	},
+	{ text : "%S whaps %T's %Trsize %Tbutt with an electrified tentacle, shocking the %Trace!",
+		audiokits : ["tentacleZap","tentacleWhip"],
+		conditions : anyOnHumCond.concat("action_shocktacle_zap")
+	},
+	{ text : "%S prods %T with an electrified tentacle, shocking the %Trace!",
+		audiokits : ["tentacleZap"],
+		conditions : baseCond.concat("action_shocktacle_zap")
+	},
+	{ text : "%S latches electrified tendrils around %T's %TclothUpper, sending pulses into the metal and shocking %This %Tbsize %Tbreasts!",
+		audiokits : ["tentacleZap"],
+		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetBreasts", "targetUpperbodyMetal")
+	},
+	{ text : "%S latches electrified tendrils onto %T's %TclothLower, sending pulses into the metal and shocking %This %Tgenitals!",
+		audiokits : ["tentacleZap"],
+		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetLowerbodyMetal")
+	},
+	{ text : "%S electrifies the tentacle currently lifting %T off the ground, sending electric pulses into %This %Tgroin!",
+		audiokits : ["tentacleZap"],
+		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetRidingOnMyTentacle")
+	},
+	{ text : "%S prods %T's rear with an electrified tentacle slipping it inside %Thim and shocking %This %Tbutt!",
+		audiokits : ["tentacleZap","squishLong"],
+		conditions : baseCond.concat("action_shocktacle_zap", "targetButtExposed")
+	},
+	{ text : "%S prods %T's %Tgroin with an electrified tentacle slipping it inside %Thim and shocking %This %Tvagina!",
+		audiokits : ["tentacleZap","squishLong"],
+		conditions : baseCond.concat("action_shocktacle_zap", "targetGroinExposed")
+	},
+	
+
+
+
 	// imp_specialDelivery
 	{ text : "%S jumps onto %T's head and shoves %Shis %Spsize %Spenis into %T's mouth, humping at an overwhelming speed until %She shoots a large squirt of demonic jizz down %T's throat.",
 		conditions : [
