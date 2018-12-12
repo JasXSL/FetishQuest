@@ -532,7 +532,7 @@ export default class Modtools{
 
 		this.mml_generic( 
 			'texts', 
-			['Text','Action','Conditions','TurnTags','HitSlot','Audio','aAuto','nTarg','aOut','Debug'],
+			['Text','Action','Weight','Conditions','TurnTags','HitSlot','Audio','aAuto','nTarg','aOut','Debug'],
 			this.mod.texts,
 			text => {
 				// This can be removed later, it's legacy
@@ -575,6 +575,7 @@ export default class Modtools{
 						.filter(el => el)
 						.join(', ') : 
 						'',
+					text.weight,
 					(text.conditions ? text.conditions.map(el => typeof el === "string" ? el : 'Custom').join(', ') : ''),
 					(text.turnTags ? text.turnTags.map(el => el) : ''),
 					(text.armor_slot ? text.armor_slot : ''),
@@ -1010,6 +1011,7 @@ export default class Modtools{
 			html += 'Preview: <span id="textPreview"></span><br /><br />';
 			html += 'Nr Players: <input type="number" min=1 step=1 name="numTargets" value="'+(+text.numTargets || 1)+'" /><br />';
 			html += 'Conditions: '+this.formConditions(text.conditions)+'<br />';
+			html += 'Weight: <input type="range" min=1 max=10 step=1 name="weight" value="'+(+text.weight || 1)+'" /><br />';
 
 			html += this.presetConditions({
 				'HumOnHum' : ['targetNotBeast','actionHit','senderNotBeast','eventIsActionUsed'],
@@ -1030,6 +1032,7 @@ export default class Modtools{
 			const form = $("#assetForm");
 			saveAsset.text = $("input[name=text]", form).val();
 			saveAsset.numTargets = +$("input[name=numTargets]", form).val();
+			saveAsset.weight = +$("input[name=weight]", form).val();
 			saveAsset.alwaysAuto = $("input[name=alwaysAuto]", form).is(':checked');
 			saveAsset.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
 			saveAsset.debug = $("input[name=debug]", form).is(':checked');

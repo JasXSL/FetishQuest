@@ -15,6 +15,7 @@ Action ideas:
 Generic code:
 	- Figure out how to do netcode arrays
 	- Character export/import
+	- Make texts that rely on TT weighted again somehow
 
 Dungeon design:
 	- Players start in the port tavern. Make a port "dungeon":

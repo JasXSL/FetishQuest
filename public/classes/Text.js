@@ -49,7 +49,7 @@ class Text extends Generic{
 		this.turnTags = [];				// Sets tags that persist until the next text is received or the current turn ends
 		this.audiokits = [];			// IDs of audio kits. Can also be a string, which gets cast to an array on load. You can also use soundkits as a synonym
 		this.armor_slot = '';				// Trigger armor hit sound on this slot, use Asset.Slots
-		this._tt_multiplier = 1;			// Set to true after rebase if at least one condition is of the type Condition.Types.textTag
+		this.weight = 1;					// Lets you modify the weight of the text, higher weights are shown more often.
 		this.load(...args);
 	}
 
@@ -65,12 +65,6 @@ class Text extends Generic{
 
 	rebase(){
 		this.conditions = Condition.loadThese(this.conditions, this);
-
-		// Scan conditions for text tag conditions. These are used in weighting.
-		for( let condition of this.conditions ){
-			if( this.conditionHasTextTag(condition) )
-				break;
-		}
 
 		for( let sound of this.audiokits ){
 			if( !glib.audioKits[sound] )
@@ -89,30 +83,10 @@ class Text extends Generic{
 			turnTags : this.turnTags,
 			audiokits : this.audiokits,
 			armor_slot : this.armor_slot,
+			weight : this.weight,
 		};
 	}
 	
-
-	/* Checks if a condition involves a textTag, in which case it should get a higher priority */
-	conditionHasTextTag( cond ){
-
-		let isArr = Array.isArray(cond);
-		if( !isArr )
-			cond = [cond];
-
-		for( let c of cond ){
-			if( c.type === Condition.Types.textTag ){
-				if( isArr )
-					this._tt_multiplier = 2;
-				else{
-					this._tt_multiplier = 6;
-					return true;
-				}
-			}
-		}
-		return false;
-		
-	}
 
 	// Converts tags for a specific player
 	targetTextConversion(input, prefix, player){
@@ -291,7 +265,7 @@ Text.getFromEvent = function( event ){
 	return weightedRand( available, item => {
 		let chance = item.conditions.length;
 		chance *= Math.max(1,item.numTargets);
-		chance *= item._tt_multiplier;
+		chance *= item.weight;
 		return chance;
 	});
 
@@ -333,6 +307,13 @@ Text.runFromLibrary = function( event ){
 
 
 }
+
+// Weight templates
+Text.Weights = {
+	default : 1,
+	high : 2,
+	max : 6
+};
 
 GameEvent.on(GameEvent.Types.all, event => {
 	if( event.type === GameEvent.Types.actionUsed && event.action.no_use_text )

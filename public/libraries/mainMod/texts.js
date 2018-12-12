@@ -182,11 +182,12 @@ const lib = [
 			"targetVagina",
 			{
 				conditions : [
-				"targetNoLowerbody",
-				"ttGroinExposed"
+					"targetNoLowerbody",
+					"ttGroinExposed"
 				]
 			}
-		]
+		],
+		weight : Text.Weights.high,
 	},
 	{ text : "%S wraps tentacles around %T's ankles and begins spreading %This legs, further stretching at %This %TclothLower!",
 		audiokits : ["tentacleStretch"
@@ -198,7 +199,10 @@ const lib = [
 			"action_stdAttack",
 			"senderHasTentacles",
 			"ttWedgie",
-			"targetWearsLowerbody"]
+			"targetWearsLowerbody"
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "Two of %S's tentacles wrap around %T's %Tbsize %Tbreasts, squeezing down firmly!",
 		audiokits : ["tentacleTwist"
@@ -289,8 +293,7 @@ const lib = [
 			"targetPenis"]
 	},
 	{ text : "%S smacks %T's %Tpsize exposed %Tpenis with a tentacle!",
-		audiokits : ["tentacleWhip"
-		],
+		audiokits : ["tentacleWhip"],
 		conditions : [
 			"targetNotBeast",
 			"actionHit",
@@ -299,11 +302,14 @@ const lib = [
 			"senderHasTentacles",
 			{
 				conditions : [
-				"targetNoLowerbody",
-				"ttGroinExposed"
+					"targetNoLowerbody",
+					"ttGroinExposed"
 				]
 			},
-			"targetPenis"]
+			"targetPenis"
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S swings %Shis %Sgear at %T, whapping the %Trace across the %Tbutt!",
 		conditions : [
@@ -371,6 +377,7 @@ const lib = [
 			"ttBentOver",
 			"senderHasWhip"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["whipGeneric"]
 	},
 
@@ -509,6 +516,7 @@ const lib = [
 			"action_stdArouse",
 			"ttBentOver"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["whipGeneric"]
 	},
 	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Tvagina, landing a %couple of thrusts!",
@@ -527,6 +535,7 @@ const lib = [
 			"targetNoLowerbody",
 			"senderNoLowerbody"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Trsize %Tbutt, landing a %couple of thrusts!",
@@ -544,6 +553,7 @@ const lib = [
 			"targetNoLowerbody",
 			"senderNoLowerbody"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S slips a couple of tendrils up between %T's legs, rubbing across %This %groin!",
@@ -557,8 +567,7 @@ const lib = [
 			"targetNotBeast"]
 	},
 	{ text : "%S slips a tendril up between %T's buttcheeks, tickling between them!",
-		audiokits : ["squishLong"
-		],
+		audiokits : ["squishLong"],
 		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
@@ -570,7 +579,9 @@ const lib = [
 				"targetNoLowerbody",
 				"ttButtExposed"
 			]
-		]
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tvagina and thrusting a couple of times!",
 		audiokits : ["tentacleMultipleThrusts"
@@ -586,7 +597,9 @@ const lib = [
 				"targetNoLowerbody",
 				"ttGroinExposed"
 			]
-		]
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S thrusts two tentacles up between %T's legs, forcing one inside %This %Tvagina, and the other into %This %Trsize %Tbutt. Pumping rythmically in and out of %T!",
 		audiokits : ["tentacleMultipleThrusts"
@@ -613,11 +626,12 @@ const lib = [
 				"targetNoLowerbody",
 				"ttButtExposed"
 			]
-		]
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle plunges inside and starts rapidly thrusting into %This %Tvagina!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
+		audiokits : ["tentacleMultipleThrusts"],
 		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
@@ -628,7 +642,10 @@ const lib = [
 				"targetNoLowerbody",
 				"ttGroinExposed"
 			],
-			"targetVagina"]
+			"targetVagina"
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle wiggles inside %This %TclothLower and up %This %Tvagina, rapidly thrusting inside %Thim!",
 		audiokits : ["tentacleMultipleThrusts"
@@ -643,8 +660,7 @@ const lib = [
 			"targetVagina"]
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's %Trsize exposed %Tbutt. The tentacle wiggles inside and starts rapidly thrusting inside %Thim!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
+		audiokits : ["tentacleMultipleThrusts"],
 		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
@@ -656,7 +672,10 @@ const lib = [
 				"targetNoLowerbody",
 				"ttButtExposed"
 			],
-			"targetVagina"]
+			"targetVagina"
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S takes advantage of %T being knocked down and surprises %Thim with a slimy cock-tipped tentacle slipping inside %This mouth, squirming around and tickling %This cheeks!",
 		audiokits : ["tentacleMultipleThrusts"
@@ -724,8 +743,7 @@ const lib = [
 			"targetWearsThong"]
 	},
 	{ text : "%S pushes a thick tentacke up between %T's buttcheeks, giving %This rear some rapid prods through %This buttstring!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
+		audiokits : ["tentacleMultipleThrusts"],
 		conditions : [
 			"targetNotBeast",
 			"actionHit",
@@ -734,11 +752,12 @@ const lib = [
 			"senderHasTentacles",
 			"targetWearsLowerbody",
 			"targetWearsThong",
-			"ttButtNotExposed"]
+			"ttButtNotExposed"
+		],
+		weight : Text.Weights.high,
 	},
 	{ text : "%S latches a thick tentacke with suction cups onto %T's %Tgroin and performs a few rapid tugs and prods at %This %TclothLower!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
+		audiokits : ["tentacleMultipleThrusts"],
 		conditions : [
 			"targetNotBeast",
 			"actionHit",
@@ -747,22 +766,26 @@ const lib = [
 			"senderHasTentacles",
 			"targetWearsLowerbody",
 			"targetWearsThong",
-			"ttButtNotExposed"]
+			"ttButtNotExposed"
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S takes advantage of %T's frontal wedgie and slips a flat tentacle with wiggly nubs between %This legs, pushing it up against %This %groin where it intensely tickles %T's exposed mound!",
-		audiokits : ["gooRub"
-		],
+		audiokits : ["gooRub"],
 		conditions : [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_stdArouse",
 			"senderHasTentacles",
 			"targetWearsLowerbody",
-			"ttPussyWedgie"]
+			"ttPussyWedgie"
+		],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S slips small tendrils between %T's legs, rapidly tickling the exposed sides of %This %Tvagina and leaving a little slimy residue behind!",
-		audiokits : ["gooRub"
-		],
+		audiokits : ["gooRub"],
 		conditions : [
 			"targetNotBeast",
 			"actionHit",
@@ -770,7 +793,9 @@ const lib = [
 			"action_stdArouse",
 			"senderHasTentacles",
 			"ttPussyWedgie",
-			"targetWearsLowerbody"]
+			"targetWearsLowerbody"
+		],
+		weight : Text.Weights.high,
 	},
 	{ text : "%S wraps a tentacle around %T's %Tpsize %Tpenis, allowing a small tendril to slip under %This foreskin, tickling the tip of %This %Tpenis!",
 		audiokits : ["tentacleTwist"],
@@ -783,7 +808,8 @@ const lib = [
 			{conditions : ["targetNoLowerbody","ttGroinExposed"]},
 			"targetPenis",
 			"targetNotCircumcised"
-		]
+		],
+		weight : Text.Weights.high,
 	},
 	{ text : "%S slips %Shis %Sgear between %T's legs, grinding it back and fort across the %Trace's %Tgroin!",
 		conditions : [
@@ -870,7 +896,9 @@ const lib = [
 			"senderPenis",
 			"ttBentOver"
 		],
-		audiokits : ["slowThrusts"]
+		audiokits : ["slowThrusts"],
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Tvagina...",
 		"turnTags":[
@@ -886,6 +914,7 @@ const lib = [
 			"ttBentOver",
 			"targetVagina"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's arms from behind and forcing %Shis %Spsize %Spenis iside %T's %Trsize %Tbutt. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
@@ -963,6 +992,7 @@ const lib = [
 			"ttBentOver",
 			"ttSpanked"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["slapGeneric"]
 	},
 	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S raises %Shis palm and starts vigorously spanking the %Trace's %Trsize exposed %Tbutt...",
@@ -978,6 +1008,7 @@ const lib = [
 			"ttBentOver",
 			"ttNotSpanked"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["slapGeneric"]
 	},
 
@@ -1056,20 +1087,19 @@ const lib = [
 		audiokits : ["tentacleMultipleThrusts"],
 		conditions : anyOnHumCond.concat(
 			"action_tentacle_fiend_injectacle",
-			{conditions:[
-				"targetNoLowerbody", "ttButtExposed"
-			]}
-		)
+			"targetButtExposed"
+		),
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S's thick tentacle slips into %T's %Tvagina, landing some rapid thrusts before flooding it with a sticky liquid!",
 		audiokits : ["tentacleMultipleThrusts"],
 		conditions : anyOnHumCond.concat(
 			"action_tentacle_fiend_injectacle",
-			{conditions:[
-				"targetNoLowerbody", "ttGroinExposed"
-			]},
+			"targetGroinExposed",
 			"targetVagina"
-		)
+		),
+		weight : Text.Weights.high,
 	},
 	{ text : "Two of %S's tentacles slither up between %T's legs, one pushing into %This %Trsize %Tbutt, the other slightly larger one into %This %Tvagina. The tentacles start thrusting into %T in sync, eventually shooting a sizable amount sticky liquid inside %Thim!",
 		audiokits : ["tentacleMultipleThrusts"],
@@ -1084,7 +1114,9 @@ const lib = [
 				], min:-1}
 			]},
 			"targetNoLowerbody",
-		)
+		),
+		weight : Text.Weights.high,
+
 	},
 	{ text : "%S takes advantage of %T's legs being restrained, shoves a thick tentacle into %This %Tvagina and starts thrusting rapidly. Some time later the tentacle finally slows down, squirting a large enough wad of sticky goo into %T that some of it immediately squirts out!",
 		audiokits : ["tentacleMultipleThrusts"],
@@ -1092,12 +1124,11 @@ const lib = [
 			"actionHit",
 			"eventIsActionUsed",
 			"action_tentacle_fiend_injectacle",
-			{conditions:[
-				"targetNoLowerbody", "ttGroinExposed"
-			]},
+			"targetGroinExposed",
 			"targetVagina",
 			"targetLegsSpread"
-		)
+		),
+		weight : Text.Weights.high,
 	},
 
 
@@ -1209,8 +1240,9 @@ const lib = [
 	{ text : "%S wraps a charged tentacle around %T's %Tgroin, squeezing down and sending an electric shock through %This %Tpenis!",
 		audiokits : ["tentacleZap"],
 		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetPenis", {conditions:[
-			"ttGroinExposed", "targetLowerbodyStretchy"
-		]})
+			"targetGroinExposed", "targetLowerbodyStretchy"
+		]}),
+		weight : Text.Weights.high
 	},
 	{ text : "%S wraps charged tentacles around %T's %Trsize buttcheecks, squeezing down and sending an electric shock through them!",
 		audiokits : ["tentacleZap"],
@@ -1299,6 +1331,7 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
 	{ text : "%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis inside! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
@@ -1312,6 +1345,7 @@ const lib = [
 				"ttButtExposed"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
 	{ text : "%S jumps onto %T, latching %Shis legs around the %Trace's chest and grabbing a firm hold of %This nipples, squishing %Shis %Spsize %Spenis between %T's %Tbsize %Tbreasts. The %Srace begins rapidly humping, eventually reaching climax, shooting %Shis load into %T's face!",
@@ -1326,6 +1360,7 @@ const lib = [
 				"ttBreastsExposed"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
 	{ text : "%S jumps onto the knocked down %Trace slipping %Shis %Spsize %Spenis between %T's %Tbsize %Tbreasts, pushes them together and starts rapidly thrusting. A short while later %S pulls back, shooting a long streak of demonic cum across %T's %Tbreasts!",
@@ -1341,6 +1376,7 @@ const lib = [
 				"ttBreastsExposed"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
 	{ text : "%S surprises the knocked down %Trace by squatting near %This face and shoving %Shis %Spsize %Spenis in %This mouth. The %Srace pumps a few times before forcing a large squirt of demon cum inside %T's mouth!",
@@ -1366,6 +1402,7 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
 	{ text : "%S squats by %T's %Trsize %Tbutt and slips %Shis %Spsize %Spenis inside. The %Srace starts rapidly humping, eventually reaching climax and flooding %T's %Tbutt with demonic spunk!",
@@ -1380,6 +1417,7 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
 
@@ -1436,6 +1474,7 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S slips between %T and %T2's legs and forces %Shis fist up into both of their %Tvaginas, thrusting a few times!",
@@ -1451,6 +1490,7 @@ const lib = [
 				"ttGroinExposed"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S slips between %T and %T2's legs and rams %Shis fist into both of their groins!",
@@ -1522,6 +1562,7 @@ const lib = [
 			"action_imp_blowFromBelow",
 			"ttBentOverTable"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["punchGeneric"]
 	},
 	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast and %T2's %T2bsize %T2breast, jiggling them both around!",
@@ -1634,6 +1675,7 @@ const lib = [
 			"targetPenis",
 			"targetNotCircumcised"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["pinchGeneric"]
 	},
 	{ text : "%S casts a spell, surprising %T with a demonic pinch to %This clit!",
@@ -1770,6 +1812,7 @@ const lib = [
 			"targetWearsLowerbody",
 			"ttBentOver"
 		],
+		weight : Text.Weights.high,
 		audiokits : ["whipGeneric"]
 	},
 
@@ -1963,6 +2006,7 @@ const lib = [
 				"targetNoLowerbody"
 			]
 		],
+		weight : Text.Weights.high,
 		audiokits : ["squeezeGeneric"]
 	},
 	{ text : "%S grabs a firm hold of %T's %Tbutt and squeezes down firmly!",
