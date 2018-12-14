@@ -1713,25 +1713,63 @@ export default class Modtools{
 		xyScale*=2;
 		xyScale -= 1;
 		xyScale = Math.max(3, xyScale);
-		html += '<div class="dungeonMap">';
-			for( let room of asset.rooms ){
-				if( room.z !== z )
-					continue;
-				let x = (0.5+room.x/xyScale)*50+'vw';
-				let y = (0.5-room.y/xyScale)*50+'vw';
-				let width = 50/xyScale;
-				html += '<div data-x="'+room.x+'" data-y="'+room.y+'" class="room" style="width:'+width+'vw;height:'+width+'vw;left:'+x+';top:'+y+';" data-index="'+esc(room.index)+'">';
-					html += '<input type="button" class="addRoom left" style="left:5%;top:50%" value="+" />';
-					html += '<input type="button" class="addRoom right" style="left:95%; top:50%; " value="+" />';
-					html += '<input type="button" class="addRoom bottom" style="left:50%; top:95%;" value="+" />';
-					html += '<input type="button" class="addRoom top" value="+" style="left:50%;" />';
-					html += '<input type="button" class="addRoom up" style="left:50%; top:20%" value="+" />';
-					html += '<input type="button" class="addRoom down" value="+" style="left:50%; top:75%" />';
-				html += '</div>';
-			}
 
-			html += '<label style="transform:rotate(-90deg) translate(-50%,-100%); position:absolute; top:0; left:0;">'+zDepth+'<input type="range" id="dungeonMapZ" step=1 min="'+zDepth+'" max="'+zHeight+'" />'+zHeight+'</label>';
+		html += '<div class="flexTwoColumns">';
+
+			html += '<div class="dungeonMap">';
+				for( let room of asset.rooms ){
+					if( room.z !== z )
+						continue;
+					let x = (0.5+room.x/xyScale)*50+'vw';
+					let y = (0.5-room.y/xyScale)*50+'vw';
+					let width = 50/xyScale;
+					html += '<div data-x="'+room.x+'" data-y="'+room.y+'" class="room" style="width:'+width+'vw;height:'+width+'vw;left:'+x+';top:'+y+';" data-index="'+esc(room.index)+'">';
+						html += '<input type="button" class="addRoom left" style="left:5%;top:50%" value="+" />';
+						html += '<input type="button" class="addRoom right" style="left:95%; top:50%; " value="+" />';
+						html += '<input type="button" class="addRoom bottom" style="left:50%; top:95%;" value="+" />';
+						html += '<input type="button" class="addRoom top" value="+" style="left:50%;" />';
+						html += '<input type="button" class="addRoom up" style="left:50%; top:20%" value="+" />';
+						html += '<input type="button" class="addRoom down" value="+" style="left:50%; top:75%" />';
+					html += '</div>';
+				}
+
+				html += '<label style="transform:rotate(-90deg) translate(-50%,-100%); position:absolute; top:0; left:0;">'+zDepth+'<input type="range" id="dungeonMapZ" step=1 min="'+zDepth+'" max="'+zHeight+'" />'+zHeight+'</label>';
+			html += '</div>';
+
+			html += '<div class="cellSettings" style="padding:0 1vmax">'+
+				'Room ID: <input type="number" disabled value=0 /><br />'+
+				'Room Name: <input name="roomName" type="text" /><br />'+
+				'Room tags: '+this.formTags([], 'roomTags')+'<br />'+
+				'Room Ambiance: <input name="roomAmbiance" type="text" /><br />'+
+				'Room Ambiance Volume: <input name="roomAmbianceVolume" type="range" min=0 max=1 step=0.05 /><br />'+
+				'<label>Outdoors: <input type="checkbox" name="roomOutdoors" /></label><br />'+
+			'</div>';
 		html += '</div>';
+
+		// Canvas in here
+		html += '<div class="cellEditor">Cell Editor Here</div>';
+		html += '<br />';
+
+		// Helper functions
+		function setDungeonRoomByIndex(index){
+			for( let room of asset.rooms ){
+				if( room.index === index ){
+
+					console.log("Todo: Draw room", room);
+
+					return;
+				}
+			}
+		}
+
+		function bindRoomEditor(){
+			$("div.room[data-index]").on('click', () => {
+				setDungeonRoomByIndex();
+			});
+		}
+
+		bindRoomEditor();
+		setDungeonRoomByIndex(0);
 
 		this.editor_generic('dungeons', asset, this.mod.dungeons, html, saveAsset => {
 
