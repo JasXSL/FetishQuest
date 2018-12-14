@@ -19,6 +19,7 @@ import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTemplate.js';
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
 import { AudioKit } from '../classes/Audio.js';
+import Dungeon from '../classes/Dungeon.js';
 
 const meshLib = LibMesh.getFlatLib();
 
@@ -626,9 +627,23 @@ export default class Modtools{
 		console.log("Todo: Quests");
 	}
 
-	// Todo Later (need 3d editor)
 	mml_dungeons(){
-		console.log("Todo: Dungeons");
+		this.mml_generic( 
+			'dungeons', 
+			['Label','Name','#Rooms'],
+			this.mod.dungeons,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					(Array.isArray(asset.rooms) ? asset.rooms.length : 0),
+				];
+			},
+			() => {
+				let asset = new Dungeon({label:'New Dungeon'}).save(true);
+				return asset;
+			}
+		);
 	}
 
 	mml_playerClasses(){
@@ -1675,6 +1690,64 @@ export default class Modtools{
 
 
 	
+	editor_dungeons( asset = {} ){
+
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Tags: '+this.formTags(asset.tags, 'tags')+'<br />';
+			
+		let xyScale = 3;
+		let zHeight = 0, zDepth = 0;
+		let z = 0;
+		for( let room of asset.rooms ){
+			if( Math.abs(room.x) > xyScale )
+				xyScale = Math.abs(room.x);
+			if( Math.abs(room.y) > xyScale )
+				xyScale = Math.abs(room.y);
+			if( room.z > zHeight )
+				zHeight = room.z;
+			if( room.z < zDepth )
+				zDepth = room.z;
+		}
+		xyScale*=2;
+		xyScale -= 1;
+		xyScale = Math.max(3, xyScale);
+		html += '<div class="dungeonMap">';
+			for( let room of asset.rooms ){
+				if( room.z !== z )
+					continue;
+				let x = (0.5+room.x/xyScale)*50+'vw';
+				let y = (0.5-room.y/xyScale)*50+'vw';
+				let width = 50/xyScale;
+				html += '<div data-x="'+room.x+'" data-y="'+room.y+'" class="room" style="width:'+width+'vw;height:'+width+'vw;left:'+x+';top:'+y+';" data-index="'+esc(room.index)+'">';
+					html += '<input type="button" class="addRoom left" style="left:5%;top:50%" value="+" />';
+					html += '<input type="button" class="addRoom right" style="left:95%; top:50%; " value="+" />';
+					html += '<input type="button" class="addRoom bottom" style="left:50%; top:95%;" value="+" />';
+					html += '<input type="button" class="addRoom top" value="+" style="left:50%;" />';
+					html += '<input type="button" class="addRoom up" style="left:50%; top:20%" value="+" />';
+					html += '<input type="button" class="addRoom down" value="+" style="left:50%; top:75%" />';
+				html += '</div>';
+			}
+
+			html += '<label style="transform:rotate(-90deg) translate(-50%,-100%); position:absolute; top:0; left:0;">'+zDepth+'<input type="range" id="dungeonMapZ" step=1 min="'+zDepth+'" max="'+zHeight+'" />'+zHeight+'</label>';
+		html += '</div>';
+
+		this.editor_generic('dungeons', asset, this.mod.dungeons, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.tags = this.compileTags('tags');
+			
+
+		});
+
+
+	}
+
+
+	
 
 
 	// FORM HELPERS
@@ -2370,6 +2443,60 @@ export default class Modtools{
 		out += '<input type="button" class="addWrapperHere" value="Add Wrapper" />';
 		for( let name of names )
 			out+= this.inputWrapper(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+
+	// Cells (Bindable)
+	bindCells(){
+		let th = this;
+		$("#assetForm input.addCellHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputCell({}));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileCells( cName = 'cells' ){
+		const base = $('#assetForm div.'+cName+' div.cell');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			
+			console.log("Todo: Save Cell");
+
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputCell( data = {} ){
+		if( typeof data !== "object" )
+			data = {};
+		let out = '<div class="cell">';
+			out += 'Name: <input type="text" name="name" value="'+esc(data.name)+'" /><br />';
+			out += 'Ambiance: <input type="text" name="cellAmbiance" value="'+esc(data.ambiance)+'" /> ';
+			out += 'Volume: <input type="range" min=0 max=1 step=0.05 name="cellAmbianceVolume" value="'+esc(data.ambiance_volume)+'" /><br />';
+			out += '<label>Outdoors <input type="checkbox" name="cellOutdoors" '+(data.outdoors ? 'checked' : '')+' /></label><br />';
+			out += 'Zoom: <input type="number" min=10 max=2000 step=1 name="cellZoom" value="'+esc(data.zoom)+'" /><br />';
+		out += '</div>';
+		return out;
+	}
+
+	formCells( assets = [], cName = 'cells' ){
+
+		if( !Array.isArray(assets) )
+			assets = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addCellHere" value="Add Cell" /><br />';
+		for( let asset of assets )
+			out+= this.inputCell(asset);
 		out += '</div>';
 		return out;
 

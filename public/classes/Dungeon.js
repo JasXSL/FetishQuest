@@ -37,7 +37,7 @@ class Dungeon extends Generic{
 		this.height = 0;			// Positive value of how many stories above the entrance we can go
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
 		this.difficulty = 1;		// Generally describes how many players this dungeon is for
-
+		
 		// Runtime vars
 		this.transporting = false;	// Awaiting a room move
 
@@ -395,6 +395,7 @@ class DungeonRoom extends Generic{
 	constructor(data, parent){
 		super(data);
 
+		this.name = '';
 		this.parent = parent;
 		this.index = 0;
 		this.parent_index = 0;
@@ -426,6 +427,7 @@ class DungeonRoom extends Generic{
 			assets : this.assets.map(el => el.save(full)),
 			ambiance_volume : this.ambiance_volume,
 			tags : this.tags,
+			name : this.name
 		};
 		out.x = this.x;
 		out.y = this.y;

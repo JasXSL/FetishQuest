@@ -1262,6 +1262,26 @@ table.editor td, table.editor th{
 	padding:0.5vmax;
 }
 
+#modal div.dungeonMap{
+	width:50vw;
+	height:50vw;
+	background:rgba(0,0,0,.25);
+}
+#modal div.dungeonMap > div.room{
+	background:rgba(255,255,255,.5);
+	border-radius:0.5vmax;
+	border:0.5vmax solid rgba(0,0,0,0.5);
+	position:absolute;
+	transform:translate(-50%,-50%);
+}
+
+#modal div.dungeonMap > div.room > input.addRoom{
+	font-size:1vmax;
+	position:absolute;
+	transform:translate(-50%, -50%);
+	padding:0 0.25vmax;
+}
+
 
 div.modButtons div.button{
 	display:inline-block;
