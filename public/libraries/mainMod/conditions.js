@@ -48,8 +48,6 @@ const lib = {
 	action_elementalist_healingSurge : {"type":"actionLabel","data":{"label":"elementalist_healingSurge"},"targnr":0},
 	action_elementalist_waterSpout : {"type":"actionLabel","data":{"label":"elementalist_waterSpout"},"targnr":0},
 
-	targetAlive : {"type":"tag","data":{"tags":["g_dead"]},"inverse":true,"label":""},
-
 	targetSameTeam : {"type":"sameTeam"},
 	targetOtherTeam : {"type":"sameTeam","inverse":true},
 	actionNotHidden : {"type":"actionHidden","inverse":true},

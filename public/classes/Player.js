@@ -62,10 +62,6 @@ export default class Player extends Generic{
 		// Personality types
 		this.sadistic = 0.5;					// Normal vs Sadistic
 		this.dominant = 0.8;					// Dominant vs submissive
-		this.extraversion = 0.5;				// Extraverted vs Introverted
-		this.sensing = 0.5;						// Sensing vs intuition | Realist vs Dreamer
-		this.thinking = 0.5;					// Thinking vs Feeling | Facts vs Feelings
-		this.judging = 0.5;						// Judging vs Perceiving | Planning vs Improvising
 		this.hetero = 0.5;						// 0 = gay, 0.5 = bi, 1 = straight
 		this.intelligence = 0.6;				// 0 = No intelligence, .1 = Mollusk, .2 = Animal, .4 = Child, .6 = Average human, .9 = Mastermind, 1 = Godlike
 												/* Notes on intelligence:
@@ -137,51 +133,35 @@ export default class Player extends Generic{
 	save( full ){
 		this.updateAutoWrappers();
 		const out = {
-			id : this.id,
 			name : this.name,
 			icon : this.icon,
 			actions : this.actions.map(el => el.save(full)),
 			assets : this.assets.map(el => el.save(full)),
 			tags : this.tags,
-			ap : this.ap,
-			hp : this.hp,
-			mp : this.mp,
 			max_ap : this.max_ap,
 			max_hp : this.max_hp,
 			max_mp : this.max_mp,
 			team : this.team,
 			species : this.species,
 			description : this.description,
-			wrappers : this.wrappers.map(el => el.save(full)),
 			size : this.size,
 			level : this.level,
-			netgame_owner : this.netgame_owner,
-			netgame_owner_name : this.netgame_owner_name,
 			class : this.class,
-			color : this.color,
 			stamina : this.stamina,
 			agility : this.agility,
 			intellect : this.intellect,
-			arousal : this.arousal,
 			max_arousal : this.max_arousal,
-
 			svPhysical : this.svPhysical,
 			svElemental : this.svElemental,
 			svHoly : this.svHoly,
 			svCorruption : this.svCorruption,
-
 			bonPhysical : this.bonPhysical,
 			bonElemental : this.bonElemental,
 			bonHoly : this.bonHoly,
 			bonCorruption : this.bonCorruption,
-			//auto_wrappers : this.auto_wrappers.map(el => el.save(full)),
 			used_punish : this.used_punish,
 			sadistic : this.sadistic,					// Normal vs Sadistic
 			dominant : this.dominant,					// Dominant vs submissive
-			extraversion : this.extraversion,			// Extraverted vs Introverted
-			sensing : this.sensing,						// Sensing vs intuition | Factual vs dreaming
-			thinking : this.thinking,					// Thinking vs Feeling | Facts vs Feelings
-			judging : this.judging,						// Judging vs Perceiving | Planning vs Improvising
 			hetero : this.hetero,						// 0 = gay, 0.5 = bi, 1 = straight
 			intelligence : this.intelligence,
 		};
@@ -199,6 +179,20 @@ export default class Player extends Generic{
 			out._d_damage_since_last = this._d_damage_since_last;
 			out._turns = this._turns;
 		}
+
+		if( full !== "mod" ){
+			out.id = this.id;
+			out.ap = this.ap;
+			out.hp = this.hp;
+			out.mp = this.mp;
+			out.wrappers = this.wrappers.map(el => el.save(full));
+			out.netgame_owner = this.netgame_owner;
+			out.netgame_owner_name = this.netgame_owner_name;
+			out.color = this.color;
+			out.arousal = this.arousal;
+		}
+		else
+			this.g_sanitizeDefaults(out);
 
 		return out;
 	}

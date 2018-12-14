@@ -53,6 +53,12 @@ export default class PlayerClass extends Generic{
 			out.actions = this.actions;
 		}
 
+		if( full !== "mod" ){
+			
+		}
+		else
+			this.g_sanitizeDefaults(out);
+
 		return out;
 	}
 

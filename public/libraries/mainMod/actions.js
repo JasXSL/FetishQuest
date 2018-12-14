@@ -8,7 +8,7 @@ import C from './conditions.js';
 
 
 // Standard wrapper conditions
-const stdCond = ["targetAlive","senderNotDead","targetNotDead"];
+const stdCond = ["senderNotDead","targetNotDead"];
 
 const lib = {
 	"stdAttack": {
@@ -31,16 +31,8 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -84,16 +76,8 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -289,11 +273,7 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -334,16 +314,8 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -390,16 +362,8 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : false,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -417,16 +381,8 @@ const lib = {
 				icon : "wave-crest",
 				description : "Healing at the start of each turn.",
 				detrimental : false,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -461,16 +417,8 @@ const lib = {
 				icon : "droplet-splash",
 				description : "Actions will debuff the target and restore MP to the caster.",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "runWrappers",
@@ -508,11 +456,7 @@ const lib = {
 			},
 			{
 				detrimental : false,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					"visTargTakeDamageElemental"
 				]
@@ -543,16 +487,8 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -589,11 +525,7 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					"visTargTakeDamage"
 				]
@@ -605,16 +537,8 @@ const lib = {
 				icon : "poison-bottle",
 				description : "Taking corruption damage each turn. Corruption resist reduced.",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -655,11 +579,7 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -715,11 +635,7 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -756,16 +672,8 @@ const lib = {
 				icon : "holy-hand-grenade",
 				description : "Using damaging actions deals 3 holy damage back to the caster. Damage done reduced by 1.",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -791,11 +699,7 @@ const lib = {
 				]
 			},
 			{
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				detrimental : true,
 				effects : [
 					"visTargTakeDamageHoly"
@@ -828,11 +732,7 @@ const lib = {
 				icon : "",
 				description : ".",
 				detrimental : false,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -870,11 +770,7 @@ const lib = {
 				icon : "",
 				description : "",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -905,11 +801,7 @@ const lib = {
 		wrappers : [
 			"corruptingOoze",
 			{
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					"visTargTakeDamageCorruption"
 				]
@@ -934,10 +826,7 @@ const lib = {
 		],
 		wrappers : [
 			{
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					{
 						type : "hasWrapper",
 						data : {
@@ -945,7 +834,7 @@ const lib = {
 							"byCaster": true
 						}
 					}
-				],
+				),
 				effects : [
 					{
 						type : "damage",
@@ -993,16 +882,8 @@ const lib = {
 				target : "VICTIM",
 				duration : 0,
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -1038,16 +919,8 @@ const lib = {
 				icon : "bolster",
 				description : "-2 damage taken from all attacks. Taking damage grants you AP.",
 				detrimental : false,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "globalDamageTakenMod",
@@ -1107,16 +980,8 @@ const lib = {
 				icon : "grab",
 				description : "Taunted by %caster.",
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						events : [
@@ -1136,11 +1001,7 @@ const lib = {
 			},
 			{
 				detrimental : false,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				target : "CASTER",
 				effects : [
 					{
@@ -1176,16 +1037,8 @@ const lib = {
 				target : "VICTIM",
 				duration : 0,
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -1202,16 +1055,8 @@ const lib = {
 				target : "VICTIM",
 				duration : 0,
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -1245,16 +1090,8 @@ const lib = {
 				target : "VICTIM",
 				duration : 0,
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -1272,16 +1109,8 @@ const lib = {
 				name : "Disabling Strike",
 				description : "-5 Physical Proficiency and Resistance",
 				icon : "weaken",
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				tags : [
 					"ac_debuff"
 				],
@@ -1321,16 +1150,8 @@ const lib = {
 				target : "VICTIM",
 				duration : 0,
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -1345,16 +1166,8 @@ const lib = {
 				target : "SMART_HEAL",
 				duration : 0,
 				detrimental : false,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -1396,11 +1209,7 @@ const lib = {
 			{
 				target : "VICTIM",
 				duration : 0,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",
@@ -1418,19 +1227,12 @@ const lib = {
 				name : "Knockdown",
 				icon : "falling",
 				description : "Knocked down on your %knockdown",
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotKnockedDown",
 					"targetNotBeast",
 					"rand20"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				),
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "knockdown"
@@ -1465,10 +1267,7 @@ const lib = {
 			{
 				target : "VICTIM",
 				duration : 0,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotBeast",
 					{
 						conditions : [
@@ -1477,11 +1276,12 @@ const lib = {
 								conditions : [
 									"targetUpperbodyNotHard",
 									"targetBreasts"
-								]
+								],
+								min : -1
 							}
 						]
 					}
-				],
+				),
 				effects : [
 					{
 						type : "damage",
@@ -1524,12 +1324,7 @@ const lib = {
 				name : "Imp Cum",
 				icon : "blood",
 				description : "Corruption resistance reduced by 1 per stack",
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
-					"targetNotBeast"
-				],
+				add_conditions : stdCond.concat("targetNotBeast"),
 				effects : [
 					{
 						conditions : [
@@ -1569,13 +1364,10 @@ const lib = {
 			{
 				target : "VICTIM",
 				duration : 0,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotBeast",
 					"targetTaller"
-				],
+				),
 				effects : [
 					{
 						type : "damage",
@@ -1606,12 +1398,9 @@ const lib = {
 		wrappers : [
 			{
 				target : "VICTIM",
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotBeast"
-				],
+				),
 				effects : [
 					{
 						type : "damage",
@@ -1630,19 +1419,12 @@ const lib = {
 				icon : "falling",
 				detrimental : true,
 				description : "Knocked down on your %knockdown",
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotKnockedDown",
 					"targetNotBeast",
 					"rand10"
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				),
+				stay_conditions : stdCond,
 				effects : [
 					{
 						events : ["internalWrapperAdded"],
@@ -1671,12 +1453,9 @@ const lib = {
 			{
 				target : "VICTIM",
 				duration : 0,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotBeast"
-				],
+				),
 				effects : [
 					{
 						type : "damage",
@@ -1755,16 +1534,13 @@ const lib = {
 				name : "",
 				icon : "",
 				description : "",
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotBeast",
 					[
 						"targetBreasts",
 						"targetPenis"
 					]
-				],
+				),
 				effects : [
 					{
 						type : "damage",
@@ -1803,10 +1579,7 @@ const lib = {
 				tags : [
 					"wr_legs_spread"
 				],
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotKnockedDown",
 					"targetNotBeast",
 					{
@@ -1816,12 +1589,8 @@ const lib = {
 						},
 						"caster": true
 					}
-				],
-				stay_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				),
+				stay_conditions : stdCond,
 				effects : [
 					{
 						type : "knockdown"
@@ -1896,13 +1665,10 @@ const lib = {
 				target : "VICTIM",
 				duration : 0,
 				detrimental : true,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead",
+				add_conditions : stdCond.concat(
 					"targetNotBeast",
 					"targetWearsLowerbody"
-				],
+				),
 				effects : [
 					{
 						type : "damageArmor",
@@ -2250,11 +2016,7 @@ const lib = {
 				icon : "",
 				description : ".",
 				detrimental : false,
-				add_conditions : [
-					"targetAlive",
-					"senderNotDead",
-					"targetNotDead"
-				],
+				add_conditions : stdCond,
 				effects : [
 					{
 						type : "damage",

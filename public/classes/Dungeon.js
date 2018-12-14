@@ -55,20 +55,28 @@ class Dungeon extends Generic{
 
 	save( full ){
 		let out = {
-			id : this.id,
 			name : this.name,
 			tags : this.tags,
 			rooms : this.rooms.map(el => el.save(full)),
-			active_room : this.active_room,
 			difficulty : this.difficulty,
-			previous_room : this.previous_room,
 		};
+
+		// Full or mod
 		if( full ){
 			out.label = this.label;
 			out.depth = this.depth;
 			out.height = this.height;
 			out.shape = this.shape;
 		}
+
+		// Everything except mod
+		if( full !== 'mod' ){
+			out.id = this.id;
+			out.active_room = this.active_room;
+			out.previous_room = this.previous_room;
+		}
+		else
+			this.g_sanitizeDefaults(out);
 		return out;
 	}
 
@@ -419,30 +427,41 @@ class DungeonRoom extends Generic{
 	}
 
 	save( full ){
+
+		// shared
 		const out = {
-			id : this.id,
 			index : this.index,
 			parent_index : this.parent_index,
-			discovered : this.discovered,
 			assets : this.assets.map(el => el.save(full)),
 			ambiance_volume : this.ambiance_volume,
 			tags : this.tags,
-			name : this.name
+			name : this.name,
+			x : this.x,
+			y : this.y,
+			z : this.z,
+			zoom : this.zoom,
+			outdoors : this.outdoors,
+			ambiance : this.ambiance
 		};
-		out.x = this.x;
-		out.y = this.y;
-		out.z = this.z;
-		out.zoom = this.zoom;
-		out.outdoors = this.outdoors;
 
+		// Full or mod
 		if( full ){
 			out.encounter = this.encounter.save(full);
-			out.label = this.label;
-			out.ambiance = this.ambiance;
+			return out;
 		}
+		
+		// Stuff needed for everything except mod
+		if( full !== 'mod' ){
+			out.id = this.id;
+			out.discovered = this.discovered;
+		}
+		else
+			this.g_sanitizeDefaults(out);
 
 		return out;
 	}
+
+
 
 	load(data){
 		this.g_autoload(data);
@@ -468,11 +487,17 @@ class DungeonRoom extends Generic{
 
 
 	/* ROOM CONNECTIONS */
-	// Returns an array of [X,Y] which is the offset from this bearing
+	// Returns an array of [X,Y,Z] which is the offset from this bearing
 	getBearingCoords(bearing){
 		if( isNaN(bearing) )
 			return [0,0];
-		return [[0,-1],[1,0],[0,1],[-1,0]][bearing];
+		return [[0,-1,0],[1,0,0],[0,1,0],[-1,0,0],[0,0,1],[0,0,-1]][bearing];
+	}
+
+	getRoomBearingCoords(bearing){
+		if( isNaN(bearing) )
+			return [0,0];
+		return [[0,1,0],[1,0,0],[0,-1,0],[-1,0,0],[0,0,1],[0,0,-1]][bearing];
 	}
 
 	// Returns 0-5 based on if the adjacent room is NWSEUD
@@ -513,6 +538,16 @@ class DungeonRoom extends Generic{
 	// Gets all rooms that link to this
 	getDirectConnections(){
 		return this.parent.rooms.filter(el => (el.parent_index===this.index || el.index === this.parent_index) && el.index !== this.index);
+	}
+
+	// Gets bearings of all rooms linking to this in the form of {bearing:name}
+	getAdjacentBearings(){
+		const cons = this.getDirectConnections();
+		const out = {};
+		for( let room of cons )
+			out[String(this.getAdjacentBearing(room))] = room; 
+		
+		return out;
 	}
 
 	// Gets parents of this room in order
@@ -792,6 +827,15 @@ class DungeonRoom extends Generic{
 
 }
 
+DungeonRoom.Dirs = {
+	North : 0,
+	East : 1,
+	South : 2,
+	West : 3,
+	Up : 4,
+	Down : 5
+};
+
 
 
 
@@ -837,7 +881,6 @@ class DungeonRoomAsset extends Generic{
 
 	save( full ){
 		const out = {
-			id : this.id,
 			model : this.model,
 			x : this.x,
 			y : this.y,
@@ -851,12 +894,22 @@ class DungeonRoomAsset extends Generic{
 			tags : this.tags,
 			absolute : this.absolute,
 		};
+
+		// Full or mod
 		if( full ){
 			out.interactEncounter = this.interactEncounter.save(full);
 		}
 
+		if( full !== 'mod' ){
+			out.id = this.id;
+		}
+		else{
+			this.g_sanitizeDefaults(out);
+		}
 		return out;
 	}
+
+
 
 	load(data){
 		this.g_autoload(data);
@@ -1111,18 +1164,23 @@ class DungeonEncounter extends Generic{
 
 	save( full ){
 		const out = {
-			id : this.id,
-			completed : this.completed,
 			players : this.players.map(el => el.save(full)),
 			wrappers : this.wrappers.map(el => el.save(full)),
-			started : this.started,
-			active : this.active,
 			startText : this.startText
 		};
+
+		if( full !== "mod" ){
+			out.id = this.id;
+			out.completed = this.completed;
+			out.started = this.started;
+			out.active = this.active;
+		}
+		else
+			this.g_sanitizeDefaults(out);
+
 		// Not really gonna need a full because these are never output to webplayers
 		return out;
 	}
-
 	getQuest(){
 		let p = this.parent;
 		while( p !== undefined && !(p instanceof Quest) )
@@ -1157,7 +1215,7 @@ class DungeonEncounter extends Generic{
 Dungeon.generate = function( numRooms, kit, settings ){
 
 	const conditions = glib.conditions,
-		stdCond = [conditions.targetAlive, conditions.senderNotDead, conditions.targetNotDead];
+		stdCond = [conditions.senderNotDead, conditions.targetNotDead];
 
 	let out = new this(settings);
 	numRooms = Math.max(numRooms, 1);

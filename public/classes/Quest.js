@@ -27,7 +27,6 @@ class Quest extends Generic{
 	save( full ){
 
 		const out = {
-			id : this.id,
 			name : this.name,
 			description : this.description,
 			objectives : this.objectives.map(el => el.save(full)),
@@ -41,6 +40,13 @@ class Quest extends Generic{
 			out.label = this.label;
 			out.dungeon = this.dungeon.save(full);
 		}
+
+		if( full !== "mod" ){
+			out.id = this.id;			
+		}
+		else
+			this.g_sanitizeDefaults(out);
+
 		return out;
 
 	}
@@ -221,10 +227,8 @@ class QuestObjective extends Generic{
 	
 	save( full ){
 		const out = {
-			id : this.id,
 			name : this.name,
 			amount : this.amount,
-			_amount : this._amount,
 		};
 
 		if( full ){
@@ -233,6 +237,15 @@ class QuestObjective extends Generic{
 			out.events = this.events.map(el => el.save(full));
 
 		}
+
+		if( full !== "mod" ){
+			
+			out.id = this.id;
+			out._amount = this._amount;
+
+		}
+		else
+			this.g_sanitizeDefaults();
 
 		return out;
 	}
@@ -308,11 +321,17 @@ class QuestObjectiveEvent extends Generic{
 	}
 	save( full ){
 		const out = {
-			id : this.id,
 			conditions : Condition.saveThese(this.conditions, full),
 			action : this.action,
 			data : this.data
 		};
+
+		if( full !== "mod" ){
+			out.id = this.id;
+		}
+		else
+			this.g_sanitizeDefaults(out);
+
 		// No need for full since this won't be sent
 		return out;
 	}

@@ -28,7 +28,7 @@ export default class Asset extends Generic{
 		this.durability = this.getMaxDurability();
 		
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
-		this.use_action = new Action();		// Set to an Action along with charges above to enable use
+		this.use_action = new Action([], this);		// Set to an Action along with charges above to enable use
 		this.no_auto_consume = false;		// Prevents auto consume of charges
 		this.rarity = this.constructor.Rarity.COMMON;
 		this.loot_sound = '';				// Also equip and unequip sound. audioKit ID
@@ -46,7 +46,6 @@ export default class Asset extends Generic{
 	// Data that should be saved to drive
 	save( full ){
 		let out = {
-			id : this.id,
 			name : this.name,
 			slots : this.slots,
 			equipped : this.equipped,
@@ -67,6 +66,14 @@ export default class Asset extends Generic{
 		if( full ){
 			out.no_auto_consume = this.no_auto_consume;
 		}
+
+		if( full !== "mod" ){
+			out.id = this.id;
+		}
+		else
+			this.g_sanitizeDefaults(out);
+
+		
 		return out;
 
 	}

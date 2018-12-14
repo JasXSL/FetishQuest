@@ -49,6 +49,10 @@ export default class Condition extends Generic{
 
 		if( full )
 			out.label = this.label;
+
+		if( full === "mod" )
+			this.g_sanitizeDefaults(out);
+
 		return out;
 
 	}

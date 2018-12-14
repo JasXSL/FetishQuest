@@ -1908,7 +1908,8 @@ const mod = new Mod(
 						"greater_tentacle_fiend",
 						"stunted_imp",
 						"imp",
-						"darkImp"
+						"darkImp",
+						"shocktacle"
 					]
 				],
 				"rooms":[
@@ -2147,12 +2148,10 @@ const mod = new Mod(
 				"detrimental":true,
 				"label":"soak",
 				"add_conditions":[
-					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
 				"stay_conditions":[
-					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
@@ -2175,12 +2174,10 @@ const mod = new Mod(
 				"icon":"stun",
 				"detrimental":true,
 				"add_conditions":[
-					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
 				"stay_conditions":[
-					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
@@ -2204,12 +2201,10 @@ const mod = new Mod(
 				"detrimental":true,
 				"label":"corruptingOoze",
 				"add_conditions":[
-					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
 				"stay_conditions":[
-					"targetAlive",
 					"senderNotDead",
 					"targetNotDead"
 				],
@@ -2256,12 +2251,10 @@ const mod = new Mod(
 								"icon":"stun",
 								"detrimental":true,
 								"add_conditions":[
-									"targetAlive",
 									"senderNotDead",
 									"targetNotDead"
 								],
 								"stay_conditions":[
-									"targetAlive",
 									"senderNotDead",
 									"targetNotDead"
 								],

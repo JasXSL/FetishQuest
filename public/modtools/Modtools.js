@@ -19,7 +19,7 @@ import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTemplate.js';
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
 import { AudioKit } from '../classes/Audio.js';
-import Dungeon from '../classes/Dungeon.js';
+import Dungeon, { DungeonRoom } from '../classes/Dungeon.js';
 
 const meshLib = LibMesh.getFlatLib();
 
@@ -265,7 +265,6 @@ export default class Modtools{
 
 		$("#newMod").on('click', async () => {
 
-			console.log("Creating new mod");
 			glib = new GameLib();
 			this.mod = new Mod({
 				name : 'Unnamed Mod'
@@ -515,6 +514,9 @@ export default class Modtools{
 		$("#insertAsset").on('click', async () => {
 			
 			const asset = fnInsert();
+			asset.add_conditions = ['senderNotDead','targetNotDead'];
+			asset.stay_conditions = ['senderNotDead','targetNotDead'];
+			
 			table.push(asset);
 			
 			this['editor_'+sfType](asset);
@@ -613,7 +615,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new Condition({label:Generic.generateUUID().substr(0,8), type:Condition.Types.event}).save(true);
+				let asset = new Condition({label:Generic.generateUUID().substr(0,8), type:Condition.Types.event}).save("mod");
 				asset.min = 1;
 				asset.max = -1;
 				return asset;
@@ -640,7 +642,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new Dungeon({label:'New Dungeon'}).save(true);
+				let asset = new Dungeon({label:'New Dungeon'}).save("mod");
 				return asset;
 			}
 		);
@@ -660,7 +662,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new Action({label:'UNKNOWN_CLASS'}).save(true);
+				let asset = new Action({label:'UNKNOWN_CLASS'}).save("mod");
 				return asset;
 			}
 		);
@@ -692,7 +694,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new Action({label:'UNKNOWN_ACTION'}).save(true);
+				let asset = new Action({label:'UNKNOWN_ACTION'}).save("mod");
 				asset.show_conditions = ['inCombat'];
 				return asset;
 			}
@@ -718,7 +720,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new Wrapper({label:'UNKNOWN_WRAPPER'}).save(true);
+				let asset = new Wrapper({label:'UNKNOWN_WRAPPER'}).save("mod");
 				return asset;
 			}
 		);
@@ -737,7 +739,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new Effect({label:'UNKNOWN_EFFECT'}).save(true);
+				let asset = new Effect({label:'UNKNOWN_EFFECT'}).save("mod");
 				return asset;
 			}
 		);
@@ -760,7 +762,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new Asset({label:'UNKNOWN_ASSET'}).save(true);
+				let asset = new Asset({label:'UNKNOWN_ASSET'}).save("mod");
 				return asset;
 			}
 		);
@@ -790,7 +792,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new PlayerTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				let asset = new PlayerTemplate({label:'UNKNOWN_TEMPLATE'}).save("mod");
 				return asset;
 			}
 		);
@@ -815,7 +817,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new AssetTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				let asset = new AssetTemplate({label:'UNKNOWN_TEMPLATE'}).save("mod");
 				return asset;
 			}
 		);
@@ -839,7 +841,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new DungeonTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				let asset = new DungeonTemplate({label:'UNKNOWN_TEMPLATE'}).save("mod");
 				return asset;
 			}
 		);
@@ -863,7 +865,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new RoomTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				let asset = new RoomTemplate({label:'UNKNOWN_TEMPLATE'}).save("mod");
 				return asset;
 			}
 		);
@@ -888,7 +890,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new MaterialTemplate({label:'UNKNOWN_TEMPLATE'}).save(true);
+				let asset = new MaterialTemplate({label:'UNKNOWN_TEMPLATE'}).save("mod");
 				return asset;
 			}
 		);
@@ -909,7 +911,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new AudioKit({label:'UNKNOWN_KIT'}).save(true);
+				let asset = new AudioKit({label:'UNKNOWN_KIT'}).save("mod");
 				return asset;
 			}
 		);
@@ -1325,7 +1327,6 @@ export default class Modtools{
 			saveAsset.data = {};
 			try{ saveAsset.data = JSON.parse($("input[name=data]", form).val().trim()); }catch(err){}
 			saveAsset.events = this.compileEvents('events');
-			console.log("Events", saveAsset.events);
 			saveAsset.type = $('select[name=type]', form).val();
 			saveAsset.targets = this.compileWrapperTargetTypes('targets');
 			saveAsset.conditions = this.compileConditions('conditions');
@@ -1439,22 +1440,6 @@ export default class Modtools{
 			'Min: <input type="range" min=0 step=0.01 max=1 name="dominant_min" value="'+esc(asset.dominant_min)+'" /> '+
 			'Max: <input type="range" min=0 step=0.01 max=1 name="dominant_max" value="'+esc(asset.dominant_max)+'" />'+
 		'</label><br />';
-		html += '<label>Extraverted: '+
-			'Min: <input type="range" min=0 step=0.01 max=1 name="extraversion_min" value="'+esc(asset.extraversion_min)+'" /> '+
-			'Max: <input type="range" min=0 step=0.01 max=1 name="extraversion_max" value="'+esc(asset.extraversion_max)+'" />'+
-		'</label><br />';
-		html += '<label>Sensing: '+
-			'Min: <input type="range" min=0 step=0.01 max=1 name="sensing_min" value="'+esc(asset.sensing_min)+'" /> '+
-			'Max: <input type="range" min=0 step=0.01 max=1 name="sensing_max" value="'+esc(asset.sensing_max)+'" />'+
-		'</label><br />';
-		html += '<label>Thinking: '+
-			'Min: <input type="range" min=0 step=0.01 max=1 name="thinking_min" value="'+esc(asset.thinking_min)+'" /> '+
-			'Max: <input type="range" min=0 step=0.01 max=1 name="thinking_max" value="'+esc(asset.thinking_max)+'" />'+
-		'</label><br />';
-		html += '<label>Judging: '+
-			'Min: <input type="range" min=0 step=0.01 max=1 name="judging_min" value="'+esc(asset.judging_min)+'" /> '+
-			'Max: <input type="range" min=0 step=0.01 max=1 name="judging_max" value="'+esc(asset.judging_max)+'" />'+
-		'</label><br />';
 		html += '<label>Heterosexuality: '+
 			'Min: <input type="range" min=0 step=0.01 max=1 name="hetero_min" value="'+esc(asset.hetero_min)+'" /> '+
 			'Max: <input type="range" min=0 step=0.01 max=1 name="hetero_max" value="'+esc(asset.hetero_max)+'" />'+
@@ -1501,18 +1486,6 @@ export default class Modtools{
 
 			saveAsset.dominant_min = +$("input[name=dominant_min]", form).val().trim();
 			saveAsset.dominant_max = +$("input[name=dominant_max]", form).val().trim();
-
-			saveAsset.extraversion_min = +$("input[name=extraversion_min]", form).val().trim();
-			saveAsset.extraversion_max = +$("input[name=extraversion_max]", form).val().trim();
-
-			saveAsset.sensing_min = +$("input[name=sensing_min]", form).val().trim();
-			saveAsset.sensing_max = +$("input[name=sensing_max]", form).val().trim();
-
-			saveAsset.thinking_min = +$("input[name=thinking_min]", form).val().trim();
-			saveAsset.thinking_max = +$("input[name=thinking_max]", form).val().trim();
-
-			saveAsset.judging_min = +$("input[name=judging_min]", form).val().trim();
-			saveAsset.judging_max = +$("input[name=judging_max]", form).val().trim();
 
 			saveAsset.hetero_min = +$("input[name=hetero_min]", form).val().trim();
 			saveAsset.hetero_max = +$("input[name=hetero_max]", form).val().trim();
@@ -1692,84 +1665,202 @@ export default class Modtools{
 	
 	editor_dungeons( asset = {} ){
 
+		const th = this;
+		if( !Array.isArray(asset.rooms) )
+			asset.rooms = [];
+
+		const dungeon = new Dungeon(asset);
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
 			html += 'Tags: '+this.formTags(asset.tags, 'tags')+'<br />';
-			
-		let xyScale = 3;
-		let zHeight = 0, zDepth = 0;
-		let z = 0;
-		for( let room of asset.rooms ){
-			if( Math.abs(room.x) > xyScale )
-				xyScale = Math.abs(room.x);
-			if( Math.abs(room.y) > xyScale )
-				xyScale = Math.abs(room.y);
-			if( room.z > zHeight )
-				zHeight = room.z;
-			if( room.z < zDepth )
-				zDepth = room.z;
-		}
-		xyScale*=2;
-		xyScale -= 1;
-		xyScale = Math.max(3, xyScale);
 
-		html += '<div class="flexTwoColumns">';
-
-			html += '<div class="dungeonMap">';
-				for( let room of asset.rooms ){
-					if( room.z !== z )
-						continue;
-					let x = (0.5+room.x/xyScale)*50+'vw';
-					let y = (0.5-room.y/xyScale)*50+'vw';
-					let width = 50/xyScale;
-					html += '<div data-x="'+room.x+'" data-y="'+room.y+'" class="room" style="width:'+width+'vw;height:'+width+'vw;left:'+x+';top:'+y+';" data-index="'+esc(room.index)+'">';
-						html += '<input type="button" class="addRoom left" style="left:5%;top:50%" value="+" />';
-						html += '<input type="button" class="addRoom right" style="left:95%; top:50%; " value="+" />';
-						html += '<input type="button" class="addRoom bottom" style="left:50%; top:95%;" value="+" />';
-						html += '<input type="button" class="addRoom top" value="+" style="left:50%;" />';
-						html += '<input type="button" class="addRoom up" style="left:50%; top:20%" value="+" />';
-						html += '<input type="button" class="addRoom down" value="+" style="left:50%; top:75%" />';
-					html += '</div>';
-				}
-
-				html += '<label style="transform:rotate(-90deg) translate(-50%,-100%); position:absolute; top:0; left:0;">'+zDepth+'<input type="range" id="dungeonMapZ" step=1 min="'+zDepth+'" max="'+zHeight+'" />'+zHeight+'</label>';
-			html += '</div>';
-
-			html += '<div class="cellSettings" style="padding:0 1vmax">'+
-				'Room ID: <input type="number" disabled value=0 /><br />'+
-				'Room Name: <input name="roomName" type="text" /><br />'+
-				'Room tags: '+this.formTags([], 'roomTags')+'<br />'+
-				'Room Ambiance: <input name="roomAmbiance" type="text" /><br />'+
-				'Room Ambiance Volume: <input name="roomAmbianceVolume" type="range" min=0 max=1 step=0.05 /><br />'+
-				'<label>Outdoors: <input type="checkbox" name="roomOutdoors" /></label><br />'+
-			'</div>';
+		html += '<div class="flexTwoColumns roomWrap">';
+			html += '<div class="dungeonMap"></div>';
+			html += '<div class="cellSettings" style="padding:0 1vmax"></div>';
 		html += '</div>';
 
 		// Canvas in here
 		html += '<div class="cellEditor">Cell Editor Here</div>';
 		html += '<br />';
 
+
+
 		// Helper functions
-		function setDungeonRoomByIndex(index){
-			for( let room of asset.rooms ){
+		function setDungeonRoomByIndex(index, z = 0){
+
+			// Get map scale
+			let xyScale = 2;
+			let zHeight = 0, zDepth = 0;
+			for( let room of dungeon.rooms ){
+				if(room.z === z){
+					if( Math.abs(room.x) > xyScale )
+						xyScale = Math.abs(room.x);
+					if( Math.abs(room.y) > xyScale )
+						xyScale = Math.abs(room.y);
+				}
+				if( room.z > zHeight )
+					zHeight = room.z;
+				if( room.z < zDepth )
+					zDepth = room.z;
+			}
+			xyScale*=2;
+			xyScale+=1;
+			xyScale = Math.max(3, xyScale);
+
+			// Room map
+			let html = '';
+			let editor_room = dungeon.rooms[0];
+			for( let room of dungeon.rooms ){
+				if( room.z !== z )
+					continue;
+
+				editor_room = room;
+				let x = (0.5+room.x/xyScale)*50+'vw';
+				let y = (0.5-room.y/xyScale)*50+'vw';
+				let width = 50/xyScale;
+				
+				const dirs = [
+					{dir:DungeonRoom.Dirs.West, style:'left:0;top:50%;transform:translateY(-50%)', arrow:'⇦'},
+					{dir:DungeonRoom.Dirs.East, style:'right:0; top:50%; transform:translateY(-50%)', arrow:'⇨'},
+					{dir:DungeonRoom.Dirs.North, style:'left:50%; top:0; transform:translateX(-50%)', arrow:'⇧'},
+					{dir:DungeonRoom.Dirs.South, style:'left:50%; bottom:0; transform:translateX(-50%)', arrow:'⇩'},
+					{dir:DungeonRoom.Dirs.Up, style:'left:50%; top:20%; transform:translateX(-50%)', arrow:'⇞'},
+					{dir:DungeonRoom.Dirs.Down, style:'left:50%; bottom:20%; transform:translateX(-50%)', arrow:'⇟'},
+				];
+				
+				let allAdjacent = room.getAdjacentBearings();
+				html += '<div '+
+					'data-x="'+room.x+'" data-y="'+room.y+'" '+
+					'class="room'+(room.index === index ? ' selected' : '')+'" '+
+					'style="width:'+width+'vw;height:'+width+'vw;left:'+x+';top:'+y+';" '+
+					'data-index="'+esc(room.index)+'">';
+				for( let dir of dirs ){
+
+					let d = room.getRoomBearingCoords(dir.dir);
+					let adjacent = dungeon.getRoomAt(room.x+d[0],room.y+d[1],room.z+d[2]);
+					if( !adjacent || adjacent.parent_index === room.index || room.parent_index === adjacent.index ){
+						html += '<input type="button" '+
+							(allAdjacent[dir.dir] ? 'data-adjacent="'+(allAdjacent[dir.dir].index)+'" ' : '')+
+							'data-dir="'+dir.dir+'" '+
+							'class="addRoom'+(allAdjacent[dir.dir] ? ' disabled' : '')+'" '+
+							'style="'+dir.style+'" '+
+							'value="'+(allAdjacent[dir.dir] ? dir.arrow : '+'+dir.arrow )+'" />';					
+					}
+				}
+				html += '<div class="name" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%)">'+esc(room.name || 'Unknown')+'</div>';
+				html += '</div>';
+			}
+
+			html += 'Z: <input type="number" step=1 value="'+esc(z)+'" id="zHeight" />';
+			$("#modal div.dungeonMap").html(html);
+
+
+
+			// ROOM EDITOR & 3D
+			// Helper function that binds the room form
+			function rebindRoom(){
+				$("#modal div.cellSettings input:not(.addTagHere)").off('change').on('change', function(event){
+
+					const room = editor_room;
+					const dom = $(this);
+					const name = dom.attr('name');
+					const val = dom.val();
+					if( name === "roomName" ){
+						room.name = val;
+						$("#modal div.room[data-index="+room.index+"] div.name").html(esc(val));
+					}
+					if( name === "roomAmbiance" )
+						room.ambiance = val;
+					if( name === "roomAmbianceVolume" )
+						room.ambiance_volume = +val;
+					if( name === "roomOutdoors" )
+						room.outdoors = dom.is(':checked');
+					
+					if( name === "tag" ){
+						// Recompile tags
+						room.tags = th.compileTags('roomTags');
+					}
+
+				});
+			}
+
+			for( let room of dungeon.rooms ){
 				if( room.index === index ){
 
-					console.log("Todo: Draw room", room);
+					// Cell settings
+					html = 'Room ID: <input type="number" disabled value='+esc(room.index)+' /><br />'+
+						'Room Name: <input name="roomName" value="'+esc(room.name)+'" type="text" /><br />'+
+						'Room tags: '+th.formTags(room.tags, 'roomTags')+'<br />'+
+						'Room Ambiance: <input name="roomAmbiance" type="text" value="'+esc(room.ambiance)+'" /><br />'+
+						'Room Ambiance Volume: <input name="roomAmbianceVolume" type="range" min=0 max=1 step=0.05 value="'+esc(room.ambiance_volume)+'" /><br />'+
+						'<label>Outdoors: <input type="checkbox" name="roomOutdoors" '+(room.outdoors ? 'checked' : '')+' /></label><br />';
+					$("#modal div.cellSettings").html(html);
 
-					return;
+					// Todo: 3d editor
+					
+					break;
 				}
 			}
-		}
 
-		function bindRoomEditor(){
-			$("div.room[data-index]").on('click', () => {
-				setDungeonRoomByIndex();
+
+
+
+			// Bind stuff
+			$("div.room[data-index]").on('click', function(){
+				setDungeonRoomByIndex(+$(this).attr('data-index'));
 			});
+			$("div.room input[data-adjacent]").on('click', function(){
+				let id = +$(this).attr('data-adjacent');
+				for( let room of dungeon.rooms ){
+					if( room.index === id ){
+						setDungeonRoomByIndex(id, room.z);
+						return;
+					}
+				}
+			});
+			$("div.room input.addRoom:not(.disabled)").on('click', function(){
+				const dir = $(this).attr('data-dir');
+				const index = +$(this).parent().attr('data-index');
+				let highest = 0;
+				for( let room of dungeon.rooms ){
+					if( room.index > highest )
+						highest = room.index;
+				}
+				for( let room of dungeon.rooms ){
+					if( room.index === index ){
+
+						let newRoom = room.clone(dungeon);
+
+						newRoom.index = highest+1;
+						newRoom.parent_index = index;
+						newRoom.name = 'New Room';
+							
+						let dirOffset = newRoom.getRoomBearingCoords(dir);
+						newRoom.x += dirOffset[0];
+						newRoom.y += dirOffset[1];
+						newRoom.z += dirOffset[2];
+						dungeon.rooms.push(newRoom);
+
+						setDungeonRoomByIndex(newRoom.index, newRoom.z);
+						return;
+					}
+				}
+			});
+			$("#zHeight").on('change', function(){
+				setDungeonRoomByIndex(index, +$(this).val());
+			});
+
+			th.bindFormHelpers();
+			rebindRoom();
+			$("#modal div.cellSettings input.addTagHere").on('click', () => {
+				rebindRoom();
+			});
+
+
 		}
 
-		bindRoomEditor();
-		setDungeonRoomByIndex(0);
+		
 
 		this.editor_generic('dungeons', asset, this.mod.dungeons, html, saveAsset => {
 
@@ -1777,10 +1868,18 @@ export default class Modtools{
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.name = $("input[name=name]", form).val().trim();
 			saveAsset.tags = this.compileTags('tags');
+			saveAsset.rooms = dungeon.rooms.map(el => el.save("mod"));
 			
-
 		});
 
+		// Find the entrance, if it doesn't exist, create it
+		for( let room of asset.rooms ){
+			if( room.index === 0 )
+				return setDungeonRoomByIndex(0, room.z);
+		}
+
+		asset.rooms.push({name:'Entrance',x:0,y:0,index:0});
+		setDungeonRoomByIndex(0, 0);
 
 	}
 
@@ -2184,7 +2283,6 @@ export default class Modtools{
 
 
 
-
 	// DungeonRoomTemplates (bindable)
 	inputDungeonRoomTemplate( data ){
 		if( typeof data === "object" )
@@ -2228,8 +2326,6 @@ export default class Modtools{
 		return out;
 
 	}
-
-
 
 
 
@@ -2350,7 +2446,6 @@ export default class Modtools{
 
 	compileSoundkitSubs( cName = 'soundkitSubs' ){
 		const base = $('#assetForm div.'+cName+' div.soundkitPack');
-		console.log("Compiling", base.length);
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2394,6 +2489,7 @@ export default class Modtools{
 		out += '</select>';
 		return out;
 	}
+
 	bindWrapperTargetTypes(){
 		let th = this;
 		$("#assetForm input.addWrapperTTHere").off('click')
@@ -2488,57 +2584,6 @@ export default class Modtools{
 
 
 
-
-
-	// Cells (Bindable)
-	bindCells(){
-		let th = this;
-		$("#assetForm input.addCellHere").off('click')
-			.on('click', function(){
-				$(this).parent().append(th.inputCell({}));
-				th.bindFormHelpers();
-			});
-	}
-
-	compileCells( cName = 'cells' ){
-		const base = $('#assetForm div.'+cName+' div.cell');
-		const out = [];
-		base.each((index, value) => {
-			const el = $(value);
-			
-			console.log("Todo: Save Cell");
-
-			if( val )
-				out.push(val);
-		});
-		return out;
-	}
-
-	inputCell( data = {} ){
-		if( typeof data !== "object" )
-			data = {};
-		let out = '<div class="cell">';
-			out += 'Name: <input type="text" name="name" value="'+esc(data.name)+'" /><br />';
-			out += 'Ambiance: <input type="text" name="cellAmbiance" value="'+esc(data.ambiance)+'" /> ';
-			out += 'Volume: <input type="range" min=0 max=1 step=0.05 name="cellAmbianceVolume" value="'+esc(data.ambiance_volume)+'" /><br />';
-			out += '<label>Outdoors <input type="checkbox" name="cellOutdoors" '+(data.outdoors ? 'checked' : '')+' /></label><br />';
-			out += 'Zoom: <input type="number" min=10 max=2000 step=1 name="cellZoom" value="'+esc(data.zoom)+'" /><br />';
-		out += '</div>';
-		return out;
-	}
-
-	formCells( assets = [], cName = 'cells' ){
-
-		if( !Array.isArray(assets) )
-			assets = [];
-		let out = '<div class="'+cName+'">';
-		out += '<input type="button" class="addCellHere" value="Add Cell" /><br />';
-		for( let asset of assets )
-			out+= this.inputCell(asset);
-		out += '</div>';
-		return out;
-
-	}
 
 
 

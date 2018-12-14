@@ -557,6 +557,8 @@ div.fxHeal{
 		width:6em;
 	}
 
+	
+
 /**/
 
 
@@ -1262,10 +1264,14 @@ table.editor td, table.editor th{
 	padding:0.5vmax;
 }
 
+#modal div.roomWrap > div{
+	flex: unset;
+}
 #modal div.dungeonMap{
 	width:50vw;
 	height:50vw;
 	background:rgba(0,0,0,.25);
+	
 }
 #modal div.dungeonMap > div.room{
 	background:rgba(255,255,255,.5);
@@ -1273,13 +1279,23 @@ table.editor td, table.editor th{
 	border:0.5vmax solid rgba(0,0,0,0.5);
 	position:absolute;
 	transform:translate(-50%,-50%);
+	font-size:1vmax;
+}
+#modal div.dungeonMap > div.room:hover{
+	background:rgba(200,255,200,.75);
+	cursor:pointer;
+}
+#modal div.dungeonMap > div.room.selected{
+	border-color:#AFA;
+	cursor:pointer;
 }
 
 #modal div.dungeonMap > div.room > input.addRoom{
-	font-size:1vmax;
+	font-size:0.75vmax;
 	position:absolute;
-	transform:translate(-50%, -50%);
 	padding:0 0.25vmax;
+	margin:0;
+
 }
 
 
@@ -1352,6 +1368,10 @@ table.editor tr.search:hover{
 #jsonEditor > div > div.buttons{
 	position: absolute;
 	bottom:0; width:100%;
+}
+
+#modal div.dungeonMap  input.disabled{
+	background:#FAA;
 }
 
 /* */

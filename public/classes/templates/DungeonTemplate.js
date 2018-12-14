@@ -25,7 +25,7 @@ class DungeonTemplate extends Generic{
 	}
 
 	save( full ){
-		return {
+		const out = {
 			label : this.label,
 			rooms : this.rooms,
 			doors_hor : this.doors_hor,
@@ -33,6 +33,11 @@ class DungeonTemplate extends Generic{
 			monster_types : this.monster_types,
 			consumables : this.consumables,
 		};
+
+		if( full === "mod" )
+			this.g_sanitizeDefaults(out);
+
+		return out;
 	}
 
 	// Returns a consumable in a weighted list
@@ -71,7 +76,7 @@ class RoomTemplate extends Generic{
 	}
 
 	save( full ){
-		return {
+		const out = {
 			label : this.label,
 			basemeshes : this.basemeshes,
 			props : this.props,
@@ -80,6 +85,11 @@ class RoomTemplate extends Generic{
 			ambiance : this.ambiance,
 			ambiance_volume : this.ambiance_volume,
 		};
+
+		if( full === "mod" )
+			this.g_sanitizeDefaults(out);
+
+		return out;
 	}
 
 

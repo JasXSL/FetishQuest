@@ -36,14 +36,6 @@ class PlayerTemplate extends Generic{
 		this.sadistic_max = 1;
 		this.dominant_min = 0;					// Dominant vs submissive
 		this.dominant_max = 1;					// Dominant vs submissive
-		this.extraversion_min = 0;				// Extraverted vs Introverted
-		this.extraversion_max = 1;				// Extraverted vs Introverted
-		this.sensing_min = 0;						// Sensing vs intuition | Factual vs dreaming
-		this.sensing_max = 1;						// Sensing vs intuition | Factual vs dreaming
-		this.thinking_min = 0;					// Thinking vs Feeling | Facts vs Feelings
-		this.thinking_max = 1;					// Thinking vs Feeling | Facts vs Feelings
-		this.judging_min = 0;						// Judging vs Perceiving | Planning vs Improvising
-		this.judging_max = 1;						// Judging vs Perceiving | Planning vs Improvising
 		this.hetero_min = 0;						// 0 = gay, 0.5 = bi, 1 = straight
 		this.hetero_max = 1;						// 0 = gay, 0.5 = bi, 1 = straight
 		this.intelligence_min = 0.6;				// Starts off at human level
@@ -84,16 +76,6 @@ class PlayerTemplate extends Generic{
 			sadistic_max : this.sadistic_max,
 			dominant_min : this.dominant_min,
 			dominant_max : this.dominant_max,
-			extraversion_min : this.extraversion_min,
-			extraversion_max : this.extraversion_max,
-			sensing_min : this.sensing_min,
-			sensing_max : this.sensing_max,
-			thinking_min : this.thinking_min,
-			thinking_max : this.thinking_max,
-			judging_min : this.judging_min,
-			judging_max : this.judging_max,
-			hetero_min : this.hetero_min,
-			hetero_max : this.hetero_max,
 			intelligence_min : this.intelligence_min,
 			intelligence_max : this.intelligence_max,
 			required_assets : this.required_assets
@@ -129,10 +111,6 @@ class PlayerTemplate extends Generic{
 
 		player.sadistic = rand1(this.sadistic_min, this.sadistic_max);
 		player.dominant = rand1(this.dominant_min, this.dominant_max);
-		player.extraversion = rand1(this.extraversion_min, this.extraversion_max);
-		player.sensing = rand1(this.sensing_min, this.sensing_max);
-		player.thinking = rand1(this.thinking_min, this.thinking_max);
-		player.judging = rand1(this.judging_min, this.judging_max);
 		player.hetero = rand1(this.hetero_min, this.hetero_max);
 		player.intelligence = rand1(this.intelligence_min, this.intelligence_max);
 

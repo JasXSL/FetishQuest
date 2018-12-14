@@ -52,32 +52,41 @@ class Wrapper extends Generic{
 	// Data that should be saved to drive
 	save( full ){
 		const out = {
-			id : this.id,
 			name : this.name,
 			description : this.description,
 			icon : this.icon,
 			detrimental : this.detrimental,
-			victim : this.victim,
-			caster : this.caster,
 			target : this.target,
 			add_conditions : Condition.saveThese(this.add_conditions, full),
 			stay_conditions : Condition.saveThese(this.stay_conditions, full),
 			effects : this.effects.map(el => el.save(full)),
-			_duration : this._duration,
 			tags : this.tags,
-			stacks : this.stacks,
 		};
 
 		if( full ){
 			out.tick_on_turn_end = this.tick_on_turn_end;
 			out.tick_on_turn_start = this.tick_on_turn_start;
 			out.label = this.label;
-			out._self_cast = this._self_cast;
 			out.max_stacks = this.max_stacks;
-			out.netPlayer = this.netPlayer;
 			out.trigger_immediate = this.trigger_immediate;
 			out.duration = this.duration;
+
+			if( full !== "mod" ){
+				out._self_cast = this._self_cast;
+				out.netPlayer = this.netPlayer;
+			}
+
 		}
+
+		if( full !== "mod" ){
+			out.id = this.id;
+			out._duration = this._duration;
+			out.victim = this.victim;
+			out.caster = this.caster;
+			out.stacks = this.stacks;
+		}
+		else
+			this.g_sanitizeDefaults(out);
 
 		return out;
 	}
@@ -501,16 +510,23 @@ class Effect extends Generic{
 
 	save( full ){
 		const out = {
-			id : this.id,
 			type : this.type,
 			data : this.saveData(),
 		};
+
 		if( full ){
 			out.conditions = Condition.saveThese(this.conditions, full);
 			out.targets = this.targets;
 			out.events = this.events;
 			out.label = this.label;
 		}
+
+		if( full !== "mod" ){
+			out.id = this.id;
+		}
+		else
+			this.g_sanitizeDefaults(out);
+
 		return out;
 	}
 

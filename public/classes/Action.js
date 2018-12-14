@@ -35,7 +35,8 @@ class Action extends Generic{
 		this.tags = [];
 		this.add_conditions = [];				// ADD conditions. These aren't saved, because they're only used for NPCs
 		this.conditions = [];					// Conditions run against all targets regardless of wrapper
-		this.show_conditions = ["inCombat"];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
+		this.show_conditions = [];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
+												// You generally want this to be "inCombat"
 		this.no_use_text = false;				// Disable use texts.
 		this.no_action_selector = false;		// Hide from combat action selector
 		this.cast_time = 0;						// Set to > 0 to make this a charged spell needing this many turns to complete
@@ -57,15 +58,14 @@ class Action extends Generic{
 	}
 	
 	save( full ){
+		
 		let out = {
-			id : this.id,
 			label : this.label,
 			name : this.name,
 			description : this.description,
 			wrappers : this.wrappers.map(el => el.save(full)),
 			cooldown : this.cooldown,
 			ap : this.ap,
-			_cooldown : this._cooldown,
 			min_targets : this.min_targets,
 			max_targets : this.max_targets,
 			hit_chance : this.hit_chance,
@@ -75,27 +75,34 @@ class Action extends Generic{
 			hidden : this.hidden,
 			target_type : this.target_type,
 			tags : this.tags,
-			hidden : this.hidden,
 			ranged : this.ranged,
 			conditions : Condition.saveThese(this.conditions, full),
 			no_action_selector : this.no_action_selector,
 			cast_time : this.cast_time,
 			charges : this.charges,
-			max_charges : this.max_charges,
 			allow_when_charging : this.allow_when_charging,
-			_cast_time : this._cast_time,
-			_charges : this._charges,
-			_cast_targets : this._cast_targets,
 			no_interrupt : this.no_interrupt,
 			show_conditions : this.show_conditions.map(el => el.save(full)),
 			hide_if_no_targets : this.hide_if_no_targets,
 			semi_hidden : this.semi_hidden,
 		};
+
+		// Everything but mod
+		if( full !== "mod" ){
+			out.id = this.id;
+			out._cooldown = this._cooldown;
+			out._cast_time = this._cast_time;
+			out._charges = this._charges;
+			out._cast_targets = this._cast_targets;
+		}
+
 		if( full ){
 			out.level = this.level;
 			out.riposte = this.riposte.map(el => el.save(full));
 			out.no_use_text = this.no_use_text;	
 		}
+		if( full === "mod" )
+			this.g_sanitizeDefaults(out);
 		return out;
 	}
 
@@ -114,6 +121,7 @@ class Action extends Generic{
 		this.riposte = Wrapper.loadThese(this.riposte, this);
 		this.show_conditions = Condition.loadThese(this.show_conditions, this);
 		this.conditions = Condition.loadThese(this.conditions, this);
+		
 		this.add_conditions = Condition.loadThese(this.add_conditions, this);
 	}
 

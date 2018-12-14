@@ -74,6 +74,23 @@ export default class Generic{
 		this.id = this.g_guid();
 	}
 
+	// Removes default values from save data
+	g_sanitizeDefaults( saveData ){
+		const template = new this.constructor();
+		for( let i in saveData ){
+			let stored = template[i];
+			if( stored === undefined )
+				console.log(i, "was not in", template, "this property was added in save() but not the constructor!");
+			if( Array.isArray(stored) )
+				stored = stored.map(el => el.save ? el.save("mod") : el);
+			if( stored.save ){
+				stored = stored.save("mod");
+			}
+			if( JSON.stringify(stored) === JSON.stringify(saveData[i]) )
+				delete saveData[i];
+		}
+	}
+
 	// Generic tag one
 	getTags(){
 
