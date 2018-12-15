@@ -25,6 +25,9 @@ export default {
 	plBeast : 'pl_beast',			// non-humanoid
 	plTentacles : 'pl_tentacles',
 	plHorns : 'pl_horns',
+	plHorn : 'pl_horn',
+	plEars : 'pl_ears',
+	plLongTail : 'pl_long_tail',
 	plCircumcised : 'pl_circumcised',
 	plImmobile : 'pl_immobile',		// Immobile
 	plElectric : "pl_electric",

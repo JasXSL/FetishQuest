@@ -1,6 +1,10 @@
 Mod Editor:
 	- Dungeon Editor
-		- Need room asset which opens up to the 3d view room editor
+		- Delete rooms
+		- Add encounter
+		- 3d room editor
+	- Encounter editor
+		- Needs to be able to pick a template OR player
 	- Quest editor
 	- ModVars - Custom data that can be set and read by conditions
 

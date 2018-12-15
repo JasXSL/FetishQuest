@@ -77,18 +77,8 @@ const lib = [
 		audiokits : ["slapGeneric"]
 	},
 	{ text : "%S shoves %T from behind, bending %Thim over a table before slapping %This %Trsize %Tbutt!",
-		"turnTags":[
-			"bent_over",
-			"bent_over_table"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdAttack",
-			"roomTable"
-		],
+		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
+		conditions : humOnHumCond.concat("action_stdAttack","roomTable"),
 		audiokits : ["slapGeneric"]
 	},
 	{ text : "%S grabs a hold of %T's %Trsize buttcheeks and squeezes down hard!",
@@ -365,18 +355,8 @@ const lib = [
 		audiokits : ["whipDouble"]
 	},
 	{ text : "%S takes advantage of %T being bent over and lashes %Shis %Sgear across the %Trace's %Trsize %Tbutt!",
-		"turnTags":[
-			"bent_over"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdAttack",
-			"ttBentOver",
-			"senderHasWhip"
-		],
+		turnTags:[stdTag.ttBentOver],
+		conditions : humOnHumCond.concat("action_stdAttack","ttBentOver","senderHasWhip"),
 		weight : Text.Weights.high,
 		audiokits : ["whipGeneric"]
 	},
@@ -505,54 +485,20 @@ const lib = [
 		audiokits : ["squeezeGeneric"]
 	},
 	{ text : "%S spots %T bent over and fondles %This %Tgroin!",
-		"turnTags":[
-			"bent_over"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdArouse",
-			"ttBentOver"
-		],
+		turnTags:[stdTag.ttBentOver],
+		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver"),
 		weight : Text.Weights.high,
 		audiokits : ["whipGeneric"]
 	},
 	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Tvagina, landing a %couple of thrusts!",
-		"turnTags":[
-			"bent_over"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdArouse",
-			"ttBentOver",
-			"targetVagina",
-			"senderPenis",
-			"targetNoLowerbody",
-			"senderNoLowerbody"
-		],
+		turnTags:[stdTag.ttBentOver],
+		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver","targetVagina","senderPenis","targetNoLowerbody","targetGroinExposed"),
 		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Trsize %Tbutt, landing a %couple of thrusts!",
-		"turnTags":[
-			"bent_over"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdArouse",
-			"ttBentOver",
-			"senderPenis",
-			"targetNoLowerbody",
-			"senderNoLowerbody"
-		],
+		turnTags:[stdTag.ttBentOver],
+		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver","senderPenis","targetNoLowerbody","targetButtExposed"),
 		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
@@ -593,10 +539,7 @@ const lib = [
 			"senderHasTentacles",
 			"targetNotBeast",
 			"targetVagina",
-			[
-				"targetNoLowerbody",
-				"ttGroinExposed"
-			]
+			"targetGroinExposed"
 		],
 		weight : Text.Weights.high,
 
@@ -638,10 +581,7 @@ const lib = [
 			"action_stdArouse",
 			"senderHasTentacles",
 			"targetLegsSpread",
-			[
-				"targetNoLowerbody",
-				"ttGroinExposed"
-			],
+			"targetGroinExposed",
 			"targetVagina"
 		],
 		weight : Text.Weights.high,
@@ -742,7 +682,7 @@ const lib = [
 			"targetWearsLowerbody",
 			"targetWearsThong"]
 	},
-	{ text : "%S pushes a thick tentacke up between %T's buttcheeks, giving %This rear some rapid prods through %This buttstring!",
+	{ text : "%S pushes a thick tentacle up between %T's buttcheeks, giving %This rear some rapid prods through %This buttstring!",
 		audiokits : ["tentacleMultipleThrusts"],
 		conditions : [
 			"targetNotBeast",
@@ -754,22 +694,17 @@ const lib = [
 			"targetWearsThong",
 			"ttButtNotExposed"
 		],
-		weight : Text.Weights.high,
+		weight : Text.Weights.default,
 	},
-	{ text : "%S latches a thick tentacke with suction cups onto %T's %Tgroin and performs a few rapid tugs and prods at %This %TclothLower!",
+	{ text : "%S latches a thick tentacle with suction cups onto %T's %Tgroin and performs a few rapid tugs and prods at %This %TclothLower!",
 		audiokits : ["tentacleMultipleThrusts"],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetWearsLowerbody",
-			"targetWearsThong",
-			"ttButtNotExposed"
-		],
-		weight : Text.Weights.high,
-
+		conditions : anyOnHumCond.concat("action_stdArouse","senderHasTentacles","targetWearsLowerbody","targetWearsThong","ttButtNotExposed"),
+		weight : Text.Weights.default,
+	},
+	{ text : "%S latches two thick tentacles with suction cups onto %T's %Tbreasts and performs a few rapid tugs and prods at %This %TclothUpper!",
+		audiokits : ["tentacleMultipleThrusts"],
+		conditions : anyOnHumCond.concat("action_stdArouse","senderHasTentacles","targetWearsUpperbody","targetUpperbodyNotHard","targetBreasts"),
+		weight : Text.Weights.default,
 	},
 	{ text : "%S takes advantage of %T's frontal wedgie and slips a flat tentacle with wiggly nubs between %This legs, pushing it up against %This %groin where it intensely tickles %T's exposed mound!",
 		audiokits : ["gooRub"],
@@ -856,96 +791,38 @@ const lib = [
 
 	// stdPunishDom
 	{ text : "%S bends the defeated %Trace over a table and spreads %This legs, exposing %This %Trsize %Tbutt before shoving %Shis %Spsize %Spenis inside! %S begins forcefully pounding %T...",
-		"turnTags":["bent_over", "bent_over_table"],
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishDom",
-			"senderPenis",
-			"roomTable"
-		],
+		turnTags:[stdTag.ttBentOver, stdTag.ttBentOverTable],
+		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","roomTable"),
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S bends the defeated %Trace over a table and spreads %This legs, exposing %This %Tvagina before shoving %Shis %Spsize %Spenis inside! %S begins forcefully pounding %T...",
-		"turnTags":[
-			"bent_over",
-			"bent_over_table"
-		],
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishDom",
-			"senderPenis",
-			"roomTable",
-			"targetVagina"
-		],
+	turnTags:[stdTag.ttBentOver, stdTag.ttBentOverTable],
+		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","roomTable","targetVagina"),
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Trsize %Tbutt...",
-		"turnTags":[
-			"bent_over",
-			"bent_over_table"
-		],
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishDom",
-			"senderPenis",
-			"ttBentOver"
-		],
+	turnTags:[stdTag.ttBentOver, stdTag.ttBentOverTable],
+		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","ttBentOver"),
 		audiokits : ["slowThrusts"],
 		weight : Text.Weights.high,
 
 	},
 	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Tvagina...",
-		"turnTags":[
-			"bent_over",
-			"bent_over_table"
-		],
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishDom",
-			"senderPenis",
-			"ttBentOver",
-			"targetVagina"
-		],
+		turnTags:[stdTag.ttBentOver, stdTag.ttBentOverTable],
+		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","ttBentOver","targetVagina"),
 		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's arms from behind and forcing %Shis %Spsize %Spenis iside %T's %Trsize %Tbutt. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishDom",
-			"senderPenis"
-		],
+		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis"),
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's hips and forcing %Shis %Spsize %Spenis iside %T's %Tvagina. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishDom",
-			"senderPenis",
-			"targetVagina"
-		],
+		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","targetVagina"),
 		audiokits : ["slowThrusts"]
 	},
 	{ text : "%S pushes the defeated %Trace to the ground and seats %Shimself on %T's face. %S begins riding %T's face...",
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishDom",
-			"senderVagina"
-		],
+		conditions : humOnHumCond.concat("action_stdPunishDom","senderVagina"),
 		audiokits : ["slowThrusts"]
 	},
 
@@ -953,61 +830,26 @@ const lib = [
 
 	// stdPunishSub
 	{ text : "%S used a SUBMISSIVE text against %T!",
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishSub",
-		]
+		conditions : humOnHumCond.concat("action_stdPunishSub"),
 	},
 
 
 
 	// stdPunishSad
 	{ text : "%S bends the defeated %Trace over a table. Raising %Shis palm high in the air, the %Srace starts forcefully slapping %T's %Trsize %Tbutt...",
-		"turnTags":[
-			"bent_over",
-			"bent_over_table",
-			"spanked"
-		],
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishSad",
-			"roomTable"
-		],
+		turnTags:[stdTag.ttBentOver, stdTag.ttBentOverTable, stdTag.ttSpanked],
+		conditions : humOnHumCond.concat("action_stdPunishSad","roomTable"),
 		audiokits : ["slapGeneric"]
 	},
 	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S continues the punishment, vigorously spanking the %Trace's already punished %Tbutt...",
-		"turnTags":[
-			"bent_over",
-			"spanked"
-		],
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishSad",
-			"ttBentOver",
-			"ttSpanked"
-		],
+		turnTags:[stdTag.ttBentOver, stdTag.ttSpanked],
+		conditions : humOnHumCond.concat("action_stdPunishSad","ttBentOver","ttSpanked"),
 		weight : Text.Weights.high,
 		audiokits : ["slapGeneric"]
 	},
 	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S raises %Shis palm and starts vigorously spanking the %Trace's %Trsize exposed %Tbutt...",
-		"turnTags":[
-			"bent_over",
-			"spanked"
-		],
-		conditions : [
-			"targetNotBeast",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdPunishSad",
-			"ttBentOver",
-			"ttNotSpanked"
-		],
+		turnTags:[stdTag.ttBentOver, stdTag.ttSpanked],
+		conditions : humOnHumCond.concat("action_stdPunishSad","ttBentOver","ttNotSpanked"),
 		weight : Text.Weights.high,
 		audiokits : ["slapGeneric"]
 	},
@@ -1142,55 +984,24 @@ const lib = [
 		]
 	},
 	{ text : "%S latches tentacles around the sides of %T's %TclothLower, tugging up and out, giving %T a wedgie!",
-		audiokits : ["tentacleStretch"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_tentacle_fiend_tentatug",
-			"targetWearsLowerbody",
-			"targetLowerbodyWaistband"
-		],
-		"turnTags":[
-			"wedgie"]
+		audiokits : ["tentacleStretch"],
+		conditions : anyOnHumCond.concat("action_tentacle_fiend_tentatug","targetWearsLowerbody","targetLowerbodyWaistband"),
+		turnTags:[stdTag.ttWedgie]
 	},
 	{ text : "%S latches tentacles around the bottom of %T's %TclothLower and give a hard tug down, exposing %This %Tgenitals!",
-		audiokits : ["tentacleStretch"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_tentacle_fiend_tentatug",
-			"targetWearsThong"
-		],
-		"turnTags":[
-			"groin_exposed"]
+		audiokits : ["tentacleStretch"],
+		conditions : anyOnHumCond.concat("action_tentacle_fiend_tentatug","targetWearsThong"),
+		turnTags:[stdTag.ttGroinExposed]
 	},
 	{ text : "%S latches tentacles around the back of %T's %TclothLower and tugs down, exposing %This %Tbutt!",
-		audiokits : ["tentacleStretch"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_tentacle_fiend_tentatug",
-			"targetNoBodysuit"
-		],
-		"turnTags":[
-			"butt_exposed"]
+		audiokits : ["tentacleStretch"],
+		conditions : anyOnHumCond.concat("action_tentacle_fiend_tentatug","targetNoBodysuit"),
+		turnTags:[stdTag.ttButtExposed]
 	},
 	{ text : "%S's tentacles wrap around the front of %T's %TclothLower and rigidly tugs upwards, chafing into %This %Tvagina!",
-		audiokits : ["tentacleStretch"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_tentacle_fiend_tentatug",
-			"targetWearsThong",
-			"targetVagina"
-		],
-		"turnTags":[
-			"pussy_wedgie",
-			"wedgie"]
+		audiokits : ["tentacleStretch"],
+		conditions : anyOnHumCond.concat("action_tentacle_fiend_tentatug","targetWearsThong","targetVagina"),
+		turnTags:[stdTag.ttPussyWedgie, stdTag.ttWedgie]
 	},
 	{ text : "%S's tentacles wrap around the front of %T's %TclothLower and rigidly tugs upwards, making %This junk flop free!",
 		audiokits : ["tentacleStretch"
@@ -1320,31 +1131,12 @@ const lib = [
 		audiokits : ["thrustCum"]
 	},
 	{ text : "%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis into %This %Tvagina! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			"targetVagina",
-			[
-				"targetNoLowerbody",
-				"ttGroinExposed"
-			]
-		],
+		conditions : humOnHumCond.concat("action_imp_specialDelivery","targetVagina","targetGroinExposed"),
 		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
 	{ text : "%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis inside! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			[
-				"targetNoLowerbody",
-				"ttButtExposed"
-			]
-		],
+		conditions : humOnHumCond.concat("action_imp_specialDelivery","targetVagina","targetButtExposed"),
 		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
@@ -1397,10 +1189,7 @@ const lib = [
 			"targetNotBeast",
 			"targetKnockedDownBack",
 			"targetVagina",
-			[
-				"targetNoLowerbody",
-				"ttGroinExposed"
-			]
+			"targetGroinExposed"
 		],
 		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
@@ -1412,11 +1201,18 @@ const lib = [
 			"action_imp_specialDelivery",
 			"targetNotBeast",
 			"targetKnockedDownFront",
-			[
-				"targetNoLowerbody",
-				"ttGroinExposed"
-			]
+			"targetButtExposed"
 		],
+		weight : Text.Weights.high,
+		audiokits : ["thrustCum"]
+	},
+	{ text : "%S gets behind the bent over %Trace and slips %Shis %Spenis into %This %Tvagina. %S starts rapidly humping, eventually reaching climax and flooding %T's %Tvagina with demonic %cum!",
+		conditions : humOnHumCond.concat("action_imp_specialDelivery","ttBentOver","targetGroinExposed","targetVagina"),
+		weight : Text.Weights.high,
+		audiokits : ["thrustCum"]
+	},
+	{ text : "%S gets behind the bent over %Trace and slips %Shis %Spenis into %This %Tbutt. %S starts rapidly humping, eventually reaching climax and flooding %T's %Tbutt with demonic %cum!",
+		conditions : humOnHumCond.concat("action_imp_specialDelivery","ttBentOver","targetButtExposed"),
 		weight : Text.Weights.high,
 		audiokits : ["thrustCum"]
 	},
@@ -1469,10 +1265,7 @@ const lib = [
 			"action_imp_blowFromBelow",
 			"targetNotBeast",
 			"targetVagina",
-			[
-				"targetNoLowerbody",
-				"ttGroinExposed"
-			]
+			"targetGroinExposed"
 		],
 		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
@@ -1485,10 +1278,7 @@ const lib = [
 			"action_imp_blowFromBelow",
 			"targetNotBeast",
 			"targetVagina",
-			[
-				"targetNoLowerbody",
-				"ttGroinExposed"
-			]
+			"targetGroinExposed"
 		],
 		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
@@ -1550,18 +1340,8 @@ const lib = [
 		audiokits : ["slapGeneric"]
 	},
 	{ text : "%S grabs a hold of and spreads %T's legs while %The's still bent over the table, followed briefly by the %Srace ramming %Shis knee up into %T's %Tgroin!",
-		"turnTags":[
-			"bent_over_table",
-			"bent_over"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_imp_blowFromBelow",
-			"ttBentOverTable"
-		],
+		turnTags:[stdTag.ttBentOverTable, stdTag.ttBentOver],
+		conditions : humOnHumCond.concat("action_imp_blowFromBelow","ttBentOverTable"),
 		weight : Text.Weights.high,
 		audiokits : ["punchGeneric"]
 	},
@@ -1668,10 +1448,7 @@ const lib = [
 			"eventIsActionUsed",
 			"action_imp_demonicPinch",
 			"targetNotBeast",
-			[
-				"targetNoLowerbody",
-				"ttGroinExposed"
-			],
+			"targetGroinExposed",
 			"targetPenis",
 			"targetNotCircumcised"
 		],
@@ -1709,6 +1486,32 @@ const lib = [
 		],
 		audiokits : ["pinchGeneric"]
 	},
+	{ text : "%S casts a spell, making an invisible force pinch down on the bottom of %T's %leftright breast!",
+		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
+		audiokits : ["pinchGeneric"]
+	},
+	{ text : "%S casts a spell, causing invisible fingers to pinch %T's %Tvagina!",
+		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetVagina"),
+		audiokits : ["pinchGeneric"]
+	},
+	{ text : "%S casts a spell, causing invisible fingers to clamp down onto %T's %leftright nipple, twisting it!",
+		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
+		audiokits : ["pinchGeneric"]
+	},
+	{ text : "%S casts a spell, causing invisible fingers to clamp down onto %T's %leftright nipple, twisting it!",
+		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
+		audiokits : ["pinchGeneric"]
+	},
+	{ text : "%S casts a spell, causing an invisible force to pinch %T's %leftright ear, tugging at it!",
+		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetEars"),
+		audiokits : ["pinchGeneric"]
+	},
+	{ text : "%S casts a spell, causing an invisible force to pinch %T's nose!",
+		conditions : anyOnHumCond.concat("action_imp_demonicPinch"),
+		audiokits : ["pinchGeneric"]
+	},
+	
+
 
 
 	// whip_legLash
@@ -1799,19 +1602,8 @@ const lib = [
 		audiokits : ["whipGeneric"]
 	},
 	{ text : "%S surprises %T while %The bent over by lashing %Shis %Sgear from below up across the %Trace's %Tgroin!",
-		"turnTags":[
-			"bent_over"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_whip_powerLash",
-			"targetVagina",
-			"targetWearsLowerbody",
-			"ttBentOver"
-		],
+		turnTags:[stdTag.ttBentOver],
+		conditions : humOnHumCond.concat("action_whip_powerLash","targetVagina","targetWearsLowerbody","ttBentOver"),
 		weight : Text.Weights.high,
 		audiokits : ["whipGeneric"]
 	},

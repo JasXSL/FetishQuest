@@ -105,7 +105,9 @@ const lib = {
 	targetSoaked : {"type":"tag","data":{"tags":["wr_soaked"]}},
 	targetLegsSpread : {"type":"tag","data":{"tags":["wr_legs_spread"]}},
 	targetHorns : {"type":"tag","data":{"tags":["pl_horns"]}},
-	targetHorn : {"type":"tag","data":{"tags":[null]}},
+	targetHorn : {"type":"tag","data":{"tags":[stdTag.plHorn]}},
+	targetEars : {"type":"tag","data":{"tags":[stdTag.plEars]}},
+	
 	targetVagina : {"type":"tag","data":{"tags":["pl_vagina"]}},
 	targetPenis : {"type":"tag","data":{"tags":["pl_penis"]}},
 	targetBreasts : {"type":"tag","data":{"tags":["pl_breasts"]}},
@@ -120,6 +122,7 @@ const lib = {
 	senderButtLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_butt"},"caster":true},
 	senderBreastsLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_breasts"},"caster":true},
 	senderPenisLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_penis"},"caster":true},
+
 	eventIsActionUsed : {"type":"event","data":{"event":["actionUsed"]},"targnr":0},
 	eventIsDiminishingResist : {"type":"event","data":{"event":"diminishingResist"}},
 	eventIsWrapperAdded : {"type":"event","data":{"event":"wrapperAdded"}},

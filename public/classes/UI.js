@@ -1013,8 +1013,8 @@ export default class UI{
 	drawNewGame(){
 
 		const gallery = [
-			{name : 'Otter', size:2, 'icon':'/media/characters/otter.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair]},
-			{name : 'Wolfess', size:2, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', class:'monk', tags:[stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair]},
+			{name : 'Otter', size:2, 'icon':'/media/characters/otter.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+			{name : 'Wolfess', size:2, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', class:'monk', tags:[stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
 		];
 
 		let html = '<div class="newGame">'+
