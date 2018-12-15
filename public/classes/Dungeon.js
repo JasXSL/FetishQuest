@@ -503,7 +503,6 @@ class DungeonRoom extends Generic{
 	// Returns 0-5 based on if the adjacent room is NWSEUD
 	getAdjacentBearing( adjacentRoom ){
 
-
 		let mx = this.x, my = this.y, mz = this.z,
 			x = adjacentRoom.x, y = adjacentRoom.y, z = adjacentRoom.z
 		;
@@ -561,6 +560,19 @@ class DungeonRoom extends Generic{
 		return out;
 	}
 
+	
+
+	getChildren(){
+		const rooms = this.parent.rooms;
+		let out = [];
+		for( let room of rooms ){
+			if( room.parent_index === this.index && room.index !== this.index ){
+				out.push(room);
+				out = out.concat(room.getChildren());
+			}
+		}
+		return out;
+	}
 
 
 
@@ -748,7 +760,7 @@ class DungeonRoom extends Generic{
 
 		let prop = new DungeonRoomAsset({
 			model : assetPath,
-			rotation : bearing ? bearing*90 : 0,
+			rotZ : bearing ? bearing*90 : 0,
 			type : DungeonRoomAsset.Types.Prop,
 		}, this);
 
@@ -858,10 +870,18 @@ class DungeonRoomAsset extends Generic{
 
 		this.parent = parentObj;
 		this.model = '';		// Use . notation and select a model from libMeshes
+		// In absolute mode these are absolute positions and rotations
+		// In normal mode, they're based on tiles
+		// Absolute objects are excempt from the tiling system in the generator
 		this.x = 0;				// X block
 		this.y = 0;				// Y block
 		this.z = 0;				// Z block
-		this.rotation = 0;		// Rotation in degrees
+		this.rotX = 0;
+		this.rotY = 0;
+		this.rotZ = 0;			// Rotation in degrees around the Z axis
+		this.scaleX = 1.0;
+		this.scaleY = 1.0;
+		this.scaleZ = 1.0;
 		this.type = DungeonRoomAsset.Types.Prop;
 		this.data = {};			// Varies based on type
 		this.interactEncounter = new DungeonEncounter({}, this);		// Encounter to start when interacted with
@@ -881,11 +901,17 @@ class DungeonRoomAsset extends Generic{
 
 	save( full ){
 		const out = {
+			id : this.id,			// ID is needed by mods as well due to asset linkage
 			model : this.model,
 			x : this.x,
 			y : this.y,
 			z : this.z,
-			rotation : this.rotation,
+			rotX : this.rotX,
+			rotY : this.rotY,
+			rotZ : this.rotZ,
+			scaleX : this.scaleX,
+			scaleY : this.scaleY,
+			scaleZ : this.scaleZ,
 			type : this.type,
 			data : this.data,
 			attachments : this.attachments,
@@ -901,7 +927,7 @@ class DungeonRoomAsset extends Generic{
 		}
 
 		if( full !== 'mod' ){
-			out.id = this.id;
+			
 		}
 		else{
 			this.g_sanitizeDefaults(out);
@@ -1002,12 +1028,13 @@ class DungeonRoomAsset extends Generic{
 
 
 	/* Transforms */
+	// These only work for non-absolute
 	getRotatedWidth(){
-		return this.rotation%180 ? this.getModel().height : this.getModel().width;
+		return this.rotZ%180 ? this.getModel().height : this.getModel().width;
 	}
 
 	getRotatedHeight(){
-		return this.rotation%180 ? this.getModel().width : this.getModel().height;
+		return this.rotZ%180 ? this.getModel().width : this.getModel().height;
 	}
 
 
@@ -1332,7 +1359,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 				let modelPath = doorLib[Math.floor(doorLib.length*Math.random())];	// Path in dungeon generator library, not drive
 				let door = new DungeonRoomAsset({
 					model : modelPath,
-					rotation : bearing < 4 ? bearing*90 : 0,
+					rotZ : bearing < 4 ? bearing*90 : 0,
 				}, room);
 				let mesh = libMeshTools.getByString(modelPath);
 

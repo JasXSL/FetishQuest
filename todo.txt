@@ -1,10 +1,17 @@
 Mod Editor:
 	- Dungeon Editor
-		- Delete rooms
 		- Add encounter
 		- 3d room editor
+			- Keybindings
+				- Z = reset zoom
+				- S = toggle grid/angle snapping
+				- Ctrl+S = Quick Save
+				- Ctrl+L = Quick Load
+			- Select room mesh if none is present
+			- Draw an asset library selector
+			- Draw asset editor where you can type in stuff
 	- Encounter editor
-		- Needs to be able to pick a template OR player
+		- Needs to be able to pick templates OR players
 	- Quest editor
 	- ModVars - Custom data that can be set and read by conditions
 

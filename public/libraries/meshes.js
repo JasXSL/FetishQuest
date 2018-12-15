@@ -40,6 +40,7 @@ import Water from '../ext/Water.js';
 
 class LibMesh{
 	constructor(data){
+		this.isRoom = data.isRoom;					// Set to true if this is a base room mesh		
 		this.url = data.url;		// Relative to media/models/
 		this.materials = data.materials || [];		// Should be Material objects from materials.js
 		this.width = data.width || 1;				// Blocks of 1m
@@ -329,6 +330,7 @@ LibMesh.library = {
 	Dungeon : {
 		Room : {
 			R10x10 : new LibMesh({
+				isRoom : true,
 				url : 'rooms/dungeon_10x10.JD',
 				materials : [
 					libMat.StoneTile.DungeonWall,
@@ -343,6 +345,7 @@ LibMesh.library = {
 				top:-4,left:-4,
 			}),
 			R10x10RL : new LibMesh({
+				isRoom : true,
 				url : 'rooms/dungeon_10x10_reverse_l.JD',
 				tags : [stdTag.mWall],
 				materials : [
@@ -366,6 +369,7 @@ LibMesh.library = {
 
 			}),
 			R6x10 : new LibMesh({
+				isRoom : true,
 				url : 'rooms/dungeon_6x10.JD',
 				wall_indentation : 10,
 				tags : [stdTag.mWall],
@@ -381,6 +385,7 @@ LibMesh.library = {
 
 			}),
 			R6x6 : new LibMesh({
+				isRoom : true,
 				url : 'rooms/dungeon_6x6.JD',
 				wall_indentation : 10,
 				tags : [stdTag.mWall],
@@ -1068,6 +1073,7 @@ LibMesh.library = {
 	Land : {
 		Yuug : {
 			Yuug : new LibMesh({
+				isRoom : true,
 				url : 'land/yuug/yuug_land.JD',
 				materials : [
 					libMat.Land.Yuug
@@ -1303,6 +1309,7 @@ LibMesh.library = {
 
 			Port : {
 				LandMid : new LibMesh({
+					isRoom : true,
 					url : 'land/yuug/yuug_port_mid_land.JD',
 					materials : [
 						libMat.Land.YuugPortMid,

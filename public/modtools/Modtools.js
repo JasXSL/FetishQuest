@@ -36,6 +36,50 @@ export default class Modtools{
 			fullControls : true,
 			enableGrid : true
 		});
+		const renderer = this.renderer;
+		const control = new TransformControls( renderer.camera, renderer.renderer.domElement, () => {});
+		this.control = control;
+		control.setTranslationSnap(1);
+		control.setRotationSnap(THREE.Math.degToRad(1));
+		control.addEventListener( 'dragging-changed', function( event ){
+			renderer.controls.enabled = !event.value;
+		});
+		let controlTimer = null;
+		control.addEventListener( 'change', event => {
+			clearTimeout(controlTimer);
+			controlTimer = setTimeout(() => {
+				const mesh = event.target.object;
+				if( !mesh )
+					return;
+				const dungeonAsset = mesh.userData.dungeonAsset;
+				dungeonAsset.absolute = true;
+				dungeonAsset.x = Math.round(mesh.position.x*100)/100;
+				dungeonAsset.y = Math.round(mesh.position.y*100)/100;
+				dungeonAsset.z = Math.round(mesh.position.z*100)/100;
+				dungeonAsset.scaleX = Math.round(mesh.scale.x*100)/100;
+				dungeonAsset.scaleY = Math.round(mesh.scale.y*100)/100;
+				dungeonAsset.scaleZ = Math.round(mesh.scale.z*100)/100;
+				dungeonAsset.rotX = Math.round(mesh.rotation.x*100)/100;
+				dungeonAsset.rotY = Math.round(mesh.rotation.y*100)/100;
+				dungeonAsset.rotZ = Math.round(mesh.rotation.z*100)/100;
+			}, 100);
+		});
+		renderer.scene.add(control);
+		renderer.onRender = function(){
+			control.update();
+		};
+		// Transform controls
+		$(window).on('keydown', event => {
+			if( event.target !== document.body )
+				return;
+			if( event.key === "w" )
+				control.setMode( "translate" );
+			else if( event.key === "e" )
+				control.setMode( "rotate" );
+			else if( event.key === "r" )
+				control.setMode( "scale" );
+		});
+		
 		this.mod = new Mod();
 		this.main_mod = MAIN_MOD;
 		this.modal = new Modal();
@@ -50,6 +94,8 @@ export default class Modtools{
 		}catch(err){ this.searchFilters = {}; }
 		
 		window.addEventListener("hashchange", () => this.navigate(), false);
+
+
 
 		$("#jsonEditor, #jsonEditor div.buttons > input.cancel").on('click', () => {
 			$("#jsonEditor").toggleClass("hidden", true);
@@ -1785,6 +1831,7 @@ export default class Modtools{
 				});
 			}
 
+			// Find the active room and draw the cell settings and 3d editor
 			for( let room of dungeon.rooms ){
 				if( room.index === index ){
 
@@ -1798,6 +1845,7 @@ export default class Modtools{
 					$("#modal div.cellSettings").html(html);
 
 					// Todo: 3d editor
+					th.drawRoomEditor(room);
 					
 					break;
 				}
@@ -1807,9 +1855,38 @@ export default class Modtools{
 
 
 			// Bind stuff
-			$("div.room[data-index]").on('click', function(){
-				setDungeonRoomByIndex(+$(this).attr('data-index'));
+			// Room in map clicked
+			$("div.room[data-index]").on('click', function( event ){
+
+				const index = +$(this).attr('data-index');
+				if( event.ctrlKey ){
+					for( let room of dungeon.rooms ){
+						if( room.index === index && room.index !== 0 ){
+							
+							let subs = room.getChildren();
+							if(confirm("Really delete this room and "+subs.length+" child-cells?")){
+								subs.push(room);
+								for( let sub of subs ){
+									for( let i in dungeon.rooms ){
+										if( dungeon.rooms[i] === sub ){
+											dungeon.rooms.splice(i,1);
+											break;
+										}
+									}
+								}
+								setDungeonRoomByIndex(0,0);
+							}
+							return;
+
+						}
+					}
+					return;
+				}
+				setDungeonRoomByIndex(index);
+
 			});
+			
+			// Go to room button clicked
 			$("div.room input[data-adjacent]").on('click', function(){
 				let id = +$(this).attr('data-adjacent');
 				for( let room of dungeon.rooms ){
@@ -1819,6 +1896,7 @@ export default class Modtools{
 					}
 				}
 			});
+			// Add new room button
 			$("div.room input.addRoom:not(.disabled)").on('click', function(){
 				const dir = $(this).attr('data-dir');
 				const index = +$(this).parent().attr('data-index');
@@ -1847,12 +1925,14 @@ export default class Modtools{
 					}
 				}
 			});
+			// Z height input
 			$("#zHeight").on('change', function(){
 				setDungeonRoomByIndex(index, +$(this).val());
 			});
 
 			th.bindFormHelpers();
 			rebindRoom();
+			// Track the add tag button to bind tag changes
 			$("#modal div.cellSettings input.addTagHere").on('click', () => {
 				rebindRoom();
 			});
@@ -1870,7 +1950,9 @@ export default class Modtools{
 			saveAsset.tags = this.compileTags('tags');
 			saveAsset.rooms = dungeon.rooms.map(el => el.save("mod"));
 			
+			
 		});
+
 
 		// Find the entrance, if it doesn't exist, create it
 		for( let room of asset.rooms ){
@@ -1878,10 +1960,56 @@ export default class Modtools{
 				return setDungeonRoomByIndex(0, room.z);
 		}
 
+		
+
 		asset.rooms.push({name:'Entrance',x:0,y:0,index:0});
 		setDungeonRoomByIndex(0, 0);
 
 	}
+
+	// Helper to draw the 3d room editor
+	async drawRoomEditor( room ){
+
+		// vw vh
+		this.renderer.setSize(0.5,0.5);
+		const el = this.renderer.renderer.domElement;
+		el.tabIndex = 1;
+		$("#modal div.cellEditor").html(el);
+		let stage = new Stage(room, this.renderer, true);
+		this.renderer.resetStage( stage );
+		this.renderer.start();
+		await stage.draw();
+		
+		
+		
+
+		const control = this.control;
+		const renderer = this.renderer;
+		control.detach();
+
+		for( let child of stage.group.children ){
+
+			if( child.userData && child.userData.template && !child.userData.template.isRoom ){
+
+				child.userData.mouseover = () => {
+					Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0x222222));
+					renderer.renderer.domElement.style.cursor = "pointer";
+				};
+				child.userData.mouseout = () => {
+					Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0));
+					renderer.renderer.domElement.style.cursor = "auto";
+				};
+				child.userData.click = () => {
+					control.detach();
+					control.attach(child);
+				};
+
+			}
+			
+		}
+
+	}
+
 
 
 	
@@ -2965,32 +3093,6 @@ export default class Modtools{
 				$("#children").html(out); 
 			};
 
-			let control = new TransformControls( renderer.camera, renderer.renderer.domElement, () => {
-				drawChilds();
-			});
-			control.setTranslationSnap(1);
-			control.setRotationSnap(THREE.Math.degToRad(1));
-			
-			control.addEventListener( 'dragging-changed', function( event ){
-				renderer.controls.enabled = !event.value;
-			});
-			renderer.scene.add(control);
-			renderer.onRender = function(){
-				control.update();
-			};
-
-			window.addEventListener('keydown', event => {
-				if( event.key === "w" )
-					control.setMode( "translate" );
-				else if( event.key === "e" )
-					control.setMode( "rotate" );
-				else if( event.key === "r" )
-					control.setMode( "scale" );
-			});
-
-			
-
-
 			// Updates the active mesh
 			let drawMesh = async function( load_model ){
 
@@ -3008,24 +3110,7 @@ export default class Modtools{
 					console.log("Starting", model);
 
 					active_mesh = model;
-					control.detach();
-
-					for( let child of model.children ){
-						if( child.userData && child.userData.EDITOR_DRAGGABLE ){
-							child.userData.mouseover = () => {
-								Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0x222222));
-								renderer.renderer.domElement.style.cursor = "pointer";
-							};
-							child.userData.mouseout = () => {
-								Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0));
-								renderer.renderer.domElement.style.cursor = "auto";
-							};
-							child.userData.click = () => {
-								control.detach();
-								control.attach(child);
-							};
-						}
-					}
+					
 					//control.attach(model);
 					drawChilds();
 

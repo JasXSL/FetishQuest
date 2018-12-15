@@ -25,11 +25,14 @@ class WebGL{
 			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows
 		};
 
+		this.width = 1.0;		// vw
+		this.height = 0.8;		// vh
+
 		// Optional event bindings
 		this.onRender = undefined;
 
-		const width = config.width || window.innerWidth,
-			height = config.height || Math.round(window.innerHeight*0.8),
+		const width = window.innerWidth * this.width,
+			height = Math.round(window.innerHeight*this.height),
 			viewAngle = 50,
 			nearClipping = 0.1,
 			farClipping = 100000;
@@ -164,17 +167,31 @@ class WebGL{
 		this.cache_active_room = null;		// ID of active room for room detection
 
 		$(window).off('resize').on('resize', () => {
-			let width = window.innerWidth,
-				height = Math.round(window.innerHeight*0.8);
-			this.renderer.setSize(width, height);
-			this.camera.aspect = width / height;
-			this.camera.updateProjectionMatrix();
+			this.updateSize();
 		});
 
 		
 
 		this.render();
 
+	}
+
+	setSize( width, height ){
+
+		this.width = width || 1.0;
+		this.height = height || 0.8;
+		this.updateSize();
+
+	}
+
+	updateSize(){
+		let width = Math.round(window.innerWidth*this.width),
+			height = Math.round(window.innerHeight*this.height);
+		this.renderer.setSize(width, height);
+		this.renderer.domElement.style.width = Math.ceil(width);
+		this.renderer.domElement.style.height = Math.ceil(height);
+		this.camera.aspect = width / height;
+		this.camera.updateProjectionMatrix();
 	}
 
 	toggleOutdoors( outdoors ){
@@ -511,7 +528,7 @@ class WebGL{
 */
 class Stage{
 
-	constructor( room, parent ){
+	constructor( room, parent, isEditor = false ){
 		this.parent = parent;
 		this.group = new THREE.Group();
 		this.enabled = false;
@@ -520,6 +537,7 @@ class Stage{
 		this.mixers = [];		// Animation mixers
 		this.sounds = [];		// [{id:(str)soundID, mesh:THREE.Mesh, sound:AudioSound}]
 		this.water = [];		// Meshes
+		this.isEditor = isEditor;	// Whether this was loaded through the editor or live
 		this.room = room;
 	}
 	destructor(){
@@ -609,7 +627,7 @@ class Stage{
 	onDoorRefresh( c ){
 
 		let asset = c.userData.dungeonAsset;
-		let linkedRoom = game.dungeon.rooms[asset.data.room];
+		let linkedRoom = !this.isEditor ? game.dungeon.rooms[asset.data.room] : false;
 		let tagAlwaysVisible = (asset.isExit() && !asset.locked) || (linkedRoom && (linkedRoom.index === game.dungeon.previous_room || !linkedRoom.discovered || linkedRoom.index === asset.parent.parent_index));
 
 		let sprites = c.userData.hoverTexts;
@@ -642,31 +660,33 @@ class Stage{
 			sprite.material.opacity = 1;
 		}
 
-		sprite.visible = true;
+		if( sprite ){
+			sprite.visible = true;
 
-		// Fade tween (Needed for the tags)
-		let tweenVal = {i:1};
-		c.userData.tween = new TWEEN.Tween(tweenVal).to({i:0}, 250).easing(TWEEN.Easing.Sinusoidal.Out).onUpdate(obj => {
-			if( !tagAlwaysVisible )
-				sprite.material.opacity = obj.i;
-			let intensity = Math.floor(0x22*obj.i);
-			this.setMeshMatProperty(c, 'emissive', new THREE.Color((intensity<<16)|(intensity<<8)|intensity));
-		});
-		c.userData.mouseover = () => {
-			c.userData.tween.stop();
-			if( !tagAlwaysVisible ){
-				sprite.visible = true;
-				sprite.material.opacity = 1;
-			}
-			this.setMeshMatProperty(c, 'emissive', new THREE.Color(0x222222));
-			this.parent.renderer.domElement.style.cursor = "pointer";
-		};
-		c.userData.mouseout = () => {
-			c.userData.tween.stop();
-			c.userData.tween._object.i = 1;
-			c.userData.tween.start();
-			this.parent.renderer.domElement.style.cursor = "auto";
-		};
+			// Fade tween (Needed for the tags)
+			let tweenVal = {i:1};
+			c.userData.tween = new TWEEN.Tween(tweenVal).to({i:0}, 250).easing(TWEEN.Easing.Sinusoidal.Out).onUpdate(obj => {
+				if( !tagAlwaysVisible )
+					sprite.material.opacity = obj.i;
+				let intensity = Math.floor(0x22*obj.i);
+				this.setMeshMatProperty(c, 'emissive', new THREE.Color((intensity<<16)|(intensity<<8)|intensity));
+			});
+			c.userData.mouseover = () => {
+				c.userData.tween.stop();
+				if( !tagAlwaysVisible ){
+					sprite.visible = true;
+					sprite.material.opacity = 1;
+				}
+				this.setMeshMatProperty(c, 'emissive', new THREE.Color(0x222222));
+				this.parent.renderer.domElement.style.cursor = "pointer";
+			};
+			c.userData.mouseout = () => {
+				c.userData.tween.stop();
+				c.userData.tween._object.i = 1;
+				c.userData.tween.start();
+				this.parent.renderer.domElement.style.cursor = "auto";
+			};
+		}
 
 	}
 
@@ -696,7 +716,7 @@ class Stage{
 	async addDungeonAsset(asset){
 		let libEntry = asset.getModel();
 		let attachmentIndexes = asset.attachments;
-		return this.addFromMeshLib(libEntry, attachmentIndexes, asset.isInteractive());
+		return this.addFromMeshLib(libEntry, attachmentIndexes, asset.isInteractive() || this.isEditor);
 	}
 
 	// Adds a mesh to stage, or many
@@ -760,12 +780,13 @@ class Stage{
 	/* STAGE MANAGEMENT  */
 	// Creates or updates a stage with room, then returns that room. If room is unset, it uses the current dungeon room 
 	// Chainable
-	async draw(){
+	async draw( ){
 
 		let room = this.room;
-		let roomAsset = room.getRoomAsset(),
-			roomModel = roomAsset.getModel()
-		;
+		let roomAsset = room.getRoomAsset();
+		let roomModel;
+		if( roomAsset )
+			roomModel = roomAsset.getModel();
 
 		// Add assets
 		for( let asset of room.assets ){
@@ -789,8 +810,8 @@ class Stage{
 
 			// Create labels
 			// Door
-			if( asset.isDoor() ){
-				
+			if( asset.isDoor() && !this.isEditor ){
+			
 				let linkedRoom = game.dungeon.rooms[asset.data.room];
 				if( asset.isExit() ){
 					this.createIndicatorForMesh('exit', asset.data.label ? asset.data.label : 'Exit', c);
@@ -804,7 +825,7 @@ class Stage{
 					else
 						this.createIndicatorForMesh('bearing', room.getBearingLabel(room.getAdjacentBearing( linkedRoom )), c);
 				}
-
+			
 			}
 
 
@@ -813,6 +834,13 @@ class Stage{
 			if( asset.absolute ){
 				c.position.x = asset.x;
 				c.position.y = asset.y;
+				c.position.z = asset.z;
+				c.rotation.x = asset.rotX;
+				c.rotation.y = asset.rotY;
+				c.rotation.z = asset.rotZ;
+				c.scale.x = asset.scaleX;
+				c.scale.y = asset.scaleY;
+				c.scale.z = asset.scaleZ;
 			}
 			else{
 				//console.debug("Adding", asset, "x", asset.x, "y", asset.y, "rotatedWidth", asset.getRotatedWidth(), "rotatedHeight", asset.getRotatedHeight());
@@ -831,11 +859,11 @@ class Stage{
 
 				c.position.x = x;
 				c.position.z = y;
-				c.rotation.y = -asset.rotation/360*Math.PI*2;
+				c.rotation.y = -asset.rotZ/360*Math.PI*2;
 
 				// Handle wall insets
-				if( roomModel.wall_indentation && meshTemplate.use_wall_indentation ){
-					let coords = room.getBearingCoords(Math.floor(asset.rotation/90));
+				if( roomModel && roomModel.wall_indentation && meshTemplate.use_wall_indentation ){
+					let coords = room.getBearingCoords(Math.floor(asset.rotZ/90));
 					c.position.x += coords[0]*roomModel.wall_indentation*meshTemplate.wall_indentation;
 					c.position.z += coords[1]*roomModel.wall_indentation*meshTemplate.wall_indentation;
 				}
