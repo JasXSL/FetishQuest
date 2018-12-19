@@ -415,14 +415,14 @@ export default class UI{
 			if( !p.isBeast() ){
 				rb_entries.push(
 					'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="Upperbody armor durability.'+
-						(ubDur <= 0 ? '\n+25% Damage taken for missing upperbody.' : '')+
+						(ubDur <= 0 ? '\n+15% Damage taken for missing upperbody.' : '')+
 					'">'+
 						Math.ceil(ubDur*100)+'%'+
 					'</span>'
 				);
 				rb_entries.push(
 					'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="Lowerbody armor durability.'+
-						(lbDur <= 0 ? '\n+25% Damage taken for missing lowerbody.' : '')+
+						(lbDur <= 0 ? '\n+15% Damage taken for missing lowerbody.' : '')+
 					'">'+
 					Math.ceil(lbDur*100)+'%</span>'
 				);

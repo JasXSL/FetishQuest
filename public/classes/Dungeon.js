@@ -54,10 +54,13 @@ class Dungeon extends Generic{
 	}
 
 	save( full ){
+		
 		let out = {
 			name : this.name,
 			tags : this.tags,
-			rooms : this.rooms.map(el => el.save(full)),
+			rooms : this.rooms.map(el => {
+				return el.save(full);
+			}),
 			difficulty : this.difficulty,
 		};
 
@@ -445,11 +448,9 @@ class DungeonRoom extends Generic{
 		};
 
 		// Full or mod
-		if( full ){
+		if( full )
 			out.encounter = this.encounter.save(full);
-			return out;
-		}
-		
+
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.id = this.id;
@@ -458,6 +459,7 @@ class DungeonRoom extends Generic{
 		else
 			this.g_sanitizeDefaults(out);
 
+		
 		return out;
 	}
 

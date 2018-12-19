@@ -341,7 +341,7 @@ const lib = [
 			"pl_tail",
 			"pl_big_penis"
 		],
-		min_level : 6,
+		min_level : 5,
 		max_level : 15,
 		primary_stats : {
 			"intellect":4,

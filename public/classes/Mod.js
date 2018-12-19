@@ -122,10 +122,13 @@ Mod.getModsOrdered = async function(){
 	const modNames = await Mod.getNames();
 	let modLoadOrder = {};
 	const sortedMods = [];
-	try{
-		modLoadOrder = JSON.parse(localStorage.modLoadOrder);
-	}catch(err){
-		console.error("Mod load order error", err);
+	if( localStorage.modLoadOrder !== undefined ){
+		try{
+			modLoadOrder = JSON.parse(localStorage.modLoadOrder);
+		}catch(err){
+			console.error("Mod load order error", err);
+			modLoadOrder = {};
+		}
 	}
 
 	console.log("loadOrder", modLoadOrder);

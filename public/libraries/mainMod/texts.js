@@ -76,6 +76,15 @@ const lib = [
 		],
 		audiokits : ["slapGeneric"]
 	},
+	{ text : "%S jumps onto the knocked down %Trace's stomach, grabbing ahold of %This nipples and tugs at them!",
+		conditions : humOnHumCond.concat("action_stdAttack","targetBreasts","targetKnockedDownBack","targetTaller","targetBreastsExposed"),
+		audiokits : ["stretchGeneric"]
+	},
+	{ text : "%S pinches a hold of %T's nipples and pulls backwards!",
+		conditions : humOnHumCond.concat("action_stdAttack","targetBreasts","targetUpperbodyNotHard"),
+		audiokits : ["stretchGeneric"]
+	},
+
 	{ text : "%S shoves %T from behind, bending %Thim over a table before slapping %This %Trsize %Tbutt!",
 		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
 		conditions : humOnHumCond.concat("action_stdAttack","roomTable"),
@@ -89,6 +98,10 @@ const lib = [
 			"senderNotBeast",
 			"action_stdAttack",
 		],
+		audiokits : ["squeezeGeneric"]
+	},
+	{ text : "%S grabs a hold of %T's %Tbsize %leftright %Tbreast and squeezes down firmly!",
+		conditions : humOnHumCond.concat("action_stdAttack", "targetBreasts", "targetUpperbodyNotHard"),
 		audiokits : ["squeezeGeneric"]
 	},
 	{ text : "%S throws at punch at the front of %T's %TclothLower, most of the impact being absorbed by the piece.",
@@ -115,17 +128,11 @@ const lib = [
 		],
 		audiokits : ["punchGeneric"]
 	},
+
+	// tentacles
 	{ text : "%S lashes tentacles around %T's nipples, tugging outwards!",
-		audiokits : ["tentacleTwist"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetBreasts",
-			"targetUpperbodyNotHard"]
+		audiokits : ["tentacleTwist"],
+		conditions : anyOnHumCond.concat("action_stdAttack","senderHasTentacles","targetBreasts","targetUpperbodyNotHard")
 	},
 	{ text : "%S slips a couple of tendrils around %T's exposed %Tbreasts, firmly squeezing them!",
 		audiokits : ["tentacleTwist"
@@ -301,6 +308,9 @@ const lib = [
 		weight : Text.Weights.high,
 
 	},
+
+
+	// Whips
 	{ text : "%S swings %Shis %Sgear at %T, whapping the %Trace across the %Tbutt!",
 		conditions : [
 			"targetNotBeast",
@@ -502,6 +512,8 @@ const lib = [
 		weight : Text.Weights.high,
 		audiokits : ["slowThrusts"]
 	},
+
+	// stdArouse - Tentacles
 	{ text : "%S slips a couple of tendrils up between %T's legs, rubbing across %This %groin!",
 		audiokits : ["squishTiny"
 		],
@@ -1048,6 +1060,10 @@ const lib = [
 		audiokits : ["tentacleZap"],
 		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetBreasts", "targetUpperbodyNotHard")
 	},
+	{ text : "%S wraps charged tentacles around %T's %Tbsize nipples, constricting and sending an electric shock through them!",
+		audiokits : ["tentacleZap"],
+		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetBreasts", "targetUpperbodyNotHard")
+	},
 	{ text : "%S wraps a charged tentacle around %T's %Tgroin, squeezing down and sending an electric shock through %This %Tpenis!",
 		audiokits : ["tentacleZap"],
 		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetPenis", {conditions:[
@@ -1498,9 +1514,13 @@ const lib = [
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
 		audiokits : ["pinchGeneric"]
 	},
-	{ text : "%S casts a spell, causing invisible fingers to clamp down onto %T's %leftright nipple, twisting it!",
+	{ text : "%S casts a spell, causing invisible fingers to clamp down onto %T's nipples, twisting both!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
 		audiokits : ["pinchGeneric"]
+	},
+	{ text : "%S casts a spell, causing invisible fingers to clamp down onto %T's nipples, stretching them both outwards!",
+		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
+		audiokits : ["pinchGeneric","stretchGeneric"]
 	},
 	{ text : "%S casts a spell, causing an invisible force to pinch %T's %leftright ear, tugging at it!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetEars"),

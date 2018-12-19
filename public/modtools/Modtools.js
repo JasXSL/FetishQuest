@@ -19,7 +19,7 @@ import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTemplate.js';
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
 import { AudioKit } from '../classes/Audio.js';
-import Dungeon, { DungeonRoom } from '../classes/Dungeon.js';
+import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../classes/Dungeon.js';
 
 const meshLib = LibMesh.getFlatLib();
 
@@ -1727,7 +1727,10 @@ export default class Modtools{
 		html += '</div>';
 
 		// Canvas in here
-		html += '<div class="cellEditor">Cell Editor Here</div>';
+		html += '<div class="flexTwoColumns editorWrap">';
+			html += '<div class="cellEditor"></div>';
+			html += '<div class="assetEditor">Asset editor</div>';
+		html += '</div>';
 		html += '<br />';
 
 
@@ -1846,6 +1849,7 @@ export default class Modtools{
 
 					// Todo: 3d editor
 					th.drawRoomEditor(room);
+					th.drawRoomAssetEditor( room.getRoomAsset() );
 					
 					break;
 				}
@@ -1959,10 +1963,9 @@ export default class Modtools{
 			if( room.index === 0 )
 				return setDungeonRoomByIndex(0, room.z);
 		}
+		dungeon.rooms.push(new DungeonRoom({name:'Entrance',x:0,y:0,index:0}, dungeon));
 
-		
 
-		asset.rooms.push({name:'Entrance',x:0,y:0,index:0});
 		setDungeonRoomByIndex(0, 0);
 
 	}
@@ -1970,11 +1973,24 @@ export default class Modtools{
 	// Helper to draw the 3d room editor
 	async drawRoomEditor( room ){
 
+
+		// Make sure the room asset exists
+		let roomAsset = room.getRoomAsset();
+		if( !roomAsset ){
+			roomAsset = new DungeonRoomAsset({
+				model : 'Dungeon.Room.R6x6',
+				type : DungeonRoomAsset.Types.Room
+			}, room);
+			room.addAsset(roomAsset);
+		}
+
 		// vw vh
 		this.renderer.setSize(0.5,0.5);
 		const el = this.renderer.renderer.domElement;
 		el.tabIndex = 1;
 		$("#modal div.cellEditor").html(el);
+		
+		
 		let stage = new Stage(room, this.renderer, true);
 		this.renderer.resetStage( stage );
 		this.renderer.start();
@@ -2007,6 +2023,46 @@ export default class Modtools{
 			}
 			
 		}
+
+	}
+
+	drawRoomAssetEditor( asset ){
+
+		const th = this;
+		let html = '';
+
+		html += '<div class="addAsset">';
+
+			html += 'Todo: Asset library selector';
+
+		html += '</div>';
+
+		// Room asset selector
+		if( asset.isRoom() ){
+			
+			html += '<strong>Pick base room asset</strong><br />';
+			html += '<select name="roomAssetPath">';
+			LibMesh.iterate((mesh, path) => {
+				if( mesh.isRoom )
+					html += '<option value="'+esc(path)+'" '+(path === asset.model ? 'selected' : '')+'>'+esc(path)+'</option>';
+			});
+			html += '</select>';
+
+		}
+		// Generic asset selector
+		else{
+
+
+		}
+
+		const div = $("#modal div.assetEditor");
+		div.html(html);
+
+		// Room
+		$("select[name=roomAssetPath]", div).on('change', function(){
+			asset.model = $(this).val();
+			th.drawRoomEditor(asset.parent);
+		});
 
 	}
 

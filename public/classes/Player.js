@@ -1110,7 +1110,7 @@ export default class Player extends Generic{
 		for( let slot of slots ){
 			let gear = this.getEquippedAssetsBySlots(slot);
 			if( !gear.length )
-				out += 0.25;
+				out += 0.15;
 		}
 		return out;
 

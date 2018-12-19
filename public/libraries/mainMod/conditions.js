@@ -87,6 +87,10 @@ const lib = {
 		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttGroinExposed]}}
 	]},
+	targetBreastsExposed : {conditions:[
+		{type:"tag", data:{tags:[stdTag.asUpperbody]}, inverse:true},
+		{type:"tag", data:{tags:[stdTag.ttBreastsExposed]}}
+	]},
 
 
 
@@ -146,14 +150,15 @@ const lib = {
 	rand70 : {"type":"rng","data":{"chance":70}},
 	rand80 : {"type":"rng","data":{"chance":80}},
 	rand90 : {"type":"rng","data":{"chance":90}},
-	roomTable : {"type":"tag","data":{"tags":["m_table"]}},
+
+	roomTable : {"type":Condition.Types.tag,"data":{"tags":[stdTag.mTable]}},
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {"type":"defeated","inverse":true,"caster":true},
 	targetDead : {"type":"defeated"},
 	targetNotDead : {"type":"defeated","inverse":true},
 	senderPunishmentNotUsed : {"type":"punishNotUsed","caster":true},
 
-	 targetRidingOnMyTentacle : {type:Condition.Types.tag,data:{tags:[stdTag.wrTentacleRide], sender:true}},
+	targetRidingOnMyTentacle : {type:Condition.Types.tag,data:{tags:[stdTag.wrTentacleRide], sender:true}},
 
 
 	ttGroinExposed : {"type":"tag","data":{"tags":[stdTag.ttGroinExposed]}},

@@ -279,6 +279,21 @@ LibMesh.getFlatLib = function( base, label = '' ){
 
 };
 
+// Supply a function with arguments (model, path)
+LibMesh.iterate = function( fn ){
+	let th = this;
+	function iterate( obj, base ){
+		for( let i in obj ){
+			let b = (base ? base+'.'+i : i);
+			if( obj[i] instanceof th )
+				fn(obj[i], b);
+			else
+				iterate(obj[i], b);
+		}
+	}	
+	return iterate(LibMesh.library);
+};
+
 class LibMeshAttachment{
 	constructor(data){
 		if( typeof data !== "object" )
