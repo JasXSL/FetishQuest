@@ -1729,7 +1729,7 @@ export default class Modtools{
 		// Canvas in here
 		html += '<div class="flexTwoColumns editorWrap">';
 			html += '<div class="cellEditor"></div>';
-			html += '<div class="assetEditor">Asset editor</div>';
+			html += '<div class="assetEditor" style="flex:auto">Asset editor</div>';
 		html += '</div>';
 		html += '<br />';
 
@@ -1913,7 +1913,7 @@ export default class Modtools{
 					if( room.index === index ){
 
 						let newRoom = room.clone(dungeon);
-
+						newRoom.assets = [];
 						newRoom.index = highest+1;
 						newRoom.parent_index = index;
 						newRoom.name = 'New Room';
@@ -1923,6 +1923,8 @@ export default class Modtools{
 						newRoom.y += dirOffset[1];
 						newRoom.z += dirOffset[2];
 						dungeon.rooms.push(newRoom);
+
+						console.log("Adding room", newRoom);
 
 						setDungeonRoomByIndex(newRoom.index, newRoom.z);
 						return;
@@ -1954,12 +1956,11 @@ export default class Modtools{
 			saveAsset.tags = this.compileTags('tags');
 			saveAsset.rooms = dungeon.rooms.map(el => el.save("mod"));
 			
-			
 		});
 
 
 		// Find the entrance, if it doesn't exist, create it
-		for( let room of asset.rooms ){
+		for( let room of dungeon.rooms ){
 			if( room.index === 0 )
 				return setDungeonRoomByIndex(0, room.z);
 		}
@@ -1987,7 +1988,11 @@ export default class Modtools{
 		// vw vh
 		this.renderer.setSize(0.5,0.5);
 		const el = this.renderer.renderer.domElement;
-		el.tabIndex = 1;
+		el.tabIndex = -1;
+		el.addEventListener('click', () => {
+			if( document.activeElement.blur )
+				document.activeElement.blur();
+		});
 		$("#modal div.cellEditor").html(el);
 		
 		
@@ -1995,8 +2000,6 @@ export default class Modtools{
 		this.renderer.resetStage( stage );
 		this.renderer.start();
 		await stage.draw();
-		
-		
 		
 
 		const control = this.control;
@@ -2029,13 +2032,34 @@ export default class Modtools{
 	drawRoomAssetEditor( asset ){
 
 		const th = this;
+		const room = asset.parent;
 		let html = '';
+		let meshToAdd, meshToAddModel;
 
-		html += '<div class="addAsset">';
+		html += '<div class="addAsset" >';
 
-			html += 'Todo: Asset library selector';
+			html += '<div id="meshControls">';
+				html += '<select id="meshToTest" multiple></select>';
+			html += '</div>';
+
+			html += '<input style="position:absolute;top:0; right:0;" type="button" id="addMeshToScene" disabled value="Add to Scene" />';
 
 		html += '</div>';
+
+		html += '<div class="missingDoors">';
+
+			let missingDoors = [];
+			let direct = room.getDirectConnections();
+			console.log(room, direct);
+			for( let r of direct ){
+				if( !room.getDoorLinkingTo( r.index ) )
+					missingDoors.push("["+r.index+"] "+esc(r.name));
+			}
+			if( room.index === 0 && !room.getDoorLinkingTo(-1) )
+				missingDoors.push("[-1] EXIT");
+			if( missingDoors.length )
+				html += '<b>Missing doors:</b><br />'+missingDoors.join('<br />');
+		html += '</div><br />';
 
 		// Room asset selector
 		if( asset.isRoom() ){
@@ -2052,6 +2076,7 @@ export default class Modtools{
 		// Generic asset selector
 		else{
 
+			
 
 		}
 
@@ -2064,11 +2089,78 @@ export default class Modtools{
 			th.drawRoomEditor(asset.parent);
 		});
 
+
+		// Asset
+		// Updates the select boxes
+		let updateSelects = function(index){
+			let path = [];
+			$("#meshControls select").each(function(i){
+				if(i > index)
+					$(this).remove();
+				else
+					path.push($(this).val()[0]);
+			});
+
+			let meshes = libMeshes;
+			let i = "";
+			for( i of path )
+				meshes = meshes[i];
+
+			$("#addMeshToScene").prop("disabled", true);
+			
+			// Set this as mesh to add
+			if( meshes.constructor === LibMesh ){
+				$("#addMeshToScene").prop("disabled", false);
+				meshToAdd = path.join('.');
+				meshToAddModel = meshes;
+			}
+			// Draw a selector
+			else{
+				let select = '<select multiple name="'+path.length+'">';
+				for( let m in meshes ){
+					let obj = meshes[m];
+					select += '<option value="'+m+'">'+(obj.constructor === LibMesh ? '[M] ' : '') + m+'</option>';
+				}
+				select += '</select>';
+				select = $(select);
+				$("#meshControls").append(select);
+
+
+				select.on('change', function(){
+					updateSelects(path.length);
+				});
+			}
+			
+			localStorage.meshEditorPath = JSON.stringify(path);
+
+		}
+
+		// Add the new mesh selector
+		let out = '';
+		for( let i in libMeshes )
+			out += '<option value="'+i+'">'+i+'</option>';
+		$("#meshToTest").html(out);
+		$("#meshToTest").on('change', function(){
+			updateSelects(0);
+		});
+
+		$("#addMeshToScene").on('click', () => {
+			if( !meshToAdd )
+				return;
+			let att = [];
+			for( let i in meshToAddModel.attachments )
+				att.push(i);
+			asset.parent.addAsset( new DungeonRoomAsset({
+				model : meshToAdd,
+				attachments : att,
+				absolute : true
+			}, asset.parent) );
+			this.drawRoomEditor(asset.parent);
+		});
+		
+
 	}
 
-
-
-	
 
 
 	// FORM HELPERS
@@ -3195,72 +3287,7 @@ export default class Modtools{
 				});
 			};
 
-			// Updates the select boxes
-			let updateSelects = function(index){
-				let path = [];
-				$("#meshControls select").each(function(i){
-					if(i > index)
-						$(this).remove();
-					else
-						path.push($(this).val()[0]);
-				});
-
-				let meshes = libMeshes;
-				let basePath = [];
-				let i = "";
-				for( i of path )
-					meshes = meshes[i];
-				
-				// Draw the mesh
-				if( meshes.constructor === LibMesh ){
-
-					active_model = meshes;
-					drawMesh(active_model);
-
-				}
-				// Draw a selector
-				else{
-					let select = '<select multiple name="'+path.length+'">';
-					for( let m in meshes ){
-						let obj = meshes[m];
-						select += '<option value="'+m+'">'+(obj.constructor === LibMesh ? '[M] ' : '') + m+'</option>';
-					}
-					select += '</select>';
-					select = $(select);
-					$("#meshControls").append(select);
-
-
-					select.on('change', function(){
-						updateSelects(path.length);
-					});
-				}
-				
-				localStorage.meshEditorPath = JSON.stringify(path);
-
-			}
-
-			document.getElementById("meshCanvas").appendChild(renderer.renderer.domElement);
-			let out = '';
-			for( let i in libMeshes )
-				out += '<option value="'+i+'">'+i+'</option>';
-			$("#meshToTest").html(out);
-			$("#meshToTest").on('change', function(){
-				updateSelects(0);
-			});
-
-			let path = [];
-			try{
-				path = JSON.parse(localStorage.meshEditorPath);	
-			}catch(err){path = ["Dungeon"];}
-
-			for( let i in path ){
-				let p = path[i];
-				let el = $("#meshToTest");
-				if( +i )
-					el = $("select[name='"+i+"']");
-				el.val(p);
-				updateSelects(+i);
-			}
+			
 
 			renderer.start();
 			

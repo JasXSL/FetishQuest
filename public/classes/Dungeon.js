@@ -562,6 +562,13 @@ class DungeonRoom extends Generic{
 		return out;
 	}
 
+	getDoorLinkingTo( index ){
+		for( let asset of this.assets ){
+			if( asset.isDoor() && asset.data && asset.data.room === index )
+				return asset;
+		}
+		return false;
+	}
 	
 
 	getChildren(){

@@ -83,7 +83,7 @@ export default class Generic{
 				console.log(i, "was not in", template, "this property was added in save() but not the constructor!");
 			if( Array.isArray(stored) )
 				stored = stored.map(el => el.save ? el.save("mod") : el);
-			if( stored.save ){
+			if( typeof stored === "object" && stored !== null && stored.save ){
 				stored = stored.save("mod");
 			}
 			if( JSON.stringify(stored) === JSON.stringify(saveData[i]) )
