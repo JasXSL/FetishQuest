@@ -2,6 +2,7 @@
 	Notes on meshes:
 
 	Custom userData properties:
+	- dungeonAsset
 	- tweens - Object of functions that return TWEEN.Tweens when called.
 	- particles - Array of libParticles particle systems 
 	- _stage - Added automatically when placed into a WebGL stage

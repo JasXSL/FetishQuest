@@ -45,7 +45,7 @@ export default class Modtools{
 			renderer.controls.enabled = !event.value;
 		});
 		let controlTimer = null;
-		control.addEventListener( 'change', event => {
+		control.addEventListener( 'objectChange', event => {
 			clearTimeout(controlTimer);
 			controlTimer = setTimeout(() => {
 				const mesh = event.target.object;
@@ -62,8 +62,13 @@ export default class Modtools{
 				dungeonAsset.rotX = Math.round(mesh.rotation.x*100)/100;
 				dungeonAsset.rotY = Math.round(mesh.rotation.y*100)/100;
 				dungeonAsset.rotZ = Math.round(mesh.rotation.z*100)/100;
+				if( this.onControlChanged )
+					this.onControlChanged(event);
 			}, 100);
 		});
+
+		this.onControlChanged = null;	// lets you bind a change function to the 3d editor transform controls
+
 		renderer.scene.add(control);
 		renderer.onRender = function(){
 			control.update();
@@ -1729,7 +1734,7 @@ export default class Modtools{
 		// Canvas in here
 		html += '<div class="flexTwoColumns editorWrap">';
 			html += '<div class="cellEditor"></div>';
-			html += '<div class="assetEditor" style="flex:auto">Asset editor</div>';
+			html += '<div class="assetEditor" style="flex:1">Asset editor</div>';
 		html += '</div>';
 		html += '<br />';
 
@@ -2006,6 +2011,7 @@ export default class Modtools{
 		const renderer = this.renderer;
 		control.detach();
 
+		// Set mouseover events
 		for( let child of stage.group.children ){
 
 			if( child.userData && child.userData.template && !child.userData.template.isRoom ){
@@ -2021,6 +2027,7 @@ export default class Modtools{
 				child.userData.click = () => {
 					control.detach();
 					control.attach(child);
+					this.drawRoomAssetEditor(child.userData.dungeonAsset);
 				};
 
 			}
@@ -2033,8 +2040,14 @@ export default class Modtools{
 
 		const th = this;
 		const room = asset.parent;
+		const mesh = asset.getModel();
 		let html = '';
 		let meshToAdd, meshToAddModel;
+		const div = $("#modal div.assetEditor");
+		const RAD_TO_DEG = 57.2958;
+		const DEG_TO_RAD = 1.0/57.2958;
+
+		// Any forms and such here will modify the asset argument, and the asset argument will be saved when the dungeon saves
 
 		html += '<div class="addAsset" >';
 
@@ -2075,12 +2088,61 @@ export default class Modtools{
 		}
 		// Generic asset selector
 		else{
+			html += '<strong>Position:</strong><br />';
+			html += 'X <input type="number" name="x" class="updateMesh" style="width:6vmax" value="'+esc(asset.x)+'" /> ';
+			html += 'Y <input type="number" name="y" class="updateMesh" style="width:6vmax" value="'+esc(asset.y)+'" /> ';
+			html += 'Z <input type="number" name="z" class="updateMesh" style="width:6vmax" value="'+esc(asset.z)+'" /> <br />';
 
+			html += '<strong>Rotation:</strong><br />';
+			html += 'X <input type="number" name="rotX" class="updateMesh" style="width:6vmax" value="'+esc(asset.rotX*RAD_TO_DEG)+'" /> ';
+			html += 'Y <input type="number" name="rotY" class="updateMesh" style="width:6vmax" value="'+esc(asset.rotY*RAD_TO_DEG)+'" /> ';
+			html += 'Z <input type="number" name="rotZ" class="updateMesh" style="width:6vmax" value="'+esc(asset.rotZ*RAD_TO_DEG)+'" /> <br />';
+
+			html += '<strong>Scale:</strong><br />';
+			html += 'X <input type="number" step=0.01 name="scaleX" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleX)+'" /> ';
+			html += 'Y <input type="number" step=0.01 name="scaleY" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleY)+'" /> ';
+			html += 'Z <input type="number" step=0.01 name="scaleZ" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleZ)+'" /> <br />';
+
+			html += '<strong>Type:</strong><select name="type">';
+				for( let t in DungeonRoomAsset.Types )
+					html += '<option value="'+esc(DungeonRoomAsset.Types[t])+'" '+(asset.type === DungeonRoomAsset.Types[t] ? 'selected' : '')+'>'+esc(t)+'</option>';
+			html += '</select><br />';
+		
+			html += 'Todo: Asset data editor<br />';
+
+			html += 'Todo: Encounter editor<br />';
+
+			html += 'Todo: Loot<br />';
+		
+			html += '<br /><label>Locked: <input class="updateMesh" type="checkbox" name="locked" '+(asset.locked ? 'checked' : '')+' /></label><br />';
 			
+			html += '<input type="button" value="Delete" class="deleteSelectedAsset" />';
+
+			// Bind the updates
+			this.onControlChanged = event => {
+
+				const mode = event.target.getMode();
+				if( mode === 'scale' ){
+					$("input[name=scaleX]", div).val(asset.scaleX);
+					$("input[name=scaleY]", div).val(asset.scaleY);
+					$("input[name=scaleZ]", div).val(asset.scaleZ);
+				}
+				else if( mode === 'rotate' ){
+					$("input[name=rotX]", div).val(asset.rotX*DEG_TO_RAD);
+					$("input[name=rotY]", div).val(asset.rotY*DEG_TO_RAD);
+					$("input[name=rotZ]", div).val(asset.rotZ*DEG_TO_RAD);
+				}
+				else if( mode === 'translate' ){
+					$("input[name=x]", div).val(asset.x);
+					$("input[name=y]", div).val(asset.y);
+					$("input[name=z]", div).val(asset.z);
+				}
+
+			};
+
 
 		}
 
-		const div = $("#modal div.assetEditor");
 		div.html(html);
 
 		// Room
@@ -2092,7 +2154,7 @@ export default class Modtools{
 
 		// Asset
 		// Updates the select boxes
-		let updateSelects = function(index){
+		const updateSelects = function(index){
 			let path = [];
 			$("#meshControls select").each(function(i){
 				if(i > index)
@@ -2116,6 +2178,7 @@ export default class Modtools{
 			}
 			// Draw a selector
 			else{
+
 				let select = '<select multiple name="'+path.length+'">';
 				for( let m in meshes ){
 					let obj = meshes[m];
@@ -2129,6 +2192,7 @@ export default class Modtools{
 				select.on('change', function(){
 					updateSelects(path.length);
 				});
+
 			}
 			
 			localStorage.meshEditorPath = JSON.stringify(path);
@@ -2144,6 +2208,32 @@ export default class Modtools{
 			updateSelects(0);
 		});
 
+		// Mesh inputs changed
+		$("input.updateMesh", div).on('change', () => {
+			asset._stage_mesh.position.x = asset.x = +$("input[name=x]", div).val();
+			asset._stage_mesh.position.y = asset.y = +$("input[name=y]", div).val();
+			asset._stage_mesh.position.z = asset.z = +$("input[name=z]", div).val();
+
+			asset._stage_mesh.rotation.x = asset.rotX = +$("input[name=rotX]", div).val()*DEG_TO_RAD;
+			asset._stage_mesh.rotation.y = asset.rotY = +$("input[name=rotY]", div).val()*DEG_TO_RAD;
+			asset._stage_mesh.rotation.z = asset.rotZ = +$("input[name=rotZ]", div).val()*DEG_TO_RAD;
+
+			asset._stage_mesh.scale.x = asset.scaleX = +$("input[name=scaleX]", div).val();
+			asset._stage_mesh.scale.y = asset.scaleY = +$("input[name=scaleY]", div).val();
+			asset._stage_mesh.scale.z = asset.scaleZ = +$("input[name=scaleZ]", div).val();
+
+			asset.locked = $("input[name=locked]", div).is(':checked');
+			
+		});
+
+		// Todo: Continue here
+		$("select[name=type]", div).on('change', () => {
+			const el = $("select[name=type]", div);
+			console.log("Todo: Add the type editor for", el);
+			// Don't forget to update "asset" var for it to save
+		});
+
+		// Add to scene button
 		$("#addMeshToScene").on('click', () => {
 			if( !meshToAdd )
 				return;

@@ -1060,7 +1060,7 @@ const lib = [
 		audiokits : ["tentacleZap"],
 		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetBreasts", "targetUpperbodyNotHard")
 	},
-	{ text : "%S wraps charged tentacles around %T's %Tbsize nipples, constricting and sending an electric shock through them!",
+	{ text : "%S wraps charged tentacles around %T's nipples, constricting and sending an electric shock through them!",
 		audiokits : ["tentacleZap"],
 		conditions : anyOnHumCond.concat("action_shocktacle_zap", "targetBreasts", "targetUpperbodyNotHard")
 	},

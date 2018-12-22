@@ -16,7 +16,7 @@ class Bot{
 	shiftRandomTargetByThreat(targs){
 		let maxThreat = 0;
 		for( let targ of targs )
-			maxThreat += this.player.getPlayerThreat(targ);
+			maxThreat += Math.max(1,this.player.getPlayerThreat(targ));
 		let r = Math.random()*maxThreat,
 			threat = 0;
 		shuffle(targs);

@@ -968,7 +968,7 @@ const lib = {
 			"ac_taunt",
 			"ac_damage"
 		],
-		detrimental : false,
+		detrimental : true,
 		"target_type": "target",
 		show_conditions : [
 			"inCombat"
