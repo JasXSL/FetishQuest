@@ -878,6 +878,7 @@ class DungeonRoomAsset extends Generic{
 		super(data);
 
 		this.parent = parentObj;
+		this.name = '';
 		this.model = '';		// Use . notation and select a model from libMeshes
 		// In absolute mode these are absolute positions and rotations
 		// In normal mode, they're based on tiles
@@ -928,6 +929,7 @@ class DungeonRoomAsset extends Generic{
 			locked : this.locked,
 			tags : this.tags,
 			absolute : this.absolute,
+			name : this.name
 		};
 
 		// Full or mod

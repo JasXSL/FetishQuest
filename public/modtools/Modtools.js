@@ -2088,15 +2088,16 @@ export default class Modtools{
 		}
 		// Generic asset selector
 		else{
+			html += 'Name: <input type="text" class="updateMesh" name="name" value="'+esc(asset.name)+'" /> <br />';
 			html += '<strong>Position:</strong><br />';
-			html += 'X <input type="number" name="x" class="updateMesh" style="width:6vmax" value="'+esc(asset.x)+'" /> ';
-			html += 'Y <input type="number" name="y" class="updateMesh" style="width:6vmax" value="'+esc(asset.y)+'" /> ';
-			html += 'Z <input type="number" name="z" class="updateMesh" style="width:6vmax" value="'+esc(asset.z)+'" /> <br />';
+			html += 'X <input type="number" step=1 name="x" class="updateMesh" style="width:6vmax" value="'+esc(asset.x)+'" /> ';
+			html += 'Y <input type="number" step=1 name="y" class="updateMesh" style="width:6vmax" value="'+esc(asset.y)+'" /> ';
+			html += 'Z <input type="number" step=1 name="z" class="updateMesh" style="width:6vmax" value="'+esc(asset.z)+'" /> <br />';
 
 			html += '<strong>Rotation:</strong><br />';
-			html += 'X <input type="number" name="rotX" class="updateMesh" style="width:6vmax" value="'+esc(asset.rotX*RAD_TO_DEG)+'" /> ';
-			html += 'Y <input type="number" name="rotY" class="updateMesh" style="width:6vmax" value="'+esc(asset.rotY*RAD_TO_DEG)+'" /> ';
-			html += 'Z <input type="number" name="rotZ" class="updateMesh" style="width:6vmax" value="'+esc(asset.rotZ*RAD_TO_DEG)+'" /> <br />';
+			html += 'X <input type="number" step=0.1 name="rotX" class="updateMesh" style="width:6vmax" value="'+esc(Math.round(asset.rotX*RAD_TO_DEG*10)/10)+'" /> ';
+			html += 'Y <input type="number" step=0.1 name="rotY" class="updateMesh" style="width:6vmax" value="'+esc(Math.round(asset.rotY*RAD_TO_DEG*10)/10)+'" /> ';
+			html += 'Z <input type="number" step=0.1 name="rotZ" class="updateMesh" style="width:6vmax" value="'+esc(Math.round(asset.rotZ*RAD_TO_DEG*10)/10)+'" /> <br />';
 
 			html += '<strong>Scale:</strong><br />';
 			html += 'X <input type="number" step=0.01 name="scaleX" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleX)+'" /> ';
@@ -2108,7 +2109,7 @@ export default class Modtools{
 					html += '<option value="'+esc(DungeonRoomAsset.Types[t])+'" '+(asset.type === DungeonRoomAsset.Types[t] ? 'selected' : '')+'>'+esc(t)+'</option>';
 			html += '</select><br />';
 		
-			html += 'Todo: Asset data editor<br />';
+			html += '<div class="assetDataEditor"></div>';
 
 			html += 'Todo: Encounter editor<br />';
 
@@ -2128,9 +2129,9 @@ export default class Modtools{
 					$("input[name=scaleZ]", div).val(asset.scaleZ);
 				}
 				else if( mode === 'rotate' ){
-					$("input[name=rotX]", div).val(asset.rotX*DEG_TO_RAD);
-					$("input[name=rotY]", div).val(asset.rotY*DEG_TO_RAD);
-					$("input[name=rotZ]", div).val(asset.rotZ*DEG_TO_RAD);
+					$("input[name=rotX]", div).val(Math.round(asset.rotX*RAD_TO_DEG*10)/10);
+					$("input[name=rotY]", div).val(Math.round(asset.rotY*RAD_TO_DEG*10)/10);
+					$("input[name=rotZ]", div).val(Math.round(asset.rotZ*RAD_TO_DEG*10)/10);
 				}
 				else if( mode === 'translate' ){
 					$("input[name=x]", div).val(asset.x);
@@ -2199,6 +2200,46 @@ export default class Modtools{
 
 		}
 
+		// Updates the asset data editor form
+		const updateAssetDataEditor = function(){
+			let html = '';
+			const type = asset.type;
+			if( type === DungeonRoomAsset.Types.Door ){
+				if( !asset.data.room )
+					asset.data.room = 0;
+				html += 'Door target: <select name="asset_room">';
+				for( let r of room.parent.rooms ){
+					html += '<option value="'+esc(r.index)+'" '+(asset.data.room === r.index ? 'selected' : '')+'>'+esc(r.name)+'</option>';
+				}
+				html += '</select>';
+			}
+			if( type === DungeonRoomAsset.Types.Exit ){
+				html += 'Todo: Exit dungeon ID selector here';
+			}
+
+			if( type === DungeonRoomAsset.Types.Switch ){
+				html += 'Unlocks asset: <select name="asset_asset">';
+				for( let r of room.parent.rooms ){
+					if( r === room )
+						continue;
+					for( let a of r.assets )
+						html += '<option value="'+esc(a.id)+'" '+(asset.data.asset === a.id ? 'selected' : '')+'>'+esc(r.name)+": "+esc(a.name || '['+a.model+']')+'</option>';
+				}
+				html += '</select>';
+			}
+			$("div.assetDataEditor", div).html(html);
+
+			$("div.assetDataEditor select[name=asset_room]", div).on('change', function(){
+				asset.data.room = +$(this).val();
+			});
+			$("div.assetDataEditor select[name=asset_asset]", div).on('change', function(){
+				asset.data.asset = $(this).val();
+			});
+
+		}
+		updateAssetDataEditor();
+
+
 		// Add the new mesh selector
 		let out = '';
 		for( let i in libMeshes )
@@ -2223,14 +2264,17 @@ export default class Modtools{
 			asset._stage_mesh.scale.z = asset.scaleZ = +$("input[name=scaleZ]", div).val();
 
 			asset.locked = $("input[name=locked]", div).is(':checked');
+			asset.name = $("input[name=name]", div).val();
+			
 			
 		});
 
-		// Todo: Continue here
 		$("select[name=type]", div).on('change', () => {
+
 			const el = $("select[name=type]", div);
-			console.log("Todo: Add the type editor for", el);
-			// Don't forget to update "asset" var for it to save
+			asset.type = el.val();
+			updateAssetDataEditor();
+
 		});
 
 		// Add to scene button

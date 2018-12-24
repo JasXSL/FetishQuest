@@ -7,8 +7,6 @@ Mod Editor:
 				- S = toggle grid/angle snapping
 				- Ctrl+S = Quick Save
 				- Ctrl+L = Quick Load
-			- Draw an asset library selector
-			- Draw asset editor where you can type in stuff
 	- Encounter editor
 		- Needs to be able to pick templates OR players
 	- Quest editor
