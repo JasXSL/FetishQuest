@@ -133,7 +133,6 @@ Mod.getModsOrdered = async function(){
 		}
 	}
 
-	console.log("loadOrder", modLoadOrder);
 	for( let mod in modNames ){
 		if( !modLoadOrder[mod] )
 			modLoadOrder[mod] = {en:true,idx:-1};

@@ -3,6 +3,7 @@
 */
 import Generic from '../helpers/Generic.js';
 import Asset from '../Asset.js';
+import { DungeonEncounter } from '../Dungeon.js';
 
 class DungeonTemplate extends Generic{
 	constructor(...args){
@@ -13,7 +14,7 @@ class DungeonTemplate extends Generic{
 		this.doors_hor = [];		// Doors are picked by the dungeon
 		this.doors_down = [];
 		this.doors_up = [];
-		this.monster_types = [];		// Contains sub arrays of viable monsters
+		this.encounters = [];		// Viable encounters. Supports linkage.
 		// Consumables you can find in this dungeon
 		this.consumables = [
 			'manaPotion', 'majorManaPotion',
@@ -30,7 +31,7 @@ class DungeonTemplate extends Generic{
 			rooms : this.rooms,
 			doors_hor : this.doors_hor,
 			doors_down : this.doors_down,
-			monster_types : this.monster_types,
+			encounters : DungeonEncounter.saveThese(this.encounters, full),
 			consumables : this.consumables,
 		};
 
@@ -38,6 +39,12 @@ class DungeonTemplate extends Generic{
 			this.g_sanitizeDefaults(out);
 
 		return out;
+	}
+
+	rebase(){
+
+		this.encounters = DungeonEncounter.loadThese(this.encounters, this);
+
 	}
 
 	// Returns a consumable in a weighted list

@@ -80,7 +80,7 @@ export default class Generic{
 		for( let i in saveData ){
 			let stored = template[i];
 			if( stored === undefined )
-				console.log(i, "was not in", template, "this property was added in save() but not the constructor!");
+				console.error(i, "was not in", template, "this property was added in save() but not the constructor!");
 			if( Array.isArray(stored) )
 				stored = stored.map(el => el.save ? el.save("mod") : el);
 			if( typeof stored === "object" && stored !== null && stored.save ){

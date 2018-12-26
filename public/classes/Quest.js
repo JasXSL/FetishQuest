@@ -1,6 +1,7 @@
 import Generic from './helpers/Generic.js';
 import Dungeon, { DungeonRoom } from './Dungeon.js';
 import Condition from './Condition.js';
+import C from '../libraries/mainMod/conditions.js';
 
 import Calculator from './Calculator.js';
 import Asset from './Asset.js';
@@ -150,8 +151,8 @@ Quest.generate = function( type, difficultyMultiplier = 1 ){
 
 	if( type === Quest.Types.DungeonClear ){
 
-		quest.name = 'Monsterbash';
-		quest.description = 'Kill all the monsters in the dungeon.';
+		quest.name = 'Dungeoneering';
+		quest.description = 'Clear the dungeon from monsters.';
 
 		let dungeonType = [Dungeon.Shapes.Random, Dungeon.Shapes.SemiLinear][Math.round(Math.random())];
 		let cells = 6+Math.floor(Math.random()*7);
@@ -169,15 +170,15 @@ Quest.generate = function( type, difficultyMultiplier = 1 ){
 		quest.dungeon = dungeon;
 		dungeon.parent = quest;
 
-		let monsters = dungeon.getMonsters();
-		if( !monsters.length )
-			return game.ui.addError("Unable to generate viable monsters for quest");
+		let encounters = dungeon.getNumEncounters();
+		if( !encounters )
+			return game.ui.addError("Unable to generate viable encounters for quest");
+
 
 		// Add monsterKill objective
-		quest.addObjective(QuestObjective.buildMonsterKillObjective(quest, monsters.length));
+		quest.addObjective(QuestObjective.buildEncounterCompletedObjective(quest, encounters));
 
-		for( let monster of monsters )
-			expBasis += monster.getExperienceWorth();
+		// Todo: Calculate experience
 
 	}
 
@@ -294,6 +295,19 @@ QuestObjective.buildMonsterKillObjective = function( quest, nrMonsters =1 ){
 		})]
 	});
 };
+
+QuestObjective.buildEncounterCompletedObjective = function( quest, nrEncounters = 1 ){
+	let libCond = glib.conditions;
+	return new QuestObjective({
+		amount : nrEncounters,
+		label : 'encounters_completed',
+		name : 'Encounters Done',
+		events : [new QuestObjectiveEvent({
+			conditions : [libCond.eventIsEncounterDefeated,quest.createQuestCondition()]
+		})]
+	});
+}
+
 QuestObjective.buildDungeonExitObjective = function( quest){
 	let libCond = glib.conditions;
 	return new QuestObjective({

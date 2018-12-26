@@ -220,10 +220,18 @@ class Dungeon extends Generic{
 		return out;
 	}
 
-	getEncounters(){
+	// Returns viable encounters (1 per room, and 1 per asset max)
+	getNumEncounters(){
+		let out = 0;
+		for( let room of this.rooms )
+			out += room.getNumEncounters();
+		return out;
+	}
+
+	getEncounters( roomOnly = false ){
 		let out = [];
 		for( let room of this.rooms )
-			out = out.concat(room.getEncounters());
+			out = out.concat(room.getEncounters(roomOnly));
 		return out;
 	}
 
@@ -247,7 +255,7 @@ class Dungeon extends Generic{
 			return;
 
 		if( !game.getAlivePlayersInTeam(0).length ){
-			console.log("Players are deeeeaaaad");
+			console.error("Players are deeeeaaaad");
 			return;
 		}
 
@@ -272,11 +280,8 @@ class Dungeon extends Generic{
 
 		if( asset.locked )
 			return game.ui.addError("Locked");
-
-		console.log("used asset", asset, "loot", asset.loot);
 		// Seeing the loot is clientside, and needs to go above ask host
 		if( asset.loot.length ){
-			console.log("Drawing loot selector with", asset.loot);
 			raiseInteractOnMesh( false );
 			return game.ui.drawContainerLootSelector(asset);
 		}
@@ -490,13 +495,23 @@ class DungeonRoom extends Generic{
 		return this === this.parent.rooms[0];
 	}
 
-	getEncounters(){
+	getEncounters( roomOnly = false ){
 		let out = this.encounters;
+		if( roomOnly )
+			return out;
 		for( let asset of this.assets )
 			out = out.concat(asset.getEncounters());
 		return out;
 	}
 
+	// Limits to 1 per room and 1 per asset
+	getNumEncounters(){
+		let out = DungeonEncounter.getFirstViable(this.encounters) ? 1 : 0;
+		for( let asset of this.assets ){
+			out += DungeonEncounter.getFirstViable(asset.getEncounters()) ? 1 : 0;
+		}
+		return out;
+	}
 
 
 
@@ -1217,11 +1232,66 @@ class DungeonEncounter extends Generic{
 		this.load(data);
 	}
 
+	prepare( difficulty = 1 ){
+
+		if( this.started )
+			return;
+		// Run before an encounter is launched. If we're using templates, we should generate the NPCs here
+		difficulty = difficulty+Math.random()*0.5-0.25;	// difficulty plus/minus 0.25
+		let viableMonsters = [];
+		// if there are no viable monsters, go with the first one. Todo: Improve this
+		let templateMonster = this.player_templates[0];	
+		const level = game.getAveragePlayerLevel();
+		
+		for( let p of this.player_templates ){
+			if( p.min_level <= level && p.max_level >= level  )
+				viableMonsters.push(p);
+		}
+		if( !viableMonsters.length )
+			viableMonsters.push(templateMonster);
+
+		// This could be provided at runtime instead
+		let dif = 0;
+		while( dif < difficulty && this.players.length < 6 ){
+
+			shuffle(viableMonsters);
+			let success = false;
+			for( let mTemplate of viableMonsters ){
+				// Generate a player to push
+				const pl = mTemplate.generate(
+					Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
+				);
+				pl._difficulty = mTemplate.difficulty;
+				
+				if( mTemplate.difficulty+dif < difficulty ){
+
+					this.players.push(pl);
+					dif += mTemplate.difficulty;
+					success = true;
+					break;
+
+				}
+
+			}
+			
+			if( !success ){
+				// make sure there's at least one enemy
+				if( !this.players.length ){
+					this.players.push(pl);
+				}
+				break;
+			}
+
+		}
+
+
+	}
+
 	load(data){
 		this.g_autoload(data);
 	}
 
-	validate(event){
+	validate( event ){
 
 		if( !event )
 			event = new GameEvent({});
@@ -1284,9 +1354,28 @@ class DungeonEncounter extends Generic{
 // Gets the first viable encounter
 DungeonEncounter.getFirstViable = function( arr, event ){
 	
-	for( let enc of arr ){
-		if( enc.validate(event) )
+	if( !arr.length )
+		return false;
+
+	// Prefer one with a proper level range
+	const level = game.getAveragePlayerLevel();
+	let valid = arr.filter(el => {
+		for( let pt of el.player_templates ){
+			if( pt.min_level <= level && pt.max_level >= level )
+				return true;
+		}
+	});
+	// None in level range. Allow all D:
+
+	if( !valid.length ){
+		valid = arr;
+		console.log("Note: No monsters in level range for in encounter list", arr, "allowing all through");
+	}
+
+	for( let enc of valid ){
+		if( enc.validate(event) ){
 			return enc;
+		}
 	}
 	return false;
 
@@ -1347,6 +1436,8 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	// Pick one at random
 	kit = objectRandElem(dungeonTemplateLib);
 
+
+
 	// Add encounters
 	let i = 0;
 	let encounters = out.rooms.map(() => ++i);
@@ -1357,25 +1448,10 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	let numEncounters = Math.ceil(out.rooms.length*(0.4+Math.random()*0.2));
 	encounters = encounters.slice(0, numEncounters);
 
-	let monsterKit = shuffle(kit.monster_types.slice());
-	let viableMonsters = [];
+
 	let averageLevel = game.getAveragePlayerLevel();
 	let npcLib = glib.getFull("PlayerTemplate");
 
-	// Pick a random monsterkit
-	for( let v of monsterKit ){
-		viableMonsters = v.filter(el => {
-			let mTemplate = npcLib[el];
-			if( !mTemplate ){
-				console.error("MonsterTemplate not found", mTemplate, "in monsterKit", v);
-				return false;
-			}
-			return mTemplate.max_level >= averageLevel && mTemplate.min_level <= averageLevel;
-		});
-		if( viableMonsters.length )
-			break;
-	}
-	
 	
 	let numChests = 0;
 	// Generates assets and encounters in the rooms
@@ -1563,13 +1639,16 @@ Dungeon.generate = function( numRooms, kit, settings ){
 				
 			}
 
-
 			// See if we need an encounter here
 			// Todo: Allow encounters in the first room once the world map is in
-			if( ~encounters.indexOf(room.index) && viableMonsters.length ){
+			if( ~encounters.indexOf(room.index) ){
 				
+				room.encounters = kit.encounters.slice();
 				
+
+				/*
 				let difficulty = out.difficulty+Math.random()*0.5-0.25;	// difficulty plus/minus 0.25
+				// This could be provided at runtime instead
 				const encounter = new DungeonEncounter({}, room);
 				room.encounters.push(encounter);
 				
@@ -1600,6 +1679,9 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					if( !success )
 						break;
 				}
+
+
+				*/
 
 			}
 

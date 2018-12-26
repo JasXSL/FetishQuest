@@ -213,13 +213,11 @@ export default class Game extends Generic{
 	}
 
 	async onEncounterLost( winningTeam ){
-		console.log("The players died");
-
+		
 		// Allow enemies to steal
 		let losers = shuffle(this.getPlayersNotOnTeam(winningTeam)),
 			armorSteal = losers.slice();
 
-		this.encounter.started = false;
 		this.encounter.completed = false;
 
 		// allow enemies to punish
@@ -846,12 +844,14 @@ export default class Game extends Generic{
 	// Start an encounter
 	startEncounter( player, encounter ){
 
-		if( !encounter || encounter.started || encounter.completed || !this.getAlivePlayersInTeam().length )
+		if( !encounter || encounter.completed || !this.getAlivePlayersInTeam().length )
 			return;
 
+		encounter.prepare();
 		this.encounter = encounter;
 		this.encounter.started = true;
-		encounter.started = true;
+
+		
 
 		// Check encounter here
 		if( encounter.players ){
@@ -1176,7 +1176,6 @@ export default class Game extends Generic{
 	execFleeFromCombat( player ){
 
 		this.ui.addText( player.getColoredName()+" calls for a retreat, the party succeeds in escaping!", undefined, player.id, player.id );
-		this.encounter.started = false;
 		this.toggleBattle(false);
 		this.dungeon.goToRoom( player, this.dungeon.previous_room );	// Saves
 

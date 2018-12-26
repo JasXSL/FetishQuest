@@ -170,8 +170,6 @@ class PlayerTemplate extends Generic{
 					let asset = libAssets[template];
 					asset.equipped = true;
 					player.addAsset(asset);
-					console.log("Equipped", asset);
-					
 
 				}
 

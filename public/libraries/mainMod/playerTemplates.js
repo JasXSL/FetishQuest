@@ -2,8 +2,8 @@ import stdTag from "../stdTag.js";
 import Player from "../../classes/Player.js";
 import Action from "../../classes/Action.js";
 
-const lib = [
-	{"label":"lesser_tentacle_fiend",
+const lib = {
+	lesser_tentacle_fiend : {
 		name : "Lesser Tentacle Fiend",
 		icon : "",
 		species : "",
@@ -57,7 +57,7 @@ const lib = [
 
 		]
 	},
-	{ "label":"tentacle_fiend",
+	tentacle_fiend: {
 		name : "Tentacle Fiend",
 		icon : "",
 		species : "",
@@ -110,7 +110,7 @@ const lib = [
 
 		]
 	},
-	{label:"greater_tentacle_fiend",
+	greater_tentacle_fiend : {
 		name : "Greater Tentacle Fiend",
 		icon : "",
 		species : "",
@@ -151,7 +151,7 @@ const lib = [
 		intelligence_max : 0.4,
 		required_assets : []
 	},
-	{label:"shocktacle",
+	shocktacle : {
 		name : "Shocktacle",
 		icon : "",
 		species : "tentacle monster",
@@ -195,7 +195,7 @@ const lib = [
 		intelligence_max : 0.3,
 		required_assets : []
 	},
-	{"label":"stunted_imp",
+	stunted_imp : {
 		name : "Stunted Imp",
 		icon : "",
 		species : "Imp",
@@ -259,7 +259,7 @@ const lib = [
 
 		]
 	},
-	{"label":"imp",
+	imp : {
 		name : "Imp",
 		icon : "",
 		species : "Imp",
@@ -326,7 +326,7 @@ const lib = [
 
 		]
 	},
-	{"label":"darkImp",
+	darkImp : {
 		name : "Dark Imp",
 		icon : "",
 		species : "Imp",
@@ -393,7 +393,7 @@ const lib = [
 
 		]
 	},
-	{"label":"mimic",
+	mimic : {
 		name : "Mimic",
 		icon : "",
 		species : "Mimic",
@@ -450,7 +450,18 @@ const lib = [
 
 		]
 	}
-];
+};
 
 
+function getArray(){
+	const out = [];
+	for( let action in lib ){
+		const l = lib[action];
+		l.label = action;
+		out.push(l);
+	}
+	return out;
+};
+
+export {getArray};
 export default lib;

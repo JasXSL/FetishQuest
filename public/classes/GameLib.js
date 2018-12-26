@@ -84,7 +84,6 @@ export default class GameLib{
 	// Loads mods into the library
 	loadMods( mods = [] ){
 
-		console.log("Loading mods", mods);
 		const load_order = [
 			'conditions',
 			'effects',
@@ -92,15 +91,15 @@ export default class GameLib{
 			'playerClasses',
 			'actions',
 			'assets',
-			'dungeonEncounters',
+			'playerTemplates',
 			'dungeons',
 			'quests',
 
-			'playerTemplates',
 			'materialTemplates',
 			'assetTemplates',
 			
 			'audioKits',
+			'dungeonEncounters',
 			'dungeonRoomTemplates',
 			'dungeonTemplates',
 		];

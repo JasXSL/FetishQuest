@@ -6,22 +6,24 @@ import {getArray as getConds} from './mainMod/conditions.js';
 import {getArray as getActions} from './mainMod/actions.js';
 import {getArray as getPlayerClasses} from './mainMod/playerClasses.js';
 import {getArray as getAudioKits} from './mainMod/audioKits.js';
-import playerTemplates from './mainMod/playerTemplates.js';
+import {getArray as getDungeonTemplates} from './mainMod/dungeonTemplates.js';
+import {getArray as getEncounters} from './mainMod/encounters.js';
+import {getArray as getPlayerTemplates} from './mainMod/playerTemplates.js';
 import dungeons from './mainMod/dungeons.js';
 
 // This is a special mod 
 const mod = new Mod(
 	{
-		"id":"55b628a6-460f-24b3-707f-3e23434197c2",
-		"name":"MAIN_EDIT",
-		"author":"JasX",
-		"description":"This is a copy of main. Export into _main_mod.js",
-		"dungeons":dungeons,
-		"quests":[],
-		"vars":{},
-		"texts":texts,
-		"actions":getActions(),
-		"assets":[
+		id:"MAIN_MOD",
+		name:"MAIN_EDIT",
+		author:"JasX",
+		description:"This is a copy of main. Export into _main_mod.js",
+		dungeons:dungeons,
+		quests:[],
+		vars:{},
+		texts:texts,
+		actions:getActions(),
+		assets:[
 			{
 				"name":"Skirt and Thong Outfit",
 				"slots":[
@@ -1450,11 +1452,11 @@ const mod = new Mod(
 				"no_auto_consume":false
 			}
 		],
-		"audioKits":getAudioKits(),
-		"playerClasses":getPlayerClasses(),
-		"conditions":getConds(),
-		"playerTemplates":playerTemplates,
-		"assetTemplates":[
+		audioKits:getAudioKits(),
+		playerClasses:getPlayerClasses(),
+		conditions:getConds(),
+		playerTemplates:getPlayerTemplates(),
+		assetTemplates:[
 			{
 				"label":"sling_armor",
 				"slots":[
@@ -1641,7 +1643,7 @@ const mod = new Mod(
 				"size":0.4
 			}
 		],
-		"materialTemplates":[
+		materialTemplates:[
 			{
 				"label":"cotton",
 				"name":"Cotton",
@@ -1886,39 +1888,8 @@ const mod = new Mod(
 				"stat_bonus":1
 			}
 		],
-		"dungeonTemplates":[
-			{
-				"label":"dark",
-				"tags":[
-					"du_dark"
-				],
-				"doors_hor":[
-					"Dungeon.Door.Default"
-				],
-				"doors_up":[
-					"Dungeon.Door.Ladder"
-				],
-				"doors_down":[
-					"Dungeon.Door.Trapdoor"
-				],
-				"monster_types":[
-					[
-						"lesser_tentacle_fiend",
-						"tentacle_fiend",
-						"greater_tentacle_fiend",
-						"stunted_imp",
-						"imp",
-						"darkImp",
-						"shocktacle"
-					]
-				],
-				"rooms":[
-					"darkChamber",
-					"darkCorridor"
-				]
-			}
-		],
-		"effects":[
+		dungeonTemplates:getDungeonTemplates(),
+		effects:[
 			{
 				"id":"0ef2cc7c-a0e5-922d-90e1-85fbb5333c77",
 				"type":"visual",
@@ -2086,7 +2057,7 @@ const mod = new Mod(
 				"label":"interrupt"
 			}
 		],
-		"dungeonRoomTemplates":[
+		dungeonRoomTemplates:[
 			{
 				"label":"darkChamber",
 				"tags":[
@@ -2137,7 +2108,7 @@ const mod = new Mod(
 				]
 			}
 		],
-		"wrappers":[
+		wrappers:[
 			{
 				"target":"VICTIM",
 				"max_stacks":3,
@@ -2289,7 +2260,8 @@ const mod = new Mod(
 					}
 				]
 			}
-		]
+		],
+		dungeonEncounters : getEncounters()
 	}
 );
 

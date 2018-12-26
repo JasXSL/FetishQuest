@@ -237,11 +237,9 @@ class WebGL{
 		position.y = distance * Math.sin( phi ) * Math.sin( theta );
 		position.z = distance * Math.sin( phi ) * Math.cos( theta );
 		this.dirLight.position.copy( position ).normalize().multiplyScalar(CAM_DIST);
-		console.log(this.dirLight.position);
 		this.sunSphere.position.copy( position );
 		this.dirLightHelper.update();
 
-		console.log(effectController.inclination, effectController.azimuth);
 
 	}
 
@@ -560,9 +558,7 @@ class Stage{
 		for( let obj of this.group.children )
 			this.onObjStart(obj);
 
-		console.log(this.room);
 		if( this.room && this.room.outdoors ){
-			console.log(this.room);
 			this.parent.toggleOutdoors(true);
 			this.parent.setOutdoorTime(15);
 		}
@@ -819,6 +815,8 @@ class Stage{
 					this.createIndicatorForMesh('exit', asset.data.label ? asset.data.label : 'Exit', c);
 				}
 				else{
+					if( !linkedRoom )
+						console.error("Required linked room missing, ", linkedRoom);
 					this.createIndicatorForMesh('run', "Run", c);
 					this.createIndicatorForMesh('back', "", c);
 					this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
@@ -1022,19 +1020,14 @@ class Stage{
 
 	/* Audio */
 	updateSoundPositions( debug ){
-		if( debug )
-			console.log(this.sounds);
+
 		for( let s of this.sounds ){
 			if( s.sound instanceof AudioSound ){
 				let pos = s.mesh.position.clone();
-				if( debug)
-					console.log("Position cloned", pos.clone());
 				let camera = this.parent.camera;
 
 				camera.matrixWorldInverse.getInverse( camera.matrixWorld );
 				pos.applyMatrix4( camera.matrixWorldInverse );
-				if( debug)
-					console.log("after", pos, s);
 				let falloff = 800;
 				s.sound.setPosition(pos.x/falloff,pos.y/falloff,pos.z/falloff);
 			}
