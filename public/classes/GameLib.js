@@ -4,7 +4,7 @@ import { Effect, Wrapper } from './EffectSys.js';
 import PlayerClass from './PlayerClass.js';
 import Action from './Action.js';
 import Asset from './Asset.js';
-import Dungeon from './Dungeon.js';
+import Dungeon, {DungeonEncounter} from './Dungeon.js';
 import Quest from './Quest.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
@@ -31,6 +31,7 @@ const LIB_TYPES = {
 	'audioKits' : AudioKit,
 	'dungeonRoomTemplates' : RoomTemplate,
 	'dungeonTemplates' : DungeonTemplate,
+	'dungeonEncounters' : DungeonEncounter,
 };
 
 // Maps lib_types to caches used only in outputs
@@ -63,6 +64,7 @@ export default class GameLib{
 		this.dungeonRoomTemplates = {};
 		this.effects = {};
 		this.wrappers = {};
+		this.dungeonEncounters = {};
 
 		this._cache_assets = {};
 		this.texts = [];
@@ -90,13 +92,14 @@ export default class GameLib{
 			'playerClasses',
 			'actions',
 			'assets',
-
+			'dungeonEncounters',
 			'dungeons',
 			'quests',
 
 			'playerTemplates',
 			'materialTemplates',
 			'assetTemplates',
+			
 			'audioKits',
 			'dungeonRoomTemplates',
 			'dungeonTemplates',
@@ -173,9 +176,8 @@ export default class GameLib{
 		if( !lib )
 			return;
 		
-	
 		if( !lib[label] ){
-			console.error("Asset", label, "not found in", lib);
+			console.error("Asset", label, "not found in", lib, "constructor was ", constructorName);
 			return false;
 		}
 		return lib[label].clone();

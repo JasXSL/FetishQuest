@@ -25,6 +25,7 @@ export default class Mod extends Generic{
 		this.effects = [];
 		this.dungeonRoomTemplates = [];	
 		this.wrappers = [];
+		this.dungeonEncounters = [];
 		this.load(data);
 	}
 
@@ -62,6 +63,7 @@ export default class Mod extends Generic{
 			effects : this.effects,
 			dungeonRoomTemplates : this.dungeonRoomTemplates,
 			wrappers : this.wrappers,
+			dungeonEncounters : this.dungeonEncounters,
 		};
 		return out;
 	}

@@ -35,7 +35,7 @@ export default class Game extends Generic{
 		this.chat_log = [];					// Chat log
 		this.net = new NetworkManager(this);
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
-		this.encounter = new DungeonEncounter({}, this);		// if this is inside a dungeon, they'll be the same objects
+		this.encounter = new DungeonEncounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.quests = [];								// Quest Objects of quests the party is on
 
 		// Library of custom items
@@ -846,7 +846,7 @@ export default class Game extends Generic{
 	// Start an encounter
 	startEncounter( player, encounter ){
 
-		if( !encounter.active || encounter.started || encounter.completed || !this.getAlivePlayersInTeam().length )
+		if( !encounter || encounter.started || encounter.completed || !this.getAlivePlayersInTeam().length )
 			return;
 
 		this.encounter = encounter;
@@ -992,7 +992,7 @@ export default class Game extends Generic{
 		if( standing.length > 1 )
 			return false;
 
-		if( this.encounter.active && !this.encounter.finished ){
+		if( !this.encounter.finished ){
 
 			let evt = GameEvent.Types.encounterLost;
 			if( standing[0] !== undefined && standing[0] === 0 ){

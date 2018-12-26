@@ -180,7 +180,7 @@ Generic.saveThese = function( entries = [], full = false ){
 			console.error(el, "has no save method");
 			throw "Save function missing error";
 		}
-		el.save(full);
+		return el.save(full);
 	});
 }
 

@@ -20,6 +20,9 @@ import { Wrapper, Effect } from './EffectSys.js';
 import Asset from './Asset.js';
 
 import Quest from './Quest.js';
+import PlayerTemplate from './templates/PlayerTemplate.js';
+import Condition from './Condition.js';
+import GameEvent from './GameEvent.js';
 
 class Dungeon extends Generic{
 
@@ -217,12 +220,10 @@ class Dungeon extends Generic{
 		return out;
 	}
 
-	getEncounters( activeOnly = false ){
+	getEncounters(){
 		let out = [];
 		for( let room of this.rooms )
 			out = out.concat(room.getEncounters());
-		if( activeOnly )
-			out = out.filter(el => el.active);
 		return out;
 	}
 
@@ -326,7 +327,7 @@ class Dungeon extends Generic{
 		}
 
 		// Start an encounter
-		else if( asset.interactEncounter.active && !asset.interactEncounter.started ){
+		else if( asset.hasActiveEncounter() ){
 
 			// Encounter active, send to host if not hosting
 			if( !game.is_host ){
@@ -335,7 +336,8 @@ class Dungeon extends Generic{
 			}
 
 			playAnim("open");
-			game.startEncounter(player, asset.interactEncounter);
+			// Todo: Pick at random or something?
+			game.startEncounter(player, asset.interactEncounters[0]);
 			asset.updateInteractivity();
 
 		}
@@ -417,7 +419,8 @@ class DungeonRoom extends Generic{
 
 		this.outdoors = false;
 		this.zoom = null;			// Lets you manually set the zoom value
-		this.encounter = new DungeonEncounter({}, this);
+		this.encounters = [];		// Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
+		this.shuffle_encounters = false;	// Picks an encounter at random instead of using conditions
 		this.assets = [];			// First asset is always the room. These are DungeonRoomAssets
 		this.tags = [];
 
@@ -435,7 +438,7 @@ class DungeonRoom extends Generic{
 		const out = {
 			index : this.index,
 			parent_index : this.parent_index,
-			assets : this.assets.map(el => el.save(full)),
+			assets : DungeonRoomAsset.saveThese(this.assets, full),
 			ambiance_volume : this.ambiance_volume,
 			tags : this.tags,
 			name : this.name,
@@ -444,13 +447,22 @@ class DungeonRoom extends Generic{
 			z : this.z,
 			zoom : this.zoom,
 			outdoors : this.outdoors,
-			ambiance : this.ambiance
+			ambiance : this.ambiance,
+			
 		};
 
-		// Full or mod
-		if( full )
-			out.encounter = this.encounter.save(full);
+		// Full
+		if( full ){
 
+			out.enc_seq = this.enc_seq;
+			out.encounters = this.encounters.map(el => {
+				if( el.save )
+					return el.save(full);
+				return el;
+			});
+			out.shuffle_encounters = this.shuffle_encounters;
+			
+		}
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.id = this.id;
@@ -471,7 +483,7 @@ class DungeonRoom extends Generic{
 
 	rebase(){
 		this.assets = DungeonRoomAsset.loadThese(this.assets, this);
-		this.encounter = DungeonEncounter.loadThis(this.encounter, this);
+		this.encounters = DungeonEncounter.loadThese(this.encounters, this);
 	}
 
 	isEntrance(){
@@ -479,7 +491,7 @@ class DungeonRoom extends Generic{
 	}
 
 	getEncounters(){
-		let out = [this.encounter];
+		let out = this.encounters;
 		for( let asset of this.assets )
 			out = out.concat(asset.getEncounters());
 		return out;
@@ -839,7 +851,10 @@ class DungeonRoom extends Generic{
 	onVisit( player ){
 		if( !this.discovered )
 			this.discovered = true;
-		game.startEncounter( player, this.encounter );
+		// Todo, allow this to be sequence or random
+		const viable = DungeonEncounter.getFirstViable(this.encounters);
+		if( viable )
+			game.startEncounter( player, viable );
 	}
 
 
@@ -894,7 +909,7 @@ class DungeonRoomAsset extends Generic{
 		this.scaleZ = 1.0;
 		this.type = DungeonRoomAsset.Types.Prop;
 		this.data = {};			// Varies based on type
-		this.interactEncounter = new DungeonEncounter({}, this);		// Encounter to start when interacted with
+		this.interactEncounters = [];		// Encounter to start when interacted with
 		this.loot = [];											// Asset
 		this.attachments = [];			// Indexes of attachments available in new LibMesh().attachments
 		this.locked = false;			// Prevents interactions until locked state is set to false
@@ -908,6 +923,8 @@ class DungeonRoomAsset extends Generic{
 		this.load(data);
 
 	}
+
+	
 
 	save( full ){
 		const out = {
@@ -934,7 +951,7 @@ class DungeonRoomAsset extends Generic{
 
 		// Full or mod
 		if( full ){
-			out.interactEncounter = this.interactEncounter.save(full);
+			out.interactEncounters = DungeonEncounter.saveThese(this.interactEncounters, full);
 		}
 
 		if( full !== 'mod' ){
@@ -953,7 +970,7 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	rebase(){
-		this.interactEncounter = DungeonEncounter.loadThis(this.interactEncounter, this);
+		this.interactEncounters = DungeonEncounter.loadThese(this.interactEncounters, this);
 		this.loot = Asset.loadThese(this.loot, this);
 		this.updateInteractivity();
 	}
@@ -984,15 +1001,23 @@ class DungeonRoomAsset extends Generic{
 	isInteractive(){
 		return this.loot.length || 
 			this.isSwitch() || 
-			(this.interactEncounter.active && !this.interactEncounter.started && !this.interactEncounter.completed) ||
+			this.hasActiveEncounter() ||
 			this.isDoor()
 		;
+	}
+
+	hasActiveEncounter(){
+		for( let enc of this.interactEncounters){
+			if( enc.validate() )
+				return true;
+		}
+		return false;
 	}
 
 
 	/* Encounters */
 	getEncounters(){
-		let out = [this.interactEncounter];
+		let out = this.interactEncounters;
 		return out;
 	}
 
@@ -1181,13 +1206,14 @@ class DungeonEncounter extends Generic{
 		super(data);
 
 		this.parent = parent;		// Parent varies, but usually trickles up to a quest or game
-		this.active = false;		// Encounter is enabled
+		this.label = '';
 		this.started = false;		// Encounter has started (only set on Game clone of this)
 		this.completed = false;		// Encounter completed (only set on Game clone of this)
 		this.players = [];			// Players
+		this.player_templates = [];	// 
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
 		this.startText = '';		// Text to trigger when starting
-
+		this.conditions = [];		// Conditions needed for this encounter to trigger
 		this.load(data);
 	}
 
@@ -1195,9 +1221,19 @@ class DungeonEncounter extends Generic{
 		this.g_autoload(data);
 	}
 
+	validate(event){
+
+		if( !event )
+			event = new GameEvent({});
+		return Condition.all(this.conditions, event);
+
+	}
+
 	rebase(){
 		this.players = Player.loadThese(this.players, this);
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
+		this.player_templates = PlayerTemplate.loadThese(this.player_templates, this);
+		this.conditions = Condition.loadThese(this.conditions, this);
 	}
 
 	save( full ){
@@ -1207,11 +1243,16 @@ class DungeonEncounter extends Generic{
 			startText : this.startText
 		};
 
+		if( full ){
+			out.label = this.label;
+			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
+			out.conditions = Condition.saveThese(this.conditions, full);
+		}
+
 		if( full !== "mod" ){
 			out.id = this.id;
 			out.completed = this.completed;
 			out.started = this.started;
-			out.active = this.active;
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -1240,6 +1281,21 @@ class DungeonEncounter extends Generic{
 
 }
 
+// Gets the first viable encounter
+DungeonEncounter.getFirstViable = function( arr, event ){
+	
+	for( let enc of arr ){
+		if( enc.validate(event) )
+			return enc;
+	}
+	return false;
+
+}
+DungeonEncounter.getRandomViable = function( arr, event ){
+	const entries = arr.slice();
+	shuffle(entries);
+	return this.getFirstViable(entries, event);
+}
 
 
 
@@ -1441,7 +1497,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					// Generate a mimic
 					if( Math.random() < mimicChance ){
 
-						chest.interactEncounter = new DungeonEncounter({
+						chest.interactEncounters = [new DungeonEncounter({
 							startText : 'A mimic springs from the chest, grabbing hold of %T\'s ankles and pulling %Thim to the ground!',
 							active : true,
 							wrappers : [
@@ -1468,7 +1524,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 								})
 							],
 							players : [npcLib.mimic.generate(averageLevel)]
-						}, chest);
+						}, chest)];
 
 					}
 					else{
@@ -1514,10 +1570,11 @@ Dungeon.generate = function( numRooms, kit, settings ){
 				
 				
 				let difficulty = out.difficulty+Math.random()*0.5-0.25;	// difficulty plus/minus 0.25
-				let encounter = room.encounter;
+				const encounter = new DungeonEncounter({}, room);
+				room.encounters.push(encounter);
+				
 				encounter.wrappers = [];
 				encounter.players = [];
-				encounter.active = true;
 
 				let dif = 0;
 				while( dif < difficulty ){

@@ -705,6 +705,8 @@ class Stage{
 	// Adds from libraries/meshes.js, returns the library object that was added
 	async addFromMeshLib(asset, attachments, unique){
 
+		if( !asset.flatten )
+			console.error("Asset can't flatten", asset, "in", this);
 		let obj = await asset.flatten(attachments, unique);
 		this.add(obj);
 		

@@ -19,7 +19,7 @@ import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTemplate.js';
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
 import { AudioKit } from '../classes/Audio.js';
-import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../classes/Dungeon.js';
+import Dungeon, { DungeonRoom, DungeonRoomAsset, DungeonEncounter } from '../classes/Dungeon.js';
 
 const meshLib = LibMesh.getFlatLib();
 
@@ -161,7 +161,8 @@ export default class Modtools{
 			classes = '',
 			assets = '',
 			roomTemplates = '',
-			playerTemplates = ''
+			playerTemplates = '',
+			encounters = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -215,6 +216,10 @@ export default class Modtools{
 		for( let i in playerTempLib )
 			playerTemplates += '<option value="'+esc(i)+'"/>';
 
+		const encounterLib = glib.getFull('DungeonEncounter');
+		for( let i in encounterLib )
+			encounters += '<option value="'+esc(i)+'"/>';
+
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
 			'<datalist id="tagsTT"><select>'+tagTtSel+'</select></datalist>'+
@@ -228,7 +233,8 @@ export default class Modtools{
 			'<datalist id="classes"><select>'+classes+'</select></datalist>'+
 			'<datalist id="assets"><select>'+assets+'</select></datalist>'+
 			'<datalist id="roomTemplates"><select>'+roomTemplates+'</select></datalist>'+
-			'<datalist id="playerTemplates"><select>'+playerTemplates+'</select></datalist>'
+			'<datalist id="playerTemplates"><select>'+playerTemplates+'</select></datalist>'+
+			'<datalist id="encounters"><select>'+encounters+'</select></datalist>'
 		);
 
 	}
@@ -369,6 +375,7 @@ export default class Modtools{
 			'<div class="button" data-id="conditions">Conditions</div>'+
 			'<div class="button" data-id="quests">Quests</div>'+
 			'<div class="button" data-id="dungeons">Dungeons</div>'+
+			'<div class="button" data-id="encounters">Encounters</div>'+
 			'<div class="button" data-id="playerClasses">Classes</div>'+
 			'<div class="button" data-id="actions">Actions</div>'+
 			'<div class="button" data-id="wrappers">Wrappers</div>'+
@@ -963,6 +970,27 @@ export default class Modtools{
 			},
 			() => {
 				let asset = new AudioKit({label:'UNKNOWN_KIT'}).save("mod");
+				return asset;
+			}
+		);
+	}
+
+	mml_encounters(){
+
+		this.mml_generic( 
+			'encounters', 
+			['Label','#Pl','#PlTemplates', '#Wrappers'],
+			this.mod.dungeonEncounters,
+			asset => {
+				return [
+					asset.label,
+					Array.isArray(asset.players) ? asset.players.length : 0,
+					Array.isArray(asset.player_templates) ? asset.player_templates.length : 0,
+					Array.isArray(asset.wrappers) ? asset.wrappers.length : 0,
+				];
+			},
+			() => {
+				let asset = new DungeonEncounter({label:'UNKNOWN_ENCOUNTER'}).save("mod");
 				return asset;
 			}
 		);
@@ -1712,6 +1740,31 @@ export default class Modtools{
 
 	}
 
+	editor_encounters( asset = {} ){
+
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Player Templates: '+this.formPlayerTemplates(asset.player_templates, 'player_templates')+'<br />';
+			html += 'Specific Players (TODO)<br />';
+			html += 'Wrappers (auto target is player who started the event): <br />'+this.formWrappers(asset.wrappers, 'wrappers')+'<br />';
+			html += 'Start Text (uses the same placeholders as action texts): <input type="text" value="'+esc(asset.text || '')+'" name="startText" /><br />';
+			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />'; 
+			
+		this.editor_generic('encounters', asset, this.mod.dungeonEncounters, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.startText = $("input[name=startText]", form).val().trim();
+			
+			saveAsset.player_templates = this.compilePlayerTemplates('player_templates');
+			saveAsset.wrappers = this.compileWrappers('wrappers');
+			saveAsset.conditions = this.compileConditions('conditions');
+			
+		});
+
+
+	}
+
 
 	
 	editor_dungeons( asset = {} ){
@@ -1721,24 +1774,18 @@ export default class Modtools{
 			asset.rooms = [];
 
 		const dungeon = new Dungeon(asset);
+		dungeon.rooms = [];
+		for( let room of asset.rooms ){
+			const r = new DungeonRoom(room, dungeon);
+			r.encounters = room.encounters;
+			if( !Array.isArray(r.encounters) )
+				r.encounters = [];
+			dungeon.rooms.push(r);
+		}
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
 			html += 'Tags: '+this.formTags(asset.tags, 'tags')+'<br />';
-
-		html += '<div class="flexTwoColumns roomWrap">';
-			html += '<div class="dungeonMap"></div>';
-			html += '<div class="cellSettings" style="padding:0 1vmax"></div>';
-		html += '</div>';
-
-		// Canvas in here
-		html += '<div class="flexTwoColumns editorWrap">';
-			html += '<div class="cellEditor"></div>';
-			html += '<div class="assetEditor" style="flex:1">Asset editor</div>';
-		html += '</div>';
-		html += '<br />';
-
-
 
 		// Helper functions
 		function setDungeonRoomByIndex(index, z = 0){
@@ -1769,7 +1816,8 @@ export default class Modtools{
 				if( room.z !== z )
 					continue;
 
-				editor_room = room;
+				if( room.index === index )
+					editor_room = room;
 				let x = (0.5+room.x/xyScale)*50+'vw';
 				let y = (0.5-room.y/xyScale)*50+'vw';
 				let width = 50/xyScale;
@@ -1812,32 +1860,7 @@ export default class Modtools{
 
 
 			// ROOM EDITOR & 3D
-			// Helper function that binds the room form
-			function rebindRoom(){
-				$("#modal div.cellSettings input:not(.addTagHere)").off('change').on('change', function(event){
-
-					const room = editor_room;
-					const dom = $(this);
-					const name = dom.attr('name');
-					const val = dom.val();
-					if( name === "roomName" ){
-						room.name = val;
-						$("#modal div.room[data-index="+room.index+"] div.name").html(esc(val));
-					}
-					if( name === "roomAmbiance" )
-						room.ambiance = val;
-					if( name === "roomAmbianceVolume" )
-						room.ambiance_volume = +val;
-					if( name === "roomOutdoors" )
-						room.outdoors = dom.is(':checked');
-					
-					if( name === "tag" ){
-						// Recompile tags
-						room.tags = th.compileTags('roomTags');
-					}
-
-				});
-			}
+			
 
 			// Find the active room and draw the cell settings and 3d editor
 			for( let room of dungeon.rooms ){
@@ -1846,16 +1869,17 @@ export default class Modtools{
 					// Cell settings
 					html = 'Room ID: <input type="number" disabled value='+esc(room.index)+' /><br />'+
 						'Room Name: <input name="roomName" value="'+esc(room.name)+'" type="text" /><br />'+
+						'Room Encounters: '+th.formEncounters(room.encounters, 'encounters')+'<br />'+
 						'Room tags: '+th.formTags(room.tags, 'roomTags')+'<br />'+
 						'Room Ambiance: <input name="roomAmbiance" type="text" value="'+esc(room.ambiance)+'" /><br />'+
 						'Room Ambiance Volume: <input name="roomAmbianceVolume" type="range" min=0 max=1 step=0.05 value="'+esc(room.ambiance_volume)+'" /><br />'+
 						'<label>Outdoors: <input type="checkbox" name="roomOutdoors" '+(room.outdoors ? 'checked' : '')+' /></label><br />';
 					$("#modal div.cellSettings").html(html);
 
-					// Todo: 3d editor
 					th.drawRoomEditor(room);
 					th.drawRoomAssetEditor( room.getRoomAsset() );
-					
+					th.bindFormHelpers();
+
 					break;
 				}
 			}
@@ -1942,9 +1966,44 @@ export default class Modtools{
 			});
 
 			th.bindFormHelpers();
+
+
+			// Helper function that binds the room form
+			function rebindRoom(){
+
+				$("#modal div.cellSettings input:not(.addTagHere)").off('change').on('change', function(event){
+
+					const room = editor_room;
+					const dom = $(this);
+					const name = dom.attr('name');
+					const val = dom.val();
+
+					if( name === "roomName" ){
+						room.name = val;
+						$("#modal div.room[data-index="+room.index+"] div.name").html(esc(val));
+					}
+					if( name === "roomAmbiance" )
+						room.ambiance = val;
+					if( name === "roomAmbianceVolume" )
+						room.ambiance_volume = +val;
+					if( name === "roomOutdoors" )
+						room.outdoors = dom.is(':checked');
+					if( name === "encounter" ){
+						room.encounters = th.compileEncounters('encounters');
+					}
+					if( name === "tag" ){
+						// Recompile tags
+						room.tags = th.compileTags('roomTags');
+					}
+
+				});
+			}
 			rebindRoom();
 			// Track the add tag button to bind tag changes
 			$("#modal div.cellSettings input.addTagHere").on('click', () => {
+				rebindRoom();
+			});
+			$("#modal div.cellSettings input.addEncounterHere").on('click', () => {
 				rebindRoom();
 			});
 
@@ -1962,6 +2021,21 @@ export default class Modtools{
 			saveAsset.rooms = dungeon.rooms.map(el => el.save("mod"));
 			
 		});
+
+		// Set stuff outside the form
+		html = '';
+		html += '<div class="flexTwoColumns roomWrap">';
+			html += '<div class="dungeonMap"></div>';
+			html += '<div class="cellSettings" style="padding:0 1vmax"></div>';
+		html += '</div>';
+
+		// Canvas in here
+		html += '<div class="flexTwoColumns editorWrap">';
+			html += '<div class="cellEditor"></div>';
+			html += '<div class="assetEditor" style="flex:1">Asset editor</div>';
+		html += '</div>';
+		html += '<br />';
+		$("#modal > div.wrapper > div.content").append(html);
 
 
 		// Find the entrance, if it doesn't exist, create it
@@ -2036,6 +2110,7 @@ export default class Modtools{
 
 	}
 
+	// Handles the asset editor to the right of the viewport
 	drawRoomAssetEditor( asset ){
 
 		const th = this;
@@ -2303,7 +2378,7 @@ export default class Modtools{
 		// Binds JSOn as well
 		// Has to go above bindConditions since that one binds control clicks
 		const th = this;
-		$("#assetForm input.json").off('click').on('click', function(event){
+		$("#modal input.json").off('click').on('click', function(event){
 			if( event.shiftKey ){
 				if( $(this).is('input') ){
 					th.drawJsonEditorFor( this );
@@ -2330,6 +2405,7 @@ export default class Modtools{
 		this.bindMeshes();
 		this.bindPlayerTemplates();
 		this.bindSoundkitSubs();
+		this.bindEncounters();
 	}
 
 	// Draws a JSON editor for an element
@@ -2371,7 +2447,7 @@ export default class Modtools{
 	// Tags (bindable)
 	bindTags(){
 		let th = this;
-		$("#assetForm input.addTagHere").off('click').on('click', function(){
+		$("#modal input.addTagHere").off('click').on('click', function(){
 			const dList = $(this).parent().attr('data-list');
 			$(this).parent().append(th.inputTags("", dList));
 		});
@@ -2463,7 +2539,7 @@ export default class Modtools{
 	bindConditions(){
 		let th = this;
 		// Add/Change Type
-		$("#assetForm div.condPanel span").off('click')
+		$("#modal div.condPanel span").off('click')
 			.on('click', function(event){
 				const el = $(this);
 				if( el.hasClass('add') ){
@@ -2486,8 +2562,8 @@ export default class Modtools{
 			});
 
 		// Control & shift click
-		$("#assetForm div.condWrapper.subConditions, #assetForm div.condWrapper > input[name=condition]:not(.json)").off('click');
-		$("#assetForm div.condWrapper.subConditions, #assetForm div.condWrapper > input[name=condition]").on('click', function(event){
+		$("#modal div.condWrapper.subConditions, #modal div.condWrapper > input[name=condition]:not(.json)").off('click');
+		$("#modal div.condWrapper.subConditions, #modal div.condWrapper > input[name=condition]").on('click', function(event){
 			if( !event.ctrlKey )
 				return;
 
@@ -2501,7 +2577,7 @@ export default class Modtools{
 
 			const cName = $(this).parent().attr('data-cname');
 			const conds = JSON.parse($(this).attr('data-conds'));
-			const baselevel = $("#assetForm div.condWrapper."+cName+" > input[name=condition]");
+			const baselevel = $("#modal div.condWrapper."+cName+" > input[name=condition]");
 
 			for( let cond of conds ){
 				if( typeof cond !== "string" )
@@ -2509,7 +2585,7 @@ export default class Modtools{
 				if( baselevel.filter((_,el) => $(el).val() === cond).length )
 					continue;
 
-				$("#assetForm div.condWrapper."+cName).append(th.inputConditions(cond));
+				$("#modal div.condWrapper."+cName).append(th.inputConditions(cond));
 			}
 
 		});
@@ -2545,7 +2621,7 @@ export default class Modtools{
 
 	compileConditions( cName = 'conditions' ){
 
-		const base = $('#assetForm div.'+cName);
+		const base = $('#modal div.'+cName);
 		return this.compileConditionElement(base).conditions;
 		
 	}
@@ -2610,7 +2686,7 @@ export default class Modtools{
 	}
 	bindEvents(){
 		let th = this;
-		$("#assetForm input.addEventHere").off('click')
+		$("#modal input.addEventHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputEvent(""));
 				th.bindFormHelpers();
@@ -2618,7 +2694,7 @@ export default class Modtools{
 	}
 
 	compileEvents( cName = 'events' ){
-		const base = $('#assetForm div.'+cName+' select[name=event]');
+		const base = $('#modal div.'+cName+' select[name=event]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2648,6 +2724,50 @@ export default class Modtools{
 
 
 
+	// Encounter (bindable)
+	inputEncounter( data = '' ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="encounter" value="'+esc(data)+'" list="encounters" />';
+	}
+
+	bindEncounters(){
+		let th = this;
+		$("#modal input.addEncounterHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputEncounter(""));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileEncounters( cName = 'encounters' ){
+		const base = $('#modal div.'+cName+' input[name=encounter]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+			if( val && val !== "none" )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formEncounters( names = [], cName = 'encounters' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addEncounterHere" value="Add Encounter" />';
+		for( let name of names )
+			out+= this.inputEncounter(name);
+		out += '</div>';
+		return out;
+
+	}
+
 	
 	// AssetSlots (bindable)
 	inputAssetSlot( slot ){
@@ -2659,7 +2779,7 @@ export default class Modtools{
 	}
 	bindAssetSlots(){
 		let th = this;
-		$("#assetForm input.addAssetSlotHere").off('click')
+		$("#modal input.addAssetSlotHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputAssetSlot(""));
 				th.bindFormHelpers();
@@ -2667,7 +2787,7 @@ export default class Modtools{
 	}
 
 	compileAssetSlots( cName = 'assetSlots' ){
-		const base = $('#assetForm div.'+cName+' select[name=assetSlot]');
+		const base = $('#modal div.'+cName+' select[name=assetSlot]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2702,7 +2822,7 @@ export default class Modtools{
 	
 	bindDungeonRoomTemplates(){
 		let th = this;
-		$("#assetForm input.addDungeonRoomTemplateHere").off('click')
+		$("#modal input.addDungeonRoomTemplateHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputDungeonRoomTemplate(""));
 				th.bindFormHelpers();
@@ -2710,7 +2830,7 @@ export default class Modtools{
 	}
 
 	compileDungeonRoomTemplates( cName = 'dungeonRoomTemplates' ){
-		const base = $('#assetForm div.'+cName+' select[name=dungeonRoomTemplate]');
+		const base = $('#modal div.'+cName+' select[name=dungeonRoomTemplate]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2752,7 +2872,7 @@ export default class Modtools{
 
 	bindMeshes(){
 		let th = this;
-		$("#assetForm input.addMeshHere").off('click')
+		$("#modal input.addMeshHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputMesh(""));
 				th.bindFormHelpers();
@@ -2760,7 +2880,7 @@ export default class Modtools{
 	}
 
 	compileMeshes( cName = 'meshes' ){
-		const base = $('#assetForm div.'+cName+' select[name=mesh]');
+		const base = $('#modal div.'+cName+' select[name=mesh]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2796,7 +2916,7 @@ export default class Modtools{
 
 	bindPlayerTemplates(){
 		let th = this;
-		$("#assetForm input.addPlayerTemplateHere").off('click')
+		$("#modal input.addPlayerTemplateHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputPlayerTemplate(""));
 				th.bindFormHelpers();
@@ -2804,7 +2924,7 @@ export default class Modtools{
 	}
 
 	compilePlayerTemplates( cName = 'playerTemplates' ){
-		const base = $('#assetForm div.'+cName+' select[name=playerTemplate]');
+		const base = $('#modal div.'+cName+' input[name=playerTemplate]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2847,7 +2967,7 @@ export default class Modtools{
 
 	bindSoundkitSubs(){
 		let th = this;
-		$("#assetForm input.addSoundkitSubHere").off('click')
+		$("#modal input.addSoundkitSubHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputSoundkitSub(""));
 				th.bindFormHelpers();
@@ -2855,7 +2975,7 @@ export default class Modtools{
 	}
 
 	compileSoundkitSubs( cName = 'soundkitSubs' ){
-		const base = $('#assetForm div.'+cName+' div.soundkitPack');
+		const base = $('#modal div.'+cName+' div.soundkitPack');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2902,7 +3022,7 @@ export default class Modtools{
 
 	bindWrapperTargetTypes(){
 		let th = this;
-		$("#assetForm input.addWrapperTTHere").off('click')
+		$("#modal input.addWrapperTTHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputWrapperTargetType(""));
 				th.bindFormHelpers();
@@ -2910,7 +3030,7 @@ export default class Modtools{
 	}
 
 	compileWrapperTargetTypes( cName = 'wrapperTTs' ){
-		const base = $('#assetForm div.'+cName+' select[name=wrapperTT]');
+		const base = $('#modal div.'+cName+' select[name=wrapperTT]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2950,7 +3070,7 @@ export default class Modtools{
 	// Wrappers (Bindable)
 	bindWrappers(){
 		let th = this;
-		$("#assetForm input.addWrapperHere").off('click')
+		$("#modal input.addWrapperHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputWrapper(""));
 				th.bindFormHelpers();
@@ -2958,7 +3078,7 @@ export default class Modtools{
 	}
 
 	compileWrappers( cName = 'wrappers' ){
-		const base = $('#assetForm div.'+cName+' input[name=wrapper]');
+		const base = $('#modal div.'+cName+' input[name=wrapper]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -3000,7 +3120,7 @@ export default class Modtools{
 	// Classes (Bindable)
 	bindClasses(){
 		let th = this;
-		$("#assetForm input.addClassHere").off('click')
+		$("#modal input.addClassHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputClass(""));
 				th.bindFormHelpers();
@@ -3008,7 +3128,7 @@ export default class Modtools{
 	}
 
 	compileClasses( cName = 'classes' ){
-		const base = $('#assetForm div.'+cName+' input[name=class]');
+		const base = $('#modal div.'+cName+' input[name=class]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -3049,7 +3169,7 @@ export default class Modtools{
 	// Asset templates (Bindable)
 	bindAssetTemplates(){
 		let th = this;
-		$("#assetForm input.addAssetTemplateHere").off('click')
+		$("#modal input.addAssetTemplateHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputAssetTemplate(""));
 				th.bindFormHelpers();
@@ -3057,7 +3177,7 @@ export default class Modtools{
 	}
 
 	compileAssetTemplates( cName = 'assetTemplates' ){
-		const base = $('#assetForm div.'+cName+' input[name=assetTemplate]');
+		const base = $('#modal div.'+cName+' input[name=assetTemplate]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -3098,7 +3218,7 @@ export default class Modtools{
 	// Matierial templates (Bindable)
 	bindMaterialTemplates(){
 		let th = this;
-		$("#assetForm input.addMaterialTemplateHere").off('click')
+		$("#modal input.addMaterialTemplateHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputMaterialTemplate(""));
 				th.bindFormHelpers();
@@ -3106,7 +3226,7 @@ export default class Modtools{
 	}
 
 	compileMaterialTemplates( cName = 'materialTemplates' ){
-		const base = $('#assetForm div.'+cName+' input[name=materialTemplate]');
+		const base = $('#modal div.'+cName+' input[name=materialTemplate]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -3148,7 +3268,7 @@ export default class Modtools{
 	// Matierial templates (Bindable)
 	bindAssets(){
 		let th = this;
-		$("#assetForm input.addAssetHere").off('click')
+		$("#modal input.addAssetHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputAsset(""));
 				th.bindFormHelpers();
@@ -3156,7 +3276,7 @@ export default class Modtools{
 	}
 
 	compileAssets( cName = 'assets' ){
-		const base = $('#assetForm div.'+cName+' input[name=asset]');
+		const base = $('#modal div.'+cName+' input[name=asset]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -3200,7 +3320,7 @@ export default class Modtools{
 	// Effects (bindable)
 	bindEffects(){
 		let th = this;
-		$("#assetForm input.addEffectHere").off('click')
+		$("#modal input.addEffectHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputEffect(""));
 				th.bindFormHelpers();
@@ -3208,7 +3328,7 @@ export default class Modtools{
 	}
 
 	compileEffects( cName = 'effects' ){
-		const base = $('#assetForm div.'+cName+' input[name=effect]');
+		const base = $('#modal div.'+cName+' input[name=effect]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -3252,7 +3372,7 @@ export default class Modtools{
 
 	// ARMOR SLOTS - NO BIND
 	compileArmorSlot(){
-		const base = $('#assetForm select[name=armorSlot]');
+		const base = $('#modal select[name=armorSlot]');
 		return base.val();
 	}
 
@@ -3269,14 +3389,14 @@ export default class Modtools{
 	// SOUND KITS (Bindable)
 	bindSoundKits(){
 		let th = this;
-		$("#assetForm input.addSoundKitHere").off('click')
+		$("#modal input.addSoundKitHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputSoundKit(""));
 			});
 	}
 
 	compileSoundKits( cName = 'soundKits' ){
-		const base = $('#assetForm div.'+cName+' input[name=soundKit]');
+		const base = $('#modal div.'+cName+' input[name=soundKit]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -3311,7 +3431,7 @@ export default class Modtools{
 	// Actions (Bindable)
 	bindActions(){
 		let th = this;
-		$("#assetForm input.addActionHere").off('click')
+		$("#modal input.addActionHere").off('click')
 			.on('click', function(){
 				$(this).parent().append(th.inputAction(""));
 			});
