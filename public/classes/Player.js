@@ -10,6 +10,11 @@ import Calculator from './Calculator.js';
 import GameEvent from './GameEvent.js';
 import Dungeon from './Dungeon.js';
 
+const BASE_HP = 60;
+const BASE_MP = 10;
+const BASE_AP = 10;
+const BASE_AROUSAL = 10;
+
 export default class Player extends Generic{
 
 	constructor(data){
@@ -27,8 +32,6 @@ export default class Player extends Generic{
 		this.tags = [];				// Player tags, these are automatically prefixed with PL_, use getTags
 		this.wrappers = [];			// Wrappers, use getWrappers
 		this.auto_wrappers = [];	// Automatic wrappers such as encumbered
-		this.max_hp = 60;			// use getMaxHP
-		this.max_ap = 10;			// use getMaxAP
 		this.hp = 60;				// 
 		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
 		this.team = 0;				// 0 = player
@@ -37,9 +40,7 @@ export default class Player extends Generic{
 		this.level = 1;				// 
 		this.experience = 0;
 		this.mp = 10;				// Secondary stat used for spells. Mana points.
-		this.max_mp = 10;			// use getMaxMP
 		this.arousal = 0;
-		this.max_arousal = 10;		// use getMaxArousal
 
 		// Primary stats
 		this.stamina = 0;			// Adds 2 HP per point
@@ -138,9 +139,6 @@ export default class Player extends Generic{
 			actions : this.actions.map(el => el.save(full)),
 			assets : this.assets.map(el => el.save(full)),
 			tags : this.tags,
-			max_ap : this.max_ap,
-			max_hp : this.max_hp,
-			max_mp : this.max_mp,
 			team : this.team,
 			species : this.species,
 			description : this.description,
@@ -150,7 +148,6 @@ export default class Player extends Generic{
 			stamina : this.stamina,
 			agility : this.agility,
 			intellect : this.intellect,
-			max_arousal : this.max_arousal,
 			svPhysical : this.svPhysical,
 			svElemental : this.svElemental,
 			svHoly : this.svHoly,
@@ -989,17 +986,17 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
-		return this.max_hp+this.statPointsToNumber(Player.primaryStats.stamina);
+		return BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina);
 	}
 	getMaxAP(){
-		return this.max_ap+this.statPointsToNumber(Player.primaryStats.agility);
+		return BASE_AP+this.statPointsToNumber(Player.primaryStats.agility);
 
 	}
 	getMaxMP(){
-		return this.max_mp+this.statPointsToNumber(Player.primaryStats.intellect);
+		return BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect);
 	}
 	getMaxArousal(){
-		return this.max_arousal;
+		return BASE_AROUSAL;
 	}
 
 	

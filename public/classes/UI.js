@@ -1649,10 +1649,6 @@ export default class UI{
 							'<div>AP<br /><input type="number" name="ap" placeholder="AP" min=0 step=1 value='+(+player.ap)+' /></div>'+
 							'<div>MP<br /><input type="number" name="mp" placeholder="MP" min=0 step=1 value='+(+player.mp)+' /></div>'+
 							'<div>Arousal<br /><input type="number" name="arousal" placeholder="Arousal" min=0 step=1 value='+player.arousal+' /></div>'+
-							'<div>BASE HP<br /><input type="number" name="max_hp" min=1 step=1 value='+(+player.max_hp)+' /></div>'+
-							'<div>BASE AP<br /><input type="number" name="max_ap" min=1 step=1 value='+(+player.max_ap)+' /></div>'+
-							'<div>BASE MP<br /><input type="number" name="max_mp" min=1 step=1 value='+(+player.max_mp)+' /></div>'+
-							'<div>Max Arousal<br /><input type="number" name="max_arousal" min=1 step=1 value='+player.max_arousal+' /></div>'+
 							'<div>Team<br /><input type="number" name="team" placeholder="Team" min=0 step=1 value='+(+player.team)+' /></div>'+
 							'<div></div>'+
 							'<div></div>'+
@@ -1728,10 +1724,6 @@ export default class UI{
 			player.species = $("#modal input[name=species]").val().trim();
 			player.description = $("#modal textarea[name=description]").val().trim();
 			player.icon = $("#modal input[name=icon]").val().trim();
-			player.max_hp = +$("#modal input[name=max_hp]").val();
-			player.max_ap = +$("#modal input[name=max_ap]").val();
-			player.max_mp = +$("#modal input[name=max_mp]").val();
-			player.max_arousal = +$("#modal input[name=max_arousal]").val();
 			player.auto_play = $("#modal input[name=auto_play]").prop('checked');
 			player.hp = +$("#modal input[name=hp]").val();
 			player.ap = +$("#modal input[name=ap]").val();

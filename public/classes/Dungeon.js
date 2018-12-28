@@ -1330,15 +1330,18 @@ class DungeonEncounter extends Generic{
 		// Not really gonna need a full because these are never output to webplayers
 		return out;
 	}
-	getQuest(){
-		let p = this.parent;
-		while( p !== undefined && !(p instanceof Quest) )
-			p = p.parent;
-		return p;
-	}
 
 	getEnemies(){
 		return this.players.filter(pl => pl.team !== 0);
+	}
+
+	getDungeon(){
+		let parent = this.parent;
+		while( !(parent instanceof Dungeon) && parent.parent )
+			parent = parent.parent;
+		if( parent instanceof Dungeon )
+			return parent;
+		return false;
 	}
 
 	getPlayerById( id ){
@@ -1641,50 +1644,8 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 			// See if we need an encounter here
 			// Todo: Allow encounters in the first room once the world map is in
-			if( ~encounters.indexOf(room.index) ){
-				
-				room.encounters = kit.encounters.slice();
-				
-
-				/*
-				let difficulty = out.difficulty+Math.random()*0.5-0.25;	// difficulty plus/minus 0.25
-				// This could be provided at runtime instead
-				const encounter = new DungeonEncounter({}, room);
-				room.encounters.push(encounter);
-				
-				encounter.wrappers = [];
-				encounter.players = [];
-
-				let dif = 0;
-				while( dif < difficulty ){
-					shuffle(viableMonsters);
-					let success = false;
-					for( let m of viableMonsters ){
-
-						let mTemplate = npcLib[m];
-						
-						if( mTemplate.difficulty+dif < difficulty ){
-
-							// Generate a player to push
-							let pl = mTemplate.generate(averageLevel);
-							pl._difficulty = mTemplate.difficulty;
-							encounter.players.push(pl);
-							dif += mTemplate.difficulty;
-							success = true;
-							break;
-						}
-
-					}
-					
-					if( !success )
-						break;
-				}
-
-
-				*/
-
-			}
-
+			if( ~encounters.indexOf(room.index) )
+				room.encounters = kit.encounters.slice().map(el => el.clone(room));
 
 			// This was a working template, so break here and let the loop resume to the next room
 			if( treasureExists )

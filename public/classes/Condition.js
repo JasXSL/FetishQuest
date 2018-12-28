@@ -312,6 +312,11 @@ export default class Condition extends Generic{
 					success = this.objIs(event.quest, this.data);
 			}
 
+			else if( this.type === T.dungeonIs ){
+				if( event.dungeon && typeof this.data === "object" )
+					success = this.objIs(event.dungeon, this.data);
+			}
+
 			else if( this.type === T.defeated )
 				success = t.isDead();
 			
@@ -467,6 +472,7 @@ Condition.Types = {
 	notInCombat : 'notInCombat',				// 
 	hasRepairable : 'hasRepairable',			// 
 	questIs : 'questIs',						// 
+	dungeonIs : 'dungeonIs',					// 
 	team : 'team',								// 
 	defeated : 'defeated',						// 
 	punishNotUsed : 'punishNotUsed',			//  
@@ -495,6 +501,7 @@ Condition.descriptions = {
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',
 	[Condition.Types.hasRepairable] : 'void - Has repairable items in their inventory',
 	[Condition.Types.questIs] : 'obj - Compares properties of the event quest property to obj properties. Simple check of ===',
+	[Condition.Types.dungeonIs] : 'obj - Compares properties of the event dungeon property to obj properties. Simple check of ===',
 	[Condition.Types.team] : '{team:(int arr)team(s)}',
 	[Condition.Types.defeated] : 'void - Player is defeated',
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',

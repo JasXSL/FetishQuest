@@ -14,7 +14,6 @@ class Quest extends Generic{
 		this.name = '';
 		this.description = '';
 		this.objectives = [];
-		this.dungeon = new Dungeon({}, this);
 		this.rewards_assets = [];
 		this.rewards_experience = 0;
 		this.level = 1;
@@ -37,10 +36,9 @@ class Quest extends Generic{
 			completion_objectives : this.completion_objectives.map(el =>el.save(full)),
 		};
 
-		if(full ){
+		if(full )
 			out.label = this.label;
-			out.dungeon = this.dungeon.save(full);
-		}
+		
 
 		if( full !== "mod" ){
 			out.id = this.id;			
@@ -60,7 +58,6 @@ class Quest extends Generic{
 		this.objectives = QuestObjective.loadThese(this.objectives, this);
 		this.rewards_assets = Asset.loadThese(this.rewards_assets, this);
 		this.completion_objectives = QuestObjective.loadThese(this.completion_objectives, this);
-		this.dungeon = Dungeon.loadThis(this.dungeon, this);
 	}
 
 	addObjective( objective, isCompletionObjective = false ){
@@ -140,57 +137,43 @@ Quest.Types = {
 	//DungeonBoss : 2,			// Kill a boss
 };
 
-Quest.generate = function( type, difficultyMultiplier = 1 ){
-	if( !type )
-		type = Object.values(Quest.Types)[Math.floor(Math.random()*Object.values(Quest.Types).length)];
+Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
+
+	if( !type ){
+		const types = Object.values(Quest.Types);
+		type = types[Math.floor(Math.random()*types.length)];
+	}
 	
-	let quest = new Quest();
+	const quest = new Quest();
 	let expBasis = 0;			// Bonus experience basis
-	let level = game.getAveragePlayerLevel();
+	const level = game.getAveragePlayerLevel();
 	quest.level = level;
 
+	const encounters = dungeon.getNumEncounters();
+	if( !encounters )
+		return game.ui.addError("Unable to generate viable encounters for quest");
+		
 	if( type === Quest.Types.DungeonClear ){
 
 		quest.name = 'Dungeoneering';
 		quest.description = 'Clear the dungeon from monsters.';
 
-		let dungeonType = [Dungeon.Shapes.Random, Dungeon.Shapes.SemiLinear][Math.round(Math.random())];
-		let cells = 6+Math.floor(Math.random()*7);
-		let dungeon = Dungeon.generate(
-			cells, 
-			undefined, 
-			{
-				difficulty:game.getTeamPlayers(0).length*difficultyMultiplier,
-				shape : dungeonType,
-				depth : -1,
-			});
-		if( !dungeon )
-			return game.ui.addError("Unable to generate a dungeon");
-		
-		quest.dungeon = dungeon;
-		dungeon.parent = quest;
-
-		let encounters = dungeon.getNumEncounters();
-		if( !encounters )
-			return game.ui.addError("Unable to generate viable encounters for quest");
-
-
 		// Add monsterKill objective
-		quest.addObjective(QuestObjective.buildEncounterCompletedObjective(quest, encounters));
+		quest.addObjective(QuestObjective.buildEncounterCompletedObjective(quest, dungeon, encounters));
 
-		// Todo: Calculate experience
+		expBasis = difficultyMultiplier*level/2*encounters;
 
 	}
 
 	let expReward = Math.ceil(expBasis);
 	quest.rewards_experience = expReward;
 	// Pick a proper reward. For now, just do gear.
-	let minGearRarity = Math.min(Asset.Rarity.EPIC, Math.round(game.getTeamPlayers(0).length*difficultyMultiplier+expBasis/10));
+	let minGearRarity = Math.min(Asset.Rarity.EPIC, Math.round(game.getTeamPlayers(0).length*difficultyMultiplier+encounters/10));
 	let rarity = Asset.rollRarity(minGearRarity);
 	quest.addGearReward(Asset.generate(undefined, level, undefined, undefined, rarity));
 
 	// Add dungeon exit ending objective
-	quest.addObjective(QuestObjective.buildDungeonExitObjective(quest), true);
+	quest.addObjective(QuestObjective.buildDungeonExitObjective(quest, dungeon), true);
 
 	return quest;
 
@@ -284,38 +267,30 @@ class QuestObjective extends Generic{
 }
 
 // helpers
-QuestObjective.buildMonsterKillObjective = function( quest, nrMonsters =1 ){
-	let libCond = glib.conditions;
-	return new QuestObjective({
-		amount : nrMonsters,
-		label : 'monsters_killed',
-		name : 'Monsters Killed',
-		events : [new QuestObjectiveEvent({
-			conditions : [libCond.eventIsPlayerDefeated,libCond.targetNotFriendly,quest.createQuestCondition()]
-		})]
-	});
+QuestObjective.buildDungeonCondition = function( dungeon ){
+	return new Condition({type:Condition.Types.dungeonIs, data:{id:dungeon.id}});
 };
 
-QuestObjective.buildEncounterCompletedObjective = function( quest, nrEncounters = 1 ){
+QuestObjective.buildEncounterCompletedObjective = function( quest, dungeon, nrEncounters = 1 ){
 	let libCond = glib.conditions;
 	return new QuestObjective({
 		amount : nrEncounters,
 		label : 'encounters_completed',
 		name : 'Encounters Done',
 		events : [new QuestObjectiveEvent({
-			conditions : [libCond.eventIsEncounterDefeated,quest.createQuestCondition()]
+			conditions : [libCond.eventIsEncounterDefeated,QuestObjective.buildDungeonCondition(dungeon)]
 		})]
 	});
 }
 
-QuestObjective.buildDungeonExitObjective = function( quest){
+QuestObjective.buildDungeonExitObjective = function( quest, dungeon ){
 	let libCond = glib.conditions;
 	return new QuestObjective({
 		label : 'dungeon_exit',
 		name : 'Exit the dungeon',
 		events : [new QuestObjectiveEvent({
 			action : QuestObjectiveEvent.Actions.finish,
-			conditions : [libCond.eventIsDungeonExited, quest.createQuestCondition()]
+			conditions : [libCond.eventIsDungeonExited, QuestObjective.buildDungeonCondition(dungeon)]
 		})]
 	});
 };

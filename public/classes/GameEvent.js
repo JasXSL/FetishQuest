@@ -22,6 +22,7 @@ export default class GameEvent extends Generic{
 		this.asset = null;
 		this.quest = null;
 		this.encounter = null;
+		this.dungeon = null;
 		this.custom = {};		// Custom data related to the event	
 		this.load(data);
 

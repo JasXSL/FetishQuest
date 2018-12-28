@@ -166,10 +166,7 @@ export default class Game extends Generic{
 		this.encounter = new DungeonEncounter(this.encounter, this);
 
 
-		// Map Quests, Dungeons, and Players
-		// If our current dungeon is a quest dungeon, set it to the quest dungeon object
-		this.referenceQuestDungeon();
-
+		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
 		let encounter = this.dungeon.getEncounterById(this.encounter.id);
 		if( encounter )
@@ -260,10 +257,10 @@ export default class Game extends Generic{
 	}
 
 	onDungeonExit(){
-		new GameEvent({type:GameEvent.Types.dungeonExited, dungeon:this.dungeon, quest:this.dungeon.getQuest()}).raise();
+		new GameEvent({type:GameEvent.Types.dungeonExited, dungeon:this.dungeon}).raise();
 	}
 	onDungeonEntered(){
-		new GameEvent({type:GameEvent.Types.dungeonEntered, dungeon:this.dungeon, quest:this.dungeon.getQuest()}).raise();
+		new GameEvent({type:GameEvent.Types.dungeonEntered, dungeon:this.dungeon}).raise();
 	}
 	// Draw quest completed message
 	onQuestCompleted( quest ){
@@ -434,7 +431,6 @@ export default class Game extends Generic{
 		if( pre.id !== this.id )
 			this.onDungeonExit();
 		this.dungeon = dungeon;
-		this.referenceQuestDungeon();
 		this.onDungeonEntered();
 		this.net.purgeFromLastPush(["dungeon"],["encounter"]);
 		this.save();
@@ -455,14 +451,6 @@ export default class Game extends Generic{
 		}
 		return false;
 	}
-	// Switches the current dungeon to a quest's dungeon if they share the same id
-	referenceQuestDungeon(){
-		// See if dungeon can be fetched from a quest
-		for( let quest of this.quests ){
-			if( quest.dungeon.id === this.dungeon.id )
-				this.dungeon = quest.dungeon;
-		}
-	}
 
 	setDungeonFromWorld( path ){
 		let base = glibWorld;
@@ -479,16 +467,31 @@ export default class Game extends Generic{
 
 
 	/* QUEST */
-	addRandomQuest(...args){
+	addRandomQuest( type, difficultyMultiplier = 1 ){
 		// Todo: Remove this later
 		this.quests = [];
 
-		let quest = Quest.generate(...args);
+		const dungeonType = [Dungeon.Shapes.Random, Dungeon.Shapes.SemiLinear][Math.round(Math.random())];
+		const cells = 6+Math.floor(Math.random()*7);
+		const dungeon = Dungeon.generate(
+			cells, 
+			undefined, 
+			{
+				difficulty:game.getTeamPlayers(0).length*difficultyMultiplier,
+				shape : dungeonType,
+				depth : -1,
+			});
+		if( !dungeon )
+			return game.ui.addError("Unable to generate a dungeon");
+
+		let quest = Quest.generate( type, dungeon, difficultyMultiplier);
 		if( !quest )
 			return false;
+
 		// Todo: Remove this later
 		this.addQuest(quest);
-		this.setDungeon(quest.dungeon);
+		this.setDungeon(dungeon);
+
 	}
 	addQuest(quest){
 		if( this.quests.length > 5 )
@@ -1001,7 +1004,8 @@ export default class Game extends Generic{
 			}
 			else 
 				this.onEncounterLost(standing[0]);
-			new GameEvent({type:evt, encounter:this.encounter}).raise();
+
+			new GameEvent({type:evt, encounter:this.encounter, dungeon:this.encounter.getDungeon()}).raise();
 
 		}
 
@@ -1010,8 +1014,8 @@ export default class Game extends Generic{
 			
 			// Restore 40% HP and MP at the end of the battle
 			this.getTeamPlayers(0).map(pl => {
-				pl.addHP(Math.ceil(pl.max_hp*0.4));
-				pl.addMP(Math.ceil(pl.max_mp*0.4));
+				pl.addHP(Math.ceil(pl.getMaxHP()*0.4));
+				pl.addMP(Math.ceil(pl.getMaxMP()*0.4));
 			});
 
 			// add loot from enemies
@@ -1344,7 +1348,7 @@ GameEvent.on(GameEvent.Types.playerDefeated, event => {
 	// Check if event player is in the current encounter
 	if( ~game.encounter.players.indexOf(event.target) ){
 		event.encounter = game.encounter;
-		event.quest = game.encounter.getQuest();
+		event.dungeon = game.encounter.getDungeon();
 	}
 });
 

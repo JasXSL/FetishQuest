@@ -885,7 +885,7 @@ export default class Modtools{
 	mml_dungeonTemplates(){
 		this.mml_generic( 
 			'dungeonTemplates', 
-			['Label','Rooms','Doors_Hor','Doors_Down','Doors_Up','Monster_Types','Consumables'],
+			['Label','Rooms','Doors_Hor','Doors_Down','Doors_Up','Encounters','Consumables'],
 			this.mod.dungeonTemplates,
 			asset => {
 				return [
@@ -894,7 +894,7 @@ export default class Modtools{
 					Array.isArray(asset.doors_hor) ? asset.doors_hor.join(', ') : '!NONE!',
 					Array.isArray(asset.doors_down) ? asset.doors_down.join(', ') : '!NONE!',
 					Array.isArray(asset.doors_up) ? asset.doors_up.join(', ') : '!NONE!',
-					Array.isArray(asset.monster_types) ? asset.monster_types.join(', ') : '!NONE!',
+					Array.isArray(asset.encounters) ? asset.encounters.length : '!NONE!',
 					Array.isArray(asset.consumables) ? asset.consumables.join(', ') : 'Default',					
 				];
 			},
@@ -1631,7 +1631,7 @@ export default class Modtools{
 			html += 'Doors Horizontal: '+this.formMeshes(asset.doors_hor,'doors_hor')+'<br />';
 			html += 'Doors Down: '+this.formMeshes(asset.doors_down,'doors_down')+'<br />';
 			html += 'Doors Up: '+this.formMeshes(asset.doors_up,'doors_up')+'<br />';
-			html += 'Monster Types: '+this.formPlayerTemplates(asset.monster_types,'monster_types')+'<br />';
+			html += 'Viable Encounters: '+this.formEncounters(asset.encounters,'encounters')+'<br />';
 			html += 'Consumables: '+this.formAssets(asset.consumables,'consumables')+'<br />';
 			
 		this.editor_generic('dungeonTemplates', asset, this.mod.dungeonTemplates, html, saveAsset => {
@@ -1642,7 +1642,7 @@ export default class Modtools{
 			saveAsset.doors_hor = this.compileMeshes('doors_hor');
 			saveAsset.doors_down = this.compileMeshes('doors_down');
 			saveAsset.doors_up = this.compileMeshes('doors_up');
-			saveAsset.monster_types = this.compileMeshes('monster_types');
+			saveAsset.encounters = this.compileEncounters('encounters');
 			saveAsset.consumables = this.compileAssets('consumables');
 			
 		});
@@ -2830,7 +2830,7 @@ export default class Modtools{
 	}
 
 	compileDungeonRoomTemplates( cName = 'dungeonRoomTemplates' ){
-		const base = $('#modal div.'+cName+' select[name=dungeonRoomTemplate]');
+		const base = $('#modal div.'+cName+' input[name=dungeonRoomTemplate]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
