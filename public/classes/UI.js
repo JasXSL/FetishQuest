@@ -2055,7 +2055,8 @@ export default class UI{
 			return false;
 
 		game.modal.prepareSelectionBox();
-		for( let item of container.loot )
+		const items = container.getLootable();
+		for( let item of items )
 			game.modal.addSelectionBoxItem(item.name, item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
 
 		if( playAnimation )

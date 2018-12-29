@@ -2190,8 +2190,8 @@ export default class Modtools{
 
 			html += 'Todo: Loot<br />';
 		
-			html += '<br /><label>Locked: <input class="updateMesh" type="checkbox" name="locked" '+(asset.locked ? 'checked' : '')+' /></label><br />';
-			
+			// Todo: LOCK
+
 			html += '<input type="button" value="Delete" class="deleteSelectedAsset" />';
 
 			// Bind the updates
@@ -2337,8 +2337,6 @@ export default class Modtools{
 			asset._stage_mesh.scale.x = asset.scaleX = +$("input[name=scaleX]", div).val();
 			asset._stage_mesh.scale.y = asset.scaleY = +$("input[name=scaleY]", div).val();
 			asset._stage_mesh.scale.z = asset.scaleZ = +$("input[name=scaleZ]", div).val();
-
-			asset.locked = $("input[name=locked]", div).is(':checked');
 			asset.name = $("input[name=name]", div).val();
 			
 			

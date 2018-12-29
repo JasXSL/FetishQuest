@@ -321,6 +321,7 @@ class WebGL{
 
 		this.intersecting = intersecting;
 
+		
 		this.controls.update();
 		this.renderer.render( this.scene, this.camera );
 
@@ -479,7 +480,9 @@ class WebGL{
 	// Tweens the camera after entering a new room
 	// Chainable
 	roomEnterCameraTween(){
+
 		let room = game.dungeon.getActiveRoom();
+		console.log("Getting room", room);
 		let asset = room.getRoomAsset();
 		let mesh = asset.getModel();
 		let size = Math.max(mesh.width,mesh.height);
@@ -582,24 +585,20 @@ class Stage{
 		if( !this.enabled )
 			return;
 
+		
+		// needs to be placed after the mixers and auto
 		if( typeof obj.userData.template.onStagePlaced === "function" )
 			obj.userData.template.onStagePlaced(dungeonAsset, obj);
-		
+
 		this.addTweensRecursive(obj);
 		this.addParticlesRecursive(obj);
 		this.addMixersRecursive(obj);
 		this.addWaterRecursive(obj);
 
+		
+
 
 		if( dungeonAsset ){
-			// Switch
-			if( dungeonAsset.isSwitch() ){
-				
-				let target = dungeonAsset.getSwitchTarget();
-				if( target && !target.locked && obj.userData.playAnimation )
-					obj.userData.playAnimation('idle_opened');
-				
-			}
 
 			// Interactive object
 			if( dungeonAsset.isInteractive() ){
@@ -617,14 +616,18 @@ class Stage{
 			
 			dungeonAsset.updateInteractivity();
 		}
+
+		if( typeof obj.userData.template.afterStagePlaced === "function" )
+			obj.userData.template.afterStagePlaced(dungeonAsset, obj);
+
 	}
 
 
 	onDoorRefresh( c ){
 
 		let asset = c.userData.dungeonAsset;
-		let linkedRoom = !this.isEditor ? game.dungeon.rooms[asset.data.room] : false;
-		let tagAlwaysVisible = (asset.isExit() && !asset.locked) || (linkedRoom && (linkedRoom.index === game.dungeon.previous_room || !linkedRoom.discovered || linkedRoom.index === asset.parent.parent_index));
+		let linkedRoom = !this.isEditor ? game.dungeon.rooms[asset.getDoorTarget()] : false;
+		let tagAlwaysVisible = (asset.isExit() && !asset.isLocked()) || (linkedRoom && (linkedRoom.index === game.dungeon.previous_room || !linkedRoom.discovered || linkedRoom.index === asset.parent.parent_index));
 
 		let sprites = c.userData.hoverTexts;
 		for( let i in sprites )
@@ -636,10 +639,10 @@ class Stage{
 			sprite.material.opacity = 1;
 		if( asset.isExit() )
 			sprite = sprites.exit;
-		else if( linkedRoom && linkedRoom.discovered )
+		else if( sprite && linkedRoom && linkedRoom.discovered )
 			sprite.material.opacity = 0;
 
-		if( asset.locked )
+		if( asset.isLocked() )
 			sprite.material.opacity = 0;
 		
 		if( linkedRoom && linkedRoom.index === game.dungeon.previous_room ){
@@ -810,9 +813,9 @@ class Stage{
 			// Door
 			if( asset.isDoor() && !this.isEditor ){
 			
-				let linkedRoom = game.dungeon.rooms[asset.data.room];
+				let linkedRoom = game.dungeon.rooms[asset.getDoorTarget()];
 				if( asset.isExit() ){
-					this.createIndicatorForMesh('exit', asset.data.label ? asset.data.label : 'Exit', c);
+					this.createIndicatorForMesh('exit', 'Exit', c);
 				}
 				else{
 					if( !linkedRoom )
@@ -820,10 +823,7 @@ class Stage{
 					this.createIndicatorForMesh('run', "Run", c);
 					this.createIndicatorForMesh('back', "", c);
 					this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
-					if( asset.data.label )
-						this.createIndicatorForMesh('bearing', asset.data.label, c);
-					else
-						this.createIndicatorForMesh('bearing', room.getBearingLabel(room.getAdjacentBearing( linkedRoom )), c);
+					this.createIndicatorForMesh('bearing', room.getBearingLabel(room.getAdjacentBearing( linkedRoom )), c);
 				}
 			
 			}

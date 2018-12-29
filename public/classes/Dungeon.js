@@ -23,6 +23,7 @@ import Quest from './Quest.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
+import Calculator from './Calculator.js';
 
 class Dungeon extends Generic{
 
@@ -40,7 +41,8 @@ class Dungeon extends Generic{
 		this.height = 0;			// Positive value of how many stories above the entrance we can go
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
 		this.difficulty = 1;		// Generally describes how many players this dungeon is for
-		
+		this.vars = {};				// Can be set and read programatically
+
 		// Runtime vars
 		this.transporting = false;	// Awaiting a room move
 
@@ -65,6 +67,7 @@ class Dungeon extends Generic{
 				return el.save(full);
 			}),
 			difficulty : this.difficulty,
+			vars : this.vars
 		};
 
 		// Full or mod
@@ -259,108 +262,7 @@ class Dungeon extends Generic{
 			return;
 		}
 
-		// Helper function for playing animation on this asset. Returns the animation played if any
-		function playAnim( anim ){
-			if( !mesh.userData.playAnimation )
-				return;
-			game.net.dmAnimation( asset, anim );
-			return mesh.userData.playAnimation(anim);
-
-		}
-
-		// Helper function for interact action
-		function raiseInteractOnMesh( shared = true ){
-			if( mesh.userData.template.onInteract ){
-				mesh.userData.template.onInteract.call(mesh.userData.template, mesh, room, asset);
-				if( game.is_host && shared )
-					game.net.dmRaiseInteractOnMesh( asset.id );
-			}
-		}
-
-
-		if( asset.locked )
-			return game.ui.addError("Locked");
-		// Seeing the loot is clientside, and needs to go above ask host
-		if( asset.loot.length ){
-			raiseInteractOnMesh( false );
-			return game.ui.drawContainerLootSelector(asset);
-		}
-		// Ask host
-		if( !game.is_host ){
-			game.net.playerInteractWithAsset( player, asset );
-			return;
-		}
-
-		raiseInteractOnMesh();
-
-		// Custom logic for if battle is active
-		if( game.battle_active ){
-			if( asset.isDoor() && asset.data.room === this.previous_room ){
-				
-				if( !game.turnPlayerIsMe() )
-					return game.ui.addError("Not your turn");
-				
-				let player = game.getTurnPlayer();
-				game.modal.close();
-				game.useActionOnTarget( player.getActionByLabel('stdEscape'), [player], player );
-
-				return;
-			}
-			game.ui.addError("Battle in progress");
-			return;
-		}
-
-		// Door
-		if( asset.isDoor() ){
-
-			// Todo: Dungeon exit
-			if( asset.isExit() ){
-				// Todo: Delete this, it's only used for quest debugging
-				game.onDungeonExit();
-				return;
-			}
-
-			else if( !isNaN(asset.data.room) && !this.transporting ){
-
-				playAnim("open");
-				game.onRoomChange();
-				this.goToRoom( player, asset.data.room );
-				
-
-			}
-
-		}
-
-		// Start an encounter
-		else if( asset.hasActiveEncounter() ){
-
-			// Encounter active, send to host if not hosting
-			if( !game.is_host ){
-				game.net.playerInteractWithAsset( player, asset );
-				return;
-			}
-
-			playAnim("open");
-			// Todo: Pick at random or something?
-			game.startEncounter(player, asset.interactEncounters[0]);
-			asset.updateInteractivity();
-
-		}
-		
-
-		else if( asset.type === DungeonRoomAsset.Types.Switch ){
-			let door = asset.getSwitchTarget();
-			if( door ){
-				door.locked = !door.locked;
-				let aname = 'close';
-				if( !door.locked )
-					aname = 'open';
-				let anim = playAnim(aname);
-				if( anim && anim.getClip().duration )
-					asset.setInteractCooldown(Math.max(Math.round(anim.getClip().duration*1000), 500));
-				game.save();
-			}
-		}
+		asset.interact( player, mesh );
 		
 	}
 
@@ -797,7 +699,6 @@ class DungeonRoom extends Generic{
 		let prop = new DungeonRoomAsset({
 			model : assetPath,
 			rotZ : bearing ? bearing*90 : 0,
-			type : DungeonRoomAsset.Types.Prop,
 		}, this);
 
 		let positions = this.getFreeTilesForObject(prop, bearing, mesh.position_on_wall);
@@ -820,7 +721,10 @@ class DungeonRoom extends Generic{
 	
 		let prop = this.placeAsset("Generic.Containers.LootBag");
 		if( prop ){
-			prop.loot = assets;
+			prop.interactions.push(new DungeonRoomAssetInteraction({
+				type : DungeonRoomAssetInteraction.types.loot,
+				data : assets.map(el => el.save(true))
+			}, prop));
 			game.renderer.drawActiveRoom();
 		}
 
@@ -904,6 +808,7 @@ DungeonRoom.Dirs = {
 
 */
 class DungeonRoomAsset extends Generic{
+
 	constructor(data, parentObj){
 		super(data);
 
@@ -922,24 +827,42 @@ class DungeonRoomAsset extends Generic{
 		this.scaleX = 1.0;
 		this.scaleY = 1.0;
 		this.scaleZ = 1.0;
-		this.type = DungeonRoomAsset.Types.Prop;
-		this.data = {};			// Varies based on type
-		this.interactEncounters = [];		// Encounter to start when interacted with
-		this.loot = [];											// Asset
 		this.attachments = [];			// Indexes of attachments available in new LibMesh().attachments
-		this.locked = false;			// Prevents interactions until locked state is set to false
-		this.interact_cooldown = 0;		// ms between how often you can interact with this 
+		this.interact_cooldown = 1000;	// ms between how often you can interact with this 
 		this._model = null;				// Generic mesh model
 		this._stage_mesh = null;		// Mesh tied to this object in the current scene
 		this._interact_cooldown = null;	// Handles the interact cooldown
 		this.tags = [];
 		this.absolute = false;			// Makes X/Y/Z absolute coordinates
+		this.room = false;				// This is the room asset
+		this.interactions = [];
 
 		this.load(data);
 
 	}
 
-	
+	getViableInteractions(){
+		let out = [];
+		for( let i of this.interactions ){
+
+			if( i !== -1 && i < 1 )
+				continue;
+
+			let valid = i.validate();
+
+			if( valid )
+				out.push(i);
+
+			if( (i.break === "success" && valid) || (i.break === "fail" && !valid) )
+				break;
+
+		}
+		return out;
+	}
+
+	isLocked(){
+		return !this.getViableInteractions().length;
+	}
 
 	save( full ){
 		const out = {
@@ -954,21 +877,13 @@ class DungeonRoomAsset extends Generic{
 			scaleX : this.scaleX,
 			scaleY : this.scaleY,
 			scaleZ : this.scaleZ,
-			type : this.type,
-			data : this.data,
 			attachments : this.attachments,
-			loot : this.loot.map(el => el.save(full)),
-			locked : this.locked,
 			tags : this.tags,
 			absolute : this.absolute,
-			name : this.name
+			name : this.name,
+			room : this.room,
+			interactions : DungeonRoomAssetInteraction.saveThese(this.interactions)
 		};
-
-		// Full or mod
-		if( full ){
-			out.interactEncounters = DungeonEncounter.saveThese(this.interactEncounters, full);
-		}
-
 		if( full !== 'mod' ){
 			
 		}
@@ -979,14 +894,21 @@ class DungeonRoomAsset extends Generic{
 	}
 
 
+	// returns the first door interaction
+	getDoorInteraction(){
+		for( let i of this.interactions ){
+			if( i.type === DungeonRoomAssetInteraction.types.door )
+				return i;
+		}
+	}
+
 
 	load(data){
 		this.g_autoload(data);
 	}
 
 	rebase(){
-		this.interactEncounters = DungeonEncounter.loadThese(this.interactEncounters, this);
-		this.loot = Asset.loadThese(this.loot, this);
+		this.interactions = DungeonRoomAssetInteraction.loadThese(this.interactions, this);
 		this.updateInteractivity();
 	}
 
@@ -998,61 +920,54 @@ class DungeonRoomAsset extends Generic{
 
 	/* Type checking */
 	isDoor(){
-		return [DungeonRoomAsset.Types.Door,DungeonRoomAsset.Types.Exit].indexOf(this.type) !== -1;
+		return ( this.getDoorTarget() !== false || this.isExit() );
+	}
+
+	// returns the index
+	getDoorTarget(){
+		for( let i of this.interactions ){
+			if( i.type === DungeonRoomAssetInteraction.types.door && i.validate() ){
+				return i.data.index;
+			}
+		}
+		return false;
 	}
 
 	isExit(){
-		return this.type === DungeonRoomAsset.Types.Exit;
+		for( let i of this.interactions ){
+			if( i.type === DungeonRoomAssetInteraction.types.exit && i.validate() )
+				return true;
+		}
 	}
 
 	isRoom(){
-		return this.type === DungeonRoomAsset.Types.Room;
-	}
-
-	isSwitch(){
-		return this.type === DungeonRoomAsset.Types.Switch;
+		return this.room;
 	}
 
 	isInteractive(){
-		return this.loot.length || 
-			this.isSwitch() || 
-			this.hasActiveEncounter() ||
-			this.isDoor()
-		;
-	}
-
-	hasActiveEncounter(){
-		for( let enc of this.interactEncounters){
-			if( enc.validate() )
+		for( let i of this.interactions ){
+			if( i.validate() )
 				return true;
 		}
 		return false;
 	}
 
+	hasActiveEncounter(){
+		for( let i of this.interactions ){
+			if( i.type === DungeonRoomAssetInteraction.types.encounters && i.validate() )
+				return true;
+		}
+	}
+
 
 	/* Encounters */
 	getEncounters(){
-		let out = this.interactEncounters;
-		return out;
-	}
-
-	/* Switch */
-	// Returns the dungeonAsset this switch toggles lock on
-	getSwitchTarget(){
-		return this.getDungeon().findAssetById(this.data.asset);
-	}
-
-	// Checks if there's a way to open this door
-	isUnlockable(){
-		let rooms = this.getDungeon().rooms;
-		for( let room of rooms ){
-			for( let asset of room.assets ){
-				if( !asset.isSwitch )
-					console.error("Asset is not a proper asset", asset);
-				if( asset.isSwitch() && asset.data.asset === this.id )
-					return true;
-			}
+		let encounters = [];
+		for( let i of this.interactions ){
+			if( i.type === DungeonRoomAssetInteraction.types.encounters && i.validate() )
+				encounters.push(DungeonEncounter.loadThese(i.data));
 		}
+		return encounters;
 	}
 
 	
@@ -1093,19 +1008,42 @@ class DungeonRoomAsset extends Generic{
 
 
 	/* Loot */
+	isLootable(){
+		return this.getLootable().length;
+	}
+
+	// returns loot that can be accessed
+	getLootable(){
+		const viable = this.getViableInteractions();
+		let out = [];
+		for( let v of viable ){
+			if( v.type === DungeonRoomAssetInteraction.types.loot )
+				out = out.concat(v.data);
+		}
+		return out.map(el => new Asset(el, this));
+	}
+
 	getLootById( id ){
-		for( let item of this.loot ){
+		const lootable = this.getLootable();
+		for( let item of lootable ){
 			if( item.id === id )
-				return item;
+				return new Asset(item, this);
 		}
 		return item;
 	}
 
 	remLootById( id ){
-		for( let i in this.loot ){
-			if( this.loot[i].id === id ){
-				this.loot.splice(i,1);
-				return true;
+		const viable = this.getViableInteractions();
+		for( let v of viable ){
+			if( v.type === DungeonRoomAssetInteraction.types.loot ){
+				for( let i in v.data ){
+					if( v.data[i].id === id ){
+						v.data.splice(i, 1);
+						if( !v.data.length )
+							v.remove();
+						return true;
+					}
+				}
 			}
 		}
 	}
@@ -1178,6 +1116,86 @@ class DungeonRoomAsset extends Generic{
 		this._interact_cooldown = setTimeout(() => { this._interact_cooldown = null; }, ms);
 	}
 
+	// Primarily for levers, but might make sense in other places
+	// Returns the first dvar condition, or undefined if not found
+	getFirstDvar(){
+		for( let i of this.interactions ){
+			if( i.type === DungeonRoomAssetInteraction.types.dungeonVar ){
+				return this.getDungeon().vars[i.data.id];
+			}
+		}
+	}
+
+	interact( player, mesh ){
+
+		const asset = this;
+
+		// Helper function for interact action
+		function raiseInteractOnMesh( shared = true ){
+			if( mesh.userData.template.onInteract ){
+				mesh.userData.template.onInteract.call(mesh.userData.template, mesh, mesh.parent, asset);
+				if( game.is_host && shared )
+					game.net.dmRaiseInteractOnMesh( asset.id );
+			}
+		}
+
+
+		if( asset.isLocked() )
+			return game.ui.addError("Locked");
+
+		// Seeing the loot is clientside, and needs to go above ask host
+		if( asset.isLootable( player, mesh ) ){
+			raiseInteractOnMesh( false );
+			return game.ui.drawContainerLootSelector(asset);
+		}
+
+		// Ask host
+		if( !game.is_host ){
+			game.net.playerInteractWithAsset( player, asset );
+			return;
+		}
+
+		raiseInteractOnMesh();
+
+		// Custom logic for if battle is active
+		if( game.battle_active ){
+
+			if( asset.isDoor() && asset.getDoorTarget() === this.previous_room ){
+				
+				if( !game.turnPlayerIsMe() )
+					return game.ui.addError("Not your turn");
+				
+				let player = game.getTurnPlayer();
+				game.modal.close();
+				game.useActionOnTarget( player.getActionByLabel('stdEscape'), [player], player );
+				return;
+			}
+
+			game.ui.addError("Battle in progress");
+			return;
+
+		}
+
+		// Trigger interactions in order
+		for( let i of this.interactions ){
+
+			if( i !== -1 && i < 1 )
+				continue;
+
+			let valid = i.validate();
+			if( valid )
+				i.trigger( player, mesh );
+
+			if( (i.break === "success" && valid) || (i.break === "fail" && !valid) )
+				break;
+
+		}
+
+		if( this.interact_cooldown )
+			this.setInteractCooldown(this.interact_cooldown);
+
+
+	}
 	
 
 	/* Tags */
@@ -1195,16 +1213,133 @@ class DungeonRoomAsset extends Generic{
 	
 }
 
-DungeonRoomAsset.Types = {
-	Prop : 'prop',			// Data : TODO{}
-	Room : 'room',			// Void
-	Door : 'door',			// {room:(int)roomID}
-	Exit : 'exit',			// Void
-	Switch : 'switch',		// {asset:(str)assetUUID} Toggles the locked state of an item when clicked
 
+// Handles interactions
+class DungeonRoomAssetInteraction extends Generic{
+	constructor(data, parent){
+		super();
+
+		this.parent = parent;
+		this.type = DungeonRoomAssetInteraction.dungeonVar;
+		this.data = null;
+		this.break = null;		// Use "success" "fail" here to break on success or fail
+		this.repeats = -1;
+		this.conditions = [];
+
+		this.load(data);
+	}
+
+	save( full ){
+		return {
+			type : this.type,
+			data : this.data,
+			break : this.break,
+			repeats : this.repeats,
+			conditions : Condition.saveThese(this.conditions)
+		};
+	}
+
+	remove(){
+		for( let i in this.parent.interactions ){
+			if( this.parent.interactions[i] === this ){
+				this.parent.interactions.splice(i, 1);
+				return true;
+			}
+		}
+	}
+
+	load( data ){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.conditions = Condition.loadThese(this.conditions);
+	}
+
+	trigger( player, mesh ){
+		
+
+		const asset = this.parent;
+		const types = DungeonRoomAssetInteraction.types;
+
+
+		// Helper function for playing animation on this asset. Returns the animation played if any
+		function playAnim( anim ){
+			if( !mesh.userData.playAnimation )
+				return;
+			game.net.dmAnimation( asset, anim );
+			return mesh.userData.playAnimation(anim);
+
+		}
+
+
+		if( this.type === types.encounters ){
+
+			game.startEncounter(player, DungeonEncounter.getRandomViable(asset.interactEncounters));
+			asset.updateInteractivity();
+
+		}
+
+		else if( this.type === types.door && !isNaN(this.data.index) ){
+
+			game.onRoomChange();
+			this.parent.parent.parent.goToRoom( player, this.data.index );
+
+		}
+
+		// Todo: Dungeon exit
+		else if( this.type === types.exit ){
+			// Todo: Delete this, it's only used for quest debugging
+			game.onDungeonExit();
+		}
+
+		else if( this.type === types.dungeonVar ){
+
+			const vars = this.getDungeon().vars;
+			let v = vars[this.data.id];
+			vars[this.data.id] = Calculator.run(this.data.data, new GameEvent({}), vars);
+			game.save();
+
+		}
+		// Note: Loot is handled by the parent since it needs to go before netcode
+		else if( this.type === types.anim ){
+			playAnim(this.data.anim);
+		}
+
+	}
+
+	getDungeon(){
+		let p = this.parent;
+		while( p ){
+			p = p.parent;
+			if( p instanceof Dungeon )
+				return p;
+		}
+	}
+
+	validate(){
+		if( this.transporting )
+			return false;
+		if( !Condition.all(this.conditions, new GameEvent({
+			dungeon : this.parent.parent.parent,
+			room : this.parent.parent,
+			dungeonRoomAsset : this.parent
+		})) )return false;
+		
+		return true;
+	}
+
+	
+}
+DungeonRoomAssetInteraction.types = {
+	encounters : "enc",				// (arr)encounters - Picks one at random
+	wrappers : "wra",				// (arr)wrappers
+	dungeonVar : "dvar",			// {id:(str)id, val:(var)val} - Can use a math formula
+	loot : "loot",					// (arr)assets
+	door : "door",					// {index:(int)room_index}
+	exit : "exit",					// Todo: Add inter dungeon travel
+	anim : "anim",					// {anim:(str)animation}
 };
-
-
 
 
 
@@ -1228,7 +1363,7 @@ class DungeonEncounter extends Generic{
 		this.player_templates = [];	// 
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
 		this.startText = '';		// Text to trigger when starting
-		this.conditions = [];		// Conditions needed for this encounter to trigger
+		this.conditions = [];
 		this.load(data);
 	}
 
@@ -1291,14 +1426,6 @@ class DungeonEncounter extends Generic{
 		this.g_autoload(data);
 	}
 
-	validate( event ){
-
-		if( !event )
-			event = new GameEvent({});
-		return Condition.all(this.conditions, event);
-
-	}
-
 	rebase(){
 		this.players = Player.loadThese(this.players, this);
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
@@ -1316,7 +1443,7 @@ class DungeonEncounter extends Generic{
 		if( full ){
 			out.label = this.label;
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
-			out.conditions = Condition.saveThese(this.conditions, full);
+			out.conditions = Condition.saveThese(this.conditions);
 		}
 
 		if( full !== "mod" ){
@@ -1329,6 +1456,14 @@ class DungeonEncounter extends Generic{
 
 		// Not really gonna need a full because these are never output to webplayers
 		return out;
+	}
+	
+	validate( event ){
+
+		if( !event )
+			event = new GameEvent({});
+		return Condition.all(this.conditions, event);
+
 	}
 
 	getEnemies(){
@@ -1362,6 +1497,7 @@ DungeonEncounter.getFirstViable = function( arr, event ){
 
 	// Prefer one with a proper level range
 	const level = game.getAveragePlayerLevel();
+	console.log("Filtering", arr);
 	let valid = arr.filter(el => {
 		for( let pt of el.player_templates ){
 			if( pt.min_level <= level && pt.max_level >= level )
@@ -1473,7 +1609,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			// ROOM
 			let roomAsset = new DungeonRoomAsset({
 				model : roomTemplate.basemeshes[Math.floor(roomTemplate.basemeshes.length*Math.random())],
-				type : DungeonRoomAsset.Types.Room
+				room : true
 			}, room);
 			room.addAsset(roomAsset);
 
@@ -1514,8 +1650,20 @@ Dungeon.generate = function( numRooms, kit, settings ){
 				if( position ){
 					door.x = position[0];
 					door.y = position[1];
-					door.type = a.index === -1 ? DungeonRoomAsset.Types.Exit : DungeonRoomAsset.Types.Door;
-					door.data = {room:a.index};
+
+					let action = new DungeonRoomAssetInteraction({
+						type : a.index === -1 ? DungeonRoomAssetInteraction.types.exit : DungeonRoomAssetInteraction.types.door,
+						data : {index:a.index},
+						break : "fail"
+					}, door);
+					door.interactions.push(action);
+
+					action = new DungeonRoomAssetInteraction({
+						type : DungeonRoomAssetInteraction.types.anim,
+						data : {anim:"open"}
+					}, door);
+					door.interactions.push(action);
+				
 					room.addAsset(door);
 				}
 				else{
@@ -1526,10 +1674,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			}
 
 			// Failed to place required assets, continue
-			if( !requiredAssetsPlaced )
-				continue;
-
-			// Todo: Place down required assets such as keys and levers
 			if( !requiredAssetsPlaced )
 				continue;
 
@@ -1576,34 +1720,40 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					// Generate a mimic
 					if( Math.random() < mimicChance ){
 
-						chest.interactEncounters = [new DungeonEncounter({
-							startText : 'A mimic springs from the chest, grabbing hold of %T\'s ankles and pulling %Thim to the ground!',
-							active : true,
-							wrappers : [
-								new Wrapper({
-									label : 'legWrap',
-									target: Wrapper.TARGET_AUTO,		// Auto is the person who started the encounter
-									duration : 3,
-									name : "Leg Wrap",
-									icon : "daemon-pull.svg",
-									description : "Knocked down on your %knockdown, tentacles spreading your legs",
-									trigger_immediate : true,
-									tags : [stdTag.wrLegsSpread],
-									add_conditions : stdCond.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast]), 
-									stay_conditions : stdCond,
-									effects : [
-										new Effect({
-											type : Effect.Types.knockdown,
-											data: {
-												type : Effect.KnockdownTypes.Back
-											}
-										}),
-										"visAddTargTakeDamage"
-									]
-								})
-							],
-							players : [npcLib.mimic.generate(averageLevel)]
-						}, chest)];
+						let encounter = new DungeonRoomAssetInteraction({
+							type : DungeonRoomAssetInteraction.types.encounters,
+							data : [
+								new DungeonEncounter({
+									startText : 'A mimic springs from the chest, grabbing hold of %T\'s ankles and pulling %Thim to the ground!',
+									active : true,
+									wrappers : [
+										new Wrapper({
+											label : 'legWrap',
+											target: Wrapper.TARGET_AUTO,		// Auto is the person who started the encounter
+											duration : 3,
+											name : "Leg Wrap",
+											icon : "daemon-pull.svg",
+											description : "Knocked down on your %knockdown, tentacles spreading your legs",
+											trigger_immediate : true,
+											tags : [stdTag.wrLegsSpread],
+											add_conditions : stdCond.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast]), 
+											stay_conditions : stdCond,
+											effects : [
+												new Effect({
+													type : Effect.Types.knockdown,
+													data: {
+														type : Effect.KnockdownTypes.Back
+													}
+												}),
+												"visAddTargTakeDamage"
+											]
+										})
+									],
+									players : [npcLib.mimic.generate(averageLevel)]
+								}, chest)
+							]
+						}, chest);
+						chest.interactions.push(encounter);
 
 					}
 					else{
@@ -1611,6 +1761,11 @@ Dungeon.generate = function( numRooms, kit, settings ){
 						treasureExists = true;
 
 						let loot;
+						let action = new DungeonRoomAssetInteraction({
+							type : DungeonRoomAssetInteraction.types.loot,
+							data : []
+						}, chest);
+						
 
 						// 25% chance of an item
 						if( Math.random() < 0.25 ){
@@ -1622,7 +1777,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 								undefined 	// Viable materials
 							);
 							if( loot )
-								chest.loot.push(loot);
+								action.data.push(loot);
 						}
 
 						// 0-2 consumables, or 1-3 if no gear
@@ -1632,8 +1787,11 @@ Dungeon.generate = function( numRooms, kit, settings ){
 							let consumable = kit.getRandomConsumable();
 							if( !consumable )
 								break;
-							chest.loot.push(consumable.clone(chest));
+							action.data.push(consumable.clone(chest));
 						}
+
+						if( action.data.length )
+							chest.interactions.push(action);
 
 
 					}
@@ -1670,14 +1828,15 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			if( 
 				!asset.isDoor() || 						// Can only lock a door type asset
 				asset.isExit() || 					// Can't look the entrance door
-				asset.locked ||							// This door is already locked
+				asset.isLocked() ||							// This door is already locked
 				!asset.getModel().lockable ||			// This asset has no lock state
-				asset.data.room === room.parent_index	// Can't lock the "back" door
+				asset.getDoorTarget() === room.parent_index	// Can't lock the "back" door
 			)continue;
 				
 			// Ok this door is valid. Let's find a room to place the lever in.
 			let targetRooms = shuffle(out.rooms.slice());
 			for( let tr of targetRooms ){
+
 				// Need to put the switch in a room that has equal or lower amount of parents as this. And not the room itself.
 				if( tr.index === room.index || tr.getParents().length > rpl )
 					continue;
@@ -1685,12 +1844,45 @@ Dungeon.generate = function( numRooms, kit, settings ){
 				// Todo: Viable switches should probably be added somewhere in the dungeon template
 				let addedAsset = tr.placeAsset('Dungeon.Door.WallLever');
 				if( addedAsset ){
+
+					const id = 'lever_'+asset.id.substr(0,8);
+					// Build the condition saying the lever is down
+					const doorInteraction = asset.getDoorInteraction();
+					const cond = new Condition({
+						type : Condition.Types.dungeonVar,
+						data : {
+							id : id,
+							data : true
+						}
+					}, doorInteraction);
+
+					out.vars[id] = false;
+
 					// Success
-					addedAsset.type = DungeonRoomAsset.Types.Switch;		// Set the asset as a switch
-					addedAsset.data = {asset:asset.id};						// Add the door target for the switch
-					asset.locked = true;									// Set the door target to locked
+					addedAsset.interactions.push(
+						new DungeonRoomAssetInteraction({
+							type : DungeonRoomAssetInteraction.types.dungeonVar,
+							data : {id:id, data:id+"==false"}
+						}, addedAsset),
+						// The dungeon var will have been flipped before these
+						new DungeonRoomAssetInteraction({
+							type : DungeonRoomAssetInteraction.types.anim,
+							conditions : [cond],	// This should only play if the lever is pressed
+							data : {anim:"open"},
+							break : "success",		// Break on success to prevent the open anim
+						}, addedAsset),
+						new DungeonRoomAssetInteraction({
+							type : DungeonRoomAssetInteraction.types.anim,
+							data : {anim:"close"}
+						}, addedAsset)
+					);
+					
+					doorInteraction.break = "fail";
+					doorInteraction.conditions.push(cond); // TODO
+
 					found = true;											// We successfully placed something in this room, stop seeking door assets
 					break;
+
 				}
 				
 			

@@ -159,7 +159,6 @@ const lib = {
             "tentacle_fiend_tentatug"
         ]
 	},
-	// Todo: Continue here
 	"shocktacle": {
         name : "Shocktacle",
         primaryStat : Player.primaryStats.intellect,

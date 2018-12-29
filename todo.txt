@@ -37,7 +37,6 @@ Dungeon design:
 		- Exit to world map
 
 UI Overhaul:
-	- Character creator
 	- User inventory page
 		- Netgame players should be able to destroy items
 	- Don't send npc inventory to netcode players

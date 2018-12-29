@@ -79,6 +79,7 @@ class LibMesh{
 		this.onFlatten = data.onFlatten || function(mesh){};				// Raised after you flatten, this is the LibMesh object. Only raised once.
 		this.onInteract = data.onInteract || undefined;					// Raised when clicked, This is the LibMesh object
 		this.onStagePlaced = data.onStagePlaced || function(dungeonAsset, mesh){};		// Raised when placed into world. Can happen multiple times.
+		this.afterStagePlaced = data.afterStagePlaced || function(dungeonAsset, mesh){};
 
 	}
 
@@ -476,13 +477,8 @@ LibMesh.library = {
 					if( !lock )
 						return;
 
-					if( !dungeonAsset.isUnlockable )
-						console.error("Asset is missing unlockable method", asset);
 					// Hide if the dungeon asset is unlocked and doesn't have a way of opening it
-					if( !dungeonAsset.isUnlockable() && !dungeonAsset.locked ){
-						lock.visible = false;
-					}
-					else if( !dungeonAsset.locked ){
+					if( !dungeonAsset.isLocked() ){
 						lock.position.y -= 160;
 					}
 
@@ -582,9 +578,13 @@ LibMesh.library = {
 					}
 				},
 				// Start idle animation if it's already used
-				onStagePlaced : function( dungeonAsset, mesh ){
-					if( !dungeonAsset.isInteractive() )
+				afterStagePlaced : function( dungeonAsset, mesh ){
+
+					// Levers should have a single boolean dungeon var
+					const dvar = dungeonAsset.getFirstDvar();
+					if( dvar ){
 						mesh.userData.playAnimation("idle_opened");
+					}
 				},
 				onInteract : function( mesh, room, asset ){
 					LibMesh.playSound( mesh, asset, 'media/audio/lever.ogg', 0.5);

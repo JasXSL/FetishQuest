@@ -27,9 +27,9 @@ Calculator.run = function( formula, event, customMathVars ){
 	}
 
 	
-	if( typeof event.sender === "object" )
+	if( event.sender )
 		event.sender.appendMathVars('se_', vars, event);
-	if( typeof event.target === "object" )
+	if( event.target )
 		event.target.appendMathVars('ta_', vars, event);
 	
 		// Run the calculation

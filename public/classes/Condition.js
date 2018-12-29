@@ -324,6 +324,9 @@ export default class Condition extends Generic{
 			else if( this.type === T.punishNotUsed )
 				success = !t.used_punish;
 			
+			else if( this.type === T.dungeonVar ){
+				success = event.dungeon && event.dungeon.vars[this.data.id] === this.data.data;
+			}
 
 			else{
 				game.ui.addError("Unknown condition "+String(this.type));
@@ -477,6 +480,7 @@ Condition.Types = {
 	defeated : 'defeated',						// 
 	punishNotUsed : 'punishNotUsed',			//  
 	wrapperHasEffect : 'wrapperHasEffect',		// 
+	dungeonVar : 'dungeonVar',
 };
 
 Condition.descriptions = {
@@ -506,6 +510,7 @@ Condition.descriptions = {
 	[Condition.Types.defeated] : 'void - Player is defeated',
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
 	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches',	
+	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data} - Compares a dungeonVar to data',	
 };
 
 

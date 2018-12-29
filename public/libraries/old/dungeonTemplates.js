@@ -59,7 +59,6 @@ rooms.darkCorridor = new RoomTemplate({
 let dungeons = [];
 dungeons.push(new Dungeon({
 	label : 'dark',
-	// Todo: Need a door going up, and one going down also
 	tags : [stdTag.duIndoor],
 	doors_hor : ["Dungeon.Door.Default"],
 	doors_up : ["Dungeon.Door.Ladder"],
