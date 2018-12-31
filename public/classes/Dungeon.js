@@ -214,14 +214,6 @@ class Dungeon extends Generic{
 		return this.getMonsters().length;
 	}
 
-	// Returns all monsters
-	getMonsters(){
-		let out = [];
-		let encounters = this.getEncounters( true );
-		for( let enc of encounters )
-			out = out.concat(enc.getEnemies());
-		return out;
-	}
 
 	// Returns viable encounters (1 per room, and 1 per asset max)
 	getNumEncounters(){
@@ -231,28 +223,12 @@ class Dungeon extends Generic{
 		return out;
 	}
 
-	getEncounters( roomOnly = false ){
-		let out = [];
-		for( let room of this.rooms )
-			out = out.concat(room.getEncounters(roomOnly));
-		return out;
-	}
-
-	getEncounterById(id){
-		let encounters = this.getEncounters();
-		for( let enc of encounters ){
-			if( enc.id === id )
-				return enc;
-		}
-		return false;
-	}
 
 	/* EVENTS */
 	// mesh is the actual THREE mesh, not the library entry
 	// asset is a DungeonRoomAsset
 	async assetClicked( player, room, asset, mesh ){
 
-		//console.log("Mesh ", mesh, "Asset ",asset," in room", room, "clicked");
 
 		if( asset._interact_cooldown )
 			return;
@@ -266,6 +242,13 @@ class Dungeon extends Generic{
 		
 	}
 
+	// Tries to get a started encounter by id
+	getStartedEncounterById(id){
+		for( let room of this.rooms ){
+			if( room.encounters.id === id )
+				return room.encounters;
+		}
+	}
 
 	/* Parents */
 	// Returns a quest parent if it exists
@@ -326,8 +309,8 @@ class DungeonRoom extends Generic{
 
 		this.outdoors = false;
 		this.zoom = null;			// Lets you manually set the zoom value
-		this.encounters = [];		// Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
-		this.shuffle_encounters = false;	// Picks an encounter at random instead of using conditions
+		this.encounters = null;		// This is either an array of encounters ready to begin. Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
+									// Or a single encounter that has started.
 		this.assets = [];			// First asset is always the room. These are DungeonRoomAssets
 		this.tags = [];
 
@@ -361,13 +344,7 @@ class DungeonRoom extends Generic{
 		// Full
 		if( full ){
 
-			out.enc_seq = this.enc_seq;
-			out.encounters = this.encounters.map(el => {
-				if( el.save )
-					return el.save(full);
-				return el;
-			});
-			out.shuffle_encounters = this.shuffle_encounters;
+			out.encounters = Array.isArray(this.encounters) ? DungeonEncounter.saveThese(this.encounters, full) : this.encounters.save(full);
 			
 		}
 		// Stuff needed for everything except mod
@@ -390,20 +367,13 @@ class DungeonRoom extends Generic{
 
 	rebase(){
 		this.assets = DungeonRoomAsset.loadThese(this.assets, this);
-		this.encounters = DungeonEncounter.loadThese(this.encounters, this);
+		if( !this.encounters )
+			this.encounters = [];
+		this.encounters = Array.isArray(this.encounters) ? DungeonEncounter.loadThese(this.encounters, this) : new DungeonEncounter(this.encounters, this);
 	}
 
 	isEntrance(){
 		return this === this.parent.rooms[0];
-	}
-
-	getEncounters( roomOnly = false ){
-		let out = this.encounters;
-		if( roomOnly )
-			return out;
-		for( let asset of this.assets )
-			out = out.concat(asset.getEncounters());
-		return out;
 	}
 
 	// Limits to 1 per room and 1 per asset
@@ -768,12 +738,31 @@ class DungeonRoom extends Generic{
 
 	/* EVENTS */
 	onVisit( player ){
+
 		if( !this.discovered )
 			this.discovered = true;
-		// Todo, allow this to be sequence or random
-		const viable = DungeonEncounter.getFirstViable(this.encounters);
-		if( viable )
-			game.startEncounter( player, viable );
+
+		// Todo: allow this to be sequence or random
+
+		// Start a dummy encounter just to set the proper NPCs
+		if( Array.isArray(this.encounters) && !this.encounters.length ){
+			this.encounters = new DungeonEncounter({
+				started : true,
+				completed : true
+			}, this);
+		}
+
+		// An encounter is already running
+		if( !Array.isArray(this.encounters) )
+			game.startEncounter(player, this.encounters);
+		else{
+			const viable = DungeonEncounter.getRandomViable(this.encounters);
+			if( viable ){
+				this.encounters = viable;	// Override templates with the active encounter
+				game.startEncounter( player, viable );
+			}
+		}
+
 	}
 
 
@@ -926,7 +915,7 @@ class DungeonRoomAsset extends Generic{
 	// returns the index
 	getDoorTarget(){
 		for( let i of this.interactions ){
-			if( i.type === DungeonRoomAssetInteraction.types.door && i.validate() ){
+			if( i.type === DungeonRoomAssetInteraction.types.door ){
 				return i.data.index;
 			}
 		}
@@ -935,9 +924,10 @@ class DungeonRoomAsset extends Generic{
 
 	isExit(){
 		for( let i of this.interactions ){
-			if( i.type === DungeonRoomAssetInteraction.types.exit && i.validate() )
+			if( i.type === DungeonRoomAssetInteraction.types.exit )
 				return true;
 		}
+		return false;
 	}
 
 	isRoom(){
@@ -964,8 +954,9 @@ class DungeonRoomAsset extends Generic{
 	getEncounters(){
 		let encounters = [];
 		for( let i of this.interactions ){
-			if( i.type === DungeonRoomAssetInteraction.types.encounters && i.validate() )
-				encounters.push(DungeonEncounter.loadThese(i.data));
+			if( i.type === DungeonRoomAssetInteraction.types.encounters && i.validate() ){
+				encounters = encounters.concat(DungeonEncounter.loadThese(i.data));
+			}
 		}
 		return encounters;
 	}
@@ -1129,6 +1120,7 @@ class DungeonRoomAsset extends Generic{
 	interact( player, mesh ){
 
 		const asset = this;
+		const dungeon = this.getDungeon();
 
 		// Helper function for interact action
 		function raiseInteractOnMesh( shared = true ){
@@ -1139,9 +1131,9 @@ class DungeonRoomAsset extends Generic{
 			}
 		}
 
-
 		if( asset.isLocked() )
 			return game.ui.addError("Locked");
+
 
 		// Seeing the loot is clientside, and needs to go above ask host
 		if( asset.isLootable( player, mesh ) ){
@@ -1155,12 +1147,15 @@ class DungeonRoomAsset extends Generic{
 			return;
 		}
 
+
 		raiseInteractOnMesh();
+
+
 
 		// Custom logic for if battle is active
 		if( game.battle_active ){
 
-			if( asset.isDoor() && asset.getDoorTarget() === this.previous_room ){
+			if( asset.isDoor() && asset.getDoorTarget() === dungeon.previous_room ){
 				
 				if( !game.turnPlayerIsMe() )
 					return game.ui.addError("Not your turn");
@@ -1175,6 +1170,7 @@ class DungeonRoomAsset extends Generic{
 			return;
 
 		}
+
 
 		// Trigger interactions in order
 		for( let i of this.interactions ){
@@ -1193,7 +1189,6 @@ class DungeonRoomAsset extends Generic{
 
 		if( this.interact_cooldown )
 			this.setInteractCooldown(this.interact_cooldown);
-
 
 	}
 	
@@ -1239,6 +1234,7 @@ class DungeonRoomAssetInteraction extends Generic{
 		};
 	}
 
+
 	remove(){
 		for( let i in this.parent.interactions ){
 			if( this.parent.interactions[i] === this ){
@@ -1254,6 +1250,15 @@ class DungeonRoomAssetInteraction extends Generic{
 
 	rebase(){
 		this.conditions = Condition.loadThese(this.conditions);
+
+		// make sure data is escaped
+		if( typeof this.data === "object" ){
+			for( let i in this.data ){
+				if( this.data[i].save ){
+					this.data[i] = this.data[i].save(true);
+				}
+			}
+		}
 	}
 
 	trigger( player, mesh ){
@@ -1275,8 +1280,11 @@ class DungeonRoomAssetInteraction extends Generic{
 
 		if( this.type === types.encounters ){
 
-			game.startEncounter(player, DungeonEncounter.getRandomViable(asset.interactEncounters));
-			asset.updateInteractivity();
+			game.mergeEncounter(player, DungeonEncounter.getRandomViable(DungeonEncounter.loadThese(this.data)));
+			this.remove();	// Prevent it from restarting
+			asset.updateInteractivity();	// After removing the action, update interactivity
+			
+			
 
 		}
 
@@ -1364,6 +1372,7 @@ class DungeonEncounter extends Generic{
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
+
 		this.load(data);
 	}
 
@@ -1371,54 +1380,64 @@ class DungeonEncounter extends Generic{
 
 		if( this.started )
 			return;
+
 		// Run before an encounter is launched. If we're using templates, we should generate the NPCs here
-		difficulty = difficulty+Math.random()*0.5-0.25;	// difficulty plus/minus 0.25
+		difficulty = difficulty+Math.random()*0.25;
+
 		let viableMonsters = [];
 		// if there are no viable monsters, go with the first one. Todo: Improve this
 		let templateMonster = this.player_templates[0];	
-		const level = game.getAveragePlayerLevel();
-		
-		for( let p of this.player_templates ){
-			if( p.min_level <= level && p.max_level >= level  )
-				viableMonsters.push(p);
-		}
-		if( !viableMonsters.length )
-			viableMonsters.push(templateMonster);
 
-		// This could be provided at runtime instead
-		let dif = 0;
-		while( dif < difficulty && this.players.length < 6 ){
+		// This encounter has players
+		if( templateMonster ){
 
-			shuffle(viableMonsters);
-			let success = false;
-			for( let mTemplate of viableMonsters ){
-				// Generate a player to push
+			const level = game.getAveragePlayerLevel();
+			
+			for( let p of this.player_templates ){
+				if( p.min_level <= level && p.max_level >= level  )
+					viableMonsters.push(p);
+			}
+			if( !viableMonsters.length )
+				viableMonsters.push(templateMonster);
+
+			// This could be provided at runtime instead
+			let dif = 0;
+			while( dif < difficulty && this.players.length < 6 ){
+
+				shuffle(viableMonsters);
+				let success = false;
+				for( let mTemplate of viableMonsters ){
+					// Generate a player to push
+					const pl = mTemplate.generate(
+						Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
+					);
+					
+					if( mTemplate.difficulty+dif < difficulty ){
+
+						this.players.push(pl);
+						dif += mTemplate.difficulty;
+						success = true;
+						break;
+
+					}
+
+				}
+				
+				if( !success ){
+					// make sure there's at least one enemy
+					break;
+				}
+
+			}
+
+			if( !this.players.length ){
+				const mTemplate = viableMonsters[0];
 				const pl = mTemplate.generate(
 					Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
 				);
-				pl._difficulty = mTemplate.difficulty;
-				
-				if( mTemplate.difficulty+dif < difficulty ){
-
-					this.players.push(pl);
-					dif += mTemplate.difficulty;
-					success = true;
-					break;
-
-				}
-
+				this.players.push(pl);
 			}
-			
-			if( !success ){
-				// make sure there's at least one enemy
-				if( !this.players.length ){
-					this.players.push(pl);
-				}
-				break;
-			}
-
 		}
-
 
 	}
 
@@ -1497,8 +1516,9 @@ DungeonEncounter.getFirstViable = function( arr, event ){
 
 	// Prefer one with a proper level range
 	const level = game.getAveragePlayerLevel();
-	console.log("Filtering", arr);
 	let valid = arr.filter(el => {
+		if( !Array.isArray(el.player_templates) )
+			console.error("El player templates is not an array, arr was:", arr, "el was", el);
 		for( let pt of el.player_templates ){
 			if( pt.min_level <= level && pt.max_level >= level )
 				return true;
@@ -1709,7 +1729,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			// Add a tresure
 			let containers = roomTemplate.containers;
 			let chance = room.getParents().length*0.05;
-			let mimicChance = Math.min(0.1, numChests*0.1);
+			let mimicChance = Math.min(0.5, numChests*0.1);
 			let treasureExists = false;
 			if( containers.length && Math.random() < chance ){
 
@@ -1749,8 +1769,8 @@ Dungeon.generate = function( numRooms, kit, settings ){
 											]
 										})
 									],
-									players : [npcLib.mimic.generate(averageLevel)]
-								}, chest)
+									player_templates : ['mimic']
+								}, chest).save(true)
 							]
 						}, chest);
 						chest.interactions.push(encounter);
@@ -1777,7 +1797,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 								undefined 	// Viable materials
 							);
 							if( loot )
-								action.data.push(loot);
+								action.data.push(loot.save(true));
 						}
 
 						// 0-2 consumables, or 1-3 if no gear
@@ -1787,7 +1807,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 							let consumable = kit.getRandomConsumable();
 							if( !consumable )
 								break;
-							action.data.push(consumable.clone(chest));
+							action.data.push(consumable.clone(chest).save(true));
 						}
 
 						if( action.data.length )

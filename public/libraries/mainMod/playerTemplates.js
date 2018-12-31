@@ -41,7 +41,7 @@ const lib = {
 		gear_chance : 0.5,
 		min_size : 0,
 		max_size : 1,
-		difficulty : 0.6,
+		difficulty : 1,
 		viable_consumables : [
 
 		],
@@ -94,7 +94,7 @@ const lib = {
 		gear_chance : 0.5,
 		min_size : 1,
 		max_size : 3,
-		difficulty : 0.75,
+		difficulty : 1,
 		viable_consumables : [
 
 		],
@@ -242,7 +242,7 @@ const lib = {
 		gear_chance : 0.5,
 		min_size : 0,
 		max_size : 0,
-		difficulty : 0.5,
+		difficulty : 1,
 		viable_consumables : [
 
 		],
@@ -310,7 +310,7 @@ const lib = {
 		gear_chance : 0.5,
 		min_size : 0,
 		max_size : 1,
-		difficulty : 0.8,
+		difficulty : 1,
 		viable_consumables : [
 			"minorHealingPotion"
 		],

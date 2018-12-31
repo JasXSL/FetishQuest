@@ -482,7 +482,6 @@ class WebGL{
 	roomEnterCameraTween(){
 
 		let room = game.dungeon.getActiveRoom();
-		console.log("Getting room", room);
 		let asset = room.getRoomAsset();
 		let mesh = asset.getModel();
 		let size = Math.max(mesh.width,mesh.height);
@@ -650,7 +649,9 @@ class Stage{
 			sprite = sprites.back;
 			if( game.battle_active )
 				sprite = sprites.run;
-			sprite.material.opacity = 1;
+
+			if( sprite )
+				sprite.material.opacity = 1;
 
 		}
 
@@ -813,6 +814,7 @@ class Stage{
 			// Door
 			if( asset.isDoor() && !this.isEditor ){
 			
+				
 				let linkedRoom = game.dungeon.rooms[asset.getDoorTarget()];
 				if( asset.isExit() ){
 					this.createIndicatorForMesh('exit', 'Exit', c);

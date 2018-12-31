@@ -1101,7 +1101,7 @@ const lib = [
 	},
 	{ text : "%S prods %T's %Tgroin with an electrified tentacle slipping it inside %Thim and shocking %This %Tvagina!",
 		audiokits : ["tentacleZap","squishLong"],
-		conditions : baseCond.concat("action_shocktacle_zap", "targetGroinExposed")
+		conditions : baseCond.concat("action_shocktacle_zap", "targetGroinExposed", "targetVagina")
 	},
 	
 

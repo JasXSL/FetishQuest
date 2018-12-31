@@ -13,7 +13,7 @@ const stdCond = ["senderNotDead","targetNotDead"];
 const lib = {
 	"stdAttack": {
 		name : "Attack",
-		description : "Deals 4 physical damage. Shares cooldown with Arouse on successful attacks.",
+		description : "Deals 4 physical damage.",
 		ap : 2,
 		cooldown : 1,
 		show_conditions : [
@@ -40,16 +40,6 @@ const lib = {
 							"amount": 4
 						}
 					},
-					{
-						targets : [
-							"CASTER"
-						],
-						type : "addActionCharges",
-						data : {
-							"actions": "stdArouse",
-							"amount": -1
-						}
-					},
 					"visTargTakeDamage"
 				]
 			}
@@ -57,7 +47,7 @@ const lib = {
 	},
 	"stdArouse": {
 		name : "Arouse",
-		description : "Deals 4 corruption damage. Shares cooldown with Attack on successful attacks.",
+		description : "Deals 4 corruption damage.",
 		ap : 2,
 		cooldown : 1,
 		type : "Corruption",
@@ -83,16 +73,6 @@ const lib = {
 						type : "damage",
 						data : {
 							"amount": 4
-						}
-					},
-					{
-						targets : [
-							"CASTER"
-						],
-						type : "addActionCharges",
-						data : {
-							"actions": "stdAttack",
-							"amount": -1
 						}
 					},
 					"visTargTakeDamageCorruption"

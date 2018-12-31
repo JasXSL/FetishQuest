@@ -174,6 +174,7 @@ Generic.loadThis = function( entry, parent ){
 
 }
 
+
 Generic.saveThese = function( entries = [], full = false ){
 	return entries.map(el => {
 		if( typeof el.save !== "function" ){

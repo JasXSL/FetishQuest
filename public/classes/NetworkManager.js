@@ -235,6 +235,8 @@ class NetworkManager{
 	// This is also used internally for modal updates
 	sendGameUpdate(){
 		
+		return;	// Todo: reimplement
+
 		// Auto
 		let current = game.getSaveData();
 		let changes = DeepDiff.diff(this._last_push, current);

@@ -1,7 +1,6 @@
 Design changes:
-	- Need to convert levers to use a conditional system instead of locked??
-	- A started encounter should start up again after re-entering the room as long as it's not completed
-
+	- Test mimics
+	
 Mod Editor:
 	- Dungeon Editor
 		- Add encounter

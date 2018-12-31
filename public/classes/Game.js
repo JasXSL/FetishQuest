@@ -102,13 +102,19 @@ export default class Game extends Generic{
 		if( !this.is_host )
 			return false;
 
-
 		if( !ignoreNetGame )
 			this.net.sendGameUpdate();
 
 		let out = this.getSaveData(true);
+
 		localStorage.game = this.id;
-		let ret = await Game.db.games.put(out);
+		let ret;
+		try{
+			ret = await Game.db.games.put(out);
+		}catch(err){
+			console.error("Error in saving", err);
+			console.log("OUT was: ", out);
+		}
 		if( allowInsert ){
 			this.initialized = true;
 			this.load();	// Starts the actual game
@@ -168,7 +174,8 @@ export default class Game extends Generic{
 
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
-		let encounter = this.dungeon.getEncounterById(this.encounter.id);
+		let encounter = this.dungeon.getStartedEncounterById(this.encounter.id);
+		console.log("Found encounter", encounter);
 		if( encounter )
 			this.encounter = encounter;
 
@@ -443,29 +450,6 @@ export default class Game extends Generic{
 		return this.dungeon;
 	}
 
-	// Returns the quest our dungeon is tied to (if any)
-	getDungeonQuest(){
-		for( let quest of this.quests ){
-			if( quest.dungeon.id === this.dungeon.id )
-				return quest;
-		}
-		return false;
-	}
-
-	setDungeonFromWorld( path ){
-		let base = glibWorld;
-		let pa = path.split('.');
-		while( pa.length ){
-			base = base[pa.shift()];
-			if( typeof base !== "object" ){
-				console.error("World dungeon not found", path, "in", glibWorld);
-				return false;
-			}
-		}
-		this.setDungeon(base.clone());
-	}
-
-
 	/* QUEST */
 	addRandomQuest( type, difficultyMultiplier = 1 ){
 		// Todo: Remove this later
@@ -542,6 +526,7 @@ export default class Game extends Generic{
 			++this.turn;
 
 		}
+
 		this.assignAllColors();
 		if( this.initialized )
 			this.save();
@@ -583,12 +568,12 @@ export default class Game extends Generic{
 	}
 
 	// Removes all players not on team 0
-	removeEnemies(){
+	removeEnemies( deadOnly ){
 
 		let p = this.players.slice();
 		for( let pl of p ){
 
-			if( pl.team !== 0 )
+			if( pl.team !== 0 && (!deadOnly || pl.isDead()) )
 				this.removePlayer(pl.id);
 
 		}
@@ -833,7 +818,6 @@ export default class Game extends Generic{
 
 		}
 		this.save();
-		console.log("Players rebased");
 
 	}
 
@@ -845,31 +829,54 @@ export default class Game extends Generic{
 
 	/* ENCOUNTER */
 	// Start an encounter
-	startEncounter( player, encounter ){
+	startEncounter( player, encounter, merge = false ){
 
-		if( !encounter || encounter.completed || !this.getAlivePlayersInTeam().length )
+		if( !encounter )
 			return;
-
-		encounter.prepare();
-		this.encounter = encounter;
-		this.encounter.started = true;
-
 		
-
-		// Check encounter here
-		if( encounter.players ){
-			// Purge previous enemies
-			this.removeEnemies();
-			for( let pl of encounter.players ){
-				pl.auto_play = true;
-				//pl.addHP(Infinity);
-				game.addPlayer(pl);
-			}
+		// Merge should reset the encounter status
+		if( merge ){
+			this.encounter.completed = false;
+			this.encounter.started = false;
+		}else{
+			// override the encounter
+			this.encounter = encounter;
 		}
 
-		this.toggleBattle(true);
-		game.modal.battleVis();
-		if( encounter.startText ){
+		// Always prepare
+		encounter.prepare();
+		// Happens during merge
+		if( encounter !== this.encounter )
+			this.encounter.prepare();
+		
+		const started = this.encounter.started;
+		this.encounter.started = true;
+
+
+		// Update visible players
+		this.removeEnemies(merge);
+		for( let pl of encounter.players ){
+			pl.auto_play = true;
+			game.addPlayer(pl);
+			// Merge the new players into the encounter
+			if( merge )
+				this.encounter.players.push(pl);
+		}
+		
+		// Encounter isn't finished, start a battle 
+		// Todo: Friendly encounters
+		if( !this.encounter.completed ){
+			
+			this.toggleBattle(true);
+			game.modal.battleVis();
+
+			for( let wrapper of encounter.wrappers )
+				wrapper.useAgainst( encounter.players[0], player );
+
+		}
+
+
+		if( encounter.startText && !started ){
 			let text = new Text({text : encounter.startText});
 			text.run(new GameEvent({
 				sender : encounter.players[0],
@@ -879,17 +886,20 @@ export default class Game extends Generic{
 			}));
 		}
 
-		for( let wrapper of encounter.wrappers ){
-			wrapper.useAgainst( encounter.players[0], player );
-		}
+
+		
+
 
 		// Purge is needed after each overwrite
-		this.net.purgeFromLastPush(["encounter"]);		
 		game.save();
 		this.ui.draw();
 		
 	}
 
+	// Starting new encounters in a room that already has encounters needs to merge it into the main encounter
+	mergeEncounter( player, encounter ){
+		this.startEncounter(player, encounter, true);
+	}
 
 	
 
