@@ -1580,9 +1580,9 @@ const lib = {
 			}
 		]
 	},
-	"tentacle_fiend_injectacle": {
+	tentacle_fiend_injectacle: {
 		name: "Injectacle",
-		description: "Injects a player's exposed groin with tentacle goo, doing 4 corruption damage immediately and leaving tentacle goo behind. Tentacle goo deals 1 at the start of their turn in and lowers their corruption resist by 1 for 3 turns.",
+		description: "Injects a player's exposed butt or vagina with tentacle goo, doing 4 corruption damage immediately and leaving tentacle goo behind. Tentacle goo deals 1 at the start of their turn in and lowers their corruption resist by 1 for 3 turns.",
 		ap: 1,
 		mp: 3,
 		cooldown: 3,
@@ -1604,11 +1604,13 @@ const lib = {
 				detrimental: true,
 				add_conditions: stdCond.concat(
 					"targetNotBeast",
-					{conditions : [
-						"targetNoLowerbody",
-						"ttGroinExposed",
-						"ttButtExposed",
-					]}
+					{
+						conditions : [
+							"targetNoLowerbody",
+							{conditions:["ttGroinExposed", "targetVagina"], min:-1},
+							"ttButtExposed",
+						]
+					}
 				),
 				effects : [
 					{

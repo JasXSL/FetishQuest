@@ -1533,7 +1533,8 @@ DungeonEncounter.getFirstViable = function( arr, event ){
 
 	for( let enc of valid ){
 		if( enc.validate(event) ){
-			return enc;
+			enc.g_resetID();
+			return enc.clone(enc.parent);
 		}
 	}
 	return false;
@@ -1607,11 +1608,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	let numEncounters = Math.ceil(out.rooms.length*(0.4+Math.random()*0.2));
 	encounters = encounters.slice(0, numEncounters);
 
-
-	let averageLevel = game.getAveragePlayerLevel();
-	let npcLib = glib.getFull("PlayerTemplate");
-
-	
 	let numChests = 0;
 	// Generates assets and encounters in the rooms
 	for( let room of out.rooms ){

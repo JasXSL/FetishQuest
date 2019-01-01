@@ -99,8 +99,9 @@ export default class Game extends Generic{
 			return false;
 		}
 
-		if( !this.is_host )
+		if( !this.is_host ){
 			return false;
+		}
 
 		if( !ignoreNetGame )
 			this.net.sendGameUpdate();
@@ -112,8 +113,7 @@ export default class Game extends Generic{
 		try{
 			ret = await Game.db.games.put(out);
 		}catch(err){
-			console.error("Error in saving", err);
-			console.log("OUT was: ", out);
+			console.error("Error in saving", err, out);
 		}
 		if( allowInsert ){
 			this.initialized = true;
@@ -175,7 +175,6 @@ export default class Game extends Generic{
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
 		let encounter = this.dungeon.getStartedEncounterById(this.encounter.id);
-		console.log("Found encounter", encounter);
 		if( encounter )
 			this.encounter = encounter;
 
@@ -213,6 +212,7 @@ export default class Game extends Generic{
 			expReward += p.getExperienceWorth();
 		for( let p of winners )
 			p.addExperience(Math.ceil(expReward));	
+		this.save();
 
 	}
 
@@ -830,6 +830,7 @@ export default class Game extends Generic{
 	/* ENCOUNTER */
 	// Start an encounter
 	startEncounter( player, encounter, merge = false ){
+
 
 		if( !encounter )
 			return;

@@ -167,6 +167,7 @@ Generic.loadThis = function( entry, parent ){
 			console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", glib.getFull(this.name));
 			return false;
 		}
+		delete entry.id;	// Assign a new ID if this was fetched from a template
 		entry = n;
 	}
 	return new this(entry, parent);

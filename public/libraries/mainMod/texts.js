@@ -494,11 +494,11 @@ const lib = [
 		],
 		audiokits : ["squeezeGeneric"]
 	},
-	{ text : "%S spots %T bent over and fondles %This %Tgroin!",
+	{ text : "%S takes advantage of %T being bent over and fondles %This %Tgroin!",
 		turnTags:[stdTag.ttBentOver],
 		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver"),
 		weight : Text.Weights.high,
-		audiokits : ["whipGeneric"]
+		audiokits : ["squeezeGeneric"]
 	},
 	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Tvagina, landing a %couple of thrusts!",
 		turnTags:[stdTag.ttBentOver],
@@ -941,7 +941,7 @@ const lib = [
 		audiokits : ["tentacleMultipleThrusts"],
 		conditions : anyOnHumCond.concat(
 			"action_tentacle_fiend_injectacle",
-			"targetButtExposed"
+			"targetButtExposed",
 		),
 		weight : Text.Weights.high,
 
