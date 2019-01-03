@@ -19,7 +19,7 @@ import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTemplate.js';
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
 import { AudioKit } from '../classes/Audio.js';
-import Dungeon, { DungeonRoom, DungeonRoomAsset, DungeonEncounter } from '../classes/Dungeon.js';
+import Dungeon, { DungeonRoom, DungeonRoomAsset, DungeonEncounter, DungeonRoomAssetInteraction } from '../classes/Dungeon.js';
 
 const meshLib = LibMesh.getFlatLib();
 
@@ -2059,7 +2059,7 @@ export default class Modtools{
 		if( !roomAsset ){
 			roomAsset = new DungeonRoomAsset({
 				model : 'Dungeon.Room.R6x6',
-				type : DungeonRoomAsset.Types.Room
+				room : true
 			}, room);
 			room.addAsset(roomAsset);
 		}
@@ -2115,7 +2115,6 @@ export default class Modtools{
 
 		const th = this;
 		const room = asset.parent;
-		const mesh = asset.getModel();
 		let html = '';
 		let meshToAdd, meshToAddModel;
 		const div = $("#modal div.assetEditor");
@@ -2178,18 +2177,9 @@ export default class Modtools{
 			html += 'X <input type="number" step=0.01 name="scaleX" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleX)+'" /> ';
 			html += 'Y <input type="number" step=0.01 name="scaleY" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleY)+'" /> ';
 			html += 'Z <input type="number" step=0.01 name="scaleZ" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleZ)+'" /> <br />';
-
-			html += '<strong>Type:</strong><select name="type">';
-				for( let t in DungeonRoomAsset.Types )
-					html += '<option value="'+esc(DungeonRoomAsset.Types[t])+'" '+(asset.type === DungeonRoomAsset.Types[t] ? 'selected' : '')+'>'+esc(t)+'</option>';
-			html += '</select><br />';
-		
+	
 			html += '<div class="assetDataEditor"></div>';
 
-			html += 'Todo: Encounter editor<br />';
-
-			html += 'Todo: Loot<br />';
-		
 			// Todo: LOCK
 
 			html += '<input type="button" value="Delete" class="deleteSelectedAsset" />';
@@ -2277,7 +2267,59 @@ export default class Modtools{
 
 		// Updates the asset data editor form
 		const updateAssetDataEditor = function(){
-			let html = '';
+
+			const addInteraction = function(interaction){
+
+				const types = DungeonRoomAssetInteraction.types;
+				const type = interaction.type;
+				let html = '<div class="interaction condWrapper" style="display:block">';
+				html += '<select name="interaction_type">';
+				for( let t in types )
+					html += '<option value="'+esc(types[t])+'"'+(interaction.type === types[t] ? ' selected' : '')+'>'+t+'</option>';
+				html += '</select><br />';
+				html += 'Repeats: <input style="width:9vw" type="number" min=-1 step=1 name="interaction_repeats" value="'+esc(isNaN(interaction.repeats) ? -1 : interaction.repeats)+'" /><br />';
+				html += 'Break on: <select name="interaction_break">'+
+					'<option value="">None</option>'+
+					'<option value="success" '+(interaction.break === 'success' ? 'selected' : '')+'>Success</option>'+
+					'<option value="fail" '+(interaction.break === 'fail' ? 'selected' : '')+'>Success</option>'+
+				'</select><br />';
+				
+				html += 'TODO: Interact type specific data<br />';
+				if( type === types.dungeonVar ){
+
+				}
+				else if( type === types.encounters ){
+
+				}
+				else if( type === types.anim ){
+
+				}
+				else if( type === types.door ){
+
+				}
+				else if( type === types.exit ){
+
+				}
+				else if( type === types.loot ){
+
+				}
+				else if( type === types.wrappers ){
+
+				}
+
+				html += th.formConditions(interaction.conditions, 'interaction_conditions');
+
+				html += '</div>';
+				return html;
+
+			}
+
+			let html = '<input type="button" value="Add Interaction" class="addInteraction" />';
+			for( let action of asset.interactions )
+				html += addInteraction(action);
+			
+
+			/*
 			const type = asset.type;
 			if( type === DungeonRoomAsset.Types.Door ){
 				if( !asset.data.room )
@@ -2302,6 +2344,7 @@ export default class Modtools{
 				}
 				html += '</select>';
 			}
+			*/
 			$("div.assetDataEditor", div).html(html);
 
 			$("div.assetDataEditor select[name=asset_room]", div).on('change', function(){
@@ -2309,6 +2352,10 @@ export default class Modtools{
 			});
 			$("div.assetDataEditor select[name=asset_asset]", div).on('change', function(){
 				asset.data.asset = $(this).val();
+			});
+
+			$("div.assetDataEditor input.addInteraction", div).on('click', function(){
+				$("div.assetDataEditor", div).append(addInteraction({}));
 			});
 
 		}
@@ -2364,6 +2411,8 @@ export default class Modtools{
 			}, asset.parent) );
 			this.drawRoomEditor(asset.parent);
 		});
+
+		// Todo: Bind the interactions and allow them to be deleted
 		
 
 	}

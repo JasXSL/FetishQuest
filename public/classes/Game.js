@@ -846,9 +846,6 @@ export default class Game extends Generic{
 
 		// Always prepare
 		encounter.prepare();
-		// Happens during merge
-		if( encounter !== this.encounter )
-			this.encounter.prepare();
 		
 		const started = this.encounter.started;
 		this.encounter.started = true;

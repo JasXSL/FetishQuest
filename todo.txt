@@ -1,6 +1,6 @@
-Design changes:
-	- Test mimics
-	
+Critical:
+	- Reinstate netcode
+
 Mod Editor:
 	- Dungeon Editor
 		- Add encounter

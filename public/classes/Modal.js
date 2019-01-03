@@ -21,25 +21,25 @@ export default class Modal{
 		this.selBoxOpened = Date.now();		// Prevents misclicks
 		this._onSelectionBoxClose = null;
 
-		this.bg.on('mousedown', () => {
+		this.bg.off('mousedown').on('mousedown', () => {
 			this.close();
 		});
-		this.closebutton.on('click', () => {
+		this.closebutton.off('click').on('click', () => {
 			this.close();
 		});
 
-		this.wrapper.on('mousedown', event => {
+		this.wrapper.off('mousedown').on('mousedown', event => {
 			event.stopImmediatePropagation();
 			if( this.selBoxOpened+100 < Date.now() )
 				this.closeSelectionBox();
 		});
 
-		$(document).on('click', () => {
+		$(document).off('click').on('click', () => {
 			if( this.selBoxOpened+100 < Date.now() )
 				this.closeSelectionBox();
 		});
 
-		this.selectionbox.on('click', event => {
+		this.selectionbox.off('click').on('click', event => {
 			event.stopImmediatePropagation();
 		});
 

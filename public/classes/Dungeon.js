@@ -463,7 +463,7 @@ class DungeonRoom extends Generic{
 
 	getDoorLinkingTo( index ){
 		for( let asset of this.assets ){
-			if( asset.isDoor() && asset.data && asset.data.room === index )
+			if( asset.isDoorLinkingTo( index ) )
 				return asset;
 		}
 		return false;
@@ -824,7 +824,7 @@ class DungeonRoomAsset extends Generic{
 		this.tags = [];
 		this.absolute = false;			// Makes X/Y/Z absolute coordinates
 		this.room = false;				// This is the room asset
-		this.interactions = [];
+		this.interactions = [];			
 
 		this.load(data);
 
@@ -942,12 +942,18 @@ class DungeonRoomAsset extends Generic{
 		return false;
 	}
 
+	isDoorLinkingTo( index ){
+		return this.getDoorTarget() === index;
+	}
+
 	hasActiveEncounter(){
 		for( let i of this.interactions ){
 			if( i.type === DungeonRoomAssetInteraction.types.encounters && i.validate() )
 				return true;
 		}
 	}
+
+	
 
 
 	/* Encounters */
@@ -1920,5 +1926,5 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 
 
-export {DungeonRoom,DungeonRoomAsset,DungeonEncounter};
+export {DungeonRoom,DungeonRoomAsset,DungeonEncounter,DungeonRoomAssetInteraction};
 export default Dungeon;

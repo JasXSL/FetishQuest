@@ -1328,7 +1328,7 @@ table.editor tr.search:hover{
 
 }
 
-#assetForm div.condWrapper{
+div.condWrapper{
 	display:inline-block;
 	background:rgba(0,0,0,.5);
 	border: 1px solid #FFF;
@@ -1339,17 +1339,17 @@ table.editor tr.search:hover{
 	margin:0.25vmax;
 }
 
-#assetForm div.condWrapper > div.condPanel{
+div.condWrapper > div.condPanel{
 	position: absolute;
 	top:0; left:0;
 }
-#assetForm div.condWrapper > div.condPanel > span{
+div.condWrapper > div.condPanel > span{
 	cursor:pointer;
 	background:rgba(255,255,255,.25);
 	border:1px solid #FFF;
 	padding:0 0.25vmax 0.25vmax 0.25vmax;
 }
-#assetForm div.condWrapper > div.condPanel > span.hlt{
+div.condWrapper > div.condPanel > span.hlt{
 	border-color:#AFA;
 }
 
