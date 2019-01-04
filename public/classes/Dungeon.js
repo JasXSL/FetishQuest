@@ -462,11 +462,13 @@ class DungeonRoom extends Generic{
 	}
 
 	getDoorLinkingTo( index ){
+
 		for( let asset of this.assets ){
 			if( asset.isDoorLinkingTo( index ) )
 				return asset;
 		}
 		return false;
+
 	}
 	
 
@@ -1197,6 +1199,13 @@ class DungeonRoomAsset extends Generic{
 			this.setInteractCooldown(this.interact_cooldown);
 
 	}
+
+	getInteractionById( id ){
+		for( let i of this.interactions ){
+			if( i.id === id )
+				return i;
+		}
+	}
 	
 
 	/* Tags */
@@ -1221,7 +1230,7 @@ class DungeonRoomAssetInteraction extends Generic{
 		super();
 
 		this.parent = parent;
-		this.type = DungeonRoomAssetInteraction.dungeonVar;
+		this.type = "dvar";
 		this.data = null;
 		this.break = null;		// Use "success" "fail" here to break on success or fail
 		this.repeats = -1;
@@ -1350,6 +1359,7 @@ DungeonRoomAssetInteraction.types = {
 	wrappers : "wra",				// (arr)wrappers
 	dungeonVar : "dvar",			// {id:(str)id, val:(var)val} - Can use a math formula
 	loot : "loot",					// (arr)assets
+	autoLoot : "aLoot",				// {val:(float)modifier} - This is replaced with "loot" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.
 	door : "door",					// {index:(int)room_index}
 	exit : "exit",					// Todo: Add inter dungeon travel
 	anim : "anim",					// {anim:(str)animation}

@@ -658,7 +658,7 @@ export default class Modtools{
 
 		this.mml_generic( 
 			'conditions', 
-			['Label','Type','IsCol.','Data','TargNr','Sender','Inverse','Any Player'],
+			['Label','Type','IsCol.','Interac.','TargNr','Sender','Inverse','Any Player'],
 			this.mod.conditions,
 			asset => {
 				return [
@@ -2134,18 +2134,6 @@ export default class Modtools{
 		html += '</div>';
 
 		html += '<div class="missingDoors">';
-
-			let missingDoors = [];
-			let direct = room.getDirectConnections();
-			console.log(room, direct);
-			for( let r of direct ){
-				if( !room.getDoorLinkingTo( r.index ) )
-					missingDoors.push("["+r.index+"] "+esc(r.name));
-			}
-			if( room.index === 0 && !room.getDoorLinkingTo(-1) )
-				missingDoors.push("[-1] EXIT");
-			if( missingDoors.length )
-				html += '<b>Missing doors:</b><br />'+missingDoors.join('<br />');
 		html += '</div><br />';
 
 		// Room asset selector
@@ -2217,6 +2205,23 @@ export default class Modtools{
 			th.drawRoomEditor(asset.parent);
 		});
 
+		const updateMissingDoors = function(){
+			let html = '';
+			let missingDoors = [];
+			let direct = room.getDirectConnections();
+
+			for( let r of direct ){
+				if( !room.getDoorLinkingTo( r.index ) )
+					missingDoors.push("["+r.index+"] "+esc(r.name));
+			}
+			if( room.index === 0 && !room.getDoorLinkingTo(-1) )
+				missingDoors.push("[-1] EXIT");
+			if( missingDoors.length )
+				html += '<b>Missing doors:</b><br />'+missingDoors.join('<br />');
+			$("div.missingDoors").html(html);
+		}
+		updateMissingDoors();
+
 
 		// Asset
 		// Updates the select boxes
@@ -2270,9 +2275,11 @@ export default class Modtools{
 
 			const addInteraction = function(interaction){
 
-				const types = DungeonRoomAssetInteraction.types;
-				const type = interaction.type;
-				let html = '<div class="interaction condWrapper" style="display:block">';
+				const types = DungeonRoomAssetInteraction.types,
+					type = interaction.type,
+					room = interaction.parent.parent
+				;
+				let html = '<div class="interaction condWrapper" style="display:block" data-id="'+esc(interaction.id)+'">';
 				html += '<select name="interaction_type">';
 				for( let t in types )
 					html += '<option value="'+esc(types[t])+'"'+(interaction.type === types[t] ? ' selected' : '')+'>'+t+'</option>';
@@ -2281,32 +2288,34 @@ export default class Modtools{
 				html += 'Break on: <select name="interaction_break">'+
 					'<option value="">None</option>'+
 					'<option value="success" '+(interaction.break === 'success' ? 'selected' : '')+'>Success</option>'+
-					'<option value="fail" '+(interaction.break === 'fail' ? 'selected' : '')+'>Success</option>'+
+					'<option value="fail" '+(interaction.break === 'fail' ? 'selected' : '')+'>Fail</option>'+
 				'</select><br />';
 				
-				html += 'TODO: Interact type specific data<br />';
 				if( type === types.dungeonVar ){
-
+					html += 'Todo: Dungeon vars <br />';
 				}
-				else if( type === types.encounters ){
-
-				}
-				else if( type === types.anim ){
-
-				}
+				else if( type === types.encounters )
+					html += th.formEncounters(interaction.data, 'interaction_data');
+				else if( type === types.anim )
+					html += '<input type="text" placeholder="Animation" value="'+esc(interaction.data.anim)+'" name="interaction_data" />';
 				else if( type === types.door ){
-
+					html += 'Door target: <select name="asset_room">';
+					for( let r of room.parent.rooms )
+						html += '<option value="'+esc(r.index)+'" '+(interaction.data.index === r.index ? 'selected' : '')+'>'+esc(r.name)+'</option>';
+					html += '</select>';
 				}
 				else if( type === types.exit ){
-
+					html += 'Todo: Dungeon exit';
 				}
-				else if( type === types.loot ){
-
-				}
-				else if( type === types.wrappers ){
-
-				}
-
+				else if( type === types.loot )
+					html += th.formAssets(interaction.data, 'interaction_data');
+				
+				else if( type === types.wrappers )
+					html += th.formWrappers(interaction.data, 'interaction_data');
+				else if( type === types.autoLoot )
+					html += '<input type="range" min=0 max=1 step=0.01 value="'+(+interaction.data.val)+'" name="interaction_data">';
+				
+				html += '<br />';
 				html += th.formConditions(interaction.conditions, 'interaction_conditions');
 
 				html += '</div>';
@@ -2314,48 +2323,117 @@ export default class Modtools{
 
 			}
 
+			const bindInteractions = function(){
+
+				const types = DungeonRoomAssetInteraction.types;
+				const base = $("#modal div.assetEditor div.assetDataEditor div.interaction");
+
+				// Changed a form value (th.formX goes below)
+				$("input, select", base).off('change').on('change', function(){
+					const name = $(this).attr('name'),
+						div = $(this).closest("div.interaction"),
+						id = div.attr("data-id"),
+						interaction = asset.getInteractionById(id),
+						itype = interaction.type,
+						val = $(this).val()	
+					;
+
+					
+					
+					// Interaction type has changed
+					if( name === "interaction_type" ){
+
+						const itype = $(this).val();
+						interaction.type = itype;
+						if( !interaction )
+							return console.error("Interaction missing", id);
+						
+						// Todo: Dvar
+						if( itype === types.dungeonVar )
+							interaction.data = [];
+						if( itype === types.autoLoot )
+							interaction.data = {val:0.25};
+						if( itype === types.door )
+							interaction.data = {index:1};
+						if( itype === types.anim )
+							interaction.data = {anim:"open"};
+						if( itype === types.encounters )
+							interaction.data = [];
+						if( itype === types.exit )
+							interaction.data = {};
+						if( itype === types.loot )
+							interaction.data = [];
+						if( itype === types.wrappers )
+							interaction.data = [];
+
+						div.replaceWith(addInteraction(interaction));
+						bindInteractions();
+
+					}
+
+					else if( name === "interaction_repeats" )
+						interaction.repeats = +$(this).val();
+					
+					else if( name === "interaction_break" )
+						interaction.break = $(this).val() || null;
+
+					else if( itype === types.dungeonVar ){
+						console.log("Todo: dungeon vars");
+					}
+					else if( itype === types.anim )
+						interaction.data.anim = val;
+					else if( itype === types.autoLoot )
+						interaction.data.val = +val;
+					else if( itype === types.door )
+						interaction.data.index = Math.round(val);
+					else if( itype === types.exit )
+						console.log("Todo: exit");
+					
+					updateMissingDoors();
+
+				});
+
+
+				// Bind generic (unbinds stuff as well)
+				th.bindFormHelpers();
+
+				// Changes to form helpers have to be bound here because of bindFormHelpers
+				$("div.interaction_data input, div.interaction_data select", base).on('change', function(){
+					const wrapper = $(this).closest('div.interaction_data'),
+						div = wrapper.closest('div.interaction'),
+						id = div.attr("data-id"),
+						interaction = asset.getInteractionById(id),
+						itype = interaction.type
+					;
+					
+					if( itype === types.wrappers )
+						interaction.data = th.compileWrappers("interaction_data");
+					else if( itype === types.loot )
+						interaction.data = th.compileAssets("interaction_data");
+					else if( itype === types.encounters )
+						interaction.data = th.compileEncounters("interaction_data");
+
+				});
+
+				// Handle the base forms like wrappers. These are unbound in bindFodmHelpers
+				$("div.interaction_data > input[type=button]", base).on('click', () => {
+					setTimeout(bindInteractions, 10);
+				});
+
+			}
+
 			let html = '<input type="button" value="Add Interaction" class="addInteraction" />';
 			for( let action of asset.interactions )
 				html += addInteraction(action);
 			
-
-			/*
-			const type = asset.type;
-			if( type === DungeonRoomAsset.Types.Door ){
-				if( !asset.data.room )
-					asset.data.room = 0;
-				html += 'Door target: <select name="asset_room">';
-				for( let r of room.parent.rooms ){
-					html += '<option value="'+esc(r.index)+'" '+(asset.data.room === r.index ? 'selected' : '')+'>'+esc(r.name)+'</option>';
-				}
-				html += '</select>';
-			}
-			if( type === DungeonRoomAsset.Types.Exit ){
-				html += 'Todo: Exit dungeon ID selector here';
-			}
-
-			if( type === DungeonRoomAsset.Types.Switch ){
-				html += 'Unlocks asset: <select name="asset_asset">';
-				for( let r of room.parent.rooms ){
-					if( r === room )
-						continue;
-					for( let a of r.assets )
-						html += '<option value="'+esc(a.id)+'" '+(asset.data.asset === a.id ? 'selected' : '')+'>'+esc(r.name)+": "+esc(a.name || '['+a.model+']')+'</option>';
-				}
-				html += '</select>';
-			}
-			*/
 			$("div.assetDataEditor", div).html(html);
 
-			$("div.assetDataEditor select[name=asset_room]", div).on('change', function(){
-				asset.data.room = +$(this).val();
-			});
-			$("div.assetDataEditor select[name=asset_asset]", div).on('change', function(){
-				asset.data.asset = $(this).val();
-			});
-
+			bindInteractions();
 			$("div.assetDataEditor input.addInteraction", div).on('click', function(){
-				$("div.assetDataEditor", div).append(addInteraction({}));
+				const interaction = new DungeonRoomAssetInteraction({}, asset);
+				asset.interactions.push(interaction);
+				$("div.assetDataEditor", div).append(addInteraction(interaction));
+				bindInteractions();
 			});
 
 		}

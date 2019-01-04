@@ -3,7 +3,7 @@ Critical:
 
 Mod Editor:
 	- Dungeon Editor
-		- Add encounter
+		- Template interactions
 		- 3d room editor
 			- Keybindings
 				- Z = reset zoom
