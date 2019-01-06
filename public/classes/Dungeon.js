@@ -24,6 +24,7 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import Calculator from './Calculator.js';
+import DungeonTemplate from './templates/DungeonTemplate.js';
 
 class Dungeon extends Generic{
 
@@ -42,6 +43,7 @@ class Dungeon extends Generic{
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
 		this.difficulty = 1;		// Generally describes how many players this dungeon is for
 		this.vars = {};				// Can be set and read programatically
+		this.consumables = [];		// Copied over from template
 
 		// Runtime vars
 		this.transporting = false;	// Awaiting a room move
@@ -56,6 +58,7 @@ class Dungeon extends Generic{
 
 	rebase(){
 		this.rooms = DungeonRoom.loadThese(this.rooms, this);
+		this.consumables = Asset.loadThese(this.consumables, this);
 	}
 
 	save( full ){
@@ -76,6 +79,7 @@ class Dungeon extends Generic{
 			out.depth = this.depth;
 			out.height = this.height;
 			out.shape = this.shape;
+			out.consumables = Asset.saveThese(out.consumables, full);
 		}
 
 		// Everything except mod
@@ -343,10 +347,9 @@ class DungeonRoom extends Generic{
 
 		// Full
 		if( full ){
-
 			out.encounters = Array.isArray(this.encounters) ? DungeonEncounter.saveThese(this.encounters, full) : this.encounters.save(full);
-			
 		}
+
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.id = this.id;
@@ -741,9 +744,13 @@ class DungeonRoom extends Generic{
 	/* EVENTS */
 	onVisit( player ){
 
-		if( !this.discovered )
+		// First visit
+		if( !this.discovered ){
 			this.discovered = true;
 
+			for( let asset of this.assets )
+				asset.onRoomFirstVisit();
+		}
 		// Todo: allow this to be sequence or random
 
 		// Start a dummy encounter just to set the proper NPCs
@@ -873,7 +880,7 @@ class DungeonRoomAsset extends Generic{
 			absolute : this.absolute,
 			name : this.name,
 			room : this.room,
-			interactions : DungeonRoomAssetInteraction.saveThese(this.interactions)
+			interactions : DungeonRoomAssetInteraction.saveThese(this.interactions, full)
 		};
 		if( full !== 'mod' ){
 			
@@ -900,7 +907,9 @@ class DungeonRoomAsset extends Generic{
 
 	rebase(){
 		this.interactions = DungeonRoomAssetInteraction.loadThese(this.interactions, this);
-		this.updateInteractivity();
+
+		if( window.game && !game.is_host )
+			this.updateInteractivity();
 	}
 
 
@@ -908,6 +917,14 @@ class DungeonRoomAsset extends Generic{
 		return this.parent.parent;
 	}
 	
+
+	// Events
+	// Room this exists in has been visited the first time
+	onRoomFirstVisit(){
+		for( let asset of this.interactions )
+			asset.convertToLoot();
+	}
+
 
 	/* Type checking */
 	isDoor(){
@@ -937,6 +954,11 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	isInteractive(){
+
+		// mod editor
+		if( !window.game )
+			return false;
+
 		for( let i of this.interactions ){
 			if( i.validate() )
 				return true;
@@ -1119,7 +1141,7 @@ class DungeonRoomAsset extends Generic{
 	// Returns the first dvar condition, or undefined if not found
 	getFirstDvar(){
 		for( let i of this.interactions ){
-			if( i.type === DungeonRoomAssetInteraction.types.dungeonVar ){
+			if( i.type === DungeonRoomAssetInteraction.types.dungeonVar || i.type === DungeonRoomAssetInteraction.types.lever ){
 				return this.getDungeon().vars[i.data.id];
 			}
 		}
@@ -1129,6 +1151,7 @@ class DungeonRoomAsset extends Generic{
 
 		const asset = this;
 		const dungeon = this.getDungeon();
+		const lootable = asset.isLootable( player, mesh );
 
 		// Helper function for interact action
 		function raiseInteractOnMesh( shared = true ){
@@ -1143,20 +1166,15 @@ class DungeonRoomAsset extends Generic{
 			return game.ui.addError("Locked");
 
 
-		// Seeing the loot is clientside, and needs to go above ask host
-		if( asset.isLootable( player, mesh ) ){
-			raiseInteractOnMesh( false );
-			return game.ui.drawContainerLootSelector(asset);
-		}
 
-		// Ask host
-		if( !game.is_host ){
+		// Ask host unless this is lootable
+		if( !game.is_host && !lootable ){
 			game.net.playerInteractWithAsset( player, asset );
 			return;
 		}
 
 
-		raiseInteractOnMesh();
+		raiseInteractOnMesh( !lootable );
 
 
 
@@ -1226,6 +1244,7 @@ class DungeonRoomAsset extends Generic{
 
 // Handles interactions
 class DungeonRoomAssetInteraction extends Generic{
+
 	constructor(data, parent){
 		super();
 
@@ -1245,7 +1264,7 @@ class DungeonRoomAssetInteraction extends Generic{
 			data : this.data,
 			break : this.break,
 			repeats : this.repeats,
-			conditions : Condition.saveThese(this.conditions)
+			conditions : Condition.saveThese(this.conditions, full)
 		};
 	}
 
@@ -1276,6 +1295,48 @@ class DungeonRoomAssetInteraction extends Generic{
 		}
 	}
 
+
+	// polymorphs this into loot and saves
+	convertToLoot(){
+
+		if( this.type !== this.constructor.types.autoLoot )
+			return;
+
+		const value = isNaN(this.data.val) ? 0.5 : +this.data.val;
+		const dungeon = this.getDungeon();
+
+		this.type = this.constructor.types.loot;
+		this.data = [];
+		
+		// weight of 0.5 adds loot
+		if( value >= 0.5 ){
+
+			// Generate a random piece of loot
+			const loot = Asset.generate( 
+				undefined, 	// Slot
+				game.getAveragePlayerLevel(), 
+				undefined, 	// Viable template
+				undefined 	// Viable materials
+			);
+			if( loot )
+				this.data.push(loot.save(true));
+				
+		}
+
+		// 0-2 consumables, or 1-3 if no gear
+		let numBonus = Math.round(Math.pow(Math.random(),3)*2);
+		let numConsumables = numBonus+!(value >= 0.5);
+		for( let i=0; i<numConsumables; ++i ){
+			let consumable = dungeon.template.getRandomConsumable();
+			if( !consumable )
+				break;
+			this.data.push(consumable.clone(this.parent).save(true));
+		}
+
+		game.save();
+
+	}
+
 	trigger( player, mesh ){
 		
 
@@ -1298,8 +1359,6 @@ class DungeonRoomAssetInteraction extends Generic{
 			game.mergeEncounter(player, DungeonEncounter.getRandomViable(DungeonEncounter.loadThese(this.data)));
 			this.remove();	// Prevent it from restarting
 			asset.updateInteractivity();	// After removing the action, update interactivity
-			
-			
 
 		}
 
@@ -1307,6 +1366,7 @@ class DungeonRoomAssetInteraction extends Generic{
 
 			game.onRoomChange();
 			this.parent.parent.parent.goToRoom( player, this.data.index );
+			playAnim("open");
 
 		}
 
@@ -1319,14 +1379,29 @@ class DungeonRoomAssetInteraction extends Generic{
 		else if( this.type === types.dungeonVar ){
 
 			const vars = this.getDungeon().vars;
-			let v = vars[this.data.id];
 			vars[this.data.id] = Calculator.run(this.data.data, new GameEvent({}), vars);
 			game.save();
 
 		}
-		// Note: Loot is handled by the parent since it needs to go before netcode
 		else if( this.type === types.anim ){
 			playAnim(this.data.anim);
+		}
+
+		else if( this.type === types.loot ){
+			game.ui.drawContainerLootSelector(this.parent);
+		}
+
+		else if( this.type === types.lever ){
+
+			const v = this.data.id;
+			const vars = this.getDungeon().vars;
+			vars[v] = !vars[v];
+			game.save();
+			if( vars[v] )
+				playAnim("open");
+			else
+				playAnim("close");
+
 		}
 
 	}
@@ -1358,11 +1433,12 @@ DungeonRoomAssetInteraction.types = {
 	encounters : "enc",				// (arr)encounters - Picks one at random
 	wrappers : "wra",				// (arr)wrappers
 	dungeonVar : "dvar",			// {id:(str)id, val:(var)val} - Can use a math formula
-	loot : "loot",					// (arr)assets
+	loot : "loot",					// (arr)assets - Loot will automatically trigger "open" and "open_idle" animations
 	autoLoot : "aLoot",				// {val:(float)modifier} - This is replaced with "loot" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.
-	door : "door",					// {index:(int)room_index}
+	door : "door",					// {index:(int)room_index} - Door will automatically trigger "open" animation when successfully used
 	exit : "exit",					// Todo: Add inter dungeon travel
 	anim : "anim",					// {anim:(str)animation}
+	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
 };
 
 
@@ -1478,7 +1554,7 @@ class DungeonEncounter extends Generic{
 		if( full ){
 			out.label = this.label;
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
-			out.conditions = Condition.saveThese(this.conditions);
+			out.conditions = Condition.saveThese(this.conditions, full);
 		}
 
 		if( full !== "mod" ){
@@ -1612,7 +1688,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	// Pick one at random
 	kit = objectRandElem(dungeonTemplateLib);
 
-
+	out.consumables = kit.consumables.slice();
 
 	// Add encounters
 	let i = 0;
@@ -1689,14 +1765,9 @@ Dungeon.generate = function( numRooms, kit, settings ){
 						break : "fail"
 					}, door);
 					door.interactions.push(action);
-
-					action = new DungeonRoomAssetInteraction({
-						type : DungeonRoomAssetInteraction.types.anim,
-						data : {anim:"open"}
-					}, door);
-					door.interactions.push(action);
-				
+					
 					room.addAsset(door);
+
 				}
 				else{
 					requiredAssetsPlaced = false;
@@ -1792,39 +1863,14 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 						treasureExists = true;
 
-						let loot;
+						console.log("Adding treasure in", room.index);
+						let lootValue = Math.pow(Math.random(), 2);	// Assuming gear starts at 0.5, it's a 30% chance of an item
 						let action = new DungeonRoomAssetInteraction({
-							type : DungeonRoomAssetInteraction.types.loot,
-							data : []
+							type : DungeonRoomAssetInteraction.types.autoLoot,
+							data : {val:lootValue}
 						}, chest);
 						
-
-						// 25% chance of an item
-						if( Math.random() < 0.25 ){
-							// Generate a piece of loot
-							loot = Asset.generate( 
-								undefined, 	// Slot
-								game.getAveragePlayerLevel(), 
-								undefined, 	// Viable template
-								undefined 	// Viable materials
-							);
-							if( loot )
-								action.data.push(loot.save(true));
-						}
-
-						// 0-2 consumables, or 1-3 if no gear
-						let numBonus = Math.round(Math.pow(Math.random(),3)*2);
-						let numConsumables = numBonus+!loot;
-						for( i=0; i<numConsumables; ++i ){
-							let consumable = kit.getRandomConsumable();
-							if( !consumable )
-								break;
-							action.data.push(consumable.clone(chest).save(true));
-						}
-
-						if( action.data.length )
-							chest.interactions.push(action);
-
+						chest.interactions.push(action);
 
 					}
 

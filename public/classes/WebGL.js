@@ -641,7 +641,7 @@ class Stage{
 		else if( sprite && linkedRoom && linkedRoom.discovered )
 			sprite.material.opacity = 0;
 
-		if( asset.isLocked() )
+		if( sprite && asset.isLocked() )
 			sprite.material.opacity = 0;
 		
 		if( linkedRoom && linkedRoom.index === game.dungeon.previous_room ){

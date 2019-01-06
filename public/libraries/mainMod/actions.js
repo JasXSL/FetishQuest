@@ -184,7 +184,8 @@ const lib = {
 				add_conditions : [
 					"targetDead",
 					"senderNotDead",
-					"targetNotFriendly"
+					"targetNotFriendly",
+					"senderNotBeast"
 				],
 				effects : [
 					{

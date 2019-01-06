@@ -122,8 +122,8 @@ export default {
 	
 	// Dungeon tags
 	duDark : 'du_dark',					// Dark dungeon set
-	duIndoor : 'du_dark',					// Dark dungeon set
-	duOutdoor : 'du_dark',					// Dark dungeon set
+	duIndoor : 'du_indoor',					// Dark dungeon set
+	duOutdoor : 'du_outdoor',					// Dark dungeon set
 	duCorridor : 'du_corridor',			// Room is a corridor
 	duRoom : 'du_room',					// Room is a room (not corridor)
 

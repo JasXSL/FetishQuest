@@ -162,6 +162,11 @@ Generic.loadThese = function( entries = [], parent ){
 Generic.loadThis = function( entry, parent ){
 
 	if( typeof entry === "string" ){
+
+		// Mod editor returns strings as is
+		if( !window.game )
+			return entry;
+
 		let n = glib.get(entry, this.name);
 		if( !n ){
 			console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", glib.getFull(this.name));
@@ -179,8 +184,10 @@ Generic.loadThis = function( entry, parent ){
 Generic.saveThese = function( entries = [], full = false ){
 	return entries.map(el => {
 		if( typeof el.save !== "function" ){
-			console.error(el, "has no save method");
-			throw "Save function missing error";
+			if( full === "mod" )
+				return el;
+			console.error(el);
+			throw "Error: asset is missing save method ^";
 		}
 		return el.save(full);
 	});

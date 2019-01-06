@@ -383,10 +383,17 @@ export default class Condition extends Generic{
 
 // Exports conditions, handles arrays and ConditionPackages
 Condition.saveThese = function( conditions, full ){
+
 	let out = conditions.map(el => {
 		if( Array.isArray(el) )
 			el = ConditionPackage.buildOR(...el);
-		return el.save(full);
+
+		if( typeof el.save === "function" )
+			return el.save(full);
+		if( full === "mod" )
+			return el;
+		console.error(el);
+		throw "Error, condition has no save method ^";
 	});
 	return out;
 };
@@ -435,9 +442,18 @@ Condition.loadThese = function( conditions, parent ){
 		}
 
 		let pre = condition;
-		// Try to convert it
-		if( typeof condition !== 'object')
+		
+		if( typeof condition !== 'object' ){
+
+			// Editor shouldn't convert into objects
+			if( !window.game ){
+				out.push(condition);
+				continue;
+			}
+			// live game needs to convert into objects
 			condition = glib.get(condition, this.name);
+
+		}
 		
 		if( typeof condition !== 'object'){
 			console.error("Trying to load invalid condition", pre);

@@ -101,6 +101,10 @@ export default class Modtools{
 		window.addEventListener("hashchange", () => this.navigate(), false);
 
 
+		// Helpers for dungeon editor
+		this.dungeon_active_room = null;		// DungeonRoom
+		this.dungeon_active_asset = null;		// DungeonRoomAsset
+
 
 		$("#jsonEditor, #jsonEditor div.buttons > input.cancel").on('click', () => {
 			$("#jsonEditor").toggleClass("hidden", true);
@@ -453,6 +457,7 @@ export default class Modtools{
 			}
 		});
 
+		
 		if( localStorage.devMML && typeof th['mml_'+localStorage.devMML] === "function" )
 			this['mml_'+localStorage.devMML]();
 		else
@@ -1019,7 +1024,7 @@ export default class Modtools{
 		html += '</form>';
 
 		this.modal.set(html);
-		this.bindFormHelpers();
+		this.bindFormHelpers( false );
 
 		const save = async () => {
 			onSave(asset);
@@ -1782,6 +1787,7 @@ export default class Modtools{
 				r.encounters = [];
 			dungeon.rooms.push(r);
 		}
+
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
@@ -1878,7 +1884,7 @@ export default class Modtools{
 
 					th.drawRoomEditor(room);
 					th.drawRoomAssetEditor( room.getRoomAsset() );
-					th.bindFormHelpers();
+					th.bindDungeonFormHelpers();
 
 					break;
 				}
@@ -1965,13 +1971,13 @@ export default class Modtools{
 				setDungeonRoomByIndex(index, +$(this).val());
 			});
 
-			th.bindFormHelpers();
+			th.bindDungeonFormHelpers();
 
 
 			// Helper function that binds the room form
 			function rebindRoom(){
 
-				$("#modal div.cellSettings input:not(.addTagHere)").off('change').on('change', function(event){
+				$("#modal div.cellSettings input:not(.addTagHere):not(.json)").off('change').on('change', function(event){
 
 					const room = editor_room;
 					const dom = $(this);
@@ -1988,9 +1994,6 @@ export default class Modtools{
 						room.ambiance_volume = +val;
 					if( name === "roomOutdoors" )
 						room.outdoors = dom.is(':checked');
-					if( name === "encounter" ){
-						room.encounters = th.compileEncounters('encounters');
-					}
 					if( name === "tag" ){
 						// Recompile tags
 						room.tags = th.compileTags('roomTags');
@@ -1999,19 +2002,11 @@ export default class Modtools{
 				});
 			}
 			rebindRoom();
-			// Track the add tag button to bind tag changes
-			$("#modal div.cellSettings input.addTagHere").on('click', () => {
-				rebindRoom();
-			});
-			$("#modal div.cellSettings input.addEncounterHere").on('click', () => {
-				rebindRoom();
-			});
-
-
 		}
 
 		
 
+		// SAVE
 		this.editor_generic('dungeons', asset, this.mod.dungeons, html, saveAsset => {
 
 			const form = $("#assetForm");
@@ -2050,9 +2045,44 @@ export default class Modtools{
 
 	}
 
+	// Use this instead of bindFormHelpers for dungeon, since it needs to rely on change events.
+	// This is because the room/asset properties need to be able to change ad hoc
+	bindDungeonFormHelpers(){
+
+		const room = this.dungeon_active_room;
+		const asset = this.dungeon_active_asset;
+		const th = this;
+		this.bindFormHelpers(function(type, element){
+
+			console.log(type, element);
+			if( $(element).hasClass('encounters') )
+				room.encounters = th.compileEncounters('encounters');
+
+			if( $(element).hasClass('roomTags') ){
+				room.tags = th.compileTags('roomTags');
+			}
+			
+
+			// Interaction conditions for individual assets
+			if( $(element).hasClass('interaction_conditions') ){
+				const cond = $(element).closest('div.interaction');
+				if( !cond.length )
+					return;
+				const index = cond.index();
+				// Conditions changed
+				if( type === "Conditions" ){
+					asset.interactions[index].conditions = th.compileConditions("interaction_conditions", cond);
+				}
+			}
+
+		});
+
+	}
+
 	// Helper to draw the 3d room editor
 	async drawRoomEditor( room ){
 
+		this.dungeon_active_room = room;
 
 		// Make sure the room asset exists
 		let roomAsset = room.getRoomAsset();
@@ -2113,6 +2143,8 @@ export default class Modtools{
 	// Handles the asset editor to the right of the viewport
 	drawRoomAssetEditor( asset ){
 
+		this.dungeon_active_asset = asset;
+
 		const th = this;
 		const room = asset.parent;
 		let html = '';
@@ -2123,6 +2155,7 @@ export default class Modtools{
 
 		// Any forms and such here will modify the asset argument, and the asset argument will be saved when the dungeon saves
 
+		// Skeleton
 		html += '<div class="addAsset" >';
 
 			html += '<div id="meshControls">';
@@ -2166,7 +2199,7 @@ export default class Modtools{
 			html += 'Y <input type="number" step=0.01 name="scaleY" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleY)+'" /> ';
 			html += 'Z <input type="number" step=0.01 name="scaleZ" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleZ)+'" /> <br />';
 	
-			html += '<div class="assetDataEditor"></div>';
+			html += '<div class="assetDataEditor"><input type="button" value="Add Interaction" class="addInteraction" /><div class="assetData"></div></div>';
 
 			// Todo: LOCK
 
@@ -2314,6 +2347,8 @@ export default class Modtools{
 					html += th.formWrappers(interaction.data, 'interaction_data');
 				else if( type === types.autoLoot )
 					html += '<input type="range" min=0 max=1 step=0.01 value="'+(+interaction.data.val)+'" name="interaction_data">';
+				else if( type === types.lever )
+					html += 'ID: <input name="interaction_data" value="'+esc(interaction.data.id || 'lever_'+interaction.id.substr(0,8))+'" />';
 				
 				html += '<br />';
 				html += th.formConditions(interaction.conditions, 'interaction_conditions');
@@ -2326,10 +2361,11 @@ export default class Modtools{
 			const bindInteractions = function(){
 
 				const types = DungeonRoomAssetInteraction.types;
-				const base = $("#modal div.assetEditor div.assetDataEditor div.interaction");
+				const base = $("#modal div.assetEditor div.assetDataEditor div.assetData div.interaction");
 
 				// Changed a form value (th.formX goes below)
 				$("input, select", base).off('change').on('change', function(){
+
 					const name = $(this).attr('name'),
 						div = $(this).closest("div.interaction"),
 						id = div.attr("data-id"),
@@ -2338,8 +2374,6 @@ export default class Modtools{
 						val = $(this).val()	
 					;
 
-					
-					
 					// Interaction type has changed
 					if( name === "interaction_type" ){
 
@@ -2363,8 +2397,9 @@ export default class Modtools{
 							interaction.data = {};
 						if( itype === types.loot )
 							interaction.data = [];
-						if( itype === types.wrappers )
-							interaction.data = [];
+						if( itype === types.lever )
+							interaction.data = {id:""};
+						
 
 						div.replaceWith(addInteraction(interaction));
 						bindInteractions();
@@ -2388,14 +2423,17 @@ export default class Modtools{
 						interaction.data.index = Math.round(val);
 					else if( itype === types.exit )
 						console.log("Todo: exit");
+					else if( itype === types.lever )
+						interaction.data.id = val;
+					
 					
 					updateMissingDoors();
 
 				});
 
 
-				// Bind generic (unbinds stuff as well)
-				th.bindFormHelpers();
+				// 
+				th.bindDungeonFormHelpers();
 
 				// Changes to form helpers have to be bound here because of bindFormHelpers
 				$("div.interaction_data input, div.interaction_data select", base).on('change', function(){
@@ -2415,26 +2453,38 @@ export default class Modtools{
 
 				});
 
-				// Handle the base forms like wrappers. These are unbound in bindFodmHelpers
+				// Handle the base forms like wrappers. These are unbound in bindFormHelpers
 				$("div.interaction_data > input[type=button]", base).on('click', () => {
 					setTimeout(bindInteractions, 10);
 				});
 
-			}
+				base.on('click', function(event){
+					
+					if( event.ctrlKey ){
+						
+						let index = $(this).index();
+						asset.interactions.splice(index, 1);
+						updateAssetDataEditor();
 
-			let html = '<input type="button" value="Add Interaction" class="addInteraction" />';
+					}
+
+				});
+
+			}
+			let html = '';
 			for( let action of asset.interactions )
 				html += addInteraction(action);
 			
-			$("div.assetDataEditor", div).html(html);
+			$("div.assetDataEditor div.assetData", div).html(html);
 
 			bindInteractions();
-			$("div.assetDataEditor input.addInteraction", div).on('click', function(){
+			$("div.assetDataEditor input.addInteraction", div).off('click').on('click', function(){
 				const interaction = new DungeonRoomAssetInteraction({}, asset);
 				asset.interactions.push(interaction);
-				$("div.assetDataEditor", div).append(addInteraction(interaction));
+				$("div.assetDataEditor div.assetData", div).append(addInteraction(interaction));
 				bindInteractions();
 			});
+
 
 		}
 		updateAssetDataEditor();
@@ -2497,8 +2547,32 @@ export default class Modtools{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// FORM HELPERS
-	bindFormHelpers(){
+	// See the individual bind methods for which ones support the onChange callback
+	formHelperOnChange( type, el ){
+		if( typeof this._formHelperChangedFunction === "function" )
+			this._formHelperChangedFunction(type, el);
+	}
+	bindFormHelpers( onChange ){
 
 		// Binds JSOn as well
 		// Has to go above bindConditions since that one binds control clicks
@@ -2512,6 +2586,8 @@ export default class Modtools{
 			}
 		});
 
+		if( onChange !== undefined )
+			this._formHelperChangedFunction = onChange;
 
 		this.bindTags();
 		this.bindSoundKits();
@@ -2575,6 +2651,11 @@ export default class Modtools{
 		$("#modal input.addTagHere").off('click').on('click', function(){
 			const dList = $(this).parent().attr('data-list');
 			$(this).parent().append(th.inputTags("", dList));
+			th.bindFormHelpers();
+		});
+
+		$("input[name=tag]").off('change').on('change', function(){
+			th.formHelperOnChange("Tags", $(this).parent());
 		});
 	}
 
@@ -2584,7 +2665,7 @@ export default class Modtools{
 
 	// Compiles text tags into an array
 	compileTags( cName = 'tags' ){
-		const base = $('#assetForm div.'+cName+' input[name=tag]');
+		const base = $('#modal div.'+cName+' input[name=tag]');
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
@@ -2661,7 +2742,7 @@ export default class Modtools{
 
 
 	// CONDITIONS (Bindable)
-	bindConditions(){
+	bindConditions( ){
 		let th = this;
 		// Add/Change Type
 		$("#modal div.condPanel span").off('click')
@@ -2682,6 +2763,7 @@ export default class Modtools{
 					el.toggleClass('hlt', true);				
 				}
 				
+				th.formHelperOnChange("Conditions", el.closest("div.condWrapper"));
 				th.bindFormHelpers();
 				//
 			});
@@ -2693,10 +2775,13 @@ export default class Modtools{
 				return;
 
 			event.stopImmediatePropagation();
+			th.formHelperOnChange("Conditions", $(this).closest("div.condWrapper"));
 			$(this).remove();
 			return false;
 		});
-
+		$("#modal div.condWrapper > input[name=condition]").on('change', function(event){
+			th.formHelperOnChange("Conditions", $(this).closest("div.condWrapper"));
+		});
 		// Templates
 		$("div.presetConditions > input").off('click').on('click', function(){
 
@@ -2710,6 +2795,7 @@ export default class Modtools{
 				if( baselevel.filter((_,el) => $(el).val() === cond).length )
 					continue;
 
+				th.formHelperOnChange("Conditions", baselevel.closest("div.condWrapper"));
 				$("#modal div.condWrapper."+cName).append(th.inputConditions(cond));
 			}
 
@@ -2719,6 +2805,7 @@ export default class Modtools{
 
 	compileConditionElement( base ){
 
+		console.log("Compiling conditions under", base);
 		const isOr = base.hasClass('subConditions') && $('span.convertToOr',base).hasClass('hlt');
 		const out = {
 			conditions : [],
@@ -2744,9 +2831,10 @@ export default class Modtools{
 
 	}
 
-	compileConditions( cName = 'conditions' ){
+	// cName can also be a dom element
+	compileConditions( cName = 'conditions', parent ){
 
-		const base = $('#modal div.'+cName);
+		const base = $('div.'+cName, parent);
 		return this.compileConditionElement(base).conditions;
 		
 	}
@@ -2863,6 +2951,11 @@ export default class Modtools{
 				$(this).parent().append(th.inputEncounter(""));
 				th.bindFormHelpers();
 			});
+
+		// No off needed for json fields
+		$("#modal input[name=encounter]").off('change').on('change', function(){
+			th.formHelperOnChange("Encounters", $(this).parent());
+		});
 	}
 
 	compileEncounters( cName = 'encounters' ){

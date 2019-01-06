@@ -75,7 +75,7 @@ class Text extends Generic{
 	save(full){
 		return {
 			text : this.text,
-			conditions : Condition.saveThese(this.conditions),
+			conditions : Condition.saveThese(this.conditions, full),
 			alwaysAuto : this.alwaysAuto,
 			numTargets : this.numTargets,
 			debug : this.debug,
