@@ -21,6 +21,7 @@ export default class Player extends Generic{
 
 		super(data);
 
+		this.label = '';					// Unique editor label
 		this.netgame_owner_name = '';		// This is a custom thing that should only be relied on when adding a new player
 		this.netgame_owner = '';			// ID corresponding to one from game.net.players
 		this.name = "Adventurer";			// Name
@@ -164,19 +165,26 @@ export default class Player extends Generic{
 		};
 
 		if( full ){
-			out.auto_play = !!this.auto_play;
-			out._stun_diminishing_returns = this._stun_diminishing_returns;
-			out.experience = this.experience;
-			out._difficulty = this._difficulty;
-			out._threat = this._threat;
-			out._turn_ap_spent = this._turn_ap_spent;
-			out._damaging_since_last = this._damaging_since_last;
-			out._damage_since_last = this._damage_since_last;
-			out._d_damaging_since_last = this._d_damaging_since_last;
-			out._d_damage_since_last = this._d_damage_since_last;
-			out._turns = this._turns;
+			
+			out.label = this.label;
+			if( full !== "mod" ){
+				out.auto_play = !!this.auto_play;
+				out._stun_diminishing_returns = this._stun_diminishing_returns;
+				out.experience = this.experience;
+				out._difficulty = this._difficulty;
+				out._threat = this._threat;
+				out._turn_ap_spent = this._turn_ap_spent;
+				out._damaging_since_last = this._damaging_since_last;
+				out._damage_since_last = this._damage_since_last;
+				out._d_damaging_since_last = this._d_damaging_since_last;
+				out._d_damage_since_last = this._d_damage_since_last;
+				out._turns = this._turns;
+			}
+
 		}
 
+
+		// Everything except mod
 		if( full !== "mod" ){
 			out.id = this.id;
 			out.ap = this.ap;
@@ -1124,6 +1132,10 @@ export default class Player extends Generic{
 
 	/* Actions */
 	addDefaultActions(){
+
+		// Don't add default actions in the editor
+		if( !window.game )
+			return;
 
 		let lib = glib.getFull('Action');
 		let needed = [

@@ -18,6 +18,7 @@ export default class Mod extends Generic{
 		this.audioKits = [];	//x AudioKit
 		this.playerClasses = [];	//x Custom player classes
 		this.conditions = [];			//x Condition library
+		this.players = [];
 		this.playerTemplates = [];		// NPC generator templates
 		this.assetTemplates = [];		// Asset templates
 		this.materialTemplates = [];	// AssetTemplate Material
@@ -64,6 +65,7 @@ export default class Mod extends Generic{
 			dungeonRoomTemplates : this.dungeonRoomTemplates,
 			wrappers : this.wrappers,
 			dungeonEncounters : this.dungeonEncounters,
+			players : this.players,
 		};
 		return out;
 	}

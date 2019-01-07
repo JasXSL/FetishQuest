@@ -12,6 +12,7 @@ import DungeonTemplate, { RoomTemplate } from './templates/DungeonTemplate.js';
 import { AudioKit } from './Audio.js';
 import MAIN_MOD from '../libraries/_main_mod.js';
 import Mod from './Mod.js';
+import Player from './Player.js';
 
 
 const LIB_TYPES = {
@@ -21,6 +22,7 @@ const LIB_TYPES = {
 	'playerClasses' : PlayerClass,
 	'actions' : Action,
 	'assets' : Asset,
+	'players' : Player,
 
 	'dungeons' : Dungeon,
 	'quests' : Quest,
@@ -65,6 +67,7 @@ export default class GameLib{
 		this.effects = {};
 		this.wrappers = {};
 		this.dungeonEncounters = {};
+		this.players = {};
 
 		this._cache_assets = {};
 		this.texts = [];
@@ -91,6 +94,7 @@ export default class GameLib{
 			'playerClasses',
 			'actions',
 			'assets',
+			'players',
 			'playerTemplates',
 			'dungeons',
 			'quests',

@@ -422,6 +422,7 @@ export default class Modtools{
 			'<div class="button" data-id="conditions">Conditions</div>'+
 			'<div class="button" data-id="quests">Quests</div>'+
 			'<div class="button" data-id="dungeons">Dungeons</div>'+
+			'<div class="button" data-id="players">Players</div>'+
 			'<div class="button" data-id="encounters">Encounters</div>'+
 			'<div class="button" data-id="playerClasses">Classes</div>'+
 			'<div class="button" data-id="actions">Actions</div>'+
@@ -1042,6 +1043,28 @@ export default class Modtools{
 				return asset;
 			}
 		);
+	}
+
+
+	mml_players(){
+
+		this.mml_generic( 
+			'players', 
+			['Label','Name','Team'],
+			this.mod.players,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					asset.team
+				];
+			},
+			() => {
+				let asset = new Player({label:'NEW_PLAYER'}).save("mod");
+				return asset;
+			}
+		);
+
 	}
 
 
@@ -2602,7 +2625,22 @@ export default class Modtools{
 
 	}
 
+	editor_players( asset = {} ){
 
+		let html = '<p>Todo: player editor.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			
+			
+		this.editor_generic('players', asset, this.mod.players, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			
+			
+		});
+
+
+	}
 
 
 
