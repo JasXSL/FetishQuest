@@ -2,15 +2,6 @@ Critical:
 	- Reinstate netcode
 
 Mod Editor:
-	- Dungeon Editor
-		- Consumables
-		- See todo
-		- 3d room editor
-			- Keybindings
-				- Z = reset zoom
-				- S = toggle grid/angle snapping
-				- Ctrl+S = Quick Save
-				- Ctrl+L = Quick Load
 	- Player editor
 	- Encounter editor
 		- Needs to be able to pick templates OR players

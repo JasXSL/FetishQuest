@@ -69,10 +69,14 @@ export default class Modtools{
 
 		this.onControlChanged = null;	// lets you bind a change function to the 3d editor transform controls
 
+		renderer.controls.saveState();
+
 		renderer.scene.add(control);
 		renderer.onRender = function(){
 			control.update();
 		};
+
+
 		// Transform controls
 		$(window).on('keydown', event => {
 			if( event.target !== document.body )
@@ -83,11 +87,50 @@ export default class Modtools{
 				control.setMode( "rotate" );
 			else if( event.key === "r" )
 				control.setMode( "scale" );
+			else if( event.key === "z" ){
+				this.renderer.controls.reset();
+			}
+			else if( event.key === "q" )
+				control.setSpace( control.space === "local" ? "world" : "local" );
+			
+			else if( event.key === "s" && event.ctrlKey ){
+				if( typeof this.fnQuickSave === "function" )
+					this.fnQuickSave();
+				event.preventDefault();
+			}
+			else if( event.key === "l" && event.ctrlKey ){
+				if( typeof this.fnQuickLoad === "function" )
+					this.fnQuickLoad();
+				event.preventDefault();
+			}
+
+			else if( event.key === 'Control' ){
+				control.setTranslationSnap( 100 );
+				control.setRotationSnap( THREE.Math.degToRad( 15 ) );
+			}
+			
+		});
+
+		$(window).on('keyup',  event => {
+
+			if( event.key === 'Control' ){
+				control.setTranslationSnap( null );
+				control.setRotationSnap( null );
+			}
+
 		});
 		
 		this.mod = new Mod();
 		this.main_mod = MAIN_MOD;
 		this.modal = new Modal();
+
+		// Used by the editor quicksave function
+		this.fnQuickSave = undefined;
+		this.fnQuickLoad = undefined;
+		this.modal._onModalClose = () => {
+			this.fnQuickSave = undefined;
+			this.fnQuickLoad = undefined;
+		};
 
 		this.datalists = $("#datalists");
 
@@ -1030,7 +1073,12 @@ export default class Modtools{
 			onSave(asset);
 			await this.mod.save();
 			this['mml_'+sfType]();
-			this.modal.close();
+			this.modal.addNotice("SAVED!");
+		};
+
+		const load = () => {
+			this.modal.addNotice("Loaded.");
+			this['editor_'+sfType](asset);
 		};
 
 		$("#assetSaveCopy").on('click', async () => {
@@ -1057,11 +1105,14 @@ export default class Modtools{
 			}
 		});
 
-		$("#assetForm").on('submit', () => {
-			save();
-			this.mod.save();
-			return false;
+		$("#assetForm").on('submit', async event => {
+			event.preventDefault();
+			await save();
+			this.modal.close();
 		});
+
+		this.fnQuickSave = save;
+		this.fnQuickLoad = load;
 
 	}
 
@@ -1787,11 +1838,13 @@ export default class Modtools{
 				r.encounters = [];
 			dungeon.rooms.push(r);
 		}
+		
 
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
 			html += 'Tags: '+this.formTags(asset.tags, 'tags')+'<br />';
+			html += 'Consumables: '+this.formAssets(dungeon.consumables, 'consumables')+'<br />';
 
 		// Helper functions
 		function setDungeonRoomByIndex(index, z = 0){
@@ -2014,6 +2067,7 @@ export default class Modtools{
 			saveAsset.name = $("input[name=name]", form).val().trim();
 			saveAsset.tags = this.compileTags('tags');
 			saveAsset.rooms = dungeon.rooms.map(el => el.save("mod"));
+			saveAsset.consumables = this.compileAssets("consumables");
 			
 		});
 
@@ -2026,8 +2080,11 @@ export default class Modtools{
 
 		// Canvas in here
 		html += '<div class="flexTwoColumns editorWrap">';
-			html += '<div class="cellEditor"></div>';
-			html += '<div class="assetEditor" style="flex:1">Asset editor</div>';
+			html += '<div class="editor" style="flex:40%">'+
+				'<div class="cellEditor"></div>'+
+				'<div class="legend" style="position:absolute;bottom:0; left:0; font-size:0.7vmax;">Q: Toggle world/local | W: Translate | E: Rotate | R: Scale | Ctrl: Snap | Ctrl+S: Quick Save | Ctrl+L: Quick Load</div>'+
+			'</div>';
+			html += '<div class="assetEditor" style="flex:40%">Asset editor</div>';
 		html += '</div>';
 		html += '<br />';
 		$("#modal > div.wrapper > div.content").append(html);

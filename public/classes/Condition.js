@@ -329,7 +329,7 @@ export default class Condition extends Generic{
 			}
 
 			else{
-				game.ui.addError("Unknown condition "+String(this.type));
+				game.modal.addError("Unknown condition "+String(this.type));
 				return false;
 			}
 			

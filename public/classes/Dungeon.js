@@ -24,7 +24,6 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import Calculator from './Calculator.js';
-import DungeonTemplate from './templates/DungeonTemplate.js';
 
 class Dungeon extends Generic{
 
@@ -43,7 +42,11 @@ class Dungeon extends Generic{
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
 		this.difficulty = 1;		// Generally describes how many players this dungeon is for
 		this.vars = {};				// Can be set and read programatically
-		this.consumables = [];		// Copied over from template
+		this.consumables = [
+			'manaPotion', 'majorManaPotion',
+			'minorHealingPotion', 'healingPotion', 'majorHealingPotion',
+			'minorRepairKit', 'repairKit', 'majorRepairKit',
+		];		// Copied over from template
 
 		// Runtime vars
 		this.transporting = false;	// Awaiting a room move
@@ -79,7 +82,7 @@ class Dungeon extends Generic{
 			out.depth = this.depth;
 			out.height = this.height;
 			out.shape = this.shape;
-			out.consumables = Asset.saveThese(out.consumables, full);
+			out.consumables = Asset.saveThese(this.consumables, full);
 		}
 
 		// Everything except mod
@@ -1163,7 +1166,7 @@ class DungeonRoomAsset extends Generic{
 		}
 
 		if( asset.isLocked() )
-			return game.ui.addError("Locked");
+			return game.modal.addError("Locked");
 
 
 
@@ -1184,7 +1187,7 @@ class DungeonRoomAsset extends Generic{
 			if( asset.isDoor() && asset.getDoorTarget() === dungeon.previous_room ){
 				
 				if( !game.turnPlayerIsMe() )
-					return game.ui.addError("Not your turn");
+					return game.modal.addError("Not your turn");
 				
 				let player = game.getTurnPlayer();
 				game.modal.close();
@@ -1192,7 +1195,7 @@ class DungeonRoomAsset extends Generic{
 				return;
 			}
 
-			game.ui.addError("Battle in progress");
+			game.modal.addError("Battle in progress");
 			return;
 
 		}
@@ -1459,7 +1462,7 @@ class DungeonEncounter extends Generic{
 		this.label = '';
 		this.started = false;		// Encounter has started (only set on Game clone of this)
 		this.completed = false;		// Encounter completed (only set on Game clone of this)
-		this.players = [];			// Players
+		this.players = [];			// Players that MUST be in this event. On encounter start, this may be filled with player_templates to satisfy difficulty
 		this.player_templates = [];	// 
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
 		this.startText = '';		// Text to trigger when starting

@@ -26,7 +26,6 @@ export default class UI{
 		this.masterVolume = $("#audioToggle");
 		this.netgamePlayers = $("#netgamePlayers");
 		this.netgameToggle = $("#netgameToggle");
-		this.notices = $("#notices");
 		this.gameIcons = $("#gameIcons");
 
 		this.previousConsoleCommands = [];
@@ -139,29 +138,6 @@ export default class UI{
 
 
 
-	/* ERRORS/NOTICES */
-	addError( text, isNotice ){
-		let out = $('<div class="item'+(isNotice ? ' notice' : '')+'">'+esc(text)+'</div>');
-		out.on('click', function(){
-			this.remove();
-		});
-		setTimeout(() => {
-			out.toggleClass('fadeOut', true);
-			setTimeout(() => {
-				out.remove();
-			}, 3000);
-		}, 6000);
-		this.notices.append(out);
-	}
-	addNotice( text ){
-		this.addError(text, true);
-	}
-
-
-
-
-
-
 
 	/* MAIN BOARD */
 	// Updates everything
@@ -242,7 +218,7 @@ export default class UI{
 				
 				let spell = player.getActionById(id);
 				if( !spell )
-					return game.ui.addError("No such spell found", id, "on", player);
+					return game.modal.addError("No such spell found", id, "on", player);
 
 				if( spell.castable(true) ){
 					th.targets_selected = [];
@@ -1103,7 +1079,7 @@ export default class UI{
 			const base = $("#newGameForm");
 			const c = glib.get($("select[name=class]").val().trim(), 'PlayerClass');
 			if( !c )
-				return game.ui.addError("Class not found");
+				return game.modal.addError("Class not found");
 			const player = new Player({
 				name : $("input[name=name]", base).val().trim() || 'Player',
 				species : $("input[name=species]", base).val().trim().toLowerCase() || 'human',
@@ -1121,7 +1097,7 @@ export default class UI{
 			
 
 			if( !name ){
-				game.ui.addError("Name is empty");
+				game.modal.addError("Name is empty");
 				return false;
 			}
 

@@ -14,12 +14,14 @@ export default class Modal{
 		this.content = $("#modal > div.wrapper > div.content");
 		this.closebutton = $("#modal > div.wrapper > input");
 		this.selectionbox = $("div.selectionbox");
+		this.notices = $("#notices");
 		
 		this.open = false;
 		this._onPlayerChange = {};		// playerUUID : function
 		this.onMapChange = [];			// callbacks
 		this.selBoxOpened = Date.now();		// Prevents misclicks
 		this._onSelectionBoxClose = null;
+		this._onModalClose = null;
 
 		this.bg.off('mousedown').on('mousedown', () => {
 			this.close();
@@ -68,15 +70,38 @@ export default class Modal{
 	}
 
 	close(){
+
+		if( typeof this._onModalClose === "function" )
+			this._onModalClose();
+
 		this.open = false;
 		this.wipeEvents();
 		if( window.game )
 			game.renderer.stop();
 		this.bg.toggleClass("hidden", true);
+
 	}
 
 	
 
+	/* NOTICES */
+	/* ERRORS/NOTICES */
+	addError( text, isNotice ){
+		let out = $('<div class="item'+(isNotice ? ' notice' : '')+'">'+esc(text)+'</div>');
+		out.on('click', function(){
+			this.remove();
+		});
+		setTimeout(() => {
+			out.toggleClass('fadeOut', true);
+			setTimeout(() => {
+				out.remove();
+			}, 3000);
+		}, 6000);
+		this.notices.append(out);
+	}
+	addNotice( text ){
+		this.addError(text, true);
+	}
 
 
 

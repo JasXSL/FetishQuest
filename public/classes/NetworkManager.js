@@ -157,7 +157,7 @@ class NetworkManager{
 			await this.connect();
 
 		if( !this.parent.is_host ){
-			game.ui.addError('You are not the host of this game');
+			game.modal.addError('You are not the host of this game');
 			return false;
 		}
 
@@ -168,7 +168,7 @@ class NetworkManager{
 					this._last_push = game.getSaveData();
 				}
 				else
-					game.ui.addError("Attempt to host failed");
+					game.modal.addError("Attempt to host failed");
 				res();
 			});
 		});
@@ -200,12 +200,12 @@ class NetworkManager{
 		return new Promise(res => {
 			this.io.emit('join', {room:id, name:name}, success => {
 				if( success ){
-					game.ui.addNotice("You have joined the game");
+					game.modal.addNotice("You have joined the game");
 					this.attempts = 0;
 					Game.joinNetGame();
 				}
 				else{
-					game.ui.addError("Failed to join a game");
+					game.modal.addError("Failed to join a game");
 					this.disconnect();
 				}
 				res();
@@ -395,7 +395,7 @@ class NetworkManager{
 				targs = args.targets.map(t => game.getPlayerById(t)).filter(t => !!t)
 			;
 			if( !spell )
-				return game.ui.addError("Action not found", args.action);
+				return game.modal.addError("Action not found", args.action);
 			game.useActionOnTarget(spell, targs, player, netPlayer);
 		}
 
@@ -497,7 +497,7 @@ class NetworkManager{
 		}
 
 		else if( task === NetworkManager.dmTasks.error && args && args.txt ){
-			game.ui.addError(args.txt, args.notice);
+			game.modal.addError(args.txt, args.notice);
 		}
 
 		else if( task === NetworkManager.dmTasks.animation ){

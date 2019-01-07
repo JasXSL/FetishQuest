@@ -151,7 +151,7 @@ Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
 
 	const encounters = dungeon.getNumEncounters();
 	if( !encounters )
-		return game.ui.addError("Unable to generate viable encounters for quest");
+		return game.modal.addError("Unable to generate viable encounters for quest");
 		
 	if( type === Quest.Types.DungeonClear ){
 

@@ -95,7 +95,7 @@ export default class Game extends Generic{
 	async save( allowInsert, ignoreNetGame ){
 
 		if( !this.initialized && !allowInsert ){
-			game.ui.addError("Unable to save, game failed to intialize");
+			game.modal.addError("Unable to save, game failed to intialize");
 			return false;
 		}
 
@@ -378,7 +378,7 @@ export default class Game extends Generic{
 	speakAs( uuid, text, isOOC ){
 
 		if( uuid === "DM" && !this.is_host ){
-			game.ui.addError("You are not the DM");
+			game.modal.addError("You are not the DM");
 			return;
 		}
 
@@ -386,7 +386,7 @@ export default class Game extends Generic{
 			isOOC = true;
 
 		if( uuid !== "DM" && !isOOC && (!this.getPlayerById(uuid) || !this.playerIsMe(this.getPlayerById(uuid))) )
-			return game.ui.addError("Player not yours: "+uuid);
+			return game.modal.addError("Player not yours: "+uuid);
 
 		if( !this.is_host )
 			return this.net.sendPlayerAction(NetworkManager.playerTasks.speak, {
@@ -411,7 +411,7 @@ export default class Game extends Generic{
 		else if( uuid !== "DM" ){
 			pl = this.getPlayerById(uuid);
 			if(!pl)
-				return game.ui.addError("Can't speak as player. Uuid "+uuid+" not found");
+				return game.modal.addError("Can't speak as player. Uuid "+uuid+" not found");
 			pl = pl.name;
 		}
 		
@@ -466,7 +466,7 @@ export default class Game extends Generic{
 				depth : -1,
 			});
 		if( !dungeon )
-			return game.ui.addError("Unable to generate a dungeon");
+			return game.modal.addError("Unable to generate a dungeon");
 
 		let quest = Quest.generate( type, dungeon, difficultyMultiplier);
 		if( !quest )
@@ -737,17 +737,17 @@ export default class Game extends Generic{
 			
 
 			if( player !== game.getTurnPlayer() ){
-				game.ui.addError("Not your turn");
+				game.modal.addError("Not your turn");
 				return false;
 			}
 			if( player.ap < apCost ){
-				game.ui.addError("Not enough AP");
+				game.modal.addError("Not enough AP");
 				return false;
 			}
 		}
 
 		if(!game.playerIsMe(player)){
-			game.ui.addError("not your player");
+			game.modal.addError("not your player");
 			return false;
 		}
 
@@ -780,7 +780,7 @@ export default class Game extends Generic{
 	deletePlayerItem( player, id ){
 
 		if(!game.playerIsMe(player)){
-			game.ui.addError("not your player");
+			game.modal.addError("not your player");
 			return false;
 		}
 
@@ -796,7 +796,7 @@ export default class Game extends Generic{
 	deletePlayerAction( player, id ){
 
 		if(!game.playerIsMe(player)){
-			game.ui.addError("not your player");
+			game.modal.addError("not your player");
 			return false;
 		}
 
@@ -1131,10 +1131,10 @@ export default class Game extends Generic{
 			player = this.getTurnPlayer();
 
 		if( this.battle_active && this.getTurnPlayer() !== player )
-			return game.ui.addError("Not your turn");
+			return game.modal.addError("Not your turn");
 
 		if( !game.playerIsMe(player) )
-			return game.ui.addError("Not your player");
+			return game.modal.addError("Not your player");
 
 		// Convert player to array, and none to []
 		if( targets.constructor === Player )
