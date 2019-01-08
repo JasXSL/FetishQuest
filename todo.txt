@@ -4,9 +4,9 @@ Critical:
 Mod Editor:
 	- Player editor
 	- Encounter editor
-		- Needs to be able to pick templates OR players
-	- Quest editor
-	- ModVars - Custom data that can be set and read by conditions
+		- Needs to be able to pick players
+	- ModVars (later) - Custom data that can be set and read by conditions
+	- Quest editor (later)
 
 new Gameplay elements:
 	- Learning/unlearning actions

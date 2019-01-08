@@ -2627,19 +2627,104 @@ export default class Modtools{
 
 	editor_players( asset = {} ){
 
-		let html = '<p>Todo: player editor.</p>';
-			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+		const a = new Player(asset);
+		let html = '';
+			html += 'Label: <input required type="text" name="label" value="'+esc(a.label)+'" /><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(a.name)+'" /><br />';
+			html += 'Species: <input required type="text" name="species" value="'+esc(a.species)+'" /><br />';
+			html += 'Description: <textarea name="description">'+esc(a.description)+'</textarea><br />';
+			html += 'Art: <input type="text" name="icon" value="'+esc(a.icon)+'" /><br />';
+			html += 'Actions: '+this.formActions(a.actions)+'<br />';
+			html += 'Assets (alt click to equip): '+this.formAssets(a.assets)+'<br />';
+			html += 'Tags: '+this.formTags(a.tags)+'<br />';
+			html += 'Team (0=players, 1=enemies): <input type="number" min=0 step=1 name="team" value="'+esc(a.team)+'" /><br />';
+			html += 'Size: <input type="range" min=0 step=1 max=10 name="size" value="'+esc(a.size)+'" /><br />';
+			html += 'Level (if leveled, this is an offset): <input type="number" step=1 name="level" value="'+esc(a.level)+'" /><br />';
+			html += 'Leveled (if leveled, level becomes an offset from the highest level player): <input type="checkbox" name="leveled" '+(a.leveled ? 'checked':'')+' /><br />';
+			html += 'Bonus Stamina: <input type="number" step=1 name="stamina" value="'+esc(a.stamina)+'" /><br />';
+			html += 'Bonus Intellect: <input type="number" step=1 name="intellect" value="'+esc(a.intellect)+'" /><br />';
+			html += 'Bonus Agility: <input type="number" step=1 name="agility" value="'+esc(a.agility)+'" /><br />';
 			
+			for( let r in Action.Types )
+				html += Action.Types[r]+' Resist: <input type="number" step=1 name="sv'+Action.Types[r]+'" value="'+esc(a['sv'+Action.Types[r]])+'" /><br />';
+
+			for( let r in Action.Types )
+				html += Action.Types[r]+' Proficiency: <input type="number" step=1 name="bon'+Action.Types[r]+'" value="'+esc(a['bon'+Action.Types[r]])+'" /><br />';
+		
+			html += 'Sadistic: <input type="range" step=0.1 min=0 max=1 name="sadistic" value="'+esc(a.sadistic)+'" /><br />';
+			html += 'Dominant: <input type="range" step=0.1 min=0 max=1 name="dominant" value="'+esc(a.dominant)+'" /><br />';
+			html += 'Heterosexual: <input type="range" step=0.1 min=0 max=1 name="hetero" value="'+esc(a.hetero)+'" /><br />';
+			html += 'Intelligence: <input type="range" step=0.1 min=0 max=1 name="intelligence" value="'+esc(a.intelligence)+'" /><br />';
+			
+			
+			html += 'Class: '+this.inputClass(asset.class)+'<br />';
+
 			
 		this.editor_generic('players', asset, this.mod.players, html, saveAsset => {
 
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.species = $("input[name=species]", form).val().trim();
+			saveAsset.description = $("textarea[name=description]", form).val().trim();
+			saveAsset.icon = $("input[name=icon]", form).val().trim();
+			saveAsset.actions = this.compileAction();
+			saveAsset.assets = this.compileAssets();
+			saveAsset.tags = this.compileTags();
+			saveAsset.team = +$("input[name=team]", form).val().trim();
+			saveAsset.size = +$("input[name=size]", form).val().trim();
+			saveAsset.level = +$("input[name=level]", form).val().trim();
+			saveAsset.leveled = $("input[name=leveled]", form).is(':checked');
+			saveAsset.stamina = +$("input[name=stamina]", form).val().trim();
+			saveAsset.intellect = +$("input[name=intellect]", form).val().trim();
+			saveAsset.agility = +$("input[name=agility]", form).val().trim();
+			for( let r in Action.Types ){
+				const ty = Action.Types[r];
+				saveAsset['sv'+ty] = +$("input[name=sv"+ty+"]", form).val().trim();
+				saveAsset['bon'+ty] = +$("input[name=bon"+ty+"]", form).val().trim();
+			}
+			saveAsset.sadistic = +$("input[name=sadistic]", form).val().trim();
+			saveAsset.dominant = +$("input[name=dominant]", form).val().trim();
+			saveAsset.hetero = +$("input[name=hetero]", form).val().trim();
+			saveAsset.intelligence = +$("input[name=intelligence]", form).val().trim();
+
+			saveAsset.inventory = [];
+			let index = 0;
+			$("#assetForm div.assets input[name=asset].equipped").each(function(){
+				if( !$(this).val().trim() )
+					return;
+				saveAsset.inventory.push(index);
+				++index;
+			});
+			
+			saveAsset.class = $("input[name=class]", form).val().trim();
+			try{
+				saveAsset.class = JSON.parse(saveAsset.class);
+			}catch(err){}
+			
 			
 			
 		});
 
+		const bind = function(){
+			console.log("binding alt");
+			$("#assetForm div.assets input[name=asset]").on('click', function(event){
+				console.log(event);
+				if( !event.altKey )
+					return;
+				$(this).toggleClass("equipped");
+			});
+		};
 
+		console.log(a);
+		// Colorize
+		for( let index of a.inventory )
+			$("#assetForm div.assets input[name=asset]").eq(index).toggleClass("equipped", true);
+		
+		this.bindFormHelpers(() => {
+			setTimeout(bind, 10);
+		});
+		bind();
 	}
 
 
@@ -3585,6 +3670,7 @@ export default class Modtools{
 			.on('click', function(){
 				$(this).parent().append(th.inputAsset(""));
 				th.bindFormHelpers();
+				th.formHelperOnChange("Assets", $(this).parent());
 			});
 	}
 

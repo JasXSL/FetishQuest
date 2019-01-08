@@ -44,23 +44,10 @@ class DungeonTemplate extends Generic{
 	rebase(){
 
 		this.encounters = DungeonEncounter.loadThese(this.encounters, this);
-
+		this.consumables = Asset.loadThese(this.consumables, this);
 	}
 
-	// Returns a consumable in a weighted list
-	getRandomConsumable(){
-
-		let assetLib = glib.getFull("Asset");
-		let assets = [];
-		for( let c of this.consumables ){
-			if( assetLib[c] )
-				assets.push(assetLib[c]);
-		}
-
-		let out = Asset.getRandomByRarity(assets);
-		return out;
-
-	}
+	
 
 	load(data){
 		this.g_autoload(data);

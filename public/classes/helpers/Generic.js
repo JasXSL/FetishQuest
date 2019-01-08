@@ -7,7 +7,7 @@ export default class Generic{
 
 	g_autoload(data){
 		if(typeof data !== "object")
-			return;
+			data = {};
 
 		for(let i in data){
 			if( this.hasOwnProperty(i) && typeof this[i] !== "function" && i !== "parent" ){
@@ -168,6 +168,9 @@ Generic.loadThis = function( entry, parent ){
 			return entry;
 
 		let n = glib.get(entry, this.name);
+		if( typeof n !== "object" )
+			console.error("Found a none-object asset in library", n, "entry was", entry, "parent was", parent);
+
 		if( !n ){
 			console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", glib.getFull(this.name));
 			return false;

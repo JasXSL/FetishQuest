@@ -30,18 +30,21 @@ export default class Player extends Generic{
 		this.icon = "";				// URL
 		this.actions = [];			// Action objects, use getActions since assets can also add actions
 		this.assets = [];			// Asset objects, use getAssets
+		this.inventory = [];		// NPC only. This is an array of numbers specifying which items above are equipped when entering the game.
+
 		this.tags = [];				// Player tags, these are automatically prefixed with PL_, use getTags
 		this.wrappers = [];			// Wrappers, use getWrappers
 		this.auto_wrappers = [];	// Automatic wrappers such as encumbered
 		this.hp = 60;				// 
 		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
 		this.team = 0;				// 0 = player
-		this.size = 2;				// 0-4
+		this.size = 5;				// 0-10
 		this.auto_play = false;		// This is a bot
 		this.level = 1;				// 
 		this.experience = 0;
 		this.mp = 10;				// Secondary stat used for spells. Mana points.
 		this.arousal = 0;
+		this.leveled = false;		// Level is an offset of the player average level
 
 		// Primary stats
 		this.stamina = 0;			// Adds 2 HP per point
@@ -74,7 +77,7 @@ export default class Player extends Generic{
 													>= 0.6 + Judging = Able to set traps, triggering at the start of a battle
 													>= 0.8 = Now too smart for aggro, always picks targets carefully
 												*/
-		this.class = new PlayerClass();
+		this.class = null;
 		
 		this._stun_diminishing_returns = 0;		// Rounds you can't be stunned
 
@@ -105,11 +108,13 @@ export default class Player extends Generic{
 
 		this.g_autoload(data);
 
+
 		this.addDefaultActions();
 		let w = this.getWrappers();
 		w.map(wrapper => {
 			wrapper.bindEvents();
 		});
+
 
 		// Apply constraints
 		this.addHP(0);
@@ -120,11 +125,17 @@ export default class Player extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+
 		this.actions = Action.loadThese(this.actions, this);
 		this.assets = Asset.loadThese(this.assets, this);
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
-		this.class = PlayerClass.loadThis(this.class, this);
 
+		if( window.game )
+			this.class = PlayerClass.loadThis(this.class, this);
+		
+		if( this.class === null )
+			this.class = new PlayerClass();
+		
 		if( window.game && game.is_host )
 			this.updateAutoWrappers();
 		else
@@ -165,8 +176,9 @@ export default class Player extends Generic{
 		};
 
 		if( full ){
-			
+			out.leveled = this.leveled;
 			out.label = this.label;
+			out.inventory = this.inventory;
 			if( full !== "mod" ){
 				out.auto_play = !!this.auto_play;
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
@@ -270,6 +282,7 @@ export default class Player extends Generic{
 		return out;
 	}
 
+	
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
 	appendMathVars(prefix, vars, event){
@@ -510,11 +523,28 @@ export default class Player extends Generic{
 	}
 
 
+	
 
 	
 
 
 	/* Events */
+	// happens to NPCs the first time they're placed in world from an encounter
+	onPlacedInWorld(){
+
+		for( let index of this.inventory ){
+			if( this.assets[index] && this.assets[index].equippable() )
+				this.equipAsset(this.assets[index]);
+		}
+		this.inventory = [];
+
+		this.auto_play = true;
+
+		if( this.leveled ){
+			this.level += game.getHighestLevelPlayer();
+			this.leveled = false;
+		}
+	}
 	onTurnEnd(){
 		for(let wrapper of this.wrappers)
 			wrapper.onTurnEnd();
@@ -1006,6 +1036,7 @@ export default class Player extends Generic{
 	getMaxArousal(){
 		return BASE_AROUSAL;
 	}
+
 
 	
 

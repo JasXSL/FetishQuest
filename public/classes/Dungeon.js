@@ -1330,7 +1330,7 @@ class DungeonRoomAssetInteraction extends Generic{
 		let numBonus = Math.round(Math.pow(Math.random(),3)*2);
 		let numConsumables = numBonus+!(value >= 0.5);
 		for( let i=0; i<numConsumables; ++i ){
-			let consumable = dungeon.template.getRandomConsumable();
+			let consumable = Asset.getRandomByRarity(dungeon.consumables);
 			if( !consumable )
 				break;
 			this.data.push(consumable.clone(this.parent).save(true));
@@ -1533,6 +1533,11 @@ class DungeonEncounter extends Generic{
 				this.players.push(pl);
 			}
 		}
+
+		// Run world placement event on all players
+		for( let player of this.players )
+			player.onPlacedInWorld();
+		
 
 	}
 

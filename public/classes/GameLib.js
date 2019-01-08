@@ -80,8 +80,17 @@ export default class GameLib{
 
 	// Loads a mod db array onto one of this objects
 	loadModOnto( db, obj, constructor ){
+
 		for( let asset of db )
 			obj[asset.label] = new constructor(asset);
+
+		// Handle caches
+		if( constructor.name === "Asset" ){
+			this._cache_assets = {};
+			for( let i in this.assets )
+				this._cache_assets[i] = this.assets[i];
+		}
+
 	}
 
 	// Loads mods into the library
@@ -107,7 +116,6 @@ export default class GameLib{
 			'dungeonRoomTemplates',
 			'dungeonTemplates',
 		];
-		
 
 		for( let mod of mods ){
 			
@@ -122,7 +130,6 @@ export default class GameLib{
 
 		}
 
-		// Builds caches
 		this.rebase();
 
 		console.log("MODS FINISHED LOADING. LIBRARY:", this);
@@ -150,10 +157,6 @@ export default class GameLib{
 
 	// Rebuild caches
 	rebase(){
-
-		this._cache_assets = {};
-		for( let i in this.assets )
-			this._cache_assets[i] = this.assets[i];
 		for( let i in this._custom_assets ){
 			this._cache_assets[i] = this._custom_assets[i];
 			this._cache_assets[i]._custom = true;

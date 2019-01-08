@@ -1318,6 +1318,10 @@ div.modButtons div.button{
 	width:auto;
 }
 
+#assetForm input.equipped{
+	border-color:#AFA;
+}
+
 table.editor tr.search{
 	background:rgba(255,200,155,.25);
 	font-style: italic;

@@ -115,7 +115,7 @@ class PlayerTemplate extends Generic{
 		player.intelligence = rand1(this.intelligence_min, this.intelligence_max);
 
 		player.size = Math.floor(Math.random()*(this.max_size+1-this.min_size))+this.min_size;
-		player.size = Math.min(Math.max(0, player.size), 4);
+		player.size = Math.min(Math.max(0, player.size), 10);
 		player.team = 1;
 		shuffle(this.classes);
 		shuffle(this.viable_asset_materials);

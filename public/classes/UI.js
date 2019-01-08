@@ -1004,7 +1004,7 @@ export default class UI{
 						'<input type="text" name="name" placeholder="Character Name" required /><br />'+
 						'<input type="text" name="icon" placeholder="Character Art" /><br />'+
 						'<input type="text" name="species" placeholder="Species" required /><br />'+
-						'Size: <input type="range" name="size" min=0 max=4 /><br />'+
+						'Size: <input type="range" name="size" min=0 max=10 /><br />'+
 						'Class: <select name="class">';
 						const classes = glib.getFull('PlayerClass');
 						for( let c in classes )
@@ -1616,7 +1616,7 @@ export default class UI{
 					html += '</select><br />'+
 						'Level:<br /><input type="number" name="level" min=1 step=1 value='+(+player.level)+' /><br />'+
 						'<div class="flexTwoColumns">'+
-							'<div>Size:<br /><input type="range" name="size" value="'+(+player.size)+'" min=0 max=4 step=1 /></div>'+
+							'<div>Size:<br /><input type="range" name="size" value="'+(+player.size)+'" min=0 max=10 step=1 /></div>'+
 							'<div style="margin-top:1.75vmax"><label><input type="checkbox" name="auto_play" value=1 '+(player.auto_play ? 'checked' : '')+' /> Auto Play</label></div>'+
 						'</div>'+
 						'Image:<br /><input type="text" name="icon" placeholder="Image URL" value="'+esc(player.icon)+'" /><br />'+

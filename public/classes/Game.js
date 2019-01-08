@@ -273,7 +273,7 @@ export default class Game extends Generic{
 	onQuestCompleted( quest ){
 		if( !(quest instanceof Quest) )
 			return;
-		this.ui.addNotice("Quest completed: "+esc(quest.name)+"!");
+		this.modal.addNotice("Quest completed: "+esc(quest.name)+"!");
 		this.playFxAudioKitById('questCompleted', undefined, undefined, undefined, true);
 	}
 	onQuestAccepted( quest ){
@@ -479,9 +479,9 @@ export default class Game extends Generic{
 	}
 	addQuest(quest){
 		if( this.quests.length > 5 )
-			return this.ui.addError("Quest log is full.");
+			return this.modal.addError("Quest log is full.");
 		if( !(quest instanceof Quest) )
-			return this.ui.addError("Quest is not a Quest object");
+			return this.modal.addError("Quest is not a Quest object");
 		this.quests.push(quest);
 		this.onQuestAccepted(quest);
 		this.save();
@@ -1199,7 +1199,7 @@ export default class Game extends Generic{
 	useRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID){
 
 		if( !this.playerIsMe(senderPlayer) )
-			return this.ui.addError("Not your player");
+			return this.modal.addError("Not your player");
 
 		if( !this.is_host )
 			return this.net.playerUseRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID);
@@ -1207,9 +1207,9 @@ export default class Game extends Generic{
 		let kitAsset = senderPlayer.getAssetById(repairKitID);
 		let targetAsset = targetPlayer.getAssetById(assetID);
 		if( !kitAsset )
-			return this.ui.addError("Repair kit not found");
+			return this.modal.addError("Repair kit not found");
 		if( !targetAsset )
-			return this.ui.addError("Target asset not found");
+			return this.modal.addError("Target asset not found");
 
 		this.execRepairWithAsset(senderPlayer, targetPlayer, kitAsset, targetAsset);
 
@@ -1305,7 +1305,7 @@ Game.LOG_SIZE = 300;
 
 Game.load = async () => {
 	
-	if( game )
+	if( game instanceof Game )
 		game.destructor();
 
 	game = new Game();
