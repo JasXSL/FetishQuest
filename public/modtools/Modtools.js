@@ -209,7 +209,8 @@ export default class Modtools{
 			assets = '',
 			roomTemplates = '',
 			playerTemplates = '',
-			encounters = ''
+			encounters = '',
+			players = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -266,6 +267,9 @@ export default class Modtools{
 		const encounterLib = glib.getFull('DungeonEncounter');
 		for( let i in encounterLib )
 			encounters += '<option value="'+esc(i)+'"/>';
+		const playerLib = glib.getFull('Player');
+		for( let i in playerLib )
+			players += '<option value="'+esc(i)+'"/>';
 
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
@@ -281,7 +285,8 @@ export default class Modtools{
 			'<datalist id="assets"><select>'+assets+'</select></datalist>'+
 			'<datalist id="roomTemplates"><select>'+roomTemplates+'</select></datalist>'+
 			'<datalist id="playerTemplates"><select>'+playerTemplates+'</select></datalist>'+
-			'<datalist id="encounters"><select>'+encounters+'</select></datalist>'
+			'<datalist id="encounters"><select>'+encounters+'</select></datalist>'+
+			'<datalist id="players"><select>'+players+'</select></datalist>'
 		);
 
 	}
@@ -1824,7 +1829,7 @@ export default class Modtools{
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Player Templates: '+this.formPlayerTemplates(asset.player_templates, 'player_templates')+'<br />';
-			html += 'Specific Players (TODO)<br />';
+			html += 'Specific Players: '+this.formPlayers(asset.players)+'<br />';
 			html += 'Wrappers (auto target is player who started the event): <br />'+this.formWrappers(asset.wrappers, 'wrappers')+'<br />';
 			html += 'Start Text (uses the same placeholders as action texts): <input type="text" value="'+esc(asset.text || '')+'" name="startText" /><br />';
 			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />'; 
@@ -1835,6 +1840,7 @@ export default class Modtools{
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.startText = $("input[name=startText]", form).val().trim();
 			
+			saveAsset.players = this.compilePlayers();
 			saveAsset.player_templates = this.compilePlayerTemplates('player_templates');
 			saveAsset.wrappers = this.compileWrappers('wrappers');
 			saveAsset.conditions = this.compileConditions('conditions');
@@ -1862,12 +1868,12 @@ export default class Modtools{
 			dungeon.rooms.push(r);
 		}
 		
-
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
 			html += 'Tags: '+this.formTags(asset.tags, 'tags')+'<br />';
 			html += 'Consumables: '+this.formAssets(dungeon.consumables, 'consumables')+'<br />';
+			html += 'Dungeon Vars: '+this.formDungeonVars(dungeon.vars)+'<br />';
 
 		// Helper functions
 		function setDungeonRoomByIndex(index, z = 0){
@@ -2091,6 +2097,7 @@ export default class Modtools{
 			saveAsset.tags = this.compileTags('tags');
 			saveAsset.rooms = dungeon.rooms.map(el => el.save("mod"));
 			saveAsset.consumables = this.compileAssets("consumables");
+			saveAsset.vars = this.compileDungeonVars();
 			
 		});
 
@@ -2280,8 +2287,6 @@ export default class Modtools{
 			html += 'Z <input type="number" step=0.01 name="scaleZ" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleZ)+'" /> <br />';
 	
 			html += '<div class="assetDataEditor"><input type="button" value="Add Interaction" class="addInteraction" /><div class="assetData"></div></div>';
-
-			// Todo: LOCK
 
 			html += '<input type="button" value="Delete" class="deleteSelectedAsset" />';
 
@@ -2619,8 +2624,6 @@ export default class Modtools{
 			}, asset.parent) );
 			this.drawRoomEditor(asset.parent);
 		});
-
-		// Todo: Bind the interactions and allow them to be deleted
 		
 
 	}
@@ -2787,6 +2790,8 @@ export default class Modtools{
 		this.bindPlayerTemplates();
 		this.bindSoundkitSubs();
 		this.bindEncounters();
+		this.bindPlayers();
+		this.bindDungeonVars();
 	}
 
 	// Draws a JSON editor for an element
@@ -3110,6 +3115,107 @@ export default class Modtools{
 		out += '<input type="button" class="addEventHere" value="Add Event" />';
 		for( let name of names )
 			out+= this.inputEvent(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+	// DungeonVars (bindable)
+	inputDungeonVar( key, val ){
+		if( typeof val === "object" )
+			val = JSON.stringify(val);
+		return '<div class="_dvar">'+
+			'<input type="text" name="dungeonVar_key" value="'+esc(key)+'" />'+
+			'<input type="text" class="json" name="dungeonVar_val" value="'+esc(val)+'" />'+
+		'</div>';
+	}
+
+	bindDungeonVars(){
+		let th = this;
+		$("#modal input.addDungeonVarHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputDungeonVar("key","val"));
+				th.bindFormHelpers();
+				th.formHelperOnChange();
+			});
+	}
+
+	compileDungeonVars( cName = 'dvars' ){
+		const base = $('#modal div.'+cName+' div._dvar');
+		const out = {};
+		base.each((index, value) => {
+			const el = $(value);
+			let key = $("input[name=dungeonVar_key]").val().trim();
+			let val = $("input[name=dungeonVar_val]", el).val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( key )
+				out[key] = val;
+		});
+		return out;
+	}
+
+	formDungeonVars( vars = {}, cName = 'dvars' ){
+
+		if( typeof vars != "object" )
+			vars = {};
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addDungeonVarHere" value="Add DungeonVar" />';
+		for( let i in vars )
+			out+= this.inputDungeonVar(i, vars[i]);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+
+	// Events (bindable)
+	inputPlayer( data ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="player" value="'+esc(data)+'" list="players" />';
+	}
+
+	bindPlayers(){
+		let th = this;
+		$("#modal input.addPlayerHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputPlayer(""));
+				th.bindFormHelpers();
+				th.formHelperOnChange();
+			});
+	}
+
+	compilePlayers( cName = 'players' ){
+		const base = $('#modal div.'+cName+' input[name=player]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val && val !== "none" )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formPlayers( names = [], cName = 'players' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addPlayerHere" value="Add Player" />';
+		for( let name of names )
+			out+= this.inputPlayer(name);
 		out += '</div>';
 		return out;
 
