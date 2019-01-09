@@ -66,6 +66,10 @@ class Dungeon extends Generic{
 
 	save( full ){
 		
+		const vars = {};
+		for( let i in this.vars )
+			vars[i] = this.vars[i];
+
 		let out = {
 			name : this.name,
 			tags : this.tags,
@@ -73,7 +77,7 @@ class Dungeon extends Generic{
 				return el.save(full);
 			}),
 			difficulty : this.difficulty,
-			vars : this.vars
+			vars : vars
 		};
 
 		// Full or mod
@@ -963,6 +967,8 @@ class DungeonRoomAsset extends Generic{
 			return false;
 
 		for( let i of this.interactions ){
+			if( !i.validate )
+				console.error("Found invalid interaction", i, "in", this);
 			if( i.validate() )
 				return true;
 		}
@@ -1264,7 +1270,7 @@ class DungeonRoomAssetInteraction extends Generic{
 	save( full ){
 		return {
 			type : this.type,
-			data : this.data,
+			data : JSON.parse(JSON.stringify(this.data)),
 			break : this.break,
 			repeats : this.repeats,
 			conditions : Condition.saveThese(this.conditions, full)

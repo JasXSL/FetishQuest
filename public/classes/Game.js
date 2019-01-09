@@ -50,6 +50,10 @@ export default class Game extends Generic{
 		this.active_music = null;						// Only one song can play at a time
 		this.active_ambient = null;						// Only one ambient track can play at once 
 
+		this.save_timer = null;
+		this.ignore_netgame = true;						// For above, set to false if there's a call is added to the timer without ignore
+
+
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
 	}
 
@@ -92,7 +96,26 @@ export default class Game extends Generic{
 	}
 
 	// Async file save
-	async save( allowInsert, ignoreNetGame ){
+	async save( ignoreNetGame ){
+
+		if( !ignoreNetGame )
+			this.ignore_netgame = false;
+
+		clearTimeout(this.save_timer);
+		return new Promise(res => {
+			this.save_timer = setTimeout(() => {
+				
+				this.save_timer = null;
+				res( this.execSave(false, this.ignore_netgame) );
+
+			}, 100);
+		});
+		
+
+		
+	}
+
+	async execSave( allowInsert, ignoreNetGame ){
 
 		if( !this.initialized && !allowInsert ){
 			game.modal.addError("Unable to save, game failed to intialize");
@@ -103,8 +126,14 @@ export default class Game extends Generic{
 			return false;
 		}
 
+
+		// Wait for transporting to finish
+		if( this.dungeon.transporting )
+			return;
+
 		if( !ignoreNetGame )
 			this.net.sendGameUpdate();
+		this.ignore_netgame = true;
 
 		let out = this.getSaveData(true);
 
@@ -119,8 +148,9 @@ export default class Game extends Generic{
 			this.initialized = true;
 			this.load();	// Starts the actual game
 		}
-		return ret;
 
+		
+		return ret;
 	}
 
 	// Std load
@@ -162,15 +192,16 @@ export default class Game extends Generic{
 	// Automatically invoked after g_autoload() in load()
 	rebase( forcePlayers ){
 
+		
+		this.quests = Quest.loadThese(this.quests, this);		
+		this.dungeon = new Dungeon(this.dungeon, this);
+		this.encounter = new DungeonEncounter(this.encounter, this);
+		// Players last as they may rely on the above
 		this.players = this.players.map(el => {
 			if( el.constructor !== Player || forcePlayers )
 				return new Player(el);
 			return el;
 		});
-		this.quests = Quest.loadThese(this.quests, this);		
-		this.dungeon = new Dungeon(this.dungeon, this);
-		this.encounter = new DungeonEncounter(this.encounter, this);
-
 
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
@@ -358,7 +389,7 @@ export default class Game extends Generic{
 		while( this.chat_log.length > Game.LOG_SIZE )
 			this.chat_log.shift();
 		if( this.initialized )
-			this.save(false, true);
+			this.save(true);
 	}
 	// Generates a chat message in DM mode of if an attack hit or not
 	dmHitMessage( action, hit ){
@@ -1334,7 +1365,7 @@ Game.new = async (name, players) => {
 			game.addPlayer(player);
 	}
 	game.initialized = true;
-	await game.save( true );
+	await game.execSave( true );
 };
 
 // Converts the current game into a netgame

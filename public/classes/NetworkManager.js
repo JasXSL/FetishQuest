@@ -1,4 +1,5 @@
 import Game from './Game.js';
+import GameEvent from './GameEvent.js';
 
 class NetworkManager{
 
@@ -12,6 +13,7 @@ class NetworkManager{
 		this.public_id = null;
 		this.players = [];			// {id:id, name:name}
 		this._last_push = null;
+		this._pre_push_time = 0;		// Time of last push
 		this.timer_reconnect = null;
 
 		// This is for debugging purposes
@@ -235,19 +237,23 @@ class NetworkManager{
 	// This is also used internally for modal updates
 	sendGameUpdate(){
 		
-		return;	// Todo: reimplement
+		if( !game.is_host )
+			return;
 
 		// Auto
-		let current = game.getSaveData();
-		let changes = DeepDiff.diff(this._last_push, current);
-		// No data changed, no need to push
+		const current = game.getSaveData();
+		const changes = DeepDiff.diff(this._last_push, current);
 		if( !changes )
 			return;
 
 		this._last_push = current;
-		this.onGameUpdate(changes);
-		if( this.isConnected() && game.is_host )
-			this.io.emit('gameUpdate', changes);
+		game.modal.onGameUpdate(changes);
+		if( this.isConnected() && game.is_host ){
+			const now = Date.now();
+			console.log("Emitting changes", changes);
+			this.io.emit('gameUpdate', {ch:changes,ts:this._pre_push_time,now:now});
+			this._pre_push_time = now;
+		}
 
 	}
 
@@ -582,15 +588,35 @@ class NetworkManager{
 	onGameUpdate(data){
 
 		
+		if( game.is_host )
+			return;
+
+
+		if( typeof data !== "object" )
+			return;
+
+		const ts = data.ts, 	// Last update id
+			now = data.now;		// this update id
+		data = data.ch;			// Changes
+
 		if( !Array.isArray(data) )
 			return;
 
-		if( game.is_host ){
-			game.modal.onGameUpdate(data);
-			return;
-		}
+		game.modal.onGameUpdate(data);
+
 		if( this.debug )
 			console.log("Game update received", data);
+
+		if( this._pre_push_time != ts && this._pre_push_time !== 0 ){
+			this._pre_push_time = 0;
+			console.error("Desync detected, requesting whole game");
+			this.playerRequestFullGame();
+			return;
+		}
+
+		this._pre_push_time = now;
+
+
 		let getPath = function( path ){
 			let targ = game;
 			let basePath = path.slice();
@@ -610,6 +636,8 @@ class NetworkManager{
 		let dungeonPreId = game.dungeon.id;
 		
 		// Paths needing rebasing
+		/*
+		Todo: Fix this at some point
 		let need_rebase = [];			// Sub arrays of path
 		let addRebase = path => {
 
@@ -638,6 +666,7 @@ class NetworkManager{
 			// Nothing exists, we need to add the path
 			need_rebase.push(path);
 		};
+		*/
 
 		for( let ch of data ){
 			if( ch.path[0] === "dungeon" )
@@ -677,17 +706,19 @@ class NetworkManager{
 
 			
 			// Rebase objects
+			/*
 			if( (typeof ch.rhs === "object" || kind === "A") && Array.isArray(need_rebase) ){
 				
 				let found = false;
 				let arr = ch.path;
+				console.log("Checking", arr);
 				for( let i = arr.length-1; i>=0; --i ){
 
 					let p = arr.slice(0, i+1);
 					let last = getPath(p.slice());
 					last = last[p[p.length-1]];
 					// Step back if it's been deleted
-					if( last === undefined )
+					if( last === undefined || last === null )
 						continue;
 
 					if( typeof last.rebase === "function" ){
@@ -703,20 +734,23 @@ class NetworkManager{
 				if( !found )
 					need_rebase = true;
 			}
-
+			*/
 		}
 
-		if( need_rebase === true ){
+		//if( need_rebase === true ){
 			game.rebase( true );
-		}
+		//}
+		/*
 		else{
+			console.log("need rebase: ", need_rebase);
 			for( let base of need_rebase ){
 				let p = getPath(base.slice());
 				let target = base[base.length-1];
+				console.log("Rebasing", p[target]);
 				p[target].rebase();
 			}
 		}
-
+		*/
 		game.ui.draw();
 		game.modal.onGameUpdate(data);
 		
