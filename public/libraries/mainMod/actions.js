@@ -272,21 +272,17 @@ const lib = {
 	},
 
 	// Elementalist
-	"elementalist_iceBlast": {
-		"level": 1,
+	elementalist_iceBlast: {
+		level : 1,
 		name : "Ice Blast",
-		"ranged": true,
+		ranged: true,
 		description : "Blast your opponent with frost, dealing 6 elemental damage, plus 1 AP damage if your target is soaked.",
 		ap : 2,
 		mp : 1,
-		type : "Elemental",
+		type : Action.Types.elemental,
 		cooldown : 1,
-		tags : [
-			"ac_damage"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		tags : ["ac_damage"],
+		show_conditions : ["inCombat"],
 		wrappers : [
 			{
 				target : "VICTIM",
@@ -318,23 +314,19 @@ const lib = {
 			}
 		]
 	},
-	"elementalist_healingSurge": {
-		"level": 2,
+	elementalist_healingSurge: {
+		level: 2,
 		name : "Healing Surge",
 		description : "Restores 8 HP to your target. Also heals 2 HP at the start of their turn for 3 turns.",
 		ap : 1,
 		mp : 2,
-		"ranged": true,
+		ranged: true,
 		cooldown : 1,
-		"charges": 2,
+		charges: 2,
 		detrimental : false,
-		type : "Elemental",
-		tags : [
-			"ac_heal"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		type : Action.Types.elemental,
+		tags : ["ac_heal"],
+		show_conditions : ["inCombat"],
 		wrappers : [
 			{
 				target : "VICTIM",
@@ -375,62 +367,42 @@ const lib = {
 			}
 		]
 	},
-	"elementalist_waterSpout": {
-		"level": 3,
+	elementalist_waterSpout: {
+		level : 3,
 		name : "Water Spout",
-		description : "Places a water spout under your target for 1 turn. The spout activates when the target uses an action, soaking them and reducing their elemental resistance by 2, and restores 1 MP to the caster. Stacks 3 times.",
+		description : "Summons a water spout that soaks your target for 1 turn and lowers their elemental resistance by two. Whenever the target uses an action, the caster gains 1 MP.",
 		ap : 2,
 		mp : 1,
 		cooldown : 2,
-		"ranged": true,
+		ranged: true,
 		detrimental : true,
-		type : "Elemental",
-		tags : [
-			"ac_debuff"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		type : Action.Types.elemental,
+		tags : [stdTag.acDebuff],
+		show_conditions : ["inCombat"],
 		wrappers : [
 			{
 				duration : 1,
 				name : "Water Spout",
 				icon : "droplet-splash",
-				description : "Actions will debuff the target and restore MP to the caster.",
+				description : "Soaked. Elemental resistance lowered by 2. Performing actions restores 1 MP to the caster.",
 				detrimental : true,
 				add_conditions : stdCond,
 				stay_conditions : stdCond,
+				tags : [stdTag.wrSoaked],
 				effects : [
 					{
-						type : "runWrappers",
-						events : [
-							"actionUsed"
-						],
-						conditions : [
-							"senderIsWrapperParent",
-							"actionNotHidden"
-						],
+						type : Effect.Types.svElemental,
 						data : {
-							wrappers : [
-								"soak"
-							]
-						},
-						label : "elementalistWaterSpout_proc"
+							amount : -2
+						}
 					},
 					{
-						targets : [
-							"CASTER"
-						],
-						type : "addMP",
-						events : [
-							"actionUsed"
-						],
-						conditions : [
-							"senderIsWrapperParent",
-							"actionNotHidden"
-						],
+						targets : ["CASTER"],
+						type : Effect.Types.addMP,
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["senderIsWrapperParent","actionNotHidden"],
 						data : {
-							"amount": 1
+							amount: 1
 						}
 					}
 				]
@@ -1679,19 +1651,16 @@ const lib = {
 				duration : 2,
 				detrimental : true,
 				name : "Tentacle Ride",
-				icon : "falling",
+				icon : "rock",
 				description : "Lifted onto a tentacle, grappled.",
 				trigger_immediate : true,
 				add_conditions : stdCond.concat(
-					"targetNotBeast", C.targetNotKnockedDown
+					"targetNotBeast", "targetNotGrappled"
 				),
 				tags : [stdTag.wrTentacleRide],
 				effects : [
 					{
-						type : Effect.Types.knockdown,
-						data : {
-							type : Effect.KnockdownTypes.Grapple
-						},
+						type : Effect.Types.grapple,
 					},
 					"visAddTargTakeDamage"
 				]

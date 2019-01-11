@@ -99,7 +99,7 @@ export default {
 	wrDazed : 'wr_dazed',
 	wrKnockdownBack : 'wr_knocked_down_back',
 	wrKnockdownFront : 'wr_knocked_down_front',
-	wrKnockdownGrapple : 'wr_knocked_down_grapple',
+	wrGrapple : 'wr_grapple',
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
 	wrTentacleRide : 'wr_tentacle_ride',
 	

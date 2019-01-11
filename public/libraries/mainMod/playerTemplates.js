@@ -438,6 +438,7 @@ const lib = {
 		viable_consumables : [
 
 		],
+		powered : true,
 		sadistic_min : 0,
 		sadistic_max : 1,
 		dominant_min : 0,

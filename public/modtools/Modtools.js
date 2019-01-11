@@ -1563,6 +1563,7 @@ export default class Modtools{
 
 
 			html += 'Difficulty: <input required type="number" min=0.01 step=0.01 name="difficulty" value="'+esc(asset.difficulty)+'" /><br />';
+			html += 'Powered: <input type="checkbox" name="powered" '+esc(asset.powered ? 'checked' : '')+' /><br />';
 			html += 'Max Actions: <input required type="number" min=-1 step=1 name="max_actions" value="'+esc(asset.max_actions)+'" /><br />';
 			html += '<label title="Chance of having gear">Gear Chance: <input required type="range" min=0 step=0.01 max=1 name="gear_chance" value="'+esc(asset.gear_chance)+'" /></label><br />';
 
@@ -1629,6 +1630,7 @@ export default class Modtools{
 			saveAsset.max_level = +$("input[name=max_level]", form).val().trim();
 			saveAsset.min_size = +$("input[name=min_size]", form).val().trim();
 			saveAsset.max_size = +$("input[name=max_size]", form).val().trim();
+			saveAsset.powered = $("input[name=powered]", form).is(":checked");
 			saveAsset.viable_asset_templates = this.compileAssetTemplates('viable_asset_templates');
 			saveAsset.viable_asset_materials = this.compileMaterialTemplates('viable_asset_materials');
 			saveAsset.viable_consumables = this.compileAssets('viable_consumables');
@@ -2644,6 +2646,7 @@ export default class Modtools{
 			html += 'Size: <input type="range" min=0 step=1 max=10 name="size" value="'+esc(a.size)+'" /><br />';
 			html += 'Level (if leveled, this is an offset): <input type="number" step=1 name="level" value="'+esc(a.level)+'" /><br />';
 			html += 'Leveled (if leveled, level becomes an offset from the highest level player): <input type="checkbox" name="leveled" '+(a.leveled ? 'checked':'')+' /><br />';
+			html += 'Powered (if powered, stats are auto multiplied by nr of players): <input type="checkbox" name="powered" '+(a.powered ? 'checked':'')+' /><br />';
 			html += 'Bonus Stamina: <input type="number" step=1 name="stamina" value="'+esc(a.stamina)+'" /><br />';
 			html += 'Bonus Intellect: <input type="number" step=1 name="intellect" value="'+esc(a.intellect)+'" /><br />';
 			html += 'Bonus Agility: <input type="number" step=1 name="agility" value="'+esc(a.agility)+'" /><br />';
@@ -2678,6 +2681,7 @@ export default class Modtools{
 			saveAsset.size = +$("input[name=size]", form).val().trim();
 			saveAsset.level = +$("input[name=level]", form).val().trim();
 			saveAsset.leveled = $("input[name=leveled]", form).is(':checked');
+			saveAsset.powered = $("input[name=powered]", form).is(':checked');
 			saveAsset.stamina = +$("input[name=stamina]", form).val().trim();
 			saveAsset.intellect = +$("input[name=intellect]", form).val().trim();
 			saveAsset.agility = +$("input[name=agility]", form).val().trim();

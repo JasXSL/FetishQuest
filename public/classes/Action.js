@@ -274,7 +274,7 @@ class Action extends Generic{
 		let parent = this.getPlayerParent();
 		let pl = game.players;
 		if( this.detrimental && !isChargeFinish )
-			pl = this.getPlayerParent().getTauntedBy();
+			pl = this.getPlayerParent().getTauntedOrGrappledBy();
 		let targets = [];
 		if( this.target_type === Action.TargetTypes.self )
 			pl = [this.getPlayerParent()];
@@ -384,7 +384,7 @@ class Action extends Generic{
 		// Handle taunt on charge finish
 		/*
 		let viable = this.getViableTargets(),
-			taunts = this.getPlayerParent().getTauntedBy();
+			taunts = this.getPlayerParent().getTauntedOrGrappledBy();
 		if( 
 			isChargeFinish && 
 			this.target_type !== Action.TargetTypes.aoe && 

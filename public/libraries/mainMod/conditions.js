@@ -105,6 +105,7 @@ const lib = {
 	targetKnockedDown : {"type":"tag","data":{"tags":["wr_knocked_down"]}},
 	targetKnockedDownBack : {"type":"tag","data":{"tags":["wr_knocked_down_back"]}},
 	targetKnockedDownFront : {"type":"tag","data":{"tags":["wr_knocked_down_front"]}},
+	targetNotGrappled : {type:"tag", data:{tags:[stdTag.wrGrapple]}, inverse:true},
 	senderHasWhip : {"type":"tag","data":{"tags":["as_whip"]},"caster":true},
 	targetSoaked : {"type":"tag","data":{"tags":["wr_soaked"]}},
 	targetLegsSpread : {"type":"tag","data":{"tags":["wr_legs_spread"]}},

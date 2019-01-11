@@ -45,6 +45,7 @@ export default class Player extends Generic{
 		this.mp = 10;				// Secondary stat used for spells. Mana points.
 		this.arousal = 0;
 		this.leveled = false;		// Level is an offset of the player average level
+		this.powered = false;		// Boost stats based on nr of players in the player team
 
 		// Primary stats
 		this.stamina = 0;			// Adds 2 HP per point
@@ -173,6 +174,7 @@ export default class Player extends Generic{
 			dominant : this.dominant,					// Dominant vs submissive
 			hetero : this.hetero,						// 0 = gay, 0.5 = bi, 1 = straight
 			intelligence : this.intelligence,
+			powered : this.powered,
 		};
 
 		if( full ){
@@ -371,10 +373,35 @@ export default class Player extends Generic{
 		return stun.length > 0;
 	}
 
+	// Returns taunting players unless there's a grappling player, in which case that's returned instead
+	getTauntedOrGrappledBy(){
+		
+		let players = this.getGrappledBy();
+		if( players.length )
+			return players;
+		return this.getTauntedBy();
+
+	}
+
+	getGrappledBy(){
+
+		let grapples = this.getActiveEffectsByType(Effect.Types.grapple);
+		let out = [];
+		for( let effect of grapples ){
+			let sender = effect.parent.getCaster();
+			if( sender && out.indexOf(sender) === -1 )
+				out.push(sender);
+		}
+		return out;
+
+	}
+
 	getTauntedBy(){
+
 		let tauntEffects = this.getActiveEffectsByType(Effect.Types.taunt);
 		if( !tauntEffects.length )
 			return game.players;
+
 		let out = [];
 		for( let effect of tauntEffects ){
 			let sender = effect.parent.getCaster();
@@ -382,11 +409,14 @@ export default class Player extends Generic{
 				out.push(sender);
 		}
 		return out;
+
 	}
 
 	isBeast(){
 		return this.hasTag(stdTag.plBeast);
 	}
+
+
 
 	// RP Tags
 
@@ -1024,14 +1054,14 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
-		return BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina);
+		return (BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina))*this.getPoweredMultiplier();
 	}
 	getMaxAP(){
-		return BASE_AP+this.statPointsToNumber(Player.primaryStats.agility);
+		return (BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))*this.getPoweredMultiplier();
 
 	}
 	getMaxMP(){
-		return BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect);
+		return (BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect))*this.getPoweredMultiplier();
 	}
 	getMaxArousal(){
 		return BASE_AROUSAL;
@@ -1070,29 +1100,48 @@ export default class Player extends Generic{
 		return 0;
 	}
 
+	getPoweredMultiplier(){
+		if( this.powered )
+			return game.getTeamPlayers().length;
+		return 1;
+	}
+
 	// Effect in these methods are only included to prevent recursion
 	// SV Types
 	getSV( type ){
+
+		let grappled = 0;
+		if( type === Action.Types.physical )
+			grappled = this.getGrappledBy().length ? -4 : 0;
+
 		return Math.floor(
 			(
 				this.getGenericAmountStatPoints('sv'+type)+
 				this.level+
 				this.class['sv'+type]+
-				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)
+				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)+
+				grappled
 			)*this.getGenericAmountStatMultiplier('sv'+type)
 		);
 	}
 
 	// SV Bon types
 	getBon( type ){
+
+		let grappled = 0;
+		if( type === Action.Types.physical )
+			grappled = this.getGrappledBy().length ? -4 : 0;
+
 		return Math.floor(
 			(
 				this.getGenericAmountStatPoints('bon'+type)+
 				this.level+
 				this.class['bon'+type]+
-				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)
+				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)+
+				grappled
 			)*this.getGenericAmountStatMultiplier('bon'+type)
 		);
+
 	}
 
 	// Returns the sum of effect.data.amount of an effect with type, and that aren't multiplicative
@@ -1499,14 +1548,22 @@ Player.getHitChance = function( attacker, victim, action ){
 
 // Returns a multiplier of 4% if you go over 100% hit chance
 Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental ){
+
 	let tot = attacker.getBon(stat);
 	if( detrimental )
 		tot -= victim.getSV(stat);
-
+	
 	if( tot <= 0 )
-		return 1;
+		tot = 1;
 
-	return 1+tot*0.04;
+	// Add 20% bonus damage per additional player
+	let multi = 1.0;
+	if( this.team !== 0 ){
+		multi = 1+(game.getTeamPlayers().length-1)*0.2;
+	}
+
+	return (1+tot*0.04)*multi;
+
 };
 
 

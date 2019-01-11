@@ -1065,18 +1065,21 @@ export default class Game extends Generic{
 				pl.addMP(Math.ceil(pl.getMaxMP()*0.4));
 			});
 
+			let lootbags = [];
 			// add loot from enemies
 			for( let pl of this.players ){
 
 				if( pl.hp <= 0 && pl.team !== 0 ){
 					let assets = pl.assets;
 					if( assets.length ){
-						this.dungeon.getActiveRoom().addLootBag(assets);
+						lootbags.push(assets);
 						pl.assets = [];
 					}
 				}
 
 			}
+
+			this.dungeon.getActiveRoom().addLootBags(lootbags);
 			
 		}
 

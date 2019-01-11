@@ -609,7 +609,7 @@ div.fxHeal{
 	#content > div.players div.player span.resource.large{
 		width:2.75vmax;
 		padding-top:0.5vmax;
-		font-size:1.2vmax;
+		font-size:1vmax;
 	}
 	#content > div.players div.player span.resource::after{
 		background:url(media/wrapper_icons/glass-heart.svg) no-repeat center;

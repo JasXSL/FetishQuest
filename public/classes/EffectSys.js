@@ -340,8 +340,6 @@ class Wrapper extends Generic{
 			if( effect.type === Effect.Types.knockdown ){
 				if( effect.data.type === Effect.KnockdownTypes.Back )
 					knockdown = "back";
-				else if( effect.data.type === Effect.KnockdownTypes.Grapple )
-					knockdown = 'grapple';
 			}
 		}
 
@@ -368,12 +366,13 @@ class Wrapper extends Generic{
 				let type = stdTag.wrKnockdownFront;
 				if( effect.data.type === Effect.KnockdownTypes.Back )
 					type = stdTag.wrKnockdownBack;
-				else if( effect.data.type === Effect.KnockdownTypes.Grapple )
-					type = stdTag.wrKnockdownGrapple;
 				tags.push(type);
 			}
 			else if( effect.type === Effect.Types.daze )
 				tags.push(stdTag.wrDazed);
+			else if( effect.type === Effect.Types.grapple )
+				tags.push(stdTag.wrGrapple);
+			
 		}
 
 		let out = [];
@@ -931,9 +930,14 @@ class Effect extends Generic{
 					this.data.type = Math.floor(Math.random()*2);
 				if( !this.data.ini ){
 					let text = "knocked down on their "+(this.data.type === Effect.KnockdownTypes.Forward ? 'stomach' : 'back');
-					if( this.data.type === Effect.KnockdownTypes.Grapple )
-						text = "grappled";
 					game.ui.addText( t.getColoredName()+" was "+text+".", undefined, t.id, t.id, 'statMessage' );
+					this.data.ini = true;
+				}
+			}
+
+			else if( this.type === Effect.Types.grapple ){
+				if( !this.data.ini ){
+					game.ui.addText( t.getColoredName()+" was grappled!", undefined, t.id, t.id, 'statMessage' );
 					this.data.ini = true;
 				}
 			}
@@ -1139,6 +1143,7 @@ Effect.Types = {
 	activateCooldown : 'activateCooldown',			
 
 	knockdown : 'knockdown',						
+	grapple : 'grapple',						
 	daze : 'daze',									
 
 	repair : 'repair',								
@@ -1153,7 +1158,6 @@ Effect.Types = {
 Effect.KnockdownTypes = {
 	Forward : 0,
 	Back : 1,
-	Grapple : 2
 };
 
 
@@ -1200,7 +1204,8 @@ Effect.TypeDescs = {
 
 	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels} - Activates cooldowns for learned abilities with actionLabels',
 
-	[Effect.Types.knockdown] : '{type:(int)type} - Use Effect.KnockdownTypes. If not an int it becomes either backwards of forwards',
+	[Effect.Types.knockdown] : '{type:(int)type} - Use Effect.KnockdownTypes. If not an int it becomes boolean backwards of forwards',
+	[Effect.Types.grapple] : '{}',
 	[Effect.Types.daze] : 'void',
 
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',

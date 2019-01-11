@@ -699,16 +699,24 @@ class DungeonRoom extends Generic{
 	}
 
 	// Adds a lootbag if possible
-	addLootBag( assets ){
+	// Bags are arrays of assets
+	async addLootBags( bags ){
 	
-		let prop = this.placeAsset("Generic.Containers.LootBag");
-		if( prop ){
-			prop.interactions.push(new DungeonRoomAssetInteraction({
-				type : DungeonRoomAssetInteraction.types.loot,
-				data : assets.map(el => el.save(true))
-			}, prop));
-			game.renderer.drawActiveRoom();
+		let placed = 0;
+
+		for( let assets of bags ){
+			let prop = this.placeAsset("Generic.Containers.LootBag");
+			if( prop ){
+				++placed;
+				prop.interactions.push(new DungeonRoomAssetInteraction({
+					type : DungeonRoomAssetInteraction.types.loot,
+					data : assets.map(el => el.save(true))
+				}, prop));
+			}
 		}
+
+		if( placed )
+			return game.renderer.drawActiveRoom();
 
 	}
 
@@ -1516,6 +1524,7 @@ class DungeonEncounter extends Generic{
 				shuffle(viableMonsters);
 				let success = false;
 				for( let mTemplate of viableMonsters ){
+
 					// Generate a player to push
 					const pl = mTemplate.generate(
 						Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
@@ -1524,7 +1533,7 @@ class DungeonEncounter extends Generic{
 					if( mTemplate.difficulty+dif < difficulty ){
 
 						this.players.push(pl);
-						dif += mTemplate.difficulty;
+						dif += mTemplate.difficulty*(mTemplate.powered ? game.getTeamPlayers() : 1);
 						success = true;
 						break;
 
@@ -1860,7 +1869,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 											duration : 3,
 											name : "Leg Wrap",
 											icon : "daemon-pull.svg",
-											description : "Knocked down on your %knockdown, tentacles spreading your legs",
+											description : "Knocked down on your %knockdown, tentacles spreading your legs.",
 											trigger_immediate : true,
 											tags : [stdTag.wrLegsSpread],
 											add_conditions : stdCond.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast]), 

@@ -4,8 +4,6 @@ Generic code:
 	- Make a "powered" flag for players that boosts stats based on difficulty
 	- If a powered NPC is encountered, place only that and no others
 	- Set mimic to powered
-
-	- Redesign grapple
 	
 	- (later) Redo netcode to send different types when they've changed
 

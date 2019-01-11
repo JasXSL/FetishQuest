@@ -31,7 +31,7 @@ class PlayerTemplate extends Generic{
 		this.max_size = 3;
 		this.difficulty = 1;
 		this.viable_consumables = [];			// Viable consumable assets this can spawn with
-
+		this.powered = false;
 		this.sadistic_min = 0;
 		this.sadistic_max = 1;
 		this.dominant_min = 0;					// Dominant vs submissive
@@ -78,7 +78,8 @@ class PlayerTemplate extends Generic{
 			dominant_max : this.dominant_max,
 			intelligence_min : this.intelligence_min,
 			intelligence_max : this.intelligence_max,
-			required_assets : this.required_assets
+			required_assets : this.required_assets,
+			powered : this.powered,
 		};
 	}
 
@@ -117,6 +118,7 @@ class PlayerTemplate extends Generic{
 		player.size = Math.floor(Math.random()*(this.max_size+1-this.min_size))+this.min_size;
 		player.size = Math.min(Math.max(0, player.size), 10);
 		player.team = 1;
+		player.powered = this.powered;
 		shuffle(this.classes);
 		shuffle(this.viable_asset_materials);
 		shuffle(this.viable_asset_templates);

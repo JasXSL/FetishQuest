@@ -557,16 +557,10 @@ const lib = [
 
 	},
 	{ text : "%S thrusts two tentacles up between %T's legs, forcing one inside %This %Tvagina, and the other into %This %Trsize %Tbutt. Pumping rythmically in and out of %T!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetNotBeast",
-			"targetVagina",
-			"targetNoLowerbody"]
+		audiokits : ["tentacleMultipleThrusts"],
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse", "senderHasTentacles","targetVagina","targetNoLowerbody"
+		])
 	},
 	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tbutt where it thrusts a couple of times!",
 		audiokits : ["tentacleMultipleThrusts"
@@ -2501,14 +2495,15 @@ const lib = [
 	},
 
 	// action_elementalist_waterSpout
-	{ text : "%S summons a water spout beneath %T!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_elementalist_waterSpout",
-		],
+	{ text : "%S summons a water spout beneath %T, coating %Thim in cold water!",
+		conditions : baseCond.concat(["action_elementalist_waterSpout",]),
 		audiokits : ["waterSpell"]
-	}
+	},
+	{ text : "%S summons a cold water spout beneath %T, splashing up against %This %Tgroin!",
+		conditions : anyOnHumCond.concat(["action_elementalist_waterSpout",]),
+		audiokits : ["waterSpell"]
+	},
+	
 ];
 
 export default lib;
