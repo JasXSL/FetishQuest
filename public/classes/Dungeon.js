@@ -1477,7 +1477,15 @@ class DungeonEncounter extends Generic{
 		this.load(data);
 	}
 
-	prepare( difficulty = 1 ){
+	prepare( difficulty ){
+
+		if( !difficulty ){
+			const dungeon = this.getDungeon();
+			if( dungeon )
+				difficulty = dungeon.difficulty;
+			else
+				difficulty = game.getTeamPlayers().length;
+		}
 
 		if( this.started )
 			return;
@@ -1597,6 +1605,8 @@ class DungeonEncounter extends Generic{
 
 	getDungeon(){
 		let parent = this.parent;
+		if( !parent )
+			return false;
 		while( !(parent instanceof Dungeon) && parent.parent )
 			parent = parent.parent;
 		if( parent instanceof Dungeon )

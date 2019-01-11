@@ -330,16 +330,17 @@ class WebGL{
 	// Dungeon stage cache
 	async loadActiveDungeon(){
 
+		if( !game.dungeon || game.dungeon.id === this.cache_dungeon )
+			return;
+			
 		// Already loading hold your horses
 		if( this.loading ){
 			this.load_after_load = true;
 			return false;
 		}
 		
-		if( !game.dungeon || game.dungeon.id === this.cache_dungeon )
-			return;
+		
 		this.loading = true;
-
 		this.stages.map(s => s.destructor());
 		this.stages = [];
 		this.cache_dungeon = game.dungeon.id;

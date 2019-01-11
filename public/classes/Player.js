@@ -1498,7 +1498,7 @@ Player.getHitChance = function( attacker, victim, action ){
 
 
 // Returns a multiplier of 4% if you go over 100% hit chance
-Player.getBonusDamageMultiplier = function( attacker, victim, stat, baseDamage, detrimental ){
+Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental ){
 	let tot = attacker.getBon(stat);
 	if( detrimental )
 		tot -= victim.getSV(stat);

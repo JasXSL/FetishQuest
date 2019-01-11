@@ -11,11 +11,11 @@ import C from './conditions.js';
 const stdCond = ["senderNotDead","targetNotDead"];
 
 const lib = {
-	"stdAttack": {
+	stdAttack: {
 		name : "Attack",
-		description : "Deals 4 physical damage.",
-		ap : 2,
-		cooldown : 1,
+		description : "Deals 3 physical damage.",
+		ap : 3,
+		cooldown : 0,
 		show_conditions : [
 			"inCombat"
 		],
@@ -37,7 +37,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 4
+							"amount": 3
 						}
 					},
 					"visTargTakeDamage"
@@ -45,11 +45,11 @@ const lib = {
 			}
 		]
 	},
-	"stdArouse": {
+	stdArouse: {
 		name : "Arouse",
-		description : "Deals 4 corruption damage.",
-		ap : 2,
-		cooldown : 1,
+		description : "Deals 2 corruption damage.",
+		ap : 3,
+		cooldown : 0,
 		type : "Corruption",
 		show_conditions : [
 			"inCombat"
@@ -72,7 +72,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 4
+							"amount": 2
 						}
 					},
 					"visTargTakeDamageCorruption"
@@ -998,21 +998,17 @@ const lib = {
 
 
 	// Monk
-	"monk_roundKick": {
+	monk_roundKick: {
 		"level": 1,
 		name : "Round Kick",
 		description : "A chi infused kick, dealing 8 physical damage to an enemy. Misses with this ability may allow your target to riposte, doing the same amount of damage back to you.",
 		ap : 2,
 		mp : 1,
-		"hit_chance": 70,
+		hit_chance: 70,
 		cooldown : 1,
 		detrimental : true,
-		tags : [
-			"ac_damage"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		tags : ["ac_damage"],
+		show_conditions : ["inCombat"],
 		wrappers : [
 			{
 				target : "VICTIM",
@@ -1031,7 +1027,7 @@ const lib = {
 				]
 			}
 		],
-		"riposte": [
+		riposte: [
 			{
 				target : "VICTIM",
 				duration : 0,
@@ -1050,22 +1046,17 @@ const lib = {
 			}
 		]
 	},
-	"monk_disablingStrike": {
-		"level": 2,
+	monk_disablingStrike: {
+		level: 2,
 		name : "Disabling Strike",
-		description : "Deals 3 damage and reduces your target's physical proficiency and resistance by 5 for 1 turn. Always hits.",
+		description : "Deals 2 damage and reduces your target's physical proficiency and resistance by 5 for 1 turn. Always hits.",
 		ap : 1,
 		mp : 1,
 		cooldown : 3,
 		detrimental : true,
-		"hit_chance": 9001,
-		tags : [
-			"ac_damage",
-			"ac_debuff"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		hit_chance: 9001,
+		tags : ["ac_damage","ac_debuff"],
+		show_conditions : ["inCombat"],
 		wrappers : [
 			{
 				target : "VICTIM",
@@ -1077,7 +1068,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 3
+							"amount": 2
 						}
 					},
 					"visTargTakeDamage"
@@ -1112,7 +1103,7 @@ const lib = {
 			}
 		]
 	},
-	"monk_upliftingStrike": {
+	monk_upliftingStrike: {
 		"level": 3,
 		name : "Uplifting Strike",
 		description : "Deals 3 damage to an enemy and heals the lowest HP party member for 2 HP per AP spent this turn.",
@@ -1493,21 +1484,16 @@ const lib = {
 
 
 	// Tentacle fiend
-	"tentacle_fiend_tentacleMilker": {
+	tentacle_fiend_tentacleMilker: {
 		name : "Tentacle Milker",
 		description : "Latches a sucker to breasts or a penis, dealing 4 corruption damage and healing for the same amount.",
 		ap : 2,
 		mp : 3,
 		cooldown : 3,
 		detrimental : true,
-		type : "Corruption",
-		tags : [
-			"ac_damage",
-			"ac_self_heal"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		type : Action.Types.corruption,
+		tags : ["ac_damage","ac_self_heal"],
+		show_conditions : ["inCombat"],
 		wrappers : [
 			{
 				target : "VICTIM",
@@ -1517,10 +1503,12 @@ const lib = {
 				description : "",
 				add_conditions : stdCond.concat(
 					"targetNotBeast",
-					[
-						"targetBreasts",
-						"targetPenis"
-					]
+					{
+						conditions:[
+							"targetBreasts",
+							"targetPenis"
+						],
+					}
 				),
 				effects : [
 					{
@@ -1535,7 +1523,7 @@ const lib = {
 			}
 		]
 	},
-	"tentacle_fiend_legWrap": {
+	tentacle_fiend_legWrap : {
 		name : "Leg Wrap",
 		description : "Wraps tentacles around your target's legs, knocking them down for 1 turn.",
 		ap : 1,

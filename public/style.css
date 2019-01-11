@@ -834,13 +834,14 @@ div.fxHeal{
 		color:rgba(255,255,255,.5);
 	}
 	#content > div.middle > div.text > div.content > div.line.playerChat{
-		font-style:italic;
+		font-size:1vmax;
 	}
 	#content > div.middle > div.text > div.content > div.line.dmChat{
 		color: #DEF;
 		font-weight: bold;
 		text-align: center;
 		font-style:normal;
+		font-size:1.25vmax;
 	}
 	#content > div.middle > div.text > div.content > div.line.actionLearned{
 		font-size:1vmax;
@@ -902,6 +903,10 @@ div.fxHeal{
 		font-size:1vmax;
 		color:#AAA;
 		font-weight: normal;
+	}
+
+	#content > div.middle > div.text > div.content > div.line.emote{
+		font-style: italic;
 	}
 
 /**/

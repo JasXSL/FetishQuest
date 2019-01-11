@@ -250,7 +250,6 @@ class NetworkManager{
 		game.modal.onGameUpdate(changes);
 		if( this.isConnected() && game.is_host ){
 			const now = Date.now();
-			console.log("Emitting changes", changes);
 			this.io.emit('gameUpdate', {ch:changes,ts:this._pre_push_time,now:now});
 			this._pre_push_time = now;
 		}

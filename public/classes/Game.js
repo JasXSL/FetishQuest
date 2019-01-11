@@ -443,17 +443,25 @@ export default class Game extends Generic{
 			pl = this.getPlayerById(uuid);
 			if(!pl)
 				return game.modal.addError("Can't speak as player. Uuid "+uuid+" not found");
-			pl = pl.name;
+			pl = pl.getColoredName();
 		}
 		
+		let isEmote = false;
+		if( text.startsWith("/me") ){
+			isEmote = true;
+			text = text.substr(3).trim();
+		}
+
 		// This sends the text from DM netgame
 		game.ui.addText(
-			(isOOC ? '(OOC) ' : '')+pl+": "+text,
+			(isOOC ? '(OOC) ' : '')+pl+(isEmote ? ' ' : ": ")+text,
 			undefined, 
 			uuid, 
 			undefined, 
-			"playerChat"+(pl==="DM" ? ' dmChat' : '')+
-			(isOOC ? ' ooc' : '')
+			"playerChat"+
+				(pl==="DM" ? ' dmChat' : '')+
+				(isEmote ? ' emote' : '')+
+				(isOOC ? ' ooc' : '')
 		);
 
 	}

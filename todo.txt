@@ -1,5 +1,13 @@
-Critical:
-	- Reinstate netcode
+Generic code:
+	- Character export/import
+
+	- Make a "powered" flag for players that boosts stats based on difficulty
+	- If a powered NPC is encountered, place only that and no others
+	- Set mimic to powered
+
+	- Redesign grapple
+	
+	- (later) Redo netcode to send different types when they've changed
 
 Mod Editor:
 	- ModVars (later) - Custom data that can be set and read by conditions
@@ -13,10 +21,7 @@ new Gameplay elements:
 Action ideas:
 	- Cleric: Sacrament of Sin: Free, 10 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 10% per point of arousal.
 
-Generic code:
-	- Figure out how to do netcode arrays
-	- Character export/import
-	- Make texts that rely on TT weighted again somehow
+
 
 Dungeon design:
 	- Players start in the port tavern. Make a port "dungeon":

@@ -635,9 +635,12 @@ export default class UI{
 				$("div.player[data-id='"+esc(t.id)+"']", this.players).toggleClass("castTarget", true);
 
 				
-			let hit = Math.max(Player.getHitChance(pl, t, action), 0);
+			let hit = Math.min(Math.max(Player.getHitChance(pl, t, action), 0), 100);
+			let dmgbon = Math.round(Math.max(0, Player.getBonusDamageMultiplier(pl, t, action.type, action.detrimental)*100-100));
+
 			$("div.player[data-id='"+esc(t.id)+"'] div.targetingStats", this.players).html(
-				hit+'% Hit'
+				hit+'% Hit'+
+				(dmgbon ? '<br />+'+dmgbon+'% Dmg' : '')
 			);
 			
 		}
@@ -757,6 +760,7 @@ export default class UI{
 		for( let args of messages )
 			this.addText.apply(this, args);
 	}
+
 	// Prints a message
 	// audioObj can be an object with {id:(str)soundKitId, slot:(str)armorSlot}
 	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture, audioObj ){
@@ -829,6 +833,7 @@ export default class UI{
 		this.text.scrollTop(this.text.prop("scrollHeight"));
 
 	}
+	
 	clear(){
 		this.text.html('');
 	}
@@ -989,8 +994,8 @@ export default class UI{
 	drawNewGame(){
 
 		const gallery = [
-			{name : 'Otter', size:2, 'icon':'/media/characters/otter.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
-			{name : 'Wolfess', size:2, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', class:'monk', tags:[stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+			{name : 'Otter', size:5, 'icon':'/media/characters/otter.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+			{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', class:'monk', tags:[stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
 		];
 
 		let html = '<div class="newGame">'+
@@ -2108,6 +2113,7 @@ export default class UI{
 		this.console.text('');
 		let isSlashCommand = message.substr(0,1) === '/';
 		if( isSlashCommand ){
+
 			message = message.substr(1);
 			let spl = message.split(' ');
 
@@ -2161,42 +2167,50 @@ export default class UI{
 
 			}
 			
-			if( task == "auto" ){
+			else if( task == "auto" ){
 				this.parent.getTurnPlayer().autoPlay(true);
 				return;
 			}
 
-			if( task == "clear" ){
+			else if( task == "clear" ){
 				game.chat_log = [];
 				game.save();
 				this.clear();
 				return;
 			}
 
-			if( task == "error" ){
+			else if( task == "error" ){
 				return this.addError(spl.join(' '));
 			}
-			if( task == "notice" ){
+			else if( task == "notice" ){
 				return this.addNotice(spl.join(' '));
 			}
 			
-			this.addText("Unknown command", undefined, undefined, undefined, "dmInternal");
-		
+			else if( task === "me" ){
+				this.sendChat('/'+message);
+			}
+			else
+				this.addText("Unknown command", undefined, undefined, undefined, "dmInternal");
+
 		}
 		else{
-
-			let speaker = 'DM';
-			if( !game.is_host )
-				speaker = game.getMyFirstPlayer().id;
-			
-			if( message.substr(0,4).toLowerCase() === 'ooc ' || !speaker )
-				speaker = 'ooc';
-
-			this.parent.speakAs(speaker, message);
+			this.sendChat(message);
 		}
 
 		
 
+	}
+
+	sendChat( message ){
+
+		let speaker = 'DM';
+		if( !game.is_host )
+			speaker = game.getMyFirstPlayer().id;
+		
+		if( message.substr(0,4).toLowerCase() === 'ooc ' || !speaker )
+			speaker = 'ooc';
+
+		this.parent.speakAs(speaker, message);
 	}
 
 

@@ -127,10 +127,10 @@ class Bot{
 				if( btag && !atag )
 					return 1;
 
-				// Put standard attacks last
-				if( aIsSTD && !bIsSTD )
+				// Put standard attacks last on the first action
+				if( aIsSTD && !bIsSTD && !this.actions_used )
 					return 1;
-				if( bIsSTD && !aIsSTD )
+				if( bIsSTD && !aIsSTD && !this.actions_used )
 					return -1;
 				
 				return 0;

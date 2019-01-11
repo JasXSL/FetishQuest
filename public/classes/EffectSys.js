@@ -638,7 +638,7 @@ class Effect extends Generic{
 					/*
 					console.log(
 						"input", amt, 
-						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,this.data.type,Math.abs(amt),this.parent.detrimental),
+						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
 						"nudity multi", t.getNudityDamageMultiplier(),
@@ -646,7 +646,7 @@ class Effect extends Generic{
 					);
 					*/
 					
-					amt *= Player.getBonusDamageMultiplier( s,t,this.data.type,Math.abs(amt),this.parent.detrimental ); // Negative because it's damage
+					amt *= Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental ); // Negative because it's damage
 					
 					// Get target global damage point taken modifier
 					// Amt is negative
@@ -932,7 +932,7 @@ class Effect extends Generic{
 				if( !this.data.ini ){
 					let text = "knocked down on their "+(this.data.type === Effect.KnockdownTypes.Forward ? 'stomach' : 'back');
 					if( this.data.type === Effect.KnockdownTypes.Grapple )
-						text = "was grappled";
+						text = "grappled";
 					game.ui.addText( t.getColoredName()+" was "+text+".", undefined, t.id, t.id, 'statMessage' );
 					this.data.ini = true;
 				}
