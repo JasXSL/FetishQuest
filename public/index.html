@@ -30,6 +30,8 @@
 		import Audio from './classes/Audio.js';
 		import Mod from './classes/Mod.js';
 		import GameLib from './classes/GameLib.js';
+
+		console.log("Modules imported, starting game");
 		
 		g_Condition = Condition;
 		g_GameEvent = GameEvent;
@@ -49,46 +51,41 @@
 		
 	</script>
 	<div id="bg"></div>
+
 	<div id="content">
-	
-		<div class="middle">
-			<div class="text">
-				<div class="content"></div>
+		<div id="renderer"></div>
+		<div id="ui">
+			<div class="middle">
+				<div class="text">
+					<div class="content"></div>
+				</div>
+				<div class="chat" contenteditable></div>
 			</div>
-			<div class="chat" contenteditable></div>
-		</div>
-		<div class="players">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="action_selector hidden"></div>
-	</div>
-	<div id="dm_tools"></div>
-	<div id="mainMenu">
-		<div id="audioToggle" class="icon" style="background-image: url(media/wrapper_icons/speaker.svg)">
-			<div class="rollout">
-				Ambient:
-				<input type="range" min=0 max=100 step=1 id="ambientSoundVolume" />
-				Music:
-				<input type="range" min=0 max=100 step=1 id="musicSoundVolume" />
-				FX:
-				<input type="range" min=0 max=100 step=1 id="fxSoundVolume" />	
-				Master:
-				<input type="range" min=0 max=100 step=1 id="masterSoundVolume" />
+			<div class="players">
+				<div class="left"></div>
+				<div class="right"></div>
 			</div>
+
+			<div class="actionbar"></div>
+			
+			<div id="dm_tools"></div>
 		</div>
-		<div id="netgameToggle" class="icon" style="background-image: url(media/wrapper_icons/multiplayer.svg)"></div>
-		<div id="mainMenuButton">Game</div>
+		<div id="fx"></div>
+		<div id="gameIcons"></div>
 	</div>
+
 	<div id="netgamePlayers"></div>
-	<div id="gameIcons"></div>
+	
+
 	<div id="modal" class="hidden">
 		<div class="wrapper">
 			<div class="content"></div>
 			<input type="button" value="Close" />
 		</div>
 	</div>
+
 	<div id="selectionbox" class="selectionbox hidden"></div>
+
 	<div id="notices"></div>
 	
 </body>

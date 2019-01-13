@@ -44,6 +44,7 @@ class Action extends Generic{
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
 		this.no_interrupt = false;				// Charged action is not interruptable
 		this.hide_if_no_targets = false;		// hide this from the action picker if there's no viable targets
+		this.icon = '';
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge
@@ -85,6 +86,7 @@ class Action extends Generic{
 			show_conditions : this.show_conditions.map(el => el.save(full)),
 			hide_if_no_targets : this.hide_if_no_targets,
 			semi_hidden : this.semi_hidden,
+			icon : this.icon
 		};
 
 		// Everything but mod

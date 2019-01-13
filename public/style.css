@@ -1,7 +1,7 @@
 body, html{
 	margin:0;
 	padding:0;
-	background:#533;
+	background:#335;
 	color:#FFF;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size:1vmax;
@@ -28,13 +28,11 @@ input[type=text], input[type=number], textarea{
 	width:100%;
 }
 
-#mainMenu > div > div.rollout.visible,
-#mainMenu > div,
+#gameIcons > div > div.rollout.visible,
 div.gameListing,
 input[type=button], input[type=submit], div.button,
 #modal div.inventory div.item,
 #modal div.modalQuests div.right div.item,
-#modal div.actions div.action,
 #modal div.action
 {
 	user-select: none;
@@ -55,19 +53,15 @@ input[type=button]:disabled{
 	color:#CAA;
 	border-color: #CAA;
 }
-#mainMenu > div:hover,
 div.gameListing:hover,
 input[type=button]:hover, input[type=submit]:hover, div.button:hover,
 #modal div.inventory div.item:hover,
-#modal div.actions div.action:hover,
 #modal div.action:hover{
 	border-color:#FFF;
 }
-#mainMenu > div:active,
 div.gameListing:active,
 input[type=button]:active, input[type=submit]:active, div.button:active,
 #modal div.inventory div.item:active,
-#modal div.actions div.action:active,
 #modal div.action:active{
 	transform:scale(0.98,0.98);
 }
@@ -161,14 +155,24 @@ div.centered{
 
 
 #content{
-	background:#333;
-	border:0.5vmax solid #666;
-	border-radius:0.5vmax;
 	position: fixed;
 	border-left:none;
 	border-right:none;
 	left:0; right:0;
-	top:5vh; bottom:5vh;
+	top:0; bottom:0;
+}
+
+/* UI Layer */
+#ui{
+	position: fixed;
+	left:0; right:0;
+	bottom:5.1vh; top:0;
+	background:rgba(0,50,100,.5);
+	transition: transform 0.1s ease-out;
+}
+#ui.hidden{
+	display: block !important;
+	transform: translateY(-110%);
 }
 
 
@@ -248,34 +252,7 @@ div.fxHeal{
 	animation: heal 0.5s ease-in-out;
 }
 
-#mainMenu{
-	position: fixed;
-	bottom:0;
-	right:1vw;
-}
-#mainMenu > div{
-	display:inline-block;
-	height:4.25vh;
-	overflow:visible;
-	background-size:cover;
-	vertical-align: bottom;
-	margin:0.4vh 0;
-}
-#mainMenu > div.icon{
-	width:4.25vh;
-}
-#mainMenu > div > div.rollout{
-	display:none;
-}
-#mainMenu > div > div.rollout.visible{
-	position: absolute;
-	top:-0.5vh; left:50%;
-	transform:translate(-50%, -100%);
-	display:block;
-}
-#audioToggle:hover, #audioToggle:active{
-	transform:none !important;
-}
+
 
 
 
@@ -287,6 +264,7 @@ div.fxHeal{
 	bottom:1vh;
 	left:1vh;
 }
+
 #netgamePlayers div.player{
 	cursor:default;
 	display:inline-block;
@@ -567,38 +545,35 @@ div.fxHeal{
 
 
 
-
-
-
 /* Players */
-	#content > div.players{
+	#ui > div.players{
 		position: absolute;
-		top:0; left:0; right:0; bottom:0;
+		top:0; left:0; right:0; bottom:4.25vh;
 		pointer-events: none;
 	}
-	#content > div.players > *{
+	#ui > div.players > *{
 		pointer-events: all;
 	}
-	#content > div.players > div.left{
+	#ui > div.players > div.left{
 		position: absolute;
 		top:0; left:0;
 		width:26vw;
 		text-align: center;
 	}
-	#content > div.players > div.right{
+	#ui > div.players > div.right{
 		position: absolute;
 		top:0; right:0;
 		width:26vw;
 		text-align: center;
 	}
-	#content > div.players > div.right > div.player{
+	#ui > div.players > div.right > div.player{
 		margin-left:0;
 	}
-	#content > div.players div.player div.stats{
+	#ui > div.players div.player div.stats{
 		text-shadow:0.1vmax 0.1vmax 0.1vmax #000;
 		vertical-align: bottom;
 	}
-	#content > div.players div.player span.resource{
+	#ui > div.players div.player span.resource{
 		display:inline-block;
 		width:2.25vmax;
 		padding-top:0.5vmax;
@@ -606,12 +581,12 @@ div.fxHeal{
 		margin: 0 0.25vmax;
 		vertical-align: bottom;
 	}
-	#content > div.players div.player span.resource.large{
+	#ui > div.players div.player span.resource.large{
 		width:2.75vmax;
 		padding-top:0.5vmax;
 		font-size:1vmax;
 	}
-	#content > div.players div.player span.resource::after{
+	#ui > div.players div.player span.resource::after{
 		background:url(media/wrapper_icons/glass-heart.svg) no-repeat center;
 		background-size: 80% 80%;
 		content : "";
@@ -622,57 +597,57 @@ div.fxHeal{
 		position: absolute;
 		opacity: 0.75;
 	}
-	#content > div.players div.player span.HP{
+	#ui > div.players div.player span.HP{
 		color:#FDD;
 	}
-	#content > div.players div.player span.resource.HP::after{
+	#ui > div.players div.player span.resource.HP::after{
 		filter:brightness(60%) sepia(1) saturate(400%) hue-rotate(-50deg);
 		opacity:1;
 	}
-	#content > div.players div.player span.MP{
+	#ui > div.players div.player span.MP{
 		color:#DEF;
 	}
-	#content > div.players div.player span.resource.MP::after{
+	#ui > div.players div.player span.resource.MP::after{
 		background-image:url(media/wrapper_icons/round-bottom-flask.svg);
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(150deg);
 	}
-	#content > div.players div.player span.AP{
+	#ui > div.players div.player span.AP{
 		color:#DFD;
 	}
-	#content > div.players div.player span.resource.AP::after{
+	#ui > div.players div.player span.resource.AP::after{
 		background-image:url(media/wrapper_icons/jump-across.svg);
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(90deg);
 	}
 
-	#content > div.players div.player span.arousal{
+	#ui > div.players div.player span.arousal{
 		color:#EAF;
 	}
-	#content > div.players div.player span.resource.arousal::after{
+	#ui > div.players div.player span.resource.arousal::after{
 		background-image:url(media/wrapper_icons/pierced-heart.svg);
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(-90deg);
 	}
 
-	#content > div.players div.player span.chest,
-	#content > div.players div.player span.legs
+	#ui > div.players div.player span.chest,
+	#ui > div.players div.player span.legs
 	{
 		color:#EFE;
 	}
-	#content > div.players div.player span.resource.chest::after,
-	#content > div.players div.player span.resource.legs::after
+	#ui > div.players div.player span.resource.chest::after,
+	#ui > div.players div.player span.resource.legs::after
 	{
 		background-image:url(media/wrapper_icons/shirt.svg);
 	}
-	#content > div.players div.player span.resource.legs::after{
+	#ui > div.players div.player span.resource.legs::after{
 		background-image:url(media/wrapper_icons/trousers.svg);
 	}
-	#content > div.players div.player span.resource.broken{
+	#ui > div.players div.player span.resource.broken{
 		color:#D66;
 	}
-	#content > div.players div.player span.resource.broken::after{
+	#ui > div.players div.player span.resource.broken::after{
 		filter:brightness(40%) sepia(1) saturate(300%) hue-rotate(-40deg);
 	}
 
-	#content > div.players div.topRight{
+	#ui > div.players div.topRight{
 		position: absolute;
 		top:0; left:0;
 		right:0;
@@ -683,13 +658,13 @@ div.fxHeal{
 		from{ background:rgba(0,0,0,.75); }
 		to{ background:rgba(50,0,0,.75); }
 	}
-	#content > div.players div.topRight > div.charging > div.chAction{
+	#ui > div.players div.topRight > div.charging > div.chAction{
 		animation: chargedAction ease-in-out 0.5s alternate infinite;
 		border: 0.1vmax solid #FA6;
 	}
 
-	#content > div.players div.topRight > div.charging > div.chAction,
-	#content > div.players div > div.wrapper{
+	#ui > div.players div.topRight > div.charging > div.chAction,
+	#ui > div.players div > div.wrapper{
 		display:inline-block;
 		padding:0.5vmax;
 		background:rgba(0,0,0,.25);
@@ -698,22 +673,22 @@ div.fxHeal{
 		box-shadow:0.2vmax 0.2vmax 1vmax rgba(0,0,0,.25);
 		
 	}
-	#content > div.players div > div.wrapper > div.background{
+	#ui > div.players div > div.wrapper > div.background{
 		width:100%; height:100%;
 		position: absolute;
 		top:0; left:0;
 	}
-	#content > div.players > div.left div.topRight{
+	#ui > div.players > div.left div.topRight{
 		text-align: right;
 	}
-	#content > div.players div > div.wrapper{
+	#ui > div.players div > div.wrapper{
 		width: 3vmax;
 		height:3vmax;
 		border:0.3vmax solid #DFD;
 	}
-	#content > div.players div > div.wrapper > div.stacks,
-	#content > div.players div > div.wrapper > div.duration,
-	#content > div.players div.charging > div.chAction > div.duration
+	#ui > div.players div > div.wrapper > div.stacks,
+	#ui > div.players div > div.wrapper > div.duration,
+	#ui > div.players div.charging > div.chAction > div.duration
 	{
 		position: absolute;
 		bottom:0; left:50%;
@@ -722,11 +697,11 @@ div.fxHeal{
 		font-size:1.25vmax;
 		text-shadow:0.1vmax 0.1vmax 0.2vmax #000;
 	}
-	#content > div.players div.charging > div.chAction > div.duration{
+	#ui > div.players div.charging > div.chAction > div.duration{
 		font-size:1.15vmax;
 		transform:translate(-50%,50%);
 	}
-	#content > div.players div > div.wrapper > div.stacks{
+	#ui > div.players div > div.wrapper > div.stacks{
 		top:auto;
 		left:auto;
 		right:0;bottom:auto;
@@ -739,17 +714,17 @@ div.fxHeal{
 		font-style:italic;
 	}
 
-	#content > div.players > div.right div > div.wrapper div.tooltip{
+	#ui > div.players > div.right div > div.wrapper div.tooltip{
 		right:0;
 		left:auto;
 		transform:translateX(50%);
 	}
-	#content > div.players div > div.wrapper.detrimental{
+	#ui > div.players div > div.wrapper.detrimental{
 		border-color:#FDD;
 	}
 
 
-	#content > div.middle{
+	#ui > div.middle{
 		background:rgba(0,0,0,.5);
 		left:26vw;
 		right:26vw;
@@ -761,37 +736,68 @@ div.fxHeal{
 	}
 /**/
 
-/* Game Icons */
 
-	#gameIcons{
+
+
+/* Game Icons (bottom bar) */
+
+	#gameIcons,
+	#ui > div.actionbar{
 		position: fixed;
-		left:50%;
-		transform:translateX(-50%);
+		left:0; right:0;
+		height:5vh;
+		background:rgba(0,0,0,.5);
 		bottom:0;
+		padding:0.25vh;
+		text-align: center;
+		border-top:0.2vh groove rgba(255,255,255,.5);
 	}
-	#gameIcons > div.button{
+	#gameIcons > div,
+	#ui > div.actionbar > div.actions > div{
 		width:4.25vh;
 		height:4.25vh;
 		background-size: cover;
+		overflow:visible;
 		display:inline-block;
-		margin:0.1vmax;
+		margin:0 0.25vmax 0 0.25vmax;
+		vertical-align: middle;
 	}
-	#gameIcons > div.button.autoWidth{
+	#gameIcons > div.highlighted{
+		border-color: #ADF;
+		background-color:#9AD;
+	}
+	#gameIcons > div.autoWidth{
 		width:auto;
+	}
+
+	#gameIcons > div > div.rollout{
+		display:none;
+	}
+	#gameIcons > div > div.rollout.visible{
+		position: absolute;
+		top:-0.5vh; left:50%;
+		transform:translate(-50%, -100%);
+		display:block;
+	}
+	#audioToggle:hover, #audioToggle:active{
+		transform:none !important;
 	}
 
 /**/
 
 
 /* Text */
-	#content > div.middle > div.text{
+	#ui > div.middle{
+		bottom:5vh;
+	}
+	#ui > div.middle > div.text{
 		left:0; right:0;
 		top:0;
 		bottom:0;
 		padding-left:1vmax; padding-right:1vmax;
 		height:100%;
 	}
-	#content > div.middle > div.text > div.content{
+	#ui > div.middle > div.text > div.content{
 		position: absolute;
 		bottom:0;
 		overflow:auto;
@@ -799,7 +805,7 @@ div.fxHeal{
 		left:0;
 		right:0;
 	}
-	#content > div.middle > div.chat{
+	#ui > div.middle > div.chat{
 		min-height:1.5vmax;
 		background:rgba(0,0,0,.25);
 		padding:0.5vmax;
@@ -807,49 +813,49 @@ div.fxHeal{
 		border-top:1px dotted #FFF;
 		outline:none;
 	}
-	#content > div.middle > div.text > div.content > div.line{
+	#ui > div.middle > div.text > div.content > div.line{
 		font-size:1.25vmax;
 		padding:0.25vmax;
 		color:#DDD;
 	}
-	#content > div.middle > div.text > div.content > div.line.sided > div.sub{
+	#ui > div.middle > div.text > div.content > div.line.sided > div.sub{
 		display:inline-block;
 		max-width:90%;
 		text-align: left;
 	}
-	#content > div.middle > div.text > div.content > div.line.center{
+	#ui > div.middle > div.text > div.content > div.line.center{
 		text-align: center;
 		background: #000;
 	}
-	#content > div.middle > div.text > div.content > div.line.dmInternal{
+	#ui > div.middle > div.text > div.content > div.line.dmInternal{
 		text-align: center;
 		font-size:1vmax;
 		background:rgba(200,200,0,0.1);
 	}
-	#content > div.middle > div.text > div.content > div.line.enemy{
+	#ui > div.middle > div.text > div.content > div.line.enemy{
 		text-align: right;
 	}
-	#content > div.middle > div.text > div.content > div.line.abilityUse{
+	#ui > div.middle > div.text > div.content > div.line.abilityUse{
 		font-size:1vmax;
 		color:rgba(255,255,255,.5);
 	}
-	#content > div.middle > div.text > div.content > div.line.playerChat{
+	#ui > div.middle > div.text > div.content > div.line.playerChat{
 		font-size:1vmax;
 	}
-	#content > div.middle > div.text > div.content > div.line.dmChat{
+	#ui > div.middle > div.text > div.content > div.line.dmChat{
 		color: #DEF;
 		font-weight: bold;
 		text-align: center;
 		font-style:normal;
 		font-size:1.25vmax;
 	}
-	#content > div.middle > div.text > div.content > div.line.actionLearned{
+	#ui > div.middle > div.text > div.content > div.line.actionLearned{
 		font-size:1vmax;
 		color:#DDF;
 		font-weight: bold;
 	}
 
-	#content > div.middle > div.text > div.content > div.line.levelup{
+	#ui > div.middle > div.text > div.content > div.line.levelup{
 		text-align: center;
 		color:#FFA;
 		box-shadow:0 0 1vmax #FFA;
@@ -858,7 +864,7 @@ div.fxHeal{
 		font-weight: bold;
 		text-shadow:0.2vmax 0.2vmax 0.5vmax #660;
 	}
-	#content > div.middle > div.text > div.content > div.line.battleStarted{
+	#ui > div.middle > div.text > div.content > div.line.battleStarted{
 		background:rgba(255,255,255,.5);
 		box-shadow:0.2vmax 0.2vmax 1vmax #000;
 		color:#FFF;
@@ -866,46 +872,46 @@ div.fxHeal{
 		margin-bottom:2vmax;
 		font-size:2vmax;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage{
+	#ui > div.middle > div.text > div.content > div.line.statMessage{
 		font-size:1vmax;
 		padding:0.1vmax 0.5vmax;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage.MP{
+	#ui > div.middle > div.text > div.content > div.line.statMessage.MP{
 		color:#BCD;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage.arousal{
+	#ui > div.middle > div.text > div.content > div.line.statMessage.arousal{
 		color:#DBD;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage.important{
+	#ui > div.middle > div.text > div.content > div.line.statMessage.important{
 		color:#FA6;
 		font-weight: bold;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage.clothDamage{
+	#ui > div.middle > div.text > div.content > div.line.statMessage.clothDamage{
 		color:#A99;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage.clothMend{
+	#ui > div.middle > div.text > div.content > div.line.statMessage.clothMend{
 		color:#8A8;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage.AP{
+	#ui > div.middle > div.text > div.content > div.line.statMessage.AP{
 		color:#BDD;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage.damage{
+	#ui > div.middle > div.text > div.content > div.line.statMessage.damage{
 		color:#DBB;
 	}
-	#content > div.middle > div.text > div.content > div.line.statMessage.healing{
+	#ui > div.middle > div.text > div.content > div.line.statMessage.healing{
 		color:#BDB;
 	}
 
 
 
 
-	#content > div.middle > div.text > div.content > div.line.ooc{
+	#ui > div.middle > div.text > div.content > div.line.ooc{
 		font-size:1vmax;
 		color:#AAA;
 		font-weight: normal;
 	}
 
-	#content > div.middle > div.text > div.content > div.line.emote{
+	#ui > div.middle > div.text > div.content > div.line.emote{
 		font-style: italic;
 	}
 
@@ -916,23 +922,23 @@ div.fxHeal{
 
 
 /* Portraits based on player size */
-	#content > div.players div.p2 div.player{
+	#ui > div.players div.p2 div.player{
 		height:34vh;
 	}
-	#content > div.players div.p3 div.player{
+	#ui > div.players div.p3 div.player{
 		height:28vh;
 	}
-	#content > div.players div.p4 div.player{
+	#ui > div.players div.p4 div.player{
 		height:20.8vh;
 	}
-	#content > div.players div.p5 div.player{
+	#ui > div.players div.p5 div.player{
 		height:16.5vh;
 	}
-	#content > div.players div.p6 div.player,
-	#content > div.players div.p7 div.player,
-	#content > div.players div.p8 div.player,
-	#content > div.players div.p9 div.player,
-	#content > div.players div.p10 div.player
+	#ui > div.players div.p6 div.player,
+	#ui > div.players div.p7 div.player,
+	#ui > div.players div.p8 div.player,
+	#ui > div.players div.p9 div.player,
+	#ui > div.players div.p10 div.player
 	{
 		height:13.5vh;
 	}
@@ -940,7 +946,7 @@ div.fxHeal{
 
 
 
-	#content > div.players div.player{
+	#ui > div.players div.player{
 		width:25.5vw; height:40vh;
 		display: inline-block;
 		margin-bottom:0;
@@ -952,8 +958,8 @@ div.fxHeal{
 		from{box-shadow:0 0 1vmax #FFA;}
 		to{box-shadow:0 0 2vmax #FFA;}
 	}
-	#content > div.players div.player.castTarget > div.targetingStats,
-	#content > div.players div.player.targetSelected > div.targetingStats
+	#ui > div.players div.player.castTarget > div.targetingStats,
+	#ui > div.players div.player.targetSelected > div.targetingStats
 	{
 		display:block;
 	}
@@ -985,54 +991,54 @@ div.fxHeal{
 	div.players div.player.incapacitated > div.content{
 		border-color:#FFD;
 	}
-	#content div.player.dead{
+	#ui div.player.dead{
 		opacity:0.75;
 	}
-	#content div.player.dead > div.content{
+	#ui div.player.dead > div.content{
 		border-color:#C66;
 	}
 
-	#content > div.players div.player.active > div.content{
+	#ui > div.players div.player.active > div.content{
 		border-color:#DFD;
 		box-shadow:0 0 1vmax rgba(200,255,200, 0.8);
 	}
 
-	#content > div.players div.player.castTarget > div.content{
+	#ui > div.players div.player.castTarget > div.content{
 		border-color:#FAF;
 		box-shadow:0 0 1vmax #FDF;
 		cursor:pointer;
 	}
-	#content > div.players div.player.targetSelected{
+	#ui > div.players div.player.targetSelected{
 		transform:translateX(10%);
 		transition:transform 0.25s ease-out;
 	}
-	#content > div.players div.right div.player.targetSelected{
+	#ui > div.players div.right div.player.targetSelected{
 		transform:translateX(-10%);
 	}
-	#content > div.players div.player.targetSelected > div.content{
+	#ui > div.players div.player.targetSelected > div.content{
 		border-color:#FFA;
 		cursor:pointer;
 		animation: kfTargetSelector 1s ease-in-out alternate infinite;
 	}
 
 
-	#content div.player > div.actionDrawer{
+	#ui div.player > div.actionDrawer{
 		position: absolute;
 		right:0; top:0.5vmax;
 		transform:translateX(100%);
 	}
-	#content div.right div.player > div.actionDrawer{
+	#ui div.right div.player > div.actionDrawer{
 		left:0;
 		right:auto;
 		transform:translateX(-100%);
 	}
-	#content div.right div.player > div.actionDrawer > div{
+	#ui div.right div.player > div.actionDrawer > div{
 		border-radius: 0;
 		border-top-left-radius: 0.5vmax;
 		border-bottom-left-radius: 0.5vmax;
 		text-align: left;
 	}
-	#content div.player > div.actionDrawer > div{
+	#ui div.player > div.actionDrawer > div{
 		background:rgba(150,200,150,.95);
 		box-shadow:0.1vmax 0.1vmax 1vmax #000;
 		color:#363;
@@ -1048,12 +1054,12 @@ div.fxHeal{
 		border-left: none;
 		border-right:none;
 	}
-	#content div.player > div.actionDrawer > div:hover{
+	#ui div.player > div.actionDrawer > div:hover{
 		border-color:#FFF;
 		background:rgba(220,255,220,.75);
 	}
 
-	#content > div.players div.player > div.content > div.bg{
+	#ui > div.players div.player > div.content > div.bg{
 		position: absolute;
 		width:100%; height:100%;
 		top:0; left:0;
@@ -1061,10 +1067,10 @@ div.fxHeal{
 		background-position: center;
 		overflow:hidden;
 	}
-	#content > div.players > div.right > div.player > div.content > div.stats{
+	#ui > div.players > div.right > div.player > div.content > div.stats{
 		text-align: left;
 	}
-	#content > div.players div.player > div.content > div.stats{
+	#ui > div.players div.player > div.content > div.stats{
 		position:absolute;
 		right:0;
 		bottom:0;
@@ -1074,7 +1080,7 @@ div.fxHeal{
 		border-top-left-radius: 1vmax;
 		backdrop-filter: blur(5px);
 	}
-	#content > div.players div.right div.player > div.content > div.stats{
+	#ui > div.players div.right div.player > div.content > div.stats{
 		left:0; right:auto;
 		border-radius:0;
 		border-top-right-radius: 1vmax;
@@ -1111,13 +1117,13 @@ div.fxHeal{
 
 
 
-/* Action selector */
+/* Action selector 
 	@keyframes actionSelector{
 		0%{transform:translate(-50%,-50%) scale(0.8,0.8); opacity:0; }
 		60%{transform:translate(-50%,-50%) scale(1.05,1.05); opacity:1;}
 		100%{transform:translate(-50%,-50%) scale(1,1); }
 	}
-	#content > div.action_selector{
+	#ui > div.action_selector{
 		position: fixed;
 		text-align: center;
 		top:50%; left:50%;
@@ -1136,7 +1142,7 @@ div.fxHeal{
 		padding:2vmax
 	}
 	
-	#content > div.action_selector.targetSelector{
+	#ui > div.action_selector.targetSelector{
 		width:auto;
 		left:50%;
 		right:auto;
@@ -1144,58 +1150,9 @@ div.fxHeal{
 		border:none;
 		padding:1vmax;
 	}
-	#content > div.action_selector > div.stat{
-		border:none;
-		background:none;
-		box-shadow:none;
-		flex:50%;
-		width:50%;
-		margin:0 0 -0.3vmax 0;
-		padding:0.5vmax;
-		display:flex;
-		flex-direction:row;
-	}
-	#content > div.action_selector > div.stat.mp > div.point{
-		background:rgba(200,230,255,0.25);
-	}
-	#content > div.action_selector > div.stat.mp > div.point.filled{
-		background:rgba(200,230,255,.75);
-	}
-	#content > div.action_selector > div.stat.mp > div.point.highlighted{
-		box-shadow:0 0 1vmax rgb(200,230,255);
-		border:1px solid rgb(200,230,255);
-		background:rgb(220,240,255);
-	}
-	#content > div.action_selector > div.stat.ap > div.point{
-		background:rgba(200,255,200,0.25);
-	}
-	#content > div.action_selector > div.stat.ap > div.point.filled{
-		background:rgba(200,255,200,.75);
-	}
-	#content > div.action_selector > div.stat.ap > div.point.highlighted{
-		box-shadow:0 0 1vmax rgb(200,255,200);
-		border:1px solid rgb(200,255,200);
-		background:rgb(220,255,220);
-	}
-	#content > div.action_selector > div.stat > div.point.highlighted:not(.filled){
-		background:rgba(255,100,100,0.5);
-		box-shadow:0 0 1vmax rgb(255,200,200);
-		border:1px solid rgb(255,200,200);
-	}
 	
-	#content > div.action_selector > div.stat > div{
-		height:1vmax;
-		flex-grow:1;
-		border:1px solid rgba(0,0,0,0);
-		border-radius:0.25vmax;
-		transition:all ease-out 0.25s;
-	}
-	#content > div.action_selector > div.stat > div.highlighted{
-		transition:none;
-		transition:all ease-out 0.05s;
-	}
 
-	#content > div.action_selector > div.action{
+	#ui > div.action_selector > div.action{
 		background:rgba(0,0,0,0.75);
 		padding:0.5vmax;
 		cursor:pointer;
@@ -1208,7 +1165,7 @@ div.fxHeal{
 		box-shadow:0.25vmax 0.25vmax 2vmax #000;
 		border:0.2vmax solid #FDD;
 	}
-	#content > div.action_selector > div > div.CD{
+	#ui > div.action_selector > div > div.CD{
 		position:absolute;
 		padding:0.2vmax;
 		bottom:0;
@@ -1219,175 +1176,274 @@ div.fxHeal{
 		color:#FFF;
 		text-shadow:0.1vmax 0.1vmax 0.2vmax #000;
 	}
-	#content > div.action_selector > div.action.enabled:hover{
+	#ui > div.action_selector > div.action.enabled:hover{
 		border-color:#FFF !important;
 	}
-	#content > div.action_selector > div[data-id=cancel]{
+	#ui > div.action_selector > div[data-id=cancel]{
 		flex:100%;
 	}
-	#content > div.action_selector > div.enabled{
+	#ui > div.action_selector > div.enabled{
 		color:#DFD;
 		border:0.2vmax solid #DFD;
 	}
-	#content > div.action_selector > div div.tooltip{
+	#ui > div.action_selector > div div.tooltip{
 		width:250%;
 	}
+*/
+/* Action bar */
+	#ui > div.actionbar{
+		position: absolute;
+		border:none;
+		background:none;
+		background: url(./media/ui/marble.jpg) repeat;
+		border-top:1vh groove rgba(255,255,255,.25);
+		height:7vh;
+	}
 
-/**/
+	/* Stats */
+	#ui > div.actionbar > div.resources{
+		display:flex;
+		position: absolute;
+		top:0;
+		transform:translateY(-100%);
+		width:100%;
+		background:rgba(0,0,0,.25);
+		
+	}
+	#ui > div.actionbar > div.resources > div.stat{
+		border:none;
+		background:none;
+		box-shadow:none;
+		flex:50%;
+		width:50%;
+		display:flex;
+		flex-direction:row;
+		margin:0 0.5vh;
+	}
+	#ui > div.actionbar > div.resources > div.stat.mp > div.point{
+		background:rgba(200,230,255,0.25);
+	}
+	#ui > div.actionbar > div.resources > div.stat.mp > div.point.filled{
+		background:rgba(200,230,255,.75);
+	}
+	#ui > div.actionbar > div.resources > div.stat.mp > div.point.highlighted{
+		box-shadow:0 0 1vh rgb(200,230,255);
+		border:1px solid rgb(200,230,255);
+		background:rgb(220,240,255);
+	}
+	#ui > div.actionbar > div.resources > div.stat.ap > div.point{
+		background:rgba(200,255,200,0.25);
+	}
+	#ui > div.actionbar > div.resources > div.stat.ap > div.point.filled{
+		background:rgba(200,255,200,.75);
+	}
+	#ui > div.actionbar > div.resources > div.stat.ap > div.point.highlighted{
+		box-shadow:0 0 1vh rgb(200,255,200);
+		border:1px solid rgb(200,255,200);
+		background:rgb(220,255,220);
+	}
+	#ui > div.actionbar > div.resources > div.stat > div.point.highlighted:not(.filled){
+		background:rgba(255,100,100,0.5);
+		box-shadow:0 0 1vh rgb(255,200,200);
+		border:1px solid rgb(255,200,200);
+	}
+	
+	#ui > div.actionbar > div.resources > div.stat > div{
+		height:1vh;
+		flex-grow:1;
+		border:1px solid rgba(0,0,0,0);
+		border-radius:0.25vmax;
+		transition:all ease-out 0.25s;
+		margin:0.1vh;
+	}
+	#ui > div.actionbar > div.resources > div.stat > div.highlighted{
+		transition:none;
+		transition:all ease-out 0.05s;
+	}
 
+
+	#ui > div.actionbar > div.actions{
+		position: absolute;
+		left:0; right:0; bottom:0; top:0.25vh;
+		text-align: center;
+	}
+
+	#ui > div.actionbar > div.actions > div.action{
+		width:5.5vh;
+		height:5.5vh;
+	}
+	#ui > div.actionbar > div.actions > div.action > img{
+		width:100%;
+		height:100%;
+		position: absolute;
+		left:0; top:0;
+	}
+	#ui > div.actionbar > div.actions > div.action > div.uses{
+		position: absolute;
+		right:0; bottom:0;
+		padding:0.2vmax;
+		background:rgba(0,0,0,.5);
+		border-radius:0.2vmax;
+		font-size:1.25vmax;
+	}
+	
+	
+
+
+/* */
 
 
 /* DEVTOOLS */
-table.editor{
-	width:100%;
-	box-sizing: border-box;
-	border-collapse: collapse;
-}
-table.editor.textEditor td:first-child{
-	width:40%;
-	font-size:1.25em;
-}
-table.editor.listing{
-	font-size:0.8em;
-}
-table.editor.listing td{
-	padding:0.2vmax;
-}
+	table.editor{
+		width:100%;
+		box-sizing: border-box;
+		border-collapse: collapse;
+	}
+	table.editor.textEditor td:first-child{
+		width:40%;
+		font-size:1.25em;
+	}
+	table.editor.listing{
+		font-size:0.8em;
+	}
+	table.editor.listing td{
+		padding:0.2vmax;
+	}
 
-table.editor tr{
-	background:rgba(0,0,0,.5);
-}
-table.editor.clickable tr:hover{
-	background:rgba(255,255,255,.5);
-	cursor:pointer;
-}
-table.editor tr:nth-child(odd){
-	background:rgba(0,0,0, 0.75);
-}
-table.editor tr:first-child, table.editor.clickable tr:first-child:hover{
-	background:rgba(0,0,0);
-	cursor: auto;;
-}
+	table.editor tr{
+		background:rgba(0,0,0,.5);
+	}
+	table.editor.clickable tr:hover{
+		background:rgba(255,255,255,.5);
+		cursor:pointer;
+	}
+	table.editor tr:nth-child(odd){
+		background:rgba(0,0,0, 0.75);
+	}
+	table.editor tr:first-child, table.editor.clickable tr:first-child:hover{
+		background:rgba(0,0,0);
+		cursor: auto;;
+	}
 
-table.editor td, table.editor th{
-	padding:0.5vmax;
-}
+	table.editor td, table.editor th{
+		padding:0.5vmax;
+	}
 
-#modal div.roomWrap > div,
-#modal div.editorWrap > div
-{
-	flex: unset;
-}
-#modal div.dungeonMap{
-	width:50vw;
-	height:50vw;
-	background:rgba(0,0,0,.25);
-	
-}
-#modal div.dungeonMap > div.room{
-	background:rgba(255,255,255,.5);
-	border-radius:0.5vmax;
-	border:0.5vmax solid rgba(0,0,0,0.5);
-	position:absolute;
-	transform:translate(-50%,-50%);
-	font-size:1vmax;
-}
-#modal div.dungeonMap > div.room:hover{
-	background:rgba(200,255,200,.75);
-	cursor:pointer;
-}
-#modal div.dungeonMap > div.room.selected{
-	border-color:#AFA;
-	cursor:pointer;
-}
+	#modal div.roomWrap > div,
+	#modal div.editorWrap > div
+	{
+		flex: unset;
+	}
+	#modal div.dungeonMap{
+		width:50vw;
+		height:50vw;
+		background:rgba(0,0,0,.25);
+		
+	}
+	#modal div.dungeonMap > div.room{
+		background:rgba(255,255,255,.5);
+		border-radius:0.5vmax;
+		border:0.5vmax solid rgba(0,0,0,0.5);
+		position:absolute;
+		transform:translate(-50%,-50%);
+		font-size:1vmax;
+	}
+	#modal div.dungeonMap > div.room:hover{
+		background:rgba(200,255,200,.75);
+		cursor:pointer;
+	}
+	#modal div.dungeonMap > div.room.selected{
+		border-color:#AFA;
+		cursor:pointer;
+	}
 
-#modal div.dungeonMap > div.room > input.addRoom{
-	font-size:0.75vmax;
-	position:absolute;
-	padding:0 0.25vmax;
-	margin:0;
+	#modal div.dungeonMap > div.room > input.addRoom{
+		font-size:0.75vmax;
+		position:absolute;
+		padding:0 0.25vmax;
+		margin:0;
 
-}
+	}
 
 
-div.modButtons div.button{
-	display:inline-block;
-}
+	div.modButtons div.button{
+		display:inline-block;
+	}
 
-#modGenericInfo input{
-	width:auto;
-	display:inline-block;
-}
+	#modGenericInfo input{
+		width:auto;
+		display:inline-block;
+	}
 
-#assetForm input{
-	width:auto;
-}
+	#assetForm input{
+		width:auto;
+	}
 
-#assetForm input.equipped{
-	border-color:#AFA;
-}
+	#assetForm input.equipped{
+		border-color:#AFA;
+	}
 
-table.editor tr.search{
-	background:rgba(255,200,155,.25);
-	font-style: italic;
-}
-table.editor tr.search:hover{
-	cursor: auto;
-	background:rgba(255,200,155,.25);
+	table.editor tr.search{
+		background:rgba(255,200,155,.25);
+		font-style: italic;
+	}
+	table.editor tr.search:hover{
+		cursor: auto;
+		background:rgba(255,200,155,.25);
 
-}
+	}
 
-div.condWrapper{
-	display:inline-block;
-	background:rgba(0,0,0,.5);
-	border: 1px solid #FFF;
-	padding:0.5vmax;
-	min-width:8vmax;
-	min-height:3vmax;
-	padding:1.5vmax 0.5vmax 0.25vmax 0.5vmax;
-	margin:0.25vmax;
-}
+	div.condWrapper{
+		display:inline-block;
+		background:rgba(0,0,0,.5);
+		border: 1px solid #FFF;
+		padding:0.5vmax;
+		min-width:8vmax;
+		min-height:3vmax;
+		padding:1.5vmax 0.5vmax 0.25vmax 0.5vmax;
+		margin:0.25vmax;
+	}
 
-div.condWrapper > div.condPanel{
-	position: absolute;
-	top:0; left:0;
-}
-div.condWrapper > div.condPanel > span{
-	cursor:pointer;
-	background:rgba(255,255,255,.25);
-	border:1px solid #FFF;
-	padding:0 0.25vmax 0.25vmax 0.25vmax;
-}
-div.condWrapper > div.condPanel > span.hlt{
-	border-color:#AFA;
-}
+	div.condWrapper > div.condPanel{
+		position: absolute;
+		top:0; left:0;
+	}
+	div.condWrapper > div.condPanel > span{
+		cursor:pointer;
+		background:rgba(255,255,255,.25);
+		border:1px solid #FFF;
+		padding:0 0.25vmax 0.25vmax 0.25vmax;
+	}
+	div.condWrapper > div.condPanel > span.hlt{
+		border-color:#AFA;
+	}
 
-#jsonEditor{
-	position: fixed;
-	top:0; left:0; right:0; bottom:0;
-	width:100%; height:100%;
-	background:rgba(255,255,255,.25);
-}
-#jsonEditor > div{
-	position:fixed;
-	width:20vmax;
-	height:20vmax;
-	padding:0.5vmax;
-	padding-bottom:3vmax;
-	text-align: center;
-}
+	#jsonEditor{
+		position: fixed;
+		top:0; left:0; right:0; bottom:0;
+		width:100%; height:100%;
+		background:rgba(255,255,255,.25);
+	}
+	#jsonEditor > div{
+		position:fixed;
+		width:20vmax;
+		height:20vmax;
+		padding:0.5vmax;
+		padding-bottom:3vmax;
+		text-align: center;
+	}
 
-#jsonEditor > div > textarea{
-	width:100%; height:100%;
-}
-#jsonEditor > div > div.buttons{
-	position: absolute;
-	bottom:0; width:100%;
-}
+	#jsonEditor > div > textarea{
+		width:100%; height:100%;
+	}
+	#jsonEditor > div > div.buttons{
+		position: absolute;
+		bottom:0; width:100%;
+	}
 
-#modal div.dungeonMap  input.disabled{
-	background:#FAA;
-}
+	#modal div.dungeonMap  input.disabled{
+		background:#FAA;
+	}
 
 /* */
 
@@ -1416,6 +1472,11 @@ div.condWrapper > div.condPanel > span.hlt{
 	div.tooltipParent:hover div.tooltip{
 		display:block;
 		z-index:1000;
+	}
+
+	div.tooltipParent.tooltipAbove div.tooltip{
+		top:0;
+		transform:translate(-50%,-100%);
 	}
 
 	/* Action tooltip */

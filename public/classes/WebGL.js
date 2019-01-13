@@ -4,7 +4,8 @@
 	The main class has stuff like the base grid, base lighting and debugging
 	The Stage is an object which is a reflection of a DungeonRoom
 */
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.module.js';
+import * as THREE from '../ext/THREE.js';
+import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader} from '../ext/EffectComposer.js';
 import OrbitControls from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
@@ -26,7 +27,7 @@ class WebGL{
 		};
 
 		this.width = 1.0;		// vw
-		this.height = 0.8;		// vh
+		this.height = 1.0;		// vh
 
 		// Optional event bindings
 		this.onRender = undefined;
@@ -48,6 +49,21 @@ class WebGL{
 			this.renderer.shadowMap.enabled = true;
 			this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		}
+
+		// Effects
+		this.composer = new EffectComposer( this.renderer );
+		this.composer.addPass( new RenderPass(this.scene, this.camera) );
+		this.hblur = new ShaderPass(HorizontalBlurShader);
+		this.hblur.uniforms.h.value = 0.0025;
+		this.composer.addPass( this.hblur );
+		this.vblur = new ShaderPass(VerticalBlurShader);
+		this.vblur.uniforms.v.value = 0.0025;
+		this.composer.addPass( this.vblur );
+		const copypass = new ShaderPass(CopyShader);
+		copypass.renderToScreen = true;
+		this.composer.addPass( copypass );
+
+
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		this.controls.enableDamping = true;
 		this.controls.dampingFactor = 0.3;
@@ -113,7 +129,6 @@ class WebGL{
 
 
 		this.renderer.setSize( width, height );
-		this._rendering = false;
 		this.loading = false;
 		this.load_after_load = false;		// Set if a load was attempted while it was already loading
 
@@ -169,7 +184,7 @@ class WebGL{
 		$(window).off('resize').on('resize', () => {
 			this.updateSize();
 		});
-
+		this.updateSize();
 		
 
 		this.render();
@@ -188,6 +203,7 @@ class WebGL{
 		let width = Math.round(window.innerWidth*this.width),
 			height = Math.round(window.innerHeight*this.height);
 		this.renderer.setSize(width, height);
+		this.composer.setSize(width, height);
 		this.renderer.domElement.style.width = Math.ceil(width);
 		this.renderer.domElement.style.height = Math.ceil(height);
 		this.camera.aspect = width / height;
@@ -245,74 +261,62 @@ class WebGL{
 
 	
 	/* Main */
-	// Toggle rendering
-	start(){
-		if( this._rendering )
-			return false;
-		this._rendering = true;
-	}
-	stop(){
-		this._rendering = false;
-	}
-
 	render(){
 		this.execRender();
 		requestAnimationFrame( () => this.render() );
 	}
 
 	// Scene rendering function - This is where the magic happens
-	execRender( force ){
-
-		if( !this._rendering && !force )
-			return;
-
+	execRender(){
 		let delta = this.clock.getDelta();
 		TWEEN.update();
 		if( this.stage )
 			this.stage.render(delta);
 
-		this.raycaster.setFromCamera( this.mouse, this.camera );
-		let objCache = [];
-		let intersects = this.raycaster.intersectObjects( this.scene.children, true )
-			.map(el => {
-				if( !this.stage )
-					return false;
-				// This one has its own mouseover handler, return that
-				if( el.object.userData.mouseover )
+		const intersecting = [];	// Meshes being raycasted onto
+		if( !window.game || game === true || !game.ui.visible ){
+			this.raycaster.setFromCamera( this.mouse, this.camera );
+			let objCache = [];
+			let intersects = this.raycaster.intersectObjects( this.scene.children, true )
+				.map(el => {
+					if( !this.stage )
+						return false;
+					// This one has its own mouseover handler, return that
+					if( el.object.userData.mouseover )
+						return el;
+					// Objects named HITBOX use the root item unless it has its own mouseover handler
+					if( el.object.name === 'HITBOX' )
+						el.object = this.stage.getMeshStageParent(el.object);
 					return el;
-				// Objects named HITBOX use the root item unless it has its own mouseover handler
-				if( el.object.name === 'HITBOX' )
-					el.object = this.stage.getMeshStageParent(el.object);
-				return el;
-			}).filter(el => {
-				if(!(el && el.object && el.object.userData && typeof el.object.userData.mouseover === "function"))
-					return false;
-				if( ~objCache.indexOf(el.object) )
-					return false;
-				objCache.push(el.object);
-				return true;	
-			});
+				}).filter(el => {
+					if(!(el && el.object && el.object.userData && typeof el.object.userData.mouseover === "function"))
+						return false;
+					if( ~objCache.indexOf(el.object) )
+						return false;
+					objCache.push(el.object);
+					return true;	
+				});
 
-		
-
-		// Raycaster
-		let intersecting = [];	// These are the meshes
-		// Mouseover
-		for( let obj of intersects ){
-
-			intersecting.push(obj.object);
-			// mouseover can return true to allow propagation
-			obj.object.userData._mouseover = true;
-			if( !obj.object.userData.mouseover.call(obj, obj) )
-				break;
 			
-		}
-		// Mouseout
-		for( let obj of this.intersecting ){
-			if( obj.userData._mouseover && intersecting.indexOf(obj) === -1 ){
-				obj.userData._mouseover = false;
-				if( typeof obj.userData.mouseout === "function" )
-					obj.userData.mouseout.call(obj, obj);
+
+			// Raycaster
+			// Mouseover
+			for( let obj of intersects ){
+
+				intersecting.push(obj.object);
+				// mouseover can return true to allow propagation
+				obj.object.userData._mouseover = true;
+				if( !obj.object.userData.mouseover.call(obj, obj) )
+					break;
+				
+			}
+			// Mouseout
+			for( let obj of this.intersecting ){
+				if( obj.userData._mouseover && intersecting.indexOf(obj) === -1 ){
+					obj.userData._mouseover = false;
+					if( typeof obj.userData.mouseout === "function" )
+						obj.userData.mouseout.call(obj, obj);
+				}
 			}
 		}
 
@@ -323,7 +327,7 @@ class WebGL{
 
 		
 		this.controls.update();
-		this.renderer.render( this.scene, this.camera );
+		this.composer.render();
 
 	}
 	

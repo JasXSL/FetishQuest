@@ -14,19 +14,18 @@ export default class UI{
 	constructor(parent){
 		
 		this.parent = parent;
-		this.board = $("#content");
-		this.players = $("#content > div.players");
-		this.friendly = $("#content > div.players > div.left");
-		this.hostile = $("#content > div.players > div.right");
+		this.board = $("#ui");
+		this.players = $("#ui > div.players");
+		this.friendly = $("#ui > div.players > div.left");
+		this.hostile = $("#ui > div.players > div.right");
 		this.dm_tools = $("#dm_tools");
-		this.action_selector = $("#content > div.action_selector");
-		this.text = $("#content div.text > div.content");
-		this.console = $("#content > div.middle > div.chat");
-		this.mainMenu = $("#mainMenuButton");
-		this.masterVolume = $("#audioToggle");
-		this.netgamePlayers = $("#netgamePlayers");
-		this.netgameToggle = $("#netgameToggle");
+		this.action_selector = $("#ui > div.actionbar");
+		this.text = $("#ui div.text > div.content");
+		this.console = $("#ui > div.middle > div.chat");
 		this.gameIcons = $("#gameIcons");
+		this.netgamePlayers = $("#netgamePlayers");
+		
+		this.visible = true;	// main UI layer visible
 
 		this.previousConsoleCommands = [];
 		try{
@@ -67,66 +66,15 @@ export default class UI{
 			this.onConsoleMessage();
 			return false;
 		});
-		this.mainMenu.off('click').on('click', event => {
-			this.drawMainMenu();
-		});
-		this.netgameToggle.off('click').on('click', () => {
-			this.drawNetSettings();
-		});
 
 	}
 
-	ini(){
+	// Takes the 3d canvases
+	ini( map, fx ){
 
-		let th = this;
-		function updateVolumeIcon(){
-			th.masterVolume.css({
-				'background-image' : localStorage.masterVolume > 0 ? 'url(media/wrapper_icons/speaker.svg)' : 'url(media/wrapper_icons/speaker-off.svg)'
-			});
-		}
-
-		let volume = 0;
-		if( !isNaN(localStorage.masterVolume) )
-			volume = +localStorage.masterVolume;
-		$('#masterSoundVolume', this.masterVolume)
-			.val(Math.round(volume*100))
-			.off('input').on('input', function(event){
-				let preVolume = +localStorage.masterVolume;
-				game.setMasterVolume($(this).val()/100);
-				if( +localStorage.masterVolume > 0 !== preVolume > 0 )
-					updateVolumeIcon();
-			});
-
-		// Channels
-		$('#ambientSoundVolume', this.masterVolume)
-			.val(Math.round(game.audio_ambient.volume*100))
-			.off('input').on('input', function(event){
-				game.audio_ambient.setVolume($(this).val()/100);
-			});
-		$('#fxSoundVolume', this.masterVolume)
-			.val(Math.round(game.audio_fx.volume*100))
-			.off('input').on('input', function(event){
-				game.audio_fx.setVolume($(this).val()/100);
-			});
-		$('#musicSoundVolume', this.masterVolume)
-			.val(Math.round(game.audio_music.volume*100))
-			.off('input').on('input', function(event){
-				game.audio_music.setVolume($(this).val()/100);
-			});
-
-		this.masterVolume.off('click').on('click', event => {
-			let el = $("> div", this.masterVolume);
-			el.toggleClass('visible');
-			event.stopImmediatePropagation();
-			if( el.hasClass('visible') ){
-				window.addEventListener('click', event => {
-					$("> div", this.masterVolume).toggleClass('visible', false);
-				}, {once:true});
-			}
-		});
-		$('div.rollout', this.masterVolume).on('click', event => event.stopImmediatePropagation());
-
-		updateVolumeIcon();
+		this.map = map;
+		this.fx = fx;
+		$("#renderer").html(map);
 
 	}
 
@@ -135,6 +83,13 @@ export default class UI{
 	}
 
 
+	// Toggles the UI overlay
+	toggle(){
+		this.visible = !this.visible;
+		game.renderer.hblur.enabled = game.renderer.vblur.enabled = this.visible;
+		this.board.toggleClass('hidden', !this.visible);
+		$("[data-id=map]", this.gameIcons).toggleClass("highlighted", !this.visible);
+	}
 
 
 
@@ -145,32 +100,37 @@ export default class UI{
 
 		this.drawPlayers();
 		this.drawTools();
-		this.drawNetgamePlayers();
 		this.drawGameIcons();
-		if( !game.battle_active )
-			this.closeActionSelector();
+		this.drawActionSelector();
 
 	}
 
 	// Draws action selector for a player
 	drawActionSelector( player ){
 
+		if( !player )
+			player = game.getMyFirstPlayer();
+
 		let actions = player.getActions(), 
 			th = this,
 			html = ''
 		;
 
-		// Draw stat bars
-		html += '<div class="stat ap">';
-		for( let i = 0; i< player.getMaxAP(); ++i)
-			html += '<div class="point '+(i < player.ap ? 'filled' : '')+'"></div>';
+		// Resources
+		html += '<div class="resources">';
+			html += '<div class="stat ap">';
+			for( let i = 0; i< player.getMaxAP(); ++i)
+				html += '<div class="point '+(i < player.ap ? 'filled' : '')+'"></div>';
+			html += '</div>';
+
+			html += '<div class="stat mp">';
+			for( let i = 0; i< player.getMaxMP(); ++i)
+				html += '<div class="point '+(i < player.mp ? 'filled' : '')+'"></div>';
+			html += '</div>';
+
 		html += '</div>';
-		
-		html += '<div class="stat mp">';
-		for( let i = 0; i< player.getMaxMP(); ++i)
-			html += '<div class="point '+(i < player.mp ? 'filled' : '')+'"></div>';
-		html += '</div>';
-		
+
+		html += '<div class="actions">';
 		// label : nr
 		let existing = {};
 		actions = actions.filter(el => {
@@ -188,13 +148,20 @@ export default class UI{
 				continue;
 
 			let castable = action.castable();
-			html+= '<div class="action tooltipParent '+(castable ? 'enabled' : 'disabled')+'" data-id="'+esc(action.id)+'">'+
-				esc(action.name);
+			html+= '<div class="'+
+				'action button tooltipParent tooltipAbove '+
+				(castable ? 'enabled' : 'disabled')+' '+
+				(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')+
+				'" data-id="'+esc(action.id)+'">'
+			;
+				html += '<img src="media/wrapper_icons/'+esc(action.icon)+'.svg" />';
+
 			// This action is tied to an asset
-			if( action.isAssetAction() )
-				html += ' x'+existing[action.label];
+			if( action.isAssetAction() ){
+				html += '<div class="uses">'+existing[action.label]+'</div>';
+			}
 			else if( action._charges > 1 )
-				html += ' x'+action._charges;
+				html += '<div class="uses">'+action._charges+'</div>';
 			
 
 			html += (action._cooldown > 0 ? '<div class="CD"><span>'+action._cooldown+'</span></div>' : '')+
@@ -204,18 +171,17 @@ export default class UI{
 			'</div>';
 
 		}
-		html += '<div class="action" data-id="cancel">Cancel</div>';
+		html += '</div>';
 
-		this.action_selector.html(html).toggleClass("hidden", false);
+		this.action_selector.html(html);
 
 		// Bind events
 		$("div.action", this.action_selector).on('click', function(){
 			
 			let id = $(this).attr("data-id");
-			if( id === "cancel" )
-				th.closeActionSelector();
+			if( id === "end-turn" )
+				console.log("Todo: End turn");
 			else{
-				
 				let spell = player.getActionById(id);
 				if( !spell )
 					return game.modal.addError("No such spell found", id, "on", player);
@@ -226,7 +192,9 @@ export default class UI{
 				}
 			}
 
-		}).on('mouseover', function(){
+		})
+		// hover
+		.on('mouseover', function(){
 
 			let id = $(this).attr("data-id");
 			let spell = player.getActionById(id); 
@@ -236,7 +204,8 @@ export default class UI{
 			let mpCost = spell.mp, apCost = spell.ap,
 				mp = player.mp, ap = player.ap
 			;
-
+			if( !game.battle_active )
+				apCost = 0;
 			
 			if( apCost ){
 				let start = Math.max(apCost, ap);
@@ -254,6 +223,11 @@ export default class UI{
 		}).on('mouseout', () => {
 			$("div.stat div.point", this.action_selector).toggleClass('highlighted', false);
 		});
+
+
+		
+
+		
 
 
 	}
@@ -280,10 +254,6 @@ export default class UI{
 
 			if( !el.length ){
 				let div = '<div class="player" data-id="'+p.id+'">'+
-					'<div class="actionDrawer">'+
-							'<div class="action" data-type="actions">Actions</div>'+
-							'<div class="action" data-type="endTurn">End Turn</div>'+
-					'</div>'+
 					'<div class="content">'+
 						'<div class="bg" style="background-image:url('+esc(p.icon)+')" data-image="'+esc(p.icon)+'"></div>'+
 						'<div class="stats"></div>'+
@@ -416,8 +386,6 @@ export default class UI{
 				'</span><br />'+
 				rb_entries.join('')
 			);
-			$("div.actionDrawer", el).toggleClass('hidden', (!myTurn && game.battle_active) || !game.playerIsMe(p) || p.isDead());
-			$("div.player[data-id] div.actionDrawer div.action[data-type=endTurn]").toggleClass('hidden', !game.battle_active);
 
 			// Charged actions
 			let chargedActions = p.isCasting();
@@ -470,54 +438,100 @@ export default class UI{
 		$("div.left", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_friendly > 10 ? 10 : nr_friendly));
 		$("div.right", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_hostile > 10 ? 10 : nr_hostile));
 
-		// PLAYER TURN ROLLOUT
-		$("div.player[data-id] div.actionDrawer div.action[data-type]").off('click').on('click', function(event){
 
-			// Victim
-			let player = game.getPlayerById($(this).closest('div.player[data-id]').attr('data-id'));
-
-			event.stopImmediatePropagation();
-			let action = $(this).attr('data-type');
-			th.closeActionSelector();
-
-			if( action === "actions" )
-				th.drawActionSelector(player);
-			else if( action === "endTurn" )
-				game.useActionOnTarget(player.getActionByLabel('stdEndTurn'), player, player);
-
-		});
-
-	}
-
-	// Netgame players on the bottom
-	drawNetgamePlayers(){
-		
-		let html = '';
-		if( game.net.isConnected() ){
-			for( let player of game.net.players )
-				html+= '<div class="player">'+esc(player.name)+'</div>';
-		}
-
-		this.netgamePlayers.html(html);
 	}
 
 	// Bottom menu
 	drawGameIcons(){
+
 		let th = this;
 		let html = 
-			'<div class="button" data-id="map" style="background-image:url(/media/wrapper_icons/treasure-map.svg);"></div>'+
-			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'
+			'<div class="button'+(!this.visible ? ' highlighted' : '')+'" data-id="map" style="background-image:url(/media/wrapper_icons/treasure-map.svg);"></div>'+
+			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'+
+			'<div class="button" data-id="audioToggle" style="background-image: url(media/wrapper_icons/speaker.svg)">'+
+				'<div class="rollout">'+
+					'Ambient:'+
+					'<input type="range" min=0 max=100 step=1 id="ambientSoundVolume" />'+
+					'Music:'+
+					'<input type="range" min=0 max=100 step=1 id="musicSoundVolume" />'+
+					'FX:'+
+					'<input type="range" min=0 max=100 step=1 id="fxSoundVolume" />'+
+					'Master:'+
+					'<input type="range" min=0 max=100 step=1 id="masterSoundVolume" />'+
+				'</div>'+
+			'</div>'+
+			'<div data-id="multiplayer" class="button" style="background-image: url(media/wrapper_icons/multiplayer.svg)"></div>'+
+			'<div data-id="mainMenu" class="button autoWidth">Game</div>'
 		;
 		this.gameIcons.html(html);
 
+		const masterVolume = $("[data-id=audioToggle]", this.gameIcons);
+
 		$("[data-id]", this.gameIcons).on('click', function(){
+
 			let id = $(this).attr("data-id");
 			if( id === 'map' )
-				th.drawMap();
+				th.toggle();
 			else if( id === 'quest' )
 				th.drawQuests();
+			else if( id === "mainMenu" )
+				th.drawMainMenu();
+			else if( id === 'multiplayer' )
+				th.drawNetSettings();
+			else if( id === 'audioToggle' ){
+
+			
+				let el = $("> div", this);
+				el.toggleClass('visible');
+				event.stopImmediatePropagation();
+				if( el.hasClass('visible') ){
+					window.addEventListener('click', event => {
+						$("> div", this).toggleClass('visible', false);
+					}, {once:true});
+				}
+
+			}
 		});
+
+		function updateVolumeIcon(){
+			masterVolume.css({
+				'background-image' : localStorage.masterVolume > 0 ? 'url(media/wrapper_icons/speaker.svg)' : 'url(media/wrapper_icons/speaker-off.svg)'
+			});
+		}
+
+		let volume = 0;
+		if( !isNaN(localStorage.masterVolume) )
+			volume = +localStorage.masterVolume;
+		$('#masterSoundVolume', masterVolume)
+			.val(Math.round(volume*100))
+			.off('input').on('input', function(event){
+				let preVolume = +localStorage.masterVolume;
+				game.setMasterVolume($(this).val()/100);
+				if( +localStorage.masterVolume > 0 !== preVolume > 0 )
+					updateVolumeIcon();
+			});
+		// Channels
+		$('#ambientSoundVolume', masterVolume)
+			.val(Math.round(game.audio_ambient.volume*100))
+			.off('input').on('input', function(event){
+				game.audio_ambient.setVolume($(this).val()/100);
+			});
+		$('#fxSoundVolume', masterVolume)
+			.val(Math.round(game.audio_fx.volume*100))
+			.off('input').on('input', function(event){
+				game.audio_fx.setVolume($(this).val()/100);
+			});
+		$('#musicSoundVolume', masterVolume)
+			.val(Math.round(game.audio_music.volume*100))
+			.off('input').on('input', function(event){
+				game.audio_music.setVolume($(this).val()/100);
+			});
+
 		
+		$('div.rollout', masterVolume).on('click', event => event.stopImmediatePropagation());
+
+		updateVolumeIcon();
+
 	}
 
 	// DM Tools
@@ -580,7 +594,6 @@ export default class UI{
 		);
 		this.action_selected = this.action_player = null;
 		this.targets_selected = [];
-		this.closeActionSelector();
 		if( success ){
 			this.draw();
 			return true;
@@ -591,7 +604,7 @@ export default class UI{
 	// pl defaults to turn player
 	drawTargetSelector( action, pl ){
 
-		let html = '';
+		console.log("Todo: Draw action arrow");
 
 		// If pl is not set, use turn player default if a battle is active
 		if( !pl )
@@ -645,42 +658,7 @@ export default class UI{
 			
 		}
 
-		let mid = 'target';
-		if( action.max_targets > 1 && viableTargets.length > 1 ){
-			mid = (+action.min_targets)+" to "+(+action.max_targets)+' targets';
-			if( action.max_targets <= action.min_targets )
-				mid = (+action.min_targets)+' targets';
-		}
-
-		let enabled = this.targets_selected.length >= action.min_targets;
-
-		html += '<span style="flex:100%">Select '+mid+' for \''+esc(action.name)+'\'</span>';
-		let missingTargets = action.min_targets-this.targets_selected.length;
-		if( action.max_targets > 1 && viableTargets.length > 1 )
-			html += '<div class="action '+(enabled ? 'enabled' : 'disabled')+'" data-id="exec">'+
-				(!enabled ? missingTargets+' More Target'+(missingTargets === 1 ? '': 's') : 'Perform Action')+
-			'</div>';
-		html += '<div class="action" data-id="cancel">Cancel</div>';
-		this.action_selector.toggleClass("hidden", false).toggleClass("targetSelector", true).html(html);
-		$("div.action[data-id=cancel]", this.action_selector).on('click', () => {
-			this.closeActionSelector();
-			if( this.battle_active )
-				this.drawActionSelector(pl);
-		});
-		$("div.action.enabled[data-id=exec]", this.action_selector).on('click', () => {
-			this.performSelectedAction();
-		});
-		
-
 	}
-	closeActionSelector(){
-
-		this.action_selector.toggleClass("hidden", true).toggleClass("targetSelector", false);
-		$("div.player", this.players).toggleClass("castTarget targetSelected", false);
-		this.action_selected = null;
-
-	}
-
 
 
 
@@ -1089,7 +1067,7 @@ export default class UI{
 				name : $("input[name=name]", base).val().trim() || 'Player',
 				species : $("input[name=species]", base).val().trim().toLowerCase() || 'human',
 				icon : $("input[name=icon]", base).val().trim(),
-				size : +$("input[name=icon]", base).val().trim() || 0,
+				size : +$("input[name=size]", base).val().trim() || 0,
 				class : c.save(true),
 			});
 			const tags = [];
@@ -1123,9 +1101,13 @@ export default class UI{
 		let html = '';
 		if( game.net.isConnected() && game.initialized && game.is_host )
 			html += 'Invite players with this ID:<br /><strong style="user-select:text;">'+esc(game.net.public_id)+'</strong><br /><br />';
-		else if( !game.net.isConnected() && game.initialized && game.is_host )
-			html += '<input type="button" class="blue" name="hostGame" value="Put This Session Online" /><br />';
-
+		else if( !game.net.isConnected() && game.initialized && game.is_host ){
+			html += '<div class="infoBox">';
+				html += '<h1>Put Session Online</h1>';
+				html += '<p>If you want, you can put this session online and invite your friends.</p>';
+				html += '<input type="button" class="blue" name="hostGame" value="Put This Session Online" /><br />';
+			html += '</div>';
+		}
 		if( game.net.isConnected() )
 			html += '<input type="button" class="red" name="disconnect" value="Disconnect" />';
 
@@ -1141,14 +1123,17 @@ export default class UI{
 			this.drawNetSettings();
 		});
 
+		if( game.net.isConnected() ){
+			for( let player of game.net.players )
+				html+= '<div class="player">'+esc(player.name)+'</div>';
+		}
+
+		this.netgamePlayers.html(html);
+
 	}
 
 
-	// 3d map browser
-	drawMap(){
-		let rend = game.renderer;
-		game.modal.set('', rend.renderer.domElement);
-	}
+	
 
 	// Quest explorer
 	drawQuests(){

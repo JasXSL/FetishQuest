@@ -28,7 +28,7 @@ export default class Asset extends Generic{
 		this.durability = this.getMaxDurability();
 		
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
-		this.use_action = new Action([], this);		// Set to an Action along with charges above to enable use
+		this.use_action = null;		// Set to an Action along with charges above to enable use
 		this.no_auto_consume = false;		// Prevents auto consume of charges
 		this.rarity = this.constructor.Rarity.COMMON;
 		this.loot_sound = '';				// Also equip and unequip sound. audioKit ID

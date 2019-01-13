@@ -8,7 +8,7 @@
  */
 
 'use strict';
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.module.js';
+import * as THREE from './THREE.js';
 
 
 var GizmoMaterial = function (parameters) {

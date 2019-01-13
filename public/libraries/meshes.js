@@ -30,7 +30,7 @@
 	
 
 */
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.module.js';
+import * as THREE from '../ext/THREE.js';
 import libMat from './materials.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import libParticles from './particles.js';

@@ -179,7 +179,7 @@ export default class Game extends Generic{
 
 		this.initialized = true;
 
-		this.ui.ini();
+		this.ui.ini(this.renderer.renderer.domElement);
 		
 		// Make sure a dungeon exists
 		if( !this.dungeon || !this.dungeon.rooms.length )
@@ -228,6 +228,13 @@ export default class Game extends Generic{
 			p.refetchActions();
 		this.save();
 	}
+
+
+
+
+
+
+
 
 
 
@@ -320,6 +327,12 @@ export default class Game extends Generic{
 
 
 
+
+
+
+
+
+
 	/* AUDIO */
 	// Plays a sound. armor_slot is only needed for when a "punch/hit" sound specific to the armor of the player should be played
 	// Internal only lets you play the sound without sharing it with the other players (if DM)
@@ -378,6 +391,12 @@ export default class Game extends Generic{
 		if( room && room.ambiance )
 			this.setAmbient(room.ambiance, room.ambiance_volume);
 	}
+
+
+
+
+
+
 
 
 
@@ -467,6 +486,11 @@ export default class Game extends Generic{
 	}
 
 
+
+
+
+
+
 	/* DUNGEON */
 	setDungeon( dungeon ){
 		if( dungeon === this.dungeon )
@@ -488,6 +512,12 @@ export default class Game extends Generic{
 		this.setDungeon(Dungeon.generate(...args));
 		return this.dungeon;
 	}
+
+
+
+
+
+
 
 	/* QUEST */
 	addRandomQuest( type, difficultyMultiplier = 1 ){

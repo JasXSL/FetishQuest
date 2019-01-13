@@ -13,7 +13,7 @@
  *
  * Three.js integration by zz85 http://twitter.com/blurspline
 */
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.module.js';
+import * as THREE from './THREE.js';
 
 export default function Sky() {
 

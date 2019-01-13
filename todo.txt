@@ -1,10 +1,17 @@
-Generic code:
-	- Character export/import
+UI Overhaul:
+	- User inventory page
+		- Netgame players should be able to destroy items
+	- Don't send npc inventory to netcode players
+	- Quest start and finish splash screens
+	- Show what mods a quest belongs to
 
-	- Make a "powered" flag for players that boosts stats based on difficulty
-	- If a powered NPC is encountered, place only that and no others
-	- Set mimic to powered
-	
+Generic code:
+	- Assign party leader
+	- The leader is the only one who can interact with doors (except escape)
+	- NPC players should not be able to interact with anything
+	- When a player dies, their equipped gear takes 20% durability damage
+	- Redesign gear stats so it scales with level. Starting with enemies 3 levels above the item, all stats on an item starts being reduced by 1 point in checks.
+	- Character export/import
 	- (later) Redo netcode to send different types when they've changed
 
 Mod Editor:
@@ -28,12 +35,7 @@ Dungeon design:
 		- Tavern
 		- Exit to world map
 
-UI Overhaul:
-	- User inventory page
-		- Netgame players should be able to destroy items
-	- Don't send npc inventory to netcode players
-	- Quest start and finish splash screens
-	- Show what mods a quest belongs to
+
 
 Large 3d Tasks:
 	- Combat background

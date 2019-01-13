@@ -1,5 +1,5 @@
 const particles = {};
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.module.js';
+import * as THREE from '../ext/THREE.js';
 import SPE from '../ext/SPE.min.js';
 
 

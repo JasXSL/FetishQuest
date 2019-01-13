@@ -1,6 +1,6 @@
 import {default as WebGL, Stage} from '../classes/WebGL.js';
 import {default as libMeshes, LibMesh} from '../libraries/meshes.js';
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.module.js';
+import * as THREE from '../ext/THREE.js';
 import TransformControls from '../ext/TransformControls.js';
 import Mod from '../classes/Mod.js';
 import GameLib from '../classes/GameLib.js';
@@ -2196,7 +2196,6 @@ export default class Modtools{
 		
 		let stage = new Stage(room, this.renderer, true);
 		this.renderer.resetStage( stage );
-		this.renderer.start();
 		await stage.draw();
 		
 
@@ -3980,80 +3979,3 @@ export default class Modtools{
 
 }
 
-/*
-		let active_model, active_mesh;
-
-		window.onload = () => {
-
-			
-			let drawChilds = function(){
-
-				let out = '';
-				for( let child of active_mesh.children ){
-					if( !child.userData.EDITOR_PATH )
-						continue;
-					out += '<br />new LibMeshAttachment({';
-					out += 
-						`path:"${child.userData.EDITOR_PATH}",`+
-						'position:new THREE.Vector3('+Math.round(child.position.x*100)/100+','+Math.round(child.position.y*100)/100+','+Math.round(child.position.z*100)/100+'),'+
-						'rotation:new THREE.Vector3('+Math.round(child.rotation.x*1000)/10000+','+Math.round(child.rotation.y*10000)/10000+','+Math.round(child.rotation.z*10000)/10000+'),'+
-						'scale:new THREE.Vector3('+Math.round(child.scale.x*100)/100+','+Math.round(child.scale.y*100)/100+','+Math.round(child.scale.z*100)/100+'),'
-					;
-					out += '}),';
-				}
-				$("#children").html(out); 
-			};
-
-			// Updates the active mesh
-			let drawMesh = async function( load_model ){
-
-				$("#anims").html("");
-				renderer.resetStage();
-				renderer.stage.enabled = true;
-				console.log("Adding to stage", load_model);
-				renderer.stage.addFromMeshLib(load_model).then(model => {
-
-					// Model changed before promise resolved
-					if( active_model !== load_model )
-						return;
-
-					renderer.stage.onObjStart(model);
-					console.log("Starting", model);
-
-					active_mesh = model;
-					
-					//control.attach(model);
-					drawChilds();
-
-					let out = '';
-					if( model.type === "SkinnedMesh" ){
-						
-						let anims = model.geometry.animations;
-						for( let anim of anims )
-							out += '<input type="button" value="'+esc(anim.name)+'" />';
-
-					}
-
-					// Interacts
-					if( model.userData.template.onInteract )
-						out += '<input type="button" value="onInteract" />';
-
-					$("#anims").html(out);
-					$("#anims > input").on('click', function(){
-						let val = $(this).val();
-						if( val === 'onInteract' )
-							active_model.onInteract.call(active_model, active_mesh);
-						else
-							active_mesh.userData.playAnimation($(this).val());
-					});
-					
-				});
-			};
-
-			
-
-			renderer.start();
-			
-
-		};	
-*/

@@ -62,7 +62,6 @@ export default class Modal{
 
 		// If canvas is included, start rendering
 		if( canvas ){
-			game.renderer.start();
 			this.content.prepend('<div class="CANVAS_HOLDER"></div>');
 			$("> div.CANVAS_HOLDER", this.content).append(canvas);
 		}
@@ -76,8 +75,6 @@ export default class Modal{
 
 		this.open = false;
 		this.wipeEvents();
-		if( window.game )
-			game.renderer.stop();
 		this.bg.toggleClass("hidden", true);
 
 	}

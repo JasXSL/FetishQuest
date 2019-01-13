@@ -1067,7 +1067,7 @@ class DungeonRoomAsset extends Generic{
 			if( item.id === id )
 				return new Asset(item, this);
 		}
-		return item;
+		return false;
 	}
 
 	remLootById( id ){
