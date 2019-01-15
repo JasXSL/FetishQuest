@@ -179,7 +179,7 @@ export default class Game extends Generic{
 
 		this.initialized = true;
 
-		this.ui.ini(this.renderer.renderer.domElement);
+		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement);
 		
 		// Make sure a dungeon exists
 		if( !this.dungeon || !this.dungeon.rooms.length )

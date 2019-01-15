@@ -175,6 +175,12 @@ div.centered{
 	transform: translateY(-110%);
 }
 
+#fx{
+	position: fixed;
+	left:0; right:0;
+	top:0; bottom:0;
+	pointer-events: none;
+}
 
 
 /* FX */
@@ -551,9 +557,7 @@ div.fxHeal{
 		top:0; left:0; right:0; bottom:4.25vh;
 		pointer-events: none;
 	}
-	#ui > div.players > *{
-		pointer-events: all;
-	}
+
 	#ui > div.players > div.left{
 		position: absolute;
 		top:0; left:0;
@@ -568,6 +572,10 @@ div.fxHeal{
 	}
 	#ui > div.players > div.right > div.player{
 		margin-left:0;
+		pointer-events: all;
+	}
+	#ui > div.players > div.right > div.player * {
+		pointer-events: none;
 	}
 	#ui > div.players div.player div.stats{
 		text-shadow:0.1vmax 0.1vmax 0.1vmax #000;
@@ -788,7 +796,7 @@ div.fxHeal{
 
 /* Text */
 	#ui > div.middle{
-		bottom:5vh;
+		bottom:7vh;
 	}
 	#ui > div.middle > div.text{
 		left:0; right:0;
@@ -1007,6 +1015,11 @@ div.fxHeal{
 		border-color:#FAF;
 		box-shadow:0 0 1vmax #FDF;
 		cursor:pointer;
+		transition:transform 0.1s ease-out;
+	}
+	#ui > div.players div.player.castTarget.highlighted > div.content{
+		box-shadow:0 0 1vmax #FDF, 0 0 0 0.5vmax #FFA;
+		transform:scale(1.015,1.015);
 	}
 	#ui > div.players div.player.targetSelected{
 		transform:translateX(10%);
@@ -1176,19 +1189,7 @@ div.fxHeal{
 		color:#FFF;
 		text-shadow:0.1vmax 0.1vmax 0.2vmax #000;
 	}
-	#ui > div.action_selector > div.action.enabled:hover{
-		border-color:#FFF !important;
-	}
-	#ui > div.action_selector > div[data-id=cancel]{
-		flex:100%;
-	}
-	#ui > div.action_selector > div.enabled{
-		color:#DFD;
-		border:0.2vmax solid #DFD;
-	}
-	#ui > div.action_selector > div div.tooltip{
-		width:250%;
-	}
+	
 */
 /* Action bar */
 	#ui > div.actionbar{
@@ -1266,11 +1267,38 @@ div.fxHeal{
 		position: absolute;
 		left:0; right:0; bottom:0; top:0.25vh;
 		text-align: center;
+		user-select: none;
 	}
 
 	#ui > div.actionbar > div.actions > div.action{
 		width:5.5vh;
 		height:5.5vh;
+	}
+	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
+		width:auto;
+		padding-top:1.75vh;
+	}
+	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
+		color:#FFD;
+		border:0.2vmax solid #FFD;
+	}
+	@keyframes endTurnPulse{
+		from{transform: scale(1.05,1.05);}
+		to{transform: scale(1.1,1.1);}
+	}
+	#ui > div.actionbar > div.actions > div.action[data-id=end-turn].highlighted{
+		color:#DFD;
+		border:0.2vmax solid #DFD;
+		background-color:#060;
+		animation: endTurnPulse 1s ease-in-out alternate infinite;
+		box-shadow: 0 0 1vmax #AFA;
+	}
+
+	#ui > div.actionbar > div.actions > div.action *{
+		pointer-events: none;
+	}
+	#ui > div.actionbar > div.actions > div.action.spellSelected{
+		transform: translateY(-15%) scale(1.2,1.2);
 	}
 	#ui > div.actionbar > div.actions > div.action > img{
 		width:100%;
@@ -1286,7 +1314,27 @@ div.fxHeal{
 		border-radius:0.2vmax;
 		font-size:1.25vmax;
 	}
-	
+
+	#ui > div.actionbar > div.actions > div.action.enabled:hover{
+		border-color:#FFF !important;
+	}
+	#ui > div.actionbar > div.actions > div[data-id=cancel]{
+		flex:100%;
+	}
+	/*
+	#ui > div.actionbar > div.actions > div.enabled{
+		color:#DFD;
+		border:0.2vmax solid #DFD;
+	}
+	*/
+	#ui > div.actionbar > div.actions > div.action.disabled{
+		color:#FDD;
+		border:0.2vmax solid #FDD;
+		background-color:#600;
+	}
+	#ui > div.actionbar > div.actions > div div.tooltip{
+		width:250%;
+	}
 	
 
 

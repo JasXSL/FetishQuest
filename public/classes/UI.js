@@ -8,11 +8,13 @@ import NetworkManager from './NetworkManager.js';
 import PlayerTemplate from "./templates/PlayerTemplate.js";
 import stdTag from "../libraries/stdTag.js";
 import Mod from './Mod.js';
+import * as THREE from '../ext/THREE.js';
 
 export default class UI{
 
 	constructor(parent){
 		
+		const th = this;
 		this.parent = parent;
 		this.board = $("#ui");
 		this.players = $("#ui > div.players");
@@ -36,12 +38,13 @@ export default class UI{
 		this.consolePointer = 0;
 
 		// Targeting
-		this.action_player = null;
 		this.action_selected = null;
 		this.targets_selected = [];
 
 		this.captureActionMessage = false;	// Lets you caption statMessage classed message until the next non stat messaged one appears 
 		this.capturedMessages = [];
+		this.arrowHeld = false;				// Set when you pick an ability and determines if you're using drag and drop or not
+		this.mouseDown = false;
 
 		this.console.off('keydown').on('keydown', event => {
 			if( event.altKey ){
@@ -67,6 +70,20 @@ export default class UI{
 			return false;
 		});
 
+		this.board.off('mouseup').on('mouseup', function(event){
+
+			th.mouseDown = false;
+			// Hide the arrow
+			if( th.action_selected && $(event.target).attr('data-id') !== th.action_selected.id ){
+				th.closeTargetSelector();
+			}
+
+		});
+
+		this.board.off('mousedown').on('mousedown', function(){
+			th.mouseDown = true;
+		});
+
 	}
 
 	// Takes the 3d canvases
@@ -75,6 +92,7 @@ export default class UI{
 		this.map = map;
 		this.fx = fx;
 		$("#renderer").html(map);
+		$("#fx").html(fx);
 
 	}
 
@@ -116,6 +134,8 @@ export default class UI{
 			html = ''
 		;
 
+		const myTurn = game.getTurnPlayer().id === game.getMyFirstPlayer().id;
+
 		// Resources
 		html += '<div class="resources">';
 			html += '<div class="stat ap">';
@@ -142,12 +162,14 @@ export default class UI{
 			return true;
 		});
 
+		let castableActions = 0;
 		for( let action of actions ){
 
 			if( !action.isVisible() || action.no_action_selector )
 				continue;
 
-			let castable = action.castable();
+			let castable = action.castable() && myTurn;
+			castableActions += !!castable;
 			html+= '<div class="'+
 				'action button tooltipParent tooltipAbove '+
 				(castable ? 'enabled' : 'disabled')+' '+
@@ -171,63 +193,102 @@ export default class UI{
 			'</div>';
 
 		}
+
+		if( game.battle_active ){
+			let etcolor = 'disabled';
+			if( myTurn ){
+				etcolor = 'enabled';
+				// Any moves left?
+				if( !castableActions )
+					etcolor = 'highlighted';
+			}
+			html += '<div data-id="end-turn" class="action button autoWidth '+etcolor+'">End Turn</div>';
+		}
+
 		html += '</div>';
 
 		this.action_selector.html(html);
 
 		// Bind events
-		$("div.action", this.action_selector).on('click', function(){
-			
-			let id = $(this).attr("data-id");
-			if( id === "end-turn" )
-				console.log("Todo: End turn");
-			else{
-				let spell = player.getActionById(id);
-				if( !spell )
-					return game.modal.addError("No such spell found", id, "on", player);
+		$("div.action", this.action_selector).on('mousedown mouseover mouseout click', function(event){
 
+			let id = $(this).attr("data-id");
+			let spell = player.getActionById(id);
+
+			if( th.action_selected && th.action_selected !== spell )
+				return;
+
+			// Todo: Arrow shouldn't trigger on AoE and self cast
+			// Todo: If it's a multitarget spell, don't hide the arrow after picking a target
+			// Todo: If it's a multitarget spell, present a "finish" button if you only want to cast on one, and let players know how many targets
+
+			// End turn override
+			if( id === "end-turn" ){
+
+				if( event.type === 'click'){
+					th.action_selected = game.getTurnPlayer().getActionByLabel('stdEndTurn');
+					th.targets_selected = [game.getTurnPlayer()];
+					th.performSelectedAction();
+				}
+				return;
+
+			}
+			
+			if( event.type === 'mousedown' ){
+
+				th.action_selected = spell;
+				$(this).toggleClass('spellSelected', true);
+
+			}
+
+			// Mouseup on this element
+			else if( event.type === 'click' ){
+				
+				event.preventDefault();
+				event.stopImmediatePropagation();
 				if( spell.castable(true) ){
 					th.targets_selected = [];
-					th.drawTargetSelector( spell, player );
+					th.drawTargetSelector();
 				}
+
 			}
 
-		})
-		// hover
-		.on('mouseover', function(){
+			else if( event.type === 'mouseover' ){
 
-			let id = $(this).attr("data-id");
-			let spell = player.getActionById(id); 
-			if( id === "cancel" || !spell )
-				return;
+				let mpCost = spell.mp, apCost = spell.ap,
+					mp = player.mp, ap = player.ap
+				;
+				if( !game.battle_active )
+					apCost = 0;
+				
+				if( apCost ){
+					let start = Math.max(apCost, ap);
+					for( let i = start-apCost; i<start; ++i )
+						$("div.stat.ap div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
+				}
+				if( mpCost ){
+					let start = Math.max(mpCost, mp);
+					for( let i = start-mpCost; i<start; ++i )
+						$("div.stat.mp div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
+				}
+
 			
-			let mpCost = spell.mp, apCost = spell.ap,
-				mp = player.mp, ap = player.ap
-			;
-			if( !game.battle_active )
-				apCost = 0;
-			
-			if( apCost ){
-				let start = Math.max(apCost, ap);
-				for( let i = start-apCost; i<start; ++i )
-					$("div.stat.ap div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
 			}
-			if( mpCost ){
-				let start = Math.max(mpCost, mp);
-				for( let i = start-mpCost; i<start; ++i )
-					$("div.stat.mp div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
+			else if( event.type === 'mouseout' ){
+
+				if( th.action_selected ){
+
+					th.arrowHeld = th.mouseDown;
+					const pos = $(this).offset();
+					game.renderer.toggleArrow( true, pos.left+$(this).outerWidth()/2, pos.top+$(this).outerHeight()/2 );
+					th.drawTargetSelector();
+
+				}
+				$("div.stat div.point", this.action_selector).toggleClass('highlighted', false);
+
 			}
 
-			
-
-		}).on('mouseout', () => {
-			$("div.stat div.point", this.action_selector).toggleClass('highlighted', false);
 		});
-
-
-		
-
-		
 
 
 	}
@@ -267,36 +328,6 @@ export default class UI{
 
 				let el = $(div);
 				tag.append(el);
-				// PLAYER PORTRAIT CLICK
-				el.on('click', function(){
-
-					// Players are in action selection mode
-					if( $(this).hasClass("castTarget") ){
-						
-						if( th.targets_selected.length >= th.action_selected.max_targets )
-							return;
-						th.targets_selected.push(game.getPlayerById($(this).attr('data-id')));
-						th.drawTargetSelector(th.action_selected);
-						return;
-
-					}
-
-					// Remove a selected player
-					if( $(this).hasClass("targetSelected") ){
-
-						let pl = game.getPlayerById($(this).attr('data-id'));
-						for( let i in th.targets_selected ){
-							if( th.targets_selected[i] === pl ){
-								th.targets_selected.splice(i, 1);
-								th.drawTargetSelector(th.action_selected);
-								return;
-							}
-						}
-					}
-
-					th.drawPlayerInspector($(this).attr('data-id'));
-
-				});
 
 			}
 			// Team has changed
@@ -438,6 +469,68 @@ export default class UI{
 		$("div.left", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_friendly > 10 ? 10 : nr_friendly));
 		$("div.right", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_hostile > 10 ? 10 : nr_hostile));
 
+		// Hover
+		$("div.player", this.players).off('mouseover mouseout').on('mouseover mouseout', function( event ){
+
+			const el = $(this);
+
+			if( event.type === 'mouseover' ){
+				if( el.hasClass('castTarget') ){
+					const pos = el.offset();
+					const left = pos.left + el.outerWidth()/2;
+					const top = pos.top+el.outerHeight()/2;
+					game.renderer.setArrowTarget(left, top);
+					el.toggleClass("highlighted", true);
+				}
+			}
+			else{
+				el.toggleClass("highlighted", false);
+				game.renderer.setArrowTarget();
+			}
+			
+
+		});
+
+		// click
+		// PLAYER PORTRAIT CLICK
+		$('div.player', this.players).off('mouseup click').on('mouseup click', function( event ){
+
+			event.stopImmediatePropagation();
+			event.preventDefault();
+
+			if( event.type === "mouseup" && !th.arrowHeld && th.action_selected )
+				return;
+
+			// Players are in action selection mode
+			if( $(this).is(".castTarget.highlighted") ){
+				
+				if( th.targets_selected.length >= th.action_selected.max_targets )
+					return;
+				th.targets_selected.push(game.getPlayerById($(this).attr('data-id')));
+				th.drawTargetSelector();
+				return false;
+
+			}
+
+			// Remove a selected player
+			if( $(this).hasClass("targetSelected") ){
+
+				let pl = game.getPlayerById($(this).attr('data-id'));
+				for( let i in th.targets_selected ){
+					if( th.targets_selected[i] === pl ){
+						th.targets_selected.splice(i, 1);
+						th.drawTargetSelector();
+						return false;
+					}
+				}
+			}
+
+			if( event.type !== "click" )
+				return;
+
+			th.drawPlayerInspector($(this).attr('data-id'));
+
+		});
 
 	}
 
@@ -590,34 +683,26 @@ export default class UI{
 		let success = game.useActionOnTarget(
 			this.action_selected, 
 			this.targets_selected,
-			this.action_player
+			game.getMyFirstPlayer()
 		);
-		this.action_selected = this.action_player = null;
+		this.action_selected = null;
 		this.targets_selected = [];
 		if( success ){
 			this.draw();
+			this.closeTargetSelector();
 			return true;
 		}
 		return false;
 	}
 	// Updates the players with hit chances etc
 	// pl defaults to turn player
-	drawTargetSelector( action, pl ){
+	drawTargetSelector(){
 
-		console.log("Todo: Draw action arrow");
-
-		// If pl is not set, use turn player default if a battle is active
-		if( !pl )
-			pl = this.parent.getTurnPlayer();
-		// If no battle is active, try to pull it from cache (set last time drawTargetSelector was called)
-		if( !pl )
-			pl = this.action_player;
-		this.action_player = pl;
-
-
-		this.action_selected = action;
+		const pl = this.parent.getMyFirstPlayer();
+		const action = this.action_selected;
+		
 		$("div.player", this.players).toggleClass("castTarget targetSelected", false);
-		let viableTargets = action.getViableTargets();
+		const viableTargets = action.getViableTargets();
 
 		// Self cast
 		if( action.target_type === Action.TargetTypes.self ){
@@ -642,6 +727,7 @@ export default class UI{
 			
 		
 		for( let t of viableTargets ){
+
 			if( ~this.targets_selected.indexOf(t) )
 				$("div.player[data-id='"+esc(t.id)+"']", this.players).toggleClass("targetSelected", true);
 			else
@@ -658,6 +744,17 @@ export default class UI{
 			
 		}
 
+		
+
+	}
+
+	closeTargetSelector( clearAction = true ){
+
+		$("div.action", this.action_selector).toggleClass('spellSelected', false);
+		game.renderer.toggleArrow();
+		$("div.player", this.players).toggleClass("castTarget targetSelected", false);
+		if( clearAction )
+			this.action_selected = false;
 	}
 
 

@@ -10,6 +10,8 @@ import OrbitControls from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
 import Sky from '../ext/Sky.js';
+import libParticles from '../libraries/particles.js';
+import JDLoader from '../ext/JDLoader.min.js';
 
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;
@@ -42,6 +44,60 @@ class WebGL{
 		this.camera = new THREE.PerspectiveCamera( viewAngle, width / height, nearClipping, farClipping );
 		this.cameraTween = new TWEEN.Tween();
 
+
+		this.fxScene = new THREE.Scene();
+		this.fxCam = new THREE.PerspectiveCamera( viewAngle, width/height, nearClipping, farClipping);
+		this.fxCam.position.z = 100;
+		this.fxCam.position.y = -10;
+		this.fxCam.lookAt(new THREE.Vector3());
+		this.fxRenderer = new THREE.WebGLRenderer({antialias:conf.aa, alpha:true});
+		this.fxRenderer.shadowMap.enabled = true;
+		this.fxRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		this.fxParticles = [];		// Particle groups
+		
+		
+		this.fxArrow = null;
+		this.fxPlane = new THREE.Mesh(new THREE.PlaneGeometry(10000,10000), new THREE.ShadowMaterial());
+		this.fxPlane.receiveShadow = true;
+		this.fxPlane.material.opacity = 0.25;
+
+		this.fxScene.add(this.fxPlane);
+		
+		const pLight = new THREE.DirectionalLight();
+		this.fxScene.add(pLight);
+
+		
+		pLight.shadow.mapSize.width = pLight.shadow.mapSize.height = 1024;
+		pLight.lookAt(new THREE.Vector3());
+		pLight.position.z = 110;
+
+		pLight.castShadow = true;
+		pLight.shadow.camera.near = 1;    // default
+		pLight.shadow.camera.far = 200;     // default
+		
+		const dist = 75;
+		this.fxLight = pLight;
+		pLight.shadow.camera.left = -dist;     // default
+		pLight.shadow.camera.right = dist;     // default
+		pLight.shadow.camera.top = dist;     // default
+		pLight.shadow.camera.bottom = -dist;     // default
+
+		this.arrowVisible = false;
+		this.arrowBase = new THREE.Vector2();
+		this.arrowTarget = null;
+		this.arrowTween = {
+			tween:null,
+			x : 0,
+			y : 0,
+			val : 0
+		};
+		this.updateArrow();
+		this.toggleArrow(false);
+
+		const chelper = new THREE.CameraHelper(pLight.shadow.camera);
+		//this.fxScene.add(chelper);
+
+
 		this.renderer = new THREE.WebGLRenderer({
 			antialias : conf.aa
 		});
@@ -65,6 +121,8 @@ class WebGL{
 
 
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+		//this.controls = new OrbitControls(this.fxCam, this.fxRenderer.domElement);
+		
 		this.controls.enableDamping = true;
 		this.controls.dampingFactor = 0.3;
 		this.controls.rotateSpeed = 0.2;
@@ -80,7 +138,7 @@ class WebGL{
 		this.mouse = new THREE.Vector2();
 		this.mouseAbs = new THREE.Vector2();
 		this.intersecting = [];	// Currently intersecting objects
-		$(window).on('mousemove touchstart', event => this.onMouseMove(event));
+		$(window).off('mousemove touchstart').on('mousemove touchstart', event => this.onMouseMove(event));
 
 		this.mouseDownPos = {x:0,y:0};
 		const touchStart = event => {
@@ -189,6 +247,8 @@ class WebGL{
 
 		this.render();
 
+		this.playFX();
+
 	}
 
 	setSize( width, height ){
@@ -208,6 +268,10 @@ class WebGL{
 		this.renderer.domElement.style.height = Math.ceil(height);
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
+
+		this.fxRenderer.setSize(width, height);
+		this.fxCam.aspect = width/height;
+		this.fxCam.updateProjectionMatrix();
 	}
 
 	toggleOutdoors( outdoors ){
@@ -268,13 +332,21 @@ class WebGL{
 
 	// Scene rendering function - This is where the magic happens
 	execRender(){
+
 		let delta = this.clock.getDelta();
 		TWEEN.update();
 		if( this.stage )
 			this.stage.render(delta);
 
+		for( let f of this.fxParticles )
+			f.tick(delta);
+		if( this.arrowVisible )
+			this.updateArrow();
+		this.fxRenderer.render( this.fxScene, this.fxCam );
+
 		const intersecting = [];	// Meshes being raycasted onto
 		if( !window.game || game === true || !game.ui.visible ){
+
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			let objCache = [];
 			let intersects = this.raycaster.intersectObjects( this.scene.children, true )
@@ -297,8 +369,6 @@ class WebGL{
 					return true;	
 				});
 
-			
-
 			// Raycaster
 			// Mouseover
 			for( let obj of intersects ){
@@ -318,6 +388,7 @@ class WebGL{
 						obj.userData.mouseout.call(obj, obj);
 				}
 			}
+
 		}
 
 		if( this.onRender )
@@ -333,6 +404,9 @@ class WebGL{
 	
 	// Dungeon stage cache
 	async loadActiveDungeon(){
+
+		// Todo: Delete
+		return;
 
 		if( !game.dungeon || game.dungeon.id === this.cache_dungeon )
 			return;
@@ -369,6 +443,7 @@ class WebGL{
 	}
 
 	async drawActiveRoom(){
+
 
 		if( this.loading )
 			return;
@@ -475,7 +550,228 @@ class WebGL{
 
 
 
+	/* FX LAYER */
+	playFX( caster, recipients, visual ){
 
+		const particles = libParticles.get('torchFlame');
+		this.fxScene.add(particles.mesh);
+		particles.mesh.position.z = 5;
+		this.fxParticles.push(particles);
+
+	}
+
+
+	// Target arrow
+	// x y are in document coordinates
+	toggleArrow( on = false, x = 0, y = 0 ){
+
+		if( on )
+			this.fxPlane.visible = true;
+
+		const vec = new THREE.Vector2( x, y);
+
+		const offset = $(this.fxRenderer.domElement).offset();
+		vec.x = ( (x-offset.left) / this.fxRenderer.domElement.width ) * 2 - 1;
+		vec.y = - ( (y-offset.top) / this.fxRenderer.domElement.height ) * 2 + 1;
+
+		const coords = this.raycastArrow(vec);
+		if( !coords ){
+			this.arrowVisible = false;
+			console.error("No viable mouse coordinates for ", vec.x, vec.y);
+		}
+		else
+			this.arrowBase = new THREE.Vector2(coords.point.x, coords.point.y);
+
+		this.arrowVisible = !!on;
+		this.fxArrow.visible = this.arrowVisible;
+		// Particles will break if these remain on without an arrow
+		this.fxLight.visible = this.fxPlane.visible = this.arrowVisible;
+		
+
+	}
+
+
+	setArrowTarget( x, y ){
+
+		if( this.arrowTween.tween )
+			this.arrowTween.tween.stop();
+
+		if( x === undefined ){
+			this.arrowTarget = null;
+			this.arrowTween.tween = new TWEEN.Tween(this.arrowTween).to({val:0}, 200).easing(TWEEN.Easing.Sinusoidal.Out)
+			.onUpdate(() => {
+				let coords = this.raycastArrow(this.mouse);
+				if( !coords )
+					return;
+					
+				coords = coords.point;
+				coords.x += (this.arrowTween.x-coords.x)*this.arrowTween.val;
+				coords.y += (this.arrowTween.y-coords.y)*this.arrowTween.val;
+				this.updateArrow( coords );
+			})
+			.onComplete(() => this.arrowTween.tween=null)
+			.start();
+		}
+		else{
+
+			const vec = new THREE.Vector2( x, y);
+			const offset = $(this.fxRenderer.domElement).offset();
+			vec.x = ( (x-offset.left) / this.fxRenderer.domElement.width ) * 2 - 1;
+			vec.y = - ( (y-offset.top) / this.fxRenderer.domElement.height ) * 2 + 1;
+			this.arrowTarget = vec;
+
+			let to = this.raycastArrow(vec);
+			if( !to )
+				return;
+			to = to.point;
+			this.arrowTween.x = to.x;
+			this.arrowTween.y = to.y;
+
+			this.arrowTween.tween = new TWEEN.Tween(this.arrowTween).to({val:1}, 200).easing(TWEEN.Easing.Sinusoidal.Out).onUpdate(() => {
+
+				let coords = this.raycastArrow(this.mouse);
+				if( !coords )
+					return;
+				coords = coords.point;
+				coords.x += (to.x-coords.x)*this.arrowTween.val;
+				coords.y += (to.y-coords.y)*this.arrowTween.val;
+				this.updateArrow( coords );
+
+			})
+			.onComplete(() => this.arrowTween.tween = null)
+			.start();
+
+		}
+
+	}
+
+
+	raycastArrow( coords ){
+
+		if( !coords )
+			coords = this.arrowTarget;
+
+		if( !coords )
+			coords = this.mouse;
+
+		if( !coords )
+			return;
+
+		const ray = new THREE.Raycaster();
+		ray.setFromCamera( coords, this.fxCam );
+		return ray.intersectObjects( [this.fxPlane], true )[0];
+
+	}
+
+	updateArrow( pos ){
+
+		if( !this.arrowBase )
+			return;
+		
+		const origin = this.arrowBase;
+
+		let intersects = pos;
+		if( !pos ){
+
+			if( this.arrowTween.tween )
+				return;
+			intersects = this.raycastArrow();
+			if( intersects )
+				intersects = intersects.point;
+
+		}
+		if( !this.fxArrow ){
+
+			const loader = new THREE.TextureLoader();
+			const mloader = new JDLoader();
+
+			this.fxArrow = new THREE.Group();
+			this.fxArrow.castShadow = true;
+			this.fxArrow.visible = false;
+			
+			
+			mloader.load('media/models/ui/arrow_path.JD', model => {
+
+				let texture = loader.load('media/textures/sprites/arrow_block.png');
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				texture.side = THREE.DoubleSide;
+				const mat = new THREE.MeshBasicMaterial({
+					map:texture, 
+					transparent:true, 
+					alphaTest : 0.25,
+					shadowSide : THREE.FrontSide,
+				});
+
+				const geo = model.objects[0].geometry;
+				const mesh = new THREE.Mesh(
+					geo, mat
+				);
+				mesh.customDepthMaterial = new THREE.MeshDepthMaterial({
+					depthPacking : THREE.RGBADepthPacking,
+					map : texture,
+					alphaTest : 0.25,
+				});
+				mesh.name = 'path';
+				this.fxArrow.add(mesh);
+				mesh.scale.x = 0.2;
+				mesh.castShadow = true;
+
+			});
+			
+
+			const geo = new THREE.PlaneGeometry(10,8);
+			geo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, -4, 0 ) );
+
+			const texture = loader.load('media/textures/sprites/arrow.png');
+			texture.side = THREE.DoubleSide;
+
+			const mat = new THREE.MeshBasicMaterial({map:texture, transparent:true, alphaTest:0.5, shadowSide:THREE.FrontSide});
+			const arrow = new THREE.Mesh(geo, mat);
+
+			arrow.position.y = 15;
+			arrow.rotation.x = -0.4;
+			arrow.name = 'arrow';
+			arrow.castShadow = true;
+			arrow.customDepthMaterial = new THREE.MeshDepthMaterial({
+				depthPacking : THREE.RGBADepthPacking,
+				map : texture,
+				alphaTest : 0.5
+			});
+			this.fxArrow.add(arrow);
+			this.fxScene.add(this.fxArrow);
+
+		}
+
+		if( !intersects )
+			return;
+
+		if( this.fxArrow.children.length < 2 )
+			return;
+
+		const point = new THREE.Vector2(intersects.x, intersects.y);
+		this.fxArrow.position.x = origin.x;
+		this.fxArrow.position.y = origin.y;
+		
+		const arrow = this.fxArrow.children[0];
+		const line = this.fxArrow.children[1];
+
+		
+		const dist = point.distanceTo(origin);
+		const shortened = dist-5;
+		line.material.map.repeat.y = shortened/5;
+		if( !line.userData.offs )
+			line.userData.offs = 0;
+		line.userData.offs += 0.02;
+		line.material.map.offset.y = line.userData.offs;
+		
+
+		arrow.position.y = dist;
+		line.scale.y = shortened/100;
+		const radians = Math.atan2(point.y - origin.y, point.x - origin.x)-Math.PI/2;
+		this.fxArrow.rotation.z = radians;
+		
+		
+	}
 
 
 
