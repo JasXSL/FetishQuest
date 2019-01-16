@@ -26,6 +26,7 @@ export default class UI{
 		this.console = $("#ui > div.middle > div.chat");
 		this.gameIcons = $("#gameIcons");
 		this.netgamePlayers = $("#netgamePlayers");
+		this.multiCastPicker = $("#multiCastPicker");
 		
 		this.visible = true;	// main UI layer visible
 
@@ -74,9 +75,9 @@ export default class UI{
 
 			th.mouseDown = false;
 			// Hide the arrow
-			if( th.action_selected && $(event.target).attr('data-id') !== th.action_selected.id ){
+			if( th.action_selected && $(event.target).attr('data-id') !== th.action_selected.id && event.target.id !== 'execMultiCast' )
 				th.closeTargetSelector();
-			}
+			
 
 		});
 
@@ -214,13 +215,15 @@ export default class UI{
 
 			let id = $(this).attr("data-id");
 			let spell = player.getActionById(id);
+			const enabled = $(this).is('.enabled');
+
+			const targetable = 
+				spell.target_type !== Action.TargetTypes.self &&
+				spell.target_type !== Action.TargetTypes.aoe
+			;
 
 			if( th.action_selected && th.action_selected !== spell )
 				return;
-
-			// Todo: Arrow shouldn't trigger on AoE and self cast
-			// Todo: If it's a multitarget spell, don't hide the arrow after picking a target
-			// Todo: If it's a multitarget spell, present a "finish" button if you only want to cast on one, and let players know how many targets
 
 			// End turn override
 			if( id === "end-turn" ){
@@ -234,10 +237,13 @@ export default class UI{
 
 			}
 			
-			if( event.type === 'mousedown' ){
+			if( event.type === 'mousedown' && enabled ){
 
 				th.action_selected = spell;
-				$(this).toggleClass('spellSelected', true);
+				if( targetable )
+					$(this).toggleClass('spellSelected', true);
+				if( spell.max_targets > 1 && targetable )
+					th.updateMultiCast();
 
 			}
 
@@ -253,7 +259,7 @@ export default class UI{
 
 			}
 
-			else if( event.type === 'mouseover' ){
+			else if( event.type === 'mouseover' && enabled ){
 
 				let mpCost = spell.mp, apCost = spell.ap,
 					mp = player.mp, ap = player.ap
@@ -274,9 +280,9 @@ export default class UI{
 
 			
 			}
-			else if( event.type === 'mouseout' ){
+			else if( event.type === 'mouseout' && enabled ){
 
-				if( th.action_selected ){
+				if( th.action_selected && targetable ){
 
 					th.arrowHeld = th.mouseDown;
 					const pos = $(this).offset();
@@ -495,17 +501,18 @@ export default class UI{
 		// PLAYER PORTRAIT CLICK
 		$('div.player', this.players).off('mouseup click').on('mouseup click', function( event ){
 
-			event.stopImmediatePropagation();
-			event.preventDefault();
-
+			console.log(event.type, th.action_selected, this.className);
 			if( event.type === "mouseup" && !th.arrowHeld && th.action_selected )
-				return;
+				return false;
 
+			th.arrowHeld = false;
 			// Players are in action selection mode
-			if( $(this).is(".castTarget.highlighted") ){
+			if( $(this).is(".castTarget") ){
 				
+				console.log("Selecting this target");
 				if( th.targets_selected.length >= th.action_selected.max_targets )
-					return;
+					return false;
+
 				th.targets_selected.push(game.getPlayerById($(this).attr('data-id')));
 				th.drawTargetSelector();
 				return false;
@@ -523,12 +530,15 @@ export default class UI{
 						return false;
 					}
 				}
+
+				return false;
 			}
 
 			if( event.type !== "click" )
 				return;
 
-			th.drawPlayerInspector($(this).attr('data-id'));
+			if( !th.action_selected )
+				th.drawPlayerInspector($(this).attr('data-id'));
 
 		});
 
@@ -700,6 +710,8 @@ export default class UI{
 
 		const pl = this.parent.getMyFirstPlayer();
 		const action = this.action_selected;
+
+		this.updateMultiCast();
 		
 		$("div.player", this.players).toggleClass("castTarget targetSelected", false);
 		const viableTargets = action.getViableTargets();
@@ -752,9 +764,31 @@ export default class UI{
 
 		$("div.action", this.action_selector).toggleClass('spellSelected', false);
 		game.renderer.toggleArrow();
+		this.arrowHeld = false; 
 		$("div.player", this.players).toggleClass("castTarget targetSelected", false);
 		if( clearAction )
 			this.action_selected = false;
+		this.multiCastPicker.toggleClass('hidden', true);
+
+	}
+
+	updateMultiCast(){
+
+		const spell = this.action_selected;
+		let currentTargets = this.targets_selected.length;
+		let ht = 'Pick '+(+spell.min_targets)+' to '+(+spell.max_targets)+' targets.<br />';
+		if( currentTargets < spell.min_targets )
+			ht += 'Need '+(spell.min_targets-currentTargets)+' more';
+		else
+			ht += '<input type="button" value="Done" id="execMultiCast" />';
+		this.multiCastPicker.html(ht).toggleClass('hidden', false);
+
+		$("#execMultiCast", this.multiCastPicker).on('click', () => {
+			console.log("Performing", this.action_selected);
+			this.performSelectedAction();
+			return;
+		});
+
 	}
 
 

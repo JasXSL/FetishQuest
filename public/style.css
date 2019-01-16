@@ -570,11 +570,11 @@ div.fxHeal{
 		width:26vw;
 		text-align: center;
 	}
-	#ui > div.players > div.right > div.player{
+	#ui > div.players div.player{
 		margin-left:0;
 		pointer-events: all;
 	}
-	#ui > div.players > div.right > div.player * {
+	#ui > div.players div.player * {
 		pointer-events: none;
 	}
 	#ui > div.players div.player div.stats{
@@ -745,6 +745,31 @@ div.fxHeal{
 /**/
 
 
+/* multiCastPicker */
+	#multiCastPicker{
+		position: absolute;
+		bottom:15vmax;
+		left:50%;
+		transform:translateX(-50%);
+		background:rgba(0,0,0,.75);
+		color:#FFF;
+		font-weight: bold;
+		padding:2vmax;
+		border-radius: 1vmax;
+		box-shadow:0.5vmax 0.5vmax 2vmax rgba(0,0,0,1);
+		border:0.2vmax solid #FFF;
+		text-align: center;
+		font-size:3vmax;
+		cursor:default;
+		user-select: none;
+	}
+	#multiCastPicker > input{
+		font-size:3vmax;
+		padding:1vmax;
+	}
+
+
+/**/
 
 
 /* Game Icons (bottom bar) */
