@@ -747,26 +747,36 @@ div.fxHeal{
 
 /* multiCastPicker */
 	#multiCastPicker{
-		position: absolute;
-		bottom:15vmax;
+		position: fixed;
+		bottom:50%;
 		left:50%;
-		transform:translateX(-50%);
-		background:rgba(0,0,0,.75);
+		transform:translate(-50%,-50%);
+		background:rgba(0,50,100,.95);
 		color:#FFF;
 		font-weight: bold;
 		padding:2vmax;
 		border-radius: 1vmax;
-		box-shadow:0.5vmax 0.5vmax 2vmax rgba(0,0,0,1);
+		box-shadow:0.15vmax 0.15vmax 2vmax rgba(255,255,255,1);
 		border:0.2vmax solid #FFF;
 		text-align: center;
 		font-size:3vmax;
 		cursor:default;
 		user-select: none;
+		pointer-events: none;
+		transition: bottom 0.25s ease-out;
 	}
 	#multiCastPicker > input{
 		font-size:3vmax;
 		padding:1vmax;
+		pointer-events: all;
 	}
+
+	#multiCastPicker.hidden{
+		display:block !important;
+		bottom:-50%;
+	}
+
+
 
 
 /**/
@@ -1155,67 +1165,6 @@ div.fxHeal{
 
 
 
-/* Action selector 
-	@keyframes actionSelector{
-		0%{transform:translate(-50%,-50%) scale(0.8,0.8); opacity:0; }
-		60%{transform:translate(-50%,-50%) scale(1.05,1.05); opacity:1;}
-		100%{transform:translate(-50%,-50%) scale(1,1); }
-	}
-	#ui > div.action_selector{
-		position: fixed;
-		text-align: center;
-		top:50%; left:50%;
-		transform:translate(-50%,-50%);
-		font-size:1.2vmax;
-		width:50%;
-		min-width:40vmax;
-		display:flex;
-		flex-direction:row;
-		flex-wrap:wrap;
-		justify-content: center;
-		animation: actionSelector 0.15s ease-out forwards;
-		background:#444;
-		box-shadow:0.2vmax 0.2vmax 2vmax rgba(0,0,0,1);
-		border-radius:1vmax;
-		padding:2vmax
-	}
-	
-	#ui > div.action_selector.targetSelector{
-		width:auto;
-		left:50%;
-		right:auto;
-		transform:translate(-50%, -50%);
-		border:none;
-		padding:1vmax;
-	}
-	
-
-	#ui > div.action_selector > div.action{
-		background:rgba(0,0,0,0.75);
-		padding:0.5vmax;
-		cursor:pointer;
-		user-select: none;
-		margin:0.2vmax;
-		flex:24%;
-		flex-grow:0;
-		border-radius:0.5vmax;
-		color:#FDD;
-		box-shadow:0.25vmax 0.25vmax 2vmax #000;
-		border:0.2vmax solid #FDD;
-	}
-	#ui > div.action_selector > div > div.CD{
-		position:absolute;
-		padding:0.2vmax;
-		bottom:0;
-		left:50%;
-		font-size:1.25vmax;
-		font-weight:bold;
-		transform:translate(-50%,50%);
-		color:#FFF;
-		text-shadow:0.1vmax 0.1vmax 0.2vmax #000;
-	}
-	
-*/
 /* Action bar */
 	#ui > div.actionbar{
 		position: absolute;
@@ -1331,7 +1280,8 @@ div.fxHeal{
 		position: absolute;
 		left:0; top:0;
 	}
-	#ui > div.actionbar > div.actions > div.action > div.uses{
+	#ui > div.actionbar > div.actions > div.action > div.uses,
+	#ui > div.actionbar > div.actions > div > div.CD{
 		position: absolute;
 		right:0; bottom:0;
 		padding:0.2vmax;
@@ -1339,7 +1289,19 @@ div.fxHeal{
 		border-radius:0.2vmax;
 		font-size:1.25vmax;
 	}
-
+	#ui > div.actionbar > div.actions > div > div.CD{
+		padding:0.5vmax;
+		right:auto; bottom:auto;
+		top:50%; left:50%;
+		font-size:1.5vmax;
+		font-weight:bold;
+		transform:translate(-50%,-50%);
+		color:#FFF;
+		background:rgba(0,0,0,.75);
+		border-radius: 0.5vmax;
+		box-shadow:0.25vmax 0.25vmax 1vmax rgba(0,0,0,.5);
+		border:0.2vmax solid rgba(255,255,255,.5);
+	}
 	#ui > div.actionbar > div.actions > div.action.enabled:hover{
 		border-color:#FFF !important;
 	}
@@ -1542,7 +1504,7 @@ div.fxHeal{
 		font-weight:normal;
 	}
 
-	div.tooltipParent:hover div.tooltip{
+	div.tooltipParent:hover div.tooltip, div.tooltipParent.action.spellSelected div.tooltip{
 		display:block;
 		z-index:1000;
 	}

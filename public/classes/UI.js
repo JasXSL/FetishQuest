@@ -240,6 +240,8 @@ export default class UI{
 			if( event.type === 'mousedown' && enabled ){
 
 				th.action_selected = spell;
+				th.targets_selected = [];
+
 				if( targetable )
 					$(this).toggleClass('spellSelected', true);
 				if( spell.max_targets > 1 && targetable )
@@ -775,6 +777,10 @@ export default class UI{
 	updateMultiCast(){
 
 		const spell = this.action_selected;
+
+		if( spell.max_targets <= 1 )
+			return;
+
 		let currentTargets = this.targets_selected.length;
 		let ht = 'Pick '+(+spell.min_targets)+' to '+(+spell.max_targets)+' targets.<br />';
 		if( currentTargets < spell.min_targets )
