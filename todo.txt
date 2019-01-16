@@ -1,7 +1,14 @@
 UI Overhaul:
+	- Add a button to make a character your active character
+		- Game.getMyFirstPlayer should return this
+		- Make the UI display that a character is your active one
+	- Add a DM tool drawer
+	- Allow you to assign ownership to a character in the netcode drawer
+	- Can probably retire the player editor in favor of the console
+	- Need to add spell visuals
 	- User inventory page
 		- Netgame players should be able to destroy items
-	- Don't send npc inventory to netcode players
+	- Don't send non-owned inventory to netcode players
 	- Quest start and finish splash screens
 	- Show what mods a quest belongs to
 
