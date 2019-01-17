@@ -487,13 +487,16 @@ export default class UI{
 					const pos = el.offset();
 					const left = pos.left + el.outerWidth()/2;
 					const top = pos.top+el.outerHeight()/2;
-					game.renderer.setArrowTarget(left, top);
+
+					if( th.action_selected )
+						game.renderer.setArrowTarget(left, top);
 					el.toggleClass("highlighted", true);
 				}
 			}
 			else{
 				el.toggleClass("highlighted", false);
-				game.renderer.setArrowTarget();
+				if( th.action_selected )
+					game.renderer.setArrowTarget();
 			}
 			
 

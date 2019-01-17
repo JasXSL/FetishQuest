@@ -1880,8 +1880,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 													data: {
 														type : Effect.KnockdownTypes.Back
 													}
-												}),
-												"visAddTargTakeDamage"
+												})
 											]
 										})
 									],

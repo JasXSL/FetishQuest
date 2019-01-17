@@ -41,7 +41,7 @@ const lib = {
 							"amount": 3
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -77,7 +77,7 @@ const lib = {
 							"amount": 2
 						}
 					},
-					"visTargTakeDamageCorruption"
+					
 				]
 			}
 		]
@@ -163,7 +163,7 @@ const lib = {
 						],
 						type : "punishmentUsed"
 					},
-					"visTargTakeDamageCorruption"
+					
 				],
 				detrimental : false
 			}
@@ -198,7 +198,7 @@ const lib = {
 						],
 						type : "punishmentUsed"
 					},
-					"visTargTakeDamageCorruption"
+					
 				],
 				detrimental : false
 			}
@@ -232,7 +232,7 @@ const lib = {
 						],
 						type : "punishmentUsed"
 					},
-					"visTargTakeDamage"
+					
 				],
 				detrimental : false
 			}
@@ -272,7 +272,7 @@ const lib = {
 					{
 						type : "interrupt"
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -317,7 +317,7 @@ const lib = {
 							"targetSoaked"
 						]
 					},
-					"visTargTakeDamageElemental"
+					
 				]
 			}
 		]
@@ -353,7 +353,7 @@ const lib = {
 							"amount": -8
 						}
 					},
-					"visTargHeal"
+					
 				]
 			},
 			{
@@ -421,7 +421,7 @@ const lib = {
 				detrimental : false,
 				add_conditions : stdCond,
 				effects : [
-					"visTargTakeDamageElemental"
+					
 				]
 			}
 		]
@@ -456,7 +456,7 @@ const lib = {
 							"amount": "8-ta_lowerbody*2-ta_upperbody*2"
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -488,7 +488,7 @@ const lib = {
 				detrimental : true,
 				add_conditions : stdCond,
 				effects : [
-					"visTargTakeDamage"
+					
 				]
 			},
 			{
@@ -567,7 +567,7 @@ const lib = {
 							}
 						]
 					},
-					"visTargTakeDamageCorruption"
+					
 				]
 			}
 		]
@@ -602,7 +602,7 @@ const lib = {
 							"amount": "4*(1+min(ta_damageDoneSinceLastCorruption*0.1,3.75))"
 						}
 					},
-					"visTargTakeDamageHoly"
+					
 				]
 			}
 		]
@@ -654,13 +654,6 @@ const lib = {
 					}
 				]
 			},
-			{
-				add_conditions : stdCond,
-				detrimental : true,
-				effects : [
-					"visTargTakeDamageHoly"
-				]
-			}
 		]
 	},
 	cleric_heal: {
@@ -693,7 +686,7 @@ const lib = {
 							"amount": "-4-(ta_HP<(ta_MaxHP/2))*4"
 						}
 					},
-					"visTargHeal"
+					
 				]
 			}
 		]
@@ -728,7 +721,7 @@ const lib = {
 							"amount": "4+ta_Tag_wr_corrupting_ooze*2"
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -750,7 +743,7 @@ const lib = {
 			{
 				add_conditions : stdCond,
 				effects : [
-					"visTargTakeDamageCorruption"
+					
 				]
 			}
 		]
@@ -802,7 +795,7 @@ const lib = {
 							"casterOnly": true
 						}
 					},
-					"visTargTakeDamageCorruption"
+					
 				]
 			}
 		]
@@ -833,7 +826,7 @@ const lib = {
 							"threatMod": 4
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -889,7 +882,6 @@ const lib = {
 							"amount": 1
 						}
 					},
-					"visTargShield"
 				]
 			}
 		]
@@ -932,7 +924,7 @@ const lib = {
 					{
 						type : "taunt"
 					},
-					"visAddTargTakeDamage"
+					
 				]
 			},
 			{
@@ -979,7 +971,7 @@ const lib = {
 							"amount": 8
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		],
@@ -997,7 +989,7 @@ const lib = {
 							"amount": 8
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -1028,7 +1020,7 @@ const lib = {
 							"amount": 2
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			},
 			{
@@ -1085,7 +1077,7 @@ const lib = {
 							"amount": 3
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			},
 			{
@@ -1101,7 +1093,7 @@ const lib = {
 							"amount": "-se_apSpentThisTurn*2"
 						}
 					},
-					"visTargHeal"
+					
 				]
 			}
 		]
@@ -1135,7 +1127,7 @@ const lib = {
 							"amount": 4
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			},
 			{
@@ -1199,7 +1191,7 @@ const lib = {
 						}
 					},
 					"interrupt",
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -1245,7 +1237,7 @@ const lib = {
 							"amount": -1
 						}
 					},
-					"visAddTargTakeDamageCorruption"
+					
 				]
 			}
 		]
@@ -1275,7 +1267,7 @@ const lib = {
 							"amount": 5
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -1303,7 +1295,7 @@ const lib = {
 							"amount": 4
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			},
 			{
@@ -1353,7 +1345,7 @@ const lib = {
 							"amount": "1+ceil(random(5))"
 						}
 					},
-					"visTargTakeDamageCorruption"
+					
 				]
 			}
 		]
@@ -1394,7 +1386,7 @@ const lib = {
 						},
 						conditions : ["rand10"]
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -1438,7 +1430,7 @@ const lib = {
 							"leech": 1
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -1480,7 +1472,7 @@ const lib = {
 					{
 						type : "knockdown"
 					},
-					"visAddTargTakeDamage"
+					
 				]
 			}
 		]
@@ -1529,7 +1521,7 @@ const lib = {
 						type: Effect.Types.svCorruption,
 						data: {"amount": -1}
 					},
-					"visAddTargTakeDamageCorruption"
+					
 				]
 			}
 		]
@@ -1571,7 +1563,7 @@ const lib = {
 							"rand30"
 						]
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]
@@ -1605,7 +1597,7 @@ const lib = {
 					{
 						type : Effect.Types.grapple,
 					},
-					"visAddTargTakeDamage"
+					
 				]
 			}
 		]
@@ -1636,7 +1628,7 @@ const lib = {
 							amount : 4
 						}
 					},
-					"visTargTakeDamageElemental"
+					
 				]
 			}
 		]
@@ -1769,7 +1761,7 @@ const lib = {
 							"amount": -8
 						}
 					},
-					"visTargHeal"
+					
 				]
 			}
 		]
@@ -1797,7 +1789,7 @@ const lib = {
 							"amount": -15
 						}
 					},
-					"visTargHeal"
+					
 				]
 			}
 		]
@@ -1825,7 +1817,7 @@ const lib = {
 							"amount": -30
 						}
 					},
-					"visTargHeal"
+					
 				]
 			}
 		]
@@ -1853,7 +1845,7 @@ const lib = {
 							"amount": 5
 						}
 					},
-					"visTargHeal"
+					
 				]
 			}
 		]
@@ -1881,7 +1873,7 @@ const lib = {
 							"amount": 10
 						}
 					},
-					"visTargHeal"
+					
 				]
 			}
 		]
@@ -1918,7 +1910,7 @@ const lib = {
 							"amount": -10
 						}
 					},
-					"visTargTakeDamage"
+					
 				]
 			}
 		]

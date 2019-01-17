@@ -806,9 +806,9 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.endTurn )
 				game.end_turn_after_action = true;
 
-			// Visual FX
-			else if( this.type === Effect.Types.visual )
-				game.ui.setPlayerVisual(t, this.data.class);
+
+			else if( this.type === Effect.Types.hitfx )
+				game.renderer.playFX( s, t, this.data.id );
 
 			else if( this.type === Effect.Types.runWrappers ){
 				let wrappers = this.data.wrappers;
@@ -1102,7 +1102,8 @@ Effect.createStatBonus = function( type, bonus ){
 Effect.Types = {
 	damage : "damage",
 	endTurn : "endTurn",
-	visual : "visual",
+	//visual : "visual",
+	hitfx : "hitfx",
 	damageArmor : "damageArmor",
 	addAP : "addAP",			
 	addMP : "addMP",			
@@ -1164,7 +1165,8 @@ Effect.KnockdownTypes = {
 Effect.TypeDescs = {
 	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier} - If type is left out, it can be auto supplied by an asset",
 	[Effect.Types.endTurn] : "void - Ends turn",
-	[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
+	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
+	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id}",
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
 	[Effect.Types.addAP] : "{amount:(str)(nr)amount}, Adds AP",										// 
 	[Effect.Types.addMP] : "{amount:(str)(nr)amount}, Adds MP",										// 

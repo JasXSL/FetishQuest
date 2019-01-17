@@ -12,6 +12,7 @@ import { LibMaterial } from '../libraries/materials.js';
 import Sky from '../ext/Sky.js';
 import libParticles from '../libraries/particles.js';
 import JDLoader from '../ext/JDLoader.min.js';
+import libHitFX from '../libraries/hitfx.js';
 
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;
@@ -57,7 +58,13 @@ class WebGL{
 		
 		
 		this.fxArrow = null;
+		
 		this.fxPlane = new THREE.Mesh(new THREE.PlaneGeometry(10000,10000), new THREE.ShadowMaterial());
+		this.fxRaycastPlane = this.fxPlane.clone();
+		this.fxRaycastPlane.material = new THREE.MeshBasicMaterial();
+		this.fxRaycastPlane.material.visible = false;
+		this.fxScene.add(this.fxRaycastPlane);
+
 		this.fxPlane.receiveShadow = true;
 		this.fxPlane.material.opacity = 0.25;
 
@@ -247,7 +254,6 @@ class WebGL{
 
 		this.render();
 
-		this.playFX();
 
 	}
 
@@ -553,11 +559,18 @@ class WebGL{
 	/* FX LAYER */
 	playFX( caster, recipients, visual ){
 
-		const particles = libParticles.get('torchFlame');
-		this.fxScene.add(particles.mesh);
-		particles.mesh.position.z = 5;
-		this.fxParticles.push(particles);
+		const visObj = libHitFX[visual];
+		if( !visObj ){
+			console.error("Visual missing", visual);
+			return;
+		}
 
+		if( !Array.isArray(recipients) )
+			recipients = [recipients];
+		
+		for( let recipient of recipients )
+			visObj.run(caster, recipient);
+		
 	}
 
 
@@ -645,6 +658,12 @@ class WebGL{
 
 	}
 
+	raycastScreenPosition( x, y ){
+		const vec = new THREE.Vector2( x, y);
+		vec.x = ( x / window.innerWidth ) * 2 - 1;
+		vec.y = - ( y / window.innerHeight ) * 2 + 1;
+		return this.raycastArrow(vec);
+	}
 
 	raycastArrow( coords ){
 
@@ -659,7 +678,7 @@ class WebGL{
 
 		const ray = new THREE.Raycaster();
 		ray.setFromCamera( coords, this.fxCam );
-		return ray.intersectObjects( [this.fxPlane], true )[0];
+		return ray.intersectObjects( [this.fxRaycastPlane], true )[0];
 
 	}
 
@@ -1475,11 +1494,13 @@ class Stage{
 
 // Sets a material property on all materials of a mesh
 Stage.setMeshMatProperty = function( mesh, id, value ){
+	
 	let mat = mesh.material;
 	if( !Array.isArray(mat) )
 		mat = [mat];
 	for( let m of mat )
 		m[id] = value;
+
 }
 
 // Adds generic hover visuals to a mesh
