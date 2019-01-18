@@ -172,7 +172,8 @@ class AudioKit extends Generic{
 	constructor( data ){
 		super(data);
 		this.label = '';
-		this.sounds = [];		// {s:(AudioSound)sound, t:(int)predelay_ms}
+		this.follow_parts = false;		// Used in spellFX only. Follow the particle system tied to the hitfx stage triggering this
+		this.sounds = [];				// {s:(AudioSound)sound, t:(int)predelay_ms}
 		this.conditions = [];
 		this.load(data);
 	}
@@ -187,6 +188,7 @@ class AudioKit extends Generic{
 
 	save(complete){
 		return {
+			follow_parts : this.follow_parts,
 			label : this.label,
 			sounds : this.sounds,
 			conditions : Condition.saveThese(this.conditions, complete)
@@ -238,6 +240,7 @@ class AudioKit extends Generic{
 			promises.push(new AudioSound(sound.s, audio).load());
 		let loaded = await Promise.all(promises);
 		for( let i in this.sounds ){
+
 			let entry = this.sounds[i];
 			let ta = target;
 			if( entry.se )
@@ -249,7 +252,9 @@ class AudioKit extends Generic{
 				setTimeout(() => {
 					this.playOnTarget(loaded[i], ta, armorHitSound);
 				}, entry.t);
+				
 		}
+		return loaded;
 	}
 
 }

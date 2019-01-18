@@ -336,19 +336,26 @@ export default class Game extends Generic{
 	/* AUDIO */
 	// Plays a sound. armor_slot is only needed for when a "punch/hit" sound specific to the armor of the player should be played
 	// Internal only lets you play the sound without sharing it with the other players (if DM)
-	playFxAudioKitById(id, sender, target, armor_slot, global = false ){
+	async playFxAudioKitById(id, sender, target, armor_slot, global = false ){
+
 		const glibAudio = glib.audioKits;
 		let kit = glibAudio[id];
 		if( !kit )
 			return console.error("Audio kit missing", id);
-		kit.play(this.audio_fx, sender, target, armor_slot);
+		
 		let sid, tid;
 		if( sender )
 			sid = sender.id;
 		if( target )
 			tid = target.id;
+
+		// Todo: Change this to send the full audiokit
 		if( this.is_host && global )
 			this.net.dmPlaySoundOnPlayer(sid, tid, id, armor_slot);
+
+		let out = await kit.play(this.audio_fx, sender, target, armor_slot);
+		return {kit:kit, instances:out};
+
 	}
 	setMasterVolume( volume = 1.0 ){
 		setMasterVolume(volume);

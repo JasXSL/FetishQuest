@@ -56,11 +56,15 @@ class Stage extends Generic{
 		this.fade_duration = 2000;			// Time before removing the particle system from the stage after emit_duration ends
 		this.hold = 0;						// Wait this amount of MS before doing the next step
 
-		// Todo: implement these
 		this.origin = 'victim';
 		this.origin_rand = false;
 		this.destination = 'victim';
 		this.dest_rand = false;
+
+		// Todo: Positional offsets
+
+		// Todo: Sound
+		this.sound_kits = [];				// Trigger these sound kits
 
 		this._system = null;				// Holds the particle system itself
 		this._start_pos = new THREE.Vector3();
@@ -74,7 +78,7 @@ class Stage extends Generic{
 	}
 
 	rebase(){
-
+		this.sound_kits = this.sound_kits.slice();
 	}
 
 	save(){
@@ -87,14 +91,17 @@ class Stage extends Generic{
 			destination : this.destination,
 			origin_rand : this.origin_rand,
 			dest_rand : this.dest_rand,
-			css_fx : this.css_fx
+			css_fx : this.css_fx,
+			sound_kits : this.sound_kits
 		};
 	}
 
-	async run( attacker, victim ){
+	async run( attacker, victim, armor_slot ){
 
 		const webgl = game.renderer;
+		
 
+		
 		if( this.particles ){
 
 			const particles = libParticles.get(this.particles);
@@ -145,20 +152,6 @@ class Stage extends Generic{
 			particles.mesh.position.copy(this._start_pos);
 			webgl.fxParticles.push(particles);
 
-			// Tween the position
-			const start = new THREE.Vector3();
-			console.log(particles.emitters[0]);
-			
-			new TWEEN.Tween(start).to(this._end_pos.sub(this._start_pos), this.emit_duration).easing(TWEEN.Easing.Cubic.In)
-				.onUpdate(() => {
-					particles.emitters[0].position.value.x = start.x;
-					particles.emitters[0].position.value.y = start.y;
-					particles.emitters[0].position.value.z = start.z;
-					particles.emitters[0].position.value = particles.emitters[0].position.value;
-				})
-				.start();
-			
-
 			setTimeout(() => {
 				for( let emitter of particles.emitters )
 					emitter.disable();
@@ -181,6 +174,43 @@ class Stage extends Generic{
 
 		}
 
+		let attached_instances = [];
+		for( let kit of this.sound_kits ){
+			game.playFxAudioKitById(kit, attacker, victim, armor_slot ).then(data => {
+				const kit = data.kit;
+				const instances = data.instances;
+				if( kit.follow_parts )
+					attached_instances = attached_instances.concat(instances);
+			});
+		}
+		
+		// Handle tweening
+		// Tween the position
+		const start = new THREE.Vector3();
+		new TWEEN.Tween(start).to(this._end_pos.sub(this._start_pos), this.emit_duration).easing(TWEEN.Easing.Cubic.In)
+			.onUpdate(() => {
+				const particles = this._system;
+				if( particles ){
+
+					particles.emitters[0].position.value.x = start.x;
+					particles.emitters[0].position.value.y = start.y;
+					particles.emitters[0].position.value.z = start.z;
+					particles.emitters[0].position.value = particles.emitters[0].position.value;
+					for( let instance of attached_instances ){
+
+						instance.setPosition(
+							(particles.mesh.position.x+start.x)*0.02,
+							(particles.mesh.position.y+start.y)*0.02,
+							-0.5,
+						);
+
+					}
+
+				}
+
+			})
+			.start();
+		
 
 		if( this.hold )
 			await new Promise(res => 

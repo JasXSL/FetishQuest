@@ -337,19 +337,22 @@ const lib = {
         ],
         
     },
-    "coldBlast": {
-        label : "coldBlast",
+    coldBlast_cast : {
+        follow_parts : true,
         sounds : [
             {
-                s : {
-                    path : "media/audio/cold_blast.ogg",
-                    volume : 0.5
-                },
-                t : 0,
+                s : { path : "media/audio/cold_blast.ogg",volume : 0.5 },
+                se : true
+            }
+        ],
+    },
+    coldBlast_hit : {
+        sounds : [
+            {
+                s : { path : "media/audio/ice_hit.ogg",volume : 0.5 },
                 se : false
             }
         ],
-        
     },
     "waterHealing": {
         label : "waterHealing",

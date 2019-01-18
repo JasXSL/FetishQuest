@@ -559,11 +559,13 @@ class WebGL{
 	/* FX LAYER */
 	playFX( caster, recipients, visual ){
 
-		const visObj = libHitFX[visual];
+		let visObj = libHitFX[visual];
 		if( !visObj ){
 			console.error("Visual missing", visual);
 			return;
 		}
+		visObj = visObj.clone(this);
+
 
 		if( !Array.isArray(recipients) )
 			recipients = [recipients];
