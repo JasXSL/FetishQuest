@@ -27,6 +27,7 @@ export default class Mod extends Generic{
 		this.dungeonRoomTemplates = [];	
 		this.wrappers = [];
 		this.dungeonEncounters = [];
+		this.hitFX = [];
 		this.load(data);
 	}
 
@@ -66,6 +67,7 @@ export default class Mod extends Generic{
 			wrappers : this.wrappers,
 			dungeonEncounters : this.dungeonEncounters,
 			players : this.players,
+			hitFX : this.hitFX
 		};
 		return out;
 	}

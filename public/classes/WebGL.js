@@ -13,6 +13,7 @@ import Sky from '../ext/Sky.js';
 import libParticles from '../libraries/particles.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import libHitFX from '../libraries/hitfx.js';
+import HitFX from './HitFX.js';
 
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;
@@ -559,10 +560,13 @@ class WebGL{
 	/* FX LAYER */
 	playFX( caster, recipients, visual ){
 
-		let visObj = libHitFX[visual];
-		if( !visObj ){
-			console.error("Visual missing", visual);
-			return;
+		let visObj = visual;
+		if( !(visual instanceof HitFX) ){
+			let visObj = libHitFX[visual];
+			if( !visObj ){
+				console.error("Visual missing", visual);
+				return;
+			}
 		}
 		visObj = visObj.clone(this);
 
@@ -572,6 +576,8 @@ class WebGL{
 		
 		for( let recipient of recipients )
 			visObj.run(caster, recipient);
+
+		// Todo: Send to players if host
 		
 	}
 

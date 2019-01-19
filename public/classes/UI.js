@@ -881,7 +881,7 @@ export default class UI{
 
 	// Prints a message
 	// audioObj can be an object with {id:(str)soundKitId, slot:(str)armorSlot}
-	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture, audioObj ){
+	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture, audioArr ){
 
 		let gTypes = GameEvent.Types;
 		if( this.captureActionMessage && !disregardCapture ){
@@ -889,13 +889,17 @@ export default class UI{
 			return;
 		}
 
-		if( typeof audioObj === "object" && game.initialized && audioObj.id )
-			game.playFxAudioKitById(
-				audioObj.id, 
-				game.getPlayerById(attackerID), 
-				game.getPlayerById(targetID), 
-				audioObj.slot
-			);
+		// Todo: Change this to send the actual audio object
+		if( Array.isArray(audioArr) && game.initialized){
+			for( let audioObj of audioArr ){
+				game.playFxAudioKitById(
+					audioObj.id, 
+					game.getPlayerById(attackerID), 
+					game.getPlayerById(targetID), 
+					audioObj.slot
+				);
+			}
+		}
 
 
 		this.parent.logChat.apply(this.parent, [...arguments]);
@@ -913,7 +917,7 @@ export default class UI{
 				attackerID : attackerID,
 				targetID : targetID,
 				acn : additionalClassName,
-				audio : audioObj
+				audio : audioArr
 			});
 
 		let target = this.parent.getPlayerById(targetID),

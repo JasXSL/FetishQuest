@@ -4,6 +4,7 @@ import Condition from './Condition.js';
 import Player from './Player.js';
 import Asset from './Asset.js';
 import stdTag from '../libraries/stdTag.js';
+import HitFX from './HitFX.js';
 /*
 	List of tags you can use:
 	GENERIC
@@ -48,6 +49,7 @@ class Text extends Generic{
 		this.alwaysOutput = false;		// Ignores the text backlogging and outputs this text immediately
 		this.turnTags = [];				// Sets tags that persist until the next text is received or the current turn ends
 		this.audiokits = [];			// IDs of audio kits. Can also be a string, which gets cast to an array on load. You can also use soundkits as a synonym
+		this.hitfx = [];				// hit effects
 		this.armor_slot = '';				// Trigger armor hit sound on this slot, use Asset.Slots
 		this.weight = 1;					// Lets you modify the weight of the text, higher weights are shown more often.
 		this.load(...args);
@@ -65,11 +67,11 @@ class Text extends Generic{
 
 	rebase(){
 		this.conditions = Condition.loadThese(this.conditions, this);
-
 		for( let sound of this.audiokits ){
 			if( !glib.audioKits[sound] )
 				console.error("AudioKit not found", sound);
 		}
+		this.hitfx = HitFX.loadThese(this.hitfx);
 	}
 
 	save(full){
@@ -84,6 +86,7 @@ class Text extends Generic{
 			audiokits : this.audiokits,
 			armor_slot : this.armor_slot,
 			weight : this.weight,
+			hitfx : HitFX.saveThese(this.hitfx),
 		};
 	}
 	
@@ -200,18 +203,21 @@ class Text extends Generic{
 		if( returnResult )
 			return text;
 		
-		let audio;
-		if( this.audiokits.length ){
-			let kits = shuffle(this.audiokits.slice());
-			for( let kit of kits ){
-				let kd = glib.audioKits[kit];
-				if( !kd )
-					continue;
-				if( Condition.all(kd.conditions, event) )
-					audio = {id:kit, slot:this.armor_slot};
-				
-			}
-			
+		let audio = [];
+		for( let kit of this.audiokits ){
+			let kd = glib.audioKits[kit];
+			if( !kd )
+				continue;
+			if( Condition.all(kd.conditions, event) )
+				audio.push({id:kit, slot:this.armor_slot});
+		}
+
+		let targs = event.target;
+		if( !Array.isArray(targs) )
+			targs = [targs];
+		for( let fx of this.hitfx ){
+			for( let targ of targs )
+				game.renderer.playFX(event.sender, targ, fx);
 		}
 
 		let targ = event.target;

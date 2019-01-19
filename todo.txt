@@ -1,3 +1,7 @@
+Hit fx:
+	- Tie the hitfx to texts
+	- Make more hitfx
+
 UI Overhaul:
 	- Add a button to make a character your active character
 		- Game.getMyFirstPlayer should return this

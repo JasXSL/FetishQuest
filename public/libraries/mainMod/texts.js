@@ -2465,23 +2465,16 @@ const lib = [
 	},
 
 
+	// ELEMENTALIST
+
 	// action_elementalist_iceBlast
 	{ text : "%S sends a chilling blast across %T!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_elementalist_iceBlast",
-		],
-		audiokits : ["coldBlast"]
+		conditions : baseCond.concat("action_elementalist_iceBlast"),
+		hitfx : ["ice_blast"]
 	},
 	{ text : "%S sends a chilling blast across %T's %Tbreasts, hardening %This nipples!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_elementalist_iceBlast",
-			"targetBreasts"
-		],
-		audiokits : ["coldBlast"]
+		conditions : baseCond.concat("action_elementalist_iceBlast","targetBreasts"),
+		hitfx : ["ice_blast"]
 	},
 
 	// action_elementalist_healingSurge

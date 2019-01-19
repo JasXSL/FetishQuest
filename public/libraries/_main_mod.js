@@ -9,6 +9,7 @@ import {getArray as getAudioKits} from './mainMod/audioKits.js';
 import {getArray as getDungeonTemplates} from './mainMod/dungeonTemplates.js';
 import {getArray as getEncounters} from './mainMod/encounters.js';
 import {getArray as getPlayerTemplates} from './mainMod/playerTemplates.js';
+import {getArray as getHitFX} from './mainMod/hitfx.js';
 import dungeons from './mainMod/dungeons.js';
 
 // This is a special mod 
@@ -1169,7 +1170,8 @@ const mod = new Mod(
 				]
 			}
 		],
-		dungeonEncounters : getEncounters()
+		dungeonEncounters : getEncounters(),
+		hitFX : getHitFX(),
 	}
 );
 

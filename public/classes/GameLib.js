@@ -13,6 +13,7 @@ import { AudioKit } from './Audio.js';
 import MAIN_MOD from '../libraries/_main_mod.js';
 import Mod from './Mod.js';
 import Player from './Player.js';
+import HitFX from './HitFX.js';
 
 
 const LIB_TYPES = {
@@ -31,6 +32,7 @@ const LIB_TYPES = {
 	'materialTemplates' : MaterialTemplate,
 	'assetTemplates' : AssetTemplate,
 	'audioKits' : AudioKit,
+	'hitFX' : HitFX,
 	'dungeonRoomTemplates' : RoomTemplate,
 	'dungeonTemplates' : DungeonTemplate,
 	'dungeonEncounters' : DungeonEncounter,
@@ -68,6 +70,7 @@ export default class GameLib{
 		this.wrappers = {};
 		this.dungeonEncounters = {};
 		this.players = {};
+		this.hitFX = {};
 
 		this._cache_assets = {};
 		this.texts = [];
@@ -101,6 +104,8 @@ export default class GameLib{
 			'effects',
 			'wrappers',
 			'playerClasses',
+			'audioKits',
+			'hitFX',
 			'actions',
 			'assets',
 			'players',
@@ -111,7 +116,7 @@ export default class GameLib{
 			'materialTemplates',
 			'assetTemplates',
 			
-			'audioKits',
+			
 			'dungeonEncounters',
 			'dungeonRoomTemplates',
 			'dungeonTemplates',
@@ -120,8 +125,9 @@ export default class GameLib{
 		for( let mod of mods ){
 			
 			for( let k of load_order ){
-				if( Array.isArray(mod[k]) )
+				if( Array.isArray(mod[k]) ){
 					this.loadModOnto(mod[k], this[k], LIB_TYPES[k]);
+				}
 			}
 			
 			// Texts can be last, it's not linked to anything other than conditions

@@ -1,4 +1,4 @@
-import {default as HitFX, Stage} from '../classes/HitFX.js';
+import {default as HitFX, Stage} from '../../classes/HitFX.js';
 const out = {};
 
 let id = 'punch';
@@ -35,5 +35,15 @@ out[id].stages.push(
 );
 
 
+function getArray(){
+	const o = [];
+	for( let obj in out ){
+		const l = out[obj];
+		l.label = obj;
+		o.push(l);
+	}
+	return o;
+};
 
+export {getArray};
 export default out;
