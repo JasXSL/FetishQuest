@@ -11,6 +11,9 @@ export default class HitFX extends Generic{
 		this.label = '';
 		this.stages = [];
 
+		this._t_rand_offset = null;	// THREE.Vector2 Cache for randomizing
+		this._s_rand_offset = null;	// THREE.Vector2 Cache for randomizing
+
 		this.load(data);
 
 	}
@@ -35,8 +38,13 @@ export default class HitFX extends Generic{
 
 	async run( attacker, victim ){
 
+
 		for( let stage of this.stages ){
 			await stage.run( attacker, victim );
+			if( stage.hold ){
+				this._s_rand_offset = null;
+				this._t_rand_offset = null;
+			}
 		}
 
 	}
@@ -55,11 +63,12 @@ class Stage extends Generic{
 		this.emit_duration = 100;			// Duration before stopping emitting
 		this.fade_duration = 2000;			// Time before removing the particle system from the stage after emit_duration ends
 		this.hold = 0;						// Wait this amount of MS before doing the next step
-
+		
+		this.tween = true;
 		this.origin = 'victim';
-		this.origin_rand = false;
+		this.origin_rand = 0;				// percentage of portrait box
 		this.destination = 'victim';
-		this.dest_rand = false;
+		this.dest_rand = 0;					// percentage of portrait box
 
 		// Todo: Positional offsets
 
@@ -92,7 +101,8 @@ class Stage extends Generic{
 			origin_rand : this.origin_rand,
 			dest_rand : this.dest_rand,
 			css_fx : this.css_fx,
-			sound_kits : this.sound_kits
+			sound_kits : this.sound_kits,
+			tween : this.tween,
 		};
 	}
 
@@ -112,6 +122,8 @@ class Stage extends Generic{
 				return;
 			}
 
+			
+
 			const aEl = $("#ui div.player[data-id="+esc(attacker.id)+"]");
 			const vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
 			
@@ -129,14 +141,31 @@ class Stage extends Generic{
 			this._end_pos.x = victimPos.left+victimWidth/2;
 			this._end_pos.y = victimPos.top+victimHeight/2;
 
-			if( this.origin_rand ){
-				this._start_pos.x += Math.random()*attackerWidth-attackerWidth/2;
-				this._start_pos.y += Math.random()*attackerHeight-attackerHeight/2;
+			if( !this.parent._t_rand_offset && this.dest_rand ){
+				// Generate a new random position
+				this.parent._t_rand_offset = new THREE.Vector2(
+					Math.random()*victimWidth-victimWidth/2,
+					Math.random()*victimHeight-victimHeight/2,
+				);
 			}
-			if( this.dest_rand ){
-				this._end_pos.x += Math.random()*victimWidth-victimWidth/2;
-				this._end_pos.y += Math.random()*victimHeight-victimHeight/2;
+			if( !this.parent._s_rand_offset && this.origin_rand ){
+				this.parent._s_rand_offset = new THREE.Vector2(
+					Math.random()*attackerWidth-attackerWidth/2,
+					Math.random()*attackerHeight-attackerHeight/2,
+				);
 			}
+
+			if( this.origin_rand > 0 ){
+				this._start_pos.x += this.parent._s_rand_offset.x*this.origin_rand;
+				this._start_pos.y += this.parent._s_rand_offset.y*this.origin_rand;
+			}
+			if( this.dest_rand > 0 ){
+				this._end_pos.x += this.parent._t_rand_offset.x*this.dest_rand;
+				this._end_pos.y += this.parent._t_rand_offset.y*this.dest_rand;
+			}
+
+			if( !this.tween )
+				this._start_pos = this._end_pos.clone();
 
 			// raycast start and end
 			const origin = webgl.raycastScreenPosition( this._start_pos.x, this._start_pos.y );

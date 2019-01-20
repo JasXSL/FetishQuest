@@ -12,7 +12,6 @@ import { LibMaterial } from '../libraries/materials.js';
 import Sky from '../ext/Sky.js';
 import libParticles from '../libraries/particles.js';
 import JDLoader from '../ext/JDLoader.min.js';
-import libHitFX from '../libraries/hitfx.js';
 import HitFX from './HitFX.js';
 
 // Enables a grid for debugging asset positions
@@ -562,7 +561,7 @@ class WebGL{
 
 		let visObj = visual;
 		if( !(visual instanceof HitFX) ){
-			let visObj = libHitFX[visual];
+			visObj = glib.get(visual, 'HitFX');
 			if( !visObj ){
 				console.error("Visual missing", visual);
 				return;
@@ -586,9 +585,9 @@ class WebGL{
 	// x y are in document coordinates
 	toggleArrow( on = false, x = 0, y = 0 ){
 
-		if( on )
+		if( on ){
 			this.fxPlane.visible = true;
-
+		}
 		const vec = new THREE.Vector2( x, y);
 
 		const offset = $(this.fxRenderer.domElement).offset();
@@ -604,6 +603,8 @@ class WebGL{
 			this.arrowBase = new THREE.Vector2(coords.point.x, coords.point.y);
 
 		this.arrowVisible = !!on;
+		if( !on )
+			this.arrowTarget = null;
 		this.fxArrow.visible = this.arrowVisible;
 		// Particles will break if these remain on without an arrow
 		this.fxLight.visible = this.fxPlane.visible = this.arrowVisible;

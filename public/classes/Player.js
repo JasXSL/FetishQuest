@@ -1499,9 +1499,12 @@ export default class Player extends Generic{
 
 		if( !this.auto_play && !force )
 			return;
-		if( !this.bot )
+		if( !this.bot ){
+			console.log("Attaching a bot");
 			this.bot = new Bot(this);
-		this.bot.play();
+		}
+		
+		this.bot.play( force );
 
 	}
 

@@ -2297,7 +2297,8 @@ export default class UI{
 			}
 			
 			else if( task == "auto" ){
-				this.parent.getTurnPlayer().autoPlay(true);
+				console.log("Auto playing for", game.getTurnPlayer());
+				game.getTurnPlayer().autoPlay(true);
 				return;
 			}
 

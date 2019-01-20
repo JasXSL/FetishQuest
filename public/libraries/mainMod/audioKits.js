@@ -69,64 +69,45 @@ const lib = {
         ],
         
     },
-    "punchGeneric": {
+    punchGeneric: {
         label : "punchGeneric",
         sounds : [
             {
-                s : {
-                    path : "media/audio/swing_small.ogg",
-                    volume : 0.2
-                },
-                t : 0,
+                s : { path : "media/audio/swing_small.ogg", volume : 0.2 },
                 se : true
             },
             {
-                s : {
-                    path : "media/audio/basic_punch.ogg",
-                    volume : 0.5,
-                    "hit": true
-                },
+                s : { path : "media/audio/basic_punch.ogg", volume : 0.5, hit: true },
                 t : 100,
-                se : false
             }
         ],
-        
     },
-    "slapGeneric": {
+    slapGeneric: {
         label : "slapGeneric",
         sounds : [
             {
-                s : {
-                    path : "media/audio/swing_small.ogg",
-                    volume : 0.2
-                },
-                t : 0,
+                s : { path : "media/audio/swing_small.ogg", volume : 0.2 },
                 se : true
             },
             {
-                s : {
-                    path : "media/audio/slap.ogg",
-                    volume : 0.5
-                },
+                s : { path : "media/audio/slap.ogg", volume : 0.5 },
                 t : 100,
-                se : false
             }
         ],
-        
     },
-    "tickleGeneric": {
-        label : "tickleGeneric",
+    slapNoSwing: {
         sounds : [
             {
-                s : {
-                    path : "media/audio/tickle.ogg",
-                    volume : 0.2
-                },
-                t : 0,
-                se : false
+                s : { path : "media/audio/slap.ogg", volume : 0.5 },
+            },
+        ],
+    },
+    tickleGeneric: {
+        sounds : [
+            {
+                s : { path : "media/audio/tickle.ogg",volume : 0.2 },
             }
         ],
-        
     },
     "squeezeGeneric": {
         label : "squeezeGeneric",
@@ -142,16 +123,10 @@ const lib = {
         ],
         
     },
-    "stretchGeneric": {
-        label : "stretchGeneric",
+    stretchGeneric: {
         sounds : [
             {
-                s : {
-                    path : "media/audio/cloth_stretch.ogg",
-                    volume : 0.5
-                },
-                t : 0,
-                se : false
+                s : {path : "media/audio/cloth_stretch.ogg",volume : 0.5},
             }
         ],
         
@@ -170,19 +145,15 @@ const lib = {
         ],
         
     },
-    "slowThrusts": {
-        label : "slowThrusts",
+    slowThrusts: {
         sounds : [
             {
                 s : {
                     path : "media/audio/slow_thrusts.ogg",
                     volume : 0.4
                 },
-                t : 0,
-                se : false
             }
         ],
-        
     },
     "biteGeneric": {
         label : "biteGeneric",
@@ -198,19 +169,12 @@ const lib = {
         ],
         
     },
-    "pinchGeneric": {
-        label : "pinchGeneric",
+    pinchGeneric: {
         sounds : [
             {
-                s : {
-                    path : "media/audio/pinch.ogg",
-                    volume : 0.4
-                },
-                t : 0,
-                se : false
+                s : {path : "media/audio/pinch.ogg",volume : 0.4},
             }
-        ],
-        
+        ], 
     },
     "poisonGeneric": {
         label : "poisonGeneric",
@@ -382,68 +346,19 @@ const lib = {
         ],
         
     },
-    "whipGeneric": {
-        label : "whipGeneric",
+    whipGeneric: {
         sounds : [
             {
-                s : {
-                    path : "media/audio/whip_swing.ogg",
-                    volume : 0.5
-                },
+                s : { path : "media/audio/whip_swing.ogg", volume : 1 },
                 t : 0,
                 se : true
             },
             {
-                s : {
-                    path : "media/audio/whip_snap.ogg",
-                    volume : 0.5,
-                    "hit": true
-                },
+                s : { path : "media/audio/whip_snap.ogg", volume : 0.5, hit: true },
                 t : 300,
                 se : false
             }
         ],
-        
-    },
-    "whipDouble": {
-        label : "whipDouble",
-        sounds : [
-            {
-                s : {
-                    path : "media/audio/whip_swing.ogg",
-                    volume : 0.5
-                },
-                t : 0,
-                se : true
-            },
-            {
-                s : {
-                    path : "media/audio/whip_snap.ogg",
-                    volume : 0.5,
-                    "hit": true
-                },
-                t : 300,
-                se : false
-            },
-            {
-                s : {
-                    path : "media/audio/whip_swing.ogg",
-                    volume : 0.5
-                },
-                t : 400,
-                se : true
-            },
-            {
-                s : {
-                    path : "media/audio/whip_snap.ogg",
-                    volume : 0.2,
-                    "hit": true
-                },
-                t : 600,
-                se : false
-            }
-        ],
-        
     },
     "tentacleWhip": {
         label : "tentacleWhip",

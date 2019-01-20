@@ -163,6 +163,7 @@ const lib = {
 
 
 	ttGroinExposed : {"type":"tag","data":{"tags":[stdTag.ttGroinExposed]}},
+	ttGroinNotExposed : {type:"tag",data:{tags:[stdTag.ttGroinExposed]}, inverse:true},
 	ttButtExposed : {"type":"tag","data":{"tags":[stdTag.ttButtExposed]}},
 	ttButtNotExposed : {"type":"tag","data":{"tags":[stdTag.ttButtExposed]},"inverse":true},
 	ttBreastsExposed : {"type":"tag","data":{"tags":[stdTag.ttGroinExposed]}},

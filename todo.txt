@@ -1,6 +1,8 @@
 Hit fx:
 	- Tie the hitfx to texts
 	- Make more hitfx
+	- Decouple audio from text, and have it send audio packets to coop
+	- Punishments don't work
 
 UI Overhaul:
 	- Add a button to make a character your active character

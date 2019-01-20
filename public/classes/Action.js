@@ -277,6 +277,7 @@ class Action extends Generic{
 		let pl = game.players;
 		if( this.detrimental && !isChargeFinish )
 			pl = this.getPlayerParent().getTauntedOrGrappledBy();
+
 		let targets = [];
 		if( this.target_type === Action.TargetTypes.self )
 			pl = [this.getPlayerParent()];
@@ -309,6 +310,7 @@ class Action extends Generic{
 			return [];
 
 		let viable = [];
+
 		for( let w of this.wrappers ){
 
 			let test = w.testAgainst(evt, false);

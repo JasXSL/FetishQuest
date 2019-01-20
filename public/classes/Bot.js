@@ -92,8 +92,8 @@ class Bot{
 
 	}
 
-	play(){
-		if( !this.player.auto_play || !game.battle_active )
+	play( force = false ){
+		if( (!this.player.auto_play && !force) || !game.battle_active )
 			return;
 
 		// Get viable abilities

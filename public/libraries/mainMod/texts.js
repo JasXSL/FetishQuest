@@ -2,6 +2,7 @@ import Text from '../../classes/Text.js';
 import conditions from './conditions.js';
 import audioKits from './audioKits.js';
 import stdTag from '../stdTag.js';
+import Asset from '../../classes/Asset.js';
 const baseCond = ['actionHit', 'eventIsActionUsed'];
 const anyOnHumCond = baseCond.concat('targetNotBeast');
 const humOnHumCond = anyOnHumCond.concat('senderNotBeast');
@@ -56,691 +57,403 @@ const lib = [
 	// STDAttack
 	{ text : "%S throws a punch at %T!",
 		"conditions":humOnAnyCond.concat("action_stdAttack"),
-		audiokits : ["punchGeneric"]
+		hitfx : ["punch"]
 	},
 	{ text : "%S slaps %T's %Tbutt, jiggling %This %Trsize buttcheeks around!",
 		"conditions": humOnHumCond.concat('action_stdAttack','targetButtLarge'),
-		audiokits : ["slapGeneric"]
+		hitfx : ["slap"]
 	},
 	{ text : "%S jumps onto the knocked down %Trace's stomach, throwing two rapid slaps across %T's %Tbsize %Tbreasts!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdAttack",
-			"targetBreasts",
-			"targetKnockedDownBack",
-			"targetTaller",
-			{ conditions: ["targetUpperbodyNotHard","targetNoUpperbody"] }
-		],
-		audiokits : ["slapGeneric"]
+		conditions : humOnHumCond.concat([ "action_stdAttack", "targetBreasts", "targetKnockedDownBack", "targetTaller",
+			{ conditions: ["targetUpperbodyNotHard","targetBreastsExposed"] }
+		]),
+		hitfx : ["doubleSlap"]
 	},
 	{ text : "%S jumps onto the knocked down %Trace's stomach, grabbing ahold of %This nipples and tugs at them!",
 		conditions : humOnHumCond.concat("action_stdAttack","targetBreasts","targetKnockedDownBack","targetTaller","targetBreastsExposed"),
-		audiokits : ["stretchGeneric"]
+		hitfx : ["stretch"]
 	},
 	{ text : "%S pinches a hold of %T's nipples and pulls backwards!",
 		conditions : humOnHumCond.concat("action_stdAttack","targetBreasts","targetUpperbodyNotHard"),
-		audiokits : ["stretchGeneric"]
+		audiokits : ["pinchGeneric"],
+		hitfx : ["stretch"]
 	},
 
 	{ text : "%S shoves %T from behind, bending %Thim over a table before slapping %This %Trsize %Tbutt!",
 		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
 		conditions : humOnHumCond.concat("action_stdAttack","roomTable"),
-		audiokits : ["slapGeneric"]
+		hitfx : ["slap"]
 	},
-	{ text : "%S grabs a hold of %T's %Trsize buttcheeks and squeezes down hard!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdAttack",
-		],
-		audiokits : ["squeezeGeneric"]
+	{ text : "%S grabs a hold of %T's %Trsize buttcheeks and squeezes them!",
+		conditions : humOnHumCond.concat(["action_stdAttack",]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S grabs a hold of %T's %Tbsize %leftright %Tbreast and squeezes down firmly!",
 		conditions : humOnHumCond.concat("action_stdAttack", "targetBreasts", "targetUpperbodyNotHard"),
-		audiokits : ["squeezeGeneric"]
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S throws at punch at the front of %T's %TclothLower, most of the impact being absorbed by the piece.",
-		"armor_slot":"lowerbody",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdAttack",
-			"targetLowerbodyHard"
-		],
-		audiokits : ["punchGeneric"]
+		armor_slot : "lowerbody",
+		conditions : humOnHumCond.concat(["action_stdAttack","targetLowerbodyHard"]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S throws at punch at the front of %T's %TclothUpper, most of the impact being absorbed by the piece.",
-		"armor_slot":"upperbody",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdAttack",
-			"targetUpperbodyHard"
-		],
-		audiokits : ["punchGeneric"]
+		armor_slot : "upperbody",
+		conditions : humOnHumCond.concat(["action_stdAttack","targetUpperbodyHard"]),
+		hitfx : ["punch"]
 	},
 
 	// tentacles
 	{ text : "%S lashes tentacles around %T's nipples, tugging outwards!",
-		audiokits : ["tentacleTwist"],
-		conditions : anyOnHumCond.concat("action_stdAttack","senderHasTentacles","targetBreasts","targetUpperbodyNotHard")
+		conditions : anyOnHumCond.concat("action_stdAttack","senderHasTentacles","targetBreasts","targetUpperbodyNotHard"),
+		hitfx : ['tentacleStretch'],
 	},
 	{ text : "%S slips a couple of tendrils around %T's exposed %Tbreasts, firmly squeezing them!",
-		audiokits : ["tentacleTwist"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetBreasts",
-			"targetNoUpperbody"]
+		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles","targetBreasts","targetNoUpperbody"]),
+		hitfx : ['tentacleSqueeze'],
 	},
 	{ text : "%S lashes %T's %Trsize %Tbutt with a tentacle!",
-		audiokits : ["tentacleWhip"
-		],
-		"armor_slot":"lowerbody",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles"]
+		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles"]),
+		hitfx : ["tentacleWhip"],
 	},
 	{ text : "%S lashes %T's %leftright buttcheek with a tentacle!",
-		audiokits : ["tentacleWhip"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles"]
+		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles"]),
+		hitfx : ["tentacleWhip"],
 	},
 	{ text : "%S slips two tendrils up between %T's legs, slipping part-way inside %This %Tvagina and stretching at it!",
-		audiokits : ["tentacleTwist"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetVagina",
+		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles","targetVagina",
 			{
 				conditions : [
 					"targetNoLowerbody",
-					"ttGroinExposed"
+					"targetGroinExposed"
 				]
 			}
-		],
-		weight : Text.Weights.high,
+		]),
+		hitfx : ["tentacleStretch"],
 	},
 	{ text : "%S wraps tentacles around %T's ankles and begins spreading %This legs, further stretching at %This %TclothLower!",
-		audiokits : ["tentacleStretch"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"ttWedgie",
-			"targetWearsLowerbody"
-		],
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack", "senderHasTentacles", "ttWedgie", "targetWearsLowerbody"
+		]),
+		hitfx : ["tentacleStretch"],
 		weight : Text.Weights.high,
-
-	},
-	{ text : "Two of %S's tentacles wrap around %T's %Tbsize %Tbreasts, squeezing down firmly!",
-		audiokits : ["tentacleTwist"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetUpperbodyNotHard",
-			"targetBreasts"]
 	},
 	{ text : "%S lashes a thick tentacle across the front of %T's %TclothUpper, most of the impact being absorbed by the armor!",
-		audiokits : ["tentacleWhip"
-		],
-		"armor_slot":"upperbody",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetUpperbodyHard",
-			"targetBreasts"]
+		armor_slot : "upperbody",
+		conditions : anyOnHumCond.concat([ 
+			"action_stdAttack", "senderHasTentacles", "targetUpperbodyHard", "targetBreasts"
+		]),
+		hitfx : ["tentacleWhip"],		
 	},
 	{ text : "%S lashes a thick tentacle across the front of %T's %TclothLower, most of the impact being absorbed by the armor!",
-		audiokits : ["tentacleWhip"
-		],
-		"armor_slot":"lowerbody",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetLowerbodyHard"]
+		armor_slot : "lowerbody",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasTentacles","targetLowerbodyHard"
+		]),
+		hitfx : ["tentacleWhip"],
 	},
 	{ text : "%S flicks %T's %Tgroin with a small tentacle, lashing the front of %This %TclothLower around!",
-		audiokits : ["tentacleWhip"
-		],
-		"armor_slot":"lowerbody",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetLowerbodyNotHard",
-			"targetWearsLowerbody",
-			"targetPenis"]
+		armor_slot : Asset.Slots.lowerbody,
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasTentacles","targetLowerbodyNotHard","targetWearsLowerbody","targetPenis"
+		]),
+		hitfx : ["tentacleWhip"],
 	},
 	{ text : "%S slithers a tendril around the front of %T's %TclothLower, constricting around %This package!",
-		audiokits : ["tentacleTwist"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetLowerbodyNotHard",
-			"targetWearsLowerbody",
-			"targetPenis"]
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasTentacles","targetLowerbodyNotHard","targetWearsLowerbody","targetPenis"
+		]),
+		hitfx : ["tentacleSqueeze"],
 	},
 	{ text : "%S slithers a tendril inside %T's %TclothLower, slithering down beneath %This balls and up over %This %Tpenis before constricting %This package!",
-		audiokits : ["tentacleTwist"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetWearsLowerbody",
-			"targetPenis"]
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasTentacles","targetWearsLowerbody","targetPenis"
+		]),
+		hitfx : ['tentacleSqueeze'],
 	},
 	{ text : "%S slithers a tendril inside %T's %TclothLower, coiling around %This %Tpenis and constricting it!",
-		audiokits : ["tentacleTwist"
-		],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasTentacles",
-			"targetWearsLowerbody",
-			"targetPenis"]
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasTentacles","targetWearsLowerbody","targetPenis"
+		]),
+		hitfx : ['tentacleSqueeze'],
 	},
 	{ text : "%S smacks %T's %Tpsize exposed %Tpenis with a tentacle!",
-		audiokits : ["tentacleWhip"],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack", 
 			"senderHasTentacles",
 			{
 				conditions : [
 					"targetNoLowerbody",
-					"ttGroinExposed"
+					"targetGroinExposed"
 				]
 			},
 			"targetPenis"
-		],
-		weight : Text.Weights.high,
-
+		]),
+		hitfx : ['tentacleWhip']
 	},
 
 
 	// Whips
 	{ text : "%S swings %Shis %Sgear at %T, whapping the %Trace across the %Tbutt!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasWhip"
-		],
-		audiokits : ["whipGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasWhip"
+		]),
+		hitfx : ["whip"]
 	},
 	{ text : "%S swings %Shis %Sgear at %T, whapping the %Trace's %leftright buttcheek!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasWhip"
-		],
-		audiokits : ["whipGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasWhip"
+		]),
+		hitfx : ["whip"]
 	},
 	{ text : "%S swings %Shis %Sgear at %T, flicking against %This chest!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasWhip"
-		],
-		audiokits : ["whipGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasWhip"
+		]),
+		armor_slot : Asset.Slots.upperbody,
+		hitfx : ["whip"]
 	},
 	{ text : "%S wraps %Shis %Sgear around %T's chest, chafing into the %Trace's %Tbreasts!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasWhip",
-			"targetBreasts",
-			"targetUpperbodyNotHard"
-		],
-		audiokits : ["stretchGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasWhip","targetBreasts","targetUpperbodyNotHard"
+		]),
+		hitfx : ["stretch"]
 	},
-	{ text : "%S takes advantate of %T being knocked on their belly, lashing %Shis %Sgear multiple times across %T's %Tbutt!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdAttack",
-			"senderHasWhip",
-			"targetKnockedDownFront"
-		],
-		audiokits : ["whipDouble"]
+	{ text : "%S takes advantage of %T being knocked on their belly, lashing %Shis %Sgear multiple times across %T's %Tbutt!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasWhip","targetKnockedDownFront"
+		]),
+		hitfx : ["whipDouble"]
 	},
 	{ text : "%S takes advantage of %T being bent over and lashes %Shis %Sgear across the %Trace's %Trsize %Tbutt!",
 		turnTags:[stdTag.ttBentOver],
 		conditions : humOnHumCond.concat("action_stdAttack","ttBentOver","senderHasWhip"),
 		weight : Text.Weights.high,
-		audiokits : ["whipGeneric"]
+		hitfx : ["whip"]
 	},
 
 	// stdArouse
 	{ text : "%S tickles %T!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderBeast"
-		],
-		audiokits : ["tickleGeneric"]
+		conditions : baseCond.concat([
+			"action_stdArouse", "senderBeast"
+		]),
+		hitfx : ["tickle"]
 	},
 	{ text : "%S tickles %T!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"targetBeast"
-		],
-		audiokits : ["tickleGeneric"]
+		conditions : baseCond.concat([
+			"action_stdArouse", "targetBeast"
+		]),
+		hitfx : ["tickle"]
 	},
 	{ text : "%S grabs a hold of and rubs %T's %Tbutt!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : humOnHumCond.concat([
 			"action_stdArouse",
-			"targetNotBeast",
-			"senderNotBeast"
-		],
-		audiokits : ["squeezeGeneric"]
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S slips %Shis hand between %T's legs and rubs %This %Tgroin!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"targetNotBeast",
-			"senderNotBeast"
-		],
-		audiokits : ["squeezeGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_stdArouse"
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S pushes %Shis hands against %T's chest and rubs %This %Tbsize %Tbreasts!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdArouse",
-			"targetBreasts",
-			"senderNotBeast",
-			"targetUpperbodyNotHard"
-		],
-		audiokits : ["squeezeGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_stdArouse","targetBreasts","targetUpperbodyNotHard"
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S pushes %Shis hands against %T's chest and rubs the front of %This %TclothUpper!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_stdArouse",
-			"targetBreasts",
-			"senderNotBeast",
-			"targetUpperbodyHard"
-		],
-		audiokits : ["squeezeGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_stdArouse","targetBreasts","targetUpperbodyHard"
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S jumps onto the knocked down %Trace's back, reaching around %T's chest and rubs %This %Tbsize %Tbreasts!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"targetBreasts",
-			"senderNotBeast",
-			"targetKnockedDownFront",
-			"targetTaller"
-		],
-		audiokits : ["squeezeGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_stdArouse","targetBreasts","targetKnockedDownFront","targetTaller"
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S jumps onto the knocked down %Trace's stomach, grabbing a firm hold of %T's %Tbreasts before jiggling them around!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"targetBreasts",
-			"senderNotBeast",
-			"targetKnockedDownBack",
-			"targetTaller",
-			[
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "targetBreasts", "targetKnockedDownBack", "targetTaller",
+			{conditions :[
 				"targetUpperbodyNotHard",
-				"targetNoUpperbody"
-			]
-		],
-		audiokits : ["squeezeGeneric"]
+				"targetBreastsExposed"
+			]}
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S jumps onto the knocked down %Trace's back, squeezes a firm hold of %T's %Trsize buttcheeks and jiggles them around!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderNotBeast",
-			"targetKnockedDownFront",
-			"targetTaller",
-			[
+		conditions : humOnHumCond.concat([
+			"action_stdArouse","targetKnockedDownFront","targetTaller",
+			{conditions:[
 				"targetWearsThong",
 				"targetNoLowerbody"
-			]
-		],
-		audiokits : ["squeezeGeneric"]
+			]}
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S reaches down towards %T's bulge and teasingly squeezes it!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"targetWearsLowerbody",
-			"senderNotBeast",
-			"targetPenis"
-		],
-		audiokits : ["squeezeGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_stdArouse","targetWearsLowerbody","targetPenis"
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S takes advantage of %T being bent over and fondles %This %Tgroin!",
 		turnTags:[stdTag.ttBentOver],
 		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver"),
 		weight : Text.Weights.high,
-		audiokits : ["squeezeGeneric"]
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Tvagina, landing a %couple of thrusts!",
 		turnTags:[stdTag.ttBentOver],
 		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver","targetVagina","senderPenis","targetNoLowerbody","targetGroinExposed"),
 		weight : Text.Weights.high,
-		audiokits : ["slowThrusts"]
+		hitfx : ["slowThrusts"]
 	},
 	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Trsize %Tbutt, landing a %couple of thrusts!",
 		turnTags:[stdTag.ttBentOver],
 		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver","senderPenis","targetNoLowerbody","targetButtExposed"),
 		weight : Text.Weights.high,
-		audiokits : ["slowThrusts"]
+		hitfx : ["slowThrusts"]
 	},
 
 	// stdArouse - Tentacles
 	{ text : "%S slips a couple of tendrils up between %T's legs, rubbing across %This %groin!",
-		audiokits : ["squishTiny"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetNotBeast"]
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles",
+		]),
+		hitfx : ["squishTiny"],
 	},
 	{ text : "%S slips a tendril up between %T's buttcheeks, tickling between them!",
-		audiokits : ["squishLong"],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetNotBeast",
-			[
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse", "senderHasTentacles",
+			{conditions: [
 				"targetWearsThong",
-				"targetNoLowerbody",
-				"ttButtExposed"
-			]
-		],
+				"targetButtExposed",
+			]}
+		]),
 		weight : Text.Weights.high,
-
+		hitfx : ["squishLong"],
 	},
 	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tvagina and thrusting a couple of times!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetNotBeast",
-			"targetVagina",
-			"targetGroinExposed"
-		],
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetVagina","targetGroinExposed"
+		]),
 		weight : Text.Weights.high,
-
+		hitfx : ["slowThrustsTentacle"],
 	},
 	{ text : "%S thrusts two tentacles up between %T's legs, forcing one inside %This %Tvagina, and the other into %This %Trsize %Tbutt. Pumping rythmically in and out of %T!",
-		audiokits : ["tentacleMultipleThrusts"],
 		conditions : anyOnHumCond.concat([
 			"action_stdArouse", "senderHasTentacles","targetVagina","targetNoLowerbody"
-		])
+		]),
+		hitfx : ["slowThrustsTentacle"],
 	},
 	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tbutt where it thrusts a couple of times!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : anyOnHumCond.concat([
 			"action_stdArouse",
 			"senderHasTentacles",
-			"targetNotBeast",
-			[
+			{conditions:[
 				"targetNoLowerbody",
 				"ttButtExposed"
-			]
-		],
+			]}
+		]),
 		weight : Text.Weights.high,
+		hitfx : ["slowThrustsTentacle"],
 
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle plunges inside and starts rapidly thrusting into %This %Tvagina!",
-		audiokits : ["tentacleMultipleThrusts"],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetLegsSpread",
-			"targetGroinExposed",
-			"targetVagina"
-		],
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetGroinExposed","targetVagina"
+		]),
 		weight : Text.Weights.high,
-
+		hitfx : ["slowThrustsTentacle"],
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle wiggles inside %This %TclothLower and up %This %Tvagina, rapidly thrusting inside %Thim!",
 		audiokits : ["tentacleMultipleThrusts"
 		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetLegsSpread",
-			"targetWearsThong",
-			"targetVagina"]
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetWearsThong","targetVagina"
+		]),
+		hitfx : ["slowThrustsTentacle"],
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's %Trsize exposed %Tbutt. The tentacle wiggles inside and starts rapidly thrusting inside %Thim!",
-		audiokits : ["tentacleMultipleThrusts"],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetLegsSpread",
-			"targetKnockedDownFront",
-			[
-				"targetNoLowerbody",
-				"ttButtExposed"
-			],
-			"targetVagina"
-		],
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetKnockedDownFront","targetButtExposed",
+		]),
 		weight : Text.Weights.high,
-
+		hitfx : ["slowThrustsTentacle"],
 	},
 	{ text : "%S takes advantage of %T being knocked down and surprises %Thim with a slimy cock-tipped tentacle slipping inside %This mouth, squirming around and tickling %This cheeks!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetLegsSpread",
-			"targetKnockedDownFront",
-			"targetNotBeast"]
-	},
-	{ text : "%S surprises %T with a thick tentacle shoved into %This mouth! The tentacle thrusts a couple of times, leaving a gooey residue behind.",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles"]
-	},
-	{ text : "%S slips a gooey tentacle into %T's %TclothLower! The tentacle pushes its way into %This %Tbsize %Tbutt and lands some rapid thrusts, making %This %Tbutt somewhat sticky!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetWearsLowerbody"]
-	},
-	{ text : "%S slips a thick gooey tendril into %T's %TclothLower! The tentacle pushes its way into %This %Tvagina and lands some rapid thrusts, leaving a sticky liquid behind!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetWearsLowerbody",
-			"targetVagina"]
-	},
-	{ text : "One of %S's small tentacles loop around the bottom of %T's %TclothLower and tugs it aside. Before %T can react, a thick and slimy tentacle pushes inside %This %Tvagina and lands some rapid thrusts inside %Thim!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetWearsThong",
-			"targetVagina",
-			"targetLowerbodyNotHard"]
-	},
-	{ text : "%S slithers a gooey tentacle around %T's butt-string and pushes inside %Thim, landing some rapid thrusts and leaving a slippery substance behind!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetWearsLowerbody",
-			"targetWearsThong"]
-	},
-	{ text : "%S pushes a thick tentacle up between %T's buttcheeks, giving %This rear some rapid prods through %This buttstring!",
-		audiokits : ["tentacleMultipleThrusts"],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetWearsLowerbody",
-			"targetWearsThong",
-			"ttButtNotExposed"
-		],
-		weight : Text.Weights.default,
-	},
-	{ text : "%S latches a thick tentacle with suction cups onto %T's %Tgroin and performs a few rapid tugs and prods at %This %TclothLower!",
-		audiokits : ["tentacleMultipleThrusts"],
-		conditions : anyOnHumCond.concat("action_stdArouse","senderHasTentacles","targetWearsLowerbody","targetWearsThong","ttButtNotExposed"),
-		weight : Text.Weights.default,
-	},
-	{ text : "%S latches two thick tentacles with suction cups onto %T's %Tbreasts and performs a few rapid tugs and prods at %This %TclothUpper!",
-		audiokits : ["tentacleMultipleThrusts"],
-		conditions : anyOnHumCond.concat("action_stdArouse","senderHasTentacles","targetWearsUpperbody","targetUpperbodyNotHard","targetBreasts"),
-		weight : Text.Weights.default,
-	},
-	{ text : "%S takes advantage of %T's frontal wedgie and slips a flat tentacle with wiggly nubs between %This legs, pushing it up against %This %groin where it intensely tickles %T's exposed mound!",
-		audiokits : ["gooRub"],
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"targetWearsLowerbody",
-			"ttPussyWedgie"
-		],
-		weight : Text.Weights.high,
+
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetKnockedDownFront",
+		]),
+		hitfx : ["slowThrustsTentacle"],
 
 	},
-	{ text : "%S slips small tendrils between %T's legs, rapidly tickling the exposed sides of %This %Tvagina and leaving a little slimy residue behind!",
-		audiokits : ["gooRub"],
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
-			"ttPussyWedgie",
-			"targetWearsLowerbody"
-		],
+	{ text : "%S surprises %T with a thick tentacle shoved into %This mouth! The tentacle thrusts a couple of times, leaving a gooey residue behind.",
+
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles"
+		]),
+		hitfx : ["slowThrustsTentacle"],
+
+	},
+	{ text : "%S slips a gooey tentacle into %T's %TclothLower! The tentacle pushes its way into %This %Tbsize %Tbutt and lands some rapid thrusts, making %This %Tbutt somewhat sticky!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetWearsLowerbody"
+		]),
+		hitfx : ["slowThrustsTentacle"],
+
+	},
+	{ text : "%S slips a thick gooey tendril into %T's %TclothLower! The tentacle pushes its way into %This %Tvagina and lands some rapid thrusts, leaving a sticky liquid behind!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetWearsLowerbody","targetVagina"
+		]),
+		hitfx : ["slowThrustsTentacle"],
+	},
+	{ text : "One of %S's small tentacles loop around the bottom of %T's %TclothLower and tugs it aside. Before %T can react, a thick and slimy tentacle pushes inside %This %Tvagina and lands some rapid thrusts inside %Thim!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetWearsThong","targetVagina","targetLowerbodyNotHard"
+		]),
+		hitfx : ["slowThrustsTentacle"],
+
+	},
+	{ text : "%S slithers a gooey tentacle around %T's butt-string and pushes inside %Thim, landing some rapid thrusts and leaving a slippery substance behind!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetWearsLowerbody","targetWearsThong"
+		]),
+		hitfx : ["slowThrustsTentacle"],
+	},
+	{ text : "%S latches a thick tentacle with suction cups onto %T's %Tgroin and performs a few rapid tugs and prods at %This %TclothLower!",
+		conditions : anyOnHumCond.concat("action_stdArouse","senderHasTentacles","targetWearsLowerbody","targetWearsThong","ttGroinNotExposed"),
+		weight : Text.Weights.default,
+		hitfx : ["slowThrustsTentacleDiscrete"],
+	},
+	{ text : "%S latches two thick tentacles with suction cups onto %T's %Tbreasts and performs a few rapid tugs and prods at %This %TclothUpper!",
+		conditions : anyOnHumCond.concat("action_stdArouse","senderHasTentacles","targetWearsUpperbody","targetUpperbodyNotHard","targetBreasts"),
+		weight : Text.Weights.default,
+		hitfx : ["slowThrustsTentacleDiscrete"],
+	},
+	{ text : "%S takes advantage of %T's frontal wedgie and slips a flat tentacle with wiggly nubs between %This legs, pushing it up against %This %groin where it intensely tickles %T's exposed mound!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","targetWearsLowerbody","ttPussyWedgie"
+		]),
 		weight : Text.Weights.high,
+		hitfx : ["tentacleRub"],
+	},
+	{ text : "%S slips small tendrils between %T's legs, rapidly tickling the exposed sides of %This %Tvagina and leaving a little slimy residue behind!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasTentacles","ttPussyWedgie","targetWearsLowerbody"
+		]),
+		weight : Text.Weights.high,
+		hitfx : ["tentacleRub"],
 	},
 	{ text : "%S wraps a tentacle around %T's %Tpsize %Tpenis, allowing a small tendril to slip under %This foreskin, tickling the tip of %This %Tpenis!",
-		audiokits : ["tentacleTwist"],
-		conditions : [
+		conditions : anyOnHumCond.concat([
 			"targetNotBeast",
 			"actionHit",
 			"eventIsActionUsed",
@@ -749,37 +462,29 @@ const lib = [
 			{conditions : ["targetNoLowerbody","ttGroinExposed"]},
 			"targetPenis",
 			"targetNotCircumcised"
-		],
+		]),
 		weight : Text.Weights.high,
+		hitfx : ["squishTiny"],
+
 	},
+
+
+
+	// WHIPS
 	{ text : "%S slips %Shis %Sgear between %T's legs, grinding it back and fort across the %Trace's %Tgroin!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasWhip",
-			"targetVagina",
-			"targetNotKnockedDown"
-		],
-		audiokits : ["stretchGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasWhip","targetVagina","targetNotKnockedDown"
+		]),
+		hitfx : ["stretch"]
 	},
 	{ text : "%S slips %Shis %Sgear between %T's buttcheeks, grinding it back and fort!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasWhip",
-			"targetVagina",
-			{
-				conditions : [
-				"targetWearsThong",
-				"targetNoLowerbody"
-				]
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasWhip","targetVagina",
+			{conditions : 
+				["targetWearsThong","targetButtExposed"]
 			}
-		],
-		audiokits : ["stretchGeneric"]
+		]),
+		hitfx : ["stretch"]
 	},
 
 
@@ -1583,15 +1288,11 @@ const lib = [
 		audiokits : ["whipGeneric"]
 	},
 	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking multiple times across %This %Tbreasts!",
-		"armor_slot":"upperbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_whip_powerLash",
-			"targetBreasts",
-			"targetUpperbodyHard"
-		],
-		audiokits : ["whipDouble"]
+		armor_slot : Asset.Slots.upperbody,
+		conditions : anyOnHumCond.concat([
+			"action_whip_powerLash","targetBreasts"
+		]),
+		hitfx : ["whipDouble"]
 	},
 	{ text : "%S forcefully swings %Shis %Sgear at %T't %Tgroin, smacking %This bulge around!",
 		"armor_slot":"lowerbody",

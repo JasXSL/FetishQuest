@@ -236,6 +236,35 @@ div.centered{
 	90%{transform:translateX(1%);}
 	100%{transform:none; }
 }
+@keyframes takeDamageStretchPC{
+	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+	50%{transform:translateX(20%);}
+	60%{transform:translateX(25%); filter:none; }
+	70%{transform:translateX(-2%);}
+	75%{transform:translateX(2%);}
+	80%{transform:translateX(-1%);}
+	85%{transform:translateX(1%);}
+	100%{transform:none; }
+}
+@keyframes takeDamageStretchNPC{
+	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+	50%{transform:translateX(-20%);}
+	60%{transform:translateX(-25%); filter:none; }
+	70%{transform:translateX(-2%);}
+	75%{transform:translateX(2%);}
+	80%{transform:translateX(-1%);}
+	85%{transform:translateX(1%);}
+	100%{transform:none; }
+}
+@keyframes takeDamageSqueeze{
+	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+	50%{transform:scale(0.9, 0.9);}
+	60%{transform:scale(0.88, 0.88); filter:none; }
+	70%{transform:scale(1.03);}
+	80%{transform:scale(0.98);}
+	90%{transform:scale(1.01);}
+	100%{transform:none; }
+}
 
 @keyframes heal{
 	0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(40deg) saturate(200%);}
@@ -257,7 +286,15 @@ div.fxTakeDamageHoly{
 div.fxHeal{
 	animation: heal 0.5s ease-in-out;
 }
-
+div.fxStretch{
+	animation: takeDamageStretchPC 0.75s ease-in-out;
+}
+div.right div.fxStretch{
+	animation: takeDamageStretchNPC 0.75s ease-in-out;
+}
+div.fxSqueeze{
+	animation: takeDamageSqueeze 0.5s ease-in-out;
+}
 
 
 
