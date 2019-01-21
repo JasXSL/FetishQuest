@@ -221,6 +221,99 @@ particles.hitfx_sparks = {
 	]
 };
 
+
+particles.hitfx_sparks_zap = {
+			
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.25
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 1, 1, 1 ),
+				radius : 1
+			},
+			acceleration : {
+				value : new THREE.Vector3(0,-50,0)
+			},
+			velocity : {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3(100, 100, 100),
+				randomise : true,
+			},
+			color : {
+				value : [
+					new THREE.Color(0xAADDFF),
+					new THREE.Color(0xFFFFFF),
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [0, 10],
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			particleCount: 100
+		}
+	]
+};
+
+particles.hitfx_zap = {
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/electric_spark.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 200,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.2
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 5, 5, 5 ),
+			},
+			velocity : {
+				value: new THREE.Vector3(0,0,0),
+				spread: new THREE.Vector3(50, 50, 50),
+				randomise : true,
+			},
+			color : {
+				value : [
+					new THREE.Color(0x33AAFF),
+					new THREE.Color(0xFFFFFF),
+				]
+			},
+			opacity: {
+				value: [0,1]
+			},
+			size: {
+				value: [0, 60],
+				randomise : true
+			},
+			angle : {
+				value : [0,Math.PI],
+				spread : Math.PI
+			},
+			particleCount: 50
+		}
+	]
+};
+
+
 particles.hitfx_punch = {
 	texture: {
 		value: new THREE.TextureLoader().load('/media/textures/particles/explosion.png'),
