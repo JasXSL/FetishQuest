@@ -372,8 +372,6 @@ const lib = [
 		hitfx : ["slowThrustsTentacle"],
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle wiggles inside %This %TclothLower and up %This %Tvagina, rapidly thrusting inside %Thim!",
-		audiokits : ["tentacleMultipleThrusts"
-		],
 		conditions : anyOnHumCond.concat([
 			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetWearsThong","targetVagina"
 		]),
@@ -454,11 +452,7 @@ const lib = [
 	},
 	{ text : "%S wraps a tentacle around %T's %Tpsize %Tpenis, allowing a small tendril to slip under %This foreskin, tickling the tip of %This %Tpenis!",
 		conditions : anyOnHumCond.concat([
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"action_stdArouse",
-			"senderHasTentacles",
+			"action_stdArouse","senderHasTentacles",
 			{conditions : ["targetNoLowerbody","ttGroinExposed"]},
 			"targetPenis",
 			"targetNotCircumcised"
@@ -771,426 +765,298 @@ const lib = [
 
 	// imp_specialDelivery
 	{ text : "%S jumps onto %T's head and shoves %Shis %Spsize %Spenis into %T's mouth, humping at an overwhelming speed until %She shoots a large squirt of demonic jizz down %T's throat.",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast"
-		],
-		audiokits : ["thrustCum"]
+		conditions : humOnHumCond.concat([
+			"action_imp_specialDelivery"
+		]),
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S jumps onto %T's head and shoves %Shis %Spsize %Spenis into %T's mouth, humping at an overwhelming speed! A few moments later, the %Srace pulls out, shooting a long streak of demonic jizz across %T's face.",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : humOnHumCond.concat([
 			"action_imp_specialDelivery",
-			"targetNotBeast"
-		],
-		audiokits : ["thrustCum"]
+		]),
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S jumps onto %T's head and grabs a firm hold of %This horn and shoves %Shis %Spsize %Spenis in %T's mouth. The small imp starts thrashing the %Spenis around, eventually flooding %T's mouth with a long squirt of demonic jizz!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			"targetHorn"
-		],
-		audiokits : ["thrustCum"]
+		conditions : humOnHumCond.concat([
+			"action_imp_specialDelivery","targetHorn"
+		]),
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S jumps onto %T's head and grabs a firm hold of %This horns and shoves %Shis %Spsize %Spenis in %T's mouth. The small imp starts thrashing the %Spenis around, eventually flooding %T's mouth with a long squirt of demonic jizz!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			"targetHorns"
-		],
-		audiokits : ["thrustCum"]
+		conditions : humOnHumCond.concat([
+			"action_imp_specialDelivery","targetHorns"
+		]),
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis into %This %Tvagina! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
 		conditions : humOnHumCond.concat("action_imp_specialDelivery","targetVagina","targetGroinExposed"),
 		weight : Text.Weights.high,
-		audiokits : ["thrustCum"]
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis inside! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
 		conditions : humOnHumCond.concat("action_imp_specialDelivery","targetVagina","targetButtExposed"),
 		weight : Text.Weights.high,
-		audiokits : ["thrustCum"]
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S jumps onto %T, latching %Shis legs around the %Trace's chest and grabbing a firm hold of %This nipples, squishing %Shis %Spsize %Spenis between %T's %Tbsize %Tbreasts. The %Srace begins rapidly humping, eventually reaching climax, shooting %Shis load into %T's face!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			"targetBreasts",
-			[
-				"targetNoUpperbody",
-				"ttBreastsExposed"
-			]
-		],
+		conditions : humOnHumCond.concat([
+			"action_imp_specialDelivery","targetBreasts","targetBreastsExposed"
+		]),
 		weight : Text.Weights.high,
-		audiokits : ["thrustCum"]
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S jumps onto the knocked down %Trace slipping %Shis %Spsize %Spenis between %T's %Tbsize %Tbreasts, pushes them together and starts rapidly thrusting. A short while later %S pulls back, shooting a long streak of demonic cum across %T's %Tbreasts!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			"targetKnockedDownBack",
-			"targetBreasts",
-			[
-				"targetNoUpperbody",
-				"ttBreastsExposed"
-			]
-		],
+		conditions : humOnHumCond.concat([
+			"action_imp_specialDelivery","targetKnockedDownBack","targetBreasts","targetBreastsExposed"
+		]),
 		weight : Text.Weights.high,
-		audiokits : ["thrustCum"]
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S surprises the knocked down %Trace by squatting near %This face and shoving %Shis %Spsize %Spenis in %This mouth. The %Srace pumps a few times before forcing a large squirt of demon cum inside %T's mouth!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			"targetKnockedDownBack"
-		],
-		audiokits : ["thrustCum"]
+		conditions : humOnHumCond.concat([
+			"action_imp_specialDelivery","targetKnockedDownBack"
+		]),
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S surprises the knocked down %Trace by lifting %This hips and shoving %Shis %Spsize %Spenis into %This %Tvagina. The %Srace starts humping rapidly, eventually reaching climax and flooding %T with demonic spunk!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			"targetKnockedDownBack",
-			"targetVagina",
-			"targetGroinExposed"
-		],
+		conditions : humOnHumCond.concat([
+			"action_imp_specialDelivery","targetKnockedDownBack","targetVagina","targetGroinExposed"
+		]),
 		weight : Text.Weights.high,
-		audiokits : ["thrustCum"]
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S squats by %T's %Trsize %Tbutt and slips %Shis %Spsize %Spenis inside. The %Srace starts rapidly humping, eventually reaching climax and flooding %T's %Tbutt with demonic spunk!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_specialDelivery",
-			"targetNotBeast",
-			"targetKnockedDownFront",
-			"targetButtExposed"
-		],
+		conditions : humOnHumCond.concat([
+			"action_imp_specialDelivery","targetKnockedDownFront","targetButtExposed"
+		]),
 		weight : Text.Weights.high,
-		audiokits : ["thrustCum"]
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S gets behind the bent over %Trace and slips %Shis %Spenis into %This %Tvagina. %S starts rapidly humping, eventually reaching climax and flooding %T's %Tvagina with demonic %cum!",
 		conditions : humOnHumCond.concat("action_imp_specialDelivery","ttBentOver","targetGroinExposed","targetVagina"),
 		weight : Text.Weights.high,
-		audiokits : ["thrustCum"]
+		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S gets behind the bent over %Trace and slips %Shis %Spenis into %This %Tbutt. %S starts rapidly humping, eventually reaching climax and flooding %T's %Tbutt with demonic %cum!",
 		conditions : humOnHumCond.concat("action_imp_specialDelivery","ttBentOver","targetButtExposed"),
 		weight : Text.Weights.high,
-		audiokits : ["thrustCum"]
+		hitfx : ["slowThrustsCum"]
 	},
 
 
 	// imp_blowFromBelow
 	{ text : "%S slips between %T's legs and throws a punch upwards, smacking across %This %groin!",
-		"armor_slot":"lowerbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		armor_slot : "lowerbody",
+		conditions : humOnHumCond.concat([
 			"action_imp_blowFromBelow",
-			"targetNotBeast"
-		],
-		audiokits : ["punchGeneric"]
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S slips between %T's legs and throws a punch upwards, smacking the %Trace's %Trsize %leftright buttcheek!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : humOnHumCond.concat([
 			"action_imp_blowFromBelow",
-			"targetNotBeast"
-		],
-		audiokits : ["punchGeneric"]
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S slips between %T's legs and throws a punch at each of the %Trace's %Trsize buttcheeks!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : humOnHumCond.concat([
 			"action_imp_blowFromBelow",
-			"targetNotBeast"
-		],
-		audiokits : ["punchGeneric"]
+		]),
+		hitfx : ["punchDouble"]
 	},
 	{ text : "%S slips between %T's legs and throws a couple of slaps across the front of %T's %TclothLower around, smacking %This %Tpenis around!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_blowFromBelow",
-			"targetNotBeast",
-			"targetPenis",
-			"targetLowerbodyStretchy"
-		],
-		audiokits : ["slapGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow","targetPenis","targetLowerbodyStretchy"
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S slips between %T's legs and forces %Shis fist up into the %Trace's %Tvagina, thrusting a few times!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_blowFromBelow",
-			"targetNotBeast",
-			"targetVagina",
-			"targetGroinExposed"
-		],
+		conditions : humOnHumCond.concat(["action_imp_blowFromBelow","targetVagina","targetGroinExposed"]),
 		weight : Text.Weights.high,
-		audiokits : ["slowThrusts"]
+		hitfx : ["slowThrusts"]
 	},
 	{ text : "%S slips between %T and %T2's legs and forces %Shis fist up into both of their %Tvaginas, thrusting a few times!",
-		"numTargets":2,
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_blowFromBelow",
-			"targetNotBeast",
-			"targetVagina",
-			"targetGroinExposed"
-		],
+		numTargets : 2,
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow","targetVagina","targetGroinExposed"
+		]),
 		weight : Text.Weights.high,
-		audiokits : ["slowThrusts"]
+		hitfx : ["slowThrusts"]
 	},
 	{ text : "%S slips between %T and %T2's legs and rams %Shis fist into both of their groins!",
-		"numTargets":2,
-		"armor_slot":"lowerbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		numTargets:2,
+		armor_slot:"lowerbody",
+		conditions : humOnHumCond.concat([
 			"action_imp_blowFromBelow",
-			"targetNotBeast"
-		],
-		audiokits : ["punchGeneric"]
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S slips underneath %T and %T2, giving a hard smack across both of their %Tbutts!",
-		"numTargets":2,
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		numTargets:2,
+		conditions : humOnHumCond.concat([
 			"action_imp_blowFromBelow",
-			"targetNotBeast"
-		],
-		audiokits : ["slapGeneric"]
+
+		]),
+		hitfx : ["slap"]
 	},
 	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast, jiggling it around!",
-		"armor_slot":"upperbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_blowFromBelow",
-			"targetNotBeast",
-			"targetBreasts",
-			"targetUpperbodyNotHard"
-		],
-		audiokits : ["punchGeneric"]
+		armor_slot:"upperbody",
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow","targetBreasts","targetUpperbodyNotHard"
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast!",
-		"armor_slot":"upperbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_blowFromBelow",
-			"targetNotBeast",
-			"targetBreasts",
-			"targetUpperbodyHard"
-		],
-		audiokits : ["punchGeneric"]
+		armor_slot : "upperbody",
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow","targetBreasts","targetUpperbodyHard"
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S slips underneath %T and throws a few rapid slaps across %This %Tbreasts!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_blowFromBelow",
-			"targetNotBeast",
-			"targetBreasts",
-			"targetUpperbodyNotHard"
-		],
-		audiokits : ["slapGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow","targetBreasts","targetUpperbodyNotHard"
+		]),
+		hitfx : ["doubleSlap"]
 	},
 	{ text : "%S grabs a hold of and spreads %T's legs while %The's still bent over the table, followed briefly by the %Srace ramming %Shis knee up into %T's %Tgroin!",
 		turnTags:[stdTag.ttBentOverTable, stdTag.ttBentOver],
 		conditions : humOnHumCond.concat("action_imp_blowFromBelow","ttBentOverTable"),
 		weight : Text.Weights.high,
-		audiokits : ["punchGeneric"]
+		hitfx : ["punch"]
 	},
 	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast and %T2's %T2bsize %T2breast, jiggling them both around!",
 		"numTargets":2,
 		"armor_slot":"upperbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_blowFromBelow",
-			"targetNotBeast",
-			"targetBreasts",
-			"targetUpperbodyNotHard"
-		],
-		audiokits : ["punchGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow","targetBreasts","targetUpperbodyNotHard"
+		]),
+		hitfx : ["punchDouble"]
 	},
 	
 
 	// action_imp_claws
 	{ text : "%S uses %Shis claws to rip at %T's outfit!",
-		"conditions" : anyOnHumCond.concat(
+		conditions : anyOnHumCond.concat(
 			"action_imp_claws"
 		),
-		audiokits : ["stretchGeneric"]
+		hitfx : ["claws"]
 	},
 	{ text : "%S slips %Shis claws under %T's waistband from behind, tugging up firmly!",
 		"conditions" : anyOnHumCond.concat(
 			"action_imp_claws", "targetLowerbodyWaistband"
 		),
 		turnTags : [stdTag.ttWedgie],
-		audiokits : ["stretchGeneric"]
+		hitfx : ["stretch"]
 	},
 	{ text : "%S slips %Shis claws around %T's butt-string grabbing a firm hold of it and giving it a hard yank!",
 		"conditions" : anyOnHumCond.concat(
 			"action_imp_claws", "targetWearsThong"
 		),
 		turnTags : [stdTag.ttWedgie],
-		audiokits : ["stretchGeneric"]
+		hitfx : ["stretch"]
 	},
 	{ text : "%S slips %Shis claws under %T's waistband from the front, giving it a hard tug upwards!",
 		"conditions" : anyOnHumCond.concat(
 			"action_imp_claws", "targetLowerbodyWaistband"
 		),
 		turnTags : [stdTag.ttPussyWedgie],
-		audiokits : ["stretchGeneric"]
+		hitfx : ["stretch"]
 	},
 	{ text : "%S grabs a firm hold of %T's %TclothUpper from behind, pulling it backwards and causing the piece to constrict %This %Tbsize %Tbreasts!",
 		"conditions" : anyOnHumCond.concat(
 			"action_imp_claws", "targetUpperbodyNotHard", "targetBreasts", "targetWearsUpperbody"
 		),
 		turnTags : [stdTag.ttBreastsWedgie],
-		audiokits : ["stretchGeneric"]
+		hitfx : ["stretch"]
 	},
 	{ text : "%S grabs around the front strings of %T's %TclothUpper, giving it a hard yank out and letting it set back on the side, exposing the %Trace's %Tbsize %Tbreasts!",
 		"conditions" : anyOnHumCond.concat(
 			"action_imp_claws", "targetBreasts", "targetWearsSlingBikini"
 		),
 		turnTags : [stdTag.ttBreastsExposed],
-		audiokits : ["stretchGeneric"]
+		hitfx : ["stretch"]
 	},
 
 
 
 
 
-
+	// TODO: Continue here
 	// imp_ankleBite
 	{ text : "%S jumps at %T's legs and starts chewing on %This ankle!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : anyOnHumCond.concat([
 			"action_imp_ankleBite",
-			"targetNotBeast"
-		],
-		audiokits : ["biteGeneric"]
+		]),
+		hitfx : ["biteGeneric"]
 	},
 
 
 	// imp_demonicPinch
 	{ text : "%S casts a spell, surprising %T with a demonic pinch to %This %Trsize %leftright buttcheek!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_demonicPinch",
-			"targetNotBeast"
-		],
-		audiokits : ["pinchGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_imp_demonicPinch","targetNotBeast"
+		]),
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell. %T suddenly feels something pinch %This foreskin, tugging it forwards in %This %TclothLower!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_demonicPinch",
-			"targetNotBeast",
-			"targetWearsLowerbody",
-			"targetPenis",
-			"targetNotCircumcised"
-		],
-		audiokits : ["pinchGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_imp_demonicPinch","targetWearsLowerbody","targetPenis","targetNotCircumcised"
+		]),
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell. %T suddenly feels something pinch %This foreskin, tugging it forwards and jiggling %This %Tpsize %Tpenis around!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_demonicPinch",
-			"targetNotBeast",
-			"targetGroinExposed",
-			"targetPenis",
-			"targetNotCircumcised"
-		],
+		conditions : anyOnHumCond.concat([
+			"action_imp_demonicPinch","targetGroinExposed","targetPenis","targetNotCircumcised"
+		]),
 		weight : Text.Weights.high,
-		audiokits : ["pinchGeneric"]
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, surprising %T with a demonic pinch to %This clit!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_demonicPinch",
-			"targetNotBeast",
-			"targetVagina"
-		],
-		audiokits : ["pinchGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_imp_demonicPinch","targetVagina"
+		]),
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, surprising %T as something suddenly pinches down on %This %leftright nipple!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_demonicPinch",
-			"targetNotBeast",
-			"targetBreasts"
-		],
-		audiokits : ["pinchGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_imp_demonicPinch","targetBreasts"
+		]),
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, surprising %T as something suddenly pinches down on %This nipples and starts jiggling them around in %This %TclothUpper!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_imp_demonicPinch",
-			"targetNotBeast",
-			"targetBreasts",
-			"targetWearsUpperbody"
-		],
-		audiokits : ["pinchGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_imp_demonicPinch","targetBreasts","targetWearsUpperbody"
+		]),
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, making an invisible force pinch down on the bottom of %T's %leftright breast!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
-		audiokits : ["pinchGeneric"]
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, causing invisible fingers to pinch %T's %Tvagina!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetVagina"),
-		audiokits : ["pinchGeneric"]
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, causing invisible fingers to clamp down onto %T's %leftright nipple, twisting it!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
-		audiokits : ["pinchGeneric"]
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, causing invisible fingers to clamp down onto %T's nipples, twisting both!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
-		audiokits : ["pinchGeneric"]
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, causing invisible fingers to clamp down onto %T's nipples, stretching them both outwards!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetBreasts"),
-		audiokits : ["pinchGeneric","stretchGeneric"]
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, causing an invisible force to pinch %T's %leftright ear, tugging at it!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetEars"),
-		audiokits : ["pinchGeneric"]
+		hitfx : ["pinch"]
 	},
 	{ text : "%S casts a spell, causing an invisible force to pinch %T's nose!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch"),
-		audiokits : ["pinchGeneric"]
+		hitfx : ["pinch"]
 	},
 	
 
@@ -1198,57 +1064,40 @@ const lib = [
 
 	// whip_legLash
 	{ text : "%S lashes %Shis whip across %T's legs!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_whip_legLash",
-		],
-		audiokits : ["whipGeneric"]
+		conditions : baseCond.concat([
+			"action_whip_legLash"
+		]),
+		hitfx : ["whip"]
 	},
 	{ text : "%S lashes %Shis whip across %T's %leftright thigh!",
-		conditions : [
-			"targetNotBeast",
-			"actionHit",
-			"eventIsActionUsed",
-			"senderNotBeast",
-			"action_whip_legLash",
-		],
-		audiokits : ["whipGeneric"]
+		conditions : anyOnHumCond.concat([
+			"eventIsActionUsed","action_whip_legLash",
+		]),
+		hitfx : ["whip"]
 	},
 
 
 	// whip_powerLash
 	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %Tgroin!",
-		"armor_slot":"lowerbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_whip_powerLash",
-			"targetLowerbodyNotHard"
-		],
-		audiokits : ["whipGeneric"]
+		armor_slot : "lowerbody",
+		conditions : anyOnHumCond.concat([
+			"action_whip_powerLash","targetLowerbodyNotHard"
+		]),
+		hitfx : ["whip"]
 	},
 	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %Tbreasts, whapping them around!",
-		"armor_slot":"upperbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_whip_powerLash",
-			"targetBreasts",
-			"targetUpperbodyNotHard"
-		],
-		audiokits : ["whipGeneric"]
+		armor_slot : "upperbody",
+		conditions : anyOnHumCond.concat([
+			"action_whip_powerLash","targetBreasts","targetUpperbodyNotHard"
+		]),
+		hitfx : ["whip"]
 	},
 	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking hard across %This %leftright %Tbreast, whapping it around!",
-		"armor_slot":"upperbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_whip_powerLash",
-			"targetBreasts",
-			"targetUpperbodyNotHard"
-		],
-		audiokits : ["whipGeneric"]
+		armor_slot : "upperbody",
+		conditions : anyOnHumCond.concat([
+			"action_whip_powerLash","targetBreasts","targetUpperbodyNotHard"
+		]),
+		hitfx : ["whip"]
 	},
 	{ text : "%S forcefully swings %Shis %Sgear at %T, cracking multiple times across %This %Tbreasts!",
 		armor_slot : Asset.Slots.upperbody,
@@ -1258,32 +1107,25 @@ const lib = [
 		hitfx : ["whipDouble"]
 	},
 	{ text : "%S forcefully swings %Shis %Sgear at %T't %Tgroin, smacking %This bulge around!",
-		"armor_slot":"lowerbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_whip_powerLash",
-			"targetLowerbodyNotHard",
-			"targetLowerbodyStretchy",
-			"targetPenis"
-		],
-		audiokits : ["whipGeneric"]
+		armor_slot : "lowerbody",
+		conditions : anyOnHumCond.concat([
+			"action_whip_powerLash","targetLowerbodyStretchy","targetPenis"
+		]),
+		hitfx : ["whip"]
 	},
 	{ text : "%S forcefully swings %Shis %Sgear at %T't %Tgroin, smacking %This %Tpenis around!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_whip_powerLash",
-			"targetNoLowerbody",
-			"targetPenis"
-		],
-		audiokits : ["whipGeneric"]
+		conditions : anyOnHumCond.concat([
+			"action_whip_powerLash","targetGroinExposed","targetPenis"
+		]),
+		hitfx : ["whip"]
 	},
-	{ text : "%S surprises %T while %The bent over by lashing %Shis %Sgear from below up across the %Trace's %Tgroin!",
+	{ text : "%S surprises %T bent over by lashing %Shis %Sgear from below up across the %Trace's %Tgroin!",
 		turnTags:[stdTag.ttBentOver],
-		conditions : humOnHumCond.concat("action_whip_powerLash","targetVagina","targetWearsLowerbody","ttBentOver"),
+		conditions : humOnHumCond.concat([
+			"action_whip_powerLash","targetVagina","targetWearsLowerbody","ttBentOver"
+		]),
 		weight : Text.Weights.high,
-		audiokits : ["whipGeneric"]
+		hitfx : ["whip"]
 	},
 
 
@@ -1305,7 +1147,7 @@ const lib = [
 			"eventIsActionUsed",
 			"action_minorHealingPotion",
 		],
-		audiokits : ["potionUse"]
+		hitfx : ["potionRed"]
 	},
 	{ text : "%S chugs a bottle of red liquid!",
 		conditions : [
@@ -1313,7 +1155,7 @@ const lib = [
 			"eventIsActionUsed",
 			"action_healingPotion",
 		],
-		audiokits : ["potionUse"]
+		hitfx : ["potionRed"]
 	},
 	{ text : "%S chugs a large bottle of red liquid!",
 		conditions : [
@@ -1321,7 +1163,7 @@ const lib = [
 			"eventIsActionUsed",
 			"action_majorHealingPotion",
 		],
-		audiokits : ["potionUse"]
+		hitfx : ["potionRed"]
 	},
 	{ text : "%S chugs a bottle of blue liquid!",
 		conditions : [
@@ -1329,7 +1171,7 @@ const lib = [
 			"eventIsActionUsed",
 			"action_manaPotion",
 		],
-		audiokits : ["potionUse"]
+		hitfx : ["potionBlue"]
 	},
 	{ text : "%S chugs a large bottle of blue liquid!",
 		conditions : [
@@ -1337,7 +1179,7 @@ const lib = [
 			"eventIsActionUsed",
 			"action_majorManaPotion",
 		],
-		audiokits : ["potionUse"]
+		hitfx : ["potionBlue"]
 	},
 
 
@@ -1358,66 +1200,43 @@ const lib = [
 
 	// lowBlow
 	{ text : "%S throws a punch at %T's %Tbsize %leftright %Tbreast!",
-		"armor_slot":"upperbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_lowBlow",
-			"targetBreasts"
-		],
-		audiokits : ["punchGeneric"]
+		armor_slot : "upperbody",
+		conditions : humOnHumCond.concat([
+			"action_lowBlow","targetBreasts"
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S throws a punch at %T's %Tbsize %leftright %Tbreast, jiggling it around in %This %TclothUpper!",
-		"armor_slot":"upperbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_lowBlow",
-			"targetBreasts",
-			"targetUpperbodyStretchy"
-		],
-		audiokits : ["punchGeneric"]
+		armor_slot : "upperbody",
+		conditions : humOnHumCond.concat([
+			"action_lowBlow","targetBreasts","targetUpperbodyStretchy"
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S throws a punch at %T's %groin!",
-		"armor_slot":"lowerbody",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_lowBlow",
-			"targetNotBeast"
-		],
-		audiokits : ["punchGeneric"]
+		armor_slot : "lowerbody",
+		conditions : humOnHumCond.concat([
+			"action_lowBlow","targetNotBeast"
+		]),
+		hitfx : ["punch"]
 	},
 	{ text : "%S grabs a hold of %T's nipples through %This %TclothUpper, giving them both a painful twist while tugging them out!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_lowBlow",
-			"targetBreasts",
-			"targetUpperbodyNotHard",
-			"targetWearsUpperbody"
-		],
-		audiokits : ["squeezeGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_lowBlow","targetBreasts","targetUpperbodyNotHard","targetWearsUpperbody"
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S grabs a hold of %T's %groin, painfully squeezing between %This legs!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_lowBlow",
-			"targetLowerbodyNotHard",
-			"targetWearsLowerbody",
-			"targetNotBeast"
-		],
-		audiokits : ["squeezeGeneric"]
+		conditions : humOnHumCond.concat([
+			"action_lowBlow","targetLowerbodyNotHard","targetWearsLowerbody",
+		]),
+		hitfx : ["squeeze"]
 	},
 	{ text : "%S catches %T unaware, throwing a hard punch at its weak spot!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
-			"action_lowBlow",
-			"targetBeast"
-		],
-		audiokits : ["punchGeneric"]
+		conditions : baseCond.concat([
+			"action_lowBlow","targetBeast"
+		]),
+		hitfx : ["punch"]
 	},
 
 

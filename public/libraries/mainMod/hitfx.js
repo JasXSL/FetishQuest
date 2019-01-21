@@ -1,9 +1,45 @@
+import * as THREE from '../../ext/THREE.js';
 import {default as HitFX, Stage} from '../../classes/HitFX.js';
 const out = {};
 
 let id = 'punch';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['punchGeneric'],
+	}, out[id]),
+);
+
+
+id = 'punchDouble';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		hold : 200,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['punchGeneric'],
+	}, out[id]),
 	new Stage({
 		particles : 'hitfx_sparks',
 		emit_duration : 100,
@@ -37,6 +73,18 @@ out[id].stages.push(
 		tween : false,
 		css_fx : 'fxTakeDamage',
 		sound_kits : ['slapGeneric'],
+	}, out[id]),
+);
+
+
+id = 'pinch';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks_smaller',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
 	}, out[id]),
 );
 
@@ -90,6 +138,51 @@ out[id].stages.push(
 	new Stage({
 		css_fx : 'fxSqueeze',
 		sound_kits : ['squeezeGeneric'],
+	}, out[id]),
+);
+
+
+id = 'claws';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		start_offs : {x:50,y:-100,z:0},
+		end_offs : {x:50,y:-100,z:0},
+		particles : 'hitfx_claws',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['clawRip'],
+	}, out[id]),
+);
+
+
+id = 'biteGeneric';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_bite',
+		emit_duration : 100,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['biteGeneric'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		tween : false,
 	}, out[id]),
 );
 
@@ -295,6 +388,54 @@ out[id].stages.push(
 );
 
 
+id = 'slowThrustsCum';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_discrete',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks_discrete',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+		hold : 300,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['thrustCum'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_discrete',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks_discrete',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+		hold : 300,
+		css_fx : 'fxTakeDamageCorruption',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 400,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxTakeDamageCorruption',
+	}, out[id]),
+);
+
+
 id = 'slowThrustsTentacle';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
@@ -492,6 +633,62 @@ out[id].stages.push(
 		sound_kits : ['coldBlast_hit'],
 	}, out[id]),
 );
+
+
+
+
+id = 'potionRed';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks_red',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['potionUse'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_red',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+);
+
+id = 'potionBlue';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks_blue',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['potionUse'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_blue',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+);
+
+
+
 
 
 function getArray(){

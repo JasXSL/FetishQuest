@@ -71,6 +71,9 @@ class Stage extends Generic{
 		this.dest_rand = 0;					// percentage of portrait box
 
 		// Todo: Positional offsets
+		this.start_offs = new THREE.Vector3();
+		this.end_offs = new THREE.Vector3();
+		
 
 		// Todo: Sound
 		this.sound_kits = [];				// Trigger these sound kits
@@ -88,6 +91,8 @@ class Stage extends Generic{
 
 	rebase(){
 		this.sound_kits = this.sound_kits.slice();
+		this.start_offs = new THREE.Vector3(this.start_offs.x,this.start_offs.y,this.start_offs.z);
+		this.end_offs = new THREE.Vector3(this.end_offs.x,this.end_offs.y,this.end_offs.z);
 	}
 
 	save(){
@@ -103,6 +108,9 @@ class Stage extends Generic{
 			css_fx : this.css_fx,
 			sound_kits : this.sound_kits,
 			tween : this.tween,
+			start_offs : {x:this.start_offs.x, y:this.start_offs.y, z:this.start_offs.z},
+			end_offs : {x:this.end_offs.x, y:this.end_offs.y, z:this.end_offs.z},
+			
 		};
 	}
 
@@ -167,6 +175,10 @@ class Stage extends Generic{
 			if( !this.tween )
 				this._start_pos = this._end_pos.clone();
 
+			this._start_pos.add(this.start_offs);
+			this._end_pos.add(this.end_offs);
+
+
 			// raycast start and end
 			const origin = webgl.raycastScreenPosition( this._start_pos.x, this._start_pos.y );
 			const dest = webgl.raycastScreenPosition( this._end_pos.x, this._end_pos.y );
@@ -175,7 +187,6 @@ class Stage extends Generic{
 			this._end_pos = dest.point;
 			this._start_pos.z = 5;
 			this._end_pos.z = 5;
-			
 
 			webgl.fxScene.add(particles.mesh);
 			particles.mesh.position.copy(this._start_pos);

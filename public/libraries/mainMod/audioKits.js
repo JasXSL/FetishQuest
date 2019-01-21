@@ -155,6 +155,16 @@ const lib = {
             }
         ],
     },
+    clawRip: {
+        sounds : [
+            {
+                s : {
+                    path : "media/audio/claw_rip.ogg",
+                    volume : 0.4
+                },
+            }
+        ],
+    },
     "biteGeneric": {
         label : "biteGeneric",
         sounds : [

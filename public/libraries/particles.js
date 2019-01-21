@@ -314,6 +314,81 @@ particles.hitfx_zap = {
 };
 
 
+
+particles.hitfx_claws = {
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/claw_marks.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 200,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.2
+			},
+			position: {
+				position : new THREE.Vector3(0, -100, 0),
+				spread: new THREE.Vector3( 0, 0, 0 ),
+			},
+			velocity : {
+				value : new THREE.Vector3(0,-100,0),
+			},
+			rotation : {
+				angle : Math.PI/4,
+				axis : new THREE.Vector3(0,0,1)
+			},
+			color : {
+				value : [
+					new THREE.Color(0x660000),
+					new THREE.Color(0x220000),
+				]
+			},
+			opacity: {
+				value: [0,1,0]
+			},
+			size: {
+				value: [20, 60, 20],
+			},
+			particleCount: 50
+		}
+	]
+};
+
+
+particles.hitfx_bite = {
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/fangs.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 1,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.3
+			},
+			position : {
+				value : new THREE.Vector3(),
+				spread : new THREE.Vector3()
+			},
+			color : {
+				value : [
+					new THREE.Color(0x660000),
+					new THREE.Color(0xFFAAAA),
+				]
+			},
+			opacity: {
+				value: [0,1,1,1,0]
+			},
+			size: {
+				value: [300, 50, 50]
+			},
+			particleCount: 1
+		}
+	]
+};
+
 particles.hitfx_punch = {
 	texture: {
 		value: new THREE.TextureLoader().load('/media/textures/particles/explosion.png'),
@@ -545,6 +620,247 @@ particles.hitfx_splat_sparks = {
 		}
 	]
 };
+
+
+
+particles.hitfx_splat_red = {
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			type : SPE.distributions.SPHERE,
+			direction : -1,
+			maxAge: {
+				value: 0.25
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 2, 2, 2 ),
+				radius : 1
+			},
+			velocity : {
+				value: new THREE.Vector3(10, 0, 0),
+				spread: new THREE.Vector3(50, 0, 0),
+				randomise : true,
+			},
+			acceleration : {
+				value : new THREE.Vector3(0,-200)
+			},
+			color : {
+				value : [
+					new THREE.Color(0xFFAAAA),
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [0, 40],
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			particleCount: 70
+		}
+	]
+};
+particles.hitfx_splat_sparks_red = {
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.4
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 2, 2, 2 ),
+			},
+			velocity : {
+				value: new THREE.Vector3(10, 10, 10),
+				spread: new THREE.Vector3(100, 100, 100),
+				randomise : true,
+			},
+			acceleration : {
+				value: new THREE.Vector3(0, -100, 0),
+			},
+			wiggle : {
+				spread : 10
+			},
+			color : {
+				value : [
+					new THREE.Color(0xFFAAAA),
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [5, 1],
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			particleCount: 80
+		}
+	]
+};
+
+
+particles.hitfx_splat_blue = {
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			type : SPE.distributions.SPHERE,
+			direction : -1,
+			maxAge: {
+				value: 0.25
+			},
+			position: {
+				spread: new THREE.Vector3( 2, 2, 2 ),
+				radius : 1
+			},
+			velocity : {
+				value: new THREE.Vector3(10, 0, 0),
+				spread: new THREE.Vector3(50, 0, 0),
+				randomise : true,
+			},
+			acceleration : {
+				value : new THREE.Vector3(0,-200)
+			},
+			color : {
+				value : [
+					new THREE.Color(0xAADDFF),
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [0, 40],
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			particleCount: 70
+		}
+	]
+};
+particles.hitfx_splat_sparks_blue = {
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.4
+			},
+			position: {
+				spread: new THREE.Vector3( 2, 2, 2 ),
+			},
+			velocity : {
+				value: new THREE.Vector3(10, 10, 10),
+				spread: new THREE.Vector3(100, 100, 100),
+				randomise : true,
+			},
+			acceleration : {
+				value: new THREE.Vector3(0, -100, 0),
+			},
+			wiggle : {
+				spread : 10
+			},
+			color : {
+				value : [
+					new THREE.Color(0xAADDFF),
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [5, 1],
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			particleCount: 80
+		}
+	]
+};
+
+
+
+particles.hitfx_mist = {
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 14, 14, 14 ),
+				radius : 1
+			},
+			velocity : {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3(0, 0, 0),
+				randomise : true,
+			},
+			acceleration : {
+				value : new THREE.Vector3(0,25)
+			},
+			color : {
+				value : [
+					new THREE.Color(0xFFFFFF),
+				]
+			},
+			opacity: {
+				value: [0,0.25,0]
+			},
+			size: {
+				value: [20, 150],
+				randomise : true
+			},
+			wiggle:{
+				spread: 1
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			particleCount: 10
+		}
+	]
+};
+
 
 particles.hitfx_splat_discrete = {
 	texture: {
