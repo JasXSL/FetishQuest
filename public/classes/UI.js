@@ -173,6 +173,7 @@ export default class UI{
 			castableActions += !!castable;
 			html+= '<div class="'+
 				'action button tooltipParent tooltipAbove '+
+				(action.detrimental ? 'detrimental' : 'beneficial')+' '+
 				(castable ? 'enabled' : 'disabled')+' '+
 				(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')+
 				'" data-id="'+esc(action.id)+'">'
@@ -261,27 +262,8 @@ export default class UI{
 
 			}
 
-			else if( event.type === 'mouseover' && enabled ){
-
-				let mpCost = spell.mp, apCost = spell.ap,
-					mp = player.mp, ap = player.ap
-				;
-				if( !game.battle_active )
-					apCost = 0;
-				
-				if( apCost ){
-					let start = Math.max(apCost, ap);
-					for( let i = start-apCost; i<start; ++i )
-						$("div.stat.ap div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
-				}
-				if( mpCost ){
-					let start = Math.max(mpCost, mp);
-					for( let i = start-mpCost; i<start; ++i )
-						$("div.stat.mp div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
-				}
-
-			
-			}
+			else if( event.type === 'mouseover' && enabled )
+				th.drawSpellCosts(spell);
 			else if( event.type === 'mouseout' && enabled ){
 
 				if( th.action_selected && targetable ){
@@ -292,12 +274,44 @@ export default class UI{
 					th.drawTargetSelector();
 
 				}
-				$("div.stat div.point", this.action_selector).toggleClass('highlighted', false);
+				th.drawSpellCosts();
+				
 
 			}
 
 		});
 
+
+	}
+
+	drawSpellCosts( spell ){
+		
+		const player = game.getMyFirstPlayer();
+		
+		if( !spell )
+			spell = this.action_selected;
+
+		if( !spell ){
+			$("div.stat div.point", this.action_selector).toggleClass('highlighted', false);
+			return;
+		}
+
+		let mpCost = spell.mp, apCost = spell.ap,
+			mp = player.mp, ap = player.ap
+		;
+		if( !game.battle_active )
+			apCost = 0;
+		
+		if( apCost ){
+			let start = Math.max(apCost, ap);
+			for( let i = start-apCost; i<start; ++i )
+				$("div.stat.ap div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
+		}
+		if( mpCost ){
+			let start = Math.max(mpCost, mp);
+			for( let i = start-mpCost; i<start; ++i )
+				$("div.stat.mp div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
+		}
 
 	}
 
@@ -767,6 +781,7 @@ export default class UI{
 
 	closeTargetSelector( clearAction = true ){
 
+		
 		$("div.action", this.action_selector).toggleClass('spellSelected', false);
 		game.renderer.toggleArrow();
 		this.arrowHeld = false; 
@@ -774,6 +789,7 @@ export default class UI{
 		if( clearAction )
 			this.action_selected = false;
 		this.multiCastPicker.toggleClass('hidden', true);
+		this.drawSpellCosts();
 
 	}
 

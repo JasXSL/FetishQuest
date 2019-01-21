@@ -1250,7 +1250,7 @@ const lib = [
 	// PLAYER CLASS ACTIONS
 
 
-	// WARRIOR
+	// WARRIOR TODO:
 	// warrior_viceGrip
 	{ text : "%S grabs a firm hold of %T's %Tgroin and squeezes down hard!",
 		conditions : [
@@ -1409,7 +1409,7 @@ const lib = [
 
 
 
-	// ROGUE
+	// ROGUE TODO:
 
 	// action_rogue_exploit
 	{ text : "%S exploits an opening in %T's defenses, throwing a punch at %Thim!",
@@ -1577,7 +1577,7 @@ const lib = [
 
 
 
-	// CLERIC
+	// CLERIC TODO:
 
 	// action_cleric_paddling
 	{ text : "%S whacks %T with a divine paddle!",
@@ -1668,7 +1668,7 @@ const lib = [
 		audiokits : ["holyGeneric"]
 	},
 
-	// TENTACLEMANCER
+	// TENTACLEMANCER TODO:
 
 	// action_tentaclemancer_tentacleWhip
 	{ text : "%S summons a tentacle, commanding it to lash at %T!",
@@ -1832,7 +1832,7 @@ const lib = [
 
 
 
-	// MONK
+	// MONK TODO:
 	// action_monk_roundKick
 	{ text : "%S spins around, throwing a rapid kick at %T!",
 		conditions : [
@@ -1962,22 +1962,20 @@ const lib = [
 
 	// action_elementalist_healingSurge
 	{ text : "%S summons a splash of healing water that flows across %T's body!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : baseCond.concat([
 			"action_elementalist_healingSurge",
-		],
-		audiokits : ["waterHealing"]
+		]),
+		hitfx : ["healingSurge"]
 	},
 
 	// action_elementalist_waterSpout
 	{ text : "%S summons a water spout beneath %T, coating %Thim in cold water!",
-		conditions : baseCond.concat(["action_elementalist_waterSpout",]),
-		audiokits : ["waterSpell"]
+		conditions : baseCond.concat(["action_elementalist_waterSpout"]),
+		hitfx : ["waterSpout"]
 	},
 	{ text : "%S summons a cold water spout beneath %T, splashing up against %This %Tgroin!",
 		conditions : anyOnHumCond.concat(["action_elementalist_waterSpout",]),
-		audiokits : ["waterSpell"]
+		hitfx : ["waterSpout"]
 	},
 	
 ];

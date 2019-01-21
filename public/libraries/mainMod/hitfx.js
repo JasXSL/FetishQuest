@@ -688,6 +688,80 @@ out[id].stages.push(
 );
 
 
+id = 'healingSurge';
+let start = {y:100}, end = {y:-50};
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks_blue',
+		emit_duration : 300,
+		start_offs : start,
+		end_offs : end,
+		css_fx : 'fxHeal',
+		sound_kits : ['waterHealing'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healingSurge',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		start_offs : start,
+		end_offs : end,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		start_offs : start,
+		end_offs : end,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healing',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		start_offs : start,
+		end_offs : end,
+	}, out[id]),
+);
+
+
+id = 'waterSpout';
+out[id] = new HitFX({label : id});
+start = end = {y:150};
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks_blue',
+		emit_duration : 300,
+		tween : false,
+		css_fx : 'fxTakeDamageElemental',
+		sound_kits : ['waterSpell'],
+		start_offs : start,
+		end_offs : end,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healingSurge',
+		emit_duration : 300,
+		tween : false,
+		start_offs : start,
+		end_offs : end,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 300,
+		tween : false,
+		start_offs : start,
+		end_offs : end,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_fountain',
+		emit_duration : 300,
+		tween : false,
+		start_offs : start,
+		end_offs : end,
+	}, out[id]),
+);
+
+
+// 
 
 
 

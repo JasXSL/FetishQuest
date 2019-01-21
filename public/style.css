@@ -839,7 +839,7 @@ div.fxSqueeze{
 		background-size: cover;
 		overflow:visible;
 		display:inline-block;
-		margin:0 0.25vmax 0 0.25vmax;
+		margin:0 0.25vh 0 0.25vh;
 		vertical-align: middle;
 	}
 	#gameIcons > div.highlighted{
@@ -1284,14 +1284,19 @@ div.fxSqueeze{
 	#ui > div.actionbar > div.actions > div.action{
 		width:5.5vh;
 		height:5.5vh;
+		border-color:#CFE;
+		border-width: 0.2vh;
+		padding:0.5vh;
+		font-size:1.5vh;
 	}
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
 		width:auto;
 		padding-top:1.75vh;
+		background-color:#555;
 	}
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
 		color:#FFD;
-		border:0.2vmax solid #FFD;
+		border-color: #FFD;
 	}
 	@keyframes endTurnPulse{
 		from{transform: scale(1.05,1.05);}
@@ -1299,8 +1304,7 @@ div.fxSqueeze{
 	}
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn].highlighted{
 		color:#DFD;
-		border:0.2vmax solid #DFD;
-		background-color:#060;
+		border-color:#DFD;
 		animation: endTurnPulse 1s ease-in-out alternate infinite;
 		box-shadow: 0 0 1vmax #AFA;
 	}
@@ -1351,11 +1355,15 @@ div.fxSqueeze{
 		border:0.2vmax solid #DFD;
 	}
 	*/
+	#ui > div.actionbar > div.actions > div.action.detrimental{
+		border-color:#FDC;
+	}
 	#ui > div.actionbar > div.actions > div.action.disabled{
 		color:#FDD;
 		border:0.2vmax solid #FDD;
 		background-color:#600;
 	}
+	
 	#ui > div.actionbar > div.actions > div div.tooltip{
 		width:250%;
 	}

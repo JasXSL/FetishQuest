@@ -91,8 +91,8 @@ class Stage extends Generic{
 
 	rebase(){
 		this.sound_kits = this.sound_kits.slice();
-		this.start_offs = new THREE.Vector3(this.start_offs.x,this.start_offs.y,this.start_offs.z);
-		this.end_offs = new THREE.Vector3(this.end_offs.x,this.end_offs.y,this.end_offs.z);
+		this.start_offs = new THREE.Vector3(this.start_offs.x || 0,this.start_offs.y || 0 ,this.start_offs.z||0);
+		this.end_offs = new THREE.Vector3(this.end_offs.x||0,this.end_offs.y||0,this.end_offs.z||0);
 	}
 
 	save(){
