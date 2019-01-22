@@ -74,6 +74,7 @@ class Stage extends Generic{
 		this.start_offs = new THREE.Vector3();
 		this.end_offs = new THREE.Vector3();
 		
+		this.easing = "Cubic.In";
 
 		// Todo: Sound
 		this.sound_kits = [];				// Trigger these sound kits
@@ -110,7 +111,7 @@ class Stage extends Generic{
 			tween : this.tween,
 			start_offs : {x:this.start_offs.x, y:this.start_offs.y, z:this.start_offs.z},
 			end_offs : {x:this.end_offs.x, y:this.end_offs.y, z:this.end_offs.z},
-			
+			easing : this.easing,
 		};
 	}
 
@@ -139,7 +140,7 @@ class Stage extends Generic{
 			const attackerPos = attackerEl.offset();
 			const attackerHeight = attackerEl.outerHeight();
 			const attackerWidth = attackerEl.outerWidth();
-			const victimEl = this.victim === 'attacker' ? aEl : vEl;
+			const victimEl = this.destination === 'sender' ? aEl : vEl;
 			const victimPos = victimEl.offset();
 			const victimHeight = victimEl.outerHeight();
 			const victimWidth = victimEl.outerWidth();
@@ -226,24 +227,31 @@ class Stage extends Generic{
 		
 		// Handle tweening
 		// Tween the position
+		let easing = TWEEN.Easing;
+		let spl = this.easing.split('.');
+		while( spl.length )
+			easing = easing[spl.shift()];
+
 		const start = new THREE.Vector3();
-		new TWEEN.Tween(start).to(this._end_pos.sub(this._start_pos), this.emit_duration).easing(TWEEN.Easing.Cubic.In)
+		new TWEEN.Tween(start).to(this._end_pos.sub(this._start_pos), this.emit_duration).easing(easing)
 			.onUpdate(() => {
 				const particles = this._system;
 				if( particles ){
 
-					particles.emitters[0].position.value.x = start.x;
-					particles.emitters[0].position.value.y = start.y;
-					particles.emitters[0].position.value.z = start.z;
-					particles.emitters[0].position.value = particles.emitters[0].position.value;
-					for( let instance of attached_instances ){
+					for( let emitter of particles.emitters ){
+						emitter.position.value.x = start.x;
+						emitter.position.value.y = start.y;
+						emitter.position.value.z = start.z;
+						emitter.position.value = emitter.position.value;
+						for( let instance of attached_instances ){
 
-						instance.setPosition(
-							(particles.mesh.position.x+start.x)*0.02,
-							(particles.mesh.position.y+start.y)*0.02,
-							-0.5,
-						);
+							instance.setPosition(
+								(particles.mesh.position.x+start.x)*0.02,
+								(particles.mesh.position.y+start.y)*0.02,
+								-0.5,
+							);
 
+						}
 					}
 
 				}

@@ -266,6 +266,15 @@ div.centered{
 	100%{transform:none; }
 }
 
+@keyframes buffBlue{
+	0%{transform:none; filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
+	60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
+	70%{transform:scale(1.03);}
+	80%{transform:scale(0.98);}
+	90%{transform:scale(1.01);}
+	100%{transform:none; }
+}
+
 @keyframes heal{
 	0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(40deg) saturate(200%);}
 	30%{transform:scale(1.05);}
@@ -295,7 +304,9 @@ div.right div.fxStretch{
 div.fxSqueeze{
 	animation: takeDamageSqueeze 0.5s ease-in-out;
 }
-
+div.fxBuffBlue{
+	animation: buffBlue 0.5s ease-in-out;
+}
 
 
 

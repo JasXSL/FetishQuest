@@ -3,6 +3,7 @@ import {default as HitFX, Stage} from '../../classes/HitFX.js';
 const out = {};
 
 let id = 'punch';
+let start = {y:100}, end = {y:-50};
 out[id] = new HitFX({label : id});
 out[id].stages.push(
 	new Stage({
@@ -160,6 +161,31 @@ out[id].stages.push(
 		tween : false,
 		css_fx : 'fxTakeDamage',
 		sound_kits : ['clawRip'],
+	}, out[id]),
+);
+
+
+id = 'smite';
+start = end = {x:-40,y:30};
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks_big',
+		emit_duration : 100,
+		end_offs : start,
+		start_offs : start,
+		tween : false
+	}, out[id]),
+	new Stage({
+		start_offs : {x:50,y:-100,z:0},
+		end_offs : {x:50,y:-100,z:0},
+		particles : 'hitfx_smite',
+		emit_duration : 100,
+		end_offs : start,
+		start_offs : start,
+		tween : false,
+		css_fx : 'fxTakeDamageHoly',
+		sound_kits : ['holySmite'],
 	}, out[id]),
 );
 
@@ -551,6 +577,80 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'poisonPink';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 200,
+		tween : false,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['poisonGeneric'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist_pink',
+		emit_duration : 400,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_poison_pink',
+		emit_duration : 400,
+		tween : false,
+	}, out[id]),
+);
+
+id = 'chastise';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks_big',
+		emit_duration : 200,
+		tween : false,
+		css_fx : 'fxTakeDamageHoly',
+		sound_kits : ['holyChastise'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist_yellow',
+		emit_duration : 400,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_lock_yellow',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+);
+
+
+id = 'holyHeal';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparkles_static',
+		emit_duration : 200,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['holyGeneric'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist_yellow',
+		emit_duration : 400,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healing_yellow',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks_big_yellow',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+);
+
+
+
 
 id = 'whip';
 out[id] = new HitFX({label : id});
@@ -635,6 +735,62 @@ out[id].stages.push(
 );
 
 
+id = 'sludgeBoltPurple';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		origin : 'attacker',
+		particles : 'hitfx_sludge_bolt',
+		emit_duration : 500,
+		hold : 500,
+		sound_kits : ['tentacleSuction'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sludge_bolt_impact',
+		emit_duration : 100,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['gooSplat'],
+	}, out[id]),
+);
+
+
+
+id = 'siphonCorruption';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		destination : 'sender',
+		particles : 'hitfx_sludge_siphon',
+		emit_duration : 500,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['tentacleSuction'],
+		easing : "Quadratic.Out"
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sludge_bolt_proc',
+		emit_duration : 100,
+	}, out[id]),
+	
+);
+
+id = 'sludgePurple';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sludge_bolt_proc',
+		fade_duration : 3000,
+		emit_duration : 100,
+		sound_kits : ['tentacleSuction'],
+		css_fx : 'fxTakeDamageCorruption',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 100,
+	}, out[id]),
+	
+);
+
+
 
 
 id = 'potionRed';
@@ -689,7 +845,7 @@ out[id].stages.push(
 
 
 id = 'healingSurge';
-let start = {y:100}, end = {y:-50};
+start = {y:100}, end = {y:-50};
 out[id] = new HitFX({label : id});
 out[id].stages.push(
 	new Stage({
@@ -761,8 +917,28 @@ out[id].stages.push(
 );
 
 
-// 
 
+
+// 
+id = 'bolster';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_shield',
+		emit_duration : 100,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['warriorShield'],
+		hold : 100
+	}, out[id]),
+	new Stage({
+		start_offs : {z:0.5},
+		end_offs : {z:0.5},
+		particles : 'hitfx_sparks',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+);
 
 
 function getArray(){

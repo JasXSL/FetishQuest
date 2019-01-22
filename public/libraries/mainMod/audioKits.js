@@ -480,19 +480,19 @@ const lib = {
         ],
         
     },
-    "gooRub": {
-        label : "gooRub",
+    gooRub: {
         sounds : [
             {
-                s : {
-                    path : "media/audio/goo_rub.ogg",
-                    volume : 0.3
-                },
-                t : 0,
-                se : false
+                s : {path : "media/audio/goo_rub.ogg",volume : 0.3},
             }
         ],
-        
+    },
+    gooSplat : {
+        sounds : [
+            {
+                s : {path : "media/audio/goo_impact.ogg",volume : 0.5},
+            }
+        ],
     },
     "squishTiny": {
         label : "squishTiny",
