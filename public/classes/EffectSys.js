@@ -41,6 +41,7 @@ class Wrapper extends Generic{
 		// Stuff set when applied
 		this.victim = "";				// Player UUID
 		this.caster = "";				// Player UUID
+		this.original_target = "";		// Set on targeted actions, this is the one the action targeted. Usually the same as victim
 		this._duration = 0; 
 		this._self_cast = false;		// This effect was placed on the caster by the caster
 
@@ -118,6 +119,7 @@ class Wrapper extends Generic{
 		return game.getPlayerById(this.caster);
 	}
 
+	
 	/* MAIN FUNCTIONALITY */
 	// Tests if the wrapper can be used against a single target
 	testAgainst( event, isTick, debug = false ){
@@ -142,6 +144,7 @@ class Wrapper extends Generic{
 		
 		// If this effect isn't yet applied, we need to apply it against multiple players if target is an override
 		if( !isTick ){
+			
 			
 			if( this.target === Wrapper.TARGET_CASTER )
 				pl = [this.parent.parent];
@@ -177,6 +180,7 @@ class Wrapper extends Generic{
 				obj.victim = p.id;
 				obj.caster = caster_player.id;
 				obj.netPlayer = netPlayer;
+				obj.original_target = player.id;
 
 			}
 
@@ -472,6 +476,7 @@ Wrapper.TARGET_AOE = "AOE";					// Validate against all players
 Wrapper.TARGET_SMART_HEAL = "SMART_HEAL";	// Targets the lowest HP viable player
 Wrapper.TARGET_EVENT_RAISER = "EVENT_RAISER";	// Used only for Effect.Types.runWrappers, targets the player that raised the event that triggered the effect
 Wrapper.TARGET_EVENT_TARGETS = "EVENT_TARGETS";	// Used only for Effect.Types.runWrappers, targets the player(s) that were the targets of the event that triggered the effect
+Wrapper.TARGET_ORIGINAL = "ORIGINAL";		// Used only in effects. Specifies the target of the action that triggered this. Same as AUTO except in SMART_HEAL
 
 Wrapper.Targets = {
 	none : 'none',	// used in the editor to delete a target  
@@ -481,6 +486,7 @@ Wrapper.Targets = {
 	smart_heal : Wrapper.TARGET_SMART_HEAL,
 	event_raiser : Wrapper.TARGET_EVENT_RAISER,
 	event_targets : Wrapper.TARGET_EVENT_TARGETS,
+	original_target : Wrapper.TARGET_ORIGINAL
 };
 
 
@@ -807,9 +813,19 @@ class Effect extends Generic{
 				game.end_turn_after_action = true;
 
 
-			else if( this.type === Effect.Types.hitfx )
-				game.renderer.playFX( s, t, this.data.id );
+			else if( this.type === Effect.Types.hitfx ){
 
+				let origin = [s], destination = [t];
+				if( this.data.origin )
+					origin = this.getTargetsByType( this.data.origin, event );
+				if( this.data.destination )
+					destination = this.getTargetsByType( this.data.destination, event );
+				for( let dest of destination ){
+					for( let o of origin )
+						game.renderer.playFX( o, dest, this.data.id );
+				}
+
+			}
 			else if( this.type === Effect.Types.runWrappers ){
 				let wrappers = this.data.wrappers;
 				if( !Array.isArray(wrappers) ){
@@ -1006,6 +1022,8 @@ class Effect extends Generic{
 
 
 
+
+
 	/* EVENT */
 	bindEvents(){
 		for(let evt of this.events){
@@ -1057,6 +1075,24 @@ class Effect extends Generic{
 		if( !input || typeof input.save !== "function" )
 			return input;
 		return input.save(true);
+	}
+
+	// Attempts to get a target by wrapper.target type
+	getTargetsByType( type, event ){
+
+		if( type === Wrapper.Targets.aoe )
+			return game.players;
+		if( type === Wrapper.Targets.caster )
+			return [game.getPlayerById(this.parent.caster)];
+		if( type === Wrapper.Targets.event_raiser )
+			return [event.sender];
+		if( type === Wrapper.Targets.event_targets )
+			return [event.target];
+		if( type === Wrapper.Targets.original_target ){
+			return [game.getPlayerById(this.parent.original_target)];
+		}
+		// Anything else returns the victim
+		return [game.getPlayerById(this.parent.victim)];
 	}
 
 	// Exports effect data in a JSON safe way
@@ -1166,7 +1202,7 @@ Effect.TypeDescs = {
 	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier} - If type is left out, it can be auto supplied by an asset",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
-	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id}",
+	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
 	[Effect.Types.addAP] : "{amount:(str)(nr)amount}, Adds AP",										// 
 	[Effect.Types.addMP] : "{amount:(str)(nr)amount}, Adds MP",										// 

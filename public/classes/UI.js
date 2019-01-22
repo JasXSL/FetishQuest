@@ -135,7 +135,7 @@ export default class UI{
 			html = ''
 		;
 
-		const myTurn = game.getTurnPlayer().id === game.getMyFirstPlayer().id;
+		const myTurn = game.getTurnPlayer().id === game.getMyFirstPlayer().id || !game.battle_active;
 
 		// Resources
 		html += '<div class="resources">';
@@ -520,7 +520,6 @@ export default class UI{
 		// PLAYER PORTRAIT CLICK
 		$('div.player', this.players).off('mouseup click').on('mouseup click', function( event ){
 
-			console.log(event.type, th.action_selected, this.className);
 			if( event.type === "mouseup" && !th.arrowHeld && th.action_selected )
 				return false;
 
@@ -528,7 +527,6 @@ export default class UI{
 			// Players are in action selection mode
 			if( $(this).is(".castTarget") ){
 				
-				console.log("Selecting this target");
 				if( th.targets_selected.length >= th.action_selected.max_targets )
 					return false;
 
@@ -809,7 +807,6 @@ export default class UI{
 		this.multiCastPicker.html(ht).toggleClass('hidden', false);
 
 		$("#execMultiCast", this.multiCastPicker).on('click', () => {
-			console.log("Performing", this.action_selected);
 			this.performSelectedAction();
 			return;
 		});
@@ -2313,7 +2310,6 @@ export default class UI{
 			}
 			
 			else if( task == "auto" ){
-				console.log("Auto playing for", game.getTurnPlayer());
 				game.getTurnPlayer().autoPlay(true);
 				return;
 			}

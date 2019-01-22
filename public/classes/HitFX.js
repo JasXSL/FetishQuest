@@ -135,15 +135,21 @@ class Stage extends Generic{
 
 			const aEl = $("#ui div.player[data-id="+esc(attacker.id)+"]");
 			const vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
+
 			
-			const attackerEl = this.origin === 'attacker' ? aEl : vEl;
+			
+			const attackerEl = this.origin === 'sender' || this.origin === 'attacker' ? aEl : vEl;
 			const attackerPos = attackerEl.offset();
 			const attackerHeight = attackerEl.outerHeight();
 			const attackerWidth = attackerEl.outerWidth();
-			const victimEl = this.destination === 'sender' ? aEl : vEl;
+			const victimEl = this.destination === 'sender' || this.destination === 'attacker' ? aEl : vEl;
 			const victimPos = victimEl.offset();
 			const victimHeight = victimEl.outerHeight();
 			const victimWidth = victimEl.outerWidth();
+
+			if( !attackerPos ){
+				console.error("Attacker pos was not defined", attackerPos, "attacker", attackerEl, "a", attacker, "v", victim);
+			}
 
 			this._start_pos.x = attackerPos.left+attackerWidth/2;
 			this._start_pos.y = attackerPos.top+attackerHeight/2;

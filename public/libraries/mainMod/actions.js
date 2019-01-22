@@ -1077,7 +1077,6 @@ const lib = {
 							"amount": 3
 						}
 					},
-					
 				]
 			},
 			{
@@ -1093,7 +1092,13 @@ const lib = {
 							"amount": "-se_apSpentThisTurn*2"
 						}
 					},
-					
+					{
+						type : Effect.Types.hitfx,
+						data : {
+							id : 'monkHealSmallTargeted',
+							origin : Wrapper.Targets.original_target
+						}
+					}
 				]
 			}
 		]

@@ -1,7 +1,6 @@
 Hit fx:
-	- Tie the hitfx to texts
-	- Make more hitfx
-	- Decouple audio from text, and have it send audio packets to coop
+	- Decouple audio from text, and have it send audio packets to multiplayer
+	- Send hitfx to multiplayer
 	- Punishments don't work
 
 UI Overhaul:

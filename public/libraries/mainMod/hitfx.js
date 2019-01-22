@@ -622,6 +622,65 @@ out[id].stages.push(
 );
 
 
+
+id = 'darkPunch';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 200,
+		tween : false,
+		dest_rand : 0.25,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['darkPunch'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_dark_star',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+);
+
+id = 'healingPunch';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 200,
+		tween : false,
+		dest_rand : 0.25,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['healingPunch'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_yin_yang',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+);
+
+
+
 id = 'holyHeal';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
@@ -644,6 +703,58 @@ out[id].stages.push(
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_sparks_big_yellow',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+);
+
+
+id = 'monkHeal';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparkles_static',
+		emit_duration : 200,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ["monkHeal"],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 400,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healing',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_yin_yang',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+);
+
+id = 'monkHealSmallTargeted';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_mist_green_target',
+		origin : 'sender',
+		emit_duration : 300,
+		hold : 300,
+		easing : 'Linear.None'
+	}, out[id]),
+	new Stage({
+		css_fx : 'fxHeal',
+		sound_kits : ["monkHeal"],
+		particles : 'hitfx_mist',
+		emit_duration : 400,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healing',
 		emit_duration : 200,
 		tween : false,
 	}, out[id]),

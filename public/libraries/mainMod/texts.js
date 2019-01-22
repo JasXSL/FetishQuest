@@ -544,7 +544,14 @@ const lib = [
 	{ text : "%S bends the defeated %Trace over a table. Raising %Shis palm high in the air, the %Srace starts forcefully slapping %T's %Trsize %Tbutt...",
 		turnTags:[stdTag.ttBentOver, stdTag.ttBentOverTable, stdTag.ttSpanked],
 		conditions : humOnHumCond.concat("action_stdPunishSad","roomTable"),
-		hitfx : ["doubleSlap"]
+		hitfx : ["doubleSlap"],
+		weight : Text.Weights.high
+	},
+	{ text : "%S pins the defeated %Trace's arms behind %This back and bends %Thim forwards. Raising %Shis palm high in the air, %S starts forcefully slapping %T's %Trsize %Tbutt...",
+		turnTags:[stdTag.ttBentOver, stdTag.ttSpanked],
+		conditions : humOnHumCond.concat("action_stdPunishSad","targetNotTaller"),
+		hitfx : ["doubleSlap"],
+		weight : Text.Weights.high
 	},
 	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S continues the punishment, vigorously spanking the %Trace's already punished %Tbutt...",
 		turnTags:[stdTag.ttBentOver, stdTag.ttSpanked],
@@ -1647,116 +1654,83 @@ const lib = [
 	// MONK
 	// action_monk_roundKick
 	{ text : "%S spins around, throwing a rapid kick at %T!",
-		conditions : [
+		conditions : baseCond.concat([
 			"actionHit",
 			"eventIsActionUsed",
 			"action_monk_roundKick",
-		],
-		audiokits : ["monkKick"]
+		]),
+		audiokits : ["monkKick"],
+		hitfx : ["punch"],
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and throws a rapid jab at %T's %groin!",
-		"armor_slot":"lowerbody",
+		armor_slot : "lowerbody",
 		conditions : [
-			"actionHit",
-			"eventIsRiposte",
-			"action_monk_roundKick",
-			"senderNotBeast"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast"
 		],
-		audiokits : ["monkKick"]
+		audiokits : ["monkKick"],
+		hitfx : ["punch"],
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and swipes %Shis palm right across %T's %groin!",
-		"armor_slot":"lowerbody",
+		armor_slot : "lowerbody",
 		conditions : [
-			"actionHit",
-			"eventIsRiposte",
-			"action_monk_roundKick",
-			"senderNotBeast"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast"
 		],
-		audiokits : ["slapGeneric"]
+		hitfx : ["slap"]
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and smacks %Shis palm right across %T's %Trsize %Tbutt!",
 		conditions : [
-			"actionHit",
-			"eventIsRiposte",
-			"action_monk_roundKick",
-			"senderNotBeast"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast"
 		],
-		audiokits : ["slapGeneric"]
+		hitfx : ["slap"]
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath, forcing %Shis hand between %T's legs, rapidly rubbing %This %Tvagina!",
 		conditions : [
-			"actionHit",
-			"eventIsRiposte",
-			"action_monk_roundKick",
-			"senderNotBeast",
-			"targetVagina"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetVagina"
 		],
-		audiokits : ["squishTiny"]
+		hitfx : ["squishTiny"]
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath, grabbing a hold of and squeezing %This package!",
 		conditions : [
-			"actionHit",
-			"eventIsRiposte",
-			"action_monk_roundKick",
-			"senderNotBeast",
-			"targetPenis",
-			"targetLowerbodyNotHard"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetPenis","targetLowerbodyNotHard"
 		],
-		audiokits : ["squeezeGeneric"]
+		hitfx : ["squeeze"]
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and thrusts a few fingers inside %T's %Tvagina, briefly wiggling them around!",
 		conditions : [
-			"actionHit",
-			"eventIsRiposte",
-			"action_monk_roundKick",
-			"senderNotBeast",
-			"targetVagina",
-			"targetNoLowerbody"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetVagina","targetNoLowerbody"
 		],
-		audiokits : ["squishTiny"]
+		hitfx : ["squishTiny"]
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S. But %S ducks under and lashes %T's exposed %groin with a tentacle!",
 		"armor_slot":"lowerbody",
 		conditions : [
-			"actionHit",
-			"eventIsRiposte",
-			"action_monk_roundKick",
-			"senderHasTentacles"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles"
 		],
-		audiokits : ["tentacleWhip"]
+		hitfx : ["tentacleWhip"]
 	},
 	{ text : "%T spins around attempting a rapid kick at %S. But %S ducks under and thrusts a tentacle up inside %T's exposed %Tvagina!",
 		"armor_slot":"lowerbody",
 		conditions : [
-			"actionHit",
-			"eventIsRiposte",
-			"action_monk_roundKick",
-			"senderHasTentacles",
-			"targetNoLowerbody",
-			"targetVagina"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles","targetNoLowerbody","targetVagina"
 		],
-		audiokits : ["gooRub"]
+		hitfx : ["tentacleRub"]
 	},
 
 
 	// action_monk_disablingStrike
 	{ text : "%S lands a mystical touch on %T, lowering their physical ability!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : baseCond.concat([
 			"action_monk_disablingStrike",
-		],
-		audiokits : ["darkPunch"]
+		]),
+		hitfx : ["darkPunch"]
 	},
 
 	// action_monk_upliftingStrike
 	{ text : "%S throws a mystical strike at %T, allowing some chi to slip out and surround a nearby ally!",
-		conditions : [
-			"actionHit",
-			"eventIsActionUsed",
+		conditions : baseCond.concat([
 			"action_monk_upliftingStrike",
-		],
-		audiokits : ["healingPunch"]
+		]),
+		hitfx : ["healingPunch"]
 	},
 
 

@@ -494,6 +494,13 @@ const lib = {
             }
         ],
     },
+    monkHeal : {
+        sounds : [
+            {
+                s : {path : "media/audio/monk_heal.ogg",volume : 0.5},
+            }
+        ],
+    },
     "squishTiny": {
         label : "squishTiny",
         sounds : [

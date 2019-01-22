@@ -140,6 +140,7 @@ const lib = {
 	eventIsDungeonEntered : {"type":"event","data":{"event":["dungeonEntered"]}},
 	targetTaller : {"type":"sizeValue","data":{"amount":"se_Size","operator":">"}},
 	targetShorter : {"type":"sizeValue","data":{"amount":"se_Size","operator":"<"}},
+	targetNotTaller : {type:"sizeValue",data:{amount:"se_Size",operator:"<"}, inverse:true},
 	notInCombat : {"type":"notInCombat"},
 	inCombat : {"type":"notInCombat","inverse":true},
 	rand10 : {"type":"rng","data":{"chance":10}},
