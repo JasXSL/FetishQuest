@@ -2086,7 +2086,7 @@ particles.hitfx_dark_star = {
 
 particles.hitfx_yin_yang = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/cursed_star.png'),
+		value: new THREE.TextureLoader().load('/media/textures/particles/yinyang.png'),
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 15,

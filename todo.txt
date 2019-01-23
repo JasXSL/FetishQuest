@@ -1,21 +1,14 @@
-Hit fx:
-	- Decouple audio from text, and have it send audio packets to multiplayer
-	- Send hitfx to multiplayer
-	- Punishments don't work
-
 UI Overhaul:
-	- Add a button to make a character your active character
-		- Game.getMyFirstPlayer should return this
-		- Make the UI display that a character is your active one
-	- Add a DM tool drawer
-	- Allow you to assign ownership to a character in the netcode drawer
-	- Can probably retire the player editor in favor of the console
-	- Need to add spell visuals
+	- Re-introduce armor hit sounds
 	- User inventory page
 		- Netgame players should be able to destroy items
-	- Don't send non-owned inventory to netcode players
+	- Don't send NPC inventory to netcode players
 	- Quest start and finish splash screens
-	- Show what mods a quest belongs to
+	
+
+- multiplayer
+	- Decouple audio from text, and have it send audio packets to multiplayer
+	- Send hitfx to multiplayer
 
 Generic code:
 	- Assign party leader
@@ -26,10 +19,6 @@ Generic code:
 	- Character export/import
 	- (later) Redo netcode to send different types when they've changed
 
-Mod Editor:
-	- ModVars (later) - Custom data that can be set and read by conditions
-	- Quest editor (later)
-
 new Gameplay elements:
 	- Learning/unlearning actions
 	- Shops
@@ -37,7 +26,6 @@ new Gameplay elements:
 	
 Action ideas:
 	- Cleric: Sacrament of Sin: Free, 10 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 10% per point of arousal.
-
 
 
 Dungeon design:
@@ -48,15 +36,12 @@ Dungeon design:
 		- Exit to world map
 
 
-
-Large 3d Tasks:
-	- Combat background
-	- Particle effects on players
-
 Audio tasks:
 	- UI sounds
 		- Generic click
 
-Bugs:
-	- Upon starting a new game, the loot bags that drop can't be clicked
-	- 
+
+LATER:
+	- Show what mods a quest belongs to
+	- Quest editor (later)
+	- ModVars (later) - Custom data that can be set and read by conditions

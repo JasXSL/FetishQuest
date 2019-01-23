@@ -20,7 +20,6 @@ export default class UI{
 		this.players = $("#ui > div.players");
 		this.friendly = $("#ui > div.players > div.left");
 		this.hostile = $("#ui > div.players > div.right");
-		this.dm_tools = $("#dm_tools");
 		this.action_selector = $("#ui > div.actionbar");
 		this.text = $("#ui div.text > div.content");
 		this.console = $("#ui > div.middle > div.chat");
@@ -85,6 +84,8 @@ export default class UI{
 			th.mouseDown = true;
 		});
 
+		this.board.toggleClass("dev", this.showDMTools());
+
 	}
 
 	// Takes the 3d canvases
@@ -95,6 +96,10 @@ export default class UI{
 		$("#renderer").html(map);
 		$("#fx").html(fx);
 
+	}
+
+	showDMTools(){
+		return !+localStorage.hide_dm_tools;
 	}
 
 	destructor(){
@@ -118,7 +123,6 @@ export default class UI{
 	draw(){
 
 		this.drawPlayers();
-		this.drawTools();
 		this.drawGameIcons();
 		this.drawActionSelector();
 
@@ -128,14 +132,19 @@ export default class UI{
 	drawActionSelector( player ){
 
 		if( !player )
-			player = game.getMyFirstPlayer();
+			player = game.getMyActivePlayer();
+
+		if( !player ){
+			this.action_selector.html('Spectating');
+			return;
+		}
 
 		let actions = player.getActions(), 
 			th = this,
 			html = ''
 		;
 
-		const myTurn = game.getTurnPlayer().id === game.getMyFirstPlayer().id || !game.battle_active;
+		const myTurn = game.getTurnPlayer().id === game.getMyActivePlayer().id || !game.battle_active;
 
 		// Resources
 		html += '<div class="resources">';
@@ -286,7 +295,7 @@ export default class UI{
 
 	drawSpellCosts( spell ){
 		
-		const player = game.getMyFirstPlayer();
+		const player = game.getMyActivePlayer();
 		
 		if( !spell )
 			spell = this.action_selected;
@@ -384,16 +393,13 @@ export default class UI{
 			if( myTurn )
 				el.toggleClass("active", true);
 
+			const isMine = !!(~game.getMyPlayers().indexOf(p));
+			const isMyActive = p === game.getMyActivePlayer();
+			const isNPC = !p.netgame_owner;
 			
-			let ownerName = "";
-			for( let np of game.net.players ){
-				if( np.id === p.netgame_owner ){
-					ownerName = np.name;
-					break;
-				}
-			}
-			el.toggleClass('mine', p.netgame_owner === game.net.id);
-
+			el.toggleClass('mine', isMine);
+			el.toggleClass('myActive', isMyActive);
+			
 			el.toggleClass('dead', p.hp <= 0);
 			el.toggleClass('incapacitated', p.isIncapacitated());
 
@@ -432,10 +438,24 @@ export default class UI{
 			if( p.team !== 0 )
 				rb_entries.reverse();
 
+			let tags = ['',''];
+			if( isMine )
+				tags = ['<strong>','</strong>'];
+			if( isMyActive )
+				tags = ['<strong>\u25B6 ',''+' \u25C0</strong>'];
+			if( isNPC )
+				tags = ['<em>','</em>'];
+
+			let controls = ''+
+				(game.is_host ? '<div class="button owner devtool"><img src="media/wrapper_icons/id-card.svg" /></div>' : '' )+
+				(game.getMyPlayers().length > 1 && !isMyActive && isMine ? '<div class="button own"><img src="media/wrapper_icons/gamepad.svg" /></div>' : '' )
+			;
+
 			$("div.content > div.stats", el).html(
 				'<span class="name" style="color:'+esc(p.color)+'">'+
-					'<strong>'+esc(p.name)+'</strong>'+
-					(ownerName ? ' <em>('+esc(ownerName)+')</em>' : '')+
+					(p.team === 0 ? controls : '')+
+					'<span>'+tags[0]+esc(p.name)+tags[1]+'</span>'+
+					(p.team !== 0 ? controls : '')+
 				'</span><br />'+
 				rb_entries.join('')
 			);
@@ -490,6 +510,46 @@ export default class UI{
 
 		$("div.left", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_friendly > 10 ? 10 : nr_friendly));
 		$("div.right", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_hostile > 10 ? 10 : nr_hostile));
+
+		$("div.player span.name div.owner", this.players).on('click', event => {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			const modal = game.modal;
+			modal.prepareSelectionBox();
+			const options = [];
+
+			const player = game.getPlayerById($(event.target).closest('div.player').attr('data-id'));
+			if( ! player )
+				return;
+
+			options.push({id:'',name:'NPC'});
+			options.push({id:'DM',name:'YOU'});
+			for( let player of game.net.players )
+				options.push(player);
+
+			for( let opt of options )
+				modal.addSelectionBoxItem( opt.name, false, opt.id );
+
+			modal.onSelectionBox(event => {
+				modal.closeSelectionBox();
+				const id = $(event.target).attr('data-id');
+				player.netgame_owner = id;
+				th.draw();
+				game.save();
+			});
+
+		});
+
+		$("div.player span.name div.own", this.players).on('click', event => {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			game.my_player = $(event.target).closest('div.player').attr('data-id');
+			this.draw();
+			game.save();
+		});
+
+		
+
 
 		// Hover
 		$("div.player", this.players).off('mouseover mouseout').on('mouseover mouseout', function( event ){
@@ -581,6 +641,10 @@ export default class UI{
 				'</div>'+
 			'</div>'+
 			'<div data-id="multiplayer" class="button" style="background-image: url(media/wrapper_icons/multiplayer.svg)"></div>'+
+			( game.is_host ?
+				'<div data-id="DM" class="button" style="background-image: url(media/wrapper_icons/auto-repair.svg)"></div>' : 
+				''
+			)+
 			'<div data-id="mainMenu" class="button autoWidth">Game</div>'
 		;
 		this.gameIcons.html(html);
@@ -600,7 +664,6 @@ export default class UI{
 				th.drawNetSettings();
 			else if( id === 'audioToggle' ){
 
-			
 				let el = $("> div", this);
 				el.toggleClass('visible');
 				event.stopImmediatePropagation();
@@ -610,6 +673,9 @@ export default class UI{
 					}, {once:true});
 				}
 
+			}
+			else if( id === 'DM' ){
+				th.drawDMTools();
 			}
 		});
 
@@ -655,37 +721,36 @@ export default class UI{
 	}
 
 	// DM Tools
-	drawTools(){
+	drawDMTools(){
 
-		let th = this;
-		if( !game.is_host ){
-
-			this.dm_tools.hide();
-			return;
-
-		}
-
+		let hideTools = !this.showDMTools();
+		
+		const th = this;
 		let html = 
-			'<div class="option button" data-action="generateDungeon">Random Dungeon</div>'+
+			'<div class="option button '+(hideTools ? 'inactive' : 'active')+'" data-action="toggleDMTools">'+(hideTools ? 'Show' : 'Hide')+' DM Tools</div>'+
+			'<div class="option button" data-action="generateDungeon">Generate Dungeon</div>'+
 			'<div class="option button" data-action="addPlayer">+ Add Player</div>'+
 			'<div class="option button" data-action="fullRegen">Restore HPs</div>'+
-			'<div class="option button '+(game.dm_writes_texts ? 'active' : 'inactive')+'" data-action="dmTexts">'+(game.dm_writes_texts ? 'DM Mode' : 'Auto Mode')+'</div>';
+			'<div class="option button '+(game.dm_writes_texts ? 'active' : 'inactive')+'" data-action="dmTexts">'+(game.dm_writes_texts ? 'Exit DM Mode' : 'Enter DM Mode')+'</div>'
+		;
 		// If there's more than one team standing, then draw the start battle
 		if( game.teamsStanding().length > 1 )
 			html += '<div class="option button '+(game.battle_active ? 'active' : 'inactive')+'" data-action="toggleBattle">'+
 				(game.battle_active ? 'End Battle' : 'Start Battle')+
 			'</div>';
 
-		this.dm_tools.html(html).show();
+		game.modal.set('<div class="dm_tools">'+html+'</div>');
 
 		// Bind events
-		$("div.option[data-action]", this.dm_tools).off('click').on('click', function(){
+		$("#modal div.option[data-action]").off('click').on('click', function(){
 
 			let action = $(this).attr('data-action');
 			if( action == "addPlayer" )
 				th.drawPlayerEditor();
-			else if( action == "toggleBattle" )
+			else if( action == "toggleBattle" ){
 				game.toggleBattle();
+				th.drawDMTools();
+			}
 			else if( action === "fullRegen" )
 				game.fullRegen();
 			else if( action === "dmTexts" )
@@ -694,6 +759,11 @@ export default class UI{
 				game.addRandomQuest();
 				alert("A random dungeon quest has been generated with "+game.dungeon.rooms.length+" cells and difficulty "+game.dungeon.difficulty);
 				
+			}
+			else if( action === 'toggleDMTools' ){
+				localStorage.hide_dm_tools = +th.showDMTools();
+				th.drawDMTools();
+				th.board.toggleClass("dev", th.showDMTools());
 			}
 				
 
@@ -707,25 +777,24 @@ export default class UI{
 	/* ACTION SELECTOR Helpers */
 	// Send the action selection
 	performSelectedAction(){
-		let success = game.useActionOnTarget(
+		game.useActionOnTarget(
 			this.action_selected, 
 			this.targets_selected,
-			game.getMyFirstPlayer()
+			game.getMyActivePlayer()
 		);
 		this.action_selected = null;
 		this.targets_selected = [];
-		if( success ){
-			this.draw();
-			this.closeTargetSelector();
-			return true;
-		}
+
+		this.draw();
+		this.closeTargetSelector();
+
 		return false;
 	}
 	// Updates the players with hit chances etc
 	// pl defaults to turn player
 	drawTargetSelector(){
 
-		const pl = this.parent.getMyFirstPlayer();
+		const pl = game.getMyActivePlayer();
 		const action = this.action_selected;
 
 		this.updateMultiCast();
@@ -1226,7 +1295,11 @@ export default class UI{
 				icon : $("input[name=icon]", base).val().trim(),
 				size : +$("input[name=size]", base).val().trim() || 0,
 				class : c.save(true),
+				netgame_owner_name : 'DM',
+				netgame_owner : 'DM'
 			});
+
+			
 			const tags = [];
 			$("div.tags input.tag", base).each((idx, el) => {
 				const val = $(el).val().trim();
@@ -1764,7 +1837,6 @@ export default class UI{
 						'Level:<br /><input type="number" name="level" min=1 step=1 value='+(+player.level)+' /><br />'+
 						'<div class="flexTwoColumns">'+
 							'<div>Size:<br /><input type="range" name="size" value="'+(+player.size)+'" min=0 max=10 step=1 /></div>'+
-							'<div style="margin-top:1.75vmax"><label><input type="checkbox" name="auto_play" value=1 '+(player.auto_play ? 'checked' : '')+' /> Auto Play</label></div>'+
 						'</div>'+
 						'Image:<br /><input type="text" name="icon" placeholder="Image URL" value="'+esc(player.icon)+'" /><br />'+
 						'<div class="flexThreeColumns">'+
@@ -1847,7 +1919,6 @@ export default class UI{
 			player.species = $("#modal input[name=species]").val().trim();
 			player.description = $("#modal textarea[name=description]").val().trim();
 			player.icon = $("#modal input[name=icon]").val().trim();
-			player.auto_play = $("#modal input[name=auto_play]").prop('checked');
 			player.hp = +$("#modal input[name=hp]").val();
 			player.ap = +$("#modal input[name=ap]").val();
 			player.mp = +$("#modal input[name=mp]").val();
@@ -2347,7 +2418,7 @@ export default class UI{
 
 		let speaker = 'DM';
 		if( !game.is_host )
-			speaker = game.getMyFirstPlayer().id;
+			speaker = game.getMyActivePlayer().id;
 		
 		if( message.substr(0,4).toLowerCase() === 'ooc ' || !speaker )
 			speaker = 'ooc';

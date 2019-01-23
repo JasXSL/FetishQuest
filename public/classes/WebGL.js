@@ -934,7 +934,7 @@ class Stage{
 				if( !obj.userData.mouseover )
 					this.constructor.bindGenericHover(obj);
 				obj.userData.click = mesh => {
-					let player = game.getMyFirstPlayer(),
+					const player = game.getgetMyActivePlayerMyFirstPlayer(),
 						dungeonAsset = mesh.userData.dungeonAsset,	// Do it this way becaues dungonAsset upstream might have changed in netcode
 						room = dungeonAsset.parent
 					;

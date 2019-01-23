@@ -175,6 +175,10 @@ div.centered{
 	transform: translateY(-110%);
 }
 
+#ui:not(.dev) .devtool{
+	display:none !important;
+}
+
 #fx{
 	position: fixed;
 	left:0; right:0;
@@ -811,7 +815,8 @@ div.fxBuffBlue{
 		cursor:default;
 		user-select: none;
 		pointer-events: none;
-		transition: bottom 0.25s ease-out;
+		opacity:1;
+		transition: bottom 0.25s ease-out, opacity, 0.25s ease-out;
 	}
 	#multiCastPicker > input{
 		font-size:3vmax;
@@ -822,6 +827,8 @@ div.fxBuffBlue{
 	#multiCastPicker.hidden{
 		display:block !important;
 		bottom:-50%;
+		opacity: 0;
+		pointer-events: none;
 	}
 
 
@@ -1079,6 +1086,23 @@ div.fxBuffBlue{
 		display: inline-block;
 	}
 
+	div.players div.left div.player span.name > span{
+		margin-left:0.5vmax;
+	}
+	div.players div.right div.player span.name > span{
+		margin-right:0.5vmax;
+	}
+	
+
+	#ui > div.players div.player span.name > div.button{
+		width:2vmax; height:2vmax;
+		padding:0;
+		display:inline-block;
+		vertical-align: middle;
+		margin:0 0.2vmax;
+		pointer-events: all;
+	}
+
 	div.players div.player.incapacitated > div.content{
 		border-color:#FFD;
 	}
@@ -1182,33 +1206,15 @@ div.fxBuffBlue{
 		border-top-right-radius: 1vmax;
 	}
 
-	/* DM bar */
-	#dm_tools{
-		position: absolute;
-		top: 0.25vh;
-		left:0; right:0;
-		text-align: center;
-	}
-	#dm_tools > div.option{
-		background:rgba(200,220,255,0.9);
-		box-shadow:0.4vh 0.4vh 2vh rgba(0,0,0,.2);
-		color:rgba(0,0,0,.9);
-		font-size:2vh;
-		display: inline-block;
-		font-weight: normal;
-		padding:0.5vh;
-	}
-	#dm_tools > div.option:hover{
-		border-color: #AEF;
-	}
-	#dm_tools > div.option:active{
-		transform:scale(0.97,0.97);
-	}
-	#dm_tools > div.option.active{
+	/* DM Tools */
+	div.dm_tools > div.option.active{
 		background:rgba(255,200,200,0.9);
 	}
-	#dm_tools > div.option.inactive{
+	div.dm_tools > div.option.inactive{
 		background:rgba(200,255,200,.9);
+	}
+	div.dm_tools{
+		padding:0 25%;
 	}
 
 

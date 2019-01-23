@@ -53,6 +53,7 @@ export default class Game extends Generic{
 		this.save_timer = null;
 		this.ignore_netgame = true;						// For above, set to false if there's a call is added to the timer without ignore
 
+		this.my_player = null;
 
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
 	}
@@ -266,7 +267,7 @@ export default class Game extends Generic{
 		await delay(2000);
 		let winners = shuffle(this.getAlivePlayersInTeam(winningTeam));
 		for( let winner of winners ){
-			if( !this.dm_writes_texts && winner.auto_play ){	// Async function, check before each call
+			if( !this.dm_writes_texts && winner.isNPC() ){	// Async function, check before each call
 				let l = armorSteal.shift();
 				// Allow steal
 				if( l && !winner.isBeast() ){
@@ -742,13 +743,13 @@ export default class Game extends Generic{
 		return this.getTeamPlayers(team).filter(pl => !pl.isDead());
 	}
 
-	// Checks if a player is controlled by the netgame player. ExcludeDM can be used to ignore DM ownership
+	// Checks if a player is owned by the netgame player. ExcludeDM can be used to ignore DM ownership
 	playerIsMe( player, excludeDM = false ){
 
 		if( this.is_host && !excludeDM )
 			return true;
 
-		return player.netgame_owner === this.net.id;
+		return player.netgame_owner === this.net.id || (this.is_host && player.netgame_owner === 'DM');
 
 	}
 
@@ -757,20 +758,27 @@ export default class Game extends Generic{
 	}
 
 	// Gets my first player if I own one
-	getMyFirstPlayer(){
+	getMyActivePlayer(){
 
-		let owned = this.getMyPlayers();
-		if( owned.length )
-			return owned[0];
-		return false;
-
+		const owned = this.getMyPlayers();
+		for( let p of owned ){
+			if( p.id === this.my_player )
+				return p;
+		}
+		
+		// Might be undefined
+		this.my_player = null;
+		if( owned[0] )
+			this.my_player = owned[0].id;
+		return owned[0];
+		
 	}
 
 	// Gets all players owned by me
 	getMyPlayers(){
 
 		return this.players.filter(el => {
-			return this.playerIsMe(el);
+			return this.playerIsMe(el, true);
 		});
 
 	}
@@ -930,7 +938,7 @@ export default class Game extends Generic{
 		// Update visible players
 		this.removeEnemies(merge);
 		for( let pl of encounter.players ){
-			pl.auto_play = true;
+			pl.netgame_owner = '';
 			game.addPlayer(pl);
 			// Merge the new players into the encounter
 			if( merge )
@@ -1174,6 +1182,11 @@ export default class Game extends Generic{
 						npl.autoPlay();
 				}, 1000);
 			
+			if( this.playerIsMe(npl, true) && npl.id !== this.my_player ){
+				this.my_player = npl.id;
+				this.ui.draw();
+			}
+				
 			
 			break;
 

@@ -39,7 +39,6 @@ export default class Player extends Generic{
 		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
 		this.team = 0;				// 0 = player
 		this.size = 5;				// 0-10
-		this.auto_play = false;		// This is a bot
 		this.level = 1;				// 
 		this.experience = 0;
 		this.mp = 10;				// Secondary stat used for spells. Mana points.
@@ -182,7 +181,6 @@ export default class Player extends Generic{
 			out.label = this.label;
 			out.inventory = this.inventory;
 			if( full !== "mod" ){
-				out.auto_play = !!this.auto_play;
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
 				out.experience = this.experience;
 				out._difficulty = this._difficulty;
@@ -367,6 +365,11 @@ export default class Player extends Generic{
 	isDead(){
 		return this.hp <= 0;
 	}
+
+	isNPC(){
+		return !this.netgame_owner;
+	}
+
 	// Can't accept their turn
 	isIncapacitated(){
 		let stun = this.getActiveEffectsByType(Effect.Types.stun);
@@ -568,7 +571,7 @@ export default class Player extends Generic{
 		}
 		this.inventory = [];
 
-		this.auto_play = true;
+		this.netgame_owner = '';
 
 		if( this.leveled ){
 			this.level += game.getHighestLevelPlayer();
@@ -1497,7 +1500,7 @@ export default class Player extends Generic{
 	// Bot
 	autoPlay( force ){
 
-		if( !this.auto_play && !force )
+		if( !this.isNPC() && !force )
 			return;
 		if( !this.bot ){
 			console.log("Attaching a bot");
@@ -1509,7 +1512,7 @@ export default class Player extends Generic{
 	}
 
 	usePunishment( players, force ){
-		if( !this.auto_play && !force )
+		if( !this.isNPC() && !force )
 			return;
 		if( !this.bot )
 			this.bot = new Bot(this);

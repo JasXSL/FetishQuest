@@ -93,7 +93,7 @@ class Bot{
 	}
 
 	play( force = false ){
-		if( (!this.player.auto_play && !force) || !game.battle_active )
+		if( (!this.player.isNPC() && !force) || !game.battle_active )
 			return;
 
 		// Get viable abilities

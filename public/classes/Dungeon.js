@@ -1894,8 +1894,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					else{
 
 						treasureExists = true;
-
-						console.log("Adding treasure in", room.index);
 						let lootValue = Math.pow(Math.random(), 2);	// Assuming gear starts at 0.5, it's a 30% chance of an item
 						let action = new DungeonRoomAssetInteraction({
 							type : DungeonRoomAssetInteraction.types.autoLoot,

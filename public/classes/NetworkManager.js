@@ -15,7 +15,7 @@ class NetworkManager{
 		this._last_push = null;
 		this._pre_push_time = 0;		// Time of last push
 		this.timer_reconnect = null;
-
+		
 		// This is for debugging purposes
 		setTimeout(() => {
 			this._last_push = parent.getSaveData();
