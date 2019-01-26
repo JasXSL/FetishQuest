@@ -473,6 +473,10 @@ div.fxBuffBlue{
 	#modal div.action div.tooltip{
 		width:150%;
 	}
+
+	#modal div.inventory{
+		padding:5% 15%;
+	}
 	#modal div.inventory div.item.list,
 	#modal div.actions div.action.list{
 		display:inline-block;
@@ -482,22 +486,46 @@ div.fxBuffBlue{
 	#modal div.inventory div.item em.sub{
 		font-size:0.75vmax;
 	}
-	#modal div.inventory div.item.equippable{
-		font-size:1.25vmax;
-	}
 	#modal div.inventory div.item{
 		font-weight:normal;
 		font-size:1vmax;
 		border-width: 1px;
+		display: inline-block;
+		width:49%;
+		padding: 1.5vmax;
+		text-align: left;
+		padding-left: 4vmax;
 	}
+	#modal div.inventory div.item img.assetIcon{
+		vertical-align: middle;
+		width: 3vmax;
+		height: 3vmax;
+		position: absolute;
+		left: 0.5vmax;
+		top: 0.5vmax;
+	}
+	#modal div.inventory > div.left{
+		width:20%;
+		flex:20%;
+	}
+	#modal div.inventory div.item.equipmentSlot{
+		width:6vmax;
+		height:5vmax;
+		display:inline-block;
+		padding:0;
+	}
+	#modal div.inventory div.item.equipmentSlot img.bg{
+		width:100%; height:100%;
+	}
+	#modal div.inventory div.item.equipmentSlot img.bg.template{
+		opacity: 0.25;
+	}
+	
 	#modal div.inventory div.item.equippable.broken{
 		background-color:#655;
 	}
 	#modal div.inventory div.item.custom{
 		border:1px solid #FFD;
-	}
-	#modal div.inventory div.item.equippable.equipped{
-		border-width:0.2vmax;
 	}
 
 	div.item.common{ border-color: #DDD !important; color: #DDD !important; }

@@ -53,7 +53,7 @@ export default class Game extends Generic{
 		this.save_timer = null;
 		this.ignore_netgame = true;						// For above, set to false if there's a call is added to the timer without ignore
 
-		this.my_player = null;
+		this.my_player = localStorage.my_player;
 
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
 	}
@@ -337,12 +337,17 @@ export default class Game extends Generic{
 	/* AUDIO */
 	// Plays a sound. armor_slot is only needed for when a "punch/hit" sound specific to the armor of the player should be played
 	// Internal only lets you play the sound without sharing it with the other players (if DM)
-	async playFxAudioKitById(id, sender, target, armor_slot, global = false ){
+	async playFxAudioKitById(id, ...args ){
 
 		const glibAudio = glib.audioKits;
 		let kit = glibAudio[id];
 		if( !kit )
 			return console.error("Audio kit missing", id);
+		
+		return this.playFxAudioKit.apply(this, [kit].concat(args));
+
+	}
+	async playFxAudioKit(kit, sender, target, armor_slot, global = false ){
 		
 		let sid, tid;
 		if( sender )
@@ -350,11 +355,10 @@ export default class Game extends Generic{
 		if( target )
 			tid = target.id;
 
-		// Todo: Change this to send the full audiokit
 		if( this.is_host && global )
-			this.net.dmPlaySoundOnPlayer(sid, tid, id, armor_slot);
+			this.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot);
 
-		let out = await kit.play(this.audio_fx, sender, target, armor_slot);
+		const out = await kit.play(this.audio_fx, sender, target, armor_slot);
 		return {kit:kit, instances:out};
 
 	}
@@ -768,8 +772,10 @@ export default class Game extends Generic{
 		
 		// Might be undefined
 		this.my_player = null;
-		if( owned[0] )
+		if( owned[0] ){
 			this.my_player = owned[0].id;
+			localStorage.my_player = owned[0].id;
+		}
 		return owned[0];
 		
 	}
@@ -1184,6 +1190,7 @@ export default class Game extends Generic{
 			
 			if( this.playerIsMe(npl, true) && npl.id !== this.my_player ){
 				this.my_player = npl.id;
+				localStorage.my_player = npl.id;
 				this.ui.draw();
 			}
 				

@@ -1,5 +1,4 @@
 UI Overhaul:
-	- Re-introduce armor hit sounds
 	- User inventory page
 		- Netgame players should be able to destroy items
 	- Don't send NPC inventory to netcode players
@@ -18,6 +17,7 @@ Generic code:
 	- Redesign gear stats so it scales with level. Starting with enemies 3 levels above the item, all stats on an item starts being reduced by 1 point in checks.
 	- Character export/import
 	- (later) Redo netcode to send different types when they've changed
+	- 
 
 new Gameplay elements:
 	- Learning/unlearning actions

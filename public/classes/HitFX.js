@@ -36,11 +36,12 @@ export default class HitFX extends Generic{
 		this.stages = Stage.loadThese(this.stages, this);
 	}
 
-	async run( attacker, victim ){
+	// See Stage.run for args
+	async run( ...args ){
 
 
 		for( let stage of this.stages ){
-			await stage.run( attacker, victim );
+			await stage.run( ...args );
 			if( stage.hold ){
 				this._s_rand_offset = null;
 				this._t_rand_offset = null;
@@ -119,8 +120,6 @@ class Stage extends Generic{
 
 		const webgl = game.renderer;
 		
-
-		
 		if( this.particles ){
 
 			const particles = libParticles.get(this.particles);
@@ -131,13 +130,8 @@ class Stage extends Generic{
 				return;
 			}
 
-			
-
 			const aEl = $("#ui div.player[data-id="+esc(attacker.id)+"]");
 			const vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
-
-			
-			
 			const attackerEl = this.origin === 'sender' || this.origin === 'attacker' ? aEl : vEl;
 			const attackerPos = attackerEl.offset();
 			const attackerHeight = attackerEl.outerHeight();
@@ -220,6 +214,7 @@ class Stage extends Generic{
 			game.ui.setPlayerVisual(targ, this.css_fx);
 
 		}
+
 
 		let attached_instances = [];
 		for( let kit of this.sound_kits ){

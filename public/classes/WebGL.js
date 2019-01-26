@@ -557,7 +557,7 @@ class WebGL{
 
 
 	/* FX LAYER */
-	playFX( caster, recipients, visual ){
+	playFX( caster, recipients, visual, armor_slot ){
 
 		let visObj = visual;
 		if( !(visual instanceof HitFX) ){
@@ -569,13 +569,14 @@ class WebGL{
 		}
 		visObj = visObj.clone(this);
 
+		
 
 		if( !Array.isArray(recipients) )
 			recipients = [recipients];
 		
-		for( let recipient of recipients )
-			visObj.run(caster, recipient);
-
+		for( let recipient of recipients ){
+			visObj.run(caster, recipient, armor_slot);
+		}
 		// Todo: Send to players if host
 		
 	}

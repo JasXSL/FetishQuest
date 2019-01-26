@@ -90,7 +90,7 @@ const lib = {
                 se : true
             },
             {
-                s : { path : "media/audio/slap.ogg", volume : 0.5 },
+                s : { path : "media/audio/slap.ogg", volume : 0.5, hit:true },
                 t : 100,
             }
         ],

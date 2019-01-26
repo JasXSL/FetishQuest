@@ -203,13 +203,19 @@ class Text extends Generic{
 		if( returnResult )
 			return text;
 		
-		let audio = [];
 		for( let kit of this.audiokits ){
 			let kd = glib.audioKits[kit];
 			if( !kd )
 				continue;
-			if( Condition.all(kd.conditions, event) )
-				audio.push({id:kit, slot:this.armor_slot});
+			if( Condition.all(kd.conditions, event) ){
+				game.playFxAudioKitById(
+					kit, 
+					event.sender, 
+					event.target, 
+					this.armor_slot,
+					true
+				);
+			}
 		}
 
 		let targs = event.target;
@@ -217,7 +223,7 @@ class Text extends Generic{
 			targs = [targs];
 		for( let fx of this.hitfx ){
 			for( let targ of targs )
-				game.renderer.playFX(event.sender, targ, fx);
+				game.renderer.playFX(event.sender, targ, fx, this.armor_slot);
 		}
 
 		let targ = event.target;
@@ -230,7 +236,6 @@ class Text extends Generic{
 			targ ? targ.id : undefined,
 			'rpText',
 			event.type === GameEvent.Types.actionUsed || this.alwaysOutput,
-			audio
 		);
 
 	}

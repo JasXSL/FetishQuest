@@ -1,5 +1,6 @@
 import Game from './Game.js';
 import GameEvent from './GameEvent.js';
+import { AudioKit } from './Audio.js';
 
 class NetworkManager{
 
@@ -497,7 +498,7 @@ class NetworkManager{
 		else if( task === NetworkManager.dmTasks.sendText ){
 
 			if( typeof args === "object" )
-				game.ui.addText(args.text, args.evtType, args.attackerID, args.targetID, args.acn, true, args.audio);
+				game.ui.addText(args.text, args.evtType, args.attackerID, args.targetID, args.acn, true);
 
 		}
 
@@ -533,8 +534,8 @@ class NetworkManager{
 		else if( task === NetworkManager.dmTasks.playSoundOnPlayer ){
 
 			if( typeof args === "object" )
-				game.playFxAudioKitById(
-					args.kit, 
+				game.playFxAudioKit(
+					new AudioKit(args.kit),
 					game.getPlayerById(args.sender), 
 					game.getPlayerById(args.target), 
 					args.armor_slot

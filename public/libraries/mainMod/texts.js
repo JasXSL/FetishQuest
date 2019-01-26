@@ -859,6 +859,13 @@ const lib = [
 		]),
 		hitfx : ["punch"]
 	},
+	{ text : "%S slips between %T's legs and throws a slap upwards, smacking across %This %groin!",
+		armor_slot : "lowerbody",
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow",
+		]),
+		hitfx : ["slap"]
+	},
 	{ text : "%S slips between %T's legs and throws a punch upwards, smacking the %Trace's %Trsize %leftright buttcheek!",
 		conditions : humOnHumCond.concat([
 			"action_imp_blowFromBelow",

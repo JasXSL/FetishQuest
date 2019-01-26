@@ -16,6 +16,8 @@ export default class Asset extends Generic{
 		this.parent = parent;
 		
 		this.label = '';
+		this.icon = 'perspective-dice-six-faces-random';
+		this.category = this.constructor.Categories.junk;
 		this.name = "";
 		this.description = "";
 		this.slots = [];
@@ -61,6 +63,8 @@ export default class Asset extends Generic{
 			use_action : this.use_action.save(full),
 			rarity : this.rarity,
 			loot_sound : this.loot_sound,
+			icon : this.icon,
+			category : this.category,
 		};
 
 		if( full ){
@@ -341,13 +345,15 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		//console.error("Unable to generate a viable template from", viable_asset_templates, viable_asset_materials);
 		return false;
 	}
-
+	
 	// Additional bonus stats
 	let weightModifier = Math.random() < 0.2 ? 0.5 : 1,			// Fitted
 		durabilityModifier = Math.random() < 0.2 ? 1.5 : 1		// Mastercrafted
 	;
 
 	let out = new Asset({
+		category : this.Categories.armor,
+		icon : template.icon,
 		level : level,
 		label : this.prototype.g_guid().substr(0,16),
 		name : ucFirst(template.name.trim()),
@@ -464,7 +470,8 @@ Asset.Slots = {
 	lowerbody : "lowerbody",
 	head : "head",
 	trinket : "trinket",
-	hands : "hands"
+	hands : "hands",
+	action : "action",			// Goes into an action slot
 };
 
 Asset.Rarity = {
@@ -490,3 +497,23 @@ Asset.RarityNames = [
 	"epic",
 	"legendary"
 ];
+
+Asset.Categories = {
+	junk : 'junk',
+	armor : 'armor',
+	handheld : 'handheld',
+	consumable : 'consumable',
+	food : 'food',
+	reagent : 'reagent',
+	tool : 'tool',
+};
+
+Asset.CategoriesNames = {
+	[Asset.Categories.junk] : 'Junk',
+	[Asset.Categories.armor] : 'Armor',
+	[Asset.Categories.handheld] : 'Handheld',
+	[Asset.Categories.consumable] : 'Consumable',
+	[Asset.Categories.food] : 'Food',
+	[Asset.Categories.tool] : 'Tools',
+	[Asset.Categories.reagent] : 'Reagent',
+};

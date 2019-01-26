@@ -18,6 +18,7 @@ class AssetTemplate extends Generic{
 		this.description = "";
 		this.tags = [];
 		this.size = 1.0;					// Size multiplier, used in weight calculations
+		this.icon = 'perspective-dice-six-faces-random';
 
 		this.load(data);
 	}
@@ -37,6 +38,7 @@ class AssetTemplate extends Generic{
 			description : this.description,
 			tags : this.tags,
 			size : this.size,
+			icon : this.icon,
 		};
 	}
 
@@ -123,6 +125,7 @@ class AssetTemplate extends Generic{
 			durability_bonus : mat.durability_bonus,
 			weight : Math.round(mat.weight*this.slots.length*this.size),
 			stat_bonus : mat.stat_bonus,
+			icon : this.icon,
 		});
 
 	}
@@ -143,6 +146,7 @@ class AssetOutput extends Generic{
 		this.durability_bonus = 0;
 		this.weight = 0;
 		this.stat_bonus = 0;
+		this.icon = '';
 		this.load(data);
 	}
 

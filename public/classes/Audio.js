@@ -186,13 +186,16 @@ class AudioKit extends Generic{
 		this.conditions = Condition.loadThese(this.conditions, this);
 	}
 
-	save(complete){
-		return {
+	save( full ){
+		const out = {
 			follow_parts : this.follow_parts,
-			label : this.label,
 			sounds : this.sounds,
-			conditions : Condition.saveThese(this.conditions, complete)
 		};
+		if( full ){
+			out.label = this.label;
+			out.conditions = Condition.saveThese(this.conditions, complete);
+		}
+		return out;
 	}
 
 

@@ -412,8 +412,6 @@ export default class UI{
 				lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerbody);
 			
 			let rb_entries = [];
-			
-				//'<span class="arousal resource">'+()+'</span> '+	Todo: Add arousal resource
 			rb_entries.push('<span class="arousal resource" title="Arousal.\n+'+Math.round(p.arousal/p.getMaxArousal()*50)+'% corruption damage taken">'+
 				Math.round(p.arousal/p.getMaxArousal()*100)+'%'+
 			'</span>');
@@ -624,9 +622,12 @@ export default class UI{
 	// Bottom menu
 	drawGameIcons(){
 
+		const player = game.getMyActivePlayer();
+
 		let th = this;
 		let html = 
 			'<div class="button'+(!this.visible ? ' highlighted' : '')+'" data-id="map" style="background-image:url(/media/wrapper_icons/treasure-map.svg);"></div>'+
+			(player ? '<div class="button" data-id="inventory" style="background-image:url(/media/wrapper_icons/light-backpack.svg);"></div>' : '')+
 			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'+
 			'<div class="button" data-id="audioToggle" style="background-image: url(media/wrapper_icons/speaker.svg)">'+
 				'<div class="rollout">'+
@@ -662,6 +663,8 @@ export default class UI{
 				th.drawMainMenu();
 			else if( id === 'multiplayer' )
 				th.drawNetSettings();
+			else if( id === 'inventory' )
+				th.drawPlayerInventory();
 			else if( id === 'audioToggle' ){
 
 				let el = $("> div", this);
@@ -963,26 +966,13 @@ export default class UI{
 
 	// Prints a message
 	// audioObj can be an object with {id:(str)soundKitId, slot:(str)armorSlot}
-	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture, audioArr ){
+	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture ){
 
 		let gTypes = GameEvent.Types;
 		if( this.captureActionMessage && !disregardCapture ){
 			this.capturedMessages.push([...arguments]);
 			return;
 		}
-
-		// Todo: Change this to send the actual audio object
-		if( Array.isArray(audioArr) && game.initialized){
-			for( let audioObj of audioArr ){
-				game.playFxAudioKitById(
-					audioObj.id, 
-					game.getPlayerById(attackerID), 
-					game.getPlayerById(targetID), 
-					audioObj.slot
-				);
-			}
-		}
-
 
 		this.parent.logChat.apply(this.parent, [...arguments]);
 
@@ -999,7 +989,6 @@ export default class UI{
 				attackerID : attackerID,
 				targetID : targetID,
 				acn : additionalClassName,
-				audio : audioArr
 			});
 
 		let target = this.parent.getPlayerById(targetID),
@@ -1442,80 +1431,18 @@ export default class UI{
 			html += '<div class="left">'+
 				'<h3>'+esc(player.name)+'</h3>'+
 				'<em>Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name)+'</em>'+
+				// Todo: Replace with exp bar
 				'<p class="stats">'+
-					player.hp+'/'+player.getMaxHP()+' HP | '+
-					player.ap+'/'+player.getMaxAP()+' AP | '+
-					player.mp+'/'+player.getMaxMP()+' MP | '+
 					player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP'+
 				'</p>'+
 				'<em>'+esc(player.description)+'</em><br />'+
-				'<br />'+(game.is_host ? '<input type="button" class="editPlayer yellow" value="Edit Player" /> ' : '');
+				'<br />'+(game.is_host ? '<input type="button" class="editPlayer yellow devtool" value="Edit Player" /> ' : '');
 				
 				if(game.is_host)
-					html += '<input type="button" class="red" value="Delete" />';
+					html += '<input type="button" class="red devtool" value="Delete" />';
 				html += '<br />';
-
-
-				// Draw actions
-				html += '<h3>Actions</h3>';
-				html += '<div class="actions">';
-				let actions = player.getActions( false );
-				for( let ability of actions ){
-					if( ability.hidden || ability.semi_hidden )
-						continue;
-					html+= '<div class="action tooltipParent'+(ability.label.substr(0,3) === 'std' ? ' noDelete' : '')+'" data-id="'+esc(ability.id)+'">';
-						html+= esc(ability.name);
-						html+= '<div class="tooltip actionTooltip">';
-							html += ability.getTooltipText();
-						html += '</div>';
-					html+= '</div>';
-				}
-				html += '</div>';
-
-				if( game.is_host )
-					html += '<input type="button" value="+ Learn Action" class="addAction blue" />';
 				
-				html += '<br /><br />';
 
-
-
-				// Draw inventory
-				html += '<h3>Inventory</h3>';
-				html += '<em>Carrying '+(Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg</em><br />';
-				html+= '<div class="inventory">';
-				let inv = [];
-				for(let asset of player.assets)
-					inv.push(asset);
-				inv.sort((a,b) => {
-					if(a.equipped && !b.equipped)
-						return -1;
-					if(b.equipped && !a.equipped)
-						return 1;
-					if(a.name === b.name)
-						return 0;
-					return a.name < b.name ? -1 : 1;
-				});
-				for(let item of inv){
-					if( !item.equipped )
-						html += '<br />';
-					html += '<div class="item '+Asset.RarityNames[item.rarity]+' tooltipParent '+(item.equippable() ? 'equippable' : '')+(item.equipped ? ' equipped' : '')+(item.durability <= 0 ? ' broken' : '')+'" data-id="'+esc(item.id)+'">';
-					html += (item.equipped ? '<strong>' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
-						html += '<div class="tooltip">';
-							html += item.getTooltipText();
-						html += '</div>';
-					html+= '</div>';
-				}
-				html+= '</div>';
-
-				if( game.is_host )
-					html+= '<input type="button" value="+ Add Item" class="addInventory blue" /><br /><br />';
-
-			html += '</div>';
-
-			// Right side
-			html += '<div class="right">'+
-				// Image
-				'<img src="'+esc(player.icon)+'" class="inspect_icon" />';
 				html += '<h3 style="text-align:center">Primary Stats</h3>';
 				let stats = player.getPrimaryStats();
 				html += '<div class="flexThreeColumns">';
@@ -1569,13 +1496,44 @@ export default class UI{
 					html += '<div class="tag" title="Grants you a chance to resist detrimental '+esc(stat.type)+' effects based on the caster\'s '+esc(stat.type)+' proficiency.">'+stat.val+' '+esc(stat.type.substr(0,6))+(stat.type.length>6 ? '.' : '')+'</div>';
 				html += '</div>';
 				
+				
 
+				// Draw actions
+				html += '<h3>Actions</h3>';
+				html += '<div class="actions">';
+				let actions = player.getActions( false );
+				for( let ability of actions ){
+					if( ability.hidden || ability.semi_hidden )
+						continue;
+					html+= '<div class="action tooltipParent'+(ability.label.substr(0,3) === 'std' ? ' noDelete' : '')+'" data-id="'+esc(ability.id)+'">';
+						html+= esc(ability.name);
+						html+= '<div class="tooltip actionTooltip">';
+							html += ability.getTooltipText();
+						html += '</div>';
+					html+= '</div>';
+				}
+				html += '</div>';
+
+				if( game.is_host )
+					html += '<input type="button" value="+ Learn Action" class="addAction blue devtool" />';
+
+				
+
+			html += '</div>';
+
+			// Right side
+			html += '<div class="right">'+
+				// Image
+				'<img src="'+esc(player.icon)+'" class="inspect_icon" />';
+				
 				// Tags
-				html += '<h3>Active Tags</h3>';
-				html += '<div class="flexAuto">';
-					let tags = Array.from(new Set(player.getTags())).sort();
-					for( let tag of tags )
-						html += '<div class="tag">'+esc(tag)+'</div>';
+				html += '<div class="devtool">';
+					html += '<h3>Active Tags</h3>';
+					html += '<div class="flexAuto">';
+						let tags = Array.from(new Set(player.getTags())).sort();
+						for( let tag of tags )
+							html += '<div class="tag">'+esc(tag)+'</div>';
+					html += '</div>';
 				html += '</div>';
 			html += '</div>';
 
@@ -1598,54 +1556,8 @@ export default class UI{
 			game.modal.close();
 		});
 
-		$("#modal input.addInventory").on('click', () => {
-			this.drawPlayerAssetSelector(player);
-		});
-
 		$("#modal input.addAction").on('click', () => {
 			this.drawPlayerActionSelector(player);
-		});
-
-		$("#modal div.item[data-id]").on('click', function(event){
-			
-			let id = $(this).attr('data-id');
-			let asset = player.getAssetById(id);
-
-			if( event.ctrlKey && game.is_host ){
-				if( confirm('Really delete?') && game.deletePlayerItem( player, id) ){
-					th.drawPlayerInspector( uuid );
-					th.draw();
-				}
-			}
-			else if( event.shiftKey  && game.is_host ){
-				if( asset )
-					th.drawAssetEditor( asset, player );
-			}
-			// Toggle equip / use
-			else{
-
-				// Clicking an item in inventory triggers a local sound
-				if( asset && asset.loot_sound )
-					game.playFxAudioKitById(asset.loot_sound, player, player );
-
-				if( asset && asset.usable() && (!game.battle_active || player === game.getTurnPlayer()) ){
-
-					let action = asset.use_action;
-					let targets = action.getViableTargets();
-					if( !targets.length )
-						return;
-
-					th.drawTargetSelector( action, player );
-					game.modal.close();
-
-				}
-
-				if( asset && asset.equippable() && game.equipPlayerItem(player, id) ){
-					th.drawPlayerInspector( uuid );
-					th.draw();
-				}
-				
-			}
 		});
 
 		$("#modal div.action[data-id]").on('click', function(event){
@@ -1662,12 +1574,161 @@ export default class UI{
 
 	}
 
+	// Draws inventory for active player
+	drawPlayerInventory(){
+		const player = game.getMyActivePlayer();
+		const th = this;
+		if( !player )
+			return;
+
+		// Draw inventory
+		let html = '';
+		html+= '<div class="inventory flexTwoColumns">';
+
+			let slots = [
+				{slot:Asset.Slots.upperbody, icon:'breastplate'},
+				{slot:Asset.Slots.lowerbody, icon:'armored-pants'},
+				{slot:Asset.Slots.hands, icon:'crossed-swords'}
+			];
+
+			// Equipment
+			html += '<div class="left">';
+
+				// Todo: Make into a progress bar
+				html += '<em>Carrying '+(Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg</em><br />';
+
+				html += '<h3>Equipment</h3>';
+			for( let slot of slots ){
+				const asset = player.getEquippedAssetsBySlots(slot.slot)[0];
+				html += '<div class="equipmentSlot tooltipParent item" data-slot="'+Asset.Slots.upperbody+'">'+
+					(asset ? 
+						'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" /><div class="tooltip">'+asset.getTooltipText()+'</div>' : 
+						'<img class="bg template" src="media/wrapper_icons/'+slot.icon+'.svg" />'
+					)+
+				'</div>';
+			}
+				html += '<h3>Toolbelt</h3>';
+
+			// Todo: Tool belt
+			for( let i =0; i<3; ++i ){
+				const asset = player.getEquippedAssetsBySlots(Asset.Slots.action)[i];
+				html += '<div class="equipmentSlot tooltipParent item" data-slot="'+Asset.Slots.upperbody+'">'+
+					(asset ? 
+						'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" /><div class="tooltip">'+asset.getTooltipText()+'</div>' : 
+						'<img class="bg template" src="media/wrapper_icons/potion-ball.svg" />'
+					)+
+				'</div>';
+			}
+
+
+			html += '</div>';
+
+			// listing
+			html += '<div class="right">';
+
+				let inv = [];
+				for(let asset of player.assets)
+					inv.push(asset);
+				inv = inv.filter(el => !el.equipped).sort((a,b) => {
+					if( a.category !== b.category ){
+						return a.category < b.category ? -1 : 1;
+					}
+					if(a.name === b.name)
+						return 0;
+					return a.name < b.name ? -1 : 1;
+				});
+				let cat = '';
+				for(let item of inv){
+					if( !cat || item.category !== cat ){
+						cat = item.category;
+						html += '<h3 class="category">'+esc(Asset.CategoriesNames[cat])+'</h3>';
+					}
+					html += '<div class="item '+Asset.RarityNames[item.rarity]+' tooltipParent '+(item.equippable() ? 'equippable' : '')+(item.equipped ? ' equipped' : '')+(item.durability <= 0 ? ' broken' : '')+'" data-id="'+esc(item.id)+'">';
+						html += '<img class="assetIcon" src="media/wrapper_icons/'+esc(item.icon)+'.svg" />';
+						html += (item.equipped ? '<strong>' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
+						html += '<div class="tooltip">';
+							html += item.getTooltipText();
+						html += '</div>';
+					html+= '</div>';
+				}
+				
+
+				if( game.is_host )
+					html+= '<br /><input type="button" value="+ Add Item" class="addInventory blue devtool" /><br /><br />';
+
+				html+= '</div>';
+
+			html += '</div>';
+
+
+		
+	
+		
+		
+		game.modal.set(html);
+
+
+
+		$("#modal div.item[data-id]").on('click', function(event){
+			
+			let id = $(this).attr('data-id');
+			let asset = player.getAssetById(id);
+
+			if( event.ctrlKey && game.is_host ){
+				if( confirm('Really delete?') && game.deletePlayerItem( player, id) ){
+					th.drawPlayerInventory();
+					th.draw();
+				}
+			}
+			else if( event.shiftKey  && game.is_host ){
+				if( asset )
+					th.drawAssetEditor( asset, player );
+			}
+			// Toggle equip / use
+			else{
+
+				// Clicking an item in inventory triggers a local sound
+				if( asset && asset.loot_sound )
+					game.playFxAudioKitById(asset.loot_sound, player, player );
+
+				console.log("Todo: Item click actions");
+				/*
+				
+
+				if( asset && asset.usable() && (!game.battle_active || player === game.getTurnPlayer()) ){
+
+					let action = asset.use_action;
+					let targets = action.getViableTargets();
+					if( !targets.length )
+						return;
+
+					th.drawTargetSelector( action, player );
+					game.modal.close();
+
+				}
+
+				if( asset && asset.equippable() && game.equipPlayerItem(player, id) ){
+					th.drawPlayerInventory();
+					th.draw();
+				}
+				*/
+				
+			}
+		});
+
+		$("#modal input.addInventory").on('click', () => {
+			this.drawPlayerAssetSelector();
+		});
+		
+	}
+
 	// Asset library, allows you to add assets to a player 
-	drawPlayerAssetSelector( player ){
+	drawPlayerAssetSelector(){
 
 		let html = '',
 			th = this
 		;
+		const player = game.getMyActivePlayer();
 
 		let lib = glib.getFull('Asset');
 		html+= '<div class="inventory tooltipShrink">';
@@ -1700,7 +1761,7 @@ export default class UI{
 				}
 
 				th.parent.removeFromLibrary(asset);
-				th.drawPlayerAssetSelector(player);
+				th.drawPlayerAssetSelector();
 				th.parent.save();
 
 			}
@@ -1713,7 +1774,7 @@ export default class UI{
 
 			else if(player.addLibraryAsset(id)){
 				await game.save();
-				th.drawPlayerInspector(player.id);
+				th.drawPlayerInventory();
 				th.draw();
 			}
 
@@ -2051,6 +2112,13 @@ export default class UI{
 				html += '<div>Rarity:<br /><input type="number" min=0 step=1 max=4 name="rarity" value="'+(+a.rarity)+'" /></div>';
 				if( a.parent )
 					html += '<div>Durability:<br /><input type="number" min=0 step=1 name="durability" value="'+(+a.durability)+'" /></div>';
+				html += '<div>Loot Sound:<br /><input type="text" min=0 step=1 name="loot_sound" value="'+esc(a.loot_sound)+'" /></div>';
+				html += '<div>Icon:<br /><input type="text" min=0 step=1 max=4 name="icon" value="'+esc(a.icon)+'" /></div>';
+				html += '<div><select name="category">';
+				for( let cat in Asset.Categories )
+					html += '<option value="'+esc(cat)+'" '+(a.category === cat ? 'selected' : '')+'>'+esc(Asset.CategoriesNames[cat])+'</option>';
+				html += '</select></div>';
+
 			html += '</div>';
 			
 			
@@ -2117,6 +2185,9 @@ export default class UI{
 			a.durability_bonus = +$("input[name=durability_bonus]", root).val();
 			a.weight = +$("input[name=weight]", root).val();
 			a.rarity = +$("input[name=rarity]", root).val();
+			a.loot_sound = $("input[name=loot_sound]", root).val();
+			a.category = $("select[name=category]", root).val();
+			a.icon = $("input[name=icon]", root).val();
 			if( a.parent ){
 				a.durability = +$("input[name=durability]", root).val();
 			}
@@ -2205,6 +2276,9 @@ export default class UI{
 			$("#saveAsset input[name=weight]").val(ass.weight);
 			$("#saveAsset input[name=rarity]").val(ass.rarity);
 			$("#saveAsset input[name=durability]").val(ass.getMaxDurability());
+			$("#saveAsset input[name=loot_sound]").val(ass.loot_sound);
+			$("#saveAsset select[name=category]").val(ass.category);
+			$("#saveAsset input[name=icon]").val(ass.icon);
 			ass.durability = ass.getMaxDurability();
 			
 			$("#saveAsset input[name=slots]").each(function(){
