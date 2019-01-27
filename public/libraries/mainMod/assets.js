@@ -257,6 +257,7 @@ const lib = {
 		rarity : 0,
 		icon : 'potion-ball',
 		loot_sound : "lootPotion",
+		slots : [Asset.Slots.action],
 	},
 	healingPotion : {
 		category : Asset.Categories.consumable,
@@ -266,6 +267,7 @@ const lib = {
 		use_action : "healingPotion",
 		rarity : 1,
 		icon : 'potion-ball',
+		slots : [Asset.Slots.action],
 		loot_sound : "lootPotion",
 	},
 	majorHealingPotion : {
@@ -276,6 +278,7 @@ const lib = {
 		use_action : "majorHealingPotion",
 		rarity : 2,
 		icon : 'potion-ball',
+		slots : [Asset.Slots.action],
 		loot_sound : "lootPotion",
 	},
 	manaPotion : {
@@ -285,8 +288,9 @@ const lib = {
 		charges : 1,
 		use_action : "manaPotion",
 		rarity : 1,
-		icon : 'potion-ball',
-		loot_sound : "spiral-bottle",
+		icon : 'spiral-bottle',
+		slots : [Asset.Slots.action],
+		loot_sound : "lootPotion",
 	},
 	majorManaPotion : {
 		category : Asset.Categories.consumable,
@@ -295,7 +299,8 @@ const lib = {
 		charges : 1,
 		use_action : "majorManaPotion",
 		rarity : 2,
-		loot_sound : "spiral-bottle",
+		icon : "spiral-bottle",
+		slots : [Asset.Slots.action],
 		loot_sound : "lootPotion",
 	}
 };

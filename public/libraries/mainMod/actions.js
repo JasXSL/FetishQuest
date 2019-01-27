@@ -1649,16 +1649,10 @@ const lib = {
 		cooldown : 0,
 		max_targets : 1,
 		detrimental : false,
-		type : "Physical",
-		tags : [],
-		"no_use_text": true,
-		"no_action_selector": true,
-		conditions : [
-			"targetHasRepairable"
-		],
-		show_conditions : [
-			"notInCombat"
-		],
+		no_use_text : true,
+		no_action_selector : true,
+		conditions : ["targetHasRepairable"],
+		show_conditions : ["notInCombat"],
 		wrappers : [
 			{
 				target : "VICTIM",

@@ -1,6 +1,7 @@
 UI Overhaul:
 	- User inventory page
 		- Netgame players should be able to destroy items
+	- Items should only be able to be used in combat if they're on the toolbelt
 	- Don't send NPC inventory to netcode players
 	- Quest start and finish splash screens
 	

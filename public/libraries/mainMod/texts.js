@@ -913,6 +913,12 @@ const lib = [
 		]),
 		hitfx : ["slap"]
 	},
+	{ text : "%S slips underneath %T and throws a througough slap across %this %Tbutt!",
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow",
+		]),
+		hitfx : ["slap"]
+	},
 	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast, jiggling it around!",
 		armor_slot:"upperbody",
 		conditions : humOnHumCond.concat([

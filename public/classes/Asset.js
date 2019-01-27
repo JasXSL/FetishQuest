@@ -129,8 +129,13 @@ export default class Asset extends Generic{
 		return this.slots.length && verifyConds;
 	}
 
-	usable(){
+	// Checks only if this is a consumable item
+	isConsumable(){
 		return this.charges !== 0 && this.use_action;
+	}
+
+	isUsable(){
+		return this.use_action && this.use_action.castable() && this.use_action.getViableTargets().length;
 	}
 
 	consumeCharges( charges=1 ){
@@ -228,7 +233,7 @@ export default class Asset extends Generic{
 		let html = '';
 		
 		// Usable items shows the action tooltip instead
-		if( this.usable() ){
+		if( this.isConsumable() ){
 
 			html += this.use_action.getTooltipText();
 			return html;

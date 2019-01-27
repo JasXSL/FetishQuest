@@ -785,18 +785,27 @@ export default class Player extends Generic{
 					console.error("Item can not be equipped");
 					return false;
 				}
-				if( this.unequipAssetsBySlots(asset.slots) ){
-					asset.equipped = true;
-					this.onItemChange();
-					if( game.battle_active && byPlayer )
-						game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
-					return true;
-				}
+
+				// Special case for action slot
+				const isActionAsset = ~asset.slots.indexOf(Asset.Slots.action);
+				if( isActionAsset && !this.unequipActionAssetIfFull() )
+					return false;
+				if( !isActionAsset && !this.unequipAssetsBySlots(asset.slots) )
+					return false;
+
+				asset.equipped = true;
+				this.onItemChange();
+				if( game.battle_active && byPlayer )
+					game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
+				return true;
+
+				
 			}
 		}
 		return false;
 	}
 	unequipAsset( id, byPlayer ){
+
 		let assets = this.getAssetsEquipped(true);
 		for(let asset of assets){
 			if(asset.id === id){
@@ -808,6 +817,7 @@ export default class Player extends Generic{
 			}
 		}
 		return true;
+
 	}
 	unequipAssetsBySlots( slots ){
 		let equipped = this.getEquippedAssetsBySlots(slots, true);
@@ -819,6 +829,15 @@ export default class Player extends Generic{
 		}
 		return true;
 	}
+
+	// Unequips the leftmost one if toolbelt is full
+	unequipActionAssetIfFull(){
+		let assets = this.getEquippedAssetsBySlots(Asset.Slots.action, true);
+		if( assets.length < 3 )
+			return true;
+		return this.unequipAsset(assets[0].id);
+	}
+
 	// Returns equipped assets
 	getAssetsEquipped( includeBroken ){
 		let out = [];
@@ -1310,11 +1329,13 @@ export default class Player extends Generic{
 		
 		let out = this.actions.slice();
 		if( include_items ){
+
 			for( let asset of this.assets ){
 				let action = asset.use_action;
-				if( asset.usable() )
+				if( asset.isConsumable() && (asset.equipped || !game.battle_active) )
 					out.push(action);
 			}
+
 		}
 
 		return out;

@@ -163,6 +163,9 @@ export default class GameLib{
 
 	// Rebuild caches
 	rebase(){
+		this._cache_assets = {};
+		for( let i in this.assets )
+			this._cache_assets[i] = this.assets[i];
 		for( let i in this._custom_assets ){
 			this._cache_assets[i] = this._custom_assets[i];
 			this._cache_assets[i]._custom = true;
@@ -176,7 +179,6 @@ export default class GameLib{
 			assets = {};
 
 		this._custom_assets = assets;
-		
 		this.rebase();
 		
 	}

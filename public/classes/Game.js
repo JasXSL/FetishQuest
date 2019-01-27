@@ -1366,7 +1366,7 @@ export default class Game extends Generic{
 			return false;
 
 		delete library[asset.label];
-		glib.rebase();
+		glib.setCustomAssets(library);
 
 	}
 

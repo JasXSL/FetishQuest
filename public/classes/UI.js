@@ -227,10 +227,7 @@ export default class UI{
 			let spell = player.getActionById(id);
 			const enabled = $(this).is('.enabled');
 
-			const targetable = 
-				spell.target_type !== Action.TargetTypes.self &&
-				spell.target_type !== Action.TargetTypes.aoe
-			;
+			const targetable = spell && spell.targetable();
 
 			if( th.action_selected && th.action_selected !== spell )
 				return;
@@ -1600,7 +1597,7 @@ export default class UI{
 				html += '<h3>Equipment</h3>';
 			for( let slot of slots ){
 				const asset = player.getEquippedAssetsBySlots(slot.slot)[0];
-				html += '<div class="equipmentSlot tooltipParent item" data-slot="'+Asset.Slots.upperbody+'">'+
+				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+' item tooltipParent item" data-slot="'+slot.slot+'" data-id="'+esc(asset ? asset.id : '')+'">'+
 					(asset ? 
 						'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" /><div class="tooltip">'+asset.getTooltipText()+'</div>' : 
 						'<img class="bg template" src="media/wrapper_icons/'+slot.icon+'.svg" />'
@@ -1609,10 +1606,9 @@ export default class UI{
 			}
 				html += '<h3>Toolbelt</h3>';
 
-			// Todo: Tool belt
 			for( let i =0; i<3; ++i ){
 				const asset = player.getEquippedAssetsBySlots(Asset.Slots.action)[i];
-				html += '<div class="equipmentSlot tooltipParent item" data-slot="'+Asset.Slots.upperbody+'">'+
+				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '' )+' item tooltipParent item" data-slot="'+Asset.Slots.action+'" data-id="'+esc(asset ? asset.id : '')+'">'+
 					(asset ? 
 						'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" /><div class="tooltip">'+asset.getTooltipText()+'</div>' : 
 						'<img class="bg template" src="media/wrapper_icons/potion-ball.svg" />'
@@ -1685,36 +1681,82 @@ export default class UI{
 					th.drawAssetEditor( asset, player );
 			}
 			// Toggle equip / use
-			else{
+			else if( asset ){
 
-				// Clicking an item in inventory triggers a local sound
-				if( asset && asset.loot_sound )
-					game.playFxAudioKitById(asset.loot_sound, player, player );
+				const isHotbar = $(this).hasClass('equipmentSlot');
+				const hotbar_slot = $(this).attr('data-slot');
+				
+				const modal = game.modal;
+				modal.prepareSelectionBox();
 
-				console.log("Todo: Item click actions");
-				/*
 				
 
-				if( asset && asset.usable() && (!game.battle_active || player === game.getTurnPlayer()) ){
+				if( isHotbar )
+					modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
+				else if( asset.equippable() )
+					modal.addSelectionBoxItem( 'Equip', '', 'equip' );
 
-					let action = asset.use_action;
-					let targets = action.getViableTargets();
-					if( !targets.length )
-						return;
-
-					th.drawTargetSelector( action, player );
-					game.modal.close();
-
+				if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
+					modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
 				}
 
-				if( asset && asset.equippable() && game.equipPlayerItem(player, id) ){
-					th.drawPlayerInventory();
-					th.draw();
+				if( !game.battle_active ){
+					modal.addSelectionBoxItem( 'Trade', 'Trade this item to another player.', 'trade' );
+					modal.addSelectionBoxItem( 'Destroy', 'Destroy this item.', 'destroy' );
 				}
-				*/
+
+
+				modal.onSelectionBox(function(){
+					let element = $(this);
+					const task = element.attr('data-id');
+
+					if( (task === 'unequip' || task === 'equip') && asset.equippable() && game.equipPlayerItem(player, id) ){
+						
+						if( asset.loot_sound )
+							game.playFxAudioKitById(asset.loot_sound, player, player );
+						th.drawPlayerInventory();
+						th.draw();
+						
+					}
+					else if( task === 'use' ){
+
+						let action = asset.use_action;
+						let targets = action.getViableTargets();
+						if( !targets.length )
+							return;
+
+						th.action_selected = action;
+						th.targets_selected = [];
+
+						if( action.castable(true) ){
+							th.targets_selected = [];
+							th.drawTargetSelector();
+						}
+
+						if( action.targetable() )
+							game.modal.close();
+						else
+							th.drawPlayerInventory();
+						
+					}
+					// Todo: Trade
+					else if( task == 'trade' ){
+
+					}
+					// Todo: Destroy
+					else if( task === 'destroy' ){
+
+					}
+
+					modal.closeSelectionBox();
+
+
+				});
 				
 			}
 		});
+
+
 
 		$("#modal input.addInventory").on('click', () => {
 			this.drawPlayerAssetSelector();
@@ -1760,7 +1802,7 @@ export default class UI{
 					return false;
 				}
 
-				th.parent.removeFromLibrary(asset);
+				game.removeFromLibrary(asset);
 				th.drawPlayerAssetSelector();
 				th.parent.save();
 

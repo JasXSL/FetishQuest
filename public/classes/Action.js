@@ -215,6 +215,10 @@ class Action extends Generic{
 		return this.parent instanceof Asset;
 	}
 
+	targetable(){
+		return this.target_type !== Action.TargetTypes.self && this.target_type !== Action.TargetTypes.aoe;
+	}
+
 
 	/* Base functions */
 	// Automatically sets cooldown if needed
