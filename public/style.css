@@ -521,7 +521,7 @@ div.fxBuffBlue{
 		opacity: 0.25;
 	}
 	
-	#modal div.inventory div.item.equippable.broken{
+	#modal div.inventory div.item.broken{
 		background-color:#655;
 	}
 	#modal div.inventory div.item.custom{

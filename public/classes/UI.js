@@ -1596,8 +1596,8 @@ export default class UI{
 
 				html += '<h3>Equipment</h3>';
 			for( let slot of slots ){
-				const asset = player.getEquippedAssetsBySlots(slot.slot)[0];
-				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+' item tooltipParent item" data-slot="'+slot.slot+'" data-id="'+esc(asset ? asset.id : '')+'">'+
+				const asset = player.getEquippedAssetsBySlots(slot.slot, true)[0];
+				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item" data-slot="'+slot.slot+'" data-id="'+esc(asset ? asset.id : '')+'">'+
 					(asset ? 
 						'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" /><div class="tooltip">'+asset.getTooltipText()+'</div>' : 
 						'<img class="bg template" src="media/wrapper_icons/'+slot.icon+'.svg" />'
@@ -1607,8 +1607,8 @@ export default class UI{
 				html += '<h3>Toolbelt</h3>';
 
 			for( let i =0; i<3; ++i ){
-				const asset = player.getEquippedAssetsBySlots(Asset.Slots.action)[i];
-				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '' )+' item tooltipParent item" data-slot="'+Asset.Slots.action+'" data-id="'+esc(asset ? asset.id : '')+'">'+
+				const asset = player.getEquippedAssetsBySlots(Asset.Slots.action, true)[i];
+				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '' )+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item" data-slot="'+Asset.Slots.action+'" data-id="'+esc(asset ? asset.id : '')+'">'+
 					(asset ? 
 						'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" /><div class="tooltip">'+asset.getTooltipText()+'</div>' : 
 						'<img class="bg template" src="media/wrapper_icons/potion-ball.svg" />'

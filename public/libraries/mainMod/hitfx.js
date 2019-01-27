@@ -85,7 +85,10 @@ out[id].stages.push(
 		particles : 'hitfx_sparks_smaller',
 		emit_duration : 100,
 		dest_rand : 0.5,
-		tween : false
+		tween : false,
+		sound_kits : ['pinchGeneric'],
+		css_fx : 'fxTakeDamage',
+		
 	}, out[id]),
 );
 

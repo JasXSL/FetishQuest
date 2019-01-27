@@ -14,6 +14,8 @@ import libParticles from '../libraries/particles.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 
+const DISABLE_DUNGEON = false;
+
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;
 
@@ -411,8 +413,8 @@ class WebGL{
 	// Dungeon stage cache
 	async loadActiveDungeon(){
 
-		// Todo: Delete
-		return;
+		if( DISABLE_DUNGEON )
+			return;
 
 		if( !game.dungeon || game.dungeon.id === this.cache_dungeon )
 			return;
@@ -883,7 +885,6 @@ class Stage{
 		else
 			this.onTurnOn();
 		this.group.visible = !!on;
-		// Todo: Re-enable sounds
 	}
 
 	onTurnOn(){
@@ -935,7 +936,7 @@ class Stage{
 				if( !obj.userData.mouseover )
 					this.constructor.bindGenericHover(obj);
 				obj.userData.click = mesh => {
-					const player = game.getgetMyActivePlayerMyFirstPlayer(),
+					const player = game.getMyActivePlayer(),
 						dungeonAsset = mesh.userData.dungeonAsset,	// Do it this way becaues dungonAsset upstream might have changed in netcode
 						room = dungeonAsset.parent
 					;

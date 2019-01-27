@@ -4,7 +4,7 @@ UI Overhaul:
 	- Items should only be able to be used in combat if they're on the toolbelt
 	- Don't send NPC inventory to netcode players
 	- Quest start and finish splash screens
-	
+	- New battle start visual
 
 - multiplayer
 	- Decouple audio from text, and have it send audio packets to multiplayer

@@ -471,7 +471,7 @@ const lib = [
 		]),
 		hitfx : ["stretch"]
 	},
-	{ text : "%S slips %Shis %Sgear between %T's buttcheeks, grinding it back and fort!",
+	{ text : "%S slips %Shis %Sgear between %T's buttcheeks, grinding it back and forth!",
 		conditions : anyOnHumCond.concat([
 			"action_stdArouse","senderHasWhip","targetVagina",
 			{conditions : 
@@ -1279,7 +1279,7 @@ const lib = [
 		hitfx : ["squeeze"]
 	},
 	{ text : "%S grabs at %T!",
-		conditions : humOnHumCond.concat([
+		conditions : baseCond.concat([
 			"action_warrior_viceGrip",
 		]),
 		hitfx : ["squeeze"]
