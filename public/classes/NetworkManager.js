@@ -766,7 +766,7 @@ class NetworkManager{
 
 		if( !gameCombatPre && game.battle_active ){
 			// Trigger start battle cinematic
-			game.modal.battleVis();
+			game.ui.battleVis();
 		}
 
 	}

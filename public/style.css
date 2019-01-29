@@ -392,25 +392,38 @@ div.fxBuffBlue{
 		position: absolute;
 		top:0; left:0; right:0; bottom:0;
 	}
-	@keyframes modalBattleStart{
-		0%{ backdrop-filter: invert(1) blur(2px);}
-		10%{ backdrop-filter: invert(0) blur(2px); }
-		20%{ backdrop-filter: invert(1) blur(2px); }
-		30%{ backdrop-filter: invert(0) blur(2px); }
-		40%{ backdrop-filter: invert(1) blur(2px); }
-		50%{ backdrop-filter: invert(0) blur(2px); }
-		60%{ backdrop-filter: invert(1) blur(2px); }
-		70%{ opacity:1; backdrop-filter: invert(0) blur(2px); }
-		100%{ opacity:0; backdrop-filter: invert(0) blur(0); }
-	}
-	#modal.battleStart{
-		animation: modalBattleStart 2s ease-in-out forwards;
-	}
 /**/
 
 
+/* Progress bars */
+	div.progressBar{
+		border-radius:0.5vmax;
+		border:1px solid #AAA;
+		background:rgba(0,0,0,.75);
+		color:#FFF;
+		text-shadow: 0.1vmax 0.1vmax 0 #000;
+		margin-bottom:0.5vmax;
+		text-align: center;
+		overflow: hidden;
+		padding:0.5vmax;
+	}
+	div.progressBar div.bar{
+		height:100%;
+		position: absolute;
+		top: 0; left: 0;
+		background: linear-gradient(to bottom, #9dd254 0%,#68ba2a 50%,#44aa00 51%,#74cb2d 100%);
+		box-shadow:0.25vmax 0 0.5vmax rgba(0,0,0,.5);
+	}
 
+	div.progressBar.red div.bar{
+		background: linear-gradient(to bottom, #d25458 0%,#ba3b2a 50%,#aa1a00 51%,#cb3d2d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	}
+	div.progressBar.yellow div.bar{
+		background: linear-gradient(to bottom, #d2ae54 0%,#baa72a 50%,#aa9900 51%,#cbb32d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	}
+	
 
+/**/
 
 
 
@@ -507,10 +520,14 @@ div.fxBuffBlue{
 	#modal div.inventory > div.left{
 		width:20%;
 		flex:20%;
+		margin-right:3vmax;
+	}
+	#modal div.inventory > div.left > div.progressBar{
+		width:93%;
 	}
 	#modal div.inventory div.item.equipmentSlot{
-		width:6vmax;
-		height:5vmax;
+		width:6.5vmax;
+		height:6.5vmax;
 		display:inline-block;
 		padding:0;
 	}

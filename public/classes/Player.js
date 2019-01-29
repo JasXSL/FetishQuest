@@ -941,7 +941,7 @@ export default class Player extends Generic{
 
 	// Encumbrance
 	getCarryingCapacity(){
-		return 50000+(this.getBon(Action.Types.physical)-this.level)*5000;
+		return 40000+(this.getBon(Action.Types.physical)-this.level)*3000;
 	}
 	getCarriedWeight(){
 		let out = 0;

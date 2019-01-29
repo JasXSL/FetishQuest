@@ -866,12 +866,58 @@ export default class Game extends Generic{
 
 	}
 
+	// Trades a player item
+	tradePlayerItem( fromPlayer, toPlayer, id ){
+
+		if( typeof fromPlayer === 'string' )
+			fromPlayer = this.getPlayerById(fromPlayer);
+		if( typeof toPlayer === "string" )
+			toPlayer = this.getPlayerById(toPlayer);
+
+		if( !fromPlayer || !toPlayer )
+			return this.modal.addError("Player not found");
+		if( !this.playerIsMe(fromPlayer) )
+			return this.modal.addError("Not your player");
+		if( fromPlayer.team !== toPlayer.team )
+			return this.modal.addError("Invalid target");
+			if( fromPlayer.id === toPlayer.id )
+			return this.modal.addError("Can't trade with yourself");
+		if( this.battle_active )
+			return this.modal.addError("Can't trade in combat");
+		
+
+		const asset = fromPlayer.getAssetById(id);
+		if( !asset )
+			return this.modal.addError("Asset not found");
+
+		if( !this.is_host ){
+			console.log("Todo: Trade netcode");
+			return;
+		}
+
+		if( asset.loot_sound )
+			this.playFxAudioKitById(asset.loot_sound, fromPlayer, toPlayer, undefined, true );
+		
+		game.ui.addText( fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName()+" their "+asset.name+"!", undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
+		
+
+		toPlayer.addAsset(asset);
+		fromPlayer.destroyAsset(asset.id);
+		return true;
+
+	}
+
 	// Deletes a player item by Player, Asset.id
 	deletePlayerItem( player, id ){
 
 		if(!game.playerIsMe(player)){
 			game.modal.addError("not your player");
 			return false;
+		}
+
+		if( !this.is_host ){
+			console.log("Todo: Netcode delete");
+			return;
 		}
 
 		if( player.destroyAsset(id) ){
@@ -956,7 +1002,7 @@ export default class Game extends Generic{
 		if( !this.encounter.completed ){
 			
 			this.toggleBattle(true);
-			game.modal.battleVis();
+			game.ui.battleVis();
 
 			for( let wrapper of encounter.wrappers )
 				wrapper.useAgainst( encounter.players[0], player );

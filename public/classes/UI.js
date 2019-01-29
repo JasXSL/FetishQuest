@@ -27,7 +27,7 @@ export default class UI{
 		this.netgamePlayers = $("#netgamePlayers");
 		this.multiCastPicker = $("#multiCastPicker");
 		
-		this.visible = true;	// main UI layer visible
+		this.visible = localStorage.ui_visible === undefined ? true : !!+localStorage.ui_visible;	// main UI layer visible
 
 		this.previousConsoleCommands = [];
 		try{
@@ -95,6 +95,7 @@ export default class UI{
 		this.fx = fx;
 		$("#renderer").html(map);
 		$("#fx").html(fx);
+		this.toggle(this.visible);
 
 	}
 
@@ -108,8 +109,12 @@ export default class UI{
 
 
 	// Toggles the UI overlay
-	toggle(){
-		this.visible = !this.visible;
+	toggle( visible ){
+		if( visible !== undefined )
+			this.visible = !!visible;
+		else
+			this.visible = !this.visible;
+		localStorage.ui_visible = +this.visible;
 		game.renderer.hblur.enabled = game.renderer.vblur.enabled = this.visible;
 		this.board.toggleClass('hidden', !this.visible);
 		$("[data-id=map]", this.gameIcons).toggleClass("highlighted", !this.visible);
@@ -1324,8 +1329,14 @@ export default class UI{
 				html += '<input type="button" class="blue" name="hostGame" value="Put This Session Online" /><br />';
 			html += '</div>';
 		}
-		if( game.net.isConnected() )
+		if( game.net.isConnected() ){
 			html += '<input type="button" class="red" name="disconnect" value="Disconnect" />';
+
+			// Todo: Stylize
+			for( let player of game.net.players )
+				html+= '<div class="player">'+esc(player.name)+'</div>';
+
+		}
 
 		game.modal.set(html);
 
@@ -1339,12 +1350,7 @@ export default class UI{
 			this.drawNetSettings();
 		});
 
-		if( game.net.isConnected() ){
-			for( let player of game.net.players )
-				html+= '<div class="player">'+esc(player.name)+'</div>';
-		}
-
-		this.netgamePlayers.html(html);
+		
 
 	}
 
@@ -1428,10 +1434,7 @@ export default class UI{
 			html += '<div class="left">'+
 				'<h3>'+esc(player.name)+'</h3>'+
 				'<em>Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name)+'</em>'+
-				// Todo: Replace with exp bar
-				'<p class="stats">'+
-					player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP'+
-				'</p>'+
+				(player.level < Player.MAX_LEVEL ? this.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()*100) : '')+
 				'<em>'+esc(player.description)+'</em><br />'+
 				'<br />'+(game.is_host ? '<input type="button" class="editPlayer yellow devtool" value="Edit Player" /> ' : '');
 				
@@ -1591,8 +1594,12 @@ export default class UI{
 			// Equipment
 			html += '<div class="left">';
 
-				// Todo: Make into a progress bar
-				html += '<em>Carrying '+(Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg</em><br />';
+				html += this.buildProgressBar(
+					(Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg', 
+					player.getCarriedWeight()/player.getCarryingCapacity(), 
+					player.getCarriedWeight() > player.getCarryingCapacity() ? 'red' : 'yellow'
+				)+
+				'<br />';
 
 				html += '<h3>Equipment</h3>';
 			for( let slot of slots ){
@@ -1670,13 +1677,7 @@ export default class UI{
 			let id = $(this).attr('data-id');
 			let asset = player.getAssetById(id);
 
-			if( event.ctrlKey && game.is_host ){
-				if( confirm('Really delete?') && game.deletePlayerItem( player, id) ){
-					th.drawPlayerInventory();
-					th.draw();
-				}
-			}
-			else if( event.shiftKey  && game.is_host ){
+			if( event.shiftKey  && game.is_host ){
 				if( asset )
 					th.drawAssetEditor( asset, player );
 			}
@@ -1701,7 +1702,8 @@ export default class UI{
 				}
 
 				if( !game.battle_active ){
-					modal.addSelectionBoxItem( 'Trade', 'Trade this item to another player.', 'trade' );
+					if( game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length )
+						modal.addSelectionBoxItem( 'Trade', 'Trade this item to another player.', 'trade' );
 					modal.addSelectionBoxItem( 'Destroy', 'Destroy this item.', 'destroy' );
 				}
 
@@ -1739,13 +1741,37 @@ export default class UI{
 							th.drawPlayerInventory();
 						
 					}
-					// Todo: Trade
 					else if( task == 'trade' ){
 
+						// Draw a list of acceptable targets
+						const targets = game.getTeamPlayers( player.team ).filter(el => el.id !== player.id);
+						modal.prepareSelectionBox( true );
+						for( let target of targets )
+							modal.addSelectionBoxItem( target.name, '', target.id );
+						modal.onSelectionBox(function(){
+							const pid = $(this).attr("data-id");
+							if( game.tradePlayerItem( player.id, pid, asset.id ) ){
+								th.drawPlayerInventory();
+							}
+							modal.closeSelectionBox();
+						});
+						return;
+
 					}
-					// Todo: Destroy
 					else if( task === 'destroy' ){
 
+						modal.prepareSelectionBox( true );
+						modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
+						modal.addSelectionBoxItem( "Cancel", '', 'cancel' );
+						modal.onSelectionBox(function(){
+							const pid = $(this).attr("data-id");
+							if( pid === 'delete' && game.deletePlayerItem( player, id) ){
+								th.drawPlayerInventory();
+								th.draw();
+							}
+							modal.closeSelectionBox();
+						});
+						return;
 					}
 
 					modal.closeSelectionBox();
@@ -2426,6 +2452,11 @@ export default class UI{
 
 	}
 
+	battleVis(){
+		setTimeout(() => {
+			this.toggle(true);
+		}, 2000);
+	}
 
 
 
@@ -2565,4 +2596,12 @@ export default class UI{
 		return out;
 	}
 
+
+	/* Helpers */
+	buildProgressBar( text, percent = 0, cname = '' ){
+		return '<div class="progressBar '+esc(cname)+'">'+
+			'<div class="bar" style="width:'+(+percent)+'%;"></div>'+
+			'<span class="content">'+esc(text)+'</span>'+
+		'</div>';
+	}
 }

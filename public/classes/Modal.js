@@ -148,16 +148,6 @@ export default class Modal{
 	}
 	
 
-	/* VISUALS */	
-	// Flashes the screen when an encounter starts
-	battleVis(){
-		this.bg.toggleClass("battleStart", true);
-		setTimeout(() => {
-			this.close();
-			this.bg.toggleClass("battleStart", false);
-		}, 2000);
-	}
-
 
 	/* SELECTION BOX (small option tooltip) */
 	// Draws a hot menu (small tooltip) at the mouse location

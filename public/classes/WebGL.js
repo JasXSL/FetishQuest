@@ -10,7 +10,6 @@ import OrbitControls from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
 import Sky from '../ext/Sky.js';
-import libParticles from '../libraries/particles.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 
