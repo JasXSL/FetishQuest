@@ -184,6 +184,27 @@ export default class Asset extends Generic{
 		}
 	}
 
+	// returns a damage taken that can be added together with other armor. Goes up to Asset.protVal based on level/broken
+	getDmgTakenAdd(){
+		// Item is broken, take 25% more damage
+		if( this.durability <= 0 )
+			return Asset.protVal;
+
+		// Item is not equipped, this shouldn't be triggered, but return 0
+		if( !(this.parent instanceof Player) )
+			return 0;
+
+		const player = this.parent;
+		let levelDif = player.level-this.level;
+		// Item is greater than player level or within 2 levels of the player
+		if( levelDif <= 1 )
+			return 0;
+		
+		// 5% more damage taken per level above 2 of the piece
+		return Math.min(Asset.protVal, (levelDif-1)*0.05);
+		
+	}
+
 	// Repairs the object. If points is a NaN value, it restores ALL durability points
 	// Returns the amount of points gained
 	repair( points ){
@@ -230,8 +251,9 @@ export default class Asset extends Generic{
 
 	// Gets tooltip text for UI
 	getTooltipText(){
-		let html = '';
 		
+		let html = '';
+
 		// Usable items shows the action tooltip instead
 		if( this.isConsumable() ){
 
@@ -241,6 +263,12 @@ export default class Asset extends Generic{
 		}
 
 		let apCost = this.equipped ? Game.UNEQUIP_COST : Game.EQUIP_COST;
+		let dmgTaken = this.getDmgTakenAdd();
+
+		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
+		if( dmgTaken ){
+			html += '<em style="color:#FAA">Low level item, -'+(dmgTaken*100)+'% damage reduction</em><br />';
+		}
 		html += '<em class="sub">';
 		if( game.battle_active && this.parent )
 			html += '[<span style="color:'+(this.parent.ap >= apCost ? '#DFD' : '#FDD')+'">'+
@@ -263,6 +291,7 @@ export default class Asset extends Generic{
 	
 }
 
+Asset.protVal = 0.25;	// Max damage taken increase for not having this item equipped (lower/upperbody only)
 
 // Automatically creates a stat wrapper
 // Level is the level of the item, numSlots is how many item slots it covers
@@ -365,7 +394,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		tags : template.tags,
 		slots : template.slots,
 		weight : template.weight*weightModifier,
-		durability_bonus : Math.round(level*template.durability_bonus*durabilityModifier*template.slots.length),
+		durability_bonus : Math.round(template.durability_bonus*durabilityModifier*template.slots.length),
 		description : template.description,
 		rarity : rarity
 	});

@@ -73,8 +73,12 @@ export default class UI{
 		this.board.off('mouseup').on('mouseup', function(event){
 
 			th.mouseDown = false;
+
+			if( $(event.target).is('div.action.enabled') && !th.arrowHeld )
+				return;
+
 			// Hide the arrow
-			if( th.action_selected && $(event.target).attr('data-id') !== th.action_selected.id && event.target.id !== 'execMultiCast' )
+			if( th.action_selected && event.target.id !== 'execMultiCast' )
 				th.closeTargetSelector();
 			
 
@@ -117,7 +121,7 @@ export default class UI{
 		localStorage.ui_visible = +this.visible;
 		game.renderer.hblur.enabled = game.renderer.vblur.enabled = this.visible;
 		this.board.toggleClass('hidden', !this.visible);
-		$("[data-id=map]", this.gameIcons).toggleClass("highlighted", !this.visible);
+		$("[data-id=map]", this.gameIcons).toggleClass("highlighted", this.visible);
 	}
 
 
@@ -234,7 +238,7 @@ export default class UI{
 
 			const targetable = spell && spell.targetable();
 
-			if( th.action_selected && th.action_selected !== spell )
+			if( th.action_selected && th.action_selected !== spell && event.type !== 'mousedown' )
 				return;
 
 			// End turn override
@@ -251,6 +255,7 @@ export default class UI{
 			
 			if( event.type === 'mousedown' && enabled ){
 
+				th.closeTargetSelector();
 				th.action_selected = spell;
 				th.targets_selected = [];
 
@@ -263,6 +268,7 @@ export default class UI{
 
 			// Mouseup on this element
 			else if( event.type === 'click' ){
+				
 				
 				event.preventDefault();
 				event.stopImmediatePropagation();
@@ -418,16 +424,21 @@ export default class UI{
 				Math.round(p.arousal/p.getMaxArousal()*100)+'%'+
 			'</span>');
 			if( !p.isBeast() ){
+				const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperbody);
+				const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerbody);
+				const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : 0;
+				const lbDmg = lbAsset.length ? lbAsset[0].getDmgTakenAdd() : 0;
+
 				rb_entries.push(
 					'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="Upperbody armor durability.'+
-						(ubDur <= 0 ? '\n+15% Damage taken for missing upperbody.' : '')+
+						(ubDmg ? '\n+'+(ubDmg*100)+'% Damage taken.' : '')+
 					'">'+
 						Math.ceil(ubDur*100)+'%'+
 					'</span>'
 				);
 				rb_entries.push(
 					'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="Lowerbody armor durability.'+
-						(lbDur <= 0 ? '\n+15% Damage taken for missing lowerbody.' : '')+
+						(lbDmg ? '\n+'+(lbDmg*100)+'% Damage taken.' : '')+
 					'">'+
 					Math.ceil(lbDur*100)+'%</span>'
 				);
@@ -853,7 +864,6 @@ export default class UI{
 
 	closeTargetSelector( clearAction = true ){
 
-		
 		$("div.action", this.action_selector).toggleClass('spellSelected', false);
 		game.renderer.toggleArrow();
 		this.arrowHeld = false; 
@@ -2455,7 +2465,7 @@ export default class UI{
 	battleVis(){
 		setTimeout(() => {
 			this.toggle(true);
-		}, 2000);
+		}, 1000);
 	}
 
 

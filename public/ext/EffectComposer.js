@@ -517,8 +517,108 @@ const VerticalBlurShader = {
 
 };
 
+/**
+ * @author alteredq / http://alteredqualia.com/
+ *
+ * Colorify shader
+ */
+
+const ColorifyShader = {
+
+	uniforms: {
+
+		"tDiffuse": { value: null },
+		"color":    { value: new THREE.Color( 0xffffff ) }
+
+	},
+
+	vertexShader: [
+
+		"varying vec2 vUv;",
+
+		"void main() {",
+
+			"vUv = uv;",
+			"gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+
+		"}"
+
+	].join( "\n" ),
+
+	fragmentShader: [
+
+		"uniform vec3 color;",
+		"uniform sampler2D tDiffuse;",
+
+		"varying vec2 vUv;",
+
+		"void main() {",
+
+			"vec4 texel = texture2D( tDiffuse, vUv );",
+
+			"vec3 luma = vec3( 0.299, 0.587, 0.114 );",
+			"float v = dot( texel.xyz, luma );",
+
+			"gl_FragColor = vec4( v * color, texel.w );",
+
+		"}"
+
+	].join( "\n" )
+
+};
 
 
+
+/**
+ * @author alteredq / http://alteredqualia.com/
+ *
+ * Color correction
+ */
+
+const ColorCorrectionShader = {
+
+	uniforms: {
+
+		"tDiffuse": { value: null },
+		"powRGB":   { value: new THREE.Vector3( 2, 2, 2 ) },
+		"mulRGB":   { value: new THREE.Vector3( 1, 1, 1 ) },
+		"addRGB":   { value: new THREE.Vector3( 0, 0, 0 ) }
+
+	},
+
+	vertexShader: [
+
+		"varying vec2 vUv;",
+
+		"void main() {",
+
+			"vUv = uv;",
+
+			"gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+
+		"}"
+
+	].join( "\n" ),
+
+	fragmentShader: [
+
+		"uniform sampler2D tDiffuse;",
+		"uniform vec3 powRGB;",
+		"uniform vec3 mulRGB;",
+		"uniform vec3 addRGB;",
+
+		"varying vec2 vUv;",
+
+		"void main() {",
+
+			"gl_FragColor = texture2D( tDiffuse, vUv );",
+			"gl_FragColor.rgb = mulRGB * pow( ( gl_FragColor.rgb + addRGB ), powRGB );",
+
+		"}"
+
+	].join( "\n" )
+
+};
 
 
 /**
@@ -622,4 +722,4 @@ Object.assign( ClearMaskPass.prototype, {
 
 
 export default EffectComposer;
-export {Pass, ShaderPass, CopyShader, RenderPass, HorizontalBlurShader, VerticalBlurShader};
+export {Pass, ShaderPass, CopyShader, RenderPass, HorizontalBlurShader, VerticalBlurShader, ColorifyShader, ColorCorrectionShader};

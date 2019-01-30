@@ -14,6 +14,7 @@ class Bot{
 
 	// Targs is an array, it performs a weighted rand based on threat, shifts off the character and returns it
 	shiftRandomTargetByThreat(targs){
+
 		let maxThreat = 0;
 		for( let targ of targs )
 			maxThreat += Math.max(1,this.player.getPlayerThreat(targ));
@@ -30,6 +31,7 @@ class Bot{
 			}
 		}
 		return targs[0]
+
 	}
 
 	pickTargetBySexuality( players ){
@@ -148,19 +150,18 @@ class Bot{
 					return true;
 				});
 
-
 				if( abil.hasTag(stdTag.acSelfHeal) && this.player.hp/this.player.getMaxHP() < 0.5 )
 					continue;
 				if( targs.length < abil.min_targets )
 					continue;
 
 				// Pick a target
-				shuffle(targs);
-
 				let t = [];
 				while( targs.length ){
-					t.push(this.shiftRandomTargetByThreat(targs));
-					if( targs.length >= abil.max_targets )
+
+					const ta = this.shiftRandomTargetByThreat(targs);
+					t.push(ta);
+					if( t.length >= abil.max_targets )
 						break;
 				}
 

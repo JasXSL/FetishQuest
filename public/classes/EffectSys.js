@@ -718,8 +718,7 @@ class Effect extends Generic{
 
 				
 				
-				let died = t.addHP(amt);
-				
+				let died = t.addHP(amt, s, this);
 				if( amt < 0 ){
 
 					t.onDamageTaken(s, this.data.type, Math.abs(amt));

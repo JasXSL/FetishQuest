@@ -1,7 +1,6 @@
 UI Overhaul:
 	- Don't send NPC inventory to netcode players
 	- Quest start and finish splash screens
-	- New battle start visual
 
 - multiplayer
 	- Decouple audio from text, and have it send audio packets to multiplayer
@@ -10,15 +9,10 @@ UI Overhaul:
 	- Trade items (todo exists)
 
 Generic code:
-	- Opening and closing netgame creates a weird window in the bottom left
 	- Assign party leader
 	- The leader is the only one who can interact with doors (except escape)
-	- NPC players should not be able to interact with anything
-	- When a player dies, their equipped gear takes 20% durability damage
-	- Redesign gear stats so it scales with level. Starting with enemies 3 levels above the item, all stats on an item starts being reduced by 1 point in checks.
-	- Character export/import
-	- (later) Redo netcode to send different types when they've changed
-	- Multiplayer attacks are still randomly not targetting 2 players by bots
+	- Players not on team 0 should not be able to interact with anything
+	
 
 new Gameplay elements:
 	- Learning/unlearning actions
@@ -46,3 +40,4 @@ LATER:
 	- Show what mods a quest belongs to
 	- Quest editor (later)
 	- ModVars (later) - Custom data that can be set and read by conditions
+	- Character export/import

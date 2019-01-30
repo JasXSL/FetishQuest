@@ -545,11 +545,11 @@ div.fxBuffBlue{
 		border:1px solid #FFD;
 	}
 
-	div.item.common{ border-color: #DDD !important; color: #DDD !important; }
-	div.item.uncommon{ border-color: #AFA !important; color: #AFA !important; }
-	div.item.rare{ border-color: #ADF !important; color: #ADF !important; }
-	div.item.epic{ border-color: #FAF !important; color: #FAF !important; }
-	div.item.legendary{ border-color: #FFA !important; color: #FFA !important; }
+	div.item.common, strong.common{ border-color: #DDD !important; color: #DDD !important; }
+	div.item.uncommon, strong.uncommon{ border-color: #AFA !important; color: #AFA !important; }
+	div.item.rare, strong.rare{ border-color: #ADF !important; color: #ADF !important; }
+	div.item.epic, strong.epic{ border-color: #FAF !important; color: #FAF !important; }
+	div.item.legendary, strong.legendary{ border-color: #FFA !important; color: #FFA !important; }
 
 
 	#selectionbox{
@@ -685,6 +685,7 @@ div.fxBuffBlue{
 		text-align: center;
 		margin: 0 0.25vmax;
 		vertical-align: bottom;
+		pointer-events: all;
 	}
 	#ui > div.players div.player span.resource.large{
 		width:2.75vmax;

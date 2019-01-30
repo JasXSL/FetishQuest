@@ -5,7 +5,7 @@
 	The Stage is an object which is a reflection of a DungeonRoom
 */
 import * as THREE from '../ext/THREE.js';
-import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader} from '../ext/EffectComposer.js';
+import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader, ColorifyShader, ColorCorrectionShader} from '../ext/EffectComposer.js';
 import OrbitControls from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
@@ -13,7 +13,7 @@ import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 
-const DISABLE_DUNGEON = false;
+const DISABLE_DUNGEON = true;
 
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;
@@ -52,7 +52,7 @@ class WebGL{
 		this.fxCam.position.z = 100;
 		this.fxCam.position.y = -10;
 		this.fxCam.lookAt(new THREE.Vector3());
-		this.fxRenderer = new THREE.WebGLRenderer({antialias:conf.aa, alpha:true});
+		this.fxRenderer = new THREE.WebGLRenderer({alpha:true});
 		this.fxRenderer.shadowMap.enabled = true;
 		this.fxRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		this.fxParticles = [];		// Particle groups
@@ -123,6 +123,13 @@ class WebGL{
 		this.vblur = new ShaderPass(VerticalBlurShader);
 		this.vblur.uniforms.v.value = 0.0025;
 		this.composer.addPass( this.vblur );
+
+		
+		this.colorShader = new ShaderPass(ColorifyShader);
+		this.colorShader.uniforms.color.value = new THREE.Color(2,1,1);
+		this.colorShader.enabled = false;
+		this.composer.addPass(this.colorShader);
+		
 		const copypass = new ShaderPass(CopyShader);
 		copypass.renderToScreen = true;
 		this.composer.addPass( copypass );
@@ -554,7 +561,24 @@ class WebGL{
 			this.stage.onBattleStateChange();
 	}
 
+	flipColorShader( on = false ){
+		this.colorShader.enabled = !!on;
+	}
 
+	// Battle started
+	battleVis(){
+
+		clearInterval(this._battle_vis_timer);
+		let nr = 0;
+		this.flipColorShader(true);
+		this._battle_vis_timer = setInterval(() => {
+			this.flipColorShader(nr%2);
+			++nr;
+			if( nr >= 7 )
+				clearInterval(this._battle_vis_timer);
+		}, 150);
+
+	}
 
 
 	/* FX LAYER */

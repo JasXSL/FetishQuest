@@ -297,7 +297,7 @@ const lib = [
 	},
 	{ text : "%S reaches down towards %T's bulge and teasingly squeezes it!",
 		conditions : humOnHumCond.concat([
-			"action_stdArouse","targetWearsLowerbody","targetPenis"
+			"action_stdArouse","targetWearsLowerbody","targetPenis","targetShorter"
 		]),
 		hitfx : ["squeeze"]
 	},

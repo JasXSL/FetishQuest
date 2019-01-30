@@ -149,7 +149,6 @@ export default class Player extends Generic{
 			name : this.name,
 			icon : this.icon,
 			actions : this.actions.map(el => el.save(full)),
-			assets : this.assets.map(el => el.save(full)),
 			tags : this.tags,
 			team : this.team,
 			species : this.species,
@@ -193,6 +192,10 @@ export default class Player extends Generic{
 				out._turns = this._turns;
 			}
 
+		}
+		// Non player controlled inventories aren't sent
+		if( full || !this.isNPC() ){
+			out.assets = this.assets.map(el => el.save(full));
 		}
 
 
@@ -701,6 +704,15 @@ export default class Player extends Generic{
 		this._d_damage_since_last[target.id][type] += amount;
 	}
 
+	onDeath( attacker, effect ){
+		
+		// Damage durability
+		const assets = this.getAssetsEquipped(false);
+		for( let asset of assets )
+			asset.damageDurability( attacker, effect, Math.ceil(asset.getMaxDurability()*0.2) );
+
+	}
+
 
 	/* TurnTags */
 	addTurnTags( tags, sender ){
@@ -921,7 +933,7 @@ export default class Player extends Generic{
 			assets = this.getEquippedAssetsBySlots(slots);
 		}
 		
-		amount = Math.round(amount*(1+sender.level/5));	// up to 400%
+		amount = Math.round(amount);
 		for( let asset of assets )
 			asset.damageDurability( sender, effect, amount);
 
@@ -961,7 +973,7 @@ export default class Player extends Generic{
 
 	/* Leveling & Experience */
 	getExperienceUntilNextLevel(){
-		return Math.round(this.level+Math.pow(this.level,2.5));
+		return Math.round(5+this.level+Math.pow(this.level,2.5));
 	}
 
 	// NPC kills award difficulty * level / 2
@@ -1047,7 +1059,7 @@ export default class Player extends Generic{
 	}
 
 	// Returns true if the player died
-	addHP( amount ){
+	addHP( amount, sender, effect ){
 
 		if( isNaN(amount) ){
 			console.error("AP amount is NaN", amount);
@@ -1056,8 +1068,11 @@ export default class Player extends Generic{
 		let wasDead = this.hasTag(stdTag.dead);
 		this.hp += amount;
 		this.hp = Math.max(0, Math.min(this.getMaxHP(), this.hp));
-		if( this.hp === 0 && !wasDead )
-			return true;
+		if( this.hp === 0 && !wasDead ){
+			this.onDeath( sender, effect );
+			if( this.hp === 0 )
+				return true;
+		}
 
 		return false;
 
@@ -1168,6 +1183,7 @@ export default class Player extends Generic{
 
 	// Returns the sum of effect.data.amount of an effect with type, and that aren't multiplicative
 	getGenericAmountStatPoints( type, player ){
+
 		let w = this.getActiveEffectsByType(type),
 			out = 0
 		;
@@ -1185,6 +1201,7 @@ export default class Player extends Generic{
 			out+= n*effect.parent.stacks;
 		}
 		return out;
+		
 	}
 
 	getGenericAmountStatMultiplier( type, player ){
@@ -1217,7 +1234,9 @@ export default class Player extends Generic{
 		for( let slot of slots ){
 			let gear = this.getEquippedAssetsBySlots(slot);
 			if( !gear.length )
-				out += 0.15;
+				out += Asset.protVal;
+			else
+				out += gear[0].getDmgTakenAdd();
 		}
 		return out;
 

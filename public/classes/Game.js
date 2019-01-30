@@ -1003,7 +1003,8 @@ export default class Game extends Generic{
 			
 			this.toggleBattle(true);
 			game.ui.battleVis();
-
+			game.renderer.battleVis();
+			
 			for( let wrapper of encounter.wrappers )
 				wrapper.useAgainst( encounter.players[0], player );
 
