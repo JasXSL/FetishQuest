@@ -267,7 +267,10 @@ export default class Asset extends Generic{
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
 		if( dmgTaken ){
-			html += '<em style="color:#FAA">Low level item, -'+(dmgTaken*100)+'% damage reduction</em><br />';
+			if( this.durability )
+				html += '<em style="color:#FAA">Low level item, -'+(dmgTaken*100)+'% damage reduction</em><br />';
+			else
+				html += '<em style="color:#FAA">Broken!</em><br />';
 		}
 		html += '<em class="sub">';
 		if( game.battle_active && this.parent )

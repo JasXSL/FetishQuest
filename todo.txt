@@ -10,7 +10,7 @@ UI Overhaul:
 
 Generic code:
 	- Assign party leader
-	- The leader is the only one who can interact with doors (except escape)
+		- The leader is the only one who can interact with doors (except escape)
 	- Players not on team 0 should not be able to interact with anything
 	
 

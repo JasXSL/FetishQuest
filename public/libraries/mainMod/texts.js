@@ -913,7 +913,7 @@ const lib = [
 		]),
 		hitfx : ["slap"]
 	},
-	{ text : "%S slips underneath %T and throws a througough slap across %this %Tbutt!",
+	{ text : "%S slips underneath %T and throws a thorough slap across %This %Tbutt!",
 		conditions : humOnHumCond.concat([
 			"action_imp_blowFromBelow",
 		]),

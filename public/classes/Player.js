@@ -1599,14 +1599,13 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 	if( detrimental )
 		tot -= victim.getSV(stat);
 	
-	if( tot <= 0 )
-		tot = 1;
+	if( tot < 0 )
+		tot = 0;
 
 	// Add 25% bonus damage per additional player
 	let multi = 1.0;
-	if( this.team !== 0 ){
+	if( this.team !== 0 )
 		multi = 1+(game.getTeamPlayers().length-1)*0.25;
-	}
 
 	return (1+tot*0.04)*multi;
 

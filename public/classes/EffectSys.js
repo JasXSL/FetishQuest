@@ -651,6 +651,7 @@ class Effect extends Generic{
 					);
 					*/
 					
+					
 					amt *= Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental ); // Negative because it's damage
 					
 					// Get target global damage point taken modifier

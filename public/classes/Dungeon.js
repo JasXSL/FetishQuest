@@ -1347,6 +1347,7 @@ class DungeonRoomAssetInteraction extends Generic{
 			let consumable = Asset.getRandomByRarity(dungeon.consumables);
 			if( !consumable )
 				break;
+			consumable.g_resetID();
 			this.data.push(consumable.clone(this.parent).save(true));
 		}
 

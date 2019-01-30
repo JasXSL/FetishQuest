@@ -13,7 +13,7 @@ import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 
-const DISABLE_DUNGEON = true;
+const DISABLE_DUNGEON = false;
 
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;

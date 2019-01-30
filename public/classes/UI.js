@@ -662,6 +662,7 @@ export default class UI{
 			'<div data-id="mainMenu" class="button autoWidth">Game</div>'
 		;
 		this.gameIcons.html(html);
+		this.toggle(this.visible);
 
 		const masterVolume = $("[data-id=audioToggle]", this.gameIcons);
 
