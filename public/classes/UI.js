@@ -332,6 +332,36 @@ export default class UI{
 
 	}
 
+	// Helper for drawPlayers. Updates the canvas image
+	updatePlayerStateImage( player ){
+
+		const imgdiv = $('div.player[data-id='+esc(player.id)+'] div.content > div.bg');
+		const canvas = $('> canvas', imgdiv)[0];
+		
+		// Not changed
+		if( canvas.state === player.getSpriteState() )
+			return;
+
+		const img = canvas.image;
+
+		if( !img.complete )
+			return;
+		
+		const context = canvas.getContext('2d');
+		const width = img.width/(player.is_sprite ? 5 : 1);
+		const height = img.height;
+		const padding = 1;
+		context.drawImage(
+			img, 
+			player.getSpriteState()*width+padding, padding, 
+			width-padding*2, height-padding*2,
+			0,0,
+			width, height
+		);
+		imgdiv.css('background-image', 'url('+canvas.toDataURL()+')');
+
+	}
+
 	// Players on the board
 	drawPlayers(){
 
@@ -353,9 +383,9 @@ export default class UI{
 				tag = $("div.right", this.players);
 
 			if( !el.length ){
-				let div = '<div class="player" data-id="'+p.id+'">'+
+				let div = '<div class="player" data-id="'+esc(p.id)+'">'+
 					'<div class="content">'+
-						'<div class="bg" style="background-image:url('+esc(p.icon)+')" data-image="'+esc(p.icon)+'"></div>'+
+						'<div class="bg"><canvas class="hidden"></canvas></div>'+
 						'<div class="stats"></div>'+
 					'</div>'+
 					'<div class="topRight">'+
@@ -411,11 +441,28 @@ export default class UI{
 			el.toggleClass('dead', p.hp <= 0);
 			el.toggleClass('incapacitated', p.isIncapacitated());
 
+			
+
 			// Check if image has changed
-			let imgdiv = $('div.bg[data-image]', el);
-			if( imgdiv.attr('data-image') !== p.icon )
-				imgdiv.attr('data-image', p.icon).css({'background-image':'url('+esc(p.icon)+')'});
-		
+			let imgdiv = $('div.bg', el);
+			if( imgdiv.attr('data-image') !== p.icon ){
+				console.log("Drawing canvas");
+				const canvas = $("canvas", imgdiv)[0];
+				canvas.state = -1;
+				const img = new Image();
+				img.src = p.icon;
+				img.crossOrigin = "Anynymous";
+				img.onload = () => {
+					canvas.image = img;
+					const width = img.width/(p.is_sprite ? 5 : 1), height = img.height;
+					canvas.width = width;
+					canvas.height = height;
+					this.updatePlayerStateImage( p );
+				};
+				imgdiv.attr('data-image', p.icon);
+			}else
+				this.updatePlayerStateImage( p );
+
 			let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperbody),
 				lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerbody);
 			
@@ -1076,18 +1123,30 @@ export default class UI{
 
 	async drawMainMenu(){
 
-		let html = '<div class="mainMenu flexTwoColumns">',
-			modal = this.parent.modal,
+		let html = '',
+			modal = game.modal,
 			modNames = await Mod.getNames(),
 			sortedMods = await Mod.getModsOrdered()
 		;
 
-		for( let i in sortedMods )
-			sortedMods[i].index = +i;
-			
+		html += '<h1 class="centered">FetishQuest</h1>';
+		html += '<p class="centered">This game contains adult content. But you\'ve probably worked that out from the title already.</p>';
+
+		html += '<p class="centered">This is a pre-alpha work in progress. Please consider supporting it on <a href="https://www.patreon.com/jasx_games" target="_blank">Patreon</a>.</p>';
+		html += '<p class="centered">Follow development on <a href="http://discord.jasx.org" target="_blank">Discord</a>.</p>';
+
+		html += '<p style="text-align:center"><input type="button" class="green newGameButton" name="newGame" value="New Game" /></p><br />';
+
+		html += '<hr />';
+
+		html += '<div class="mainMenu flexTwoColumns">';
+
+			for( let i in sortedMods )
+				sortedMods[i].index = +i;
+				
 			html += '<div class="left">';
 
-				html += '<input type="button" class="green" name="newGame" value="New Game" /><br />';
+				
 				let names = await Game.getNames();
 				if( Object.keys(names).length ){
 
@@ -1096,21 +1155,17 @@ export default class UI{
 						let name = names[id];
 						html+= '<div class="gameListing" data-id="'+esc(id)+'">'+esc(name)+'</div>';
 					}
+					html += '<p class="subtitle">Ctrl+click to delete</p>';
 				}
 
-				if( !game.net.isConnected() )
-					html += '<hr /><form id="joinGame">'+
-						'<input type="text" placeholder="Nickname" name="nickname" style="width:auto" value="'+esc(game.net.getStandardNick())+'" />'+
-						'<input type="text" placeholder="Game ID" name="gameID" style="width:auto" />'+
-						'<input type="submit" value="Join Online Game"  />'+
-					'</form>';
+				
 				
 			
 			html += '</div>';
 
 			html += '<div class="right">';
 
-				html += '<h3>Mod Order</h3>';
+				html += '<h3>Mods</h3>';
 				html += '<table class="editor"><tr><th>Name</th><th>Enabled</th><th>Load Order</th></tr>';
 				if( !Object.keys(modNames).length )
 					html += '<tr><td colspan=3>No mods installed</td></tr>';
@@ -1126,6 +1181,13 @@ export default class UI{
 				html += '</table>';
 
 				html += 'Install Mod: <input type="file" id="modFile" />';
+
+				if( !game.net.isConnected() )
+					html += '<hr /><h3>Join Existing Online Game</h3><form id="joinGame">'+
+						'<input type="text" placeholder="Nickname" name="nickname" style="width:auto" value="'+esc(game.net.getStandardNick())+'" />'+
+						'<input type="text" placeholder="Game ID" name="gameID" style="width:auto" />'+
+						'<input type="submit" value="Join Online Game"  />'+
+					'</form>';
 
 			html += '</div>';
 			

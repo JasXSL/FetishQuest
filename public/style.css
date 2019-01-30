@@ -15,6 +15,11 @@ body, html{
 	display: none !important;
 }
 
+a{
+	font-weight:bold;
+	color:#DDF;
+}
+
 input, textarea, select{
 	font-size:1vmax;
 	border-radius:0.25vmax;
@@ -82,7 +87,7 @@ textarea{
 	min-height:3vmax;
 }
 
-div.centered{
+div.centered, h1.centered, .centered{
 	text-align: center;
 }
 
@@ -315,33 +320,6 @@ div.fxBuffBlue{
 
 
 
-
-
-#netgamePlayers{
-	position: fixed;
-	bottom:1vh;
-	left:1vh;
-}
-
-#netgamePlayers div.player{
-	cursor:default;
-	display:inline-block;
-	margin:0.1vmax;
-	padding: 0.5vmax;
-	background:rgba(0,0,0,.5);
-}
-
-#netgamePlayers div.player:hover{
-	border-color:#DDD;
-}
-
-
-
-
-
-
-
-
 /* Modal */
 	#modal{
 		position: fixed;
@@ -354,16 +332,15 @@ div.fxBuffBlue{
 	#modal > div.wrapper{
 		position: absolute;
 		display:flex;
-		left:0vw;
-		right:0vw;
+		left:10vw;
+		right:10vw;
 		top:10vh;
 		bottom:10vh;
 		background:rgba(50,50,50,.95);
 		color:#FFF;
 		border:2px solid #AAA;
 		box-shadow:0.5vmax 0.5vmax 5vmax rgba(0,0,0,1);
-		border-left:none;
-		border-right:none;
+		border-radius:1vmax;
 	}
 	#modal > div.wrapper > div.content{
 		padding:3vmax;
@@ -428,8 +405,19 @@ div.fxBuffBlue{
 
 
 /* Modal editor */
+	#modal div.mainMenu{
+		text-align: center;
+	}
 	#modal div.mainMenu > div{
 		padding:1vmax;
+	}
+
+	#modal input.newGameButton{
+		background-color: #335;
+		font-size:2.5vmax;
+		margin:2vmax;
+		padding:1vmax;
+		box-shadow: 0 0 3vmax rgba(200,210,255,1);
 	}
 
 	#modal div.playerInspector,
@@ -488,7 +476,7 @@ div.fxBuffBlue{
 	}
 
 	#modal div.inventory{
-		padding:5% 15%;
+		padding:5% 5%;
 	}
 	#modal div.inventory div.item.list,
 	#modal div.actions div.action.list{
@@ -1241,6 +1229,8 @@ div.fxBuffBlue{
 		background-position: center;
 		overflow:hidden;
 	}
+	
+
 	#ui > div.players > div.right > div.player > div.content > div.stats{
 		text-align: left;
 	}
