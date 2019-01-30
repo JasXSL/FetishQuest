@@ -1,6 +1,7 @@
 import Condition from "./Condition.js";
 import stdTag from "../libraries/stdTag.js";
 import Generic from "./helpers/Generic.js";
+import Player from "./Player.js";
 
 const master = new AudioContext();
 const masterGain = master.createGain();
@@ -216,6 +217,7 @@ class AudioKit extends Generic{
 	}
 
 	playOnTarget( audioSound, target, armor_slot ){
+
 		let offset = game.ui.getPlayerAudioOffset(target);
 		audioSound.setPosition(offset.x, offset.y, offset.z);
 		audioSound.play();
@@ -233,10 +235,14 @@ class AudioKit extends Generic{
 				return;
 			setTimeout(() => audioSound.parent.play( 'media/audio/'+sound, 0.5, false, offset.x, offset.y, offset.z ), 50)
 		}
+
 	}
 
 	// Accepts an Audio object which the sounds will be output to
+	// Sender and target can be Player objects or DOM elements
+
 	async play( audio, sender, target, armorHitSound ){
+
 		// Preload and execute
 		let promises = [];
 		for( let sound of this.sounds )
@@ -258,6 +264,7 @@ class AudioKit extends Generic{
 				
 		}
 		return loaded;
+
 	}
 
 }

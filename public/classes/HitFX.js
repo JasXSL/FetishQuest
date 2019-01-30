@@ -1,6 +1,7 @@
 import Generic from './helpers/Generic.js';
 import libParticles from '../libraries/particles.js';
 import * as THREE from '../ext/THREE.js'; 
+import Player from './Player.js';
 export default class HitFX extends Generic{
 	
 	constructor(data, parent){
@@ -116,10 +117,13 @@ class Stage extends Generic{
 		};
 	}
 
+	// Attacker and victim can also be DOM elements
 	async run( attacker, victim, armor_slot ){
 
 		const webgl = game.renderer;
-		
+
+		const is_el = !(attacker instanceof Player);
+				
 		if( this.particles ){
 
 			const particles = libParticles.get(this.particles);
@@ -130,13 +134,29 @@ class Stage extends Generic{
 				return;
 			}
 
-			const aEl = $("#ui div.player[data-id="+esc(attacker.id)+"]");
-			const vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
+			let aEl, vEl;
+
+			if( is_el ){
+
+				aEl = $(attacker);
+				vEl = $(victim);
+
+			}
+			else{
+
+				aEl = $("#ui div.player[data-id="+esc(attacker.id)+"]");
+				vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
+				
+				
+			}
+
 			const attackerEl = this.origin === 'sender' || this.origin === 'attacker' ? aEl : vEl;
+			const victimEl = this.destination === 'sender' || this.destination === 'attacker' ? aEl : vEl;
+
 			const attackerPos = attackerEl.offset();
 			const attackerHeight = attackerEl.outerHeight();
 			const attackerWidth = attackerEl.outerWidth();
-			const victimEl = this.destination === 'sender' || this.destination === 'attacker' ? aEl : vEl;
+			
 			const victimPos = victimEl.offset();
 			const victimHeight = victimEl.outerHeight();
 			const victimWidth = victimEl.outerWidth();

@@ -1662,3 +1662,42 @@ div.fxBuffBlue{
 		display:block;
 		flex:50%;
 	}
+/**/
+
+
+/* Quest accept */
+	@keyframes questAccept{
+		from{box-shadow:0 0 3vmax #ADF;}
+		to{box-shadow:0 0 6vmax #ADF;}
+	}
+	#questAccept{
+		position: fixed;
+		top:25%;
+		left:50%;
+		transform:translate(-50%,-50%);
+		text-align: center;
+		background:#335;
+		box-shadow:0 0 3vmax #ADF;
+		padding:3vmax;
+		border: 0.2vmax solid #FFF;
+		border-radius:1vmax;
+		animation: questAccept 1s ease-in-out alternate infinite;
+		transition: all 0.25s cubic-bezier(.55,1.53,.56,.62);
+		cursor:default;
+		
+	}
+	#questAccept h3{
+		margin:0;
+	}
+	#questAccept h1{
+		margin:0;
+		font-size:6vmax;
+	}
+
+	#questAccept.hidden{
+		animation:none;
+		display: block !important;
+		pointer-events: none;
+		opacity: 0;
+	}
+

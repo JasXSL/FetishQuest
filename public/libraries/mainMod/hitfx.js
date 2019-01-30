@@ -78,6 +78,18 @@ out[id].stages.push(
 );
 
 
+
+id = 'questStart';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'quest_stars',
+		emit_duration : 3000,
+		tween : false
+	}, out[id]),
+);
+
+
 id = 'pinch';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

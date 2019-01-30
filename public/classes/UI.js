@@ -2490,6 +2490,21 @@ export default class UI{
 		setTimeout(() => {
 			this.toggle(true);
 		}, 1000);
+		this.questAcceptFlyout();
+	}
+
+	questAcceptFlyout( title, body ){
+
+		const el = $("#questAccept");
+		$(".title", el).html(esc(title));
+		$(".questName", el).html(esc(body));
+		el.toggleClass('hidden', false);		
+		game.renderer.playFX(el,el,"questStart");
+		clearTimeout(this._hide_quest_accept);
+		this._hide_quest_accept = setTimeout(() => {
+			el.toggleClass('hidden', true);
+		}, 3000);
+
 	}
 
 
@@ -2609,13 +2624,16 @@ export default class UI{
 
 
 	/* SFX */
+	// Player can also be a dom element
 	getPlayerAudioOffset( player ){
 
 		let out = {x:0,y:0,z:-1};
 		if( !player )
 			return out;
 			
-		let element = $('div.player[data-id='+esc(player.id)+']', this.players);
+		let element = player;
+		if( player instanceof Player )
+			element = $('div.player[data-id='+esc(player.id)+']', this.players);
 		if( element.length ){
 			let pos = element.offset(),
 				width = element.width(),

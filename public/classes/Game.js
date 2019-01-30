@@ -311,13 +311,18 @@ export default class Game extends Generic{
 	}
 	// Draw quest completed message
 	onQuestCompleted( quest ){
+		
 		if( !(quest instanceof Quest) )
 			return;
-		this.modal.addNotice("Quest completed: "+esc(quest.name)+"!");
 		this.playFxAudioKitById('questCompleted', undefined, undefined, undefined, true);
+		this.ui.questAcceptFlyout( 'Quest Completed:', quest.name );
+
 	}
 	onQuestAccepted( quest ){
+
+		this.ui.questAcceptFlyout( 'Quest Started:', quest.name );
 		this.playFxAudioKitById('questPickup', undefined, undefined, undefined, true);
+
 	}
 	// Raised before a room changes
 	onRoomChange(){

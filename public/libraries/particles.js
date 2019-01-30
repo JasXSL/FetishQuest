@@ -444,6 +444,43 @@ particles.hitfx_zap = {
 };
 
 
+particles.quest_stars = {
+			
+	texture: {
+		value: new THREE.TextureLoader().load('/media/textures/particles/star.png'),
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 300,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 0, 0, 0 ),
+				radius : 1
+			},
+			velocity : {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3(100, 100, 100),
+				randomise : true,
+			},
+			color : {
+				value : new THREE.Color(0xAABBFF)
+			},
+			opacity: {
+				value: 1
+			},
+			size: {
+				value: [0, 20],
+			},
+			particleCount: 100
+		}
+	]
+};
+
 
 particles.hitfx_claws = {
 	texture: {

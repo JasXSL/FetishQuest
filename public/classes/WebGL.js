@@ -13,7 +13,7 @@ import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 
-const DISABLE_DUNGEON = false;
+const DISABLE_DUNGEON = true;//false;
 
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;
@@ -577,7 +577,7 @@ class WebGL{
 			if( nr >= 7 )
 				clearInterval(this._battle_vis_timer);
 		}, 150);
-
+		
 	}
 
 
@@ -594,15 +594,14 @@ class WebGL{
 		}
 		visObj = visObj.clone(this);
 
-		
-
 		if( !Array.isArray(recipients) )
 			recipients = [recipients];
 		
-		for( let recipient of recipients ){
+		for( let recipient of recipients )
 			visObj.run(caster, recipient, armor_slot);
-		}
+		
 		// Todo: Send to players if host
+
 		
 	}
 
