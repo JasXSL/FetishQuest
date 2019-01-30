@@ -458,13 +458,24 @@ export default class UI{
 				tags = ['<em>','</em>'];
 
 			let controls = ''+
-				(game.is_host ? '<div class="button owner devtool"><img src="media/wrapper_icons/id-card.svg" /></div>' : '' )+
-				(game.getMyPlayers().length > 1 && !isMyActive && isMine ? '<div class="button own"><img src="media/wrapper_icons/gamepad.svg" /></div>' : '' )
+				(game.is_host ? '<div class="button owner devtool" title="Set character owner"><img src="media/wrapper_icons/id-card.svg" /></div>' : '' )+
+				(game.getMyPlayers().length > 1 && !isMyActive && isMine ? '<div class="button own" title="Control this character"><img src="media/wrapper_icons/gamepad.svg" /></div>' : '' )
 			;
 
+			let leader = '';
+			if( p.team === 0 && game.net.id ){
+				if( !game.is_host && p.leader )
+					leader = '<img class="leader" src="media/wrapper_icons/crown.svg" /> ';
+				else{
+					leader = '<div class="button leader devtool '+(p.leader ? 'selected' : '')+'" title="Only party leaders can interact with doors. One leader is required.">'+
+						'<img src="media/wrapper_icons/crown.svg" />'+
+					'</div>';
+				}
+			}
 			$("div.content > div.stats", el).html(
 				'<span class="name" style="color:'+esc(p.color)+'">'+
 					(p.team === 0 ? controls : '')+
+					leader+
 					'<span>'+tags[0]+esc(p.name)+tags[1]+'</span>'+
 					(p.team !== 0 ? controls : '')+
 				'</span><br />'+
@@ -557,6 +568,18 @@ export default class UI{
 			game.my_player = $(event.target).closest('div.player').attr('data-id');
 			this.draw();
 			game.save();
+		});
+
+		$("div.player span.name div.leader", this.players).on('click', event => {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			const player = game.getPlayerById($(event.target).closest('div.player').attr('data-id'));
+			if( player ){
+				player.leader = !player.leader;
+				game.verifyLeader();
+				this.draw();
+				game.save();
+			}
 		});
 
 		

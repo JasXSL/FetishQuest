@@ -27,7 +27,9 @@ export default class Player extends Generic{
 		this.name = "Adventurer";			// Name
 		this.species = "";
 		this.description = "";
-		this.icon = "";				// URL
+		this.icon = "";						// URL - Has to be HTTPS
+		this.leader = false;				// Party leader
+
 		this.actions = [];			// Action objects, use getActions since assets can also add actions
 		this.assets = [];			// Asset objects, use getAssets
 		this.inventory = [];		// NPC only. This is an array of numbers specifying which items above are equipped when entering the game.
@@ -107,8 +109,6 @@ export default class Player extends Generic{
 	load(data){
 
 		this.g_autoload(data);
-
-
 		this.addDefaultActions();
 		let w = this.getWrappers();
 		w.map(wrapper => {
@@ -173,6 +173,7 @@ export default class Player extends Generic{
 			hetero : this.hetero,						// 0 = gay, 0.5 = bi, 1 = straight
 			intelligence : this.intelligence,
 			powered : this.powered,
+			leader : this.leader,
 		};
 
 		if( full ){

@@ -187,6 +187,7 @@ export default class Game extends Generic{
 			this.addRandomQuest();
 
 		this.renderer.loadActiveDungeon();
+		this.verifyLeader();
 
 	}
 
@@ -609,8 +610,11 @@ export default class Game extends Generic{
 		}
 
 		this.assignAllColors();
+		this.verifyLeader();
+
 		if( this.initialized )
 			this.save();
+			
 		this.ui.draw();
 		return p;
 
@@ -638,6 +642,8 @@ export default class Game extends Generic{
 					}
 
 				}
+				this.verifyLeader();
+				
 				this.save();
 
 				return true;
@@ -659,6 +665,23 @@ export default class Game extends Generic{
 
 		}
 
+	}
+
+	// Makes sure there's a party leader
+	verifyLeader(){
+		let leaders = 0;
+		for( let player of this.players ){
+			if( player.leader && player.team === 0 )
+				++leaders;
+		}
+		if( leaders )
+			return;
+		
+		leaders = this.getTeamPlayers();
+		if( leaders.length ){
+			leaders[0].leader = true;
+			game.save();
+		}
 	}
 
 	// Gets all players on a team

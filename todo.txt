@@ -1,5 +1,4 @@
 UI Overhaul:
-	- Don't send NPC inventory to netcode players
 	- Quest start and finish splash screens
 
 - multiplayer
@@ -8,11 +7,12 @@ UI Overhaul:
 	- Delete items (todo exists)
 	- Trade items (todo exists)
 
-Generic code:
-	- Assign party leader
-		- The leader is the only one who can interact with doors (except escape)
-	- Players not on team 0 should not be able to interact with anything
-	
+
+
+
+
+
+
 
 new Gameplay elements:
 	- Learning/unlearning actions
@@ -21,7 +21,6 @@ new Gameplay elements:
 	
 Action ideas:
 	- Cleric: Sacrament of Sin: Free, 10 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 10% per point of arousal.
-
 
 Dungeon design:
 	- Players start in the port tavern. Make a port "dungeon":

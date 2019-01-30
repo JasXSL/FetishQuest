@@ -1539,6 +1539,7 @@ Stage.setMeshMatProperty = function( mesh, id, value ){
 
 // Adds generic hover visuals to a mesh
 Stage.bindGenericHover = function( mesh ){
+
 	let c = mesh, tweenVal = {i:1};
 	c.userData.tween = new TWEEN.Tween(tweenVal).to({i:0}, 250).easing(TWEEN.Easing.Sinusoidal.Out).onUpdate(obj => {
 		let intensity = Math.floor(0x22*obj.i);
@@ -1555,6 +1556,7 @@ Stage.bindGenericHover = function( mesh ){
 		if( game )
 			game.renderer.renderer.domElement.style.cursor = "auto";
 	};
+	
 }
 
 

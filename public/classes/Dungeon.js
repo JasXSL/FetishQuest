@@ -240,12 +240,22 @@ class Dungeon extends Generic{
 	// asset is a DungeonRoomAsset
 	async assetClicked( player, room, asset, mesh ){
 
-
 		if( asset._interact_cooldown )
 			return;
 
 		if( !game.getAlivePlayersInTeam(0).length ){
-			console.error("Players are deeeeaaaad");
+			game.modal.addError("Players are deeeeaaaad");
+			return;
+		}
+
+		// Prevent non-leaders from interacting with doors unless we're offline or a battle is active (run)
+		if( asset.isDoor() && !player.leader && game.net.id && !game.battle_active ){
+			game.modal.addError(player.name+" is not the party leader.");
+			return;
+		}
+
+		if( player.team !== 0 ){
+			game.modal.addError("Enemy characters can't interact with items.");
 			return;
 		}
 

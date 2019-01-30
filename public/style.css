@@ -687,6 +687,10 @@ div.fxBuffBlue{
 		vertical-align: bottom;
 		pointer-events: all;
 	}
+	#ui > div.players div.player img.leader{
+		height:2vmax; width:2vmax;
+		vertical-align: middle;
+	}
 	#ui > div.players div.player span.resource.large{
 		width:2.75vmax;
 		padding-top:0.5vmax;
@@ -1147,6 +1151,10 @@ div.fxBuffBlue{
 		vertical-align: middle;
 		margin:0 0.2vmax;
 		pointer-events: all;
+	}
+	#ui > div.players div.player span.name > div.button.selected{
+		border-color:#AFA;
+		background-color: #363;
 	}
 
 	div.players div.player.incapacitated > div.content{
