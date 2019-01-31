@@ -26,6 +26,7 @@ input, textarea, select{
 	padding:0.5vmax;
 	outline:none;
 	box-sizing: border-box;
+	-moz-user-select: auto;
 	user-select: auto;
 	margin-bottom:1vmax;
 }
@@ -41,6 +42,7 @@ input[type=button], input[type=submit], div.button,
 #modal div.action
 {
 	user-select: none;
+	-moz-user-select: none;
 	background:rgba(100,100,100,.75);
 	color:#FFF;
 	font-weight:bold;
@@ -142,6 +144,7 @@ div.centered, h1.centered, .centered{
 	padding:1vmax 2vmax;
 	cursor: pointer;
 	user-select: none;
+	-moz-user-select: none;
 	text-align: center;
 }
 #notices > div.notice{
@@ -328,6 +331,7 @@ div.fxBuffBlue{
 		background:rgba(0,0,0,.5);
 		backdrop-filter:blur(2px);
 		user-select: none;
+		-moz-user-select: none;
 	}
 	#modal > div.wrapper{
 		position: absolute;
@@ -547,6 +551,7 @@ div.fxBuffBlue{
 		border-radius:0.25vmax;
 		overflow:visible;
 		user-select: none;
+		-moz-user-select: none;
 	}
 	#selectionbox > div.item{
 		background:rgba(255,255,255,.25);
@@ -852,6 +857,7 @@ div.fxBuffBlue{
 		font-size:3vmax;
 		cursor:default;
 		user-select: none;
+		-moz-user-select: none;
 		pointer-events: none;
 		opacity:1;
 		transition: bottom 0.25s ease-out, opacity, 0.25s ease-out;
@@ -1088,6 +1094,7 @@ div.fxBuffBlue{
 		margin-bottom:0;
 		margin-top:0.25vmax;
 		user-select: none;
+		-moz-user-select: none;
 		cursor:pointer;
 	}
 	@keyframes kfTargetSelector{
@@ -1212,6 +1219,7 @@ div.fxBuffBlue{
 		border-bottom-right-radius: 0.5vmax;
 		border:0.2vmax solid #DFD;
 		user-select: none;
+		-moz-user-select: none;
 		cursor: pointer;
 		border-left: none;
 		border-right:none;
@@ -1339,6 +1347,7 @@ div.fxBuffBlue{
 		position: absolute;
 		left:0; right:0; bottom:0; top:0.25vh;
 		text-align: center;
+		-moz-user-select: none;
 		user-select: none;
 	}
 

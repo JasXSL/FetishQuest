@@ -822,7 +822,7 @@ class Effect extends Generic{
 					destination = this.getTargetsByType( this.data.destination, event );
 				for( let dest of destination ){
 					for( let o of origin )
-						game.renderer.playFX( o, dest, this.data.id );
+						game.renderer.playFX( o, dest, this.data.id, undefined, true );
 				}
 
 			}

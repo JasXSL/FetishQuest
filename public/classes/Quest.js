@@ -116,9 +116,7 @@ class Quest extends Generic{
 		}
 
 		// Handle netcode
-		game.onQuestCompleted(this);
-		game.net.dmQuestCompleted(this.id);
-		
+		game.onQuestCompleted(this);		
 		game.removeQuest(this.id);
 	}
 

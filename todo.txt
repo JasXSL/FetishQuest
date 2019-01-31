@@ -1,15 +1,7 @@
-- multiplayer
-	- Decouple audio from text, and have it send audio packets to multiplayer
-	- Send hitfx to multiplayer
-	- Delete items (todo exists)
-	- Trade items (todo exists)
-
-
-
-
-
-
-
+Bugs:
+	- Game desyncs when adding new character, causing netgame player to get wrong owner?
+	- For some reason the imps weren't wearing clothes while spectating as a DM
+	
 
 
 new Gameplay elements:
@@ -27,14 +19,17 @@ Dungeon design:
 		- Tavern
 		- Exit to world map
 
-
 Audio tasks:
 	- UI sounds
 		- Generic click
 
-
 LATER:
+	- New game picker needs sprite character
 	- Show what mods a quest belongs to
 	- Quest editor (later)
 	- ModVars (later) - Custom data that can be set and read by conditions
 	- Character export/import
+	- Loading screen for webgl
+	- Add a your turn badge at the top of the screen
+	
+

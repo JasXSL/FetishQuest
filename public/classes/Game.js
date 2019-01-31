@@ -316,12 +316,16 @@ export default class Game extends Generic{
 			return;
 		this.playFxAudioKitById('questCompleted', undefined, undefined, undefined, true);
 		this.ui.questAcceptFlyout( 'Quest Completed:', quest.name );
+		if( this.is_host && this.net.id )
+			this.net.dmQuestAccepted( 'Quest Completed:', quest.name );
 
 	}
 	onQuestAccepted( quest ){
 
 		this.ui.questAcceptFlyout( 'Quest Started:', quest.name );
 		this.playFxAudioKitById('questPickup', undefined, undefined, undefined, true);
+		if( this.is_host && this.net )
+			this.net.dmQuestAccepted( 'Quest Started:', quest.name );
 
 	}
 	// Raised before a room changes
@@ -800,7 +804,7 @@ export default class Game extends Generic{
 		
 		// Might be undefined
 		this.my_player = null;
-		if( owned[0] ){
+		if( owned[0] && !owned.netgame_owner ){
 			this.my_player = owned[0].id;
 			localStorage.my_player = owned[0].id;
 		}
@@ -919,7 +923,7 @@ export default class Game extends Generic{
 			return this.modal.addError("Asset not found");
 
 		if( !this.is_host ){
-			console.log("Todo: Trade netcode");
+			this.net.playerTradeAsset(fromPlayer, toPlayer, asset);
 			return;
 		}
 
@@ -931,6 +935,8 @@ export default class Game extends Generic{
 
 		toPlayer.addAsset(asset);
 		fromPlayer.destroyAsset(asset.id);
+
+		this.save();
 		return true;
 
 	}
@@ -943,8 +949,12 @@ export default class Game extends Generic{
 			return false;
 		}
 
+		const asset = player.getAssetById(id);
+		if( !asset )
+			return this.modal.addError("Asset not found");
+
 		if( !this.is_host ){
-			console.log("Todo: Netcode delete");
+			this.net.playerDeleteAsset(player, asset);
 			return;
 		}
 

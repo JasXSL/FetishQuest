@@ -13,7 +13,8 @@ import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 
-const DISABLE_DUNGEON = true;//false;
+const DISABLE_DUNGEON = false;
+//const DISABLE_DUNGEON = true;
 
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;
@@ -582,7 +583,7 @@ class WebGL{
 
 
 	/* FX LAYER */
-	playFX( caster, recipients, visual, armor_slot ){
+	playFX( caster, recipients, visual, armor_slot, global = false ){
 
 		let visObj = visual;
 		if( !(visual instanceof HitFX) ){
@@ -600,7 +601,9 @@ class WebGL{
 		for( let recipient of recipients )
 			visObj.run(caster, recipient, armor_slot);
 		
-		// Todo: Send to players if host
+		if( global && game.is_host ){
+			game.net.dmHitfx(caster, recipients, visual, armor_slot);
+		}
 
 		
 	}

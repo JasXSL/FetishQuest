@@ -1,6 +1,7 @@
 import Game from './Game.js';
 import GameEvent from './GameEvent.js';
 import { AudioKit } from './Audio.js';
+import HitFX from './HitFX.js';
 
 class NetworkManager{
 
@@ -412,7 +413,7 @@ class NetworkManager{
 
 			let isOOC = p === 'ooc';
 			if( !isOOC && pl.netgame_owner !== netPlayer )
-				return console.error("Player not found or not owned by sender");
+				return console.error("Player ", p, " not found or not owned by sender", netPlayer);
 			if( isOOC )
 				p = this.getPlayerNameById(netPlayer);
 			
@@ -466,6 +467,26 @@ class NetworkManager{
 			game.useRepairAsset( player, targ, args.repairKit, args.asset)
 			
 		}
+
+		else if( task === PT.deleteAsset ){
+
+			// {player:(str)owner_id, item:(str)assetID}
+			if( !args.player || !args.item )
+				return;
+
+			game.deletePlayerItem( game.getPlayerById(args.player), args.item );
+
+			
+		}
+		else if( task === PT.tradeAsset ){
+
+			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID}
+			if( !args.from || !args.item || !args.to )
+				return;
+			game.tradePlayerItem( game.getPlayerById(args.from), game.getPlayerById(args.to), args.item );
+
+		}
+		
 
 
 	}
@@ -578,9 +599,29 @@ class NetworkManager{
 
 		}
 
-		// Quest completed event
-		else if( task === NetworkManager.dmTasks.questCompleted && args )
-			game.onQuestCompleted(game.getQuestById(args.id));
+		else if( task === NetworkManager.dmTasks.questAccepted ){
+
+			// {head:head, body:(str)body}
+			game.ui.questAcceptFlyout(args.head, args.body);
+
+		}
+		else if( task === NetworkManager.dmTasks.hitfx ){
+
+			console.log("Got hitfx", args);
+			// {fx:hitfx, caster:(str)casterID, recipients:(arr)recipients, armor_slot:(str)armor_slot}
+			if( !args.hitfx || !args.caster || !Array.isArray(args.recipients) ){
+				console.error("Received invalid hitfx args from host", args);
+				return;
+			}
+
+			const fx = new HitFX(args.hitfx);
+			const caster = game.getPlayerById(args.caster);
+			const recipients = args.recipients.map(el => game.getPlayerById(el));
+			game.renderer.playFX( caster, recipients, fx, args.armor_slot, false );
+
+		}
+
+
 
 	}
 
@@ -818,6 +859,20 @@ class NetworkManager{
 		this.sendPlayerAction(NetworkManager.playerTasks.getFullGame, {}); 
 	}
 
+	playerDeleteAsset( player, asset ){
+		this.sendPlayerAction(NetworkManager.playerTasks.deleteAsset, {
+			player : player.id,
+			item : asset.id,
+		});
+	}
+	playerTradeAsset( fromPlayer, targetPlayer, asset ){
+		this.sendPlayerAction(NetworkManager.playerTasks.tradeAsset, {
+			from : fromPlayer.id,
+			to : targetPlayer.id,
+			item : asset.id,
+		});
+	}
+
 	
 
 
@@ -885,12 +940,6 @@ class NetworkManager{
 		});
 	}
 
-	dmQuestCompleted( id ){
-		this.sendHostTask( NetworkManager.dmTasks.questCompleted, {
-			id : id
-		});
-	}
-
 	// All the args are strings
 	dmPlaySoundOnPlayer(sender, target, kit, armor_slot){
 		this.sendHostTask(NetworkManager.dmTasks.playSoundOnPlayer, {
@@ -920,6 +969,22 @@ class NetworkManager{
 		}); 
 	}
 
+	dmHitfx( caster, recipients, hitfx, armor_slot ){
+		this.sendHostTask(NetworkManager.dmTasks.hitfx, {
+			hitfx : hitfx.save(),
+			caster : caster.id,
+			recipients : recipients.map(el => el.id),
+			armor_slot : armor_slot
+		}); 
+	}
+
+	dmQuestAccepted( head, body ){
+		this.sendHostTask(NetworkManager.dmTasks.questAccepted, {
+			head : head,
+			body: body,
+		}); 
+	}
+
 	// IDs only
 	dmRaiseInteractOnMesh( dungeonAssetId ){
 		this.sendHostTask(NetworkManager.dmTasks.raiseInteractOnMesh, {
@@ -937,15 +1002,17 @@ NetworkManager.dmTasks = {
 	error : 'error',				// {text:(string)errorText, notice:(bool)isNotice}
 	animation : 'animation',		// {dungeonAsset:dungeonAssetUUID, anim:animation}
 	drawRepair : 'drawRepair',		// {player:(str)casterID, target:(str)targetID, action:(str)actionID}
-	questCompleted : 'questCompleted', 		// {id:(str)quest_id}
-	playSoundOnPlayer : 'playSoundOnPlayer',	// {kit:(str)soundkitID, sender:senderUUID, target:targetUUID, armor_slot:(str)armorSlotHit} - 
-	playSoundOnMesh : 'playSoundOnMesh',		// {dungeonAsset:(str)dungeonAssetuuid, url:(str)sound_url, volume:(float)volume, loop:(bool)loop[, id:(str)optional_id]}
-	stopSoundOnMesh : 'stopSoundOnMesh',		// {dungeonAsset:(str)dungeonAsset_uuid, id:(str)url/id, fade:(int)fade_ms}
+	playSoundOnPlayer : 'playSoundOnPlayer',		// {kit:(str)soundkitID, sender:senderUUID, target:targetUUID, armor_slot:(str)armorSlotHit} - 
+	playSoundOnMesh : 'playSoundOnMesh',			// {dungeonAsset:(str)dungeonAssetuuid, url:(str)sound_url, volume:(float)volume, loop:(bool)loop[, id:(str)optional_id]}
+	stopSoundOnMesh : 'stopSoundOnMesh',			// {dungeonAsset:(str)dungeonAsset_uuid, id:(str)url/id, fade:(int)fade_ms}
 	raiseInteractOnMesh : 'raiseInteractOnMesh',	// {dungeonAsset:(str)dungeonAsset_uuid} - Triggers the mesh template onInteract function on a dungeon asset
+	hitfx : 'hitfx',								// {fx:hitfx, caster:(str)casterID, recipients:(arr)recipients, armor_slot:(str)armor_slot} - Triggers a hitfx
+	questAccepted : 'questAccepted',				// {head:(str)head_text, body:(str)body_text} - Draws the questStart info box. Also used for quest completed and other things
 };
 
 // Player -> DM
 NetworkManager.playerTasks = {
+
 	toggleGear : 'toggleGear',			// {player:playerUUID, item:gearUUID}
 	useAction : 'useAction',			// {action:actionUUID, targets:(arr)targetUUIDs}
 	speak : 'speak',					// {player:playerUUID/"ooc"/"DM", text:text_to_say}
@@ -953,6 +1020,9 @@ NetworkManager.playerTasks = {
 	loot : 'loot',						// {player:playerUUID, dungeonAsset:dungeonAssetUUID, item:itemUUID}
 	useRepairAsset : 'useRepairAsset',	// {player:casterUUID, target:(str)targetUUID, repairKit:(str)playerRepairAssetUUID, asset:(str)assetToRepairID}
 	getFullGame : 'getFullGame',		// void - Request the full game from host. Useful if there's packet loss or desync
+	deleteAsset : 'deleteAsset',		// {player:(str)owner_id, item:(str)assetID}
+	tradeAsset : 'tradeAsset',			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID}
+
 };
 
 export default NetworkManager;

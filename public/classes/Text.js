@@ -223,7 +223,7 @@ class Text extends Generic{
 			targs = [targs];
 		for( let fx of this.hitfx ){
 			for( let targ of targs )
-				game.renderer.playFX(event.sender, targ, fx, this.armor_slot);
+				game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true);
 		}
 
 		let targ = event.target;

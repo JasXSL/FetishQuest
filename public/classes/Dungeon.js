@@ -243,6 +243,11 @@ class Dungeon extends Generic{
 		if( asset._interact_cooldown )
 			return;
 
+		// If host doesn't have a player, they can use this
+		if( !player && game.is_host )
+			player = game.getTeamPlayers()[0];
+		
+
 		if( !game.getAlivePlayersInTeam(0).length ){
 			game.modal.addError("Players are deeeeaaaad");
 			return;

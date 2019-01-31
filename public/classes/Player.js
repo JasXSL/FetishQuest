@@ -767,6 +767,7 @@ export default class Player extends Generic{
 			console.error("Invalid asset add", asset);
 			return false;
 		}
+		asset.equipped = false;
 		this.assets.push(asset.clone(this));
 		return true;
 	}
@@ -1563,7 +1564,6 @@ export default class Player extends Generic{
 		if( !this.isNPC() && !force )
 			return;
 		if( !this.bot ){
-			console.log("Attaching a bot");
 			this.bot = new Bot(this);
 		}
 		

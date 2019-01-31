@@ -344,8 +344,9 @@ export default class UI{
 
 		const img = canvas.image;
 
-		if( !img.complete )
+		if( !img || !img.complete )
 			return;
+		
 		
 		const context = canvas.getContext('2d');
 		const width = img.width/(player.is_sprite ? 5 : 1);
@@ -353,7 +354,7 @@ export default class UI{
 		const padding = 1;
 		context.drawImage(
 			img, 
-			player.getSpriteState()*width+padding, padding, 
+			(player.is_sprite ? player.getSpriteState()*width : 0)+padding, padding, 
 			width-padding*2, height-padding*2,
 			0,0,
 			width, height
@@ -446,12 +447,12 @@ export default class UI{
 			// Check if image has changed
 			let imgdiv = $('div.bg', el);
 			if( imgdiv.attr('data-image') !== p.icon ){
-				console.log("Drawing canvas");
 				const canvas = $("canvas", imgdiv)[0];
 				canvas.state = -1;
 				const img = new Image();
+				img.crossOrigin = "anonymous";
 				img.src = p.icon;
-				img.crossOrigin = "Anynymous";
+				
 				img.onload = () => {
 					canvas.image = img;
 					const width = img.width/(p.is_sprite ? 5 : 1), height = img.height;
@@ -513,7 +514,7 @@ export default class UI{
 			if( p.team === 0 && game.net.id ){
 				if( !game.is_host && p.leader )
 					leader = '<img class="leader" src="media/wrapper_icons/crown.svg" /> ';
-				else{
+				else if(game.is_host){
 					leader = '<div class="button leader devtool '+(p.leader ? 'selected' : '')+'" title="Only party leaders can interact with doors. One leader is required.">'+
 						'<img src="media/wrapper_icons/crown.svg" />'+
 					'</div>';
@@ -593,8 +594,10 @@ export default class UI{
 
 			options.push({id:'',name:'NPC'});
 			options.push({id:'DM',name:'YOU'});
-			for( let player of game.net.players )
-				options.push(player);
+			for( let player of game.net.players ){
+				if( player.name !== 'DM' )
+					options.push(player);
+			}
 
 			for( let opt of options )
 				modal.addSelectionBoxItem( opt.name, false, opt.id );
@@ -603,6 +606,7 @@ export default class UI{
 				modal.closeSelectionBox();
 				const id = $(event.target).attr('data-id');
 				player.netgame_owner = id;
+				player.netgame_owner_name = game.net.getPlayerNameById(id);
 				th.draw();
 				game.save();
 			});
@@ -1620,7 +1624,7 @@ export default class UI{
 			// Right side
 			html += '<div class="right">'+
 				// Image
-				'<img src="'+esc(player.icon)+'" class="inspect_icon" />';
+				'<img src="'+$("div.player[data-id='"+esc(player.id)+"'] > div.content > div.bg > canvas")[0].toDataURL()+'" class="inspect_icon" />';
 				
 				// Tags
 				html += '<div class="devtool">';
@@ -1766,6 +1770,9 @@ export default class UI{
 		
 		game.modal.set(html);
 
+		game.modal.onPlayerChange(player.id, () => {
+			this.drawPlayerInventory();
+		});
 
 
 		$("#modal div.item[data-id]").on('click', function(event){
@@ -1945,7 +1952,7 @@ export default class UI{
 		});
 
 		$("#modal input.back").on('click', () => {
-			this.drawPlayerInspector(player.id);
+			this.drawPlayerInventory();
 		});
 
 		$("#modal input.create").on('click', () => this.drawAssetEditor(undefined, player));
@@ -2552,7 +2559,6 @@ export default class UI{
 		setTimeout(() => {
 			this.toggle(true);
 		}, 1000);
-		this.questAcceptFlyout();
 	}
 
 	questAcceptFlyout( title, body ){
