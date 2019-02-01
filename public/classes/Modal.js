@@ -125,25 +125,18 @@ export default class Modal{
 	// Game update received from the netcode
 	onGameUpdate( changes ){
 
-		let playersChanged = {}, dungeonChanged;
-		for( let c of changes ){
-
-			if( !c.path )
-				continue;
-
-			// Many players can have changed
-			if( c.path[0] === 'players' && game.players[c.path[1]] && this._onPlayerChange[game.players[c.path[1]].id] && !playersChanged[game.players[c.path[1]].id] ){
-				playersChanged[game.players[c.path[1]].id] = true;	// makes sure onPlayerChange only gets called once per player
-				this._onPlayerChange[game.players[c.path[1]].id]();		
+		if( changes.players ){
+			for( let p of changes.players ){
+				if( 
+					Object.keys(p).length > 1 && 
+					this._onPlayerChange[p.id]
+				)this._onPlayerChange[p.id]();
 			}
-			
-			if( c.path[0] === 'dungeon' )
-				dungeonChanged = true;
-
 		}
 
-		if( dungeonChanged && !game.is_host )
+		if( changes.dungeon && !game.is_host ){
 			this.onMapChange.map(fn => fn());
+		}
 
 	}
 	

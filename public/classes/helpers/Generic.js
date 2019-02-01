@@ -5,13 +5,16 @@ export default class Generic{
 		this.id = this.g_guid();	// Random ID
 	}
 
-	g_autoload(data){
+	// Auto loads and typecasts
+	// If accept_all_nulls is true, all target nulls are set to the supplied value and not typecast or cloned
+	g_autoload( data ){
+
 		if(typeof data !== "object")
 			data = {};
 
 		for(let i in data){
 			if( this.hasOwnProperty(i) && typeof this[i] !== "function" && i !== "parent" ){
-				this[i] = this.g_typecast(data[i], this[i], i);
+				this[i] = this.g_typecast(data[i], this[i], i );
 			}
 		}
 
@@ -20,25 +23,64 @@ export default class Generic{
 
 	}
 
+	g_findIdInArray( arr, id ){
+		for( let o of arr ){
+			if( o.id === id )
+				return o;
+		}
+	}
+
 	g_typecast( from, to, ident ){
 
-		// Use null for wild card
-		if( to === null || to === undefined )
+		// Use null or undefined for wild card.
+		if( to === null ){
 			return from;
+		}
+			
 
 		if( Array.isArray(to) ){
+
 			if( !Array.isArray(from) ){
 				console.error("Trying to typecast array '"+ident+"', from", from, "to", to);
 				return [];
 			}
+
+			// Do smart id loading
+			if( game.net_load && typeof from[0] === "object" ){
+				
+				let out = [];
+				for( let obj of from ){
+					let o = this.g_findIdInArray( to, obj.id );
+
+					// Dungeon object interactions don't convert to object types
+					if( !o )
+						o = obj;
+					else
+						o.load(obj);
+					
+					out.push(o);
+				}
+				return out;
+
+			}
+
 			return from.slice();
 		}
 
 		if( typeof to === "object" ){
+
 			if( typeof from !== "object" ){
 				console.error("Trying to typecast object '"+ident+"', from", from, "to", to);
 				return {};
 			}
+
+			// Add
+			if( game.net_load && to && typeof to.load === "function" ){
+				to.load(from);
+				return to;
+			}
+			
+			// Overwrite
 			let out = {};
 			for( let i in from )
 				out[i] = from[i];
@@ -145,7 +187,7 @@ Generic.getLib = function(){
 Generic.loadThese = function( entries = [], parent ){
 
 	let out = [];
-	if( !Array.isArray(entries) && typeof entries !== "object" ){
+	if( (!Array.isArray(entries) && typeof entries !== "object") || entries === null ){
 		console.error("Trying to batch load invalid assets:", entries);
 		return;
 	}

@@ -299,6 +299,7 @@ class Action extends Generic{
 	// Gets an array of wrappers that have their conditions met against Player player
 	getViableWrappersAgainst( player, isChargeFinish = false ){
 
+
 		let evt = new GameEvent({
 			type : GameEvent.Types.actionUsed,
 			sender : this.getPlayerParent(),
@@ -309,12 +310,13 @@ class Action extends Generic{
 			}
 		});
 
+		
+
 		// Global conditions
 		if( !Condition.all(this.getConditions(), evt) )
 			return [];
 
 		let viable = [];
-
 		for( let w of this.wrappers ){
 
 			let test = w.testAgainst(evt, false);

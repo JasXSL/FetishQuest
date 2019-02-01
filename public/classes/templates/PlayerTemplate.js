@@ -153,9 +153,8 @@ class PlayerTemplate extends Generic{
 
 				
 				asset.randomizeDurability();
-				asset.equipped = true;
 				player.addAsset(asset);
-
+				player.equipAsset(asset.id);
 				if( Math.random() < 0.25 )
 					break;
 

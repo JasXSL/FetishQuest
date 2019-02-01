@@ -25,6 +25,9 @@ import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import Calculator from './Calculator.js';
 
+//const always_chest = true;
+const always_chest = false;
+
 class Dungeon extends Generic{
 
 	constructor(data, parent){
@@ -240,8 +243,9 @@ class Dungeon extends Generic{
 	// asset is a DungeonRoomAsset
 	async assetClicked( player, room, asset, mesh ){
 
-		if( asset._interact_cooldown )
+		if( asset._interact_cooldown ){
 			return;
+		}
 
 		// If host doesn't have a player, they can use this
 		if( !player && game.is_host )
@@ -263,6 +267,7 @@ class Dungeon extends Generic{
 			game.modal.addError("Enemy characters can't interact with items.");
 			return;
 		}
+
 
 		asset.interact( player, mesh );
 		
@@ -1130,7 +1135,6 @@ class DungeonRoomAsset extends Generic{
 		}
 
 		game.ui.addText( player.getColoredName()+" looted "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
-		//console.log("Drawing active room", this.parent.assets);
 		game.renderer.drawActiveRoom();		// Forces a room refresh
 		game.save();
 
@@ -1163,9 +1167,10 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	// Sets internal interaction cooldown (prevent spam clicking). If ms is undefined, use the built in interact_cooldown value
-	setInteractCooldown( ms ){
+	setInteractCooldown( ms = 1 ){
 		if( ms < 1 )
 			ms = this.interact_cooldown;
+		clearTimeout(this._interact_cooldown);
 		this._interact_cooldown = setTimeout(() => { this._interact_cooldown = null; }, ms);
 	}
 
@@ -1213,11 +1218,13 @@ class DungeonRoomAsset extends Generic{
 		// Custom logic for if battle is active
 		if( game.battle_active ){
 
+			
 			if( asset.isDoor() && asset.getDoorTarget() === dungeon.previous_room ){
 				
-				if( !game.turnPlayerIsMe() )
+				if( !game.turnPlayerIsMe() ){
+					console.error("not your turn error");
 					return game.modal.addError("Not your turn");
-				
+				}
 				let player = game.getTurnPlayer();
 				game.modal.close();
 				game.useActionOnTarget( player.getActionByLabel('stdEscape'), [player], player );
@@ -1228,7 +1235,6 @@ class DungeonRoomAsset extends Generic{
 			return;
 
 		}
-
 
 		// Trigger interactions in order
 		for( let i of this.interactions ){
@@ -1291,9 +1297,20 @@ class DungeonRoomAssetInteraction extends Generic{
 	}
 
 	save( full ){
+
+		let data = this.data;
+		if( Array.isArray(data) ){
+			data = data.map(el => {
+				return el && el.save ? el.save(full) : el;
+			});
+		}
+		if( data.save )
+			data = data.save(full);
+
 		return {
+			id : this.id,
 			type : this.type,
-			data : JSON.parse(JSON.stringify(this.data)),
+			data : JSON.parse(JSON.stringify(data)),
 			break : this.break,
 			repeats : this.repeats,
 			conditions : Condition.saveThese(this.conditions, full)
@@ -1320,11 +1337,23 @@ class DungeonRoomAssetInteraction extends Generic{
 		// make sure data is escaped
 		if( typeof this.data === "object" ){
 			for( let i in this.data ){
-				if( this.data[i].save ){
+				if( this.data[i] && this.data[i].save ){
 					this.data[i] = this.data[i].save(true);
 				}
 			}
 		}
+
+		if( this.type === DungeonRoomAssetInteraction.types.loot ){
+			if( !Array.isArray(this.data) )
+				console.error("Trying to load non-array to loot type in interaction:", this);
+			this.data = Asset.loadThese(this.data);
+		}
+		if( this.type === DungeonRoomAssetInteraction.types.encounters ){
+			if( !Array.isArray(this.data) )
+				console.error("Trying to load non-array to encounter type in interaction:", this);
+			this.data = DungeonEncounter.loadThese(this.data);
+		}
+
 	}
 
 
@@ -1339,6 +1368,7 @@ class DungeonRoomAssetInteraction extends Generic{
 
 		this.type = this.constructor.types.loot;
 		this.data = [];
+		this.g_resetID();	// needed for netcode to work
 		
 		// weight of 0.5 adds loot
 		if( value >= 0.5 ){
@@ -1351,7 +1381,7 @@ class DungeonRoomAssetInteraction extends Generic{
 				undefined 	// Viable materials
 			);
 			if( loot )
-				this.data.push(loot.save(true));
+				this.data.push(loot);
 				
 		}
 
@@ -1363,7 +1393,7 @@ class DungeonRoomAssetInteraction extends Generic{
 			if( !consumable )
 				break;
 			consumable.g_resetID();
-			this.data.push(consumable.clone(this.parent).save(true));
+			this.data.push(consumable.clone(this.parent));
 		}
 
 		game.save();
@@ -1421,7 +1451,7 @@ class DungeonRoomAssetInteraction extends Generic{
 		}
 
 		else if( this.type === types.loot ){
-			game.ui.drawContainerLootSelector(this.parent);
+			game.ui.drawContainerLootSelector( player, this.parent );
 		}
 
 		else if( this.type === types.lever ){
@@ -1592,13 +1622,11 @@ class DungeonEncounter extends Generic{
 	}
 
 	save( full ){
-		const out = {
-			players : this.players.map(el => el.save(full)),
-			wrappers : this.wrappers.map(el => el.save(full)),
-			startText : this.startText
-		};
-
+		const out = {};
 		if( full ){
+			out.startText = this.startText;
+			out.wrappers = this.wrappers.map(el => el.save(full));
+			out.players = this.players.map(el => el.save(full));
 			out.label = this.label;
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
 			out.conditions = Condition.saveThese(this.conditions, full);
@@ -1669,7 +1697,7 @@ DungeonEncounter.getFirstViable = function( arr, event ){
 
 	if( !valid.length ){
 		valid = arr;
-		console.log("Note: No monsters in level range for in encounter list", arr, "allowing all through");
+		console.debug("Note: No monsters in level range for in encounter list", arr, "allowing all through");
 	}
 
 	for( let enc of valid ){
@@ -1863,7 +1891,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			let chance = room.getParents().length*0.05;
 			let mimicChance = Math.min(0.5, numChests*0.1);
 			let treasureExists = false;
-			if( containers.length && Math.random() < chance ){
+			if( containers.length && (Math.random() < chance || always_chest) ){
 
 				let path = containers[Math.floor(Math.random()*containers.length)];
 				let chest = room.placeAsset(path);

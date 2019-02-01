@@ -110,8 +110,6 @@ class Wrapper extends Generic{
 		let out = new this.constructor(this.save(true), parent);
 		out.g_resetID();
 		out.template_id = this.id;
-		//out.effects = out.effects.map(el => el.clone(out));
-		//console.log("Cloned effects", out.effects);
 		return out;
 	}
 
@@ -641,7 +639,7 @@ class Effect extends Generic{
 				else{
 					
 					/*
-					console.log(
+					console.debug(
 						"input", amt, 
 						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
@@ -833,7 +831,6 @@ class Effect extends Generic{
 					return;
 				}
 				
-				//console.log("Running wrappers", this.data.wrappers, "on", t);
 				for( let w of this.data.wrappers ){
 
 					let wrapper = new Wrapper(w, this.parent.parent);

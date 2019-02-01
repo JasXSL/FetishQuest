@@ -2043,8 +2043,6 @@ export default class Modtools{
 						newRoom.z += dirOffset[2];
 						dungeon.rooms.push(newRoom);
 
-						console.log("Adding room", newRoom);
-
 						setDungeonRoomByIndex(newRoom.index, newRoom.z);
 						return;
 					}

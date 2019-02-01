@@ -2,13 +2,14 @@ import Game from './Game.js';
 import GameEvent from './GameEvent.js';
 import { AudioKit } from './Audio.js';
 import HitFX from './HitFX.js';
+import Comparer from './Comparer.js';
 
 class NetworkManager{
 
 	// Parent is game
 	constructor(parent){
 		
-		this.debug = false;
+		this.debug = true;
 		this.parent = parent;
 		this.io = null;
 		this.id = null;
@@ -40,13 +41,13 @@ class NetworkManager{
 
 		// Connection event
 		this.io.on('connect', () => {
-			console.log("Server connection established");
+			console.debug("Server connection established");
 			clearTimeout(this.timer_reconnect);
 		});
 
 		// Host left
 		this.io.on('hostLeft', () => {
-			console.log("Host left the game");
+			console.debug("Host left the game");
 			this.disconnect();
 		});
 
@@ -64,7 +65,7 @@ class NetworkManager{
 		// Player joined
 		this.io.on('playerJoined', data => {
 
-			console.log("A player joined the game", data.id, data.name, data.players);
+			console.debug("A player joined the game", data.id, data.name, data.players);
 			
 			this.players = data.players;
 
@@ -94,11 +95,11 @@ class NetworkManager{
 
 			if( !game.is_host && this.public_id){
 
-				console.log("Disconnected, trying to reconnect...");
+				console.debug("Disconnected, trying to reconnect...");
 				this.joinGame(this.public_id, localStorage.netgameName);
 				clearTimeout(this.timer_reconnect);
 				this.timer_reconnect = setTimeout(() => {
-					console.log("Reconnect failed");
+					console.debug("Reconnect failed");
 					this.disconnect();
 				}, 10000);
 				return;
@@ -120,7 +121,6 @@ class NetworkManager{
 		return new Promise(res => {
 			this.io.on('_id_', id => {
 				this.id = id;
-				console.log("ID set to ", this.id);
 				res();
 			});
 		});
@@ -220,6 +220,11 @@ class NetworkManager{
 
 
 
+	// Debugging
+	runComparer( data ){
+		return new Comparer().compare(this._last_push, data) ;
+	}
+
 
 
 
@@ -244,8 +249,8 @@ class NetworkManager{
 
 		// Auto
 		const current = game.getSaveData();
-		const changes = DeepDiff.diff(this._last_push, current);
-		if( !changes )
+		const changes = this.runComparer( current );
+		if( !Object.keys(changes).length )
 			return;
 
 		this._last_push = current;
@@ -343,7 +348,7 @@ class NetworkManager{
 			netPlayer = data.player
 		;
 		if( this.debug )
-			console.log("PlayerTask", data);
+			console.debug("PlayerTask", data);
 		if( !game.is_host || typeof data !== "object" )
 			return;
 
@@ -496,7 +501,7 @@ class NetworkManager{
 		if( game.is_host || typeof data !== "object" || !data.task )
 			return;
 		if( this.debug )
-			console.log("DM Task received", data);
+			console.debug("DM Task received", data);
 
 		let task = data.task, args = data.data;
 
@@ -607,7 +612,6 @@ class NetworkManager{
 		}
 		else if( task === NetworkManager.dmTasks.hitfx ){
 
-			console.log("Got hitfx", args);
 			// {fx:hitfx, caster:(str)casterID, recipients:(arr)recipients, armor_slot:(str)armor_slot}
 			if( !args.hitfx || !args.caster || !Array.isArray(args.recipients) ){
 				console.error("Received invalid hitfx args from host", args);
@@ -640,13 +644,13 @@ class NetworkManager{
 			now = data.now;		// this update id
 		data = data.ch;			// Changes
 
-		if( !Array.isArray(data) )
+		if( typeof data !== "object" )
 			return;
 
 		game.modal.onGameUpdate(data);
 
 		if( this.debug )
-			console.log("Game update received", data);
+			console.debug("Game update received", data);
 
 		if( this._pre_push_time != ts && this._pre_push_time !== 0 ){
 			this._pre_push_time = 0;
@@ -657,160 +661,29 @@ class NetworkManager{
 
 		this._pre_push_time = now;
 
-
-		let getPath = function( path ){
-			let targ = game;
-			let basePath = path.slice();
-			while( path.length > 1 ){
-				let p = path.shift();
-				targ = targ[p];
-				if( targ === undefined ){
-					console.error("Path target is not defined", basePath);
-					return undefined;
-				}
-			}
-			return targ;
-		};
-
-		let dungeonChanged = false;		// Whether we need to refresh or not
 		let gameCombatPre = game.battle_active;
 		let dungeonPreId = game.dungeon.id;
 		
-		// Paths needing rebasing
-		/*
-		Todo: Fix this at some point
-		let need_rebase = [];			// Sub arrays of path
-		let addRebase = path => {
-
-			// Return true if one path is in the other from the left, ex [1,2,3] [1,2,3,4]
-			let pathsAreEqual = (a,b) => {
-				// Iterate over the shortest one
-				for( let i =0; i<Math.min(a.length, b.length); ++a ){
-					if( a[i] !== b[i] )
-						return false;
-				}
-				return true;
-			}
-			for( let n = 0; n<need_rebase.length; ++n ){
-				let base = need_rebase[n];
-				// These aren't the same paths
-				if( !pathsAreEqual(base, path) )
-					continue;
-				// A shorter or equal one already exists, we can quit iterating
-				if( path.length >= base.length )
-					return;
-
-				// this one is shorter
-				need_rebase[n] = path;
-				return;
-			}
-			// Nothing exists, we need to add the path
-			need_rebase.push(path);
-		};
-		*/
-
-		for( let ch of data ){
-			if( ch.path[0] === "dungeon" )
-				dungeonChanged = true;
-
-			let kind = ch.kind, path = getPath(ch.path.slice()), el = ch.path[ch.path.length-1];
-
-			if( path === undefined ){
-				console.log("Desync detected, resynchronizing the whole game");
-				this.playerRequestFullGame();
-				return;
-			}
-
-			// simple edit or new property added
-			if( kind === "E" || kind === "N" )
-				path[el] = ch.rhs;
-			// Deleted a property
-			else if( kind === "D" )
-				delete path[el];
-			// Array change
-			else if( kind === "A" ){
-
-				// Array change
-				path = path[el];
-				el = ch.item.rhs;
-				let k = ch.item.kind;
-
-				// Something has changed
-				if( k === "E" || k === "N" )
-					path[ch.index] = el;
-				// Something was removed
-				else if( k === "D" )
-					path.splice(ch.index, 1);
-				
-
-			}
-
-			
-			// Rebase objects
-			/*
-			if( (typeof ch.rhs === "object" || kind === "A") && Array.isArray(need_rebase) ){
-				
-				let found = false;
-				let arr = ch.path;
-				console.log("Checking", arr);
-				for( let i = arr.length-1; i>=0; --i ){
-
-					let p = arr.slice(0, i+1);
-					let last = getPath(p.slice());
-					last = last[p[p.length-1]];
-					// Step back if it's been deleted
-					if( last === undefined || last === null )
-						continue;
-
-					if( typeof last.rebase === "function" ){
-						addRebase(p);
-						found = true;
-						break;
-					}
-
-				}
-
-				// Nothing viable has been found, we'll have to rebase the whole game
-				// This happens when overwriting an object or array directly under game, as you can't tell what class they are
-				if( !found )
-					need_rebase = true;
-			}
-			*/
-		}
-
-		//if( need_rebase === true ){
-			game.rebase( true );
-		//}
-		/*
-		else{
-			console.log("need rebase: ", need_rebase);
-			for( let base of need_rebase ){
-				let p = getPath(base.slice());
-				let target = base[base.length-1];
-				console.log("Rebasing", p[target]);
-				p[target].rebase();
-			}
-		}
-		*/
+		game.loadFromNet(data);
 		game.ui.draw();
 		game.modal.onGameUpdate(data);
 		
 
 		if( dungeonPreId !== game.dungeon.id )
 			game.renderer.loadActiveDungeon();
-		else if( dungeonChanged ){
+		else if( data.dungeon )
 			game.renderer.drawActiveRoom(false);
-		}
+		
 		if( gameCombatPre !== game.battle_active )
 			game.renderer.onBattleStateChange();
-		
 
+		// Battle start visual
 		if( !gameCombatPre && game.battle_active ){
 			// Trigger start battle cinematic
 			game.ui.battleVis();
 			game.renderer.battleVis();
 		}
-
+		
 	}
 
 
@@ -903,8 +776,8 @@ class NetworkManager{
 				const oldindex = stack.indexOf(object)
 				const l1 = `${keys.join('.')}.${key}`
 				const l2 = keys.slice(0, oldindex + 1).join('.')
-				console.log(`CIRCULAR: ${l1} = ${l2} = ${object}`)
-				console.log(object)
+				console.error(`CIRCULAR: ${l1} = ${l2} = ${object}`)
+				console.error(object)
 				detected = true
 				return
 			  }
@@ -925,8 +798,8 @@ class NetworkManager{
 			detect(obj, 'obj')
 			return detected
 		});
-		console.log(isCyclic(fullGame));
-		console.log("JSON encoding", JSON.stringify(fullGame).length);
+		if( this.debug )
+			console.debug("JSON encoding", JSON.stringify(fullGame).length);
 		fullGame.chat_log = game.chat_log;
 		this.sendHostTaskTo( target, NetworkManager.dmTasks.sendFullGame, fullGame);
 	}

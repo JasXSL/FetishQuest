@@ -172,5 +172,5 @@ out.collections = {
 
 };
 
-console.log("CONDITION LIB", out);
+
 export default out;

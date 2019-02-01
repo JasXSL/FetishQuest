@@ -801,7 +801,7 @@ const lib = [
 		hitfx : ["slowThrustsCum"]
 	},
 	{ text : "%S jumps and latches onto %T's %Trsize %Tbutt and shoves %Shis %Spsize %Spenis inside! The %Srace starts rapidly humping, eventually shooting a large squirt of demonic jizz into %T!",
-		conditions : humOnHumCond.concat("action_imp_specialDelivery","targetVagina","targetButtExposed"),
+		conditions : humOnHumCond.concat("action_imp_specialDelivery","targetButtExposed"),
 		weight : Text.Weights.high,
 		hitfx : ["slowThrustsCum"]
 	},
@@ -882,7 +882,7 @@ const lib = [
 		conditions : humOnHumCond.concat([
 			"action_imp_blowFromBelow","targetPenis","targetLowerbodyStretchy"
 		]),
-		hitfx : ["punch"]
+		hitfx : ["slap"]
 	},
 	{ text : "%S slips between %T's legs and forces %Shis fist up into the %Trace's %Tvagina, thrusting a few times!",
 		conditions : humOnHumCond.concat(["action_imp_blowFromBelow","targetVagina","targetGroinExposed"]),
@@ -1076,6 +1076,10 @@ const lib = [
 	},
 	{ text : "%S casts a spell, causing an invisible force to pinch %T's nose!",
 		conditions : anyOnHumCond.concat("action_imp_demonicPinch"),
+		hitfx : ["pinch"]
+	},
+	{ text : "%S casts a spell, causing an invisible force to pinch %T's taint!",
+		conditions : anyOnHumCond.concat("action_imp_demonicPinch", "targetPenis"),
 		hitfx : ["pinch"]
 	},
 	

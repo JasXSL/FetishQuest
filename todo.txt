@@ -1,8 +1,11 @@
 Bugs:
-	- Game desyncs when adding new character, causing netgame player to get wrong owner?
-	- For some reason the imps weren't wearing clothes while spectating as a DM
-	
-
+	- Quick join URL
+	- NPCs need to equip potions to their hot bar
+	- Particles need to preload and share textures
+	- Make dm chat have to be prefixed with dm
+	- Always prefer 2-player attack texts if viable
+	- Re-implement sprite as separate files
+	- Spells still not being removed when ticking
 
 new Gameplay elements:
 	- Learning/unlearning actions
@@ -18,6 +21,7 @@ Dungeon design:
 		- Shop
 		- Tavern
 		- Exit to world map
+	
 
 Audio tasks:
 	- UI sounds

@@ -716,14 +716,6 @@ const lib = {
 };
 
 
-/*
-let out = {};
-for( let obj of lib )
-	out[obj.label] = obj;
-console.log(JSON.stringify(out, null, 4));
-*/
-
-
 function getArray(){
 	const out = [];
 	for( let action in lib ){

@@ -1,0 +1,46 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="./style.css" />
+	<title>SCIENCE</title>
+</head>
+
+<body>
+	<script type="module">
+		import Comparer from './classes/Comparer.js';
+		const comparer = new Comparer();
+
+		const out = comparer.compare(
+			{
+				"a" : 1,
+				"b" : {
+					"id" : "a",
+					"name" : "b"
+				},
+				"c" : [
+					{"id":"sub1", "val": 1},
+					{"id":"sub2", "val": 2},
+					{"id":"sub3", "val": 3},
+				]
+			},
+			{
+				"a" : 1,
+				"b" : {
+					"id" : "a",
+					"name" : "c"
+				},
+				"c" : [
+					{"id":"sub1", "val": 1},
+					{"id":"sub2", "val": 4},
+					{"id":"sub4", "val":"sub4"}
+				]
+			},
+		);
+
+		console.log(out);
+
+	</script>
+</body>
+</html>

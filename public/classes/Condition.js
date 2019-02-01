@@ -36,6 +36,7 @@ export default class Condition extends Generic{
 
 	save( full ){
 		let out = {
+			id : this.id,
 			type : this.type,
 			data : this.data,
 			inverse : this.inverse,
@@ -154,7 +155,7 @@ export default class Condition extends Generic{
 			return false;
 
 		if( debug )
-			console.log("Condition DEBUG :: Testing", this, "against targs", targs, "with event", event);
+			console.debug("Condition DEBUG :: Testing", this, "against targs", targs, "with event", event);
 
 
 		// Check against all targeted players
@@ -214,7 +215,6 @@ export default class Condition extends Generic{
 
 				let rng = Math.floor(Math.random()*100),
 					val = Calculator.run(this.data.chance, event);
-				//console.log("RNG", rng, "val", val);
 				success = rng < val;
 
 			}
@@ -317,8 +317,11 @@ export default class Condition extends Generic{
 					success = this.objIs(event.dungeon, this.data);
 			}
 
-			else if( this.type === T.defeated )
+			else if( this.type === T.defeated ){
+				if( !t || ! t.isDead )
+					console.error(t, "doesn't have an isDead function");
 				success = t.isDead();
+			}
 			
 			
 			else if( this.type === T.punishNotUsed )
@@ -338,19 +341,19 @@ export default class Condition extends Generic{
 
 			if( !success && !this.anyPlayer ){
 				if( debug )
-					console.log("Condition DEBUG :: FAIL to validate ALL players on type", this.type);
+					console.debug("Condition DEBUG :: FAIL to validate ALL players on type", this.type);
 				return false;
 			}
 			else if( success && this.anyPlayer ){
 				if( debug )
-					console.log("Condition DEBUG :: SUCCESS to validate ANY player from type", this.type);
+					console.debug("Condition DEBUG :: SUCCESS to validate ANY player from type", this.type);
 				return true;
 			}
 
 		}
 
 		if(debug)
-			console.log("Condition DEBUG :: loop ended, success:", !this.anyPlayer, "anyPlayer", this.anyPlayer);
+			console.debug("Condition DEBUG :: loop ended, success:", !this.anyPlayer, "anyPlayer", this.anyPlayer);
 		return !this.anyPlayer;
 
 	}

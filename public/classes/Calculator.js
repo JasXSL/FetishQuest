@@ -44,7 +44,6 @@ Calculator.run = function( formula, event, customMathVars ){
 				symbol.splice(0,2);
 				if( symbol.length ){
 					symbol = symbol.join(' ');
-					//console.log("Caught symbol", symbol);
 					// Tags are set to 0 if not found
 					if( symbol.substr(2,5) === '_Tag_' ){
 						vars[symbol] = 0;
@@ -61,7 +60,6 @@ Calculator.run = function( formula, event, customMathVars ){
 		}
 		break;
 	}
-	//console.log(formula,out, vars );
 	return out;
 };
 

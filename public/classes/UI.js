@@ -335,6 +335,7 @@ export default class UI{
 	// Helper for drawPlayers. Updates the canvas image
 	updatePlayerStateImage( player ){
 
+		/*
 		const imgdiv = $('div.player[data-id='+esc(player.id)+'] div.content > div.bg');
 		const canvas = $('> canvas', imgdiv)[0];
 		
@@ -360,6 +361,7 @@ export default class UI{
 			width, height
 		);
 		imgdiv.css('background-image', 'url('+canvas.toDataURL()+')');
+		*/
 
 	}
 
@@ -386,7 +388,7 @@ export default class UI{
 			if( !el.length ){
 				let div = '<div class="player" data-id="'+esc(p.id)+'">'+
 					'<div class="content">'+
-						'<div class="bg"><canvas class="hidden"></canvas></div>'+
+						'<div class="bg"></div>'+
 						'<div class="stats"></div>'+
 					'</div>'+
 					'<div class="topRight">'+
@@ -446,23 +448,13 @@ export default class UI{
 
 			// Check if image has changed
 			let imgdiv = $('div.bg', el);
-			if( imgdiv.attr('data-image') !== p.icon ){
-				const canvas = $("canvas", imgdiv)[0];
-				canvas.state = -1;
-				const img = new Image();
-				img.crossOrigin = "anonymous";
-				img.src = p.icon;
+			if( imgdiv.attr('data-image') !== p.icon && p.icon ){
 				
-				img.onload = () => {
-					canvas.image = img;
-					const width = img.width/(p.is_sprite ? 5 : 1), height = img.height;
-					canvas.width = width;
-					canvas.height = height;
-					this.updatePlayerStateImage( p );
-				};
+				imgdiv.css('background-image', 'url('+esc(p.icon)+')');
 				imgdiv.attr('data-image', p.icon);
-			}else
-				this.updatePlayerStateImage( p );
+				
+			}
+			this.updatePlayerStateImage( p );
 
 			let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperbody),
 				lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerbody);
@@ -740,7 +732,7 @@ export default class UI{
 
 		const masterVolume = $("[data-id=audioToggle]", this.gameIcons);
 
-		$("[data-id]", this.gameIcons).on('click', function(){
+		$("[data-id]", this.gameIcons).on('click', function(event){
 
 			let id = $(this).attr("data-id");
 			if( id === 'map' )
@@ -757,6 +749,7 @@ export default class UI{
 
 				let el = $("> div", this);
 				el.toggleClass('visible');
+				event.preventDefault();
 				event.stopImmediatePropagation();
 				if( el.hasClass('visible') ){
 					window.addEventListener('click', event => {
@@ -1624,7 +1617,7 @@ export default class UI{
 			// Right side
 			html += '<div class="right">'+
 				// Image
-				'<img src="'+$("div.player[data-id='"+esc(player.id)+"'] > div.content > div.bg > canvas")[0].toDataURL()+'" class="inspect_icon" />';
+				'<img src="'+esc(player.icon)+'" class="inspect_icon" />';
 				
 				// Tags
 				html += '<div class="devtool">';
@@ -2484,14 +2477,10 @@ export default class UI{
 	}
 
 	// Draws a loot selector for container. Container is a DungeonAsset
-	drawContainerLootSelector( container ){
+	drawContainerLootSelector( player, container ){
 
 		let th = this;
 		let playAnimation = container._stage_mesh.userData.playAnimation;
-
-		let players = game.getMyPlayers();
-		if( !players.length )
-			return false;
 
 		game.modal.prepareSelectionBox();
 		const items = container.getLootable();
@@ -2501,11 +2490,11 @@ export default class UI{
 		if( playAnimation )
 			playAnimation("open");
 		game.modal.onSelectionBox(function(){
+
 			let asset = $(this).attr('data-id');
-			th.drawMyPlayerSelector(function(){
-				container.lootToPlayer(asset, game.getPlayerById($(this).attr('data-id')));
-				game.modal.closeSelectionBox();
-			}, true);
+			container.lootToPlayer(asset, player);
+			game.modal.closeSelectionBox();
+			
 		});
 		game.modal.onSelectionBoxClose(() => {
 			if( playAnimation && container.isInteractive() )

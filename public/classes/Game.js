@@ -37,6 +37,7 @@ export default class Game extends Generic{
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new DungeonEncounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.quests = [];								// Quest Objects of quests the party is on
+		this.net_load = false;							// Currently loading from network
 
 		// Library of custom items
 		this.libAsset = {};
@@ -191,6 +192,12 @@ export default class Game extends Generic{
 
 	}
 
+	loadFromNet( data ){
+		this.net_load = true;
+		this.g_autoload(data);
+		this.net_load = false;
+	}
+
 	// Automatically invoked after g_autoload() in load()
 	rebase( forcePlayers ){
 
@@ -199,11 +206,7 @@ export default class Game extends Generic{
 		this.dungeon = new Dungeon(this.dungeon, this);
 		this.encounter = new DungeonEncounter(this.encounter, this);
 		// Players last as they may rely on the above
-		this.players = this.players.map(el => {
-			if( el.constructor !== Player || forcePlayers )
-				return new Player(el);
-			return el;
-		});
+		this.players = Player.loadThese(this.players, this);
 
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
@@ -632,9 +635,12 @@ export default class Game extends Generic{
 	// Remove a player by id
 	removePlayer( id ){
 
+		const isTurn = id === this.getTurnPlayer().id;
+
 		for(let i in this.players){
 
 			if(this.players[i].id === id){
+
 
 				this.players.splice(i,1);
 				if( this.battle_active ){
@@ -652,7 +658,8 @@ export default class Game extends Generic{
 
 				}
 				this.verifyLeader();
-				
+				if( isTurn && this.battle_active )
+					this.advanceTurn();
 				this.save();
 
 				return true;
@@ -860,6 +867,7 @@ export default class Game extends Generic{
 
 			if( player !== game.getTurnPlayer() ){
 				game.modal.addError("Not your turn");
+				console.error("not your turn error");
 				return false;
 			}
 			if( player.ap < apCost ){
@@ -1314,8 +1322,10 @@ export default class Game extends Generic{
 		if( !player )
 			player = this.getTurnPlayer();
 
-		if( this.battle_active && this.getTurnPlayer() !== player )
+		if( this.battle_active && this.getTurnPlayer() !== player ){
+			console.error("not your turn error");
 			return game.modal.addError("Not your turn");
+		}
 
 		if( !game.playerIsMe(player) )
 			return game.modal.addError("Not your player");

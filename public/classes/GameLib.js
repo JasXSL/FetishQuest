@@ -138,7 +138,7 @@ export default class GameLib{
 
 		this.rebase();
 
-		console.log("MODS FINISHED LOADING. LIBRARY:", this);
+		console.debug("MODS FINISHED LOADING. LIBRARY:", this);
 
 	}
 

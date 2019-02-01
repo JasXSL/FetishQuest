@@ -178,6 +178,9 @@ export default class Player extends Generic{
 			is_sprite : this.is_sprite
 		};
 
+		// Assets are only sent if equipped, PC, or full
+		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC()), full);
+
 		if( full ){
 			out.leveled = this.leveled;
 			out.label = this.label;
@@ -195,10 +198,6 @@ export default class Player extends Generic{
 				out._turns = this._turns;
 			}
 
-		}
-		// Non player controlled inventories aren't sent
-		if( full || !this.isNPC() ){
-			out.assets = this.assets.map(el => el.save(full));
 		}
 
 
@@ -929,7 +928,7 @@ export default class Player extends Generic{
 
 			let asset = this.assets[i];
 			if( lib[asset.label] ){
-				console.log("Overwriting ", asset.label);
+				console.debug("Overwriting ", asset.label);
 				this.assets[i] = lib[asset.label].clone(this);
 			}
 
@@ -1345,7 +1344,7 @@ export default class Player extends Generic{
 
 			let action = this.actions[i];
 			if( lib[action.label] ){
-				console.log("Rebasing action", action.label, "with", lib[action.label]);
+				console.debug("Rebasing action", action.label, "with", lib[action.label]);
 				this.actions[i] = lib[action.label].clone(this);
 			}
 		}

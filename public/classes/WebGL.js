@@ -167,6 +167,7 @@ class WebGL{
 			if( a.distanceTo(b) > 5 )
 				return;
 			this.onMouseClick(event);
+			console.log("TouchEnd");
 		};
 		this.renderer.domElement.addEventListener('mousedown', event => touchStart(event));
 		this.renderer.domElement.addEventListener('touchstart', event => touchStart(event));
