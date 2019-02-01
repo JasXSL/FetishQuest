@@ -39,7 +39,8 @@ div.gameListing,
 input[type=button], input[type=submit], div.button,
 #modal div.inventory div.item,
 #modal div.modalQuests div.right div.item,
-#modal div.action
+#modal div.action,
+#modal div.netgame.player
 {
 	user-select: none;
 	-moz-user-select: none;
@@ -320,8 +321,10 @@ div.fxBuffBlue{
 	animation: buffBlue 0.5s ease-in-out;
 }
 
-
-
+/* Game quickjoin */
+	#joinOnlineGame{
+		padding:30%;
+	}
 
 /* Modal */
 	#modal{
@@ -635,6 +638,16 @@ div.fxBuffBlue{
 		width:6em;
 	}
 
+
+	#modal div.netgameLink{
+		padding:1vmax;
+		margin:1vmax 3vmax;
+		background: rgba(0,0,0,.75);
+		font-weight: bold;
+		user-select: all;
+		text-align:center;
+	}
+
 	
 
 /**/
@@ -837,6 +850,8 @@ div.fxBuffBlue{
 		display:flex;
 		flex-direction: column;
 	}
+
+	
 /**/
 
 

@@ -1,11 +1,8 @@
-Bugs:
+Next:
 	- Quick join URL
-	- NPCs need to equip potions to their hot bar
-	- Particles need to preload and share textures
-	- Make dm chat have to be prefixed with dm
-	- Always prefer 2-player attack texts if viable
-	- Re-implement sprite as separate files
-	- Spells still not being removed when ticking
+	- Re-implement sprite as separate files, but cache them
+
+
 
 new Gameplay elements:
 	- Learning/unlearning actions

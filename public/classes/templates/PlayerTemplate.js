@@ -169,8 +169,8 @@ class PlayerTemplate extends Generic{
 				if( libAssets[template] ){
 
 					let asset = libAssets[template];
-					asset.equipped = true;
 					player.addAsset(asset);
+					player.equipAsset(asset.id);
 
 				}
 
@@ -184,9 +184,10 @@ class PlayerTemplate extends Generic{
 				continue;
 			
 			let item = Asset.getRandomByRarity(items);
-			if( item )
+			if( item ){
 				player.addAsset(item);
-			
+				player.equipAsset(item.id);
+			}
 		}
 
 		

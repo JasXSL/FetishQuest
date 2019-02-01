@@ -1413,8 +1413,11 @@ export default class UI{
 	drawNetSettings(){
 
 		let html = '';
-		if( game.net.isConnected() && game.initialized && game.is_host )
-			html += 'Invite players with this ID:<br /><strong style="user-select:text;">'+esc(game.net.public_id)+'</strong><br /><br />';
+		if( game.net.isConnected() && game.initialized && game.is_host ){
+			html += 'Share the invite code or direct invite URL to invite a player to your game:<br /><div class="netgameLink">'+esc(game.net.public_id)+'</div>';
+			html += '<div class="netgameLink">'+esc('https://'+window.location.hostname+'#net/'+game.net.public_id)+'</div>';
+		}
+
 		else if( !game.net.isConnected() && game.initialized && game.is_host ){
 			html += '<div class="infoBox">';
 				html += '<h1>Put Session Online</h1>';
@@ -1425,9 +1428,10 @@ export default class UI{
 		if( game.net.isConnected() ){
 			html += '<input type="button" class="red" name="disconnect" value="Disconnect" />';
 
+			html += '<h3>Connected players</h3>';
 			// Todo: Stylize
 			for( let player of game.net.players )
-				html+= '<div class="player">'+esc(player.name)+'</div>';
+				html+= '<div class="netgame player">'+esc(player.name)+'</div>';
 
 		}
 
@@ -2669,9 +2673,11 @@ export default class UI{
 
 	sendChat( message ){
 
-		let speaker = 'DM';
-		if( !game.is_host )
-			speaker = game.getMyActivePlayer().id;
+		let speaker = game.getMyActivePlayer();
+		if( game.is_host && (!speaker || message.toLowerCase().startsWith("dm ")) )
+			speaker = 'DM';
+		else if( speaker )
+			speaker = speaker.id;
 		
 		if( message.substr(0,4).toLowerCase() === 'ooc ' || !speaker )
 			speaker = 'ooc';

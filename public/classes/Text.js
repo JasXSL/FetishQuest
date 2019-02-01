@@ -264,14 +264,20 @@ Text.getFromEvent = function( event ){
 	let texts = glib.texts;
 
 	
-
+	// max nr targets text available
+	let maxnr = 1;
 	for( let text of texts ){
-		if( (!game.dm_writes_texts || text.alwaysAuto) && text.validate(event) )
+		if( (!game.dm_writes_texts || text.alwaysAuto) && text.validate(event) ){
 			available.push(text);
+			if( available.numTargets > maxnr )
+				maxnr = available.numTargets;
+		}
 	}
 
 	if( !available.length )
 		return false ;
+
+	available = available.filter(el => el.numTargets === maxnr);
 
 	return weightedRand( available, item => {
 		let chance = item.conditions.length;

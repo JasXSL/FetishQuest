@@ -1503,6 +1503,34 @@ Game.load = async () => {
 		game.destructor();
 
 	game = new Game();
+
+	let hash = window.location.hash;
+	if( hash.charAt(0) === '#' )
+		hash = hash.substr(1);
+	hash = hash.split('/');
+
+	const hashTask = hash.shift();
+	if( hashTask === 'net' ){
+		const gameID = hash.shift();
+		let html = '<form id="joinOnlineGame">'+
+			'<h1>Join Online Game</h1>'+
+			'Nickname: <input type="text" value="'+esc(game.net.getStandardNick() || 'Anonymous #'+Math.floor(Math.random()*9999))+'">'+
+			'<input type="submit" value="Join" />'+
+		'</form>';
+		game.modal.set(html);
+		$("#joinOnlineGame").on('submit', event => {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			const nick = $("#joinOnlineGame input[type=text]").val().trim();
+			if( !nick )
+				return game.modal.addError("Please enter a proper nickname");
+			game.net.joinGame(gameID, nick);
+			game.modal.close();
+		});
+		game.ui.draw();
+		return;
+	}
+
 	if(localStorage.game){
 		try{
 			let g = await Game.db.games.get(localStorage.game);

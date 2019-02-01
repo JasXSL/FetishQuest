@@ -3,12 +3,37 @@ import * as THREE from '../ext/THREE.js';
 import SPE from '../ext/SPE.min.js';
 SPE.valueOverLifetimeLength = 4;
 
+const loader = new THREE.TextureLoader();
+const textures = {
+	candleFlame : loader.load('/media/textures/sprites/candleflame.png'),
+	flame : loader.load('/media/textures/particles/flame_particle.png'),
+	smoke : loader.load('/media/textures/particles/smokeparticle.png'),
+	glowSphere : loader.load('/media/textures/particles/glow_sphere.png'),
+	sparkle : loader.load('/media/textures/particles/sparkle.png'),
+	electricSpark : loader.load('/media/textures/particles/electric_spark.png'),
+	star : loader.load('/media/textures/particles/star.png'),
+	clawMarks : loader.load('/media/textures/particles/claw_marks.png'),
+	fangs : loader.load('/media/textures/particles/fangs.png'),
+	shield : loader.load('/media/textures/particles/shield.png'),
+	
+	poison : loader.load('/media/textures/particles/poison.png'),
+
+	lock : loader.load('/media/textures/particles/lock.png'),
+	explosion : loader.load('/media/textures/particles/explosion.png'),
+	splat : loader.load('/media/textures/particles/splatpart_white.png'),
+	plus : loader.load('/media/textures/particles/plus.png'),
+	snowflakes : loader.load('/media/textures/particles/snowflakes.png'),
+	cursedStar : loader.load('/media/textures/particles/cursed_star.png'),
+	yinYang : loader.load('/media/textures/particles/yinyang.png'),
+
+};
+
 
 // Candleflame
 particles.candleFlame = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/sprites/candleflame.png'),
+		value: textures.candleFlame,
 		frames : new THREE.Vector2(8,4),
 		loop : 1,
 	},
@@ -43,7 +68,7 @@ particles.candleFlame = {
 particles.torchFlame = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/flame_particle.png'),
+		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -87,7 +112,7 @@ particles.torchFlame = {
 particles.torchEmbers = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/flame_particle.png'),
+		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -131,7 +156,7 @@ particles.torchEmbers = {
 particles.torchSmoke = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/smokeparticle.png'),
+		value: textures.smoke,
 	},
 	blending : THREE.NormalBlending,
 	maxParticleCount : 100,
@@ -177,7 +202,7 @@ particles.torchSmoke = {
 particles.hitfx_sparks = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -224,7 +249,7 @@ particles.hitfx_sparks = {
 particles.hitfx_sparks_big = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -271,7 +296,7 @@ particles.hitfx_sparks_big = {
 particles.hitfx_sparks_big_yellow = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/sparkle.png'),
+		value: textures.sparkle,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -314,7 +339,7 @@ particles.hitfx_sparks_big_yellow = {
 particles.hitfx_sparkles_static = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/sparkle.png'),
+		value: textures.sparkle,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -355,7 +380,7 @@ particles.hitfx_sparkles_static = {
 particles.hitfx_sparks_zap = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -402,7 +427,7 @@ particles.hitfx_sparks_zap = {
 
 particles.hitfx_zap = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/electric_spark.png'),
+		value: textures.electricSpark,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 200,
@@ -447,7 +472,7 @@ particles.hitfx_zap = {
 particles.quest_stars = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/star.png'),
+		value: textures.star,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 300,
@@ -484,7 +509,7 @@ particles.quest_stars = {
 
 particles.hitfx_claws = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/claw_marks.png'),
+		value: textures.clawMarks,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 200,
@@ -524,7 +549,7 @@ particles.hitfx_claws = {
 
 particles.hitfx_smite = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 400,
@@ -591,7 +616,7 @@ particles.hitfx_smite = {
 
 particles.hitfx_bite = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/fangs.png'),
+		value: textures.fangs,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 1,
@@ -624,7 +649,7 @@ particles.hitfx_bite = {
 
 particles.hitfx_shield = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/shield.png'),
+		value: textures.shield,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 15,
@@ -657,7 +682,7 @@ particles.hitfx_shield = {
 
 particles.hitfx_poison_pink = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/poison.png'),
+		value: textures.poison,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 15,
@@ -690,7 +715,7 @@ particles.hitfx_poison_pink = {
 
 particles.hitfx_lock_yellow = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/lock.png'),
+		value: textures.lock,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 15,
@@ -719,7 +744,7 @@ particles.hitfx_lock_yellow = {
 
 particles.hitfx_punch = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/explosion.png'),
+		value: textures.explosion,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -764,7 +789,7 @@ particles.hitfx_punch = {
 particles.hitfx_sparks_smaller = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -811,7 +836,7 @@ particles.hitfx_sparks_smaller = {
 
 particles.hitfx_punch_smaller = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/explosion.png'),
+		value: textures.explosion,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -855,7 +880,7 @@ particles.hitfx_punch_smaller = {
 
 particles.hitfx_splat = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -902,7 +927,7 @@ particles.hitfx_splat = {
 
 particles.hitfx_splat_sparks = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -953,7 +978,7 @@ particles.hitfx_splat_sparks = {
 
 particles.hitfx_splat_red = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -999,7 +1024,7 @@ particles.hitfx_splat_red = {
 };
 particles.hitfx_splat_sparks_red = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1047,7 +1072,7 @@ particles.hitfx_splat_sparks_red = {
 
 particles.hitfx_healing = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/plus.png'),
+		value: textures.plus,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 20,
@@ -1092,7 +1117,7 @@ particles.hitfx_healing = {
 
 particles.hitfx_healing_yellow = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/plus.png'),
+		value: textures.plus,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1139,7 +1164,7 @@ particles.hitfx_healing_yellow = {
 
 particles.hitfx_healingSurge = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1184,7 +1209,7 @@ particles.hitfx_healingSurge = {
 
 particles.hitfx_fountain = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 300,
@@ -1268,7 +1293,7 @@ particles.hitfx_fountain = {
 
 particles.hitfx_splat_blue = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1313,7 +1338,7 @@ particles.hitfx_splat_blue = {
 };
 particles.hitfx_splat_sparks_blue = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1362,7 +1387,7 @@ particles.hitfx_splat_sparks_blue = {
 
 particles.hitfx_mist = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1411,7 +1436,7 @@ particles.hitfx_mist = {
 
 particles.hitfx_mist_green_target = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 500,
@@ -1458,7 +1483,7 @@ particles.hitfx_mist_green_target = {
 
 particles.hitfx_mist_pink = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1508,7 +1533,7 @@ particles.hitfx_mist_pink = {
 
 particles.hitfx_mist_yellow = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/glow_sphere.png'),
+		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1554,7 +1579,7 @@ particles.hitfx_mist_yellow = {
 
 particles.hitfx_splat_discrete = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1600,7 +1625,7 @@ particles.hitfx_splat_discrete = {
 
 particles.hitfx_splat_sparks_discrete = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1648,7 +1673,7 @@ particles.hitfx_splat_sparks_discrete = {
 };
 particles.hitfx_splat_sparks_discreter = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1698,7 +1723,7 @@ particles.hitfx_splat_sparks_discreter = {
 particles.hitfx_snow_sparks = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/snowflakes.png'),
+		value: textures.snowflakes,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1740,7 +1765,7 @@ particles.hitfx_snow_sparks = {
 particles.hitfx_snow_sparks_impact = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/snowflakes.png'),
+		value: textures.snowflakes,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 100,
@@ -1784,7 +1809,7 @@ particles.hitfx_snow_sparks_impact = {
 particles.hitfx_sludge_siphon = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 500,
@@ -1871,7 +1896,7 @@ particles.hitfx_sludge_siphon = {
 particles.hitfx_sludge_bolt = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 300,
@@ -1956,7 +1981,7 @@ particles.hitfx_sludge_bolt = {
 particles.hitfx_sludge_bolt_impact = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 300,
@@ -2042,7 +2067,7 @@ particles.hitfx_sludge_bolt_impact = {
 particles.hitfx_sludge_bolt_proc = {
 			
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/splatpart_white.png'),
+		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 300,
@@ -2091,7 +2116,7 @@ particles.hitfx_sludge_bolt_proc = {
 
 particles.hitfx_dark_star = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/cursed_star.png'),
+		value: textures.cursedStar,
 	},
 	blending : THREE.NormalBlending,
 	maxParticleCount : 15,
@@ -2123,7 +2148,7 @@ particles.hitfx_dark_star = {
 
 particles.hitfx_yin_yang = {
 	texture: {
-		value: new THREE.TextureLoader().load('/media/textures/particles/yinyang.png'),
+		value: textures.yinYang,
 	},
 	blending : THREE.AdditiveBlending,
 	maxParticleCount : 15,

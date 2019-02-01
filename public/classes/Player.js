@@ -601,8 +601,11 @@ export default class Player extends Generic{
 		}
 	}
 	onTurnEnd(){
-		for(let wrapper of this.wrappers)
+
+		const wrappers = this.getWrappers();
+		for(let wrapper of wrappers)
 			wrapper.onTurnEnd();
+
 		for(let action of this.actions)
 			action.onTurnEnd();
 		if( this._stun_diminishing_returns > 0 )
@@ -623,9 +626,10 @@ export default class Player extends Generic{
 			this.bot.onTurnStart();
 
 		
-
-		for(let wrapper of this.wrappers)
+		const wrappers = this.getWrappers();
+		for(let wrapper of wrappers)
 			wrapper.onTurnStart();
+
 		for(let action of this.actions)
 			action.onTurnStart();
 		
