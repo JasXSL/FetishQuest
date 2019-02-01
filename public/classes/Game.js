@@ -45,6 +45,7 @@ export default class Game extends Generic{
 		this.audio_fx = new Audio("fx");
 		this.audio_ambient = new Audio('ambient', false);
 		this.audio_music = new Audio('music', false);
+		this.audio_ui = new Audio('ui', false);
 
 		this.active_music_file = null;
 		this.active_ambient_file = null;
@@ -193,9 +194,13 @@ export default class Game extends Generic{
 	}
 
 	loadFromNet( data ){
+		let turn = this.getTurnPlayer();
 		this.net_load = true;
 		this.g_autoload(data);
 		this.net_load = false;
+		let nt = this.getTurnPlayer();
+		if( turn.id !== nt.id )
+			this.onTurnChanged();
 	}
 
 	// Automatically invoked after g_autoload() in load()
@@ -338,7 +343,14 @@ export default class Game extends Generic{
 		for( let player of this.players )
 			player.onCellChange();
 	}
-
+	// This one is raised both on host and client.
+	// It's only raised on coop after the turn is changed proper, if a player dies, they're likely skipped
+	onTurnChanged(){
+		if( this.playerIsMe(this.getTurnPlayer(), true) )
+			this.uiAudio('your_turn', 1);
+		else
+			this.uiAudio('turn_changed');
+	}
 
 
 
@@ -375,6 +387,16 @@ export default class Game extends Generic{
 		return {kit:kit, instances:out};
 
 	}
+
+	uiAudio( sound, volume = 0.5, element = null ){
+		// Todo: element location
+		this.audio_ui.play( 'media/audio/ui/'+sound+'.ogg', volume, false );
+	}
+
+	uiClick( element ){
+		this.uiAudio('click', 0.5, element );
+	}
+
 	setMasterVolume( volume = 1.0 ){
 		setMasterVolume(volume);
 	}
@@ -478,6 +500,7 @@ export default class Game extends Generic{
 		if( isOOC && uuid === 'ooc' )
 			uuid = 'DM';
 
+		const player = this.getPlayerById(uuid);
 		// We are host
 		let pl = "DM";
 		// This lets you  use the uuid as a name directly, useful for ooc
@@ -502,7 +525,8 @@ export default class Game extends Generic{
 			undefined, 
 			uuid, 
 			undefined, 
-			"playerChat"+
+			"playerChat sided "+
+				(player && player.team !== 0 ? ' enemy' : ' friend' )+
 				(pl==="DM" ? ' dmChat' : '')+
 				(isEmote ? ' emote' : '')+
 				(isOOC ? ' ooc' : '')
@@ -1287,7 +1311,7 @@ export default class Game extends Generic{
 				this.ui.draw();
 			}
 				
-			
+			this.onTurnChanged();
 			break;
 
 		}
@@ -1568,7 +1592,10 @@ Game.joinNetGame = () => {
 };
 
 Game.delete = async id => {
-	return Game.db.games.delete(id);
+	await Game.db.games.delete(id);
+	if( game.id === id ){
+		Game.load();
+	}
 };
 
 

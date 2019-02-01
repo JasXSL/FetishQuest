@@ -15,9 +15,8 @@ const lib = [
 		conditions : [
 			{"type":"event","data":{"event":"turnChanged"}}
 		],
-		"alwaysAuto":true,
-		"alwaysOutput":true,
-		audiokits : ["turnChanged"]
+		alwaysAuto:true,
+		alwaysOutput:true,
 	},
 	// battle started
 	{ text : "Battle Started!",

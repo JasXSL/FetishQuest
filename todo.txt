@@ -1,8 +1,10 @@
 Next:
-	- Quick join URL
+	- UI sounds:
+		x Generic click
+
 	- Re-implement sprite as separate files, but cache them
-
-
+	- Allow DM to set timeout
+	- Speech bubbles
 
 new Gameplay elements:
 	- Learning/unlearning actions
@@ -19,11 +21,6 @@ Dungeon design:
 		- Tavern
 		- Exit to world map
 	
-
-Audio tasks:
-	- UI sounds
-		- Generic click
-
 LATER:
 	- New game picker needs sprite character
 	- Show what mods a quest belongs to

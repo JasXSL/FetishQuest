@@ -9,11 +9,6 @@ let kit;
 
 // UI
 
-// turnChanged
-	kit = new AudioKit();
-	kit.addSound({path : basePath+'turn_changed.ogg', volume : 0.2});
-	out.turnChanged = kit;
-
 // battleStart
 	kit = new AudioKit();
 	kit.addSound({path : basePath+'battle_start.ogg', volume : 0.5});

@@ -1,18 +1,4 @@
 const lib = {
-    "turnChanged": {
-        label : "turnChanged",
-        sounds : [
-            {
-                s : {
-                    path : "media/audio/turn_changed.ogg",
-                    volume : 0.2
-                },
-                t : 0,
-                se : false
-            }
-        ],
-        
-    },
     "battleStart": {
         label : "battleStart",
         sounds : [
@@ -475,6 +461,16 @@ const lib = {
                     volume : 0.5
                 },
                 t : 0,
+                se : false
+            }
+        ],
+        
+    },
+    tentacleSuctionFollow : {
+        follow_parts : true,
+        sounds : [
+            {
+                s : {path : "media/audio/tentacle_suction.ogg",volume : 0.5},
                 se : false
             }
         ],

@@ -869,7 +869,7 @@ out[id].stages.push(
 		particles : 'hitfx_sludge_bolt',
 		emit_duration : 500,
 		hold : 500,
-		sound_kits : ['tentacleSuction'],
+		sound_kits : ['tentacleSuctionFollow'],
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_sludge_bolt_impact',

@@ -1,3 +1,5 @@
+const debug = true;
+
 export default class Comparer{
 
 	constructor(){}
@@ -43,12 +45,12 @@ export default class Comparer{
 
 						let tupleA = {}, tupleB = {};
 						for( let n of a[i] ){
-							if( !n || !n.id )
+							if( (!n || !n.id) && debug )
 								console.error("Object", n, "has no id in object", a, "array", a[i]);
 							tupleA[n.id] = n;
 						}
 						for( let n of b[i] ){
-							if( !n || !n.id )
+							if( (!n || !n.id) && debug )
 								console.error("Object", n, "has no id in object", b, "array", b[i], "a was", a[i]);
 							tupleB[n.id] = n;
 						}

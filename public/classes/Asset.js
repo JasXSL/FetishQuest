@@ -354,6 +354,7 @@ Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 	}
 	
 	return new Wrapper({
+		duration : -1,
 		name : 'statsAutoGen',
 		detrimental : false,
 		effects : effects

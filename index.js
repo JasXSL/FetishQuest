@@ -9,7 +9,7 @@ const Game = require('./Game');
 
 const io = require('socket.io')(server);
 server.listen(port);
-console.log("Server online on port", port);
+console.debug("Server online on port", port);
 app.use(Express.static(__dirname+'/public'));
 
 Game.io = io;

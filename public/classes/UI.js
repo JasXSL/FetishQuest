@@ -27,6 +27,8 @@ export default class UI{
 		this.netgamePlayers = $("#netgamePlayers");
 		this.multiCastPicker = $("#multiCastPicker");
 		
+		// Active player has viable moves
+		this._has_moves = false;
 		this.visible = localStorage.ui_visible === undefined ? true : !!+localStorage.ui_visible;	// main UI layer visible
 
 		this.previousConsoleCommands = [];
@@ -219,8 +221,15 @@ export default class UI{
 			if( myTurn ){
 				etcolor = 'enabled';
 				// Any moves left?
-				if( !castableActions )
+				if( !castableActions ){
 					etcolor = 'highlighted';
+				}
+				if( this._has_moves !== !!castableActions ){
+					this._has_moves = !!castableActions;
+					if( !castableActions ){
+						game.uiAudio( 'no_moves' );
+					}
+				}
 			}
 			html += '<div data-id="end-turn" class="action button autoWidth '+etcolor+'">End Turn</div>';
 		}
@@ -258,6 +267,7 @@ export default class UI{
 				th.closeTargetSelector();
 				th.action_selected = spell;
 				th.targets_selected = [];
+				game.uiClick();
 
 				if( targetable )
 					$(this).toggleClass('spellSelected', true);
@@ -716,6 +726,8 @@ export default class UI{
 					'<input type="range" min=0 max=100 step=1 id="musicSoundVolume" />'+
 					'FX:'+
 					'<input type="range" min=0 max=100 step=1 id="fxSoundVolume" />'+
+					'UI:'+
+					'<input type="range" min=0 max=100 step=1 id="uiSoundVolume" />'+
 					'Master:'+
 					'<input type="range" min=0 max=100 step=1 id="masterSoundVolume" />'+
 				'</div>'+
@@ -735,16 +747,26 @@ export default class UI{
 		$("[data-id]", this.gameIcons).on('click', function(event){
 
 			let id = $(this).attr("data-id");
-			if( id === 'map' )
+			if( id === 'map' ){
+				game.uiAudio( 'map_toggle' );
 				th.toggle();
-			else if( id === 'quest' )
+			}
+			else if( id === 'quest' ){
 				th.drawQuests();
-			else if( id === "mainMenu" )
+				game.uiAudio( 'toggle_quests' );
+			}
+			else if( id === "mainMenu" ){
+				game.uiAudio( 'menu_generic' );
 				th.drawMainMenu();
-			else if( id === 'multiplayer' )
+			}
+			else if( id === 'multiplayer' ){
+				game.uiAudio( 'menu_generic' );
 				th.drawNetSettings();
-			else if( id === 'inventory' )
+			}
+			else if( id === 'inventory' ){
+				game.uiAudio( 'backpack' );
 				th.drawPlayerInventory();
+			}
 			else if( id === 'audioToggle' ){
 
 				let el = $("> div", this);
@@ -759,6 +781,7 @@ export default class UI{
 
 			}
 			else if( id === 'DM' ){
+				game.uiAudio( 'menu_generic' );
 				th.drawDMTools();
 			}
 		});
@@ -795,6 +818,11 @@ export default class UI{
 			.val(Math.round(game.audio_music.volume*100))
 			.off('input').on('input', function(event){
 				game.audio_music.setVolume($(this).val()/100);
+			});
+		$('#uiSoundVolume', masterVolume)
+			.val(Math.round(game.audio_ui.volume*100))
+			.off('input').on('input', function(event){
+				game.audio_ui.setVolume($(this).val()/100);
 			});
 
 		
@@ -1070,6 +1098,10 @@ export default class UI{
 				targetID : targetID,
 				acn : additionalClassName,
 			});
+
+		if( ~acn.indexOf('playerChat') && game.initialized ){
+			game.uiAudio( 'chat_message' );
+		}
 
 		let target = this.parent.getPlayerById(targetID),
 			sender = this.parent.getPlayerById(attackerID);
@@ -1415,7 +1447,7 @@ export default class UI{
 		let html = '';
 		if( game.net.isConnected() && game.initialized && game.is_host ){
 			html += 'Share the invite code or direct invite URL to invite a player to your game:<br /><div class="netgameLink">'+esc(game.net.public_id)+'</div>';
-			html += '<div class="netgameLink">'+esc('https://'+window.location.hostname+'#net/'+game.net.public_id)+'</div>';
+			html += '<div class="netgameLink">'+esc('https://'+window.location.hostname+'/#net/'+game.net.public_id)+'</div>';
 		}
 
 		else if( !game.net.isConnected() && game.initialized && game.is_host ){
@@ -2695,8 +2727,12 @@ export default class UI{
 			return out;
 			
 		let element = player;
+		// Some events might put the player in an array
+		if( Array.isArray(element) )
+			element = element[0];
 		if( player instanceof Player )
 			element = $('div.player[data-id='+esc(player.id)+']', this.players);
+
 		if( element.length ){
 			let pos = element.offset(),
 				width = element.width(),

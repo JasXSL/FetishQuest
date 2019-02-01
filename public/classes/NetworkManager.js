@@ -55,6 +55,7 @@ class NetworkManager{
 		this.io.on('playerLeft', data => {
 			for( let i in this.players ){
 				if( this.players[i].id === data.id ){
+					game.uiAudio( 'player_disconnect' );
 					game.ui.addText( this.players[i].name+" has left the game.", undefined, undefined, undefined, 'dmInternal' );
 					this.players.splice(i, 1);
 				}
@@ -65,8 +66,6 @@ class NetworkManager{
 		// Player joined
 		this.io.on('playerJoined', data => {
 
-			console.debug("A player joined the game", data.id, data.name, data.players);
-			
 			this.players = data.players;
 
 			// Try mapping up the players by name if possible
@@ -85,6 +84,8 @@ class NetworkManager{
 			if( data.id !== this.id && game.is_host ){
 				this.dmSendFullGame(data.id);
 			}
+
+			game.uiAudio( 'player_join' );
 			game.ui.addText( data.name+" has joined the game.", undefined, undefined, undefined, 'dmInternal' );
 			this.attempts = 0;
 
@@ -96,6 +97,8 @@ class NetworkManager{
 			if( !game.is_host && this.public_id){
 
 				console.debug("Disconnected, trying to reconnect...");
+				game.uiAudio( 'player_disconnect' );
+
 				this.joinGame(this.public_id, localStorage.netgameName);
 				clearTimeout(this.timer_reconnect);
 				this.timer_reconnect = setTimeout(() => {

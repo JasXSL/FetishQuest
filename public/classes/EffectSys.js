@@ -143,7 +143,6 @@ class Wrapper extends Generic{
 		// If this effect isn't yet applied, we need to apply it against multiple players if target is an override
 		if( !isTick ){
 			
-			
 			if( this.target === Wrapper.TARGET_CASTER )
 				pl = [this.parent.parent];
 			else if( this.target === Wrapper.TARGET_AOE )
@@ -165,6 +164,7 @@ class Wrapper extends Generic{
 				pl = [player]; 
 			
 		}
+
 
 		let successes = 0;
 		for( let p of pl ){	
@@ -193,19 +193,20 @@ class Wrapper extends Generic{
 
 			}
 
+
 			// Add
 			if( obj.duration && !isTick ){
 
 				if( p === caster_player )
 					obj._self_cast = true;
 
+				let add_stacks = 0
+
 				// Remove any existing effects with the same label
 				for( let wrapper of p.wrappers ){
 					if( wrapper.label === obj.label && wrapper.caster === caster.id ){
-						let stacks = wrapper.stacks;
+						add_stacks = wrapper.stacks;
 						wrapper.remove();
-						obj.stacks += stacks;
-						obj.stacks = Math.max(1, Math.min(obj.stacks, obj.max_stacks));
 					}
 				}
 
@@ -245,6 +246,10 @@ class Wrapper extends Generic{
 
 				evt.type = GameEvent.Types.wrapperAdded;
 				evt.raise();
+
+				if( add_stacks ){
+					obj.addStacks(add_stacks);
+				}
 				
 			}
 
@@ -281,15 +286,19 @@ class Wrapper extends Generic{
 			this._duration = this.duration;
 		if( this.stacks > this.max_stacks ){
 			this.stacks = this.max_stacks;
-			new GameEvent({
+		}
+		if( this.stacks <= 0 )
+			this.remove();
+		else{
+			const evt = new GameEvent({
 				type : GameEvent.Types.internalWrapperStackChange,
 				sender : game.getPlayerById(this.caster),
 				target : game.getPlayerById(this.target),
 				wrapper : this,
 			});
+			for(let effect of this.effects)
+				effect.trigger(evt);
 		}
-		if( this.stacks <= 0 )
-			this.remove();
 	}
 
 	tick(){
@@ -298,6 +307,7 @@ class Wrapper extends Generic{
 	}
 
 	remove(){
+
 		let target = game.getPlayerById(this.victim);
 		let evt = new GameEvent({
 			type : GameEvent.Types.internalWrapperRemoved,
@@ -547,6 +557,9 @@ class Effect extends Generic{
 		if( !Effect.Types[this.type] )
 			console.error("Unknown effect type", this.type, "in", this);
 
+		if( this.type === Effect.Types.runWrappers && Array.isArray(this.data.wrappers) )
+			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
+
 		this.conditions = Condition.loadThese(this.conditions, this);		
 	}
 
@@ -562,6 +575,8 @@ class Effect extends Generic{
 	// template is the original effect if it was just added
 	// otherwise it's parent
 	trigger( event, template ){
+
+		
 
 		let evt = event.clone();
 		evt.effect = this;
@@ -587,7 +602,6 @@ class Effect extends Generic{
 		}
 		let custom = {};	// Custom data to push to the event
 		
-
 
 		for( let t of tout ){
 

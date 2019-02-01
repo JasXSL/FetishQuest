@@ -697,9 +697,9 @@ const lib = {
 		level: 1,
 		name : "Tentacle Whip",
 		icon : 'suckered-tentacle',
-		description : "Deals 4 physical damage. 6 if your target is affected by corrupting ooze.",
-		ap : 2,
-		mp : 0,
+		description : "Deals 3 physical damage. 6 if your target is affected by corrupting ooze.",
+		ap : 1,
+		mp : 1,
 		ranged: true,
 		type : Action.Types.physical,
 		cooldown : 1,
@@ -718,7 +718,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "4+ta_Tag_wr_corrupting_ooze*2"
+							"amount": "3+ta_Tag_wr_corrupting_ooze*2"
 						}
 					},
 					
@@ -732,7 +732,8 @@ const lib = {
 		icon : 'gooey-molecule',
 		description : "Adds a stack of corrupting ooze on your target. Corrupting ooze lowers their corruption resistance by 1 per stack, and at the start of the affected players turn an additional stack is added. If it goes over 5 stacks, the target gets stunned for 1 turn.",
 		ap : 1,
-		mp : 2,
+		mp : 1,
+		charges : 3,
 		type : Action.Types.corruption,
 		cooldown : 0,
 		ranged: true,
@@ -740,12 +741,6 @@ const lib = {
 		show_conditions : ["inCombat"],
 		wrappers : [
 			"corruptingOoze",
-			{
-				add_conditions : stdCond,
-				effects : [
-					
-				]
-			}
 		]
 	},
 	tentaclemancer_siphonCorruption: {

@@ -51,7 +51,7 @@ const lib = {
 					label : ""
 				}
 				],
-				"_duration":0,
+				"_duration":-1,
 				
 				"stacks":1,
 				"tick_on_turn_end":false,
@@ -61,7 +61,7 @@ const lib = {
 				"max_stacks":1,
 				"netPlayer":"",
 				"trigger_immediate":false,
-				"duration":0
+				"duration":-1
 			}
 		],
 		description : "A short skirt, some wooly stockings and a shiny white thong. +3 Stamina",

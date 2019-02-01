@@ -269,14 +269,14 @@ Text.getFromEvent = function( event ){
 	for( let text of texts ){
 		if( (!game.dm_writes_texts || text.alwaysAuto) && text.validate(event) ){
 			available.push(text);
-			if( available.numTargets > maxnr )
-				maxnr = available.numTargets;
+			if( text.numTargets > maxnr )
+				maxnr = text.numTargets;
 		}
 	}
 
 	if( !available.length )
 		return false ;
-
+		
 	available = available.filter(el => el.numTargets === maxnr);
 
 	return weightedRand( available, item => {
