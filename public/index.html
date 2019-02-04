@@ -4,9 +4,13 @@
 <head>
 	<meta charset="utf-8">
 	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" media="all and (max-width:1000px) and (orientation:landscape)" href="style-mobile.css" />
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
 	<title>FetishQuest</title>
 	<meta name="description" content="A lewd dungeon game!">
 	<meta name="author" content="JasX">
+	<link rel="manifest" href="/manifest.webmanifest" />
+	<link rel="icon" type="image/png" href="media/ui/logo_64.png" />
 </head>
 
 <body>
@@ -39,6 +43,22 @@
 		g_Mod = Mod;
 		glib = new GameLib();
 		window.Player = Player;
+
+		if( 'serviceWorker' in navigator ){
+
+			console.log("Waiting for window load");
+			window.addEventListener('load', function() {
+				console.log("Loading serviceworker");
+				navigator.serviceWorker.register('/serviceworker.js').then(function(registration) {
+					// Registration was successful
+					console.log('ServiceWorker registration successful with scope: ', registration.scope);
+				}, function(err) {
+					// registration failed :(
+					console.log('ServiceWorker registration failed: ', err);
+				});
+			});
+
+		}
 
 		glib.ini()
 		.then(() => {
@@ -91,6 +111,11 @@
 	<div id="selectionbox" class="selectionbox hidden"></div>
 
 	<div id="notices"></div>
+
+	<div id="mainMenuToggle">
+		<div class="button" data-id="map" style="background-image:url(/media/wrapper_icons/treasure-map.svg);"></div>
+		<div class="button mainMenuToggle" data-id="toggle" style="background-image:url(/media/ui/logo_128.png); background-size: 130% 130%; background-position:center;"></div>
+	</div>
 	
 </body>
 </html>

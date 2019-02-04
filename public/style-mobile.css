@@ -1,0 +1,116 @@
+*{
+	transition: none !important;
+	animation: none !important;
+}
+
+#ui{
+	bottom:0;
+}
+
+#mainMenuToggle{
+	display:block;
+	position: fixed;
+	bottom:1.5vh;
+	right:0;
+}
+body #mainMenuToggle > div{
+	display:inline-block;
+	vertical-align: middle;
+	width:10vh;
+	height:10vh;
+	font-size:8vh;
+	padding:0;
+	border-color:#ACF;
+	background-color:rgba(0,30,80,.75);
+	background-size: 100% 100%;
+}
+
+
+/* Main menu */
+	#gameIcons.visible{
+		display: block;
+	}
+	#gameIcons{
+		display: none;
+		background: rgba(0,0,0,.75);
+		border:none;
+		border-left: 0.2vmax solid #ACF;
+		position: absolute;
+		left: auto;
+		right: 0;
+		bottom: 0;
+		top: 0;
+		height:auto;width:auto;
+	}
+	#gameIcons > div.autoWidth{
+		width:8.5vh;
+		overflow:hidden;
+		padding-top:20%;
+		padding-left:6%;
+	}
+	
+	#ui > div.actionbar{
+		height:10vh;
+		padding:0.5vh;
+		border-top-width:0.4vh;
+	}
+	#gameIcons > div,
+	#mainMenuToggle > div,
+	#ui > div.actionbar > div.actions > div{
+		width:8.5vh;
+		height:8.5vh;
+		margin:0 0.5vh 0 0.5vh;
+	}
+	#gameIcons > div{
+		display:block;
+		position:relative;
+		margin:0.5vmax;
+	}
+	#gameIcons > div > div.rollout.visible{
+		top:-1vh; left:50%;
+	}
+/**/
+
+/* Action bar */
+	
+
+	#ui > div.actionbar{
+		border-top-width:2vh;
+		height:15vh;
+	}
+
+	#ui > div.actionbar > div.resources > div.stat{
+		margin:0 0.5vh;
+	}
+	#ui > div.actionbar > div.resources > div.stat > div{
+		height:2vh;
+		margin:0.1vh;
+	}
+
+	#ui > div.actionbar > div.actions{
+		top:0.5vh;
+	}
+
+	#ui > div.actionbar > div.actions > div.action{
+		width:12vh;
+		height:12vh;
+		border-width: 0.4vh;
+		padding:1vh;
+		font-size:3vh;
+	}
+	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
+		padding-top:3.5vh;
+	}
+	#ui > div.actionbar > div.actions > div.action > div.uses,
+	#ui > div.actionbar > div.actions > div > div.CD{
+		padding:0.4vmax;
+		border-radius:0.2vmax;
+		font-size:2.5vmax;
+	}
+	#ui > div.actionbar > div.actions > div > div.CD{
+		padding:1vmax;
+		font-size:3vmax;
+		font-weight:bold;
+	}
+	
+/* */

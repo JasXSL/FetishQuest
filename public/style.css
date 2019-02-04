@@ -919,7 +919,8 @@ div.fxBuffBlue{
 		margin:0 0.25vh 0 0.25vh;
 		vertical-align: middle;
 	}
-	#gameIcons > div.highlighted{
+	#gameIcons > div.highlighted,
+	#mainMenuToggle > div.highlighted{
 		border-color: #ADF;
 		background-color:#9AD;
 	}
@@ -1683,6 +1684,7 @@ div.fxBuffBlue{
 
 
 /* Quest accept */
+
 	@keyframes questAccept{
 		from{box-shadow:0 0 3vmax #ADF;}
 		to{box-shadow:0 0 6vmax #ADF;}
@@ -1717,4 +1719,9 @@ div.fxBuffBlue{
 		pointer-events: none;
 		opacity: 0;
 	}
+/**/
 
+/* HIDE IF NOT MOBILE */
+#mainMenuToggle{
+	display:none;
+}

@@ -116,6 +116,7 @@ export default class UI{
 
 	// Toggles the UI overlay
 	toggle( visible ){
+
 		if( visible !== undefined )
 			this.visible = !!visible;
 		else
@@ -124,6 +125,8 @@ export default class UI{
 		game.renderer.hblur.enabled = game.renderer.vblur.enabled = this.visible;
 		this.board.toggleClass('hidden', !this.visible);
 		$("[data-id=map]", this.gameIcons).toggleClass("highlighted", this.visible);
+		$("#mainMenuToggle div[data-id=map]").toggleClass("highlighted", this.visible);
+
 	}
 
 
@@ -708,7 +711,7 @@ export default class UI{
 
 	}
 
-	// Bottom menu
+	// bottom main menu
 	drawGameIcons(){
 
 		const player = game.getMyActivePlayer();
@@ -829,6 +832,19 @@ export default class UI{
 		$('div.rollout', masterVolume).on('click', event => event.stopImmediatePropagation());
 
 		updateVolumeIcon();
+
+		$("#mainMenuToggle > div").off('click').on('click', function(){
+			let id = $(this).attr("data-id");
+			console.log("Clicked", id);
+			if( id === 'toggle' ){
+				th.gameIcons.toggleClass('visible');
+			}
+			else if( id === 'map' ){
+				game.uiAudio( 'map_toggle' );
+				th.toggle();
+			}
+
+		});
 
 	}
 
