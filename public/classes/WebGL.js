@@ -13,8 +13,9 @@ import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 
-//const DISABLE_DUNGEON = false;
-const DISABLE_DUNGEON = true;
+const DISABLE_DUNGEON = false;
+//const DISABLE_DUNGEON = true;
+const USE_FX = true;
 
 // Enables a grid for debugging asset positions
 const CAM_DIST = 1414;
@@ -30,6 +31,8 @@ class WebGL{
 			aa : localStorage.antialiasing === undefined ? true : !!localStorage.antialiasing,
 			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows
 		};
+		
+		this.events = [];		// Events that should be unbound
 
 		this.width = 1.0;		// vw
 		this.height = 1.0;		// vh
@@ -54,6 +57,7 @@ class WebGL{
 		this.fxCam.position.y = -10;
 		this.fxCam.lookAt(new THREE.Vector3());
 		this.fxRenderer = new THREE.WebGLRenderer({alpha:true});
+		this.fxRenderer.setPixelRatio(1);
 		this.fxRenderer.shadowMap.enabled = true;
 		this.fxRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		this.fxParticles = [];		// Particle groups
@@ -110,6 +114,7 @@ class WebGL{
 		this.renderer = new THREE.WebGLRenderer({
 			antialias : conf.aa
 		});
+		
 		if( conf.shadows ){
 			this.renderer.shadowMap.enabled = true;
 			this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -154,14 +159,16 @@ class WebGL{
 		this.mouse = new THREE.Vector2();
 		this.mouseAbs = new THREE.Vector2();
 		this.intersecting = [];	// Currently intersecting objects
-		$(window).off('mousemove touchstart').on('mousemove touchstart', event => this.onMouseMove(event));
 
 		this.mouseDownPos = {x:0,y:0};
 		const touchStart = event => {
+			this.onMouseMove(event);
 			this.mouseDownPos.x = event.offsetX;
 			this.mouseDownPos.y = event.offsetY;
+			
 		};
 		const touchEnd = event => {
+			this.onMouseMove(event);
 			const a = new THREE.Vector2(this.mouseDownPos.x, this.mouseDownPos.y);
 			const b = new THREE.Vector2(event.offsetX,event.offsetY);
 			if( a.distanceTo(b) > 5 )
@@ -173,7 +180,10 @@ class WebGL{
 		this.renderer.domElement.addEventListener('mouseup', event => touchEnd(event));
 		this.renderer.domElement.addEventListener('touchend', event => touchEnd(event));
 		
-		
+		this.bind(document, 'mousemove', event => this.onMouseMove(event));
+		this.bind(document, 'touchmove', event => this.onMouseMove(event));
+		this.bind(document, 'touchstart', event => this.onMouseMove(event));
+		this.bind(document, 'touchend', event => this.onMouseMove(event));
 		
 		// outdoor skybox
 		let sky = new Sky();
@@ -201,7 +211,7 @@ class WebGL{
 
 
 
-
+		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize( width, height );
 		this.loading = false;
 		this.load_after_load = false;		// Set if a load was attempted while it was already loading
@@ -266,6 +276,21 @@ class WebGL{
 
 	}
 
+	destructor(){
+		for( let event of this.events ){
+			event[targ].removeEventListener(event.evt, event.func);
+		}
+	}
+
+	bind( target, evt, func ){
+		target.addEventListener(evt, func);
+		this.events.push({
+			targ : target,
+			evt : evt,
+			func : func
+		});
+	}
+
 	setSize( width, height ){
 
 		this.width = width || 1.0;
@@ -277,8 +302,11 @@ class WebGL{
 	updateSize(){
 		let width = Math.round(window.innerWidth*this.width),
 			height = Math.round(window.innerHeight*this.height);
+		
 		this.renderer.setSize(width, height);
-		this.composer.setSize(width, height);
+		this.renderer.setPixelRatio(window.devicePixelRatio ? window.devicePixelRatio : 1);
+		this.composer.setSize(this.renderer.domElement.width, this.renderer.domElement.height);
+		
 		this.renderer.domElement.style.width = Math.ceil(width);
 		this.renderer.domElement.style.height = Math.ceil(height);
 		this.camera.aspect = width / height;
@@ -413,8 +441,11 @@ class WebGL{
 
 		
 		this.controls.update();
-		this.composer.render();
 
+		if( USE_FX )
+			this.composer.render();
+		else
+			this.renderer.render( this.scene, this.camera);
 	}
 	
 	// Dungeon stage cache
@@ -530,17 +561,18 @@ class WebGL{
 
 	/* EVENTS */
 	onMouseMove( event, debug ){
-		const offset = $(this.renderer.domElement).offset();
 
-		if( event.type === 'touchstart' )
+		const offset = $(this.renderer.domElement).offset();
+		if( event.type === 'touchstart' || event.type === 'touchend' || event.type === 'touchmove' )
 			event = event.changedTouches[0];
+
 		// Then refer to 
 		//var x = evt.pageX - offset.left;
 		this.mouseAbs.x = event.clientX;
 		this.mouseAbs.y = event.clientY;
-		this.mouse.x = ( (event.clientX-offset.left) / this.renderer.domElement.width ) * 2 - 1;
-		this.mouse.y = - ( (event.clientY-offset.top) / this.renderer.domElement.height ) * 2 + 1;
-		
+		this.mouse.x = ( (event.clientX-offset.left) / (this.renderer.domElement.width/window.devicePixelRatio) ) * 2 - 1;
+		this.mouse.y = - ( (event.clientY-offset.top) / (this.renderer.domElement.height/window.devicePixelRatio) ) * 2 + 1;
+
 	}
 
 	onMouseClick( event ){

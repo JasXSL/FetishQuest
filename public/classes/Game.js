@@ -63,6 +63,7 @@ export default class Game extends Generic{
 	destructor(){
 		this.ui.destructor();
 		this.net.destructor();
+		this.renderer.destructor();
 	}
 
 

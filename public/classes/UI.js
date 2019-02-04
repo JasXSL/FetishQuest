@@ -47,6 +47,9 @@ export default class UI{
 		this.capturedMessages = [];
 		this.arrowHeld = false;				// Set when you pick an ability and determines if you're using drag and drop or not
 		this.mouseDown = false;
+		this.touch_start = new THREE.Vector2(0,0);	// Coordinates where touch was started (touchscreen only)
+		this.touch_update = new THREE.Vector2(0,0);	// Last touch update positoin
+		this.block_inspect = false;					// prevents left click inspect
 
 		this.console.off('keydown').on('keydown', event => {
 			if( event.altKey ){
@@ -72,21 +75,49 @@ export default class UI{
 			return false;
 		});
 
-		this.board.off('mouseup').on('mouseup', function(event){
+		this.board.off('mouseup touchend').on('mouseup touchend', function(event){
+
+			if( !th.mouseDown )
+				return;
 
 			th.mouseDown = false;
 
-			if( $(event.target).is('div.action.enabled') && !th.arrowHeld )
+			if( event.touches && event.touches.length ){
 				return;
+			}
 
-			// Hide the arrow
-			if( th.action_selected && event.target.id !== 'execMultiCast' )
-				th.closeTargetSelector();
-			
+			if( ($(event.target).is('div.action.spellSelected') && !th.arrowHeld) ){
+				return;
+			}
+
+			// Handle using an action on a player
+			if( 
+				th.action_selected && 
+				event.target.id !== 'execMultiCast' && 
+				($(event.target).attr('data-id') !== th.action_selected.id || th.arrowHeld)
+			){
+
+				let selectedPlayers = $(event.target);
+				if( !selectedPlayers.length || !selectedPlayers.is('div.player[data-id]') )
+					selectedPlayers = $("div.player.highlighted", th.players);
+
+				if( selectedPlayers.length ){
+					th.playerMouseUp(selectedPlayers[0]);
+				}
+
+				if( th.action_selected.max_targets < 2 || !selectedPlayers.length )
+					th.closeTargetSelector();
+				else
+					game.renderer.toggleArrow();
+
+				if( event.cancelable )
+					event.preventDefault();
+			}
+
 
 		});
 
-		this.board.off('mousedown').on('mousedown', function(){
+		this.board.off('mousedown touchstart').on('mousedown touchstart', function(event){
 			th.mouseDown = true;
 		});
 
@@ -242,7 +273,7 @@ export default class UI{
 		this.action_selector.html(html);
 
 		// Bind events
-		$("div.action", this.action_selector).on('mousedown mouseover mouseout click', function(event){
+		$("div.action", this.action_selector).on('mousedown mouseover mouseout click touchstart touchmove', function(event){
 
 			let id = $(this).attr("data-id");
 			let spell = player.getActionById(id);
@@ -250,8 +281,52 @@ export default class UI{
 
 			const targetable = spell && spell.targetable();
 
-			if( th.action_selected && th.action_selected !== spell && event.type !== 'mousedown' )
+			if( event.type === 'touchstart' || event.type === 'touchmove' ){
+				const type = event.type;
+				event = event.touches[0];
+				event.type = type;
+			}
+
+
+			// Drag mouseover
+			if( event.type === 'touchmove' && th.action_selected && targetable ){
+
+				let pre = th.touch_update.clone();
+				th.touch_update.x = event.screenX;
+				th.touch_update.y = event.screenY;
+				const oDist = th.touch_start.distanceTo(pre);
+				const nDist = th.touch_start.distanceTo(th.touch_update);
+				if( oDist > 45 !== nDist > 45 ){
+					if( nDist > 45 ){
+						th.dragStart( this, true );
+					}else{
+						th.drawSpellCosts(spell);
+					}
+				}
+
+				// Scan player elements
+				$("div.player.castTarget", th.players).each((id, el) => {
+
+					const pos = $(el).offset();
+					const size = {x:$(el).outerWidth(), y:$(el).outerHeight()};
+					const highlighted = (
+						th.touch_update.x > pos.left && th.touch_update.x < pos.left+size.x &&
+						th.touch_update.y > pos.top && th.touch_update.y < pos.top+size.y
+					);
+					$(el).toggleClass('highlighted', highlighted);
+
+				});
+
+			}
+
+			if( th.action_selected && th.action_selected === spell && (event.type === 'mousedown' || event.type === 'touchstart') )
 				return;
+
+			if( th.action_selected && th.action_selected !== spell && (event.type === 'mouseover' || event.type === 'mouseout') )
+				return;
+
+			
+			
 
 			// End turn override
 			if( id === "end-turn" ){
@@ -265,7 +340,7 @@ export default class UI{
 
 			}
 			
-			if( event.type === 'mousedown' && enabled ){
+			if( (event.type === 'mousedown' || event.type === 'touchstart') && enabled ){
 
 				th.closeTargetSelector();
 				th.action_selected = spell;
@@ -274,14 +349,23 @@ export default class UI{
 
 				if( targetable )
 					$(this).toggleClass('spellSelected', true);
-				if( spell.max_targets > 1 && targetable )
+
+				if( spell.max_targets > 1 && targetable ){
 					th.updateMultiCast();
+				}
+
+				if( event.type === 'touchstart' ){
+					th.touch_start.x = event.screenX;
+					th.touch_start.y = event.screenY;
+					th.touch_update.copy(th.touch_start);
+				}
+
+				th.drawTargetSelector();
 
 			}
 
-			// Mouseup on this element
+			// Single clicked the element
 			else if( event.type === 'click' ){
-				
 				
 				event.preventDefault();
 				event.stopImmediatePropagation();
@@ -297,12 +381,7 @@ export default class UI{
 			else if( event.type === 'mouseout' && enabled ){
 
 				if( th.action_selected && targetable ){
-
-					th.arrowHeld = th.mouseDown;
-					const pos = $(this).offset();
-					game.renderer.toggleArrow( true, pos.left+$(this).outerWidth()/2, pos.top+$(this).outerHeight()/2 );
-					th.drawTargetSelector();
-
+					th.dragStart( this, th.mouseDown );
 				}
 				th.drawSpellCosts();
 				
@@ -311,6 +390,17 @@ export default class UI{
 
 		});
 
+
+	}
+
+
+	// Started dragging a spell
+	dragStart( element, mousedown ){
+
+		this.arrowHeld = mousedown;
+		const pos = $(element).offset();
+		game.renderer.toggleArrow( true, pos.left+$(element).outerWidth()/2, pos.top+$(element).outerHeight()/2 );
+		this.drawTargetSelector();
 
 	}
 
@@ -668,46 +758,57 @@ export default class UI{
 
 		// click
 		// PLAYER PORTRAIT CLICK
-		$('div.player', this.players).off('mouseup click').on('mouseup click', function( event ){
+		$('div.player', this.players).off('click mouseup').on('mouseup click', function( event ){
 
-			if( event.type === "mouseup" && !th.arrowHeld && th.action_selected )
-				return false;
-
-			th.arrowHeld = false;
-			// Players are in action selection mode
-			if( $(this).is(".castTarget") ){
-				
-				if( th.targets_selected.length >= th.action_selected.max_targets )
-					return false;
-
-				th.targets_selected.push(game.getPlayerById($(this).attr('data-id')));
-				th.drawTargetSelector();
-				return false;
-
-			}
-
-			// Remove a selected player
-			if( $(this).hasClass("targetSelected") ){
-
-				let pl = game.getPlayerById($(this).attr('data-id'));
-				for( let i in th.targets_selected ){
-					if( th.targets_selected[i] === pl ){
-						th.targets_selected.splice(i, 1);
-						th.drawTargetSelector();
-						return false;
-					}
-				}
-
-				return false;
-			}
-
-			if( event.type !== "click" )
-				return;
-
-			if( !th.action_selected )
+			if( !th.action_selected && !th.block_inspect )
 				th.drawPlayerInspector($(this).attr('data-id'));
 
 		});
+
+	}
+
+	// Mouseup on a player
+	playerMouseUp( el ){
+		
+		if( !this.action_selected )
+			return;
+
+		$("div.player.castTarget", this.players).toggleClass("highlighted", false);
+
+		this.block_inspect = true;
+		setTimeout(() => this.block_inspect = false, 100);
+
+		this.arrowHeld = false;
+		// Players are in action selection mode
+		if( $(el).is(".castTarget") ){
+			
+			if( this.targets_selected.length >= this.action_selected.max_targets )
+				return false;
+
+			this.targets_selected.push(game.getPlayerById($(el).attr('data-id')));
+			this.drawTargetSelector();
+			return false;
+
+		}
+
+		// Remove a selected player
+		if( $(el).hasClass("targetSelected") ){
+
+			let pl = game.getPlayerById($(el).attr('data-id'));
+			for( let i in this.targets_selected ){
+
+				if( this.targets_selected[i] === pl ){
+
+					this.targets_selected.splice(i, 1);
+					this.drawTargetSelector();
+					return false;
+
+				}
+
+			}
+
+			return false;
+		}
 
 	}
 
@@ -724,13 +825,13 @@ export default class UI{
 			'<div class="button" data-id="audioToggle" style="background-image: url(media/wrapper_icons/speaker.svg)">'+
 				'<div class="rollout">'+
 					'Ambient:'+
-					'<input type="range" min=0 max=100 step=1 id="ambientSoundVolume" />'+
+					'<input type="range" min=0 max=100 step=1 id="ambientSoundVolume" /><br />'+
 					'Music:'+
-					'<input type="range" min=0 max=100 step=1 id="musicSoundVolume" />'+
+					'<input type="range" min=0 max=100 step=1 id="musicSoundVolume" /><br />'+
 					'FX:'+
-					'<input type="range" min=0 max=100 step=1 id="fxSoundVolume" />'+
+					'<input type="range" min=0 max=100 step=1 id="fxSoundVolume" /><br />'+
 					'UI:'+
-					'<input type="range" min=0 max=100 step=1 id="uiSoundVolume" />'+
+					'<input type="range" min=0 max=100 step=1 id="uiSoundVolume" /><br />'+
 					'Master:'+
 					'<input type="range" min=0 max=100 step=1 id="masterSoundVolume" />'+
 				'</div>'+
@@ -835,7 +936,6 @@ export default class UI{
 
 		$("#mainMenuToggle > div").off('click').on('click', function(){
 			let id = $(this).attr("data-id");
-			console.log("Clicked", id);
 			if( id === 'toggle' ){
 				th.gameIcons.toggleClass('visible');
 			}
@@ -858,8 +958,8 @@ export default class UI{
 			'<div class="option button '+(hideTools ? 'inactive' : 'active')+'" data-action="toggleDMTools">'+(hideTools ? 'Show' : 'Hide')+' DM Tools</div>'+
 			'<div class="option button" data-action="generateDungeon">Generate Dungeon</div>'+
 			'<div class="option button" data-action="addPlayer">+ Add Player</div>'+
-			'<div class="option button" data-action="fullRegen">Restore HPs</div>'+
-			'<div class="option button '+(game.dm_writes_texts ? 'active' : 'inactive')+'" data-action="dmTexts">'+(game.dm_writes_texts ? 'Exit DM Mode' : 'Enter DM Mode')+'</div>'
+			'<div class="option button" data-action="fullRegen">Restore HPs</div>'
+			//'<div class="option button '+(game.dm_writes_texts ? 'active' : 'inactive')+'" data-action="dmTexts">'+(game.dm_writes_texts ? 'Exit DM Mode' : 'Enter DM Mode')+'</div>'
 		;
 		// If there's more than one team standing, then draw the start battle
 		if( game.teamsStanding().length > 1 )
@@ -881,8 +981,8 @@ export default class UI{
 			}
 			else if( action === "fullRegen" )
 				game.fullRegen();
-			else if( action === "dmTexts" )
-				game.toggleAutoMode();
+			//else if( action === "dmTexts" )
+			//	game.toggleAutoMode();
 			else if( action === "generateDungeon" ){
 				game.addRandomQuest();
 				alert("A random dungeon quest has been generated with "+game.dungeon.rooms.length+" cells and difficulty "+game.dungeon.difficulty);
@@ -890,8 +990,8 @@ export default class UI{
 			}
 			else if( action === 'toggleDMTools' ){
 				localStorage.hide_dm_tools = +th.showDMTools();
-				th.drawDMTools();
 				th.board.toggleClass("dev", th.showDMTools());
+				th.drawDMTools();
 			}
 				
 
@@ -924,6 +1024,8 @@ export default class UI{
 
 		const pl = game.getMyActivePlayer();
 		const action = this.action_selected;
+		if( !action )
+			return;
 
 		this.updateMultiCast();
 		
@@ -951,7 +1053,6 @@ export default class UI{
 			return false;
 		}
 			
-		
 		for( let t of viableTargets ){
 
 			if( ~this.targets_selected.indexOf(t) )
@@ -1002,7 +1103,9 @@ export default class UI{
 			ht += '<input type="button" value="Done" id="execMultiCast" />';
 		this.multiCastPicker.html(ht).toggleClass('hidden', false);
 
+
 		$("#execMultiCast", this.multiCastPicker).on('click', () => {
+			console.log("Performing action");
 			this.performSelectedAction();
 			return;
 		});

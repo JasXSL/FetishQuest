@@ -23,25 +23,27 @@ export default class Modal{
 		this._onSelectionBoxClose = null;
 		this._onModalClose = null;
 
-		this.bg.off('mousedown').on('mousedown', () => {
+		this.bg.off('mousedown touchstart').on('mousedown touchstart', event => {
+			event.stopImmediatePropagation();
 			this.close();
 		});
-		this.closebutton.off('click').on('click', () => {
+		this.closebutton.off('click touchstart').on('click touchstart', event => {
+			event.stopImmediatePropagation();
 			this.close();
 		});
 
-		this.wrapper.off('mousedown').on('mousedown', event => {
+		this.wrapper.off('mousedown touchstart').on('mousedown touchstart', event => {
 			event.stopImmediatePropagation();
 			if( this.selBoxOpened+100 < Date.now() )
 				this.closeSelectionBox();
 		});
 
-		$(document).off('click').on('click', () => {
+		$(document).off('click touchstart').on('click touchstart', () => {
 			if( this.selBoxOpened+100 < Date.now() )
 				this.closeSelectionBox();
 		});
 
-		this.selectionbox.off('click').on('click', event => {
+		this.selectionbox.off('click touchstart').on('click touchstart', event => {
 			event.stopImmediatePropagation();
 		});
 
