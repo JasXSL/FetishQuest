@@ -1043,7 +1043,7 @@ const lib = [
 		]),
 		hitfx : ["pinch"]
 	},
-	{ text : "%S casts a spell, surprising %T as something suddenly pinches down on %This nipples and starts jiggling them around in %This %TclothUpper!",
+	{ text : "%S casts a spell, surprising %T as something suddenly pinches down on %This nipples and starts jiggling %This %Tbsize %Tbreasts around in %This %TclothUpper!",
 		conditions : anyOnHumCond.concat([
 			"action_imp_demonicPinch","targetBreasts","targetWearsUpperbody"
 		]),

@@ -588,7 +588,7 @@ class WebGL{
 		let visObj = visual;
 		if( !(visual instanceof HitFX) ){
 			visObj = glib.get(visual, 'HitFX');
-			if( !visObj ){
+			if( !visObj || !visObj.save ){
 				console.error("Visual missing", visual);
 				return;
 			}
@@ -602,7 +602,7 @@ class WebGL{
 			visObj.run(caster, recipient, armor_slot);
 		
 		if( global && game.is_host ){
-			game.net.dmHitfx(caster, recipients, visual, armor_slot);
+			game.net.dmHitfx(caster, recipients, visObj, armor_slot);
 		}
 
 		

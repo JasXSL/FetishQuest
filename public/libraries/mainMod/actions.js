@@ -1736,7 +1736,7 @@ const lib = {
 		name : "Minor Healing Potion",
 		icon : 'potion-ball',
 		description : "Restores 8 HP to the user.",
-		ap : 1,
+		ap : 0,
 		cooldown : 0,
 		detrimental : false,
 		tags : [
@@ -1764,7 +1764,7 @@ const lib = {
 		name : "Healing Potion",
 		icon : 'potion-ball',
 		description : "Restores 15 HP to the user.",
-		ap : 1,
+		ap : 0,
 		cooldown : 0,
 		detrimental : false,
 		tags : [
@@ -1792,7 +1792,7 @@ const lib = {
 		name : "Major Healing Potion",
 		icon : 'potion-ball',
 		description : "Restores 30 HP to the user.",
-		ap : 1,
+		ap : 0,
 		cooldown : 0,
 		detrimental : false,
 		tags : [
@@ -1820,7 +1820,7 @@ const lib = {
 		name : "Mana Potion",
 		icon : 'spiral-bottle',
 		description : "Restores 5 mana to the user.",
-		ap : 1,
+		ap : 0,
 		cooldown : 0,
 		detrimental : false,
 		tags : [
@@ -1848,7 +1848,7 @@ const lib = {
 		name : "Major Mana Potion",
 		icon : 'spiral-bottle',
 		description : "Restores 10 mana to the user.",
-		ap : 1,
+		ap : 0,
 		cooldown : 0,
 		detrimental : false,
 		tags : [
