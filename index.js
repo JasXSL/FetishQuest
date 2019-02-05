@@ -2,6 +2,7 @@ let port = 7175;
 if( process.env.PORT )
 	port = +process.env.PORT;
 
+const basicAuth = require('express-basic-auth');
 const Express = require('express');
 let app = Express();
 const server = require('http').Server(app);
@@ -10,6 +11,15 @@ const Game = require('./Game');
 const io = require('socket.io')(server);
 server.listen(port);
 console.debug("Server online on port", port);
+
+if( process.env.PASS ){
+	console.log("This app is now password protected");
+	app.use(basicAuth({
+		challenge : true,
+		users: {'patreon':process.env.PASS}
+	}));
+}
+
 app.use(Express.static(__dirname+'/public'));
 
 Game.io = io;
