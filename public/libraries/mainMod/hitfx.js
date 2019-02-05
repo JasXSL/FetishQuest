@@ -1072,7 +1072,7 @@ function getArray(){
 	for( let obj in out ){
 		const l = out[obj];
 		l.label = obj;
-		o.push(l);
+		o.push(l.save("mod"));
 	}
 	return o;
 };

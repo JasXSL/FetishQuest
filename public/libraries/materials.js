@@ -37,8 +37,9 @@ class LibMaterial{
 	// Fetches from cache and makes unique if need be 
 	fetch( unique = false ){
 		let out = LibMaterial.cache.fetch(this);
-		if( unique )
+		if( unique && out.clone ){
 			return out.clone();
+		}
 		return out;
 	}
 
@@ -46,6 +47,7 @@ class LibMaterial{
 
 		if( this.type === "Water" )
 			return this;
+
 		let mat = this.material.clone();
 
 		// Scan for materials to replace with loaders

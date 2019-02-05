@@ -44,6 +44,7 @@ export default class Mod extends Generic{
 	}
 
 	getSaveData(){
+		
 		const out = {
 			id : this.id,
 			name : this.name,
@@ -69,6 +70,8 @@ export default class Mod extends Generic{
 			players : this.players,
 			hitFX : this.hitFX
 		};
+		console.log("Getting save data", out);
+
 		return out;
 	}
 

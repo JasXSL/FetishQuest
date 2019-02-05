@@ -1,9 +1,32 @@
-- DEBUG BUILD
+- Needed meshes first quest:
+	- Rock
+	- Port office sign
+	- Bushes
+	- Grass
+	- Improve door clipping on cottages
+	- Cottage interior cell
+	- Bar table
+	- Bar shelf
+	- Tapestry
+	- Fireplace
+	- Beach cell grounds
+	- Rope spool
+
+- Add antialiasing
+
+- Needed audio
+	- Docks
+	- Beach
+
+- Needed monster:
+	- Coctopus
+		- Abilities:
+			- ???
+
+
+
 
 Next:
-	- UI sounds:
-		x Generic click
-
 	- Re-implement sprite as separate files, but cache them
 	- Allow DM to set timeout
 	- Speech bubbles
@@ -12,6 +35,7 @@ new Gameplay elements:
 	- Learning/unlearning actions
 	- Shops
 	- Money
+	- 
 	
 Action ideas:
 	- Cleric: Sacrament of Sin: Free, 10 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 10% per point of arousal.

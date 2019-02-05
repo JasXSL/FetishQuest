@@ -278,7 +278,7 @@ class WebGL{
 
 	destructor(){
 		for( let event of this.events ){
-			event[targ].removeEventListener(event.evt, event.func);
+			event.targ.removeEventListener(event.evt, event.func);
 		}
 	}
 
@@ -367,6 +367,10 @@ class WebGL{
 	}
 
 	
+
+
+
+
 	/* Main */
 	render(){
 		this.execRender();
@@ -442,7 +446,7 @@ class WebGL{
 		
 		this.controls.update();
 
-		if( USE_FX )
+		if( USE_FX && window.game )
 			this.composer.render();
 		else
 			this.renderer.render( this.scene, this.camera);

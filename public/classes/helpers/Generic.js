@@ -36,7 +36,6 @@ export default class Generic{
 		if( to === null ){
 			return from;
 		}
-			
 
 		if( Array.isArray(to) ){
 
@@ -46,7 +45,7 @@ export default class Generic{
 			}
 
 			// Do smart id loading
-			if( game.net_load && typeof from[0] === "object" ){
+			if( window.game && game.net_load && typeof from[0] === "object" ){
 				
 				let out = [];
 				for( let obj of from ){
@@ -75,7 +74,7 @@ export default class Generic{
 			}
 
 			// Add
-			if( game.net_load && to && typeof to.load === "function" ){
+			if( window.game && game.net_load && to && typeof to.load === "function" ){
 				to.load(from);
 				return to;
 			}

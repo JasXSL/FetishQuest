@@ -1332,6 +1332,8 @@ LibMesh.library = {
 					],
 					width: 10,
 					height:10,
+					isRoom : true,
+					top:-4,left:-4,
 				}),
 				JettyMid : new LibMesh({
 					url : 'land/yuug/yuug_port_mid_dock.JD',
