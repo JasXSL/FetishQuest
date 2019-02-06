@@ -677,6 +677,7 @@ export default class UI{
 		$("div.right", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_hostile > 10 ? 10 : nr_hostile));
 
 		$("div.player span.name div.owner", this.players).on('click', event => {
+
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			const modal = game.modal;
@@ -709,6 +710,7 @@ export default class UI{
 		});
 
 		$("div.player span.name div.own", this.players).on('click', event => {
+
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			game.my_player = $(event.target).closest('div.player').attr('data-id');
@@ -717,6 +719,7 @@ export default class UI{
 		});
 
 		$("div.player span.name div.leader", this.players).on('click', event => {
+
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			const player = game.getPlayerById($(event.target).closest('div.player').attr('data-id'));
@@ -758,7 +761,7 @@ export default class UI{
 
 		// click
 		// PLAYER PORTRAIT CLICK
-		$('div.player', this.players).off('click mouseup').on('mouseup click', function( event ){
+		$('div.player', this.players).off('click').on('click', function( event ){
 
 			if( !th.action_selected && !th.block_inspect )
 				th.drawPlayerInspector($(this).attr('data-id'));
