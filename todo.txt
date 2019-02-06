@@ -13,13 +13,6 @@
 
 	- Beach cell grounds
 
-- Add antialiasing
-- Using a repair kit should draw the ui
-- Add hotkeys
-	- inventory
-	- menu
-	- toggle ui
-	
 
 - Needed audio
 	- Docks

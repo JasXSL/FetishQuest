@@ -5,7 +5,7 @@
 	The Stage is an object which is a reflection of a DungeonRoom
 */
 import * as THREE from '../ext/THREE.js';
-import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader, ColorifyShader, ColorCorrectionShader} from '../ext/EffectComposer.js';
+import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader, ColorifyShader, ColorCorrectionShader, FXAAShader} from '../ext/EffectComposer.js';
 import OrbitControls from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
@@ -130,6 +130,9 @@ class WebGL{
 		this.vblur.uniforms.v.value = 0.0025;
 		this.composer.addPass( this.vblur );
 
+		this.aa = new ShaderPass(FXAAShader);
+		this.add.enabled = conf.aa;
+		this.composer.addPass(this.aa);
 		
 		this.colorShader = new ShaderPass(ColorifyShader);
 		this.colorShader.uniforms.color.value = new THREE.Color(2,1,1);

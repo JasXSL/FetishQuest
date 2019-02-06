@@ -52,6 +52,7 @@ export default class UI{
 		this.block_inspect = false;					// prevents left click inspect
 
 		this.console.off('keydown').on('keydown', event => {
+			event.stopImmediatePropagation();
 			if( event.altKey ){
 
 				if( event.key === "ArrowUp" ){
@@ -73,6 +74,38 @@ export default class UI{
 				return true;
 			this.onConsoleMessage();
 			return false;
+		});
+
+		$(document).on('keydown', event => {
+
+			if( event.target !== document.body )
+				return;
+			if( event.key === ' '){
+					game.uiAudio( 'map_toggle' );
+					this.toggle();
+			}
+			else if( event.key === 'i' ){
+				if( game.modal.open === true && $("#modal > div.wrapper > div.content > div.inventory").length )
+					game.modal.close();
+				else{
+					game.uiAudio( 'backpack' );
+					this.drawPlayerInventory();
+				}
+			}
+			else if( event.key === 'l' ){
+				if( game.modal.open === true && $("#modal > div.wrapper > div.content > div.modalQuests").length )
+					game.modal.close();
+				else{
+					this.drawQuests();
+					game.uiAudio( 'toggle_quests' );
+				}
+			}
+			else if( event.key === 'Escape' && game.modal.open ){
+				game.uiClick();
+				game.modal.close();
+			}
+
+
 		});
 
 		this.board.off('mouseup touchend').on('mouseup touchend', function(event){
@@ -729,10 +762,8 @@ export default class UI{
 				this.draw();
 				game.save();
 			}
+
 		});
-
-		
-
 
 		// Hover
 		$("div.player", this.players).off('mouseover mouseout').on('mouseover mouseout', function( event ){
@@ -850,6 +881,9 @@ export default class UI{
 		this.toggle(this.visible);
 
 		const masterVolume = $("[data-id=audioToggle]", this.gameIcons);
+
+		
+
 
 		$("[data-id]", this.gameIcons).on('click', function(event){
 
@@ -1030,6 +1064,9 @@ export default class UI{
 		if( !action )
 			return;
 
+		if( !this.visible )
+			this.toggle(true);
+
 		this.updateMultiCast();
 		
 		$("div.player", this.players).toggleClass("castTarget targetSelected", false);
@@ -1068,8 +1105,9 @@ export default class UI{
 			let dmgbon = Math.round(Math.max(0, Player.getBonusDamageMultiplier(pl, t, action.type, action.detrimental)*100-100));
 
 			$("div.player[data-id='"+esc(t.id)+"'] div.targetingStats", this.players).html(
-				hit+'% Hit'+
-				(dmgbon ? '<br />+'+dmgbon+'% Dmg' : '')
+				hit >= 100 && !action.detrimental ?
+					'Pick Target' :
+					hit+'% Hit'+(dmgbon ? '<br />+'+dmgbon+'% Dmg' : '')
 			);
 			
 		}
