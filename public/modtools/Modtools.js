@@ -81,7 +81,10 @@ export default class Modtools{
 		$(window).on('keydown', event => {
 			if( event.target !== document.body )
 				return;
-			if( event.key === "w" )
+
+			if( event.key === "Escape" )
+				control.detach();
+			else if( event.key === "w" )
 				control.setMode( "translate" );
 			else if( event.key === "e" )
 				control.setMode( "rotate" );
@@ -2167,7 +2170,7 @@ export default class Modtools{
 	}
 
 	// Helper to draw the 3d room editor
-	async drawRoomEditor( room ){
+	async drawRoomEditor( room, selectedAsset ){
 
 		this.dungeon_active_room = room;
 
@@ -2195,11 +2198,13 @@ export default class Modtools{
 		let stage = new Stage(room, this.renderer, true);
 		this.renderer.resetStage( stage );
 		await stage.draw();
-		
+		stage.toggle( true );
 
 		const control = this.control;
 		const renderer = this.renderer;
 		control.detach();
+
+		
 
 		// Set mouseover events
 		for( let child of stage.group.children ){
@@ -2224,6 +2229,12 @@ export default class Modtools{
 			
 		}
 
+		if( selectedAsset ){
+			let mesh = selectedAsset._stage_mesh;
+			control.attach(mesh);
+		}
+
+
 	}
 
 	// Handles the asset editor to the right of the viewport
@@ -2238,6 +2249,7 @@ export default class Modtools{
 		const div = $("#modal div.assetEditor");
 		const RAD_TO_DEG = 57.2958;
 		const DEG_TO_RAD = 1.0/57.2958;
+		const stageMesh = asset._stage_mesh;
 
 		// Any forms and such here will modify the asset argument, and the asset argument will be saved when the dungeon saves
 
@@ -2287,6 +2299,15 @@ export default class Modtools{
 	
 			html += '<div class="assetDataEditor"><input type="button" value="Add Interaction" class="addInteraction" /><div class="assetData"></div></div>';
 
+			
+			if( stageMesh.geometry.animations && stageMesh.geometry.animations.length ){
+				html += 'Animation: <select class="assetAnimation">';
+				for( let anim of stageMesh.geometry.animations ){ 
+					html += '<option value="'+esc(anim.name)+'" '+(stageMesh.userData.activeAnimation === anim.name ? 'selected' : '')+'>'+esc(anim.name)+'</option>';
+				}
+				html += '</select><br />';
+			}
+
 			html += '<input type="button" value="Delete" class="deleteSelectedAsset" />';
 
 			// Bind the updates
@@ -2321,6 +2342,8 @@ export default class Modtools{
 			asset.model = $(this).val();
 			th.drawRoomEditor(asset.parent);
 		});
+
+		
 
 		const updateMissingDoors = function(){
 			let html = '';
@@ -2616,14 +2639,23 @@ export default class Modtools{
 			let att = [];
 			for( let i in meshToAddModel.attachments )
 				att.push(i);
-			asset.parent.addAsset( new DungeonRoomAsset({
+			const newAsset = new DungeonRoomAsset({
 				model : meshToAdd,
 				attachments : att,
 				absolute : true
-			}, asset.parent) );
+			}, asset.parent);
+			asset.parent.addAsset(newAsset);
+			this.drawRoomEditor(asset.parent, newAsset);
+		});
+
+		$('input.deleteSelectedAsset', div).on('click', () => {
+			asset.parent.removeAsset(asset);
 			this.drawRoomEditor(asset.parent);
 		});
 		
+		$("select.assetAnimation", div).on('change', function(){
+			stageMesh.userData.playAnimation($(this).val());
+		});
 
 	}
 

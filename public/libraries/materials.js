@@ -279,6 +279,34 @@ LibMaterial.library = {
 			alpha : .9,
 			fog: false,
 		}, "Water")
+	},
+
+	Sign : {
+		Store : new LibMaterial({
+			map : 'tileable/sign_shop.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+		Blacksmith : new LibMaterial({
+			map : 'tileable/sign_blacksmith.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+		Dojo : new LibMaterial({
+			map : 'tileable/sign_dojo.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+		Port : new LibMaterial({
+			map : 'tileable/sign_port_authority.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+		Tavern : new LibMaterial({
+			map : 'tileable/sign_tavern.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
 	}
 };
 

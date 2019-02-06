@@ -1262,6 +1262,7 @@ class Stage{
 					c.position.z += coords[1]*roomModel.wall_indentation*meshTemplate.wall_indentation;
 				}
 			}
+
 			this.onObjStart(c);
 		
 		}

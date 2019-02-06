@@ -674,8 +674,6 @@ class DungeonRoom extends Generic{
 		for( let i in this.assets ){
 			if( this.assets[i] === asset ){
 				this.assets.splice(i, 1);
-				// Deleting an asset causes the netcode to go spastic unless you force a full asset refresh
-				game.net.purgeFromLastPush(["dungeon","rooms",this.index,"assets"]);
 				return true;
 			}
 		}	

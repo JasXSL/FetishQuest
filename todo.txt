@@ -1,18 +1,25 @@
 - Needed meshes first quest:
 	- Rock
-	- Port office sign
 	- Bushes
 	- Grass
-	- Improve door clipping on cottages
+	
+	+ Port office sign
 	- Cottage interior cell
 	- Bar table
 	- Bar shelf
 	- Tapestry
 	- Fireplace
-	- Beach cell grounds
 	- Rope spool
 
+	- Beach cell grounds
+
 - Add antialiasing
+- Using a repair kit should draw the ui
+- Add hotkeys
+	- inventory
+	- menu
+	- toggle ui
+	
 
 - Needed audio
 	- Docks

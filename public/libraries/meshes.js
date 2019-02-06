@@ -170,6 +170,7 @@ class LibMesh{
 				let action = mixer.clipAction(name);
 				if( action ){
 
+					mesh.userData.activeAnimation = name;
 					// Todo: Improve this with tweening
 					mixer.stopAllAction();				
 					if( action.time === 0 && action.timeScale < 0 )
@@ -190,7 +191,7 @@ class LibMesh{
 				return true;
 			}
 
-			
+			mesh.userData.activeAnimation = 'idle';
 			mesh.userData.mixer = mixer;
 
 		}
@@ -714,7 +715,18 @@ LibMesh.library = {
 				height: 2,
 			}),
 		},
-		
+		Doodads : {
+			RopeSpool : new LibMesh({
+				url : 'doodads/rope_spool.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Cloth.Rope
+				],
+				tags : [],
+				width: 1,
+				height: 1,
+			}),
+		}
 	},	
 	Generic : {
 		Containers : {
@@ -1085,6 +1097,63 @@ LibMesh.library = {
 				height: 1
 			}),
 		},
+		Signs : {
+			Store : new LibMesh({
+				url : 'doodads/store_sign.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+					libMat.Sign.Store
+				],
+				tags : [],
+				width: 1,
+				height: 1,
+			}),
+			Blacksmith : new LibMesh({
+				url : 'doodads/store_sign.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+					libMat.Sign.Blacksmith
+				],
+				tags : [],
+				width: 1,
+				height: 1,
+			}),
+			Dojo : new LibMesh({
+				url : 'doodads/store_sign.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+					libMat.Sign.Dojo
+				],
+				tags : [],
+				width: 1,
+				height: 1,
+			}),
+			Port : new LibMesh({
+				url : 'doodads/store_sign.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+					libMat.Sign.Port
+				],
+				tags : [],
+				width: 1,
+				height: 1,
+			}),
+			Tavern : new LibMesh({
+				url : 'doodads/store_sign.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+					libMat.Sign.Tavern
+				],
+				tags : [],
+				width: 1,
+				height: 1,
+			}),
+		}
 	},
 	Land : {
 		Yuug : {
