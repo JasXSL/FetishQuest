@@ -108,6 +108,11 @@ LibMaterial.library = {
 		YellowGlow : new LibMaterial({color:0xFFFFAA, metalness:0,roughness:1,emissive:0xFFFFAA}),
 		Invisible : new LibMaterial({visible:false}),
 	},
+	Glass : {
+		Green : new LibMaterial({color:0x226622, metalness:0.3,roughness:0.4}),
+		Brown : new LibMaterial({color:0x332200, metalness:0.3,roughness:0.4}),
+		Purple : new LibMaterial({color:0x331155, metalness:0.3,roughness:0.4}),
+	},
 	StoneTile : {
 		DungeonWall : new LibMaterial({
 			map : 'tileable/dungeon_wall.jpg',
@@ -152,6 +157,21 @@ LibMaterial.library = {
 			map : 'tileable/logs.jpg',
 			metalness : 0.3,
 			roughness : 0.7,
+		}),
+		Cork : new LibMaterial({
+			map : 'tileable/cork.jpg',
+			metalness : 0.3,
+			roughness : 0.7,
+		}),
+		Firewood : new LibMaterial({
+			map : 'tileable/firewood.jpg',
+			metalness : 0.3,
+			roughness : 0.8,
+		}),
+		Floor : new LibMaterial({
+			map : 'tileable/wood_floor.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
 		}),
 	},
 	Paper : {
@@ -198,7 +218,16 @@ LibMaterial.library = {
 				alphaTest : 0.5,
 				side:THREE.DoubleSide
 			}),
+			Navy : new LibMaterial({
+				map : 'tileable/banner_navy.png',
+				metalness : 0.3,
+				roughness : 0.5,
+				transparent : true,
+				alphaTest : 0.5,
+				side:THREE.DoubleSide
+			}),
 		},
+		
 		Rug : {
 			Torn : new LibMaterial({
 				map : 'tileable/rug_torn.png',

@@ -18,8 +18,9 @@ import { Wrapper, Effect } from '../classes/EffectSys.js';
 import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTemplate.js';
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
-import { AudioKit } from '../classes/Audio.js';
+import { default as Audio, AudioKit } from '../classes/Audio.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset, DungeonEncounter, DungeonRoomAssetInteraction } from '../classes/Dungeon.js';
+
 
 const meshLib = LibMesh.getFlatLib();
 
@@ -76,6 +77,8 @@ export default class Modtools{
 			control.update();
 		};
 
+
+		this.audio_fx = new Audio("fx");
 
 		// Transform controls
 		$(window).on('keydown', event => {

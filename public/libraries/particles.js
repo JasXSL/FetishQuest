@@ -198,6 +198,139 @@ particles.torchSmoke = {
 };
 
 
+particles.fireplaceFlame = {
+			
+	texture: {
+		value: textures.flame,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			maxAge: {
+				value: 0.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 20, 20, 20 ),
+				randomise: true
+			},
+			velocity: {
+				value: new THREE.Vector3(0, 120, 0),
+				spread: new THREE.Vector3(0, 20, 0),
+				randomise : true,
+			},
+			color : {
+				value : new THREE.Color(0xFFFFFF),
+			},
+			opacity: {
+				value: [0,0.25,0.75,0]
+			},
+			size: {
+				value: [160,0],
+				randomise : true
+			},
+			wiggle : {
+				value : 3
+			},
+			rotation : {
+				angle : Math.PI,
+				angleSpread : Math.PI,
+			},
+			particleCount: 20
+		}
+	]
+};
+
+particles.fireplaceEmbers = {
+			
+	texture: {
+		value: textures.flame,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			maxAge: {
+				value: 0.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 50, 50, 10 ),
+				randomise: true
+			},
+			velocity: {
+				value: new THREE.Vector3(0, 120, 0),
+				spread: new THREE.Vector3(0, 20, 0),
+				randomise : true,
+			},
+			color : {
+				value : new THREE.Color(0xFFFFFF),
+			},
+			opacity: {
+				value: [0,0.25,1,0.75,0]
+			},
+			size: {
+				value: [15,0],
+				randomise : true
+			},
+			wiggle : {
+				value : 10
+			},
+			rotation : {
+				angle : Math.PI,
+				angleSpread : Math.PI,
+			},
+			particleCount: 4
+		}
+	]
+};
+
+particles.fireplaceSmoke = {
+			
+	texture: {
+		value: textures.smoke,
+	},
+	blending : THREE.NormalBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			maxAge: {
+				value: 3
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 30, 30, 10 ),
+				randomise: true
+			},
+			velocity: {
+				value: new THREE.Vector3(0, 60, 0),
+				spread: new THREE.Vector3(0, 10, 0),
+				randomise : true,
+			},
+			color : {
+				value : new THREE.Color(0x333333),
+			},
+			opacity: {
+				value: [0,0.1,0]
+			},
+			size: {
+				value: [20,400],
+				randomise : true
+			},
+			wiggle : {
+				value : 10
+			},
+			rotation : {
+				angle : Math.PI,
+				angleSpread : Math.PI,
+			},
+			particleCount: 30
+		}
+	]
+};
+
+
 
 particles.hitfx_sparks = {
 			

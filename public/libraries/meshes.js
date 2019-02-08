@@ -5,6 +5,7 @@
 	- dungeonAsset
 	- tweens - Object of functions that return TWEEN.Tweens when called.
 	- particles - Array of libParticles particle systems 
+	- soundLoops - Array of {url:(str)url, volume:(float)volume=0.5}
 	- _stage - Added automatically when placed into a WebGL stage
 	DOOR ONLY
 	- LOCK - three.mesh child object which serves as the lock. 
@@ -59,6 +60,7 @@ class LibMesh{
 		this.receive_shadow = data.receive_shadow !== false;
 		this.cast_shadow = data.cast_shadow !== false;
 		this.name = data.name || "";
+		this.soundLoops = data.soundLoops;
 		this.tags = Array.isArray(data.tags) ? data.tags : [];								// Game tags. These get merged over to dungeonAsset for netcode reasons
 		this.static = data.static;					// If true this mesh can be cached after flattening
 													// If unset, the code tries to figure it out automatically based on the events set, if it's animated etc
@@ -195,6 +197,8 @@ class LibMesh{
 			mesh.userData.mixer = mixer;
 
 		}
+
+		mesh.userData.soundLoops = this.soundLoops;
 		
 		ud.template = this;
 
@@ -714,6 +718,71 @@ LibMesh.library = {
 				width: 3,
 				height: 2,
 			}),
+			Fireplace : new LibMesh({
+				tags : [stdTag.mRug],
+				url : 'furniture/fireplace.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.StoneTile.DungeonFloor,
+					libMat.Metal.DarkGeneric
+				],
+				width: 2,
+				height: 1,
+			}),
+			BarShelf : new LibMesh({
+				tags : [],
+				url : 'furniture/bar_shelf.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+				width: 2,
+				height: 1,
+			}),
+			BarTable : new LibMesh({
+				tags : [stdTag.mTable],
+				url : 'furniture/bar_table.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+				width: 3,
+				height: 2,
+			}),
+			BarStool : new LibMesh({
+				tags : [stdTag.mChair],
+				url : 'furniture/barstool.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+				width: 1,
+				height: 1,
+			}),
+			BannerNavy : new LibMesh({
+				url : 'doodads/banner_animated.JD',
+				materials : [
+					libMat.Cloth.Banner.Navy
+				],
+				position_on_wall : true,
+				use_wall_indentation: true,
+				width: 1,
+				height: 1,
+			}),
+		},
+		Room : {
+			R8x6 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/cottage_8x6.JD',
+				materials : [
+					libMat.Structure.CottageWall,
+					libMat.Wood.Floor,
+					libMat.Wood.Logs,
+					libMat.Wood.Crate,
+				],
+				tags : [stdTag.mWall],
+				width: 8,
+				height:6,
+				wall_indentation : 10,
+				top:-2,left:-3,
+			}),
 		},
 		Doodads : {
 			RopeSpool : new LibMesh({
@@ -725,6 +794,64 @@ LibMesh.library = {
 				tags : [],
 				width: 1,
 				height: 1,
+			}),
+		},
+		Door : {
+			Stairs : new LibMesh({
+				url : 'gates/wood_stairs.JD',
+				materials : [
+					libMat.Wood.Crate,
+				],
+				width: 2,
+				height: 1,
+				tags : [stdTag.mStair],
+				onFlatten : function(mesh){
+					let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
+					lamp.intensity = 0;
+					lamp.position.y = 500;
+					lamp.position.z = -50;
+					lamp.castShadow = true;
+					mesh.add(lamp);
+					lamp.target = mesh;
+					// Setting a tween like this allows the room to turn it off when the room changes
+					mesh.userData.tweens = {
+						interact : new TWEEN.Tween(lamp)
+							.to({angle:0.25, intensity:1},500)
+							.easing(TWEEN.Easing.Sinusoidal.Out)
+					};
+				},
+				// Reset the lamp when placed
+				onStagePlaced : function( asset, mesh ){
+					let lamp = mesh.children[0];
+					lamp.intensity = 0;
+					lamp.angle = 0.001;
+				},
+				onInteract : function(mesh, room, asset){
+
+					mesh.userData.tweens.interact.start();
+					LibMesh.playSound( mesh, asset, 'media/audio/ladder.ogg', 0.5);
+				
+				}
+			}),
+			Door : new LibMesh({
+				url : 'gates/wood_door.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Solids.Black
+				],
+				width: 2,
+				height: 1,
+				tags : [stdTag.mTrapdoor],
+				animations : {
+					"open" : {
+						clampWhenFinished : true,
+						loop : THREE.LoopOnce,
+						timeScale : 2
+					}
+				},
+				onInteract : function( mesh, room, asset ){
+					LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
+				}
 			}),
 		}
 	},	
@@ -985,6 +1112,64 @@ LibMesh.library = {
 					mesh.userData.particles.push(particles);
 				}
 			}),
+			Firewood : new LibMesh({
+				url : 'doodads/firewood.JD',
+				materials : [
+					libMat.Wood.Board,
+					libMat.Wood.Firewood,
+				],
+				width: 1,
+				height: 1,
+				soundLoops : [
+					{url:'media/audio/fireplace.ogg', volume:0.1}
+				],
+				onFlatten : function(mesh){
+					let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
+					let z = 0, y = 20;
+					light.position.z = z;
+					light.position.y = y+20;
+					mesh.add(light);
+					
+
+					//let helper = new THREE.SpotLightHelper(light);
+					//mesh.add(helper);
+	
+					mesh.userData.tweens = {
+						// Setting a tween to a function lets you retrigger it infinitely or until stopped manually
+						light : () => {
+							return new TWEEN.Tween(light.position)
+							.to(
+								{
+									z:z+Math.random()*20-10,
+									x:Math.random()*20-10,
+									y:y+Math.random(10)-5
+								}, 
+								Math.ceil(Math.random()*300)+100
+							)
+							.easing(TWEEN.Easing.Sinusoidal.InOut)
+							.start();
+						}
+					};
+
+					let particles = libParticles.get('fireplaceFlame');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y;
+					particles.mesh.position.z = z; 
+					mesh.userData.particles = [particles];
+
+					particles = libParticles.get('fireplaceSmoke');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y;
+					particles.mesh.position.z = z;
+					mesh.userData.particles.push(particles);
+
+					particles = libParticles.get('fireplaceEmbers');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y+5;
+					particles.mesh.position.z = z;
+					mesh.userData.particles.push(particles);
+				}
+			}),
 		},
 		Doodads : {
 			Tankard : new LibMesh({
@@ -1082,6 +1267,27 @@ LibMesh.library = {
 				materials : [
 					libMat.Book.Full,
 					libMat.Paper.Torn,
+				],
+				width: 1,
+				height: 1,
+			}),
+			BarBottles : new LibMesh({
+				url : 'doodads/bar_bottles.JD',
+				materials : [
+					libMat.Wood.Cork,
+					libMat.Glass.Green,
+					libMat.Glass.Brown,
+					libMat.Glass.Purple,
+					libMat.Cloth.Rope
+				],
+				width: 1,
+				height: 1,
+			}),
+			Firewood : new LibMesh({
+				url : 'doodads/firewood.JD',
+				materials : [
+					libMat.Wood.Board,
+					libMat.Wood.Firewood,
 				],
 				width: 1,
 				height: 1,

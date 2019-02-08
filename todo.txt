@@ -3,13 +3,7 @@
 	- Bushes
 	- Grass
 	
-	+ Port office sign
-	- Cottage interior cell
-	- Bar table
-	- Bar shelf
-	- Tapestry
-	- Fireplace
-	- Rope spool
+	- Tapestry (need texture only)
 
 	- Beach cell grounds
 

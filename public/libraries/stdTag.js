@@ -144,6 +144,6 @@ export default {
 	mChest  : 'm_chest',
 	mTankard : 'm_tankard',
 	mWall : 'm_wall',					// At least 1 wall exists
-	
+	mStair : 'm_stair',					
 
 };

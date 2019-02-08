@@ -5,7 +5,7 @@
 	The Stage is an object which is a reflection of a DungeonRoom
 */
 import * as THREE from '../ext/THREE.js';
-import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader, ColorifyShader, ColorCorrectionShader, FXAAShader} from '../ext/EffectComposer.js';
+import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader, ColorifyShader} from '../ext/EffectComposer.js';
 import OrbitControls from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
@@ -130,10 +130,11 @@ class WebGL{
 		this.vblur.uniforms.v.value = 0.0025;
 		this.composer.addPass( this.vblur );
 
-		this.aa = new ShaderPass(FXAAShader);
-		this.add.enabled = conf.aa;
+		/*
+		this.aa = new SMAAPass(window.innerWidth*this.renderer.getPixelRatio(), window.innerHeight*this.renderer.getPixelRatio());
+		this.aa.enabled = conf.aa;
 		this.composer.addPass(this.aa);
-		
+		*/
 		this.colorShader = new ShaderPass(ColorifyShader);
 		this.colorShader.uniforms.color.value = new THREE.Color(2,1,1);
 		this.colorShader.enabled = false;
@@ -318,6 +319,7 @@ class WebGL{
 		this.fxRenderer.setSize(width, height);
 		this.fxCam.aspect = width/height;
 		this.fxCam.updateProjectionMatrix();
+		//this.aa.uniforms.resolution.value.set(width, height)
 	}
 
 	toggleOutdoors( outdoors ){
@@ -988,7 +990,7 @@ class Stage{
 		this.addParticlesRecursive(obj);
 		this.addMixersRecursive(obj);
 		this.addWaterRecursive(obj);
-
+		this.addSoundLoopsRecursive(obj);
 		
 
 
@@ -1220,7 +1222,7 @@ class Stage{
 					this.createIndicatorForMesh('run', "Run", c);
 					this.createIndicatorForMesh('back', "", c);
 					this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
-					this.createIndicatorForMesh('bearing', room.getBearingLabel(room.getAdjacentBearing( linkedRoom )), c);
+					this.createIndicatorForMesh('bearing', asset.name ? asset.name : room.getBearingLabel(room.getAdjacentBearing( linkedRoom )), c);
 				}
 			
 			}
@@ -1358,6 +1360,18 @@ class Stage{
 	}
 
 
+	/* Audio */
+	addSoundLoopsRecursive(obj){
+		
+		if( Array.isArray(obj.userData.soundLoops) ){
+			for( let loop of obj.userData.soundLoops )
+				this.playSound( obj, loop.url, loop.volume || 0.5, true, loop.url);
+		}
+		for( let c of obj.children )
+			this.addSoundLoopsRecursive(c);
+
+	}
+
 	/* Water */
 	addWaterRecursive(obj){
 		
@@ -1437,10 +1451,11 @@ class Stage{
 		
 		this.stopSound(mesh, id);
 
+		const soundController = window.game ? game.audio_fx : mod.audio_fx;
 		let reg = {
 			mesh : mesh,
 			id : id,
-			sound : game.audio_fx.play(url, volume, loop).then(audio => {
+			sound : soundController.play(url, volume, loop).then(audio => {
 				reg.sound = audio;
 
 				this.updateSoundPositions();
@@ -1511,7 +1526,7 @@ class Stage{
 				ctx.font = fontSize+"px Arial";
 				ctx.strokeStyle = "white";
 				ctx.textAlign = "center";
-				ctx.lineWidth = 3;
+				ctx.lineWidth = 2;
 				ctx.fillStyle = "black";
 				ctx.strokeText(tx,canvas.width/2, canvas.height/2-fontSize*(i+1));
 				ctx.fillText(tx,canvas.width/2, canvas.height/2-fontSize*(i+1));
@@ -1542,7 +1557,7 @@ class Stage{
 		let material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true, alphaTest:0.5 } );
 		let sprite = new THREE.Sprite( material );
 		sprite.name = text;
-		sprite.scale.set(125*scale,125*scale,1);
+		sprite.scale.set(180*scale,180*scale,1);
 
 		if( Object.keys(mesh.userData.hoverTexts).length )
 			sprite.position.copy(mesh.userData.hoverTexts[Object.keys(mesh.userData.hoverTexts).shift()].position);
