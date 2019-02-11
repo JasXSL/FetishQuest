@@ -2,10 +2,10 @@
 	- Rock
 	- Bushes
 	- Grass
-	
-	- Tapestry (need texture only)
 
-	- Beach cell grounds
+	Ground cells:
+	- Beach areas
+	- Travel Arrow
 
 
 - Needed audio

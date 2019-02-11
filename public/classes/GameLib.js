@@ -147,7 +147,7 @@ export default class GameLib{
 	// Tries to auto load enabled mods
 	async autoloadMods(){
 		let mods = await Mod.getModsOrdered();
-		mods = mods.filter(el => el.enabled);
+		mods = mods.filter(el => el.enabled && (el.netgame || !game.is_host || !game.net.isConnected()));
 		let promises = [];
 		for( let mod of mods )
 			promises.push(Mod.getByID(mod.id));

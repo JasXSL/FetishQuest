@@ -142,8 +142,8 @@ Mod.getModsOrdered = async function(){
 
 	for( let mod in modNames ){
 		if( !modLoadOrder[mod] )
-			modLoadOrder[mod] = {en:true,idx:-1};
-		sortedMods.push({id:mod, name:modNames[mod], enabled:modLoadOrder[mod].en, index:modLoadOrder[mod].idx});
+			modLoadOrder[mod] = {en:true,idx:-1,netgame:true};
+		sortedMods.push({id:mod, name:modNames[mod], enabled:modLoadOrder[mod].en, index:modLoadOrder[mod].idx, netgame:modLoadOrder[mod].netgame});
 	}
 	sortedMods.sort((a,b) => {
 		if( a.index === -1 && b.index !== -1 )

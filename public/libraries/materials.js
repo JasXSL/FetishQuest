@@ -336,6 +336,22 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.6,
 		}),
+	},
+
+	Nature : {
+		Bush : new LibMaterial({
+			map : 'tileable/bush.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}),
+		Soil : new LibMaterial({
+			map : 'tileable/soil.jpg',
+			metalness : 0.2,
+			roughness : 0.7,
+		}),
 	}
 };
 

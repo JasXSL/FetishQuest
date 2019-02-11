@@ -673,6 +673,16 @@ LibMesh.library = {
 				height: 2,
 				position_on_wall : true,
 			}),
+			WallShelf : new LibMesh({
+				url : 'furniture/shelf.JD',
+				materials : [
+					libMat.Wood.Board
+				],
+				tags : [stdTag.mShelf],
+				width: 2,
+				height: 1,
+				position_on_wall : true,
+			}),
 			ShelfContainers : new LibMesh({
 				url : 'furniture/dungeon_shelf_2x1.JD',
 				materials : [
@@ -745,6 +755,15 @@ LibMesh.library = {
 					libMat.Wood.Crate
 				],
 				width: 3,
+				height: 2,
+			}),
+			BarTableSquare : new LibMesh({
+				tags : [stdTag.mTable],
+				url : 'furniture/counter_square.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+				width: 4,
 				height: 2,
 			}),
 			BarStool : new LibMesh({
@@ -1198,6 +1217,14 @@ LibMesh.library = {
 				width: 1,
 				height: 1,
 			}),
+			PaperStack : new LibMesh({
+				url : 'doodads/paperstack.JD',
+				materials : [
+					libMat.Paper.Torn
+				],
+				width: 1,
+				height: 1,
+			}),
 			Candle : new LibMesh({
 				url : 'doodads/candle.JD',
 				materials : [
@@ -1359,6 +1386,19 @@ LibMesh.library = {
 				width: 1,
 				height: 1,
 			}),
+			BountyBoard : new LibMesh({
+				url : 'furniture/bountyboard.JD',
+				materials : [
+					libMat.Wood.Cork,
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+					libMat.Paper.Torn
+				],
+				tags : [],
+				width: 2,
+				height: 1,
+			}),
+			
 		}
 	},
 	Land : {
@@ -1723,6 +1763,16 @@ LibMesh.library = {
 				materials : [
 					libMat.Solids.Brown,
 					libMat.Solids.GreenC,
+				],
+			}),
+		},
+		Pots : {
+			Bush : new LibMesh({
+				url : 'nature/tree_a.JD',
+				materials : [
+					libMat.Metal.DarkGeneric,
+					libMat.Nature.Soil,
+					libMat.Nature.Bush
 				],
 			}),
 		}

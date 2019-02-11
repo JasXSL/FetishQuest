@@ -142,6 +142,7 @@ class NetworkManager{
 			return;
 
 		clearTimeout(this.timer_reconnect);
+		glib.autoloadMods();
 		
 		
 		this.public_id = null;
@@ -173,6 +174,7 @@ class NetworkManager{
 				if( id ){
 					this.public_id = id;
 					this._last_push = game.getSaveData();
+					glib.autoloadMods();
 				}
 				else
 					game.modal.addError("Attempt to host failed");

@@ -1355,7 +1355,7 @@ export default class UI{
 			html += '<div class="right">';
 
 				html += '<h3>Mods</h3>';
-				html += '<table class="editor"><tr><th>Name</th><th>Enabled</th><th>Load Order</th></tr>';
+				html += '<table class="editor"><tr><th>Name</th><th>Enabled</th><th>Netgame</th><th>Load Order</th></tr>';
 				if( !Object.keys(modNames).length )
 					html += '<tr><td colspan=3>No mods installed</td></tr>';
 				for( let mod of sortedMods ){
@@ -1363,6 +1363,7 @@ export default class UI{
 					html += '<tr data-mod="'+esc(mod.id)+'">';
 						html += '<td>'+esc(mod.name)+'</td>';
 						html += '<td><input type="checkbox" class="enableMod" '+(mod.enabled ? 'checked' : '')+' /></td>';
+						html += '<td><input type="checkbox" class="netgame" '+(mod.netgame ? 'checked' : '')+' /></td>';
 						html += '<td><input type="button" value="Up" class="moveUp" /><input type="button" value="Down" class="moveDown" /></td>';
 					html += '</tr>';
 
@@ -1392,7 +1393,7 @@ export default class UI{
 			// Save order
 			const order = {};
 			$("#modal div.right table tr[data-mod]").each((idx, el) => {
-				order[$(el).attr('data-mod')] = {idx:idx, en:$("input.enableMod", el).is(':checked')};
+				order[$(el).attr('data-mod')] = {idx:idx, en:$("input.enableMod", el).is(':checked'), netgame:$("input.netgame", el).is(':checked')};
 			});
 			Mod.saveLoadOrder(order);
 			glib.autoloadMods();
@@ -1410,7 +1411,7 @@ export default class UI{
 			saveLoadOrder();
 		});
 
-		$("tr[data-mod] input.enableMod").on('change', saveLoadOrder);
+		$("tr[data-mod] input.enableMod, tr[data-mod] input.netgame").on('change', saveLoadOrder);
 
 		$("#modal input[name=newGame]").on('click', () => this.drawNewGame());
 		
