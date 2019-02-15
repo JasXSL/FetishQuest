@@ -1399,6 +1399,18 @@ LibMesh.library = {
 				height: 1,
 			}),
 			
+		},
+		Shapes : {
+			DirArrow : new LibMesh({
+				auto_bounding_box : true,
+				url : 'gates/dir_arrows.JD',
+				materials : [
+					libMat.Solids.GreenArrow
+				],
+				tags : [],
+				width: 1,
+				height: 1,
+			}),
 		}
 	},
 	Land : {
@@ -1626,6 +1638,7 @@ LibMesh.library = {
 				],
 			}),
 
+		
 			Wall : new LibMesh({
 				
 				url : 'land/yuug/yuug_wall.JD',
@@ -1636,11 +1649,73 @@ LibMesh.library = {
 				],
 				
 			}),
-		
+
+			Beach : {
+				A : new LibMesh({
+					url : 'land/yuug/beach_a.JD',
+					materials : [
+						libMat.Land.BeachA
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				B : new LibMesh({
+					url : 'land/yuug/beach_b.JD',
+					materials : [
+						libMat.Land.BeachB
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				C : new LibMesh({
+					url : 'land/yuug/beach_c.JD',
+					materials : [
+						libMat.Land.BeachC
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				D : new LibMesh({
+					url : 'land/yuug/beach_d.JD',
+					materials : [
+						libMat.Land.BeachD
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				E : new LibMesh({
+					url : 'land/yuug/beach_e.JD',
+					materials : [
+						libMat.Land.BeachE
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				F : new LibMesh({
+					url : 'land/yuug/beach_f.JD',
+					materials : [
+						libMat.Land.BeachF
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+			},
+			
 
 			Port : {
 				LandMid : new LibMesh({
-					isRoom : true,
 					url : 'land/yuug/yuug_port_mid_land.JD',
 					materials : [
 						libMat.Land.YuugPortMid,

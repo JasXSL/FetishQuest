@@ -43,7 +43,7 @@ class WebGL{
 		const width = window.innerWidth * this.width,
 			height = Math.round(window.innerHeight*this.height),
 			viewAngle = 50,
-			nearClipping = 0.1,
+			nearClipping = 10,
 			farClipping = 100000;
 		
 		this.scene = new THREE.Scene();
@@ -112,7 +112,8 @@ class WebGL{
 
 
 		this.renderer = new THREE.WebGLRenderer({
-			antialias : conf.aa
+			antialias : conf.aa,
+			//logarithmicDepthBuffer: true
 		});
 		
 		if( conf.shadows ){
