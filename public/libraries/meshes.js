@@ -38,12 +38,13 @@ import libParticles from './particles.js';
 import AC from '../classes/AssetCache.js';
 import stdTag from './stdTag.js';
 import Water from '../ext/Water.js';
+import Water2 from '../ext/Water2.js';
 
 
 class LibMesh{
 	constructor(data){
 		this.isRoom = data.isRoom;					// Set to true if this is a base room mesh		
-		this.url = data.url;		// Relative to media/models/
+		this.url = data.url;		// Relative to media/models/ - Can also be a function that returns a mesh
 		this.materials = data.materials || [];		// Should be Material objects from materials.js
 		this.width = data.width || 1;				// Blocks of 1m
 		this.height = data.height || 1;				
@@ -95,7 +96,7 @@ class LibMesh{
 		let submeshes = [];
 		for( let i = 0; i<this.attachments.length; ++i ){
 			
-			if( !Array.isArray(attachmentIndexes) || ~attachmentIndexes.indexOf(i) ){
+			if( this.attachments[i].always || !Array.isArray(attachmentIndexes) || ~attachmentIndexes.indexOf(i) ){
 				let sub = await this.attachments[i].flatten();
 				submeshes.push(sub);
 			}
@@ -103,25 +104,32 @@ class LibMesh{
 		}
 
 		// Load the model
-		let data = await LibMesh.cache.fetch('media/models/'+this.url);
-		let obj = data.objects[0];
-		let geometry = obj.geometry;
-		
-
-		// Load the materials
-		let mats = [];
-		// SkinnedMesh needs a unique material or it goes tits up
-		for( let mat of this.materials )
-			mats.push(mat.fetch(unique || obj.type === "SkinnedMesh"));
-
-		let mesh;
-		if( mats[0].type === 'Water'){
-			mesh = new Water(geometry, mats[0].material);
-			mesh.userData._is_water = true;
+		let mesh, geometry, mats = [];
+		if( typeof this.url === "function" ){
+			mesh = this.url();
+			geometry = mesh.geometry;
 		}
-		else
-			mesh = obj.type === 'SkinnedMesh' ? new THREE.SkinnedMesh(geometry, mats) : new THREE.Mesh(geometry, mats);
+		else{
+			let data = await LibMesh.cache.fetch('media/models/'+this.url);
+			let obj = data.objects[0];
+			
+			geometry = obj.geometry;
+			
+			// Load the materials
+			// SkinnedMesh needs a unique material or it goes tits up
+			for( let mat of this.materials )
+				mats.push(mat.fetch(unique || obj.type === "SkinnedMesh"));
 
+			if( mats[0].type === 'Water'){
+				mesh = new Water(geometry, mats[0].material);
+				mesh.userData._is_water = true;
+			}
+			else if( mats[0].type === 'Water2'){
+				mesh = new Water2(geometry, mats[0].material);
+			}
+			else
+				mesh = obj.type === 'SkinnedMesh' ? new THREE.SkinnedMesh(geometry, mats) : new THREE.Mesh(geometry, mats);
+		}
 		await this.beforeFlatten( mesh );
 		let ud = mesh.userData;
 		mesh.receiveShadow = this.receive_shadow;
@@ -148,7 +156,7 @@ class LibMesh{
 		}
 
 		// Handle skinning
-		if( mesh.type === "SkinnedMesh" ){
+		if( mesh.type === "SkinnedMesh" && geometry.animations.length ){
 
 			let mixer = new THREE.AnimationMixer(mesh);
 
@@ -309,7 +317,7 @@ class LibMeshAttachment{
 		this.position = data.position || new THREE.Vector3();
 		this.rotation = data.rotation || new THREE.Vector3();
 		this.scale = data.scale || new THREE.Vector3(1,1,1);
-		
+		this.always = !!data.always;
 	}
 
 	getTags(){
@@ -1437,6 +1445,31 @@ LibMesh.library = {
 				height:10,
 				top:-4, left:-4
 			}),
+			Ocean2 : new LibMesh({
+				url : function(){
+					const loader = new THREE.TextureLoader();
+					const waterGeometry = new THREE.BoxBufferGeometry( 1000, 1000, 100 );
+					const water = new Water2( waterGeometry, {
+						color: 0xFFAAAA,
+						scale: 1,
+						flowDirection: new THREE.Vector2( 1, 1 ),
+						textureWidth: 1024,
+						textureHeight: 1024,
+						normalMap0 : loader.load('media/textures/land/waternormals_small.jpg'),
+						normalMap1 : loader.load('media/textures/land/waternormals_small.jpg'),
+					}); 
+					water.rotation.x = -Math.PI/2;
+					water.position.y = 100;
+					const mat = new THREE.MeshBasicMaterial();
+					mat.visible = false;
+					const group = new THREE.Mesh(new THREE.BoxGeometry(1000,100,1000), mat);
+					group.add(water);
+					return group;
+				},
+				width: 10,
+				height:10,
+				top:-4, left:-4,
+			}),
 			Capital : new LibMesh({
 				url : 'land/yuug/yuug_city.JD',
 				materials : [
@@ -1736,6 +1769,103 @@ LibMesh.library = {
 		},
 	},
 
+	Cave : {
+		Room : {
+			R10x6 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/cave_10x6.JD',
+				materials : [
+					libMat.Rock.Floor,
+					libMat.Rock.Wall,
+				],
+				tags : [stdTag.mWall],
+				width: 10,
+				height: 6,
+				top:-2,left:-4,
+			}),
+			R10x8 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/cave_10x8.JD',
+				materials : [
+					libMat.Rock.Floor,
+					libMat.Rock.Wall,
+				],
+				tags : [stdTag.mWall],
+				width: 10,
+				height: 8,
+				top:-3,left:-4,
+			}),
+			R6x6 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/cave_6x6.JD',
+				materials : [
+					libMat.Rock.Floor,
+					libMat.Rock.Wall,
+				],
+				tags : [stdTag.mWall],
+				width: 6,
+				height: 6,
+				top:-2,left:-2,
+			}),
+			R8x6River : new LibMesh({
+				url : 'rooms/cave_8x6_river.JD',
+				materials : [
+					libMat.Water.River
+				],
+			}),
+			R8x6 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/cave_8x6.JD',
+				materials : [
+					libMat.Rock.Floor,
+					libMat.Rock.Wall,
+				],
+				attachments : [
+					// Needs to be rotated -90 degrees for water to work
+					new LibMeshAttachment({path:"Cave.Room.R8x6River", always:true, rotation:new THREE.Vector3(-Math.PI/2,0,0), position:new THREE.Vector3(0,65,-90)}),
+				],
+				tags : [stdTag.mWall],
+				width: 6,
+				height: 6,
+				top:-2,left:-3,
+			}),
+		},
+		Stalagmite : new LibMesh({
+			url : 'nature/stalag.JD',
+			materials : [
+				libMat.Rock.Floor
+			],
+		}),
+		Boulder : {
+			Large : new LibMesh({
+				url : 'nature/boulder_large.JD',
+				materials : [
+					libMat.Rock.Wall
+				],
+			}),
+			Double : new LibMesh({
+				url : 'nature/boulder_double.JD',
+				materials : [
+					libMat.Rock.Wall
+				],
+			}),
+			Knotty : new LibMesh({
+				url : 'nature/boulder_knotty.JD',
+				materials : [
+					libMat.Rock.Wall
+				],
+			}),
+			Med : new LibMesh({
+				url : 'nature/boulder_med.JD',
+				materials : [
+					libMat.Rock.Wall
+				],
+			}),
+		}
+	},
+
+	
+
 	Structure : {
 		Cottage : new LibMesh({
 			url : 'structure/cottage.JD',
@@ -1850,7 +1980,7 @@ LibMesh.library = {
 					libMat.Nature.Bush
 				],
 			}),
-		}
+		},
 	}
 	
 

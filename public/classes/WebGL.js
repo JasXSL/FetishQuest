@@ -1145,8 +1145,10 @@ class Stage{
 			mixer.update( delta );
 
 		for( let water of this.water ){
-			water.material.uniforms.time.value += delta;
-			water.material.uniforms.sunDirection.value.copy( lPos );
+			if( water.material.uniforms.time ){
+				water.material.uniforms.time.value += delta;
+				water.material.uniforms.sunDirection.value.copy( lPos );
+			}
 		}
 
 		this.updateSoundPositions();

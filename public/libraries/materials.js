@@ -11,6 +11,13 @@ class LibMaterial{
 			settings.waterNormals = this.getTexture(settings.waterNormals);
 			settings.waterNormals.wrapS = settings.waterNormals.wrapT = THREE.RepeatWrapping;
 		}
+		else if( type === "Water2" ){
+			this.material = settings;
+
+			settings.normalMap0 = this.getTexture(settings.normalMap0);
+			settings.normalMap1 = this.getTexture(settings.normalMap1);
+			
+		}
 		// Textures can be an object also with "texture" being the URL, and any other thee texture properties setup
 		else if( type === "MeshDepthMaterial" )
 			this.material = new THREE.MeshDepthMaterial(depthMaterial);
@@ -45,7 +52,7 @@ class LibMaterial{
 
 	flatten(){
 
-		if( this.type === "Water" )
+		if( this.type === "Water" || this.type === "Water2" )
 			return this;
 
 		let mat = this.material.clone();
@@ -129,6 +136,18 @@ LibMaterial.library = {
 			map : 'tileable/dungeon_brick_wall.jpg',
 			metalness : 0.4,
 			roughness : 0.6
+		}),
+	},
+	Rock : {
+		Wall : new LibMaterial({
+			map : 'tileable/rock_wall.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+		}),
+		Floor : new LibMaterial({
+			map : 'tileable/rock_floor.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
 		}),
 	},
 	Brick : {
@@ -338,7 +357,16 @@ LibMaterial.library = {
 			size : 1.5,
 			alpha : .9,
 			fog: false,
-		}, "Water")
+		}, "Water"),
+		River : new LibMaterial({
+			color : 0xDDEEFF,
+			scale : 0.5,
+			flowDirection : new THREE.Vector2(1,0),
+			textureWidth: 512,
+			textureHeight: 512,
+			normalMap0 : 'land/waternormals_small.jpg',
+			normalMap1 : 'land/waternormals_small.jpg',
+		}, "Water2")
 	},
 
 	Sign : {

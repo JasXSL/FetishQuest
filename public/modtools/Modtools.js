@@ -1867,6 +1867,9 @@ export default class Modtools{
 			asset.rooms = [];
 
 		const dungeon = new Dungeon(asset);
+
+		
+
 		dungeon.rooms = [];
 		for( let room of asset.rooms ){
 			const r = new DungeonRoom(room, dungeon);
@@ -1885,6 +1888,8 @@ export default class Modtools{
 
 		// Helper functions
 		function setDungeonRoomByIndex(index, z = 0){
+
+			
 
 			// Get map scale
 			let xyScale = 2;
@@ -2125,15 +2130,20 @@ export default class Modtools{
 		html += '<br />';
 		$("#modal > div.wrapper > div.content").append(html);
 
+		// First see if there's a room from last session
+		for( let room of dungeon.rooms ){
+			if( room.id === localStorage._editor_room )
+				return setDungeonRoomByIndex(room.index, room.z);
+		}
 
 		// Find the entrance, if it doesn't exist, create it
 		for( let room of dungeon.rooms ){
 			if( room.index === 0 )
 				return setDungeonRoomByIndex(0, room.z);
 		}
-		dungeon.rooms.push(new DungeonRoom({name:'Entrance',x:0,y:0,index:0}, dungeon));
-
-
+		const room = new DungeonRoom({name:'Entrance',x:0,y:0,index:0}, dungeon);
+		room.g_resetID();
+		dungeon.rooms.push(room);
 		setDungeonRoomByIndex(0, 0);
 
 	}
@@ -2176,6 +2186,7 @@ export default class Modtools{
 	async drawRoomEditor( room, selectedAsset ){
 
 		this.dungeon_active_room = room;
+		localStorage._editor_room = room.id;
 
 		// Make sure the room asset exists
 		let roomAsset = room.getRoomAsset();
@@ -2253,6 +2264,7 @@ export default class Modtools{
 		const RAD_TO_DEG = 57.2958;
 		const DEG_TO_RAD = 1.0/57.2958;
 		const stageMesh = asset._stage_mesh;
+
 
 		// Any forms and such here will modify the asset argument, and the asset argument will be saved when the dungeon saves
 

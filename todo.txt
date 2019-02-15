@@ -3,10 +3,11 @@
 	- Bushes
 	- Grass
 
-	Ground cells:
-	- Beach areas
-	- Travel Arrow
-
+	Caves:
+	- Cave door
+	- Altar
+	- Planks
+	- 
 
 - Needed audio
 	- Docks

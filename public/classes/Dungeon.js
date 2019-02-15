@@ -357,6 +357,7 @@ class DungeonRoom extends Generic{
 
 		// shared
 		const out = {
+			id : this.id,
 			index : this.index,
 			parent_index : this.parent_index,
 			assets : DungeonRoomAsset.saveThese(this.assets, full),
@@ -379,7 +380,6 @@ class DungeonRoom extends Generic{
 
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
-			out.id = this.id;
 			out.discovered = this.discovered;
 		}
 		else
