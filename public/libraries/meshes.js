@@ -155,6 +155,7 @@ class LibMesh{
 			mesh.add(boundingBox);
 		}
 
+		console.log("geo", geometry);
 		// Handle skinning
 		if( mesh.type === "SkinnedMesh" && geometry.animations.length ){
 
@@ -168,7 +169,7 @@ class LibMesh{
 						clip[i] = this.animations[anim.name][i];
 				}
 				clip.enabled = true;
-			}	
+			}
 
 			// Enable skinning on the materials
 			for( let mat of mats )
@@ -438,6 +439,15 @@ LibMesh.library = {
 				],
 				width: 3,
 				height: 2,
+			}),
+			Altar : new LibMesh({
+				url : 'furniture/altar_2x1.JD',
+				materials : [
+					libMat.StoneTile.DungeonFloor,
+					libMat.Metal.Rust
+				],
+				width: 2,
+				height: 1
 			}),
 		},
 		Doodads : {
@@ -981,6 +991,24 @@ LibMesh.library = {
 					stage.playSound(mesh, 'media/audio/loot_bag.ogg', 0.5);
 				}
 			}),
+			Sarcophagus : new LibMesh({
+				url : 'containers/sarcophagus_2x1.JD',
+				materials : [
+					libMat.Rock.Floor,
+					libMat.Metal.Rust,
+					libMat.Rock.FloorRunes,
+				],
+				tags : [stdTag.mChest],
+				width: 2,
+				height: 1,
+				position_on_wall : true,
+				animations : {
+					open : {
+						clampWhenFinished : true,
+						loop : THREE.LoopOnce,
+					}
+				},
+			}),
 		},
 		Emitters : {
 			WallSconce : new LibMesh({
@@ -1197,6 +1225,178 @@ LibMesh.library = {
 					mesh.userData.particles.push(particles);
 				}
 			}),
+			Firebarrel : new LibMesh({
+				url : 'doodads/firebarrel.JD',
+				materials : [
+					libMat.Metal.Rust,
+					libMat.Metal.DarkGeneric,
+					libMat.Wood.Firewood,
+					libMat.Decal.SmolderingAsh,
+				],
+				width: 1,
+				height: 1,
+				soundLoops : [
+					{url:'media/audio/fireplace.ogg', volume:0.1}
+				],
+				onFlatten : function(mesh){
+					let light = new THREE.PointLight(0xFFCC77, 0.5, 1000, 2);
+					let z = 0, y = 20;
+					light.position.z = z;
+					light.position.y = y+20;
+					mesh.add(light);
+					mesh.userData.tweens = {
+						// Setting a tween to a function lets you retrigger it infinitely or until stopped manually
+						light : () => {
+							return new TWEEN.Tween(light.position)
+							.to(
+								{
+									z:z+Math.random()*5-2.5,
+									x:Math.random()*5-2.5,
+									y:y+Math.random(10)-5
+								}, 
+								Math.ceil(Math.random()*200)+50
+							)
+							.easing(TWEEN.Easing.Sinusoidal.InOut)
+							.start();
+						}
+					};
+
+					let particles = libParticles.get('firebarrelFlame');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y;
+					particles.mesh.position.z = z; 
+					mesh.userData.particles = [particles];
+
+					particles = libParticles.get('fireplaceSmoke');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y;
+					particles.mesh.position.z = z;
+					mesh.userData.particles.push(particles);
+
+					particles = libParticles.get('firebarrelEmbers');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y+5;
+					particles.mesh.position.z = z;
+					mesh.userData.particles.push(particles);
+				}
+			}),
+			Firepit : new LibMesh({
+				url : 'nature/outdoor_firepit.JD',
+				materials : [
+					libMat.Wood.Firewood,
+					libMat.Decal.SmolderingAsh,
+					libMat.Rock.Floor
+				],
+				width: 1,
+				height: 1,
+				soundLoops : [
+					{url:'media/audio/fireplace.ogg', volume:0.1}
+				],
+				onFlatten : function(mesh){
+					let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
+					let z = -3, y = 10;
+					light.position.z = z;
+					light.position.y = y+20;
+					mesh.add(light);
+					
+
+					//let helper = new THREE.SpotLightHelper(light);
+					//mesh.add(helper);
+	
+					mesh.userData.tweens = {
+						// Setting a tween to a function lets you retrigger it infinitely or until stopped manually
+						light : () => {
+							return new TWEEN.Tween(light.position)
+							.to(
+								{
+									z:z+Math.random()*20-10,
+									x:Math.random()*20-10,
+									y:y+Math.random(10)-5
+								}, 
+								Math.ceil(Math.random()*300)+100
+							)
+							.easing(TWEEN.Easing.Sinusoidal.InOut)
+							.start();
+						}
+					};
+
+					let particles = libParticles.get('torchFlame');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y;
+					particles.mesh.position.z = z; 
+					mesh.userData.particles = [particles];
+
+					particles = libParticles.get('torchSmoke');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y;
+					particles.mesh.position.z = z;
+					mesh.userData.particles.push(particles);
+
+					particles = libParticles.get('torchEmbers');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y+5;
+					particles.mesh.position.z = z;
+					mesh.userData.particles.push(particles);
+				}
+			}),
+			Bonfire : new LibMesh({
+				url : 'nature/outdoor_bonfire.JD',
+				materials : [
+					libMat.Wood.Firewood,
+					libMat.Decal.SmolderingAsh,
+				],
+				width: 1,
+				height: 1,
+				soundLoops : [
+					{url:'media/audio/fireplace.ogg', volume:0.1}
+				],
+				onFlatten : function(mesh){
+					let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
+					let z = -2, y = 20;
+					light.position.z = z;
+					light.position.y = y+20;
+					mesh.add(light);
+					
+
+					//let helper = new THREE.SpotLightHelper(light);
+					//mesh.add(helper);
+	
+					mesh.userData.tweens = {
+						// Setting a tween to a function lets you retrigger it infinitely or until stopped manually
+						light : () => {
+							return new TWEEN.Tween(light.position)
+							.to(
+								{
+									z:z+Math.random()*20-10,
+									x:Math.random()*20-10,
+									y:y+Math.random(10)-5
+								}, 
+								Math.ceil(Math.random()*300)+100
+							)
+							.easing(TWEEN.Easing.Sinusoidal.InOut)
+							.start();
+						}
+					};
+
+					let particles = libParticles.get('fireplaceFlame');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y;
+					particles.mesh.position.z = z; 
+					mesh.userData.particles = [particles];
+
+					particles = libParticles.get('fireplaceSmoke');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y;
+					particles.mesh.position.z = z;
+					mesh.userData.particles.push(particles);
+
+					particles = libParticles.get('fireplaceEmbers');
+					mesh.add(particles.mesh);
+					particles.mesh.position.y = y+5;
+					particles.mesh.position.z = z;
+					mesh.userData.particles.push(particles);
+				}
+			}),
 		},
 		Doodads : {
 			Tankard : new LibMesh({
@@ -1337,7 +1537,21 @@ LibMesh.library = {
 				width: 1,
 				height: 1
 			}),
+			Planks : new LibMesh({
+				url : 'doodads/planks.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+			}),
+			UpsideDownBucket : new LibMesh({
+				url : 'doodads/upside_down_bucket.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.Rust,
+				],
+			}),
 		},
+		
 		Signs : {
 			Store : new LibMesh({
 				url : 'doodads/store_sign.JD',
@@ -1767,6 +1981,21 @@ LibMesh.library = {
 				}),
 			},
 		},
+		Beach : {
+			SmallJetty : new LibMesh({
+				url : 'structure/small_jetty.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+			}),
+			Clutter : new LibMesh({
+				url : 'nature/beach_clutter.JD',
+				materials : [
+					libMat.Nature.Seashell,
+					libMat.Nature.Starfish,
+				],
+			}),
+		}
 	},
 
 	Cave : {
@@ -1861,9 +2090,73 @@ LibMesh.library = {
 					libMat.Rock.Wall
 				],
 			}),
+		},
+		Furniture : {
+			RockBench : new LibMesh({
+				url : 'furniture/bench_105_05.JD',
+				materials : [
+					libMat.StoneTile.DungeonFloor,
+					libMat.Metal.DarkGeneric,
+				],
+				tags : [stdTag.mBench],
+				width: 2,
+				height: 1,
+				position_on_wall : true,
+			}),
+		},
+		Door : {
+			CaveDoor : new LibMesh({
+				url : 'gates/cave_door.JD',
+				materials : [
+					libMat.Rock.Wall,
+					libMat.Solids.Black,
+					libMat.Wood.Crate,
+				],
+				animations : {
+					"open" : {
+						clampWhenFinished : true,
+						loop : THREE.LoopOnce,
+						timeScale : 2
+					}
+				},
+				onInteract : function( mesh, room, asset ){
+					LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5);
+				}
+			}),
+			
 		}
 	},
 
+	Consumable : {
+		PotLargeHP : new LibMesh({
+			url : 'doodads/pot_large.JD',
+			materials : [
+				libMat.Glass.RedGlow,
+				libMat.Metal.Gold,
+			],
+		}),
+		PotLargeMP : new LibMesh({
+			url : 'doodads/pot_large.JD',
+			materials : [
+				libMat.Glass.BlueGlow,
+				libMat.Metal.Silver,
+			],
+		}),
+		PotMedHP : new LibMesh({
+			url : 'doodads/pot_med.JD',
+			materials : [
+				libMat.Glass.RedGlow,
+				libMat.Metal.Gold,
+			],
+		}),
+		PotMedMP : new LibMesh({
+			url : 'doodads/pot_med.JD',
+			materials : [
+				libMat.Glass.BlueGlow,
+				libMat.Metal.Silver,
+			],
+		}),
+	},
 	
 
 	Structure : {
@@ -1981,6 +2274,54 @@ LibMesh.library = {
 				],
 			}),
 		},
+		Clutter : {
+			Stones : new LibMesh({
+				url : 'nature/rocks_clutter.JD',
+				materials : [
+					libMat.Rock.Wall
+				],
+			}),
+		},
+		Rocks : {
+			A : new LibMesh({
+				url : 'nature/moss_rock_a.JD',
+				materials : [
+					libMat.Rock.Moss
+				],
+			}),
+			B : new LibMesh({
+				url : 'nature/moss_rock_b.JD',
+				materials : [
+					libMat.Rock.Moss
+				],
+			}),
+			C : new LibMesh({
+				url : 'nature/moss_rock_c.JD',
+				materials : [
+					libMat.Rock.Moss
+				],
+			}),
+			D : new LibMesh({
+				url : 'nature/moss_rock_d.JD',
+				materials : [
+					libMat.Rock.Moss
+				],
+			}),
+		},
+		Foliage : {
+			GrassTuft : new LibMesh({
+				url : 'nature/grass_tuft.JD',
+				materials : [
+					libMat.Nature.Grass
+				],
+			}),
+			GrassBundle : new LibMesh({
+				url : 'nature/tall_grass.JD',
+				materials : [
+					libMat.Nature.Grass
+				],
+			}),
+		}
 	}
 	
 

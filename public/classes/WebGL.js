@@ -428,10 +428,12 @@ class WebGL{
 
 				intersecting.push(obj.object);
 				// mouseover can return true to allow propagation
-				obj.object.userData._mouseover = true;
-				if( !obj.object.userData.mouseover.call(obj, obj) )
-					break;
 				
+				if( obj.object.userData._mouseover )
+					continue;
+				obj.object.userData.mouseover.call(obj, obj);
+				obj.object.userData._mouseover = true;;
+
 			}
 			// Mouseout
 			for( let obj of this.intersecting ){
@@ -999,6 +1001,7 @@ class Stage{
 
 			// Interactive object
 			if( dungeonAsset.isInteractive() ){
+
 				// Bind hover unless already bound
 				if( !obj.userData.mouseover )
 					this.constructor.bindGenericHover(obj);
@@ -1064,10 +1067,14 @@ class Stage{
 			// Fade tween (Needed for the tags)
 			let tweenVal = {i:1};
 			c.userData.tween = new TWEEN.Tween(tweenVal).to({i:0}, 250).easing(TWEEN.Easing.Sinusoidal.Out).onUpdate(obj => {
+
 				if( !tagAlwaysVisible )
 					sprite.material.opacity = obj.i;
 				let intensity = Math.floor(0x22*obj.i);
 				this.setMeshMatProperty(c, 'emissive', new THREE.Color((intensity<<16)|(intensity<<8)|intensity));
+
+			}).onComplete(() => {
+				this.setMeshMatProperty(c, 'emissive', new THREE.Color(0), true);
 			});
 			c.userData.mouseover = () => {
 				c.userData.tween.stop();
@@ -1587,32 +1594,40 @@ class Stage{
 }
 
 // Sets a material property on all materials of a mesh
-Stage.setMeshMatProperty = function( mesh, id, value ){
+// if reset is true, it tries to reset to the default value if found
+Stage.setMeshMatProperty = function( mesh, id, value, reset = false ){
 	
 	let mat = mesh.material;
 	if( !Array.isArray(mat) )
 		mat = [mat];
-	for( let m of mat )
-		m[id] = value;
+	for( let m of mat ){
+		let val = value;
+		if( reset && m.userData.settings && m.userData.settings[id] ){
+			val = m.userData.settings[id];
+			if( val.clone && !(val instanceof THREE.Texture) )
+				val = val.clone();
+		}
+
+		m[id] = val;
+	}
 
 }
 
 // Adds generic hover visuals to a mesh
 Stage.bindGenericHover = function( mesh ){
 
-	let c = mesh, tweenVal = {i:1};
-	c.userData.tween = new TWEEN.Tween(tweenVal).to({i:0}, 250).easing(TWEEN.Easing.Sinusoidal.Out).onUpdate(obj => {
-		let intensity = Math.floor(0x22*obj.i);
-		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color((intensity<<16)|(intensity<<8)|intensity));
-	});
+	let c = mesh;
 	c.userData.mouseover = () => {
 		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0x222222));
+		Stage.setMeshMatProperty(c, 'emissiveMap', false, false);
 		if( game )
 			game.renderer.renderer.domElement.style.cursor = "pointer";
 	};
 	c.userData.mouseout = () => {
 		c.userData.tween._object.i = 1;
 		c.userData.tween.start();
+		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0), true);
+		Stage.setMeshMatProperty(c, 'emissiveMap', false, true);
 		if( game )
 			game.renderer.renderer.domElement.style.cursor = "auto";
 	};

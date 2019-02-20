@@ -23,6 +23,10 @@ class LibMaterial{
 			this.material = new THREE.MeshDepthMaterial(depthMaterial);
 		else
 			this.material = new THREE.MeshStandardMaterial(settings);
+
+		if( this.material.userData )
+			this.material.userData.settings = settings;
+			
 	}
 
 	getTexture( input ){
@@ -45,7 +49,9 @@ class LibMaterial{
 	fetch( unique = false ){
 		let out = LibMaterial.cache.fetch(this);
 		if( unique && out.clone ){
-			return out.clone();
+			const m = out.clone();
+			m.userData = out.userData;
+			return m;
 		}
 		return out;
 	}
@@ -56,13 +62,15 @@ class LibMaterial{
 			return this;
 
 		let mat = this.material.clone();
-
+		mat.userData = this.material.userData;
 		// Scan for materials to replace with loaders
 		let maps = ['alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','map','metalnessMap','normalMap','roughnessMap'];
 		for( let m of maps ){
 			if( !mat[m] )
 				continue;
 			mat[m] = this.getTexture(this.material[m]);
+			if( mat.userData.settings )
+				mat.userData.settings[m] = mat[m];
 		}
 
 		return mat;
@@ -94,6 +102,17 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 		}),
 	},
+	Decal : {
+		SmolderingAsh : new LibMaterial({
+			map : 'decals/smoldering_pile.png',
+			emissive : new THREE.Color(0xFFFFFF),
+			emissiveMap : 'decals/smoldering_pile_emissive.jpg',
+			metalness : 0.4,
+			roughness : 0.8,
+			transparent : true,
+			alphaTest : 0.5,
+		}),
+	},
 	Metal : {
 		DarkGeneric : new LibMaterial({
 			map : 'tileable/metal_med.jpg',
@@ -104,6 +123,16 @@ LibMaterial.library = {
 			map : 'tileable/metal_rust.jpg',
 			metalness : 0.7,
 			roughness : 0.5,
+		}),
+		Gold : new LibMaterial({
+			color : new THREE.Color(0xFFFFAA),
+			metalness : 0.65,
+			roughness : 0.6,
+		}),
+		Silver : new LibMaterial({
+			color : new THREE.Color(0xDDDDFF),
+			metalness : 0.65,
+			roughness : 0.6,
 		}),
 	},
 	Solids : {
@@ -117,9 +146,11 @@ LibMaterial.library = {
 		GreenArrow : new LibMaterial({color:0xAAFFAA, metalness:0,roughness:1,emissive:0x669966}),
 	},
 	Glass : {
-		Green : new LibMaterial({color:0x226622, metalness:0.3,roughness:0.4}),
-		Brown : new LibMaterial({color:0x332200, metalness:0.3,roughness:0.4}),
-		Purple : new LibMaterial({color:0x331155, metalness:0.3,roughness:0.4}),
+		Green : new LibMaterial({color:new THREE.Color(0x226622), metalness:0.3,roughness:0.4}),
+		Brown : new LibMaterial({color:new THREE.Color(0x332200), metalness:0.3,roughness:0.4}),
+		Purple : new LibMaterial({color:new THREE.Color(0x331155), metalness:0.3,roughness:0.4}),
+		RedGlow : new LibMaterial({color:new THREE.Color(0xF0A0A0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x400000)}),
+		BlueGlow : new LibMaterial({color:new THREE.Color(0xA0C0F0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x004060)}),
 	},
 	StoneTile : {
 		DungeonWall : new LibMaterial({
@@ -146,6 +177,18 @@ LibMaterial.library = {
 		}),
 		Floor : new LibMaterial({
 			map : 'tileable/rock_floor.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+		}),
+		FloorRunes : new LibMaterial({
+			map : 'tileable/rock_floor_runes.jpg',
+			emissiveMap : 'tileable/rock_floor_runes_emissive.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+			emissive : new THREE.Color(0xAAAAAA)
+		}),
+		Moss : new LibMaterial({
+			map : 'tileable/moss_rock_better.jpg',
 			metalness : 0.4,
 			roughness : 0.7,
 		}),
@@ -185,6 +228,11 @@ LibMaterial.library = {
 		}),
 		Firewood : new LibMaterial({
 			map : 'tileable/firewood.jpg',
+			metalness : 0.3,
+			roughness : 0.8,
+		}),
+		Bark : new LibMaterial({
+			map : 'tileable/bark.jpg',
 			metalness : 0.3,
 			roughness : 0.8,
 		}),
@@ -406,16 +454,43 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}),
+		BushTop : new LibMaterial({
+			map : 'decals/bush_top.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}),
+		Grass : new LibMaterial({
+			map : 'decals/grass_decal.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}),
+		
 		Soil : new LibMaterial({
 			map : 'tileable/soil.jpg',
 			metalness : 0.2,
 			roughness : 0.7,
 		}),
+
+		Seashell : new LibMaterial({
+			map : 'tileable/seashell.jpg',
+			metalness : 0.4,
+			roughness : 0.6,
+		}),
+		Starfish : new LibMaterial({
+			map : 'tileable/starfish.jpg',
+			metalness : 0.4,
+			roughness : 0.6,
+		}),
+
+
 	}
 };
-
-
-
 
 
 export {LibMaterial};

@@ -2043,6 +2043,7 @@ export default class Modtools{
 					if( room.index === index ){
 
 						let newRoom = room.clone(dungeon);
+						newRoom.g_resetID();
 						newRoom.assets = [];
 						newRoom.index = highest+1;
 						newRoom.parent_index = index;
@@ -2227,10 +2228,12 @@ export default class Modtools{
 
 				child.userData.mouseover = () => {
 					Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0x222222));
+					Stage.setMeshMatProperty(child, 'emissiveMap', false);
 					renderer.renderer.domElement.style.cursor = "pointer";
 				};
 				child.userData.mouseout = () => {
-					Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0));
+					Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0), true);
+					Stage.setMeshMatProperty(child, 'emissiveMap', false, true);
 					renderer.renderer.domElement.style.cursor = "auto";
 				};
 				child.userData.click = () => {

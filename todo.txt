@@ -1,13 +1,8 @@
 - Needed meshes first quest:
-	- Rock
-	- Bushes
-	- Grass
-
-	Caves:
-	- Cave door
-	- Altar
-	- Planks
-	- 
+	- better grass
+	- bushes
+	- trees
+	
 
 - Needed audio
 	- Docks

@@ -71,7 +71,7 @@ particles.torchFlame = {
 		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 20,
 	_emitters : [
 		{
 			maxAge: {
@@ -104,7 +104,7 @@ particles.torchFlame = {
 				angle : Math.PI,
 				angleSpread : Math.PI,
 			},
-			particleCount: 12
+			particleCount: 8
 		}
 	]
 };
@@ -329,6 +329,95 @@ particles.fireplaceSmoke = {
 		}
 	]
 };
+
+particles.firebarrelFlame = {
+			
+	texture: {
+		value: textures.flame,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			maxAge: {
+				value: 0.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 3, 3, 3 ),
+				randomise: true
+			},
+			velocity: {
+				value: new THREE.Vector3(0, 80, 0),
+				spread: new THREE.Vector3(0, 10, 0),
+				randomise : true,
+			},
+			color : {
+				value : new THREE.Color(0xFFFFFF),
+			},
+			opacity: {
+				value: [0,0.25,0.75,0]
+			},
+			size: {
+				value: [80,0],
+				randomise : true
+			},
+			wiggle : {
+				value : 3
+			},
+			rotation : {
+				angle : Math.PI,
+				angleSpread : Math.PI,
+			},
+			particleCount: 20
+		}
+	]
+};
+
+particles.firebarrelEmbers = {
+			
+	texture: {
+		value: textures.flame,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 100,
+	_emitters : [
+		{
+			maxAge: {
+				value: 0.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 10, 10, 3 ),
+				randomise: true
+			},
+			velocity: {
+				value: new THREE.Vector3(0, 80, 0),
+				spread: new THREE.Vector3(0, 10, 0),
+				randomise : true,
+			},
+			color : {
+				value : new THREE.Color(0xFFFFFF),
+			},
+			opacity: {
+				value: [0,0.25,1,0.75,0]
+			},
+			size: {
+				value: [10,0],
+				randomise : true
+			},
+			wiggle : {
+				value : 10
+			},
+			rotation : {
+				angle : Math.PI,
+				angleSpread : Math.PI,
+			},
+			particleCount: 4
+		}
+	]
+};
+
 
 
 
