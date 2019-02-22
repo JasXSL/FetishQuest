@@ -1,5 +1,5 @@
 import {default as WebGL, Stage} from '../classes/WebGL.js';
-import {default as libMeshes, LibMesh} from '../libraries/meshes.js';
+import {default as libMeshes, LibMesh, getNonDoorMeshes} from '../libraries/meshes.js';
 import * as THREE from '../ext/THREE.js';
 import TransformControls from '../ext/TransformControls.js';
 import Mod from '../classes/Mod.js';
@@ -45,8 +45,37 @@ export default class Modtools{
 		control.addEventListener( 'dragging-changed', function( event ){
 			renderer.controls.enabled = !event.value;
 		});
+
 		let controlTimer = null;
+		let dragging_started = false;
+		let shift = false;
+
+		this.renderer.renderer.domElement.addEventListener( 'mouseup', function( event ){
+			dragging_started = false;
+		});
+		document.addEventListener( 'keydown', function( event ){
+			shift = event.shiftKey;
+		});
+		document.addEventListener( 'keyup', function( event ){
+			shift = event.shiftKey;
+		});
+		
+		
+		
 		control.addEventListener( 'objectChange', event => {
+
+			if( !dragging_started ){
+				dragging_started = true;
+				if( shift ){
+					const mesh = event.target.object;
+					const dungeonAsset = mesh.userData.dungeonAsset.clone();
+					dungeonAsset.g_resetID();
+					this.dungeon_active_room.addAsset( dungeonAsset );
+					this.renderer.stage.addDungeonAsset( dungeonAsset );
+					console.log("Asset", dungeonAsset);
+					this.bindRoomEditor();
+				}
+			}
 			clearTimeout(controlTimer);
 			controlTimer = setTimeout(() => {
 				const mesh = event.target.object;
@@ -65,6 +94,7 @@ export default class Modtools{
 				dungeonAsset.rotZ = Math.round(mesh.rotation.z*100)/100;
 				if( this.onControlChanged )
 					this.onControlChanged(event);
+				controlTimer = null;
 			}, 100);
 		});
 
@@ -85,8 +115,14 @@ export default class Modtools{
 			if( event.target !== document.body )
 				return;
 
-			if( event.key === "Escape" )
+			if( event.key === "Escape" ){
 				control.detach();
+				if( !this.dungeon_active_room )
+					return;
+				const room = this.dungeon_active_room.getRoomAsset();
+				if( room )
+					this.drawRoomAssetEditor(room);
+			}
 			else if( event.key === "w" )
 				control.setMode( "translate" );
 			else if( event.key === "e" )
@@ -2216,11 +2252,22 @@ export default class Modtools{
 		stage.toggle( true );
 
 		const control = this.control;
-		const renderer = this.renderer;
 		control.detach();
 
-		
+		this.bindRoomEditor();
 
+		if( selectedAsset ){
+			let mesh = selectedAsset._stage_mesh;
+			control.attach(mesh);
+		}
+
+
+	}
+
+	bindRoomEditor(){
+		const control = this.control;
+		const renderer = this.renderer;
+		const stage = renderer.stage;
 		// Set mouseover events
 		for( let child of stage.group.children ){
 
@@ -2240,18 +2287,12 @@ export default class Modtools{
 					control.detach();
 					control.attach(child);
 					this.drawRoomAssetEditor(child.userData.dungeonAsset);
+					return true;
 				};
 
 			}
 			
 		}
-
-		if( selectedAsset ){
-			let mesh = selectedAsset._stage_mesh;
-			control.attach(mesh);
-		}
-
-
 	}
 
 	// Handles the asset editor to the right of the viewport
@@ -2268,6 +2309,8 @@ export default class Modtools{
 		const DEG_TO_RAD = 1.0/57.2958;
 		const stageMesh = asset._stage_mesh;
 
+		if( stageMesh && !asset.isRoom() )
+			this.control.attach(stageMesh);
 
 		// Any forms and such here will modify the asset argument, and the asset argument will be saved when the dungeon saves
 
@@ -2372,8 +2415,8 @@ export default class Modtools{
 				if( !room.getDoorLinkingTo( r.index ) )
 					missingDoors.push("["+r.index+"] "+esc(r.name));
 			}
-			if( room.index === 0 && !room.getDoorLinkingTo(-1) )
-				missingDoors.push("[-1] EXIT");
+			if( room.index === 0 && !room.getExitDoor() )
+				missingDoors.push("EXIT");
 			if( missingDoors.length )
 				html += '<b>Missing doors:</b><br />'+missingDoors.join('<br />');
 			$("div.missingDoors").html(html);
@@ -2392,7 +2435,7 @@ export default class Modtools{
 					path.push($(this).val()[0]);
 			});
 
-			let meshes = libMeshes;
+			let meshes = getNonDoorMeshes();
 			let i = "";
 			for( i of path )
 				meshes = meshes[i];
@@ -2401,9 +2444,11 @@ export default class Modtools{
 			
 			// Set this as mesh to add
 			if( meshes.constructor === LibMesh ){
+
 				$("#addMeshToScene").prop("disabled", false);
 				meshToAdd = path.join('.');
 				meshToAddModel = meshes;
+
 			}
 			// Draw a selector
 			else{
@@ -2463,7 +2508,11 @@ export default class Modtools{
 					html += '</select>';
 				}
 				else if( type === types.exit ){
-					html += 'Todo: Dungeon exit';
+					console.log("Drawing exit");
+					html += 'Exit to: <select name="asset_dungeon">';
+					for( let r of th.mod.dungeons )
+						html += '<option value="'+esc(r.label)+'" '+(interaction.data.dungeon === r.label ? 'selected' : '')+'>'+esc(r.name)+'</option>';
+					html += '</select>';
 				}
 				else if( type === types.loot )
 					html += th.formAssets(interaction.data, 'interaction_data');
@@ -2519,7 +2568,7 @@ export default class Modtools{
 						if( itype === types.encounters )
 							interaction.data = [];
 						if( itype === types.exit )
-							interaction.data = {};
+							interaction.data = {dungeon:""};
 						if( itype === types.loot )
 							interaction.data = [];
 						if( itype === types.lever )
@@ -2547,7 +2596,7 @@ export default class Modtools{
 					else if( itype === types.door )
 						interaction.data.index = Math.round(val);
 					else if( itype === types.exit )
-						console.log("Todo: exit");
+						interaction.data.dungeon = val;
 					else if( itype === types.lever )
 						interaction.data.id = val;
 					
@@ -2617,12 +2666,31 @@ export default class Modtools{
 
 		// Add the new mesh selector
 		let out = '';
-		for( let i in libMeshes )
+		for( let i in libMeshes ){
+			//if( libMeshes[i] instanceof LibMesh && libMeshes[i] )
 			out += '<option value="'+i+'">'+i+'</option>';
+		}
 		$("#meshToTest").html(out);
 		$("#meshToTest").on('change', function(){
 			updateSelects(0);
 		});
+
+
+		// Load editor path from localstorage
+		let path = [];
+		try{
+			path = JSON.parse(localStorage.meshEditorPath);	
+		}catch(err){path = ["Dungeon"];}
+		for( let i in path ){
+			let p = path[i];
+			let el = $("#meshToTest");
+			if( +i )
+				el = $("select[name='"+i+"']");
+			el.val(p);
+			updateSelects(+i);
+		}
+
+
 
 		// Mesh inputs changed
 		$("input.updateMesh", div).on('change', () => {
@@ -2651,7 +2719,7 @@ export default class Modtools{
 		});
 
 		// Add to scene button
-		$("#addMeshToScene").on('click', () => {
+		$("#addMeshToScene").on('click', async () => {
 			if( !meshToAdd )
 				return;
 			let att = [];
@@ -2662,13 +2730,18 @@ export default class Modtools{
 				attachments : att,
 				absolute : true
 			}, asset.parent);
+			newAsset.g_resetID();
 			asset.parent.addAsset(newAsset);
-			this.drawRoomEditor(asset.parent, newAsset);
+			await this.renderer.stage.addDungeonAsset(newAsset);
+			this.bindRoomEditor();
+			this.drawRoomAssetEditor(newAsset);
 		});
 
 		$('input.deleteSelectedAsset', div).on('click', () => {
 			asset.parent.removeAsset(asset);
-			this.drawRoomEditor(asset.parent);
+			this.renderer.stage.remove(asset._stage_mesh);
+			this.control.detach();
+			this.drawRoomAssetEditor(room.getRoomAsset());
 		});
 		
 		$("select.assetAnimation", div).on('change', function(){

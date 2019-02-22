@@ -155,7 +155,6 @@ class LibMesh{
 			mesh.add(boundingBox);
 		}
 
-		console.log("geo", geometry);
 		// Handle skinning
 		if( mesh.type === "SkinnedMesh" && geometry.animations.length ){
 
@@ -2263,6 +2262,20 @@ LibMesh.library = {
 					libMat.Solids.GreenC,
 				],
 			}),
+			Simple : new LibMesh({
+				url : 'nature/tree_simple.JD',
+				materials : [
+					libMat.Nature.BushTop,
+					libMat.Wood.Bark
+				],
+			}),
+			Leafy : new LibMesh({
+				url : 'nature/leafytree.JD',
+				materials : [
+					libMat.Wood.Bark,
+					libMat.Nature.Bush,
+				],
+			}),
 		},
 		Pots : {
 			Bush : new LibMesh({
@@ -2321,6 +2334,19 @@ LibMesh.library = {
 					libMat.Nature.Grass
 				],
 			}),
+			GrassWideSingle : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [
+					libMat.Nature.Grass
+				],
+			}),
+			GrassWideGroup : new LibMesh({
+				url : 'nature/grass_wide_group.JD',
+				materials : [
+					libMat.Nature.Grass
+				],
+			}),
+			
 		}
 	}
 	
@@ -2328,5 +2354,27 @@ LibMesh.library = {
 
 };
 
-export {LibMesh};
+function getNonDoorMeshes( sub ){
+	if( sub === undefined )
+		sub = LibMesh.library;
+	
+	let out = {};
+	for( let i in sub ){
+		if( sub[i] instanceof LibMesh ){
+			if( !sub[i].isRoom )
+				out[i] = sub[i];
+		}
+		else if( typeof sub[i] === "object" ){
+			const o = getNonDoorMeshes(sub[i]);
+			if( Object.keys(o).length )
+				out[i] = o;
+		}
+
+	}
+	return out;
+}
+
+
+export {LibMesh, getNonDoorMeshes};
+
 export default LibMesh.library;

@@ -143,7 +143,7 @@ LibMaterial.library = {
 		GreenC : new LibMaterial({color:0x46661f, metalness:0,roughness:1}),
 		YellowGlow : new LibMaterial({color:0xFFFFAA, metalness:0,roughness:1,emissive:0xFFFFAA}),
 		Invisible : new LibMaterial({visible:false}),
-		GreenArrow : new LibMaterial({color:0xAAFFAA, metalness:0,roughness:1,emissive:0x669966}),
+		GreenArrow : new LibMaterial({color:new THREE.Color(0xAAFFAA), metalness:0,roughness:1,emissive:new THREE.Color(0x669966)}),
 	},
 	Glass : {
 		Green : new LibMaterial({color:new THREE.Color(0x226622), metalness:0.3,roughness:0.4}),

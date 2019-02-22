@@ -427,12 +427,11 @@ class WebGL{
 			for( let obj of intersects ){
 
 				intersecting.push(obj.object);
-				// mouseover can return true to allow propagation
-				
+
 				if( obj.object.userData._mouseover )
-					continue;
+					break;
 				obj.object.userData.mouseover.call(obj, obj);
-				obj.object.userData._mouseover = true;;
+				obj.object.userData._mouseover = true;
 
 			}
 			// Mouseout
@@ -1121,9 +1120,85 @@ class Stage{
 
 	// Adds from a dungeon asset
 	async addDungeonAsset(asset){
-		let libEntry = asset.getModel();
-		let attachmentIndexes = asset.attachments;
-		return this.addFromMeshLib(libEntry, attachmentIndexes, asset.isInteractive() || this.isEditor);
+
+		const room = this.room;
+		const roomAsset = room.getRoomAsset();
+		let roomModel;
+		if( roomAsset )
+			roomModel = roomAsset.getModel();
+
+		const libEntry = asset.getModel();
+		const attachmentIndexes = asset.attachments;
+		const c = await this.addFromMeshLib(libEntry, attachmentIndexes, asset.isInteractive() || this.isEditor);
+
+		let meshTemplate = asset.getModel();			// Library entry
+		c.userData.dungeonAsset = asset;
+		c.userData.hoverTexts = {};
+		asset._stage_mesh = c;
+
+		// Create labels
+		// Door
+		if( asset.isDoor() && !this.isEditor ){
+		
+			
+			let linkedRoom = game.dungeon.rooms[asset.getDoorTarget()];
+			if( asset.isExit() ){
+				this.createIndicatorForMesh('exit', 'Exit', c);
+			}
+			else{
+				if( !linkedRoom )
+					console.error("Required linked room missing, ", linkedRoom);
+				this.createIndicatorForMesh('run', "Run", c);
+				this.createIndicatorForMesh('back', "", c);
+				this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
+				this.createIndicatorForMesh('bearing', asset.name ? asset.name : room.getBearingLabel(room.getAdjacentBearing( linkedRoom )), c);
+			}
+		
+		}
+
+
+		
+		// Position it
+		if( asset.absolute ){
+			c.position.x = asset.x;
+			c.position.y = asset.y;
+			c.position.z = asset.z;
+			c.rotation.x = asset.rotX;
+			c.rotation.y = asset.rotY;
+			c.rotation.z = asset.rotZ;
+			c.scale.x = asset.scaleX;
+			c.scale.y = asset.scaleY;
+			c.scale.z = asset.scaleZ;
+		}
+		else{
+			//console.debug("Adding", asset, "x", asset.x, "y", asset.y, "rotatedWidth", asset.getRotatedWidth(), "rotatedHeight", asset.getRotatedHeight());
+			let width = asset.getRotatedWidth(), height = asset.getRotatedHeight();
+			let x = asset.x*100, y = asset.y * 100;
+			if( !asset.isRoom() ){
+				if( width > 2 )
+					x += Math.floor((width-1)/2)*100;
+				if( height > 2 )
+					y += Math.floor((height-1)/2)*100;
+				if( width%2 )
+					x -= 50;
+				if( height%2 )
+					y -= 50;
+			}
+
+			c.position.x = x;
+			c.position.z = y;
+			c.rotation.y = -asset.rotZ/360*Math.PI*2;
+
+			// Handle wall insets
+			if( roomModel && roomModel.wall_indentation && meshTemplate.use_wall_indentation ){
+				let coords = room.getBearingCoords(Math.floor(asset.rotZ/90));
+				c.position.x += coords[0]*roomModel.wall_indentation*meshTemplate.wall_indentation;
+				c.position.z += coords[1]*roomModel.wall_indentation*meshTemplate.wall_indentation;
+			}
+		}
+
+		this.onObjStart(c);
+
 	}
 
 	// Adds a mesh to stage, or many
@@ -1192,10 +1267,6 @@ class Stage{
 	async draw( ){
 
 		let room = this.room;
-		let roomAsset = room.getRoomAsset();
-		let roomModel;
-		if( roomAsset )
-			roomModel = roomAsset.getModel();
 
 		// Add assets
 		for( let asset of room.assets ){
@@ -1211,74 +1282,7 @@ class Stage{
 			}
 
 			// Don't try to do this in parallel or you'll freeze the browser
-			let c = await this.addDungeonAsset(asset);
-			let meshTemplate = asset.getModel();			// Library entry
-			c.userData.dungeonAsset = asset;
-			c.userData.hoverTexts = {};
-			asset._stage_mesh = c;
-
-			// Create labels
-			// Door
-			if( asset.isDoor() && !this.isEditor ){
-			
-				
-				let linkedRoom = game.dungeon.rooms[asset.getDoorTarget()];
-				if( asset.isExit() ){
-					this.createIndicatorForMesh('exit', 'Exit', c);
-				}
-				else{
-					if( !linkedRoom )
-						console.error("Required linked room missing, ", linkedRoom);
-					this.createIndicatorForMesh('run', "Run", c);
-					this.createIndicatorForMesh('back', "", c);
-					this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
-					this.createIndicatorForMesh('bearing', asset.name ? asset.name : room.getBearingLabel(room.getAdjacentBearing( linkedRoom )), c);
-				}
-			
-			}
-
-
-			
-			// Position it
-			if( asset.absolute ){
-				c.position.x = asset.x;
-				c.position.y = asset.y;
-				c.position.z = asset.z;
-				c.rotation.x = asset.rotX;
-				c.rotation.y = asset.rotY;
-				c.rotation.z = asset.rotZ;
-				c.scale.x = asset.scaleX;
-				c.scale.y = asset.scaleY;
-				c.scale.z = asset.scaleZ;
-			}
-			else{
-				//console.debug("Adding", asset, "x", asset.x, "y", asset.y, "rotatedWidth", asset.getRotatedWidth(), "rotatedHeight", asset.getRotatedHeight());
-				let width = asset.getRotatedWidth(), height = asset.getRotatedHeight();
-				let x = asset.x*100, y = asset.y * 100;
-				if( !asset.isRoom() ){
-					if( width > 2 )
-						x += Math.floor((width-1)/2)*100;
-					if( height > 2 )
-						y += Math.floor((height-1)/2)*100;
-					if( width%2 )
-						x -= 50;
-					if( height%2 )
-						y -= 50;
-				}
-
-				c.position.x = x;
-				c.position.z = y;
-				c.rotation.y = -asset.rotZ/360*Math.PI*2;
-
-				// Handle wall insets
-				if( roomModel && roomModel.wall_indentation && meshTemplate.use_wall_indentation ){
-					let coords = room.getBearingCoords(Math.floor(asset.rotZ/90));
-					c.position.x += coords[0]*roomModel.wall_indentation*meshTemplate.wall_indentation;
-					c.position.z += coords[1]*roomModel.wall_indentation*meshTemplate.wall_indentation;
-				}
-			}
-
-			this.onObjStart(c);
+			await this.addDungeonAsset(asset);
 		
 		}
 
@@ -1624,8 +1628,6 @@ Stage.bindGenericHover = function( mesh ){
 			game.renderer.renderer.domElement.style.cursor = "pointer";
 	};
 	c.userData.mouseout = () => {
-		c.userData.tween._object.i = 1;
-		c.userData.tween.start();
 		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0), true);
 		Stage.setMeshMatProperty(c, 'emissiveMap', false, true);
 		if( game )

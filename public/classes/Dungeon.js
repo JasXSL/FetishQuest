@@ -501,6 +501,13 @@ class DungeonRoom extends Generic{
 
 	}
 	
+	getExitDoor(){
+		for( let asset of this.assets ){
+			if( asset.isExit() )
+				return asset;
+		}
+		return false;
+	}
 
 	getChildren(){
 		const rooms = this.parent.rooms;
@@ -1497,7 +1504,7 @@ DungeonRoomAssetInteraction.types = {
 	loot : "loot",					// (arr)assets - Loot will automatically trigger "open" and "open_idle" animations
 	autoLoot : "aLoot",				// {val:(float)modifier} - This is replaced with "loot" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.
 	door : "door",					// {index:(int)room_index} - Door will automatically trigger "open" animation when successfully used
-	exit : "exit",					// Todo: Add inter dungeon travel
+	exit : "exit",					// {dungeon:(str)dungeon_label}
 	anim : "anim",					// {anim:(str)animation}
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
 };
