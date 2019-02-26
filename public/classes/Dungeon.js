@@ -107,12 +107,56 @@ class Dungeon extends Generic{
 		return new this.constructor(this.save(true));
 	}
 
+	// Saves state information for use while out of the dungeon
+	saveState(){
+		
+		console.log("Saving state");
+		const out = {};
+		out.rooms = this.rooms.map(el => el.saveState());
+		out.vars = JSON.parse(JSON.stringify(this.vars));
+		return out;
+
+	}
+
+	loadState( data ){
+
+		if( !data )
+			return;
+
+		// load room state
+		if( Array.isArray(data.rooms) ){
+			for( let room of data.rooms ){
+				const r = this.getRoomByIndex(room.index);
+				if( r )
+					r.loadState(room);
+			}
+		}
+
+		if( typeof data.vars === "object" ){
+			
+			for( let i in data.vars )
+				this.vars[i] = vars[i];
+
+		}
+
+			
+
+	}
+
 
 	/* ROOM */
 	getActiveRoom(){
 		if( this.rooms[this.active_room] )
 			return this.rooms[this.active_room];
 		return this.rooms[0];
+	}
+
+	getRoomByIndex( index ){
+		for( let room of this.rooms ){
+			if( room.index === index )
+				return room;
+		}
+		return false;
 	}
 
 	generateRoom( shape ){
@@ -395,6 +439,40 @@ class DungeonRoom extends Generic{
 		this.g_autoload(data);
 	}
 
+	// Long term save/load data
+	saveState(){
+
+		const out = {
+			index : this.index
+		};
+
+		// Only save a started encounter
+		if( this.encounters instanceof DungeonEncounter && this.encounters.active )
+			out.encounter_complete = this.encounters.completed;
+		
+		out.discovered = this.discovered;
+		out.assets = this.getGeneratedAssets().map(el => el.save(true));
+		
+		return out;
+
+	}
+	loadState( state ){
+
+		// If encounter is complete, set it to completed
+		if( state.encounter_complete )
+			this.encounters = new DungeonEncounter();
+
+		if( state.discovered )
+			this.discovered = true;
+
+		if( Array.isArray(state.assets) ){
+			for( let asset of state.assets )
+				this.addAsset(asset, true);
+		}
+
+	}
+
+
 	rebase(){
 		this.assets = DungeonRoomAsset.loadThese(this.assets, this);
 		if( !this.encounters )
@@ -651,9 +729,10 @@ class DungeonRoom extends Generic{
 
 
 	/* ASSETS */
-	addAsset( dungeonRoomAsset ){
+	addAsset( dungeonRoomAsset, generated = false ){
 
 		this.assets.push(dungeonRoomAsset);
+		dungeonRoomAsset.generated = generated;
 		let model = dungeonRoomAsset.getModel();
 		let attachments = model.attachments.slice();
 		let min = isNaN(model.min_attachments) ? 0 :model.min_attachments,
@@ -677,6 +756,17 @@ class DungeonRoom extends Generic{
 		dungeonRoomAsset.attachments = indexes;
 	}
 	
+	getGeneratedAssets(){
+		
+		const out = [];
+		for( let asset of this.assets ){
+			if( asset.generated )
+				out.push(asset);
+		}
+		return out;
+
+	}
+
 	removeAsset( asset ){
 		for( let i in this.assets ){
 			if( this.assets[i] === asset ){
@@ -696,7 +786,7 @@ class DungeonRoom extends Generic{
 	}
 	
 	// Path in assetLib
-	placeAsset( assetPath ){
+	placeAsset( assetPath, generated = false ){
 
 		let mesh = libMeshTools.getByString(assetPath);
 		let bearing = Math.floor(Math.random()*4);
@@ -714,7 +804,7 @@ class DungeonRoom extends Generic{
 
 			prop.x = position[0];
 			prop.y = position[1];
-			this.addAsset(prop);
+			this.addAsset(prop, generated);
 			return prop;
 
 		}
@@ -730,7 +820,7 @@ class DungeonRoom extends Generic{
 		let placed = 0;
 
 		for( let assets of bags ){
-			let prop = this.placeAsset("Generic.Containers.LootBag");
+			let prop = this.placeAsset("Generic.Containers.LootBag", true);
 			if( prop ){
 				++placed;
 				prop.interactions.push(new DungeonRoomAssetInteraction({
@@ -853,6 +943,7 @@ class DungeonRoomAsset extends Generic{
 		this.parent = parentObj;
 		this.name = '';
 		this.model = '';		// Use . notation and select a model from libMeshes
+		this.generated = false;	// Whether this was generated through the game. Assets from a mod are not generated.
 		// In absolute mode these are absolute positions and rotations
 		// In normal mode, they're based on tiles
 		// Absolute objects are excempt from the tiling system in the generator
@@ -973,9 +1064,19 @@ class DungeonRoomAsset extends Generic{
 
 	// returns the index
 	getDoorTarget(){
+
+		const interaction = this.getDoorInteraction();
+		if( !interaction )
+			return false;
+
+		return interaction.data.index;
+
+	}
+
+	getDoorInteraction(){
 		for( let i of this.interactions ){
 			if( i.type === DungeonRoomAssetInteraction.types.door ){
-				return i.data.index;
+				return i;
 			}
 		}
 		return false;
@@ -1405,7 +1506,7 @@ class DungeonRoomAssetInteraction extends Generic{
 
 	}
 
-	trigger( player, mesh ){
+	async trigger( player, mesh ){
 		
 
 		const asset = this.parent;
@@ -1440,8 +1541,17 @@ class DungeonRoomAssetInteraction extends Generic{
 
 		// Todo: Dungeon exit
 		else if( this.type === types.exit ){
-			// Todo: Delete this, it's only used for quest debugging
+			
 			game.onDungeonExit();
+			const dungeon = glib.get(this.data.dungeon, 'Dungeon');
+			if( !dungeon )
+				return game.modal.addError("Dungeon not found");
+			const load = game.setDungeon(dungeon);
+			if( !isNaN(this.data.index) ){
+				game.dungeon.previous_room = game.dungeon.active_room = +this.data.index;
+				//await game.dungeon.goToRoom( player, +this.data.index );
+			}
+			await load;
 		}
 
 		else if( this.type === types.dungeonVar ){
@@ -1503,8 +1613,8 @@ DungeonRoomAssetInteraction.types = {
 	dungeonVar : "dvar",			// {id:(str)id, val:(var)val} - Can use a math formula
 	loot : "loot",					// (arr)assets - Loot will automatically trigger "open" and "open_idle" animations
 	autoLoot : "aLoot",				// {val:(float)modifier} - This is replaced with "loot" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.
-	door : "door",					// {index:(int)room_index} - Door will automatically trigger "open" animation when successfully used
-	exit : "exit",					// {dungeon:(str)dungeon_label}
+	door : "door",					// {index:(int)room_index, no_exit:(bool)no_exit} - Door will automatically trigger "open" animation when successfully used. no_exit will prevent the exit door icon from being added
+	exit : "exit",					// {dungeon:(str)dungeon_label, index:(int)landing_room=0}
 	anim : "anim",					// {anim:(str)animation}
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
 };

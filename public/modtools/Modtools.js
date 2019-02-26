@@ -2476,7 +2476,28 @@ export default class Modtools{
 		// Updates the asset data editor form
 		const updateAssetDataEditor = function(){
 
+			// Helper function for creating a dungeon cell select
+			const getDungeonRoomOptions = function( dungeon, current ){
+
+				let d;
+				for( let du of th.mod.dungeons ){
+					if( du.label === dungeon )
+						d = du;
+				}
+
+				let out = '<option value="0">- Entrance -</option>';
+				if( !d )
+					return out;
+				for( let room of d.rooms )
+					out += '<option value="'+(+room.index)+'" '+(+room.index === +current ? 'selected' : '')+'>'+esc(room.name)+'</option>';
+				
+				return out;
+
+			}
+
 			const addInteraction = function(interaction){
+
+				
 
 				const types = DungeonRoomAssetInteraction.types,
 					type = interaction.type,
@@ -2506,12 +2527,15 @@ export default class Modtools{
 					for( let r of room.parent.rooms )
 						html += '<option value="'+esc(r.index)+'" '+(interaction.data.index === r.index ? 'selected' : '')+'>'+esc(r.name)+'</option>';
 					html += '</select>';
+					html += '<br /><label>No exit badge: <input type="checkbox" name="asset_no_exit" '+(interaction.data.no_exit ? 'checked' : '')+' /></label>';
 				}
 				else if( type === types.exit ){
-					console.log("Drawing exit");
 					html += 'Exit to: <select name="asset_dungeon">';
 					for( let r of th.mod.dungeons )
 						html += '<option value="'+esc(r.label)+'" '+(interaction.data.dungeon === r.label ? 'selected' : '')+'>'+esc(r.name)+'</option>';
+					html += '</select>';
+					html += '<select name="asset_room">';
+						html += getDungeonRoomOptions(interaction.data.dungeon, interaction.data.index);
 					html += '</select>';
 				}
 				else if( type === types.loot )
@@ -2536,6 +2560,8 @@ export default class Modtools{
 
 				const types = DungeonRoomAssetInteraction.types;
 				const base = $("#modal div.assetEditor div.assetDataEditor div.assetData div.interaction");
+
+				
 
 				// Changed a form value (th.formX goes below)
 				$("input, select", base).off('change').on('change', function(){
@@ -2562,13 +2588,13 @@ export default class Modtools{
 						if( itype === types.autoLoot )
 							interaction.data = {val:0.25};
 						if( itype === types.door )
-							interaction.data = {index:1};
+							interaction.data = {index:1,no_exit:false};
 						if( itype === types.anim )
 							interaction.data = {anim:"open"};
 						if( itype === types.encounters )
 							interaction.data = [];
 						if( itype === types.exit )
-							interaction.data = {dungeon:""};
+							interaction.data = {dungeon:"", index:0};
 						if( itype === types.loot )
 							interaction.data = [];
 						if( itype === types.lever )
@@ -2593,10 +2619,20 @@ export default class Modtools{
 						interaction.data.anim = val;
 					else if( itype === types.autoLoot )
 						interaction.data.val = +val;
-					else if( itype === types.door )
-						interaction.data.index = Math.round(val);
-					else if( itype === types.exit )
-						interaction.data.dungeon = val;
+					else if( itype === types.door ){
+						if( name === "asset_room" )
+							interaction.data.index = Math.round(val);
+						else if( name === 'asset_no_exit' )
+							interaction.data.no_exit = $(this).prop('checked');
+					}
+					else if( itype === types.exit ){
+						if( name === "asset_dungeon" ){
+							interaction.data.dungeon = val;
+							$("select[name=asset_room]", div).html();
+						}
+						else if( name === "asset_room" )
+							interaction.data.index = val;
+					}
 					else if( itype === types.lever )
 						interaction.data.id = val;
 					

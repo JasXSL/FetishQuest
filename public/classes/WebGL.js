@@ -1026,7 +1026,8 @@ class Stage{
 
 		let asset = c.userData.dungeonAsset;
 		let linkedRoom = !this.isEditor ? game.dungeon.rooms[asset.getDoorTarget()] : false;
-		let tagAlwaysVisible = (asset.isExit() && !asset.isLocked()) || (linkedRoom && (linkedRoom.index === game.dungeon.previous_room || !linkedRoom.discovered || linkedRoom.index === asset.parent.parent_index));
+		//let tagAlwaysVisible = (asset.isExit() && !asset.isLocked() &&) || (linkedRoom && (linkedRoom.index === game.dungeon.previous_room || !linkedRoom.discovered || linkedRoom.index === asset.parent.parent_index));
+		let tagAlwaysVisible = false;
 
 		let sprites = c.userData.hoverTexts;
 		for( let i in sprites )
@@ -1036,8 +1037,13 @@ class Stage{
 		let sprite = sprites.bearing;
 		if( sprite )
 			sprite.material.opacity = 1;
-		if( asset.isExit() )
-			sprite = sprites.exit;
+		
+
+		if( asset.isExit() ){
+			if( !asset.name ) 
+				sprite = sprites.exit;
+			tagAlwaysVisible = true;
+		}
 		else if( sprite && linkedRoom && linkedRoom.discovered )
 			sprite.material.opacity = 0;
 
@@ -1046,16 +1052,20 @@ class Stage{
 		
 		if( linkedRoom && linkedRoom.index === game.dungeon.previous_room ){
 
-			sprite = sprites.back;
-			if( game.battle_active )
+			
+			
+			if( game.battle_active ){
 				sprite = sprites.run;
-
-			if( sprite )
-				sprite.material.opacity = 1;
-
+				tagAlwaysVisible = true;
+			}
+			else if( sprites.back ){
+				sprites.back.visible = true;
+				sprites.back.opacity = 1;
+			}
 		}
 
-		if( linkedRoom && linkedRoom.index === asset.parent.parent_index && !game.battle_active ){
+		if( linkedRoom && linkedRoom.index === asset.parent.parent_index && !game.battle_active && !asset.getDoorInteraction().data.no_exit ){
+			tagAlwaysVisible = true;
 			sprite = sprites.out;
 			sprite.material.opacity = 1;
 		}
@@ -1077,6 +1087,7 @@ class Stage{
 			});
 			c.userData.mouseover = () => {
 				c.userData.tween.stop();
+
 				if( !tagAlwaysVisible ){
 					sprite.visible = true;
 					sprite.material.opacity = 1;
@@ -1135,6 +1146,8 @@ class Stage{
 		c.userData.dungeonAsset = asset;
 		c.userData.hoverTexts = {};
 		asset._stage_mesh = c;
+		if( !c.name )
+			c.name = asset.name || asset.model;
 
 		// Create labels
 		// Door
@@ -1142,16 +1155,17 @@ class Stage{
 		
 			
 			let linkedRoom = game.dungeon.rooms[asset.getDoorTarget()];
-			if( asset.isExit() ){
+			if( asset.isExit() && !asset.name ){
 				this.createIndicatorForMesh('exit', 'Exit', c);
 			}
 			else{
-				if( !linkedRoom )
+				if( !linkedRoom && !asset.name )
 					console.error("Required linked room missing, ", linkedRoom);
 				this.createIndicatorForMesh('run', "Run", c);
 				this.createIndicatorForMesh('back', "", c);
 				this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
-				this.createIndicatorForMesh('bearing', asset.name ? asset.name : room.getBearingLabel(room.getAdjacentBearing( linkedRoom )), c);
+				const name = asset.name ? asset.name : room.getBearingLabel(room.getAdjacentBearing( linkedRoom ));
+				this.createIndicatorForMesh('bearing', name, c);
 			}
 		
 		}

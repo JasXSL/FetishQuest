@@ -39,6 +39,11 @@ export default class Game extends Generic{
 		this.quests = [];								// Quest Objects of quests the party is on
 		this.net_load = false;							// Currently loading from network
 
+		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
+		// This lets you save way less data
+		this.state_dungeons = {};		// label : (obj)dungeonstate - See the dungeon loadstate/savestate
+
+
 		// Library of custom items
 		this.libAsset = {};
 
@@ -95,6 +100,7 @@ export default class Game extends Generic{
 			out.id = this.id;
 			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
+			out.state_dungeons = this.state_dungeons;
 		}
 		return out;
 	}
@@ -548,9 +554,13 @@ export default class Game extends Generic{
 		if( !(dungeon instanceof Dungeon) )
 			return console.error(dungeon, "is not a dungeon");
 		let pre = this.dungeon;
-		if( pre.id !== this.id )
+		if( pre.id !== this.id ){
 			this.onDungeonExit();
+			this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
+		}
 		this.dungeon = dungeon;
+		this.dungeon.loadState(this.state_dungeons[this.dungeon.label]);
+		this.updateAmbiance();
 		this.onDungeonEntered();
 		this.net.purgeFromLastPush(["dungeon"],["encounter"]);
 		this.save();

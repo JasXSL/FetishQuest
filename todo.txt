@@ -1,18 +1,26 @@
-- Needed meshes first quest:
-	- better grass
-	- bushes
-	- trees
+Needed scripts:
+	- How to do dungeon save states?
+	- NPC dialogs
+	- Quest offer
+	- Quest conditions
+
+Needed other:
+	- Credits page
 	
 
-- Needed audio
-	- Docks
-	- Beach
+- Needed music
+	- Tavern
+	- Town
+	- Battle
+	- Forest
+	- Dungeon
+
 
 - Needed monster:
 	- Coctopus
 		- Abilities:
 			- ???
-
+			
 
 
 
