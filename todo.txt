@@ -1,12 +1,10 @@
 Needed scripts:
-	- How to do dungeon save states?
 	- NPC dialogs
-	- Quest offer
 	- Quest conditions
 
 Needed other:
 	- Credits page
-	
+	- Loading screens
 
 - Needed music
 	- Tavern

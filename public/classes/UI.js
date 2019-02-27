@@ -203,6 +203,7 @@ export default class UI{
 		this.drawPlayers();
 		this.drawGameIcons();
 		this.drawActionSelector();
+		this.drawRoleplay();
 
 	}
 
@@ -1035,6 +1036,10 @@ export default class UI{
 		});
 
 	}
+
+
+
+	
 
 
 
@@ -2701,6 +2706,19 @@ export default class UI{
 	}
 
 	
+
+
+
+	/* Roleplay */
+	drawRoleplay(){
+		const roleplay = game.roleplay;
+		console.log("Draw RP", roleplay);
+		
+	}
+
+
+
+
 
 	
 

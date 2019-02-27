@@ -1872,6 +1872,7 @@ export default class Modtools{
 
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += '<label>Friendly: <input type="checkbox" name="friendly" '+(asset.friendly ? 'checked' : '')+' /></label><br />';
 			html += 'Player Templates: '+this.formPlayerTemplates(asset.player_templates, 'player_templates')+'<br />';
 			html += 'Specific Players: '+this.formPlayers(asset.players)+'<br />';
 			html += 'Wrappers (auto target is player who started the event): <br />'+this.formWrappers(asset.wrappers, 'wrappers')+'<br />';
@@ -1883,6 +1884,7 @@ export default class Modtools{
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.startText = $("input[name=startText]", form).val().trim();
+			saveAsset.friendly = $("input[name=friendly]", form).prop('checked');
 			
 			saveAsset.players = this.compilePlayers();
 			saveAsset.player_templates = this.compilePlayerTemplates('player_templates');
@@ -2891,7 +2893,11 @@ export default class Modtools{
 	}
 
 
+	editor_roleplay(){
 
+		// Todo: Roleplay editor
+
+	}
 
 
 

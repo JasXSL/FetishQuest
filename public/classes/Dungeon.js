@@ -24,6 +24,7 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import Calculator from './Calculator.js';
+import Roleplay from './Roleplay.js';
 
 //const always_chest = true;
 const always_chest = false;
@@ -447,7 +448,7 @@ class DungeonRoom extends Generic{
 		};
 
 		// Only save a started encounter
-		if( this.encounters instanceof DungeonEncounter && this.encounters.active )
+		if( this.encounters instanceof DungeonEncounter && !this.encounters.completed )
 			out.encounter_complete = this.encounters.completed;
 		
 		out.discovered = this.discovered;
@@ -1635,6 +1636,7 @@ class DungeonEncounter extends Generic{
 
 		this.parent = parent;		// Parent varies, but usually trickles up to a quest or game
 		this.label = '';
+		this.friendly = false;		// Don't start a battle when starting this encounter
 		this.started = false;		// Encounter has started (only set on Game clone of this)
 		this.completed = false;		// Encounter completed (only set on Game clone of this)
 		this.players = [];			// Players that MUST be in this event. On encounter start, this may be filled with player_templates to satisfy difficulty
@@ -1642,6 +1644,7 @@ class DungeonEncounter extends Generic{
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
+		this.rp = new Roleplay();
 
 		this.load(data);
 	}
@@ -1746,6 +1749,7 @@ class DungeonEncounter extends Generic{
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
 			out.conditions = Condition.saveThese(this.conditions, full);
 		}
+		out.friendly = this.friendly;
 
 		if( full !== "mod" ){
 			out.id = this.id;

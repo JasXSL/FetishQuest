@@ -11,6 +11,7 @@ import Text from './Text.js';
 import Quest from './Quest.js';
 import {default as Audio, setMasterVolume}  from './Audio.js';
 import stdTag from '../libraries/stdTag.js';
+import Roleplay from './Roleplay.js';
 
 export default class Game extends Generic{
 
@@ -36,6 +37,7 @@ export default class Game extends Generic{
 		this.net = new NetworkManager(this);
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new DungeonEncounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
+		this.roleplay = new Roleplay({}, this);
 		this.quests = [];								// Quest Objects of quests the party is on
 		this.net_load = false;							// Currently loading from network
 
@@ -88,7 +90,8 @@ export default class Game extends Generic{
 			initiative : this.initiative,	
 			dungeon : this.dungeon.save(full),
 			encounter : this.encounter.save(full),
-			quests : this.quests.map(el => el.save(full))
+			quests : this.quests.map(el => el.save(full)),
+			roleplay : this.roleplay.save(full)
 		};
 
 		
@@ -211,7 +214,7 @@ export default class Game extends Generic{
 	}
 
 	// Automatically invoked after g_autoload() in load()
-	rebase( forcePlayers ){
+	rebase(){
 
 		
 		this.quests = Quest.loadThese(this.quests, this);		
@@ -233,6 +236,8 @@ export default class Game extends Generic{
 			if( pl )
 				this.players[i] = pl;
 		}
+
+		this.roleplay = Roleplay.loadThis(this.roleplay, this);
 		
 		// Pick the ambiance
 		this.updateAmbiance();
@@ -1079,13 +1084,20 @@ export default class Game extends Generic{
 		}
 		
 		// Encounter isn't finished, start a battle 
-		// Todo: Friendly encounters
 		if( !this.encounter.completed ){
 			
-			this.toggleBattle(true);
-			game.ui.battleVis();
-			game.renderer.battleVis();
-			
+
+			if( !started ){
+				this.roleplay = this.encounter.rp.clone(this);
+				this.ui.draw();
+				if( this.roleplay.stages.length )
+					this.ui.toggle(true);
+			}
+		
+
+			if( !encounter.friendly ){
+				this.toggleBattle(true);
+			}
 			for( let wrapper of encounter.wrappers )
 				wrapper.useAgainst( encounter.players[0], player );
 
@@ -1119,6 +1131,11 @@ export default class Game extends Generic{
 
 	
 
+
+
+
+
+
 	/* COMBAT */
 	// Turns battle on or off
 	toggleBattle( on ){
@@ -1133,6 +1150,9 @@ export default class Game extends Generic{
 			return;
 
 		if( this.battle_active ){
+
+			this.ui.battleVis();
+			this.renderer.battleVis();
 			
 			// Battle just started, roll for initiative
 			let initiative = this.players.map(el => {

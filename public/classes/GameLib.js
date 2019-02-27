@@ -110,9 +110,7 @@ export default class GameLib{
 			'assets',
 			'players',
 			'playerTemplates',
-			'dungeons',
-			'quests',
-
+			
 			'materialTemplates',
 			'assetTemplates',
 			
@@ -120,6 +118,8 @@ export default class GameLib{
 			'dungeonEncounters',
 			'dungeonRoomTemplates',
 			'dungeonTemplates',
+			'dungeons',
+			'quests',
 		];
 
 		for( let mod of mods ){
