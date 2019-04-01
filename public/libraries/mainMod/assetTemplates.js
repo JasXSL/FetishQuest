@@ -11,6 +11,7 @@ const lib = {
 		],
 		name : "Sling Armor",
 		materials : [
+			"cotton",
 			"silk",
 			"mageweave",
 			"shadowcloth",

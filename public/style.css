@@ -895,6 +895,59 @@ div.fxBuffBlue{
 
 /**/
 
+/* ROLEPLAY */
+
+	#roleplay{
+		position: fixed;
+		bottom:25%;
+		left:50%;
+		transform:translate(-50%,-50%);
+		color:#FFF;
+		font-size:2vmax;
+		cursor:default;
+		display:flex;
+	}
+
+	#roleplay > div.left{
+		width:10vmax;
+	}
+	#roleplay > div.right{
+
+	}
+	
+
+	#roleplay div.bg{
+		box-shadow:0.5vmax 0.5vmax 1vmax rgba(0,0,0,1);
+		border:0.1vmax solid #FFF;
+		text-align: left;
+		border-radius: 0.25vmax;
+		background:rgba(0,50,100,.95);
+		padding:1vmax;
+		margin:0.25vmax;
+		user-select: none;
+		-moz-user-select: none;
+	}
+
+	#roleplay div.portrait{
+		position: absolute;
+		left:0;
+		width:10vmax; height:10vmax;
+	}
+	#roleplay div.text{
+
+	}
+	#roleplay div.responses > div.option{
+		width:90%;
+		font-size:1.5vmax;
+		font-style: italic;
+		background: rgba(100,100,100,.75);
+		cursor:pointer;
+	}
+	#roleplay div.responses > div.option:hover{
+		background: rgba(50,100,150,.75);
+	}
+	
+
 
 /* Game Icons (bottom bar) */
 
@@ -1573,6 +1626,9 @@ div.fxBuffBlue{
 	div.condWrapper > div.condPanel{
 		position: absolute;
 		top:0; left:0;
+	}
+	div.condWrapper.fullWidth{
+		display:block;
 	}
 	div.condWrapper > div.condPanel > span{
 		cursor:pointer;

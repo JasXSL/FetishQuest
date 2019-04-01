@@ -11,7 +11,7 @@ import HitFX from './HitFX.js';
 		%leftright - left or right at random
 		%groin | %crotch - Synonym for groin/crotch
 		%cum - Synonym for cum
-		%couple - Synonym for couple, few, handful
+		%few - Synonym for couple of, few, handful of
 		%thrusting - thrusting/pounding/humping
 	TARGET PREFIXED - These are prefixed with 
 			%T : Target 
@@ -159,8 +159,8 @@ class Text extends Generic{
 		synonyms = ['cum', 'spunk', 'jizz'];
 		text = text.split('%cum').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 
-		synonyms = ['couple', 'few', 'handful'];
-		text = text.split('%couple').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		synonyms = ['couple of', 'few', 'handful of'];
+		text = text.split('%few').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 
 		synonyms = ['pounding', 'thrusting', 'humping'];
 		text = text.split('%thrusting').join(synonyms[Math.floor(Math.random()*synonyms.length)]);

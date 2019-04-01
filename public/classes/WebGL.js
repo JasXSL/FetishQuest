@@ -465,7 +465,7 @@ class WebGL{
 		if( DISABLE_DUNGEON )
 			return;
 
-		if( !game.dungeon || game.dungeon.id === this.cache_dungeon )
+		if( !game.dungeon )//|| game.dungeon.id === this.cache_dungeon )
 			return;
 			
 		// Already loading hold your horses
@@ -491,19 +491,23 @@ class WebGL{
 		}
 
 		this.loading = false;
+
+		this.cache_active_room = -1;
 		this.drawActiveRoom();
 		if( this.load_after_load ){
 			this.load_after_load = false;
 			return this.loadActiveDungeon();
 		}
 
+		
+
 	}
 
 	async drawActiveRoom(){
 
-
 		if( this.loading )
 			return;
+
 		let room = game.dungeon.getActiveRoom();
 		let roomChanged = room.id !== this.cache_active_room;
 		let pre = this.stage;
@@ -520,8 +524,10 @@ class WebGL{
 		}
 
 		// Weird, couldn't find the stage
-		if( !this.stage )
+		if( !this.stage ){
+			console.error("Stage not found", room.id);
 			return;
+		}
 
 		if( roomChanged ){
 			if( pre )
@@ -1038,22 +1044,24 @@ class Stage{
 		if( sprite )
 			sprite.material.opacity = 1;
 		
-
 		if( asset.isExit() ){
 			if( !asset.name ) 
 				sprite = sprites.exit;
 			tagAlwaysVisible = true;
 		}
-		else if( sprite && linkedRoom && linkedRoom.discovered )
+		else if( sprite && linkedRoom ){
 			sprite.material.opacity = 0;
+			if( !linkedRoom.discovered ){
+				tagAlwaysVisible = true;
+				sprite.material.opacity = 1;
+			}
+		}
 
 		if( sprite && asset.isLocked() )
 			sprite.material.opacity = 0;
 		
 		if( linkedRoom && linkedRoom.index === game.dungeon.previous_room ){
 
-			
-			
 			if( game.battle_active ){
 				sprite = sprites.run;
 				tagAlwaysVisible = true;

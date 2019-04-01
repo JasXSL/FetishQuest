@@ -2347,6 +2347,16 @@ LibMesh.library = {
 				],
 			}),
 			
+		},
+		Containers : {
+			RazzyBerries : new LibMesh({
+				url : 'containers/razzyberries_1x1.JD',
+				materials : [
+					libMat.Nature.RazzyBerryBush,
+					libMat.Nature.RazzyBerryStem,
+					libMat.Nature.RazzyBerryBerries
+				],
+			}),
 		}
 	}
 	

@@ -68,7 +68,7 @@ const lib = [
 		]),
 		hitfx : ["doubleSlap"]
 	},
-	{ text : "%S jumps onto the knocked down %Trace's stomach, grabbing ahold of %This nipples and tugs at them!",
+	{ text : "%S jumps onto the knocked down %Trace's stomach, grabbing a hold of %This nipples and tugs at them!",
 		conditions : humOnHumCond.concat("action_stdAttack","targetBreasts","targetKnockedDownBack","targetTaller","targetBreastsExposed"),
 		hitfx : ["stretch"]
 	},
@@ -77,7 +77,10 @@ const lib = [
 		audiokits : ["pinchGeneric"],
 		hitfx : ["stretch"]
 	},
-
+	{ text : "%S rams %Shis knee up at %T's %Tbutt!",
+		conditions : humOnHumCond.concat("action_stdAttack"),
+		hitfx : ["punch"]
+	},
 	{ text : "%S shoves %T from behind, bending %Thim over a table before slapping %This %Trsize %Tbutt!",
 		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
 		conditions : humOnHumCond.concat("action_stdAttack","roomTable"),
@@ -91,6 +94,10 @@ const lib = [
 		conditions : humOnHumCond.concat("action_stdAttack", "targetBreasts", "targetUpperbodyNotHard"),
 		hitfx : ["squeeze"]
 	},
+	{ text : "%S pinches down on %T's %leftright nipple and twists it!",
+		conditions : humOnHumCond.concat("action_stdAttack", "targetBreasts", "targetUpperbodyNotHard"),
+		hitfx : ["pinch"]
+	},
 	{ text : "%S throws at punch at the front of %T's %TclothLower, most of the impact being absorbed by the piece.",
 		armor_slot : "lowerbody",
 		conditions : humOnHumCond.concat(["action_stdAttack","targetLowerbodyHard"]),
@@ -100,6 +107,14 @@ const lib = [
 		armor_slot : "upperbody",
 		conditions : humOnHumCond.concat(["action_stdAttack","targetUpperbodyHard"]),
 		hitfx : ["punch"]
+	},
+
+
+	// dishonorable
+	{ text : "%S shoves %T from behind, bending %Thim over a table and bites %This %Trsize %Tbutt!",
+		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
+		conditions : humOnHumCond.concat("action_stdAttack","roomTable","senderDishonorable"),
+		hitfx : ["biteGeneric"]
 	},
 
 	// tentacles
@@ -212,6 +227,13 @@ const lib = [
 		armor_slot : Asset.Slots.upperbody,
 		hitfx : ["whip"]
 	},
+	{ text : "%S swings %Shis %Sgear at %T, flicking against %This %leftright %Tbreast!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasWhip","targetBreasts"
+		]),
+		armor_slot : Asset.Slots.upperbody,
+		hitfx : ["whip"]
+	},
 	{ text : "%S wraps %Shis %Sgear around %T's chest, chafing into the %Trace's %Tbreasts!",
 		conditions : anyOnHumCond.concat([
 			"action_stdAttack","senderHasWhip","targetBreasts","targetUpperbodyNotHard"
@@ -284,6 +306,14 @@ const lib = [
 		]),
 		hitfx : ["squeeze"]
 	},
+
+	{ text : "%S jumps onto the knocked down %Trace's stomach, grabbing a firm hold of %T's %Tbsize %leftright %Tbreast and gives it a %few rapid licks!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "targetBreasts", "targetKnockedDownBack", "targetTaller", "targetBreastsExposed"
+		]),
+		hitfx : ["squeeze"]
+	},
+
 	{ text : "%S jumps onto the knocked down %Trace's back, squeezes a firm hold of %T's %Trsize buttcheeks and jiggles them around!",
 		conditions : humOnHumCond.concat([
 			"action_stdArouse","targetKnockedDownFront","targetTaller",
@@ -306,18 +336,64 @@ const lib = [
 		weight : Text.Weights.high,
 		hitfx : ["squeeze"]
 	},
-	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Tvagina, landing a %couple of thrusts!",
+	{ text : "%S positions %Shimself behind %T, shoving %Shis %Spsize %Spenis inside the %Trace's %Tvagina and thrusting a %few times!",
 		turnTags:[stdTag.ttBentOver],
-		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver","targetVagina","senderPenis","targetNoLowerbody","targetGroinExposed"),
+		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver","targetVagina","senderPenis","targetGroinExposed"),
 		weight : Text.Weights.high,
 		hitfx : ["slowThrusts"]
 	},
-	{ text : "%S walks up to the bent over %Trace and shoves %Shis %Spsize %Spenis inside %T's %Trsize %Tbutt, landing a %couple of thrusts!",
+
+	{ text : "%S grabs a hold of the knocked down %Trace's legs, lifting them into the air before shoving %Shis %Spsize %Spenis inside %T's %Tvagina, pounding it a %few times!",
+		conditions : humOnHumCond.concat("action_stdArouse","targetKnockedDownBack","targetVagina","senderPenis","targetGroinExposed"),
+		weight : Text.Weights.high,
+		hitfx : ["slowThrusts"]
+	},
+	{ text : "%S grabs a hold of the knocked down %Trace's hips, lifting %This %Trsize %Tbutt into the air before shoving %Shis %Spsize %Spenis inside %T's %Tvagina, pounding it a %few times!",
+		conditions : humOnHumCond.concat("action_stdArouse","targetKnockedDownBack","targetVagina","senderPenis","targetGroinExposed"),
+		weight : Text.Weights.high,
+		hitfx : ["slowThrusts"]
+	},
+
+	{ text : "%S positions %Shimself behind %T, shoving %Shis %Spsize %Spenis inside the %Trace's %Trsize %Tbutt and thrusting a %few times!",
 		turnTags:[stdTag.ttBentOver],
 		conditions : humOnHumCond.concat("action_stdArouse","ttBentOver","senderPenis","targetNoLowerbody","targetButtExposed"),
 		weight : Text.Weights.high,
 		hitfx : ["slowThrusts"]
 	},
+
+	{ text : "%S jumps onto the table and grabs a hold of %T's face, shoving %Shis %Spsize %Spenis inside and thrusting a %few times!",
+		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
+		conditions : humOnHumCond.concat("action_stdArouse","ttBentOverTable","senderPenis"),
+		weight : Text.Weights.max,
+		hitfx : ["slowThrusts"]
+	},
+
+	{ text : "%S slips %Shis hand between %T's legs and forces a finger up the %Trace's %Tgroin, wiggling it inside %Thim!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "targetNoLowerbody", "targetVagina"
+		]),
+		hitfx : ["squishTiny"]
+	},
+	{ text : "%S slips %Shis hand between %T's legs and rubs %This exposed clit!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "targetNoLowerbody", "targetVagina"
+		]),
+		hitfx : ["squishTiny"]
+	},
+
+	{ text : "%S slips between %T's legs and licks across the %Trace's %Tgroin!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "targetTaller"
+		]),
+		hitfx : ["squishTiny"]
+	},
+
+	{ text : "%S shoves %T from behind, bending %Thim over a table before slipping %Shis %Spsize %Spenis inside the %Trace, landing a %few thrusts!",
+		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
+		conditions : humOnHumCond.concat("action_stdAttack","roomTable","senderDishonorable","targetVagina","targetGroinExposed"),
+		hitfx : ["slowThrusts"]
+	},
+
 
 	// stdArouse - Tentacles
 	{ text : "%S slips a couple of tendrils up between %T's legs, rubbing across %This %groin!",
@@ -447,6 +523,10 @@ const lib = [
 			"action_stdArouse","senderHasTentacles","ttPussyWedgie","targetWearsLowerbody"
 		]),
 		weight : Text.Weights.high,
+		hitfx : ["tentacleRub"],
+	},
+	{ text : "%S slips small tendrils between %T's legs, rapidly tickling %This %Tgroin!",
+		conditions : anyOnHumCond.concat(["action_stdArouse","senderHasTentacles"]),
 		hitfx : ["tentacleRub"],
 	},
 	{ text : "%S wraps a tentacle around %T's %Tpsize %Tpenis, allowing a small tendril to slip under %This foreskin, tickling the tip of %This %Tpenis!",
@@ -996,12 +1076,26 @@ const lib = [
 		turnTags : [stdTag.ttBreastsExposed],
 		hitfx : ["stretch"]
 	},
+	{ text : "%S grabs around the front strings of %T's %TclothLower near %This %Tgroin, giving it a hard yank down, exposing the %Trace's %Tbsize %Tgroin!",
+		conditions : anyOnHumCond.concat("action_imp_claws", "targetWearsSlingBikini"),
+		turnTags : [stdTag.ttGroinExposed],
+		hitfx : ["stretch"]
+	},
+	{ text : "%S grabs at the front of %T's %TclothLower and gives it a hard yank down, exposing the %Trace's %Tbsize %Tgroin!",
+		conditions : anyOnHumCond.concat("action_imp_claws", "targetLowerbodyWaistband"),
+		turnTags : [stdTag.ttGroinExposed],
+		hitfx : ["stretch"]
+	},
+	{ text : "%S grabs at the back of %T's %TclothLower and gives it a hard yank down, exposing the %Trace's %Trsize %Tbutt!",
+		conditions : anyOnHumCond.concat("action_imp_claws", "targetLowerbodyWaistband"),
+		turnTags : [stdTag.ttButtExposed],
+		hitfx : ["stretch"]
+	},
 
 
 
 
 
-	// TODO: Continue here
 	// imp_ankleBite
 	{ text : "%S jumps at %T's legs and starts chewing on %This ankle!",
 		conditions : anyOnHumCond.concat([

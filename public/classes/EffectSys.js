@@ -803,8 +803,13 @@ class Effect extends Generic{
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
 				amt *= this.parent.stacks;
-				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" arousal"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage arousal' );
+				let pre = t.arousal;
 				t.addArousal(amt);
+				amt = t.arousal-pre;
+				
+				if( amt )
+					game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" arousal"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage arousal' );
+				
 			}
 
 

@@ -37,7 +37,7 @@ export default class Game extends Generic{
 		this.net = new NetworkManager(this);
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new DungeonEncounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
-		this.roleplay = new Roleplay({}, this);
+		this.roleplay = new Roleplay({finished:true}, this);
 		this.quests = [];								// Quest Objects of quests the party is on
 		this.net_load = false;							// Currently loading from network
 
@@ -71,6 +71,8 @@ export default class Game extends Generic{
 		this.ui.destructor();
 		this.net.destructor();
 		this.renderer.destructor();
+		this.setMusic();
+		this.setAmbient();
 	}
 
 
@@ -553,7 +555,8 @@ export default class Game extends Generic{
 
 
 	/* DUNGEON */
-	setDungeon( dungeon ){
+	setDungeon( dungeon, saveState = true ){
+
 		if( dungeon === this.dungeon )
 			return;
 		if( !(dungeon instanceof Dungeon) )
@@ -561,7 +564,8 @@ export default class Game extends Generic{
 		let pre = this.dungeon;
 		if( pre.id !== this.id ){
 			this.onDungeonExit();
-			this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
+			if( this.dungeon.label !== '_procedural_' && saveState )
+				this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
 		}
 		this.dungeon = dungeon;
 		this.dungeon.loadState(this.state_dungeons[this.dungeon.label]);
@@ -571,14 +575,18 @@ export default class Game extends Generic{
 		this.save();
 		this.renderer.loadActiveDungeon();
 	}
-	
+	/*
 	// Dungeon
 	generateDungeon(...args){
-		this.setDungeon(Dungeon.generate(...args));
+		const dungeon = Dungeon.generate(...args);
+		dungeon.label = '_procedural_';
+		this.setDungeon(dungeon);
+		console.log("Setting dungeon", dungeon);
+		this.state_dungeons._procedural_ = {};
 		return this.dungeon;
 	}
 
-
+	*/
 
 
 
@@ -602,6 +610,7 @@ export default class Game extends Generic{
 		if( !dungeon )
 			return game.modal.addError("Unable to generate a dungeon");
 
+		dungeon.label = '_procedural_';
 		let quest = Quest.generate( type, dungeon, difficultyMultiplier);
 		if( !quest )
 			return false;
@@ -609,7 +618,8 @@ export default class Game extends Generic{
 		// Todo: Remove this later
 		this.addQuest(quest);
 		this.setDungeon(dungeon);
-
+		
+		
 	}
 	addQuest(quest){
 		if( this.quests.length > 5 )
@@ -808,6 +818,22 @@ export default class Game extends Generic{
 		return false;
 
 	}
+
+	getPlayerByLabel( label ){
+
+		if( ! label )
+			return false;
+		for( let p of this.players ){
+
+			if( p.label === label )
+				return p;
+
+		}
+		return false;
+
+	}
+
+	
 	
 	// Gets the index of a Player object in this.players
 	getPlayerIndex( player ){
@@ -983,7 +1009,7 @@ export default class Game extends Generic{
 
 		toPlayer.addAsset(asset);
 		fromPlayer.destroyAsset(asset.id);
-
+		game.ui.draw();
 		this.save();
 		return true;
 
@@ -1086,12 +1112,13 @@ export default class Game extends Generic{
 		// Encounter isn't finished, start a battle 
 		if( !this.encounter.completed ){
 			
-
 			if( !started ){
-				this.roleplay = this.encounter.rp.clone(this);
-				this.ui.draw();
-				if( this.roleplay.stages.length )
-					this.ui.toggle(true);
+
+				let rp = this.encounter.getRP(player);
+				if( !rp )
+					rp = new Roleplay({finished:true}, this);
+				this.setRoleplay(rp);
+
 			}
 		
 
@@ -1442,6 +1469,42 @@ export default class Game extends Generic{
 
 	}
 
+
+
+	// Roleplay
+	useRoleplayOption( senderPlayer, option_id ){
+
+		const opt = this.roleplay.getActiveStage().getOptionById(option_id);
+		if( !opt ){
+			console.error("Opt not found", option_id);
+			return false;
+		}
+		
+		if( !this.is_host ){
+			this.ui.addError("Todo: Netcode roleplay");
+			return false;
+		}
+
+		if( opt.use(senderPlayer) ){
+			
+			this.ui.drawRoleplay();
+			this.save();
+
+		}
+		else
+			console.error(senderPlayer, "is unable to use the option", opt);
+
+	}
+
+	setRoleplay( rp ){
+
+		this.roleplay = rp.clone(this);
+
+		this.ui.draw();
+		if( this.roleplay.stages.length )
+			this.ui.toggle(true);
+
+	}
 
 
 	/* ASSETS */

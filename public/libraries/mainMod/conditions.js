@@ -1,6 +1,7 @@
 import stdTag from "../stdTag.js";
 import { Effect } from "../../classes/EffectSys.js";
 import Condition from "../../classes/Condition.js";
+import GameEvent from "../../classes/GameEvent.js";
 
 const lib = {
 	
@@ -92,6 +93,7 @@ const lib = {
 		{type:"tag", data:{tags:[stdTag.ttBreastsExposed]}}
 	]},
 
+	senderDishonorable : {type:Condition.Types.tag,data:{"tags":[stdTag.plDishonorable]},"caster":true},
 
 
 	targetHasRepairable : {"type":"hasRepairable"},
@@ -130,7 +132,7 @@ const lib = {
 
 	eventIsActionUsed : {"type":"event","data":{"event":["actionUsed"]},"targnr":0},
 	eventIsDiminishingResist : {"type":"event","data":{"event":"diminishingResist"}},
-	eventIsWrapperAdded : {"type":"event","data":{"event":"wrapperAdded"}},
+	eventIsWrapperAdded : {type:Condition.Types.event,data:{"event":GameEvent.Types.wrapperAdded}},
 	eventIsRiposte : {"type":"event","data":{"event":"actionRiposte"}},
 	eventIsEffectTrigger : {"type":"event","data":{"event":"effectTrigger"}},
 	eventIsInterrupt : {"type":"event","data":{"event":"interrupt"}},

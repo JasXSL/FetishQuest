@@ -123,6 +123,8 @@ GameEvent.Types = {
 	
 	dungeonExited : 'dungeonExited',		
 	dungeonEntered : 'dungeonEntered',		
+	
+	rpStage : 'rpStage',	// Roleplay stage changed		
 };
 
 GameEvent.TypeDescs = {

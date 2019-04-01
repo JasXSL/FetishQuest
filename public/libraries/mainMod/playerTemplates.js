@@ -207,7 +207,8 @@ const lib = {
 		tags : [
 			"pl_penis",
 			"pl_horns",
-			"pl_tail"
+			"pl_tail",
+			stdTag.plDishonorable,
 		],
 		min_level : 1,
 		max_level : 5,
@@ -272,7 +273,8 @@ const lib = {
 			"pl_penis",
 			"pl_horns",
 			"pl_tail",
-			"pl_big_penis"
+			"pl_big_penis",
+			stdTag.plDishonorable,
 		],
 		min_level : 3,
 		max_level : 10,
@@ -339,7 +341,8 @@ const lib = {
 			"pl_penis",
 			"pl_horns",
 			"pl_tail",
-			"pl_big_penis"
+			"pl_big_penis",
+			stdTag.plDishonorable,
 		],
 		min_level : 5,
 		max_level : 15,

@@ -20,6 +20,7 @@ import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTempl
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
 import { default as Audio, AudioKit } from '../classes/Audio.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset, DungeonEncounter, DungeonRoomAssetInteraction } from '../classes/Dungeon.js';
+import Roleplay from '../classes/Roleplay.js';
 
 
 const meshLib = LibMesh.getFlatLib();
@@ -252,7 +253,8 @@ export default class Modtools{
 			roomTemplates = '',
 			playerTemplates = '',
 			encounters = '',
-			players = ''
+			players = '',
+			roleplay = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -312,6 +314,9 @@ export default class Modtools{
 		const playerLib = glib.getFull('Player');
 		for( let i in playerLib )
 			players += '<option value="'+esc(i)+'"/>';
+		const roleplayLib = glib.getFull('Roleplay');
+		for( let i in roleplayLib )
+			roleplay += '<option value="'+esc(i)+'"/>';
 
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
@@ -328,7 +333,8 @@ export default class Modtools{
 			'<datalist id="roomTemplates"><select>'+roomTemplates+'</select></datalist>'+
 			'<datalist id="playerTemplates"><select>'+playerTemplates+'</select></datalist>'+
 			'<datalist id="encounters"><select>'+encounters+'</select></datalist>'+
-			'<datalist id="players"><select>'+players+'</select></datalist>'
+			'<datalist id="players"><select>'+players+'</select></datalist>'+
+			'<datalist id="roleplays"><select>'+roleplay+'</select></datalist>'
 		);
 
 	}
@@ -482,6 +488,7 @@ export default class Modtools{
 			'<div class="button" data-id="dungeonRoomTemplates">Room Templates</div>'+
 			'<div class="button" data-id="materialTemplates">Material Templates</div>'+
 			'<div class="button" data-id="audiokits">Audio Kits</div>'+
+			'<div class="button" data-id="roleplay">Roleplay</div>'+
 		'</div>';
 
 		html += '<div class="assetList"></div>';
@@ -922,6 +929,23 @@ export default class Modtools{
 		);
 	}
 	
+	mml_roleplay(){
+		this.mml_generic( 
+			'roleplay', 
+			['Label','#Stages'],
+			this.mod.roleplay,
+			asset => {
+				return [
+					asset.label,
+					Array.isArray(asset.stages) ? asset.stages.length : 0,
+				];
+			},
+			() => {
+				let asset = new Roleplay({label:'NEW_ROLEPLAY'}).save("mod");
+				return asset;
+			}
+		);
+	}
 
 	mml_playerTemplates(){
 		this.mml_generic( 
@@ -1878,7 +1902,8 @@ export default class Modtools{
 			html += 'Wrappers (auto target is player who started the event): <br />'+this.formWrappers(asset.wrappers, 'wrappers')+'<br />';
 			html += 'Start Text (uses the same placeholders as action texts): <input type="text" value="'+esc(asset.text || '')+'" name="startText" /><br />';
 			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />'; 
-			
+			html += 'Roleplays: '+this.formRoleplays(asset.rp, 'roleplays');
+
 		this.editor_generic('encounters', asset, this.mod.dungeonEncounters, html, saveAsset => {
 
 			const form = $("#assetForm");
@@ -1890,9 +1915,30 @@ export default class Modtools{
 			saveAsset.player_templates = this.compilePlayerTemplates('player_templates');
 			saveAsset.wrappers = this.compileWrappers('wrappers');
 			saveAsset.conditions = this.compileConditions('conditions');
-			
+			saveAsset.rp = this.compileRoleplays('roleplays');
 		});
 
+
+	}
+
+	editor_roleplay( asset = {} ){
+
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Player Label: '+this.inputPlayer(asset.player || '', 'player')+'<br />';
+			html += '<label>Allow resume: <input type="checkbox" name="allow_resume" '+(asset.allow_resume ? 'checked' : '')+' /></label><br />';
+			html += 'Stages: '+this.formRoleplayStages(asset.stages, 'stages')+'<br />'; 
+			
+		this.editor_generic('roleplay', asset, this.mod.roleplay, html, saveAsset => {
+			
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.player = $("> input[name=player]", form).val().trim();
+			saveAsset.allow_resume = $("input[name=allow_resume]", form).prop('checked');
+			
+			saveAsset.stages = this.compileRoleplayStages('stages');
+			
+		});
 
 	}
 
@@ -2893,13 +2939,6 @@ export default class Modtools{
 	}
 
 
-	editor_roleplay(){
-
-		// Todo: Roleplay editor
-
-	}
-
-
 
 
 
@@ -2958,6 +2997,12 @@ export default class Modtools{
 		this.bindEncounters();
 		this.bindPlayers();
 		this.bindDungeonVars();
+		this.bindRoleplayStages();
+		this.bindRoleplays();
+
+		$("#modal .deleteParent").off('click').on('click', function(){
+			$(this).parent().remove();
+		});
 	}
 
 	// Draws a JSON editor for an element
@@ -3288,6 +3333,167 @@ export default class Modtools{
 
 
 
+	inputRoleplayStageOption( opt ){
+		let out = '<div class="rpStageOption condWrapper">';	
+			out += 'Text: <input type="text" value="'+esc(opt.text || '')+'" name="text" /><br />';
+			out += 'Goto: <input type="number" step=1 min=-1 value="'+esc(opt.index || '')+'" name="index" /><br />';
+			out += 'Conditions: '+this.formConditions(opt.conditions, 'rpstageoption_conds')+'<br />';
+		out += '</div>';
+		return out;
+	}
+
+
+	// Events (bindable)
+	inputRoleplayStage( stage ){
+		let out = '<div class="rpStage condWrapper fullWidth">';
+			out += 'Index: <input type="number" value="'+esc(stage.index)+'" name="index" disabled /><br />';
+			out += 'Name: <input type="text" value="'+esc(stage.name || '')+'" name="name" /><br />';
+			out += 'Text: <input type="text" value="'+esc(stage.text || '')+'" name="text" /><br />';
+			out += 'Icon: <input type="text" value="'+esc(stage.icon || '')+'" name="icon" /><br />';
+			out += '<span style="cursor:help" title="Defaults to parent player">Player:</span> <input type="text" value="'+esc(stage.player || '')+'" name="player" /><br />';
+			out += '<div class="options">Options <input type="button" value="Add" class="addRoleplayOptionHere">:';
+			if( Array.isArray(stage.options) ){
+				for( let opt of stage.options )
+					out += this.inputRoleplayStageOption(opt);
+			}
+			out += '</div>';
+			out += 'Conditions: '+this.formConditions(stage.conditions, 'rpstage_conds');
+			out += '<br /><input type="button" value="Delete" class="deleteParent" />';
+		out += '</div>';
+		return out;
+	}
+
+	bindRoleplayStages(){
+		let th = this;
+		$("#modal input.addRoleplayStageHere").off('click')
+			.on('click', function(){
+				let index = -1;
+				$(this).parent().find('input[name=index]').each((idx, el) => {
+					const v = +$(el).val();
+					if( v > index )
+						index = v;
+				});
+
+				$(this).parent().append(th.inputRoleplayStage({
+					index : index+1
+				}));
+				th.bindFormHelpers();
+			});
+		$("#modal input.addRoleplayOptionHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputRoleplayStageOption({}));
+				th.bindFormHelpers();
+			});
+	}
+
+	compileRoleplayStages( cName = 'roleplaystage' ){
+
+		const base = $('#modal div.'+cName+' > div.rpStage');
+		const out = [];
+		base.each((index, value) => {
+			
+			const obj = {};
+			const el = $(value);
+			$('> input[name]', el).each((idx, e) => {
+
+				const input = $(e);
+				let val = input.val().trim();
+				if( e.type === 'number' )
+					val = +val;
+				obj[input.attr('name')] = val;
+
+			});
+
+			obj.options = [];
+
+			// Compile the options
+			$('> div.options > div.rpStageOption', el).each((idx, e) => {
+				const div = $(e);
+				const optOut = {};
+				$('> input[name]', div).each((idx, e) => {
+
+					const input = $(e);
+					let val = input.val().trim();
+					if( e.type === 'number' )
+						val = +val;
+					optOut[input.attr('name')] = val;
+	
+				});
+
+				if( optOut.text )
+					obj.options.push(optOut);
+			});
+			
+			out.push(obj);
+		});
+		
+		console.log("Compiled RP stages", out);
+		return out;
+	}
+
+	formRoleplayStages( names = [], cName = 'roleplay' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addRoleplayStageHere" value="Add Stage" />';
+		for( let name of names )
+			out+= this.inputRoleplayStage(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
+	// Roleplay (bindable)
+	inputRoleplay( data ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="roleplay" value="'+esc(data)+'" list="roleplays" />';
+	}
+
+	bindRoleplays(){
+		let th = this;
+		$("#modal input.addRoleplayHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputRoleplay(""));
+				th.bindFormHelpers();
+				th.formHelperOnChange();
+			});
+	}
+
+	compileRoleplays( cName = 'roleplay' ){
+		const base = $('#modal div.'+cName+' input[name=roleplay]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			let val = el.val().trim();
+			try{
+				val = JSON.parse(val);
+			}catch(err){}
+
+			if( val && val !== "none" )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formRoleplays( names = [], cName = 'roleplay' ){
+
+		if( !Array.isArray(names) )
+			names = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addRoleplayHere" value="Add RP" />';
+		for( let name of names )
+			out+= this.inputRoleplay(name);
+		out += '</div>';
+		return out;
+
+	}
+
+
+
 	// DungeonVars (bindable)
 	inputDungeonVar( key, val ){
 		if( typeof val === "object" )
@@ -3341,7 +3547,7 @@ export default class Modtools{
 
 
 
-	// Events (bindable)
+	// Player (bindable)
 	inputPlayer( data ){
 		if( typeof data === "object" )
 			data = JSON.stringify(data);

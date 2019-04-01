@@ -14,6 +14,7 @@ import MAIN_MOD from '../libraries/_main_mod.js';
 import Mod from './Mod.js';
 import Player from './Player.js';
 import HitFX from './HitFX.js';
+import Roleplay from './Roleplay.js';
 
 
 const LIB_TYPES = {
@@ -36,6 +37,7 @@ const LIB_TYPES = {
 	'dungeonRoomTemplates' : RoomTemplate,
 	'dungeonTemplates' : DungeonTemplate,
 	'dungeonEncounters' : DungeonEncounter,
+	'roleplay' : Roleplay,
 };
 
 // Maps lib_types to caches used only in outputs
@@ -71,6 +73,7 @@ export default class GameLib{
 		this.dungeonEncounters = {};
 		this.players = {};
 		this.hitFX = {};
+		this.roleplay = {};
 
 		this._cache_assets = {};
 		this.texts = [];
@@ -114,7 +117,7 @@ export default class GameLib{
 			'materialTemplates',
 			'assetTemplates',
 			
-			
+			'roleplay',
 			'dungeonEncounters',
 			'dungeonRoomTemplates',
 			'dungeonTemplates',
@@ -137,7 +140,6 @@ export default class GameLib{
 		}
 
 		this.rebase();
-
 		console.debug("MODS FINISHED LOADING. LIBRARY:", this);
 
 	}
@@ -146,6 +148,7 @@ export default class GameLib{
 
 	// Tries to auto load enabled mods
 	async autoloadMods(){
+		
 		let mods = await Mod.getModsOrdered();
 		mods = mods.filter(el => el.enabled && (el.netgame || !game.is_host || !game.net.isConnected()));
 		let promises = [];
@@ -157,6 +160,7 @@ export default class GameLib{
 		mods.unshift(MAIN_MOD);
 		this.reset();
 		return this.loadMods(mods);
+
 	}
 
 	

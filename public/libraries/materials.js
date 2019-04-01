@@ -470,6 +470,24 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}),
+		RazzyBerryBush : new LibMaterial({
+			map : 'tileable/berrybush.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}),
+		RazzyBerryStem : new LibMaterial({
+			map : 'bakes/razzyberries_d.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+		RazzyBerryBerries : new LibMaterial({
+			map : 'bakes/razzyberries_d.jpg',
+			metalness : 0.3,
+			roughness : 0.3,
+		}),
 		
 		Soil : new LibMaterial({
 			map : 'tileable/soil.jpg',

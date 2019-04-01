@@ -136,7 +136,7 @@ class Dungeon extends Generic{
 		if( typeof data.vars === "object" ){
 			
 			for( let i in data.vars )
-				this.vars[i] = vars[i];
+				this.vars[i] = data.vars[i];
 
 		}
 
@@ -1644,7 +1644,7 @@ class DungeonEncounter extends Generic{
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
-		this.rp = new Roleplay();
+		this.rp = [];				// Roleplays available, the first viable one triggers when the encounter starts
 
 		this.load(data);
 	}
@@ -1737,6 +1737,7 @@ class DungeonEncounter extends Generic{
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.player_templates = PlayerTemplate.loadThese(this.player_templates, this);
 		this.conditions = Condition.loadThese(this.conditions, this);
+		this.rp = Roleplay.loadThese(this.rp, this);
 	}
 
 	save( full ){
@@ -1750,6 +1751,7 @@ class DungeonEncounter extends Generic{
 			out.conditions = Condition.saveThese(this.conditions, full);
 		}
 		out.friendly = this.friendly;
+		out.rp = Roleplay.saveThese(this.rp, full);
 
 		if( full !== "mod" ){
 			out.id = this.id;
@@ -1792,6 +1794,14 @@ class DungeonEncounter extends Generic{
 				return player;
 		}
 		return false;
+	}
+
+	getRP( player ){
+		for( let rp of this.rp ){
+			console.log("Validating", rp, rp.validate(player));
+			if( rp.validate(player) )
+				return rp;
+		}
 	}
 
 }

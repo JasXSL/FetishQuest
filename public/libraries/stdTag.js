@@ -32,6 +32,10 @@ export default {
 	plImmobile : 'pl_immobile',		// Immobile
 	plElectric : "pl_electric",
 
+	// Player behavior tags
+	plDishonorable : "pl_dishonorable",
+
+
 	// Action tags
 	acBuff : 'ac_buff',
 	acDebuff : 'ac_debuff',

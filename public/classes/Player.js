@@ -9,6 +9,7 @@ import PlayerClass from './PlayerClass.js';
 import Calculator from './Calculator.js';
 import GameEvent from './GameEvent.js';
 import Dungeon from './Dungeon.js';
+import Roleplay from './Roleplay.js';
 
 const BASE_HP = 60;
 const BASE_MP = 10;
@@ -175,8 +176,11 @@ export default class Player extends Generic{
 			intelligence : this.intelligence,
 			powered : this.powered,
 			leader : this.leader,
-			is_sprite : this.is_sprite
+			is_sprite : this.is_sprite,
 		};
+
+		if( this.rp )
+			out.rp = this.rp.save(full);
 
 		// Assets are only sent if equipped, PC, or full
 		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC()), full);
@@ -772,6 +776,20 @@ export default class Player extends Generic{
 		}
 		asset.equipped = false;
 		this.assets.push(asset.clone(this));
+
+		if( asset.category === Asset.Categories.consumable ){
+			
+			if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 )
+				this.equipAsset(asset.id);
+
+		}
+		else if( this.isNPC() ){
+
+			if( !this.getEquippedAssetsBySlots(asset.slots).length )
+				this.equipAsset(asset.id);
+
+		}
+
 		return true;
 	}
 	addLibraryAsset( label ){

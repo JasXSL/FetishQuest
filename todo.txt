@@ -1,5 +1,7 @@
 Needed scripts:
-	- NPC dialogs
+	- NPC dialog visual
+	- Tie roleplay to NPC
+	- Allow multiple roleplays in a cell
 	- Quest conditions
 
 Needed other:

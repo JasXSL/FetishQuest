@@ -26,6 +26,7 @@ export default class UI{
 		this.gameIcons = $("#gameIcons");
 		this.netgamePlayers = $("#netgamePlayers");
 		this.multiCastPicker = $("#multiCastPicker");
+		this.roleplay = $("#roleplay");
 		
 		// Active player has viable moves
 		this._has_moves = false;
@@ -2711,8 +2712,30 @@ export default class UI{
 
 	/* Roleplay */
 	drawRoleplay(){
+
 		const roleplay = game.roleplay;
-		console.log("Draw RP", roleplay);
+		const div = this.roleplay;
+		const stage = roleplay.getActiveStage();
+		if( !roleplay.finished && stage ){
+			
+			$("div.portrait", div).html(stage.icon ? '<img src="media/characters/'+esc(stage.icon)+'.png"' : '');
+			$('> div.left', div).toggleClass('hidden', !stage.icon);
+			$("div.text", div).html(esc(stage.text));
+			let html = '';
+			for( let response of stage.options ){
+				if( response.validate() )
+					html += '<div class="option bg" data-id="'+esc(response.id)+'">'+esc(response.text)+'</div>';
+			}
+			$("div.responses", div).html(html);
+
+			$("div.responses div.option[data-id]").on('click', event => {
+				const el = $(event.target);
+				game.useRoleplayOption(game.getMyActivePlayer(), el.attr('data-id'));
+			});
+		}
+		
+		div.toggleClass('hidden', roleplay.finished);
+
 		
 	}
 

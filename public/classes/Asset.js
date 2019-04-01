@@ -268,7 +268,7 @@ export default class Asset extends Generic{
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
 		if( dmgTaken ){
 			if( this.durability )
-				html += '<em style="color:#FAA">Low level item, -'+(dmgTaken*100)+'% damage reduction</em><br />';
+				html += '<em style="color:#FAA">Low level item, -'+Math.round(dmgTaken*100)+'% damage reduction</em><br />';
 			else
 				html += '<em style="color:#FAA">Broken!</em><br />';
 		}

@@ -663,7 +663,7 @@ const lib = {
 		ranged: true,
 		description : "Restores 4 HP, plus an additional 4 if your target's max health is less than 50%",
 		ap : 2,
-		mp : 2,
+		mp : 1,
 		type : Action.Types.holy,
 		cooldown : 1,
 		charges: 3,
@@ -1205,7 +1205,7 @@ const lib = {
 	imp_specialDelivery: {
 		name : "Special Delivery",
 		icon : 'blood',
-		description : "Jump on and try to cream on or in your target, doing 4 corruption damage and reduces the target's corruption resistance by 1 for 2 turns.",
+		description : "Jump on and try to cream on or in your target, doing 2 corruption damage and reduces the target's corruption resistance by 1 for 2 turns.",
 		ap : 2,
 		mp : 2,
 		cooldown : 3,
@@ -1223,12 +1223,10 @@ const lib = {
 				add_conditions : stdCond.concat("targetNotBeast"),
 				effects : [
 					{
-						conditions : [
-							"eventIsWrapperAdded"
-						],
-						type : "damage",
+						events : [GameEvent.Types.internalWrapperAdded],
+						type : Effect.Types.damage,
 						data : {
-							"amount": 4
+							amount : 2
 						}
 					},
 					{
