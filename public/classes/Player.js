@@ -336,6 +336,7 @@ export default class Player extends Generic{
 		vars[prefix+'Size'] = this.size;
 		vars[prefix+'MaxHP'] = this.getMaxHP();
 		vars[prefix+'MaxAP'] = this.getMaxAP();
+		vars[prefix+'MaxMP'] = this.getMaxMP();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
 
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);

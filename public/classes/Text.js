@@ -198,7 +198,7 @@ class Text extends Generic{
 			text = text.split('%asset').join(event.asset.name);
 
 		if( event.action )
-			text = text.split('%action').join(event.action.name);
+			text = text.split('%action').join(event.action.getName());
 
 		if( returnResult )
 			return text;

@@ -15,6 +15,7 @@ import Mod from './Mod.js';
 import Player from './Player.js';
 import HitFX from './HitFX.js';
 import Roleplay from './Roleplay.js';
+import GameAction from './GameAction.js';
 
 
 const LIB_TYPES = {
@@ -38,6 +39,7 @@ const LIB_TYPES = {
 	'dungeonTemplates' : DungeonTemplate,
 	'dungeonEncounters' : DungeonEncounter,
 	'roleplay' : Roleplay,
+	'gameActions' : GameAction,
 };
 
 // Maps lib_types to caches used only in outputs
@@ -74,6 +76,7 @@ export default class GameLib{
 		this.players = {};
 		this.hitFX = {};
 		this.roleplay = {};
+		this.gameActions = {};
 
 		this._cache_assets = {};
 		this.texts = [];
@@ -118,11 +121,13 @@ export default class GameLib{
 			'assetTemplates',
 			
 			'roleplay',
+			'gameActions',
 			'dungeonEncounters',
 			'dungeonRoomTemplates',
 			'dungeonTemplates',
 			'dungeons',
 			'quests',
+			
 		];
 
 		for( let mod of mods ){

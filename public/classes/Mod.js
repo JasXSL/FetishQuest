@@ -29,6 +29,7 @@ export default class Mod extends Generic{
 		this.dungeonEncounters = [];
 		this.hitFX = [];
 		this.roleplay = [];
+		this.gameActions = [];
 		this.load(data);
 	}
 
@@ -71,6 +72,7 @@ export default class Mod extends Generic{
 			players : this.players,
 			hitFX : this.hitFX,
 			roleplay : this.roleplay,
+			gameActions : this.gameActions,
 		};
 		console.log("Getting save data", out);
 

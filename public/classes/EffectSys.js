@@ -1269,6 +1269,9 @@ Effect.TypeDescs = {
 
 	[Effect.Types.stun] : 'void',
 	[Effect.Types.taunt] : 'void',
+
+
+	
 	
 };
 

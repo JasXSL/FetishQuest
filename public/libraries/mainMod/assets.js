@@ -302,7 +302,19 @@ const lib = {
 		icon : "spiral-bottle",
 		slots : [Asset.Slots.action],
 		loot_sound : "lootPotion",
-	}
+	},
+
+	food_RazzyBerry : {
+		category : Asset.Categories.food,
+		name : 'Razzyberry',
+		description : 'Restores all mana.',
+		weight : 10,
+		charges : 1,
+		use_action : "foodRazzyberry",		// name not needed for use_action ones. it uses UA instead
+		rarity : 0,
+		//loot_sound : "lootRepairKit",
+		//icon : 'sewing-needle',
+	},
 };
 function getArray(){
 	const out = [];

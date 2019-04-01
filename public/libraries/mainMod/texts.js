@@ -1873,6 +1873,27 @@ const lib = [
 		conditions : anyOnHumCond.concat(["action_elementalist_waterSpout",]),
 		hitfx : ["waterSpout"]
 	},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// FOOD
+	{ text : "%S eats a razzyberry.",
+		conditions : baseCond.concat("action_food_razzyberry"),
+		//hitfx : ["punch"]
+	},
 	
 ];
 

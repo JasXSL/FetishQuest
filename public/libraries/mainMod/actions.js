@@ -1671,8 +1671,8 @@ const lib = {
 		cooldown : 0,
 		detrimental : false,
 		tags : [],
-		"no_use_text": true,
-		"no_action_selector": true,
+		no_use_text: true,
+		no_action_selector: true,
 		conditions : [
 			"targetHasRepairable"
 		],
@@ -1866,6 +1866,41 @@ const lib = {
 						}
 					},
 					
+				]
+			}
+		]
+	},
+
+
+
+	// Food
+	foodRazzyberry : {
+		name : "%P%",		// %P% = parent
+		description : "%P%",
+		icon : '%P%',
+		ap : 0,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
+			"ac_mana_heal",
+			"ac_item",
+			"ac_food",
+		],
+		show_conditions : [
+			"notInCombat"
+		],
+		target_type: "self",
+		wrappers : [
+			{
+				target : "VICTIM",
+				duration : 0,
+				effects : [
+					{
+						type : "addMP",
+						data : {
+							amount: "ta_MaxMP"
+						}
+					},
 				]
 			}
 		]

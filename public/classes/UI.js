@@ -267,7 +267,8 @@ export default class UI{
 				(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')+
 				'" data-id="'+esc(action.id)+'">'
 			;
-				html += '<img src="media/wrapper_icons/'+esc(action.icon)+'.svg" />';
+
+			html += '<img src="media/wrapper_icons/'+esc(action.getIcon())+'.svg" />';
 
 			// This action is tied to an asset
 			if( action.isAssetAction() ){

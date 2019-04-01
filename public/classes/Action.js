@@ -15,8 +15,9 @@ class Action extends Generic{
 		// Parent is a Player OR Asset
 		this.parent = parent;
 		this.label = "";			// Same as name but not changing
-		this.name = "";
-		this.description = "";
+		this.name = "";				// can be %P% to use parent name
+		this.description = "";		// Can be %P% to use parent description
+		this.icon = '';				// Can be %P% to use parent icon
 		this.ranged = false;		// This is a ranged attack
 		this.wrappers = [];			// Effect wrappers needed to cast the spell
 		this.riposte = [];			// Wrappers that are triggered when an ability misses. Riposte is sent from the target to attacker
@@ -44,7 +45,6 @@ class Action extends Generic{
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
 		this.no_interrupt = false;				// Charged action is not interruptable
 		this.hide_if_no_targets = false;		// hide this from the action picker if there's no viable targets
-		this.icon = '';
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge
@@ -540,7 +540,12 @@ class Action extends Generic{
 
 	// Gets tooltip text for the UI
 	getTooltipText( apOverride ){
-		let html = '<h3>'+esc(this.name)+'</h3>';
+
+		const name = this.getName(),
+			desc = this.getDesc()
+		;
+
+		let html = '<h3>'+esc(name)+'</h3>';
 
 		let ap = this.ap;
 		if( !isNaN(apOverride) )
@@ -562,8 +567,23 @@ class Action extends Generic{
 			if( this.detrimental )
 				html += '<span style="color:#FFF">'+(this.hit_chance < 100 ? this.hit_chance+' Base Hit Chance' : 'Always hits')+'</span>';
 		html += '</div>';
-		html += esc(this.description);
+		html += esc(desc);
 		return html;
+	}
+
+	getName(){
+		return this.name.split('%P%').join(this.parent ? this.parent.name : 'Unknown');
+	}
+
+	getDesc(){
+		return this.description.split('%P%').join(this.parent ? this.parent.description : 'Unknown');
+	}
+
+	getIcon(){
+		let out = this.icon;
+		if( out === '%P%' )
+			out = this.parent.icon;
+		return out;
 	}
 
 	isSelfCast(){
