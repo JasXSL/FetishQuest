@@ -5,7 +5,8 @@ import Generic from './helpers/Generic.js';
 import Condition from './Condition.js';
 import Asset from './Asset.js';
 import GameEvent from './GameEvent.js';
-
+import Dungeon, { DungeonEncounter } from './Dungeon.js';
+import Calculator from './Calculator.js';
 
 export default class GameAction extends Generic{
 
@@ -25,21 +26,9 @@ export default class GameAction extends Generic{
 
 	save( full ){
 
-		let data = this.data;
-		if( Array.isArray(data) ){
-			data = data.map(el => {
-				return el && el.save ? el.save(full) : el;
-			});
-		}
-		if( data === null )
-			data = {};
-
-		if( data.save )
-			data = data.save(full);
-
 		const out = {
 			type : this.type,
-			data : JSON.parse(JSON.stringify(data)),
+			data : this.flattenData(full),
 			break : this.break,
 			repeats : this.repeats,
 			conditions : Condition.saveThese(this.conditions, full)
@@ -52,6 +41,38 @@ export default class GameAction extends Generic{
 		}
 
 		return out;
+	}
+
+	flattenData( full ){
+
+		const data = this.data;
+		if( data === null || typeof data !== "object" )
+			return {};
+		if( typeof data.save === "function" )
+			return data.save(full);
+
+		const flatten = function(input){
+			
+			let out = {};
+			if( Array.isArray(input) )
+				out = [];
+
+			for( let i in input ){
+
+				out[i] = input[i];
+				if( input[i] && typeof input[i].save === "function" )
+					out[i] = input[i].save(full);
+				else if( typeof input[i] === "object" )
+					out[i] = flatten(input[i]);
+
+			}
+
+			return out;
+		}
+
+		const out = flatten(data);
+		return out;
+
 	}
 
 
@@ -88,6 +109,7 @@ export default class GameAction extends Generic{
 		if( this.type === GameAction.types.encounters ){
 			if( !Array.isArray(this.data) )
 				console.error("Trying to load non-array to encounter type in interaction:", this);
+
 			this.data = DungeonEncounter.loadThese(this.data);
 		}
 
@@ -97,43 +119,68 @@ export default class GameAction extends Generic{
 	// polymorphs this into loot and saves
 	convertToLoot(){
 
-		if( this.type !== this.constructor.types.autoLoot )
-			return;
+		if( this.type === this.constructor.types.loot && !Array.isArray(this.data) ){
 
-		const value = isNaN(this.data.val) ? 0.5 : +this.data.val;
-		const dungeon = this.getDungeon();
+			let min = isNaN(this.data.min) || this.data.min < 0 ? Infinity : +this.data.min,
+				max = isNaN(this.data.max) || this.data.min < 0 ? Infinity : +this.data.max,
+				loot = this.data.loot
+			;
+			if( this.data.max < this.data.min )
+				this.data.max = this.data.min;
 
-		this.type = this.constructor.types.loot;
-		this.data = [];
-		this.g_resetID();	// needed for netcode to work
-		
-		// weight of 0.5 adds loot
-		if( value >= 0.5 ){
+			if( min > loot.length )
+				min = loot.length;
+			if( max > loot.length )
+				max = loot.length;			
 
-			// Generate a random piece of loot
-			const loot = Asset.generate( 
-				undefined, 	// Slot
-				game.getAveragePlayerLevel(), 
-				undefined, 	// Viable template
-				undefined 	// Viable materials
-			);
-			if( loot )
-				this.data.push(loot);
-				
+			let numItems = Math.floor(Math.random()*(max+1-min))+min;
+			const out = [];
+			for( let i =0; i<numItems && loot.length; ++i ){
+				let n = Math.floor(Math.random()*loot.length);
+				out.push(loot.splice(n, 1).shift());
+			}
+			this.data = out;
+
 		}
+		else if( this.type === this.constructor.types.autoLoot ){
 
-		// 0-2 consumables, or 1-3 if no gear
-		let numBonus = Math.round(Math.pow(Math.random(),3)*2);
-		let numConsumables = numBonus+!(value >= 0.5);
-		for( let i=0; i<numConsumables; ++i ){
-			let consumable = Asset.getRandomByRarity(dungeon.consumables);
-			if( !consumable )
-				break;
-			consumable.g_resetID();
-			this.data.push(consumable.clone(this.parent));
+			const value = isNaN(this.data.val) ? 0.5 : +this.data.val;
+			const dungeon = this.getDungeon();
+
+			this.type = this.constructor.types.loot;
+			this.data = [];
+			this.g_resetID();	// needed for netcode to work
+			
+			// weight of 0.5 adds loot
+			if( value >= 0.5 ){
+
+				// Generate a random piece of loot
+				const loot = Asset.generate( 
+					undefined, 	// Slot
+					game.getAveragePlayerLevel(), 
+					undefined, 	// Viable template
+					undefined 	// Viable materials
+				);
+				if( loot )
+					this.data.push(loot);
+					
+			}
+
+			// 0-2 consumables, or 1-3 if no gear
+			let numBonus = Math.round(Math.pow(Math.random(),3)*2);
+			let numConsumables = numBonus+!(value >= 0.5);
+			for( let i=0; i<numConsumables; ++i ){
+				let consumable = Asset.getRandomByRarity(dungeon.consumables);
+				if( !consumable )
+					break;
+				consumable.g_resetID();
+				this.data.push(consumable.clone(this.parent));
+			}
+
 		}
 
 		game.save();
+		return this;
 
 	}
 
@@ -242,7 +289,7 @@ GameAction.types = {
 	encounters : "enc",				// (arr)encounters - Picks one at random
 	wrappers : "wra",				// (arr)wrappers
 	dungeonVar : "dvar",			// {id:(str)id, val:(var)val} - Can use a math formula
-	loot : "loot",					// {assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1} - Loot will automatically trigger "open" and "open_idle" animations
+	loot : "loot",					// Staging: {assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger "open" and "open_idle" animations. When first opened, it gets converted to an array.
 	autoLoot : "aLoot",				// {val:(float)modifier} - This is replaced with "loot" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.
 	door : "door",					// {index:(int)room_index, no_exit:(bool)no_exit} - Door will automatically trigger "open" animation when successfully used. no_exit will prevent the exit door icon from being added
 	exit : "exit",					// {dungeon:(str)dungeon_label, index:(int)landing_room=0}

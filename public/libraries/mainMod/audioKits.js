@@ -707,7 +707,29 @@ const lib = {
         ],
         
     },
-    
+
+    berryGrab : {
+        sounds : [
+            {
+                s : {
+                    path : "media/audio/berry_grab.ogg",
+                    volume : 0.4
+                }
+            }
+        ],
+        
+    },
+    berryHeal : {
+        sounds : [
+            {
+                s : {
+                    path : "media/audio/manaberry.ogg",
+                    volume : 0.4
+                }
+            }
+        ],
+        
+    },
     
 };
 

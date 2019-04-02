@@ -1,7 +1,4 @@
 Next:
-	Razzyberry eat visual/sound
-	Razzyberry pickup sound
-	Razzyberry icon
 	Implement the new loot thing
 
 Needed scripts:

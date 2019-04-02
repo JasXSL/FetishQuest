@@ -312,8 +312,8 @@ const lib = {
 		charges : 1,
 		use_action : "foodRazzyberry",		// name not needed for use_action ones. it uses UA instead
 		rarity : 0,
-		//loot_sound : "lootRepairKit",
-		//icon : 'sewing-needle',
+		loot_sound : "berryGrab",
+		icon : 'grapes',
 	},
 };
 function getArray(){

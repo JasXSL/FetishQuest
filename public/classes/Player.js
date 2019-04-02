@@ -666,6 +666,11 @@ export default class Player extends Generic{
 		this._turn_tags = [];
 		this.ap = 0;
 		this._threat = {};
+		if( this._stun_diminishing_returns > 0 )
+			--this._stun_diminishing_returns;
+		this._damaging_since_last = {};
+		this._damage_since_last = {};
+
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleStart();
@@ -1016,12 +1021,12 @@ export default class Player extends Generic{
 
 	/* Leveling & Experience */
 	getExperienceUntilNextLevel(){
-		return Math.round(5+this.level+Math.pow(this.level,2.5));
+		return Math.round(10+this.level*2+Math.pow(this.level,2.5));
 	}
 
-	// NPC kills award difficulty * level / 2
+	// NPC kills
 	getExperienceWorth(){
-		return this._difficulty*this.level/2;
+		return this._difficulty*this.level/4;
 	}
 
 	// adds experience and returns levels gained

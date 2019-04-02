@@ -584,14 +584,14 @@ const lib = [
 		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","roomTable","targetVagina"),
 		hitfx : ["slowThrusts"]
 	},
-	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Trsize %Tbutt...",
+	{ text : "%Rtt_bent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Trsize %Tbutt...",
 		turnTags:[stdTag.ttBentOver, stdTag.ttBentOverTable],
 		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","ttBentOver"),
 		hitfx : ["slowThrusts"],
 		weight : Text.Weights.high,
 
 	},
-	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Tvagina...",
+	{ text : "%Rtt_bent_over pins %T's arms behind %This back, allowing %S to take over. Forcing %Shis %Spsize %Spenis inside, %S starts %thrusting into %T's %Tvagina...",
 		turnTags:[stdTag.ttBentOver, stdTag.ttBentOverTable],
 		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","ttBentOver","targetVagina"),
 		weight : Text.Weights.high,
@@ -632,13 +632,13 @@ const lib = [
 		hitfx : ["doubleSlap"],
 		weight : Text.Weights.high
 	},
-	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S continues the punishment, vigorously spanking the %Trace's already punished %Tbutt...",
+	{ text : "%Rtt_bent_over pins %T's arms behind %This back, allowing %S a turn. %S continues the punishment, vigorously spanking the %Trace's already punished %Tbutt...",
 		turnTags:[stdTag.ttBentOver, stdTag.ttSpanked],
 		conditions : humOnHumCond.concat("action_stdPunishSad","ttBentOver","ttSpanked"),
 		weight : Text.Weights.high,
 		hitfx : ["doubleSlap"]
 	},
-	{ text : "%Rbent_over pins %T's arms behind %This back, allowing %S a turn. %S raises %Shis palm and starts vigorously spanking the %Trace's %Trsize exposed %Tbutt...",
+	{ text : "%Rtt_bent_over pins %T's arms behind %This back, allowing %S a turn. %S raises %Shis palm and starts vigorously spanking the %Trace's %Trsize exposed %Tbutt...",
 		turnTags:[stdTag.ttBentOver, stdTag.ttSpanked],
 		conditions : humOnHumCond.concat("action_stdPunishSad","ttBentOver","ttNotSpanked"),
 		weight : Text.Weights.high,
@@ -1076,12 +1076,12 @@ const lib = [
 		turnTags : [stdTag.ttBreastsExposed],
 		hitfx : ["stretch"]
 	},
-	{ text : "%S grabs around the front strings of %T's %TclothLower near %This %Tgroin, giving it a hard yank down, exposing the %Trace's %Tbsize %Tgroin!",
+	{ text : "%S grabs around the front strings of %T's %TclothLower near %This %Tgroin, giving it a hard yank down, exposing the %Trace's %Tgroin!",
 		conditions : anyOnHumCond.concat("action_imp_claws", "targetWearsSlingBikini"),
 		turnTags : [stdTag.ttGroinExposed],
 		hitfx : ["stretch"]
 	},
-	{ text : "%S grabs at the front of %T's %TclothLower and gives it a hard yank down, exposing the %Trace's %Tbsize %Tgroin!",
+	{ text : "%S grabs at the front of %T's %TclothLower and gives it a hard yank down, exposing the %Trace's %Tgroin!",
 		conditions : anyOnHumCond.concat("action_imp_claws", "targetLowerbodyWaistband"),
 		turnTags : [stdTag.ttGroinExposed],
 		hitfx : ["stretch"]
@@ -1892,7 +1892,7 @@ const lib = [
 	// FOOD
 	{ text : "%S eats a razzyberry.",
 		conditions : baseCond.concat("action_food_razzyberry"),
-		//hitfx : ["punch"]
+		hitfx : ["razzyberry"]
 	},
 	
 ];

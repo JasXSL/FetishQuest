@@ -1044,6 +1044,35 @@ out[id].stages.push(
 
 
 
+// Razzyberry
+id = 'razzyberry';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks_blue',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['berryHeal'],
+	}, out[id]),
+	
+	new Stage({
+		particles : 'hitfx_splat_blue',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+);
+
+
+
 
 // 
 id = 'bolster';

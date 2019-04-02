@@ -13,6 +13,7 @@ import {getArray as getHitFX} from './mainMod/hitfx.js';
 import {getArray as getAssets} from './mainMod/assets.js';
 import {getArray as getAssetTemplates} from './mainMod/assetTemplates.js';
 import {getArray as getWrappers} from './mainMod/wrappers.js';
+import {getArray as getGameActions} from './mainMod/gameActions.js';
 
 import dungeons from './mainMod/dungeons.js';
 
@@ -34,6 +35,7 @@ const mod = new Mod(
 		conditions:getConds(),
 		playerTemplates:getPlayerTemplates(),
 		assetTemplates:getAssetTemplates(),
+		gameActions : getGameActions(),
 		materialTemplates:[
 			{
 				"label":"cotton",
