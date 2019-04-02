@@ -363,7 +363,7 @@ Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 };
 
 // Generates a custom item based on a slot
-Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity ){
+Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity, minRarity = 0 ){
 
 	if( isNaN(level) ){
 		console.error("Invalid level in randomizer "+String(level));
@@ -375,7 +375,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		slot = Asset.Slots[slot];
 
 	if( isNaN(rarity) )
-		rarity = Asset.rollRarity();
+		rarity = Asset.rollRarity(minRarity);
 
 	// Pick a random template
 	let template = AssetTemplate.generateOutput( slot, level, viable_asset_templates, viable_asset_materials );

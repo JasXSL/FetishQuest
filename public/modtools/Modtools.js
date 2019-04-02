@@ -254,7 +254,8 @@ export default class Modtools{
 			playerTemplates = '',
 			encounters = '',
 			players = '',
-			roleplay = ''
+			roleplay = '',
+			gameActions = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -317,6 +318,9 @@ export default class Modtools{
 		const roleplayLib = glib.getFull('Roleplay');
 		for( let i in roleplayLib )
 			roleplay += '<option value="'+esc(i)+'"/>';
+		const gaLib = glib.getFull('GameAction');
+		for( let i in gaLib )
+			gameActions += '<option value="'+esc(i)+'"/>';
 
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
@@ -334,7 +338,8 @@ export default class Modtools{
 			'<datalist id="playerTemplates"><select>'+playerTemplates+'</select></datalist>'+
 			'<datalist id="encounters"><select>'+encounters+'</select></datalist>'+
 			'<datalist id="players"><select>'+players+'</select></datalist>'+
-			'<datalist id="roleplays"><select>'+roleplay+'</select></datalist>'
+			'<datalist id="roleplays"><select>'+roleplay+'</select></datalist>'+
+			'<datalist id="gameActions"><select>'+gameActions+'</select></datalist>'
 		);
 
 	}
@@ -2028,8 +2033,6 @@ export default class Modtools{
 		// Helper functions
 		function setDungeonRoomByIndex(index, z = 0){
 
-			
-
 			// Get map scale
 			let xyScale = 2;
 			let zHeight = 0, zDepth = 0;
@@ -2460,7 +2463,7 @@ export default class Modtools{
 			html += 'Y <input type="number" step=0.01 name="scaleY" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleY)+'" /> ';
 			html += 'Z <input type="number" step=0.01 name="scaleZ" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleZ)+'" /> <br />';
 	
-			html += '<div class="assetDataEditor"><input type="button" value="Add Interaction" class="addInteraction" /><div class="assetData"></div></div>';
+			html += '<div class="assetDataEditor"><input type="button" value="+Custom Interaction" class="addInteraction" /><input type="button" value="+Lib Interaction" class="addInteractionLib" /><div class="assetData"></div></div>';
 
 			
 			if( stageMesh.geometry.animations && stageMesh.geometry.animations.length ){
@@ -2581,8 +2584,12 @@ export default class Modtools{
 
 			const addInteraction = function(interaction){
 
-				let html = '<div class="interaction condWrapper" style="display:block" data-id="'+esc(interaction.id)+'">';
-				html += th.formGameAction(interaction);
+				let html = '<div class="interaction condWrapper" style="display:block" data-id="'+esc(typeof interaction === 'string' ? '_lib_' : interaction.id)+'">';
+				if( typeof interaction === "object" )
+					html += th.formGameAction(interaction);
+				else{
+					html += '<input type="text" class="'+(typeof interaction === 'object' ? 'hidden' : '')+'" list="gameActions" placeholder="id" value="'+esc(typeof interaction === 'string' ? esc(interaction) : '')+'" name="interaction_id" />';
+				}
 				html += '</div>';
 				return html;
 
@@ -2591,12 +2598,20 @@ export default class Modtools{
 			const bindInteractions = function(){
 
 				const base = $("#modal div.assetEditor div.assetDataEditor div.assetData div.interaction div.gameActionForm"),
-					div = $(this).closest("div.interaction"),
+					div = base.closest('div.interaction'),
 					id = div.attr("data-id"),
 					interaction = asset.getInteractionById(id)
 				;
 
 				th.formGameActionBind(base, interaction);
+
+				$('#modal div.assetEditor div.assetDataEditor div.assetData div.interaction[data-id="_lib_"] input[name=interaction_id]').on('change', event => {
+					
+					let index = $(event.target).parent().index();
+					asset.interactions[index] = $(event.target).val();
+
+				});
+
 				base.parent().on('click', function(event){
 			
 					if( event.ctrlKey ){
@@ -2612,6 +2627,7 @@ export default class Modtools{
 
 
 			}
+
 			let html = '';
 			for( let action of asset.interactions )
 				html += addInteraction(action);
@@ -2621,6 +2637,12 @@ export default class Modtools{
 			bindInteractions();
 			$("div.assetDataEditor input.addInteraction", div).off('click').on('click', function(){
 				const interaction = new GameAction({}, asset);
+				asset.interactions.push(interaction);
+				$("div.assetDataEditor div.assetData", div).append(addInteraction(interaction));
+				bindInteractions();
+			});
+			$("div.assetDataEditor input.addInteractionLib", div).off('click').on('click', function(){
+				const interaction = '';
 				asset.interactions.push(interaction);
 				$("div.assetDataEditor div.assetData", div).append(addInteraction(interaction));
 				bindInteractions();
@@ -3046,10 +3068,10 @@ export default class Modtools{
 					interaction.data = {min:-1,max:-1,loot:[]};
 				if( itype === types.lever )
 					interaction.data = {id:""};
-				
 
-				base.replaceWith(th.formGameAction(interaction));
-				th.formGameActionBind(base, interaction);
+				const div = $(th.formGameAction(interaction));
+				base.replaceWith(div);
+				th.formGameActionBind(div, interaction);
 
 			}
 

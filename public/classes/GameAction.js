@@ -145,6 +145,7 @@ export default class GameAction extends Generic{
 		else if( this.type === this.constructor.types.autoLoot ){
 
 			const value = isNaN(this.data.val) ? 0.5 : +this.data.val;
+
 			const dungeon = this.getDungeon();
 
 			this.type = this.constructor.types.loot;
@@ -154,12 +155,15 @@ export default class GameAction extends Generic{
 			// weight of 0.5 adds loot
 			if( value >= 0.5 ){
 
+
 				// Generate a random piece of loot
 				const loot = Asset.generate( 
 					undefined, 	// Slot
 					game.getAveragePlayerLevel(), 
 					undefined, 	// Viable template
-					undefined 	// Viable materials
+					undefined, 	// Viable materials
+					undefined, // enforced rarity
+					(value-0.5)*8, // Min rarity
 				);
 				if( loot )
 					this.data.push(loot);

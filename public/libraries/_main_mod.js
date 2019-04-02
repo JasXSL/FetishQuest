@@ -14,6 +14,8 @@ import {getArray as getAssets} from './mainMod/assets.js';
 import {getArray as getAssetTemplates} from './mainMod/assetTemplates.js';
 import {getArray as getWrappers} from './mainMod/wrappers.js';
 import {getArray as getGameActions} from './mainMod/gameActions.js';
+import {getArray as getPlayers} from './mainMod/players.js';
+import {getArray as getRoleplays} from './mainMod/roleplays.js';
 
 import dungeons from './mainMod/dungeons.js';
 
@@ -344,6 +346,9 @@ const mod = new Mod(
 		wrappers:getWrappers(),
 		dungeonEncounters : getEncounters(),
 		hitFX : getHitFX(),
+		players : getPlayers(),
+		roleplay : getRoleplays(),
+		
 	}
 );
 

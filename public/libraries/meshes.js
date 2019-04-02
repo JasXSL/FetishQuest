@@ -7,6 +7,7 @@
 	- particles - Array of libParticles particle systems 
 	- soundLoops - Array of {url:(str)url, volume:(float)volume=0.5}
 	- _stage - Added automatically when placed into a WebGL stage
+	- onInteractivityChange() - Raised when interactivity changes
 	DOOR ONLY
 	- LOCK - three.mesh child object which serves as the lock. 
 		Automatically set when adding a child object with the name "LOCK".
@@ -83,6 +84,7 @@ class LibMesh{
 		this.onInteract = data.onInteract || undefined;					// Raised when clicked, This is the LibMesh object
 		this.onStagePlaced = data.onStagePlaced || function(dungeonAsset, mesh){};		// Raised when placed into world. Can happen multiple times.
 		this.afterStagePlaced = data.afterStagePlaced || function(dungeonAsset, mesh){};
+		this.onInteractivityChange = data.onInteractivityChange || function(dungeonAsset, interactive){};
 
 	}
 
@@ -890,7 +892,7 @@ LibMesh.library = {
 				}
 			}),
 		}
-	},	
+	},
 	Generic : {
 		Containers : {
 			Barrel : new LibMesh({
@@ -2356,6 +2358,16 @@ LibMesh.library = {
 					libMat.Nature.RazzyBerryStem,
 					libMat.Nature.RazzyBerryBerries
 				],
+				onInteract : function( mesh, room, asset ){
+					// Opening and closing a chest is local
+					// Todo: harvest sound
+					//let stage = mesh.userData._stage;
+					//stage.playSound(mesh, 'media/audio/chest_open.ogg', 0.5);
+				},
+				onInteractivityChange : function(dungeonAsset, interactive){
+					const mesh = dungeonAsset._stage_mesh;
+					mesh.material[2].visible = interactive;
+				},
 			}),
 		}
 	}

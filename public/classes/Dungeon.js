@@ -145,6 +145,12 @@ class Dungeon extends Generic{
 	}
 
 
+	// Events
+	onEntered(){
+		this.getActiveRoom().onVisit();
+	}
+
+
 	/* ROOM */
 	getActiveRoom(){
 		if( this.rooms[this.active_room] )
@@ -967,6 +973,8 @@ class DungeonRoomAsset extends Generic{
 		this.room = false;				// This is the room asset
 		this.interactions = [];			
 
+		this._interactive = null;		// Cache of if this object is interactive
+
 		this.load(data);
 
 	}
@@ -1042,6 +1050,7 @@ class DungeonRoomAsset extends Generic{
 
 		if( window.game && !game.is_host )
 			this.updateInteractivity();
+
 	}
 
 
@@ -1255,22 +1264,31 @@ class DungeonRoomAsset extends Generic{
 	// Checks if this object is no longer interactive, in which case it sets animation idle_opened and removes click handlers
 	updateInteractivity(){
 
-		if( this.isInteractive() )
-			return;
-
 		if( !this._stage_mesh )
 			return;
-		
-		
+
+		const pre = this._interactive;
+		this._interactive = this.isInteractive();
+		if( this._interactive !== pre && this._stage_mesh && this._stage_mesh.userData.template )
+			this._stage_mesh.userData.template.onInteractivityChange(this, this._interactive);
+
+		if( this._interactive )
+			return;
+
 		if( this._stage_mesh.userData.playAnimation )
 			this._stage_mesh.userData.playAnimation('idle_opened');
 		
 		// Make sure mouseout is triggered
 		if( this._stage_mesh.userData.mouseout )
 			this._stage_mesh.userData.mouseout();
+
+		
+
 		this._stage_mesh.userData.click = undefined;
 		this._stage_mesh.userData.mouseover = undefined;
 		this._stage_mesh.userData.mouseout = undefined;
+
+
 	}
 
 	// Sets internal interaction cooldown (prevent spam clicking). If ms is undefined, use the built in interact_cooldown value

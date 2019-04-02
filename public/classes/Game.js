@@ -555,7 +555,7 @@ export default class Game extends Generic{
 
 
 	/* DUNGEON */
-	setDungeon( dungeon, saveState = true ){
+	setDungeon( dungeon, saveState = true, resetSaveState = false ){
 
 		if( dungeon === this.dungeon )
 			return;
@@ -568,9 +568,13 @@ export default class Game extends Generic{
 				this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
 		}
 		this.dungeon = dungeon;
-		this.dungeon.loadState(this.state_dungeons[this.dungeon.label]);
+		if( resetSaveState )
+			delete this.state_dungeons[this.dungeon.label];
+		else
+			this.dungeon.loadState(this.state_dungeons[this.dungeon.label]);
 		this.updateAmbiance();
 		this.onDungeonEntered();
+		this.dungeon.onEntered();
 		this.net.purgeFromLastPush(["dungeon"],["encounter"]);
 		this.save();
 		this.renderer.loadActiveDungeon();

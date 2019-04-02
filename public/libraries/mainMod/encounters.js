@@ -24,7 +24,11 @@ const lib = {
 		startText : '',
 		conditions : [],
 	},
-	
+	yuug_port_tavern_npcs : {
+		players: ["yuug_port_barkeep"],
+		friendly : true,
+		rp : ["first_quest_pickup"]
+	}
 };
 
 
