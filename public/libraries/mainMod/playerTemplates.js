@@ -1,6 +1,7 @@
 import stdTag from "../stdTag.js";
 import Player from "../../classes/Player.js";
 import Action from "../../classes/Action.js";
+import Asset from "../../classes/Asset.js";
 
 const lib = {
 	lesser_tentacle_fiend : {
@@ -300,7 +301,7 @@ const lib = {
 			"leather",
 			"rawhide"
 		],
-		viable_asset_templates : [
+		viable_asset_templates : [ 
 			"thong",
 			"shirt",
 			"half_robe",
@@ -453,6 +454,46 @@ const lib = {
 		required_assets : [
 
 		]
+	},
+
+	cocktopus : {
+		name : "Cocktopus",
+		icon : "/media/characters/cocktopus.jpg",
+		species : "Cocktopus",
+		description : "Though technically a squid, the cocktopus is a rubbery ocean dweller. Nobody is certain why it seems interested in arousing beings, as it primarily feeds on fish. But adventurers best beware of the large phallus on its head and two ribbed bullet shaped tentacles.",
+		classes : [
+			"cocktopus"
+		],
+		max_actions : 2,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plTentacles,
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : 1,
+			[Player.primaryStats.stamina] : -2
+		},
+		sv : {
+			[Action.Types.corruption] : 2,
+			[Action.Types.elemental] : 2,
+			[Action.Types.holy] : 0,
+			[Action.Types.physical] : -2,
+		},
+		bon : {
+			[Action.Types.corruption] : 2,
+			[Action.Types.elemental] : 1,
+			[Action.Types.holy] : -3,
+			[Action.Types.physical] : -1,
+		},
+		gear_chance : 0,
+		min_size : 1,
+		max_size : 2,
+		difficulty : 1,
+		viable_consumables : [],
+		intelligence_min : 0.1,
+		intelligence_max : 0.15,
 	}
 };
 

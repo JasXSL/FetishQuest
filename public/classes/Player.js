@@ -35,6 +35,7 @@ export default class Player extends Generic{
 		this.actions = [];			// Action objects, use getActions since assets can also add actions
 		this.assets = [];			// Asset objects, use getAssets
 		this.inventory = [];		// NPC only. This is an array of numbers specifying which items above are equipped when entering the game.
+		this.tmp_actions = [];		// Actions applied this battle
 
 		this.tags = [];				// Player tags, these are automatically prefixed with PL_, use getTags
 		this.wrappers = [];			// Wrappers, use getWrappers
@@ -111,17 +112,16 @@ export default class Player extends Generic{
 	load(data){
 
 		this.g_autoload(data);
-		this.addDefaultActions();
+		
 		let w = this.getWrappers();
 		w.map(wrapper => {
 			wrapper.bindEvents();
 		});
 
+		if( !Array.isArray(window.game) )
+			return;
 
-		// Apply constraints
-		this.addHP(0);
-		this.addMP(0);
-		this.addAP(0);
+		this.initialize();
 		
 	}
 
@@ -131,22 +131,25 @@ export default class Player extends Generic{
 		this.actions = Action.loadThese(this.actions, this);
 		this.assets = Asset.loadThese(this.assets, this);
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
+		this.tmp_actions = Action.loadThese(this.tmp_actions, this);
 
 		if( window.game )
 			this.class = PlayerClass.loadThis(this.class, this);
 		
 		if( this.class === null )
 			this.class = new PlayerClass();
-		
-		if( window.game && game.is_host )
-			this.updateAutoWrappers();
-		else
+
+		if( !game.is_host )
 			this.auto_wrappers = Wrapper.loadThese(this.auto_wrappers, this);
+
 	}
 
 	// Data that should be saved to drive
 	save( full ){
-		this.updateAutoWrappers();
+
+		if( window.game && game.is_host )
+			this.updateAutoWrappers();
+
 		const out = {
 			name : this.name,
 			icon : this.icon,
@@ -177,6 +180,7 @@ export default class Player extends Generic{
 			powered : this.powered,
 			leader : this.leader,
 			is_sprite : this.is_sprite,
+			tmp_actions : Action.saveThese(this.tmp_actions)
 		};
 
 		if( this.rp )
@@ -223,7 +227,15 @@ export default class Player extends Generic{
 		return out;
 	}
 
-
+	// Code that's run after the game has finished loading
+	initialize(){
+		// Apply constraints
+		this.addHP(0);
+		this.addMP(0);
+		this.addAP(0);
+		this.updateAutoWrappers();
+		this.addDefaultActions();
+	}
 
 
 
@@ -435,6 +447,8 @@ export default class Player extends Generic{
 		let out = [];
 		for( let effect of tauntEffects ){
 			let sender = effect.parent.getCaster();
+			if( effect.data && effect.data.victim )
+				sender = effect.parent.parent;
 			if( sender && out.indexOf(sender) === -1 )
 				out.push(sender);
 		}
@@ -506,10 +520,16 @@ export default class Player extends Generic{
 				tag = 'pl_'+tag;
 			out[tag.toLowerCase()] = true;
 		}
+
+
 		let assets = this.getAssetsEquipped();
 		for( let asset of assets )
 			asset.getTags().map(t => out[t.toLowerCase()] = true);
 		let fx = this.getWrappers();
+		for( let f of fx )
+			f.getTags().map(t => out[t.toLowerCase()] = true);
+
+		fx = this.getEffects();
 		for( let f of fx )
 			f.getTags().map(t => out[t.toLowerCase()] = true);
 
@@ -618,6 +638,7 @@ export default class Player extends Generic{
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
 		++this._turns;
+
 	}
 	onTurnStart(){
 
@@ -635,7 +656,8 @@ export default class Player extends Generic{
 		for(let wrapper of wrappers)
 			wrapper.onTurnStart();
 
-		for(let action of this.actions)
+		const actions = this.getActions();
+		for(let action of actions)
 			action.onTurnStart();
 		
 		if( this.arousal > 0 && this._turns%2 ){
@@ -666,8 +688,7 @@ export default class Player extends Generic{
 		this._turn_tags = [];
 		this.ap = 0;
 		this._threat = {};
-		if( this._stun_diminishing_returns > 0 )
-			--this._stun_diminishing_returns;
+		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
 
@@ -1395,6 +1416,7 @@ export default class Player extends Generic{
 	getActions( include_items = true ){
 		
 		let out = this.actions.slice();
+		out = out.concat(this.getTempActions());
 		if( include_items ){
 
 			for( let asset of this.assets ){
@@ -1404,8 +1426,40 @@ export default class Player extends Generic{
 			}
 
 		}
-
+		
 		return out;
+
+	}
+
+	getTempActions(){
+		
+		const ids = {};
+		const scanned = {};
+		for( let a of this.tmp_actions )
+			ids[a.label] = true;
+
+		const effects = this.getActiveEffectsByType(Effect.Types.addActions);
+		for( let effect of effects ){
+			const actions = Action.loadThese(effect.data.actions, this);
+			for( let action of actions ){
+				scanned[action.label] = true;
+				if( !ids[action.label] ){
+					ids[action.label] = true;
+					action.g_resetID();
+					this.tmp_actions.push(action);
+				}
+			}
+		}
+		// Remove missing ones
+		for( let i =0; i<this.tmp_actions.length && this.tmp_actions.length; ++i ){
+			const action = this.tmp_actions[i];
+			if( !scanned[action.label] ){
+				this.tmp_actions.splice(i, 1);
+				--i;
+			}
+		}
+
+		return this.tmp_actions;
 
 	}
 
@@ -1453,7 +1507,9 @@ export default class Player extends Generic{
 
 	}
 	
+	// Checks encumberance
 	updateAutoWrappers(){
+
 		this.auto_wrappers = [];
 		if( this.isEncumbered() )
 			this.auto_wrappers.push(new Wrapper({
@@ -1472,6 +1528,7 @@ export default class Player extends Generic{
 					})
 				]
 			}, this));
+
 	}
 
 	// Activates cooldowns by labels
@@ -1540,16 +1597,9 @@ export default class Player extends Generic{
 
 	getActiveEffectsByType( type ){
 		
-		let out = [];
-		let wrappers = this.getWrappers();
-		for(let w of wrappers){
-			for( let fx of w.effects ){
-				if( fx.type === type && (!this._ignore_effects || this._ignore_effects.indexOf(fx) === -1) )
-					out.push(fx);
-			}
-		}
-
-		return out;
+		return this.getEffects().filter(fx => {
+			return (fx.type === type && (!this._ignore_effects || this._ignore_effects.indexOf(fx) === -1));
+		});
 
 	}
 
@@ -1566,8 +1616,8 @@ export default class Player extends Generic{
 	addWrapper( wrapper ){
 
 		this.wrappers.push(wrapper);
-		let isStun = wrapper.getEffects({ type:Effect.Types.stun }).length;
-		if( isStun && wrapper.duration > 0 )
+		let isStun = wrapper.getEffects({ type:Effect.Types.stun });
+		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) )
 			this._stun_diminishing_returns += wrapper._duration*3;
 		
 		if( isStun )
@@ -1581,7 +1631,20 @@ export default class Player extends Generic{
 		});
 	}
 	
+	// Effects
+	// Gets all effects (effects on other players may affect you if the target is you or AoE)
+	getEffects(){
 
+		let out = [];
+		for( let player of game.players ){
+			const wrappers = player.getWrappers();
+			for( let wrapper of wrappers ){
+				out = out.concat(wrapper.getEffectsForPlayer(this));
+			}
+		}
+		return out;
+
+	}	
 
 	
 

@@ -44,6 +44,7 @@ export default class GameEvent extends Generic{
 		return new this.constructor(this);
 	}
 
+	// Chainable
 	raise(){
 
 		// Run the event
@@ -53,6 +54,8 @@ export default class GameEvent extends Generic{
 				binding.fn(this);
 
 		}
+		return this;
+
 	}
 
 }
@@ -101,6 +104,7 @@ GameEvent.Types = {
 	wrapperAdded : 'wrapperAdded',		
 	wrapperRemoved : 'wrapperRemoved',	
 	wrapperTick : 'wrapperTick',		
+	wrapperExpired : 'wrapperExpired',		
 	turnChanged : 'turnChanged',		
 	playerDefeated : 'playerDefeated',	
 	diminishingResist : 'diminishingResist',
@@ -109,7 +113,8 @@ GameEvent.Types = {
 
 	// These are only raised internally within a wrapper/effect
 	internalWrapperAdded : 'internalWrapperAdded',
-	internalWrapperRemoved : 'internalWrapperRemoved',
+	internalWrapperRemoved : 'internalWrapperRemoved',		// Always raised regardless of how the effect is removed
+	internalWrapperExpired : 'internalWrapperExpired',		// The effect expired naturally
 	internalWrapperTick : 'internalWrapperTick',	
 	internalWrapperStackChange : 'internalWrapperStackChange',
 	

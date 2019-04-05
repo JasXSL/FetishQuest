@@ -105,12 +105,22 @@ export default {
 	wrKnockdownFront : 'wr_knocked_down_front',
 	wrGrapple : 'wr_grapple',
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
+	
+	
+	// Used for long term wrappers 
 	wrTentacleRide : 'wr_tentacle_ride',
+	wrBlockGroin : 'wr_block_groin',			// Used to signify that something is blocking this part of the body. Usually a monster doing something to it.
+	wrBlockButt : 'wr_block_butt',
+	wrBlockMouth : 'wr_block_mouth',
 	
 	// Custom wrapper tags that can be added to wrappers
 	wrSoaked : 'wr_soaked',				// Player is soaked
 	wrLegsSpread : 'wr_legs_spread',
 	
+
+	// Effects
+	fxLatching : 'fx_latching',			// Put on a player latched onto another
+	fxLatched : 'fx_latched',			// Put on a player that another is latching onto
 
 	// Turn tags
 	ttButtExposed : 'tt_butt_exposed',

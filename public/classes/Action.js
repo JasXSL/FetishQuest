@@ -275,7 +275,7 @@ class Action extends Generic{
 	}
 
 	// Returns an array of Player objects
-	getViableTargets( isChargeFinish = false ){
+	getViableTargets( isChargeFinish = false, debug = false ){
 		
 		let parent = this.getPlayerParent();
 		let pl = game.players;
@@ -288,7 +288,7 @@ class Action extends Generic{
 
 		for( let p of pl ){
 
-			if( (p !== parent || !this.detrimental) && this.getViableWrappersAgainst(p, isChargeFinish).length )
+			if( (p !== parent || !this.detrimental) && this.getViableWrappersAgainst(p, isChargeFinish, debug).length )
 				targets.push(p);
 			
 		}
@@ -297,7 +297,7 @@ class Action extends Generic{
 	}
 
 	// Gets an array of wrappers that have their conditions met against Player player
-	getViableWrappersAgainst( player, isChargeFinish = false ){
+	getViableWrappersAgainst( player, isChargeFinish = false, debug = false ){
 
 
 		let evt = new GameEvent({
@@ -310,16 +310,17 @@ class Action extends Generic{
 			}
 		});
 
-		
-
+		const conds = this.getConditions();
+		const check = Condition.all(conds, evt, debug);
 		// Global conditions
-		if( !Condition.all(this.getConditions(), evt) )
+		if( !check )
 			return [];
+		
 
 		let viable = [];
 		for( let w of this.wrappers ){
 
-			let test = w.testAgainst(evt, false);
+			let test = w.testAgainst(evt, false, debug);
 			if( test )
 				viable.push(w);
 
@@ -329,7 +330,7 @@ class Action extends Generic{
 	}
 
 	// Checks if all conditions are met to cast this at anyone. If log is true, it'll output an error message on fail, explaining why it failed
-	castable( log, isChargeFinish = false ){
+	castable( log, isChargeFinish = false, debug = false ){
 
 		let err = msg => {
 			if( log )
@@ -345,7 +346,7 @@ class Action extends Generic{
 		if( this.mp > this.getPlayerParent().mp )
 			return err("Not enough MP for action");
 
-		if( this.getViableTargets(isChargeFinish).length < this.min_targets )
+		if( this.getViableTargets(isChargeFinish, debug).length < this.min_targets )
 			return err("No viable targets");
 
 		// Charges are not checked when a charged action finishes
@@ -355,6 +356,8 @@ class Action extends Generic{
 		if( this.getPlayerParent().isCasting() && !this.allow_when_charging )
 			return err("You are charging an action");
 
+		if( game.getTurnPlayer().id !== this.getPlayerParent().id )
+			return err("Not your turn");
 
 		// Stuff that should not affect hidden actions
 		if( !this.hidden ){

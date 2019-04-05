@@ -51,6 +51,20 @@ const lib = {
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 
+	targetLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}},
+	senderLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}, caster:true},
+	senderLatchingToTarget : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatched], sender:true}},
+	targetHasUnblockedOrifice : {conditions:[
+		{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockButt]}, inverse:true},
+		{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockMouth]}, inverse:true},
+		{conditions:[
+			{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockGroin]}, inverse:true},
+			{type:Condition.Types.tag, data:{tags:[stdTag.vagina]}},
+		], min:-1},
+	], min:1},
+
+	targetIsSender : {type:Condition.Types.targetIsSender},
+	targetNotSender : {type:Condition.Types.targetIsSender, inverse:true},
 
 	targetSameTeam : {"type":"sameTeam"},
 	targetOtherTeam : {"type":"sameTeam","inverse":true},

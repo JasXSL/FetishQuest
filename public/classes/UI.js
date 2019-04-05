@@ -141,9 +141,9 @@ export default class UI{
 
 				if( th.action_selected.max_targets < 2 || !selectedPlayers.length )
 					th.closeTargetSelector();
-				else
+				else{
 					game.renderer.toggleArrow();
-
+				}
 				if( event.cancelable )
 					event.preventDefault();
 			}
@@ -315,6 +315,7 @@ export default class UI{
 			let spell = player.getActionById(id);
 			const enabled = $(this).is('.enabled');
 
+
 			const targetable = spell && spell.targetable();
 
 			if( event.type === 'touchstart' || event.type === 'touchmove' ){
@@ -355,13 +356,12 @@ export default class UI{
 
 			}
 
-			if( th.action_selected && th.action_selected === spell && (event.type === 'mousedown' || event.type === 'touchstart') )
+			if( th.action_selected && th.action_selected.id === spell.id && (event.type === 'mousedown' || event.type === 'touchstart') )
 				return;
 
-			if( th.action_selected && th.action_selected !== spell && (event.type === 'mouseover' || event.type === 'mouseout') )
+			if( th.action_selected && th.action_selected.id !== spell.id && (event.type === 'mouseover' || event.type === 'mouseout') )
 				return;
 
-			
 			
 
 			// End turn override
@@ -693,10 +693,13 @@ export default class UI{
 				o+= '<div class="tooltip">'+
 					'<strong>'+esc(wrapper.name)+'</strong><br />'+
 					'<em>'+
-						(+wrapper._duration)+' Turn'+(wrapper._duration>1 ? 's' : '')+
+						(+wrapper.duration === -1 ? 
+							'Permanent' :
+							(+wrapper._duration)+' Turn'+(wrapper._duration>1 ? 's' : '')
+						)+
 						(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' )+
 					'</em><br />'+
-					esc(wrapper.getDescription())+
+					stylizeText(esc(wrapper.getDescription()))+
 				'</div>';
 				o += '</div>';
 			}
@@ -781,6 +784,7 @@ export default class UI{
 
 					if( th.action_selected )
 						game.renderer.setArrowTarget(left, top);
+					
 					el.toggleClass("highlighted", true);
 				}
 			}
@@ -2917,7 +2921,7 @@ export default class UI{
 		if( message.substr(0,4).toLowerCase() === 'ooc ' || !speaker )
 			speaker = 'ooc';
 
-		this.parent.speakAs(speaker, message);
+		this.parent.speakAs(speaker, escapeStylizeText(message));	// this is done serverside on the DM too
 	}
 
 

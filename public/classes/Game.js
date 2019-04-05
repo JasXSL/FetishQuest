@@ -12,6 +12,7 @@ import Quest from './Quest.js';
 import {default as Audio, setMasterVolume}  from './Audio.js';
 import stdTag from '../libraries/stdTag.js';
 import Roleplay from './Roleplay.js';
+import { Wrapper } from './EffectSys.js';
 
 export default class Game extends Generic{
 
@@ -177,6 +178,11 @@ export default class Game extends Generic{
 		// Custom ad-hoc libraries do not need to be rebased
 		for( let i in this.libAsset )
 			this.libAsset[i] = new Asset(this.libAsset[i]);
+
+		// Auto wrappers need all players loaded before generating
+		if( this.is_host )
+			game.players.map(pl => pl.initialize());
+
 		
 		await glib.autoloadMods();
 		glib.setCustomAssets(this.libAsset);
@@ -1353,6 +1359,7 @@ export default class Game extends Generic{
 
 			this.ui.captureActionMessage = true;
 			npl.onTurnStart();
+			Wrapper.checkAllStayConditions();
 			this.ui.flushMessages();
 			
 			if( npl.isIncapacitated() || npl.isDead() )
@@ -1433,6 +1440,7 @@ export default class Game extends Generic{
 		
 
 		let att = player.useActionId( action.id, targets, netPlayer );
+		Wrapper.checkAllStayConditions();
 		this.save();
 		this.ui.draw();
 		this.ui.flushMessages();

@@ -229,14 +229,10 @@ class PlayerTemplate extends Generic{
 		for( let i in this.bon )
 			player['bon'+i] = this.bon[i];
 
-		// Lower level monsters have a stat penalty up to level 6
-		let penalty = Math.min(level-6, 0);
+		// Lower level monsters have a primary stat penalty up to level 5
+		let penalty = Math.min(level-5, 0);
 		for( let i in Player.primaryStats )
 			player[i] += penalty;
-		for( let i in Action.Types ){
-			player['sv'+Action.Types[i]] += penalty;
-			player['bon'+Action.Types[i]] += penalty;
-		}
 
 		player.fullRegen();
 

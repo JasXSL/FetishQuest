@@ -205,7 +205,19 @@ const lib = {
 			"whip_powerLash",
 			"imp_claws",
         ]
-    }
+    },
+    cocktopus : {
+        name : "Cocktopus",
+        primaryStat : Player.primaryStats.agility,
+        isMonsterClass : true,
+        actions : [
+            "tentacle_fiend_legWrap",
+            "tentacle_fiend_tentatug",
+            "tentacle_latch",
+            "cocktopus_ink",
+            "cocktopus_inkject",
+        ]
+    },
 };
 
 

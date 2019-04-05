@@ -1567,6 +1567,149 @@ const lib = {
 		]
 	},
 
+	tentacle_latch : {
+		name : "Latch",
+		icon : 'suckered-tentacle',
+		description : "Latches onto your target for 2 turns. While latched, you gain +2 physical proficiency and can only attack the target you are latched to.",
+		ap : 2,
+		cooldown : 4,
+		detrimental : true,
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				name : 'Latch',
+				icon : 'suckered-tentacle',
+				description : '%S has latched onto you and is gaining +2 physical proficiency.',
+				target : Wrapper.TARGET_AUTO,
+				duration : -1,
+				detrimental : true,
+				tags : [stdTag.fxLatched],
+				add_conditions : stdCond.concat(
+					"targetNotBeast"
+				),
+				stay_conditions : [
+					"senderNotDead"
+				],
+				effects : [
+					'selfTaunt',
+					{
+						type : Effect.Types.bonPhysical,
+						targets : [Wrapper.TARGET_CASTER],
+						data : {
+							amount : 2
+						},
+					},
+					'latch',
+					'latch_self'
+				]
+			}
+		]
+	},
+	cocktopus_ink : {
+		name : "Ink",
+		icon : 'gooey-eyed-sun',
+		description : "Squirt oily ink at your target, dealing 3 elemental damage and reducing all their proficiencies by 1 for 1 turn.",
+		ap : 1,
+		mp : 2,
+		cooldown : 1,
+		detrimental : true,
+		ranged : true,
+		type : Action.Types.elemental,
+		tags : [ stdTag.acDamage, stdTag.acDebuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : "VICTIM",
+				duration : 1,
+				name : "Ink",
+				icon : "gooey-eyed-sun",
+				description : "All proficiencies reduced by 1",
+				add_conditions : stdCond,
+				effects : [
+					{
+						events : [GameEvent.Types.internalWrapperAdded],
+						type : Effect.Types.damage,
+						data : {
+							amount : 3
+						}
+					},
+					{type : Effect.Types.bonCorruption,data : {amount : -1}},
+					{type : Effect.Types.bonElemental,data : {amount : -1}},
+					{type : Effect.Types.bonHoly,data : {amount : -1}},
+					{type : Effect.Types.bonPhysical,data : {amount : -1}},
+				]
+			}
+		]
+	},
+	cocktopus_inkject : {
+		name : "Headtacle",
+		icon : 'giant-squid',
+		description : "Starts thrusting your big head tentacle into an exposed orifice of a latched target, doing 4 corruption damage every turn for 3 turns or until you are pulled off. After 3 turns, you ink inside your target, adding 10 arousal to them and doing 10 mana damage.",
+		ap : 1,
+		mp : 2,
+		cooldown : 5,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [ stdTag.acDamage, stdTag.acDebuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 3,
+				name : "Headtacle",
+				icon : "gooey-eyed-sun",
+				description : "%S is humping you with its big headtacle.",
+				add_conditions : stdCond.concat('targetHasUnblockedOrifice','senderLatchingToTarget'),
+				stay_conditions : stdCond.concat('senderLatchingToTarget'),
+				effects : [
+					{
+						events : [GameEvent.Types.internalWrapperAdded],
+						type : Effect.Types.addMissingFxTag,
+						data : {
+							tag : [stdTag.wrBlockButt, stdTag.wrBlockGroin, stdTag.wrBlockMouth],
+						}
+					},
+					{
+						label : 'cocktopus_inkject_tick',
+						events : [
+							GameEvent.Types.internalWrapperTick
+						],
+						type : Effect.Types.damage,
+						data : {
+							amount : 3
+						}
+					},
+					{
+						label : 'cocktopus_inkject_tick',
+						events : [
+							GameEvent.Types.internalWrapperExpired,
+						],
+						conditions : [],
+						type : Effect.Types.addMP,
+						data : {
+							amount : -10
+						}
+					},
+					{
+						events : [
+							GameEvent.Types.internalWrapperExpired,
+						],
+						conditions : [],
+						type : Effect.Types.addArousal,
+						data : {
+							amount : 10
+						}
+					},
+					{
+						targets : [Wrapper.TARGET_CASTER],
+						type : Effect.Types.stun,
+						data : {ignoreDiminishing:true}
+					},
+				]
+			}
+		]
+	},
+
 	tentacle_ride : {
 		name : "Tentaride",
 		icon : 'rock',
@@ -1627,6 +1770,35 @@ const lib = {
 						}
 					},
 					
+				]
+			}
+		]
+	},
+
+
+
+
+	// Generic helper spells
+	// Removes a latched player
+	detach : {
+		name : "Detach",
+		icon : 'throwing-ball',
+		description : "Dislodge a target latching onto something.",
+		ap : 2,
+		cooldown : 1,
+		mp : 0,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : true,
+				add_conditions : stdCond.concat('targetLatching'),
+				effects : [
+					'unlatch_target'
 				]
 			}
 		]

@@ -68,6 +68,16 @@ function valsToKeys( input = [] ){
 }
 
 // Turns color tags into HTML
+/*
+	|s| text |/s| = strong
+	|em| text |/em| = italic
+	|c#color|text|/c|
+*/
+function escapeStylizeText(text){
+	text = String(text);
+	return text.split('|').join('\\|');
+}
+
 function stylizeText( txt ){
 
 	txt = esc(txt);
@@ -83,6 +93,7 @@ function stylizeText( txt ){
 		a = '<span style="color:'+esc(color)+'">'+a.join('|').split('|/c|').join('</span>');
 		out+=a;
 	}
+	out = out.split('\\|').join('|');
 	return out;
 
 }

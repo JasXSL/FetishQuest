@@ -132,6 +132,9 @@ export default class Condition extends Generic{
 	// Tests the condition
 	test( event, debug ){
 
+		if( debug )
+			console.debug("Condition DEBUG :: Testing", this, "with event", event);
+
 		// This is a collection, validate subs instead
 		if( this.conditions.length )
 			return this.validateSubs(event, debug);
@@ -151,11 +154,14 @@ export default class Condition extends Generic{
 			targs = [targs[this.targnr]];
 		
 		// Trying to target a nonexistend target
-		if( targs[0] === undefined )
+		if( targs[0] === undefined ){
+			console.debug("Condition DEBUG :: Targs is undefined");
 			return false;
+		}
 
 		if( debug )
-			console.debug("Condition DEBUG :: Testing", this, "against targs", targs, "with event", event);
+			console.debug("Condition DEBUG :: Targs", targs);
+		
 
 
 		// Check against all targeted players
@@ -173,6 +179,9 @@ export default class Condition extends Generic{
 				// Any tag applied by anyone
 				else
 					success = t && t.hasTag(this.data.tags, this.data.sender);
+			}
+			else if( this.type === T.targetIsSender ){
+				return t && s && t.id === s.id;
 			}
 			else if( this.type === T.wrapperTag ){
 				// Searches any attached wrapper for a tag
@@ -500,6 +509,8 @@ Condition.Types = {
 	punishNotUsed : 'punishNotUsed',			//  
 	wrapperHasEffect : 'wrapperHasEffect',		// 
 	dungeonVar : 'dungeonVar',
+	targetIsSender : 'targetIsSender',
+	hasFxTagBySender : 'hasFxTagBySender',		//
 };
 
 Condition.descriptions = {
@@ -530,6 +541,7 @@ Condition.descriptions = {
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
 	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches',	
 	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data} - Compares a dungeonVar to data',	
+	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
 };
 
 

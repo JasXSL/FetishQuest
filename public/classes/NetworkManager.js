@@ -427,7 +427,7 @@ class NetworkManager{
 			if( isOOC )
 				p = this.getPlayerNameById(netPlayer);
 			
-			game.speakAs(p, txt, isOOC);
+			game.speakAs(p, escapeStylizeText(txt), isOOC);
 
 		}
 

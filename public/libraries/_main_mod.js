@@ -16,6 +16,7 @@ import {getArray as getWrappers} from './mainMod/wrappers.js';
 import {getArray as getGameActions} from './mainMod/gameActions.js';
 import {getArray as getPlayers} from './mainMod/players.js';
 import {getArray as getRoleplays} from './mainMod/roleplays.js';
+import {getArray as getEffects} from './mainMod/effects.js';
 
 import dungeons from './mainMod/dungeons.js';
 
@@ -284,14 +285,7 @@ const mod = new Mod(
 			}
 		],
 		dungeonTemplates:getDungeonTemplates(),
-		effects:[
-			{
-				type:"interrupt",
-				targets:["VICTIM"],
-				events:["internalWrapperAdded"],
-				label:"interrupt"
-			}
-		],
+		effects:getEffects(),
 		dungeonRoomTemplates:[
 			{
 				"label":"darkChamber",
