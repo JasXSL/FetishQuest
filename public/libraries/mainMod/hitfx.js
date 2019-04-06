@@ -879,6 +879,24 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'sludgeBoltBlack';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		origin : 'attacker',
+		particles : 'hitfx_sludge_bolt_black',
+		emit_duration : 500,
+		hold : 500,
+		sound_kits : ['tentacleSuctionFollow'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sludge_bolt_impact_black',
+		emit_duration : 100,
+		css_fx : 'fxTakeDamageElemental',
+		sound_kits : ['gooSplat'],
+	}, out[id]),
+);
+
 
 
 id = 'siphonCorruption';
@@ -915,6 +933,25 @@ out[id].stages.push(
 	}, out[id]),
 	
 );
+
+id = 'sludgeBlack';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sludge_bolt_proc_black',
+		fade_duration : 3000,
+		emit_duration : 100,
+		sound_kits : ['tentacleSuction'],
+		css_fx : 'fxTakeDamageCorruption',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 100,
+	}, out[id]),
+	
+);
+
+
 
 
 

@@ -1,3 +1,7 @@
+Next:
+	- Cocktopus texts
+	- Crab monster
+
 Needed scripts:
 	- NPC dialog visual
 	- Tie roleplay to NPC

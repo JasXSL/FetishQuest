@@ -1608,10 +1608,10 @@ const lib = {
 	cocktopus_ink : {
 		name : "Ink",
 		icon : 'gooey-eyed-sun',
-		description : "Squirt oily ink at your target, dealing 3 elemental damage and reducing all their proficiencies by 1 for 1 turn.",
-		ap : 1,
+		description : "Squirt oily ink at your target, dealing 4 elemental damage and reducing all their proficiencies by 1 for 1 turn.",
+		ap : 2,
 		mp : 2,
-		cooldown : 1,
+		cooldown : 2,
 		detrimental : true,
 		ranged : true,
 		type : Action.Types.elemental,
@@ -1630,7 +1630,7 @@ const lib = {
 						events : [GameEvent.Types.internalWrapperAdded],
 						type : Effect.Types.damage,
 						data : {
-							amount : 3
+							amount : 4
 						}
 					},
 					{type : Effect.Types.bonCorruption,data : {amount : -1}},
@@ -1645,8 +1645,7 @@ const lib = {
 		name : "Headtacle",
 		icon : 'giant-squid',
 		description : "Starts thrusting your big head tentacle into an exposed orifice of a latched target, doing 4 corruption damage every turn for 3 turns or until you are pulled off. After 3 turns, you ink inside your target, adding 10 arousal to them and doing 10 mana damage.",
-		ap : 1,
-		mp : 2,
+		ap : 4,
 		cooldown : 5,
 		detrimental : true,
 		type : Action.Types.corruption,
@@ -1657,17 +1656,15 @@ const lib = {
 				target : Wrapper.TARGET_AUTO,
 				duration : 3,
 				name : "Headtacle",
-				icon : "gooey-eyed-sun",
+				icon : "giant-squid",
 				description : "%S is humping you with its big headtacle.",
-				add_conditions : stdCond.concat('targetHasUnblockedOrifice','senderLatchingToTarget'),
+				add_conditions : stdCond.concat('targetHasUnblockedNotHardOrifice','senderLatchingToTarget'),
 				stay_conditions : stdCond.concat('senderLatchingToTarget'),
 				effects : [
 					{
 						events : [GameEvent.Types.internalWrapperAdded],
-						type : Effect.Types.addMissingFxTag,
-						data : {
-							tag : [stdTag.wrBlockButt, stdTag.wrBlockGroin, stdTag.wrBlockMouth],
-						}
+						data : {relax:'notHard'},
+						type : Effect.Types.addExposedOrificeTag,
 					},
 					{
 						label : 'cocktopus_inkject_tick',
@@ -1680,7 +1677,7 @@ const lib = {
 						}
 					},
 					{
-						label : 'cocktopus_inkject_tick',
+						label : 'cocktopus_inkject_expire',
 						events : [
 							GameEvent.Types.internalWrapperExpired,
 						],
@@ -1787,6 +1784,7 @@ const lib = {
 		ap : 2,
 		cooldown : 1,
 		mp : 0,
+		hit_chance : 70,
 		detrimental : true,
 		type : Action.Types.physical,
 		tags : [],

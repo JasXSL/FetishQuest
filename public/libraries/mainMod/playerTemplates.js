@@ -15,7 +15,8 @@ const lib = {
 		max_actions : 1,
 		tags : [
 			"pl_beast",
-			"pl_tentacles"
+			"pl_tentacles",
+			stdTag.plCocktacle,
 		],
 		min_level : 1,
 		max_level : 5,
@@ -69,7 +70,8 @@ const lib = {
 		max_actions : 2,
 		tags : [
 			"pl_beast",
-			"pl_tentacles"
+			"pl_tentacles",
+			stdTag.plCocktacle,
 		],
 		min_level : 3,
 		max_level : 8,
@@ -118,7 +120,7 @@ const lib = {
 		description : "",
 		classes : ["tentacle_fiend"],
 		max_actions : 3,
-		tags : [stdTag.plBeast, stdTag.plTentacles],
+		tags : [stdTag.plBeast, stdTag.plTentacles, stdTag.plCocktacle,],
 		min_level : 6,
 		max_level : 20,
 		primary_stats : {
@@ -164,7 +166,8 @@ const lib = {
 		tags : [
 			stdTag.plBeast,
 			stdTag.plTentacles,
-			stdTag.plElectric
+			stdTag.plElectric,
+			stdTag.plCocktacle,
 		],
 		min_level : 4,
 		max_level : 20,

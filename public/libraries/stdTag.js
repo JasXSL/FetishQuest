@@ -24,6 +24,7 @@ export default {
 	plFangs : 'pl_fangs',			// Player has fangs
 	plBeast : 'pl_beast',			// non-humanoid
 	plTentacles : 'pl_tentacles',
+	plCocktacle : 'pl_cocktacle',	// Player has at least 1 cock tipped tentacle
 	plHorns : 'pl_horns',
 	plHorn : 'pl_horn',
 	plEars : 'pl_ears',

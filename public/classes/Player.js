@@ -557,11 +557,22 @@ export default class Player extends Generic{
 				return true;
 		}
 
-		// Next check the wrappers
-		for( let wrapper of this.wrappers ){
+		
+		// Check wrapper tags
+		const wrappers = this.getWrappers();
+		for( let wrapper of wrappers ){
 			if( wrapper.caster === sender.id && wrapper.hasTag(tags) )
 				return true;
 		}
+		
+
+		// Next check the effects
+		const effects = this.getEffects();
+		for( let effect of effects ){
+			if( effect.parent.caster === sender.id && (effect.hasTag(tags)) )
+				return true;
+		}
+
 		
 		return false;
 

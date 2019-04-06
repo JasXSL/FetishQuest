@@ -206,6 +206,73 @@ const lib = [
 		hitfx : ['tentacleWhip']
 	},
 
+	// Cocktopus
+	{ text : "%S lashes %Shis bulbed tentacle across %T's %Trsize %leftright buttcheek!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus",
+		]),
+		hitfx : ["tentacleWhip"],
+	},
+	// Latched
+	{ text : "%S latches %Shis tentacles around %T's %Tbsize %Tbreasts, constricting them hard!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget",
+			{conditions:["targetBreastsExposed", "targetUpperbodyStretchy"]}, 
+			"targetBreasts"
+		]),
+		hitfx : ["tentacleSqueeze"],
+	},
+	{ text : "%S latches %Shis tentacles around %T's nipples and starts tugging outwards!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget",
+			{conditions:["targetBreastsExposed", "targetUpperbodyStretchy"]}, 
+			"targetBreasts"
+		]),
+		hitfx : ["tentacleStretch"],
+	},
+	{ text : "%S latches onto %T's back and starts whipping %This %Trsize %Tbutt with its bulbous tentacles!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget",
+		]),
+		hitfx : ["tentacleWhip"],
+	},
+	{ text : "%S latches its tentacles around %T's neck and constricts!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget",
+		]),
+		hitfx : ["tentacleSqueeze"],
+	},
+	{ text : "%S latches onto %T's back and lashes %This %Tbsize %Tbreasts a %few times from behind!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget",
+			"targetBreasts"
+		]),
+		armor_slot : "upperbody",
+		hitfx : ["tentacleWhip"],
+	},
+	{ text : "%S latches onto %T's legs and lashes %Shis bulbous tentacle across %This %Tgroin a %few times!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget",
+		]),
+		armor_slot : "lowerbody",
+		hitfx : ["tentacleWhip"],
+	},
+	{ text : "%S latches onto %T's %Trsize %Tbutt and gives it a quick bite!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget",
+		]),
+		hitfx : ["biteGeneric"],
+	},
+	{ text : "%S latches onto %T's %TBsize %leftright %Tbreast and gives %This nipple a quick bite!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget",
+			{conditions:["targetBreastsExposed", "targetUpperbodyStretchy"]}, 
+			"targetBreasts"
+		]),
+		hitfx : ["biteGeneric"],
+	},
+
+
 
 	// Whips
 	{ text : "%S swings %Shis %Sgear at %T, whapping the %Trace across the %Tbutt!",
@@ -415,7 +482,7 @@ const lib = [
 	},
 	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tvagina and thrusting a couple of times!",
 		conditions : anyOnHumCond.concat([
-			"action_stdArouse","senderHasTentacles","targetVagina","targetGroinExposed"
+			"action_stdArouse","senderHasTentacles","senderHasCocktacles","targetVagina","targetGroinExposed"
 		]),
 		weight : Text.Weights.high,
 		hitfx : ["slowThrustsTentacle"],
@@ -428,8 +495,7 @@ const lib = [
 	},
 	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %Tbutt where it thrusts a couple of times!",
 		conditions : anyOnHumCond.concat([
-			"action_stdArouse",
-			"senderHasTentacles",
+			"action_stdArouse","senderHasTentacles","senderHasCocktacles",
 			{conditions:[
 				"targetNoLowerbody",
 				"ttButtExposed"
@@ -441,20 +507,20 @@ const lib = [
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle plunges inside and starts rapidly thrusting into %This %Tvagina!",
 		conditions : anyOnHumCond.concat([
-			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetGroinExposed","targetVagina"
+			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetGroinExposed","targetVagina","senderHasCocktacles"
 		]),
 		weight : Text.Weights.high,
 		hitfx : ["slowThrustsTentacle"],
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's exposed %groin. The tentacle wiggles inside %This %TclothLower and up %This %Tvagina, rapidly thrusting inside %Thim!",
 		conditions : anyOnHumCond.concat([
-			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetWearsThong","targetVagina"
+			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetWearsThong","targetVagina","senderHasCocktacles"
 		]),
 		hitfx : ["slowThrustsTentacle"],
 	},
 	{ text : "%S slips a slimy cock-tipped tentacle towards %T's %Trsize exposed %Tbutt. The tentacle wiggles inside and starts rapidly thrusting inside %Thim!",
 		conditions : anyOnHumCond.concat([
-			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetKnockedDownFront","targetButtExposed",
+			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetKnockedDownFront","targetButtExposed","senderHasCocktacles",
 		]),
 		weight : Text.Weights.high,
 		hitfx : ["slowThrustsTentacle"],
@@ -462,7 +528,7 @@ const lib = [
 	{ text : "%S takes advantage of %T being knocked down and surprises %Thim with a slimy cock-tipped tentacle slipping inside %This mouth, squirming around and tickling %This cheeks!",
 
 		conditions : anyOnHumCond.concat([
-			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetKnockedDownFront",
+			"action_stdArouse","senderHasTentacles","targetLegsSpread","targetKnockedDownFront","senderHasCocktacles",
 		]),
 		hitfx : ["slowThrustsTentacle"],
 
@@ -540,6 +606,87 @@ const lib = [
 		hitfx : ["squishTiny"],
 
 	},
+
+
+	// Cocktopus
+	{ text : "%S tickles %T's %Tgroin with %Shis ribbed bulb tentacle!",
+		conditions : anyOnHumCond.concat(["action_stdArouse","senderIsCocktopus",]),
+		hitfx : ["squishTiny"],
+	},
+	{ text : "%S slips %Shis ribbed bulb tentacle between %T's buttcheeks, stroking it up and down!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus",
+			{conditions:[
+				'targetButtExposed',
+				'targetWearsThong',
+			]}
+		]),
+		hitfx : ["squishTiny"],
+	},
+	// Cocktopus while latched
+	{ text : "%S slips %Shis ribbed bulb tentacle inside %T's %TclothLower from behind, stroking down between the %Trace's buttcheeks and giving %This %Tvagina a %few tickles!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+			'targetWearsLowerbody', "targetVagina"
+		]),
+		hitfx : ["squishTiny"],
+	},
+	{ text : "%S slips partially inside %T's %TclothLower, forcing %Shis ribbed bulb tentacle up inside %This %Tvagina and wiggling it around a bit.",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+			'targetWearsLowerbody', "targetVagina"
+		]),
+		hitfx : ["slowThrustsTentacle"],
+	},
+	{ text : "%S slips partially inside %T's %TclothLower, forcing %Shis ribbed bulb tentacle up inside %This %Trsize %Tbutt and wiggling it around a bit.",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+			'targetWearsLowerbody'
+		]),
+		hitfx : ["slowThrustsTentacle"],
+	},
+	{ text : "%S wraps a tentacle around %T's %Tbsize %leftright %Tbreast and tickles %This nipple with a ribbed tentacle.",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+			'targetWearsLowerbody', 'targetBreasts'
+		]),
+		hitfx : ["squishTiny"],
+	},
+	{ text : "%S lashes tendrils around %T's nipples, pulling %This %Tbsize %Tbreasts together and thrusting %Shis head-tentacle up and down between them a %few times.",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+			'targetBreasts', "targetBreastsExposed"
+		]),
+		hitfx : ["squishTiny"],
+	},
+	{ text : "%S pushes one of its ribbed bulbous tentacles into %T's mouth, rubbing it into %This %leftright cheek.",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+		]),
+		hitfx : ["slowThrustsTentacle"],
+	},
+	{ text : "%S latches onto %T's %Tbutt and forces one bulbous tentacle inside the %Trace's %Trsize %Tbutt, and the other inside %This %Tvagina thrusting a %few times!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+			"targetGroinExposed", "targetVagina"
+		]),
+		hitfx : ["slowThrustsTentacle"],
+	},
+	{ text : "%S latches around %T's legs forces both %Shis ribbed bulbous tentacles up into the %Trace's %Tvagina, swirling them around inside of the %Trace!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+			"targetGroinExposed", "targetVagina"
+		]),
+		hitfx : ["slowThrustsTentacle"],
+	},
+	{ text : "%S squeezes down firmly on %T's %Trsize buttcheeks!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
+			"targetGroinExposed", "targetVagina"
+		]),
+		hitfx : ["tentacleSqueeze"],
+	},
+
 
 
 
@@ -776,7 +923,8 @@ const lib = [
 		hitfx : ["tentacleStretch"],
 		conditions : baseCond.concat([
 			"action_tentacle_fiend_tentatug","targetWearsThong","targetPenis"
-		])
+		]),
+		turnTags:[stdTag.ttGroinExposed]
 	},
 	{ text : "%S's tentacles wrap around the bottom of %T's %TclothLower and tugs down before letting go and allowing the piece to snap onto %T's %groin!",
 		hitfx : ["tentacleStretch"],
@@ -790,7 +938,36 @@ const lib = [
 			"action_tentacle_fiend_tentatug","targetWearsSlingBikini","targetBreasts"
 		])
 	},
-
+	{ text : "%S slips inside %T's %TclothLower and begins pushing out at it from inside.",
+		conditions : anyOnHumCond.concat([
+			"action_tentacle_fiend_tentatug","senderIsCocktopus","senderLatchingToTarget",
+			"targetWearsLowerbody"
+		]),
+		hitfx : ["tentacleStretch"],
+	},
+	{ text : "%S slips inside %T's %TclothUpper and begins pushing out at it from inside.",
+		conditions : anyOnHumCond.concat([
+			"action_tentacle_fiend_tentatug","senderIsCocktopus","senderLatchingToTarget",
+			"targetWearsUpperbody"
+		]),
+		hitfx : ["tentacleStretch"],
+	},
+	{ text : "%S latches onto %T's legs and wraps a tendril around %T's butt-string, tugging down and exposing %This %Tgenitals.",
+		conditions : anyOnHumCond.concat([
+			"action_tentacle_fiend_tentatug","senderIsCocktopus","senderLatchingToTarget",
+			"targetWearsThong"
+		]),
+		turnTags:[stdTag.ttGroinExposed],
+		hitfx : ["tentacleStretch"],
+	},
+	{ text : "%S latches onto %T's back and slips some tentacles over %This shoulders, grabbing a hold of %This %TclothUpper and tugging upwards, exposing %This %Tbsize %Tbreasts!",
+		conditions : anyOnHumCond.concat([
+			"action_tentacle_fiend_tentatug","senderIsCocktopus","senderLatchingToTarget",
+			"targetBreasts", "targetUpperbodyNotHard"
+		]),
+		turnTags:[stdTag.ttBreastsExposed],
+		hitfx : ["tentacleStretch"],
+	},
 
 
 
@@ -1176,6 +1353,110 @@ const lib = [
 		hitfx : ["pinch"]
 	},
 	
+
+
+	// tentacle_latch
+	{ text : "%S jumps at %T and latches onto %Thim!",
+		conditions : anyOnHumCond.concat("action_tentacle_latch"),
+		hitfx : ["tentacleSqueeze"]
+	},
+
+	// Detach
+	{ text : "%S tugs %T off %This victim!",
+		conditions : baseCond.concat("action_detach"),
+		hitfx : ["tentacleStretch"]
+	},
+
+	// cocktopus_ink
+	{ text : "%S squirts an oily ink across %T's face!",
+		conditions : anyOnHumCond.concat("action_cocktopus_ink"),
+		hitfx : ["sludgeBoltBlack"]
+	},
+	{ text : "%S squirts a large wad of oily ink across %T's %Tbreasts!",
+		conditions : anyOnHumCond.concat("action_cocktopus_ink", "targetBreasts"),
+		hitfx : ["sludgeBoltBlack"]
+	},
+	{ text : "%S squirts a large wad of oily ink across %T's %Tgroin!",
+		conditions : anyOnHumCond.concat("action_cocktopus_ink"),
+		hitfx : ["sludgeBoltBlack"]
+	},
+	{ text : "%S squirts a large wad of oily ink across %T's %Tbutt!",
+		conditions : anyOnHumCond.concat("action_cocktopus_ink"),
+		hitfx : ["sludgeBoltBlack"]
+	},
+
+	// cocktopus_inkject
+	{ text : "%S latches around %T's head and starts prodding %This mouth with its large head-tentacle!",
+		conditions : anyOnHumCond.concat("action_cocktopus_inkject", "senderBlockingMouth"),
+		hitfx : ["tentacleSqueeze"]
+	},
+	{ text : "%S latches around %T's hips and starts prodding %This %Tbutt with its large head-tentacle!",
+		conditions : anyOnHumCond.concat("action_cocktopus_inkject", "senderBlockingButt", "targetNoLowerbody"),
+		hitfx : ["tentacleSqueeze"]
+	},
+	{ text : "%S latches around %T's %Tbutt and starts prodding %This %Tvagina with its large head-tentacle!",
+		conditions : anyOnHumCond.concat("action_cocktopus_inkject", "senderBlockingGroin", "targetNoLowerbody"),
+		hitfx : ["tentacleSqueeze"]
+	},
+	{ text : "%S slithers into %T's %TclothLower and starts prodding %This %Tbutt with its large head-tentacle!",
+		conditions : anyOnHumCond.concat("action_cocktopus_inkject", "senderBlockingButt", "targetWearsLowerbody"),
+		hitfx : ["tentacleSqueeze"]
+	},
+	{ text : "%S slithers into %T's %TclothLower and starts prodding %This %Tvagina with its large head-tentacle!",
+		conditions : anyOnHumCond.concat("action_cocktopus_inkject", "senderBlockingGroin", "targetWearsLowerbody"),
+		hitfx : ["tentacleSqueeze"]
+	},
+
+	// /\ tick
+	{ text : "%S shoves its big headtacle deep inside %T's %Tvagina!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_tick", "senderBlockingGroin"],
+		hitfx : ["tentacleSuck"]
+	},
+	{ text : "%S shoves its big head-tentacle inside %T's %Tvagina and stirs it around!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_tick", "senderBlockingGroin"],
+		hitfx : ["tentacleSuck"]
+	},
+	{ text : "%S launches multiple rapid thrusts into %T's %Tvagina with its large head-tentacle!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_tick", "senderBlockingGroin"],
+		hitfx : ["slowThrustsTentacle"]
+	},
+	{ text : "%S shoves its big headtacle deep inside %T's %Tbutt!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_tick", "senderBlockingButt"],
+		hitfx : ["tentacleSuck"]
+	},
+	{ text : "%S shoves its big head-tentacle deep inside %T's %Tbutt and wiggles it around!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_tick", "senderBlockingButt"],
+		hitfx : ["tentacleSuck"]
+	},
+	{ text : "%S launches multiple rapid thrusts into %T's %Trsize %Tbutt with its large head-tentacle!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_tick", "senderBlockingButt"],
+		hitfx : ["slowThrustsTentacle"]
+	},
+	{ text : "%S shoves its big headtacle deep down %T's throat!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_tick", "senderBlockingMouth"],
+		hitfx : ["tentacleSuck"]
+	},
+	{ text : "%S starts thrusting %Shis big head-tentacle into %T's mouth!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_tick", "senderBlockingMouth"],
+		hitfx : ["tentacleSuck"]
+	},
+
+
+
+
+	// /\ Finish
+	{ text : "%S latches tight onto %T's %Trsize %Tbutt and forces %Shis big head-tentacle up inside the %Trace's %Tvagina, flooding it with a black oily liquid!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_finish", "senderBlockingGroin"],
+		hitfx : ["sludgeBlack"]
+	},
+	{ text : "%S latches tight onto %T's hips and forces %Shis big head-tentacle up inside the %Trace's %Trsize %Tbutt, flooding it with a black oily liquid!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_finish", "senderBlockingButt"],
+		hitfx : ["sludgeBlack"]
+	},
+	{ text : "%S latches tight around the back of %T's head and shoves %Shis big head-tentacle inside %T's throat, flooding it with enough black oily liquid that %The is forced to swallow some!",
+		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_finish", "senderBlockingMouth"],
+		hitfx : ["sludgeBlack"]
+	},
 
 
 

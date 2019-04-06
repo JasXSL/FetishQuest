@@ -48,12 +48,26 @@ const lib = {
 	action_elementalist_iceBlast : {"type":"actionLabel","data":{"label":"elementalist_iceBlast"},"targnr":0},
 	action_elementalist_healingSurge : {"type":"actionLabel","data":{"label":"elementalist_healingSurge"},"targnr":0},
 	action_elementalist_waterSpout : {"type":"actionLabel","data":{"label":"elementalist_waterSpout"},"targnr":0},
+	action_tentacle_latch : {type:Condition.Types.actionLabel, data:{label:'tentacle_latch'}, targnr:0},
+	action_cocktopus_ink : {type:Condition.Types.actionLabel, data:{label:'cocktopus_ink'}, targnr:0},
+	action_cocktopus_inkject : {type:Condition.Types.actionLabel, data:{label:'cocktopus_inkject'}, targnr:0},
+	action_cocktopus_inkject_tick : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_tick'}, targnr:0},
+	action_cocktopus_inkject_finish : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_expire'}, targnr:0},
+	action_detach : {type:Condition.Types.actionLabel, data:{label:'detach'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 
 	targetLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}},
 	senderLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}, caster:true},
 	senderLatchingToTarget : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatched], sender:true}},
+	
+	senderBlockingMouth : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockMouth], sender:true}},
+	senderBlockingButt : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockButt], sender:true}},
+	senderBlockingGroin : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockGroin], sender:true}},
+
+	senderIsCocktopus : {type:Condition.Types.species, data:{species:['cocktopus']}, caster:true},
+
+	// Block tags signify that the slot is currently occupied
 	targetHasUnblockedOrifice : {conditions:[
 		{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockButt]}, inverse:true},
 		{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockMouth]}, inverse:true},
@@ -110,6 +124,8 @@ const lib = {
 		{type:"tag", data:{tags:[stdTag.ttBreastsExposed]}}
 	]},
 
+	
+
 	senderDishonorable : {type:Condition.Types.tag,data:{"tags":[stdTag.plDishonorable]},"caster":true},
 
 
@@ -120,6 +136,9 @@ const lib = {
 	senderNotBeast : {"type":"tag","data":{"tags":["pl_beast"]},"inverse":true,"caster":true},
 	senderBeast : {"type":"tag","data":{"tags":["pl_beast"]},"caster":true},
 	senderHasTentacles : {"type":"tag","data":{"tags":["pl_tentacles"]},"caster":true},
+	senderHasCocktacles : {type:Condition.Types.tag,data:{tags:[stdTag.plCocktacle]}, caster:true},
+
+	
 	targetNotKnockedDown : {"type":"tag","data":{"tags":["wr_knocked_down"]},"inverse":true},
 	targetKnockedDown : {"type":"tag","data":{"tags":["wr_knocked_down"]}},
 	targetKnockedDownBack : {"type":"tag","data":{"tags":["wr_knocked_down_back"]}},
@@ -151,12 +170,13 @@ const lib = {
 	eventIsDiminishingResist : {"type":"event","data":{"event":"diminishingResist"}},
 	eventIsWrapperAdded : {type:Condition.Types.event,data:{"event":GameEvent.Types.wrapperAdded}},
 	eventIsRiposte : {"type":"event","data":{"event":"actionRiposte"}},
-	eventIsEffectTrigger : {"type":"event","data":{"event":"effectTrigger"}},
+	eventIsEffectTrigger : {type:Condition.Types.event,data:{event:GameEvent.Types.effectTrigger}},
 	eventIsInterrupt : {"type":"event","data":{"event":"interrupt"}},
 	eventIsEncounterDefeated : {"type":"event","data":{"event":["encounterDefeated"]}},
 	eventIsPlayerDefeated : {"type":"event","data":{"event":["playerDefeated"]}},
 	eventIsDungeonExited : {"type":"event","data":{"event":["dungeonExited"]}},
 	eventIsDungeonEntered : {"type":"event","data":{"event":["dungeonEntered"]}},
+	
 	targetTaller : {"type":"sizeValue","data":{"amount":"se_Size","operator":">"}},
 	targetShorter : {"type":"sizeValue","data":{"amount":"se_Size","operator":"<"}},
 	targetNotTaller : {type:"sizeValue",data:{amount:"se_Size",operator:"<"}, inverse:true},
@@ -181,7 +201,6 @@ const lib = {
 
 	targetRidingOnMyTentacle : {type:Condition.Types.tag,data:{tags:[stdTag.wrTentacleRide], sender:true}},
 
-
 	ttGroinExposed : {"type":"tag","data":{"tags":[stdTag.ttGroinExposed]}},
 	ttGroinNotExposed : {type:"tag",data:{tags:[stdTag.ttGroinExposed]}, inverse:true},
 	ttButtExposed : {"type":"tag","data":{"tags":[stdTag.ttButtExposed]}},
@@ -195,6 +214,41 @@ const lib = {
 	ttNotSpanked : {"type":"tag","data":{"tags":[stdTag.ttSpanked]},"inverse":true},
 
 };
+
+// Checks if orifices are not occupied (blocked) and exposed
+lib.targetButtExposedAndUnblocked = {conditions:[
+	{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockButt]}, inverse:true},
+	lib.targetButtExposed,
+], min:-1};
+lib.targetMouthExposedAndUnblocked = {type:Condition.Types.tag, data:{tags:[stdTag.wrBlockMouth]}, inverse:true};
+lib.targetVaginaExposedAndUnblocked = {conditions:[
+	{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockGroin]}, inverse:true},
+	{type:Condition.Types.tag, data:{tags:[stdTag.vagina]}},
+	lib.targetGroinExposed
+], min:-1};
+// Same but allows groin/butt if armor isn't hard
+lib.targetButtUnblockedAndNotHard = {conditions:[
+	{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockButt]}, inverse:true},
+	{conditions:[lib.targetButtExposed, lib.targetLowerbodyNotHard]},
+], min:-1};
+lib.targetMouthUnblockedAndNotHard = {type:Condition.Types.tag, data:{tags:[stdTag.wrBlockMouth]}, inverse:true};
+lib.targetVaginaUnblockedAndNotHard = {conditions:[
+	{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockGroin]}, inverse:true},
+	{type:Condition.Types.tag, data:{tags:[stdTag.vagina]}},
+	{conditions:[lib.targetGroinExposed, lib.targetLowerbodyNotHard]}
+], min:-1};
+
+// Special cases where it needs to refer to itself
+lib.targetHasUnblockedExposedOrifice = {conditions:[
+	lib.targetButtExposedAndUnblocked,
+	lib.targetMouthExposedAndUnblocked,
+	lib.targetVaginaExposedAndUnblocked,
+], min:1};
+lib.targetHasUnblockedNotHardOrifice = {conditions:[
+	lib.targetButtUnblockedAndNotHard,
+	lib.targetMouthUnblockedAndNotHard,
+	lib.targetVaginaUnblockedAndNotHard,
+], min:1};
 
 const getArray = function(){
 	const out = [];

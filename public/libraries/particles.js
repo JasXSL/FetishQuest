@@ -2335,6 +2335,226 @@ particles.hitfx_sludge_bolt_proc = {
 	]
 };
 
+particles.hitfx_sludge_bolt_black = {
+			
+	texture: {
+		value: textures.splat,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 300,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 0, 0, 0 ),
+				radius : 1
+			},
+			velocity : {
+				value: new THREE.Vector3(0, -10, 0),
+				spread: new THREE.Vector3(15, 15, 15),
+				randomise : true,
+			},
+			color : {
+				value : [
+					new THREE.Color(0x000000),
+					new THREE.Color(0x111111)
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [90, 1],
+				randomise : true
+			},
+			angle : {
+				value : [0,Math.PI],
+				spread : Math.PI
+			},
+			wiggle : {
+				spread : 10
+			},
+			particleCount: 100
+		},
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.75
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 0, 0, 0 ),
+				radius : 1
+			},
+			velocity : {
+				value: new THREE.Vector3(0, -20, 0),
+				spread: new THREE.Vector3(5, 5, 5),
+				randomise : true,
+			},
+			color : {
+				value : [
+					new THREE.Color(0x000000),
+					new THREE.Color(0x111111)
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [30, 5, 15, 1],
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			wiggle : {
+				spread : 10
+			},
+			particleCount: 100
+		}
+	]
+};
+
+particles.hitfx_sludge_bolt_impact_black = {
+			
+	texture: {
+		value: textures.splat,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 300,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 0, 0, 0 ),
+				radius : 1
+			},
+			velocity : {
+				value: new THREE.Vector3(0, -10, 0),
+				spread: new THREE.Vector3(100, 100, 100),
+				randomise : true,
+			},
+			color : {
+				value : [
+					new THREE.Color(0x000000),
+					new THREE.Color(0x111111)
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [120, 1],
+				randomise : true
+			},
+			angle : {
+				value : [0,Math.PI],
+				spread : Math.PI
+			},
+			wiggle : {
+				spread : 10
+			},
+			particleCount: 100
+		},
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 1.5
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 20, 20, 20 ),
+				radius : 1
+			},
+			acceleration : {
+				value: new THREE.Vector3(0, -1, 0),
+				spread : new THREE.Vector3(0,3,0)
+			},
+			color : {
+				value : [
+					new THREE.Color(0x000000),
+					new THREE.Color(0x111111)
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [30],
+				spread : 10,
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			wiggle : {
+				spread : 1,
+				randomise : true
+			},
+			particleCount: 100
+		}
+	]
+};
+
+particles.hitfx_sludge_bolt_proc_black = {
+			
+	texture: {
+		value: textures.splat,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 300,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 2
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 30, 30, 30 ),
+				radius : 1
+			},
+			acceleration : {
+				value: new THREE.Vector3(0, -0.5, 0),
+				spread : new THREE.Vector3(0,1.5,0)
+			},
+			color : {
+				value : [
+					new THREE.Color(0x000000),
+					new THREE.Color(0x111111)
+				]
+			},
+			opacity: {
+				value: [1,0]
+			},
+			size: {
+				value: 30,
+				spread : 30,
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			wiggle : {
+				spread : 1,
+				randomise : true
+			},
+			particleCount: 300
+		}
+	]
+};
+
 
 particles.hitfx_dark_star = {
 	texture: {

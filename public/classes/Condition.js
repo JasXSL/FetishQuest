@@ -212,7 +212,15 @@ export default class Condition extends Generic{
 				success = event.effect && data.indexOf(event.effect.label) !== -1; 
 			}
 			
-			
+			else if( this.type === T.species ){
+
+				let species = this.data.species;
+				if( !Array.isArray(species) )
+					species = [species];
+				species = species.map(el => el.toLowerCase() );
+				success = species.indexOf(t.species.toLowerCase()) > -1;
+
+			}
 			
 			else if( this.type === T.actionResisted )
 				success = !!event.custom.resist && (typeof this.data !== "object" || !Object.keys(this.data).length || (event.action && this.data.type === event.action.type)); 
@@ -511,6 +519,7 @@ Condition.Types = {
 	dungeonVar : 'dungeonVar',
 	targetIsSender : 'targetIsSender',
 	hasFxTagBySender : 'hasFxTagBySender',		//
+	species : 'species',
 };
 
 Condition.descriptions = {
@@ -542,6 +551,7 @@ Condition.descriptions = {
 	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches',	
 	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data} - Compares a dungeonVar to data',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
+	[Condition.Types.species] : '{species:(str/arr)species} - Checks if target is one of the selected species. Case insensitive',	
 };
 
 

@@ -259,17 +259,17 @@ class Wrapper extends Generic{
 			if( !obj.duration || isTick || obj.trigger_immediate ){
 
 				let evt = new GameEvent({
-					type : GameEvent.Types.internalWrapperTick,
+					type : GameEvent.Types.wrapperTick,
 					sender : caster,
 					target : victim,
 					wrapper : obj,
-				});
+				}).raise();
+				
+				evt.type = GameEvent.Types.internalWrapperTick;
 				for( let effect of obj.effects )
 					effect.trigger(evt, this);
 
-				// raise a global event
-				evt.type = GameEvent.Types.wrapperTick;
-				evt.raise();
+				
 
 			}
 			++successes;
@@ -382,11 +382,14 @@ class Wrapper extends Generic{
 			}
 		}
 
+		const caster = this.getCaster() || new Player();
+		const parent = this.parent || new Player();
+
 		out = out.split('%knockdown').join(knockdown);
-		out = out.split('%caster').join(this.getCaster().getColoredName());
-		out = out.split('%target').join(this.parent.getColoredName());
-		out = out.split('%S').join(this.getCaster().getColoredName());
-		out = out.split('%T').join(this.parent.getColoredName());
+		out = out.split('%caster').join(caster.getColoredName());
+		out = out.split('%target').join(parent.getColoredName());
+		out = out.split('%S').join(caster.getColoredName());
+		out = out.split('%T').join(parent.getColoredName());
 
 		return out;
 
@@ -645,8 +648,14 @@ class Effect extends Generic{
 			else if( ta === Wrapper.TARGET_EVENT_TARGETS && event.target )
 				tout = tout.concat(event.target);
 		}
-		let custom = {};	// Custom data to push to the event
-		
+
+		new GameEvent({
+			type : GameEvent.Types.effectTrigger,
+			sender : sender,
+			target : tout,
+			wrapper : this.parent,
+			effect : this,
+		}).raise();
 
 		for( let t of tout ){
 
@@ -1103,6 +1112,29 @@ class Effect extends Generic{
 
 			}
 
+			else if( this.type === Effect.Types.addExposedOrificeTag ){
+
+				const tEvent = new GameEvent({
+					target : t
+				});
+				const viable = [];
+				// These 2 should match each other
+				let conds = ['targetButtExposedAndUnblocked','targetMouthExposedAndUnblocked','targetVaginaExposedAndUnblocked'];
+				if( this.data.relax === "notHard" )
+					conds = ['targetButtUnblockedAndNotHard','targetMouthUnblockedAndNotHard','targetVaginaUnblockedAndNotHard'];
+				else if( this.data.relax === "all" )
+					conds = [false, false, false];
+				conds = Condition.loadThese(conds);
+				const tags = [stdTag.wrBlockButt, stdTag.wrBlockMouth, stdTag.wrBlockGroin];
+				for( let i =0; i<conds.length; ++i ){
+					if( !conds[i] || conds[i].test(tEvent) )
+						viable.push(tags[i]);
+				}
+				console.log("Viable", viable, "relax", this.data.relax);
+				this.tags.push(randElem(viable));
+
+			}
+
 			// LAST
 			else if( typeof this.type !== "string" )
 				console.error("Invalid effect", this.type);
@@ -1110,14 +1142,7 @@ class Effect extends Generic{
 
 		}
 
-		new GameEvent({
-			type : GameEvent.Types.effectTrigger,
-			sender : sender,
-			target : tout,
-			wrapper : this.parent,
-			effect : this,
-			custom : custom
-		}).raise();
+		
 		
 	}
 
@@ -1313,6 +1338,7 @@ Effect.Types = {
 	taunt : 'taunt',	
 	addActions : 'addActions',	// handled in Player
 	addMissingFxTag : 'addMissingFxTag',
+	addExposedOrificeTag : 'addExposedOrificeTag',
 };
 
 Effect.KnockdownTypes = {
@@ -1381,6 +1407,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addActions] : '{actions:(str/arr)actions} - Unlocks specified actions while you\'re under the effect of this',
 	[Effect.Types.none] : 'Void. You probably only want to use this if you want an effect that adds tags but nothing else',
 	[Effect.Types.addMissingFxTag] : '{tag:(str/arr)tags, max:(int)=1} - Adds one or more tags to this Effect that the target doesn\'t have.',
+	[Effect.Types.addExposedOrificeTag] : '{relax:(str)"notHard"/"all"} - Similar to above, but it checks availability and exposed status of stdTag.wrBlockGroin, wrBlockButt, wrBlockMouth, and adds one of them. Useful for latching that should occupy a slot. Checks for exposed by default, but you can also limit it to non-hard armor or no limits.',
 
 };
 

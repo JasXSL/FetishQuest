@@ -338,6 +338,8 @@ class Action extends Generic{
 			return false;
 		}
 
+		const pl = this.getPlayerParent(); 
+		
 		// AP was consumed immediately
 		if( this.ap > this.getPlayerParent().ap && game.battle_active && !isChargeFinish )
 			return err("Not enough AP for action");
@@ -369,6 +371,9 @@ class Action extends Generic{
 			if( this.ranged && this.getPlayerParent().hasTag(stdTag.wrDazed) && !isChargeFinish )
 				return err("Can't use while dazed");
 
+			if( pl && pl.isIncapacitated() )
+				return err("You are incapacitated");
+			
 		}
 
 		return true;

@@ -95,6 +95,7 @@ class Bot{
 	}
 
 	play( force = false ){
+		
 		if( (!this.player.isNPC() && !force) || !game.battle_active )
 			return;
 
