@@ -1,6 +1,5 @@
 Next:
-	- Cocktopus texts
-	- Crab monster
+	- Make it so you can talk to the barkeep and start the chat. Then change back to persistent.
 
 Needed scripts:
 	- NPC dialog visual

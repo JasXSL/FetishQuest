@@ -13,13 +13,12 @@ class Quest extends Generic{
 		this.label = '';
 		this.name = '';
 		this.description = '';
-		this.objectives = [];
 		this.rewards_assets = [];
 		this.rewards_experience = 0;
 		this.level = 1;
 		this.objectives = [];
 		this.completion_objectives = [];			// One of these will trigger. This allows you to add multiple ways of handing in a quest with different outcomes
-		this.finished = false;						// Set internally when the quest finishes to prevent further objective evaluation
+		this.completed = false;						// Set internally when the quest finishes to prevent further objective evaluation
 
 		this.load(data);
 	}
@@ -102,7 +101,7 @@ class Quest extends Generic{
 
 	// hand out rewards etc
 	finish( event ){
-		this.finished = true;
+		this.completed = true;
 		
 		// Give exp
 		let players = game.getTeamPlayers();
@@ -336,7 +335,7 @@ class QuestObjectiveEvent extends Generic{
 	trigger( event ){
 		let quest = this.getQuest();
 		// Quest finished, ignore this
-		if( quest.finished )
+		if( quest.completed )
 			return;
 
 		// Quest is overwritten if it doesn't exist
@@ -368,5 +367,5 @@ QuestObjectiveEvent.Actions = {
 };
 
 
-export {QuestObjective};
+export {QuestObjective, QuestObjectiveEvent};
 export default Quest;

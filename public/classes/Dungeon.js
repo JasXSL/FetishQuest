@@ -241,7 +241,7 @@ class Dungeon extends Generic{
 
 		if( this.transporting )
 			return false;
-		
+
 		this.transporting = true;
 		this.previous_room = this.active_room;
 		if( this.rooms[index] )
@@ -1585,7 +1585,6 @@ class DungeonEncounter extends Generic{
 
 	getRP( player ){
 		for( let rp of this.rp ){
-			console.log("Validating", rp, rp.validate(player));
 			if( rp.validate(player) )
 				return rp;
 		}

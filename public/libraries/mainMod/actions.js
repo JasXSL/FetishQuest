@@ -1366,9 +1366,7 @@ const lib = {
 				detrimental : true,
 				add_conditions : stdCond.concat(
 					"targetNotBeast",
-					{conditions : 
-						["targetWearsLowerbody", "targetWearsUpperbody"]
-					}
+					"targetNotNaked"
 				),
 				effects : [
 					{
@@ -1772,6 +1770,73 @@ const lib = {
 		]
 	},
 
+
+	// Crab
+	crab_claw_pinch : {
+		name : "Claw Pinch",
+		icon : 'crossed-claws',
+		description : "Jumps onto and pinches a player with your claws, dealing 4 physical damage.",
+		ap : 2,
+		cooldown : 2,
+		mp : 1,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [
+			stdTag.acDamage
+		],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : true,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {
+							amount : 4
+						}
+					},
+				]
+			}
+		]
+	},
+	crab_claw_tug : {
+		name : "Claw Tug",
+		icon : 'claws',
+		description : "Latches onto and tugs at your target's clothes, doing 1 cloth damage and has a 20% chance of removing a random piece of clothing.",
+		ap : 2,
+		cooldown : 2,
+		mp : 1,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : true,
+				add_conditions : stdCond.concat("targetNotNaked"),
+				effects : [
+					{
+						type : Effect.Types.damageArmor,
+						data : {
+							amount : 1
+						}
+					},
+					{
+						type : Effect.Types.disrobe,
+						data : {
+							numSlots : 1
+						},
+						conditions : ["rand20"]
+					},
+				]
+			}
+		]
+	},
 
 
 

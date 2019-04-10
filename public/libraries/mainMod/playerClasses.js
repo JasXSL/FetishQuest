@@ -218,6 +218,15 @@ const lib = {
             "cocktopus_inkject",
         ]
     },
+    tentacrab : {
+        name : "Pincher",
+        primaryStat : Player.primaryStats.stamina,
+        isMonsterClass : true,
+        actions : [
+            "crab_claw_pinch",
+            "crab_claw_tug",
+        ]
+    },
 };
 
 

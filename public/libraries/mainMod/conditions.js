@@ -54,6 +54,9 @@ const lib = {
 	action_cocktopus_inkject_tick : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_tick'}, targnr:0},
 	action_cocktopus_inkject_finish : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_expire'}, targnr:0},
 	action_detach : {type:Condition.Types.actionLabel, data:{label:'detach'}, targnr:0},
+	
+	action_crab_claw_pinch : {type:Condition.Types.actionLabel, data:{label:'crab_claw_pinch'}, targnr:0},
+	action_crab_claw_tug : {type:Condition.Types.actionLabel, data:{label:'crab_claw_tug'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 
@@ -66,6 +69,7 @@ const lib = {
 	senderBlockingGroin : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockGroin], sender:true}},
 
 	senderIsCocktopus : {type:Condition.Types.species, data:{species:['cocktopus']}, caster:true},
+	senderIsTentacrab : {type:Condition.Types.species, data:{species:['tentacrab']}, caster:true},
 
 	// Block tags signify that the slot is currently occupied
 	targetHasUnblockedOrifice : {conditions:[
@@ -110,6 +114,8 @@ const lib = {
 	targetLowerbodyMetal : {"type":"tag","data":{"tags":["as_metal_lowerbody"]}},
 	targetUpperbodyMetal : {"type":"tag","data":{"tags":["as_metal_upperbody"]}},
 	targetLowerbodyWaistband : {"type":"tag","data":{"tags":["as_waistband_lowerbody"]}},
+
+	
 
 	targetButtExposed : {conditions:[
 		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true},
@@ -237,6 +243,11 @@ lib.targetVaginaUnblockedAndNotHard = {conditions:[
 	{type:Condition.Types.tag, data:{tags:[stdTag.vagina]}},
 	{conditions:[lib.targetGroinExposed, lib.targetLowerbodyNotHard]}
 ], min:-1};
+
+lib.targetNotNaked = {conditions:[
+	lib.targetWearsUpperbody,
+	lib.targetWearsLowerbody
+], inverse:true};
 
 // Special cases where it needs to refer to itself
 lib.targetHasUnblockedExposedOrifice = {conditions:[

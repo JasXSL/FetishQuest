@@ -7,6 +7,7 @@ import Asset from './Asset.js';
 import GameEvent from './GameEvent.js';
 import Dungeon, { DungeonEncounter } from './Dungeon.js';
 import Calculator from './Calculator.js';
+import Quest from './Quest.js';
 
 export default class GameAction extends Generic{
 
@@ -188,6 +189,7 @@ export default class GameAction extends Generic{
 
 	}
 
+	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
 	async trigger( player, mesh ){
 		
 
@@ -215,13 +217,14 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.door && !isNaN(this.data.index) ){
 
+			if( !game.canTransport() )
+				return;
 			game.onRoomChange();
 			this.parent.parent.parent.goToRoom( player, this.data.index );
 			playAnim("open");
 
 		}
 
-		// Todo: Dungeon exit
 		else if( this.type === types.exit ){
 			
 			game.onDungeonExit();
@@ -264,6 +267,21 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.quest ){
+
+			let quest = this.data.quest;
+			if( typeof quest === "object" )
+				quest = new Quest(quest);
+			else
+				quest = glib.get(quest, 'Quest');
+
+			if( !quest )
+				return console.error("Quest not found in game action", this);
+
+			game.addQuest(quest);
+
+		}
+
 	}
 
 	getDungeon(){
@@ -299,6 +317,7 @@ GameAction.types = {
 	exit : "exit",					// {dungeon:(str)dungeon_label, index:(int)landing_room=0}
 	anim : "anim",					// {anim:(str)animation}
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
+	quest : "quest",				// {quest:(str/Quest)q} - Offers a quest
 };
 
 

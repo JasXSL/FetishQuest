@@ -339,6 +339,30 @@ export default class Condition extends Generic{
 					console.error(t, "doesn't have an isDead function");
 				success = t.isDead();
 			}
+
+			else if( this.type === T.encounterLabel ){
+				const d = toArr(this.data.label);
+				success = event.encounter && d.indexOf(event.encounter.label) > -1;
+			}
+
+			else if( this.type === T.questAccepted ){
+				const d = toArray(this.data.quest);
+				for( let quest of game.quests ){
+					if( ~d.indexOf(quest.label) ){
+						success = true;
+						break;
+					}
+				}
+			}
+			else if( this.type === T.questCompleted ){
+				const d = toArray(this.data.quest);
+				for( let quest of game.quests ){
+					if( ~d.indexOf(quest.label) && quest.completed ){
+						success = true;
+						break;
+					}
+				}
+			}
 			
 			
 			else if( this.type === T.punishNotUsed )
@@ -520,6 +544,9 @@ Condition.Types = {
 	targetIsSender : 'targetIsSender',
 	hasFxTagBySender : 'hasFxTagBySender',		//
 	species : 'species',
+	encounterLabel : 'encounterLabel',			// label of event encounter
+	questAccepted : 'questAccepted',			
+	questCompleted : 'questCompleted',
 };
 
 Condition.descriptions = {
@@ -552,6 +579,9 @@ Condition.descriptions = {
 	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data} - Compares a dungeonVar to data',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
 	[Condition.Types.species] : '{species:(str/arr)species} - Checks if target is one of the selected species. Case insensitive',	
+	[Condition.Types.encounterLabel] : '{label:(str/arr)encounter_label} - Checks if the encounter label exists in data label array',	
+	[Condition.Types.questAccepted] : '{quest:(str/arr)quest} - Checks if a quest has been started, regardless of completion status',	
+	[Condition.Types.questCompleted] : '{quest:(str/arr)quest} - Checks if any of these quests are completed',	
 };
 
 

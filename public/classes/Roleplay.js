@@ -1,6 +1,7 @@
 import Generic from './helpers/Generic.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
+import GameAction from './GameAction.js';
 export default class Roleplay extends Generic{
 
 	constructor(data, parent){
@@ -9,12 +10,13 @@ export default class Roleplay extends Generic{
 		this.parent = parent;
 		
 		this.stage = 0;
-		this.finished = false;
+		this.persistent = false;	// If set to true, the stage is saved and continued from there. Otherwise if you close and re-open, it resets to 0
+		this.completed = false;
 		this.label = '';
 		this.title = '';
 		this.stages = [];			// Roleplay stages
-		this.allow_resume = false;
 		this.player = '';
+		this.conditions = [];
 
 		this.load(data);
 
@@ -46,13 +48,14 @@ export default class Roleplay extends Generic{
 		let out = {
 			label : this.label,
 			stages : RoleplayStage.saveThese(this.stages, full),
-			allow_resume : this.allow_resume,
+			persistent : this.persistent,
 			title : this.title,
-			player : this.player
+			player : this.player,
+			conditions : Condition.saveThese(this.conditions),
 		};
 
 		if( full !== "mod" ){
-			out.finished = this.finished;
+			out.completed = this.completed;
 			out.stage = this.stage;
 			out.id = this.id;
 			
@@ -69,6 +72,7 @@ export default class Roleplay extends Generic{
 	rebase(){
 		
 		this.stages = RoleplayStage.loadThese(this.stages, this);
+		this.conditions = Condition.loadThese(this.conditions, this);
 
 	}
 
@@ -93,8 +97,11 @@ export default class Roleplay extends Generic{
 
 	setStage( index ){
 
-		if( index === -1 )
-			this.finished = true;
+		if( index === -1 ){
+			if( this.persistent )
+				this.completed = true;
+			game.clearRoleplay();
+		}
 		else
 			this.stage = index;
 
@@ -102,13 +109,23 @@ export default class Roleplay extends Generic{
 		if( stage )
 			stage.onStart();
 
-
 	}
 
 	getPlayer(){
 		return game.getPlayerByLabel(this.player);
 	}
 
+	onStart(){
+		this.getActiveStage().onStart();
+	}
+
+	validate( player ){
+		const evt = new GameEvent({
+			player : player,
+			roleplay : this
+		});
+		return Condition.all(this.conditions, evt);
+	}
 
 }
 
@@ -127,7 +144,6 @@ class RoleplayStage extends Generic{
 		this.options = [];
 		this.conditions = [];
 		this.player = '';			// Player label
-		
 
 		this.load(data);
 
@@ -203,6 +219,15 @@ class RoleplayStage extends Generic{
 
 	}
 
+	getName(){
+		if( this.name )
+			return esc(name);
+		const pl = this.getPlayer();
+		if( pl )
+			return pl.getColoredName();
+		return '';
+	}
+
 	onStart( player ){
 
 		if( !player )
@@ -226,6 +251,7 @@ class RoleplayStageOption extends Generic{
 		this.index = 0;			// Target index
 		this.text = '';
 		this.conditions = [];
+		this.game_actions = [];
 
 		this.load(data);
 
@@ -234,6 +260,12 @@ class RoleplayStageOption extends Generic{
 	load(data){
 		this.g_autoload(data);
 	}
+	// Automatically invoked after g_autoload
+	rebase(){
+		this.conditions = Condition.loadThese(this.conditions, this);
+		this.game_actions = GameAction.loadThese(this.game_actions, this);
+	}
+
 
 	// Data that should be saved to drive
 	save( full ){
@@ -246,6 +278,7 @@ class RoleplayStageOption extends Generic{
 
 		if( full ){
 			out.index = this.index;
+			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
 		
 		if( full !== "mod" ){}
@@ -262,12 +295,7 @@ class RoleplayStageOption extends Generic{
 
 	}
 
-	// Automatically invoked after g_autoload
-	rebase(){
-		this.conditions = Condition.loadThese(this.conditions, this);
-		
-	}
-
+	
 	validate( player ){
 
 		return Condition.all(this.conditions, new GameEvent({
@@ -282,10 +310,12 @@ class RoleplayStageOption extends Generic{
 			return false;
 
 		const rp = this.getRoleplay();
-
 		const pl = this.parent.getPlayer();
 		if( pl )
 			game.speakAs( player.id, this.text );
+
+		for( let act of this.game_actions )
+			act.trigger(player, pl);
 
 		rp.setStage(this.index);
 		

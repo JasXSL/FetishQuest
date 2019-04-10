@@ -24,11 +24,31 @@ const lib = {
 		startText : '',
 		conditions : [],
 	},
+	beach : {
+		player_templates : [
+			"cocktopus",
+			"tentacrab"
+		],
+		wrappers : [],
+		startText : '',
+		conditions : [],
+	},
+
+	// YUUG
 	yuug_port_tavern_npcs : {
 		players: ["yuug_port_barkeep"],
 		friendly : true,
 		rp : ["first_quest_pickup"]
-	}
+	},
+
+
+	// MQ00
+	["MQ00_Boss"] : {
+		players: [],
+		friendly : false,
+		rp : ["MQ00_Boss"]
+	},
+
 };
 
 

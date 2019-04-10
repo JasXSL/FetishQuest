@@ -1961,7 +1961,7 @@ export default class Modtools{
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Player Label: '+this.inputPlayer(asset.player || '', 'player')+'<br />';
-			html += '<label>Allow resume: <input type="checkbox" name="allow_resume" '+(asset.allow_resume ? 'checked' : '')+' /></label><br />';
+			html += '<label>Allow resume: <input type="checkbox" name="persistent" '+(asset.persistent ? 'checked' : '')+' /></label><br />';
 			html += 'Stages: '+this.formRoleplayStages(asset.stages, 'stages')+'<br />'; 
 			
 		this.editor_generic('roleplay', asset, this.mod.roleplay, html, saveAsset => {
@@ -1969,7 +1969,7 @@ export default class Modtools{
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.player = $("> input[name=player]", form).val().trim();
-			saveAsset.allow_resume = $("input[name=allow_resume]", form).prop('checked');
+			saveAsset.persistent = $("input[name=persistent]", form).prop('checked');
 			
 			saveAsset.stages = this.compileRoleplayStages('stages');
 			

@@ -934,8 +934,14 @@ div.fxBuffBlue{
 		width:10vmax; height:10vmax;
 	}
 	#roleplay div.text{
-
+		font-weight: normal;
 	}
+	#roleplay div.text span{
+		font-style: italic;
+		font-weight: bold;
+		font-size:1.5vmax;
+	}
+	
 	#roleplay div.responses > div.option{
 		width:90%;
 		font-size:1.5vmax;
@@ -1338,6 +1344,50 @@ div.fxBuffBlue{
 		padding:0 25%;
 	}
 
+	/* Interactions */
+	#ui > div.players div.player > div.interactions {
+		position:absolute;
+		top:1vmax; right:0;
+		transform:translateX(100%);
+	
+	}
+	#ui > div.players > div.right > div.player > div.interactions {
+		right:auto;
+		left:0;
+		transform:translateX(-100%);
+	}
+	#ui > div.players div.player > div.interactions > div {
+		width:4vmax;
+		height:4vmax;
+		background:rgba(0,0,0,.5);
+		overflow:hidden;
+		border-radius:0.25vmax;
+		border: 2px solid #999;
+		cursor:pointer;
+		pointer-events:all;
+		padding:0.25vmax;
+	}
+	#ui > div.players div.player > div.interactions > div:hover{
+		border-color:#FFF;
+	}
+	#ui > div.players > div.left div.player > div.interactions > div{
+		border-left:none;
+		border-top-left-radius:0;
+		border-bottom-left-radius:0;
+	 
+	}
+	#ui > div.players > div.right div.player > div.interactions > div{
+		border-right:none;
+		border-top-right-radius:0;
+		border-bottom-right-radius:0;
+	 
+	}
+	
+	#ui > div.players div.player > div.interactions > img {
+		width:100%;
+		pointer-events:none;
+	}
+	
 
 
 /* Action bar */

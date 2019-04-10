@@ -17,6 +17,7 @@ import {getArray as getGameActions} from './mainMod/gameActions.js';
 import {getArray as getPlayers} from './mainMod/players.js';
 import {getArray as getRoleplays} from './mainMod/roleplays.js';
 import {getArray as getEffects} from './mainMod/effects.js';
+import {getArray as getQuests} from './mainMod/quests.js';
 
 import dungeons from './mainMod/dungeons.js';
 
@@ -28,7 +29,7 @@ const mod = new Mod(
 		author:"JasX",
 		description:"This is a copy of main. Export into _main_mod.js",
 		dungeons:dungeons,
-		quests:[],
+		quests:getQuests(),
 		vars:{},
 		texts:texts,
 		actions:getActions(),

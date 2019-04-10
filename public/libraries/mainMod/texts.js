@@ -272,6 +272,22 @@ const lib = [
 		hitfx : ["biteGeneric"],
 	},
 
+	// Crab
+	{ text : "%S punches %T's %leftright leg with %Shis claw!",
+		turnTags:[],
+		conditions : anyOnHumCond.concat("action_stdAttack","senderIsTentacrab"),
+		hitfx : ["punch"]
+	},
+	{ text : "%S punches %T's %Trsize %leftright buttcheek with %Shis claw!",
+		turnTags:[],
+		conditions : anyOnHumCond.concat("action_stdAttack","senderIsTentacrab"),
+		hitfx : ["punch"]
+	},
+	{ text : "%S throws a claw punch at %T!",
+		turnTags:[],
+		conditions : anyOnHumCond.concat("action_stdAttack","senderIsTentacrab"),
+		hitfx : ["punch"]
+	},
 
 
 	// Whips
@@ -461,6 +477,8 @@ const lib = [
 		hitfx : ["slowThrusts"]
 	},
 
+	
+
 
 	// stdArouse - Tentacles
 	{ text : "%S slips a couple of tendrils up between %T's legs, rubbing across %This %groin!",
@@ -605,6 +623,33 @@ const lib = [
 		weight : Text.Weights.high,
 		hitfx : ["squishTiny"],
 
+	},
+
+	// Crab
+	{ text : "%S slips between %T's legs and reaches up, grinding %Shis claw against the %Trace's %Tgroin!",
+		turnTags:[],
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsTentacrab"),
+		hitfx : ["squishTiny"]
+	},
+	{ text : "%S slips between %T's legs and protrudes %Shis tentacles upwards, tickling the %Trace's %Tgroin!",
+		turnTags:[],
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsTentacrab"),
+		hitfx : ["tickle"]
+	},
+	{ text : "%S slips between %T's legs and protrudes %Shis tentacles upwards, tickling the %Trace's %Trsize %Tbutt!",
+		turnTags:[],
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsTentacrab"),
+		hitfx : ["tickle"]
+	},
+	{ text : "%S slips between %T's legs and protrudes %Shis tentacles upwards, tickling between %This buttcheeks!",
+		turnTags:[],
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsTentacrab"),
+		hitfx : ["tickle"]
+	},
+	{ text : "%S slips between %T's legs and reaches up, prodding %Shis claw part-way into the %Trace's %Tvagina!",
+		turnTags:[],
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsTentacrab", "targetVagina", "targetGroinExposed"),
+		hitfx : ["squishTiny"]
 	},
 
 
@@ -1458,7 +1503,66 @@ const lib = [
 		hitfx : ["sludgeBlack"]
 	},
 
+	// crab_claw_pinch
+	{ text : "%S slips in between %T's legs and reaches up, pinching %This %Trsize %Tbutt with %Shis claws!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_pinch"]),
+		hitfx : ['pinch']
+	},
+	{ text : "%S pinches %T's %leftright foot!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_pinch"]),
+		hitfx : ['pinch']
+	},
+	{ text : "%S jumps at %T's face, pinching %This nose!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_pinch"]),
+		hitfx : ['pinch']
+	},
+	{ text : "%S slips in between %T's legs and reaches up, pinching %This %Tgroin with a claw!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_pinch"]),
+		hitfx : ['pinch']
+	},
+	{ text : "%S jumps at %T and pinches a hold of %This nipples, hanging on for a moment before dropping off!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_pinch", "targetBreasts", "targetUpperbodyNotHard"]),
+		hitfx : ['pinch']
+	},
+	{ text : "%S jumps at %T and pinches a hold of %This %Tbsize %Tbreasts, hanging on for a moment before dropping off!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_pinch", "targetBreasts", "targetUpperbodyNotHard"]),
+		hitfx : ['pinch']
+	},
+	{ text : "%S jumps at %T and pinches a hold of %This %Trsize %Tbutt, hanging on for a moment before dropping off!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_pinch", "targetLowerbodyNotHard"]),
+		hitfx : ['pinch']
+	},
 
+	// crab_claw_tug
+	{ text : "%S jumps at %T from behind, pinching a hold of and tugging at %This %TclothLower!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_tug", "targetWearsLowerbody"]),
+		hitfx : ['stretch']
+	},
+	{ text : "%S jumps at %T from behind, pinching a hold of and tugging at %This %TclothUpper!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_tug", "targetWearsUpperbody"]),
+		hitfx : ['stretch']
+	},
+	{ text : "%S jumps at %T from behind, pinches a hold of %This %TclothLower and tugs down, exposing %This %Tgenitals!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_tug", "targetLowerbodyNotHard", "targetWearsThong", "targetWearsLowerbody"]),
+		turnTags : [stdTag.ttGroinExposed],
+		hitfx : ['stretch']
+	},
+	{ text : "%S jumps at %T from behind, pinches a hold of the back of %This %TclothLower and tugs down, exposing %This %Tbutt!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_tug", "targetLowerbodyNotHard", "targetWearsThong", "targetWearsLowerbody"]),
+		turnTags : [stdTag.ttButtExposed],
+		hitfx : ['stretch']
+	},
+	{ text : "%S jumps at %T and pinches a hold of the strings of %This %TclothUpper, tugging down and exposing the %Trace's %Tbreasts!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_tug", "targetLowerbodyNotHard", "targetWearsSlingBikini", "targetBreasts"]),
+		turnTags : [stdTag.ttBreastsExposed],
+		hitfx : ['stretch']
+	},
+	{ text : "%S jumps at %T from behind, pinching a hold of and tugging at %This outfit!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_tug"]),
+		hitfx : ['stretch']
+	},
+
+	
 
 	// whip_legLash
 	{ text : "%S lashes %Shis whip across %T's legs!",

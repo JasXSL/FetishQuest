@@ -38,7 +38,7 @@ export default class Game extends Generic{
 		this.net = new NetworkManager(this);
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new DungeonEncounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
-		this.roleplay = new Roleplay({finished:true}, this);
+		this.roleplay = new Roleplay({completed:true}, this);
 		this.quests = [];								// Quest Objects of quests the party is on
 		this.net_load = false;							// Currently loading from network
 
@@ -183,6 +183,8 @@ export default class Game extends Generic{
 		if( this.is_host )
 			game.players.map(pl => pl.initialize());
 
+		if( !this.roleplay.persistent )
+			this.clearRoleplay();
 		
 		await glib.autoloadMods();
 		glib.setCustomAssets(this.libAsset);
@@ -358,6 +360,8 @@ export default class Game extends Generic{
 	}
 	// Raised before a room changes
 	onRoomChange(){
+
+		this.clearRoleplay();
 		this.removeEnemies();
 		this.ui.draw();
 		for( let player of this.players )
@@ -561,7 +565,7 @@ export default class Game extends Generic{
 
 
 	/* DUNGEON */
-	setDungeon( dungeon, saveState = true, resetSaveState = false ){
+	setDungeon( dungeon, saveState = true, room = 0, resetSaveState = false ){
 
 		if( dungeon === this.dungeon )
 			return;
@@ -574,6 +578,7 @@ export default class Game extends Generic{
 				this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
 		}
 		this.dungeon = dungeon;
+		game.dungeon.previous_room = game.dungeon.active_room = room;
 		if( resetSaveState )
 			delete this.state_dungeons[this.dungeon.label];
 		else
@@ -584,6 +589,17 @@ export default class Game extends Generic{
 		this.net.purgeFromLastPush(["dungeon"],["encounter"]);
 		this.save();
 		this.renderer.loadActiveDungeon();
+	}
+
+	canTransport( addError = true ){
+
+		if( this.isInPersistentRoleplay() ){
+			if( addError )
+				this.modal.addError("Can't transport right now");
+			return false;
+		}
+		return true;
+
 	}
 	/*
 	// Dungeon
@@ -632,8 +648,6 @@ export default class Game extends Generic{
 		
 	}
 	addQuest(quest){
-		if( this.quests.length > 5 )
-			return this.modal.addError("Quest log is full.");
 		if( !(quest instanceof Quest) )
 			return this.modal.addError("Quest is not a Quest object");
 		this.quests.push(quest);
@@ -1080,6 +1094,8 @@ export default class Game extends Generic{
 	}
 
 
+	
+
 
 
 
@@ -1126,8 +1142,9 @@ export default class Game extends Generic{
 
 				let rp = this.encounter.getRP(player);
 				if( !rp )
-					rp = new Roleplay({finished:true}, this);
+					this.clearRoleplay();
 				this.setRoleplay(rp);
+				rp.onStart();
 
 			}
 		
@@ -1278,7 +1295,7 @@ export default class Game extends Generic{
 		if( standing.length > 1 )
 			return false;
 
-		if( !this.encounter.finished ){
+		if( !this.encounter.completed ){
 
 			let evt = GameEvent.Types.encounterLost;
 			if( standing[0] !== undefined && standing[0] === 0 ){
@@ -1483,6 +1500,9 @@ export default class Game extends Generic{
 
 
 
+
+
+
 	// Roleplay
 	useRoleplayOption( senderPlayer, option_id ){
 
@@ -1510,13 +1530,46 @@ export default class Game extends Generic{
 
 	setRoleplay( rp ){
 
+		if( this.isInPersistentRoleplay() )
+			return;
+
 		this.roleplay = rp.clone(this);
+		this.roleplay.stage = 0;
 
 		this.ui.draw();
 		if( this.roleplay.stages.length )
 			this.ui.toggle(true);
 
 	}
+
+	clearRoleplay(){
+		this.setRoleplay(new Roleplay({completed:true}, this));
+		this.ui.draw();
+	}
+
+	isInPersistentRoleplay(){
+		return !this.roleplay.completed && this.roleplay.persistent;
+	}
+
+	// Gets all available noncompleted roleplays for a player
+	getRoleplaysForPlayer( player ){
+		const out = [];
+		const encounter = this.encounter;
+		for( let rp of encounter.rp ){
+
+			const pl = rp.getPlayer();
+			if( pl.id === player.id && !rp.completed && rp.validate(game.getMyActivePlayer()) )
+				out.push(rp);
+
+		}
+		return out;
+	}
+
+
+
+
+
+
 
 
 	/* ASSETS */

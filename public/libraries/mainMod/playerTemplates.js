@@ -476,7 +476,7 @@ const lib = {
 		max_level : 20,
 		primary_stats : {
 			[Player.primaryStats.agility] : 1,
-			[Player.primaryStats.stamina] : -2
+			[Player.primaryStats.stamina] : -6
 		},
 		sv : {
 			[Action.Types.corruption] : 2,
@@ -497,7 +497,47 @@ const lib = {
 		viable_consumables : [],
 		intelligence_min : 0.1,
 		intelligence_max : 0.15,
-	}
+	},
+
+	tentacrab : {
+		name : "Tentacrab",
+		icon : "/media/characters/crabby.jpg",
+		species : "tentacrab",
+		description : "A fiercely territorial crab with little tentacles on its back.",
+		classes : [
+			"tentacrab"
+		],
+		max_actions : 2,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plClaws,
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : -2,
+			[Player.primaryStats.stamina] : -2
+		},
+		sv : {
+			[Action.Types.corruption] : -2,
+			[Action.Types.elemental] : 2,
+			[Action.Types.holy] : -2,
+			[Action.Types.physical] : 3,
+		},
+		bon : {
+			[Action.Types.corruption] : -1,
+			[Action.Types.elemental] : 1,
+			[Action.Types.holy] : -3,
+			[Action.Types.physical] : 0,
+		},
+		gear_chance : 0,
+		min_size : 0,
+		max_size : 1,
+		difficulty : 1,
+		viable_consumables : [],
+		intelligence_min : 0.1,
+		intelligence_max : 0.15,
+	},
 };
 
 

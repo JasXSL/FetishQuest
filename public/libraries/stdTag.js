@@ -32,6 +32,7 @@ export default {
 	plCircumcised : 'pl_circumcised',
 	plImmobile : 'pl_immobile',		// Immobile
 	plElectric : "pl_electric",
+	plClaws : 'pl_claws',
 
 	// Player behavior tags
 	plDishonorable : "pl_dishonorable",

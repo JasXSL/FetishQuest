@@ -535,6 +535,9 @@ export default class UI{
 						'<div class="charging"></div>'+
 					'</div>'+
 					'<div class="targetingStats"></div>'+
+					'<div class="interactions">'+
+						'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
+					'</div>'+
 				'</div>';
 
 				let el = $(div);
@@ -676,6 +679,20 @@ export default class UI{
 				
 			}
 			$("> div.topRight > div.charging", el).html(ch);
+
+
+
+			// Interactions
+			let rps = game.getRoleplaysForPlayer( p );
+			if( game.isInPersistentRoleplay() )
+				rps = [];
+			$("div.interaction[data-type=chat]", el).toggleClass("hidden", !rps.length).off('click').on('click', event => {
+				const rp = game.getRoleplaysForPlayer(p).shift();
+				event.stopImmediatePropagation();
+				if( rp )
+					game.setRoleplay(rp);
+			});
+			
 
 			// Effect wrappers
 			let o = '';
@@ -2721,11 +2738,11 @@ export default class UI{
 		const roleplay = game.roleplay;
 		const div = this.roleplay;
 		const stage = roleplay.getActiveStage();
-		if( !roleplay.finished && stage ){
+		if( !roleplay.completed && stage ){
 			
 			$("div.portrait", div).html(stage.icon ? '<img src="media/characters/'+esc(stage.icon)+'.png"' : '');
 			$('> div.left', div).toggleClass('hidden', !stage.icon);
-			$("div.text", div).html(esc(stage.text));
+			$("div.text", div).html('<span class="name">'+stylizeText(stage.getName())+'</span><br />'+esc(stage.text));
 			let html = '';
 			for( let response of stage.options ){
 				if( response.validate() )
@@ -2739,7 +2756,7 @@ export default class UI{
 			});
 		}
 		
-		div.toggleClass('hidden', roleplay.finished);
+		div.toggleClass('hidden', roleplay.completed);
 
 		
 	}
