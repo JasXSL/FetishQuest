@@ -139,7 +139,7 @@ export default class Player extends Generic{
 		if( this.class === null )
 			this.class = new PlayerClass();
 
-		if( !game.is_host )
+		if( window.game && !game.is_host )
 			this.auto_wrappers = Wrapper.loadThese(this.auto_wrappers, this);
 
 	}
@@ -807,30 +807,37 @@ export default class Player extends Generic{
 
 
 	/* Assets */
-	addAsset( asset ){
+	addAsset( asset, amount = 1 ){
 		if( !asset ){
 			console.error("Invalid asset add", asset);
 			return false;
 		}
 		asset.equipped = false;
-		this.assets.push(asset.clone(this));
 
-		if( asset.category === Asset.Categories.consumable ){
-			
-			if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 )
-				this.equipAsset(asset.id);
+		for( let i = 0; i<amount; ++i ){
+			const exists = this.getAssetByLabel(asset.label);
+			if( asset.stacking && exists )
+				exists._stacks += 1;
+			else
+				this.assets.push(asset.clone(this));
 
-		}
-		else if( this.isNPC() ){
+			if( asset.category === Asset.Categories.consumable ){
+				
+				if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 )
+					this.equipAsset(asset.id);
 
-			if( !this.getEquippedAssetsBySlots(asset.slots).length )
-				this.equipAsset(asset.id);
+			}
+			else if( this.isNPC() ){
 
+				if( !this.getEquippedAssetsBySlots(asset.slots).length )
+					this.equipAsset(asset.id);
+
+			}
 		}
 
 		return true;
 	}
-	addLibraryAsset( label ){
+	addLibraryAsset( label, amount = 1 ){
 
 		let asset = glib.getFull('Asset')[label];
 		if( !asset ){
@@ -838,12 +845,20 @@ export default class Player extends Generic{
 			return false;
 		}
 		asset.repair();
-		return this.addAsset(asset);
+		return this.addAsset(asset, amount);
 
 	}
 	getAssetById(id){
 		for(let asset of this.assets){
 			if(asset.id === id)
+				return asset;
+		}
+		return false;
+	}
+	// useful for stackable items like currency
+	getAssetByLabel( label ){
+		for(let asset of this.assets){
+			if( asset.label === label )
 				return asset;
 		}
 		return false;

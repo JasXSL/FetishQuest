@@ -28,6 +28,7 @@ export default class Asset extends Generic{
 		this.level = 1;
 		this.durability_bonus = 0;
 		this.durability = this.getMaxDurability();
+		this.stacking = false;			// Setting this to true makes it non unique, but frees up space in your inventory
 		
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
 		this.use_action = null;		// Set to an Action along with charges above to enable use
@@ -37,6 +38,7 @@ export default class Asset extends Generic{
 
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
+		this._stacks = 1;				// how many items this stack contains, requires stacking true
 		this.load(data);
 
 	}
@@ -65,6 +67,8 @@ export default class Asset extends Generic{
 			loot_sound : this.loot_sound,
 			icon : this.icon,
 			category : this.category,
+			stacking : this.stacking,
+			_stacks : this._stacks
 		};
 
 		if( full ){
@@ -544,6 +548,7 @@ Asset.Categories = {
 	food : 'food',
 	reagent : 'reagent',
 	tool : 'tool',
+	currency : 'currency',
 };
 
 Asset.CategoriesNames = {
@@ -554,4 +559,5 @@ Asset.CategoriesNames = {
 	[Asset.Categories.food] : 'Food',
 	[Asset.Categories.tool] : 'Tools',
 	[Asset.Categories.reagent] : 'Reagent',
+	[Asset.Categories.currency] : 'Currency',
 };

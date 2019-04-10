@@ -1966,7 +1966,7 @@ export default class UI{
 					}
 					html += '<div class="item '+Asset.RarityNames[item.rarity]+' tooltipParent '+(item.equippable() ? 'equippable' : '')+(item.equipped ? ' equipped' : '')+(item.durability <= 0 ? ' broken' : '')+'" data-id="'+esc(item.id)+'">';
 						html += '<img class="assetIcon" src="media/wrapper_icons/'+esc(item.icon)+'.svg" />';
-						html += (item.equipped ? '<strong>' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
+						html += (item.equipped ? '<strong>' : '')+(item.stacking && item._stacks > 1 ? item._stacks+'x ' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
 						html += '<div class="tooltip">';
 							html += item.getTooltipText();
 						html += '</div>';

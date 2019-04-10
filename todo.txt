@@ -1,11 +1,12 @@
 Next:
-	- Make it so you can talk to the barkeep and start the chat. Then change back to persistent.
+	- Add a quest reward
+		- Need to be able to set so it generates one item per player
+		- Need to add an auto gold reward with a base amount per player
+		- Quests need to be able to have an auto difficulty, scaling with nr of players
+	- Script first quest
 
 Needed scripts:
-	- NPC dialog visual
-	- Tie roleplay to NPC
 	- Allow multiple roleplays in a cell
-	- Quest conditions
 
 Needed other:
 	- Credits page

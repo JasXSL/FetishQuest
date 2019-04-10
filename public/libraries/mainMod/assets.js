@@ -4,6 +4,21 @@ import { Wrapper } from "../../classes/EffectSys.js";
 import GameEvent from "../../classes/GameEvent.js";
 
 const lib = {
+
+	gold : {
+		name : "Gold",
+		slots : [],
+		category : Asset.Categories.currency,
+		tags : ["as_currency"],
+		description : "A standard unit of currency.",
+		weight : 6,
+		charges : 0,
+		rarity : 1,
+		loot_sound : "",	// todo: loot sound
+		icon : 'metal-disc',
+		stacking : true,
+	},
+
 	shinyWhiteThong : {
 		name : "Skirt and Thong Outfit",
 		slots : [
