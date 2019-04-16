@@ -1,6 +1,7 @@
 import Quest, { QuestObjectiveEvent } from "../../classes/Quest.js";
 import C from './conditions.js';
 import Condition from "../../classes/Condition.js";
+import Asset from "../../classes/Asset.js";
 
 const lib = {
 	["MQ00_YuugBeach"] : {
@@ -25,10 +26,13 @@ const lib = {
 				}]
 			}
 		],
-		rewards_assets : [],
+		rewards : [
+			{label:Asset.Dummies.label, name:'gold', _stacks:2},		// polymorph into a gold library object with 2 stacks
+			'whiteSwimtrunks',
+		],
+		multiply_reward : true,
 		rewards_experience : 5,
 		level : 1,
-		
 	}
 
 };

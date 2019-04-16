@@ -1710,9 +1710,9 @@ export default class UI{
 				}
 				html += '<hr />';
 				html += '<h3>Rewards</h3>';
-				for( let asset of selectedQuest.rewards_assets ){
+				for( let asset of selectedQuest.rewards ){
 					html += '<div class="item tooltipParent '+Asset.RarityNames[asset.rarity]+'">';
-						html += esc(asset.name);
+						html += esc(asset.name)+(asset._stacks > 1 ? ' x'+reward.amount : '');
 						html += '<div class="tooltip">';
 							html += asset.getTooltipText();
 						html += '</div>';

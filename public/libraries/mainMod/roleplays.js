@@ -48,7 +48,8 @@ const lib = {
 		player: "yuug_port_barkeep",
 		persistent: true,
 		conditions : [
-			{type:Condition.Types.questAccepted, data:{quest:'MQ00_YuugBeach'}, inverse:true, targnr:0}
+			{type:Condition.Types.questAccepted, data:{quest:'MQ00_YuugBeach'}, inverse:true, targnr:0},
+			{type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}, inverse:true, targnr:0},
 		]
 	},
 

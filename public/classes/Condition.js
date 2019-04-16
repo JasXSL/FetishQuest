@@ -356,8 +356,8 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.questCompleted ){
 				const d = toArray(this.data.quest);
-				for( let quest of game.quests ){
-					if( ~d.indexOf(quest.label) && quest.completed ){
+				for( let quest of d ){
+					if( ~game.completed_quests.indexOf(quest) ){
 						success = true;
 						break;
 					}

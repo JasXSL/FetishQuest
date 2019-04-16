@@ -475,7 +475,7 @@ Asset.stringifyStat = function( stat ){
 	
 	return stat;
 
-}
+};
 
 // Returns an asset from input by asset rarity
 Asset.getRandomByRarity = function( input = [] ){
@@ -560,4 +560,41 @@ Asset.CategoriesNames = {
 	[Asset.Categories.tool] : 'Tools',
 	[Asset.Categories.reagent] : 'Reagent',
 	[Asset.Categories.currency] : 'Currency',
+};
+
+
+// These are IDs that can be used which lets you transform this asset into a different one based on the label.
+// You can't use these labels in asset templates
+// Overwrites are fields that are overwritten in the transform
+Asset.Dummies = {
+	label : "__LABEL__",			// Use this and set label to polymorph into a clone of that object. 
+									// Uses: name -> ID of library asset you want to polymorph this into
+									// Overwrites: _stacks
+	autoloot : "__AUTOLOOT__",		// (todo) Automatically generates a lootable item.
+									// Overwrites: (none atm)
+
+};
+
+// Converts an asset if it's a dummy
+Asset.convertDummy = function( asset, parent ){
+
+	if( asset.label === Asset.Dummies.label ){
+		// todo: Convert to another label
+		const converted = glib.get(asset.name, 'Asset').clone(parent);
+		if( !converted ){
+			console.error("Asset conversion failed for dummy asset", asset);
+			return;
+		}
+		converted._stacks = asset._stacks;
+		return converted;
+	}
+
+	if( asset.label === Asset.Dummies.autoloot ){
+		console.error("Todo: auto generate a piece of loot");
+		return;
+	}
+
+	// not a dummy, return what it was
+	return asset;
+
 };

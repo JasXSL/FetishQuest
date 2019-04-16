@@ -13,12 +13,15 @@ class Quest extends Generic{
 		this.label = '';
 		this.name = '';
 		this.description = '';
-		this.rewards_assets = [];
+		this.rewards = [];							// Assets
 		this.rewards_experience = 0;
 		this.level = 1;
 		this.objectives = [];
 		this.completion_objectives = [];			// One of these will trigger. This allows you to add multiple ways of handing in a quest with different outcomes
 		this.completed = false;						// Set internally when the quest finishes to prevent further objective evaluation
+		
+		this.multiply_money = true;					// Multiplies the money reward by nr of players when quest is accepted
+		this.multiply_reward = false;				// Multiplies all rewards except money by nr of players when quest is accepted
 
 		this.load(data);
 	}
@@ -29,10 +32,10 @@ class Quest extends Generic{
 			name : this.name,
 			description : this.description,
 			objectives : this.objectives.map(el => el.save(full)),
-			rewards_assets : this.rewards_assets.map(el => el.save(full)),
+			rewards : Asset.saveThese(this.rewards),
 			rewards_experience : this.rewards_experience,
 			level : this.level,
-			completion_objectives : this.completion_objectives.map(el =>el.save(full)),
+			completion_objectives : this.completion_objectives.map(el =>el.save(full))
 		};
 
 		if(full )
@@ -41,6 +44,8 @@ class Quest extends Generic{
 
 		if( full !== "mod" ){
 			out.id = this.id;			
+			out.multiply_money = this.multiply_money;
+			out.multiply_reward = this.multiply_reward;
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -55,7 +60,7 @@ class Quest extends Generic{
 
 	rebase(){
 		this.objectives = QuestObjective.loadThese(this.objectives, this);
-		this.rewards_assets = Asset.loadThese(this.rewards_assets, this);
+		this.rewards = Asset.loadThese(this.rewards, this);
 		this.completion_objectives = QuestObjective.loadThese(this.completion_objectives, this);
 	}
 
@@ -83,11 +88,20 @@ class Quest extends Generic{
 		
 	}
 
-	addGearReward( item ){
+	addGearReward( item, amount = 1 ){
 		if( !(item instanceof Asset) )
 			return console.error(item, "is not an asset");
 		item = item.clone(this);
-		this.rewards_assets.push(item);
+		item.g_resetID();
+		if( item.stacking )
+			item._stacks = amount;
+		else{
+			for( let i = 0; i<amount; ++i ){
+				item = item.clone(this);
+				item.g_resetID();
+				this.rewards.push(item);
+			}
+		}		
 	}
 
 
@@ -99,8 +113,62 @@ class Quest extends Generic{
 		return true;
 	}
 
+	onAccepted(){
+		
+		const pLen = game.getTeamPlayers().length;
+		if( pLen ){
+
+			const rewards = this.rewards.slice();	// Prevents recursion
+			this.rewards = [];
+			for( let i in rewards ){
+
+				const reward = Asset.convertDummy(rewards[i], this);
+				if( !reward )
+					continue;
+				
+				this.rewards.push(reward);
+				if( reward.level === -1 )
+					reward.level = game.getAveragePlayerLevel();
+
+				if( reward.category === Asset.Categories.currency ){
+					if( this.multiply_money )
+						reward._stacks *= pLen;
+				}
+				// Make copies if reward should be multiplied
+				else if( this.multiply_reward && pLen > 1 )
+					this.addGearReward(reward, pLen-1);
+
+			}
+
+		}
+
+	}
+
+	// Splits an array of assets to players
+	splitStackToPlayers( asset, players ){
+		let total = asset._stacks;
+		let each = Math.floor(total/players.length);
+		let remainder = total%players.length;
+		for( let player of players ){
+			let n = each;
+			if( remainder ){
+				++n;
+				--remainder;
+			}
+			const cl = asset.clone();
+			asset.g_resetID();
+			asset._stacks = n;
+			this.addRewardToPlayer(asset, player);
+		}
+	}
+
+	addRewardToPlayer( asset, player ){
+		player.addAsset(asset);
+		game.ui.addText( player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", undefined, player.id,  player.id, 'statMessage important' );
+	}
+
 	// hand out rewards etc
-	finish( event ){
+	onFinish( event ){
 		this.completed = true;
 		
 		// Give exp
@@ -108,10 +176,23 @@ class Quest extends Generic{
 		for( let player of players )
 			player.addExperience(this.rewards_experience);
 
-		for( let asset of this.rewards_assets ){
-			let rewardee = randElem(players);
-			rewardee.addAsset(asset);
-			game.ui.addText( rewardee.getColoredName()+" received "+asset.name+".", undefined, rewardee.id,  rewardee.id, 'statMessage important' );
+		
+		const order = shuffle(players.slice());
+		let i = 0;
+		for( let asset of this.rewards ){
+
+			if( asset._stacks > 1 ){
+				this.splitStackToPlayers(asset, order);
+				continue;
+			}
+
+			const rewardee = players[i];
+			this.addRewardToPlayer(asset, rewardee);
+			
+			++i;
+			if( i >= order.length )
+				i = 0;
+
 		}
 
 		// Handle netcode
@@ -278,7 +359,7 @@ QuestObjective.buildEncounterCompletedObjective = function( quest, dungeon, nrEn
 			conditions : [libCond.eventIsEncounterDefeated,QuestObjective.buildDungeonCondition(dungeon)]
 		})]
 	});
-}
+};
 
 QuestObjective.buildDungeonExitObjective = function( quest, dungeon ){
 	let libCond = glib.conditions;
@@ -355,7 +436,7 @@ class QuestObjectiveEvent extends Generic{
 
 		// Immediately finish the quest
 		if( this.action === TY.finish ){
-			quest.finish(event);
+			quest.onFinish(event);
 		}
 
 	}
@@ -365,6 +446,10 @@ QuestObjectiveEvent.Actions = {
 	add : "add",			// {amount : (str int)amount} - Add to Formulas are allowed
 	finish : "finish",		// void - Hands in the quest
 };
+
+
+
+
 
 
 export {QuestObjective, QuestObjectiveEvent};

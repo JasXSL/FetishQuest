@@ -106,7 +106,7 @@ export default class Roleplay extends Generic{
 			this.stage = index;
 
 		const stage = this.getActiveStage();
-		if( stage )
+		if( index > -1 && stage )
 			stage.onStart();
 
 	}

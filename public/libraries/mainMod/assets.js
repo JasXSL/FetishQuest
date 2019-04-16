@@ -1,6 +1,6 @@
 import Asset from "../../classes/Asset.js";
 import stdTag from "../stdTag.js";
-import { Wrapper } from "../../classes/EffectSys.js";
+import { Wrapper, Effect } from "../../classes/EffectSys.js";
 import GameEvent from "../../classes/GameEvent.js";
 
 const lib = {
@@ -329,6 +329,31 @@ const lib = {
 		rarity : 0,
 		loot_sound : "berryGrab",
 		icon : 'grapes',
+	},
+
+	whiteSwimtrunks : {
+		name : "White Swimtrunks",
+		slots : [Asset.Slots.lowerbody],
+		equipped : false,
+		tags : [
+			stdTag.asTight,
+			stdTag.asStretchy,
+		],
+		wrappers : [
+			{
+				effects : [{
+					type : Effect.Types.agilityModifier,
+					data : {amount:1},
+				}],
+				duration : -1
+			}
+		],
+		description : "Tight swimtrunks made of a white stretchy material that becomes see-through when wet.\n+1 Agility.",
+		level : -1,
+		durability : 10,
+		weight : 50,
+		rarity : 1,
+		loot_sound : "lootCloth"
 	},
 };
 function getArray(){

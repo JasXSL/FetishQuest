@@ -45,7 +45,7 @@ export default class Game extends Generic{
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
 		this.state_dungeons = {};		// label : (obj)dungeonstate - See the dungeon loadstate/savestate
-
+		this.completed_quests = [];
 
 		// Library of custom items
 		this.libAsset = {};
@@ -107,6 +107,7 @@ export default class Game extends Generic{
 			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
 			out.state_dungeons = this.state_dungeons;
+			out.completed_quests = this.completed_quests;
 		}
 		return out;
 	}
@@ -116,6 +117,8 @@ export default class Game extends Generic{
 
 		if( !ignoreNetGame )
 			this.ignore_netgame = false;
+
+		this.saveDungeonState();
 
 		clearTimeout(this.save_timer);
 		return new Promise(res => {
@@ -348,6 +351,12 @@ export default class Game extends Generic{
 		this.ui.questAcceptFlyout( 'Quest Completed:', quest.name );
 		if( this.is_host && this.net.id )
 			this.net.dmQuestAccepted( 'Quest Completed:', quest.name );
+		
+		if( quest.label !== '_procedural_' && this.completed_quests.indexOf(quest.label) === -1 )
+			this.completed_quests.push(quest.label);
+
+		this.save();
+		
 
 	}
 	onQuestAccepted( quest ){
@@ -356,6 +365,7 @@ export default class Game extends Generic{
 		this.playFxAudioKitById('questPickup', undefined, undefined, undefined, true);
 		if( this.is_host && this.net )
 			this.net.dmQuestAccepted( 'Quest Started:', quest.name );
+		quest.onAccepted();
 
 	}
 	// Raised before a room changes
@@ -574,8 +584,8 @@ export default class Game extends Generic{
 		let pre = this.dungeon;
 		if( pre.id !== this.id ){
 			this.onDungeonExit();
-			if( this.dungeon.label !== '_procedural_' && saveState )
-				this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
+			if( saveState )
+				this.saveDungeonState();
 		}
 		this.dungeon = dungeon;
 		game.dungeon.previous_room = game.dungeon.active_room = room;
@@ -589,6 +599,11 @@ export default class Game extends Generic{
 		this.net.purgeFromLastPush(["dungeon"],["encounter"]);
 		this.save();
 		this.renderer.loadActiveDungeon();
+	}
+
+	saveDungeonState(){
+		if( this.dungeon.label !== '_procedural_' )
+			this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
 	}
 
 	canTransport( addError = true ){
@@ -685,6 +700,7 @@ export default class Game extends Generic{
 		if( !p || !(p instanceof Player) )
 			p = new Player(data);
 		p.color = '';
+		p.initialize();
 		this.players.push(p);
 
 		// Add before the current player
@@ -1143,9 +1159,10 @@ export default class Game extends Generic{
 				let rp = this.encounter.getRP(player);
 				if( !rp )
 					this.clearRoleplay();
-				this.setRoleplay(rp);
-				rp.onStart();
-
+				else{
+					this.setRoleplay(rp);
+					rp.onStart();
+				}
 			}
 		
 
@@ -1353,6 +1370,14 @@ export default class Game extends Generic{
 	// Advances turn
 	advanceTurn(){
 
+		const th = this;
+		const prepAutoPlay = function( npl ){
+			setTimeout(() => {
+				if( npl === th.getTurnPlayer() )
+					npl.autoPlay();
+			}, 1000);
+		};
+
 		for( let i=0; i<this.players.length; ++i ){
 
 			this.end_turn_after_action = false;
@@ -1386,10 +1411,7 @@ export default class Game extends Generic{
 				continue;
 
 			if( !this.dm_writes_texts )
-				setTimeout(() => {
-					if( npl === this.getTurnPlayer() )
-						npl.autoPlay();
-				}, 1000);
+				prepAutoPlay(npl);
 			
 			if( this.playerIsMe(npl, true) && npl.id !== this.my_player ){
 				this.my_player = npl.id;
@@ -1529,6 +1551,7 @@ export default class Game extends Generic{
 	}
 
 	setRoleplay( rp ){
+
 
 		if( this.isInPersistentRoleplay() )
 			return;
@@ -1786,5 +1809,5 @@ Game.getNames = async () => {
 	});
 	return names;
 
-}
+};
 

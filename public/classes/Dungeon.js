@@ -111,7 +111,6 @@ class Dungeon extends Generic{
 	// Saves state information for use while out of the dungeon
 	saveState(){
 		
-		console.log("Saving state");
 		const out = {};
 		out.rooms = this.rooms.map(el => el.saveState());
 		out.vars = JSON.parse(JSON.stringify(this.vars));
@@ -1628,7 +1627,7 @@ DungeonEncounter.getRandomViable = function( arr, event ){
 	const entries = arr.slice();
 	shuffle(entries);
 	return this.getFirstViable(entries, event);
-}
+};
 
 
 
