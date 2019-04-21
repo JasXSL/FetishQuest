@@ -30,7 +30,7 @@ export default class UI{
 		
 		// Active player has viable moves
 		this._has_moves = false;
-		this.visible = localStorage.ui_visible === undefined ? true : !!+localStorage.ui_visible;	// main UI layer visible
+		this.visible = localStorage.ui_visible === undefined ? true : Boolean(+localStorage.ui_visible);	// main UI layer visible
 
 		this.previousConsoleCommands = [];
 		try{
@@ -171,7 +171,7 @@ export default class UI{
 	}
 
 	showDMTools(){
-		return !+localStorage.hide_dm_tools;
+		return !Boolean(+localStorage.hide_dm_tools);
 	}
 
 	destructor(){
@@ -294,8 +294,8 @@ export default class UI{
 				if( !castableActions ){
 					etcolor = 'highlighted';
 				}
-				if( this._has_moves !== !!castableActions ){
-					this._has_moves = !!castableActions;
+				if( this._has_moves !== Boolean(castableActions) ){
+					this._has_moves = Boolean(castableActions);
 					if( !castableActions ){
 						game.uiAudio( 'no_moves' );
 					}
@@ -507,9 +507,7 @@ export default class UI{
 	// Players on the board
 	drawPlayers(){
 
-		let tp = game.getTurnPlayer(),
-			th = this
-		;
+		const th = this;
 
 		// Build skeleton if needed
 		let ids = [];
@@ -562,172 +560,21 @@ export default class UI{
 				$(this).remove();
 		});
 
+		// Helper function for escaping a player name
+		const escPlayerName = pl => esc(pl.name);
 
 		let nr_friendly = 0,
 			nr_hostile = 0;
 
-		// Update the content
+		// Update the individual players
 		for( let p of game.players ){
-			
-			let myTurn = tp && tp.id === p.id,
-				el = $("div.player[data-id='"+esc(p.id)+"']", this.players)
-			;
-
-			if( myTurn )
-				el.toggleClass("active", true);
-
-			const isMine = !!(~game.getMyPlayers().indexOf(p));
-			const isMyActive = p === game.getMyActivePlayer();
-			const isNPC = !p.netgame_owner;
-			
-			el.toggleClass('mine', isMine);
-			el.toggleClass('myActive', isMyActive);
-			
-			el.toggleClass('dead', p.hp <= 0);
-			el.toggleClass('incapacitated', p.isIncapacitated());
-
-			
-
-			// Check if image has changed
-			let imgdiv = $('div.bg', el);
-			if( imgdiv.attr('data-image') !== p.icon && p.icon ){
-				
-				imgdiv.css('background-image', 'url('+esc(p.icon)+')');
-				imgdiv.attr('data-image', p.icon);
-				
-			}
-			this.updatePlayerStateImage( p );
-
-			let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperbody),
-				lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerbody);
-			
-			let rb_entries = [];
-			rb_entries.push('<span class="arousal resource" title="Arousal.\n+'+Math.round(p.arousal/p.getMaxArousal()*50)+'% corruption damage taken">'+
-				Math.round(p.arousal/p.getMaxArousal()*100)+'%'+
-			'</span>');
-			if( !p.isBeast() ){
-				const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperbody);
-				const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerbody);
-				const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : 0;
-				const lbDmg = lbAsset.length ? lbAsset[0].getDmgTakenAdd() : 0;
-
-				rb_entries.push(
-					'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="Upperbody armor durability.'+
-						(ubDmg ? '\n+'+(ubDmg*100)+'% Damage taken.' : '')+
-					'">'+
-						Math.ceil(ubDur*100)+'%'+
-					'</span>'
-				);
-				rb_entries.push(
-					'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="Lowerbody armor durability.'+
-						(lbDmg ? '\n+'+(lbDmg*100)+'% Damage taken.' : '')+
-					'">'+
-					Math.ceil(lbDur*100)+'%</span>'
-				);
-			}
-			rb_entries.push('<span class="MP resource large" title="Mana Points">'+p.mp+'/'+p.getMaxMP()+'</span>');
-			rb_entries.push('<span class="AP resource large" title="Action Points">'+p.ap+'/'+p.getMaxAP()+'</span>');
-			rb_entries.push('<span class="HP resource large" title="Hit Points">'+p.hp+'/'+p.getMaxHP()+'</span>');
-			if( p.team !== 0 )
-				rb_entries.reverse();
-
-			let tags = ['',''];
-			if( isMine )
-				tags = ['<strong>','</strong>'];
-			if( isMyActive )
-				tags = ['<strong>\u25B6 ',''+' \u25C0</strong>'];
-			if( isNPC )
-				tags = ['<em>','</em>'];
-
-			let controls = ''+
-				(game.is_host ? '<div class="button owner devtool" title="Set character owner"><img src="media/wrapper_icons/id-card.svg" /></div>' : '' )+
-				(game.getMyPlayers().length > 1 && !isMyActive && isMine ? '<div class="button own" title="Control this character"><img src="media/wrapper_icons/gamepad.svg" /></div>' : '' )
-			;
-
-			let leader = '';
-			if( p.team === 0 && game.net.id ){
-				if( !game.is_host && p.leader )
-					leader = '<img class="leader" src="media/wrapper_icons/crown.svg" /> ';
-				else if(game.is_host){
-					leader = '<div class="button leader devtool '+(p.leader ? 'selected' : '')+'" title="Only party leaders can interact with doors. One leader is required.">'+
-						'<img src="media/wrapper_icons/crown.svg" />'+
-					'</div>';
-				}
-			}
-			$("div.content > div.stats", el).html(
-				'<span class="name" style="color:'+esc(p.color)+'">'+
-					(p.team === 0 ? controls : '')+
-					leader+
-					'<span>'+tags[0]+esc(p.name)+tags[1]+'</span>'+
-					(p.team !== 0 ? controls : '')+
-				'</span><br />'+
-				rb_entries.join('')
-			);
-
-			// Charged actions
-			let chargedActions = p.isCasting();
-			let ch = '';
-			if( chargedActions ){
-				
-				for( let a of chargedActions ){
-					ch += '<div class="chAction tooltipParent">';
-					ch += esc(a.name)+' at '+a.getChargePlayers().map(pl => esc(pl.name));
-					ch += '<div class="duration">'+a._cast_time+'</div>';
-					ch += '<div class="tooltip">'+a.getTooltipText()+'</div>';
-					ch += '</div>';
-				}
-				
-			}
-			$("> div.topRight > div.charging", el).html(ch);
-
-
-
-			// Interactions
-			let rps = game.getRoleplaysForPlayer( p );
-			if( game.isInPersistentRoleplay() )
-				rps = [];
-			$("div.interaction[data-type=chat]", el).toggleClass("hidden", !rps.length).off('click').on('click', event => {
-				const rp = game.getRoleplaysForPlayer(p).shift();
-				event.stopImmediatePropagation();
-				if( rp )
-					game.setRoleplay(rp);
-			});
-			
-
-			// Effect wrappers
-			let o = '';
-			let wrappers = p.getWrappers();
-			wrappers = wrappers.filter(el => el.name.length && el._duration !== 0);
-			for( let wrapper of wrappers ){
-				o += '<div class="wrapper tooltipParent '+(wrapper.detrimental ? 'detrimental' : 'beneficial')+'" data-id="'+esc(wrapper.id)+'">';
-				if( wrapper.icon )
-					o+= '<div class="background" style="background-image:url('+wrapper.getIconPath()+')"></div>';
-				if( wrapper.stacks > 1 )
-					o+= '<div class="stacks">x'+wrapper.stacks+'</div>';
-				if( wrapper._duration > 0 )
-					o+= '<div class="duration">'+wrapper._duration+'</div>';
-				
-				o+= '<div class="tooltip">'+
-					'<strong>'+esc(wrapper.name)+'</strong><br />'+
-					'<em>'+
-						(+wrapper.duration === -1 ? 
-							'Permanent' :
-							(+wrapper._duration)+' Turn'+(wrapper._duration>1 ? 's' : '')
-						)+
-						(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' )+
-					'</em><br />'+
-					stylizeText(esc(wrapper.getDescription()))+
-				'</div>';
-				o += '</div>';
-			}
-			$("> div.topRight > div.wrappers", el).html(o);
-
-			// Change this later to check for the DM's character
+			this.drawPlayer(p);
 			if( p.team === 0 )
 				++nr_friendly;
 			else
 				++nr_hostile;
 		}
+		
 
 		$("div.left", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_friendly > 10 ? 10 : nr_friendly));
 		$("div.right", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_hostile > 10 ? 10 : nr_hostile));
@@ -823,6 +670,167 @@ export default class UI{
 
 		});
 
+	}
+
+	drawPlayer(p){
+
+		const tp = game.getTurnPlayer(),
+			myTurn = tp && tp.id === p.id,
+			el = $("div.player[data-id='"+esc(p.id)+"']", this.players)
+		;
+
+		if( myTurn )
+			el.toggleClass("active", true);
+
+		const isMine = !!(~game.getMyPlayers().indexOf(p));
+		const isMyActive = p === game.getMyActivePlayer();
+		const isNPC = !p.netgame_owner;
+		
+		el.toggleClass('mine', isMine);
+		el.toggleClass('myActive', isMyActive);
+		
+		el.toggleClass('dead', p.hp <= 0);
+		el.toggleClass('incapacitated', p.isIncapacitated());
+
+		
+
+		// Check if image has changed
+		let imgdiv = $('div.bg', el);
+		if( imgdiv.attr('data-image') !== p.icon && p.icon ){
+			
+			imgdiv.css('background-image', 'url('+esc(p.icon)+')');
+			imgdiv.attr('data-image', p.icon);
+			
+		}
+		this.updatePlayerStateImage( p );
+
+		let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperbody),
+			lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerbody);
+		
+		let rb_entries = [];
+		rb_entries.push('<span class="arousal resource" title="Arousal.\n+'+Math.round(p.arousal/p.getMaxArousal()*50)+'% corruption damage taken">'+
+			Math.round(p.arousal/p.getMaxArousal()*100)+'%'+
+		'</span>');
+		if( !p.isBeast() ){
+			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperbody);
+			const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerbody);
+			const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : 0;
+			const lbDmg = lbAsset.length ? lbAsset[0].getDmgTakenAdd() : 0;
+
+			rb_entries.push(
+				'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="Upperbody armor durability.'+
+					(ubDmg ? '\n+'+(ubDmg*100)+'% Damage taken.' : '')+
+				'">'+
+					Math.ceil(ubDur*100)+'%'+
+				'</span>'
+			);
+			rb_entries.push(
+				'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="Lowerbody armor durability.'+
+					(lbDmg ? '\n+'+(lbDmg*100)+'% Damage taken.' : '')+
+				'">'+
+				Math.ceil(lbDur*100)+'%</span>'
+			);
+		}
+		rb_entries.push('<span class="MP resource large" title="Mana Points">'+p.mp+'/'+p.getMaxMP()+'</span>');
+		rb_entries.push('<span class="AP resource large" title="Action Points">'+p.ap+'/'+p.getMaxAP()+'</span>');
+		rb_entries.push('<span class="HP resource large" title="Hit Points">'+p.hp+'/'+p.getMaxHP()+'</span>');
+		if( p.team !== 0 )
+			rb_entries.reverse();
+
+		let tags = ['',''];
+		if( isMine )
+			tags = ['<strong>','</strong>'];
+		if( isMyActive )
+			tags = ['<strong>\u25B6 ',''+' \u25C0</strong>'];
+		if( isNPC )
+			tags = ['<em>','</em>'];
+
+		let controls = ''+
+			(game.is_host ? '<div class="button owner devtool" title="Set character owner"><img src="media/wrapper_icons/id-card.svg" /></div>' : '' )+
+			(game.getMyPlayers().length > 1 && !isMyActive && isMine ? '<div class="button own" title="Control this character"><img src="media/wrapper_icons/gamepad.svg" /></div>' : '' )
+		;
+
+		let leader = '';
+		if( p.team === 0 && game.net.id ){
+			if( !game.is_host && p.leader )
+				leader = '<img class="leader" src="media/wrapper_icons/crown.svg" /> ';
+			else if(game.is_host){
+				leader = '<div class="button leader devtool '+(p.leader ? 'selected' : '')+'" title="Only party leaders can interact with doors. One leader is required.">'+
+					'<img src="media/wrapper_icons/crown.svg" />'+
+				'</div>';
+			}
+		}
+		$("div.content > div.stats", el).html(
+			'<span class="name" style="color:'+esc(p.color)+'">'+
+				(p.team === 0 ? controls : '')+
+				leader+
+				'<span>'+tags[0]+esc(p.name)+tags[1]+'</span>'+
+				(p.team !== 0 ? controls : '')+
+			'</span><br />'+
+			rb_entries.join('')
+		);
+
+		// Charged actions
+		let chargedActions = p.isCasting();
+		let ch = '';
+		if( chargedActions ){
+			
+			
+			for( let a of chargedActions ){
+				ch += '<div class="chAction tooltipParent">';
+				ch += esc(a.name)+' at '+a.getChargePlayers().map(escPlayerName);
+				ch += '<div class="duration">'+a._cast_time+'</div>';
+				ch += '<div class="tooltip">'+a.getTooltipText()+'</div>';
+				ch += '</div>';
+			}
+			
+		}
+		$("> div.topRight > div.charging", el).html(ch);
+
+
+
+		// Interactions
+		let rps = game.getRoleplaysForPlayer( p );
+		if( game.isInPersistentRoleplay() )
+			rps = [];
+
+		$("div.interaction[data-type=chat]", el).toggleClass("hidden", !rps.length).off('click').on('click', event => {
+			const rp = game.getRoleplaysForPlayer(p).shift();
+			event.stopImmediatePropagation();
+			if( rp )
+				game.setRoleplay(rp);
+		});
+		
+
+		// Effect wrappers
+		let o = '';
+		let wrappers = p.getWrappers();
+		wrappers = wrappers.filter(el => el.name.length && el._duration !== 0);
+		for( let wrapper of wrappers ){
+			o += '<div class="wrapper tooltipParent '+(wrapper.detrimental ? 'detrimental' : 'beneficial')+'" data-id="'+esc(wrapper.id)+'">';
+			if( wrapper.icon )
+				o+= '<div class="background" style="background-image:url('+wrapper.getIconPath()+')"></div>';
+			if( wrapper.stacks > 1 )
+				o+= '<div class="stacks">x'+wrapper.stacks+'</div>';
+			if( wrapper._duration > 0 )
+				o+= '<div class="duration">'+wrapper._duration+'</div>';
+			
+			o+= '<div class="tooltip">'+
+				'<strong>'+esc(wrapper.name)+'</strong><br />'+
+				'<em>'+
+					(+wrapper.duration === -1 ? 
+						'Permanent' :
+						(+wrapper._duration)+' Turn'+(wrapper._duration>1 ? 's' : '')
+					)+
+					(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' )+
+				'</em><br />'+
+				stylizeText(esc(wrapper.getDescription()))+
+			'</div>';
+			o += '</div>';
+		}
+		$("> div.topRight > div.wrappers", el).html(o);
+
+		
 	}
 
 	// Mouseup on a player
@@ -1545,7 +1553,7 @@ export default class UI{
 					html += '<option value="'+esc(spl.join('_'))+'" />';
 				}
 			}
-			html += '</select></datalist>'
+			html += '</select></datalist>';
 		html += '</div>';
 
 		html += '</div>';
