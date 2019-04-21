@@ -643,7 +643,7 @@ export default class Modtools{
 		fnAssetTds is a function that gets run on each asset and should return an array of values to put into each table cell
 		fnInsert is a function that should generate a new asset for insertion
 	*/
-	mml_generic( sfType, headers = [], table, fnAssetTds, fnInsert ){
+	mml_generic( sfType, headers = [], table = [], fnAssetTds = undefined, fnInsert = undefined ){
 
 		const wrapper = $("div.assetList");
 		let html = '<br /><h3>'+esc(sfType)+'</h3>'+
@@ -1280,7 +1280,7 @@ export default class Modtools{
 
 			$("#textPreview").html(stylizeText(out));
 
-		}
+		};
 
 		let tUpdateTimer;
 
@@ -2373,27 +2373,34 @@ export default class Modtools{
 		const control = this.control;
 		const renderer = this.renderer;
 		const stage = renderer.stage;
+
+		const mouseover = child => {
+			Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0x222222));
+			Stage.setMeshMatProperty(child, 'emissiveMap', false);
+			renderer.renderer.domElement.style.cursor = "pointer";
+		};
+
+		const mouseout = child => {
+			Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0), true);
+			Stage.setMeshMatProperty(child, 'emissiveMap', false, true);
+			renderer.renderer.domElement.style.cursor = "auto";
+		};
+
+		const click = child => {
+			control.detach();
+			control.attach(child);
+			this.drawRoomAssetEditor(child.userData.dungeonAsset);
+			return true;
+		};
+
 		// Set mouseover events
 		for( let child of stage.group.children ){
 
 			if( child.userData && child.userData.template && !child.userData.template.isRoom ){
 
-				child.userData.mouseover = () => {
-					Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0x222222));
-					Stage.setMeshMatProperty(child, 'emissiveMap', false);
-					renderer.renderer.domElement.style.cursor = "pointer";
-				};
-				child.userData.mouseout = () => {
-					Stage.setMeshMatProperty(child, 'emissive', new THREE.Color(0), true);
-					Stage.setMeshMatProperty(child, 'emissiveMap', false, true);
-					renderer.renderer.domElement.style.cursor = "auto";
-				};
-				child.userData.click = () => {
-					control.detach();
-					control.attach(child);
-					this.drawRoomAssetEditor(child.userData.dungeonAsset);
-					return true;
-				};
+				child.userData.mouseover = mouseover;
+				child.userData.mouseout = mouseout;
+				child.userData.click = click;
 
 			}
 			
@@ -2526,7 +2533,7 @@ export default class Modtools{
 			if( missingDoors.length )
 				html += '<b>Missing doors:</b><br />'+missingDoors.join('<br />');
 			$("div.missingDoors").html(html);
-		}
+		};
 		updateMissingDoors();
 
 
@@ -2577,7 +2584,7 @@ export default class Modtools{
 			
 			localStorage.meshEditorPath = JSON.stringify(path);
 
-		}
+		};
 
 		// Updates the asset data editor form
 		const updateAssetDataEditor = function(){
@@ -2651,7 +2658,7 @@ export default class Modtools{
 			});
 
 
-		}
+		};
 		updateAssetDataEditor();
 
 
@@ -2964,7 +2971,7 @@ export default class Modtools{
 			
 			return out;
 
-		}
+		};
 
 		const th = this;
 
@@ -3289,10 +3296,13 @@ export default class Modtools{
 			const conds = JSON.parse($(this).attr('data-conds'));
 			const baselevel = $("#modal div.condWrapper."+cName+" > input[name=condition]");
 
+			const filter = (_,el) => {
+				return $(el).val() === cond;
+			};
 			for( let cond of conds ){
 				if( typeof cond !== "string" )
 					cond = JSON.stringify(cond);
-				if( baselevel.filter((_,el) => $(el).val() === cond).length )
+				if( baselevel.filter(filter).length )
 					continue;
 
 				th.formHelperOnChange("Conditions", baselevel.closest("div.condWrapper"));
@@ -3331,7 +3341,7 @@ export default class Modtools{
 	}
 
 	// cName can also be a dom element
-	compileConditions( cName = 'conditions', parent ){
+	compileConditions( cName = 'conditions', parent = undefined ){
 
 		const base = $('div.'+cName, parent);
 		return this.compileConditionElement(base).conditions;

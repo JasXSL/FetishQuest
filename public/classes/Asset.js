@@ -369,6 +369,8 @@ Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 // Generates a custom item based on a slot
 Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity, minRarity = 0 ){
 
+	if( level === undefined )
+		level = game.getAveragePlayerLevel();
 	if( isNaN(level) ){
 		console.error("Invalid level in randomizer "+String(level));
 		return false;

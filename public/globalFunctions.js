@@ -57,6 +57,16 @@ function randElem( input ){
 	return input[Math.floor(Math.random()*input.length)];
 }
 
+// Generic function that clones an object. Useful in loops so you don't need to define multiple functions
+function clone( obj, parent ){
+	if( !Array.isArray(obj) )
+		return obj.clone(parent);
+
+	return obj.map(el => el.clone(parent));
+	
+}
+
+
 // Takes array values and builds an object of {val:true...}
 function valsToKeys( input = [] ){
 	if( !Array.isArray(input) )

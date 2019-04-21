@@ -374,8 +374,8 @@ export default class Player extends Generic{
 
 		// We're the recipient, if a sender exists we can add how much damage the sender has done to us
 		if( event && this === event.target && event.sender ){
-			vars['se_TaDamagingReceivedSinceLast'] = this.damagingSinceLastByPlayer(event.sender);
-			vars['se_TaDamageReceivedSinceLast'] = this.damageSinceLastByPlayer(event.sender);
+			vars.se_TaDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.sender);
+			vars.se_TaDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.sender);
 		}
 
 		for( let i in Asset.Slots ){
@@ -521,17 +521,19 @@ export default class Player extends Generic{
 			out[tag.toLowerCase()] = true;
 		}
 
+		// adds a tag to the name map
+		const addTag = tag => out[tag.toLowerCase()] = true;
 
 		let assets = this.getAssetsEquipped();
 		for( let asset of assets )
-			asset.getTags().map(t => out[t.toLowerCase()] = true);
+			asset.getTags().map(addTag);
 		let fx = this.getWrappers();
 		for( let f of fx )
-			f.getTags().map(t => out[t.toLowerCase()] = true);
+			f.getTags().map(addTag);
 
 		fx = this.getEffects();
 		for( let f of fx )
-			f.getTags().map(t => out[t.toLowerCase()] = true);
+			f.getTags().map(addTag);
 
 		this._turn_tags.map(t => out[t.tag.toLowerCase()] = true);
 
@@ -958,7 +960,7 @@ export default class Player extends Generic{
 	}
 	destroyAsset(id){
 		for(let i in this.assets){
-			let asset = this.assets[i]
+			let asset = this.assets[i];
 			if(asset.id === id){
 				this.assets.splice(i, 1);
 				return true;
@@ -1048,7 +1050,7 @@ export default class Player extends Generic{
 
 	// Encumbrance
 	getCarryingCapacity(){
-		return 40000+(this.getBon(Action.Types.physical)-this.level)*3000;
+		return 35000+this.getPrimaryStats()[Player.primaryStats.stamina]*3000;
 	}
 	getCarriedWeight(){
 		let out = 0;

@@ -191,7 +191,7 @@ class LibMesh{
 					return action;
 
 				}
-			}
+			};
 
 			// no animation or only idle is playing
 			mesh.userData.animationIsIdle = function(){
@@ -201,7 +201,7 @@ class LibMesh{
 						return false;
 				}
 				return true;
-			}
+			};
 
 			mesh.userData.activeAnimation = 'idle';
 			mesh.userData.mixer = mixer;
@@ -355,7 +355,7 @@ LibMesh.getByString = function(path){
 			return false;
 	}
 	return base;
-}
+};
 
 LibMesh.library = {
 
@@ -1638,265 +1638,267 @@ LibMesh.library = {
 	},
 	Land : {
 		Yuug : {
-			Yuug : new LibMesh({
-				isRoom : true,
-				url : 'land/yuug/yuug_land.JD',
-				materials : [
-					libMat.Land.Yuug
-				],
-				width: 10,
-				height: 10,
-				top:-4,left:-4,
-				attachments : [
-					new LibMeshAttachment({path:"Land.Yuug.Ocean"})
-				]
-			}),
-			Ocean : new LibMesh({
-				url : 'land/yuug/yuug_water.JD',
-				materials : [
-					libMat.Water.Ocean
-				],
-				width: 10,
-				height:10,
-				top:-4, left:-4
-			}),
-			Ocean2 : new LibMesh({
-				url : function(){
-					const loader = new THREE.TextureLoader();
-					const waterGeometry = new THREE.BoxBufferGeometry( 1000, 1000, 100 );
-					const water = new Water2( waterGeometry, {
-						color: 0xFFAAAA,
-						scale: 1,
-						flowDirection: new THREE.Vector2( 1, 1 ),
-						textureWidth: 1024,
-						textureHeight: 1024,
-						normalMap0 : loader.load('media/textures/land/waternormals_small.jpg'),
-						normalMap1 : loader.load('media/textures/land/waternormals_small.jpg'),
-					}); 
-					water.rotation.x = -Math.PI/2;
-					water.position.y = 100;
-					const mat = new THREE.MeshBasicMaterial();
-					mat.visible = false;
-					const group = new THREE.Mesh(new THREE.BoxGeometry(1000,100,1000), mat);
-					group.add(water);
-					return group;
-				},
-				width: 10,
-				height:10,
-				top:-4, left:-4,
-			}),
-			Capital : new LibMesh({
-				url : 'land/yuug/yuug_city.JD',
-				materials : [
-					libMat.Brick.Small,
-					libMat.StoneTile.DungeonWall,
-					libMat.Wood.Crate,
-					libMat.StoneTile.BigBlocks,
-					libMat.Metal.DarkGeneric,
-					libMat.Wood.Logs,
-					libMat.Structure.CottageWall,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-					libMat.Structure.CottageRoof,
-					libMat.Structure.StrawRoof,
-					libMat.Solids.Invisible,
+			WorldMap : {
+				Yuug : new LibMesh({
+					isRoom : true,
+					url : 'land/yuug/yuug_land.JD',
+					materials : [
+						libMat.Land.Yuug
+					],
+					width: 10,
+					height: 10,
+					top:-4,left:-4,
+					attachments : [
+						new LibMeshAttachment({path:"Land.Yuug.Ocean"})
+					]
+				}),
+				Ocean : new LibMesh({
+					url : 'land/yuug/yuug_water.JD',
+					materials : [
+						libMat.Water.Ocean
+					],
+					width: 10,
+					height:10,
+					top:-4, left:-4
+				}),
+				Ocean2 : new LibMesh({
+					url : function(){
+						const loader = new THREE.TextureLoader();
+						const waterGeometry = new THREE.BoxBufferGeometry( 1000, 1000, 100 );
+						const water = new Water2( waterGeometry, {
+							color: 0xFFAAAA,
+							scale: 1,
+							flowDirection: new THREE.Vector2( 1, 1 ),
+							textureWidth: 1024,
+							textureHeight: 1024,
+							normalMap0 : loader.load('media/textures/land/waternormals_small.jpg'),
+							normalMap1 : loader.load('media/textures/land/waternormals_small.jpg'),
+						}); 
+						water.rotation.x = -Math.PI/2;
+						water.position.y = 100;
+						const mat = new THREE.MeshBasicMaterial();
+						mat.visible = false;
+						const group = new THREE.Mesh(new THREE.BoxGeometry(1000,100,1000), mat);
+						group.add(water);
+						return group;
+					},
+					width: 10,
+					height:10,
+					top:-4, left:-4,
+				}),
+				Capital : new LibMesh({
+					url : 'land/yuug/yuug_city.JD',
+					materials : [
+						libMat.Brick.Small,
+						libMat.StoneTile.DungeonWall,
+						libMat.Wood.Crate,
+						libMat.StoneTile.BigBlocks,
+						libMat.Metal.DarkGeneric,
+						libMat.Wood.Logs,
+						libMat.Structure.CottageWall,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+						libMat.Structure.CottageRoof,
+						libMat.Structure.StrawRoof,
+						libMat.Solids.Invisible,
 
-				],
-			}),
-			Cottaga : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_cottaga.JD',
-				materials : [
-					libMat.Wood.Logs,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-					libMat.Structure.CottageRoof,
-					libMat.Structure.StrawRoof,
-				],
-			}),
-			MidwayFarm : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_midway_farm.JD',
-				materials : [
-					libMat.Wood.Logs,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Structure.CottageRoof,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-				],
-			}),
-			Wallburg : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_wallburg.JD',
-				materials : [
-					libMat.Structure.CottageRoof,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-					libMat.Wood.Logs,
-					libMat.Structure.StrawRoof,
-					libMat.StoneTile.DungeonWall,
+					],
+				}),
+				Cottaga : new LibMesh({
+					auto_bounding_box : true,
 					
-				],
-			}),
-			WallwayFarm : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_wallway_farm.JD',
-				materials : [
-					libMat.Wood.Logs,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,					
-				],
-			}),
-			Eaststead : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_eaststead.JD',
-				materials : [
-					libMat.Structure.CottageRoof,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenC,
-					libMat.Wood.Logs,	
-					libMat.Structure.StrawRoof,
+					url : 'land/yuug/yuug_cottaga.JD',
+					materials : [
+						libMat.Wood.Logs,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+						libMat.Structure.CottageRoof,
+						libMat.Structure.StrawRoof,
+					],
+				}),
+				MidwayFarm : new LibMesh({
+					auto_bounding_box : true,
+					
+					url : 'land/yuug/yuug_midway_farm.JD',
+					materials : [
+						libMat.Wood.Logs,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Structure.CottageRoof,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+					],
+				}),
+				Wallburg : new LibMesh({
+					auto_bounding_box : true,
+					
+					url : 'land/yuug/yuug_wallburg.JD',
+					materials : [
+						libMat.Structure.CottageRoof,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+						libMat.Wood.Logs,
+						libMat.Structure.StrawRoof,
+						libMat.StoneTile.DungeonWall,
+						
+					],
+				}),
+				WallwayFarm : new LibMesh({
+					auto_bounding_box : true,
+					
+					url : 'land/yuug/yuug_wallway_farm.JD',
+					materials : [
+						libMat.Wood.Logs,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,					
+					],
+				}),
+				Eaststead : new LibMesh({
+					auto_bounding_box : true,
+					
+					url : 'land/yuug/yuug_eaststead.JD',
+					materials : [
+						libMat.Structure.CottageRoof,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenC,
+						libMat.Wood.Logs,	
+						libMat.Structure.StrawRoof,
 
-				],
-			}),
-			EastwoodFarm : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_eastwood_farm.JD',
-				materials : [
-					libMat.Wood.Logs,				
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-				],
-			}),
-			Eastwood : new LibMesh({
-				
-				url : 'land/yuug/yuug_eastwood.JD',
-				materials : [
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-					libMat.Solids.GreenB,
-					libMat.Solids.GreenC,
-					libMat.Solids.Invisible,
-				],
-			}),
-			Seawatch : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_seawatch.JD',
-				materials : [
-					libMat.Structure.CottageRoof,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-					libMat.Wood.Logs,
-					libMat.Structure.StrawRoof,
-					libMat.StoneTile.DungeonWall,
-					libMat.Solids.YellowGlow,
-				],
-			}),
-			Southwood : new LibMesh({
-				
-				url : 'land/yuug/yuug_southwood.JD',
-				materials : [
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-					libMat.Solids.GreenB,
-					libMat.Solids.GreenC,
-					libMat.Solids.Invisible,
+					],
+				}),
+				EastwoodFarm : new LibMesh({
+					auto_bounding_box : true,
+					
+					url : 'land/yuug/yuug_eastwood_farm.JD',
+					materials : [
+						libMat.Wood.Logs,				
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+					],
+				}),
+				Eastwood : new LibMesh({
+					
+					url : 'land/yuug/yuug_eastwood.JD',
+					materials : [
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+						libMat.Solids.GreenB,
+						libMat.Solids.GreenC,
+						libMat.Solids.Invisible,
+					],
+				}),
+				Seawatch : new LibMesh({
+					auto_bounding_box : true,
+					
+					url : 'land/yuug/yuug_seawatch.JD',
+					materials : [
+						libMat.Structure.CottageRoof,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+						libMat.Wood.Logs,
+						libMat.Structure.StrawRoof,
+						libMat.StoneTile.DungeonWall,
+						libMat.Solids.YellowGlow,
+					],
+				}),
+				Southwood : new LibMesh({
+					
+					url : 'land/yuug/yuug_southwood.JD',
+					materials : [
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+						libMat.Solids.GreenB,
+						libMat.Solids.GreenC,
+						libMat.Solids.Invisible,
 
-				],
-			}),
-			AbandonedCottage : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_abandoned_cottage.JD',
-				materials : [
-					libMat.Structure.StrawRoof,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenC,
-				],
-			}),
-			WestwallFarm : new LibMesh({
-				auto_bounding_box : true,
-				
-				url : 'land/yuug/yuug_westwall_farm.JD',
-				materials : [
-					libMat.Structure.StrawRoof,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenC,
-				],
-			}),
-			Westwood : new LibMesh({
-				
-				url : 'land/yuug/yuug_westwood.JD',
-				materials : [
-					libMat.Solids.Brown,
-					libMat.Solids.GreenA,
-					libMat.Solids.GreenB,
-					libMat.Solids.GreenC,
-					libMat.Solids.Invisible,
+					],
+				}),
+				AbandonedCottage : new LibMesh({
+					auto_bounding_box : true,
+					
+					url : 'land/yuug/yuug_abandoned_cottage.JD',
+					materials : [
+						libMat.Structure.StrawRoof,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenC,
+					],
+				}),
+				WestwallFarm : new LibMesh({
+					auto_bounding_box : true,
+					
+					url : 'land/yuug/yuug_westwall_farm.JD',
+					materials : [
+						libMat.Structure.StrawRoof,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenC,
+					],
+				}),
+				Westwood : new LibMesh({
+					
+					url : 'land/yuug/yuug_westwood.JD',
+					materials : [
+						libMat.Solids.Brown,
+						libMat.Solids.GreenA,
+						libMat.Solids.GreenB,
+						libMat.Solids.GreenC,
+						libMat.Solids.Invisible,
 
-				],
-			}),
-			Port : new LibMesh({
-				
-				url : 'land/yuug/yuug_port.JD',
-				materials : [
-					libMat.Wood.Logs,
-					libMat.Structure.CottageWall,
-					libMat.Wood.Crate,
-					libMat.Brick.Small,
-					libMat.Structure.StrawRoof,
-					libMat.Structure.CottageRoof,
-					libMat.StoneTile.DungeonWall,
-					libMat.Solids.Brown,
-					libMat.Solids.GreenB,
-					libMat.Solids.Invisible,
-				],
-			}),
+					],
+				}),
+				OutdoorPort : new LibMesh({
+					
+					url : 'land/yuug/yuug_port.JD',
+					materials : [
+						libMat.Wood.Logs,
+						libMat.Structure.CottageWall,
+						libMat.Wood.Crate,
+						libMat.Brick.Small,
+						libMat.Structure.StrawRoof,
+						libMat.Structure.CottageRoof,
+						libMat.StoneTile.DungeonWall,
+						libMat.Solids.Brown,
+						libMat.Solids.GreenB,
+						libMat.Solids.Invisible,
+					],
+				}),
 
-		
-			Wall : new LibMesh({
-				
-				url : 'land/yuug/yuug_wall.JD',
-				materials : [
-					libMat.Brick.Small,
-					libMat.StoneTile.DungeonWall,
-					libMat.Wood.Crate,
-				],
-				
-			}),
+			
+				Wall : new LibMesh({
+					
+					url : 'land/yuug/yuug_wall.JD',
+					materials : [
+						libMat.Brick.Small,
+						libMat.StoneTile.DungeonWall,
+						libMat.Wood.Crate,
+					],
+					
+				}),
+			},
 
 			Beach : {
 				A : new LibMesh({

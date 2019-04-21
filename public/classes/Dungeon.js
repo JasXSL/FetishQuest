@@ -1092,15 +1092,6 @@ class DungeonRoomAsset extends Generic{
 
 	}
 
-	getDoorInteraction(){
-		for( let i of this.interactions ){
-			if( i.type === GameAction.types.door ){
-				return i;
-			}
-		}
-		return false;
-	}
-
 	isExit(){
 		for( let i of this.interactions ){
 			if( i.type === GameAction.types.exit )
@@ -1634,7 +1625,7 @@ DungeonEncounter.getFirstViable = function( arr, event ){
 	}
 	return false;
 
-}
+};
 DungeonEncounter.getRandomViable = function( arr, event ){
 	const entries = arr.slice();
 	shuffle(entries);
@@ -1879,10 +1870,9 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			}
 
 			// See if we need an encounter here
-			// Todo: Allow encounters in the first room once the world map is in
 			if( ~encounters.indexOf(room.index) )
-				room.encounters = kit.encounters.slice().map(el => el.clone(room));
-
+				room.encounters = clone(kit.encounters, room);
+				
 			// This was a working template, so break here and let the loop resume to the next room
 			if( treasureExists )
 				++numChests;

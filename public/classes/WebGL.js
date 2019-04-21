@@ -156,7 +156,7 @@ class WebGL{
 			this.controls.enablePan = false;
 			this.controls.maxDistance = 2000;
 			this.controls.minDistance = 500;
-			this.controls.maxPolarAngle = Math.PI/3+.2;
+			this.controls.maxPolarAngle = Math.PI/3+0.2;
 		}
 		this.controls.update();
 
@@ -901,7 +901,7 @@ class WebGL{
 			posZ = room.zoom;
 			this.camera.position.y = posY;
 			this.camera.position.z = posZ;
-			this.camera.position.x = posZ*.5;
+			this.camera.position.x = posZ*0.5;
 		}
 		
 		this.camera.lookAt(0,0,0);
@@ -1432,18 +1432,25 @@ class Stage{
 	/* Tweens */
 	addTweensRecursive( obj ){
 		if( obj.userData.tweens ){
+
+			const loop = ( o, i ) => {
+				let tween = obj.userData.tweens[i];
+				this.removeTween(tween);	// Remove the last tween
+				tween = o();				// Generate a new one
+				obj.userData.tweens[i] = tween;		// Set it to the new one
+				this.addTween(tween);				// Add it to the scene
+				tween.onComplete(() => loop(o, i));	// on complete, call this again
+			};
+
 			for( let i in obj.userData.tweens ){
-				let o = obj.userData.tweens[i];
-				let tween = o;
+
+				// Converts tween objects to tweens
+
+				// active tweens
+				let tween = obj.userData.tweens[i];
+				// Tween is a function, this is used for lights and such where the tween values are random each loop
 				if( typeof tween === "function" ){
-					let loop = () => {
-						this.removeTween(tween);
-						tween = o();
-						obj.userData.tweens[i] = tween;
-						this.addTween(tween);
-						tween.onComplete(loop);
-					};
-					loop();
+					loop(tween, i);
 				}
 				else
 					this.addTween(tween);
@@ -1503,25 +1510,28 @@ class Stage{
 
 	stopSound( mesh, id, fade = 0 ){
 
+		// Callback for getting the sound
+		const stop = s => {
+			if( s )
+				s.stop(fade);
+		};
+
 		for( let i in this.sounds ){
 			let sound = this.sounds[i];
 			if( sound.id === id && sound.mesh === mesh ){
-				Promise.resolve(sound.sound).then(s => {
-					if( s )
-						s.stop(fade);
-				});
+				Promise.resolve(sound.sound).then(stop);
 				this.sounds.splice(i, 1);
 			}
 		}
 
-	};
+	}
 	
 	stopAllSounds(){
 		let sounds = this.sounds.slice();
 		for( let s of sounds ){
 			this.stopSound(s.mesh,s.id);
 		}
-	};
+	}
 
 
 
@@ -1637,7 +1647,7 @@ Stage.setMeshMatProperty = function( mesh, id, value, reset = false ){
 		m[id] = val;
 	}
 
-}
+};
 
 // Adds generic hover visuals to a mesh
 Stage.bindGenericHover = function( mesh ){
@@ -1656,7 +1666,7 @@ Stage.bindGenericHover = function( mesh ){
 			game.renderer.renderer.domElement.style.cursor = "auto";
 	};
 	
-}
+};
 
 
 
