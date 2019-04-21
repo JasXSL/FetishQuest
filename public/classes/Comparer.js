@@ -44,6 +44,11 @@ export default class Comparer{
 					else{
 
 						let tupleA = {}, tupleB = {};
+
+						if( !Array.isArray(b[i]) ){
+							console.error("Comparer is trying to compare an array to non array, a", a, "b", b, "i", i);
+						}
+
 						for( let n of a[i] ){
 							if( (!n || !n.id) && debug )
 								console.error("Object", n, "has no id in object", a, "array", a[i]);

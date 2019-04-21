@@ -2704,13 +2704,12 @@ export default class UI{
 	// Draws a loot selector for container. Container is a DungeonAsset
 	drawContainerLootSelector( player, container ){
 
-		let th = this;
 		let playAnimation = container._stage_mesh.userData.playAnimation;
 
 		game.modal.prepareSelectionBox();
 		const items = container.getLootable();
 		for( let item of items )
-			game.modal.addSelectionBoxItem(item.name, item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
+			game.modal.addSelectionBoxItem(item.name+(item._stacks > 1 ? ' ['+(+item._stacks)+']' : ''), item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
 
 		if( playAnimation )
 			playAnimation("open");

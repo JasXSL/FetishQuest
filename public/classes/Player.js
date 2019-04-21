@@ -817,7 +817,7 @@ export default class Player extends Generic{
 		for( let i = 0; i<amount; ++i ){
 			const exists = this.getAssetByLabel(asset.label);
 			if( asset.stacking && exists )
-				exists._stacks += 1;
+				exists._stacks += asset._stacks;
 			else
 				this.assets.push(asset.clone(this));
 

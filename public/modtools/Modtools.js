@@ -2448,6 +2448,7 @@ export default class Modtools{
 		// Generic asset selector
 		else{
 			html += 'Name: <input type="text" class="updateMesh" name="name" value="'+esc(asset.name)+'" /> <br />';
+			html += '<label>Remove if made noninteractive: <input type="checkbox" class="updateMesh" name="rem_no_interact" '+(asset.rem_no_interact ? 'checked' : '')+' /></label><br />';
 			html += '<strong>Position:</strong><br />';
 			html += 'X <input type="number" step=1 name="x" class="updateMesh" style="width:6vmax" value="'+esc(asset.x)+'" /> ';
 			html += 'Y <input type="number" step=1 name="y" class="updateMesh" style="width:6vmax" value="'+esc(asset.y)+'" /> ';
@@ -2593,7 +2594,7 @@ export default class Modtools{
 				html += '</div>';
 				return html;
 
-			}
+			};
 
 			const bindInteractions = function(){
 
@@ -2603,7 +2604,8 @@ export default class Modtools{
 					interaction = asset.getInteractionById(id)
 				;
 
-				th.formGameActionBind(base, interaction);
+				if( interaction )
+					th.formGameActionBind(base, interaction);
 
 				$('#modal div.assetEditor div.assetDataEditor div.assetData div.interaction[data-id="_lib_"] input[name=interaction_id]').on('change', event => {
 					
@@ -2626,7 +2628,7 @@ export default class Modtools{
 				updateMissingDoors();
 
 
-			}
+			};
 
 			let html = '';
 			for( let action of asset.interactions )
@@ -2695,7 +2697,7 @@ export default class Modtools{
 			asset._stage_mesh.scale.y = asset.scaleY = +$("input[name=scaleY]", div).val();
 			asset._stage_mesh.scale.z = asset.scaleZ = +$("input[name=scaleZ]", div).val();
 			asset.name = $("input[name=name]", div).val();
-			
+			asset.rem_no_interact = $("input[name=rem_no_interact]", div).prop('checked');
 			
 		});
 
@@ -2933,6 +2935,7 @@ export default class Modtools{
 				val = JSON.parse(val);
 				val = JSON.stringify(val);
 			}catch(err){}
+			console.log("Setting value to", val, "on element", element);
 			$(element).val(val);
 			$("#jsonEditor").toggleClass("hidden", true);
 		});
@@ -3008,7 +3011,7 @@ export default class Modtools{
 		}
 		else if( type === types.loot ){
 			
-			const idata = interaction.data;
+			let idata = interaction.data;
 			if( typeof idata !== "object" )
 				idata = {min:-1,max:-1};
 			html += 'Min Items: <input type=number name="loot_min" min=-1 step=1 value="'+(isNaN(idata.min) ? -1 : idata.min)+'" /><br />';
@@ -4269,7 +4272,7 @@ export default class Modtools{
 
 	inputAsset( data = '' ){
 		if( typeof data === "object" )
-			data = JSON.stringify(data);
+			data = JSON.stringify(typeof data.save === "function" ? data.save("mod") : data);
 		return '<input type="text" class="json" name="asset" value="'+esc(data)+'" list="assets" />';
 	}
 

@@ -69,7 +69,7 @@ class Text extends Generic{
 		this.conditions = Condition.loadThese(this.conditions, this);
 		for( let sound of this.audiokits ){
 			if( !glib.audioKits[sound] )
-				console.error("AudioKit not found", sound);
+				console.error("AudioKit not found", sound, "in", this);
 		}
 		this.hitfx = HitFX.loadThese(this.hitfx);
 	}

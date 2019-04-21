@@ -14,8 +14,7 @@ class Quest extends Generic{
 		this.name = '';
 		this.description = '';
 		this.rewards = [];							// Assets
-		this.rewards_experience = 0;
-		this.level = 1;
+		this.exp_multiplier = 1;
 		this.objectives = [];
 		this.completion_objectives = [];			// One of these will trigger. This allows you to add multiple ways of handing in a quest with different outcomes
 		this.completed = false;						// Set internally when the quest finishes to prevent further objective evaluation
@@ -33,8 +32,7 @@ class Quest extends Generic{
 			description : this.description,
 			objectives : this.objectives.map(el => el.save(full)),
 			rewards : Asset.saveThese(this.rewards),
-			rewards_experience : this.rewards_experience,
-			level : this.level,
+			exp_multiplier : this.exp_multiplier,
 			completion_objectives : this.completion_objectives.map(el =>el.save(full))
 		};
 
@@ -167,6 +165,10 @@ class Quest extends Generic{
 		game.ui.addText( player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", undefined, player.id,  player.id, 'statMessage important' );
 	}
 
+	getExperience(){
+		return game.getAveragePlayerLevel()*this.exp_multiplier;
+	}
+
 	// hand out rewards etc
 	onFinish( event ){
 		this.completed = true;
@@ -174,7 +176,7 @@ class Quest extends Generic{
 		// Give exp
 		let players = game.getTeamPlayers();
 		for( let player of players )
-			player.addExperience(this.rewards_experience);
+			player.addExperience(this.getExperience());
 
 		
 		const order = shuffle(players.slice());
@@ -224,8 +226,6 @@ Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
 	
 	const quest = new Quest();
 	let expBasis = 0;			// Bonus experience basis
-	const level = game.getAveragePlayerLevel();
-	quest.level = level;
 
 	const encounters = dungeon.getNumEncounters();
 	if( !encounters )
@@ -239,16 +239,15 @@ Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
 		// Add monsterKill objective
 		quest.addObjective(QuestObjective.buildEncounterCompletedObjective(quest, dungeon, encounters));
 
-		expBasis = difficultyMultiplier*level/2*encounters;
+		expBasis = encounters/2;	// Exp multiplier is a multiplayer against average player level. This makes it level*encounters/2
 
 	}
 
-	let expReward = Math.ceil(expBasis);
-	quest.rewards_experience = expReward;
+	quest.exp_multiplier = expBasis;
 	// Pick a proper reward. For now, just do gear.
 	let minGearRarity = Math.min(Asset.Rarity.EPIC, Math.round(game.getTeamPlayers(0).length*difficultyMultiplier+encounters/10));
 	let rarity = Asset.rollRarity(minGearRarity);
-	quest.addGearReward(Asset.generate(undefined, level, undefined, undefined, rarity));
+	quest.addGearReward(Asset.generate(undefined, undefined, undefined, undefined, rarity));
 
 	// Add dungeon exit ending objective
 	quest.addObjective(QuestObjective.buildDungeonExitObjective(quest, dungeon), true);

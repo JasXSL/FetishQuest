@@ -130,7 +130,10 @@ export default class GameLib{
 			
 		];
 
+
 		for( let mod of mods ){
+
+			console.log("loading mod", mod);
 			
 			for( let k of load_order ){
 				if( Array.isArray(mod[k]) ){

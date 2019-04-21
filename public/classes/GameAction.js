@@ -102,16 +102,18 @@ export default class GameAction extends Generic{
 			}
 		}
 
-		if( this.type === GameAction.types.loot ){
-			if( typeof this.data !== "object" )
-				console.error("Trying to load non-object to loot type in interaction:", this);
-			this.data.loot = Asset.loadThese(this.data.loot);
-		}
-		if( this.type === GameAction.types.encounters ){
-			if( !Array.isArray(this.data) )
-				console.error("Trying to load non-array to encounter type in interaction:", this);
+		if( window.game ){
+			if( this.type === GameAction.types.loot ){
+				if( typeof this.data !== "object" )
+					console.error("Trying to load non-object to loot type in interaction:", this);
+				this.data.loot = Asset.loadThese(this.data.loot);
+			}
+			if( this.type === GameAction.types.encounters ){
+				if( !Array.isArray(this.data) )
+					console.error("Trying to load non-array to encounter type in interaction:", this);
 
-			this.data = DungeonEncounter.loadThese(this.data);
+				this.data = DungeonEncounter.loadThese(this.data);
+			}
 		}
 
 	}
@@ -138,7 +140,7 @@ export default class GameAction extends Generic{
 			const out = [];
 			for( let i =0; i<numItems && loot.length; ++i ){
 				let n = Math.floor(Math.random()*loot.length);
-				out.push(loot.splice(n, 1).shift());
+				out.push(Asset.convertDummy(loot.splice(n, 1).shift(), this));
 			}
 			this.data = out;
 

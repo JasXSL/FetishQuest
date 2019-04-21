@@ -2203,6 +2203,21 @@ const lib = [
 		],
 		hitfx : ["tentacleWhip"]
 	},
+	{ text : "%T spins around, attempting a rapid kick at %S. But %S slips between %This legs and pinches %This %Tbutt!",
+		armor_slot : "lowerbody",
+		conditions : [
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderIsTentacrab"
+		],
+		hitfx : ["pinch"]
+	},
+	{ text : "%T spins around, attempting a rapid kick at %S. But %S slips between %This legs and pinches %This %Tgroin!",
+		armor_slot : "lowerbody",
+		conditions : [
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderIsTentacrab"
+		],
+		hitfx : ["pinch"]
+	},
+
 	{ text : "%T spins around attempting a rapid kick at %S. But %S ducks under and thrusts a tentacle up inside %T's exposed %Tvagina!",
 		"armor_slot":"lowerbody",
 		conditions : [

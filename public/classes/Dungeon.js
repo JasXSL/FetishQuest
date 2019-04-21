@@ -44,7 +44,7 @@ class Dungeon extends Generic{
 		this.depth = 0;				// Negative value of how many stories below the entrance we can go
 		this.height = 0;			// Positive value of how many stories above the entrance we can go
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
-		this.difficulty = 1;		// Generally describes how many players this dungeon is for
+		this.difficulty = -1;		// Generally describes how many players this dungeon is for. -1 automatically sets it to nr friendly players
 		this.vars = {};				// Can be set and read programatically
 		this.consumables = [
 			'manaPotion', 'majorManaPotion',
@@ -143,6 +143,14 @@ class Dungeon extends Generic{
 
 	}
 
+
+	getDifficulty(){
+		
+		if( this.difficulty === -1 )
+			return Math.max(1, game.getTeamPlayers().length);
+		return this.difficulty;
+
+	}
 
 	// Events
 	onEntered(){
@@ -971,6 +979,7 @@ class DungeonRoomAsset extends Generic{
 		this.absolute = false;			// Makes X/Y/Z absolute coordinates
 		this.room = false;				// This is the room asset
 		this.interactions = [];			
+		this.rem_no_interact = false;	// Remove when made noninteractive, generally when fully looted
 
 		this._interactive = null;		// Cache of if this object is interactive
 
@@ -1019,7 +1028,8 @@ class DungeonRoomAsset extends Generic{
 			absolute : this.absolute,
 			name : this.name,
 			room : this.room,
-			interactions : GameAction.saveThese(this.interactions, full)
+			interactions : GameAction.saveThese(this.interactions, full),
+			rem_no_interact : this.rem_no_interact
 		};
 		if( full !== 'mod' ){
 			
@@ -1243,7 +1253,7 @@ class DungeonRoomAsset extends Generic{
 		// Lootbags are auto removed
 		if( !this.isInteractive() ){
 
-			if( this.model === 'Generic.Containers.LootBag' )
+			if( this.rem_no_interact )
 				this.parent.removeAsset(this);
 			else
 				this.updateInteractivity();
@@ -1438,11 +1448,13 @@ class DungeonEncounter extends Generic{
 	prepare( difficulty ){
 
 		if( !difficulty ){
+
 			const dungeon = this.getDungeon();
 			if( dungeon )
-				difficulty = dungeon.difficulty;
+				difficulty = dungeon.getDifficulty();
 			else
 				difficulty = game.getTeamPlayers().length;
+
 		}
 
 		if( this.started )

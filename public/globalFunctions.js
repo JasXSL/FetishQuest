@@ -73,6 +73,7 @@ function toArray(...args){
 		return [...args];
 	return args[0];
 }
+const toArr = toArray;
 
 // Turns color tags into HTML
 /*

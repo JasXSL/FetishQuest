@@ -135,7 +135,7 @@ export default class Asset extends Generic{
 
 	// Checks only if this is a consumable item
 	isConsumable(){
-		return this.charges !== 0 && this.use_action;
+		return this.charges !== 0 && !!this.use_action;
 	}
 
 	isUsable(){

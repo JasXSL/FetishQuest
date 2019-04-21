@@ -352,13 +352,13 @@ class Action extends Generic{
 			return err("No viable targets");
 
 		// Charges are not checked when a charged action finishes
-		if( !this.hasEnoughCharge() > 0 && !isChargeFinish )
+		if( !this.hasEnoughCharge() && !isChargeFinish )
 			return err("Can't use that yet");
 
 		if( this.getPlayerParent().isCasting() && !this.allow_when_charging )
 			return err("You are charging an action");
 
-		if( game.getTurnPlayer().id !== this.getPlayerParent().id )
+		if( game.getTurnPlayer().id !== this.getPlayerParent().id && game.battle_active )
 			return err("Not your turn");
 
 		// Stuff that should not affect hidden actions
