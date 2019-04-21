@@ -9,6 +9,7 @@ import PlayerTemplate from "./templates/PlayerTemplate.js";
 import stdTag from "../libraries/stdTag.js";
 import Mod from './Mod.js';
 import * as THREE from '../ext/THREE.js';
+import { DungeonRoomAsset } from "./Dungeon.js";
 
 export default class UI{
 
@@ -535,6 +536,7 @@ export default class UI{
 					'<div class="targetingStats"></div>'+
 					'<div class="interactions">'+
 						'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
+						'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
 					'</div>'+
 				'</div>';
 
@@ -560,8 +562,7 @@ export default class UI{
 				$(this).remove();
 		});
 
-		// Helper function for escaping a player name
-		const escPlayerName = pl => esc(pl.name);
+		
 
 		let nr_friendly = 0,
 			nr_hostile = 0;
@@ -775,7 +776,8 @@ export default class UI{
 		let ch = '';
 		if( chargedActions ){
 			
-			
+			// Helper function for escaping a player name
+			const escPlayerName = pl => esc(pl.name);
 			for( let a of chargedActions ){
 				ch += '<div class="chAction tooltipParent">';
 				ch += esc(a.name)+' at '+a.getChargePlayers().map(escPlayerName);
@@ -800,12 +802,18 @@ export default class UI{
 			if( rp )
 				game.setRoleplay(rp);
 		});
+
+		const showLoot = !game.battle_active && p.team !== 0 && p.isDead() && p.getLootableAssets().length;
+		$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.drawContainerLootSelector(game.getMyActivePlayer(), p);
+		});
 		
 
 		// Effect wrappers
 		let o = '';
 		let wrappers = p.getWrappers();
-		wrappers = wrappers.filter(el => el.name.length && el._duration !== 0);
+		wrappers = wrappers.filter(el => el.name.length && el._duration !== 0 && el.parent instanceof Player);
 		for( let wrapper of wrappers ){
 			o += '<div class="wrapper tooltipParent '+(wrapper.detrimental ? 'detrimental' : 'beneficial')+'" data-id="'+esc(wrapper.id)+'">';
 			if( wrapper.icon )
@@ -1760,7 +1768,7 @@ export default class UI{
 			html += '<div class="left">'+
 				'<h3>'+esc(player.name)+'</h3>'+
 				'<em>Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name)+'</em>'+
-				(player.level < Player.MAX_LEVEL ? this.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()*100) : '')+
+				(player.level < Player.MAX_LEVEL ? this.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()) : '')+
 				'<em>'+esc(player.description)+'</em><br />'+
 				'<br />'+(game.is_host ? '<input type="button" class="editPlayer yellow devtool" value="Edit Player" /> ' : '');
 				
@@ -2709,22 +2717,23 @@ export default class UI{
 		
 	}
 
-	// Draws a loot selector for container. Container is a DungeonAsset
+	// Draws a loot selector for container. Container is a DungeonAsset OR Player
 	drawContainerLootSelector( player, container ){
 
-		let playAnimation = container._stage_mesh.userData.playAnimation;
+		let playAnimation = container instanceof DungeonRoomAsset ? container._stage_mesh.userData.playAnimation : false;
 
 		game.modal.prepareSelectionBox();
-		const items = container.getLootable();
+		const items = container.getLootableAssets();		// Both player and container have this method
 		for( let item of items )
 			game.modal.addSelectionBoxItem(item.name+(item._stacks > 1 ? ' ['+(+item._stacks)+']' : ''), item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
 
 		if( playAnimation )
 			playAnimation("open");
+		
 		game.modal.onSelectionBox(function(){
 
 			let asset = $(this).attr('data-id');
-			container.lootToPlayer(asset, player);
+			container.lootToPlayer(asset, player);			// Both player and DungeonRoomAsset have this method
 			game.modal.closeSelectionBox();
 			
 		});
@@ -2980,9 +2989,10 @@ export default class UI{
 
 
 	/* Helpers */
-	buildProgressBar( text, percent = 0, cname = '' ){
+	// percent is a float between 0 and 1
+	buildProgressBar( text, percent = 0.0, cname = '' ){
 		return '<div class="progressBar '+esc(cname)+'">'+
-			'<div class="bar" style="width:'+(+percent)+'%;"></div>'+
+			'<div class="bar" style="width:'+(+percent*100)+'%;"></div>'+
 			'<span class="content">'+esc(text)+'</span>'+
 		'</div>';
 	}

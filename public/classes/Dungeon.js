@@ -827,27 +827,6 @@ class DungeonRoom extends Generic{
 
 	}
 
-	// Adds a lootbag if possible
-	// Bags are arrays of assets
-	async addLootBags( bags ){
-	
-		let placed = 0;
-
-		for( let assets of bags ){
-			let prop = this.placeAsset("Generic.Containers.LootBag", true);
-			if( prop ){
-				++placed;
-				prop.interactions.push(new GameAction({
-					type : GameAction.types.loot,
-					data : assets.map(el => el.save(true))
-				}, prop));
-			}
-		}
-
-		if( placed )
-			return game.renderer.drawActiveRoom();
-
-	}
 
 	// Gets an asset in this room by DungeonAsset ID
 	getAssetById( id ){
@@ -1183,11 +1162,11 @@ class DungeonRoomAsset extends Generic{
 
 	/* Loot */
 	isLootable(){
-		return this.getLootable().length;
+		return this.getLootableAssets().length;
 	}
 
 	// returns loot that can be accessed
-	getLootable(){
+	getLootableAssets(){
 		const viable = this.getViableInteractions();
 		let out = [];
 		for( let v of viable ){
@@ -1198,7 +1177,7 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	getLootById( id ){
-		const lootable = this.getLootable();
+		const lootable = this.getLootableAssets();
 		for( let item of lootable ){
 			if( item.id === id )
 				return new Asset(item, this);
@@ -1241,9 +1220,9 @@ class DungeonRoomAsset extends Generic{
 		if( player.addAsset(asset) )
 			this.remLootById(id);
 
-		// Lootbags are auto removed
 		if( !this.isInteractive() ){
 
+			// Remove if rem_no_interact is set and this is no longer interactive
 			if( this.rem_no_interact )
 				this.parent.removeAsset(this);
 			else
@@ -1253,6 +1232,7 @@ class DungeonRoomAsset extends Generic{
 		game.ui.addText( player.getColoredName()+" looted "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
 		game.renderer.drawActiveRoom();		// Forces a room refresh
 		game.save();
+		game.ui.draw();
 
 	}
 

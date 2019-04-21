@@ -1013,6 +1013,34 @@ export default class Player extends Generic{
 
 	}
 
+	getLootableAssets(){
+		return this.assets;
+	}
+
+	lootToPlayer( id, player ){
+
+		let asset = this.getAssetById(id);
+		if( !asset )
+			return;
+		
+		if( game.is_host && asset.loot_sound )
+			game.playFxAudioKitById(asset.loot_sound, player, player, undefined, true );
+		
+		if( !game.is_host ){
+			game.net.playerLoot( player, this, asset );	// todo: netcode for looting from a player
+			return;
+		}
+
+		asset.equipped = false;		// Make sure it's not equipped
+		if( player.addAsset(asset) )
+			this.destroyAsset(id);
+
+		game.ui.addText( player.getColoredName()+" looted "+asset.name+" from "+this.getColoredName()+".", undefined, player.id,  player.id, 'statMessage important' );
+		game.save();
+		game.ui.draw();
+
+	}
+
 	// By default it damages all worn items
 	damageDurability( sender, effect, amount, slots ){
 

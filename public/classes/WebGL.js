@@ -1148,6 +1148,8 @@ class Stage{
 
 		const libEntry = asset.getModel();
 		const attachmentIndexes = asset.attachments;
+		if( !libEntry.flatten )
+			console.error("Found invalid model in asset", asset);
 		const c = await this.addFromMeshLib(libEntry, attachmentIndexes, asset.isInteractive() || this.isEditor);
 
 		let meshTemplate = asset.getModel();			// Library entry

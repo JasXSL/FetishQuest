@@ -447,6 +447,7 @@ class NetworkManager{
 		}
 
 		if( task === PT.loot ){
+
 			let player = validatePlayer();
 			if( !player )
 				return;
@@ -454,14 +455,9 @@ class NetworkManager{
 			let room = game.dungeon.getActiveRoom(),
 				dungeonAsset = room.getAssetById(args.dungeonAsset)
 			;
-			if( !dungeonAsset )
-				return respondWithError("Interacted asset not found in room");
-			
-			let asset = dungeonAsset.getLootById(args.item);
-			if( !asset )
-				return respondWithError("Item not found in container");
-			
+
 			dungeonAsset.lootToPlayer( asset.id, player );
+
 		}
 
 		// Repair an item
