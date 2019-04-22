@@ -357,14 +357,32 @@ export default class Condition extends Generic{
 			else if( this.type === T.questCompleted ){
 				const d = toArray(this.data.quest);
 				for( let quest of d ){
-					if( ~game.completed_quests.indexOf(quest) ){
+					if( game.completed_quests[quest] ){
 						success = true;
 						break;
 					}
 				}
 			}
-			
-			
+
+			else if( this.type === T.questObjectiveCompleted ){
+
+				// data is {quest:(str)quest_label, objective:(str)objective_label}
+				const quest = this.data.quest,
+					objective = this.data.objective
+				;
+				// Start by scanning picked up quests
+				for( let q of game.quests ){
+					if( q.label === quest && q.isObjectiveCompleted(objective) ){
+						success = true;
+						break;
+					}
+				}
+				// Check completed cache
+				if( !success )
+					success = game.completed_quests[quest] && game.completed_quests[quest][objective];
+
+			}
+
 			else if( this.type === T.punishNotUsed )
 				success = !t.used_punish;
 			
@@ -547,6 +565,7 @@ Condition.Types = {
 	encounterLabel : 'encounterLabel',			// label of event encounter
 	questAccepted : 'questAccepted',			
 	questCompleted : 'questCompleted',
+	questObjectiveCompleted : 'questObjectiveCompleted',
 };
 
 Condition.descriptions = {
@@ -582,6 +601,7 @@ Condition.descriptions = {
 	[Condition.Types.encounterLabel] : '{label:(str/arr)encounter_label} - Checks if the encounter label exists in data label array',	
 	[Condition.Types.questAccepted] : '{quest:(str/arr)quest} - Checks if a quest has been started, regardless of completion status',	
 	[Condition.Types.questCompleted] : '{quest:(str/arr)quest} - Checks if any of these quests are completed',	
+	[Condition.Types.questObjectiveCompleted] : '{quest:(str)quest_label, objective:(str)objective_label} - Checks if a quest objective is done',
 };
 
 

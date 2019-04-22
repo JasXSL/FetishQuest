@@ -333,6 +333,8 @@ const lib = {
 
 	whiteSwimtrunks : {
 		name : "White Swimtrunks",
+		category : Asset.Categories.armor,
+		icon : 'underwear',
 		slots : [Asset.Slots.lowerbody],
 		equipped : false,
 		tags : [
@@ -349,6 +351,40 @@ const lib = {
 			}
 		],
 		description : "Tight swimtrunks made of a white stretchy material that becomes see-through when wet.\n+1 Agility.",
+		level : -1,
+		durability : 10,
+		weight : 50,
+		rarity : 1,
+		loot_sound : "lootCloth"
+	},
+
+	mq00_boss_robe : {
+		name : "Crimson Robe",
+		category : Asset.Categories.armor,
+		icon : 'robe',
+		slots : [Asset.Slots.upperbody],
+		equipped : false,
+		tags : [
+			stdTag.asStretchy,
+			stdTag.asRobe,
+			stdTag.asSkirt,
+		],
+		wrappers : [
+			{
+				effects : [
+					{
+						type : Effect.Types.intellectModifier,
+						data : {amount:1},
+					},
+					{
+						type : Effect.Types.bonCorruption,
+						data : {amount:2},
+					},
+				],
+				duration : -1
+			}
+		],
+		description : "A crimson flowing robe reaching down to your knees. It has a tentacle embroidered on the chest.\n+1 Int, +2 Bon Corruption",
 		level : -1,
 		durability : 10,
 		weight : 50,

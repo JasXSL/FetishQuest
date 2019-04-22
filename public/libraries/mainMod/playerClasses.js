@@ -227,6 +227,25 @@ const lib = {
             "crab_claw_tug",
         ]
     },
+    MQ00_Boss : {
+        name : "Nethermancer",
+        primaryStat : Player.primaryStats.intellect,
+        svPhysical : 0,
+        svElemental : 2,
+        svHoly : -2,
+        svCorruption : 3,
+        bonPhysical : -2,
+        bonElemental : 0,
+        bonHoly : -2,
+        bonCorruption : 2,
+        description : "",
+        isMonsterClass : true,
+        actions : [
+            "warrior_revenge",
+            "warrior_bolster",
+            "warrior_viceGrip"
+        ]
+    }
 };
 
 

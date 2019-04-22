@@ -625,18 +625,27 @@ export default class Player extends Generic{
 	// happens to NPCs the first time they're placed in world from an encounter
 	onPlacedInWorld(){
 
-		for( let index of this.inventory ){
-			if( this.assets[index] && this.assets[index].equippable() )
-				this.equipAsset(this.assets[index]);
-		}
-		this.inventory = [];
-
 		this.netgame_owner = '';
-
 		if( this.leveled ){
 			this.level += game.getHighestLevelPlayer();
 			this.leveled = false;
 		}
+
+		this.assets = this.assets.map(el => Asset.convertDummy(el, this));
+		for( let index of this.inventory ){
+			if( this.assets[index] && this.assets[index].equippable() ){
+				this.equipAsset(this.assets[index].id);
+			}
+		}
+		this.inventory = [];
+
+		for( let inv of this.assets )
+			inv.onPlacedInWorld();
+
+		this.addHP(Infinity);
+		this.addMP(Infinity);
+		this.arousal = 0;
+		
 	}
 	onTurnEnd(){
 
@@ -816,6 +825,7 @@ export default class Player extends Generic{
 		}
 		asset.equipped = false;
 
+		asset.onPlacedInWorld();
 		for( let i = 0; i<amount; ++i ){
 			const exists = this.getAssetByLabel(asset.label);
 			if( asset.stacking && exists )
@@ -836,7 +846,7 @@ export default class Player extends Generic{
 
 			}
 		}
-
+		
 		return true;
 	}
 	addLibraryAsset( label, amount = 1 ){

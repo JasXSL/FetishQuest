@@ -1,6 +1,6 @@
 Next:
-	- Script first quest
-	- Replace lootbags with a button for loot
+	- Script first boss
+	
 
 Needed scripts:
 	- Allow multiple roleplays in a cell

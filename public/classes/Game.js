@@ -45,7 +45,7 @@ export default class Game extends Generic{
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
 		this.state_dungeons = {};		// label : (obj)dungeonstate - See the dungeon loadstate/savestate
-		this.completed_quests = [];
+		this.completed_quests = {};		// label : {objective_label:true}
 
 		// Library of custom items
 		this.libAsset = {};
@@ -352,8 +352,14 @@ export default class Game extends Generic{
 		if( this.is_host && this.net.id )
 			this.net.dmQuestAccepted( 'Quest Completed:', quest.name );
 		
-		if( quest.label !== '_procedural_' && this.completed_quests.indexOf(quest.label) === -1 )
-			this.completed_quests.push(quest.label);
+		if( quest.label !== '_procedural_' && this.completed_quests.indexOf(quest.label) === -1 ){
+			const objectives = {};
+			for( let objective of quest.objectives ){
+				if( objective.isCompleted() )
+					objectives[objective.label] = 1;
+			}
+			this.completed_quests[quest.label] = objectives;
+		}
 
 		this.save();
 		
@@ -1537,7 +1543,7 @@ export default class Game extends Generic{
 	setRoleplay( rp ){
 
 
-		if( this.isInPersistentRoleplay() )
+		if( this.isInPersistentRoleplay() && !rp.persistent )
 			return;
 
 		this.roleplay = rp.clone(this);

@@ -252,6 +252,17 @@ export default class Asset extends Generic{
 	}
 
 	
+	// Makes sure the asset is up to date
+	// Called when added to a player's inventory or when a player is placed in world
+	onPlacedInWorld(){
+		console.log("Asset", this, "was placed in world", this.level);
+		if( this.level === -1 ){
+			if( this.parent instanceof Player )
+				this.level = this.parent.level;
+			else
+				this.level = game.getAveragePlayerLevel();
+		}
+	}
 
 	// Gets tooltip text for UI
 	getTooltipText(){

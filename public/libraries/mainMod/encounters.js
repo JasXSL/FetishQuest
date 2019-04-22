@@ -44,8 +44,10 @@ const lib = {
 
 	// MQ00
 	["MQ00_Boss"] : {
-		players: [],
-		friendly : false,
+		players: [
+			'MQ00_Boss',
+		],
+		friendly : true,
 		rp : ["MQ00_Boss"]
 	},
 

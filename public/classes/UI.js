@@ -1707,7 +1707,7 @@ export default class UI{
 			else{
 				for( let quest of quests )
 					html += '<div data-id="'+esc(quest.id)+'" class="'+(quest === selectedQuest ? ' selected ' : '')+(quest.isCompleted() ? ' completed ' : '')+'">'+
-						'['+quest.level+'] '+quest.name+(quest.isCompleted() ? ' (Completed)' : '')+
+						(quest.difficulty > 1 ? '['+quest.difficulty+'] ' : '')+quest.name+(quest.isCompleted() ? ' (Completed)' : '')+
 					'</div>';
 			}
 			html += '</div>';
@@ -1728,7 +1728,7 @@ export default class UI{
 				html += '<h3>Rewards</h3>';
 				for( let asset of selectedQuest.rewards ){
 					html += '<div class="item tooltipParent '+Asset.RarityNames[asset.rarity]+'">';
-						html += esc(asset.name)+(asset._stacks > 1 ? ' x'+reward.amount : '');
+						html += esc(asset.name)+(asset._stacks > 1 ? ' x'+asset._stacks : '');
 						html += '<div class="tooltip">';
 							html += asset.getTooltipText();
 						html += '</div>';
@@ -2435,8 +2435,10 @@ export default class UI{
 					return false;
 				return true;
 			});
-			if( !game.playerExists(player) )
+			if( !game.playerExists(player) ){
 				game.addPlayer(player);
+				player.onPlacedInWorld();
+			}
 
 			game.save();
 			th.draw();

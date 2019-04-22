@@ -284,6 +284,10 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.toggleCombat )
+			game.toggleBattle(this.data.on);
+		
+
 	}
 
 	getDungeon(){
@@ -320,6 +324,7 @@ GameAction.types = {
 	anim : "anim",					// {anim:(str)animation}
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
 	quest : "quest",				// {quest:(str/Quest)q} - Offers a quest
+	toggleCombat : "toggleCombat",	// {on:(bool)combat} - Turns combat on or off
 };
 
 

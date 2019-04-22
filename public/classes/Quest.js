@@ -111,6 +111,19 @@ class Quest extends Generic{
 		return true;
 	}
 
+	// Checks if an objective is completed by label
+	isObjectiveCompleted( label ){
+		const ob = this.getObjectiveByLabel(label);
+		return ob && ob.isCompleted();
+	}
+
+	getObjectiveByLabel( label ){
+		for( let objective of this.objectives ){
+			if( objective.label === label )
+				return objective;
+		}
+	}
+
 	onAccepted(){
 		
 		const pLen = game.getTeamPlayers().length;
@@ -201,6 +214,9 @@ class Quest extends Generic{
 		game.onQuestCompleted(this);		
 		game.removeQuest(this.id);
 	}
+
+
+	
 
 	/* HELPERS */
 	// Creates a condition stating that the quest in the event must have the same ID as this one

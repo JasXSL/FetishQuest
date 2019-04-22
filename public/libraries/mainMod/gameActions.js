@@ -9,7 +9,14 @@ const lib = {
 			min:1, max:3,
 			loot: ['food_RazzyBerry','food_RazzyBerry','food_RazzyBerry'],
 		},
-	}
+	},
+	startBattle : {
+		type : GameAction.types.toggleCombat,
+		data : {
+			on : true
+		},
+	},
+	
 };
 function getArray(){
 	const out = [];

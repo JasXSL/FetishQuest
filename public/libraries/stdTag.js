@@ -17,6 +17,7 @@ export default {
 	
 	// Species tags for players
 	plFurry : 'pl_furry',			// Player has fur
+	plScaly : 'pl_scaly',			// Player has scales
 	plTail : 'pl_tail',				// Player has tail
 	plMuscular : 'pl_muscular',		// Player is muscular
 	plHair : 'pl_hair',				// Player has hair

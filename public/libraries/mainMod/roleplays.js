@@ -60,11 +60,15 @@ const lib = {
 		stages: [
 			{
 				index: 0,
-				text: "Todo: Talk here!",
+				text: "Intruder! You will feel my wrath!",
 				options: [
-					{text: "What?",index: 1}
+					{text: "Ok then", index: -1, game_actions:['startBattle']}
 				]
 			},
+		],
+		conditions : [
+			"notInCombat",
+			{type:Condition.Types.questObjectiveCompleted, data:{quest:'MQ00_YuugBeach', objective:'caveCleared'}, inverse:true, targnr:0},
 		]
 	}
 };

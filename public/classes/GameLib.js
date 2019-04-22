@@ -120,8 +120,8 @@ export default class GameLib{
 			'materialTemplates',
 			'assetTemplates',
 			
-			'roleplay',
 			'gameActions',
+			'roleplay',
 			'dungeonEncounters',
 			'dungeonRoomTemplates',
 			'dungeonTemplates',
