@@ -1034,7 +1034,7 @@ export default class UI{
 		const th = this;
 		let html = 
 			'<div class="option button '+(hideTools ? 'inactive' : 'active')+'" data-action="toggleDMTools">'+(hideTools ? 'Show' : 'Hide')+' DM Tools</div>'+
-			'<div class="option button" data-action="generateDungeon">Generate Dungeon</div>'+
+			//'<div class="option button" data-action="generateDungeon">Generate Dungeon</div>'+
 			'<div class="option button" data-action="addPlayer">+ Add Player</div>'+
 			'<div class="option button" data-action="fullRegen">Restore HPs</div>'
 			//'<div class="option button '+(game.dm_writes_texts ? 'active' : 'inactive')+'" data-action="dmTexts">'+(game.dm_writes_texts ? 'Exit DM Mode' : 'Enter DM Mode')+'</div>'
@@ -1061,11 +1061,13 @@ export default class UI{
 				game.fullRegen();
 			//else if( action === "dmTexts" )
 			//	game.toggleAutoMode();
+			/*
 			else if( action === "generateDungeon" ){
 				game.addRandomQuest();
 				alert("A random dungeon quest has been generated with "+game.dungeon.rooms.length+" cells and difficulty "+game.dungeon.difficulty);
 				
 			}
+			*/
 			else if( action === 'toggleDMTools' ){
 				localStorage.hide_dm_tools = +th.showDMTools();
 				th.board.toggleClass("dev", th.showDMTools());
@@ -1735,7 +1737,7 @@ export default class UI{
 				html += 'You have no active quests.';
 			else{
 				html += '<h1>'+esc(selectedQuest.name)+'</h1>';
-				html += '<p>'+esc(selectedQuest.description)+'</p>';
+				html += '<p>'+stylizeText(selectedQuest.description)+'</p>';
 				html += '<br /><h3>Objectives</h3>';
 				for( let objective of selectedQuest.objectives ){
 					html += '<div class="objective'+(objective.isCompleted() ? ' completed ' : '')+'">'+

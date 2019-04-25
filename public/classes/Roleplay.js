@@ -238,6 +238,7 @@ class RoleplayStageOption extends Generic{
 		
 		this.index = 0;			// Target index
 		this.text = '';
+		this.chat = RoleplayStageOption.ChatType.default;			// Chat type
 		this.conditions = [];
 		this.game_actions = [];
 
@@ -266,6 +267,7 @@ class RoleplayStageOption extends Generic{
 
 		if( full ){
 			out.index = this.index;
+			out.chat = this.chat;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
 		
@@ -314,4 +316,10 @@ class RoleplayStageOption extends Generic{
 	}
 
 }
+
+RoleplayStageOption.ChatType = {
+	default : 0,		// Output into chat
+	emote : 1,			// todo: implement
+	none : 2,			// Don't output chat or emote
+};
 

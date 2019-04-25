@@ -16,6 +16,20 @@ const lib = {
 			on : true
 		},
 	},
+
+	// Procedural dungeons
+	generateDungeon : {
+		type : GameAction.types.generateDungeon,
+	},
+	visitDungeon : {
+		type : GameAction.types.visitDungeon,
+	},
+	proceduralRP : {
+		type : GameAction.types.roleplay,
+		data : {
+			rp : 'procedural_bounty_board'
+		}
+	},
 	
 };
 function getArray(){

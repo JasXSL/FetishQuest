@@ -1706,7 +1706,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			if( room.isEntrance() ){
 				adjacent.push(new DungeonRoom({
 					index : -1,
-					y : -1
+					y : -1,
 				}, out));
 			}
 
@@ -1733,9 +1733,14 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					door.x = position[0];
 					door.y = position[1];
 
+					let adata = {index:a.index};
+					// Exit to the bounty board where we accepted the quest
+					if( a.index === -1 ){
+						adata = {dungeon:game.dungeon.label, index:game.dungeon.active_room};
+					}
 					let action = new GameAction({
 						type : a.index === -1 ? GameAction.types.exit : GameAction.types.door,
-						data : {index:a.index},
+						data : adata,
 						break : "fail"
 					}, door);
 					door.interactions.push(action);

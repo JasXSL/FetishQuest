@@ -855,12 +855,12 @@ div.fxBuffBlue{
 	/* Texts */
 	#ui > div.players > div.left div.player div.speechBubble{
 		left:auto;
-		right: -1vmax;
+		right: 1vmax;
 		transform:translate(100%, -50%);
 	}
 	#ui > div.players div.player div.speechBubble{
 		position: absolute;
-		left:-1vmax;
+		left:1vmax;
 		transform:translate(-100%, -50%);
 		border: 2px solid #000;
 		background: #FFF;
@@ -960,9 +960,6 @@ div.fxBuffBlue{
 
 	#roleplay > div.left{
 		width:10vmax;
-	}
-	#roleplay > div.right{
-
 	}
 	
 
@@ -1279,9 +1276,6 @@ div.fxBuffBlue{
 
 	div.players div.player.incapacitated > div.content{
 		border-color:#FFD;
-	}
-	#ui div.player.dead{
-		
 	}
 	#ui div.player.dead > div.content{
 		border-color:#C66;

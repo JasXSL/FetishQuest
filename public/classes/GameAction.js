@@ -8,6 +8,7 @@ import GameEvent from './GameEvent.js';
 import Dungeon, { DungeonEncounter } from './Dungeon.js';
 import Calculator from './Calculator.js';
 import Quest from './Quest.js';
+import Roleplay from './Roleplay.js';
 
 export default class GameAction extends Generic{
 
@@ -287,6 +288,26 @@ export default class GameAction extends Generic{
 		else if( this.type === types.toggleCombat )
 			game.toggleBattle(this.data.on);
 		
+		else if( this.type === types.generateDungeon){
+			game.generateProceduralDungeon();
+		}
+
+		else if( this.type === types.visitDungeon ){
+			game.gotoProceduralDungeon();
+		}
+
+		else if( this.type === types.roleplay ){
+			let rp = this.data.rp;
+			if( typeof rp === 'string' )
+				rp = glib.get(rp, 'Roleplay');
+			else if( typeof rp === 'object' )
+				rp = new Roleplay(rp, game);
+				
+			if( typeof rp !== "object" )
+				console.error("Error, ", this.data.rp, "is not a valid roleplay in", this);
+			else
+				game.setRoleplay(rp);
+		}
 
 	}
 
@@ -325,6 +346,9 @@ GameAction.types = {
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
 	quest : "quest",				// {quest:(str/Quest)q} - Offers a quest
 	toggleCombat : "toggleCombat",	// {on:(bool)combat} - Turns combat on or off
+	generateDungeon : "generateDungeon",	// {difficulty:(int)difficulty=#players} - Resets the active procedural dungeon and clears any procedural quests you've started
+	visitDungeon : "visitDungeon",			// {} - Visits the current procedurally generated dungeon
+	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object
 };
 
 

@@ -47,6 +47,8 @@ export default class Game extends Generic{
 		this.state_dungeons = {};		// label : (obj)dungeonstate - See the dungeon loadstate/savestate
 		this.completed_quests = {};		// label : {objective_label:true}
 
+		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
+
 		// Library of custom items
 		this.libAsset = {};
 
@@ -108,6 +110,7 @@ export default class Game extends Generic{
 			out.chat_log = this.chat_log;
 			out.state_dungeons = this.state_dungeons;
 			out.completed_quests = this.completed_quests;
+			out.procedural_dungeon = this.procedural_dungeon.save(full)
 		}
 		return out;
 	}
@@ -232,6 +235,7 @@ export default class Game extends Generic{
 		
 		this.quests = Quest.loadThese(this.quests, this);		
 		this.dungeon = new Dungeon(this.dungeon, this);
+		this.procedural_dungeon = new Dungeon(this.procedural_dungeon, this);
 		this.encounter = new DungeonEncounter(this.encounter, this);
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
@@ -352,7 +356,7 @@ export default class Game extends Generic{
 		if( this.is_host && this.net.id )
 			this.net.dmQuestAccepted( 'Quest Completed:', quest.name );
 		
-		if( quest.label !== '_procedural_' && this.completed_quests[quest.label] ){
+		if( this.completed_quests[quest.label] ){
 			const objectives = {};
 			for( let objective of quest.objectives ){
 				if( objective.isCompleted() )
@@ -609,8 +613,11 @@ export default class Game extends Generic{
 	}
 
 	saveDungeonState(){
-		if( this.dungeon.label !== '_procedural_' )
-			this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
+		this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
+	}
+
+	removeDungeonState( label ){
+		delete this.state_dungeons[label];
 	}
 
 	canTransport( addError = true ){
@@ -635,15 +642,32 @@ export default class Game extends Generic{
 	}
 
 	*/
+	generateProceduralDungeon(){
 
+		const existing = this.getQuestByLabel('_procedural_');
+		if( existing )
+			this.removeQuest(existing.id);
+		this.removeDungeonState('_procedural_');
+		this.removeQuestCompletion('_procedural_');
 
+		this.addRandomQuest();
 
+	}
+
+	gotoProceduralDungeon(){
+		if( this.hasProceduralDungeon() )
+			this.setDungeon(this.procedural_dungeon);
+	}
+
+	hasProceduralDungeon(){
+		return this.procedural_dungeon.label === '_procedural_';
+	}
 
 
 	/* QUEST */
+
+	// Procedurally generates a quest and dungeon
 	addRandomQuest( type, difficultyMultiplier = 1 ){
-		// Todo: Remove this later
-		this.quests = [];
 
 		const dungeonType = [Dungeon.Shapes.Random, Dungeon.Shapes.SemiLinear][Math.round(Math.random())];
 		const cells = 6+Math.floor(Math.random()*7);
@@ -662,11 +686,11 @@ export default class Game extends Generic{
 		let quest = Quest.generate( type, dungeon, difficultyMultiplier);
 		if( !quest )
 			return false;
-
-		// Todo: Remove this later
+		quest.label = '_procedural_';
+		quest.description += '\n|s|This is a procedurally generated quest. Visit a bounty board to enter the dungeon.|/s|';
 		this.addQuest(quest);
-		this.setDungeon(dungeon);
-		
+		this.procedural_dungeon = dungeon.clone(this);		// Create a snapshot so we can travel to and from the dungeon
+		this.save();
 		
 	}
 	addQuest(quest){
@@ -693,7 +717,15 @@ export default class Game extends Generic{
 		}
 		return false;
 	}
-		
+	getQuestByLabel( label ){
+		for( let quest of this.quests ){
+			if( quest.label === label )
+				return quest;
+		}
+	}
+	removeQuestCompletion( label ){
+		delete this.completed_quests[label];
+	}
 
 
 
