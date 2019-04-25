@@ -534,6 +534,7 @@ export default class UI{
 						'<div class="charging"></div>'+
 					'</div>'+
 					'<div class="targetingStats"></div>'+
+					'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
 					'<div class="interactions">'+
 						'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
 						'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
@@ -1276,6 +1277,18 @@ export default class UI{
 			this.addText.apply(this, args);
 	}
 
+	addSpeechBubble( player, text ){
+
+		const div = $("div.player[data-id='"+player.id+"'] div.speechBubble", this.players);
+		clearTimeout(div[0].fadeTimer);
+		div[0].fadeTimer = setTimeout(() => {
+			div.toggleClass("hidden", true);
+		}, 6000);
+		div.toggleClass("hidden", false);
+		$("> div.content", div).html(text);
+
+	}
+
 	// Prints a message
 	// audioObj can be an object with {id:(str)soundKitId, slot:(str)armorSlot}
 	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture ){
@@ -1303,12 +1316,12 @@ export default class UI{
 				acn : additionalClassName,
 			});
 
-		if( ~acn.indexOf('playerChat') && game.initialized ){
-			game.uiAudio( 'chat_message' );
-		}
+		
 
 		let target = this.parent.getPlayerById(targetID),
 			sender = this.parent.getPlayerById(attackerID);
+
+		
 		if( ~[gTypes.turnChanged, gTypes.battleEnded, gTypes.encounterStarted].indexOf(evtType) )
 			acn.push('center');
 		else if( ~[gTypes.battleStarted].indexOf(evtType ) )
@@ -1329,13 +1342,19 @@ export default class UI{
 			acn.push('sided');
 		}
 
-		
-
 		let txt = stylizeText(text);
 		if( ~acn.indexOf('sided') )
 			txt = '<div class="sub">'+txt+'</div>';
 
-		
+		if( ~acn.indexOf('playerChat') && game.initialized ){
+			game.uiAudio( 'chat_message' );
+			if( acn.indexOf('emote') === -1 ){
+				let bubble = text.split(':');
+				bubble.shift();
+				this.addSpeechBubble(sender, stylizeText(bubble.join(':').trim()));
+			}
+		}
+	
 		this.text.append('<div class="line '+esc(acn.join(' '))+'">'+txt+'</div>');
 		while($("> div", this.text).length > Game.LOG_SIZE)
 			$("> div:first", this.text).remove();
@@ -2763,7 +2782,7 @@ export default class UI{
 			$("div.text", div).html('<span class="name">'+stylizeText(stage.getName())+'</span><br />'+esc(stage.text));
 			let html = '';
 			for( let response of stage.options ){
-				if( response.validate() )
+				if( response.validate(game.getMyActivePlayer()) )
 					html += '<div class="option bg" data-id="'+esc(response.id)+'">'+esc(response.text)+'</div>';
 			}
 			$("div.responses", div).html(html);

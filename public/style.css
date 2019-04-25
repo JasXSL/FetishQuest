@@ -851,6 +851,56 @@ div.fxBuffBlue{
 		flex-direction: column;
 	}
 
+
+	/* Texts */
+	#ui > div.players > div.left div.player div.speechBubble{
+		left:auto;
+		right: -1vmax;
+		transform:translate(100%, -50%);
+	}
+	#ui > div.players div.player div.speechBubble{
+		position: absolute;
+		left:-1vmax;
+		transform:translate(-100%, -50%);
+		border: 2px solid #000;
+		background: #FFF;
+		padding:1vmax;
+		border-radius: 1vmax;
+		color:#000;
+		font-size:1.5vmax;
+		top:50%;
+		font-style: italic;
+		box-shadow: 0.25vmax 0.25vmax 1vmax #000;
+	}
+
+	#ui > div.players div.player div.speechBubble div.arrow{
+		position: absolute;
+		right:0;
+		top:50%;
+		transform: translate(50%, -50%) rotate(45deg);
+		border: 2px solid #000;
+		background: #FFF;
+		width:1vmax;
+		height: 1vmax;
+		border-left:none;
+		border-bottom: none;
+	}
+
+	#ui > div.players div.player div.speechBubble div.arrow{
+		max-width:30vmax;
+	}
+
+	#ui > div.players > div.left div.player div.speechBubble div.arrow{
+		right:auto;
+		left:0;
+		transform:translate(-50%,-50%) rotate(225deg);
+	}
+
+	#ui > div.players > div.left div.player div.speechBubble.hidden{
+		display: block !important;
+		opacity:0;
+		transition: opacity 1s ease-in-out;
+	}
 	
 /**/
 
@@ -1231,10 +1281,11 @@ div.fxBuffBlue{
 		border-color:#FFD;
 	}
 	#ui div.player.dead{
-		opacity:0.75;
+		
 	}
 	#ui div.player.dead > div.content{
 		border-color:#C66;
+		opacity:0.75;
 	}
 
 	#ui > div.players div.player.active > div.content{
@@ -1359,7 +1410,7 @@ div.fxBuffBlue{
 	#ui > div.players div.player > div.interactions > div {
 		width:4vmax;
 		height:4vmax;
-		background:rgba(0,0,0,.5);
+		background:rgba(0,0,0,.85);
 		overflow:hidden;
 		border-radius:0.25vmax;
 		border: 2px solid #999;

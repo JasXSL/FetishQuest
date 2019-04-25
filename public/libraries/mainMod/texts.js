@@ -630,49 +630,75 @@ const lib = [
 	{ text : "%S slips in between %T's legs and forces %Shis strapon inside the %Trace's %Tvagina, thrusting for a while!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderHasStrapon","targetVagina","targetGroinExposed"),
+		weight : Text.Weights.high,
 		hitfx : ['slowThrusts']
 	},
 	{ text : "%S slips in between %T's legs and forces %Shis strapon inside the %Trace's %Tbutt, thrusting for a while!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderHasStrapon","targetButtExposed"),
+		weight : Text.Weights.high,
 		hitfx : ['slowThrusts']
 	},
 	{ text : "%S takes advantage of %T being restrained and starts rubbing %This nipples!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetBreasts","targetUpperbodyNotHard"),
+		weight : Text.Weights.high,
 		hitfx : ['squeeze']
 	},
 	{ text : "%S takes advantage of %T being restrained and starts rubbing %This %Tpenis!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetPenis","targetGroinExposed"),
+		weight : Text.Weights.high,
 		hitfx : ['squeeze']
 	},
 	{ text : "%S takes advantage of %T being restrained and starts rubbing %This %Tgroin!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetLowerbodyNotHard"),
+		weight : Text.Weights.high,
 		hitfx : ['squeeze']
 	},
 	{ text : "%S takes advantage of %T being restrained and licks across %This %Tgroin!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread"),
+		weight : Text.Weights.high,
 		hitfx : ['squishTiny']
 	},
 	{ text : "A tentacle restraining %T tugs %This head backwards, allowing %S to thrust %Shis strapon into %T's mouth!",
 		turnTags:[],
-		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread"),
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderHasStrapon"),
+		weight : Text.Weights.high,
 		hitfx : ['slowThrusts']
+	},
+	{ text : "A tentacle restraining %T tugs %This head backwards, allowing %S to thrust %Shis %Spenis into %T's mouth!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderPenis"),
+		hitfx : ['slowThrusts'],
+		weight : Text.Weights.high,
 	},
 	{ text : "%S slips in between %T's legs and forces a finger inside the %Trace's %Tvagina, wiggling it around inside %Thim!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderHasStrapon","targetVagina","targetGroinExposed"),
+		weight : Text.Weights.high,
 		hitfx : ['squishTiny']
 	},
 	{ text : "%S takes advantage of %T being restrained and starts rapidly licking %This %Tgroin!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetGroinExposed"),
+		weight : Text.Weights.high,
 		hitfx : ['squishTiny']
 	},
-
+	{ text : "%S slips in between %T's legs and forces %Shis %Spsize %Spenis inside the %Trace's %Tvagina, thrusting for a while!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderPenis","targetVagina","targetGroinExposed"),
+		weight : Text.Weights.high,
+		hitfx : ['slowThrusts']
+	},
+	{ text : "%S slips in between %T's legs and forces %Shis %Spsize %Spenis inside the %Trace's %Tbutt, thrusting for a while!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderPenis","targetButtExposed"),
+		weight : Text.Weights.high,
+		hitfx : ['slowThrusts']
+	},
 	
 
 
@@ -2207,10 +2233,7 @@ const lib = [
 	},
 	// Proc
 	{ text : "Tendrils spring from the darkened ground, restraining %T and lifts %Thim off the ground, spreading the %Trace's legs!",
-		conditions : [
-			"eventIsEffectTrigger",
-			"action_tentacle_pit_proc",
-		],
+		conditions : ["eventIsEffectTrigger","action_tentacle_pit_proc",],
 		hitfx : ["tentacleGrab"],
 	},
 

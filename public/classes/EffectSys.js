@@ -906,7 +906,6 @@ class Effect extends Generic{
 					return;
 				}
 				
-				console.log("Using", this.data.wrappers, "against", s, t);
 				for( let w of this.data.wrappers ){
 
 					let wrapper = new Wrapper(w, this.parent.parent);

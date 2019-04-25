@@ -1852,7 +1852,8 @@ const lib = {
 		target_type : Action.TargetTypes.self,
 		type : Action.Types.corruption,
 		tags : [
-			stdTag.acDamage
+			stdTag.acDamage,
+			stdTag.acNpcImportant
 		],
 		show_conditions : ["inCombat"],
 		wrappers : [

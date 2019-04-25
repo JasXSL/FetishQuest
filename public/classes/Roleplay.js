@@ -121,7 +121,8 @@ export default class Roleplay extends Generic{
 
 	validate( player ){
 		const evt = new GameEvent({
-			player : player,
+			sender : player,
+			target : player,
 			roleplay : this
 		});
 		return Condition.all(this.conditions, evt);
@@ -142,7 +143,6 @@ class RoleplayStage extends Generic{
 		this.name = '';
 		this.text = '';
 		this.options = [];
-		this.conditions = [];
 		this.player = '';			// Player label
 
 		this.load(data);
@@ -164,7 +164,6 @@ class RoleplayStage extends Generic{
 			name : this.name,
 			text: this.text,
 			options : RoleplayStageOption.saveThese(this.options, full),
-			conditions : Condition.saveThese(this.conditions, full),
 			player : this.player,
 		};
 
@@ -184,7 +183,6 @@ class RoleplayStage extends Generic{
 	rebase(){
 
 		this.options = RoleplayStageOption.loadThese(this.options, this);
-		this.conditions = Condition.loadThese(this.conditions, this);
 
 	}
 
@@ -197,16 +195,6 @@ class RoleplayStage extends Generic{
 			if( option.id === id )
 				return option;
 		}
-	}
-
-	validate( player ){
-
-		if( !Condition.all(this.conditions, new GameEvent({
-			sender : player
-		})) )return false;
-
-		return this.getOptions(player).length;
-		
 	}
 
 	getPlayer(){
@@ -298,9 +286,11 @@ class RoleplayStageOption extends Generic{
 	
 	validate( player ){
 
-		return Condition.all(this.conditions, new GameEvent({
-			sender : player
-		}));
+		const evt = new GameEvent({
+			sender : player,
+			target : player
+		});
+		return Condition.all(this.conditions, evt);
 
 	}
 

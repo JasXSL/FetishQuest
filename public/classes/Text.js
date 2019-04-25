@@ -52,6 +52,9 @@ class Text extends Generic{
 		this.hitfx = [];				// hit effects
 		this.armor_slot = '';				// Trigger armor hit sound on this slot, use Asset.Slots
 		this.weight = 1;					// Lets you modify the weight of the text, higher weights are shown more often.
+		this.chat = 0;					// 0 = no chat, 1 = casual chat (has a built in cooldown), 2 = required chat
+
+
 		this.load(...args);
 	}
 
@@ -87,6 +90,7 @@ class Text extends Generic{
 			armor_slot : this.armor_slot,
 			weight : this.weight,
 			hitfx : HitFX.saveThese(this.hitfx),
+			chat : this.chat,
 		};
 	}
 	
@@ -229,14 +233,21 @@ class Text extends Generic{
 		let targ = event.target;
 		if( Array.isArray(event.target) )
 			targ = event.target[0];
-		game.ui.addText(
-			text, 
-			event.type, 
-			event.sender ? event.sender.id : undefined,
-			targ ? targ.id : undefined,
-			'rpText',
-			event.type === GameEvent.Types.actionUsed || this.alwaysOutput,
-		);
+		
+		if( this.chat ){
+			event.sender.onChatUsed(this.id);
+			game.speakAs( event.sender.id, text, false );
+		}
+		else{
+			game.ui.addText(
+				text, 
+				event.type, 
+				event.sender ? event.sender.id : undefined,
+				targ ? targ.id : undefined,
+				'rpText',
+				event.type === GameEvent.Types.actionUsed || this.alwaysOutput,
+			);
+		}
 
 	}
 
@@ -258,7 +269,7 @@ class Text extends Generic{
 
 // Shuffles and triggers a random text from available texts
 // Returns the text that triggered, if any
-Text.getFromEvent = function( event ){
+Text.getFromEvent = function( event, chat = false ){
 
 	let available = [];
 	let texts = glib.texts;
@@ -267,7 +278,12 @@ Text.getFromEvent = function( event ){
 	// max nr targets text available
 	let maxnr = 1;
 	for( let text of texts ){
-		if( (!game.dm_writes_texts || text.alwaysAuto) && text.validate(event) ){
+		if( 
+			(!game.dm_writes_texts || text.alwaysAuto) && 
+			Boolean(text.chat) === chat && 
+			(!text.chat || !event.sender.hasUsedChat(text.id) ) &&
+			text.validate(event) 
+		){
 			available.push(text);
 			if( text.numTargets > maxnr )
 				maxnr = text.numTargets;
@@ -278,6 +294,18 @@ Text.getFromEvent = function( event ){
 		return false ;
 		
 	available = available.filter(el => el.numTargets === maxnr);
+
+	if( chat ){
+		const required = [];
+		for( let text of available ){
+			if( text.chat === this.Chat.required )
+				required.push(text);
+		}
+		if( required.length )
+			available = required;
+		else if( !event.sender.canOptionalChat() )		//  If there's no required chats available, make sure the player can chat already
+			available = [];
+	}
 
 	return weightedRand( available, item => {
 		let chance = item.conditions.length;
@@ -302,10 +330,15 @@ Text.runFromLibrary = function( event ){
 		t = [t];
 	t = t.slice();
 
+	let chatUsed = false;	// Only one chat regardless of how many players
+
 	// Try to trigger a text on each player
 	while( t.length ){
 
 		let text = this.getFromEvent( event );
+
+		
+
 		// No text for this person
 		if( !text ){
 			// Action used needs to have a text, we'll create a template one
@@ -318,8 +351,20 @@ Text.runFromLibrary = function( event ){
 			text.run(event);
 			t.splice(0,text.numTargets);
 		}
+
+		if( !chatUsed && event.sender && event.sender.isNPC() ){
+			const chat = this.getFromEvent( event, true );
+			if( chat ){
+				chat.run(event);
+				chatUsed = true;
+			}
+		}
+
 		event = event.clone();
 		event.target = t.slice();
+
+		
+
 	}
 
 
@@ -330,6 +375,12 @@ Text.Weights = {
 	default : 1,
 	high : 2,
 	max : 6
+};
+
+Text.Chat = {
+	none : 0,
+	optional : 1,
+	required : 2,
 };
 
 GameEvent.on(GameEvent.Types.all, event => {

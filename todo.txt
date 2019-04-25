@@ -1,6 +1,10 @@
 Next:
 	- Script first boss
-	
+		- Roleplay
+
+	- Netcode all the things
+	- Add a way to do procedural dungeons
+
 
 Needed scripts:
 	- Allow multiple roleplays in a cell

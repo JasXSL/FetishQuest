@@ -60,9 +60,32 @@ const lib = {
 		stages: [
 			{
 				index: 0,
-				text: "Intruder! You will feel my wrath!",
+				text: "The shrine is ready! Wait... Who are you?",
 				options: [
-					{text: "Ok then", index: -1, game_actions:['startBattle']}
+					{text: "What is going on here?", index: 10},
+					{text: "Uh, strippogram?", index: 1, conditions:['targetNaked']},		// Without clothes
+					{text: "Uh, strippogram?", index: 2, conditions:['targetNotNaked']},	// With clothes
+				]
+			},
+			{
+				index: 1,
+				text: "Without clothes?",
+				options: [
+					{text: "You got me there.", index: -1, game_actions:['startBattle']},
+				]
+			},
+			{
+				index: 2,
+				text: "Then why do you smell of battle?",
+				options: [
+					{text: "Fair enough.", index: -1, game_actions:['startBattle']},
+				]
+			},
+			{
+				index: 10,
+				text: "You would have me reveal my lord's intentions? I think not! Impy, attack!",
+				options: [
+					{text: "So be it", index: -1, game_actions:['startBattle']},
 				]
 			},
 		],

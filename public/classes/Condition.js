@@ -136,9 +136,12 @@ export default class Condition extends Generic{
 			console.debug("Condition DEBUG :: Testing", this, "with event", event);
 
 		// This is a collection, validate subs instead
-		if( this.conditions.length )
-			return this.validateSubs(event, debug);
-
+		if( this.conditions.length ){
+			const out = this.validateSubs(event, debug);
+			if( this.inverse )
+				return !out;
+			return out;
+		}
 		let targs = event.target,
 			success = false,
 			T = Condition.Types,

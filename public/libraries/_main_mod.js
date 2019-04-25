@@ -18,6 +18,7 @@ import {getArray as getPlayers} from './mainMod/players.js';
 import {getArray as getRoleplays} from './mainMod/roleplays.js';
 import {getArray as getEffects} from './mainMod/effects.js';
 import {getArray as getQuests} from './mainMod/quests.js';
+import chats from './mainMod/chats.js';
 
 import dungeons from './mainMod/dungeons.js';
 
@@ -31,7 +32,7 @@ const mod = new Mod(
 		dungeons:dungeons,
 		quests:getQuests(),
 		vars:{},
-		texts:texts,
+		texts:texts.concat(chats),
 		actions:getActions(),
 		assets:getAssets(),
 		audioKits:getAudioKits(),

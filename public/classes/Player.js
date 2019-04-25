@@ -70,6 +70,7 @@ export default class Player extends Generic{
 
 
 		// Personality types
+		this.talkative = 0.1;					// How often they output combat chats. Multiplied by nr turns. So after 1 turn, 0.5 = 50% chance, 2 turns = 100% etc. Setting this to one overrides the limit of one chat per turn.
 		this.sadistic = 0.5;					// Normal vs Sadistic
 		this.dominant = 0.8;					// Dominant vs submissive
 		this.hetero = 0.5;						// 0 = gay, 0.5 = bi, 1 = straight
@@ -97,7 +98,9 @@ export default class Player extends Generic{
 		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
 		
-		
+		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
+		this._last_chat = 0;					// Turn we last spoke on. 
+
 		this._turn_tags = [];					// {tag:(str)tag, s:(Player)sender}... These are wiped whenever an action text is used
 		
 		this.color = '';						// Assigned by the game
@@ -173,13 +176,9 @@ export default class Player extends Generic{
 			bonHoly : this.bonHoly,
 			bonCorruption : this.bonCorruption,
 			used_punish : this.used_punish,
-			sadistic : this.sadistic,					// Normal vs Sadistic
-			dominant : this.dominant,					// Dominant vs submissive
-			hetero : this.hetero,						// 0 = gay, 0.5 = bi, 1 = straight
-			intelligence : this.intelligence,
-			powered : this.powered,
 			leader : this.leader,
 			is_sprite : this.is_sprite,
+			talkative : this.talkative,
 			tmp_actions : Action.saveThese(this.tmp_actions)
 		};
 
@@ -193,6 +192,12 @@ export default class Player extends Generic{
 			out.leveled = this.leveled;
 			out.label = this.label;
 			out.inventory = this.inventory;
+			out.talkative = this.talkative;
+			out.sadistic = this.sadistic;					// Normal vs Sadistic
+			out.dominant = this.dominant;					// Dominant vs submissive
+			out.hetero = this.hetero;						// 0 = gay, 0.5 = bi, 1 = straight
+			out.intelligence = this.intelligence;
+			out.powered = this.powered;
 			if( full !== "mod" ){
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
 				out.experience = this.experience;
@@ -713,6 +718,7 @@ export default class Player extends Generic{
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
+		this._last_chat = 0;
 
 		let actions = this.getActions();
 		for(let action of actions)
@@ -1712,7 +1718,26 @@ export default class Player extends Generic{
 
 	}	
 
-	
+
+	/* CHATS */
+	onChatUsed( id ){
+		this._used_chats[id] = true;
+		this._last_chat = this._turns;
+	}
+
+	hasUsedChat( id ){
+		return this._used_chats[id];
+	}
+	// Checks if this NPC has chatted too recently
+	canOptionalChat(){
+		
+		if( this.talkative >= 1 )
+			return true;
+		let turnsSinceLastSpoke = this._turns-this._last_chat;
+		return Math.random() < turnsSinceLastSpoke*this.talkative;
+
+	}
+
 
 	// Bot
 	autoPlay( force ){

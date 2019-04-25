@@ -571,6 +571,7 @@ export default class Game extends Generic{
 				(isEmote ? ' emote' : '')+
 				(isOOC ? ' ooc' : '')
 		);
+		
 
 	}
 
@@ -1540,10 +1541,10 @@ export default class Game extends Generic{
 
 	}
 
-	setRoleplay( rp ){
+	setRoleplay( rp, force = false ){
 
 
-		if( this.isInPersistentRoleplay() && !rp.persistent )
+		if( this.isInPersistentRoleplay() && !rp.persistent && !force )
 			return;
 
 		this.roleplay = rp.clone(this);
@@ -1555,8 +1556,8 @@ export default class Game extends Generic{
 
 	}
 
-	clearRoleplay(){
-		this.setRoleplay(new Roleplay({completed:true}, this));
+	clearRoleplay( force = false ){
+		this.setRoleplay(new Roleplay({completed:true}, this), force);
 		this.ui.draw();
 	}
 

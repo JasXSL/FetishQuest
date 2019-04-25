@@ -269,7 +269,11 @@ lib.targetVaginaUnblockedAndNotHard = {conditions:[
 lib.targetNotNaked = {conditions:[
 	lib.targetWearsUpperbody,
 	lib.targetWearsLowerbody
-], inverse:true};
+], min:1};
+lib.targetNaked = {conditions:[
+	lib.targetWearsUpperbody,
+	lib.targetWearsLowerbody
+], inverse:true, min:1};
 
 // Special cases where it needs to refer to itself
 lib.targetHasUnblockedExposedOrifice = {conditions:[
