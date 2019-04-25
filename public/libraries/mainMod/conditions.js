@@ -54,11 +54,17 @@ const lib = {
 	action_cocktopus_inkject_tick : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_tick'}, targnr:0},
 	action_cocktopus_inkject_finish : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_expire'}, targnr:0},
 	action_detach : {type:Condition.Types.actionLabel, data:{label:'detach'}, targnr:0},
+	action_tentacle_pit : {type:Condition.Types.actionLabel, data:{label:'tentacle_pit'}, targnr:0},
+	action_tentacle_pit_proc : {type:Condition.Types.effectLabel, data:{label:'tentacle_pit_proc'}, targnr:0},
+	action_mq00_ward_boss : {type:Condition.Types.actionLabel, data:{label:'mq00_ward_boss'}, targnr:0},
 	
 	action_crab_claw_pinch : {type:Condition.Types.actionLabel, data:{label:'crab_claw_pinch'}, targnr:0},
 	action_crab_claw_tug : {type:Condition.Types.actionLabel, data:{label:'crab_claw_tug'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
+
+	actionMelee : {type:Condition.Types.actionRanged, targnr:0, inverse:true},
+	actionRanged : {type:Condition.Types.actionRanged, targnr:0},
 
 	targetLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}},
 	senderLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}, caster:true},
@@ -67,6 +73,10 @@ const lib = {
 	senderBlockingMouth : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockMouth], sender:true}},
 	senderBlockingButt : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockButt], sender:true}},
 	senderBlockingGroin : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockGroin], sender:true}},
+
+	senderIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.plBoss]}, sender:true},
+	targetIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.plBoss]}},
+
 
 	senderIsCocktopus : {type:Condition.Types.species, data:{species:['cocktopus']}, caster:true},
 	senderIsTentacrab : {type:Condition.Types.species, data:{species:['tentacrab']}, caster:true},
@@ -91,6 +101,8 @@ const lib = {
 	actionResist : {"type":"actionResisted"},
 	targetIsWrapperParent : {"type":"isWrapperParent","anyPlayer":true},
 	senderIsWrapperParent : {"type":"isWrapperParent","caster":true,"anyPlayer":true},
+	senderNotWrapperParent : {type:Condition.Types.isWrapperParent, caster:true, anyPlayer:true, inverse:true},
+
 	actionDamaging : {"type":"actionTag","data":{"tags":["ac_damage"]}},
 	wrapperIsStun : {"type":"wrapperHasEffect","data":{"filters":{"type":"stun"}}},
 	targetWearsThong : {"type":"tag","data":{"tags":["as_thong"]}},
@@ -151,8 +163,18 @@ const lib = {
 	targetKnockedDownFront : {"type":"tag","data":{"tags":["wr_knocked_down_front"]}},
 	targetNotGrappled : {type:"tag", data:{tags:[stdTag.wrGrapple]}, inverse:true},
 	senderHasWhip : {"type":"tag","data":{"tags":["as_whip"]},"caster":true},
+	senderHasStrapon : {type:Condition.Types.tag,data:{tags:[stdTag.asStrapon]},caster:true},
 	targetSoaked : {"type":"tag","data":{"tags":["wr_soaked"]}},
 	targetLegsSpread : {"type":"tag","data":{"tags":["wr_legs_spread"]}},
+	// Legs spread and lifted into the air by tentacles
+	targetTentacleLiftSpread : {
+		conditions : [
+			{type:Condition.Types.tag,data:{tags:[stdTag.wrLegsSpread]}},
+			{type:Condition.Types.tag,data:{tags:[stdTag.wrTentacleRestrained]}},
+		],
+		min : -1
+	},
+
 	targetHorns : {"type":"tag","data":{"tags":["pl_horns"]}},
 	targetHorn : {"type":"tag","data":{"tags":[stdTag.plHorn]}},
 	targetEars : {"type":"tag","data":{"tags":[stdTag.plEars]}},
@@ -200,7 +222,7 @@ const lib = {
 
 	roomTable : {"type":Condition.Types.tag,"data":{"tags":[stdTag.mTable]}},
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
-	senderNotDead : {"type":"defeated","inverse":true,"caster":true},
+	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},
 	targetDead : {"type":"defeated"},
 	targetNotDead : {"type":"defeated","inverse":true},
 	senderPunishmentNotUsed : {"type":"punishNotUsed","caster":true},

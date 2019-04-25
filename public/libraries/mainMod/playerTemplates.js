@@ -467,7 +467,7 @@ const lib = {
 		classes : [
 			"cocktopus"
 		],
-		max_actions : 2,
+		max_actions : 3,
 		tags : [
 			stdTag.plBeast,
 			stdTag.plTentacles,
@@ -475,14 +475,14 @@ const lib = {
 		min_level : 1,
 		max_level : 20,
 		primary_stats : {
-			[Player.primaryStats.agility] : 1,
-			[Player.primaryStats.stamina] : -6
+			[Player.primaryStats.agility] : 2,
+			[Player.primaryStats.stamina] : -4
 		},
 		sv : {
 			[Action.Types.corruption] : 2,
 			[Action.Types.elemental] : 2,
-			[Action.Types.holy] : 0,
-			[Action.Types.physical] : -2,
+			[Action.Types.holy] : -1,
+			[Action.Types.physical] : -1,
 		},
 		bon : {
 			[Action.Types.corruption] : 2,

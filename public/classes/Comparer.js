@@ -40,6 +40,8 @@ export default class Comparer{
 							out[i] = b[i].slice();
 
 					}
+					else if( Array.isArray(a[i]) !== Array.isArray(b[i]) )
+						out[i] = b[i];
 					// Object array. Every object needs an ID
 					else{
 

@@ -211,6 +211,10 @@ export default class Condition extends Generic{
 					data = [data];
 				success = event.effect && data.indexOf(event.effect.label) !== -1; 
 			}
+			else if( this.type === T.playerLabel ){
+				let data = toArr(this.data.level);
+				success = data.indexOf(t.label) !== -1;
+			}
 			
 			else if( this.type === T.species ){
 
@@ -390,6 +394,9 @@ export default class Condition extends Generic{
 				success = event.dungeon && event.dungeon.vars[this.data.id] === this.data.data;
 			}
 
+			else if( this.type === T.actionRanged )
+				success = event.action && event.action.ranged;
+
 			else{
 				game.modal.addError("Unknown condition "+String(this.type));
 				return false;
@@ -566,6 +573,8 @@ Condition.Types = {
 	questAccepted : 'questAccepted',			
 	questCompleted : 'questCompleted',
 	questObjectiveCompleted : 'questObjectiveCompleted',
+	actionRanged : 'actionRanged',
+	playerLabel : 'playerLabel',
 };
 
 Condition.descriptions = {
@@ -602,6 +611,8 @@ Condition.descriptions = {
 	[Condition.Types.questAccepted] : '{quest:(str/arr)quest} - Checks if a quest has been started, regardless of completion status',	
 	[Condition.Types.questCompleted] : '{quest:(str/arr)quest} - Checks if any of these quests are completed',	
 	[Condition.Types.questObjectiveCompleted] : '{quest:(str)quest_label, objective:(str)objective_label} - Checks if a quest objective is done',
+	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
+	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 };
 
 

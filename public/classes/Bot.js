@@ -94,6 +94,17 @@ class Bot{
 
 	}
 
+	// Checks if it has at least one castable important ability
+	hasCastableImportant(){
+		
+		const actions = this.player.getActions();
+		for( let action of actions ){
+			if( action.hasTag(stdTag.acNpcImportant) && action.castable() )
+				return true;
+		}
+
+	}
+
 	play( force = false ){
 		
 		if( (!this.player.isNPC() && !force) || !game.battle_active )
@@ -110,9 +121,11 @@ class Bot{
 		}
 
 
+
 		// Adds some randomness to abilities
 		if(
-			(this.player.ap >= highest_cost && (Math.random() < this.player.ap/this.player.getMaxAP() || this.actions_used)) ||
+			this.hasCastableImportant() ||
+			(this.player.ap >= highest_cost && (Math.random() < this.player.ap/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
 			Math.random() < 0.2 || this.player.ap > this.player.getMaxAP()-3
 		){
 
@@ -147,6 +160,8 @@ class Bot{
 					if( !!abil.detrimental === (el.team === this.player.team) )
 						return false;
 					if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.5 )
+						return false;
+					if( abil.hasTag(stdTag.acManaHeal) && el.mp/el.getMaxMP() > 0.5 )
 						return false;
 					return true;
 				});

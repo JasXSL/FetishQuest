@@ -35,6 +35,9 @@ export default {
 	plElectric : "pl_electric",
 	plClaws : 'pl_claws',
 
+	// Used for gameplay
+	plBoss : 'pl_boss',				// used on boss battles
+
 	// Player behavior tags
 	plDishonorable : "pl_dishonorable",
 
@@ -97,6 +100,7 @@ export default {
 	// Props
 	asWhip : 'as_whip',
 	
+	asStrapon : 'as_strapon',
 	
 
 	// Wrapper tags that are auto generated
@@ -119,7 +123,7 @@ export default {
 	// Custom wrapper tags that can be added to wrappers
 	wrSoaked : 'wr_soaked',				// Player is soaked
 	wrLegsSpread : 'wr_legs_spread',
-	
+	wrTentacleRestrained : 'wr_tentacle_restrained',		// Restrained and lifted by tentacles
 
 	// Effects
 	fxLatching : 'fx_latching',			// Put on a player latched onto another

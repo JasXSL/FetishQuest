@@ -389,7 +389,7 @@ const lib = {
 		durability : 10,
 		weight : 50,
 		rarity : 1,
-		loot_sound : "lootCloth"
+		loot_sound : "lootCloth",
 	},
 };
 function getArray(){

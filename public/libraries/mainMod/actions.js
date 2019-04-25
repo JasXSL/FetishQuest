@@ -1642,7 +1642,7 @@ const lib = {
 	cocktopus_inkject : {
 		name : "Headtacle",
 		icon : 'giant-squid',
-		description : "Starts thrusting your big head tentacle into an exposed orifice of a latched target, doing 4 corruption damage every turn for 3 turns or until you are pulled off. After 3 turns, you ink inside your target, adding 10 arousal to them and doing 10 mana damage.",
+		description : "Starts thrusting your big head tentacle into a latched target, doing 4 corruption damage every turn for 3 turns or until you are pulled off. After 3 turns, you ink inside your target, adding 10 arousal to them and doing 10 mana damage.",
 		ap : 4,
 		cooldown : 5,
 		detrimental : true,
@@ -1838,6 +1838,108 @@ const lib = {
 		]
 	},
 
+
+
+	// mq boss
+	tentacle_pit : {
+		name : "Tentacle Pit",
+		icon : 'vortex',
+		description : "Surrounds the caster with a tentacle pit for 1 turn. Anyone using a melee attack against you will be caught by the pit and stunned for 3 turns.",
+		ap : 2,
+		cooldown : 3,
+		mp : 1,
+		detrimental : false,
+		target_type : Action.TargetTypes.self,
+		type : Action.Types.corruption,
+		tags : [
+			stdTag.acDamage
+		],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				duration : 1,
+				name : "Dark Pit",
+				icon : "vortex",
+				description : "The caster is surrounded by a dark pit. It would be wise not to get near.",
+				detrimental : false,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						label : 'tentacle_pit_proc',
+						type : Effect.Types.runWrappers,
+						targets : [Wrapper.TARGET_EVENT_RAISER],
+						events : [GameEvent.Types.actionUsed],			// Any action has been used in the game
+						conditions : [
+							"targetIsWrapperParent",		// Target of said action was the recipient of this wrapper
+							"actionMelee",					// Action was melee
+							"senderNotWrapperParent",		// Caster of action was not the sender of this wrapper
+						],
+						data : {
+							wrappers : [
+								{
+									duration : 3,
+									name : "Tentacle Pit",
+									icon : "noodle-ball",
+									detrimental : true,
+									description : "Held up by tentacles and stunned.",
+									add_conditions : stdCond,
+									stay_conditions : stdCond,
+									tags : [stdTag.wrLegsSpread, stdTag.wrTentacleRestrained],
+									effects : [
+										{
+											events : [GameEvent.Types.internalWrapperAdded],
+											type : Effect.Types.stun
+										}
+									]
+								},
+								// Remove 
+								{
+									target : Wrapper.TARGET_CASTER,
+									detrimental : false,
+									effects : [{
+										type : Effect.Types.removeWrapperByLabel,
+										data : {label:'tentacle_pit'}
+									}]
+								}
+							]
+						}
+					},
+				]
+			}
+		]
+	},
+	mq00_ward_boss : {
+		name : 'Ward',
+		icon : 'shield-reflect',
+		description : 'Surrounds your master with a shield, reducing all damage taken by 3 for 2 turns.',
+		ap : 1,
+		mp : 3,
+		cooldown: 2,
+		ranged : true,
+		detrimental : false,
+		type : Action.Types.corruption,
+		tags : [
+			stdTag.acNpcImportant,
+			stdTag.acBuff
+		],
+		show_conditions : ["inCombat"],
+		wrappers : [{
+			duration : 2,
+			name : "Ward",
+			icon : "shield-reflect",
+			description : "All damage taken reduced by 3.",
+			detrimental : false,
+			add_conditions : stdCond.concat("targetIsBoss"),
+			stay_conditions : stdCond.concat("senderNotDead"),	// checks if the caster isn't dead, imp in this case
+			effects : [
+				{
+					type : Effect.Types.globalDamageTakenMod,
+					data : {amount:-3},
+				}
+			],
+		}],
+	},
 
 
 	// Generic helper spells

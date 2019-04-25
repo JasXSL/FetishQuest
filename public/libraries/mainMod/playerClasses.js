@@ -241,9 +241,8 @@ const lib = {
         description : "",
         isMonsterClass : true,
         actions : [
-            "warrior_revenge",
-            "warrior_bolster",
-            "warrior_viceGrip"
+            'imp_demonicPinch',
+            'tentacle_pit', // tentacle_pit : Places a tentacle pit between the caster and players. Using a melee attack against the caster will trap the first player for 3 turns.
         ]
     }
 };

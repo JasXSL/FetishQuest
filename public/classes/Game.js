@@ -352,7 +352,7 @@ export default class Game extends Generic{
 		if( this.is_host && this.net.id )
 			this.net.dmQuestAccepted( 'Quest Completed:', quest.name );
 		
-		if( quest.label !== '_procedural_' && this.completed_quests.indexOf(quest.label) === -1 ){
+		if( quest.label !== '_procedural_' && this.completed_quests[quest.label] ){
 			const objectives = {};
 			for( let objective of quest.objectives ){
 				if( objective.isCompleted() )

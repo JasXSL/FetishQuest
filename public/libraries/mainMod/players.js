@@ -20,7 +20,7 @@ const lib = {
 	MQ00_Boss : {
 		name : "Li Zurd",
 		species : "lizard",
-		description : "A darkened figure emanating... dark magic.",
+		description : "A darkened figure emanating... dark magic. She is using a rope as a belt. Attached to it are various potions and a large strapon.",
 		icon : "",
 		team : 1,
 		size : 4,
@@ -34,12 +34,44 @@ const lib = {
 		class : 'MQ00_Boss',
 		assets : [
 			'mq00_boss_robe',
+			'minorHealingPotion',
+			'manaPotion',
 		],
-		inventory : [0],	// Which items should be equipped
+		actions : [
+			'imp_demonicPinch',
+            'tentacle_pit'
+		],
+		inventory : [0,1,2],	// Which items should be equipped
 		tags : [
-			stdTag.vagina, stdTag.breasts, stdTag.plBigBreasts, stdTag.plScaly, stdTag.plTail, stdTag.plLongTail
+			stdTag.plBoss,
+			stdTag.vagina, stdTag.breasts, stdTag.plBigBreasts, stdTag.plScaly, stdTag.plTail, stdTag.plLongTail, stdTag.asStrapon
 		]
-	}
+	},
+	MQ00_Minion : {
+		name : "Impy",
+		species : "imp",
+		description : "An imp connected via a leash to Li's belt.",
+		icon : "",
+		team : 1,
+		size : 4,
+		leveled : true,
+		powered : true,
+		sadistic : 0.7,
+		dominant : 0.8,
+		hetero : 0.5,
+		intelligence : 0.4,
+		stamina : -5,
+		class : 'imp',
+		actions : [
+			'imp_specialDelivery',
+			'mq00_ward_boss'
+		],
+		assets : [],
+		inventory : [],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plHorn, stdTag.plTail
+		]
+	},
 };
 
 

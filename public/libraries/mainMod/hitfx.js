@@ -269,6 +269,35 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'darkOrb';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['darkMagic'],
+		particles : 'hitfx_darkOrb',
+		emit_duration : 300,
+		dest_rand : 0,
+		tween : false
+	}, out[id]),
+);
+id = 'tentacleGrab';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['darkTentacleGrab'],
+		particles : 'hitfx_sludge_bolt_proc_black',
+		fade_duration : 3000,
+		emit_duration : 100,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 100,
+	}, out[id]),
+);
+
+
 id = 'tentacleZap';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

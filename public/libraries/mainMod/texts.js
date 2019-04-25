@@ -48,7 +48,7 @@ const lib = [
 		audiokits : ["spellFail"]
 	},
 	// Stun resist
-	{ text : "%S resisted the stun portion of the attack!",
+	{ text : "%T resisted the stun portion of the attack!",
 		conditions : ["eventIsDiminishingResist","wrapperIsStun"],
 		audiokits : ["spellFail"]
 	},
@@ -624,6 +624,57 @@ const lib = [
 		hitfx : ["squishTiny"],
 
 	},
+
+
+	// Restrained by and legs spread by tentacles
+	{ text : "%S slips in between %T's legs and forces %Shis strapon inside the %Trace's %Tvagina, thrusting for a while!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderHasStrapon","targetVagina","targetGroinExposed"),
+		hitfx : ['slowThrusts']
+	},
+	{ text : "%S slips in between %T's legs and forces %Shis strapon inside the %Trace's %Tbutt, thrusting for a while!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderHasStrapon","targetButtExposed"),
+		hitfx : ['slowThrusts']
+	},
+	{ text : "%S takes advantage of %T being restrained and starts rubbing %This nipples!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetBreasts","targetUpperbodyNotHard"),
+		hitfx : ['squeeze']
+	},
+	{ text : "%S takes advantage of %T being restrained and starts rubbing %This %Tpenis!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetPenis","targetGroinExposed"),
+		hitfx : ['squeeze']
+	},
+	{ text : "%S takes advantage of %T being restrained and starts rubbing %This %Tgroin!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetLowerbodyNotHard"),
+		hitfx : ['squeeze']
+	},
+	{ text : "%S takes advantage of %T being restrained and licks across %This %Tgroin!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread"),
+		hitfx : ['squishTiny']
+	},
+	{ text : "A tentacle restraining %T tugs %This head backwards, allowing %S to thrust %Shis strapon into %T's mouth!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread"),
+		hitfx : ['slowThrusts']
+	},
+	{ text : "%S slips in between %T's legs and forces a finger inside the %Trace's %Tvagina, wiggling it around inside %Thim!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderHasStrapon","targetVagina","targetGroinExposed"),
+		hitfx : ['squishTiny']
+	},
+	{ text : "%S takes advantage of %T being restrained and starts rapidly licking %This %Tgroin!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetGroinExposed"),
+		hitfx : ['squishTiny']
+	},
+
+	
+
 
 	// Crab
 	{ text : "%S slips between %T's legs and reaches up, grinding %Shis claw against the %Trace's %Tgroin!",
@@ -1631,8 +1682,11 @@ const lib = [
 	},
 
 
-
-
+	// mq00_ward_boss
+	{ text : "%S casts a ward on %T.",
+		 conditions : baseCond.concat("action_mq00_ward_boss"),
+		 hitfx : ['bolster']
+	},
 
 
 
@@ -2142,6 +2196,23 @@ const lib = [
 	},
 
 
+
+	// MQ00_Boss
+	// action_tentacle_pit
+	{ text : "The ground around %S darkens!",
+		conditions : baseCond.concat([
+			"action_tentacle_pit",
+		]),
+		hitfx : ["darkOrb"],
+	},
+	// Proc
+	{ text : "Tendrils spring from the darkened ground, restraining %T and lifts %Thim off the ground, spreading the %Trace's legs!",
+		conditions : [
+			"eventIsEffectTrigger",
+			"action_tentacle_pit_proc",
+		],
+		hitfx : ["tentacleGrab"],
+	},
 
 
 

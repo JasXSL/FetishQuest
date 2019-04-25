@@ -25,6 +25,7 @@ const textures = {
 	snowflakes : loader.load('/media/textures/particles/snowflakes.png'),
 	cursedStar : loader.load('/media/textures/particles/cursed_star.png'),
 	yinYang : loader.load('/media/textures/particles/yinyang.png'),
+	swirlOrb : loader.load('/media/textures/particles/swirl_orb.png'),
 
 };
 
@@ -37,7 +38,7 @@ particles.candleFlame = {
 		frames : new THREE.Vector2(8,4),
 		loop : 1,
 	},
-	maxParticleCount : 100,
+	maxParticleCount : 10,
 	_emitters : [
 		{
 			maxAge: {
@@ -71,7 +72,7 @@ particles.torchFlame = {
 		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 20,
+	maxParticleCount : 10,
 	_emitters : [
 		{
 			maxAge: {
@@ -115,7 +116,7 @@ particles.torchEmbers = {
 		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 2,
 	_emitters : [
 		{
 			maxAge: {
@@ -159,7 +160,7 @@ particles.torchSmoke = {
 		value: textures.smoke,
 	},
 	blending : THREE.NormalBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 30,
 	_emitters : [
 		{
 			maxAge: {
@@ -204,7 +205,7 @@ particles.fireplaceFlame = {
 		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 20,
 	_emitters : [
 		{
 			maxAge: {
@@ -248,7 +249,7 @@ particles.fireplaceEmbers = {
 		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 4,
 	_emitters : [
 		{
 			maxAge: {
@@ -292,7 +293,7 @@ particles.fireplaceSmoke = {
 		value: textures.smoke,
 	},
 	blending : THREE.NormalBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 30,
 	_emitters : [
 		{
 			maxAge: {
@@ -336,7 +337,7 @@ particles.firebarrelFlame = {
 		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 20,
 	_emitters : [
 		{
 			maxAge: {
@@ -380,7 +381,7 @@ particles.firebarrelEmbers = {
 		value: textures.flame,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 4,
 	_emitters : [
 		{
 			maxAge: {
@@ -427,7 +428,7 @@ particles.hitfx_sparks = {
 		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 20,
 	_emitters : [
 		{
 			type : SPE.distributions.DISC,
@@ -474,7 +475,7 @@ particles.hitfx_sparks_big = {
 		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 50,
 	_emitters : [
 		{
 			type : SPE.distributions.DISC,
@@ -564,7 +565,7 @@ particles.hitfx_sparkles_static = {
 		value: textures.sparkle,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 20,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -652,7 +653,7 @@ particles.hitfx_zap = {
 		value: textures.electricSpark,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 200,
+	maxParticleCount : 50,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -697,7 +698,7 @@ particles.quest_stars = {
 		value: textures.star,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
+	maxParticleCount : 100,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -734,7 +735,7 @@ particles.hitfx_claws = {
 		value: textures.clawMarks,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 200,
+	maxParticleCount : 50,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -774,7 +775,7 @@ particles.hitfx_smite = {
 		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 400,
+	maxParticleCount : 250,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -874,7 +875,7 @@ particles.hitfx_shield = {
 		value: textures.shield,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 15,
+	maxParticleCount : 10,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -907,7 +908,7 @@ particles.hitfx_poison_pink = {
 		value: textures.poison,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 15,
+	maxParticleCount : 3,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -940,7 +941,7 @@ particles.hitfx_lock_yellow = {
 		value: textures.lock,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 15,
+	maxParticleCount : 4,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -969,7 +970,7 @@ particles.hitfx_punch = {
 		value: textures.explosion,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 20,
 	_emitters : [
 		{
 			type : SPE.distributions.SPHERE,
@@ -1014,7 +1015,7 @@ particles.hitfx_sparks_smaller = {
 		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 20,
 	_emitters : [
 		{
 			type : SPE.distributions.DISC,
@@ -1061,7 +1062,7 @@ particles.hitfx_punch_smaller = {
 		value: textures.explosion,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 20,
 	_emitters : [
 		{
 			type : SPE.distributions.SPHERE,
@@ -1105,7 +1106,7 @@ particles.hitfx_splat = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 70,
 	_emitters : [
 		{
 			type : SPE.distributions.SPHERE,
@@ -1152,7 +1153,7 @@ particles.hitfx_splat_sparks = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 80,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1203,7 +1204,7 @@ particles.hitfx_splat_red = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 70,
 	_emitters : [
 		{
 			type : SPE.distributions.SPHERE,
@@ -1249,7 +1250,7 @@ particles.hitfx_splat_sparks_red = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 80,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1342,7 +1343,7 @@ particles.hitfx_healing_yellow = {
 		value: textures.plus,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 50,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1389,7 +1390,7 @@ particles.hitfx_healingSurge = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 70,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1434,7 +1435,7 @@ particles.hitfx_fountain = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
+	maxParticleCount : 121,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1518,7 +1519,7 @@ particles.hitfx_splat_blue = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 70,
 	_emitters : [
 		{
 			type : SPE.distributions.SPHERE,
@@ -1563,7 +1564,7 @@ particles.hitfx_splat_sparks_blue = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 80,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1612,7 +1613,7 @@ particles.hitfx_mist = {
 		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 40,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1708,7 +1709,7 @@ particles.hitfx_mist_pink = {
 		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 10,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1758,7 +1759,7 @@ particles.hitfx_mist_yellow = {
 		value: textures.glowSphere,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 30,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1804,7 +1805,7 @@ particles.hitfx_splat_discrete = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 70,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1850,7 +1851,7 @@ particles.hitfx_splat_sparks_discrete = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 80,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1898,7 +1899,7 @@ particles.hitfx_splat_sparks_discreter = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 10,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1948,7 +1949,7 @@ particles.hitfx_snow_sparks = {
 		value: textures.snowflakes,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 50,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -1990,7 +1991,7 @@ particles.hitfx_snow_sparks_impact = {
 		value: textures.snowflakes,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
+	maxParticleCount : 50,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -2034,7 +2035,7 @@ particles.hitfx_sludge_siphon = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 500,
+	maxParticleCount : 300,
 	_emitters : [
 		{
 			direction:-1,
@@ -2121,7 +2122,7 @@ particles.hitfx_sludge_bolt = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
+	maxParticleCount : 200,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -2206,7 +2207,7 @@ particles.hitfx_sludge_bolt_impact = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
+	maxParticleCount : 200,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -2341,7 +2342,7 @@ particles.hitfx_sludge_bolt_black = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
+	maxParticleCount : 200,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -2426,7 +2427,7 @@ particles.hitfx_sludge_bolt_impact_black = {
 		value: textures.splat,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
+	maxParticleCount : 200,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -2556,12 +2557,64 @@ particles.hitfx_sludge_bolt_proc_black = {
 };
 
 
+particles.hitfx_darkOrb = {
+			
+	texture: {
+		value: textures.swirlOrb,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 50,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 1
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 10, 10, 10 ),
+				radius : 1
+			},
+			acceleration : {
+				value: new THREE.Vector3(0, -0.5, 0),
+				//spread : new THREE.Vector3(0,0,0)
+			},
+			color : {
+				value : [
+					new THREE.Color(0x220044),
+					new THREE.Color(0)
+				]
+			},
+			opacity: {
+				value: 0.5
+			},
+			size: {
+				value: [100,0],
+				spread : 50,
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			rotation : {
+				value : 1,
+				spread : Math.PI
+			},
+			particleCount: 50
+		}
+	]
+};
+
+
+
+
 particles.hitfx_dark_star = {
 	texture: {
 		value: textures.cursedStar,
 	},
 	blending : THREE.NormalBlending,
-	maxParticleCount : 15,
+	maxParticleCount : 4,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,
@@ -2593,7 +2646,7 @@ particles.hitfx_yin_yang = {
 		value: textures.yinYang,
 	},
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 15,
+	maxParticleCount : 4,
 	_emitters : [
 		{
 			type : SPE.distributions.BOX,

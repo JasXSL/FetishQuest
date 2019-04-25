@@ -203,7 +203,7 @@ export default class GameLib{
 			return;
 		
 		if( !lib[label] ){
-			console.error("Asset", label, "not found in", lib, "constructor was ", constructorName);
+			console.error("Asset", label, "not found in", lib, "(", Object.keys(lib), ")", "constructor was ", constructorName);
 			return false;
 		}
 		return lib[label].clone();

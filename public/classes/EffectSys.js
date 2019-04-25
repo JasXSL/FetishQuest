@@ -144,7 +144,7 @@ class Wrapper extends Generic{
 		if( !isTick ){
 			
 			if( this.target === Wrapper.TARGET_CASTER )
-				pl = [this.parent.parent];
+				pl = [caster_player]; //[this.parent.parent];
 			else if( this.target === Wrapper.TARGET_AOE )
 				pl = game.players;
 			else if( this.target === Wrapper.TARGET_SMART_HEAL ){
@@ -628,8 +628,6 @@ class Effect extends Generic{
 	// otherwise it's parent
 	trigger( event, template ){
 
-		
-
 		let evt = event.clone();
 		evt.effect = this;
 		evt.wrapper = this.parent;
@@ -908,6 +906,7 @@ class Effect extends Generic{
 					return;
 				}
 				
+				console.log("Using", this.data.wrappers, "against", s, t);
 				for( let w of this.data.wrappers ){
 
 					let wrapper = new Wrapper(w, this.parent.parent);
@@ -1363,8 +1362,8 @@ Effect.TypeDescs = {
 	[Effect.Types.addArousal] : "{amount:(str)(nr)amount} - Adds arousal points",								// 
 	[Effect.Types.interrupt] : "void - Interrupts all charged actions",								// 
 	[Effect.Types.globalHitChanceMod] : 'Modifies your hit chance with ALL types by percentage {amount:(float)(string)amount}',
-	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier, casterOnly:(bool)limit_to_caster} - If casterOnly is set, it only affects damage dealt from the caster', 
-	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier, casterOnly:(bool)limit_to_caster} - If casterOnly is set, it only affects damage done to the caster',
+	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
+	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
 	
 	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
 
@@ -1385,7 +1384,7 @@ Effect.TypeDescs = {
 	[Effect.Types.bonHoly] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 	[Effect.Types.bonCorruption] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 
-	[Effect.Types.runWrappers] : 'Runs wrappers. Auto target is victim, or caster if effect caster property is true. {wrappers:(arr)wrappers}',
+	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. ',
 
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
 

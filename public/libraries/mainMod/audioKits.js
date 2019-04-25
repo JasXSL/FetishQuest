@@ -476,6 +476,24 @@ const lib = {
         ],
         
     },
+    darkMagic : {
+        follow_parts : true,
+        sounds : [
+            {
+                s : {path : "media/audio/dark_magic.ogg",volume : 0.5},
+                se : false
+            }
+        ],
+    },
+    darkTentacleGrab : {
+        follow_parts : true,
+        sounds : [
+            {
+                s : {path : "media/audio/dark_tentacle_grab.ogg",volume : 0.5},
+                se : false
+            }
+        ],
+    },
     gooRub: {
         sounds : [
             {
