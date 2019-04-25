@@ -41,6 +41,12 @@ const lib = {
 		rp : ["first_quest_pickup"]
 	},
 
+	yuug_port_authority : {
+		players: ["yuug_port_portmaster"],
+		friendly : true,
+		rp : ["yuug_port_portmaster"]
+	},
+
 
 	// MQ00
 	["MQ00_Boss"] : {

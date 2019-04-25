@@ -415,7 +415,6 @@ class DungeonRoom extends Generic{
 
 		// shared
 		const out = {
-			id : this.id,
 			index : this.index,
 			parent_index : this.parent_index,
 			assets : DungeonRoomAsset.saveThese(this.assets, full),
@@ -439,6 +438,8 @@ class DungeonRoom extends Generic{
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.discovered = this.discovered;
+			if( full )
+				out.id = this.id;
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -991,7 +992,7 @@ class DungeonRoomAsset extends Generic{
 
 	save( full ){
 		const out = {
-			id : this.id,			// ID is needed by mods as well due to asset linkage
+			
 			model : this.model,
 			x : this.x,
 			y : this.y,
@@ -1011,8 +1012,9 @@ class DungeonRoomAsset extends Generic{
 			rem_no_interact : this.rem_no_interact
 		};
 		if( full !== 'mod' ){
-			
-		}
+			if( full )
+				out.id = this.id;
+		}	
 		else{
 			this.g_sanitizeDefaults(out);
 		}

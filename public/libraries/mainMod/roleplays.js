@@ -18,6 +18,22 @@ const lib = {
 		]
 	},
  
+
+	// YUUG Port
+	yuug_port_portmaster : {
+		stages : [
+			{
+				index: 0,
+				text: 'Looking for a job? Check the bounty board on the wall to your left.',
+				options : [
+					{text:'Thanks', index:-1}
+				],
+			}
+		],
+		persistent : true,
+		player : 'yuug_port_portmaster'
+	},
+	
 	// MQ00
 	first_quest_pickup: {
 		stages: [
@@ -67,8 +83,7 @@ const lib = {
 			{type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}, inverse:true, targnr:0},
 		]
 	},
-
-	["MQ00_Boss"] : {
+	MQ00_Boss : {
 
 		player : 'MQ00_Boss',
 		persistent : true,
