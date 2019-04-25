@@ -438,8 +438,7 @@ class DungeonRoom extends Generic{
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.discovered = this.discovered;
-			if( full )
-				out.id = this.id;
+			out.id = this.id;
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -1012,8 +1011,7 @@ class DungeonRoomAsset extends Generic{
 			rem_no_interact : this.rem_no_interact
 		};
 		if( full !== 'mod' ){
-			if( full )
-				out.id = this.id;
+			out.id = this.id;
 		}	
 		else{
 			this.g_sanitizeDefaults(out);
