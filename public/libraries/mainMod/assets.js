@@ -322,7 +322,7 @@ const lib = {
 	food_RazzyBerry : {
 		category : Asset.Categories.food,
 		name : 'Razzyberry',
-		description : 'Restores all mana.',
+		description : 'Restores 2 mana. Only usable out of combat.',
 		weight : 10,
 		charges : 1,
 		use_action : "foodRazzyberry",		// name not needed for use_action ones. it uses UA instead

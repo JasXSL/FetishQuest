@@ -2,7 +2,8 @@ Next:
 	- Netcode all the things
 
 Needed scripts:
-	- Allow multiple roleplays in a cell
+	- Test if encounter roleplays work
+	
 
 Needed other:
 	- Credits page
@@ -27,14 +28,12 @@ Needed other:
 Next:
 	- Re-implement sprite as separate files, but cache them
 	- Allow DM to set timeout
-	- Speech bubbles
-
+	
 new Gameplay elements:
 	- Learning/unlearning actions
 	- Shops
-	- Money
-	- 
-	
+	- Time
+
 Action ideas:
 	- Cleric: Sacrament of Sin: Free, 10 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 10% per point of arousal.
 

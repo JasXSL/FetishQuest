@@ -957,7 +957,7 @@ class DungeonRoomAsset extends Generic{
 		this.tags = [];
 		this.absolute = false;			// Makes X/Y/Z absolute coordinates
 		this.room = false;				// This is the room asset
-		this.interactions = [];			
+		this.interactions = [];			// Game actions
 		this.rem_no_interact = false;	// Remove when made noninteractive, generally when fully looted
 
 		this._interactive = null;		// Cache of if this object is interactive
@@ -967,22 +967,7 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	getViableInteractions(){
-		let out = [];
-		for( let i of this.interactions ){
-
-			if( i !== -1 && i < 1 )
-				continue;
-
-			let valid = i.validate();
-
-			if( valid )
-				out.push(i);
-
-			if( (i.break === "success" && valid) || (i.break === "fail" && !valid) )
-				break;
-
-		}
-		return out;
+		return GameAction.getViable(this.interactions);
 	}
 
 	isLocked(){
@@ -1411,7 +1396,7 @@ class DungeonEncounter extends Generic{
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
-		this.rp = [];				// Roleplays available, the first viable one triggers when the encounter starts
+		this.game_actions = [];		// Game actions to run when the encounter starts
 
 		this.load(data);
 	}
@@ -1506,7 +1491,7 @@ class DungeonEncounter extends Generic{
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.player_templates = PlayerTemplate.loadThese(this.player_templates, this);
 		this.conditions = Condition.loadThese(this.conditions, this);
-		this.rp = Roleplay.loadThese(this.rp, this);
+		this.game_actions = GameAction.loadThese(this.game_actions, this);
 	}
 
 	save( full ){
@@ -1518,14 +1503,15 @@ class DungeonEncounter extends Generic{
 			out.label = this.label;
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
 			out.conditions = Condition.saveThese(this.conditions, full);
+			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
 		out.friendly = this.friendly;
-		out.rp = Roleplay.saveThese(this.rp, full);
-
+		
 		if( full !== "mod" ){
 			out.id = this.id;
 			out.completed = this.completed;
 			out.started = this.started;
+			
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -1565,11 +1551,16 @@ class DungeonEncounter extends Generic{
 		return false;
 	}
 
-	getRP( player ){
-		for( let rp of this.rp ){
-			if( rp.validate(player) )
-				return rp;
-		}
+	getRoleplays( player ){
+		const actions = GameAction.getViable(this.game_actions);
+		return actions.filter(action => {
+			if( action.type !== GameAction.types.roleplay )
+				return false;
+			const rp = action.getDataAsRoleplay();
+			if( !rp )
+				return;
+			return rp.validate(player);
+		});
 	}
 
 }

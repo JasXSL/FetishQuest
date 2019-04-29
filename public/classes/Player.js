@@ -84,7 +84,6 @@ export default class Player extends Generic{
 													>= 0.8 = Now too smart for aggro, always picks targets carefully
 												*/
 		this.class = null;
-		
 		this._stun_diminishing_returns = 0;		// Rounds you can't be stunned
 
 		this._turns = 0;						// Total turns played in combat

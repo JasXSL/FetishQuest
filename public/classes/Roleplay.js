@@ -34,8 +34,8 @@ export default class Roleplay extends Generic{
 		return this.stages.filter(stage => stage.validate(player));
 	}
 
-	validate(){
-		return this.getViableStages().length;
+	validate( player ){
+		return this.getViableStages( player ).length;
 	}
 
 	load(data){

@@ -2236,7 +2236,7 @@ const lib = {
 					{
 						type : "addMP",
 						data : {
-							amount: "ta_MaxMP"
+							amount: 2
 						}
 					},
 				]

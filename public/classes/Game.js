@@ -13,6 +13,7 @@ import {default as Audio, setMasterVolume}  from './Audio.js';
 import stdTag from '../libraries/stdTag.js';
 import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
+import GameAction from './GameAction.js';
 
 export default class Game extends Generic{
 
@@ -39,12 +40,12 @@ export default class Game extends Generic{
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new DungeonEncounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.roleplay = new Roleplay({completed:true}, this);
-		this.quests = [];								// Quest Objects of quests the party is on
+		this.quests = [];								// Quest Objects of quests the party is on. 
 		this.net_load = false;							// Currently loading from network
 
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
-		this.state_dungeons = {};		// label : (obj)dungeonstate - See the dungeon loadstate/savestate
+		this.state_dungeons = {};		// label : (obj)dungeonstate - See the dungeon loadstate/savestate. Dungeon stage is fetched from a method in Dungeon
 		this.completed_quests = {};		// label : {objective_label:true}
 
 		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
@@ -268,6 +269,13 @@ export default class Game extends Generic{
 		this.save();
 	}
 
+	// Wipes completed and active quests, and dungeon history
+	clearQuestAndDungeonHistory(){
+		this.quests = [];
+		this.completed_quests = {};
+		this.state_dungeons = {};
+		this.save();
+	}
 
 
 
@@ -355,15 +363,14 @@ export default class Game extends Generic{
 		this.ui.questAcceptFlyout( 'Quest Completed:', quest.name );
 		if( this.is_host && this.net.id )
 			this.net.dmQuestAccepted( 'Quest Completed:', quest.name );
-		
-		if( this.completed_quests[quest.label] ){
-			const objectives = {};
-			for( let objective of quest.objectives ){
-				if( objective.isCompleted() )
-					objectives[objective.label] = 1;
-			}
-			this.completed_quests[quest.label] = objectives;
+
+		const objectives = {};
+		for( let objective of quest.objectives ){
+			if( objective.isCompleted() )
+				objectives[objective.label] = 1;
 		}
+		this.completed_quests[quest.label] = objectives;
+	
 
 		this.save();
 		
@@ -1195,13 +1202,13 @@ export default class Game extends Generic{
 			
 			if( !started ){
 
-				let rp = this.encounter.getRP(player);
-				if( !rp )
-					this.clearRoleplay();
-				else{
-					this.setRoleplay(rp);
-					rp.onStart();
+				this.clearRoleplay();
+				
+				const viable = GameAction.getViable(this.encounter.game_actions);
+				for( let action of viable ){
+					action.trigger(player);
 				}
+
 			}
 		
 
@@ -1599,16 +1606,22 @@ export default class Game extends Generic{
 
 	// Gets all available noncompleted roleplays for a player
 	getRoleplaysForPlayer( player ){
+
 		const out = [];
 		const encounter = this.encounter;
-		for( let rp of encounter.rp ){
+		const roleplays = encounter.getRoleplays(player);
+		for( let ga of roleplays ){
 
+			const rp = ga.getDataAsRoleplay();
+			if( !rp )
+				continue;
 			const pl = rp.getPlayer();
 			if( pl.id === player.id && !rp.completed && rp.validate(game.getMyActivePlayer()) )
 				out.push(rp);
 
 		}
 		return out;
+
 	}
 
 

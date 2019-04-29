@@ -192,6 +192,21 @@ export default class GameAction extends Generic{
 
 	}
 
+	// Converts data to roleplay
+	getDataAsRoleplay(){
+		let rp = this.data.rp;
+		if( typeof rp === 'string' )
+			rp = glib.get(rp, 'Roleplay');
+		else if( typeof rp === 'object' )
+			rp = new Roleplay(rp, game);
+			
+		if( typeof rp !== "object" ){
+			console.error("Error, ", this.data.rp, "is not a valid roleplay in", this);
+			return false;
+		}
+		return rp;
+	}
+
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
 	async trigger( player, mesh ){
 		
@@ -297,16 +312,19 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.roleplay ){
-			let rp = this.data.rp;
-			if( typeof rp === 'string' )
-				rp = glib.get(rp, 'Roleplay');
-			else if( typeof rp === 'object' )
-				rp = new Roleplay(rp, game);
-				
-			if( typeof rp !== "object" )
-				console.error("Error, ", this.data.rp, "is not a valid roleplay in", this);
-			else
+			const rp = this.getDataAsRoleplay();
+			if( rp && rp.validate(player) )
 				game.setRoleplay(rp);
+		}
+
+		else if( this.type === types.finishQuest ){
+			let quests = toArr(this.data.quest);
+			for( let quest of game.quests ){
+				if( quests.indexOf(quest.label) === -1 )
+					continue;
+				if( quest.isCompleted() || this.data.force )
+					quest.onFinish();
+			}
 		}
 
 	}
@@ -349,6 +367,22 @@ GameAction.types = {
 	generateDungeon : "generateDungeon",	// {difficulty:(int)difficulty=#players} - Resets the active procedural dungeon and clears any procedural quests you've started
 	visitDungeon : "visitDungeon",			// {} - Visits the current procedurally generated dungeon
 	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object
+	finishQuest : "finishQuest",			// {quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.
+
 };
 
 
+GameAction.getViable = function( actions = [] ){
+	let out = [];
+	for( let action of actions ){
+
+		let valid = action.validate();
+		if( valid )
+			out.push(action);
+
+		if( (action.break === "success" && valid) || (action.break === "fail" && !valid) )
+			break;
+
+	}
+	return out;
+}
