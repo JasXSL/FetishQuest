@@ -1281,6 +1281,8 @@ export default class UI{
 	addSpeechBubble( player, text ){
 
 		const div = $("div.player[data-id='"+player.id+"'] div.speechBubble", this.players);
+		if( !div.length )
+			return;
 		clearTimeout(div[0].fadeTimer);
 		div[0].fadeTimer = setTimeout(() => {
 			div.toggleClass("hidden", true);
@@ -2267,7 +2269,7 @@ export default class UI{
 	drawPlayerEditor( player ){
 
 		if( !player ){
-			player = new Player();
+			player = new Player({}, game);
 			player.level = game.getHighestLevelPlayer();
 		}
 		
@@ -2776,6 +2778,8 @@ export default class UI{
 		const roleplay = game.roleplay;
 		const div = this.roleplay;
 		const stage = roleplay.getActiveStage();
+		const player = game.getMyActivePlayer();
+
 		if( !roleplay.completed && stage ){
 			
 			$("div.portrait", div).html(stage.icon ? '<img src="media/characters/'+esc(stage.icon)+'.png"' : '');
@@ -2791,10 +2795,10 @@ export default class UI{
 				const el = $(event.target);
 				game.useRoleplayOption(game.getMyActivePlayer(), el.attr('data-id'));
 			});
+
 		}
 		
-		div.toggleClass('hidden', roleplay.completed);
-
+		div.toggleClass('hidden', roleplay.completed || !player || player.team !== 0);
 		
 	}
 

@@ -179,11 +179,15 @@ export default class Player extends Generic{
 			is_sprite : this.is_sprite,
 			talkative : this.talkative,
 			tmp_actions : Action.saveThese(this.tmp_actions),
-			label : this.label
+			label : this.label,
+			
 		};
 
 		if( this.rp )
 			out.rp = this.rp.save(full);
+
+		if( full !== "mod" )
+			out.experience = this.experience;
 
 		// Assets are only sent if equipped, PC, or full
 		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC()), full);
@@ -199,7 +203,6 @@ export default class Player extends Generic{
 			out.powered = this.powered;
 			if( full !== "mod" ){
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
-				out.experience = this.experience;
 				out._difficulty = this._difficulty;
 				out._threat = this._threat;
 				out._turn_ap_spent = this._turn_ap_spent;
@@ -1699,7 +1702,7 @@ export default class Player extends Generic{
 		this.wrappers.push(wrapper);
 		let isStun = wrapper.getEffects({ type:Effect.Types.stun });
 		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) )
-			this._stun_diminishing_returns += wrapper._duration*3;
+			this._stun_diminishing_returns += wrapper._duration*2;
 		
 		if( isStun )
 			this.interrupt( wrapper.getCaster() );
@@ -1814,7 +1817,7 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 
 	// Add 25% bonus damage per additional player
 	let multi = 1.0;
-	if( this.team !== 0 )
+	if( attacker.team !== 0 )
 		multi = 1+(game.getTeamPlayers().length-1)*0.25;
 
 	return (1+tot*0.04)*multi;

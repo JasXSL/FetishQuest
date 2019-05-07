@@ -459,7 +459,8 @@ class NetworkManager{
 				dungeonAsset = room.getAssetById(args.dungeonAsset)
 			;
 
-			dungeonAsset.lootToPlayer( args.item, player );
+			if( dungeonAsset )
+				dungeonAsset.lootToPlayer( args.item, player );
 
 		}
 
@@ -553,7 +554,7 @@ class NetworkManager{
 		if( task === NetworkManager.dmTasks.sendFullGame ){
 			game.ui.destructor();
 			game.load(args);
-			game.renderer.drawActiveRoom();
+			game.renderer.loadActiveDungeon();
 		}
 
 		// Visual effect

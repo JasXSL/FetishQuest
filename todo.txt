@@ -1,3 +1,12 @@
+Bugs:
+	- Unlatch ability broken
+		- Probably UUID mismatch
+	- Finish the barkeep handin
+	- Change the boss roleplay
+	- Barkeep still shows RP after handing in the quest?
+	- Procedural dungeon is black upon visit
+	
+
 Needed other:
 	- Credits page
 	- Loading screens
@@ -8,7 +17,7 @@ Needed other:
 	- Battle
 	- Forest
 	- Dungeon
-	
+
 - Needed monster:
 	- Coctopus
 		- Abilities:
