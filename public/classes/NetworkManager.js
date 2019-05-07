@@ -254,10 +254,10 @@ class NetworkManager{
 
 		// Auto
 		const current = game.getSaveData();
-		console.log("Full SaveData", current);
+		console.debug("Full SaveData", current);
 		const changes = this.runComparer( current );
 
-		console.log("Game changes", changes);
+		console.debug("Game changes", changes);
 		if( !Object.keys(changes).length )
 			return;
 
@@ -474,8 +474,7 @@ class NetworkManager{
 				return respondWithError("Player not found");
 			if( !target.isLootableBy(player) )
 				return respondWithError("You can't loot that right now");
-			
-			target.lootToPlayer(args.asset, player );
+			target.lootToPlayer(args.item, player );
 
 		}
 
@@ -692,7 +691,7 @@ class NetworkManager{
 		if( typeof data !== "object" )
 			return;
 
-		console.log("Got game data", data);
+		console.debug("Got game data", data);
 		game.modal.onGameUpdate(data);
 
 		if( this.debug )

@@ -414,7 +414,7 @@ export default class Player extends Generic{
 	}
 
 	isLootableBy( player ){
-		return !game.battle_active && this.isDead() && this.getLootableAssets().length && this.team !== player.team;
+		return Boolean(player) && !game.battle_active && this.isDead() && this.getLootableAssets().length && this.team !== player.team;
 	}
 
 	// Can't accept their turn
@@ -424,12 +424,14 @@ export default class Player extends Generic{
 	}
 
 	// Returns taunting players unless there's a grappling player, in which case that's returned instead
-	getTauntedOrGrappledBy(){
+	getTauntedOrGrappledBy( debug ){
 		
 		let players = this.getGrappledBy();
+		if( debug )
+			console.debug("Grappled by ", players);
 		if( players.length )
 			return players;
-		return this.getTauntedBy();
+		return this.getTauntedBy(debug);
 
 	}
 
@@ -446,9 +448,11 @@ export default class Player extends Generic{
 
 	}
 
-	getTauntedBy(){
+	getTauntedBy( debug ){
 
 		let tauntEffects = this.getActiveEffectsByType(Effect.Types.taunt);
+		if( debug )
+			console.debug("Taunt effects", tauntEffects);
 		if( !tauntEffects.length )
 			return game.players;
 
@@ -1039,8 +1043,10 @@ export default class Player extends Generic{
 	lootToPlayer( id, player ){
 
 		let asset = this.getAssetById(id);
-		if( !asset )
+		if( !asset ){
+			console.error("Asset not found", id, "in", this);
 			return;
+		}
 		
 		if( game.is_host && asset.loot_sound )
 			game.playFxAudioKitById(asset.loot_sound, player, player, undefined, true );

@@ -278,16 +278,28 @@ class Action extends Generic{
 	getViableTargets( isChargeFinish = false, debug = false ){
 		
 		let parent = this.getPlayerParent();
-		let pl = game.players;
-		if( this.detrimental && !isChargeFinish )
-			pl = this.getPlayerParent().getTauntedOrGrappledBy();
 
+		if( debug )
+			console.debug("Testing", this);
+
+		let pl = game.players;
+		if( this.detrimental && !isChargeFinish ){
+			pl = this.getPlayerParent().getTauntedOrGrappledBy(debug);
+			if( debug )
+				console.debug("Getting taunted or grappled by:", pl);
+		}
 		let targets = [];
-		if( this.target_type === Action.TargetTypes.self )
+		if( this.target_type === Action.TargetTypes.self ){
+			if( debug )
+				console.debug("It's a self cast");
 			pl = [this.getPlayerParent()];
+		}
+
 
 		for( let p of pl ){
 
+			if( debug )
+				console.debug("Testing against", pl, ". IsMe: ", (p !== parent || !this.detrimental));
 			if( (p !== parent || !this.detrimental) && this.getViableWrappersAgainst(p, isChargeFinish, debug).length )
 				targets.push(p);
 			

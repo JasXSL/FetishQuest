@@ -118,13 +118,13 @@ export default class Roleplay extends Generic{
 		this.getActiveStage().onStart();
 	}
 
-	validate( player ){
+	validate( player, debug ){
 		const evt = new GameEvent({
 			sender : player,
 			target : player,
 			roleplay : this
 		});
-		return Condition.all(this.conditions, evt);
+		return Condition.all(this.conditions, evt, debug);
 	}
 
 }

@@ -577,13 +577,13 @@ class Effect extends Generic{
 			type : this.type,
 			data : this.saveData(),
 			tags : this.tags,
+			targets : this.targets,
+			label : this.label
 		};
 
 		if( full ){
 			out.conditions = Condition.saveThese(this.conditions, full);
-			out.targets = this.targets;
 			out.events = this.events;
-			out.label = this.label;
 		}
 
 		if( full !== "mod" ){

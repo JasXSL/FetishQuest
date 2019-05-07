@@ -114,7 +114,6 @@ export default class Game extends Generic{
 			out.procedural_dungeon = this.procedural_dungeon.save(full);
 		}
 
-		console.log("SaveData", out);
 		return out;
 	}
 
@@ -181,7 +180,6 @@ export default class Game extends Generic{
 	// Std load
 	async load( data ){
 
-		console.log("loading", data);
 		this.initialized = false;		// prevents text sounds from being played when a netgame loads
 		this.g_autoload(data);
 
@@ -641,18 +639,7 @@ export default class Game extends Generic{
 		return true;
 
 	}
-	/*
-	// Dungeon
-	generateDungeon(...args){
-		const dungeon = Dungeon.generate(...args);
-		dungeon.label = '_procedural_';
-		this.setDungeon(dungeon);
-		console.log("Setting dungeon", dungeon);
-		this.state_dungeons._procedural_ = {};
-		return this.dungeon;
-	}
 
-	*/
 	generateProceduralDungeon(){
 
 		const existing = this.getQuestByLabel('_procedural_');

@@ -1,10 +1,3 @@
-Next:
-	- Netcode all the things
-
-Needed scripts:
-	- Test if encounter roleplays work
-	
-
 Needed other:
 	- Credits page
 	- Loading screens
@@ -15,8 +8,7 @@ Needed other:
 	- Battle
 	- Forest
 	- Dungeon
-
-
+	
 - Needed monster:
 	- Coctopus
 		- Abilities:

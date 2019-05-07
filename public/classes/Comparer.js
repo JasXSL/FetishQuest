@@ -30,10 +30,6 @@ export default class Comparer{
 					}
 
 					const comp = this.compare(a[i], b[i], true, b);
-					// Array entry has been deleted
-					if( comp === undefined )
-						continue;
-					
 					const len = Object.keys(comp).length;
 					out.push(comp);
 					if( 
@@ -43,7 +39,8 @@ export default class Comparer{
 					)++nrChanges;
 				}
 				
-				if( nrChanges )
+				// a.length !== b.length here only checks for REMOVED items. Added items are automatically added when running compare
+				if( nrChanges || (a.length !== b.length) )
 					return out;
 
 				return false;
@@ -79,9 +76,9 @@ export default class Comparer{
 
 				// Object is an array
 				if( Array.isArray( a[i] ) || Array.isArray( b[i] ) ){
-
 					
 					let changes = this.compare(a[i], b[i], false, b);
+
 					if( changes )
 						out[i] = changes;
 					

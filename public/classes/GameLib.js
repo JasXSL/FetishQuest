@@ -138,7 +138,6 @@ export default class GameLib{
 
 		for( let mod of mods ){
 
-			console.log("loading mod", mod);
 			
 			for( let k of load_order ){
 				if( Array.isArray(mod[k]) ){
@@ -153,7 +152,6 @@ export default class GameLib{
 		}
 
 		// Allow auto rebasing now that mods have loaded
-		console.log("Enable auto rebase");
 		Generic.auto_rebase = true;
 		
 		this.rebase();

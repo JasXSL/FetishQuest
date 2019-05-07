@@ -303,14 +303,11 @@ class QuestObjective extends Generic{
 		const out = {
 			name : this.name,
 			amount : this.amount,
+			label : this.label,			// Needed for conditions
 		};
 
-		if( full ){
-
-			out.label = this.label;
+		if( full )
 			out.events = this.events.map(el => el.save(full));
-
-		}
 
 		if( full !== "mod" ){
 			

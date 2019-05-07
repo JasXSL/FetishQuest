@@ -1555,16 +1555,25 @@ class DungeonEncounter extends Generic{
 		return false;
 	}
 
+	// Helper function for below
+	getViableActions(){
+		return GameAction.getViable(this.game_actions);
+	}
+
 	getRoleplays( player ){
-		const actions = GameAction.getViable(this.game_actions);
+
+		const actions = this.getViableActions();
 		return actions.filter(action => {
+
 			if( action.type !== GameAction.types.roleplay )
 				return false;
 			const rp = action.getDataAsRoleplay();
 			if( !rp )
 				return;
 			return rp.validate(player);
+
 		});
+
 	}
 
 }

@@ -74,7 +74,6 @@ export default class Mod extends Generic{
 			roleplay : this.roleplay,
 			gameActions : this.gameActions,
 		};
-		console.log("Getting save data", out);
 
 		return out;
 	}
