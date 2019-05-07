@@ -1133,7 +1133,6 @@ class Effect extends Generic{
 					if( !conds[i] || conds[i].test(tEvent) )
 						viable.push(tags[i]);
 				}
-				console.log("Viable", viable, "relax", this.data.relax);
 				this.tags.push(randElem(viable));
 
 			}

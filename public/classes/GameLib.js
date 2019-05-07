@@ -16,6 +16,7 @@ import Player from './Player.js';
 import HitFX from './HitFX.js';
 import Roleplay from './Roleplay.js';
 import GameAction from './GameAction.js';
+import Generic from './helpers/Generic.js';
 
 
 const LIB_TYPES = {
@@ -47,6 +48,31 @@ const CACHE_MAP = {
 	'assets' : '_cache_assets'
 };
 
+const load_order = [
+	'conditions',
+	'effects',
+	'wrappers',
+	'playerClasses',
+	'audioKits',
+	'hitFX',
+	'actions',
+	'assets',
+	'players',
+	'playerTemplates',
+	
+	'materialTemplates',
+	'assetTemplates',
+	
+	'gameActions',
+	'roleplay',
+	'dungeonEncounters',
+	'dungeonRoomTemplates',
+	'dungeonTemplates',
+	'dungeons',
+	'quests',
+	
+];
+
 /*
 	This is the content library which handles all the assets
 */
@@ -54,6 +80,7 @@ export default class GameLib{
 
 	constructor(){
 		this._custom_assets = {};
+		this._allow_clone = false;	// used to allow cyclic linkage. Set to true after mods have loaded
 		this.reset();
 	}
 
@@ -105,31 +132,9 @@ export default class GameLib{
 	// Loads mods into the library
 	loadMods( mods = [] ){
 
-		const load_order = [
-			'conditions',
-			'effects',
-			'wrappers',
-			'playerClasses',
-			'audioKits',
-			'hitFX',
-			'actions',
-			'assets',
-			'players',
-			'playerTemplates',
-			
-			'materialTemplates',
-			'assetTemplates',
-			
-			'gameActions',
-			'roleplay',
-			'dungeonEncounters',
-			'dungeonRoomTemplates',
-			'dungeonTemplates',
-			'dungeons',
-			'quests',
-			
-		];
-
+		// prevent auto rebasing while loading
+		Generic.auto_rebase = false;
+		console.log("Loading in ", mods.length, "mods");
 
 		for( let mod of mods ){
 
@@ -147,7 +152,28 @@ export default class GameLib{
 
 		}
 
+		// Allow auto rebasing now that mods have loaded
+		console.log("Enable auto rebase");
+		Generic.auto_rebase = true;
+		
 		this.rebase();
+
+		let n =  0;
+		const all = load_order.slice();
+		all.push('texts');
+		for( let i of all ){
+			let lib = this[i];
+			for( let iter in lib ){
+				if( lib[iter].rebase ){
+					lib[iter].rebase();
+					++n;
+				}
+			}
+		}
+
+
+		console.log("Rebased", n, "objects");
+		this._allow_clone = true;
 		console.debug("MODS FINISHED LOADING. LIBRARY:", this);
 
 	}
@@ -206,6 +232,8 @@ export default class GameLib{
 			console.error("Asset", label, "not found in", lib, "(", Object.keys(lib), ")", "constructor was ", constructorName);
 			return false;
 		}
+		if( !this._allow_clone )
+			return lib[label];
 		return lib[label].clone();
 
 	}

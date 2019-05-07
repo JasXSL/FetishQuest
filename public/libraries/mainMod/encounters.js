@@ -47,6 +47,7 @@ const lib = {
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
+					id : 'mq00_intro',
 					stages: [
 						{
 							index: 0,
@@ -99,6 +100,7 @@ const lib = {
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
+					id : 'mq00_finish',
 					player : 'yuug_port_barkeep',
 					persistent : true,
 					stages: [
@@ -140,6 +142,7 @@ const lib = {
 		game_actions : [{
 			type : GameAction.types.roleplay,
 			data : {rp:{
+				id: 'yuug_portmaster_intro',
 				stages : [
 					{
 						index: 0,
@@ -168,6 +171,7 @@ const lib = {
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
+					id: 'mq00_boss',
 					player : 'MQ00_Boss',
 					persistent : true,
 					stages: [

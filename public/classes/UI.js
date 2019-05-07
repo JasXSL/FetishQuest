@@ -83,8 +83,8 @@ export default class UI{
 			if( event.target !== document.body )
 				return;
 			if( event.key === ' '){
-					game.uiAudio( 'map_toggle' );
-					this.toggle();
+				game.uiAudio( 'map_toggle' );
+				this.toggle();
 			}
 			else if( event.key === 'i' ){
 				if( game.modal.open === true && $("#modal > div.wrapper > div.content > div.inventory").length )
@@ -804,7 +804,7 @@ export default class UI{
 				game.setRoleplay(rp);
 		});
 
-		const showLoot = !game.battle_active && p.team !== 0 && p.isDead() && p.getLootableAssets().length;
+		const showLoot = p.isLootableBy(game.getMyActivePlayer());
 		$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
 			event.stopImmediatePropagation();
 			this.drawContainerLootSelector(game.getMyActivePlayer(), p);
@@ -1193,7 +1193,6 @@ export default class UI{
 
 
 		$("#execMultiCast", this.multiCastPicker).on('click', () => {
-			console.log("Performing action");
 			this.performSelectedAction();
 			return;
 		});
@@ -2747,9 +2746,9 @@ export default class UI{
 
 		game.modal.prepareSelectionBox();
 		const items = container.getLootableAssets();		// Both player and container have this method
-		for( let item of items )
+		for( let item of items ){
 			game.modal.addSelectionBoxItem(item.name+(item._stacks > 1 ? ' ['+(+item._stacks)+']' : ''), item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
-
+		}
 		if( playAnimation )
 			playAnimation("open");
 		
@@ -2788,7 +2787,6 @@ export default class UI{
 					html += '<div class="option bg" data-id="'+esc(response.id)+'">'+esc(response.text)+'</div>';
 			}
 			$("div.responses", div).html(html);
-
 			$("div.responses div.option[data-id]").on('click', event => {
 				const el = $(event.target);
 				game.useRoleplayOption(game.getMyActivePlayer(), el.attr('data-id'));

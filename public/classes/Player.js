@@ -178,7 +178,8 @@ export default class Player extends Generic{
 			leader : this.leader,
 			is_sprite : this.is_sprite,
 			talkative : this.talkative,
-			tmp_actions : Action.saveThese(this.tmp_actions)
+			tmp_actions : Action.saveThese(this.tmp_actions),
+			label : this.label
 		};
 
 		if( this.rp )
@@ -189,7 +190,6 @@ export default class Player extends Generic{
 
 		if( full ){
 			out.leveled = this.leveled;
-			out.label = this.label;
 			out.inventory = this.inventory;
 			out.talkative = this.talkative;
 			out.sadistic = this.sadistic;					// Normal vs Sadistic
@@ -411,6 +411,10 @@ export default class Player extends Generic{
 
 	isNPC(){
 		return !this.netgame_owner;
+	}
+
+	isLootableBy( player ){
+		return !game.battle_active && this.isDead() && this.getLootableAssets().length && this.team !== player.team;
 	}
 
 	// Can't accept their turn
@@ -1042,7 +1046,7 @@ export default class Player extends Generic{
 			game.playFxAudioKitById(asset.loot_sound, player, player, undefined, true );
 		
 		if( !game.is_host ){
-			game.net.playerLoot( player, this, asset );	// todo: netcode for looting from a player
+			game.net.playerLootPlayer( player, this, asset );
 			return;
 		}
 

@@ -29,17 +29,18 @@ export default class GameAction extends Generic{
 	save( full ){
 
 		const out = {
+			id : this.id,
 			type : this.type,
-			data : this.flattenData(full),
 			break : this.break,
 			repeats : this.repeats,
 			conditions : Condition.saveThese(this.conditions, full)
 		};
 
+
 		if( full === "mod" )
 			out.label = this.label;
-		else{
-			out.id = this.id;
+		else if( full || GameAction.typesToSendOnline[this.type] ){
+			out.data = this.flattenData(full);
 		}
 
 		return out;
@@ -92,6 +93,10 @@ export default class GameAction extends Generic{
 	}
 
 	rebase(){
+
+		if( !this.id )
+			this.g_resetID();
+
 		this.conditions = Condition.loadThese(this.conditions);
 
 		// make sure data is escaped
@@ -104,16 +109,32 @@ export default class GameAction extends Generic{
 		}
 
 		if( window.game ){
+			
 			if( this.type === GameAction.types.loot ){
-				if( typeof this.data !== "object" )
+				
+				if( typeof this.data !== "object" || this.data === null )
 					console.error("Trying to load non-object to loot type in interaction:", this);
-				this.data.loot = Asset.loadThese(this.data.loot);
+
+				if( Array.isArray(this.data) )
+					this.data = Asset.loadThese(this.data);
+				else
+					this.data.loot = Asset.loadThese(this.data.loot);
+				
 			}
 			if( this.type === GameAction.types.encounters ){
 				if( !Array.isArray(this.data) )
 					console.error("Trying to load non-array to encounter type in interaction:", this);
 
 				this.data = DungeonEncounter.loadThese(this.data);
+			}
+			if( this.type === GameAction.types.roleplay ){
+				
+				if( !this.data || !this.data.rp ){
+					console.error("Data doesn't have .rp in object", this);
+					return;
+				}
+				this.data.rp = this.getDataAsRoleplay();
+				
 			}
 		}
 
@@ -122,6 +143,9 @@ export default class GameAction extends Generic{
 
 	// polymorphs this into loot and saves
 	convertToLoot(){
+
+		if( !this.data )
+			console.error("Data is missing from", this);
 
 		if( this.type === this.constructor.types.loot && !Array.isArray(this.data) ){
 
@@ -137,11 +161,14 @@ export default class GameAction extends Generic{
 			if( max > loot.length )
 				max = loot.length;			
 
+
 			let numItems = Math.floor(Math.random()*(max+1-min))+min;
 			const out = [];
 			for( let i =0; i<numItems && loot.length; ++i ){
 				let n = Math.floor(Math.random()*loot.length);
-				out.push(Asset.convertDummy(loot.splice(n, 1).shift(), this));
+				const asset = Asset.convertDummy(loot.splice(n, 1).shift(), this);
+				asset.g_resetID();
+				out.push(asset);
 			}
 			this.data = out;
 
@@ -192,6 +219,7 @@ export default class GameAction extends Generic{
 
 	}
 
+	
 	// Converts data to roleplay
 	getDataAsRoleplay(){
 		let rp = this.data.rp;
@@ -369,6 +397,13 @@ GameAction.types = {
 	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object
 	finishQuest : "finishQuest",			// {quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.
 
+};
+
+// These are types where data should be sent to netgame players
+GameAction.typesToSendOnline = {
+	[GameAction.types.roleplay] : true,
+	[GameAction.types.door] : true,
+	[GameAction.types.loot] : true,
 };
 
 

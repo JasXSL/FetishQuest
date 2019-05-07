@@ -28,6 +28,7 @@ class Quest extends Generic{
 	save( full ){
 
 		const out = {
+			label : this.label,
 			name : this.name,
 			description : this.description,
 			objectives : this.objectives.map(el => el.save(full)),
@@ -35,10 +36,6 @@ class Quest extends Generic{
 			exp_multiplier : this.exp_multiplier,
 			completion_objectives : this.completion_objectives.map(el =>el.save(full))
 		};
-
-		if(full )
-			out.label = this.label;
-		
 
 		if( full !== "mod" ){
 			out.id = this.id;			

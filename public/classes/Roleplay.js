@@ -46,6 +46,7 @@ export default class Roleplay extends Generic{
 	save( full ){
 
 		let out = {
+			id : this.id,
 			label : this.label,
 			stages : RoleplayStage.saveThese(this.stages, full),
 			persistent : this.persistent,
@@ -57,8 +58,6 @@ export default class Roleplay extends Generic{
 		if( full !== "mod" ){
 			out.completed = this.completed;
 			out.stage = this.stage;
-			out.id = this.id;
-			
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -131,7 +130,7 @@ export default class Roleplay extends Generic{
 }
 
 
-class RoleplayStage extends Generic{
+export class RoleplayStage extends Generic{
 
 	constructor(data, parent){
 		super(data);
@@ -182,7 +181,12 @@ class RoleplayStage extends Generic{
 	// Automatically invoked after g_autoload
 	rebase(){
 
+		if( !this.id ){
+			this.id = this.parent.id+'_'+this.index;
+		}
+
 		this.options = RoleplayStageOption.loadThese(this.options, this);
+		
 
 	}
 
@@ -229,7 +233,7 @@ class RoleplayStage extends Generic{
 
 }
 
-class RoleplayStageOption extends Generic{
+export class RoleplayStageOption extends Generic{
 
 	constructor(data, parent){
 		super(data);
@@ -251,8 +255,12 @@ class RoleplayStageOption extends Generic{
 	}
 	// Automatically invoked after g_autoload
 	rebase(){
+		
+		if( !this.id )
+			this.id = this.parent.id+'_'+this.index;
 		this.conditions = Condition.loadThese(this.conditions, this);
 		this.game_actions = GameAction.loadThese(this.game_actions, this);
+		
 	}
 
 

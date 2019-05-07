@@ -49,6 +49,7 @@ export default class Asset extends Generic{
 
 	// Data that should be saved to drive
 	save( full ){
+
 		let out = {
 			name : this.name,
 			slots : this.slots,
@@ -591,13 +592,14 @@ Asset.Dummies = {
 Asset.convertDummy = function( asset, parent ){
 
 	if( asset.label === Asset.Dummies.label ){
-		// todo: Convert to another label
+
 		const converted = glib.get(asset.name, 'Asset').clone(parent);
 		if( !converted ){
 			console.error("Asset conversion failed for dummy asset", asset);
 			return;
 		}
 		converted._stacks = asset._stacks;
+		converted.g_resetID();
 		return converted;
 	}
 

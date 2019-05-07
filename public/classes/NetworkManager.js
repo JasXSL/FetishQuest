@@ -254,7 +254,10 @@ class NetworkManager{
 
 		// Auto
 		const current = game.getSaveData();
+		console.log("Full SaveData", current);
 		const changes = this.runComparer( current );
+
+		console.log("Game changes", changes);
 		if( !Object.keys(changes).length )
 			return;
 
@@ -456,7 +459,48 @@ class NetworkManager{
 				dungeonAsset = room.getAssetById(args.dungeonAsset)
 			;
 
-			dungeonAsset.lootToPlayer( asset.id, player );
+			dungeonAsset.lootToPlayer( args.item, player );
+
+		}
+
+		if( task === PT.lootPlayer ){
+
+			let player = validatePlayer();
+			if( !player )
+				return;
+
+			let target = game.getPlayerById(args.target);
+			if( !target )
+				return respondWithError("Player not found");
+			if( !target.isLootableBy(player) )
+				return respondWithError("You can't loot that right now");
+			
+			target.lootToPlayer(args.asset, player );
+
+		}
+
+		if( task === PT.roleplayOption ){
+
+			let player = validatePlayer();
+			if( !player )
+				return;
+
+			let optID = args.option;
+			game.useRoleplayOption( player, optID );
+
+		}
+
+		if( task === PT.roleplay ){
+
+			let player = validatePlayer();
+			if( !player )
+				return;
+
+			let roleplay = game.getAvailableRoleplayForPlayerById(player, args.roleplay);
+			if( !roleplay )
+				return respondWithError("Roleplay not available");
+
+			game.setRoleplay( roleplay );
 
 		}
 
@@ -648,6 +692,7 @@ class NetworkManager{
 		if( typeof data !== "object" )
 			return;
 
+		console.log("Got game data", data);
 		game.modal.onGameUpdate(data);
 
 		if( this.debug )
@@ -709,6 +754,14 @@ class NetworkManager{
 		});
 	}
 
+	playerLootPlayer( player, target, item ){
+		this.sendPlayerAction(NetworkManager.playerTasks.lootPlayer, {
+			player : player.id,
+			target : target.id,
+			item : item.id
+		});
+	}
+
 	// Player use action
 	// Player and Action are Player/Action objects, targets are also Player objects
 	playerUseAction(player, action, targets = []){
@@ -746,6 +799,20 @@ class NetworkManager{
 			item : asset.id,
 		});
 	}
+
+	playerRoleplayOption( player, optionID ){
+		this.sendPlayerAction(NetworkManager.playerTasks.roleplayOption, {
+			player : player.id,
+			option : optionID,
+		});
+	}
+	playerRoleplay( player, roleplay ){
+		this.sendPlayerAction(NetworkManager.playerTasks.roleplay, {
+			player : player.id,
+			roleplay : roleplay.id,
+		});
+	}
+	
 
 	
 
@@ -882,6 +949,7 @@ NetworkManager.dmTasks = {
 	raiseInteractOnMesh : 'raiseInteractOnMesh',	// {dungeonAsset:(str)dungeonAsset_uuid} - Triggers the mesh template onInteract function on a dungeon asset
 	hitfx : 'hitfx',								// {fx:hitfx, caster:(str)casterID, recipients:(arr)recipients, armor_slot:(str)armor_slot} - Triggers a hitfx
 	questAccepted : 'questAccepted',				// {head:(str)head_text, body:(str)body_text} - Draws the questStart info box. Also used for quest completed and other things
+	
 };
 
 // Player -> DM
@@ -892,10 +960,13 @@ NetworkManager.playerTasks = {
 	speak : 'speak',					// {player:playerUUID/"ooc"/"DM", text:text_to_say}
 	interact : 'interact',				// {player:playerUUID, dungeonAsset:dungeonAssetUUID}
 	loot : 'loot',						// {player:playerUUID, dungeonAsset:dungeonAssetUUID, item:itemUUID}
+	lootPlayer : 'lootPlayer',			// {player:looterUUID, target:(str)targetUUID, item:(str)itemUUID}
 	useRepairAsset : 'useRepairAsset',	// {player:casterUUID, target:(str)targetUUID, repairKit:(str)playerRepairAssetUUID, asset:(str)assetToRepairID}
 	getFullGame : 'getFullGame',		// void - Request the full game from host. Useful if there's packet loss or desync
 	deleteAsset : 'deleteAsset',		// {player:(str)owner_id, item:(str)assetID}
 	tradeAsset : 'tradeAsset',			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID}
+	roleplayOption : 'roleplayOption',				// {player:playerUUID, option:(str)optionUUID}
+	roleplay : 'roleplay',				// {player:(str)sender_id, roleplay:(str)roleplay_id}
 
 };
 

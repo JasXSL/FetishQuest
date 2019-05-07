@@ -9,17 +9,25 @@ export default class Generic{
 	// If accept_all_nulls is true, all target nulls are set to the supplied value and not typecast or cloned
 	g_autoload( data ){
 
+		if( !data )
+			return;
+
 		if(typeof data !== "object")
 			data = {};
 
+		// Game can't use NULL types in the netcode, because creating a new game object does a whole heap of stuff you don't want
+		const n = this.constructor.name === "Game" ? this : new this.constructor();
 		for(let i in data){
-			if( this.hasOwnProperty(i) && typeof this[i] !== "function" && i !== "parent" ){
-				this[i] = this.g_typecast(data[i], this[i], i );
+			if( this.hasOwnProperty(i) && typeof n[i] !== "function" && i !== "parent" ){
+				this[i] = this.g_typecast(data[i], n[i], i );
 			}
 		}
 
-		if( typeof this.rebase === "function" )
+		if( typeof this.rebase === "function" && Generic.auto_rebase )
 			this.rebase();
+
+		if( !this.id )
+			console.error("ID missing for asset", this);
 
 	}
 
@@ -30,33 +38,47 @@ export default class Generic{
 		}
 	}
 
+	g_sameComplexType( a, b ){
+
+		if( Array.isArray(a) && Array.isArray(b) ){
+			return true;
+		}
+		if( typeof a === "object" && typeof b === "object" && !Array.isArray(a) && !Array.isArray(b) && a !== null && b !== null ){
+			return true;
+		}
+		return false;
+
+	}
+
 	g_typecast( from, to, ident ){
 
 		// Use null or undefined for wild card.
-		if( to === null ){
+		// If the current value is not the same type as the new value, just accept it
+		if( to === null && (!this.g_sameComplexType(from, this[ident]) || !game.net_load) ){
 			return from;
 		}
+		to = this[ident];	// Done checking the base value, now we want to check the CURRENT value
+		
 
 		if( Array.isArray(to) ){
 
-			if( !Array.isArray(from) ){
-				console.error("Trying to typecast array '"+ident+"', from", from, "to", to);
-				return [];
-			}
-
+			if( !Array.isArray(from) )
+				return to;
 			// Do smart id loading
 			if( window.game && game.net_load && typeof from[0] === "object" ){
 				
 				let out = [];
 				for( let obj of from ){
+					
 					let o = this.g_findIdInArray( to, obj.id );
-
 					// Dungeon object interactions don't convert to object types
 					if( !o )
 						o = obj;
-					else
+					else{
+						if( !o.load )
+							console.error(o,"has no load method, the asset exists in", this);
 						o.load(obj);
-					
+					}
 					out.push(o);
 				}
 				return out;
@@ -69,7 +91,7 @@ export default class Generic{
 		if( typeof to === "object" ){
 
 			if( typeof from !== "object" ){
-				console.error("Trying to typecast object '"+ident+"', from", from, "to", to);
+				console.error("Trying to typecast object '"+ident+"', from", from, "to", to, "in", this);
 				return {};
 			}
 
@@ -98,7 +120,7 @@ export default class Generic{
 			return String(from);
 
 		if( typeof to === "boolean" )
-			return !!from;
+			return Boolean(from);
 
 		
 
@@ -178,6 +200,9 @@ export default class Generic{
 
 }
 
+// Flag set after library has loaded. This will allow cyclic dependencies for library assets
+Generic.auto_rebase = false;
+
 // Tries to return a library tied to this asset
 Generic.getLib = function(){
 	return glib.getFull(this.name);
@@ -246,3 +271,4 @@ Generic.generateUUID = function(){
 	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
 	  s4() + '-' + s4() + s4() + s4();
 }
+

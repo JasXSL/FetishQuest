@@ -97,9 +97,10 @@ export default class Game extends Generic{
 			dungeon : this.dungeon.save(full),
 			encounter : this.encounter.save(full),
 			quests : this.quests.map(el => el.save(full)),
-			roleplay : this.roleplay.save(full)
+			roleplay : this.roleplay.save(full),
+			state_dungeons : this.state_dungeons,
+			completed_quests : this.completed_quests,
 		};
-
 		
 		if( full ){
 			out.libAsset = {};
@@ -109,10 +110,11 @@ export default class Game extends Generic{
 			out.id = this.id;
 			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
-			out.state_dungeons = this.state_dungeons;
-			out.completed_quests = this.completed_quests;
-			out.procedural_dungeon = this.procedural_dungeon.save(full)
+			
+			out.procedural_dungeon = this.procedural_dungeon.save(full);
 		}
+
+		console.log("SaveData", out);
 		return out;
 	}
 
@@ -179,6 +181,7 @@ export default class Game extends Generic{
 	// Std load
 	async load( data ){
 
+		console.log("loading", data);
 		this.initialized = false;		// prevents text sounds from being played when a netgame loads
 		this.g_autoload(data);
 
@@ -190,7 +193,7 @@ export default class Game extends Generic{
 		if( this.is_host )
 			game.players.map(pl => pl.initialize());
 
-		if( !this.roleplay.persistent )
+		if( !this.roleplay.persistent && this.is_host )
 			this.clearRoleplay();
 		
 		await glib.autoloadMods();
@@ -221,6 +224,7 @@ export default class Game extends Generic{
 	}
 
 	loadFromNet( data ){
+
 		let turn = this.getTurnPlayer();
 		this.net_load = true;
 		this.g_autoload(data);
@@ -1564,13 +1568,16 @@ export default class Game extends Generic{
 			return false;
 		}
 		
+		if( !senderPlayer.leader )
+			return false;
+
 		if( !this.is_host ){
-			this.ui.addError("Todo: Netcode roleplay");
+			this.net.playerRoleplayOption(senderPlayer, option_id);
 			return false;
 		}
 
 		if( opt.use(senderPlayer) ){
-			
+
 			this.ui.drawRoleplay();
 			this.save();
 
@@ -1582,16 +1589,21 @@ export default class Game extends Generic{
 
 	setRoleplay( rp, force = false ){
 
-
 		if( this.isInPersistentRoleplay() && !rp.persistent && !force )
 			return;
 
+		if( !this.is_host ){
+			game.net.playerRoleplay( game.getMyActivePlayer(), rp );
+			return;
+		}
 		this.roleplay = rp.clone(this);
 		this.roleplay.stage = 0;
 
 		this.ui.draw();
 		if( this.roleplay.stages.length )
 			this.ui.toggle(true);
+
+		this.save();
 
 	}
 
@@ -1624,7 +1636,17 @@ export default class Game extends Generic{
 
 	}
 
-
+	// Searches if a roleplay is present and available to a player
+	getAvailableRoleplayForPlayerById( player, id ){
+		const roleplays = this.encounter.getRoleplays(player);
+		for( let ga of roleplays ){
+			const rp = ga.getDataAsRoleplay();
+			if( !rp )
+				continue;
+			if( rp.id === id && !rp.completed && !rp.completed && rp.validate(player) )
+				return rp;
+		}
+	}
 
 
 
@@ -1672,6 +1694,7 @@ export default class Game extends Generic{
 
 	}
 
+	
 
 
 	/* GAME-LIBRARY MANAGEMENT 

@@ -8,6 +8,8 @@ export default class Modal{
 
 	constructor(parent){
 
+		this.id = Math.random();
+
 		this.parent = parent;
 		this.bg = $("#modal");
 		this.wrapper = $("#modal > div.wrapper");
@@ -34,13 +36,14 @@ export default class Modal{
 
 		this.wrapper.off('mousedown touchstart').on('mousedown touchstart', event => {
 			event.stopImmediatePropagation();
-			if( this.selBoxOpened+100 < Date.now() )
+			if( this.selBoxOpened+250 < Date.now() )
 				this.closeSelectionBox();
 		});
 
 		$(document).off('click touchstart').on('click touchstart', () => {
-			if( this.selBoxOpened+100 < Date.now() )
+			if( this.selBoxOpened+250 < Date.now() ){
 				this.closeSelectionBox();
+			}
 		});
 
 		this.selectionbox.off('click touchstart').on('click touchstart', event => {
@@ -152,7 +155,6 @@ export default class Modal{
 		if( !keepPosition )
 			this.selectionbox.css({left:game.renderer.mouseAbs.x, top:game.renderer.mouseAbs.y});
 		this.selBoxOpened = Date.now();
-
 	}
 	// Adds an item to above menu, item is the name, tooltip gets put into a tooltip, and id gets put as data-id
 	addSelectionBoxItem( item, tooltip, id, classes = [], escape = true ){

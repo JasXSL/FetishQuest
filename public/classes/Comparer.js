@@ -4,29 +4,74 @@ export default class Comparer{
 
 	constructor(){}
 
-	arrayChanged( a, b ){
-		if( !Array.isArray(a) || !Array.isArray(b) || a.length !== b.length )
-			return true;
-		for( let i in a ){
-			if( a[i] !== b[i] )
-				return true;
-		}
-		return false;
-	}
 
-	compare( a, b ){
+	compare( a, b, isArrayChange, parent ){
 
-		if( typeof a !== "object" || a === null )
+		if( typeof a !== "object" || a === null || typeof b !== "object" || b === null || typeof a !== typeof b || (Array.isArray(a) && !Array.isArray(b)) )
 			return b;
 
+		if( Array.isArray(b) ){
+			// One of these has changed state, need to send all
+			let nrChanges = 0;
+			let out = [];
+
+			// Netcode should never be exposed to mixed arrays.
+			// First handle simple complex arrays
+			if( typeof b[0] === "object" ){
+				
+				// Then handle object arrays. All objects must have an ID
+				for( let i in b ){
+
+					// if an ID has changed, we need to push the whole thing since that's how the loading works on the receiving end
+					if( a[i] && a[i].id && b[i] && b[i].id && a[i].id !== b[i].id ){
+						++nrChanges;
+						out.push(b[i]);
+						continue;
+					}
+
+					const comp = this.compare(a[i], b[i], true, b);
+					// Array entry has been deleted
+					if( comp === undefined )
+						continue;
+					
+					const len = Object.keys(comp).length;
+					out.push(comp);
+					if( 
+						(!comp.id && !len) || // This one has no ID (generally disallowed, but failsafe)
+						(comp.id && len > 1) || // It does have an ID plus at least 1 changed value
+						(comp.id && (!a[i].id || comp.id !== a[i].id)) 	// It has an ID and the ID is not the same (reorder)
+					)++nrChanges;
+				}
+				
+				if( nrChanges )
+					return out;
+
+				return false;
+			}
+
+			if( a.length !== b.length )
+				return b;
+
+			for( let i in b ){
+				if( a[i] !== b[i] )
+					return b;
+			}
+			return false;
+
+		}
+		
+
+		// Get all keys in A and B once into an array
 		let keys = {};
 		let arr = Object.keys(a).concat(Object.keys(b));
 		for( let n of arr )
 			keys[n] = true;
 		keys = Object.keys(keys);
 
+		// This is the output
 		const out = {};
 
+		// Loop through all the keys
 		for( let i of keys ){
 			
 			// This is an object type
@@ -35,66 +80,41 @@ export default class Comparer{
 				// Object is an array
 				if( Array.isArray( a[i] ) || Array.isArray( b[i] ) ){
 
-					if( typeof a[i][0] !== "object" ){
-						if( this.arrayChanged(a[i], b[i]) )
-							out[i] = b[i].slice();
+					
+					let changes = this.compare(a[i], b[i], false, b);
+					if( changes )
+						out[i] = changes;
+					
 
-					}
-					else if( Array.isArray(a[i]) !== Array.isArray(b[i]) )
-						out[i] = b[i];
-					// Object array. Every object needs an ID
-					else{
-
-						let tupleA = {}, tupleB = {};
-
-						if( !Array.isArray(b[i]) ){
-							console.error("Comparer is trying to compare an array to non array, a", a, "b", b, "i", i);
-						}
-
-						for( let n of a[i] ){
-							if( (!n || !n.id) && debug )
-								console.error("Object", n, "has no id in object", a, "array", a[i]);
-							tupleA[n.id] = n;
-						}
-
-						for( let n of b[i] ){
-
-							if( (!n || !n.id) && debug )
-								console.error("Object", n, "has no id in object", b, "array", b[i], "a was", a[i]);
-							tupleB[n.id] = n;
-							
-						}
-						
-						
-						let ou = [], nrChanged = 0;
-						// Build the current values
-						for( let n in tupleB ){
-							const aa = tupleA[n], ab = tupleB[n];
-							let comp = this.compare(aa, ab);
-							nrChanged += Object.keys(comp).length;
-							comp.id = n;
-							ou.push(comp);		// All objects need to be inside for ordering to work
-						}
-
-						if( nrChanged || out.length != a[i].length )
-							out[i] = ou;
-					}
 				}
 				// Object is an object
 				else{
 
-					const o = this.compare(a[i], b[i]);
-					if( o === undefined || o === null )
-						console.error("Got null or undefined comparing", a[i], "with", b[i], a, b);
+					const o = this.compare(a[i], b[i], false, b);
+					// This property has been deleted. This is generally not good form, so don't design things around that
+					// But this catch is needed for debugging, like when you wipe save progress
+					if( o === undefined ){
+						console.debug("Object property deletion detected, this won't work for netcode. But it's fine for singleplayer.");
+						continue;
+					}
+
+					if( o === null )
+						console.error("Got null comparing", a[i], "with", b[i], a, b);
 					if( Object.keys(o).length )
 						out[i] = o;
 
 				}
 			}
-			// Compare the values. But if the base object doesn't have an ID, you have to send the whole thing
-			else if( a[i] !== b[i] || !b.id )
+			// Compare the values directly
+			else if( a[i] !== b[i] )
 				out[i] = b[i];
 				
+		}
+
+		if( typeof b === "object" && isArrayChange ){
+			out.id = b.id;
+			if( !b.id )
+				console.error("Every object put in an array sent to netcode MUST have an ID. Missing from", b, "previous asset here was", a, "parent", parent);
 		}
 
 		return out;

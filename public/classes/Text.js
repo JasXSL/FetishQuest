@@ -59,6 +59,9 @@ class Text extends Generic{
 	}
 
 	load(data){
+
+		if( !data )
+			return;
 		if( data.soundkits )
 			data.audiokits = data.soundkits;
 		if( typeof data.audiokits === "string" )
@@ -66,6 +69,7 @@ class Text extends Generic{
 		this.g_autoload(data);
 		if( this.numTargets < 1 )
 			this.numTargets = 1;
+
 	}
 
 	rebase(){

@@ -533,7 +533,7 @@ class WebGL{
 			if( pre )
 				pre.toggle(false);
 			this.stage.toggle(true);
-			
+			console.log("Room has changed", this.stage);
 			this.roomEnterCameraTween();
 		}
 	}
@@ -593,6 +593,7 @@ class WebGL{
 	}
 
 	onMouseClick( event ){
+
 		for( let obj of this.intersecting ){
 			
 			if( obj.userData && typeof obj.userData.click === "function" ){
@@ -890,6 +891,7 @@ class WebGL{
 		let room = game.dungeon.getActiveRoom();
 		let asset = room.getRoomAsset();
 		let mesh = asset.getModel();
+		
 		let size = Math.max(mesh.width,mesh.height);
 		let posY = size*220/Math.pow(1.05, size), 
 			posZ = size*80/Math.pow(1.05, size);

@@ -29,6 +29,8 @@ import GameAction from './GameAction.js';
 //const always_chest = true;
 const always_chest = false;
 
+const interact_cooldowns = {};	// id:true etc
+
 class Dungeon extends Generic{
 
 	constructor(data, parent){
@@ -301,7 +303,7 @@ class Dungeon extends Generic{
 	// asset is a DungeonRoomAsset
 	async assetClicked( player, room, asset, mesh ){
 
-		if( asset._interact_cooldown ){
+		if( interact_cooldowns[asset.id] ){
 			return;
 		}
 
@@ -398,7 +400,7 @@ class DungeonRoom extends Generic{
 
 		this.outdoors = false;
 		this.zoom = null;			// Lets you manually set the zoom value
-		this.encounters = null;		// This is either an array of encounters ready to begin. Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
+		this.encounters = null;		// This is either an array of encounters ready to begin or a single encounter tha has begun. Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
 									// Or a single encounter that has started.
 		this.assets = [];			// First asset is always the room. These are DungeonRoomAssets
 		this.tags = [];
@@ -427,13 +429,9 @@ class DungeonRoom extends Generic{
 			zoom : this.zoom,
 			outdoors : this.outdoors,
 			ambiance : this.ambiance,
-			
+			encounters : Array.isArray(this.encounters) ? DungeonEncounter.saveThese(this.encounters, full) : this.encounters.save(full)
 		};
 
-		// Full
-		if( full ){
-			out.encounters = Array.isArray(this.encounters) ? DungeonEncounter.saveThese(this.encounters, full) : this.encounters.save(full);
-		}
 
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
@@ -466,7 +464,7 @@ class DungeonRoom extends Generic{
 		
 		out.discovered = this.discovered;
 		out.assets = this.getGeneratedAssets().map(el => el.save(true));
-		
+		out.id = this.parent.label+'_'+this.index;
 		return out;
 
 	}
@@ -953,7 +951,7 @@ class DungeonRoomAsset extends Generic{
 		this.interact_cooldown = 1000;	// ms between how often you can interact with this 
 		this._model = null;				// Generic mesh model
 		this._stage_mesh = null;		// Mesh tied to this object in the current scene
-		this._interact_cooldown = null;	// Handles the interact cooldown
+
 		this.tags = [];
 		this.absolute = false;			// Makes X/Y/Z absolute coordinates
 		this.room = false;				// This is the room asset
@@ -1121,7 +1119,7 @@ class DungeonRoomAsset extends Generic{
 		while( path.length ){
 			mesh = mesh[path.shift()];
 			if(!mesh){
-				console.error("Mesh not found", this.model);
+				console.error("Mesh not found", this.model, "in", this);
 				return false;
 			}
 		}
@@ -1232,9 +1230,12 @@ class DungeonRoomAsset extends Generic{
 		if( !this._stage_mesh )
 			return;
 
+		if( !this._stage_mesh.userData )
+			return;
+
 		const pre = this._interactive;
 		this._interactive = this.isInteractive();
-		if( this._interactive !== pre && this._stage_mesh && this._stage_mesh.userData.template )
+		if( this._interactive !== pre && this._stage_mesh.userData.template )
 			this._stage_mesh.userData.template.onInteractivityChange(this, this._interactive);
 
 		if( this._interactive )
@@ -1257,11 +1258,13 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	// Sets internal interaction cooldown (prevent spam clicking). If ms is undefined, use the built in interact_cooldown value
-	setInteractCooldown( ms = 1 ){
+	setInteractCooldown( ms ){
 		if( ms < 1 )
 			ms = this.interact_cooldown;
-		clearTimeout(this._interact_cooldown);
-		this._interact_cooldown = setTimeout(() => { this._interact_cooldown = null; }, ms);
+		clearTimeout(interact_cooldowns[this.id]);
+		interact_cooldowns[this.id] = setTimeout(() => { 
+			delete interact_cooldowns[this.id];
+		}, ms);
 	}
 
 	// Primarily for levers, but might make sense in other places
@@ -1279,6 +1282,7 @@ class DungeonRoomAsset extends Generic{
 		const asset = this;
 		const dungeon = this.getDungeon();
 		const lootable = asset.isLootable( player, mesh );
+
 
 		// Helper function for interact action
 		function raiseInteractOnMesh( shared = true ){
@@ -1503,9 +1507,9 @@ class DungeonEncounter extends Generic{
 			out.label = this.label;
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
 			out.conditions = Condition.saveThese(this.conditions, full);
-			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
 		out.friendly = this.friendly;
+		out.game_actions = GameAction.saveThese(this.game_actions, full);
 		
 		if( full !== "mod" ){
 			out.id = this.id;
@@ -1885,7 +1889,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 				if( tr.index === room.index || tr.getParents().length > rpl )
 					continue;
 
-				// Todo: Viable switches should probably be added somewhere in the dungeon template
 				let addedAsset = tr.placeAsset('Dungeon.Door.WallLever');
 				if( addedAsset ){
 
@@ -1922,7 +1925,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					);
 					
 					doorInteraction.break = "fail";
-					doorInteraction.conditions.push(cond); // TODO
+					doorInteraction.conditions.push(cond);
 
 					found = true;											// We successfully placed something in this room, stop seeking door assets
 					break;

@@ -72,13 +72,11 @@ class Stage extends Generic{
 		this.destination = 'victim';
 		this.dest_rand = 0;					// percentage of portrait box
 
-		// Todo: Positional offsets
 		this.start_offs = new THREE.Vector3();
 		this.end_offs = new THREE.Vector3();
 		
 		this.easing = "Cubic.In";
 
-		// Todo: Sound
 		this.sound_kits = [];				// Trigger these sound kits
 
 		this._system = null;				// Holds the particle system itself
