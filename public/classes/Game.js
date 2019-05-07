@@ -170,7 +170,7 @@ export default class Game extends Generic{
 		}
 		if( allowInsert ){
 			this.initialized = true;
-			this.load();	// Starts the actual game
+			await this.load();	// Starts the actual game
 		}
 
 		
@@ -213,10 +213,12 @@ export default class Game extends Generic{
 		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement);
 		
 		// Make sure a dungeon exists
+		/*
 		if( !this.dungeon || !this.dungeon.rooms.length )
 			this.addRandomQuest();
-
-		this.renderer.loadActiveDungeon();
+		*/
+		if( this.dungeon.label )
+			this.renderer.loadActiveDungeon();
 		this.verifyLeader();
 
 	}
@@ -599,8 +601,12 @@ export default class Game extends Generic{
 
 		if( dungeon === this.dungeon )
 			return;
+		
+		if( typeof dungeon === "string" )
+			dungeon = glib.get(dungeon, 'Dungeon');
 		if( !(dungeon instanceof Dungeon) )
 			return console.error(dungeon, "is not a dungeon");
+
 		let pre = this.dungeon;
 		if( pre.id !== this.id ){
 			this.onDungeonExit();
@@ -619,6 +625,7 @@ export default class Game extends Generic{
 		this.net.purgeFromLastPush(["dungeon"],["encounter"]);
 		this.save();
 		this.renderer.loadActiveDungeon();
+
 	}
 
 	saveDungeonState(){
@@ -1171,6 +1178,13 @@ export default class Game extends Generic{
 			this.encounter = encounter;
 		}
 
+		if( !player )
+			player = game.getMyActivePlayer();
+		if( !player )
+			player = game.getTeamPlayers()[0];
+		if( !player )
+			player = game.players[0];
+
 		// Always prepare
 		encounter.prepare();
 		
@@ -1585,6 +1599,7 @@ export default class Game extends Generic{
 		}
 		this.roleplay = rp.clone(this);
 		this.roleplay.stage = 0;
+		this.roleplay.onStart();
 
 		this.ui.draw();
 		if( this.roleplay.stages.length )
@@ -1799,6 +1814,7 @@ Game.load = async () => {
 
 // Create a new game
 Game.new = async (name, players) => {
+
 	if( game )
 		game.destructor();
 	game = new Game(name);
@@ -1809,6 +1825,9 @@ Game.new = async (name, players) => {
 	}
 	game.initialized = true;
 	await game.execSave( true );
+	console.log("Setting dungeon to yuug_port");
+	game.setDungeon( 'yuug_port', false, 1 );
+
 };
 
 // Converts the current game into a netgame

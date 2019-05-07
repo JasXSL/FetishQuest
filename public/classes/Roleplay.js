@@ -115,7 +115,9 @@ export default class Roleplay extends Generic{
 	}
 
 	onStart(){
-		this.getActiveStage().onStart();
+		const stage = this.getActiveStage();
+		if( stage )
+			stage.onStart();
 	}
 
 	validate( player, debug ){
@@ -128,6 +130,44 @@ export default class Roleplay extends Generic{
 	}
 
 }
+
+// queued chats
+class RoleplayChatQueue{
+	
+	constructor( sender, text, type ){
+		
+		this.sender = sender;
+		this.text = text;
+		this.type = type || RoleplayStageOption.ChatType.default;
+
+	}
+
+}
+RoleplayChatQueue.timer = false;
+RoleplayChatQueue.queue = [];
+RoleplayChatQueue.output = function( sender, text, type ){
+	
+	this.queue.push(new RoleplayChatQueue(sender, text, type));
+	this.next();
+
+};
+RoleplayChatQueue.next = function(){
+
+	if( this.timer )
+		return;
+
+	if( !this.queue.length )
+		return;
+
+	
+	const chat = this.queue.shift();
+	game.speakAs( chat.sender.id, chat.text );
+	this.timer = setTimeout(() => {
+		this.timer = false;
+		RoleplayChatQueue.next();
+	}, 1000);
+
+};
 
 
 export class RoleplayStage extends Generic{
@@ -143,6 +183,7 @@ export class RoleplayStage extends Generic{
 		this.text = '';
 		this.options = [];
 		this.player = '';			// Player label
+		this.chat = RoleplayStageOption.ChatType.default;
 
 		this.load(data);
 
@@ -164,6 +205,7 @@ export class RoleplayStage extends Generic{
 			text: this.text,
 			options : RoleplayStageOption.saveThese(this.options, full),
 			player : this.player,
+			chat : this.chat,
 		};
 
 		if( full ){}
@@ -226,9 +268,9 @@ export class RoleplayStage extends Generic{
 			player = game.getMyActivePlayer();
 
 		const pl = this.getPlayer();
-		if( pl )
-			game.speakAs( pl.id, this.text );
-
+		if( pl && this.chat !== RoleplayStageOption.ChatType.none )
+			RoleplayChatQueue.output(pl, this.text, this.chat);
+		
 	}
 
 }
@@ -311,8 +353,8 @@ export class RoleplayStageOption extends Generic{
 
 		const rp = this.getRoleplay();
 		const pl = this.parent.getPlayer();
-		if( pl )
-			game.speakAs( player.id, this.text );
+		if( player && this.chat !== RoleplayStageOption.ChatType.none )
+			RoleplayChatQueue.output( player, this.text, this.chat );
 
 		for( let act of this.game_actions )
 			act.trigger(player, pl);
