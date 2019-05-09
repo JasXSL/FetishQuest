@@ -272,6 +272,7 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.hasWrapper ){
+
 				if( t && (!this.data.byCaster || event.sender) ){
 
 					let label = this.data.label;
@@ -288,6 +289,8 @@ export default class Condition extends Generic{
 							break;
 						}
 					}
+					if( debug )
+						console.debug("Checking ", this.data, " against ", t, success, "sender id", event.sender.id);
 
 				}
 			}

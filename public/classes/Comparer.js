@@ -70,10 +70,6 @@ export default class Comparer{
 
 		// Loop through all the keys
 		for( let i of keys ){
-			
-			if( i === "completed_quests" ){
-				console.log("Comparing", a[i], b[i]);
-			}
 
 			// This is an object type
 			if( (typeof a[i] === "object" || typeof b[i] === "object") && b[i] !== null && a[i] !== null ){

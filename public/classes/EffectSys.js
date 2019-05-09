@@ -62,16 +62,15 @@ class Wrapper extends Generic{
 			stay_conditions : Condition.saveThese(this.stay_conditions, full),
 			effects : this.effects.map(el => el.save(full)),
 			tags : this.tags,
+			label : this.label,
 		};
 
 		if( full ){
 			out.tick_on_turn_end = this.tick_on_turn_end;
 			out.tick_on_turn_start = this.tick_on_turn_start;
-			out.label = this.label;
 			out.max_stacks = this.max_stacks;
 			out.trigger_immediate = this.trigger_immediate;
 			out.duration = this.duration;
-
 			if( full !== "mod" ){
 				out._self_cast = this._self_cast;
 				out.netPlayer = this.netPlayer;
@@ -779,7 +778,7 @@ class Effect extends Generic{
 					if( tot ){
 
 						t.addArousal(tot);
-						game.ui.addText( t.getColoredName()+" gained "+Math.abs(tot)+" arousal from corruption damage.", undefined, s.id, t.id, 'statMessage arousal' );
+						game.ui.addText( t.getColoredName()+" gained "+Math.abs(tot)+" arousal from corruption.", undefined, s.id, t.id, 'statMessage arousal' );
 
 					}
 
