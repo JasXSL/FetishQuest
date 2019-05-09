@@ -98,8 +98,8 @@ export default class Game extends Generic{
 			encounter : this.encounter.save(full),
 			quests : this.quests.map(el => el.save(full)),
 			roleplay : this.roleplay.save(full),
-			state_dungeons : this.state_dungeons,
-			completed_quests : this.completed_quests,
+			state_dungeons : Object.assign({},this.state_dungeons),
+			completed_quests : Object.assign({},this.completed_quests),	// A shallow clone is enough
 		};
 		
 		if( full ){
@@ -1568,9 +1568,6 @@ export default class Game extends Generic{
 			console.error("Opt not found", option_id);
 			return false;
 		}
-		
-		if( !senderPlayer.leader )
-			return false;
 
 		if( !this.is_host ){
 			this.net.playerRoleplayOption(senderPlayer, option_id);

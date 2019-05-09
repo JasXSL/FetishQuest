@@ -1,15 +1,17 @@
-Bugs:
-	- Unlatch ability broken
-		- Probably UUID mismatch
-	- Finish the barkeep handin
-	- Change the boss roleplay
-	- Barkeep still shows RP after handing in the quest?
-	- Procedural dungeon is black upon visit
-	
+Fix now:
+	- Siphon corruption not working for online players
 
 Needed other:
+	- Chat messages need a highlighted background
 	- Credits page
 	- Loading screens
+	- Add small chat screen in the corner of the map that shows player chats only
+	- Turn headers can be smaller and on the sides
+	- Remake the tooltip system
+	- Improve character sheets
+		- Show what they're wearing
+	- Change resistance name to avoidance
+	
 
 - Needed music
 	- Tavern

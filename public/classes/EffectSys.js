@@ -1263,7 +1263,7 @@ class Effect extends Generic{
 				sender : this.parent.parent,		// Sender in this case is the person who has the wrapper
 				target : player,					// Target in this case is the target of the effect
 				wrapper : this.parent,
-				effect : this.effect
+				effect : this
 			}));
 		}
 		return false;

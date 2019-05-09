@@ -93,6 +93,8 @@ const lib = {
 
 	targetIsSender : {type:Condition.Types.targetIsSender},
 	targetNotSender : {type:Condition.Types.targetIsSender, inverse:true},
+	targetIsWrapperSender : {type:Condition.Types.targetIsWrapperSender},
+	targetNotWrapperSender : {type:Condition.Types.targetIsWrapperSender, inverse:true},
 
 	targetSameTeam : {"type":"sameTeam"},
 	targetOtherTeam : {"type":"sameTeam","inverse":true},

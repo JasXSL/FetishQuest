@@ -184,7 +184,15 @@ export default class Condition extends Generic{
 					success = t && t.hasTag(this.data.tags, this.data.sender);
 			}
 			else if( this.type === T.targetIsSender ){
-				return t && s && t.id === s.id;
+				if(t && s && t.id === s.id)
+					success = true;
+			}
+			// s might not always be the original sender of a wrapper (procs/AoE effects etc)
+			// Use this to make it clear that you want the included wrapper's sender
+			else if( this.type === T.targetIsWrapperSender ){
+				const oCaster = event.wrapper && event.wrapper.getCaster();
+				if( t && oCaster && t.id === oCaster.id )
+					success = true;
 			}
 			else if( this.type === T.wrapperTag ){
 				// Searches any attached wrapper for a tag
@@ -570,6 +578,7 @@ Condition.Types = {
 	wrapperHasEffect : 'wrapperHasEffect',		// 
 	dungeonVar : 'dungeonVar',
 	targetIsSender : 'targetIsSender',
+	targetIsWrapperSender : 'targetIsWrapperSender',
 	hasFxTagBySender : 'hasFxTagBySender',		//
 	species : 'species',
 	encounterLabel : 'encounterLabel',			// label of event encounter
@@ -609,6 +618,7 @@ Condition.descriptions = {
 	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches',	
 	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data} - Compares a dungeonVar to data',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
+	[Condition.Types.targetIsWrapperSender] : 'void - Sender might not always be the caster of a wrapper (ex checking effect targets). This specifies that you want the sender of the included wrapper in specific.',	
 	[Condition.Types.species] : '{species:(str/arr)species} - Checks if target is one of the selected species. Case insensitive',	
 	[Condition.Types.encounterLabel] : '{label:(str/arr)encounter_label} - Checks if the encounter label exists in data label array',	
 	[Condition.Types.questAccepted] : '{quest:(str/arr)quest} - Checks if a quest has been started, regardless of completion status',	

@@ -1051,11 +1051,11 @@ const lib = {
 		level: 3,
 		name : "Uplifting Strike",
 		icon : 'smoking-finger',
-		description : "Deals 3 damage to an enemy and heals the lowest HP party member for 2 HP per AP spent this turn.",
+		description : "Deals 2 damage to an enemy and heals the lowest HP party member for 2 HP per AP spent this turn.",
 		ap : 1,
 		mp : 2,
 		cooldown : 2,
-		hit_chance: 80,
+		hit_chance: 100,
 		tags : [stdTag.acDamage],
 		show_conditions : ["inCombat"],
 		wrappers : [
@@ -1069,7 +1069,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 3
+							"amount": 2
 						}
 					},
 				]

@@ -462,11 +462,13 @@ class WebGL{
 	// Dungeon stage cache
 	async loadActiveDungeon(){
 
-		if( DISABLE_DUNGEON )
+		if( DISABLE_DUNGEON ){
 			return;
+		}
 
-		if( !game.dungeon )//|| game.dungeon.id === this.cache_dungeon )
+		if( !game.dungeon ){//|| game.dungeon.id === this.cache_dungeon )
 			return;
+		}
 			
 		// Already loading hold your horses
 		if( this.loading ){
@@ -489,7 +491,6 @@ class WebGL{
 			if( this.load_after_load )
 				break;
 		}
-
 		this.loading = false;
 
 		this.cache_active_room = -1;
@@ -533,7 +534,6 @@ class WebGL{
 			if( pre )
 				pre.toggle(false);
 			this.stage.toggle(true);
-			console.log("Room has changed", this.stage);
 			this.roomEnterCameraTween();
 		}
 	}
@@ -960,7 +960,7 @@ class Stage{
 			this.onTurnOff();
 		else
 			this.onTurnOn();
-		this.group.visible = !!on;
+		this.group.visible = Boolean(on);
 	}
 
 	onTurnOn(){

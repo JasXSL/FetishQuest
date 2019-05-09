@@ -4,6 +4,7 @@ import PT from './playerTemplates.js';
 import GameAction from "../../classes/GameAction.js";
 import { DungeonEncounter } from "../../classes/Dungeon.js";
 import Condition from "../../classes/Condition.js";
+import { RoleplayStageOption } from "../../classes/Roleplay.js";
 
 
 const lib = {
@@ -114,8 +115,11 @@ const lib = {
 						},
 						{
 							index: 1,
-							text: "",
-							options: []
+							text: "Cultist eh? I dunno about that, but maybe someone else here does. In either case, here's a little something from the lost 'n found box!",
+							options: [{text:'Thanks', index:-1, game_actions:[{
+								type: GameAction.types.finishQuest,
+								data : {quest:'MQ00_YuugBeach'}
+							}]}]
 						},
 						{
 							index: 2,
@@ -177,9 +181,9 @@ const lib = {
 					stages: [
 						{
 							index: 0,
-							text: "The shrine is ready! Wait... Who are you?",
+							text: "The shrine is ready! Soon the master fate will take place! Wait... Who are you?",
 							options: [
-								{text: "What is going on here?", index: 10},
+								{text: "The what with the what now?", index: 10},
 								{text: "Uh, strippogram?", index: 1, conditions:['targetNaked']},		// Without clothes
 								{text: "Uh, strippogram?", index: 2, conditions:['targetNotNaked']},	// With clothes
 							]
@@ -192,17 +196,18 @@ const lib = {
 							]
 						},
 						{
+							index: 10,
+							text: "Foolish mortal! The master will consume you!",
+							options: [
+								{text: "[Attack]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
 							index: 2,
 							text: "Then why do you smell of battle?",
 							options: [
-								{text: "Fair enough.", index: -1, game_actions:['startBattle']},
-							]
-						},
-						{
-							index: 10,
-							text: "You would have me reveal my lord's intentions? I think not! Impy, attack!",
-							options: [
-								{text: "So be it", index: -1, game_actions:['startBattle']},
+								{text: "Isometric exercise! Care to join me?", index: 10},
 							]
 						},
 					],

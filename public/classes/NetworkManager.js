@@ -414,8 +414,10 @@ class NetworkManager{
 			let spell = player.getActionById(args.action),
 				targs = args.targets.map(t => game.getPlayerById(t)).filter(t => !!t)
 			;
-			if( !spell )
-				return game.modal.addError("Action not found", args.action);
+			if( !spell ){
+				console.error("Player action", args.action, "not found in player", player);
+				return respondWithError("Action not found");
+			}
 			game.useActionOnTarget(spell, targs, player, netPlayer);
 		}
 

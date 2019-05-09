@@ -1820,7 +1820,7 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 	if( attacker.team !== 0 )
 		multi = 1+(game.getTeamPlayers().length-1)*0.25;
 
-	return (1+tot*0.04)*multi;
+	return (1+tot*0.05)*multi;
 
 };
 

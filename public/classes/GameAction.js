@@ -121,7 +121,7 @@ export default class GameAction extends Generic{
 					this.data.loot = Asset.loadThese(this.data.loot);
 				
 			}
-			if( this.type === GameAction.types.encounters ){
+			if( this.type === GameAction.types.encounters && game.is_host ){
 				if( !Array.isArray(this.data) )
 					console.error("Trying to load non-array to encounter type in interaction:", this);
 
@@ -404,6 +404,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.roleplay] : true,
 	[GameAction.types.door] : true,
 	[GameAction.types.loot] : true,
+	[GameAction.types.dungeonVar] : true,
 };
 
 

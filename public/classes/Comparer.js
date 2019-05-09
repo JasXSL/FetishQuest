@@ -71,6 +71,10 @@ export default class Comparer{
 		// Loop through all the keys
 		for( let i of keys ){
 			
+			if( i === "completed_quests" ){
+				console.log("Comparing", a[i], b[i]);
+			}
+
 			// This is an object type
 			if( (typeof a[i] === "object" || typeof b[i] === "object") && b[i] !== null && a[i] !== null ){
 
@@ -91,13 +95,16 @@ export default class Comparer{
 					// This property has been deleted. This is generally not good form, so don't design things around that
 					// But this catch is needed for debugging, like when you wipe save progress
 					if( o === undefined ){
-						console.debug("Object property deletion detected, this won't work for netcode. But it's fine for singleplayer.");
-						continue;
+						console.error("Object property deletion detected, this is poor design and should be avoided other than for debugging.");
+						return true;
 					}
 
-					if( o === null )
+					if( o === true ){
+						out[i] = b[i];
+					}
+					else if( o === null )
 						console.error("Got null comparing", a[i], "with", b[i], a, b);
-					if( Object.keys(o).length )
+					else if( Object.keys(o).length )
 						out[i] = o;
 
 				}

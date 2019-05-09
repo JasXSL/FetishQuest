@@ -753,14 +753,14 @@ const lib = [
 		]),
 		hitfx : ["squishTiny"],
 	},
-	{ text : "%S slips partially inside %T's %TclothLower, forcing %Shis ribbed bulb tentacle up inside %This %Tvagina and wiggling it around a bit.",
+	{ text : "%S slips partially inside %T's %TclothLower, forces %Shis ribbed bulb tentacle up inside %This %Tvagina and wiggling it around a bit.",
 		conditions : anyOnHumCond.concat([
 			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
 			'targetWearsLowerbody', "targetVagina"
 		]),
 		hitfx : ["slowThrustsTentacle"],
 	},
-	{ text : "%S slips partially inside %T's %TclothLower, forcing %Shis ribbed bulb tentacle up inside %This %Trsize %Tbutt and wiggling it around a bit.",
+	{ text : "%S slips partially inside %T's %TclothLower, forces %Shis ribbed bulb tentacle up inside %This %Trsize %Tbutt and wiggling it around a bit.",
 		conditions : anyOnHumCond.concat([
 			"action_stdArouse","senderIsCocktopus","senderLatchingToTarget",
 			'targetWearsLowerbody'
@@ -866,11 +866,11 @@ const lib = [
 		weight : Text.Weights.high,
 		hitfx : ["slowThrusts"]
 	},
-	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's arms from behind and forcing %Shis %Spsize %Spenis iside %T's %Trsize %Tbutt. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
+	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's arms from behind and forces %Shis %Spsize %Spenis iside %T's %Trsize %Tbutt. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
 		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis"),
 		hitfx : ["slowThrusts"]
 	},
-	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's hips and forcing %Shis %Spsize %Spenis iside %T's %Tvagina. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
+	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's hips and forces %Shis %Spsize %Spenis iside %T's %Tvagina. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
 		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","targetVagina"),
 		hitfx : ["slowThrusts"]
 	},

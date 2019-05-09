@@ -18,7 +18,7 @@ const lib = {
 		type : Effect.Types.addActions,
 		targets:[Wrapper.Targets.aoe],
 		events:[],
-		conditions : ['targetNotSender'],
+		conditions : ['targetNotWrapperSender'],
 		data : {
 			actions : ['detach']
 		}
