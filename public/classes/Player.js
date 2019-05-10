@@ -29,7 +29,10 @@ export default class Player extends Generic{
 		this.species = "";
 		this.description = "";
 		this.icon = "";						// URL - Has to be HTTPS
-		this.is_sprite = false;				// Above icon is a sprite. It should have 5 sprites of [fully armored, upperbody only, lowerbody only, naked, defeated]
+		this.icon_upperbody = "";			// == || ==
+		this.icon_lowerbody = "";			// == || ==
+		this.icon_nude = "";				// == || ==
+
 		this.leader = false;				// Party leader
 
 		this.actions = [];			// Action objects, use getActions since assets can also add actions
@@ -176,11 +179,12 @@ export default class Player extends Generic{
 			bonCorruption : this.bonCorruption,
 			used_punish : this.used_punish,
 			leader : this.leader,
-			is_sprite : this.is_sprite,
 			talkative : this.talkative,
 			tmp_actions : Action.saveThese(this.tmp_actions),
 			label : this.label,
-			
+			icon_lowerbody : this.icon_lowerbody,
+			icon_nude : this.icon_nude,
+			icon_upperbody : this.icon_upperbody,
 		};
 
 		if( this.rp )
@@ -310,23 +314,6 @@ export default class Player extends Generic{
 		return out;
 	}
 
-
-	// returns the active sprite. 0 dressed, 1 = ub only, 2 = lb only, 3 = naked, 4 = dead
-	getSpriteState(){
-		if( this.isDead() )
-			return 4;
-		const ub = this.getEquippedAssetsBySlots([Asset.Slots.upperbody]).length;
-		const lb  = this.getEquippedAssetsBySlots([Asset.Slots.lowerbody]).length;
-		if( ub && lb )
-			return 0;
-		if( ub )
-			return 1;
-		if( lb )
-			return 2;
-
-		return 3;
-		
-	}
 	
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
@@ -474,6 +461,28 @@ export default class Player extends Generic{
 	isBeast(){
 		return this.hasTag(stdTag.plBeast);
 	}
+
+
+
+
+
+	// ICONS
+	getActiveIcon(){
+		
+		const ub = this.hasTag(stdTag.asUpperbody),
+			lb = this.hasTag(stdTag.asLowerbody)
+		;
+		if( !ub && !lb && this.icon_nude )
+			return this.icon_nude;
+		if( ub && !lb && this.icon_upperbody )
+			return this.icon_upperbody;
+		if( !ub && lb && this.icon_lowerbody )
+			return this.icon_lowerbody;
+
+		return this.icon;
+
+	}
+
 
 
 

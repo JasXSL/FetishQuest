@@ -184,10 +184,10 @@ export default class Modal{
 			left += (ww-rightPixel);
 		if( bottomPixel > wh )
 			top += (wh-bottomPixel);
-		if( rightPixel < 0 )
-			rightPixel = 0;
+		if( left < 0 )
+			left = 0;
 		if( bottomPixel < 0 )
-			bottomPixel = 0;
+			left = 0;
 
 		this.selectionbox.css({
 			left : left+"px",

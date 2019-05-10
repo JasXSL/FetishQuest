@@ -477,38 +477,6 @@ export default class UI{
 
 	}
 
-	// Helper for drawPlayers. Updates the canvas image
-	updatePlayerStateImage( player ){
-
-		/*
-		const imgdiv = $('div.player[data-id='+esc(player.id)+'] div.content > div.bg');
-		const canvas = $('> canvas', imgdiv)[0];
-		
-		// Not changed
-		if( canvas.state === player.getSpriteState() )
-			return;
-
-		const img = canvas.image;
-
-		if( !img || !img.complete )
-			return;
-		
-		
-		const context = canvas.getContext('2d');
-		const width = img.width/(player.is_sprite ? 5 : 1);
-		const height = img.height;
-		const padding = 1;
-		context.drawImage(
-			img, 
-			(player.is_sprite ? player.getSpriteState()*width : 0)+padding, padding, 
-			width-padding*2, height-padding*2,
-			0,0,
-			width, height
-		);
-		imgdiv.css('background-image', 'url('+canvas.toDataURL()+')');
-		*/
-
-	}
 
 	// Players on the board
 	drawPlayers(){
@@ -703,13 +671,19 @@ export default class UI{
 
 		// Check if image has changed
 		let imgdiv = $('div.bg', el);
-		if( imgdiv.attr('data-image') !== p.icon && p.icon ){
+		const icon = p.getActiveIcon();
+		if( imgdiv.attr('data-image') !== icon && icon ){
 			
-			imgdiv.css('background-image', 'url('+esc(p.icon)+')');
-			imgdiv.attr('data-image', p.icon);
+			const image = new Image();
+			image.onload = () => {
+				if( p.getActiveIcon() === icon ){
+					imgdiv.css('background-image', 'url('+esc(icon)+')');
+					imgdiv.attr('data-image', icon);
+				}
+			};
+			image.src = icon;
 			
 		}
-		this.updatePlayerStateImage( p );
 
 		let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperbody),
 			lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerbody);
@@ -2791,6 +2765,7 @@ export default class UI{
 			if( playAnimation && container.isInteractive() )
 				playAnimation("idle");
 		});
+		this.bindTooltips();
 
 	}
 
@@ -2834,6 +2809,7 @@ export default class UI{
 
 	/* Tooltip */
 	setTooltip( parentElement ){
+
 		let text = $("> .tooltip", parentElement)[0];
 
 		if( text ){
@@ -2864,10 +2840,10 @@ export default class UI{
 				left += (ww-rightPixel);
 			if( bottomPixel > wh )
 				top += (wh-bottomPixel);
-			if( rightPixel < 0 )
-				rightPixel = 0;
-			if( bottomPixel < 0 )
-				bottomPixel = 0;
+			if( left < 0 )
+				left = 0;
+			if( top < 0 )
+				top = 0;
 
 			this.tooltip.css({
 				left : left+"px",
@@ -2877,15 +2853,22 @@ export default class UI{
 		}
 	}
 
+	onTooltipMouseover = event => {
+		this.setTooltip(event.target);
+	}
+
+	onTooltipMouseout = () => {
+		this.setTooltip();
+	}
+
 	bindTooltips(){
+
 		$(".tooltipParent")
-			.off('mouseover mouseout')
-			.on('mouseover', event => {
-				this.setTooltip(event.target);
-			})
-			.on('mouseout', () => {
-				this.setTooltip();
-			});
+			.off('mouseover', this.onTooltipMouseover)
+			.off('mouseout', this.onTooltipMouseout)
+			.on('mouseover', this.onTooltipMouseover)
+			.on('mouseout', this.onTooltipMouseout);
+
 	}
 
 	

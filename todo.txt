@@ -3,10 +3,11 @@ Needed other:
 	
 	- Credits page
 	- Loading screens
+	- Shop
+	- Slow down the chats
 	
 	- Add small chat screen in the corner of the map that shows player chats only
 	
-	- Remake the tooltip system
 	- Improve character sheets
 		- Show what they're wearing
 	- Ability to trade parts of a stack

@@ -692,7 +692,7 @@ class WebGL{
 
 
 	setArrowTarget( x, y ){
-
+		
 		if( this.arrowTween.tween )
 			this.arrowTween.tween.stop();
 
