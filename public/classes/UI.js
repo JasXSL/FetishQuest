@@ -28,6 +28,7 @@ export default class UI{
 		this.netgamePlayers = $("#netgamePlayers");
 		this.multiCastPicker = $("#multiCastPicker");
 		this.roleplay = $("#roleplay");
+		this.tooltip = $("#tooltip");
 		
 		// Active player has viable moves
 		this._has_moves = false;
@@ -206,6 +207,7 @@ export default class UI{
 		this.drawGameIcons();
 		this.drawActionSelector();
 		this.drawRoleplay();
+		this.bindTooltips();
 
 	}
 
@@ -261,10 +263,13 @@ export default class UI{
 
 			let castable = action.castable() && myTurn;
 			castableActions += !!castable;
+
+			const castableClass = (castable ? 'enabled' : 'disabled');
+
 			html+= '<div class="'+
 				'action button tooltipParent tooltipAbove '+
 				(action.detrimental ? 'detrimental' : 'beneficial')+' '+
-				(castable ? 'enabled' : 'disabled')+' '+
+				castableClass+' '+
 				(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')+
 				'" data-id="'+esc(action.id)+'">'
 			;
@@ -280,7 +285,7 @@ export default class UI{
 			
 
 			html += (action._cooldown > 0 ? '<div class="CD"><span>'+action._cooldown+'</span></div>' : '')+
-				'<div class="tooltip actionTooltip">'+
+				'<div class="tooltip actionTooltip '+castableClass+'">'+
 					action.getTooltipText()+
 				'</div>'+
 			'</div>';
@@ -1325,7 +1330,7 @@ export default class UI{
 			sender = this.parent.getPlayerById(attackerID);
 
 		
-		if( ~[gTypes.turnChanged, gTypes.battleEnded, gTypes.encounterStarted].indexOf(evtType) )
+		if( ~[gTypes.battleEnded, gTypes.encounterStarted].indexOf(evtType) )
 			acn.push('center');
 		else if( ~[gTypes.battleStarted].indexOf(evtType ) )
 			acn.push('center', 'battleStarted');
@@ -1344,6 +1349,9 @@ export default class UI{
 				acn.push('friend');
 			acn.push('sided');
 		}
+
+		if( evtType === gTypes.turnChanged )
+			acn.push('turnChange');
 
 		let txt = stylizeText(text);
 		if( ~acn.indexOf('sided') )
@@ -1533,6 +1541,7 @@ export default class UI{
 
 		});
 		
+		this.bindTooltips();
 		
 
 	}
@@ -1665,6 +1674,8 @@ export default class UI{
 
 		$("#newGameForm input.addTag").on('click', () => addTag(''));
 
+		this.bindTooltips();
+
 	}
 
 
@@ -1706,7 +1717,7 @@ export default class UI{
 			this.drawNetSettings();
 		});
 
-		
+		this.bindTooltips();
 
 	}
 
@@ -1771,6 +1782,8 @@ export default class UI{
 			th.drawQuests();
 		});
 
+		this.bindTooltips();
+
 	}
 
 	// Player inspect
@@ -1834,7 +1847,7 @@ export default class UI{
 					html += '<div class="tag" title="'+esc(Action.TypeDescriptions[stat.type])+'">'+stat.val+' '+esc(stat.type.substr(0,6))+(stat.type.length>6 ? '.' : '')+'</div>';
 				html += '</div>';
 
-				html += '<h3 style="text-align:center">Resistance</h3>';
+				html += '<h3 style="text-align:center">Avoidance</h3>';
 				html += '<div class="flexAuto">';
 				s = [];
 				for( let stat in Action.Types ){
@@ -1927,6 +1940,7 @@ export default class UI{
 			}
 		});
 	
+		this.bindTooltips();
 
 	}
 
@@ -2146,6 +2160,8 @@ export default class UI{
 		$("#modal input.addInventory").on('click', () => {
 			this.drawPlayerAssetSelector();
 		});
+
+		this.bindTooltips();
 		
 	}
 
@@ -2213,6 +2229,8 @@ export default class UI{
 
 		$("#modal input.create").on('click', () => this.drawAssetEditor(undefined, player));
 
+		this.bindTooltips();
+
 	}
 
 	// Action library, allows you to add actions to a player
@@ -2257,6 +2275,8 @@ export default class UI{
 			this.drawPlayerInspector(player.id);
 		});
 
+		this.bindTooltips();
+
 	}
 
 
@@ -2298,6 +2318,8 @@ export default class UI{
 					if( game.net.isConnected() ){
 						html += 'Owner:<br /><select name="netgame_owner">';
 							html += '<option value="">- NONE -</option>';
+
+							// Debug
 							for( let np of game.net.players )
 								html += '<option value="'+esc(np.id)+'" '+(np.id === player.netgame_owner ? 'selected' : '')+'>'+esc(np.name)+'</option>';
 						html += '</select><br />';
@@ -2347,7 +2369,7 @@ export default class UI{
 							'<div>Agility<br /><input type="number" name="agility" step=1 value='+(+player.agility)+' /></div>'+
 							'<div>Intellect<br /><input type="number" name="intellect" step=1 value='+(+player.intellect)+' /></div>'+
 						'</div>'+
-						'<h3>Resistance:</h3>'+
+						'<h3>Avoidance:</h3>'+
 
 						'<div class="flexThreeColumns">'
 						;
@@ -2494,6 +2516,8 @@ export default class UI{
 			else
 				game.modal.close();
 		});
+
+		this.bindTooltips();
 
 	}
 
@@ -2720,6 +2744,8 @@ export default class UI{
 
 		});
 
+		this.bindTooltips();
+
 	}
 	
 
@@ -2806,7 +2832,61 @@ export default class UI{
 
 
 
-	
+	/* Tooltip */
+	setTooltip( parentElement ){
+		let text = $("> .tooltip", parentElement)[0];
+
+		if( text ){
+			text = $(text.outerHTML);
+			text.toggleClass("tooltip", false);
+		}
+		else 
+			text = '';
+
+		this.tooltip
+			.html(text)
+			.toggleClass("hidden", !parentElement)
+		;
+		if( parentElement ){
+			
+			const pe = $(parentElement);
+			const pos = pe.offset(),
+				width = this.tooltip.outerWidth(),
+				height = this.tooltip.outerHeight();
+
+			let left = pos.left-width/2+pe.outerWidth()/2,
+				top = pos.top-height;
+
+			const bottomPixel = top, rightPixel = left+width;
+			const wh = window.innerHeight, ww = window.innerWidth;
+
+			if( rightPixel > ww )
+				left += (ww-rightPixel);
+			if( bottomPixel > wh )
+				top += (wh-bottomPixel);
+			if( rightPixel < 0 )
+				rightPixel = 0;
+			if( bottomPixel < 0 )
+				bottomPixel = 0;
+
+			this.tooltip.css({
+				left : left+"px",
+				top : top+"px",
+			});
+
+		}
+	}
+
+	bindTooltips(){
+		$(".tooltipParent")
+			.off('mouseover mouseout')
+			.on('mouseover', event => {
+				this.setTooltip(event.target);
+			})
+			.on('mouseout', () => {
+				this.setTooltip();
+			});
+	}
 
 	
 

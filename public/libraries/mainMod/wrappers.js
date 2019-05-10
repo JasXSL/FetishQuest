@@ -13,7 +13,7 @@ const lib = {
 		"duration":2,
 		"name":"Soak",
 		"icon":"burst-blob",
-		"description":"Soaked, elemental resistance lowered by 2 per stack.",
+		"description":"Soaked, elemental avoidance lowered by 2 per stack.",
 		"detrimental":true,
 		"add_conditions":[
 			"senderNotDead",
@@ -64,7 +64,7 @@ const lib = {
 		duration : 3,
 		name : "Corrupting Ooze",
 		icon : "gooey-molecule",
-		description : "Corruption resistance lowered.",
+		description : "Corruption avoidance lowered.",
 		detrimental : true,
 		add_conditions : [
 			"senderNotDead", "targetNotDead"

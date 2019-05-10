@@ -1091,6 +1091,15 @@ div.fxBuffBlue{
 		text-align: center;
 		background: #000;
 	}
+	#ui > div.middle > div.text > div.content > div.line.turnChange{
+		margin-top:1vmax;
+	}
+	#ui > div.middle > div.text > div.content > div.line.turnChange > div.sub{
+		background:#000;
+		font-style: italic;
+		font-size:1vmax;
+		padding:0.5vmax 1vmax;
+	}
 	#ui > div.middle > div.text > div.content > div.line.dmInternal{
 		text-align: center;
 		font-size:1vmax;
@@ -1105,6 +1114,15 @@ div.fxBuffBlue{
 	}
 	#ui > div.middle > div.text > div.content > div.line.playerChat{
 		font-size:1vmax;
+		
+	}
+	#ui > div.middle > div.text > div.content > div.line.playerChat > div.sub{
+		background:rgba(255,255,255,.25);
+		padding:0.5vmax;
+		border-radius:0.5vmax;
+		margin:0.5vmax;
+		width:auto;
+		box-shadow: 0.2vmax 0.2vmax 0.2vmax #000;
 	}
 	#ui > div.middle > div.text > div.content > div.line.dmChat{
 		color: #DEF;
@@ -1137,8 +1155,9 @@ div.fxBuffBlue{
 		font-size:2vmax;
 	}
 	#ui > div.middle > div.text > div.content > div.line.statMessage{
-		font-size:1vmax;
+		font-size:0.9vmax;
 		padding:0.1vmax 0.5vmax;
+		font-style: italic;
 	}
 	#ui > div.middle > div.text > div.content > div.line.statMessage.MP{
 		color:#BCD;
@@ -1766,10 +1785,8 @@ div.fxBuffBlue{
 
 
 /* Tooltip */
-	div.tooltip{
-		display:none;
-		position: absolute;
-		top:100%;
+	#tooltip{
+		position:absolute;
 		background:rgba(0,0,0,.9);
 		color:#FFF;
 		padding:1vmax;
@@ -1780,43 +1797,35 @@ div.fxBuffBlue{
 		pointer-events: none;
 		border-radius:0.5vmax;
 		border:1px solid #FFF;
-		left:50%;
 		text-align: left;
-		transform:translateX(-50%);
 		font-weight:normal;
+		z-index:1000;
 	}
+
+	div.tooltip{display:none;}
 
 	div.tooltipParent{
 		pointer-events: all !important;
 	}
-	div.tooltipParent:hover div.tooltip, div.tooltipParent.action.spellSelected div.tooltip{
-		display:block;
-		z-index:1000;
-	}
-
-	div.tooltipParent.tooltipAbove div.tooltip{
-		top:0;
-		transform:translate(-50%,-100%);
-	}
 
 	/* Action tooltip */
-	div.tooltip.actionTooltip{
+	#tooltip > div.actionTooltip{
 		z-index:1000;
 		color:#CCC;
 		font-size:1.25vmax;
 	}
-	div.tooltip.actionTooltip > h3{
+	#tooltip > div.actionTooltip > h3{
 		margin:0;
 		font-size:1.5vmax;
 		color:#FFF;
 	}
-	div.action.enabled div.tooltip.actionTooltip > h3{
+	#tooltip > div.actionTooltip.enabled > h3{
 		color:#DFD;
 	}
-	div.action.disabled div.tooltip.actionTooltip > h3{
+	#tooltip > div.actionTooltip.disabled > h3{
 		color:#FDD;
 	}
-	div.tooltip > div.stats{
+	#tooltip div.stats{
 		display:flex;
 		width:100%;
 		flex-direction: row;
@@ -1824,13 +1833,14 @@ div.fxBuffBlue{
 		font-style:italic;
 		font-size:1vmax;
 	}
-	div.tooltip > div.stats > span:nth-child(even){
+	#tooltip div.stats > span:nth-child(even){
 		text-align:right;
 	}
-	div.tooltip > div.stats > span{
+	#tooltip div.stats > span{
 		display:block;
 		flex:50%;
 	}
+
 /**/
 
 

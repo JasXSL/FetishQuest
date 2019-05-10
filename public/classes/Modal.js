@@ -168,6 +168,32 @@ export default class Modal{
 				html += '<div class="tooltip">'+tooltip+'</div>';
 		html += '</div>';
 		this.selectionbox.append(html);
+
+		const pe = this.selectionbox;
+		const pos = pe.offset(),
+			width = pe.outerWidth(),
+			height = pe.outerHeight();
+
+		let left = pos.left,
+			top = pos.top;
+
+		const bottomPixel = top+height, rightPixel = left+width;
+		const wh = window.innerHeight, ww = window.innerWidth;
+
+		if( rightPixel > ww )
+			left += (ww-rightPixel);
+		if( bottomPixel > wh )
+			top += (wh-bottomPixel);
+		if( rightPixel < 0 )
+			rightPixel = 0;
+		if( bottomPixel < 0 )
+			bottomPixel = 0;
+
+		this.selectionbox.css({
+			left : left+"px",
+			top : top+"px",
+		});
+
 	}
 	// Binds clicks to all items set above
 	onSelectionBox( callback ){
