@@ -2880,21 +2880,26 @@ export default class UI{
 		}
 	}
 
-	onTooltipMouseover = (event) => {
+	onTooltipMouseover(event){
 		this.setTooltip(event.currentTarget);
 	}
 
-	onTooltipMouseout = () => {
+	onTooltipMouseout(){
 		this.setTooltip();
 	}
 
 	bindTooltips(){
 
+		const mo = event => this.onTooltipMouseover(event),
+			mu = event => this.onTooltipMouseout(event)
+		;
+
+
 		$(".tooltipParent")
-			.off('mouseover', this.onTooltipMouseover)
-			.off('mouseout', this.onTooltipMouseout)
-			.on('mouseover', this.onTooltipMouseover)
-			.on('mouseout', this.onTooltipMouseout);
+			.off('mouseover', mo)
+			.off('mouseout', mu)
+			.on('mouseover', mo)
+			.on('mouseout', mu);
 
 	}
 
