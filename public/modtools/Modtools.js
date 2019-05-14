@@ -3015,6 +3015,7 @@ export default class Modtools{
 			html += '<select name="asset_room">';
 				html += getDungeonRoomOptions(interaction.data.dungeon, interaction.data.index);
 			html += '</select>';
+			html += '<br />Travel time in seconds: <input type="number" name="asset_time" placeholder="Time in seconds" step=1 min=1 value="'+(Math.floor(interaction.data.time) || 60)+'" >';
 		}
 		else if( type === types.loot ){
 			
@@ -3116,6 +3117,9 @@ export default class Modtools{
 				}
 				else if( name === "asset_room" )
 					interaction.data.index = val;
+				else if( name === "asset_time" )
+					interaction.data.time = Math.floor(val) || 60;
+				
 			}
 			else if( itype === types.lever )
 				interaction.data.id = val;

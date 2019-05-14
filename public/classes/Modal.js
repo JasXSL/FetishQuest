@@ -158,6 +158,7 @@ export default class Modal{
 	}
 	// Adds an item to above menu, item is the name, tooltip gets put into a tooltip, and id gets put as data-id
 	addSelectionBoxItem( item, tooltip, id, classes = [], escape = true ){
+
 		let html = '';
 		html += '<div data-id="'+esc(id)+'" class="item '+(tooltip ? ' tooltipParent ' : '')+classes.join(' ')+'">';
 			if( escape )
@@ -169,6 +170,45 @@ export default class Modal{
 		html += '</div>';
 		this.selectionbox.append(html);
 
+		this.positionSelectionBox();
+
+	}
+
+	// Macro that prepares and setups a selection box with one form
+	makeSelectionBoxForm( html = '', callback = false, keepPosition = true ){
+		this.prepareSelectionBox(keepPosition);
+		this.addSelectionBoxItem( 
+			'<form>'+html+'</form>', 
+			'', '', ['form'], false 
+		);
+		const th = this;
+		$("div.item", this.selectionbox).off('click');
+		$("form", this.selectionbox).on('submit', function(event){
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			if( callback ){
+				th.closeSelectionBox();
+				callback.call(this, event);
+				
+			}
+		});
+		
+	}
+
+	// Binds clicks to all items set above
+	onSelectionBox( callback ){
+		$("div.item", this.selectionbox).on('click', callback);
+	}
+
+	closeSelectionBox(){
+		if( typeof this._onSelectionBoxClose === "function" ){
+			this._onSelectionBoxClose();
+			this._onSelectionBoxClose = null;
+		}
+		this.selectionbox.toggleClass('hidden', true);
+	}
+
+	positionSelectionBox(){
 		const pe = this.selectionbox;
 		const pos = pe.offset(),
 			width = pe.outerWidth(),
@@ -193,18 +233,6 @@ export default class Modal{
 			left : left+"px",
 			top : top+"px",
 		});
-
-	}
-	// Binds clicks to all items set above
-	onSelectionBox( callback ){
-		$("div.item", this.selectionbox).on('click', callback);
-	}
-	closeSelectionBox(){
-		if( typeof this._onSelectionBoxClose === "function" ){
-			this._onSelectionBoxClose();
-			this._onSelectionBoxClose = null;
-		}
-		this.selectionbox.toggleClass('hidden', true);
 	}
 
 }

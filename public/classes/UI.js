@@ -29,7 +29,12 @@ export default class UI{
 		this.multiCastPicker = $("#multiCastPicker");
 		this.roleplay = $("#roleplay");
 		this.tooltip = $("#tooltip");
-		
+		this.loadingScreen = $("#loading_screen");
+		this.loadingBar = $("> div.loadingBar > div.slider", this.loadingScreen);
+		this.loadingStatusText = $("> p > span", this.loadingScreen);
+		this.loadingMaxSteps = 0;	// Steps to load
+		this.yourTurn = $("#ui > div.yourTurnBadge");
+
 		// Active player has viable moves
 		this._has_moves = false;
 		this.visible = localStorage.ui_visible === undefined ? true : Boolean(+localStorage.ui_visible);	// main UI layer visible
@@ -219,6 +224,7 @@ export default class UI{
 
 		if( !player ){
 			this.action_selector.html('Spectating');
+			this.yourTurn.toggleClass('hidden', true);
 			return;
 		}
 
@@ -228,6 +234,8 @@ export default class UI{
 		;
 
 		const myTurn = game.getTurnPlayer().id === game.getMyActivePlayer().id || !game.battle_active;
+		this.yourTurn.toggleClass('hidden', !myTurn || !game.battle_active);
+
 
 		// Resources
 		html += '<div class="resources">';
@@ -1303,13 +1311,12 @@ export default class UI{
 		let target = this.parent.getPlayerById(targetID),
 			sender = this.parent.getPlayerById(attackerID);
 
-		
 		if( ~[gTypes.battleEnded, gTypes.encounterStarted].indexOf(evtType) )
 			acn.push('center');
 		else if( ~[gTypes.battleStarted].indexOf(evtType ) )
 			acn.push('center', 'battleStarted');
 		// RP texts (the big ones) have teams swapped 
-		else if( ~acn.indexOf('rpText') && sender ){
+		else if( ~acn.indexOf('rpText') && sender && evtType !== GameEvent.Types.turnChanged ){
 			if( sender.team !== 0 )
 				acn.push('enemy');
 			else
@@ -1918,6 +1925,26 @@ export default class UI{
 
 	}
 
+	drawAssetTradeTarget( asset, amount ){
+
+		const player = asset.parent;
+		const th = this;
+		// Draw a list of acceptable targets
+		const targets = game.getTeamPlayers( player.team ).filter(el => el.id !== player.id);
+		const modal = game.modal;
+		modal.prepareSelectionBox( true );
+		for( let target of targets )
+			modal.addSelectionBoxItem( target.name, '', target.id );
+		modal.onSelectionBox(function(){
+			const pid = $(this).attr("data-id");
+			if( game.tradePlayerItem( player.id, pid, asset.id, amount ) ){
+				th.drawPlayerInventory();
+			}
+			modal.closeSelectionBox();
+		});
+
+	}
+
 	// Draws inventory for active player
 	drawPlayerInventory(){
 		const player = game.getMyActivePlayer();
@@ -2032,7 +2059,6 @@ export default class UI{
 			else if( asset ){
 
 				const isHotbar = $(this).hasClass('equipmentSlot');
-				const hotbar_slot = $(this).attr('data-slot');
 				
 				const modal = game.modal;
 				modal.prepareSelectionBox();
@@ -2090,18 +2116,19 @@ export default class UI{
 					}
 					else if( task == 'trade' ){
 
-						// Draw a list of acceptable targets
-						const targets = game.getTeamPlayers( player.team ).filter(el => el.id !== player.id);
-						modal.prepareSelectionBox( true );
-						for( let target of targets )
-							modal.addSelectionBoxItem( target.name, '', target.id );
-						modal.onSelectionBox(function(){
-							const pid = $(this).attr("data-id");
-							if( game.tradePlayerItem( player.id, pid, asset.id ) ){
-								th.drawPlayerInventory();
-							}
-							modal.closeSelectionBox();
-						});
+						if( asset.stacking && asset._stacks > 1 ){
+							modal.makeSelectionBoxForm(
+								'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value=1 /><input type="submit" value="Ok" />',
+								function(){
+									const amount = Math.floor($("input:first", this).val());
+									if( !amount )
+										return;
+									th.drawAssetTradeTarget(asset, amount);
+								}
+							);
+							return;
+						}
+						th.drawAssetTradeTarget(asset);
 						return;
 
 					}
@@ -2853,8 +2880,8 @@ export default class UI{
 		}
 	}
 
-	onTooltipMouseover = event => {
-		this.setTooltip(event.target);
+	onTooltipMouseover = (event) => {
+		this.setTooltip(event.currentTarget);
 	}
 
 	onTooltipMouseout = () => {
@@ -3084,4 +3111,32 @@ export default class UI{
 			'<span class="content">'+esc(text)+'</span>'+
 		'</div>';
 	}
+
+
+	/* Loading bar */
+	toggleLoadingBar( maxSteps ){
+		
+		this.loadingScreen.toggleClass("hidden", !maxSteps);
+
+		if( maxSteps > 0 ){
+			this.loadingMaxSteps = +maxSteps;
+			this.setLoadingBarValue( 0 );
+		}
+		else{
+			this.loadingBar.css({width:0});
+		}
+
+	}
+
+	setLoadingBarValue( val ){
+		
+		if( !this.loadingMaxSteps )
+			return;
+		val = +val || 0;
+		const perc = val/this.loadingMaxSteps;
+		this.loadingStatusText.html('('+val+'/'+this.loadingMaxSteps+')');
+		this.loadingBar.css({'width': perc*100+'%'});
+
+	}
+
 }

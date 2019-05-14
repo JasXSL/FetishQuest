@@ -378,6 +378,31 @@ div.fxBuffBlue{
 	}
 /**/
 
+/* YOUR TURN*/
+	@keyframes yourTurnBadge{
+		from{box-shadow: 0 0 1vmax #DFD;}
+		to{box-shadow: 0 0 2vmax #FFF;}
+	}
+	#ui > div.yourTurnBadge{
+		position: absolute;
+		top:0; left:50%;
+		transform:translateX(-50%);
+		padding:0.5vmax 5vmax;
+		background:rgba(200,255,200,.5);
+		background: linear-gradient(to bottom, #9bea92 0%,#c4e8c0 100%);
+		color:#FFF;
+		border:0.2vmax solid #FFF;
+		border-bottom-left-radius: 1vmax;
+		border-bottom-right-radius: 1vmax;
+		border-top:none;
+		font-style: italic;
+		text-transform: capitalize;
+		font-size:3vmax;
+		animation: yourTurnBadge 1s ease-in-out alternate infinite;
+		text-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
+	}
+
+/**/
 
 /* Progress bars */
 	div.progressBar{
@@ -564,6 +589,16 @@ div.fxBuffBlue{
 	#selectionbox > div.item:hover{
 		background:rgba(255,255,255,.75);
 		cursor:pointer;
+	}
+	#selectionbox > div.item.form:hover{
+		background:rgba(255,255,255,.25);
+		cursor:default;
+	}
+	#selectionbox > div.item.form form{
+		margin:0; padding:0;
+	}
+	#selectionbox > div.item.form form input{
+		margin:0 0.2vmax;
 	}
 
 	/* Quest display */
@@ -1843,6 +1878,49 @@ div.fxBuffBlue{
 
 /**/
 
+
+/* Loading screen */
+	#loading_screen{
+		top:0;
+		width:100%;
+		height:100%;
+		position: absolute;
+		background:#000;
+	}
+	@keyframes loadingBarBorder{
+		from{border-color:#FFF;}
+		to{border-color:#54bdd2;}
+	}
+	#loading_screen > div.loadingBar{
+		width:50%;
+		height:0.5vmax;
+		position: absolute;
+		overflow: hidden;
+		left:50%; top:5%;
+		transform:translate(-50%, -50%);
+		border-radius: 0.25vmax;
+		background:#000;
+		animation: loadingBarBorder 0.5s alternate infinite ease-in-out;
+		pointer-events: none;
+	}
+	#loading_screen > div.loadingBar > div.slider{
+		height:100%;
+		position: absolute;
+		left:0;
+		width:0;
+		transition: width 1s ease-in-out;
+		background: linear-gradient(to bottom, #54bdd2 0%,#2a8cba 50%,#006eaa 51%,#2d9ccb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	}
+	#loading_screen > p{
+		position: absolute;
+		font-size:1vmax;
+		left:50%; top:7%;
+		transform:translate(-50%,-50%);
+		margin:0; padding:0;
+		vertical-align: middle;
+	}
+	
+/**/
 
 /* Quest accept */
 

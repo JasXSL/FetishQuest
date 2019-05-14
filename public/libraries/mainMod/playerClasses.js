@@ -231,7 +231,7 @@ const lib = {
         name : "Nethermancer",
         primaryStat : Player.primaryStats.intellect,
         svPhysical : 0,
-        svElemental : 2,
+        svElemental : 0,
         svHoly : -2,
         svCorruption : 3,
         bonPhysical : -2,

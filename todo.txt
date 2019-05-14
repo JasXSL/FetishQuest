@@ -1,9 +1,7 @@
 Needed other:
 Smol:	
 	- Credits page
-	- Loading screens
 	- Slow down the chats
-	- Ability to trade parts of a stack
 	- Add a your turn badge at the top of the screen
 
 Medium rare:
@@ -11,7 +9,6 @@ Medium rare:
 	- Improve character sheets
 		- Show what they're wearing
 	- Allow DM to set timeout
-	- Time
 
 Big chungi:
 	- Shop

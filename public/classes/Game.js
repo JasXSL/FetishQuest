@@ -42,6 +42,7 @@ export default class Game extends Generic{
 		this.roleplay = new Roleplay({completed:true}, this);
 		this.quests = [];								// Quest Objects of quests the party is on. 
 		this.net_load = false;							// Currently loading from network
+		this.time = 0;											// Time in seconds
 
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
@@ -100,6 +101,7 @@ export default class Game extends Generic{
 			roleplay : this.roleplay.save(full),
 			state_dungeons : Object.assign({},this.state_dungeons),
 			completed_quests : Object.assign({},this.completed_quests),	// A shallow clone is enough
+			time : this.time,
 		};
 		
 		if( full ){
@@ -397,6 +399,8 @@ export default class Game extends Generic{
 		this.ui.draw();
 		for( let player of this.players )
 			player.onCellChange();
+		this.addSeconds(30);
+		
 	}
 	// This one is raised both on host and client.
 	// It's only raised on coop after the turn is changed proper, if a player dies, they're likely skipped
@@ -407,6 +411,27 @@ export default class Game extends Generic{
 			this.uiAudio('turn_changed');
 	}
 
+
+
+
+	/* TIME */
+	addSeconds(seconds){
+		seconds = +seconds||0;
+		this.time += seconds;
+	}
+	addMinutes(minutes){
+		minutes = +minutes || 0;
+		this.time += minutes*60;
+	}
+	addHours(hours){
+		hours = +hours || 0;
+		this.time += hours*3600;
+	}
+	// returns a value between 0 and 1 from midnight to midnight
+	getDayPercentage(){
+		const day = 3600*24;
+		return (this.time%day)/day;
+	}
 
 
 
@@ -1057,7 +1082,7 @@ export default class Game extends Generic{
 	}
 
 	// Trades a player item
-	tradePlayerItem( fromPlayer, toPlayer, id ){
+	tradePlayerItem( fromPlayer, toPlayer, id, amount ){
 
 		if( typeof fromPlayer === 'string' )
 			fromPlayer = this.getPlayerById(fromPlayer);
@@ -1070,7 +1095,7 @@ export default class Game extends Generic{
 			return this.modal.addError("Not your player");
 		if( fromPlayer.team !== toPlayer.team )
 			return this.modal.addError("Invalid target");
-			if( fromPlayer.id === toPlayer.id )
+		if( fromPlayer.id === toPlayer.id )
 			return this.modal.addError("Can't trade with yourself");
 		if( this.battle_active )
 			return this.modal.addError("Can't trade in combat");
@@ -1080,19 +1105,26 @@ export default class Game extends Generic{
 		if( !asset )
 			return this.modal.addError("Asset not found");
 
+		if( amount > 1 && !asset.stacking )
+			return this.modal.addError("Trying to trade stack of nonstacking item");
+		if( asset.stacking && (amount > asset._stacks || amount < 1) )
+			return this.modal.addError("Invalid quantity");
+		
+
 		if( !this.is_host ){
-			this.net.playerTradeAsset(fromPlayer, toPlayer, asset);
+			this.net.playerTradeAsset(fromPlayer, toPlayer, asset, amount);
 			return;
 		}
 
 		if( asset.loot_sound )
 			this.playFxAudioKitById(asset.loot_sound, fromPlayer, toPlayer, undefined, true );
 		
-		game.ui.addText( fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName()+" their "+asset.name+"!", undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
+		let text = fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName()+(!amount || amount < 2 ? " their " : " "+amount+"x ")+asset.name+"!";
+		game.ui.addText( text, undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
 		
 
-		toPlayer.addAsset(asset);
-		fromPlayer.destroyAsset(asset.id);
+		toPlayer.addAsset(asset, amount, true);
+		fromPlayer.destroyAsset(asset.id, amount);
 		game.ui.draw();
 		this.save();
 		return true;
@@ -1455,6 +1487,7 @@ export default class Game extends Generic{
 			}
 				
 			this.onTurnChanged();
+			this.addSeconds(Math.round(30.0/this.players.length));
 			break;
 
 		}

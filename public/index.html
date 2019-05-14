@@ -68,6 +68,11 @@
 		})
 		.then(() => {
 			console.debug("Game initialized. Globals:\ngame = Active game\nglib = Game asset library\ng_Condition = Condition class\ng_Mod = Mod class\ng_GameEvent = GameEvent class\ng_Audio = Audio class");
+			if(window.location.hash !== "#debug"){
+				window.onbeforeunload = function() {
+					return true;
+				};
+			}
 		})
 		.catch(err => console.error(err));
 		
@@ -76,6 +81,12 @@
 
 	<div id="content">
 		<div id="renderer"></div>
+		<div id="loading_screen" class="hidden">
+			<div class="loadingBar">
+				<div class="slider"></div>
+			</div>
+			<p>LOADING <span class="loadState">(?/?)</span></p>
+		</div>
 		<div id="ui">
 			<div class="middle">
 				<div class="text">
@@ -83,6 +94,7 @@
 				</div>
 				<div class="chat" contenteditable></div>
 			</div>
+			<div class="yourTurnBadge" class="hidden">Your Turn</div>
 			<div class="players">
 				<div class="left"></div>
 				<div class="right"></div>

@@ -278,10 +278,13 @@ export default class GameAction extends Generic{
 			if( !dungeon )
 				return game.modal.addError("Dungeon not found");
 			const load = game.setDungeon(dungeon);
+			const time = Math.floor(this.data.time) || 60;
+			game.addSeconds(time);
 			if( !isNaN(this.data.index) ){
 				game.dungeon.previous_room = game.dungeon.active_room = +this.data.index;
 				//await game.dungeon.goToRoom( player, +this.data.index );
 			}
+
 			await load;
 		}
 
@@ -387,7 +390,7 @@ GameAction.types = {
 	loot : "loot",					// Staging: {assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger "open" and "open_idle" animations. When first opened, it gets converted to an array.
 	autoLoot : "aLoot",				// {val:(float)modifier} - This is replaced with "loot" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.
 	door : "door",					// {index:(int)room_index, no_exit:(bool)no_exit} - Door will automatically trigger "open" animation when successfully used. no_exit will prevent the exit door icon from being added
-	exit : "exit",					// {dungeon:(str)dungeon_label, index:(int)landing_room=0}
+	exit : "exit",					// {dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}
 	anim : "anim",					// {anim:(str)animation}
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
 	quest : "quest",				// {quest:(str/Quest)q} - Offers a quest

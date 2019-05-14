@@ -843,7 +843,8 @@ export default class Player extends Generic{
 
 
 	/* Assets */
-	addAsset( asset, amount = 1 ){
+	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
+	addAsset( asset, amount = 1, fromStacks = false ){
 		if( !asset ){
 			console.error("Invalid asset add", asset);
 			return false;
@@ -851,13 +852,18 @@ export default class Player extends Generic{
 		asset.equipped = false;
 
 		asset.onPlacedInWorld();
-		for( let i = 0; i<amount; ++i ){
+		for( let i = 0; i<amount && (!fromStacks || i<1); ++i ){
 			const exists = this.getAssetByLabel(asset.label);
+			let n = asset._stacks;
+			if( fromStacks )
+				n = amount;
 			if( asset.stacking && exists )
-				exists._stacks += asset._stacks;
-			else
-				this.assets.push(asset.clone(this));
-
+				exists._stacks += n;
+			else{
+				asset = asset.clone(this);
+				asset._stacks = n;
+				this.assets.push(asset);
+			}
 			if( asset.category === Asset.Categories.consumable ){
 				
 				if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 )
@@ -993,11 +999,15 @@ export default class Player extends Generic{
 		}
 		return out;
 	}
-	destroyAsset(id){
+	destroyAsset(id, amount){
 		for(let i in this.assets){
 			let asset = this.assets[i];
 			if(asset.id === id){
-				this.assets.splice(i, 1);
+				if( Math.floor(amount) && asset.stacking ){
+					asset._stacks -= amount;
+				}
+				if( !amount || !this.assets[i].stacking || asset._stacks <= 0 )
+					this.assets.splice(i, 1);
 				return true;
 			}
 		}
@@ -1135,7 +1145,10 @@ export default class Player extends Generic{
 
 	/* Leveling & Experience */
 	getExperienceUntilNextLevel(){
-		return Math.round(10+this.level*2+Math.pow(this.level,2.5));
+		if( this.level === 1 )
+			return 4;
+		
+		return Math.ceil(1+this.level*2+Math.pow(this.level,2.5));
 	}
 
 	// NPC kills

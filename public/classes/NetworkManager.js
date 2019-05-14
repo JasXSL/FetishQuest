@@ -535,7 +535,7 @@ class NetworkManager{
 			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID}
 			if( !args.from || !args.item || !args.to )
 				return;
-			game.tradePlayerItem( game.getPlayerById(args.from), game.getPlayerById(args.to), args.item );
+			game.tradePlayerItem( game.getPlayerById(args.from), game.getPlayerById(args.to), args.item, args.amount );
 
 		}
 		
@@ -794,11 +794,12 @@ class NetworkManager{
 			item : asset.id,
 		});
 	}
-	playerTradeAsset( fromPlayer, targetPlayer, asset ){
+	playerTradeAsset( fromPlayer, targetPlayer, asset, amount ){
 		this.sendPlayerAction(NetworkManager.playerTasks.tradeAsset, {
 			from : fromPlayer.id,
 			to : targetPlayer.id,
 			item : asset.id,
+			amount : amount
 		});
 	}
 
@@ -966,7 +967,7 @@ NetworkManager.playerTasks = {
 	useRepairAsset : 'useRepairAsset',	// {player:casterUUID, target:(str)targetUUID, repairKit:(str)playerRepairAssetUUID, asset:(str)assetToRepairID}
 	getFullGame : 'getFullGame',		// void - Request the full game from host. Useful if there's packet loss or desync
 	deleteAsset : 'deleteAsset',		// {player:(str)owner_id, item:(str)assetID}
-	tradeAsset : 'tradeAsset',			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID}
+	tradeAsset : 'tradeAsset',			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID, amount=all}
 	roleplayOption : 'roleplayOption',				// {player:playerUUID, option:(str)optionUUID}
 	roleplay : 'roleplay',				// {player:(str)sender_id, roleplay:(str)roleplay_id}
 

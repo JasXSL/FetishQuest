@@ -475,12 +475,14 @@ class WebGL{
 			this.load_after_load = true;
 			return false;
 		}
-		
-		
+				
 		this.loading = true;
 		this.stages.map(s => s.destructor());
 		this.stages = [];
 		this.cache_dungeon = game.dungeon.id;
+		const numRooms = game.dungeon.rooms.length;
+		game.ui.toggleLoadingBar(numRooms);
+		let i = 0;
 		for( let room of game.dungeon.rooms ){
 			let stage = new Stage( room, this );
 			this.stages.push(stage);
@@ -488,6 +490,7 @@ class WebGL{
 			await stage.draw();
 			this.execRender( true );
 			stage.toggle(false);
+			game.ui.setLoadingBarValue(++i);
 			if( this.load_after_load )
 				break;
 		}
@@ -499,7 +502,7 @@ class WebGL{
 			this.load_after_load = false;
 			return this.loadActiveDungeon();
 		}
-
+		game.ui.toggleLoadingBar();
 		
 
 	}

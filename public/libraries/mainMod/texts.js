@@ -3,6 +3,8 @@ import conditions from './conditions.js';
 import audioKits from './audioKits.js';
 import stdTag from '../stdTag.js';
 import Asset from '../../classes/Asset.js';
+import GameEvent from '../../classes/GameEvent.js';
+import Condition from '../../classes/Condition.js';
 const baseCond = ['actionHit', 'eventIsActionUsed'];
 const anyOnHumCond = baseCond.concat('targetNotBeast');
 const humOnHumCond = anyOnHumCond.concat('senderNotBeast');
@@ -13,7 +15,7 @@ const lib = [
 	// Turn changed
 	{ text : "%T's turn!",
 		conditions : [
-			{"type":"event","data":{"event":"turnChanged"}}
+			{"type":Condition.Types.event,"data":{"event":GameEvent.Types.turnChanged}}
 		],
 		alwaysAuto:true,
 		alwaysOutput:true,
