@@ -408,6 +408,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.door] : true,
 	[GameAction.types.loot] : true,
 	[GameAction.types.dungeonVar] : true,
+	[GameAction.types.lever] : true,
 };
 
 

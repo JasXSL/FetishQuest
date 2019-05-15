@@ -46,7 +46,7 @@ const lib = {
 		dominant : 0.8,
 		hetero : 0.5,
 		intelligence : 0.8,
-		stamina : 2,
+		stamina : 0,
 		class : 'MQ00_Boss',
 		assets : [
 			'mq00_boss_robe',

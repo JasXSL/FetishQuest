@@ -84,7 +84,7 @@ export default class UI{
 			return false;
 		});
 
-		$(document).on('keydown', event => {
+		$(document).off('keydown').on('keydown', event => {
 
 			if( event.target !== document.body )
 				return;
@@ -221,6 +221,7 @@ export default class UI{
 
 		if( !player )
 			player = game.getMyActivePlayer();
+
 
 		if( !player ){
 			this.action_selector.html('Spectating');

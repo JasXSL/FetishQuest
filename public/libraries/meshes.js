@@ -502,9 +502,10 @@ LibMesh.library = {
 						return;
 
 					// Hide if the dungeon asset is unlocked and doesn't have a way of opening it
-					if( !dungeonAsset.isLocked() ){
+					if( !dungeonAsset.isLocked() )
 						lock.position.y -= 160;
-					}
+					else
+						lock.position.y = 0;
 
 				},
 				onInteract : function( mesh, room, asset ){

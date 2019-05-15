@@ -872,7 +872,7 @@ export default class Player extends Generic{
 			}
 			else if( this.isNPC() ){
 
-				if( !this.getEquippedAssetsBySlots(asset.slots).length )
+				if( !this.getEquippedAssetsBySlots(asset.slots).length && asset.equippable() )
 					this.equipAsset(asset.id);
 
 			}
@@ -1158,10 +1158,12 @@ export default class Player extends Generic{
 
 	// adds experience and returns levels gained
 	addExperience( points ){
+		points = Math.round(points);
 		if( isNaN(points) ){
 			console.error("Trying to add NaN experience");
 			return false;
 		}
+
 		this.experience += Math.floor(points);
 		if( this.level === Player.MAX_LEVEL )
 			this.experience = 0;

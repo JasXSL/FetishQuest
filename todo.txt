@@ -1,8 +1,8 @@
 Needed other:
 Smol:	
+	- Friendly encounters need to be set to hostile when battle starts?
 	- Credits page
 	- Slow down the chats
-	- Add a your turn badge at the top of the screen
 
 Medium rare:
 	- Add small chat screen in the corner of the map that shows player chats only

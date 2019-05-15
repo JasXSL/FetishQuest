@@ -14,6 +14,7 @@ import stdTag from '../libraries/stdTag.js';
 import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
 import GameAction from './GameAction.js';
+import Collection from './helpers/Collection.js';
 
 export default class Game extends Generic{
 
@@ -46,8 +47,8 @@ export default class Game extends Generic{
 
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
-		this.state_dungeons = {};		// label : (obj)dungeonstate - See the dungeon loadstate/savestate. Dungeon stage is fetched from a method in Dungeon
-		this.completed_quests = {};		// label : {objective_label:true}
+		this.state_dungeons = new Collection();			// label : (obj)dungeonstate - See the dungeon loadstate/savestate. Dungeon stage is fetched from a method in Dungeon
+		this.completed_quests = new Collection();		// label : {objective_label:true}
 
 		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
 
@@ -99,8 +100,8 @@ export default class Game extends Generic{
 			encounter : this.encounter.save(full),
 			quests : this.quests.map(el => el.save(full)),
 			roleplay : this.roleplay.save(full),
-			state_dungeons : Object.assign({},this.state_dungeons),
-			completed_quests : Object.assign({},this.completed_quests),	// A shallow clone is enough
+			state_dungeons : this.state_dungeons.save(),
+			completed_quests : this.completed_quests.save(),	// A shallow clone is enough
 			time : this.time,
 		};
 		
@@ -214,6 +215,8 @@ export default class Game extends Generic{
 
 		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement);
 		
+		
+
 		// Make sure a dungeon exists
 		/*
 		if( !this.dungeon || !this.dungeon.rooms.length )
@@ -246,6 +249,8 @@ export default class Game extends Generic{
 		this.encounter = new DungeonEncounter(this.encounter, this);
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
+		this.state_dungeons = Collection.loadThis(this.state_dungeons);
+		this.completed_quests = Collection.loadThis(this.completed_quests);
 
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
@@ -278,8 +283,8 @@ export default class Game extends Generic{
 	// Wipes completed and active quests, and dungeon history
 	clearQuestAndDungeonHistory(){
 		this.quests = [];
-		this.completed_quests = {};
-		this.state_dungeons = {};
+		this.completed_quests = new Collection();
+		this.state_dungeons = new Collection();
 		this.save();
 	}
 
@@ -375,7 +380,7 @@ export default class Game extends Generic{
 			if( objective.isCompleted() )
 				objectives[objective.label] = 1;
 		}
-		this.completed_quests[quest.label] = objectives;
+		this.completed_quests.set(quest.label, objectives);
 	
 
 		this.save();
@@ -641,9 +646,9 @@ export default class Game extends Generic{
 		this.dungeon = dungeon;
 		game.dungeon.previous_room = game.dungeon.active_room = room;
 		if( resetSaveState )
-			delete this.state_dungeons[this.dungeon.label];
+			this.state_dungeons.unset(this.dungeon.label);
 		else
-			this.dungeon.loadState(this.state_dungeons[this.dungeon.label]);
+			this.dungeon.loadState(this.state_dungeons.get(this.dungeon.label));
 		this.updateAmbiance();
 		this.onDungeonEntered();
 		this.dungeon.onEntered();
@@ -654,11 +659,11 @@ export default class Game extends Generic{
 	}
 
 	saveDungeonState(){
-		this.state_dungeons[this.dungeon.label] = this.dungeon.saveState();
+		this.state_dungeons.set(this.dungeon.label, this.dungeon.saveState());
 	}
 
 	removeDungeonState( label ){
-		delete this.state_dungeons[label];
+		this.state_dungeons.unset(label);
 	}
 
 	canTransport( addError = true ){
@@ -754,7 +759,7 @@ export default class Game extends Generic{
 		}
 	}
 	removeQuestCompletion( label ){
-		delete this.completed_quests[label];
+		this.completed_quests.unset(label);
 	}
 
 
@@ -1119,7 +1124,7 @@ export default class Game extends Generic{
 		if( asset.loot_sound )
 			this.playFxAudioKitById(asset.loot_sound, fromPlayer, toPlayer, undefined, true );
 		
-		let text = fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName()+(!amount || amount < 2 ? " their " : " "+amount+"x ")+asset.name+"!";
+		let text = fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName()+(!asset.stacking ? " their " : " "+amount+"x ")+asset.name+"!";
 		game.ui.addText( text, undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
 		
 

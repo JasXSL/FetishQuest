@@ -25,6 +25,7 @@ import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import Roleplay from './Roleplay.js';
 import GameAction from './GameAction.js';
+import Collection from './helpers/Collection.js';
 
 //const always_chest = true;
 const always_chest = false;
@@ -47,7 +48,7 @@ class Dungeon extends Generic{
 		this.height = 0;			// Positive value of how many stories above the entrance we can go
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
 		this.difficulty = -1;		// Generally describes how many players this dungeon is for. -1 automatically sets it to nr friendly players
-		this.vars = {};				// Can be set and read programatically
+		this.vars = new Collection();				// Can be set and read programatically
 		this.consumables = [
 			'manaPotion', 'majorManaPotion',
 			'minorHealingPotion', 'healingPotion', 'majorHealingPotion',
@@ -68,6 +69,7 @@ class Dungeon extends Generic{
 	rebase(){
 		this.rooms = DungeonRoom.loadThese(this.rooms, this);
 		this.consumables = Asset.loadThese(this.consumables, this);
+		this.vars = Collection.loadThis(this.vars);
 	}
 
 	save( full ){
@@ -1914,23 +1916,13 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 					out.vars[id] = false;
 
+
 					// Success
 					addedAsset.interactions.push(
 						new GameAction({
-							type : GameAction.types.dungeonVar,
-							data : {id:id, data:id+"==false"}
+							type : GameAction.types.lever,
+							data : {id:id}
 						}, addedAsset),
-						// The dungeon var will have been flipped before these
-						new GameAction({
-							type : GameAction.types.anim,
-							conditions : [cond],	// This should only play if the lever is pressed
-							data : {anim:"open"},
-							break : "success",		// Break on success to prevent the open anim
-						}, addedAsset),
-						new GameAction({
-							type : GameAction.types.anim,
-							data : {anim:"close"}
-						}, addedAsset)
 					);
 					
 					doorInteraction.break = "fail";

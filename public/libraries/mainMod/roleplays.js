@@ -14,7 +14,7 @@ const lib = {
 				options : [
 					{text:'[Generate New]', index:0, game_actions:['generateDungeon'], chat:RoleplayStageOption.ChatType.none},
 					{text:'[Visit Dungeon]', index:-1, game_actions:['visitDungeon'], chat:RoleplayStageOption.ChatType.none},
-					{text:'[Cancel]', index:-1},
+					{text:'[Cancel]', index:-1, chat:RoleplayStageOption.ChatType.none},
 				],
 			}
 		]
