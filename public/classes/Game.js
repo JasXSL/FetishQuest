@@ -285,6 +285,7 @@ export default class Game extends Generic{
 		this.quests = [];
 		this.completed_quests = new Collection();
 		this.state_dungeons = new Collection();
+		console.log(this.state_dungeons);
 		this.save();
 	}
 
@@ -567,7 +568,7 @@ export default class Game extends Generic{
 		if( uuid === 'ooc' )
 			isOOC = true;
 
-		if( uuid !== "DM" && !isOOC && (!this.getPlayerById(uuid) || !this.playerIsMe(this.getPlayerById(uuid))) )
+		if( uuid !== "DM" && !isOOC && ((!this.getPlayerById(uuid) && !game.is_host) || !this.playerIsMe(this.getPlayerById(uuid))) )
 			return game.modal.addError("Player not yours: "+uuid);
 
 		if( !this.is_host )
@@ -645,8 +646,9 @@ export default class Game extends Generic{
 		}
 		this.dungeon = dungeon;
 		game.dungeon.previous_room = game.dungeon.active_room = room;
-		if( resetSaveState )
+		if( resetSaveState ){
 			this.state_dungeons.unset(this.dungeon.label);
+		}
 		else
 			this.dungeon.loadState(this.state_dungeons.get(this.dungeon.label));
 		this.updateAmbiance();
@@ -696,6 +698,11 @@ export default class Game extends Generic{
 
 	hasProceduralDungeon(){
 		return this.procedural_dungeon.label === '_procedural_';
+	}
+
+	makeDungeonEncounterHostile(){
+		this.encounter.friendly = false;
+		this.dungeon.getActiveRoom().makeEncounterHostile();
 	}
 
 

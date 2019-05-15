@@ -1,6 +1,5 @@
 Needed other:
 Smol:	
-	- Friendly encounters need to be set to hostile when battle starts?
 	- Credits page
 	- Slow down the chats
 

@@ -459,10 +459,11 @@ class DungeonRoom extends Generic{
 		const out = {
 			index : this.index
 		};
-
 		// Only save a started encounter
-		if( this.encounters instanceof DungeonEncounter && !this.encounters.completed )
+		if( this.encounters instanceof DungeonEncounter ){
 			out.encounter_complete = this.encounters.completed;
+			out.encounter_friendly = this.encounters.friendly;
+		}
 		
 		out.discovered = this.discovered;
 		out.assets = this.getGeneratedAssets().map(el => el.save(true));
@@ -473,8 +474,13 @@ class DungeonRoom extends Generic{
 	loadState( state ){
 
 		// If encounter is complete, set it to completed
-		if( state.encounter_complete )
+		if( state.encounter_complete ){
 			this.encounters = new DungeonEncounter();
+			this.encounters.completed = true;
+		}
+		if( state.encounter_friendly !== undefined && this.encounters instanceof DungeonEncounter ){
+			this.encounters.friendly = state.encounter_friendly;
+		}
 
 		if( state.discovered )
 			this.discovered = true;
@@ -507,7 +513,12 @@ class DungeonRoom extends Generic{
 		return out;
 	}
 
-
+	makeEncounterHostile( hostile = true ){
+		if( this.encounters instanceof DungeonEncounter ){
+			this.encounters.friendly = !hostile;
+			game.save();
+		}
+	}
 
 	/* ROOM CONNECTIONS */
 	// Returns an array of [X,Y,Z] which is the offset from this bearing
@@ -770,6 +781,7 @@ class DungeonRoom extends Generic{
 		dungeonRoomAsset.attachments = indexes;
 	}
 	
+	// Dungeon assets placed that are generated
 	getGeneratedAssets(){
 		
 		const out = [];

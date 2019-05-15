@@ -331,8 +331,13 @@ export default class GameAction extends Generic{
 
 		}
 
-		else if( this.type === types.toggleCombat )
+		else if( this.type === types.toggleCombat ){
+			let makeHostile = this.data.enc !== false;
+			if( makeHostile ){
+				game.makeDungeonEncounterHostile();
+			}
 			game.toggleBattle(this.data.on);
+		}
 		
 		else if( this.type === types.generateDungeon){
 			game.generateProceduralDungeon();
@@ -394,7 +399,7 @@ GameAction.types = {
 	anim : "anim",					// {anim:(str)animation}
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
 	quest : "quest",				// {quest:(str/Quest)q} - Offers a quest
-	toggleCombat : "toggleCombat",	// {on:(bool)combat} - Turns combat on or off
+	toggleCombat : "toggleCombat",	// {on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.
 	generateDungeon : "generateDungeon",	// {difficulty:(int)difficulty=#players} - Resets the active procedural dungeon and clears any procedural quests you've started
 	visitDungeon : "visitDungeon",			// {} - Visits the current procedurally generated dungeon
 	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object

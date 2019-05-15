@@ -1900,7 +1900,7 @@ div.fxBuffBlue{
 		transform:translate(-50%, -50%);
 		border-radius: 0.25vmax;
 		background:#000;
-		animation: loadingBarBorder 0.5s alternate infinite ease-in-out;
+		animation: loadingBarBorder 1s alternate infinite ease-in-out;
 		pointer-events: none;
 	}
 	#loading_screen > div.loadingBar > div.slider{
@@ -1908,7 +1908,7 @@ div.fxBuffBlue{
 		position: absolute;
 		left:0;
 		width:0;
-		transition: width 1s ease-in-out;
+		transition: width 0.5s ease-in-out;
 		background: linear-gradient(to bottom, #54bdd2 0%,#2a8cba 50%,#006eaa 51%,#2d9ccb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	}
 	#loading_screen > p{
