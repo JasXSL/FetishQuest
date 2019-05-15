@@ -467,6 +467,7 @@ class DungeonRoom extends Generic{
 		
 		out.discovered = this.discovered;
 		out.assets = this.getGeneratedAssets().map(el => el.save(true));
+		
 		out.id = this.parent.label+'_'+this.index;
 		return out;
 
@@ -486,8 +487,15 @@ class DungeonRoom extends Generic{
 			this.discovered = true;
 
 		if( Array.isArray(state.assets) ){
-			for( let asset of state.assets )
-				this.addAsset(asset, true);
+			for( let asset of state.assets ){
+				const cur = this.getAssetById(asset.id);
+				console.log("trying to find",asset.id, "in", this.assets );
+				console.log("loading", asset, cur);
+				if( cur )
+					cur.load(asset);
+				else
+					this.addAsset(new DungeonRoomAsset(asset, this), true);
+			}
 		}
 
 	}
@@ -948,7 +956,7 @@ class DungeonRoomAsset extends Generic{
 		this.parent = parentObj;
 		this.name = '';
 		this.model = '';		// Use . notation and select a model from libMeshes
-		this.generated = false;	// Whether this was generated through the game. Assets from a mod are not generated.
+		this.generated = false;	// Whether this was generated through the game or modified.
 		// In absolute mode these are absolute positions and rotations
 		// In normal mode, they're based on tiles
 		// Absolute objects are excempt from the tiling system in the generator
@@ -1005,10 +1013,11 @@ class DungeonRoomAsset extends Generic{
 			name : this.name,
 			room : this.room,
 			interactions : GameAction.saveThese(this.interactions, full),
-			rem_no_interact : this.rem_no_interact
+			rem_no_interact : this.rem_no_interact,
+			id : this.id,
 		};
 		if( full !== 'mod' ){
-			out.id = this.id;
+			
 		}	
 		else{
 			this.g_sanitizeDefaults(out);

@@ -5,7 +5,7 @@ import Generic from './helpers/Generic.js';
 import Condition from './Condition.js';
 import Asset from './Asset.js';
 import GameEvent from './GameEvent.js';
-import Dungeon, { DungeonEncounter } from './Dungeon.js';
+import Dungeon, { DungeonEncounter, DungeonRoomAsset } from './Dungeon.js';
 import Calculator from './Calculator.js';
 import Quest from './Quest.js';
 import Roleplay from './Roleplay.js';
@@ -213,6 +213,11 @@ export default class GameAction extends Generic{
 			}
 
 		}
+		else
+			return this;
+
+		if( this.parent instanceof DungeonRoomAsset )
+			this.parent.generated = true;
 
 		game.save();
 		return this;
