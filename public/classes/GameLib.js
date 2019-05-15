@@ -63,8 +63,8 @@ const load_order = [
 	'materialTemplates',
 	'assetTemplates',
 	
-	'gameActions',
 	'roleplay',
+	'gameActions',
 	'dungeonEncounters',
 	'dungeonRoomTemplates',
 	'dungeonTemplates',

@@ -39,7 +39,7 @@ export default class GameAction extends Generic{
 
 		if( full === "mod" )
 			out.label = this.label;
-		else if( full || GameAction.typesToSendOnline[this.type] ){
+		if( full || GameAction.typesToSendOnline[this.type] ){
 			out.data = this.flattenData(full);
 		}
 

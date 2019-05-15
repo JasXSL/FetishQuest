@@ -489,10 +489,10 @@ class DungeonRoom extends Generic{
 		if( Array.isArray(state.assets) ){
 			for( let asset of state.assets ){
 				const cur = this.getAssetById(asset.id);
-				console.log("trying to find",asset.id, "in", this.assets );
-				console.log("loading", asset, cur);
-				if( cur )
+				if( cur ){
 					cur.load(asset);
+					cur.generated = true;
+				}
 				else
 					this.addAsset(new DungeonRoomAsset(asset, this), true);
 			}
