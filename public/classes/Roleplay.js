@@ -17,6 +17,8 @@ export default class Roleplay extends Generic{
 		this.stages = [];			// Roleplay stages
 		this.player = '';
 		this.conditions = [];
+		
+		this._waiting = false;		// Waiting to change stage
 
 		this.load(data);
 
@@ -94,19 +96,31 @@ export default class Roleplay extends Generic{
 
 	}
 
-	setStage( index ){
+	setStage( index, delay=false ){
 
 		if( index === -1 ){
 			if( this.persistent )
 				this.completed = true;
 			game.clearRoleplay();
 		}
-		else
-			this.stage = index;
-
-		const stage = this.getActiveStage();
-		if( index > -1 && stage )
-			stage.onStart();
+		else{
+			let fn = () => {
+				const stage = this.getActiveStage();
+				this.stage = index;
+				if( index > -1 && stage )
+					stage.onStart();
+				game.ui.rpOptionSelected('');
+				game.ui.draw();
+				this._waiting = false;
+			};
+			if( delay ){
+				this._waiting = true;
+				setTimeout(fn, 1000);
+			}
+			else
+				fn();
+		}
+		
 
 	}
 
@@ -350,6 +364,8 @@ export class RoleplayStageOption extends Generic{
 
 		if( !this.validate(player) )
 			return false;
+		
+		
 
 		const rp = this.getRoleplay();
 		const pl = this.parent.getPlayer();
@@ -359,7 +375,9 @@ export class RoleplayStageOption extends Generic{
 		for( let act of this.game_actions )
 			act.trigger(player, pl);
 
-		rp.setStage(this.index);
+		game.ui.rpOptionSelected(this.id);
+		game.net.dmRpOptionSelected(this.id);
+		rp.setStage(this.index, true);
 		
 		return true;
 

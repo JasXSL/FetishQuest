@@ -1031,10 +1031,14 @@ div.fxBuffBlue{
 		background: rgba(100,100,100,.75);
 		cursor:pointer;
 	}
+	#roleplay div.responses > div.option.selected, #roleplay div.responses > div.option.selected:hover{
+		border-color:#FFF;
+		background: rgba(100,150,255,.75);
+	}
 	#roleplay div.responses > div.option:hover{
 		background: rgba(50,100,150,.75);
 	}
-	
+/*/
 
 
 /* Game Icons (bottom bar) */

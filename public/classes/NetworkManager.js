@@ -672,6 +672,9 @@ class NetworkManager{
 
 		}
 
+		else if( task === NetworkManager.dmTasks.dmRpOptionSelected ){
+			game.ui.rpOptionSelected(args.id);
+		}
 
 
 	}
@@ -816,7 +819,7 @@ class NetworkManager{
 		});
 	}
 	
-
+	
 	
 
 
@@ -936,6 +939,12 @@ class NetworkManager{
 		}); 
 	}
 
+	dmRpOptionSelected( id ){
+		this.sendHostTask(NetworkManager.dmTasks.dmRpOptionSelected, {
+			id : id
+		}); 
+	}
+
 }
 
 // Send tasks from DM to player
@@ -952,7 +961,7 @@ NetworkManager.dmTasks = {
 	raiseInteractOnMesh : 'raiseInteractOnMesh',	// {dungeonAsset:(str)dungeonAsset_uuid} - Triggers the mesh template onInteract function on a dungeon asset
 	hitfx : 'hitfx',								// {fx:hitfx, caster:(str)casterID, recipients:(arr)recipients, armor_slot:(str)armor_slot} - Triggers a hitfx
 	questAccepted : 'questAccepted',				// {head:(str)head_text, body:(str)body_text} - Draws the questStart info box. Also used for quest completed and other things
-	
+	dmRpOptionSelected : 'rpOptionSelected', 		// {id:(str)id} - An RP option has been selected, send it
 };
 
 // Player -> DM
@@ -970,7 +979,6 @@ NetworkManager.playerTasks = {
 	tradeAsset : 'tradeAsset',			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID, amount=all}
 	roleplayOption : 'roleplayOption',				// {player:playerUUID, option:(str)optionUUID}
 	roleplay : 'roleplay',				// {player:(str)sender_id, roleplay:(str)roleplay_id}
-
 };
 
 export default NetworkManager;

@@ -28,6 +28,7 @@ export default class UI{
 		this.netgamePlayers = $("#netgamePlayers");
 		this.multiCastPicker = $("#multiCastPicker");
 		this.roleplay = $("#roleplay");
+		this.selected_rp = '';	// ID of selected roleplay option
 		this.tooltip = $("#tooltip");
 		this.loadingScreen = $("#loading_screen");
 		this.loadingBar = $("> div.loadingBar > div.slider", this.loadingScreen);
@@ -2808,29 +2809,39 @@ export default class UI{
 		const div = this.roleplay;
 		const stage = roleplay.getActiveStage();
 		const player = game.getMyActivePlayer();
-
 		if( !roleplay.completed && stage ){
 			
 			$("div.portrait", div).html(stage.icon ? '<img src="media/characters/'+esc(stage.icon)+'.png"' : '');
 			$('> div.left', div).toggleClass('hidden', !stage.icon);
 			$("div.text", div).html('<span class="name">'+stylizeText(stage.getName())+'</span><br />'+esc(stage.text));
 			let html = '';
+			let sel = false;
 			for( let response of stage.options ){
+				let s = response.id === this.selected_rp;
+				if( s )
+					sel = true;
 				if( response.validate(game.getMyActivePlayer()) )
-					html += '<div class="option bg" data-id="'+esc(response.id)+'">'+esc(response.text)+'</div>';
+					html += '<div class="option bg'+(sel ? ' selected' : '')+'" data-id="'+esc(response.id)+'">'+esc(response.text)+'</div>';
 			}
+			
 			$("div.responses", div).html(html);
-			$("div.responses div.option[data-id]").on('click', event => {
-				const el = $(event.target);
-				game.useRoleplayOption(game.getMyActivePlayer(), el.attr('data-id'));
-			});
+			if( !sel ){
+				this.selected_rp = '';
+				$("div.responses div.option[data-id]").on('click', event => {
+					const el = $(event.target);
+					game.useRoleplayOption(game.getMyActivePlayer(), el.attr('data-id'));
+				});
+			}
 
 		}
 		
 		div.toggleClass('hidden', roleplay.completed || !player || player.team !== 0);
 		
 	}
-
+	rpOptionSelected( id ){
+		this.selected_rp = id;
+		this.drawRoleplay();
+	}
 
 
 

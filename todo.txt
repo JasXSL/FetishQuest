@@ -2,11 +2,13 @@ Needed other:
 Smol:	
 	- Credits page
 	- Slow down the chats
+	- 
 
 Medium rare:
 	- Add small chat screen in the corner of the map that shows player chats only
 	- Improve character sheets
 		- Show what they're wearing
+		- Remove tags
 	- Allow DM to set timeout
 
 Big chungi:
