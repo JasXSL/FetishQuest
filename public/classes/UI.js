@@ -1683,20 +1683,20 @@ export default class UI{
 	// Netgame settings
 	drawNetSettings(){
 
-		let html = '';
+		let html = '<div class="infoBox centered">';
 		if( game.net.isConnected() && game.initialized && game.is_host ){
 			html += 'Share the invite code or direct invite URL to invite a player to your game:<br /><div class="netgameLink">'+esc(game.net.public_id)+'</div>';
 			html += '<div class="netgameLink">'+esc('https://'+window.location.hostname+'/#net/'+game.net.public_id)+'</div>';
 		}
 
 		else if( !game.net.isConnected() && game.initialized && game.is_host ){
-			html += '<div class="infoBox centered">';
-				html += '<h1>Put Session Online</h1>';
-				html += '<p>If you want, you can put this session online and invite your friends.</p>';
-				html += '<input type="button" class="blue" name="hostGame" value="Put This Session Online" /><br />';
-			html += '</div>';
+			html += '<h1>Put Session Online</h1>';
+			html += '<p>If you want, you can put this session online and invite your friends.</p>';
+			html += '<input type="button" class="blue" name="hostGame" value="Put This Session Online" /><br />';
 		}
+
 		if( game.net.isConnected() ){
+
 			html += '<input type="button" class="red" name="disconnect" value="Disconnect" />';
 
 			html += '<h3>Connected players</h3>';
@@ -1704,8 +1704,13 @@ export default class UI{
 			for( let player of game.net.players )
 				html+= '<div class="netgame player">'+esc(player.name)+'</div>';
 
+			if( game.is_host ){
+				html += '<label>Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" '+(+localStorage.turnTimer ? 'checked' : '')+' /></label>';
+			}
+
 		}
 
+		html += '</div>';
 		game.modal.set(html);
 
 		$("#modal input[name=disconnect]").on('click', async () => {
@@ -1716,6 +1721,11 @@ export default class UI{
 		$("#modal input[name=hostGame]").on('click', async () => {
 			await game.net.hostGame();
 			this.drawNetSettings();
+		});
+
+		$("#modal input.enableTurnTimer").on('click', event => {
+			localStorage.turnTimer = +$(event.currentTarget).is(':checked');
+			game.onTurnTimerChanged();
 		});
 
 		this.bindTooltips();

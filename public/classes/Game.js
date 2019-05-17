@@ -71,6 +71,9 @@ export default class Game extends Generic{
 		this.my_player = localStorage.my_player;
 
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
+
+		this._turn_timer = false;						// Timeout handling end of turn
+
 	}
 
 	destructor(){
@@ -195,14 +198,14 @@ export default class Game extends Generic{
 		if( this.is_host )
 			game.players.map(pl => pl.initialize());
 
-		if( !this.roleplay.persistent && this.is_host )
-			this.clearRoleplay();
+		
 		
 		await glib.autoloadMods();
 		glib.setCustomAssets(this.libAsset);
 
 		this.ui.draw();
-		
+		if( !this.roleplay.persistent && this.is_host )
+			this.clearRoleplay();
 
 		// Load the chat log
 		let log = this.chat_log.slice();
@@ -412,10 +415,14 @@ export default class Game extends Generic{
 	// This one is raised both on host and client.
 	// It's only raised on coop after the turn is changed proper, if a player dies, they're likely skipped
 	onTurnChanged(){
-		if( this.playerIsMe(this.getTurnPlayer(), true) )
+		const tp = this.getTurnPlayer();
+		if( this.playerIsMe(tp, true) )
 			this.uiAudio('your_turn', 1);
 		else
 			this.uiAudio('turn_changed');
+
+		this.setTurnTimer();
+
 	}
 
 
@@ -442,6 +449,40 @@ export default class Game extends Generic{
 
 
 
+	/* Turn timer */
+	onTurnTimerChanged(){
+		if( !this.turnTimerEnabled() )
+			this.endTurnTimer();
+		else if( !this._turn_timer )
+			this.setTurnTimer();
+	}
+
+	endTurnTimer(){
+		clearTimeout(this._turn_timer);
+		this._turn_timer = false;
+	}
+
+	turnTimerEnabled(){
+		const tt = +localStorage.turnTimer,
+			tp = this.getTurnPlayer();
+		console.log("Check", tt, this.is_host, this.net.isConnected(), this.battle_active, tp, !tp.isNPC() );
+		return ( tt && this.is_host && this.net.isConnected() && this.battle_active && tp && !tp.isNPC() );
+	}
+
+	setTurnTimer(){
+
+		if( !this.turnTimerEnabled() )
+			return;
+
+		this.endTurnTimer();
+		this._turn_timer = setTimeout(() => {
+			console.log("Give 10 second warning");
+			this._turn_timer = setTimeout(() => {
+				this.advanceTurn();
+			}, 10000);
+		}, 10000);
+
+	}
 
 
 
@@ -1352,6 +1393,7 @@ export default class Game extends Generic{
 		}
 		else{
 
+			this.endTurnTimer();
 			for( let pl of this.players )
 				pl.onBattleEnd();
 
@@ -1449,6 +1491,8 @@ export default class Game extends Generic{
 
 	// Advances turn
 	advanceTurn(){
+
+		this.endTurnTimer();
 
 		const th = this;
 		const prepAutoPlay = function( npl ){

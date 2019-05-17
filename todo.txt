@@ -1,9 +1,10 @@
 Needed other:
 Smol:	
 	- Credits page
+	- Change the my turn thing so a green border flashes around the screen when it's your turn
 
 Medium rare:
-	- Allow DM to set timeout
+	- Add a turn timer ribbon that takes 10 sec to fade
 
 Big chungi:
 	- Shop

@@ -43,6 +43,7 @@ class NetworkManager{
 		this.io.on('connect', () => {
 			console.debug("Server connection established");
 			clearTimeout(this.timer_reconnect);
+			game.onTurnTimerChanged();
 		});
 
 		// Host left
@@ -155,6 +156,7 @@ class NetworkManager{
 			await Game.load();
 		game.ui.drawMainMenu();
 		game.ui.draw();
+		game.onTurnTimerChanged();
 
 	}
 
