@@ -15,6 +15,10 @@ body, html{
 	display: none !important;
 }
 
+.centered, .center{
+	text-align: center;
+}
+
 a{
 	font-weight:bold;
 	color:#DDF;
@@ -33,6 +37,8 @@ input, textarea, select{
 input[type=text], input[type=number], textarea{
 	width:100%;
 }
+
+
 
 #gameIcons > div > div.rollout.visible,
 div.gameListing,
@@ -1243,7 +1249,27 @@ div.fxBuffBlue{
 
 /**/
 
+/* Mini chat */
+	#mapChat{
+		position: absolute;
+		top:0; right:0;
+		width: 30%;
+		height:100%;
+		pointer-events: none;
+		overflow:hidden;
+	}
+	#mapChat > div.line{
+		font-size:1.5vmax;
+		transition:opacity 2s ease-in;
+		padding:0.25vmax 1vmax;
+		background:rgba(0,0,0,.25);
+		margin-bottom:1px;
+	}
+	#mapChat > div.line.fade{
+		opacity:0;
+	}
 
+/**/
 
 
 
@@ -1907,7 +1933,7 @@ div.fxBuffBlue{
 		left:50%; top:5%;
 		transform:translate(-50%, -50%);
 		border-radius: 0.25vmax;
-		background:#000;
+		background:#359;
 		animation: loadingBarBorder 1s alternate infinite ease-in-out;
 		pointer-events: none;
 	}

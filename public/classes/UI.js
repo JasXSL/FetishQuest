@@ -35,6 +35,7 @@ export default class UI{
 		this.loadingStatusText = $("> p > span", this.loadingScreen);
 		this.loadingMaxSteps = 0;	// Steps to load
 		this.yourTurn = $("#ui > div.yourTurnBadge");
+		this.mapChat = $("#mapChat");
 
 		// Active player has viable moves
 		this._has_moves = false;
@@ -191,7 +192,7 @@ export default class UI{
 	toggle( visible ){
 
 		if( visible !== undefined )
-			this.visible = !!visible;
+			this.visible = Boolean(visible);
 		else
 			this.visible = !this.visible;
 		localStorage.ui_visible = +this.visible;
@@ -199,6 +200,8 @@ export default class UI{
 		this.board.toggleClass('hidden', !this.visible);
 		$("[data-id=map]", this.gameIcons).toggleClass("highlighted", this.visible);
 		$("#mainMenuToggle div[data-id=map]").toggleClass("highlighted", this.visible);
+		
+		this.mapChat.toggleClass("hidden", this.visible);
 
 	}
 
@@ -1313,6 +1316,8 @@ export default class UI{
 		let target = this.parent.getPlayerById(targetID),
 			sender = this.parent.getPlayerById(attackerID);
 
+		
+
 		if( ~[gTypes.battleEnded, gTypes.encounterStarted].indexOf(evtType) )
 			acn.push('center');
 		else if( ~[gTypes.battleStarted].indexOf(evtType ) )
@@ -1340,16 +1345,29 @@ export default class UI{
 		if( ~acn.indexOf('sided') )
 			txt = '<div class="sub">'+txt+'</div>';
 
+		const line = '<div class="line '+esc(acn.join(' '))+'">'+txt+'</div>';
 		if( ~acn.indexOf('playerChat') && game.initialized ){
+
 			game.uiAudio( 'chat_message' );
 			if( acn.indexOf('emote') === -1 ){
 				let bubble = text.split(':');
 				bubble.shift();
 				this.addSpeechBubble(sender, stylizeText(bubble.join(':').trim()));
 			}
+
+
+			let l = $(line);
+			this.mapChat.prepend(l);
+			setTimeout(() => {
+				l.toggleClass("fade", true);
+				setTimeout(() => {
+					l.remove();
+				}, 2000);
+			}, 10000);
+
 		}
 	
-		this.text.append('<div class="line '+esc(acn.join(' '))+'">'+txt+'</div>');
+		this.text.append(line);
 		while($("> div", this.text).length > Game.LOG_SIZE)
 			$("> div:first", this.text).remove();
 		this.text.scrollTop(this.text.prop("scrollHeight"));
@@ -1672,7 +1690,7 @@ export default class UI{
 		}
 
 		else if( !game.net.isConnected() && game.initialized && game.is_host ){
-			html += '<div class="infoBox">';
+			html += '<div class="infoBox centered">';
 				html += '<h1>Put Session Online</h1>';
 				html += '<p>If you want, you can put this session online and invite your friends.</p>';
 				html += '<input type="button" class="blue" name="hostGame" value="Put This Session Online" /><br />';
