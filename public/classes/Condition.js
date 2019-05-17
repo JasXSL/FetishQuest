@@ -10,6 +10,7 @@ import Generic from './helpers/Generic.js';
 import Calculator from './Calculator.js';
 import GameEvent from './GameEvent.js';
 import stdTag from '../libraries/stdTag.js';
+import Action from './Action.js';
 export default class Condition extends Generic{
 	
 	// Parent varies based on the object that created this
@@ -408,9 +409,9 @@ export default class Condition extends Generic{
 				success = event.dungeon && event.dungeon.vars[this.data.id] === this.data.data;
 			}
 
-			else if( this.type === T.actionRanged )
-				success = event.action && event.action.ranged;
-
+			else if( this.type === T.actionRanged ){
+				success = event.action && event.action.ranged === Action.Range.Ranged;
+			}
 			else{
 				game.modal.addError("Unknown condition "+String(this.type));
 				return false;

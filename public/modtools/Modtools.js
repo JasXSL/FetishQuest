@@ -851,7 +851,7 @@ export default class Modtools{
 					asset.level,
 					asset.max_targets,
 					asset.min_targets,
-					asset.ranged ? 'X' : '',
+					asset.ranged,
 					asset.target_type,
 					asset.type,
 				];
@@ -1453,7 +1453,12 @@ export default class Modtools{
 			html += 'Type: '+this.inputActionType(asset.type)+'<br />';
 			html += 'Target Type: '+this.inputTargetType(asset.target_type, 'target_type')+'<br />';
 			html += '<label>Detrimental: <input type="checkbox" name="detrimental" '+(asset.detrimental ? 'checked' : '')+' /></label><br />';
-			html += '<label>Ranged: <input type="checkbox" name="ranged" '+(asset.ranged ? 'checked' : '')+' /></label><br />';
+			html += '<label>Range: '+
+				'<label><input type="radio" name="ranged" value="'+Action.Range.None+'" '+(asset.ranged === Action.Range.None ? 'checked' : '')+' /> N/A</label>'+
+				'<label><input type="radio" name="ranged" value="'+Action.Range.Melee+'" '+(asset.ranged === Action.Range.Melee ? 'checked' : '')+' /> Melee</label>'+
+				'<label><input type="radio" name="ranged" value="'+Action.Range.Ranged+'" '+(asset.ranged === Action.Range.Ranged ? 'checked' : '')+' /> Ranged</label>'+
+				'<br />'	
+			;
 			html += '<textarea name="description">'+esc(asset.description)+'</textarea><br />';
 			html += 'Level: <input required type="number" min=1 step=1 name="level" value="'+esc(asset.level)+'" /><br />';
 			html += 'AP: <input required type="number" min=0 step=1 name="ap" value="'+esc(asset.ap)+'" />';
@@ -1490,7 +1495,7 @@ export default class Modtools{
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
 			saveAsset.target_type = $("select[name=target_type]", form).val().trim();
 			saveAsset.detrimental = $("input[name=detrimental]", form).is(':checked');
-			saveAsset.ranged = $("input[name=ranged]", form).is(':checked');
+			saveAsset.ranged = +$("input[name=ranged]:checked", form).val();
 			saveAsset.level = +$("input[name=level]", form).val();
 			saveAsset.ap = +$("input[name=ap]", form).val();
 			saveAsset.mp = +$("input[name=mp]", form).val();

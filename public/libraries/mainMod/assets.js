@@ -2,6 +2,7 @@ import Asset from "../../classes/Asset.js";
 import stdTag from "../stdTag.js";
 import { Wrapper, Effect } from "../../classes/EffectSys.js";
 import GameEvent from "../../classes/GameEvent.js";
+import Action from "../../classes/Action.js";
 
 const lib = {
 
@@ -107,7 +108,6 @@ const lib = {
 			tags : [
 
 			],
-			"ranged":false,
 			"conditions":[
 
 			],
@@ -176,7 +176,6 @@ const lib = {
 			tags : [
 
 			],
-			"ranged":false,
 			"conditions":[
 
 			],
@@ -273,8 +272,10 @@ const lib = {
 		icon : 'potion-ball',
 		loot_sound : "lootPotion",
 		slots : [Asset.Slots.action],
+		ranged : Action.Range.None,
 	},
 	healingPotion : {
+		ranged : Action.Range.None,
 		category : Asset.Categories.consumable,
 		name : "Healing Potion",
 		weight : 500,
@@ -295,6 +296,7 @@ const lib = {
 		icon : 'potion-ball',
 		slots : [Asset.Slots.action],
 		loot_sound : "lootPotion",
+		ranged : Action.Range.None,
 	},
 	manaPotion : {
 		category : Asset.Categories.consumable,
@@ -306,6 +308,7 @@ const lib = {
 		icon : 'spiral-bottle',
 		slots : [Asset.Slots.action],
 		loot_sound : "lootPotion",
+		ranged : Action.Range.None,
 	},
 	majorManaPotion : {
 		category : Asset.Categories.consumable,
@@ -317,6 +320,7 @@ const lib = {
 		icon : "spiral-bottle",
 		slots : [Asset.Slots.action],
 		loot_sound : "lootPotion",
+		ranged : Action.Range.None,
 	},
 
 	food_RazzyBerry : {
@@ -329,6 +333,7 @@ const lib = {
 		rarity : 0,
 		loot_sound : "berryGrab",
 		icon : 'grapes',
+		ranged : Action.Range.None,
 	},
 
 	whiteSwimtrunks : {

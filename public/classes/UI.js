@@ -1781,20 +1781,88 @@ export default class UI{
 		if( !player || player.constructor !== Player )
 			return;
 
+		// IT BEGINS
 		let html = '<div class="playerInspector">';
 
+			// LEFT SIDE
 			html += '<div class="left">'+
+				// Name
 				'<h3>'+esc(player.name)+'</h3>'+
+				// Level, species, class
 				'<em>Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name)+'</em>'+
+				// Exp bar
 				(player.level < Player.MAX_LEVEL ? this.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()) : '')+
-				'<em>'+esc(player.description)+'</em><br />'+
+				// Description
+				'<p style="text-align:center"><em>'+(player.description.trim() ? esc(player.description) : 'No description')+'</em></p>'+
+				// Edit player button
 				'<br />'+(game.is_host ? '<input type="button" class="editPlayer yellow devtool" value="Edit Player" /> ' : '');
-				
+				// Delete button
 				if(game.is_host)
 					html += '<input type="button" class="red devtool" value="Delete" />';
 				html += '<br />';
+
+
+				html += '<h3>Equipment</h3>';
+				const slots = [
+					Asset.Slots.lowerbody,
+					Asset.Slots.upperbody,
+					Asset.Slots.trinket,
+					Asset.Slots.action,
+					Asset.Slots.hands
+				];
+				html += '<div class="inventory characterSheet">';
+				const existing_assets = {};	// id:true
+				for( let slot of slots ){
+					const assets = player.getEquippedAssetsBySlots(slot, true);
+					for( let asset of assets ){
+						if( existing_assets[asset.id] )
+							continue;
+						existing_assets[asset.id] = true;
+
+						html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item">'+
+							'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" />'+
+							'<div class="tooltip">'+asset.getTooltipText()+'</div>'+
+						'</div>';
+					}
+					
+				}
+				html += '</div>';
+					
+
+				// Only host can see actions, and only when dm tools are enabled
+				if( game.is_host ){
+					
+					html += '<div class="devtool">';
+						html += '<h3>Actions</h3>';
+						html += '<div class="actions">';
+						let actions = player.getActions( false );
+						for( let ability of actions ){
+							if( ability.hidden || ability.semi_hidden )
+								continue;
+							html+= '<div class="action tooltipParent'+(ability.label.substr(0,3) === 'std' ? ' noDelete' : '')+'" data-id="'+esc(ability.id)+'">';
+								html+= esc(ability.name);
+								html+= '<div class="tooltip actionTooltip">';
+									html += ability.getTooltipText();
+								html += '</div>';
+							html+= '</div>';
+						}
+						html += '</div>';
+					html += '</div>';
+
+					html += '<input type="button" value="+ Learn Action" class="addAction blue devtool" />';
+
+				}
+
 				
 
+			html += '</div>';
+
+			// RIGHT SIDE, MANY WHELPS
+			html += '<div class="right">'+
+				// Image
+				'<img src="'+esc(player.icon)+'" class="inspect_icon" />';
+
+				// Primary stats
 				html += '<h3 style="text-align:center">Primary Stats</h3>';
 				let stats = player.getPrimaryStats();
 				html += '<div class="flexThreeColumns">';
@@ -1812,6 +1880,7 @@ export default class UI{
 				}
 				html += '</div>';
 
+				// Proficiencies
 				html += '<h3 style="text-align:center">Proficiency</h3>';
 				html += '<div class="flexAuto">';
 				let s = [];
@@ -1830,6 +1899,7 @@ export default class UI{
 					html += '<div class="tag" title="'+esc(Action.TypeDescriptions[stat.type])+'">'+stat.val+' '+esc(stat.type.substr(0,6))+(stat.type.length>6 ? '.' : '')+'</div>';
 				html += '</div>';
 
+				// Avoidances
 				html += '<h3 style="text-align:center">Avoidance</h3>';
 				html += '<div class="flexAuto">';
 				s = [];
@@ -1848,37 +1918,8 @@ export default class UI{
 					html += '<div class="tag" title="Grants you a chance to resist detrimental '+esc(stat.type)+' effects based on the caster\'s '+esc(stat.type)+' proficiency.">'+stat.val+' '+esc(stat.type.substr(0,6))+(stat.type.length>6 ? '.' : '')+'</div>';
 				html += '</div>';
 				
-				
-
-				// Draw actions
-				html += '<h3>Actions</h3>';
-				html += '<div class="actions">';
-				let actions = player.getActions( false );
-				for( let ability of actions ){
-					if( ability.hidden || ability.semi_hidden )
-						continue;
-					html+= '<div class="action tooltipParent'+(ability.label.substr(0,3) === 'std' ? ' noDelete' : '')+'" data-id="'+esc(ability.id)+'">';
-						html+= esc(ability.name);
-						html+= '<div class="tooltip actionTooltip">';
-							html += ability.getTooltipText();
-						html += '</div>';
-					html+= '</div>';
-				}
-				html += '</div>';
-
-				if( game.is_host )
-					html += '<input type="button" value="+ Learn Action" class="addAction blue devtool" />';
-
-				
-
-			html += '</div>';
-
-			// Right side
-			html += '<div class="right">'+
-				// Image
-				'<img src="'+esc(player.icon)+'" class="inspect_icon" />';
-				
 				// Tags
+				/*
 				html += '<div class="devtool">';
 					html += '<h3>Active Tags</h3>';
 					html += '<div class="flexAuto">';
@@ -1887,6 +1928,7 @@ export default class UI{
 							html += '<div class="tag">'+esc(tag)+'</div>';
 					html += '</div>';
 				html += '</div>';
+				*/
 			html += '</div>';
 
 
@@ -1958,7 +2000,7 @@ export default class UI{
 		let html = '';
 		html+= '<div class="inventory flexTwoColumns">';
 
-			let slots = [
+			const slots = [
 				{slot:Asset.Slots.upperbody, icon:'breastplate'},
 				{slot:Asset.Slots.lowerbody, icon:'armored-pants'},
 				{slot:Asset.Slots.hands, icon:'crossed-swords'}

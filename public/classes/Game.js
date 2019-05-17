@@ -145,6 +145,7 @@ export default class Game extends Generic{
 	async execSave( allowInsert, ignoreNetGame ){
 
 		if( !this.initialized && !allowInsert ){
+			console.error("ini error");
 			game.modal.addError("Unable to save, game failed to intialize");
 			return false;
 		}

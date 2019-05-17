@@ -510,6 +510,10 @@ div.fxBuffBlue{
 	#modal div.inventory{
 		padding:5% 5%;
 	}
+	#modal div.inventory.characterSheet{
+		padding:0;
+		text-align: center;
+	}
 	#modal div.inventory div.item.list,
 	#modal div.actions div.action.list{
 		display:inline-block;

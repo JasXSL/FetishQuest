@@ -272,7 +272,7 @@ export default class Asset extends Generic{
 		// Usable items shows the action tooltip instead
 		if( this.isConsumable() ){
 
-			html += this.use_action.getTooltipText();
+			html += this.use_action.getTooltipText(0, this.rarity);
 			return html;
 
 		}
@@ -523,7 +523,6 @@ Asset.Slots = {
 	none : "",
 	upperbody : "upperbody",
 	lowerbody : "lowerbody",
-	head : "head",
 	trinket : "trinket",
 	hands : "hands",
 	action : "action",			// Goes into an action slot

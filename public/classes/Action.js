@@ -18,7 +18,7 @@ class Action extends Generic{
 		this.name = "";				// can be %P% to use parent name
 		this.description = "";		// Can be %P% to use parent description
 		this.icon = '';				// Can be %P% to use parent icon
-		this.ranged = false;		// This is a ranged attack
+		this.ranged = Action.Range.Melee;			// This is a ranged attack
 		this.wrappers = [];			// Effect wrappers needed to cast the spell
 		this.riposte = [];			// Wrappers that are triggered when an ability misses. Riposte is sent from the target to attacker
 		this.ap = 1;
@@ -377,10 +377,10 @@ class Action extends Generic{
 		if( !this.hidden ){
 
 			// Charge finish are unaffected by knockdowns or daze
-			if( !this.ranged && this.getPlayerParent().hasTag(stdTag.wrKnockdown) && !isChargeFinish )
+			if( this.ranged === Action.Range.Melee && this.getPlayerParent().hasTag(stdTag.wrKnockdown) && !isChargeFinish )
 				return err("Can't use while knocked down");
 
-			if( this.ranged && this.getPlayerParent().hasTag(stdTag.wrDazed) && !isChargeFinish )
+			if( this.ranged === Action.Range.Ranged && this.getPlayerParent().hasTag(stdTag.wrDazed) && !isChargeFinish )
 				return err("Can't use while dazed");
 
 			if( pl && pl.isIncapacitated() )
@@ -559,13 +559,13 @@ class Action extends Generic{
 	}
 
 	// Gets tooltip text for the UI
-	getTooltipText( apOverride ){
+	getTooltipText( apOverride, rarity=0 ){
 
 		const name = this.getName(),
 			desc = this.getDesc()
 		;
 
-		let html = '<h3>'+esc(name)+'</h3>';
+		let html = '<strong class="'+(Asset.RarityNames[rarity])+'">'+esc(name)+'</strong><br />';
 
 		let ap = this.ap;
 		if( !isNaN(apOverride) )
@@ -573,7 +573,8 @@ class Action extends Generic{
 
 		html+= '<div class="stats">';
 			html += '<span style="color:'+Action.typeColor(this.type)+'">'+this.type+'</span>';
-			html += '<span style="color:'+(this.ranged ? '#AAD' : '#CCC')+';">'+(this.ranged ? 'Ranged' : 'Melee')+'</span>';
+			if( this.ranged !== Action.Range.None )
+				html += '<span style="color:'+(this.ranged ? '#AAD' : '#CCC')+';">'+(this.ranged ? 'Ranged' : 'Melee')+'</span>';
 			if( this.cooldown && this.charges > 1 )
 				html += '<span style="color:#FDF">'+this.charges+' Charges</span>';
 			if( this.cooldown )
@@ -622,6 +623,12 @@ class Action extends Generic{
 
 }
 
+
+Action.Range = {
+	Melee : 0,
+	Ranged : 1,
+	None : -1,			// Doesn't count as either ranged or melee
+};
 
 
 Action.TargetTypes = {
