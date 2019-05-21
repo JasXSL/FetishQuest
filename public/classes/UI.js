@@ -35,6 +35,10 @@ export default class UI{
 		this.loadingStatusText = $("> p > span", this.loadingScreen);
 		this.loadingMaxSteps = 0;	// Steps to load
 		this.yourTurn = $("#ui > div.yourTurnBadge");
+		this.yourTurnBorder = $("#yourTurnBorder");
+		this.yourTurnTimer = false;
+		this.yourTurnTimeLeft = 0;
+		this.yourTurnSoundLoop = false;
 		this.mapChat = $("#mapChat");
 
 		// Active player has viable moves
@@ -230,6 +234,8 @@ export default class UI{
 		if( !player ){
 			this.action_selector.html('Spectating');
 			this.yourTurn.toggleClass('hidden', true);
+			this.yourTurnBorder.toggleClass('hidden', true);
+			this.toggleRope(false);
 			return;
 		}
 
@@ -240,7 +246,10 @@ export default class UI{
 
 		const myTurn = game.getTurnPlayer().id === game.getMyActivePlayer().id || !game.battle_active;
 		this.yourTurn.toggleClass('hidden', !myTurn || !game.battle_active);
+		this.yourTurnBorder.toggleClass('hidden', !myTurn || !game.battle_active);
 
+		if( !myTurn )
+			this.toggleRope(false);
 
 		// Resources
 		html += '<div class="resources">';
@@ -1073,6 +1082,7 @@ export default class UI{
 
 
 
+
 	
 
 
@@ -1258,6 +1268,39 @@ export default class UI{
 
 
 
+	/* Turn timer */
+	async toggleRope( seconds ){
+
+		this.yourTurnBorder.toggleClass("rope", Boolean(seconds));
+		this.yourTurn.toggleClass("rope", Boolean(seconds));
+		clearTimeout(this.yourTurnTimer);
+
+		if( this.yourTurnSoundLoop ){
+			this.yourTurnSoundLoop.stop(100);
+			this.yourTurnSoundLoop = false;
+		}
+
+		if( +seconds ){
+			this.yourTurn.toggleClass("rope", Boolean(seconds));
+			this.yourTurnTimeLeft = seconds;
+			const tick = () => {
+				$("span.timeLeft", this.yourTurn).html(' ['+this.yourTurnTimeLeft+']');
+				--this.yourTurnTimeLeft;
+				if( this.yourTurnTimeLeft < 0 )
+					clearInterval(this.yourTurnTimer);
+			};
+			tick();
+			this.yourTurnTimer = setInterval(tick, 1000);
+
+			// Play alert and start loop
+			game.uiAudio( 'time_running_out', 0.5 );
+			this.yourTurnSoundLoop = await game.audio_ui.play( 'media/audio/ui/clock.ogg', 0.25, true );
+
+		}else{
+			
+			$("span.timeLeft", this.yourTurn).html('');
+		}
+	}
 
 
 	/* CHAT */
@@ -1550,10 +1593,12 @@ export default class UI{
 
 	drawNewGame(){
 
+		// /media/characters/otter.jpg
 		const gallery = [
-			{name : 'Otter', size:5, 'icon':'/media/characters/otter.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
-			{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', class:'monk', tags:[stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+			{name : 'Otter', size:5, 'icon':'/media/characters/otter_dressed.jpg', description: 'Art by GothWolf', icon_lowerbody:'/media/characters/otter_lb.jpg', icon_upperbody:'/media/characters/otter_ub.jpg', icon_nude:'/media/characters/otter_nude.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+			{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', description:'Art by Maddworld', class:'monk', tags:[stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
 		];
+
 
 		let html = '<div class="newGame">'+
 			'<h1>New Game</h1>'+
@@ -1564,7 +1609,6 @@ export default class UI{
 						'<h3>Character</h3>'+
 						'<div style="text-align:center"><div class="portrait"></div></div>'+
 						'<input type="text" name="name" placeholder="Character Name" required /><br />'+
-						'<input type="text" name="icon" placeholder="Character Art" /><br />'+
 						'<input type="text" name="species" placeholder="Species" required /><br />'+
 						'Size: <input type="range" name="size" min=0 max=10 /><br />'+
 						'Class: <select name="class">';
@@ -1574,6 +1618,15 @@ export default class UI{
 						html += '</select><br />';
 						html += 'Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />';
 						html += '<div class="tags"></div>';
+						html += '<textarea name="description"></textarea>';
+						
+						html += 'Dressed: <input type="text" name="icon" placeholder="Dressed Art" /><br />'+
+						'Nude: <input type="text" name="icon_nude" placeholder="Nude Art" /><br />'+
+						'Upperbody: <input type="text" name="icon_upperbody" placeholder="Upperbody Art" /><br />'+
+						'Lowerbody: <input type="text" name="icon_lowerbody" placeholder="Lowerbody Art" /><br />'
+						;
+
+
 					html += '</div>'+
 					'<div class="right"><h3>Gallery</h3>';
 					for( let item of gallery )
@@ -1619,6 +1672,10 @@ export default class UI{
 			const data = JSON.parse(el.attr('data-data'));
 			$("#newGameForm input[name=name]").val(data.name);
 			$("#newGameForm input[name=icon]").val(data.icon);
+			$("#newGameForm input[name=icon_nude]").val(data.icon_nude);
+			$("#newGameForm input[name=icon_upperbody]").val(data.icon_upperbody);
+			$("#newGameForm input[name=icon_lowerbody]").val(data.icon_lowerbody);
+			$("#newGameForm textarea[name=description]").val(data.description);
 			$("#newGameForm select[name=class]").val(data.class);
 			$("#newGameForm input[name=species]").val(data.species);
 			$("#newGameForm input[name=size]").val(data.size || 0);
@@ -1646,6 +1703,10 @@ export default class UI{
 				name : $("input[name=name]", base).val().trim() || 'Player',
 				species : $("input[name=species]", base).val().trim().toLowerCase() || 'human',
 				icon : $("input[name=icon]", base).val().trim(),
+				icon_nude : $("input[name=icon_nude]", base).val().trim(),
+				icon_upperbody : $("input[name=icon_upperbody]", base).val().trim(),
+				icon_lowerbody : $("input[name=icon_lowerbody]", base).val().trim(),
+				description : $("textarea[name=description]", base).val().trim(),
 				size : +$("input[name=size]", base).val().trim() || 0,
 				class : c.save(true),
 				netgame_owner_name : 'DM',

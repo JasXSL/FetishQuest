@@ -463,12 +463,15 @@ export default class Game extends Generic{
 	}
 
 	turnTimerEnabled(){
+
+		if( !this.is_host )
+			return false;
 		const tt = +localStorage.turnTimer,
 			tp = this.getTurnPlayer();
-		console.log("Check", tt, this.is_host, this.net.isConnected(), this.battle_active, tp, !tp.isNPC() );
-		return ( tt && this.is_host && this.net.isConnected() && this.battle_active && tp && !tp.isNPC() );
-	}
+		return ( tt && this.net.isConnected() && this.battle_active && tp && !tp.isNPC() );
 
+	}
+	
 	setTurnTimer(){
 
 		if( !this.turnTimerEnabled() )
@@ -476,11 +479,17 @@ export default class Game extends Generic{
 
 		this.endTurnTimer();
 		this._turn_timer = setTimeout(() => {
-			console.log("Give 10 second warning");
+			
+			if( this.isMyTurn() )
+				game.ui.toggleRope(15);
+			
+			this.net.dmRope(this.getTurnPlayer(), 15);
+			
 			this._turn_timer = setTimeout(() => {
 				this.advanceTurn();
-			}, 10000);
-		}, 10000);
+			}, 15000);
+
+		}, 60000);
 
 	}
 
@@ -996,7 +1005,12 @@ export default class Game extends Generic{
 
 	}
 
-	
+	isMyTurn(){
+		const ap = this.getMyActivePlayer();
+		if( !ap )
+			return false;
+		return this.getTurnPlayer().id === ap.id;
+	}
 	
 	// Gets the index of a Player object in this.players
 	getPlayerIndex( player ){

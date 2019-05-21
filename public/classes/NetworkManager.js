@@ -678,6 +678,18 @@ class NetworkManager{
 			game.ui.rpOptionSelected(args.id);
 		}
 
+		else if( task === NetworkManager.dmTasks.rope ){
+			const sec = parseInt(args.dur);
+			if( !sec )
+				return;
+			const pl = args.player;
+			if( !game.getMyActivePlayer() )
+				return;
+			if( game.getMyActivePlayer().id !== pl )
+				return;
+			game.ui.toggleRope(sec);
+		}
+
 
 	}
 
@@ -947,6 +959,13 @@ class NetworkManager{
 		}); 
 	}
 
+	dmRope( player, seconds ){
+		this.sendHostTask(NetworkManager.dmTasks.rope, {
+			player : player.id,
+			dur : seconds
+		}); 
+	}
+
 }
 
 // Send tasks from DM to player
@@ -964,6 +983,7 @@ NetworkManager.dmTasks = {
 	hitfx : 'hitfx',								// {fx:hitfx, caster:(str)casterID, recipients:(arr)recipients, armor_slot:(str)armor_slot} - Triggers a hitfx
 	questAccepted : 'questAccepted',				// {head:(str)head_text, body:(str)body_text} - Draws the questStart info box. Also used for quest completed and other things
 	dmRpOptionSelected : 'rpOptionSelected', 		// {id:(str)id} - An RP option has been selected, send it
+	rope : 'rope',									// {player:(str)player_id, dur:(int)seconds} - Starts the turn timer rope for the player
 };
 
 // Player -> DM

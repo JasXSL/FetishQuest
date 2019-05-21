@@ -385,27 +385,40 @@ div.fxBuffBlue{
 /**/
 
 /* YOUR TURN*/
-	@keyframes yourTurnBadge{
-		from{box-shadow: 0 0 1vmax #DFD;}
-		to{box-shadow: 0 0 2vmax #FFF;}
-	}
 	#ui > div.yourTurnBadge{
 		position: absolute;
-		top:0; left:50%;
-		transform:translateX(-50%);
-		padding:0.5vmax 5vmax;
-		background:rgba(200,255,200,.5);
-		background: linear-gradient(to bottom, #9bea92 0%,#c4e8c0 100%);
+		top:0;
+		left:0; right:0;
+		text-align: center;
+		padding:0.25vmax;
+		background:rgba(200,255,200,.75);
 		color:#FFF;
-		border:0.2vmax solid #FFF;
-		border-bottom-left-radius: 1vmax;
-		border-bottom-right-radius: 1vmax;
-		border-top:none;
 		font-style: italic;
 		text-transform: capitalize;
-		font-size:3vmax;
+		font-size:2vmax;
 		animation: yourTurnBadge 1s ease-in-out alternate infinite;
-		text-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
+		text-shadow: 0.1vmax 0.1vmax 0.2vmax #000;
+		pointer-events: none;
+	}
+	#ui > div.yourTurnBadge.rope{
+		background:rgba(255,150,150,.75);
+	}
+	@keyframes yourTurnBorderRope{
+		from{ 
+			box-shadow: 0 0 1vmax #FAA inset;
+		}
+		to{
+			box-shadow: 0 0 2vmax #FAA inset;
+		}
+	}
+	#yourTurnBorder{
+		position: fixed;
+		left:0; right:0; bottom:0; top:0;
+		box-shadow: 0 0 1vmax #EFE inset;
+		pointer-events: none;
+	}
+	#yourTurnBorder.rope{
+		animation: yourTurnBorderRope 0.5s ease-in-out alternate infinite;
 	}
 
 /**/
@@ -671,10 +684,11 @@ div.fxBuffBlue{
 		border: 0.2vmax solid #FFF;
 		border-radius:0.5vmax;
 		width:20vmax;
-		height:15vmax;
+		height:25vmax;
 		display:inline-block;
 		margin-bottom:1vmax;
 		background-size:cover;
+		background-position: center;
 	}
 	
 	#modal div.newGame div.tags input{
@@ -1058,7 +1072,7 @@ div.fxBuffBlue{
 		position: fixed;
 		left:0; right:0;
 		height:5vh;
-		background:rgba(0,0,0,.5);
+		background:rgba(0,0,0,.85);
 		bottom:0;
 		padding:0.25vh;
 		text-align: center;
@@ -1614,11 +1628,11 @@ div.fxBuffBlue{
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
 		width:auto;
 		padding-top:1.75vh;
-		background-color:#555;
+		background-color:#474;
 	}
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
-		color:#FFD;
-		border-color: #FFD;
+		color:#DFD;
+		border-color: #DFD;
 	}
 	@keyframes endTurnPulse{
 		from{transform: scale(1.05,1.05);}

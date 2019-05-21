@@ -7,7 +7,6 @@ const C = conditions;
 const baseCond = ['actionHit', 'eventIsActionUsed'];
 
 const lib = [
-	// Turn changed
 	{ text : "Ha! Fool!",
 		conditions : ["eventIsEffectTrigger","action_tentacle_pit_proc"],
 		chat : Text.Chat.required
