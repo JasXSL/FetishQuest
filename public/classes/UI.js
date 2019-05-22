@@ -1442,7 +1442,10 @@ export default class UI{
 		html += '<p class="centered">This is a pre-alpha work in progress. Please consider supporting it on <a href="https://www.patreon.com/jasx_games" target="_blank">Patreon</a>.</p>';
 		html += '<p class="centered">Follow development on <a href="http://discord.jasx.org" target="_blank">Discord</a>.</p>';
 
-		html += '<p style="text-align:center"><input type="button" class="green newGameButton" name="newGame" value="New Game" /></p><br />';
+		html += '<p style="text-align:center">'+
+			'<input type="button" class="green newGameButton" name="newGame" value="New Game" /><br />'+
+			'<input type="button" name="credits" value="Credits" />'+
+		'</p><br />';
 
 		html += '<hr />';
 
@@ -1532,6 +1535,7 @@ export default class UI{
 		$("tr[data-mod] input.enableMod, tr[data-mod] input.netgame").on('change', saveLoadOrder);
 
 		$("#modal input[name=newGame]").on('click', () => this.drawNewGame());
+		$("#modal input[name=credits]").on('click', () => this.drawCredits());
 		
 		$("#modal div.gameListing[data-id]").on('click', function(event){
 
@@ -1587,6 +1591,42 @@ export default class UI{
 		
 		this.bindTooltips();
 		
+
+	}
+
+
+	drawCredits(){
+
+		let html = '<div class="center">'+
+			'<h1>Credits</h1>'+
+			'<p>Concept/Programming/Models: JasX</p>'+
+			'<p>Additional Models:</p>'+
+			'Kitaro<br />'+
+			'<p>Art:</p>'+
+			'<a href="http://www.furaffinity.net/gallery/gothwolf">GothWolf</a><br />'+
+			'<a href="http://www.furaffinity.net/gallery/maddworld">Maddworld</a><br />'+
+			'<a href="http://www.furaffinity.net/gallery/foxmode">Foxmode</a><br />'+
+			'<p>Audio:</p>'+
+			`https://freesound.org/people/GameDevC/sounds/422836/<br />
+			https://freesound.org/people/LittleRobotSoundFactory/sounds/270401/<br />
+			https://freesound.org/people/vacuumfan7072/sounds/394155/<br />
+			https://freesound.org/people/FoolBoyMedia/sounds/352658/<br />
+			https://freesound.org/people/InspectorJ/sounds/416179/<br />
+			https://freesound.org/people/Adam_N/sounds/164661/<br />
+			https://freesound.org/people/INNORECORDS/sounds/456899/<br />
+			https://freesound.org/people/kyles/sounds/452104/<br />
+			https://freesound.org/people/GoodListener/sounds/322855/<br />
+			https://freesound.org/people/VKProduktion/sounds/231537/<br />
+			https://freesound.org/people/Schoggimousse/sounds/443061/<br />
+			https://freesound.org/people/kwahmah_02/sounds/275563/<br />
+			https://freesound.org/people/Andy_Gardner/sounds/196713/<br />
+			https://freesound.org/people/Nightwatcher98/sounds/407292/<br />
+			https://freesound.org/people/Meepalicious/sounds/244808/<br />
+			https://freesound.org/people/conleec/sounds/212094/<br />
+			https://freesound.org/people/ivolipa/sounds/326313/<br />`+
+		'</div>';
+ 
+		game.modal.set(html);
 
 	}
 

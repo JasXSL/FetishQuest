@@ -479,6 +479,8 @@ export default class Player extends Generic{
 		if( !ub && lb && this.icon_lowerbody )
 			return this.icon_lowerbody;
 
+		if( !this.icon )
+			return 'media/characters/missing_art.jpg';
 		return this.icon;
 
 	}

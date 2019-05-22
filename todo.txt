@@ -1,6 +1,5 @@
 Needed other:
 Smol:	
-	- Credits page
 Medium rare:
 Big chungi:
 	- Shop
