@@ -11,6 +11,7 @@ import Calculator from './Calculator.js';
 import GameEvent from './GameEvent.js';
 import stdTag from '../libraries/stdTag.js';
 import Action from './Action.js';
+
 export default class Condition extends Generic{
 	
 	// Parent varies based on the object that created this

@@ -1,5 +1,5 @@
 import Quest, { QuestObjectiveEvent } from "../../classes/Quest.js";
-import C from './conditions.js';
+//import C from './conditions.js';
 import Condition from "../../classes/Condition.js";
 import Asset from "../../classes/Asset.js";
 

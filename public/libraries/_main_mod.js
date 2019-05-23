@@ -2,6 +2,8 @@ import stdTag from "./stdTag.js";
 import Mod from '../classes/Mod.js';
 
 import texts from './mainMod/texts.js';
+
+console.log("Setting up mainMod");
 import {getArray as getConds} from './mainMod/conditions.js';
 import {getArray as getActions} from './mainMod/actions.js';
 import {getArray as getPlayerClasses} from './mainMod/playerClasses.js';

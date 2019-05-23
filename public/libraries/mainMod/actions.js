@@ -1,10 +1,10 @@
 import Action from "../../classes/Action.js";
 import stdTag from "../stdTag.js";
 import { Wrapper, Effect } from "../../classes/EffectSys.js";
-import Asset from "../../classes/Asset.js";
+//import Asset from "../../classes/Asset.js";
 import GameEvent from "../../classes/GameEvent.js";
-import Player from "../../classes/Player.js";
-import C from './conditions.js';
+//import Player from "../../classes/Player.js";
+//import C from './conditions.js';
 
 
 // Standard wrapper conditions

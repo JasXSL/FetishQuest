@@ -1,5 +1,4 @@
 import Text from '../../classes/Text.js';
-import conditions from './conditions.js';
 import audioKits from './audioKits.js';
 import stdTag from '../stdTag.js';
 import Asset from '../../classes/Asset.js';
@@ -9,7 +8,9 @@ const baseCond = ['actionHit', 'eventIsActionUsed'];
 const anyOnHumCond = baseCond.concat('targetNotBeast');
 const humOnHumCond = anyOnHumCond.concat('senderNotBeast');
 const humOnAnyCond = baseCond.concat('senderNotBeast');
-const C = conditions;
+
+import C from './conditions.js';
+
 
 const lib = [
 	// Turn changed

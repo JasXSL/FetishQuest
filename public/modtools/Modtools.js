@@ -2102,7 +2102,7 @@ export default class Modtools{
 				html += '</div>';
 			}
 
-			html += 'Z: <input type="number" step=1 value="'+esc(z)+'" id="zHeight" />';
+			html += 'Z: <input type="number" step=1 value="'+esc(z)+'" id="zHeight" style="width:4vmax" />';
 			$("#modal div.dungeonMap").html(html);
 
 
@@ -2461,6 +2461,7 @@ export default class Modtools{
 		else{
 			html += 'Name: <input type="text" class="updateMesh" name="name" value="'+esc(asset.name)+'" /> <br />';
 			html += '<label>Remove if made noninteractive: <input type="checkbox" class="updateMesh" name="rem_no_interact" '+(asset.rem_no_interact ? 'checked' : '')+' /></label><br />';
+			html += '<label>Hide while noninteractive: <input type="checkbox" class="updateMesh" name="hide_no_interact" '+(asset.hide_no_interact ? 'checked' : '')+' /></label><br />';
 			html += '<strong>Position:</strong><br />';
 			html += 'X <input type="number" step=1 name="x" class="updateMesh" style="width:6vmax" value="'+esc(asset.x)+'" /> ';
 			html += 'Y <input type="number" step=1 name="y" class="updateMesh" style="width:6vmax" value="'+esc(asset.y)+'" /> ';
@@ -2710,7 +2711,7 @@ export default class Modtools{
 			asset._stage_mesh.scale.z = asset.scaleZ = +$("input[name=scaleZ]", div).val();
 			asset.name = $("input[name=name]", div).val();
 			asset.rem_no_interact = $("input[name=rem_no_interact]", div).prop('checked');
-			
+			asset.hide_no_interact = $("input[name=hide_no_interact]", div).prop('checked');
 		});
 
 		$("select[name=type]", div).on('change', () => {
@@ -2955,28 +2956,32 @@ export default class Modtools{
 	}
 
 
+	// Helper function for creating a dungeon cell select
+	dungeonCellSelectOptions( dungeon, current = 0 ){
+		
+		let d;
+		for( let du of this.mod.dungeons ){
+			if( du.label === dungeon )
+				d = du;
+		}
+
+		if( !d )
+			d = this.mod.dungeons[0];
+
+		let out = '<option value="0">- Entrance -</option>';
+		if( !d )
+			return out;
+		for( let room of d.rooms )
+			out += '<option value="'+(+room.index)+'" '+(+room.index === +current ? 'selected' : '')+'>'+esc(room.name)+'</option>';
+		
+		return out;
+
+	}
 
 	// non bindable, but generates the form for GameAction
 	formGameAction( interaction ){
 
-		// Helper function for creating a dungeon cell select
-		const getDungeonRoomOptions = function( dungeon, current ){
-
-			let d;
-			for( let du of th.mod.dungeons ){
-				if( du.label === dungeon )
-					d = du;
-			}
-
-			let out = '<option value="0">- Entrance -</option>';
-			if( !d )
-				return out;
-			for( let room of d.rooms )
-				out += '<option value="'+(+room.index)+'" '+(+room.index === +current ? 'selected' : '')+'>'+esc(room.name)+'</option>';
-			
-			return out;
-
-		};
+		
 
 		const th = this;
 
@@ -3018,7 +3023,7 @@ export default class Modtools{
 				html += '<option value="'+esc(r.label)+'" '+(interaction.data.dungeon === r.label ? 'selected' : '')+'>'+esc(r.name)+'</option>';
 			html += '</select>';
 			html += '<select name="asset_room">';
-				html += getDungeonRoomOptions(interaction.data.dungeon, interaction.data.index);
+				html += th.dungeonCellSelectOptions(interaction.data.dungeon, interaction.data.index);
 			html += '</select>';
 			html += '<br />Travel time in seconds: <input type="number" name="asset_time" placeholder="Time in seconds" step=1 min=1 value="'+(Math.floor(interaction.data.time) || 60)+'" >';
 		}
@@ -3117,11 +3122,16 @@ export default class Modtools{
 			}
 			else if( itype === types.exit ){
 				if( name === "asset_dungeon" ){
+					const pre = interaction.data.dungeon;
 					interaction.data.dungeon = val;
-					$("select[name=asset_room]", div).html();
+					const roomDropdown = $(this).parent().find("select[name=asset_room]");
+					interaction.data.room = +roomDropdown.val();
+					if( pre !== val )
+						roomDropdown.html(th.dungeonCellSelectOptions(val, 0));
 				}
-				else if( name === "asset_room" )
+				else if( name === "asset_room" ){
 					interaction.data.index = val;
+				}
 				else if( name === "asset_time" )
 					interaction.data.time = Math.floor(val) || 60;
 				

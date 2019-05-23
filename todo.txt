@@ -5,7 +5,18 @@ Big chungi:
 	- Shop
 	- Main quest chapter 2
 	
-	
+
+Meshes:
+	- 6x forest templates
+	- Fence
+	- Tree stump
+	- wood cart
+	- wood merchant stand
+	- dead tree
+
+Textures:
+	- 2x alternate tree texture
+	- 2x alternate grass texture
 	
 
 - Needed music

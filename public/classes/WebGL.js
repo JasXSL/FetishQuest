@@ -430,7 +430,7 @@ class WebGL{
 
 				if( obj.object.userData._mouseover )
 					break;
-				obj.object.userData.mouseover.call(obj, obj);
+				obj.object.userData.mouseover.call(obj.object, obj.object);
 				obj.object.userData._mouseover = true;
 
 			}
@@ -1307,6 +1307,10 @@ class Stage{
 					asset._stage_mesh = existing;
 					existing.userData.dungeonAsset = asset;
 				}
+
+				if( asset.hide_no_interact )
+					existing.visible = asset.isInteractive();
+
 				continue;
 			}
 
@@ -1643,6 +1647,7 @@ Stage.setMeshMatProperty = function( mesh, id, value, reset = false ){
 	let mat = mesh.material;
 	if( !Array.isArray(mat) )
 		mat = [mat];
+
 	for( let m of mat ){
 		let val = value;
 		if( reset && m.userData.settings && m.userData.settings[id] ){

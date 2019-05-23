@@ -1,5 +1,5 @@
 import stdTag from "../stdTag.js";
-import { Effect } from "../../classes/EffectSys.js";
+
 import Condition from "../../classes/Condition.js";
 import GameEvent from "../../classes/GameEvent.js";
 
@@ -242,6 +242,9 @@ const lib = {
 	ttBentOverTable : {"type":"tag","data":{"tags":[stdTag.ttBentOverTable]}},
 	ttSpanked : {"type":"tag","data":{"tags":[stdTag.ttSpanked]}},
 	ttNotSpanked : {"type":"tag","data":{"tags":[stdTag.ttSpanked]},"inverse":true},
+
+	// Quest completion
+	mq00_completed : {type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}}
 
 };
 

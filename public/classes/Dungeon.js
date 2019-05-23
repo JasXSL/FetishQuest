@@ -979,6 +979,7 @@ class DungeonRoomAsset extends Generic{
 		this.room = false;				// This is the room asset
 		this.interactions = [];			// Game actions
 		this.rem_no_interact = false;	// Remove when made noninteractive, generally when fully looted
+		this.hide_no_interact = false;	// Hide whenever it's not interactive.
 
 		this._interactive = null;		// Cache of if this object is interactive
 
@@ -1014,6 +1015,7 @@ class DungeonRoomAsset extends Generic{
 			room : this.room,
 			interactions : GameAction.saveThese(this.interactions, full),
 			rem_no_interact : this.rem_no_interact,
+			hide_no_interact: this.hide_no_interact,
 			id : this.id,
 		};
 		if( full !== 'mod' ){
@@ -1233,6 +1235,7 @@ class DungeonRoomAsset extends Generic{
 				this.parent.removeAsset(this);
 			else
 				this.updateInteractivity();
+
 		}
 
 		game.ui.addText( player.getColoredName()+" looted "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );

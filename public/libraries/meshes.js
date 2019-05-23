@@ -1964,6 +1964,58 @@ LibMesh.library = {
 				}),
 			},
 			
+			Woods : {
+				mainroadA : new LibMesh({
+					url : 'land/yuug/woods_mainroad_1.JD',
+					materials : [
+						libMat.Land.MainroadA
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				mainroadB : new LibMesh({
+					url : 'land/yuug/woods_mainroad_2.JD',
+					materials : [
+						libMat.Land.MainroadB
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				mainroadC : new LibMesh({
+					url : 'land/yuug/woods_mainroad_3.JD',
+					materials : [
+						libMat.Land.MainroadC
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				mainroadD : new LibMesh({
+					url : 'land/yuug/woods_mainroad_4.JD',
+					materials : [
+						libMat.Land.MainroadD
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+				mainroadE : new LibMesh({
+					url : 'land/yuug/woods_mainroad_5.JD',
+					materials : [
+						libMat.Land.MainroadE
+					],
+					width: 10,
+					height:10,
+					isRoom : true,
+					top:-4,left:-4,
+				}),
+			},
 
 			Port : {
 				LandMid : new LibMesh({
@@ -2373,7 +2425,8 @@ LibMesh.library = {
 				},
 			}),
 		}
-	}
+	},
+	
 	
 
 

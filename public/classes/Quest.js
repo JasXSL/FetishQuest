@@ -1,7 +1,7 @@
 import Generic from './helpers/Generic.js';
-import Dungeon, { DungeonRoom } from './Dungeon.js';
+//import Dungeon, { DungeonRoom } from './Dungeon.js';
 import Condition from './Condition.js';
-import C from '../libraries/mainMod/conditions.js';
+//import C from '../libraries/mainMod/conditions.js';
 
 import Calculator from './Calculator.js';
 import Asset from './Asset.js';

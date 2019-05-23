@@ -393,6 +393,31 @@ LibMaterial.library = {
 			metalness : 0.1,
 			roughness : 0.8,
 		}),
+		MainroadA : new LibMaterial({
+			map : 'land/woods_1.jpg',
+			metalness : 0.1,
+			roughness : 0.8,
+		}),
+		MainroadB : new LibMaterial({
+			map : 'land/woods_2.jpg',
+			metalness : 0.1,
+			roughness : 0.8,
+		}),
+		MainroadC : new LibMaterial({
+			map : 'land/woods_3.jpg',
+			metalness : 0.1,
+			roughness : 0.8,
+		}),
+		MainroadD : new LibMaterial({
+			map : 'land/woods_4.jpg',
+			metalness : 0.1,
+			roughness : 0.8,
+		}),
+		MainroadE : new LibMaterial({
+			map : 'land/woods_5.jpg',
+			metalness : 0.1,
+			roughness : 0.8,
+		}),
 	},
 
 	Water : {

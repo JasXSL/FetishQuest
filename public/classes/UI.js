@@ -1601,7 +1601,7 @@ export default class UI{
 			'<h1>Credits</h1>'+
 			'<p>Concept/Programming/Models: JasX</p>'+
 			'<p>Additional Models:</p>'+
-			'Kitaro<br />'+
+			'Kitaro "Huskebutt" Kun<br />'+
 			'<p>Art:</p>'+
 			'<a href="http://www.furaffinity.net/gallery/gothwolf">GothWolf</a><br />'+
 			'<a href="http://www.furaffinity.net/gallery/maddworld">Maddworld</a><br />'+
