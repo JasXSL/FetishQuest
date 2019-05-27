@@ -2189,7 +2189,7 @@ export default class Modtools{
 				for( let room of dungeon.rooms ){
 					if( room.index === index ){
 
-						let newRoom = room.clone(dungeon);
+						let newRoom = room.clone(dungeon, "mod");
 						newRoom.g_resetID();
 						newRoom.assets = [];
 						newRoom.index = highest+1;
@@ -2981,7 +2981,6 @@ export default class Modtools{
 	// non bindable, but generates the form for GameAction
 	formGameAction( interaction ){
 
-		
 
 		const th = this;
 
@@ -3151,7 +3150,6 @@ export default class Modtools{
 		$("div.interaction_data input, div.interaction_data select", base).on('change', function(){
 
 			const itype = interaction.type;
-			console.log("Itype", itype);
 			if( itype === types.wrappers )
 				interaction.data = th.compileWrappers("interaction_data");
 			else if( itype === types.loot ){

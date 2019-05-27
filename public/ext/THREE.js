@@ -23545,9 +23545,12 @@ function WebGLRenderer( parameters ) {
 		var refreshMaterial = false;
 		var refreshLights = false;
 
-		var program = materialProperties.program,
-			p_uniforms = program.getUniforms(),
+		var program = materialProperties.program;
+
+		let p_uniforms = program.getUniforms(),
 			m_uniforms = materialProperties.shader.uniforms;
+
+		
 
 		if ( state.useProgram( program.program ) ) {
 

@@ -119,8 +119,13 @@ class LibMesh{
 			
 			// Load the materials
 			// SkinnedMesh needs a unique material or it goes tits up
-			for( let mat of this.materials )
-				mats.push(mat.fetch(unique || obj.type === "SkinnedMesh"));
+			let hasCustomDepthMaterial = false;
+			for( let mat of this.materials ){
+				const m = mat.fetch(unique || obj.type === "SkinnedMesh");
+				mats.push(m);
+				if( mat.type === 'MeshDepthMaterial' )
+					hasCustomDepthMaterial = true;
+			}
 
 			if( mats[0].type === 'Water'){
 				mesh = new Water(geometry, mats[0].material);
@@ -131,6 +136,24 @@ class LibMesh{
 			}
 			else
 				mesh = obj.type === 'SkinnedMesh' ? new THREE.SkinnedMesh(geometry, mats) : new THREE.Mesh(geometry, mats);
+
+			
+			if( hasCustomDepthMaterial ){
+				// This doesn't work in three yet
+				const depthMats = [];
+				let dm = null;
+				for( let m of mats ){
+					if( m.userData.customDepthMaterial ){
+						depthMats.push(m.userData.customDepthMaterial);
+						dm = m.userData.customDepthMaterial;
+					}
+					else
+						depthMats.push(new THREE.MeshDepthMaterial({
+							blending : THREE.NormalBlending
+						}));
+				}
+				mesh.customDepthMaterial = dm;
+			}
 		}
 		await this.beforeFlatten( mesh );
 		let ud = mesh.userData;
@@ -2015,6 +2038,38 @@ LibMesh.library = {
 					isRoom : true,
 					top:-4,left:-4,
 				}),
+
+				grassgen000 : new LibMesh({
+					url : 'land/yuug/GrassGen_000.JD',
+					materials : [libMat.Land.GrassGen_000],
+					width: 10,height:10,isRoom : true,top:-4,left:-4,
+				}),
+				grassgen001 : new LibMesh({
+					url : 'land/yuug/GrassGen_001.JD',
+					materials : [libMat.Land.GrassGen_001],
+					width: 10,height:10,isRoom : true,top:-4,left:-4,
+				}),
+				grassgen002 : new LibMesh({
+					url : 'land/yuug/GrassGen_002.JD',
+					materials : [libMat.Land.GrassGen_002],
+					width: 10,height:10,isRoom : true,top:-4,left:-4,
+				}),
+				grassgen003 : new LibMesh({
+					url : 'land/yuug/GrassGen_003.JD',
+					materials : [libMat.Land.GrassGen_003],
+					width: 10,height:10,isRoom : true,top:-4,left:-4,
+				}),
+				grassgen004 : new LibMesh({
+					url : 'land/yuug/GrassGen_004.JD',
+					materials : [libMat.Land.GrassGen_004],
+					width: 10,height:10,isRoom : true,top:-4,left:-4,
+				}),
+				grassgen005 : new LibMesh({
+					url : 'land/yuug/GrassGen_005.JD',
+					materials : [libMat.Land.GrassGen_005],
+					width: 10,height:10,isRoom : true,top:-4,left:-4,
+				}),
+				
 			},
 
 			Port : {
@@ -2036,6 +2091,8 @@ LibMesh.library = {
 					],
 				}),
 			},
+			
+
 		},
 		Beach : {
 			SmallJetty : new LibMesh({
@@ -2333,6 +2390,27 @@ LibMesh.library = {
 					libMat.Nature.Bush,
 				],
 			}),
+			Thin : new LibMesh({
+				url : 'nature/leafytree.JD',
+				materials : [
+					libMat.Wood.Bark,
+					libMat.Nature.TreeB,
+				],
+			}),
+			Flowery : new LibMesh({
+				url : 'nature/leafytree.JD',
+				materials : [
+					libMat.Wood.Bark,
+					libMat.Nature.TreeA,
+				],
+			}),
+			Smallball : new LibMesh({
+				url : 'nature/leafytree.JD',
+				materials : [
+					libMat.Wood.Bark,
+					libMat.Nature.BushA,
+				],
+			}),
 		},
 		Pots : {
 			Bush : new LibMesh({
@@ -2402,6 +2480,62 @@ LibMesh.library = {
 				materials : [
 					libMat.Nature.Grass
 				],
+			}),
+			BushBalls : new LibMesh({
+				url : 'nature/grass_wide_group.JD',
+				materials : [libMat.Nature.BushA],
+			}),
+			BushBall : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [libMat.Nature.BushA],
+			}),
+			FlowersPink : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [libMat.Nature.FlowersA],
+			}),
+			FlowersYellowGroup : new LibMesh({
+				url : 'nature/grass_wide_group.JD',
+				materials : [libMat.Nature.FlowersB],
+			}),
+			FlowersYellow : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [libMat.Nature.FlowersB],
+			}),
+			GrassShortGroup : new LibMesh({
+				url : 'nature/grass_wide_group.JD',
+				materials : [libMat.Nature.GrassA],
+			}),
+			GrassShort : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [libMat.Nature.GrassA],
+			}),
+			GrassDryGroup : new LibMesh({
+				url : 'nature/grass_wide_group.JD',
+				materials : [libMat.Nature.GrassB],
+			}),
+			GrassDry : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [libMat.Nature.GrassB],
+			}),
+			GrassThickGroup : new LibMesh({
+				url : 'nature/grass_wide_group.JD',
+				materials : [libMat.Nature.GrassC],
+			}),
+			GrassThick : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [libMat.Nature.GrassC],
+			}),
+			BushFlowersGroup : new LibMesh({
+				url : 'nature/grass_wide_group.JD',
+				materials : [libMat.Nature.TreeA],
+			}),
+			BushFlowers : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [libMat.Nature.TreeA],
+			}),
+			BushTree : new LibMesh({
+				url : 'nature/grass_wide_single.JD',
+				materials : [libMat.Nature.TreeB],
 			}),
 			
 		},

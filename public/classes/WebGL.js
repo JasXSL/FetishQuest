@@ -5,7 +5,7 @@
 	The Stage is an object which is a reflection of a DungeonRoom
 */
 import * as THREE from '../ext/THREE.js';
-import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader, ColorifyShader} from '../ext/EffectComposer.js';
+import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader, ColorifyShader, FXAAShader} from '../ext/EffectComposer.js';
 import OrbitControls from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
@@ -28,7 +28,7 @@ class WebGL{
 			config = {};
 
 		const conf = {
-			aa : localStorage.antialiasing === undefined ? true : !!localStorage.antialiasing,
+			aa : localStorage.antialiasing === undefined ? true : Boolean(localStorage.antialiasing),
 			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows
 		};
 		
@@ -112,7 +112,7 @@ class WebGL{
 
 
 		this.renderer = new THREE.WebGLRenderer({
-			antialias : conf.aa,
+			//antialias : conf.aa,
 			//logarithmicDepthBuffer: true
 		});
 		
@@ -131,11 +131,13 @@ class WebGL{
 		this.vblur.uniforms.v.value = 0.0025;
 		this.composer.addPass( this.vblur );
 
-		/*
-		this.aa = new SMAAPass(window.innerWidth*this.renderer.getPixelRatio(), window.innerHeight*this.renderer.getPixelRatio());
+		this.aa = new ShaderPass(FXAAShader); 
+		this.aa.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * window.devicePixelRatio );
+		this.aa.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * window.devicePixelRatio );
 		this.aa.enabled = conf.aa;
 		this.composer.addPass(this.aa);
-		*/
+		console.log(this.aa);
+		
 		this.colorShader = new ShaderPass(ColorifyShader);
 		this.colorShader.uniforms.color.value = new THREE.Color(2,1,1);
 		this.colorShader.enabled = false;

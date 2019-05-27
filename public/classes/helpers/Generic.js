@@ -185,12 +185,12 @@ export default class Generic{
 
 	}
 
-	clone( parent ){
+	clone( parent, full = true ){
 		if( parent === undefined )
 			parent = this.parent;
 		else if( !parent )
 			parent = undefined;
-		return new this.constructor(this.save(true), parent);
+		return new this.constructor(this.save(full), parent);
 	}
 
 	// Returns a library tied to this asset type if possible

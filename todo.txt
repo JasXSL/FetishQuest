@@ -1,5 +1,7 @@
 Needed other:
 Smol:	
+	- Allow rotating lands
+
 Medium rare:
 Big chungi:
 	- Shop
@@ -7,17 +9,17 @@ Big chungi:
 	
 
 Meshes:
-	- 6x forest templates
-	- Fence
-	- Tree stump
-	- wood cart
-	- wood merchant stand
-	- dead tree
+	x Fence
+	x Tree stump
+	x dead tree
+	x wood cart
+	x wood merchant stand
+	x Small tent
+	x Large tent
+	- Merchandise
+	- Boat
+	- Jetty
 
-Textures:
-	- 2x alternate tree texture
-	- 2x alternate grass texture
-	
 
 - Needed music
 	- Tavern

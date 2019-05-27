@@ -5,6 +5,7 @@ class LibMaterial{
 	
 	// Map properties are relative to /media/textures/
 	constructor( settings, type ){
+
 		this.type = type;
 		if( type === "Water" ){
 			this.material = settings;
@@ -19,8 +20,14 @@ class LibMaterial{
 			
 		}
 		// Textures can be an object also with "texture" being the URL, and any other thee texture properties setup
-		else if( type === "MeshDepthMaterial" )
-			this.material = new THREE.MeshDepthMaterial(depthMaterial);
+		else if( type === "MeshDepthMaterial" ){
+			this.material = new THREE.MeshStandardMaterial(settings);
+			this.material.userData.customDepthMaterial = new THREE.MeshDepthMaterial({
+				map : this.getTexture(settings.map),
+				depthPacking : THREE.RGBADepthPacking,
+				alphaTest:0.5
+			});
+		}
 		else
 			this.material = new THREE.MeshStandardMaterial(settings);
 
@@ -329,8 +336,7 @@ LibMaterial.library = {
 			map : 'decals/bloodsplat.png',
 			transparent : true,
 			alphaTest : 0.5,
-			type : "MeshDepthMaterial"
-		}),
+		}, "MeshDepthMaterial"),
 	
 	},
 
@@ -418,6 +424,30 @@ LibMaterial.library = {
 			metalness : 0.1,
 			roughness : 0.8,
 		}),
+		GrassGen_000 : new LibMaterial({
+			map : 'land/grassgen_000.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		GrassGen_001 : new LibMaterial({
+			map : 'land/grassgen_001.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		GrassGen_002 : new LibMaterial({
+			map : 'land/grassgen_002.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		GrassGen_003 : new LibMaterial({
+			map : 'land/grassgen_003.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		GrassGen_004 : new LibMaterial({
+			map : 'land/grassgen_004.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		GrassGen_005 : new LibMaterial({
+			map : 'land/grassgen_005.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
 	},
 
 	Water : {
@@ -478,7 +508,7 @@ LibMaterial.library = {
 			transparent : true,
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
-		}),
+		}, "MeshDepthMaterial"),
 		BushTop : new LibMaterial({
 			map : 'decals/bush_top.png',
 			metalness : 0.3,
@@ -486,7 +516,7 @@ LibMaterial.library = {
 			transparent : true,
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
-		}),
+		}, "MeshDepthMaterial"),
 		Grass : new LibMaterial({
 			map : 'decals/grass_decal.png',
 			metalness : 0.3,
@@ -494,7 +524,69 @@ LibMaterial.library = {
 			transparent : true,
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
-		}),
+		}, "MeshDepthMaterial"),
+		BushA : new LibMaterial({
+			map : 'decals/bush_a.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
+		FlowersA : new LibMaterial({
+			map : 'decals/flowers_a.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		FlowersB : new LibMaterial({
+			map : 'decals/flowers_b.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		GrassA : new LibMaterial({
+			map : 'decals/grass_a.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		GrassB : new LibMaterial({
+			map : 'decals/grass_b.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		GrassC : new LibMaterial({
+			map : 'decals/grass_c.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		TreeA : new LibMaterial({
+			map : 'decals/tree_a.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		TreeB : new LibMaterial({
+			map : 'decals/tree_b.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+
 		RazzyBerryBush : new LibMaterial({
 			map : 'tileable/berrybush.png',
 			metalness : 0.3,
@@ -502,7 +594,7 @@ LibMaterial.library = {
 			transparent : true,
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
-		}),
+		}, "MeshDepthMaterial"),
 		RazzyBerryStem : new LibMaterial({
 			map : 'bakes/razzyberries_d.jpg',
 			metalness : 0.3,

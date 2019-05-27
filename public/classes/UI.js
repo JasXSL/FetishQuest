@@ -1605,7 +1605,6 @@ export default class UI{
 			'<p>Art:</p>'+
 			'<a href="http://www.furaffinity.net/gallery/gothwolf">GothWolf</a><br />'+
 			'<a href="http://www.furaffinity.net/gallery/maddworld">Maddworld</a><br />'+
-			'<a href="http://www.furaffinity.net/gallery/foxmode">Foxmode</a><br />'+
 			'<p>Audio:</p>'+
 			`https://freesound.org/people/GameDevC/sounds/422836/<br />
 			https://freesound.org/people/LittleRobotSoundFactory/sounds/270401/<br />

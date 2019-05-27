@@ -31,22 +31,10 @@ const lib = {
 		bon : {
 			"Corruption":2
 		},
-		viable_asset_materials : [
-
-		],
-		viable_asset_templates : [
-
-		],
-		viable_gear : [
-
-		],
 		gear_chance : 0.5,
 		min_size : 0,
 		max_size : 1,
 		difficulty : 1,
-		viable_consumables : [
-
-		],
 		sadistic_min : 0,
 		sadistic_max : 1,
 		dominant_min : 0,
@@ -55,9 +43,6 @@ const lib = {
 		hetero_max:1,
 		intelligence_min : 0.2,
 		intelligence_max : 0.3,
-		required_assets : [
-
-		]
 	},
 	tentacle_fiend: {
 		name : "Tentacle Fiend",
@@ -264,6 +249,7 @@ const lib = {
 
 		]
 	},
+	
 	imp : {
 		name : "Imp",
 		icon : "",
