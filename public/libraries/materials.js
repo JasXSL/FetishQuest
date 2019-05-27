@@ -317,6 +317,12 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.8,
 		}),
+		DarkDoublesided : new LibMaterial({
+			map : 'tileable/dark_cloth.jpg',
+			metalness : 0.3,
+			roughness : 0.8,
+			side : THREE.DoubleSide
+		}),
 		Rope : new LibMaterial({
 			map : 'tileable/dark_rope.jpg',
 			metalness : 0.3,

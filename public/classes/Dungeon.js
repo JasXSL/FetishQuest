@@ -431,14 +431,14 @@ class DungeonRoom extends Generic{
 			zoom : this.zoom,
 			outdoors : this.outdoors,
 			ambiance : this.ambiance,
-			encounters : Array.isArray(this.encounters) ? DungeonEncounter.saveThese(this.encounters, full) : this.encounters.save(full)
+			encounters : Array.isArray(this.encounters) ? DungeonEncounter.saveThese(this.encounters, full) : this.encounters.save(full),
+			id : this.id,	// needed for modtools to work
 		};
 
 
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.discovered = this.discovered;
-			out.id = this.id;
 		}
 		else
 			this.g_sanitizeDefaults(out);

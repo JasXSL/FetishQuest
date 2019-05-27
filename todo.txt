@@ -9,17 +9,15 @@ Big chungi:
 	
 
 Meshes:
-	x Fence
-	x Tree stump
-	x dead tree
-	x wood cart
-	x wood merchant stand
-	x Small tent
-	x Large tent
 	- Merchandise
-	- Boat
-	- Jetty
 
+	- Haybale
+	- Canopy tent
+	- 
+
+	tree_stump
+	cart_wheel
+	cart
 
 - Needed music
 	- Tavern

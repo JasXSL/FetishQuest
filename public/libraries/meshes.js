@@ -857,6 +857,31 @@ LibMesh.library = {
 				width: 1,
 				height: 1,
 			}),
+			CartWheel : new LibMesh({
+				url : 'doodads/cart_wheel.JD',
+				materials : [libMat.Wood.Crate],
+				tags : [], width: 1, height: 1,
+			}),
+			Cart : new LibMesh({
+				url : 'doodads/cart.JD',
+				materials : [libMat.Wood.Crate],
+				tags : [], width: 1, height: 1,
+			}),
+			ShopCart : new LibMesh({
+				url : 'doodads/shop_cart.JD',
+				materials : [libMat.Wood.Crate],
+				tags : [], width: 1, height: 1,
+			}),
+			ShopCartTent : new LibMesh({
+				url : 'doodads/merchant_cart.JD',
+				materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
+				tags : [], width: 1, height: 1,
+			}),
+			WoodBoards : new LibMesh({
+				url : 'doodads/woodboards.JD',
+				materials : [libMat.Wood.Crate],
+				tags : [], width: 1, height: 1,
+			}),
 		},
 		Door : {
 			Stairs : new LibMesh({
@@ -1660,6 +1685,7 @@ LibMesh.library = {
 			}),
 		}
 	},
+	// Outdoors
 	Land : {
 		Yuug : {
 			WorldMap : {
@@ -2101,12 +2127,38 @@ LibMesh.library = {
 					libMat.Wood.Crate
 				],
 			}),
+			SmallJetty2 : new LibMesh({
+				url : 'structure/jetty2.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+			}),
 			Clutter : new LibMesh({
 				url : 'nature/beach_clutter.JD',
 				materials : [
 					libMat.Nature.Seashell,
 					libMat.Nature.Starfish,
 				],
+			}),
+			Oar : new LibMesh({
+				url : 'doodads/oar.JD',
+				materials : [libMat.Wood.Crate],
+			}),
+			Rowboat : new LibMesh({
+				url : 'doodads/rowboat.JD',
+				materials : [libMat.Wood.Crate],
+			}),
+		},
+		Generic : {
+			FenceA : new LibMesh({
+				url : 'structure/fence_a.JD',
+				materials : [libMat.Wood.Crate,],
+				tags : [], width: 1, height: 1,
+			}),
+			FenceB : new LibMesh({
+				url : 'structure/fence_b.JD',
+				materials : [libMat.Wood.Crate,],
+				tags : [], width: 1, height: 1,
 			}),
 		}
 	},
@@ -2351,6 +2403,19 @@ LibMesh.library = {
 			],
 		}),
 
+		Tents : {
+			Small : new LibMesh({
+				url : 'structure/tent_small.JD',
+				materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
+				tags : [], width: 1, height: 1,
+			}),
+			Large : new LibMesh({
+				url : 'structure/tent_large.JD',
+				materials : [libMat.Cloth.DarkDoublesided,libMat.Wood.Crate],
+				tags : [], width: 1, height: 1,
+			}),
+		}
+
 	},
 
 	Nature : {
@@ -2410,6 +2475,10 @@ LibMesh.library = {
 					libMat.Wood.Bark,
 					libMat.Nature.BushA,
 				],
+			}),
+			Stump : new LibMesh({
+				url : 'nature/tree_stump.JD',
+				materials : [libMat.Wood.Bark],
 			}),
 		},
 		Pots : {
