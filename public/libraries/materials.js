@@ -629,6 +629,14 @@ LibMaterial.library = {
 			roughness : 0.6,
 		}),
 
+		PalmRoof : new LibMaterial({
+			map : 'decals/starfish.jpg',
+			metalness : 0.2,
+			roughness : 0.7,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide,
+		}),
 
 	}
 };

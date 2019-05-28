@@ -458,20 +458,17 @@ LibMesh.library = {
 		Furniture : {
 			RugTorn : new LibMesh({
 				url : 'furniture/rug_3x2.JD',
-				materials : [
-					libMat.Cloth.Rug.Torn
-				],
+				materials : [libMat.Cloth.Rug.Torn],
 				width: 3,
 				height: 2,
+				tags : [stdTag.mRug],
 			}),
 			Altar : new LibMesh({
 				url : 'furniture/altar_2x1.JD',
-				materials : [
-					libMat.StoneTile.DungeonFloor,
-					libMat.Metal.Rust
-				],
+				materials : [libMat.StoneTile.DungeonFloor,libMat.Metal.Rust],
 				width: 2,
-				height: 1
+				height: 1,
+				tags : [stdTag.mAltar],
 			}),
 		},
 		Doodads : {
@@ -484,6 +481,7 @@ LibMesh.library = {
 				use_wall_indentation: true,
 				width: 1,
 				height: 1,
+				tags : [stdTag.mBanner],
 			}),
 		},
 		Door : {
@@ -772,7 +770,7 @@ LibMesh.library = {
 				height: 2,
 			}),
 			Fireplace : new LibMesh({
-				tags : [stdTag.mRug],
+				tags : [stdTag.mFireplace],
 				url : 'furniture/fireplace.JD',
 				materials : [
 					libMat.Wood.Crate,
@@ -783,7 +781,7 @@ LibMesh.library = {
 				height: 1,
 			}),
 			BarShelf : new LibMesh({
-				tags : [],
+				tags : [stdTag.mShelf],
 				url : 'furniture/bar_shelf.JD',
 				materials : [
 					libMat.Wood.Crate
@@ -823,6 +821,7 @@ LibMesh.library = {
 				materials : [
 					libMat.Cloth.Banner.Navy
 				],
+				tags : [stdTag.mBanner],
 				position_on_wall : true,
 				use_wall_indentation: true,
 				width: 1,
@@ -853,7 +852,7 @@ LibMesh.library = {
 					libMat.Wood.Crate,
 					libMat.Cloth.Rope
 				],
-				tags : [],
+				tags : [stdTag.mRope],
 				width: 1,
 				height: 1,
 			}),
@@ -865,22 +864,27 @@ LibMesh.library = {
 			Cart : new LibMesh({
 				url : 'doodads/cart.JD',
 				materials : [libMat.Wood.Crate],
-				tags : [], width: 1, height: 1,
+				tags : [stdTag.mCart], width: 1, height: 1,
 			}),
 			ShopCart : new LibMesh({
 				url : 'doodads/shop_cart.JD',
 				materials : [libMat.Wood.Crate],
-				tags : [], width: 1, height: 1,
+				tags : [stdTag.mMerchantCart], width: 1, height: 1,
 			}),
 			ShopCartTent : new LibMesh({
 				url : 'doodads/merchant_cart.JD',
 				materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
-				tags : [], width: 1, height: 1,
+				tags : [stdTag.mMerchantCart], width: 1, height: 1,
 			}),
 			WoodBoards : new LibMesh({
 				url : 'doodads/woodboards.JD',
 				materials : [libMat.Wood.Crate],
 				tags : [], width: 1, height: 1,
+			}),
+			Haybale : new LibMesh({
+				url : 'doodads/haybale.JD',
+				materials : [libMat.Structure.StrawRoof, libMat.Nature.PalmRoof, libMat.Cloth.Rope],
+				tags : [stdTag.mHaybale], width: 1, height: 1,
 			}),
 		},
 		Door : {
@@ -1039,7 +1043,8 @@ LibMesh.library = {
 					// Lootbag is local
 					let stage = mesh.userData._stage;
 					stage.playSound(mesh, 'media/audio/loot_bag.ogg', 0.5);
-				}
+				},
+				tags : [stdTag.mBag],
 			}),
 			Sarcophagus : new LibMesh({
 				url : 'containers/sarcophagus_2x1.JD',
@@ -1069,6 +1074,7 @@ LibMesh.library = {
 					libMat.Candle.Wax,
 					libMat.Candle.Wick,
 				],
+				tags : [stdTag.mEmitter, stdTag.mFire, stdTag.mCandle],
 				width: 1,
 				height: 1,
 				use_wall_indentation: true,
@@ -1112,6 +1118,7 @@ LibMesh.library = {
 			}),
 			WallSconceFancy : new LibMesh({
 				url : 'furniture/wall_sconce_fancy_1x1.JD',
+				tags : [stdTag.mEmitter, stdTag.mFire, stdTag.mCandle],
 				materials : [
 					libMat.Metal.Rust,
 					libMat.Metal.DarkGeneric,
@@ -1162,6 +1169,7 @@ LibMesh.library = {
 			}),
 			TorchHolder : new LibMesh({
 				url : 'furniture/torch_holder_1x1.JD',
+				tags : [stdTag.mEmitter, stdTag.mFire, stdTag.mTorch],
 				materials : [
 					libMat.Metal.Rust,
 					libMat.Metal.DarkGeneric,
@@ -1277,6 +1285,7 @@ LibMesh.library = {
 			}),
 			Firebarrel : new LibMesh({
 				url : 'doodads/firebarrel.JD',
+				tags : [stdTag.mEmitter, stdTag.mFire],
 				materials : [
 					libMat.Metal.Rust,
 					libMat.Metal.DarkGeneric,
@@ -1332,6 +1341,7 @@ LibMesh.library = {
 			}),
 			Firepit : new LibMesh({
 				url : 'nature/outdoor_firepit.JD',
+				tags : [stdTag.mEmitter, stdTag.mFire],
 				materials : [
 					libMat.Wood.Firewood,
 					libMat.Decal.SmolderingAsh,
@@ -1395,6 +1405,7 @@ LibMesh.library = {
 					libMat.Wood.Firewood,
 					libMat.Decal.SmolderingAsh,
 				],
+				tags : [stdTag.mEmitter, stdTag.mFire],
 				width: 1,
 				height: 1,
 				soundLoops : [
@@ -1461,6 +1472,7 @@ LibMesh.library = {
 			}),
 			Bowl : new LibMesh({
 				url : 'doodads/bowl.JD',
+				tags : [stdTag.mBowl],
 				materials : [
 					libMat.Wood.Crate,
 				],
@@ -1469,6 +1481,7 @@ LibMesh.library = {
 			}),
 			Papers : new LibMesh({
 				url : 'doodads/papers.JD',
+				tags : [stdTag.mPaper],
 				materials : [
 					libMat.Paper.Torn
 				],
@@ -1477,6 +1490,7 @@ LibMesh.library = {
 			}),
 			PaperStack : new LibMesh({
 				url : 'doodads/paperstack.JD',
+				tags : [stdTag.mPaper],
 				materials : [
 					libMat.Paper.Torn
 				],
@@ -1485,6 +1499,7 @@ LibMesh.library = {
 			}),
 			Candle : new LibMesh({
 				url : 'doodads/candle.JD',
+				tags : [stdTag.mCandle],
 				materials : [
 					libMat.Metal.Rust,
 					libMat.Candle.Wax,
@@ -1495,6 +1510,7 @@ LibMesh.library = {
 			}),
 			CandleLit : new LibMesh({
 				url : 'doodads/candle.JD',
+				tags : [stdTag.mFire, stdTag.mEmitter, stdTag.mCandle],
 				materials : [
 					libMat.Metal.Rust,
 					libMat.Candle.Wax,
@@ -1540,6 +1556,7 @@ LibMesh.library = {
 			}),
 			BookClosed : new LibMesh({
 				url : 'doodads/book_closed.JD',
+				tags : [stdTag.mBook],
 				materials : [
 					libMat.Book.Closed,
 					libMat.Paper.Torn,
@@ -1549,6 +1566,7 @@ LibMesh.library = {
 			}),
 			BookOpen : new LibMesh({
 				url : 'doodads/book_open.JD',
+				tags : [stdTag.mBook],
 				materials : [
 					libMat.Book.Full,
 					libMat.Paper.Torn,
@@ -1565,6 +1583,7 @@ LibMesh.library = {
 					libMat.Glass.Purple,
 					libMat.Cloth.Rope
 				],
+				tags : [stdTag.mBottle],
 				width: 1,
 				height: 1,
 			}),
@@ -1582,6 +1601,7 @@ LibMesh.library = {
 				materials : [
 					libMat.Cloth.Banner.RaggedHand
 				],
+				tags : [stdTag.mBanner],
 				position_on_wall : true,
 				use_wall_indentation: true,
 				width: 1,
@@ -1595,6 +1615,7 @@ LibMesh.library = {
 			}),
 			UpsideDownBucket : new LibMesh({
 				url : 'doodads/upside_down_bucket.JD',
+				tags : [stdTag.mBucket],
 				materials : [
 					libMat.Wood.Crate,
 					libMat.Metal.Rust,
@@ -1670,7 +1691,6 @@ LibMesh.library = {
 				width: 2,
 				height: 1,
 			}),
-			
 		},
 		Shapes : {
 			DirArrow : new LibMesh({
@@ -1709,6 +1729,7 @@ LibMesh.library = {
 					],
 					width: 10,
 					height:10,
+					tags : [stdTag.mWater],
 					top:-4, left:-4
 				}),
 				Ocean2 : new LibMesh({
@@ -1734,6 +1755,7 @@ LibMesh.library = {
 					},
 					width: 10,
 					height:10,
+					tags : [stdTag.mWater],
 					top:-4, left:-4,
 				}),
 				Capital : new LibMesh({
@@ -1959,6 +1981,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mSand],
 					top:-4,left:-4,
 				}),
 				B : new LibMesh({
@@ -1969,6 +1992,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mSand],
 					top:-4,left:-4,
 				}),
 				C : new LibMesh({
@@ -1979,6 +2003,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mSand],
 					top:-4,left:-4,
 				}),
 				D : new LibMesh({
@@ -1989,6 +2014,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mSand],
 					top:-4,left:-4,
 				}),
 				E : new LibMesh({
@@ -1999,6 +2025,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mSand],
 					top:-4,left:-4,
 				}),
 				F : new LibMesh({
@@ -2009,6 +2036,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mSand],
 					top:-4,left:-4,
 				}),
 			},
@@ -2022,6 +2050,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mDirt],
 					top:-4,left:-4,
 				}),
 				mainroadB : new LibMesh({
@@ -2032,6 +2061,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mDirt],
 					top:-4,left:-4,
 				}),
 				mainroadC : new LibMesh({
@@ -2042,6 +2072,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mDirt],
 					top:-4,left:-4,
 				}),
 				mainroadD : new LibMesh({
@@ -2052,6 +2083,7 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mDirt],
 					top:-4,left:-4,
 				}),
 				mainroadE : new LibMesh({
@@ -2062,37 +2094,44 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					isRoom : true,
+					tags : [stdTag.mGrass, stdTag.mDirt],
 					top:-4,left:-4,
 				}),
 
 				grassgen000 : new LibMesh({
 					url : 'land/yuug/GrassGen_000.JD',
 					materials : [libMat.Land.GrassGen_000],
+					tags : [stdTag.mGrass],
 					width: 10,height:10,isRoom : true,top:-4,left:-4,
 				}),
 				grassgen001 : new LibMesh({
 					url : 'land/yuug/GrassGen_001.JD',
 					materials : [libMat.Land.GrassGen_001],
+					tags : [stdTag.mGrass],
 					width: 10,height:10,isRoom : true,top:-4,left:-4,
 				}),
 				grassgen002 : new LibMesh({
 					url : 'land/yuug/GrassGen_002.JD',
 					materials : [libMat.Land.GrassGen_002],
+					tags : [stdTag.mGrass],
 					width: 10,height:10,isRoom : true,top:-4,left:-4,
 				}),
 				grassgen003 : new LibMesh({
 					url : 'land/yuug/GrassGen_003.JD',
 					materials : [libMat.Land.GrassGen_003],
+					tags : [stdTag.mGrass],
 					width: 10,height:10,isRoom : true,top:-4,left:-4,
 				}),
 				grassgen004 : new LibMesh({
 					url : 'land/yuug/GrassGen_004.JD',
 					materials : [libMat.Land.GrassGen_004],
+					tags : [stdTag.mGrass],
 					width: 10,height:10,isRoom : true,top:-4,left:-4,
 				}),
 				grassgen005 : new LibMesh({
 					url : 'land/yuug/GrassGen_005.JD',
 					materials : [libMat.Land.GrassGen_005],
+					tags : [stdTag.mGrass],
 					width: 10,height:10,isRoom : true,top:-4,left:-4,
 				}),
 				
@@ -2108,6 +2147,7 @@ LibMesh.library = {
 					height:10,
 					isRoom : true,
 					top:-4,left:-4,
+					tags : [stdTag.mGrass, stdTag.mSand],
 				}),
 				JettyMid : new LibMesh({
 					url : 'land/yuug/yuug_port_mid_dock.JD',
@@ -2139,26 +2179,30 @@ LibMesh.library = {
 					libMat.Nature.Seashell,
 					libMat.Nature.Starfish,
 				],
+				tags : [stdTag.mSeashell, stdTag.mStarfish],
 			}),
 			Oar : new LibMesh({
 				url : 'doodads/oar.JD',
+				tags : [stdTag.mOar],
 				materials : [libMat.Wood.Crate],
 			}),
 			Rowboat : new LibMesh({
 				url : 'doodads/rowboat.JD',
 				materials : [libMat.Wood.Crate],
+				tags : [stdTag.mOar],
 			}),
 		},
 		Generic : {
 			FenceA : new LibMesh({
 				url : 'structure/fence_a.JD',
 				materials : [libMat.Wood.Crate,],
-				tags : [], width: 1, height: 1,
+				tags : [stdTag.mFence], width: 1, height: 1,
 			}),
 			FenceB : new LibMesh({
 				url : 'structure/fence_b.JD',
 				materials : [libMat.Wood.Crate,],
-				tags : [], width: 1, height: 1,
+				width: 1, height: 1,
+				tags : [stdTag.mFence],
 			}),
 		}
 	},
@@ -2232,18 +2276,21 @@ LibMesh.library = {
 		}),
 		Boulder : {
 			Large : new LibMesh({
+				tags : [stdTag.mBoulder],
 				url : 'nature/boulder_large.JD',
 				materials : [
 					libMat.Rock.Wall
 				],
 			}),
 			Double : new LibMesh({
+				tags : [stdTag.mBoulder],
 				url : 'nature/boulder_double.JD',
 				materials : [
 					libMat.Rock.Wall
 				],
 			}),
 			Knotty : new LibMesh({
+				tags : [stdTag.mBoulder],
 				url : 'nature/boulder_knotty.JD',
 				materials : [
 					libMat.Rock.Wall
@@ -2251,6 +2298,7 @@ LibMesh.library = {
 			}),
 			Med : new LibMesh({
 				url : 'nature/boulder_med.JD',
+				tags : [stdTag.mBoulder],
 				materials : [
 					libMat.Rock.Wall
 				],
@@ -2407,12 +2455,17 @@ LibMesh.library = {
 			Small : new LibMesh({
 				url : 'structure/tent_small.JD',
 				materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
-				tags : [], width: 1, height: 1,
+				tags : [stdTag.mTent], width: 1, height: 1,
 			}),
 			Large : new LibMesh({
 				url : 'structure/tent_large.JD',
 				materials : [libMat.Cloth.DarkDoublesided,libMat.Wood.Crate],
-				tags : [], width: 1, height: 1,
+				tags : [stdTag.mTent], width: 1, height: 1,
+			}),
+			Open : new LibMesh({
+				url : 'doodads/tent_open.JD',
+				materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
+				tags : [stdTag.mTent], width: 2, height: 2,
 			}),
 		}
 
@@ -2421,6 +2474,7 @@ LibMesh.library = {
 	Nature : {
 		Trees : {
 			RoundA : new LibMesh({
+				tags : [stdTag.mTree],
 				url : 'nature/tree_a.JD',
 				materials : [
 					libMat.Solids.Brown,
@@ -2428,6 +2482,7 @@ LibMesh.library = {
 				],
 			}),
 			RoundB : new LibMesh({
+				tags : [stdTag.mTree],
 				url : 'nature/tree_b.JD',
 				materials : [
 					libMat.Solids.Brown,
@@ -2435,6 +2490,7 @@ LibMesh.library = {
 				],
 			}),
 			RoundC : new LibMesh({
+				tags : [stdTag.mTree],
 				url : 'nature/tree_c.JD',
 				materials : [
 					libMat.Solids.Brown,
@@ -2442,6 +2498,7 @@ LibMesh.library = {
 				],
 			}),
 			Simple : new LibMesh({
+				tags : [stdTag.mTree],
 				url : 'nature/tree_simple.JD',
 				materials : [
 					libMat.Nature.BushTop,
@@ -2449,6 +2506,7 @@ LibMesh.library = {
 				],
 			}),
 			Leafy : new LibMesh({
+				tags : [stdTag.mTree],
 				url : 'nature/leafytree.JD',
 				materials : [
 					libMat.Wood.Bark,
@@ -2456,6 +2514,7 @@ LibMesh.library = {
 				],
 			}),
 			Thin : new LibMesh({
+				tags : [stdTag.mTree],
 				url : 'nature/leafytree.JD',
 				materials : [
 					libMat.Wood.Bark,
@@ -2463,6 +2522,7 @@ LibMesh.library = {
 				],
 			}),
 			Flowery : new LibMesh({
+				tags : [stdTag.mTree],
 				url : 'nature/leafytree.JD',
 				materials : [
 					libMat.Wood.Bark,
@@ -2470,6 +2530,7 @@ LibMesh.library = {
 				],
 			}),
 			Smallball : new LibMesh({
+				tags : [stdTag.mTree],
 				url : 'nature/leafytree.JD',
 				materials : [
 					libMat.Wood.Bark,
@@ -2477,23 +2538,15 @@ LibMesh.library = {
 				],
 			}),
 			Stump : new LibMesh({
+				tags : [stdTag.mTreeStump],
 				url : 'nature/tree_stump.JD',
 				materials : [libMat.Wood.Bark],
-			}),
-		},
-		Pots : {
-			Bush : new LibMesh({
-				url : 'nature/tree_a.JD',
-				materials : [
-					libMat.Metal.DarkGeneric,
-					libMat.Nature.Soil,
-					libMat.Nature.Bush
-				],
 			}),
 		},
 		Clutter : {
 			Stones : new LibMesh({
 				url : 'nature/rocks_clutter.JD',
+				tags : [stdTag.mStone],
 				materials : [
 					libMat.Rock.Wall
 				],
@@ -2501,18 +2554,21 @@ LibMesh.library = {
 		},
 		Rocks : {
 			A : new LibMesh({
+				tags : [stdTag.mBoulder],
 				url : 'nature/moss_rock_a.JD',
 				materials : [
 					libMat.Rock.Moss
 				],
 			}),
 			B : new LibMesh({
+				tags : [stdTag.mBoulder],
 				url : 'nature/moss_rock_b.JD',
 				materials : [
 					libMat.Rock.Moss
 				],
 			}),
 			C : new LibMesh({
+				tags : [stdTag.mBoulder],
 				url : 'nature/moss_rock_c.JD',
 				materials : [
 					libMat.Rock.Moss
@@ -2520,6 +2576,7 @@ LibMesh.library = {
 			}),
 			D : new LibMesh({
 				url : 'nature/moss_rock_d.JD',
+				tags : [stdTag.mBoulder],
 				materials : [
 					libMat.Rock.Moss
 				],
@@ -2527,83 +2584,101 @@ LibMesh.library = {
 		},
 		Foliage : {
 			GrassTuft : new LibMesh({
+				tags : [stdTag.mGrassLong],
 				url : 'nature/grass_tuft.JD',
 				materials : [
 					libMat.Nature.Grass
 				],
 			}),
 			GrassBundle : new LibMesh({
+				tags : [stdTag.mGrassLong],
 				url : 'nature/tall_grass.JD',
 				materials : [
 					libMat.Nature.Grass
 				],
 			}),
 			GrassWideSingle : new LibMesh({
+				tags : [stdTag.mGrassLong],
 				url : 'nature/grass_wide_single.JD',
 				materials : [
 					libMat.Nature.Grass
 				],
 			}),
 			GrassWideGroup : new LibMesh({
+				tags : [stdTag.mGrassLong],
 				url : 'nature/grass_wide_group.JD',
 				materials : [
 					libMat.Nature.Grass
 				],
 			}),
 			BushBalls : new LibMesh({
+				tags : [stdTag.mBush],
 				url : 'nature/grass_wide_group.JD',
 				materials : [libMat.Nature.BushA],
 			}),
 			BushBall : new LibMesh({
+				tags : [stdTag.mBush],
 				url : 'nature/grass_wide_single.JD',
 				materials : [libMat.Nature.BushA],
 			}),
 			FlowersPink : new LibMesh({
+				tags : [stdTag.mGrassLong, stdTag.mFlower],
 				url : 'nature/grass_wide_single.JD',
 				materials : [libMat.Nature.FlowersA],
 			}),
 			FlowersYellowGroup : new LibMesh({
+				tags : [stdTag.mGrassLong, stdTag.mFlower],
 				url : 'nature/grass_wide_group.JD',
 				materials : [libMat.Nature.FlowersB],
 			}),
 			FlowersYellow : new LibMesh({
 				url : 'nature/grass_wide_single.JD',
+				tags : [stdTag.mGrassLong, stdTag.mFlower],
 				materials : [libMat.Nature.FlowersB],
 			}),
 			GrassShortGroup : new LibMesh({
 				url : 'nature/grass_wide_group.JD',
+				tags : [stdTag.mGrassLong],
 				materials : [libMat.Nature.GrassA],
 			}),
 			GrassShort : new LibMesh({
 				url : 'nature/grass_wide_single.JD',
+				tags : [stdTag.mGrassLong],
 				materials : [libMat.Nature.GrassA],
 			}),
 			GrassDryGroup : new LibMesh({
 				url : 'nature/grass_wide_group.JD',
+				tags : [stdTag.mGrassLong],
 				materials : [libMat.Nature.GrassB],
 			}),
 			GrassDry : new LibMesh({
 				url : 'nature/grass_wide_single.JD',
+				tags : [stdTag.mGrassLong],
 				materials : [libMat.Nature.GrassB],
 			}),
 			GrassThickGroup : new LibMesh({
 				url : 'nature/grass_wide_group.JD',
+				tags : [stdTag.mGrassLong],
 				materials : [libMat.Nature.GrassC],
 			}),
 			GrassThick : new LibMesh({
 				url : 'nature/grass_wide_single.JD',
+				tags : [stdTag.mGrassLong],
 				materials : [libMat.Nature.GrassC],
 			}),
 			BushFlowersGroup : new LibMesh({
 				url : 'nature/grass_wide_group.JD',
+				tags : [stdTag.mBush, stdTag.mFlower],
 				materials : [libMat.Nature.TreeA],
 			}),
 			BushFlowers : new LibMesh({
 				url : 'nature/grass_wide_single.JD',
+				tags : [stdTag.mBush, stdTag.mFlower],
 				materials : [libMat.Nature.TreeA],
 			}),
 			BushTree : new LibMesh({
 				url : 'nature/grass_wide_single.JD',
+				tags : [stdTag.mBush],
 				materials : [libMat.Nature.TreeB],
 			}),
 			

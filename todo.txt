@@ -13,9 +13,8 @@ Big chungi:
 	
 
 Meshes:
-	- Haybale
-	- Canopy tent
-	- 
+	x Haybale
+	x Canopy tent
 
 - Needed music
 	- Tavern

@@ -13,6 +13,7 @@ import HitFX from './HitFX.js';
 		%cum - Synonym for cum
 		%few - Synonym for couple of, few, handful of
 		%thrusting - thrusting/pounding/humping
+		%butt
 	TARGET PREFIXED - These are prefixed with 
 			%T : Target 
 			%T2... : Additional targets
@@ -114,10 +115,7 @@ class Text extends Generic{
 		input = input.split(prefix+'breast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 		synonyms = ['penis', 'dong', 'cock', 'member'];
 		input = input.split(prefix+'penis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		synonyms = ['butt', 'rear', 'behind'];
-		input = input.split(prefix+'butt').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-
-
+		
 		// These belong together
 		synonyms = ['vagina', 'pussy', 'cunt'];
 		input = input.split(prefix+'vagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
@@ -163,6 +161,11 @@ class Text extends Generic{
 		let synonyms = ['groin', 'crotch'];
 		text = text.split('%groin').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 		text = text.split('%crotch').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+
+		synonyms = ['butt', 'rear', 'behind'];
+		text = text.split('%Tbutt').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%Sbutt').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%butt').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 
 		synonyms = ['cum', 'spunk', 'jizz'];
 		text = text.split('%cum').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
