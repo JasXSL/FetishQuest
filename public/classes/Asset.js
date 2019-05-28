@@ -31,7 +31,7 @@ export default class Asset extends Generic{
 		this.stacking = false;			// Setting this to true makes it non unique, but frees up space in your inventory
 		
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
-		this.use_action = null;		// Set to an Action along with charges above to enable use
+		this.use_action = null;			// Set to an Action along with charges above to enable use
 		this.no_auto_consume = false;		// Prevents auto consume of charges
 		this.rarity = this.constructor.Rarity.COMMON;
 		this.loot_sound = '';				// Also equip and unequip sound. audioKit ID
@@ -63,7 +63,7 @@ export default class Asset extends Generic{
 			durability : this.durability,
 			weight : this.weight,
 			charges : this.charges,
-			use_action : this.use_action.save(full),
+			use_action : this.use_action !== null ? this.use_action.save(full) : null,
 			rarity : this.rarity,
 			loot_sound : this.loot_sound,
 			icon : this.icon,
@@ -99,6 +99,13 @@ export default class Asset extends Generic{
 		let out = new this.constructor(this.save(true), parent);
 		return out;
 
+	}
+
+	// Makes sure targets are setup properly for wrappers
+	onEquip(){
+		for( let wrapper of this.wrappers ){
+			wrapper.caster = wrapper.victim = this.parent.id;
+		}
 	}
 
 	// override for Generic gettags

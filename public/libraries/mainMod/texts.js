@@ -469,7 +469,7 @@ const lib = [
 
 	{ text : "%S slips between %T's legs and licks across the %Trace's %Tgroin!",
 		conditions : humOnHumCond.concat([
-			"action_stdArouse", "targetTaller"
+			"action_stdArouse", "targetTaller", "senderTongue"
 		]),
 		hitfx : ["squishTiny"]
 	},
@@ -662,7 +662,7 @@ const lib = [
 	},
 	{ text : "%S takes advantage of %T being restrained and licks across %This %Tgroin!",
 		turnTags:[],
-		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread"),
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","senderTongue"),
 		weight : Text.Weights.high,
 		hitfx : ['squishTiny']
 	},
@@ -686,7 +686,7 @@ const lib = [
 	},
 	{ text : "%S takes advantage of %T being restrained and starts rapidly licking %This %Tgroin!",
 		turnTags:[],
-		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetGroinExposed"),
+		conditions : humOnHumCond.concat("action_stdArouse","targetTentacleLiftSpread","targetGroinExposed","senderTongue"),
 		weight : Text.Weights.high,
 		hitfx : ['squishTiny']
 	},
@@ -1568,7 +1568,6 @@ const lib = [
 
 
 
-
 	// /\ Finish
 	{ text : "%S latches tight onto %T's %Trsize %Tbutt and forces %Shis big head-tentacle up inside the %Trace's %Tvagina, flooding it with a black oily liquid!",
 		conditions : ["eventIsEffectTrigger", "action_cocktopus_inkject_finish", "senderBlockingGroin"],
@@ -1719,6 +1718,27 @@ const lib = [
 
 
 
+	// Skeleton hand
+	{ text : "%S slips %Shis bony hand into %T's %TclothUpper and detaches it! The hand slinks down onto %This %Tbsize %leftright %Tbreast and starts fondling it!",
+		conditions : anyOnHumCond.concat("action_skeleton_looseHand", "targetBreasts", {type:Condition.Types.tag, data:{tags:'skeletal_hand_ub'}}),
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S slips %Shis bony hand into %T's %TclothLower and detaches it! The hand grabs a firm hold of the %Trace's %Trsize %Tbutt and starts fondling it!",
+		conditions : anyOnHumCond.concat("action_skeleton_looseHand", {type:Condition.Types.tag, data:{tags:'skeletal_hand_lb'}}),
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S slips %Shis bony hand into %T's %TclothLower and detaches it! The hand grabs a firm hold of the %Trace's %Trsize %Tpenis and starts fondling it!",
+		conditions : anyOnHumCond.concat("action_skeleton_looseHand", "targetPenis", {type:Condition.Types.tag, data:{tags:'skeletal_hand_lb'}}),
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S slips %Shis bony hand into %T's %TclothLower and detaches it! The hand immediately finds %This %Tvagina and starts stroking it!",
+		conditions : anyOnHumCond.concat("action_skeleton_looseHand", "targetVagina", {type:Condition.Types.tag, data:{tags:'skeletal_hand_lb'}}),
+		hitfx : ["squeeze"]
+	},
+	
+
+	
+	
 
 
 
@@ -1823,9 +1843,22 @@ const lib = [
 		]),
 		hitfx : ["punch"]
 	},
-
-
-
+	// ^skeleton
+	{ text : "%S throws a punch with its bony hand, hitting %T's %Tbsize %leftright %Tbreast!",
+		armor_slot : "upperbody",
+		conditions : anyOnHumCond.concat([
+			"action_lowBlow","targetBreasts","senderIsSkeleton"
+		]),
+		hitfx : ["punch"]
+	},
+	{ text : "%S throws a punch with its bony hand, hitting %T right in %This %Tgroin!",
+		armor_slot : "lowerbody",
+		conditions : anyOnHumCond.concat([
+			"action_lowBlow","targetBreasts","senderIsSkeleton"
+		]),
+		hitfx : ["punch"]
+	},
+	
 
 
 

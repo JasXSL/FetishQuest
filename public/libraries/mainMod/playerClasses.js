@@ -244,6 +244,16 @@ const lib = {
             'imp_demonicPinch',
             'tentacle_pit', // tentacle_pit : Places a tentacle pit between the caster and players. Using a melee attack against the caster will trap the first player for 3 turns.
         ]
+    },
+    skeleton : {
+        name : "",
+        primaryStat : Player.primaryStats.agility,
+        description : "",
+        isMonsterClass : true,
+        actions : [
+            'skeleton_looseHand',
+            'lowBlow'
+        ]
     }
 };
 

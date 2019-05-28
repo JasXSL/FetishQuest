@@ -946,12 +946,11 @@ export default class Player extends Generic{
 					return false;
 
 				asset.equipped = true;
+				asset.onEquip();
 				this.onItemChange();
 				if( game.battle_active && byPlayer )
 					game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
 				return true;
-
-				
 			}
 		}
 		return false;

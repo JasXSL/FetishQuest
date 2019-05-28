@@ -198,6 +198,7 @@ const lib = {
 			"pl_horns",
 			"pl_tail",
 			stdTag.plDishonorable,
+			stdTag.plTongue
 		],
 		min_level : 1,
 		max_level : 5,
@@ -265,6 +266,7 @@ const lib = {
 			"pl_tail",
 			"pl_big_penis",
 			stdTag.plDishonorable,
+			stdTag.plTongue
 		],
 		min_level : 3,
 		max_level : 10,
@@ -333,6 +335,7 @@ const lib = {
 			"pl_tail",
 			"pl_big_penis",
 			stdTag.plDishonorable,
+			stdTag.plTongue
 		],
 		min_level : 5,
 		max_level : 15,
@@ -523,6 +526,45 @@ const lib = {
 		viable_consumables : [],
 		intelligence_min : 0.1,
 		intelligence_max : 0.15,
+	},
+
+	skeleton : {
+		name : "Skeleton",
+		icon : "",
+		species : "skeleton",
+		description : "A rattling skeleton.",
+		classes : ["skeleton"],
+		max_actions : 2,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plTargetBeast,	// This allows it to be only considered a beast as a target, not as sender
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : 1,
+			[Player.primaryStats.stamina] : -3,
+			[Player.primaryStats.intellect] : -2
+		},
+		sv : {
+			[Action.Types.corruption] : 0,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : -2,
+			[Action.Types.physical] : -2,
+		},
+		bon : {
+			[Action.Types.corruption] : 0,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : -3,
+			[Action.Types.physical] : 2,
+		},
+		gear_chance : 0,
+		min_size : 4,
+		max_size : 5,
+		difficulty : 1,
+		viable_consumables : [],
+		intelligence_min : 0.2,
+		intelligence_max : 0.3,
 	},
 };
 

@@ -50,6 +50,8 @@ const lib = {
 	action_elementalist_waterSpout : {"type":"actionLabel","data":{"label":"elementalist_waterSpout"},"targnr":0},
 	action_tentacle_latch : {type:Condition.Types.actionLabel, data:{label:'tentacle_latch'}, targnr:0},
 	action_cocktopus_ink : {type:Condition.Types.actionLabel, data:{label:'cocktopus_ink'}, targnr:0},
+	action_skeleton_looseHand : {type:Condition.Types.actionLabel, data:{label:'skeleton_looseHand'}, targnr:0},
+	action_skeleton_looseHand_tick : {type:Condition.Types.effectLabel, data:{label:'skeleton_looseHand'}, targnr:0},
 	action_cocktopus_inkject : {type:Condition.Types.actionLabel, data:{label:'cocktopus_inkject'}, targnr:0},
 	action_cocktopus_inkject_tick : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_tick'}, targnr:0},
 	action_cocktopus_inkject_finish : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_expire'}, targnr:0},
@@ -80,6 +82,7 @@ const lib = {
 
 	senderIsCocktopus : {type:Condition.Types.species, data:{species:['cocktopus']}, caster:true},
 	senderIsTentacrab : {type:Condition.Types.species, data:{species:['tentacrab']}, caster:true},
+	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
 
 	// Block tags signify that the slot is currently occupied
 	targetHasUnblockedOrifice : {conditions:[
@@ -153,7 +156,10 @@ const lib = {
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
 	targetNotBeast : {"type":"tag","data":{"tags":["pl_beast"]},"inverse":true},
 	targetBeast : {"type":"tag","data":{"tags":["pl_beast"]}},
-	senderNotBeast : {"type":"tag","data":{"tags":["pl_beast"]},"inverse":true,"caster":true},
+	senderNotBeast : {conditions:[
+		{type:Condition.Types.tag,data:{tags:[stdTag.plBeast]},inverse:true,caster:true},
+		{type:Condition.Types.tag,data:{tags:[stdTag.plTargetBeast]},caster:true},
+	]},
 	senderBeast : {"type":"tag","data":{"tags":["pl_beast"]},"caster":true},
 	senderHasTentacles : {"type":"tag","data":{"tags":["pl_tentacles"]},"caster":true},
 	senderHasCocktacles : {type:Condition.Types.tag,data:{tags:[stdTag.plCocktacle]}, caster:true},
@@ -185,6 +191,8 @@ const lib = {
 	targetPenis : {"type":"tag","data":{"tags":["pl_penis"]}},
 	targetBreasts : {"type":"tag","data":{"tags":["pl_breasts"]}},
 	targetNotCircumcised : {"type":"tag","data":{"tags":["pl_circumcised"]},"inverse":true},
+	senderTongue : {type:Condition.Types.tag,data:{tags:[stdTag.plTongue]}},
+	
 	targetButtLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_butt"}},
 	targetBreastsLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_breasts"}},
 	targetPenisLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_penis"}},
@@ -291,6 +299,11 @@ lib.targetHasUnblockedNotHardOrifice = {conditions:[
 	lib.targetMouthUnblockedAndNotHard,
 	lib.targetVaginaUnblockedAndNotHard,
 ], min:1};
+
+lib.skeleton_looseHand = {conditions:[
+	{min:-1, conditions:["targetWearsUpperbody", "targetBreasts"]},
+	"targetWearsLowerbody"
+]};
 
 const getArray = function(){
 	const out = [];

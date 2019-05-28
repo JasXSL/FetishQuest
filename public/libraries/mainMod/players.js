@@ -59,7 +59,7 @@ const lib = {
 		],
 		inventory : [0,1,2],	// Which items should be equipped
 		tags : [
-			stdTag.plBoss,
+			stdTag.plBoss, stdTag.plTongue,
 			stdTag.vagina, stdTag.breasts, stdTag.plBigBreasts, stdTag.plScaly, stdTag.plTail, stdTag.plLongTail, stdTag.asStrapon
 		]
 	},
@@ -85,7 +85,7 @@ const lib = {
 		assets : [],
 		inventory : [],	// Which items should be equipped
 		tags : [
-			stdTag.penis, stdTag.plHorn, stdTag.plTail
+			stdTag.penis, stdTag.plHorn, stdTag.plTail, stdTag.plTongue
 		]
 	},
 };

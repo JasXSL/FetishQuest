@@ -614,6 +614,7 @@ export default class UI{
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			game.my_player = $(event.target).closest('div.player').attr('data-id');
+			localStorage.my_player = game.my_player;
 			this.draw();
 			game.save();
 		});
@@ -712,7 +713,7 @@ export default class UI{
 		
 		let rb_entries = [];
 		rb_entries.push('<span class="arousal resource" title="Arousal.\n+'+Math.round(p.arousal/p.getMaxArousal()*50)+'% corruption damage taken">'+
-			Math.round(p.arousal/p.getMaxArousal()*100)+'%'+
+			p.arousal+"/"+p.getMaxArousal()+
 		'</span>');
 		if( !p.isBeast() ){
 			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperbody);
@@ -1634,8 +1635,8 @@ export default class UI{
 
 		// /media/characters/otter.jpg
 		const gallery = [
-			{name : 'Otter', size:5, 'icon':'/media/characters/otter_dressed.jpg', description: 'Art by GothWolf', icon_lowerbody:'/media/characters/otter_lb.jpg', icon_upperbody:'/media/characters/otter_ub.jpg', icon_nude:'/media/characters/otter_nude.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
-			{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', description:'Art by Maddworld', class:'monk', tags:[stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+			{name : 'Otter', size:5, 'icon':'/media/characters/otter_dressed.jpg', description: 'Art by GothWolf', icon_lowerbody:'/media/characters/otter_lb.jpg', icon_upperbody:'/media/characters/otter_ub.jpg', icon_nude:'/media/characters/otter_nude.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.plTongue, stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+			{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', description:'Art by Maddworld', class:'monk', tags:[stdTag.plTongue, stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
 		];
 
 

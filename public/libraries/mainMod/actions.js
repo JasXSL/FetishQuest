@@ -4,7 +4,8 @@ import { Wrapper, Effect } from "../../classes/EffectSys.js";
 //import Asset from "../../classes/Asset.js";
 import GameEvent from "../../classes/GameEvent.js";
 //import Player from "../../classes/Player.js";
-//import C from './conditions.js';
+import C from './conditions.js';
+import Condition from "../../classes/Condition.js";
 
 
 // Standard wrapper conditions
@@ -243,36 +244,20 @@ const lib = {
 		level: 1,
 		icon : 'armor-punch',
 		name : "Low Blow",
-		description : "Fight dishonorably. Deals 5 damage and interrupts any active charged actions your opponent is readying.",
+		description : "Fight dishonorably. Deals 5 physical damage and interrupts any active charged actions your opponent is readying.",
 		ap : 3,
 		cooldown : 3,
-		tags : [
-			"ac_damage",
-			"ac_painful"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		tags : [stdTag.acDamage,stdTag.acPainful,stdTag.acInterrupt],
+		show_conditions : ["inCombat"],
 		wrappers : [
 			{
-				target : "VICTIM",
+				target : Wrapper.Targets.auto,
 				duration : 0,
-				name : "",
-				icon : "",
-				description : "",
 				detrimental : true,
 				add_conditions : stdCond,
 				effects : [
-					{
-						type : "damage",
-						data : {
-							"amount": 5
-						}
-					},
-					{
-						type : "interrupt"
-					},
-					
+					{type : Effect.Types.damage,data : {"amount": 5}},
+					{type : "interrupt"},
 				]
 			}
 		]
@@ -1838,6 +1823,53 @@ const lib = {
 		]
 	},
 
+
+	// Skeleton
+	skeleton_looseHand: {
+		level: 1,
+		icon : 'skeletal-hand',
+		name : "Loose Hand",
+		description : "Detach your hand inside your target's clothing and fondle their goods, adding 1 arousal every turn for 3 turns.",
+		ap : 1,
+		cooldown : 3,
+		tags : [stdTag.acArousing],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				label : 'skeleton_looseHand',
+				target : Wrapper.Targets.auto,
+				icon : 'skeletal-hand',
+				name : 'Loose Hand',
+				description : 'Being fondled by a loose skeletal hand',
+				duration : 3,
+				detrimental : true,
+				add_conditions : stdCond.concat("skeleton_looseHand"),
+				stay_conditions : stdCond.concat({conditions : [
+					{conditions:[{type:Condition.Types.tag, data:{tags:'skeletal_hand_ub'}}, "targetWearsUpperbody"], min:-1},
+					{conditions:[{type:Condition.Types.tag, data:{tags:'skeletal_hand_lb'}}, "targetWearsLowerbody"], min:-1},
+				]}),
+				effects : [
+					{
+						events : [GameEvent.Types.internalWrapperAdded],
+						data : {tags:[
+							{tags:'skeletal_hand_ub', conds:[{
+								conditions : ["targetWearsUpperbody", "targetBreasts"],
+								min : -1
+							}]},
+							{tags:'skeletal_hand_lb', conds:['targetWearsLowerbody']}
+						]},
+						type : Effect.Types.addRandomTags,
+					},
+					{
+						label : 'skeleton_looseHand',
+						events : [GameEvent.Types.internalWrapperAdded, GameEvent.Types.internalWrapperTick],
+						type : Effect.Types.addArousal, 
+						data : {"amount": 1}
+					},
+				]
+			}
+		]
+	},
 
 
 	// mq boss

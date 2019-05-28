@@ -1,23 +1,21 @@
 Needed other:
 Smol:	
 	- Allow rotating lands
+	- Monster punishments
+	- Chat output from RP seems to be wrong
 
 Medium rare:
+
+
 Big chungi:
 	- Shop
 	- Main quest chapter 2
 	
 
 Meshes:
-	- Merchandise
-
 	- Haybale
 	- Canopy tent
 	- 
-
-	tree_stump
-	cart_wheel
-	cart
 
 - Needed music
 	- Tavern
@@ -40,4 +38,7 @@ LATER:
 	- ModVars (later) - Custom data that can be set and read by conditions
 	- Character export/import
 	- Graphics settings
-
+	- Game benefit for using a punishment
+		- Sub = Restore mana
+		- Dom = restore HP
+		- 

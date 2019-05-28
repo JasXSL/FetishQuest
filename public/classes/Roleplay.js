@@ -112,6 +112,7 @@ export default class Roleplay extends Generic{
 				game.ui.rpOptionSelected('');
 				game.ui.draw();
 				this._waiting = false;
+				game.save();
 			};
 			if( delay ){
 				this._waiting = true;

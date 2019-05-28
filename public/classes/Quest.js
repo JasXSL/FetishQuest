@@ -32,7 +32,7 @@ class Quest extends Generic{
 			name : this.name,
 			description : this.description,
 			objectives : this.objectives.map(el => el.save(full)),
-			rewards : Asset.saveThese(this.rewards),
+			rewards : Asset.saveThese(this.rewards, full),
 			exp_multiplier : this.exp_multiplier,
 			completion_objectives : this.completion_objectives.map(el =>el.save(full))
 		};

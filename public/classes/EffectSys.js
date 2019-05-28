@@ -472,8 +472,8 @@ class Wrapper extends Generic{
 	}
 
 	// Filters effects based on target player
-	getEffectsForPlayer( player ){
-		return this.effects.filter(ef => ef.affectingPlayer(player));
+	getEffectsForPlayer( player, debug ){
+		return this.effects.filter(ef => ef.affectingPlayer(player, debug));
 	}
 
 	/* Events */
@@ -611,6 +611,17 @@ class Effect extends Generic{
 		if( this.type === Effect.Types.runWrappers && Array.isArray(this.data.wrappers) )
 			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
 
+		// Unpack is required since it has nested objects
+		if( this.type === Effect.Types.addRandomTags ){
+			let n = 0;
+			for( let obj of this.data.tags ){
+				obj.id = ++n;
+				if( obj.conds ){
+					obj.conds = Condition.loadThese(obj.conds);
+				}
+			}
+		}
+		
 		this.conditions = Condition.loadThese(this.conditions, this);		
 	}
 
@@ -1136,6 +1147,49 @@ class Effect extends Generic{
 
 			}
 
+			else if( this.type === Effect.Types.addTags ){
+				let tags = this.data.tags;
+				if( !Array.isArray(tags) )
+					tags = [tags];
+				for( let tag of tags )
+					this.tags.push(tag);
+			}
+
+			else if( this.type === Effect.Types.addRandomTags ){
+				if( !Array.isArray(this.data.tags) ){
+					console.error("addRandomTags called on", this, "but no tags set");
+					return false;
+				}
+				let viable = [];
+				const tEvent = new GameEvent({target:t, sender:s});
+				for( let tag of this.data.tags ){
+					if( !tag.tags ){
+						console.error("No tags set on", tag, "in", this);
+						continue;
+					}
+					if( tag.conds ){
+						let conds = tag.conds;
+						if( !Array.isArray(conds) )
+							conds = [conds];
+						conds = Condition.loadThese(conds);
+						if( !Condition.all(conds, tEvent) )
+							continue;
+					}
+					let t = tag.tags;
+					if( !Array.isArray(t) )
+						t = [t];
+					
+					viable.push(t);
+				}
+				const amount = this.data.amount > 0 ? this.data.amount : 1;
+				for( let i =0; i<amount && viable.length; ++i ){
+					const entry = randElem(viable, true);
+					for( let tag of entry )
+						this.tags.push(tag);
+				}
+
+			}
+
 			// LAST
 			else if( typeof this.type !== "string" )
 				console.error("Invalid effect", this.type);
@@ -1199,9 +1253,20 @@ class Effect extends Generic{
 	}
 
 	flattenObject( input ){
-		if( !input || typeof input.save !== "function" )
+
+		if( input === null || typeof input !== "object" )
 			return input;
-		return input.save(true);
+		if( input && typeof input.save === "function" )
+			return input.save(true);
+		
+		let out = {};
+		for( let i in input ){
+			if( Array.isArray(input[i]) )
+				out[i] = this.flattenArray(input[i]);
+			else
+				out[i] = this.flattenObject(input[i]);
+		}
+		return out;
 	}
 
 	// Attempts to get a target by wrapper.target type
@@ -1224,14 +1289,7 @@ class Effect extends Generic{
 
 	// Exports effect data in a JSON safe way
 	saveData(){
-		let out = {};
-		for( let i in this.data ){
-			if( Array.isArray(this.data[i]) )
-				out[i] = this.flattenArray(this.data[i]);
-			else
-				out[i] = this.flattenObject(this.data[i]);
-		}
-		return out;
+		return this.flattenObject(this.data);
 	}
 
 	// Helper function for getting a repair value. Used in Asset.js
@@ -1251,7 +1309,10 @@ class Effect extends Generic{
 	}
 
 	// Checks if target is affecting a specific player
-	affectingPlayer( player ){
+	affectingPlayer( player, debug ){
+
+		if( debug )
+			console.log("Target", this.targets, "parent", this.parent, player.id, this.parent.victim);
 		if(
 			(~this.targets.indexOf(Wrapper.Targets.auto) && this.parent.victim === player.id) ||
 			(~this.targets.indexOf(Wrapper.Targets.caster) && this.parent.caster === player.id) ||
@@ -1340,6 +1401,8 @@ Effect.Types = {
 	addActions : 'addActions',	// handled in Player
 	addMissingFxTag : 'addMissingFxTag',
 	addExposedOrificeTag : 'addExposedOrificeTag',
+	addTags : 'addTags',
+	addRandomTags : 'addRandomTags',
 };
 
 Effect.KnockdownTypes = {
@@ -1409,7 +1472,8 @@ Effect.TypeDescs = {
 	[Effect.Types.none] : 'Void. You probably only want to use this if you want an effect that adds tags but nothing else',
 	[Effect.Types.addMissingFxTag] : '{tag:(str/arr)tags, max:(int)=1} - Adds one or more tags to this Effect that the target doesn\'t have.',
 	[Effect.Types.addExposedOrificeTag] : '{relax:(str)"notHard"/"all"} - Similar to above, but it checks availability and exposed status of stdTag.wrBlockGroin, wrBlockButt, wrBlockMouth, and adds one of them. Useful for latching that should occupy a slot. Checks for exposed by default, but you can also limit it to non-hard armor or no limits.',
-
+	[Effect.Types.addTags] : '{tags:(arr/str)tags} - Adds tags to the effect itself.',
+	[Effect.Types.addRandomTags] : '{tags:(arr)tag_objs, amount:(int)amount=1} - Adds a random set of tags from tag_objs. Tag objects consist of {tags:(arr/str)tags, conds:(arr)conditions}',
 };
 
 

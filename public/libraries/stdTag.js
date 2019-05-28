@@ -24,6 +24,7 @@ export default {
 	plLongHair : 'pl_long_hair',	// Player has long hair
 	plFangs : 'pl_fangs',			// Player has fangs
 	plBeast : 'pl_beast',			// non-humanoid
+	plTargetBeast : 'pl_target_beast',	// Only considered beast as a target, not sender. Use plBeast alongside this one.
 	plTentacles : 'pl_tentacles',
 	plCocktacle : 'pl_cocktacle',	// Player has at least 1 cock tipped tentacle
 	plHorns : 'pl_horns',
@@ -34,6 +35,7 @@ export default {
 	plImmobile : 'pl_immobile',		// Immobile
 	plElectric : "pl_electric",
 	plClaws : 'pl_claws',
+	plTongue : 'pl_tongue',
 
 	// Used for gameplay
 	plBoss : 'pl_boss',				// used on boss battles
