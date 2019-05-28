@@ -137,9 +137,9 @@ const lib = {
 		]
 	},
 	stdPunishDom: {
-		name : "Punish Dominant",
+		name : "Punish Top",
 		icon : 'muscle-fat',
-		description : "Use a dominant punishment on a defeated enemy.",
+		description : "Top-punish a defeated enemy.",
 		ap : 0,
 		cooldown : 0,
 		semi_hidden: true,
@@ -171,9 +171,9 @@ const lib = {
 		]
 	},
 	stdPunishSub: {
-		name : "Punish Submissive",
+		name : "Punish Bottom",
 		icon : 'kneeling',
-		description : "Use a submissive punishment on a defeated enemy.",
+		description : "Bottom-punish a defeated enemy.",
 		ap : 0,
 		cooldown : 0,
 		semi_hidden: true,

@@ -243,6 +243,11 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.8,
 		}),
+		Stump : new LibMaterial({
+			map : 'decals/stump.jpg',
+			metalness : 0.3,
+			roughness : 0.8,
+		}),
 		Floor : new LibMaterial({
 			map : 'tileable/wood_floor.jpg',
 			metalness : 0.3,

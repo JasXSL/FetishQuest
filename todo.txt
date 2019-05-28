@@ -1,20 +1,25 @@
 Needed other:
 Smol:	
-	- Allow rotating lands
 	- Monster punishments
 	- Chat output from RP seems to be wrong
 
 Medium rare:
-
+	- Monster: Roper
+		- 
+		- 
 
 Big chungi:
 	- Shop
 	- Main quest chapter 2
-	
+	- Goblin boat quest
+		- Need 4 spools of roper vines
+	- Add item respawn
+	- Add monster respawn
+	- 
 
 Meshes:
-	x Haybale
-	x Canopy tent
+	- Logs
+
 
 - Needed music
 	- Tavern

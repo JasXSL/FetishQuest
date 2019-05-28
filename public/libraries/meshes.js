@@ -2540,6 +2540,11 @@ LibMesh.library = {
 			Stump : new LibMesh({
 				tags : [stdTag.mTreeStump],
 				url : 'nature/tree_stump.JD',
+				materials : [libMat.Wood.Bark,libMat.Wood.Stump],
+			}),
+			Dead : new LibMesh({
+				tags : [stdTag.mTreeStump],
+				url : 'nature/tree_dead.JD',
 				materials : [libMat.Wood.Bark],
 			}),
 		},

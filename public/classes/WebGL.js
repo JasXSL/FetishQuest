@@ -1190,7 +1190,7 @@ class Stage{
 
 		
 		// Position it
-		if( asset.absolute ){
+		if( asset.absolute || asset.isRoom() ){
 			c.position.x = asset.x;
 			c.position.y = asset.y;
 			c.position.z = asset.z;

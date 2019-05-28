@@ -2456,6 +2456,8 @@ export default class Modtools{
 			});
 			html += '</select>';
 
+			html += '<br />Y Rotation: <input type="number" name="roomAssetRotY" min=0 max=360 style="width:6em" value="'+esc(Math.round(asset.rotY*RAD_TO_DEG))+'" />';
+
 		}
 		// Generic asset selector
 		else{
@@ -2521,6 +2523,10 @@ export default class Modtools{
 		$("select[name=roomAssetPath]", div).on('change', function(){
 			asset.model = $(this).val();
 			th.drawRoomEditor(asset.parent);
+		});
+		$("input[name=roomAssetRotY]", div).on('change', function(){
+			console.log("Updating asset", asset, $(this).val()*DEG_TO_RAD);
+			asset._stage_mesh.rotation.y = asset.rotY = $(this).val()*DEG_TO_RAD;
 		});
 
 		
