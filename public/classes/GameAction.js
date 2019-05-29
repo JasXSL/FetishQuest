@@ -110,6 +110,8 @@ export default class GameAction extends Generic{
 
 		if( window.game ){
 			
+			
+
 			if( this.type === GameAction.types.loot ){
 				
 				if( typeof this.data !== "object" || this.data === null )
@@ -136,6 +138,7 @@ export default class GameAction extends Generic{
 				
 			}
 		}
+
 
 	}
 
@@ -215,8 +218,9 @@ export default class GameAction extends Generic{
 		else
 			return this;
 
-		if( this.parent instanceof DungeonRoomAsset )
-			this.parent.generated = true;
+		if( this.parent instanceof DungeonRoomAsset ){
+			this.parent.setGenerated();
+		}
 
 		game.save();
 		return this;
@@ -378,14 +382,14 @@ export default class GameAction extends Generic{
 		}
 	}
 
-	validate(){
+	validate(debug){
 		if( this.transporting )
 			return false;
 		if( !Condition.all(this.conditions, new GameEvent({
 			dungeon : this.parent.parent.parent,
 			room : this.parent.parent,
 			dungeonRoomAsset : this.parent
-		})) )return false;
+		}), debug) )return false;
 		
 		return true;
 	}

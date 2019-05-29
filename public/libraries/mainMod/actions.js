@@ -1760,10 +1760,10 @@ const lib = {
 	crab_claw_pinch : {
 		name : "Claw Pinch",
 		icon : 'crossed-claws',
-		description : "Jumps onto and pinches a player with your claws, dealing 4 physical damage.",
+		description : "Jumps onto and pinches a player with your claws, dealing 5 physical damage.",
 		ap : 2,
 		cooldown : 2,
-		mp : 1,
+		mp : 3,
 		detrimental : true,
 		type : Action.Types.physical,
 		tags : [
@@ -1780,7 +1780,7 @@ const lib = {
 					{
 						type : Effect.Types.damage,
 						data : {
-							amount : 4
+							amount : 5
 						}
 					},
 				]

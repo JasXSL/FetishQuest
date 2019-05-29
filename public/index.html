@@ -68,11 +68,6 @@
 		})
 		.then(() => {
 			console.debug("Game initialized. Globals:\ngame = Active game\nglib = Game asset library\ng_Condition = Condition class\ng_Mod = Mod class\ng_GameEvent = GameEvent class\ng_Audio = Audio class");
-			if(window.location.hash !== "#debug"){
-				window.onbeforeunload = function() {
-					return true;
-				};
-			}
 		})
 		.catch(err => console.error(err));
 		

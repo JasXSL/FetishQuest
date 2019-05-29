@@ -19,6 +19,7 @@ const lib = {
 		wrappers : [],
 		startText : '',
 		conditions : [],
+		respawn : 15000
 	},
 	tentacles : {
 		player_templates : [
@@ -39,6 +40,7 @@ const lib = {
 		wrappers : [],
 		startText : '',
 		conditions : [],
+		respawn : 15000
 	},
 
 	// YUUG

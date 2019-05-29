@@ -44,6 +44,9 @@ class NetworkManager{
 			console.debug("Server connection established");
 			clearTimeout(this.timer_reconnect);
 			game.onTurnTimerChanged();
+			window.onbeforeunload = function() {
+				return true;
+			};
 		});
 
 		// Host left
@@ -110,7 +113,7 @@ class NetworkManager{
 
 			}
 
-
+			window.onbeforeunload = undefined;
 			this.disconnect();
 			
 		});

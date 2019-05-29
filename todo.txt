@@ -10,14 +10,17 @@ Medium rare:
 
 Big chungi:
 	- Shop
-	- Main quest chapter 2
 	- Goblin boat quest
 		- Need 4 spools of roper vines
 	- Add item respawn
 	- Add monster respawn
-	- 
 
 Meshes:
+
+
+Next:
+	- Main quest chapter 2
+
 
 
 

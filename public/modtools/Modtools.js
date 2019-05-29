@@ -2465,6 +2465,7 @@ export default class Modtools{
 			html += 'Name: <input type="text" class="updateMesh" name="name" value="'+esc(asset.name)+'" /> <br />';
 			html += '<label>Remove if made noninteractive: <input type="checkbox" class="updateMesh" name="rem_no_interact" '+(asset.rem_no_interact ? 'checked' : '')+' /></label><br />';
 			html += '<label>Hide while noninteractive: <input type="checkbox" class="updateMesh" name="hide_no_interact" '+(asset.hide_no_interact ? 'checked' : '')+' /></label><br />';
+			html += 'Respawn (ingame seconds): <input type="number" style="width:6em" class="updateMesh" name="respawn" value="'+esc(asset.respawn)+'" /></label><br />';
 			html += '<strong>Position:</strong><br />';
 			html += 'X <input type="number" step=1 name="x" class="updateMesh" style="width:6vmax" value="'+esc(asset.x)+'" /> ';
 			html += 'Y <input type="number" step=1 name="y" class="updateMesh" style="width:6vmax" value="'+esc(asset.y)+'" /> ';
@@ -2632,11 +2633,16 @@ export default class Modtools{
 
 					
 
-					div.on('click', function(event){
+					div.off('click').on('click', function(event){
 				
+						event.stopImmediatePropagation();
 						if( event.ctrlKey ){
 							
 							let index = $(this).index();
+							if( index < 0 ){
+								console.error("index", index, "not found", this);
+								return;
+							}
 							asset.interactions.splice(index, 1);
 							updateAssetDataEditor();
 			
@@ -2725,6 +2731,7 @@ export default class Modtools{
 			asset.name = $("input[name=name]", div).val();
 			asset.rem_no_interact = $("input[name=rem_no_interact]", div).prop('checked');
 			asset.hide_no_interact = $("input[name=hide_no_interact]", div).prop('checked');
+			asset.respawn = +$("input[name=respawn]", div).val() || 0;
 		});
 
 		$("select[name=type]", div).on('change', () => {

@@ -459,8 +459,21 @@ class DungeonRoom extends Generic{
 		const out = {
 			index : this.index
 		};
+
+		let cur = game.state_dungeons[this.parent.label];
+		if(cur)
+			cur = cur[this.index];
+		if( !cur )
+			cur = {};
+
 		// Only save a started encounter
 		if( this.encounters instanceof DungeonEncounter ){
+
+			// Encounter was completed since last check
+			if( !cur.encounter_complete && this.encounters.completed && this.encounters.respawn )
+				out.encounter_respawn = game.time+this.encounters.respawn;
+			else
+				out.encounter_respawn = cur.encounter_respawn;
 			out.encounter_complete = this.encounters.completed;
 			out.encounter_friendly = this.encounters.friendly;
 		}
@@ -474,24 +487,31 @@ class DungeonRoom extends Generic{
 	}
 	loadState( state ){
 
+		const respawn = state.encounter_respawn && state.encounter_respawn < game.time;
 		// If encounter is complete, set it to completed
-		if( state.encounter_complete ){
+		if( state.encounter_complete && !respawn ){
 			this.encounters = new DungeonEncounter();
 			this.encounters.completed = true;
 		}
-		if( state.encounter_friendly !== undefined && this.encounters instanceof DungeonEncounter ){
+		if( state.encounter_friendly !== undefined && this.encounters instanceof DungeonEncounter && !respawn )
 			this.encounters.friendly = state.encounter_friendly;
-		}
 
 		if( state.discovered )
 			this.discovered = true;
 
 		if( Array.isArray(state.assets) ){
-			for( let asset of state.assets ){
-				const cur = this.getAssetById(asset.id);
+			let all = state.assets.slice();
+			for( let asset of all ){
+				let cur = this.getAssetById(asset.id);
+				const respawnTime = asset._killed+cur.respawn;
+				const curRespawn = !isNaN(respawnTime) && cur.respawn && game.time > respawnTime;
+				if( curRespawn ){
+					state.assets.splice(state.assets.indexOf(asset), 1);
+					continue;	// Don't load, it has expired
+				}
 				if( cur ){
 					cur.load(asset);
-					cur.generated = true;
+					cur.setGenerated();
 				}
 				else
 					this.addAsset(new DungeonRoomAsset(asset, this), true);
@@ -890,11 +910,11 @@ class DungeonRoom extends Generic{
 		// First visit
 		if( !this.discovered ){
 			this.discovered = true;
-
 			for( let asset of this.assets )
 				asset.onRoomFirstVisit();
 		}
-		// Todo: allow this to be sequence or random
+		for( let asset of this.assets )
+			asset.onRoomVisit();
 
 		// Start a dummy encounter just to set the proper NPCs
 		if( Array.isArray(this.encounters) && !this.encounters.length ){
@@ -982,6 +1002,9 @@ class DungeonRoomAsset extends Generic{
 		this.hide_no_interact = false;	// Hide whenever it's not interactive.
 
 		this._interactive = null;		// Cache of if this object is interactive
+		
+		this.respawn = 0;					// Time in seconds before it respawns
+		this._killed = 0;
 
 		this.load(data);
 
@@ -997,7 +1020,6 @@ class DungeonRoomAsset extends Generic{
 
 	save( full ){
 		const out = {
-			
 			model : this.model,
 			x : this.x,
 			y : this.y,
@@ -1019,10 +1041,14 @@ class DungeonRoomAsset extends Generic{
 			id : this.id,
 		};
 		if( full !== 'mod' ){
-			
+			if( full )
+				out._killed = this._killed;
 		}	
 		else{
 			this.g_sanitizeDefaults(out);
+		}
+		if( full ){
+			out.respawn = this.respawn;
 		}
 		return out;
 	}
@@ -1066,7 +1092,8 @@ class DungeonRoomAsset extends Generic{
 
 	// Events
 	// Room this exists in has been visited the first time
-	onRoomFirstVisit(){
+	onRoomFirstVisit(){}
+	onRoomVisit(){
 		for( let asset of this.interactions )
 			asset.convertToLoot();
 	}
@@ -1248,6 +1275,7 @@ class DungeonRoomAsset extends Generic{
 		}
 
 		game.ui.addText( player.getColoredName()+" looted "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
+		this.setGenerated();
 		game.renderer.drawActiveRoom();		// Forces a room refresh
 		game.save();
 		game.ui.draw();
@@ -1391,6 +1419,15 @@ class DungeonRoomAsset extends Generic{
 				return i;
 		}
 	}
+
+	setGenerated(){
+		const was = this.generated;
+		this.generated = true;
+		if( !this._killed )
+			this._killed = game.time;
+		if( this.generated !== was )
+			game.saveDungeonState();
+	}
 	
 
 	/* Tags */
@@ -1436,6 +1473,8 @@ class DungeonEncounter extends Generic{
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
 		this.game_actions = [];		// Game actions to run when the encounter starts
+		this.time_completed = 0;
+		this.respawn = 0;			// Time to respawn
 
 		this.load(data);
 	}
@@ -1542,6 +1581,7 @@ class DungeonEncounter extends Generic{
 			out.label = this.label;
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
 			out.conditions = Condition.saveThese(this.conditions, full);
+			out.respawn = this.respawn;
 		}
 		out.friendly = this.friendly;
 		out.game_actions = GameAction.saveThese(this.game_actions, full);
@@ -1550,7 +1590,6 @@ class DungeonEncounter extends Generic{
 			out.id = this.id;
 			out.completed = this.completed;
 			out.started = this.started;
-			
 		}
 		else
 			this.g_sanitizeDefaults(out);

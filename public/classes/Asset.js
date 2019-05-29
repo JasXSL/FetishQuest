@@ -36,6 +36,7 @@ export default class Asset extends Generic{
 		this.rarity = this.constructor.Rarity.COMMON;
 		this.loot_sound = '';				// Also equip and unequip sound. audioKit ID
 
+
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
@@ -69,7 +70,7 @@ export default class Asset extends Generic{
 			icon : this.icon,
 			category : this.category,
 			stacking : this.stacking,
-			_stacks : this._stacks
+			_stacks : this._stacks,
 		};
 
 		if( full ){

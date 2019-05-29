@@ -289,7 +289,6 @@ export default class Game extends Generic{
 		this.quests = [];
 		this.completed_quests = new Collection();
 		this.state_dungeons = new Collection();
-		console.log(this.state_dungeons);
 		this.save();
 	}
 
@@ -692,8 +691,9 @@ export default class Game extends Generic{
 		let pre = this.dungeon;
 		if( pre.id !== this.id ){
 			this.onDungeonExit();
-			if( saveState )
+			if( saveState ){
 				this.saveDungeonState();
+			}
 		}
 		this.dungeon = dungeon;
 		game.dungeon.previous_room = game.dungeon.active_room = room;
