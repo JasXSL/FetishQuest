@@ -488,6 +488,44 @@ const lib = {
 		intelligence_max : 0.15,
 	},
 
+	groper : {
+		name : "Groper",
+		icon : "",
+		species : "Groper",
+		description : "A tree monster with viny tentacles. Dangerous during mating season. Sadly their mating season lasts all year.",
+		classes : ["groper"],
+		max_actions : 3,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plTentacles,
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : -2,
+			[Player.primaryStats.stamina] : 2,
+			[Player.primaryStats.intellect] : -3,
+		},
+		sv : {
+			[Action.Types.corruption] : 2,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : 0,
+			[Action.Types.physical] : 2,
+		},
+		bon : {
+			[Action.Types.corruption] : 0,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : -6,
+			[Action.Types.physical] : 0,
+		},
+		min_size : 6,
+		max_size : 8,
+		difficulty : 1,
+		required_assets : ["groperVine"],
+		intelligence_min : 0.1,
+		intelligence_max : 0.15,
+	},
+
 	tentacrab : {
 		name : "Tentacrab",
 		icon : "/media/characters/crabby.jpg",

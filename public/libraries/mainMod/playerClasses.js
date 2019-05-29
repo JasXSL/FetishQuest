@@ -254,7 +254,16 @@ const lib = {
             'skeleton_looseHand',
             'lowBlow'
         ]
-    }
+    },
+    cocktopus : {
+        name : "Groper",
+        primaryStat : Player.primaryStats.stamina,
+        isMonsterClass : true,
+        actions : [
+            "tentacle_fiend_legWrap",
+            "tentacle_fiend_tentatug",
+        ]
+    },
 };
 
 

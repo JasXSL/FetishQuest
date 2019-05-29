@@ -4,7 +4,7 @@ Smol:
 	- Chat output from RP seems to be wrong
 
 Medium rare:
-	- Monster: Roper
+	- Monster: Groper
 		- 
 		- 
 
@@ -12,8 +12,6 @@ Big chungi:
 	- Shop
 	- Goblin boat quest
 		- Need 4 spools of roper vines
-	- Add item respawn
-	- Add monster respawn
 
 Meshes:
 

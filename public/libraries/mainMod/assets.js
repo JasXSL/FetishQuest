@@ -397,6 +397,19 @@ const lib = {
 		rarity : 1,
 		loot_sound : "lootCloth",
 	},
+
+	groperVine : {
+		name : "Groper Vine",
+		slots : [],
+		category : Asset.Categories.reagent,
+		tags : [stdTag.asReagent],
+		description : "A sturdy vine taken from a groper.",
+		weight : 500,
+		rarity : 0,
+		loot_sound : "",	// todo: loot sound
+		icon : 'vine-whip',
+		stacking : true,
+	},
 };
 function getArray(){
 	const out = [];

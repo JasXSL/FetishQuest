@@ -82,7 +82,7 @@ export default {
 	asButtFlap : 'as_butt_flap',			// There's a piece of cloth hanging in front of your butt
 	asBodysuit : 'as_bodysuit',				// Designated for any piece of outfit that can't be "pulled down"
 	asWaistband : 'as_waistband',			// Outfit has "waistband"
-
+	asReagent : 'as_reagent',
 	
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',
