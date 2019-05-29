@@ -17,7 +17,7 @@ export default class GameAction extends Generic{
 
 		this.parent = parent;			// Either a roleplay or dungeon asset
 		this.label = '';
-		this.type = "dvar";
+		this.type = GameAction.types.door;
 		this.data = null;
 		this.break = null;		// Use "success" "fail" here to break on success or fail
 		this.repeats = -1;
@@ -399,7 +399,7 @@ GameAction.types = {
 	dungeonVar : "dvar",			// {id:(str)id, val:(var)val} - Can use a math formula
 	loot : "loot",					// Staging: {assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger "open" and "open_idle" animations. When first opened, it gets converted to an array.
 	autoLoot : "aLoot",				// {val:(float)modifier} - This is replaced with "loot" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.
-	door : "door",					// {index:(int)room_index, no_exit:(bool)no_exit} - Door will automatically trigger "open" animation when successfully used. no_exit will prevent the exit door icon from being added
+	door : "door",					// {index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger "open" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit
 	exit : "exit",					// {dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}
 	anim : "anim",					// {anim:(str)animation}
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations

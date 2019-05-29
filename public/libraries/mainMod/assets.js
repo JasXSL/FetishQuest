@@ -19,6 +19,7 @@ const lib = {
 		icon : 'metal-disc',
 		stacking : true,
 	},
+	// {"name":"gold","label":"__LABEL__","_stacks":2}
 
 	shinyWhiteThong : {
 		name : "Skirt and Thong Outfit",

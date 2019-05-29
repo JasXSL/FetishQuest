@@ -4,7 +4,9 @@ import PT from './playerTemplates.js';
 import GameAction from "../../classes/GameAction.js";
 import { DungeonEncounter } from "../../classes/Dungeon.js";
 import Condition from "../../classes/Condition.js";
+import {Wrapper, Effect} from "../../classes/EffectSys.js";
 import { RoleplayStageOption } from "../../classes/Roleplay.js";
+
 
 
 const lib = {
@@ -160,6 +162,33 @@ const lib = {
 				player : 'yuug_port_portmaster'
 			}}
 		}]
+	},
+
+	mimic : {
+		startText : 'A mimic springs from the chest, grabbing hold of %T\'s ankles and pulling %Thim to the ground!',
+		active : true,
+		wrappers : [
+			{
+				label : 'legWrap',
+				target: Wrapper.TARGET_AUTO,		// Auto is the person who started the encounter
+				duration : 3,
+				name : "Leg Wrap",
+				icon : "daemon-pull.svg",
+				description : "Knocked down on your %knockdown, tentacles spreading your legs.",
+				trigger_immediate : true,
+				tags : [stdTag.wrLegsSpread],
+				add_conditions : ["targetNotKnockedDown","targetNotBeast","senderNotDead", "targetNotDead"], 
+				effects : [
+					{
+						type : Effect.Types.knockdown,
+						data: {
+							type : Effect.KnockdownTypes.Back
+						}
+					}
+				]
+			}
+		],
+		player_templates : ['mimic']
 	},
 
 

@@ -18,7 +18,7 @@ Big chungi:
 	- 
 
 Meshes:
-	- Logs
+
 
 
 - Needed music

@@ -407,7 +407,10 @@ export default class Condition extends Generic{
 				success = !t.used_punish;
 			
 			else if( this.type === T.dungeonVar ){
-				success = event.dungeon && event.dungeon.vars[this.data.id] === this.data.data;
+				let dungeon = event.dungeon.label;
+				if( this.data.dungeon )
+					dungeon = this.data.dungeon;
+				success = game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
 			}
 
 			else if( this.type === T.actionRanged ){
@@ -621,7 +624,7 @@ Condition.descriptions = {
 	[Condition.Types.defeated] : 'void - Player is defeated',
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
 	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches',	
-	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data} - Compares a dungeonVar to data',	
+	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
 	[Condition.Types.targetIsWrapperSender] : 'void - Sender might not always be the caster of a wrapper (ex checking effect targets). This specifies that you want the sender of the included wrapper in specific.',	
 	[Condition.Types.species] : '{species:(str/arr)species} - Checks if target is one of the selected species. Case insensitive',	

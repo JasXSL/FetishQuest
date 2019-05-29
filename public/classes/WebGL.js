@@ -1041,11 +1041,12 @@ class Stage{
 		let linkedRoom = !this.isEditor ? game.dungeon.rooms[asset.getDoorTarget()] : false;
 		//let tagAlwaysVisible = (asset.isExit() && !asset.isLocked() &&) || (linkedRoom && (linkedRoom.index === game.dungeon.previous_room || !linkedRoom.discovered || linkedRoom.index === asset.parent.parent_index));
 		let tagAlwaysVisible = false;
+		const interaction = asset.getDoorInteraction();
+		const alwaysHide = interaction && interaction.data.badge === 1;
 
 		let sprites = c.userData.hoverTexts;
 		for( let i in sprites )
 			sprites[i].visible = false;
-
 
 		let sprite = sprites.bearing;
 		if( sprite )
@@ -1074,25 +1075,25 @@ class Stage{
 				tagAlwaysVisible = true;
 			}
 			else if( sprites.back ){
-				sprites.back.visible = true;
+				sprites.back.visible = !alwaysHide;
 				sprites.back.opacity = 1;
 			}
 		}
 
-		if( linkedRoom && linkedRoom.index === asset.parent.parent_index && !game.battle_active && !asset.getDoorInteraction().data.no_exit ){
+		if( linkedRoom && linkedRoom.index === asset.parent.parent_index && !game.battle_active && !interaction.data.badge ){
 			tagAlwaysVisible = true;
 			sprite = sprites.out;
 			sprite.material.opacity = 1;
 		}
 
 		if( sprite ){
-			sprite.visible = true;
+			sprite.visible = !alwaysHide;
 
 			// Fade tween (Needed for the tags)
 			let tweenVal = {i:1};
 			c.userData.tween = new TWEEN.Tween(tweenVal).to({i:0}, 250).easing(TWEEN.Easing.Sinusoidal.Out).onUpdate(obj => {
 
-				if( !tagAlwaysVisible )
+				if( !tagAlwaysVisible && !alwaysHide )
 					sprite.material.opacity = obj.i;
 				let intensity = Math.floor(0x22*obj.i);
 				this.setMeshMatProperty(c, 'emissive', new THREE.Color((intensity<<16)|(intensity<<8)|intensity));
@@ -1103,7 +1104,7 @@ class Stage{
 			c.userData.mouseover = () => {
 				c.userData.tween.stop();
 
-				if( !tagAlwaysVisible ){
+				if( !tagAlwaysVisible && !alwaysHide ){
 					sprite.visible = true;
 					sprite.material.opacity = 1;
 				}

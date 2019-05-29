@@ -2163,7 +2163,8 @@ export default class Modtools{
 					}
 					return;
 				}
-				setDungeonRoomByIndex(index);
+				const r = dungeon.getRoomByIndex(index);
+				setDungeonRoomByIndex(index, r ? r.z : 0);
 
 			});
 			
@@ -2617,32 +2618,36 @@ export default class Modtools{
 
 			const bindInteractions = function(){
 
-				const base = $("#modal div.assetEditor div.assetDataEditor div.assetData div.interaction div.gameActionForm"),
-					div = base.closest('div.interaction'),
-					id = div.attr("data-id"),
-					interaction = asset.getInteractionById(id)
-				;
-
-				if( interaction )
-					th.formGameActionBind(base, interaction);
-
-				$('#modal div.assetEditor div.assetDataEditor div.assetData div.interaction[data-id="_lib_"] input[name=interaction_id]').on('change', event => {
+				// Multiple
+				const base = $("#modal div.assetEditor div.assetDataEditor div.assetData div.interaction div.gameActionForm");
 					
-					let index = $(event.target).parent().index();
-					asset.interactions[index] = $(event.target).val();
+				base.each((idx, el) => {
 
-				});
+					const div = $(el).closest('div.interaction'),
+					id = div.attr("data-id"),
+					interaction = asset.getInteractionById(id);
 
-				base.parent().on('click', function(event){
-			
-					if( event.ctrlKey ){
+					if( interaction )
+						th.formGameActionBind($(el), interaction);
+
+					$('#modal div.assetEditor div.assetDataEditor div.assetData div.interaction[data-id="_lib_"] input[name=interaction_id]').on('change', event => {
 						
-						let index = $(this).index();
-						asset.interactions.splice(index, 1);
-						updateAssetDataEditor();
-		
-					}
-		
+						let index = $(event.target).parent().index();
+						asset.interactions[index] = $(event.target).val();
+
+					});
+
+					div.on('click', function(event){
+				
+						if( event.ctrlKey ){
+							
+							let index = $(this).index();
+							asset.interactions.splice(index, 1);
+							updateAssetDataEditor();
+			
+						}
+			
+					});
 				});
 				updateMissingDoors();
 
@@ -3009,18 +3014,26 @@ export default class Modtools{
 		'</select><br />';
 		
 		if( type === types.dungeonVar ){
-			html += 'Todo: Dungeon vars <br />';
+			if( !interaction.data.id )
+				interaction.data.id = interaction.id.substr(0,8);
+			html += 'ID: <input name="interaction_data_id" value="'+esc(interaction.data.id)+'" /><br />';
+			let val = interaction.data.val;
+			html += 'Value: <input name="interaction_data_val" class="json" value="'+esc(typeof val === "string" ? val : JSON.stringify(val))+'" /><br />';
 		}
 		else if( type === types.encounters )
 			html += th.formEncounters(interaction.data, 'interaction_data');
 		else if( type === types.anim )
 			html += '<input type="text" placeholder="Animation" value="'+esc(interaction.data.anim)+'" name="interaction_data" />';
 		else if( type === types.door && room ){
+			if( interaction.data === null )
+				interaction.data = {};
 			html += 'Door target: <select name="asset_room">';
 			for( let r of room.parent.rooms )
 				html += '<option value="'+esc(r.index)+'" '+(interaction.data.index === r.index ? 'selected' : '')+'>'+esc(r.name)+'</option>';
 			html += '</select>';
-			html += '<br /><label>No exit badge: <input type="checkbox" name="asset_no_exit" '+(interaction.data.no_exit ? 'checked' : '')+' /></label>';
+			html += '<br />Badge: <label><input type="radio" name="asset_badge" value="0" '+(!interaction.data.badge ? 'checked' : '')+' /> Auto</label>';
+			html += '<label><input type="radio" name="asset_badge" value="1" '+(interaction.data.badge === 1 ? 'checked' : '')+' /> Hide</label>';
+			html += '<label><input type="radio" name="asset_badge" value="2" '+(interaction.data.badge === 2 ? 'checked' : '')+' /> No Exit</label>';
 		}
 		else if( type === types.exit ){
 			html += 'Exit to: <select name="asset_dungeon">';
@@ -3046,9 +3059,11 @@ export default class Modtools{
 			html += th.formWrappers(interaction.data, 'interaction_data');
 		else if( type === types.autoLoot )
 			html += '<input type="range" min=0 max=1 step=0.01 value="'+(+interaction.data.val)+'" name="interaction_data">';
-		else if( type === types.lever )
-			html += 'ID: <input name="interaction_data" value="'+esc(interaction.data.id || 'lever_'+interaction.id.substr(0,8))+'" />';
-		
+		else if( type === types.lever ){
+			if( !interaction.data.id )
+				interaction.data.id = 'lever_'+interaction.id.substr(0,8);
+			html += 'ID: <input name="interaction_data" value="'+esc(interaction.data.id)+'" />';
+		}
 		html += '<br />';
 		html += th.formConditions(interaction.conditions, 'interaction_conditions');
 		html += '</div>';
@@ -3077,13 +3092,12 @@ export default class Modtools{
 				if( !interaction )
 					return console.error("Interaction missing", id);
 				
-				// Todo: Dvar
 				if( itype === types.dungeonVar )
-					interaction.data = [];
+					interaction.data = {id:"",val:""};
 				if( itype === types.autoLoot )
 					interaction.data = {val:0.25};
 				if( itype === types.door )
-					interaction.data = {index:1,no_exit:false};
+					interaction.data = {index:0,no_exit:false};
 				if( itype === types.anim )
 					interaction.data = {anim:"open"};
 				if( itype === types.encounters )
@@ -3113,7 +3127,10 @@ export default class Modtools{
 					interaction.data.min = +val || 0;
 			}
 			else if( itype === types.dungeonVar ){
-				console.log("Todo: dungeon vars");
+				if( name === "interaction_data_id" )
+					interaction.data.id = val;
+				else if( name === "interaction_data_val" )
+					interaction.data.val = val;
 			}
 			else if( itype === types.anim )
 				interaction.data.anim = val;
@@ -3122,8 +3139,10 @@ export default class Modtools{
 			else if( itype === types.door ){
 				if( name === "asset_room" )
 					interaction.data.index = Math.round(val);
-				else if( name === 'asset_no_exit' )
-					interaction.data.no_exit = $(this).prop('checked');
+				else if( name === 'asset_badge' ){
+					interaction.data.badge = parseInt(val) || 0;
+				}
+				
 			}
 			else if( itype === types.exit ){
 				if( name === "asset_dungeon" ){
@@ -3141,8 +3160,9 @@ export default class Modtools{
 					interaction.data.time = Math.floor(val) || 60;
 				
 			}
-			else if( itype === types.lever )
+			else if( itype === types.lever ){
 				interaction.data.id = val;
+			}
 			
 			
 
@@ -3654,7 +3674,7 @@ export default class Modtools{
 		const out = {};
 		base.each((index, value) => {
 			const el = $(value);
-			let key = $("input[name=dungeonVar_key]").val().trim();
+			let key = $("input[name=dungeonVar_key]", el).val().trim();
 			let val = $("input[name=dungeonVar_val]", el).val().trim();
 			try{
 				val = JSON.parse(val);

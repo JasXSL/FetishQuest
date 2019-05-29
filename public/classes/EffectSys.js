@@ -20,8 +20,8 @@ class Wrapper extends Generic{
 		this.parent = parent;
 		this.label = '';					// A unique identifier
 		this.target = Wrapper.TARGET_AUTO;	// target constants
-		this.add_conditions = [];			// Conditions needed to add
-		this.stay_conditions = [];			// Conditions needed to stay. These are checked at the end of turn end/start, and after an action is used
+		this.add_conditions = ["senderNotDead","targetNotDead"];			// Conditions needed to add
+		this.stay_conditions = ["senderNotDead","targetNotDead"];			// Conditions needed to stay. These are checked at the end of turn end/start, and after an action is used
 		this.effects = [];
 		this.duration = 0;
 		this.tags = [];						// wr_ is prepended
@@ -101,7 +101,6 @@ class Wrapper extends Generic{
 		this.add_conditions = Condition.loadThese(this.add_conditions, this);
 		this.stay_conditions = Condition.loadThese(this.stay_conditions, this);
 		this.effects = Effect.loadThese(this.effects, this);
-
 		this.tags = this.tags.slice();
 	}
 

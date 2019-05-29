@@ -1653,9 +1653,6 @@ DungeonEncounter.getRandomViable = function( arr, event ){
 // In a SemiLinear one, the room number is multiplied by 1.5, 50% being the side rooms
 Dungeon.generate = function( numRooms, kit, settings ){
 
-	const conditions = glib.conditions,
-		stdCond = [conditions.senderNotDead, conditions.targetNotDead];
-
 	let out = new this(settings);
 	numRooms = Math.max(numRooms, 1);
 	let maxAttempts = 1000;
@@ -1834,35 +1831,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 						let encounter = new GameAction({
 							type : GameAction.types.encounters,
-							data : [
-								new DungeonEncounter({
-									startText : 'A mimic springs from the chest, grabbing hold of %T\'s ankles and pulling %Thim to the ground!',
-									active : true,
-									wrappers : [
-										new Wrapper({
-											label : 'legWrap',
-											target: Wrapper.TARGET_AUTO,		// Auto is the person who started the encounter
-											duration : 3,
-											name : "Leg Wrap",
-											icon : "daemon-pull.svg",
-											description : "Knocked down on your %knockdown, tentacles spreading your legs.",
-											trigger_immediate : true,
-											tags : [stdTag.wrLegsSpread],
-											add_conditions : stdCond.concat([conditions.targetNotKnockedDown,conditions.targetNotBeast]), 
-											stay_conditions : stdCond,
-											effects : [
-												new Effect({
-													type : Effect.Types.knockdown,
-													data: {
-														type : Effect.KnockdownTypes.Back
-													}
-												})
-											]
-										})
-									],
-									player_templates : ['mimic']
-								}, chest).save(true)
-							]
+							data : ['mimic']
 						}, chest);
 						chest.interactions.push(encounter);
 

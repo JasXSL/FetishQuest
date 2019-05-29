@@ -635,7 +635,7 @@ LibMaterial.library = {
 		}),
 
 		PalmRoof : new LibMaterial({
-			map : 'decals/starfish.jpg',
+			map : 'decals/palm_roof.png',
 			metalness : 0.2,
 			roughness : 0.7,
 			transparent : true,

@@ -2707,6 +2707,13 @@ LibMesh.library = {
 					mesh.material[2].visible = interactive;
 				},
 			}),
+		},
+		Doodads : {
+			Logs : new LibMesh({
+				tags : [stdTag.mTreeStump],
+				url : 'nature/logs.JD',
+				materials : [libMat.Wood.Bark, libMat.Wood.Stump],
+			}),
 		}
 	},
 	
