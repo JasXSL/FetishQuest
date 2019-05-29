@@ -696,7 +696,7 @@ export default class Game extends Generic{
 			}
 		}
 		this.dungeon = dungeon;
-		game.dungeon.previous_room = game.dungeon.active_room = room;
+		this.dungeon.previous_room = this.dungeon.active_room = room;
 		if( resetSaveState ){
 			this.state_dungeons.unset(this.dungeon.label);
 		}
@@ -1929,7 +1929,6 @@ Game.new = async (name, players) => {
 	}
 	game.initialized = true;
 	await game.execSave( true );
-	console.log("Setting dungeon to yuug_port");
 	game.setDungeon( 'yuug_port', false, 1 );
 
 };

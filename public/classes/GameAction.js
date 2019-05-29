@@ -285,13 +285,10 @@ export default class GameAction extends Generic{
 			const dungeon = glib.get(this.data.dungeon, 'Dungeon');
 			if( !dungeon )
 				return game.modal.addError("Dungeon not found");
-			const load = game.setDungeon(dungeon);
+			const room = !isNaN(parseInt(this.data.index)) ? parseInt(this.data.index) : 0;
+			const load = game.setDungeon(dungeon, undefined, room);
 			const time = Math.floor(this.data.time) || 60;
 			game.addSeconds(time);
-			if( !isNaN(this.data.index) ){
-				game.dungeon.previous_room = game.dungeon.active_room = +this.data.index;
-				//await game.dungeon.goToRoom( player, +this.data.index );
-			}
 
 			await load;
 		}
@@ -299,7 +296,7 @@ export default class GameAction extends Generic{
 		else if( this.type === types.dungeonVar ){
 
 			const vars = this.getDungeon().vars;
-			vars[this.data.id] = Calculator.run(this.data.data, new GameEvent({}), vars);
+			vars[this.data.id] = Calculator.run(this.data.val, new GameEvent({}), vars);
 			game.save();
 
 		}

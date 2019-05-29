@@ -1,17 +1,28 @@
 Needed other:
 Smol:	
-	- Monster punishments
+	- Punishments
 	- Chat output from RP seems to be wrong
 
 Medium rare:
 	- Monster: Groper
-		- 
-		- 
+		- Ability A
+		- Ability B
+	- Boss: Ixsplat
+		- Abilities...
+	- Add gropers to forest
+	- Add enemies to cave
 
 Big chungi:
 	- Shop
 	- Goblin boat quest
-		- Need 4 spools of roper vines
+		- Need 4 spools of groper vines
+		- Add boat that shows up x days after completing the boat quest
+		- Boat lets you travel to the middle of the lake.
+		- From there you can also go west to the western part of the forest
+	- West forest
+		- Hidden path down to the beach
+		- Otter and Broper quest
+	
 
 Meshes:
 
