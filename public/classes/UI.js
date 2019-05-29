@@ -3029,38 +3029,55 @@ export default class UI{
 		else 
 			text = '';
 
-		this.tooltip
-			.html(text)
-			.toggleClass("hidden", !parentElement)
-		;
+		let left = 0, top = 0;
+		
 		if( parentElement ){
 			
 			const pe = $(parentElement);
-			const pos = pe.offset(),
-				width = this.tooltip.outerWidth(),
-				height = this.tooltip.outerHeight();
+			const pos = pe.offset();
 
-			let left = pos.left-width/2+pe.outerWidth()/2,
-				top = pos.top-height;
+			left = pos.left+pe.outerWidth()/2;
+			top = pos.top;
 
-			const bottomPixel = top, rightPixel = left+width;
-			const wh = window.innerHeight, ww = window.innerWidth;
-
-			if( rightPixel > ww )
-				left += (ww-rightPixel);
-			if( bottomPixel > wh )
-				top += (wh-bottomPixel);
-			if( left < 0 )
-				left = 0;
-			if( top < 0 )
-				top = 0;
-
-			this.tooltip.css({
-				left : left+"px",
-				top : top+"px",
-			});
-
+			
 		}
+		this.setTooltipAtPoint(text, left, top);
+
+	}
+
+	setTooltipAtCursor( text ){
+		this.setTooltipAtPoint(text, game.renderer.mouseAbs.x, game.renderer.mouseAbs.y);
+	}
+
+	setTooltipAtPoint( text, left, top ){
+
+		this.tooltip
+			.html(text)
+			.toggleClass("hidden", !text)
+		;
+		
+		const width = this.tooltip.outerWidth(),
+			height = this.tooltip.outerHeight()
+		;
+		top -= height;
+
+		const bottomPixel = top, rightPixel = left+width;
+		const wh = window.innerHeight, ww = window.innerWidth;
+
+		if( rightPixel > ww )
+			left += (ww-rightPixel);
+		if( bottomPixel > wh )
+			top += (wh-bottomPixel);
+		if( left < 0 )
+			left = 0;
+		if( top < 0 )
+			top = 0;
+
+		this.tooltip.css({
+			left : left+"px",
+			top : top+"px",
+		});
+
 	}
 
 	onTooltipMouseover(event){

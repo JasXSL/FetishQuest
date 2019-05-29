@@ -124,7 +124,6 @@ export default class GameAction extends Generic{
 			if( this.type === GameAction.types.encounters && game.is_host ){
 				if( !Array.isArray(this.data) )
 					console.error("Trying to load non-array to encounter type in interaction:", this);
-
 				this.data = DungeonEncounter.loadThese(this.data);
 			}
 			if( this.type === GameAction.types.roleplay ){
@@ -409,7 +408,7 @@ GameAction.types = {
 	visitDungeon : "visitDungeon",			// {} - Visits the current procedurally generated dungeon
 	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object
 	finishQuest : "finishQuest",			// {quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.
-
+	tooltip : "tooltip",					// {text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak
 };
 
 // These are types where data should be sent to netgame players
@@ -419,6 +418,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.loot] : true,
 	[GameAction.types.dungeonVar] : true,
 	[GameAction.types.lever] : true,
+	[GameAction.types.tooltip] : true,
 };
 
 

@@ -509,6 +509,11 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.6,
 		}),
+		Warning : new LibMaterial({
+			map : 'bakes/sign_warning.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
 	},
 
 	Nature : {

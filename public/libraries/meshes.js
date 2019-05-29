@@ -1691,6 +1691,17 @@ LibMesh.library = {
 				width: 2,
 				height: 1,
 			}),
+			Warning : new LibMesh({
+				url : 'doodads/sign.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.Rust,
+					libMat.Sign.Warning
+				],
+				tags : [],
+				width: 1,
+				height: 1,
+			}),
 		},
 		Shapes : {
 			DirArrow : new LibMesh({

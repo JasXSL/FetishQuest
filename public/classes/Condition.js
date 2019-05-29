@@ -410,7 +410,7 @@ export default class Condition extends Generic{
 				let dungeon = event.dungeon.label;
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
-				success = game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
+				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
 			}
 
 			else if( this.type === T.actionRanged ){

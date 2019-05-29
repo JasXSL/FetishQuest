@@ -2017,8 +2017,6 @@ export default class Modtools{
 
 		const dungeon = new Dungeon(asset);
 
-		
-
 		dungeon.rooms = [];
 		for( let room of asset.rooms ){
 			const r = new DungeonRoom(room, dungeon);
@@ -2357,6 +2355,8 @@ export default class Modtools{
 		$("#modal div.cellEditor").html(el);
 		
 		
+		if( this.renderer.stage )
+			this.renderer.stage.destructor();
 		let stage = new Stage(room, this.renderer, true);
 		this.renderer.resetStage( stage );
 		await stage.draw();
@@ -2619,23 +2619,18 @@ export default class Modtools{
 			const bindInteractions = function(){
 
 				// Multiple
-				const base = $("#modal div.assetEditor div.assetDataEditor div.assetData div.interaction div.gameActionForm");
+				const base = $("#modal div.assetEditor div.assetDataEditor div.assetData div.interaction");
 					
 				base.each((idx, el) => {
 
-					const div = $(el).closest('div.interaction'),
-					id = div.attr("data-id"),
-					interaction = asset.getInteractionById(id);
-
+					const div = $(el),
+						id = div.attr("data-id"),
+						interaction = asset.getInteractionById(id)
+					;
 					if( interaction )
 						th.formGameActionBind($(el), interaction);
 
-					$('#modal div.assetEditor div.assetDataEditor div.assetData div.interaction[data-id="_lib_"] input[name=interaction_id]').on('change', event => {
-						
-						let index = $(event.target).parent().index();
-						asset.interactions[index] = $(event.target).val();
-
-					});
+					
 
 					div.on('click', function(event){
 				
@@ -2648,6 +2643,13 @@ export default class Modtools{
 						}
 			
 					});
+				});
+
+				$('#modal div.assetEditor div.assetDataEditor div.assetData div.interaction[data-id="_lib_"] input[name=interaction_id]').off('change').on('change', event => {
+						
+					let index = $(event.target).parent().index();
+					asset.interactions[index] = $(event.target).val();
+
 				});
 				updateMissingDoors();
 
@@ -2959,9 +2961,9 @@ export default class Modtools{
 				val = JSON.parse(val);
 				val = JSON.stringify(val);
 			}catch(err){}
-			console.log("Setting value to", val, "on element", element);
 			$(element).val(val);
 			$("#jsonEditor").toggleClass("hidden", true);
+			$(element).change();
 		});
 
 	}
@@ -3064,6 +3066,11 @@ export default class Modtools{
 				interaction.data.id = 'lever_'+interaction.id.substr(0,8);
 			html += 'ID: <input name="interaction_data" value="'+esc(interaction.data.id)+'" />';
 		}
+		else if( type === types.tooltip ){
+			if( !interaction.data.text )
+				interaction.data.text = 'Tooltip Text';
+			html += 'Text: <input name="interaction_data_text" value="'+esc(interaction.data.text)+'" />';
+		}
 		html += '<br />';
 		html += th.formConditions(interaction.conditions, 'interaction_conditions');
 		html += '</div>';
@@ -3108,6 +3115,8 @@ export default class Modtools{
 					interaction.data = {min:-1,max:-1,loot:[]};
 				if( itype === types.lever )
 					interaction.data = {id:""};
+				if( itype === types.tooltip )
+					interaction.data = {text:"Tooltip Text"};
 
 				const div = $(th.formGameAction(interaction));
 				base.replaceWith(div);
@@ -3162,6 +3171,10 @@ export default class Modtools{
 			}
 			else if( itype === types.lever ){
 				interaction.data.id = val;
+			}
+			else if( itype === types.tooltip ){
+				if( name === "interaction_data_text" )
+					interaction.data.text = val;
 			}
 			
 			
@@ -3780,6 +3793,7 @@ export default class Modtools{
 			try{
 				val = JSON.parse(val);
 			}catch(err){}
+
 			if( val && val !== "none" )
 				out.push(val);
 		});

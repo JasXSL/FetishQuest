@@ -218,7 +218,7 @@ Generic.loadThese = function( entries = [], parent ){
 
 	for( let entry of entries ){
 		let obj = this.loadThis(entry, parent);
-		if( obj )
+		if( obj !== false )
 			out.push(obj);
 	}
 	return out;

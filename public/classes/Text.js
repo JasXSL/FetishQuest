@@ -114,7 +114,7 @@ class Text extends Generic{
 		input = input.split(prefix+'rsize').join(player.getButtSizeTag());
 		
 		
-		let synonyms;
+		let synonyms = ['vagina', 'pussy', 'cunt'];
 		// Check if male here, otherwise we can reuse
 		if( player.hasTag(stdTag.penis) )
 			synonyms = ['penis', 'dong', 'cock', 'member'];
@@ -172,20 +172,20 @@ class Text extends Generic{
 		text = text.split('%thrusting').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 
 		synonyms = ['boob', 'tit', 'breast', 'teat'];
-		input = input.split('%Tbreast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		input = input.split('%Sbreast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		input = input.split('%breast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%Tbreast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%Sbreast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%breast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 
 		synonyms = ['penis', 'dong', 'cock', 'member'];
-		input = input.split('%Tpenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		input = input.split('%Spenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		input = input.split('%vpenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%Tpenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%Spenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%vpenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 		
 		// These belong together
 		synonyms = ['vagina', 'pussy', 'cunt'];
-		input = input.split('%Tvagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		input = input.split('%Svagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		input = input.split('%vagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%Tvagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%Svagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = text.split('%vagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 		
 		if( event.target ){
 

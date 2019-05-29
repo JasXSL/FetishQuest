@@ -1030,9 +1030,18 @@ class DungeonRoomAsset extends Generic{
 
 	// returns the first door interaction
 	getDoorInteraction(){
-		for( let i of this.interactions ){
+		const viable = window.game ? this.getViableInteractions() : this.interactions;
+		for( let i of viable ){
 			if( i.type === GameAction.types.door )
 				return i;
+		}
+	}
+
+	getTooltipInteraction(){
+		const viable = window.game ? this.getViableInteractions() : this.interactions;
+		for( let action of viable ){
+			if( action.type === GameAction.types.tooltip )
+				return action;
 		}
 	}
 

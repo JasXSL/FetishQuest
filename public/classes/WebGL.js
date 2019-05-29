@@ -1017,6 +1017,7 @@ class Stage{
 				// Bind hover unless already bound
 				if( !obj.userData.mouseover )
 					this.constructor.bindGenericHover(obj);
+
 				obj.userData.click = mesh => {
 					const player = game.getMyActivePlayer(),
 						dungeonAsset = mesh.userData.dungeonAsset,	// Do it this way becaues dungonAsset upstream might have changed in netcode
@@ -1034,7 +1035,7 @@ class Stage{
 
 	}
 
-
+	// Triggered when a door is changed
 	onDoorRefresh( c ){
 
 		let asset = c.userData.dungeonAsset;
@@ -1121,13 +1122,13 @@ class Stage{
 
 	}
 
-
+	// Triggered when an asset is changed
 	onObjRefresh( obj ){
 
 		let dungeonAsset = obj.userData.dungeonAsset;
 
 		// Update the room tags
-		if( dungeonAsset.isDoor() )
+		if( window.game && dungeonAsset.isDoor() )
 			this.onDoorRefresh(obj);
 
 	}
@@ -1169,7 +1170,7 @@ class Stage{
 
 		// Create labels
 		// Door
-		if( asset.isDoor() && !this.isEditor ){
+		if( window.game && asset.isDoor() && !this.isEditor ){
 		
 			
 			let linkedRoom = game.dungeon.rooms[asset.getDoorTarget()];
@@ -1667,18 +1668,29 @@ Stage.setMeshMatProperty = function( mesh, id, value, reset = false ){
 // Adds generic hover visuals to a mesh
 Stage.bindGenericHover = function( mesh ){
 
+	const dungeonAsset = mesh.userData.dungeonAsset;
+	const tooltip = dungeonAsset.getTooltipInteraction();
+
 	let c = mesh;
 	c.userData.mouseover = () => {
 		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0x222222));
 		Stage.setMeshMatProperty(c, 'emissiveMap', false, false);
-		if( game )
+		if( game ){
 			game.renderer.renderer.domElement.style.cursor = "pointer";
+			if( tooltip ){
+				game.ui.setTooltipAtCursor(tooltip.data.text);
+			}
+		}
 	};
 	c.userData.mouseout = () => {
 		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0), true);
 		Stage.setMeshMatProperty(c, 'emissiveMap', false, true);
-		if( game )
+		if( game ){
 			game.renderer.renderer.domElement.style.cursor = "auto";
+			if( tooltip ){
+				game.ui.setTooltipAtCursor('');
+			}
+		}
 	};
 	
 };
