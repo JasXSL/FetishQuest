@@ -103,6 +103,31 @@ out[id].stages.push(
 );
 
 
+id = 'whipSqueeze';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['whipGeneric'],
+		hold : 300,
+	}, out[id]),
+	new Stage({
+		css_fx : 'fxSqueeze',
+		sound_kits : ['squeezeGeneric'],
+	}, out[id]),
+);
+
+
 
 id = 'questStart';
 out[id] = new HitFX({label : id});

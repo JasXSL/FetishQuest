@@ -11,6 +11,7 @@ Medium rare:
 		- Abilities...
 	- Add gropers to forest
 	- Add enemies to cave
+	- Add a hearthstone type item
 
 Big chungi:
 	- Shop

@@ -205,6 +205,9 @@ const lib = {
 		loot_sound : "",
 		no_auto_consume : false
 	},
+
+
+	// Weapons
 	simpleWhip : {
 		category : Asset.Categories.handheld,
 		name : "Simple Whip",
@@ -230,6 +233,24 @@ const lib = {
 		loot_sound : "",
 		icon : 'whip',
 	},
+	gropeRope : {
+		category : Asset.Categories.handheld,
+		name : "Groperope",
+		slots : [Asset.Slots.hands],
+		tags : [ stdTag.asWhip ],
+		wrappers : [],
+		description : "Adds the Groperope ability. Allowing you to deal 3 physical damage on an enemy every 3 turns.",
+		weight : 750,
+		loot_sound : "",
+		icon : 'lasso',
+		rarity : 2,
+		charges : -1,
+		use_action : "gropeRope",
+	},
+	
+
+
+
 	minorRepairKit : {
 		category : Asset.Categories.tool,
 		name : "Minor Repair Kit",
@@ -410,6 +431,7 @@ const lib = {
 		icon : 'vine-whip',
 		stacking : true,
 	},
+
 };
 function getArray(){
 	const out = [];

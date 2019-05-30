@@ -2241,7 +2241,33 @@ const lib = {
 		]
 	},
 
-
+	gropeRope : {
+		icon : 'lasso',
+		name : "Groperope",
+		description : "Deals 3 physical damage.",
+		ap : 0,
+		cooldown : 4,
+		show_conditions : ["inCombat"],
+		tags : [
+			stdTag.acDamage,
+			stdTag.acPainful,
+		],
+		wrappers : [
+			{
+				target : "VICTIM",
+				detrimental : true,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {
+							amount : 3
+						}
+					},
+				]
+			}
+		]
+	},
 
 	// Food
 	foodRazzyberry : {

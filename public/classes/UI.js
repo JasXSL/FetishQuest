@@ -267,6 +267,7 @@ export default class UI{
 
 		html += '<div class="actions">';
 		// label : nr
+		// Charges
 		let existing = {};
 		actions = actions.filter(el => {
 			if( existing[el.label] ){
@@ -299,7 +300,7 @@ export default class UI{
 			html += '<img src="media/wrapper_icons/'+esc(action.getIcon())+'.svg" />';
 
 			// This action is tied to an asset
-			if( action.isAssetAction() ){
+			if( action.isAssetAction() && action.parent.charges > 0 ){
 				html += '<div class="uses">'+existing[action.label]+'</div>';
 			}
 			else if( action._charges > 1 )
@@ -3038,7 +3039,6 @@ export default class UI{
 
 			left = pos.left+pe.outerWidth()/2;
 			top = pos.top;
-
 			
 		}
 		this.setTooltipAtPoint(text, left, top);

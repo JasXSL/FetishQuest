@@ -2459,6 +2459,35 @@ const lib = [
 
 
 
+	// PROPS
+	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself around the %Trace's %Trsize %Tbutt, constricting %This buttcheeks!",
+		conditions : baseCond.concat("action_gropeRope"),
+		hitfx : ["whipSqueeze"]
+	},
+	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself around the %Trace's %Trsize %Tpenis, thoroughly constricting it!",
+		conditions : baseCond.concat("action_gropeRope", "targetPenis", "targetGroinExposed"),
+		hitfx : ["whipSqueeze"]
+	},
+	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself around the %Trace's %Tgroin, thoroughly constricting it!",
+		conditions : baseCond.concat("action_gropeRope", "targetPenis", "targetWearsLowerbody", "targetLowerbodyNotHard"),
+		hitfx : ["whipSqueeze"]
+	},
+	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself around the %Trace's %Tbsize %Tbreasts, thoroughly constricting them!",
+		conditions : baseCond.concat("action_gropeRope", "targetBreasts", "targetUpperbodyNotHard"),
+		hitfx : ["whipSqueeze"]
+	},
+	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself around the %Trace's torso before constricting, chafing into %This %Tbreasts!",
+		conditions : baseCond.concat("action_gropeRope", "targetBreasts", "targetUpperbodyNotHard"),
+		hitfx : ["whipSqueeze"]
+	},
+	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself down %This %groin and up across %This %Tbutt, firmly constricting!",
+		conditions : baseCond.concat("action_gropeRope", "targetLowerbodyNotHard"),
+		hitfx : ["whipSqueeze"]
+	},
+	{ text : "%S lashes %Shis groperope at %T. The rope slips across %This %Tgroin and up across %This back before constricting, slipping between %This buttcheeks and chafing into %This %Tvagina!",
+		conditions : baseCond.concat("action_gropeRope", "targetGroinExposed", "targetVagina"),
+		hitfx : ["whipSqueeze"]
+	},
 
 
 
