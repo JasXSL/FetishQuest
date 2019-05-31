@@ -145,6 +145,8 @@ class Dungeon extends Generic{
 
 	setVar( key, val ){
 		this.vars.set(key, val);
+		this._state.vars.set(key, val);
+		game.save();
 	}
 
 

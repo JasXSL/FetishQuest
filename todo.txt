@@ -3,6 +3,8 @@ Smol:
 	- Punishments
 
 Medium rare:
+	- Add a "just once" tag to roleplays and hook them up to dungeon saves
+
 	- Monster: Groper
 		- Ability A
 		- Ability B

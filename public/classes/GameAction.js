@@ -301,7 +301,7 @@ export default class GameAction extends Generic{
 			else{
 				let val = !dungeon.vars[this.data.id];
 				if( this.type === types.dungeonVar )
-					val = Calculator.run(this.data.val, new GameEvent({sender:player,target:player,dungeon:dungeon}), vars);
+					val = Calculator.run(this.data.val, new GameEvent({sender:player,target:player,dungeon:dungeon}), dungeon.vars);
 				else{
 					if( val )
 						playAnim("open");
