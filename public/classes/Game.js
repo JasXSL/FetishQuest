@@ -1335,7 +1335,7 @@ export default class Game extends Generic{
 
 
 		
-		encounter.onPlacedInWorld();
+		encounter.onPlacedInWorld();	// This has to go after, since players need to be put in world for effects and conditions to work
 
 		// Purge is needed after each overwrite
 		game.save();
