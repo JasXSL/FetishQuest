@@ -114,7 +114,7 @@ export default {
 	wrKnockdownFront : 'wr_knocked_down_front',
 	wrGrapple : 'wr_grapple',
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
-	
+	wrHogtied : 'wr_hogtied',
 	
 	// Used for long term wrappers 
 	wrTentacleRide : 'wr_tentacle_ride',
@@ -126,6 +126,7 @@ export default {
 	wrSoaked : 'wr_soaked',				// Player is soaked
 	wrLegsSpread : 'wr_legs_spread',
 	wrTentacleRestrained : 'wr_tentacle_restrained',		// Restrained and lifted by tentacles
+	wrBound : 'wr_bound',
 
 	// Effects
 	fxLatching : 'fx_latching',			// Put on a player latched onto another

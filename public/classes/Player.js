@@ -1662,6 +1662,17 @@ export default class Player extends Generic{
 		}
 	}
 
+	// Adds action cooldowns by labels
+	addActionCooldowns( labels, amount ){
+		if( !Array.isArray(labels) )
+			labels = [labels];
+		for( let label of labels ){
+			let action = this.getActionByLabel(label);
+			if( action )
+				action.addCooldown(amount);
+		}
+	}
+
 	// returns an array of charged actions or false if none 
 	isCasting(){
 		let actions = this.getActions();
@@ -1726,10 +1737,12 @@ export default class Player extends Generic{
 
 		this.wrappers.push(wrapper);
 		let isStun = wrapper.getEffects({ type:Effect.Types.stun });
-		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) )
+		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) ){
 			this._stun_diminishing_returns += wrapper._duration*2;
+
+		}
 		
-		if( isStun )
+		if( isStun.length )
 			this.interrupt( wrapper.getCaster() );
 
 	}
@@ -1740,7 +1753,48 @@ export default class Player extends Generic{
 		});
 	}
 	
-	// Effects
+	// Filter is an object of key:value pairs
+	/* Supports any simple data types, and the following complex:
+		- Tags : Searches tags
+		Filter can also be a string, in which case it checks label 
+	
+	getWrappersFiltered( filter = {} ){
+		if( typeof filter !== "object" )
+			filter = {label:filter};
+
+		const wrappers = this.getWrappers();
+		const simpleTypes = ["number","string","boolean"];
+		const out = [];
+
+		const testWrapper = wrapper => {
+			for( let i in filter ){
+				const val = filter[i],
+					myVal = wrapper[i],
+					type = typeof myVal
+				;
+				if( ~simpleTypes.indexOf(type) ){
+					if(myVal !== val)
+						return false;
+				}
+				else if( i === "tags" ){
+					if(!wrapper.hasTag(val))
+						return false;
+				}
+				else
+					console.error("Unable to filter wrapper on", i, "not yet implemented", "Full filter was", filter);
+			}
+			return true;
+		}
+
+		for( let wrapper of wrappers ){
+			if(testWrapper(wrapper))
+				out.push(wrapper);
+		}
+		return out;
+	}
+	*/
+	
+	/* Effects */
 	// Gets all effects (effects on other players may affect you if the target is you or AoE)
 	getEffects(){
 
@@ -1754,6 +1808,27 @@ export default class Player extends Generic{
 		return out;
 
 	}	
+	getDisabledLevel(){
+		let level = 0;
+		const effects = this.getActiveEffectsByType(Effect.Types.disable);
+		for( let effect of effects ){
+			let lv = effect.level;
+			if( isNaN(lv) )
+				lv = 1;
+			if( lv > level )
+				level = lv;
+		}
+		return level;
+	}
+	// Returns true if any of the disabled effects triggers it
+	getDisabledHidden(){
+		const effects = this.getActiveEffectsByType(Effect.Types.disable);
+		for( let effect of effects ){
+			if( effect.data.hide )
+				return true;
+		}
+	}
+
 
 
 	/* CHATS */
@@ -1845,7 +1920,8 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 	if( attacker.team !== 0 )
 		multi = 1+(game.getTeamPlayers().length-1)*0.25;
 
-	return (1+tot*0.05)*multi;
+	const out = (1+tot*0.05)*multi;
+	return out;
 
 };
 

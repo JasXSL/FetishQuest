@@ -345,6 +345,10 @@ class Wrapper extends Generic{
 
 	checkStayConditions(){
 		
+		// For clothes
+		if( !(this.parent instanceof Player))
+			return;
+
 		if( !Condition.all(this.stay_conditions, new GameEvent({
 			sender : this.getCaster(),
 			target : this.parent,
@@ -564,7 +568,7 @@ class Effect extends Generic{
 		this.tags = [];
 		this.targets = [Wrapper.TARGET_AUTO];					// Use Wrapper.TARGET_* flags for multiple targets
 		this.events = [GameEvent.Types.internalWrapperTick];	// Limits triggers to certain events. Anything other than wrapper* functions require a duration wrapper parent
-		
+
 		this._bound_events = [];
 		this.load(data);
 
@@ -609,6 +613,9 @@ class Effect extends Generic{
 
 		if( this.type === Effect.Types.runWrappers && Array.isArray(this.data.wrappers) )
 			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
+		if( this.type === Effect.Types.addStacks && Array.isArray(this.data.conditions) )
+			this.data.conditions = Condition.loadThese(this.data.conditions, this);
+		
 
 		// Unpack is required since it has nested objects
 		if( this.type === Effect.Types.addRandomTags ){
@@ -689,7 +696,8 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
-				amt *= this.parent.stacks;
+				if( !this.data.no_stack_multi )
+					amt *= this.parent.stacks;
 
 				// Healing
 				if( amt > 0 ){
@@ -717,7 +725,6 @@ class Effect extends Generic{
 				// Damage
 				else{
 					
-					/*
 					console.debug(
 						"input", amt, 
 						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental),
@@ -726,7 +733,6 @@ class Effect extends Generic{
 						"nudity multi", t.getNudityDamageMultiplier(),
 						"corruption multi", t.getCorruptionDamageMultiplier()
 					);
-					*/
 					
 					
 					amt *= Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental ); // Negative because it's damage
@@ -983,7 +989,7 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addStacks ){
-				// {stacks:(int)(str)stacks, effect:(str)effectLabel(undefined=this.parent), casterOnly:(bool)=true}
+				// {stacks:(int)(str)stacks, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true}
 				let wrappers = [this.parent];
 				let stacks = this.data.stacks;
 				let refreshTime = this.data.refreshTime;
@@ -993,15 +999,19 @@ class Effect extends Generic{
 				if( refreshTime === undefined )
 					refreshTime = stacks > -1;
 				
-				if( this.data.effectName ){
+				if( this.data.conditions ){
 					wrappers = [];
+					const conds = Condition.loadThese(this.data.conditions);
 					let w = t.getWrappers();
+					
 					let casterOnly = this.data.casterOnly;
 					if( casterOnly === undefined )
 						casterOnly = true;
 
 					for( let wr of w ){
-						if( wr.label === this.data.effectName && (!this.data.casterOnly || wr.caster === s.id) )
+						if( this.data.casterOnly && wr.caster !== s.id )
+							continue;
+						if( Condition.all(conds, new GameEvent({sender:s, target:t, wrapper:wr})) )
 							wrappers.push(wr);
 					}
 				}
@@ -1020,6 +1030,10 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				})));
+			}
+
+			else if( this.type === Effect.Types.lowerCooldown ){
+				t.addActionCooldowns(this.data.actions, isNaN(this.data.amount) ? -Infinity : parseInt(this.data.amount));
 			}
 
 			else if( this.type === Effect.Types.knockdown ){
@@ -1385,10 +1399,12 @@ Effect.Types = {
 	removeEffectWrapperByEffectTag : 'removeEffectWrapperByEffectTag',
 
 	activateCooldown : 'activateCooldown',			
+	lowerCooldown : 'lowerCooldown',			
 
 	knockdown : 'knockdown',						
 	grapple : 'grapple',						
-	daze : 'daze',									
+	daze : 'daze',
+	disable : 'disable',
 
 	repair : 'repair',								
 	flee : 'flee',									
@@ -1411,7 +1427,7 @@ Effect.KnockdownTypes = {
 
 
 Effect.TypeDescs = {
-	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier} - If type is left out, it can be auto supplied by an asset",
+	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, no_stack_multi:(bool)false} - If type is left out, it can be auto supplied by an asset. no_stack_multi prevents multiplication by stacks",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
@@ -1447,17 +1463,19 @@ Effect.TypeDescs = {
 
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
 
-	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks, effect:(str)effectWrapper(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks',
+	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks',
 	[Effect.Types.removeParentWrapper] : 'void - Removes the effect\'s parent wrapper',
 	[Effect.Types.removeWrapperByLabel] : '{ label:(arr)(str)label, casterOnly:(bool)=false)}',
 	[Effect.Types.removeWrapperByTag] : '{tag:(str/arr)tags}',
 	[Effect.Types.removeEffectWrapperByEffectTag] : '{tag:(str/arr)tags} - Searches for _effects_ currently affecting you. And removes their wrappers if the effect has at least one of these tags.',
 
 	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels} - Activates cooldowns for learned abilities with actionLabels',
+	[Effect.Types.lowerCooldown] : '{actions:(str)(arr)actionLabels, amount:(int)amount=inf} - Lowers or resets cooldowns on the target by label. NOTE: This will not add more than 1 charge.',
 
-	[Effect.Types.knockdown] : '{type:(int)type} - Use Effect.KnockdownTypes. If not an int it becomes boolean backwards of forwards',
+	[Effect.Types.knockdown] : '{type:(int)type} - Prevents melee abilities. Use Effect.KnockdownTypes. If not an int it becomes boolean backwards of forwards.',
 	[Effect.Types.grapple] : '{}',
 	[Effect.Types.daze] : 'void',
+	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
 	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',

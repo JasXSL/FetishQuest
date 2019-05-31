@@ -45,6 +45,7 @@ class Action extends Generic{
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
 		this.no_interrupt = false;				// Charged action is not interruptable
 		this.hide_if_no_targets = false;		// hide this from the action picker if there's no viable targets
+		this.disable_override = 0;				// Level of disable override.
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge
@@ -86,7 +87,8 @@ class Action extends Generic{
 			show_conditions : this.show_conditions.map(el => el.save(full)),
 			hide_if_no_targets : this.hide_if_no_targets,
 			semi_hidden : this.semi_hidden,
-			icon : this.icon
+			icon : this.icon,
+			disable_override : this.disable_override,
 		};
 
 		// Everything but mod
@@ -154,6 +156,10 @@ class Action extends Generic{
 		if( this.hide_if_no_targets && !this.getViableTargets().length )
 			return false;
 
+		const pp = this.getPlayerParent();
+		if( pp && pp.getDisabledLevel() > this.disable_override && pp.getDisabledHidden() )
+			return false;
+
 		return !this.hidden && Condition.all(this.show_conditions, new GameEvent({
 			sender : this.getPlayerParent(),
 			target : this.getPlayerParent(),
@@ -173,13 +179,7 @@ class Action extends Generic{
 
 		// Handle cooldown
 		if( this._cooldown ){
-			
-			--this._cooldown;
-			if( this._cooldown <= 0 && this._charges < this.charges ){
-				++this._charges;
-				if( this._charges < this.charges )
-					this.setCooldown();
-			}
+			this.addCooldown(-1);
 		}
 
 		// Handle charged spells
@@ -197,6 +197,8 @@ class Action extends Generic{
 		}
 		
 	}
+
+	
 
 	onBattleEnd(){
 		this._cooldown = 0;
@@ -224,13 +226,29 @@ class Action extends Generic{
 	// Automatically sets cooldown if needed
 	setCooldown( force = false ){
 		// We're already at max capacity, can't put one here
-		if( this._charges >= this.charges )
+		if( this._charges >= this.charges ){
+			this._cooldown = 0;
 			return;
+		}
 		// We're already on a cooldown, but we can restart it if force is set
 		if( this._cooldown && !force )
 			return;
 		// Set the cooldown
 		this._cooldown = this.cooldown;
+	}
+
+	// Adds or subtracts from cooldown
+	addCooldown( amount = -1 ){
+
+		if( this.cooldown === -1 )
+			return;
+
+		this._cooldown += amount;
+		if( this._cooldown <= 0 && this._charges < this.charges )
+			this.consumeCharges(-1);
+		if( this._cooldown > this.cooldown )
+			this._cooldown = this.cooldown;
+
 	}
 
 	// consumes charges and updates the cooldown if needed
@@ -241,7 +259,7 @@ class Action extends Generic{
 			return;
 
 		// Subtract a charge
-		this._charges = Math.max(0, this._charges-charges);
+		this._charges = Math.min(Math.max(0, this._charges-charges), this.charges);
 		this.setCooldown();
 
 	}
@@ -260,6 +278,7 @@ class Action extends Generic{
 		if( !this._cast_time )
 			return false;
 		
+		console.error("Interrupt");
 		let pp = this.getPlayerParent();
 		this._cast_time = 0;
 		this._cast_targets = [];
@@ -360,12 +379,17 @@ class Action extends Generic{
 		if( this.mp > this.getPlayerParent().mp )
 			return err("Not enough MP for action");
 
+		
+
 		if( this.getViableTargets(isChargeFinish, debug).length < this.min_targets )
 			return err("No viable targets");
 
 		// Charges are not checked when a charged action finishes
-		if( !this.hasEnoughCharge() && !isChargeFinish )
+		if( !this.hasEnoughCharge() && !isChargeFinish ){
+			if( log )
+				console.error("Tried to use", this);
 			return err("Can't use that yet");
+		}
 
 		if( this.getPlayerParent().isCasting() && !this.allow_when_charging )
 			return err("You are charging an action");
@@ -373,8 +397,12 @@ class Action extends Generic{
 		if( game.getTurnPlayer().id !== this.getPlayerParent().id && game.battle_active )
 			return err("Not your turn");
 
+
 		// Stuff that should not affect hidden actions
 		if( !this.hidden ){
+			
+			if( pl.getDisabledLevel() > this.disable_override )
+				return err("Can't use that right now");
 
 			// Charge finish are unaffected by knockdowns or daze
 			if( this.ranged === Action.Range.Melee && this.getPlayerParent().hasTag(stdTag.wrKnockdown) && !isChargeFinish )
@@ -615,7 +643,7 @@ class Action extends Generic{
 	getChargePlayers(){
 		return this._cast_targets
 		.map(el => game.getPlayerById(el))
-		.filter(el => !!el && !el.isDead());
+		.filter(el => Boolean(el) && !el.isDead());
 	}
 
 

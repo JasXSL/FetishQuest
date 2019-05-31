@@ -419,6 +419,33 @@ const lib = {
 		loot_sound : "lootCloth",
 	},
 
+	genericRawhideShirt : {
+		name : "Rawhide Shirt",
+		category : Asset.Categories.armor,
+		icon : 'shirt',
+		slots : [Asset.Slots.upperbody],
+		equipped : false,
+		tags : [stdTag.asShirt,stdTag.asLeather,stdTag.asRawhide],
+		wrappers : [
+			{
+				effects : [
+					{
+						type : Effect.Types.svPhysical,
+						data : {amount:1},
+					},
+				],
+				duration : -1
+			}
+		],
+		description : "A tattered rawhide leather shirt.\n+1 Physical Resitsance",
+		level : -1,
+		durability_bonus : 2,
+		durability : 10,
+		weight : 3000,
+		rarity : 0,
+		loot_sound : "lootLeather",
+	},
+
 	groperVine : {
 		name : "Groper Vine",
 		slots : [],

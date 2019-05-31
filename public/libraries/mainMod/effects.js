@@ -3,6 +3,7 @@ import Player from "../../classes/Player.js";
 import { Effect, Wrapper } from "../../classes/EffectSys.js";
 import GameEvent from "../../classes/GameEvent.js";
 import stdTag from "../stdTag.js";
+import Condition from "../../classes/Condition.js";
 
 const lib = {
 	interrupt : {
@@ -35,6 +36,23 @@ const lib = {
 		//events:[GameEvent.Types.internalWrapperAdded],
 		data : {tag:[stdTag.fxLatching]}
 	},
+
+	bondageStruggle : {
+		type : Effect.Types.addStacks,
+		//events:[GameEvent.Types.internalWrapperAdded],
+		data : {stacks:-1, conditions:[{type:Condition.Types.wrapperTag, data:{tags:stdTag.wrBound}}], casterOnly:false}
+	},
+	// This is the effect that grants a wrapper the above one is attached to
+	bondageStruggleEnable : {
+		type : Effect.Types.addActions,
+		targets:[Wrapper.Targets.aoe],
+		events:[],
+		conditions : ['targetNotWrapperSender'],
+		data : {
+			actions : ['bondageStruggle']
+		}
+	},
+
 
 	// Used to force the caster to only attack the victim of this wrapper
 	selfTaunt : {

@@ -60,6 +60,9 @@ const lib = {
 	action_tentacle_pit_proc : {type:Condition.Types.effectLabel, data:{label:'tentacle_pit_proc'}, targnr:0},
 	action_mq00_ward_boss : {type:Condition.Types.actionLabel, data:{label:'mq00_ward_boss'}, targnr:0},
 	action_gropeRope : {type:Condition.Types.actionLabel, data:{label:'gropeRope'}, targnr:0},
+	action_bondageStruggle : {type:Condition.Types.actionLabel, data:{label:'bondageStruggle'}, targnr:0},
+	action_imp_groperopeHogtie : {type:Condition.Types.actionLabel, data:{label:'imp_groperopeHogtie'}, targnr:0},
+	action_imp_newGroperope : {type:Condition.Types.actionLabel, data:{label:'imp_newGroperope'}, targnr:0},
 	
 	action_crab_claw_pinch : {type:Condition.Types.actionLabel, data:{label:'crab_claw_pinch'}, targnr:0},
 	action_crab_claw_tug : {type:Condition.Types.actionLabel, data:{label:'crab_claw_tug'}, targnr:0},
@@ -71,19 +74,22 @@ const lib = {
 
 	targetLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}},
 	senderLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}, caster:true},
-	senderLatchingToTarget : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatched], sender:true}},
+	senderLatchingToTarget : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatched], caster:true}},
 	
-	senderBlockingMouth : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockMouth], sender:true}},
-	senderBlockingButt : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockButt], sender:true}},
-	senderBlockingGroin : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockGroin], sender:true}},
+	senderBlockingMouth : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockMouth], caster:true}},
+	senderBlockingButt : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockButt], caster:true}},
+	senderBlockingGroin : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockGroin], caster:true}},
 
-	senderIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.plBoss]}, sender:true},
+	senderIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.plBoss]}, caster:true},
 	targetIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.plBoss]}},
 
 
 	senderIsCocktopus : {type:Condition.Types.species, data:{species:['cocktopus']}, caster:true},
 	senderIsTentacrab : {type:Condition.Types.species, data:{species:['tentacrab']}, caster:true},
 	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
+
+	// There are at least 2 characters on team 0
+	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}},
 
 	// Block tags signify that the slot is currently occupied
 	targetHasUnblockedOrifice : {conditions:[
@@ -99,6 +105,11 @@ const lib = {
 	targetNotSender : {type:Condition.Types.targetIsSender, inverse:true},
 	targetIsWrapperSender : {type:Condition.Types.targetIsWrapperSender},
 	targetNotWrapperSender : {type:Condition.Types.targetIsWrapperSender, inverse:true},
+
+	targetNotTiedUp : {type:Condition.Types.tag, data:{tags:[stdTag.wrBound]}, inverse:true},
+	senderNotTiedUp : {type:Condition.Types.tag, data:{tags:[stdTag.wrBound]}, inverse:true, caster:true},
+	targetTiedUp : {type:Condition.Types.tag, data:{tags:[stdTag.wrBound]}},
+	targetHogtied : {type:Condition.Types.tag, data:{tags:[stdTag.wrHogtied]}},
 
 	targetSameTeam : {"type":"sameTeam"},
 	targetOtherTeam : {"type":"sameTeam","inverse":true},
@@ -147,7 +158,10 @@ const lib = {
 		{type:"tag", data:{tags:[stdTag.asUpperbody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttBreastsExposed]}}
 	]},
-
+	senderGroinExposed : {conditions:[
+		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true, caster:true},
+		{type:"tag", data:{tags:[stdTag.ttGroinExposed]}, caster:true}
+	]},
 	
 
 	senderDishonorable : {type:Condition.Types.tag,data:{"tags":[stdTag.plDishonorable]},"caster":true},
@@ -206,6 +220,7 @@ const lib = {
 	senderPenisLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_penis"},"caster":true},
 
 	eventIsActionUsed : {"type":"event","data":{"event":["actionUsed"]},"targnr":0},
+	eventIsActionCharged : {type:Condition.Types.event,data:{event:[GameEvent.Types.actionCharged]},"targnr":0},
 	eventIsDiminishingResist : {"type":"event","data":{"event":"diminishingResist"}},
 	eventIsWrapperAdded : {type:Condition.Types.event,data:{"event":GameEvent.Types.wrapperAdded}},
 	eventIsRiposte : {"type":"event","data":{"event":"actionRiposte"}},
@@ -238,7 +253,7 @@ const lib = {
 	targetNotDead : {"type":"defeated","inverse":true},
 	senderPunishmentNotUsed : {"type":"punishNotUsed","caster":true},
 
-	targetRidingOnMyTentacle : {type:Condition.Types.tag,data:{tags:[stdTag.wrTentacleRide], sender:true}},
+	targetRidingOnMyTentacle : {type:Condition.Types.tag,data:{tags:[stdTag.wrTentacleRide], caster:true}},
 
 	ttGroinExposed : {"type":"tag","data":{"tags":[stdTag.ttGroinExposed]}},
 	ttGroinNotExposed : {type:"tag",data:{tags:[stdTag.ttGroinExposed]}, inverse:true},

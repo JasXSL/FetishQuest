@@ -1374,6 +1374,87 @@ const lib = {
 	},
 	
 
+	// imp_groperopeHogtie - Todo: Hogties a player, adding X stacks and preventing all spells except struggle. At the end of the players turn it does corruption damage. Affected players gain a struggle ability that lets you remove 1 stack at the cost of 2 AP.
+	imp_groperopeHogtie : {
+		name : "Groperope Hogtie",
+		icon : 'lasso',
+		description : "Hogties a humanoid target, adding 3 stacks of hogtie and blocking all other actions than struggle free. At the end of their turn, they take 5 corruption damage.",
+		ap : 3,
+		mp : 0,
+		cooldown : 100,
+		detrimental : true,
+		tags : [stdTag.acNpcImportant],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				label : 'groperope_hogtie',
+				name : 'Groperope',
+				icon : 'lasso',
+				description : 'Hogtied and stimulated by a sentient rope. Taking corruption damage at the end of your turn. Physical avoidance reduced by 5',
+				target : Wrapper.TARGET_AUTO,
+				duration : -1,
+				detrimental : true,
+				stacks : 3,
+				max_stacks : 3,
+				tags : [stdTag.wrBound, stdTag.wrHogtied],
+				add_conditions : stdCond.concat("targetNotBeast", "targetNotTiedUp"),
+				stay_conditions : ["senderNotDead"],
+				tick_on_turn_start : false,			// Tick on turn start
+				tick_on_turn_end : true,
+				effects : [
+					{
+						type : Effect.Types.disable,
+						data : {level:1, hide:true}
+					},
+					{
+						type : Effect.Types.damage,
+						data : {
+							amount : 5,
+							type : Action.Types.corruption,
+							no_stack_multi : true
+						}
+					},
+					{
+						type : Effect.Types.svPhysical,
+						data: {amount:-5}
+					},
+					'bondageStruggleEnable'	
+				]
+			}
+		]
+	},
+	imp_newGroperope : {
+		name : "New Groperope",
+		icon : 'paper',
+		description : "Fetches a new Groperope unless interrupted.",
+		ap : 3,
+		mp : 5,
+		cast_time : 1,
+		cooldown : 3,
+		detrimental : false,
+		show_conditions : ["inCombat"],
+		target_type : Action.TargetTypes.self,
+		tags : [],
+		wrappers : [
+			{
+				label : 'newGroperope',
+				target : Wrapper.TARGET_AUTO,
+				detrimental : false,
+				add_conditions : stdCond.concat(
+					'isCoop', {type:Condition.Types.actionOnCooldown, data:{label:'imp_groperopeHogtie'}, caster:true}
+				),
+				effects : [
+					{
+						type : Effect.Types.addActionCharges,
+						data : {actions:'imp_groperopeHogtie', amount:1}
+					},	
+				]
+			}
+		]
+	},
+
+
+
 
 	// Tentacle fiend
 	tentacle_fiend_tentacleMilker: {
@@ -1997,6 +2078,34 @@ const lib = {
 				add_conditions : stdCond.concat('targetLatching'),
 				effects : [
 					'unlatch_target'
+				]
+			}
+		]
+	},
+	// Removes a stack of a wrapper with stdTag.wrBound
+	bondageStruggle : {
+		name : "Work the Ropes",
+		icon : 'imprisoned',
+		description : "Struggle to break a tied up player free!",
+		ap : 2,
+		cooldown : 0,
+		mp : 0,
+		hit_chance : 100,
+		detrimental : false,
+		type : Action.Types.physical,
+		disable_override : 1,
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : false,
+				effects : ['bondageStruggle'],
+				add_conditions : [
+					"targetTiedUp",
+					{conditions:[
+						'targetIsSender',
+						'senderNotTiedUp'
+					]},
 				]
 			}
 		]

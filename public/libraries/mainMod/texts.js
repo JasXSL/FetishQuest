@@ -153,6 +153,13 @@ const lib = [
 	},
 
 
+	// Hogtied
+	{ text : "%S slips behind the hogtied %Trace and spanks %This %Trsize exposed %Tbutt a %few times!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdAttack","targetHogtied"),
+		hitfx : ["slap"]
+	},
+
 	// dishonorable
 	{ text : "%S shoves %T from behind, bending %Thim over a table and bites %This %Trsize %Tbutt!",
 		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
@@ -525,9 +532,38 @@ const lib = [
 
 	{ text : "%S shoves %T from behind, bending %Thim over a table before slipping %Shis %Spsize %Spenis inside the %Trace, landing a %few thrusts!",
 		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
-		conditions : humOnHumCond.concat("action_stdAttack","roomTable","senderDishonorable","targetVagina","targetGroinExposed"),
+		conditions : humOnHumCond.concat("action_stdArouse","roomTable","senderDishonorable","targetVagina","targetGroinExposed"),
 		hitfx : ["slowThrusts"]
 	},
+
+	// Hogtied
+	{ text : "%S slips behind the hogtied %Trace and spreads %This legs, shoving %Shis %Spsize %Spenis inside and thrusting a %few times!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetHogtied","targetVagina","targetGroinExposed","senderPenis","senderGroinExposed"),
+		hitfx : ["slowThrusts"]
+	},
+	{ text : "%S crouches by the hogtied %Trace and grabs a hold of %This head, shoving %Shis %Spsize %Spenis inside and thrusting a %few times!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetHogtied","senderPenis","senderGroinExposed"),
+		hitfx : ["slowThrusts"]
+	},
+	{ text : "%S slips %Shis hand down between the hogtied %Trace's legs and rubs %This %groin!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetHogtied"),
+		hitfx : ["squishTiny"]
+	},
+	{ text : "%S slips %Shis hand down between the hogtied %Trace's legs and forces a finger up inside %T's %Tvagina, wiggling it around inside %Thim!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetHogtied","targetVagina","targetGroinExposed"),
+		hitfx : ["squishTiny"]
+	},
+	{ text : "%S slips %Shis hand down between the hogtied %Trace's legs and forces a finger inside %T's %TclothLower and up inside %This %Tvagina, wiggling it around inside %Thim!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetHogtied","targetVagina","targetLowerbodyNotHard"),
+		hitfx : ["squishTiny"]
+	},
+	
+	
 
 	
 
@@ -1528,6 +1564,32 @@ const lib = [
 	},
 	
 
+	// action_imp_groperopeHogtie
+	{ text : "%S lashes %Shis enchanted groperope around %T. The rope immediately wraps around and restrains the %Trace, leaving %Thim on the ground as it begins to grind against %This sensitive areas!",
+		conditions : anyOnHumCond.concat("action_imp_groperopeHogtie"),
+		hitfx : ["stretch"]
+	},
+
+	// action_bondageStruggle
+	{ text : "%S struggles against %Shis restraints!",
+		conditions : anyOnHumCond.concat("action_bondageStruggle", "targetIsSender"),
+		hitfx : ["stretch"]
+	},
+	{ text : "%S struggles against %T's restraints!",
+		conditions : anyOnHumCond.concat("action_bondageStruggle", "targetNotSender"),
+		hitfx : ["stretch"]
+	},
+	
+	// action_imp_newGroperope
+	{ text : "%S rummages around, searching for another enchanted groperope!",
+		conditions : ["eventIsActionCharged","action_imp_newGroperope"],
+		hitfx : [] // Todo: Rummaging visual
+	},
+	{ text : "%S finds another enchanted groperope!",
+		conditions : baseCond.concat("action_imp_newGroperope"),
+		hitfx : [] // Todo: Grab visual
+	},
+	
 
 	// tentacle_latch
 	{ text : "%S jumps at %T and latches onto %Thim!",
@@ -2460,6 +2522,7 @@ const lib = [
 
 
 	// PROPS
+	// Groperope
 	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself around the %Trace's %Trsize %Tbutt, constricting %This buttcheeks!",
 		conditions : baseCond.concat("action_gropeRope"),
 		hitfx : ["whipSqueeze"]

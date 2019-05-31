@@ -1379,7 +1379,7 @@ class DungeonRoomAsset extends Generic{
 			if( asset.isDoor() && asset.getDoorTarget() === dungeon.previous_room ){
 				
 				if( !game.turnPlayerIsMe() ){
-					console.error("not your turn error");
+					console.error("not your turn error", player, mesh);
 					return game.modal.addError("Not your turn");
 				}
 				let player = game.getTurnPlayer();

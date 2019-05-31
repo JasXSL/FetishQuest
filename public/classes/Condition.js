@@ -349,13 +349,18 @@ export default class Condition extends Generic{
 					success = this.objIs(event.quest, this.data);
 			}
 
+			else if( this.type === T.actionOnCooldown ){
+				const action = t.getActionByLabel(this.data.label);
+				success = action && action._cooldown;
+			}
+
 			else if( this.type === T.dungeonIs ){
 				if( event.dungeon && typeof this.data === "object" )
 					success = this.objIs(event.dungeon, this.data);
 			}
 
 			else if( this.type === T.defeated ){
-				if( !t || ! t.isDead )
+				if( !t || !t.isDead )
 					console.error(t, "doesn't have an isDead function");
 				success = t.isDead();
 			}
@@ -411,6 +416,24 @@ export default class Condition extends Generic{
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
+			}
+
+			else if( this.type === T.numGamePlayersGreaterThan ){
+				const team = this.data.team,
+					amount = this.data.amount
+				;
+				let np = game.players.length;
+				if( team ){
+					np = 0;
+					for( let player of game.players ){
+						if(
+							(team === -1 && t.team === player.team) ||
+							(team === -2 && t.team !== player.team) ||
+							(player.team === team)
+						)++np;
+					}
+				}
+				success = np > amount;
 			}
 
 			else if( this.type === T.actionRanged ){
@@ -595,6 +618,8 @@ Condition.Types = {
 	questObjectiveCompleted : 'questObjectiveCompleted',
 	actionRanged : 'actionRanged',
 	playerLabel : 'playerLabel',
+	numGamePlayersGreaterThan : 'numGamePlayersGreaterThan',
+	actionOnCooldown : 'actionOnCooldown',
 };
 
 Condition.descriptions = {
@@ -634,6 +659,8 @@ Condition.descriptions = {
 	[Condition.Types.questObjectiveCompleted] : '{quest:(str)quest_label, objective:(str)objective_label} - Checks if a quest objective is done',
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
+	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any} - Nr game players are greater than amount. If team is undefined, it checks all players. Use -1 for enemies and -2 for friendlies',
+	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 };
 
 

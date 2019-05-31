@@ -41,6 +41,10 @@ export default class UI{
 		this.yourTurnSoundLoop = false;
 		this.mapChat = $("#mapChat");
 
+		this.drawTimer = false;
+
+		this._hold_actionbar = false;	// Workaround for actionbar update being on a timer. Prevents interacting with the action bar until the next draw.
+
 		// Active player has viable moves
 		this._has_moves = false;
 		this.visible = localStorage.ui_visible === undefined ? true : Boolean(+localStorage.ui_visible);	// main UI layer visible
@@ -216,11 +220,17 @@ export default class UI{
 	// Updates everything
 	draw(){
 
-		this.drawPlayers();
-		this.drawGameIcons();
-		this.drawActionSelector();
-		this.drawRoleplay();
-		this.bindTooltips();
+		if( this.drawTimer )
+			return;
+		this.drawTimer = setTimeout(() => {
+			this._hold_actionbar = false;
+			this.drawTimer = false;
+			this.drawPlayers();
+			this.drawGameIcons();
+			this.drawActionSelector();
+			this.drawRoleplay();
+			this.bindTooltips();
+		}, 30);
 
 	}
 
@@ -303,9 +313,9 @@ export default class UI{
 			if( action.isAssetAction() && action.parent.charges > 0 ){
 				html += '<div class="uses">'+existing[action.label]+'</div>';
 			}
-			else if( action._charges > 1 )
+			else if( action._charges > 1 ){
 				html += '<div class="uses">'+action._charges+'</div>';
-			
+			}
 
 			html += (action._cooldown > 0 ? '<div class="CD"><span>'+action._cooldown+'</span></div>' : '')+
 				'<div class="tooltip actionTooltip '+castableClass+'">'+
@@ -430,7 +440,7 @@ export default class UI{
 			}
 
 			// Single clicked the element
-			else if( event.type === 'click' ){
+			else if( event.type === 'click' && !th._hold_actionbar ){
 				
 				event.preventDefault();
 				event.stopImmediatePropagation();
@@ -1093,6 +1103,7 @@ export default class UI{
 	/* ACTION SELECTOR Helpers */
 	// Send the action selection
 	performSelectedAction(){
+		this._hold_actionbar = true;
 		game.useActionOnTarget(
 			this.action_selected, 
 			this.targets_selected,

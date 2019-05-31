@@ -141,7 +141,7 @@ const lib = {
 			stdTag.asWaistband
 		],
 		size : 0.4
-	}
+	},
 };
 
 function getArray(){

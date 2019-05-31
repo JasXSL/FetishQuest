@@ -380,7 +380,9 @@ Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 		duration : -1,
 		name : 'statsAutoGen',
 		detrimental : false,
-		effects : effects
+		effects : effects,
+		stay_conditions : [],
+		add_conditions : []
 	});
 
 };

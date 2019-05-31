@@ -88,6 +88,37 @@ const lib = {
 			stdTag.penis, stdTag.plHorn, stdTag.plTail, stdTag.plTongue
 		]
 	},
+
+	Ixsplat : {
+		name : "Ixsplat",
+		species : "imp",
+		description : "A larger than average imp with a big dick.",
+		icon : "",
+		team : 1,
+		size : 4,
+		leveled : true,
+		powered : true,
+		sadistic : 0.7,
+		dominant : 0.8,
+		hetero : 0.5,
+		intelligence : 0.5,
+		stamina : 6,
+		intellect : 3,
+		class : 'imp',
+		actions : [
+			"imp_claws",
+			"imp_demonicPinch",
+			"imp_groperopeHogtie",
+			"imp_newGroperope",
+		],
+		assets : [],
+		inventory : [],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plHorns, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.plBoss
+		],
+		assets : ['gropeRope', "genericRawhideShirt"],
+		inventory : [0,1],
+	},
 };
 
 
