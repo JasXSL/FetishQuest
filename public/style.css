@@ -1845,11 +1845,14 @@ div.fxBuffBlue{
 	}
 	#jsonEditor > div{
 		position:fixed;
-		width:20vmax;
-		height:20vmax;
+		width:40vmax;
+		height:40vmax;
 		padding:0.5vmax;
 		padding-bottom:3vmax;
 		text-align: center;
+		top:50%;
+		left:50%;
+		transform:translate(-50%,-50%);
 	}
 
 	#jsonEditor > div > textarea{

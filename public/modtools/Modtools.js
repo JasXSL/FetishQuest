@@ -2463,7 +2463,6 @@ export default class Modtools{
 		// Generic asset selector
 		else{
 			html += 'Name: <input type="text" class="updateMesh" name="name" value="'+esc(asset.name)+'" /> <br />';
-			html += '<label>Remove if made noninteractive: <input type="checkbox" class="updateMesh" name="rem_no_interact" '+(asset.rem_no_interact ? 'checked' : '')+' /></label><br />';
 			html += '<label>Hide while noninteractive: <input type="checkbox" class="updateMesh" name="hide_no_interact" '+(asset.hide_no_interact ? 'checked' : '')+' /></label><br />';
 			html += 'Respawn (ingame seconds): <input type="number" style="width:6em" class="updateMesh" name="respawn" value="'+esc(asset.respawn)+'" /></label><br />';
 			html += '<strong>Position:</strong><br />';
@@ -2729,7 +2728,6 @@ export default class Modtools{
 			asset._stage_mesh.scale.y = asset.scaleY = +$("input[name=scaleY]", div).val();
 			asset._stage_mesh.scale.z = asset.scaleZ = +$("input[name=scaleZ]", div).val();
 			asset.name = $("input[name=name]", div).val();
-			asset.rem_no_interact = $("input[name=rem_no_interact]", div).prop('checked');
 			asset.hide_no_interact = $("input[name=hide_no_interact]", div).prop('checked');
 			asset.respawn = +$("input[name=respawn]", div).val() || 0;
 		});
@@ -2960,7 +2958,7 @@ export default class Modtools{
 		area.val(text);
 
 		const pos = $(element).offset();
-		$("#jsonEditor > div").css({'top':pos.top, 'left':pos.left});
+		//$("#jsonEditor > div").css({'top':pos.top, 'left':pos.left});
 		$("#jsonEditor").toggleClass("hidden", false);
 		$("#jsonEditor div.buttons > input.save").off('click').on('click', () => {
 			let val = $("#jsonEditor textarea").val();

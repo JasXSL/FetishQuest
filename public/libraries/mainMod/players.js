@@ -111,13 +111,41 @@ const lib = {
 			"imp_groperopeHogtie",
 			"imp_newGroperope",
 		],
-		assets : [],
 		inventory : [],	// Which items should be equipped
 		tags : [
 			stdTag.penis, stdTag.plHorns, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.plBoss
 		],
 		assets : ['gropeRope', "genericRawhideShirt"],
 		inventory : [0,1],
+	},
+	Impicus : {
+		name : "Impicus",
+		species : "imp",
+		description : "A particularly ugly imp with a penchant for tentacles.",
+		icon : "",
+		team : 1,
+		size : 3,
+		leveled : true,
+		powered : true,
+		sadistic : 0.3,
+		dominant : 0.8,
+		hetero : 0.5,
+		intelligence : 0.4,
+		stamina : 0,
+		intellect : -4,
+		agility : 2,
+		class : 'imp',
+		actions : [
+			"imp_ankleBite",
+			"imp_specialDelivery",
+			"tentaclemancer_tentacleWhip",
+		],
+		inventory : [],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plHorns, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.plBoss
+		],
+		assets : ["genericRawhideThong"],
+		inventory : [0],
 	},
 };
 

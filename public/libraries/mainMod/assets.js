@@ -445,6 +445,32 @@ const lib = {
 		rarity : 0,
 		loot_sound : "lootLeather",
 	},
+	genericRawhideThong : {
+		name : "Rawhide Thong",
+		category : Asset.Categories.armor,
+		icon : 'underwear',
+		slots : [Asset.Slots.lowerbody],
+		equipped : false,
+		tags : [stdTag.asThong,stdTag.asWaistband,stdTag.asLeather,stdTag.asRawhide],
+		wrappers : [
+			{
+				effects : [
+					{
+						type : Effect.Types.svPhysical,
+						data : {amount:1},
+					},
+				],
+				duration : -1
+			}
+		],
+		description : "A tattered rawhide leather thong.\n+1 Physical Resitsance",
+		level : -1,
+		durability_bonus : 2,
+		durability : 10,
+		weight : 300,
+		rarity : 0,
+		loot_sound : "lootLeather",
+	},
 
 	groperVine : {
 		name : "Groper Vine",

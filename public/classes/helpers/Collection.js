@@ -38,23 +38,29 @@ export default class Collection{
 
 	rebase(){}	// Not used, but still needed to work as Generic
 
-	flatten( obj ){
+	flatten( obj, full = false ){
 		if( obj === undefined )
 			obj = this;
+
+		// Assets that have the save method use that
+		if( obj && obj !== this && typeof obj.save === "function" ){
+			return obj.save(full);
+		}
+
 		let out = {};
 		if( Array.isArray(obj) )
 			out = [];
 		for( let i in obj ){
 			if( typeof obj[i] === "object" )
-				out[i] = this.flatten(obj[i]);
+				out[i] = this.flatten(obj[i], full);
 			else
 				out[i] = obj[i];
 		}
 		return out;
 	}
 
-	save(){
-		return this.flatten();
+	save(full){
+		return this.flatten(undefined, full);
 	}
 	
 	clone(){
@@ -65,11 +71,11 @@ export default class Collection{
 }
 
 
-Collection.loadThis = function( entry ){
+Collection.loadThis = function( entry, parent ){
 
 	if( typeof entry !== "object" )
 		return console.error("Collections have no library!");
-	return new this(entry);
+	return new this(entry, parent);
 
 
 }

@@ -24,7 +24,7 @@
 	<script>
 		console.debug("Entry point for debugging is 'game'");
 		// Globals
-		var game = true, glib, g_Condition, g_GameEvent, g_Audio, g_Mod, g_Comparer;
+		var game = true, glib, g_Condition, g_GameEvent, g_Audio, g_Mod, g_Comparer, g_Collection;
 	</script>
 	<script type="module">
 		import Game from './classes/Game.js';
@@ -35,7 +35,7 @@
 		import Mod from './classes/Mod.js';
 		import GameLib from './classes/GameLib.js';
 		import Comparer from './classes/Comparer.js';
-
+		import Collection from './classes/helpers/Collection.js';
 		console.debug("Modules imported, starting game");
 		
 		g_Condition = Condition;
@@ -43,6 +43,7 @@
 		g_Audio = Audio;
 		g_Mod = Mod;
 		g_Comparer = Comparer;
+		g_Collection = Collection;
 		glib = new GameLib();
 		window.Player = Player;
 

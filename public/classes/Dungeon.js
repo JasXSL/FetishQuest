@@ -48,15 +48,21 @@ class Dungeon extends Generic{
 		this.height = 0;			// Positive value of how many stories above the entrance we can go
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
 		this.difficulty = -1;		// Generally describes how many players this dungeon is for. -1 automatically sets it to nr friendly players
-		this.vars = new Collection();				// Can be set and read programatically
+		this.vars = new Collection({}, this);				// Dungeon vars. This one is loaded onto by _state
 		this.consumables = [
 			'manaPotion', 'majorManaPotion',
 			'minorHealingPotion', 'healingPotion', 'majorHealingPotion',
 			'minorRepairKit', 'repairKit', 'majorRepairKit',
 		];		// Copied over from template
+		this.roleplays = new Collection({}, this);			// This is the exact same object as _state.roleplays. Put here for coop reasons
 
 		// Runtime vars
 		this.transporting = false;	// Awaiting a room move
+
+		// Custom cache which contains changes made to the dungeon. Host only
+		this._state = new DungeonSaveState({}, this);
+
+		
 
 		this.load(data);
 
@@ -70,6 +76,7 @@ class Dungeon extends Generic{
 		this.rooms = DungeonRoom.loadThese(this.rooms, this);
 		this.consumables = Asset.loadThese(this.consumables, this);
 		this.vars = Collection.loadThis(this.vars);
+		this.loadState();
 	}
 
 	save( full ){
@@ -95,6 +102,8 @@ class Dungeon extends Generic{
 			out.height = this.height;
 			out.shape = this.shape;
 			out.consumables = Asset.saveThese(this.consumables, full);
+			//if( full !== "mod" )
+			//	out._state = this._state.save();
 		}
 
 		// Everything except mod
@@ -112,39 +121,30 @@ class Dungeon extends Generic{
 		return new this.constructor(this.save(true));
 	}
 
-	// Saves state information for use while out of the dungeon
-	saveState(){
-		
-		const out = {};
-		out.rooms = this.rooms.map(el => el.saveState());
-		out.vars = JSON.parse(JSON.stringify(this.vars));
-		return out;
+	loadState(){
 
-	}
+		if( typeof window.game !== "object" || !game.is_host )
+			return;
 
-	loadState( data ){
+		const data = game.state_dungeons[this.label];
 
 		if( !data )
 			return;
-
-		// load room state
-		if( Array.isArray(data.rooms) ){
-			for( let room of data.rooms ){
-				const r = this.getRoomByIndex(room.index);
-				if( r )
-					r.loadState(room);
-			}
+		this._state = DungeonSaveState.loadThis(data, this);
+		for( let i in this._state.rooms ){
+			const room = this.getRoomByIndex(this._state.rooms[i].index);
+			if( room )
+				room.loadState(this._state.rooms[i]);
 		}
 
-		if( typeof data.vars === "object" ){
-			
-			for( let i in data.vars )
-				this.vars[i] = data.vars[i];
+		for( let v in this._state.vars )
+			this.vars[v] = this._state.vars[v];
+		this.roleplays = this._state.vars.roleplays;
 
-		}
+	}
 
-			
-
+	setVar( key, val ){
+		this.vars.set(key, val);
 	}
 
 
@@ -291,6 +291,7 @@ class Dungeon extends Generic{
 	}
 
 
+
 	// Returns viable encounters (1 per room, and 1 per asset max)
 	getNumEncounters(){
 		let out = 0;
@@ -298,6 +299,26 @@ class Dungeon extends Generic{
 			out += room.getNumEncounters();
 		return out;
 	}
+
+
+
+	/* Dungeon state */
+	setRoleplayCompleted( roleplay ){
+		if( typeof roleplay !== "string" )
+			roleplay = roleplay.id;
+		this._state.roleplays[roleplay] = true;
+		game.saveDungeonState();
+	}
+
+	// saves asset state
+	assetModified( asset ){
+		this._state.assetModified(asset);
+	}
+
+	roomModified(room){
+		this._state.roomModified(room);
+	}
+
 
 
 	/* EVENTS */
@@ -373,6 +394,66 @@ Dungeon.Shapes = {
 };
 
 
+
+class DungeonSaveState extends Generic{
+	constructor(data, parent){
+		super(data);
+		this.parent = parent;
+
+		this.vars = new Collection({}, this);			// key : val - DungeonVars
+		this.roleplays = new Collection({}, this);		// id : true - Completed roleplays
+		this.rooms = new Collection({}, this);			// index_(nr) : DungeonRoomSaveState
+
+		this.load(data);
+	}
+
+	save(){
+		return {
+			vars : this.vars.save(),
+			roleplays : this.roleplays.save(),
+			rooms : this.rooms.save(),
+		};
+	}
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.vars = new Collection(this.vars, this);
+		this.roleplays = new Collection(this.roleplays, this);
+		this.rooms = new Collection(this.rooms, this);
+		for( let r in this.rooms ){
+			this.rooms[r] = new DungeonRoomSaveState(this.rooms[r], this);
+		}
+	}
+
+	getOrCreateRoom(room){
+		const n = 'index_'+room.index;
+		if( !this.rooms[n] )
+			this.rooms[n] = new DungeonRoomSaveState({index:room.index}, this);
+		return this.rooms[n];
+	}
+
+	roomModified( room ){
+
+		const sr = this.getOrCreateRoom(room);
+		sr.discovered = room.discovered;
+
+		if( room.encounters instanceof DungeonEncounter && room.encounters.id !== "_BLANK_" ){
+			sr.encounter_complete = room.encounters.completed;
+			sr.encounter_friendly = room.encounters.friendly;
+			sr.encounter_respawn = room.encounters.respawn;
+		}
+		
+	}
+
+	assetModified( asset ){
+		const room = this.getOrCreateRoom(asset.parent);
+		room.assetModified(asset);
+	}
+
+}
 
 
 
@@ -453,73 +534,48 @@ class DungeonRoom extends Generic{
 		this.g_autoload(data);
 	}
 
-	// Long term save/load data
-	saveState(){
 
-		const out = {
-			index : this.index
-		};
-
-		let cur = game.state_dungeons[this.parent.label];
-		if(cur)
-			cur = cur[this.index];
-		if( !cur )
-			cur = {};
-
-		// Only save a started encounter
-		if( this.encounters instanceof DungeonEncounter ){
-
-			// Encounter was completed since last check
-			if( !cur.encounter_complete && this.encounters.completed && this.encounters.respawn )
-				out.encounter_respawn = game.time+this.encounters.respawn;
-			else
-				out.encounter_respawn = cur.encounter_respawn;
-			out.encounter_complete = this.encounters.completed;
-			out.encounter_friendly = this.encounters.friendly;
-		}
-		
-		out.discovered = this.discovered;
-		out.assets = this.getGeneratedAssets().map(el => el.save(true));
-		
-		out.id = this.parent.label+'_'+this.index;
-		return out;
-
-	}
 	loadState( state ){
 
-		const respawn = state.encounter_respawn && state.encounter_respawn < game.time;
+		const respawn = ~state.encounter_complete && game.time-state.encounter_complete > state.encounter_respawn;
+
 		// If encounter is complete, set it to completed
-		if( state.encounter_complete && !respawn ){
-			this.encounters = new DungeonEncounter();
+		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
+			this.encounters = new DungeonEncounter({"id":"_BLANK_"}, this);	// _BLANK_ prevents overwriting encounter data on change
 			this.encounters.completed = true;
 		}
-		if( state.encounter_friendly !== undefined && this.encounters instanceof DungeonEncounter && !respawn )
+
+		if( state.encounter_friendly !== -1 && this.encounters instanceof DungeonEncounter && !respawn )
 			this.encounters.friendly = state.encounter_friendly;
 
 		if( state.discovered )
 			this.discovered = true;
 
-		if( Array.isArray(state.assets) ){
-			let all = state.assets.slice();
-			for( let asset of all ){
-				let cur = this.getAssetById(asset.id);
-				const respawnTime = asset._killed+cur.respawn;
-				const curRespawn = !isNaN(respawnTime) && cur.respawn && game.time > respawnTime;
-				if( curRespawn ){
-					state.assets.splice(state.assets.indexOf(asset), 1);
-					continue;	// Don't load, it has expired
-				}
-				if( cur ){
-					cur.load(asset);
-					cur.setGenerated();
-				}
-				else
-					this.addAsset(new DungeonRoomAsset(asset, this), true);
+		for( let id in state.assets ){
+			const asset = state.assets[id];
+			let cur = this.getAssetById(id);
+			
+			if( !cur ){
+				this.addAsset(new DungeonRoomAsset(asset, this), true);
+				continue;
 			}
+
+			const respawnTime = asset._killed+cur.respawn;
+			const curRespawn = !isNaN(respawnTime) && cur.respawn && game.time > respawnTime;
+			if( curRespawn ){
+				console.log("Asset respawned", asset, asset._killed, cur.respawn, game.time);
+				delete state.assets[id];
+				continue;	// Don't load, it has expired. Let it stay the way it originally was.
+			}
+			cur.load(asset);
 		}
+		
 
 	}
 
+	getDungeon(){
+		return this.parent;
+	}
 
 	rebase(){
 		this.assets = DungeonRoomAsset.loadThese(this.assets, this);
@@ -544,6 +600,7 @@ class DungeonRoom extends Generic{
 	makeEncounterHostile( hostile = true ){
 		if( this.encounters instanceof DungeonEncounter ){
 			this.encounters.friendly = !hostile;
+			this.onModified();
 			game.save();
 		}
 	}
@@ -863,6 +920,7 @@ class DungeonRoom extends Generic{
 
 		}
 
+		asset.onModified();
 		return false;
 
 	}
@@ -935,10 +993,15 @@ class DungeonRoom extends Generic{
 			}
 		}
 
+		this.onModified();
 	}
 
 
-	
+	onModified(){
+		const dungeon = this.getDungeon();
+		if( dungeon )
+			dungeon.roomModified(this);
+	}
 	
 
 }
@@ -952,6 +1015,51 @@ DungeonRoom.Dirs = {
 	Down : 5
 };
 
+class DungeonRoomSaveState extends Generic{
+	constructor(data, parent){
+		super(data);
+		this.parent = parent;
+
+		this.index = 0;
+		this.discovered = false;
+		this.assets = new Collection({}, this);		// id : DungeonRoomAsset
+		this.encounter_complete = -1;		// Time when encounter was completed
+		this.encounter_friendly = -1;	
+		this.encounter_respawn = 0;					// Respawn timer of the generated encounter
+		
+		this.load(data);
+	}
+
+	save(){
+		return {
+			id : this.id,
+			index : this.index,
+			assets : this.assets.save(true),	// Save full assets when changed
+			discovered : this.discovered,
+			encounter_complete : this.encounter_complete,
+			encounter_friendly : this.encounter_friendly,
+			encounter_respawn : this.encounter_respawn
+		};
+	}
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.assets = Collection.loadThis(this.assets, this);
+		for( let i in this.assets )
+			this.assets[i] = DungeonRoomAsset.loadThis(this.assets[i], this.assets);
+	}
+
+	assetModified(asset){
+		let existing = this.assets[asset.id];
+		if( !existing ){
+			this.assets[asset.id] = new DungeonRoomAsset({}, this.assets);
+		}
+		this.assets[asset.id].load(asset);
+	}
+}
 
 
 
@@ -998,9 +1106,8 @@ class DungeonRoomAsset extends Generic{
 		this.absolute = false;			// Makes X/Y/Z absolute coordinates
 		this.room = false;				// This is the room asset
 		this.interactions = [];			// Game actions
-		this.rem_no_interact = false;	// Remove when made noninteractive, generally when fully looted
 		this.hide_no_interact = false;	// Hide whenever it's not interactive.
-
+		this.deleted = false;			// Deleted
 		this._interactive = null;		// Cache of if this object is interactive
 		
 		this.respawn = 0;					// Time in seconds before it respawns
@@ -1036,7 +1143,6 @@ class DungeonRoomAsset extends Generic{
 			name : this.name,
 			room : this.room,
 			interactions : GameAction.saveThese(this.interactions, full),
-			rem_no_interact : this.rem_no_interact,
 			hide_no_interact: this.hide_no_interact,
 			id : this.id,
 		};
@@ -1098,6 +1204,15 @@ class DungeonRoomAsset extends Generic{
 			asset.convertToLoot();
 	}
 
+	// Need to save state if modified
+	onModified(){
+		if( !this._killed )
+			this._killed = game.time;	// Set time of first modification for respawn
+		const dungeon = this.getDungeon();
+		if( dungeon ){
+			dungeon.assetModified(this);
+		}
+	}
 
 	/* Type checking */
 	isDoor(){
@@ -1264,19 +1379,12 @@ class DungeonRoomAsset extends Generic{
 		if( player.addAsset(asset) )
 			this.remLootById(id);
 
-		if( !this.isInteractive() ){
-
-			// Remove if rem_no_interact is set and this is no longer interactive
-			if( this.rem_no_interact )
-				this.parent.removeAsset(this);
-			else
-				this.updateInteractivity();
-
-		}
+		if( !this.isInteractive() )
+			this.updateInteractivity();
 
 		game.ui.addText( player.getColoredName()+" looted "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
-		this.setGenerated();
 		game.renderer.drawActiveRoom();		// Forces a room refresh
+		this.onModified();
 		game.save();
 		game.ui.draw();
 
@@ -1420,15 +1528,6 @@ class DungeonRoomAsset extends Generic{
 		}
 	}
 
-	setGenerated(){
-		const was = this.generated;
-		this.generated = true;
-		if( !this._killed )
-			this._killed = game.time;
-		if( this.generated !== was )
-			game.saveDungeonState();
-	}
-	
 
 	/* Tags */
 	// Adds an array of tags
@@ -1450,8 +1549,6 @@ class DungeonRoomAsset extends Generic{
 
 
 
-
-
 /*
 	An encounter starts a battle
 	It has players and can have wrappers applied when it starts
@@ -1466,7 +1563,7 @@ class DungeonEncounter extends Generic{
 		this.label = '';
 		this.friendly = false;		// Don't start a battle when starting this encounter
 		this.started = false;		// Encounter has started (only set on Game clone of this)
-		this.completed = false;		// Encounter completed (only set on Game clone of this)
+		this.completed = 0;			// Encounter completed (only set on Game clone of this)
 		this.players = [];			// Players that MUST be in this event. On encounter start, this may be filled with player_templates to satisfy difficulty
 		this.player_templates = [];	// 
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
@@ -1551,13 +1648,14 @@ class DungeonEncounter extends Generic{
 				);
 				this.players.push(pl);
 			}
-		}
+		}	
 
+	}
+
+	onPlacedInWorld(){
 		// Run world placement event on all players
 		for( let player of this.players )
 			player.onPlacedInWorld();
-		
-
 	}
 
 	load(data){
@@ -1621,6 +1719,17 @@ class DungeonEncounter extends Generic{
 		return false;
 	}
 
+	getRoom(){
+		let parent = this.parent;
+		if( !parent )
+			return false;
+		while( !(parent instanceof DungeonRoom) && parent.parent )
+			parent = parent.parent;
+		if( parent instanceof DungeonRoom )
+			return parent;
+		return false;
+	}
+
 	getPlayerById( id ){
 		for( let player of this.players ){
 			if( player.id === id )
@@ -1648,6 +1757,19 @@ class DungeonEncounter extends Generic{
 
 		});
 
+	}
+
+	setCompleted( completed = true ){
+		
+		if( Boolean(this.completed) === Boolean(completed) )
+			return;
+		
+		this.completed = completed;
+		if( this.completed === true )
+			this.completed = game.time;
+		const dungeon = this.getDungeon(), room = this.getRoom();
+		if( room && dungeon )
+			dungeon.roomModified(room);
 	}
 
 }

@@ -317,6 +317,7 @@ export default class Player extends Generic{
 	
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
+	// prefix is usually se_ or ta_
 	appendMathVars(prefix, vars, event){
 
 		let isRoot = this._ignore_effects === null;

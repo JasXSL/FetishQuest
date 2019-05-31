@@ -219,7 +219,7 @@ export default class GameAction extends Generic{
 			return this;
 
 		if( this.parent instanceof DungeonRoomAsset ){
-			this.parent.setGenerated();
+			this.parent.onModified();
 		}
 
 		game.save();
@@ -293,12 +293,23 @@ export default class GameAction extends Generic{
 			await load;
 		}
 
-		else if( this.type === types.dungeonVar ){
+		else if( this.type === types.dungeonVar || this.type === types.lever ){
 
-			const vars = this.getDungeon().vars;
-			vars[this.data.id] = Calculator.run(this.data.val, new GameEvent({}), vars);
-			game.save();
-
+			const dungeon = this.getDungeon();
+			if( !dungeon )
+				console.error("Trying to set a dvar on gameaction that has no dungeon parent", this);
+			else{
+				let val = !dungeon.vars[this.data.id];
+				if( this.type === types.dungeonVar )
+					val = Calculator.run(this.data.val, new GameEvent({sender:player,target:player,dungeon:dungeon}), vars);
+				else{
+					if( val )
+						playAnim("open");
+					else
+						playAnim("close");
+				}
+				dungeon.setVar(this.data.id, val);
+			}
 		}
 		else if( this.type === types.anim ){
 			playAnim(this.data.anim);
@@ -306,19 +317,6 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.loot ){
 			game.ui.drawContainerLootSelector( player, this.parent );
-		}
-
-		else if( this.type === types.lever ){
-
-			const v = this.data.id;
-			const vars = this.getDungeon().vars;
-			vars[v] = !vars[v];
-			game.save();
-			if( vars[v] )
-				playAnim("open");
-			else
-				playAnim("close");
-
 		}
 
 		else if( this.type === types.quest ){

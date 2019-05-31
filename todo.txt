@@ -1,7 +1,6 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Chat output from RP seems to be wrong
 
 Medium rare:
 	- Monster: Groper

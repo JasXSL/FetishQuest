@@ -144,7 +144,7 @@ const lib = {
 	targetUpperbodyMetal : {"type":"tag","data":{"tags":["as_metal_upperbody"]}},
 	targetLowerbodyWaistband : {"type":"tag","data":{"tags":["as_waistband_lowerbody"]}},
 
-	
+	targetClassTentaclemancer : {type:Condition.Types.playerClass, data:{label:"tentaclemancer"}},	
 
 	targetButtExposed : {conditions:[
 		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true},

@@ -2,6 +2,7 @@ import Generic from './helpers/Generic.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import GameAction from './GameAction.js';
+import { DungeonEncounter } from './Dungeon.js';
 export default class Roleplay extends Generic{
 
 	constructor(data, parent){
@@ -99,14 +100,19 @@ export default class Roleplay extends Generic{
 	setStage( index, delay=false ){
 
 		if( index === -1 ){
-			if( this.persistent )
+			if( this.persistent ){
 				this.completed = true;
+				if( this.parent instanceof DungeonEncounter )
+					this.parent.getDungeon().setRoleplayCompleted(this);
+			}
+			game.saveDungeonState();
 			game.clearRoleplay();
 		}
 		else{
 			let fn = () => {
-				const stage = this.getActiveStage();
 				this.stage = index;
+
+				const stage = this.getActiveStage();
 				if( index > -1 && stage )
 					stage.onStart();
 				game.ui.rpOptionSelected('');
@@ -122,7 +128,6 @@ export default class Roleplay extends Generic{
 				fn();
 		}
 		
-
 	}
 
 	getPlayer(){

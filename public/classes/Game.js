@@ -103,7 +103,6 @@ export default class Game extends Generic{
 			encounter : this.encounter.save(full),
 			quests : this.quests.map(el => el.save(full)),
 			roleplay : this.roleplay.save(full),
-			state_dungeons : this.state_dungeons.save(),
 			completed_quests : this.completed_quests.save(),	// A shallow clone is enough
 			time : this.time,
 		};
@@ -116,6 +115,7 @@ export default class Game extends Generic{
 			out.id = this.id;
 			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
+			out.state_dungeons = this.state_dungeons.save();
 			
 			out.procedural_dungeon = this.procedural_dungeon.save(full);
 		}
@@ -130,7 +130,6 @@ export default class Game extends Generic{
 			this.ignore_netgame = false;
 
 		this.saveDungeonState();
-
 		clearTimeout(this.save_timer);
 		return new Promise(res => {
 			this.save_timer = setTimeout(() => {
@@ -246,6 +245,7 @@ export default class Game extends Generic{
 	// Automatically invoked after g_autoload() in load()
 	rebase(){
 
+		this.state_dungeons = Collection.loadThis(this.state_dungeons);
 		
 		this.quests = Quest.loadThese(this.quests, this);		
 		this.dungeon = new Dungeon(this.dungeon, this);
@@ -253,7 +253,6 @@ export default class Game extends Generic{
 		this.encounter = new DungeonEncounter(this.encounter, this);
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
-		this.state_dungeons = Collection.loadThis(this.state_dungeons);
 		this.completed_quests = Collection.loadThis(this.completed_quests);
 
 		// Map Quests and Players
@@ -304,14 +303,14 @@ export default class Game extends Generic{
 	/* Custom "events" */
 	onEncounterDefeated(){
 
-		this.encounter.completed = true;
+		this.encounter.setCompleted(true);
 		// Players won the encounter
 		let winners = this.getTeamPlayers(0);
 		let expReward = 0;
 		for( let p of this.encounter.players )
 			expReward += p.getExperienceWorth();
 		for( let p of winners )
-			p.addExperience(Math.ceil(expReward));	
+			p.addExperience(Math.ceil(expReward));
 		this.save();
 
 	}
@@ -322,7 +321,7 @@ export default class Game extends Generic{
 		let losers = shuffle(this.getPlayersNotOnTeam(winningTeam)),
 			armorSteal = losers.slice();
 
-		this.encounter.completed = false;
+		this.encounter.setCompleted(false);
 
 		// allow enemies to punish
 		await delay(2000);
@@ -697,11 +696,9 @@ export default class Game extends Generic{
 		}
 		this.dungeon = dungeon;
 		this.dungeon.previous_room = this.dungeon.active_room = room;
-		if( resetSaveState ){
+		if( resetSaveState )
 			this.state_dungeons.unset(this.dungeon.label);
-		}
-		else
-			this.dungeon.loadState(this.state_dungeons.get(this.dungeon.label));
+
 		this.updateAmbiance();
 		this.onDungeonEntered();
 		this.dungeon.onEntered();
@@ -712,7 +709,7 @@ export default class Game extends Generic{
 	}
 
 	saveDungeonState(){
-		this.state_dungeons.set(this.dungeon.label, this.dungeon.saveState());
+		this.state_dungeons.set(this.dungeon.label, this.dungeon._state.save());
 	}
 
 	removeDungeonState( label ){
@@ -1271,7 +1268,7 @@ export default class Game extends Generic{
 		
 		// Merge should reset the encounter status
 		if( merge ){
-			this.encounter.completed = false;
+			this.encounter.setCompleted(false);
 			this.encounter.started = false;
 		}else{
 			// override the encounter
@@ -1338,7 +1335,7 @@ export default class Game extends Generic{
 
 
 		
-
+		encounter.onPlacedInWorld();
 
 		// Purge is needed after each overwrite
 		game.save();

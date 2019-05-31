@@ -193,6 +193,70 @@ const lib = {
 		player_templates : ['mimic']
 	},
 
+	// Impicus in yuug portswood cave
+	yuug_portswood_cave_impicus : {
+		players : ['Impicus'],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					id: 'yuug_portswood_cave_impicus',
+					player : 'Impicus',
+					persistent : true,
+					stages: [
+						{
+							index: 0,
+							text: "How you get past my tentacly fiends!?",
+							options: [
+								{text: "With tons of lube.", index: 10},
+								// Fake
+								{text: "They fell to my might!", index: 11, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>3"}, inverse:true, caster:true}]},
+								// Real
+								{text: "They fell to my might!", index: 12, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>3"}, caster:true}]},
+								{text: "One tentaclemancer to another: You're out of your league.", index: 13, conditions:["targetClassTentaclemancer"]},
+							]
+						},
+						{
+							index: 10,
+							text: "Then you prepared for what I do to you!",
+							options: [
+								{text: "[Begin Battle]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 11,
+							text: "Hah! You weak. Me can take you!",
+							options: [
+								{text: "[Begin Battle]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 12,
+							text: "Hm yes. You do look very strong. We do not need fight if you let me go.",
+							options: [
+								{text: "Fine you can go", index: -1},
+								{text: "No I'd rather fight", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 13,
+							text: "Oh uh. Impicus see now. Impicus will study harder. Maybe we can battle when we more even!",
+							options: [
+								{text: "Fine, come back when you're stronger", index: -1, game_actions:[{type:GameAction.types.dungeonVar, data:{id:"impicus_trained",val:true}}]},
+								{text: "No I'll deal with you now", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+					conditions : [
+						"notInCombat",
+						{type:Condition.Types.questObjectiveCompleted, data:{quest:'MQ00_YuugBeach', objective:'caveCleared'}, inverse:true, targnr:0},
+					]
+				}}
+			}
+		]
+	},
+
 
 	// MQ00
 	MQ00_Boss : {
@@ -250,6 +314,8 @@ const lib = {
 			}
 		]
 	},
+
+
 
 };
 

@@ -238,6 +238,15 @@ export default class Condition extends Generic{
 				success = species.indexOf(t.species.toLowerCase()) > -1;
 
 			}
+			else if( this.type === T.playerClass ){
+
+				let c = this.data.label;
+				if( !Array.isArray(c) )
+					c = [c];
+				c = c.map(el => el.toLowerCase() );
+				success = c.indexOf(t.class.label.toLowerCase()) > -1;
+
+			}
 			
 			else if( this.type === T.actionResisted )
 				success = !!event.custom.resist && (typeof this.data !== "object" || !Object.keys(this.data).length || (event.action && this.data.type === event.action.type)); 
@@ -416,6 +425,9 @@ export default class Condition extends Generic{
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
+			}
+			else if( this.type === T.formula ){
+				success = Calculator.run(this.data.formula, event);
 			}
 
 			else if( this.type === T.numGamePlayersGreaterThan ){
@@ -620,10 +632,13 @@ Condition.Types = {
 	playerLabel : 'playerLabel',
 	numGamePlayersGreaterThan : 'numGamePlayersGreaterThan',
 	actionOnCooldown : 'actionOnCooldown',
+	playerClass : 'playerClass',
+	formula : 'formula',
 };
 
 Condition.descriptions = {
 	[Condition.Types.tag] : '{tags:(arr)(str)tag, sender:(bool)limit_by_sender} one or many tags, many tags are ORed. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
+	[Condition.Types.playerClass] : '{label:(arr)(str)label} Searches for label in target playerclass.',
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached wrapper',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
@@ -661,6 +676,7 @@ Condition.descriptions = {
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any} - Nr game players are greater than amount. If team is undefined, it checks all players. Use -1 for enemies and -2 for friendlies',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
+	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
 };
 
 
