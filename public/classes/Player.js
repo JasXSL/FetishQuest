@@ -1005,9 +1005,8 @@ export default class Player extends Generic{
 		for(let i in this.assets){
 			let asset = this.assets[i];
 			if(asset.id === id){
-				if( Math.floor(amount) && asset.stacking ){
+				if( Math.floor(amount) && asset.stacking )
 					asset._stacks -= amount;
-				}
 				if( !amount || !this.assets[i].stacking || asset._stacks <= 0 )
 					this.assets.splice(i, 1);
 				return true;
@@ -1536,6 +1535,21 @@ export default class Player extends Generic{
 			}
 
 		}
+		out.sort((a,b) => {
+			const aConsumable = Boolean(a.parent.use_action);
+			const bConsumable = Boolean(b.parent.use_action);
+			const aName = aConsumable ? a.parent.name : a.name;
+			const bName = bConsumable ? b.parent.name : b.name;
+			
+			// nonconsumable first
+			if( aConsumable !== bConsumable )
+				return bConsumable ? -1 : 1;
+			// Lower cooldown second
+			if( a.cooldown !== b.cooldown )
+				return a.cooldown < b.cooldown ? -1 : 1;
+			// Finally name
+			return aName < bName ? -1 : 1;
+		});
 		
 		return out;
 

@@ -1,7 +1,6 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Add gold to autoloot
 	- Floating combat text
 	- Need to be able to destroy parts of a stack
 	- Quest completion time needs to be set

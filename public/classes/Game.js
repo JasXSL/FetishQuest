@@ -1205,7 +1205,7 @@ export default class Game extends Generic{
 	}
 
 	// Deletes a player item by Player, Asset.id
-	deletePlayerItem( player, id ){
+	deletePlayerItem( player, id, amount = 1 ){
 
 		if(!game.playerIsMe(player)){
 			game.modal.addError("not your player");
@@ -1217,11 +1217,11 @@ export default class Game extends Generic{
 			return this.modal.addError("Asset not found");
 
 		if( !this.is_host ){
-			this.net.playerDeleteAsset(player, asset);
+			this.net.playerDeleteAsset(player, asset, amount);
 			return;
 		}
 
-		if( player.destroyAsset(id) ){
+		if( player.destroyAsset(id, amount) ){
 			this.save();
 			return true;
 		}

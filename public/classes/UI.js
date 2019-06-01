@@ -2303,7 +2303,7 @@ export default class UI{
 
 						if( asset.stacking && asset._stacks > 1 ){
 							modal.makeSelectionBoxForm(
-								'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value=1 /><input type="submit" value="Ok" />',
+								'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
 								function(){
 									const amount = Math.floor($("input:first", this).val());
 									if( !amount )
@@ -2320,16 +2320,34 @@ export default class UI{
 					else if( task === 'destroy' ){
 
 						modal.prepareSelectionBox( true );
-						modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
-						modal.addSelectionBoxItem( "Cancel", '', 'cancel' );
-						modal.onSelectionBox(function(){
-							const pid = $(this).attr("data-id");
-							if( pid === 'delete' && game.deletePlayerItem( player, id) ){
-								th.drawPlayerInventory();
-								th.draw();
-							}
-							modal.closeSelectionBox();
-						});
+						// Delete from stack
+						if( asset.stacking && asset._stacks >1 ){
+							modal.makeSelectionBoxForm(
+								'Amount to destroy: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
+								function(){
+									const amount = Math.floor($("input:first", this).val());
+									if( amount > 0 ){
+										if(game.deletePlayerItem( player, id, parseInt(amount))){
+											th.drawPlayerInventory();
+											th.draw();
+										}
+									}
+								}
+							);
+						}
+						// Delete single
+						else{
+							modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
+							modal.onSelectionBox(function(){
+								const pid = $(this).attr("data-id");
+								if( pid === 'delete' && game.deletePlayerItem( player, id) ){
+									th.drawPlayerInventory();
+									th.draw();
+								}
+								modal.closeSelectionBox();
+							});
+						}
+					
 						return;
 					}
 
