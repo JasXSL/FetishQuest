@@ -739,7 +739,36 @@ const lib = {
         ],
         
     },
-
+    coins_pickup : {
+        sounds : [
+            {
+                s : {
+                    path : "media/audio/coins_pickup.ogg",
+                    volume : 0.4
+                },
+            }
+        ],
+    },
+    coins_pickup : {
+        sounds : [
+            {
+                s : {
+                    path : "media/audio/coins_pickup.ogg",
+                    volume : 0.4
+                },
+            }
+        ],
+    },
+    loot_herb : {
+        sounds : [
+            {
+                s : {
+                    path : "media/audio/herb_pickup.ogg",
+                    volume : 0.4
+                },
+            }
+        ],
+    },
     berryGrab : {
         sounds : [
             {

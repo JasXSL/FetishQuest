@@ -3009,7 +3009,7 @@ export default class UI{
 				if( s )
 					sel = true;
 				if( response.validate(game.getMyActivePlayer()) )
-					html += '<div class="option bg'+(sel ? ' selected' : '')+'" data-id="'+esc(response.id)+'">'+esc(response.text)+'</div>';
+					html += '<div class="option bg'+(s ? ' selected' : '')+'" data-id="'+esc(response.id)+'">'+esc(response.text)+'</div>';
 			}
 			
 			$("div.responses", div).html(html);
@@ -3022,6 +3022,8 @@ export default class UI{
 			}
 
 		}
+		else
+			this.selected_rp = '';
 		
 		div.toggleClass('hidden', roleplay.completed || !player || player.team !== 0);
 		

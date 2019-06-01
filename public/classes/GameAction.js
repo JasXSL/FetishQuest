@@ -231,12 +231,7 @@ export default class GameAction extends Generic{
 	
 	// Converts data to roleplay
 	getDataAsRoleplay(){
-		let rp = this.data.rp;
-		if( typeof rp === 'string' )
-			rp = glib.get(rp, 'Roleplay');
-		else if( typeof rp === 'object' )
-			rp = new Roleplay(rp, game);
-			
+		let rp = Roleplay.loadThis(this.data.rp, this);
 		if( typeof rp !== "object" ){
 			console.error("Error, ", this.data.rp, "is not a valid roleplay in", this);
 			return false;
@@ -353,6 +348,9 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.roleplay ){
 			const rp = this.getDataAsRoleplay();
+			if( rp.completed && rp.once )
+				return false;
+			rp.completed = false;
 			if( rp && rp.validate(player) )
 				game.setRoleplay(rp);
 		}

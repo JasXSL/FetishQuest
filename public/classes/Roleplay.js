@@ -3,6 +3,7 @@ import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import GameAction from './GameAction.js';
 import { DungeonEncounter } from './Dungeon.js';
+import Game from './Game.js';
 export default class Roleplay extends Generic{
 
 	constructor(data, parent){
@@ -81,6 +82,22 @@ export default class Roleplay extends Generic{
 		if( this.once && !this.label )
 			console.error("ONCE roleplay doesn't have a label", this);
 
+		if( this.hasGameParent() ){
+			this.loadState();
+		}		
+	}
+
+	// This is false if the roleplay is in the library
+	hasGameParent(){
+		let parent = this.parent;
+		while( parent ){
+			if( parent instanceof Game )
+				return true;
+			parent = parent.parent;
+		}
+	}
+
+	loadState(){
 		// When loaded from a game, grab from state
 		if( window.game && window.game !== true && this.label && game.state_roleplays[this.label] ){
 			const state = game.state_roleplays[this.label];
@@ -89,7 +106,6 @@ export default class Roleplay extends Generic{
 			if( this.once && state.hasOwnProperty("completed") )
 				this.completed = state.completed;
 		}
-
 	}
 
 	clone(parent){

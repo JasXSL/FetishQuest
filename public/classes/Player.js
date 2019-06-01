@@ -709,8 +709,8 @@ export default class Player extends Generic{
 		for(let action of actions)
 			action.onTurnStart();
 		
-		if( this.arousal > 0 && this._turns%2 ){
-			let sub = -this.getMaxArousal()/10;	// You lose 10% each turn
+		if( this.arousal > 0 && this._turns%3 === 0 ){
+			let sub = -this.getMaxArousal()/10;	// You lose 10% every 3 turns
 			let rem = Math.floor(sub);
 			if( Math.random() < sub-rem )
 				--rem;

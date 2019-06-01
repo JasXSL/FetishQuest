@@ -2383,7 +2383,7 @@ const lib = {
 		icon : 'lasso',
 		name : "Groperope",
 		description : "Deals 3 physical damage.",
-		ap : 0,
+		ap : 1,
 		cooldown : 4,
 		show_conditions : ["inCombat"],
 		tags : [

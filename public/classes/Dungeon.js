@@ -75,7 +75,6 @@ class Dungeon extends Generic{
 		this.rooms = DungeonRoom.loadThese(this.rooms, this);
 		this.consumables = Asset.loadThese(this.consumables, this);
 		this.vars = Collection.loadThis(this.vars);
-		this.loadState();
 	}
 
 	save( full ){
@@ -600,7 +599,10 @@ class DungeonRoom extends Generic{
 	}
 
 	resetRoleplays(){
-		for( let encounter of this.encounters ){
+		let encounters = this.encounters;
+		if( !Array.isArray(encounters) )
+			encounters = [encounters];
+		for( let encounter of encounters ){
 			encounter.resetRoleplays();
 		}
 		for( let asset of this.assets ){

@@ -226,8 +226,10 @@ export default class Game extends Generic{
 		if( !this.dungeon || !this.dungeon.rooms.length )
 			this.addRandomQuest();
 		*/
-		if( this.dungeon.label )
+		if( this.dungeon.label ){
+			this.dungeon.loadState();
 			this.renderer.loadActiveDungeon();
+		}
 		this.verifyLeader();
 
 	}
@@ -241,6 +243,7 @@ export default class Game extends Generic{
 		let nt = this.getTurnPlayer();
 		if( turn.id !== nt.id )
 			this.onTurnChanged();
+		this.dungeon.loadState();
 	}
 
 	// Automatically invoked after g_autoload() in load()
@@ -705,6 +708,8 @@ export default class Game extends Generic{
 		if( resetSaveState ){
 			this.dungeon.resetRoleplays();
 			this.dungeon.resetState();
+		}else{
+			this.dungeon.loadState();
 		}
 		this.updateAmbiance();
 		this.onDungeonEntered();
@@ -1264,7 +1269,6 @@ export default class Game extends Generic{
 	/* ENCOUNTER */
 	// Start an encounter
 	startEncounter( player, encounter, merge = false ){
-
 
 		if( !encounter )
 			return;
