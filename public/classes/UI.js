@@ -723,7 +723,7 @@ export default class UI{
 			lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerbody);
 		
 		let rb_entries = [];
-		rb_entries.push('<span class="arousal resource" title="Arousal.\n+'+Math.round(p.arousal/p.getMaxArousal()*50)+'% corruption damage taken">'+
+		rb_entries.push('<span class="arousal resource" title="Arousal.\nStuns at 100%.">'+
 			p.arousal+"/"+p.getMaxArousal()+
 		'</span>');
 		if( !p.isBeast() ){
@@ -734,14 +734,14 @@ export default class UI{
 
 			rb_entries.push(
 				'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="Upperbody armor durability.'+
-					(ubDmg ? '\n+'+(ubDmg*100)+'% Damage taken.' : '')+
+					'\n'+((1-ubDmg)*100)+'% Damage reduction'+
 				'">'+
 					Math.ceil(ubDur*100)+'%'+
 				'</span>'
 			);
 			rb_entries.push(
 				'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="Lowerbody armor durability.'+
-					(lbDmg ? '\n+'+(lbDmg*100)+'% Damage taken.' : '')+
+					'\n'+((1-lbDmg)*100)+'% Damage reduction'+
 				'">'+
 				Math.ceil(lbDur*100)+'%</span>'
 			);

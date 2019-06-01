@@ -339,11 +339,13 @@ export default class Player extends Generic{
 		vars[prefix+'Lv'] = this.level;
 		vars[prefix+'HP'] = this.hp;
 		vars[prefix+'AP'] = this.ap;
+		vars[prefix+'Arousal'] = this.arousal;
 		vars[prefix+'Team'] = this.team;
 		vars[prefix+'Size'] = this.size;
 		vars[prefix+'MaxHP'] = this.getMaxHP();
 		vars[prefix+'MaxAP'] = this.getMaxAP();
 		vars[prefix+'MaxMP'] = this.getMaxMP();
+		vars[prefix+'MaxArousal'] = this.getMaxArousal();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
 
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
@@ -1257,10 +1259,19 @@ export default class Player extends Generic{
 	}
 
 	addArousal( amount ){
+
+		if( this.isOrgasming() )
+			return;
 		if( isNaN(amount) )
 			return console.error("Invalid amount of arousal", amount);
+		const pre = this.arousal, max = this.getMaxArousal();
 		this.arousal += amount;
-		this.arousal = Math.min(this.getMaxArousal(), Math.max(0, this.arousal));
+		this.arousal = Math.min(max, Math.max(0, this.arousal));
+		if( this.arousal === max && pre !== max ){
+			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(this, this, false);
+			game.save();
+			game.ui.draw();
+		}
 	}
 
 
@@ -1419,11 +1430,6 @@ export default class Player extends Generic{
 		return out;
 
 	}
-	
-	getCorruptionDamageMultiplier(){
-		return 1+(this.arousal/this.getMaxArousal()/2);
-	}
-	
 	
 
 
@@ -1750,6 +1756,7 @@ export default class Player extends Generic{
 
 	addWrapper( wrapper ){
 
+		wrapper.parent = this;
 		this.wrappers.push(wrapper);
 		let isStun = wrapper.getEffects({ type:Effect.Types.stun });
 		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) ){
@@ -1766,6 +1773,16 @@ export default class Player extends Generic{
 		return this.getWrappers().filter(wrapper => {
 			return wrapper.hasTag(tags);
 		});
+	}
+
+	// overWhelmingOrgasm triggered from max arousal
+	isOrgasming(){
+		const wrappers = this.getWrappers();
+		for( let wrapper of wrappers ){
+			if( wrapper.label === "overWhelmingOrgasm" ){
+				return true;
+			}
+		}
 	}
 	
 	// Filter is an object of key:value pairs

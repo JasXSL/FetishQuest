@@ -224,6 +224,12 @@ export default class Condition extends Generic{
 					data = [data];
 				success = event.effect && data.indexOf(event.effect.label) !== -1; 
 			}
+			else if( this.type === T.wrapperLabel ){
+				let data = this.data.label;
+				if( !Array.isArray(data) )
+					data = [data];
+				success = event.wrapper && data.indexOf(event.wrapper.label) !== -1; 
+			}
 			else if( this.type === T.playerLabel ){
 				let data = toArr(this.data.level);
 				success = data.indexOf(t.label) !== -1;
@@ -370,7 +376,7 @@ export default class Condition extends Generic{
 
 			else if( this.type === T.defeated ){
 				if( !t || !t.isDead )
-					console.error(t, "doesn't have an isDead function");
+					console.error(t, "doesn't have an isDead function in event", event);
 				success = t.isDead();
 			}
 
@@ -604,6 +610,7 @@ Condition.Types = {
 	isWrapperParent : 'isWrapperParent',		// 
 	actionHidden : 'actionHidden',				// 
 	effectLabel : 'effectLabel',				// 
+	wrapperLabel : 'wrapperLabel',
 	wrapperStacks : 'wrapperStacks',			// 
 	hasWrapper : 'hasWrapper',		// 
 	apValue : 'apValue', 			// 
@@ -649,6 +656,7 @@ Condition.descriptions = {
 	[Condition.Types.isWrapperParent] : 'void - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
+	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "="} - Operation is = by default',
 	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster}',
 	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',

@@ -105,6 +105,7 @@ GameEvent.Types = {
 	wrapperRemoved : 'wrapperRemoved',	
 	wrapperTick : 'wrapperTick',		
 	wrapperExpired : 'wrapperExpired',		
+	wrapperExpiredAfter : 'wrapperExpiredAfter',		
 	turnChanged : 'turnChanged',		
 	playerDefeated : 'playerDefeated',	
 	diminishingResist : 'diminishingResist',
@@ -115,6 +116,7 @@ GameEvent.Types = {
 	internalWrapperAdded : 'internalWrapperAdded',
 	internalWrapperRemoved : 'internalWrapperRemoved',		// Always raised regardless of how the effect is removed
 	internalWrapperExpired : 'internalWrapperExpired',		// The effect expired naturally
+	internalWrapperExpiredAfter : 'internalWrapperExpiredAfter',		// Same as above but triggered after removing from player
 	internalWrapperTick : 'internalWrapperTick',	
 	internalWrapperStackChange : 'internalWrapperStackChange',
 	
@@ -145,6 +147,8 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.actionRiposte] : 'target is the player that cast the original spell, sender is the original victim',
 	[GameEvent.Types.wrapperAdded] : 'Duration effects only, sender, target, action, wrapper',		//* , 
 	[GameEvent.Types.wrapperRemoved] : 'Duration effects only. sender, target, action, wrapper',	//* 
+	[GameEvent.Types.wrapperExpired] : 'Duration effects only. sender, target, action, wrapper',	//* 
+	[GameEvent.Types.wrapperExpiredAfter] : 'Duration effects only. sender, target, action, wrapper',	//* 
 	[GameEvent.Types.wrapperTick] : 'Duration ticks and trigger immediates',		//* , == || ==
 	[GameEvent.Types.turnChanged] : 'Sender is the previous player, Target is the new player',		//* 
 	[GameEvent.Types.playerDefeated] : 'Player was defeated, sender was the player that defeated target, action might be included, wrapper is included',	// 
@@ -155,6 +159,8 @@ GameEvent.TypeDescs = {
 	// These are only raised internally within a wrapper/effect
 	[GameEvent.Types.internalWrapperAdded] : 'Duration effects only, sender, target, action, wrapper. Custom: {isChargeFinish:(bool)isChargeFinish}',		// 
 	[GameEvent.Types.internalWrapperRemoved] : 'Duration effects only. sender, target, action, wrapper',	// *
+	[GameEvent.Types.internalWrapperExpired] : 'Wrapper expired naturally.',	// *
+	[GameEvent.Types.internalWrapperExpiredAfter] : 'Wrapper expired naturally. Raised after removing from player',	// *
 	[GameEvent.Types.internalWrapperTick] : 'Duration ticks and trigger immediates',		// *, == || ==
 	[GameEvent.Types.internalWrapperStackChange] : 'Raised when a stack changes through an effect. Combine with add/tick. For now, sender/target correspond to the affected wrapper, not the person who raised the event',		// 
 	

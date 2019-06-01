@@ -48,7 +48,7 @@ export default class Game extends Generic{
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
 		this.state_dungeons = new Collection();			// label : (obj)dungeonstate - See the dungeon loadstate/savestate. Dungeon stage is fetched from a method in Dungeon
-		this.completed_quests = new Collection();		// label : {objective_label:true}
+		this.completed_quests = new Collection();		// label : {objective_label:true,__time:(int)time_completed}
 		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)} - These are fetched by the Dungeon object. They're the same objects here as they are in dungeon._state
 		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
 
@@ -390,7 +390,9 @@ export default class Game extends Generic{
 		if( this.is_host && this.net.id )
 			this.net.dmQuestAccepted( 'Quest Completed:', quest.name );
 
-		const objectives = {};
+		const objectives = {
+			__time : this.time,
+		};
 		for( let objective of quest.objectives ){
 			if( objective.isCompleted() )
 				objectives[objective.label] = 1;

@@ -1,21 +1,15 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Floating combat text
-	- Need to be able to destroy parts of a stack
-	- Quest completion time needs to be set
 
 Medium rare:
 	- Remake monetary system to copper, silver, gold
 	- Monster: Groper
 		- Ability A
 		- Ability B
-	- Boss: Ixsplat
-		- Abilities...
 	- Add gropers to forest
-	- Add enemies to cave
-	- Add a hearthstone type item
 	- Redesign arousal
+	- Floating combat text
 
 Big chungi:
 	- Shop
@@ -28,6 +22,12 @@ Big chungi:
 		- Hidden path down to the beach
 		- Otter and Broper quest
 	
+
+Food for thought
+	- Fast travel system
+		- Expensive
+		- Need to unlock at an inn
+
 
 Meshes:
 

@@ -145,7 +145,36 @@ const lib = {
 				]
 			}
 		]
-	}
+	},
+	overWhelmingOrgasm : {
+		target : Wrapper.Targets.auto,
+		duration : 2,
+		name : "Overwhelming Orgasm",
+		icon : "shining-heart",
+		description : "-10 corruption avoidance, stunned.",
+		detrimental : true,
+		add_conditions : ["senderNotDead", "targetNotDead"],
+		stay_conditions : ["senderNotDead","targetNotDead"],
+		tags : [],
+		effects : [
+			{
+				type : Effect.Types.stun,
+				data:{ignoreDiminishing:true}
+			},
+			{
+				type : Effect.Types.svCorruption,
+				data:{amount:-10}
+			},
+			{
+				label : 'overWhelmingOrgasm_end',
+				events : [GameEvent.Types.internalWrapperExpiredAfter],
+				type : Effect.Types.addArousal,
+				data : {
+					amount : "-ta_MaxArousal"
+				}
+			},
+		]
+	},
 };
 
 

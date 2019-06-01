@@ -63,11 +63,14 @@ const lib = {
 	action_bondageStruggle : {type:Condition.Types.actionLabel, data:{label:'bondageStruggle'}, targnr:0},
 	action_imp_groperopeHogtie : {type:Condition.Types.actionLabel, data:{label:'imp_groperopeHogtie'}, targnr:0},
 	action_imp_newGroperope : {type:Condition.Types.actionLabel, data:{label:['imp_newGroperope_solo', 'imp_newGroperope_party']}, targnr:0},
-	
 	action_crab_claw_pinch : {type:Condition.Types.actionLabel, data:{label:'crab_claw_pinch'}, targnr:0},
 	action_crab_claw_tug : {type:Condition.Types.actionLabel, data:{label:'crab_claw_tug'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
+
+	overWhelmingOrgasm_end : {type:Condition.Types.effectLabel, data:{label:'overWhelmingOrgasm_end'}},
+	overWhelmingOrgasm_start : {type:Condition.Types.wrapperLabel, data:{label:'overWhelmingOrgasm'}},
+	
 
 	actionMelee : {type:Condition.Types.actionRanged, targnr:0, inverse:true},
 	actionRanged : {type:Condition.Types.actionRanged, targnr:0},

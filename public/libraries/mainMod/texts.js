@@ -56,6 +56,19 @@ const lib = [
 		audiokits : ["spellFail"]
 	},
 
+	// Overwhelming orgasm
+	{ text : "%T succumbs to %This arousal!",
+		conditions : ["targetBeast", "eventIsWrapperAdded","overWhelmingOrgasm_start"],
+		hitfx : ["squishLong"]
+	},
+	{ text : "%T feels a wave of pleasure wash across %This %Tgenitals, succumbing to %This arousal!",
+		conditions : ["targetNotBeast", "eventIsWrapperAdded","overWhelmingOrgasm_start"],
+		hitfx : ["squishLong"]
+	},
+	{ text : "%T recovers from %This arousal!",
+		conditions : ["eventIsEffectTrigger","overWhelmingOrgasm_end"],
+	},
+
 	// STDAttack
 	{ text : "%S throws a punch at %T!",
 		"conditions":humOnAnyCond.concat("action_stdAttack"),

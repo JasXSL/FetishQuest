@@ -238,7 +238,7 @@ class Wrapper extends Generic{
 					sender : caster,
 					target : victim,
 					wrapper : obj,
-					action : this.parent.constructor === Action ? this.parent : null,
+					action : this.parent && this.parent.constructor === Action ? this.parent : null,
 				});
 				for(let effect of obj.effects)
 					effect.trigger(evt);
@@ -310,36 +310,46 @@ class Wrapper extends Generic{
 		
 		let target = game.getPlayerById(this.victim);
 
+		const evt = new GameEvent({
+			type : GameEvent.Types.wrapperExpired,
+			wrapper : this,
+			sender : this.getCaster(),
+			target : target,
+			action : this.parent.constructor === Action ? this.parent : null,
+		}).raise();
+
 		if( expired ){
 
-			const evt = new GameEvent({
-				type : GameEvent.Types.wrapperExpired,
-				wrapper : this,
-				sender : this.getCaster(),
-				target : this.parent
-			}).raise();
+			evt.type = GameEvent.Types.wrapperExpired;
+			evt.raise();
 			evt.type = GameEvent.Types.internalWrapperExpired;
 			for(let effect of this.effects)
 				effect.trigger(evt);
 
 		}
 
-		const evt = new GameEvent({
-			type : GameEvent.Types.internalWrapperRemoved,
-			sender : game.getPlayerById(this.caster),
-			target : target,
-			wrapper : this,
-			action : this.parent.constructor === Action ? this.parent : null,
-		});
+		evt.type = GameEvent.Types.internalWrapperRemoved;
 		for(let effect of this.effects)
 			effect.trigger(evt);
 		
-		
-		this.unbindEvents();
 		if( target )
 			target.removeWrapper(this);
+		
+
+		// After removing from player
+		if( expired ){
+			evt.type = GameEvent.Types.wrapperExpiredAfter;
+			evt.raise();
+			evt.type = GameEvent.Types.internalWrapperExpiredAfter;
+			for(let effect of this.effects)
+				effect.trigger(evt);
+		}
+
+		
 		evt.type = GameEvent.Types.wrapperRemoved;
 		evt.raise();
+
+		this.unbindEvents();
 
 	}
 
@@ -710,12 +720,14 @@ class Effect extends Generic{
 						// 30% chance per point of healing
 						let ch = Math.abs(amt*30);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
+						if( tot > t.arousal )
+							tot = t.arousal;
+						if( t.isOrgasming() )
+							tot = 0;
 						if( tot && t.arousal ){
-
 							t.addArousal(-tot);
 							game.ui.addText( t.getColoredName()+" lost "+Math.abs(tot)+" arousal from holy healing.", undefined, s.id, t.id, 'statMessage arousal' );
 							amt += tot;	// Holy healing converts arousal into HP
-
 						}
 
 					}
@@ -725,14 +737,15 @@ class Effect extends Generic{
 				// Damage
 				else{
 					
+					/*
 					console.debug(
 						"input", amt, 
 						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
 						"nudity multi", t.getNudityDamageMultiplier(),
-						"corruption multi", t.getCorruptionDamageMultiplier()
 					);
+					*/
 					
 					
 					amt *= Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental ); // Negative because it's damage
@@ -747,9 +760,6 @@ class Effect extends Generic{
 					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t );
 
 					amt *= t.getNudityDamageMultiplier();
-					// Corruption bonus is added here
-					if( type === Action.Types.corruption )
-						amt *= t.getCorruptionDamageMultiplier();
 
 					
 					let base = Math.floor(amt);
@@ -788,8 +798,8 @@ class Effect extends Generic{
 				// Calculate arousal (allowed for both healing and damaging)
 				if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
 
-					// 20% chance per point of damage
-					let ch = Math.abs(amt*20);
+					// 25% chance per point of damage
+					let ch = Math.abs(amt*25);
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 					if( tot ){
 
