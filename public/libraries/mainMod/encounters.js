@@ -251,10 +251,49 @@ const lib = {
 							]
 						},
 					],
-					conditions : [
-						"notInCombat",
-						{type:Condition.Types.questObjectiveCompleted, data:{quest:'MQ00_YuugBeach', objective:'caveCleared'}, inverse:true, targnr:0},
-					]
+					conditions : ["notInCombat"]
+				}}
+			}
+		]
+	},
+	yuug_portswood_cave_ixsplat : {
+		players : ['Ixsplat'],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					id: 'yuug_portswood_cave_ixsplat',
+					label : 'yuug_portswood_cave_ixsplat',
+					player : 'Ixsplat',
+					persistent : true,
+					once : true,
+					stages: [
+						{
+							index: 0,
+							text: "Ah ha! A test subject!",
+							options: [
+								{text: "What exactly are we testing?", index: 10},
+								{text: "[Just Attack]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 10,
+							text: "My wondrous groperope! A lovely rope made of groper vines, with a life of its own!",
+							options: [
+								{text: "Sounds exciting!", index: 100},
+								{text: "[Just Attack]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 100,
+							text: "Yes! Now stand still while I whip you!",
+							options: [
+								{text: "[Begin Battle]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+					conditions : ["notInCombat"]
 				}}
 			}
 		]

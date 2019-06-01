@@ -243,10 +243,10 @@ const lib = {
 	lowBlow: {
 		level: 1,
 		icon : 'armor-punch',
-		name : "Low Blow",
-		description : "Fight dishonorably. Deals 5 physical damage and interrupts any active charged actions your opponent is readying.",
-		ap : 3,
-		cooldown : 3,
+		name : "Pummel",
+		description : "Pummel your target's weak spot. Deals 6 physical damage and interrupts any active charged actions your opponent is readying.",
+		ap : 2,
+		cooldown : 4,
 		tags : [stdTag.acDamage,stdTag.acPainful,stdTag.acInterrupt],
 		show_conditions : ["inCombat"],
 		wrappers : [
@@ -256,8 +256,8 @@ const lib = {
 				detrimental : true,
 				add_conditions : stdCond,
 				effects : [
-					{type : Effect.Types.damage,data : {"amount": 5}},
-					{type : "interrupt"},
+					{type : Effect.Types.damage,data : {"amount": 6}},
+					{type : Effect.Types.interrupt},
 				]
 			}
 		]
@@ -1374,7 +1374,7 @@ const lib = {
 	},
 	
 
-	// imp_groperopeHogtie - Todo: Hogties a player, adding X stacks and preventing all spells except struggle. At the end of the players turn it does corruption damage. Affected players gain a struggle ability that lets you remove 1 stack at the cost of 2 AP.
+	// imp_groperopeHogtie - Hogties a player, adding X stacks and preventing all spells except struggle. At the end of the players turn it does corruption damage. Affected players gain a struggle ability that lets you remove 1 stack at the cost of 2 AP.
 	imp_groperopeHogtie : {
 		name : "Groperope Hogtie",
 		icon : 'lasso',
@@ -1423,7 +1423,7 @@ const lib = {
 			}
 		]
 	},
-	imp_newGroperope : {
+	imp_newGroperope_party : {
 		name : "New Groperope",
 		icon : 'paper',
 		description : "Fetches a new Groperope unless interrupted.",
@@ -1432,7 +1432,7 @@ const lib = {
 		cast_time : 1,
 		cooldown : 3,
 		detrimental : false,
-		show_conditions : ["inCombat"],
+		show_conditions : ["inCombat", "isCoop"],
 		target_type : Action.TargetTypes.self,
 		tags : [],
 		wrappers : [
@@ -1441,7 +1441,36 @@ const lib = {
 				target : Wrapper.TARGET_AUTO,
 				detrimental : false,
 				add_conditions : stdCond.concat(
-					'isCoop', {type:Condition.Types.actionOnCooldown, data:{label:'imp_groperopeHogtie'}, caster:true}
+					{type:Condition.Types.actionOnCooldown, data:{label:'imp_groperopeHogtie'}, caster:true}
+				),
+				effects : [
+					{
+						type : Effect.Types.addActionCharges,
+						data : {actions:'imp_groperopeHogtie', amount:1}
+					},	
+				]
+			}
+		]
+	},
+	imp_newGroperope_solo : {
+		name : "New Groperope",
+		icon : 'paper',
+		description : "Fetches a new Groperope unless interrupted.",
+		ap : 3,
+		mp : 5,
+		cast_time : 1,
+		cooldown : 6,
+		detrimental : false,
+		show_conditions : ["inCombat", "isSolo"],
+		target_type : Action.TargetTypes.self,
+		tags : [],
+		wrappers : [
+			{
+				label : 'newGroperope',
+				target : Wrapper.TARGET_AUTO,
+				detrimental : false,
+				add_conditions : stdCond.concat(
+					{type:Condition.Types.actionOnCooldown, data:{label:'imp_groperopeHogtie'}, caster:true}
 				),
 				effects : [
 					{

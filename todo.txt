@@ -1,10 +1,13 @@
 Needed other:
 Smol:	
 	- Punishments
+	- Add gold to autoloot
+	- Floating combat text
+	- Need to be able to destroy parts of a stack
+	- Quest completion time needs to be set
 
 Medium rare:
-	- Add a "just once" tag to roleplays and hook them up to dungeon saves
-
+	- Remake monetary system to copper, silver, gold
 	- Monster: Groper
 		- Ability A
 		- Ability B
@@ -13,6 +16,7 @@ Medium rare:
 	- Add gropers to forest
 	- Add enemies to cave
 	- Add a hearthstone type item
+	- Redesign arousal
 
 Big chungi:
 	- Shop

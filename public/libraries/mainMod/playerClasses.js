@@ -230,14 +230,6 @@ const lib = {
     MQ00_Boss : {
         name : "Nethermancer",
         primaryStat : Player.primaryStats.intellect,
-        svPhysical : 0,
-        svElemental : 0,
-        svHoly : -2,
-        svCorruption : 3,
-        bonPhysical : -2,
-        bonElemental : 0,
-        bonHoly : -2,
-        bonCorruption : 2,
         description : "",
         isMonsterClass : true,
         actions : [

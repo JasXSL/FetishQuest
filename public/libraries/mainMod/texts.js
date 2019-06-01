@@ -1583,11 +1583,11 @@ const lib = [
 	// action_imp_newGroperope
 	{ text : "%S rummages around, searching for another enchanted groperope!",
 		conditions : ["eventIsActionCharged","action_imp_newGroperope"],
-		hitfx : [] // Todo: Rummaging visual
+		hitfx : ["rummage"]
 	},
 	{ text : "%S finds another enchanted groperope!",
 		conditions : baseCond.concat("action_imp_newGroperope"),
-		hitfx : [] // Todo: Grab visual
+		hitfx : ["whipPickup"]
 	},
 	
 

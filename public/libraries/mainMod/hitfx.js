@@ -58,6 +58,29 @@ out[id].stages.push(
 );
 
 
+id = 'rummage';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxShake',
+		sound_kits : ['rummage'],
+	}, out[id]),
+);
+
+id = 'whipPickup';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		css_fx : 'fxShake',
+		sound_kits : ['whipPickup'],
+	}, out[id]),
+);
+
+
 id = 'slap';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

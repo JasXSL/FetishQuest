@@ -83,6 +83,7 @@ export default class GameAction extends Generic{
 		for( let i in this.parent.interactions ){
 			if( this.parent.interactions[i] === this ){
 				this.parent.interactions.splice(i, 1);
+				this.parent.onModified();
 				return true;
 			}
 		}

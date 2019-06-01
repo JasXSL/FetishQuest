@@ -15,140 +15,17 @@ const lib = {
 		weight : 6,
 		charges : 0,
 		rarity : 1,
-		loot_sound : "",	// todo: loot sound
+		loot_sound : "coins_pickup",
 		icon : 'metal-disc',
 		stacking : true,
 	},
 	// {"name":"gold","label":"__LABEL__","_stacks":2}
-
-	shinyWhiteThong : {
-		name : "Skirt and Thong Outfit",
-		slots : [
-			"lowerbody"
-		],
-		equipped : false,
-		tags : [
-			"as_skirt",
-			"as_thong",
-			"as_shiny",
-			"as_stockings"
-		],
-		wrappers : [
-			{
-				"id":"c2a6a041-3776-f047-74a4-f911b625582f",
-				name : "",
-				description : "",
-				"icon":"",
-				"detrimental":false,
-				"victim":"",
-				"caster":"",
-				"target":"VICTIM",
-				"add_conditions":[
-
-				],
-				"stay_conditions":[
-
-				],
-				"effects":[
-				{
-					"id":"6efc4201-5367-da01-7ee1-ea8d6affc1a0",
-					"type":"staminaModifier",
-					"data":{
-						"amount":3
-					},
-					"conditions":[
-
-					],
-					"targets":[
-						"VICTIM"
-					],
-					"events":[
-						"internalWrapperTick"
-					],
-					label : ""
-				}
-				],
-				"_duration":-1,
-				
-				"stacks":1,
-				"tick_on_turn_end":false,
-				"tick_on_turn_start":true,
-				label : "",
-				"_self_cast":false,
-				"max_stacks":1,
-				"netPlayer":"",
-				"trigger_immediate":false,
-				"duration":-1
-			}
-		],
-		description : "A short skirt, some wooly stockings and a shiny white thong. +3 Stamina",
-		level : 1,
-		durability_bonus : 0,
-		durability : 10,
-		weight : 50,
-		charges : 0,
-		use_action : {
-			"id":"0b1f1229-d37d-a443-5801-4312f64fb51f",
-			label : "",
-			name : "",
-			description : "",
-			wrappers : [
-
-			],
-			"cooldown":0,
-			"ap":1,
-			"_cooldown":0,
-			"min_targets":1,
-			"max_targets":1,
-			"hit_chance":90,
-			"detrimental":true,
-			"type":"Physical",
-			"mp":0,
-			"hidden":false,
-			"target_type":"target",
-			tags : [
-
-			],
-			"conditions":[
-
-			],
-			"no_action_selector":false,
-			"cast_time":0,
-			charges : 1,
-			allow_when_charging : false,
-			_cast_time : 0,
-			_charges : 1,
-			_cast_targets : [
-
-			],
-			no_interrupt : false,
-			show_conditions : [
-
-			],
-			hide_if_no_targets : false,
-			semi_hidden : false,
-			level : 1,
-			riposte : [
-
-			],
-			"no_use_text":false
-		},
-		rarity : 0,
-		loot_sound : "",
-		no_auto_consume : false
-	},
 	reallyHeavyTestItem : {
 		name : "Heavy Test Item",
-		slots : [
-
-		],
+		slots : [],
 		equipped : false,
-		tags : [
-
-		],
-		wrappers : [
-
-		],
+		tags : [],
+		wrappers : [],
 		description : "This thing weighs 100kg",
 		level : 1,
 		durability_bonus : 0,
@@ -160,9 +37,7 @@ const lib = {
 			label : "",
 			name : "",
 			description : "",
-			wrappers : [
-
-			],
+			wrappers : [],
 			"cooldown":0,
 			"ap":1,
 			"_cooldown":0,
@@ -230,7 +105,7 @@ const lib = {
 		],
 		description : "A simple leather whip.\n+1 Physical Proficiency",
 		weight : 750,
-		loot_sound : "",
+		loot_sound : "whip_pickup",
 		icon : 'whip',
 	},
 	gropeRope : {
@@ -241,7 +116,7 @@ const lib = {
 		wrappers : [],
 		description : "Adds the Groperope ability. Allowing you to deal 3 physical damage on an enemy every 3 turns.",
 		weight : 750,
-		loot_sound : "",
+		loot_sound : "whip_pickup",
 		icon : 'lasso',
 		rarity : 2,
 		charges : -1,
@@ -480,7 +355,7 @@ const lib = {
 		description : "A sturdy vine taken from a groper.",
 		weight : 500,
 		rarity : 0,
-		loot_sound : "",	// todo: loot sound
+		loot_sound : "herb_pickup",
 		icon : 'vine-whip',
 		stacking : true,
 	},

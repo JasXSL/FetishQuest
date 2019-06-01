@@ -117,6 +117,20 @@ const lib = {
         ],
         
     },
+    rummage: {
+        sounds : [
+            {
+                s : {path : "media/audio/rummage.ogg",volume : 0.5},
+            }
+        ],
+    },
+    whipPickup: {
+        sounds : [
+            {
+                s : {path : "media/audio/whip_pickup.ogg",volume : 0.5},
+            }
+        ],
+    },
     "thrustCum": {
         label : "thrustCum",
         sounds : [

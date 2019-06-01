@@ -11,7 +11,7 @@ import GameEvent from './GameEvent.js';
 import Dungeon from './Dungeon.js';
 import Roleplay from './Roleplay.js';
 
-const BASE_HP = 60;
+const BASE_HP = 50;
 const BASE_MP = 10;
 const BASE_AP = 10;
 const BASE_AROUSAL = 10;

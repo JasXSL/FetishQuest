@@ -2996,8 +2996,13 @@ export default class UI{
 			
 			$("div.portrait", div).html(stage.icon ? '<img src="media/characters/'+esc(stage.icon)+'.png"' : '');
 			$('> div.left', div).toggleClass('hidden', !stage.icon);
-			$("div.text", div).html('<span class="name">'+stylizeText(stage.getName())+'</span><br />'+esc(stage.text));
+			const name = stage.getName();
 			let html = '';
+			if( name )
+				html += '<span class="name">'+stylizeText()+'</span><br />';
+			$("div.text", div).html(html+esc(stage.text));
+			
+			html = '';
 			let sel = false;
 			for( let response of stage.options ){
 				let s = response.id === this.selected_rp;

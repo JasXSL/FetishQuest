@@ -550,12 +550,15 @@ class DungeonRoom extends Generic{
 
 	loadState( state ){
 
-		const respawn = ~state.encounter_complete && game.time-state.encounter_complete > state.encounter_respawn;
+		const respawn = ~state.encounter_complete && game.time-state.encounter_complete > state.encounter_respawn && state.encounter_respawn;
 
 		// If encounter is complete, set it to completed
 		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
 			this.encounters = new DungeonEncounter({"id":"_BLANK_"}, this);	// _BLANK_ prevents overwriting encounter data on change
 			this.encounters.completed = true;
+		}
+		if( respawn ){
+			console.log("Encounters respawned", game.time-state.encounter_complete, state.encounter_respawn);
 		}
 
 		if( state.encounter_friendly !== -1 && this.encounters instanceof DungeonEncounter && !respawn )
@@ -1126,7 +1129,7 @@ class DungeonRoomAsset extends Generic{
 		this.tags = [];
 		this.absolute = false;			// Makes X/Y/Z absolute coordinates
 		this.room = false;				// This is the room asset
-		this.interactions = [];			// Game actions
+		this.interactions = [];			// Game actions to trigger when interacted with
 		this.hide_no_interact = false;	// Hide whenever it's not interactive.
 		this.deleted = false;			// Deleted
 		this._interactive = null;		// Cache of if this object is interactive

@@ -128,6 +128,7 @@ export default class Roleplay extends Generic{
 				game.ui.rpOptionSelected('');
 				game.ui.draw();
 				this._waiting = false;
+				game.saveRPState(this);
 				game.save();
 			};
 			if( delay ){
@@ -289,7 +290,7 @@ export class RoleplayStage extends Generic{
 
 	getName(){
 		if( this.name )
-			return esc(name);
+			return esc(this.name);
 		const pl = this.getPlayer();
 		if( pl )
 			return pl.getColoredName();

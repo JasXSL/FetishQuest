@@ -284,7 +284,19 @@ div.centered, h1.centered, .centered{
 	90%{transform:scale(1.01);}
 	100%{transform:none; }
 }
-
+@keyframes hitfxShake{
+	0%{transform:none;}
+	10%{transform:translateX(10%);}
+	20%{transform:translateX(-10%);}
+	30%{transform:translateX(5%);}
+	40%{transform:translateX(-5%);}
+	50%{transform:translateX(2.5%);}
+	60%{transform:translateX(-2.5%);}
+	70%{transform:translateX(1%);}
+	80%{transform:translateX(-1%);}
+	90%{transform:translateX(0.5%);}
+	100%{transform:none;}
+}
 @keyframes buffBlue{
 	0%{transform:none; filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
 	60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
@@ -316,6 +328,9 @@ div.fxHeal{
 }
 div.fxStretch{
 	animation: takeDamageStretchPC 0.75s ease-in-out;
+}
+div.fxShake{
+	animation: hitfxShake 0.75s ease-in-out;
 }
 div.right div.fxStretch{
 	animation: takeDamageStretchNPC 0.75s ease-in-out;
