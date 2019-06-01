@@ -2416,25 +2416,18 @@ const lib = {
 		cooldown : 0,
 		detrimental : false,
 		tags : [
-			"ac_mana_heal",
-			"ac_item",
-			"ac_food",
+			stdTag.acHeal,
+			stdTag.acManaHeal,
+			stdTag.acItem,
+			stdTag.acFood,
 		],
-		show_conditions : [
-			"notInCombat"
-		],
+		show_conditions : ["notInCombat"],
 		target_type: "self",
 		wrappers : [
 			{
-				target : "VICTIM",
-				duration : 0,
 				effects : [
-					{
-						type : "addMP",
-						data : {
-							amount: 2
-						}
-					},
+					{type : Effect.Types.addMP,data : {amount: 2}},
+					{type : Effect.Types.damage,data : {amount: -2}},
 				]
 			}
 		]

@@ -1485,10 +1485,10 @@ export default class Game extends Generic{
 		// Players won
 		if( standing[0] !== undefined && standing[0] === 0 ){
 			
-			// Restore 40% HP and MP at the end of the battle
+			// Restore 25% HP and MP at the end of the battle
 			this.getTeamPlayers(0).map(pl => {
-				pl.addHP(Math.ceil(pl.getMaxHP()*0.4));
-				pl.addMP(Math.ceil(pl.getMaxMP()*0.4));
+				pl.addHP(Math.ceil(pl.getMaxHP()*0.25));
+				pl.addMP(Math.ceil(pl.getMaxMP()*0.25));
 			});
 			
 		}
