@@ -54,7 +54,6 @@ class Dungeon extends Generic{
 			'minorHealingPotion', 'healingPotion', 'majorHealingPotion',
 			'minorRepairKit', 'repairKit', 'majorRepairKit',
 		];		// Copied over from template
-		this.roleplays = new Collection({}, this);			// This is the exact same object as _state.roleplays. Put here for coop reasons
 
 		// Runtime vars
 		this.transporting = false;	// Awaiting a room move
@@ -139,7 +138,6 @@ class Dungeon extends Generic{
 
 		for( let v in this._state.vars )
 			this.vars[v] = this._state.vars[v];
-		this.roleplays = this._state.vars.roleplays;
 
 	}
 
@@ -305,13 +303,6 @@ class Dungeon extends Generic{
 
 
 	/* Dungeon state */
-	setRoleplayCompleted( roleplay ){
-		if( typeof roleplay !== "string" )
-			roleplay = roleplay.id;
-		this._state.roleplays[roleplay] = true;
-		game.saveDungeonState();
-	}
-
 	// saves asset state
 	assetModified( asset ){
 		this._state.assetModified(asset);
@@ -321,6 +312,11 @@ class Dungeon extends Generic{
 		this._state.roomModified(room);
 	}
 
+	// Does a shallow search for roleplays and resets them
+	resetRoleplays(){
+		for( let room of this.rooms )
+			room.resetRoleplays();
+	}
 
 
 	/* EVENTS */
@@ -403,7 +399,6 @@ class DungeonSaveState extends Generic{
 		this.parent = parent;
 
 		this.vars = new Collection({}, this);			// key : val - DungeonVars
-		this.roleplays = new Collection({}, this);		// id : true - Completed roleplays
 		this.rooms = new Collection({}, this);			// index_(nr) : DungeonRoomSaveState
 
 		this.load(data);
@@ -412,7 +407,6 @@ class DungeonSaveState extends Generic{
 	save(){
 		return {
 			vars : this.vars.save(),
-			roleplays : this.roleplays.save(),
 			rooms : this.rooms.save(),
 		};
 	}
@@ -423,7 +417,6 @@ class DungeonSaveState extends Generic{
 
 	rebase(){
 		this.vars = new Collection(this.vars, this);
-		this.roleplays = new Collection(this.roleplays, this);
 		this.rooms = new Collection(this.rooms, this);
 		for( let r in this.rooms ){
 			this.rooms[r] = new DungeonRoomSaveState(this.rooms[r], this);
@@ -584,6 +577,15 @@ class DungeonRoom extends Generic{
 		if( !this.encounters )
 			this.encounters = [];
 		this.encounters = Array.isArray(this.encounters) ? DungeonEncounter.loadThese(this.encounters, this) : new DungeonEncounter(this.encounters, this);
+	}
+
+	resetRoleplays(){
+		for( let encounter of this.encounters ){
+			encounter.resetRoleplays();
+		}
+		for( let asset of this.assets ){
+			asset.resetRoleplays();
+		}
 	}
 
 	isEntrance(){
@@ -1198,6 +1200,7 @@ class DungeonRoomAsset extends Generic{
 	}
 	
 
+
 	// Events
 	// Room this exists in has been visited the first time
 	onRoomFirstVisit(){}
@@ -1282,6 +1285,23 @@ class DungeonRoomAsset extends Generic{
 			}
 		}
 		return encounters;
+	}
+	getAllRoleplayGameActions(){
+		const out = [];
+		for( let i of this.interactions ){
+			if( i.type === GameAction.types.roleplay )
+				out.push(i);
+		}
+		return out;
+	}
+
+
+	resetRoleplays(){
+		let enc = this.getAllRoleplayGameActions();
+		for( let ga of enc ){
+			const rp = ga.getDataAsRoleplay();
+			game.wipeRPState(rp.label);
+		}
 	}
 
 	
@@ -1745,7 +1765,7 @@ class DungeonEncounter extends Generic{
 		return GameAction.getViable(this.game_actions);
 	}
 
-	getRoleplays( player ){
+	getRoleplays( player, validate = true ){
 
 		const actions = this.getViableActions();
 		return actions.filter(action => {
@@ -1754,11 +1774,21 @@ class DungeonEncounter extends Generic{
 				return false;
 			const rp = action.getDataAsRoleplay();
 			if( !rp )
-				return;
+				return false;
+			if( !validate )
+				return true;
 			return rp.validate(player);
 
 		});
 
+	}
+
+	resetRoleplays(){
+		const actions = this.getRoleplays(undefined, false);
+		for( let action of actions ){
+			const rp = action.getDataAsRoleplay();
+			game.wipeRPState(rp.label);
+		}
 	}
 
 	setCompleted( completed = true ){

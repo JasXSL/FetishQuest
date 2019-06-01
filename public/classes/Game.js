@@ -49,7 +49,7 @@ export default class Game extends Generic{
 		// This lets you save way less data
 		this.state_dungeons = new Collection();			// label : (obj)dungeonstate - See the dungeon loadstate/savestate. Dungeon stage is fetched from a method in Dungeon
 		this.completed_quests = new Collection();		// label : {objective_label:true}
-
+		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)}
 		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
 
 		// Library of custom items
@@ -116,7 +116,7 @@ export default class Game extends Generic{
 			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
 			out.state_dungeons = this.state_dungeons.save();
-			
+			out.state_roleplays = this.state_roleplays.save();
 			out.procedural_dungeon = this.procedural_dungeon.save(full);
 		}
 
@@ -254,6 +254,11 @@ export default class Game extends Generic{
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
 		this.completed_quests = Collection.loadThis(this.completed_quests);
+		this.state_roleplays = Collection.loadThis(this.state_roleplays);
+		for( let i in this.state_roleplays ){
+			if( typeof this.state_roleplays[i] !== 'function' )
+				this.state_roleplays[i] = Collection.loadThis(this.state_roleplays[i], this);
+		}
 
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
@@ -696,9 +701,10 @@ export default class Game extends Generic{
 		}
 		this.dungeon = dungeon;
 		this.dungeon.previous_room = this.dungeon.active_room = room;
-		if( resetSaveState )
+		if( resetSaveState ){
+			this.dungeon.resetRoleplays();
 			this.state_dungeons.unset(this.dungeon.label);
-
+		}
 		this.updateAmbiance();
 		this.onDungeonEntered();
 		this.dungeon.onEntered();
@@ -1751,7 +1757,28 @@ export default class Game extends Generic{
 		}
 	}
 
+	saveRPState( roleplay ){
+		if( !roleplay.persistent && !roleplay.once )
+			return;
+		if( !roleplay.label ){
+			console.error("Unable to save roleplay with out label", roleplay);
+			return;
+		}
+		if( !this.state_roleplays[roleplay.label] )
+			this.state_roleplays[roleplay.label] = new Collection({}, this);
+		const cache = this.state_roleplays[roleplay.label];
+		if( roleplay.persistent )
+			cache.stage = roleplay.stage;
+		if( roleplay.once )
+			cache.completed = roleplay.completed;
+	}
 
+	wipeRPState( label ){
+		if( this.state_roleplays[label] ){
+			delete this.state_roleplays[label];
+			this.save();
+		}
+	}
 
 
 

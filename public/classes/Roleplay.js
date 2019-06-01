@@ -18,6 +18,7 @@ export default class Roleplay extends Generic{
 		this.stages = [];			// Roleplay stages
 		this.player = '';
 		this.conditions = [];
+		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
 		
 		this._waiting = false;		// Waiting to change stage
 
@@ -56,6 +57,7 @@ export default class Roleplay extends Generic{
 			title : this.title,
 			player : this.player,
 			conditions : Condition.saveThese(this.conditions),
+			once : this.once,
 		};
 
 		if( full !== "mod" ){
@@ -75,6 +77,18 @@ export default class Roleplay extends Generic{
 		
 		this.stages = RoleplayStage.loadThese(this.stages, this);
 		this.conditions = Condition.loadThese(this.conditions, this);
+
+		if( this.once && !this.label )
+			console.error("ONCE roleplay doesn't have a label", this);
+
+		// When loaded from a game, grab from state
+		if( window.game && window.game !== true && this.label && game.state_roleplays[this.label] ){
+			const state = game.state_roleplays[this.label];
+			if( this.persistent && state.hasOwnProperty("stage") )
+				this.stage = state.stage;
+			if( this.once && state.hasOwnProperty("completed") )
+				this.completed = state.completed;
+		}
 
 	}
 
@@ -100,11 +114,8 @@ export default class Roleplay extends Generic{
 	setStage( index, delay=false ){
 
 		if( index === -1 ){
-			if( this.persistent ){
+			if( this.once )
 				this.completed = true;
-				if( this.parent instanceof DungeonEncounter )
-					this.parent.getDungeon().setRoleplayCompleted(this);
-			}
 			game.saveDungeonState();
 			game.clearRoleplay();
 		}
@@ -126,6 +137,10 @@ export default class Roleplay extends Generic{
 			}
 			else
 				fn();
+		}
+
+		if( this.persistent || this.once ){
+			game.saveRPState(this);
 		}
 		
 	}

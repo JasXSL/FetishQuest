@@ -192,11 +192,8 @@ export default class Modtools{
 		this.dungeon_active_asset = null;		// DungeonRoomAsset
 
 
-		$("#jsonEditor, #jsonEditor div.buttons > input.cancel").on('click', () => {
+		$("#jsonEditor div.buttons > input.cancel").on('click', () => {
 			$("#jsonEditor").toggleClass("hidden", true);
-		});
-		$("#jsonEditor > div").on('click', event => {
-			event.stopImmediatePropagation();
 		});
 		$("#jsonEditor div.buttons > input.validate").off('click').on('click', () => {
 			try{
@@ -1966,7 +1963,8 @@ export default class Modtools{
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Player Label: '+this.inputPlayer(asset.player || '', 'player')+'<br />';
-			html += '<label>Allow resume: <input type="checkbox" name="persistent" '+(asset.persistent ? 'checked' : '')+' /></label><br />';
+			html += '<label>Persistent: <input type="checkbox" name="persistent" '+(asset.persistent ? 'checked' : '')+' /></label><br />';
+			html += '<label>Once: <input type="checkbox" name="once" '+(asset.once ? 'checked' : '')+' /></label><br />';
 			html += 'Stages: '+this.formRoleplayStages(asset.stages, 'stages')+'<br />'; 
 			
 		this.editor_generic('roleplay', asset, this.mod.roleplay, html, saveAsset => {
@@ -1975,6 +1973,7 @@ export default class Modtools{
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.player = $("> input[name=player]", form).val().trim();
 			saveAsset.persistent = $("input[name=persistent]", form).prop('checked');
+			saveAsset.once = $("input[name=once]", form).prop('checked');
 			
 			saveAsset.stages = this.compileRoleplayStages('stages');
 			
