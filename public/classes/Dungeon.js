@@ -59,7 +59,7 @@ class Dungeon extends Generic{
 		this.transporting = false;	// Awaiting a room move
 
 		// Custom cache which contains changes made to the dungeon. Host only
-		this._state = new DungeonSaveState({}, this);
+		this._state = null;	// Use getState()
 
 		
 
@@ -125,11 +125,11 @@ class Dungeon extends Generic{
 		if( typeof window.game !== "object" || !game.is_host )
 			return;
 
-		const data = game.state_dungeons[this.label];
+		this._state = game.state_dungeons[this.label] || null;
 
-		if( !data )
+		if( this._state === null )
 			return;
-		this._state = DungeonSaveState.loadThis(data, this);
+			
 		for( let i in this._state.rooms ){
 			const room = this.getRoomByIndex(this._state.rooms[i].index);
 			if( room )
@@ -141,9 +141,25 @@ class Dungeon extends Generic{
 
 	}
 
+	getState(){
+		if( !this._state ){
+			this._state = game.state_dungeons[this.label];
+			if( !this._state ){
+				this.resetState();	// Creates a state and links it to game
+			}
+		}
+		return this._state;
+	}
+
+	resetState(){
+		this._state = new DungeonSaveState({}, this);
+		game.state_dungeons.set(this.label, this._state);
+	}
+
 	setVar( key, val ){
 		this.vars.set(key, val);
-		this._state.vars.set(key, val);
+		const state = this.getState();
+		state.vars.set(key, val);
 		game.save();
 	}
 
@@ -305,11 +321,11 @@ class Dungeon extends Generic{
 	/* Dungeon state */
 	// saves asset state
 	assetModified( asset ){
-		this._state.assetModified(asset);
+		this.getState().assetModified(asset);
 	}
 
 	roomModified(room){
-		this._state.roomModified(room);
+		this.getState().roomModified(room);
 	}
 
 	// Does a shallow search for roleplays and resets them
@@ -404,11 +420,13 @@ class DungeonSaveState extends Generic{
 		this.load(data);
 	}
 
-	save(){
-		return {
-			vars : this.vars.save(),
-			rooms : this.rooms.save(),
+	save( full ){
+		const out = {
+			vars : this.vars.save(full)
 		};
+		if( full )
+			out.rooms = this.rooms.save();
+		return out;
 	}
 
 	load(data){
@@ -558,7 +576,6 @@ class DungeonRoom extends Generic{
 			const respawnTime = asset._killed+cur.respawn;
 			const curRespawn = !isNaN(respawnTime) && cur.respawn && game.time > respawnTime;
 			if( curRespawn ){
-				console.log("Asset respawned", asset, asset._killed, cur.respawn, game.time);
 				delete state.assets[id];
 				continue;	// Don't load, it has expired. Let it stay the way it originally was.
 			}
@@ -2147,5 +2164,5 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 
 
-export {DungeonRoom,DungeonRoomAsset,DungeonEncounter};
+export {DungeonRoom,DungeonRoomAsset,DungeonEncounter,DungeonSaveState};
 export default Dungeon;

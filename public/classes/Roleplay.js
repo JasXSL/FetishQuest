@@ -84,7 +84,7 @@ export default class Roleplay extends Generic{
 		// When loaded from a game, grab from state
 		if( window.game && window.game !== true && this.label && game.state_roleplays[this.label] ){
 			const state = game.state_roleplays[this.label];
-			if( this.persistent && state.hasOwnProperty("stage") )
+			if( this.persistent && state.hasOwnProperty("stage") && state.stage !== -1 )
 				this.stage = state.stage;
 			if( this.once && state.hasOwnProperty("completed") )
 				this.completed = state.completed;
@@ -116,8 +116,7 @@ export default class Roleplay extends Generic{
 		if( index === -1 ){
 			if( this.once )
 				this.completed = true;
-			game.saveDungeonState();
-			game.clearRoleplay();
+			game.clearRoleplay(true);
 		}
 		else{
 			let fn = () => {

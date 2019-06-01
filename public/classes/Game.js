@@ -5,7 +5,7 @@ import Modal from './Modal.js';
 import GameEvent from './GameEvent.js';
 import Asset from './Asset.js';
 import NetworkManager from './NetworkManager.js';
-import {default as Dungeon, DungeonEncounter} from './Dungeon.js';
+import {default as Dungeon, DungeonEncounter, DungeonSaveState} from './Dungeon.js';
 import WebGL from './WebGL.js';
 import Text from './Text.js';
 import Quest from './Quest.js';
@@ -49,7 +49,7 @@ export default class Game extends Generic{
 		// This lets you save way less data
 		this.state_dungeons = new Collection();			// label : (obj)dungeonstate - See the dungeon loadstate/savestate. Dungeon stage is fetched from a method in Dungeon
 		this.completed_quests = new Collection();		// label : {objective_label:true}
-		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)}
+		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)} - These are fetched by the Dungeon object. They're the same objects here as they are in dungeon._state
 		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
 
 		// Library of custom items
@@ -106,6 +106,9 @@ export default class Game extends Generic{
 			completed_quests : this.completed_quests.save(),	// A shallow clone is enough
 			time : this.time,
 		};
+
+		out.state_dungeons = this.state_dungeons.save(full);
+
 		
 		if( full ){
 			out.libAsset = {};
@@ -115,7 +118,6 @@ export default class Game extends Generic{
 			out.id = this.id;
 			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
-			out.state_dungeons = this.state_dungeons.save();
 			out.state_roleplays = this.state_roleplays.save();
 			out.procedural_dungeon = this.procedural_dungeon.save(full);
 		}
@@ -129,7 +131,6 @@ export default class Game extends Generic{
 		if( !ignoreNetGame )
 			this.ignore_netgame = false;
 
-		this.saveDungeonState();
 		clearTimeout(this.save_timer);
 		return new Promise(res => {
 			this.save_timer = setTimeout(() => {
@@ -246,6 +247,9 @@ export default class Game extends Generic{
 	rebase(){
 
 		this.state_dungeons = Collection.loadThis(this.state_dungeons);
+		for( let i in this.state_dungeons ){
+			this.state_dungeons[i] = new DungeonSaveState(this.state_dungeons[i]);
+		}
 		
 		this.quests = Quest.loadThese(this.quests, this);		
 		this.dungeon = new Dungeon(this.dungeon, this);
@@ -682,7 +686,7 @@ export default class Game extends Generic{
 
 
 	/* DUNGEON */
-	setDungeon( dungeon, saveState = true, room = 0, resetSaveState = false ){
+	setDungeon( dungeon, room = 0, resetSaveState = false ){
 
 		if( dungeon === this.dungeon )
 			return;
@@ -695,15 +699,12 @@ export default class Game extends Generic{
 		let pre = this.dungeon;
 		if( pre.id !== this.id ){
 			this.onDungeonExit();
-			if( saveState ){
-				this.saveDungeonState();
-			}
 		}
 		this.dungeon = dungeon;
 		this.dungeon.previous_room = this.dungeon.active_room = room;
 		if( resetSaveState ){
 			this.dungeon.resetRoleplays();
-			this.state_dungeons.unset(this.dungeon.label);
+			this.dungeon.resetState();
 		}
 		this.updateAmbiance();
 		this.onDungeonEntered();
@@ -712,10 +713,6 @@ export default class Game extends Generic{
 		this.save();
 		this.renderer.loadActiveDungeon();
 
-	}
-
-	saveDungeonState(){
-		this.state_dungeons.set(this.dungeon.label, this.dungeon._state.save());
 	}
 
 	removeDungeonState( label ){
@@ -1953,7 +1950,7 @@ Game.new = async (name, players) => {
 	}
 	game.initialized = true;
 	await game.execSave( true );
-	game.setDungeon( 'yuug_port', false, 1 );
+	game.setDungeon( 'yuug_port', 1 );
 
 };
 

@@ -197,13 +197,16 @@ const lib = {
 	yuug_portswood_cave_impicus : {
 		players : ['Impicus'],
 		friendly : true,
+		
 		game_actions : [
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
 					id: 'yuug_portswood_cave_impicus',
+					label : 'yuug_portswood_cave_impicus',
 					player : 'Impicus',
 					persistent : true,
+					once : true,
 					stages: [
 						{
 							index: 0,

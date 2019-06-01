@@ -286,7 +286,7 @@ export default class GameAction extends Generic{
 			if( !dungeon )
 				return game.modal.addError("Dungeon not found");
 			const room = !isNaN(parseInt(this.data.index)) ? parseInt(this.data.index) : 0;
-			const load = game.setDungeon(dungeon, undefined, room);
+			const load = game.setDungeon(dungeon, room);
 			const time = Math.floor(this.data.time) || 60;
 			game.addSeconds(time);
 
