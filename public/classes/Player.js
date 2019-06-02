@@ -1092,7 +1092,7 @@ export default class Player extends Generic{
 	}
 
 	// By default it damages all worn items
-	damageDurability( sender, effect, amount, slots ){
+	damageDurability( sender, effect, amount, slots, fText = false ){
 
 		let assets = [];
 		// Pick a random slot to damage
@@ -1110,7 +1110,8 @@ export default class Player extends Generic{
 		
 		amount = Math.round(amount);
 		for( let asset of assets )
-			asset.damageDurability( sender, effect, amount);
+			asset.damageDurability( sender, effect, amount, fText );
+
 
 	}
 
@@ -1198,25 +1199,32 @@ export default class Player extends Generic{
 
 
 	/* RESOURCES */
-	addAP( amount ){
+	addAP( amount, fText = false ){
 
 		if( isNaN(amount) ){
 			console.error("AP amount is NaN", amount);
 			return false;
 		}
+		const pre = this.ap;
 		this.ap += amount;
 		this.ap = Math.max(0, Math.min(this.getMaxAP(), this.ap));
-
+		if( fText && this.ap-pre !== 0 )
+			game.ui.floatingCombatText(this.ap-pre, this, "ap");
+		
 	}
 
-	addMP( amount ){
+	addMP( amount, fText = false ){
 
 		if( isNaN(amount) ){
 			console.error("MP amount is NaN", amount);
 			return false;
 		}
+		const pre = this.mp;
 		this.mp += amount;
 		this.mp = Math.max(0, Math.min(this.getMaxMP(), this.mp));
+
+		if( fText && this.mp-pre !== 0 )
+			game.ui.floatingCombatText(this.mp-pre, this, "mp");
 
 	}
 
@@ -1239,15 +1247,20 @@ export default class Player extends Generic{
 	}
 
 	// Returns true if the player died
-	addHP( amount, sender, effect ){
+	addHP( amount, sender, effect, fText = false ){
 
 		if( isNaN(amount) ){
 			console.error("AP amount is NaN", amount);
 			return false;
 		}
+		const pre = this.hp;
 		let wasDead = this.hasTag(stdTag.dead);
 		this.hp += amount;
 		this.hp = Math.max(0, Math.min(this.getMaxHP(), this.hp));
+
+		if( fText && this.hp-pre !== 0 )
+			game.ui.floatingCombatText(this.hp-pre, this, "hp");
+
 		if( this.hp === 0 && !wasDead ){
 			this.onDeath( sender, effect );
 			if( this.hp === 0 )
@@ -1258,7 +1271,7 @@ export default class Player extends Generic{
 
 	}
 
-	addArousal( amount ){
+	addArousal( amount, fText = false ){
 
 		if( this.isOrgasming() )
 			return;
@@ -1272,6 +1285,9 @@ export default class Player extends Generic{
 			game.save();
 			game.ui.draw();
 		}
+		if( fText && this.arousal-pre !== 0 )
+			game.ui.floatingCombatText(this.arousal-pre, this, "arousal");
+
 	}
 
 

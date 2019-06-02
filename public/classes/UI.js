@@ -25,7 +25,6 @@ export default class UI{
 		this.text = $("#ui div.text > div.content");
 		this.console = $("#ui > div.middle > div.chat");
 		this.gameIcons = $("#gameIcons");
-		this.netgamePlayers = $("#netgamePlayers");
 		this.multiCastPicker = $("#multiCastPicker");
 		this.roleplay = $("#roleplay");
 		this.selected_rp = '';	// ID of selected roleplay option
@@ -40,6 +39,9 @@ export default class UI{
 		this.yourTurnTimeLeft = 0;
 		this.yourTurnSoundLoop = false;
 		this.mapChat = $("#mapChat");
+		this.fct = $("#fct");
+		this.fctQue = [];
+		this.fctTimer = false;
 
 		this.drawTimer = false;
 
@@ -3378,6 +3380,54 @@ export default class UI{
 		this.loadingStatusText.html('('+val+'/'+this.loadingMaxSteps+')');
 		this.loadingBar.css({'width': perc*100+'%'});
 
+	}
+
+
+	/* FLOATING COMBAT TEXT */
+
+	floatingCombatText(amount, player, type = ''){
+
+		if( amount !== undefined )
+			this.fctQue.push({
+				amount : amount,
+				player : player.id,
+				type : type
+			});
+		if( this.fctTimer || !this.fctQue.length )
+			return;
+
+		const entry = this.fctQue.shift();
+		amount = entry.amount;
+		player = entry.player;
+		type = entry.type;
+		this.fctTimer = setTimeout(() => {
+			this.fctTimer = false;
+			this.floatingCombatText();
+		}, 250);
+
+		let plel = $("[data-id='"+esc(player)+"']", this.players);
+		let left = 0.5, top = 0.5;
+		if( plel.length ){
+			const width = plel.outerWidth(),
+				height = plel.outerHeight(),
+				pos = plel.offset()	
+			;
+			left = (pos.left+width/2);
+			top = (pos.top+height/2);
+			left += Math.random()*(width*0.6)-width*0.3;
+			top += Math.random()*(height*0.4)-height*0.2;
+			left /= window.innerWidth;
+			top /= window.innerHeight;
+		}
+
+		if( !isNaN(amount) && amount > 0 )
+			amount = '+'+amount;
+
+		const el = $('<div class="text '+esc(type)+'" style="left:'+(left*100)+'%; top:'+(top*100)+'%;">'+esc(amount)+'</div>');
+		this.fct.append(el);
+		setTimeout(() => {
+			el.remove();
+		}, 3500);
 	}
 
 }

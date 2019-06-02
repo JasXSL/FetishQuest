@@ -2026,7 +2026,35 @@ div.fxBuffBlue{
 	}
 /**/
 
+/* Floating combat text */
+#fct{
+	position: fixed;
+	left:0; right:0;
+	bottom:0; top:0;
+	pointer-events: none;
+}
+@keyframes fct{
+	0%{transform:scale(0.9);}
+	5%{transform:scale(1.05);}
+	15%{transform:scale(1);}
+	25%{opacity:1;}
+	100%{transform:translateY(-500%); opacity:0;}
+}
+#fct > div.text{
+	font-size:3.5vmax;
+	font-weight:bold;
+	position: absolute;
+	animation: fct 2s ease-in forwards;
+	text-shadow:0.1vmax 0.1vmax 0.2vmax #000; 
+}
+#fct > div.text.hp{ color:#F88; }
+#fct > div.text.mp{ color:#8AF; }
+#fct > div.text.ap{ color:#8F8; }
+#fct > div.text.armor{ color:#888; }
+#fct > div.text.arousal{ color:#F8F; }
+
 /* HIDE IF NOT MOBILE */
 #mainMenuToggle{
 	display:none;
 }
+

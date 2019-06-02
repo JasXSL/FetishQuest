@@ -91,6 +91,11 @@ const lib = {
 				}
 			},
 			{
+				events : [GameEvent.Types.internalWrapperAdded],
+				type : Effect.Types.addArousal,
+				data : {amount : 1}
+			},
+			{
 				events : [
 					GameEvent.Types.internalWrapperStackChange,
 				],
@@ -151,7 +156,7 @@ const lib = {
 		duration : 2,
 		name : "Overwhelming Orgasm",
 		icon : "shining-heart",
-		description : "-10 corruption avoidance, stunned.",
+		description : "-20 corruption avoidance, stunned.",
 		detrimental : true,
 		add_conditions : ["senderNotDead", "targetNotDead"],
 		stay_conditions : ["senderNotDead","targetNotDead"],
@@ -163,7 +168,7 @@ const lib = {
 			},
 			{
 				type : Effect.Types.svCorruption,
-				data:{amount:-10}
+				data:{amount:-20}
 			},
 			{
 				label : 'overWhelmingOrgasm_end',

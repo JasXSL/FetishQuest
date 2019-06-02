@@ -161,7 +161,7 @@ export default class Asset extends Generic{
 
 	}
 
-	damageDurability( sender, effect, amount ){
+	damageDurability( sender, effect, amount, fText = false ){
 
 		if( isNaN(amount) )
 			return;
@@ -173,6 +173,9 @@ export default class Asset extends Generic{
 		let change = this.durability-pre;
 		if( !change )
 			return;
+
+		if( fText && change && this.parent instanceof Player )
+			game.ui.floatingCombatText(change, this.parent, "armor");
 
 		let txt = 'gained', cls = 'Mend';
 		if( change < 0 ){

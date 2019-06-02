@@ -50,7 +50,7 @@ const lib = {
 	stdArouse: {
 		name : "Arouse",
 		icon : 'hearts',
-		description : "Deals 2 corruption damage.",
+		description : "Deals 3 corruption damage.",
 		ap : 3,
 		cooldown : 0,
 		type : "Corruption",
@@ -75,7 +75,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 2
+							"amount": 3
 						}
 					},
 					
@@ -715,7 +715,7 @@ const lib = {
 		level: 2,
 		name : "Corrupting Ooze",
 		icon : 'gooey-molecule',
-		description : "Adds a stack of corrupting ooze on your target. Corrupting ooze lowers their corruption avoidance by 1 per stack, and at the start of the affected players turn an additional stack is added. If it goes over 5 stacks, the target gets stunned for 1 turn.",
+		description : "Adds a stack of corrupting ooze on your target, adding 1 arousal. Corrupting ooze also lowers their corruption avoidance by 1 per stack, and at the start of the affected players turn an additional stack is added. If it goes over 5 stacks, the target gets stunned for 1 turn.",
 		ap : 1,
 		mp : 1,
 		charges : 3,

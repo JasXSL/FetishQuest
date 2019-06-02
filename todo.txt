@@ -7,9 +7,7 @@ Medium rare:
 	- Monster: Groper
 		- Ability A
 		- Ability B
-	- Add gropers to forest
-	- Redesign arousal
-	- Floating combat text
+	- Add NPCs to forest
 
 Big chungi:
 	- Shop

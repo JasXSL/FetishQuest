@@ -725,7 +725,7 @@ class Effect extends Generic{
 						if( t.isOrgasming() )
 							tot = 0;
 						if( tot && t.arousal ){
-							t.addArousal(-tot);
+							t.addArousal(-tot, true);
 							game.ui.addText( t.getColoredName()+" lost "+Math.abs(tot)+" arousal from holy healing.", undefined, s.id, t.id, 'statMessage arousal' );
 							amt += tot;	// Holy healing converts arousal into HP
 						}
@@ -777,7 +777,7 @@ class Effect extends Generic{
 						ch = Math.abs(ch);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						if( tot )
-							t.damageDurability(s, this, tot, "RANDOM");
+							t.damageDurability(s, this, tot, "RANDOM", true);
 							
 					}
 
@@ -786,9 +786,11 @@ class Effect extends Generic{
 						// 10% chance per point of damage, max 1
 						let ch = Math.abs(amt*10);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
+						if( tot > t.ap )
+							tot = t.ap;
 						if( tot ){
 							tot = Math.min(1, tot);
-							t.addAP(-tot);
+							t.addAP(-tot, true);
 							game.ui.addText( t.getColoredName()+" lost "+Math.abs(tot)+" AP from elemental damage.", undefined, s.id, t.id, 'statMessage AP' );
 						}
 					}
@@ -801,9 +803,11 @@ class Effect extends Generic{
 					// 25% chance per point of damage
 					let ch = Math.abs(amt*25);
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
+					if( tot+t.arousal > t.getMaxArousal() )
+						tot = t.getMaxArousal()-t.arousal;
 					if( tot ){
 
-						t.addArousal(tot);
+						t.addArousal(tot, true);
 						game.ui.addText( t.getColoredName()+" gained "+Math.abs(tot)+" arousal from corruption.", undefined, s.id, t.id, 'statMessage arousal' );
 
 					}
@@ -812,7 +816,7 @@ class Effect extends Generic{
 
 				
 				
-				let died = t.addHP(amt, s, this);
+				let died = t.addHP(amt, s, this, true);
 				if( amt < 0 ){
 
 					t.onDamageTaken(s, this.data.type, Math.abs(amt));
@@ -822,7 +826,7 @@ class Effect extends Generic{
 					t.addThreat( s.id, -threat );
 					game.ui.addText( t.getColoredName()+" took "+Math.abs(amt)+" "+this.data.type+" damage"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage damage' );
 					if( leech ){
-						s.addHP(leech);
+						s.addHP(leech, s, this, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
 					}
 
@@ -865,7 +869,7 @@ class Effect extends Generic{
 				}));
 				amt *= this.parent.stacks;
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage AP' );
-				t.addAP(amt);
+				t.addAP(amt, true);
 			}
 
 			else if( this.type === Effect.Types.addMP ){
@@ -875,7 +879,7 @@ class Effect extends Generic{
 				}));
 				amt *= this.parent.stacks;
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" MP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage MP' );
-				t.addMP(amt);
+				t.addMP(amt, true);
 			}
 
 			else if( this.type === Effect.Types.addArousal ){
@@ -885,7 +889,7 @@ class Effect extends Generic{
 				}));
 				amt *= this.parent.stacks;
 				let pre = t.arousal;
-				t.addArousal(amt);
+				t.addArousal(amt, true);
 				amt = t.arousal-pre;
 				
 				if( amt )
@@ -1087,7 +1091,7 @@ class Effect extends Generic{
 
 				let assets = t.getEquippedAssetsBySlots(slots);
 				for( let asset of assets )
-					asset.damageDurability(s, this, amt);
+					asset.damageDurability(s, this, amt, true);
 
 			}
 
