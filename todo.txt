@@ -4,6 +4,8 @@ Smol:
 
 Medium rare:
 	- Remake monetary system to copper, silver, gold
+		- Add copper, silver, gold to loot tables
+		- Finish up the methods in player
 	- Monster: Groper
 		- Ability A
 		- Ability B

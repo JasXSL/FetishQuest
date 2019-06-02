@@ -202,11 +202,16 @@ export default class Asset extends Generic{
 
 	// returns a damage taken that can be added together with other armor. Goes up to Asset.protVal based on level/broken
 	getDmgTakenAdd(){
+
+		// only upperbody and lowerbody have this feature
+		if( this.slots.indexOf(Asset.Slots.upperbody) === -1 && this.slots.indexOf(Asset.Slots.lowerbody) === -1 )
+			return 0;
+
 		// Item is broken, take 25% more damage
 		if( this.durability <= 0 )
 			return Asset.protVal;
 
-		// Item is not equipped, this shouldn't be triggered, but return 0
+		// Item is not in someone's inventory, this shouldn't be triggered, but return 0
 		if( !(this.parent instanceof Player) )
 			return 0;
 

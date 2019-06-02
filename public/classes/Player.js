@@ -1053,8 +1053,13 @@ export default class Player extends Generic{
 
 			let asset = this.assets[i];
 			if( lib[asset.label] ){
+				const stacks = this.assets[i]._stacks,
+					equipped = this.assets[i].equipped;
 				console.debug("Overwriting ", asset.label);
 				this.assets[i] = lib[asset.label].clone(this);
+				this.assets[i]._stacks = stacks;
+				this.assets[i].equipped = equipped;
+
 			}
 
 		}
@@ -1141,6 +1146,84 @@ export default class Player extends Generic{
 	}
 	isEncumbered(){
 		return this.getCarriedWeight() > this.getCarryingCapacity();
+	}
+
+	// Currency
+	// Returns currency value in copper
+	getMoney(){
+		let out = 0;
+		for( let asset of this.assets ){
+			if( asset.label === 'gold' )
+				out += asset._stacks*100;
+			else if( asset.label === 'silver' )
+				out += asset._stacks*10;
+			else if( asset.label === 'copper' )
+				out += asset._stacks;
+		}
+		return out;
+	}
+
+	consumeMoney( copper = 0 ){
+
+		let total = this.getMoney();
+		if( total < copper )
+			return false;
+
+		let costRemaining = copper;		// Remaining cost in copper we need to pay
+		let consumeCopper = 0,			// Copper assets we need to remove
+			consumeSilver = 0,			// Silver assets we need to remove
+			consumeGold = 0				// Gold assets we need to remove
+		;
+		let copperAsset = this.getAssetByLabel('copper'),
+			silverAsset = this.getAssetByLabel('silver')
+		;
+		// First see if we can handle it with just copper
+		if( copperAsset && copperAsset._stacks >= copper ){
+			consumeCopper = costRemaining;
+		}else{
+			// Start by spending all copper
+			if( copperAsset ){
+				consumeCopper = copperAsset._stacks;
+				costRemaining -= consumeCopper;
+			}
+			while( costRemaining > 0 ){
+				// See if we still have any silver
+				if( silverAsset && silverAsset._stacks > consumeSilver ){
+					// Split a silver
+					++consumeSilver;
+					costRemaining -= 10;
+				}else{
+					// Split a gold
+					++consumeGold;
+					costRemaining -= 100;
+				}
+			}
+		}
+
+		const change = this.calculateMoneyExhange(Math.abs(costRemaining));
+		consumeCopper -= change[2];
+		consumeSilver -= change[1];
+		consumeGold -= change[0];
+
+		console.log("Consume: ", consumeCopper, "copper", consumeSilver, "silver", consumeGold, "gold.", "Change in copper", Math.abs(costRemaining));
+		// Todo: Consume. If a value is negative, add. Make sure to check if the asset it present in the first place.
+		return true;
+
+	}
+
+	// returns an array of [copper, silver, gold] after exchange
+	calculateMoneyExhange( input = 0 ){
+		return [
+			Math.floor(input/100),
+			Math.floor((input%100)/10),
+			input%10
+		];
+	}
+
+	// Auto exchanges money assets to the fewest amounts of coins
+	exchangeMoney(){
+		const exchanged = this.calculateMoneyExhange(this.getMoney());
+		console.log("Todo: After exchanging your money, you end up with, G S C", exchanged);
 	}
 
 
