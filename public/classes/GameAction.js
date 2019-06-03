@@ -207,12 +207,26 @@ export default class GameAction extends Generic{
 			// 0-2 consumables, or 1-3 if no gear
 			let numBonus = Math.round(Math.pow(Math.random(),3)*2);
 			let numConsumables = numBonus+!(value >= 0.5);
+			let consumablesAdded = 0;
 			for( let i=0; i<numConsumables; ++i ){
 				let consumable = Asset.getRandomByRarity(dungeon.consumables);
 				if( !consumable )
 					break;
 				consumable.g_resetID();
 				this.data.push(consumable.clone(this.parent));
+				++consumablesAdded;
+			}
+			
+			if( consumablesAdded < numConsumables ){
+				let copperAmount = Math.floor(value*500*(Math.random()*0.5+0.5)*(numConsumables-consumablesAdded));	// numConsumabes-consumablesAdded is either 1 or 2
+				let split = Player.calculateMoneyExhange(copperAmount);
+				for( let i in split ){
+					if( !split[i] )
+						continue;
+					const asset = glib.get(Player.currencyWeights[i], 'Asset');
+					asset._stacks = split[i];
+					this.data.push(asset);
+				}
 			}
 
 		}

@@ -6,11 +6,24 @@ import Action from "../../classes/Action.js";
 
 const lib = {
 
+	platinum : {
+		name : "Platinum",
+		slots : [],
+		category : Asset.Categories.currency,
+		tags : [stdTag.asCurrency],
+		description : "The most valuable standard unit of currency. Worth 10 gold.",
+		weight : 20,
+		charges : 0,
+		rarity : 4,
+		loot_sound : "coins_pickup",
+		icon : 'metal-disc',
+		stacking : true,
+	},
 	gold : {
 		name : "Gold",
 		slots : [],
 		category : Asset.Categories.currency,
-		tags : ["as_currency"],
+		tags : [stdTag.asCurrency],
 		description : "A standard unit of currency. Worth 10 silver.",
 		weight : 15,
 		charges : 0,
@@ -23,7 +36,7 @@ const lib = {
 		name : "Silver",
 		slots : [],
 		category : Asset.Categories.currency,
-		tags : ["as_currency"],
+		tags : [stdTag.asCurrency],
 		description : "A standard unit of currency. Worth 10 copper.",
 		weight : 10,
 		charges : 0,
@@ -36,7 +49,7 @@ const lib = {
 		name : "Copper",
 		slots : [],
 		category : Asset.Categories.currency,
-		tags : ["as_currency"],
+		tags : [stdTag.asCurrency],
 		description : "A standard unit of currency. The smallest value.",
 		weight : 9,
 		charges : 0,

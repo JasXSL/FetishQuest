@@ -51,14 +51,10 @@ function objectRandElem(obj){
 	return obj[keys[Math.floor(Math.random()*keys.length)]];
 }
 
-function randElem( input, shift = false ){
+function randElem( input ){
 	if( !Array.isArray(input) )
 		throw "Can't randomize array, input is not an array";
-	const nr = Math.floor(Math.random()*input.length);
-	const out = input[nr];
-	if( shift )
-		input.splice(nr, 1);
-	return out;
+	return input[Math.floor(Math.random()*input.length)];
 }
 
 // Generic function that clones an object. Useful in loops so you don't need to define multiple functions

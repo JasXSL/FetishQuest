@@ -1004,6 +1004,8 @@ export default class Player extends Generic{
 		return out;
 	}
 	destroyAsset(id, amount){
+		if( id instanceof Asset )
+			id = id.id;
 		for(let i in this.assets){
 			let asset = this.assets[i];
 			if(asset.id === id){
@@ -1153,7 +1155,9 @@ export default class Player extends Generic{
 	getMoney(){
 		let out = 0;
 		for( let asset of this.assets ){
-			if( asset.label === 'gold' )
+			if( asset.label === 'platinum' )
+				out += asset._stacks*1000;
+			else if( asset.label === 'gold' )
 				out += asset._stacks*100;
 			else if( asset.label === 'silver' )
 				out += asset._stacks*10;
@@ -1172,14 +1176,17 @@ export default class Player extends Generic{
 		let costRemaining = copper;		// Remaining cost in copper we need to pay
 		let consumeCopper = 0,			// Copper assets we need to remove
 			consumeSilver = 0,			// Silver assets we need to remove
-			consumeGold = 0				// Gold assets we need to remove
+			consumeGold = 0,			// Gold assets we need to remove
+			consumePlatinum = 0			// Plat assets we need to remove
 		;
 		let copperAsset = this.getAssetByLabel('copper'),
 			silverAsset = this.getAssetByLabel('silver')
+			goldAsset = this.getAssetByLabel('gold')
 		;
 		// First see if we can handle it with just copper
 		if( copperAsset && copperAsset._stacks >= copper ){
 			consumeCopper = costRemaining;
+			costRemaining = 0;
 		}else{
 			// Start by spending all copper
 			if( copperAsset ){
@@ -1192,38 +1199,93 @@ export default class Player extends Generic{
 					// Split a silver
 					++consumeSilver;
 					costRemaining -= 10;
-				}else{
+				}else if( goldAsset && goldAsset._stacks > consumeGold ){
 					// Split a gold
 					++consumeGold;
 					costRemaining -= 100;
+				}
+				else{
+					// Split a platinum
+					++consumePlatinum;
+					costRemaining -= 1000;
 				}
 			}
 		}
 
 		const change = this.calculateMoneyExhange(Math.abs(costRemaining));
-		consumeCopper -= change[2];
-		consumeSilver -= change[1];
-		consumeGold -= change[0];
+		consumeCopper -= change[3];
+		consumeSilver -= change[2];
+		consumeGold -= change[1];
+		consumePlatinum -= change[0];
 
-		console.log("Consume: ", consumeCopper, "copper", consumeSilver, "silver", consumeGold, "gold.", "Change in copper", Math.abs(costRemaining));
-		// Todo: Consume. If a value is negative, add. Make sure to check if the asset it present in the first place.
+		//console.log("Consume: ", consumeCopper, "copper", consumeSilver, "silver", consumeGold, "gold", consumePlatinum, "plat." "Change in copper", Math.abs(costRemaining));
+		
+		if( consumeCopper < 0 ){
+			const asset = glib.get('copper', 'Asset');
+			asset._stacks = Math.abs(consumeCopper);
+			this.addAsset(asset);
+		}
+		else if( consumeCopper > 0 )
+			this.destroyAsset(copperAsset.id, consumeCopper);
+
+		if( consumeSilver < 0 ){
+			const asset = glib.get('silver', 'Asset');
+			asset._stacks = Math.abs(consumeSilver);
+			this.addAsset(asset);
+		}
+		else if( consumeSilver > 0 )
+			this.destroyAsset(silverAsset.id, consumeSilver);
+		
+		if( consumeGold < 0 ){
+			const asset = glib.get('gold', 'Asset');
+			asset._stacks = Math.abs(consumeGold);
+			this.addAsset(asset);
+		}
+		else if( consumeGold > 0 )
+			this.destroyAsset(goldAsset.id, consumeGold);
+
+		if( consumePlatinum < 0 ){
+			const asset = glib.get('platinum', 'Asset');
+			asset._stacks = Math.abs(consumePlatinum);
+			this.addAsset(asset);
+		}
+		else if( consumePlatinum > 0 ){
+			this.destroyAsset(this.getAssetByLabel('platinum').id, consumePlatinum);
+		}
 		return true;
 
 	}
 
 	// returns an array of [copper, silver, gold] after exchange
 	calculateMoneyExhange( input = 0 ){
-		return [
-			Math.floor(input/100),
-			Math.floor((input%100)/10),
-			input%10
-		];
+		return Player.calculateMoneyExhange(input);
 	}
 
 	// Auto exchanges money assets to the fewest amounts of coins
 	exchangeMoney(){
 		const exchanged = this.calculateMoneyExhange(this.getMoney());
-		console.log("Todo: After exchanging your money, you end up with, G S C", exchanged);
+		let asset;
+		if( asset = this.getAssetByLabel('platinum') )
+			this.destroyAsset(asset);
+		if( asset = this.getAssetByLabel('gold') )
+			this.destroyAsset(asset);
+		if( asset = this.getAssetByLabel('silver') )
+			this.destroyAsset(asset);
+		if( asset = this.getAssetByLabel('copper') )
+			this.destroyAsset(asset);
+		
+		const labels = ['platinum', 'gold','silver','copper'];
+		for( let i in exchanged ){
+			const amt = exchanged[i];
+			if( amt ){
+				const label = labels[i];
+				const a = glib.get(label, 'Asset');
+				a._stacks = amt;
+				this.addAsset(a);
+			}
+		}
+		return true;
+		
 	}
 
 
@@ -2057,4 +2119,20 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 };
 
 
+// Exchanges copper into the fewest coins possible
+// returns an array of [platinum, gold, silver, copper] after exchange. You can use Player.currencyWeights to map this to assets
+Player.calculateMoneyExhange = function( input = 0 ){
+	return [
+		Math.floor(input/1000),
+		Math.floor((input%1000)/100),
+		Math.floor((input%100)/10),
+		input%10
+	];
+};
 
+Player.currencyWeights = [
+	'platinum',
+	'gold',
+	'silver',
+	'copper'
+];
