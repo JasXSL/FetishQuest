@@ -42,6 +42,15 @@ const lib = {
 		conditions : [],
 		respawn : 15000
 	},
+	groper : {
+		player_templates : [
+			"groper"
+		],
+		wrappers : [],
+		startText : '',
+		conditions : [],
+		respawn : 15000
+	},
 
 	// YUUG
 	yuug_port_tavern_npcs : {
@@ -164,6 +173,92 @@ const lib = {
 				player : 'yuug_port_portmaster'
 			}}
 		}]
+	},
+
+
+	yuug_portswood_goblin : {
+		players: ["Slurt"],
+		friendly : true,
+		game_actions : [
+			// SQ_goboat offer
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					id : 'SQ_goboat_intro',
+					player: "Slurt",
+					conditions : [
+						{type:Condition.Types.questAccepted, data:{quest:'SQ_goboat'}, inverse:true, targnr:0},
+						{type:Condition.Types.questCompleted, data:{quest:'SQ_goboat'}, inverse:true, targnr:0},
+					],
+					stages: [
+						{
+							index: 0,
+							text: "Oh hello! Want a job?",
+							options: [
+								{text: "What kind of job?",index: 1},
+								{text: "Not now.",index: -1}
+							]
+						},
+						{
+							index: 1,
+							text: "I am building a boat to go fishing in this lake here. But some gropers chased me off while gathering materials.",
+							options: [
+								{text: "Go on...",index: 2},
+								{text: "Nevermind, I don't have time for this.",index: -1},
+							]
+						},
+						{
+							index: 2,
+							text: "Let's solve two problems at once. Kill some gropers and bring me their vines. Ok?",
+							options: [
+								{text: "Alright",index: -1, game_actions : [{
+									type : GameAction.types.quest,
+									data : {quest:"SQ_goboat"}
+								}]},
+								{text: "Maybe later.",index: -1},
+							]
+						},
+					],
+				}}
+			},
+			// SQ Goboat after accepted
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					id : 'SQ_goboat_finish',
+					player : 'Slurt',
+					stages: [
+						{
+							index: 0,
+							text: "Oh hi!",
+							options: [
+								{
+									text: "I have the groper vines you asked for.", 
+									index: 1, 
+									conditions:[
+										{type:Condition.Types.hasInventory, data:{label:"groperVine", amount:3}}
+									],
+									game_actions:[
+										{type: GameAction.types.questObjective, data : {quest:"SQ_goboat", objective:"roperVines", type:"add", amount:3}},
+										{type: GameAction.types.finishQuest, data : {quest:'SQ_goboat'}},
+										{type: GameAction.types.addInventory, data : {asset:'groperVine', amount:-3}}
+									]
+								},
+								{text: "Nevermind.", index: -1},
+							]
+						},
+						{
+							index: 1,
+							text: "Yes! These will work! Come back in a few days and I might let you use the boat!",
+							options: [{text:'Thanks', index:-1}]
+						},
+					],
+					conditions : [
+						{type:Condition.Types.questAccepted, data:{quest:'SQ_goboat'}, targnr:0},
+					]
+				}}
+			}
+		]
 	},
 
 	mimic : {

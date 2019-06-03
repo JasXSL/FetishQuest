@@ -3,27 +3,26 @@ Smol:
 	- Punishments
 
 Medium rare:
-	- Monster: Groper
-		- Ability A
-		- Ability B
-	- Add NPCs to forest
+	
 
 Big chungi:
 	- Shop
-	- Goblin boat quest
-		- Need 4 spools of groper vines
-		- Add boat that shows up x days after completing the boat quest
-		- Boat lets you travel to the middle of the lake.
-		- From there you can also go west to the western part of the forest
-	- West forest
-		- Hidden path down to the beach
-		- Otter and Broper quest
 	
 
 Food for thought
 	- Fast travel system
 		- Expensive
 		- Need to unlock at an inn
+
+
+Next beta only update:
+	- Goblin boat quest
+		- Add boat that shows up x days after completing the boat quest
+		- Boat lets you travel to the middle of the lake.
+		- From there you can also go west to the western part of the forest
+	- West forest
+		- Hidden path down to the beach
+		- Otter and Broper quest
 
 
 Meshes:

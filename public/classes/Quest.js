@@ -292,10 +292,15 @@ class QuestObjective extends Generic{
 		this.load(data);
 	}
 
-	addAmount( amount = 1 ){
-		if( this._amount >= this.amount )
+	addAmount( amount = 1, set = false ){
+		if( isNaN(amount) )
 			return;
-		this._amount = Math.max(0,Math.min(this.amount, this._amount+amount));
+		if( this._amount >= this.amount && !set )
+			return;
+		this._amount += amount;
+		if( set )
+			this._amount = amount;
+		this._amount = Math.max(0,Math.min(this.amount, this._amount));
 	}
 
 	
@@ -452,6 +457,7 @@ class QuestObjectiveEvent extends Generic{
 }
 
 QuestObjectiveEvent.Actions = {
+	inv : "inv",			// {label : (str)assetLabel} - Custom, sets _amount to nr of inventory items. Use with inventory change condition.
 	add : "add",			// {amount : (str int)amount} - Add to Formulas are allowed
 	finish : "finish",		// void - Hands in the quest
 };

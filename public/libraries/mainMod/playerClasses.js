@@ -247,13 +247,16 @@ const lib = {
             'lowBlow'
         ]
     },
-    cocktopus : {
+    groper : {
         name : "Groper",
         primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
         actions : [
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentatug",
+            "groper_leg_spread",
+            "groper_groin_lash",
+            "groper_groin_grope"
         ]
     },
 };

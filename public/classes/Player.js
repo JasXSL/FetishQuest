@@ -882,8 +882,11 @@ export default class Player extends Generic{
 
 			}
 		}
-		
+		this.raiseInvChange();
 		return true;
+	}
+	raiseInvChange(){
+		new GameEvent({type:GameEvent.Types.inventoryChanged, sender:this, target:this}).raise();
 	}
 	addLibraryAsset( label, amount = 1 ){
 
@@ -984,6 +987,17 @@ export default class Player extends Generic{
 		return true;
 	}
 
+	// returns nr of assets of label, including stacks
+	numAssets( label ){
+		let out = 0;
+		for(let asset of this.assets){
+			if( asset.label === label ){
+				out += asset.stacking ? asset._stacks : 1;
+			}
+		}
+		return out;
+	}
+
 	// Unequips the leftmost one if toolbelt is full
 	unequipActionAssetIfFull(){
 		let assets = this.getEquippedAssetsBySlots(Asset.Slots.action, true);
@@ -1013,11 +1027,27 @@ export default class Player extends Generic{
 					asset._stacks -= amount;
 				if( !amount || !this.assets[i].stacking || asset._stacks <= 0 )
 					this.assets.splice(i, 1);
+				this.raiseInvChange();
 				return true;
 			}
 		}
 		return false;
 	}
+
+	destroyAssetsByLabel( label, amount = 1 ){
+		for( let asset of this.assets ){
+			if( asset.label === label ){			
+				let nrToRemove = !asset.stacking ? 1 : asset._stacks;
+				if( nrToRemove > amount )
+					nrToRemove = amount;
+				this.destroyAsset(asset.id, amount);
+				amount -= nrToRemove;
+				if( amount < 1 )
+					return;
+			}
+		}
+	}
+
 	// Transfers an asset to a player. Player is a player object
 	transferAsset( id, player ){
 		let asset = this.getAssetById(id);

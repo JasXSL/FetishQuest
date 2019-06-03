@@ -1865,6 +1865,91 @@ const lib = {
 		]
 	},
 
+	groper_leg_spread : {
+		name : "Leg Spread",
+		icon : 'foot-trip',
+		description : "Spreads your target's legs for 2 turns, reducing physical and corruption avoidance by 3.",
+		ap : 2,
+		cooldown : 3,
+		detrimental : true,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				icon : 'foot-trip',
+				name : 'Leg Spread',
+				description : 'Legs spread. -3 physical and corruption avoidance.',
+				duration : 2,
+				detrimental : true,
+				tags : [stdTag.wrLegsSpread],
+				add_conditions : stdCond.concat("targetNotBeast","targetLegsNotSpread"),
+				effects : [
+					{
+						type : Effect.Types.svPhysical,
+						data : {"amount": -3}
+					},
+					{
+						type : Effect.Types.svCorruption,
+						data : {"amount": -3}
+					}
+				]
+			}
+		]
+	},
+	groper_groin_lash : {
+		name : "Groin Lash",
+		icon : 'whiplash',
+		description : "Lashes your target's groin, dealing 5 physical damage and interrupting. Only usable on targets with their legs spread.",
+		ap : 3,
+		cooldown : 4,
+		detrimental : true,
+		tags : [
+			stdTag.acPainful,
+			stdTag.acDamage
+		],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat("targetNotBeast","targetLegsSpread"),
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {"amount": 5}
+					},
+					{
+						type : Effect.Types.interrupt
+					}
+				]
+			}
+		]
+	},
+	groper_groin_grope : {
+		name : "Roper Grope",
+		icon : 'spiral-tentacle',
+		description : "Tentacle-gropes your target's groin, dealing 5 corruption damage. Only usable on targets with their legs spread.",
+		ap : 2,
+		cooldown : 2,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [
+			stdTag.acArousing,
+			stdTag.acDamage
+		],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat("targetNotBeast","targetLegsSpread"),
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {"amount": 5}
+					}
+				]
+			}
+		]
+	},
 
 	// Crab
 	crab_claw_pinch : {
@@ -1872,12 +1957,13 @@ const lib = {
 		icon : 'crossed-claws',
 		description : "Jumps onto and pinches a player with your claws, dealing 5 physical damage.",
 		ap : 2,
-		cooldown : 2,
+		cooldown : 3,
 		mp : 3,
 		detrimental : true,
 		type : Action.Types.physical,
 		tags : [
-			stdTag.acDamage
+			stdTag.acDamage,
+			stdTag.acPainful
 		],
 		show_conditions : ["inCombat"],
 		wrappers : [
@@ -2382,7 +2468,7 @@ const lib = {
 	gropeRope : {
 		icon : 'lasso',
 		name : "Groperope",
-		description : "Deals 3 physical damage.",
+		description : "Deals 3 physical damage against a humanoid.",
 		ap : 1,
 		cooldown : 4,
 		show_conditions : ["inCombat"],
@@ -2394,7 +2480,7 @@ const lib = {
 			{
 				target : "VICTIM",
 				detrimental : true,
-				add_conditions : stdCond,
+				add_conditions : stdCond.concat("targetNotBeast"),
 				effects : [
 					{
 						type : Effect.Types.damage,

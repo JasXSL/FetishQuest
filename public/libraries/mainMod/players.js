@@ -182,6 +182,39 @@ const lib = {
 		assets : ["genericRawhideThong"],
 		inventory : [0],
 	},
+
+	// Goblin involved in the boat quest
+	Slurt : {
+		name : "Slurt",
+		species : "goblin",
+		description : "A goblin. Todo.",
+		icon : "",
+		team : 1,
+		size : 4,
+		leveled : true,
+		powered : true,
+		sadistic : 0.3,
+		dominant : 0.8,
+		hetero : 0.5,
+		intelligence : 0.5,
+		stamina : 0,
+		intellect : -4,
+		agility : 2,
+		svPhysical : -1,
+        svElemental : 0,
+        svHoly : -5,
+        svCorruption : 2,
+        bonPhysical : -2,
+        bonElemental : 0,
+        bonHoly : -2,
+        bonCorruption : 2,
+		class : 'none',
+		actions : [],
+		inventory : [],	// Which items should be equipped
+		tags : [stdTag.penis, stdTag.plTongue, stdTag.plBigPenis],
+		assets : ["genericRawhideThong"],
+		inventory : [0],
+	},
 };
 
 

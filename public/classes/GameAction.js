@@ -1,4 +1,4 @@
-// Similar to action, except this one affects the game itself.
+// Similar to action, except this one is for permanent non-combat actions
 // Generally tied to DungeonAsset and Roleplay
 // Handles interactions
 import Generic from './helpers/Generic.js';
@@ -9,6 +9,7 @@ import Dungeon, { DungeonEncounter, DungeonRoomAsset } from './Dungeon.js';
 import Calculator from './Calculator.js';
 import Quest from './Quest.js';
 import Roleplay from './Roleplay.js';
+import { EquirectangularReflectionMapping } from '../ext/THREE.js';
 
 export default class GameAction extends Generic{
 
@@ -379,6 +380,52 @@ export default class GameAction extends Generic{
 			}
 		}
 
+		else if( this.type === types.questObjective ){
+			const quest = this.data.quest, 
+				objective = this.data.objective, 
+				type = this.data.type || "add";
+			let amount = parseInt(this.data.amount) || 1;
+			const active = game.getQuestByLabel(quest);
+			if( !active ){
+				console.error("Trying to add to quest objective on unaccepted quest", quest, this);
+				return;
+			}
+			const obj = active.getObjectiveByLabel(objective);
+			if( !obj ){
+				console.error("Objective not found in quest", objective, active);
+				return;
+			}
+
+			console.log("Adding", amount, "to", obj);
+			obj.addAmount(amount, type==="set");
+			game.save();
+			game.ui.draw();
+		}
+
+		else if( this.type === types.addInventory ){
+			let pl = player;
+			if( this.data.player )
+				pl = game.getPlayerByLabel(this.data.player);
+			if( !pl ){
+				console.error("Player not found", pl);
+				return;
+			}
+			let asset = Asset.loadThis(this.data.asset);
+			if( ! asset ){
+				console.error("Asset not found", this.data.asset);
+				return;
+			}
+			const amount = isNaN(parseInt(this.data.amount)) ? 1 : parseInt(this.data.amount);
+			if( amount > 0 )
+				pl.addAsset( asset, amount );
+			else if( amount < 0 )
+				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
+		}
+
+		else{
+			console.error("Game action triggered with unhandle type", this.type, this);
+		}
+
 	}
 
 	getDungeon(){
@@ -414,8 +461,10 @@ GameAction.types = {
 	exit : "exit",					// {dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}
 	anim : "anim",					// {anim:(str)animation}
 	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
-	quest : "quest",				// {quest:(str/Quest)q} - Offers a quest
-	toggleCombat : "toggleCombat",	// {on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.
+	quest : "quest",				// {quest:(str/Quest)q} - Starts a quest
+	questObjective : "questObjective",		// {quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1} - Adds or subtracts from an objective
+	addInventory : "addInventory",			// {"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1} - Adds or removes inventory from a player
+	toggleCombat : "toggleCombat",			// {on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.
 	generateDungeon : "generateDungeon",	// {difficulty:(int)difficulty=#players} - Resets the active procedural dungeon and clears any procedural quests you've started
 	visitDungeon : "visitDungeon",			// {} - Visits the current procedurally generated dungeon
 	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object

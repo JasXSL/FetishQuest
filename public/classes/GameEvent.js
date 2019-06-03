@@ -125,6 +125,7 @@ GameEvent.Types = {
 	encounterDefeated : 'encounterDefeated',
 	encounterLost : 'encounterLost',		
 	assetUsed : 'assetUsed',				
+	inventoryChanged : 'inventoryChanged',				
 
 	encounterStarted : 'encounterStarted',	
 	
@@ -142,6 +143,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.healingDone] : '',
 	[GameEvent.Types.healingTaken] : '',
 	[GameEvent.Types.interrupt] : 'A charged action was interrupted',			// 
+	[GameEvent.Types.inventoryChanged] : 'Inventory has changed',			// 
 	[GameEvent.Types.actionCharged] : 'Used a charged action',	// 
 	[GameEvent.Types.actionUsed] : 'target(is an array of targets here) {resist:true(on resist)}. Note that when this is used in an event check, a wrapper and effect is added by the checker',			//* 
 	[GameEvent.Types.actionRiposte] : 'target is the player that cast the original spell, sender is the original victim',

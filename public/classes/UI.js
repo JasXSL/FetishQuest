@@ -3019,7 +3019,7 @@ export default class UI{
 			const name = stage.getName();
 			let html = '';
 			if( name )
-				html += '<span class="name">'+stylizeText()+'</span><br />';
+				html += '<span class="name">'+stylizeText(name)+'</span><br />';
 			$("div.text", div).html(html+esc(stage.text));
 			
 			html = '';

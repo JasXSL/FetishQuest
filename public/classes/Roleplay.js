@@ -397,7 +397,7 @@ export class RoleplayStageOption extends Generic{
 
 	}
 
-	use( player ){
+	async use( player ){
 
 		if( !this.validate(player) )
 			return false;
@@ -409,8 +409,9 @@ export class RoleplayStageOption extends Generic{
 		if( player && this.chat !== RoleplayStageOption.ChatType.none )
 			RoleplayChatQueue.output( player, this.text, this.chat );
 
-		for( let act of this.game_actions )
-			act.trigger(player, pl);
+		for( let act of this.game_actions ){
+			await act.trigger(player, pl);
+		}
 
 		game.ui.rpOptionSelected(this.id);
 		game.net.dmRpOptionSelected(this.id);

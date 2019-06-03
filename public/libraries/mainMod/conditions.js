@@ -65,6 +65,9 @@ const lib = {
 	action_imp_newGroperope : {type:Condition.Types.actionLabel, data:{label:['imp_newGroperope_solo', 'imp_newGroperope_party']}, targnr:0},
 	action_crab_claw_pinch : {type:Condition.Types.actionLabel, data:{label:'crab_claw_pinch'}, targnr:0},
 	action_crab_claw_tug : {type:Condition.Types.actionLabel, data:{label:'crab_claw_tug'}, targnr:0},
+	action_groper_leg_spread : {type:Condition.Types.actionLabel, data:{label:'groper_leg_spread'}, targnr:0},
+	action_groper_groin_lash : {type:Condition.Types.actionLabel, data:{label:'groper_groin_lash'}, targnr:0},
+	action_groper_groin_grope : {type:Condition.Types.actionLabel, data:{label:'groper_groin_grope'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 
@@ -192,7 +195,8 @@ const lib = {
 	senderHasWhip : {"type":"tag","data":{"tags":["as_whip"]},"caster":true},
 	senderHasStrapon : {type:Condition.Types.tag,data:{tags:[stdTag.asStrapon]},caster:true},
 	targetSoaked : {"type":"tag","data":{"tags":["wr_soaked"]}},
-	targetLegsSpread : {"type":"tag","data":{"tags":["wr_legs_spread"]}},
+	targetLegsSpread : {type:Condition.Types.tag,data:{tags:[stdTag.wrLegsSpread]}},
+	targetLegsNotSpread : {type:Condition.Types.tag,data:{tags:[stdTag.wrLegsSpread]}, inverse:true},
 	// Legs spread and lifted into the air by tentacles
 	targetTentacleLiftSpread : {
 		conditions : [

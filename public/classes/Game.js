@@ -393,10 +393,9 @@ export default class Game extends Generic{
 		const objectives = {
 			__time : this.time,
 		};
-		for( let objective of quest.objectives ){
-			if( objective.isCompleted() )
-				objectives[objective.label] = 1;
-		}
+		for( let objective of quest.objectives )
+			objectives[objective.label] = objective._amount;
+		
 		this.completed_quests.set(quest.label, objectives);
 	
 

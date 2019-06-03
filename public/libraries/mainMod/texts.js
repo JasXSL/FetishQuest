@@ -1201,6 +1201,36 @@ const lib = [
 	},
 
 
+	// action_groper_leg_spread
+	{ text : "%S wraps its tendrils around %T's legs, spreading them wide apart!",
+		hitfx : ["tentacleStretch"],
+		conditions : baseCond.concat("action_groper_leg_spread")
+	},
+
+	// action_groper_groin_lash
+	{ text : "%S flicks a tendril right across %T's exposed %groin!",
+		hitfx : ["whip"],
+		conditions : baseCond.concat("action_groper_groin_lash")
+	},
+	
+	// action_groper_groin_grope
+	{ text : "%S flicks a tendril up between %T's %groin, squeezing it!",
+		hitfx : ["whipSqueeze"],
+		conditions : baseCond.concat("action_groper_groin_grope")
+	},
+	{ text : "%S flicks a tendril up between %T's %groin, tickling %This %Tgenitals!",
+		hitfx : ["tickle"],
+		conditions : baseCond.concat("action_groper_groin_grope")
+	},
+	{ text : "%S flicks a tendril up between %T's %groin, slipping up into %This %Trsize %Tbutt and tickling %Thim on the inside!",
+		hitfx : ["tickle"],
+		conditions : baseCond.concat("action_groper_groin_grope", "targetButtExposed")
+	},
+	{ text : "%S flicks a tendril up between %T's %groin, slipping up into %This %Trsize %Tbutt and tickling %Thim on the inside!",
+		hitfx : ["tickle"],
+		conditions : baseCond.concat("action_groper_groin_grope", "targetVagina", "targetGroinExposed")
+	},
+
 	// action_shocktacle_zap
 	{ text : "%S wraps charged tentacles around %T's %Tbsize %Tbreasts, squeezing down and sending an electric shock through them!",
 		hitfx : ["tentacleSqueezeZap"],

@@ -31,8 +31,27 @@ const lib = {
 			'whiteSwimtrunks',
 		],
 		multiply_reward : true,
-		rewards_experience : 5,
-		level : 1,
+	},
+
+
+
+	// Goblin boat quest
+	["SQ_goboat"] : {
+		name : 'A goblin and his boat',
+		description : 'A goblin in Yuug Portswood is building a boat and needs roper vines to keep the wood together.',
+		objectives : [
+			{
+				label : 'roperVines',
+				name : 'Groper Vines Handed to Slurt',
+				amount : 3,
+				events : []
+			}
+		],
+		rewards : [
+			{label:Asset.Dummies.label, name:'gold', _stacks:5},
+		],
+		multiply_reward : true,
+		exp_multiplier : 0.5,
 	}
 
 };
