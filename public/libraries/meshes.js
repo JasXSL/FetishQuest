@@ -1741,7 +1741,10 @@ LibMesh.library = {
 					width: 10,
 					height:10,
 					tags : [stdTag.mWater],
-					top:-4, left:-4
+					top:-4, left:-4,
+					onStagePlaced(_,mesh){
+						mesh.rotation.x = -Math.PI/2;
+					}
 				}),
 				Ocean2 : new LibMesh({
 					url : function(){
