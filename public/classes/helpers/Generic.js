@@ -263,18 +263,12 @@ Generic.saveThese = function( entries = [], full = false ){
 }
 
 Generic.generateUUID = function(){
-	/* old v4
-	let s4 = () => {
-		return Math.floor((1 + Math.random()) * 0x10000)
-		  .toString(16)
-		  .substring(1);
-	};
-	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-	  s4() + '-' + s4() + s4() + s4();
-	*/
-	// More compact base64 tokenizer
-	const array = new Uint32Array(10);
+
+	const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	let array = new Uint8Array(10);
 	crypto.getRandomValues(array);
-	return btoa(array).substr(0,10);
+	array = array.map(x => validChars.charCodeAt(x % validChars.length));
+	return String.fromCharCode.apply(null, array); return randomState;
+
 }
 

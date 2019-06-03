@@ -30,6 +30,7 @@ export default class Mod extends Generic{
 		this.hitFX = [];
 		this.roleplay = [];
 		this.gameActions = [];
+		this.shops = [];
 		this.load(data);
 	}
 
@@ -73,6 +74,7 @@ export default class Mod extends Generic{
 			hitFX : this.hitFX,
 			roleplay : this.roleplay,
 			gameActions : this.gameActions,
+			shops : this.shops,
 		};
 
 		return out;

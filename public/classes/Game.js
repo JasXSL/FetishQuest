@@ -51,6 +51,7 @@ export default class Game extends Generic{
 		this.completed_quests = new Collection();		// label : {objective_label:true,__time:(int)time_completed}
 		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)} - These are fetched by the Dungeon object. They're the same objects here as they are in dungeon._state
 		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
+		this.state_shops = new Collection();			// label : (obj)shopState
 
 		// Library of custom items
 		this.libAsset = {};
@@ -73,6 +74,7 @@ export default class Game extends Generic{
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
 
 		this._turn_timer = false;						// Timeout handling end of turn
+		
 
 	}
 
@@ -105,6 +107,7 @@ export default class Game extends Generic{
 			roleplay : this.roleplay.save(full),
 			completed_quests : this.completed_quests.save(),	// A shallow clone is enough
 			time : this.time,
+			state_shops : this.state_shops.save(full)
 		};
 
 		out.state_dungeons = this.state_dungeons.save(full);
@@ -261,6 +264,7 @@ export default class Game extends Generic{
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
 		this.completed_quests = Collection.loadThis(this.completed_quests);
+		this.state_shops = Collection.loadThis(this.state_shops);
 		this.state_roleplays = Collection.loadThis(this.state_roleplays);
 		for( let i in this.state_roleplays ){
 			if( typeof this.state_roleplays[i] !== 'function' )

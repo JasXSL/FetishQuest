@@ -9,7 +9,6 @@ import Dungeon, { DungeonEncounter, DungeonRoomAsset } from './Dungeon.js';
 import Calculator from './Calculator.js';
 import Quest from './Quest.js';
 import Roleplay from './Roleplay.js';
-import { EquirectangularReflectionMapping } from '../ext/THREE.js';
 
 export default class GameAction extends Generic{
 

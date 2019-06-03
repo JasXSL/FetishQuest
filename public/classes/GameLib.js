@@ -17,6 +17,7 @@ import HitFX from './HitFX.js';
 import Roleplay from './Roleplay.js';
 import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
+import Shop from './Shop.js';
 
 
 const LIB_TYPES = {
@@ -26,6 +27,7 @@ const LIB_TYPES = {
 	'playerClasses' : PlayerClass,
 	'actions' : Action,
 	'assets' : Asset,
+	'shops' : Shop,
 	'players' : Player,
 
 	'dungeons' : Dungeon,
@@ -57,6 +59,7 @@ const load_order = [
 	'hitFX',
 	'actions',
 	'assets',
+	'shops',
 	'players',
 	'playerTemplates',
 	
@@ -91,6 +94,7 @@ export default class GameLib{
 		this.quests = {};
 		this.actions = {};
 		this.assets = {};
+		this.shops = {};
 		this.playerTemplates = {};
 		this.assetTemplates = {};
 		this.audioKits = {};
