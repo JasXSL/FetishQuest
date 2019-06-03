@@ -10,6 +10,7 @@ import stdTag from "../libraries/stdTag.js";
 import Mod from './Mod.js';
 import * as THREE from '../ext/THREE.js';
 import { DungeonRoomAsset } from "./Dungeon.js";
+import Shop from "./Shop.js";
 
 export default class UI{
 
@@ -2132,6 +2133,30 @@ export default class UI{
 
 	}
 
+	getGenericAssetButton( item, cost = 0, additionalClassName = '' ){
+		let html = '';
+		html += '<div class="item '+additionalClassName+' '+Asset.RarityNames[item.rarity]+' tooltipParent '+(item.equippable() ? 'equippable' : '')+(item.equipped ? ' equipped' : '')+(item.durability <= 0 ? ' broken' : '')+'" data-id="'+esc(item.id)+'">';
+			html += '<img class="assetIcon" src="media/wrapper_icons/'+esc(item.icon)+'.svg" />';
+			html += (item.equipped ? '<strong>' : '')+(item.stacking && item._stacks > 1 ? item._stacks+'x ' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
+			// This item can be sold
+			if( cost ){
+				const coins = Player.calculateMoneyExhange(cost);
+				html += '<div class="cost">';
+				for( let i in coins ){
+					const amt = coins[i];
+					if( amt ){
+						html += '<span style="color:'+Player.currencyColors[i]+';">'+amt+Player.currencyWeights[i].substr(0,1)+"</span> ";
+					}
+				}
+				html += '</div>';
+			}
+			html += '<div class="tooltip">';
+				html += item.getTooltipText();
+			html += '</div>';
+		html+= '</div>';
+		return html;
+	}
+
 	// Draws inventory for active player
 	drawPlayerInventory(){
 		const player = game.getMyActivePlayer();
@@ -2204,13 +2229,7 @@ export default class UI{
 						cat = item.category;
 						html += '<h3 class="category">'+esc(Asset.CategoriesNames[cat])+'</h3>';
 					}
-					html += '<div class="item '+Asset.RarityNames[item.rarity]+' tooltipParent '+(item.equippable() ? 'equippable' : '')+(item.equipped ? ' equipped' : '')+(item.durability <= 0 ? ' broken' : '')+'" data-id="'+esc(item.id)+'">';
-						html += '<img class="assetIcon" src="media/wrapper_icons/'+esc(item.icon)+'.svg" />';
-						html += (item.equipped ? '<strong>' : '')+(item.stacking && item._stacks > 1 ? item._stacks+'x ' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
-						html += '<div class="tooltip">';
-							html += item.getTooltipText();
-						html += '</div>';
-					html+= '</div>';
+					html += this.getGenericAssetButton(item);
 				}
 				
 
@@ -2485,8 +2504,63 @@ export default class UI{
 
 	}
 
+	// Shop inspect
+	drawShopInspector( shop ){
+
+		const myPlayer = game.getMyActivePlayer();
+		if( !(shop instanceof Shop) || !myPlayer )
+			return;
 
 
+		let html = '<h1 class="center">'+esc(shop.name)+'</h1>';
+
+		html += '<h3 class="center">Your coinpurse:<br />';
+		const money = myPlayer.getMoney();
+		if( !money )
+			html += 'Broke';
+		else{
+			const coins = Player.calculateMoneyExhange(money);
+			for( let i in coins ){
+				const amt = coins[i];
+				if( amt ){
+					html += '<span style="color:'+Player.currencyColors[i]+';"><b>'+amt+'</b>'+Player.currencyWeights[i]+"</span> ";
+				}
+			}
+		}
+		html += '</h3>';
+
+		html += '<div class="shop inventory flexTwoColumns">';
+			html += '<div class="left full">';
+				html += '<h2>Sell</h2>';
+				html += '<div class="assets">';
+				const assets = myPlayer.assets;
+				for( let asset of assets ){
+					if( asset.isSellable() )
+						html += this.getGenericAssetButton(asset, asset.getSellCost(shop));
+				}
+				html += '</div>';
+			html += '</div>';
+			html += '<div class="left">';
+				html += '<h2>Buy</h2>';
+				html += '<div class="assets">';
+				for( let item of shop.items ){
+					const cost = item.getCost();
+					if( !cost )
+						continue;
+					const asset = item.getAsset();
+					if( !asset )
+						continue;
+					html += this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : '');
+				}
+				html += '</div>';
+			html += '</div>';
+		html += '</div>';
+		
+		game.modal.set(html);
+
+		this.bindTooltips();
+
+	}
 
 
 
@@ -3052,6 +3126,8 @@ export default class UI{
 		this.selected_rp = id;
 		this.drawRoleplay();
 	}
+
+
 
 
 

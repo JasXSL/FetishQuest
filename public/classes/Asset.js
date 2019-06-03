@@ -36,6 +36,7 @@ export default class Asset extends Generic{
 		this.rarity = this.constructor.Rarity.COMMON;
 		this.loot_sound = '';				// Also equip and unequip sound. audioKit ID
 
+		this.basevalue = 0;				// Store value in copper. 0 = no sell
 
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
@@ -70,6 +71,7 @@ export default class Asset extends Generic{
 			icon : this.icon,
 			category : this.category,
 			stacking : this.stacking,
+			basevalue : this.basevalue,
 			_stacks : this._stacks,
 		};
 
@@ -149,6 +151,13 @@ export default class Asset extends Generic{
 
 	isUsable(){
 		return this.use_action && this.use_action.castable() && this.use_action.getViableTargets().length;
+	}
+
+	isSellable(){
+		return this.getSellCost() > 0;
+	}
+	getSellCost(shop){
+		return Math.floor(this.basevalue/2);
 	}
 
 	consumeCharges( charges=1 ){

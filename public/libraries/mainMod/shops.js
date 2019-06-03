@@ -1,6 +1,7 @@
 
 const lib = {
     yuug_portswood_merchant : {
+		name : 'Midway Caravan',
 		player : 'yuug_portswood_merchant',
 		conditions : [],
 		items : [

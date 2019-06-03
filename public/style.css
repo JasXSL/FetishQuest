@@ -548,6 +548,7 @@ div.fxBuffBlue{
 		padding:0;
 		text-align: center;
 	}
+	
 	#modal div.inventory div.item.list,
 	#modal div.actions div.action.list{
 		display:inline-block;
@@ -727,6 +728,18 @@ div.fxBuffBlue{
 /**/
 
 
+/* Shop */
+	#modal div.shop.inventory div.item{
+		width:auto;
+		display:block;
+	}
+	#modal div.shop.inventory div.item div.cost{
+		position: absolute;
+		right:0.5vmax;
+		top:50%;
+		transform:translateY(-50%);
+	}
+/**/
 
 /* Players */
 	#ui > div.players{

@@ -127,6 +127,7 @@ const lib = {
 		name : "Simple Whip",
 		slots : [Asset.Slots.hands],
 		tags : [ stdTag.asWhip ],
+		basevalue : 100,
 		wrappers : [
 			{
 				detrimental : false,
@@ -142,8 +143,8 @@ const lib = {
 				duration : 0
 			}
 		],
-		description : "A simple leather whip.\n+1 Physical Proficiency",
-		weight : 750,
+		description : "A simple leather whip, it has seen better days.\n+1 Physical Proficiency",
+		weight : 1000,
 		loot_sound : "whipPickup",
 		icon : 'whip',
 	},
@@ -153,6 +154,7 @@ const lib = {
 		slots : [Asset.Slots.hands],
 		tags : [ stdTag.asWhip ],
 		wrappers : [],
+		basevalue : 500,
 		description : "Adds the Groperope ability. Allowing you to deal 3 physical damage on an enemy every 3 turns.",
 		weight : 750,
 		loot_sound : "whipPickup",
@@ -169,6 +171,7 @@ const lib = {
 		category : Asset.Categories.tool,
 		name : "Minor Repair Kit",
 		weight : 1000,
+		basevalue : 50,
 		charges : 1,
 		use_action : "minorRepairKit",
 		rarity : 0,
@@ -179,6 +182,7 @@ const lib = {
 	repairKit : {
 		category : Asset.Categories.tool,
 		name : "Repair Kit",
+		basevalue : 100,
 		weight : 1000,
 		charges : 1,
 		use_action : "repairKit",
@@ -190,6 +194,7 @@ const lib = {
 	majorRepairKit : {
 		category : Asset.Categories.tool,
 		name : "Major Repair Kit",
+		basevalue : 500,
 		weight : 1000,
 		charges : 1,
 		use_action : "majorRepairKit",
@@ -201,6 +206,7 @@ const lib = {
 	minorHealingPotion : {
 		category : Asset.Categories.consumable,
 		name : "Minor Healing Potion",
+		basevalue : 80,
 		weight : 500,
 		charges : 1,
 		use_action : "minorHealingPotion",
@@ -211,6 +217,7 @@ const lib = {
 		ranged : Action.Range.None,
 	},
 	healingPotion : {
+		basevalue : 280,
 		ranged : Action.Range.None,
 		category : Asset.Categories.consumable,
 		name : "Healing Potion",
@@ -225,6 +232,7 @@ const lib = {
 	majorHealingPotion : {
 		category : Asset.Categories.consumable,
 		name : "Major Healing Potion",
+		basevalue : 700,
 		weight : 500,
 		charges : 1,
 		use_action : "majorHealingPotion",
@@ -237,6 +245,7 @@ const lib = {
 	manaPotion : {
 		category : Asset.Categories.consumable,
 		name :"Mana Potion",
+		basevalue : 50,
 		weight : 500,
 		charges : 1,
 		use_action : "manaPotion",
@@ -247,6 +256,7 @@ const lib = {
 		ranged : Action.Range.None,
 	},
 	majorManaPotion : {
+		basevalue : 100,
 		category : Asset.Categories.consumable,
 		name : "Major Mana Potion",
 		weight : 500,
@@ -264,6 +274,7 @@ const lib = {
 		name : 'Razzyberry',
 		description : 'Restores 2 mana and HP. Only usable out of combat.',
 		stacking : true,
+		basevalue : 5,
 		weight : 10,
 		charges : 1,
 		use_action : "foodRazzyberry",		// name not needed for use_action ones. it uses UA instead
@@ -279,6 +290,7 @@ const lib = {
 		icon : 'underwear',
 		slots : [Asset.Slots.lowerbody],
 		equipped : false,
+		basevalue : 50,
 		tags : [
 			stdTag.asTight,
 			stdTag.asStretchy,
@@ -302,6 +314,7 @@ const lib = {
 
 	mq00_boss_robe : {
 		name : "Crimson Robe",
+		basevalue : 300,
 		category : Asset.Categories.armor,
 		icon : 'robe',
 		slots : [Asset.Slots.upperbody],
@@ -341,6 +354,7 @@ const lib = {
 		slots : [Asset.Slots.upperbody],
 		equipped : false,
 		tags : [stdTag.asShirt,stdTag.asLeather,stdTag.asRawhide],
+		basevalue : 90,
 		wrappers : [
 			{
 				effects : [
@@ -363,6 +377,7 @@ const lib = {
 	genericRawhideThong : {
 		name : "Rawhide Thong",
 		category : Asset.Categories.armor,
+		basevalue : 90,
 		icon : 'underwear',
 		slots : [Asset.Slots.lowerbody],
 		equipped : false,
@@ -389,6 +404,7 @@ const lib = {
 
 	groperVine : {
 		name : "Groper Vine",
+		basevalue : 30,
 		slots : [],
 		category : Asset.Categories.reagent,
 		tags : [stdTag.asReagent],

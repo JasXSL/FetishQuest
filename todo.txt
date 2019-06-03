@@ -3,10 +3,14 @@ Smol:
 	- Punishments
 
 Medium rare:
-	
+
 
 Big chungi:
 	- Shop
+		- Hook up shop load and save states
+		- Shops are individual, server must make sure a player can actually use a shop
+		- Shop items should have conditions
+		- Finish UI implementation of shop
 	
 
 Food for thought

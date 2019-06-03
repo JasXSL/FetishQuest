@@ -2166,3 +2166,9 @@ Player.currencyWeights = [
 	'silver',
 	'copper'
 ];
+Player.currencyColors = [
+	'#FFF',
+	'#FF8',
+	'#AAA',
+	'#FA8'
+];

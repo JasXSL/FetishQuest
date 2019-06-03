@@ -12,6 +12,7 @@ export default class Shop extends Generic{
 
 		this.parent = parent;			// Either a roleplay or dungeon asset
 		this.label = '';
+		this.name = '';
 		this.items = [];
 		this.conditions = [];
 		this.player = '';				// label of player to attach the shop to
@@ -26,6 +27,7 @@ export default class Shop extends Generic{
 		const out = {
 			id : this.id,
 			label : this.label,
+			name : this.name,
 			items : ShopAsset.saveThese(this.items, full),
 			player : this.player,
 			conditions : Condition.saveThese(this.conditions, full),
@@ -130,6 +132,12 @@ export class ShopAsset extends Generic{
 
 	rebase(){
 
+	}
+
+	getCost(){
+		if( this.cost === -1 )
+			return this.getAsset().basevalue;
+		return this.cost;
 	}
 
 	getAsset(){
