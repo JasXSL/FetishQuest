@@ -1787,6 +1787,7 @@ class DungeonEncounter extends Generic{
 		return GameAction.getViable(this.game_actions);
 	}
 
+	// Gets roleplay ACTIONs
 	getRoleplays( player, validate = true ){
 
 		const actions = this.getViableActions();
@@ -1803,6 +1804,20 @@ class DungeonEncounter extends Generic{
 
 		});
 
+	}
+
+	// Gets shop ACTIONs
+	getShops(){
+		const actions = this.getViableActions();
+		return actions.filter(action => {
+
+			if( action.type !== GameAction.types.shop )
+				return false;
+			const shop = action.getDataAsShop();
+			if( !shop )
+				return false;
+			return true;
+		});
 	}
 
 	resetRoleplays(){

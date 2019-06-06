@@ -1722,10 +1722,11 @@ div.fxBuffBlue{
 	#ui > div.actionbar > div.actions > div.action.detrimental{
 		border-color:#FDC;
 	}
-	#ui > div.actionbar > div.actions > div.action.disabled{
-		color:#FDD;
-		border:0.2vmax solid #FDD;
-		background-color:#600;
+	#ui > div.actionbar > div.actions > div.action.disabled,
+	div.item.disabled,
+	#modal div.inventory div.item.disabled{
+		color:#FDD !important;
+		border:0.2vmax solid #FDD !important;
 	}
 	
 	#ui > div.actionbar > div.actions > div div.tooltip{

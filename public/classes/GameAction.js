@@ -9,6 +9,7 @@ import Dungeon, { DungeonEncounter, DungeonRoomAsset } from './Dungeon.js';
 import Calculator from './Calculator.js';
 import Quest from './Quest.js';
 import Roleplay from './Roleplay.js';
+import Shop from './Shop.js';
 
 export default class GameAction extends Generic{
 
@@ -138,6 +139,10 @@ export default class GameAction extends Generic{
 				this.data.rp = this.getDataAsRoleplay();
 				
 			}
+
+			if( this.type === GameAction.types.shop ){
+				this.data.shop = this.getDataAsShop();
+			}
 		}
 
 
@@ -251,6 +256,17 @@ export default class GameAction extends Generic{
 			return false;
 		}
 		return rp;
+	}
+
+	getDataAsShop(){
+		let shop = Shop.loadThis(this.data.shop, this);
+		if( typeof shop !== "object" ){
+			console.error("Error, ", this.data.shop, "is not a valid shop in", this);
+			return false;
+		}
+		if( game && typeof game === "object" )
+			shop.loadState(game.state_shops[shop.label]);
+		return shop;
 	}
 
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
@@ -369,6 +385,7 @@ export default class GameAction extends Generic{
 				game.setRoleplay(rp);
 		}
 
+
 		else if( this.type === types.finishQuest ){
 			let quests = toArr(this.data.quest);
 			for( let quest of game.quests ){
@@ -469,6 +486,7 @@ GameAction.types = {
 	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object
 	finishQuest : "finishQuest",			// {quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.
 	tooltip : "tooltip",					// {text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak
+	shop : "shop",							// {shop:(str)shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.
 };
 
 // These are types where data should be sent to netgame players

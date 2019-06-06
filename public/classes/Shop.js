@@ -4,6 +4,7 @@
 import Generic from './helpers/Generic.js';
 import Asset from './Asset.js';
 import Condition from './Condition.js';
+import GameEvent from './GameEvent.js';
 
 export default class Shop extends Generic{
 
@@ -48,7 +49,7 @@ export default class Shop extends Generic{
 	}
 
 	rebase(){
-		this.items = ShopAsset.loadThese(this.items);
+		this.items = ShopAsset.loadThese(this.items, this);
 		this.conditions = Condition.loadThese(this.conditions);
 	}
 
@@ -83,6 +84,13 @@ export default class Shop extends Generic{
 		};
 	}
 	
+	isAvailable(player){
+		return Condition.all(this.conditions, new GameEvent({
+			sender : player,
+			target : player,
+		}));
+	}
+
 }
 
 export class ShopAsset extends Generic{
@@ -95,6 +103,7 @@ export class ShopAsset extends Generic{
 		this.cost = -1;				// -1 uses the items own cost. This is the cost in copper.
 		this.amount = -1;			// Max amount sold by the vendor
 		this.restock_rate = 260000;	// About once every 3 days
+		this.conditions = [];
 
 		// State (saved in game)
 		this._amount_bought = 0;			
@@ -114,6 +123,7 @@ export class ShopAsset extends Generic{
 			cost : this.cost,
 			amount : this.amount,
 			restock_rate : this.restock_rate,
+			conditions : Condition.saveThese(this.conditions, full),
 		};
 
 
@@ -131,13 +141,26 @@ export class ShopAsset extends Generic{
 	}
 
 	rebase(){
-
+		this.conditions = Condition.loadThese(this.conditions);
 	}
 
 	getCost(){
 		if( this.cost === -1 )
 			return this.getAsset().basevalue;
 		return this.cost;
+	}
+
+	getRemaining(){
+		if( this.amount < 0 )
+			return -1;
+		return this.amount-this._amount_bought;
+	}
+
+	isAvailable(player){
+		return Condition.all(this.conditions, new GameEvent({
+			sender : player,
+			target : player,
+		}));
 	}
 
 	getAsset(){
@@ -161,4 +184,14 @@ export class ShopAsset extends Generic{
 			_time_bought : this._time_bought
 		};
 	}
+
+	onPurchase( amount ){
+		amount = parseInt(amount);
+		if( isNaN(amount) || amount < 1 )
+			return;
+		this._amount_bought += amount;
+		if( !this._time_bought )
+			this._time_bought = game.time;
+	}
+
 }

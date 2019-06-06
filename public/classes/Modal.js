@@ -20,6 +20,7 @@ export default class Modal{
 		
 		this.open = false;
 		this._onPlayerChange = {};		// playerUUID : function
+		this._onShopChange = {};		// playerUUID : function
 		this.onMapChange = [];			// callbacks
 		this.selBoxOpened = Date.now();		// Prevents misclicks
 		this._onSelectionBoxClose = null;
@@ -112,6 +113,9 @@ export default class Modal{
 	onPlayerChange(player, fn){
 		this._onPlayerChange[player] = fn;
 	}
+	onShopChange(shop, fn){
+		this._onShopChange[shop] = fn;
+	}
 	// The map has been changed
 	onMapUpdate(fn){
 		this.onMapChange.push(fn);
@@ -122,6 +126,7 @@ export default class Modal{
 	}
 	wipeEvents(){
 		this._onPlayerChange = {};
+		this._onShopChange = {};
 		this.onMapChange = [];
 	}
 
@@ -139,12 +144,23 @@ export default class Modal{
 			}
 		}
 
+		if( changes.state_shops ){
+			this.onShopChange(changes.state_shops);
+		}
+
 		if( changes.dungeon && !game.is_host ){
 			this.onMapChange.map(fn => fn());
 		}
 
 	}
 	
+	// Changes is the generic object which holds the shops
+	onShopUpdate( changes ){
+		for( let i in this._onShopChange ){
+			if( changes[i] )
+				this._onShopChange[i]();
+		}
+	}
 
 
 	/* SELECTION BOX (small option tooltip) */

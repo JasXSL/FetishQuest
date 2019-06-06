@@ -1,17 +1,14 @@
 
 const lib = {
-    yuug_portswood_merchant : {
+		yuug_portswood_merchant : {
 		name : 'Midway Caravan',
-		player : 'yuug_portswood_merchant',
+		player : 'Slurt',
 		conditions : [],
 		items : [
-			{id:"manaPotion", asset:'manaPotion', amount:3, cost:150}
+			{id:"manaPotion", asset:'manaPotion', amount:3}
 		]
 	}
-};
-
-
-
+}; 
 
 function getArray(){
 	const out = [];

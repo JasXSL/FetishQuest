@@ -1210,7 +1210,7 @@ export default class Player extends Generic{
 			consumePlatinum = 0			// Plat assets we need to remove
 		;
 		let copperAsset = this.getAssetByLabel('copper'),
-			silverAsset = this.getAssetByLabel('silver')
+			silverAsset = this.getAssetByLabel('silver'),
 			goldAsset = this.getAssetByLabel('gold')
 		;
 		// First see if we can handle it with just copper
@@ -1286,7 +1286,7 @@ export default class Player extends Generic{
 
 	}
 
-	// returns an array of [copper, silver, gold] after exchange
+	// See Player.calculateMoneyExchange
 	calculateMoneyExhange( input = 0 ){
 		return Player.calculateMoneyExhange(input);
 	}
@@ -1318,7 +1318,22 @@ export default class Player extends Generic{
 		
 	}
 
+	// Exchanges a copper amount into plat, gold etc and adds
+	addCopperAsMoney( copper = 0 ){
+		copper = parseInt(copper);
+		if( copper < 1 )
+			return;
 
+		const exch = Player.calculateMoneyExhange(copper);
+		for( let i in exch ){
+			if( !exch[i] )
+				continue;
+			const asset = glib.get(Player.currencyWeights[i], 'Asset');
+			asset._stacks = exch[i];
+			this.addAsset(asset);
+		}
+
+	}
 
 
 

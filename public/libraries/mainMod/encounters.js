@@ -453,6 +453,17 @@ const lib = {
 	},
 
 
+	debug_shop : {
+		players: ['Slurt'],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.shop,
+				data : {shop:'yuug_portswood_merchant'}
+			}
+		]
+	},
+
 
 };
 

@@ -546,6 +546,7 @@ export default class UI{
 					'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
 					'<div class="interactions">'+
 						'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
+						'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
 						'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
 					'</div>'+
 				'</div>';
@@ -688,14 +689,14 @@ export default class UI{
 
 		const tp = game.getTurnPlayer(),
 			myTurn = tp && tp.id === p.id,
-			el = $("div.player[data-id='"+esc(p.id)+"']", this.players)
-		;
+			el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
+			myActive = game.getMyActivePlayer();
 
 		if( myTurn )
 			el.toggleClass("active", true);
 
 		const isMine = !!(~game.getMyPlayers().indexOf(p));
-		const isMyActive = p === game.getMyActivePlayer();
+		const isMyActive = p === myActive;
 		const isNPC = !p.netgame_owner;
 		
 		el.toggleClass('mine', isMine);
@@ -820,10 +821,17 @@ export default class UI{
 				game.setRoleplay(rp);
 		});
 
-		const showLoot = p.isLootableBy(game.getMyActivePlayer());
+		const showLoot = p.isLootableBy(myActive);
 		$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
 			event.stopImmediatePropagation();
-			this.drawContainerLootSelector(game.getMyActivePlayer(), p);
+			this.drawContainerLootSelector(myActive, p);
+		});
+
+		const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
+		const showShop = shops.length;
+		$("div.interaction[data-type=shop]", el).toggleClass("hidden", !showShop).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.drawShopInspector(shops[0]);
 		});
 		
 
@@ -2507,42 +2515,53 @@ export default class UI{
 	// Shop inspect
 	drawShopInspector( shop ){
 
+
 		const myPlayer = game.getMyActivePlayer();
 		if( !(shop instanceof Shop) || !myPlayer )
 			return;
 
+		shop.loadState(game.state_shops[shop.label]);
+
+		if( !game.shopAvailableTo(shop, myPlayer) )
+			return;
 
 		let html = '<h1 class="center">'+esc(shop.name)+'</h1>';
 
-		html += '<h3 class="center">Your coinpurse:<br />';
+		html += '<h3 class="center">Your Money:<br />';
 		const money = myPlayer.getMoney();
 		if( !money )
 			html += 'Broke';
 		else{
-			const coins = Player.calculateMoneyExhange(money);
-			for( let i in coins ){
-				const amt = coins[i];
+			for( let i in Player.currencyWeights ){
+				let asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
+				if( !asset )
+					continue;
+				const amt = parseInt(asset._stacks);
 				if( amt ){
 					html += '<span style="color:'+Player.currencyColors[i]+';"><b>'+amt+'</b>'+Player.currencyWeights[i]+"</span> ";
 				}
 			}
 		}
+		html += '<br /><br /><input type="button" name="exchange" value="Exchange" />';
 		html += '</h3>';
 
 		html += '<div class="shop inventory flexTwoColumns">';
 			html += '<div class="left full">';
 				html += '<h2>Sell</h2>';
-				html += '<div class="assets">';
+				html += '<div class="assets sell">';
 				const assets = myPlayer.assets;
 				for( let asset of assets ){
-					if( asset.isSellable() )
-						html += this.getGenericAssetButton(asset, asset.getSellCost(shop));
+					if( asset.isSellable() ){
+						const a = asset.clone();
+						a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
+						html += this.getGenericAssetButton(a, a.getSellCost(shop));
+					}
 				}
 				html += '</div>';
 			html += '</div>';
 			html += '<div class="left">';
 				html += '<h2>Buy</h2>';
-				html += '<div class="assets">';
+				html += '<div class="assets buy">';
 				for( let item of shop.items ){
 					const cost = item.getCost();
 					if( !cost )
@@ -2550,6 +2569,11 @@ export default class UI{
 					const asset = item.getAsset();
 					if( !asset )
 						continue;
+					const remaining = item.getRemaining();
+					if( remaining === 0 )
+						continue;
+					asset.name = (remaining !== -1 ? '['+remaining+']' : '&infin;')+" "+asset.name;
+					asset.id = item.id;
 					html += this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : '');
 				}
 				html += '</div>';
@@ -2559,6 +2583,66 @@ export default class UI{
 		game.modal.set(html);
 
 		this.bindTooltips();
+
+		$("#modal input[name=exchange]").on('click', event => {
+			game.exchangePlayerMoney(myPlayer);
+		});
+		
+		$("#modal div.assets.sell div.item").on('click', event => {
+			const th = $(event.currentTarget),
+				id = th.attr('data-id');
+			const asset = myPlayer.getAssetById(id);
+			if( !asset )
+				return;
+			const maxQuant = asset.stacking ? asset._stacks : 1;
+			game.modal.makeSelectionBoxForm(
+				'Amount to SELL: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
+				function(){
+					const amount = Math.floor($("input:first", this).val());
+					if( !amount )
+						return;
+					game.sellAsset(shop.label, asset.id, amount, myPlayer.id);
+				},
+				false
+			);
+			
+		});
+		$("#modal div.assets.buy div.item").on('click', event => {
+			const th = $(event.currentTarget),
+				id = th.attr('data-id');
+			const item = shop.getItemById(id);
+			if( !item ){
+				return;
+			}
+			const asset = item.getAsset();
+			if( !asset )
+				return;
+			const cost = item.getCost();
+			const gold = myPlayer.getMoney();
+			if( cost > gold )
+				return;
+			let maxQuant = Math.floor(gold/cost);
+			if( maxQuant > item.getRemaining() )
+				maxQuant = item.getRemaining();
+			game.modal.makeSelectionBoxForm(
+				'Amount to BUY: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
+				function(){
+					const amount = Math.floor($("input:first", this).val());
+					if( !amount )
+						return;
+					game.buyAsset(shop.label, item.id, amount, myPlayer.id);
+				},
+				false
+			);
+		});
+		
+		game.modal.onShopChange(shop.id, () => {
+			this.drawShopInspector(shop);
+		});
+		game.modal.onPlayerChange(myPlayer.id, () => {
+			console.log("Bound changes", myPlayer.id);
+			this.drawShopInspector(shop);
+		});
 
 	}
 

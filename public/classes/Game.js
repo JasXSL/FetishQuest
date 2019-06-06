@@ -15,6 +15,7 @@ import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
 import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
+import Shop from './Shop.js';
 
 export default class Game extends Generic{
 
@@ -1830,6 +1831,184 @@ export default class Game extends Generic{
 
 	}
 
+	// Returns Shop objects attached to an NPC
+	// Doesn't do any filtering, so remember to check shopAvailableTo
+	getShopsByPlayer( player ){
+		const encounter = this.encounter;
+		const shops = encounter.getShops();
+		if( !player )
+			return;
+		const out = [];
+		for( let shopAction of shops ){
+			const shop = shopAction.getDataAsShop();
+			if( !shop )
+				continue;
+			if( shop.player === player.label ){
+				out.push(shop);
+			}
+		}
+		return out;
+	}
+
+	// Checks if a shop object is available to a player
+	shopAvailableTo( shop, player ){
+		if( !(shop instanceof Shop) ){
+			console.error("Shop is not a shop", shop);
+			return false;
+		}
+		if( !(player instanceof Player) ){
+			console.error("Player is not a player", player);
+			return false;
+		}
+		if( !shop.isAvailable(player) ){
+			console.error("Shop is not available to player", shop, player);
+			return false;
+		}
+		const vendor = this.getPlayerByLabel(shop.player);
+		if( !vendor && shop.player ){
+			console.error("Vendor", shop.player, "not in cell");
+			return false;
+		}
+		return true;
+	}
+
+	// todo
+	sellAsset(shop, asset, amount, player){
+
+		// Todo: netcode has to go on top
+
+
+		if( !(shop instanceof Shop) )
+			shop = glib.get(shop, 'Shop');
+		if( typeof player !== "object" )
+		player = this.getPlayerById(player);
+
+		if( !player ){
+			this.modal.addError("Player missing");
+			return;
+		}
+
+		if( typeof asset === "object" )
+			asset = asset.id;
+		asset = player.getAssetById(asset);
+		amount = parseInt(amount);
+		const maxAmount = asset && asset.stacking ? asset._stacks : 1;
+
+		if( !shop ){
+			this.modal.addError("Shop not found");
+			return;
+		}
+		if( !asset ){
+			this.modal.addError("Asset not found on player");
+			return;
+		}
+		if( amount > maxAmount ){
+			this.modal.addError("Asset not found on player");
+			return;
+		}
+		if( isNaN(amount) || amount < 1 ){
+			this.modal.addError("Invalid amount");
+			return;
+		}
+		if( !this.shopAvailableTo(shop, player) ){
+			this.modal.addError("Shop is not available");
+			return;
+		}
+		
+		// All done
+		const earning = asset.getSellCost(shop)*amount;
+		player.destroyAsset(asset.id, amount);
+		player.addCopperAsMoney(earning);
+		this.save();
+		
+	}
+	// Shop is a label, asset is an ID of an item in shop, amount is nr items to buy, player is the buying player
+	buyAsset(shop, asset, amount, player){
+
+		// Todo: netcode has to go on top
+
+
+		// Shop must always be from the library in order to work
+		if( !(shop instanceof Shop) )
+			shop = glib.get(shop, 'Shop');
+		if( !shop ){
+			this.modal.addError("Shop not found");
+			return;
+		}
+		shop.loadState(this.state_shops[shop.label]);
+
+		if( typeof asset === "object" )
+			asset = asset.id;
+		asset = shop.getItemById(asset);
+		if( typeof player !== "object" )
+			player = this.getPlayerById(player);
+		amount = parseInt(amount);
+		
+
+		if( !asset ){
+			this.modal.addError("Asset not found in shop");
+			return;
+		}
+		if( isNaN(amount) || amount < 1 ){
+			this.modal.addError("Invalid amount");
+			return;
+		}
+		if( !player ){
+			this.modal.addError("Player missing");
+			return;
+		}
+		if( !this.shopAvailableTo(shop, player) ){
+			this.modal.addError("Shop is not available");
+			return;
+		}
+		if( !asset.isAvailable(player) ){
+			this.modal.addError("Asset is not available");
+			return;
+		}
+		const remaining = asset.getRemaining();
+		if( ~remaining && remaining < amount ){
+			this.modal.addError("Amount not available");
+			return;
+		}
+
+		const cost = asset.getCost()*amount,
+			wallet = player.getMoney(),
+			a = asset.getAsset()
+		;
+		if( wallet < cost ){
+			this.modal.addError("Insufficient funds");
+			return;
+		}
+		if( !a ){
+			this.modal.addError("Asset missing from DB");
+			return;
+		}
+
+		// Everything should be good to go
+		a.g_resetID();
+		
+		player.consumeMoney(cost);
+		player.addAsset(a, amount);
+		asset.onPurchase(amount);
+		this.saveShopState(shop);
+		this.save();
+		this.ui.draw();
+		
+	}
+
+	exchangePlayerMoney(myPlayer){
+		// Todo: netcode
+		if( !(myPlayer instanceof Player) )
+			myPlayer = this.getPlayerById(myPlayer);
+		if( !myPlayer )
+			return;
+		myPlayer.exchangeMoney();
+		this.save();
+	}
+
+	saveShopState(shop){
+		this.state_shops.set(shop.label, shop.saveState());
+	}
 	
 
 
