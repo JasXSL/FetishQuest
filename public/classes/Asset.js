@@ -464,7 +464,8 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		weight : template.weight*weightModifier,
 		durability_bonus : Math.round(template.durability_bonus*durabilityModifier*template.slots.length),
 		description : template.description,
-		rarity : rarity
+		rarity : rarity,
+		basevalue : level*2+template.slots.length*10+(50*Math.pow(3,rarity))+Math.round(template.weight*weightModifier/100)
 	});
 
 

@@ -1,7 +1,7 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Player editor needs states
+	- Player editor needs armor states
 
 Medium rare:
 
@@ -9,12 +9,7 @@ Medium rare:
 Big chungi:
 	- Shop
 		- Netcode (todo exists)
-		x Play sound when buying
-		x Play sound when exchanging
-		x Play sound when entering store
-		x Play sound when selling
-		x Loot sound when buying
-	
+
 
 Food for thought
 	- Fast travel system
