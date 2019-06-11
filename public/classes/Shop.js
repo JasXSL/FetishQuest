@@ -174,7 +174,7 @@ export class ShopAsset extends Generic{
 			this._amount_bought = data._amount_bought;
 		if( data._time_bought )
 			this._time_bought = data._time_bought;
-		if( game.time-this._time_bought > this.restock_rate ){
+		if( game.time-this._time_bought > this.restock_rate && this.restock_rate > 0 ){
 			this._time_bought = 0;
 			this._amount_bought = 0;
 			game.saveShopState(this.parent);

@@ -850,8 +850,8 @@ export default class Player extends Generic{
 	/* Assets */
 	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
 	addAsset( asset, amount = 1, fromStacks = false ){
-		if( !asset ){
-			console.error("Invalid asset add", asset);
+		if( !(asset instanceof Asset) ){
+			console.error("Trying to add non-asset. Did you mean to use addLibraryAsset?");
 			return false;
 		}
 		asset.equipped = false;

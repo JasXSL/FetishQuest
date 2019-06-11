@@ -1,7 +1,6 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Player editor needs armor states
 
 Medium rare:
 
