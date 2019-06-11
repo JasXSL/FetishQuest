@@ -107,6 +107,20 @@ const lib = {
 		]
 	},
 
+	yuug_portswood_merchant : {
+		name : "Merchant",
+		species : "Foyash",
+		description : "A fox who sells merchandise to weary travelers going between Yuug City and Port.",
+		icon : "",
+		team : 1,
+		size : 4,
+		leveled : true,
+		sadistic : 0.1,
+		dominant : 0.4,
+		hetero : 0.3,
+		intelligence : 0.6,
+	},
+
 	Ixsplat : {
 		name : "Ixsplat",
 		species : "imp",

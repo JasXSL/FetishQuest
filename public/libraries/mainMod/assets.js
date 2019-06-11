@@ -432,6 +432,32 @@ const lib = {
 		loot_sound : "lootLeather",
 	},
 
+	yuug_portswood_silk_thong: {
+		name : "Silk Thong",
+		category : Asset.Categories.armor,
+		basevalue : 600,
+		icon : 'underwear',
+		slots : [Asset.Slots.lowerbody],
+		equipped : false,
+		tags : [stdTag.asThong,stdTag.asWaistband,stdTag.asCloth,stdTag.asStretchy,stdTag.asSilk],
+		wrappers : [{
+			effects : [
+				{type : Effect.Types.intellectModifier,data : {amount:1}},
+				{type : Effect.Types.staminaModifier,data : {amount:1}},
+				{type : Effect.Types.bonCorruption,data : {amount:1}},
+			],
+			duration : -1
+		}],
+		description : "A thong made of red silk. Semi-transparent.\n+1 Int, +1 Sta, +1 Pro.Corruption\nMASTERCRAFTED",
+		level : -1,
+		durability_bonus : 2,
+		durability : 12,
+		weight : 30,
+		rarity : 2,
+		loot_sound : "lootCloth",
+	},
+	
+
 	groperVine : {
 		name : "Groper Vine",
 		basevalue : 30,

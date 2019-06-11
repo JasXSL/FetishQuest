@@ -440,6 +440,8 @@ export default class GameAction extends Generic{
 			else if( amount < 0 )
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
 		}
+		else if( this.type === types.shop )
+			return;
 
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);

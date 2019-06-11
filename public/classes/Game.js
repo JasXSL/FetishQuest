@@ -1743,6 +1743,7 @@ export default class Game extends Generic{
 			const rp = ga.getDataAsRoleplay();
 			if( !rp )
 				continue;
+			rp.loadState();
 			const pl = rp.getPlayer();
 			if( pl.id === player.id && !rp.completed && rp.validate(game.getMyActivePlayer()) )
 				out.push(rp);

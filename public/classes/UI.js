@@ -2642,7 +2642,6 @@ export default class UI{
 			this.drawShopInspector(shop);
 		});
 		game.modal.onPlayerChange(myPlayer.id, () => {
-			console.log("Bound changes", myPlayer.id);
 			this.drawShopInspector(shop);
 		});
 
@@ -2715,7 +2714,11 @@ export default class UI{
 						'<div class="flexTwoColumns">'+
 							'<div>Size:<br /><input type="range" name="size" value="'+(+player.size)+'" min=0 max=10 step=1 /></div>'+
 						'</div>'+
-						'Image:<br /><input type="text" name="icon" placeholder="Image URL" value="'+esc(player.icon)+'" /><br />'+
+						'Image Dressed:<br /><input type="text" name="icon" placeholder="Image URL" value="'+esc(player.icon)+'" /><br />'+
+						'Image Upperbody:<br /><input type="text" name="icon_upperbody" placeholder="Image URL" value="'+esc(player.icon_upperbody)+'" /><br />'+
+						'Image Lowerbody:<br /><input type="text" name="icon_lowerbody" placeholder="Image URL" value="'+esc(player.icon_lowerbody)+'" /><br />'+
+						'Image Naked:<br /><input type="text" name="icon_nude" placeholder="Image URL" value="'+esc(player.icon_nude)+'" /><br />'+
+
 						'<div class="flexThreeColumns">'+
 							'<div>HP<br /><input type="number" name="hp" placeholder="HP" min=0 step=1 value='+(+player.hp)+' /></div>'+
 							'<div>AP<br /><input type="number" name="ap" placeholder="AP" min=0 step=1 value='+(+player.ap)+' /></div>'+
@@ -2796,6 +2799,9 @@ export default class UI{
 			player.species = $("#modal input[name=species]").val().trim();
 			player.description = $("#modal textarea[name=description]").val().trim();
 			player.icon = $("#modal input[name=icon]").val().trim();
+			player.icon_upperbody = $("#modal input[name=icon_upperbody]").val().trim();
+			player.icon_lowerbody = $("#modal input[name=icon_lowerbody]").val().trim();
+			player.icon_nude = $("#modal input[name=icon_nude]").val().trim();
 			player.hp = +$("#modal input[name=hp]").val();
 			player.ap = +$("#modal input[name=ap]").val();
 			player.mp = +$("#modal input[name=mp]").val();
@@ -3176,8 +3182,6 @@ export default class UI{
 		if( !roleplay.completed && stage ){
 			
 			const portrait = stage.getPortrait();
-			console.log(stage);
-			console.log("Portrait", portrait, !portrait);
 			$("div.portrait", div).css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none');
 			$('> div.left', div).toggleClass('hidden', !portrait);
 			const name = stage.getName();

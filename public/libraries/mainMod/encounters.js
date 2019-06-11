@@ -164,7 +164,7 @@ const lib = {
 		game_actions : [{
 			type : GameAction.types.roleplay,
 			data : {rp:{
-				id: 'yuug_portmaster_intro',
+				label: 'yuug_portmaster_intro',
 				stages : [
 					{
 						index: 0,
@@ -180,6 +180,44 @@ const lib = {
 		}]
 	},
 
+	yuug_portswood_caravan_npcs : {
+		players: ["yuug_portswood_merchant"],
+		friendly : true,
+		game_actions : [
+			// RP intro
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'yuug_portswood_merchant',
+					stages : [
+						{
+							index: 0,
+							text: 'Greetings brave traveler! Come see Foyash for the best deals around, yes!',
+							options : [
+								{text:'What kind of deals?', index:1},
+								{text:'Ok', index:-1},
+							],
+						},
+						{
+							index: 1,
+							text: 'Foyash sells potions and drinks for thirsty travelers. We also have this luxurious silk thong! It will surely look splendid on you! Yes yes!',
+							options : [
+								{text:'I\'ll keep that in mind', index:-1},
+							],
+						}
+					],
+					persistent : true,
+					once : true,
+					player : 'yuug_portswood_merchant'
+				}}
+			},
+			// Shop
+			{
+				type : GameAction.types.shop,
+				data : {shop:'yuug_portswood_merchant'},
+			}
+		]
+	},
 
 	yuug_portswood_goblin : {
 		players: ["Slurt"],
@@ -413,6 +451,7 @@ const lib = {
 				type : GameAction.types.roleplay,
 				data : {rp:{
 					id: 'mq00_boss',
+					label: 'mq00_boss',
 					player : 'MQ00_Boss',
 					portrait : '/media/characters/li_zurd_portrait.jpg',
 					persistent : true,

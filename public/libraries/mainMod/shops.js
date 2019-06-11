@@ -14,10 +14,13 @@ const lib = {
 
 	yuug_portswood_merchant : {
 		name : 'Midway Caravan',
-		player : 'Slurt',
+		player : 'yuug_portswood_merchant',
 		conditions : [],
 		items : [
-			{id:"manaPotion", asset:'manaPotion', amount:3}
+			{id:"manaPotion", asset:'manaPotion', amount:4},
+			{id:"minorHealingPotion", asset:'minorHealingPotion', amount:2},
+			{id:"ale", asset:'food_Ale', amount:3},
+			{id:"yuug_portswood_silk_thong", asset:'yuug_portswood_silk_thong', amount:1, restock_rate:0},
 		]
 	}
 }; 
