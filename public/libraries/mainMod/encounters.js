@@ -61,7 +61,7 @@ const lib = {
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
-					id : 'mq00_intro',
+					label : 'mq00_intro',
 					stages: [
 						{
 							index: 0,
@@ -114,7 +114,7 @@ const lib = {
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
-					id : 'mq00_finish',
+					label : 'mq00_finish',
 					player : 'yuug_port_barkeep',
 					persistent : true,
 					stages: [
@@ -149,6 +149,11 @@ const lib = {
 						{type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}, inverse:true, targnr:0},
 					]
 				}}
+			},
+			// Shop
+			{
+				type : GameAction.types.shop,
+				data : {shop:'yuug_port_tavern'},
 			}
 		]
 	},
@@ -409,6 +414,7 @@ const lib = {
 				data : {rp:{
 					id: 'mq00_boss',
 					player : 'MQ00_Boss',
+					portrait : '/media/characters/li_zurd_portrait.jpg',
 					persistent : true,
 					stages: [
 						{

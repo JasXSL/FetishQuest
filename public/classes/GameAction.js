@@ -431,6 +431,9 @@ export default class GameAction extends Generic{
 				console.error("Asset not found", this.data.asset);
 				return;
 			}
+			
+			asset.restore();
+
 			const amount = isNaN(parseInt(this.data.amount)) ? 1 : parseInt(this.data.amount);
 			if( amount > 0 )
 				pl.addAsset( asset, amount );

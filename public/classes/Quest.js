@@ -164,8 +164,9 @@ class Quest extends Generic{
 				--remainder;
 			}
 			const cl = asset.clone();
-			asset.g_resetID();
-			asset._stacks = n;
+			cl.g_resetID();
+			cl.restore();
+			cl._stacks = n;
 			this.addRewardToPlayer(asset, player);
 		}
 	}

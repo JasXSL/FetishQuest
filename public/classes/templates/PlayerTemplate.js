@@ -136,6 +136,7 @@ class PlayerTemplate extends Generic{
 			let item = libAssets[asset];
 			if( !item )
 				continue;
+			item.restore();
 			player.addAsset(item);
 			item.equipped = true;
 		}
@@ -151,7 +152,7 @@ class PlayerTemplate extends Generic{
 				if( player.getEquippedAssetsBySlots(asset.slots).length )
 					continue;
 
-				
+				asset.restore();
 				asset.randomizeDurability();
 				player.addAsset(asset);
 				player.equipAsset(asset.id);
@@ -169,6 +170,7 @@ class PlayerTemplate extends Generic{
 				if( libAssets[template] ){
 
 					let asset = libAssets[template];
+					asset.restore();
 					player.addAsset(asset);
 					player.equipAsset(asset.id);
 
@@ -185,6 +187,7 @@ class PlayerTemplate extends Generic{
 			
 			let item = Asset.getRandomByRarity(items);
 			if( item ){
+				item.restore();
 				player.addAsset(item);
 				player.equipAsset(item.id);
 			}

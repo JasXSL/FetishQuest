@@ -58,6 +58,8 @@ export default {
 	acSelfHeal : 'ac_self_heal',				// Heals yourself
 	acTaunt : 'ac_taunt',						// This is a taunt
 	acFood : 'ac_food',							// 
+	acManaDamage : 'ac_mana_damage',
+	acDrink : 'ac_drink',
 
 	// Common asset tags. These are appended with _<slot> ex as_tight_upperbody
 	asUpperbody : 'as_upperbody',	// slots like these are automatically added while you're wearing items in those slots

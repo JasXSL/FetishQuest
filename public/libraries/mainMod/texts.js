@@ -2612,6 +2612,15 @@ const lib = [
 		conditions : baseCond.concat("action_food_razzyberry"),
 		hitfx : ["razzyberry"]
 	},
+	{ text : "%S eats some fried fish.",
+		conditions : baseCond.concat("action_food_fried_fish"),
+		hitfx : ["eat_generic"]
+	},
+	{ text : "%S chugs a pint of ale.",
+		conditions : baseCond.concat("action_food_ale"),
+		hitfx : ["drink_generic"]
+	},
+
 	
 ];
 

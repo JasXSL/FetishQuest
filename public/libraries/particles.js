@@ -1197,6 +1197,55 @@ particles.hitfx_splat_sparks = {
 	]
 };
 
+particles.hitfx_crumbs = {
+	texture: {
+		value: textures.splat,
+	},
+	blending : THREE.NormalBlending,
+	maxParticleCount : 30,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 0.4
+			},
+			position: {
+				value: new THREE.Vector3(0, 0, 0),
+				spread: new THREE.Vector3( 10, 10, 10 ),
+			},
+			velocity : {
+				value: new THREE.Vector3(10, 10, 10),
+				spread: new THREE.Vector3(100, 100, 100),
+				randomise : true,
+			},
+			acceleration : {
+				value: new THREE.Vector3(0, -100, 0),
+			},
+			wiggle : {
+				spread : 10
+			},
+			color : {
+				value : [
+					new THREE.Color(0x553300),
+					new THREE.Color(0x553300),
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [10, 1],
+				randomise : true
+			},
+			angle : {
+				value : 0,
+				spread : Math.PI
+			},
+			particleCount: 30
+		}
+	]
+};
+
 
 
 particles.hitfx_splat_red = {

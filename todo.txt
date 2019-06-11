@@ -1,17 +1,19 @@
 Needed other:
 Smol:	
 	- Punishments
+	- Player editor needs states
 
 Medium rare:
 
 
 Big chungi:
 	- Shop
-		- Hook up shop load and save states
 		- Netcode (todo exists)
-		- Play sound when buying
-		- Play sound when exchanging
-
+		x Play sound when buying
+		x Play sound when exchanging
+		x Play sound when entering store
+		x Play sound when selling
+		x Loot sound when buying
 	
 
 Food for thought

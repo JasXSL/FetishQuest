@@ -41,6 +41,7 @@ export default class Asset extends Generic{
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
+		this._charges = 0;
 		this.load(data);
 
 	}
@@ -73,6 +74,7 @@ export default class Asset extends Generic{
 			stacking : this.stacking,
 			basevalue : this.basevalue,
 			_stacks : this._stacks,
+			_charges : this._charges,
 		};
 
 		if( full ){
@@ -102,6 +104,10 @@ export default class Asset extends Generic{
 		let out = new this.constructor(this.save(true), parent);
 		return out;
 
+	}
+
+	getName(){
+		return this.name;
 	}
 
 	// Makes sure targets are setup properly for wrappers
@@ -146,7 +152,7 @@ export default class Asset extends Generic{
 
 	// Checks only if this is a consumable item
 	isConsumable(){
-		return this.charges !== 0 && !!this.use_action;
+		return this._charges !== 0 && Boolean(this.use_action);
 	}
 
 	isUsable(){
@@ -160,12 +166,20 @@ export default class Asset extends Generic{
 		return Math.floor(this.basevalue/2);
 	}
 
+	resetCharges(){
+		this._charges = this.charges;
+	}
+
 	consumeCharges( charges=1 ){
 
 		if( this.charges != -1 ){
-			this.charges -= charges;
-			if( !this.charges )
-				this.parent.destroyAsset(this.id);
+			for( let i =0; i<charges; ++i ){
+				--this._charges;
+				if( !this._charges ){
+					this.parent.destroyAsset(this.id, 1);
+					this.resetCharges();
+				}
+			}
 		}
 
 	}
@@ -235,6 +249,12 @@ export default class Asset extends Generic{
 		
 	}
 
+	// Use whenever you're fetching an item from the library
+	restore(){
+		this.resetCharges();
+		this.repair();
+	}
+
 	// Repairs the object. If points is a NaN value, it restores ALL durability points
 	// Returns the amount of points gained
 	repair( points ){
@@ -250,7 +270,7 @@ export default class Asset extends Generic{
 		if( this.durability > this.getMaxDurability() )
 			this.durability = this.getMaxDurability();
 
-		if( (pre === 0) != (this.durability !== 0) && this.parent)
+		if( (pre === 0) != (this.durability !== 0) && this.parent && this.parent.onItemChange )
 			this.parent.onItemChange();
 
 		return this.durability-pre;

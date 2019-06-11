@@ -1420,6 +1420,7 @@ class DungeonRoomAsset extends Generic{
 			return;
 		}
 		asset.equipped = false;		// Make sure it's not equipped
+		asset.restore();
 		if( player.addAsset(asset) )
 			this.remLootById(id);
 

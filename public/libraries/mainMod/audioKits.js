@@ -769,6 +769,24 @@ const lib = {
             }
         ],
     },
+
+    buy_item : {
+        sounds : [{
+            s : {path: "media/audio/buy.ogg", volume: 0.4},
+        }],
+    },
+    exchange : {
+        sounds : [{
+            s : {path: "media/audio/sell.ogg", volume: 0.4},
+        }],
+    },
+    sell_item : {
+        sounds : [{
+            s : {path: "media/audio/exchange.ogg", volume: 0.4},
+        }],
+    },
+
+
     berryGrab : {
         sounds : [
             {
@@ -790,6 +808,22 @@ const lib = {
             }
         ],
         
+    },
+
+    drink_generic : {
+        sounds : [{
+            s : {path : "media/audio/drink_generic.ogg",volume : 0.4}
+        }],
+    },
+    eat_generic : {
+        sounds : [{
+            s : {path : "media/audio/eat_generic.ogg",volume : 0.4}
+        }],
+    },
+    food_pickup : {
+        sounds : [{
+            s : {path : "media/audio/food_pickup.ogg",volume : 0.4}
+        }],
     },
     
 };

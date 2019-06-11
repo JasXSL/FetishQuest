@@ -896,6 +896,7 @@ export default class Player extends Generic{
 			return false;
 		}
 		asset.repair();
+		asset.resetCharges();
 		return this.addAsset(asset, amount);
 
 	}

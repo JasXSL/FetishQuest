@@ -27,7 +27,7 @@ const lib = {
 			}
 		],
 		rewards : [
-			{label:Asset.Dummies.label, name:'gold', _stacks:2},		// polymorph into a gold library object with 2 stacks
+			{label:Asset.Dummies.label, name:'gold', _stacks:1},		// polymorph into a gold library object with 2 stacks
 			'whiteSwimtrunks',
 		],
 		multiply_reward : true,

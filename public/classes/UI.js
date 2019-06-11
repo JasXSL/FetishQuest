@@ -313,7 +313,7 @@ export default class UI{
 			html += '<img src="media/wrapper_icons/'+esc(action.getIcon())+'.svg" />';
 
 			// This action is tied to an asset
-			if( action.isAssetAction() && action.parent.charges > 0 ){
+			if( action.isAssetAction() && action.parent._charges > 0 ){
 				html += '<div class="uses">'+existing[action.label]+'</div>';
 			}
 			else if( action._charges > 1 ){
@@ -831,7 +831,9 @@ export default class UI{
 		const showShop = shops.length;
 		$("div.interaction[data-type=shop]", el).toggleClass("hidden", !showShop).off('click').on('click', event => {
 			event.stopImmediatePropagation();
-			this.drawShopInspector(shops[0]);
+			if(this.drawShopInspector(shops[0])){
+				game.uiAudio( "shop_entered" );
+			}
 		});
 		
 
@@ -2625,7 +2627,7 @@ export default class UI{
 			if( maxQuant > item.getRemaining() )
 				maxQuant = item.getRemaining();
 			game.modal.makeSelectionBoxForm(
-				'Amount to BUY: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
+				'Amount to BUY: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value=1 /><input type="submit" value="Ok" />',
 				function(){
 					const amount = Math.floor($("input:first", this).val());
 					if( !amount )
@@ -2644,6 +2646,7 @@ export default class UI{
 			this.drawShopInspector(shop);
 		});
 
+		return true;
 	}
 
 
@@ -3172,8 +3175,11 @@ export default class UI{
 		const player = game.getMyActivePlayer();
 		if( !roleplay.completed && stage ){
 			
-			$("div.portrait", div).html(stage.icon ? '<img src="media/characters/'+esc(stage.icon)+'.png"' : '');
-			$('> div.left', div).toggleClass('hidden', !stage.icon);
+			const portrait = stage.getPortrait();
+			console.log(stage);
+			console.log("Portrait", portrait, !portrait);
+			$("div.portrait", div).css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none');
+			$('> div.left', div).toggleClass('hidden', !portrait);
 			const name = stage.getName();
 			let html = '';
 			if( name )

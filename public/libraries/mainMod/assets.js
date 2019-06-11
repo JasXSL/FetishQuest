@@ -206,7 +206,7 @@ const lib = {
 	minorHealingPotion : {
 		category : Asset.Categories.consumable,
 		name : "Minor Healing Potion",
-		basevalue : 80,
+		basevalue : 180,
 		weight : 500,
 		charges : 1,
 		use_action : "minorHealingPotion",
@@ -217,11 +217,11 @@ const lib = {
 		ranged : Action.Range.None,
 	},
 	healingPotion : {
-		basevalue : 280,
+		basevalue : 500,
 		ranged : Action.Range.None,
 		category : Asset.Categories.consumable,
 		name : "Healing Potion",
-		weight : 500,
+		weight : 300,
 		charges : 1,
 		use_action : "healingPotion",
 		rarity : 1,
@@ -232,7 +232,7 @@ const lib = {
 	majorHealingPotion : {
 		category : Asset.Categories.consumable,
 		name : "Major Healing Potion",
-		basevalue : 700,
+		basevalue : 1000,
 		weight : 500,
 		charges : 1,
 		use_action : "majorHealingPotion",
@@ -245,7 +245,7 @@ const lib = {
 	manaPotion : {
 		category : Asset.Categories.consumable,
 		name :"Mana Potion",
-		basevalue : 50,
+		basevalue : 100,
 		weight : 500,
 		charges : 1,
 		use_action : "manaPotion",
@@ -256,7 +256,7 @@ const lib = {
 		ranged : Action.Range.None,
 	},
 	majorManaPotion : {
-		basevalue : 100,
+		basevalue : 200,
 		category : Asset.Categories.consumable,
 		name : "Major Mana Potion",
 		weight : 500,
@@ -281,6 +281,36 @@ const lib = {
 		rarity : 0,
 		loot_sound : "berryGrab",
 		icon : 'grapes',
+		ranged : Action.Range.None,
+	},
+
+	food_FriedFish : {
+		category : Asset.Categories.food,
+		name : 'Fried Fish',
+		description : 'A port speciality.\nRestores 25 HP and 5 MP. Only usable out of combat.',
+		stacking : false,
+		basevalue : 120,
+		weight : 200,
+		charges : 1,
+		use_action : "foodFriedFish",		// name not needed for use_action ones. it uses UA instead
+		rarity : 1,
+		loot_sound : "food_pickup",
+		icon : 'fried-fish',
+		ranged : Action.Range.None,
+	},
+
+	food_Ale : {
+		category : Asset.Categories.food,
+		name : 'Ale',
+		description : 'A pint of ale from the Yuug breweries.\nRestores 10 HP but removes 2 MP.',
+		stacking : false,
+		basevalue : 35,
+		weight : 400,
+		charges : 1,
+		use_action : "foodAle",		// name not needed for use_action ones. it uses UA instead
+		rarity : 1,
+		loot_sound : "lootPotion",
+		icon : 'beer-stein',
 		ranged : Action.Range.None,
 	},
 

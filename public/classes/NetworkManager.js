@@ -530,20 +530,57 @@ class NetworkManager{
 			// {player:(str)owner_id, item:(str)assetID}
 			if( !args.player || !args.item )
 				return;
-
-			game.deletePlayerItem( game.getPlayerById(args.player), args.item, args.amount );
+			let player = validatePlayer();
+			if( !player )
+				return;
+			game.deletePlayerItem( player, args.item, args.amount );
 
 			
 		}
 		else if( task === PT.tradeAsset ){
 
-			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID}
-			if( !args.from || !args.item || !args.to )
+			// {player:(str)sender_id, to:(str)sender_id, item:(str)assetID}
+			if( !args.player || !args.item || !args.to )
 				return;
-			game.tradePlayerItem( game.getPlayerById(args.from), game.getPlayerById(args.to), args.item, args.amount );
+			let player = validatePlayer();
+			if( !player )
+				return;
+			game.tradePlayerItem( player, game.getPlayerById(args.to), args.item, args.amount );
 
 		}
-		
+
+		else if( task === PT.buyItem ){
+
+			// {player:(str)sender_id, shop:(str)shop_id, item:(str)shopitem_id, amount:(int)amount}
+			if( !args.player || !args.shop || !args.item || !args.amount || isNaN(amount) )
+				return;
+			let player = validatePlayer();
+			if( !player )
+				return;
+
+			console.log("Todo: buy item netcode");
+
+		}
+
+		else if( task === PT.sellItem ){
+
+			// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
+			if( !args.player || !args.shop || !args.asset || !args.amount || isNaN(amount) )
+				return;
+			let player = validatePlayer();
+			if( !player )
+				return;
+
+			console.log("Todo: Sell item netcode");
+
+		}
+
+		else if( task === PT.exchangeGold ){
+			let player = validatePlayer();
+			if( !player )
+				return;
+			console.log("Todo: Exchange gold netcode");
+		}
 
 
 	}
@@ -817,7 +854,7 @@ class NetworkManager{
 	}
 	playerTradeAsset( fromPlayer, targetPlayer, asset, amount ){
 		this.sendPlayerAction(NetworkManager.playerTasks.tradeAsset, {
-			from : fromPlayer.id,
+			player : fromPlayer.id,
 			to : targetPlayer.id,
 			item : asset.id,
 			amount : amount
@@ -837,8 +874,28 @@ class NetworkManager{
 		});
 	}
 	
+	playerBuyItem(shop, item, amount, player){
+		this.sendPlayerAction(NetworkManager.playerTasks.buyItem, {
+			item : item.id,
+			shop : shop.id,
+			amount : amount,
+			player : player.id,
+		});
+	}
+	playerSellItem(shop, asset, amount, player){
+		this.sendPlayerAction(NetworkManager.playerTasks.sellItem, {
+			asset : asset.id,
+			shop : shop.id,
+			amount : amount,
+			player : player.id,
+		});
+	}
 	
-	
+	playerExchangeGold(player){
+		this.sendPlayerAction(NetworkManager.playerTasks.exchangeGold, {
+			player : player.id,
+		});
+	}
 
 
 
@@ -1002,9 +1059,12 @@ NetworkManager.playerTasks = {
 	useRepairAsset : 'useRepairAsset',	// {player:casterUUID, target:(str)targetUUID, repairKit:(str)playerRepairAssetUUID, asset:(str)assetToRepairID}
 	getFullGame : 'getFullGame',		// void - Request the full game from host. Useful if there's packet loss or desync
 	deleteAsset : 'deleteAsset',		// {player:(str)owner_id, item:(str)assetID, amount:(int)stacks}
-	tradeAsset : 'tradeAsset',			// {from:(str)sender_id, to:(str)sender_id, item:(str)assetID, amount=all}
+	tradeAsset : 'tradeAsset',			// {player:(str)sender_id, to:(str)sender_id, item:(str)assetID, amount=all}
 	roleplayOption : 'roleplayOption',				// {player:playerUUID, option:(str)optionUUID}
 	roleplay : 'roleplay',				// {player:(str)sender_id, roleplay:(str)roleplay_id}
+	buyItem : 'buyItem',				// {player:(str)sender_id, shop:(str)shop_id, item:(str)shopitem_id, amount:(int)amount}
+	sellItem : 'sellItem',				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
+	exchangeGold : 'exchangeGold',		// {player:(str)sender_id}
 };
 
 export default NetworkManager;

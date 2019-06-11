@@ -1161,7 +1161,7 @@ export default class Game extends Generic{
 	}
 
 	// Trades a player item
-	tradePlayerItem( fromPlayer, toPlayer, id, amount ){
+	tradePlayerItem( fromPlayer, toPlayer, id, amount = 1 ){
 
 		if( typeof fromPlayer === 'string' )
 			fromPlayer = this.getPlayerById(fromPlayer);
@@ -1872,21 +1872,24 @@ export default class Game extends Generic{
 		return true;
 	}
 
-	// todo
 	sellAsset(shop, asset, amount, player){
-
-		// Todo: netcode has to go on top
-
 
 		if( !(shop instanceof Shop) )
 			shop = glib.get(shop, 'Shop');
 		if( typeof player !== "object" )
-		player = this.getPlayerById(player);
+			player = this.getPlayerById(player);
 
 		if( !player ){
 			this.modal.addError("Player missing");
 			return;
 		}
+
+		// Netcode
+		if( !this.is_host ){
+			this.net.playerSellItem(shop, asset, amount, player);
+			return;
+		}
+
 
 		if( typeof asset === "object" )
 			asset = asset.id;
@@ -1920,21 +1923,30 @@ export default class Game extends Generic{
 		player.destroyAsset(asset.id, amount);
 		player.addCopperAsMoney(earning);
 		this.save();
+
+		this.playFxAudioKitById("sell_item", player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+" sold "+amount+"x "+asset.getName(), "purchase", player.id, player.id, 'purchase');
 		
 	}
+
 	// Shop is a label, asset is an ID of an item in shop, amount is nr items to buy, player is the buying player
 	buyAsset(shop, asset, amount, player){
-
-		// Todo: netcode has to go on top
-
 
 		// Shop must always be from the library in order to work
 		if( !(shop instanceof Shop) )
 			shop = glib.get(shop, 'Shop');
+
 		if( !shop ){
 			this.modal.addError("Shop not found");
 			return;
 		}
+
+		// netcode
+		if( !this.is_host ){
+			this.net.playerBuyItem(shop, asset, amount, player);
+			return;
+		}
+
 		shop.loadState(this.state_shops[shop.label]);
 
 		if( typeof asset === "object" )
@@ -1986,22 +1998,36 @@ export default class Game extends Generic{
 
 		// Everything should be good to go
 		a.g_resetID();
-		
+		a.restore();
+
 		player.consumeMoney(cost);
 		player.addAsset(a, amount);
 		asset.onPurchase(amount);
 		this.saveShopState(shop);
 		this.save();
 		this.ui.draw();
+
+		this.playFxAudioKitById("buy_item", player, player, undefined, true);
+		if( a.loot_sound )
+			this.playFxAudioKitById(a.loot_sound, player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+" purchased "+amount+"x "+a.getName(), "purchase", player.id, player.id, 'purchase');
 		
 	}
 
 	exchangePlayerMoney(myPlayer){
-		// Todo: netcode
+
 		if( !(myPlayer instanceof Player) )
 			myPlayer = this.getPlayerById(myPlayer);
 		if( !myPlayer )
 			return;
+		
+		if( !this.is_host ){
+			this.net.playerExchangeGold(myPlayer);
+			return;
+		}
+		
+		this.ui.addText(myPlayer.getColoredName()+" exchanged their coins.", "purchase", myPlayer.id, myPlayer.id, 'purchase');
+		this.playFxAudioKitById("exchange", myPlayer, myPlayer, undefined, true);
 		myPlayer.exchangeMoney();
 		this.save();
 	}

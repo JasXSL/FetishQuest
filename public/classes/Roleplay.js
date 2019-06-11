@@ -18,6 +18,7 @@ export default class Roleplay extends Generic{
 		this.title = '';
 		this.stages = [];			// Roleplay stages
 		this.player = '';
+		this.portrait = '';
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
 		
@@ -59,6 +60,7 @@ export default class Roleplay extends Generic{
 			player : this.player,
 			conditions : Condition.saveThese(this.conditions),
 			once : this.once,
+			portrait : this.portrait,
 		};
 
 		if( full !== "mod" ){
@@ -84,7 +86,7 @@ export default class Roleplay extends Generic{
 
 		if( this.hasGameParent() ){
 			this.loadState();
-		}		
+		}	
 	}
 
 	// This is false if the roleplay is in the library
@@ -229,7 +231,7 @@ export class RoleplayStage extends Generic{
 		this.parent = parent;
 		
 		this.index = 0;
-		this.icon = '';
+		this.portrait = '';
 		this.name = '';
 		this.text = '';
 		this.options = [];
@@ -251,7 +253,7 @@ export class RoleplayStage extends Generic{
 			id : this.id,
 			label : this.label,
 			index : this.index,
-			icon : this.icon,
+			portrait : this.portrait,
 			name : this.name,
 			text: this.text,
 			options : RoleplayStageOption.saveThese(this.options, full),
@@ -279,7 +281,6 @@ export class RoleplayStage extends Generic{
 		}
 
 		this.options = RoleplayStageOption.loadThese(this.options, this);
-		
 
 	}
 
@@ -302,6 +303,12 @@ export class RoleplayStage extends Generic{
 
 		return this.parent.getPlayer();
 
+	}
+
+	getPortrait(){
+		if( this.portrait )
+			return this.portrait;
+		return this.parent.portrait;
 	}
 
 	getName(){

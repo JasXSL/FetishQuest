@@ -560,7 +560,7 @@ const lib = {
 
 	// Cleric
 	cleric_smite: {
-		level: 1,
+		level: 2,
 		name : "Smite",
 		icon : 'fission',
 		description : "Smites your opponent for 4 holy damage, increased by 10% per corruption damage your target dealt last turn, up to 15 damage.",
@@ -593,7 +593,7 @@ const lib = {
 		]
 	},
 	cleric_chastise: {
-		level: 2,
+		level: 3,
 		name : "Chastise",
 		icon : 'crossed-chains',
 		description : "Chastises up to 2 targets, dealing 3 holy damage every time they use a damaging action until the end of their next turn and reducing all their damage done by 1.",
@@ -642,7 +642,7 @@ const lib = {
 		]
 	},
 	cleric_heal: {
-		level: 3,
+		level: 1,
 		name : "Heal",
 		icon : 'healing',
 		ranged : Action.Range.Ranged,
@@ -783,7 +783,7 @@ const lib = {
 
 	// Warrior
 	warrior_revenge: {
-		level: 1,
+		level: 3,
 		name : "Revenge",
 		icon : 'shield-bash',
 		description : "Deals 2 damage to an opponent plus 2 for every damaging effect you were a victim of since your last turn.",
@@ -867,7 +867,7 @@ const lib = {
 		]
 	},
 	warrior_viceGrip: {
-		level: 3,
+		level: 1,
 		name : "Vice Grip",
 		icon : 'grab',
 		description : "Grabs up to two targets and squeezes, dealing 4 damage and preventing them from attacking any other targets for 1 turn, and ends your turn.",
@@ -2514,6 +2514,55 @@ const lib = {
 				effects : [
 					{type : Effect.Types.addMP,data : {amount: 2}},
 					{type : Effect.Types.damage,data : {amount: -2}},
+				]
+			}
+		]
+	},
+	foodFriedFish : {
+		name : "%P%",		// %P% = parent
+		description : "%P%",
+		icon : '%P%',
+		ap : 0,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
+			stdTag.acHeal,
+			stdTag.acManaHeal,
+			stdTag.acItem,
+			stdTag.acFood,
+		],
+		show_conditions : ["notInCombat"],
+		target_type: "self",
+		wrappers : [
+			{
+				effects : [
+					{type : Effect.Types.addMP,data : {amount: 5}},
+					{type : Effect.Types.damage,data : {amount: -25}},
+				]
+			}
+		]
+	},
+	foodAle : {
+		name : "%P%",		// %P% = parent
+		description : "%P%",
+		icon : '%P%',
+		ap : 0,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
+			stdTag.acHeal,
+			stdTag.acManaDamage,
+			stdTag.acItem,
+			stdTag.acFood,
+			stdTag.acDrink,
+		],
+		show_conditions : ["notInCombat"],
+		target_type: "self",
+		wrappers : [
+			{
+				effects : [
+					{type : Effect.Types.addMP,data : {amount: -2}},
+					{type : Effect.Types.damage,data : {amount: -10}},
 				]
 			}
 		]

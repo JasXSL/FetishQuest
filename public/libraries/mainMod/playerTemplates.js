@@ -204,7 +204,7 @@ const lib = {
 		max_level : 5,
 		primary_stats : {
 			"intellect":0,
-			"stamina":-6,
+			"stamina":-4,
 			"agility":1
 		},
 		sv : {
@@ -272,7 +272,7 @@ const lib = {
 		max_level : 10,
 		primary_stats : {
 			"intellect":2,
-			"stamina":-4,
+			"stamina":0,
 			"agility":1
 		},
 		sv : {
@@ -341,7 +341,7 @@ const lib = {
 		max_level : 15,
 		primary_stats : {
 			"intellect":4,
-			"stamina":0,
+			"stamina":2,
 			"agility":2
 		},
 		sv : {

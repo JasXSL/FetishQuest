@@ -1043,10 +1043,14 @@ div.fxBuffBlue{
 		font-size:2vmax;
 		cursor:default;
 		display:flex;
+		justify-content: space-between;
 	}
 
 	#roleplay > div.left{
-		width:10vmax;
+		width:20%;
+	}
+	#roleplay > div.right{
+		width:79%;
 	}
 	
 
@@ -1062,10 +1066,12 @@ div.fxBuffBlue{
 		-moz-user-select: none;
 	}
 
-	#roleplay div.portrait{
+	#roleplay div.portrait.bg{
 		position: absolute;
 		left:0;
 		width:10vmax; height:10vmax;
+		padding:0;
+		background-size:cover;
 	}
 	#roleplay div.text{
 		font-weight: normal;
@@ -1727,6 +1733,7 @@ div.fxBuffBlue{
 	#modal div.inventory div.item.disabled{
 		color:#FDD !important;
 		border:0.2vmax solid #FDD !important;
+		background:rgba(100,0,0,0.75);
 	}
 	
 	#ui > div.actionbar > div.actions > div div.tooltip{

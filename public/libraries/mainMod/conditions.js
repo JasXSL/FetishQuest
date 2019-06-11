@@ -70,6 +70,8 @@ const lib = {
 	action_groper_groin_grope : {type:Condition.Types.actionLabel, data:{label:'groper_groin_grope'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
+	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
+	action_food_ale : {type:Condition.Types.actionLabel,data:{label:"foodAle"},targnr:0},
 
 	overWhelmingOrgasm_end : {type:Condition.Types.effectLabel, data:{label:'overWhelmingOrgasm_end'}},
 	overWhelmingOrgasm_start : {type:Condition.Types.wrapperLabel, data:{label:'overWhelmingOrgasm'}},
