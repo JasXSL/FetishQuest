@@ -6,8 +6,8 @@ Medium rare:
 
 
 Big chungi:
-	- Shop
-		- Netcode (todo exists)
+	- Redesign errors to a try/catch system, that'll let netcode return errors as well
+	- Netcode needs to be able to callback
 
 
 Food for thought

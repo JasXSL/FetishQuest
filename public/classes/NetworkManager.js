@@ -552,26 +552,31 @@ class NetworkManager{
 		else if( task === PT.buyItem ){
 
 			// {player:(str)sender_id, shop:(str)shop_id, item:(str)shopitem_id, amount:(int)amount}
-			if( !args.player || !args.shop || !args.item || !args.amount || isNaN(amount) )
+			if( !args.player || !args.shop || !args.item || !args.amount || isNaN(args.amount) ){
+				console.error("Net: Missing args in call", task, "got", args);
 				return;
+			}
 			let player = validatePlayer();
 			if( !player )
 				return;
 
-			console.log("Todo: buy item netcode");
+			game.buyAsset(args.shop, args.item, args.amount, player);
+				
 
 		}
 
 		else if( task === PT.sellItem ){
 
 			// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
-			if( !args.player || !args.shop || !args.asset || !args.amount || isNaN(amount) )
+			if( !args.player || !args.shop || !args.asset || !args.amount || isNaN(args.amount) ){
+				console.error("Net: Missing args in call", task, "got", args);
 				return;
+			}
 			let player = validatePlayer();
 			if( !player )
 				return;
 
-			console.log("Todo: Sell item netcode");
+			game.sellAsset(args.shop, args.asset, args.amount, player);
 
 		}
 
@@ -579,7 +584,9 @@ class NetworkManager{
 			let player = validatePlayer();
 			if( !player )
 				return;
-			console.log("Todo: Exchange gold netcode");
+			
+			game.exchangePlayerMoney(player);
+
 		}
 
 
@@ -875,19 +882,31 @@ class NetworkManager{
 	}
 	
 	playerBuyItem(shop, item, amount, player){
+		if( typeof shop === "object" )
+			shop = shop.label;
+		if( typeof item === "object" )
+			item = item.id;
+		if( typeof player === "object" )
+			player = player.id;
 		this.sendPlayerAction(NetworkManager.playerTasks.buyItem, {
-			item : item.id,
-			shop : shop.id,
+			item : item,
+			shop : shop,
 			amount : amount,
-			player : player.id,
+			player : player,
 		});
 	}
 	playerSellItem(shop, asset, amount, player){
+		if( typeof shop === "object" )
+			shop = shop.label;
+		if( typeof asset === "object" )
+			asset = asset.id;
+		if( typeof player === "object" )
+			player = player.id;
 		this.sendPlayerAction(NetworkManager.playerTasks.sellItem, {
-			asset : asset.id,
-			shop : shop.id,
+			asset : asset,
+			shop : shop,
 			amount : amount,
-			player : player.id,
+			player : player,
 		});
 	}
 	

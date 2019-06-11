@@ -2711,10 +2711,7 @@ LibMesh.library = {
 					libMat.Nature.RazzyBerryBerries
 				],
 				onInteract : function( mesh, room, asset ){
-					// Opening and closing a chest is local
-					// Todo: harvest sound
-					//let stage = mesh.userData._stage;
-					//stage.playSound(mesh, 'media/audio/chest_open.ogg', 0.5);
+					
 				},
 				onInteractivityChange : function(dungeonAsset, interactive){
 					const mesh = dungeonAsset._stage_mesh;

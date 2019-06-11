@@ -502,6 +502,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.dungeonVar] : true,
 	[GameAction.types.lever] : true,
 	[GameAction.types.tooltip] : true,
+	[GameAction.types.shop] : true,
 };
 
 
