@@ -67,6 +67,12 @@ export default class Collection{
 		return new this.constructor(this.flatten());
 	}
 
+	convertToSubCollections(){
+		for( let i in this ){
+			if( typeof this[i] !== "function" )
+				this[i] = new Collection(this[i], this);
+		}
+	}
 
 }
 

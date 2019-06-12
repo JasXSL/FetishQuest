@@ -821,21 +821,22 @@ export default class UI{
 				game.setRoleplay(rp);
 		});
 
-		const showLoot = p.isLootableBy(myActive);
-		$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
-			event.stopImmediatePropagation();
-			this.drawContainerLootSelector(myActive, p);
-		});
+		if( myActive ){
+			const showLoot = p.isLootableBy(myActive);
+			$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
+				event.stopImmediatePropagation();
+				this.drawContainerLootSelector(myActive, p);
+			});
 
-		const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
-		const showShop = shops.length;
-		$("div.interaction[data-type=shop]", el).toggleClass("hidden", !showShop).off('click').on('click', event => {
-			event.stopImmediatePropagation();
-			if(this.drawShopInspector(shops[0])){
-				game.uiAudio( "shop_entered" );
-			}
-		});
-		
+			const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
+			const showShop = shops.length;
+			$("div.interaction[data-type=shop]", el).toggleClass("hidden", !showShop).off('click').on('click', event => {
+				event.stopImmediatePropagation();
+				if(this.drawShopInspector(shops[0])){
+					game.uiAudio( "shop_entered" );
+				}
+			});
+		}
 
 		// Effect wrappers
 		let o = '';

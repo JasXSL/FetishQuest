@@ -64,7 +64,7 @@ export default class Generic{
 
 			if( !Array.isArray(from) )
 				return to;
-			// Do smart id loading
+			// Do smart id loading on an array
 			if( window.game && game.net_load && typeof from[0] === "object" ){
 				
 				let out = [];

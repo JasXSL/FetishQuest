@@ -60,28 +60,27 @@ export default class Shop extends Generic{
 		}
 	}
 
-	// Todo: called when shop window is opened
 	loadState(){
 
 		const data = game.state_shops[this.label];
-		if( !data )
+		if( !(data instanceof ShopSaveState) )
 			return;
 		
-		if( data.items ){
-			for( let item of this.items )
-				item.loadState(data.items[item.id]);
+		const items = data.items.slice();
+		for( let item of items ){
+			const cur = this.getItemById(item.id);
+			if( !cur )
+				data.items.splice(data.items.indexOf(item));
+			else{
+				cur.loadState(item);
+			}
 		}
 	}
 
 	saveState(){
-		
-		const itemState = {};
-		for( let asset of this.items )
-			itemState[asset.id] = asset.saveState();
-
-		return {
-			items : itemState
-		};
+		return new ShopSaveState({
+			items : this.items.map(el => el.saveState())
+		});
 	}
 	
 	isAvailable(player){
@@ -91,6 +90,39 @@ export default class Shop extends Generic{
 		}));
 	}
 
+}
+
+export class ShopSaveState extends Generic{
+	constructor(data, parent){
+		super();
+
+		this.parent = parent;
+		this.items = [];
+		
+		this.load(data);
+	}
+
+	save( full ){
+		const out = {
+			items : ShopAssetSaveState.saveThese(this.items)
+		};
+		return out;
+	}
+
+	load( data ){
+		this.g_autoload(data);
+	}
+
+	getItemById( id ){
+		for( let item of this.items ){
+			if( item.id === id )
+				return item;
+		}
+	}
+
+	rebase(){
+		this.items = ShopAssetSaveState.loadThese(this.items, this);
+	}
 }
 
 export class ShopAsset extends Generic{
@@ -167,13 +199,11 @@ export class ShopAsset extends Generic{
 		return out;
 	}
 
-	loadState(data){
-		if( !data )
+	loadState( data ){
+		if( !(data instanceof ShopAssetSaveState) )
 			return;
-		if( data._amount_bought )
-			this._amount_bought = data._amount_bought;
-		if( data._time_bought )
-			this._time_bought = data._time_bought;
+		this._amount_bought = data._amount_bought;
+		this._time_bought = data._time_bought;
 		if( game.time-this._time_bought > this.restock_rate && this.restock_rate > 0 ){
 			this._time_bought = 0;
 			this._amount_bought = 0;
@@ -182,10 +212,11 @@ export class ShopAsset extends Generic{
 	}
 
 	saveState(){
-		return {
+		return new ShopAssetSaveState({
+			id : this.id,
 			_amount_bought : this._amount_bought,
 			_time_bought : this._time_bought
-		};
+		});
 	}
 
 	onPurchase( amount ){
@@ -197,4 +228,34 @@ export class ShopAsset extends Generic{
 			this._time_bought = game.time;
 	}
 
+}
+
+
+class ShopAssetSaveState extends Generic{
+	constructor(data, parent){
+		super();
+
+		this.parent = parent;
+		this.id = '';
+		this._amount_bought = 0;
+		this._time_bought = 0;
+
+		
+		this.load(data);
+	}
+
+	save( full ){
+		const out = {
+			id : this.id,
+			_amount_bought : this._amount_bought,
+			_time_bought : this._time_bought,
+		};
+		return out;
+	}
+
+	load( data ){
+		this.g_autoload(data);
+	}
+
+	rebase(){}
 }

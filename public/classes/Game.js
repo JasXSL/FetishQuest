@@ -15,7 +15,7 @@ import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
 import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
-import Shop from './Shop.js';
+import Shop, { ShopSaveState } from './Shop.js';
 
 export default class Game extends Generic{
 
@@ -265,7 +265,13 @@ export default class Game extends Generic{
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
 		this.completed_quests = Collection.loadThis(this.completed_quests);
+		
+		// shops have 3 layers of recursive collections
 		this.state_shops = Collection.loadThis(this.state_shops);
+		for( let i in this.state_shops )
+			this.state_shops[i] = new ShopSaveState(this.state_shops[i], this);
+		
+
 		this.state_roleplays = Collection.loadThis(this.state_roleplays);
 		for( let i in this.state_roleplays ){
 			if( typeof this.state_roleplays[i] !== 'function' )
