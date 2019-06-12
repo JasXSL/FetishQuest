@@ -281,8 +281,9 @@ export default class Game extends Generic{
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
 		let encounter = this.dungeon.getStartedEncounterById(this.encounter.id);
-		if( encounter )
+		if( encounter ){
 			this.encounter = encounter;
+		}
 
 		// Check if the players are from the encounter, in that case overwrite them
 		for( let i in this.players ){
@@ -1354,7 +1355,7 @@ export default class Game extends Generic{
 
 
 		
-		encounter.onPlacedInWorld();	// This has to go after, since players need to be put in world for effects and conditions to work
+		encounter.onPlacedInWorld( !started );	// This has to go after, since players need to be put in world for effects and conditions to work
 
 		// Purge is needed after each overwrite
 		game.save();

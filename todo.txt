@@ -1,9 +1,12 @@
 Needed other:
 Smol:	
 	- Punishments
+	- Check if shop asset conditions are working
+	- Remove owner dropdown from player editor
+	- levelup particles
 
 Medium rare:
-
+	- Add shops to dev tools
 
 Big chungi:
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well

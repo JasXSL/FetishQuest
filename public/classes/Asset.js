@@ -162,8 +162,11 @@ export default class Asset extends Generic{
 	isSellable(){
 		return this.getSellCost() > 0;
 	}
-	getSellCost(shop){
-		return Math.floor(this.basevalue/2);
+	getSellCost( shop ){
+		let out= this.basevalue/2;
+		if( this.durability <= 0 )
+			out = out/4;
+		return Math.floor(out);
 	}
 
 	resetCharges(){

@@ -1214,19 +1214,19 @@ const lib = [
 	},
 	
 	// action_groper_groin_grope
-	{ text : "%S flicks a tendril up between %T's %groin, squeezing it!",
+	{ text : "%S flicks a tendril up between %T's legs, squeezing %This %groin!",
 		hitfx : ["whipSqueeze"],
 		conditions : baseCond.concat("action_groper_groin_grope")
 	},
-	{ text : "%S flicks a tendril up between %T's %groin, tickling %This %Tgenitals!",
+	{ text : "%S flicks a tendril up between %T's legs, tickling %This %Tgenitals!",
 		hitfx : ["tickle"],
 		conditions : baseCond.concat("action_groper_groin_grope")
 	},
-	{ text : "%S flicks a tendril up between %T's %groin, slipping up into %This %Trsize %Tbutt and tickling %Thim on the inside!",
+	{ text : "%S flicks a tendril up between %T's legs, slipping up into %This %Trsize %Tbutt and tickling %Thim on the inside!",
 		hitfx : ["tickle"],
 		conditions : baseCond.concat("action_groper_groin_grope", "targetButtExposed")
 	},
-	{ text : "%S flicks a tendril up between %T's %groin, slipping up into %This %Trsize %Tbutt and tickling %Thim on the inside!",
+	{ text : "%S flicks a tendril up between %T's legs, slipping up into %This %Trsize %Tbutt and tickling %Thim on the inside!",
 		hitfx : ["tickle"],
 		conditions : baseCond.concat("action_groper_groin_grope", "targetVagina", "targetGroinExposed")
 	},

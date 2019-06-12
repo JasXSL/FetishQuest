@@ -553,7 +553,9 @@ class DungeonRoom extends Generic{
 
 		// If encounter is complete, set it to completed
 		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
-			this.encounters = new DungeonEncounter({"id":"_BLANK_"}, this);	// _BLANK_ prevents overwriting encounter data on change
+			// Prevents overwriting encounter data when returning to a dungeon after you've left it (the encounter reverts to array)
+			if( Array.isArray(this.encounters) )
+				this.encounters = new DungeonEncounter({"id":"_BLANK_"}, this);
 			this.encounters.completed = true;
 		}
 		if( respawn ){
@@ -1697,7 +1699,14 @@ class DungeonEncounter extends Generic{
 
 	}
 
-	onPlacedInWorld(){
+	// Whenever the encounter is placed in world, regardless of if it just started or not
+	// This is always triggered after the encounter starts, otherwise player effects won't work (since they need game.players populated)
+	// If just_started is true, it means the encounter just started
+	onPlacedInWorld( just_started = true ){
+
+		// Don't reset HP and such
+		if( !just_started )
+			return;
 		// Run world placement event on all players
 		for( let player of this.players )
 			player.onPlacedInWorld();

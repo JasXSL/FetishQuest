@@ -108,8 +108,8 @@ const lib = {
 	},
 
 	yuug_portswood_merchant : {
-		name : "Merchant",
-		species : "Foyash",
+		name : "Foyash",
+		species : "fox",
 		description : "A fox who sells merchandise to weary travelers going between Yuug City and Port.",
 		icon : "",
 		team : 1,
