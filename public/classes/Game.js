@@ -112,6 +112,7 @@ export default class Game extends Generic{
 		};
 
 		out.state_dungeons = this.state_dungeons.save(full);
+		out.state_roleplays = this.state_roleplays.save();
 
 		
 		if( full ){
@@ -122,7 +123,6 @@ export default class Game extends Generic{
 			out.id = this.id;
 			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
-			out.state_roleplays = this.state_roleplays.save();
 			out.procedural_dungeon = this.procedural_dungeon.save(full);
 		}
 

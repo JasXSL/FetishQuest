@@ -585,19 +585,10 @@ const lib = {
         ],
         
     },
-    "levelup": {
-        label : "levelup",
-        sounds : [
-            {
-                s : {
-                    path : "media/audio/levelup.ogg",
-                    volume : 0.7
-                },
-                t : 0,
-                se : false
-            }
-        ],
-        
+    levelup: {
+        sounds : [{
+            s : {path : "media/audio/fq_levelup.ogg",volume : 0.7},
+        }],
     },
     "questCompleted": {
         label : "questCompleted",

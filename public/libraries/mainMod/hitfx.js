@@ -826,6 +826,35 @@ out[id].stages.push(
 );
 
 
+
+id = 'levelup';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparkles_static_big',
+		emit_duration : 400,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['levelup'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist_yellow',
+		emit_duration : 1500,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks_big_yellow',
+		emit_duration : 1000,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_levelup',
+		emit_duration : 100,
+		tween : false,
+	}, out[id]),
+);
+
+
 id = 'monkHeal';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

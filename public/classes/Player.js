@@ -1378,7 +1378,8 @@ export default class Player extends Generic{
 		if( levelsGained ){
 			game.ui.addText( this.getColoredName()+" gained "+levelsGained+" level"+(levelsGained !== 1 ? 's' :'')+" and is now level "+this.level+"!", undefined, this.id, this.id, 'levelup' );
 			this.addActionsForClass();
-			game.playFxAudioKitById('levelup', this, this, undefined, true);
+
+			game.playFX(this, this, 'levelup', undefined, true );			
 		}
 		return levelsGained;
 	}

@@ -2681,16 +2681,6 @@ export default class UI{
 
 				html += '<div class="playerInspector">';
 					html += '<div class="left">';
-
-					if( game.net.isConnected() ){
-						html += 'Owner:<br /><select name="netgame_owner">';
-							html += '<option value="">- NONE -</option>';
-
-							// Debug
-							for( let np of game.net.players )
-								html += '<option value="'+esc(np.id)+'" '+(np.id === player.netgame_owner ? 'selected' : '')+'>'+esc(np.name)+'</option>';
-						html += '</select><br />';
-					}
 					html += 
 						'Name:<br /><input type="text" name="name" placeholder="Player Name" value="'+esc(player.name)+'" /><br />'+
 						'Species:<br /><input type="text" name="species" value="'+esc(player.species)+'" /><br />'+
@@ -2834,11 +2824,6 @@ export default class UI{
 			}).each(function(){
 				player[$(this).attr('name')] = Math.floor($(this).val());
 			});
-
-			if( game.net.isConnected() && game.is_host ){
-				player.netgame_owner = $("#modal select[name=netgame_owner]").val();
-				player.netgame_owner_name = game.net.getPlayerNameById(player.netgame_owner);
-			}
 
 			if( player.hp > player.getMaxHP() )
 				player.hp = player.getMaxHP();

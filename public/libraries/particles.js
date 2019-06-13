@@ -15,6 +15,7 @@ const textures = {
 	clawMarks : loader.load('/media/textures/particles/claw_marks.png'),
 	fangs : loader.load('/media/textures/particles/fangs.png'),
 	shield : loader.load('/media/textures/particles/shield.png'),
+	levelup : loader.load('/media/textures/particles/levelup.png'),
 	
 	poison : loader.load('/media/textures/particles/poison.png'),
 
@@ -599,6 +600,46 @@ particles.hitfx_sparkles_static = {
 	]
 };
 
+particles.hitfx_sparkles_static_big = {
+			
+	texture: {
+		value: textures.sparkle,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 60,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 1
+			},
+			position: {
+				spread: new THREE.Vector3( 25, 25, 25 ),
+			},
+			acceleration : {
+				value : new THREE.Vector3(0,0,0),
+				spread : new THREE.Vector3(5,5,5)
+			},
+			color : {
+				value : [
+					new THREE.Color(0xFFFFEE),
+					new THREE.Color(0xFFFFFF),
+				]
+			},
+			opacity: {
+				value: [1,1]
+			},
+			size: {
+				value: [20,5,10,1],
+			},
+			wiggle : {
+				spread : 10,
+			},
+			particleCount: 60
+		}
+	]
+};
+
 
 particles.hitfx_sparks_zap = {
 			
@@ -897,6 +938,36 @@ particles.hitfx_shield = {
 			},
 			size: {
 				value: [300, 80, 80,80,0]
+			},
+			particleCount: 10
+		}
+	]
+};
+
+particles.hitfx_levelup = {
+	texture: {
+		value: textures.levelup,
+	},
+	blending : THREE.AdditiveBlending,
+	maxParticleCount : 10,
+	_emitters : [
+		{
+			type : SPE.distributions.BOX,
+			maxAge: {
+				value: 1.5
+			},
+			position : {
+				value : new THREE.Vector3(),
+				spread : new THREE.Vector3()
+			},
+			color : {
+				value : new THREE.Color(0xFFFFFF)
+			},
+			opacity: {
+				value: [0,1,1,1,0]
+			},
+			size: {
+				value: [300, 100, 100,100,0]
 			},
 			particleCount: 10
 		}
