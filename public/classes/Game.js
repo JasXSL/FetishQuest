@@ -1194,9 +1194,11 @@ export default class Game extends Generic{
 			return this.modal.addError("Invalid target");
 		if( fromPlayer.id === toPlayer.id )
 			return this.modal.addError("Can't trade with yourself");
-		if( this.battle_active )
-			return this.modal.addError("Can't trade in combat");
-		
+		if( this.battle_active && this.getTurnPlayer().id !== fromPlayer.id )
+			return game.modal.addError("Not your turn");
+		if( this.battle_active && fromPlayer.ap < 3 )
+			return game.modal.addError("Not enough AP");
+
 
 		const asset = fromPlayer.getAssetById(id);
 		if( !asset )
@@ -1217,13 +1219,18 @@ export default class Game extends Generic{
 			this.playFxAudioKitById(asset.loot_sound, fromPlayer, toPlayer, undefined, true );
 		
 		let text = fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName()+(!asset.stacking ? " their " : " "+amount+"x ")+asset.name+"!";
-		game.ui.addText( text, undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
+		this.ui.addText( text, undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
 		
-
 		toPlayer.addAsset(asset, amount, true);
 		fromPlayer.destroyAsset(asset.id, amount);
-		game.ui.draw();
+		if( this.battle_active )
+			fromPlayer.addAP(-3);	
+
+		this.ui.draw();
 		this.save();
+
+		
+
 		return true;
 
 	}

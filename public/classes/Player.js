@@ -877,7 +877,7 @@ export default class Player extends Generic{
 			}
 			else if( this.isNPC() ){
 
-				if( !this.getEquippedAssetsBySlots(asset.slots).length && asset.equippable() )
+				if( !game.battle_active && !this.getEquippedAssetsBySlots(asset.slots).length && asset.equippable() )
 					this.equipAsset(asset.id);
 
 			}
@@ -2157,10 +2157,10 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 
 	// Add 25% bonus damage per additional player
 	let multi = 1.0;
-	if( attacker.team !== 0 )
+	if( attacker.team !== 0 && attacker.level > 1 )
 		multi = 1+(game.getTeamPlayers().length-1)*0.25;
 
-	const out = (1+tot*0.05)*multi;
+	const out = (1+tot*0.1)*multi;
 	return out;
 
 };

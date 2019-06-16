@@ -187,6 +187,7 @@ export default class Modal{
 		this.selectionbox.append(html);
 
 		this.positionSelectionBox();
+		game.ui.bindTooltips();
 
 	}
 

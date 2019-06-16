@@ -1,8 +1,6 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Make damage boost by attack advantage count 10% instead of 5%
-	- Add trade in combat for 4 ap
 	- Lever didn't seem to work in multiplayer?
 	- Make the tooltip remove itself if the target is removed
 

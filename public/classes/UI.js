@@ -2354,11 +2354,15 @@ export default class UI{
 					modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
 				}
 
-				if( !game.battle_active ){
-					if( game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length )
-						modal.addSelectionBoxItem( 'Trade', 'Trade this item to another player.', 'trade' );
-					modal.addSelectionBoxItem( 'Destroy', 'Destroy this item.', 'destroy' );
-				}
+				if( 
+					game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
+					(!game.battle_active || game.getTurnPlayer().id === player.id) 
+				)
+					modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
+
+				if( !game.battle_active )
+					modal.addSelectionBoxItem( 'Destroy', false, 'destroy' );
+				
 
 
 				modal.onSelectionBox(function(){
@@ -2395,6 +2399,20 @@ export default class UI{
 						
 					}
 					else if( task == 'trade' ){
+
+						if( game.battle_active ){
+							if( player.ap < 3 ){
+								game.modal.addError("Not enough AP");
+								modal.closeSelectionBox();
+								return;
+							}
+							else if( game.getTurnPlayer().id !== player.id ){
+								modal.closeSelectionBox();
+								game.modal.addError("Not your turn");
+								return;
+							}
+
+						}
 
 						if( asset.stacking && asset._stacks > 1 ){
 							modal.makeSelectionBoxForm(
