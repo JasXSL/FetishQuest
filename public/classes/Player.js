@@ -1379,7 +1379,7 @@ export default class Player extends Generic{
 			game.ui.addText( this.getColoredName()+" gained "+levelsGained+" level"+(levelsGained !== 1 ? 's' :'')+" and is now level "+this.level+"!", undefined, this.id, this.id, 'levelup' );
 			this.addActionsForClass();
 
-			game.playFX(this, this, 'levelup', undefined, true );			
+			game.renderer.playFX(this, this, 'levelup', undefined, true );			
 		}
 		return levelsGained;
 	}

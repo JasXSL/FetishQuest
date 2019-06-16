@@ -1,10 +1,19 @@
 Needed other:
 Smol:	
 	- Punishments
-	- levelup particles
+	- Enable shadows and AA in settings
+	- Call PlacedInWorld when a shop asset is sold and/or placed in a shop
+	- Add a mute spectators button
+	- Make damage boost by attack advantage count 10% instead of 5%
+	- Make impicus dialog required
+	- Add trade in combat for 4 ap
+	- Lever didn't seem to work in multiplayer?
+	- Make the tooltip remove itself if the target is removed
 
 Medium rare:
 	- Add shops to dev tools
+	- Shops should probably be tied to players differently
+	- Add a text filter for cloth damage by slot if possible
 
 Big chungi:
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
@@ -15,7 +24,7 @@ Food for thought
 	- Fast travel system
 		- Expensive
 		- Need to unlock at an inn
-
+	
 
 Next beta only update:
 	- Goblin boat quest

@@ -22,6 +22,7 @@ import { default as Audio, AudioKit } from '../classes/Audio.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset, DungeonEncounter } from '../classes/Dungeon.js';
 import GameAction from '../classes/GameAction.js';
 import Roleplay from '../classes/Roleplay.js';
+import Shop from '../classes/Shop.js';
 
 
 const meshLib = LibMesh.getFlatLib();
@@ -492,6 +493,7 @@ export default class Modtools{
 			'<div class="button" data-id="audiokits">Audio Kits</div>'+
 			'<div class="button" data-id="roleplay">Roleplay</div>'+
 			'<div class="button" data-id="gameActions">Game Action</div>'+
+			'<div class="button" data-id="shops">Shops</div>'+
 		'</div>';
 
 		html += '<div class="assetList"></div>';
@@ -1003,6 +1005,28 @@ export default class Modtools{
 			},
 			() => {
 				let asset = new AssetTemplate({label:'UNKNOWN_TEMPLATE'}).save("mod");
+				return asset;
+			}
+		);
+	}
+
+	mml_shops(){
+		this.mml_generic( 
+			'shops', 
+			['Label','Name','# Items','Player Label','Buys','Sells'],
+			this.mod.assetTemplates,
+			asset => {
+				return [
+					asset.label,
+					asset.name,
+					Array.isArray(asset.items) ? asset.items.length : '!NONE!',
+					asset.player,
+					asset.buys ? "YES" : 'NO',
+					asset.sells ? "YES" : 'NO',
+				];
+			},
+			() => {
+				let asset = new Shop({label:'UNKNOWN_SHOP'}).save("mod");
 				return asset;
 			}
 		);
@@ -1595,6 +1619,34 @@ export default class Modtools{
 
 		});
 
+	}
+
+
+	editor_shops( asset = {} ){
+		/*
+		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
+			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
+			html += 'Name: '+this.inputEffectType(asset.type, 'type')+'<br />';
+			html += 'Player: <input required class="json" type="text" name="data" value="'+esc(JSON.stringify(asset.data))+'" /><br />';
+			html += 'Events: '+this.formEvents(asset.events, 'events')+'<br />';
+			html += 'Targets: '+this.formWrapperTargetTypes(asset.targets, 'targets')+'<br />';
+			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />';
+			
+
+
+		this.editor_generic('effects', asset, this.mod.effects, html, saveAsset => {
+
+			const form = $("#assetForm");
+			saveAsset.label = $("input[name=label]", form).val().trim();
+			saveAsset.data = {};
+			try{ saveAsset.data = JSON.parse($("input[name=data]", form).val().trim()); }catch(err){}
+			saveAsset.events = this.compileEvents('events');
+			saveAsset.type = $('select[name=type]', form).val();
+			saveAsset.targets = this.compileWrapperTargetTypes('targets');
+			saveAsset.conditions = this.compileConditions('conditions');
+
+		});
+		*/
 	}
 
 

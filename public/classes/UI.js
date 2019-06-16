@@ -176,7 +176,7 @@ export default class UI{
 		});
 
 		this.board.toggleClass("dev", this.showDMTools());
-
+		this.board.toggleClass("bubbles", this.showBubbles());
 	}
 
 	// Takes the 3d canvases
@@ -192,6 +192,10 @@ export default class UI{
 
 	showDMTools(){
 		return !Boolean(+localStorage.hide_dm_tools);
+	}
+
+	showBubbles(){
+		return !Boolean(+localStorage.hide_bubbles);
 	}
 
 	destructor(){
@@ -553,6 +557,16 @@ export default class UI{
 
 				let el = $(div);
 				tag.append(el);
+
+				$("> div.speechBubble", el).on('click', event => {
+					const targ = event.currentTarget;
+					$(targ).toggleClass('hidden immediate', true);
+					clearTimeout(targ.fadeTimer);
+					event.stopImmediatePropagation();
+					setTimeout(_ => {
+						$(targ).toggleClass('immediate', false);
+					}, 1);
+				});
 
 			}
 			// Team has changed
@@ -1056,21 +1070,26 @@ export default class UI{
 	// DM Tools
 	drawDMTools(){
 
-		let hideTools = !this.showDMTools();
+		const showTools = this.showDMTools(),
+			showBubbles = this.showBubbles();
 		
 		const th = this;
 		let html = 
-			'<div class="option button '+(hideTools ? 'inactive' : 'active')+'" data-action="toggleDMTools">'+(hideTools ? 'Show' : 'Hide')+' DM Tools</div>'+
-			//'<div class="option button" data-action="generateDungeon">Generate Dungeon</div>'+
+			'<h3>Gameplay Settings & Debug</h3>'+
+			'<label class="option button"><input type="checkbox" name="toggleDMTools" '+(showTools ? 'checked' : '')+' /><span> DM Tools</span></label>'+
 			'<div class="option button" data-action="addPlayer">+ Add Player</div>'+
 			'<div class="option button" data-action="fullRegen">Restore HPs</div>'
-			//'<div class="option button '+(game.dm_writes_texts ? 'active' : 'inactive')+'" data-action="dmTexts">'+(game.dm_writes_texts ? 'Exit DM Mode' : 'Enter DM Mode')+'</div>'
 		;
 		// If there's more than one team standing, then draw the start battle
 		if( game.teamsStanding().length > 1 )
 			html += '<div class="option button '+(game.battle_active ? 'active' : 'inactive')+'" data-action="toggleBattle">'+
 				(game.battle_active ? 'End Battle' : 'Start Battle')+
 			'</div>';
+
+		html += '<h3>Visual Settings</h3>'+
+			'<label class="option button"><input type="checkbox" name="enableBubbles" '+(showBubbles ? 'checked' : '')+' /><span> Bubble Chat</span></label>'
+		;
+			
 
 		game.modal.set('<div class="dm_tools">'+html+'</div>');
 
@@ -1086,23 +1105,20 @@ export default class UI{
 			}
 			else if( action === "fullRegen" )
 				game.fullRegen();
-			//else if( action === "dmTexts" )
-			//	game.toggleAutoMode();
-			/*
-			else if( action === "generateDungeon" ){
-				game.addRandomQuest();
-				alert("A random dungeon quest has been generated with "+game.dungeon.rooms.length+" cells and difficulty "+game.dungeon.difficulty);
-				
-			}
-			*/
-			else if( action === 'toggleDMTools' ){
-				localStorage.hide_dm_tools = +th.showDMTools();
-				th.board.toggleClass("dev", th.showDMTools());
-				th.drawDMTools();
-			}
-				
 
 		});
+
+		const dmToolsInput = $("#modal input[name=toggleDMTools]");
+		dmToolsInput.on('change', () => {
+			localStorage.hide_dm_tools = +!dmToolsInput.is(':checked');
+			th.board.toggleClass("dev", th.showDMTools());
+		});
+
+		const bubblesInput = $("#modal input[name=enableBubbles]");
+		bubblesInput.on('change', () => {
+			localStorage.hide_bubbles = +!bubblesInput.is(':checked');
+			th.board.toggleClass("bubbles", th.showBubbles());
+		}); 
 
 	}
 
@@ -1345,12 +1361,15 @@ export default class UI{
 		const div = $("div.player[data-id='"+player.id+"'] div.speechBubble", this.players);
 		if( !div.length )
 			return;
+
+
 		clearTimeout(div[0].fadeTimer);
 		div[0].fadeTimer = setTimeout(() => {
 			div.toggleClass("hidden", true);
 		}, 6000);
 		div.toggleClass("hidden", false);
 		$("> div.content", div).html(text);
+		
 
 	}
 
@@ -2015,7 +2034,7 @@ export default class UI{
 			// RIGHT SIDE, MANY WHELPS
 			html += '<div class="right">'+
 				// Image
-				'<img src="'+esc(player.icon)+'" class="inspect_icon" />';
+				'<img src="'+esc(player.getActiveIcon())+'" class="inspect_icon" />';
 
 				// Primary stats
 				html += '<h3 style="text-align:center">Primary Stats</h3>';

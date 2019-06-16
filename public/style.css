@@ -42,7 +42,7 @@ input[type=text], input[type=number], textarea{
 
 #gameIcons > div > div.rollout.visible,
 div.gameListing,
-input[type=button], input[type=submit], div.button,
+input[type=button], input[type=submit], div.button, label.button,
 #modal div.inventory div.item,
 #modal div.modalQuests div.right div.item,
 #modal div.action,
@@ -940,13 +940,12 @@ div.fxBuffBlue{
 
 
 	/* Texts */
-	#ui > div.players > div.left div.player div.speechBubble{
-		left:auto;
-		right: 1vmax;
-		transform:translate(100%, -50%);
-	}
 	#ui > div.players div.player div.speechBubble{
+		display:none;
+	}
+	#ui.bubbles > div.players div.player div.speechBubble{
 		position: absolute;
+		display: block;
 		left:1vmax;
 		transform:translate(-100%, -50%);
 		border: 2px solid #000;
@@ -958,9 +957,17 @@ div.fxBuffBlue{
 		top:50%;
 		font-style: italic;
 		box-shadow: 0.25vmax 0.25vmax 1vmax #000;
+		pointer-events: all;
+		cursor: default;
 	}
 
-	#ui > div.players div.player div.speechBubble div.arrow{
+	#ui.bubbles > div.players > div.left div.player div.speechBubble{
+		left:auto;
+		right: 1vmax;
+		transform:translate(100%, -50%);
+	}
+	
+	#ui.bubbles > div.players div.player div.speechBubble div.arrow{
 		position: absolute;
 		right:0;
 		top:50%;
@@ -973,20 +980,23 @@ div.fxBuffBlue{
 		border-bottom: none;
 	}
 
-	#ui > div.players div.player div.speechBubble div.arrow{
+	#ui.bubbles > div.players div.player div.speechBubble div.arrow{
 		max-width:30vmax;
 	}
 
-	#ui > div.players > div.left div.player div.speechBubble div.arrow{
+	#ui.bubbles > div.players > div.left div.player div.speechBubble div.arrow{
 		right:auto;
 		left:0;
 		transform:translate(-50%,-50%) rotate(225deg);
 	}
 
-	#ui > div.players > div.left div.player div.speechBubble.hidden{
+	#ui.bubbles > div.players > div.left div.player div.speechBubble.hidden{
 		display: block !important;
 		opacity:0;
 		transition: opacity 1s ease-in-out;
+	}
+	#ui.bubbles > div.players > div.left div.player div.speechBubble.hidden.immediate{
+		transition:none;
 	}
 	
 /**/
@@ -1515,10 +1525,18 @@ div.fxBuffBlue{
 	}
 
 	/* DM Tools */
-	div.dm_tools > div.option.active{
+	div.dm_tools > label.option{
+		display:block;
+		width:auto;
+	}
+	div.dm_tools > label.option > *{
+		vertical-align: middle;
+		margin:0; padding:0;
+	}
+	div.dm_tools > .option.active{
 		background:rgba(255,200,200,0.9);
 	}
-	div.dm_tools > div.option.inactive{
+	div.dm_tools > .option.inactive{
 		background:rgba(200,255,200,.9);
 	}
 	div.dm_tools{

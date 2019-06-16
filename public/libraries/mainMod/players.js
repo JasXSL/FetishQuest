@@ -33,7 +33,7 @@ const lib = {
 	MQ00_Boss : {
 		name : "Li Zurd",
 		species : "lizard",
-		description : "A darkened figure emanating... dark magic. She's wearing a crimson robe.",
+		description : "A darkened figure emanating... dark magic. She's wearing a crimson robe.\nArt by Maddworld.",
 		icon : "/media/characters/li_zurd_dressed.jpg",
 		icon_upperbody : "/media/characters/li_zurd_dressed.jpg",
 		icon_lowerbody : "/media/characters/li_zurd_naked.jpg",

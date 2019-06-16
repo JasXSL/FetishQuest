@@ -1687,6 +1687,9 @@ export default class Game extends Generic{
 		if( this.roleplay._waiting )
 			return false;
 
+		if( !this.roleplay.getActiveStage() )
+			return false;
+
 		const opt = this.roleplay.getActiveStage().getOptionById(option_id);
 		if( !opt ){
 			console.error("Opt not found", option_id);

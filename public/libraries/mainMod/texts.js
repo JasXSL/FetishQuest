@@ -967,11 +967,11 @@ const lib = [
 		weight : Text.Weights.high,
 		hitfx : ["slowThrusts"]
 	},
-	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's arms from behind and forces %Shis %Spsize %Spenis iside %T's %Trsize %Tbutt. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
+	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's arms from behind and forces %Shis %Spsize %Spenis inside %T's %Trsize %Tbutt. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
 		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis"),
 		hitfx : ["slowThrusts"]
 	},
-	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's hips and forces %Shis %Spsize %Spenis iside %T's %Tvagina. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
+	{ text : "%S pulls the defeated %Trace onto %Shimself as %She lays down, grabbing a hold of %T's hips and forces %Shis %Spsize %Spenis inside %T's %Tvagina. %S begins %thrusting into the %Trace, bouncing %T on %Shis pelvis...",
 		conditions : humOnHumCond.concat("action_stdPunishDom","senderPenis","targetVagina"),
 		hitfx : ["slowThrusts"]
 	},
@@ -1220,7 +1220,7 @@ const lib = [
 	},
 	{ text : "%S flicks a tendril up between %T's legs, tickling %This %Tgenitals!",
 		hitfx : ["tickle"],
-		conditions : baseCond.concat("action_groper_groin_grope")
+		conditions : baseCond.concat("action_groper_groin_grope", "targetGroinExposed")
 	},
 	{ text : "%S flicks a tendril up between %T's legs, slipping up into %This %Trsize %Tbutt and tickling %Thim on the inside!",
 		hitfx : ["tickle"],
