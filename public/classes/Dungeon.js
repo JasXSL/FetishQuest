@@ -1514,6 +1514,8 @@ class DungeonRoomAsset extends Generic{
 		if( asset.isLocked() )
 			return game.modal.addError("Locked");
 
+		if( game.isInPersistentRoleplay() )
+			return game.modal.addError("Can't use items right now");
 
 
 		// Ask host unless this is lootable

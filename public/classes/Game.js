@@ -1854,11 +1854,22 @@ export default class Game extends Generic{
 			const shop = shopAction.getDataAsShop();
 			if( !shop )
 				continue;
-			if( shop.player === player.label ){
+			if( shopAction.data.player === player.label ){
 				out.push(shop);
 			}
 		}
 		return out;
+	}
+
+	// Checks each players and returns true if one of them has a shop by label
+	isShopHere( label ){
+		for( let player of this.players ){
+			let shops = this.getShopsByPlayer(player);
+			for( let shop of shops ){
+				if( shop.label === label )
+					return true;
+			}
+		}
 	}
 
 	// Checks if a shop object is available to a player
@@ -1871,12 +1882,13 @@ export default class Game extends Generic{
 			console.error("Player is not a player", player);
 			return false;
 		}
+		// Checks conditions
 		if( !shop.isAvailable(player) ){
 			console.error("Shop is not available to player", shop, player);
 			return false;
 		}
-		const vendor = this.getPlayerByLabel(shop.player);
-		if( !vendor && shop.player ){
+		// Checks if vendor is here
+		if( !this.isShopHere(shop.label) ){
 			console.error("Vendor", shop.player, "not in cell");
 			return false;
 		}

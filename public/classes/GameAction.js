@@ -272,7 +272,6 @@ export default class GameAction extends Generic{
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
 	async trigger( player, mesh ){
 		
-
 		const asset = this.parent;
 		const types = GameAction.types;
 
@@ -491,7 +490,7 @@ GameAction.types = {
 	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object
 	finishQuest : "finishQuest",			// {quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.
 	tooltip : "tooltip",					// {text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak
-	shop : "shop",							// {shop:(str)shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.
+	shop : "shop",							// {shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.
 };
 
 // These are types where data should be sent to netgame players

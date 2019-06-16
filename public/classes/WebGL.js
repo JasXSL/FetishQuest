@@ -28,7 +28,7 @@ class WebGL{
 			config = {};
 
 		const conf = {
-			aa : localStorage.antialiasing === undefined ? true : Boolean(localStorage.antialiasing),
+			aa : localStorage.aa === undefined ? true : Boolean(+localStorage.aa),
 			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows
 		};
 		

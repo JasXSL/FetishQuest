@@ -1086,8 +1086,13 @@ export default class UI{
 				(game.battle_active ? 'End Battle' : 'Start Battle')+
 			'</div>';
 
+		let shadowsOn = +localStorage.shadows,
+			aaOn = +localStorage.aa
+		;
 		html += '<h3>Visual Settings</h3>'+
-			'<label class="option button"><input type="checkbox" name="enableBubbles" '+(showBubbles ? 'checked' : '')+' /><span> Bubble Chat</span></label>'
+			'<label class="option button"><input type="checkbox" name="enableBubbles" '+(showBubbles ? 'checked' : '')+' /><span> Bubble Chat</span></label>'+
+			'<label class="option button"><input type="checkbox" name="enableShadows" '+(shadowsOn ? 'checked' : '')+' /><span> Shadows (Experimental, requires refresh)</span></label>'+
+			'<label class="option button"><input type="checkbox" name="enableAA" '+(aaOn ? 'checked' : '')+' /><span> Antialiasing</span></label>'
 		;
 			
 
@@ -1120,7 +1125,36 @@ export default class UI{
 			th.board.toggleClass("bubbles", th.showBubbles());
 		}); 
 
+		const aaInput = $("#modal input[name=enableAA]");
+		aaInput.on('change', () => {
+			localStorage.aa = +aaInput.is(':checked');
+			game.renderer.aa.enabled = Boolean(+localStorage.aa);
+		});
+
+		const shadowsInput = $("#modal input[name=enableShadows]");
+		shadowsInput.on('change', () => {
+			localStorage.shadows = +shadowsInput.is(':checked');
+			game.modal.set(
+				'<p>This setting requires a browser refresh. Would you like to refresh now?</p>'+
+				'<input type="button" value="Yes" class="yes" />'+	
+				'<input type="button" value="No" />'
+			);
+
+			$("#modal input[type=button]").on('click', event => {
+				const targ = $(event.currentTarget);
+				if( targ.is('.yes') ){
+					window.location.reload();
+				}
+				else{
+					this.drawDMTools();
+				}
+			});
+		});
+
+
+
 	}
+
 
 
 

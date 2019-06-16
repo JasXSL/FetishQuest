@@ -1,11 +1,9 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Enable shadows and AA in settings
 	- Call PlacedInWorld when a shop asset is sold and/or placed in a shop
 	- Add a mute spectators button
 	- Make damage boost by attack advantage count 10% instead of 5%
-	- Make impicus dialog required
 	- Add trade in combat for 4 ap
 	- Lever didn't seem to work in multiplayer?
 	- Make the tooltip remove itself if the target is removed

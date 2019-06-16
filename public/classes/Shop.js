@@ -16,7 +16,6 @@ export default class Shop extends Generic{
 		this.name = '';
 		this.items = [];
 		this.conditions = [];
-		this.player = '';				// label of player to attach the shop to
 		this.buys = true;
 		this.sells = true;
 
@@ -30,7 +29,6 @@ export default class Shop extends Generic{
 			label : this.label,
 			name : this.name,
 			items : ShopAsset.saveThese(this.items, full),
-			player : this.player,
 			conditions : Condition.saveThese(this.conditions, full),
 			buys : this.buys,
 			sells : this.sells,
@@ -196,6 +194,7 @@ export class ShopAsset extends Generic{
 	getAsset(){
 		const out = Asset.loadThis(this.asset);
 		out.g_resetID();
+		out.onPlacedInWorld();
 		return out;
 	}
 

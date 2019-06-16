@@ -585,6 +585,7 @@ class NetworkManager{
 			if( !player )
 				return;
 			
+			// Todo: Later, add shop to this to make sure there's one available
 			game.exchangePlayerMoney(player);
 
 		}

@@ -153,7 +153,7 @@ const lib = {
 			// Shop
 			{
 				type : GameAction.types.shop,
-				data : {shop:'yuug_port_tavern'},
+				data : {shop:'yuug_port_tavern', player:'yuug_port_barkeep'},
 			}
 		]
 	},
@@ -214,7 +214,7 @@ const lib = {
 			// Shop
 			{
 				type : GameAction.types.shop,
-				data : {shop:'yuug_portswood_merchant'},
+				data : {shop:'yuug_portswood_merchant', player:'yuug_portswood_merchant'},
 			}
 		]
 	},
@@ -504,7 +504,7 @@ const lib = {
 		game_actions : [
 			{
 				type : GameAction.types.shop,
-				data : {shop:'yuug_portswood_merchant'}
+				data : {shop:'debugShop', player:'Slurt'}
 			}
 		]
 	},
