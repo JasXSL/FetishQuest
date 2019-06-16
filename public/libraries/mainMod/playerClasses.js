@@ -248,7 +248,7 @@ const lib = {
         ]
     },
     groper : {
-        name : "Groper",
+        name : "Shambler",
         primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
         actions : [
@@ -259,6 +259,16 @@ const lib = {
             "groper_groin_grope"
         ]
     },
+    groper_sapbeast : {
+        name : "Sapbeast",
+        primaryStat : Player.primaryStats.intellect,
+        isMonsterClass : true,
+        actions : [
+            "tentacle_fiend_legWrap",
+            "tentacle_fiend_tentatug",
+            "groper_leg_spread",
+        ]
+    }
 };
 
 

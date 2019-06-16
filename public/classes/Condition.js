@@ -360,7 +360,7 @@ export default class Condition extends Generic{
 				success = t.getRepairableAssets().length;
 
 			else if( this.type === T.hasInventory )
-				success = t && t.numAssets(this.data.label) > this.data.amount;
+				success = t && t.numAssets(this.data.label) >= this.data.amount;
 
 			else if( this.type === T.questIs ){
 				if( event.quest && typeof this.data === "object" )

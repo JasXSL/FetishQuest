@@ -1054,13 +1054,16 @@ div.fxBuffBlue{
 		cursor:default;
 		display:flex;
 		justify-content: space-between;
+		min-width:50%;
+		max-width:70%;
 	}
 
 	#roleplay > div.left{
 		width:20%;
+		transform:translateX(-101%);
 	}
 	#roleplay > div.right{
-		width:79%;
+		width:100%;
 	}
 	
 
@@ -1096,15 +1099,15 @@ div.fxBuffBlue{
 		width:90%;
 		font-size:1.5vmax;
 		font-style: italic;
-		background: rgba(100,100,100,.75);
+		background: rgba(100,100,100,.9);
 		cursor:pointer;
 	}
 	#roleplay div.responses > div.option.selected, #roleplay div.responses > div.option.selected:hover{
 		border-color:#FFF;
-		background: rgba(100,150,255,.75);
+		background: rgba(100,150,255,.9);
 	}
 	#roleplay div.responses > div.option:hover{
-		background: rgba(50,100,150,.75);
+		background: rgba(50,100,150,.9);
 	}
 /*/
 

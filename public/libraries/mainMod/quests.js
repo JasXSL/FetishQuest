@@ -48,7 +48,7 @@ const lib = {
 			}
 		],
 		rewards : [
-			{label:Asset.Dummies.label, name:'gold', _stacks:5},
+			{label:Asset.Dummies.label, name:'gold', _stacks:2},
 		],
 		multiply_reward : true,
 		exp_multiplier : 0.5,

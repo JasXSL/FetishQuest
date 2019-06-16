@@ -255,6 +255,7 @@ export default class GameAction extends Generic{
 			console.error("Error, ", this.data.rp, "is not a valid roleplay in", this);
 			return false;
 		}
+		rp.loadState();
 		return rp;
 	}
 
@@ -376,12 +377,15 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.roleplay ){
+
 			const rp = this.getDataAsRoleplay();
+			console.log("Got RP", rp);
 			if( rp.completed && rp.once )
 				return false;
 			rp.completed = false;
 			if( rp && rp.validate(player) )
 				game.setRoleplay(rp);
+
 		}
 
 

@@ -194,7 +194,7 @@ export default class Player extends Generic{
 			out.experience = this.experience;
 
 		// Assets are only sent if equipped, PC, or full
-		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC()), full);
+		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC() || this.isDead()), full);
 
 		if( full ){
 			out.leveled = this.leveled;
@@ -999,6 +999,22 @@ export default class Player extends Generic{
 		return out;
 	}
 
+	// Returns nr of assets by label, including stacks and charges
+	numAssetUses( label ){
+		let out = 0;
+		for(let asset of this.assets){
+			if( asset.label === label ){
+				let n = asset.stacking ? asset._stacks : 1;
+				if( asset.charges > 1 ){
+					n = (n-1)*asset.charges+asset._charges;
+					console.log("Doing asset charges", asset.charges, n, asset);
+				}
+				out += n;
+			}
+		}
+		return out;
+	}
+
 	// Unequips the leftmost one if toolbelt is full
 	unequipActionAssetIfFull(){
 		let assets = this.getEquippedAssetsBySlots(Asset.Slots.action, true);
@@ -1524,7 +1540,7 @@ export default class Player extends Generic{
 			return 0;
 
 		if( stat === ps.stamina )
-			return val*(this.class.primaryStat === stat ? 6 : 4);		// Stamina
+			return val*(this.class.primaryStat === stat ? 3 : 2);		// Stamina
 		else if( stat == ps.agility )
 			return Math.round(val*(this.class.primaryStat === stat ? 1.5 : 1));		// Stamina
 		else if( stat == ps.intellect )

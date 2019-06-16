@@ -95,6 +95,7 @@ const lib = {
 	senderIsCocktopus : {type:Condition.Types.species, data:{species:['cocktopus']}, caster:true},
 	senderIsTentacrab : {type:Condition.Types.species, data:{species:['tentacrab']}, caster:true},
 	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
+	senderIsGroper : {type:Condition.Types.species, data:{species:['groper']}, caster:true},
 
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}},

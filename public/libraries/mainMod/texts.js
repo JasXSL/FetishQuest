@@ -911,8 +911,6 @@ const lib = [
 	},
 
 
-
-
 	// WHIPS
 	{ text : "%S slips %Shis %Sgear between %T's legs, grinding it back and fort across the %Trace's %Tgroin!",
 		conditions : anyOnHumCond.concat([
@@ -1454,7 +1452,7 @@ const lib = [
 		weight : Text.Weights.high,
 		hitfx : ["punch"]
 	},
-	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast and %T2's %T2bsize %T2breast, jiggling them both around!",
+	{ text : "%S slips underneath %T and throws a punch from below at %T's %Tbsize %leftright %Tbreast and %T2's %T2bsize %breast, jiggling them both around!",
 		"numTargets":2,
 		"armor_slot":"upperbody",
 		conditions : humOnHumCond.concat([

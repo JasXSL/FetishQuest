@@ -732,7 +732,7 @@ const lib = {
 		level: 3,
 		name : "Siphon Corruption",
 		icon : 'goo-skull',
-		description : "Consumes all charges of corrupting ooze on your target, dealing damage equal to 2x the amount of stacks consumed, and healing you for the same amount.",
+		description : "Consumes all charges of corrupting ooze on your target, dealing damage equal to 2x the amount of stacks consumed, and healing you for half the amount.",
 		ap : 1,
 		mp : 1,
 		type : Action.Types.corruption,
@@ -765,7 +765,7 @@ const lib = {
 						],
 						type : "damage",
 						data : {
-							"amount": "-se_Wrapper_corruptingOoze*2"
+							"amount": "-se_Wrapper_corruptingOoze"
 						}
 					},
 					{

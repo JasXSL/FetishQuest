@@ -167,7 +167,7 @@ class Quest extends Generic{
 			cl.g_resetID();
 			cl.restore();
 			cl._stacks = n;
-			this.addRewardToPlayer(asset, player);
+			this.addRewardToPlayer(cl, player);
 		}
 	}
 

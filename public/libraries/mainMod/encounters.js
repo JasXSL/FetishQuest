@@ -276,15 +276,25 @@ const lib = {
 							text: "Oh hi!",
 							options: [
 								{
-									text: "I have the groper vines you asked for.", 
-									index: 1, 
+									text: "I got you the three groper vines you asked for.", 
+									index: 2, 
 									conditions:[
-										{type:Condition.Types.hasInventory, data:{label:"groperVine", amount:3}}
+										{type:Condition.Types.questObjectiveCompleted, data:{quest:"SQ_goboat", objective:"roperVines"}}
 									],
 									game_actions:[
-										{type: GameAction.types.questObjective, data : {quest:"SQ_goboat", objective:"roperVines", type:"add", amount:3}},
 										{type: GameAction.types.finishQuest, data : {quest:'SQ_goboat'}},
-										{type: GameAction.types.addInventory, data : {asset:'groperVine', amount:-3}}
+									]
+								},
+								{
+									text: "I have a single groper vine for you.", 
+									index: 1, 
+									conditions:[
+										{type:Condition.Types.questObjectiveCompleted, data:{quest:"SQ_goboat", objective:"roperVines"}, inverse:true},
+										{type:Condition.Types.hasInventory, data:{label:"groperVine", amount:1}},
+									],
+									game_actions:[
+										{type: GameAction.types.questObjective, data : {quest:"SQ_goboat", objective:"roperVines", type:"add", amount:1}},
+										{type: GameAction.types.addInventory, data : {asset:'groperVine', amount:-1}}
 									]
 								},
 								{text: "Nevermind.", index: -1},
@@ -292,7 +302,14 @@ const lib = {
 						},
 						{
 							index: 1,
-							text: "Yes! These will work! Come back in a few days and I might let you use the boat!",
+							text: "Thank you!",
+							options: [
+								{text:'[Return]', index:0, chat:RoleplayStageOption.ChatType.none}
+							]
+						},
+						{
+							index: 2,
+							text: "Yes you have! Here is a little something for your trouble!",
 							options: [{text:'Thanks', index:-1}]
 						},
 					],
@@ -324,7 +341,8 @@ const lib = {
 						data: {
 							type : Effect.KnockdownTypes.Back
 						}
-					}
+					},
+					'selfTaunt'
 				]
 			}
 		],

@@ -287,11 +287,9 @@ export default class UI{
 		// Charges
 		let existing = {};
 		actions = actions.filter(el => {
-			if( existing[el.label] ){
-				++existing[el.label];
+			if( existing[el.label] )
 				return false;
-			}
-			existing[el.label] = 1;
+			existing[el.label] = true;
 			return true;
 		});
 
@@ -318,7 +316,7 @@ export default class UI{
 
 			// This action is tied to an asset
 			if( action.isAssetAction() && action.parent._charges > 0 ){
-				html += '<div class="uses">'+existing[action.label]+'</div>';
+				html += '<div class="uses">'+player.numAssetUses(action.parent.label)+'</div>';
 			}
 			else if( action._charges > 1 ){
 				html += '<div class="uses">'+action._charges+'</div>';
