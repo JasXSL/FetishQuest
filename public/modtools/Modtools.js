@@ -1014,7 +1014,7 @@ export default class Modtools{
 		this.mml_generic( 
 			'shops', 
 			['Label','Name','# Items','Player Label','Buys','Sells'],
-			this.mod.assetTemplates,
+			this.mod.shops,
 			asset => {
 				return [
 					asset.label,
@@ -1623,30 +1623,73 @@ export default class Modtools{
 
 
 	editor_shops( asset = {} ){
-		/*
+
+		const th = this;
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
-			html += 'Name: '+this.inputEffectType(asset.type, 'type')+'<br />';
-			html += 'Player: <input required class="json" type="text" name="data" value="'+esc(JSON.stringify(asset.data))+'" /><br />';
-			html += 'Events: '+this.formEvents(asset.events, 'events')+'<br />';
-			html += 'Targets: '+this.formWrapperTargetTypes(asset.targets, 'targets')+'<br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Buys: <input type="checkbox" name="buys" '+(asset.buys ? 'checked' : '')+' /><br />';
 			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />';
+			html += '<div class="items"></div>';
+			html += '<input type="button" name="addShopAsset" value="Add Vendor Item" /><br /><br />';
+			
 			
 
-
-		this.editor_generic('effects', asset, this.mod.effects, html, saveAsset => {
+		this.editor_generic('shops', asset, this.mod.shops, html, saveAsset => {
 
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();
-			saveAsset.data = {};
-			try{ saveAsset.data = JSON.parse($("input[name=data]", form).val().trim()); }catch(err){}
-			saveAsset.events = this.compileEvents('events');
-			saveAsset.type = $('select[name=type]', form).val();
-			saveAsset.targets = this.compileWrapperTargetTypes('targets');
+			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.buys = $("input[name=buys]", form).is(':checked');
 			saveAsset.conditions = this.compileConditions('conditions');
+			saveAsset.items = [];
+			$("div.items > div.item", form).each((_,el) => {
+				const obj = {};
+				obj.id = $("> input[name=id]", el).val();
+				obj.asset = th.getValOrJson($("> input[name=asset]", el));
+				obj.cost = +$("> input[name=cost]", el);
+				obj.amount = +$("> input[name=amount]", el);
+				obj.restock_rate = +$("> input[name=restock_rate]", el);
+				if( isNaN(obj.cost) )obj.cost = -1;
+				if( isNaN(obj.amount) )obj.amount = -1;
+				if( isNaN(obj.restock_rate) )obj.restock_rate = 0;
+				obj.conditions = th.compileConditions("subconds", el);
+				saveAsset.items.push(obj);
+			});
+
+			console.log("Asset", saveAsset);
+
 
 		});
-		*/
+
+		const addAsset = function(asset = {}){
+			const el = $("#assetForm div.items");
+			let html = '<div class="item condWrapper ">';
+
+				html += 'ID (required, unique label in vendor):  <input type="text" name="id" value="'+esc(asset.id || Generic.generateUUID())+'" /><br />';
+				html += 'Asset: '+th.inputAsset(asset.asset)+'<br />';
+				html += 'Cost in copper (-1 = auto): <input type="number" name="cost" min=-1 step=1 value="'+esc(asset.cost || -1)+'" /><br />';
+				html += 'Stock (-1 = infinity): <input type="number" name="amount" min=-1 step=1 value="'+esc(asset.amount || -1)+'" /><br />';
+				html += 'Restock (in-game seconds, 0 = never): <input type="number" name="restock_rate" min=0 step=1 value="'+esc(asset.restock_rate || 260000)+'" /><br />';
+				html += 'Conditions: '+th.formConditions(asset.conditions, 'subconds')+'<br />';
+
+			html += '</div>';
+			const dom = $(html);
+			el.append(dom);
+			dom.on('click', event => {
+				if( event.ctrlKey )
+					$(event.currentTarget).remove();
+			});
+		}
+
+		const assets = Array.isArray(asset.items) ? asset.items : [];
+		for( let asset of assets )
+			addAsset(asset);
+		
+		$("#assetForm input[name=addShopAsset]").on('click', () => {
+			addAsset();
+		});
+
 	}
 
 
@@ -2989,6 +3032,16 @@ export default class Modtools{
 		$("#modal .deleteParent").off('click').on('click', function(){
 			$(this).parent().remove();
 		});
+	}
+
+	// Tries to JSON decode a form, if it fails, return it as text
+	getValOrJson( el ){
+		el = $(el);
+		let val = el.val().trim();
+		try{
+			val = JSON.parse(val);
+		}catch(err){}
+		return val;
 	}
 
 	// Draws a JSON editor for an element
@@ -4382,11 +4435,7 @@ export default class Modtools{
 		const out = [];
 		base.each((index, value) => {
 			const el = $(value);
-			let val = el.val().trim();
-			try{
-				val = JSON.parse(val);
-			}catch(err){}
-
+			const val = this.getValOrJson(el);
 			if( val )
 				out.push(val);
 		});

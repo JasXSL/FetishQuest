@@ -2634,20 +2634,22 @@ export default class UI{
 		html += '</h3>';
 
 		html += '<div class="shop inventory flexTwoColumns">';
-			html += '<div class="left full">';
-				html += '<h2>Sell</h2>';
-				html += '<div class="assets sell">';
-				const assets = myPlayer.assets;
-				for( let asset of assets ){
-					if( asset.isSellable() ){
-						const a = asset.clone();
-						a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
-						html += this.getGenericAssetButton(a, a.getSellCost(shop));
+			if( shop.buys ){
+				html += '<div class="left full">';
+					html += '<h2>Sell</h2>';
+					html += '<div class="assets sell">';
+					const assets = myPlayer.assets;
+					for( let asset of assets ){
+						if( asset.isSellable() ){
+							const a = asset.clone();
+							a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
+							html += this.getGenericAssetButton(a, a.getSellCost(shop));
+						}
 					}
-				}
+					html += '</div>';
 				html += '</div>';
-			html += '</div>';
-			html += '<div class="left">';
+			}
+			html += '<div class="right">';
 				html += '<h2>Buy</h2>';
 				html += '<div class="assets buy">';
 				for( let item of shop.items ){

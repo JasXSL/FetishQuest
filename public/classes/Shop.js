@@ -17,7 +17,6 @@ export default class Shop extends Generic{
 		this.items = [];
 		this.conditions = [];
 		this.buys = true;
-		this.sells = true;
 
 		this.load(data);
 	}
@@ -31,7 +30,6 @@ export default class Shop extends Generic{
 			items : ShopAsset.saveThese(this.items, full),
 			conditions : Condition.saveThese(this.conditions, full),
 			buys : this.buys,
-			sells : this.sells,
 		};
 
 		if( full !== "mod" ){}

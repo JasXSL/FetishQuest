@@ -1945,6 +1945,10 @@ export default class Game extends Generic{
 			this.modal.addError("Shop not found");
 			return;
 		}
+
+		if( !shop.buys )
+			return this.modal.error("Shop doesn't buy items");
+
 		if( !asset ){
 			this.modal.addError("Asset not found on player");
 			return;
