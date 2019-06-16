@@ -1,16 +1,11 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Lever didn't seem to work in multiplayer?
-	- Make the tooltip remove itself if the target is removed
 
 Medium rare:
 	- Add shops to dev tools
-	- Add a text filter for cloth damage by slot if possible
 
 Big chungi:
-	- Redesign errors to a try/catch system, that'll let netcode return errors as well
-	- Netcode needs to be able to callback
 
 
 Food for thought
@@ -19,7 +14,7 @@ Food for thought
 		- Need to unlock at an inn
 	
 
-Next beta only update:
+Next beta-only update:
 	- Goblin boat quest
 		- Add boat that shows up x days after completing the boat quest
 		- Boat lets you travel to the middle of the lake.
@@ -27,6 +22,11 @@ Next beta only update:
 	- West forest
 		- Hidden path down to the beach
 		- Otter and Broper quest
+	- Redesign errors to a try/catch system, that'll let netcode return errors as well
+	- Netcode needs to be able to callback
+	- Add a text filter for cloth damage by slot if possible
+
+
 
 
 Meshes:

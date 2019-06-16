@@ -244,7 +244,7 @@ export default class Game extends Generic{
 
 	loadFromNet( data ){
 
-		const mute_pre = this.mute_spectators;
+		const mute_pre = this.mute_spectators && !this.getMyActivePlayer();
 
 		let turn = this.getTurnPlayer();
 		this.net_load = true;
@@ -256,7 +256,7 @@ export default class Game extends Generic{
 		this.dungeon.loadState();
 
 		// Handle mute state change
-		if( mute_pre !== this.mute_spectators )
+		if( mute_pre !== (this.mute_spectators && this.getMyActivePlayer()) )
 			this.ui.updateMute();
 
 	}
@@ -1925,6 +1925,9 @@ export default class Game extends Generic{
 			return;
 		}
 
+		if( this.battle_active )
+			return this.modal.addError("Battle in progress");
+
 		// Netcode
 		if( !this.is_host ){
 			this.net.playerSellItem(shop, asset, amount, player);
@@ -1982,11 +1985,19 @@ export default class Game extends Generic{
 			return;
 		}
 
+		if( this.battle_active )
+			return this.modal.addError("Battle in progress");
+
 		// netcode
 		if( !this.is_host ){
 			this.net.playerBuyItem(shop, asset, amount, player);
 			return;
 		}
+		if( isNaN(amount) || amount < 1 ){
+			this.modal.addError("Invalid amount");
+			return;
+		}
+
 
 		shop.loadState(this.state_shops[shop.label]);
 
@@ -2000,10 +2011,6 @@ export default class Game extends Generic{
 
 		if( !asset ){
 			this.modal.addError("Asset not found in shop");
-			return;
-		}
-		if( isNaN(amount) || amount < 1 ){
-			this.modal.addError("Invalid amount");
 			return;
 		}
 		if( !player ){

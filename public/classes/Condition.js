@@ -430,10 +430,12 @@ export default class Condition extends Generic{
 				success = !t.used_punish;
 			
 			else if( this.type === T.dungeonVar ){
+
 				let dungeon = event.dungeon.label;
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
+				
 			}
 			else if( this.type === T.formula ){
 				success = Calculator.run(this.data.formula, event);

@@ -90,12 +90,12 @@ class Dungeon extends Generic{
 				return el.save(full);
 			}),
 			difficulty : this.difficulty,
-			vars : vars
+			vars : vars,
+			label : this.label,	// Label is needed for dungeon state events
 		};
 
 		// Full or mod
 		if( full ){
-			out.label = this.label;
 			out.depth = this.depth;
 			out.height = this.height;
 			out.shape = this.shape;
