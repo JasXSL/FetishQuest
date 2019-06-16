@@ -1,8 +1,6 @@
 Needed other:
 Smol:	
 	- Punishments
-	- Call PlacedInWorld when a shop asset is sold and/or placed in a shop
-	- Add a mute spectators button
 	- Make damage boost by attack advantage count 10% instead of 5%
 	- Add trade in combat for 4 ap
 	- Lever didn't seem to work in multiplayer?
@@ -10,7 +8,6 @@ Smol:
 
 Medium rare:
 	- Add shops to dev tools
-	- Shops should probably be tied to players differently
 	- Add a text filter for cloth damage by slot if possible
 
 Big chungi:

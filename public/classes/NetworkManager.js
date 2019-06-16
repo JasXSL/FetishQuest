@@ -334,6 +334,16 @@ class NetworkManager{
 		return '';
 	}
 
+	// Takes a netplayer ID and returns an array of players controlled by them
+	getOwnedPlayers(id){
+		const out = [];
+		for( let player of game.players ){
+			if( player.netgame_owner === id )
+				out.push(player);
+		}
+		return out;
+	}
+
 	// Gets a localStorage netgame alias if present
 	getStandardNick(){
 		let nick = localStorage.netgameName || "";
@@ -437,6 +447,10 @@ class NetworkManager{
 			if( isOOC )
 				p = this.getPlayerNameById(netPlayer);
 			
+			if( +localStorage.muteSpectators && !this.getOwnedPlayers(netPlayer).length )
+				return;
+			
+
 			game.speakAs(p, escapeStylizeText(txt), isOOC);
 
 		}
@@ -607,6 +621,7 @@ class NetworkManager{
 			game.ui.destructor();
 			game.load(args);
 			game.renderer.loadActiveDungeon();
+			game.ui.updateMute();
 		}
 
 		// Visual effect

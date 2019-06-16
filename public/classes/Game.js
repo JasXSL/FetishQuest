@@ -70,6 +70,7 @@ export default class Game extends Generic{
 		this.save_timer = null;
 		this.ignore_netgame = true;						// For above, set to false if there's a call is added to the timer without ignore
 
+		this.mute_spectators = +localStorage.muteSpectators || 0;	// Shouldn't be saved, but sent to net
 		this.my_player = localStorage.my_player;
 
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
@@ -124,6 +125,9 @@ export default class Game extends Generic{
 			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
 			out.procedural_dungeon = this.procedural_dungeon.save(full);
+		}
+		else{
+			out.mute_spectators = this.mute_spectators;
 		}
 
 		return out;
@@ -240,6 +244,8 @@ export default class Game extends Generic{
 
 	loadFromNet( data ){
 
+		const mute_pre = this.mute_spectators;
+
 		let turn = this.getTurnPlayer();
 		this.net_load = true;
 		this.g_autoload(data);
@@ -248,6 +254,11 @@ export default class Game extends Generic{
 		if( turn.id !== nt.id )
 			this.onTurnChanged();
 		this.dungeon.loadState();
+
+		// Handle mute state change
+		if( mute_pre !== this.mute_spectators )
+			this.ui.updateMute();
+
 	}
 
 	// Automatically invoked after g_autoload() in load()

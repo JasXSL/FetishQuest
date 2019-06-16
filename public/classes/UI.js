@@ -178,7 +178,7 @@ export default class UI{
 		this.board.toggleClass("dev", this.showDMTools());
 		this.board.toggleClass("bubbles", this.showBubbles());
 	}
-
+ 
 	// Takes the 3d canvases
 	ini( map, fx ){
 
@@ -1155,6 +1155,10 @@ export default class UI{
 
 	}
 
+	updateMute(){
+		const mute = Boolean( !game.is_host && !game.getMyActivePlayer() && game.mute_spectators )
+		this.board.toggleClass("mute", mute);
+	}
 
 
 
@@ -1885,7 +1889,8 @@ export default class UI{
 				html+= '<div class="netgame player">'+esc(player.name)+'</div>';
 
 			if( game.is_host ){
-				html += '<label>Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" '+(+localStorage.turnTimer ? 'checked' : '')+' /></label>';
+				html += '<label>Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" '+(+localStorage.turnTimer ? 'checked' : '')+' /></label><br />';
+				html += '<label>Mute spectators: <input type="checkbox" class="muteSpectators" '+(+localStorage.muteSpectators ? 'checked' : '')+' /></label><br />';
 			}
 
 		}
@@ -1906,6 +1911,11 @@ export default class UI{
 		$("#modal input.enableTurnTimer").on('click', event => {
 			localStorage.turnTimer = +$(event.currentTarget).is(':checked');
 			game.onTurnTimerChanged();
+		});
+		$("#modal input.muteSpectators").on('click', event => {
+			localStorage.muteSpectators = +$(event.currentTarget).is(':checked');
+			game.mute_spectators = +localStorage.muteSpectators || 0;
+			game.save();
 		});
 
 		this.bindTooltips();
