@@ -81,8 +81,9 @@ export default class Modal{
 
 		this.open = false;
 		this.wipeEvents();
+		$('>*', this.content).remove();
 		this.bg.toggleClass("hidden", true);
-
+		
 	}
 
 	

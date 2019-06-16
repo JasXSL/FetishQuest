@@ -2366,6 +2366,8 @@ export default class UI{
 
 
 				modal.onSelectionBox(function(){
+
+					th.onTooltipMouseout();
 					let element = $(this);
 					const task = element.attr('data-id');
 
@@ -2470,6 +2472,8 @@ export default class UI{
 				});
 				
 			}
+
+			th.onTooltipMouseout();
 		});
 
 
@@ -3373,8 +3377,11 @@ export default class UI{
 		$(".tooltipParent")
 			.off('mouseover', mo)
 			.off('mouseout', mu)
+			.off('remove', mu)
 			.on('mouseover', mo)
-			.on('mouseout', mu);
+			.on('mouseout', mu)
+			.on('remove', mu)
+		;
 
 	}
 
