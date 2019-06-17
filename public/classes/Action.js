@@ -607,6 +607,8 @@ class Action extends Generic{
 				html += '<span style="color:#FDF">'+this.charges+' Charges</span>';
 			if( this.cooldown )
 				html += '<span style="color:#FFD">'+this.cooldown+' Round Cooldown</span>';
+			if( this.isAssetAction() )
+				html += '<span style="color:#FFF">'+this.parent.getWeightReadable()+'</span>';
 			if( this.cast_time )
 				html += '<span style="color:#FDD"><strong>Charged '+this.cooldown+' turn'+(this.cooldown !== 1 ? 's' : '')+'</strong></span>';
 			if( ap )

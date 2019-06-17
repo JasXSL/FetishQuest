@@ -300,6 +300,20 @@ export default class Asset extends Generic{
 		this.durability = 1+Math.floor(Math.random()*(this.getMaxDurability()-1));
 	}
 
+	getWeightReadable(){
+		if( this.weight <= 10 )
+			return 'Very Lightweight';
+		else if( this.weight <= 100 )
+			return 'Lightweight';
+		else if( this.weight <= 1000 )
+			return 'Fairly Lightweight';
+		else if( this.weight <= 5000 )
+			return 'Moderately Heavy';
+		else if( this.weight <= 10000 )
+			return 'Heavy';
+		return 'Very Heavy';	
+	}
+
 	
 	// Makes sure the asset is up to date
 	// Called when added to a player's inventory or when a player is placed in world
@@ -315,21 +329,19 @@ export default class Asset extends Generic{
 	// Gets tooltip text for UI
 	getTooltipText(){
 		
+		const isConsumable = this.isConsumable(),
+			isBreakable = ~this.slots.indexOf(Asset.Slots.upperbody) || ~this.slots.indexOf(Asset.Slots.lowerbody)
+		;
 		let html = '';
-
 		// Usable items shows the action tooltip instead
-		if( this.isConsumable() ){
-
-			html += this.use_action.getTooltipText(0, this.rarity);
-			return html;
-
-		}
+		if( isConsumable )
+			return this.use_action.getTooltipText(0, this.rarity);
 
 		let apCost = this.equipped ? Game.UNEQUIP_COST : Game.EQUIP_COST;
 		let dmgTaken = this.getDmgTakenAdd();
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
-		if( dmgTaken ){
+		if( dmgTaken && isBreakable ){
 			if( this.durability )
 				html += '<em style="color:#FAA">Low level item, -'+Math.round(dmgTaken*100)+'% damage reduction</em><br />';
 			else
@@ -341,13 +353,16 @@ export default class Asset extends Generic{
 				apCost+' AP to '+(this.equipped ? 'take off' : 'equip')+
 			'</span>]<br />';
 
-		html+= 'Lv '+(+this.level)+' | '+(+this.durability)+'/'+this.getMaxDurability()+' Durability | ';
-		if( !this.equippable() )
-			html += 'Not Equippable<br />';
-		else if(this.slots.length && !this.equipped)
-			html+= 'Equippable to <strong>'+this.slots.map(el => el.toUpperCase()).join(' + ')+'</strong>';
-		else if(this.slots.length)
-			html+= 'Equipped to <strong>'+this.slots.map(el => el.toUpperCase()).join(' + ')+'</strong>';
+		if( this.equippable() )
+			html += 'Lv '+(+this.level)+' | '+(+this.durability)+'/'+this.getMaxDurability()+' Durability | ';
+		html += this.getWeightReadable()+' ';
+		if( this.equippable() ){
+			html += '| ';
+			if(this.slots.length && !this.equipped)
+				html+= '<strong>'+this.slots.map(el => el.toUpperCase()).join(' + ')+'</strong>';
+			else if(this.slots.length)
+				html+= 'Equipped <strong>'+this.slots.map(el => el.toUpperCase()).join(' + ')+'</strong>';
+		}
 		html += '</em><br />';
 
 		html += esc(this.description);
