@@ -315,8 +315,9 @@ export default class UI{
 			html += '<img src="media/wrapper_icons/'+esc(action.getIcon())+'.svg" />';
 
 			// This action is tied to an asset
-			if( action.isAssetAction() && action.parent._charges > 0 ){
-				html += '<div class="uses">'+player.numAssetUses(action.parent.label)+'</div>';
+			if( action.isAssetAction() ){
+				if( action.parent._charges > 0 && action.parent.charges !== -1 )
+					html += '<div class="uses">'+player.numAssetUses(action.parent.label, true)+'</div>';
 			}
 			else if( action._charges > 1 ){
 				html += '<div class="uses">'+action._charges+'</div>';
@@ -2628,7 +2629,8 @@ export default class UI{
 				}
 			}
 		}
-		html += '<br /><br /><input type="button" name="exchange" value="Exchange" />';
+		if( myPlayer.canExchange() )
+			html += '<br /><br /><input type="button" name="exchange" value="Exchange" />';
 		html += '</h3>';
 
 		html += '<div class="shop inventory flexTwoColumns">';

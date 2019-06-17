@@ -7,7 +7,7 @@ export default class Generic{
 
 	// Auto loads and typecasts
 	// If accept_all_nulls is true, all target nulls are set to the supplied value and not typecast or cloned
-	g_autoload( data ){
+	g_autoload( data, debug = false ){
 
 		if( !data )
 			return;
@@ -19,7 +19,12 @@ export default class Generic{
 		const n = this.constructor.name === "Game" ? this : new this.constructor();
 		for(let i in data){
 			if( this.hasOwnProperty(i) && typeof n[i] !== "function" && i !== "parent" ){
-				this[i] = this.g_typecast(data[i], n[i], i );
+				// Special tag to delete an object property
+				if( data[i] === '__DEL__' ){
+					delete this[i];
+				}else{
+					this[i] = this.g_typecast(data[i], n[i], i );
+				}
 			}
 		}
 

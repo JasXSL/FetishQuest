@@ -91,11 +91,11 @@ export default class Comparer{
 					// This property has been deleted. This is generally not good form, so don't design things around that
 					// But this catch is needed for debugging, like when you wipe save progress
 					if( o === undefined ){
-						console.error("Object property deletion detected, this is poor design and should be avoided other than for debugging.", "Found in", a[i], b[i], "parents", a, b, "selector", i);
-						return true;
+						//console.error("Object property deletion detected, this is poor design and should be avoided other than for debugging.", "Found in", a[i], b[i], "parents", a, b, "selector", i);
+						out[i] = '__DEL__';
 					}
 
-					if( o === true ){
+					else if( o === true ){
 						out[i] = b[i];
 					}
 					else if( o === null )

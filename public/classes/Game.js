@@ -248,7 +248,7 @@ export default class Game extends Generic{
 
 		let turn = this.getTurnPlayer();
 		this.net_load = true;
-		this.g_autoload(data);
+		this.g_autoload(data, true);
 		this.net_load = false;
 		let nt = this.getTurnPlayer();
 		if( turn.id !== nt.id )

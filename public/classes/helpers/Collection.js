@@ -31,8 +31,12 @@ export default class Collection{
 		if(typeof data !== "object")
 			data = {};
 
-		for( let i in data )
-			this[i] = data[i];
+		for( let i in data ){
+			if( data[i] === '__DEL__')
+				delete this[i];
+			else
+				this[i] = data[i];
+		}
 
 	}
 

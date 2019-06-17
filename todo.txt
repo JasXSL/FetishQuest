@@ -1,9 +1,6 @@
 Needed other:
 Smol:	
-	- See if you can make sub-assets of a linked asset connect to root (so you can click doors anywhere, not just the root mesh)
-	- Handle object key deletions by a "_DELETED_" flag or something
-	- Show only equipped charges in combat on the combat bar
-	- Limit exchange to if you have 10 or more of each stack
+	- !Try to reproduce! See if you can make sub-assets of a linked asset connect to root (so you can click doors anywhere, not just the root mesh)
 
 Medium rare:
 	- Add a text filter for cloth damage by slot if possible

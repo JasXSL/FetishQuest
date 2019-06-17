@@ -1006,15 +1006,21 @@ export default class Player extends Generic{
 	}
 
 	// Returns nr of assets by label, including stacks and charges
-	numAssetUses( label ){
+	numAssetUses( label, equipped_only = false ){
+
+		let assets = this.assets;
+		if( equipped_only )
+			assets = this.getAssetsEquipped();
 		let out = 0;
-		for(let asset of this.assets){
+		for(let asset of assets){
 			if( asset.label === label ){
 				let n = asset.stacking ? asset._stacks : 1;
 				if( asset.charges > 1 ){
 					n = (n-1)*asset.charges+asset._charges;
 					console.log("Doing asset charges", asset.charges, n, asset);
 				}
+				else if( asset.charges === -1 )
+					return -1;
 				out += n;
 			}
 		}
@@ -1356,6 +1362,14 @@ export default class Player extends Generic{
 			this.addAsset(asset);
 		}
 
+	}
+
+	canExchange(){
+		const labels = Player.currencyWeights;
+		for( let asset of this.assets ){
+			if( ~labels.indexOf(asset.label) && asset._stacks >= 10 )
+				return true;
+		}
 	}
 
 
