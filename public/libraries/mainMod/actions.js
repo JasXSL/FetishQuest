@@ -2353,6 +2353,7 @@ const lib = {
 
 	// assets
 	minorRepairKit: {
+		ranged : Action.Range.Melee,
 		name : "Minor Repair",
 		icon : 'sewing-needle',
 		description : "Restores 25% of a damaged item's durability (min 5).",
@@ -2382,6 +2383,7 @@ const lib = {
 		]
 	},
 	repairKit: {
+		ranged : Action.Range.Melee,
 		name : "Armor Repair",
 		icon : 'sewing-needle',
 		description : "Restores 50% of a damaged item's durability (min 10).",
@@ -2415,6 +2417,7 @@ const lib = {
 		]
 	},
 	majorRepairKit: {
+		ranged : Action.Range.Melee,
 		name : "Major Repair",
 		icon : 'sewing-needle',
 		description : "Fully restores a damaged item's durability.",
@@ -2449,6 +2452,7 @@ const lib = {
 
 
 	minorHealingPotion: {
+		ranged : Action.Range.None,
 		name : "Minor Healing Potion",
 		icon : 'potion-ball',
 		description : "Restores 8 HP to the user.",
@@ -2477,6 +2481,7 @@ const lib = {
 		]
 	},
 	healingPotion: {
+		ranged : Action.Range.None,
 		name : "Healing Potion",
 		icon : 'potion-ball',
 		description : "Restores 15 HP to the user.",
@@ -2505,6 +2510,7 @@ const lib = {
 		]
 	},
 	majorHealingPotion: {
+		ranged : Action.Range.None,
 		name : "Major Healing Potion",
 		icon : 'potion-ball',
 		description : "Restores 30 HP to the user.",
@@ -2533,6 +2539,7 @@ const lib = {
 		]
 	},
 	manaPotion: {
+		ranged : Action.Range.None,
 		name : "Mana Potion",
 		icon : 'spiral-bottle',
 		description : "Restores 5 mana to the user.",
@@ -2561,6 +2568,7 @@ const lib = {
 		]
 	},
 	majorManaPotion: {
+		ranged : Action.Range.None,
 		name : "Major Mana Potion",
 		icon : 'spiral-bottle',
 		description : "Restores 10 mana to the user.",
@@ -2619,6 +2627,7 @@ const lib = {
 
 	// Food
 	foodRazzyberry : {
+		ranged : Action.Range.None,
 		name : "%P%",		// %P% = parent
 		description : "%P%",
 		icon : '%P%',
@@ -2643,6 +2652,7 @@ const lib = {
 		]
 	},
 	foodFriedFish : {
+		ranged : Action.Range.None,
 		name : "%P%",		// %P% = parent
 		description : "%P%",
 		icon : '%P%',
@@ -2667,6 +2677,7 @@ const lib = {
 		]
 	},
 	foodAle : {
+		ranged : Action.Range.None,
 		name : "%P%",		// %P% = parent
 		description : "%P%",
 		icon : '%P%',

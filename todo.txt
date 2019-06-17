@@ -1,7 +1,12 @@
 Needed other:
 Smol:	
 	- Punishments
+	- Make weight visible on asset
+	- Don't show level in tooltips where they're not equippable or usable
+	- Don't show durability in tooltips unless equippable to upper/lowerbody
+	- Remove "not equippable" text
 	- Add loot to mimics
+		- Need to add a "wealth" stat to player templates, with a base sum of money they can have
 	- See if you can make sub-assets of a linked asset connect to root (so you can click doors anywhere, not just the root mesh)
 	- Handle object key deletions by a "_DELETED_" flag or something
 
@@ -21,6 +26,11 @@ Big chungi:
 	- West forest
 		- Hidden path down to the beach
 		- Otter and Broper quest
+
+
+
+
+
 
 Food for thought
 	- Fast travel system
