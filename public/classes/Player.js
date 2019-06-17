@@ -849,7 +849,7 @@ export default class Player extends Generic{
 
 	/* Assets */
 	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
-	addAsset( asset, amount = 1, fromStacks = false ){
+	addAsset( asset, amount = 1, fromStacks = false, no_equip = false ){
 		if( !(asset instanceof Asset) ){
 			console.error("Trying to add non-asset. Did you mean to use addLibraryAsset?");
 			return false;
@@ -859,7 +859,7 @@ export default class Player extends Generic{
 		asset.onPlacedInWorld();
 		for( let i = 0; i<amount && (!fromStacks || i<1); ++i ){
 			// Needs to be its own object
-			const a = asset.clone();
+			const a = asset.clone(this);
 
 			a.g_resetID();	// Buying stacks will bork everything otherwise
 
@@ -882,7 +882,7 @@ export default class Player extends Generic{
 			}
 			else if( this.isNPC() ){
 
-				if( !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
+				if( !no_equip && !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
 					this.equipAsset(a.id);
 
 			}

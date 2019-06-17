@@ -240,6 +240,11 @@ export default class GameLib{
 
 	}
 
+	getAllKeys( cName ){
+		const all = this.getFull(cName);
+		if( all )
+			return Object.keys(all);
+	}
 
 	getFull( cName ){
 		for( let i in LIB_TYPES ){

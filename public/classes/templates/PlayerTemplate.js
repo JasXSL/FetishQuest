@@ -20,6 +20,8 @@ class PlayerTemplate extends Generic{
 		this.tags = [];
 		this.min_level = 1;
 		this.max_level = 20;
+		this.monetary_wealth = 0;				// Copper. Varies by 50%
+		this.gear_quality = 0.2;				// Quality of gear generated
 		this.primary_stats = {};
 		this.sv = {};
 		this.bon = {};
@@ -41,6 +43,7 @@ class PlayerTemplate extends Generic{
 		this.intelligence_min = 0.6;				// Starts off at human level
 		this.intelligence_max = 0.6;
 		this.required_assets = [];				// labels of assets that MUST be on this character
+		this.no_equip = false;					// Prevents equip of the gear. Useful for things like mimics.
 		this.load(...args);
 	}
 
@@ -71,7 +74,8 @@ class PlayerTemplate extends Generic{
 			max_size : this.max_size,
 			difficulty : this.difficulty,
 			viable_consumables : this.viable_consumables,
-
+			monetary_wealth : this.monetary_wealth,
+			gear_quality : this.gear_quality,
 			sadistic_min : this.sadistic_min,
 			sadistic_max : this.sadistic_max,
 			dominant_min : this.dominant_min,
@@ -80,6 +84,7 @@ class PlayerTemplate extends Generic{
 			intelligence_max : this.intelligence_max,
 			required_assets : this.required_assets,
 			powered : this.powered,
+			no_equip : this.no_equip,
 		};
 	}
 
@@ -120,6 +125,12 @@ class PlayerTemplate extends Generic{
 		player.team = 1;
 		player.powered = this.powered;
 		shuffle(this.classes);
+
+		if( this.viable_asset_materials[0] === '*' )
+			this.viable_asset_materials = glib.getAllKeys('MaterialTemplate');
+		if( this.viable_asset_templates[0] === '*' )
+			this.viable_asset_templates = glib.getAllKeys('AssetTemplate');
+
 		shuffle(this.viable_asset_materials);
 		shuffle(this.viable_asset_templates);
 		shuffle(this.viable_gear);
@@ -137,16 +148,32 @@ class PlayerTemplate extends Generic{
 			if( !item )
 				continue;
 			item.restore();
-			player.addAsset(item);
-			item.equipped = true;
+			player.addAsset(item, undefined, undefined, true);
+			if( !this.no_equip )
+				item.equipped = true;
 		}
+
+		let gearLevelOffset = -2;
+		if( this.gear_quality >= 0.5 )
+			gearLevelOffset = 0;
+		else if( this.gear_quality > 0.25 )
+			gearLevelOffset = -1;
+
+		let minRarity = 0;
+
+		if( this.gear_quality >= 1 )
+			minRarity = 3;
+		else if( this.gear_quality >= 0.75 )
+			minRarity = 2;
+		else if( this.gear_quality >= 0.5 )
+			minRarity = 1;
 
 		// pick assets
 		if( this.viable_asset_templates.length ){
 
 			for( let template of this.viable_asset_templates ){
 
-				let asset = Asset.generate(undefined, level-2, template, this.viable_asset_materials);
+				let asset = Asset.generate(undefined, level-gearLevelOffset, template, this.viable_asset_materials, undefined, minRarity);
 				if( !asset )
 					continue;
 				if( player.getEquippedAssetsBySlots(asset.slots).length )
@@ -154,8 +181,9 @@ class PlayerTemplate extends Generic{
 
 				asset.restore();
 				asset.randomizeDurability();
-				player.addAsset(asset);
-				player.equipAsset(asset.id);
+				player.addAsset(asset, undefined, undefined, true);
+				if( !this.no_equip )
+					player.equipAsset(asset.id);
 				if( Math.random() < 0.25 )
 					break;
 
@@ -171,8 +199,9 @@ class PlayerTemplate extends Generic{
 
 					let asset = libAssets[template];
 					asset.restore();
-					player.addAsset(asset);
-					player.equipAsset(asset.id);
+					player.addAsset(asset, undefined, undefined, true);
+					if( !this.no_equip )
+						player.equipAsset(asset.id);
 
 				}
 
@@ -189,10 +218,19 @@ class PlayerTemplate extends Generic{
 			if( item ){
 				item.restore();
 				player.addAsset(item);
-				player.equipAsset(item.id);
+				if( !this.no_equip )
+					player.equipAsset(item.id);
 			}
 		}
 
+		// Dosh!
+		// Amount of money varies by +-50% 
+		let copper = Math.floor(this.monetary_wealth*(Math.random()-0.5));
+		const copperAsset = glib.get('copper', 'Asset');
+		copperAsset.g_resetID();
+		copperAsset._stacks = copper;
+		player.addAsset(copperAsset);
+		player.exchangeMoney();
 		
 		let viableActions = [];
 		for( let a of player.class.actions ){
@@ -246,6 +284,8 @@ class PlayerTemplate extends Generic{
 
 
 }
+
+// 1s is 1x money multiplier
 
 PlayerTemplate.generate = function( level, labels ){
 	

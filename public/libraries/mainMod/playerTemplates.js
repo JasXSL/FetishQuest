@@ -192,6 +192,7 @@ const lib = {
 		classes : [
 			"imp"
 		],
+		monetary_wealth : 10,
 		max_actions : 1,
 		tags : [
 			"pl_penis",
@@ -259,6 +260,7 @@ const lib = {
 		classes : [
 			"imp"
 		],
+		monetary_wealth : 20,
 		max_actions : 2,
 		tags : [
 			"pl_penis",
@@ -328,6 +330,7 @@ const lib = {
 		classes : [
 			"imp"
 		],
+		monetary_wealth : 50,
 		max_actions : 3,
 		tags : [
 			"pl_penis",
@@ -416,22 +419,13 @@ const lib = {
 		bon : {
 			"Corruption":2
 		},
-		viable_asset_materials : [
-
-		],
-		viable_asset_templates : [
-
-		],
-		viable_gear : [
-
-		],
+		viable_asset_materials : ['*'],
+		viable_asset_templates : ['*'],
 		gear_chance : 0.5,
 		min_size : 3,
 		max_size : 3,
 		difficulty : 1,
-		viable_consumables : [
-
-		],
+		viable_consumables : ['majorManaPotion','majorHealingPotion','repairKit'],
 		powered : true,
 		sadistic_min : 0,
 		sadistic_max : 1,
@@ -441,9 +435,10 @@ const lib = {
 		hetero_max:1,
 		intelligence_min : 0.2,
 		intelligence_max : 0.2,
-		required_assets : [
-
-		]
+		required_assets : [],
+		monetary_wealth : 500,
+		gear_quality : 0.5,
+		no_equip : true,
 	},
 
 	cocktopus : {
@@ -570,6 +565,7 @@ const lib = {
 		species : "skeleton",
 		description : "A rattling skeleton.",
 		classes : ["skeleton"],
+		monetary_wealth : 5,
 		max_actions : 2,
 		tags : [
 			stdTag.plBeast,

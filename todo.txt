@@ -1,9 +1,5 @@
 Needed other:
 Smol:	
-	- Make weight visible on asset
-		- Needs to be on potions etc that have an action as well
-	- Add loot to mimics
-		- Need to add a "wealth" stat to player templates, with a base sum of money they can have
 	- See if you can make sub-assets of a linked asset connect to root (so you can click doors anywhere, not just the root mesh)
 	- Handle object key deletions by a "_DELETED_" flag or something
 	- Show only equipped charges in combat on the combat bar
