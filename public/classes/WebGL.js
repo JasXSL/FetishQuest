@@ -338,6 +338,11 @@ class WebGL{
 
 	setOutdoorTime( hours ){
 
+		// Delay nighttime
+		if( hours > 12 ){
+			hours = 12+Math.pow((hours-12)/12, 2)*12;
+		}
+
 		const effectController = {
 			turbidity: 10,
 			rayleigh: 2,
@@ -974,10 +979,15 @@ class Stage{
 
 		if( this.room && this.room.outdoors ){
 			this.parent.toggleOutdoors(true);
-			this.parent.setOutdoorTime(15);
+			this.parent.setOutdoorTime(game.getHoursOfDay());
 		}
 		else
 			this.parent.toggleOutdoors(false);
+	}
+
+	onTimeChanged(){
+		if( this.room && this.room.outdoors )
+			this.parent.setOutdoorTime(game.getHoursOfDay());
 	}
 
 	onTurnOff(){

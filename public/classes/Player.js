@@ -858,27 +858,32 @@ export default class Player extends Generic{
 
 		asset.onPlacedInWorld();
 		for( let i = 0; i<amount && (!fromStacks || i<1); ++i ){
-			const exists = this.getAssetByLabel(asset.label);
-			let n = asset._stacks;
+			// Needs to be its own object
+			const a = asset.clone();
+
+			a.g_resetID();	// Buying stacks will bork everything otherwise
+
+			const exists = this.getAssetByLabel(a.label);
+			let n = a._stacks;
 			if( fromStacks )
 				n = amount;
-			if( asset.stacking && exists )
+			if( a.stacking && exists )
 				exists._stacks += n;
 			else{
-				asset = asset.clone(this);
-				asset._stacks = n;
-				this.assets.push(asset);
+				a._stacks = n;
+				this.assets.push(a);
 			}
-			if( asset.category === Asset.Categories.consumable ){
+			if( a.category === Asset.Categories.consumable ){
 				
-				if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 )
-					this.equipAsset(asset.id);
+				if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 ){
+					this.equipAsset(a.id);
+				}
 
 			}
 			else if( this.isNPC() ){
 
-				if( !game.battle_active && !this.getEquippedAssetsBySlots(asset.slots).length && asset.equippable() )
-					this.equipAsset(asset.id);
+				if( !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
+					this.equipAsset(a.id);
 
 			}
 		}
@@ -895,6 +900,7 @@ export default class Player extends Generic{
 			console.error("Invalid library asset", label);
 			return false;
 		}
+		asset.g_resetID();
 		asset.repair();
 		asset.resetCharges();
 		return this.addAsset(asset, amount);

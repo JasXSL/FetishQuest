@@ -2,13 +2,14 @@
 function esc( text, ignorenl2br ){
 	text = String(text);
 	const map = {
-	  '&': '&amp;',
+	  //'&': '&amp;',
 	  '<': '&lt;',
 	  '>': '&gt;',
 	  '"': '&quot;',
 	  "'": '&#039;'
 	};
-	let out = text.replace(/[&<>"']/g, function(m) { return map[m]; });
+	//let out = text.replace(/[&<>"']/g, function(m) { return map[m]; });
+	let out = text.replace(/[<>"']/g, function(m) { return map[m]; });
 	if( !ignorenl2br )
 		out = out.split("\n").join('<br />');
 	return out;

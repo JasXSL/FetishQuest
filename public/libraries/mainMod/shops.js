@@ -27,7 +27,7 @@ const lib = {
 		conditions : [],
 		items : [
 			{id:"manaPotion", asset:'manaPotion', amount:4},
-			{id:"minorHealingPotion", asset:'minorHealingPotion', amount:2},
+			{id:"minorHealingPotion", asset:'minorHealingPotion', amount:-1},
 			{id:"ale", asset:'food_Ale', amount:3},
 			{id:"yuug_portswood_silk_thong", asset:'yuug_portswood_silk_thong', amount:1, restock_rate:0},
 		]

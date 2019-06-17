@@ -2713,7 +2713,7 @@ export default class UI{
 			if( maxQuant > item.getRemaining() )
 				maxQuant = item.getRemaining();
 			game.modal.makeSelectionBoxForm(
-				'Amount to BUY: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value=1 /><input type="submit" value="Ok" />',
+				'Amount to BUY: <input type="number" style="width:4vmax" min=1 '+(maxQuant > 0 ? 'max='+(maxQuant) : 'max=100')+' step=1 value=1 /><input type="submit" value="Ok" />',
 				function(){
 					const amount = Math.floor($("input:first", this).val());
 					if( !amount )

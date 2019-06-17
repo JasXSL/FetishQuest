@@ -44,7 +44,7 @@ export default class Game extends Generic{
 		this.roleplay = new Roleplay({completed:true}, this);
 		this.quests = [];								// Quest Objects of quests the party is on. 
 		this.net_load = false;							// Currently loading from network
-		this.time = 0;											// Time in seconds
+		this.time = 3600*10;							// Time in seconds. Game starts at 10 in the morning of the first day
 
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
@@ -458,7 +458,11 @@ export default class Game extends Generic{
 		this.setTurnTimer();
 
 	}
-
+	onTimeChanged(){
+		const room = this.renderer.stage;
+		if( room )
+			room.onTimeChanged();
+	}
 
 
 
@@ -466,21 +470,26 @@ export default class Game extends Generic{
 	addSeconds(seconds){
 		seconds = +seconds||0;
 		this.time += seconds;
+		this.onTimeChanged();
 	}
 	addMinutes(minutes){
 		minutes = +minutes || 0;
 		this.time += minutes*60;
+		this.onTimeChanged();
 	}
 	addHours(hours){
 		hours = +hours || 0;
 		this.time += hours*3600;
+		this.onTimeChanged();
 	}
 	// returns a value between 0 and 1 from midnight to midnight
 	getDayPercentage(){
 		const day = 3600*24;
 		return (this.time%day)/day;
 	}
-
+	getHoursOfDay(){
+		return this.getDayPercentage()*24;
+	}
 
 
 	/* Turn timer */
