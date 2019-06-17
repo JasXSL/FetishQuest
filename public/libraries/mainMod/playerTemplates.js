@@ -385,9 +385,7 @@ const lib = {
 		hetero_max:1,
 		intelligence_min : 0.4,
 		intelligence_max : 0.6,
-		required_assets : [
-
-		]
+		required_assets : []
 	},
 	mimic : {
 		name : "Mimic",
@@ -493,7 +491,7 @@ const lib = {
 		icon : "",
 		species : "Groper",
 		description : "A tree monster with viny tentacles. Dangerous during mating season. Sadly their mating season lasts all year.",
-		classes : ["groper"],
+		classes : ["groper","groper_sapbeast"],
 		max_actions : 4,
 		tags : [
 			stdTag.plBeast,

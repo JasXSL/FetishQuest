@@ -487,6 +487,8 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		addEffectToWrapper(wrapper, i, template.bonStats[i]);
 	for( let i in template.svStats )
 		addEffectToWrapper(wrapper, i, template.svStats[i]);
+	for( let i in template.primaryStats )
+		addEffectToWrapper(wrapper, i+'Modifier', template.primaryStats[i]);
 
 	// Generate the description
 	wrapper.effects.sort((a, b) => {

@@ -86,6 +86,9 @@ export default {
 	asWaistband : 'as_waistband',			// Outfit has "waistband"
 	asReagent : 'as_reagent',
 	asCurrency : 'as_currency',
+	asCanPullDown : 'as_can_pull_down',		// Can pull the garment down. Such as a strapless top or a thong 
+	asCanPullUp : 'as_can_pull_up',			// Can pull the garment up. Such as a tube top or bra. 
+	asWraps : 'as_wraps',					// Made by wrapping a long strip of the material around the area 
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',

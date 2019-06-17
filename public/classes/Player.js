@@ -1535,7 +1535,7 @@ export default class Player extends Generic{
 
 		let stats = this.getPrimaryStats();
 		let ps = Player.primaryStats;
-		let val = stats[stat];
+		let val = stats[stat]+this.class[stat];
 		if( isNaN(val) )
 			return 0;
 

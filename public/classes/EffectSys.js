@@ -737,7 +737,7 @@ class Effect extends Generic{
 				// Damage
 				else{
 					
-					/*
+					
 					console.debug(
 						"input", amt, 
 						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental),
@@ -745,7 +745,7 @@ class Effect extends Generic{
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
 						"nudity multi", t.getNudityDamageMultiplier(),
 					);
-					*/
+					
 					
 					
 					amt *= Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental ); // Negative because it's damage

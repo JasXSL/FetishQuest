@@ -156,7 +156,8 @@ const lib = {
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentacleMilker",
             "tentacle_fiend_injectacle",
-            "tentacle_fiend_tentatug"
+            "tentacle_fiend_tentatug",
+            "tentacle_fiend_tentatug_upper",
         ]
 	},
 	"shocktacle": {
@@ -166,6 +167,7 @@ const lib = {
         isMonsterClass : true,
         actions : [
             "tentacle_fiend_tentatug",
+            "tentacle_fiend_tentatug_upper",
             "tentacle_ride",
             "shocktacle_zap",
         ]
@@ -187,7 +189,8 @@ const lib = {
         actions : [
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentacleMilker",
-            "tentacle_fiend_tentatug"
+            "tentacle_fiend_tentatug",
+            "tentacle_fiend_tentatug_upper",
         ]
     },
     "imp": {
@@ -216,6 +219,7 @@ const lib = {
             "tentacle_latch",
             "cocktopus_ink",
             "cocktopus_inkject",
+            "tentacle_fiend_tentatug_upper",
         ]
     },
     tentacrab : {
@@ -254,6 +258,7 @@ const lib = {
         actions : [
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentatug",
+            "tentacle_fiend_tentatug_upper",
             "groper_leg_spread",
             "groper_groin_lash",
             "groper_groin_grope"
@@ -263,10 +268,14 @@ const lib = {
         name : "Sapbeast",
         primaryStat : Player.primaryStats.intellect,
         isMonsterClass : true,
+        intellect : 2,
         actions : [
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentatug",
+            "tentacle_fiend_tentatug_upper",
             "groper_leg_spread",
+            "groper_sap_squeeze",
+            "groper_sap_inject",
         ]
     }
 };

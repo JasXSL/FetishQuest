@@ -1618,7 +1618,7 @@ const lib = {
 		]
 	},
 	tentacle_fiend_tentatug: {
-		name : "Tentatug",
+		name : "Tentatug Lower",
 		icon : 'plate-claw',
 		description : "Tugs as your target's lowerbody armor, doing 2 cloth damage. Has a 30% chance to pull the piece off.",
 		ap : 3,
@@ -1659,6 +1659,48 @@ const lib = {
 			}
 		]
 	},
+	tentacle_fiend_tentatug_upper: {
+		name : "Tentatug Upper",
+		icon : 'plate-claw',
+		description : "Tugs as your target's upperbody armor, doing 2 cloth damage. Has a 30% chance to pull the piece off.",
+		ap : 3,
+		cooldown : 2,
+		detrimental : true,
+		tags : [],
+		show_conditions : [
+			"inCombat"
+		],
+		wrappers : [
+			{
+				target : "VICTIM",
+				duration : 0,
+				detrimental : true,
+				add_conditions : stdCond.concat(
+					"targetNotBeast",
+					"targetWearsUpperbody"
+				),
+				effects : [
+					{
+						type : "damageArmor",
+						data : {
+							"amount": 2,
+							"slots": "upperbody"
+						}
+					},
+					{
+						type : "disrobe",
+						data : {
+							"slots": "upperbody"
+						},
+						conditions : [
+							"rand30"
+						]
+					},
+					
+				]
+			}
+		]
+	},
 
 	tentacle_latch : {
 		name : "Latch",
@@ -1667,6 +1709,7 @@ const lib = {
 		ap : 2,
 		cooldown : 4,
 		detrimental : true,
+		tags : [stdTag.acNpcImportant],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -1742,7 +1785,7 @@ const lib = {
 		cooldown : 5,
 		detrimental : true,
 		type : Action.Types.corruption,
-		tags : [ stdTag.acDamage, stdTag.acDebuff],
+		tags : [ stdTag.acDamage, stdTag.acDebuff, stdTag.acNpcImportant],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -1897,9 +1940,9 @@ const lib = {
 		]
 	},
 	groper_groin_lash : {
-		name : "Groin Lash",
+		name : "Groper Lash",
 		icon : 'whiplash',
-		description : "Lashes your target's groin, dealing 5 physical damage and interrupting. Only usable on targets with their legs spread.",
+		description : "Lashes your target, dealing 5 physical damage and interrupting. Only usable on targets with their legs spread.",
 		ap : 3,
 		cooldown : 4,
 		detrimental : true,
@@ -1944,6 +1987,87 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
+						data : {"amount": 5}
+					}
+				]
+			}
+		]
+	},
+
+	groper_sap_squeeze : {
+		name : "Sap Squeeze",
+		icon : 'curled-tentacle',
+		description : "Squeezes your target with sap, dealing 3 physical damage and leaving sap behind, reducing their physical avoidance by 1 for 2 turns. Stacks up to 3 times.",
+		ap : 2,
+		mp : 2,
+		cooldown : 1,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [
+			stdTag.acPainful,
+			stdTag.acDamage,
+		],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				icon : 'curled-tentacle',
+				name : 'Sap Squeeze',
+				description : '-1 Physical Avoidance per stack',
+				duration : 2,
+				max_stacks : 3,
+				detrimental : true,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.svPhysical,
+						data : {"amount": -1}
+					},
+					{
+						events : [GameEvent.Types.internalWrapperAdded],
+						type : Effect.Types.damage,
+						data : {"amount": 3}
+					}
+				]
+			}
+		]
+	},
+	groper_sap_inject : {
+		name : "Sap Inject",
+		icon : 'bamboo-fountain',
+		description : "Injects a target affected by leg spread by sticky sap, doing 8 corruption damage and leaving thick sticky sap behind for 2 turns, increasing the target's corruption avoidance by 5.",
+		ap : 2,
+		mp : 4,
+		cooldown : 3,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [
+			stdTag.acArousing,
+			stdTag.acDamage,
+		],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat('targetNotBeast',"targetLegsSpread"),
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {"amount": 8}
+					}
+				]
+			},
+			{
+				icon : 'bamboo-fountain',
+				name : 'Sap Injection',
+				description : '+5 Corruption Avoidance',
+				duration : 2,
+				detrimental : false,
+				add_conditions : stdCond.concat("targetNotBeast","targetLegsSpread"),
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.svCorruption,
 						data : {"amount": 5}
 					}
 				]

@@ -190,11 +190,24 @@ const lib = [
 		hitfx : ['tentacleStretch'],
 	},
 	{ text : "%S slips a couple of tendrils around %T's exposed %Tbreasts, firmly squeezing them!",
-		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles","targetBreasts","targetNoUpperbody"]),
+		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles","targetBreasts","targetBreastsExposed"]),
 		hitfx : ['tentacleSqueeze'],
 	},
 	{ text : "%S's tentacles shoot out towards %T's exposed %Tbreasts, almost completely wrapping both of them within their coils. The tips of the %Srace's tendrils cruelly flicks at %This nipples as its spiralling grasp tightens firmly, squeezing %This %Tbreasts!",
 		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles","targetBreasts","ttBreastsExposed"]),
+		hitfx : ['tentacleSqueeze'],
+	},
+
+	{ text : "%S slips a couple of tendrils around %T's exposed %Tbreasts, firmly squeezing them!",
+		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles","targetBreasts","targetBreastsExposed"]),
+		hitfx : ['tentacleSqueeze'],
+	},
+	{ text : "%S lashes its thin tendrils around %T's exposed nipples! Before %T can react, %S wiggles the tendrils at %Shis end, sending a wave across the tentacles. A moment later, the waves reach the %Trace's breasts, flicking the tendrils off painfully.",
+		conditions : anyOnHumCond.concat(["action_stdAttack","senderIsGroper","targetBreasts","targetBreastsExposed"]),
+		hitfx : ['tentacleWhipSqueeze'],
+	},
+	{ text : "%S slips a couple of tendrils around %T's exposed nipples, and starts jiggling %This %Tbsize %breasts around!",
+		conditions : anyOnHumCond.concat(["action_stdAttack","senderHasTentacles","targetBreasts","targetBreastsExposed"]),
 		hitfx : ['tentacleSqueeze'],
 	},
 
@@ -1152,13 +1165,7 @@ const lib = [
 		conditions : baseCond.concat([
 			"action_tentacle_fiend_tentatug","targetWearsSlingBikini"
 		])
-	},
-	{ text : "%S's tentacles wrap around the front straps of %T's %TclothLower and tugs back before letting go, allowing the piece to snap painfully onto %T's %Tbsize %Tbreasts!",
-		hitfx : ["tentacleStretchWhip"],
-		conditions : baseCond.concat([
-			"action_tentacle_fiend_tentatug","targetWearsSlingBikini","targetBreasts"
-		])
-	},
+	},	
 	{ text : "%S slips inside %T's %TclothLower and begins pushing out at it from inside.",
 		conditions : anyOnHumCond.concat([
 			"action_tentacle_fiend_tentatug","senderIsCocktopus","senderLatchingToTarget",
@@ -1190,6 +1197,43 @@ const lib = [
 		hitfx : ["tentacleStretch"],
 	},
 
+	// tentacle_fiend_tentatug_upper
+	{ text : "%S latches tentacles onto the front of %T's %TclothUpper, tugging at the piece.",
+		hitfx : ["tentacleStretch"],
+		conditions : baseCond.concat(["action_tentacle_fiend_tentatug_upper"])
+	},
+	{ text : "%S latches tentacles onto the front of %T's %TclothUpper, rapidly stretching it from side to side.",
+		hitfx : ["tentacleStretch"],
+		turnTags:[stdTag.ttBreastsExposed],
+		conditions : baseCond.concat(["action_tentacle_fiend_tentatug_upper"])
+	},
+	{ text : "%S latches tentacles onto the front of %T's %TclothUpper, stretching thouroughly and causing the %Trace to stumble forwards.",
+		hitfx : ["tentacleStretch"],
+		conditions : baseCond.concat(["action_tentacle_fiend_tentatug_upper"])
+	},
+	{ text : "%S latches tentacles around the front strings of %TclothUpper, stretching them out before letting them come to a rest between the %Trace's %Tbsize %Tbreasts.",
+		hitfx : ["tentacleStretch"],
+		turnTags : [stdTag.ttBreastsExposed],
+		conditions : baseCond.concat(["action_tentacle_fiend_tentatug_upper", "targetBreasts", "targetWearsSlingBikini"])
+	},
+	{ text : "%S latches tentacles onto the back %TclothUpper, stretching backwards and squishing the %Trace's %Tbsize %Tbreasts.",
+		hitfx : ["tentacleStretch"],
+		conditions : baseCond.concat(["action_tentacle_fiend_tentatug_upper", "targetBreasts", "targetUpperbodyNotHard"])
+	},
+	{ text : "%S's tentacles wrap around the front straps of %T's %TclothLower and tugs back before letting go, allowing the piece to snap painfully onto %T's %Tbsize %Tbreasts!",
+		hitfx : ["tentacleStretchWhip"],
+		conditions : baseCond.concat(["action_tentacle_fiend_tentatug_upper","targetWearsSlingBikini","targetBreasts"])
+	},
+	{ text : "%S latches tentacles around the bottom of %T's %TclothUpper, stretches upwards and exposes the %Trace's %Tbsize %Tbreasts.",
+		turnTags : [stdTag.ttBreastsExposed],
+		hitfx : ["tentacleStretch"],
+		conditions : baseCond.concat(["action_tentacle_fiend_tentatug_upper", "targetBreasts", "targetUpperbodyCanPullUp"])
+	},
+	{ text : "%S latches tentacles around the top of %T's %TclothUpper and pulls down, exposing the %Trace's %Tbsize %Tbreasts.",
+		turnTags : [stdTag.ttBreastsExposed],
+		hitfx : ["tentacleStretch"],
+		conditions : baseCond.concat(["action_tentacle_fiend_tentatug_upper", "targetBreasts", "targetUpperbodyCanPullDown"])
+	},
 
 
 	// action_tentacle_ride
@@ -1205,10 +1249,30 @@ const lib = [
 		conditions : baseCond.concat("action_groper_leg_spread")
 	},
 
-	// action_groper_groin_lash
+	// action_groper_groin_lash - Renamed to Groper Lash
 	{ text : "%S flicks a tendril right across %T's exposed %groin!",
 		hitfx : ["whip"],
 		conditions : baseCond.concat("action_groper_groin_lash")
+	},
+	{ text : "%S flicks a tendril right across %T's exposed %groin, whipping %This %Tpenis around!",
+		hitfx : ["whip"],
+		conditions : baseCond.concat("action_groper_groin_lash", "targetPenis", "targetLowerbodyNotHard")
+	},
+	{ text : "%S sneaks a tendril behind %T. Taking advantage of the %Trace's spread legs, the tendril lashes painfully twice across %This %Trsize %Tbutt!",
+		hitfx : ["tentacleWhipDouble"],
+		conditions : baseCond.concat("action_groper_groin_lash", "targetLowerbodyNotHard")
+	},
+	{ text : "%S sneaks a tendril behind %T. Taking advantage of the %Trace's spread legs, the tendril lands a rapid lash across %This %Trsize left buttcheek, briefly followed by another painful snap across %This right, jiggling %This %Tbutt around!",
+		hitfx : ["tentacleWhipDouble"],
+		conditions : baseCond.concat("action_groper_groin_lash", "targetLowerbodyNotHard", "targetButtLarge")
+	},
+	{ text : "%S sneaks a tendril behind %T. Taking advantage of the %Trace's restrained legs, the tendril lashes painfully twice across %T's back!",
+		hitfx : ["tentacleWhipDouble"],
+		conditions : baseCond.concat("action_groper_groin_lash", "targetUpperbodyNotHard")
+	},
+	{ text : "%S sneaks a tendril behind %T. Taking advantage of the %Trace's spread legs, the tendril lashes painfully up across the %Trace's %Tgroin, briefly constricting %This %Tvagina before retracting!",
+		hitfx : ["tentacleWhipSqueeze"],
+		conditions : baseCond.concat("action_groper_groin_lash", "targetLowerbodyNotHard")
 	},
 	
 	// action_groper_groin_grope
@@ -1228,6 +1292,78 @@ const lib = [
 		hitfx : ["tickle"],
 		conditions : baseCond.concat("action_groper_groin_grope", "targetVagina", "targetGroinExposed")
 	},
+
+
+
+	// action_groper_sap_squeeze
+	{ text : "%S wraps a sap-coated tendril around %T's torso constricting %This %Tbsize %breasts!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : anyOnHumCond.concat("action_groper_sap_squeeze", "targetBreasts")
+	},
+	{ text : "%S wraps a sap-coated tendril around %T's %Trsize buttcheeks and firmly constricts, leaving a sticky residue behind!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : anyOnHumCond.concat("action_groper_sap_squeeze")
+	},
+	{ text : "%S wraps a sap-coated tendril around %T's %Trsize %Tgroin and firmly constricts, leaving a sticky residue behind!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : anyOnHumCond.concat("action_groper_sap_squeeze", "targetPenis")
+	},
+	{ text : "%S slips a sap-coated tendril up between %T's legs and wrapping itself around %This waist. The tendril constricts thouroughly, coating the %Trace's pelvic area with a sticky sap!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : anyOnHumCond.concat("action_groper_sap_squeeze", "targetVagina")
+	},
+	{ text : "%S slips a sap-coated tendril up between %T's legs, wrapping itself around %This waist. The tendril constricts, painfully grinding between the %Traces's buttcheeks and partially into %This %Tvagina, coating the area with a sticky sap!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : anyOnHumCond.concat("action_groper_sap_squeeze", "targetVagina", "targetNoLowerbody")
+	},
+	{ text : "%S hoops a sap-coated tendril around %T's %Tbsize %Tbreasts, constricting firmly and leaving a sticky residue on them!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : anyOnHumCond.concat("action_groper_sap_squeeze", "targetBreasts", "targetUpperbodyNotHard")
+	},
+	{ text : "%S wraps a sap-coated tendril around %T's head, constricting into %This mouth and briefly gagging the %Trace before letting go and leaving a sweet sticky sap behind!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : anyOnHumCond.concat("action_groper_sap_squeeze")
+	},
+	{ text : "%S slips its sap-coated root of a tentacle down into the back of %T's %TclothLower, slipping the bumpy appendage down between %This %Trsize buttcheeks and tickling up across the %Trace's %Tvagina before firmly constricting both, leaving a sticky residue behind!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : anyOnHumCond.concat("action_groper_sap_squeeze", "targetVagina")
+	},
+	
+	{ text : "%S wraps a sap-coated tendril around %T and constricts, leaving a sticky sap behind!",
+		hitfx : ["tentacleSqueeze"],
+		conditions : baseCond.concat("action_groper_sap_squeeze")
+	},
+
+	// action_groper_sap_inject
+	{ text : "%S shoves its thick sticky tendril into %T's exposed %Tvagina, landing a %few rough thrusts before flooding it with a sticky sap!",
+		hitfx : ["slowThrustsTentacle"],
+		conditions : anyOnHumCond.concat("action_groper_sap_inject", "targetVagina", "targetGroinExposed")
+	},
+	{ text : "%S shoves its thick sticky tendril into %T's %TclothLower and up %This %Tvagina, landing a %few rough thrusts before flooding it with a sticky sap!",
+		hitfx : ["slowThrustsTentacle"],
+		conditions : anyOnHumCond.concat("action_groper_sap_inject", "targetVagina", "targetWearsLowerbody")
+	},
+	{ text : "%S shoves its thick sticky tendril into %T's exposed %Tbutt, landing a %few rough thrusts before flooding it with a sticky sap!",
+		hitfx : ["slowThrustsTentacle"],
+		conditions : anyOnHumCond.concat("action_groper_sap_inject", "targetGroinExposed")
+	},
+	{ text : "%S shoves its thick sticky tendril into %T's %TclothLower and up %This %Tbutt, landing a %few rough thrusts before flooding it with a sticky sap!",
+		hitfx : ["slowThrustsTentacle"],
+		conditions : anyOnHumCond.concat("action_groper_sap_inject", "targetWearsLowerbody")
+	},
+	{ text : "%S shoves its thick sticky tendril into %T's mouth, flailing about wildly as the tendril coats it with a sweet sticky sap!",
+		hitfx : ["slowThrustsTentacle"],
+		conditions : anyOnHumCond.concat("action_groper_sap_inject")
+	},
+	{ text : "%S slips its thick tendril down the back of %T's %TclothLower, grinding the bumpy root of a tentacle between %This buttcheeks and across the %Trace's %Tvagina a %few times before finally probing inside and %this %Tvagina with a sticky sap!",
+		hitfx : ["slowThrustsTentacle"],
+		conditions : anyOnHumCond.concat("action_groper_sap_inject", "targetVagina", "targetLowerbodyHard")
+	},
+	
+	
+	
+
+
 
 	// action_shocktacle_zap
 	{ text : "%S wraps charged tentacles around %T's %Tbsize %Tbreasts, squeezing down and sending an electric shock through them!",
@@ -1504,6 +1640,16 @@ const lib = [
 		turnTags : [stdTag.ttBreastsExposed],
 		hitfx : ["stretch"]
 	},
+	{ text : "%S grabs the middle of %T's %TclothUpper and gives it a hard yank down, exposing the %Trace's %Tbsize %Tbreasts!",
+		conditions : anyOnHumCond.concat("action_imp_claws", "targetBreasts", "targetUpperbodyCanPullDown"),
+		turnTags : [stdTag.ttBreastsExposed],
+		hitfx : ["stretch"]
+	},
+	{ text : "%S grabs the bottom of %T's %TclothUpper and firmly yanks up, exposing the %Trace's %Tbsize %Tbreasts!",
+		conditions : anyOnHumCond.concat("action_imp_claws", "targetBreasts", "targetUpperbodyCanPullUp"),
+		turnTags : [stdTag.ttBreastsExposed],
+		hitfx : ["stretch"]
+	},
 	{ text : "%S grabs around the front strings of %T's %TclothLower near %This %Tgroin, giving it a hard yank down, exposing the %Trace's %Tgroin!",
 		conditions : anyOnHumCond.concat("action_imp_claws", "targetWearsSlingBikini"),
 		turnTags : [stdTag.ttGroinExposed],
@@ -1771,6 +1917,11 @@ const lib = [
 	},
 	{ text : "%S jumps at %T from behind, pinching a hold of and tugging at %This %TclothUpper!",
 		conditions : anyOnHumCond.concat(["action_crab_claw_tug", "targetWearsUpperbody"]),
+		hitfx : ['stretch']
+	},
+	{ text : "%S jumps at %T from behind, pinching a hold of the bottom of %This %TclothUpper, making the piece slide down and exposing the %Trace's %Tbsize %breasts!",
+		conditions : anyOnHumCond.concat(["action_crab_claw_tug", "targetWearsUpperbody", "targetBreasts", "targetUpperbodyCanPullDown"]),
+		turnTags : [stdTag.ttBreastsExposed],
 		hitfx : ['stretch']
 	},
 	{ text : "%S jumps at %T from behind, pinches a hold of %This %TclothLower and tugs down, exposing %This %Tgenitals!",

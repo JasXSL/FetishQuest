@@ -45,7 +45,7 @@ const lib = {
 		],
 		description : "The type of garment that goes between your buttcheeks.",
 		tags : [
-			stdTag.asThong, stdTag.asWaistband
+			stdTag.asThong, stdTag.asWaistband, stdTag.asCanPullDown,
 		],
 		size : 0.1
 	},
@@ -59,12 +59,74 @@ const lib = {
 			"mageweave",
 			"shadowcloth",
 			"leather",
-			"rawhide"
+			"rawhide",
 		],
 		description : "A shirt.",
-		tags : [stdTag.asShirt],
-		size : 1
+		tags : [stdTag.asShirt, stdTag.asCanPullUp],
+		size : 0.8
 	},
+	tank_top : {
+		icon : 'shirt',
+		slots : [Asset.Slots.upperbody],
+		name : "Tank Top",
+		materials : [
+			"cotton",
+			"silk",
+			"mageweave",
+			"shadowcloth",
+			"leather",
+			"rawhide",
+		],
+		description : "A tight tank top. Favored by tigers and vegetarians across the world.",
+		tags : [stdTag.asShirt, stdTag.asCanPullUp],
+		size : 0.4
+	},
+	chestwraps : {
+		icon : 'shirt',
+		slots : [Asset.Slots.upperbody],
+		name : "Chestwraps",
+		materials : [
+			"cotton",
+			"silk",
+			"mageweave",
+			"shadowcloth"
+		],
+		description : "A shirt.",
+		tags : [stdTag.asShirt, stdTag.asCanPullUp, stdTag.asWraps, stdTag.asCanPullDown],
+		size : 0.4
+	},
+	bodysuit : {
+		icon : 'sleeveless-top',
+		slots : [Asset.Slots.upperbody, Asset.Slots.lowerbody],
+		name : "Bodysuit",
+		materials : [
+			"mageweave",
+			"shadowcloth",
+			"leather",
+			"stretchhide",
+			"plateSoftsilver"
+		],
+		description : "A a tight piece of clothing with shoulder straps. It has a fairly visible cleavage and covered back. It comes together at the hips and wraps down across your groin, leaving your legs exposed.",
+		tags : [stdTag.asTight, stdTag.asBodysuit],
+		size : 0.8
+	},
+	thong_bodysuit : {
+		icon : 'sleeveless-top',
+		slots : [Asset.Slots.upperbody, Asset.Slots.lowerbody],
+		name : "Thong Bodysuit",
+		materials : [
+			"mageweave",
+			"shadowcloth",
+			"leather",
+			"stretchhide",
+			"plateSoftsilver"
+		],
+		description : "A a tight piece of clothing with shoulder straps. It has a fairly visible cleavage and exposed back. It wraps down over your groin and forming a thong shape joining together at your hips, leaving your legs exposed.",
+		tags : [stdTag.asTight, stdTag.asBodysuit, stdTag.asThong],
+		size : 0.6
+	},
+	
+
 	breastplate : {
 		icon : 'chest-armor',
 		slots : [Asset.Slots.upperbody],
@@ -138,7 +200,8 @@ const lib = {
 			stdTag.asCrotchFlap,
 			stdTag.asButtFlap,
 			stdTag.asThong,
-			stdTag.asWaistband
+			stdTag.asWaistband,
+			stdTag.asCanPullDown,
 		],
 		size : 0.4
 	},

@@ -14,6 +14,7 @@ const lib = {
 	action_tentacle_fiend_legWrap : {"type":"actionLabel","data":{"label":"tentacle_fiend_legWrap"},"targnr":0},
 	action_tentacle_fiend_injectacle : {"type":"actionLabel","data":{"label":"tentacle_fiend_injectacle"},"targnr":0},
 	action_tentacle_fiend_tentatug : {"type":"actionLabel","data":{"label":"tentacle_fiend_tentatug"},"targnr":0},
+	action_tentacle_fiend_tentatug_upper : {type:Condition.Types.actionLabel,data:{label:"tentacle_fiend_tentatug_upper"},targnr:0},
 	action_tentacle_ride : {"type":"actionLabel","data":{"label":"tentacle_ride"},"targnr":0},
 	action_shocktacle_zap : {"type":"actionLabel","data":{"label":"shocktacle_zap"},"targnr":0},
 	action_imp_specialDelivery : {"type":"actionLabel","data":{"label":"imp_specialDelivery"},"targnr":0},
@@ -68,6 +69,8 @@ const lib = {
 	action_groper_leg_spread : {type:Condition.Types.actionLabel, data:{label:'groper_leg_spread'}, targnr:0},
 	action_groper_groin_lash : {type:Condition.Types.actionLabel, data:{label:'groper_groin_lash'}, targnr:0},
 	action_groper_groin_grope : {type:Condition.Types.actionLabel, data:{label:'groper_groin_grope'}, targnr:0},
+	action_groper_sap_squeeze : {type:Condition.Types.actionLabel, data:{label:'groper_sap_squeeze'}, targnr:0},
+	action_groper_sap_inject : {type:Condition.Types.actionLabel, data:{label:'groper_sap_inject'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
@@ -153,6 +156,11 @@ const lib = {
 	targetLowerbodyMetal : {"type":"tag","data":{"tags":["as_metal_lowerbody"]}},
 	targetUpperbodyMetal : {"type":"tag","data":{"tags":["as_metal_upperbody"]}},
 	targetLowerbodyWaistband : {"type":"tag","data":{"tags":["as_waistband_lowerbody"]}},
+
+	targetLowerbodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_lowerbody"]}},
+	targetUpperbodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_upperbody"]}},
+	targetUpperbodyCanPullUp : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullUp+"_upperbody"]}},
+
 
 	targetClassTentaclemancer : {type:Condition.Types.playerClass, data:{label:"tentaclemancer"}},	
 

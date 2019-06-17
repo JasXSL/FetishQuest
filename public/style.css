@@ -1617,7 +1617,7 @@ div.fxBuffBlue{
 		transform:translateY(-100%);
 		width:100%;
 		background:rgba(0,0,0,.25);
-		
+		left:0;
 	}
 	#ui > div.actionbar > div.resources > div.stat{
 		border:none;

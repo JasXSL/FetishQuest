@@ -482,6 +482,84 @@ out[id].stages.push(
 
 );
 
+id = 'tentacleWhipDouble';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['tentacleWhip'],
+		hold : 250, 
+	}, out[id]),
+
+	new Stage({
+		particles : 'hitfx_splat',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['tentacleWhip'],
+	}, out[id]),
+);
+
+id = 'tentacleWhipSqueeze';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['tentacleWhip'],
+		hold : 250, 
+	}, out[id]),
+
+	new Stage({
+		css_fx : 'fxSqueeze',
+		sound_kits : ['tentacleTwist'],
+	}, out[id]),
+);
+
 
 id = 'slowThrusts';
 out[id] = new HitFX({label : id});

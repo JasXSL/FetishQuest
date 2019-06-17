@@ -15,6 +15,7 @@ class AssetTemplate extends Generic{
 		this.materials = ['cotton'];	// Available material labels
 		this.svStats = {};
 		this.bonStats = {};
+		this.primaryStats = {};
 		this.description = "";
 		this.tags = [];
 		this.size = 1.0;					// Size multiplier, used in weight calculations
@@ -35,6 +36,7 @@ class AssetTemplate extends Generic{
 			materials : this.materials,
 			svStats : this.svStats,
 			bonStats : this.bonStats,
+			primaryStats : this.primaryStats,
 			description : this.description,
 			tags : this.tags,
 			size : this.size,
@@ -120,6 +122,7 @@ class AssetTemplate extends Generic{
 			slots : this.slots,
 			svStats : mergeStats('sv',this.svStats, mat.svBons),
 			bonStats : mergeStats('bon',this.bonStats, mat.bonBons),
+			primaryStats : mergeStats('', this.primaryStats, mat.primaryStats),
 			description : this.description,
 			tags : this.tags.concat(mat.tags.map(el => el)),
 			durability_bonus : mat.durability_bonus,
@@ -141,6 +144,7 @@ class AssetOutput extends Generic{
 		this.name = "";
 		this.svStats = {};
 		this.bonStats = {};
+		this.primaryStats = {};
 		this.description = "";
 		this.tags = [];
 		this.durability_bonus = 0;
@@ -209,6 +213,7 @@ class MaterialTemplate extends Generic{
 		this.durability_bonus = 1;		// Multiplier. Actual durability is based on level.
 		this.svBons = {};	// type : bon 
 		this.bonBons = {}; // == || ==
+		this.primaryStats = {};
 		this.stat_bonus = 0;		// Adds additional stat points to generator
 		this.load(data);
 	}
@@ -228,118 +233,11 @@ class MaterialTemplate extends Generic{
 			svBons : this.svBons,
 			bonBons : this.bonBons,
 			stat_bonus : this.stat_bonus,
+			primaryStats : this.primaryStats,
 		};
 	}
 
 }
-
-/*
-const Materials = {
-
-	// Cloth
-	'cotton' : new Material({
-		name : 'Cotton',
-		tags:[stdTag.asCloth,stdTag.asStretchy,stdTag.asCotton],
-	}),
-	'silk' : new Material({
-		name : 'Silk',
-		tags:[stdTag.asCloth,stdTag.asStretchy,stdTag.asSilk],
-		level : 3,
-		stat_bonus : 1,
-		weight : 300,
-	}),
-	'mageweave' : new Material({
-		name : 'Mageweave',
-		tags:[stdTag.asCloth, stdTag.asMageweave],
-		level : 8,
-		stat_bonus : 2,
-		weight : 500,
-	}),
-	'shadowcloth' : new Material({
-		name : 'Shadowcloth',
-		tags:[stdTag.asCloth, stdTag.asShadowcloth],
-		level : 14,
-		stat_bonus : 3,
-		weight : 300
-	}),
-
-
-	// Leather
-	'leather' : new Material({
-		name:'Leather', 
-		tags:[stdTag.asLeather], 
-		level : 1, 
-		weight : 2000,
-		durability_bonus : 1.25,
-	}),
-	'rawhide' : new Material({
-		name:'Rawhide', 
-		tags:[stdTag.asLeather,stdTag.asRawhide], 
-		level : 3, 
-		weight : 3000,
-		durability_bonus : 1.5,
-		stat_bonus:1,
-	}),
-	'stretchhide' : new Material({
-		name:'Stretch-hide', 
-		tags:[stdTag.asLeather,stdTag.asStretchy], 
-		level : 6,
-		weight : 2000,
-		durability_bonus : 2,
-		stat_bonus : 2,
-	}),
-
-	
-
-	// Mail types
-	'mailCopper' : new Material({
-		name:'Copper-mail', 
-		tags:[stdTag.asMail, stdTag.asMetal, stdTag.asCopper], 
-		level : 3, 
-		weight : 7000,
-		durability_bonus : 2
-	}),
-	'mailSteel' : new Material({
-		name:'Steel-mail', 
-		tags:[stdTag.asMail, stdTag.asMetal, stdTag.asSteel], 
-		level : 6, 
-		weight : 5000,
-		durability_bonus : 2.5
-	}),
-	'mailMithril' : new Material({
-		name:'Mithril-mail', 
-		tags:[stdTag.asMail, stdTag.asMetal, stdTag.asMithril], 
-		level : 12, 
-		weight : 1000,
-		durability_bonus : 3
-	}),
-
-	// Plate
-	'plateCopper' : new Material({
-		name:'Copper', 
-		tags:[stdTag.asPlate, stdTag.asMetal,stdTag.asHard, stdTag.asCopper], 
-		level : 5, 
-		weight : 9000,
-		durability_bonus : 2.5
-	}),
-	'plateSteel' : new Material({
-		name:'Steel', 
-		tags:[stdTag.asPlate, stdTag.asMetal,stdTag.asHard, stdTag.asSteel], 
-		level : 10, 
-		weight : 8000,
-		durability_bonus : 3
-	}),
-	'plateSoftsilver' : new Material({
-		name:'Softsilver', 
-		tags:[stdTag.asMetal,stdTag.asStretchy,stdTag.asSoftsilver], 
-		level : 15, 
-		weight : 1500,
-		durability_bonus : 4,
-		stat_bonus : 1
-	}),
-};
-*/
-
 
 
 export {MaterialTemplate};

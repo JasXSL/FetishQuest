@@ -24,6 +24,8 @@ import {getArray as getShops} from './mainMod/shops.js';
 import chats from './mainMod/chats.js';
 
 import dungeons from './mainMod/dungeons.js';
+import Player from "../classes/Player.js";
+import Action from "../classes/Action.js";
 
 // This is a special mod 
 const mod = new Mod(
@@ -45,10 +47,9 @@ const mod = new Mod(
 		assetTemplates:getAssetTemplates(),
 		gameActions : getGameActions(),
 		materialTemplates:[
-			{
-				"label":"cotton",
-				"name":"Cotton",
-				"tags":[
+			{label : "cotton",
+				name : "Cotton",
+				tags : [
 					"as_cloth",
 					"as_stretchy",
 					"as_cotton"
@@ -64,8 +65,7 @@ const mod = new Mod(
 				},
 				"stat_bonus":0
 			},
-			{
-				"label":"silk",
+			{"label":"silk",
 				"name":"Silk",
 				"tags":[
 					"as_cloth",
@@ -83,8 +83,7 @@ const mod = new Mod(
 				},
 				"stat_bonus":1
 			},
-			{
-				"label":"mageweave",
+			{"label":"mageweave",
 				"name":"Mageweave",
 				"tags":[
 					"as_cloth",
@@ -93,16 +92,12 @@ const mod = new Mod(
 				"weight":500,
 				"level":8,
 				"durability_bonus":1,
-				"svBons":{
-		
+				primaryStats : {
+					[Player.primaryStats.int] : 1
 				},
-				"bonBons":{
-		
-				},
-				"stat_bonus":2
+				"stat_bonus":1
 			},
-			{
-				"label":"shadowcloth",
+			{"label":"shadowcloth",
 				"name":"Shadowcloth",
 				"tags":[
 					"as_cloth",
@@ -117,10 +112,12 @@ const mod = new Mod(
 				"bonBons":{
 		
 				},
-				"stat_bonus":3
+				primaryStats : {
+					[Player.primaryStats.int] : 2
+				},
+				"stat_bonus":1
 			},
-			{
-				"label":"leather",
+			{"label":"leather",
 				"name":"Leather",
 				"tags":[
 					"as_leather"
@@ -128,16 +125,9 @@ const mod = new Mod(
 				"weight":2000,
 				"level":1,
 				"durability_bonus":1.25,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
 				"stat_bonus":0
 			},
-			{
-				"label":"rawhide",
+			{"label":"rawhide",
 				"name":"Rawhide",
 				"tags":[
 					"as_leather",
@@ -146,16 +136,9 @@ const mod = new Mod(
 				"weight":3000,
 				"level":3,
 				"durability_bonus":1.5,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
 				"stat_bonus":1
 			},
-			{
-				"label":"stretchhide",
+			{"label":"stretchhide",
 				"name":"Stretch-hide",
 				"tags":[
 					"as_leather",
@@ -164,16 +147,9 @@ const mod = new Mod(
 				"weight":2000,
 				"level":6,
 				"durability_bonus":2,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
 				"stat_bonus":2
 			},
-			{
-				"label":"mailCopper",
+			{"label":"mailCopper",
 				"name":"Copper-mail",
 				"tags":[
 					"as_mail",
@@ -183,16 +159,9 @@ const mod = new Mod(
 				"weight":7000,
 				"level":3,
 				"durability_bonus":2,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
 				"stat_bonus":0
 			},
-			{
-				"label":"mailSteel",
+			{"label":"mailSteel",
 				"name":"Steel-mail",
 				"tags":[
 					"as_mail",
@@ -202,16 +171,9 @@ const mod = new Mod(
 				"weight":5000,
 				"level":6,
 				"durability_bonus":2.5,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
 				"stat_bonus":0
 			},
-			{
-				"label":"mailMithril",
+			{"label":"mailMithril",
 				"name":"Mithril-mail",
 				"tags":[
 					"as_mail",
@@ -221,16 +183,9 @@ const mod = new Mod(
 				"weight":1000,
 				"level":12,
 				"durability_bonus":3,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
 				"stat_bonus":0
 			},
-			{
-				"label":"plateCopper",
+			{"label":"plateCopper",
 				"name":"Copper",
 				"tags":[
 					"as_plate",
@@ -241,16 +196,15 @@ const mod = new Mod(
 				"weight":9000,
 				"level":5,
 				"durability_bonus":2.5,
-				"svBons":{
-		
+				svBons:{
+					[Action.Types.physical] : 1
 				},
-				"bonBons":{
-		
+				primaryStats : {
+					[Player.primaryStats.intellect] : -1
 				},
 				"stat_bonus":0
 			},
-			{
-				"label":"plateSteel",
+			{"label":"plateSteel",
 				"name":"Steel",
 				"tags":[
 					"as_plate",
@@ -261,16 +215,15 @@ const mod = new Mod(
 				"weight":8000,
 				"level":10,
 				"durability_bonus":3,
-				"svBons":{
-		
+				svBons:{
+					[Action.Types.physical] : 1
 				},
-				"bonBons":{
-		
+				primaryStats : {
+					[Player.primaryStats.intellect] : -1
 				},
 				"stat_bonus":0
 			},
-			{
-				"label":"plateSoftsilver",
+			{"label":"plateSoftsilver",
 				"name":"Softsilver",
 				"tags":[
 					"as_metal",
@@ -278,14 +231,8 @@ const mod = new Mod(
 					"as_softsilver"
 				],
 				"weight":1500,
-				"level":15,
+				"level":20,
 				"durability_bonus":4,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
 				"stat_bonus":1
 			}
 		],

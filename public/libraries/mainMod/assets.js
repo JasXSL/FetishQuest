@@ -324,6 +324,7 @@ const lib = {
 		tags : [
 			stdTag.asTight,
 			stdTag.asStretchy,
+			stdTag.asCanPullDown
 		],
 		wrappers : [
 			{
@@ -383,7 +384,7 @@ const lib = {
 		icon : 'shirt',
 		slots : [Asset.Slots.upperbody],
 		equipped : false,
-		tags : [stdTag.asShirt,stdTag.asLeather,stdTag.asRawhide],
+		tags : [stdTag.asShirt,stdTag.asLeather,stdTag.asRawhide,stdTag.asCanPullDown],
 		basevalue : 90,
 		wrappers : [
 			{
@@ -411,7 +412,7 @@ const lib = {
 		icon : 'underwear',
 		slots : [Asset.Slots.lowerbody],
 		equipped : false,
-		tags : [stdTag.asThong,stdTag.asWaistband,stdTag.asLeather,stdTag.asRawhide],
+		tags : [stdTag.asThong,stdTag.asWaistband,stdTag.asLeather,stdTag.asRawhide,stdTag.asCanPullDown],
 		wrappers : [
 			{
 				effects : [
@@ -439,7 +440,7 @@ const lib = {
 		icon : 'underwear',
 		slots : [Asset.Slots.lowerbody],
 		equipped : false,
-		tags : [stdTag.asThong,stdTag.asWaistband,stdTag.asCloth,stdTag.asStretchy,stdTag.asSilk],
+		tags : [stdTag.asThong,stdTag.asWaistband,stdTag.asCloth,stdTag.asStretchy,stdTag.asSilk,stdTag.asCanPullDown],
 		wrappers : [{
 			effects : [
 				{type : Effect.Types.intellectModifier,data : {amount:1}},

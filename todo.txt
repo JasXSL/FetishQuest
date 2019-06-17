@@ -2,9 +2,11 @@ Needed other:
 Smol:	
 	- Punishments
 	- Silk thong returns to foyash after leaving and returning dungeon on coop. ??? Unable to reproduce
+	- Merge dungeons from devtools
+	- Unequipping a potion seems to equip it again?
 
 Medium rare:
-	- Groper sapbeast
+
 
 
 Big chungi:
@@ -30,7 +32,7 @@ Next beta-only update:
 	- Armor repair shops
 	- Add loot to mimics
 	- See if you can make sub-assets of a linked asset connect to root
-
+	- Shops probably need to be converted to objects on load, otherwise modshops won't work
 
 Meshes:
 
