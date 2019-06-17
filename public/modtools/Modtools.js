@@ -253,7 +253,8 @@ export default class Modtools{
 			encounters = '',
 			players = '',
 			roleplay = '',
-			gameActions = ''
+			gameActions = '',
+			shops = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
@@ -319,7 +320,11 @@ export default class Modtools{
 		const gaLib = glib.getFull('GameAction');
 		for( let i in gaLib )
 			gameActions += '<option value="'+esc(i)+'"/>';
-
+		
+		const shopLib = glib.getFull('Shop');
+		for( let i in shopLib )
+			shops += '<option value="'+esc(i)+'"/>';
+		
 		this.datalists.html(
 			'<datalist id="tagsFull"><select>'+tagFullSel+'</select></datalist>'+
 			'<datalist id="tagsTT"><select>'+tagTtSel+'</select></datalist>'+
@@ -337,7 +342,8 @@ export default class Modtools{
 			'<datalist id="encounters"><select>'+encounters+'</select></datalist>'+
 			'<datalist id="players"><select>'+players+'</select></datalist>'+
 			'<datalist id="roleplays"><select>'+roleplay+'</select></datalist>'+
-			'<datalist id="gameActions"><select>'+gameActions+'</select></datalist>'
+			'<datalist id="gameActions"><select>'+gameActions+'</select></datalist>'+
+			'<datalist id="shops"><select>'+shops+'</select></datalist>'
 		);
 
 	}
@@ -1647,18 +1653,16 @@ export default class Modtools{
 				const obj = {};
 				obj.id = $("> input[name=id]", el).val();
 				obj.asset = th.getValOrJson($("> input[name=asset]", el));
-				obj.cost = +$("> input[name=cost]", el);
-				obj.amount = +$("> input[name=amount]", el);
-				obj.restock_rate = +$("> input[name=restock_rate]", el);
+				obj.cost = parseInt($("> input[name=cost]", el).val());
+				obj.amount = parseInt($("> input[name=amount]", el).val());
+				obj.restock_rate = parseInt($("> input[name=restock_rate]", el).val());
 				if( isNaN(obj.cost) )obj.cost = -1;
 				if( isNaN(obj.amount) )obj.amount = -1;
 				if( isNaN(obj.restock_rate) )obj.restock_rate = 0;
 				obj.conditions = th.compileConditions("subconds", el);
 				saveAsset.items.push(obj);
+				
 			});
-
-			console.log("Asset", saveAsset);
-
 
 		});
 
@@ -1668,8 +1672,8 @@ export default class Modtools{
 
 				html += 'ID (required, unique label in vendor):  <input type="text" name="id" value="'+esc(asset.id || Generic.generateUUID())+'" /><br />';
 				html += 'Asset: '+th.inputAsset(asset.asset)+'<br />';
-				html += 'Cost in copper (-1 = auto): <input type="number" name="cost" min=-1 step=1 value="'+esc(asset.cost || -1)+'" /><br />';
-				html += 'Stock (-1 = infinity): <input type="number" name="amount" min=-1 step=1 value="'+esc(asset.amount || -1)+'" /><br />';
+				html += 'Cost in copper (-1 = auto): <input type="number" name="cost" min=-1 step=1 value="'+esc(isNaN(parseInt(asset.cost)) ? -1 : parseInt(asset.cost))+'" /><br />';
+				html += 'Stock (-1 = infinity): <input type="number" name="amount" min=-1 step=1 value="'+esc(isNaN(parseInt(asset.amount)) ? -1 : parseInt(asset.amount))+'" /><br />';
 				html += 'Restock (in-game seconds, 0 = never): <input type="number" name="restock_rate" min=0 step=1 value="'+esc(asset.restock_rate || 260000)+'" /><br />';
 				html += 'Conditions: '+th.formConditions(asset.conditions, 'subconds')+'<br />';
 
@@ -1698,6 +1702,7 @@ export default class Modtools{
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
+			html += 'Icon (pick one from game-icons): <input required type="text" name="icon" value="'+esc(asset.icon)+'" /><br />';
 			html += 'Description: <textarea name="description">'+esc(asset.description)+'</textarea><br />';
 			html += 'Category: <select name="category">';
 			for( let i in Asset.Categories )
@@ -1721,6 +1726,7 @@ export default class Modtools{
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.icon = $("input[name=icon]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
 			saveAsset.slots = this.compileAssetSlots();
 			saveAsset.tags = this.compileTags();
@@ -2026,12 +2032,56 @@ export default class Modtools{
 
 	editor_encounters( asset = {} ){
 
+		const th = this;
+		const addInteraction = function(interaction){
+
+			let html = '<div class="interaction condWrapper" style="display:block" data-id="'+esc(typeof interaction === 'string' ? '_lib_' : interaction.id)+'">';
+			if( typeof interaction === "object" )
+				html += th.formGameAction(interaction);
+			else{
+				html += '<input type="text" class="'+(typeof interaction === 'object' ? 'hidden' : '')+'" list="gameActions" placeholder="id" value="'+esc(typeof interaction === 'string' ? esc(interaction) : '')+'" name="interaction_id" />';
+			}
+			html += '</div>';
+			$("#assetForm div.game_actions").append(html);
+
+		};
+
+		const bindInteractions = function(){
+
+			// Multiple
+			const base = $("#assetForm div.interaction");
+				
+			base.each((idx, el) => {
+
+				const div = $(el);
+				div.off('click').on('click', function(event){
+					event.stopImmediatePropagation();
+					if( event.ctrlKey )
+						$(event.currentTarget).remove();
+				});
+
+				if( !div[0]._interaction )
+					div[0]._interaction = {};
+
+				th.formGameActionBind($("> div.gameActionForm", div), div[0]._interaction);
+			});
+
+
+
+		};
+
+
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += '<label>Friendly: <input type="checkbox" name="friendly" '+(asset.friendly ? 'checked' : '')+' /></label><br />';
 			html += 'Player Templates: '+this.formPlayerTemplates(asset.player_templates, 'player_templates')+'<br />';
 			html += 'Specific Players: '+this.formPlayers(asset.players)+'<br />';
 			html += 'Wrappers (auto target is player who started the event): <br />'+this.formWrappers(asset.wrappers, 'wrappers')+'<br />';
+			html += 'Game Actions: '+
+				'<input type="button" id="addInteraction" value="New Interaction" />'+
+				'<input type="button" id="addLibraryInteraction" value="Library Interaction" />'+
+				'<div class="game_actions"></div>'
+			;
 			html += 'Start Text (uses the same placeholders as action texts): <input type="text" value="'+esc(asset.text || '')+'" name="startText" /><br />';
 			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />'; 
 			html += 'Roleplays: '+this.formRoleplays(asset.rp, 'roleplays');
@@ -2046,10 +2096,34 @@ export default class Modtools{
 			saveAsset.players = this.compilePlayers();
 			saveAsset.player_templates = this.compilePlayerTemplates('player_templates');
 			saveAsset.wrappers = this.compileWrappers('wrappers');
+			saveAsset.game_actions = [];
 			saveAsset.conditions = this.compileConditions('conditions');
 			saveAsset.rp = this.compileRoleplays('roleplays');
+
+			const base = $("#assetForm div.interaction");
+			base.each((idx, el) => {
+				if( $(el).attr('data-id') === '_lib_' ){
+					let val = $("input[type=text]", el).val().trim();
+					if( val )
+						saveAsset.game_actions.push(val);
+				}
+				else if( el._interaction ){
+					saveAsset.game_actions.push(el._interaction);
+				}
+			});
+
 		});
 
+		if( !Array.isArray(asset.game_actions) )
+			asset.game_actions = [];
+
+		for( let interaction of asset.game_actions ){
+			addInteraction(interaction);
+		}
+		bindInteractions();
+
+		$("#addInteraction").on('click', () => {addInteraction({}); bindInteractions();});
+		$("#addLibraryInteraction").on('click', () => {addInteraction(''); bindInteractions();});
 
 	}
 
@@ -2724,8 +2798,6 @@ export default class Modtools{
 					if( interaction )
 						th.formGameActionBind($(el), interaction);
 
-					
-
 					div.off('click').on('click', function(event){
 				
 						event.stopImmediatePropagation();
@@ -3125,6 +3197,8 @@ export default class Modtools{
 		'</select><br />';
 		
 		if( type === types.dungeonVar ){
+			if( !interaction.id )
+				interaction.id = Generic.generateUUID();
 			if( !interaction.data.id )
 				interaction.data.id = interaction.id.substr(0,8);
 			html += 'ID: <input name="interaction_data_id" value="'+esc(interaction.data.id)+'" /><br />';
@@ -3180,6 +3254,14 @@ export default class Modtools{
 				interaction.data.text = 'Tooltip Text';
 			html += 'Text: <input name="interaction_data_text" value="'+esc(interaction.data.text)+'" />';
 		}
+		else if( type === types.shop ){
+			if( !interaction.data.shop )
+				interaction.data.shop = 'MISSING_SHOP';
+			if( !interaction.data.player )
+				interaction.data.player = 'MISSING_TARGET';
+			html += 'Shop: '+this.inputShop(interaction.data.shop)+'<br />';
+			html += 'Player: '+this.inputPlayer(interaction.data.player)+'<br />';
+		}
 		html += '<br />';
 		html += th.formConditions(interaction.conditions, 'interaction_conditions');
 		html += '</div>';
@@ -3226,6 +3308,8 @@ export default class Modtools{
 					interaction.data = {id:""};
 				if( itype === types.tooltip )
 					interaction.data = {text:"Tooltip Text"};
+				if( itype === types.shop )
+					interaction.data = {player:"Player Label",shop:'Shop obj/label'};
 
 				const div = $(th.formGameAction(interaction));
 				base.replaceWith(div);
@@ -3261,6 +3345,13 @@ export default class Modtools{
 					interaction.data.badge = parseInt(val) || 0;
 				}
 				
+			}
+			else if( itype === types.shop ){
+				if( name === "shop" )
+					interaction.data.shop = th.getValOrJson(this);
+				else if( name === 'player' ){
+					interaction.data.player = val;
+				}
 			}
 			else if( itype === types.exit ){
 				if( name === "asset_dungeon" ){
@@ -3822,6 +3913,12 @@ export default class Modtools{
 	}
 
 
+	// Shop (input only for now)
+	inputShop( data ){
+		if( typeof data === "object" )
+			data = JSON.stringify(data);
+		return '<input type="text" class="json" name="shop" value="'+esc(data)+'" list="shops" />';
+	}
 
 
 	// Player (bindable)

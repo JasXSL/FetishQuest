@@ -1888,13 +1888,13 @@ export default class Game extends Generic{
 		return out;
 	}
 
-	// Checks each players and returns true if one of them has a shop by label
-	isShopHere( label ){
+	// Checks each players and returns it if one of them has a shop by label
+	getShopHere( label ){
 		for( let player of this.players ){
 			let shops = this.getShopsByPlayer(player);
 			for( let shop of shops ){
 				if( shop.label === label )
-					return true;
+					return shop;
 			}
 		}
 	}
@@ -1915,7 +1915,7 @@ export default class Game extends Generic{
 			return false;
 		}
 		// Checks if vendor is here
-		if( !this.isShopHere(shop.label) ){
+		if( !this.getShopHere(shop.label) ){
 			console.error("Vendor", shop.player, "not in cell");
 			return false;
 		}
@@ -1989,9 +1989,9 @@ export default class Game extends Generic{
 	// Shop is a label, asset is an ID of an item in shop, amount is nr items to buy, player is the buying player
 	buyAsset(shop, asset, amount, player){
 
-		// Shop must always be from the library in order to work
+		// Find a shop in active stage
 		if( !(shop instanceof Shop) )
-			shop = glib.get(shop, 'Shop');
+			shop = this.getShopHere(shop);
 
 		if( !shop ){
 			this.modal.addError("Shop not found");

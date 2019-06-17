@@ -147,7 +147,7 @@ export class ShopAsset extends Generic{
 
 		const out = {
 			id : this.id,
-			asset : this.asset,
+			asset : typeof this.asset === 'object' ? this.asset.save(full) : this.asset,
 			cost : this.cost,
 			amount : this.amount,
 			restock_rate : this.restock_rate,
@@ -168,6 +168,7 @@ export class ShopAsset extends Generic{
 
 	rebase(){
 		this.conditions = Condition.loadThese(this.conditions);
+		this.asset = Asset.loadThis(this.asset, this);
 	}
 
 	getCost(){
@@ -190,13 +191,14 @@ export class ShopAsset extends Generic{
 	}
 
 	getAsset(){
-		const out = Asset.loadThis(this.asset);
+		const out = this.asset.clone();
 		out.g_resetID();
 		out.onPlacedInWorld();
 		return out;
 	}
 
 	loadState( data ){
+
 		if( !(data instanceof ShopAssetSaveState) )
 			return;
 		this._amount_bought = data._amount_bought;
@@ -206,6 +208,7 @@ export class ShopAsset extends Generic{
 			this._amount_bought = 0;
 			game.saveShopState(this.parent);
 		}
+
 	}
 
 	saveState(){
