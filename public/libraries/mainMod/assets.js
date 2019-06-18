@@ -318,7 +318,7 @@ const lib = {
 		name : "White Swimtrunks",
 		category : Asset.Categories.armor,
 		icon : 'underwear',
-		slots : [Asset.Slots.lowerbody],
+		slots : [Asset.Slots.lowerBody],
 		equipped : false,
 		basevalue : 50,
 		tags : [
@@ -348,7 +348,7 @@ const lib = {
 		basevalue : 300,
 		category : Asset.Categories.armor,
 		icon : 'robe',
-		slots : [Asset.Slots.upperbody],
+		slots : [Asset.Slots.upperBody],
 		equipped : false,
 		tags : [
 			stdTag.asStretchy,
@@ -382,7 +382,7 @@ const lib = {
 		name : "Rawhide Shirt",
 		category : Asset.Categories.armor,
 		icon : 'shirt',
-		slots : [Asset.Slots.upperbody],
+		slots : [Asset.Slots.upperBody],
 		equipped : false,
 		tags : [stdTag.asShirt,stdTag.asLeather,stdTag.asRawhide,stdTag.asCanPullDown],
 		basevalue : 90,
@@ -410,7 +410,7 @@ const lib = {
 		category : Asset.Categories.armor,
 		basevalue : 90,
 		icon : 'underwear',
-		slots : [Asset.Slots.lowerbody],
+		slots : [Asset.Slots.lowerBody],
 		equipped : false,
 		tags : [stdTag.asThong,stdTag.asWaistband,stdTag.asLeather,stdTag.asRawhide,stdTag.asCanPullDown],
 		wrappers : [
@@ -438,7 +438,7 @@ const lib = {
 		category : Asset.Categories.armor,
 		basevalue : 600,
 		icon : 'underwear',
-		slots : [Asset.Slots.lowerbody],
+		slots : [Asset.Slots.lowerBody],
 		equipped : false,
 		tags : [stdTag.asThong,stdTag.asWaistband,stdTag.asCloth,stdTag.asStretchy,stdTag.asSilk,stdTag.asCanPullDown],
 		wrappers : [{

@@ -417,7 +417,7 @@ const lib = {
 		level: 1,
 		name : "Exploit",
 		icon : 'hooded-assassin',
-		description : "Deals 4 physical damage plus another 2 per slot of upperbody and/or lowerbody armor missing from your target.",
+		description : "Deals 4 physical damage plus another 2 per slot of upper and/or lower body armor missing from your target.",
 		ap : 2,
 		mp : 0,
 		type : "Physical",
@@ -438,7 +438,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "8-ta_lowerbody*2-ta_upperbody*2"
+							"amount": "8-ta_lowerBody*2-ta_upperBody*2"
 						}
 					},
 					
@@ -507,7 +507,7 @@ const lib = {
 		level: 3,
 		name : "Dirty Tricks",
 		icon : 'snatch',
-		description : "Use a dirty trick on your target, doing 8 corruption damage. Has a 5% chance per corruption advantage to unequip their lower or upperbody armor.",
+		description : "Use a dirty trick on your target, doing 8 corruption damage. Has a 5% chance per corruption advantage to unequip their lower or upperBody armor.",
 		ap : 2,
 		mp : 3,
 		type : "Corruption",
@@ -538,8 +538,8 @@ const lib = {
 						type : "disrobe",
 						data : {
 							"slots": [
-								"lowerbody",
-								"upperbody"
+								"lowerBody",
+								"upperBody"
 							],
 							"numSlots": 1
 						},
@@ -1157,10 +1157,10 @@ const lib = {
 					"targetNotBeast",
 					{
 						conditions : [
-							"targetLowerbodyNotHard",
+							"targetLowerBodyNotHard",
 							{
 								conditions : [
-									"targetUpperbodyNotHard",
+									"targetUpperBodyNotHard",
 									"targetBreasts"
 								],
 								min : -1
@@ -1593,7 +1593,7 @@ const lib = {
 					"targetNotBeast",
 					{
 						conditions : [
-							"targetNoLowerbody",
+							"targetNoLowerBody",
 							{conditions:["ttGroinExposed", "targetVagina"], min:-1},
 							"ttButtExposed",
 						]
@@ -1636,7 +1636,7 @@ const lib = {
 				detrimental : true,
 				add_conditions : stdCond.concat(
 					"targetNotBeast",
-					"targetWearsLowerbody"
+					"targetWearsLowerBody"
 				),
 				effects : [
 					{
@@ -2120,18 +2120,18 @@ const lib = {
 				detrimental : true,
 				add_conditions : stdCond.concat("skeleton_looseHand"),
 				stay_conditions : stdCond.concat({conditions : [
-					{conditions:[{type:Condition.Types.tag, data:{tags:'skeletal_hand_ub'}}, "targetWearsUpperbody"], min:-1},
-					{conditions:[{type:Condition.Types.tag, data:{tags:'skeletal_hand_lb'}}, "targetWearsLowerbody"], min:-1},
+					{conditions:[{type:Condition.Types.tag, data:{tags:'skeletal_hand_ub'}}, "targetWearsUpperBody"], min:-1},
+					{conditions:[{type:Condition.Types.tag, data:{tags:'skeletal_hand_lb'}}, "targetWearsLowerBody"], min:-1},
 				]}),
 				effects : [
 					{
 						events : [GameEvent.Types.internalWrapperAdded],
 						data : {tags:[
 							{tags:'skeletal_hand_ub', conds:[{
-								conditions : ["targetWearsUpperbody", "targetBreasts"],
+								conditions : ["targetWearsUpperBody", "targetBreasts"],
 								min : -1
 							}]},
-							{tags:'skeletal_hand_lb', conds:['targetWearsLowerbody']}
+							{tags:'skeletal_hand_lb', conds:['targetWearsLowerBody']}
 						]},
 						type : Effect.Types.addRandomTags,
 					},

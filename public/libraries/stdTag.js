@@ -61,9 +61,9 @@ export default {
 	acManaDamage : 'ac_mana_damage',
 	acDrink : 'ac_drink',
 
-	// Common asset tags. These are appended with _<slot> ex as_tight_upperbody
-	asUpperbody : 'as_upperbody',	// slots like these are automatically added while you're wearing items in those slots
-	asLowerbody : 'as_lowerbody',
+	// Common asset tags. These are appended with _<slot> ex as_tight_upperBody
+	asUpperBody : 'as_upperBody',	// slots like these are automatically added while you're wearing items in those slots
+	asLowerBody : 'as_lowerBody',
 
 	asTight : 'as_tight',			// Tight close
 	asHard : 'as_hard',			// Hardened clothes, preventing gropes etc on top of the item

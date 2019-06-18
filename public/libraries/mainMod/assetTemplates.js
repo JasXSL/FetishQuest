@@ -6,8 +6,8 @@ const lib = {
 	sling_armor : {
 		icon : 'sling',
 		slots : [
-			Asset.Slots.upperbody,
-			Asset.Slots.lowerbody,
+			Asset.Slots.upperBody,
+			Asset.Slots.lowerBody,
 		],
 		name : "Sling Armor",
 		materials : [
@@ -32,7 +32,7 @@ const lib = {
 	},
 	thong: {
 		icon : 'underwear',
-		slots : [Asset.Slots.lowerbody],
+		slots : [Asset.Slots.lowerBody],
 		name : "Thong",
 		materials : [
 			"cotton",
@@ -51,7 +51,7 @@ const lib = {
 	},
 	shirt : {
 		icon : 'shirt',
-		slots : [Asset.Slots.upperbody],
+		slots : [Asset.Slots.upperBody],
 		name : "Shirt",
 		materials : [
 			"cotton",
@@ -67,7 +67,7 @@ const lib = {
 	},
 	tank_top : {
 		icon : 'shirt',
-		slots : [Asset.Slots.upperbody],
+		slots : [Asset.Slots.upperBody],
 		name : "Tank Top",
 		materials : [
 			"cotton",
@@ -83,7 +83,7 @@ const lib = {
 	},
 	chestwraps : {
 		icon : 'shirt',
-		slots : [Asset.Slots.upperbody],
+		slots : [Asset.Slots.upperBody],
 		name : "Chestwraps",
 		materials : [
 			"cotton",
@@ -97,7 +97,7 @@ const lib = {
 	},
 	bodysuit : {
 		icon : 'sleeveless-top',
-		slots : [Asset.Slots.upperbody, Asset.Slots.lowerbody],
+		slots : [Asset.Slots.upperBody, Asset.Slots.lowerBody],
 		name : "Bodysuit",
 		materials : [
 			"mageweave",
@@ -112,7 +112,7 @@ const lib = {
 	},
 	thong_bodysuit : {
 		icon : 'sleeveless-top',
-		slots : [Asset.Slots.upperbody, Asset.Slots.lowerbody],
+		slots : [Asset.Slots.upperBody, Asset.Slots.lowerBody],
 		name : "Thong Bodysuit",
 		materials : [
 			"mageweave",
@@ -129,7 +129,7 @@ const lib = {
 
 	breastplate : {
 		icon : 'chest-armor',
-		slots : [Asset.Slots.upperbody],
+		slots : [Asset.Slots.upperBody],
 		name : "Breastplate",
 		materials : [
 			"plateCopper",
@@ -144,7 +144,7 @@ const lib = {
 	},
 	crotchplate : {
 		icon : 'armored-pants',
-		slots : [Asset.Slots.lowerbody],
+		slots : [Asset.Slots.lowerBody],
 		name : "Crotchplate",
 		materials : [
 			"plateCopper",
@@ -162,7 +162,7 @@ const lib = {
 	},
 	half_robe : {
 		icon : 'robe',
-		slots : [Asset.Slots.upperbody],
+		slots : [Asset.Slots.upperBody],
 		name : "Half-robe",
 		materials : [
 			"cotton",
@@ -183,7 +183,7 @@ const lib = {
 	},
 	loincloth : {
 		icon : 'loincloth',
-		slots : [Asset.Slots.lowerbody],
+		slots : [Asset.Slots.lowerBody],
 		name : "Loincloth",
 		materials : [
 			"rawhide",

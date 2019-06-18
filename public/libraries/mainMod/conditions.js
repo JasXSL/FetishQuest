@@ -139,45 +139,45 @@ const lib = {
 	targetWearsSkirt : {"type":"tag","data":{"tags":["as_skirt"]}},
 	targetWearsSlingBikini : {"type":"tag","data":{"tags":["as_sling_bikini"]}},
 	targetNoBodysuit : {"type":"tag","data":{"tags":["as_bodysuit"]},"inverse":true},
-	targetWearsUpperbody : {"type":"tag","data":{"tags":["as_upperbody"]}},
-	targetWearsLowerbody : {"type":"tag","data":{"tags":["as_lowerbody"]}},
-	targetNoUpperbody : {"type":"tag","data":{"tags":["as_upperbody"]},"inverse":true},
-	targetNoLowerbody : {"type":"tag","data":{"tags":["as_lowerbody"]},"inverse":true},
-	senderWearsUpperbody : {"type":"tag","data":{"tags":["as_upperbody"]},"caster":true},
-	senderWearsLowerbody : {"type":"tag","data":{"tags":["as_lowerbody"]},"caster":true},
-	senderNoUpperbody : {"type":"tag","data":{"tags":["as_upperbody"]},"inverse":true,"caster":true},
-	senderNoLowerbody : {"type":"tag","data":{"tags":["as_lowerbody"]},"inverse":true,"caster":true},
-	targetUpperbodyNotHard : {"type":"tag","data":{"tags":["as_hard_upperbody"]},"inverse":true},
-	targetUpperbodyHard : {"type":"tag","data":{"tags":["as_hard_upperbody"]}},
-	targetLowerbodyNotHard : {"type":"tag","data":{"tags":["as_hard_lowerbody"]},"inverse":true},
-	targetLowerbodyHard : {"type":"tag","data":{"tags":["as_hard_lowerbody"]}},
-	targetUpperbodyStretchy : {"type":"tag","data":{"tags":["as_stretchy_upperbody"]}},
-	targetLowerbodyStretchy : {"type":"tag","data":{"tags":["as_stretchy_lowerbody"]}},
-	targetLowerbodyMetal : {"type":"tag","data":{"tags":["as_metal_lowerbody"]}},
-	targetUpperbodyMetal : {"type":"tag","data":{"tags":["as_metal_upperbody"]}},
-	targetLowerbodyWaistband : {"type":"tag","data":{"tags":["as_waistband_lowerbody"]}},
+	targetWearsUpperBody : {"type":"tag","data":{"tags":["as_upperBody"]}},
+	targetWearsLowerBody : {"type":"tag","data":{"tags":["as_lowerBody"]}},
+	targetNoUpperBody : {"type":"tag","data":{"tags":["as_upperBody"]},"inverse":true},
+	targetNoLowerBody : {"type":"tag","data":{"tags":["as_lowerBody"]},"inverse":true},
+	senderWearsUpperBody : {"type":"tag","data":{"tags":["as_upperBody"]},"caster":true},
+	senderWearsLowerBody : {"type":"tag","data":{"tags":["as_lowerBody"]},"caster":true},
+	senderNoUpperBody : {"type":"tag","data":{"tags":["as_upperBody"]},"inverse":true,"caster":true},
+	senderNoLowerBody : {"type":"tag","data":{"tags":["as_lowerBody"]},"inverse":true,"caster":true},
+	targetUpperBodyNotHard : {"type":"tag","data":{"tags":["as_hard_upperBody"]},"inverse":true},
+	targetUpperBodyHard : {"type":"tag","data":{"tags":["as_hard_upperBody"]}},
+	targetLowerBodyNotHard : {"type":"tag","data":{"tags":["as_hard_lowerBody"]},"inverse":true},
+	targetLowerBodyHard : {"type":"tag","data":{"tags":["as_hard_lowerBody"]}},
+	targetUpperBodyStretchy : {"type":"tag","data":{"tags":["as_stretchy_upperBody"]}},
+	targetLowerBodyStretchy : {"type":"tag","data":{"tags":["as_stretchy_lowerBody"]}},
+	targetLowerBodyMetal : {"type":"tag","data":{"tags":["as_metal_lowerBody"]}},
+	targetUpperBodyMetal : {"type":"tag","data":{"tags":["as_metal_upperBody"]}},
+	targetLowerBodyWaistband : {"type":"tag","data":{"tags":["as_waistband_lowerBody"]}},
 
-	targetLowerbodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_lowerbody"]}},
-	targetUpperbodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_upperbody"]}},
-	targetUpperbodyCanPullUp : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullUp+"_upperbody"]}},
+	targetLowerBodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_lowerBody"]}},
+	targetUpperBodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_upperBody"]}},
+	targetUpperBodyCanPullUp : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullUp+"_upperBody"]}},
 
 
 	targetClassTentaclemancer : {type:Condition.Types.playerClass, data:{label:"tentaclemancer"}},	
 
 	targetButtExposed : {conditions:[
-		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true},
+		{type:"tag", data:{tags:[stdTag.asLowerBody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttButtExposed]}}
 	]},
 	targetGroinExposed : {conditions:[
-		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true},
+		{type:"tag", data:{tags:[stdTag.asLowerBody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttGroinExposed]}}
 	]},
 	targetBreastsExposed : {conditions:[
-		{type:"tag", data:{tags:[stdTag.asUpperbody]}, inverse:true},
+		{type:"tag", data:{tags:[stdTag.asUpperBody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttBreastsExposed]}}
 	]},
 	senderGroinExposed : {conditions:[
-		{type:"tag", data:{tags:[stdTag.asLowerbody]}, inverse:true, caster:true},
+		{type:"tag", data:{tags:[stdTag.asLowerBody]}, inverse:true, caster:true},
 		{type:"tag", data:{tags:[stdTag.ttGroinExposed]}, caster:true}
 	]},
 	
@@ -185,17 +185,17 @@ const lib = {
 	senderDishonorable : {type:Condition.Types.tag,data:{"tags":[stdTag.plDishonorable]},"caster":true},
 
 	targetArmorDamaged : {type:Condition.Types.slotDamaged},
-	targetUpperbodyDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperbody}},
-	targetLowerbodyDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerbody}},
-	targetLowerbodyNotDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerbody}, inverse:true},
-	targetUpperbodyNotDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperbody}, inverse:true},
+	targetUpperBodyDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperBody}},
+	targetLowerBodyDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerBody}},
+	targetLowerBodyNotDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerBody}, inverse:true},
+	targetUpperBodyNotDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperBody}, inverse:true},
 	
 
 	targetArmorStripped : {type:Condition.Types.slotStripped},
-	targetUpperbodyStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.upperbody}},
-	targetUpperbodyNotStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.upperbody}, inverse:true},
-	targetLowerbodyStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.lowerbody}},
-	targetLowerbodyNotStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.lowerbody}, inverse:true},
+	targetUpperBodyStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.upperBody}},
+	targetUpperBodyNotStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.upperBody}, inverse:true},
+	targetLowerBodyStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.lowerBody}},
+	targetLowerBodyNotStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.lowerBody}, inverse:true},
 
 	targetHasRepairable : {"type":"hasRepairable"},
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
@@ -318,30 +318,30 @@ lib.targetVaginaExposedAndUnblocked = {conditions:[
 // Same but allows groin/butt if armor isn't hard
 lib.targetButtUnblockedAndNotHard = {conditions:[
 	{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockButt]}, inverse:true},
-	{conditions:[lib.targetButtExposed, lib.targetLowerbodyNotHard]},
+	{conditions:[lib.targetButtExposed, lib.targetLowerBodyNotHard]},
 ], min:-1};
 lib.targetMouthUnblockedAndNotHard = {type:Condition.Types.tag, data:{tags:[stdTag.wrBlockMouth]}, inverse:true};
 lib.targetVaginaUnblockedAndNotHard = {conditions:[
 	{type:Condition.Types.tag, data:{tags:[stdTag.wrBlockGroin]}, inverse:true},
 	{type:Condition.Types.tag, data:{tags:[stdTag.vagina]}},
-	{conditions:[lib.targetGroinExposed, lib.targetLowerbodyNotHard]}
+	{conditions:[lib.targetGroinExposed, lib.targetLowerBodyNotHard]}
 ], min:-1};
 
 lib.targetNotNaked = {conditions:[
-	lib.targetWearsUpperbody,
-	lib.targetWearsLowerbody
+	lib.targetWearsUpperBody,
+	lib.targetWearsLowerBody
 ], min:1};
 lib.targetNaked = {conditions:[
-	lib.targetWearsUpperbody,
-	lib.targetWearsLowerbody
+	lib.targetWearsUpperBody,
+	lib.targetWearsLowerBody
 ], inverse:true, min:1};
-lib.targetUpperbodyDamagedNotStripped = {conditions:[
-	lib.targetUpperbodyDamaged,
-	lib.targetUpperbodyNotStripped
+lib.targetUpperBodyDamagedNotStripped = {conditions:[
+	lib.targetUpperBodyDamaged,
+	lib.targetUpperBodyNotStripped
 ], min:-1};
-lib.targetLowerbodyDamagedNotStripped = {conditions:[
-	lib.targetLowerbodyDamaged,
-	lib.targetLowerbodyNotStripped
+lib.targetLowerBodyDamagedNotStripped = {conditions:[
+	lib.targetLowerBodyDamaged,
+	lib.targetLowerBodyNotStripped
 ], min:-1};
 
 
@@ -358,8 +358,8 @@ lib.targetHasUnblockedNotHardOrifice = {conditions:[
 ], min:1};
 
 lib.skeleton_looseHand = {conditions:[
-	{min:-1, conditions:["targetWearsUpperbody", "targetBreasts"]},
-	"targetWearsLowerbody"
+	{min:-1, conditions:["targetWearsUpperBody", "targetBreasts"]},
+	"targetWearsLowerBody"
 ]};
 
 const getArray = function(){

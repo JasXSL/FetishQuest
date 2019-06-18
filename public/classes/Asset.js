@@ -233,8 +233,8 @@ export default class Asset extends Generic{
 	// returns a damage taken that can be added together with other armor. Goes up to Asset.protVal based on level/broken
 	getDmgTakenAdd(){
 
-		// only upperbody and lowerbody have this feature
-		if( this.slots.indexOf(Asset.Slots.upperbody) === -1 && this.slots.indexOf(Asset.Slots.lowerbody) === -1 )
+		// only upperBody and lowerBody have this feature
+		if( this.slots.indexOf(Asset.Slots.upperBody) === -1 && this.slots.indexOf(Asset.Slots.lowerBody) === -1 )
 			return 0;
 
 		// Item is broken, take 25% more damage
@@ -334,7 +334,7 @@ export default class Asset extends Generic{
 	getTooltipText(){
 		
 		const isConsumable = this.isConsumable(),
-			isBreakable = ~this.slots.indexOf(Asset.Slots.upperbody) || ~this.slots.indexOf(Asset.Slots.lowerbody)
+			isBreakable = ~this.slots.indexOf(Asset.Slots.upperBody) || ~this.slots.indexOf(Asset.Slots.lowerBody)
 		;
 		let html = '';
 		// Usable items shows the action tooltip instead
@@ -376,7 +376,7 @@ export default class Asset extends Generic{
 	
 }
 
-Asset.protVal = 0.25;	// Max damage taken increase for not having this item equipped (lower/upperbody only)
+Asset.protVal = 0.25;	// Max damage taken increase for not having this item equipped (lower/upperBody only)
 
 // Automatically creates a stat wrapper
 // Level is the level of the item, numSlots is how many item slots it covers
@@ -593,8 +593,8 @@ Asset.rollRarity = function( offset = 0 ){
 
 Asset.Slots = {
 	none : "",
-	upperbody : "upperbody",
-	lowerbody : "lowerbody",
+	upperBody : "upperBody",
+	lowerBody : "lowerBody",
 	trinket : "trinket",
 	hands : "hands",
 	action : "action",			// Goes into an action slot

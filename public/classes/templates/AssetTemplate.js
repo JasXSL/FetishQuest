@@ -10,7 +10,7 @@ class AssetTemplate extends Generic{
 		super(data);
 
 		this.label = '';
-		this.slots = [Asset.Slots.upperbody];
+		this.slots = [Asset.Slots.upperBody];
 		this.name = "";
 		this.materials = ['cotton'];	// Available material labels
 		this.svStats = {};
@@ -140,7 +140,7 @@ class AssetTemplate extends Generic{
 class AssetOutput extends Generic{
 	constructor(data){
 		super(data);
-		this.slots = [Asset.Slots.upperbody];
+		this.slots = [Asset.Slots.upperBody];
 		this.name = "";
 		this.svStats = {};
 		this.bonStats = {};

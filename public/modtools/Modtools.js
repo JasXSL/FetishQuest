@@ -1280,8 +1280,8 @@ export default class Modtools{
 				color : '#FAA',
 				tags : [stdTag.penis, stdTag.vagina, stdTag.breasts, stdTag.plBigPenis, stdTag.plBigButt, stdTag.plBigBreasts],
 				assets : [
-					new Asset({name:'Breastplate', slots:[Asset.Slots.upperbody], equipped:true}),
-					new Asset({name:'Crotchplate', slots:[Asset.Slots.lowerbody], equipped:true}),
+					new Asset({name:'Breastplate', slots:[Asset.Slots.upperBody], equipped:true}),
+					new Asset({name:'Crotchplate', slots:[Asset.Slots.lowerBody], equipped:true}),
 					new Asset({name:'Whip', slots:[Asset.Slots.hands], equipped:true}),
 				]
 			});
@@ -1291,8 +1291,8 @@ export default class Modtools{
 				color : '#AFA',
 				tags : [stdTag.penis, stdTag.vagina, stdTag.breasts, stdTag.plBigPenis, stdTag.plBigButt, stdTag.plBigBreasts],
 				assets : [
-					new Asset({name:'Leather Shirt', slots:[Asset.Slots.upperbody]}),
-					new Asset({name:'Leather Thong', slots:[Asset.Slots.lowerbody]}),
+					new Asset({name:'Leather Shirt', slots:[Asset.Slots.upperBody]}),
+					new Asset({name:'Leather Thong', slots:[Asset.Slots.lowerBody]}),
 					new Asset({name:'Whip', slots:[Asset.Slots.hands], equipped:true}),
 				]
 			});
@@ -1360,8 +1360,8 @@ export default class Modtools{
 			'<tr><td>%Trsize</td><td>Target rear (butt) size.</td></tr>'+
 			'<tr><td>%Tvagina</td><td>Synonym for vagina.</td></tr>'+
 			'<tr><td>%Tgenitals</td><td>Automatically picks a genital the target has between their legs, ex for males it\'s the same as %Tpenis. If a herm, it\'s picked at random. Good to use for texts that make sense against all sexes.</td></tr>'+
-			'<tr><td>%TclothUpper</td><td>Replaced with target upperbody armor name. Make sure to use with a condition such as targetWearsUpperbody for this to make sense.</td></tr>'+
-			'<tr><td>%TclothLower</td><td>Replaced with target lowerbody armor name. Make sure to use with a condition such as targetWearsLowerbody for this to make sense.</td></tr>'+
+			'<tr><td>%TclothUpper</td><td>Replaced with target upperBody armor name. Make sure to use with a condition such as targetWearsUpperBody for this to make sense.</td></tr>'+
+			'<tr><td>%TclothLower</td><td>Replaced with target lowerBody armor name. Make sure to use with a condition such as targetWearsLowerBody for this to make sense.</td></tr>'+
 			'<tr><td>%Thead</td><td>Replaced with target head armor name. Make sure to use with an appropriate condition.</td></tr>'+
 			'<tr><td>%Tgear</td><td>Replaced with whatever target is wearing in their hands. Make sure to use with an appropriate condition.</td></tr>'+
 			'<tr><td>%Trace</td><td>Replaced with target race.</td></tr>'+

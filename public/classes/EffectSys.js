@@ -957,7 +957,7 @@ class Effect extends Generic{
 
 				let slots = this.data.slots;
 				if( typeof slots !== "string" && !Array.isArray(slots) )
-					slots = [Asset.Slots.upperbody, Asset.Slots.lowerbody];
+					slots = [Asset.Slots.upperBody, Asset.Slots.lowerBody];
 					
 				if( !Array.isArray(slots) )
 					slots = [slots];
@@ -1098,7 +1098,7 @@ class Effect extends Generic{
 				// Check if slots exists, otherwise pick all slots
 				let slots = this.data.slots;
 				if( !slots )
-					slots = [Asset.Slots.upperbody, Asset.Slots.lowerbody];
+					slots = [Asset.Slots.upperBody, Asset.Slots.lowerBody];
 				if( !Array.isArray(slots) )
 					slots = [slots];
 

@@ -5,19 +5,11 @@ import Player from './Player.js';
 import Asset from './Asset.js';
 import stdTag from '../libraries/stdTag.js';
 import HitFX from './HitFX.js';
+
 /*
 	List of tags you can use:
 	GENERIC
 		%leftright - left or right at random
-		%cum - Synonym for cum
-		%few - Synonym for couple of, few, handful of
-		%thrusting - thrusting/pounding/humping
-		%firmly - firmly/hard/rigidly/thoroughly
-		%butt
-		%breast
-		%penis
-		%vagina
-		%groin - Synonym for groin/crotch
 
 	TARGET PREFIXED - These are prefixed with 
 			%T : Target 
@@ -27,16 +19,29 @@ import HitFX from './HitFX.js';
 		%T - Player name
 		%Tpsize, %Tbsize, %Trsize - Grants a size tag for penis, breasts, rear in that order. Must be preceded by a space, which gets removed if the size is average.
 		%Tgenitals - Automatically pick a genital synonym. Herms get picked at random, so only use this if it doesn't matter which part was targeted.
-		%TclothUpper - Upperbody armor name
-		%TclothLower - Lowerbody armor name
+		%TclothUpper - UpperBody armor name
+		%TclothLower - LowerBody armor name
 		%Thead - Headgear name
 		%Tgear - Mainhand name
 		%Trace - Species name of player
 		%The, %Thim, %This - Player pronouns
 		
-
+	Also see SYNONYMS below for additional synonyms. Just slap a % before either of them and it'll work.
 
 */
+// These are generic synonyms that can be used with %synonym for either of these labels, such as %groin works the same as %crotch
+const SYNONYMS = [
+	['cum', 'spunk', 'jizz'],
+	['couple of', 'few', 'handful of'],
+	['pounding', 'thrusting', 'humping'],
+	['firmly', 'hard', 'rigidly', 'thoroughly'],
+	['breast', 'boob', 'tit', 'breast', 'teat'],
+	['penis', 'dong', 'cock', 'member'],
+	['vagina', 'pussy', 'cunt'],
+	['butt', 'rear', 'behind'],
+	['groin', 'crotch'],
+];
+
 class Text extends Generic{
 
 	constructor(...args){
@@ -117,17 +122,17 @@ class Text extends Generic{
 		input = input.split(prefix+'genitals').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 
 		// Clothes
-		let c = player.getEquippedAssetsBySlots([Asset.Slots.upperbody]);			
+		let c = player.getEquippedAssetsBySlots([Asset.Slots.upperBody]);			
 		// If an item was just stripped in the event (usually Action use), you can use that one here
-		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperbody] )
-			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperbody]);
+		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperBody] )
+			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperBody]);
 		
 		input = input.split(prefix+'clothUpper').join(c.length ? c[0].name : 'Outfit');
 		
-		// Same as above but lowerbody
-		c = player.getEquippedAssetsBySlots([Asset.Slots.lowerbody]);
-		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerbody] )
-			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerbody]);
+		// Same as above but lowerBody
+		c = player.getEquippedAssetsBySlots([Asset.Slots.lowerBody]);
+		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerBody] )
+			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerBody]);
 		input = input.split(prefix+'clothLower').join(c.length ? c[0].name : 'Outfit');
 		
 		c = player.getEquippedAssetsBySlots([Asset.Slots.head]);
@@ -177,16 +182,8 @@ class Text extends Generic{
 		// Helper functions
 		let text = this.text;
 		text = text.split('%leftright').join(Math.random()<0.5 ? 'left' : 'right');
-		text = this._replaceArray(text, ['cum', 'spunk', 'jizz']);
-		text = this._replaceArray(text, ['couple of', 'few', 'handful of']);
-		text = this._replaceArray(text, ['pounding', 'thrusting', 'humping']);
-		text = this._replaceArray(text, ['firmly', 'hard', 'rigidly', 'thouroughly']);
-		text = this._replaceArray(text, ['breast', 'boob', 'tit', 'breast', 'teat']);
-		text = this._replaceArray(text, ['penis', 'dong', 'cock', 'member']);
-		text = this._replaceArray(text, ['vagina', 'pussy', 'cunt']);
-		text = this._replaceArray(text, ['butt', 'rear', 'behind']);
-		text = this._replaceArray(text, ['groin', 'crotch']);
-
+		for( let block of SYNONYMS )
+			text = this._replaceArray(text, block);
 			
 		if( event.target ){
 

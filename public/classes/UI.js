@@ -736,28 +736,28 @@ export default class UI{
 			
 		}
 
-		let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperbody),
-			lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerbody);
+		let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperBody),
+			lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerBody);
 		
 		let rb_entries = [];
 		rb_entries.push('<span class="arousal resource" title="Arousal.\nStuns at 100%.">'+
 			p.arousal+"/"+p.getMaxArousal()+
 		'</span>');
 		if( !p.isBeast() ){
-			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperbody);
-			const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerbody);
+			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperBody);
+			const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerBody);
 			const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : 0;
 			const lbDmg = lbAsset.length ? lbAsset[0].getDmgTakenAdd() : 0;
 
 			rb_entries.push(
-				'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="Upperbody armor durability.'+
+				'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="UpperBody armor durability.'+
 					'\n'+((1-ubDmg)*100)+'% Damage reduction'+
 				'">'+
 					Math.ceil(ubDur*100)+'%'+
 				'</span>'
 			);
 			rb_entries.push(
-				'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="Lowerbody armor durability.'+
+				'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="LowerBody armor durability.'+
 					'\n'+((1-lbDmg)*100)+'% Damage reduction'+
 				'">'+
 				Math.ceil(lbDur*100)+'%</span>'
@@ -1717,7 +1717,7 @@ export default class UI{
 
 		// /media/characters/otter.jpg
 		const gallery = [
-			{name : 'Otter', size:5, 'icon':'/media/characters/otter_dressed.jpg', description: 'Art by GothWolf', icon_lowerbody:'/media/characters/otter_lb.jpg', icon_upperbody:'/media/characters/otter_ub.jpg', icon_nude:'/media/characters/otter_nude.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.plTongue, stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+			{name : 'Otter', size:5, 'icon':'/media/characters/otter_dressed.jpg', description: 'Art by GothWolf', icon_lowerBody:'/media/characters/otter_lb.jpg', icon_upperBody:'/media/characters/otter_ub.jpg', icon_nude:'/media/characters/otter_nude.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.plTongue, stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
 			{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', description:'Art by Maddworld', class:'monk', tags:[stdTag.plTongue, stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
 		];
 
@@ -1744,8 +1744,8 @@ export default class UI{
 						
 						html += 'Dressed: <input type="text" name="icon" placeholder="Dressed Art" /><br />'+
 						'Nude: <input type="text" name="icon_nude" placeholder="Nude Art" /><br />'+
-						'Upperbody: <input type="text" name="icon_upperbody" placeholder="Upperbody Art" /><br />'+
-						'Lowerbody: <input type="text" name="icon_lowerbody" placeholder="Lowerbody Art" /><br />'
+						'UpperBody: <input type="text" name="icon_upperBody" placeholder="UpperBody Art" /><br />'+
+						'LowerBody: <input type="text" name="icon_lowerBody" placeholder="LowerBody Art" /><br />'
 						;
 
 
@@ -1795,8 +1795,8 @@ export default class UI{
 			$("#newGameForm input[name=name]").val(data.name);
 			$("#newGameForm input[name=icon]").val(data.icon);
 			$("#newGameForm input[name=icon_nude]").val(data.icon_nude);
-			$("#newGameForm input[name=icon_upperbody]").val(data.icon_upperbody);
-			$("#newGameForm input[name=icon_lowerbody]").val(data.icon_lowerbody);
+			$("#newGameForm input[name=icon_upperBody]").val(data.icon_upperBody);
+			$("#newGameForm input[name=icon_lowerBody]").val(data.icon_lowerBody);
 			$("#newGameForm textarea[name=description]").val(data.description);
 			$("#newGameForm select[name=class]").val(data.class);
 			$("#newGameForm input[name=species]").val(data.species);
@@ -1826,8 +1826,8 @@ export default class UI{
 				species : $("input[name=species]", base).val().trim().toLowerCase() || 'human',
 				icon : $("input[name=icon]", base).val().trim(),
 				icon_nude : $("input[name=icon_nude]", base).val().trim(),
-				icon_upperbody : $("input[name=icon_upperbody]", base).val().trim(),
-				icon_lowerbody : $("input[name=icon_lowerbody]", base).val().trim(),
+				icon_upperBody : $("input[name=icon_upperBody]", base).val().trim(),
+				icon_lowerBody : $("input[name=icon_lowerBody]", base).val().trim(),
 				description : $("textarea[name=description]", base).val().trim(),
 				size : +$("input[name=size]", base).val().trim() || 0,
 				class : c.save(true),
@@ -2021,8 +2021,8 @@ export default class UI{
 
 				html += '<h3>Equipment</h3>';
 				const slots = [
-					Asset.Slots.lowerbody,
-					Asset.Slots.upperbody,
+					Asset.Slots.lowerBody,
+					Asset.Slots.upperBody,
 					Asset.Slots.trinket,
 					Asset.Slots.action,
 					Asset.Slots.hands
@@ -2242,8 +2242,8 @@ export default class UI{
 		html+= '<div class="inventory flexTwoColumns">';
 
 			const slots = [
-				{slot:Asset.Slots.upperbody, icon:'breastplate'},
-				{slot:Asset.Slots.lowerbody, icon:'armored-pants'},
+				{slot:Asset.Slots.upperBody, icon:'breastplate'},
+				{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
 				{slot:Asset.Slots.hands, icon:'crossed-swords'}
 			];
 
@@ -2793,8 +2793,8 @@ export default class UI{
 							'<div>Size:<br /><input type="range" name="size" value="'+(+player.size)+'" min=0 max=10 step=1 /></div>'+
 						'</div>'+
 						'Image Dressed:<br /><input type="text" name="icon" placeholder="Image URL" value="'+esc(player.icon)+'" /><br />'+
-						'Image Upperbody:<br /><input type="text" name="icon_upperbody" placeholder="Image URL" value="'+esc(player.icon_upperbody)+'" /><br />'+
-						'Image Lowerbody:<br /><input type="text" name="icon_lowerbody" placeholder="Image URL" value="'+esc(player.icon_lowerbody)+'" /><br />'+
+						'Image UpperBody:<br /><input type="text" name="icon_upperBody" placeholder="Image URL" value="'+esc(player.icon_upperBody)+'" /><br />'+
+						'Image LowerBody:<br /><input type="text" name="icon_lowerBody" placeholder="Image URL" value="'+esc(player.icon_lowerBody)+'" /><br />'+
 						'Image Naked:<br /><input type="text" name="icon_nude" placeholder="Image URL" value="'+esc(player.icon_nude)+'" /><br />'+
 
 						'<div class="flexThreeColumns">'+
@@ -2877,8 +2877,8 @@ export default class UI{
 			player.species = $("#modal input[name=species]").val().trim();
 			player.description = $("#modal textarea[name=description]").val().trim();
 			player.icon = $("#modal input[name=icon]").val().trim();
-			player.icon_upperbody = $("#modal input[name=icon_upperbody]").val().trim();
-			player.icon_lowerbody = $("#modal input[name=icon_lowerbody]").val().trim();
+			player.icon_upperBody = $("#modal input[name=icon_upperBody]").val().trim();
+			player.icon_lowerBody = $("#modal input[name=icon_lowerBody]").val().trim();
 			player.icon_nude = $("#modal input[name=icon_nude]").val().trim();
 			player.hp = +$("#modal input[name=hp]").val();
 			player.ap = +$("#modal input[name=ap]").val();

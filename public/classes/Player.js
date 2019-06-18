@@ -29,8 +29,8 @@ export default class Player extends Generic{
 		this.species = "";
 		this.description = "";
 		this.icon = "";						// URL - Has to be HTTPS
-		this.icon_upperbody = "";			// == || ==
-		this.icon_lowerbody = "";			// == || ==
+		this.icon_upperBody = "";			// == || ==
+		this.icon_lowerBody = "";			// == || ==
 		this.icon_nude = "";				// == || ==
 
 		this.leader = false;				// Party leader
@@ -182,9 +182,9 @@ export default class Player extends Generic{
 			talkative : this.talkative,
 			tmp_actions : Action.saveThese(this.tmp_actions),
 			label : this.label,
-			icon_lowerbody : this.icon_lowerbody,
+			icon_lowerBody : this.icon_lowerBody,
 			icon_nude : this.icon_nude,
-			icon_upperbody : this.icon_upperbody,
+			icon_upperBody : this.icon_upperBody,
 		};
 
 		if( this.rp )
@@ -472,15 +472,15 @@ export default class Player extends Generic{
 	// ICONS
 	getActiveIcon(){
 		
-		const ub = this.hasTag(stdTag.asUpperbody),
-			lb = this.hasTag(stdTag.asLowerbody)
+		const ub = this.hasTag(stdTag.asUpperBody),
+			lb = this.hasTag(stdTag.asLowerBody)
 		;
 		if( !ub && !lb && this.icon_nude )
 			return this.icon_nude;
-		if( ub && !lb && this.icon_upperbody )
-			return this.icon_upperbody;
-		if( !ub && lb && this.icon_lowerbody )
-			return this.icon_lowerbody;
+		if( ub && !lb && this.icon_upperBody )
+			return this.icon_upperBody;
+		if( !ub && lb && this.icon_lowerBody )
+			return this.icon_lowerBody;
 
 		if( !this.icon )
 			return 'media/characters/missing_art.jpg';
@@ -1177,14 +1177,14 @@ export default class Player extends Generic{
 		let assets = [];
 		// Pick a slot at random
 		if( slots === 'RANDOM' ){
-			let viableAssets = this.getEquippedAssetsBySlots([Asset.Slots.lowerbody, Asset.Slots.upperbody]);
+			let viableAssets = this.getEquippedAssetsBySlots([Asset.Slots.lowerBody, Asset.Slots.upperBody]);
 			if( !viableAssets.length )
 				return;
 			assets = [viableAssets[Math.floor(Math.random()*viableAssets.length)]];
 		}
 		else{
 			if( !Array.isArray(slots) )
-				slots = [Asset.Slots.lowerbody, Asset.Slots.upperbody];
+				slots = [Asset.Slots.lowerBody, Asset.Slots.upperBody];
 			assets = this.getEquippedAssetsBySlots(slots);
 		}
 		
@@ -1683,7 +1683,7 @@ export default class Player extends Generic{
 			return 1;
 
 		let out = 1;
-		let slots = [Asset.Slots.lowerbody, Asset.Slots.upperbody];
+		let slots = [Asset.Slots.lowerBody, Asset.Slots.upperBody];
 		for( let slot of slots ){
 			let gear = this.getEquippedAssetsBySlots(slot);
 			if( !gear.length )

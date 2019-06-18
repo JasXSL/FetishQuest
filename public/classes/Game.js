@@ -364,7 +364,7 @@ export default class Game extends Generic{
 				let l = armorSteal.shift();
 				// Allow steal
 				if( l && !winner.isBeast() ){
-					let gear = l.getEquippedAssetsBySlots([Asset.Slots.lowerbody, Asset.Slots.upperbody], true);
+					let gear = l.getEquippedAssetsBySlots([Asset.Slots.lowerBody, Asset.Slots.upperBody], true);
 					let item = shuffle(gear).shift();
 					if( item && Math.random() < 0.5 ){
 						l.transferAsset(item.id, winner);
