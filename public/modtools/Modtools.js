@@ -751,7 +751,6 @@ export default class Modtools{
 					(text.turnTags ? text.turnTags.map(el => el) : ''),
 					(text.armor_slot ? text.armor_slot : ''),
 					(text.audiokits ? text.audiokits.map(el => typeof el === "string" ? el : 'Custom') : ''),
-					(text.alwaysAuto ? 'X' : ''),
 					(isNaN(text.numTargets) ? 1 : +text.numTargets),
 					(text.alwaysOutput ? 'X' : ''),
 					(text.debug ? 'X' : ''),
@@ -1328,7 +1327,6 @@ export default class Modtools{
 			html += 'TextTags: '+this.formTags(text.turnTags, 'turnTags', 'tagsTT')+'<br />';
 			html += 'Armor Slot: '+this.formArmorSlot(text.armor_slot)+'<br />';
 			html += 'Audio: '+this.formSoundKits(text.audiokits)+'<br />';
-			html += '<span title="Always output this text even if DM mode is enabled">Always Auto</span>: <input type="checkbox" value="1" name="alwaysAuto" '+(text.alwaysAuto ? 'checked' : '')+' /><br />';
 			html += '<span title="Status texts are grouped and output after an action text is output. This bypasses that.">Always Out</span>: <input type="checkbox" value="1" name="alwaysOutput" '+(text.alwaysOutput ? 'checked' : '')+' /><br />';
 			html += '<span title="Outputs debugging info when this text conditions are checked">Debug</span>: <input type="checkbox" value="1" name="debug" '+(text.debug ? 'checked' : '')+' /><br />';
 
@@ -1337,7 +1335,6 @@ export default class Modtools{
 			saveAsset.text = $("input[name=text]", form).val();
 			saveAsset.numTargets = +$("input[name=numTargets]", form).val();
 			saveAsset.weight = +$("input[name=weight]", form).val();
-			saveAsset.alwaysAuto = $("input[name=alwaysAuto]", form).is(':checked');
 			saveAsset.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
 			saveAsset.debug = $("input[name=debug]", form).is(':checked');
 			saveAsset.turnTags = this.compileTags();

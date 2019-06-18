@@ -9,31 +9,29 @@ import HitFX from './HitFX.js';
 	List of tags you can use:
 	GENERIC
 		%leftright - left or right at random
-		%groin | %crotch - Synonym for groin/crotch
 		%cum - Synonym for cum
 		%few - Synonym for couple of, few, handful of
 		%thrusting - thrusting/pounding/humping
+		%firmly - firmly/hard/rigidly/thoroughly
 		%butt
 		%breast
 		%penis
+		%vagina
+		%groin - Synonym for groin/crotch
+
 	TARGET PREFIXED - These are prefixed with 
 			%T : Target 
 			%T2... : Additional targets
 			%S for sender
 			%RtagName for turntag sender, ex %Rspanked - Targets the player that applied the "spanked" turntag. Make sure to use the proper TT conditions for these to work
 		%T - Player name
-		%Tbreast - Synonym for breast
-		%Tpenis - Synonym for penis
-		%Tbutt - Synonym for butt
 		%Tpsize, %Tbsize, %Trsize - Grants a size tag for penis, breasts, rear in that order. Must be preceded by a space, which gets removed if the size is average.
-		%Tvagina - Synonym for vagina
 		%Tgenitals - Automatically pick a genital synonym. Herms get picked at random, so only use this if it doesn't matter which part was targeted.
 		%TclothUpper - Upperbody armor name
 		%TclothLower - Lowerbody armor name
 		%Thead - Headgear name
 		%Tgear - Mainhand name
 		%Trace - Species name of player
-		%Tgroin - Same as %groin
 		%The, %Thim, %This - Player pronouns
 		
 
@@ -46,7 +44,6 @@ class Text extends Generic{
 
 		this.text = '';
 		this.conditions = [];
-		this.alwaysAuto = false;		// Shows this text regardless of if dm writes texts is enabled
 		this.numTargets = 1;			// How many targets this text is meant for. Not a condition because we need to sort on it
 		this.debug = false;
 		this.alwaysOutput = false;		// Ignores the text backlogging and outputs this text immediately
@@ -88,7 +85,6 @@ class Text extends Generic{
 		return {
 			text : this.text,
 			conditions : Condition.saveThese(this.conditions, full),
-			alwaysAuto : this.alwaysAuto,
 			numTargets : this.numTargets,
 			debug : this.debug,
 			alwaysOutput : this.alwaysOutput,
@@ -103,7 +99,7 @@ class Text extends Generic{
 	
 
 	// Converts tags for a specific player
-	targetTextConversion(input, prefix, player){
+	targetTextConversion(input, prefix, player, event){
 
 		if( !player || player.constructor !== Player )
 			return input;
@@ -121,10 +117,17 @@ class Text extends Generic{
 		input = input.split(prefix+'genitals').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
 
 		// Clothes
-		let c = player.getEquippedAssetsBySlots([Asset.Slots.upperbody]);
+		let c = player.getEquippedAssetsBySlots([Asset.Slots.upperbody]);			
+		// If an item was just stripped in the event (usually Action use), you can use that one here
+		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperbody] )
+			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperbody]);
+		
 		input = input.split(prefix+'clothUpper').join(c.length ? c[0].name : 'Outfit');
 		
+		// Same as above but lowerbody
 		c = player.getEquippedAssetsBySlots([Asset.Slots.lowerbody]);
+		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerbody] )
+			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerbody]);
 		input = input.split(prefix+'clothLower').join(c.length ? c[0].name : 'Outfit');
 		
 		c = player.getEquippedAssetsBySlots([Asset.Slots.head]);
@@ -148,45 +151,43 @@ class Text extends Generic{
 		return input;
 	}
 
+	// Takes replaces all occurences of a %synonym with a random one from synonyms 
+	// Only useful for direct synonyms. Not usable when the tag is not the synonym, like %leftright
+	_replaceArray(text, synonyms){
+		for( let synonym of synonyms ){
+			let esc = ("%"+synonym).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+			let spl = text.split(new RegExp('('+esc+')', 'g'));
+			for( let i in spl ){
+				let t = spl[i];
+				if( t.startsWith("%") ){
+					t = t.substring(1);
+					if( ~synonyms.indexOf(t) ){
+						spl[i] = randElem(synonyms);
+					}
+				}
+			}
+			text = spl.join('');
+		}
+		return text;
+	}
+
 	// Main entrypoint
 	run( event, returnResult = false ){
 
+		// Helper functions
 		let text = this.text;
 		text = text.split('%leftright').join(Math.random()<0.5 ? 'left' : 'right');
-		let synonyms = ['groin', 'crotch'];
-		text = text.split('%groin').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%crotch').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		text = this._replaceArray(text, ['cum', 'spunk', 'jizz']);
+		text = this._replaceArray(text, ['couple of', 'few', 'handful of']);
+		text = this._replaceArray(text, ['pounding', 'thrusting', 'humping']);
+		text = this._replaceArray(text, ['firmly', 'hard', 'rigidly', 'thouroughly']);
+		text = this._replaceArray(text, ['breast', 'boob', 'tit', 'breast', 'teat']);
+		text = this._replaceArray(text, ['penis', 'dong', 'cock', 'member']);
+		text = this._replaceArray(text, ['vagina', 'pussy', 'cunt']);
+		text = this._replaceArray(text, ['butt', 'rear', 'behind']);
+		text = this._replaceArray(text, ['groin', 'crotch']);
 
-		synonyms = ['butt', 'rear', 'behind'];
-		text = text.split('%Tbutt').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%Sbutt').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%butt').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-
-		synonyms = ['cum', 'spunk', 'jizz'];
-		text = text.split('%cum').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-
-		synonyms = ['couple of', 'few', 'handful of'];
-		text = text.split('%few').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-
-		synonyms = ['pounding', 'thrusting', 'humping'];
-		text = text.split('%thrusting').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-
-		synonyms = ['boob', 'tit', 'breast', 'teat'];
-		text = text.split('%Tbreast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%Sbreast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%breast').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-
-		synonyms = ['penis', 'dong', 'cock', 'member'];
-		text = text.split('%Tpenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%Spenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%vpenis').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		
-		// These belong together
-		synonyms = ['vagina', 'pussy', 'cunt'];
-		text = text.split('%Tvagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%Svagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		text = text.split('%vagina').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
-		
+			
 		if( event.target ){
 
 			let t = event.target;
@@ -197,13 +198,13 @@ class Text extends Generic{
 				let prefix = '%T';
 				if( i )
 					prefix = prefix+(i+1);	// %T2, %T3 etc
-				text = this.targetTextConversion(text, prefix, t[i]);
+				text = this.targetTextConversion(text, prefix, t[i], event);
 
 				// Add any previous turntag senders
 				for( let tag of t[i]._turn_tags ){
 					let tText = tag.tag;
 					let tSender = tag.s;
-					text = this.targetTextConversion(text, "%R"+tText, tSender);
+					text = this.targetTextConversion(text, "%R"+tText, tSender, event);
 				}
 
 				t[i]._turn_tags = [];
@@ -213,7 +214,7 @@ class Text extends Generic{
 
 		}
 		if( event.sender )
-			text = this.targetTextConversion(text, '%S', event.sender);
+			text = this.targetTextConversion(text, '%S', event.sender, event);
 
 		if( event.asset )
 			text = text.split('%asset').join(event.asset.name);
@@ -296,7 +297,6 @@ Text.getFromEvent = function( event, chat = false ){
 	let maxnr = 1;
 	for( let text of texts ){
 		if( 
-			(!game.dm_writes_texts || text.alwaysAuto) && 
 			Boolean(text.chat) === chat && 
 			(!text.chat || !event.sender.hasUsedChat(text.id) ) &&
 			text.validate(event) 

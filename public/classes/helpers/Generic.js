@@ -172,22 +172,21 @@ export default class Generic{
 		return out;
 
 	}
-	  
-	hasTag( tags ){
-
+	
+	// ...args is supplied as arguments to getTags
+	hasTag( tags, ...args ){
 		if( !Array.isArray(this.tags) )
 			return false;
 
 		if( !Array.isArray(tags) )
 			tags = [tags];
 
-		let t = this.getTags();
+		let t = this.getTags.apply(this, [...args]);
 		for( let tag of t ){
 			if( ~tags.indexOf(tag) )
 				return true;
 		}
 		return false;
-
 	}
 
 	clone( parent, full = true ){

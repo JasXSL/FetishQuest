@@ -187,10 +187,12 @@ export default class Asset extends Generic{
 
 	}
 
+	// Returns true if the asset was destroyed
 	damageDurability( sender, effect, amount, fText = false ){
 
+		amount = parseInt(amount);
 		if( isNaN(amount) )
-			return;
+			return false;
 		let pre = this.durability;
 		this.durability -= Math.floor(amount);
 		if( this.durability <= 0 )
@@ -198,7 +200,7 @@ export default class Asset extends Generic{
 
 		let change = this.durability-pre;
 		if( !change )
-			return;
+			return false;
 
 		if( fText && change && this.parent instanceof Player )
 			game.ui.floatingCombatText(change, this.parent, "armor");
@@ -223,7 +225,9 @@ export default class Asset extends Generic{
 			this.parent.onItemChange();
 			game.playFxAudioKitById('armorBreak', sender, this.parent, undefined, true );
 			game.ui.addText( this.parent.getColoredName()+"'s "+this.name+" broke!", undefined, this.parent.id, this.parent.id, 'statMessage important' );
+			return true;
 		}
+		return false;
 	}
 
 	// returns a damage taken that can be added together with other armor. Goes up to Asset.protVal based on level/broken

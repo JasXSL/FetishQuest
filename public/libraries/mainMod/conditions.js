@@ -2,6 +2,7 @@ import stdTag from "../stdTag.js";
 
 import Condition from "../../classes/Condition.js";
 import GameEvent from "../../classes/GameEvent.js";
+import Asset from "../../classes/Asset.js";
 
 const lib = {
 	
@@ -14,7 +15,6 @@ const lib = {
 	action_tentacle_fiend_legWrap : {"type":"actionLabel","data":{"label":"tentacle_fiend_legWrap"},"targnr":0},
 	action_tentacle_fiend_injectacle : {"type":"actionLabel","data":{"label":"tentacle_fiend_injectacle"},"targnr":0},
 	action_tentacle_fiend_tentatug : {"type":"actionLabel","data":{"label":"tentacle_fiend_tentatug"},"targnr":0},
-	action_tentacle_fiend_tentatug_upper : {type:Condition.Types.actionLabel,data:{label:"tentacle_fiend_tentatug_upper"},targnr:0},
 	action_tentacle_ride : {"type":"actionLabel","data":{"label":"tentacle_ride"},"targnr":0},
 	action_shocktacle_zap : {"type":"actionLabel","data":{"label":"shocktacle_zap"},"targnr":0},
 	action_imp_specialDelivery : {"type":"actionLabel","data":{"label":"imp_specialDelivery"},"targnr":0},
@@ -184,6 +184,18 @@ const lib = {
 
 	senderDishonorable : {type:Condition.Types.tag,data:{"tags":[stdTag.plDishonorable]},"caster":true},
 
+	targetArmorDamaged : {type:Condition.Types.slotDamaged},
+	targetUpperbodyDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperbody}},
+	targetLowerbodyDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerbody}},
+	targetLowerbodyNotDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerbody}, inverse:true},
+	targetUpperbodyNotDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperbody}, inverse:true},
+	
+
+	targetArmorStripped : {type:Condition.Types.slotStripped},
+	targetUpperbodyStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.upperbody}},
+	targetUpperbodyNotStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.upperbody}, inverse:true},
+	targetLowerbodyStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.lowerbody}},
+	targetLowerbodyNotStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.lowerbody}, inverse:true},
 
 	targetHasRepairable : {"type":"hasRepairable"},
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
@@ -251,6 +263,7 @@ const lib = {
 	eventIsDungeonEntered : {"type":"event","data":{"event":["dungeonEntered"]}},
 	
 	targetTaller : {"type":"sizeValue","data":{"amount":"se_Size","operator":">"}},
+	targetMuchTaller : {type:Condition.Types.sizeValue,data:{amount:"se_Size+1",operator:">"}},
 	targetShorter : {"type":"sizeValue","data":{"amount":"se_Size","operator":"<"}},
 	targetNotTaller : {type:"sizeValue",data:{amount:"se_Size",operator:"<"}, inverse:true},
 	notInCombat : {"type":"notInCombat"},
@@ -322,6 +335,15 @@ lib.targetNaked = {conditions:[
 	lib.targetWearsUpperbody,
 	lib.targetWearsLowerbody
 ], inverse:true, min:1};
+lib.targetUpperbodyDamagedNotStripped = {conditions:[
+	lib.targetUpperbodyDamaged,
+	lib.targetUpperbodyNotStripped
+], min:-1};
+lib.targetLowerbodyDamagedNotStripped = {conditions:[
+	lib.targetLowerbodyDamaged,
+	lib.targetLowerbodyNotStripped
+], min:-1};
+
 
 // Special cases where it needs to refer to itself
 lib.targetHasUnblockedExposedOrifice = {conditions:[

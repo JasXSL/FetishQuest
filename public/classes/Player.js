@@ -538,7 +538,7 @@ export default class Player extends Generic{
 	}
 
 	// Overrides the generic definition for this
-	getTags(){
+	getTags(wrapperReturn){
 
 		let out = {};
 		if( this.hp <= 0 )
@@ -554,6 +554,15 @@ export default class Player extends Generic{
 		const addTag = tag => out[tag.toLowerCase()] = true;
 
 		let assets = this.getAssetsEquipped();
+		if( wrapperReturn && wrapperReturn.armor_strips[this.id] ){
+			for( let slot in wrapperReturn.armor_strips[this.id]){
+				const a = wrapperReturn.armor_strips[this.id][slot];
+				if( assets.indexOf(a) === -1 ){
+					assets.push(a);
+				}
+			}
+		}
+
 		for( let asset of assets )
 			asset.getTags().map(addTag);
 		let fx = this.getWrappers();
@@ -1158,10 +1167,14 @@ export default class Player extends Generic{
 	}
 
 	// By default it damages all worn items
+	// Returns an array of {armor_damage:{slot:damage}, armor_strips:{slot:true}}
 	damageDurability( sender, effect, amount, slots, fText = false ){
 
+		const out = {
+			armor_damage : {},
+			armor_strips : {}
+		};
 		let assets = [];
-		// Pick a random slot to damage
 		// Pick a slot at random
 		if( slots === 'RANDOM' ){
 			let viableAssets = this.getEquippedAssetsBySlots([Asset.Slots.lowerbody, Asset.Slots.upperbody]);
@@ -1169,15 +1182,22 @@ export default class Player extends Generic{
 				return;
 			assets = [viableAssets[Math.floor(Math.random()*viableAssets.length)]];
 		}
-		else if( !Array.isArray(slots) ){
-			slots = [Asset.Slots.lowerbody, Asset.Slots.upperbody];
+		else{
+			if( !Array.isArray(slots) )
+				slots = [Asset.Slots.lowerbody, Asset.Slots.upperbody];
 			assets = this.getEquippedAssetsBySlots(slots);
 		}
 		
 		amount = Math.round(amount);
-		for( let asset of assets )
-			asset.damageDurability( sender, effect, amount, fText );
-
+		for( let asset of assets ){
+			let destroyed = asset.damageDurability( sender, effect, amount, fText );
+			for( let slot of asset.slots ){
+				out.armor_damage[slot] = amount;
+				if( destroyed )
+					out.armor_strips[slot] = asset;
+			}
+		}
+		return out;
 
 	}
 

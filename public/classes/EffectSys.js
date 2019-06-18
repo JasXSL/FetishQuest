@@ -134,8 +134,14 @@ class Wrapper extends Generic{
 
 	}
 
+
+	/*	Returns an object on success:
+		See out
+	*/
 	useAgainst( caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined ){
 		
+		const out = new WrapperReturn();
+
 		let pl = [game.getPlayerById(this.victim)];
 		
 		// If this effect isn't yet applied, we need to apply it against multiple players if target is an override
@@ -240,10 +246,9 @@ class Wrapper extends Generic{
 					wrapper : obj,
 					action : this.parent && this.parent.constructor === Action ? this.parent : null,
 				});
-				for(let effect of obj.effects)
-					effect.trigger(evt);
+				for( let effect of obj.effects )
+					effect.trigger(evt, undefined, out);
 				
-
 				evt.type = GameEvent.Types.wrapperAdded;
 				evt.raise();
 
@@ -265,15 +270,14 @@ class Wrapper extends Generic{
 				
 				evt.type = GameEvent.Types.internalWrapperTick;
 				for( let effect of obj.effects )
-					effect.trigger(evt, this);
-
+					effect.trigger(evt, this, out);
 				
 
 			}
 			++successes;
 			
 		}
-		return successes;
+		return !successes ? false : out;
 
 	}
 
@@ -567,6 +571,7 @@ class Effect extends Generic{
 
 	// Parent is always a wrapper
 	// Parent of parent varies. If the wrapper is applied to a player, parent.parent is the player
+	
 	constructor(data, parent){
 
 		super(data);
@@ -652,15 +657,18 @@ class Effect extends Generic{
 	/* MAIN FUNCTIONALITY - This is where the magic happens */
 	// template is the original effect if it was just added
 	// otherwise it's parent
-	trigger( event, template ){
+	// WrapperReturn lets you put data into the wrapper trigger return object 
+	trigger( event, template, wrapperReturn ){
 
 		let evt = event.clone();
 		evt.effect = this;
 		evt.wrapper = this.parent;
+		if( !(wrapperReturn instanceof WrapperReturn) )
+			wrapperReturn = new WrapperReturn();
 
 		if( !this.validateConditions(evt) )
-			return;
-	
+			return false;
+
 		let sender = game.getPlayerById(this.parent.caster),
 			target = game.getPlayerById(this.parent.victim)
 		;
@@ -777,8 +785,9 @@ class Effect extends Generic{
 						ch = Math.abs(ch);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						if( tot )
-							t.damageDurability(s, this, tot, "RANDOM", true);
-							
+							wrapperReturn.mergeFromPlayerDamageDurability(t, t.damageDurability(s, this, tot, "RANDOM", true));
+						
+						
 					}
 
 					// AP Damage
@@ -932,7 +941,7 @@ class Effect extends Generic{
 				let wrappers = this.data.wrappers;
 				if( !Array.isArray(wrappers) ){
 					console.error("Effect data in wrapper ", this.parent, "tried to run wrappers, but wrappers are not defined in", this);
-					return;
+					return false;
 				}
 				
 				for( let w of this.data.wrappers ){
@@ -952,23 +961,31 @@ class Effect extends Generic{
 					
 				if( !Array.isArray(slots) )
 					slots = [slots];
+				slots = wrapperReturn.getSlotPriorityByDamaged(t, slots);
+				
 				let max = this.data.numSlots;
 				let equipped = t.getEquippedAssetsBySlots( slots, false );
 				if( !equipped.length )
-					return;
+					return false;
 
 				let remove = equipped;
 				if( !isNaN(max) ){
 					shuffle(equipped);
 					remove = equipped.slice(0, max);
 				}
+
+				const stripData = {};	// data for wrapperReturn.addArmorStrips. Needs to correlate with player.damageDurability(...).armor_strips
 				for( let asset of remove ){
 					if(t.unequipAsset(asset.id)){
 						if( asset.loot_sound )
 							game.playFxAudioKitById(asset.loot_sound, s, t, undefined, true );
 						game.ui.addText( t.getColoredName()+"'s "+asset.name+" was unequipped"+(this.parent.name ? ' by '+s.getColoredName() : '')+".", undefined, t.id, t.id, 'statMessage important' );
+						for( let slot of asset.slots ){
+							stripData[slot] = asset;
+						}
 					}
 				}
+				wrapperReturn.addArmorStrips(t, stripData);
 
 			}
 
@@ -1068,6 +1085,7 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.damageArmor ){
+
 				// {amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL}
 				let amt = Calculator.run(
 					this.data.amount, 
@@ -1077,22 +1095,27 @@ class Effect extends Generic{
 				if( !amt )
 					continue;
 
+				// Check if slots exists, otherwise pick all slots
 				let slots = this.data.slots;
 				if( !slots )
 					slots = [Asset.Slots.upperbody, Asset.Slots.lowerbody];
 				if( !Array.isArray(slots) )
 					slots = [slots];
 
+				// Pick a prioritized slot if possible
+				slots = wrapperReturn.getSlotPriorityByStripped(t, slots);
+				
+				// If random, pick n from prioritized
 				if( !isNaN(this.data.max_types) ){
 					// Pick some at random
 					shuffle(slots);
 					slots = slots.slice(0,this.data.max_types);
 				}
 
-				let assets = t.getEquippedAssetsBySlots(slots);
-				for( let asset of assets )
-					asset.damageDurability(s, this, amt, true);
+				
 
+				let hit = t.damageDurability( s, this, amt, slots, true );
+				wrapperReturn.mergeFromPlayerDamageDurability(t, hit);
 			}
 
 			else if( this.type === Effect.Types.flee ){
@@ -1130,9 +1153,10 @@ class Effect extends Generic{
 				let mTags = this.data.tag;
 				if( typeof mTags === "string" )
 				mTags = [mTags];
-				if( !Array.isArray(mTags) )
-					return console.error("Trying to run addMissingFxTag, but data.tag is not set", this);
-					
+				if( !Array.isArray(mTags) ){
+					console.error("Trying to run addMissingFxTag, but data.tag is not set", this);
+					return false;
+				}
 				const mapTag = tag => {
 					if( typeof tag !== "string" )
 						console.error("Found a non string tag in addMissingFxTag, tag was ", tag, "fx was", this);
@@ -1183,6 +1207,7 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addRandomTags ){
+
 				if( !Array.isArray(this.data.tags) ){
 					console.error("addRandomTags called on", this, "but no tags set");
 					return false;
@@ -1224,7 +1249,7 @@ class Effect extends Generic{
 
 		}
 
-		
+		return wrapperReturn;
 		
 	}
 
@@ -1359,13 +1384,98 @@ class Effect extends Generic{
 
 }
 
+
+// Standard wrapper return object
+class WrapperReturn extends Generic{
+	constructor(data){
+		super();
+
+		this.armor_slots = {}; 		// { player_id: {slot : amount} } - Armor damage
+		this.armor_strips = {};		// { player_id: {slot : (obj)asset_stripped} } - Armor strips
+
+		this.load(data);
+	}
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	// Merges data into this one
+	merge( data ){
+		if( typeof data !== "object" )
+			return false;
+		for( let i in data.armor_slots )
+			this.addArmorDamage(i, data.armor_slots[i]);
+		for( let i in data.armor_strips )
+			this.addArmorStrips(i, data.armor_strips[i]);
+		
+	}
+
+	// Used on armor damage to see if a slot has been stripped on the player previously. And in that case favor that.
+	getSlotPriorityByStripped(player, input = []){
+		return this._getSlotPriority(player, input, this.armor_strips);
+	}
+
+	// Used on armor strips to see if a slot has been damaged on the player previously. And in that case favor that.
+	getSlotPriorityByDamaged(player, input = []){
+		return this._getSlotPriority(player, input, this.armor_slots);
+	}
+
+	// Local. Takes an input of slots, and returns the prioritized one if it exists. Otherwise it returns the original input array.
+	_getSlotPriority(player, input, obj){
+		if( typeof player === "object" )
+			player = player.id;
+		// Check if any of the slots are present in wrapperReturn, in that case do that
+		const wr = obj[player];
+		if( wr && Object.keys(wr).length ){
+			const viable = Object.keys(wr);
+			const sl = [];
+			for( let slot of input ){
+				if( ~viable.indexOf(slot) )
+					sl.push(slot);
+			}
+			if( sl.length )
+				input = sl;
+		}
+		return input;
+	}
+
+	// Merges the response from player.damageDurability response
+	mergeFromPlayerDamageDurability(player, data){
+		this.addArmorStrips(player, data.armor_strips);
+		this.addArmorDamage(player, data.armor_damage);
+	}
+
+	addArmorStrips(player, slots){
+		if( typeof player === "object" )
+			player = player.id;
+		if( !this.armor_strips[player] )
+			this.armor_strips[player] = {};
+		for( let slot in slots )
+			this.armor_strips[player][slot] = slots[slot];
+	}
+
+	addArmorDamage(player, data){
+		if( typeof player === "object" )
+			player = player.id;
+		// Adds armor damage in the form of {slot:amount}
+		for( let i in data ){
+			if( !this.armor_slots[player] )
+				this.armor_slots[player] = {};
+			if( !this.armor_slots[player][i] )
+				this.armor_slots[player][i] = 0;
+			this.armor_slots[player][i] += data[i];
+		}
+	}
+
+}
+
 Effect.createStatBonus = function( type, bonus ){
 	return new Effect({
 		type : type,
 		data : {amount:bonus}
 	});
 };
-
 
 // These are the actual effect types that the game runs off of
 Effect.Types = {
@@ -1508,4 +1618,4 @@ Effect.TypeDescs = {
 };
 
 
-export {Wrapper, Effect};
+export {Wrapper, Effect, WrapperReturn};

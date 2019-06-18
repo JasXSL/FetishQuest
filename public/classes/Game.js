@@ -36,7 +36,6 @@ export default class Game extends Generic{
 		this.battle_active = false;
 		this.initiative = [];				// Turn order
 		this.initialized = false;
-		this.dm_writes_texts = false;
 		this.chat_log = [];					// Chat log
 		this.net = new NetworkManager(this);
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
@@ -122,7 +121,6 @@ export default class Game extends Generic{
 			Object.values(this.libAsset).map(el => out.libAsset[el.label] = el.save(full));
 			out.name = this.name;
 			out.id = this.id;
-			out.dm_writes_texts = this.dm_writes_texts;
 			out.chat_log = this.chat_log;
 			out.procedural_dungeon = this.procedural_dungeon.save(full);
 		}
@@ -362,7 +360,7 @@ export default class Game extends Generic{
 		await delay(2000);
 		let winners = shuffle(this.getAlivePlayersInTeam(winningTeam));
 		for( let winner of winners ){
-			if( !this.dm_writes_texts && winner.isNPC() ){	// Async function, check before each call
+			if( winner.isNPC() ){	// Async function, check before each call
 				let l = armorSteal.shift();
 				// Allow steal
 				if( l && !winner.isBeast() ){
@@ -637,20 +635,6 @@ export default class Game extends Generic{
 		if( this.initialized )
 			this.save(true);
 	}
-	// Generates a chat message in DM mode of if an attack hit or not
-	dmHitMessage( action, hit ){
-		if( !this.dm_writes_texts || action.hidden )
-			return;
-		game.ui.addText( hit ? '(Hit)' : '(Miss)', undefined, undefined, undefined, 'dmInternal');
-	}
-
-	// Generates a chat message in DM mode of if an attack was riposted or not
-	dmRiposteMessage( action ){
-		if( !this.dm_writes_texts || action.hidden )
-			return;
-		game.ui.addText( '(Riposte)', undefined, undefined, undefined, 'dmInternal');
-	}
-
 	// Output a chat message as a character or OOC. UUID can also be "DM"
 	speakAs( uuid, text, isOOC ){
 
@@ -1467,15 +1451,6 @@ export default class Game extends Generic{
 
 	}
 
-	// Toggles DM mode
-	toggleAutoMode(){
-
-		this.dm_writes_texts = !this.dm_writes_texts;
-		this.save();
-		this.ui.draw();
-
-	}
-
 	// Gets current turn player
 	getTurnPlayer(){
 		
@@ -1592,8 +1567,7 @@ export default class Game extends Generic{
 			if( this.end_turn_after_action )
 				continue;
 
-			if( !this.dm_writes_texts )
-				prepAutoPlay(npl);
+			prepAutoPlay(npl);
 			
 			if( this.playerIsMe(npl, true) && npl.id !== this.my_player ){
 				this.my_player = npl.id;
@@ -1901,6 +1875,8 @@ export default class Game extends Generic{
 
 	// Checks if a shop object is available to a player
 	shopAvailableTo( shop, player ){
+		if( this.battle_active )
+			return false;
 		if( !(shop instanceof Shop) ){
 			console.error("Shop is not a shop", shop);
 			return false;

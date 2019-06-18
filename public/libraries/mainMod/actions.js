@@ -1358,6 +1358,7 @@ const lib = {
 						type : "damageArmor",
 						data : {
 							"amount": 2,
+							max_types : 1
 						}
 					},
 					{
@@ -1620,7 +1621,7 @@ const lib = {
 	tentacle_fiend_tentatug: {
 		name : "Tentatug Lower",
 		icon : 'plate-claw',
-		description : "Tugs as your target's lowerbody armor, doing 2 cloth damage. Has a 30% chance to pull the piece off.",
+		description : "Tugs as your target's armor, doing 2 cloth damage. Has a 30% chance to pull a random outfit piece off.",
 		ap : 3,
 		cooldown : 2,
 		detrimental : true,
@@ -1642,59 +1643,13 @@ const lib = {
 						type : "damageArmor",
 						data : {
 							"amount": 2,
-							"slots": "lowerbody"
+							"max_types": 1
 						}
 					},
 					{
 						type : "disrobe",
-						data : {
-							"slots": "lowerbody"
-						},
-						conditions : [
-							"rand30"
-						]
-					},
-					
-				]
-			}
-		]
-	},
-	tentacle_fiend_tentatug_upper: {
-		name : "Tentatug Upper",
-		icon : 'plate-claw',
-		description : "Tugs as your target's upperbody armor, doing 2 cloth damage. Has a 30% chance to pull the piece off.",
-		ap : 3,
-		cooldown : 2,
-		detrimental : true,
-		tags : [],
-		show_conditions : [
-			"inCombat"
-		],
-		wrappers : [
-			{
-				target : "VICTIM",
-				duration : 0,
-				detrimental : true,
-				add_conditions : stdCond.concat(
-					"targetNotBeast",
-					"targetWearsUpperbody"
-				),
-				effects : [
-					{
-						type : "damageArmor",
-						data : {
-							"amount": 2,
-							"slots": "upperbody"
-						}
-					},
-					{
-						type : "disrobe",
-						data : {
-							"slots": "upperbody"
-						},
-						conditions : [
-							"rand30"
-						]
+						data : {"num_slots": 1},
+						conditions : ["rand30"]
 					},
 					
 				]

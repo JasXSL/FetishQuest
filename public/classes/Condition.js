@@ -182,8 +182,9 @@ export default class Condition extends Generic{
 					success = tagTarg && tagTarg.hasTagBy(this.data.tags, this.caster ? t : s);
 				}
 				// Any tag applied by anyone
-				else
-					success = t && t.hasTag(this.data.tags, this.data.sender);
+				else{
+					success = t && t.hasTag(this.data.tags, event.wrapperReturn);
+				}
 			}
 			else if( this.type === T.targetIsSender ){
 				if(t && s && t.id === s.id)
@@ -370,6 +371,32 @@ export default class Condition extends Generic{
 			else if( this.type === T.actionOnCooldown ){
 				const action = t.getActionByLabel(this.data.label);
 				success = action && action._cooldown;
+			}
+
+			else if( this.type === T.slotDamaged ){
+				if(
+					t && 
+					event.wrapperReturn &&
+					event.wrapperReturn.armor_slots[t.id]
+				){
+					const s = event.wrapperReturn.armor_slots[t.id],
+						slot = this.data.slot
+					;
+					success = !slot || s[slot];
+				}
+			}
+			else if( this.type === T.slotStripped ){
+				
+				if(
+					t && 
+					event.wrapperReturn &&
+					event.wrapperReturn.armor_strips[t.id]
+				){
+					const s = event.wrapperReturn.armor_strips[t.id],
+						slot = this.data.slot
+					;
+					success = Boolean(!slot || s[slot]);
+				}
 			}
 
 			else if( this.type === T.dungeonIs ){
@@ -647,6 +674,8 @@ Condition.Types = {
 	actionOnCooldown : 'actionOnCooldown',
 	playerClass : 'playerClass',
 	formula : 'formula',
+	slotDamaged : 'slotDamaged',
+	slotStripped : 'slotStripped',				
 };
 
 Condition.descriptions = {
@@ -692,6 +721,8 @@ Condition.descriptions = {
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any} - Nr game players are greater than amount. If team is undefined, it checks all players. Use -1 for enemies and -2 for friendlies',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
+	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',
+	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY can be used on things like stdattack',
 };
 
 

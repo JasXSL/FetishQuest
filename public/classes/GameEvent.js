@@ -25,6 +25,7 @@ export default class GameEvent extends Generic{
 		this.dungeon = null;
 		this.room = null;			
 		this.dungeonRoomAsset = null;
+		this.wrapperReturn = null;		// See WrapperReturn @ EffectSys.js
 		this.custom = {};		// Custom data related to the event	
 		this.load(data);
 

@@ -1,5 +1,5 @@
 import Generic from './helpers/Generic.js';
-import {Wrapper, Effect} from './EffectSys.js';
+import {Wrapper, Effect, WrapperReturn} from './EffectSys.js';
 import GameEvent from './GameEvent.js';
 import Player from './Player.js';
 import stdTag from '../libraries/stdTag.js';
@@ -495,10 +495,9 @@ class Action extends Generic{
 			return true;
 		}
 
-		let hits = [];
+		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
 
-			
 			// Check if it hit
 			if( this.detrimental ){
 
@@ -506,6 +505,7 @@ class Action extends Generic{
 					hit = Player.getHitChance(sender, target, this)
 				;
 
+				// miss
 				if( chance > hit ){
 
 					// Riposte
@@ -514,17 +514,14 @@ class Action extends Generic{
 					if( chance <= hit && this.riposte.length ){
 
 						for( let r of this.riposte )
-							r.useAgainst(target, sender, false);
-						
+							wrapperReturn.merge(r.useAgainst(target, sender, false));
 						new GameEvent({
 							type : GameEvent.Types.actionRiposte,
 							sender : target,
 							target : [sender],
 							action : this,
+							wrapperReturn : wrapperReturn,
 						}).raise();
-
-						game.dmRiposteMessage(this);
-
 					}else{
 						new GameEvent({
 							type : GameEvent.Types.actionUsed,
@@ -535,7 +532,6 @@ class Action extends Generic{
 								resist : true
 							}
 						}).raise();
-						game.dmHitMessage(this, false);
 					}
 
 					continue;
@@ -545,8 +541,12 @@ class Action extends Generic{
 			}
 
 			let successes = 0;
-			for( let wrapper of this.wrappers )
-				successes += wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer);
+			for( let wrapper of this.wrappers ){
+				const data = wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer);
+				wrapperReturn.merge(data);
+				if( data )
+					++successes;
+			}
 
 			if( successes )
 				hits.push(target);
@@ -557,7 +557,6 @@ class Action extends Generic{
 				sender.onDamagingAttackDone(target, this.type);
 			}
 
-			game.dmHitMessage(this, successes);
 				
 		}
 		
@@ -568,6 +567,7 @@ class Action extends Generic{
 				sender : this.getPlayerParent(),
 				target : hits,
 				action : this,
+				wrapperReturn : wrapperReturn,
 			});
 			evt.raise();
 			if( this.isAssetAction() && !this.parent.no_auto_consume )

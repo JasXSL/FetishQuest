@@ -187,11 +187,11 @@ class Bot{
 				if( !success )
 					time = 500;
 				++this.actions_used;
-				if( !game.dm_writes_texts ){
-					setTimeout(() => {
-						this.play();	
-					}, time);
-				}
+
+				setTimeout(() => {
+					this.play();	
+				}, time);
+				
 				return;
 			}
 
