@@ -1442,6 +1442,8 @@ class WrapperReturn extends Generic{
 
 	// Merges the response from player.damageDurability response
 	mergeFromPlayerDamageDurability(player, data){
+		if( !data )
+			return;
 		this.addArmorStrips(player, data.armor_strips);
 		this.addArmorDamage(player, data.armor_damage);
 	}

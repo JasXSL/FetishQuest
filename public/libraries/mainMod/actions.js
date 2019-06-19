@@ -2250,6 +2250,35 @@ const lib = {
 	},
 
 
+
+	// Rat in yuug port
+	breast_squeeze : {
+		name : 'Breast Squeeze',
+		icon : 'grab',
+		description : 'Fondles a player\'s breasts. Arousing.',
+		ap : 0,
+		cooldown : 1,
+		mp : 0,
+		detrimental : true,
+		type : Action.Types.corruption,
+		show_conditions : ["notInCombat"],
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : true,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.addArousal,
+						data : {amount : 3}
+					},
+				]
+			}
+		],
+		
+	},
+
 	// Generic helper spells
 	// Removes a latched player
 	detach : {
@@ -2304,6 +2333,10 @@ const lib = {
 			}
 		]
 	},
+
+
+
+	
 
 
 	// assets

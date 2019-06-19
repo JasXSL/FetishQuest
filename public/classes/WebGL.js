@@ -979,7 +979,8 @@ class Stage{
 
 		if( this.room && this.room.outdoors ){
 			this.parent.toggleOutdoors(true);
-			this.parent.setOutdoorTime(game.getHoursOfDay());
+			let time = window.game ? game.getHoursOfDay() : 10;
+			this.parent.setOutdoorTime(time);
 		}
 		else
 			this.parent.toggleOutdoors(false);

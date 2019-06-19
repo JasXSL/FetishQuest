@@ -2944,6 +2944,10 @@ export default class Modtools{
 			html += 'Species: <input required type="text" name="species" value="'+esc(a.species)+'" /><br />';
 			html += 'Description: <textarea name="description">'+esc(a.description)+'</textarea><br />';
 			html += 'Art: <input type="text" name="icon" value="'+esc(a.icon)+'" /><br />';
+			html += 'Art Upper: <input type="text" name="icon_upperBody" value="'+esc(a.icon_upperBody)+'" /><br />';
+			html += 'Art Lower: <input type="text" name="icon_lowerBody" value="'+esc(a.icon_lowerBody)+'" /><br />';
+			html += 'Art Naked: <input type="text" name="icon_nude" value="'+esc(a.icon_nude)+'" /><br />';
+
 			html += 'Actions: '+this.formActions(a.actions)+'<br />';
 			html += 'Assets (alt click to equip): '+this.formAssets(a.assets)+'<br />';
 			html += 'Tags: '+this.formTags(a.tags)+'<br />';
@@ -2979,6 +2983,9 @@ export default class Modtools{
 			saveAsset.species = $("input[name=species]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
 			saveAsset.icon = $("input[name=icon]", form).val().trim();
+			saveAsset.icon_upperBody = $("input[name=icon_lowerBody]", form).val().trim();
+			saveAsset.icon_lowerBody = $("input[name=icon_upperBody]", form).val().trim();
+			saveAsset.icon_nude = $("input[name=icon_nude]", form).val().trim();
 			saveAsset.actions = this.compileAction();
 			saveAsset.assets = this.compileAssets();
 			saveAsset.tags = this.compileTags();

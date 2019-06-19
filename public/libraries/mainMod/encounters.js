@@ -321,6 +321,87 @@ const lib = {
 		]
 	},
 
+	// NPCS outside the tavern
+	yuug_port : {
+		players : ['yuug_port_peasant'],
+		friendly : true,
+		game_actions : [
+			{
+				conditions : ['targetBreasts'],
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'yuug_port',
+					player : 'yuug_port_peasant',
+					persistent : true,
+					once : true,
+					stages: [
+						{
+							index: 0,
+							text: "Hey you! Nice tits!",
+							options: [
+								{text: "Thanks.", index: 1},
+								// Strong
+								{text: "Fuck off.", index: 2, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>1"}, caster:true}]},
+								// Weak
+								{text: "Fuck off.", index: 3, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>1"}, inverse:true, caster:true}]},								
+								{text: "[Fight Him]", index: -1, game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 1,
+							text: "Don't suppose I may 'ave a squeeze?",
+							options: [
+								{text: "Fine.", index: 10, conditions:['targetBreasts'], game_actions:[{
+									type:GameAction.types.playerAction,
+									data:{
+										action:'breast_squeeze',
+										player:'yuug_port_peasant',
+									}
+								}]},
+								{text: "[Fight Him]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 10,
+							text: "Thank ye kindly ma'am.",
+							options: [
+								{text: "[Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
+							index: 2,
+							text: "Alright ye win, ye win. Have a good one!",
+							options : [
+								{text: "[Fight Him Anyway]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
+							index: 3,
+							text: "Aw there's no need fer that luv. Come on. Give us one!",
+							options : [
+								{text: "Fine.", index: 10, conditions:['targetBreasts'], game_actions:[{
+									type:GameAction.types.playerAction,
+									data:{
+										action:'breast_squeeze',
+										player:'yuug_port_peasant',
+									}
+								}]},
+								{text: "[Fight Him]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+					conditions : ["notInCombat"]
+				}}
+			}
+		]
+	},
+
 	mimic : {
 		startText : 'A mimic springs from the chest, grabbing hold of %T\'s ankles and pulling %Thim to the ground!',
 		active : true,

@@ -11,6 +11,10 @@ const lib = [
 		conditions : ["eventIsEffectTrigger","action_tentacle_pit_proc"],
 		chat : Text.Chat.required
 	},
+
+
+
+
 ];
 
 export default lib;

@@ -1972,6 +1972,11 @@ const lib = [
 		hitfx : ['stretch']
 	},
 
+	// breast_squeeze
+	{ text : "%S plants %Shis hands over %T's %Tbsize %breasts, giving them a firm squeeze momentarily, before planting his face between them and shaking it about!",
+		conditions : anyOnHumCond.concat([{type:Condition.Types.actionLabel, data:{label:'breast_squeeze'}}]),
+		hitfx : ['squeeze']
+	},
 	
 
 	// whip_legLash

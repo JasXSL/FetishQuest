@@ -17,9 +17,6 @@ Big chungi:
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
 	- Weather
 
-
-
-
 Food for thought
 	- Fast travel system
 		- Expensive

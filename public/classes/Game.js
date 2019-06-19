@@ -1337,7 +1337,7 @@ export default class Game extends Generic{
 
 				this.clearRoleplay();
 				
-				const viable = GameAction.getViable(this.encounter.game_actions);
+				const viable = GameAction.getViable(this.encounter.game_actions, player);
 				for( let action of viable ){
 					action.trigger(player);
 				}

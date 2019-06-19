@@ -397,7 +397,7 @@ const lib = {
 				duration : -1
 			}
 		],
-		description : "A tattered rawhide leather shirt.\n+1 Physical Resitsance",
+		description : "A tattered rawhide leather shirt.\n+1 Physical Resistance",
 		level : -1,
 		durability_bonus : 2,
 		durability : 10,
@@ -424,13 +424,44 @@ const lib = {
 				duration : -1
 			}
 		],
-		description : "A tattered rawhide leather thong.\n+1 Physical Resitsance",
+		description : "A tattered rawhide leather thong.\n+1 Physical Resistance",
 		level : -1,
 		durability_bonus : 2,
 		durability : 10,
 		weight : 300,
 		rarity : 0,
 		loot_sound : "lootLeather",
+	},
+
+	genericRattyVest : {
+		name : "Ratty Vest",
+		category : Asset.Categories.armor,
+		basevalue : 5,
+		icon : 'sleeveless-jacket',
+		slots : [Asset.Slots.upperBody],
+		tags : [stdTag.asCloth, stdTag.asCotton],
+		wrappers : [],
+		description : "A worn sailor's vest which has seen better days.",
+		level : -1,
+		durability : 5,
+		weight : 200,
+		rarity : 0,
+		loot_sound : "lootCloth",
+	},
+	genericRattyShorts : {
+		name : "Ratty Shorts",
+		category : Asset.Categories.armor,
+		basevalue : 5,
+		icon : 'underwear-shorts',
+		slots : [Asset.Slots.lowerBody],
+		tags : [stdTag.asCloth, stdTag.asCotton],
+		wrappers : [],
+		description : "A worn pair of sailor's shorts which have seen better days.",
+		level : -1,
+		durability : 5,
+		weight : 100,
+		rarity : 0,
+		loot_sound : "lootCloth",
 	},
 
 	yuug_portswood_silk_thong: {

@@ -6,7 +6,7 @@ import Asset from "../../classes/Asset.js";
 const lib = {
 	lesser_tentacle_fiend : {
 		name : "Lesser Tentacle Fiend",
-		icon : "",
+		icon : "/media/character/lesser_tentacle_fiend.jpg",
 		species : "",
 		description : "",
 		classes : [
@@ -46,7 +46,7 @@ const lib = {
 	},
 	tentacle_fiend: {
 		name : "Tentacle Fiend",
-		icon : "",
+		icon : "/media/character/tentacle_fiend.jpg",
 		species : "",
 		description : "",
 		classes : [
@@ -100,7 +100,7 @@ const lib = {
 	},
 	greater_tentacle_fiend : {
 		name : "Greater Tentacle Fiend",
-		icon : "",
+		icon : "/media/character/greater_tentacle_fiend.jpg",
 		species : "",
 		description : "",
 		classes : ["tentacle_fiend"],

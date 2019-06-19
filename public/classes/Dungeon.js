@@ -1796,7 +1796,7 @@ class DungeonEncounter extends Generic{
 
 	// Helper function for below
 	getViableActions(){
-		return GameAction.getViable(this.game_actions);
+		return GameAction.getViable(this.game_actions, undefined, false, false);
 	}
 
 	// Gets roleplay ACTIONs

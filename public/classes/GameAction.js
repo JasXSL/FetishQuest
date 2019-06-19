@@ -10,6 +10,7 @@ import Calculator from './Calculator.js';
 import Quest from './Quest.js';
 import Roleplay from './Roleplay.js';
 import Shop from './Shop.js';
+import Player from './Player.js';
 
 export default class GameAction extends Generic{
 
@@ -447,6 +448,15 @@ export default class GameAction extends Generic{
 		else if( this.type === types.shop )
 			return;
 
+		else if( this.type === types.playerAction ){
+			let caster = game.getPlayerByLabel(this.data.player);
+			if( !this.data.player )
+				caster = player;
+			if( caster instanceof Player ){
+				caster.useActionLabel(this.data.action, [player]);
+			}
+		}
+
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
 		}
@@ -462,10 +472,12 @@ export default class GameAction extends Generic{
 		}
 	}
 
-	validate(debug){
+	validate(player, debug){
 		if( this.transporting )
 			return false;
 		if( !Condition.all(this.conditions, new GameEvent({
+			target: player,
+			sender: player,
 			dungeon : this.parent.parent.parent,
 			room : this.parent.parent,
 			dungeonRoomAsset : this.parent
@@ -496,6 +508,7 @@ GameAction.types = {
 	finishQuest : "finishQuest",			// {quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.
 	tooltip : "tooltip",					// {text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak
 	shop : "shop",							// {shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.
+	playerAction : "playerAction",			// {player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it's the supplied triggering player that becomes the caster
 };
 
 // These are types where data should be sent to netgame players
@@ -510,12 +523,12 @@ GameAction.typesToSendOnline = {
 };
 
 
-GameAction.getViable = function( actions = [] ){
+GameAction.getViable = function( actions = [], player = undefined, debug = false, validate = true ){
 	let out = [];
 	for( let action of actions ){
 
-		let valid = action.validate();
-		if( valid )
+		let valid = action.validate(player, debug);
+		if( valid || !validate )
 			out.push(action);
 
 		if( (action.break === "success" && valid) || (action.break === "fail" && !valid) )

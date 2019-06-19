@@ -30,6 +30,43 @@ const lib = {
 		hetero : 0.5,
 		intelligence : 0.6,
 	},
+	yuug_port_peasant : {
+		name : "Villager",
+		species : "rat",
+		description : "A scrawny rat-man.",
+		icon : "",
+		team : 1,
+		size : 3,
+		leveled : true,
+		sadistic : 0.5,
+		dominant : 0.8,
+		hetero : 1,
+		intelligence : 0.4,
+		stamina : -3,
+		intellect : -2,
+		agility : -2,
+		svPhysical : -2,
+        svElemental : 1,
+        svHoly : 0,
+        svCorruption : 0,
+        bonPhysical : -2,
+        bonElemental : 0,
+        bonHoly : -2,
+        bonCorruption : 0,
+		class : 'none',
+		assets : [
+			'genericRattyVest',
+			'genericRattyShorts',
+			{"name":"silver","label":"__LABEL__","_stacks":1},
+			{"name":"copper","label":"__LABEL__","_stacks":13},
+		],
+		actions : ['lowBlow','breast_squeeze'],
+		inventory : [0,1],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plTongue, stdTag.plFurry, stdTag.plDishonorable, stdTag.plHair, stdTag.plTail, stdTag.plEars, stdTag.plLongTail
+		]
+	},
+
 	MQ00_Boss : {
 		name : "Li Zurd",
 		species : "lizard",
@@ -120,6 +157,8 @@ const lib = {
 		hetero : 0.3,
 		intelligence : 0.6,
 	},
+
+	
 
 	Ixsplat : {
 		name : "Ixsplat",
