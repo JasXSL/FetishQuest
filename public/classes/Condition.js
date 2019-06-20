@@ -135,7 +135,7 @@ export default class Condition extends Generic{
 	test( event, debug ){
 
 		if( debug )
-			console.debug("Condition DEBUG :: Testing", this, "with event", event);
+			console.trace("Condition DEBUG :: Testing", this, "with event", event);
 
 		// This is a collection, validate subs instead
 		if( this.conditions.length ){
@@ -237,7 +237,7 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.playerLabel ){
 				let data = toArr(this.data.label);
-				success = data.indexOf(t.label) !== -1;
+				success = t && data.indexOf(t.label) !== -1;
 			}
 			
 			else if( this.type === T.species ){

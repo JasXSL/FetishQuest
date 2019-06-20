@@ -30,6 +30,11 @@ const lib = [
 		conditions : ["senderIsYuugPortVillager","actionHit","metaButtGrab","senderIsChatPlayer","targetButtLarge"],
 		chat : Text.Chat.optional,
 	},
+	{ text : "Oof!",
+		id : 'oof',
+		conditions : ["targetIsYuugPortVillager","actionHit","targetIsChatPlayer","metaGroinPain"],
+		chat : Text.Chat.required,
+	},
 
 
 	// Impicus

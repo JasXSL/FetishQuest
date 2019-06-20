@@ -264,7 +264,6 @@ class Text extends Generic{
 		}
 		else{
 
-			Text.iterating = true;
 			game.ui.addText(
 				text, 
 				event.type, 
@@ -276,10 +275,6 @@ class Text extends Generic{
 
 			
 			// Raise a text trigger event
-			// Iterating prevents recursion from poorly designed texts
-
-			
-
 			const evt = event.clone();
 			evt.type = GameEvent.Types.textTrigger;
 			evt.text = this;
@@ -288,9 +283,7 @@ class Text extends Generic{
 			evt.custom.original = event;
 			
 			evt.raise();
-		
-			Text.iterating = false;
-			
+					
 		}
 
 	}
@@ -298,13 +291,20 @@ class Text extends Generic{
 	// Validate conditions
 	validate( event, debug, chatPlayer ){
 
-		if( Text.iterating && !this.chat ){
-			return false;
-		}
+		if( this.debug )
+			console.debug("Validating", this, "against", event);
 
 		// Temporarily set. The proper set is after cloning in Text.getFromEvent
 		if( event.text )
 			event.text._chatPlayer = chatPlayer;	
+
+		// Chat already used by this player
+		if( this.chat && chatPlayer && chatPlayer._used_chats[this.id] )
+			return false;
+
+		let targets = Array.isArray(event.target) ? event.target : [event.target];
+		if( targets.length < this.numTargets )
+			return false;
 
 		// If this is a chat, we need to check who said it by validating chat player conditions
 		if( this.chat && this.chatPlayerConditions.length ){
@@ -315,14 +315,15 @@ class Text extends Generic{
 				return false;
 		}
 
-		let targets = Array.isArray(event.target) ? event.target : [event.target];
-		if( targets.length < this.numTargets )
-			return false;
+		
 
 		if( !debug )
 			debug = this.debug;
 
-		return Condition.all(this.conditions, event, debug );
+		if(!Condition.all(this.conditions, event, debug ))
+			return false;
+
+		return true;
 
 	}
 
@@ -330,14 +331,17 @@ class Text extends Generic{
 
 // Shuffles and triggers a random text from available texts
 // Returns the text that triggered, if any
-Text.getFromEvent = function( event, chat = false ){
+Text.getFromEvent = function( event ){
 
 	let available = [];
 	let texts = glib.texts;
 
+
 	let testAgainst = [false];	// This is only used on chats
 	if( event.type === GameEvent.Types.textTrigger )
 		testAgainst = game.players;
+
+	const chat = event.type === GameEvent.Types.textTrigger;
 
 	// max nr targets text available
 	let maxnr = 1;
@@ -345,11 +349,13 @@ Text.getFromEvent = function( event, chat = false ){
 		for( let p of testAgainst ){
 			if( 
 				Boolean(text.chat) === chat && 
-				(!text.chat || !event.sender.hasUsedChat(text.id) ) &&
+				(!text.chat || !event.sender || !event.sender.hasUsedChat(text.id) ) &&
 				text.validate(event, false, p) &&
 				(Boolean(text.chat) === Boolean(event.type === GameEvent.Types.textTrigger))
 			){
+				const id = text.id;
 				text = text.clone();
+				text.id = id;			// ID isn't saved on text (regenerated each load). So when cloning we have to re-apply it
 				if( p )
 					text._chatPlayer = p;
 				available.push(text);
@@ -392,16 +398,12 @@ Text.actionChargeFallbackText = new Text({
 	text : "%S charges %action at %T..."
 });
 
-Text.iterating = false;
-
 Text.runFromLibrary = function( event ){
 
 	let t = event.target;
 	if( !Array.isArray(t) )
 		t = [t];
 	t = t.slice();
-
-	let chatUsed = false;	// Only one chat regardless of how many players
 
 	// Try to trigger a text on each player
 	while( t.length ){
@@ -419,14 +421,9 @@ Text.runFromLibrary = function( event ){
 		}else{
 			text.run(event);
 			t.splice(0,text.numTargets);
-		}
-
-		if( !chatUsed && event.sender && event.sender.isNPC() ){
-			const chat = this.getFromEvent( event, true );
-			if( chat ){
-				chat.run(event);
-				chatUsed = true;
-			}
+			// Only allows one text per action
+			if( text.chat )
+				break;
 		}
 
 		event = event.clone();

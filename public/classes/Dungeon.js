@@ -1284,7 +1284,7 @@ class DungeonRoomAsset extends Generic{
 		for( let i of this.interactions ){
 			if( !i.validate )
 				console.error("Found invalid interaction", i, "in", this);
-			if( i.validate(game.getMyActivePlayer() || game.players[0], true) )
+			if( i.validate(game.getMyActivePlayer() || game.players[0]) )
 				return true;
 		}
 		return false;

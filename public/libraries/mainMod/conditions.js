@@ -100,6 +100,7 @@ const lib = {
 	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
 	senderIsGroper : {type:Condition.Types.species, data:{species:['groper']}, caster:true},
 	senderIsYuugPortVillager : {type:Condition.Types.playerLabel, data:{label:['yuug_port_peasant']}, caster:true},
+	targetIsYuugPortVillager : {type:Condition.Types.playerLabel, data:{label:['yuug_port_peasant']}},
 	senderIsImpicus : {type:Condition.Types.playerLabel, data:{label:['Impicus']}, caster:true},
 	senderIsIxsplat : {type:Condition.Types.playerLabel, data:{label:['Ixsplat']}, caster:true},
 
@@ -334,6 +335,13 @@ const lib = {
 			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotVagina, stdTag.metaSlotPenis, stdTag.metaSlotGroin]}},
 			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSqueeze, stdTag.metaRub, stdTag.metaPenetration, stdTag.metaLick, stdTag.metaTickle]}},
 			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaArousing, stdTag.metaVeryArousing]}},
+		],
+		min:-1,
+	},
+	metaGroinPain : {
+		conditions : [
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotVagina, stdTag.metaSlotPenis, stdTag.metaSlotGroin]}},
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaPainful, stdTag.metaVeryPainful]}},
 		],
 		min:-1,
 	},

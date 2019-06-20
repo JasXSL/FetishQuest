@@ -745,6 +745,7 @@ export default class Player extends Generic{
 		
 	}
 	onBattleStart(){
+		this._used_chats = {};
 		this._turn_tags = [];
 		this.ap = 0;
 		this._threat = {};
