@@ -59,7 +59,10 @@ class Text extends Generic{
 		this.armor_slot = '';				// Trigger armor hit sound on this slot, use Asset.Slots
 		this.weight = 1;					// Lets you modify the weight of the text, higher weights are shown more often.
 		this.chat = 0;					// 0 = no chat, 1 = casual chat (has a built in cooldown), 2 = required chat
+		this.chatPlayerConditions = [];	// These conditions are run on each player to see if they can say this. Only usable when chat is true
+										// Both target and sender are the same player. You generally want at least "targetIsX" in here when using a text.
 
+		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
 
 		this.load(...args);
 	}
@@ -80,6 +83,7 @@ class Text extends Generic{
 
 	rebase(){
 		this.conditions = Condition.loadThese(this.conditions, this);
+		this.chatPlayerConditions = Condition.loadThese(this.chatPlayerConditions, this);
 		for( let sound of this.audiokits ){
 			if( !glib.audioKits[sound] )
 				console.error("AudioKit not found", sound, "in", this);
@@ -100,6 +104,8 @@ class Text extends Generic{
 			weight : this.weight,
 			hitfx : HitFX.saveThese(this.hitfx),
 			chat : this.chat,
+			chatPlayerConditions : Condition.saveThese(this.chatPlayerConditions),
+			metaTags : this.metaTags,
 		};
 	}
 	
@@ -251,8 +257,10 @@ class Text extends Generic{
 			targ = event.target[0];
 		
 		if( this.chat ){
-			event.sender.onChatUsed(this.id);
-			game.speakAs( event.sender.id, text, false );
+			if( this._chatPlayer ){
+				this._chatPlayer.onChatUsed(this.id);
+				game.speakAs( this._chatPlayer.id, text, false );
+			}
 		}
 		else{
 
@@ -288,10 +296,23 @@ class Text extends Generic{
 	}
 
 	// Validate conditions
-	validate( event, debug ){
+	validate( event, debug, chatPlayer ){
 
 		if( Text.iterating && !this.chat ){
 			return false;
+		}
+
+		// Temporarily set. The proper set is after cloning in Text.getFromEvent
+		if( event.text )
+			event.text._chatPlayer = chatPlayer;	
+
+		// If this is a chat, we need to check who said it by validating chat player conditions
+		if( this.chat && this.chatPlayerConditions.length ){
+			const evt = event.clone();
+			evt.sender = evt.target = chatPlayer;
+			evt.text = this;
+			if( !Condition.all(this.chatPlayerConditions, evt) )
+				return false;
 		}
 
 		let targets = Array.isArray(event.target) ? event.target : [event.target];
@@ -314,18 +335,27 @@ Text.getFromEvent = function( event, chat = false ){
 	let available = [];
 	let texts = glib.texts;
 
-	
+	let testAgainst = [false];	// This is only used on chats
+	if( event.type === GameEvent.Types.textTrigger )
+		testAgainst = game.players;
+
 	// max nr targets text available
 	let maxnr = 1;
 	for( let text of texts ){
-		if( 
-			Boolean(text.chat) === chat && 
-			(!text.chat || !event.sender.hasUsedChat(text.id) ) &&
-			text.validate(event) 
-		){
-			available.push(text);
-			if( text.numTargets > maxnr )
-				maxnr = text.numTargets;
+		for( let p of testAgainst ){
+			if( 
+				Boolean(text.chat) === chat && 
+				(!text.chat || !event.sender.hasUsedChat(text.id) ) &&
+				text.validate(event, false, p) &&
+				(Boolean(text.chat) === Boolean(event.type === GameEvent.Types.textTrigger))
+			){
+				text = text.clone();
+				if( p )
+					text._chatPlayer = p;
+				available.push(text);
+				if( text.numTargets > maxnr )
+					maxnr = text.numTargets;
+			}
 		}
 	}
 
@@ -378,8 +408,6 @@ Text.runFromLibrary = function( event ){
 
 		let text = this.getFromEvent( event );
 
-		
-
 		// No text for this person
 		if( !text ){
 			// Action used needs to have a text, we'll create a template one
@@ -403,8 +431,6 @@ Text.runFromLibrary = function( event ){
 
 		event = event.clone();
 		event.target = t.slice();
-
-		
 
 	}
 

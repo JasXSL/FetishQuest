@@ -31,7 +31,7 @@ const lib = {
 		intelligence : 0.6,
 	},
 	yuug_port_peasant : {
-		name : "Villager",
+		name : "Dirty Sailor",
 		species : "rat",
 		description : "A scrawny rat-man.",
 		icon : "",
@@ -184,7 +184,8 @@ const lib = {
         bonPhysical : 1,
         bonElemental : -2,
         bonHoly : -4,
-        bonCorruption : 1,
+		bonCorruption : 1,
+		talkative : 0.8,		
 		actions : [
 			"imp_claws",
 			"imp_demonicPinch",
@@ -224,6 +225,7 @@ const lib = {
         bonHoly : -2,
         bonCorruption : 2,
 		class : 'imp',
+		talkative : 0.5,
 		actions : [
 			"imp_ankleBite",
 			"imp_specialDelivery",

@@ -198,6 +198,9 @@ export default class Condition extends Generic{
 				if( t && oCaster && t.id === oCaster.id )
 					success = true;
 			}
+			else if( this.type === T.targetIsChatPlayer ){
+				success = ( event.text && event.text._chatPlayer && event.text._chatPlayer.id === t.id );
+			}
 			else if( this.type === T.wrapperTag ){
 				// Searches any attached wrapper for a tag
 				return event.wrapper && event.wrapper.hasTag(this.data.tags);
@@ -689,6 +692,7 @@ Condition.Types = {
 	wrapperHasEffect : 'wrapperHasEffect',		// 
 	dungeonVar : 'dungeonVar',
 	targetIsSender : 'targetIsSender',
+	targetIsChatPlayer : 'targetIsChatPlayer',
 	targetIsWrapperSender : 'targetIsWrapperSender',
 	hasFxTagBySender : 'hasFxTagBySender',		//
 	species : 'species',
@@ -753,8 +757,9 @@ Condition.descriptions = {
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
 	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',
 	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY can be used on things like stdattack',
-	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=true} - Requires Text in event. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
-	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=true} - Requires Text in event. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
+	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
+	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
+	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
 };
 
 

@@ -100,6 +100,8 @@ const lib = {
 	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
 	senderIsGroper : {type:Condition.Types.species, data:{species:['groper']}, caster:true},
 	senderIsYuugPortVillager : {type:Condition.Types.playerLabel, data:{label:['yuug_port_peasant']}, caster:true},
+	senderIsImpicus : {type:Condition.Types.playerLabel, data:{label:['Impicus']}, caster:true},
+	senderIsIxsplat : {type:Condition.Types.playerLabel, data:{label:['Ixsplat']}, caster:true},
 
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}},
@@ -210,6 +212,11 @@ const lib = {
 	senderHasTentacles : {"type":"tag","data":{"tags":["pl_tentacles"]},"caster":true},
 	senderHasCocktacles : {type:Condition.Types.tag,data:{tags:[stdTag.plCocktacle]}, caster:true},
 
+	// Usable on events that have Text set. This generally only validates when used on a chat text condition. 
+	// Don't use it in chatPlayerConditions as the chat player is not set in those, and target/sender are the same. 
+	// Those are mainly for checking characteristics of a player.
+	senderIsChatPlayer : {type:Condition.Types.targetIsChatPlayer, caster:true},
+	targetIsChatPlayer : {type:Condition.Types.targetIsChatPlayer},
 	
 	targetNotKnockedDown : {"type":"tag","data":{"tags":["wr_knocked_down"]},"inverse":true},
 	targetKnockedDown : {"type":"tag","data":{"tags":["wr_knocked_down"]}},
@@ -322,8 +329,27 @@ const lib = {
 		],
 		min:-1,
 	},
+	metaGroinFondle : {
+		conditions : [
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotVagina, stdTag.metaSlotPenis, stdTag.metaSlotGroin]}},
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSqueeze, stdTag.metaRub, stdTag.metaPenetration, stdTag.metaLick, stdTag.metaTickle]}},
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaArousing, stdTag.metaVeryArousing]}},
+		],
+		min:-1,
+	},
+	metaButtGrab : {
+		conditions : [
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotButt]}},
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSqueeze, stdTag.metaRub]}},
+		],
+		min:-1,
+	},
 	// One or more breast slots included in text meta
 	metaBreastSlots : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotBreast, stdTag.metaSlotBreasts]}},
+	// Came inside the target
+	metaCameInside : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaInjection, stdTag.metaUsedPenis], all:true}},
+	metaPenetratedWithPenis : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration, stdTag.metaUsedPenis], all:true}},
+	metaUsedTentacle : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaUsedTentacles]}},
 
 };
 
