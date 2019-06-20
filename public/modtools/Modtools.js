@@ -1313,7 +1313,13 @@ export default class Modtools{
 		let html = 'Text: <input type="text" name="text" value="'+esc(text.text)+'" style="display:block;width:100%" />';
 			html += 'Preview: <span id="textPreview"></span><br /><br />';
 			html += 'Nr Players: <input type="number" min=1 step=1 name="numTargets" value="'+(+text.numTargets || 1)+'" /><br />';
+			html += 'Is Chat: <select name="chat">'+
+				'<option value="0">No</option>'+
+				'<option value="1" '+(+text.chat === 1 ? 'selected' : '')+'>Yes, optional</option>'+
+				'<option value="2" '+(+text.chat === 2 ? 'selected' : '')+'>Yes, required</option>'+
+			'</select><br />';
 			html += 'Conditions: '+this.formConditions(text.conditions)+'<br />';
+			html += 'Chat player conditions: '+this.formConditions(text.chatPlayerConditions, 'chatPlayerConditions')+'<br />';
 			html += 'Weight: <input type="range" min=1 max=10 step=1 name="weight" value="'+(+text.weight || 1)+'" /><br />';
 
 			html += this.presetConditions({
@@ -1324,7 +1330,8 @@ export default class Modtools{
 			});
 			html += '<br />';
 			html += '<br />';
-			html += 'TextTags: '+this.formTags(text.turnTags, 'turnTags', 'tagsTT')+'<br />';
+			html += 'TurnTags: '+this.formTags(text.turnTags, 'turnTags', 'tagsTT')+'<br />';
+			html += 'Meta Tags: '+this.formTags(text.metaTags, 'metaTags', 'tagsFull')+'<br />';
 			html += 'Armor Slot: '+this.formArmorSlot(text.armor_slot)+'<br />';
 			html += 'Audio: '+this.formSoundKits(text.audiokits)+'<br />';
 			html += '<span title="Status texts are grouped and output after an action text is output. This bypasses that.">Always Out</span>: <input type="checkbox" value="1" name="alwaysOutput" '+(text.alwaysOutput ? 'checked' : '')+' /><br />';
@@ -1337,51 +1344,76 @@ export default class Modtools{
 			saveAsset.weight = +$("input[name=weight]", form).val();
 			saveAsset.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
 			saveAsset.debug = $("input[name=debug]", form).is(':checked');
-			saveAsset.turnTags = this.compileTags();
+			saveAsset.turnTags = this.compileTags('turnTags');
+			saveAsset.metaTags = this.compileTags('metaTags');
 			saveAsset.armor_slot = this.compileArmorSlot();
 			saveAsset.audiokits = this.compileSoundKits();
 			saveAsset.conditions = this.compileConditions();
+			saveAsset.chatPlayerConditions = this.compileConditions('chatPlayerConditions');
+			saveAsset.chat = parseInt($("select[name=chat]", form).val()) || 0;
 		});
 		updateTextDisplay();
 
-		html = '';
+		html = '<div style="user-select:text;">';
 		html += '<hr /><h2>Legend</h2>';
-		html += '<p>Texts can use special placeholders, starting with a percent sign. These will be replaced in the actual text. If a tag is in singular form (such as %Tbreast) just add an S after it to make it multiple. Ex: %Tbreasts. Or %Tbreast\'s if you want a breast subject etc.</p>';
+		html += '<p>Texts can use special placeholders, starting with a percent sign. These will be replaced in the actual text. If a tag is in singular form (such as %breast) just add an S after it to make it multiple. Ex: %breasts might be replaced by "boobs". Or %breast\'s by "boob\'s".</p>';
 		html += '<h3>Targeted</h3>';
 		html += '<p>These are prefixed with %T for target, %S for sender of an action. Advanced: In multi target texts you can use %T2 for player 2, %T3 etc. If using TextTags (special tags set by texts until target receives another text), you can use %RtagName, such as %Rbent_over. And that will target the player that bent the target over.</p>';
 		html += '<p>In the examples below, only %T will be used for reference.</p>';
 		html += '<table>'+
 			'<tr><td>%T</td><td>Target name</td></tr>'+
-			'<tr><td>%Tbreast</td><td>Synonym for breast</td></tr>'+
-			'<tr><td>%Tpenis</td><td>Synonym for penis</td></tr>'+
-			'<tr><td>%Tbutt</td><td>Synonym for butt</td></tr>'+
 			'<tr><td>%Tpsize</td><td>Target penis size.</td></tr>'+
 			'<tr><td>%Tbsize</td><td>Target breast size.</td></tr>'+
 			'<tr><td>%Trsize</td><td>Target rear (butt) size.</td></tr>'+
-			'<tr><td>%Tvagina</td><td>Synonym for vagina.</td></tr>'+
 			'<tr><td>%Tgenitals</td><td>Automatically picks a genital the target has between their legs, ex for males it\'s the same as %Tpenis. If a herm, it\'s picked at random. Good to use for texts that make sense against all sexes.</td></tr>'+
 			'<tr><td>%TclothUpper</td><td>Replaced with target upperBody armor name. Make sure to use with a condition such as targetWearsUpperBody for this to make sense.</td></tr>'+
 			'<tr><td>%TclothLower</td><td>Replaced with target lowerBody armor name. Make sure to use with a condition such as targetWearsLowerBody for this to make sense.</td></tr>'+
 			'<tr><td>%Thead</td><td>Replaced with target head armor name. Make sure to use with an appropriate condition.</td></tr>'+
 			'<tr><td>%Tgear</td><td>Replaced with whatever target is wearing in their hands. Make sure to use with an appropriate condition.</td></tr>'+
 			'<tr><td>%Trace</td><td>Replaced with target race.</td></tr>'+
-			'<tr><td>%Tgroin</td><td>Same as %groin.</td></tr>'+
 			'<tr><td>%The</td><td>Replaced with he, she, shi, or it based on target sex.</td></tr>'+
 			'<tr><td>%Thim</td><td>Replaced with him, her, hir, or its based on target sex.</td></tr>'+
 			'<tr><td>%This</td><td>Replaced with his, her, hir, or its based on target sex.</td></tr>'+
 		'</table>';
 
-		html += '<h3>Generic</h3>';
-		html += '<p>These are generic synonym tags. They\'re not targeted but can be used to vary your text a bit each time it\'s shown.</p>';
+		html += '<h3>Functions</h3>';
+		html += '<p>These are custom function tags you can use.</p>';
 		html += '<table>'+
 			'<tr><td>%leftright</td><td>Replaced with left or right at random.</td></tr>'+
-			'<tr><td>%groin</td><td>Replacfed with a synonym for groin</td></tr>'+
-			'<tr><td>%crotch</td><td>Same as above</td></tr>'+
-			'<tr><td>%cum</td><td>Synonym for cum</td></tr>'+
-			'<tr><td>%couple</td><td>Synonym for a couple, a few, etc.</td></tr>'+
-			'<tr><td>%thrusting</td><td>Synonym for thrusting (sexually), such as pounding/humping.</td></tr>'+
 		'</table>';
 
+		html += '<h3>Synonyms</h3>';
+		html += '<p>These are synonym tags, you can use any one of these, and one will be picked at random. Ex: %groin %crotch will both pick from the same pool of synonyms</p>';
+		html += '<table>';
+		for( let set of Text.SYNONYMS )
+			html += '<tr><td>'+esc(set.map(tx => "%"+tx).join(', '))+'</td></tr>';
+		html += '</table>';
+
+		html += '<h3>Grammatical cheat sheet</h3>';
+		html += '<p>Here is a cheat sheet for some common grammatical mistakes:</p>';
+		const mistakes = {
+			'they\'re' : 'Contraction of "they are"',
+			'there' : 'A location. "He is over there"',
+			'you\'re' : 'Contraction of "you are"',
+			'your' : 'Ownership. "Your tits are large"',
+			'women/men' : 'Plural form. Multiple people.',
+			'woman/man' : 'Singular form. One person.',
+			'he\'s' : 'Contraction of "he is"',
+			'his' : 'Ownership. "His dick is big"',
+			'it\'s' : 'Contraction of "it is"',
+			'its' : 'Ownership. "Its tentacles are very slimy"',
+			'who/whom' : 'If you can replace the word with he/she, use who. If it can be replaced by him/her, use whom.',
+			'less' : 'A non-quantifiable amount. Such as "less water", but not "less cups"',
+			'fewer' : 'A quantifiable amount. Such as "fewer cups", but not "fewer water"',
+			'could care less' : 'That means you do care. You\'re probably looking for "coudn\'t care less"',
+			'me and Bob' : 'You probably meant "Bob and I." The trick is to take Bob out of the sentence and see if it still makes sense. Ex "me and bob had sex" => "me had sex" which sounds wrong.',
+		};
+		html += '<table>';
+		for( let i in mistakes )
+			html += '<tr><td>'+esc(i)+'</td><td>'+esc(mistakes[i])+'</td></tr>';
+		html += '</table>';
+
+		html += '</div>';
 		$("#assetForm").after(html);
 
 		// Text update
@@ -3556,13 +3588,10 @@ export default class Modtools{
 			const conds = JSON.parse($(this).attr('data-conds'));
 			const baselevel = $("#modal div.condWrapper."+cName+" > input[name=condition]");
 
-			const filter = (_,el) => {
-				return $(el).val() === cond;
-			};
 			for( let cond of conds ){
 				if( typeof cond !== "string" )
 					cond = JSON.stringify(cond);
-				if( baselevel.filter(filter).length )
+				if( baselevel.filter((_,el) => $(el).val() === cond).length )
 					continue;
 
 				th.formHelperOnChange("Conditions", baselevel.closest("div.condWrapper"));

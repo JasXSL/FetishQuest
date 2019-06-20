@@ -329,6 +329,7 @@ class Text extends Generic{
 
 }
 
+Text.SYNONYMS = SYNONYMS;
 // Shuffles and triggers a random text from available texts
 // Returns the text that triggered, if any
 Text.getFromEvent = function( event ){

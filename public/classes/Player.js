@@ -2096,6 +2096,8 @@ export default class Player extends Generic{
 	// Gets all effects (effects on other players may affect you if the target is you or AoE)
 	getEffects(){
 
+		if( !window.game )
+			return [];
 		let out = [];
 		for( let player of game.players ){
 			const wrappers = player.getWrappers();

@@ -5,10 +5,6 @@ Smol:
 Medium rare:
 	- Armor repair shops
 	- Punishments
-	- Meta tags for texts
-		- Add to editor
-	- Figure out a way to do metas when another player does something
-
 
 Big chungi:
 	- Goblin boat quest
