@@ -1145,8 +1145,12 @@ class DungeonRoomAsset extends Generic{
 
 	}
 
-	getViableInteractions(){
-		return GameAction.getViable(this.interactions);
+	getViableInteractions( player, debug = false ){
+		if( !player )
+			player = game.getMyActivePlayer();
+		if( !player )
+			player = game.players[0];
+		return GameAction.getViable(this.interactions, player, debug);
 	}
 
 	isLocked(){
@@ -1280,7 +1284,7 @@ class DungeonRoomAsset extends Generic{
 		for( let i of this.interactions ){
 			if( !i.validate )
 				console.error("Found invalid interaction", i, "in", this);
-			if( i.validate() )
+			if( i.validate(game.getMyActivePlayer() || game.players[0], true) )
 				return true;
 		}
 		return false;
@@ -1501,6 +1505,8 @@ class DungeonRoomAsset extends Generic{
 		const dungeon = this.getDungeon();
 		const lootable = asset.isLootable( player, mesh );
 
+		if( dungeon && dungeon.transporting )
+			return false;
 
 		// Helper function for interact action
 		function raiseInteractOnMesh( shared = true ){
@@ -1510,7 +1516,6 @@ class DungeonRoomAsset extends Generic{
 					game.net.dmRaiseInteractOnMesh( asset.id );
 			}
 		}
-
 		if( asset.isLocked() )
 			return game.modal.addError("Locked");
 
@@ -1556,7 +1561,7 @@ class DungeonRoomAsset extends Generic{
 			if( i !== -1 && i < 1 )
 				continue;
 
-			let valid = i.validate();
+			let valid = i.validate(player);
 			if( valid )
 				i.trigger( player, mesh );
 

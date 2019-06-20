@@ -26,6 +26,7 @@ export default class GameEvent extends Generic{
 		this.room = null;			
 		this.dungeonRoomAsset = null;
 		this.wrapperReturn = null;		// See WrapperReturn @ EffectSys.js
+		this.text = null;				// Text object
 		this.custom = {};		// Custom data related to the event	
 		this.load(data);
 
@@ -134,6 +135,7 @@ GameEvent.Types = {
 	dungeonEntered : 'dungeonEntered',		
 	
 	rpStage : 'rpStage',	// Roleplay stage changed		
+	textTrigger : 'textTrigger',			
 };
 
 GameEvent.TypeDescs = {
@@ -177,6 +179,8 @@ GameEvent.TypeDescs = {
 	
 	[GameEvent.Types.dungeonExited] : 'Raised with the dungeon being the dungeon you just left',					// 
 	[GameEvent.Types.dungeonEntered] : 'Raised with the dungeon being the dungeon you just entered',					// 
+	[GameEvent.Types.textTrigger] : 'Raised when a text is triggered.',			
+
 };
 
 

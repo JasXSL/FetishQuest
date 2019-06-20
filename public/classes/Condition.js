@@ -160,7 +160,8 @@ export default class Condition extends Generic{
 		
 		// Trying to target a nonexistend target
 		if( targs[0] === undefined ){
-			console.debug("Condition DEBUG :: Targs is undefined");
+			if( debug )
+				console.debug("Condition DEBUG :: Targs is undefined");
 			return false;
 		}
 
@@ -232,7 +233,7 @@ export default class Condition extends Generic{
 				success = event.wrapper && data.indexOf(event.wrapper.label) !== -1; 
 			}
 			else if( this.type === T.playerLabel ){
-				let data = toArr(this.data.level);
+				let data = toArr(this.data.label);
 				success = data.indexOf(t.label) !== -1;
 			}
 			
@@ -402,6 +403,33 @@ export default class Condition extends Generic{
 			else if( this.type === T.dungeonIs ){
 				if( event.dungeon && typeof this.data === "object" )
 					success = this.objIs(event.dungeon, this.data);
+			}
+
+			else if( this.type === T.textMeta || this.type === T.textTurnTag ){
+				if( event.text ){
+					let tagsToScan = event.text.metaTags;
+					if( this.type === T.textTurnTag )
+						tagsToScan = event.text.turnTags;
+					let find = this.data.tags;
+					if( !Array.isArray(find) )
+						find = [find];
+					const all = Boolean(this.data.all);
+					find = find.map(tag => tag.toLowerCase());
+					tagsToScan = tagsToScan.map(tag => tag.toLowerCase());
+					success = all;
+					for( let tag of find ){
+						if( ~tagsToScan.indexOf(tag) ){
+							if( !all ){
+								success = true;
+								break;
+							}
+						}else if( all ){
+							success = false;
+							break;
+						}
+					}
+				}
+
 			}
 
 			else if( this.type === T.defeated ){
@@ -675,7 +703,9 @@ Condition.Types = {
 	playerClass : 'playerClass',
 	formula : 'formula',
 	slotDamaged : 'slotDamaged',
-	slotStripped : 'slotStripped',				
+	slotStripped : 'slotStripped',		
+	textMeta : 'textMeta',
+	textTurnTag : 'textTurnTag',		
 };
 
 Condition.descriptions = {
@@ -723,6 +753,8 @@ Condition.descriptions = {
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
 	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',
 	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY can be used on things like stdattack',
+	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=true} - Requires Text in event. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
+	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=true} - Requires Text in event. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
 };
 
 

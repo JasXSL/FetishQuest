@@ -13,6 +13,20 @@ const lib = [
 	},
 
 
+	// Yuug port villager
+	{ text : "Hah! I still got to squeeze yer tits!",
+		conditions : ["senderIsYuugPortVillager","actionHit","eventIsTextTrigger","metaBreastFondle"],
+		chat : Text.Chat.optional
+	},
+	{ text : "Breasts be nice an' all, but that is nice and soft too!",
+		conditions : ["senderIsYuugPortVillager","actionHit","eventIsTextTrigger","metaVaginaFondle"],
+		chat : Text.Chat.optional
+	},
+	{ text : "Just softening 'em up a bit!",
+		conditions : ["senderIsYuugPortVillager","actionHit","eventIsTextTrigger","metaBreastSlots","action_lowBlow"],
+		chat : Text.Chat.optional
+	},
+
 
 
 ];

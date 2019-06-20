@@ -2038,7 +2038,7 @@ export default class Game extends Generic{
 		a.restore();
 
 		player.consumeMoney(cost);
-		player.addAsset(a, amount);
+		player.addAsset(a, amount, undefined, undefined, true);
 		asset.onPurchase(amount);
 		this.saveShopState(shop);
 		this.save();

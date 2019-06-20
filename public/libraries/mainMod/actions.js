@@ -1435,7 +1435,7 @@ const lib = {
 		detrimental : false,
 		show_conditions : ["inCombat", "isCoop"],
 		target_type : Action.TargetTypes.self,
-		tags : [],
+		tags : [stdTag.acNpcImportant],
 		wrappers : [
 			{
 				label : 'newGroperope',
@@ -1619,7 +1619,7 @@ const lib = {
 		]
 	},
 	tentacle_fiend_tentatug: {
-		name : "Tentatug Lower",
+		name : "Tentatug",
 		icon : 'plate-claw',
 		description : "Tugs as your target's armor, doing 2 cloth damage. Has a 30% chance to pull a random outfit piece off.",
 		ap : 3,

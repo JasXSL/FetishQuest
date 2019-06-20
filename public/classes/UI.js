@@ -317,7 +317,7 @@ export default class UI{
 			// This action is tied to an asset
 			if( action.isAssetAction() ){
 				if( action.parent._charges > 0 && action.parent.charges !== -1 )
-					html += '<div class="uses">'+player.numAssetUses(action.parent.label, true)+'</div>';
+					html += '<div class="uses">'+player.numAssetUses(action.parent.label, game.battle_active)+'</div>';
 			}
 			else if( action._charges > 1 ){
 				html += '<div class="uses">'+action._charges+'</div>';

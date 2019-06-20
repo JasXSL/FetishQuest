@@ -99,6 +99,7 @@ const lib = {
 	senderIsTentacrab : {type:Condition.Types.species, data:{species:['tentacrab']}, caster:true},
 	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
 	senderIsGroper : {type:Condition.Types.species, data:{species:['groper']}, caster:true},
+	senderIsYuugPortVillager : {type:Condition.Types.playerLabel, data:{label:['yuug_port_peasant']}, caster:true},
 
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}},
@@ -251,6 +252,7 @@ const lib = {
 	senderPenisLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_penis"},"caster":true},
 
 	eventIsActionUsed : {"type":"event","data":{"event":["actionUsed"]},"targnr":0},
+	eventIsTextTrigger : {type:Condition.Types.event,data:{event:[GameEvent.Types.textTrigger]},"targnr":0},
 	eventIsActionCharged : {type:Condition.Types.event,data:{event:[GameEvent.Types.actionCharged]},"targnr":0},
 	eventIsDiminishingResist : {"type":"event","data":{"event":"diminishingResist"}},
 	eventIsWrapperAdded : {type:Condition.Types.event,data:{"event":GameEvent.Types.wrapperAdded}},
@@ -300,7 +302,28 @@ const lib = {
 	ttNotSpanked : {"type":"tag","data":{"tags":[stdTag.ttSpanked]},"inverse":true},
 
 	// Quest completion
-	mq00_completed : {type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}}
+	mq00_completed : {type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}},
+
+	// Text conditions for chats
+	// One or more breasts squeezed
+	metaBreastFondle : {
+		conditions : [
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotBreast, stdTag.metaSlotBreasts]}},
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSqueeze, stdTag.metaRub]}},
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaArousing, stdTag.metaVeryArousing]}},
+		],
+		min:-1,
+	},
+	metaVaginaFondle : {
+		conditions : [
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotVagina]}},
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSqueeze, stdTag.metaRub, stdTag.metaPenetration, stdTag.metaLick, stdTag.metaTickle]}},
+			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaArousing, stdTag.metaVeryArousing]}},
+		],
+		min:-1,
+	},
+	// One or more breast slots included in text meta
+	metaBreastSlots : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotBreast, stdTag.metaSlotBreasts]}},
 
 };
 

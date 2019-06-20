@@ -143,8 +143,9 @@ class Quest extends Generic{
 						reward._stacks *= pLen;
 				}
 				// Make copies if reward should be multiplied
-				else if( this.multiply_reward && pLen > 1 )
+				else if( this.multiply_reward && pLen > 1 ){
 					this.addGearReward(reward, pLen-1);
+				}
 
 			}
 

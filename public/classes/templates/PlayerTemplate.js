@@ -169,6 +169,7 @@ class PlayerTemplate extends Generic{
 			minRarity = 1;
 
 		// pick assets
+		let numAdded = 0;
 		if( this.viable_asset_templates.length ){
 
 			for( let template of this.viable_asset_templates ){
@@ -182,9 +183,11 @@ class PlayerTemplate extends Generic{
 				asset.restore();
 				asset.randomizeDurability();
 				player.addAsset(asset, undefined, undefined, true);
-				if( !this.no_equip )
+				if( !this.no_equip ){
 					player.equipAsset(asset.id);
-				if( Math.random() < 0.25 )
+				}
+				++numAdded;
+				if( Math.random() < 0.25 || numAdded > 1 )
 					break;
 
 			}
@@ -225,7 +228,7 @@ class PlayerTemplate extends Generic{
 
 		// Dosh!
 		// Amount of money varies by +-50% 
-		let copper = Math.floor(this.monetary_wealth*(Math.random()-0.5));
+		let copper = Math.floor(this.monetary_wealth*(Math.random()+0.5));
 		const copperAsset = glib.get('copper', 'Asset');
 		copperAsset.g_resetID();
 		copperAsset._stacks = copper;

@@ -473,8 +473,7 @@ export default class GameAction extends Generic{
 	}
 
 	validate(player, debug){
-		if( this.transporting )
-			return false;
+
 		if( !Condition.all(this.conditions, new GameEvent({
 			target: player,
 			sender: player,

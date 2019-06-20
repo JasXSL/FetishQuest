@@ -126,10 +126,14 @@ export default class Asset extends Generic{
 		let pre = this.constructor.name.substr(0,2).toLowerCase();
 		let out = [];
 		for( let slot of this.slots ){
-			out.push(pre+'_'+slot.toLowerCase());
-			for( let tag of this.tags ){
-				out.push(tag.toLowerCase());
-				out.push(tag.toLowerCase()+'_'+slot.toLowerCase());
+			if( typeof slot !== "string" )
+				console.error("non-string slot detected in item", this);
+			else{
+				out.push(pre+'_'+slot.toLowerCase());
+				for( let tag of this.tags ){
+					out.push(tag.toLowerCase());
+					out.push(tag.toLowerCase()+'_'+slot.toLowerCase());
+				}
 			}
 		}
 		return Array.from(new Set(out));

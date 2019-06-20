@@ -5,6 +5,8 @@ Smol:
 Medium rare:
 	- Armor repair shops
 	- Punishments
+	- Meta tags for texts
+		- Add to editor
 
 Big chungi:
 	- Goblin boat quest

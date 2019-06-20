@@ -38,6 +38,7 @@ const lib = {
 		team : 1,
 		size : 3,
 		leveled : true,
+		talkative : 0.8,
 		sadistic : 0.5,
 		dominant : 0.8,
 		hetero : 1,

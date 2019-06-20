@@ -1021,7 +1021,6 @@ class Stage{
 
 
 		if( dungeonAsset ){
-
 			// Interactive object
 			if( dungeonAsset.isInteractive() ){
 

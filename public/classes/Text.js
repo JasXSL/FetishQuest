@@ -53,6 +53,7 @@ class Text extends Generic{
 		this.debug = false;
 		this.alwaysOutput = false;		// Ignores the text backlogging and outputs this text immediately
 		this.turnTags = [];				// Sets tags that persist until the next text is received or the current turn ends
+		this.metaTags = [];				// Meta tags supplied in the textTrigger event
 		this.audiokits = [];			// IDs of audio kits. Can also be a string, which gets cast to an array on load. You can also use soundkits as a synonym
 		this.hitfx = [];				// hit effects
 		this.armor_slot = '';				// Trigger armor hit sound on this slot, use Asset.Slots
@@ -254,6 +255,8 @@ class Text extends Generic{
 			game.speakAs( event.sender.id, text, false );
 		}
 		else{
+
+			Text.iterating = true;
 			game.ui.addText(
 				text, 
 				event.type, 
@@ -262,12 +265,34 @@ class Text extends Generic{
 				'rpText',
 				event.type === GameEvent.Types.actionUsed || this.alwaysOutput,
 			);
+
+			
+			// Raise a text trigger event
+			// Iterating prevents recursion from poorly designed texts
+
+			
+
+			const evt = event.clone();
+			evt.type = GameEvent.Types.textTrigger;
+			evt.text = this;
+			if( !evt.custom )
+				evt.custom = {};
+			evt.custom.original = event;
+			
+			evt.raise();
+		
+			Text.iterating = false;
+			
 		}
 
 	}
 
 	// Validate conditions
 	validate( event, debug ){
+
+		if( Text.iterating && !this.chat ){
+			return false;
+		}
 
 		let targets = Array.isArray(event.target) ? event.target : [event.target];
 		if( targets.length < this.numTargets )
@@ -336,6 +361,8 @@ Text.actionFallbackText = new Text({
 Text.actionChargeFallbackText = new Text({
 	text : "%S charges %action at %T..."
 });
+
+Text.iterating = false;
 
 Text.runFromLibrary = function( event ){
 

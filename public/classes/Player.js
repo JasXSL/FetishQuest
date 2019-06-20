@@ -858,7 +858,7 @@ export default class Player extends Generic{
 
 	/* Assets */
 	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
-	addAsset( asset, amount = 1, fromStacks = false, no_equip = false ){
+	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = false ){
 		if( !(asset instanceof Asset) ){
 			console.error("Trying to add non-asset. Did you mean to use addLibraryAsset?");
 			return false;
@@ -870,7 +870,8 @@ export default class Player extends Generic{
 			// Needs to be its own object
 			const a = asset.clone(this);
 
-			a.g_resetID();	// Buying stacks will bork everything otherwise
+			if( resetid )
+				a.g_resetID();	// Buying stacks will bork everything otherwise
 
 			const exists = this.getAssetByLabel(a.label);
 			let n = a._stacks;
