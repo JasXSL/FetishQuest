@@ -65,11 +65,11 @@ const lib = [
 		chat : Text.Chat.optional,
 	},
 	{ text : "Gonna need more rope...",
-		conditions : ["senderIsIxsplat","actionHit","action_imp_groperopeHogtie", "action_imp_newGroperope","senderIsChatPlayer"],
+		conditions : ["senderIsIxsplat","eventIsActionCharged","action_imp_newGroperope","senderIsChatPlayer"],
 		chat : Text.Chat.optional,
 	},
 	{ text : "Less clothes, better test results!",
-		conditions : ["senderIsIxsplat","actionHit","targetArmorStripped"],
+		conditions : ["senderIsIxsplat","actionHit","targetArmorStripped","senderIsChatPlayer"],
 		chat : Text.Chat.optional,
 	},
 ];

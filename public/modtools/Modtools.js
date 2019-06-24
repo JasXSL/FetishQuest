@@ -1405,7 +1405,7 @@ export default class Modtools{
 			'who/whom' : 'If you can replace the word with he/she, use who. If it can be replaced by him/her, use whom.',
 			'less' : 'A non-quantifiable amount. Such as "less water", but not "less cups"',
 			'fewer' : 'A quantifiable amount. Such as "fewer cups", but not "fewer water"',
-			'could care less' : 'That means you do care. You\'re probably looking for "coudn\'t care less"',
+			'could care less' : 'That means you do care. You\'re probably looking for "couldn\'t care less"',
 			'me and Bob' : 'You probably meant "Bob and I." The trick is to take Bob out of the sentence and see if it still makes sense. Ex "me and bob had sex" => "me had sex" which sounds wrong.',
 		};
 		html += '<table>';

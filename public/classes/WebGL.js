@@ -12,6 +12,8 @@ import { LibMaterial } from '../libraries/materials.js';
 import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
+import SPE from '../ext/SPE.min.js';
+import Proton from '../ext/three.proton.min.js';
 
 const DISABLE_DUNGEON = false;
 //const DISABLE_DUNGEON = true;
@@ -266,6 +268,9 @@ class WebGL{
 		
 		this.clock = new THREE.Clock();
 
+		
+		this.buildWeather();
+
 		// These are the props
 		this.stage = null;					// Current stage object
 		this.stages = [];					// Stores all stages for a dungeon
@@ -380,8 +385,42 @@ class WebGL{
 	}
 
 	
+	/* Build common stuff */
+	buildWeather(){
+		
+		const proton = new Proton();
+		this.proton = proton;
+		/*
+		const emitter = new Proton.Emitter();
+		emitter.rate = new Proton.Rate(new Proton.Span(4, 16), new Proton.Span(.01));
 
+		//addInitialize
+		emitter.addInitialize(new Proton.Position(new Proton.PointZone(0, 0)));
+		emitter.addInitialize(new Proton.Mass(1));
+		emitter.addInitialize(new Proton.Radius(6, 12));
+		emitter.addInitialize(new Proton.Life(3));
+		emitter.addInitialize(new Proton.V(45, new Proton.Vector3D(0, 1, 0), 180));
 
+		//addBehaviour
+		emitter.addBehaviour(new Proton.Alpha(1, 0));
+		emitter.addBehaviour(new Proton.Scale(.1, 1.3));
+
+		var color1 = new THREE.Color();
+		var color2 = new THREE.Color();
+		var colorBehaviour = new Proton.Color(color1, color2);
+		emitter.addBehaviour(colorBehaviour);
+		emitter.emit();
+
+		//add emitter
+		proton.addEmitter(emitter);
+
+		//add renderer
+		proton.addRender(new Proton.SpriteRender(this.scene));
+		Todo: Experiment
+		*/
+		console.log(proton);
+
+	}
 
 
 	/* Main */
@@ -397,6 +436,8 @@ class WebGL{
 		TWEEN.update();
 		if( this.stage )
 			this.stage.render(delta);
+
+		this.proton.update();
 
 		for( let f of this.fxParticles )
 			f.tick(delta);
@@ -452,11 +493,14 @@ class WebGL{
 
 		}
 
+		
+
 		if( this.onRender )
 			this.onRender();
 
 		this.intersecting = intersecting;
 
+		
 		
 		this.controls.update();
 

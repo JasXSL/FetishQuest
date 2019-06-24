@@ -1146,9 +1146,9 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	getViableInteractions( player, debug = false ){
-		if( !player )
+		if( !player && window.game )
 			player = game.getMyActivePlayer();
-		if( !player )
+		if( !player && window.game )
 			player = game.players[0];
 		return GameAction.getViable(this.interactions, player, debug);
 	}

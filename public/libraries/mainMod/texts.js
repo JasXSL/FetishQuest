@@ -643,7 +643,7 @@ const lib = [
 		metaTags : [stdTag.metaSlotGroin, stdTag.metaUsedTongue, stdTag.metaArousing],
 	},
 
-	{ text : "%S shoves %T from behind, bending %Thim over a table before slipping %Shis %Spsize %penis inside the %Trace, landing a %few thrusts!",
+	{ text : "%S shoves %T from behind, bending %Thim over a table before slipping %Shis %Spsize %penis inside the %Trace's %vagina, landing a %few thrusts!",
 		turnTags:[stdTag.ttBentOver,stdTag.ttBentOverTable],
 		conditions : humOnHumCond.concat("action_stdArouse","roomTable","senderDishonorable","targetVagina","targetGroinExposed"),
 		hitfx : ["slowThrusts"],
@@ -1537,7 +1537,7 @@ const lib = [
 		conditions : anyOnHumCond.concat("action_groper_sap_inject"),
 		metaTags : [stdTag.metaSlotMouth, stdTag.metaInjection, stdTag.metaGooey, stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaVeryArousing],		
 	},
-	{ text : "%S slips its thick tendril down the back of %T's %TclothLower, grinding the bumpy root of a tentacle between %This buttcheeks and across the %Trace's %vagina a %few times before finally probing inside and %this %vagina with a sticky sap!",
+	{ text : "%S slips its thick tendril down the back of %T's %TclothLower, grinding the bumpy root of a tentacle between %This buttcheeks and across the %Trace's %vagina a %few times before finally probing inside and %This %vagina with a sticky sap!",
 		hitfx : ["slowThrustsTentacle"],
 		conditions : anyOnHumCond.concat("action_groper_sap_inject", "targetVagina", "targetWearsLowerBody"),
 		metaTags : [stdTag.metaSlotVagina, stdTag.metaInjection, stdTag.metaGooey, stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaVeryArousing],		
@@ -2970,7 +2970,7 @@ const lib = [
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and thrusts a few fingers inside %T's %vagina, briefly wiggling them around!",
 		conditions : [
-			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetVagina","targetNoLowerBody"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetVagina","targetGroinExposed"
 		],
 		hitfx : ["squishTiny"],
 		metaTags : [stdTag.metaUsedFinger, stdTag.metaArousing, stdTag.metaSlotVagina, stdTag.metaPenetration],

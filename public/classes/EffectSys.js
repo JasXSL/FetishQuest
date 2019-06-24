@@ -583,6 +583,7 @@ class Effect extends Generic{
 		this.tags = [];
 		this.targets = [Wrapper.TARGET_AUTO];					// Use Wrapper.TARGET_* flags for multiple targets
 		this.events = [GameEvent.Types.internalWrapperTick];	// Limits triggers to certain events. Anything other than wrapper* functions require a duration wrapper parent
+		this.no_stack_multi = false;
 
 		this._bound_events = [];
 		this.load(data);
@@ -595,7 +596,8 @@ class Effect extends Generic{
 			data : this.saveData(),
 			tags : this.tags,
 			targets : this.targets,
-			label : this.label
+			label : this.label,
+			no_stack_multi : this.no_stack_multi,
 		};
 
 		if( full ){
@@ -714,7 +716,7 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
-				if( !this.data.no_stack_multi )
+				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
 
 				// Healing
@@ -747,8 +749,10 @@ class Effect extends Generic{
 					
 					
 					console.debug(
+						s.name, "vs", t.name,
 						"input", amt, 
 						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental),
+						"of which", s.getBon(this.data.type), "-", t.getSV(this.data.type),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
 						"nudity multi", t.getNudityDamageMultiplier(),
@@ -876,7 +880,8 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
-				amt *= this.parent.stacks;
+				if( !this.no_stack_multi )
+					amt *= this.parent.stacks;
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage AP' );
 				t.addAP(amt, true);
 			}
@@ -886,7 +891,8 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
-				amt *= this.parent.stacks;
+				if( !this.no_stack_multi )
+					amt *= this.parent.stacks;
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" MP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage MP' );
 				t.addMP(amt, true);
 			}
@@ -896,7 +902,8 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
-				amt *= this.parent.stacks;
+				if( !this.no_stack_multi )
+					amt *= this.parent.stacks;
 				let pre = t.arousal;
 				t.addArousal(amt, true);
 				amt = t.arousal-pre;
@@ -912,7 +919,8 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
-				amt *= this.parent.stacks;
+				if( !this.no_stack_multi )
+					amt *= this.parent.stacks;
 				t.addThreat(s.id, amt);
 			}
 
@@ -1091,7 +1099,8 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
-				amt *= this.parent.stacks;
+				if( ! this.no_stack_multi )
+					amt *= this.parent.stacks;
 				if( !amt )
 					continue;
 
@@ -1355,7 +1364,8 @@ class Effect extends Generic{
 			amt *= asset.getMaxDurability();
 		if( amt < this.data.min )
 			amt = this.data.min;
-		amt *= this.parent.stacks;
+		if( !this.no_stack_multi )
+			amt *= this.parent.stacks;
 		return Math.ceil(amt);
 
 	}
@@ -1553,7 +1563,7 @@ Effect.KnockdownTypes = {
 
 
 Effect.TypeDescs = {
-	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, no_stack_multi:(bool)false} - If type is left out, it can be auto supplied by an asset. no_stack_multi prevents multiplication by stacks",
+	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier} - If type is left out, it can be auto supplied by an asset.",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",

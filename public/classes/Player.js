@@ -1653,7 +1653,7 @@ export default class Player extends Generic{
 				effect.data.amount, 
 				new GameEvent({sender:this, target:this, wrapper:effect.parent, effect:effect})
 			));
-			out+= n*effect.parent.stacks;
+			out+= n*(effect.no_stack_multi ? 1 : effect.parent.stacks);
 		}
 		return out;
 		
@@ -1672,7 +1672,7 @@ export default class Player extends Generic{
 				effect.data.amount, 
 				new GameEvent({sender:this, target:this, wrapper:effect.parent, effect:effect})
 			);
-			out *= (n*effect.parent.stacks);
+			out *= (n*(effect.no_stack_multi ? 1 : effect.parent.stacks));
 		}
 		return out;
 	}
@@ -2216,11 +2216,11 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 		tot = 0;
 
 	// Add 25% bonus damage per additional player
-	let multi = 1.0;
+	let add = 1;
 	if( attacker.team !== 0 && attacker.level > 1 )
-		multi = 1+(game.getTeamPlayers().length-1)*0.25;
+		add = 1+(game.getTeamPlayers().length-1)*0.25;
 
-	const out = (1+tot*0.1)*multi;
+	const out = (1+tot*0.1)*add;
 	return out;
 
 };

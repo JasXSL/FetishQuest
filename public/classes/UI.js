@@ -3249,6 +3249,10 @@ export default class UI{
 	drawRoleplay(){
 
 		const roleplay = game.roleplay;
+
+		if( roleplay._waiting )
+			return;
+
 		const div = this.roleplay;
 		const stage = roleplay.getActiveStage();
 		const player = game.getMyActivePlayer();

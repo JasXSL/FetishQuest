@@ -1,9 +1,11 @@
 Needed other:
+§ Before next beta
 Smol:	
 	- !Try to reproduce! See if you can make sub-assets of a linked asset connect to root (so you can click doors anywhere, not just the root mesh)
+	§ Update dungeons
 
 Medium rare:
-	- Armor repair shops
+	§ Armor repair shops
 	- Punishments
 
 Big chungi:
@@ -16,6 +18,7 @@ Big chungi:
 		- Otter and Broper quest
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
 	- Weather
+
 
 Food for thought
 	- Fast travel system

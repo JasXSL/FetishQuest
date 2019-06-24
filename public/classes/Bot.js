@@ -184,6 +184,8 @@ class Bot{
 				// Game
 				let success = game.useActionOnTarget( abil, t );
 				let time = 2000+Math.random()*1000;
+				if( this.player.team === 0 )
+					time = Math.floor(time*0.5);
 				if( !success )
 					time = 500;
 				++this.actions_used;

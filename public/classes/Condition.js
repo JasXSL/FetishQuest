@@ -215,7 +215,7 @@ export default class Condition extends Generic{
 				let data = this.data.event;
 				if( !Array.isArray(data) )
 					data = [data];
-				success = data.indexOf(event.type) !== -1;
+				success = data.indexOf(event.type) !== -1 || (event.custom && event.custom.original && data.indexOf(event.custom.original.type) !== -1);
 			}
 			else if( this.type === T.actionLabel ){
 				let data = this.data.label;
@@ -381,7 +381,8 @@ export default class Condition extends Generic{
 				if(
 					t && 
 					event.wrapperReturn &&
-					event.wrapperReturn.armor_slots[t.id]
+					event.wrapperReturn.armor_slots[t.id] &&
+					Object.keys(event.wrapperReturn.armor_slots[t.id]).length
 				){
 					const s = event.wrapperReturn.armor_slots[t.id],
 						slot = this.data.slot
@@ -394,12 +395,16 @@ export default class Condition extends Generic{
 				if(
 					t && 
 					event.wrapperReturn &&
-					event.wrapperReturn.armor_strips[t.id]
+					event.wrapperReturn.armor_strips[t.id] &&
+					Object.keys(event.wrapperReturn.armor_strips[t.id]).length
 				){
 					const s = event.wrapperReturn.armor_strips[t.id],
 						slot = this.data.slot
 					;
+					console.log("SlotStripped triggered, event was", event);
 					success = Boolean(!slot || s[slot]);
+					if(success)
+						console.log("It was successful!");
 				}
 			}
 

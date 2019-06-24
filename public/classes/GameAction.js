@@ -508,6 +508,7 @@ GameAction.types = {
 	tooltip : "tooltip",					// {text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak
 	shop : "shop",							// {shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.
 	playerAction : "playerAction",			// {player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it's the supplied triggering player that becomes the caster
+	repairShop : "repairShop",				// {player:(str)label} - Marks a player as offering repairs
 };
 
 // These are types where data should be sent to netgame players
@@ -519,6 +520,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.lever] : true,
 	[GameAction.types.tooltip] : true,
 	[GameAction.types.shop] : true,
+	[GameAction.types.repair] : true,
 };
 
 

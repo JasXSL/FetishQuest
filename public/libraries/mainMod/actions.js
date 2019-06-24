@@ -1411,13 +1411,14 @@ const lib = {
 						type : Effect.Types.damage,
 						data : {
 							amount : 5,
-							type : Action.Types.corruption,
-							no_stack_multi : true
-						}
+							type : Action.Types.corruption,	
+						},
+						no_stack_multi : true
 					},
 					{
 						type : Effect.Types.svPhysical,
-						data: {amount:-5}
+						data: {amount:-5},
+						no_stack_multi : true
 					},
 					'bondageStruggleEnable'	
 				]
