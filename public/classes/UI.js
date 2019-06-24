@@ -550,6 +550,7 @@ export default class UI{
 					'<div class="interactions">'+
 						'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
 						'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
+						'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
 						'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
 					'</div>'+
 				'</div>';
@@ -847,6 +848,14 @@ export default class UI{
 				event.stopImmediatePropagation();
 				if(this.drawShopInspector(shops[0])){
 					game.uiAudio( "shop_entered" );
+				}
+			});
+
+			const showSmith = game.smithAvailableTo(p, myActive);
+			$("div.interaction[data-type=repair]", el).toggleClass("hidden", !showSmith).off('click').on('click', event => {
+				event.stopImmediatePropagation();
+				if( this.drawSmithInspector(p) ){
+					game.uiAudio( "smith_entered" );
 				}
 			});
 		}
@@ -2736,6 +2745,48 @@ export default class UI{
 		return true;
 	}
 
+
+	drawSmithInspector( smith ){
+		
+		const myPlayer = game.getMyActivePlayer();
+		if( !myPlayer )
+			return;
+
+		let html = '<h1>Repair</h1>';
+		html += '<h3 class="center">Your Money:<br />';
+		const money = myPlayer.getMoney();
+		if( !money )
+			html += 'Broke';
+		else{
+			for( let i in Player.currencyWeights ){
+				let asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
+				if( !asset )
+					continue;
+				const amt = parseInt(asset._stacks);
+				if( amt ){
+					html += '<span style="color:'+Player.currencyColors[i]+';"><b>'+amt+'</b>'+Player.currencyWeights[i]+"</span> ";
+				}
+			}
+		}
+		html += '</h3>';
+		
+		const repairable = myPlayer.getRepairableAssets();
+		html += '<div class="assets repair shop inventory">';
+		for( let asset of repairable )
+			html += this.getGenericAssetButton(asset, asset.getRepairCost(smith), cost > money ? 'disabled' : '');
+		html += '</div>';
+
+		game.modal.set(html);
+		this.bindTooltips();
+
+		$("#modal div.assets.repair div.item").on('click', event => {
+			const targ = $(event.currentTarget);
+			const id = targ.attr('data-id');
+			console.log("Todo: Repair id ", id);
+		});
+
+		return true;
+	}
 
 
 	/* MODAL EDITORS */

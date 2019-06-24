@@ -174,10 +174,40 @@ const lib = {
 						],
 					}
 				],
+				once:true,
 				persistent : true,
 				player : 'yuug_port_portmaster'
 			}}
 		}]
+	},
+
+	yuug_port_blacksmith : {
+		players: ["yuug_port_blacksmith"],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label: 'yuug_port_blacksmith',
+					stages : [
+						{
+							index: 0,
+							text: "Welcome 'ta Bob's bits. We mostly sell seafarer's gear, but I could probably mend any armor ya need fixing!",
+							options : [
+								{text:'Thanks', index:-1}
+							],
+						}
+					],
+					once: true,
+					persistent : true,
+					player : 'yuug_port_blacksmith'
+				}}
+			},
+			{
+				type : GameAction.types.repairShop,
+				data : {player:'yuug_port_blacksmith'}
+			}
+		]
 	},
 
 	yuug_portswood_caravan_npcs : {

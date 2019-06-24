@@ -445,7 +445,7 @@ export default class GameAction extends Generic{
 			else if( amount < 0 )
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
 		}
-		else if( this.type === types.shop )
+		else if( this.type === types.shop || this.type === types.repairShop )
 			return;
 
 		else if( this.type === types.playerAction ){

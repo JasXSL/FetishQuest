@@ -1104,7 +1104,7 @@ export default class Player extends Generic{
 	// Returns a list of assets that have their durability damaged
 	getRepairableAssets(){
 		return this.assets.filter(asset => {
-			return asset.durability < asset.getMaxDurability();
+			return asset.durability < asset.getMaxDurability() && asset.isDamageable();
 		});
 	}
 

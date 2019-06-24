@@ -1862,6 +1862,20 @@ export default class Game extends Generic{
 		return out;
 	}
 
+	// Returns game actions
+	getRepairShopByPlayer( player ){
+		const encounter = this.encounter;
+		const smiths = encounter.getSmiths();
+		if( !player )
+			return;
+		const out = [];
+		for( let smith of smiths ){
+			if( smith.data.player === player.label )
+				out.push(smith);
+		}
+		return out;
+	}
+
 	// Checks each players and returns it if one of them has a shop by label
 	getShopHere( label ){
 		for( let player of this.players ){
@@ -1896,6 +1910,27 @@ export default class Game extends Generic{
 			return false;
 		}
 		return true;
+	}
+
+	// Checks if a smith object is available to a player
+	smithAvailableTo( smithPlayer, player ){
+
+		if( this.battle_active )
+			return false;
+		if( !(smithPlayer instanceof Player) ){
+			console.error("Smith is not a player", smithPlayer);
+			return false;
+		}
+		if( !(player instanceof Player) ){
+			console.error("Player is not a player", player);
+			return false;
+		}
+		const smiths = this.getRepairShopByPlayer(smithPlayer);
+		for( let smith of smiths ){
+			if( smith.validate(player) )
+				return true;
+		}
+		return false;
 	}
 
 	sellAsset(shop, asset, amount, player){

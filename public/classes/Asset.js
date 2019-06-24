@@ -163,14 +163,31 @@ export default class Asset extends Generic{
 		return this.use_action && this.use_action.castable() && this.use_action.getViableTargets().length;
 	}
 
+	isDamageable(){
+		return ~this.slots.indexOf(Asset.Slots.upperBody) || ~this.slots.indexOf(Asset.Slots.lowerBody);
+	}
+
 	isSellable(){
 		return this.getSellCost() > 0;
 	}
 	getSellCost( shop ){
+		if( this.basevalue < 1 )
+			return 0;
 		let out= this.basevalue/2;
 		if( this.durability <= 0 )
 			out = out/4;
+		else
+			out = out-this.durability*10;
+		out = Math.floor(out);
+		if( out < 1 )
+			out = 1;
 		return Math.floor(out);
+	}
+
+	getRepairCost( smithPlayer ){
+		const missingPoints = this.getMaxDurability()-this.durability;
+		let cost = missingPoints*10*Math.ceil(1.5, this.rarity);
+		return Math.ceil(cost);
 	}
 
 	resetCharges(){
@@ -194,6 +211,8 @@ export default class Asset extends Generic{
 	// Returns true if the asset was destroyed
 	damageDurability( sender, effect, amount, fText = false ){
 
+		if( !this.isDamageable() )
+			return;
 		amount = parseInt(amount);
 		if( isNaN(amount) )
 			return false;
@@ -288,6 +307,7 @@ export default class Asset extends Generic{
 
 	}
 
+
 	getRepairPointsFromUseAction( targetAsset, sender, target ){
 
 		let wrappers = this.use_action.wrappers;
@@ -305,6 +325,8 @@ export default class Asset extends Generic{
 	}
 
 	randomizeDurability(){
+		if( !this.isDamageable() )
+			return;
 		this.durability = 1+Math.floor(Math.random()*(this.getMaxDurability()-1));
 	}
 
@@ -491,7 +513,9 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		durability_bonus : Math.round(template.durability_bonus*durabilityModifier*template.slots.length),
 		description : template.description,
 		rarity : rarity,
-		basevalue : level*2+template.slots.length*10+(50*Math.pow(3,rarity))+Math.round(template.weight*weightModifier/100)
+		basevalue : Math.round(
+			Math.pow(1.25, level)+template.slots.length*10+(20*Math.pow(3,rarity))+Math.round(template.weight*weightModifier/100)
+		)
 	});
 
 

@@ -1837,6 +1837,12 @@ class DungeonEncounter extends Generic{
 		});
 	}
 
+	// Gets repairshop actions
+	getSmiths(){
+		const actions = this.getViableActions();
+		return actions.filter(action => action.type === GameAction.types.repairShop);
+	}
+
 	resetRoleplays(){
 		const actions = this.getRoleplays(undefined, false);
 		for( let action of actions ){

@@ -741,6 +741,15 @@ div.fxBuffBlue{
 	}
 /**/
 
+/* REPAIR shop */
+	#modal div.shop.repair{
+		width:auto;
+		display:block;
+		margin:0 20%;
+	}
+/**/
+
+
 /* Players */
 	#ui > div.players{
 		position: absolute;
