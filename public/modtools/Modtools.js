@@ -2723,7 +2723,6 @@ export default class Modtools{
 			th.drawRoomEditor(asset.parent);
 		});
 		$("input[name=roomAssetRotY]", div).on('change', function(){
-			console.log("Updating asset", asset, $(this).val()*DEG_TO_RAD);
 			asset._stage_mesh.rotation.y = asset.rotY = $(this).val()*DEG_TO_RAD;
 		});
 

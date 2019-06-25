@@ -417,7 +417,6 @@ export default class GameAction extends Generic{
 				return;
 			}
 
-			console.log("Adding", amount, "to", obj);
 			obj.addAmount(amount, type==="set");
 			game.save();
 			game.ui.draw();

@@ -1637,11 +1637,11 @@ const lib = {
 				detrimental : true,
 				add_conditions : stdCond.concat(
 					"targetNotBeast",
-					"targetWearsLowerBody"
+					"targetNotNaked"
 				),
 				effects : [
 					{
-						type : "damageArmor",
+						type : Effect.Types.damageArmor,
 						data : {
 							"amount": 2,
 							"max_types": 1
@@ -2635,7 +2635,7 @@ const lib = {
 			{
 				effects : [
 					{type : Effect.Types.addMP,data : {amount: 2}},
-					{type : Effect.Types.damage,data : {amount: -2}},
+					{type : Effect.Types.damage,data : {amount: -5}},
 				]
 			}
 		]

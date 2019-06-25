@@ -1,10 +1,12 @@
 Needed other:
 § Before next beta
 Smol:	
-	§ Update dungeons
+	- Tentatug is some times hitting stripped slots
+	- Groperope shouldn't trigger that often on solo
+	- issolo not working for new groperope?
+	- new groperope shows charged 3 turns
 
 Medium rare:
-	§ Armor repair shops
 	- Punishments
 	- Custom cursors
 		- Arrow

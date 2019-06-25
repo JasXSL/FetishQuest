@@ -558,9 +558,6 @@ class DungeonRoom extends Generic{
 				this.encounters = new DungeonEncounter({"id":"_BLANK_"}, this);
 			this.encounters.completed = true;
 		}
-		if( respawn ){
-			console.log("Encounters respawned", game.time-state.encounter_complete, state.encounter_respawn);
-		}
 
 		if( state.encounter_friendly !== -1 && this.encounters instanceof DungeonEncounter && !respawn )
 			this.encounters.friendly = state.encounter_friendly;

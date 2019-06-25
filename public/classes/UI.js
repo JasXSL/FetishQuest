@@ -1283,7 +1283,9 @@ export default class UI{
 		this.multiCastPicker.html(ht).toggleClass('hidden', false);
 
 
-		$("#execMultiCast", this.multiCastPicker).on('click', () => {
+		$("#execMultiCast", this.multiCastPicker).off('click').on('click', event => {
+			if( $(event.currentTarget).hasClass('hidden') )
+				return;
 			this.performSelectedAction();
 			return;
 		});
@@ -3278,12 +3280,16 @@ export default class UI{
 	}
 
 	// Draws a loot selector for container. Container is a DungeonAsset OR Player
-	drawContainerLootSelector( player, container ){
+	drawContainerLootSelector( player, container, keepPosition = false ){
 
-		let playAnimation = container instanceof DungeonRoomAsset ? container._stage_mesh.userData.playAnimation : false;
+		const playAnimation = container instanceof DungeonRoomAsset ? container._stage_mesh.userData.playAnimation : false;
+		const th = this;
 
-		game.modal.prepareSelectionBox();
+		game.modal.prepareSelectionBox(keepPosition);
 		const items = container.getLootableAssets();		// Both player and container have this method
+		if( !items.length )
+			return game.modal.closeSelectionBox();
+
 		for( let item of items ){
 			game.modal.addSelectionBoxItem(item.name+(item._stacks > 1 ? ' ['+(+item._stacks)+']' : ''), item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
 		}
@@ -3294,7 +3300,7 @@ export default class UI{
 
 			let asset = $(this).attr('data-id');
 			container.lootToPlayer(asset, player);			// Both player and DungeonRoomAsset have this method
-			game.modal.closeSelectionBox();
+			th.drawContainerLootSelector(player, container, true);
 			
 		});
 		game.modal.onSelectionBoxClose(() => {

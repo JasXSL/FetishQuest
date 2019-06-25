@@ -138,7 +138,6 @@ class WebGL{
 		this.aa.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * window.devicePixelRatio );
 		this.aa.enabled = conf.aa;
 		this.composer.addPass(this.aa);
-		console.log(this.aa);
 		
 		this.colorShader = new ShaderPass(ColorifyShader);
 		this.colorShader.uniforms.color.value = new THREE.Color(2,1,1);

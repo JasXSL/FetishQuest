@@ -610,7 +610,7 @@ class Action extends Generic{
 			if( this.isAssetAction() )
 				html += '<span style="color:#FFF">'+this.parent.getWeightReadable()+'</span>';
 			if( this.cast_time )
-				html += '<span style="color:#FDD"><strong>Charged '+this.cooldown+' turn'+(this.cooldown !== 1 ? 's' : '')+'</strong></span>';
+				html += '<span style="color:#FDD"><strong>Charged '+this.cast_time+' turn'+(this.cast_time !== 1 ? 's' : '')+'</strong></span>';
 			if( ap )
 				html += '<span style="color:#DFD">'+this.ap+' AP</span>';
 			if( this.mp )

@@ -9,7 +9,7 @@ class NetworkManager{
 	// Parent is game
 	constructor(parent){
 		
-		this.debug = true;
+		this.debug = false;
 		this.parent = parent;
 		this.io = null;
 		this.id = null;

@@ -401,10 +401,7 @@ export default class Condition extends Generic{
 					const s = event.wrapperReturn.armor_strips[t.id],
 						slot = this.data.slot
 					;
-					console.log("SlotStripped triggered, event was", event);
 					success = Boolean(!slot || s[slot]);
-					if(success)
-						console.log("It was successful!");
 				}
 			}
 
@@ -505,11 +502,11 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.numGamePlayersGreaterThan ){
-				const team = this.data.team,
+				const team = parseInt(this.data.team),
 					amount = this.data.amount
 				;
 				let np = game.players.length;
-				if( team ){
+				if( !isNaN(team) ){
 					np = 0;
 					for( let player of game.players ){
 						if(

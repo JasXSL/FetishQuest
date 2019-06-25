@@ -1104,12 +1104,22 @@ class Effect extends Generic{
 				if( !amt )
 					continue;
 
-				// Check if slots exists, otherwise pick all slots
+				// Check if slots exists in data, otherwise pick all slots
 				let slots = this.data.slots;
 				if( !slots )
 					slots = [Asset.Slots.upperBody, Asset.Slots.lowerBody];
 				if( !Array.isArray(slots) )
 					slots = [slots];
+
+				// Make sure these slots exist
+				let viable = [];
+				for( let slot of slots ){
+					if( t.getEquippedAssetsBySlots(slot).length )
+						viable.push(slot);
+				}
+				slots = viable;
+				if( !slots )
+					return false;
 
 				// Pick a prioritized slot if possible
 				slots = wrapperReturn.getSlotPriorityByStripped(t, slots);
@@ -1374,7 +1384,7 @@ class Effect extends Generic{
 	affectingPlayer( player, debug ){
 
 		if( debug )
-			console.log("Target", this.targets, "parent", this.parent, player.id, this.parent.victim);
+			console.debug("Target", this.targets, "parent", this.parent, player.id, this.parent.victim);
 		if(
 			(~this.targets.indexOf(Wrapper.Targets.auto) && this.parent.victim === player.id) ||
 			(~this.targets.indexOf(Wrapper.Targets.caster) && this.parent.caster === player.id) ||

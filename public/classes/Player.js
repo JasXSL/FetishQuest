@@ -1028,7 +1028,6 @@ export default class Player extends Generic{
 				let n = asset.stacking ? asset._stacks : 1;
 				if( asset.charges > 1 ){
 					n = (n-1)*asset.charges+asset._charges;
-					console.log("Doing asset charges", asset.charges, n, asset);
 				}
 				else if( asset.charges === -1 )
 					return -1;
@@ -1877,7 +1876,7 @@ export default class Player extends Generic{
 		let action = this.getActionById(id);
 		if( action )
 			return action.useOn(targets, false, netPlayer);
-		console.error("Action missing", id);
+		console.error("Action missing", id, "in", this);
 		return false;
 
 	}

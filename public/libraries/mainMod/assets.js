@@ -272,7 +272,7 @@ const lib = {
 	food_RazzyBerry : {
 		category : Asset.Categories.food,
 		name : 'Razzyberry',
-		description : 'Restores 2 mana and HP. Only usable out of combat.',
+		description : 'Restores 2 mana and 5 HP. Only usable out of combat.',
 		stacking : true,
 		basevalue : 5,
 		weight : 10,
