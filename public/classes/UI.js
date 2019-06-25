@@ -2752,7 +2752,7 @@ export default class UI{
 		if( !myPlayer )
 			return;
 
-		let html = '<h1>Repair</h1>';
+		let html = '<h1 class="center">Repair</h1>';
 		html += '<h3 class="center">Your Money:<br />';
 		const money = myPlayer.getMoney();
 		if( !money )
@@ -2771,10 +2771,17 @@ export default class UI{
 		html += '</h3>';
 		
 		const repairable = myPlayer.getRepairableAssets();
-		html += '<div class="assets repair shop inventory">';
-		for( let asset of repairable )
-			html += this.getGenericAssetButton(asset, asset.getRepairCost(smith), cost > money ? 'disabled' : '');
-		html += '</div>';
+
+		if( repairable.length ){
+			html += '<div class="assets repair shop inventory">';
+			for( let asset of repairable ){
+				const cost = asset.getRepairCost(smith);
+				html += this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : '');
+			}
+			html += '</div>';
+		}else{
+			html += '<div class="assets repair shop inventory"><h3 class="center">No broken items.</h3></div>';
+		}
 
 		game.modal.set(html);
 		this.bindTooltips();
@@ -2782,7 +2789,13 @@ export default class UI{
 		$("#modal div.assets.repair div.item").on('click', event => {
 			const targ = $(event.currentTarget);
 			const id = targ.attr('data-id');
-			console.log("Todo: Repair id ", id);
+			game.repairBySmith(smith, myPlayer, id);
+		});
+
+
+		game.modal.onPlayerChange(myPlayer.id, () => {
+			this.drawSmithInspector(smith);
+			this.draw();
 		});
 
 		return true;

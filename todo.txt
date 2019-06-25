@@ -1,12 +1,18 @@
 Needed other:
 § Before next beta
 Smol:	
-	- !Try to reproduce! See if you can make sub-assets of a linked asset connect to root (so you can click doors anywhere, not just the root mesh)
 	§ Update dungeons
 
 Medium rare:
 	§ Armor repair shops
 	- Punishments
+	- Custom cursors
+		- Arrow
+		- Interact
+		- Pointer
+		- Buy
+		- Sell
+		- Repair
 
 Big chungi:
 	- Goblin boat quest

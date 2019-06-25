@@ -594,6 +594,22 @@ class NetworkManager{
 
 		}
 
+		else if( task === PT.repairItemAtBlacksmith ){
+
+			// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
+			if( !args.player || !args.blacksmithPlayer || !args.asset ){
+				console.error("Net: Missing args in call", task, "got", args);
+				return;
+			}
+			let player = validatePlayer();
+			if( !player )
+				return;
+
+			const blacksmith = game.getPlayerById(args.blacksmithPlayer);
+			game.repairBySmith(blacksmith, player, args.asset);
+
+		}
+
 		else if( task === PT.exchangeGold ){
 			let player = validatePlayer();
 			if( !player )
@@ -925,6 +941,19 @@ class NetworkManager{
 			player : player,
 		});
 	}
+	playerRepairItemAtBlacksmith(blacksmithPlayer, player, asset){
+		if( typeof blacksmithPlayer === "object" )
+			blacksmithPlayer = blacksmithPlayer.id;
+		if( typeof asset === "object" )
+			asset = asset.id;
+		if( typeof player === "object" )
+			player = player.id;
+		this.sendPlayerAction(NetworkManager.playerTasks.repairItemAtBlacksmith, {
+			asset : asset,
+			blacksmithPlayer : blacksmithPlayer,
+			player : player,
+		});
+	}
 	
 	playerExchangeGold(player){
 		this.sendPlayerAction(NetworkManager.playerTasks.exchangeGold, {
@@ -1100,6 +1129,7 @@ NetworkManager.playerTasks = {
 	buyItem : 'buyItem',				// {player:(str)sender_id, shop:(str)shop_id, item:(str)shopitem_id, amount:(int)amount}
 	sellItem : 'sellItem',				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
 	exchangeGold : 'exchangeGold',		// {player:(str)sender_id}
+	repairItemAtBlacksmith : 'repairItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id}
 };
 
 export default NetworkManager;

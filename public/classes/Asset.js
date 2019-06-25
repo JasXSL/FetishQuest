@@ -186,7 +186,7 @@ export default class Asset extends Generic{
 
 	getRepairCost( smithPlayer ){
 		const missingPoints = this.getMaxDurability()-this.durability;
-		let cost = missingPoints*10*Math.ceil(1.5, this.rarity);
+		let cost = missingPoints*10*Math.pow(1.5, this.rarity);
 		return Math.ceil(cost);
 	}
 

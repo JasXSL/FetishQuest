@@ -520,7 +520,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.lever] : true,
 	[GameAction.types.tooltip] : true,
 	[GameAction.types.shop] : true,
-	[GameAction.types.repair] : true,
+	[GameAction.types.repairShop] : true,
 };
 
 

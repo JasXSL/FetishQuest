@@ -1933,6 +1933,44 @@ export default class Game extends Generic{
 		return false;
 	}
 
+	repairBySmith( smithPlayer, player, assetID, allowError = true ){
+		const out = text => {
+			if( allowError )
+				console.error(text);
+		};
+		if( !(smithPlayer instanceof Player ) )
+			return out("smithPlayer is not a player");
+		if( !(player instanceof Player) )
+			return out("player is not a player");
+		if( !this.smithAvailableTo(smithPlayer, player) )
+			return out("Smith not available to you");
+		
+		const asset = player.getAssetById(assetID);
+		if( !asset )
+			return out("Asset not found");
+		if( !asset.isDamageable() )
+			return out("Invalid asset");
+		if( asset.durability >= asset.getMaxDurability() )
+			return out("Item not damaged");
+		
+		const cost = asset.getRepairCost(smithPlayer);
+		if( player.getMoney() < cost )
+			return out("Insufficient funds");
+
+		if( !this.is_host ){
+			return this.net.playerRepairItemAtBlacksmith(smithPlayer, player, asset);
+		}
+		// Ok finally we can do it
+		player.consumeMoney(cost);
+		asset.repair();
+		game.save();
+
+		this.playFxAudioKitById("buy_item", player, player, undefined, true);
+		this.playFxAudioKitById("shopRepair", player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+" gets an item repaired.", "repair", player.id, player.id, 'repair');
+
+	}
+
 	sellAsset(shop, asset, amount, player){
 
 		if( !(shop instanceof Shop) )

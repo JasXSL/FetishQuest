@@ -185,6 +185,7 @@ export default class Player extends Generic{
 			icon_lowerBody : this.icon_lowerBody,
 			icon_nude : this.icon_nude,
 			icon_upperBody : this.icon_upperBody,
+			powered : this.powered
 		};
 
 		if( this.rp )
@@ -204,7 +205,6 @@ export default class Player extends Generic{
 			out.dominant = this.dominant;					// Dominant vs submissive
 			out.hetero = this.hetero;						// 0 = gay, 0.5 = bi, 1 = straight
 			out.intelligence = this.intelligence;
-			out.powered = this.powered;
 			if( full !== "mod" ){
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
 				out._difficulty = this._difficulty;

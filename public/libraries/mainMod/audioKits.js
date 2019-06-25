@@ -632,6 +632,11 @@ const lib = {
         ],
         
     },
+    shopRepair: {
+        sounds : [
+            {s : {path : "media/audio/armor_repair.ogg",volume : 0.4}}
+        ],
+    },
 
     "armorBreak": {
         label : "armorBreak",
