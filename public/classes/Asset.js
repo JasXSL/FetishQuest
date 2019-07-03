@@ -41,7 +41,7 @@ export default class Asset extends Generic{
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
-		this._charges = 0;
+		this._charges = -1;				// How many charges remain. Setting to -1 will automatically set it to this.charges on load
 		this.load(data);
 
 	}
@@ -97,6 +97,8 @@ export default class Asset extends Generic{
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.equip_conditions = Condition.loadThese(this.equip_conditions, this);
 		this.use_action = Action.loadThis(this.use_action, this);
+		if( this._charges === -1 )
+			this._charges = this.charges;
 	}
 
 	clone(parent){
@@ -156,7 +158,7 @@ export default class Asset extends Generic{
 
 	// Checks only if this is a consumable item
 	isConsumable(){
-		return this._charges !== 0 && Boolean(this.use_action);
+		return (this._charges !== 0 || this.charges === -1) && Boolean(this.use_action);
 	}
 
 	isUsable(){
@@ -175,9 +177,9 @@ export default class Asset extends Generic{
 			return 0;
 		let out= this.basevalue/2;
 		if( this.durability <= 0 )
-			out = out/4;
+			out = 1;
 		else
-			out = out-this.durability*10;
+			out *= (this.durability/this.getMaxDurability());
 		out = Math.floor(out);
 		if( out < 1 )
 			out = 1;
@@ -196,15 +198,17 @@ export default class Asset extends Generic{
 
 	consumeCharges( charges=1 ){
 
-		if( this.charges != -1 ){
-			for( let i =0; i<charges; ++i ){
-				--this._charges;
-				if( !this._charges ){
-					this.parent.destroyAsset(this.id, 1);
-					this.resetCharges();
-				}
+		if( this.charges < 0 )
+			return;
+		
+		for( let i =0; i<charges; ++i ){
+			--this._charges;
+			if( !this._charges ){
+				this.parent.destroyAsset(this.id, 1);
+				this.resetCharges();
 			}
 		}
+	
 
 	}
 

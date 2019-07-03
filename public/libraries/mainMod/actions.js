@@ -929,7 +929,7 @@ const lib = {
 		"level": 1,
 		name : "Round Kick",
 		icon : 'high-kick',
-		description : "A chi infused kick, dealing 8 physical damage to an enemy. Misses with this ability may allow your target to riposte, doing the same amount of damage back to you.",
+		description : "A chi infused kick, dealing 7 physical damage to an enemy. Misses with this ability may allow your target to riposte, doing the same amount of damage back to you.",
 		ap : 2,
 		mp : 1,
 		hit_chance: 70,
@@ -948,7 +948,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 8
+							"amount": 7
 						}
 					},
 					
@@ -966,7 +966,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 8
+							"amount": 7
 						}
 					},
 					
@@ -1190,7 +1190,7 @@ const lib = {
 	imp_specialDelivery: {
 		name : "Special Delivery",
 		icon : 'blood',
-		description : "Jump on and try to cream on or in your target, doing 2 corruption damage and reduces the target's corruption avoidance by 1 for 2 turns.",
+		description : "Jump on and try to cream on or in your target, doing 4 corruption damage and reduces the target's corruption avoidance by 1 for 2 turns.",
 		ap : 2,
 		mp : 2,
 		cooldown : 3,
@@ -1211,7 +1211,7 @@ const lib = {
 						events : [GameEvent.Types.internalWrapperAdded],
 						type : Effect.Types.damage,
 						data : {
-							amount : 2
+							amount : 4
 						}
 					},
 					{
@@ -1677,11 +1677,9 @@ const lib = {
 				detrimental : true,
 				tags : [stdTag.fxLatched],
 				add_conditions : stdCond.concat(
-					"targetNotBeast"
+					"targetNotBeast", {type:Condition.Types.hasEffect, data:{label:'latch_self'}, inverse:true, caster:true}
 				),
-				stay_conditions : [
-					"senderNotDead"
-				],
+				stay_conditions : ["senderNotDead"],
 				effects : [
 					'selfTaunt',
 					{

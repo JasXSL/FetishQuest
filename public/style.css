@@ -1061,8 +1061,6 @@ div.fxBuffBlue{
 		color:#FFF;
 		font-size:2vmax;
 		cursor:default;
-		display:flex;
-		justify-content: space-between;
 		min-width:50%;
 		max-width:70%;
 	}

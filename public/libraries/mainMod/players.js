@@ -56,7 +56,7 @@ const lib = {
 		dominant : 0.8,
 		hetero : 1,
 		intelligence : 0.4,
-		stamina : -3,
+		stamina : -6,
 		intellect : -2,
 		agility : -2,
 		svPhysical : -2,
@@ -70,12 +70,11 @@ const lib = {
 		class : 'none',
 		assets : [
 			'genericRattyVest',
-			'genericRattyShorts',
 			{"name":"silver","label":"__LABEL__","_stacks":1},
 			{"name":"copper","label":"__LABEL__","_stacks":13},
 		],
 		actions : ['lowBlow','breast_squeeze'],
-		inventory : [0,1],	// Which items should be equipped
+		inventory : [0],	// Which items should be equipped
 		tags : [
 			stdTag.penis, stdTag.plTongue, stdTag.plFurry, stdTag.plDishonorable, stdTag.plHair, stdTag.plTail, stdTag.plEars, stdTag.plLongTail
 		]
@@ -187,7 +186,7 @@ const lib = {
 		dominant : 0.8,
 		hetero : 0.5,
 		intelligence : 0.5,
-		stamina : 3,
+		stamina : 8,
 		intellect : 3,
 		class : 'imp',
 		svPhysical : 1,
@@ -226,7 +225,7 @@ const lib = {
 		dominant : 0.8,
 		hetero : 0.5,
 		intelligence : 0.4,
-		stamina : 0,
+		stamina : 5,
 		intellect : -4,
 		agility : 2,
 		svPhysical : -1,
@@ -236,7 +235,7 @@ const lib = {
         bonPhysical : -2,
         bonElemental : 0,
         bonHoly : -2,
-        bonCorruption : 2,
+        bonCorruption : 3,
 		class : 'imp',
 		talkative : 0.5,
 		actions : [

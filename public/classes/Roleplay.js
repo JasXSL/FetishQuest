@@ -416,14 +416,16 @@ export class RoleplayStageOption extends Generic{
 		if( player && this.chat !== RoleplayStageOption.ChatType.none )
 			RoleplayChatQueue.output( player, this.text, this.chat );
 
-		for( let act of this.game_actions ){
-			await act.trigger(player, pl);
-		}
-
+		// Do this first to set the waiting flag
 		game.ui.rpOptionSelected(this.id);
 		game.net.dmRpOptionSelected(this.id);
 		rp.setStage(this.index, true);
 		
+		// Do these last as they might force a UI draw, which might draw the wrong RP option
+		for( let act of this.game_actions ){
+			await act.trigger(player, pl);
+		}
+
 		return true;
 
 	}

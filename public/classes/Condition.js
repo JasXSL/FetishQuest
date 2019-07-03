@@ -316,6 +316,30 @@ export default class Condition extends Generic{
 
 				}
 			}
+			else if( this.type === T.hasEffect ){
+
+				// Make sure sender exists if byCaster is set
+				if( t && (!this.data.byCaster || event.sender) ){
+
+					let label = this.data.label;
+					if( !Array.isArray(label) )
+						label = [label];
+
+					let effects = t.getEffects();
+					if( this.data.byCaster )
+						effects = effects.filter( el => el.parent.caster === event.sender.id );
+
+					for( let w of effects ){
+						if(~label.indexOf(w.label)){
+							success = true;
+							break;
+						}
+					}
+					if( debug )
+						console.debug("Checking ", this.data, " against ", t, success, "sender id", event.sender.id);
+
+				}
+			}
 
 			else if( this.type === T.apValue ){
 				success = t && this.compareValue(s, t, t.ap);
@@ -678,6 +702,7 @@ Condition.Types = {
 	wrapperLabel : 'wrapperLabel',
 	wrapperStacks : 'wrapperStacks',			// 
 	hasWrapper : 'hasWrapper',		// 
+	hasEffect : 'hasWrapper',		// 
 	apValue : 'apValue', 			// 
 	mpValue : 'mpValue', 			// 
 	hpValue : 'hpValue', 			// 
@@ -729,7 +754,8 @@ Condition.descriptions = {
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "="} - Operation is = by default',
-	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster}',
+	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
+	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',

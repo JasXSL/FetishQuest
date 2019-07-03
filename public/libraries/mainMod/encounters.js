@@ -277,7 +277,7 @@ const lib = {
 							text: "I am building a boat to go fishing in this lake here. But some gropers chased me off while gathering materials.",
 							options: [
 								{text: "Go on...",index: 2},
-								{text: "Nevermind, I don't have time for this.",index: -1},
+								{text: "Never mind, I don't have time for this.",index: -1},
 							]
 						},
 						{
