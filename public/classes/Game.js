@@ -2201,6 +2201,16 @@ export default class Game extends Generic{
 
 	}
 
+
+
+
+	/* WEATHER */
+	getRain(){
+		if( !this.dungeon.getActiveRoom().outdoors )
+			return 0;
+		return 0;	// Todo: Build a rain deciding system
+	}
+
 }
 
 Game.active = [];

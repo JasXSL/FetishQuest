@@ -22,7 +22,13 @@ Big chungi:
 		- Otter and Broper quest
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
 	- Weather
-
+		- Add lightning
+			- Above 0.6 it starts rumbling
+			- Above 0.8 it starts actually flashing
+		- Add sound effects
+			- Needs to push back the 
+		- Add progressive weather to game time
+		- Needs to add tags.
 
 Food for thought
 	- Fast travel system

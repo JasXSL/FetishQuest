@@ -218,6 +218,8 @@ class WebGL{
 		this.scene.add(this.center);
 
 
+		// fog
+		this.scene.fog = new THREE.FogExp2(0xd5dbdf, 0.0003);
 
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize( width, height );
@@ -267,14 +269,19 @@ class WebGL{
 		
 		this.clock = new THREE.Clock();
 
-		
-		this.buildWeather();
+		const proton = new Proton();
+		this.proton = proton;
+		//add renderer
+		proton.addRender(new Proton.SpriteRender(this.scene));
 
 		// These are the props
 		this.stage = null;					// Current stage object
 		this.stages = [];					// Stores all stages for a dungeon
 		this.cache_dungeon = null;			// ID of active dungeon
 		this.cache_active_room = null;		// ID of active room for room detection
+
+		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) in the last cell. 
+											// If this has changed on cell entry, redraw rain.
 
 		$(window).off('resize').on('resize', () => {
 			this.updateSize();
@@ -380,47 +387,219 @@ class WebGL{
 		this.sunSphere.position.copy( position );
 		this.dirLightHelper.update();
 
+		this.updateFog(this.cache_rain);
 
 	}
 
 	
-	/* Build common stuff */
-	buildWeather(){
+	/* Updates the weather renderer if needed */
+	updateWeather( force ){
+
+		const proton = this.proton;
+		let rain = game.getRain();
+		if( !isNaN(force) )
+			rain = force;
+
+			
+		// No need to change
+		if( rain !== this.cache_rain || force ){
+
+			this.cache_rain = rain;
+			
+			if( this.weather_rainDrops ){
+				this.weather_rainDrops.destroy();
+				this.weather_rainDrops = undefined;
+			}
+			if( this.weather_fog ){
+				this.weather_fog.destroy();
+				this.weather_fog = undefined;
+			}
+			if( this.weather_rainSplats ){
+				for( let emitter of this.weather_rainSplats )
+					emitter.destroy();
+				this.weather_rainSplats = undefined;
+			}
+
+			const loader = new THREE.TextureLoader();
+			
+
+			const buildRain = function(){
+				const mat = new THREE.SpriteMaterial({
+					map : loader.load('/media/textures/particles/rain.png'),
+					transparent : true,
+					alphaTest : 0.1,
+					color : 0xFFFFFF
+				});
+				let emitter = new Proton.Emitter();
+				// Number of emission / how often to emit in s
+				emitter.rate = new Proton.Rate(new Proton.Span(Math.ceil(50*rain), Math.ceil(100*rain)), new Proton.Span(.01));
+				let sprite = new THREE.Sprite(mat);
+				//addInitialize
+				emitter.addInitialize(new Proton.Mass(1));
+				emitter.addInitialize(new Proton.Body(sprite));
+				emitter.addInitialize(new Proton.Position(new Proton.BoxZone(0,0,0, 1000,0,1000)));
+				// Size of particle, x/y
+				emitter.p.y = 800;
+				emitter.addInitialize(new Proton.Radius(1, 30));
+				emitter.addInitialize(new Proton.Life(0.5));
+				emitter.addInitialize(new Proton.V(-1800, new Proton.Vector3D(0, 1, 0), 0));
+				//addBehaviour
+				emitter.emit();
+				return emitter;
+			};
+
+			const buildFog = function(){
+				const mat = new THREE.SpriteMaterial({
+					map : loader.load('/media/textures/particles/glow_sphere.png'),
+					transparent : true,
+					color : 0xFFFFFF
+				});
+				let emitter = new Proton.Emitter();
+				// Number of emission / how often to emit in s
+				emitter.rate = new Proton.Rate(1, .1);
+				let sprite = new THREE.Sprite(mat);
+				emitter.addInitialize(new Proton.Mass(1));
+				emitter.addInitialize(new Proton.Body(sprite));
+				emitter.addInitialize(new Proton.Position(new Proton.BoxZone(0,0,0, 1000,300,1000)));
+				// Size of particle, x/y
+				emitter.p.y = 200;
+				emitter.addInitialize(new Proton.Radius(300, 300));
+				emitter.addInitialize(new Proton.Life(6));
+				emitter.addInitialize(new Proton.V(100, new Proton.Vector3D(1, 0, 1), 0));
+				//addBehaviour
+				console.log(Proton.ease.easeFullSine);
+				emitter.addBehaviour(new Proton.Alpha(0, 0.1, undefined, Proton.ease.easeFullSine));
+				//emitter.addBehaviour(new Proton.Scale(.1, 1.3));
+				var colorBehaviour = new Proton.Color(new THREE.Color());
+				emitter.addBehaviour(colorBehaviour);
+				emitter.emit();
+				return emitter;
+			};
+			
+			const buildRainPools = function(){
+				
+				const mat = new THREE.SpriteMaterial({
+					map : loader.load('/media/textures/particles/rainsplat.png'),
+					transparent : true,
+					color : 0xFFFFFF
+				});
+				const sprite = new THREE.Sprite(mat);
+
+				// Every 100+50
+				let out = [];
+				for( let x = 0; x<10; ++x ){
+					for( let y = 0; y<10; ++y ){
+						
+						let emitter = new Proton.Emitter();
+						// Number of emission / how often to emit in s
+						emitter.rate = new Proton.Rate(1, (1-rain*0.8)*0.25);
+						//addInitialize
+						emitter.addInitialize(new Proton.Mass(1));
+						emitter.addInitialize(new Proton.Body(sprite));
+						emitter.addInitialize(new Proton.Position(new Proton.BoxZone(0,0,0, 100,0,100)));
+						// Size of particle, x/y
+						emitter.p.y = 50;
+						emitter.p.x = -500+x*100+50;
+						emitter.p.z = -500+y*100+50;
+						emitter.addInitialize(new Proton.Radius(1, 30));
+						emitter.addInitialize(new Proton.Life(new Proton.Span(0.1, 1)));
+						emitter.addInitialize(new Proton.V(0, new Proton.Vector3D(0, 1, 0), 0));
+						//addBehaviour
+						emitter.addBehaviour(new Proton.Alpha(0, 2));
+						emitter.addBehaviour(new Proton.Scale(.001, new Proton.Span(0.25, 0.8)));
+						emitter.emit();
+						out.push(emitter);
+					}
+				}
+				return out;
+
+			};
+
+			this.weather_rainDrops = buildRain();
+			this.weather_rainSplats = buildRainPools();
+			//add emitter
+			proton.addEmitter(this.weather_rainDrops);
+			for( let emitter of this.weather_rainSplats)
+				proton.addEmitter(emitter);
+			// Fog only needed for heavy rain
+			if( rain > 0.75 ){
+				this.weather_fog = buildFog();
+				proton.addEmitter(this.weather_fog);
+			}
 		
-		const proton = new Proton();
-		this.proton = proton;
-		/*
-		const emitter = new Proton.Emitter();
-		emitter.rate = new Proton.Rate(new Proton.Span(4, 16), new Proton.Span(.01));
+			this.updateFog(rain);
 
-		//addInitialize
-		emitter.addInitialize(new Proton.Position(new Proton.PointZone(0, 0)));
-		emitter.addInitialize(new Proton.Mass(1));
-		emitter.addInitialize(new Proton.Radius(6, 12));
-		emitter.addInitialize(new Proton.Life(3));
-		emitter.addInitialize(new Proton.V(45, new Proton.Vector3D(0, 1, 0), 180));
+		}
 
-		//addBehaviour
-		emitter.addBehaviour(new Proton.Alpha(1, 0));
-		emitter.addBehaviour(new Proton.Scale(.1, 1.3));
-
-		var color1 = new THREE.Color();
-		var color2 = new THREE.Color();
-		var colorBehaviour = new Proton.Color(color1, color2);
-		emitter.addBehaviour(colorBehaviour);
-		emitter.emit();
-
-		//add emitter
-		proton.addEmitter(emitter);
-
-		//add renderer
-		proton.addRender(new Proton.SpriteRender(this.scene));
-		Todo: Experiment
-		*/
-		console.log(proton);
+		const caster = new THREE.Raycaster();
+		// Always update rain pools if needed
+		if( rain > 0 && this.weather_rainSplats ){
+			let base = this.stage.room.getRoomAsset();
+			if( base && base._stage_mesh ){
+				const stage = base._stage_mesh;
+				console.log("Stage is", stage);
+				for( let i in this.weather_rainSplats ){
+					const emitter = this.weather_rainSplats[i];
+					caster.set(
+						new THREE.Vector3(emitter.p.x, 800, emitter.p.z), 
+						new THREE.Vector3(0, -1, 0)
+					);
+					const sect = caster.intersectObject(stage)[0];
+					if( sect ){
+						emitter.p.y = sect.point.y+5;
+					}
+				}
+			}
+		}
 
 	}
 
+	updateFog( override ){
+
+		const rain = isNaN(override) ? game.getRain() : override;
+		this.scene.fog.density = 0.0001+rain*0.0008;
+		
+		let swatches = [
+			[0,0,0],
+			[0,0,0],
+			[0,0,0],
+			[0,0,0],
+			[0,0,0],
+			[0,0,0],
+			[18,9,8],
+			[118,124,130],
+			[160,170,176],
+			[181,190,196],
+			[195,203,208],
+			[206,213,217],
+			[215,221,224],
+			[215,221,224],
+			[215,221,224],
+			[215,221,224],
+			[215,221,224],
+			[215,221,224],
+			[213,218,220],
+			[183,190,194],
+			[144,142,145],
+			[3,5,7],
+			[0,0,0],
+			[0,0,0]
+		];
+
+		const secOfDay = game.time%(3600*24),
+			currentHour = Math.floor(secOfDay/3600),
+			nextHour = Math.ceil(secOfDay/3600) === 24 ? 0 : Math.ceil(secOfDay/3600),
+			percBetween = (secOfDay-currentHour*3600)/3600
+		;
+
+		console.log("Updating color");
+		const a = swatches[currentHour], b = swatches[nextHour];
+		console.log(a, b, percBetween);
+		this.scene.fog.color.r = ((b[0]-a[0])*percBetween+a[0])/255;
+		this.scene.fog.color.g = ((b[1]-a[1])*percBetween+a[1])/255;
+		this.scene.fog.color.b = ((b[2]-a[2])*percBetween+a[2])/255;
+
+	}
 
 	/* Main */
 	render(){
