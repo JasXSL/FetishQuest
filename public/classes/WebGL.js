@@ -404,6 +404,8 @@ class WebGL{
 	/* Updates the weather renderer if needed */
 	updateWeather( force ){
 
+		if( !window.game )
+			return;
 		const proton = this.proton;
 		let rain = game.getRain();
 		if( !isNaN(force) )
@@ -585,11 +587,14 @@ class WebGL{
 			await delay(Math.ceil(500+Math.random()*3000));
 		}
 		// Play sound
-		game.audio_ambient.play( '/media/audio/ambiance/lightning_'+Math.floor(Math.random()*4)+'.ogg', Math.pow(rain,4), false );
+		if( !window.game )
+			game.audio_ambient.play( '/media/audio/ambiance/lightning_'+Math.floor(Math.random()*4)+'.ogg', Math.pow(rain,4), false );
 		
 	}
 
 	updateFog( override ){
+		if(!window.game)
+			return;
 
 		const rain = isNaN(override) ? game.getRain() : override;
 		this.scene.fog.density = 0.0001+rain*0.0008;

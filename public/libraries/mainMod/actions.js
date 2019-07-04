@@ -311,7 +311,7 @@ const lib = {
 		level: 2,
 		name : "Healing Surge",
 		icon : 'splashy-stream',
-		description : "Restores 8 HP to your target. Also heals 2 HP at the start of their turn for 3 turns.",
+		description : "Restores 8 HP to your target. Also heals 2 HP at the start of their turn for 3 turns. Effect is increased by 50% if there's water nearby.",
 		ap : 1,
 		mp : 2,
 		ranged : Action.Range.Ranged,
@@ -335,7 +335,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": -8
+							"amount": "-8*(1+0.5*((g_rain+se_Tag_m_water)>0))"
 						}
 					},
 					
@@ -354,7 +354,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": -2
+							"amount": "-2*(1+0.5*((g_rain+se_Tag_m_water)>0))"
 						}
 					}
 				]

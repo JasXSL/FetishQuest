@@ -546,6 +546,12 @@ export default class Condition extends Generic{
 			else if( this.type === T.actionRanged ){
 				success = event.action && event.action.ranged === Action.Range.Ranged;
 			}
+			else if( this.type === T.rainGreaterThan ){
+				const rain = game.getRain(this.data.allowIndoor);
+				let amt = +this.data.amount || 0;
+				success = rain > amt;
+			}
+
 			else{
 				game.modal.addError("Unknown condition "+String(this.type));
 				return false;
@@ -737,6 +743,7 @@ Condition.Types = {
 	slotStripped : 'slotStripped',		
 	textMeta : 'textMeta',
 	textTurnTag : 'textTurnTag',		
+	rain : 'rainGreaterThan',
 };
 
 Condition.descriptions = {
@@ -788,6 +795,7 @@ Condition.descriptions = {
 	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
 	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
 	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
+	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
 };
 
 

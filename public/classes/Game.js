@@ -501,6 +501,7 @@ export default class Game extends Generic{
 		this.rain_next_refresh = game.time + Math.floor(300+Math.random()*3600*2);
 		this.rain_started = this.time;
 		this.rain_start_val = val;
+		this.rain = val;
 		this.updateAmbiance();
 		if( this.renderer.stage )
 			this.renderer.stage.onTimeChanged();
@@ -2286,8 +2287,8 @@ export default class Game extends Generic{
 
 
 	/* WEATHER */
-	getRain(){
-		if( !this.dungeon.getActiveRoom().outdoors )
+	getRain( allowIndoor ){
+		if( !this.dungeon.getActiveRoom().outdoors && !allowIndoor )
 			return 0;
 
 		let rain = this.rain;
