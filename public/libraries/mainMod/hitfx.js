@@ -1073,6 +1073,7 @@ out[id].stages.push(
 id = 'sludgeBoltPurple';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
+	new Stage({emit_duration:500, particles:'hitfx_sludge_bolt_drops', origin:'attacker'}),
 	new Stage({
 		origin : 'attacker',
 		particles : 'hitfx_sludge_bolt',
@@ -1085,6 +1086,10 @@ out[id].stages.push(
 		emit_duration : 100,
 		css_fx : 'fxTakeDamageCorruption',
 		sound_kits : ['gooSplat'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sludge_bolt_impact_residue',
+		emit_duration : 100,
 	}, out[id]),
 );
 

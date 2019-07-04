@@ -12,8 +12,9 @@ import { LibMaterial } from '../libraries/materials.js';
 import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
-import SPE from '../ext/SPE.min.js';
 import Proton from '../ext/three.proton.min.js';
+
+window.g_THREE = THREE;
 
 const DISABLE_DUNGEON = false;
 //const DISABLE_DUNGEON = true;
@@ -63,7 +64,6 @@ class WebGL{
 		this.fxRenderer.setPixelRatio(1);
 		this.fxRenderer.shadowMap.enabled = true;
 		this.fxRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-		this.fxParticles = [];		// Particle groups
 		
 		
 		this.fxArrow = null;
@@ -280,8 +280,10 @@ class WebGL{
 
 		const proton = new Proton();
 		this.proton = proton;
+		this.fx_proton = new Proton();
 		//add renderer
 		proton.addRender(new Proton.SpriteRender(this.scene));
+		this.fx_proton.addRender(new Proton.SpriteRender(this.fxScene));
 
 		// These are the props
 		this.stage = null;					// Current stage object
@@ -654,9 +656,7 @@ class WebGL{
 			this.stage.render(delta);
 
 		this.proton.update();
-
-		for( let f of this.fxParticles )
-			f.tick(delta);
+		this.fx_proton.update();
 		if( this.arrowVisible )
 			this.updateArrow();
 		this.fxRenderer.render( this.fxScene, this.fxCam );
@@ -1244,6 +1244,7 @@ class Stage{
 		}
 		else
 			this.parent.toggleOutdoors(false);
+		this.parent.updateWeather();
 	}
 
 	onTimeChanged(){

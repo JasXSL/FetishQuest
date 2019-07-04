@@ -124,7 +124,7 @@ class Stage extends Generic{
 				
 		if( this.particles ){
 
-			const particles = libParticles.get(this.particles);
+			const particles = libParticles.get(this.particles, true);
 			this._system = particles;
 
 			if( !particles ){
@@ -144,7 +144,6 @@ class Stage extends Generic{
 
 				aEl = $("#ui div.player[data-id="+esc(attacker.id)+"]");
 				vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
-				
 				
 			}
 
@@ -207,20 +206,14 @@ class Stage extends Generic{
 			this._start_pos.z = 5;
 			this._end_pos.z = 5;
 
-			webgl.fxScene.add(particles.mesh);
-			particles.mesh.position.copy(this._start_pos);
-			webgl.fxParticles.push(particles);
-
+			webgl.fx_proton.addEmitter(particles);
+			particles.p.x = this._start_pos.x;
+			particles.p.y = this._start_pos.y;
+			particles.p.z = this._start_pos.z;
+			
 			setTimeout(() => {
-				for( let emitter of particles.emitters )
-					emitter.disable();
+				particles.destroy();
 			}, this.emit_duration);
-			setTimeout(() => {
-				let pos = webgl.fxParticles.indexOf(particles);
-				webgl.fxScene.remove(particles.mesh);
-				if( ~pos )
-					webgl.fxParticles.splice(particles, 1);
-			}, this.emit_duration+this.fade_duration);
 
 		}
 
@@ -251,30 +244,30 @@ class Stage extends Generic{
 		while( spl.length )
 			easing = easing[spl.shift()];
 
-		const start = new THREE.Vector3();
-		new TWEEN.Tween(start).to(this._end_pos.sub(this._start_pos), this.emit_duration).easing(easing)
+		const start = new THREE.Vector3(this._start_pos.x, this._start_pos.y, this._start_pos.z);
+		new TWEEN.Tween(start).to(this._end_pos, this.emit_duration).easing(easing)
 			.onUpdate(() => {
+
 				const particles = this._system;
 				if( particles ){
 
-					for( let emitter of particles.emitters ){
-						emitter.position.value.x = start.x;
-						emitter.position.value.y = start.y;
-						emitter.position.value.z = start.z;
-						emitter.position.value = emitter.position.value;
-						for( let instance of attached_instances ){
+					// Particles
+					particles.p.x = start.x;
+					particles.p.y = start.y;
+					particles.p.z = start.z;
 
-							instance.setPosition(
-								(particles.mesh.position.x+start.x)*0.02,
-								(particles.mesh.position.y+start.y)*0.02,
-								-0.5,
-							);
+					// Audio
+					for( let instance of attached_instances ){
 
-						}
+						instance.setPosition(
+							(particles.p.x+start.x)*0.02,
+							(particles.p.y+start.y)*0.02,
+							-0.5,
+						);
+
 					}
-
+					
 				}
-
 			})
 			.start();
 		
