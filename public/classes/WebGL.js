@@ -387,7 +387,7 @@ class WebGL{
 		this.sunSphere.position.copy( position );
 		this.dirLightHelper.update();
 
-		this.updateFog(this.cache_rain);
+		this.updateFog();
 
 	}
 
@@ -415,6 +415,7 @@ class WebGL{
 				this.weather_fog = undefined;
 			}
 			if( this.weather_rainSplats ){
+				console.log("Destroying splats");
 				for( let emitter of this.weather_rainSplats )
 					emitter.destroy();
 				this.weather_rainSplats = undefined;
@@ -467,7 +468,6 @@ class WebGL{
 				emitter.addInitialize(new Proton.Life(6));
 				emitter.addInitialize(new Proton.V(100, new Proton.Vector3D(1, 0, 1), 0));
 				//addBehaviour
-				console.log(Proton.ease.easeFullSine);
 				emitter.addBehaviour(new Proton.Alpha(0, 0.1, undefined, Proton.ease.easeFullSine));
 				//emitter.addBehaviour(new Proton.Scale(.1, 1.3));
 				var colorBehaviour = new Proton.Color(new THREE.Color());
@@ -515,18 +515,19 @@ class WebGL{
 
 			};
 
-			this.weather_rainDrops = buildRain();
-			this.weather_rainSplats = buildRainPools();
-			//add emitter
-			proton.addEmitter(this.weather_rainDrops);
-			for( let emitter of this.weather_rainSplats)
-				proton.addEmitter(emitter);
-			// Fog only needed for heavy rain
-			if( rain > 0.75 ){
-				this.weather_fog = buildFog();
-				proton.addEmitter(this.weather_fog);
+			if( rain > 0 ){
+				this.weather_rainDrops = buildRain();
+				this.weather_rainSplats = buildRainPools();
+				//add emitter
+				proton.addEmitter(this.weather_rainDrops);
+				for( let emitter of this.weather_rainSplats)
+					proton.addEmitter(emitter);
+				// Fog only needed for heavy rain
+				if( rain > 0.75 ){
+					this.weather_fog = buildFog();
+					proton.addEmitter(this.weather_fog);
+				}
 			}
-		
 			this.updateFog(rain);
 
 		}
@@ -537,7 +538,6 @@ class WebGL{
 			let base = this.stage.room.getRoomAsset();
 			if( base && base._stage_mesh ){
 				const stage = base._stage_mesh;
-				console.log("Stage is", stage);
 				for( let i in this.weather_rainSplats ){
 					const emitter = this.weather_rainSplats[i];
 					caster.set(
@@ -592,9 +592,7 @@ class WebGL{
 			percBetween = (secOfDay-currentHour*3600)/3600
 		;
 
-		console.log("Updating color");
 		const a = swatches[currentHour], b = swatches[nextHour];
-		console.log(a, b, percBetween);
 		this.scene.fog.color.r = ((b[0]-a[0])*percBetween+a[0])/255;
 		this.scene.fog.color.g = ((b[1]-a[1])*percBetween+a[1])/255;
 		this.scene.fog.color.b = ((b[2]-a[2])*percBetween+a[2])/255;
@@ -1209,8 +1207,10 @@ class Stage{
 	}
 
 	onTimeChanged(){
-		if( this.room && this.room.outdoors )
+		if( this.room && this.room.outdoors ){
 			this.parent.setOutdoorTime(game.getHoursOfDay());
+		}
+		this.parent.updateWeather();
 	}
 
 	onTurnOff(){

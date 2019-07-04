@@ -65,6 +65,8 @@ export default class Game extends Generic{
 		this.active_ambient_file = null;
 		this.active_music = null;						// Only one song can play at a time
 		this.active_ambient = null;						// Only one ambient track can play at once 
+		this.active_rain = null;
+		this.active_rain_file = null;
 
 		this.save_timer = null;
 		this.ignore_netgame = true;						// For above, set to false if there's a call is added to the timer without ignore
@@ -73,6 +75,11 @@ export default class Game extends Generic{
 		this.my_player = localStorage.my_player;
 
 		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
+
+		this.rain_next_refresh = 0;						// When to randomize rain status next time
+		this.rain_started = 0;							// Time when the rain started
+		this.rain_start_val = 0;						// Value of last rain so we can tween
+		this.rain = 0.0;								// Level to fade to (over 2 minutes)
 
 		this._turn_timer = false;						// Timeout handling end of turn
 		
@@ -108,7 +115,8 @@ export default class Game extends Generic{
 			roleplay : this.roleplay.save(full),
 			completed_quests : this.completed_quests.save(),	// A shallow clone is enough
 			time : this.time,
-			state_shops : this.state_shops.save(full)
+			state_shops : this.state_shops.save(full),
+			rain : this.rain,
 		};
 
 		out.state_dungeons = this.state_dungeons.save(full);
@@ -117,6 +125,9 @@ export default class Game extends Generic{
 		
 		if( full ){
 			out.libAsset = {};
+			out.rain_next_refresh = this.rain_next_refresh;
+			out.rain_start_val = this.rain_start_val;
+			out.rain_started = this.rain_started;
 
 			Object.values(this.libAsset).map(el => out.libAsset[el.label] = el.save(full));
 			out.name = this.name;
@@ -243,6 +254,7 @@ export default class Game extends Generic{
 	loadFromNet( data ){
 
 		const mute_pre = this.mute_spectators && !this.getMyActivePlayer();
+		const time_pre = this.time;
 
 		let turn = this.getTurnPlayer();
 		this.net_load = true;
@@ -256,6 +268,9 @@ export default class Game extends Generic{
 		// Handle mute state change
 		if( mute_pre !== (this.mute_spectators && this.getMyActivePlayer()) )
 			this.ui.updateMute();
+
+		if( this.time !== time_pre )
+			this.onTimeChanged();
 
 	}
 
@@ -323,6 +338,8 @@ export default class Game extends Generic{
 		this.state_dungeons = new Collection();
 		this.save();
 	}
+
+
 
 
 
@@ -456,10 +473,40 @@ export default class Game extends Generic{
 		this.setTurnTimer();
 
 	}
-	onTimeChanged(){
+	// force can be set to a float to force the rain value
+	onTimeChanged( force ){
+		
+		const rainChance = 0.2;
+
+		// Weather
+		if( this.time >= this.rain_next_refresh ){
+
+			// Generate new weather
+			const isRaining = Math.random() < rainChance;	// 20% chance of rain
+			if( isRaining )
+				this.setRain(Math.random()*0.9+0.1);
+			else
+				this.setRain();
+
+		}
+
 		const room = this.renderer.stage;
-		if( room )
-			room.onTimeChanged();
+		this.updateAmbiance();			// Handle rain sounds and updates the room
+
+	}
+
+	setRain( val = 0 ){
+
+		if( isNaN(val) )
+			return;
+		// min 5 min between updates, max 2h
+		this.rain_next_refresh = game.time + Math.floor(300+Math.random()*3600*2);
+		this.rain_started = this.time;
+		this.rain_start_val = val;
+		this.updateAmbiance();
+		if( this.renderer.stage )
+			this.renderer.stage.onTimeChanged();
+
 	}
 
 
@@ -609,12 +656,48 @@ export default class Game extends Generic{
 			song.stop(0);
 		else
 			this.active_ambient = song;
+		this.updateAmbiance();	// Handles volume shift for rain
+	}
+
+	async setRainSound(url, volume = 1.0, loop = true){
+		if( url === this.active_rain_file )
+			return;
+
+		if( this.active_rain )
+			this.active_rain.stop(3000);
+		if( !url )
+			return;
+		
+		this.active_rain_file = url;
+		const song = await this.audio_ambient.play( url, volume, loop );
+		if( url !== this.active_rain_file )
+			song.stop(0);
+		else
+			this.active_rain = song;
+		this.updateAmbiance();	// handles volume shift for rain
 	}
 	// Sets ambiance to the current room
-	updateAmbiance(){
+	async updateAmbiance(){
+
+		const rain = this.getRain();
 		let room = this.dungeon.getActiveRoom();
 		if( room && room.ambiance )
 			this.setAmbient(room.ambiance, room.ambiance_volume);
+
+		if( this.active_ambient )
+			this.active_ambient.setVolume(this.active_ambient.startVolume*(1-(rain-.01)));
+		
+		let rainSound = '';
+		if( rain > 0 )
+			rainSound = 'rain_light';
+		if( rain > 0.33 )
+			rainSound = 'rain_moderate';
+		if( rain > 0.75 )
+			rainSound = 'rain_heavy';
+		await this.setRainSound(rainSound ? '/media/audio/ambiance/'+rainSound+'.ogg' : false, 0.01, true);
+		if( this.active_rain )
+			this.active_rain.setVolume(0.25+(this.rain*0.75));
+
 	}
 
 
@@ -2208,7 +2291,17 @@ export default class Game extends Generic{
 	getRain(){
 		if( !this.dungeon.getActiveRoom().outdoors )
 			return 0;
-		return 0;	// Todo: Build a rain deciding system
+
+		let rain = this.rain;
+		// Fade over 2 min
+		let started = this.rain_started, startVal = this.rain_start_val;
+
+		// Tween
+		if( this.time-started < 120 ){
+			let perc = (this.time-started)/120;
+			rain = (rain-startVal)*perc+startVal;
+		}
+		return rain;
 	}
 
 }

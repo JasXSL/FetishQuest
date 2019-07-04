@@ -78,6 +78,8 @@ class AudioSound{
 		let use3d = parent.use3d;
 		this.source = master.createBufferSource();
 		this.volume = master.createGain();
+		this.startVolume = data.volume || 0.5;
+
 		this.stopped = false;
 		this.use_head = data.use_head;
 		if( use3d ){
@@ -101,6 +103,7 @@ class AudioSound{
 
 		if( data.position )
 			this.setPosition(data.position.x, data.position.y, data.position.z );
+		
 		
 		this.volume.gain.setValueAtTime(isNaN(data.volume) ? 1.0 : data.volume, this.currentTime(), 0);
 		this.source.loop = !!data.loop;
