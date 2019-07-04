@@ -489,8 +489,6 @@ export default class Game extends Generic{
 				this.setRain();
 
 		}
-
-		const room = this.renderer.stage;
 		this.updateAmbiance();			// Handle rain sounds and updates the room
 
 	}

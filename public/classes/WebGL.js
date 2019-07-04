@@ -53,6 +53,7 @@ class WebGL{
 		this.cameraTween = new TWEEN.Tween();
 
 
+		// SPELL EFFECTS / ARROW
 		this.fxScene = new THREE.Scene();
 		this.fxCam = new THREE.PerspectiveCamera( viewAngle, width/height, nearClipping, farClipping);
 		this.fxCam.position.z = 100;
@@ -77,11 +78,9 @@ class WebGL{
 		this.fxPlane.material.opacity = 0.25;
 
 		this.fxScene.add(this.fxPlane);
-		
+
 		const pLight = new THREE.DirectionalLight();
 		this.fxScene.add(pLight);
-
-		
 		pLight.shadow.mapSize.width = pLight.shadow.mapSize.height = 1024;
 		pLight.lookAt(new THREE.Vector3());
 		pLight.position.z = 110;
@@ -244,6 +243,16 @@ class WebGL{
 		light.castShadow = true;
 		this.dirLight = light;
 		this.scene.add(light);
+
+
+		this.lightningLight = new THREE.DirectionalLight(0xFFFFFF, 3.0);
+		this.lightningLight.castShadow = true;
+		this.lightningLight.shadow.mapSize.width = this.lightningLight.shadow.mapSize.height = 256;
+		this.lightningLight.position.z = this.lightningLight.position.x = -1000;
+		this.lightningLight.position.y = 1000;
+		this.lightningLight.visible = false;
+		this.scene.add(this.lightningLight);
+
 		let helper = new THREE.DirectionalLightHelper(light, 1000);
 		//this.scene.add(helper);
 		this.dirLightHelper = helper;
@@ -532,6 +541,7 @@ class WebGL{
 
 		}
 
+		// Position the splats regardless
 		const caster = new THREE.Raycaster();
 		// Always update rain pools if needed
 		if( rain > 0 && this.weather_rainSplats ){
@@ -552,6 +562,31 @@ class WebGL{
 			}
 		}
 
+		// Thunder / lightning
+		if( rain >= 0.66 && !this.lightningTimer ){
+			this.lightningTimer = setTimeout(() => this.triggerLightning(), 1000);
+		}else if( rain < 0.66 ){
+			clearTimeout(this.lightningTimer);
+		}
+		
+
+	}
+
+	async triggerLightning(){
+
+		this.lightningTimer = setTimeout(() => this.triggerLightning(), 10000+Math.random()*60000);
+
+		// Trigger flash
+		const rain = game.getRain();
+		if( rain >= 0.85 ){
+			this.lightningLight.visible = true;
+			await delay(Math.ceil(50+Math.random()*150));
+			this.lightningLight.visible = false;
+			await delay(Math.ceil(500+Math.random()*3000));
+		}
+		// Play sound
+		game.audio_ambient.play( '/media/audio/ambiance/lightning_'+Math.floor(Math.random()*4)+'.ogg', Math.pow(rain,4), false );
+		
 	}
 
 	updateFog( override ){
