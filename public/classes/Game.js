@@ -493,6 +493,15 @@ export default class Game extends Generic{
 
 	}
 
+	onPlayerLevelup( player, levelsGained = 1 ){
+		game.ui.addText( player.getColoredName()+" gained "+levelsGained+" level"+(levelsGained !== 1 ? 's' :'')+" and is now level "+player.level+"!", undefined, player.id, player.id, 'levelup' );
+		
+		game.renderer.playFX(player, player, 'levelup', undefined, true, Boolean(this.levelUpVisTimeout) );	
+		if( !this.levelUpVisTimeout )
+			this.levelUpVisTimeout = setTimeout(() => this.levelUpVisTimeout = null, 1000);
+		
+	}
+
 	setRain( val = 0 ){
 
 		if( isNaN(val) )

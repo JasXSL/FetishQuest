@@ -268,7 +268,7 @@ out[id].stages.push(
 		start_offs : {x:50,y:-100,z:0},
 		end_offs : {x:50,y:-100,z:0},
 		particles : 'hitfx_smite',
-		emit_duration : 100,
+		emit_duration : 200,
 		end_offs : start,
 		start_offs : start,
 		tween : false,
@@ -909,6 +909,11 @@ id = 'levelup';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
 	new Stage({
+		particles : 'hitfx_levelup',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+	new Stage({
 		particles : 'hitfx_sparkles_static_big',
 		emit_duration : 400,
 		tween : false,
@@ -916,20 +921,11 @@ out[id].stages.push(
 		sound_kits : ['levelup'],
 	}, out[id]),
 	new Stage({
-		particles : 'hitfx_mist_yellow',
-		emit_duration : 1500,
-		tween : false,
-	}, out[id]),
-	new Stage({
 		particles : 'hitfx_sparks_big_yellow',
 		emit_duration : 1000,
 		tween : false,
 	}, out[id]),
-	new Stage({
-		particles : 'hitfx_levelup',
-		emit_duration : 100,
-		tween : false,
-	}, out[id]),
+	
 );
 
 
@@ -1061,12 +1057,14 @@ out[id].stages.push(
 		hold : 500,
 		sound_kits : ['coldBlast_cast'],
 	}, out[id]),
+	
 	new Stage({
 		particles : 'hitfx_snow_sparks_impact',
 		emit_duration : 100,
 		css_fx : 'fxTakeDamageElemental',
 		sound_kits : ['coldBlast_hit'],
 	}, out[id]),
+	
 );
 
 

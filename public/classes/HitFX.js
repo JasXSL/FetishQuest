@@ -116,7 +116,7 @@ class Stage extends Generic{
 	}
 
 	// Attacker and victim can also be DOM elements
-	async run( attacker, victim, armor_slot ){
+	async run( attacker, victim, armor_slot, mute = false ){
 
 		const webgl = game.renderer;
 
@@ -124,7 +124,7 @@ class Stage extends Generic{
 				
 		if( this.particles ){
 
-			const particles = libParticles.get(this.particles, true);
+			const particles = libParticles.get(this.particles, undefined, true);
 			this._system = particles;
 
 			if( !particles ){
@@ -211,10 +211,19 @@ class Stage extends Generic{
 			particles.p.y = this._start_pos.y;
 			particles.p.z = this._start_pos.z;
 			
+			/*
+			setTimeout(() => {
+				particles.stopEmit();
+			}, this.emit_duration);
+
+			
+			setTimeout(() => {
+				particles.destroy();
+			}, this.emit_duration+this.fade_duration+5000);
+			*/
 			setTimeout(() => {
 				particles.destroy();
 			}, this.emit_duration);
-
 		}
 
 		if( this.css_fx ){
@@ -228,13 +237,15 @@ class Stage extends Generic{
 
 
 		let attached_instances = [];
-		for( let kit of this.sound_kits ){
-			game.playFxAudioKitById(kit, attacker, victim, armor_slot ).then(data => {
-				const kit = data.kit;
-				const instances = data.instances;
-				if( kit.follow_parts )
-					attached_instances = attached_instances.concat(instances);
-			});
+		if( !mute ){
+			for( let kit of this.sound_kits ){
+				game.playFxAudioKitById(kit, attacker, victim, armor_slot ).then(data => {
+					const kit = data.kit;
+					const instances = data.instances;
+					if( kit.follow_parts )
+						attached_instances = attached_instances.concat(instances);
+				});
+			}
 		}
 		
 		// Handle tweening
@@ -273,9 +284,7 @@ class Stage extends Generic{
 		
 
 		if( this.hold )
-			await new Promise(res => 
-				setTimeout(res, this.hold)
-			);
+			await delay(this.hold);
 
 	}
 

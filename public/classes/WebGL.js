@@ -599,7 +599,7 @@ class WebGL{
 			return;
 
 		const rain = isNaN(override) ? game.getRain() : override;
-		this.scene.fog.density = 0.0001+rain*0.0008;
+		this.scene.fog.density = !rain ? 0 : 0.0001+rain*0.0008;
 		
 		let swatches = [
 			[0,0,0],
@@ -806,6 +806,7 @@ class WebGL{
 			this.stage.toggle(true);
 			this.roomEnterCameraTween();
 		}
+		this.updateFog();
 	}
 
 	resetStage( replace ){
@@ -903,7 +904,7 @@ class WebGL{
 
 
 	/* FX LAYER */
-	playFX( caster, recipients, visual, armor_slot, global = false ){
+	playFX( caster, recipients, visual, armor_slot, global = false, mute = false ){
 
 		let visObj = visual;
 		if( !(visual instanceof HitFX) ){
@@ -919,7 +920,7 @@ class WebGL{
 			recipients = [recipients];
 		
 		for( let recipient of recipients )
-			visObj.run(caster, recipient, armor_slot);
+			visObj.run(caster, recipient, armor_slot, mute);
 		
 		if( global && game.is_host ){
 			game.net.dmHitfx(caster, recipients, visObj, armor_slot);
@@ -1258,6 +1259,8 @@ class Stage{
 		this.stopAllSounds();
 		for( let tween of this.tweens )
 			this.removeTween(tween);
+		for( let p of this.particles )
+			p.destroy();
 		this.particles = [];
 		this.tweens = [];
 		this.mixers = [];
@@ -1272,8 +1275,9 @@ class Stage{
 
 		
 		// needs to be placed after the mixers and auto
-		if( typeof obj.userData.template.onStagePlaced === "function" )
+		if( typeof obj.userData.template.onStagePlaced === "function" ){
 			obj.userData.template.onStagePlaced(dungeonAsset, obj);
+		}
 
 		this.addTweensRecursive(obj);
 		this.addParticlesRecursive(obj);
@@ -1526,9 +1530,7 @@ class Stage{
 		if( !this.enabled )
 			return;
 
-		for( let psys of this.particles )
-			psys.tick( delta );
-		
+
 		for( let mixer of this.mixers )
 			mixer.update( delta );
 
@@ -1648,12 +1650,15 @@ class Stage{
 	addParticleSystem(sys){
 		if( ~this.particles.indexOf(sys) )
 			return;
+		this.parent.proton.addEmitter(sys);
 		this.particles.push(sys);
 	}
 	removeParticleSystem(sys){
-		let index = this.particles.indexOf(tween);
-		if( ~index )
+		let index = this.particles.indexOf(sys);
+		if( ~index ){
+			sys.destroy();
 			this.particles.splice(index,1);
+		}
 	}
 
 

@@ -1106,11 +1106,13 @@ LibMesh.library = {
 						}
 					};
 
-					let particles = libParticles.get('candleFlame');
-					mesh.add(particles.mesh);
-					particles.mesh.position.z = z;
-					particles.mesh.position.y = y;
-					particles.emitters[0].size.value = 40;
+					
+				},
+				onStagePlaced : function(asset, mesh){
+					const y = 200, z = -24;
+					let particles = libParticles.get('candleFlameLarge', mesh);
+					particles.p.z = z;
+					particles.p.y = y;
 					mesh.userData.particles = [
 						particles
 					];
@@ -1157,11 +1159,13 @@ LibMesh.library = {
 						}
 					};
 
-					let particles = libParticles.get('candleFlame');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z;
-					particles.emitters[0].size.value = 40;
+					
+				},
+				onStagePlaced : function(asset, mesh){
+					let particles = libParticles.get('candleFlameLarge', mesh);
+					const z = -16, y = 198;
+					particles.p.y = y;
+					particles.p.z = z;
 					mesh.userData.particles = [
 						particles
 					];
@@ -1180,7 +1184,7 @@ LibMesh.library = {
 				use_wall_indentation: true,
 				onFlatten : function(mesh){
 					let light = new THREE.PointLight(0xFFDDAA, 0.5, 1600, 2);
-					let z = -13, y = 175;
+					let z = -13, y = 180;
 					light.position.z = z;
 					light.position.y = y+20;
 					mesh.add(light);
@@ -1206,24 +1210,26 @@ LibMesh.library = {
 						}
 					};
 
-					let particles = libParticles.get('torchFlame');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z; 
+					
+				},
+				onStagePlaced : function(asset, mesh){
+					const z = -13, y = 180;
+					let particles = libParticles.get('torchFlame', mesh, true);
+					particles.p.y = y;
+					particles.p.z = z; 
 					mesh.userData.particles = [particles];
 
-					particles = libParticles.get('torchSmoke');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('torchSmoke', mesh, true);
+					particles.p.y = y;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 
-					particles = libParticles.get('torchEmbers');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y+5;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('torchEmbers', mesh, true);
+					particles.p.y = y+5;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
-				}
+				},
+
 			}),
 			Firewood : new LibMesh({
 				url : 'doodads/firewood.JD',
@@ -1238,7 +1244,7 @@ LibMesh.library = {
 				],
 				onFlatten : function(mesh){
 					let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
-					let z = 0, y = 20;
+					let z = 0, y = 30;
 					light.position.z = z;
 					light.position.y = y+20;
 					mesh.add(light);
@@ -1264,22 +1270,23 @@ LibMesh.library = {
 						}
 					};
 
-					let particles = libParticles.get('fireplaceFlame');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z; 
+					
+				},
+				onStagePlaced : function(asset, mesh){
+					const z = 0, y = 30;
+					let particles = libParticles.get('fireplaceFlame', mesh, true);
+					particles.p.y = y;
+					particles.p.z = z; 
 					mesh.userData.particles = [particles];
 
-					particles = libParticles.get('fireplaceSmoke');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('fireplaceSmoke', mesh, true);
+					particles.p.y = y;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 
-					particles = libParticles.get('fireplaceEmbers');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y+5;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('fireplaceEmbers', mesh, true);
+					particles.p.y = y+5;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 				}
 			}),
@@ -1298,8 +1305,9 @@ LibMesh.library = {
 					{url:'media/audio/fireplace.ogg', volume:0.1}
 				],
 				onFlatten : function(mesh){
+
 					let light = new THREE.PointLight(0xFFCC77, 0.5, 1000, 2);
-					let z = 0, y = 20;
+					let z = 0, y = 30;
 					light.position.z = z;
 					light.position.y = y+20;
 					mesh.add(light);
@@ -1320,22 +1328,24 @@ LibMesh.library = {
 						}
 					};
 
-					let particles = libParticles.get('firebarrelFlame');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z; 
+					
+				},
+				onStagePlaced : function(asset, mesh){
+					const z = 0, y = 30;
+
+					let particles = libParticles.get('firebarrelFlame', mesh, true);
+					particles.p.y = y;
+					particles.p.z = z; 
 					mesh.userData.particles = [particles];
 
-					particles = libParticles.get('fireplaceSmoke');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('fireplaceSmoke', mesh, true);
+					particles.p.y = y;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 
-					particles = libParticles.get('firebarrelEmbers');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y+5;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('firebarrelEmbers', mesh, true);
+					particles.p.y = y+5;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 				}
 			}),
@@ -1354,7 +1364,7 @@ LibMesh.library = {
 				],
 				onFlatten : function(mesh){
 					let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
-					let z = -3, y = 10;
+					let z = -3, y = 20;
 					light.position.z = z;
 					light.position.y = y+20;
 					mesh.add(light);
@@ -1380,22 +1390,27 @@ LibMesh.library = {
 						}
 					};
 
-					let particles = libParticles.get('torchFlame');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z; 
+					
+				},
+				onStagePlaced : function(asset, mesh){
+					const z = -3, y = 20;
+
+					let particles = libParticles.get('torchFlame', mesh);
+
+					particles.p.y = y;
+					particles.p.z = z; 
 					mesh.userData.particles = [particles];
 
-					particles = libParticles.get('torchSmoke');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('torchSmoke', mesh);
+
+					particles.p.y = y;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 
-					particles = libParticles.get('torchEmbers');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y+5;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('torchEmbers', mesh);
+
+					particles.p.y = y+5;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 				}
 			}),
@@ -1413,7 +1428,7 @@ LibMesh.library = {
 				],
 				onFlatten : function(mesh){
 					let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
-					let z = -2, y = 20;
+					let z = -2, y = 30;
 					light.position.z = z;
 					light.position.y = y+20;
 					mesh.add(light);
@@ -1439,22 +1454,26 @@ LibMesh.library = {
 						}
 					};
 
-					let particles = libParticles.get('fireplaceFlame');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z; 
+					
+				},
+				onStagePlaced : function(asset, mesh){
+					let particles = libParticles.get('fireplaceFlame', mesh);
+					const z = -2, y = 30;
+
+					particles.p.y = y;
+					particles.p.z = z; 
 					mesh.userData.particles = [particles];
 
-					particles = libParticles.get('fireplaceSmoke');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('fireplaceSmoke', mesh);
+
+					particles.p.y = y;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 
-					particles = libParticles.get('fireplaceEmbers');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = y+5;
-					particles.mesh.position.z = z;
+					particles = libParticles.get('fireplaceEmbers', mesh);
+
+					particles.p.y = y+5;
+					particles.p.z = z;
 					mesh.userData.particles.push(particles);
 				}
 			}),
@@ -1545,13 +1564,15 @@ LibMesh.library = {
 						}
 					};
 
-					let particles = libParticles.get('candleFlame');
-					mesh.add(particles.mesh);
-					particles.mesh.position.y = 22;
+					
+
+				},
+				onStagePlaced : function(asset, mesh){
+					let particles = libParticles.get('candleFlame', mesh, true);
+					particles.p.y = 22;
 					mesh.userData.particles = [
 						particles
 					];
-
 				}
 			}),
 			BookClosed : new LibMesh({

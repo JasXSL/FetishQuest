@@ -587,7 +587,7 @@ const lib = {
     },
     levelup: {
         sounds : [{
-            s : {path : "media/audio/fq_levelup.ogg",volume : 0.7},
+            s : {path : "media/audio/fq_levelup.ogg",volume : 0.5},
         }],
     },
     "questCompleted": {
