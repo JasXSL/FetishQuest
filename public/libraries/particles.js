@@ -72,7 +72,7 @@ textures.smoke.material.depthWrite = true;
 		count : 1,
 		position : new Proton.SphereZone(0,0,0,3),
 		size : 50,
-		size_tween : [1,0],
+		size_tween : [1,0.001],
 		part_max_age : 0.5,
 		velocity : 0.1,
 		gravity : -2,
@@ -89,7 +89,7 @@ textures.smoke.material.depthWrite = true;
 		count : 1,
 		position : new Proton.SphereZone(0,0,0,20),
 		size : 5,
-		size_tween : [1,0],
+		size_tween : [1,0.001],
 		part_max_age : 0.5,
 		velocity : 0,
 		gravity : -6,
@@ -125,7 +125,7 @@ textures.smoke.material.depthWrite = true;
 		count : 1,
 		position : new Proton.SphereZone(0,0,0,10),
 		size : 150,
-		size_tween : [1,0],
+		size_tween : [1,0.001],
 		part_max_age : 0.5,
 		velocity : 0.1,
 		gravity : -8,
@@ -142,7 +142,7 @@ textures.smoke.material.depthWrite = true;
 		count : 1,
 		position : new Proton.SphereZone(0,0,0,30),
 		size : 15,
-		size_tween : [1,0],
+		size_tween : [1,0.001],
 		part_max_age : 0.75,
 		velocity : 0,
 		gravity : -8,
@@ -178,7 +178,7 @@ textures.smoke.material.depthWrite = true;
 		count : 1,
 		position : new Proton.SphereZone(0,0,0,3),
 		size : 40,
-		size_tween : [1,0],
+		size_tween : [1,0.001],
 		part_max_age : 0.5,
 		velocity : 0.1,
 		gravity : -4,
@@ -196,7 +196,7 @@ textures.smoke.material.depthWrite = true;
 		count : 1,
 		position : new Proton.SphereZone(0,0,0,10),
 		size : 10,
-		size_tween : [1,0],
+		size_tween : [1,0.001],
 		part_max_age : 0.75,
 		velocity : 0,
 		gravity : -5,
@@ -216,7 +216,7 @@ particles.quest_stars = {
 	count : 2,
 	position : new Proton.SphereZone(0,0,0,10),
 	size : 8,
-	size_tween : [0,1],
+	size_tween : [0.001,1],
 	part_max_age : 0.5,
 	velocity : new Proton.Span(20,75),
 	color : "#AABBFF",	
@@ -245,7 +245,7 @@ particles.hitfx_sparks = {
 	count : 3,
 	position : new Proton.SphereZone(0,0,0,0),
 	size : 2,
-	size_tween : [0,1],
+	size_tween : [0.001,1],
 	part_max_age : 0.25,
 	velocity : new Proton.Span(50,100),
 	color : ["#FFFFAA","#FFFFFF"],	
@@ -260,7 +260,7 @@ particles.hitfx_sparks_big = {
 	count : 3,
 	position : new Proton.SphereZone(0,0,0,0),
 	size : 5,
-	size_tween : [0,1],
+	size_tween : [0.001,1],
 	part_max_age : 0.25,
 	velocity : new Proton.Span(60,120),
 	color : ["#FFFFAA","#FFFFFF"],	
@@ -275,7 +275,7 @@ particles.hitfx_sparks_big_yellow = {
 	count : 3,
 	position : new Proton.SphereZone(0,0,0,0),
 	size : 5,
-	size_tween : [0,1],
+	size_tween : [0.001,1],
 	part_max_age : 0.25,
 	velocity : new Proton.Span(60,120),
 	color : ["#FFFFAA","#FFFFEE"],	
@@ -290,7 +290,7 @@ particles.hitfx_sparkles_static = {
 	count : 5,
 	position : new Proton.BoxZone(0,0,0, 25,25,25),
 	size : new Proton.Span(1,5),
-	size_tween : [1,0],
+	size_tween : [1,0.001],
 	part_max_age : new Proton.Span(1,2),
 	velocity : new Proton.Span(0,0.5),
 	velocity_type : 0,
@@ -307,7 +307,7 @@ particles.hitfx_sparkles_static_big = {
 	count : 10,
 	position : new Proton.BoxZone(0,0,0, 25,25,25),
 	size : new Proton.Span(2,10),
-	size_tween : [1,0],
+	size_tween : [1,0.001],
 	part_max_age : new Proton.Span(1,2),
 	velocity : new Proton.Span(0,0.5),
 	velocity_type : 0,
@@ -317,137 +317,63 @@ particles.hitfx_sparkles_static_big = {
 
 };
 
-// Todo
 particles.hitfx_sparks_zap = {
-			
-	texture: {
-		value: textures.glowSphere,
-	},
+	
+	texture : textures.glowSphere,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 100,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.25
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 1, 1, 1 ),
-				radius : 1
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,-50,0)
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3(100, 100, 100),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0xAADDFF),
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [0, 10],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 100
-		}
-	]
+	rate : 0.01,
+	count : 10,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 1,
+	size_tween : [0.001,1],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(50,100),
+	color : ["#AADDFF","#FFFFFF"],	
+	opacity: 1,
+	gravity:2,
 };
-// Todo
 particles.hitfx_zap = {
-	texture: {
-		value: textures.electricSpark,
-	},
+	texture : textures.electricSpark,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 50,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.2
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 5, 5, 5 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(0,0,0),
-				spread: new THREE.Vector3(50, 50, 50),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0x33AAFF),
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [0,1]
-			},
-			size: {
-				value: [0, 60],
-				randomise : true
-			},
-			angle : {
-				value : [0,Math.PI],
-				spread : Math.PI
-			},
-			particleCount: 50
-		}
-	]
+	rate : 0.01,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 10,
+	size_tween : [0.001,1],
+	part_max_age : 0.2,
+	velocity : new Proton.Span(10,50),
+	color : ["#33AAFF","#FFFFFF"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI)
 };
 
-// Todo
 particles.hitfx_claws = {
-	texture: {
-		value: textures.clawMarks,
-	},
-	blending : THREE.AdditiveBlending,
-	maxParticleCount : 50,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.2
-			},
-			position: {
-				position : new THREE.Vector3(0, -100, 0),
-				spread: new THREE.Vector3( 0, 0, 0 ),
-			},
-			velocity : {
-				value : new THREE.Vector3(0,-100,0),
-			},
-			rotation : {
-				angle : Math.PI/4,
-				axis : new THREE.Vector3(0,0,1)
-			},
-			color : {
-				value : [
-					new THREE.Color(0x660000),
-					new THREE.Color(0x220000),
-				]
-			},
-			opacity: {
-				value: [0,1,0]
-			},
-			size: {
-				value: [20, 60, 20],
-			},
-			particleCount: 50
+	texture : textures.clawMarks,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.BoxZone(0,0,0,0,0,0),
+	
+	size : 12,
+	size_tween : [0.2,1,Proton.ease.easeFullSine],
+	part_max_age : 0.5,
+	velocity : 0,
+	color : ["#660000","#660000"],	
+	opacity: [1,0],
+	//gravity:2,
+	rotation : Math.PI/2+0.5,
+	tick : function(emitter){
+
+		if( !emitter._startpos ){
+			emitter._startpos = {x:emitter.p.x, y:emitter.p.y}
 		}
-	]
+		let ang = -Math.PI/4-emitter.currentEmitTime*2,
+			rad = 70;
+		emitter.p.x = Math.cos(ang)*rad+emitter._startpos.x-rad*.6;
+		emitter.p.y = Math.sin(ang)*rad+emitter._startpos.y+rad*.6;
+		
+	}
 };
 
 
@@ -458,7 +384,7 @@ particles.hitfx_smite = {
 	count : 3,
 	position : new Proton.SphereZone(0,0,0,4),
 	size : 10,
-	size_tween : [0,1,Proton.ease.easeFullSine],
+	size_tween : [0.001,1,Proton.ease.easeFullSine],
 	part_max_age : .5,
 	velocity : 1,
 	velocity_type : 10,
@@ -476,138 +402,62 @@ particles.hitfx_smite = {
 	}
 };
 
-// Todo
 particles.hitfx_bite = {
-	texture: {
-		value: textures.fangs,
-	},
+	texture : textures.fangs,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 1,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.3
-			},
-			position : {
-				value : new THREE.Vector3(),
-				spread : new THREE.Vector3()
-			},
-			color : {
-				value : [
-					new THREE.Color(0x660000),
-					new THREE.Color(0xFFAAAA),
-				]
-			},
-			opacity: {
-				value: [0,1,1,1,0]
-			},
-			size: {
-				value: [300, 50, 50]
-			},
-			particleCount: 1
-		}
-	]
+	rate : 0.05,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.5,
+	velocity : 0,
+	color : ["#660000","#FFAAAA"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
 };
 
-// Todo
 particles.hitfx_shield = {
-	texture: {
-		value: textures.shield,
-	},
+	texture : textures.shield,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 10,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.75
-			},
-			position : {
-				value : new THREE.Vector3(),
-				spread : new THREE.Vector3()
-			},
-			color : {
-				value : [
-					new THREE.Color(0xAADDFF),
-					new THREE.Color(0xDDEEFF),
-				]
-			},
-			opacity: {
-				value: [0,1,1,1,0]
-			},
-			size: {
-				value: [300, 80, 80,80,0]
-			},
-			particleCount: 10
-		}
-	]
+	rate : 0.05,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#AADDFF","#DDEEFF"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
 };
 
 
 
-// Todo
 particles.hitfx_poison_pink = {
-	texture: {
-		value: textures.poison,
-	},
+	texture : textures.poison,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 3,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.75
-			},
-			position : {
-				value : new THREE.Vector3(),
-				spread : new THREE.Vector3()
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFDDFF),
-					new THREE.Color(0xFFEEFF),
-				]
-			},
-			opacity: {
-				value: [0,1,1,1,0]
-			},
-			size: {
-				value: [200, 80, 90,80,0]
-			},
-			particleCount: 3
-		}
-	]
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#FFDDFF","#FFDDFF"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
 };
 
-// Todo
 particles.hitfx_lock_yellow = {
-	texture: {
-		value: textures.lock,
-	},
+	texture : textures.lock,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 4,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.5
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFAA),
-					new THREE.Color(0xFFFFEE),
-				]
-			},
-			opacity: {
-				value: [0,1,1,1,0]
-			},
-			size: {
-				value: [200, 80,90,80,0]
-			},
-			particleCount: 4
-		}
-	]
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#FFFFAA","#FFFFEE"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
 };
 
 particles.hitfx_punch = {
@@ -617,7 +467,7 @@ particles.hitfx_punch = {
 	count : 1,
 	position : new Proton.SphereZone(0,0,0,1),
 	size : 30,
-	size_tween : [0,1],
+	size_tween : [0.001,1],
 	part_max_age : 0.15,
 	velocity : new Proton.Span(0,1),
 	color : ["#FFFFAA","#FFFFFF"],	
@@ -625,388 +475,154 @@ particles.hitfx_punch = {
 	gravity:2,
 };
 
-// Todo
 particles.hitfx_sparks_smaller = {
-			
-	texture: {
-		value: textures.glowSphere,
-	},
+	texture : textures.glowSphere,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 20,
-	_emitters : [
-		{
-			type : SPE.distributions.DISC,
-			maxAge: {
-				value: 0.25
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 0, 0, 0 ),
-				radius : 1
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,-50,0)
-			},
-			velocity : {
-				value: new THREE.Vector3(25, 25, 25),
-				spread: new THREE.Vector3(50, 50, 50),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFAA),
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [0, 5],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 20
-		}
-	]
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 1.5,
+	size_tween : [0.001,1],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(40,80),
+	color : ["#FFFFAA","#FFFFFF"],	
+	opacity: 1,
+	gravity:2,
 };
-// Todo
+
 particles.hitfx_punch_smaller = {
-	texture: {
-		value: textures.explosion,
-	},
+	texture : textures.explosion,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 20,
-	_emitters : [
-		{
-			type : SPE.distributions.SPHERE,
-			maxAge: {
-				value: 0.15
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0.5, 0.5, 0.5),
-				spread: new THREE.Vector3(1, 1, 1),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFAA),
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [0,1]
-			},
-			size: {
-				value: [0, 50],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 20
-		}
-	]
+	rate : 0.025,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 20,
+	size_tween : [0.001,1],
+	part_max_age : 0.15,
+	velocity : new Proton.Span(0,1),
+	color : ["#FFFFAA","#FFFFFF"],	
+	opacity: [0,1],
+	gravity:2,
 };
 
-// Todo
 particles.hitfx_splat = {
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 70,
-	_emitters : [
-		{
-			type : SPE.distributions.SPHERE,
-			maxAge: {
-				value: 0.25
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(10, 0, 0),
-				spread: new THREE.Vector3(50, 0, 0),
-				randomise : true,
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,-200)
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFFF),
-					new THREE.Color(0xEEFFEE),
-				]
-			},
-			opacity: {
-				value: [0,1]
-			},
-			size: {
-				value: [0, 40],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 70
-		}
-	]
+	rate : 0.01,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,2),
+	size : 20,
+	size_tween : [0.001,1],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(0,1),
+	color : ["#FFFFFF","#EEFFEE"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI*2)
 };
 
-// Todo
+particles.hitfx_splat_green = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : 20,
+	size_tween : [0.001,1],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(0,1),
+	color : ["#AAFFAA","#33AA33"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI*2)
+};
+
 particles.hitfx_splat_sparks = {
-	texture: {
-		value: textures.splat,
-	},
-	blending : THREE.AdditiveBlending,
-	maxParticleCount : 80,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.4
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(10, 10, 10),
-				spread: new THREE.Vector3(100, 100, 100),
-				randomise : true,
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -100, 0),
-			},
-			wiggle : {
-				spread : 10
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFFF),
-					new THREE.Color(0xEEFFEE),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [5, 1],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 80
-		}
-	]
-};
-
-// Todo
-particles.hitfx_crumbs = {
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.NormalBlending,
-	maxParticleCount : 30,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.4
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 10, 10, 10 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(10, 10, 10),
-				spread: new THREE.Vector3(100, 100, 100),
-				randomise : true,
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -100, 0),
-			},
-			wiggle : {
-				spread : 10
-			},
-			color : {
-				value : [
-					new THREE.Color(0x553300),
-					new THREE.Color(0x553300),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [10, 1],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 30
-		}
-	]
+	rate : 0.01,
+	count : 4,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 10,
+	size_tween : [1,0.001],
+	part_max_age : 0.4,
+	velocity : new Proton.Span(50,100),
+	gravity : 2,
+	color : ['#EEFFEE', '#339933'],	
+	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
+};
+
+particles.hitfx_crumbs = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,12),
+	size : new Proton.Span(1,3),
+	size_tween : [1,0.1],
+	part_max_age : 0.6,
+	velocity : new Proton.Span(0,30),
+	gravity : 2,
+	color : '#553300',	
+	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : [0,new Proton.Span(0,Math.PI)],
 };
 
 
-// Todo
 particles.hitfx_splat_red = {
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 70,
-	_emitters : [
-		{
-			type : SPE.distributions.SPHERE,
-			direction : -1,
-			maxAge: {
-				value: 0.25
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(10, 0, 0),
-				spread: new THREE.Vector3(50, 0, 0),
-				randomise : true,
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,-200)
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFAAAA),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [0, 40],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 70
-		}
-	]
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : 20,
+	size_tween : [0.001,1],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(0,1),
+	color : ["#FFAAAA","#AA3333"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI*2)
 };
-// Todo
 particles.hitfx_splat_sparks_red = {
-	texture: {
-		value: textures.splat,
-	},
-	blending : THREE.AdditiveBlending,
-	maxParticleCount : 80,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.4
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(10, 10, 10),
-				spread: new THREE.Vector3(100, 100, 100),
-				randomise : true,
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -100, 0),
-			},
-			wiggle : {
-				spread : 10
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFAAAA),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [5, 1],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 80
-		}
-	]
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 4,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 10,
+	size_tween : [1,0.001],
+	part_max_age : 0.4,
+	velocity : new Proton.Span(50,100),
+	gravity : 2,
+	color : ['#FFEEEE', '#993333'],	
+	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
 };
 
-// Todo
+
 particles.hitfx_healing = {
-	texture: {
-		value: textures.plus,
-	},
+	texture : textures.plus,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 20,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 1
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 25, 25, 25 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3(10, 10, 10),
-				randomise : true,
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, 20, 0),
-			},
-			wiggle : {
-				spread : 5
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [15, 0],
-				spread : 1,
-				randomise : true
-			},
-			particleCount: 20
-		}
-	]
+	rate : 0.05,
+	count : 3,
+	position : new Proton.BoxZone(0,0,0, 20,20,20),
+	size : new Proton.Span(3,6),
+	size_tween : [0.001,1,Proton.ease.easeFullSine],
+	part_max_age : new Proton.Span(1,1.5),
+	velocity : 3,
+	velocity_dir : [new Proton.Span(-1,1),new Proton.Span(-1,1),new Proton.Span(-1,1)],
+	//velocity_type : 0,
+	//gravity : -0.1,
+	color : "#FFFFFF",	
+	opacity: 1
 };
 
 particles.hitfx_healing_yellow = {
@@ -1016,7 +632,7 @@ particles.hitfx_healing_yellow = {
 	count : 2,
 	position : new Proton.BoxZone(0,0,0, 25,25,25),
 	size : new Proton.Span(3,6),
-	size_tween : [0,1,Proton.ease.easeFullSine],
+	size_tween : [0.001,1,Proton.ease.easeFullSine],
 	part_max_age : new Proton.Span(1,1.5),
 	velocity : 3,
 	velocity_dir : [new Proton.Span(-1,1),new Proton.Span(-1,1),new Proton.Span(-1,1)],
@@ -1026,376 +642,127 @@ particles.hitfx_healing_yellow = {
 	opacity: 1,
 };
 
-// Todo
 particles.hitfx_healingSurge = {
-	texture: {
-		value: textures.splat,
-	},
-	blending : THREE.AdditiveBlending,
-	maxParticleCount : 70,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.4
-			},
-			position: {
-				spread: new THREE.Vector3( 1, 1, 1 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3(50, 50, 50),
-				randomise : true,
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,-50)
-			},
-			color : {
-				value : [
-					new THREE.Color(0xAADDFF),
-				]
-			},
-			opacity: {
-				value: [1,0]
-			},
-			size: {
-				value: [0, 60],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 70
-		}
-	]
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 40,
+	size_tween : [0.001,1],
+	part_max_age : 0.4,
+	velocity : new Proton.Span(30,50),
+	gravity : 2,
+	color : '#AADDFF',	
+	opacity: [1,0],
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
 };
 
-// Todo
+
 particles.hitfx_fountain = {
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 121,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.6
-			},
-			position: {
-				spread: new THREE.Vector3( 3, 3, 3 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 100, 0),
-				spread: new THREE.Vector3(15, 0, 15),
-				randomise : true,
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,-150)
-			},
-			color : {
-				value : [
-					new THREE.Color(0xAADDFF),
-				]
-			},
-			opacity: {
-				value: [1,1,0]
-			},
-			size: {
-				value: [30, 50],
-				randomise : true
-			},
-			angle : {
-				value : [0,Math.PI],
-				spread : Math.PI
-			},
-			particleCount: 41
-		},
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.4
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 100, 0),
-				spread: new THREE.Vector3(50, 0, 50),
-				randomise : true,
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -150, 0),
-			},
-			wiggle : {
-				spread : 10
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [10, 1],
-				randomise : true
-			},
-			angle : {
-				value : [0,Math.PI*4],
-				spread : Math.PI
-			},
-			particleCount: 80
-		}
-	]
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,2),
+	size : new Proton.Span(10, 20),
+	size_tween : [1,0.5],
+	part_max_age : 0.6,
+	velocity : new Proton.Span(0,30),
+	color : ['#AADDFF'],	
+	opacity: [1,0,Proton.ease.easeInCirc],
+	force : [
+		[0,-60,0, Proton.ease.easeInCirc],
+		[0,10,0,Proton.ease.easeOutCirc]
+	],
+	//wiggle : [0,10],
+	rotation : [new Proton.Span(0,0.5), 1, 1],
 };
 
-// Todo
+
 particles.hitfx_splat_blue = {
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 70,
-	_emitters : [
-		{
-			type : SPE.distributions.SPHERE,
-			direction : -1,
-			maxAge: {
-				value: 0.25
-			},
-			position: {
-				spread: new THREE.Vector3( 2, 2, 2 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(10, 0, 0),
-				spread: new THREE.Vector3(50, 0, 0),
-				randomise : true,
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,-200)
-			},
-			color : {
-				value : [
-					new THREE.Color(0xAADDFF),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [0, 40],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 70
-		}
-	]
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : 20,
+	size_tween : [0.001,1],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(0,1),
+	color : ["#AAAAFF","#3333AA"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI*2)
 };
-// Todo
 particles.hitfx_splat_sparks_blue = {
-	texture: {
-		value: textures.splat,
-	},
-	blending : THREE.AdditiveBlending,
-	maxParticleCount : 80,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.4
-			},
-			position: {
-				spread: new THREE.Vector3( 2, 2, 2 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(10, 10, 10),
-				spread: new THREE.Vector3(100, 100, 100),
-				randomise : true,
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -100, 0),
-			},
-			wiggle : {
-				spread : 10
-			},
-			color : {
-				value : [
-					new THREE.Color(0xAADDFF),
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [5, 1],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 80
-		}
-	]
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 4,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 10,
+	size_tween : [1,0.001],
+	part_max_age : 0.4,
+	velocity : new Proton.Span(50,100),
+	gravity : 2,
+	color : ['#EEEEFF', '#333399'],	
+	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
 };
 
 
-// Todo
 particles.hitfx_mist = {
-	texture: {
-		value: textures.glowSphere,
-	},
+	texture : textures.glowSphere,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 40,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 1
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 14, 14, 14 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3(0, 0, 0),
-				randomise : true,
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,10)
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [0,0.25,0]
-			},
-			size: {
-				value: [20, 150],
-				randomise : true
-			},
-			wiggle:{
-				spread: 1
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 40
-		}
-	]
+	rate : 0.05,
+	count : 2,
+	position : new Proton.BoxZone(0,0,0, 20,20,20),
+	size : new Proton.Span(50,100),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,2),
+	velocity : new Proton.Span(0,0.75),
+	velocity_type : 0,
+	gravity : -0.1,
+	color : "#FFFFFF",	
+	opacity: [0,.5,Proton.ease.easeFullSine],
+	rotation : [0,Math.PI],
 };
-// Todo
 particles.hitfx_mist_green_target = {
-	texture: {
-		value: textures.glowSphere,
-	},
+	texture : textures.glowSphere,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 500,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 1
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 5, 5, 5 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3(5, 5, 5),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0xAAFFAA),
-					new THREE.Color(0xDDFFFF),
-				]
-			},
-			opacity: {
-				value: [0,0.1,0]
-			},
-			size: {
-				value: [50,70],
-				randomise : true
-			},
-			wiggle:{
-				spread: 1
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 500
-		}
-	]
+	rate : 0.01,
+	count : 5,
+	position : new Proton.BoxZone(0,0,0, 4,4,4),
+	size : new Proton.Span(20,30),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,2),
+	velocity : new Proton.Span(0,0.75),
+	velocity_type : 0,
+	gravity : -0.1,
+	color : ["#AAFFAA","#DDFFFF"],	
+	opacity: [0,.5,Proton.ease.easeFullSine],
+	rotation : [0,Math.PI],
 };
-// Todo
 particles.hitfx_mist_pink = {
-	texture: {
-		value: textures.glowSphere,
-	},
+	texture : textures.glowSphere,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 10,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.5
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 14, 14, 14 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3(0, 0, 0),
-				randomise : true,
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,25)
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFAAFF),
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [0,0.25,0]
-			},
-			size: {
-				value: [20, 150],
-				randomise : true
-			},
-			wiggle:{
-				spread: 1
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 10
-		}
-	]
+	rate : 0.05,
+	count : 2,
+	position : new Proton.BoxZone(0,0,0, 20,20,20),
+	size : new Proton.Span(20,75),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,2),
+	velocity : new Proton.Span(0,0.75),
+	velocity_type : 0,
+	gravity : -0.1,
+	color : ["#FFAAFF","#FFFFFF"],	
+	opacity: [0,.5,Proton.ease.easeFullSine],
+	rotation : [0,Math.PI],
 };
 
 particles.hitfx_mist_yellow = {
@@ -1406,7 +773,7 @@ particles.hitfx_mist_yellow = {
 	count : 2,
 	position : new Proton.BoxZone(0,0,0, 20,20,20),
 	size : new Proton.Span(20,75),
-	size_tween : [1,0],
+	size_tween : [1,0.001],
 	part_max_age : new Proton.Span(1,2),
 	velocity : new Proton.Span(0,0.75),
 	velocity_type : 0,
@@ -1416,149 +783,58 @@ particles.hitfx_mist_yellow = {
 	rotation : [0,Math.PI],
 };
 
-// Todo
+
 particles.hitfx_splat_discrete = {
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 70,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.25
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(0, -5, 0),
-				spread: new THREE.Vector3(15, 15, 15),
-				randomise : true,
-			},
-			acceleration : {
-				value : new THREE.Vector3(0,-10)
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFFF),
-				]
-			},
-			opacity: {
-				value: [0,.25,0]
-			},
-			size: {
-				value: [0, 30],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 70
-		}
-	]
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : new Proton.Span(1,3),
+	size_tween : [0.001,1],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(1,3),
+	color : "#FFFFFF",	
+	opacity: [0,.25, Proton.ease.easeFullBridge],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI*2)
 };
 
-// Todo
+
 particles.hitfx_splat_sparks_discrete = {
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 80,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.4
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(5, 5, 5),
-				spread: new THREE.Vector3(25, 25, 25),
-				randomise : true,
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -50, 0),
-			},
-			wiggle : {
-				spread : 5
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFFF),
-					new THREE.Color(0xEEFFEE),
-				]
-			},
-			opacity: {
-				value: [0.5,0.5]
-			},
-			size: {
-				value: [5, 1],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 80
-		}
-	]
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,2),
+	size : 3,
+	size_tween : [1,0.001],
+	part_max_age : 0.4,
+	velocity : new Proton.Span(25,50),
+	gravity : 2,
+	color : ['#FFFFFF', '#EEFFEE'],	
+	opacity: 0.25,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
 };
-// Todo
+
 particles.hitfx_splat_sparks_discreter = {
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.glowSphere,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 10,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.5
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-			},
-			velocity : {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3(30, 30, 30),
-				randomise : true,
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -25, 0),
-			},
-			wiggle : {
-				spread : 5
-			},
-			color : {
-				value : [
-					new THREE.Color(0xFFFFFF),
-					new THREE.Color(0xEEFFEE),
-				]
-			},
-			opacity: {
-				value: [0.5,0.5]
-			},
-			size: {
-				value: [7, 1],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			particleCount: 10
-		}
-	]
+	rate : 0.025,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,4),
+	size : 2,
+	size_tween : [1,0.001],
+	part_max_age : 0.6,
+	velocity : new Proton.Span(25,50),
+	gravity : 3,
+	color : ['#FFFFFF', '#EEFFEE'],	
+	opacity: 0.25,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
 };
 
 particles.hitfx_snow_sparks = {
@@ -1596,92 +872,21 @@ particles.hitfx_snow_sparks_impact = {
 	wiggle : new Proton.Span(0,10),
 };
 
-// Todo
 particles.hitfx_sludge_siphon = {
-			
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
-	_emitters : [
-		{
-			direction:-1,
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 1
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 2, 2, 2 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, -10, 0),
-				spread: new THREE.Vector3(15, 15, 15),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0x330066),
-					new THREE.Color(0x330033)
-				]
-			},
-			opacity: {
-				value: [0,0.5,1,0.25]
-			},
-			size: {
-				value: 50,
-				spread : 50,
-				randomise : true
-			},
-			angle : {
-				value : [0,Math.PI],
-				spread : Math.PI
-			},
-			wiggle : {
-				spread : 10
-			},
-			particleCount: 200
-		},
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.75
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 0, 0, 0 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, -20, 0),
-				spread: new THREE.Vector3(5, 5, 5),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0x330066),
-					new THREE.Color(0x330033)
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [30, 5, 15, 1],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			wiggle : {
-				spread : 10
-			},
-			particleCount: 100
-		}
-	]
+	rate : 0.01,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,5),
+	size : [15,30],
+	size_tween : [1,0.05],
+	part_max_age : 1,
+	velocity : -5,
+	gravity : 2,
+	color : ['#330066', '#330033'],	
+	opacity: [0,1, Proton.ease.easeFullBridge],
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+	wiggle : [0,10]
 };
 
 
@@ -1748,274 +953,67 @@ particles.hitfx_sludge_bolt_impact_residue = {
 	rotation : [new Proton.Span(0,Math.PI)],
 };
 
-// Todo
 particles.hitfx_sludge_bolt_proc = {
-			
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 2
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 30, 30, 30 ),
-				radius : 1
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -0.5, 0),
-				spread : new THREE.Vector3(0,1.5,0)
-			},
-			color : {
-				value : [
-					new THREE.Color(0x6633AA),
-					new THREE.Color(0x552299)
-				]
-			},
-			opacity: {
-				value: [1,0]
-			},
-			size: {
-				value: 30,
-				spread : 30,
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			wiggle : {
-				spread : 1,
-				randomise : true
-			},
-			particleCount: 300
-		}
-	]
+	rate : 0.01,
+	count : 3,
+	position : new Proton.BoxZone(0,0,0,20,40,20),
+	size : [1,15],
+	part_max_age : 2,
+	velocity : new Proton.Span(0, 1),
+	gravity: new Proton.Span(0,0.15),
+	color : ['#6633AA', '#552299'],	
+	opacity: [1,0],
+	rotation : new Proton.Span(0,Math.PI*2),
+	wiggle : 10
 };
-// Todo
+
 particles.hitfx_sludge_bolt_black = {
-			
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 200,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.5
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 0, 0, 0 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, -10, 0),
-				spread: new THREE.Vector3(15, 15, 15),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0x000000),
-					new THREE.Color(0x111111)
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [90, 1],
-				randomise : true
-			},
-			angle : {
-				value : [0,Math.PI],
-				spread : Math.PI
-			},
-			wiggle : {
-				spread : 10
-			},
-			particleCount: 100
-		},
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.75
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 0, 0, 0 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, -20, 0),
-				spread: new THREE.Vector3(5, 5, 5),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0x000000),
-					new THREE.Color(0x111111)
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [30, 5, 15, 1],
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			wiggle : {
-				spread : 10
-			},
-			particleCount: 100
-		}
-	]
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,4),
+	size : [15,30],
+	size_tween : [1,0.05],
+	part_max_age : 0.5,
+	velocity : 5,
+	gravity : 2,
+	color : "#000000",	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+
 };
-// Todo
+
 particles.hitfx_sludge_bolt_impact_black = {
-			
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 200,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.5
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 0, 0, 0 ),
-				radius : 1
-			},
-			velocity : {
-				value: new THREE.Vector3(0, -10, 0),
-				spread: new THREE.Vector3(100, 100, 100),
-				randomise : true,
-			},
-			color : {
-				value : [
-					new THREE.Color(0x000000),
-					new THREE.Color(0x111111)
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [120, 1],
-				randomise : true
-			},
-			angle : {
-				value : [0,Math.PI],
-				spread : Math.PI
-			},
-			wiggle : {
-				spread : 10
-			},
-			particleCount: 100
-		},
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 1.5
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 20, 20, 20 ),
-				radius : 1
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -1, 0),
-				spread : new THREE.Vector3(0,3,0)
-			},
-			color : {
-				value : [
-					new THREE.Color(0x000000),
-					new THREE.Color(0x111111)
-				]
-			},
-			opacity: {
-				value: [1,1]
-			},
-			size: {
-				value: [30],
-				spread : 10,
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			wiggle : {
-				spread : 1,
-				randomise : true
-			},
-			particleCount: 100
-		}
-	]
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : [30,60],
+	size_tween : [1,0.05],
+	part_max_age : 1,
+	velocity : new Proton.Span(50, 100),
+	gravity:2,
+	color : "#000000",	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
 };
-// Todo
 particles.hitfx_sludge_bolt_proc_black = {
-			
-	texture: {
-		value: textures.splat,
-	},
+	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
-	maxParticleCount : 300,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 2
-			},
-			position: {
-				value: new THREE.Vector3(0, 0, 0),
-				spread: new THREE.Vector3( 30, 30, 30 ),
-				radius : 1
-			},
-			acceleration : {
-				value: new THREE.Vector3(0, -0.5, 0),
-				spread : new THREE.Vector3(0,1.5,0)
-			},
-			color : {
-				value : [
-					new THREE.Color(0x000000),
-					new THREE.Color(0x111111)
-				]
-			},
-			opacity: {
-				value: [1,0]
-			},
-			size: {
-				value: 30,
-				spread : 30,
-				randomise : true
-			},
-			angle : {
-				value : 0,
-				spread : Math.PI
-			},
-			wiggle : {
-				spread : 1,
-				randomise : true
-			},
-			particleCount: 300
-		}
-	]
+	rate : 0.01,
+	count : 3,
+	position : new Proton.BoxZone(0,0,0,20,40,20),
+	size : [1,15],
+	part_max_age : 2,
+	velocity : new Proton.Span(0, 1),
+	gravity: new Proton.Span(0,0.15),
+	color : "#000000",	
+	opacity: [1,0],
+	rotation : new Proton.Span(0,Math.PI*2),
 };
 
 particles.hitfx_darkOrb = {
@@ -2040,70 +1038,33 @@ particles.hitfx_darkOrb = {
 
 
 
-// Todo
 particles.hitfx_dark_star = {
-	texture: {
-		value: textures.cursedStar,
-	},
+	texture : textures.cursedStar,
 	blending : THREE.NormalBlending,
-	maxParticleCount : 4,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.5
-			},
-			color : {
-				value : [
-					new THREE.Color(0x110033),
-					new THREE.Color(0x000000),
-				]
-			},
-			opacity: {
-				value: [0,1,1,0]
-			},
-			size: {
-				value: [200, 80,90,80,0]
-			},
-			angle : {
-				value : [0, Math.PI]
-			},
-			particleCount: 4
-		}
-	]
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#110033","#000000"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
 };
 
-// Todo
 particles.hitfx_yin_yang = {
-	texture: {
-		value: textures.yinYang,
-	},
-	blending : THREE.AdditiveBlending,
-	maxParticleCount : 4,
-	_emitters : [
-		{
-			type : SPE.distributions.BOX,
-			maxAge: {
-				value: 0.5
-			},
-			color : {
-				value : [
-					new THREE.Color(0xAAFFDD),
-					new THREE.Color(0xDDFFDD),
-				]
-			},
-			opacity: {
-				value: [0,1,1,0]
-			},
-			size: {
-				value: [200, 80,90,80,0]
-			},
-			angle : {
-				value : [0, Math.PI]
-			},
-			particleCount: 4
-		}
-	]
+	texture : textures.yinYang,
+	blending : THREE.NormalBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#AAFFDD","#AAFFDD"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
+	rotation : [new Proton.Span(-.1,.1), true, true],
 };
 
 particles.get = function(id, mesh, debug = false){
@@ -2112,7 +1073,7 @@ particles.get = function(id, mesh, debug = false){
 	if( p ){
 
 		if( p._emitters ){
-			console.log("Missing conversion for", id);
+			console.error("Missing conversion for", id);
 			return new Proton.Emitter(undefined, mesh);
 		}
 		const emitter = new Proton.Emitter(undefined, mesh);
@@ -2150,6 +1111,16 @@ particles.get = function(id, mesh, debug = false){
 				dir = new Proton.Vector3D(dir[0], dir[1], dir[2]);
 			emitter.addInitialize(new Proton.V(p.velocity, dir, p.velocity_type || 360));
 		}
+
+		if( p.force ){
+			let forces = p.force;
+			if( !Array.isArray(forces[0]) )
+				forces = [forces];
+			for( let force of forces ){
+				const f = new Proton.Force(force[0], force[1], force[2], undefined, force[3]);
+				emitter.addBehaviour(f);
+			}
+		}
 		
 		if( p.gravity ){
 			emitter.addBehaviour(new Proton.Gravity(p.gravity));
@@ -2173,6 +1144,8 @@ particles.get = function(id, mesh, debug = false){
 		}
 
 		if( p.rotation ){
+			if( !Array.isArray(p.rotation) )
+				p.rotation = [p.rotation];
 			// 1 value = SET
 			// 2 values = Tween from A to B
 			// 3 values = additive on A. The other 2 can be whatever, just not undefined

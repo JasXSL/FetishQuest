@@ -235,21 +235,23 @@ id = 'claws';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
 	new Stage({
-		particles : 'hitfx_sparks',
-		emit_duration : 100,
-		dest_rand : 0.5,
-		tween : false
-	}, out[id]),
-	new Stage({
 		start_offs : {x:50,y:-100,z:0},
 		end_offs : {x:50,y:-100,z:0},
 		particles : 'hitfx_claws',
-		emit_duration : 100,
+		emit_duration : 200,
 		dest_rand : 0.5,
 		tween : false,
 		css_fx : 'fxTakeDamage',
 		sound_kits : ['clawRip'],
 	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	
+	
 );
 
 
@@ -376,13 +378,13 @@ out[id] = new HitFX({label : id});
 out[id].stages.push(
 	new Stage({
 		particles : 'hitfx_sparks_zap',
-		emit_duration : 100,
+		emit_duration : 200,
 		dest_rand : 0.5,
 		tween : false,
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_zap',
-		emit_duration : 100,
+		emit_duration : 200,
 		dest_rand : 0.5,
 		tween : false,
 		sound_kits : ['tentacleZap'],
@@ -459,7 +461,7 @@ id = 'tentacleWhip';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
 	new Stage({
-		particles : 'hitfx_splat',
+		particles : 'hitfx_splat_green',
 		emit_duration : 100,
 		dest_rand : 0.5,
 		tween : false
@@ -789,7 +791,7 @@ out[id].stages.push(
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_poison_pink',
-		emit_duration : 400,
+		emit_duration : 200,
 		tween : false,
 	}, out[id]),
 );
@@ -1265,22 +1267,15 @@ out[id].stages.push(
 		tween : false,
 		css_fx : 'fxTakeDamageElemental',
 		sound_kits : ['waterSpell'],
-		start_offs : start,
-		end_offs : end,
+		start_offs : {},
+		end_offs : {},
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_healingSurge',
 		emit_duration : 300,
 		tween : false,
-		start_offs : start,
-		end_offs : end,
-	}, out[id]),
-	new Stage({
-		particles : 'hitfx_mist',
-		emit_duration : 300,
-		tween : false,
-		start_offs : start,
-		end_offs : end,
+		start_offs : {},
+		end_offs : {},
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_fountain',
