@@ -2624,17 +2624,17 @@ const lib = [
 
 	// ROGUE | Todo : Tag up later once revamp is done
 	// action_rogue_exploit
-	{ text : "%S exploits an opening in %T's defenses, throwing a punch at %Thim!",
-		conditions : baseCond.concat([
+	{ text : "%S exploits an opening in %T's defenses, tickling %This %groin!",
+		conditions : anyOnHumCond.concat([
 			"action_rogue_exploit","targetWearsUpperBody","targetWearsLowerBody"
 		]),
-		hitfx : ["punch"]
+		hitfx : ["tickle"]
 	},
-	{ text : "%S exploits an opening in %T's defenses, throwing a powerful punch at %Thim!",
+	{ text : "%S exploits an opening in %T's defenses!",
 		conditions : baseCond.concat([
 			"action_rogue_exploit","targetBeast"
 		]),
-		hitfx : ["punch"]
+		hitfx : ["tickle"]
 	},
 	{ text : "%S slips some fingers up %T's %vagina, wiggling them around briefly!",
 		conditions : humOnHumCond.concat([
@@ -2666,14 +2666,26 @@ const lib = [
 		]),
 		hitfx : ["squeeze"]
 	},
-
-
-	// action_rogue_corruptingPoison
-	{ text : "%S poisons %T, causing a warm feeling to course throughout %This body!",
-		conditions : baseCond.concat([
-			"action_rogue_corruptingPoison",
+	{ text : "%S exploits an opening in %T's defenses, rubbing %This %nipples!",
+		conditions : anyOnHumCond.concat([
+			"action_rogue_exploit","targetUpperBodyNotHard","targetBreasts"
 		]),
-		hitfx : ["poisonPink"]
+		hitfx : ["squeeze"]
+	},
+
+
+	// action_rogue_corruptingVial
+	{ text : "%S chugs a small vial!",
+		conditions : baseCond.concat([
+			"action_rogue_corruptingVial", "targetIsSender"
+		]),
+		hitfx : ["poisonVial"]
+	},
+	{ text : "%S throws a vial at %T, causing a warm feeling to course throughout %This body!",
+		conditions : baseCond.concat([
+			"action_rogue_corruptingVial", "targetNotSender"
+		]),
+		hitfx : ["poisonVialDrink"]
 	},
 
 

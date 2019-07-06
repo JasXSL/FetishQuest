@@ -571,19 +571,19 @@ const lib = {
         ],
         
     },
-    "potionUse": {
-        label : "potionUse",
-        sounds : [
-            {
-                s : {
-                    path : "media/audio/potion_use.ogg",
-                    volume : 0.4
-                },
-                t : 0,
-                se : false
-            }
-        ],
-        
+    potionUse: {
+        sounds : [{
+            s : {path : "media/audio/potion_use.ogg",volume : 0.4},
+            t : 0,
+            se : false
+        }],
+    },
+    glassBreak: {
+        sounds : [{
+            s : {path : "media/audio/glass_break.ogg",volume : 0.4},
+            t : 0,
+            se : false
+        }],
     },
     levelup: {
         sounds : [{

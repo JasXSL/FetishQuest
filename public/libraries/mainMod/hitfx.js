@@ -796,6 +796,55 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'poisonVial';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 200,
+		tween : false,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['poisonGeneric','glassBreak'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist_pink',
+		emit_duration : 400,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_poison_pink',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+);
+
+id = 'poisonVialDrink';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 200,
+		tween : false,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['poisonGeneric','potionUse'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist_pink',
+		emit_duration : 400,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 200,
+		tween : false,
+	}, out[id]),
+);
+
 id = 'chastise';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

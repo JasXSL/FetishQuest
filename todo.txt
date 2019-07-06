@@ -7,13 +7,12 @@ Medium rare:
 	- Custom cursors
 		- Arrow
 		- Interact
-		- Pointer
+		- Inspect
 		- Buy
 		- Sell
 		- Repair
 
 Big chungi:
-	- Phase out the old particle system
 	- Goblin boat quest
 		- Add boat that shows up x days after completing the boat quest
 		- Boat lets you travel to the middle of the lake.

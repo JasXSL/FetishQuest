@@ -417,10 +417,10 @@ const lib = {
 		level: 1,
 		name : "Exploit",
 		icon : 'hooded-assassin',
-		description : "Deals 4 physical damage plus another 2 per slot of upper and/or lower body armor missing from your target.",
+		description : "Deals 3 corruption damage plus another 2 per slot of upper and/or lower body armor missing from your target.",
 		ap : 2,
 		mp : 0,
-		type : "Physical",
+		type : Action.Types.corruption,
 		cooldown : 1,
 		tags : [stdTag.acDamage],
 		show_conditions : ["inCombat"],
@@ -428,9 +428,6 @@ const lib = {
 			{
 				target : "VICTIM",
 				duration : 0,
-				name : "",
-				icon : "",
-				description : "",
 				detrimental : true,
 				add_conditions : stdCond,
 				stay_conditions : stdCond,
@@ -438,66 +435,61 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "8-ta_lowerBody*2-ta_upperBody*2"
+							"amount": "7-ta_lowerBody*2-ta_upperBody*2"
 						}
 					},
-					
 				]
 			}
 		]
 	},
-	rogue_corruptingPoison: {
+	rogue_corruptingVial : {
 		level: 2,
-		name : "Corrupting Poison",
+		name : "Corrupting Vial",
 		icon : 'poison-bottle',
-		description : "Inflicts your target with a corrupting poison, dealing 2 corruption damage at the start of their turn for 3 turns, and reduces corruption resist by 4.",
+		description : "Inflicts your target with a corrupting poison, dealing 2 corruption damage at the start of their turn for 3 turns, and reduces corruption resist by 2. If used on yourself it instead restores 2 HP each turn and increases corruption proficiency by 2.",
 		ap : 2,
 		mp : 2,
-		type : "Physical",
+		type : Action.Types.corruption,
 		cooldown : 1,
-		"charges": 2,
-		tags : [
-			"ac_damage",
-			"ac_debuff"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		charges: 2,
+		tags : ["ac_damage","ac_debuff"],
+		show_conditions : ["inCombat"],
 		wrappers : [
 			{
-				target : "VICTIM",
-				duration : 0,
-				name : "",
-				icon : "",
-				description : "",
-				detrimental : true,
-				add_conditions : stdCond,
-				effects : [
-					
-				]
-			},
-			{
-				target : "VICTIM",
 				duration : 3,
-				name : "Corrupting Poison",
+				name : "Corrupting Vial",
 				icon : "poison-bottle",
-				description : "Taking corruption damage each turn. Corruption resist reduced.",
+				description : "Taking corruption damage each turn. Corruption resist reduced by 2.",
 				detrimental : true,
-				add_conditions : stdCond,
+				add_conditions : stdCond.concat("targetNotSender"),
 				stay_conditions : stdCond,
 				effects : [
 					{
-						type : "damage",
-						data : {
-							"amount": 2,
-							type : "Corruption"
-						}
+						type : Effect.Types.damage,
+						data : {"amount": 2}
 					},
 					{
-						type : "svCorruption",
-						data : {
-							"amount": -4
-						}
+						type : Effect.Types.svCorruption,
+						data : {"amount": -2}
+					}
+				]
+			},
+			{
+				duration : 3,
+				name : "Corrupting Vial",
+				icon : "poison-bottle",
+				description : "Healing each turn. Corruption proficiency increased by 2.",
+				detrimental : false,
+				add_conditions : stdCond.concat("targetIsSender"),
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {"amount": -2}
+					},
+					{
+						type : Effect.Types.bonCorruption,
+						data : {"amount": 2}
 					}
 				]
 			}
@@ -507,7 +499,7 @@ const lib = {
 		level: 3,
 		name : "Dirty Tricks",
 		icon : 'snatch',
-		description : "Use a dirty trick on your target, doing 8 corruption damage. Has a 5% chance per corruption advantage to unequip their lower or upperBody armor.",
+		description : "Sneak through the shadows and perform a dirty trick on your target, doing 8 corruption damage. Has a 5% chance per corruption advantage to unequip a piece of their armor.",
 		ap : 2,
 		mp : 3,
 		type : "Corruption",
@@ -521,36 +513,19 @@ const lib = {
 		wrappers : [
 			{
 				target : "VICTIM",
-				duration : 0,
-				name : "",
-				icon : "",
-				description : "",
 				detrimental : true,
 				add_conditions : stdCond,
 				effects : [
+					{type : Effect.Types.damage, data : {"amount": 8}},
 					{
-						type : "damage",
-						data : {
-							"amount": 8
-						}
-					},
-					{
-						type : "disrobe",
-						data : {
-							"slots": [
-								"lowerBody",
-								"upperBody"
-							],
-							"numSlots": 1
-						},
-						conditions : [
-							{
-								type : "rng",
-								data : {
-									"chance": "5*(se_BonCorruption-ta_SvCorruption)"
-								}
+						type : Effect.Types.disrobe,
+						data : {"numSlots": 1},
+						conditions : [{
+							type : Condition.Types.rng,
+							data : {
+								"chance": "5*(se_BonCorruption-ta_SvCorruption)"
 							}
-						]
+						}]
 					},
 					
 				]

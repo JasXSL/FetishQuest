@@ -34,7 +34,7 @@ const lib = {
 	action_warrior_bolster : {"type":"actionLabel","data":{"label":"warrior_bolster"},"targnr":0},
 	action_warrior_revenge : {"type":"actionLabel","data":{"label":"warrior_revenge"},"targnr":0},
 	action_rogue_exploit : {"type":"actionLabel","data":{"label":"rogue_exploit"},"targnr":0},
-	action_rogue_corruptingPoison : {"type":"actionLabel","data":{"label":"rogue_corruptingPoison"},"targnr":0},
+	action_rogue_corruptingVial : {type:Condition.Types.actionLabel,data:{"label":"rogue_corruptingVial"},targnr:0},
 	action_rogue_dirtyTricks : {"type":"actionLabel","data":{"label":"rogue_dirtyTricks"},"targnr":0},
 	action_cleric_paddling : {"type":"actionLabel","data":{"label":"cleric_paddling"},"targnr":0},
 	action_cleric_smite : {"type":"actionLabel","data":{"label":"cleric_smite"},"targnr":0},
