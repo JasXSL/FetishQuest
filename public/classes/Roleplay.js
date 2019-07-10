@@ -101,7 +101,7 @@ export default class Roleplay extends Generic{
 
 	loadState(){
 		// When loaded from a game, grab from state
-		if( window.game && window.game !== true && this.label && game.state_roleplays[this.label] ){
+		if( window.game && window.game !== true && this.label && game.state_roleplays[this.label] && glib && !glib.loading ){
 			const state = game.state_roleplays[this.label];
 			if( this.persistent && state.hasOwnProperty("stage") && state.stage !== -1 )
 				this.stage = state.stage;

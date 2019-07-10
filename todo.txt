@@ -1,6 +1,12 @@
 Needed other:
 § Before next beta
 Smol:	
+	Meshes:
+		- Bed
+		- Nicer rug
+		- Drawer
+
+	Add fog override to cells
 
 Medium rare:
 	- Punishments
@@ -12,11 +18,38 @@ Medium rare:
 		- Sell
 		- Repair
 
+	- New monster: Lamprey. Toothless lamprey which can generate electricity
+		- Slippery - Slip into a player's armor, doing corruption damage over time
+		- Leech - Sucks onto your target, doing corruption damage
+		- Eel Shock - Shocks a player for elemental damage
+	- New monster: Anemone
+		- Grab - Grapples a player
+		- Leech - Same as above
+		- Restrain - Stuns a grappled player, needs to fade if player is freed
+	- New monster: Sharktopus
+		- 
+		- 
+		- 
+
+
 Big chungi:
 	- Goblin boat quest
-		- Add boat that shows up x days after completing the boat quest
-		- Boat lets you travel to the middle of the lake.
-		- From there you can also go west to the western part of the forest
+		- Add boat that shows up an hour after completing the boat quest
+		
+	- Island quest:
+		- Arrive at island. Get greeted by an otter who says he almost caught something massive while fishing.
+		- Add quest to search the island for a fishing rod.
+		- Return with fishing rod and get tasked to take your boat east and try your luck.
+		- Go to the lake and use new fish action only available when on that stage.
+		- Get pulled into the lake and end up a few cells away in cells only available during this part of the quest.
+		- Go back to shore, otter is missing. Get attacked by a cultist there instead.
+		- There needs to be large earth tracks leading west towards the dungeon.
+		- Go to the dungeon, it's now unlocked.
+		- Kill the beast, and you collect a trophy.
+		- Bring the trophy to the port tavern to finish the quest and get a nice chunk of money and alcohol.
+
+		
+
 	- West forest
 		- Hidden path down to the beach
 		- Otter and Broper quest

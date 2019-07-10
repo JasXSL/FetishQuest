@@ -36,6 +36,7 @@ export default {
 	plElectric : "pl_electric",
 	plClaws : 'pl_claws',
 	plTongue : 'pl_tongue',
+	plEel : 'pl_eel',			
 
 	// Used for gameplay
 	plBoss : 'pl_boss',				// used on boss battles

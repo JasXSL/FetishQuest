@@ -1407,11 +1407,11 @@ const lib = {
 		ap : 3,
 		mp : 5,
 		cast_time : 1,
-		cooldown : 3,
+		cooldown : 4,
 		detrimental : false,
 		show_conditions : ["inCombat", "isCoop"],
 		target_type : Action.TargetTypes.self,
-		tags : [stdTag.acNpcImportant],
+		tags : [],
 		wrappers : [
 			{
 				label : 'newGroperope',
@@ -1436,7 +1436,7 @@ const lib = {
 		ap : 3,
 		mp : 5,
 		cast_time : 1,
-		cooldown : 6,
+		cooldown : 7,
 		detrimental : false,
 		show_conditions : ["inCombat", "isSolo"],
 		target_type : Action.TargetTypes.self,

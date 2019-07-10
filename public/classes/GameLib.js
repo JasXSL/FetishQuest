@@ -136,6 +136,7 @@ export default class GameLib{
 	// Loads mods into the library
 	loadMods( mods = [] ){
 
+		this.loading = true;
 		// prevent auto rebasing while loading
 		Generic.auto_rebase = false;
 		console.log("Loading in ", mods.length, "mods");
@@ -176,7 +177,9 @@ export default class GameLib{
 
 		console.log("Rebased", n, "objects");
 		this._allow_clone = true;
+		this.loading = false;
 		console.debug("MODS FINISHED LOADING. LIBRARY:", this);
+		
 
 	}
 

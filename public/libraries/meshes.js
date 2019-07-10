@@ -1793,6 +1793,21 @@ LibMesh.library = {
 					tags : [stdTag.mWater],
 					top:-4, left:-4,
 				}),
+				Ocean_Room : new LibMesh({
+					isRoom : true,
+					url : 'land/yuug/yuug_water.JD',
+					materials : [
+						libMat.Water.Ocean
+					],
+					width: 10,
+					height:10,
+					tags : [stdTag.mWater],
+					top:-4, left:-4,
+					onStagePlaced(_,mesh){
+						mesh.rotation.x = -Math.PI/2;
+					}
+				}),
+
 				Capital : new LibMesh({
 					url : 'land/yuug/yuug_city.JD',
 					materials : [
@@ -2223,7 +2238,7 @@ LibMesh.library = {
 			}),
 			Rowboat : new LibMesh({
 				url : 'doodads/rowboat.JD',
-				materials : [libMat.Wood.Crate],
+				materials : [libMat.Wood.Crate,libMat.Metal.Rust],
 				tags : [stdTag.mOar],
 			}),
 		},

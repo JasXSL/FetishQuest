@@ -251,6 +251,117 @@ const lib = {
 
 		]
 	},
+
+	lamprey : {
+		name : "Lamprey",
+		icon : "",
+		species : "lamprey",
+		description : "A slimy eel-like creature with a sucker for a mouth. Doesn't have any teeth, and opts instead to feed on other fluids.",
+		classes : ["lamprey"],
+		max_actions : 2,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plElectric,
+			stdTag.plEel,
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : 2,
+			[Player.primaryStats.stamina] : -5,
+		},
+		sv : {
+			[Action.Types.elemental]:2,
+			[Action.Types.physical]:-2,
+		},
+		bon : {
+			[Action.Types.corruption]:2,
+			[Action.Types.elemental]:2,
+			[Action.Types.physical]:-2,
+		},
+		min_size : 1,
+		max_size : 1,
+		difficulty : 0.75,
+		sadistic_min : 0,
+		sadistic_max : 0.5,
+		dominant_min : 1,
+		dominant_max : 1,
+		intelligence_min : 0.1,
+		intelligence_max : 0.2
+	},
+	anemone : {
+		name : "Anemone",
+		icon : "",
+		species : "anemone",
+		description : "A mass of wiggly tentacles growing out of hardened vents growing from the bottom of a body of water. Most tips are coated with small wiggly tendrils, but some have suction cups on them.",
+		classes : ["anemone"],
+		max_actions : 4,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plTentacles,
+			stdTag.plImmobile,
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : 2,
+			[Player.primaryStats.stamina] : 2,
+		},
+		sv : {
+			[Action.Types.elemental]:2,
+			[Action.Types.physical]:1,
+			[Action.Types.corruption]:1,
+		},
+		bon : {
+			[Action.Types.corruption]:2,
+			[Action.Types.physical]:1,
+		},
+		min_size : 4,
+		max_size : 5,
+		difficulty : 1,
+		sadistic_min : 0,
+		sadistic_max : 1,
+		dominant_min : 1,
+		dominant_max : 1,
+		intelligence_min : 0.1,
+		intelligence_max : 0.2
+	},
+	sharktopus : {
+		name : "Sharktopus",
+		icon : "",
+		species : "shark...thing",
+		description : "An unholy abomination which looks like a mix between an octopus and a shark. It stands tall and imposing.",
+		classes : ["sharktopus"],
+		max_actions : 3,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plTentacles
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : 2,
+			[Player.primaryStats.intellect] : -2,
+			[Player.primaryStats.stamina] : 5,
+		},
+		sv : {
+			[Action.Types.elemental]:2,
+			[Action.Types.physical]:2,
+			[Action.Types.corruption]:2,
+			[Action.Types.holy]:-2,
+		},
+		bon : {
+		},
+		min_size : 7,
+		max_size : 7,
+		difficulty : 1,
+		sadistic_min : 0.5,
+		sadistic_max : 0.6,
+		dominant_min : 1,
+		dominant_max : 1,
+		intelligence_min : 0.3,
+		intelligence_max : 0.4
+	},
 	
 	imp : {
 		name : "Imp",

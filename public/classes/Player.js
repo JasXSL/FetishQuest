@@ -729,7 +729,7 @@ export default class Player extends Generic{
 		}
 
 		this._turn_ap_spent = 0;
-		let ap = 3+Math.floor((this.getMaxAP()-10)/10);
+		let ap = (3+Math.floor((this.getMaxAP()-10)/10))*this.getPoweredMultiplier();
 		// Add a chance to gain an extra AP based on 10% per point of AP above 10
 		let agility = this.getMaxAP()%10*10;
 		if(Math.random()<=(agility%100)/100)
@@ -737,7 +737,7 @@ export default class Player extends Generic{
 		this.addAP(ap);
 		
 		// Do the same for MP
-		let mp = 1+Math.floor((this.getMaxMP()-10)/10);
+		let mp = (1+Math.floor((this.getMaxMP()-10)/10))*this.getPoweredMultiplier();
 		let intelligence = this.getMaxMP()%10*10;
 		if(Math.random()<=(intelligence%100)/100)
 			++mp;
@@ -1546,11 +1546,11 @@ export default class Player extends Generic{
 		return (BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina))*this.getPoweredMultiplier();
 	}
 	getMaxAP(){
-		return (BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))*this.getPoweredMultiplier();
+		return (BASE_AP+this.statPointsToNumber(Player.primaryStats.agility));
 
 	}
 	getMaxMP(){
-		return (BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect))*this.getPoweredMultiplier();
+		return (BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect));
 	}
 	getMaxArousal(){
 		return BASE_AROUSAL;
