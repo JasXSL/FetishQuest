@@ -34,12 +34,18 @@ const SYNONYMS = [
 	['cum', 'spunk', 'jizz'],
 	['couple of', 'few', 'handful of'],
 	['pounding', 'thrusting', 'humping'],
-	['firmly', 'hard', 'rigidly', 'thoroughly'],
+	['firmly', 'rigidly', 'thoroughly'],
 	['breast', 'boob', 'tit', 'breast', 'teat'],
 	['penis', 'dong', 'cock', 'member'],
 	['vagina', 'pussy', 'cunt'],
 	['butt', 'rear', 'behind'],
 	['groin', 'crotch'],
+	['around', 'about'],
+	['start', 'begin'],
+	['into', 'inside'],
+	['rapidly','hastily','promptly','swiftly'],
+	['slither','slip','slink','wiggle'],
+	['rough','hard'],
 ];
 
 class Text extends Generic{
@@ -49,7 +55,7 @@ class Text extends Generic{
 
 		this.text = '';
 		this.conditions = [];
-		this.numTargets = 1;			// How many targets this text is meant for. Not a condition because we need to sort on it
+		this.numTargets = 1;			// How many targets this text is meant for. Not a condition because we need to sort on it. Use -1 for ANY
 		this.debug = false;
 		this.alwaysOutput = false;		// Ignores the text backlogging and outputs this text immediately
 		this.turnTags = [];				// Sets tags that persist until the next text is received or the current turn ends
@@ -76,7 +82,7 @@ class Text extends Generic{
 		if( typeof data.audiokits === "string" )
 			data.audiokits = [data.audiokits];
 		this.g_autoload(data);
-		if( this.numTargets < 1 )
+		if( this.numTargets < 1 && this.numTargets !== -1 )
 			this.numTargets = 1;
 
 	}
@@ -248,8 +254,12 @@ class Text extends Generic{
 		if( !Array.isArray(targs) )
 			targs = [targs];
 		for( let fx of this.hitfx ){
-			for( let targ of targs )
+			for( let targ of targs ){
 				game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true);
+				console.log("Playing", fx, "on", targ);
+				if( fx.once )
+					break;
+			}
 		}
 
 		let targ = event.target;
@@ -369,7 +379,7 @@ Text.getFromEvent = function( event ){
 	if( !available.length )
 		return false ;
 		
-	available = available.filter(el => el.numTargets === maxnr);
+	available = available.filter(el => el.numTargets === maxnr || el.numTargets === -1);
 
 	if( chat ){
 		const required = [];
@@ -421,7 +431,10 @@ Text.runFromLibrary = function( event ){
 			t.shift();
 		}else{
 			text.run(event);
-			t.splice(0,text.numTargets);
+			let nt = text.numTargets;
+			if( nt === -1 )
+				nt = t.length;
+			t.splice(0,nt);
 			// Only allows one text per action
 			if( text.chat )
 				break;

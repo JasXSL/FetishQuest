@@ -348,6 +348,37 @@ particles.hitfx_zap = {
 	rotation : new Proton.Span(0,Math.PI)
 };
 
+particles.hitfx_sparks_zap_large = {
+	
+	texture : textures.glowSphere,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,5),
+	size : 4,
+	size_tween : [1,0.001],
+	part_max_age : 0.5,
+	velocity : new Proton.Span(100,150),
+	color : ["#AADDFF","#FFFFFF"],	
+	opacity: 1,
+	gravity:2,
+};
+particles.hitfx_zap_large = {
+	texture : textures.electricSpark,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 10,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : 20,
+	size_tween : [0.001,1],
+	part_max_age : 0.3,
+	velocity : new Proton.Span(40,80),
+	color : ["#33AAFF","#FFFFFF"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI)
+};
+
 particles.hitfx_claws = {
 	texture : textures.clawMarks,
 	blending : THREE.NormalBlending,

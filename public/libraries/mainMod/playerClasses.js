@@ -278,10 +278,9 @@ const lib = {
         primaryStat : Player.primaryStats.agility,
         isMonsterClass : true,
         actions : [
-            // todo
-            "slither",      // slither into a target's clothes, doing corruption damage
+            "lamprey_slither",      // slither into a target's clothes, doing corruption damage
             "leech",        // Sucks on your target's exposed genitals, doing corruption damage and stealing HP
-            "shock",        // Does elemental damage and interrupts 
+            "lamprey_shock",        // Does elemental damage and interrupts 
         ]
     },
 
@@ -289,8 +288,8 @@ const lib = {
         name : "Tickler",
         primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
+        powered: true,
         actions : [
-            // todo
             "anemone_grab",         // Grapple a player
             "anemone_tickle",       // Tickle a player for corruption damage and +1 arousal
             "anemone_restrain",     // Restrain a grabbed player, stunning them for 1 turn and lowering their svPhys/svCorruption

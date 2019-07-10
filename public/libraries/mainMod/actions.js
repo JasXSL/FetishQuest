@@ -2121,6 +2121,183 @@ const lib = {
 	},
 
 
+	// Lamprey
+	lamprey_slither : {
+		name : "Slither",
+		icon : 'suckered-tentacle',
+		description : "Slithers into your target's clothes, doing 5 corruption damage.",
+		ap : 2,
+		cooldown : 2,
+		mp : 0,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				add_conditions : stdCond.concat(["targetHasClothedErogenousZone"]),
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : true,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {
+							amount : 5
+						}
+					},
+				]
+			}
+		]
+	},
+	leech : {
+		name : "Leech",
+		icon : 'leeching-worm',
+		description : "Deals 4 corruption damage to an exposed target and heals you for the same amount.",
+		ap : 2,
+		mp : 3,
+		cooldown : 3,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [ stdTag.acDamage, stdTag.acSelfHeal],
+		show_conditions : stdCond.concat(["inCombat"]),
+		wrappers : [
+			{
+				add_conditions : stdCond.concat(["targetNotBeast", "targetGroinOrBreastsExposed"]),
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {
+							"amount" : 4,
+							"leech" : 1
+						}
+					},
+				]
+			}
+		]
+	},
+	lamprey_shock : {
+		name : "Bioelectrogenesis",
+		icon : 'chain-lightning',
+		description : "Shocks all enemy players, dealing 4 elemental damage and interrupting.",
+		ap : 3,
+		cooldown : 4,
+		mp : 4,
+		detrimental : true,
+		type : Action.Types.elemental,
+		tags : [stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		target_type : Action.TargetTypes.aoe,
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AOE,
+				add_conditions : stdCond.concat("targetOtherTeam"),
+				duration : 0,
+				detrimental : true,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount : 4}
+					},
+					{type:Effect.Types.interrupt}
+				]
+			}
+		]
+	},
+
+
+
+	// Anemone
+	anemone_grab : {
+		name : "Grab",
+		icon : 'daemon-pull',
+		description : "Grab a hold of a player with your tendrils, grappling them for 3 turns.",
+		ap : 4,
+		cooldown : 6,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 3,
+				detrimental : true,
+				name : "Grabbed",
+				icon : "daemon-pull",
+				description : "Caught in an anemone's tendrils!",
+				trigger_immediate : true,
+				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappled"),
+				tags : [stdTag.wrTentacleRide],
+				effects : [
+					{type : Effect.Types.grapple},
+				]
+			}
+		]
+	},
+	anemone_restrain : {
+		name : "Restrain",
+		icon : 'quicksand',
+		description : "Spreads your grappled target's limbs, stunning them for 2 turns and reducing their phys and corruption resistance by 2.",
+		ap : 2,
+		cooldown : 6,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				duration : 2,
+				detrimental : true,
+				name : "Restrained",
+				icon : "quicksand",
+				description : "Caught in an anemone's tendrils, stunned. -2 Physical and corruption resist!",
+				trigger_immediate : true,
+				add_conditions : stdCond.concat("targetGrappledByMe"),
+				tags : [stdTag.wrTentacleRestrained],
+				effects : [
+					{type : Effect.Types.stun},
+					{type : Effect.Types.svCorruption, data:{amount:-2}},
+					{type : Effect.Types.svPhysical, data:{amount:-2}},
+				]
+			}
+		]
+	},
+	anemone_tickle : {
+		name : "Tickle",
+		icon : 'floating-tentacles',
+		description : "Tickles your grappled target, doing 3 corruption damage and adding 1 arousal.",
+		ap : 2,
+		cooldown : 1,
+		mp : 0,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				add_conditions : stdCond.concat(["targetGrappledByMe"]),
+				detrimental : true,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount : 3}
+					},
+					{
+						type: Effect.Types.addArousal,
+						data : {amount : 1}
+					}
+				]
+			}
+		]
+	},
+
+
+	// sharktopus
+	// shark-bite
+
+
+
 	// mq boss
 	tentacle_pit : {
 		name : "Tentacle Pit",

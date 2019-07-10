@@ -372,6 +372,17 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'elementalHitSparksNoSound';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks_zap',
+		emit_duration : 200,
+		dest_rand : 0.5,
+		css_fx : 'fxTakeDamageElemental',
+		tween : false,
+	}, out[id]),
+);
 
 id = 'tentacleZap';
 out[id] = new HitFX({label : id});
@@ -387,8 +398,31 @@ out[id].stages.push(
 		emit_duration : 200,
 		dest_rand : 0.5,
 		tween : false,
-		sound_kits : ['tentacleZap'],
 		css_fx : 'fxTakeDamageElemental',
+		sound_kits : ['tentacleZap'],
+	}, out[id]),
+);
+
+
+id = 'lampreyShock';
+out[id] = new HitFX({label : id, once:true,});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks_zap_large',
+		emit_duration : 400,
+		dest_rand : 0,
+		tween : false,
+		origin : 'sender',
+		destination : 'sender',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_zap_large',
+		emit_duration : 400,
+		dest_rand : 0,
+		tween : false,
+		sound_kits : ['tentacleZap'],
+		origin : 'sender',
+		destination : 'sender',
 	}, out[id]),
 );
 
@@ -1088,6 +1122,23 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'tentacleTickle';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		sound_kits : ['tickleGeneric'],
+		css_fx : 'fxTakeDamageCorruption',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks_discreter',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+		sound_kits : ['squishTiny'],
+	}, out[id]),
+);
+
+
 id = 'tickle';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
@@ -1096,7 +1147,6 @@ out[id].stages.push(
 		css_fx : 'fxTakeDamageCorruption',
 	}, out[id]),
 );
-
 
 id = 'ice_blast';
 out[id] = new HitFX({label : id});

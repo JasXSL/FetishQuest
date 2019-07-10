@@ -11,6 +11,7 @@ export default class HitFX extends Generic{
 		
 		this.label = '';
 		this.stages = [];
+		this.once = false;			// Used when triggering from a text to only play this effect on the first target
 
 		this._t_rand_offset = null;	// THREE.Vector2 Cache for randomizing
 		this._s_rand_offset = null;	// THREE.Vector2 Cache for randomizing
@@ -27,7 +28,8 @@ export default class HitFX extends Generic{
 	save( full ){
 		let out = {
 			label : this.label,
-			stages : Stage.saveThese(this.stages)
+			stages : Stage.saveThese(this.stages),
+			once : this.once
 		};
 		return out;
 	}
@@ -121,6 +123,11 @@ class Stage extends Generic{
 		const webgl = game.renderer;
 
 		const is_el = !(attacker instanceof Player);
+
+		const a = this.origin === 'sender' || this.origin === 'attacker' ? attacker : victim, 
+			v = this.destination === 'sender' || this.destination === 'attacker' ? attacker : victim
+		;
+		
 				
 		if( this.particles ){
 
@@ -146,6 +153,7 @@ class Stage extends Generic{
 				vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
 				
 			}
+				
 
 			const attackerEl = this.origin === 'sender' || this.origin === 'attacker' ? aEl : vEl;
 			const victimEl = this.destination === 'sender' || this.destination === 'attacker' ? aEl : vEl;
@@ -239,7 +247,7 @@ class Stage extends Generic{
 		let attached_instances = [];
 		if( !mute ){
 			for( let kit of this.sound_kits ){
-				game.playFxAudioKitById(kit, attacker, victim, armor_slot ).then(data => {
+				game.playFxAudioKitById(kit, a, v, armor_slot ).then(data => {
 					const kit = data.kit;
 					const instances = data.instances;
 					if( kit.follow_parts )
@@ -256,6 +264,9 @@ class Stage extends Generic{
 			easing = easing[spl.shift()];
 
 		const start = new THREE.Vector3(this._start_pos.x, this._start_pos.y, this._start_pos.z);
+
+
+		console.log("Starting tween", start);
 		new TWEEN.Tween(start).to(this._end_pos, this.emit_duration).easing(easing)
 			.onUpdate(() => {
 
@@ -267,18 +278,19 @@ class Stage extends Generic{
 					particles.p.y = start.y;
 					particles.p.z = start.z;
 
-					// Audio
-					for( let instance of attached_instances ){
-
-						instance.setPosition(
-							(particles.p.x+start.x)*0.02,
-							(particles.p.y+start.y)*0.02,
-							-0.5,
-						);
-
-					}
-					
 				}
+
+				// Audio
+				for( let instance of attached_instances ){
+
+					instance.setPosition(
+						(particles.p.x+start.x)*0.02,
+						(particles.p.y+start.y)*0.02,
+						-0.5,
+					);
+
+				}
+
 			})
 			.start();
 		

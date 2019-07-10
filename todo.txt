@@ -66,6 +66,16 @@ Next:
 
 
 
+Abilities:
+	lv1 1 base
+	lv2 2 base
+	lv3 3 base
+	lv4 & even to 14 = new passive slot for a total of 6
+	lv5 & odd to 15 = new spell slot for a total of 8
+
+
+
+
 - Needed music
 	- Tavern
 	- Town

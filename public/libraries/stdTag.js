@@ -247,6 +247,7 @@ export default {
 	metaSlotBreast : 'me_slot_breast',
 	metaSlotNipple : 'me_slot_nipple',
 	metaSlotClit : 'me_slot_clit',
+	metaSlotBalls : 'me_slot_balls',
 	metaUsedTongue : 'me_used_tongue',
 	metaUsedStrapon : 'me_used_strapon',
 	metaUsedClaw : 'me_used_claw',
@@ -261,6 +262,8 @@ export default {
 	metaKick : 'me_kick',
 	metaCold : 'me_cold',
 	metaWet : 'me_wet',
+	metaWiggle : 'me_wiggle',
+	metaSuck : 'me_suck',
 	//meta : 'me_',
 
 };

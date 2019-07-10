@@ -71,6 +71,12 @@ const lib = {
 	action_groper_groin_grope : {type:Condition.Types.actionLabel, data:{label:'groper_groin_grope'}, targnr:0},
 	action_groper_sap_squeeze : {type:Condition.Types.actionLabel, data:{label:'groper_sap_squeeze'}, targnr:0},
 	action_groper_sap_inject : {type:Condition.Types.actionLabel, data:{label:'groper_sap_inject'}, targnr:0},
+	action_lamprey_slither : {type:Condition.Types.actionLabel, data:{label:'lamprey_slither'}, targnr:0},
+	action_leech : {type:Condition.Types.actionLabel, data:{label:'leech'}, targnr:0},
+	action_lamprey_shock : {type:Condition.Types.actionLabel, data:{label:'lamprey_shock'}, targnr:0},
+	action_anemone_grab : {type:Condition.Types.actionLabel, data:{label:'anemone_grab'}, targnr:0},
+	action_anemone_restrain : {type:Condition.Types.actionLabel, data:{label:'anemone_restrain'}, targnr:0},
+	action_anemone_tickle : {type:Condition.Types.actionLabel, data:{label:'anemone_tickle'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
@@ -103,6 +109,8 @@ const lib = {
 	targetIsYuugPortVillager : {type:Condition.Types.playerLabel, data:{label:['yuug_port_peasant']}},
 	senderIsImpicus : {type:Condition.Types.playerLabel, data:{label:['Impicus']}, caster:true},
 	senderIsIxsplat : {type:Condition.Types.playerLabel, data:{label:['Ixsplat']}, caster:true},
+	senderIsLamprey : {type:Condition.Types.species, data:{species:['lamprey']}, caster:true},
+	senderIsAnemone : {type:Condition.Types.species, data:{species:['anemone']}, caster:true},
 
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}},
@@ -176,10 +184,31 @@ const lib = {
 		{type:"tag", data:{tags:[stdTag.asLowerBody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttGroinExposed]}}
 	]},
-	targetBreastsExposed : {conditions:[
+	targetPenisExposed : {conditions:[
+		{conditions:[
+			{type:Condition.Types.tag, data:{tags:[stdTag.asLowerBody]}, inverse:true},
+			{type:Condition.Types.tag, data:{tags:[stdTag.ttGroinExposed]}}
+		], min:1},
+		{type:Condition.Types.tag,data:{tags:[stdTag.penis]}}
+	]},
+	targetVaginaExposed : {conditions:[
+		{conditions:[
+			{type:Condition.Types.tag, data:{tags:[stdTag.asLowerBody]}, inverse:true},
+			{type:Condition.Types.tag, data:{tags:[stdTag.ttGroinExposed]}}
+		], min:1},
+		{type:Condition.Types.tag,data:{tags:[stdTag.vagina]}}
+	]},
+	targetUpperBodyExposed : {conditions:[
 		{type:"tag", data:{tags:[stdTag.asUpperBody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttBreastsExposed]}}
 	]},
+	targetBreastsExposed : {conditions:[
+		{conditions:[
+			{type:"tag", data:{tags:[stdTag.asUpperBody]}, inverse:true},
+			{type:"tag", data:{tags:[stdTag.ttBreastsExposed]}}
+		], min:1},
+		{type:Condition.Types.tag,data:{tags:[stdTag.breasts]}}
+	], min:-1},
 	senderGroinExposed : {conditions:[
 		{type:"tag", data:{tags:[stdTag.asLowerBody]}, inverse:true, caster:true},
 		{type:"tag", data:{tags:[stdTag.ttGroinExposed]}, caster:true}
@@ -188,18 +217,22 @@ const lib = {
 
 	senderDishonorable : {type:Condition.Types.tag,data:{"tags":[stdTag.plDishonorable]},"caster":true},
 
+	// Damaged by this action
 	targetArmorDamaged : {type:Condition.Types.slotDamaged},
+	targetArmorNotDamaged : {type:Condition.Types.slotDamaged, inverse:true},
 	targetUpperBodyDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperBody}},
 	targetLowerBodyDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerBody}},
 	targetLowerBodyNotDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerBody}, inverse:true},
 	targetUpperBodyNotDamaged : {type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperBody}, inverse:true},
-	
-
 	targetArmorStripped : {type:Condition.Types.slotStripped},
+	targetArmorNotStripped : {type:Condition.Types.slotStripped, inverse:true},
 	targetUpperBodyStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.upperBody}},
 	targetUpperBodyNotStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.upperBody}, inverse:true},
 	targetLowerBodyStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.lowerBody}},
 	targetLowerBodyNotStripped : {type:Condition.Types.slotStripped, data:{slot:Asset.Slots.lowerBody}, inverse:true},
+	targetArmorNotDamagedOrStripped : {conditions:[
+		"targetArmorNotDamaged", "targetArmorNotStripped"
+	], min:-1},
 
 	targetHasRepairable : {"type":"hasRepairable"},
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
@@ -224,6 +257,7 @@ const lib = {
 	targetKnockedDownBack : {"type":"tag","data":{"tags":["wr_knocked_down_back"]}},
 	targetKnockedDownFront : {"type":"tag","data":{"tags":["wr_knocked_down_front"]}},
 	targetNotGrappled : {type:"tag", data:{tags:[stdTag.wrGrapple]}, inverse:true},
+	targetGrappledByMe : {type:Condition.Types.tag, data:{tags:[stdTag.wrGrapple], sender:true}},
 	senderHasWhip : {"type":"tag","data":{"tags":["as_whip"]},"caster":true},
 	senderHasStrapon : {type:Condition.Types.tag,data:{tags:[stdTag.asStrapon]},caster:true},
 	targetSoaked : {"type":"tag","data":{"tags":["wr_soaked"]}},
@@ -241,6 +275,7 @@ const lib = {
 	targetHorns : {"type":"tag","data":{"tags":["pl_horns"]}},
 	targetHorn : {"type":"tag","data":{"tags":[stdTag.plHorn]}},
 	targetEars : {"type":"tag","data":{"tags":[stdTag.plEars]}},
+	targetLongHair : {type:Condition.Types.tag,data:{"tags":[stdTag.plLongHair]}},
 	
 	targetVagina : {"type":"tag","data":{"tags":["pl_vagina"]}},
 	targetPenis : {"type":"tag","data":{"tags":["pl_penis"]}},
@@ -360,6 +395,28 @@ const lib = {
 	metaUsedTentacle : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaUsedTentacles]}},
 
 };
+
+// Checks if target has lowerbody clothes and/or upperbody clothes with breasts
+lib.targetHasClothedErogenousZone = {conditions:[
+	lib.targetWearsLowerBody,
+	{conditions:[
+		lib.targetWearsUpperBody,
+		lib.targetBreasts
+	], min:-1}
+], min:1};
+lib.targetHasExposedErogenousZone = {conditions:[
+	lib.targetGroinExposed,
+	lib.targetButtExposed,
+	lib.targetBreastsExposed
+], min:1};
+lib.targetHasExposedMilkableZone = {conditions:[
+	lib.targetPenisExposed,
+	lib.targetBreastsExposed
+], min:1};
+lib.targetGroinOrBreastsExposed = {conditions:[
+	lib.targetGroinExposed,
+	lib.targetBreastsExposed
+], min:1};
 
 // Checks if orifices are not occupied (blocked) and exposed
 lib.targetButtExposedAndUnblocked = {conditions:[

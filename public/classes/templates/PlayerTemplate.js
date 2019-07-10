@@ -98,6 +98,9 @@ class PlayerTemplate extends Generic{
 			libActions = glib.getFull('Action')
 		;
 
+		if( isNaN(level) )
+			level = game.getAveragePlayerLevel();
+
 		// Generates a random value between min and max and between 0 and 1 
 		function rand1( min, max ){
 			return Math.min(Math.max(0, Math.random()*(max-min)+min), 1);
@@ -112,8 +115,8 @@ class PlayerTemplate extends Generic{
 		player.tags = this.tags.map(el => {
 			return el.split('_').slice(1).join('_')
 		});
-		if( !isNaN(level) )
-			player.level = Math.min(Math.max(level, this.min_level), this.max_level);
+		player.level = Math.min(Math.max(level, this.min_level), this.max_level);
+
 
 		player.sadistic = rand1(this.sadistic_min, this.sadistic_max);
 		player.dominant = rand1(this.dominant_min, this.dominant_max);
@@ -266,15 +269,18 @@ class PlayerTemplate extends Generic{
 		
 		// Primary stats
 		for( let i in this.primary_stats ){
-			player[i] = this.primary_stats[i];
+			console.log("Setting", i, "to", this.primary_stats[i]);
+			player[i] = this.primary_stats[i] || 0;
 		}
-		for( let i in this.sv )
-			player['sv'+i] = this.sv[i];
-		for( let i in this.bon )
-			player['bon'+i] = this.bon[i];
 
-		// Lower level monsters have a primary stat penalty up to level 5
-		let penalty = Math.min(level-5, 0);
+		const penalty = Math.min(level-4, 0);
+
+		for( let i in this.sv )
+			player['sv'+i] = this.sv[i]+penalty;
+		for( let i in this.bon )
+			player['bon'+i] = this.bon[i]+penalty;
+
+		// Lower level monsters have a primary stat penalty up to level 3
 		for( let i in Player.primaryStats )
 			player[i] += penalty;
 

@@ -16,6 +16,7 @@ import { Wrapper } from './EffectSys.js';
 import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
 import Shop, { ShopSaveState } from './Shop.js';
+import PlayerTemplate from './templates/PlayerTemplate.js';
 
 export default class Game extends Generic{
 
@@ -965,6 +966,17 @@ export default class Game extends Generic{
 		this.ui.draw();
 		return p;
 
+	}
+
+	// Adds a player form player template
+	addPlayerFromTemplate( template ){
+		if( typeof template === "string" )
+			template = glib.get(template, 'PlayerTemplate');
+		if( !(template instanceof PlayerTemplate) )
+			return;
+		const player = template.generate();
+		if( player )
+			return this.addPlayer(player);
 	}
 
 	// Remove a player by id
