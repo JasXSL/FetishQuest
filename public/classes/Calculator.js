@@ -21,10 +21,8 @@ Calculator.run = function( formula, event, customMathVars ){
 	}
 
 	// Vars from game
-	let vars = {
-		'g_rain' : game.getRain(),			// Current rain (float)
-		'g_sod' : game.time%(3600*24),		// Seconds of day (int)
-	};
+	let vars = game.getMathVars();
+
 	if( customMathVars && customMathVars.constructor === Object ){
 		for( let i in customMathVars )
 			vars[i] = customMathVars[i];

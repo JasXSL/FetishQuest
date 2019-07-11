@@ -1674,7 +1674,7 @@ const lib = [
 		conditions : anyOnHumCond.concat("action_groper_sap_inject"),
 		metaTags : [stdTag.metaSlotMouth, stdTag.metaInjection, stdTag.metaGooey, stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaVeryArousing],		
 	},
-	{ text : "%S slips its thick tendril down the back of %T's %TclothLower, grinding the bumpy root of a tentacle between %This buttcheeks and across the %Trace's %vagina a %few times before finally probing inside and %This %vagina with a sticky sap!",
+	{ text : "%S slips its thick tendril down the back of %T's %TclothLower, grinding the bumpy root of a tentacle between %This buttcheeks and across the %Trace's %vagina a %few times before finally probing inside and %This %vagina and flooding it with a sticky sap!",
 		hitfx : ["slowThrustsTentacle"],
 		conditions : anyOnHumCond.concat("action_groper_sap_inject", "targetVagina", "targetWearsLowerBody"),
 		metaTags : [stdTag.metaSlotVagina, stdTag.metaInjection, stdTag.metaGooey, stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaVeryArousing],		
@@ -2616,7 +2616,7 @@ const lib = [
 
 	// action_anemone_restrain
 	{ text : "%S restrains %T's wrists, ankles and hips and pushes %Thim away slightly before spreading the %Trace's limbs!",
-		conditions : anyOnHumCond.concat("action_anemone_grab"),
+		conditions : anyOnHumCond.concat("action_anemone_restrain"),
 		hitfx : ["tentacleSqueeze"],
 		metaTags : [stdTag.metaWet, stdTag.metaSqueeze],
 	},

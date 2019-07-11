@@ -747,19 +747,19 @@ export default class UI{
 		if( !p.isBeast() ){
 			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperBody);
 			const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerBody);
-			const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : 0;
-			const lbDmg = lbAsset.length ? lbAsset[0].getDmgTakenAdd() : 0;
+			const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : Asset.protVal;
+			const lbDmg = lbAsset.length ? lbAsset[0].getDmgTakenAdd() : Asset.protVal;
 
 			rb_entries.push(
 				'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="UpperBody armor durability.'+
-					'\n'+((1-ubDmg)*100)+'% Damage reduction'+
+					'\n'+((Asset.protVal-ubDmg)*100)+'% Damage reduction'+
 				'">'+
 					Math.ceil(ubDur*100)+'%'+
 				'</span>'
 			);
 			rb_entries.push(
 				'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="LowerBody armor durability.'+
-					'\n'+((1-lbDmg)*100)+'% Damage reduction'+
+					'\n'+((Asset.protVal-lbDmg)*100)+'% Damage reduction'+
 				'">'+
 				Math.ceil(lbDur*100)+'%</span>'
 			);

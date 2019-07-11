@@ -266,7 +266,6 @@ class Stage extends Generic{
 		const start = new THREE.Vector3(this._start_pos.x, this._start_pos.y, this._start_pos.z);
 
 
-		console.log("Starting tween", start);
 		new TWEEN.Tween(start).to(this._end_pos, this.emit_duration).easing(easing)
 			.onUpdate(() => {
 

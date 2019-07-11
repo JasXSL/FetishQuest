@@ -298,7 +298,9 @@ export default class GameAction extends Generic{
 
 		}
 
-		else if( this.type === types.door && !isNaN(this.data.index) ){
+		else if( this.type === types.door ){
+			if( isNaN(this.data.index) )
+				this.data.index = 0;
 
 			if( !game.canTransport() )
 				return;

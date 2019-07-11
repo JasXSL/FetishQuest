@@ -18,18 +18,19 @@ Medium rare:
 		- Sell
 		- Repair
 
-	- New monster: Lamprey. Toothless lamprey which can generate electricity
-		- Slippery - Slip into a player's armor, doing corruption damage over time
-		- Leech - Sucks onto your target, doing corruption damage
-		- Eel Shock - Shocks a player for elemental damage
-	- New monster: Anemone
-		- Grab - Grapples a player
-		- Leech - Same as above
-		- Restrain - Stuns a grappled player, needs to fade if player is freed
 	- New monster: Sharktopus
-		- 
-		- 
-		- 
+		- 4 Gongs are in the arena, these are invisible other than when the sharktopus has dived
+			- Gongs need to have a low resistance to everything
+			- Gong needs to not take damage
+			- When gong is hit by an ability, it gets a self buff for 2 turns
+			- When all 4 have that buff, they hide and the shark appears
+		- Shark is pacified until all 4 gongs are hit by a spell or ability
+		- It submerges every 8-nr_players turns until all gongs are hit again.
+		- When shark is active, gongs hide and get the hit buff removed
+		- When shark is submerged, it can only use one of two attack abilities and will use that until it emerges
+		- When shark emerges, cooldown of submerge is activated so it doesn't reset by player being slow
+		- You can find stones on the island weighing in at 500g and can be used multiple times in a turn for only 2 AP and do 1 damage with a 50% hit chance
+		- Shark can have some generic tentacle abilities
 
 
 Big chungi:

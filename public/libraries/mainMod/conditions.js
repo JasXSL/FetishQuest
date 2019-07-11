@@ -190,14 +190,14 @@ const lib = {
 			{type:Condition.Types.tag, data:{tags:[stdTag.ttGroinExposed]}}
 		], min:1},
 		{type:Condition.Types.tag,data:{tags:[stdTag.penis]}}
-	]},
+	], min:-1},
 	targetVaginaExposed : {conditions:[
 		{conditions:[
 			{type:Condition.Types.tag, data:{tags:[stdTag.asLowerBody]}, inverse:true},
 			{type:Condition.Types.tag, data:{tags:[stdTag.ttGroinExposed]}}
 		], min:1},
 		{type:Condition.Types.tag,data:{tags:[stdTag.vagina]}}
-	]},
+	], min:-1},
 	targetUpperBodyExposed : {conditions:[
 		{type:"tag", data:{tags:[stdTag.asUpperBody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttBreastsExposed]}}

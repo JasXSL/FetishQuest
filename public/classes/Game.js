@@ -590,6 +590,20 @@ export default class Game extends Generic{
 
 	}
 
+	// Returns math vars for the game
+	getMathVars(){
+		const out = {
+			'g_rain' : game.getRain(),			// Current rain (float)
+			'g_sod' : game.time%(3600*24),		// Seconds of day (int)
+			'g_time' : game.time,
+		};
+		const all = glib.getFull('Quest');
+		for( let q in all ){
+			out['q_'+q+'__time'] = this.completed_quests[q] && this.completed_quests[q].__time || 0;
+		}
+
+		return out;
+	}
 
 
 

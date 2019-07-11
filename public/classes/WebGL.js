@@ -405,7 +405,8 @@ class WebGL{
 	
 	/* Updates the weather renderer if needed */
 	updateWeather( force ){
-
+		if( this.loading )
+			return;
 		if( !window.game )
 			return;
 		const proton = this.proton;
@@ -446,7 +447,7 @@ class WebGL{
 				});
 				let emitter = new Proton.Emitter();
 				// Number of emission / how often to emit in s
-				emitter.rate = new Proton.Rate(new Proton.Span(Math.ceil(50*rain), Math.ceil(100*rain)), new Proton.Span(.01));
+				emitter.rate = new Proton.Rate(new Proton.Span(Math.ceil(10*rain), Math.ceil(20*rain)), new Proton.Span(.01));
 				let sprite = new THREE.Sprite(mat);
 				//addInitialize
 				emitter.addInitialize(new Proton.Mass(1));
@@ -462,32 +463,6 @@ class WebGL{
 				return emitter;
 			};
 
-			const buildFog = function(){
-				const mat = new THREE.SpriteMaterial({
-					map : loader.load('/media/textures/particles/glow_sphere.png'),
-					transparent : true,
-					color : 0xFFFFFF
-				});
-				let emitter = new Proton.Emitter();
-				// Number of emission / how often to emit in s
-				emitter.rate = new Proton.Rate(1, .1);
-				let sprite = new THREE.Sprite(mat);
-				emitter.addInitialize(new Proton.Mass(1));
-				emitter.addInitialize(new Proton.Body(sprite));
-				emitter.addInitialize(new Proton.Position(new Proton.BoxZone(0,0,0, 1000,300,1000)));
-				// Size of particle, x/y
-				emitter.p.y = 200;
-				emitter.addInitialize(new Proton.Radius(300, 300));
-				emitter.addInitialize(new Proton.Life(6));
-				emitter.addInitialize(new Proton.V(100, new Proton.Vector3D(1, 0, 1), 0));
-				//addBehaviour
-				emitter.addBehaviour(new Proton.Alpha(0, 0.1, undefined, Proton.ease.easeFullSine));
-				//emitter.addBehaviour(new Proton.Scale(.1, 1.3));
-				var colorBehaviour = new Proton.Color(new THREE.Color());
-				emitter.addBehaviour(colorBehaviour);
-				emitter.emit();
-				return emitter;
-			};
 			
 			const buildRainPools = function(){
 				
@@ -535,11 +510,6 @@ class WebGL{
 				proton.addEmitter(this.weather_rainDrops);
 				for( let emitter of this.weather_rainSplats)
 					proton.addEmitter(emitter);
-				// Fog only needed for heavy rain
-				if( rain > 0.75 ){
-					this.weather_fog = buildFog();
-					proton.addEmitter(this.weather_fog);
-				}
 			}
 			this.updateFog(rain);
 

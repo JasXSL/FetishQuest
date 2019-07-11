@@ -99,7 +99,7 @@ class Bot{
 		
 		const actions = this.player.getActions();
 		for( let action of actions ){
-			if( action.hasTag(stdTag.acNpcImportant) && action.castable() )
+			if( action.hasTag([stdTag.acNpcImportant, stdTag.acNpcImportantLast]) && action.castable() )
 				return true;
 		}
 
@@ -120,24 +120,38 @@ class Bot{
 				highest_cost = abil.ap;
 		}
 
-
+		const AP = this.player.ap;
 
 		// Adds some randomness to abilities
 		if(
 			this.hasCastableImportant() ||
-			(this.player.ap >= highest_cost && (Math.random() < this.player.ap/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
-			Math.random() < 0.2 || this.player.ap > this.player.getMaxAP()-3
+			(AP >= highest_cost && (Math.random() < AP/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
+			Math.random() < 0.2 || AP > this.player.getMaxAP()-3
 		){
 
 			shuffle(abils);
 			abils.sort((a,b) => {
 
+				const aLast = a.hasTag(stdTag.acNpcImportantLast) && AP <= Math.ceil(a.ap*1.2),
+					bLast = b.hasTag(stdTag.acNpcImportantLast) && AP <= Math.ceil(b.ap*1.2)
+				;
+
+
 				// NPC important are run first
-				let atag = a.hasTag(stdTag.acNpcImportant),
-					btag = b.hasTag(stdTag.acNpcImportant),
+				let atag = a.hasTag(stdTag.acNpcImportant) || aLast,
+					btag = b.hasTag(stdTag.acNpcImportant) || bLast,
 					aIsSTD = a.label === 'stdAttack' || a.label === 'stdArouse',
 					bIsSTD = b.label === 'stdAttack' || b.label === 'stdArouse'
 				;
+
+				// Deprioritize important_last
+				if( !aLast && a.hasTag(stdTag.acNpcImportantLast) )
+					return 1;
+				if( !bLast && b.hasTag(stdTag.acNpcImportantLast) )
+					return -1;
+				
+								
+				
 				if( atag && !btag )
 					return -1;
 				if( btag && !atag )

@@ -1038,6 +1038,9 @@ div.fxBuffBlue{
 		padding:1vmax;
 		pointer-events: all;
 	}
+	#multiCastPicker.hidden > input{
+		display:none;
+	}
 
 	#multiCastPicker.hidden{
 		display:block !important;

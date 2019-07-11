@@ -188,7 +188,7 @@ export default class Asset extends Generic{
 
 	getRepairCost( smithPlayer ){
 		const missingPoints = this.getMaxDurability()-this.durability;
-		let cost = missingPoints*10*Math.pow(1.5, this.rarity);
+		let cost = missingPoints*2*Math.pow(2, this.rarity);
 		return Math.ceil(cost);
 	}
 
@@ -377,7 +377,7 @@ export default class Asset extends Generic{
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
 		if( dmgTaken && isBreakable ){
 			if( this.durability )
-				html += '<em style="color:#FAA">Low level item, -'+Math.round(dmgTaken*100)+'% damage reduction</em><br />';
+				html += '<em style="color:#FAA">Low level item, '+Math.round((Asset.protVal-dmgTaken)*100)+'% damage reduction</em><br />';
 			else
 				html += '<em style="color:#FAA">Broken!</em><br />';
 		}
@@ -406,7 +406,7 @@ export default class Asset extends Generic{
 	
 }
 
-Asset.protVal = 0.25;	// Max damage taken increase for not having this item equipped (lower/upperBody only)
+Asset.protVal = 0.20;	// Max damage taken increase for not having this item equipped (lower/upperBody only)
 
 // Automatically creates a stat wrapper
 // Level is the level of the item, numSlots is how many item slots it covers

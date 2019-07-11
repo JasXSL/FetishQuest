@@ -177,12 +177,12 @@ class PlayerTemplate extends Generic{
 
 			for( let template of this.viable_asset_templates ){
 
-				let asset = Asset.generate(undefined, level-gearLevelOffset, template, this.viable_asset_materials, undefined, minRarity);
+				let asset = Asset.generate(undefined, level+gearLevelOffset, template, this.viable_asset_materials, undefined, minRarity);
+				
 				if( !asset )
 					continue;
 				if( player.getEquippedAssetsBySlots(asset.slots).length )
 					continue;
-
 				asset.restore();
 				asset.randomizeDurability();
 				player.addAsset(asset, undefined, undefined, true);
@@ -269,14 +269,13 @@ class PlayerTemplate extends Generic{
 		
 		// Primary stats
 		for( let i in this.primary_stats ){
-			console.log("Setting", i, "to", this.primary_stats[i]);
 			player[i] = this.primary_stats[i] || 0;
 		}
 
 		const penalty = Math.min(level-4, 0);
 
 		for( let i in this.sv )
-			player['sv'+i] = this.sv[i]+penalty;
+			player['sv'+i] = this.sv[i];
 		for( let i in this.bon )
 			player['bon'+i] = this.bon[i]+penalty;
 

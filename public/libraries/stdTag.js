@@ -53,6 +53,7 @@ export default {
 	acPainful : 'ac_painful',
 	acArousing : 'ac_arousing',
 	acNpcImportant : 'ac_npc_important',		// NPCs will prioritize these over other spells
+	acNpcImportantLast : 'ac_npc_important_last',		// NPCs will try to cast this at the end of their turn if possible
 	acInterrupt : 'ac_interrupt',
 	acItem : 'ac_item',							// Used an inventory item
 	acManaHeal : 'ac_mana_heal',				// Restores mana

@@ -35,7 +35,18 @@ const lib = {
 	beach : {
 		player_templates : [
 			"cocktopus",
-			"tentacrab"
+			"tentacrab",
+		],
+		wrappers : [],
+		startText : '',
+		conditions : [],
+		respawn : 260000
+	},
+	beach_full : {
+		player_templates : [
+			"cocktopus",
+			"tentacrab",
+			"anemone",
 		],
 		wrappers : [],
 		startText : '',
@@ -339,7 +350,7 @@ const lib = {
 						},
 						{
 							index: 2,
-							text: "Yes you have! Here is a little something for your trouble!",
+							text: "Yes you have! Here is a little something for your trouble! Come back in an hour or two and I let you use the boat!",
 							options: [{text:'Thanks', index:-1}]
 						},
 					],

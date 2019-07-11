@@ -256,7 +256,6 @@ class Text extends Generic{
 		for( let fx of this.hitfx ){
 			for( let targ of targs ){
 				game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true);
-				console.log("Playing", fx, "on", targ);
 				if( fx.once )
 					break;
 			}

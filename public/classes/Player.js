@@ -2216,7 +2216,8 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 	// Add 25% bonus damage per additional player
 	let add = 1;
 	if( attacker.team !== 0 ){
-		add = 1+(game.getTeamPlayers().length-1)*0.25;
+		const tp = game.getTeamPlayers().filter(pl => !pl.isNPC());
+		add = 1+(tp.length-1)*0.25;
 		// level 1 has -50%, level 2 has -25%
 		if( attacker.level < 3 )
 			add -= 0.25*(3-attacker.level);
