@@ -32,6 +32,18 @@ const lib = {
 	},
 
 
+
+	// Quests
+
+	// SQ_sharktopus
+	SQ_sharktopus_fishing_rod : {
+		type : GameAction.types.questObjective,
+		data : {
+			quest : 'SQ_sharktopus_00',
+			objective : 'fishingRodFound',
+		}
+	},
+
 	
 };
 function getArray(){

@@ -349,7 +349,7 @@ Text.getFromEvent = function( event ){
 
 	let testAgainst = [false];	// This is only used on chats
 	if( event.type === GameEvent.Types.textTrigger )
-		testAgainst = game.players;
+		testAgainst = game.getEnabledPlayers();
 
 	const chat = event.type === GameEvent.Types.textTrigger;
 

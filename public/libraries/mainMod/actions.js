@@ -2739,7 +2739,7 @@ const lib = {
 	gropeRope : {
 		icon : 'lasso',
 		name : "Groperope",
-		description : "Deals 3 physical damage against a humanoid.",
+		description : "Deals 3 physical damage against a humanoid, generates a large amount of threat.",
 		ap : 1,
 		cooldown : 4,
 		show_conditions : ["inCombat"],
@@ -2759,6 +2759,12 @@ const lib = {
 							amount : 3
 						}
 					},
+					{
+						type : Effect.Types.addThreat,
+						data : {
+							amount:20
+						}
+					}
 				]
 			}
 		]

@@ -179,8 +179,9 @@ class Dungeon extends Generic{
 
 	/* ROOM */
 	getActiveRoom(){
-		if( this.rooms[this.active_room] )
-			return this.rooms[this.active_room];
+		const room = this.getRoomByIndex(this.active_room);
+		if( room )
+			return room;
 		return this.rooms[0];
 	}
 
@@ -270,7 +271,7 @@ class Dungeon extends Generic{
 
 		this.transporting = true;
 		this.previous_room = this.active_room;
-		if( this.rooms[index] )
+		if( this.getRoomByIndex(index) )
 			this.active_room = index;
 
 		// 500 delay before turning off the renderer for load
@@ -1616,8 +1617,10 @@ class DungeonEncounter extends Generic{
 		this.started = false;		// Encounter has started (only set on Game clone of this)
 		this.completed = 0;			// Encounter completed (only set on Game clone of this)
 		this.players = [];			// Players that MUST be in this event. On encounter start, this may be filled with player_templates to satisfy difficulty
-		this.player_templates = [];	// 
+		this.player_templates = [];		// 
+		this.player_conditions = new Collection({}, this);	// {id:(arr)conditions}
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
+		this.passives = [];			// Use add_conditions to filter out the player(s) the passive should affect
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
 		this.game_actions = [];		// Game actions to run when the encounter starts
@@ -1708,12 +1711,28 @@ class DungeonEncounter extends Generic{
 	// If just_started is true, it means the encounter just started
 	onPlacedInWorld( just_started = true ){
 
+		// Toggle hide/show of players
+		for( let i in this.player_conditions){
+			const pl = this.getPlayerByLabel(i);
+			if( !pl )
+				continue;
+			pl.disabled = !Condition.all(this.player_conditions[i], new GameEvent({target:pl, sender:pl}));
+		}
+
+		for( let wrapper of this.passives )
+			wrapper.bindEvents();
+
 		// Don't reset HP and such
 		if( !just_started )
 			return;
 		// Run world placement event on all players
 		for( let player of this.players )
 			player.onPlacedInWorld();
+	}
+
+	onRemoved(){
+		for( let wrapper of this.passives )
+			wrapper.unbindEvents();
 	}
 
 	load(data){
@@ -1723,9 +1742,14 @@ class DungeonEncounter extends Generic{
 	rebase(){
 		this.players = Player.loadThese(this.players, this);
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
+		this.passives = Wrapper.loadThese(this.passives, this);
 		this.player_templates = PlayerTemplate.loadThese(this.player_templates, this);
 		this.conditions = Condition.loadThese(this.conditions, this);
 		this.game_actions = GameAction.loadThese(this.game_actions, this);
+		this.player_conditions = Collection.loadThis(this.player_conditions, this);
+		for( let i in this.player_conditions ){
+			this.player_conditions[i] = Condition.loadThese(this.player_conditions[i], this);
+		}
 	}
 
 	save( full ){
@@ -1741,6 +1765,8 @@ class DungeonEncounter extends Generic{
 		}
 		out.friendly = this.friendly;
 		out.game_actions = GameAction.saveThese(this.game_actions, full);
+		out.passives = this.passives.map(el => el.save(full));
+		out.player_conditions = this.player_conditions.save(full);
 		
 		if( full !== "mod" ){
 			out.id = this.id;
@@ -1760,6 +1786,20 @@ class DungeonEncounter extends Generic{
 			event = new GameEvent({});
 		return Condition.all(this.conditions, event);
 
+	}
+
+	// Takes a player object
+	getPassivesForPlayer( player ){
+		const out = [];
+		if( !(player instanceof Player) ){
+			console.error("Trying to get passives for non player", player);
+			return out;
+		}
+		for( let passive of this.passives ){
+			if( passive.testAgainst(new GameEvent({sender:player, target:player})) )
+				out.push(passive);
+		}
+		return out;
 	}
 
 	getEnemies(){
@@ -1794,6 +1834,13 @@ class DungeonEncounter extends Generic{
 				return player;
 		}
 		return false;
+	}
+
+	getPlayerByLabel( label ){
+		for( let player of this.players ){
+			if( player.label === label )
+				return player;
+		}
 	}
 
 	// Helper function for below

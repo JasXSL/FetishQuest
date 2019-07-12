@@ -3240,10 +3240,13 @@ export default class Modtools{
 			let val = interaction.data.val;
 			html += 'Value: <input name="interaction_data_val" class="json" value="'+esc(typeof val === "string" ? val : JSON.stringify(val))+'" /><br />';
 		}
+
 		else if( type === types.encounters )
 			html += th.formEncounters(interaction.data, 'interaction_data');
+
 		else if( type === types.anim )
 			html += '<input type="text" placeholder="Animation" value="'+esc(interaction.data.anim)+'" name="interaction_data" />';
+
 		else if( type === types.door && room ){
 			if( interaction.data === null )
 				interaction.data = {};
@@ -3255,6 +3258,7 @@ export default class Modtools{
 			html += '<label><input type="radio" name="asset_badge" value="1" '+(interaction.data.badge === 1 ? 'checked' : '')+' /> Hide</label>';
 			html += '<label><input type="radio" name="asset_badge" value="2" '+(interaction.data.badge === 2 ? 'checked' : '')+' /> No Exit</label>';
 		}
+
 		else if( type === types.exit ){
 			html += 'Exit to: <select name="asset_dungeon">';
 			for( let r of th.mod.dungeons )
@@ -3265,6 +3269,7 @@ export default class Modtools{
 			html += '</select>';
 			html += '<br />Travel time in seconds: <input type="number" name="asset_time" placeholder="Time in seconds" step=1 min=1 value="'+(Math.floor(interaction.data.time) || 60)+'" >';
 		}
+
 		else if( type === types.loot ){
 			
 			let idata = interaction.data;
@@ -3275,20 +3280,25 @@ export default class Modtools{
 			html += th.formAssets(idata.loot, 'interaction_data');
 
 		}
+
 		else if( type === types.wrappers )
 			html += th.formWrappers(interaction.data, 'interaction_data');
+
 		else if( type === types.autoLoot )
 			html += '<input type="range" min=0 max=1 step=0.01 value="'+(+interaction.data.val)+'" name="interaction_data">';
+
 		else if( type === types.lever ){
 			if( !interaction.data.id )
 				interaction.data.id = 'lever_'+interaction.id.substr(0,8);
 			html += 'ID: <input name="interaction_data" value="'+esc(interaction.data.id)+'" />';
 		}
+
 		else if( type === types.tooltip ){
 			if( !interaction.data.text )
 				interaction.data.text = 'Tooltip Text';
 			html += 'Text: <input name="interaction_data_text" value="'+esc(interaction.data.text)+'" />';
 		}
+
 		else if( type === types.shop ){
 			if( !interaction.data.shop )
 				interaction.data.shop = 'MISSING_SHOP';
@@ -3297,6 +3307,7 @@ export default class Modtools{
 			html += 'Shop: '+this.inputShop(interaction.data.shop)+'<br />';
 			html += 'Player: '+this.inputPlayer(interaction.data.player)+'<br />';
 		}
+		
 		html += '<br />';
 		html += th.formConditions(interaction.conditions, 'interaction_conditions');
 		html += '</div>';

@@ -827,6 +827,41 @@ LibMesh.library = {
 				width: 1,
 				height: 1,
 			}),
+			Bed : new LibMesh({
+				url : 'furniture/bed_1x2.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Cloth.Green,
+					libMat.Cloth.Thick,
+					libMat.Cloth.Sheet,
+				],
+				tags : [stdTag.mTable],
+				width: 1,
+				height: 2,
+				position_on_wall : true,
+			}),
+			Drawers : new LibMesh({
+				url : 'furniture/drawers_2x1.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+				],
+				tags : [stdTag.mTable],
+				width: 2,
+				height: 1,
+				position_on_wall : true,
+			}),
+			Nightstand : new LibMesh({
+				url : 'furniture/nightstand_1x1.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+				],
+				tags : [stdTag.mTable],
+				width: 1,
+				height: 1,
+				position_on_wall : true,
+			}),
 		},
 		Room : {
 			R8x6 : new LibMesh({
@@ -1642,6 +1677,17 @@ LibMesh.library = {
 					libMat.Metal.Rust,
 				],
 			}),
+			FishingRod : new LibMesh({
+				url : 'doodads/fishing_rod.JD',
+				tags : [],
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Wood.Cork,
+					libMat.Metal.Rust,
+					libMat.Cloth.Thick,
+					libMat.Cloth.Dark,
+				],
+			}),
 		},
 		
 		Signs : {
@@ -2416,6 +2462,13 @@ LibMesh.library = {
 			url : 'doodads/pot_med.JD',
 			materials : [
 				libMat.Glass.BlueGlow,
+				libMat.Metal.Silver,
+			],
+		}),
+		BeerBottle : new LibMesh({
+			url : 'doodads/beer_bottle.JD',
+			materials : [
+				libMat.Glass.Brown,
 				libMat.Metal.Silver,
 			],
 		}),

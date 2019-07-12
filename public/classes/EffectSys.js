@@ -150,7 +150,7 @@ class Wrapper extends Generic{
 			if( this.target === Wrapper.TARGET_CASTER )
 				pl = [caster_player]; //[this.parent.parent];
 			else if( this.target === Wrapper.TARGET_AOE )
-				pl = game.players;
+				pl = game.getEnabledPlayers();
 			else if( this.target === Wrapper.TARGET_SMART_HEAL ){
 				// Find the lowest HP party member of target
 				let party = game.getPartyMembers(caster_player);
@@ -216,10 +216,9 @@ class Wrapper extends Generic{
 					}
 				}
 
-				obj._duration = obj.duration;		
-				if(obj.getEffects({
-					type : Effect.Types.stun
-				}).length){
+				obj._duration = obj.duration;
+				const stunEffects = obj.getEffects({type : Effect.Types.stun}).filter(el => !el.data.ignoreDiminishing);
+				if(stunEffects.length){
 					obj._duration-=victim._stun_diminishing_returns;
 					if( obj._duration <= 0 ){
 						// Fully resisted stun
@@ -228,7 +227,7 @@ class Wrapper extends Generic{
 							sender : caster,
 							target : victim,
 							wrapper : obj,
-							action : this.parent.constructor === Action ? this.parent : null,
+							action : this.parent && this.parent.constructor === Action ? this.parent : null,
 						}).raise();
 						continue;
 					}
@@ -537,7 +536,8 @@ class Wrapper extends Generic{
 
 // Checks stay conditions, raised on turn change and after an action is used
 Wrapper.checkAllStayConditions = function(){
-	for( let player of game.players ){
+	const players = game.getEnabledPlayers();
+	for( let player of players ){
 		const wrappers = player.getWrappers();
 		for( let wrapper of wrappers )
 			wrapper.checkStayConditions();
@@ -662,6 +662,7 @@ class Effect extends Generic{
 	// WrapperReturn lets you put data into the wrapper trigger return object 
 	trigger( event, template, wrapperReturn ){
 
+
 		let evt = event.clone();
 		evt.effect = this;
 		evt.wrapper = this.parent;
@@ -674,6 +675,11 @@ class Effect extends Generic{
 		let sender = game.getPlayerById(this.parent.caster),
 			target = game.getPlayerById(this.parent.victim)
 		;
+		if( !sender )
+			sender = event.sender;
+		if( !target )
+			target = event.target[0] || event.target;
+		
 		let tout = [];
 		for( let ta of this.targets ){
 			if( ta === Wrapper.TARGET_AUTO ){
@@ -687,6 +693,9 @@ class Effect extends Generic{
 				tout = tout.concat(event.target);
 		}
 
+		if( this.data.dummy_sender )
+			sender = new Player({level:game.getAveragePlayerLevel()});
+
 		new GameEvent({
 			type : GameEvent.Types.effectTrigger,
 			sender : sender,
@@ -694,6 +703,7 @@ class Effect extends Generic{
 			wrapper : this.parent,
 			effect : this,
 		}).raise();
+
 
 		for( let t of tout ){
 
@@ -703,6 +713,7 @@ class Effect extends Generic{
 			if( t === sender ){
 				s = target;
 			}
+
 			
 			// Do damage or heal
 			if( this.type === Effect.Types.damage ){
@@ -710,7 +721,9 @@ class Effect extends Generic{
 				let type = this.data.type;
 				if( !type && this.parent.parent.constructor === Action )
 					type = this.parent.parent.type;
-				
+				if( !type )
+					type = Action.Types.physical;
+
 				let e = GameEvent.Types.damageDone, e2 = GameEvent.Types.damageTaken;
 				let amt = -Calculator.run(
 					this.data.amount, 
@@ -748,24 +761,26 @@ class Effect extends Generic{
 				else{
 					
 					
+
 					console.debug(
 						s.name, "vs", t.name,
 						"input", amt, 
-						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental),
-						"of which", s.getBon(this.data.type), "-", t.getSV(this.data.type),
+						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,type,this.parent.detrimental),
+						"of which", s.getBon(type), "-", t.getSV(type),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
 						"nudity multi", t.getNudityDamageMultiplier(),
 					);
 					
+										
+					amt *= Player.getBonusDamageMultiplier( s,t,type,this.parent.detrimental ); // Negative because it's damage
 					
-					
-					amt *= Player.getBonusDamageMultiplier( s,t,this.data.type,this.parent.detrimental ); // Negative because it's damage
-					
+
 					// Get target global damage point taken modifier
 					// Amt is negative
 					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s );
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
+
 
 					// amt is negative when attacking, that's why we use - here
 					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t );
@@ -808,6 +823,8 @@ class Effect extends Generic{
 						}
 					}
 
+
+
 				}
 
 				// Calculate arousal (allowed for both healing and damaging)
@@ -828,16 +845,15 @@ class Effect extends Generic{
 				}
 
 				
-				
 				let died = t.addHP(amt, s, this, true);
 				if( amt < 0 ){
 
-					t.onDamageTaken(s, this.data.type, Math.abs(amt));
-					s.onDamageDone(t, this.data.type, Math.abs(amt));
+					t.onDamageTaken(s, type, Math.abs(amt));
+					s.onDamageDone(t, type, Math.abs(amt));
 					let threat = amt * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
 					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(amt*this.data.leech)) : 0;
 					t.addThreat( s.id, -threat );
-					game.ui.addText( t.getColoredName()+" took "+Math.abs(amt)+" "+this.data.type+" damage"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage damage' );
+					game.ui.addText( t.getColoredName()+" took "+Math.abs(amt)+" "+type+" damage"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage damage' );
 					if( leech ){
 						s.addHP(leech, s, this, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
@@ -1278,6 +1294,7 @@ class Effect extends Generic{
 
 	/* EVENT */
 	bindEvents(){
+		this.unbindEvents();
 		for(let evt of this.events){
 			if( evt.substr(0,8) !== "internal" )
 				this._bound_events.push(GameEvent.on(evt, event => this.trigger(event)));
@@ -1344,7 +1361,7 @@ class Effect extends Generic{
 	getTargetsByType( type, event ){
 
 		if( type === Wrapper.Targets.aoe )
-			return game.players;
+			return game.getEnabledPlayers();
 		if( type === Wrapper.Targets.caster )
 			return [game.getPlayerById(this.parent.caster)];
 		if( type === Wrapper.Targets.event_raiser )
@@ -1514,7 +1531,7 @@ Effect.Types = {
 	globalHitChanceMod : 'globalHitChanceMod',
 	globalDamageTakenMod : 'globalDamageTakenMod',
 	globalDamageDoneMod : 'globalDamageDoneMod',
-	
+	gameAction : 'gameAction',	// TODO
 	addActionCharges : 'addActionCharges',		
 
 	// Stamina
@@ -1573,7 +1590,7 @@ Effect.KnockdownTypes = {
 
 
 Effect.TypeDescs = {
-	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier} - If type is left out, it can be auto supplied by an asset.",
+	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
@@ -1585,7 +1602,7 @@ Effect.TypeDescs = {
 	[Effect.Types.globalHitChanceMod] : 'Modifies your hit chance with ALL types by percentage {amount:(float)(string)amount}',
 	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
 	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
-	
+	[Effect.Types.gameAction] : '{action:(obj)gameAction} - Lets you run a game action',
 	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
 
 	// Stamina

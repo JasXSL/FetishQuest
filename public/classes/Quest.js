@@ -18,7 +18,7 @@ class Quest extends Generic{
 		this.objectives = [];
 		this.completion_objectives = [];			// One of these will trigger. This allows you to add multiple ways of handing in a quest with different outcomes
 		this.completed = false;						// Set internally when the quest finishes to prevent further objective evaluation
-		
+		this.hide_rewards = false;					// Todo: Hide rewards from screen
 		this.multiply_money = true;					// Multiplies the money reward by nr of players when quest is accepted
 		this.multiply_reward = false;				// Multiplies all rewards except money by nr of players when quest is accepted
 
@@ -33,6 +33,7 @@ class Quest extends Generic{
 			description : this.description,
 			objectives : this.objectives.map(el => el.save(full)),
 			rewards : Asset.saveThese(this.rewards, full),
+			hide_rewards : this.hide_rewards,
 			exp_multiplier : this.exp_multiplier,
 			completion_objectives : this.completion_objectives.map(el =>el.save(full))
 		};
@@ -290,7 +291,8 @@ class QuestObjective extends Generic{
 		this.name = '';
 		this.amount = 1;
 		this._amount = 0;
-		this.events = [];		// QuestObjectiveEvent
+		this.visibility_conditions = [];		// Todo: Conditions to show this in the log
+		this.events = [];						// QuestObjectiveEvent
 		this.load(data);
 	}
 
@@ -311,6 +313,7 @@ class QuestObjective extends Generic{
 			name : this.name,
 			amount : this.amount,
 			label : this.label,			// Needed for conditions
+			visibility_conditions : Condition.saveThese(this.visibility_conditions)
 		};
 
 		if( full )
@@ -341,6 +344,7 @@ class QuestObjective extends Generic{
 
 	rebase(){
 		this.events = QuestObjectiveEvent.loadThese(this.events, this);
+		this.visibility_conditions = Condition.loadThese(this.visibility_conditions, this);
 	}
 
 	onEvent( event ){

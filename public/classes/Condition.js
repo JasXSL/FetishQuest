@@ -529,10 +529,11 @@ export default class Condition extends Generic{
 				const team = parseInt(this.data.team),
 					amount = this.data.amount
 				;
-				let np = game.players.length;
+				const players = game.getEnabledPlayers();
+				let np = players.length;
 				if( !isNaN(team) ){
 					np = 0;
-					for( let player of game.players ){
+					for( let player of players ){
 						if(
 							(team === -1 && t.team === player.team) ||
 							(team === -2 && t.team !== player.team) ||

@@ -322,6 +322,22 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.8,
 		}),
+		Thick : new LibMaterial({
+			map : 'tileable/cloth_thick.jpg',
+			metalness : 0.3,
+			roughness : 0.8,
+		}),
+		Sheet : new LibMaterial({
+			map : 'tileable/cloth_sheet.jpg',
+			metalness : 0.3,
+			roughness : 0.8,
+		}),
+		Green : new LibMaterial({
+			map : 'tileable/cloth_green.jpg',
+			metalness : 0.3,
+			roughness : 0.8,
+		}),
+
 		DarkDoublesided : new LibMaterial({
 			map : 'tileable/dark_cloth.jpg',
 			metalness : 0.3,

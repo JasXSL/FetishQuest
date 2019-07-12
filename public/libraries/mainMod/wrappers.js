@@ -156,7 +156,7 @@ const lib = {
 		duration : 2,
 		name : "Overwhelming Orgasm",
 		icon : "shining-heart",
-		description : "-20 corruption avoidance, stunned.",
+		description : "-10 corruption avoidance, stunned.",
 		detrimental : true,
 		add_conditions : ["senderNotDead", "targetNotDead"],
 		stay_conditions : ["senderNotDead","targetNotDead"],
@@ -168,7 +168,7 @@ const lib = {
 			},
 			{
 				type : Effect.Types.svCorruption,
-				data:{amount:-20}
+				data:{amount:-10}
 			},
 			{
 				label : 'overWhelmingOrgasm_end',

@@ -74,7 +74,8 @@ class NetworkManager{
 
 			// Try mapping up the players by name if possible
 			if( game.is_host ){
-				for( let player of game.players ){
+				const players = game.getEnabledPlayers();
+				for( let player of players ){
 					if( 
 						player.netgame_owner_name === data.name && 			// Owned by this name
 						!this.getPlayerNameById(player.netgame_owner)		// Original owner id not present

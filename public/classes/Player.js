@@ -53,6 +53,7 @@ export default class Player extends Generic{
 		this.arousal = 0;
 		this.leveled = false;		// Level is an offset of the player average level
 		this.powered = false;		// Boost stats based on nr of players in the player team
+		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 
 		// Primary stats
 		this.stamina = 0;			// Adds 2 HP per point
@@ -156,6 +157,7 @@ export default class Player extends Generic{
 			this.updateAutoWrappers();
 
 		const out = {
+			disabled : this.disabled,
 			name : this.name,
 			icon : this.icon,
 			actions : this.actions.map(el => el.save(full)),
@@ -447,7 +449,7 @@ export default class Player extends Generic{
 		if( debug )
 			console.debug("Taunt effects", tauntEffects);
 		if( !tauntEffects.length )
-			return game.players;
+			return game.getEnabledPlayers();
 
 		let out = [];
 		for( let effect of tauntEffects ){
@@ -1497,7 +1499,7 @@ export default class Player extends Generic{
 	addHP( amount, sender, effect, fText = false ){
 
 		if( isNaN(amount) ){
-			console.error("AP amount is NaN", amount);
+			console.error("HP amount is NaN", amount);
 			return false;
 		}
 		const pre = this.hp;
@@ -1527,7 +1529,7 @@ export default class Player extends Generic{
 		const pre = this.arousal, max = this.getMaxArousal();
 		this.arousal += amount;
 		this.arousal = Math.min(max, Math.max(0, this.arousal));
-		if( this.arousal === max && pre !== max ){
+		if( this.arousal >= max && pre < max ){
 			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(this, this, false);
 			game.save();
 			game.ui.draw();
@@ -1989,12 +1991,13 @@ export default class Player extends Generic{
 	/* Wrappers */
 	getWrappers(){
 
-
 		let out = this.wrappers;
 		for( let asset of this.assets ){
 			if( asset.equipped && asset.durability > 0 )
 				out = out.concat(asset.wrappers);
 		}
+
+		
 
 		return out.concat(this.auto_wrappers);
 
@@ -2048,47 +2051,7 @@ export default class Player extends Generic{
 			}
 		}
 	}
-	
-	// Filter is an object of key:value pairs
-	/* Supports any simple data types, and the following complex:
-		- Tags : Searches tags
-		Filter can also be a string, in which case it checks label 
-	
-	getWrappersFiltered( filter = {} ){
-		if( typeof filter !== "object" )
-			filter = {label:filter};
 
-		const wrappers = this.getWrappers();
-		const simpleTypes = ["number","string","boolean"];
-		const out = [];
-
-		const testWrapper = wrapper => {
-			for( let i in filter ){
-				const val = filter[i],
-					myVal = wrapper[i],
-					type = typeof myVal
-				;
-				if( ~simpleTypes.indexOf(type) ){
-					if(myVal !== val)
-						return false;
-				}
-				else if( i === "tags" ){
-					if(!wrapper.hasTag(val))
-						return false;
-				}
-				else
-					console.error("Unable to filter wrapper on", i, "not yet implemented", "Full filter was", filter);
-			}
-			return true;
-		}
-
-		for( let wrapper of wrappers ){
-			if(testWrapper(wrapper))
-				out.push(wrapper);
-		}
-		return out;
-	}
-	*/
 	
 	/* Effects */
 	// Gets all effects (effects on other players may affect you if the target is you or AoE)
@@ -2097,12 +2060,16 @@ export default class Player extends Generic{
 		if( !window.game )
 			return [];
 		let out = [];
-		for( let player of game.players ){
+		for( let player of game.getEnabledPlayers() ){
 			const wrappers = player.getWrappers();
 			for( let wrapper of wrappers ){
 				out = out.concat(wrapper.getEffectsForPlayer(this));
 			}
 		}
+		const passives = game.encounter.getPassivesForPlayer(this);
+		for( let enc of passives )
+			out = out.concat(enc.getEffectsForPlayer(this));
+
 		return out;
 
 	}	

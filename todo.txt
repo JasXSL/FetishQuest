@@ -33,10 +33,14 @@ Medium rare:
 		- Shark can have some generic tentacle abilities
 
 
+
 Big chungi:
-	- Goblin boat quest
-		- Add boat that shows up an hour after completing the boat quest
-		
+	- Make a bed mesh
+	- Make a fishing rod mesh
+	- Go through todo and implement
+	- Test island quest up until the point where you defeated the cultist
+	- Add the rest of the quest and the sharktopus fight
+
 	- Island quest:
 		- Arrive at island. Get greeted by an otter who says he almost caught something massive while fishing.
 		- Add quest to search the island for a fishing rod.

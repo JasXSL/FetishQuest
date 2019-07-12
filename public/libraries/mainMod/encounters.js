@@ -5,7 +5,8 @@ import GameAction from "../../classes/GameAction.js";
 import { DungeonEncounter } from "../../classes/Dungeon.js";
 import Condition from "../../classes/Condition.js";
 import {Wrapper, Effect} from "../../classes/EffectSys.js";
-import { RoleplayStageOption } from "../../classes/Roleplay.js";
+import Roleplay, { RoleplayStageOption } from "../../classes/Roleplay.js";
+import GameEvent from "../../classes/GameEvent.js";
 
 
 
@@ -56,6 +57,17 @@ const lib = {
 	groper : {
 		player_templates : [
 			"groper"
+		],
+		wrappers : [],
+		startText : '',
+		conditions : [],
+		respawn : 260000
+	},
+	underwater : {
+		player_templates : [
+			"cocktopus",
+			"anemone",
+			"lamprey",
 		],
 		wrappers : [],
 		startText : '',
@@ -358,8 +370,235 @@ const lib = {
 						{type:Condition.Types.questAccepted, data:{quest:'SQ_goboat'}, targnr:0},
 					]
 				}}
+			},
+			// Once the boat is done
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'gobot_boat_done',
+					player : 'Slurt',
+					once:true,
+					persistent : true,
+					stages: [
+						{
+							index: 0,
+							text: "Oh hi! My boat is done! Borrow it at your leasure!",
+							options: [
+								{text: "Thanks!", index : -1},
+							]
+						},
+					],
+					conditions:[
+						{type:Condition.Types.questCompleted, data:{quest:"SQ_goboat"}},
+						{type:Condition.Types.formula,data:{"formula":"g_time-q_SQ_goboat__time>3600"}}
+					]
+				}}
 			}
 		]
+	},
+
+	yuug_portswood_isle_east : {
+		players: ["yuug_portswood_isle_otter", "Broper", "SQ_sharktopus_camp_cultist"],
+		// Enable conditions
+		player_conditions : {
+			yuug_portswood_isle_otter : [
+				{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'fishedInPortswoodIsle'}, inverse:true},
+			],
+			Broper : [
+				{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'fishedInPortswoodIsle'}, inverse:true},
+			],
+			SQ_sharktopus_camp_cultist : [
+				{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'fishedInPortswoodIsle'}},
+				{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'defeatTheCultist'}, inverse:true},
+			]
+		},
+		passives : [
+			{effects:[
+				{
+					type:Effect.Types.gameAction,
+					data : {action:{
+						type : GameAction.types.roleplay,
+						data : {rp:{
+							stages: [
+								{
+									id: 's_0',
+									index: 0,
+									text: "You find a rusty key on the defeated cultist!",
+									options: [{id:'done', text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}]
+								},
+							],
+						}}
+					}},
+					events : [
+						GameEvent.Types.playerDefeated,
+					],
+					conditions : [
+						{type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_camp_cultist'}}
+					]
+				}
+			]}
+		],
+		friendly : true,
+		game_actions : [
+			// SQ_sharktopus
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'SQ_sharktopus_00',
+					player: "yuug_portswood_isle_otter",
+					conditions : [
+						{type:Condition.Types.questAccepted, data:{quest:'SQ_sharktopus_00'}, inverse:true, targnr:0},
+						{type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_00'}, inverse:true, targnr:0},
+					],
+					stages: [
+						{
+							index: 0,
+							text: "Well hello there! We don't usually get visitors out here!",
+							options: [
+								{text: "What is this place?",index: 10},
+								{text: "[Ignore him]",index: -1}
+							]
+						},
+						{
+							index: 10,
+							text: "This is my little camp. Help yourself to a drink. If you wanna help out, I could also use a favor.",
+							options: [
+								{text: "Sure what is it?",index: 20},
+								{text: "Maybe later.",index: -1}
+							]
+						},
+						{
+							index: 20,
+							text: "I was out fishing on the other end of the island when I caught something really big! I was just about to reel it in when some gropers came out of the woodwork!",
+							options: [
+								{text: "Go on...",index: 30},
+								{text: "Never mind, I don't have time for this.",index: -1}
+							]
+						},
+						{
+							index: 30,
+							text: "I did the only reasonable thing and dropped my rod and ran! Could you try locating my fishing rod?",
+							options: [
+								{text: "Sure! Doesn't sound that hard.",index: 40, game_actions:[
+									{type:GameAction.types.quest, data:{quest:'SQ_sharktopus_00'}}
+								]},
+								{text: "No thanks.",index: -1}
+							]
+						},
+						{
+							index: 40,
+							text: "Sweet!",
+							options: [
+								{text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}
+							]
+						},
+					],
+				}}
+			},
+			// SQ_sharktopus_handin
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'SQ_sharktopus_00_handin',
+					player: "yuug_portswood_isle_otter",
+					conditions : [
+						{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_00', objective:'fishingRodFound'}, targnr:0},
+						{type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_00'}, inverse:true, targnr:0},
+					],
+					stages: [
+						{
+							index: 0,
+							text: "My fishing rod, thank you!",
+							options: [
+								{text: "Here you go!", index: 1, game_actions:[
+									{type:GameAction.types.finishQuest, data:{'quest':'SQ_sharktopus_00'}}
+								]},
+								{text: "[Ignore him]",index: -1}
+							]
+						},
+						{
+							index: 1,
+							text: "I don't suppose you want to borrow my rod and try and catch the big one for me?",
+							options: [
+								{text: "Sure, why not?",index: 10, game_actions:[
+									{type:GameAction.types.quest, data:{'quest':'SQ_sharktopus_01'}}
+								]},
+								{text: "Maybe later.",index: -1}
+							]
+						},
+						{
+							index: 10,
+							text: "Awesome! Take this rod and head out east to try your luck!",
+							options: [
+								{text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+				}}
+			},
+			// Offer sharktopus_01 if cancelled previous dialog
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'SQ_sharktopus_01_offer',
+					player: "yuug_portswood_isle_otter",
+					conditions : [
+						{type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_00'}, targnr:0},
+						{type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_01'}, inverse:true, targnr:0},
+						{type:Condition.Types.questAccepted, data:{quest:'SQ_sharktopus_01'}, inverse:true, targnr:0},
+					],
+					stages: [
+						{
+							index: 0,
+							text: "Changed your mind about fishing for me?",
+							options: [
+								{text: "Yeah, let's do it!",index: 10, game_actions:[
+									{type:GameAction.types.quest, data:{'quest':'SQ_sharktopus_01'}}
+								]},
+								{text: "Nope.",index: -1}
+							]
+						},
+						{
+							index: 10,
+							text: "Awesome! Take this rod and head out east to try your luck!",
+							options: [
+								{text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+				}}
+			},
+			// Cultist dialog
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'SQ_sharktopus_01_offer',
+					player: "SQ_sharktopus_camp_cultist",
+					persistent : true,
+					once : true,
+					conditions : [
+						{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'fishedInPortswoodIsle'}},
+						{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'returnToIsland'}, inverse:true},
+					],
+					stages: [
+						{
+							index: 0,
+							text: "Ah you must be the one who hurt our great beast. You must be mighty indeed! I will take pleasure in defeating you!",
+							options: [
+								{text: "[Attack]",index: -1, chat:RoleplayStageOption.ChatType.none, game_actions : [
+									{type:GameAction.types.questObjective, data:{'quest':'SQ_sharktopus_01','objective':'returnToIsland'}},
+									'startBattle'
+								]},
+							]
+						},
+					],
+				}}
+			},
+		]
+	},
+
+	yuug_portswood_isle_sharktopus : {
+		// todo
 	},
 
 	// NPCS outside the tavern
@@ -648,7 +887,37 @@ const lib = {
 			}
 		]
 	},
-
+	debug_player_conditions : {
+		players : ['Slurt','Impicus'],
+		friendly : true,
+		player_conditions : {
+			Slurt : [{type:Condition.Types.numGamePlayersGreaterThan, data:{value:1}}],
+			Impicus : [{type:Condition.Types.numGamePlayersGreaterThan, data:{value:1}, inverse:true}],
+		}
+	},
+	debug_passives : {
+		players : ['Slurt'],
+		friendly : true,
+		passives : [
+			{
+				// If it has a passive modifier, conditions need to be set here.
+				//add_conditions : [{type:Condition.Types.team, data:{team:0}}],
+				detrimental:false,
+				effects : [
+					// Deals 2 damage when a friendly player uses an action
+					{
+						// If it has an event trigger, conditions need to be set here
+						conditions : [{type:Condition.Types.team, data:{team:0}, caster:true}],
+						type:Effect.Types.damage, 
+						data:{amount:2, dummy_sender:true}, 
+						events : [GameEvent.Types.actionUsed],
+						targets:[Wrapper.TARGET_EVENT_RAISER],
+					}
+				],
+			}
+		]
+	},
+	
 
 };
 

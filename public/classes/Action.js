@@ -301,7 +301,7 @@ class Action extends Generic{
 		if( debug )
 			console.debug("Testing", this);
 
-		let pl = game.players;
+		let pl = game.getEnabledPlayers();
 		if( this.detrimental && !isChargeFinish ){
 			pl = this.getPlayerParent().getTauntedOrGrappledBy(debug);
 			if( debug )

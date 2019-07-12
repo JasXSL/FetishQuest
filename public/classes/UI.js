@@ -520,12 +520,12 @@ export default class UI{
 	// Players on the board
 	drawPlayers(){
 
-		const th = this;
+		const th = this, players = game.getEnabledPlayers();
 
 		// Build skeleton if needed
 		let ids = [];
 		let i =0;
-		for( let p of game.players ){
+		for( let p of players ){
 
 			if( !(p instanceof Player) )
 				console.error("Player #"+i+" is not a player:", p);
@@ -593,7 +593,7 @@ export default class UI{
 			nr_hostile = 0;
 
 		// Update the individual players
-		for( let p of game.players ){
+		for( let p of players ){
 			this.drawPlayer(p);
 			if( p.team === 0 )
 				++nr_friendly;
@@ -3036,6 +3036,7 @@ export default class UI{
 	// Asset editor
 	drawAssetEditor( asset, player ){
 
+		const players = game.getEnabledPlayers();
 		let a = asset;
 		if( !a ){
 			a = new Asset();
@@ -3060,7 +3061,7 @@ export default class UI{
 			if( a.parent ){
 					html += '<div class="centered">';
 					html += 'Owner : <select name="owner">';
-					for( let player of game.players )
+					for( let player of players )
 						html += '<option value="'+esc(player.id)+'" '+(a.parent.id === player.id ? 'selected' : '')+'>'+esc(player.name)+'</option>';
 					html += '</select>'+
 				'</div><br />';

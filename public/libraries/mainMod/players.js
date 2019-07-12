@@ -172,6 +172,36 @@ const lib = {
 	},
 
 	
+	yuug_portswood_isle_otter : {
+		name : "Otto",
+		species : "otter",
+		description : "An ordinary otter.",
+		icon : "/media/characters/otter.jpg",
+		team : 1,
+		size : 5,
+		leveled : true,
+		sadistic : 0.1,
+		dominant : 0.4,
+		hetero : 0.3,
+		intelligence : 0.4,
+	},
+	Broper : {
+		name : "Broper",
+		species : "groper",
+		description : "A smaller than average groper. It seems pretty tame and is following Otto around.",
+		icon : "",
+		team : 1,
+		size : 4,
+		leveled : true,
+		sadistic : 0.1,
+		dominant : 0.4,
+		hetero : 0.3,
+		intelligence : 0.4,
+	},
+	SQ_sharktopus_camp_cultist : {
+		team : 1
+	},
+
 
 	Ixsplat : {
 		name : "Ixsplat",

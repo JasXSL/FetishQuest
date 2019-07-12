@@ -214,7 +214,7 @@ export default class Game extends Generic{
 
 		// Auto wrappers need all players loaded before generating
 		if( this.is_host )
-			game.players.map(pl => pl.initialize());
+			this.players.map(pl => pl.initialize());
 
 		
 		
@@ -249,6 +249,8 @@ export default class Game extends Generic{
 			this.renderer.loadActiveDungeon();
 		}
 		this.verifyLeader();
+
+		this.encounter.onPlacedInWorld( false );	// Sets up event bindings and such
 
 	}
 
@@ -952,6 +954,10 @@ export default class Game extends Generic{
 
 	/* PLAYERS */
 
+	getEnabledPlayers(){
+		return this.players.filter(el => !el.disabled);
+	}
+
 	// Add a player by data
 	// If data is a Player object, it uses that directly
 	addPlayer(data){
@@ -1064,18 +1070,19 @@ export default class Game extends Generic{
 	// Gets all players on a team
 	getTeamPlayers( team = 0 ){
 
-		return this.players.filter(pl => pl.team === team);
+		return this.getEnabledPlayers().filter(pl => pl.team === team);
 
 	}
 
 	getPlayersNotOnTeam( team = 0 ){
-		return this.players.filter(pl => pl.team !== team);
+		return this.getEnabledPlayers().filter(pl => pl.team !== team);
 	}
 
 	// Gets the highest level player on a team, or if team is NaN, everyone
 	getHighestLevelPlayer( team = 0 ){
 		let out = 1;
-		for( let player of this.players ){
+		const players = this.getEnabledPlayers();
+		for( let player of players ){
 			if( player.team === team || isNaN(team) )
 				out = Math.max(out, player.level);
 		}
@@ -1085,7 +1092,8 @@ export default class Game extends Generic{
 	// Gets averate player level by team, or if team is NaN, everyone
 	getAveragePlayerLevel( team = 0 ){
 		let out = 0, divisor = 0;
-		for( let player of this.players ){
+		const players = this.getEnabledPlayers();
+		for( let player of players ){
 			if( player.team === team || isNaN(team) ){
 				out+=player.level;
 				++divisor;
@@ -1100,7 +1108,8 @@ export default class Game extends Generic{
 	getPartyMembers( player ){
 
 		let out = [];
-		for( let p of this.players ){
+		const players = this.getEnabledPlayers();
+		for( let p of players ){
 
 			if( player.team === p.team )
 				out.push(p);
@@ -1204,7 +1213,7 @@ export default class Game extends Generic{
 	// Gets all players owned by me
 	getMyPlayers(){
 
-		return this.players.filter(el => {
+		return this.getEnabledPlayers().filter(el => {
 			return this.playerIsMe(el, true);
 		});
 
@@ -1413,6 +1422,9 @@ export default class Game extends Generic{
 
 		if( !encounter )
 			return;
+
+		if( this.encounter )
+			this.encounter.onRemoved();
 		
 		// Merge should reset the encounter status
 		if( merge ){
@@ -1424,11 +1436,11 @@ export default class Game extends Generic{
 		}
 
 		if( !player )
-			player = game.getMyActivePlayer();
+			player = this.getMyActivePlayer();
 		if( !player )
-			player = game.getTeamPlayers()[0];
+			player = this.getTeamPlayers()[0];
 		if( !player )
-			player = game.players[0];
+			player = this.players[0];
 
 		// Always prepare
 		encounter.prepare();
@@ -1441,7 +1453,7 @@ export default class Game extends Generic{
 		this.removeEnemies(merge);
 		for( let pl of encounter.players ){
 			pl.netgame_owner = '';
-			game.addPlayer(pl);
+			this.addPlayer(pl);
 			// Merge the new players into the encounter
 			if( merge )
 				this.encounter.players.push(pl);
@@ -1486,7 +1498,7 @@ export default class Game extends Generic{
 		encounter.onPlacedInWorld( !started );	// This has to go after, since players need to be put in world for effects and conditions to work
 
 		// Purge is needed after each overwrite
-		game.save();
+		this.save();
 		this.ui.draw();
 		
 	}
@@ -1580,7 +1592,8 @@ export default class Game extends Generic{
 	// Returns an array of team numbers standing
 	teamsStanding(){
 		let standing = [];
-		for( let p of this.players ){
+		const players = this.getEnabledPlayers();
+		for( let p of players ){
 			
 			if( !p.isDead() && standing.indexOf(p.team) === -1 )
 				standing.push(p.team);
@@ -1652,6 +1665,7 @@ export default class Game extends Generic{
 			}, 1000);
 		};
 
+		const players = this.getEnabledPlayers();
 		for( let i=0; i<this.players.length; ++i ){
 
 			this.end_turn_after_action = false;
@@ -1664,7 +1678,7 @@ export default class Game extends Generic{
 				this.turn = 0;
 
 			let npl = this.getTurnPlayer();
-			if( !npl || npl.isDead() )
+			if( !npl || npl.disabled || npl.isDead() )
 				continue;
 			
 			new GameEvent({
@@ -1693,7 +1707,7 @@ export default class Game extends Generic{
 			}
 				
 			this.onTurnChanged();
-			this.addSeconds(Math.round(30.0/this.players.length));
+			this.addSeconds(Math.round(30.0/players.length));
 			break;
 
 		}
@@ -1768,9 +1782,10 @@ export default class Game extends Generic{
 		if( !this.battle_active )
 			return;
 
+		const players = this.getEnabledPlayers();
 		let chance = 50;
 		// Each AP benefit the party has over their opponents grant 2% bonus chance, starting at 50%
-		for( let p of this.players ){
+		for( let p of players ){
 			let add = p.ap;
 			if( p.isDead() )
 				add = 0;
@@ -1995,7 +2010,8 @@ export default class Game extends Generic{
 
 	// Checks each players and returns it if one of them has a shop by label
 	getShopHere( label ){
-		for( let player of this.players ){
+		const players = this.getEnabledPlayers();
+		for( let player of players ){
 			let shops = this.getShopsByPlayer(player);
 			for( let shop of shops ){
 				if( shop.label === label )
