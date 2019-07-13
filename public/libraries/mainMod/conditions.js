@@ -77,6 +77,11 @@ const lib = {
 	action_anemone_grab : {type:Condition.Types.actionLabel, data:{label:'anemone_grab'}, targnr:0},
 	action_anemone_restrain : {type:Condition.Types.actionLabel, data:{label:'anemone_restrain'}, targnr:0},
 	action_anemone_tickle : {type:Condition.Types.actionLabel, data:{label:'anemone_tickle'}, targnr:0},
+	action_guardian_demon_consume : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_consume'}, targnr:0},
+	action_guardian_demon_grapple : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_grapple'}, targnr:0},
+	action_guardian_demon_impale : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_impale'}, targnr:0},
+	action_guardian_demon_expose : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_expose'}, targnr:0},
+	action_guardian_demon_remoteDelivery : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_remoteDelivery'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
@@ -311,6 +316,7 @@ const lib = {
 	
 	targetTaller : {"type":"sizeValue","data":{"amount":"se_Size","operator":">"}},
 	targetMuchTaller : {type:Condition.Types.sizeValue,data:{amount:"se_Size+1",operator:">"}},
+	targetMuchShorter : {type:Condition.Types.sizeValue,data:{amount:"se_Size-1",operator:"<"}},
 	targetShorter : {"type":"sizeValue","data":{"amount":"se_Size","operator":"<"}},
 	targetNotTaller : {type:"sizeValue",data:{amount:"se_Size",operator:"<"}, inverse:true},
 	notInCombat : {"type":"notInCombat"},
@@ -418,6 +424,10 @@ lib.targetHasExposedMilkableZone = {conditions:[
 lib.targetGroinOrBreastsExposed = {conditions:[
 	lib.targetGroinExposed,
 	lib.targetBreastsExposed
+], min:1};
+lib.targetPelvisExposed = {conditions:[
+	lib.targetGroinExposed,
+	lib.targetButtExposed
 ], min:1};
 
 // Checks if orifices are not occupied (blocked) and exposed

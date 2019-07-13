@@ -46,6 +46,7 @@ const SYNONYMS = [
 	['rapidly','hastily','promptly','swiftly'],
 	['slither','slip','slink','wiggle'],
 	['rough','hard'],
+	['slightly', 'a little', 'somewhat'],
 ];
 
 class Text extends Generic{

@@ -6,6 +6,7 @@ import GameEvent from "../../classes/GameEvent.js";
 //import Player from "../../classes/Player.js";
 import C from './conditions.js';
 import Condition from "../../classes/Condition.js";
+import Asset from "../../classes/Asset.js";
 
 
 // Standard wrapper conditions
@@ -2224,7 +2225,7 @@ const lib = {
 				detrimental : true,
 				name : "Grabbed",
 				icon : "daemon-pull",
-				description : "Caught in an anemone's tendrils!",
+				description : "Caught in %S's tendrils!",
 				trigger_immediate : true,
 				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappledOrKnockedDown"),
 				tags : [stdTag.wrTentacleRide],
@@ -2291,6 +2292,146 @@ const lib = {
 		]
 	},
 
+
+	// Guardian demon
+	guardian_demon_grapple : {
+		name : "Grapple",
+		icon : 'monster-grasp',
+		description : "Grapples your target for 3 turns.",
+		ap : 4,
+		cooldown : 6,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				label : 'guardian_demon_grapple',
+				target : Wrapper.TARGET_AUTO,
+				duration : 3,
+				detrimental : true,
+				name : "Grappled",
+				icon : "monster-grasp",
+				description : "Caught by %S!",
+				trigger_immediate : true,
+				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappledOrKnockedDown"),
+				tags : [stdTag.wrGrapple],
+				effects : [
+					{type : Effect.Types.grapple},
+				]
+			}
+		]
+	},
+	guardian_demon_consume : {
+		name : "Consume",
+		icon : 'mouth-watering',
+		description : "Snack on your grappled and exposed shorter target's genitals, dealing 3 corruption damage and healing the caster for an amount equal to the target's arousal.",
+		ap : 2,
+		cooldown : 3,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat("targetNotBeast", "targetShorter", "targetGrappledByMe", "targetPelvisExposed"),
+				effects : [
+					{type : Effect.Types.damage, data:{amount:3}},
+					{type : Effect.Types.damage, data:{amount:"-se_Arousal"}, targets:[Wrapper.TARGET_CASTER]}
+				]
+			}
+		]
+	},
+	guardian_demon_impale : {
+		name : "Impale",
+		icon : 'heart-stake',
+		description : "Impales a grappled and exposed shorter target on yourself, doing 4 corruption damage and extending the grapple by 1 turn.",
+		ap : 2,
+		cooldown : 3,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat("targetNotBeast", "targetGrappledByMe", "targetShorter", "targetPelvisExposed"),
+				effects : [
+					{type : Effect.Types.damage, data:{amount:4}},
+					{type : Effect.Types.addWrapperTime, data:{amount:1, conditions:[{
+						id : 'a',
+						type : Condition.Types.wrapperLabel,
+						data : {label:'guardian_demon_grapple'}
+					}]}}
+				]
+			}
+		]
+	},
+	guardian_demon_expose : {
+		name : "Expose",
+		icon : 'pelvis-bone',
+		description : "Exposes up to two targets' pelvic areas for 1 turn. Has a 10% chance of tugging the armor off.",
+		ap : 2,
+		cooldown : 2,
+		max_targets : 2,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				name : 'Exposed',
+				description : 'Groin and butt exposed!',
+				icon : 'pelvis-bone',
+				duration : 1,
+				tick_on_turn_end : true,
+				tick_on_turn_start : false,
+				detrimental : true,
+				add_conditions : stdCond.concat("targetNotBeast", "targetWearsLowerBody"),
+				trigger_immediate : true,
+				tags : [
+					stdTag.ttButtExposed, stdTag.ttGroinExposed
+				],
+				effects : [
+					{type : Effect.Types.disrobe, data:{slots:Asset.Slots.lowerBody}, conditions:["rand10"]}
+				]
+			}
+		]
+	},
+	guardian_demon_remoteDelivery: {
+		name : "Remote Delivery",
+		icon : 'blood',
+		description : "Fling cum and telekinetically alter its trajectory, doing 4 corruption damage and reducing the target's corruption avoidance by 2 for 2 turns.",
+		ap : 1,
+		mp : 3,
+		cooldown : 2,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [stdTag.acDamage, stdTag.acDebuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				duration : 2,
+				name : "Demon Cum",
+				icon : "blood",
+				description : "Corruption avoidance reduced by 2",
+				add_conditions : stdCond.concat("targetNotBeast"),
+				trigger_immediate : true,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount : 4}
+					},
+					{
+						type : Effect.Types.svCorruption,
+						data : {"amount": -2}
+					},
+					
+				]
+			}
+		]
+	},
 
 	// sharktopus
 	// shark-bite

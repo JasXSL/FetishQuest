@@ -305,6 +305,14 @@ class Wrapper extends Generic{
 		}
 	}
 
+	addTime( amount = -1 ){
+		this._duration += amount;
+		if( this._duration >= this.duration )
+			this._duration = this.duration;
+		if( this._duration <= 0 )
+			this.remove( true );
+	}
+
 	tick(){
 		let a = game.getPlayerById(this.caster), t = game.getPlayerById(this.victim);
 		this.useAgainst( a, t, true );
@@ -511,10 +519,9 @@ class Wrapper extends Generic{
 
 		if(this.duration === -1)
 			return;
-		
-		if( this._self_cast && --this._duration <= 0){
-			this.remove( true );
-		}
+
+		if( this._self_cast )
+			this.addTime(-1);
 
 	}
 	onTurnEnd(){
@@ -524,9 +531,8 @@ class Wrapper extends Generic{
 
 		if(this.duration === -1)
 			return;
-		if( !this._self_cast && --this._duration <= 0){
-			this.remove( true );
-		}
+		if( !this._self_cast )
+			this.addTime(-1);
 
 	}
 	onBattleEnd(){
@@ -728,8 +734,8 @@ class Effect extends Generic{
 				let e = GameEvent.Types.damageDone, e2 = GameEvent.Types.damageTaken;
 				let amt = -Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
-				}));
+					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this})
+				);
 				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
 
@@ -1076,6 +1082,40 @@ class Effect extends Generic{
 					w.addStacks(stacks, refreshTime);
 
 			}
+
+			else if( this.type === Effect.Types.addWrapperTime ){
+				// {amount:(int)(str)amount, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true}
+				let wrappers = [this.parent];
+				let time = this.data.amount;
+				if( !time ){
+					console.error("Invalid time in", this);
+					return false;
+				}
+				time = Calculator.run(time, new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this}));
+
+				if( this.data.conditions ){
+					wrappers = [];
+					const conds = Condition.loadThese(this.data.conditions);
+					let w = t.getWrappers();
+					
+					let casterOnly = this.data.casterOnly;
+					if( casterOnly === undefined )
+						casterOnly = true;
+
+					for( let wr of w ){
+						if( this.data.casterOnly && wr.caster !== s.id )
+							continue;
+						if( Condition.all(conds, new GameEvent({sender:s, target:t, wrapper:wr})) )
+							wrappers.push(wr);
+					}
+				}
+
+				for( let w of wrappers )
+					w.addTime(time);
+
+			}
+
+			
 
 			else if( this.type === Effect.Types.activateCooldown ){
 				t.activeCooldowns(this.data.actions);
@@ -1562,6 +1602,8 @@ Effect.Types = {
 	disrobe : "disrobe",					
 
 	addStacks : 'addStacks',				
+	addWrapperTime : 'addWrapperTime',
+
 	removeParentWrapper : 'removeParentWrapper',	
 	removeWrapperByLabel : 'removeWrapperByLabel',	
 	removeWrapperByTag : 'removeWrapperByTag',
@@ -1633,6 +1675,7 @@ Effect.TypeDescs = {
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
 
 	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks',
+	[Effect.Types.addWrapperTime] : '{amount:(int)(str)time, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)true}',
 	[Effect.Types.removeParentWrapper] : 'void - Removes the effect\'s parent wrapper',
 	[Effect.Types.removeWrapperByLabel] : '{ label:(arr)(str)label, casterOnly:(bool)=false)}',
 	[Effect.Types.removeWrapperByTag] : '{tag:(str/arr)tags}',

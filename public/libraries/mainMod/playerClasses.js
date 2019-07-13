@@ -206,6 +206,21 @@ const lib = {
 			"imp_claws",
         ]
     },
+    guardian_demon_breaker : {
+        name : "Breaker",
+        primaryStat : Player.primaryStats.stamina,
+        description : "",
+        isMonsterClass : true,
+        actions : [
+            "guardian_demon_consume",       // Todo: Lifts a grappled, exposed player off the ground, doing corruption damage and healing the caster based on target arousal
+            "guardian_demon_grapple",       // Todo: Grapples a player for 3 turns. 1 turn charged.
+            "guardian_demon_impale",        // Todo: Impale a grappled and exposed player, doing 5 corruption damage and extending the grapple by 2 turns
+            "guardian_demon_expose",        // Todo: Does 1 lowerbody cloth damage and exposes their lowerbody
+            "guardian_demon_remoteDelivery",      // Todo: flings cum at your target, doing 
+            "whip_legLash",
+            "whip_powerLash",
+        ]
+    },
     cocktopus : {
         name : "Cocktopus",
         primaryStat : Player.primaryStats.agility,

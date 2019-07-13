@@ -266,6 +266,7 @@ export default {
 	metaWiggle : 'me_wiggle',
 	metaSuck : 'me_suck',
 	metaHeadbutt : 'me_headbutt',
+	metaUsedMouth : 'me_used_mouth',
 	//meta : 'me_',
 
 };

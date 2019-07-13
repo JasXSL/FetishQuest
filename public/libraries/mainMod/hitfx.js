@@ -1210,6 +1210,24 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'sludgeBoltWhite';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		origin : 'attacker',
+		particles : 'hitfx_sludge_bolt_white',
+		emit_duration : 500,
+		hold : 500,
+		sound_kits : ['tentacleSuctionFollow'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sludge_bolt_impact_white',
+		emit_duration : 100,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['gooSplat'],
+	}, out[id]),
+);
+
 
 
 id = 'siphonCorruption';

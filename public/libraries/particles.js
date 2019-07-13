@@ -969,6 +969,41 @@ particles.hitfx_sludge_bolt_impact = {
 	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
 	wiggle : 10
 };
+
+
+particles.hitfx_sludge_bolt_white = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,4),
+	size : [15,30],
+	size_tween : [1,0.05],
+	part_max_age : 0.5,
+	velocity : 5,
+	gravity : 2,
+	color : ['#FFFFFF', '#FFFFEE'],	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+	wiggle : [0,10],
+};
+particles.hitfx_sludge_bolt_impact_white = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : [30,60],
+	size_tween : [1,0.05],
+	part_max_age : 1,
+	velocity : new Proton.Span(50, 100),
+	gravity:2,
+	color : ['#FFFFFF', '#FFFFEE'],	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+	wiggle : 10
+};
+
 particles.hitfx_sludge_bolt_impact_residue = {
 	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
@@ -1016,7 +1051,6 @@ particles.hitfx_sludge_bolt_black = {
 	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
 
 };
-
 particles.hitfx_sludge_bolt_impact_black = {
 	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
