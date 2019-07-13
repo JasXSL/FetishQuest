@@ -279,7 +279,7 @@ class Text extends Generic{
 				event.sender ? event.sender.id : undefined,
 				targ ? targ.id : undefined,
 				'rpText',
-				event.type === GameEvent.Types.actionUsed || this.alwaysOutput,
+				~[GameEvent.Types.actionUsed, GameEvent.Types.actionCharged, GameEvent.Types.actionRiposte].indexOf(event.type) || this.alwaysOutput,
 			);
 
 			

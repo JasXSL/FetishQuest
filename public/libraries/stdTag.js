@@ -74,11 +74,11 @@ export default {
 	asSkirt : 'as_skirt',
 	asThong : 'as_thong',
 	asShiny : 'as_shiny',
+	asPants : 'as_pants',					// Has legs attached to it, aka not briefs
 	asStockings : 'as_stockings',
 	asSlingBikini : 'as_sling_bikini',
 	asShirt :'as_shirt',
 	asStretchy : 'as_stretchy',
-	asShorts : 'as_shorts',
 	asJeans : 'as_jeans',
 	asPlate : 'as_plate',			// Plate armor
 	asRobe : 'as_robe',
@@ -265,6 +265,7 @@ export default {
 	metaWet : 'me_wet',
 	metaWiggle : 'me_wiggle',
 	metaSuck : 'me_suck',
+	metaHeadbutt : 'me_headbutt',
 	//meta : 'me_',
 
 };

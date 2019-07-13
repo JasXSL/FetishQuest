@@ -1016,7 +1016,7 @@ const lib = {
 		mp : 2,
 		cooldown : 2,
 		hit_chance: 100,
-		tags : [stdTag.acDamage],
+		tags : [stdTag.acDamage, stdTag.acNpcImportantLast],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -1233,7 +1233,7 @@ const lib = {
 	imp_ankleBite: {
 		name : "Ankle Bite",
 		icon : 'mouth-watering',
-		description : "Bite your target's ankles, dealing 4 physical damage. Has a 10% chance to knock your target down for 1 turn.",
+		description : "Bite your target's ankles, dealing 4 physical damage. Has a 20% chance to knock your target down for 1 turn.",
 		ap : 2,
 		mp : 0,
 		cooldown : 1,
@@ -1267,7 +1267,7 @@ const lib = {
 				add_conditions : stdCond.concat(
 					"targetNotGrappledOrKnockedDown",
 					"targetNotBeast",
-					"rand10"
+					"rand20"
 				),
 				stay_conditions : stdCond,
 				effects : [
@@ -2190,7 +2190,6 @@ const lib = {
 		target_type : Action.TargetTypes.aoe,
 		wrappers : [
 			{
-				target : Wrapper.TARGET_AOE,
 				add_conditions : stdCond.concat("targetOtherTeam"),
 				duration : 0,
 				detrimental : true,

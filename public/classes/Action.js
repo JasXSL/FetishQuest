@@ -473,8 +473,9 @@ class Action extends Generic{
 		*/
 
 		// make sure the supplied targets are enough
-		if( targets.length > this.max_targets || targets.length < this.min_targets ){
+		if( this.target_type !== Action.TargetTypes.aoe && (targets.length > this.max_targets || targets.length < this.min_targets) ){
 			game.modal.addError("Too few or too many targets selected");
+			console.log("Attempted to use", targets, "on action", this);
 			return false;
 		}
 

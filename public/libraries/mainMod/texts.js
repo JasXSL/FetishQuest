@@ -125,6 +125,13 @@ const lib = [
 		hitfx : ["stretch"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotPenis, stdTag.metaStretch],
 	},
+
+
+	{ text : "%S slips %Shis hands in under the sides of %T's %TclothLower from the front and pulls out, damaging the piece in the process!",
+		conditions : humOnHumCond.concat([ "action_stdAttack", "targetPenis", "targetTaller", "targetLowerBodyDamaged", "targetLowerBodyNotPants", "targetLowerBodyNotHard"]),
+		hitfx : ["stretch"],
+		metaTags : [stdTag.metaStretch, stdTag.metaSlotGroin, stdTag.metaSlotClothes],
+	},
 	
 
 	{ text : "%S jumps onto the knocked down %Trace's stomach, grabbing a hold of %This nipples and tugs at them!",
@@ -1163,6 +1170,26 @@ const lib = [
 		hitfx : ["squishTiny"],
 		metaTags : [stdTag.metaSlotGroin, stdTag.metaArousing, stdTag.metaWet, stdTag.metaWiggle],
 	},
+	{ text : "%S latches its sucker mouth onto the front of %T's %TclothLower and starts wiggling its head around rapidly, tickling the %Trace's %Tgenitals.",
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsLamprey", "targetWearsLowerBody", "targetLowerBodyNotHard", "targetPenis"),
+		hitfx : ["squishTiny"],
+		metaTags : [stdTag.metaSlotGroin, stdTag.metaArousing, stdTag.metaWet, stdTag.metaWiggle],
+	},
+	{ text : "%S darts up behind %T and wiggles into the back of %This %TclothLower, prodding up and wiggling its head around rapidly, tickling the %Trace's %Trsize %butt.",
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsLamprey", "targetWearsLowerBody", "targetLowerBodyNotHard"),
+		hitfx : ["squishTiny"],
+		metaTags : [stdTag.metaSlotButt, stdTag.metaArousing, stdTag.metaWet, stdTag.metaWiggle],
+	},
+	{ text : "%S darts up at %T and prods into the front of %This %TclothLower, wiggling its head around rapidly and tickling the %Trace's %groin.",
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsLamprey", "targetWearsLowerBody", "targetLowerBodyNotHard"),
+		hitfx : ["squishTiny"],
+		metaTags : [stdTag.metaSlotGroin, stdTag.metaArousing, stdTag.metaWet, stdTag.metaWiggle],
+	},
+	{ text : "%S slips underneath %T's %leftright foot, tickling it with %Shis body.",
+		conditions : anyOnHumCond.concat("action_stdArouse","senderIsLamprey"),
+		hitfx : ["tickle"],
+		metaTags : [stdTag.metaArousing, stdTag.metaWet, stdTag.metaWiggle],
+	},
 	{ text : "%S %slithers between %T's legs and wiggles its slimy body up between %This buttcheeks, tickling between them.",
 		conditions : anyOnHumCond.concat("action_stdArouse","senderIsLamprey", {conditions:["targetButtExposed", "targetWearsThong"]}),
 		hitfx : ["squishTiny"],
@@ -2003,16 +2030,35 @@ const lib = [
 			"action_imp_blowFromBelow",
 		]),
 		hitfx : ["punch"],
-		metaTags : [stdTag.metaPenetration, stdTag.metaPainful, stdTag.metaUsedFist, stdTag.metaPenetration],
+		metaTags : [stdTag.metaPunch, stdTag.metaPainful, stdTag.metaUsedFist],
+	},
+	{ text : "%S slips underneath %T throws a rapid jab at %This %groin! The %Srace rapidly spins around, also burying %Shis fist in %T2's %groin",
+		numTargets:2,
+		armor_slot:"lowerBody",
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow",
+		]),
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaPunch, stdTag.metaPainful, stdTag.metaUsedFist],
 	},
 	{ text : "%S slips underneath %T and %T2, giving a hard smack across both of their %butts!",
 		numTargets:2,
-		conditions : humOnHumCond.concat([
-			"action_imp_blowFromBelow",
-
-		]),
+		conditions : humOnHumCond.concat(["action_imp_blowFromBelow", "targetTaller"]),
 		hitfx : ["slap"],
 		metaTags : [stdTag.metaSlap, stdTag.metaPainful, stdTag.metaSlotButt],
+	},
+	{ text : "%S slinks up towards %T and grabs a hold of %This hips, cocks %Shis head backwards and rams it right into %T's %groin!",
+		conditions : humOnHumCond.concat(["action_imp_blowFromBelow", "targetTaller"]),
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaHeadbutt, stdTag.metaPainful, stdTag.metaSlotGroin],
+	},
+	{ text : "%S slips behind %T and %T2, throwing a %hard slap up between both their legs!",
+		numTargets:2,
+		conditions : humOnHumCond.concat([
+			"action_imp_blowFromBelow",
+		]),
+		hitfx : ["slap"],
+		metaTags : [stdTag.metaSlap, stdTag.metaPainful, stdTag.metaSlotGroin],
 	},
 	{ text : "%S slips underneath %T and throws a thorough slap across %This %butt!",
 		conditions : humOnHumCond.concat([
@@ -2650,6 +2696,16 @@ const lib = [
 		conditions : anyOnHumCond.concat("action_lamprey_slither", "targetVagina", "targetWearsLowerBody"),
 		hitfx : ["squishTiny"],
 		metaTags : [stdTag.metaWet, stdTag.metaWiggle, stdTag.metaArousing, stdTag.metaSlotVagina, stdTag.metaTickle],
+	},
+	{ text : "%S %slithers down into %T's %TclothLower and wiggles its slimy body across %This %groin.",
+		conditions : anyOnHumCond.concat("action_lamprey_slither","senderIsLamprey", "targetWearsLowerBody", "targetLowerBodyWaistband"),
+		hitfx : ["squishTiny"],
+		metaTags : [stdTag.metaSlotGroin, stdTag.metaArousing, stdTag.metaWet, stdTag.metaWiggle],
+	},
+	{ text : "%S %slithers down into %T's %TclothLower and wiggles its slimy body across %This %groin, up between %This buttcheeks, and out the back.",
+		conditions : anyOnHumCond.concat("action_lamprey_slither","senderIsLamprey", "targetWearsLowerBody", "targetLowerBodyWaistband"),
+		hitfx : ["squishTiny"],
+		metaTags : [stdTag.metaSlotGroin, stdTag.metaArousing, stdTag.metaWet, stdTag.metaWiggle, stdTag.metaSlotButt],
 	},
 	
 	
@@ -3402,12 +3458,36 @@ const lib = [
 		hitfx : ["squishTiny"],
 		metaTags : [stdTag.metaRub, stdTag.metaArousing, stdTag.metaSlotVagina],
 	},
-	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath, grabbing a hold of and squeezing %This package!",
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath, grabbing a hold of and %firmly squeezing %This package!",
 		conditions : [
 			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetPenis","targetLowerBodyNotHard"
 		],
 		hitfx : ["squeeze"],
-		metaTags : [stdTag.metaSqueeze, stdTag.metaArousing, stdTag.metaSlotGroin],
+		metaTags : [stdTag.metaSqueeze, stdTag.metaPainful, stdTag.metaSlotGroin],
+	},
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and grabs the front of %T's %TclothLower, tugging at it and exposing %This %Tgenitals!",
+		conditions : [
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetLowerBodyNotHard","targetLowerBodyDamaged"
+		],
+		turnTags : [stdTag.ttGroinExposed],
+		hitfx : ["squeeze"],
+		metaTags : [stdTag.metaStretch, stdTag.metaSlotGroin, stdTag.metaSlotClothes],
+	},
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and grabs the back of of %T's %TclothLower, tugging it down and exposing %This %Trsize %butt!",
+		conditions : [
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetLowerBodyNotHard","targetLowerBodyDamaged","targetLowerBodyWaistband"
+		],
+		turnTags : [stdTag.ttButtExposed],
+		hitfx : ["squeeze"],
+		metaTags : [stdTag.metaStretch, stdTag.metaSlotGroin, stdTag.metaSlotClothes],
+	},
+	
+	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and slaps %This %Tpsize %penis!",
+		conditions : [
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderNotBeast","targetPenisExposed"
+		],
+		hitfx : ["slap"],
+		metaTags : [stdTag.metaSlap, stdTag.metaPainful, stdTag.metaSlotPenis],
 	},
 	{ text : "%T spins around, attempting a rapid kick at %S, but %S ducks underneath and thrusts a few fingers inside %T's %vagina, briefly wiggling them around!",
 		conditions : [
@@ -3440,24 +3520,44 @@ const lib = [
 		hitfx : ["pinch"],
 		metaTags : [stdTag.metaUsedClaw, stdTag.metaPinch, stdTag.metaSlotGroin, stdTag.metaPainful],
 	},
-
 	{ text : "%T spins around attempting a rapid kick at %S. But %S ducks under and thrusts a tentacle up inside %T's exposed %vagina!",
 		"armor_slot":"lowerBody",
 		conditions : [
 			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles","targetGroinExposed","targetVagina"
 		],
-		hitfx : ["tentacleRub"],
-		metaTags : [stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaSlotVagina, stdTag.metaPainful],
+		hitfx : ["slowThrustsTentacle"],
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaSlotVagina, stdTag.metaVeryArousing],
 	},
-	{ text : "%T spins around attempting a rapid kick at %S. But %S ducks under and thrusts a tentacle up inside %T's exposed %butt!",
+	{ text : "%T spins around attempting a rapid kick at %S. But %S ducks under and thrusts a tentacle up inside %T's %Trsize exposed %butt!",
 		"armor_slot":"lowerBody",
 		conditions : [
 			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles","targetButtExposed"
 		],
-		hitfx : ["tentacleRub"],
-		metaTags : [stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaSlotButt, stdTag.metaPainful],
+		hitfx : ["slowThrustsTentacle"],
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaSlotButt, stdTag.metaVeryArousing],
 	},
-
+	{ text : "%T spins around attempting a rapid kick at %S. But %S slinks under and wraps a tendril around the bottom of %T's %TclothLower, tugging it aside and thrusting a tentacle up inside the %Trace's %Trsize %butt!",
+		conditions : [
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles","targetLowerBodyNotPants", "targetLowerBodyNotHard"
+		],
+		hitfx : ["slowThrustsTentacle"],
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaSlotButt, stdTag.metaVeryArousing],
+	},
+	{ text : "%T spins around attempting a rapid kick at %S. But %S slinks under and wraps a tendril into %T's %TclothLower, wrapping around and %firmly squeezing down on %This genitals!",
+		conditions : [
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles","targetLowerBodyNotPants", "targetLowerBodyNotHard", "targetPenis"
+		],
+		hitfx : ["tentacleSqueeze"],
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSqueeze, stdTag.metaSlotPenis, stdTag.metaPainful],
+	},
+	{ text : "%T spins around attempting a rapid kick at %S. But %S slinks a tentacle underneath the attack, shooting up towards %T's %groin! The tentacle rapidly immediately wraps around %T's %Tpsize package and squeezes down painfully!",
+		conditions : [
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles","targetLowerBodyNotPants", "targetLowerBodyNotHard", "targetPenis", "targetPenisLarge"
+		],
+		hitfx : ["tentacleSqueeze"],
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSqueeze, stdTag.metaSlotGroin, stdTag.metaPainful],
+	},
+	
 
 	// action_monk_disablingStrike
 	{ text : "%S lands a mystical touch on %T, lowering their physical ability!",

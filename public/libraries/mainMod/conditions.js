@@ -168,6 +168,7 @@ const lib = {
 	targetLowerBodyMetal : {"type":"tag","data":{"tags":["as_metal_lowerBody"]}},
 	targetUpperBodyMetal : {"type":"tag","data":{"tags":["as_metal_upperBody"]}},
 	targetLowerBodyWaistband : {"type":"tag","data":{"tags":["as_waistband_lowerBody"]}},
+	targetLowerBodyNotPants : {type:Condition.Types.tag, data:{tags:[stdTag.asPants+"_lowerBody"]}, inverse:true},
 
 	targetLowerBodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_lowerBody"]}},
 	targetUpperBodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_upperBody"]}},

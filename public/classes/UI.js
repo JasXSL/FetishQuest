@@ -1453,8 +1453,6 @@ export default class UI{
 		let target = this.parent.getPlayerById(targetID),
 			sender = this.parent.getPlayerById(attackerID);
 
-		
-
 		if( ~[gTypes.battleEnded, gTypes.encounterStarted].indexOf(evtType) )
 			acn.push('center');
 		else if( ~[gTypes.battleStarted].indexOf(evtType ) )
