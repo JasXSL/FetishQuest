@@ -409,7 +409,6 @@ const lib = {
 			],
 			SQ_sharktopus_camp_cultist : [
 				{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'fishedInPortswoodIsle'}},
-				{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'defeatTheCultist'}, inverse:true},
 			]
 		},
 		passives : [
@@ -456,7 +455,7 @@ const lib = {
 							text: "Well hello there! We don't usually get visitors out here!",
 							options: [
 								{text: "What is this place?",index: 10},
-								{text: "[Ignore him]",index: -1}
+								{text: "[Ignore him]",index: -1, chat:RoleplayStageOption.ChatType.none}
 							]
 						},
 						{
@@ -572,18 +571,17 @@ const lib = {
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
-					label : 'SQ_sharktopus_01_offer',
+					label : 'SQ_sharktopus_01_cultist',
 					player: "SQ_sharktopus_camp_cultist",
 					persistent : true,
 					once : true,
 					conditions : [
 						{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'fishedInPortswoodIsle'}},
-						{type:Condition.Types.questObjectiveCompleted, data:{'quest':'SQ_sharktopus_01','objective':'returnToIsland'}, inverse:true},
 					],
 					stages: [
 						{
 							index: 0,
-							text: "Ah you must be the one who hurt our great beast. You must be mighty indeed! I will take pleasure in defeating you!",
+							text: "Ah you must be the one who hurt our great beast. You must be mighty indeed! I will take pleasure in breaking you!",
 							options: [
 								{text: "[Attack]",index: -1, chat:RoleplayStageOption.ChatType.none, game_actions : [
 									{type:GameAction.types.questObjective, data:{'quest':'SQ_sharktopus_01','objective':'returnToIsland'}},
@@ -597,9 +595,69 @@ const lib = {
 		]
 	},
 
+	yuug_portswood_lake_east : {
+		players: [],
+		friendly : true,
+		game_actions : [
+			// SQ_sharktopus
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'SQ_sharktopus_01_water',
+					once:true,
+					persistent:true,
+					conditions : [
+						{type:Condition.Types.questAccepted, data:{quest:'SQ_sharktopus_01'}, targnr:0},
+						{type:Condition.Types.questObjectiveCompleted, data:{quest:'fishedInPortswoodIsle'}, inverse:true, targnr:0},
+					],
+					stages: [
+						{
+							index: 0,
+							text: "This looks like a nice spot to fish!",
+							options: [
+								{text: "[Cast lure]", index: -1, game_actions:[
+									{type:GameAction.types.questObjective, data:{quest:'SQ_sharktopus_01', objective:'fishedInPortswoodIsle'}},
+									'splashVisual',
+									{type:GameAction.types.door, data:{index:14}}
+								], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+				}}
+			},
+		]
+	},
+	yuug_portswood_lake_capsize : {
+		players: [],
+		friendly : true,
+		game_actions : [
+			// SQ_sharktopus
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'SQ_sharktopus_01_capsize',
+					player: "SQ_sharktopus_01_capsize",
+					once:true,
+					persistent:true,
+					stages: [
+						{
+							index: 0,
+							text: "You hook something massive! The boat tips over and you fall into the lake!",
+							options: [
+								{text: "[Done]", index: -1, chat:RoleplayStageOption.ChatType.none}
+							]
+						},
+					],
+				}}
+			},
+		]
+	},
+
 	yuug_portswood_isle_sharktopus : {
 		// todo
 	},
+
+	
 
 	// NPCS outside the tavern
 	yuug_port : {

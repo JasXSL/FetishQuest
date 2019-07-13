@@ -6,6 +6,7 @@ import Action from './Action.js';
 import Calculator from './Calculator.js';
 import Player from './Player.js';
 import Asset from './Asset.js';
+import GameAction from './GameAction.js';
 
 /*
 	A wrapper is a container for multiple effects
@@ -1276,6 +1277,11 @@ class Effect extends Generic{
 				}
 
 			}
+			
+			else if( this.type === Effect.Types.gameAction ){
+				const ga = GameAction.loadThis(this.data.action);
+				ga.trigger(t);
+			}
 
 			// LAST
 			else if( typeof this.type !== "string" )
@@ -1531,7 +1537,7 @@ Effect.Types = {
 	globalHitChanceMod : 'globalHitChanceMod',
 	globalDamageTakenMod : 'globalDamageTakenMod',
 	globalDamageDoneMod : 'globalDamageDoneMod',
-	gameAction : 'gameAction',	// TODO
+	gameAction : 'gameAction',
 	addActionCharges : 'addActionCharges',		
 
 	// Stamina

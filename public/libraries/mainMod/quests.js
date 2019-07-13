@@ -86,7 +86,7 @@ const lib = {
 				label : 'returnToIsland',
 				name : 'An aquatic beast pulled you into the water, return to the island to talk to the otter!',
 				amount : 1,
-				visbility_conditions : [
+				visibility_conditions : [
 					{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_01', objective:'fishedInPortswoodIsle'}}
 				]
 			},
@@ -94,7 +94,7 @@ const lib = {
 				label : 'defeatTheCultist',
 				name : 'The otter is nowhere to be seen, but there\'s a hostile person at his camp, I should take it down and search for more clues!',
 				amount : 1,
-				visbility_conditions : [
+				visibility_conditions : [
 					{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_01', objective:'returnToIsland'}}
 				],
 				events : [{
@@ -114,7 +114,7 @@ const lib = {
 				label : 'defeatTheBeast',
 				name : 'I found a key on the figure, I should track down the monster and put an end to it!',
 				amount : 1,
-				visbility_conditions : [
+				visibility_conditions : [
 					{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_01', objective:'defeatTheCultist'}}
 				],
 				events : [{
@@ -134,7 +134,7 @@ const lib = {
 				label : 'stuffTheBeast',
 				name : 'The monster is quite grisly, maybe the Yuug Port tavernkeeper would be interested in a trophy!',
 				amount : 1,
-				visbility_conditions : [
+				visibility_conditions : [
 					{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_01', objective:'defeatTheBeast'}}
 				]
 			},

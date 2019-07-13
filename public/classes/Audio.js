@@ -219,7 +219,7 @@ class AudioKit extends Generic{
 			console.error("Non-condition received", condition);
 	}
 
-	playOnTarget( audioSound, target, armor_slot ){
+	playOnTarget( audioSound, target, armor_slot, volume_multiplier = 1.0 ){
 
 		let offset = game.ui.getPlayerAudioOffset(target);
 		audioSound.setPosition(offset.x, offset.y, offset.z);
@@ -236,7 +236,7 @@ class AudioKit extends Generic{
 				sound = 'hit_mail.ogg';
 			if( !sound )
 				return;
-			setTimeout(() => audioSound.parent.play( 'media/audio/'+sound, 0.5, false, offset.x, offset.y, offset.z ), 50)
+			setTimeout(() => audioSound.parent.play( 'media/audio/'+sound, 0.5*volume_multiplier, false, offset.x, offset.y, offset.z ), 50)
 		}
 
 	}
@@ -244,7 +244,7 @@ class AudioKit extends Generic{
 	// Accepts an Audio object which the sounds will be output to
 	// Sender and target can be Player objects or DOM elements
 
-	async play( audio, sender, target, armorHitSound ){
+	async play( audio, sender, target, armorHitSound, volume_multiplier = 1.0 ){
 
 		// Preload and execute
 		let promises = [];
@@ -259,10 +259,10 @@ class AudioKit extends Generic{
 				ta = sender;
 
 			if( !entry.t )
-				this.playOnTarget(loaded[i], ta, armorHitSound);
+				this.playOnTarget(loaded[i], ta, armorHitSound, volume_multiplier);
 			else
 				setTimeout(() => {
-					this.playOnTarget(loaded[i], ta, armorHitSound);
+					this.playOnTarget(loaded[i], ta, armorHitSound, volume_multiplier);
 				}, entry.t);
 				
 		}

@@ -364,7 +364,15 @@ LibMaterial.library = {
 			transparent : true,
 			alphaTest : 0.5,
 		}, "MeshDepthMaterial"),
-	
+		Black : new LibMaterial({
+			map : 'decals/bloodsplat.png',
+			metalness : 0.3,
+			roughness : 0.7,
+			transparent : true,
+			alphaTest : 0.5,
+			color : 0x111111,
+			side:THREE.DoubleSide
+		}),
 	},
 
 	Structure : {

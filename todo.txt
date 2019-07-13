@@ -18,6 +18,14 @@ Medium rare:
 		- Sell
 		- Repair
 
+	
+
+
+Big chungi:
+	- Add monsters in the water
+	- Add a cultist plus imp fight in the lever room. Todo exists in players.js
+	- Add the sharktopus fight
+
 	- New monster: Sharktopus
 		- 4 Gongs are in the arena, these are invisible other than when the sharktopus has dived
 			- Gongs need to have a low resistance to everything
@@ -32,23 +40,7 @@ Medium rare:
 		- You can find stones on the island weighing in at 500g and can be used multiple times in a turn for only 2 AP and do 1 damage with a 50% hit chance
 		- Shark can have some generic tentacle abilities
 
-
-
-Big chungi:
-	- Make a bed mesh
-	- Make a fishing rod mesh
-	- Go through todo and implement
-	- Test island quest up until the point where you defeated the cultist
-	- Add the rest of the quest and the sharktopus fight
-
 	- Island quest:
-		- Arrive at island. Get greeted by an otter who says he almost caught something massive while fishing.
-		- Add quest to search the island for a fishing rod.
-		- Return with fishing rod and get tasked to take your boat east and try your luck.
-		- Go to the lake and use new fish action only available when on that stage.
-		- Get pulled into the lake and end up a few cells away in cells only available during this part of the quest.
-		- Go back to shore, otter is missing. Get attacked by a cultist there instead.
-		- There needs to be large earth tracks leading west towards the dungeon.
 		- Go to the dungeon, it's now unlocked.
 		- Kill the beast, and you collect a trophy.
 		- Bring the trophy to the port tavern to finish the quest and get a nice chunk of money and alcohol.

@@ -1,4 +1,6 @@
 import GameAction from "../../classes/GameAction.js";
+import Condition from "../../classes/Condition.js";
+import { RoleplayStageOption } from "../../classes/Roleplay.js";
 
 const lib = {
 
@@ -31,18 +33,50 @@ const lib = {
 		}
 	},
 
+	splashVisual : {
+		type : GameAction.types.hitfx,
+		data : {
+			hitfx : 'waterSpout',
+			max_triggers : 1,
+		}
+	},
+
 
 
 	// Quests
 
 	// SQ_sharktopus
 	SQ_sharktopus_fishing_rod : {
-		type : GameAction.types.questObjective,
-		data : {
-			quest : 'SQ_sharktopus_00',
-			objective : 'fishingRodFound',
-		}
+		type : GameAction.types.roleplay,
+		conditions : [
+			{type:Condition.Types.questAccepted, data:{quest:'SQ_sharktopus_00'}, targnr:0},
+			{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_00', objective:'fishingRodFound'}, inverse:true, targnr:0},
+		],
+		data : {rp:{
+			label : 'SQ_sharktopus_00_rod',
+			stages: [
+				{
+					index: 0,
+					text: "This must be the otter's fishing rod!",
+					options: [
+						{text: "[Take it]", index: -1, game_actions:[
+							{type:GameAction.types.questObjective, data:{quest:'SQ_sharktopus_00', objective:'fishingRodFound'}},
+						], chat:RoleplayStageOption.ChatType.none},
+					]
+				},
+			],
+		}}
 	},
+	SQ_sharktopus_blood : {
+		type : GameAction.types.tooltip,
+		data : {
+			text : 'Black ooze.',
+		},
+		conditions : [
+			{type:Condition.Types.questAccepted, data:{quest:'SQ_sharktopus_01'}, targnr:0},
+			{type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_01'}, inverse:true, targnr:0},
+		]
+	}
 
 	
 };

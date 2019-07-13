@@ -118,7 +118,7 @@ class Stage extends Generic{
 	}
 
 	// Attacker and victim can also be DOM elements
-	async run( attacker, victim, armor_slot, mute = false ){
+	async run( attacker, victim, armor_slot, mute = false, num_players = 1 ){
 
 		const webgl = game.renderer;
 
@@ -246,8 +246,11 @@ class Stage extends Generic{
 
 		let attached_instances = [];
 		if( !mute ){
+
+			const vMulti = 1./Math.pow(2, num_players);
 			for( let kit of this.sound_kits ){
-				game.playFxAudioKitById(kit, a, v, armor_slot ).then(data => {
+				
+				game.playFxAudioKitById(kit, a, v, armor_slot, false, vMulti ).then(data => {
 					const kit = data.kit;
 					const instances = data.instances;
 					if( kit.follow_parts )

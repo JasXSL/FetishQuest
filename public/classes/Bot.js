@@ -165,11 +165,10 @@ class Bot{
 				
 				// Handle sadism
 				if( aIsSTD && bIsSTD ){
-					const favorAttack = Math.random() < this.player.sadism;	// Favor attack if rolling below sadism 
+					const favorAttack = Math.random() < this.player.sadistic;	// Favor attack if rolling below sadism 
 					if( a.label === 'stdAttack' )
 						return favorAttack ? -1 : 1;	// A was attack, return -1 if sadism roll
 					return favorAttack ? 1 : -1;		// A was arouse, return 1 if sadism roll
-					
 				}
 
 				return 0;

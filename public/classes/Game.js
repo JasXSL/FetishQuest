@@ -622,7 +622,7 @@ export default class Game extends Generic{
 		return this.playFxAudioKit.apply(this, [kit].concat(args));
 
 	}
-	async playFxAudioKit(kit, sender, target, armor_slot, global = false ){
+	async playFxAudioKit(kit, sender, target, armor_slot, global = false, vol_multi = 1.0 ){
 		
 		let sid, tid;
 		if( sender )
@@ -631,9 +631,9 @@ export default class Game extends Generic{
 			tid = target.id;
 
 		if( this.is_host && global )
-			this.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot);
+			this.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot, vol_multi);
 
-		const out = await kit.play(this.audio_fx, sender, target, armor_slot);
+		const out = await kit.play(this.audio_fx, sender, target, armor_slot, vol_multi);
 		return {kit:kit, instances:out};
 
 	}
@@ -1462,16 +1462,17 @@ export default class Game extends Generic{
 		// Encounter isn't finished, start a battle 
 		if( !this.encounter.completed ){
 			
-			if( !started ){
+			//if( !started ){
 
 				this.clearRoleplay();
 				
+
 				const viable = GameAction.getViable(this.encounter.game_actions, player);
 				for( let action of viable ){
 					action.trigger(player);
 				}
 
-			}
+			//}
 		
 
 			if( !encounter.friendly ){

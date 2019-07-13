@@ -2680,7 +2680,7 @@ export default class Modtools{
 			html += '<div class="assetDataEditor"><input type="button" value="+Custom Interaction" class="addInteraction" /><input type="button" value="+Lib Interaction" class="addInteractionLib" /><div class="assetData"></div></div>';
 
 			
-			if( stageMesh.geometry.animations && stageMesh.geometry.animations.length ){
+			if( stageMesh.geometry && stageMesh.geometry.animations && stageMesh.geometry.animations.length ){
 				html += 'Animation: <select class="assetAnimation">';
 				for( let anim of stageMesh.geometry.animations ){ 
 					html += '<option value="'+esc(anim.name)+'" '+(stageMesh.userData.activeAnimation === anim.name ? 'selected' : '')+'>'+esc(anim.name)+'</option>';

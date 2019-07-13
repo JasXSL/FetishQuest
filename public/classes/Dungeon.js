@@ -1428,8 +1428,6 @@ class DungeonRoomAsset extends Generic{
 		if( player.addAsset(asset) )
 			this.remLootById(id);
 
-		if( !this.isInteractive() )
-			this.updateInteractivity();
 
 		game.ui.addText( player.getColoredName()+" looted "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
 		game.renderer.drawActiveRoom();		// Forces a room refresh
@@ -1712,7 +1710,7 @@ class DungeonEncounter extends Generic{
 	onPlacedInWorld( just_started = true ){
 
 		// Toggle hide/show of players
-		for( let i in this.player_conditions){
+		for( let i in this.player_conditions ){
 			const pl = this.getPlayerByLabel(i);
 			if( !pl )
 				continue;

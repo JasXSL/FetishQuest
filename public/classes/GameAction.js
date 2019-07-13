@@ -11,6 +11,8 @@ import Quest from './Quest.js';
 import Roleplay from './Roleplay.js';
 import Shop from './Shop.js';
 import Player from './Player.js';
+import Text from './Text.js';
+import HitFX from './HitFX.js';
 
 export default class GameAction extends Generic{
 
@@ -144,6 +146,9 @@ export default class GameAction extends Generic{
 			if( this.type === GameAction.types.shop ){
 				this.data.shop = this.getDataAsShop();
 			}
+
+			if( this.type === GameAction.types.text )
+				this.data.text = this.getDataAsText();
 		}
 
 
@@ -273,6 +278,10 @@ export default class GameAction extends Generic{
 		return shop;
 	}
 
+	getDataAsText(){
+		return Text.loadThis(this.data.text, this);
+	}
+
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
 	async trigger( player, mesh ){
 		
@@ -282,7 +291,7 @@ export default class GameAction extends Generic{
 
 		// Helper function for playing animation on this asset. Returns the animation played if any
 		function playAnim( anim ){
-			if( !mesh.userData.playAnimation )
+			if( !mesh || !mesh.userData || !mesh.userData.playAnimation )
 				return;
 			game.net.dmAnimation( asset, anim );
 			return mesh.userData.playAnimation(anim);
@@ -299,13 +308,18 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.door ){
+			if( !this.data ){
+				console.error("Trying to trigger a door with no data", this);
+				return;
+			}
+
 			if( isNaN(this.data.index) )
 				this.data.index = 0;
 
 			if( !game.canTransport() )
 				return;
 			game.onRoomChange();
-			this.parent.parent.parent.goToRoom( player, this.data.index );
+			game.dungeon.goToRoom( player, this.data.index );
 			playAnim("open");
 
 		}
@@ -387,7 +401,7 @@ export default class GameAction extends Generic{
 			if( rp.completed && rp.once )
 				return false;
 			rp.completed = false;
-			if( rp && rp.validate(player) )
+			if( rp.validate(player) )
 				game.setRoleplay(rp);
 
 		}
@@ -457,10 +471,42 @@ export default class GameAction extends Generic{
 				caster.useActionLabel(this.data.action, [player]);
 			}
 		}
+		else if( this.type === types.text ){
+			const tx = this.getDataAsText();
+			tx.run(new GameEvent({}));	// Todo: Extend this with ability to set sender/target, and such
+		}
+		else if( this.type === types.hitfx ){
+			const evt = new GameEvent({}, this);
+			const casters = game.getEnabledPlayers().filter(player => {
+				evt.target = evt.sender = player;
+				return ( !Array.isArray(this.data.caster_conds) || Condition.all(this.data.caster_conds, evt) );
+			});
+			const targets = game.getEnabledPlayers().filter(player => {
+				evt.target = evt.sender = player;
+				return ( !Array.isArray(this.data.target_conds) || Condition.all(this.data.target_conds, evt) );
+			});
+			let fx = this.data.hitfx;
+			if( !Array.isArray(fx) )
+				fx = [fx];
+			
+			let trigs = 0;
+			for( let f of fx ){
+				f = HitFX.loadThis(f);
+				for( let caster of casters ){
+					game.renderer.playFX(caster, targets, f, undefined, true, false);
+					if( this.data.max_triggers && ++trigs >= this.data.max_triggers ){
+						break;
+					}
+				}
+			}
+
+		}
 
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
+			return false;
 		}
+		
 
 	}
 
@@ -510,6 +556,8 @@ GameAction.types = {
 	shop : "shop",							// {shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.
 	playerAction : "playerAction",			// {player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it's the supplied triggering player that becomes the caster
 	repairShop : "repairShop",				// {player:(str)label} - Marks a player as offering repairs
+	text : "text",							// {text:(obj)text} - Triggers a text
+	hitfx : "hitfx",						// {hitfx:(obj/str/arr)hitfx, caster_conds:(arr)caster_conditions, target_conds:(arr)target_conds, max_triggers:(int)=all} - Triggers a hitfx
 };
 
 // These are types where data should be sent to netgame players

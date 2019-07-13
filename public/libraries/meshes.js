@@ -1781,7 +1781,50 @@ LibMesh.library = {
 				width: 1,
 				height: 1,
 			}),
-		}
+		},
+		
+	},
+	Decals : {
+		BloodSplat : new LibMesh({
+			width: 1,
+			height: 1,
+			auto_bounding_box : true,
+			url : function(){
+				let group = new THREE.Group();
+				let plane = new THREE.Mesh(
+					new THREE.PlaneGeometry(100,100,1,1),
+					new THREE.MeshBasicMaterial()
+				);
+				plane.rotation.set(Math.PI/2, 0, 0);
+				plane.material = libMat.Splat.Blood.flatten();
+				//plane.customDepthMaterial = libMat.Splat.BloodDepth.flatten();
+				plane.receiveShadow = true;
+				plane.position.y = 5;
+				group.add(plane);
+				return group;
+			},
+			tags : [],
+		}),
+		BloodSplatBlack : new LibMesh({
+			width: 1,
+			height: 1,
+			auto_bounding_box : true,
+			url : function(){
+				let group = new THREE.Group();
+				let plane = new THREE.Mesh(
+					new THREE.PlaneGeometry(100,100,1,1),
+					new THREE.MeshBasicMaterial()
+				);
+				plane.rotation.set(Math.PI/2, 0, 0);
+				plane.material = libMat.Splat.Black.flatten();
+				//plane.customDepthMaterial = libMat.Splat.BloodDepth.flatten();
+				plane.receiveShadow = true;
+				plane.position.y = 5;
+				group.add(plane);
+				return group;
+			},
+			tags : [],
+		}),
 	},
 	// Outdoors
 	Land : {

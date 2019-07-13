@@ -5,6 +5,7 @@ import Condition from './Condition.js';
 
 import Calculator from './Calculator.js';
 import Asset from './Asset.js';
+import GameEvent from './GameEvent.js';
 
 class Quest extends Generic{
 
@@ -216,6 +217,9 @@ class Quest extends Generic{
 	}
 
 
+	getVisibleObjectives(){
+		return this.objectives.filter(objective => objective.isVisible());
+	}
 	
 
 	/* HELPERS */
@@ -291,7 +295,7 @@ class QuestObjective extends Generic{
 		this.name = '';
 		this.amount = 1;
 		this._amount = 0;
-		this.visibility_conditions = [];		// Todo: Conditions to show this in the log
+		this.visibility_conditions = [];		// Conditions to show this in the log
 		this.events = [];						// QuestObjectiveEvent
 		this.load(data);
 	}
@@ -305,6 +309,7 @@ class QuestObjective extends Generic{
 		if( set )
 			this._amount = amount;
 		this._amount = Math.max(0,Math.min(this.amount, this._amount));
+		game.renderer.drawActiveRoom();
 	}
 
 	
@@ -360,6 +365,10 @@ class QuestObjective extends Generic{
 
 	isCompleted(){
 		return this._amount >= this.amount;
+	}
+
+	isVisible(){
+		return Condition.all(this.visibility_conditions, new GameEvent({}));
 	}
 
 }

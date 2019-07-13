@@ -378,6 +378,41 @@ const lib = {
 		loot_sound : "lootCloth",
 	},
 
+	cultist_robe : {
+		name : "Cult Robe",
+		basevalue : 100,
+		category : Asset.Categories.armor,
+		icon : 'robe',
+		slots : [Asset.Slots.upperBody],
+		equipped : false,
+		tags : [
+			stdTag.asStretchy,
+			stdTag.asRobe,
+			stdTag.asSkirt,
+		],
+		wrappers : [
+			{
+				effects : [
+					{
+						type : Effect.Types.intellectModifier,
+						data : {amount:1},
+					},
+					{
+						type : Effect.Types.bonCorruption,
+						data : {amount:1},
+					},
+				],
+				duration : -1
+			}
+		],
+		description : "A dull red flowing robe ending at your hips and flowing down to your knees. It has a tentacle embroidered on the chest.\n+1 Int, +1 Bon Corruption",
+		level : -1,
+		durability : 10,
+		weight : 50,
+		rarity : 1,
+		loot_sound : "lootCloth",
+	},
+
 	genericRawhideShirt : {
 		name : "Rawhide Shirt",
 		category : Asset.Categories.armor,

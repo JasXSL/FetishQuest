@@ -1962,21 +1962,27 @@ export default class UI{
 				html += '<h1>'+esc(selectedQuest.name)+'</h1>';
 				html += '<p>'+stylizeText(selectedQuest.description)+'</p>';
 				html += '<br /><h3>Objectives</h3>';
-				for( let objective of selectedQuest.objectives ){
-					html += '<div class="objective'+(objective.isCompleted() ? ' completed ' : '')+'">'+
+
+				const objectives = selectedQuest.getVisibleObjectives();
+				html += '<ul>';
+				for( let objective of objectives ){
+					html += '<li class="objective'+(objective.isCompleted() ? ' completed ' : '')+'">'+
 						esc(objective.name)+
-						(objective.amount ? ' - '+objective._amount+'/'+objective.amount : '')+
-					'</div>';
+						(objective.amount ? '<br />'+objective._amount+'/'+objective.amount : '')+
+					'</li>';
 				}
-				html += '<hr />';
-				html += '<h3>Rewards</h3>';
-				for( let asset of selectedQuest.rewards ){
-					html += '<div class="item tooltipParent '+Asset.RarityNames[asset.rarity]+'">';
-						html += esc(asset.name)+(asset._stacks > 1 ? ' x'+asset._stacks : '');
-						html += '<div class="tooltip">';
-							html += asset.getTooltipText();
+				html += '</ul>';
+				if( !selectedQuest.hide_rewards ){
+					html += '<hr />';
+					html += '<h3>Rewards</h3>';
+					for( let asset of selectedQuest.rewards ){
+						html += '<div class="item tooltipParent '+Asset.RarityNames[asset.rarity]+'">';
+							html += esc(asset.name)+(asset._stacks > 1 ? ' x'+asset._stacks : '');
+							html += '<div class="tooltip">';
+								html += asset.getTooltipText();
+							html += '</div>';
 						html += '</div>';
-					html += '</div>';
+					}
 				}
 				if( selectedQuest.rewards_exp ){
 					html += '<div class="item">'+selectedQuest.rewards_exp+' Exp</div>';

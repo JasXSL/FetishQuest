@@ -1098,7 +1098,7 @@ const lib = {
 				icon : "falling",
 				description : "Knocked down on your %knockdown",
 				add_conditions : stdCond.concat(
-					"targetNotKnockedDown",
+					"targetNotGrappledOrKnockedDown",
 					"targetNotBeast",
 					"rand20"
 				),
@@ -1265,7 +1265,7 @@ const lib = {
 				detrimental : true,
 				description : "Knocked down on your %knockdown",
 				add_conditions : stdCond.concat(
-					"targetNotKnockedDown",
+					"targetNotGrappledOrKnockedDown",
 					"targetNotBeast",
 					"rand10"
 				),
@@ -1525,7 +1525,7 @@ const lib = {
 					"wr_legs_spread"
 				],
 				add_conditions : stdCond.concat(
-					"targetNotKnockedDown",
+					"targetNotGrappledOrKnockedDown",
 					"targetNotBeast",
 					{
 						type : "apValue",
@@ -1793,7 +1793,7 @@ const lib = {
 				description : "Lifted onto a tentacle, grappled.",
 				trigger_immediate : true,
 				add_conditions : stdCond.concat(
-					"targetNotBeast", "targetNotGrappled"
+					"targetNotBeast", "targetNotGrappledOrKnockedDown"
 				),
 				tags : [stdTag.wrTentacleRide],
 				effects : [
@@ -2227,7 +2227,7 @@ const lib = {
 				icon : "daemon-pull",
 				description : "Caught in an anemone's tendrils!",
 				trigger_immediate : true,
-				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappled"),
+				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappledOrKnockedDown"),
 				tags : [stdTag.wrTentacleRide],
 				effects : [
 					{type : Effect.Types.grapple},

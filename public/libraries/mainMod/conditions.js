@@ -257,6 +257,7 @@ const lib = {
 	targetKnockedDownBack : {"type":"tag","data":{"tags":["wr_knocked_down_back"]}},
 	targetKnockedDownFront : {"type":"tag","data":{"tags":["wr_knocked_down_front"]}},
 	targetNotGrappled : {type:"tag", data:{tags:[stdTag.wrGrapple]}, inverse:true},
+	targetNotGrappledOrKnockedDown : {type:"tag", data:{tags:[stdTag.wrKnockdown, stdTag.wrGrapple]}, inverse:true},
 	targetGrappledByMe : {type:Condition.Types.tag, data:{tags:[stdTag.wrGrapple], sender:true}},
 	senderHasWhip : {"type":"tag","data":{"tags":["as_whip"]},"caster":true},
 	senderHasStrapon : {type:Condition.Types.tag,data:{tags:[stdTag.asStrapon]},caster:true},

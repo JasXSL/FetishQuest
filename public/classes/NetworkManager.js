@@ -693,7 +693,8 @@ class NetworkManager{
 					new AudioKit(args.kit),
 					game.getPlayerById(args.sender), 
 					game.getPlayerById(args.target), 
-					args.armor_slot
+					args.armor_slot,
+					args.volume_multiplier
 				);
 		}
 		else if( task === NetworkManager.dmTasks.playSoundOnMesh ){
@@ -1028,12 +1029,13 @@ class NetworkManager{
 	}
 
 	// All the args are strings
-	dmPlaySoundOnPlayer(sender, target, kit, armor_slot){
+	dmPlaySoundOnPlayer(sender, target, kit, armor_slot, volume_multiplier = 1.0){
 		this.sendHostTask(NetworkManager.dmTasks.playSoundOnPlayer, {
 			kit : kit,
 			sender : sender,
 			target : target,
 			armor_slot : armor_slot,
+			volume_multiplier : volume_multiplier
 		}); 
 	}
 
@@ -1102,7 +1104,7 @@ NetworkManager.dmTasks = {
 	error : 'error',				// {text:(string)errorText, notice:(bool)isNotice}
 	animation : 'animation',		// {dungeonAsset:dungeonAssetUUID, anim:animation}
 	drawRepair : 'drawRepair',		// {player:(str)casterID, target:(str)targetID, action:(str)actionID}
-	playSoundOnPlayer : 'playSoundOnPlayer',		// {kit:(str)soundkitID, sender:senderUUID, target:targetUUID, armor_slot:(str)armorSlotHit} - 
+	playSoundOnPlayer : 'playSoundOnPlayer',		// {kit:(str)soundkitID, sender:senderUUID, target:targetUUID, armor_slot:(str)armorSlotHit, volume_multiplier:(float)=1} - 
 	playSoundOnMesh : 'playSoundOnMesh',			// {dungeonAsset:(str)dungeonAssetuuid, url:(str)sound_url, volume:(float)volume, loop:(bool)loop[, id:(str)optional_id]}
 	stopSoundOnMesh : 'stopSoundOnMesh',			// {dungeonAsset:(str)dungeonAsset_uuid, id:(str)url/id, fade:(int)fade_ms}
 	raiseInteractOnMesh : 'raiseInteractOnMesh',	// {dungeonAsset:(str)dungeonAsset_uuid} - Triggers the mesh template onInteract function on a dungeon asset

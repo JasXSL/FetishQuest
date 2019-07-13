@@ -677,6 +677,21 @@ div.fxBuffBlue{
 		background:rgba(100,200,100, 0.5);
 	}
 
+	#modal div.modalQuests > div.right li{
+		font-weight:bold;
+		margin:1vmax;
+		background: rgba(0,0,0,.5);
+		padding:1vmax;
+		font-size:1.25vmax;
+		border: 0.2vmax solid #FFF;
+	}
+	#modal div.modalQuests > div.right li.completed{
+		font-weight:normal;
+		font-size:1vmax;
+		font-style: italic;
+		border-color:rgba(0,0,0,0);
+	}
+
 
 	#modal div.newGame{
 		padding:0 10vw;

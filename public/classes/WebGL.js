@@ -890,7 +890,7 @@ class WebGL{
 			recipients = [recipients];
 		
 		for( let recipient of recipients )
-			visObj.run(caster, recipient, armor_slot, mute);
+			visObj.run(caster, recipient, armor_slot, mute, recipients.length);
 		
 		if( global && game.is_host ){
 			game.net.dmHitfx(caster, recipients, visObj, armor_slot);
@@ -1258,6 +1258,7 @@ class Stage{
 
 
 		if( dungeonAsset ){
+			dungeonAsset.updateInteractivity();
 			// Interactive object
 			if( dungeonAsset.isInteractive() ){
 
@@ -1373,7 +1374,7 @@ class Stage{
 	onObjRefresh( obj ){
 
 		let dungeonAsset = obj.userData.dungeonAsset;
-
+		dungeonAsset.updateInteractivity();
 		// Update the room tags
 		if( window.game && dungeonAsset.isDoor() )
 			this.onDoorRefresh(obj);
@@ -1897,6 +1898,9 @@ class Stage{
 Stage.setMeshMatProperty = function( mesh, id, value, reset = false ){
 	
 	let mat = mesh.material;
+
+	if( !mat )
+		return;
 	if( !Array.isArray(mat) )
 		mat = [mat];
 
