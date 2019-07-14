@@ -1671,7 +1671,7 @@ export default class UI{
 						return;
 					await m.save();
 					this.drawMainMenu();
-					this.addNotice("Mod "+esc(m.name)+" installed!");
+					game.modal.addNotice("Mod "+esc(m.name)+" installed!");
 				}catch(err){
 					alert("File failed to load: "+err);
 				}

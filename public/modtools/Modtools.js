@@ -1368,7 +1368,7 @@ export default class Modtools{
 			saveAsset.hitfx = this.compileHitFX();
 			saveAsset.chatPlayerConditions = this.compileConditions('chatPlayerConditions');
 			saveAsset.chat = parseInt($("select[name=chat]", form).val()) || 0;
-			saveAsset.en = $("select[name=en]", form).prop('checked');
+			saveAsset.en = Boolean($("input[name=en]", form).prop('checked'));
 		});
 		
 		updateTextDisplay();
@@ -1772,7 +1772,7 @@ export default class Modtools{
 			html += 'Weight: <input required type="number" min=0 step=1 name="weight" value="'+esc(asset.weight)+'" /><br />';
 			html += 'Charges: <input required type="number" min=0 step=1 name="charges" value="'+esc(asset.charges)+'" /><br />';
 			html += 'Durability Bonus: <input required type="number" min=0 step=1 name="durability_bonus" value="'+esc(asset.durability_bonus)+'" /><br />';
-			html += 'Level: <input required type="number" min=0 step=1 name="level" value="'+esc(asset.level)+'" /><br />';
+			html += 'Level: <input required type="number" min=-1 step=1 name="level" value="'+esc(asset.level)+'" /><br />';
 			html += 'Rarity: <input required type="number" min=0 step=1 max=4 name="rarity" value="'+esc(asset.rarity)+'" /><br />';
 			html += 'Charges: <input required type="number" min=-1 step=1 name="charges" value="'+esc(asset.charges)+'" /><br />';
 			html += 'Loot Sound: <input type="text" name="loot_sound" value="'+esc(asset.loot_sound)+'" /><br />';

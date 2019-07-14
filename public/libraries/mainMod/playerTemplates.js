@@ -281,7 +281,7 @@ const lib = {
 		},
 		min_size : 1,
 		max_size : 1,
-		difficulty : 0.75,
+		difficulty : 1,
 		sadistic_min : 0,
 		sadistic_max : 0.5,
 		dominant_min : 1,
@@ -560,7 +560,7 @@ const lib = {
 		classes : ["guardian_demon_breaker"],
 		monetary_wealth : 40,
 		powered : true,
-		max_actions : 4,
+		max_actions : 5,
 		tags : [
 			stdTag.penis,
 			stdTag.plHorn,
@@ -573,7 +573,7 @@ const lib = {
 		primary_stats : {
 			[Player.primaryStats.intellect] : -1,
 			[Player.primaryStats.stamina] : 4,
-			[Player.primaryStats.agility] : -2,
+			[Player.primaryStats.agility] : 0, 
 		},
 		sv : {
 			[Action.Types.physical] : 2,
@@ -587,6 +587,9 @@ const lib = {
 			[Action.Types.holy] : -4,
 			[Action.Types.corruption] : 2,
 		},
+		required_actions : [
+			'guardian_demon_grapple'
+		],
 		viable_asset_materials : [
 			"cotton",
 			"leather",

@@ -74,6 +74,11 @@ const lib = {
 		conditions : [],
 		respawn : 260000
 	},
+	large_demons : {
+		player_templates : [
+			"guardian_demon",
+		],
+	},
 
 	// YUUG
 	yuug_port_tavern_npcs : {
@@ -653,10 +658,32 @@ const lib = {
 		]
 	},
 
-	yuug_portswood_isle_sharktopus : {
+	SQ_sharktopus_boss : {
 		// todo
 	},
-
+	SQ_sharktopus_water_warning : {
+		friendly : true,
+		game_actions : [
+			// SQ_sharktopus
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'SQ_sharktopus_01_basement',
+					once:true,
+					persistent:true,
+					stages: [
+						{
+							index: 0,
+							text: "There's barely any light in this area! And it seems to be flooded to your waist!",
+							options: [
+								{text: "[Press on]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+				}}
+			},
+		]
+	},
 	
 
 	// NPCS outside the tavern

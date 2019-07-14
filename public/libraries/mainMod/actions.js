@@ -2302,7 +2302,7 @@ const lib = {
 		cooldown : 6,
 		detrimental : true,
 		type : Action.Types.physical,
-		tags : [],
+		tags : [stdTag.acNpcImportant],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -2318,6 +2318,7 @@ const lib = {
 				tags : [stdTag.wrGrapple],
 				effects : [
 					{type : Effect.Types.grapple},
+					'selfTaunt'
 				]
 			}
 		]
@@ -2330,7 +2331,7 @@ const lib = {
 		cooldown : 3,
 		detrimental : true,
 		type : Action.Types.corruption,
-		tags : [stdTag.acDamage],
+		tags : [stdTag.acDamage, stdTag.acNpcImportant],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -2351,7 +2352,7 @@ const lib = {
 		cooldown : 3,
 		detrimental : true,
 		type : Action.Types.corruption,
-		tags : [stdTag.acDamage],
+		tags : [stdTag.acDamage, stdTag.acNpcImportant],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -2389,12 +2390,11 @@ const lib = {
 				tick_on_turn_start : false,
 				detrimental : true,
 				add_conditions : stdCond.concat("targetNotBeast", "targetWearsLowerBody"),
-				trigger_immediate : true,
 				tags : [
 					stdTag.ttButtExposed, stdTag.ttGroinExposed
 				],
 				effects : [
-					{type : Effect.Types.disrobe, data:{slots:Asset.Slots.lowerBody}, conditions:["rand10"]}
+					{type : Effect.Types.disrobe, data:{slots:Asset.Slots.lowerBody}, conditions:["rand10"], events : [GameEvent.Types.internalWrapperAdded],}
 				]
 			}
 		]
@@ -2417,9 +2417,10 @@ const lib = {
 				icon : "blood",
 				description : "Corruption avoidance reduced by 2",
 				add_conditions : stdCond.concat("targetNotBeast"),
-				trigger_immediate : true,
+
 				effects : [
 					{
+						events : [GameEvent.Types.internalWrapperAdded],
 						type : Effect.Types.damage,
 						data : {amount : 4}
 					},

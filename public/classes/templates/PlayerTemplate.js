@@ -43,6 +43,7 @@ class PlayerTemplate extends Generic{
 		this.intelligence_min = 0.6;				// Starts off at human level
 		this.intelligence_max = 0.6;
 		this.required_assets = [];				// labels of assets that MUST be on this character
+		this.required_actions = [];				// labels of actions that MUST be on this character
 		this.no_equip = false;					// Prevents equip of the gear. Useful for things like mimics.
 		this.load(...args);
 	}
@@ -60,6 +61,7 @@ class PlayerTemplate extends Generic{
 			description : this.description,
 			classes : this.classes,
 			max_actions : this.max_actions,
+			required_actions : this.required_actions,
 			tags : this.tags,
 			min_level : this.min_level,
 			max_level : this.max_level,
@@ -238,6 +240,10 @@ class PlayerTemplate extends Generic{
 		player.addAsset(copperAsset);
 		player.exchangeMoney();
 		
+		let maxActions = this.max_actions-this.required_actions.length;
+		if( maxActions < 0 )
+			maxActions = 0;
+
 		let viableActions = [];
 		for( let a of player.class.actions ){
 			if( libActions[a] && libActions[a].level <= player.level ){
@@ -257,6 +263,8 @@ class PlayerTemplate extends Generic{
 
 		if( this.max_actions > 0 )
 			viableActions = viableActions.slice(0, this.max_actions);
+
+		viableActions = viableActions.concat(Action.loadThese(this.required_actions));
 
 		viableActions.sort((a,b) => {
 			if( a.level === b.level )

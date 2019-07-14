@@ -306,6 +306,8 @@ class Wrapper extends Generic{
 	}
 
 	addTime( amount = -1 ){
+		if( this.duration === -1 )
+			return;
 		this._duration += amount;
 		if( this._duration >= this.duration )
 			this._duration = this.duration;
