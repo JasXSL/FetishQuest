@@ -239,6 +239,7 @@ export default class Modtools{
 
 		let tagFullSel = '', 
 			tagTtSel = '',
+			tagMetaSel = '',
 			soundKits = '',
 			conditions = '',
 			actions = '',
@@ -254,19 +255,26 @@ export default class Modtools{
 			players = '',
 			roleplay = '',
 			gameActions = '',
-			shops = ''
+			shops = '',
+			hitFX = ''
 		;
 		for( let t in stdTag ){
 			const tag = stdTag[t];
 			const opt = '<option value="'+tag+'" />';
 			if( t.substr(0,2) === 'tt' )
 				tagTtSel += opt;
+			if( t.substr(0,2) === 'me' )
+				tagMetaSel += opt;
 			tagFullSel += opt;
 		}
 
 		const kits = glib.getFull('AudioKit');
 		for( let kit in kits )
 			soundKits += '<option value="'+esc(kit)+'" />';
+
+		const fxs = glib.getFull('HitFX');
+		for( let f in fxs )
+			hitFX += '<option value="'+esc(f)+'" />';
 
 		const conds = glib.getFull('Condition');
 		for( let cond in conds )
@@ -343,7 +351,9 @@ export default class Modtools{
 			'<datalist id="players"><select>'+players+'</select></datalist>'+
 			'<datalist id="roleplays"><select>'+roleplay+'</select></datalist>'+
 			'<datalist id="gameActions"><select>'+gameActions+'</select></datalist>'+
-			'<datalist id="shops"><select>'+shops+'</select></datalist>'
+			'<datalist id="shops"><select>'+shops+'</select></datalist>'+
+			'<datalist id="hitFX"><select>'+hitFX+'</select></datalist>'+
+			'<datalist id="tagsMeta"><select>'+tagMetaSel+'</select></datalist>'
 		);
 
 	}
@@ -703,7 +713,7 @@ export default class Modtools{
 
 		this.mml_generic( 
 			'texts', 
-			['Text','Action','Weight','Conditions','TurnTags','HitSlot','Audio','aAuto','nTarg','aOut','Debug'],
+			['Text','Enabled','Action','Weight','Conditions','TurnTags','HitSlot','Audio','nTarg','aOut','Debug'],
 			this.mod.texts,
 			text => {
 				// This can be removed later, it's legacy
@@ -716,6 +726,7 @@ export default class Modtools{
 
 				return [
 					text.text,
+					Boolean(text.en) || text.end === undefined ? 'X' : '',
 					Array.isArray(text.conditions) ? 
 						text.conditions.map(el => {
 							if( typeof el === "object" ){
@@ -1270,6 +1281,7 @@ export default class Modtools{
 	editor_texts( text = {} ){
 
 		// Helper function
+		
 
 		// Updates the display underneath the text where you can see a real world example
 		const updateTextDisplay = () => {
@@ -1313,35 +1325,39 @@ export default class Modtools{
 		let html = 'Text: <input type="text" name="text" value="'+esc(text.text)+'" style="display:block;width:100%" />';
 			html += 'Preview: <span id="textPreview"></span><br /><br />';
 			html += 'Nr Players: <input type="number" min=1 step=1 name="numTargets" value="'+(+text.numTargets || 1)+'" /><br />';
-			html += 'Is Chat: <select name="chat">'+
-				'<option value="0">No</option>'+
-				'<option value="1" '+(+text.chat === 1 ? 'selected' : '')+'>Yes, optional</option>'+
-				'<option value="2" '+(+text.chat === 2 ? 'selected' : '')+'>Yes, required</option>'+
-			'</select><br />';
+			
 			html += 'Conditions: '+this.formConditions(text.conditions)+'<br />';
-			html += 'Chat player conditions: '+this.formConditions(text.chatPlayerConditions, 'chatPlayerConditions')+'<br />';
-			html += 'Weight: <input type="range" min=1 max=10 step=1 name="weight" value="'+(+text.weight || 1)+'" /><br />';
-
 			html += this.presetConditions({
 				'HumOnHum' : ['targetNotBeast','actionHit','senderNotBeast','eventIsActionUsed'],
 				'AnyOnHum' : ['targetNotBeast','actionHit','eventIsActionUsed'],
 				'MonOnHum' : ['targetNotBeast','actionHit','eventIsActionUsed','senderBeast'],
 				'GenAction' : ['actionHit','eventIsActionUsed'],
 			});
+
+			html += 'Is Chat: <select name="chat">'+
+				'<option value="0">No</option>'+
+				'<option value="1" '+(+text.chat === 1 ? 'selected' : '')+'>Yes, optional</option>'+
+				'<option value="2" '+(+text.chat === 2 ? 'selected' : '')+'>Yes, required</option>'+
+			'</select><br />';
+			html += '<div class="chatPlayerConditions">Chat player conditions: '+this.formConditions(text.chatPlayerConditions, 'chatPlayerConditions')+'</div>';
+			
+			html += 'Weight: <input type="range" min=1 max=10 step=1 name="weight" value="'+(+text.weight || 1)+'" /><br />';
 			html += '<br />';
 			html += '<br />';
 			html += 'TurnTags: '+this.formTags(text.turnTags, 'turnTags', 'tagsTT')+'<br />';
-			html += 'Meta Tags: '+this.formTags(text.metaTags, 'metaTags', 'tagsFull')+'<br />';
+			html += 'Meta Tags: '+this.formTags(text.metaTags, 'metaTags', 'tagsMeta')+'<br />';
 			html += 'Armor Slot: '+this.formArmorSlot(text.armor_slot)+'<br />';
-			html += 'Audio: '+this.formSoundKits(text.audiokits)+'<br />';
+			html += 'HitFX: '+this.formHitFX(text.hitfx)+'<br />';
+			html += 'Additional Audio: '+this.formSoundKits(text.audiokits)+'<br />';
 			html += '<span title="Status texts are grouped and output after an action text is output. This bypasses that.">Always Out</span>: <input type="checkbox" value="1" name="alwaysOutput" '+(text.alwaysOutput ? 'checked' : '')+' /><br />';
 			html += '<span title="Outputs debugging info when this text conditions are checked">Debug</span>: <input type="checkbox" value="1" name="debug" '+(text.debug ? 'checked' : '')+' /><br />';
+			html += '<span title="Enables the text">Enabled</span>: <input type="checkbox" value="1" name="en" '+(text.en !== undefined && !text.en ? '' : 'checked')+' /><br />';
 
 		this.editor_generic('texts', text, this.mod.texts, html, saveAsset => {
 			const form = $("#assetForm");
 			saveAsset.text = $("input[name=text]", form).val();
-			saveAsset.numTargets = +$("input[name=numTargets]", form).val();
-			saveAsset.weight = +$("input[name=weight]", form).val();
+			saveAsset.numTargets = +$("input[name=numTargets]", form).val() || 0;
+			saveAsset.weight = +$("input[name=weight]", form).val() || 0;
 			saveAsset.alwaysOutput = $("input[name=alwaysOutput]", form).is(':checked');
 			saveAsset.debug = $("input[name=debug]", form).is(':checked');
 			saveAsset.turnTags = this.compileTags('turnTags');
@@ -1349,9 +1365,12 @@ export default class Modtools{
 			saveAsset.armor_slot = this.compileArmorSlot();
 			saveAsset.audiokits = this.compileSoundKits();
 			saveAsset.conditions = this.compileConditions();
+			saveAsset.hitfx = this.compileHitFX();
 			saveAsset.chatPlayerConditions = this.compileConditions('chatPlayerConditions');
 			saveAsset.chat = parseInt($("select[name=chat]", form).val()) || 0;
+			saveAsset.en = $("select[name=en]", form).prop('checked');
 		});
+		
 		updateTextDisplay();
 
 		html = '<div style="user-select:text;">';
@@ -1416,6 +1435,8 @@ export default class Modtools{
 		html += '</div>';
 		$("#assetForm").after(html);
 
+		const assetForm = $("#assetForm");
+
 		// Text update
 		$("#assetForm input[name=text]").on('input change', () => {
 			clearTimeout(tUpdateTimer);
@@ -1423,7 +1444,14 @@ export default class Modtools{
 				updateTextDisplay();
 			}, 250); 
 		});
+
+		const cpcSelect = $("select[name=chat]", assetForm);
+		const toggleChatPlayerConditions = () => {
+			$("div.chatPlayerConditions", assetForm).toggleClass('hidden', !+cpcSelect.val());
+		};
 		
+		cpcSelect.on('change', toggleChatPlayerConditions);
+		toggleChatPlayerConditions();
 		
 	}
 
@@ -3135,6 +3163,7 @@ export default class Modtools{
 		this.bindDungeonVars();
 		this.bindRoleplayStages();
 		this.bindRoleplays();
+		this.bindHitFX();
 
 		$("#modal .deleteParent").off('click').on('click', function(){
 			$(this).parent().remove();
@@ -4300,7 +4329,7 @@ export default class Modtools{
 
 	}
 
-
+	
 	
 
 
@@ -4716,7 +4745,43 @@ export default class Modtools{
 	}
 
 
+	// HitFX (bindable)
+	bindHitFX(){
+		let th = this;
+		$("#modal input.addHitFXHere").off('click')
+			.on('click', function(){
+				$(this).parent().append(th.inputHitFX(""));
+			});
+	}
 
+	compileHitFX( cName = 'hitFX' ){
+		const base = $('#modal div.'+cName+' input[name=hitFX]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			const val = el.val().trim();
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	inputHitFX( fx = '' ){
+		return '<input type="text" name="hitFX" value="'+esc(fx)+'" list="hitFX" />';
+	}
+
+	formHitFX( fx = [], cName = 'hitFX' ){
+
+		if( !Array.isArray(fx) )
+			fx = [];
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addHitFXHere" value="Add HitFX" />';
+		for( let f of fx )
+			out+= this.inputHitFX(f);
+		out += '</div>';
+		return out;
+
+	}
 
 
 	// Actions (Bindable)

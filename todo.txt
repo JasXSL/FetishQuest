@@ -18,12 +18,11 @@ Medium rare:
 		- Sell
 		- Repair
 
-	
-
+	- Test text editor
+		- Add hitfx
 
 Big chungi:
-	- Add monsters in the water
-	- Add a cultist plus imp fight in the lever room. Todo exists in players.js
+	- Put a demon guardian in the lever room Replace Todo in players.js
 	- Add the sharktopus fight
 
 	- New monster: Sharktopus

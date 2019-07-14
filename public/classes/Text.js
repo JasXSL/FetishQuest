@@ -68,6 +68,7 @@ class Text extends Generic{
 		this.chat = 0;					// 0 = no chat, 1 = casual chat (has a built in cooldown), 2 = required chat
 		this.chatPlayerConditions = [];	// These conditions are run on each player to see if they can say this. Only usable when chat is true
 										// Both target and sender are the same player. You generally want at least "targetIsX" in here when using a text.
+		this.en = true;					// enabled
 
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
 
@@ -113,6 +114,7 @@ class Text extends Generic{
 			chat : this.chat,
 			chatPlayerConditions : Condition.saveThese(this.chatPlayerConditions),
 			metaTags : this.metaTags,
+			en : this.en
 		};
 	}
 	
@@ -303,6 +305,10 @@ class Text extends Generic{
 
 		if( this.debug )
 			console.debug("Validating", this, "against", event);
+
+		if( !this.en ){
+			return false;
+		}
 
 		// Temporarily set. The proper set is after cloning in Text.getFromEvent
 		if( event.text )
