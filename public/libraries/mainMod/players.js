@@ -2,6 +2,8 @@ import stdTag from "../stdTag.js";
 import Player from "../../classes/Player.js";
 import Action from "../../classes/Action.js";
 import Asset from "../../classes/Asset.js";
+import { Effect, Wrapper } from "../../classes/EffectSys.js";
+import GameEvent from "../../classes/GameEvent.js";
 
 const lib = {
 	yuug_port_barkeep: {
@@ -117,7 +119,7 @@ const lib = {
 		],
 		inventory : [0,1,2],	// Which items should be equipped
 		tags : [
-			stdTag.plBoss, stdTag.plTongue,
+			stdTag.gpBoss, stdTag.plTongue,
 			stdTag.vagina, stdTag.breasts, stdTag.plBigBreasts, stdTag.plScaly, stdTag.plTail, stdTag.plLongTail, stdTag.asStrapon
 		]
 	},
@@ -230,7 +232,7 @@ const lib = {
 			'tentaclemancer_tentacleWhip',
 		],
 		tags : [
-			stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.plBoss, stdTag.plClaws, stdTag.plEars, stdTag.plLongTail
+			stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.gpBoss, stdTag.plClaws, stdTag.plEars, stdTag.plLongTail
 		],
 		assets : [
 			'simpleWhip',
@@ -242,7 +244,59 @@ const lib = {
 		],
 		inventory : [0,1,2,3],
 	},
+	SQ_sharktopus_boss : {
 
+	},
+	SQ_sharktopus_gong : {
+		name : "Gong",
+		species : "Inanimate Object",
+		description : "An ornate gong sitting on top of a pedestal.",
+		icon : "",
+		team : 1,
+		size : 1,
+		leveled : true,
+		class : 'none',
+		svPhysical : -10,
+		tags : [stdTag.gpSkipTurns, stdTag.plBeast, stdTag.gpDisableArousal, stdTag.gpDisableMP, stdTag.gpDisableAP, stdTag.gpDisableVictoryCondition, stdTag.gpDisableHP],
+		passives : [
+			{
+				duration:-1,
+				name : "Ring the gong",
+				description : "Only targetable by physical attacks.",
+				icon : "carillon",
+				detrimental : false,
+				effects: [
+					{type:Effect.Types.allowReceiveSpells, data:{conditions:['actionPhysical','actionDetrimental']}},
+					{
+						label : 'gong_proc',
+						type : Effect.Types.runWrappers,
+						targets : [Wrapper.TARGET_CASTER],
+						events : [GameEvent.Types.actionUsed],			// Any action has been used in the game
+						conditions : [
+							"targetIsWrapperParent",		// Target of said action was the recipient of this wrapper
+						],
+						data:{
+							wrappers : [
+								{
+									duration : 3,
+									name : "Reverberation",
+									icon : "vibrating-ball",
+									detrimental : true,
+									description : "The gong is vibrating!",
+									max_stacks : 3,	// Todo: Allow maths here
+									effects : [
+										// Todo: Summon shark on X stacks
+										// Todo: Summon a powered mini enemy
+										//{events:[GameEvent.Types.internalWrapperAdded], type:Effect.Types.trace, data:{message:"PROC"}}
+									]
+								},
+							]
+						}
+					}
+				],
+			}
+		],
+	},
 
 	Ixsplat : {
 		name : "Ixsplat",
@@ -278,7 +332,7 @@ const lib = {
 		],
 		inventory : [],	// Which items should be equipped
 		tags : [
-			stdTag.penis, stdTag.plHorns, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.plBoss
+			stdTag.penis, stdTag.plHorns, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.gpBoss
 		],
 		assets : ['gropeRope', "genericRawhideShirt"],
 		inventory : [0,1],
@@ -316,7 +370,7 @@ const lib = {
 		],
 		inventory : [],	// Which items should be equipped
 		tags : [
-			stdTag.penis, stdTag.plHorns, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.plBoss
+			stdTag.penis, stdTag.plHorns, stdTag.plTail, stdTag.plTongue, stdTag.plBigPenis, stdTag.gpBoss
 		],
 		assets : ["genericRawhideThong"],
 		inventory : [0],

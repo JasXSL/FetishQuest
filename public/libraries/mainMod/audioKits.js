@@ -585,6 +585,13 @@ const lib = {
             se : false
         }],
     },
+    gong: {
+        sounds : [{
+            s : {path : "media/audio/gong.ogg",volume : 0.4},
+            t : 0,
+            se : false
+        }],
+    },
     levelup: {
         sounds : [{
             s : {path : "media/audio/fq_levelup.ogg",volume : 0.5},

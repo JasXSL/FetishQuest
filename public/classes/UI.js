@@ -573,6 +573,7 @@ export default class UI{
 			else if( p.team === 0 !== el.parent().hasClass('left') )
 				el.appendTo(tag);
 
+			el.toggleClass("hidden", p.isInvisible());
 
 			ids.push(p.id);
 			el.toggleClass("active", false);		// Clear turns
@@ -741,9 +742,11 @@ export default class UI{
 			lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerBody);
 		
 		let rb_entries = [];
-		rb_entries.push('<span class="arousal resource" title="Arousal.\nStuns at 100%.">'+
-			p.arousal+"/"+p.getMaxArousal()+
-		'</span>');
+		if( !p.isArousalDisabled() )
+			rb_entries.push('<span class="arousal resource" title="Arousal.\nStuns at 100%.">'+
+				p.arousal+"/"+p.getMaxArousal()+
+			'</span>');
+		// Armor
 		if( !p.isBeast() ){
 			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperBody);
 			const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerBody);
@@ -764,9 +767,12 @@ export default class UI{
 				Math.ceil(lbDur*100)+'%</span>'
 			);
 		}
-		rb_entries.push('<span class="MP resource large" title="Mana Points">'+p.mp+'/'+p.getMaxMP()+'</span>');
-		rb_entries.push('<span class="AP resource large" title="Action Points">'+p.ap+'/'+p.getMaxAP()+'</span>');
-		rb_entries.push('<span class="HP resource large" title="Hit Points">'+p.hp+'/'+p.getMaxHP()+'</span>');
+		if( !p.isMPDisabled() )
+			rb_entries.push('<span class="MP resource large" title="Mana Points">'+p.mp+'/'+p.getMaxMP()+'</span>');
+		if( !p.isAPDisabled() )
+			rb_entries.push('<span class="AP resource large" title="Action Points">'+p.ap+'/'+p.getMaxAP()+'</span>');
+		if( !p.isHPDisabled() )
+			rb_entries.push('<span class="HP resource large" title="Hit Points">'+p.hp+'/'+p.getMaxHP()+'</span>');
 		if( p.team !== 0 )
 			rb_entries.reverse();
 
@@ -863,7 +869,7 @@ export default class UI{
 		// Effect wrappers
 		let o = '';
 		let wrappers = p.getWrappers();
-		wrappers = wrappers.filter(el => el.name.length && el._duration !== 0 && el.parent instanceof Player);
+		wrappers = wrappers.filter(el => el.name.length && (el._duration !== 0 || el.duration === -1) && el.parent instanceof Player);
 		for( let wrapper of wrappers ){
 			o += '<div class="wrapper tooltipParent '+(wrapper.detrimental ? 'detrimental' : 'beneficial')+'" data-id="'+esc(wrapper.id)+'">';
 			if( wrapper.icon )

@@ -1596,7 +1596,7 @@ export default class Game extends Generic{
 		const players = this.getEnabledPlayers();
 		for( let p of players ){
 			
-			if( !p.isDead() && standing.indexOf(p.team) === -1 )
+			if( !p.isDead() && !p.isNonRequiredForVictory() && standing.indexOf(p.team) === -1 )
 				standing.push(p.team);
 
 		}
@@ -1759,6 +1759,8 @@ export default class Game extends Generic{
 		
 		if( !Array.isArray(targets) )
 			return console.error("Unknown target type (array or Player expected)", targets);
+
+		targets = targets.filter(targ => !targ.isInvisible());
 
 		if( !this.is_host ){
 			this.net.playerUseAction(player, action, targets);

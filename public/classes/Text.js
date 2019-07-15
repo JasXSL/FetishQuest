@@ -65,6 +65,7 @@ class Text extends Generic{
 		this.hitfx = [];				// hit effects
 		this.armor_slot = '';				// Trigger armor hit sound on this slot, use Asset.Slots
 		this.weight = 1;					// Lets you modify the weight of the text, higher weights are shown more often.
+											// If you use a value of or greater than 1000 (use Text.WEIGHT_REQUIRED)
 		this.chat = 0;					// 0 = no chat, 1 = casual chat (has a built in cooldown), 2 = required chat
 		this.chatPlayerConditions = [];	// These conditions are run on each player to see if they can say this. Only usable when chat is true
 										// Both target and sender are the same player. You generally want at least "targetIsX" in here when using a text.
@@ -345,6 +346,7 @@ class Text extends Generic{
 
 }
 
+Text.WEIGHT_REQUIRED = 1000;
 Text.SYNONYMS = SYNONYMS;
 // Shuffles and triggers a random text from available texts
 // Returns the text that triggered, if any
@@ -385,10 +387,11 @@ Text.getFromEvent = function( event ){
 	if( !available.length )
 		return false ;
 		
+	const required = [];
+	
 	available = available.filter(el => el.numTargets === maxnr || el.numTargets === -1);
-
 	if( chat ){
-		const required = [];
+		
 		for( let text of available ){
 			if( text.chat === this.Chat.required )
 				required.push(text);
@@ -397,6 +400,13 @@ Text.getFromEvent = function( event ){
 			available = required;
 		else if( !event.sender.canOptionalChat() )		//  If there's no required chats available, make sure the player can chat already
 			available = [];
+	}else{
+		for( let text of available ){
+			if( text.weight >= this.WEIGHT_REQUIRED )
+				required.push(text);
+		}
+		if( required.length )
+			available = required;
 	}
 
 	return weightedRand( available, item => {

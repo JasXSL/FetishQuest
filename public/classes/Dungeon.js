@@ -1700,7 +1700,14 @@ class DungeonEncounter extends Generic{
 				);
 				this.players.push(pl);
 			}
+
+
 		}	
+
+		console.log("Resetting IDs for ", this.players);
+		for( let player of this.players ){
+			player.g_resetID();
+		}
 
 	}
 

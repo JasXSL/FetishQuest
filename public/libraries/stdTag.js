@@ -36,10 +36,17 @@ export default {
 	plElectric : "pl_electric",
 	plClaws : 'pl_claws',
 	plTongue : 'pl_tongue',
-	plEel : 'pl_eel',			
+	plEel : 'pl_eel',
 
 	// Used for gameplay
-	plBoss : 'pl_boss',				// used on boss battles
+	gpBoss : 'gp_boss',				// used on boss battles
+	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal
+	gpDisableAP : 'gp_no_ap',					// Prevents the use of actions that cost more than 0 AP
+	gpDisableMP : 'gp_no_mp',					// Prevents the use of actions that cost more than 0 MP
+	gpDisableHP : 'gp_no_hp',					// Prevents taking damage and drawing HP
+	gpDisableVictoryCondition : 'gp_no_victory_condition',		// Disregards this one's death status when it comes to calculating if a battle is over
+	gpInvisible : 'gp_invisible',				// Doesn't draw in the UI and can't be targeted.
+	gpSkipTurns : 'gp_skip_turns',				// Automatically skip turns
 
 	// Player behavior tags
 	plDishonorable : "pl_dishonorable",

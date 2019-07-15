@@ -16,7 +16,8 @@ const lib = [
 	// Turn changed
 	{ text : "%T's turn!",
 		conditions : [
-			{"type":Condition.Types.event,"data":{"event":GameEvent.Types.turnChanged}}
+			{type:Condition.Types.event,data:{"event":GameEvent.Types.turnChanged}},
+			{type:Condition.Types.tag, data:{tags:'pl_'+stdTag.gpSkipTurns}, inverse:true}
 		],
 		alwaysOutput:true,
 	},
@@ -3899,6 +3900,23 @@ const lib = [
 		hitfx : ["drink_generic"]
 	},
 
+
+
+
+
+
+
+
+
+
+	// BOSS FIGHTS
+	// SQ_sharktopus
+	{ text : "%S hits the gong, creating a ringing noise!",
+		conditions : baseCond.concat("targetIsSQ_sharktopus_gong"),
+		hitfx : ["gong"],
+		metaTags : [stdTag.metaUsedWhip, stdTag.metaSqueeze, stdTag.metaGrind, stdTag.metaSlotButt, stdTag.metaSlotVagina],
+		weight : Text.WEIGHT_REQUIRED,
+	},
 	
 ];
 

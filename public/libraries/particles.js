@@ -28,6 +28,7 @@ const textures = {
 	cursedStar : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/cursed_star.png')})),
 	yinYang : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/yinyang.png')})),
 	swirlOrb : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/swirl_orb.png')})),
+	pulse : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/soundpulse.png')})),
 };
 for( let i in textures )
 	textures[i].material.depthWrite = false;
@@ -1130,6 +1131,21 @@ particles.hitfx_yin_yang = {
 	color : ["#AAFFDD","#AAFFDD"],	
 	opacity: [0,1,Proton.ease.easeFullBridge],
 	rotation : [new Proton.Span(-.1,.1), true, true],
+};
+
+
+particles.hitfx_pulse = {
+	texture : textures.pulse,
+	blending : THREE.NormalBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [0,1],
+	part_max_age : 1,
+	velocity : 0,
+	color : ["#FFFFFF","#DDEEFF"],	
+	opacity: [1,0,Proton.ease.easeInCirc],
 };
 
 particles.get = function(id, mesh, debug = false){

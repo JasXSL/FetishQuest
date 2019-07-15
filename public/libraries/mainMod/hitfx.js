@@ -1490,6 +1490,18 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'gong';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_pulse',
+		emit_duration : 500,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['gong'],
+	}, out[id]),
+);
+
 
 function getArray(){
 	const o = [];

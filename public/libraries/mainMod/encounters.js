@@ -659,7 +659,7 @@ const lib = {
 	},
 
 	SQ_sharktopus_boss : {
-		// todo
+		players : ['SQ_sharktopus_gong', 'Broper'],
 	},
 	SQ_sharktopus_water_warning : {
 		friendly : true,

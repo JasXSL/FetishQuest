@@ -223,6 +223,10 @@ export default class Condition extends Generic{
 					data = [data];
 				success = event.action && data.indexOf(event.action.label) !== -1; 
 			}
+			else if( this.type === T.actionType ){
+				const data = toArray(this.data.type);
+				success = event.action && data.indexOf(event.action.type) !== -1; 
+			}
 			else if( this.type === T.effectLabel ){
 				let data = this.data.label;
 				if( !Array.isArray(data) )
@@ -700,6 +704,7 @@ Condition.Types = {
 	sameTeam : "sameTeam",
 	event : "event",				// 
 	actionLabel : "actionLabel",	// 
+	actionType : "actionType",	// 
 	actionDetrimental : "actionDetrimental",	// 
 	actionResisted : "actionResisted",			// 
 	rng : "rng",								// 
@@ -754,6 +759,7 @@ Condition.descriptions = {
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
 	[Condition.Types.actionLabel] : '{label:(arr)(str)label} Data is one or many action labels',
+	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',
 	[Condition.Types.actionDetrimental] : 'Data is void',
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
 	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100%',

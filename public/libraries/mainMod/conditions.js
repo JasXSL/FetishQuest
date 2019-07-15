@@ -3,6 +3,7 @@ import stdTag from "../stdTag.js";
 import Condition from "../../classes/Condition.js";
 import GameEvent from "../../classes/GameEvent.js";
 import Asset from "../../classes/Asset.js";
+import Action from "../../classes/Action.js";
 
 const lib = {
 	
@@ -102,8 +103,8 @@ const lib = {
 	senderBlockingButt : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockButt], caster:true}},
 	senderBlockingGroin : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockGroin], caster:true}},
 
-	senderIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.plBoss]}, caster:true},
-	targetIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.plBoss]}},
+	senderIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.gpBoss]}, caster:true},
+	targetIsBoss : {type:Condition.Types.tag, data:{tags:[stdTag.gpBoss]}},
 
 
 	senderIsCocktopus : {type:Condition.Types.species, data:{species:['cocktopus']}, caster:true},
@@ -401,6 +402,12 @@ const lib = {
 	metaCameInside : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaInjection, stdTag.metaUsedPenis], all:true}},
 	metaPenetratedWithPenis : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration, stdTag.metaUsedPenis], all:true}},
 	metaUsedTentacle : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaUsedTentacles]}},
+
+	actionPhysical : {type:Condition.Types.actionType, data:{type:Action.Types.physical}},
+	actionDetrimental : {type:Condition.Types.actionDetrimental},
+
+
+	targetIsSQ_sharktopus_gong : {type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_gong'}},
 
 };
 

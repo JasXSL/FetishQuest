@@ -10,6 +10,7 @@ import Calculator from './Calculator.js';
 import GameEvent from './GameEvent.js';
 import Dungeon from './Dungeon.js';
 import Roleplay from './Roleplay.js';
+import Condition from './Condition.js';
 
 const BASE_HP = 50;
 const BASE_MP = 10;
@@ -43,6 +44,7 @@ export default class Player extends Generic{
 		this.tags = [];				// Player tags, these are automatically prefixed with PL_, use getTags
 		this.wrappers = [];			// Wrappers, use getWrappers
 		this.auto_wrappers = [];	// Automatic wrappers such as encumbered
+		this.passives = [];			// Passive effects that should not be cleared when a battle starts or ends
 		this.hp = 60;				// 
 		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
 		this.team = 0;				// 0 = player
@@ -118,17 +120,7 @@ export default class Player extends Generic{
 	load(data){
 
 		this.g_autoload(data);
-		
-		let w = this.getWrappers();
-		w.map(wrapper => {
-			wrapper.bindEvents();
-		});
 
-		if( !Array.isArray(window.game) )
-			return;
-
-		this.initialize();
-		
 	}
 
 	// Automatically invoked after g_autoload
@@ -137,16 +129,18 @@ export default class Player extends Generic{
 		this.actions = Action.loadThese(this.actions, this);
 		this.assets = Asset.loadThese(this.assets, this);
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
+		this.passives = Wrapper.loadThese(this.passives, this);
 		this.tmp_actions = Action.loadThese(this.tmp_actions, this);
 
-		if( window.game )
+		if( window.game ){
 			this.class = PlayerClass.loadThis(this.class, this);
+			this.updatePassives();
+			if( !game.is_host )
+				this.auto_wrappers = Wrapper.loadThese(this.auto_wrappers, this);
+		}
 		
 		if( this.class === null )
 			this.class = new PlayerClass();
-
-		if( window.game && !game.is_host )
-			this.auto_wrappers = Wrapper.loadThese(this.auto_wrappers, this);
 
 	}
 
@@ -160,7 +154,7 @@ export default class Player extends Generic{
 			disabled : this.disabled,
 			name : this.name,
 			icon : this.icon,
-			actions : this.actions.map(el => el.save(full)),
+			actions : Action.saveThese(this.actions, full),
 			tags : this.tags,
 			team : this.team,
 			species : this.species,
@@ -182,12 +176,13 @@ export default class Player extends Generic{
 			used_punish : this.used_punish,
 			leader : this.leader,
 			talkative : this.talkative,
-			tmp_actions : Action.saveThese(this.tmp_actions),
+			tmp_actions : Action.saveThese(this.tmp_actions, full),
 			label : this.label,
 			icon_lowerBody : this.icon_lowerBody,
 			icon_nude : this.icon_nude,
 			icon_upperBody : this.icon_upperBody,
-			powered : this.powered
+			powered : this.powered,
+			passives : Wrapper.saveThese(this.passives, full),
 		};
 
 		if( this.rp )
@@ -248,6 +243,12 @@ export default class Player extends Generic{
 		this.addAP(0);
 		this.updateAutoWrappers();
 		this.addDefaultActions();
+		if( game.is_host ){
+			let w = this.getWrappers();
+			w.map(wrapper => {
+				wrapper.bindEvents();
+			});
+		}
 	}
 
 
@@ -412,10 +413,32 @@ export default class Player extends Generic{
 		return Boolean(player) && !game.battle_active && this.isDead() && this.getLootableAssets().length && this.team !== player.team;
 	}
 
+	isArousalDisabled(){
+		return this.hasTag('pl_'+stdTag.gpDisableArousal);
+	}
+	isAPDisabled(){
+		return this.hasTag('pl_'+stdTag.gpDisableAP);
+	}
+	isMPDisabled(){
+		return this.hasTag('pl_'+stdTag.gpDisableMP);
+	}
+	isNonRequiredForVictory(){
+		return this.hasTag('pl_'+stdTag.gpDisableVictoryCondition);
+	}
+	isHPDisabled(){
+		return this.hasTag('pl_'+stdTag.gpDisableHP);
+	}
+	isInvisible(){
+		return this.hasTag(stdTag.gpInvisible);
+	}
+	isSkipAllTurns(){
+		return this.hasTag('pl_'+stdTag.gpSkipTurns);
+	}
+
 	// Can't accept their turn
 	isIncapacitated(){
 		let stun = this.getActiveEffectsByType(Effect.Types.stun);
-		return stun.length > 0;
+		return stun.length > 0 || this.isSkipAllTurns();
 	}
 
 	// Returns taunting players unless there's a grappling player, in which case that's returned instead
@@ -682,6 +705,10 @@ export default class Player extends Generic{
 		for( let inv of this.assets )
 			inv.onPlacedInWorld();
 
+		for( let passive of this.passives ){
+			passive.g_resetID();
+		}
+
 		this.addHP(Infinity);
 		this.addMP(Infinity);
 		this.arousal = 0;
@@ -830,6 +857,11 @@ export default class Player extends Generic{
 			asset.damageDurability( attacker, effect, Math.ceil(asset.getMaxDurability()*0.2) );
 
 	}
+
+	onIdChanged(){
+		this.updatePassives();
+	}
+
 
 
 	/* TurnTags */
@@ -1449,7 +1481,8 @@ export default class Player extends Generic{
 
 	/* RESOURCES */
 	addAP( amount, fText = false ){
-
+		if( this.isAPDisabled() )
+			return false;
 		if( isNaN(amount) ){
 			console.error("AP amount is NaN", amount);
 			return false;
@@ -1463,7 +1496,8 @@ export default class Player extends Generic{
 	}
 
 	addMP( amount, fText = false ){
-
+		if( this.isMPDisabled() )
+			return false;
 		if( isNaN(amount) ){
 			console.error("MP amount is NaN", amount);
 			return false;
@@ -1498,6 +1532,9 @@ export default class Player extends Generic{
 	// Returns true if the player died
 	addHP( amount, sender, effect, fText = false ){
 
+		if( this.isHPDisabled() )
+			return false;
+
 		if( isNaN(amount) ){
 			console.error("HP amount is NaN", amount);
 			return false;
@@ -1522,6 +1559,8 @@ export default class Player extends Generic{
 
 	addArousal( amount, fText = false ){
 
+		if( this.isMPDisabled() )
+			return false;
 		if( this.isOrgasming() )
 			return;
 		if( isNaN(amount) )
@@ -1986,19 +2025,31 @@ export default class Player extends Generic{
 		return out;
 	}
 
+	// Checks the allowReceiveSpells effect
+	checkActionFilter( sender, action ){
+		if( !(action instanceof Action) ){
+			console.error("Action", action, "is not an action");
+			return false;
+		}
+		const effects = this.getActiveEffectsByType(Effect.Types.allowReceiveSpells);
+		const evt = new GameEvent({action:action, sender:sender, target:this});
+		for( let effect of effects ){
+			evt.effect = effect;
+			if( !Condition.all(effect.data.conditions, evt) )
+				return false;
+		}
+		return true;
+	}
 
 
 	/* Wrappers */
 	getWrappers(){
 
-		let out = this.wrappers;
+		let out = this.wrappers.concat(this.passives);
 		for( let asset of this.assets ){
 			if( asset.equipped && asset.durability > 0 )
 				out = out.concat(asset.wrappers);
 		}
-
-		
-
 		return out.concat(this.auto_wrappers);
 
 	}
@@ -2050,6 +2101,12 @@ export default class Player extends Generic{
 				return true;
 			}
 		}
+	}
+
+	// Makes sure passives have the right ID
+	updatePassives(){
+		for( let passive of this.passives )
+			passive.caster = passive.victim = this.id;
 	}
 
 	

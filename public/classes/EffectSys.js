@@ -64,6 +64,7 @@ class Wrapper extends Generic{
 			effects : this.effects.map(el => el.save(full)),
 			tags : this.tags,
 			label : this.label,
+			duration : this.duration,
 		};
 
 		if( full ){
@@ -71,7 +72,6 @@ class Wrapper extends Generic{
 			out.tick_on_turn_start = this.tick_on_turn_start;
 			out.max_stacks = this.max_stacks;
 			out.trigger_immediate = this.trigger_immediate;
-			out.duration = this.duration;
 			if( full !== "mod" ){
 				out._self_cast = this._self_cast;
 				out.netPlayer = this.netPlayer;
@@ -641,6 +641,8 @@ class Effect extends Generic{
 			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
 		if( this.type === Effect.Types.addStacks && Array.isArray(this.data.conditions) )
 			this.data.conditions = Condition.loadThese(this.data.conditions, this);
+		if( this.type === Effect.Types.allowReceiveSpells && Array.isArray(this.data.conditions) )
+			this.data.conditions = Condition.loadThese(this.data.conditions, this);
 		
 
 		// Unpack is required since it has nested objects
@@ -782,19 +784,20 @@ class Effect extends Generic{
 					);
 					
 										
-					amt *= Player.getBonusDamageMultiplier( s,t,type,this.parent.detrimental ); // Negative because it's damage
 					
 
 					// Get target global damage point taken modifier
+					
+
 					// Amt is negative
 					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s );
-					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
-
-
 					// amt is negative when attacking, that's why we use - here
 					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t );
+					
+					// Multipliers last
+					amt *= Player.getBonusDamageMultiplier( s,t,type,this.parent.detrimental ); // Negative because it's damage
 					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t );
-
+					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
 					amt *= t.getNudityDamageMultiplier();
 
 					
@@ -853,23 +856,26 @@ class Effect extends Generic{
 
 				}
 
-				
+				const preHP = t.hp;
 				let died = t.addHP(amt, s, this, true);
+				const change = t.hp - preHP;
+
 				if( amt < 0 ){
 
-					t.onDamageTaken(s, type, Math.abs(amt));
-					s.onDamageDone(t, type, Math.abs(amt));
-					let threat = amt * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
-					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(amt*this.data.leech)) : 0;
+					t.onDamageTaken(s, type, Math.abs(change));
+					s.onDamageDone(t, type, Math.abs(change));
+					let threat = change * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
+					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(change*this.data.leech)) : 0;
 					t.addThreat( s.id, -threat );
-					game.ui.addText( t.getColoredName()+" took "+Math.abs(amt)+" "+type+" damage"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage damage' );
+					if( change )
+						game.ui.addText( t.getColoredName()+" took "+Math.abs(change)+" "+type+" damage"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage damage' );
 					if( leech ){
 						s.addHP(leech, s, this, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
 					}
 
-				}else if(amt > 0){
-					game.ui.addText( t.getColoredName()+" gained "+amt+" HP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage healing' );
+				}else if(change){
+					game.ui.addText( t.getColoredName()+" gained "+change+" HP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage healing' );
 				}
 
 
@@ -1325,6 +1331,8 @@ class Effect extends Generic{
 				ga.trigger(t);
 			}
 
+			else if( this.type === Effect.Types.trace )
+				console.trace(this.data.message, this);
 			// LAST
 			else if( typeof this.type !== "string" )
 				console.error("Invalid effect", this.type);
@@ -1347,6 +1355,8 @@ class Effect extends Generic{
 			if( evt.substr(0,8) !== "internal" )
 				this._bound_events.push(GameEvent.on(evt, event => this.trigger(event)));
 		}
+		if( this._bound_events.length )
+			console.log("Bound", this._bound_events);
 	}
 	unbindEvents(){
 		for(let evt of this._bound_events)
@@ -1567,6 +1577,7 @@ Effect.createStatBonus = function( type, bonus ){
 // These are the actual effect types that the game runs off of
 Effect.Types = {
 	none : 'none',
+	trace : 'trace',
 	damage : "damage",
 	endTurn : "endTurn",
 	//visual : "visual",
@@ -1631,6 +1642,8 @@ Effect.Types = {
 	addExposedOrificeTag : 'addExposedOrificeTag',
 	addTags : 'addTags',
 	addRandomTags : 'addRandomTags',
+	allowReceiveSpells : 'allowReceiveSpells',
+
 };
 
 Effect.KnockdownTypes = {
@@ -1642,6 +1655,7 @@ Effect.KnockdownTypes = {
 Effect.TypeDescs = {
 	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average",
 	[Effect.Types.endTurn] : "void - Ends turn",
+	[Effect.Types.trace] : '{message:(str)message} - Creates a stack trace here',
 	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
@@ -1655,6 +1669,7 @@ Effect.TypeDescs = {
 	[Effect.Types.gameAction] : '{action:(obj)gameAction} - Lets you run a game action',
 	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
 
+	[Effect.Types.allowReceiveSpells] : '{conditions:(arr)conditions} - Filters what spells may target the affected player. Checked in Player',
 	// Stamina
 	[Effect.Types.staminaModifier] : '{amount:(int)amount}',
 	// Agility

@@ -319,8 +319,11 @@ class Action extends Generic{
 
 			if( debug )
 				console.debug("Testing against", pl, ". IsMe: ", (p !== parent || !this.detrimental));
-			if( (p !== parent || !this.detrimental) && this.getViableWrappersAgainst(p, isChargeFinish, debug).length )
-				targets.push(p);
+			if( 
+				(p !== parent || !this.detrimental) && 
+				p.checkActionFilter(parent, this) && 
+				this.getViableWrappersAgainst(p, isChargeFinish, debug).length 
+			)targets.push(p);
 			
 		}
 		return targets;
@@ -329,7 +332,6 @@ class Action extends Generic{
 
 	// Gets an array of wrappers that have their conditions met against Player player
 	getViableWrappersAgainst( player, isChargeFinish = false, debug = false ){
-
 
 		let evt = new GameEvent({
 			type : GameEvent.Types.actionUsed,
