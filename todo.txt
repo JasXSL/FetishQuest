@@ -22,28 +22,21 @@ Medium rare:
 Big chungi:
 	- Add the sharktopus fight
 	- New monster: Sharktopus
-		- 4 Gongs are in the arena, these are invisible other than when the sharktopus has dived
-			- Gongs need to have a low resistance to everything
-			- Gong needs to not take damage
-			- When gong is hit by an ability, it gets a self buff for 2 turns
-			- When all 4 have that buff, they hide and the shark appears
-		- Shark is pacified until all 4 gongs are hit by a spell or ability
-		- It submerges every 8-nr_players turns until all gongs are hit again.
-		- When shark is active, gongs hide and get the hit buff removed
-		- When shark is submerged, it can only use one of two attack abilities and will use that until it emerges
-		- When shark emerges, cooldown of submerge is activated so it doesn't reset by player being slow
-		- You can find stones on the island weighing in at 500g and can be used multiple times in a turn for only 2 AP and do 1 damage with a 50% hit chance
+		- A gong is in the arena, each time it's hit: 
+			- A minor enemy is spawned that does high damage but can easily be defeated
+			- It gains a stack of reverb
+			- At num_players stacks, the shark emerges and the gong is made invisible
+		- Shark is invisible and will be limited to two attacks with high AP cost but can be used multiple times
+
+		- When shark emerges, cooldown of submerge must be reactivated so it doesn't reset by player being slow to bring him up
+		- You can find stones on the island weighing in at 500g and can be used multiple times in a turn for only 2 AP and do 1 damage with a 50% base hit chance
 		- Shark can have some generic tentacle abilities
 
 	- Island quest:
 		- Kill the beast, and you collect a trophy.
 		- Bring the trophy to the port tavern to finish the quest and get a nice chunk of money and alcohol.
 
-		
 
-	- West forest
-		- Hidden path down to the beach
-		- Otter and Broper quest
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
 
 Food for thought
@@ -54,7 +47,11 @@ Food for thought
 Next:
 	- Main quest chapter 2
 	- Difficulty setting
-
+	- West forest
+		- Hidden path down to the beach
+		- Otter and Broper quest
+	- Sleep
+	
 
 
 Abilities:
