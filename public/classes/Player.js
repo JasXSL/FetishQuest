@@ -74,6 +74,7 @@ export default class Player extends Generic{
 		this.bot = null;
 		this.used_punish = false;				// We have punished a target since the last battle ended or we left the room
 
+		this.remOnDeath = false;				// Delete this player if it dies
 
 		// Personality types
 		this.talkative = 0.1;					// How often they output combat chats. Multiplied by nr turns. So after 1 turn, 0.5 = 50% chance, 2 turns = 100% etc. Setting this to one overrides the limit of one chat per turn.
@@ -195,6 +196,7 @@ export default class Player extends Generic{
 		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC() || this.isDead()), full);
 
 		if( full ){
+			out.remOnDeath = this.remOnDeath;
 			out.leveled = this.leveled;
 			out.inventory = this.inventory;
 			out.talkative = this.talkative;
@@ -243,6 +245,7 @@ export default class Player extends Generic{
 		this.addAP(0);
 		this.updateAutoWrappers();
 		this.addDefaultActions();
+		
 		if( game.is_host ){
 			let w = this.getWrappers();
 			w.map(wrapper => {
@@ -590,6 +593,7 @@ export default class Player extends Generic{
 
 		for( let asset of assets )
 			asset.getTags().map(addTag);
+
 		let fx = this.getWrappers();
 		for( let f of fx )
 			f.getTags().map(addTag);
@@ -786,7 +790,7 @@ export default class Player extends Generic{
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleStart();
-		this.arousal = 0;
+
 	}
 	onBattleEnd(){
 		this.ap = 0;
@@ -856,10 +860,16 @@ export default class Player extends Generic{
 		for( let asset of assets )
 			asset.damageDurability( attacker, effect, Math.ceil(asset.getMaxDurability()*0.2) );
 
+		if( this.remOnDeath ){
+			console.log("Removing", this);
+			game.removePlayer(this);
+		}
+
 	}
 
 	onIdChanged(){
 		this.updatePassives();
+		this.getAssetsEquipped().map(el => el.onEquip());
 	}
 
 
@@ -1261,7 +1271,7 @@ export default class Player extends Generic{
 		return out;
 	}
 	isEncumbered(){
-		return this.getCarriedWeight() > this.getCarryingCapacity();
+		return !this.isBeast() && this.getCarriedWeight() > this.getCarryingCapacity();
 	}
 
 	// Currency
@@ -1584,14 +1594,14 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
-		return (BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina))*this.getPoweredMultiplier();
+		return Math.max((BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina))*this.getPoweredMultiplier(), 1);
 	}
 	getMaxAP(){
-		return (BASE_AP+this.statPointsToNumber(Player.primaryStats.agility));
+		return Math.max((BASE_AP+this.statPointsToNumber(Player.primaryStats.agility)), 1);
 
 	}
 	getMaxMP(){
-		return (BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect));
+		return Math.max((BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect)), 1);
 	}
 	getMaxArousal(){
 		return BASE_AROUSAL;
@@ -1613,6 +1623,8 @@ export default class Player extends Generic{
 	// Takes a Player.primaryStats value and converts it to a number to add to HP/MP etc for this character
 	statPointsToNumber( stat ){
 
+		if( !this.class )
+			this.class = new PlayerClass();
 		let stats = this.getPrimaryStats();
 		let ps = Player.primaryStats;
 		let val = stats[stat]+this.class[stat];

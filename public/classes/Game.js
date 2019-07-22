@@ -604,6 +604,22 @@ export default class Game extends Generic{
 			out['q_'+q+'__time'] = this.completed_quests[q] && this.completed_quests[q].__time || 0;
 		}
 
+		// g_team_n = nrPlayers
+		const teams = {};
+		let maxTeam = 0;
+		const players = this.getEnabledPlayers();
+		for( let player of players ){
+			const t = 't_'+player.team;
+			if( !teams[t] )
+				teams[t] = 1;
+			else
+				++teams[t];
+			if( player.team > maxTeam )
+				maxTeam = player.team;
+		}
+		for( let i=0; i<maxTeam+1 || i<2; ++i )
+			out['g_team_'+i] = teams['t_'+i] || 0;
+
 		return out;
 	}
 
@@ -960,7 +976,7 @@ export default class Game extends Generic{
 
 	// Add a player by data
 	// If data is a Player object, it uses that directly
-	addPlayer(data){
+	addPlayer(data, nextTurn = false){
 
 		let p = data;
 		if( !p || !(p instanceof Player) )
@@ -972,9 +988,15 @@ export default class Game extends Generic{
 		// Add before the current player
 		if( this.battle_active ){
 			
-			this.initiative.splice(this.turn, 0, p.id);
-			++this.turn;
-
+			// Insert at next turn
+			if( nextTurn ){
+				this.initiative.splice(this.turn+1, 0, p.id);
+			}
+			// Insert at current turn and move turn marker ahead, meaning it goes before the active player
+			else{
+				this.initiative.splice(this.turn, 0, p.id);
+				++this.turn;
+			}
 		}
 
 		this.assignAllColors();
@@ -989,18 +1011,21 @@ export default class Game extends Generic{
 	}
 
 	// Adds a player form player template
-	addPlayerFromTemplate( template ){
+	addPlayerFromTemplate( template, nextTurn = false ){
 		if( typeof template === "string" )
 			template = glib.get(template, 'PlayerTemplate');
 		if( !(template instanceof PlayerTemplate) )
 			return;
 		const player = template.generate();
 		if( player )
-			return this.addPlayer(player);
+			return this.addPlayer(player, nextTurn);
 	}
 
 	// Remove a player by id
 	removePlayer( id ){
+
+		if( id instanceof Player )
+			id = id.id;
 
 		const isTurn = id === this.getTurnPlayer().id;
 
@@ -1017,6 +1042,9 @@ export default class Game extends Generic{
 						if( this.initiative[t] === id ){
 
 							this.initiative.splice(t, 1);
+							if( t <= this.turn ){
+								--this.turn;
+							}
 							break;
 
 						}
@@ -1029,6 +1057,7 @@ export default class Game extends Generic{
 					this.advanceTurn();
 				this.save();
 
+				this.ui.draw();
 				return true;
 			}
 
@@ -1635,6 +1664,7 @@ export default class Game extends Generic{
 			this.getTeamPlayers(0).map(pl => {
 				pl.addHP(Math.ceil(pl.getMaxHP()*0.25));
 				pl.addMP(Math.ceil(pl.getMaxMP()*0.25));
+				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.5));
 			});
 			
 		}

@@ -4,6 +4,8 @@ import Action from "../../classes/Action.js";
 import Asset from "../../classes/Asset.js";
 import { Effect, Wrapper } from "../../classes/EffectSys.js";
 import GameEvent from "../../classes/GameEvent.js";
+import GameAction from "../../classes/GameAction.js";
+import Condition from "../../classes/Condition.js";
 
 const lib = {
 	yuug_port_barkeep: {
@@ -199,6 +201,7 @@ const lib = {
 		dominant : 0.4,
 		hetero : 0.3,
 		intelligence : 0.4,
+		class : 'none',
 	},
 	SQ_sharktopus_camp_cultist : {
 		name : "Cultist",
@@ -245,7 +248,39 @@ const lib = {
 		inventory : [0,1,2,3],
 	},
 	SQ_sharktopus_boss : {
-
+		name : "Shark Beast",
+		species : "sharktopus",
+		description : "A large grotesque mix between a shark and and octopus.",
+		icon : "/media/characters/tfiend.jpg",
+		team : 1,
+		size : 7,
+		leveled : true,
+		powered : true,
+		sadistic : 0.5,
+		dominant : 1,
+		hetero : 0.5,
+		intelligence : 0.4,
+		stamina : 10,
+		intellect : 0,
+		agility : 2,
+		class : 'none',
+		svPhysical : 0,
+        svElemental : 1,
+        svHoly : -4,
+        svCorruption : 1,
+        bonPhysical : 2,
+        bonElemental : 2,
+        bonHoly : -4,
+		bonCorruption : 1,	
+		actions : [
+			// Todo
+		],
+		tags : [
+			stdTag.gpBoss, stdTag.plTentacles, stdTag.plBeast
+		],
+		assets : [
+			// Todo: Sharkanium
+		],
 	},
 	SQ_sharktopus_gong : {
 		name : "Gong",
@@ -278,15 +313,50 @@ const lib = {
 						data:{
 							wrappers : [
 								{
+									label : 'sq_sharktopus_gong',
 									duration : 3,
 									name : "Reverberation",
 									icon : "vibrating-ball",
 									detrimental : true,
 									description : "The gong is vibrating!",
-									max_stacks : 3,	// Todo: Allow maths here
+									max_stacks : 100,
 									effects : [
+										{
+											label : 'sq_sharktopus_gong_spawn',
+											events : [GameEvent.Types.internalWrapperAdded],
+											type:Effect.Types.gameAction, 
+											data:{action:{
+												type : GameAction.types.addPlayer,
+												data : {
+													player : 'SQ_sharktopus_mini_lamprey'
+												},
+											}},
+											conditions : [
+												{type:Condition.Types.numGamePlayersGreaterThan, data:{amount:5, team:1}, inverse:true}
+											],
+										},
+										{
+											events : [GameEvent.Types.internalWrapperStackChange],
+											type:Effect.Types.removeWrapperByLabel, 
+											data:{label:'sq_sharktopus_gong'},
+											conditions : ['sq_sharktopus_gong_stacks'],
+										},
+										{
+											label : 'sq_sharktopus_gong_hide',
+											events : [GameEvent.Types.internalWrapperStackChange],
+											type:Effect.Types.runWrappers, 
+											targets : [Wrapper.TARGET_CASTER],
+											data:{wrappers:[
+												{
+													label : 'perma_invis',
+													duration : -1,
+													detrimental : false,
+													tags : [stdTag.gpInvisible],
+												}
+											]},
+											conditions : ['sq_sharktopus_gong_stacks'],
+										},
 										// Todo: Summon shark on X stacks
-										// Todo: Summon a powered mini enemy
 										//{events:[GameEvent.Types.internalWrapperAdded], type:Effect.Types.trace, data:{message:"PROC"}}
 									]
 								},
@@ -296,6 +366,44 @@ const lib = {
 				],
 			}
 		],
+	},
+
+	SQ_sharktopus_mini_lamprey : {
+		name : "Juvenile Lamprey",
+		species : "lamprey",
+		description : "A smaller version of a lamprey.",
+		icon : "",
+		team : 1,
+		size : 1,
+		leveled : true,
+		//powered : true,
+		sadistic : 0.3,
+		dominant : 0.5,
+		hetero : 0.5,
+		intelligence : 0.1,
+		stamina : -15,
+		remOnDeath : true,		// Todo: implement in game/player
+
+		svPhysical : -4,
+        svElemental : -1,
+        svHoly : -2,
+        svCorruption : -2,
+        bonPhysical : -4,
+        bonElemental : 0,
+        bonHoly : -4,
+		bonCorruption : -2,
+		
+		class : 'lamprey',
+		actions : [
+			'lamprey_slither',
+		],
+		assets : [],
+		inventory : [],	// Which items should be equipped
+		tags : [
+			stdTag.plBeast,
+			stdTag.plElectric,
+			stdTag.plEel,
+		]
 	},
 
 	Ixsplat : {

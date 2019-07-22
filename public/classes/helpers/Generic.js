@@ -142,6 +142,7 @@ export default class Generic{
 		this.id = this.g_guid();
 		if( typeof this.onIdChanged === "function" )
 			this.onIdChanged();
+		return this;
 	}
 
 	// Removes default values from save data

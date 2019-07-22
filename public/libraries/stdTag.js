@@ -48,6 +48,7 @@ export default {
 	gpInvisible : 'gp_invisible',				// Doesn't draw in the UI and can't be targeted.
 	gpSkipTurns : 'gp_skip_turns',				// Automatically skip turns
 
+	
 	// Player behavior tags
 	plDishonorable : "pl_dishonorable",
 

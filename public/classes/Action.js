@@ -333,6 +333,10 @@ class Action extends Generic{
 	// Gets an array of wrappers that have their conditions met against Player player
 	getViableWrappersAgainst( player, isChargeFinish = false, debug = false ){
 
+		// Can't target invisible players unless it's yourself
+		if( player !== this.getPlayerParent() && player.isInvisible() )
+			return [];
+
 		let evt = new GameEvent({
 			type : GameEvent.Types.actionUsed,
 			sender : this.getPlayerParent(),
@@ -398,7 +402,6 @@ class Action extends Generic{
 
 		if( game.getTurnPlayer().id !== this.getPlayerParent().id && game.battle_active )
 			return err("Not your turn");
-
 
 		// Stuff that should not affect hidden actions
 		if( !this.hidden ){

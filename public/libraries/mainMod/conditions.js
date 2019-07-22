@@ -265,7 +265,7 @@ const lib = {
 	targetKnockedDownFront : {"type":"tag","data":{"tags":["wr_knocked_down_front"]}},
 	targetNotGrappled : {type:"tag", data:{tags:[stdTag.wrGrapple]}, inverse:true},
 	targetNotGrappledOrKnockedDown : {type:"tag", data:{tags:[stdTag.wrKnockdown, stdTag.wrGrapple]}, inverse:true},
-	targetGrappledByMe : {type:Condition.Types.tag, data:{tags:[stdTag.wrGrapple], sender:true}},
+	targetGrappledByMe : {type:Condition.Types.tag, data:{tags:[stdTag.wrGrapple], caster:true}},
 	senderHasWhip : {"type":"tag","data":{"tags":["as_whip"]},"caster":true},
 	senderHasStrapon : {type:Condition.Types.tag,data:{tags:[stdTag.asStrapon]},caster:true},
 	targetSoaked : {"type":"tag","data":{"tags":["wr_soaked"]}},
@@ -406,6 +406,9 @@ const lib = {
 	actionPhysical : {type:Condition.Types.actionType, data:{type:Action.Types.physical}},
 	actionDetrimental : {type:Condition.Types.actionDetrimental},
 
+
+	wrapperStacks3 : {type : Condition.Types.wrapperStacks, data : {amount : 3}},
+	sq_sharktopus_gong_stacks : {type : Condition.Types.wrapperStacks, data : {amount : 'g_team_0*3'}},
 
 	targetIsSQ_sharktopus_gong : {type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_gong'}},
 

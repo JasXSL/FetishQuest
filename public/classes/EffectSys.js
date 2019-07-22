@@ -306,7 +306,7 @@ class Wrapper extends Generic{
 	}
 
 	addTime( amount = -1 ){
-		if( this.duration === -1 )
+		if( this.duration < 1 )
 			return;
 		this._duration += amount;
 		if( this._duration >= this.duration )
@@ -519,7 +519,7 @@ class Wrapper extends Generic{
 		if( this.tick_on_turn_start )
 			this.tick();
 
-		if(this.duration === -1)
+		if(this.duration < 1)
 			return;
 
 		if( this._self_cast )
@@ -1355,8 +1355,6 @@ class Effect extends Generic{
 			if( evt.substr(0,8) !== "internal" )
 				this._bound_events.push(GameEvent.on(evt, event => this.trigger(event)));
 		}
-		if( this._bound_events.length )
-			console.log("Bound", this._bound_events);
 	}
 	unbindEvents(){
 		for(let evt of this._bound_events)

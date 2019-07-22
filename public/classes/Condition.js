@@ -176,7 +176,7 @@ export default class Condition extends Generic{
 			// Check the types
 			if( this.type === T.tag ){
 				// Only tags applied by sender
-				if( this.data.sender ){
+				if( this.data.caster ){
 					let tagTarg = t;
 					if( this.caster )
 						tagTarg = s;
@@ -285,14 +285,17 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.wrapperStacks ){
-				if( event.wrapper && !isNaN(this.data.amount) && (~['>','<','='].indexOf(this.data.operation) || !this.data.operation) ){
+				if( event.wrapper && (~['>','<','='].indexOf(this.data.operation) || !this.data.operation) ){
 					let operation = "=";
 					if( this.data.operation )
 						operation = this.data.operation;
+					let amount = Calculator.run(this.data.amount, new GameEvent({
+						wrapper : event.wrapper,
+					}));
 					success = 
-						(operation === "=" && event.wrapper.stacks === this.data.amount ) ||
-						(operation === "<" && event.wrapper.stacks < this.data.amount ) ||
-						(operation === ">" && event.wrapper.stacks > this.data.amount )
+						(operation === "=" && event.wrapper.stacks === amount ) ||
+						(operation === "<" && event.wrapper.stacks < amount ) ||
+						(operation === ">" && event.wrapper.stacks > amount )
 					;
 				}
 			}
@@ -753,7 +756,7 @@ Condition.Types = {
 };
 
 Condition.descriptions = {
-	[Condition.Types.tag] : '{tags:(arr)(str)tag, sender:(bool)limit_by_sender} one or many tags, many tags are ORed. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
+	[Condition.Types.tag] : '{tags:(arr)(str)tag, caster:(bool)limit_by_sender} one or many tags, many tags are ORed. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
 	[Condition.Types.playerClass] : '{label:(arr)(str)label} Searches for label in target playerclass.',
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached wrapper',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',

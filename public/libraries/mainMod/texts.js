@@ -548,8 +548,8 @@ const lib = [
 		metaTags : [stdTag.metaStretch, stdTag.metaWet, stdTag.metaSlotClothes, stdTag.metaSlotGroin],
 		hitfx : ["tentacleStretch"]
 	},
-	{ text : "%S slips into %T's %TclothLower and starts swimming rapidly, stretching the piece up and exposing %This %Tbsize %breasts!",
-		conditions : anyOnHumCond.concat("action_stdAttack","senderIsLamprey", "targetUpperBodyNotHard", "targetUpperBodyCanPullUp", "targetUpperBodyDamaged"),
+	{ text : "%S slips into %T's %TclothUpper and starts swimming rapidly, stretching the piece up and exposing %This %Tbsize %breasts!",
+		conditions : anyOnHumCond.concat("action_stdAttack","senderIsLamprey", "targetBreasts", "targetUpperBodyNotHard", "targetUpperBodyCanPullUp", "targetUpperBodyDamaged"),
 		weight : Text.Weights.high,
 		turnTags : [stdTag.ttBreastsExposed],
 		metaTags : [stdTag.metaStretch, stdTag.metaWet, stdTag.metaSlotClothes, stdTag.metaSlotBreasts],
@@ -3114,7 +3114,10 @@ const lib = [
 
 
 
-
+	{text : "The gong attracts a Juvenile Lamprey!",
+		hitfx : ["waterSpout"],
+		conditions : ["eventIsEffectTrigger", {type:Condition.Types.effectLabel, data:{ label : "sq_sharktopus_gong_spawn"}}]
+	},
 
 
 

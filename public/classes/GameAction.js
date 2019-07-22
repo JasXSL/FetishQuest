@@ -13,6 +13,7 @@ import Shop from './Shop.js';
 import Player from './Player.js';
 import Text from './Text.js';
 import HitFX from './HitFX.js';
+import PlayerTemplate from './templates/PlayerTemplate.js';
 
 export default class GameAction extends Generic{
 
@@ -149,6 +150,14 @@ export default class GameAction extends Generic{
 
 			if( this.type === GameAction.types.text )
 				this.data.text = this.getDataAsText();
+
+			if( this.type === GameAction.types.addPlayer )
+				this.data.player = this.getDataAsPlayer();
+
+			if( this.type === GameAction.types.addPlayerTemplate )
+				this.data.player = this.getDataAsPlayerTemplate();
+
+			
 		}
 
 
@@ -281,6 +290,14 @@ export default class GameAction extends Generic{
 	getDataAsText(){
 		return Text.loadThis(this.data.text, this);
 	}
+
+	getDataAsPlayer(){
+		return Player.loadThis(this.data.player, this);
+	}
+	getDataAsPlayerTemplate(){
+		return PlayerTemplate.loadThis(this.data.player, this);
+	}
+	
 
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
 	async trigger( player, mesh ){
@@ -502,6 +519,13 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.addPlayer ){
+			game.addPlayer(this.getDataAsPlayer().clone().g_resetID(), this.data.nextTurn);
+		}
+		else if( this.type === types.addPlayerTemplate ){
+			game.addPlayerFromTemplate(this.getDataAsPlayerTemplate(), this.data.nextTurn);
+		}
+
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
 			return false;
@@ -558,6 +582,9 @@ GameAction.types = {
 	repairShop : "repairShop",				// {player:(str)label} - Marks a player as offering repairs
 	text : "text",							// {text:(obj)text} - Triggers a text
 	hitfx : "hitfx",						// {hitfx:(obj/str/arr)hitfx, caster_conds:(arr)caster_conditions, target_conds:(arr)target_conds, max_triggers:(int)=all} - Triggers a hitfx
+	addPlayer : "addPlayer",				// {player:(obj/str)monster, turn:(int)turn_offset=-1}
+	addPlayerTemplate : "addPlayerTemplate",	// {player:(obj/str)template, nextTurn:(bool)=false} - If nextTurn is true, it adds the player on next turn instead of before the current player
+	
 };
 
 // These are types where data should be sent to netgame players

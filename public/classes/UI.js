@@ -869,7 +869,7 @@ export default class UI{
 		// Effect wrappers
 		let o = '';
 		let wrappers = p.getWrappers();
-		wrappers = wrappers.filter(el => el.name.length && (el._duration !== 0 || el.duration === -1) && el.parent instanceof Player);
+		wrappers = wrappers.filter(el => el.name.length && el.parent instanceof Player);
 		for( let wrapper of wrappers ){
 			o += '<div class="wrapper tooltipParent '+(wrapper.detrimental ? 'detrimental' : 'beneficial')+'" data-id="'+esc(wrapper.id)+'">';
 			if( wrapper.icon )

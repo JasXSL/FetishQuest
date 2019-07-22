@@ -368,7 +368,7 @@ const lib = {
 		icon : 'splash',
 		description : "Summons a water spout that soaks your target for 1 turn and lowers their elemental avoidance by two. Whenever the target uses an action, the caster gains 1 MP.",
 		ap : 2,
-		mp : 1,
+		mp : 0,
 		cooldown : 2,
 		ranged : Action.Range.Ranged,
 		detrimental : true,
@@ -1710,7 +1710,7 @@ const lib = {
 	cocktopus_inkject : {
 		name : "Headtacle",
 		icon : 'giant-squid',
-		description : "Starts thrusting your big head tentacle into a latched target, doing 4 corruption damage every turn for 3 turns or until you are pulled off. After 3 turns, you ink inside your target, adding 10 arousal to them and doing 10 mana damage.",
+		description : "Starts thrusting your big head tentacle into a latched target, doing 5 corruption damage every turn for 3 turns or until you are pulled off. After 3 turns, you ink inside your target, adding 10 arousal to them and doing 10 mana damage.",
 		ap : 4,
 		cooldown : 5,
 		detrimental : true,
@@ -1739,7 +1739,7 @@ const lib = {
 						],
 						type : Effect.Types.damage,
 						data : {
-							amount : 3
+							amount : 5
 						}
 					},
 					{

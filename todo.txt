@@ -17,7 +17,7 @@ Medium rare:
 		- Buy
 		- Sell
 		- Repair
-
+	- Unbind FX events on a player when they're removed or cell changes
 
 Big chungi:
 	- Add the sharktopus fight
@@ -51,7 +51,7 @@ Next:
 		- Hidden path down to the beach
 		- Otter and Broper quest
 	- Sleep
-	
+
 
 
 Abilities:
