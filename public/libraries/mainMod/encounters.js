@@ -659,7 +659,17 @@ const lib = {
 	},
 
 	SQ_sharktopus_boss : {
-		players : ['SQ_sharktopus_gong', 'Broper'],
+		players : ['SQ_sharktopus_gong', 'SQ_sharktopus_boss'],
+		wrappers : [
+			{	// Initial submerge is different in that it also stuns
+				label : 'shark_submerge',
+				tags : [stdTag.gpInvisible, stdTag.gpSkipTurns, stdTag.gpBoss],
+				detrimental : false,
+				duration : -1,
+				target : Wrapper.TARGET_AOE,
+				add_conditions : [{type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_boss'}}],
+			}
+		]
 	},
 	SQ_sharktopus_water_warning : {
 		friendly : true,

@@ -253,13 +253,16 @@ class Text extends Generic{
 				);
 			}
 		}
+		
 
+		
 		let targs = event.target;
 		if( !Array.isArray(targs) )
 			targs = [targs];
+		let i = 0;
 		for( let fx of this.hitfx ){
 			for( let targ of targs ){
-				game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true);
+				setTimeout(() => game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true), ++i*50);
 				if( fx.once )
 					break;
 			}
@@ -446,11 +449,14 @@ Text.runFromLibrary = function( event ){
 				Text.actionChargeFallbackText.run(event);
 			t.shift();
 		}else{
+
 			text.run(event);
+
 			let nt = text.numTargets;
 			if( nt === -1 )
 				nt = t.length;
 			t.splice(0,nt);
+
 			// Only allows one text per action
 			if( text.chat )
 				break;

@@ -229,16 +229,43 @@ export default class UI{
 
 		if( this.drawTimer )
 			return;
-		this.drawTimer = setTimeout(() => {
-			this._hold_actionbar = false;
-			this.drawTimer = false;
-			this.drawPlayers();
-			this.drawGameIcons();
-			this.drawActionSelector();
-			this.drawRoleplay();
-			this.bindTooltips();
-		}, 30);
+		this.drawTimer = setTimeout(this.execDraw.bind(this), 30);
 
+	}
+
+	execDraw(){
+		this._hold_actionbar = false;
+		this.drawTimer = false;
+
+		const times = [];
+		let t = Date.now();
+
+		this.drawPlayers();
+		times.push(Date.now()-t);
+		t = Date.now();
+
+		this.drawGameIcons();
+		times.push(Date.now()-t);
+		t = Date.now();
+
+		this.drawActionSelector();
+		times.push(Date.now()-t);
+		t = Date.now();
+
+		this.drawRoleplay();
+		times.push(Date.now()-t);
+		t = Date.now();
+
+		this.bindTooltips();
+		times.push(Date.now()-t);
+		
+		console.log(
+			"Pl: "+times[0],
+			"Gi: "+times[1],
+			"As: "+times[2],
+			"Rp: "+times[3],
+			"TT: "+times[4],				
+		);
 	}
 
 	// Draws action selector for a player
@@ -355,6 +382,7 @@ export default class UI{
 
 		// Bind events
 		$("div.action", this.action_selector).on('mousedown mouseover mouseout click touchstart touchmove', function(event){
+
 
 			let id = $(this).attr("data-id");
 			let spell = player.getActionById(id);
@@ -573,8 +601,6 @@ export default class UI{
 			else if( p.team === 0 !== el.parent().hasClass('left') )
 				el.appendTo(tag);
 
-			el.toggleClass("hidden", p.isInvisible());
-
 			ids.push(p.id);
 			el.toggleClass("active", false);		// Clear turns
 
@@ -596,10 +622,12 @@ export default class UI{
 		// Update the individual players
 		for( let p of players ){
 			this.drawPlayer(p);
-			if( p.team === 0 )
-				++nr_friendly;
-			else
-				++nr_hostile;
+			if( !p.isInvisible() ){
+				if( p.team === 0 )
+					++nr_friendly;
+				else
+					++nr_hostile;
+			}
 		}
 		
 
@@ -702,6 +730,7 @@ export default class UI{
 
 	drawPlayer(p){
 
+
 		const tp = game.getTurnPlayer(),
 			myTurn = tp && tp.id === p.id,
 			el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
@@ -719,8 +748,8 @@ export default class UI{
 		
 		el.toggleClass('dead', p.hp <= 0);
 		el.toggleClass('incapacitated', p.isIncapacitated());
+		el.toggleClass("hidden", p.isInvisible());
 
-		
 
 		// Check if image has changed
 		let imgdiv = $('div.bg', el);
@@ -1185,6 +1214,7 @@ export default class UI{
 	/* ACTION SELECTOR Helpers */
 	// Send the action selection
 	performSelectedAction(){
+
 		this._hold_actionbar = true;
 		game.useActionOnTarget(
 			this.action_selected, 

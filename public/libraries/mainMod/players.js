@@ -273,13 +273,25 @@ const lib = {
         bonHoly : -4,
 		bonCorruption : 1,	
 		actions : [
-			// Todo
+			'sharktopus_attack',		// Todo - Write texts. Disable other actions when submerged.
+			'sharktopus_arouse',		// Todo - Write texts. Disable other actions when submerged.
+			'sharktopus_submerge',		// Todo - Submerges and gains 2x damage done. Remember to activate cooldown on emerge 
 		],
 		tags : [
 			stdTag.gpBoss, stdTag.plTentacles, stdTag.plBeast
 		],
 		assets : [
 			// Todo: Sharkanium
+		],
+		passives : [
+			{
+				duration:-1,
+				label : 'disableAttackArouse',
+				detrimental : false,
+				effects : [
+					'disableAttackArouse'
+				]
+			}
 		],
 	},
 	SQ_sharktopus_gong : {
@@ -317,7 +329,7 @@ const lib = {
 									duration : 3,
 									name : "Reverberation",
 									icon : "vibrating-ball",
-									detrimental : true,
+									detrimental : false,
 									description : "The gong is vibrating!",
 									max_stacks : 100,
 									effects : [
@@ -336,12 +348,6 @@ const lib = {
 											],
 										},
 										{
-											events : [GameEvent.Types.internalWrapperStackChange],
-											type:Effect.Types.removeWrapperByLabel, 
-											data:{label:'sq_sharktopus_gong'},
-											conditions : ['sq_sharktopus_gong_stacks'],
-										},
-										{
 											label : 'sq_sharktopus_gong_hide',
 											events : [GameEvent.Types.internalWrapperStackChange],
 											type:Effect.Types.runWrappers, 
@@ -352,12 +358,32 @@ const lib = {
 													duration : -1,
 													detrimental : false,
 													tags : [stdTag.gpInvisible],
+												},
+												{
+													label : 'shark_reveal',
+													target : Wrapper.TARGET_AOE,
+													detrimental : false,
+													add_conditions : [{type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_boss'}}],
+													effects:[
+														{
+															type:Effect.Types.removeWrapperByLabel, 
+															data:{label:'shark_submerge'},
+														},
+														{
+															type:Effect.Types.activateCooldown,
+															data:{actions:['sharktopus_submerge']}
+														}
+													]
 												}
 											]},
 											conditions : ['sq_sharktopus_gong_stacks'],
 										},
-										// Todo: Summon shark on X stacks
-										//{events:[GameEvent.Types.internalWrapperAdded], type:Effect.Types.trace, data:{message:"PROC"}}
+										{
+											events : [GameEvent.Types.internalWrapperStackChange],
+											type:Effect.Types.removeWrapperByLabel, 
+											data:{label:'sq_sharktopus_gong'},
+											conditions : ['sq_sharktopus_gong_stacks'],
+										},
 									]
 								},
 							]

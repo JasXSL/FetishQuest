@@ -3118,8 +3118,12 @@ const lib = [
 		hitfx : ["waterSpout"],
 		conditions : ["eventIsEffectTrigger", {type:Condition.Types.effectLabel, data:{ label : "sq_sharktopus_gong_spawn"}}]
 	},
+	{text : "The shark monster emerges from the water!",
+		hitfx : ["waterSpout"],
+		conditions : ["eventIsEffectTrigger", {type:Condition.Types.effectLabel, data:{ label : "sq_sharktopus_gong_hide"}}]
+	},
 
-
+	
 
 
 

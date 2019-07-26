@@ -260,10 +260,12 @@ class NetworkManager{
 
 		// Auto
 		const current = game.getSaveData();
-		console.debug("Full SaveData", current);
+		if( this.debug )
+			console.debug("Full SaveData", current);
 		const changes = this.runComparer( current );
 
-		console.debug("Game changes", changes);
+		if( this.debug )
+			console.debug("Game changes", changes);
 		if( !Object.keys(changes).length )
 			return;
 

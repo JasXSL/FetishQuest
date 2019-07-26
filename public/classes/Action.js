@@ -390,6 +390,9 @@ class Action extends Generic{
 		if( this.getViableTargets(isChargeFinish, debug).length < this.min_targets )
 			return err("No viable targets");
 
+		if( pl && !pl.isActionEnabled(this) )
+			return err("Can't use this action right now");
+
 		// Charges are not checked when a charged action finishes
 		if( !this.hasEnoughCharge() && !isChargeFinish ){
 			if( log )
@@ -443,44 +446,11 @@ class Action extends Generic{
 		if( this.target_type === Action.TargetTypes.self )
 			targets = [sender];
 
-		
-		// Handle taunt on charge finish
-		/*
-		let viable = this.getViableTargets(),
-			taunts = this.getPlayerParent().getTauntedOrGrappledBy();
-		if( 
-			isChargeFinish && 
-			this.target_type !== Action.TargetTypes.aoe && 
-			this.target_type !== Action.TargetTypes.self && 
-			taunts !== game.players // getTauntedBy returns game.players if you're not taunted
-		){
-			let targs = [];
-			for( let target of targets ){
-				let pos = viable.indexOf(target);
-				// This player is already taunting, so add it
-				if( ~pos ){
-					targs.push(target);
-					viable.splice(pos, 1);
-				}
-				// Player is not taunting. Target a taunting player instead if possible.
-				else{
-					// Shuffle taunts
-					shuffle(taunts);
-					while( taunts.length ){
-						let pl = taunts.shift();
-						if( targs.indexOf(pl) === -1 )
-							targs.push(pl);
-					}
-				}
-			}
-			targets = targs;
-		}
-		*/
 
 		// make sure the supplied targets are enough
 		if( this.target_type !== Action.TargetTypes.aoe && (targets.length > this.max_targets || targets.length < this.min_targets) ){
 			game.modal.addError("Too few or too many targets selected");
-			console.log("Attempted to use", targets, "on action", this);
+			console.error("Attempted to use", targets, "on action", this);
 			return false;
 		}
 
@@ -500,7 +470,6 @@ class Action extends Generic{
 			}).raise();
 			return true;
 		}
-
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
 
@@ -588,6 +557,7 @@ class Action extends Generic{
 			this.getPlayerParent()._turn_ap_spent += this.ap;
 			this.consumeCharges();
 		}
+
 		return hits.length;
 
 	}

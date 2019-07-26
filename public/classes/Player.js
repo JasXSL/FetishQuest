@@ -435,7 +435,7 @@ export default class Player extends Generic{
 		return this.hasTag(stdTag.gpInvisible);
 	}
 	isSkipAllTurns(){
-		return this.hasTag('pl_'+stdTag.gpSkipTurns);
+		return this.hasTag(['pl_'+stdTag.gpSkipTurns, stdTag.gpSkipTurns]);
 	}
 
 	// Can't accept their turn
@@ -1805,6 +1805,35 @@ export default class Player extends Generic{
 		return true;
 	}
 
+	// Checks effects whether an action is enabled
+	isActionEnabled( action ){
+			const a = action;
+			if( typeof action === "string" ){
+			action = this.getActionByLabel(a);
+			if( !action )
+				action = this.getActionById(a);
+		}
+		if( !action ){
+			console.error("Action not found", a);
+			return false;
+		}
+		const effects = this.getActiveEffectsByType(Effect.Types.disableActions);
+		const evt = new GameEvent({
+			sender : this,
+			target : this,
+			action : action
+		});
+		for( let effect of effects ){
+			const conds = effect.data.conditions;
+			if( !Array.isArray(conds) ){
+				console.error("Conditions are not an array", conds);
+				continue;
+			}
+			if( Condition.all(conds, evt) )
+				return false;
+		}
+		return true;
+	}
 
 	removeActionById( id ){
 		for( let i in this.actions ){
@@ -1926,8 +1955,10 @@ export default class Player extends Generic{
 	useActionId( id, targets, netPlayer ){
 
 		let action = this.getActionById(id);
-		if( action )
-			return action.useOn(targets, false, netPlayer);
+		if( action ){
+			const out = action.useOn(targets, false, netPlayer);
+			return out;
+		}
 		console.error("Action missing", id, "in", this);
 		return false;
 
@@ -1979,13 +2010,15 @@ export default class Player extends Generic{
 	}
 
 	// Activates cooldowns by labels
-	activeCooldowns( labels ){
+	consumeActionCharges( labels, charges = 1 ){
 		if( !Array.isArray(labels) )
 			labels = [labels];
+
 		for( let label of labels ){
 			let action = this.getActionByLabel(label);
-			if( action )
-				action.setCooldown();
+			if( action ){
+				action.consumeCharges(charges);
+			}
 		}
 	}
 

@@ -1476,7 +1476,7 @@ export default class Game extends Generic{
 		
 		const started = this.encounter.started;
 		this.encounter.started = true;
-
+		const completed = this.encounter.completed;
 
 		// Update visible players
 		this.removeEnemies(merge);
@@ -1491,24 +1491,16 @@ export default class Game extends Generic{
 		// Encounter isn't finished, start a battle 
 		if( !this.encounter.completed ){
 			
-			//if( !started ){
 
-				this.clearRoleplay();
-				
+			this.clearRoleplay();
 
-				const viable = GameAction.getViable(this.encounter.game_actions, player);
-				for( let action of viable ){
-					action.trigger(player);
-				}
-
-			//}
-		
-
-			if( !encounter.friendly ){
-				this.toggleBattle(true);
+			const viable = GameAction.getViable(this.encounter.game_actions, player);
+			for( let action of viable ){
+				action.trigger(player);
 			}
 			for( let wrapper of encounter.wrappers )
 				wrapper.useAgainst( encounter.players[0], player );
+
 
 		}
 
@@ -1526,6 +1518,9 @@ export default class Game extends Generic{
 
 		
 		encounter.onPlacedInWorld( !started );	// This has to go after, since players need to be put in world for effects and conditions to work
+
+		if( !encounter.friendly && !completed )
+			this.toggleBattle(true);
 
 		// Purge is needed after each overwrite
 		this.save();
@@ -1686,6 +1681,7 @@ export default class Game extends Generic{
 	// Advances turn
 	advanceTurn(){
 
+
 		this.endTurnTimer();
 
 		const th = this;
@@ -1696,8 +1692,9 @@ export default class Game extends Generic{
 			}, 1000);
 		};
 
+
 		const players = this.getEnabledPlayers();
-		for( let i=0; i<this.players.length; ++i ){
+		for( let i=0; i<players.length; ++i ){
 
 			this.end_turn_after_action = false;
 			let pl = this.getTurnPlayer();
@@ -1723,7 +1720,7 @@ export default class Game extends Generic{
 			Wrapper.checkAllStayConditions();
 			this.ui.flushMessages();
 			
-			if( npl.isIncapacitated() || npl.isDead() )
+			if( npl.isIncapacitated() || npl.isSkipAllTurns() )
 				continue;
 
 			if( this.end_turn_after_action )
@@ -1746,7 +1743,6 @@ export default class Game extends Generic{
 		this.save();
 		this.ui.draw();
 		
-
 	}
 
 	// Checks if end_turn_after_action is set and advances turn if it is
@@ -1798,9 +1794,10 @@ export default class Game extends Generic{
 		}else
 			this.ui.captureActionMessage = true;
 		
-
 		let att = player.useActionId( action.id, targets, netPlayer );
+
 		Wrapper.checkAllStayConditions();
+
 		this.save();
 		this.ui.draw();
 		this.ui.flushMessages();

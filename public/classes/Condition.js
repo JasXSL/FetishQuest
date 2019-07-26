@@ -32,6 +32,7 @@ export default class Condition extends Generic{
 		this.targnr = -1;			// -1 gets checked against ALL players, 0 gets checked against the first player and so forth
 		this.inverse = false;		// Return true if the condition does NOT validate
 		this.anyPlayer = false;		// Check against any player
+		this.debug = false;
 
 		this.load(data);
 	}
@@ -47,12 +48,13 @@ export default class Condition extends Generic{
 			anyPlayer : this.anyPlayer,
 			conditions : this.conditions.map(el => el.save(full)),
 			min : this.min,
-			max : this.max
+			max : this.max,
 		};
 
-		if( full )
+		if( full ){
 			out.label = this.label;
-
+			out.debug = this.debug;
+		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
 
@@ -133,6 +135,9 @@ export default class Condition extends Generic{
 	
 	// Tests the condition
 	test( event, debug ){
+
+		if( !debug )
+			debug = this.debug;
 
 		if( debug )
 			console.trace("Condition DEBUG :: Testing", this, "with event", event);
@@ -761,7 +766,7 @@ Condition.descriptions = {
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached wrapper',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
-	[Condition.Types.actionLabel] : '{label:(arr)(str)label} Data is one or many action labels',
+	[Condition.Types.actionLabel] : '{label:(arr)(str)label} Attached action label is in this array',
 	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',
 	[Condition.Types.actionDetrimental] : 'Data is void',
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',

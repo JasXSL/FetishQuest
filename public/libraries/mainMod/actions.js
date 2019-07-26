@@ -95,22 +95,7 @@ const lib = {
 		show_conditions : [
 			"inCombat"
 		],
-		wrappers : [
-			{
-				duration : 0,
-				name : "",
-				icon : "",
-				description : "",
-				detrimental : true,
-				add_conditions : [],
-				stay_conditions : [],
-				effects : [
-					{
-						type : "endTurn"
-					}
-				]
-			}
-		]
+		wrappers : ["endTurn"]
 	},
 	stdEscape: {
 		name : "Escape",
@@ -2541,6 +2526,93 @@ const lib = {
 		}],
 	},
 
+
+	// SQ sharktopus boss
+	sharktopus_attack : {
+		icon : 'punch',
+		name : "Sharktopus Attack",
+		description : "Deals 3 physical damage to 2 players.",
+		ap : 3,
+		cooldown : 0,
+		max_targets : 2,
+		show_conditions : ["inCombat"],
+		tags : [stdTag.acDamage, stdTag.acPainful],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : "damage",
+						data : {
+							"amount": 3
+						}
+					},
+				]
+			}
+		]
+	},
+	sharktopus_arouse : {
+		name : "Sharktopus Arouse",
+		icon : 'hearts',
+		description : "Deals 3 corruption damage to 2 players.",
+		ap : 3,
+		cooldown : 0,
+		type : Action.Types.corruption,
+		max_targets : 2,
+		show_conditions : ["inCombat"],
+		tags : [stdTag.acDamage, stdTag.acArousing],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : "damage",
+						data : {
+							"amount": 3
+						}
+					},
+				]
+			}
+		]
+	},
+	sharktopus_submerge : {
+		name : "Sharktopus Submerge",
+		icon : 'shark-fin',
+		description : "Submerges, becoming permanently untargetable.",
+		ap : 0,
+		cooldown : 6,
+		detrimental : false,
+		target_type : Action.TargetTypes.self,
+		show_conditions : ["inCombat",{type:Condition.Types.hasWrapper, data:{label:'sharktopus_submerge'}, inverse:true}],
+		tags : [stdTag.acDamage, stdTag.acArousing, stdTag.acNpcImportant],
+		wrappers : [
+			{
+				label : 'sharktopus_submerge',
+				detrimental : false,
+				duration : -1,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				tags : [stdTag.gpInvisible],
+			},
+			{
+				// Show the gong
+				target : Wrapper.TARGET_AOE,
+				add_conditions : [{type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_gong'}}],
+				detrimental : false,
+				effects : [
+					{
+						type : Effect.Types.removeWrapperByLabel,
+						data : {label:"perma_invis"}
+					}
+				]
+			},
+			"endTurn"
+		]
+	},
 
 
 	// Rat in yuug port

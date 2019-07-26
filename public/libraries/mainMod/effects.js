@@ -60,6 +60,18 @@ const lib = {
 		targets : [Wrapper.TARGET_CASTER],
 		data : {victim:true}
 	},
+
+	disableAttackArouse : {
+		type : Effect.Types.disableActions,
+		data : {
+			conditions : [
+				{type:Condition.Types.actionLabel, data:{label:['stdAttack','stdArouse']}}
+			]
+		}
+	},
+
+	endTurn : {type : "endTurn"}
+
 };
 
 

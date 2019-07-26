@@ -145,6 +145,7 @@ class Wrapper extends Generic{
 
 		let pl = [game.getPlayerById(this.victim)];
 		
+
 		// If this effect isn't yet applied, we need to apply it against multiple players if target is an override
 		if( !isTick ){
 			
@@ -169,7 +170,6 @@ class Wrapper extends Generic{
 				pl = [player]; 
 			
 		}
-
 
 		let successes = 0;
 		for( let p of pl ){	
@@ -643,7 +643,8 @@ class Effect extends Generic{
 			this.data.conditions = Condition.loadThese(this.data.conditions, this);
 		if( this.type === Effect.Types.allowReceiveSpells && Array.isArray(this.data.conditions) )
 			this.data.conditions = Condition.loadThese(this.data.conditions, this);
-		
+		if( this.type === Effect.Types.disableActions && Array.isArray(this.data.conditions) )
+			this.data.conditions = Condition.loadThese(this.data.conditions, this);
 
 		// Unpack is required since it has nested objects
 		if( this.type === Effect.Types.addRandomTags ){
@@ -691,6 +692,7 @@ class Effect extends Generic{
 		if( !target )
 			target = event.target[0] || event.target;
 		
+		// Default to AoE
 		let tout = [];
 		for( let ta of this.targets ){
 			if( ta === Wrapper.TARGET_AUTO ){
@@ -702,6 +704,9 @@ class Effect extends Generic{
 				tout.push(event.sender);
 			else if( ta === Wrapper.TARGET_EVENT_TARGETS && event.target )
 				tout = tout.concat(event.target);
+			else if( ta === Wrapper.TARGET_AOE ){
+				tout = tout.concat(game.getEnabledPlayers());
+			}
 		}
 
 		if( this.data.dummy_sender )
@@ -1126,7 +1131,7 @@ class Effect extends Generic{
 			
 
 			else if( this.type === Effect.Types.activateCooldown ){
-				t.activeCooldowns(this.data.actions);
+				t.consumeActionCharges(this.data.actions, this.data.charges);
 			}
 
 			else if( this.type === Effect.Types.addActionCharges ){
@@ -1364,19 +1369,13 @@ class Effect extends Generic{
 
 	
 	/* CONDITIONS */
-	validateConditions( event ){
+	validateConditions( event, debug ){
 
 		if( this.events.length && this.events.indexOf(event.type) === -1 )
 			return false;
 
-		// If the condition is an array, it's ORed
-		// That should do for now
-		for( let condition of this.conditions ){
-
-			if( !Condition.all(condition, event) )
-				return false;
-
-		}
+		if( !Condition.all(this.conditions, event, debug) )
+			return false;
 
 		return true;
 
@@ -1641,7 +1640,8 @@ Effect.Types = {
 	addTags : 'addTags',
 	addRandomTags : 'addRandomTags',
 	allowReceiveSpells : 'allowReceiveSpells',
-
+	disableActions : 'disableActions',
+		
 };
 
 Effect.KnockdownTypes = {
@@ -1696,14 +1696,15 @@ Effect.TypeDescs = {
 	[Effect.Types.removeWrapperByTag] : '{tag:(str/arr)tags}',
 	[Effect.Types.removeEffectWrapperByEffectTag] : '{tag:(str/arr)tags} - Searches for _effects_ currently affecting you. And removes their wrappers if the effect has at least one of these tags.',
 
-	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels} - Activates cooldowns for learned abilities with actionLabels',
+	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels, charges=1} - Consumes ability charges',
 	[Effect.Types.lowerCooldown] : '{actions:(str)(arr)actionLabels, amount:(int)amount=inf} - Lowers or resets cooldowns on the target by label. NOTE: This will not add more than 1 charge.',
 
 	[Effect.Types.knockdown] : '{type:(int)type} - Prevents melee abilities. Use Effect.KnockdownTypes. If not an int it becomes boolean backwards of forwards.',
 	[Effect.Types.grapple] : '{}',
 	[Effect.Types.daze] : 'void',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
-
+	[Effect.Types.disableActions] : '{conditions:(arr)conditions} - Disables all spells that matches conditions',
+	
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
 	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',
 	[Effect.Types.addThreat] : '{amount:(str/nr)amount} - Generates threat on the target',

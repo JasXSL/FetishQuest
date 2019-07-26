@@ -182,8 +182,12 @@ const lib = {
 	},
 
 
-	
-
+	endTurn : {
+		detrimental : false,
+		add_conditions : [],
+		stay_conditions : [],
+		effects : ["endTurn"]
+	}
 };
 
 

@@ -429,7 +429,6 @@ class WebGL{
 				this.weather_fog = undefined;
 			}
 			if( this.weather_rainSplats ){
-				console.log("Destroying splats");
 				for( let emitter of this.weather_rainSplats )
 					emitter.destroy();
 				this.weather_rainSplats = undefined;
