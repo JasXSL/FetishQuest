@@ -464,6 +464,52 @@ particles.hitfx_shield = {
 
 
 
+particles.hitfx_throw_rock_sparks = {
+	texture : textures.glowSphere,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 2,
+	size_tween : [1,0],
+	part_max_age : 0.5,
+	velocity : new Proton.Span(10,20),
+	color : ["#332211","#221100"],	
+	opacity: 1,
+	gravity:4,
+};
+particles.hitfx_throw_rock_center = {
+	texture : textures.smoke,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 5,
+	size_tween : [1,0],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(0,1),
+	color : ["#555555","#221100"],	
+	opacity: 1,
+	gravity:0.5,
+};
+
+particles.hitfx_throw_rock_impact_sparks = {
+	texture : textures.glowSphere,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 5,
+	size_tween : [1,0],
+	part_max_age : 0.5,
+	velocity : new Proton.Span(40,50),
+	color : ["#555555","#221100"],	
+	opacity: 1,
+	gravity:3,
+};
+
+
+
 particles.hitfx_poison_pink = {
 	texture : textures.poison,
 	blending : THREE.AdditiveBlending,

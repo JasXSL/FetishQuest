@@ -2802,6 +2802,29 @@ const lib = {
 		]
 	},
 
+	throwRock : {
+		icon : 'stone',
+		name : "Throw Rock",
+		description : "Throw a small rock, doing no damage but adding 2 threat.",
+		ap : 1,
+		cooldown : 0,
+		show_conditions : ["inCombat"],
+		tags : ["ac_painful"],
+		hit_chance : 70,
+		wrappers : [
+			{
+				target : "VICTIM",
+				detrimental : true,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.addThreat,
+						data : {"amount": 3}
+					}
+				]
+			}
+		]
+	},
 
 	minorHealingPotion: {
 		ranged : Action.Range.None,

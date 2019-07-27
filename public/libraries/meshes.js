@@ -470,6 +470,13 @@ LibMesh.library = {
 				height: 1,
 				tags : [stdTag.mAltar],
 			}),
+			Podium : new LibMesh({
+				url : 'furniture/podium_1x1.JD',
+				materials : [libMat.StoneTile.DungeonFloor,libMat.Brick.DungeonBlack],
+				width: 1,
+				height: 1,
+				tags : ["m_podium"],
+			}),
 		},
 		Doodads : {
 			BannerAnimated : new LibMesh({
@@ -769,6 +776,33 @@ LibMesh.library = {
 				width: 3,
 				height: 2,
 			}),
+			RugHide : new LibMesh({
+				tags : [stdTag.mRug],
+				url : 'furniture/rug_3x2.JD',
+				materials : [
+					libMat.Cloth.Rug.Hide
+				],
+				width: 3,
+				height: 2,
+			}),
+			RugWhite : new LibMesh({
+				tags : [stdTag.mRug],
+				url : 'furniture/rug_3x2.JD',
+				materials : [
+					libMat.Cloth.Rug.White
+				],
+				width: 3,
+				height: 2,
+			}),
+			RugYellow : new LibMesh({
+				tags : [stdTag.mRug],
+				url : 'furniture/rug_3x2.JD',
+				materials : [
+					libMat.Cloth.Rug.Yellow
+				],
+				width: 3,
+				height: 2,
+			}),
 			Fireplace : new LibMesh({
 				tags : [stdTag.mFireplace],
 				url : 'furniture/fireplace.JD',
@@ -878,6 +912,54 @@ LibMesh.library = {
 				height:6,
 				wall_indentation : 10,
 				top:-2,left:-3,
+			}),
+			R8x4 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/cottage_interior_8x4.JD',
+				materials : [
+					libMat.Structure.CottageWall,
+					libMat.Wood.Floor,
+					libMat.Wood.Logs,
+				],
+				tags : [stdTag.mWall],
+				width: 8,
+				height:4,
+				wall_indentation : 10,
+				top:-1,left:-3,
+			}),
+			R6x4 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/cottage_interior_6x4.JD',
+				materials : [
+					libMat.Structure.CottageWall,
+					libMat.Wood.Floor,
+					libMat.Wood.Logs,
+				],
+				tags : [stdTag.mWall],
+				width: 6,
+				height:4,
+				wall_indentation : 10,
+				top:-1,left:-2,
+			}),
+			R10x3 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/cottage_interior_10x3.JD',
+				materials : [
+					libMat.Structure.CottageWall,
+					libMat.Wood.Floor,
+					libMat.Wood.Logs,
+				],
+				tags : [stdTag.mWall],
+				width: 6,
+				height:4,
+				wall_indentation : 10,
+				top:0,left:-4,
+			}),
+			Window : new LibMesh({
+				url : 'rooms/cottage_window.JD',
+				materials : [
+					libMat.Wood.Crate,
+				],
 			}),
 		},
 		Doodads : {
@@ -1686,6 +1768,15 @@ LibMesh.library = {
 					libMat.Metal.Rust,
 					libMat.Cloth.Thick,
 					libMat.Cloth.Dark,
+				],
+			}),
+			Gong : new LibMesh({
+				url : 'doodads/gong.JD',
+				tags : [],
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Cloth.Rope,
+					libMat.Metal.Copper
 				],
 			}),
 		},
@@ -2848,6 +2939,21 @@ LibMesh.library = {
 				onInteractivityChange : function(dungeonAsset, interactive){
 					const mesh = dungeonAsset._stage_mesh;
 					mesh.material[2].visible = interactive;
+				},
+			}),
+			RockPile : new LibMesh({
+				url : 'nature/rockpile.JD',
+				materials : [
+					libMat.Rock.Quartz,
+					libMat.Rock.Floor,
+					libMat.Rock.Wall,
+				],
+				onInteract : function( mesh, room, asset ){
+					
+				},
+				onInteractivityChange : function(dungeonAsset, interactive){
+					const mesh = dungeonAsset._stage_mesh;
+					mesh.material[0].visible = interactive;
 				},
 			}),
 		},

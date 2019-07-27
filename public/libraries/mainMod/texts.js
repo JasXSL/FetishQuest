@@ -3119,9 +3119,14 @@ const lib = [
 		conditions : ["eventIsEffectTrigger", {type:Condition.Types.effectLabel, data:{ label : "sq_sharktopus_gong_spawn"}}]
 	},
 	{text : "The shark monster emerges from the water!",
-		hitfx : ["waterSpout"],
+		audioKits : ["waterSplash"],
 		conditions : ["eventIsEffectTrigger", {type:Condition.Types.effectLabel, data:{ label : "sq_sharktopus_gong_hide"}}]
 	},
+	{ text : "With a loud splash, %S submerges itself into the murky water!",
+		conditions : ["actionHit","eventIsActionUsed",{type:Condition.Types.actionLabel, data:{label:"sharktopus_submerge"}}],
+		audioKits : ["waterSplash"]
+	},
+	
 
 	
 
@@ -3907,9 +3912,13 @@ const lib = [
 		hitfx : ["drink_generic"]
 	},
 
+	{ text : "%S throws a small stone at %T!",
+		conditions : baseCond.concat("action_throw_rock"),
+		hitfx : ["throwStone"]
+	},
 
 
-
+	
 
 
 

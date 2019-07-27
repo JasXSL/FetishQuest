@@ -141,6 +141,11 @@ LibMaterial.library = {
 			metalness : 0.65,
 			roughness : 0.6,
 		}),
+		Copper : new LibMaterial({
+			color : new THREE.Color(0xDDAA66),
+			metalness : 0.7,
+			roughness : 0.5,
+		}),
 	},
 	Solids : {
 		Black : new LibMaterial({color:0, metalness:0,roughness:1}),
@@ -198,6 +203,11 @@ LibMaterial.library = {
 			map : 'tileable/moss_rock_better.jpg',
 			metalness : 0.4,
 			roughness : 0.7,
+		}),
+		Quartz : new LibMaterial({
+			map : 'tileable/quartz.jpg',
+			metalness : 0.3,
+			roughness : 0.5,
 		}),
 	},
 	Brick : {
@@ -316,7 +326,29 @@ LibMaterial.library = {
 				transparent : true,
 				alphaTest : 0.5,
 			}),
+			Hide : new LibMaterial({
+					map : 'tileable/rug_hide.png',
+					metalness : 0.3,
+					roughness : 0.5,
+					transparent : true,
+					alphaTest : 0.5,
+			}),
+			White : new LibMaterial({
+				map : 'tileable/rug_white.png',
+				metalness : 0.3,
+				roughness : 0.5,
+				transparent : true,
+				alphaTest : 0.5,
+			}),
+			Yellow : new LibMaterial({
+				map : 'tileable/rug_yellow.png',
+				metalness : 0.3,
+				roughness : 0.5,
+				transparent : true,
+				alphaTest : 0.5,
+			}),
 		},
+		
 		Dark : new LibMaterial({
 			map : 'tileable/dark_cloth.jpg',
 			metalness : 0.3,

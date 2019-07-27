@@ -269,6 +269,21 @@ const lib = {
 		ranged : Action.Range.None,
 	},
 
+	prettyRock : {
+		category : Asset.Categories.junk,
+		name :"Pretty Rock",
+		basevalue : 1,
+		weight : 100,
+		charges : 1,
+		use_action : "throwRock",
+		rarity : 0,
+		icon : 'stone',
+		slots : [Asset.Slots.action],
+		loot_sound : "loot_rock",
+		ranged : Action.Range.Ranged,
+		stacking : true,
+	},
+
 	food_RazzyBerry : {
 		category : Asset.Categories.food,
 		name : 'Razzyberry',
@@ -536,6 +551,20 @@ const lib = {
 		rarity : 0,
 		loot_sound : "loot_herb",
 		icon : 'vine-whip',
+		stacking : true,
+	},
+
+	sharkanium : {
+		name : "Sharkanium",
+		basevalue : 10000,
+		slots : [],
+		category : Asset.Categories.reagent,
+		tags : [stdTag.asReagent],
+		description : "A faintly glowing purple rock.",
+		weight : 1000,
+		rarity : 4,
+		loot_sound : "loot_sharkanium",
+		icon : 'ore',
 		stacking : true,
 	},
 

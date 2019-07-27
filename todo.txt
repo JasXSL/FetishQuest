@@ -2,9 +2,7 @@ Needed other:
 § Before next beta
 Smol:	
 	Meshes:
-		- Bed
 		- Nicer rug
-		- Drawer
 
 	Add fog override to cells
 
@@ -18,20 +16,11 @@ Medium rare:
 		- Sell
 		- Repair
 	- Unbind FX events on a player when they're removed or cell changes
+	- Add lootable rocks to the island beach
 
 Big chungi:
 	- Add the sharktopus fight
-	- New monster: Sharktopus
-		- A gong is in the arena, each time it's hit: 
-			- A minor enemy is spawned that does high damage but can easily be defeated
-			- It gains a stack of reverb
-			- At num_players stacks, the shark emerges and the gong is made invisible
-		- Shark is invisible and will be limited to two attacks with high AP cost but can be used multiple times
-
-		- When shark emerges, cooldown of submerge must be reactivated so it doesn't reset by player being slow to bring him up
-		- You can find stones on the island weighing in at 500g and can be used multiple times in a turn for only 2 AP and do 1 damage with a 50% base hit chance
-		- Shark can have some generic tentacle abilities
-
+	- Write texts for sharktopus
 	- Island quest:
 		- Kill the beast, and you collect a trophy.
 		- Bring the trophy to the port tavern to finish the quest and get a nice chunk of money and alcohol.

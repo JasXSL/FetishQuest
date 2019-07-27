@@ -1230,6 +1230,26 @@ out[id].stages.push(
 
 
 
+id = 'throwStone';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({emit_duration:500, particles:'hitfx_throw_rock_sparks', origin:'attacker'}), // todo
+	new Stage({
+		origin : 'attacker',
+		particles : 'hitfx_throw_rock_center', // Todo
+		emit_duration : 500,
+		hold : 500,
+		sound_kits : ['throwGenericSender'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_throw_rock_impact_sparks',	// Todo
+		emit_duration : 100,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['throwRockImpact'],
+	}, out[id]),
+);
+
+
 id = 'siphonCorruption';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

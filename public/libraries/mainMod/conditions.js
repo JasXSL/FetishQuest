@@ -83,6 +83,7 @@ const lib = {
 	action_guardian_demon_impale : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_impale'}, targnr:0},
 	action_guardian_demon_expose : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_expose'}, targnr:0},
 	action_guardian_demon_remoteDelivery : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_remoteDelivery'}, targnr:0},
+	action_throw_rock : {type:Condition.Types.actionLabel, data:{label:'throwRock'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
@@ -352,6 +353,8 @@ const lib = {
 	ttBentOverTable : {"type":"tag","data":{"tags":[stdTag.ttBentOverTable]}},
 	ttSpanked : {"type":"tag","data":{"tags":[stdTag.ttSpanked]}},
 	ttNotSpanked : {"type":"tag","data":{"tags":[stdTag.ttSpanked]},"inverse":true},
+
+
 
 	// Quest completion
 	mq00_completed : {type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}},

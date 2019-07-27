@@ -68,6 +68,17 @@ const lib = {
             }
         ],
     },
+    throwGenericSender : {
+        sounds : [{
+            s : { path : "media/audio/swing_small.ogg", volume : 0.3 },
+            se : true
+        }],
+    },
+    throwRockImpact : {
+        sounds : [{
+            s : { path : "media/audio/rock_hit.ogg", volume : 0.3 }
+        }],
+    },
     slapGeneric: {
         label : "slapGeneric",
         sounds : [
@@ -355,6 +366,11 @@ const lib = {
             }
         ],
         
+    },
+    waterSplash: {
+        sounds : [{
+            s : {path : "media/audio/water_splash.ogg",volume : 0.5},
+        }],
     },
     whipGeneric: {
         sounds : [
@@ -772,6 +788,21 @@ const lib = {
                 },
             }
         ],
+    },
+    loot_sharkanium : {
+        sounds : [{
+            s : {path : "media/audio/sharkanium_pickup.ogg",volume : 0.4},
+        }],
+    },
+    loot_rock : {
+        sounds : [{
+            s : {path : "media/audio/rock_pickup.ogg",volume : 0.4},
+        }],
+    },
+    loot_gem : {
+        sounds : [{
+            s : {path : "media/audio/gem_pickup.ogg",volume : 0.4},
+        }],
     },
 
     buy_item : {

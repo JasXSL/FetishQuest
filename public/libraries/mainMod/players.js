@@ -275,13 +275,13 @@ const lib = {
 		actions : [
 			'sharktopus_attack',		// Todo - Write texts. Disable other actions when submerged.
 			'sharktopus_arouse',		// Todo - Write texts. Disable other actions when submerged.
-			'sharktopus_submerge',		// Todo - Submerges and gains 2x damage done. Remember to activate cooldown on emerge 
+			'sharktopus_submerge',
 		],
 		tags : [
 			stdTag.gpBoss, stdTag.plTentacles, stdTag.plBeast
 		],
 		assets : [
-			// Todo: Sharkanium
+			"sharkanium"
 		],
 		passives : [
 			{

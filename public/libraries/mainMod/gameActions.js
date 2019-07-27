@@ -12,6 +12,13 @@ const lib = {
 			loot: ['food_RazzyBerry','food_RazzyBerry','food_RazzyBerry'],
 		},
 	},
+	loot_Stones : {
+		type : GameAction.types.loot,
+		data : {
+			min:1, max:2,
+			loot: ['prettyRock','prettyRock'],
+		},
+	},
 	startBattle : {
 		type : GameAction.types.toggleCombat,
 		data : {
