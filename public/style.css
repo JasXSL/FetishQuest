@@ -950,19 +950,6 @@ div.fxBuffBlue{
 		border-color:#FDD;
 	}
 
-
-	#ui > div.middle{
-		background:rgba(0,0,0,.5);
-		left:26vw;
-		right:26vw;
-		position:absolute;
-		top:0;
-		bottom:0;
-		display:flex;
-		flex-direction: column;
-	}
-
-
 	/* Texts */
 	#ui > div.players div.player div.speechBubble{
 		display:none;
@@ -1188,17 +1175,17 @@ div.fxBuffBlue{
 /* Text */
 	#ui > div.middle{
 		bottom:7vh;
-	}
-	#ui > div.middle > div.text{
-		left:0; right:0;
+		background:rgba(0,0,0,.5);
+		left:26vw;
+		right:26vw;
+		position:absolute;
 		top:0;
-		bottom:0;
-		padding-left:1vmax; padding-right:1vmax;
-		height:100%;
+		display:flex;
+		flex-direction: column;
 	}
-	#ui > div.middle > div.text > div.content{
+	#ui > div.middle > div.content{
 		position: absolute;
-		bottom:0;
+		bottom:3vmax;
 		overflow:auto;
 		max-height:100%;
 		left:0;
@@ -1218,47 +1205,51 @@ div.fxBuffBlue{
 		font-size:1.5vmax;
 		border-top:1px dotted #FFF;
 		outline:none;
+		position:absolute;
+		bottom:0;
+		width:100%;
 	}
-	#ui > div.middle > div.text > div.content > div.line{
+	#ui > div.middle > div.content > div.line{
 		font-size:1.25vmax;
 		padding:0.25vmax;
 		color:#DDD;
 	}
-	#ui > div.middle > div.text > div.content > div.line.sided > div.sub{
+	#ui > div.middle > div.content > div.line.sided > div.sub{
 		display:inline-block;
 		max-width:90%;
 		text-align: left;
 	}
-	#ui > div.middle > div.text > div.content > div.line.center{
+	#ui > div.middle > div.content > div.line.center{
 		text-align: center;
 		background: #000;
 	}
-	#ui > div.middle > div.text > div.content > div.line.turnChange{
-		margin-top:1vmax;
+	#ui > div.middle > div.content > div.line.turnChange{
+		margin:1vmax 0;
+		padding:0;
 	}
-	#ui > div.middle > div.text > div.content > div.line.turnChange > div.sub{
+	#ui > div.middle > div.content > div.line.turnChange > div.sub{
 		background:#000;
 		font-style: italic;
 		font-size:1vmax;
 		padding:0.5vmax 1vmax;
 	}
-	#ui > div.middle > div.text > div.content > div.line.dmInternal{
+	#ui > div.middle > div.content > div.line.dmInternal{
 		text-align: center;
 		font-size:1vmax;
 		background:rgba(200,200,0,0.1);
 	}
-	#ui > div.middle > div.text > div.content > div.line.enemy{
+	#ui > div.middle > div.content > div.line.enemy{
 		text-align: right;
 	}
-	#ui > div.middle > div.text > div.content > div.line.abilityUse{
+	#ui > div.middle > div.content > div.line.abilityUse{
 		font-size:1vmax;
 		color:rgba(255,255,255,.5);
 	}
-	#ui > div.middle > div.text > div.content > div.line.playerChat{
+	#ui > div.middle > div.content > div.line.playerChat{
 		font-size:1vmax;
 		
 	}
-	#ui > div.middle > div.text > div.content > div.line.playerChat > div.sub{
+	#ui > div.middle > div.content > div.line.playerChat > div.sub{
 		background:rgba(255,255,255,.25);
 		padding:0.5vmax;
 		border-radius:0.5vmax;
@@ -1266,20 +1257,20 @@ div.fxBuffBlue{
 		width:auto;
 		box-shadow: 0.2vmax 0.2vmax 0.2vmax #000;
 	}
-	#ui > div.middle > div.text > div.content > div.line.dmChat{
+	#ui > div.middle > div.content > div.line.dmChat{
 		color: #DEF;
 		font-weight: bold;
 		text-align: center;
 		font-style:normal;
 		font-size:1.25vmax;
 	}
-	#ui > div.middle > div.text > div.content > div.line.actionLearned{
+	#ui > div.middle > div.content > div.line.actionLearned{
 		font-size:1vmax;
 		color:#DDF;
 		font-weight: bold;
 	}
 
-	#ui > div.middle > div.text > div.content > div.line.levelup{
+	#ui > div.middle > div.content > div.line.levelup{
 		text-align: center;
 		color:#FFA;
 		box-shadow:0 0 1vmax #FFA;
@@ -1288,7 +1279,7 @@ div.fxBuffBlue{
 		font-weight: bold;
 		text-shadow:0.2vmax 0.2vmax 0.5vmax #660;
 	}
-	#ui > div.middle > div.text > div.content > div.line.battleStarted{
+	#ui > div.middle > div.content > div.line.battleStarted{
 		background:rgba(255,255,255,.5);
 		box-shadow:0.2vmax 0.2vmax 1vmax #000;
 		color:#FFF;
@@ -1296,47 +1287,47 @@ div.fxBuffBlue{
 		margin-bottom:2vmax;
 		font-size:2vmax;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage{
+	#ui > div.middle > div.content > div.line.statMessage{
 		font-size:0.9vmax;
 		padding:0.1vmax 0.5vmax;
 		font-style: italic;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage.MP{
+	#ui > div.middle > div.content > div.line.statMessage.MP{
 		color:#BCD;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage.arousal{
+	#ui > div.middle > div.content > div.line.statMessage.arousal{
 		color:#DBD;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage.important{
+	#ui > div.middle > div.content > div.line.statMessage.important{
 		color:#FA6;
 		font-weight: bold;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage.clothDamage{
+	#ui > div.middle > div.content > div.line.statMessage.clothDamage{
 		color:#A99;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage.clothMend{
+	#ui > div.middle > div.content > div.line.statMessage.clothMend{
 		color:#8A8;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage.AP{
+	#ui > div.middle > div.content > div.line.statMessage.AP{
 		color:#BDD;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage.damage{
+	#ui > div.middle > div.content > div.line.statMessage.damage{
 		color:#DBB;
 	}
-	#ui > div.middle > div.text > div.content > div.line.statMessage.healing{
+	#ui > div.middle > div.content > div.line.statMessage.healing{
 		color:#BDB;
 	}
 
 
 
 
-	#ui > div.middle > div.text > div.content > div.line.ooc{
+	#ui > div.middle > div.content > div.line.ooc{
 		font-size:1vmax;
 		color:#AAA;
 		font-weight: normal;
 	}
 
-	#ui > div.middle > div.text > div.content > div.line.emote{
+	#ui > div.middle > div.content > div.line.emote{
 		font-style: italic;
 	}
 

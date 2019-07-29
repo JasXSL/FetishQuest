@@ -23,7 +23,11 @@ export default class UI{
 		this.friendly = $("#ui > div.players > div.left");
 		this.hostile = $("#ui > div.players > div.right");
 		this.action_selector = $("#ui > div.actionbar");
-		this.text = $("#ui div.text > div.content");
+		this.ap_bar = $("div.stat.ap", this.action_selector);
+		this.mp_bar = $("div.stat.mp", this.action_selector);
+		this.actionbar_actions = $("> div.actions", this.action_selector);
+
+		this.text = $("#ui > div.middle > div.content");
 		this.console = $("#ui > div.middle > div.chat");
 		this.gameIcons = $("#gameIcons");
 		this.multiCastPicker = $("#multiCastPicker");
@@ -268,6 +272,25 @@ export default class UI{
 		);
 	}
 
+	// Helper functions for below
+	updateResourceDots( root, currentPoints, maxPoints ){
+		const dots = $("> div.point", root);
+		// Check if we have too many
+		if( dots.length > maxPoints ){
+			for( let i=0; i<dots.length-maxPoints; ++i )
+				dots[0].remove();
+		}
+		for( let i = 0; i<maxPoints; ++i ){
+			let div = dots[i];
+			if( !div ){
+				div = document.createElement('div');
+				div.className = 'point';
+				root.append(div);
+			}
+			$(div).toggleClass('filled', i < currentPoints);
+		}
+	}
+
 	// Draws action selector for a player
 	drawActionSelector( player ){
 
@@ -276,7 +299,8 @@ export default class UI{
 
 
 		if( !player ){
-			this.action_selector.html('Spectating');
+			console.log("todo: spectate");
+			//this.action_selector.html('Spectating');
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
 			this.toggleRope(false);
@@ -284,8 +308,7 @@ export default class UI{
 		}
 
 		let actions = player.getActions(), 
-			th = this,
-			html = ''
+			th = this
 		;
 
 		const myTurn = game.getTurnPlayer().id === game.getMyActivePlayer().id || !game.battle_active;
@@ -295,94 +318,129 @@ export default class UI{
 		if( !myTurn )
 			this.toggleRope(false);
 
-		// Resources
-		html += '<div class="resources">';
-			html += '<div class="stat ap">';
-			for( let i = 0; i< player.getMaxAP(); ++i)
-				html += '<div class="point '+(i < player.ap ? 'filled' : '')+'"></div>';
-			html += '</div>';
 
-			html += '<div class="stat mp">';
-			for( let i = 0; i< player.getMaxMP(); ++i)
-				html += '<div class="point '+(i < player.mp ? 'filled' : '')+'"></div>';
-			html += '</div>';
+	
 
-		html += '</div>';
+		// Update resources
+		this.updateResourceDots(this.ap_bar, player.ap, player.getMaxAP());
+		this.updateResourceDots(this.mp_bar, player.mp, player.getMaxMP());
+		
 
-		html += '<div class="actions">';
+		// Build end turn button and toggle visibility
+		let endTurnButton = $('> div[data-id="end-turn"]', this.actionbar_actions);
+		if( !endTurnButton.length ){
+			endTurnButton = $('<div data-id="end-turn" class="action button autoWidth">End Turn</div>');
+			this.actionbar_actions.append(endTurnButton);			
+		}
+		endTurnButton.toggleClass('hidden', !game.battle_active);
+
+
+		// Update the action buttons
+		const buttons = $('> div.action:not([data-id="end-turn"])', this.actionbar_actions);
 		// label : nr
 		// Charges
-		let existing = {};
 		actions = actions.filter(el => {
-			if( existing[el.label] )
-				return false;
-			existing[el.label] = true;
-			return true;
+			return el.isVisible() && !el.no_action_selector;
 		});
 
+		if( buttons.length > actions.length ){
+			for( let i=0; i<buttons.length-actions.length; ++i ){
+				buttons[0].remove();
+			}
+		}
+
+		const buttonTemplate = $(
+			'<div>'+
+				'<img>'+
+				'<div class="uses"></div>'+
+				'<div class="cd"><span></span></div>'+
+				'<div class="tooltip actionTooltip"></div>'+
+			'</div>'
+		);
+
+		
 		let castableActions = 0;
-		for( let action of actions ){
+		for( let i=0; i<actions.length; ++i ){
 
-			if( !action.isVisible() || action.no_action_selector )
-				continue;
+			let button = buttons[i];
+			if( !button ){
+				button = buttonTemplate.clone()[0];
+				endTurnButton.before(button);
+			}
+			button = $(button);
 
+			let action = actions[i];
 			let castable = action.castable() && myTurn;
-			castableActions += !!castable;
+			castableActions += Boolean(castable);
 
+			// Update class name
 			const castableClass = (castable ? 'enabled' : 'disabled');
-
-			html+= '<div class="'+
+			button[0].className = 
 				'action button tooltipParent tooltipAbove '+
+				castableClass + ' '+
 				(action.detrimental ? 'detrimental' : 'beneficial')+' '+
-				castableClass+' '+
-				(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')+
-				'" data-id="'+esc(action.id)+'">'
+				(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')
 			;
 
-			html += '<img src="media/wrapper_icons/'+esc(action.getIcon())+'.svg" />';
+			// Update id
+			button.attr('data-id', action.id);
+			
+			// Update icon
+			const img = $('img', button),
+				imgSrc = 'media/wrapper_icons/'+esc(action.getIcon())+'.svg';
+			if( img.attr('src') !== imgSrc )
+				img.attr('src', imgSrc);
 
+			// Update charges
+			let uses = false;	// false hides
 			// This action is tied to an asset
-			if( action.isAssetAction() ){
-				if( action.parent._charges > 0 && action.parent.charges !== -1 )
-					html += '<div class="uses">'+player.numAssetUses(action.parent.label, game.battle_active)+'</div>';
-			}
-			else if( action._charges > 1 ){
-				html += '<div class="uses">'+action._charges+'</div>';
-			}
+			if( action.isAssetAction() && action.parent.charges !== -1 )
+				uses = player.numAssetUses(action.parent.label, game.battle_active);	
+			else if( action._charges > 1 )
+				uses = action._charges;
 
-			html += (action._cooldown > 0 ? '<div class="CD"><span>'+action._cooldown+'</span></div>' : '')+
-				'<div class="tooltip actionTooltip '+castableClass+'">'+
-					action.getTooltipText()+
-				'</div>'+
-			'</div>';
+			const usesEl = $('> div.uses', button);
+			usesEl.toggleClass('hidden', !uses)
+			if( +usesEl.text() !== uses )
+				usesEl.text(uses);
+
+			// Cooldown
+			const cdEl = $('> div.cd > span', button);
+			if( +cdEl.text !== +action._cooldown )
+				cdEl.toggleClass('hidden', !action._cooldown).text(action._cooldown);
+
+			// Tooltip
+			const ttEl = $('> div.tooltip', button);
+			ttEl.toggleClass('enabled disabled', false)
+				.toggleClass(castableClass, true);
+			if( ttEl.html() !== action.getTooltipText() )
+				ttEl.html(action.getTooltipText());
 
 		}
 
+
+		// Update color here now that we know if there are any actions left
+		// Colorize. No need if invis tho.
 		if( game.battle_active ){
 			let etcolor = 'disabled';
 			if( myTurn ){
 				etcolor = 'enabled';
 				// Any moves left?
-				if( !castableActions ){
+				if( !castableActions )
 					etcolor = 'highlighted';
-				}
 				if( this._has_moves !== Boolean(castableActions) ){
 					this._has_moves = Boolean(castableActions);
-					if( !castableActions ){
+					if( !castableActions )
 						game.uiAudio( 'no_moves' );
-					}
 				}
 			}
-			html += '<div data-id="end-turn" class="action button autoWidth '+etcolor+'">End Turn</div>';
+			endTurnButton.toggleClass('disabled enabled highlighted', false).toggleClass(etcolor, true);
 		}
 
-		html += '</div>';
-
-		this.action_selector.html(html);
-
 		// Bind events
-		$("div.action", this.action_selector).on('mousedown mouseover mouseout click touchstart touchmove', function(event){
-
+		$("> div.action", this.actionbar_actions)
+			.off('mousedown mouseover mouseout click touchstart touchmove')
+			.on('mousedown mouseover mouseout click touchstart touchmove', function(event){
 
 			let id = $(this).attr("data-id");
 			let spell = player.getActionById(id);
