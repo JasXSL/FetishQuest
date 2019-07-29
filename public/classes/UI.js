@@ -406,8 +406,9 @@ export default class UI{
 
 			// Cooldown
 			const cdEl = $('> div.cd > span', button);
+			$('> div.cd', button).toggleClass('hidden', !action._cooldown);
 			if( +cdEl.text !== +action._cooldown )
-				cdEl.toggleClass('hidden', !action._cooldown).text(action._cooldown);
+				cdEl.text(action._cooldown);
 
 			// Tooltip
 			const ttEl = $('> div.tooltip', button);
@@ -608,6 +609,54 @@ export default class UI{
 
 		const th = this, players = game.getEnabledPlayers();
 
+
+		const playerTemplate = $(
+			'<div class="player">'+
+				'<div class="content">'+
+					'<div class="bg"></div>'+
+					'<div class="stats">'+
+						'<span class="name" style="color:#DFD">'+
+							'<div class="button owner devtool" title="Set character owner">'+
+								'<img src="media/wrapper_icons/id-card.svg" />'+
+							'</div>'+
+							'<div class="button own" title="Control this character">'+
+								'<img src="media/wrapper_icons/gamepad.svg" />'+
+							'</div>'+
+							'<div class="button leader devtool">'+
+								'<img src="media/wrapper_icons/crown.svg" />'+
+							'</div>'+
+							'<span>'+
+								'<span class="turnArrow">&#9654; </span>'+
+								'<span class="nameTag"></span>'+
+								'<span class="turnArrow"> &#9664;</span>'+
+							'</span>'+
+						'</span>'+
+						'<br />'+
+						'<span class="resources">'+
+							'<span class="chest resource"></span>'+
+							'<span class="legs resource"></span>'+
+							'<span class="arousal resource" title="Arousal.\nStuns at 100%."></span>'+
+							'<span class="MP resource large" title="Mana Points"></span>'+
+							'<span class="AP resource large" title="Action Points"></span>'+
+							'<span class="HP resource large" title="Hit Points"></span>'+
+						'</span>'+
+					'</div>'+
+				'</div>'+
+				'<div class="topRight">'+
+					'<div class="wrappers"></div>'+
+					'<div class="charging"></div>'+
+				'</div>'+
+				'<div class="targetingStats"></div>'+
+				'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
+				'<div class="interactions">'+
+					'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
+					'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
+					'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
+					'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
+				'</div>'+
+			'</div>'
+		);
+
 		// Build skeleton if needed
 		let ids = [];
 		let i =0;
@@ -622,27 +671,9 @@ export default class UI{
 				tag = $("div.right", this.players);
 
 			if( !el.length ){
-				let div = '<div class="player" data-id="'+esc(p.id)+'">'+
-					'<div class="content">'+
-						'<div class="bg"></div>'+
-						'<div class="stats"></div>'+
-					'</div>'+
-					'<div class="topRight">'+
-						'<div class="wrappers"></div>'+
-						'<div class="charging"></div>'+
-					'</div>'+
-					'<div class="targetingStats"></div>'+
-					'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
-					'<div class="interactions">'+
-						'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
-						'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
-						'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
-						'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
-					'</div>'+
-				'</div>';
-
-				let el = $(div);
+				el = playerTemplate.clone();
 				tag.append(el);
+				$(el).attr('data-id', p.id);
 
 				$("> div.speechBubble", el).on('click', event => {
 					const targ = event.currentTarget;
@@ -788,18 +819,23 @@ export default class UI{
 
 	drawPlayer(p){
 
-
 		const tp = game.getTurnPlayer(),
 			myTurn = tp && tp.id === p.id,
 			el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
-			myActive = game.getMyActivePlayer();
+			myActive = game.getMyActivePlayer(),
+			friendly = p.team === 0
+		;
 
+		if( isNaN(el.attr('data-team')) )
+			el.attr('data-team', 0);
+		
 		if( myTurn )
 			el.toggleClass("active", true);
 
-		const isMine = !!(~game.getMyPlayers().indexOf(p));
-		const isMyActive = p === myActive;
-		const isNPC = !p.netgame_owner;
+		const isMine = Boolean(~game.getMyPlayers().indexOf(p)),
+			isMyActive = p === myActive,
+			isNPC = !p.netgame_owner
+		;
 		
 		el.toggleClass('mine', isMine);
 		el.toggleClass('myActive', isMyActive);
@@ -809,110 +845,176 @@ export default class UI{
 		el.toggleClass("hidden", p.isInvisible());
 
 
+
+		// Map up needed sub divs
+		const contentEl = $("> div.content", el),
+			statsEl = $('> div.stats', contentEl),
+				nameEl = $('> span.name', statsEl),
+					ownerEl = $('> span.owner', nameEl),
+					ownEl = $('> div.own', nameEl),
+					leaderEl = $('> div.leader', nameEl),
+					nameDisplayEl = $('span.nameTag', nameEl),
+				resourcesEl = $('> span.resources', statsEl),
+					arousalEl = $('> span.arousal', resourcesEl),
+					mpEl = $('> span.MP', resourcesEl),
+					apEl = $('> span.AP', resourcesEl),
+					hpEl = $('> span.HP', resourcesEl),
+					chestEl = $('> span.chest', resourcesEl),
+					legsEl = $('> span.legs', resourcesEl),
+			bgEl = $('> div.bg', contentEl),
+			topRightEl = $('> div.topRight', el),
+				wrappersEl = $('> div.wrappers', topRightEl),
+				chargingEl = $('> div.charging', topRightEl)
+		;
+
+
+		// Check if elements need to be reordered
+		let cacheFriendly = +el.attr('data-team') === 0;
+		if( friendly !== cacheFriendly ){
+
+			const reverse = (i,li) => li.parentNode.prepend(li);
+			nameEl.children().each(reverse);
+			resourcesEl.children().each(reverse);
+			el.attr('data-team', p.team);
+
+		}
+
+
 		// Check if image has changed
-		let imgdiv = $('div.bg', el);
 		const icon = p.getActiveIcon();
-		if( imgdiv.attr('data-image') !== icon && icon ){
+		if( bgEl.attr('data-image') !== icon && icon ){
 			
 			const image = new Image();
 			image.onload = () => {
 				if( p.getActiveIcon() === icon ){
-					imgdiv.css('background-image', 'url('+esc(icon)+')');
-					imgdiv.attr('data-image', icon);
+					bgEl.css('background-image', 'url('+esc(icon)+')');
+					bgEl.attr('data-image', icon);
 				}
 			};
 			image.src = icon;
 			
 		}
 
+
+		// Update resource buttons
 		let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperBody),
 			lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerBody);
 		
-		let rb_entries = [];
-		if( !p.isArousalDisabled() )
-			rb_entries.push('<span class="arousal resource" title="Arousal.\nStuns at 100%.">'+
-				p.arousal+"/"+p.getMaxArousal()+
-			'</span>');
+		const 
+			arousalDisabled = p.isArousalDisabled(),
+			mpDisabled = p.isMPDisabled(),
+			apDisabled = p.isAPDisabled(),
+			hpDisabled = p.isHPDisabled(),
+			arousalText = p.arousal+"/"+p.getMaxArousal(),
+			apText = p.ap+"/"+p.getMaxAP(),
+			mpText = p.mp+"/"+p.getMaxMP(),
+			hpText = p.hp+"/"+p.getMaxHP()
+		;
+		arousalEl.toggleClass('hidden', arousalDisabled);
+		mpEl.toggleClass('hidden', mpDisabled);
+		hpEl.toggleClass('hidden', hpDisabled);
+		apEl.toggleClass('hidden', apDisabled);
+		
+		if( !arousalDisabled && arousalEl.text() !== arousalText )
+			arousalEl.text(arousalText);
+		if( !apDisabled && apEl.text() !== apText )
+			apEl.text(apText);
+		if( !hpDisabled && hpEl.text() !== hpText )
+			hpEl.text(hpText);
+		if( !mpDisabled && mpEl.text() !== mpText )
+			mpEl.text(mpText);
+
 		// Armor
+		chestEl.add(legsEl).toggleClass('hidden', p.isBeast());
 		if( !p.isBeast() ){
 			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperBody);
 			const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerBody);
 			const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : Asset.protVal;
 			const lbDmg = lbAsset.length ? lbAsset[0].getDmgTakenAdd() : Asset.protVal;
 
-			rb_entries.push(
-				'<span class="chest resource '+(ubDur > 0 ? '' : 'broken')+'" title="UpperBody armor durability.'+
-					'\n'+((Asset.protVal-ubDmg)*100)+'% Damage reduction'+
-				'">'+
-					Math.ceil(ubDur*100)+'%'+
-				'</span>'
-			);
-			rb_entries.push(
-				'<span class="legs resource '+(lbDur > 0 ? '' : 'broken')+'" title="LowerBody armor durability.'+
-					'\n'+((Asset.protVal-lbDmg)*100)+'% Damage reduction'+
-				'">'+
-				Math.ceil(lbDur*100)+'%</span>'
-			);
+			const uText = Math.ceil(ubDur*100)+'%';
+			const lText = Math.ceil(lbDur*100)+'%';
+
+			chestEl.toggleClass('broken', !ubDur)
+				.attr('title', 'Upper body armor durability.\n'+((Asset.protVal-ubDmg)*100)+'% Damage reduction');
+			legsEl.toggleClass('broken', !lbDur)
+				.attr('title', 'Lower body armor durability.\n'+((Asset.protVal-lbDmg)*100)+'% Damage reduction');
+
+			if( chestEl.text() !== uText )
+				chestEl.text(uText);
+			if( legsEl.text() !== lText )
+				legsEl.text(lText);
 		}
-		if( !p.isMPDisabled() )
-			rb_entries.push('<span class="MP resource large" title="Mana Points">'+p.mp+'/'+p.getMaxMP()+'</span>');
-		if( !p.isAPDisabled() )
-			rb_entries.push('<span class="AP resource large" title="Action Points">'+p.ap+'/'+p.getMaxAP()+'</span>');
-		if( !p.isHPDisabled() )
-			rb_entries.push('<span class="HP resource large" title="Hit Points">'+p.hp+'/'+p.getMaxHP()+'</span>');
-		if( p.team !== 0 )
-			rb_entries.reverse();
+		
+		
 
-		let tags = ['',''];
-		if( isMine )
-			tags = ['<strong>','</strong>'];
-		if( isMyActive )
-			tags = ['<strong>\u25B6 ',''+' \u25C0</strong>'];
-		if( isNPC )
-			tags = ['<em>','</em>'];
-
-		let controls = ''+
-			(game.is_host ? '<div class="button owner devtool" title="Set character owner"><img src="media/wrapper_icons/id-card.svg" /></div>' : '' )+
-			(game.getMyPlayers().length > 1 && !isMyActive && isMine ? '<div class="button own" title="Control this character"><img src="media/wrapper_icons/gamepad.svg" /></div>' : '' )
+		nameDisplayEl
+			.toggleClass('mine', isMine)
+			.toggleClass('npc', isNPC)
+			.attr('style', 'color:'+esc(p.color))
 		;
+		nameEl.toggleClass('active', isMyActive);
 
-		let leader = '';
-		if( p.team === 0 && game.net.id ){
-			if( !game.is_host && p.leader )
-				leader = '<img class="leader" src="media/wrapper_icons/crown.svg" /> ';
-			else if(game.is_host){
-				leader = '<div class="button leader devtool '+(p.leader ? 'selected' : '')+'" title="Only party leaders can interact with doors. One leader is required.">'+
-					'<img src="media/wrapper_icons/crown.svg" />'+
-				'</div>';
-			}
-		}
-		$("div.content > div.stats", el).html(
-			'<span class="name" style="color:'+esc(p.color)+'">'+
-				(p.team === 0 ? controls : '')+
-				leader+
-				'<span>'+tags[0]+esc(p.name)+tags[1]+'</span>'+
-				(p.team !== 0 ? controls : '')+
-			'</span><br />'+
-			rb_entries.join('')
-		);
+		if( nameDisplayEl.text() !== p.name )
+			nameDisplayEl.text(p.name);
+		
+
+		ownerEl.toggleClass('hidden', !game.is_host);
+		ownEl.toggleClass('hidden', Boolean(game.getMyPlayers().length < 2 || isMyActive || !isMine));
+		leaderEl.toggleClass('hidden', Boolean(
+			p.team !== 0 || !game.net.id ||
+			(!p.leader && !game.is_host)
+		)).toggleClass('host', game.is_host);
+		// Todo: Stylize leader so it's not a button nor interactive for coop players. Use the leader class.
+
 
 		// Charged actions
 		let chargedActions = p.isCasting();
-		let ch = '';
+		
+
+		const chargedActionButtons = $('> div', chargingEl);
+		chargedActionButtons.toggleClass('hidden', true);
 		if( chargedActions ){
+
+			const actionButtonTemplate = $(
+				'<div class="chAction tooltipParent">'+
+					'<span class="label"></span>'+
+					'<div class="duration"></div>'+
+					'<div class="tooltip"></div>'+
+				'</div>'
+			);
 			
 			// Helper function for escaping a player name
 			const escPlayerName = pl => esc(pl.name);
-			for( let a of chargedActions ){
-				ch += '<div class="chAction tooltipParent">';
-				ch += esc(a.name)+' at '+a.getChargePlayers().map(escPlayerName);
-				ch += '<div class="duration">'+a._cast_time+'</div>';
-				ch += '<div class="tooltip">'+a.getTooltipText()+'</div>';
-				ch += '</div>';
+			for( let i=0; i< chargedActions.length; ++i ){
+
+				const a = chargedActions[i];
+				let el = chargedActionButtons[i];
+				if( !el ){
+					el = actionButtonTemplate.clone();
+					chargedActionButtons.append(el);
+				}
+				el = $(el);
+
+				const name = esc(a.name)+' at '+a.getChargePlayers().map(escPlayerName),
+					tooltip = a.getTooltipText(),
+					durEl = $('> div.duration', el),
+					tooltipEl = $('> div.tooltip', el),
+					labelEl = $('> span.label', el)
+				;
+
+
+				el.toggleClass('hidden', false);
+				if( name !== labelEl.html() )
+					labelEl.html(name);
+
+				if( +durEl.text() !== a.cast_time )
+					durEl.text(a.cast_time);
+				if( tooltipEl.html() !== tooltip )
+					tooltipEl.html(tooltip);
 			}
 			
 		}
-		$("> div.topRight > div.charging", el).html(ch);
 
 
 
@@ -954,19 +1056,52 @@ export default class UI{
 		}
 
 		// Effect wrappers
-		let o = '';
-		let wrappers = p.getWrappers();
-		wrappers = wrappers.filter(el => el.name.length && el.parent instanceof Player);
-		for( let wrapper of wrappers ){
-			o += '<div class="wrapper tooltipParent '+(wrapper.detrimental ? 'detrimental' : 'beneficial')+'" data-id="'+esc(wrapper.id)+'">';
-			if( wrapper.icon )
-				o+= '<div class="background" style="background-image:url('+wrapper.getIconPath()+')"></div>';
-			if( wrapper.stacks > 1 )
-				o+= '<div class="stacks">x'+wrapper.stacks+'</div>';
-			if( wrapper._duration > 0 )
-				o+= '<div class="duration">'+wrapper._duration+'</div>';
+		const wrappers = p.getWrappers().filter(el => el.name.length && el.parent instanceof Player),
+			wrapperButtons = $('> div', wrappersEl);
+		
+		const wrapperTemplate = $(
+			'<div class="wrapper tooltipParent">'+
+				'<div class="background"></div>'+
+				'<div class="stacks"></div>'+
+				'<div class="duration"></div>'+
+				'<div class="tooltip"></div>'+
+			'</div>'
+		);
+
+		for( let i =0; i<wrappers.length; ++i ){
+
+			let wrapper = wrappers[i],
+				el = wrapperButtons[i];
 			
-			o+= '<div class="tooltip">'+
+			if( !el ){
+				el = wrapperTemplate.clone();
+				wrappersEl.append(el);
+			}
+			el = $(el);
+
+			el.toggleClass('detrimental beneficial', false)
+				.toggleClass(wrapper.detrimental ? 'detrimental' : 'beneficial', true)
+				.attr('data-id', wrapper.id);
+
+			const elIcon = $('> div.background', el),
+				elStacks = $('> div.stacks', el),
+				elDuration = $('> div.duration', el),
+				elTooltip = $('> div.tooltip', el)
+			;
+
+			elIcon.toggleClass('hidden', !wrapper.icon);
+			if( wrapper.icon && wrapper.icon !== elIcon.attr('data-icon') )
+				elIcon.attr('style', 'background-image:url('+wrapper.getIconPath()+')').attr('data-icon', wrapper.icon);
+
+			elStacks.toggleClass('hidden', wrapper.stacks < 2);
+			if( wrapper.stacks > 1 && +elStacks.attr('data-stacks') !== +wrapper.stacks )
+				elStacks.text('x'+wrapper.stacks).attr('data-stacks', wrapper.stacks);
+
+			elDuration.toggleClass('hidden', wrapper._duration < 1);
+			if( wrapper._duration > 0 && +elDuration.text() !== wrapper._duration )
+				elDuration.text(wrapper._duration);
+			
+			const tooltip = 
 				'<strong>'+esc(wrapper.name)+'</strong><br />'+
 				'<em>'+
 					(+wrapper.duration === -1 ? 
@@ -975,11 +1110,11 @@ export default class UI{
 					)+
 					(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' )+
 				'</em><br />'+
-				stylizeText(esc(wrapper.getDescription()))+
-			'</div>';
-			o += '</div>';
+				stylizeText(esc(wrapper.getDescription()));
+			if( elTooltip.html() !== tooltip )
+				elTooltip.html(tooltip);
+			
 		}
-		$("> div.topRight > div.wrappers", el).html(o);
 
 		
 	}

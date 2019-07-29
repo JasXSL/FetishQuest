@@ -1425,6 +1425,19 @@ div.fxBuffBlue{
 		display: inline-block;
 	}
 
+	div.players div.player span.name span.nameTag.mine,
+	div.players div.player span.name.active span.nameTag.mine{
+		font-weight: bold;		
+	}
+	div.players div.player span.name span.nameTag.npc{
+		font-style: italic;
+	}
+	div.players div.player span.name span.turnArrow{
+		display:none;
+	}
+	div.players div.player span.name.active span.turnArrow{
+		display:inline;
+	}
 	div.players div.left div.player span.name > span{
 		margin-left:0.5vmax;
 	}
@@ -1736,7 +1749,7 @@ div.fxBuffBlue{
 		left:0; top:0;
 	}
 	#ui > div.actionbar > div.actions > div.action > div.uses,
-	#ui > div.actionbar > div.actions > div > div.CD{
+	#ui > div.actionbar > div.actions > div > div.cd{
 		position: absolute;
 		right:0; bottom:0;
 		padding:0.2vmax;
@@ -1744,7 +1757,7 @@ div.fxBuffBlue{
 		border-radius:0.2vmax;
 		font-size:1.25vmax;
 	}
-	#ui > div.actionbar > div.actions > div > div.CD{
+	#ui > div.actionbar > div.actions > div > div.cd{
 		padding:0.5vmax;
 		right:auto; bottom:auto;
 		top:50%; left:50%;
