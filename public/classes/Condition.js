@@ -722,7 +722,7 @@ Condition.Types = {
 	wrapperLabel : 'wrapperLabel',
 	wrapperStacks : 'wrapperStacks',			// 
 	hasWrapper : 'hasWrapper',		// 
-	hasEffect : 'hasWrapper',		// 
+	hasEffect : 'hasEffect',		// 
 	apValue : 'apValue', 			// 
 	mpValue : 'mpValue', 			// 
 	hpValue : 'hpValue', 			// 

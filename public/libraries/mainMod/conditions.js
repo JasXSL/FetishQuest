@@ -84,6 +84,9 @@ const lib = {
 	action_guardian_demon_expose : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_expose'}, targnr:0},
 	action_guardian_demon_remoteDelivery : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_remoteDelivery'}, targnr:0},
 	action_throw_rock : {type:Condition.Types.actionLabel, data:{label:'throwRock'}, targnr:0},
+	
+	action_sharktopus_attack : {type:Condition.Types.actionLabel, data:{label:'sharktopus_attack'}, targnr:0},
+	action_sharktopus_arouse : {type:Condition.Types.actionLabel, data:{label:'sharktopus_arouse'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
@@ -302,6 +305,9 @@ const lib = {
 	senderButtLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_butt"},"caster":true},
 	senderBreastsLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_breasts"},"caster":true},
 	senderPenisLarge : {"type":"genitalSizeValue","data":{"amount":2,"genital":"pl_penis"},"caster":true},
+	
+	senderInvis : {type:Condition.Types.tag,data:{"tags":[stdTag.gpInvisible]},caster:true},
+	senderNotInvis : {type:Condition.Types.tag,data:{"tags":[stdTag.gpInvisible]},caster:true, inverse:true},
 
 	eventIsActionUsed : {"type":"event","data":{"event":["actionUsed"]},"targnr":0},
 	eventIsTextTrigger : {type:Condition.Types.event,data:{event:[GameEvent.Types.textTrigger]},"targnr":0},

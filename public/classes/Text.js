@@ -239,6 +239,7 @@ class Text extends Generic{
 		if( returnResult )
 			return text;
 		
+		/* 
 		for( let kit of this.audiokits ){
 			let kd = glib.audioKits[kit];
 			if( !kd )
@@ -268,6 +269,7 @@ class Text extends Generic{
 			}
 		}
 
+		*/
 		let targ = event.target;
 		if( Array.isArray(event.target) )
 			targ = event.target[0];

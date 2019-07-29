@@ -1,9 +1,6 @@
 Needed other:
 § Before next beta
 Smol:	
-	Meshes:
-		- Nicer rug
-
 	Add fog override to cells
 
 Medium rare:
@@ -15,12 +12,11 @@ Medium rare:
 		- Buy
 		- Sell
 		- Repair
-	- Unbind FX events on a player when they're removed or cell changes
-	- Add lootable rocks to the island beach
+	- Unbind FX events on a player when they're removed or cell changes to prevent memory leaks
 
 Big chungi:
-	- Add the sharktopus fight
 	- Write texts for sharktopus
+	- Add handin in tavern
 	- Island quest:
 		- Kill the beast, and you collect a trophy.
 		- Bring the trophy to the port tavern to finish the quest and get a nice chunk of money and alcohol.

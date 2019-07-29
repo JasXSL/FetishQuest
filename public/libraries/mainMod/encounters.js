@@ -662,7 +662,7 @@ const lib = {
 		players : ['SQ_sharktopus_gong', 'SQ_sharktopus_boss'],
 		wrappers : [
 			{	// Initial submerge is different in that it also stuns
-				label : 'shark_submerge',
+				label : 'sharktopus_submerge',
 				tags : [stdTag.gpInvisible, stdTag.gpSkipTurns, stdTag.gpBoss],
 				detrimental : false,
 				duration : -1,

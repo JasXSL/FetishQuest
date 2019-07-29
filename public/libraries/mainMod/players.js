@@ -262,7 +262,7 @@ const lib = {
 		intelligence : 0.4,
 		stamina : 10,
 		intellect : 0,
-		agility : 2,
+		agility : 0,
 		class : 'none',
 		svPhysical : 0,
         svElemental : 1,
@@ -289,7 +289,28 @@ const lib = {
 				label : 'disableAttackArouse',
 				detrimental : false,
 				effects : [
-					'disableAttackArouse'
+					{
+						type : Effect.Types.disableActions,
+						data : {
+							conditions : [
+								// Disable if
+								{conditions:[
+									//  
+									{conditions:[
+										// Stdattack/arouse AND invis
+										{type:Condition.Types.actionLabel, data:{label:['stdAttack','stdArouse']}},
+										'senderInvis',
+									], min:-1},
+									// OR 
+									{conditions:[
+										// sharktopus_attack/arouse AND NOT invis
+										{type:Condition.Types.actionLabel, data:{label:['sharktopus_attack','sharktopus_arouse']}},
+										'senderNotInvis',
+									], min:-1},
+								], min:1}
+							]
+						}
+					}
 				]
 			}
 		],
@@ -344,7 +365,8 @@ const lib = {
 												},
 											}},
 											conditions : [
-												{type:Condition.Types.numGamePlayersGreaterThan, data:{amount:5, team:1}, inverse:true}
+												{type:Condition.Types.numGamePlayersGreaterThan, data:{amount:5, team:1}, inverse:true},
+												{type:Condition.Types.hasWrapper, data:{'label':['sq_sharktopus_turn_rang']}, inverse:true}
 											],
 										},
 										{
@@ -367,7 +389,7 @@ const lib = {
 													effects:[
 														{
 															type:Effect.Types.removeWrapperByLabel, 
-															data:{label:'shark_submerge'},
+															data:{label:'sharktopus_submerge'},
 														},
 														{
 															type:Effect.Types.activateCooldown,
@@ -386,6 +408,11 @@ const lib = {
 										},
 									]
 								},
+								{
+									label : 'sq_sharktopus_turn_rang',
+									duration : 1,
+									detrimental : false,
+								}
 							]
 						}
 					}
@@ -402,12 +429,13 @@ const lib = {
 		team : 1,
 		size : 1,
 		leveled : true,
-		//powered : true,
+		powered : true,
 		sadistic : 0.3,
 		dominant : 0.5,
 		hetero : 0.5,
 		intelligence : 0.1,
-		stamina : -15,
+		stamina : -20,
+		agility : -4,
 		remOnDeath : true,		// Todo: implement in game/player
 
 		svPhysical : -4,
@@ -420,9 +448,7 @@ const lib = {
 		bonCorruption : -2,
 		
 		class : 'lamprey',
-		actions : [
-			'lamprey_slither',
-		],
+		actions : [],
 		assets : [],
 		inventory : [],	// Which items should be equipped
 		tags : [

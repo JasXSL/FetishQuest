@@ -90,8 +90,9 @@ const lib = {
 		ap : 0,
 		cooldown : 0,
 		detrimental : false,
-		"hidden": true,
-		"allow_when_charging": true,
+		hidden: true,
+		allow_when_charging: true,
+		target_type : Action.TargetTypes.self,
 		show_conditions : [
 			"inCombat"
 		],

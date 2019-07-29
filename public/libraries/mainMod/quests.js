@@ -124,7 +124,7 @@ const lib = {
 						"eventIsEncounterDefeated",
 						{
 							"type" : Condition.Types.encounterLabel,
-							"data" : {label:"yuug_portswood_isle_sharktopus"},
+							"data" : {label:"SQ_sharktopus_boss"},
 							"targnr" : 0
 						},
 					],

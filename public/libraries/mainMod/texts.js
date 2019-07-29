@@ -3933,6 +3933,56 @@ const lib = [
 		metaTags : [stdTag.metaUsedWhip, stdTag.metaSqueeze, stdTag.metaGrind, stdTag.metaSlotButt, stdTag.metaSlotVagina],
 		weight : Text.WEIGHT_REQUIRED,
 	},
+
+	// action_sharktopus_attack
+	// Either - Single target
+	{ text : "%S sneaks a tentacle out of the water behind %T, it finds %This %TclothLower and wraps around the back, tugging down %firmly!",
+		conditions : anyOnHumCond.concat("action_sharktopus_attack","targetLowerBodyDamaged","targetLowerBodyCanPullDown"),
+		hitfx : ["tentacleStretch"],
+		turnTags : [stdTag.ttButtExposed],
+		metaTags : [stdTag.metaStretch, stdTag.metaUsedTentacles, stdTag.metaSlotClothes],
+	},
+	{ text : "%S sneaks a tentacle out of the water behind %T, it slips between %This legs and wraps around the front of %This %TclothLower, tugging down %firmly and exposing the %Trace's %Tgenitals!",
+		conditions : anyOnHumCond.concat("action_sharktopus_attack","targetLowerBodyDamaged","targetLowerBodyCanPullDown"),
+		hitfx : ["tentacleStretch"],
+		turnTags : [stdTag.ttGroinExposed],
+		metaTags : [stdTag.metaStretch, stdTag.metaUsedTentacles, stdTag.metaSlotClothes],
+	},
+	{ text : "%S sneaks a tentacle out of the water beneath %T, flicking it against %This %groin!",
+		conditions : anyOnHumCond.concat("action_sharktopus_attack"),
+		hitfx : ["tentacleWhip"],
+		metaTags : [stdTag.metaWhip, stdTag.metaUsedTentacles, stdTag.metaSlotButt, stdTag.metaPainful],
+	},
+	{ text : "One of %S's tentacles slip out of the water and up behind %T, surprising %Thim with a hard slap across %This %Trsize %butt!",
+		conditions : anyOnHumCond.concat("action_sharktopus_attack"),
+		hitfx : ["tentacleWhip"],
+		metaTags : [stdTag.metaWhip, stdTag.metaUsedTentacles, stdTag.metaSlotButt, stdTag.metaPainful],
+	},
+	{ text : "%S's tentacles slip out of the water behind %T and %T2, surprising them with a hard slap across their %butts!",
+		conditions : anyOnHumCond.concat("action_sharktopus_attack"),
+		hitfx : ["tentacleWhip"],
+		numTargets : 2,
+		metaTags : [stdTag.metaWhip, stdTag.metaUsedTentacles, stdTag.metaSlotButt, stdTag.metaPainful],
+	},
+
+
+
+
+
+
+	// action_sharktopus_arouse
+	{ text : "One of %S's tentacles slip out of the water and up between %T's legs, surprising %Thim by grinding it against %This %groin!",
+		conditions : anyOnHumCond.concat("action_sharktopus_arouse"),
+		hitfx : ["tentacleRub"],
+		metaTags : [stdTag.metaRub, stdTag.metaUsedTentacles, stdTag.metaSlotGroin, stdTag.metaArousing],
+	},
+	{ text : "%S's tentacles slip out of the water between %T and %T2's legs, surprising them by grinding the slimy appendage against their %groins!",
+		conditions : anyOnHumCond.concat("action_sharktopus_arouse"),
+		hitfx : ["tentacleRub"],
+		numTargets : 2,
+		metaTags : [stdTag.metaRub, stdTag.metaUsedTentacles, stdTag.metaSlotGroin, stdTag.metaArousing],
+	},
+
 	
 ];
 
