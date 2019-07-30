@@ -353,7 +353,7 @@ Text.WEIGHT_REQUIRED = 1000;
 Text.SYNONYMS = SYNONYMS;
 // Shuffles and triggers a random text from available texts
 // Returns the text that triggered, if any
-Text.getFromEvent = function( event ){
+Text.getFromEvent = function( event, debug = false ){
 
 	let available = [];
 	let texts = glib.texts;
@@ -369,11 +369,13 @@ Text.getFromEvent = function( event ){
 	let maxnr = 1;
 	for( let text of texts ){
 		for( let p of testAgainst ){
+			if( debug )
+				console.log("Testing", text, text.chat, event.type === GameEvent.Types.textTrigger);
 			if( 
 				Boolean(text.chat) === chat && 
 				(!text.chat || !event.sender || !event.sender.hasUsedChat(text.id) ) &&
-				text.validate(event, false, p) &&
-				(Boolean(text.chat) === Boolean(event.type === GameEvent.Types.textTrigger))
+				(Boolean(text.chat) === Boolean(event.type === GameEvent.Types.textTrigger)) &&
+				text.validate(event, debug, p)
 			){
 				const id = text.id;
 				text = text.clone();
@@ -428,7 +430,7 @@ Text.actionChargeFallbackText = new Text({
 	text : "%S charges %action at %T..."
 });
 
-Text.runFromLibrary = function( event ){
+Text.runFromLibrary = function( event, debug = false ){
 
 	let t = event.target;
 	if( !Array.isArray(t) )
@@ -438,13 +440,14 @@ Text.runFromLibrary = function( event ){
 	// Try to trigger a text on each player
 	while( t.length ){
 
-		let text = this.getFromEvent( event );
+		let text = this.getFromEvent( event, debug );
 
 		// No text for this person
 		if( !text ){
 			// Action used needs to have a text, we'll create a template one
-			if( event.type === GameEvent.Types.actionUsed && event.action && !event.action.hidden )
+			if( event.type === GameEvent.Types.actionUsed && event.action && !event.action.hidden ){
 				Text.actionFallbackText.run(event);
+			}
 			if( event.type === GameEvent.Types.actionCharged && event.action && !event.action.hidden )
 				Text.actionChargeFallbackText.run(event);
 			t.shift();

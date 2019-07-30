@@ -337,17 +337,14 @@ export default class UI{
 
 		// Update the action buttons
 		const buttons = $('> div.action:not([data-id="end-turn"])', this.actionbar_actions);
+		buttons.toggleClass("hidden", true);
+
 		// label : nr
 		// Charges
 		actions = actions.filter(el => {
 			return el.isVisible() && !el.no_action_selector;
 		});
 
-		if( buttons.length > actions.length ){
-			for( let i=0; i<buttons.length-actions.length; ++i ){
-				buttons[0].remove();
-			}
-		}
 
 		const buttonTemplate = $(
 			'<div>'+
@@ -1068,6 +1065,8 @@ export default class UI{
 			'</div>'
 		);
 
+		wrapperButtons.toggleClass('hidden', true);
+
 		for( let i =0; i<wrappers.length; ++i ){
 
 			let wrapper = wrappers[i],
@@ -1079,7 +1078,7 @@ export default class UI{
 			}
 			el = $(el);
 
-			el.toggleClass('detrimental beneficial', false)
+			el.toggleClass('detrimental beneficial hidden', false)
 				.toggleClass(wrapper.detrimental ? 'detrimental' : 'beneficial', true)
 				.attr('data-id', wrapper.id);
 

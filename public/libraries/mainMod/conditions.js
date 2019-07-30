@@ -244,6 +244,16 @@ const lib = {
 	targetArmorNotDamagedOrStripped : {conditions:[
 		"targetArmorNotDamaged", "targetArmorNotStripped"
 	], min:-1},
+	// Checks if upperbody was damaged, or there was no other damage
+	targetUpperBodyOrNoDamage : {conditions:[
+		{type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.upperBody}},
+		{type:Condition.Types.slotDamaged, inverse:true}
+	], min:1},
+	targetLowerBodyOrNoDamage : {conditions:[
+		{type:Condition.Types.slotDamaged, data:{slot:Asset.Slots.lowerBody}},
+		{type:Condition.Types.slotDamaged, inverse:true}
+	], min:1},
+	
 
 	targetHasRepairable : {"type":"hasRepairable"},
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
