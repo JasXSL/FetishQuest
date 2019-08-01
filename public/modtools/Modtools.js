@@ -512,7 +512,7 @@ export default class Modtools{
 			'<div class="button" data-id="shops">Shops</div>'+
 		'</div>';
 
-		html += '<div class="assetList"></div>';
+		html += '<div class="assetList"></div><div style="height:10vh"></div>';
 
 		this.content.html(html);
 

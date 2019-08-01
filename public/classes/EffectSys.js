@@ -681,7 +681,7 @@ class Effect extends Generic{
 		if( !(wrapperReturn instanceof WrapperReturn) )
 			wrapperReturn = new WrapperReturn();
 
-		if( !this.validateConditions(evt) )
+		if( !this.validateConditions(evt, this.label === 'tmp_debug') )
 			return false;
 
 		let sender = game.getPlayerById(this.parent.caster),
@@ -1371,8 +1371,11 @@ class Effect extends Generic{
 	/* CONDITIONS */
 	validateConditions( event, debug ){
 
-		if( this.events.length && this.events.indexOf(event.type) === -1 )
+		if( this.events.length && this.events.indexOf(event.type) === -1 ){
+			if( debug )
+				console.debug("Prevented ", this, "because", event.type, "not in", this.events, "event was", event);
 			return false;
+		}
 
 		if( !Condition.all(this.conditions, event, debug) )
 			return false;

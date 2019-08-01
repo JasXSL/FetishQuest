@@ -286,7 +286,7 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.isWrapperParent ){
-				success = event.wrapper && event.wrapper.parent === t;
+				success = event.wrapper && t && event.wrapper.victim === t.id;
 			}
 
 			else if( this.type === T.wrapperStacks ){
@@ -447,6 +447,7 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.textMeta || this.type === T.textTurnTag ){
+
 				if( event.text ){
 					let tagsToScan = event.text.metaTags;
 					if( this.type === T.textTurnTag )
@@ -455,8 +456,16 @@ export default class Condition extends Generic{
 					if( !Array.isArray(find) )
 						find = [find];
 					const all = Boolean(this.data.all);
-					find = find.map(tag => tag.toLowerCase());
-					tagsToScan = tagsToScan.map(tag => tag.toLowerCase());
+					find = find.map(tag => {
+						if( typeof tag !== "string" )
+							console.error("Non-string tag in", this);
+						return tag.toLowerCase();
+					});
+					tagsToScan = tagsToScan.map(tag => {
+						if( typeof tag !== "string" )
+							console.error("Non-string tag in", event.text, "this was", this);
+						return tag.toLowerCase()
+					});
 					success = all;
 					for( let tag of find ){
 						if( ~tagsToScan.indexOf(tag) ){

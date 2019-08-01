@@ -178,6 +178,47 @@ const lib = {
 					]
 				}}
 			},
+			// SQ_shark handin
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'SQ_sharktopus_handin',
+					player : 'yuug_port_barkeep',
+					persistent : false,
+					stages: [
+						// TODO: Writeme
+						{
+							index: 0,
+							text: "Ya have something for me?",
+							options: [
+								{text: "Yes, evil cultist and all!", index: 1},
+								{text: "All cleared cap'n, may I have my reward?", index: 2},
+							]
+						},
+						{
+							index: 1,
+							text: "Cultist eh? I dunno about that, but maybe someone else here does. In either case, here's a little something from the lost 'n found box!",
+							options: [{text:'Thanks', index:-1, game_actions:[{
+								type: GameAction.types.finishQuest,
+								data : {quest:'MQ00_YuugBeach'}
+							}]}]
+						},
+						{
+							index: 2,
+							text: "Alright alright. Here ya go. A few coins and a little something from the ol lost 'n found box!",
+							options: [{text:'Thanks', index:-1, game_actions:[{
+								type: GameAction.types.finishQuest,
+								data : {quest:'MQ00_YuugBeach'}
+							}]}]
+						},
+						
+					],
+					conditions : [
+						{type:Condition.Types.questObjectiveCompleted, data:{quest:'MQ00_YuugBeach', objective:'caveCleared'}, targnr:0},
+						{type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}, inverse:true, targnr:0},
+					]
+				}}
+			},
 			// Shop
 			{
 				type : GameAction.types.shop,

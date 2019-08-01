@@ -237,6 +237,7 @@ export default {
 	metaInjection : 'me_injection',
 	metaJiggle : 'me_jiggle',
 	metaWhip : 'me_whip',
+	metaPinch : 'me_pinch',
 	metaPenetration : 'me_penetration',
 	metaTwist : 'me_twist',
 	metaWedgie : 'me_wedgie',

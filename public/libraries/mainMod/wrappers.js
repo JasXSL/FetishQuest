@@ -181,7 +181,6 @@ const lib = {
 		]
 	},
 
-
 	endTurn : {
 		detrimental : false,
 		add_conditions : [],

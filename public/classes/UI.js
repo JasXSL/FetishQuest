@@ -262,14 +262,7 @@ export default class UI{
 
 		this.bindTooltips();
 		times.push(Date.now()-t);
-		
-		console.log(
-			"Pl: "+times[0],
-			"Gi: "+times[1],
-			"As: "+times[2],
-			"Rp: "+times[3],
-			"TT: "+times[4],				
-		);
+
 	}
 
 	// Helper functions for below
@@ -339,10 +332,18 @@ export default class UI{
 		const buttons = $('> div.action:not([data-id="end-turn"])', this.actionbar_actions);
 		buttons.toggleClass("hidden", true);
 
-		// label : nr
+		// label : true
+		// makes sure stacking potions only show one icon
+		const filters = {};
 		// Charges
 		actions = actions.filter(el => {
-			return el.isVisible() && !el.no_action_selector;
+			if( !el.isVisible() || el.no_action_selector)
+				return false;
+			if( !filters[el.label] )
+				filters[el.label] = true;
+			else
+				return false;
+			return true;
 		});
 
 
@@ -1053,7 +1054,7 @@ export default class UI{
 		}
 
 		// Effect wrappers
-		const wrappers = p.getWrappers().filter(el => el.name.length && el.parent instanceof Player),
+		const wrappers = p.getWrappers().filter(el => el.name.length && el.icon && el.parent instanceof Player),
 			wrapperButtons = $('> div', wrappersEl);
 		
 		const wrapperTemplate = $(

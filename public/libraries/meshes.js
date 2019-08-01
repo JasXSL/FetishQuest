@@ -677,7 +677,6 @@ LibMesh.library = {
 				tags : [stdTag.mTable],
 				attachments : [
 					new LibMeshAttachment({path:"Generic.Doodads.Tankard",position:new THREE.Vector3(30.27,75,33.55),rotation:new THREE.Vector3(0,-0.5029,0),scale:new THREE.Vector3(0.87,0.87,0.87),is_key_item:false}),
-					new LibMeshAttachment({path:"Generic.Doodads.CandleLit",position:new THREE.Vector3(-19,75,-2),rotation:new THREE.Vector3(0,0,0),scale:new THREE.Vector3(1,1,1),is_key_item:false}),
 					new LibMeshAttachment({path:"Generic.Doodads.Bowl",position:new THREE.Vector3(7,75,31),rotation:new THREE.Vector3(0,0,0),scale:new THREE.Vector3(1,1,1),is_key_item:false}),
 					new LibMeshAttachment({path:"Generic.Doodads.BookOpen",position:new THREE.Vector3(-47,75,26),rotation:new THREE.Vector3(0,0.4887,0),scale:new THREE.Vector3(1,1,1),is_key_item:false}),
 					new LibMeshAttachment({path:"Farm.Furniture.Stool",position:new THREE.Vector3(-12,0,72),rotation:new THREE.Vector3(0,-0.0349,0),scale:new THREE.Vector3(1,1,1),is_key_item:false})
@@ -692,8 +691,6 @@ LibMesh.library = {
 				attachments : [
 					new LibMeshAttachment({path:"Generic.Doodads.Tankard",position:new THREE.Vector3(18,74,27),rotation:new THREE.Vector3(0,-0.5029,0),scale:new THREE.Vector3(0.87,0.87,0.87),}),
 					new LibMeshAttachment({path:"Generic.Doodads.Tankard",position:new THREE.Vector3(27,75,-23),rotation:new THREE.Vector3(0,0.841,0),scale:new THREE.Vector3(0.87,0.87,0.87),}),
-					new LibMeshAttachment({path:"Generic.Doodads.CandleLit",position:new THREE.Vector3(42,74,-2),rotation:new THREE.Vector3(0,0.925,0),scale:new THREE.Vector3(1,1,1),}),
-					new LibMeshAttachment({path:"Generic.Doodads.CandleLit",position:new THREE.Vector3(-19,74,-2),rotation:new THREE.Vector3(0,0,0),scale:new THREE.Vector3(1,1,1),}),
 					new LibMeshAttachment({path:"Generic.Doodads.Bowl",position:new THREE.Vector3(-34,75,31),rotation:new THREE.Vector3(0,0,0),scale:new THREE.Vector3(1,1,1),}),
 					new LibMeshAttachment({path:"Generic.Doodads.Bowl",position:new THREE.Vector3(48,75,-34),rotation:new THREE.Vector3(0,1.117,0),scale:new THREE.Vector3(1,1,1),}),
 					new LibMeshAttachment({path:"Generic.Doodads.Bowl",position:new THREE.Vector3(-43,75,-31),rotation:new THREE.Vector3(0,-0.9425,0),scale:new THREE.Vector3(1,1,1),}),

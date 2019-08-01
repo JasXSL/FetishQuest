@@ -163,6 +163,7 @@ const lib = {
 	targetNoBodysuit : {"type":"tag","data":{"tags":["as_bodysuit"]},"inverse":true},
 	targetWearsUpperBody : {"type":"tag","data":{"tags":["as_upperBody"]}},
 	targetWearsLowerBody : {"type":"tag","data":{"tags":["as_lowerBody"]}},
+	targetOneWearsLowerBody : {type:Condition.Types.tag,data:{"tags":[stdTag.asLowerBody]}, targnr:0},
 	targetNoUpperBody : {"type":"tag","data":{"tags":["as_upperBody"]},"inverse":true},
 	targetNoLowerBody : {"type":"tag","data":{"tags":["as_lowerBody"]},"inverse":true},
 	senderWearsUpperBody : {"type":"tag","data":{"tags":["as_upperBody"]},"caster":true},
@@ -178,6 +179,7 @@ const lib = {
 	targetLowerBodyMetal : {"type":"tag","data":{"tags":["as_metal_lowerBody"]}},
 	targetUpperBodyMetal : {"type":"tag","data":{"tags":["as_metal_upperBody"]}},
 	targetLowerBodyWaistband : {"type":"tag","data":{"tags":["as_waistband_lowerBody"]}},
+	targetOneLowerBodyWaistband : {type:Condition.Types.tag,data:{"tags":[stdTag.asWaistband]}, targnr:0},
 	targetLowerBodyNotPants : {type:Condition.Types.tag, data:{tags:[stdTag.asPants+"_lowerBody"]}, inverse:true},
 
 	targetLowerBodyCanPullDown : {type:Condition.Types.tag,data:{"tags":[stdTag.asCanPullDown+"_lowerBody"]}},
@@ -417,6 +419,7 @@ const lib = {
 	},
 	// One or more breast slots included in text meta
 	metaBreastSlots : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotBreast, stdTag.metaSlotBreasts]}},
+	metaPelvisSlots : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotGroin, stdTag.metaSlotPenis, stdTag.metaSlotBalls, stdTag.metaSlotVagina, stdTag.metaSlotButt, stdTag.metaSlotTaint]}},
 	// Came inside the target
 	metaCameInside : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaInjection, stdTag.metaUsedPenis], all:true}},
 	metaPenetratedWithPenis : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration, stdTag.metaUsedPenis], all:true}},

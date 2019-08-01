@@ -93,6 +93,7 @@ export default class Game extends Generic{
 		this.renderer.destructor();
 		this.setMusic();
 		this.setAmbient();
+		this.setRainSound();
 	}
 
 

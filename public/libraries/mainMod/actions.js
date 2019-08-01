@@ -777,7 +777,7 @@ const lib = {
 		level: 2,
 		name : "Bolster",
 		icon : 'surrounded-shield',
-		description : "Reduces your damage taken by 2 for one turn and clears 20% of your arousal. Taking damage while this effect is active grants the caster 1 AP.",
+		description : "Reduces your damage taken by 2 for one turn and clears 10% of your arousal. Taking damage while this effect is active grants the caster 1 AP.",
 		ap : 1,
 		mp : 1,
 		cooldown : 2,
@@ -802,13 +802,9 @@ const lib = {
 						}
 					},
 					{
-						events : [
-							"internalWrapperAdded"
-						],
+						events : ["internalWrapperAdded"],
 						type : "addArousal",
-						data : {
-							"amount": -2
-						}
+						data : {"amount": -1}
 					},
 					{
 						type : "addAP",
@@ -2585,7 +2581,7 @@ const lib = {
 		icon : 'shark-fin',
 		description : "Submerges, becoming permanently untargetable.",
 		ap : 0,
-		cooldown : 6,
+		cooldown : 8,
 		detrimental : false,
 		target_type : Action.TargetTypes.self,
 		show_conditions : ["inCombat",{type:Condition.Types.hasWrapper, data:{label:'sharktopus_submerge'}, inverse:true}],

@@ -434,7 +434,7 @@ const lib = {
 		dominant : 0.5,
 		hetero : 0.5,
 		intelligence : 0.1,
-		stamina : -20,
+		stamina : -15,
 		agility : -4,
 		remOnDeath : true,		// Todo: implement in game/player
 
