@@ -1449,7 +1449,7 @@ export default class Player extends Generic{
 
 	// NPC kills
 	getExperienceWorth(){
-		return this._difficulty*this.level/4;
+		return Math.ceil(this._difficulty*this.level/4);
 	}
 
 	// adds experience and returns levels gained

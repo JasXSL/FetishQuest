@@ -423,43 +423,42 @@ Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 	if( isNaN(bonusStats) )
 		bonusStats = 0;
 
-	let statPoints = rarity+bonusStats;
-	statPoints *= numSlots;
-
 	// Separate the stats into proficiency and primary
-	let secondaryStats = Math.round(Math.random()*statPoints),
-		primaryStats = statPoints-secondaryStats;
+	let n = Math.round(Math.random()*bonusStats);
+	let secondaryStats = rarity*numSlots+n,
+		primaryStats = Math.max(0, (rarity-1)*numSlots)+bonusStats-n;
 	
+
 	// Get viable effects for secondary stats
 	let viableEffects = [];
 	for( let type in Action.Types )
 		viableEffects.push('sv'+Action.Types[type], 'bon'+Action.Types[type]);
 
-	shuffle(viableEffects);
 	let selectedEffects = [];
-	// Bunch them together so that the points get placed in max 3 seconary stats.
-	for(let i =0; i<secondaryStats && i<3; ++i)
-		selectedEffects.push(viableEffects[i]);
+	for( let i =0; i<secondaryStats && i<2; ++i )
+		selectedEffects.push(randElem(viableEffects));
 
-	// Randomize the points into the above 3 stats
-	let selectedEffectNumbers = selectedEffects.map(() => 0);
-	for( let i=0; i <secondaryStats; ++i){
-		let r = Math.floor(Math.random()*selectedEffects.length);
-		++selectedEffectNumbers[r];
-	}
+	if( selectedEffects[0] === selectedEffects[1] )
+		selectedEffects.shift();
+
+	// Randomize the points into the above stats
+	let selectedEffectNumbers = {};
+	selectedEffects.map(el => selectedEffectNumbers[el] = 0);
+	for( let effect in selectedEffectNumbers )
+		selectedEffectNumbers[effect] = secondaryStats*(3-selectedEffects.length);
 	
 	// Add the effects
 	let effects = [];
-	for( let i =0; i<selectedEffectNumbers.length; ++i){
+	for( let i in selectedEffectNumbers ){
 		if( selectedEffectNumbers[i] )
-			effects.push(Effect.createStatBonus(selectedEffects[i], selectedEffectNumbers[i]));
+			effects.push(Effect.createStatBonus(i, selectedEffectNumbers[i]));
 	}
 
 
 	// Generate the primary stats
 	let pKeys = Object.keys(Player.primaryStats), stats = pKeys.map(() => 0);
 	for( let i = 0; i< primaryStats; ++i)
-		++stats[Math.floor(Math.random()*statPoints)];
+		++stats[Math.floor(Math.random()*pKeys.length)];
 	for( let i = 0; i<pKeys.length; ++i ){
 		if( stats[i] )
 			effects.push(Effect.createStatBonus(pKeys[i]+'Modifier', stats[i]));

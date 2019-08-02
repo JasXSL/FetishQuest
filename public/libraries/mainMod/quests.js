@@ -143,7 +143,7 @@ const lib = {
 			{label:Asset.Dummies.label, name:'platinum', _stacks:1},
 		],
 		multiply_reward : true,
-		exp_multiplier : 0.1,
+		exp_multiplier : 1,
 	},
 
 };

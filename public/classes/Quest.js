@@ -15,7 +15,7 @@ class Quest extends Generic{
 		this.name = '';
 		this.description = '';
 		this.rewards = [];							// Assets
-		this.exp_multiplier = 1;
+		this.exp_multiplier = 1;					// Multiplied against average player level. This means 1x multiplier is worth about 4 sets of monsters
 		this.objectives = [];
 		this.completion_objectives = [];			// One of these will trigger. This allows you to add multiple ways of handing in a quest with different outcomes
 		this.completed = false;						// Set internally when the quest finishes to prevent further objective evaluation
@@ -180,7 +180,7 @@ class Quest extends Generic{
 	}
 
 	getExperience(){
-		return game.getAveragePlayerLevel()*this.exp_multiplier;
+		return Math.ceil(game.getAveragePlayerLevel()*this.exp_multiplier);
 	}
 
 	// hand out rewards etc

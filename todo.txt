@@ -1,7 +1,8 @@
 Needed other:
 § Before next beta
 Smol:	
-	Add fog override to cells
+	- Add fog override to cells
+	- 
 
 Medium rare:
 	- Punishments
