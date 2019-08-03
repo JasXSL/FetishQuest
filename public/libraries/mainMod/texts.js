@@ -120,7 +120,11 @@ const lib = [
 		hitfx : ["stretch"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotPenis, stdTag.metaStretch],
 	},
-
+	{ text : "%S picks up a book uses it whack %T across %This %Trsize %butt!",
+		conditions : anyOnHumCond.concat("action_stdAttack", "roomBook"),
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaPainful, stdTag.metaSlap, stdTag.metaSlotButt],
+	},
 
 	{ text : "%S slips %Shis hands in under the sides of %T's %TclothLower from the front and pulls out, damaging the piece in the process!",
 		conditions : humOnHumCond.concat([ "action_stdAttack", "targetPenis", "targetTaller", "targetLowerBodyDamaged", "targetLowerBodyNotPants", "targetLowerBodyNotHard"]),
@@ -141,7 +145,7 @@ const lib = [
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotNipples, stdTag.metaStretch],
 	},
 	{ text : "%S pinches a hold of the front of %T's %TclothLower and pulls backwards, exposing %This %Tgenitals!",
-		conditions : humOnHumCond.concat("action_stdAttack","targetLowerBodyNotHard",'targetLowerBodyOrNoDamage'),
+		conditions : humOnHumCond.concat("action_stdAttack","targetLowerBodyNotHard",'targetLowerBodyOrNoDamage', "targetWearsLowerBody"),
 		audiokits : ["pinchGeneric"],
 		hitfx : ["stretch"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotGroin, stdTag.metaStretch],

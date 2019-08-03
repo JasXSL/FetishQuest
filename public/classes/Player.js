@@ -114,6 +114,7 @@ export default class Player extends Generic{
 		// Prevents recursion for encumbrance
 		this._ignore_effects = null;			// Internal helper that prevents recursion
 		this._difficulty = 1;					// Added from monster template, used in determining exp rewards
+		this._bound_wrappers = [];
 		this.load(data);
 		
 	}
@@ -247,13 +248,23 @@ export default class Player extends Generic{
 		this.addDefaultActions();
 		
 		if( game.is_host ){
-			let w = this.getWrappers();
-			w.map(wrapper => {
-				wrapper.bindEvents();
-			});
+			this.rebindWrappers();
 		}
 	}
 
+	rebindWrappers(){
+		this.unbindWrappers();
+		let w = this.getWrappers();
+		w.map(wrapper => {
+			wrapper.bindEvents();
+		});
+		this._bound_wrappers = w;
+	}
+
+	unbindWrappers(){
+		for( let wrapper of this._bound_wrappers )
+			wrapper.unbindEvents();
+	}
 
 
 
@@ -718,6 +729,9 @@ export default class Player extends Generic{
 		this.arousal = 0;
 		
 	}
+	onRemoved(){
+		this.unbindWrappers();
+	}
 	onTurnEnd(){
 
 		const wrappers = this.getWrappers();
@@ -816,6 +830,8 @@ export default class Player extends Generic{
 	onCellChange(){
 		this.used_punish = true;
 	}
+
+	
 
 	onDamagingAttackReceived( sender, type ){
 		if(!this._damaging_since_last[sender.id])
@@ -1018,6 +1034,7 @@ export default class Player extends Generic{
 				this.onItemChange();
 				if( game.battle_active && byPlayer )
 					game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
+				this.rebindWrappers();
 				return true;
 			}
 		}
@@ -1032,6 +1049,7 @@ export default class Player extends Generic{
 				this.onItemChange();
 				if( game.battle_active && byPlayer )
 					game.ui.addText( this.getColoredName()+" unequips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
+				this.rebindWrappers();
 				return asset;
 			}
 		}
@@ -1817,12 +1835,19 @@ export default class Player extends Generic{
 			console.error("Action not found", a);
 			return false;
 		}
+		const effects = this.getDisableEffectsForAction(action);
+		return !effects.length;
+	}
+
+	// Returns disable EFFECTs that cause the supplied action not to be enabled to this player
+	getDisableEffectsForAction( action ){
 		const effects = this.getActiveEffectsByType(Effect.Types.disableActions);
 		const evt = new GameEvent({
 			sender : this,
 			target : this,
 			action : action
 		});
+		const out = [];
 		for( let effect of effects ){
 			const conds = effect.data.conditions;
 			if( !Array.isArray(conds) ){
@@ -1830,9 +1855,9 @@ export default class Player extends Generic{
 				continue;
 			}
 			if( Condition.all(conds, evt) )
-				return false;
+				out.push(effect);
 		}
-		return true;
+		return out;
 	}
 
 	removeActionById( id ){

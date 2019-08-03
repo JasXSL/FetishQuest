@@ -4,6 +4,7 @@
 import Generic from '../helpers/Generic.js';
 import Asset from '../Asset.js';
 import stdTag from '../../libraries/stdTag.js';
+import { Wrapper } from '../EffectSys.js';
 
 class AssetTemplate extends Generic{
 	constructor(data){
@@ -18,6 +19,7 @@ class AssetTemplate extends Generic{
 		this.primaryStats = {};
 		this.description = "";
 		this.tags = [];
+		this.wrappers = [];
 		this.size = 1.0;					// Size multiplier, used in weight calculations
 		this.icon = 'perspective-dice-six-faces-random';
 
@@ -41,6 +43,7 @@ class AssetTemplate extends Generic{
 			tags : this.tags,
 			size : this.size,
 			icon : this.icon,
+			wrappers : this.wrappers,
 		};
 	}
 
@@ -59,6 +62,7 @@ class AssetTemplate extends Generic{
 		}
 		return out;
 	}
+
 
 	// Checks if it has one of these materials (materials are strings), if materials isn't an array, allow ALL
 	getMaterialIntersect( materials, level ){
@@ -129,6 +133,7 @@ class AssetTemplate extends Generic{
 			weight : Math.round(mat.weight*this.slots.length*this.size),
 			stat_bonus : mat.stat_bonus,
 			icon : this.icon,
+			wrappers : this.wrappers, 		// Raw data
 		});
 
 	}
@@ -151,6 +156,7 @@ class AssetOutput extends Generic{
 		this.weight = 0;
 		this.stat_bonus = 0;
 		this.icon = '';
+		this.wrappers = [];
 		this.load(data);
 	}
 

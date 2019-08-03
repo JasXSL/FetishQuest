@@ -608,7 +608,7 @@ const lib = {
 		name : "Heal",
 		icon : 'healing',
 		ranged : Action.Range.Ranged,
-		description : "Restores 4 HP, plus an additional 4 if your target's max health is less than 50%",
+		description : "Restores 6 HP, plus an additional 4 if your target's max health is less than 50%",
 		ap : 2,
 		mp : 1,
 		type : Action.Types.holy,
@@ -630,7 +630,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "-4-(ta_HP<(ta_MaxHP/2))*4"
+							"amount": "-6-(ta_HP<(ta_MaxHP/2))*4"
 						}
 					},
 					

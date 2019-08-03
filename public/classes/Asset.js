@@ -540,6 +540,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 	for( let i in template.primaryStats )
 		addEffectToWrapper(wrapper, i+'Modifier', template.primaryStats[i]);
 
+
 	// Generate the description
 	wrapper.effects.sort((a, b) => {
 		let an = this.stringifyStat(a.type),
@@ -564,7 +565,8 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 	if( additionalDesc.length )
 		out.description += "\n"+additionalDesc.join(', ');
 
-	out.wrappers = [wrapper];
+	out.wrappers = [wrapper]
+		.concat(Wrapper.loadThese(template.wrappers, out));
 
 	out.loot_sound = 'lootCloth';
 	if( out.hasTag(stdTag.asPlate) )

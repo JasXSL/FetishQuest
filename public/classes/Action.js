@@ -46,6 +46,7 @@ class Action extends Generic{
 		this.no_interrupt = false;				// Charged action is not interruptable
 		this.hide_if_no_targets = false;		// hide this from the action picker if there's no viable targets
 		this.disable_override = 0;				// Level of disable override.
+		this.alias = [];						// Aliases to use for texts. Useful when you want multiple actions with the same texts
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge
@@ -101,6 +102,7 @@ class Action extends Generic{
 		}
 
 		if( full ){
+			out.alias = this.alias;
 			out.level = this.level;
 			out.riposte = this.riposte.map(el => el.save(full));
 			out.no_use_text = this.no_use_text;	
@@ -160,6 +162,13 @@ class Action extends Generic{
 		if( pp && pp.getDisabledLevel() > this.disable_override && pp.getDisabledHidden() )
 			return false;
 
+		if( pp ){		
+			const disables = pp.getDisableEffectsForAction(this);
+			for( let d of disables ){
+				if( d.data.hide )
+					return false;
+			}
+		}
 		return !this.hidden && Condition.all(this.show_conditions, new GameEvent({
 			sender : this.getPlayerParent(),
 			target : this.getPlayerParent(),

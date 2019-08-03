@@ -140,10 +140,12 @@ const lib = {
 			},
 		],
 		rewards : [
-			{label:Asset.Dummies.label, name:'platinum', _stacks:1},
+			{label:Asset.Dummies.label, name:'food_FriedFish', _stacks:2},
+			{label:Asset.Dummies.label, name:'food_Ale', _stacks:2},
+			"healingPotion"
 		],
 		multiply_reward : true,
-		exp_multiplier : 1,
+		exp_multiplier : 4,
 	},
 
 };

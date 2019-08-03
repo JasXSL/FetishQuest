@@ -158,7 +158,9 @@ class Wrapper extends Generic{
 				let party = game.getPartyMembers(caster_player);
 				party = party.filter(el => el.hp > 0);
 				party.sort((a,b) => {
-					if( a.hp === b.hp )
+					const ahp = a.hp/a.getMaxHP(),
+						bhp = b.hp/b.getMaxHP();
+					if( ahp === bhp )
 						return 0;
 					return a.hp < b.hp ? -1 : 1;
 				});
@@ -756,8 +758,8 @@ class Effect extends Generic{
 					// Holy arousal purging
 					if( type === Action.Types.holy ){
 
-						// 30% chance per point of healing
-						let ch = Math.abs(amt*30);
+						// 20% chance per point of healing
+						let ch = Math.abs(amt*15);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						if( tot > t.arousal )
 							tot = t.arousal;
@@ -766,7 +768,7 @@ class Effect extends Generic{
 						if( tot && t.arousal ){
 							t.addArousal(-tot, true);
 							game.ui.addText( t.getColoredName()+" lost "+Math.abs(tot)+" arousal from holy healing.", undefined, s.id, t.id, 'statMessage arousal' );
-							amt += tot;	// Holy healing converts arousal into HP
+							amt += tot*2;	// Holy healing converts arousal into HP
 						}
 
 					}
@@ -847,8 +849,8 @@ class Effect extends Generic{
 				// Calculate arousal (allowed for both healing and damaging)
 				if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
 
-					// 25% chance per point of damage
-					let ch = Math.abs(amt*25);
+					// 30% chance per point of damage
+					let ch = Math.abs(amt*30);
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 					if( tot+t.arousal > t.getMaxArousal() )
 						tot = t.getMaxArousal()-t.arousal;
@@ -1706,7 +1708,7 @@ Effect.TypeDescs = {
 	[Effect.Types.grapple] : '{}',
 	[Effect.Types.daze] : 'void',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
-	[Effect.Types.disableActions] : '{conditions:(arr)conditions} - Disables all spells that matches conditions',
+	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
 	
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
 	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',

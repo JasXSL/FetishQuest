@@ -220,6 +220,8 @@ Generic.getLib = function(){
 Generic.loadThese = function( entries = [], parent ){
 
 	let out = [];
+	if( typeof entries === "string" )
+		entries = [entries];
 	if( (!Array.isArray(entries) && typeof entries !== "object") || entries === null ){
 		console.error("Trying to batch load invalid assets:", entries);
 		return;

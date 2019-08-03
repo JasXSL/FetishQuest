@@ -283,6 +283,7 @@ const lib = {
 	targetNotGrappledOrKnockedDown : {type:"tag", data:{tags:[stdTag.wrKnockdown, stdTag.wrGrapple]}, inverse:true},
 	targetGrappledByMe : {type:Condition.Types.tag, data:{tags:[stdTag.wrGrapple], caster:true}},
 	senderHasWhip : {"type":"tag","data":{"tags":["as_whip"]},"caster":true},
+	targetHasWhip : {type:Condition.Types.tag,data:{"tags":[stdTag.asWhip]}},
 	senderHasStrapon : {type:Condition.Types.tag,data:{tags:[stdTag.asStrapon]},caster:true},
 	targetSoaked : {"type":"tag","data":{"tags":["wr_soaked"]}},
 	targetLegsSpread : {type:Condition.Types.tag,data:{tags:[stdTag.wrLegsSpread]}},
@@ -352,6 +353,7 @@ const lib = {
 	rand90 : {"type":"rng","data":{"chance":90}},
 
 	roomTable : {"type":Condition.Types.tag,"data":{"tags":[stdTag.mTable]}},
+	roomBook : {type:Condition.Types.tag,data:{"tags":[stdTag.mBook]}},
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},
 	targetDead : {"type":"defeated"},
@@ -410,6 +412,7 @@ const lib = {
 		],
 		min:-1,
 	},
+	metaPainful : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPainful, stdTag.metaVeryPainful]}},
 	metaButtGrab : {
 		conditions : [
 			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotButt]}},

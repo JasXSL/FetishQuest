@@ -1286,7 +1286,7 @@ class Stage{
 	onDoorRefresh( c ){
 
 		let asset = c.userData.dungeonAsset;
-		let linkedRoom = !this.isEditor ? game.dungeon.rooms[asset.getDoorTarget()] : false;
+		let linkedRoom = !this.isEditor ? game.dungeon.getRoomByIndex(asset.getDoorTarget()) : false;
 		//let tagAlwaysVisible = (asset.isExit() && !asset.isLocked() &&) || (linkedRoom && (linkedRoom.index === game.dungeon.previous_room || !linkedRoom.discovered || linkedRoom.index === asset.parent.parent_index));
 		let tagAlwaysVisible = false;
 		const interaction = asset.getDoorInteraction();
@@ -1420,7 +1420,7 @@ class Stage{
 		if( window.game && asset.isDoor() && !this.isEditor ){
 		
 			
-			let linkedRoom = game.dungeon.rooms[asset.getDoorTarget()];
+			let linkedRoom = game.dungeon.getRoomByIndex(asset.getDoorTarget());
 			if( asset.isExit() && !asset.name ){
 				this.createIndicatorForMesh('exit', 'Exit', c);
 			}

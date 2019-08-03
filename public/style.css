@@ -804,6 +804,10 @@ div.fxBuffBlue{
 		vertical-align: bottom;
 		pointer-events: all;
 	}
+	#ui > div.players div.player div.stats span.name div.leader:not(.host){
+		background:none;
+		border:none;
+	}
 	#ui > div.players div.player img.leader{
 		height:2vmax; width:2vmax;
 		vertical-align: middle;

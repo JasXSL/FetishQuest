@@ -2,31 +2,18 @@ Needed other:
 § Before next beta
 Smol:	
 	- Add fog override to cells
-	- 
+	- Fix rain tweening in. Seems to start and stop immediately
 
 Medium rare:
-	- Punishments
-	- Custom cursors
-		- Arrow
-		- Interact
-		- Inspect
-		- Buy
-		- Sell
-		- Repair
-	- Unbind FX events on a player when they're removed or cell changes to prevent memory leaks
-
+	
 Big chungi:
-	- Add handin in tavern
+	- Test quest handin
+	- Ability to rest (consider using dungeonvars for rest system)
 	- Island quest:
 		- Kill the beast, and you collect a trophy.
 		- Bring the trophy to the port tavern to finish the quest and get a nice chunk of money and alcohol.
 
 
-	- Redesign errors to a try/catch system, that'll let netcode return errors as well
-
-Food for thought
-	- Fast travel system
-		- Expensive
 		- Need to unlock at an inn
 
 Next:
@@ -35,8 +22,7 @@ Next:
 	- West forest
 		- Hidden path down to the beach
 		- Otter and Broper quest
-	- Sleep
-
+	- Redesign errors to a try/catch system, that'll let netcode return errors as well
 
 
 Abilities:
@@ -74,3 +60,17 @@ LATER:
 		- Sub = Restore mana
 		- Dom = restore HP
 		- 
+
+- Punishments
+	- Custom cursors
+		- Arrow
+		- Interact
+		- Inspect
+		- Buy
+		- Sell
+		- Repair
+
+
+Food for thought
+	- Fast travel system
+		- Expensive

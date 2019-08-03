@@ -1035,6 +1035,7 @@ export default class Game extends Generic{
 			if(this.players[i].id === id){
 
 
+				this.players[i].onRemoved();
 				this.players.splice(i,1);
 				if( this.battle_active ){
 
@@ -1068,7 +1069,7 @@ export default class Game extends Generic{
 	}
 
 	// Removes all players not on team 0
-	removeEnemies( deadOnly ){
+	removeEnemies( deadOnly = false ){
 
 		let p = this.players.slice();
 		for( let pl of p ){
@@ -1660,7 +1661,7 @@ export default class Game extends Generic{
 			this.getTeamPlayers(0).map(pl => {
 				pl.addHP(Math.ceil(pl.getMaxHP()*0.25));
 				pl.addMP(Math.ceil(pl.getMaxMP()*0.25));
-				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.5));
+				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.25));
 			});
 			
 		}

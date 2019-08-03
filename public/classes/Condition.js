@@ -223,10 +223,26 @@ export default class Condition extends Generic{
 				success = data.indexOf(event.type) !== -1 || (event.custom && event.custom.original && data.indexOf(event.custom.original.type) !== -1);
 			}
 			else if( this.type === T.actionLabel ){
+
 				let data = this.data.label;
+
 				if( !Array.isArray(data) )
 					data = [data];
-				success = event.action && data.indexOf(event.action.label) !== -1; 
+
+				if( event.action ){
+					let labels = {[event.action.label] : true};
+					if( !this.data.ignore_alias && Array.isArray(event.action.alias) ){
+						for( let a of event.action.alias )
+							labels[a] = true;
+					}
+					for( let l of data ){
+						if( labels[l] ){
+							success = true;
+							break;
+						}
+					}
+				}
+
 			}
 			else if( this.type === T.actionType ){
 				const data = toArray(this.data.type);
@@ -542,6 +558,30 @@ export default class Condition extends Generic{
 				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
 				
 			}
+			else if( this.type === T.dungeonVarMath ){
+
+				let dungeon = event.dungeon && event.dungeon.label;
+				if( this.data.dungeon )
+					dungeon = this.data.dungeon;
+
+				let vars = this.data.vars,
+					formula = this.data.formula
+				;
+				if( typeof vars === "string" )
+					vars = [vars];
+
+				if( Array.isArray(vars) && window.game ){
+					const t = {};
+					for( let v of vars ){
+						t[v] = 0;
+						if( game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars.hasOwnProperty(v) )
+							t[v] = game.state_dungeons[dungeon].vars[v];
+					}
+					success = Calculator.run(formula, event, t);
+				}
+
+			}
+
 			else if( this.type === T.formula ){
 				success = Calculator.run(this.data.formula, event);
 			}
@@ -747,6 +787,7 @@ Condition.Types = {
 	punishNotUsed : 'punishNotUsed',			//  
 	wrapperHasEffect : 'wrapperHasEffect',		// 
 	dungeonVar : 'dungeonVar',
+	dungeonVarMath : 'dungeonVarMath',
 	targetIsSender : 'targetIsSender',
 	targetIsChatPlayer : 'targetIsChatPlayer',
 	targetIsWrapperSender : 'targetIsWrapperSender',
@@ -775,7 +816,7 @@ Condition.descriptions = {
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached wrapper',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
-	[Condition.Types.actionLabel] : '{label:(arr)(str)label} Attached action label is in this array',
+	[Condition.Types.actionLabel] : '{label:(arr)(str)label, ignore_alias:(bool)=false} Attached action label is in this array. If ignore_alias is true, it ignores alias checking',
 	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',
 	[Condition.Types.actionDetrimental] : 'Data is void',
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
@@ -801,7 +842,8 @@ Condition.descriptions = {
 	[Condition.Types.defeated] : 'void - Player is defeated',
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
 	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches',	
-	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data',	
+	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data with EXACT',	
+	[Condition.Types.dungeonVarMath] : '{vars:(str/arr)var_ids, formula:(str)formula, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data via a math formula. vars have to contain all dVars included in the formula. If one is not set, it becomes 0.',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
 	[Condition.Types.targetIsWrapperSender] : 'void - Sender might not always be the caster of a wrapper (ex checking effect targets). This specifies that you want the sender of the included wrapper in specific.',	
 	[Condition.Types.species] : '{species:(str/arr)species} - Checks if target is one of the selected species. Case insensitive',	

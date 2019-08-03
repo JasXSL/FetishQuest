@@ -268,11 +268,7 @@ export default class UI{
 	// Helper functions for below
 	updateResourceDots( root, currentPoints, maxPoints ){
 		const dots = $("> div.point", root);
-		// Check if we have too many
-		if( dots.length > maxPoints ){
-			for( let i=0; i<dots.length-maxPoints; ++i )
-				dots[0].remove();
-		}
+		dots.toggleClass("hidden", true);
 		for( let i = 0; i<maxPoints; ++i ){
 			let div = dots[i];
 			if( !div ){
@@ -280,7 +276,7 @@ export default class UI{
 				div.className = 'point';
 				root.append(div);
 			}
-			$(div).toggleClass('filled', i < currentPoints);
+			$(div).toggleClass('filled', i < currentPoints).toggleClass("hidden", false);
 		}
 	}
 
@@ -292,8 +288,6 @@ export default class UI{
 
 
 		if( !player ){
-			console.log("todo: spectate");
-			//this.action_selector.html('Spectating');
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
 			this.toggleRope(false);
@@ -848,7 +842,7 @@ export default class UI{
 		const contentEl = $("> div.content", el),
 			statsEl = $('> div.stats', contentEl),
 				nameEl = $('> span.name', statsEl),
-					ownerEl = $('> span.owner', nameEl),
+					ownerEl = $('> div.owner', nameEl),
 					ownEl = $('> div.own', nameEl),
 					leaderEl = $('> div.leader', nameEl),
 					nameDisplayEl = $('span.nameTag', nameEl),
@@ -956,15 +950,12 @@ export default class UI{
 		if( nameDisplayEl.text() !== p.name )
 			nameDisplayEl.text(p.name);
 		
-
 		ownerEl.toggleClass('hidden', !game.is_host);
 		ownEl.toggleClass('hidden', Boolean(game.getMyPlayers().length < 2 || isMyActive || !isMine));
 		leaderEl.toggleClass('hidden', Boolean(
 			p.team !== 0 || !game.net.id ||
 			(!p.leader && !game.is_host)
 		)).toggleClass('host', game.is_host);
-		// Todo: Stylize leader so it's not a button nor interactive for coop players. Use the leader class.
-
 
 		// Charged actions
 		let chargedActions = p.isCasting();

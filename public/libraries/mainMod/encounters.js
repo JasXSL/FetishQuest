@@ -178,44 +178,42 @@ const lib = {
 					]
 				}}
 			},
-			// SQ_shark handin
+			// Generic chats
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
-					label : 'SQ_sharktopus_handin',
+					label : 'yuug_port_barkeep_generic',
 					player : 'yuug_port_barkeep',
 					persistent : false,
 					stages: [
-						// TODO: Writeme
 						{
 							index: 0,
-							text: "Ya have something for me?",
-							options: [
-								{text: "Yes, evil cultist and all!", index: 1},
-								{text: "All cleared cap'n, may I have my reward?", index: 2},
+							text : "Welcome ta the Yuug Port inn! We got warm beds an' cold ale!",
+							options : [
+								{text: "I found this grisly sharktopus trophy!", index: 1, conditions:[
+									{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_01', objective:'stuffTheBeast'}, targnr:0},
+									{type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_01'}, inverse:true, targnr:0},
+								]},
+								{text:'Thanks', index:-1},
 							]
 						},
 						{
-							index: 1,
-							text: "Cultist eh? I dunno about that, but maybe someone else here does. In either case, here's a little something from the lost 'n found box!",
-							options: [{text:'Thanks', index:-1, game_actions:[{
-								type: GameAction.types.finishQuest,
-								data : {quest:'MQ00_YuugBeach'}
-							}]}]
+							index: 10,
+							text: "Bloody hell! I thought that was just a legend! This'll go nicely above me mantelpiece!",
+							options: [
+								{text:'Take it, it\'s yours', index:100},
+								{text:'Sure, for a reward', index:100},
+								{text:'No wait, I changed my mind', index:-1},
+							]
 						},
 						{
-							index: 2,
-							text: "Alright alright. Here ya go. A few coins and a little something from the ol lost 'n found box!",
-							options: [{text:'Thanks', index:-1, game_actions:[{
+							index: 100,
+							text: "Aye, here's a meal on the house, and ye can stay here for free any time! Provided we have a free room of course.",
+							options: [{text:'Thanks!', index:-1, game_actions:[{
 								type: GameAction.types.finishQuest,
-								data : {quest:'MQ00_YuugBeach'}
+								data : {quest:'SQ_sharktopus_01'}
 							}]}]
 						},
-						
-					],
-					conditions : [
-						{type:Condition.Types.questObjectiveCompleted, data:{quest:'MQ00_YuugBeach', objective:'caveCleared'}, targnr:0},
-						{type:Condition.Types.questCompleted, data:{quest:'MQ00_YuugBeach'}, inverse:true, targnr:0},
 					]
 				}}
 			},
@@ -627,7 +625,7 @@ const lib = {
 					stages: [
 						{
 							index: 0,
-							text: "Ah you must be the one who hurt our great beast. You must be mighty indeed! I will take pleasure in breaking you!",
+							text: "Ah you must be the one who hurt our great beast. You seem mighty indeed! I will take pleasure in breaking you!",
 							options: [
 								{text: "[Attack]",index: -1, chat:RoleplayStageOption.ChatType.none, game_actions : [
 									{type:GameAction.types.questObjective, data:{'quest':'SQ_sharktopus_01','objective':'returnToIsland'}},
@@ -701,6 +699,29 @@ const lib = {
 
 	SQ_sharktopus_boss : {
 		players : ['SQ_sharktopus_gong', 'SQ_sharktopus_boss'],
+		passives : [
+			{effects:[
+				{
+					type:Effect.Types.gameAction,
+					data : {action:{
+						type : GameAction.types.roleplay,
+						data : {rp:{
+							stages: [
+								{
+									id: 's_0',
+									index: 0,
+									text: "You collect a trophy from the defeated beast!",
+									options: [{id:'done', text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}]
+								},
+							],
+						}}
+					}},
+					events : [
+						GameEvent.Types.encounterDefeated,
+					]
+				}
+			]}
+		],
 		wrappers : [
 			{	// Initial submerge is different in that it also stuns
 				label : 'sharktopus_submerge',

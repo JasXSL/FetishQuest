@@ -1099,7 +1099,7 @@ export default class Modtools{
 	mml_materialTemplates(){
 		this.mml_generic( 
 			'materialTemplates', 
-			['Label','Name','Tags','Weight','Lv','DurMult','statBon'],
+			['Label','Name','Tags','Weight','Lv','DurMult','statBon', 'svBons', 'bonBons', 'primaryBons'],
 			this.mod.materialTemplates,
 			asset => {
 				return [
@@ -1109,9 +1109,10 @@ export default class Modtools{
 					asset.weight,
 					asset.level,
 					asset.durability_bonus,
-					//JSON.stringify(asset.svBons),
-					//JSON.stringify(asset.bonBons),
 					asset.stat_bonus,
+					JSON.stringify(asset.svBons || {}),
+					JSON.stringify(asset.bonBons || {}),
+					JSON.stringify(asset.primaryStats || {}),
 				];
 			},
 			() => {
@@ -1543,8 +1544,11 @@ export default class Modtools{
 				'<label><input type="radio" name="ranged" value="'+Action.Range.Ranged+'" '+(asset.ranged === Action.Range.Ranged ? 'checked' : '')+' /> Ranged</label>'+
 				'<br />'	
 			;
-			html += '<textarea name="description">'+esc(asset.description)+'</textarea><br />';
+			html += 'Description<br /><textarea name="description">'+esc(asset.description)+'</textarea><br />';
 			html += 'Level: <input required type="number" min=1 step=1 name="level" value="'+esc(asset.level)+'" /><br />';
+			html += 'Icon: <input required type="text" name="icon" value="'+esc(asset.icon || '')+'" /><br />';
+			html += 'Alias: '+this.formAlias(asset.alias)+'<br />';
+
 			html += 'AP: <input required type="number" min=0 step=1 name="ap" value="'+esc(asset.ap)+'" />';
 			html += 'MP: <input required type="number" min=0 step=1 name="mp" value="'+esc(asset.mp)+'" /><br />';
 			html += 'Hit Chance: <input required type="number" min=0 step=1 name="hit_chance" value="'+esc(asset.hit_chance)+'" /><br />';
@@ -1574,7 +1578,8 @@ export default class Modtools{
 
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();
-			saveAsset.name = $("input[name=label]", form).val().trim();
+			saveAsset.icon = $("input[name=icon]", form).val().trim();
+			saveAsset.name = $("input[name=name]", form).val().trim();
 			saveAsset.type = $("select[name=actionType]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
 			saveAsset.target_type = $("select[name=target_type]", form).val().trim();
@@ -1604,6 +1609,7 @@ export default class Modtools{
 			saveAsset.semi_hidden = $("input[name=semi_hidden]", form).is(':checked');
 
 			saveAsset.tags = this.compileTags();
+			saveAsset.alias = this.compileAlias();
 			saveAsset.wrappers = this.compileWrappers('wrappers');
 			saveAsset.riposte = this.compileWrappers('riposte');			
 
@@ -1927,8 +1933,9 @@ export default class Modtools{
 	editor_assetTemplates( asset = {} ){
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
-			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
-			html += 'Description: <textarea name="description">'+esc(asset.description)+'</textarea><br />';
+			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name || 'Unnamed')+'" /><br />';
+			html += 'Icon: <input type="text" name="icon" value="'+esc(asset.icon || '')+'" /><br />';
+			html += 'Description: <textarea name="description">'+esc(asset.description || '')+'</textarea><br />';
 			html += 'Size: <input required type="number" name="size" value="'+esc(asset.size)+'" /><br />';
 
 			html += 'Slots: '+this.formAssetSlots(asset.slots)+'<br />';
@@ -1936,7 +1943,11 @@ export default class Modtools{
 			
 			html += 'Materials: '+this.formMaterialTemplates(asset.materials)+'<br />';
 
-			
+			html += '<strong>Fixed stat bonuses:</strong><br />';
+			html += '<br />Primary:<br />';
+			for( let stat in Player.primaryStats )
+				html += Player.primaryStats[stat]+': <input type="number" step=1 name="'+Player.primaryStats[stat]+'" value="'+(asset.primaryStats[Player.primaryStats[stat]] || 0)+'" /> ';
+
 			html += '<br />SV:<br />';
 			for( let stat in Action.Types )
 				html += Action.Types[stat]+': <input required type="number" step=1 name="sv_'+Action.Types[stat]+'" value="'+(asset.svStats[Action.Types[stat]] || 0)+'" /> ';
@@ -1944,7 +1955,11 @@ export default class Modtools{
 			html += '<br />Bon:<br />';
 			for( let stat in Action.Types )
 				html += Action.Types[stat]+': <input required type="number" step=1 name="bon_'+Action.Types[stat]+'" value="'+(asset.bonStats[Action.Types[stat]] || 0)+'" /> ';
-		
+			html += '<br />';
+
+			html += '<br />Required effect wrappers:<br />';
+				html += this.formWrappers(asset.wrappers);
+			html += '<br />';
 			
 		this.editor_generic('assetTemplates', asset, this.mod.assetTemplates, html, saveAsset => {
 
@@ -1952,17 +1967,24 @@ export default class Modtools{
 
 			saveAsset.svStats = {};
 			saveAsset.bonStats = {};
+			saveAsset.primaryStats = {};
 			for( let stat in Action.Types ){
 				saveAsset.svStats[Action.Types[stat]] = +$("input[name=sv_"+Action.Types[stat]+"]", form).val().trim();
 				saveAsset.bonStats[Action.Types[stat]] = +$("input[name=bon_"+Action.Types[stat]+"]", form).val().trim();
 			}
+			for( let stat in Player.primaryStats ){
+				const s = Player.primaryStats[stat];
+				saveAsset.primaryStats[s] = +$("input[name="+s+"]", form).val().trim();
+			}
 
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.icon = $("input[name=icon]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
 			saveAsset.size = +$("input[name=size]", form).val().trim();
 			saveAsset.slots = this.compileAssetSlots();
 			saveAsset.tags = this.compileTags();
+			saveAsset.wrappers = this.compileWrappers();
 			saveAsset.materials = this.compileMaterialTemplates();
 
 		});
@@ -2034,17 +2056,22 @@ export default class Modtools{
 			html += 'Weight (Grams): <input type="number" min=0 step=1 name="weight" value="'+esc(asset.weight)+'" /><br />';
 			html += 'Min Level: <input type="number" min=0 step=1 name="level" value="'+esc(asset.level)+'" /><br />';
 			html += 'Durability Multiplier: <input type="number" min=0 step=0.01 name="durability_bonus" value="'+esc(asset.durability_bonus)+'" /><br />';
-			html += 'Bonus stats: <input type="number" min=0 step=1 name="stat_bonus" value="'+esc(asset.stat_bonus)+'" /><br />';
-			/*
+			html += 'Bonus stats points: <input type="number" min=0 step=1 name="stat_bonus" value="'+esc(asset.stat_bonus)+'" /><br />';
+
+			html += '<strong>Fixed stat bonuses:</strong><br />';
+			html += '<br />Primary:<br />';
+			for( let stat in Player.primaryStats )
+				html += Player.primaryStats[stat]+': <input type="number" step=1 name="'+Player.primaryStats[stat]+'" value="'+(asset.primaryStats[Player.primaryStats[stat]] || 0)+'" /> ';
+			
 			html += '<br />SV:<br />';
 			for( let stat in Action.Types )
-				html += Action.Types[stat]+': <input required type="number" step=1 name="sv_'+Action.Types[stat]+'" value="'+(asset.svBons[Action.Types[stat]] || 0)+'" /> ';
+				html += Action.Types[stat]+': <input type="number" step=1 name="sv_'+Action.Types[stat]+'" value="'+(asset.svBons[Action.Types[stat]] || 0)+'" /> ';
 			
 			html += '<br />Bon:<br />';
 			for( let stat in Action.Types )
-				html += Action.Types[stat]+': <input required type="number" step=1 name="bon_'+Action.Types[stat]+'" value="'+(asset.bonBons[Action.Types[stat]] || 0)+'" /> ';
-			*/
-			
+				html += Action.Types[stat]+': <input type="number" step=1 name="bon_'+Action.Types[stat]+'" value="'+(asset.bonBons[Action.Types[stat]] || 0)+'" /> ';
+
+			html += '<br />';
 			
 		this.editor_generic('materialTemplates', asset, this.mod.materialTemplates, html, saveAsset => {
 
@@ -2056,12 +2083,17 @@ export default class Modtools{
 			saveAsset.level = +$("input[name=level]", form).val().trim();
 			saveAsset.durability_bonus = +$("input[name=durability_bonus]", form).val().trim();
 			saveAsset.stat_bonus = +$("input[name=stat_bonus]", form).val().trim();
-			/*
+			saveAsset.svBons = {};
+			saveAsset.bonBons = {};
+			saveAsset.primaryStats = {};
 			for( let stat in Action.Types ){
-				saveAsset.svBons[Action.Types[stat]] = +$("input[name=sv_"+Action.Types[stat]+"]", form).val().trim();
-				saveAsset.bonBons[Action.Types[stat]] = +$("input[name=bon_"+Action.Types[stat]+"]", form).val().trim();
+				saveAsset.svBons[Action.Types[stat]] = +$("input[name=sv_"+Action.Types[stat]+"]", form).val().trim() || 0;
+				saveAsset.bonBons[Action.Types[stat]] = +$("input[name=bon_"+Action.Types[stat]+"]", form).val().trim() || 0;
 			}
-			*/
+			for( let stat in Player.primaryStats ){
+				const s = Player.primaryStats[stat];
+				saveAsset.primaryStats[s] = +$("input[name="+s+"]", form).val().trim();
+			}
 			
 		});
 
@@ -3164,6 +3196,7 @@ export default class Modtools{
 		this.bindRoleplayStages();
 		this.bindRoleplays();
 		this.bindHitFX();
+		this.bindAlias();
 
 		$("#modal .deleteParent").off('click').on('click', function(){
 			$(this).parent().remove();
@@ -3519,6 +3552,47 @@ export default class Modtools{
 		out += '<input type="button" class="addTagHere" value="Add Tag" />';
 		for( let tag of tags )
 			out+= this.inputTags(tag, dataList);
+		out += '</div>';
+		return out;
+	}
+
+
+
+
+	// Alias (bindable)
+	bindAlias(){
+		let th = this;
+		$("#modal input.addAliasHere").off('click').on('click', function(){
+			$(this).parent().append(th.inputAlias(""));
+			th.bindFormHelpers();
+		});
+
+		$("input[name=alias]").off('change').on('change', function(){
+			th.formHelperOnChange("Alias", $(this).parent());
+		});
+	}
+
+	inputAlias( alias = ''){
+		return '<input type="text" name="alias" value="'+esc(alias)+'" />';
+	}
+	
+	compileAlias( cName = 'alias' ){
+		const base = $('#modal div.'+cName+' input[name=alias]');
+		const out = [];
+		base.each((index, value) => {
+			const el = $(value);
+			const val = el.val().trim();
+			if( val )
+				out.push(val);
+		});
+		return out;
+	}
+
+	formAlias( alias = [], cName = 'alias' ){
+		let out = '<div class="'+cName+'">';
+		out += '<input type="button" class="addAliasHere" value="Add Alias" />';
+		for( let a of alias )
+			out+= this.inputAlias(a);
 		out += '</div>';
 		return out;
 	}

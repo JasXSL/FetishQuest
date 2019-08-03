@@ -315,10 +315,7 @@ const lib = {
         name : "Tentacler",
         primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
-        actions : [
-            // todo
-
-        ]
+        actions : []
     },
 
     
