@@ -1788,6 +1788,41 @@ export default class Player extends Generic{
 
 	}
 	
+	// Takes an attack type and returns a proc chance multiplier
+	getStatProcMultiplier( stat, recipient = false){
+
+		let out = 1;
+		recipient = Boolean(recipient);
+		const effects = this.getActiveEffectsByType(stat.toLowerCase()+'ProcMultiplier');
+		for( let effect of effects ){
+			if( typeof effect.data.receive === "boolean" && effect.data.receive !== recipient )
+				continue;
+			const n = Calculator.run(
+				effect.data.amount,
+				new GameEvent({sender:this, target:this, wrapper:effect.parent, effect:effect})
+			);
+			out *= (n*(effect.no_stack_multi ? 1 : effect.parent.stacks));
+		};
+		return out;
+
+	}
+
+	getHealAggroMultiplier( recipient = false){
+
+		let out = 1;
+		const effects = this.getActiveEffectsByType(Effect.Types.healAggroMultiplier);
+		for( let effect of effects ){
+			if( typeof effect.data.receive === "boolean" && effect.data.receive !== recipient )
+				continue;
+			const n = Calculator.run(
+				effect.data.amount,
+				new GameEvent({sender:this, target:this, wrapper:effect.parent, effect:effect})
+			);
+			out *= (n*(effect.no_stack_multi ? 1 : effect.parent.stacks));
+		};
+		return out;
+
+	}
 
 
 

@@ -157,6 +157,7 @@ const lib = {
 	senderNotWrapperParent : {type:Condition.Types.isWrapperParent, caster:true, anyPlayer:true, inverse:true},
 
 	actionDamaging : {"type":"actionTag","data":{"tags":["ac_damage"]}},
+	actionHealing : {type:Condition.Types.actionTag,data:{tags:[stdTag.acHeal]}},
 	wrapperIsStun : {"type":"wrapperHasEffect","data":{"filters":{"type":"stun"}}},
 	targetWearsThong : {"type":"tag","data":{"tags":["as_thong"]}},
 	targetWearsSkirt : {"type":"tag","data":{"tags":["as_skirt"]}},

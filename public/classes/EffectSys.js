@@ -162,7 +162,7 @@ class Wrapper extends Generic{
 						bhp = b.hp/b.getMaxHP();
 					if( ahp === bhp )
 						return 0;
-					return a.hp < b.hp ? -1 : 1;
+					return ahp < bhp ? -1 : 1;
 				});
 				if( !party.length )	// Fail because there's no viable target
 					return 0;
@@ -746,9 +746,10 @@ class Effect extends Generic{
 					type = Action.Types.physical;
 
 				let e = GameEvent.Types.damageDone, e2 = GameEvent.Types.damageTaken;
+				const calcEvt = new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this});
 				let amt = -Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this})
+					calcEvt
 				);
 				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
@@ -761,8 +762,9 @@ class Effect extends Generic{
 					// Holy arousal purging
 					if( type === Action.Types.holy ){
 
-						// 20% chance per point of healing
-						let ch = Math.abs(amt*15);
+						let procChance = 15*s.getStatProcMultiplier(Action.Types.holy, false)*t.getStatProcMultiplier(Action.Types.holy, true);
+						// 15% chance per point of healing
+						let ch = Math.abs(amt*procChance);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						if( tot > t.arousal )
 							tot = t.arousal;
@@ -774,6 +776,17 @@ class Effect extends Generic{
 							amt += tot*2;	// Holy healing converts arousal into HP
 						}
 
+					}
+
+					let heal_aggro = 0.2;
+					if( this.data.heal_aggro ){
+						heal_aggro = Calculator.run(this.data.heal_aggro, calcEvt);
+					}
+
+					if( heal_aggro > 0 ){
+						game.getPlayersNotOnTeam(s.team).map(pl => {
+							pl.addThreat(s.id, amt*heal_aggro*s.getHealAggroMultiplier(false)*pl.getHealAggroMultiplier(true));
+						});
 					}
 
 					
@@ -822,7 +835,8 @@ class Effect extends Generic{
 					// Calculate durability damage				
 					if( type === Action.Types.physical ){
 
-						let ch = amt*10;
+						let procChance = 10*s.getStatProcMultiplier(Action.Types.physical, false)*t.getStatProcMultiplier(Action.Types.physical, true);
+						let ch = amt*procChance;
 						ch = Math.abs(ch);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						if( tot )
@@ -834,7 +848,8 @@ class Effect extends Generic{
 					// AP Damage
 					if( type === Action.Types.elemental && t.ap ){
 						// 10% chance per point of damage, max 1
-						let ch = Math.abs(amt*10);
+						let procChance = 10*s.getStatProcMultiplier(Action.Types.elemental, false)*t.getStatProcMultiplier(Action.Types.elemental, true);
+						let ch = Math.abs(amt*procChance);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						if( tot > t.ap )
 							tot = t.ap;
@@ -853,7 +868,8 @@ class Effect extends Generic{
 				if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
 
 					// 30% chance per point of damage
-					let ch = Math.abs(amt*30);
+					let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
+					let ch = Math.abs(amt*procChance);
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 					if( tot+t.arousal > t.getMaxArousal() )
 						tot = t.getMaxArousal()-t.arousal;
@@ -1615,6 +1631,13 @@ Effect.Types = {
 	bonHoly : 'bonHoly',					
 	bonCorruption : 'bonCorruption',		
 
+	physicalProcMultiplier : 'physicalProcMultiplier',
+	elementalProcMultiplier : 'elementalProcMultiplier',
+	holyProcMultiplier : 'holyProcMultiplier',
+	corruptionProcMultiplier : 'corruptionProcMultiplier',
+
+	healAggroMultiplier : 'healAggroMultiplier',
+
 	runWrappers : "runWrappers",			
 
 	disrobe : "disrobe",					
@@ -1659,7 +1682,7 @@ Effect.KnockdownTypes = {
 
 
 Effect.TypeDescs = {
-	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average",
+	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	[Effect.Types.trace] : '{message:(str)message} - Creates a stack trace here',
 	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
@@ -1675,6 +1698,14 @@ Effect.TypeDescs = {
 	[Effect.Types.gameAction] : '{action:(obj)gameAction} - Lets you run a game action',
 	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
 
+	[Effect.Types.physicalProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the damage armor chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
+	[Effect.Types.corruptionProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the arousal proc chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
+	[Effect.Types.elementalProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the AP damage chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
+	[Effect.Types.holyProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the arousal wiping chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
+	
+	[Effect.Types.healAggroMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the heal aggro against this value. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
+	
+
 	[Effect.Types.allowReceiveSpells] : '{conditions:(arr)conditions} - Filters what spells may target the affected player. Checked in Player',
 	// Stamina
 	[Effect.Types.staminaModifier] : '{amount:(int)amount}',
@@ -1682,6 +1713,8 @@ Effect.TypeDescs = {
 	[Effect.Types.agilityModifier] : '{amount:(int)amount}',
 	// Intellect
 	[Effect.Types.intellectModifier] : '{amount:(int)amount}',
+
+
 
 	[Effect.Types.svPhysical] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 	[Effect.Types.svElemental] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',

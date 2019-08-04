@@ -1,7 +1,6 @@
 -- CURRENT --
 
 Smol:	
-	- Add fog override to cells
 	- Fix rain tweening in. Seems to start and stop immediately
 
 Medium rare:
@@ -27,6 +26,7 @@ Big chungi:
 
 
 Next:
+	- Add fog override to cells
 	- Main quest chapter 2
 	- Difficulty setting
 	- West forest

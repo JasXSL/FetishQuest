@@ -494,6 +494,7 @@ export default class Game extends Generic{
 				this.setRain();
 
 		}
+		this.renderer.updateWeather();
 		this.updateAmbiance();			// Handle rain sounds and updates the room
 
 	}
@@ -514,7 +515,7 @@ export default class Game extends Generic{
 		// min 5 min between updates, max 2h
 		this.rain_next_refresh = game.time + Math.floor(300+Math.random()*3600*2);
 		this.rain_started = this.time;
-		this.rain_start_val = val;
+		this.rain_start_val = this.rain;
 		this.rain = val;
 		this.updateAmbiance();
 		if( this.renderer.stage )

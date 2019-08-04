@@ -3691,13 +3691,18 @@ export default class UI{
 		;
 
 
-		$(".tooltipParent")
-			.off('mouseover', mo)
-			.off('mouseout', mu)
-			.off('remove', mu)
+		$(".tooltipParent").each((idx,el) => {
+			
+			$(el).off('mouseover', el.mo)
+				.off('mouseout', el.mu)
+				.off('remove', el.mu)
 			.on('mouseover', mo)
 			.on('mouseout', mu)
-			.on('remove', mu)
+			.on('remove', mu);
+			el.mo = mo;
+			el.mu = mu;
+		});
+			
 		;
 
 	}
