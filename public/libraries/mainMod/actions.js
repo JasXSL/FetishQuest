@@ -2581,7 +2581,7 @@ const lib = {
 		icon : 'shark-fin',
 		description : "Submerges, becoming permanently untargetable.",
 		ap : 0,
-		cooldown : 8,
+		cooldown : 9,
 		detrimental : false,
 		target_type : Action.TargetTypes.self,
 		show_conditions : ["inCombat",{type:Condition.Types.hasWrapper, data:{label:'sharktopus_submerge'}, inverse:true}],

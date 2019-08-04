@@ -2122,7 +2122,7 @@ div.fxBuffBlue{
 		25%{opacity:1;}
 		100%{transform:translateY(-500%); opacity:0;}
 	}
-	#fct > div.text{
+	#fct > div.text:not(.hidden){
 		font-size:3.5vmax;
 		font-weight:bold;
 		position: absolute;

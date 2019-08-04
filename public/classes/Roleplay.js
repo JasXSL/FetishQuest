@@ -21,7 +21,8 @@ export default class Roleplay extends Generic{
 		this.portrait = '';
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
-		
+		this.autoplay = true;
+
 		this._waiting = false;		// Waiting to change stage
 
 		this.load(data);
@@ -62,6 +63,9 @@ export default class Roleplay extends Generic{
 			once : this.once,
 			portrait : this.portrait,
 		};
+
+		if( full )
+			out.autoplay = this.autoplay;
 
 		if( full !== "mod" ){
 			out.completed = this.completed;

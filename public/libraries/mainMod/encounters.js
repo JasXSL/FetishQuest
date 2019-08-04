@@ -182,6 +182,7 @@ const lib = {
 			{
 				type : GameAction.types.roleplay,
 				data : {rp:{
+					autoplay : false,
 					label : 'yuug_port_barkeep_generic',
 					player : 'yuug_port_barkeep',
 					persistent : false,
@@ -190,8 +191,8 @@ const lib = {
 							index: 0,
 							text : "Welcome ta the Yuug Port inn! We got warm beds an' cold ale!",
 							options : [
-								{text: "I found this grisly sharktopus trophy!", index: 1, conditions:[
-									{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_01', objective:'stuffTheBeast'}, targnr:0},
+								{text: "I found this grisly sharktopus trophy!", index: 10, conditions:[
+									{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_sharktopus_01', objective:'defeatTheBeast'}, targnr:0},
 									{type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_01'}, inverse:true, targnr:0},
 								]},
 								{text:'Thanks', index:-1},
@@ -211,7 +212,7 @@ const lib = {
 							text: "Aye, here's a meal on the house, and ye can stay here for free any time! Provided we have a free room of course.",
 							options: [{text:'Thanks!', index:-1, game_actions:[{
 								type: GameAction.types.finishQuest,
-								data : {quest:'SQ_sharktopus_01'}
+								data : {quest:'SQ_sharktopus_01', force:true}
 							}]}]
 						},
 					]
@@ -221,6 +222,12 @@ const lib = {
 			{
 				type : GameAction.types.shop,
 				data : {shop:'yuug_port_tavern', player:'yuug_port_barkeep'},
+			},
+			// Room rental
+			{
+				conditions : [{type:Condition.Types.questCompleted, inverse:true, data:{quest:'SQ_sharktopus_01'}}],
+				type : GameAction.types.rentRoom,
+				data : {cost:100, text:"Ya want ta rent a room? Only one gold a night!", success_text:'Thank ye, enjoy yer stay!', player:'yuug_port_barkeep'},
 			}
 		]
 	},

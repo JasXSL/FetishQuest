@@ -106,7 +106,7 @@ class WebGL{
 			val : 0
 		};
 		this.updateArrow();
-		this.toggleArrow(false);
+		setTimeout(() => this.toggleArrow(false), 1000);
 
 		const chelper = new THREE.CameraHelper(pLight.shadow.camera);
 		//this.fxScene.add(chelper);
@@ -1254,29 +1254,6 @@ class Stage{
 		this.addWaterRecursive(obj);
 		this.addSoundLoopsRecursive(obj);
 		
-
-
-		if( dungeonAsset ){
-			dungeonAsset.updateInteractivity();
-			// Interactive object
-			if( dungeonAsset.isInteractive() ){
-
-				// Bind hover unless already bound
-				if( !obj.userData.mouseover )
-					this.constructor.bindGenericHover(obj);
-
-				obj.userData.click = mesh => {
-					const player = game.getMyActivePlayer(),
-						dungeonAsset = mesh.userData.dungeonAsset,	// Do it this way becaues dungonAsset upstream might have changed in netcode
-						room = dungeonAsset.parent
-					;
-					game.dungeon.assetClicked(player, room, dungeonAsset, mesh);
-				};
-			}
-			
-			dungeonAsset.updateInteractivity();
-		}
-
 		if( typeof obj.userData.template.afterStagePlaced === "function" )
 			obj.userData.template.afterStagePlaced(dungeonAsset, obj);
 
@@ -1377,6 +1354,25 @@ class Stage{
 		// Update the room tags
 		if( window.game && dungeonAsset.isDoor() )
 			this.onDoorRefresh(obj);
+
+
+		// Interactive object
+		if( dungeonAsset.isInteractive() ){
+
+			// Bind hover unless already bound
+			if( !obj.userData.mouseover )
+				this.constructor.bindGenericHover(obj);
+
+			obj.userData.click = mesh => {
+				const player = game.getMyActivePlayer(),
+					dungeonAsset = mesh.userData.dungeonAsset,	// Do it this way becaues dungonAsset upstream might have changed in netcode
+					room = dungeonAsset.parent
+				;
+				game.dungeon.assetClicked(player, room, dungeonAsset, mesh);
+			};
+		}
+		
+	
 
 	}
 

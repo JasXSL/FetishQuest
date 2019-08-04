@@ -28,7 +28,7 @@ export default class UI{
 		this.actionbar_actions = $("> div.actions", this.action_selector);
 
 		this.text = $("#ui > div.middle > div.content");
-		this.console = $("#ui > div.middle > div.chat");
+		this.csl = $("#ui > div.middle > div.chat");
 		this.gameIcons = $("#gameIcons");
 		this.multiCastPicker = $("#multiCastPicker");
 		this.roleplay = $("#roleplay");
@@ -76,13 +76,13 @@ export default class UI{
 		this.touch_update = new THREE.Vector2(0,0);	// Last touch update positoin
 		this.block_inspect = false;					// prevents left click inspect
 
-		this.console.off('keydown').on('keydown', event => {
+		this.csl.off('keydown').on('keydown', event => {
 			event.stopImmediatePropagation();
 			if( event.altKey ){
 
 				if( event.key === "ArrowUp" ){
 					if( this.consolePointer === 0 )
-						this.addMessageToConsoleLog(this.console.text());
+						this.addMessageToConsoleLog(this.csl.text());
 					++this.consolePointer;
 				}
 				else if( event.key === "ArrowDown" )
@@ -91,7 +91,7 @@ export default class UI{
 					return false;
 
 				this.consolePointer = Math.max(0, Math.min(this.previousConsoleCommands.length-1, this.consolePointer));
-				this.console.text(this.previousConsoleCommands[this.consolePointer]);
+				this.csl.text(this.previousConsoleCommands[this.consolePointer]);
 
 				return false;
 			}
@@ -135,6 +135,7 @@ export default class UI{
 
 		this.board.off('mouseup touchend').on('mouseup touchend', function(event){
 
+			let time = Date.now();
 			if( !th.mouseDown )
 				return;
 
@@ -171,7 +172,6 @@ export default class UI{
 				if( event.cancelable )
 					event.preventDefault();
 			}
-
 
 		});
 
@@ -286,11 +286,15 @@ export default class UI{
 		if( !player )
 			player = game.getMyActivePlayer();
 
+		// Hide the action buttons from start
+		const buttons = $('> div.action:not([data-id="end-turn"])', this.actionbar_actions);
+		buttons.toggleClass("hidden", true);
 
 		if( !player ){
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
 			this.toggleRope(false);
+
 			return;
 		}
 
@@ -322,9 +326,7 @@ export default class UI{
 		endTurnButton.toggleClass('hidden', !game.battle_active);
 
 
-		// Update the action buttons
-		const buttons = $('> div.action:not([data-id="end-turn"])', this.actionbar_actions);
-		buttons.toggleClass("hidden", true);
+		
 
 		// label : true
 		// makes sure stacking potions only show one icon
@@ -527,6 +529,8 @@ export default class UI{
 			// Single clicked the element
 			else if( event.type === 'click' && !th._hold_actionbar ){
 				
+				
+
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				if( spell.castable(true) ){
@@ -644,6 +648,7 @@ export default class UI{
 					'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
 					'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
 					'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
+					'<div class="interaction hidden" data-type="rent"><img src="media/wrapper_icons/bed.svg" /></div>'+
 					'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
 				'</div>'+
 			'</div>'
@@ -1042,6 +1047,12 @@ export default class UI{
 					game.uiAudio( "smith_entered" );
 				}
 			});
+
+			const showRent = game.roomRentalAvailableTo(p, myActive);
+			$("div.interaction[data-type=rent]", el).toggleClass("hidden", !showRent).off('click').on('click', event => {
+				event.stopImmediatePropagation();
+				game.roomRentalUsed(p, myActive);
+			});
 		}
 
 		// Effect wrappers
@@ -1115,7 +1126,7 @@ export default class UI{
 		
 		if( !this.action_selected )
 			return;
-
+		
 		$("div.player.castTarget", this.players).toggleClass("highlighted", false);
 
 		this.block_inspect = true;
@@ -1405,10 +1416,14 @@ export default class UI{
 			this.targets_selected,
 			game.getMyActivePlayer()
 		);
+		
+
 		this.action_selected = null;
 		this.targets_selected = [];
 
+
 		this.draw();
+
 		this.closeTargetSelector();
 
 		return false;
@@ -1416,6 +1431,7 @@ export default class UI{
 	// Updates the players with hit chances etc
 	// pl defaults to turn player
 	drawTargetSelector(){
+
 
 		const pl = game.getMyActivePlayer();
 		const action = this.action_selected;
@@ -1721,12 +1737,12 @@ export default class UI{
 			}, 10000);
 
 		}
-	
+		
 		this.text.append(line);
 		while($("> div", this.text).length > Game.LOG_SIZE)
 			$("> div:first", this.text).remove();
 		this.text.scrollTop(this.text.prop("scrollHeight"));
-
+		
 	}
 	
 	clear(){
@@ -3706,7 +3722,7 @@ export default class UI{
 
 		
 		let el = $('div.player[data-id=\''+esc(player.id)+'\']', this.players);
-		if(!el)
+		if(!el.length)
 			return;
 
 		let classes = el.attr('class').split(/\s+/);
@@ -3750,12 +3766,12 @@ export default class UI{
 	onConsoleMessage(){
 
 		this.consolePointer = 0;
-		let message = this.console.text().trim();
+		let message = this.csl.text().trim();
 		if( !message )
 			return;
 		this.addMessageToConsoleLog(message);
 
-		this.console.text('');
+		this.csl.text('');
 		let isSlashCommand = message.substr(0,1) === '/';
 		if( isSlashCommand ){
 
@@ -3929,6 +3945,17 @@ export default class UI{
 
 
 	/* FLOATING COMBAT TEXT */
+	// Gets a free combat text div. If it doesn't exist, create a new one.
+	getFreeCombatText(){
+		const base = this.fct;
+		const free = $("div.text.free:first", base);
+		if( !free.length ){
+			const out = $('<div class="text">0</div>');
+			base.append(out);
+			return out;
+		}
+		return free;
+	}
 
 	floatingCombatText(amount, player, type = ''){
 
@@ -3968,11 +3995,17 @@ export default class UI{
 		if( !isNaN(amount) && amount > 0 )
 			amount = '+'+amount;
 
-		const el = $('<div class="text '+esc(type)+'" style="left:'+(left*100)+'%; top:'+(top*100)+'%;">'+esc(amount)+'</div>');
-		this.fct.append(el);
+		const el = this.getFreeCombatText();
+		el
+			.toggleClass("hidden free", false)
+			.text(amount)
+			.attr('style', 'left:'+(left*100)+'%; top:'+(top*100)+'%')
+			.toggleClass(type, true)
+		;
 		setTimeout(() => {
-			el.remove();
+			el.toggleClass('hidden free', true).toggleClass(type, false);
 		}, 3500);
+
 	}
 
 }

@@ -1,5 +1,5 @@
-Needed other:
-§ Before next beta
+-- CURRENT --
+
 Smol:	
 	- Add fog override to cells
 	- Fix rain tweening in. Seems to start and stop immediately
@@ -7,14 +7,24 @@ Smol:
 Medium rare:
 	
 Big chungi:
-	- Test quest handin
-	- Ability to rest (consider using dungeonvars for rest system)
-	- Island quest:
-		- Kill the beast, and you collect a trophy.
-		- Bring the trophy to the port tavern to finish the quest and get a nice chunk of money and alcohol.
+	- Sleep (game action exists, just needs to be implemented, should probably be limited to party leader)
+		- Use Game.MAX_SLEEP_DURATION
+		- Add a visual while sleeping showing the daytime outside
+		- Play a sound
 
 
-		- Need to unlock at an inn
+
+
+
+
+
+
+
+
+
+
+-- LATER UPDATE --
+
 
 Next:
 	- Main quest chapter 2

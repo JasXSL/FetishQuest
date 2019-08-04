@@ -115,6 +115,7 @@ export default class Player extends Generic{
 		this._ignore_effects = null;			// Internal helper that prevents recursion
 		this._difficulty = 1;					// Added from monster template, used in determining exp rewards
 		this._bound_wrappers = [];
+		this._cache_tags = null;					// Holds all active tags in a cache for quicker validation
 		this.load(data);
 		
 	}
@@ -133,6 +134,7 @@ export default class Player extends Generic{
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.passives = Wrapper.loadThese(this.passives, this);
 		this.tmp_actions = Action.loadThese(this.tmp_actions, this);
+		
 
 		if( window.game ){
 			this.class = PlayerClass.loadThis(this.class, this);
@@ -143,6 +145,7 @@ export default class Player extends Generic{
 		
 		if( this.class === null )
 			this.class = new PlayerClass();
+
 
 	}
 
@@ -266,6 +269,18 @@ export default class Player extends Generic{
 			wrapper.unbindEvents();
 	}
 
+	cacheTags(){
+		let tags = this.getTags(undefined, true);
+		this._cache_tags = {};
+		for( let tag of tags ){
+			this._cache_tags[tag] = true;
+		}
+		this._cache_tags = Object.keys(this._cache_tags);
+	}
+
+	uncacheTags(){
+		this._cache_tags = null;
+	}
 
 
 	/* Metadata */
@@ -363,6 +378,7 @@ export default class Player extends Generic{
 		vars[prefix+'MaxAP'] = this.getMaxAP();
 		vars[prefix+'MaxMP'] = this.getMaxMP();
 		vars[prefix+'MaxArousal'] = this.getMaxArousal();
+		vars[prefix+'Money'] = this.getMoney();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
 
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
@@ -577,7 +593,10 @@ export default class Player extends Generic{
 	}
 
 	// Overrides the generic definition for this
-	getTags(wrapperReturn){
+	getTags(wrapperReturn, force = false){
+
+		if( this._cache_tags && !force )
+			return this._cache_tags;
 
 		let out = {};
 		if( this.hp <= 0 )
@@ -1129,6 +1148,7 @@ export default class Player extends Generic{
 				if( !amount || !this.assets[i].stacking || asset._stacks <= 0 )
 					this.assets.splice(i, 1);
 				this.raiseInvChange();
+				this.rebindWrappers();
 				return true;
 			}
 		}
@@ -1260,6 +1280,8 @@ export default class Player extends Generic{
 					out.armor_strips[slot] = asset;
 			}
 		}
+		this.rebindWrappers();
+
 		return out;
 
 	}
@@ -2333,6 +2355,17 @@ Player.calculateMoneyExhange = function( input = 0 ){
 	];
 };
 
+Player.copperToReadable = function( copper = 0 ){
+	const coins = this.calculateMoneyExhange(copper);
+	let out = [];
+	for( let i in coins ){
+		if( coins[i] )
+			out.push(coins[i]+' '+Player.currencyWeights[i]);
+	}
+	if( !out.length )
+		return '0 copper';
+	return out.join(', ');
+};
 Player.currencyWeights = [
 	'platinum',
 	'gold',

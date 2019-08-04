@@ -1757,6 +1757,7 @@ LibMesh.library = {
 				],
 			}),
 			FishingRod : new LibMesh({
+				auto_bounding_box : true,
 				url : 'doodads/fishing_rod.JD',
 				tags : [],
 				materials : [
@@ -2939,6 +2940,7 @@ LibMesh.library = {
 				},
 			}),
 			RockPile : new LibMesh({
+				auto_bounding_box : true,
 				url : 'nature/rockpile.JD',
 				materials : [
 					libMat.Rock.Quartz,

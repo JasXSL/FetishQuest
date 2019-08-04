@@ -17,6 +17,7 @@ import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
 import Shop, { ShopSaveState } from './Shop.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
+import Condition from './Condition.js';
 
 export default class Game extends Generic{
 
@@ -398,12 +399,12 @@ export default class Game extends Generic{
 		}
 		await delay(2000);
 
-		for( let player of this.players )
-			player.fullRegen();
-
-		// Only regenerate nondead
-		for( let winner of winners )
-			winner.fullRegen();
+		for( let player of this.players ){
+			if( player.team === 0 || !player.isDead() ){
+				player.fullRegen();
+				player.arousal = 0;
+			}
+		}
 		
 		this.removeEnemies();
 		// Return to the dungeon entrance
@@ -1498,6 +1499,8 @@ export default class Game extends Generic{
 
 			const viable = GameAction.getViable(this.encounter.game_actions, player);
 			for( let action of viable ){
+				if( action.type === GameAction.types.roleplay && !action.getDataAsRoleplay().autoplay )
+					continue;
 				action.trigger(player);
 			}
 			for( let wrapper of encounter.wrappers )
@@ -1768,6 +1771,7 @@ export default class Game extends Generic{
 	// netPlayer is needed when received by the DM after a player uses this method; so that certain effects like repair can be relayed
 	useActionOnTarget( action, targets, player, netPlayer ){
 
+
 		if( !player )
 			player = this.getTurnPlayer();
 
@@ -1788,6 +1792,7 @@ export default class Game extends Generic{
 		if( !Array.isArray(targets) )
 			return console.error("Unknown target type (array or Player expected)", targets);
 
+		
 		targets = targets.filter(targ => !targ.isInvisible());
 
 		if( !this.is_host ){
@@ -1797,7 +1802,7 @@ export default class Game extends Generic{
 			this.ui.captureActionMessage = true;
 		
 		let att = player.useActionId( action.id, targets, netPlayer );
-
+		
 		Wrapper.checkAllStayConditions();
 
 		this.save();
@@ -2040,6 +2045,29 @@ export default class Game extends Generic{
 		return out;
 	}
 
+	// Returns game actions
+	getRoomRentalByPlayer( player ){
+		const encounter = this.encounter;
+		const renters = encounter.getRenters();
+		if( !player )
+			return;
+		const out = [];
+		for( let renter of renters ){
+			// Check if already rented
+			let dvar = 'room_last_rented';
+			if( 
+				renter.data.player === player.label && (
+					!this.state_dungeons[this.dungeon.label] ||
+					!this.state_dungeons[this.dungeon.label].vars[dvar] ||
+					this.state_dungeons[this.dungeon.label].vars[dvar] + Game.ROOM_RENTAL_DURATION < this.time	// Might want to use a condition instead?
+				)
+			){
+				out.push(renter);
+			}
+		}
+		return out;
+	}
+
 	// Checks each players and returns it if one of them has a shop by label
 	getShopHere( label ){
 		const players = this.getEnabledPlayers();
@@ -2096,6 +2124,65 @@ export default class Game extends Generic{
 				return true;
 		}
 		return false;
+	}
+
+	// Checks if a smith object is available to a player
+	roomRentalAvailableTo( renterPlayer, player ){
+
+		if( this.battle_active )
+			return false;
+		if( !(renterPlayer instanceof Player) ){
+			console.error("Renter is not a player", renterPlayer);
+			return false;
+		}
+		if( !(player instanceof Player) ){
+			console.error("Player is not a player", player);
+			return false;
+		}
+		const renters = this.getRoomRentalByPlayer(renterPlayer);
+		for( let renter of renters ){
+			if( renter.validate(player) )
+				return true;
+		}
+		return false;
+	}
+
+	roomRentalUsed( renterPlayer, player ){
+		if( !this.roomRentalAvailableTo(renterPlayer, player) )
+			return;
+
+		if( !this.is_host ){
+			console.log("TODO: Netcode this");
+			return;
+		}
+
+		const ga = this.getRoomRentalByPlayer(renterPlayer).filter(el => el.validate(player))[0];
+
+		const cost = ga.data.cost || 0;
+		const rp = new Roleplay({
+			label : 'room_rental',
+			player : renterPlayer.label,
+			stages : [
+				{
+					text : ga.data.text || "Want to rent a room? It's "+Player.copperToReadable(cost)+" a night!",
+					options : [
+						{
+							index:-1, text:"Sure I'll take it.",
+							conditions : [{type:Condition.Types.formula, data:{formula:'ta_Money>='+cost}}],
+							game_actions : [{type:GameAction.types.execRentRoom, data:{copper:cost, success_text:ga.data.success_text, renter:renterPlayer.label}}]
+						},
+						{
+							index:-1, text:"Sorry I don't have enough money.",
+							conditions : [{type:Condition.Types.formula, data:{formula:'ta_Money<'+cost}}],
+						},
+						{index:-1, text:"No thank you."},
+					]
+				}
+			]	
+		});
+		this.setRoleplay(rp);	
+		
+		
 	}
 
 	repairBySmith( smithPlayer, player, assetID, allowError = true ){
@@ -2397,6 +2484,8 @@ Game.db.version(1).stores({
 Game.EQUIP_COST = 4;
 Game.UNEQUIP_COST = 2;
 Game.LOG_SIZE = 300;
+Game.ROOM_RENTAL_DURATION = 3600*24;
+Game.MAX_SLEEP_DURATION = 24;			// Hours
 
 Game.load = async () => {
 	

@@ -4,6 +4,7 @@ import Condition from "../../classes/Condition.js";
 import GameEvent from "../../classes/GameEvent.js";
 import Asset from "../../classes/Asset.js";
 import Action from "../../classes/Action.js";
+import Game from "../../classes/Game.js";
 
 const lib = {
 	
@@ -435,9 +436,15 @@ const lib = {
 	wrapperStacks3 : {type : Condition.Types.wrapperStacks, data : {amount : 3}},
 	sq_sharktopus_gong_stacks : {type : Condition.Types.wrapperStacks, data : {amount : 'g_team_0*3'}},
 
+	SQ_sharktopusCompleted : {type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_01'}},
 	targetIsSQ_sharktopus_gong : {type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_gong'}},
 
+
+	roomRentedActiveDungeon : {type:Condition.Types.dungeonVarMath, data:{vars:'room_last_rented', formula:'room_last_rented and (room_last_rented+'+Game.ROOM_RENTAL_DURATION+')>g_time'}},
+	
+
 };
+
 
 // Checks if target has lowerbody clothes and/or upperbody clothes with breasts
 lib.targetHasClothedErogenousZone = {conditions:[

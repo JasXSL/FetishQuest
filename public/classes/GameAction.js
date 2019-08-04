@@ -8,7 +8,7 @@ import GameEvent from './GameEvent.js';
 import Dungeon, { DungeonEncounter, DungeonRoomAsset } from './Dungeon.js';
 import Calculator from './Calculator.js';
 import Quest from './Quest.js';
-import Roleplay from './Roleplay.js';
+import Roleplay, { RoleplayStageOption } from './Roleplay.js';
 import Shop from './Shop.js';
 import Player from './Player.js';
 import Text from './Text.js';
@@ -477,7 +477,8 @@ export default class GameAction extends Generic{
 			else if( amount < 0 )
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
 		}
-		else if( this.type === types.shop || this.type === types.repairShop )
+
+		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.rentRoom )
 			return;
 
 		else if( this.type === types.playerAction ){
@@ -524,6 +525,31 @@ export default class GameAction extends Generic{
 		}
 		else if( this.type === types.addPlayerTemplate ){
 			game.addPlayerFromTemplate(this.getDataAsPlayerTemplate(), this.data.nextTurn);
+		}
+
+		else if( this.type === types.execRentRoom ){
+			const cost = this.data.copper || 0;
+			if( player.getMoney() < cost )
+				return;
+			player.consumeMoney(cost);
+			// Set the dungeon var
+			game.dungeon.setVar('room_last_rented', game.time);
+
+			game.playFxAudioKitById("buy_item", player, player, undefined, true);
+			const rp = new Roleplay({
+				label : 'room_rental_complete',
+				player : this.data.renter,
+				stages : [
+					{
+						text : this.data.success_text || 'Thank you, enjoy your stay!',
+						options : [{index:-1, text:'[Done]',chat:RoleplayStageOption.ChatType.none}]
+					}
+				]	
+			});
+			game.setRoleplay(rp);
+			game.renderer.drawActiveRoom();
+			game.ui.draw();
+
 		}
 
 		else{
@@ -584,7 +610,9 @@ GameAction.types = {
 	hitfx : "hitfx",						// {hitfx:(obj/str/arr)hitfx, caster_conds:(arr)caster_conditions, target_conds:(arr)target_conds, max_triggers:(int)=all} - Triggers a hitfx
 	addPlayer : "addPlayer",				// {player:(obj/str)monster, turn:(int)turn_offset=-1}
 	addPlayerTemplate : "addPlayerTemplate",	// {player:(obj/str)template, nextTurn:(bool)=false} - If nextTurn is true, it adds the player on next turn instead of before the current player
-	
+	rentRoom : "rentRoom",					// {cost:(int)copper, text:(str)rp, success_text:(str)successfully_rented_text, player:(str)label} - Draws the rent a room icon
+	execRentRoom : "execRentRoom",			// {cost:(int)copper, success_text:(str)successfully_rented_text, renter:(str)renter_merchant_label} - Execs a room rental in this dungeon. This is generated automatically by above.
+	sleep : "sleep",						// 
 };
 
 // These are types where data should be sent to netgame players
@@ -597,6 +625,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.tooltip] : true,
 	[GameAction.types.shop] : true,
 	[GameAction.types.repairShop] : true,
+	[GameAction.types.rentRoom] : true,
 };
 
 

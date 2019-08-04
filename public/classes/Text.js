@@ -72,6 +72,7 @@ class Text extends Generic{
 		this.en = true;					// enabled
 
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
+		this._cache_event = null;			// Cache of event type supplied in conditions. Should speed things up.
 
 		this.load(...args);
 	}
@@ -98,6 +99,16 @@ class Text extends Generic{
 				console.error("AudioKit not found", sound, "in", this);
 		}
 		this.hitfx = HitFX.loadThese(this.hitfx);
+
+		for( let condition of this.conditions ){
+			if( condition.type === Condition.Types.event ){
+				this._cache_event = {};
+				let evts = toArray(condition.data.event);
+				for( let n of evts)
+					this._cache_event[n] = true;
+			}
+		}
+
 	}
 
 	save(full){
@@ -196,6 +207,7 @@ class Text extends Generic{
 	// Main entrypoint
 	run( event, returnResult = false ){
 
+
 		// Helper functions
 		let text = this.text;
 		text = text.split('%leftright').join(Math.random()<0.5 ? 'left' : 'right');
@@ -238,7 +250,7 @@ class Text extends Generic{
 
 		if( returnResult )
 			return text;
-		
+
 		for( let kit of this.audiokits ){
 			let kd = glib.audioKits[kit];
 			if( !kd )
@@ -254,7 +266,6 @@ class Text extends Generic{
 			}
 		}
 		
-
 		
 		let targs = event.target;
 		if( !Array.isArray(targs) )
@@ -262,11 +273,12 @@ class Text extends Generic{
 		let i = 0;
 		for( let fx of this.hitfx ){
 			for( let targ of targs ){
-				setTimeout(() => game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true), ++i*50);
+				setTimeout(() => game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true), ++i*200);
 				if( fx.once )
 					break;
 			}
 		}
+
 
 		let targ = event.target;
 		if( Array.isArray(event.target) )
@@ -302,6 +314,8 @@ class Text extends Generic{
 					
 		}
 
+
+		
 	}
 
 	// Validate conditions
@@ -309,6 +323,9 @@ class Text extends Generic{
 
 		if( this.debug )
 			console.debug("Validating", this, "against", event);
+
+		if( this._cache_event && !this._cache_event[event.type] )
+			return false;
 
 		if( !this.en ){
 			return false;
@@ -369,8 +386,6 @@ Text.getFromEvent = function( event, debug = false ){
 	let maxnr = 1;
 	for( let text of texts ){
 		for( let p of testAgainst ){
-			if( debug )
-				console.log("Testing", text, text.chat, event.type === GameEvent.Types.textTrigger);
 			if( 
 				Boolean(text.chat) === chat && 
 				(!text.chat || !event.sender || !event.sender.hasUsedChat(text.id) ) &&
@@ -432,6 +447,10 @@ Text.actionChargeFallbackText = new Text({
 
 Text.runFromLibrary = function( event, debug = false ){
 
+	for( let player of game.players )
+		player.cacheTags();
+	
+
 	let t = event.target;
 	if( !Array.isArray(t) )
 		t = [t];
@@ -470,6 +489,8 @@ Text.runFromLibrary = function( event, debug = false ){
 
 	}
 
+	for( let player of game.players )
+		player.uncacheTags();
 
 }
 

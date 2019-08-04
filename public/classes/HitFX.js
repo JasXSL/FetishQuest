@@ -153,7 +153,7 @@ class Stage extends Generic{
 				vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
 				
 			}
-				
+
 
 			const attackerEl = this.origin === 'sender' || this.origin === 'attacker' ? aEl : vEl;
 			const victimEl = this.destination === 'sender' || this.destination === 'attacker' ? aEl : vEl;
@@ -166,72 +166,63 @@ class Stage extends Generic{
 			const victimHeight = victimEl.outerHeight();
 			const victimWidth = victimEl.outerWidth();
 
-			if( !attackerPos ){
-				console.error("Attacker pos was not defined", attackerPos, "attacker", attackerEl, "a", attacker, "v", victim);
+			if( attackerPos && victimPos ){
+
+				this._start_pos.x = attackerPos.left+attackerWidth/2;
+				this._start_pos.y = attackerPos.top+attackerHeight/2;
+				this._end_pos.x = victimPos.left+victimWidth/2;
+				this._end_pos.y = victimPos.top+victimHeight/2;
+
+				if( !this.parent._t_rand_offset && this.dest_rand ){
+					// Generate a new random position
+					this.parent._t_rand_offset = new THREE.Vector2(
+						Math.random()*victimWidth-victimWidth/2,
+						Math.random()*victimHeight-victimHeight/2,
+					);
+				}
+				if( !this.parent._s_rand_offset && this.origin_rand ){
+					this.parent._s_rand_offset = new THREE.Vector2(
+						Math.random()*attackerWidth-attackerWidth/2,
+						Math.random()*attackerHeight-attackerHeight/2,
+					);
+				}
+
+				if( this.origin_rand > 0 ){
+					this._start_pos.x += this.parent._s_rand_offset.x*this.origin_rand;
+					this._start_pos.y += this.parent._s_rand_offset.y*this.origin_rand;
+				}
+				if( this.dest_rand > 0 ){
+					this._end_pos.x += this.parent._t_rand_offset.x*this.dest_rand;
+					this._end_pos.y += this.parent._t_rand_offset.y*this.dest_rand;
+				}
+
+				if( !this.tween )
+					this._start_pos = this._end_pos.clone();
+
+				this._start_pos.add(this.start_offs);
+				this._end_pos.add(this.end_offs);
+
+
+				// raycast start and end
+				const origin = webgl.raycastScreenPosition( this._start_pos.x, this._start_pos.y );
+				const dest = webgl.raycastScreenPosition( this._end_pos.x, this._end_pos.y );
+				
+				this._start_pos = origin.point;
+				this._end_pos = dest.point;
+				this._start_pos.z = 5;
+				this._end_pos.z = 5;
+
+				webgl.fx_proton.addEmitter(particles);
+				particles.p.x = this._start_pos.x;
+				particles.p.y = this._start_pos.y;
+				particles.p.z = this._start_pos.z;
+
+				setTimeout(() => {
+					particles.destroy();
+				}, this.emit_duration);
+				
 			}
 
-			this._start_pos.x = attackerPos.left+attackerWidth/2;
-			this._start_pos.y = attackerPos.top+attackerHeight/2;
-			this._end_pos.x = victimPos.left+victimWidth/2;
-			this._end_pos.y = victimPos.top+victimHeight/2;
-
-			if( !this.parent._t_rand_offset && this.dest_rand ){
-				// Generate a new random position
-				this.parent._t_rand_offset = new THREE.Vector2(
-					Math.random()*victimWidth-victimWidth/2,
-					Math.random()*victimHeight-victimHeight/2,
-				);
-			}
-			if( !this.parent._s_rand_offset && this.origin_rand ){
-				this.parent._s_rand_offset = new THREE.Vector2(
-					Math.random()*attackerWidth-attackerWidth/2,
-					Math.random()*attackerHeight-attackerHeight/2,
-				);
-			}
-
-			if( this.origin_rand > 0 ){
-				this._start_pos.x += this.parent._s_rand_offset.x*this.origin_rand;
-				this._start_pos.y += this.parent._s_rand_offset.y*this.origin_rand;
-			}
-			if( this.dest_rand > 0 ){
-				this._end_pos.x += this.parent._t_rand_offset.x*this.dest_rand;
-				this._end_pos.y += this.parent._t_rand_offset.y*this.dest_rand;
-			}
-
-			if( !this.tween )
-				this._start_pos = this._end_pos.clone();
-
-			this._start_pos.add(this.start_offs);
-			this._end_pos.add(this.end_offs);
-
-
-			// raycast start and end
-			const origin = webgl.raycastScreenPosition( this._start_pos.x, this._start_pos.y );
-			const dest = webgl.raycastScreenPosition( this._end_pos.x, this._end_pos.y );
-			
-			this._start_pos = origin.point;
-			this._end_pos = dest.point;
-			this._start_pos.z = 5;
-			this._end_pos.z = 5;
-
-			webgl.fx_proton.addEmitter(particles);
-			particles.p.x = this._start_pos.x;
-			particles.p.y = this._start_pos.y;
-			particles.p.z = this._start_pos.z;
-			
-			/*
-			setTimeout(() => {
-				particles.stopEmit();
-			}, this.emit_duration);
-
-			
-			setTimeout(() => {
-				particles.destroy();
-			}, this.emit_duration+this.fade_duration+5000);
-			*/
-			setTimeout(() => {
-				particles.destroy();
-			}, this.emit_duration);
 		}
 
 		if( this.css_fx ){

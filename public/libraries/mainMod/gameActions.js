@@ -48,6 +48,11 @@ const lib = {
 		}
 	},
 
+	// Open the sleep window
+	sleep : {
+		type : GameAction.types.sleep
+	},
+
 
 
 	// Quests
@@ -83,7 +88,7 @@ const lib = {
 			{type:Condition.Types.questAccepted, data:{quest:'SQ_sharktopus_01'}, targnr:0},
 			{type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_01'}, inverse:true, targnr:0},
 		]
-	}
+	},
 
 	
 };

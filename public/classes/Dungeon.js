@@ -1848,8 +1848,8 @@ class DungeonEncounter extends Generic{
 	}
 
 	// Helper function for below
-	getViableActions(){
-		return GameAction.getViable(this.game_actions, undefined, false, false);
+	getViableActions( targetPlayer ){
+		return GameAction.getViable(this.game_actions, targetPlayer, false, false);
 	}
 
 	// Gets roleplay ACTIONs
@@ -1886,9 +1886,15 @@ class DungeonEncounter extends Generic{
 	}
 
 	// Gets repairshop actions
-	getSmiths(){
-		const actions = this.getViableActions();
+	getSmiths( targetPlayer ){
+		const actions = this.getViableActions( targetPlayer );
 		return actions.filter(action => action.type === GameAction.types.repairShop);
+	}
+
+	// Gets room rental players
+	getRenters( targetPlayer ){
+		const actions = this.getViableActions( targetPlayer );
+		return actions.filter(action => action.type === GameAction.types.rentRoom);
 	}
 
 	resetRoleplays(){

@@ -3655,6 +3655,7 @@ export default class Modtools{
 
 	// CONDITIONS (Bindable)
 	bindConditions( ){
+
 		let th = this;
 		// Add/Change Type
 		$("#modal div.condPanel span").off('click')
@@ -3675,7 +3676,7 @@ export default class Modtools{
 					el.toggleClass('hlt', true);				
 				}
 				
-				th.formHelperOnChange("Conditions", el.closest("div.condWrapper"));
+				th.formHelperOnChange("Conditions", el.parents("div.condWrapper.root").last());
 				th.bindFormHelpers();
 				//
 			});
@@ -3687,12 +3688,13 @@ export default class Modtools{
 				return;
 
 			event.stopImmediatePropagation();
-			th.formHelperOnChange("Conditions", $(this).closest("div.condWrapper"));
+			th.formHelperOnChange("Conditions", $(this).parents("div.condWrapper.root").last());
 			$(this).remove();
 			return false;
 		});
-		$("#modal div.condWrapper > input[name=condition]").on('change', function(event){
-			th.formHelperOnChange("Conditions", $(this).closest("div.condWrapper"));
+
+		$("#modal div.condWrapper input[name=condition]").on('change', function(event){
+			th.formHelperOnChange("Conditions", $(this).parents("div.condWrapper.root").last());
 		});
 		// Templates
 		$("div.presetConditions > input").off('click').on('click', function(){
@@ -3752,15 +3754,23 @@ export default class Modtools{
 
 	inputConditions( cond = '' ){
 		
-		if( typeof cond !== 'string' )
-			cond = JSON.stringify(cond);
+		if( typeof cond !== 'string' ){
+			if( typeof cond.save === "function" )
+				cond = cond.save("mod");
+			try{
+				cond = JSON.stringify(cond);
+			}catch(err){
+				console.error("Unable to stringify", cond, err);
+				cond = '';
+			}
+		}
 		return '<input type="text" class="json" name="condition" value="'+esc(cond)+'" list="conditions" />';
 
 	}
 
 	formConditions( conds = [], cName = 'conditions', isOr = false ){
 
-		let out = '<div class="condWrapper '+cName+'">';
+		let out = '<div class="condWrapper root '+cName+'">';
 		out += '<div class="condPanel">'+
 			'<span class="add">+Cond</span> '+
 			'<span class="addOr">+Logic</span> '+

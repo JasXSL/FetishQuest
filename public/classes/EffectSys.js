@@ -691,9 +691,12 @@ class Effect extends Generic{
 		;
 		if( !sender )
 			sender = event.sender;
-		if( !target )
+		if( !target && event.target ){
 			target = event.target[0] || event.target;
-		
+		}
+		if( !target )
+			target = new Player();	// Create a dummy player if it's missing. This is useful for events like battle ended etc
+
 		// Default to AoE
 		let tout = [];
 		for( let ta of this.targets ){
