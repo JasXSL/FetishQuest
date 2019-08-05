@@ -899,7 +899,6 @@ export default class Player extends Generic{
 			asset.damageDurability( attacker, effect, Math.ceil(asset.getMaxDurability()*0.2) );
 
 		if( this.remOnDeath ){
-			console.log("Removing", this);
 			game.removePlayer(this);
 		}
 

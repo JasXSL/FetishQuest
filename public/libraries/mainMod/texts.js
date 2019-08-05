@@ -3521,6 +3521,7 @@ const lib = [
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_tentacleWhip"
 		]),
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSlotButt, stdTag.metaWhip, stdTag.metaPainful],
 		hitfx : ["tentacleWhip"]
 	},
 	{ text : "%S summons a slimy tentacle beneath %T, slapping up across %This %groin!",
@@ -3528,18 +3529,21 @@ const lib = [
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_tentacleWhip",
 		]),
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSlotGroin, stdTag.metaWhip, stdTag.metaPainful],
 		hitfx : ["tentacleWhip"]
 	},
 	{ text : "%S summons a slimy tentacle beneath %T, giving %This %Tpsize %penis a couple of lashes!",
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_tentacleWhip","targetPenis","targetNoLowerBody"
 		]),
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSlotPenis, stdTag.metaWhip, stdTag.metaPainful],
 		hitfx : ["tentacleWhip"]
 	},
 	{ text : "%S summons a slimy tentacle behind %T, lashing across %This %Trsize %leftright buttcheek!",
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_tentacleWhip",
 		]),
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSlotButt, stdTag.metaWhip, stdTag.metaPainful],
 		hitfx : ["tentacleWhip"]
 	},
 	{ text : "%S summons a slimy tentacle near %T, lashing across %This %Tbsize %leftright %breast!",

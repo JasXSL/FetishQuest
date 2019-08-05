@@ -507,10 +507,6 @@ Text.Chat = {
 	required : 2,
 };
 
-GameEvent.on(GameEvent.Types.all, event => {
-	if( event.type === GameEvent.Types.actionUsed && event.action.no_use_text )
-		return;
-	Text.runFromLibrary(event);
-});
+
 
 export default Text;

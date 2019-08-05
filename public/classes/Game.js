@@ -37,7 +37,8 @@ export default class Game extends Generic{
 		this.is_host = true;
 		this.battle_active = false;
 		this.initiative = [];				// Turn order
-		this.initialized = false;
+		this.initialized = false;			// might happen multiple times from the load function
+		this.full_initialized = false;		// Only happens once
 		this.chat_log = [];					// Chat log
 		this.net = new NetworkManager(this);
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
@@ -95,9 +96,31 @@ export default class Game extends Generic{
 		this.setMusic();
 		this.setAmbient();
 		this.setRainSound();
+		GameEvent.reset();
 	}
 
+	initialize(){
+		if( this.full_initialized )
+			return;
+		this.full_initialized = true;
+		// Bind events
+		GameEvent.on(GameEvent.Types.playerDefeated, event => {
+			this.checkBattleEnded();
+			// Check if event player is in the current encounter
+			if( ~this.encounter.players.indexOf(event.target) ){
+				event.encounter = this.encounter;
+				event.dungeon = this.encounter.getDungeon();
+			}
+		});
+		// ALL event capture. Must be below the playerDefeated binding above
+		GameEvent.on(GameEvent.Types.all, event => {
+			for( let quest of this.quests )
+				quest.onEvent(event);
 
+			if( event.type !== GameEvent.Types.actionUsed || !event.action.no_use_text )
+				Text.runFromLibrary(event);
+		});
+	}
 
 
 
@@ -111,7 +134,7 @@ export default class Game extends Generic{
 			players : this.players.map(el => el.save(full)),
 			turn : this.turn,
 			battle_active : this.battle_active,
-			initiative : this.initiative,	
+			initiative : this.initiative.slice(),	
 			dungeon : this.dungeon.save(full),
 			encounter : this.encounter.save(full),
 			quests : this.quests.map(el => el.save(full)),
@@ -196,7 +219,7 @@ export default class Game extends Generic{
 			console.error("Error in saving", err, out);
 		}
 		if( allowInsert ){
-			this.initialized = true;
+			this.initialize();
 			await this.load();	// Starts the actual game
 		}
 
@@ -224,7 +247,7 @@ export default class Game extends Generic{
 		glib.setCustomAssets(this.libAsset);
 
 		this.ui.draw();
-		if( !this.roleplay.persistent && this.is_host )
+		if( !this.roleplay.persistent && this.is_host && this.full_initialized )
 			this.clearRoleplay();
 
 		// Load the chat log
@@ -234,8 +257,8 @@ export default class Game extends Generic{
 			this.ui.addText.apply(this.ui, ch);
 		
 		this.assignAllColors();
-
 		this.initialized = true;
+		this.initialize();
 
 		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement);
 		
@@ -260,7 +283,6 @@ export default class Game extends Generic{
 
 		const mute_pre = this.mute_spectators && !this.getMyActivePlayer();
 		const time_pre = this.time;
-
 		let turn = this.getTurnPlayer();
 		this.net_load = true;
 		this.g_autoload(data, true);
@@ -481,7 +503,7 @@ export default class Game extends Generic{
 	// force can be set to a float to force the rain value
 	onTimeChanged( force ){
 		
-		const rainChance = 0.2;
+		const rainChance = 0.1;
 
 		// Weather
 		if( this.time >= this.rain_next_refresh ){
@@ -1122,7 +1144,8 @@ export default class Game extends Generic{
 		leaders = this.getTeamPlayers();
 		if( leaders.length ){
 			leaders[0].leader = true;
-			game.save();
+			if( this.initialized )
+				game.save();
 		}
 	}
 
@@ -1725,12 +1748,12 @@ export default class Game extends Generic{
 		};
 
 
-		const players = this.getEnabledPlayers();
+		const players = this.players;
 		for( let i=0; i<players.length; ++i ){
 
 			this.end_turn_after_action = false;
 			let pl = this.getTurnPlayer();
-			if( pl && !pl.isDead() )
+			if( pl && !pl.isDead() && !pl.disabled )
 				pl.onTurnEnd();
 
 			++this.turn;
@@ -2181,13 +2204,17 @@ export default class Game extends Generic{
 
 	roomRentalUsed( renterPlayer, player ){
 
-		if( !player.isLeader() )
+		if( !player.isLeader() ){
+			console.error(player, "not leader error");
 			return;
-
-		if( !this.roomRentalAvailableTo(renterPlayer, player) )
+		}
+		if( !this.roomRentalAvailableTo(renterPlayer, player) ){
+			console.error("Rental not available to", player, "from", renterPlayer);
 			return;
+		}
 
 		if( !this.is_host ){
+			console.log("Sending rental");
 			this.net.playerRentRoom( renterPlayer, player );
 			return;
 		}
@@ -2582,7 +2609,6 @@ Game.new = async (name, players) => {
 		for( let player of players )
 			game.addPlayer(player);
 	}
-	game.initialized = true;
 	await game.execSave( true );
 	game.setDungeon( 'yuug_port', 1 );
 
@@ -2603,23 +2629,6 @@ Game.delete = async id => {
 	}
 };
 
-
-// Bind events
-GameEvent.on(GameEvent.Types.playerDefeated, event => {
-	game.checkBattleEnded();
-	// Check if event player is in the current encounter
-	if( ~game.encounter.players.indexOf(event.target) ){
-		event.encounter = game.encounter;
-		event.dungeon = game.encounter.getDungeon();
-	}
-});
-
-
-// ALL event capture. Must be below the playerDefeated binding above
-GameEvent.on(GameEvent.Types.all, event => {
-	for( let quest of game.quests )
-		quest.onEvent(event);
-});
 
 Game.getNames = async () => {
 

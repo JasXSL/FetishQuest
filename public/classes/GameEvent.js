@@ -91,6 +91,9 @@ GameEvent.off = function(binding){
 
 };
 
+GameEvent.reset = function(){
+	this.bindings = [];
+};
 
 GameEvent.Types = {
 	none : 'none',						

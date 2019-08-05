@@ -351,7 +351,7 @@ const lib = {
 									name : "Reverberation",
 									icon : "vibrating-ball",
 									detrimental : false,
-									description : "The gong is vibrating!",
+									description : "The gong is vibrating, something stirs under the water!",
 									max_stacks : 100,
 									effects : [
 										{

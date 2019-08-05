@@ -1223,10 +1223,6 @@ class DungeonRoomAsset extends Generic{
 
 	rebase(){
 		this.interactions = GameAction.loadThese(this.interactions, this);
-
-		if( window.game && !game.is_host )
-			this.updateInteractivity();
-
 	}
 
 

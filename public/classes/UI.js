@@ -56,6 +56,7 @@ export default class UI{
 		this.drawTimer = false;
 
 		this._hold_actionbar = false;	// Workaround for actionbar update being on a timer. Prevents interacting with the action bar until the next draw.
+		this._action_used = false;		// Since both click and drag can use an action, this prevents the action from being fired twice from instant casts
 
 		// Active player has viable moves
 		this._has_moves = false;
@@ -140,11 +141,11 @@ export default class UI{
 
 		this.board.off('mouseup touchend').on('mouseup touchend', function(event){
 
-			let time = Date.now();
 			if( !th.mouseDown )
 				return;
 
 			th.mouseDown = false;
+			this._action_used = false;
 
 			if( event.touches && event.touches.length ){
 				return;
@@ -534,11 +535,10 @@ export default class UI{
 			// Single clicked the element
 			else if( event.type === 'click' && !th._hold_actionbar ){
 				
-				
-
 				event.preventDefault();
 				event.stopImmediatePropagation();
-				if( spell.castable(true) ){
+				// Non directed targets are handled by mousedown
+				if( !th._action_used && spell.castable(true) ){
 					th.targets_selected = [];
 					th.drawTargetSelector();
 				}
@@ -1416,6 +1416,7 @@ export default class UI{
 	performSelectedAction(){
 
 		this._hold_actionbar = true;
+		this._action_used = true;
 		game.useActionOnTarget(
 			this.action_selected, 
 			this.targets_selected,

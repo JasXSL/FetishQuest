@@ -31,6 +31,7 @@ const lib = {
 			'whiteSwimtrunks',
 		],
 		multiply_reward : true,
+		exp_multiplier : 2
 	},
 
 

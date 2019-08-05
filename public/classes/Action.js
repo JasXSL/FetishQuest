@@ -402,6 +402,8 @@ class Action extends Generic{
 		if( pl && !pl.isActionEnabled(this) )
 			return err("Can't use this action right now");
 
+		
+
 		// Charges are not checked when a charged action finishes
 		if( !this.hasEnoughCharge() && !isChargeFinish ){
 			if( log )

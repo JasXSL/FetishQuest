@@ -462,7 +462,7 @@ class WebGL{
 				return emitter;
 			};
 
-			
+			/*
 			const buildRainPools = function(){
 				
 				const mat = new THREE.SpriteMaterial({
@@ -501,20 +501,23 @@ class WebGL{
 				return out;
 
 			};
-
+			*/
 			if( rain > 0 ){
 				this.weather_rainDrops = buildRain();
-				this.weather_rainSplats = buildRainPools();
+				//this.weather_rainSplats = buildRainPools();
 				//add emitter
 				proton.addEmitter(this.weather_rainDrops);
+				/*
 				for( let emitter of this.weather_rainSplats)
 					proton.addEmitter(emitter);
+				*/
 			}
 			this.updateFog(rain);
 
 		}
 
 		// Position the splats regardless
+		/*
 		const caster = new THREE.Raycaster();
 		// Always update rain pools if needed
 		if( rain > 0 && this.weather_rainSplats ){
@@ -533,7 +536,7 @@ class WebGL{
 					}
 				}
 			}
-		}
+		}*/
 
 		// Thunder / lightning
 		if( rain >= 0.66 && !this.lightningTimer ){

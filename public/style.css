@@ -903,7 +903,7 @@ div.fxBuffBlue{
 		background:none;
 		border:none;
 	}
-	#ui > div.players div.player div.stats span.name div.leader:not(.host).active{
+	#ui > div.players div.player div.stats span.name div.leader.host.active{
 		background-color: #484;
 	}
 	#ui > div.players div.player img.leader{

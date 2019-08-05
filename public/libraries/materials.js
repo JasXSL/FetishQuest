@@ -53,14 +53,8 @@ class LibMaterial{
 	}
 	
 	// Fetches from cache and makes unique if need be 
-	fetch( unique = false ){
-		let out = LibMaterial.cache.fetch(this);
-		if( unique && out.clone ){
-			const m = out.clone();
-			m.userData = out.userData;
-			return m;
-		}
-		return out;
+	fetch(){
+		return this.flatten();
 	}
 
 	flatten(){
@@ -91,12 +85,6 @@ LibMaterial.texCache = new AC();
 LibMaterial.texCache.fetchMissingAsset = function( path ){
 	return LibMaterial.loader.load(path);
 };
-
-LibMaterial.cache = new AC();
-LibMaterial.cache.fetchMissingAsset = function( libMatEntry ){
-	return libMatEntry.flatten();
-};
-
 
 
 LibMaterial.library = {

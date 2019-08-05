@@ -999,7 +999,7 @@ class NetworkManager{
 	}
 
 	playerRentRoom( renterPlayer, player ){
-		this.sendPlayerAction(NetworkManager.playerTasks.sleep, {
+		this.sendPlayerAction(NetworkManager.playerTasks.rentRoom, {
 			player : player.id,
 			renter : renterPlayer.id,
 		});

@@ -1,7 +1,8 @@
 -- CURRENT --
 
 Smol:	
-
+	- Add message saying how long you slept
+	
 Medium rare:
 	
 Big chungi:
