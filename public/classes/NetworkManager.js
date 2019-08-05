@@ -623,6 +623,28 @@ class NetworkManager{
 
 		}
 
+		else if( task === PT.rentRoom ){
+			let player = validatePlayer();
+			if( !player )
+				return;
+			
+			const renter = game.getPlayerById(args.renter);
+			game.roomRentalUsed(renter, player);
+
+		}
+		else if( task === PT.sleep ){
+			let player = validatePlayer();
+			if( !player )
+				return;
+			
+			let room = game.dungeon.getActiveRoom(),
+				dungeonAsset = room.getAssetById(args.asset)
+			;
+			let hours = args.hours;
+			game.sleep(player, dungeonAsset, hours);
+
+		}
+
 
 	}
 
@@ -687,6 +709,9 @@ class NetworkManager{
 			game.ui.drawRepair( player, target, action );
 
 		}
+
+		else if( task === NetworkManager.dmTasks.blackScreen )
+			game.ui.toggleBlackScreen();
 		
 		else if( task === NetworkManager.dmTasks.playSoundOnPlayer ){
 
@@ -965,6 +990,21 @@ class NetworkManager{
 		});
 	}
 
+	playerSleep( player, dungeonAsset, hours ){
+		this.sendPlayerAction(NetworkManager.playerTasks.sleep, {
+			player : player.id,
+			asset : dungeonAsset.id,
+			hours : hours
+		});
+	}
+
+	playerRentRoom( renterPlayer, player ){
+		this.sendPlayerAction(NetworkManager.playerTasks.sleep, {
+			player : player.id,
+			renter : renterPlayer.id,
+		});
+	}
+
 
 
 	/* OUTPUT TASKS DM */
@@ -1096,6 +1136,11 @@ class NetworkManager{
 		}); 
 	}
 
+	// Triggers the black screen visual
+	dmBlackScreen(){
+		this.sendHostTask(NetworkManager.dmTasks.blackScreen, {});
+	}
+
 }
 
 // Send tasks from DM to player
@@ -1114,6 +1159,7 @@ NetworkManager.dmTasks = {
 	questAccepted : 'questAccepted',				// {head:(str)head_text, body:(str)body_text} - Draws the questStart info box. Also used for quest completed and other things
 	dmRpOptionSelected : 'rpOptionSelected', 		// {id:(str)id} - An RP option has been selected, send it
 	rope : 'rope',									// {player:(str)player_id, dur:(int)seconds} - Starts the turn timer rope for the player
+	blackScreen : 'blackScreen',					// void - Triggers a black screen visual
 };
 
 // Player -> DM
@@ -1135,6 +1181,8 @@ NetworkManager.playerTasks = {
 	sellItem : 'sellItem',				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
 	exchangeGold : 'exchangeGold',		// {player:(str)sender_id}
 	repairItemAtBlacksmith : 'repairItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id}
+	sleep : 'sleep',									// {player:(str)sender_id, asset:(str)dungeon_asset_id, hours:(int)hours}
+	rentRoom : 'rentRoom',							// {renter:(str)rental_merchant_player_id, player:(str)player_id}
 };
 
 export default NetworkManager;

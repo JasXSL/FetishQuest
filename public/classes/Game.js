@@ -549,6 +549,32 @@ export default class Game extends Generic{
 	getHoursOfDay(){
 		return this.getDayPercentage()*24;
 	}
+	// Sleep players
+	sleep( player, dungeonAsset, duration ){
+		if( !player.isLeader() )
+			return false;
+		if( !dungeonAsset || !dungeonAsset.interactions.length )
+			return false;
+		const sleepInteractions = dungeonAsset.interactions.filter(e => e.type === GameAction.types.sleep);
+		if( !sleepInteractions.length ){
+			console.error("Sleep interaction not found");
+			return false;
+		}
+		duration = parseInt(duration);
+		if( isNaN(duration) )
+			return false;
+
+		if( !this.is_host ){
+			this.net.playerSleep(player, dungeonAsset, duration);
+			return false;
+		}
+		
+		this.net.dmBlackScreen();
+		this.ui.toggleBlackScreen(() => {
+			this.addHours(duration);
+		});
+		
+	}
 
 
 	/* Turn timer */
@@ -2140,6 +2166,11 @@ export default class Game extends Generic{
 			console.error("Player is not a player", player);
 			return false;
 		}
+
+		if( !player.isLeader() ){
+			return false;
+		}
+
 		const renters = this.getRoomRentalByPlayer(renterPlayer);
 		for( let renter of renters ){
 			if( renter.validate(player) )
@@ -2149,11 +2180,15 @@ export default class Game extends Generic{
 	}
 
 	roomRentalUsed( renterPlayer, player ){
+
+		if( !player.isLeader() )
+			return;
+
 		if( !this.roomRentalAvailableTo(renterPlayer, player) )
 			return;
 
 		if( !this.is_host ){
-			console.log("TODO: Netcode this");
+			this.net.playerRentRoom( renterPlayer, player );
 			return;
 		}
 

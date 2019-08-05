@@ -1,25 +1,10 @@
 -- CURRENT --
 
 Smol:	
-	- Fix rain tweening in. Seems to start and stop immediately
 
 Medium rare:
 	
 Big chungi:
-	- Sleep (game action exists, just needs to be implemented, should probably be limited to party leader)
-		- Use Game.MAX_SLEEP_DURATION
-		- Add a visual while sleeping showing the daytime outside
-		- Play a sound
-
-
-
-
-
-
-
-
-
-
 
 
 -- LATER UPDATE --
@@ -70,6 +55,7 @@ LATER:
 		- Sub = Restore mana
 		- Dom = restore HP
 		- 
+	- Give every modal its own screen instead of using the modal system
 
 - Punishments
 	- Custom cursors

@@ -520,6 +520,11 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.sleep ){
+			if( player.isLeader() )
+				game.ui.drawSleepSelect(player, mesh);
+		}
+
 		else if( this.type === types.addPlayer ){
 			game.addPlayer(this.getDataAsPlayer().clone().g_resetID(), this.data.nextTurn);
 		}

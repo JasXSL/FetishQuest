@@ -355,7 +355,7 @@ class Dungeon extends Generic{
 		}
 
 		// Prevent non-leaders from interacting with doors unless we're offline or a battle is active (run)
-		if( asset.isDoor() && !player.leader && game.net.id && !game.battle_active ){
+		if( asset.isDoor() && !player.isLeader() && !game.battle_active ){
 			game.modal.addError(player.name+" is not the party leader.");
 			return;
 		}
@@ -1207,6 +1207,15 @@ class DungeonRoomAsset extends Generic{
 		}
 	}
 
+	// Sleep display is clientside
+	getSleepInteraction(){
+		const viable = window.game ? this.getViableInteractions() : this.interactions;
+		for( let action of viable ){
+			if( action.type === GameAction.types.sleep )
+				return action;
+		}
+	}
+
 
 	load(data){
 		this.g_autoload(data);
@@ -1499,7 +1508,8 @@ class DungeonRoomAsset extends Generic{
 
 		const asset = this;
 		const dungeon = this.getDungeon();
-		const lootable = asset.isLootable( player, mesh );
+		const lootable = asset.isLootable( player, mesh ),
+			isSleep = asset.getSleepInteraction();
 
 		if( dungeon && dungeon.transporting )
 			return false;
@@ -1520,7 +1530,7 @@ class DungeonRoomAsset extends Generic{
 
 
 		// Ask host unless this is lootable
-		if( !game.is_host && !lootable ){
+		if( !game.is_host && !lootable && !isSleep ){
 			game.net.playerInteractWithAsset( player, asset );
 			return;
 		}

@@ -464,6 +464,9 @@ export default class Player extends Generic{
 	isSkipAllTurns(){
 		return this.hasTag(['pl_'+stdTag.gpSkipTurns, stdTag.gpSkipTurns]);
 	}
+	isLeader(){
+		return this.leader || !game.net.isConnected();
+	}
 
 	// Can't accept their turn
 	isIncapacitated(){

@@ -27,6 +27,11 @@ export default class UI{
 		this.mp_bar = $("div.stat.mp", this.action_selector);
 		this.actionbar_actions = $("> div.actions", this.action_selector);
 
+		this.customModals = $("#customModals");
+		this.cmSleepSelect = $("> #sleepSelect", this.customModals);
+
+		this.blackScreen = $("#blackScreen");
+
 		this.text = $("#ui > div.middle > div.content");
 		this.csl = $("#ui > div.middle > div.chat");
 		this.gameIcons = $("#gameIcons");
@@ -960,7 +965,7 @@ export default class UI{
 		leaderEl.toggleClass('hidden', Boolean(
 			p.team !== 0 || !game.net.id ||
 			(!p.leader && !game.is_host)
-		)).toggleClass('host', game.is_host);
+		)).toggleClass('host', game.is_host).toggleClass("active", Boolean(p.leader));
 
 		// Charged actions
 		let chargedActions = p.isCasting();
@@ -3552,8 +3557,58 @@ export default class UI{
 
 	}
 
-	
 
+
+	// Custom modals
+	toggleCustomModals( on = false ){
+		this.customModals.toggleClass("hidden", !on);
+		$("> div", this.customModals).toggleClass("hidden", true);
+	}
+	
+	drawSleepSelect( player, mesh ){
+		this.toggleCustomModals(true);
+		this.cmSleepSelect.toggleClass('hidden', false);
+		const sleepButton = $("input.sleep", this.cmSleepSelect),
+			range = $("input[type=range]", this.cmSleepSelect)
+		;
+		$("input", this.cmSleepSelect).off('click');
+		
+
+		const updateButton = () => {
+			const n = +range.val();
+			let currentHour = Math.floor(game.time%86400/3600)+n,
+				pm = 'AM';
+			if( currentHour > 23 )
+				currentHour -= 24;
+			if( currentHour >= 12 ){
+				pm = 'PM';
+				currentHour -= 12;
+			}
+			if( currentHour === 0 ){
+				currentHour = 12;
+				pm = pm === 'PM' ? 'Noon' : 'Midnight';
+			}
+			
+			sleepButton.val('Sleep '+n+" hour"+(n === 1 ? '' : 's')+" \u2794 "+currentHour+" "+pm);
+
+		};
+		range.on('input', updateButton);
+		updateButton();
+		sleepButton.on('click', () => {
+			game.sleep( game.getMyActivePlayer(), mesh.userData.dungeonAsset, +range.val() );
+			this.toggleCustomModals(false);
+		});
+		$("input.cancel", this.cmSleepSelect).on('click', () => this.toggleCustomModals(false));
+	}
+
+
+	async toggleBlackScreen( fnAtMidpoint ){
+		this.blackScreen.toggleClass("anim", true);
+		await delay(3200);
+		if( typeof fnAtMidpoint === "function" )
+			fnAtMidpoint();
+		this.blackScreen.toggleClass("anim", false);
+	}
 
 
 	/* Roleplay */
