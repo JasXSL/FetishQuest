@@ -596,9 +596,11 @@ export default class Game extends Generic{
 			this.addHours(duration);
 			const pl = game.getTeamPlayers();
 			for( let p of pl ){
-				p.fullRegen();
-				p.addArousal(-p.getMaxArousal());
-				p.addMP(p.getMaxMP());
+				p.addHP(20*duration);
+				p.addArousal(-5*duration);
+				p.addMP(5*duration);
+				this.save();
+				this.ui.draw();
 			}
 		});
 		this.ui.addText("You rest for "+duration+" hour"+(duration !== 1 ? 's' : '')+".", "sleep", player.id, player.id, 'sleep');
