@@ -583,7 +583,7 @@ export default class Game extends Generic{
 			return false;
 		}
 		duration = parseInt(duration);
-		if( isNaN(duration) )
+		if( isNaN(duration) || duration < 1 )
 			return false;
 
 		if( !this.is_host ){
@@ -594,7 +594,14 @@ export default class Game extends Generic{
 		this.net.dmBlackScreen();
 		this.ui.toggleBlackScreen(() => {
 			this.addHours(duration);
+			const pl = game.getTeamPlayers();
+			for( let p of pl ){
+				p.fullRegen();
+				p.addArousal(-p.getMaxArousal());
+				p.addMP(p.getMaxMP());
+			}
 		});
+		this.ui.addText("You rest for "+duration+" hour"+(duration !== 1 ? 's' : '')+".", "sleep", player.id, player.id, 'sleep');
 		
 	}
 
@@ -752,20 +759,22 @@ export default class Game extends Generic{
 	}
 
 	async setRainSound(url, volume = 1.0, loop = true){
-		if( url === this.active_rain_file )
+		if( url === this.active_rain_file ){
 			return;
+		}
 
-		if( this.active_rain )
+		if( this.active_rain && !url ){
 			this.active_rain.stop(3000);
-		if( !url )
-			return;
-		
+		}
 		this.active_rain_file = url;
-		const song = await this.audio_ambient.play( url, volume, loop );
-		if( url !== this.active_rain_file )
-			song.stop(0);
-		else
-			this.active_rain = song;
+
+		if( url ){
+			const song = await this.audio_ambient.play( url, volume, loop );
+			if( url !== this.active_rain_file )
+				song.stop(0);
+			else
+				this.active_rain = song;
+		}
 		this.updateAmbiance();	// handles volume shift for rain
 	}
 	// Sets ambiance to the current room

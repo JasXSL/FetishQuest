@@ -783,7 +783,8 @@ const lib = {
 							index: 0,
 							text: "Hey you! Nice tits!",
 							options: [
-								{text: "Thanks.", index: 1},
+								{text: "Thanks.", index: 1, conditions:['targetBreasts']},
+								{text: "Thanks.", index: 4, conditions:['targetNotBreasts']},
 								// Strong
 								{text: "Fuck off.", index: 2, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>1"}, caster:true}]},
 								// Weak
@@ -837,6 +838,14 @@ const lib = {
 								}]},
 								{text: "[Fight Him]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
 								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
+							index: 4,
+							text: "[The sailor frowns and walks away]",
+							options : [
+								{text: "[Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
 							]
 						},
 					],

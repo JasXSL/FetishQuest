@@ -1267,7 +1267,10 @@ div.fxBuffBlue{
 		transform:translate(-50%, -100%);
 		display:block;
 	}
-	#audioToggle:hover, #audioToggle:active{
+	#gameIcons > div > div.rollout.audioSettings{
+		min-width:20vw;
+	}
+	#gameIcons div[data-id=audioToggle]{
 		transform:none !important;
 	}
 

@@ -1410,9 +1410,11 @@ class Stage{
 		let meshTemplate = asset.getModel();			// Library entry
 		c.userData.dungeonAsset = asset;
 		c.userData.hoverTexts = {};
-		asset._stage_mesh = c;
+		asset.setStageMesh(c);
 		if( !c.name )
 			c.name = asset.name || asset.model;
+
+		
 
 		// Create labels
 		// Door

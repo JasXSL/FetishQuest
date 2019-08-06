@@ -1307,6 +1307,7 @@ class DungeonRoomAsset extends Generic{
 	
 
 
+
 	/* Encounters */
 	getEncounters(){
 		let encounters = [];
@@ -1355,7 +1356,14 @@ class DungeonRoomAsset extends Generic{
 		return mesh;
 	}
 
-
+	setStageMesh( c ){
+		this._stage_mesh = c;
+		let tags = {};
+		const all = this.tags.concat(c.userData.template.tags);
+		for( let t of all )
+			tags[t] = true;
+		this.tags = Object.keys(tags);
+	}
 
 
 	/* Transforms */

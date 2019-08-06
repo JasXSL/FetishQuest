@@ -1182,7 +1182,7 @@ export default class UI{
 			(player ? '<div class="button" data-id="inventory" style="background-image:url(/media/wrapper_icons/light-backpack.svg);"></div>' : '')+
 			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'+
 			'<div class="button" data-id="audioToggle" style="background-image: url(media/wrapper_icons/speaker.svg)">'+
-				'<div class="rollout">'+
+				'<div class="rollout audioSettings">'+
 					'Ambient:'+
 					'<input type="range" min=0 max=100 step=1 id="ambientSoundVolume" /><br />'+
 					'Music:'+

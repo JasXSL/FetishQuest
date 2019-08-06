@@ -307,6 +307,7 @@ const lib = {
 	targetVagina : {"type":"tag","data":{"tags":["pl_vagina"]}},
 	targetPenis : {"type":"tag","data":{"tags":["pl_penis"]}},
 	targetBreasts : {"type":"tag","data":{"tags":["pl_breasts"]}},
+	targetNotBreasts : {type:Condition.Types.tag,data:{"tags":[stdTag.breasts]}, inverse:true},
 	targetNotCircumcised : {"type":"tag","data":{"tags":["pl_circumcised"]},"inverse":true},
 	senderTongue : {type:Condition.Types.tag,data:{tags:[stdTag.plTongue]}},
 	

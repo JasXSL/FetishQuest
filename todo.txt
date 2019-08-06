@@ -1,8 +1,10 @@
 -- CURRENT --
 
 Smol:	
-	- Add message saying how long you slept
-	
+	x Resting needs to fully restore players
+	- Test rain when entering and leaving a house
+	- Check if area tags work now
+
 Medium rare:
 	
 Big chungi:
@@ -19,7 +21,7 @@ Next:
 		- Hidden path down to the beach
 		- Otter and Broper quest
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
-
+	
 
 Abilities:
 	lv1 1 base
@@ -46,6 +48,7 @@ Action ideas:
 
 
 LATER:
+	- AFK mode. Go bot in netgame.
 	- New game picker needs sprite character
 	- Show what mods a quest belongs to
 	- Quest editor (later)
