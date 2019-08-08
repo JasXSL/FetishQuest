@@ -1771,10 +1771,12 @@ export default class UI{
 		;
 
 		html += '<h1 class="centered">FetishQuest</h1>';
-		html += '<p class="centered">This game contains adult content. But you\'ve probably worked that out from the title already.</p>';
+		html += '<p class="centered"><strong>This game contains adult content. But you\'ve probably worked that out from the title already.</strong></p>';
 
-		html += '<p class="centered">This is a pre-alpha work in progress. Please consider supporting it on <a href="https://www.patreon.com/jasx_games" target="_blank">Patreon</a>.</p>';
-		html += '<p class="centered">Follow development on <a href="http://discord.jasx.org" target="_blank">Discord</a>.</p>';
+		html += '<h3 class="centered">'+
+			'This game is a work in progress. Please support its development on <a href="https://www.patreon.com/jasx_games" target="_blank">Patreon</a> to get access to the pre-testing beta branch!'+
+		'</h3>';
+		html += '<p class="centered">Follow development on <a href="https://discord.jasx.org" target="_blank">Discord</a>.</p><br />';
 
 		html += '<p style="text-align:center">'+
 			'<input type="button" class="green newGameButton" name="newGame" value="New Game" /><br />'+
@@ -1812,7 +1814,7 @@ export default class UI{
 				html += '<h3>Mods</h3>';
 				html += '<table class="editor"><tr><th>Name</th><th>Enabled</th><th>Netgame</th><th>Load Order</th></tr>';
 				if( !Object.keys(modNames).length )
-					html += '<tr><td colspan=3>No mods installed</td></tr>';
+					html += '<tr><td colspan=4>No mods installed</td></tr>';
 				for( let mod of sortedMods ){
 					
 					html += '<tr data-mod="'+esc(mod.id)+'">';

@@ -2532,6 +2532,9 @@ export default class Game extends Generic{
 
 	/* WEATHER */
 	getRain( allowIndoor ){
+
+		if( !this.dungeon || !this.dungeon.getActiveRoom() )
+			return 0;
 		if( !this.dungeon.getActiveRoom().outdoors && !allowIndoor )
 			return 0;
 

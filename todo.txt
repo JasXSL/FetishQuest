@@ -1,34 +1,53 @@
 -- CURRENT --
 
 Smol:	
-	x Resting needs to fully restore players
-	- Test rain when entering and leaving a house
-	- Check if area tags work now
+	- Add fog override to cells
+
 
 Medium rare:
-	
+	- Difficulty setting
+		- Should probably be in options.
+		- Affect enemy damage done only?
+	- Redesign errors to a try/catch system, that'll let netcode return errors as well
+	- Character export/import
+	- AFK mode. Go bot in netgame.	
+
 Big chungi:
+	- Spell learning system
+		- Abilities:
+			lv1 Slot 1, Auto learned
+			lv2 Slot 2, Auto learned
+			lv3 Slot 3, Auto learned
+			lv4 Slot 4, No auto
+			lv5 Passive slot 1, No Auto
+			lv6 Slot 5, No Auto
+			lv7 Passive slot 2, No Auto
+			Lv8 Slot 6, No auto
+			Lv9 Passive slot 3, No Auto
+			Lv10 Passive slot 4, No Auto
+		- Spells also have min levels on them when they can be learned.
+		- That way you can get more spells as you go.
+		- Where to learn?
+			- In the city or from quests.
+			- Class trainers can teach you class abilities.
+			- Class trainers also lets you swap your actions around, regardless of their class.
+		- Who can learn?
+			- Spell unlocks should be limited by conditions
+		
+	- Main quest chapter 2
+		- Go to Yuug capital?
+		- What do there?
+
+	- Give every modal its own screen instead of using the modal system
 
 
 -- LATER UPDATE --
 
 
 Next:
-	- Add fog override to cells
-	- Main quest chapter 2
-	- Difficulty setting
 	- West forest
 		- Hidden path down to the beach
-		- Otter and Broper quest
-	- Redesign errors to a try/catch system, that'll let netcode return errors as well
-	
-
-Abilities:
-	lv1 1 base
-	lv2 2 base
-	lv3 3 base
-	lv4 & even to 14 = new passive slot for a total of 6
-	lv5 & odd to 15 = new spell slot for a total of 8
+		- Otter and Broper show up there after completing their quest
 
 
 
@@ -40,26 +59,27 @@ Abilities:
 	- Forest
 	- Dungeon
 
-new Gameplay elements:
-	- Learning/unlearning actions
-	
+
 Action ideas:
-	- Cleric: Sacrament of Sin: Free, 10 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 10% per point of arousal.
+	- Cleric 
+		Sacrament of Sin: Free, 6 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 20% per point of your arousal.
+		Resurrection by Erection: Resurrects a defeated player at max HP, but only once per battle.
+	
+	- Tentaclemancer
+		Conversion: Siphons target arousal and gives the caster mana.
+
+	- Warrior:
+		Needs mana costing effects
 
 
 LATER:
-	- AFK mode. Go bot in netgame.
-	- New game picker needs sprite character
 	- Show what mods a quest belongs to
 	- Quest editor (later)
-	- ModVars (later) - Custom data that can be set and read by conditions
-	- Character export/import
-	- Graphics settings
 	- Game benefit for using a punishment
 		- Sub = Restore mana
 		- Dom = restore HP
 		- 
-	- Give every modal its own screen instead of using the modal system
+	
 
 - Punishments
 	- Custom cursors
