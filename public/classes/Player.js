@@ -2057,15 +2057,39 @@ export default class Player extends Generic{
 		
 	}
 
-	// Adds viable high enough level actions for your class
+	// Adds auto unlock actions for your class
 	addActionsForClass(){
 		
-		let lib = this.class.getAvailableActions(this.level);
+		let lib = Object.values(glib.getFull("ActionLearnable"));
+		const evt = new GameEvent({sender:this, target:this});
 		for( let a of lib ){
-			if( !this.getActionByLabel(a.label) ){
-				this.addAction(a);
+			if( !a.auto_learn || this.getActionByLabel(a.action) )
+				continue;
+			if( Condition.all(a.conditions, evt) ){
+				const action = glib.get(a.action, "Action");
+				if( !action )
+					continue;
+				this.addAction(action);
 			}
 		}
+
+
+	}
+
+	// Returns ActionLearnable objects that can be unlocked by this player
+	getUnlockableActions(){
+
+		let out = [];
+		let lib = glib.getFull("ActionLearnable");
+		const evt = new GameEvent({sender:this, target:this});
+		for( let a of lib ){
+			if( a.auto_learn || this.getActionByLabel(a.action) )
+				continue;
+			if( Condition.all(a.conditions, evt) )
+				out.push(a);
+		}
+
+		return out;
 
 	}
 	

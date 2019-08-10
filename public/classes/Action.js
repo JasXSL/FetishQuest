@@ -30,7 +30,6 @@ class Action extends Generic{
 		this.hit_chance = 90;		// 90% hit chance before SV/BON
 		this.detrimental = true;
 		this.type = Action.Types.physical;			// Custom damage type
-		this.level = 1;								// Level required to use this action
 		this.hidden = false;					// Hidden action
 		this.semi_hidden = false;				// Only show in the action selector
 		this.tags = [];
@@ -103,7 +102,6 @@ class Action extends Generic{
 
 		if( full ){
 			out.alias = this.alias;
-			out.level = this.level;
 			out.riposte = this.riposte.map(el => el.save(full));
 			out.no_use_text = this.no_use_text;	
 		}
@@ -688,5 +686,8 @@ Action.typeExists = function(type){
 	}
 	return false;
 }
+
+
+
 
 export default Action;

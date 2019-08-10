@@ -21,6 +21,7 @@ import {getArray as getRoleplays} from './mainMod/roleplays.js';
 import {getArray as getEffects} from './mainMod/effects.js';
 import {getArray as getQuests} from './mainMod/quests.js';
 import {getArray as getShops} from './mainMod/shops.js';
+import {getArray as getActionLearnable} from './mainMod/actionLearnable.js';
 import chats from './mainMod/chats.js';
 
 import dungeons from './mainMod/dungeons.js';
@@ -295,6 +296,7 @@ const mod = new Mod(
 		players : getPlayers(),
 		roleplay : getRoleplays(),
 		shops: getShops(),
+		actionLearnable : getActionLearnable()
 	}
 );
 

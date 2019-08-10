@@ -190,7 +190,16 @@ const lib = {
 
 
 	targetClassTentaclemancer : {type:Condition.Types.playerClass, data:{label:"tentaclemancer"}},	
+	targetClassElementalist : {type:Condition.Types.playerClass, data:{label:"elementalist"}},	
+	targetClassWarrior : {type:Condition.Types.playerClass, data:{label:"warrior"}},	
+	targetClassMonk : {type:Condition.Types.playerClass, data:{label:"monk"}},	
+	targetClassRogue : {type:Condition.Types.playerClass, data:{label:"rogue"}},	
+	targetClassCleric : {type:Condition.Types.playerClass, data:{label:"cleric"}},	
 
+	targetLevel1 : {type:Condition.Types.targetLevel, data:{amount:0, operation:">"}},
+	targetLevel2 : {type:Condition.Types.targetLevel, data:{amount:1, operation:">"}},
+	targetLevel3 : {type:Condition.Types.targetLevel, data:{amount:2, operation:">"}},
+	
 	targetButtExposed : {conditions:[
 		{type:"tag", data:{tags:[stdTag.asLowerBody]}, inverse:true},
 		{type:"tag", data:{tags:[stdTag.ttButtExposed]}}

@@ -378,6 +378,8 @@ export default class Condition extends Generic{
 				success = t && this.compareValue(s, t, t.hp);
 			else if( this.type === T.sizeValue )
 				success = t && this.compareValue(s, t, t.size);
+			else if( this.type === T.targetLevel )
+				success = t && this.compareValue(s, t, t.level);
 			else if( this.type === T.genitalSizeValue ){
 				let gen = this.data.genital;
 				if( !t || [stdTag.breasts, stdTag.butt, stdTag.penis].indexOf(gen) === -1 )
@@ -808,6 +810,7 @@ Condition.Types = {
 	textMeta : 'textMeta',
 	textTurnTag : 'textTurnTag',		
 	rain : 'rainGreaterThan',
+	targetLevel : 'targetLevel',
 };
 
 Condition.descriptions = {
@@ -862,6 +865,7 @@ Condition.descriptions = {
 	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
 	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
 	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
+	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level',
 };
 
 

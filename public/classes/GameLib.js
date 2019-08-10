@@ -18,6 +18,7 @@ import Roleplay from './Roleplay.js';
 import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
 import Shop from './Shop.js';
+import ActionLearnable from './ActionLearnable.js';
 
 
 const LIB_TYPES = {
@@ -36,6 +37,7 @@ const LIB_TYPES = {
 	'playerTemplates' : PlayerTemplate,
 	'materialTemplates' : MaterialTemplate,
 	'assetTemplates' : AssetTemplate,
+	'actionLearnable' : ActionLearnable,
 	'audioKits' : AudioKit,
 	'hitFX' : HitFX,
 	'dungeonRoomTemplates' : RoomTemplate,
@@ -68,6 +70,7 @@ const load_order = [
 	
 	'roleplay',
 	'gameActions',
+	'actionLearnable',
 	'dungeonEncounters',
 	'dungeonRoomTemplates',
 	'dungeonTemplates',
@@ -108,6 +111,7 @@ export default class GameLib{
 		this.hitFX = {};
 		this.roleplay = {};
 		this.gameActions = {};
+		this.actionLearnable = {};
 
 		this._cache_assets = {};
 		this.texts = [];

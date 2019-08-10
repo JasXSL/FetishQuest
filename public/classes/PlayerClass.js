@@ -10,7 +10,7 @@ export default class PlayerClass extends Generic{
 		this.label = 'none';
 		this.name = '';
 		this.isMonsterClass = false;
-		this.actions = [];			// labels for library abilities this class should have. Abilities will be auto added based on levels
+		this.actions = [];				// Used only for NPCs. Players should instead use ActionLearnable.
 		this.description = '';
 		this.primaryStat = 'none';		// Increases the effect of a primary stat by 50%
 
@@ -69,23 +69,9 @@ export default class PlayerClass extends Generic{
 		return out;
 	}
 
-	// Returns all available actions for level, or ALL if level is a NaN value
-	getAvailableActions( level ){
-		if(isNaN(level))
-			level = Infinity;
-
-		let out = [];
-		let lib = glib.getFull("Action");
-		for( let i in lib ){
-			let a = lib[i];
-			if( a.level <= level && ~this.actions.indexOf(a.label) )
-				out.push(a);
-		}
-
-		return out;
-	}
 
 
 }
+
 
 

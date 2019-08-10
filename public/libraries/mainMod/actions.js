@@ -228,7 +228,6 @@ const lib = {
 	},
 
 	lowBlow: {
-		level: 1,
 		icon : 'armor-punch',
 		name : "Pummel",
 		description : "Pummel your target's weak spot. Deals 6 physical damage and interrupts any active charged actions your opponent is readying.",
@@ -252,7 +251,6 @@ const lib = {
 
 	// Elementalist
 	elementalist_iceBlast: {
-		level : 1,
 		name : "Ice Blast",
 		icon : 'ice-spell-cast',
 		ranged: Action.Range.Ranged,
@@ -295,7 +293,6 @@ const lib = {
 		]
 	},
 	elementalist_healingSurge: {
-		level: 2,
 		name : "Healing Surge",
 		icon : 'splashy-stream',
 		description : "Restores 6 HP to your target and heals 2 HP at the start of their turn for 3 turns. Effect is increased by 30% if there's water nearby.",
@@ -349,7 +346,6 @@ const lib = {
 		]
 	},
 	elementalist_waterSpout: {
-		level : 3,
 		name : "Water Spout",
 		icon : 'splash',
 		description : "Summons a water spout that soaks your target for 1 turn and lowers their elemental avoidance by two. Whenever the target uses an action, the caster gains 1 MP.",
@@ -401,7 +397,6 @@ const lib = {
 
 	// Rogue
 	rogue_exploit: {
-		level: 1,
 		name : "Exploit",
 		icon : 'hooded-assassin',
 		description : "Deals 3 corruption damage plus another 2 per slot of upper and/or lower body armor missing from your target.",
@@ -430,7 +425,6 @@ const lib = {
 		]
 	},
 	rogue_corruptingVial : {
-		level: 2,
 		name : "Corrupting Vial",
 		icon : 'poison-bottle',
 		description : "Inflicts your target with a corrupting poison, dealing 2 corruption damage at the start of their turn for 3 turns, and reduces corruption resist by 2. If used on yourself it instead restores 2 HP each turn and increases corruption proficiency by 2.",
@@ -483,7 +477,6 @@ const lib = {
 		]
 	},
 	rogue_dirtyTricks: {
-		level: 3,
 		name : "Dirty Tricks",
 		icon : 'snatch',
 		description : "Sneak through the shadows and perform a dirty trick on your target, doing 8 corruption damage. Has a 5% chance per corruption advantage to unequip a piece of their armor.",
@@ -522,7 +515,6 @@ const lib = {
 
 	// Cleric
 	cleric_smite: {
-		level: 2,
 		name : "Smite",
 		icon : 'fission',
 		description : "Smites your opponent for 4 holy damage, increased by 10% per corruption damage your target dealt last turn, up to 15 damage.",
@@ -555,7 +547,6 @@ const lib = {
 		]
 	},
 	cleric_chastise: {
-		level: 3,
 		name : "Chastise",
 		icon : 'crossed-chains',
 		description : "Chastises up to 2 targets, dealing 3 holy damage every time they use a damaging action until the end of their next turn and reducing all their damage done by 1.",
@@ -604,7 +595,6 @@ const lib = {
 		]
 	},
 	cleric_heal: {
-		level: 1,
 		name : "Heal",
 		icon : 'healing',
 		ranged : Action.Range.Ranged,
@@ -641,7 +631,6 @@ const lib = {
 
 	// Tentaclemancer
 	tentaclemancer_tentacleWhip: {
-		level: 1,
 		name : "Tentacle Whip",
 		icon : 'suckered-tentacle',
 		description : "Deals 3 physical damage. 6 if your target is affected by corrupting ooze.",
@@ -674,7 +663,6 @@ const lib = {
 		]
 	},
 	tentaclemancer_corruptingOoze: {
-		level: 2,
 		name : "Corrupting Ooze",
 		icon : 'gooey-molecule',
 		description : "Adds a stack of corrupting ooze on your target, adding 1 arousal. Corrupting ooze also lowers their corruption avoidance by 1 per stack, and at the start of the affected players turn an additional stack is added. If it goes over 5 stacks, the target gets stunned for 1 turn.",
@@ -691,7 +679,6 @@ const lib = {
 		]
 	},
 	tentaclemancer_siphonCorruption: {
-		level: 3,
 		name : "Siphon Corruption",
 		icon : 'goo-skull',
 		description : "Consumes all charges of corrupting ooze on your target, dealing damage equal to 2x the amount of stacks consumed, and healing you for half the amount.",
@@ -745,7 +732,6 @@ const lib = {
 
 	// Warrior
 	warrior_revenge: {
-		level: 3,
 		name : "Revenge",
 		icon : 'shield-bash',
 		description : "Deals 2 damage to an opponent plus 2 for every damaging effect you were a victim of since your last turn.",
@@ -774,7 +760,6 @@ const lib = {
 		]
 	},
 	warrior_bolster: {
-		level: 2,
 		name : "Bolster",
 		icon : 'surrounded-shield',
 		description : "Reduces your damage taken by 2 for one turn and clears 10% of your arousal. Taking damage while this effect is active grants the caster 1 AP.",
@@ -825,7 +810,6 @@ const lib = {
 		]
 	},
 	warrior_viceGrip: {
-		level: 1,
 		name : "Vice Grip",
 		icon : 'grab',
 		description : "Grabs up to two targets and squeezes, dealing 4 damage and preventing them from attacking any other targets for 1 turn, and ends your turn.",
@@ -933,7 +917,6 @@ const lib = {
 		]
 	},
 	monk_disablingStrike: {
-		level: 2,
 		name : "Disabling Strike",
 		icon : 'despair',
 		description : "Deals 2 damage and reduces your target's physical proficiency and avoidance by 5 for 1 turn. Always hits.",
@@ -991,7 +974,6 @@ const lib = {
 		]
 	},
 	monk_upliftingStrike: {
-		level: 3,
 		name : "Uplifting Strike",
 		icon : 'smoking-finger',
 		description : "Deals 2 damage to an enemy and heals the lowest HP party member for 2 HP per AP spent this turn.",
@@ -2058,7 +2040,6 @@ const lib = {
 
 	// Skeleton
 	skeleton_looseHand: {
-		level: 1,
 		icon : 'skeletal-hand',
 		name : "Loose Hand",
 		description : "Detach your hand inside your target's clothing and fondle their goods, adding 1 arousal every turn for 3 turns.",
@@ -3084,7 +3065,6 @@ const lib = {
 
 	// Debug
 	debug_charged_spell: {
-		level: 1,
 		name : "1t Charged",
 		ranged : Action.Range.Ranged,
 		description : "Deals 10 holy damage.",
