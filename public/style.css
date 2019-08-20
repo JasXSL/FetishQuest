@@ -82,14 +82,23 @@ input[type=button]:active, input[type=submit]:active, div.button:active,
 
 input[type=range] {
 	-webkit-appearance: none;
-	background:none;
 	width: 100%;
+	background:none;
 }
 input[type=range]:focus {
 	outline: none;
 }
 
 input[type=range]::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 1.26vmax;
+	cursor: pointer;
+	box-shadow: 1px 1px 0px #000000;
+	background: #4f5f72;
+	border-radius: 0.5vmax;
+	border: 1px solid #596c81;
+}
+input[type=range]::-moz-range-track {
 	width: 100%;
 	height: 1.26vmax;
 	cursor: pointer;

@@ -1541,7 +1541,7 @@ export default class Player extends Generic{
 		}
 		const pre = this.ap;
 		this.ap += amount;
-		this.ap = Math.max(0, Math.min(this.getMaxAP(), this.ap));
+		this.ap = Math.floor(Math.max(0, Math.min(this.getMaxAP(), this.ap)));
 		if( fText && this.ap-pre !== 0 )
 			game.ui.floatingCombatText(this.ap-pre, this, "ap");
 		
@@ -1556,7 +1556,7 @@ export default class Player extends Generic{
 		}
 		const pre = this.mp;
 		this.mp += amount;
-		this.mp = Math.max(0, Math.min(this.getMaxMP(), this.mp));
+		this.mp = Math.floor( Math.max(0, Math.min(this.getMaxMP(), this.mp)) );
 
 		if( fText && this.mp-pre !== 0 )
 			game.ui.floatingCombatText(this.mp-pre, this, "mp");
@@ -1594,7 +1594,7 @@ export default class Player extends Generic{
 		const pre = this.hp;
 		let wasDead = this.hasTag(stdTag.dead);
 		this.hp += amount;
-		this.hp = Math.max(0, Math.min(this.getMaxHP(), this.hp));
+		this.hp = Math.floor( Math.max(0, Math.min(this.getMaxHP(), this.hp)) );
 
 		if( fText && this.hp-pre !== 0 )
 			game.ui.floatingCombatText(this.hp-pre, this, "hp");
@@ -1619,7 +1619,7 @@ export default class Player extends Generic{
 			return console.error("Invalid amount of arousal", amount);
 		const pre = this.arousal, max = this.getMaxArousal();
 		this.arousal += amount;
-		this.arousal = Math.min(max, Math.max(0, this.arousal));
+		this.arousal = Math.floor( Math.min(max, Math.max(0, this.arousal)) );
 		if( this.arousal >= max && pre < max ){
 			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(this, this, false);
 			game.save();
@@ -2080,7 +2080,7 @@ export default class Player extends Generic{
 	getUnlockableActions(){
 
 		let out = [];
-		let lib = glib.getFull("ActionLearnable");
+		let lib = Object.values(glib.getFull("ActionLearnable"));
 		const evt = new GameEvent({sender:this, target:this});
 		for( let a of lib ){
 			if( a.auto_learn || this.getActionByLabel(a.action) )
@@ -2093,6 +2093,20 @@ export default class Player extends Generic{
 
 	}
 	
+	getNrActionSlots(){
+		if( this.level < 5 )
+			return this.level;
+		return Math.min(6, Math.floor((this.level-4)/2)+4);
+	}
+
+	getNrPassiveSlots(){
+		if( this.level < 5 )
+			return 0;
+		if( this.level >= 10 )
+			return 4;
+		return Math.min(4, Math.ceil((this.level-4)/2));
+	}
+
 	// Checks encumberance
 	updateAutoWrappers(){
 

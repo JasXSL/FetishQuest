@@ -299,28 +299,26 @@ const lib = {
         ],
         
     },
-    "healingPunch": {
-        label : "healingPunch",
+    healingPunch: {
         sounds : [
             {
-                s : {
-                    path : "media/audio/swing_small.ogg",
-                    volume : 0.2
-                },
-                t : 0,
+                s : {path : "media/audio/swing_small.ogg",volume : 0.2},
+                t : 0, 
                 se : true
             },
             {
-                s : {
-                    path : "media/audio/healing_punch.ogg",
-                    volume : 0.5,
-                    "hit": true
-                },
+                s : {path : "media/audio/healing_punch.ogg",volume : 0.5,hit: true},
                 t : 100,
                 se : false
             }
         ],
-        
+    },
+    monkMeditate: {
+        sounds : [
+            {
+                s : {path : "media/audio/monk_meditate.ogg",volume : 0.4},
+            }
+        ],
     },
     coldBlast_cast : {
         follow_parts : true,

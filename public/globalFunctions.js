@@ -78,6 +78,14 @@ function valsToKeys( input = [] ){
 	return out;
 }
 
+// Takes a float and floors it, if there's a remainder, it might be add 1 to the floored value based on the remainder as percentage
+function randRound( val = 0 ){
+	let base = Math.floor(val);
+	if( val-base > Math.random() )
+		++base;
+	return base;
+}
+
 // Converts one or more vars into an array if it's not already
 function toArray(...args){
 	if( !Array.isArray(args[0]) || args.length > 1 )

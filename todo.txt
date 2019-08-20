@@ -14,19 +14,6 @@ Medium rare:
 
 Big chungi:
 	- Spell learning system
-		- Abilities:
-			lv1 Slot 1, Auto learned
-			lv2 Slot 2, Auto learned
-			lv3 Slot 3, Auto learned
-			lv4 Slot 4, No auto
-			lv5 Passive slot 1, No Auto
-			lv6 Slot 5, No Auto
-			lv7 Passive slot 2, No Auto
-			Lv8 Slot 6, No auto
-			Lv9 Passive slot 3, No Auto
-			Lv10 Passive slot 4, No Auto
-		- Spells also have min levels on them when they can be learned.
-		- That way you can get more spells as you go.
 		- Where to learn?
 			- In the city or from quests.
 			- Class trainers can teach you class abilities.
@@ -37,6 +24,8 @@ Big chungi:
 	- Main quest chapter 2
 		- Go to Yuug capital?
 		- What do there?
+
+	- New spells (Todo exists)
 
 	- Give every modal its own screen instead of using the modal system
 
@@ -62,15 +51,33 @@ Next:
 
 Action ideas:
 	- Cleric 
-		Sacrament of Sin: Free, 6 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 20% per point of your arousal.
-		Resurrection by Erection: Resurrects a defeated player at max HP, but only once per battle.
+		Sacrament of Sin: Free, 4 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 20% per point of your arousal.
+		Reserection: Resurrects a defeated player at max HP, but only once per battle.
 	
 	- Tentaclemancer
-		Conversion: Siphons target arousal and gives the caster mana.
+		- Conversion: Siphons target arousal and gives the caster mana.
+		- Slime Coat: 1 MP, 0 AP, 3 turn CD. Reduces the AP cost of the target's next 3 actions by 2, lasts 3 turns.
 
 	- Warrior:
-		Needs mana costing effects
+		DONE
+		
+	- Monk
+		- Meditate: 1 AP, 2 CD - Meditate, adding 1 MP immediately, and 1 at the start of your turn for 5 turns. The effect falls off when you take damage.
+		- Low kick: 2 AP, 6 CD - Knocks all enemies down for 1 turn, doing 5 damage and interrupting them.
 
+	- Rogue
+		- Hidden Flask : 1AP, 1MP, 3 CD. Restores 3 HP immediately and at the start of your turn for 2 turns. 
+		- ???
+
+	- Elementalist
+		- Earth Shield : 2 MP, 2 CD. Shields a player, reducing their damage taken by 1 from all attacks, and increasing your healing done to them by 1 for 2 turns.
+		- Choke : Interrupts a target and does n elemental damage.
+
+	- Generic
+		- Low blow (exists)
+		- ???
+		- ???
+		- ???
 
 LATER:
 	- Show what mods a quest belongs to

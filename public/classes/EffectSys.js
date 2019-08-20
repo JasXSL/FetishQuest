@@ -754,8 +754,12 @@ class Effect extends Generic{
 				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
 
+				
+
 				// Healing
 				if( amt > 0 ){
+
+					amt = randRound(amt);
 
 					e = GameEvent.Types.healingDone;
 					e2 = GameEvent.Types.healingTaken;
@@ -824,11 +828,7 @@ class Effect extends Generic{
 					amt *= t.getNudityDamageMultiplier();
 
 					
-					let base = Math.floor(amt);
-					// Dangling point gets randomized
-					if( Math.random() <= amt-base )
-						++base;
-					amt = base;
+					amt = randRound(amt);
 					if( amt > 0 )
 						amt = 0;
 

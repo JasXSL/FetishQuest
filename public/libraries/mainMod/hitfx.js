@@ -959,6 +959,18 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'monkMeditate';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		sound_kits : ['monkMeditate'],
+		particles : 'hitfx_mist_green_target',
+		emit_duration : 400,
+		dest_rand : 0.5,
+		tween : true,
+	}, out[id]),
+);
+
 
 
 id = 'holyHeal';

@@ -85,6 +85,14 @@ const lib = {
 		conditions : ["targetClassWarrior", "targetLevel3"],
 		auto_learn : true,
 	},
+	warrior_masochism : {
+		action : 'warrior_masochism',
+		conditions : ["targetClassWarrior"],
+	},
+	warrior_injuryToInsult : {
+		action : 'warrior_injuryToInsult',
+		conditions : ["targetClassWarrior"],
+	},
 
 	monk_roundKick : {
 		action : 'monk_roundKick',
@@ -97,7 +105,7 @@ const lib = {
 		auto_learn : true,
 	},
 	monk_upliftingStrike : {
-		action : 'warrior_viceGrip',
+		action : 'monk_upliftingStrike',
 		conditions : ["targetClassMonk", "targetLevel3"],
 		auto_learn : true,
 	},

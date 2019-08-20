@@ -864,6 +864,53 @@ const lib = {
 			}
 		]
 	},
+	warrior_masochism: {
+		name : "Masochism",
+		icon : 'enrage',
+		description : "Work your masochism up, restoring 10% of your max HP and adding 1 arousal. Counts as a damaging effect.",
+		ap : 1,
+		mp : 1,
+		cooldown : 2,
+		charges : 3,
+		max_targets : 1,
+		tags : [ stdTag.acDamage ],
+		detrimental : false,
+		target_type: Action.TargetTypes.self,
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : false,
+				add_conditions : stdCond,
+				effects : [
+					{type:Effect.Types.damage, data:{amount:"-ta_MaxHP*0.1"}},
+					{type:Effect.Types.addArousal, data:{amount:1}},
+				]
+			}
+		]
+	},
+	warrior_injuryToInsult : {
+		name : "Injury to Insult",
+		icon : 'claw-hammer',
+		description : "Deals 7 physical damage to all enemies taunted by you.",
+		ap : 3,
+		mp : 0,
+		cooldown : 4,
+		max_targets : 1,
+		tags : [ stdTag.acDamage ],
+		detrimental : true,
+		target_type: Action.TargetTypes.aoe,
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat("targetTauntedBySender"),
+				effects : [
+					{type:Effect.Types.damage, data:{amount:7}}
+				]
+			}
+		]
+	},
+	
 
 
 	// Monk
@@ -1018,6 +1065,82 @@ const lib = {
 							id : 'monkHealSmallTargeted',
 							origin : Wrapper.Targets.original_target
 						}
+					}
+				]
+			}
+		]
+	},
+	monk_meditate : {
+		name : "Meditate",
+		icon : 'meditation',
+		description : "Enter a meditative state, restoring 1MP immediately and at the start of your turn for 5 turns. This effect falls off if you take damage.",
+		ap : 2,
+		cooldown : 4,
+		hit_chance: 100,
+		detrimental : false,
+		target_type : Action.TargetTypes.self,
+		tags : [stdTag.acManaHeal],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				label : 'monk_meditation',
+				name : 'Meditation',
+				icon : 'meditation',
+				description : 'Restoring 1 MP at the start of your turn. Breaks on damage.',
+				duration : 5,
+				detrimental : false,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				trigger_immediate : true,
+				effects : [
+					{
+						type : Effect.Types.addMP,
+						data : {"amount": 1}
+					},
+					{
+						events : [GameEvent.Types.damageTaken],
+						conditions : ["targetIsWrapperParent"],
+						type : Effect.Types.removeParentWrapper
+					}
+				]
+			}
+		]
+	},
+	monk_lowKick : {
+		name : "Low Kick",
+		icon : 'van-damme-split',
+		description : "Knocks all enemies down for 1 turn, dealing 8 damage and interrupting them.",
+		ap : 2,
+		cooldown : 6,
+		hit_chance: 100,
+		detrimental : true,
+		target_type : Action.TargetTypes.aoe,
+		tags : [stdTag.acDamage, stdTag.acInterrupt, stdTag.acPainful],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				add_conditions : stdCond.concat('targetOtherTeam'),
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount: 8}
+					},
+					{type : Effect.Types.interrupt}
+				]
+			},
+			{
+				label : "knockdown",
+				duration : 1,
+				name : "Knockdown",
+				icon : "falling",
+				detrimental : true,
+				description : "Knocked down on your %knockdown",
+				add_conditions : stdCond.concat("targetNotGrappledOrKnockedDown", "targetOtherTeam"),
+				stay_conditions : stdCond,
+				effects : [
+					{
+						events : ["internalWrapperAdded"],
+						type : Effect.Types.knockdown
 					}
 				]
 			}
@@ -2510,7 +2633,7 @@ const lib = {
 		icon : 'punch',
 		name : "Sharktopus Attack",
 		description : "Deals 3 physical damage to 2 players.",
-		ap : 3,
+		ap : 4,
 		cooldown : 0,
 		max_targets : 2,
 		show_conditions : ["inCombat"],
@@ -2535,7 +2658,7 @@ const lib = {
 		name : "Sharktopus Arouse",
 		icon : 'hearts',
 		description : "Deals 3 corruption damage to 2 players.",
-		ap : 3,
+		ap : 4,
 		cooldown : 0,
 		type : Action.Types.corruption,
 		max_targets : 2,

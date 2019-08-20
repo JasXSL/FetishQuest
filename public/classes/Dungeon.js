@@ -946,7 +946,7 @@ class DungeonRoom extends Generic{
 
 		}
 
-		asset.onModified();
+		prop.onModified();
 		return false;
 
 	}

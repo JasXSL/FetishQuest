@@ -246,17 +246,17 @@ class PlayerTemplate extends Generic{
 
 		let viableActions = [];
 		for( let a of player.class.actions ){
-			if( libActions[a] && libActions[a].level <= player.level ){
+			if( !libActions[a] )
+				continue;
 				
-				let evt = new GameEvent({
-					target : player,
-					sender : player,
-					action : libActions[a]
-				});
-				if( Condition.all(libActions[a].add_conditions, evt) )
-					viableActions.push(libActions[a]);
+			let evt = new GameEvent({
+				target : player,
+				sender : player,
+				action : libActions[a]
+			});
+			if( Condition.all(libActions[a].add_conditions, evt) )
+				viableActions.push(libActions[a]);
 
-			}
 		}
 
 		shuffle(viableActions);

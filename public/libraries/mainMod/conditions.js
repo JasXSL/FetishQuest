@@ -5,6 +5,7 @@ import GameEvent from "../../classes/GameEvent.js";
 import Asset from "../../classes/Asset.js";
 import Action from "../../classes/Action.js";
 import Game from "../../classes/Game.js";
+import { Effect } from "../../classes/EffectSys.js";
 
 const lib = {
 	
@@ -35,6 +36,9 @@ const lib = {
 	action_warrior_viceGrip : {"type":"actionLabel","data":{"label":"warrior_viceGrip"},"targnr":0},
 	action_warrior_bolster : {"type":"actionLabel","data":{"label":"warrior_bolster"},"targnr":0},
 	action_warrior_revenge : {"type":"actionLabel","data":{"label":"warrior_revenge"},"targnr":0},
+	action_warrior_masochism : {type:Condition.Types.actionLabel,data:{"label":"warrior_masochism"},targnr:0},
+	action_warrior_injuryToInsult : {type:Condition.Types.actionLabel,data:{"label":"warrior_injuryToInsult"},targnr:0},
+
 	action_rogue_exploit : {"type":"actionLabel","data":{"label":"rogue_exploit"},"targnr":0},
 	action_rogue_corruptingVial : {type:Condition.Types.actionLabel,data:{"label":"rogue_corruptingVial"},targnr:0},
 	action_rogue_dirtyTricks : {"type":"actionLabel","data":{"label":"rogue_dirtyTricks"},"targnr":0},
@@ -48,6 +52,9 @@ const lib = {
 	action_monk_roundKick : {"type":"actionLabel","data":{"label":"monk_roundKick"},"targnr":0},
 	action_monk_disablingStrike : {"type":"actionLabel","data":{"label":"monk_disablingStrike"},"targnr":0},
 	action_monk_upliftingStrike : {"type":"actionLabel","data":{"label":"monk_upliftingStrike"},"targnr":0},
+	action_monk_meditate : {type:Condition.Types.actionLabel, data:{label:'monk_meditate'}, targnr:0},
+	action_monk_lowKick : {type:Condition.Types.actionLabel, data:{label:'monk_lowKick'}, targnr:0},
+
 	action_elementalist_iceBlast : {"type":"actionLabel","data":{"label":"elementalist_iceBlast"},"targnr":0},
 	action_elementalist_healingSurge : {"type":"actionLabel","data":{"label":"elementalist_healingSurge"},"targnr":0},
 	action_elementalist_waterSpout : {"type":"actionLabel","data":{"label":"elementalist_waterSpout"},"targnr":0},
@@ -155,6 +162,7 @@ const lib = {
 	targetIsWrapperParent : {"type":"isWrapperParent","anyPlayer":true},
 	senderIsWrapperParent : {"type":"isWrapperParent","caster":true,"anyPlayer":true},
 	senderNotWrapperParent : {type:Condition.Types.isWrapperParent, caster:true, anyPlayer:true, inverse:true},
+	targetTauntedBySender : {type:Condition.Types.hasEffectType, data:{byCaster:true, type:Effect.Types.taunt}},
 
 	actionDamaging : {"type":"actionTag","data":{"tags":["ac_damage"]}},
 	actionHealing : {type:Condition.Types.actionTag,data:{tags:[stdTag.acHeal]}},

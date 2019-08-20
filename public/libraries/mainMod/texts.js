@@ -456,7 +456,7 @@ const lib = [
 		hitfx : ["biteGeneric"],
 		metaTags : [stdTag.metaSlotButt, stdTag.metaBite, stdTag.metaUsedTentacles, stdTag.metaPainful],
 	},
-	{ text : "%S latches onto %T's %TBsize %leftright %breast and gives %This nipple a quick bite!",
+	{ text : "%S latches onto %T's %Tbsize %leftright %breast and gives %This nipple a quick bite!",
 		conditions : anyOnHumCond.concat([
 			"action_stdAttack","senderIsCocktopus","senderLatchingToTarget","targetUpperBodyOrNoDamage",
 			{conditions:["targetBreastsExposed", "targetUpperBodyStretchy"]}, 
@@ -3333,8 +3333,24 @@ const lib = [
 		metaTags : [stdTag.metaPunch, stdTag.metaPainful],
 	},
 
+	// warrior_injuryToInsult
+	{ text : "%S takes advantage of %Shis enraged opponents, throwing punches at all of them!",
+		conditions : baseCond.concat([
+			"action_warrior_injuryToInsult"
+		]),
+		numTargets : -1,
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaPunch, stdTag.metaPainful],
+	},
 
-
+	// warrior_masochism
+	{ text : "%S slaps %Shis own butt, reveling in the pain!",
+		conditions : baseCond.concat([
+			"action_warrior_masochism",
+		]),
+		metaTags : [stdTag.metaSlap, stdTag.metaPainful, stdTag.metaSlotButt],
+		hitfx : ["slap"]
+	},
 
 
 
@@ -3810,6 +3826,23 @@ const lib = [
 		]),
 		hitfx : ["healingPunch"],
 		metaTags : [stdTag.metaPunch],
+	},
+
+	// action_monk_meditate
+	{ text : "%S enters a calm state.",
+		conditions : baseCond.concat([
+			"action_monk_meditate",
+		]),
+		hitfx : ["monkMeditate"],
+	},
+
+	// action_monk_lowKick
+	{ text : "%S spins around low, sweeping at %Shis enemies' feet!",
+		conditions : baseCond.concat(["action_monk_lowKick"]),
+		audiokits : ["monkKick"],
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaKick, stdTag.metaPainful],
+		numTargets : -1,
 	},
 
 
