@@ -2094,9 +2094,9 @@ export default class Player extends Generic{
 	}
 	
 	getNrActionSlots(){
-		if( this.level < 5 )
+		if( this.level < 3 )
 			return this.level;
-		return Math.min(6, Math.floor((this.level-4)/2)+4);
+		return Math.min(6, Math.floor((this.level-4)/3)+4);
 	}
 
 	getNrPassiveSlots(){
@@ -2104,7 +2104,7 @@ export default class Player extends Generic{
 			return 0;
 		if( this.level >= 10 )
 			return 4;
-		return Math.min(4, Math.ceil((this.level-4)/2));
+		return Math.min(4, Math.ceil((this.level-2)/3));
 	}
 
 	// Checks encumberance
@@ -2318,6 +2318,10 @@ export default class Player extends Generic{
 		}
 	}
 
+	isHealInverted(){
+		return this.getActiveEffectsByType(Effect.Types.healInversion).length;
+	}
+
 
 
 	/* CHATS */
@@ -2364,7 +2368,7 @@ export default class Player extends Generic{
 
 }
 
-Player.MAX_LEVEL = 20;
+Player.MAX_LEVEL = 14;
 
 Player.primaryStats = {
 	intellect : 'intellect',

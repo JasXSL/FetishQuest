@@ -43,6 +43,7 @@ class Action extends Generic{
 		this.charges = 1;						// Max charges for the action. Ignored if cooldown is 0
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
 		this.no_interrupt = false;				// Charged action is not interruptable
+		this.reset_interrupt = false;			// Reset cooldown when interrupted
 		this.hide_if_no_targets = false;		// hide this from the action picker if there's no viable targets
 		this.disable_override = 0;				// Level of disable override.
 		this.alias = [];						// Aliases to use for texts. Useful when you want multiple actions with the same texts
@@ -89,6 +90,7 @@ class Action extends Generic{
 			semi_hidden : this.semi_hidden,
 			icon : this.icon,
 			disable_override : this.disable_override,
+			reset_interrupt : this.reset_interrupt
 		};
 
 		// Everything but mod
@@ -285,7 +287,6 @@ class Action extends Generic{
 		if( !this._cast_time )
 			return false;
 		
-		console.error("Interrupt");
 		let pp = this.getPlayerParent();
 		this._cast_time = 0;
 		this._cast_targets = [];
@@ -296,6 +297,10 @@ class Action extends Generic{
 			action : this,
 		}).raise();
 		game.ui.addText( pp.getColoredName()+"'s "+this.name+" was interrupted!", undefined, sender ? sender.id : undefined, pp.id, 'statMessage' );
+		game.playFxAudioKitById('interrupt', sender, this.getPlayerParent(), undefined, true );
+		if( this.reset_interrupt )
+			this.consumeCharges(-1);
+
 		return true;
 
 	}
@@ -630,7 +635,7 @@ class Action extends Generic{
 	getChargePlayers(){
 		return this._cast_targets
 		.map(el => game.getPlayerById(el))
-		.filter(el => Boolean(el) && !el.isDead());
+		.filter(el => Boolean(el));		// Might want to check if conditions are still valid
 	}
 
 

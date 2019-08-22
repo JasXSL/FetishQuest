@@ -517,7 +517,7 @@ const lib = {
 	cleric_smite: {
 		name : "Smite",
 		icon : 'fission',
-		description : "Smites your opponent for 4 holy damage, increased by 10% per corruption damage your target dealt last turn, up to 15 damage.",
+		description : "Smites your opponent for 4 holy damage, increased by 10% per corruption damage your target dealt last turn, up to 8 damage.",
 		ap : 1,
 		mp : 1,
 		type : Action.Types.holy,
@@ -538,7 +538,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "4*(1+min(ta_damageDoneSinceLastCorruption*0.1,3.75))"
+							"amount": "4*(1+min(ta_damageDoneSinceLastCorruption*0.1,2))"
 						}
 					},
 					
@@ -628,6 +628,101 @@ const lib = {
 			}
 		]
 	},
+	cleric_reserection : {
+		name : "Reserection",
+		icon : 'fomorian',
+		ranged : Action.Range.Ranged,
+		description : "Restores a defeated player to 50% of their max HP.",
+		ap : 5,
+		mp : 5,
+		cast_time : 3,
+		type : Action.Types.holy,
+		cooldown : 8,
+		charges: 1,
+		detrimental : false,
+		tags : [ stdTag.acHeal],
+		show_conditions : ["inCombat"],
+		reset_interrupt : true,
+		wrappers : [
+			{
+				target : "VICTIM",
+				duration : 0,
+				name : "",
+				icon : "",
+				description : ".",
+				detrimental : false,
+				add_conditions : ["targetDead"],
+				effects : [
+					{
+						type : Effect.Types.setHP,
+						data : {"amount": "ta_MaxHP/2"}
+					},
+				]
+			}
+		]
+	},
+	cleric_penance : {
+		name : "Penance",
+		icon : 'pentagram-rose',
+		ranged : Action.Range.None,
+		description : "Makes your healing spells deal damage for the remainder of this turn.",
+		ap : 0,
+		mp : 0,
+		type : Action.Types.holy,
+		cooldown : 4,
+		detrimental : false,
+		tags : [],
+		target_type : Action.TargetTypes.self,
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				name : 'Penance',
+				description : 'Your healing effects do damage this turn.',
+				icon : 'pentagram-rose',
+				duration : 1,
+				tick_on_turn_start : false,
+				tick_on_turn_end : true,
+				detrimental : false,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.healInversion
+					},
+				]
+			}
+		]
+	},
+	cleric_radiant_heal : {
+		name : "Radiant Heal",
+		icon : 'holy-symbol',
+		ranged : Action.Range.Ranged,
+		reset_interrupt : true,
+		description : "Restores 15 HP to all friendly players.",
+		ap : 3,
+		mp : 3,
+		type : Action.Types.holy,
+		cooldown : 2,
+		cast_time : 1,
+		charges: 1,
+		detrimental : false,
+		tags : [ stdTag.acHeal ],
+		show_conditions : ["inCombat"],
+		target_type : Action.TargetTypes.aoe,
+		wrappers : [
+			{
+				detrimental : false,
+				add_conditions : stdCond.concat("targetSameTeam"),
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {"amount": -15}
+					}
+				]
+			}
+		]
+	},
+	
+
 
 	// Tentaclemancer
 	tentaclemancer_tentacleWhip: {
@@ -1112,7 +1207,7 @@ const lib = {
 		description : "Knocks all enemies down for 1 turn, dealing 8 damage and interrupting them.",
 		ap : 2,
 		cooldown : 6,
-		hit_chance: 100,
+		hit_chance: 80,
 		detrimental : true,
 		target_type : Action.TargetTypes.aoe,
 		tags : [stdTag.acDamage, stdTag.acInterrupt, stdTag.acPainful],

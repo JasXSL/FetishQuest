@@ -302,6 +302,10 @@ class WebGL{
 
 		this.render();
 
+		// Needs to load this or fx particles will break for some reason
+		this.toggleArrow(true);
+		setTimeout(() => this.toggleArrow());
+
 
 	}
 

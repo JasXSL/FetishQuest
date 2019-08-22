@@ -3,6 +3,8 @@
 Smol:	
 	- Add fog override to cells
 
+	- Add interrupt sound
+
 
 Medium rare:
 	- Difficulty setting
@@ -51,19 +53,19 @@ Next:
 
 Action ideas:
 	- Cleric 
-		Sacrament of Sin: Free, 4 turn cooldown. Makes your healing abilities do damage for 1 turn, and increases their damage by 20% per point of your arousal.
-		Reserection: Resurrects a defeated player at max HP, but only once per battle.
-	
+		Passives:
+			- Sacrament of Sin: Increases damage done by 5% per point of arousal you have.
+
 	- Tentaclemancer
-		- Conversion: Siphons target arousal and gives the caster mana.
-		- Slime Coat: 1 MP, 0 AP, 3 turn CD. Reduces the AP cost of the target's next 3 actions by 2, lasts 3 turns.
+		- Infusion: Adds mana to your target, but also arousal.
+		- Grease: 1 MP, 0 AP, 3 turn CD. Reduces the AP cost of the target's next 3 actions by 2, but causes them to generate 1 arousal.
+		- Slime Ward: 1 MP, 1 AP, 6 turn CD. Places a slime ward on your target for 3 turns. If the target reaches max arousal, the ward solidifies and grants the target invulnerability for 2 turns.
 
 	- Warrior:
 		DONE
 		
 	- Monk
-		- Meditate: 1 AP, 2 CD - Meditate, adding 1 MP immediately, and 1 at the start of your turn for 5 turns. The effect falls off when you take damage.
-		- Low kick: 2 AP, 6 CD - Knocks all enemies down for 1 turn, doing 5 damage and interrupting them.
+		DONE
 
 	- Rogue
 		- Hidden Flask : 1AP, 1MP, 3 CD. Restores 3 HP immediately and at the start of your turn for 2 turns. 

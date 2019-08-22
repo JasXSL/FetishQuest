@@ -991,7 +991,7 @@ export default class UI{
 				let el = chargedActionButtons[i];
 				if( !el ){
 					el = actionButtonTemplate.clone();
-					chargedActionButtons.append(el);
+					chargingEl.append(el);
 				}
 				el = $(el);
 
@@ -1007,8 +1007,9 @@ export default class UI{
 				if( name !== labelEl.html() )
 					labelEl.html(name);
 
-				if( +durEl.text() !== a.cast_time )
-					durEl.text(a.cast_time);
+				
+				if( +durEl.text() !== a._cast_time )
+					durEl.text(a._cast_time);
 				if( tooltipEl.html() !== tooltip )
 					tooltipEl.html(tooltip);
 			}

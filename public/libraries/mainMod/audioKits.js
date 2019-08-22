@@ -253,6 +253,38 @@ const lib = {
         ],
         
     },
+    holyResurrection : {
+        sounds : [
+            {
+                s : {path : "media/audio/resurrection.ogg",volume : 0.6}
+            }
+        ],
+        
+    },
+    holyAOE : {
+        sounds : [
+            {
+                s : {path : "media/audio/holy_aoe.ogg",volume : 0.5}
+            }
+        ],
+        
+    },
+    penance : {
+        sounds : [
+            {
+                s : {path : "media/audio/penance.ogg",volume : 0.25}
+            }
+        ],
+        
+    },
+    holyCharged : {
+        sounds : [
+            {
+                s : {path : "media/audio/holy_charged.ogg",volume : 0.25}
+            }
+        ],
+        
+    },
     "monkKick": {
         label : "monkKick",
         sounds : [
@@ -275,6 +307,13 @@ const lib = {
             }
         ],
         
+    },
+    interrupt : {
+        sounds : [
+            {
+                s : {path : "media/audio/interrupt.ogg",volume : 1}
+            }
+        ],
     },
     "darkPunch": {
         label : "darkPunch",

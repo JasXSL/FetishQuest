@@ -1000,6 +1000,103 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'resurrect';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparkles_static',
+		emit_duration : 1200,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['holyResurrection'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist_yellow',
+		emit_duration : 800,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healing_yellow_pillar',
+		emit_duration : 1200,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks_big_yellow',
+		emit_duration : 600,
+		tween : false,
+	}, out[id]),
+);
+
+
+id = 'aoeHeal';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparkles_static',
+		emit_duration : 600,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['holyAOE'],
+		origin : 'sender',
+		destination : 'sender',
+		css_fx_targ : 'sender',
+		once : true,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist_yellow',
+		origin : 'sender',
+		destination : 'sender',
+		emit_duration : 300,
+		tween : false,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healing_pulse',
+		emit_duration : 300,
+		tween : false,
+		origin : 'sender',
+		destination : 'sender',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparks_big_yellow',
+		emit_duration : 300,
+		tween : false,
+		origin : 'sender',
+		destination : 'sender',
+	}, out[id]),
+);
+
+id = 'holyRunes';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparkles_static',
+		emit_duration : 600,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['penance'],
+		once : true,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_holy_runes',
+		emit_duration : 300,
+		tween : false,
+	}, out[id])
+);
+
+id = 'holyCharged';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparkles_static',
+		emit_duration : 400,
+		tween : false,
+		css_fx : 'fxHeal',
+		sound_kits : ['holyCharged'],
+		once : true,
+	}, out[id]),
+);
+
+
 
 
 id = 'levelup';

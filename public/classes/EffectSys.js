@@ -754,7 +754,8 @@ class Effect extends Generic{
 				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
 
-				
+				if( s.isHealInverted() )
+					amt = -Math.abs(amt);
 
 				// Healing
 				if( amt > 0 ){
@@ -968,6 +969,40 @@ class Effect extends Generic{
 				if( amt )
 					game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" arousal"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage arousal' );
 				
+			}
+
+			else if( 
+				this.type === Effect.Types.setHP || 
+				this.type === Effect.Types.setAP || 
+				this.type === Effect.Types.setMP || 
+				this.type === Effect.Types.setArousal
+			){
+				
+				let amt = Math.floor(Calculator.run(
+					this.data.amount, 
+					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+				})));
+				if( !isNaN(amt) ){
+
+					if( this.type === Effect.Types.setHP ){
+						t.hp = amt;
+						t.addHP(0);
+					}
+					else if( this.type === Effect.Types.setAP ){
+						t.ap = amt;
+						t.addAP(0);
+					}
+					else if( this.type === Effect.Types.setArousal ){
+						t.arousal = amt;
+						t.addArousal(0);
+					}
+					else if( this.type === Effect.Types.setMP ){
+						t.mp = amt;
+						t.addMP(0);
+					}
+
+				}
+
 			}
 
 
@@ -1605,7 +1640,13 @@ Effect.Types = {
 	hitfx : "hitfx",
 	damageArmor : "damageArmor",
 	addAP : "addAP",			
-	addMP : "addMP",			
+	addMP : "addMP",	
+	
+	setHP : 'setHP',
+	setMP : 'setMP',
+	setArousal : 'setArousal',
+	setAP : 'setAP',
+	
 	addArousal : "addArousal",	
 	interrupt : "interrupt",				
 	globalHitChanceMod : 'globalHitChanceMod',
@@ -1661,7 +1702,9 @@ Effect.Types = {
 	repair : 'repair',								
 	flee : 'flee',									
 	addThreat : 'addThreat',						
-	punishmentUsed : 'punishmentUsed',				
+	punishmentUsed : 'punishmentUsed',			
+	
+	healInversion : 'healInversion',	
 
 	stun : 'stun',									
 	taunt : 'taunt',	
@@ -1688,10 +1731,18 @@ Effect.TypeDescs = {
 	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
-	[Effect.Types.addAP] : "{amount:(str)(nr)amount}, Adds AP",										// 
-	[Effect.Types.addMP] : "{amount:(str)(nr)amount}, Adds MP",										// 
-	[Effect.Types.addArousal] : "{amount:(str)(nr)amount} - Adds arousal points",								// 
-	[Effect.Types.interrupt] : "void - Interrupts all charged actions",								// 
+	[Effect.Types.addAP] : "{amount:(str)(nr)amount}, Adds AP",									
+	[Effect.Types.addMP] : "{amount:(str)(nr)amount}, Adds MP",									
+	[Effect.Types.addArousal] : "{amount:(str)(nr)amount} - Adds arousal points",				
+	
+	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
+	[Effect.Types.setMP] : "{amount:(str)(nr)amount} - Sets MP value",							
+	[Effect.Types.setArousal] : "{amount:(str)(nr)amount} - Sets arousal value",				
+	[Effect.Types.setAP] : "{amount:(str)(nr)amount} - Sets AP value",							
+	
+	
+	[Effect.Types.interrupt] : "void - Interrupts all charged actions",							
+	[Effect.Types.healInversion] : "void - Makes healing effects do damage instead",			
 	[Effect.Types.globalHitChanceMod] : 'Modifies your hit chance with ALL types by percentage {amount:(float)(string)amount}',
 	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
 	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',

@@ -29,6 +29,8 @@ const textures = {
 	yinYang : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/yinyang.png')})),
 	swirlOrb : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/swirl_orb.png')})),
 	pulse : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/soundpulse.png')})),
+	glowRing : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/glow_ring.png')})),
+	holyRune : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/holy_rune.png')})),
 };
 for( let i in textures )
 	textures[i].material.depthWrite = false;
@@ -298,6 +300,21 @@ particles.hitfx_sparkles_static = {
 	gravity : -0.2,
 	color : ["#FFFFEE","#FFFFFF"],	
 	opacity: 1,
+};
+
+particles.hitfx_holy_runes = {
+	texture : textures.holyRune,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 1,
+	position : new Proton.BoxZone(0,0,0, 30,30,30),
+	size : new Proton.Span(5,10),
+	part_max_age : new Proton.Span(1,3),
+	velocity : 0,
+	velocity_type : 0,
+	gravity : 0,
+	color : ["#FFFFAA","#FFFFFF"],	
+	opacity: [1,0],
 };
 
 particles.hitfx_sparkles_static_big = {
@@ -719,6 +736,25 @@ particles.hitfx_healing_yellow = {
 	color : ["#FFFFAA","#FFFFFF"],	
 	opacity: 1,
 };
+
+
+particles.hitfx_healing_yellow_pillar = {
+	texture : textures.sparkle,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,20),
+	size : new Proton.Span(10,20),
+	size_tween : [1,0.01],
+	part_max_age : new Proton.Span(1,1.5),
+	velocity : 3,
+	velocity_dir : [0,0,3],
+	//velocity_type : 0,
+	gravity : -2,
+	color : ["#FFFFAA","#FFFFFF"],	
+	opacity: 1,
+};
+
 
 particles.hitfx_healingSurge = {
 	texture : textures.splat,
@@ -1191,6 +1227,20 @@ particles.hitfx_pulse = {
 	part_max_age : 1,
 	velocity : 0,
 	color : ["#FFFFFF","#DDEEFF"],	
+	opacity: [1,0,Proton.ease.easeInCirc],
+};
+
+particles.hitfx_healing_pulse = {
+	texture : textures.glowRing,
+	blending : THREE.NormalBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [0.2,1],
+	part_max_age : 0.5,
+	velocity : 0,
+	color : ["#FFFFAA","#FFFFFF"],	
 	opacity: [1,0,Proton.ease.easeInCirc],
 };
 

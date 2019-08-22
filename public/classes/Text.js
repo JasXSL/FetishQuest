@@ -270,6 +270,10 @@ class Text extends Generic{
 		let targs = event.target;
 		if( !Array.isArray(targs) )
 			targs = [targs];
+
+		if( event.type === GameEvent.Types.actionCharged )
+			targs = [event.sender];
+		
 		let i = 0;
 		for( let fx of this.hitfx ){
 			for( let targ of targs ){

@@ -3521,6 +3521,43 @@ const lib = [
 		hitfx : ["holyHeal"]
 	},
 
+	// action_cleric_reserection
+	{ text : "%T is bathed in divine magic, rising to %This feet once more!",
+		conditions : baseCond.concat([
+			"action_cleric_reserection",
+		]),
+		hitfx : ["resurrect"]
+	},
+	{ text : "%S starts drawing a large amount of holy energy around %Shim!",
+		numTargets : -1,
+		conditions : ["eventIsActionCharged", "action_cleric_reserection"],
+		hitfx : ["holyCharged"]
+	},
+
+	// action_cleric_penance
+	{ text : "%S surrounds %Shimself with holy runes!",
+		conditions : baseCond.concat([
+			"action_cleric_penance",
+		]),
+		hitfx : ["holyRunes"] // Todo: Penance visual
+	},
+
+	// action_cleric_radiant_heal
+	{ text : "A pulse of divine magic radiates from %S!",
+		numTargets : -1,
+		conditions : baseCond.concat([
+			"action_cleric_radiant_heal",
+		]),
+		hitfx : ["aoeHeal","holyHeal"]
+	},
+	{ text : "Holy sparkles begin to circle around %S!",
+		numTargets : -1,
+		conditions : ["eventIsActionCharged", "action_cleric_radiant_heal"],
+		hitfx : ["holyCharged"]
+	},
+
+	
+
 
 
 
