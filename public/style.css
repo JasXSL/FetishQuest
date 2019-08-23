@@ -355,6 +355,14 @@ div.centered, h1.centered, .centered{
 	90%{transform:scale(1.01);}
 	100%{transform:none; }
 }
+@keyframes buffRed{
+	0%{transform:none; filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
+	60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
+	70%{transform:scale(1.03);}
+	80%{transform:scale(0.98);}
+	90%{transform:scale(1.01);}
+	100%{transform:none; }
+}
 
 @keyframes heal{
 	0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(40deg) saturate(200%);}
@@ -390,6 +398,9 @@ div.fxSqueeze{
 }
 div.fxBuffBlue{
 	animation: buffBlue 0.5s ease-in-out;
+}
+div.fxBuffRed{
+	animation: buffRed 0.5s ease-in-out;
 }
 
 /* Game quickjoin */

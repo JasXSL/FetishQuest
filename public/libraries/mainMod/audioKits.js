@@ -106,6 +106,13 @@ const lib = {
             }
         ],
     },
+    enrage: {
+        sounds : [
+            {
+                s : { path : "media/audio/enrage.ogg",volume : 0.5 },
+            }
+        ],
+    },
     "squeezeGeneric": {
         label : "squeezeGeneric",
         sounds : [

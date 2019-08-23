@@ -1191,8 +1191,8 @@ class DungeonRoomAsset extends Generic{
 
 
 	// returns the first door interaction
-	getDoorInteraction(){
-		const viable = window.game ? this.getViableInteractions() : this.interactions;
+	getDoorInteraction( ignoreConditions = false ){
+		const viable = window.game && !ignoreConditions ? this.getViableInteractions() : this.interactions;
 		for( let i of viable ){
 			if( i.type === GameAction.types.door )
 				return i;
@@ -1252,13 +1252,13 @@ class DungeonRoomAsset extends Generic{
 
 	/* Type checking */
 	isDoor(){
-		return ( this.getDoorTarget() !== false || this.isExit() );
+		return ( this.getDoorTarget( true ) !== false || this.isExit() );
 	}
 
 	// returns the index
-	getDoorTarget(){
+	getDoorTarget( ignoreConditions = false ){
 
-		const interaction = this.getDoorInteraction();
+		const interaction = this.getDoorInteraction( ignoreConditions );
 		if( !interaction )
 			return false;
 

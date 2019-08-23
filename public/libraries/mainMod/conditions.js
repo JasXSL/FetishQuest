@@ -38,6 +38,7 @@ const lib = {
 	action_warrior_revenge : {type:Condition.Types.actionLabel,data:{"label":"warrior_revenge"},targnr:0},
 	action_warrior_masochism : {type:Condition.Types.actionLabel,data:{"label":"warrior_masochism"},targnr:0},
 	action_warrior_injuryToInsult : {type:Condition.Types.actionLabel,data:{"label":"warrior_injuryToInsult"},targnr:0},
+	action_warrior_infuriate : {type:Condition.Types.actionLabel,data:{"label":"warrior_infuriate"},targnr:0},
 
 	action_rogue_exploit : {type:Condition.Types.actionLabel,data:{"label":"rogue_exploit"},targnr:0},
 	action_rogue_corruptingVial : {type:Condition.Types.actionLabel,data:{"label":"rogue_corruptingVial"},targnr:0},

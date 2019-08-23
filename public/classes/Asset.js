@@ -612,11 +612,11 @@ Asset.rollRarity = function( offset = 0 ){
 	let total = 0;
 	let rarities = shuffle(Object.values(Asset.Rarity).filter(n => n >= offset));
 	for( let rarity of rarities )
-		total += 100/Math.pow(3, rarity);
+		total += 100/Math.pow(10, rarity);
 	let rand = Math.random()*total;
 	let out = 0;
 	for( let rarity of rarities ){
-		let n = 100/Math.pow(3, rarity);
+		let n = 100/Math.pow(10, rarity);
 		out += n;
 		if( rand <= out )
 			return rarity;

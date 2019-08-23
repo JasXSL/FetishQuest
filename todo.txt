@@ -3,9 +3,6 @@
 Smol:	
 	- Add fog override to cells
 
-	- Add interrupt sound
-
-
 Medium rare:
 	- Difficulty setting
 		- Should probably be in options.
@@ -62,18 +59,21 @@ Action ideas:
 		- Slime Ward: 1 MP, 1 AP, 6 turn CD. Places a slime ward on your target for 3 turns. If the target reaches max arousal, the ward solidifies and grants the target invulnerability for 2 turns.
 
 	- Warrior:
-		DONE
+		Infuriate : 0 AP, 6 CD. Sets the AP cost of Physical Attack to 1 for the remainder of your round. Using a physical attack on a target will taunt them, and increase their damage done by 20% for 1 turn.
+
 		
 	- Monk
-		DONE
+		???
+		
 
 	- Rogue
 		- Hidden Flask : 1AP, 1MP, 3 CD. Restores 3 HP immediately and at the start of your turn for 2 turns. 
 		- ???
+		- ???
 
 	- Elementalist
-		- Earth Shield : 2 MP, 2 CD. Shields a player, reducing their damage taken by 1 from all attacks, and increasing your healing done to them by 1 for 2 turns.
-		- Choke : Interrupts a target and does n elemental damage.
+		- Shock Pulse: Deals elemental AoE damage to all enemies. Soaked enemies take double damage and will be interrupted.
+
 
 	- Generic
 		- Low blow (exists)

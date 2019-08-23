@@ -585,7 +585,7 @@ export default class UI{
 			return;
 		}
 
-		let mpCost = spell.mp, apCost = spell.ap,
+		let mpCost = spell.mp, apCost = spell.getApCost(),
 			mp = player.mp, ap = player.ap
 		;
 		if( !game.battle_active )

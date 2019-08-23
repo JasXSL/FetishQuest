@@ -1411,7 +1411,22 @@ out[id].stages.push(
 	
 );
 
-
+id = 'enrage';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_debris',
+		emit_duration : 300,
+		tween : false,
+		css_fx : 'fxBuffRed',
+		sound_kits : ['enrage'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_bite',
+		emit_duration : 100,
+		tween : false,
+	}, out[id])
+);
 
 
 

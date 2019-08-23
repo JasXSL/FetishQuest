@@ -1765,7 +1765,7 @@ export default class Player extends Generic{
 				effect.data.amount, 
 				new GameEvent({sender:this, target:this, wrapper:effect.parent, effect:effect})
 			);
-			out *= (n*(effect.no_stack_multi ? 1 : effect.parent.stacks));
+			out *= Math.pow(n, (effect.no_stack_multi ? 1 : effect.parent.stacks));
 		}
 		return out;
 	}
@@ -2320,6 +2320,10 @@ export default class Player extends Generic{
 
 	isHealInverted(){
 		return this.getActiveEffectsByType(Effect.Types.healInversion).length;
+	}
+
+	isInterruptProtected(){
+		return this.getActiveEffectsByType(Effect.Types.blockInterrupt).length;
 	}
 
 

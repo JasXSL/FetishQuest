@@ -590,7 +590,8 @@ class Effect extends Generic{
 		this.label = '';								// Optional, can be used for events
 		this.conditions = [];							// Conditions when ticking
 		this.type = "";
-		this.data = {};
+		this.data = {};									// Data has automatical type conversion for the following field IDs
+														// "conditions" (if array) : Converted to an array of Conditions
 		this.tags = [];
 		this.targets = [Wrapper.TARGET_AUTO];					// Use Wrapper.TARGET_* flags for multiple targets
 		this.events = [GameEvent.Types.internalWrapperTick];	// Limits triggers to certain events. Anything other than wrapper* functions require a duration wrapper parent
@@ -641,11 +642,9 @@ class Effect extends Generic{
 
 		if( this.type === Effect.Types.runWrappers && Array.isArray(this.data.wrappers) )
 			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
-		if( this.type === Effect.Types.addStacks && Array.isArray(this.data.conditions) )
-			this.data.conditions = Condition.loadThese(this.data.conditions, this);
-		if( this.type === Effect.Types.allowReceiveSpells && Array.isArray(this.data.conditions) )
-			this.data.conditions = Condition.loadThese(this.data.conditions, this);
-		if( this.type === Effect.Types.disableActions && Array.isArray(this.data.conditions) )
+		
+		// If an effect has a conditions data field, it's 
+		if( Array.isArray(this.data.conditions) )
 			this.data.conditions = Condition.loadThese(this.data.conditions, this);
 
 		// Unpack is required since it has nested objects
@@ -1038,6 +1037,7 @@ class Effect extends Generic{
 
 			}
 			else if( this.type === Effect.Types.runWrappers ){
+				
 				let wrappers = this.data.wrappers;
 				if( !Array.isArray(wrappers) ){
 					console.error("Effect data in wrapper ", this.parent, "tried to run wrappers, but wrappers are not defined in", this);
@@ -1120,7 +1120,7 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addStacks ){
-				// {stacks:(int)(str)stacks, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true}
+				// {stacks:(int)(str)stacks=1, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true}
 				let wrappers = [this.parent];
 				let stacks = this.data.stacks;
 				let refreshTime = this.data.refreshTime;
@@ -1648,7 +1648,8 @@ Effect.Types = {
 	setAP : 'setAP',
 	
 	addArousal : "addArousal",	
-	interrupt : "interrupt",				
+	interrupt : "interrupt",		
+	blockInterrupt : "blockInterrupt",		
 	globalHitChanceMod : 'globalHitChanceMod',
 	globalDamageTakenMod : 'globalDamageTakenMod',
 	globalDamageDoneMod : 'globalDamageDoneMod',
@@ -1715,6 +1716,8 @@ Effect.Types = {
 	addRandomTags : 'addRandomTags',
 	allowReceiveSpells : 'allowReceiveSpells',
 	disableActions : 'disableActions',
+
+	setActionApCost : 'setActionApCost',
 		
 };
 
@@ -1742,6 +1745,7 @@ Effect.TypeDescs = {
 	
 	
 	[Effect.Types.interrupt] : "void - Interrupts all charged actions",							
+	[Effect.Types.blockInterrupt] : "void - Prevents normal interrupt effects",							
 	[Effect.Types.healInversion] : "void - Makes healing effects do damage instead",			
 	[Effect.Types.globalHitChanceMod] : 'Modifies your hit chance with ALL types by percentage {amount:(float)(string)amount}',
 	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
@@ -1781,7 +1785,7 @@ Effect.TypeDescs = {
 
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
 
-	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks',
+	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks=1, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks. If conditions is unset, it tries to affect the effect parent.',
 	[Effect.Types.addWrapperTime] : '{amount:(int)(str)time, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)true}',
 	[Effect.Types.removeParentWrapper] : 'void - Removes the effect\'s parent wrapper',
 	[Effect.Types.removeWrapperByLabel] : '{ label:(arr)(str)label, casterOnly:(bool)=false)}',
@@ -1796,6 +1800,7 @@ Effect.TypeDescs = {
 	[Effect.Types.daze] : 'void',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
+	[Effect.Types.setActionApCost] : '{conditions:(arr)conditions, amount:(int)amount=1} - Sets the AP cost of one or more actions. Actions affected are checked by conditions.',
 	
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
 	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',

@@ -40,17 +40,17 @@ const lib = {
 
 	cleric_smite : {
 		action : 'cleric_smite',
-		conditions : ["targetClassCleric", "targetLevel1"],
+		conditions : ["targetClassCleric", "targetLevel2"],
 		auto_learn : true,
 	},
 	cleric_chastise : {
 		action : 'cleric_chastise',
-		conditions : ["targetClassCleric", "targetLevel2"],
+		conditions : ["targetClassCleric", "targetLevel3"],
 		auto_learn : true,
 	},
 	cleric_heal : {
 		action : 'cleric_heal',
-		conditions : ["targetClassCleric", "targetLevel3"],
+		conditions : ["targetClassCleric", "targetLevel1"],
 		auto_learn : true,
 	},
 
@@ -72,7 +72,7 @@ const lib = {
 
 	warrior_revenge : {
 		action : 'warrior_revenge',
-		conditions : ["targetClassWarrior", "targetLevel1"],
+		conditions : ["targetClassWarrior", "targetLevel3"],
 		auto_learn : true,
 	},
 	warrior_bolster : {
@@ -82,7 +82,7 @@ const lib = {
 	},
 	warrior_viceGrip : {
 		action : 'warrior_viceGrip',
-		conditions : ["targetClassWarrior", "targetLevel3"],
+		conditions : ["targetClassWarrior", "targetLevel1"],
 		auto_learn : true,
 	},
 	warrior_masochism : {

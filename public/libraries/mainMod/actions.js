@@ -230,7 +230,7 @@ const lib = {
 	lowBlow: {
 		icon : 'armor-punch',
 		name : "Pummel",
-		description : "Pummel your target's weak spot. Deals 6 physical damage and interrupts any active charged actions your opponent is readying.",
+		description : "Pummel your target's weak spot. Deals 3 physical damage and interrupts any active charged actions your opponent is readying.",
 		ap : 2,
 		cooldown : 4,
 		tags : [stdTag.acDamage,stdTag.acPainful,stdTag.acInterrupt],
@@ -242,7 +242,7 @@ const lib = {
 				detrimental : true,
 				add_conditions : stdCond,
 				effects : [
-					{type : Effect.Types.damage,data : {"amount": 6}},
+					{type : Effect.Types.damage,data : {"amount": 3}},
 					{type : Effect.Types.interrupt},
 				]
 			}
@@ -394,6 +394,133 @@ const lib = {
 			}
 		]
 	},
+	// Todo: Text
+	elementalist_earthShield : {
+		name : "Earth Shield",
+		icon : 'stone-tablet',
+		description : "Grants your target 3 stacks of earth shield for 3 turns. Each stack reduces damage taken by 1. Taking damage removes 1 stack. Also blocks most interrupt effects on your target.",
+		ap : 1,
+		mp : 2,
+		cooldown : 3,
+		ranged : Action.Range.Ranged,
+		detrimental : false,
+		type : Action.Types.elemental,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				max_stacks : 3,
+				stacks : 3,
+				duration : 3,
+				name : "Earth Shield",
+				icon : "stone-tablet",
+				description : "Damage taken reduced by 1 per stack.",
+				detrimental : false,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				tags : [],
+				effects : [
+					{
+						type : Effect.Types.globalDamageTakenMod,
+						data : {amount : -1}
+					},
+					{
+						events : [GameEvent.Types.damageTaken],
+						conditions : ["targetIsWrapperParent"],
+						type : Effect.Types.addStacks,
+						data : {stacks:-1},
+					},
+					{
+						type : Effect.Types.blockInterrupt
+					}
+				]
+			}
+		]
+	},
+	// Todo: Test and text
+	elementalist_discharge : {
+		name : "Discharge",
+		icon : 'electrical-crescent',
+		ranged: Action.Range.Ranged,
+		description : "Deals 4 elemental damage to all enemies. Soaked enemies take double damage and are interrupted.",
+		ap : 2,
+		mp : 2,
+		type : Action.Types.elemental,
+		cooldown : 1,
+		tags : [stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		target_type : Action.TargetTypes.aoe,
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat("targetOtherTeam"),
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {"amount": "4*(ta_Tag_"+stdTag.wrSoaked+"+1)"}
+					},
+					{
+						type : Effect.Types.interrupt,
+						conditions : ["targetSoaked"]
+					},
+				]
+			}
+		]
+	},
+	// Todo: Test and text
+	elementalist_riptide : {
+		name : "Riptide",
+		icon : 'big-wave',
+		ranged: Action.Range.Ranged,
+		description : "Summons a riptide after 2 turns, healing all friendly players for 3 HP and 1 MP instantly and every turn for 3 turns. Also soaks all enemies for 3 turns, decreasing their elemental avoidance by 2.",
+		ap : 4,
+		mp : 2,
+		cast_time : 2,
+		type : Action.Types.elemental,
+		cooldown : 9,
+		tags : [],
+		show_conditions : ["inCombat"],
+		target_type : Action.TargetTypes.aoe,
+		wrappers : [
+			{
+				name : 'Riptide',
+				icon : 'big-wave',
+				description : 'Soaked. -2 elemental avoidance.',
+				detrimental : true,
+				duration : 3,
+				add_conditions : stdCond.concat("targetOtherTeam"),
+				tags : [stdTag.wrSoaked],
+				effects : [
+					{
+						type : Effect.Types.svElemental,
+						data : {"amount": -2}
+					}
+				]
+			},
+			{
+				name : 'Riptide',
+				icon : 'big-wave',
+				description : 'Restores 3 HP and 1 MP at the start of your turn.',
+				detrimental : false,
+				duration : 3,
+				add_conditions : stdCond.concat("targetSameTeam"),
+				tags : [],
+				effects : [
+					{
+						events : [GameEvent.Types.internalWrapperAdded, GameEvent.Types.internalWrapperTick],
+						type : Effect.Types.addMP,
+						data : {"amount": 1}
+					},
+					{
+						events : [GameEvent.Types.internalWrapperAdded, GameEvent.Types.internalWrapperTick],
+						type : Effect.Types.damage,
+						data : {"amount": -3}
+					},
+				]
+			}
+		]
+	},
+
 
 	// Rogue
 	rogue_exploit: {
@@ -512,6 +639,7 @@ const lib = {
 			}
 		]
 	},
+
 
 	// Cleric
 	cleric_smite: {
@@ -697,7 +825,7 @@ const lib = {
 		icon : 'holy-symbol',
 		ranged : Action.Range.Ranged,
 		reset_interrupt : true,
-		description : "Restores 15 HP to all friendly players.",
+		description : "Restores 10 HP to all friendly players.",
 		ap : 3,
 		mp : 3,
 		type : Action.Types.holy,
@@ -825,6 +953,8 @@ const lib = {
 		]
 	},
 
+
+	
 	// Warrior
 	warrior_revenge: {
 		name : "Revenge",
@@ -1001,6 +1131,68 @@ const lib = {
 				add_conditions : stdCond.concat("targetTauntedBySender"),
 				effects : [
 					{type:Effect.Types.damage, data:{amount:7}}
+				]
+			}
+		]
+	},
+	warrior_infuriate : {
+		name : "Infuriate",
+		icon : 'gluttony',
+		description : "For the remainder of your turn, Physical Attack costs 1 AP and restores 2 HP. It also enrages your victim, taunting them and increasing their damage done by 25% for one turn. This effect stacks.",
+		ap : 0,
+		mp : 0,
+		cooldown : 6,
+		max_targets : 1,
+		tags : [],
+		detrimental : false,
+		target_type: Action.TargetTypes.self,
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				duration : 1,
+				icon : 'gluttony',
+				name : 'Infuriate',
+				description : 'Physical attack costs 1 AP and restores 2 HP. Also enrages and taunts the target.',
+				detrimental : false,
+				add_conditions : stdCond,
+				tick_on_turn_end : true,
+				effects : [
+					{type:Effect.Types.setActionApCost, data:{
+						amount:1,
+						conditions : ["action_stdAttack"]
+					}},
+					{
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["actionHit", "action_stdAttack", "senderIsWrapperParent"],
+						type : Effect.Types.runWrappers,
+						targets : [Wrapper.TARGET_EVENT_TARGETS],
+						data : {wrappers:[
+							{
+								max_stacks : 10,
+								duration : 1,
+								icon : 'gluttony',
+								name : 'Enraged',
+								description : 'Taunted. +25% damage and healing done per stack.',
+								detrimental : true,
+								add_conditions : stdCond,
+								effects: [
+									{
+										type : Effect.Types.taunt
+									},
+									{
+										type : Effect.Types.globalDamageDoneMod,
+										data:{amount:1.25, multiplier:true}
+									}
+								]
+							}
+						]}
+					},
+					{
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["actionHit", "action_stdAttack", "senderIsWrapperParent"],
+						type : Effect.Types.damage,
+						data : {amount:-2}
+					}
 				]
 			}
 		]
@@ -2397,7 +2589,7 @@ const lib = {
 		cooldown : 6,
 		detrimental : true,
 		type : Action.Types.physical,
-		tags : [],
+		tags : [stdTag.acNpcImportant],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -2421,7 +2613,7 @@ const lib = {
 		icon : 'quicksand',
 		description : "Spreads your grappled target's limbs, stunning them for 2 turns and reducing their phys and corruption resistance by 2.",
 		ap : 2,
-		cooldown : 6,
+		cooldown : 7,
 		detrimental : true,
 		type : Action.Types.physical,
 		tags : [],

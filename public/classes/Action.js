@@ -5,6 +5,7 @@ import Player from './Player.js';
 import stdTag from '../libraries/stdTag.js';
 import Condition from './Condition.js';
 import Asset from './Asset.js';
+import Calculator from './Calculator.js';
 
 class Action extends Generic{
 	
@@ -133,10 +134,11 @@ class Action extends Generic{
 
 	getPlayerParent(){
 
-		if( this.isAssetAction() )
-			return this.parent.parent;
-		return this.parent;
-
+		let pa = this.parent;
+		while( pa && !(pa instanceof Player) ){
+			pa = pa.parent;
+		}
+		return pa;
 	}
 
 	clone(parent){
@@ -278,8 +280,9 @@ class Action extends Generic{
 	}
 
 	// Ends a charged cast
-	interrupt( sender ){
+	interrupt( sender, force = false ){
 
+		const pp = this.getPlayerParent();
 		if( this.no_interrupt )
 			return false;
 
@@ -287,17 +290,19 @@ class Action extends Generic{
 		if( !this._cast_time )
 			return false;
 		
-		let pp = this.getPlayerParent();
+		if( !force && pp.isInterruptProtected() )
+			return false;
+
 		this._cast_time = 0;
 		this._cast_targets = [];
 		new GameEvent({
 			type : GameEvent.Types.interrupt,
 			sender : sender,
-			target : this.getPlayerParent(),
+			target : pp,
 			action : this,
 		}).raise();
 		game.ui.addText( pp.getColoredName()+"'s "+this.name+" was interrupted!", undefined, sender ? sender.id : undefined, pp.id, 'statMessage' );
-		game.playFxAudioKitById('interrupt', sender, this.getPlayerParent(), undefined, true );
+		game.playFxAudioKitById('interrupt', sender, pp, undefined, true );
 		if( this.reset_interrupt )
 			this.consumeCharges(-1);
 
@@ -378,6 +383,24 @@ class Action extends Generic{
 
 	}
 
+	getApCost(){
+		const pl = this.getPlayerParent();
+		let out = this.ap;
+		const evt = new GameEvent({sender:pl, target:pl, action:this});
+		
+		if( pl ){
+			const effects = pl.getActiveEffectsByType(Effect.Types.setActionApCost);
+			for( let effect of effects ){
+				if( Condition.all(effect.data.conditions, evt) )
+					out = effect.data.amount;
+			}
+		}
+		if( isNaN(out) )
+			out = 1;
+		return Calculator.run(out, evt);
+
+	}
+
 	// Checks if all conditions are met to cast this at anyone. If log is true, it'll output an error message on fail, explaining why it failed
 	castable( log, isChargeFinish = false, debug = false ){
 
@@ -388,9 +411,11 @@ class Action extends Generic{
 		}
 
 		const pl = this.getPlayerParent(); 
-		
+		if( !pl ){
+			return false;
+		}
 		// AP was consumed immediately
-		if( this.ap > this.getPlayerParent().ap && game.battle_active && !isChargeFinish )
+		if( this.getApCost() > this.getPlayerParent().ap && game.battle_active && !isChargeFinish )
 			return err("Not enough AP for action");
 
 		// MP is not consumed immediately on charged action start, but you still need to have it
@@ -473,8 +498,8 @@ class Action extends Generic{
 			this._cast_time = this.cast_time;
 			this._cast_targets = targets.map(t => t.id);
 			// AP and charges are consumed immediately, but MP is consumed when it succeeds
-			sender.addAP(-this.ap);
-			sender._turn_ap_spent += this.ap;
+			sender.addAP(-this.getApCost());
+			sender._turn_ap_spent += this.getApCost();
 			this.consumeCharges();
 			new GameEvent({
 				type : GameEvent.Types.actionCharged,
@@ -567,8 +592,8 @@ class Action extends Generic{
 
 		this.getPlayerParent().addMP(-this.mp);
 		if( !isChargeFinish ){
-			this.getPlayerParent().addAP(-this.ap);
-			this.getPlayerParent()._turn_ap_spent += this.ap;
+			this.getPlayerParent().addAP(-this.getApCost());
+			this.getPlayerParent()._turn_ap_spent += this.getApCost();
 			this.consumeCharges();
 		}
 
@@ -585,7 +610,7 @@ class Action extends Generic{
 
 		let html = '<strong class="'+(Asset.RarityNames[rarity])+'">'+esc(name)+'</strong><br />';
 
-		let ap = this.ap;
+		let ap = this.getApCost();
 		if( !isNaN(apOverride) )
 			ap = apOverride;
 
@@ -602,7 +627,7 @@ class Action extends Generic{
 			if( this.cast_time )
 				html += '<span style="color:#FDD"><strong>Charged '+this.cast_time+' turn'+(this.cast_time !== 1 ? 's' : '')+'</strong></span>';
 			if( ap )
-				html += '<span style="color:#DFD">'+this.ap+' AP</span>';
+				html += '<span style="color:#DFD">'+ap+' AP</span>';
 			if( this.mp )
 				html += '<span style="color:#DEF">'+this.mp+' MP</span>';
 			if( this.detrimental )

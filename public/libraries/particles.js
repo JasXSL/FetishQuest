@@ -668,6 +668,24 @@ particles.hitfx_crumbs = {
 	rotation : [0,new Proton.Span(0,Math.PI)],
 };
 
+particles.hitfx_debris = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,5),
+	size : new Proton.Span(3,5),
+	size_tween : [1,0.1],
+	part_max_age : 1,
+	velocity : new Proton.Span(50,100),
+	gravity : 1,
+	color : '#553300',	
+	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : [0,new Proton.Span(0,Math.PI)],
+};
+
 
 particles.hitfx_splat_red = {
 	texture : textures.splat,

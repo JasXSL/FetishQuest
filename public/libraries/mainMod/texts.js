@@ -3352,6 +3352,15 @@ const lib = [
 		hitfx : ["slap"]
 	},
 
+	// warrior_infuriate
+	{ text : "%S unleashes %Shis inner rage!",
+		conditions : baseCond.concat([
+			"action_warrior_infuriate",
+		]),
+		metaTags : [],
+		hitfx : ["enrage"]
+	},
+
 
 
 
