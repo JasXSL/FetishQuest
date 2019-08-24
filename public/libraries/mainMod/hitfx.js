@@ -1403,6 +1403,7 @@ out[id].stages.push(
 		emit_duration : 100,
 		sound_kits : ['tentacleSuction'],
 		css_fx : 'fxTakeDamageCorruption',
+		
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_splat_sparks',
@@ -1428,6 +1429,78 @@ out[id].stages.push(
 	}, out[id])
 );
 
+
+
+id = 'earthShield';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_debris',
+		emit_duration : 300,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['earthShield'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_earth_shield',
+		emit_duration : 300,
+		tween : false,
+	}, out[id])
+);
+
+
+id = 'water_cast';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_condensation',
+		emit_duration : 300,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['waterCharged'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks_blue',
+		emit_duration : 100,
+		tween : false,
+	}, out[id]),
+
+	
+);
+
+id = 'riptide';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks_blue',
+		emit_duration : 300,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['riptide'],
+		origin : 'sender',
+		destination : 'sender',
+		css_fx_targ : 'sender',
+		once : true,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_riptide',
+		emit_duration : 300,
+		tween : false,
+		origin : 'sender',
+		destination : 'sender',
+		css_fx_targ : 'sender',
+		once : true,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		origin : 'sender',
+		destination : 'sender',
+		css_fx_targ : 'sender',
+		once : true,
+	}, out[id]),
+);
 
 
 
@@ -1510,6 +1583,27 @@ out[id].stages.push(
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_healing',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		start_offs : start,
+		end_offs : end,
+	}, out[id]),
+);
+
+
+id = 'healingSurgeSilent';
+start = {y:100}, end = {y:-50};
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_splat_sparks_blue',
+		emit_duration : 300,
+		start_offs : start,
+		end_offs : end,
+		css_fx : 'fxHeal',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_healingSurge',
 		emit_duration : 300,
 		dest_rand : 0.25,
 		start_offs : start,

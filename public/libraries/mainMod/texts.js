@@ -3928,6 +3928,38 @@ const lib = [
 	},
 
 
+	// action_elementalist_earthShield
+	{ text : "%S beckons sheets of earth to surround %T!",
+		conditions : baseCond.concat(["action_elementalist_earthShield"]),
+		hitfx : ["earthShield"],
+		metaTags : [],
+	},
+
+	// action_elementalist_discharge
+	{ text : "%S lets out a burst of electricity, shocking all nearby enemies!",
+		conditions : baseCond.concat(["action_elementalist_discharge"]),
+		numTargets : -1,
+		hitfx : ["lampreyShock", "elementalHitSparksNoSound"],	// self
+		metaTags : [stdTag.metaShock, stdTag.metaVeryPainful],
+	},
+
+	// action_elementalist_riptide
+	{ text : "%S starts chanting, condensation building around %Shim at an alarming pace!",
+		conditions : ["action_elementalist_riptide", "eventIsActionCharged"],
+		hitfx : ["water_cast"],
+		metaTags : [],
+		numTargets : -1,
+
+	},
+	{ text : "%S sends a flood of enchanted water across the area!",
+		conditions : baseCond.concat(["action_elementalist_riptide"]),
+		hitfx : ["riptide", "healingSurgeSilent"],
+		metaTags : [],
+		numTargets : -1,
+
+	},
+
+
 
 
 

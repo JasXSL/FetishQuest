@@ -319,11 +319,12 @@ class Action extends Generic{
 			console.debug("Testing", this);
 
 		let pl = game.getEnabledPlayers();
-		if( this.detrimental && !isChargeFinish ){
+		if( this.detrimental && !isChargeFinish && this.target_type !== Action.TargetTypes.aoe ){
 			pl = this.getPlayerParent().getTauntedOrGrappledBy(debug);
 			if( debug )
 				console.debug("Getting taunted or grappled by:", pl);
 		}
+
 		let targets = [];
 		if( this.target_type === Action.TargetTypes.self ){
 			if( debug )
@@ -485,7 +486,6 @@ class Action extends Generic{
 		if( this.target_type === Action.TargetTypes.self )
 			targets = [sender];
 
-
 		// make sure the supplied targets are enough
 		if( this.target_type !== Action.TargetTypes.aoe && (targets.length > this.max_targets || targets.length < this.min_targets) ){
 			game.modal.addError("Too few or too many targets selected");
@@ -509,6 +509,7 @@ class Action extends Generic{
 			}).raise();
 			return true;
 		}
+
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
 

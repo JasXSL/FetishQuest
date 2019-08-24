@@ -113,6 +113,27 @@ const lib = {
             }
         ],
     },
+    earthShield: {
+        sounds : [
+            {
+                s : { path : "media/audio/earth_shield.ogg",volume : 0.3 },
+            }
+        ],
+    },
+    riptide: {
+        sounds : [
+            {
+                s : { path : "media/audio/riptide.ogg",volume : 0.4 },
+            }
+        ],
+    },
+    waterCharged: {
+        sounds : [
+            {
+                s : { path : "media/audio/water_charge.ogg",volume : 0.3 },
+            }
+        ],
+    },
     "squeezeGeneric": {
         label : "squeezeGeneric",
         sounds : [

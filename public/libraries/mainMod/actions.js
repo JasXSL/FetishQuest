@@ -394,7 +394,7 @@ const lib = {
 			}
 		]
 	},
-	// Todo: Text
+	
 	elementalist_earthShield : {
 		name : "Earth Shield",
 		icon : 'stone-tablet',
@@ -437,7 +437,6 @@ const lib = {
 			}
 		]
 	},
-	// Todo: Test and text
 	elementalist_discharge : {
 		name : "Discharge",
 		icon : 'electrical-crescent',
@@ -467,7 +466,6 @@ const lib = {
 			}
 		]
 	},
-	// Todo: Test and text
 	elementalist_riptide : {
 		name : "Riptide",
 		icon : 'big-wave',
@@ -477,10 +475,12 @@ const lib = {
 		mp : 2,
 		cast_time : 2,
 		type : Action.Types.elemental,
-		cooldown : 9,
+		cooldown : 7,
 		tags : [],
 		show_conditions : ["inCombat"],
 		target_type : Action.TargetTypes.aoe,
+		detrimental : false,
+		reset_interrupt : true,
 		wrappers : [
 			{
 				name : 'Riptide',
@@ -504,7 +504,6 @@ const lib = {
 				detrimental : false,
 				duration : 3,
 				add_conditions : stdCond.concat("targetSameTeam"),
-				tags : [],
 				effects : [
 					{
 						events : [GameEvent.Types.internalWrapperAdded, GameEvent.Types.internalWrapperTick],

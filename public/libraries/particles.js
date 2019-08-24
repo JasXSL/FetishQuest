@@ -31,6 +31,7 @@ const textures = {
 	pulse : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/soundpulse.png')})),
 	glowRing : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/glow_ring.png')})),
 	holyRune : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/holy_rune.png')})),
+	rock : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/rock.png')})),
 };
 for( let i in textures )
 	textures[i].material.depthWrite = false;
@@ -686,6 +687,22 @@ particles.hitfx_debris = {
 	rotation : [0,new Proton.Span(0,Math.PI)],
 };
 
+particles.hitfx_earth_shield = {
+	texture : textures.rock,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,15),
+	size : new Proton.Span(20,50),
+	size_tween : [1, 0.01, Proton.ease.easeFullStairStep],
+	part_max_age : 1,
+	velocity : 0.2,
+	gravity : 0,
+	color : ['#553300','#333333'],	
+	opacity: 1,
+	rotation : [0,0,new Proton.Span(0,1)],
+};
+
 
 particles.hitfx_splat_red = {
 	texture : textures.splat,
@@ -968,6 +985,38 @@ particles.hitfx_splat_sparks_discreter = {
 	wiggle : [0,10],
 	rotation : new Proton.Span(0,Math.PI),
 };
+
+particles.hitfx_condensation = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,20),
+	size : new Proton.Span(2,7),
+	//size_tween : [1,0.001],
+	part_max_age : 2,
+	velocity : new Proton.Span(0,0.1),
+	gravity : -0.1,
+	color : ['#00AAFF', '#AACCFF'],	
+	opacity: [1,0],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
+};
+
+particles.hitfx_riptide = {
+	texture : textures.glowRing,
+	blending : THREE.AdditiveBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 300,
+	size_tween : [0,1],
+	part_max_age : 1.5,
+	velocity : 0,
+	color : ["#3399FF","#FFFFFF"],	
+	opacity: [0,0.25,Proton.ease.easeFullSine],
+};
+
 
 particles.hitfx_snow_sparks = {
 			

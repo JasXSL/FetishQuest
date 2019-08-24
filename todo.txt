@@ -63,7 +63,7 @@ Action ideas:
 
 		
 	- Monk
-		???
+		- ???
 		
 
 	- Rogue
@@ -76,8 +76,7 @@ Action ideas:
 
 
 	- Generic
-		- Low blow (exists)
-		- ???
+		- Pummel (exists)
 		- ???
 		- ???
 
