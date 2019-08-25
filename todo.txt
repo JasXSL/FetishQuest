@@ -1,5 +1,6 @@
 -- CURRENT --
 
+
 Smol:	
 	- Add fog override to cells
 
@@ -59,24 +60,22 @@ Action ideas:
 		- Slime Ward: 1 MP, 1 AP, 6 turn CD. Places a slime ward on your target for 3 turns. If the target reaches max arousal, the ward solidifies and grants the target invulnerability for 2 turns.
 
 	- Warrior:
-		Infuriate : 0 AP, 6 CD. Sets the AP cost of Physical Attack to 1 for the remainder of your round. Using a physical attack on a target will taunt them, and increase their damage done by 20% for 1 turn.
-
+		DONE
 		
 	- Monk
 		- ???
 		
-
 	- Rogue
 		- Hidden Flask : 1AP, 1MP, 3 CD. Restores 3 HP immediately and at the start of your turn for 2 turns. 
 		- ???
 		- ???
 
 	- Elementalist
-		- Shock Pulse: Deals elemental AoE damage to all enemies. Soaked enemies take double damage and will be interrupted.
+		DONE
 
 
 	- Generic
-		- Pummel (exists)
+		- Pummel DONE
 		- ???
 		- ???
 

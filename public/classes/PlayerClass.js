@@ -13,6 +13,8 @@ export default class PlayerClass extends Generic{
 		this.actions = [];				// Used only for NPCs. Players should instead use ActionLearnable.
 		this.description = '';
 		this.primaryStat = 'none';		// Increases the effect of a primary stat by 50%
+		this.player_icon = '';			// TODO: If the player doesn't have an icon, use the class icon instead
+		this.name_type = PlayerClass.NameType.None;		// Lets you append or prepend the class name to the player's name. Useful for player templates with many classes.
 
 		// 10 points total, these are floats, and add 10% per point from leveling, rounded up
 		this.svPhysical = 0;
@@ -53,6 +55,8 @@ export default class PlayerClass extends Generic{
 			stamina : this.stamina,
 			intellect : this.intellect,
 			agility : this.agility,
+			player_icon : this.player_icon,
+			name_type : this.name_type
 		};
 		if( full ){
 			out.label = this.label;
@@ -73,5 +77,10 @@ export default class PlayerClass extends Generic{
 
 }
 
+PlayerClass.NameType = {
+	None : 0,
+	Suffix : 1,
+	Prefix : 2,
+};
 
 

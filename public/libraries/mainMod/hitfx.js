@@ -1430,6 +1430,24 @@ out[id].stages.push(
 );
 
 
+id = 'roots';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_debris',
+		emit_duration : 300,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['roots'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_roots',
+		emit_duration : 100,
+		tween : false,
+	}, out[id])
+);
+
+
 
 id = 'earthShield';
 out[id] = new HitFX({label : id});
@@ -1446,6 +1464,60 @@ out[id].stages.push(
 		emit_duration : 300,
 		tween : false,
 	}, out[id])
+);
+
+
+id = 'skitteringSwarm';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_insect_dots',
+		emit_duration : 500,
+		sound_kits : ['skitteringSwarm'],
+		origin : 'attacker',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_skittering_swarm',
+		emit_duration : 500,
+		origin : 'attacker',
+		hold : 500,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_insect_dots_impact',
+		emit_duration : 500,
+		css_fx : 'fxTakeDamageCorruption',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_skittering_swarm_impact',
+		emit_duration : 500,
+	}, out[id]),
+);
+
+id = 'stingingSwarm';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_insect_dots',
+		emit_duration : 500,
+		sound_kits : ['skitteringSwarm'],
+		origin : 'attacker',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_stinging_swarm',
+		emit_duration : 500,
+		origin : 'attacker',
+		hold : 500,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_insect_dots_impact',
+		emit_duration : 500,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['stingingSwarm'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_stinging_swarm_impact',
+		emit_duration : 500,
+	}, out[id]),
 );
 
 
@@ -1498,6 +1570,26 @@ out[id].stages.push(
 		origin : 'sender',
 		destination : 'sender',
 		css_fx_targ : 'sender',
+		once : true,
+	}, out[id]),
+);
+
+
+id = 'circleOfHarmony';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_mist',
+		emit_duration : 300,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['circleOfHarmony'],
+		once : true,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_circle_of_harmony',
+		emit_duration : 300,
+		tween : false,
 		once : true,
 	}, out[id]),
 );

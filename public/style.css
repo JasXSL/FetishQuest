@@ -1680,7 +1680,7 @@ div.fxBuffRed{
 		background:rgba(0,0,0,.5);
 		text-align: right;
 		border-top-left-radius: 1vmax;
-		backdrop-filter: blur(5px);
+		backdrop-filter: blur(2px);
 	}
 	#ui > div.players div.right div.player > div.content > div.stats{
 		left:0; right:auto;

@@ -668,7 +668,7 @@ const lib = {
 		icon : "",
 		species : "Groper",
 		description : "A tree monster with viny tentacles. Dangerous during mating season. Sadly their mating season lasts all year.",
-		classes : ["groper","groper_sapbeast"],
+		classes : ["groper","groper_sapbeast","groper_infested"],
 		max_actions : 4,
 		tags : [
 			stdTag.plBeast,

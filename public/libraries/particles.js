@@ -32,6 +32,9 @@ const textures = {
 	glowRing : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/glow_ring.png')})),
 	holyRune : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/holy_rune.png')})),
 	rock : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/rock.png')})),
+	roots : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/roots.png')})),
+	skitteringInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/skittering_insect.png')})),
+	stingingInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/stinging_insect.png')})),
 };
 for( let i in textures )
 	textures[i].material.depthWrite = false;
@@ -1016,6 +1019,131 @@ particles.hitfx_riptide = {
 	color : ["#3399FF","#FFFFFF"],	
 	opacity: [0,0.25,Proton.ease.easeFullSine],
 };
+
+particles.hitfx_circle_of_harmony = {
+	texture : textures.glowRing,
+	blending : THREE.AdditiveBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [0,1, Proton.ease.easeOutCirc],
+	part_max_age : 1.5,
+	velocity : 0,
+	color : ["#33FF33","#AAFFAA"],	
+	opacity: [0,1,Proton.ease.easeFullSine],
+};
+
+particles.hitfx_roots = {
+	texture : textures.roots,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,20),
+	size : new Proton.Span(20,30),
+	size_tween : [0,1, Proton.ease.easeOutCirc],
+	part_max_age : 1,
+	//velocity : new Proton.Span(0,0.1),
+	gravity : 0,
+	color : ['#FFFFFF', '#FFFFFF'],	
+	opacity: [1,0, Proton.ease.easeInCirc],
+	rotation : new Proton.Span(0,Math.PI),
+};
+
+
+particles.hitfx_insect_dots = {
+	texture : textures.glowSphere,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,3),
+	size : new Proton.Span(2,5),
+	size_tween : [1,0.01, Proton.ease.easeOutCirc],
+	part_max_age : 4,
+	velocity : new Proton.Span(-15,15),
+	gravity : 0,
+	color : ['#111100', '#000000'],	
+	opacity: 1,
+	rotation : new Proton.Span(0,Math.PI),
+};
+particles.hitfx_skittering_swarm = {
+	texture : textures.skitteringInsect,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,3),
+	size : new Proton.Span(4,8),
+	size_tween : [1,0.01, Proton.ease.easeOutCirc],
+	part_max_age : 3,
+	velocity : new Proton.Span(-15,15),
+	gravity : 0,
+	color : ['#553300', '#000000'],	
+	opacity: 1,
+	rotation : [5,0,0],
+};
+particles.hitfx_stinging_swarm = {
+	texture : textures.stingingInsect,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,3),
+	size : new Proton.Span(4,8),
+	size_tween : [1,0.01, Proton.ease.easeOutCirc],
+	part_max_age : 3,
+	velocity : new Proton.Span(-15,15),
+	gravity : 0,
+	color : ['#553300', '#000000'],	
+	opacity: 1,
+	rotation : [5,0,0],
+};
+
+particles.hitfx_insect_dots_impact = {
+	texture : textures.glowSphere,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,15),
+	size : new Proton.Span(2,5),
+	size_tween : [1,0.01, Proton.ease.easeOutCirc],
+	part_max_age : 4,
+	velocity : new Proton.Span(-15,15),
+	gravity : 0,
+	color : ['#111100', '#000000'],	
+	opacity: 1,
+	rotation : new Proton.Span(0,Math.PI),
+};
+particles.hitfx_skittering_swarm_impact = {
+	texture : textures.skitteringInsect,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,15),
+	size : new Proton.Span(4,8),
+	size_tween : [1,0.01, Proton.ease.easeOutCirc],
+	part_max_age : 3,
+	velocity : new Proton.Span(-5,5),
+	gravity : 0,
+	color : ['#553300', '#000000'],	
+	opacity: 1,
+	rotation : [5,0,0],
+};
+
+particles.hitfx_stinging_swarm_impact = {
+	texture : textures.stingingInsect,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,15),
+	size : new Proton.Span(1,6),
+	size_tween : [0.01, 1, Proton.ease.easeFullBridge],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(-5,5),
+	gravity : 0,
+	color : ['#553300', '#000000'],	
+	opacity: 1,
+	rotation : [5,0,0],
+};
+
 
 
 particles.hitfx_snow_sparks = {

@@ -957,8 +957,8 @@ export default class UI{
 		;
 		nameEl.toggleClass('active', isMyActive);
 
-		if( nameDisplayEl.text() !== p.name )
-			nameDisplayEl.text(p.name);
+		if( nameDisplayEl.text() !== p.getName() )
+			nameDisplayEl.text(p.getName());
 		
 		ownerEl.toggleClass('hidden', !game.is_host);
 		ownEl.toggleClass('hidden', Boolean(game.getMyPlayers().length < 2 || isMyActive || !isMine));
@@ -2270,7 +2270,13 @@ export default class UI{
 				// Exp bar
 				(player.level < Player.MAX_LEVEL ? this.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()) : '')+
 				// Description
-				'<p style="text-align:center"><em>'+(player.description.trim() ? esc(player.description) : 'No description')+'</em></p>'+
+				'<p style="text-align:center"><em>'+
+					esc(player.description)+
+					(player.class ?
+					'<br /><strong>'+esc(player.class.name)+'</strong><br />'+
+					esc(player.class.description)
+					: '')+
+				'</em></p>'+
 				// Edit player button
 				'<br />'+(game.is_host ? '<input type="button" class="editPlayer yellow devtool" value="Edit Player" /> ' : '');
 				// Delete button

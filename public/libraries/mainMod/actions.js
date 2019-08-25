@@ -92,6 +92,7 @@ const lib = {
 		detrimental : false,
 		hidden: true,
 		allow_when_charging: true,
+		ranged : Action.Range.None,
 		target_type : Action.TargetTypes.self,
 		show_conditions : [
 			"inCombat"
@@ -842,7 +843,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {"amount": -15}
+						data : {"amount": -10}
 					}
 				]
 			}
@@ -1097,7 +1098,7 @@ const lib = {
 		cooldown : 2,
 		charges : 3,
 		max_targets : 1,
-		tags : [ stdTag.acDamage ],
+		tags : [ stdTag.acDamage, stdTag.acHeal ],
 		detrimental : false,
 		target_type: Action.TargetTypes.self,
 		show_conditions : ["inCombat"],
@@ -1428,6 +1429,41 @@ const lib = {
 						events : ["internalWrapperAdded"],
 						type : Effect.Types.knockdown
 					}
+				]
+			}
+		]
+	},
+	// Todo: Text
+	monk_circleOfHarmony : {
+		name : "Circle of Harmony",
+		icon : 'divided-spiral',
+		description : "Increases all avoidances by 8 for 3 turns. This effect is removed when you use a detrimental action.",
+		ap : 0,
+		mp : 1,
+		cooldown : 5,
+		detrimental : false,
+		target_type : Action.TargetTypes.self,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				duration : 3,
+				name : "Circle of Harmony",
+				icon : "divided-spiral",
+				detrimental : false,
+				description : "+8 To all avoidances. Removed when you use a detrimental action.",
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["senderIsWrapperParent","actionDetrimental"],
+						type : Effect.Types.removeParentWrapper
+					},
+					{type : Effect.Types.svCorruption,data : {amount:8}},
+					{type : Effect.Types.svElemental,data : {amount:8}},
+					{type : Effect.Types.svHoly,data : {amount:8}},
+					{type : Effect.Types.svPhysical,data : {amount:8}},
 				]
 			}
 		]
@@ -2291,6 +2327,97 @@ const lib = {
 					{
 						type : Effect.Types.damage,
 						data : {"amount": 5}
+					}
+				]
+			}
+		]
+	},
+	groper_root : {
+		name : "Roper Root",
+		icon : 'plant-roots',
+		description : "Entangles your target's clothes, adding a 25% chance of stripping a random item on them when they use a melee attack on their next turn.",
+		ap : 3,
+		cooldown : 4,
+		detrimental : true,
+		duration : 1,
+		type : Action.Types.physical,
+		tags : [stdTag.acDebuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				name : 'Entangle',
+				description : 'Using a melee attack has a 30% chance of stripping you.',
+				icon : 'plant-roots',
+				duration : 1,
+				detrimental : true,
+				add_conditions : stdCond.concat('targetNotNaked'),
+				stay_conditions : stdCond.concat('targetNotNaked'),
+				effects : [
+					{
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["senderIsWrapperParent", "actionMelee", "rand30", "targetNotSender"],
+						type : Effect.Types.disrobe,
+						data : {slots:[Asset.Slots.upperBody, Asset.Slots.lowerBody], numSlots:1}
+					}
+				]
+			}
+		]
+	},
+	groper_skittering_swarm : {
+		name : "Skittering Swarm",
+		icon : 'earwig',
+		description : "Covers your target in a skittering swarm for 2 turns, reducing physical proficiency by 2 and adds 1 arousal at the start of their turn.",
+		ap : 2,
+		mp : 3,
+		cooldown : 3,
+		detrimental : true,
+		type : Action.Types.corruption,
+		tags : [stdTag.acDebuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				name : 'Skittering Swarm',
+				description : '-2 physical proficiency, arousing.',
+				icon : 'earwig',
+				duration : 2,
+				detrimental : true,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						label : 'skitteringSwarm',
+						events : [GameEvent.Types.internalWrapperTick],
+						type : Effect.Types.addArousal,
+						data : {amount:1}
+					},
+					{
+						type: Effect.Types.bonPhysical,
+						data : {amount: -2},
+					}
+				]
+			}
+		]
+	},
+	groper_stinging_swarm : {
+		name : "Stinging Swarm",
+		icon : 'wasp-sting',
+		description : "Deals 3 physical damage to all enemies.",
+		ap : 3,
+		mp : 2,
+		cooldown : 3,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		target_type : Action.TargetTypes.aoe,
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount:3}
 					}
 				]
 			}

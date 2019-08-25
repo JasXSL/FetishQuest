@@ -1,5 +1,6 @@
 import Action from "../../classes/Action.js";
 import Player from "../../classes/Player.js";
+import PlayerClass from "../../classes/PlayerClass.js";
 
 const lib = {
     "none": {
@@ -203,7 +204,8 @@ const lib = {
             "imp_demonicPinch",
             "whip_legLash",
 			"whip_powerLash",
-			"imp_claws",
+            "imp_claws",
+            "low_blow"
         ]
     },
     guardian_demon_breaker : {
@@ -262,9 +264,12 @@ const lib = {
         ]
     },
     groper : {
-        name : "Shambler",
+        player_icon : '',
+        name_type : PlayerClass.NameType.Suffix,
+        name : "Lasher",
         primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
+        description : 'This groper has a multitude of extra tendrils flailing about!',
         actions : [
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentatug",
@@ -275,15 +280,32 @@ const lib = {
     },
     groper_sapbeast : {
         name : "Sapbeast",
+        player_icon : '',
+        description : 'This groper has a couple of thicker sap-coated tendrils.',
+        name_type : PlayerClass.NameType.Suffix,
         primaryStat : Player.primaryStats.intellect,
         isMonsterClass : true,
         intellect : 2,
         actions : [
             "tentacle_fiend_legWrap",
-            "tentacle_fiend_tentatug",
             "groper_leg_spread",
             "groper_sap_squeeze",
             "groper_sap_inject",
+        ]
+    },
+    groper_infested : {
+        name : "Infested",
+        player_icon : '',
+        name_type : PlayerClass.NameType.Prefix,
+        description : 'This groper seems to be half hollowed out and has a nest of skittering insects living in it!',
+        primaryStat : Player.primaryStats.agility,
+        isMonsterClass : true,
+        stamina : -4,
+        agility : 2,
+        actions : [
+            "groper_root",          // using melee attacks has a chance of stripping
+            "groper_skittering_swarm",     // Todo: Covers a player in a skittering swarm for 2 turns, reducing physical proficiency and arouses at the start of each turn. Lasts 2 turns.
+            "groper_stinging_swarm",      // Todo: Deals physical damage to all players
         ]
     },
 

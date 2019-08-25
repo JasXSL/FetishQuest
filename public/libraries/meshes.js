@@ -2498,6 +2498,7 @@ LibMesh.library = {
 		},
 		Stalagmite : new LibMesh({
 			url : 'nature/stalag.JD',
+			tags : [stdTag.mStalagmite],
 			materials : [
 				libMat.Rock.Floor
 			],

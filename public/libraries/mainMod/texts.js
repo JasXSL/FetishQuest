@@ -1741,6 +1741,45 @@ const lib = [
 	},
 
 
+	// groper_root
+	{ text : "Vines shoot from the ground, latching onto %T's outfit!",
+		conditions : baseCond.concat("action_groper_root"),
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSqueeze, stdTag.metaSlotClothes],
+		hitfx : ["roots"],
+	},
+
+	// groper_skittering_swarm
+	{ text : "%S hurls a group of insects at %T, coating the %Trace with little skittering bugs!",
+		conditions : baseCond.concat("action_groper_skittering_swarm"),
+		metaTags : [],
+		hitfx : ["skitteringSwarm"],
+	},
+	{ text : "An insect manages to skitter across the bottom of %T's foot, tickling the %Trace!",
+		conditions : ["eventIsEffectTrigger", "action_groper_skittering_swarm_tick"],
+	},
+	{ text : "An insect slips into %T's %TclothLower, skittering across %This %Tgenitals!",
+		conditions : ["eventIsEffectTrigger", "action_groper_skittering_swarm_tick", "targetWearsLowerBody"],
+	},
+	{ text : "An insect slips down between %T's %Trsize buttcheeks, tickling the %Trace's %butt as it skitters across!",
+		conditions : ["eventIsEffectTrigger", "action_groper_skittering_swarm_tick"],
+	},
+	{ text : "An insect slips into %T's %TclothUpper and seeks its way up %This armpit, tickling the %Trace as it skitters across!",
+		conditions : ["eventIsEffectTrigger", "action_groper_skittering_swarm_tick", "targetWearsUpperBody"],
+	},
+	{ text : "An insect slips into %T's %TclothUpper and starts crawling across %This %leftright %breast, tickling %This nipple!",
+		conditions : ["eventIsEffectTrigger", "action_groper_skittering_swarm_tick", "targetWearsUpperBody", "targetBreasts"],
+	},
+
+	// groper_stinging_swarm
+	{ text : "A swarm of stinging insects erupt from %S, assaulting its enemies!",
+		conditions : baseCond.concat("action_groper_stinging_swarm"),
+		metaTags : [],
+		hitfx : ["stingingSwarm"],
+		numTargets : -1
+	},
+
+	
+
 
 	// action_groper_sap_squeeze
 	{ text : "%S wraps a sap-coated tendril around %T's torso constricting %This %Tbsize %breasts!",
@@ -3891,6 +3930,13 @@ const lib = [
 		numTargets : -1,
 	},
 
+	// action_monk_circleOfHarmony
+	{ text : "A circle of energy surrounds %S!",
+		conditions : baseCond.concat(["action_monk_circleOfHarmony"]),
+		hitfx : ["circleOfHarmony"],
+		metaTags : []
+	},
+
 
 	// ELEMENTALIST
 
@@ -3951,6 +3997,7 @@ const lib = [
 		numTargets : -1,
 
 	},
+	// action_elementalist_riptide finish 
 	{ text : "%S sends a flood of enchanted water across the area!",
 		conditions : baseCond.concat(["action_elementalist_riptide"]),
 		hitfx : ["riptide", "healingSurgeSilent"],

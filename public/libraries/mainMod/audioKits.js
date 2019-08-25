@@ -127,6 +127,36 @@ const lib = {
             }
         ],
     },
+
+    circleOfHarmony : {
+        sounds : [
+            {
+                s : { path : "media/audio/circle_of_harmony.ogg",volume : 0.4 },
+            }
+        ],
+    },
+    roots : {
+        sounds : [
+            {
+                s : { path : "media/audio/roots.ogg",volume : 0.4 },
+            }
+        ],
+    },
+    skitteringSwarm : {
+        sounds : [
+            {
+                s : { path : "media/audio/skittering_swarm.ogg",volume : 0.4 },
+            }
+        ],
+    },
+    stingingSwarm : {
+        sounds : [
+            {
+                s : { path : "media/audio/stinging_swarm.ogg",volume : 0.4 },
+            }
+        ],
+    },
+
     waterCharged: {
         sounds : [
             {
@@ -134,6 +164,8 @@ const lib = {
             }
         ],
     },
+
+    
     "squeezeGeneric": {
         label : "squeezeGeneric",
         sounds : [

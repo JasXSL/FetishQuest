@@ -219,7 +219,7 @@ export default {
 	mTree : 'm_tree',
 	mFlower : 'm_flower',
 	mTreeStump : 'm_tree_stump',
-
+	mStalagmite : 'm_stalagmite',
 
 	// Meta tags for texts
 	metaPunch : 'me_punch',

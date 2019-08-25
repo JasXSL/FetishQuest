@@ -60,6 +60,7 @@ const lib = {
 	action_monk_upliftingStrike : {type:Condition.Types.actionLabel,data:{"label":"monk_upliftingStrike"},targnr:0},
 	action_monk_meditate : {type:Condition.Types.actionLabel, data:{label:'monk_meditate'}, targnr:0},
 	action_monk_lowKick : {type:Condition.Types.actionLabel, data:{label:'monk_lowKick'}, targnr:0},
+	action_monk_circleOfHarmony : {type:Condition.Types.actionLabel, data:{label:'monk_circleOfHarmony'}, targnr:0},
 
 	action_elementalist_iceBlast : {type:Condition.Types.actionLabel,data:{"label":"elementalist_iceBlast"},targnr:0},
 	action_elementalist_healingSurge : {type:Condition.Types.actionLabel,data:{"label":"elementalist_healingSurge"},targnr:0},
@@ -102,6 +103,13 @@ const lib = {
 	action_guardian_demon_remoteDelivery : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_remoteDelivery'}, targnr:0},
 	action_throw_rock : {type:Condition.Types.actionLabel, data:{label:'throwRock'}, targnr:0},
 	
+
+	action_groper_root : {type:Condition.Types.actionLabel, data:{label:'groper_root'}, targnr:0},
+	action_groper_skittering_swarm : {type:Condition.Types.actionLabel, data:{label:'groper_skittering_swarm'}, targnr:0},
+	action_groper_skittering_swarm_tick : {type:Condition.Types.effectLabel, data:{label:'skitteringSwarm'}, targnr:0},
+	action_groper_stinging_swarm : {type:Condition.Types.actionLabel, data:{label:'groper_stinging_swarm'}, targnr:0},
+
+
 	action_sharktopus_attack : {type:Condition.Types.actionLabel, data:{label:'sharktopus_attack'}, targnr:0},
 	action_sharktopus_arouse : {type:Condition.Types.actionLabel, data:{label:'sharktopus_arouse'}, targnr:0},
 
@@ -383,6 +391,9 @@ const lib = {
 
 	roomTable : {"type":Condition.Types.tag,data:{"tags":[stdTag.mTable]}},
 	roomBook : {type:Condition.Types.tag,data:{"tags":[stdTag.mBook]}},
+	roomTankard : {type:Condition.Types.tag,data:{"tags":[stdTag.mTankard]}},
+	roomBottle : {type:Condition.Types.tag,data:{"tags":[stdTag.mBottle]}},
+	roomStalagmite : {type:Condition.Types.tag,data:{"tags":[stdTag.mStalagmite]}},
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},
 	targetDead : {"type":"defeated"},

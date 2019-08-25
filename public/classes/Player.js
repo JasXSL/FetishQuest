@@ -426,8 +426,21 @@ export default class Player extends Generic{
 		return vars;
 	}
 
+	getName(){
+		let out = this.name;
+
+		if( this.class && this.class.name_type !== PlayerClass.NameType.None ){
+			if( this.class.name_type === PlayerClass.NameType.Suffix )
+				out += ' '+this.class.name;
+			else
+				out = this.class.name + ' ' + out;
+		}
+
+		return out;
+	}
+
 	getColoredName(){
-		return '|c'+this.color+'|'+this.name+'|/c|';
+		return '|c'+this.color+'|'+this.getName()+'|/c|';
 	}
 
 	// Statuses
