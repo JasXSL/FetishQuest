@@ -1747,7 +1747,7 @@ Effect.TypeDescs = {
 	[Effect.Types.interrupt] : "void - Interrupts all charged actions",							
 	[Effect.Types.blockInterrupt] : "void - Prevents normal interrupt effects",							
 	[Effect.Types.healInversion] : "void - Makes healing effects do damage instead",			
-	[Effect.Types.globalHitChanceMod] : 'Modifies your hit chance with ALL types by percentage {amount:(float)(string)amount}',
+	[Effect.Types.globalHitChanceMod] : '{amount:(int)(float)(string)amount Modifies your hit chance with ALL types by percentage, multiplier:(bool)isMultiplier=false }',
 	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
 	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
 	[Effect.Types.gameAction] : '{action:(obj)gameAction} - Lets you run a game action',

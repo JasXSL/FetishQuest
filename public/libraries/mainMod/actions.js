@@ -2376,6 +2376,7 @@ const lib = {
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
+				label : 'skitteringSwarm',
 				name : 'Skittering Swarm',
 				description : '-2 physical proficiency, arousing.',
 				icon : 'earwig',
@@ -2413,7 +2414,7 @@ const lib = {
 		wrappers : [
 			{
 				detrimental : true,
-				add_conditions : stdCond,
+				add_conditions : stdCond.concat("targetOtherTeam"),
 				effects : [
 					{
 						type : Effect.Types.damage,

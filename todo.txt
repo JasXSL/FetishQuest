@@ -51,6 +51,7 @@ Next:
 
 Action ideas:
 	- Cleric 
+		DONE
 		Passives:
 			- Sacrament of Sin: Increases damage done by 5% per point of arousal you have.
 
@@ -63,7 +64,7 @@ Action ideas:
 		DONE
 		
 	- Monk
-		- ???
+		DONE
 		
 	- Rogue
 		- Hidden Flask : 1AP, 1MP, 3 CD. Restores 3 HP immediately and at the start of your turn for 2 turns. 

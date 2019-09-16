@@ -1769,6 +1769,7 @@ export default class Player extends Generic{
 		let w = this.getActiveEffectsByType(type),
 			out = 1
 		;
+		
 		for( let effect of w ){
 			if( !effect.data.multiplier )
 				continue;
@@ -2408,7 +2409,7 @@ Player.getHitChance = function( attacker, victim, action ){
 	if( action.hit_chance > 100 )
 		return 100;
 
-	let modified = (attacker.getBon(action.type)-victim.getSV(action.type))*5+action.hit_chance;
+	let modified = ((attacker.getBon(action.type)-victim.getSV(action.type))*5+action.hit_chance+attacker.getGenericAmountStatPoints(Effect.Types.globalHitChanceMod))*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod);
 	// Hit chance above 100 is set as "always hit"
 	return modified;
 

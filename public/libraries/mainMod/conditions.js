@@ -107,6 +107,7 @@ const lib = {
 	action_groper_root : {type:Condition.Types.actionLabel, data:{label:'groper_root'}, targnr:0},
 	action_groper_skittering_swarm : {type:Condition.Types.actionLabel, data:{label:'groper_skittering_swarm'}, targnr:0},
 	action_groper_skittering_swarm_tick : {type:Condition.Types.effectLabel, data:{label:'skitteringSwarm'}, targnr:0},
+	action_groper_skittering_swarm_wrapper : {type:Condition.Types.wrapperLabel, data:{label:'skitteringSwarm'}, targnr:0},
 	action_groper_stinging_swarm : {type:Condition.Types.actionLabel, data:{label:'groper_stinging_swarm'}, targnr:0},
 
 
