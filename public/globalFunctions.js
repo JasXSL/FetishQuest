@@ -52,6 +52,14 @@ function objectRandElem(obj){
 	return obj[keys[Math.floor(Math.random()*keys.length)]];
 }
 
+// returns the sum of all values
+function objectSum( obj ){
+	let out = 0;
+	for( let i in obj )
+		out+= obj[i];
+	return out;
+}
+
 function randElem( input ){
 	if( !Array.isArray(input) )
 		throw "Can't randomize array, input is not an array";
@@ -77,6 +85,7 @@ function valsToKeys( input = [] ){
 		out[v] = true;
 	return out;
 }
+
 
 // Takes a float and floors it, if there's a remainder, it might be add 1 to the floored value based on the remainder as percentage
 function randRound( val = 0 ){

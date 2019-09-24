@@ -42,7 +42,12 @@ const lib = {
 
 	action_rogue_exploit : {type:Condition.Types.actionLabel,data:{"label":"rogue_exploit"},targnr:0},
 	action_rogue_corruptingVial : {type:Condition.Types.actionLabel,data:{"label":"rogue_corruptingVial"},targnr:0},
-	action_rogue_dirtyTricks : {type:Condition.Types.actionLabel,data:{"label":"rogue_dirtyTricks"},targnr:0},
+	action_rogue_sneakAttack : {type:Condition.Types.actionLabel,data:{"label":"rogue_sneakAttack"},targnr:0},
+	action_rogue_steal : {type:Condition.Types.actionLabel,data:{"label":"rogue_steal"},targnr:0},
+	action_rogue_tripwire : {type:Condition.Types.actionLabel,data:{"label":"rogue_tripwire"},targnr:0},
+	action_rogue_comboBreaker : {type:Condition.Types.actionLabel,data:{"label":"rogue_comboBreaker"},targnr:0},
+	notSneakAttackedBySender : {type : Condition.Types.tag,data : {tags:["sneak_attack"], sender:true},inverse: true},
+	
 	action_cleric_paddling : {type:Condition.Types.actionLabel,data:{"label":"cleric_paddling"},targnr:0},
 	action_cleric_smite : {type:Condition.Types.actionLabel,data:{"label":"cleric_smite"},targnr:0},
 	action_cleric_chastise : {type:Condition.Types.actionLabel,data:{"label":"cleric_chastise"},targnr:0},
@@ -225,6 +230,9 @@ const lib = {
 	targetLevel1 : {type:Condition.Types.targetLevel, data:{amount:0, operation:">"}},
 	targetLevel2 : {type:Condition.Types.targetLevel, data:{amount:1, operation:">"}},
 	targetLevel3 : {type:Condition.Types.targetLevel, data:{amount:2, operation:">"}},
+
+	assetStealable : {type:Condition.Types.assetStealable},
+	targetHasStealableAsset : {type:Condition.Types.hasAsset, data:{conditions:['assetStealable']}},
 	
 	targetButtExposed : {conditions:[
 		{type:"tag", data:{tags:[stdTag.asLowerBody]}, inverse:true},
@@ -293,6 +301,7 @@ const lib = {
 		{type:Condition.Types.slotDamaged, inverse:true}
 	], min:1},
 	
+	notTargetedBySenderLastRound : {type:Condition.Types.targetedSenderLastRound, inverse:true},
 
 	targetHasRepairable : {"type":"hasRepairable"},
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
@@ -372,6 +381,8 @@ const lib = {
 	eventIsPlayerDefeated : {"type":"event",data:{"event":["playerDefeated"]}},
 	eventIsDungeonExited : {"type":"event",data:{"event":["dungeonExited"]}},
 	eventIsDungeonEntered : {"type":"event",data:{"event":["dungeonEntered"]}},
+
+	targetChargingAction : {type:Condition.Types.charging},
 	
 	targetTaller : {"type":"sizeValue",data:{"amount":"se_Size","operator":">"}},
 	targetMuchTaller : {type:Condition.Types.sizeValue,data:{amount:"se_Size+1",operator:">"}},

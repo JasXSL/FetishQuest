@@ -5,6 +5,17 @@ Smol:
 	- Add fog override to cells
 
 Medium rare:
+
+	- Finish the rogue abilities
+		- Sneak attack texts
+		- Test steal
+		- Test comboBreaker
+		- Test tripwire
+
+	- Add steal effect
+	- Redesign primary stats
+	- Check rarity
+
 	- Difficulty setting
 		- Should probably be in options.
 		- Affect enemy damage done only?

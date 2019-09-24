@@ -29,7 +29,7 @@ class Action extends Generic{
 		this.max_targets = 1;
 		this.target_type = Action.TargetTypes.target;
 		this.hit_chance = 90;		// 90% hit chance before SV/BON
-		this.detrimental = true;
+		this.detrimental = 1;					
 		this.type = Action.Types.physical;			// Custom damage type
 		this.hidden = false;					// Hidden action
 		this.semi_hidden = false;				// Only show in the action selector
@@ -336,9 +336,9 @@ class Action extends Generic{
 		for( let p of pl ){
 
 			if( debug )
-				console.debug("Testing against", pl, ". IsMe: ", (p !== parent || !this.detrimental));
+				console.debug("Testing against", p, ". IsMe: ", (p !== parent || !this.isDetrimentalTo(p)));
 			if( 
-				(p !== parent || !this.detrimental) && 
+				(p !== parent || !this.isDetrimentalTo(p)) && 
 				p.checkActionFilter(parent, this) && 
 				this.getViableWrappersAgainst(p, isChargeFinish, debug).length 
 			)targets.push(p);
@@ -514,7 +514,7 @@ class Action extends Generic{
 		for( let target of targets ){
 
 			// Check if it hit
-			if( this.detrimental ){
+			if( this.isDetrimentalTo(target) ){
 
 				let chance = Math.random()*100,
 					hit = Player.getHitChance(sender, target, this)
@@ -570,6 +570,11 @@ class Action extends Generic{
 			if( this.hasTag(stdTag.acDamage) && successes ){
 				target.onDamagingAttackReceived(sender, this.type);
 				sender.onDamagingAttackDone(target, this.type);
+			}
+
+			if( successes && this.target_type === Action.TargetTypes.target ){
+				sender.onTargetedActionUsed(target);
+				target.onTargetedActionReceived(sender);
 			}
 
 				
@@ -664,10 +669,24 @@ class Action extends Generic{
 		.filter(el => Boolean(el));		// Might want to check if conditions are still valid
 	}
 
+	isDetrimentalTo( player ){
 
+		const pp = this.getPlayerParent();
+		if( parseInt(this.detrimental) === Action.Detrimental.team && pp )
+			return pp.team !== player.team;
+
+		return ( parseInt(this.detrimental) === Action.Detrimental.yes );
+
+	}
 	
 
 }
+
+Action.Detrimental = {
+	team : 2,		// Other team player is detrimental, own team is beneficial
+	yes : 1,		// Detrimental
+	no : 0			// Beneficial
+};
 
 
 Action.Range = {

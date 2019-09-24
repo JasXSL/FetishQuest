@@ -103,6 +103,7 @@ export default class Player extends Generic{
 		// Same as above, but DONE by this player
 		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
+		this._targeted_by_since_last = {};			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
 		
 		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
 		this._last_chat = 0;					// Turn we last spoke on. 
@@ -217,6 +218,7 @@ export default class Player extends Generic{
 				out._damage_since_last = this._damage_since_last;
 				out._d_damaging_since_last = this._d_damaging_since_last;
 				out._d_damage_since_last = this._d_damage_since_last;
+				out._targeted_by_since_last = this._targeted_by_since_last;
 				out._turns = this._turns;
 			}
 
@@ -394,6 +396,7 @@ export default class Player extends Generic{
 		vars[prefix+'damageReceivedSinceLast'] = this.datTotal( this._damage_since_last );
 		vars[prefix+'damagingDoneSinceLast'] = this.datTotal( this._d_damaging_since_last );
 		vars[prefix+'damageDoneSinceLast'] = this.datTotal( this._d_damage_since_last );
+		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last);
 		for( let i in Action.Types ){
 			let type = Action.Types[i];
 			vars[prefix+'damagingReceivedSinceLast'+type] = this.datTotal( this._damage_since_last, type );
@@ -779,6 +782,7 @@ export default class Player extends Generic{
 			--this._stun_diminishing_returns;
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
+		this._targeted_by_since_last = {};
 		++this._turns;
 
 	}
@@ -786,6 +790,7 @@ export default class Player extends Generic{
 
 		this._d_damaging_since_last = {};
 		this._d_damage_since_last = {};
+		
 
 		// Wipe turnTags on start
 		this._turn_tags = [];
@@ -902,6 +907,13 @@ export default class Player extends Generic{
 		if(!this._d_damage_since_last[target.id][type])
 			this._d_damage_since_last[target.id][type] = 0;
 		this._d_damage_since_last[target.id][type] += amount;
+	}
+	onTargetedActionUsed( target ){
+	}
+	onTargetedActionReceived( sender ){
+		if( !this._targeted_by_since_last[sender.id] )
+			this._targeted_by_since_last[sender.id] = 0;
+		++this._targeted_by_since_last[sender.id];
 	}
 
 	onDeath( attacker, effect ){
@@ -1143,8 +1155,8 @@ export default class Player extends Generic{
 
 	// Returns equipped assets
 	getAssetsEquipped( includeBroken ){
-		let out = [];
-		for(let asset of this.assets){
+		const out = [], assets = this.getAssets();
+		for(let asset of assets){
 			if( asset === undefined )
 				console.error("Undefined asset in", this);
 			if( asset.equipped && (includeBroken || asset.durability > 0) )
@@ -1204,10 +1216,14 @@ export default class Player extends Generic{
 		});
 	}
 
+	getAssets(){
+		return this.assets;
+	}
+
 	// Returns non-equipped assets
 	getAssetsInventory(){
-		let out = [];
-		for(let asset of this.assets){
+		const out = [], assets = this.getAssets();
+		for(let asset of assets){
 			if(!asset.equipped)
 				out.push(asset);
 		}
@@ -2416,13 +2432,19 @@ Player.getHitChance = function( attacker, victim, action ){
 };
 
 
-// Returns a multiplier of 4% if you go over 100% hit chance
-Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental ){
+Player.getAdvantage = function( attacker, victim, stat, detrimental ){
 
 	let tot = attacker.getBon(stat);
 	if( detrimental )
 		tot -= victim.getSV(stat);
-	
+	return tot;
+
+};
+
+// Returns a multiplier of 4% if you go over 100% hit chance
+Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental ){
+
+	let tot = this.getAdvantage(attacker, victim, stat, detrimental);
 	if( tot < 0 )
 		tot = 0;
 

@@ -1483,12 +1483,15 @@ export default class UI{
 
 				
 			let hit = Math.min(Math.max(Player.getHitChance(pl, t, action), 0), 100);
-			let dmgbon = Math.round(Math.max(0, Player.getBonusDamageMultiplier(pl, t, action.type, action.detrimental)*100-100));
+			let dmgbon = Math.round(Math.max(0, Player.getBonusDamageMultiplier(pl, t, action.type, action.isDetrimentalTo(t))*100-100));
+			const advantage = Player.getAdvantage( pl, t, action.type, action.isDetrimentalTo(t) );
 
 			$("div.player[data-id='"+esc(t.id)+"'] div.targetingStats", this.players).html(
-				hit >= 100 && !action.detrimental ?
+				!action.isDetrimentalTo(t) ?
 					'Pick Target' :
-					hit+'% Hit'+(dmgbon ? '<br />+'+dmgbon+'% Dmg' : '')
+					hit+'% Hit'+
+					(dmgbon ? '<br />+'+dmgbon+'% Dmg': '')+
+					'<br />Advantage: '+(advantage > 0 ? '+': '')+Math.round(advantage)
 			);
 			
 		}
@@ -1989,8 +1992,12 @@ export default class UI{
 						'Size: <input type="range" name="size" min=0 max=10 /><br />'+
 						'Class: <select name="class">';
 						const classes = glib.getFull('PlayerClass');
-						for( let c in classes )
-							html += '<option value="'+esc(c)+'">'+esc(classes[c].name)+'</option>';
+						for( let c in classes ){
+							
+							if( !c.isMonsterClass )
+								html += '<option value="'+esc(c)+'">'+esc(classes[c].name)+'</option>';
+								
+						}
 						html += '</select><br />';
 						html += 'Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />';
 						html += '<div class="tags"></div>';

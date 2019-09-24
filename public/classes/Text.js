@@ -132,7 +132,7 @@ class Text extends Generic{
 	
 
 	// Converts tags for a specific player
-	targetTextConversion(input, prefix, player, event){
+	targetTextConversion( input, prefix, player, event ){
 
 		if( !player || player.constructor !== Player )
 			return input;
@@ -173,6 +173,19 @@ class Text extends Generic{
 
 		synonyms = ['groin', 'crotch'];
 		input = input.split(prefix+'groin').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+
+		let items = [];
+		if( event.wrapperReturn && event.wrapperReturn.steals[player.id] ){
+			
+			for( let item of event.wrapperReturn.steals[player.id] ){
+				let text = '';
+				if( item._stacks > 1 )
+					text += item._stacks+'x ';
+				items.push(text+item.getName());
+			}
+
+		}
+		input = input.split(prefix+'itemsStolenFrom').join(items.join(', '));
 
 		let pronouns = ['he', 'him', 'his'];
 		for( let p of pronouns )
@@ -454,7 +467,6 @@ Text.runFromLibrary = function( event, debug = false ){
 	for( let player of game.players )
 		player.cacheTags();
 	
-
 	let t = event.target;
 	if( !Array.isArray(t) )
 		t = [t];

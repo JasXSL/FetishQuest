@@ -207,79 +207,116 @@ export default class Generic{
 		return this.constructor.getLib();
 	}
 
+
+	// Cycles an input recursively and checks for .save methods and flattens where those are found
+	static flattenObject( input ){
+
+		if( input === null || typeof input !== "object" )
+			return input;
+		if( input && typeof input.save === "function" )
+			return input.save(true);
+		
+		const out = {};
+		for( let i in input ){
+			if( Array.isArray(input[i]) )
+				out[i] = this.flattenArray(input[i]);
+			else
+				out[i] = this.flattenObject(input[i]);
+		}
+		return out;
+
+	}
+	
+	static flattenArray( arr ){
+
+		const out = [];
+		for( let obj of arr ){
+			if( Array.isArray(obj) )
+				out.push(this.flattenArray(obj));
+			else
+				out.push(this.flattenObject(obj));
+		}
+		return out;
+		
+	}
+
+	// Tries to return a library tied to this asset
+	static getLib(){
+		return glib.getFull(this.name);
+	};
+
+	static loadThese( entries = [], parent ){
+
+		let out = [];
+		if( typeof entries === "string" )
+			entries = [entries];
+		if( (!Array.isArray(entries) && typeof entries !== "object") || entries === null ){
+			console.error("Trying to batch load invalid assets:", entries);
+			return;
+		}
+
+		for( let entry of entries ){
+			let obj = this.loadThis(entry, parent);
+			if( obj !== false )
+				out.push(obj);
+		}
+		return out;
+
+	}
+
+	static loadThis( entry, parent ){
+
+		if( typeof entry === "string" ){
+
+			// Mod editor returns strings as is
+			if( !window.game )
+				return entry;
+
+			let n = glib.get(entry, this.name);
+			if( typeof n !== "object" )
+				console.error("Found a none-object asset in library", n, "entry was", entry, "parent was", parent);
+
+			if( !n ){
+				console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", glib.getFull(this.name));
+				return false;
+			}
+			delete entry.id;	// Assign a new ID if this was fetched from a template
+			entry = n;
+		}
+		return new this(entry, parent);
+
+
+	}
+
+
+	static saveThese( entries = [], full = false ){
+		return entries.map(el => {
+			if( typeof el.save !== "function" ){
+				if( full === "mod" )
+					return el;
+				console.error(el);
+				throw "Error: asset is missing save method ^";
+			}
+			return el.save(full);
+		});
+	}
+
+	static generateUUID(){
+
+		const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		let array = new Uint8Array(10);
+		crypto.getRandomValues(array);
+		array = array.map(x => validChars.charCodeAt(x % validChars.length));
+		return String.fromCharCode.apply(null, array); return randomState;
+
+	}
+
+
+
 }
 
 // Flag set after library has loaded. This will allow cyclic dependencies for library assets
 Generic.auto_rebase = false;
 
-// Tries to return a library tied to this asset
-Generic.getLib = function(){
-	return glib.getFull(this.name);
-};
 
-Generic.loadThese = function( entries = [], parent ){
-
-	let out = [];
-	if( typeof entries === "string" )
-		entries = [entries];
-	if( (!Array.isArray(entries) && typeof entries !== "object") || entries === null ){
-		console.error("Trying to batch load invalid assets:", entries);
-		return;
-	}
-
-	for( let entry of entries ){
-		let obj = this.loadThis(entry, parent);
-		if( obj !== false )
-			out.push(obj);
-	}
-	return out;
-
-}
-
-Generic.loadThis = function( entry, parent ){
-
-	if( typeof entry === "string" ){
-
-		// Mod editor returns strings as is
-		if( !window.game )
-			return entry;
-
-		let n = glib.get(entry, this.name);
-		if( typeof n !== "object" )
-			console.error("Found a none-object asset in library", n, "entry was", entry, "parent was", parent);
-
-		if( !n ){
-			console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", glib.getFull(this.name));
-			return false;
-		}
-		delete entry.id;	// Assign a new ID if this was fetched from a template
-		entry = n;
-	}
-	return new this(entry, parent);
-
-
-}
-
-
-Generic.saveThese = function( entries = [], full = false ){
-	return entries.map(el => {
-		if( typeof el.save !== "function" ){
-			if( full === "mod" )
-				return el;
-			console.error(el);
-			throw "Error: asset is missing save method ^";
-		}
-		return el.save(full);
-	});
-}
-
-Generic.generateUUID = function(){
-
-	const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	let array = new Uint8Array(10);
-	crypto.getRandomValues(array);
-	array = array.map(x => validChars.charCodeAt(x % validChars.length));
-	return String.fromCharCode.apply(null, array); return randomState;
-
-}
 

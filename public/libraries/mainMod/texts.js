@@ -3469,8 +3469,15 @@ const lib = [
 		hitfx : ["poisonVialDrink"]
 	},
 
+	// action_rogue_steal
+	{ text : "%S stole %TitemsStolenFrom from %T!",
+		conditions : baseCond.concat("action_rogue_steal"),
+		hitfx : ["poisonVialDrink"]
+	},
+
 
 	// action_rogue_dirtyTricks
+	/*
 	{ text : "%S distracts %T, allowing %Shim to attack from behind!",
 		conditions : baseCond.concat([
 			"action_rogue_dirtyTricks","targetBeast"
@@ -3519,7 +3526,7 @@ const lib = [
 		]),
 		hitfx : ["squeeze"]
 	},
-
+	*/
 
 
 

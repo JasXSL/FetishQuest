@@ -96,7 +96,7 @@ const lib = {
         actions : [
             "rogue_exploit",
             "rogue_corruptingPoison",
-            "rogue_dirtyTricks"
+            "rogue_sneakAttack"
         ]
     },
     "cleric": {

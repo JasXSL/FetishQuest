@@ -28,6 +28,11 @@ export default class Condition extends Generic{
 
 		this.type = "";				// Type of condition
 		this.data = {};				// Condition data, variable type, but must be json encodable
+		/*
+			Data special cases:
+			conditions : If this key is present and is an array, it will be auto loaded into conditions
+		*/
+
 		this.caster = false;		// Validate against caster
 		this.targnr = -1;			// -1 gets checked against ALL players, 0 gets checked against the first player and so forth
 		this.inverse = false;		// Return true if the condition does NOT validate
@@ -41,7 +46,7 @@ export default class Condition extends Generic{
 		let out = {
 			id : this.id,
 			type : this.type,
-			data : this.data,
+			data : Generic.flattenObject(this.data),
 			inverse : this.inverse,
 			targnr : this.targnr,
 			caster : this.caster,
@@ -67,6 +72,10 @@ export default class Condition extends Generic{
 		this.g_autoload(data);
 		if( data && !this.conditions.length && !Condition.Types[this.type] )
 			console.error("Invalid condition type loaded: ", String(this.type), " data received was ", data, "and parent was", this.parent);
+
+		if( Array.isArray(this.data.conditions) ){
+			this.data.conditions = Condition.loadThese(this.data.conditions);
+		}
 
 	}
 
@@ -222,6 +231,22 @@ export default class Condition extends Generic{
 					data = [data];
 				success = data.indexOf(event.type) !== -1 || (event.custom && event.custom.original && data.indexOf(event.custom.original.type) !== -1);
 			}
+
+			else if( this.type === T.charging ){
+				
+				const conds = this.data.conditions || [],
+					charged = t.isCasting();
+				if( charged ){
+					for( let action of charged ){
+						if( Condition.all(conds, new GameEvent({sender:s, target:t, action:action})) ){
+							success = true;
+							break;
+						}
+					}
+				}
+
+			}
+
 			else if( this.type === T.actionLabel ){
 
 				let data = this.data.label;
@@ -480,6 +505,48 @@ export default class Condition extends Generic{
 					success = Boolean(!slot || s[slot]);
 				}
 			}
+			else if( this.type === T.itemStolen ){
+				
+				if(
+					t && 
+					event.wrapperReturn &&
+					event.wrapperReturn.steals[t.id]
+				){
+					success = true;
+				}
+			}
+
+			else if( this.type === T.hasAsset ){
+				
+				const conds = toArray(this.data.conditions), 
+					min = this.data.min || 1,
+					assets = t.getAssets(),
+					evt = new GameEvent({sender:s, target:t})
+				;
+				let n = 0;
+
+				for( let asset of assets ){
+
+					evt.asset = asset;
+					if( Condition.all(conds, evt) ){
+						n += evt._stacks || 1;
+					}
+					if( n >= min ){
+
+						success = true;
+						break;
+
+					}
+
+				}
+
+			}
+
+			else if( this.type === T.assetStealable ){
+
+				success = event.asset && !event.asset.soulbound;
+
+			}
 
 			else if( this.type === T.dungeonIs ){
 				if( event.dungeon && typeof this.data === "object" )
@@ -637,6 +704,11 @@ export default class Condition extends Generic{
 				let amt = +this.data.amount || 0;
 				success = rain > amt;
 			}
+
+			else if( this.type === T.targetedSenderLastRound )
+				success = Boolean(s._targeted_by_since_last[t.id]);
+
+			
 
 			else{
 				game.modal.addError("Unknown condition "+String(this.type));
@@ -798,6 +870,9 @@ Condition.Types = {
 	hasEffect : 'hasEffect',		// 
 	hasEffectType : 'hasEffectType',
 
+	hasAsset : 'hasAsset',
+	assetStealable : 'assetStealable',
+
 	apValue : 'apValue', 			// 
 	mpValue : 'mpValue', 			// 
 	hpValue : 'hpValue', 			// 
@@ -831,15 +906,19 @@ Condition.Types = {
 	formula : 'formula',
 	slotDamaged : 'slotDamaged',
 	slotStripped : 'slotStripped',		
+	itemStolen : 'itemStolen',
 	textMeta : 'textMeta',
 	textTurnTag : 'textTurnTag',		
 	rain : 'rainGreaterThan',
 	targetLevel : 'targetLevel',
+	charging : 'charging',
+	targetedSenderLastRound : 'targetedSenderLastRound',
 };
 
 Condition.descriptions = {
 	[Condition.Types.tag] : '{tags:(arr)(str)tag, caster:(bool)limit_by_sender} one or many tags, many tags are ORed. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
 	[Condition.Types.playerClass] : '{label:(arr)(str)label} Searches for label in target playerclass.',
+	[Condition.Types.charging] : '{(arr)conditions:[]} Checks if the target is charging an action. You can limit the actions to check for by conditions. Empty array checks if ANY action is charged.',
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached wrapper',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
@@ -886,11 +965,18 @@ Condition.descriptions = {
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
 	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',
 	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY can be used on things like stdattack',
+	[Condition.Types.itemStolen] : '{} - Requires wrapperReturn in event. Checks if at least one item steal is present',
+	
+	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',
+	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
+
+
 	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
 	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
 	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
 	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
 	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level',
+	[Condition.Types.targetedSenderLastRound] : 'void - Target has successfully used a non-aoe action against sender since their last turn',
 };
 
 

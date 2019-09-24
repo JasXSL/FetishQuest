@@ -179,7 +179,7 @@ class Bot{
 				let targs = abil.getViableTargets().filter(el => {
 					// Don't use a detrimental spell on a friend
 					// Don't use a beneficial spell on an enemy
-					if( !!abil.detrimental === (el.team === this.player.team) )
+					if( abil.isDetrimentalTo(el) === (el.team === this.player.team) )
 						return false;
 					if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.5 )
 						return false;

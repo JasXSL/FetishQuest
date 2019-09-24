@@ -35,7 +35,7 @@ export default class Asset extends Generic{
 		this.no_auto_consume = false;		// Prevents auto consume of charges
 		this.rarity = this.constructor.Rarity.COMMON;
 		this.loot_sound = '';				// Also equip and unequip sound. audioKit ID
-		
+		this.soulbound = false;			// Todo: Prevent stealing and trading
 		this.basevalue = 0;				// Store value in copper. 0 = no sell
 
 		this.weight = 100;				// Weight in grams
@@ -75,6 +75,7 @@ export default class Asset extends Generic{
 			basevalue : this.basevalue,
 			_stacks : this._stacks,
 			_charges : this._charges,
+			soulbound : this.soulbound,
 		};
 
 		if( full ){

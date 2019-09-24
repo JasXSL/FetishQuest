@@ -31,8 +31,8 @@ const lib = {
 		conditions : ["targetClassRogue", "targetLevel2"],
 		auto_learn : true,
 	},
-	rogue_dirtyTricks : {
-		action : 'rogue_dirtyTricks',
+	rogue_sneakAttack : {
+		action : 'rogue_sneakAttack',
 		conditions : ["targetClassRogue", "targetLevel3"],
 		auto_learn : true,
 	},

@@ -526,7 +526,7 @@ const lib = {
 	rogue_exploit: {
 		name : "Exploit",
 		icon : 'hooded-assassin',
-		description : "Deals 3 corruption damage plus another 2 per slot of upper and/or lower body armor missing from your target.",
+		description : "Deals 3 corruption damage plus another 2 per slot of upper and/or lower body armor missing from your target. Has a 4% chance per corruption advantage to unequip a random piece of clothing from your target.",
 		ap : 2,
 		mp : 0,
 		type : Action.Types.corruption,
@@ -535,17 +535,21 @@ const lib = {
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
-				target : "VICTIM",
 				duration : 0,
 				detrimental : true,
 				add_conditions : stdCond,
-				stay_conditions : stdCond,
 				effects : [
 					{
-						type : "damage",
-						data : {
-							"amount": "7-ta_lowerBody*2-ta_upperBody*2"
-						}
+						type : Effect.Types.damage,
+						data : {"amount": "7-ta_lowerBody*2-ta_upperBody*2"}
+					},
+					{
+						type : Effect.Types.disrobe,
+						data : {"numSlots": 1},
+						conditions : [{
+							type : Condition.Types.rng,
+							data : {"chance": "4*(se_BonCorruption-ta_SvCorruption)"}
+						}]
 					},
 				]
 			}
@@ -554,7 +558,7 @@ const lib = {
 	rogue_corruptingVial : {
 		name : "Corrupting Vial",
 		icon : 'poison-bottle',
-		description : "Inflicts your target with a corrupting poison, dealing 2 corruption damage at the start of their turn for 3 turns, and reduces corruption resist by 2. If used on yourself it instead restores 2 HP each turn and increases corruption proficiency by 2.",
+		description : "Inflicts your target with a corrupting poison, dealing 2 corruption damage at the start of their turn for 3 turns, and reduces corruption resist by 2. If used on yourself it instead restores 2 HP each turn.",
 		ap : 2,
 		mp : 2,
 		type : Action.Types.corruption,
@@ -562,6 +566,7 @@ const lib = {
 		charges: 2,
 		tags : ["ac_damage","ac_debuff"],
 		show_conditions : ["inCombat"],
+		detrimental : Action.Detrimental.team,
 		wrappers : [
 			{
 				duration : 3,
@@ -586,7 +591,7 @@ const lib = {
 				duration : 3,
 				name : "Corrupting Vial",
 				icon : "poison-bottle",
-				description : "Healing each turn. Corruption proficiency increased by 2.",
+				description : "Healing each turn.",
 				detrimental : false,
 				add_conditions : stdCond.concat("targetIsSender"),
 				stay_conditions : stdCond,
@@ -594,51 +599,150 @@ const lib = {
 					{
 						type : Effect.Types.damage,
 						data : {"amount": -2}
-					},
-					{
-						type : Effect.Types.bonCorruption,
-						data : {"amount": 2}
 					}
 				]
 			}
 		]
 	},
-	rogue_dirtyTricks: {
-		name : "Dirty Tricks",
-		icon : 'snatch',
-		description : "Sneak through the shadows and perform a dirty trick on your target, doing 8 corruption damage. Has a 5% chance per corruption advantage to unequip a piece of their armor.",
+	
+	// todo: texts
+	rogue_sneakAttack : {
+		name : "Sneak Attack",
+		icon : 'cloak-dagger',
+		description : "Deals 4 corruption damage. Only usable on enemies that didn't target you on their last turn, and only once per target and turn.",
 		ap : 2,
-		mp : 3,
-		type : "Corruption",
-		cooldown : 3,
-		tags : [
-			"ac_damage"
-		],
-		show_conditions : [
-			"inCombat"
-		],
+		cooldown : 0,
+		tags : ["ac_damage"],
+		show_conditions : ["inCombat"],
+		type : Action.Types.corruption,
 		wrappers : [
 			{
-				target : "VICTIM",
+				duration : 0,
+				name : "Corrupting Vial",
+				icon : "poison-bottle",
+				description : "Taking corruption damage each turn. Corruption resist reduced by 2.",
 				detrimental : true,
-				add_conditions : stdCond,
+				add_conditions : stdCond.concat("targetNotSender", "notTargetedBySenderLastRound", "notSneakAttackedBySender"),
+				stay_conditions : stdCond,
 				effects : [
-					{type : Effect.Types.damage, data : {"amount": 8}},
 					{
-						type : Effect.Types.disrobe,
-						data : {"numSlots": 1},
-						conditions : [{
-							type : Condition.Types.rng,
-							data : {
-								"chance": "5*(se_BonCorruption-ta_SvCorruption)"
-							}
-						}]
-					},
-					
+						type : Effect.Types.damage,
+						data : {"amount": 4}
+					}
+				]
+			},
+			{
+				label : 'sneak_attack_cd',
+				duration : 1,
+				detrimental : false,
+				add_conditions : stdCond.concat("targetNotSender", "notTargetedBySenderLastRound", "notSneakAttackedBySender"),
+				stay_conditions : stdCond,
+				tags : ['sneak_attack'],
+			}
+		]
+	},
+
+	// todo: texts
+	rogue_comboBreaker :{
+		name : "Combo Breaker",
+		icon : 'halt',
+		description : "Interrupts and deals 10 corruption damage to an enemy who is actively charging an action.",
+		ap : 2,
+		cooldown : 4,
+		tags : ["ac_damage", "acInterrupt"],
+		show_conditions : ["inCombat"],
+		type : Action.Types.corruption,
+		wrappers : [
+			{
+				add_conditions : stdCond.concat("targetChargingAction"),
+				duration : 0,
+				effects : [
+					{type:Effect.Types.interrupt},
+					{
+						type:Effect.Types.damage,
+						data:{amount:10}
+					}
 				]
 			}
 		]
 	},
+
+	// Todo: texts
+	rogue_tripwire :{
+		name : "Tripwire",
+		icon : 'tripwire',
+		description : "Sets up a tripwire for 2 turns. The next opponent to use a melee attack is knocked down and loses 3 avoidance of all types for 1 turn.",
+		ap : 1,
+		mp : 0,
+		cooldown : 2,
+		tags : ["ac_debuff"],
+		show_conditions : ["inCombat"],
+		type : Action.Types.corruption,
+		target_type : Action.TargetTypes.aoe,
+		wrappers : [
+			{
+				// Hidden debuff
+				label : 'tripwire',
+				detrimental : false,
+				add_conditions : stdCond,
+				duration : 2,
+				effects : [
+					{
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["actionMelee", "actionDetrimental", "senderIsWrapperParent"],
+						type : Effect.Types.runWrappers,
+						data : {wrappers:[
+							{
+								label : 'Tripped',
+								name : 'Tripped',
+								icon : 'tripwire',
+								description : 'Knocked down, -3 to all avoidances',
+								detrimental : true,
+								effects:[
+									{type:Effect.Types.svCorruption, data:{amount:-3}},
+									{type:Effect.Types.svHoly, data:{amount:-3}},
+									{type:Effect.Types.svElemental, data:{amount:-3}},
+									{type:Effect.Types.svPhysical, data:{amount:-3}},
+									{type:Effect.Types.knockdown}
+								]
+							},
+							{
+								target : Wrapper.TARGET_AOE,
+								effects : [
+									{type:Effect.Types.removeWrapperByLabel, data:{label:'tripwire', casterOnly:true}}
+								]
+							}
+						]}
+					},
+				]
+			}
+		]
+	},
+
+	// Todo: texts & Visual
+	rogue_steal : {
+		name : "Steal",
+		icon : 'snatch',
+		description : "Steals a random item from your target.",
+		ap : 2,
+		mp : 0,
+		hit_chance : 60,
+		type : Action.Types.physical,
+		cooldown : 4,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat('targetHasStealableAsset'),
+				effects : [
+					{type : Effect.Types.steal, data : {}},
+				]
+			}
+		]
+		// Todo: Conditions
+	},
+
 
 
 	// Cleric
@@ -849,8 +953,29 @@ const lib = {
 			}
 		]
 	},
-	
-
+	/* Todo
+	cleric_gag :{
+		name : "Gag",
+		icon : 'mute',
+		description : "Gags your target for 2 turns, preventing them from using most ranged attacks.",
+		ap : 1,
+		mp : 1,
+		cooldown : 4,
+		hit_chance : 9001,
+		tags : ["ac_debuff"],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				add_conditions : stdCond,
+				duration : 2,
+				effects : [
+					{type:Effect.Types.daze},
+				]
+			}
+		]
+		// todo: conditions & effects
+	},
+	*/
 
 	// Tentaclemancer
 	tentaclemancer_tentacleWhip: {

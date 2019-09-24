@@ -1089,6 +1089,34 @@ class Effect extends Generic{
 
 			}
 
+			else if( this.type === Effect.Types.steal ){
+
+				const conds = this.data.conditions || [],
+					numItems = this.data.numItems || 1,
+					viable = [],
+					assets = t.getAssets()
+				;
+				const evt = new GameEvent({wrapper:this.parent, effect:this, sender:s, target:t});
+				for( let asset of assets ){
+					
+					evt.asset = asset;
+					if( Condition.all(conds, evt) )
+						viable.push(asset);
+
+				}
+
+				for( let i=0; i<numItems && viable.length; ++i ){
+
+					const item = viable.splice(Math.floor(Math.random()*viable.length), 1)[0];
+					s.addAsset(item, item._stacks, true);
+					wrapperReturn.addSteal(t, item);
+					t.destroyAsset(item.id);
+
+				}
+
+				
+			}
+
 			else if( this.type === Effect.Types.removeParentWrapper ){
 				this.parent.remove();
 			}
@@ -1440,36 +1468,8 @@ class Effect extends Generic{
 
 	}
 
+
 	
-
-	/* Utilities */
-	flattenArray( arr ){
-		let out = [];
-		for( let obj of arr ){
-			if( Array.isArray(obj) )
-				out.push(this.flattenArray(obj));
-			else
-				out.push(this.flattenObject(obj));
-		}
-		return out;
-	}
-
-	flattenObject( input ){
-
-		if( input === null || typeof input !== "object" )
-			return input;
-		if( input && typeof input.save === "function" )
-			return input.save(true);
-		
-		let out = {};
-		for( let i in input ){
-			if( Array.isArray(input[i]) )
-				out[i] = this.flattenArray(input[i]);
-			else
-				out[i] = this.flattenObject(input[i]);
-		}
-		return out;
-	}
 
 	// Attempts to get a target by wrapper.target type
 	getTargetsByType( type, event ){
@@ -1491,7 +1491,7 @@ class Effect extends Generic{
 
 	// Exports effect data in a JSON safe way
 	saveData(){
-		return this.flattenObject(this.data);
+		return Generic.flattenObject(this.data);
 	}
 
 	// Helper function for getting a repair value. Used in Asset.js
@@ -1543,6 +1543,7 @@ class WrapperReturn extends Generic{
 
 		this.armor_slots = {}; 		// { player_id: {slot : amount} } - Armor damage
 		this.armor_strips = {};		// { player_id: {slot : (obj)asset_stripped} } - Armor strips
+		this.steals = {};			// { player_id: (arr)assets }
 
 		this.load(data);
 	}
@@ -1553,12 +1554,15 @@ class WrapperReturn extends Generic{
 
 	// Merges data into this one
 	merge( data ){
+
 		if( typeof data !== "object" )
 			return false;
 		for( let i in data.armor_slots )
 			this.addArmorDamage(i, data.armor_slots[i]);
 		for( let i in data.armor_strips )
 			this.addArmorStrips(i, data.armor_strips[i]);
+		for( let i in data.steals )
+			this.addSteal(i, data.steals[i]);
 		
 	}
 
@@ -1574,6 +1578,7 @@ class WrapperReturn extends Generic{
 
 	// Local. Takes an input of slots, and returns the prioritized one if it exists. Otherwise it returns the original input array.
 	_getSlotPriority(player, input, obj){
+
 		if( typeof player === "object" )
 			player = player.id;
 		// Check if any of the slots are present in wrapperReturn, in that case do that
@@ -1589,6 +1594,7 @@ class WrapperReturn extends Generic{
 				input = sl;
 		}
 		return input;
+
 	}
 
 	// Merges the response from player.damageDurability response
@@ -1619,6 +1625,18 @@ class WrapperReturn extends Generic{
 				this.armor_slots[player][i] = 0;
 			this.armor_slots[player][i] += data[i];
 		}
+	}
+
+	// Accepts an array of items, or a single item
+	addSteal( player, item ){
+
+		item = toArray(item);
+		if( typeof player === "object" )
+			player = player.id;
+		if( !this.steals[player] )
+			this.steals[player] = [];
+		this.steals[player] = this.steals[player].concat(item);
+
 	}
 
 }
@@ -1682,7 +1700,8 @@ Effect.Types = {
 
 	runWrappers : "runWrappers",			
 
-	disrobe : "disrobe",					
+	disrobe : "disrobe",
+	steal : "steal",
 
 	addStacks : 'addStacks',				
 	addWrapperTime : 'addWrapperTime',
@@ -1784,6 +1803,7 @@ Effect.TypeDescs = {
 	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. ',
 
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
+	[Effect.Types.steal] : '{conditions:(arr)conditions, num_items:(str/int)nr_items_to_steal=1}',	// Steals one or many random items from your target
 
 	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks=1, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks. If conditions is unset, it tries to affect the effect parent.',
 	[Effect.Types.addWrapperTime] : '{amount:(int)(str)time, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)true}',
@@ -1797,7 +1817,7 @@ Effect.TypeDescs = {
 
 	[Effect.Types.knockdown] : '{type:(int)type} - Prevents melee abilities. Use Effect.KnockdownTypes. If not an int it becomes boolean backwards of forwards.',
 	[Effect.Types.grapple] : '{}',
-	[Effect.Types.daze] : 'void',
+	[Effect.Types.daze] : 'void - Prevents the use of ranged abilities.',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
 	[Effect.Types.setActionApCost] : '{conditions:(arr)conditions, amount:(int)amount=1} - Sets the AP cost of one or more actions. Actions affected are checked by conditions.',
