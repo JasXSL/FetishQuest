@@ -17,7 +17,8 @@ export default class GameEvent extends Generic{
 		this.sender = null;
 		this.target = null;		// Can be an array
 		this.action = null;
-		this.wrapper = null;
+		this.wrapper = null;			// Note that this is overridden by the active wrapper when validating Effect triggers. 
+		this.originalWrapper = null;	// Set during validation of Effect.trigger when the original event has a wrapper attached to it.
 		this.effect = null;
 		this.asset = null;
 		this.quest = null;

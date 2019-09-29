@@ -3823,6 +3823,46 @@ const lib = [
 	},
 
 
+	// Todo: visual
+	// tentaclemancer_infusion
+	{ text : "%S rubs a wad of glowing ooze across %T!",
+		conditions : baseCond.concat([
+			"action_tentaclemancer_infusion", "targetNotSender"
+		]),
+		hitfx : ["sludgeBoltPurple"]
+	},
+	{ text : "%S rubs a wad of glowing ooze across %Thimself!",
+		conditions : baseCond.concat([
+			"action_tentaclemancer_infusion", "targetIsSender"
+		]),
+		hitfx : ["sludgeBoltPurple"]
+	},
+
+	// Todo: visual
+	// tentaclemancer_grease
+	{ text : "%S surrounds %T with an oily grease, increasing their speed!",
+		conditions : baseCond.concat([
+			"action_tentaclemancer_grease", "targetNotSender"
+		]),
+		hitfx : ["sludgeBoltPurple"]
+	},
+	{ text : "%S surrounds %Thimself with an oily grease, increasing their speed!",
+		conditions : baseCond.concat([
+			"action_tentaclemancer_grease", "targetIsSender"
+		]),
+		hitfx : ["sludgeBoltPurple"]
+	},
+
+	// Todo: visual
+	// tentaclemancer_slimeWard
+	{ text : "A thin mist of slime surrounds %T!",
+		conditions : baseCond.concat([
+			"action_tentaclemancer_slimeWard"
+		]),
+		hitfx : ["sludgeBoltPurple"]
+	},
+
+
 
 	// MQ00_Boss
 	// action_tentacle_pit

@@ -1640,20 +1640,25 @@ export default class Player extends Generic{
 
 	addArousal( amount, fText = false ){
 
-		if( this.isMPDisabled() )
+		if( this.isArousalDisabled() )
 			return false;
 		if( this.isOrgasming() )
 			return;
 		if( isNaN(amount) )
 			return console.error("Invalid amount of arousal", amount);
+			
 		const pre = this.arousal, max = this.getMaxArousal();
 		this.arousal += amount;
 		this.arousal = Math.floor( Math.min(max, Math.max(0, this.arousal)) );
+
 		if( this.arousal >= max && pre < max ){
+
 			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(this, this, false);
 			game.save();
 			game.ui.draw();
+
 		}
+
 		if( fText && this.arousal-pre !== 0 )
 			game.ui.floatingCombatText(this.arousal-pre, this, "arousal");
 

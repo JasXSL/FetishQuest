@@ -97,6 +97,8 @@ function randRound( val = 0 ){
 
 // Converts one or more vars into an array if it's not already
 function toArray(...args){
+	if( args[0] === undefined )
+		return [];
 	if( !Array.isArray(args[0]) || args.length > 1 )
 		return [...args];
 	return args[0];

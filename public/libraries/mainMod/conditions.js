@@ -60,6 +60,9 @@ const lib = {
 	action_tentaclemancer_tentacleWhip : {type:Condition.Types.actionLabel,data:{"label":"tentaclemancer_tentacleWhip"},targnr:0},
 	action_tentaclemancer_corruptingOoze : {type:Condition.Types.actionLabel,data:{"label":"tentaclemancer_corruptingOoze"},targnr:0},
 	action_tentaclemancer_siphonCorruption : {type:Condition.Types.actionLabel,data:{"label":"tentaclemancer_siphonCorruption"},targnr:0},
+	action_tentaclemancer_infusion : {type:Condition.Types.actionLabel,data:{"label":"tentaclemancer_infusion"},targnr:0},
+	action_tentaclemancer_grease : {type:Condition.Types.actionLabel,data:{"label":"tentaclemancer_grease"},targnr:0},
+	action_tentaclemancer_slimeWard : {type:Condition.Types.actionLabel,data:{"label":"tentaclemancer_slimeWard"},targnr:0},
 
 	action_monk_roundKick : {type:Condition.Types.actionLabel,data:{"label":"monk_roundKick"},targnr:0},
 	action_monk_disablingStrike : {type:Condition.Types.actionLabel,data:{"label":"monk_disablingStrike"},targnr:0},
@@ -126,6 +129,7 @@ const lib = {
 
 	overWhelmingOrgasm_end : {type:Condition.Types.effectLabel, data:{label:'overWhelmingOrgasm_end'}},
 	overWhelmingOrgasm_start : {type:Condition.Types.wrapperLabel, data:{label:'overWhelmingOrgasm'}},
+	original_overWhelmingOrgasm_start : {type:Condition.Types.wrapperLabel, data:{label:'overWhelmingOrgasm', originalWrapper:true}},
 	
 
 	actionMelee : {type:Condition.Types.actionRanged, targnr:0, inverse:true},
@@ -187,6 +191,9 @@ const lib = {
 	senderIsWrapperParent : {"type":"isWrapperParent","caster":true,"anyPlayer":true},
 	senderNotWrapperParent : {type:Condition.Types.isWrapperParent, caster:true, anyPlayer:true, inverse:true},
 	targetTauntedBySender : {type:Condition.Types.hasEffectType, data:{byCaster:true, type:Effect.Types.taunt}},
+
+	actionNotActionParent : {type:Condition.Types.isActionParent, inverse:true},
+
 
 	actionDamaging : {"type":"actionTag",data:{"tags":["ac_damage"]}},
 	actionHealing : {type:Condition.Types.actionTag,data:{tags:[stdTag.acHeal]}},
@@ -497,7 +504,7 @@ const lib = {
 
 	SQ_sharktopusCompleted : {type:Condition.Types.questCompleted, data:{quest:'SQ_sharktopus_01'}},
 	targetIsSQ_sharktopus_gong : {type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_gong'}},
-
+	
 
 	roomRentedActiveDungeon : {type:Condition.Types.dungeonVarMath, data:{vars:'room_last_rented', formula:'room_last_rented and (room_last_rented+'+Game.ROOM_RENTAL_DURATION+')>g_time'}},
 	

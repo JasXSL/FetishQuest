@@ -154,7 +154,7 @@ const lib = {
 	overWhelmingOrgasm : {
 		target : Wrapper.Targets.auto,
 		duration : 2,
-		name : "Overwhelming Orgasm",
+		name : "Orgasm",
 		icon : "shining-heart",
 		description : "-10 corruption avoidance, stunned.",
 		detrimental : true,
@@ -176,6 +176,21 @@ const lib = {
 				type : Effect.Types.addArousal,
 				data : {
 					amount : "-ta_MaxArousal"
+				}
+			},
+			{
+				events : [GameEvent.Types.internalWrapperExpiredAfter],
+				type : Effect.Types.runWrappers,
+				data : {
+					wrappers : [{
+						label : 'afterglow',
+						icon : 'rear-aura',
+						name : 'Afterglow',
+						description : 'Unable to generate arousal.',
+						duration : 2,
+						detrimental :  false,
+						tags : ['pl_'+stdTag.gpDisableArousal]
+					}]
 				}
 			},
 		]

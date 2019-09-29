@@ -8,7 +8,6 @@ Medium rare:
 
 	- Redesign primary stats
 	- Check rarity
-	- Add a buff preventing arousal for 3 turns after max arouse.
 
 	- Difficulty setting
 		- Should probably be in options.
@@ -62,7 +61,7 @@ Action ideas:
 
 	- Generic
 		- Pummel DONE
-		- ???
+		- Something that removes arousal from yourself
 		- ???
 
 LATER:

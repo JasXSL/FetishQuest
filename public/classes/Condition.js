@@ -164,6 +164,10 @@ export default class Condition extends Generic{
 			s = event.sender
 		;
 
+		let eventWrapper = event.wrapper;
+		if( this.data.originalWrapper && event.originalWrapper )
+			eventWrapper = event.originalWrapper;
+
 		if( !Array.isArray(targs) )
 			targs = [targs];
 		if( this.caster )
@@ -208,16 +212,20 @@ export default class Condition extends Generic{
 			// s might not always be the original sender of a wrapper (procs/AoE effects etc)
 			// Use this to make it clear that you want the included wrapper's sender
 			else if( this.type === T.targetIsWrapperSender ){
-				const oCaster = event.wrapper && event.wrapper.getCaster();
+
+				const oCaster = eventWrapper && eventWrapper.getCaster();
 				if( t && oCaster && t.id === oCaster.id )
 					success = true;
+
 			}
 			else if( this.type === T.targetIsChatPlayer ){
 				success = ( event.text && event.text._chatPlayer && event.text._chatPlayer.id === t.id );
 			}
 			else if( this.type === T.wrapperTag ){
+
 				// Searches any attached wrapper for a tag
-				return event.wrapper && event.wrapper.hasTag(this.data.tags);
+				return eventWrapper && eventWrapper.hasTag(this.data.tags);
+
 			}
 			else if( this.type === T.actionTag ){
 				// Searches any attached action for a tag
@@ -280,10 +288,12 @@ export default class Condition extends Generic{
 				success = event.effect && data.indexOf(event.effect.label) !== -1; 
 			}
 			else if( this.type === T.wrapperLabel ){
+
 				let data = this.data.label;
 				if( !Array.isArray(data) )
 					data = [data];
-				success = event.wrapper && data.indexOf(event.wrapper.label) !== -1; 
+				success = eventWrapper && data.indexOf(eventWrapper.label) !== -1; 
+
 			}
 			else if( this.type === T.playerLabel ){
 				let data = toArr(this.data.label);
@@ -327,23 +337,35 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.isWrapperParent ){
-				success = event.wrapper && t && event.wrapper.victim === t.id;
+				
+				success = eventWrapper && t && eventWrapper.victim === t.id;
+
+			}
+
+			else if( this.type === T.isActionParent ){
+
+				success = event.action && event.wrapper && event.wrapper.action && event.wrapper.action === event.action.id;
+
 			}
 
 			else if( this.type === T.wrapperStacks ){
-				if( event.wrapper && (~['>','<','='].indexOf(this.data.operation) || !this.data.operation) ){
+
+				if( eventWrapper && (~['>','<','='].indexOf(this.data.operation) || !this.data.operation) ){
+
 					let operation = "=";
 					if( this.data.operation )
 						operation = this.data.operation;
 					let amount = Calculator.run(this.data.amount, new GameEvent({
-						wrapper : event.wrapper,
+						wrapper : eventWrapper,
 					}));
 					success = 
-						(operation === "=" && event.wrapper.stacks === amount ) ||
-						(operation === "<" && event.wrapper.stacks < amount ) ||
-						(operation === ">" && event.wrapper.stacks > amount )
+						(operation === "=" && eventWrapper.stacks === amount ) ||
+						(operation === "<" && eventWrapper.stacks < amount ) ||
+						(operation === ">" && eventWrapper.stacks > amount )
 					;
+
 				}
+
 			}
 
 			else if( this.type === T.hasWrapper ){
@@ -439,17 +461,19 @@ export default class Condition extends Generic{
 
 			// Cycle through effects
 			else if( this.type === T.wrapperHasEffect ){
+
 				let filters = this.data.filters;
-				if( typeof filters === "object" && event.wrapper ){
+				if( typeof filters === "object" && eventWrapper ){
 					if( !Array.isArray(filters) )
 						filters = [filters];
 					for( let filter of filters ){
-						if( event.wrapper.getEffects(filter) ){
+						if( eventWrapper.getEffects(filter) ){
 							success = true;
 							break;
 						}
 					}
 				}
+
 			}
 
 			else if( this.type === T.team ){
@@ -862,6 +886,7 @@ Condition.Types = {
 	actionResisted : "actionResisted",			// 
 	rng : "rng",								// 
 	isWrapperParent : 'isWrapperParent',		// 
+	isActionParent : 'isActionParent',
 	actionHidden : 'actionHidden',				// 
 	effectLabel : 'effectLabel',				// 
 	wrapperLabel : 'wrapperLabel',
@@ -915,11 +940,19 @@ Condition.Types = {
 	targetedSenderLastRound : 'targetedSenderLastRound',
 };
 
+
+// A note about wrappers:
+/*
+	Because you should be able to validate an active wrapper on a player, and also an attached wrapper such as in the WrapperAdded event.
+	The event wrapper becomes the effect already applied that's checking for the event. And event.originalWrapper becomes the one already attached.
+	The wrapper conditions let you set originalWrapper:true to target the original wrapper. This is the one that was added in WrapperAdded for an instance.
+	If originalWrapper is not present. It uses event.wrapper instead, as that's the original and has not been overwritten.
+*/
 Condition.descriptions = {
 	[Condition.Types.tag] : '{tags:(arr)(str)tag, caster:(bool)limit_by_sender} one or many tags, many tags are ORed. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
 	[Condition.Types.playerClass] : '{label:(arr)(str)label} Searches for label in target playerclass.',
 	[Condition.Types.charging] : '{(arr)conditions:[]} Checks if the target is charging an action. You can limit the actions to check for by conditions. Empty array checks if ANY action is charged.',
-	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached wrapper',
+	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag, originalWrapper:(bool)=false} one or more tags searched in any attached wrapper.',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
 	[Condition.Types.actionLabel] : '{label:(arr)(str)label, ignore_alias:(bool)=false} Attached action label is in this array. If ignore_alias is true, it ignores alias checking',
@@ -927,11 +960,12 @@ Condition.descriptions = {
 	[Condition.Types.actionDetrimental] : 'Data is void',
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
 	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100%',
-	[Condition.Types.isWrapperParent] : 'void - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
+	[Condition.Types.isWrapperParent] : '{originalWrapper:(bool)false} - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
+	[Condition.Types.isActionParent] : 'void - If event event.wrapper.action is the same as event.action.id',
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
-	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label}',
-	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "="} - Operation is = by default',
+	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false}',
+	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false} - Operation is = by default',
 	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',
@@ -948,11 +982,11 @@ Condition.descriptions = {
 	[Condition.Types.team] : '{team:(int arr)team(s)}',
 	[Condition.Types.defeated] : 'void - Player is defeated',
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
-	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter} - Searches through filters and returns true if at least one matches',	
+	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter, originalWrapper:(bool)=false} - Searches through filters and returns true if at least one matches',	
 	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data with EXACT',	
 	[Condition.Types.dungeonVarMath] : '{vars:(str/arr)var_ids, formula:(str)formula, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data via a math formula. vars have to contain all dVars included in the formula. If one is not set, it becomes 0.',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
-	[Condition.Types.targetIsWrapperSender] : 'void - Sender might not always be the caster of a wrapper (ex checking effect targets). This specifies that you want the sender of the included wrapper in specific.',	
+	[Condition.Types.targetIsWrapperSender] : '{ originalWrapper:(bool)=false} - Sender might not always be the caster of a wrapper (ex checking effect targets). This specifies that you want the sender of the included wrapper in specific.',	
 	[Condition.Types.species] : '{species:(str/arr)species} - Checks if target is one of the selected species. Case insensitive',	
 	[Condition.Types.encounterLabel] : '{label:(str/arr)encounter_label} - Checks if the encounter label exists in data label array',	
 	[Condition.Types.questAccepted] : '{quest:(str/arr)quest} - Checks if a quest has been started, regardless of completion status',	

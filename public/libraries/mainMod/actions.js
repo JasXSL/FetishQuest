@@ -18,6 +18,7 @@ const lib = {
 		name : "Attack",
 		description : "Deals 3 physical damage.",
 		ap : 3,
+		min_ap : 1,
 		cooldown : 0,
 		show_conditions : [
 			"inCombat"
@@ -53,6 +54,7 @@ const lib = {
 		icon : 'hearts',
 		description : "Deals 3 corruption damage.",
 		ap : 3,
+		min_ap : 1,
 		cooldown : 0,
 		type : "Corruption",
 		show_conditions : [
@@ -611,6 +613,7 @@ const lib = {
 		description : "Deals 4 corruption damage. Only usable on enemies that didn't target you on their last turn, and only once per target and turn.",
 		ap : 2,
 		cooldown : 0,
+		min_ap : 1,
 		tags : ["ac_damage"],
 		show_conditions : ["inCombat"],
 		type : Action.Types.corruption,
@@ -1028,7 +1031,7 @@ const lib = {
 	tentaclemancer_siphonCorruption: {
 		name : "Siphon Corruption",
 		icon : 'goo-skull',
-		description : "Consumes all charges of corrupting ooze on your target, dealing damage equal to 2x the amount of stacks consumed, and healing you for half the amount.",
+		description : "Consumes all charges of corrupting ooze on your target, dealing damage 2 damage plus 2 for each stacks consumed, and healing you for half the amount.",
 		ap : 1,
 		mp : 1,
 		type : Action.Types.corruption,
@@ -1039,36 +1042,22 @@ const lib = {
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
-				add_conditions : stdCond.concat(
-					{
-						type : "hasWrapper",
-						data : {
-							label : "corruptingOoze",
-							"byCaster": true
-						}
-					}
-				),
+				add_conditions : stdCond,
 				effects : [
 					{
-						type : "damage",
-						data : {
-							"amount": "ta_Wrapper_corruptingOoze*2"
-						}
+						type : Effect.Types.damage,
+						data : {"amount": "ta_Wrapper_corruptingOoze*2+2"}
 					},
 					{
-						targets : [
-							"CASTER"
-						],
-						type : "damage",
-						data : {
-							"amount": "-se_Wrapper_corruptingOoze"
-						}
+						targets : ["CASTER"],
+						type : Effect.Types.damage,
+						data : {"amount": "-se_Wrapper_corruptingOoze+1"}
 					},
 					{
-						type : "removeWrapperByLabel",
+						type : Effect.Types.removeWrapperByLabel,
 						data : {
 							label : "corruptingOoze",
-							"casterOnly": true
+							casterOnly: true
 						}
 					},
 					
@@ -1076,6 +1065,130 @@ const lib = {
 			}
 		]
 	},
+	tentaclemancer_infusion: {
+		name : "Infusion",
+		icon : 'goo-spurt',
+		description : "Adds 3 MP and arousal to your target.",
+		ap : 1,
+		mp : 0,
+		type : Action.Types.corruption,
+		detrimental : false,
+		cooldown : 3,
+		ranged : Action.Range.Ranged,
+		tags : [stdTag.acManaHeal],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : false,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.addMP,
+						data : {"amount": 3}
+					},
+					{
+						type : Effect.Types.addArousal,
+						data : {"amount": 3}
+					}
+				]
+			}
+		]
+	},
+	tentaclemancer_grease : {
+		name : "Grease",
+		icon : 'leak',
+		description : "Reduces the AP cost of your target's next 3 actions by 2, but causes them to generate 1 arousal on the caster. Lasts 3 turns.",
+		ap : 0,
+		mp : 1,
+		type : Action.Types.corruption,
+		detrimental : false,
+		cooldown : 3,
+		ranged : Action.Range.Ranged,
+		tags : [stdTag.acBuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				label : 'tm_grease',
+				icon : 'leak',
+				stacks : 3,
+				max_stacks : 3,
+				duration : 3,
+				name : 'Grease',
+				detrimental : false,
+				description : 'AP cost of your next 3 actions is reduced by 2, but generate 1 arousal to the caster.',
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.actionApCost,
+						data : {"amount": -2}
+					},
+					{
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["senderIsWrapperParent", "actionNotActionParent"],
+						type : Effect.Types.addArousal,
+						no_stack_multi : true,
+						data : {"amount": 1},
+					},
+					{
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["senderIsWrapperParent", "actionNotActionParent"],
+						type : Effect.Types.addStacks,
+						no_stack_multi : true,
+						data : {stacks:-1},
+					},
+				]
+			}
+		]
+	},
+	tentaclemancer_slimeWard : {
+		name : "Slime Ward",
+		icon : 'transparent-slime',
+		description : "Places a slime ward on your target for 2 turns. If the target reaches max arousal while warded, they regenerate all their mana and ignore the normal orgasm effects.",
+		ap : 1,
+		mp : 1,
+		type : Action.Types.corruption,
+		detrimental : false,
+		cooldown : 4,
+		ranged : Action.Range.Ranged,
+		tags : [stdTag.acBuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				label : 'tm_slimeWard',
+				icon : 'transparent-slime',
+				name : 'Slime Ward',
+				detrimental : false,
+				duration : 2,
+				description : 'Reaching full arousal restores your mana and blocks the stun effect.',
+				effects : [
+					{
+						events : [GameEvent.Types.wrapperAdded],
+						conditions : ["targetIsWrapperParent", "original_overWhelmingOrgasm_start"],
+						type : Effect.Types.removeWrapperByLabel,
+						data : {"label": "overWhelmingOrgasm"},
+					},
+					{
+						events : [GameEvent.Types.wrapperAdded],
+						conditions : ["targetIsWrapperParent", "original_overWhelmingOrgasm_start"],
+						type : Effect.Types.addArousal,
+						data : {"amount": "-ta_MaxArousal"},
+					},
+					{
+						events : [GameEvent.Types.wrapperAdded],
+						conditions : ["targetIsWrapperParent", "original_overWhelmingOrgasm_start"],
+						type : Effect.Types.addMP,
+						data : {"amount": "+ta_MaxMP"},
+					},
+					{
+						events : [GameEvent.Types.wrapperAdded],
+						conditions : ["targetIsWrapperParent", "original_overWhelmingOrgasm_start"],
+						type : Effect.Types.removeParentWrapper
+					},
+				]
+			}
+		]
+	},
+
 
 
 	
@@ -1281,8 +1394,9 @@ const lib = {
 				add_conditions : stdCond,
 				tick_on_turn_end : true,
 				effects : [
-					{type:Effect.Types.setActionApCost, data:{
+					{type:Effect.Types.actionApCost, data:{
 						amount:1,
+						set :true,
 						conditions : ["action_stdAttack"]
 					}},
 					{
@@ -3172,6 +3286,7 @@ const lib = {
 		description : "Deals 3 physical damage to 2 players.",
 		ap : 4,
 		cooldown : 0,
+		min_ap : 1,
 		max_targets : 2,
 		show_conditions : ["inCombat"],
 		tags : [stdTag.acDamage, stdTag.acPainful],
@@ -3197,6 +3312,7 @@ const lib = {
 		description : "Deals 3 corruption damage to 2 players.",
 		ap : 4,
 		cooldown : 0,
+		min_ap : 1,
 		type : Action.Types.corruption,
 		max_targets : 2,
 		show_conditions : ["inCombat"],
@@ -3314,6 +3430,7 @@ const lib = {
 		description : "Struggle to break a tied up player free!",
 		ap : 2,
 		cooldown : 0,
+		min_ap : 1,
 		mp : 0,
 		hit_chance : 100,
 		detrimental : false,

@@ -23,6 +23,7 @@ class Action extends Generic{
 		this.wrappers = [];			// Effect wrappers needed to cast the spell
 		this.riposte = [];			// Wrappers that are triggered when an ability misses. Riposte is sent from the target to attacker
 		this.ap = 1;
+		this.min_ap = 0;			// When reduced by effects, this is the minimum AP we can go to 
 		this.mp = 0;
 		this.cooldown = 0;						// Turns needed to add a charge. Setting this to 0 will make charges infinite
 		this.min_targets = 1;
@@ -91,7 +92,8 @@ class Action extends Generic{
 			semi_hidden : this.semi_hidden,
 			icon : this.icon,
 			disable_override : this.disable_override,
-			reset_interrupt : this.reset_interrupt
+			reset_interrupt : this.reset_interrupt,
+			min_ap : this.min_ap,
 		};
 
 		// Everything but mod
@@ -390,14 +392,29 @@ class Action extends Generic{
 		const evt = new GameEvent({sender:pl, target:pl, action:this});
 		
 		if( pl ){
-			const effects = pl.getActiveEffectsByType(Effect.Types.setActionApCost);
+
+			const effects = pl.getActiveEffectsByType(Effect.Types.actionApCost);
 			for( let effect of effects ){
-				if( Condition.all(effect.data.conditions, evt) )
-					out = effect.data.amount;
+
+				const conditions = toArray(effect.data.conditions);
+				if( Condition.all(conditions, evt) ){
+
+					const amt = Calculator.run(effect.data.amount, new GameEvent({sender:pl, target:pl, action:this}));
+					if( effect.data.set ) 
+						out = amt;
+					else
+						out += amt;
+
+				}
+
 			}
+
 		}
+
 		if( isNaN(out) )
 			out = 1;
+			
+		out = Math.max(this.min_ap, out);
 		return Calculator.run(out, evt);
 
 	}

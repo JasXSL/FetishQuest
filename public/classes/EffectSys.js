@@ -42,6 +42,7 @@ class Wrapper extends Generic{
 		// Stuff set when applied
 		this.victim = "";				// Player UUID
 		this.caster = "";				// Player UUID
+		this.action = "";				// action UUID (not always applicable)
 		this.original_target = "";		// Set on targeted actions, this is the one the action targeted. Usually the same as victim
 		this._duration = 0; 
 		this._self_cast = false;		// This effect was placed on the caster by the caster
@@ -85,6 +86,8 @@ class Wrapper extends Generic{
 			out.victim = this.victim;
 			out.caster = this.caster;
 			out.stacks = this.stacks;
+			out.action = this.action;
+
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -188,6 +191,7 @@ class Wrapper extends Generic{
 				obj.caster = caster_player.id;
 				obj.netPlayer = netPlayer;
 				obj.original_target = player.id;
+				obj.action = this.parent instanceof Action ? this.parent.id : '';
 
 			}
 
@@ -253,6 +257,7 @@ class Wrapper extends Generic{
 				
 				evt.type = GameEvent.Types.wrapperAdded;
 				evt.raise();
+				console.log("Raising", evt);
 
 				if( add_stacks ){
 					obj.addStacks(add_stacks);
@@ -597,6 +602,7 @@ class Effect extends Generic{
 		this.targets = [Wrapper.TARGET_AUTO];					// Use Wrapper.TARGET_* flags for multiple targets
 		this.events = [GameEvent.Types.internalWrapperTick];	// Limits triggers to certain events. Anything other than wrapper* functions require a duration wrapper parent
 		this.no_stack_multi = false;
+		this.debug = false;
 
 		this._bound_events = [];
 		this.load(data);
@@ -616,6 +622,7 @@ class Effect extends Generic{
 		if( full ){
 			out.conditions = Condition.saveThese(this.conditions, full);
 			out.events = this.events;
+			out.debug = this.debug;
 		}
 
 		if( full !== "mod" ){
@@ -679,7 +686,9 @@ class Effect extends Generic{
 
 		let evt = event.clone();
 		evt.effect = this;
+		evt.originalWrapper = evt.wrapper;
 		evt.wrapper = this.parent;
+
 		if( !(wrapperReturn instanceof WrapperReturn) )
 			wrapperReturn = new WrapperReturn();
 
@@ -872,12 +881,14 @@ class Effect extends Generic{
 					let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
 					let ch = Math.abs(amt*procChance);
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
-					if( tot+t.arousal > t.getMaxArousal() )
-						tot = t.getMaxArousal()-t.arousal;
-					if( tot ){
+					const start = t.arousal;
+
+					if( start < t.getMaxArousal() ){
 
 						t.addArousal(tot, true);
-						game.ui.addText( t.getColoredName()+" gained "+Math.abs(tot)+" arousal from corruption.", undefined, s.id, t.id, 'statMessage arousal' );
+						tot = t.arousal-start;
+						if( t.arousal !== start )
+							game.ui.addText( t.getColoredName()+" gained "+Math.abs(tot)+" arousal from corruption.", undefined, s.id, t.id, 'statMessage arousal' );
 
 					}
 
@@ -956,12 +967,14 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addArousal ){
+
 				let amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
 				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
+
 				let pre = t.arousal;
 				t.addArousal(amt, true);
 				amt = t.arousal-pre;
@@ -1149,6 +1162,7 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addStacks ){
+				
 				// {stacks:(int)(str)stacks=1, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true}
 				let wrappers = [this.parent];
 				let stacks = this.data.stacks;
@@ -1440,15 +1454,21 @@ class Effect extends Generic{
 
 	/* EVENT */
 	bindEvents(){
+
 		this.unbindEvents();
 		for(let evt of this.events){
+			
 			if( evt.substr(0,8) !== "internal" )
 				this._bound_events.push(GameEvent.on(evt, event => this.trigger(event)));
+
 		}
+
 	}
 	unbindEvents(){
+
 		for(let evt of this._bound_events)
 			GameEvent.off(evt);
+
 	}
 	
 
@@ -1456,6 +1476,8 @@ class Effect extends Generic{
 	/* CONDITIONS */
 	validateConditions( event, debug ){
 
+		if( !debug )
+			debug = this.debug;
 		if( this.events.length && this.events.indexOf(event.type) === -1 ){
 			if( debug )
 				console.debug("Prevented ", this, "because", event.type, "not in", this.events, "event was", event);
@@ -1737,7 +1759,7 @@ Effect.Types = {
 	allowReceiveSpells : 'allowReceiveSpells',
 	disableActions : 'disableActions',
 
-	setActionApCost : 'setActionApCost',
+	actionApCost : 'actionApCost',
 		
 };
 
@@ -1821,7 +1843,7 @@ Effect.TypeDescs = {
 	[Effect.Types.daze] : 'void - Prevents the use of ranged abilities.',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
-	[Effect.Types.setActionApCost] : '{conditions:(arr)conditions, amount:(int)amount=1} - Sets the AP cost of one or more actions. Actions affected are checked by conditions.',
+	[Effect.Types.actionApCost] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false} - Alters or sets the AP cost of one or more actions. Actions affected are checked by conditions.',
 	
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
 	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',
