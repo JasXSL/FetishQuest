@@ -45,6 +45,7 @@ const lib = {
 	action_rogue_sneakAttack : {type:Condition.Types.actionLabel,data:{"label":"rogue_sneakAttack"},targnr:0},
 	action_rogue_steal : {type:Condition.Types.actionLabel,data:{"label":"rogue_steal"},targnr:0},
 	action_rogue_tripwire : {type:Condition.Types.actionLabel,data:{"label":"rogue_tripwire"},targnr:0},
+	action_rogue_tripwire_proc : {type:Condition.Types.wrapperLabel,data:{"label":"Tripped"},targnr:0},
 	action_rogue_comboBreaker : {type:Condition.Types.actionLabel,data:{"label":"rogue_comboBreaker"},targnr:0},
 	notSneakAttackedBySender : {type : Condition.Types.tag,data : {tags:["sneak_attack"], sender:true},inverse: true},
 	
@@ -248,6 +249,13 @@ const lib = {
 			{type:Condition.Types.tag, data:{tags:[stdTag.ttGroinExposed]}}
 		], min:1},
 		{type:Condition.Types.tag,data:{tags:[stdTag.penis]}}
+	], min:-1},
+	senderPenisExposed : {conditions:[
+		{conditions:[
+			{type:Condition.Types.tag, data:{tags:[stdTag.asLowerBody]}, inverse:true, caster:true,},
+			{type:Condition.Types.tag, data:{tags:[stdTag.ttGroinExposed]}, caster:true}
+		], min:1},
+		{type:Condition.Types.tag,data:{tags:[stdTag.penis]}, caster:true}
 	], min:-1},
 	targetVaginaExposed : {conditions:[
 		{conditions:[

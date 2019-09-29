@@ -635,6 +635,30 @@ const lib = {
             }
         ],
     },
+    steal : {
+        sounds : [
+            {
+                s : {path : "media/audio/steal.ogg",volume : 0.5},
+            }
+        ],
+    },
+
+    tripwire_hit : {
+        sounds : [
+            {
+                s : {path : "media/audio/tripwire_hit.ogg",volume : 0.5},
+            }
+        ],
+    },
+    
+    tripwire_set : {
+        sounds : [
+            {
+                s : {path : "media/audio/tripwire_set.ogg",volume : 0.3},
+            }
+        ],
+    },
+    
     monkHeal : {
         sounds : [
             {

@@ -35,6 +35,7 @@ const textures = {
 	roots : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/roots.png')})),
 	skitteringInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/skittering_insect.png')})),
 	stingingInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/stinging_insect.png')})),
+	coin : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/coin_particle.png')})),
 };
 for( let i in textures )
 	textures[i].material.depthWrite = false;
@@ -685,6 +686,24 @@ particles.hitfx_debris = {
 	gravity : 1,
 	color : '#553300',	
 	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : [0,new Proton.Span(0,Math.PI)],
+};
+
+particles.hitfx_coins = {
+	texture : textures.coin,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,20),
+	size : new Proton.Span(3,5),
+	//size_tween : [1,0.1],
+	part_max_age : 0.5,
+	velocity : new Proton.Span(50,100),
+	gravity : 5,
+	color : '#FFFF00',	
+	opacity: [1,0],
 	rotation : [new Proton.Span(-0.5,0.5), 1,1],
 	wiggle : [0,10],
 	rotation : [0,new Proton.Span(0,Math.PI)],

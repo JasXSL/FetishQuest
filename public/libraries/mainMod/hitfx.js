@@ -221,6 +221,7 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+
 id = 'squeeze';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
@@ -1427,6 +1428,46 @@ out[id].stages.push(
 		emit_duration : 100,
 		tween : false,
 	}, out[id])
+);
+
+id = 'steal';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_debris',
+		emit_duration : 300,
+		tween : false,
+		css_fx : 'fxBuffRed',
+		sound_kits : ['steal'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_coins',
+		emit_duration : 300,
+		tween : false,
+	}, out[id])
+);
+
+
+id = 'tripwire_set';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['tripwire_set'],
+		origin : 'sender',
+		destination : 'sender',
+		css_fx_targ : 'sender',
+	}, out[id]),
+);
+
+id = 'tripwire_hit';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['tripwire_hit'],
+		particles : 'hitfx_sparks',
+	}, out[id]),
 );
 
 

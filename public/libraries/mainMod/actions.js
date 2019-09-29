@@ -605,7 +605,6 @@ const lib = {
 		]
 	},
 	
-	// todo: texts
 	rogue_sneakAttack : {
 		name : "Sneak Attack",
 		icon : 'cloak-dagger',
@@ -642,12 +641,11 @@ const lib = {
 		]
 	},
 
-	// todo: texts
 	rogue_comboBreaker :{
 		name : "Combo Breaker",
 		icon : 'halt',
 		description : "Interrupts and deals 10 corruption damage to an enemy who is actively charging an action.",
-		ap : 2,
+		ap : 1,
 		cooldown : 4,
 		tags : ["ac_damage", "acInterrupt"],
 		show_conditions : ["inCombat"],
@@ -667,7 +665,7 @@ const lib = {
 		]
 	},
 
-	// Todo: texts
+	// Todo: Need visual for summoning it
 	rogue_tripwire :{
 		name : "Tripwire",
 		icon : 'tripwire',
@@ -684,7 +682,7 @@ const lib = {
 				// Hidden debuff
 				label : 'tripwire',
 				detrimental : false,
-				add_conditions : stdCond,
+				add_conditions : stdCond.concat("targetOtherTeam"),
 				duration : 2,
 				effects : [
 					{
@@ -696,6 +694,7 @@ const lib = {
 								label : 'Tripped',
 								name : 'Tripped',
 								icon : 'tripwire',
+								duration:2,
 								description : 'Knocked down, -3 to all avoidances',
 								detrimental : true,
 								effects:[
@@ -719,7 +718,7 @@ const lib = {
 		]
 	},
 
-	// Todo: texts & Visual
+	// Todo: Visual
 	rogue_steal : {
 		name : "Steal",
 		icon : 'snatch',
@@ -1558,7 +1557,6 @@ const lib = {
 			}
 		]
 	},
-	// Todo: Text
 	monk_circleOfHarmony : {
 		name : "Circle of Harmony",
 		icon : 'divided-spiral',

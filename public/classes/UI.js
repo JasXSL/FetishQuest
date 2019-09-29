@@ -1994,7 +1994,7 @@ export default class UI{
 						const classes = glib.getFull('PlayerClass');
 						for( let c in classes ){
 							
-							if( !c.isMonsterClass )
+							if( !classes[c].isMonsterClass )
 								html += '<option value="'+esc(c)+'">'+esc(classes[c].name)+'</option>';
 								
 						}

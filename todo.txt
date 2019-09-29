@@ -6,15 +6,9 @@ Smol:
 
 Medium rare:
 
-	- Finish the rogue abilities
-		- Sneak attack texts
-		- Test steal
-		- Test comboBreaker
-		- Test tripwire
-
-	- Add steal effect
 	- Redesign primary stats
 	- Check rarity
+	- Add a buff preventing arousal for 3 turns after max arouse.
 
 	- Difficulty setting
 		- Should probably be in options.
@@ -61,30 +55,10 @@ Next:
 
 
 Action ideas:
-	- Cleric 
-		DONE
-		Passives:
-			- Sacrament of Sin: Increases damage done by 5% per point of arousal you have.
-
 	- Tentaclemancer
 		- Infusion: Adds mana to your target, but also arousal.
-		- Grease: 1 MP, 0 AP, 3 turn CD. Reduces the AP cost of the target's next 3 actions by 2, but causes them to generate 1 arousal.
-		- Slime Ward: 1 MP, 1 AP, 6 turn CD. Places a slime ward on your target for 3 turns. If the target reaches max arousal, the ward solidifies and grants the target invulnerability for 2 turns.
-
-	- Warrior:
-		DONE
-		
-	- Monk
-		DONE
-		
-	- Rogue
-		- Hidden Flask : 1AP, 1MP, 3 CD. Restores 3 HP immediately and at the start of your turn for 2 turns. 
-		- ???
-		- ???
-
-	- Elementalist
-		DONE
-
+		- Grease: 1 MP, 0 AP, 3 turn CD. Reduces the AP cost of the target's next 3 actions by 2, but causes them to generate 1 arousal. Lasts 3 turns.
+		- Slime Ward: 1 MP, 1 AP, 6 turn CD. Places a slime ward on your target for 3 turns. If the target reaches max arousal while warded, they regenerate 50% of their max HP and ignore the normal orgasm effects.
 
 	- Generic
 		- Pummel DONE

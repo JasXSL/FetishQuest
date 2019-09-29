@@ -10,7 +10,7 @@ const humOnHumCond = anyOnHumCond.concat('senderNotBeast');
 const humOnAnyCond = baseCond.concat('senderNotBeast');
 
 import C from './conditions.js';
-
+import H from './hitfx.js';
 
 const lib = [
 	// Turn changed
@@ -3403,11 +3403,11 @@ const lib = [
 
 
 
-	// ROGUE | Todo : Tag up later once revamp is done
+	// ROGUE
 	// action_rogue_exploit
 	{ text : "%S exploits an opening in %T's defenses, tickling %This %groin!",
 		conditions : anyOnHumCond.concat([
-			"action_rogue_exploit","targetWearsUpperBody","targetWearsLowerBody"
+			"action_rogue_exploit"
 		]),
 		hitfx : ["tickle"]
 	},
@@ -3472,61 +3472,143 @@ const lib = [
 	// action_rogue_steal
 	{ text : "%S stole %TitemsStolenFrom from %T!",
 		conditions : baseCond.concat("action_rogue_steal"),
-		hitfx : ["poisonVialDrink"]
+		hitfx : ["steal"]
 	},
 
 
-	// action_rogue_dirtyTricks
-	/*
-	{ text : "%S distracts %T, allowing %Shim to attack from behind!",
-		conditions : baseCond.concat([
-			"action_rogue_dirtyTricks","targetBeast"
-		]),
-		hitfx : ["punch"]
+	// action_rogue_tripwire
+	{ text : "%S lays down a tripwire!",
+		conditions : baseCond.concat("action_rogue_tripwire"),
+		numTargets : -1,
+		hitfx : ["tripwire_set"]	// todo: visual
 	},
-	{ text : "%S distracts %T and sneaks behind %Thim, throwing a powerful slap across %T's %Trsize %butt!",
-		conditions : humOnHumCond.concat([
-			"action_rogue_dirtyTricks","targetNotBeast"
-		]),
-		hitfx : ["punch"]
+	{ text : "%T gets caught in %S's tripwire and falls down!",
+		conditions : ["action_rogue_tripwire_proc", "eventIsWrapperAdded"],
+		hitfx : ["tripwire_hit"] // Todo: visual
 	},
-	{ text : "%S distracts %T, slipping a hand into %T's %TclothLower and a finger down %This buttcrack, tickling at %This rear!",
-		conditions : humOnHumCond.concat([
-			"action_rogue_dirtyTricks","targetWearsLowerBody"
-		]),
+
+
+	// rogue_comboBreaker
+	{ text : "%S sneaks up on %T while %The's distracted and tickles %Thim, breaking the %Trace's concentration!",
+		conditions : baseCond.concat("action_rogue_comboBreaker"),
 		hitfx : ["tickle"]
 	},
-	{ text : "%S distracts %T, slipping a hand into %T's %TclothLower and grabs a hold of %This %Tpsize %penis, rubbing the glans with %Shis index finger!",
-		conditions : humOnHumCond.concat([
-			"action_rogue_dirtyTricks","targetWearsLowerBody","targetPenis"
-		]),
-		hitfx : ["squishTiny"]
+	{ text : "%S sneaks up on the distracted %Trace and sticks %Shis hand down %T's %TclothLower, shoving a finger into %This %vagina and breaking %This concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetVagina", "targetWearsLowerBody"),
+		metaTags : [stdTag.metaPenetration, stdTag.metaVeryArousing, stdTag.metaSlotVagina, stdTag.metaUsedFinger],
+		hitfx : ['squishTiny']
 	},
-	{ text : "%S distracts %T, slipping a hand into %T's %TclothLower and rubs %This clit!",
-		conditions : humOnHumCond.concat([
-			"action_rogue_dirtyTricks","targetWearsLowerBody","targetVagina"
-		]),
-		hitfx : ["squishTiny"]
+	{ text : "%S sneaks up on the distracted %Trace and sticks %Shis hand down %T's %TclothLower, rapidly tickling %This clit and breaking %This concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetVagina", "targetWearsLowerBody"),
+		metaTags : [stdTag.metaRub, stdTag.metaArousing, stdTag.metaSlotClit, stdTag.metaUsedFinger],
+		hitfx : ['squishTiny']
 	},
-	{ text : "%S distracts %T, slipping a hand into %T's %TclothLower and wiggles %Shis long finger up inside %T's %vagina!",
-		conditions : humOnHumCond.concat([
-			"action_rogue_dirtyTricks","targetWearsLowerBody","targetVagina"
-		]),
-		hitfx : ["squishTiny"]
+	{ text : "%S sneaks up on the distracted %Trace and surprises %T's by shoving a two fingers into into %This %vagina and %Shis pinky up into %This %Trsize %butt, breaking %This concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetVaginaExposed"),
+		metaTags : [stdTag.metaPenetration, stdTag.metaVeryArousing, stdTag.metaSlotVagina, stdTag.metaUsedFinger, stdTag.metaSlotButt],
+		hitfx : ['squishTiny']
 	},
-	{ text : "%S distracts %T, slipping both hands into %T's %TclothUpper and massages %This %Tnipples!",
-		conditions : humOnHumCond.concat([
-			"action_rogue_dirtyTricks","targetWearsUpperBody","targetBreasts"
-		]),
+	{ text : "%S sneaks up on the distracted %Trace and surprises %T's by shoving %Shis fist into into %T's %vagina, breaking %This concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetVaginaExposed", "targetMuchTaller"),
+		metaTags : [stdTag.metaPenetration, stdTag.metaVeryArousing, stdTag.metaSlotVagina, stdTag.metaUsedFist],
+		hitfx : ['squishTiny']
+	},
+
+	{ text : "%S sneaks up behind %T! Taking advantage of %Thim being distracted, %S forcefully shoves %Shis %Spsize %penis up into the %Trace's %vagina, causing %Thim to lose concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetVaginaExposed", "senderPenisExposed"),
+		metaTags : [stdTag.metaPenetration, stdTag.metaVeryArousing, stdTag.metaSlotVagina, stdTag.metaUsedPenis],
+		hitfx : ['squishLong']
+	},
+	{ text : "%S sneaks up behind %T! Taking advantage of %Thim being distracted, %S forcefully shoves %Shis %Spsize %penis up into the %Trace's %Trsize %butt, causing %Thim to lose concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetButtExposed", "senderPenisExposed"),
+		metaTags : [stdTag.metaPenetration, stdTag.metaVeryArousing, stdTag.metaSlotButt, stdTag.metaUsedPenis],
+		hitfx : ['squishLong']
+	},
+	{ text : "%S sneaks up on the distracted %Trace and sticks %Shis hand down %T's %TclothLower, shoving a finger into %This %Trsize %butt and breaking %This concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetWearsLowerBody"),
+		metaTags : [stdTag.metaPenetration, stdTag.metaVeryArousing, stdTag.metaSlotButt, stdTag.metaUsedFinger],
+		hitfx : ['squishTiny']
+	},
+	{ text : "%S sneaks up on the distracted %Trace and tickles %T's balls, breaking %This concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetPenisExposed"),
+		metaTags : [stdTag.metaPenetration, stdTag.metaVeryArousing, stdTag.metaSlotButt, stdTag.metaUsedFinger],
+		hitfx : ['squishTiny']
+	},
+	{ text : "%S sneaks up on the distracted %Trace and tickles %T's balls, breaking %This concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", "targetPenisExposed"),
+		metaTags : [stdTag.metaPenetration, stdTag.metaVeryArousing, stdTag.metaSlotButt, stdTag.metaUsedFinger],
+		hitfx : ['squishTiny']
+	},
+	{ text : "%S sneaks up on %T while the %Trace is distracted and prods %Shis finger up in between them, sliding it up and down rapidly enough that %T loses %This concentration!",
+		conditions : humOnHumCond.concat("action_rogue_comboBreaker", {conditions:["targetWearsThong", "targetButtExposed"], min:1}),
+		metaTags : [stdTag.metaTickle, stdTag.metaArousing, stdTag.metaSlotButt, stdTag.metaUsedFinger],
+		hitfx : ['tickle']
+	},
+		
+
+
+
+	// rogue_sneakAttack
+	{ text : "%S sneaks up behind %T and surprises the %Trace with a thorough tickling!",
+		conditions : baseCond.concat("action_rogue_sneakAttack"),
+		metaTags : [stdTag.metaTickle, stdTag.metaUsedFinger],
+		hitfx : ["tickle"]
+	},
+
+	{ text : "%S sneaks up behind %T and shoves %Shis hand up between %This legs, briefly giving %This %groin a squeeze before sliding the hand back and up across the %Trace's %Trsize %butt!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack"),
+		metaTags : [stdTag.metaRub, stdTag.metaSlotGroin, stdTag.metaSlotButt, stdTag.metaArousing],
 		hitfx : ["squeeze"]
 	},
-	{ text : "%S shoves %T from behind. As %T stumbles forward, %S slips %Shis hand between %T's legs and slides %Shis fingers across %This %groin and %butt!",
-		conditions : humOnHumCond.concat([
-			"action_rogue_dirtyTricks","targetVagina"
-		]),
+	{ text : "%S sneaks up behind %T, squeezes a firm hold of %This buttcheeks, and jiggles them around rapidly!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack", {conditions:["targetWearsThong", "targetButtExposed"], min:1}),
+		metaTags : [stdTag.metaSqueeze, stdTag.metaJiggle, stdTag.metaSlotButt, stdTag.metaArousing],
 		hitfx : ["squeeze"]
 	},
-	*/
+	{ text : "%S sneaks up behind %T, squeezes a firm hold of %This %Tbsize %breasts, and jiggles them around rapidly!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack", "targetUpperBodyNotHard", "targetBreasts"),
+		metaTags : [stdTag.metaSqueeze, stdTag.metaJiggle, stdTag.metaSlotBreasts, stdTag.metaArousing],
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S sneaks up behind %T and reaches at %This nipples, pinches a hold of them between %Shis thumb and index finger and rubs them playfully!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack", "targetUpperBodyNotHard", "targetBreasts"),
+		metaTags : [stdTag.metaSqueeze, stdTag.metaJiggle, stdTag.metaSlotBreasts, stdTag.metaArousing],
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S sneaks up behind %T and grabs a hold of the front straps of %This %TclothLower, tugging them out to the side and exposing the %Trace's %Trsize %breasts! Before %T can react, %S grabs %This nipples and jiggles %This %breasts around a bit!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack", "targetBreasts", "targetWearsSlingBikini"),
+		metaTags : [stdTag.metaJiggle, stdTag.metaSlotBreasts, stdTag.metaSlotNipples, stdTag.metaArousing],
+		turnTags : [stdTag.ttBreastsExposed],
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S sneaks up behind %T and grabs a hold of the front of %This %TclothLower. %S gives it a rapid tug upwards, causing %Trace's %Trsize %breasts to be exposed! Before %T can react, %S grabs %This nipples and jiggles them around!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack", "targetBreasts", "targetUpperBodyCanPullUp"),
+		metaTags : [stdTag.metaJiggle, stdTag.metaSlotBreasts, stdTag.metaSlotNipples, stdTag.metaArousing],
+		turnTags : [stdTag.ttBreastsExposed],
+		hitfx : ["squeeze"]
+	},
+
+	{ text : "%S sneaks up behind %T and grabs a firm hold of %This %TclothLower, giving it a forceful tug down and exposing %This %Tgenitals! The %Srace immediately prods %Shis hand up between %T's legs and gives %Thim a %couple of firm rubs!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack", "targetLowerBodyCanPullDown"),
+		metaTags : [stdTag.metaJiggle, stdTag.metaSlotBreasts, stdTag.metaSlotNipples, stdTag.metaArousing],
+		turnTags : [stdTag.ttGroinExposed],
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S sneaks around %T and slips %Shis hand into %This %TclothLower, tickling %This %vagina!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack", "targetWearsLowerBody", "targetVagina"),
+		metaTags : [stdTag.metaTickle, stdTag.metaSlotVagina, stdTag.metaUsedFinger],
+		hitfx : ["tickle"]
+	},
+	{ text : "%S sneaks around %T and slips %Shis hand into %This %TclothLower, tickling %This balls!",
+		conditions : humOnHumCond.concat("action_rogue_sneakAttack", "targetWearsLowerBody", "targetPenis"),
+		metaTags : [stdTag.metaTickle, stdTag.metaSlotBalls, stdTag.metaUsedFinger],
+		hitfx : ["tickle"]
+	},
+	
+
+	
+
+
 
 
 

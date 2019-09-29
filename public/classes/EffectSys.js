@@ -518,8 +518,9 @@ class Wrapper extends Generic{
 
 	onTurnStart(){
 
-		if( this.tick_on_turn_start )
+		if( this.tick_on_turn_start ){
 			this.tick();
+		}
 
 		if(this.duration < 1)
 			return;
