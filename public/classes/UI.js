@@ -2357,14 +2357,13 @@ export default class UI{
 				let stats = player.getPrimaryStats();
 				html += '<div class="flexThreeColumns">';
 				for( let stat in stats ){
-					let isPrimary = stat === player.class.primaryStat;
 					let title = 'HP';
 					let amount = player.statPointsToNumber(stat);
 					if( stat === Player.primaryStats.agility )
 						title = 'AP';
 					else if( stat === Player.primaryStats.intellect )
 						title = 'MP';
-					html += '<div class="tag'+( isPrimary ? ' primaryStat' : '' )+'" title="Increases '+title+' by '+amount+'.'+(isPrimary ? '\n'+esc(player.class.name)+' primary stat.': '')+'">'+
+					html += '<div class="tag" title="Increases '+title+' by '+amount+'.">'+
 							ucFirst(stat)+' '+stats[stat]+
 						'</div>';
 				}

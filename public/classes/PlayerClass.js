@@ -12,7 +12,6 @@ export default class PlayerClass extends Generic{
 		this.isMonsterClass = false;
 		this.actions = [];				// Used only for NPCs. Players should instead use ActionLearnable.
 		this.description = '';
-		this.primaryStat = 'none';		// Increases the effect of a primary stat by 50%
 		this.player_icon = '';			// TODO: If the player doesn't have an icon, use the class icon instead
 		this.name_type = PlayerClass.NameType.None;		// Lets you append or prepend the class name to the player's name. Useful for player templates with many classes.
 
@@ -42,7 +41,6 @@ export default class PlayerClass extends Generic{
 	save( full ){
 		const out = {
 			name : this.name,
-			primaryStat :  this.primaryStat,
 			svPhysical : this.svPhysical,
 			svElemental : this.svElemental,
 			svHoly : this.svHoly,

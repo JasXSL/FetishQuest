@@ -639,9 +639,6 @@ div.fxBuffRed{
 	#modal div.playerInspector div.tag{
 		flex:1;
 	}
-	#modal div.playerInspector div.tag.primaryStat{
-		border:1px solid #DFD;
-	}
 	#modal img.player_icon_preview,
 	#modal img.inspect_icon
 	{

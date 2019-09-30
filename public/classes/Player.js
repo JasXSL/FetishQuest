@@ -1706,15 +1706,6 @@ export default class Player extends Generic{
 		let val = stats[stat]+this.class[stat];
 		if( isNaN(val) )
 			return 0;
-
-		if( stat === ps.stamina )
-			return val*(this.class.primaryStat === stat ? 3 : 2);		// Stamina
-		else if( stat == ps.agility )
-			return Math.round(val*(this.class.primaryStat === stat ? 1.5 : 1));		// Stamina
-		else if( stat == ps.intellect )
-			return Math.round(val*(this.class.primaryStat === stat ? 1.5 : 1));		// Stamina
-			
-
 		return 0;
 	}
 

@@ -6,9 +6,6 @@ Smol:
 
 Medium rare:
 
-	- Redesign primary stats
-	- Check rarity
-
 	- Difficulty setting
 		- Should probably be in options.
 		- Affect enemy damage done only?

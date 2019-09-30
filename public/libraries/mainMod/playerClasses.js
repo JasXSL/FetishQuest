@@ -2,10 +2,14 @@ import Action from "../../classes/Action.js";
 import Player from "../../classes/Player.js";
 import PlayerClass from "../../classes/PlayerClass.js";
 
+/*
+    4 primary points for each class
+    7 secondary points for each class
+*/
+
 const lib = {
     "none": {
         name : "NONE",
-        primaryStat : "none",
         svPhysical : 0,
         svElemental : 0,
         svHoly : 0,
@@ -21,15 +25,17 @@ const lib = {
     },
     "warrior": {
         name : "Warrior",
-        primaryStat : "stamina",
-        svPhysical : 3,
-        svElemental : 0,
+        svPhysical : 4,
+        svElemental : 2,
         svHoly : 0,
         svCorruption : -1,
         bonPhysical : 3,
         bonElemental : 0,
         bonHoly : 0,
         bonCorruption : -1,
+        stamina : 4,
+        agility : 1,
+        intellect : -1,
         description : "Standing toe to toe with their enemy, warriors enjoy both receiving and dealing out punishment. Good for sadomasochists.",
         label : "warrior",
         isMonsterClass : false,
@@ -41,15 +47,16 @@ const lib = {
     },
     "monk": {
         name : "Monk",
-        primaryStat : "agility",
         svPhysical : 4,
         svElemental : -1,
         svHoly : 0,
-        svCorruption : 1,
-        bonPhysical : 3,
-        bonElemental : -1,
+        svCorruption : 2,
+        bonPhysical : 4,
+        bonElemental : 0,
         bonHoly : 0,
         bonCorruption : -2,
+        stamina : 1,
+        agility : 2,
         description : "A lightweight martial artist who primarily deals damage, monks can also heal their friends and weaken enemeies. Good for exhibitionists.",
         label : "monk",
         isMonsterClass : false,
@@ -61,15 +68,16 @@ const lib = {
     },
     "elementalist": {
         name : "Elementalist",
-        primaryStat : "intellect",
         svPhysical : 0,
         svElemental : 2,
         svHoly : 0,
-        svCorruption : 0,
+        svCorruption : 1,
         bonPhysical : 0,
-        bonElemental : 2,
+        bonElemental : 4,
         bonHoly : 0,
         bonCorruption : 0,
+        intellect : 2,
+        stamina : 1,
         description : "An adept of the elemental ways, elementalists are good healers and damage dealers. Good for those into electrostim and breathplay.",
         label : "elementalist",
         isMonsterClass : false,
@@ -81,18 +89,18 @@ const lib = {
     },
     "rogue": {
         name : "Rogue",
-        primaryStat : "undefined",
-        svPhysical : 1,
+        svPhysical : 2,
         svElemental : 0,
         svHoly : -2,
         svCorruption : 3,
         bonPhysical : 2,
         bonElemental : -1,
         bonHoly : -1,
-        bonCorruption : 2,
+        bonCorruption : 4,
         description : "A stealthy class, there are no places a rogue can't enter, especially clothes. Rogues are good if you're into teasing and humiliation of your enemy.",
         label : "rogue",
         isMonsterClass : false,
+        agility : 3,
         actions : [
             "rogue_exploit",
             "rogue_corruptingPoison",
@@ -101,15 +109,17 @@ const lib = {
     },
     "cleric": {
         name : "Cleric",
-        primaryStat : "stamina",
         svPhysical : 2,
         svElemental : 0,
         svHoly : 2,
-        svCorruption : 2,
+        svCorruption : 3,
         bonPhysical : 0,
         bonElemental : 0,
-        bonHoly : 2,
+        bonHoly : 4,
         bonCorruption : -4,
+        stamina : 1,
+        agility : 1,
+        intellect : 1,
         description : "Upholding the morals, clerics chastise their enemies and make highly potent healers. Clerics may interest players into chastity and bondage.",
         label : "cleric",
         isMonsterClass : false,
@@ -121,15 +131,16 @@ const lib = {
     },
     "tentaclemancer": {
         name : "Tentaclemancer",
-        primaryStat : "intellect",
-        svPhysical : 0,
+        svPhysical : 2,
         svElemental : 2,
-        svHoly : -2,
-        svCorruption : 3,
-        bonPhysical : 0,
+        svHoly : -4,
+        svCorruption : 4,
+        bonPhysical : 2,
         bonElemental : 0,
         bonHoly : -3,
         bonCorruption : 4,
+        stamina : 2,
+        intellect : 1,
         description : "Tentaclemancers summon forth slithering assailants from the nether realms. Good if you enjoy tentacles.",
         label : "tentaclemancer",
         isMonsterClass : false,
@@ -141,7 +152,6 @@ const lib = {
     },
     "tentacle_fiend": {
         name : "Tentacle Fiend",
-        primaryStat : "agility",
         svPhysical : 0,
         svElemental : 0,
         svHoly : 0,
@@ -162,7 +172,6 @@ const lib = {
 	},
 	"shocktacle": {
         name : "Shocktacle",
-        primaryStat : Player.primaryStats.intellect,
         description : "",
         isMonsterClass : true,
         actions : [
@@ -173,7 +182,6 @@ const lib = {
     },
     "mimic": {
         name : "Mimic",
-        primaryStat : "agility",
         svPhysical : 0,
         svElemental : 0,
         svHoly : 0,
@@ -193,7 +201,6 @@ const lib = {
     },
     "imp": {
         name : "Imp",
-        primaryStat : Player.primaryStats.intellect,
         description : "",
         label : "imp",
         isMonsterClass : true,
@@ -210,7 +217,6 @@ const lib = {
     },
     guardian_demon_breaker : {
         name : "Breaker",
-        primaryStat : Player.primaryStats.stamina,
         description : "",
         isMonsterClass : true,
         actions : [
@@ -224,7 +230,6 @@ const lib = {
     },
     cocktopus : {
         name : "Cocktopus",
-        primaryStat : Player.primaryStats.agility,
         isMonsterClass : true,
         actions : [
             "tentacle_fiend_legWrap",
@@ -236,7 +241,6 @@ const lib = {
     },
     tentacrab : {
         name : "Pincher",
-        primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
         actions : [
             "crab_claw_pinch",
@@ -245,7 +249,6 @@ const lib = {
     },
     MQ00_Boss : {
         name : "Nethermancer",
-        primaryStat : Player.primaryStats.intellect,
         description : "",
         isMonsterClass : true,
         actions : [
@@ -255,7 +258,6 @@ const lib = {
     },
     skeleton : {
         name : "",
-        primaryStat : Player.primaryStats.agility,
         description : "",
         isMonsterClass : true,
         actions : [
@@ -267,7 +269,6 @@ const lib = {
         player_icon : '',
         name_type : PlayerClass.NameType.Suffix,
         name : "Lasher",
-        primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
         description : 'This groper has a multitude of extra tendrils flailing about!',
         actions : [
@@ -283,7 +284,6 @@ const lib = {
         player_icon : '',
         description : 'This groper has a couple of thicker sap-coated tendrils.',
         name_type : PlayerClass.NameType.Suffix,
-        primaryStat : Player.primaryStats.intellect,
         isMonsterClass : true,
         intellect : 2,
         actions : [
@@ -298,7 +298,6 @@ const lib = {
         player_icon : '',
         name_type : PlayerClass.NameType.Prefix,
         description : 'This groper seems to be half hollowed out and has a nest of skittering insects living in it!',
-        primaryStat : Player.primaryStats.agility,
         isMonsterClass : true,
         stamina : -4,
         agility : 2,
@@ -311,7 +310,6 @@ const lib = {
 
     lamprey : {
         name : "Lamprey",
-        primaryStat : Player.primaryStats.agility,
         isMonsterClass : true,
         actions : [
             "lamprey_slither",      // slither into a target's clothes, doing corruption damage
@@ -322,7 +320,6 @@ const lib = {
 
     anemone : {
         name : "Tickler",
-        primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
         powered: true,
         actions : [
@@ -335,7 +332,6 @@ const lib = {
 
     sharktopus : {
         name : "Tentacler",
-        primaryStat : Player.primaryStats.stamina,
         isMonsterClass : true,
         actions : []
     },

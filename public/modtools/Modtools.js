@@ -829,14 +829,12 @@ export default class Modtools{
 	mml_playerClasses(){
 		this.mml_generic( 
 			'playerClasses', 
-			['Label','Name','pStat','#Actions'],
+			['Label','Name'],
 			this.mod.playerClasses,
 			asset => {
 				return [
 					asset.label,
-					asset.name,
-					asset.primaryStat,
-					(Array.isArray(asset.actions) ? asset.actions.length : 0),
+					asset.name
 				];
 			},
 			() => {
@@ -1500,9 +1498,7 @@ export default class Modtools{
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
-			html += 'Primary Stat: '+this.inputPrimaryStat(asset.primaryStat)+'<br />';
 			html += '<textarea name="description">'+esc(asset.description)+'</textarea>';
-			html += 'Actions: '+this.formActions(asset.actions)+'<br />';
 			html += '<span title="Lists it separately">MonsterClass</span>: <input type="checkbox" value="1" name="isMonsterClass" '+(asset.isMonsterClass ? 'checked' : '')+' /><br />';
 			const stats = Action.Types;
 			for( let i in stats )
@@ -1515,9 +1511,7 @@ export default class Modtools{
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.name = $("input[name=label]", form).val().trim();
-			saveAsset.primaryStat = $("select[name=primaryStat]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
-			saveAsset.actions = this.compileAction();
 			saveAsset.isMonsterClass = $("input[name=isMonsterClass]", form).val().trim();
 
 			for( let i in stats ){

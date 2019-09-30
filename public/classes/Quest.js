@@ -265,8 +265,7 @@ Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
 
 	quest.exp_multiplier = expBasis;
 	// Pick a proper reward. For now, just do gear.
-	let minGearRarity = Math.min(Asset.Rarity.EPIC, Math.round(game.getTeamPlayers(0).length*difficultyMultiplier+encounters/10));
-	let rarity = Asset.rollRarity(minGearRarity);
+	let rarity = Asset.rollRarity(1);
 	quest.addGearReward(Asset.generate(undefined, undefined, undefined, undefined, rarity));
 
 	// Add dungeon exit ending objective
