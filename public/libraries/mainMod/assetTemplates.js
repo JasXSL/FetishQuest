@@ -41,7 +41,9 @@ const lib = {
 			"shadowcloth",
 			"leather",
 			"plateSoftsilver",
-			"rawhide"
+			"rawhide",
+			"plateSteel",
+			"plateCopper",
 		],
 		description : "The type of garment that goes between your buttcheeks.",
 		tags : [
@@ -108,7 +110,8 @@ const lib = {
 		],
 		description : "A a tight piece of clothing with shoulder straps. It has a fairly visible cleavage and covered back. It comes together at the hips and wraps down across your groin, leaving your legs exposed.",
 		tags : [stdTag.asTight, stdTag.asBodysuit],
-		size : 0.8
+		size : 0.8,
+		level : 5,
 	},
 	thong_bodysuit : {
 		icon : 'sleeveless-top',
@@ -123,7 +126,8 @@ const lib = {
 		],
 		description : "A a tight piece of clothing with shoulder straps. It has a fairly visible cleavage and exposed back. It wraps down over your groin and forming a thong shape joining together at your hips, leaving your legs exposed.",
 		tags : [stdTag.asTight, stdTag.asBodysuit, stdTag.asThong],
-		size : 0.6
+		size : 0.6,
+		level : 8
 	},
 	
 

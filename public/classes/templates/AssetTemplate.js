@@ -20,6 +20,7 @@ class AssetTemplate extends Generic{
 		this.description = "";
 		this.tags = [];
 		this.wrappers = [];
+		this.level = 0;
 		this.size = 1.0;					// Size multiplier, used in weight calculations
 		this.icon = 'perspective-dice-six-faces-random';
 
@@ -44,6 +45,7 @@ class AssetTemplate extends Generic{
 			size : this.size,
 			icon : this.icon,
 			wrappers : this.wrappers,
+			level : this.level,
 		};
 	}
 
@@ -81,6 +83,10 @@ class AssetTemplate extends Generic{
 	}
 
 	testLevel(level){
+
+		if( this.level < level )
+			return false;
+			
 		let mats = this.getMats();
 		for( let mat of mats ){
 			if( mat.level <= level )
