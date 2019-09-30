@@ -9,9 +9,10 @@ Medium rare:
 	- Difficulty setting
 		- Should probably be in options.
 		- Affect enemy damage done only?
+	
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
 	- Character export/import
-	- AFK mode. Go bot in netgame.	
+	- AFK mode. Go bot in netgame.
 
 Big chungi:
 	- Spell learning system
@@ -25,8 +26,6 @@ Big chungi:
 	- Main quest chapter 2
 		- Go to Yuug capital?
 		- What do there?
-
-	- New spells (Todo exists)
 
 	- Give every modal its own screen instead of using the modal system
 

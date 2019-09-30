@@ -217,7 +217,7 @@ export default class GameAction extends Generic{
 					undefined, 	// Viable template
 					undefined, 	// Viable materials
 					undefined, // enforced rarity
-					(value-0.5)*Asset.Rarity.LEGENDARY, // Min rarity
+					Math.floor((value-0.5)*2*Asset.Rarity.LEGENDARY), // Min rarity
 				);
 				if( loot )
 					this.data.push(loot);
