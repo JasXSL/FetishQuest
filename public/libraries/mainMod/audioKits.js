@@ -658,6 +658,28 @@ const lib = {
             }
         ],
     },
+
+    grease : {
+        sounds : [
+            {
+                s : {path : "media/audio/grease.ogg",volume : 0.3},
+            }
+        ],
+    },
+    infusion : {
+        sounds : [
+            {
+                s : {path : "media/audio/infusion.ogg",volume : 0.3},
+            }
+        ],
+    },
+    slimeWard : {
+        sounds : [
+            {
+                s : {path : "media/audio/slimeward.ogg",volume : 0.3},
+            }
+        ],
+    },
     
     monkHeal : {
         sounds : [

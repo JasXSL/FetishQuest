@@ -621,6 +621,23 @@ particles.hitfx_splat = {
 	rotation : new Proton.Span(0,Math.PI*2)
 };
 
+particles.hitfx_glowing_ooze_white_splat = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.1,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,20),
+	size : 10,
+	size_tween : [0.001,1],
+	part_max_age : 1,
+	velocity : new Proton.Span(0,1),
+	color : ["#FFFFFF","#FFFFFF"],	
+	opacity: [0.5,0],
+	gravity:0.5,
+	rotation : new Proton.Span(0,Math.PI*2)
+};
+
+
 particles.hitfx_splat_green = {
 	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
@@ -1376,6 +1393,37 @@ particles.hitfx_sludge_bolt_proc_black = {
 	color : "#000000",	
 	opacity: [1,0],
 	rotation : new Proton.Span(0,Math.PI*2),
+};
+
+particles.hitfx_glowing_ooze = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.025,
+	count : 3,
+	position : new Proton.BoxZone(0,0,0,20,40,20),
+	size : [1,5],
+	part_max_age : 1,
+	velocity : new Proton.Span(0, 1),
+	gravity: new Proton.Span(0,0.15),
+	color : "#AADDFF",	
+	opacity: [0,1, Proton.ease.easeFullBridge],
+	rotation : [0,new Proton.Span(0,Math.PI*2)],
+};
+
+particles.hitfx_glowing_ooze_green = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.BoxZone(0,0,0,20,40,20),
+	size : [1,25],
+	size_tween : [0.01, 1],
+	part_max_age : 1,
+	velocity : new Proton.Span(0, 1),
+	gravity: new Proton.Span(0,0.15),
+	color : "#AAFFAA",	
+	opacity: [1,0],
+	rotation : [0,new Proton.Span(0,Math.PI*2)],
 };
 
 particles.hitfx_darkOrb = {

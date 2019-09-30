@@ -1,5 +1,4 @@
 import Text from '../../classes/Text.js';
-import audioKits from './audioKits.js';
 import stdTag from '../stdTag.js';
 import Asset from '../../classes/Asset.js';
 import GameEvent from '../../classes/GameEvent.js';
@@ -3705,6 +3704,7 @@ const lib = [
 		conditions : baseCond.concat([
 			"action_tentaclemancer_tentacleWhip","targetBeast"
 		]),
+		metaTags : [stdTag.metaWhip, stdTag.metaPainful, stdTag.metaUsedTentacles],
 		hitfx : ["tentacleWhip"]
 	},
 	{ text : "%S summons a tentacle behind %T whacking across %This %Trsize %butt!",
@@ -3741,6 +3741,7 @@ const lib = [
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_tentacleWhip","targetBreasts","targetUpperBodyHard"
 		]),
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSlotBreast, stdTag.metaWhip, stdTag.metaPainful],
 		hitfx : ["tentacleWhip"]
 	},
 	{ text : "%S summons a slimy tentacle near %T, giving a jiggling lash across %This %Tbsize %leftright %breast!",
@@ -3748,6 +3749,7 @@ const lib = [
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_tentacleWhip","targetBreasts","targetUpperBodyNotHard"
 		]),
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSlotBreast, stdTag.metaWhip, stdTag.metaPainful],
 		hitfx : ["tentacleWhip"]
 	},
 	{ text : "%S summons a slimy tentacle beneath %T, smacking %This %Tpsize %penis around!",
@@ -3755,6 +3757,7 @@ const lib = [
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_tentacleWhip","targetPenis","targetLowerBodyNotHard","targetLowerBodyOrNoDamage","targetPenisExposed"
 		]),
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaSlotPenis, stdTag.metaWhip, stdTag.metaPainful],
 		hitfx : ["tentacleWhip"]
 	},
 
@@ -3765,6 +3768,7 @@ const lib = [
 		conditions : baseCond.concat([
 			"action_tentaclemancer_corruptingOoze","targetNoLowerBody","targetNoUpperBody"
 		]),
+		metaTags : [stdTag.metaGooey],
 		hitfx : ["sludgeBoltPurple"] // 
 	},
 	{ text : "%S flings a purple bolt of sludge at %T, slipping into %This outfit!",
@@ -3772,8 +3776,9 @@ const lib = [
 			"action_tentaclemancer_corruptingOoze",
 			{conditions:[
 				"targetWearsLowerBody","targetWearsUpperBody"
-			]}
+			]},
 		]),
+		metaTags : [stdTag.metaGooey],
 		hitfx : ["sludgeBoltPurple"]
 	},
 	{ text : "The corrupting ooze constricts around %T's body, immobilizing %Thim!",
@@ -3786,7 +3791,8 @@ const lib = [
 				targnr:0
 			}
 		],
-		hitfx : ["sludgePurple"]
+		hitfx : ["sludgePurple"],
+		metaTags : [stdTag.metaGooey],
 	},
 
 
@@ -3795,12 +3801,14 @@ const lib = [
 		conditions : baseCond.concat([
 			"action_tentaclemancer_siphonCorruption","targetBeast"
 		]),
+		metaTags : [stdTag.metaGooey, stdTag.metaArousing],
 		hitfx : ['siphonCorruption'],
 	},
 	{ text : "The living ooze attached to %T protrudes into %This %butt, causing a warm sensation as it wiggles and bubbles inside! %S absorbs energy from the stimulation.",
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_siphonCorruption",
 		]),
+		metaTags : [stdTag.metaGooey, stdTag.metaPenetration, stdTag.metaSlotButt, stdTag.metaArousing],
 		hitfx : ['siphonCorruption'],
 	},
 	{ text : "The living ooze attached to %T protrudes into %This %vagina, causing a warm sensation as it wriggles and bubbles inside %Thim! %S absorbs energy from the stimulation.",
@@ -3808,58 +3816,69 @@ const lib = [
 			"action_tentaclemancer_siphonCorruption","targetVagina"
 		]),
 		hitfx : ['siphonCorruption'],
+		metaTags : [stdTag.metaGooey, stdTag.metaPenetration, stdTag.metaSlotVagina, stdTag.metaArousing],
 	},
 	{ text : "The living ooze attached to %T wraps around %This %penis, causing a warm sensation as it wriggles and bubbles! %S absorbs energy from the stimulation.",
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_siphonCorruption","targetPenis"
 		]),
+		metaTags : [stdTag.metaGooey, stdTag.metaSqueeze, stdTag.metaSlotPenis, stdTag.metaArousing],
 		hitfx : ['siphonCorruption'],
 	},
 	{ text : "The living ooze attached to %T wraps around %This nipples, causing a tingling sensation as it wriggles and bubbles! %S absorbs energy from the stimulation.",
 		conditions : anyOnHumCond.concat([
 			"action_tentaclemancer_siphonCorruption","targetBreasts"
 		]),
+		metaTags : [stdTag.metaGooey, stdTag.metaPenetration, stdTag.metaSlotNipples, stdTag.metaArousing],
 		hitfx : ['siphonCorruption'],
 	},
 
 
-	// Todo: visual
 	// tentaclemancer_infusion
 	{ text : "%S rubs a wad of glowing ooze across %T!",
 		conditions : baseCond.concat([
 			"action_tentaclemancer_infusion", "targetNotSender"
 		]),
-		hitfx : ["sludgeBoltPurple"]
+		metaTags : [stdTag.metaGooey, stdTag.metaArousing],
+		audiokits : ["infusion"],
+		hitfx : ["glowingOoze"]
 	},
 	{ text : "%S rubs a wad of glowing ooze across %Thimself!",
 		conditions : baseCond.concat([
 			"action_tentaclemancer_infusion", "targetIsSender"
 		]),
-		hitfx : ["sludgeBoltPurple"]
+		metaTags : [stdTag.metaGooey, stdTag.metaArousing],
+		audiokits : ["infusion"],
+		hitfx : ["glowingOoze"]
 	},
 
-	// Todo: visual
 	// tentaclemancer_grease
 	{ text : "%S surrounds %T with an oily grease, increasing their speed!",
 		conditions : baseCond.concat([
 			"action_tentaclemancer_grease", "targetNotSender"
 		]),
-		hitfx : ["sludgeBoltPurple"]
+		metaTags : [stdTag.metaGooey, stdTag.metaArousing],
+		audiokits : ["grease"],
+		hitfx : ["glowingOozeSplat"]
 	},
 	{ text : "%S surrounds %Thimself with an oily grease, increasing their speed!",
 		conditions : baseCond.concat([
 			"action_tentaclemancer_grease", "targetIsSender"
 		]),
-		hitfx : ["sludgeBoltPurple"]
+		metaTags : [stdTag.metaGooey, stdTag.metaArousing],
+		hitfx : ["glowingOozeSplat"],
+		audiokits : ["grease"],
 	},
 
-	// Todo: visual
 	// tentaclemancer_slimeWard
 	{ text : "A thin mist of slime surrounds %T!",
 		conditions : baseCond.concat([
 			"action_tentaclemancer_slimeWard"
 		]),
-		hitfx : ["sludgeBoltPurple"]
+		metaTags : [stdTag.metaGooey, stdTag.metaArousing],
+		audiokits : ["slimeWard"],	// Todo: Additional audio
+		hitfx : ["glowingOozeGreen"],
+		audiokits : ["slimeWard"],
 	},
 
 

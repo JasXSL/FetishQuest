@@ -1508,6 +1508,62 @@ out[id].stages.push(
 );
 
 
+id = 'glowingOoze';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_glowing_ooze',
+		emit_duration : 500,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['gooRub'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparkles_static',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+);
+id = 'glowingOozeGreen';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_glowing_ooze_green',
+		emit_duration : 500,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['gooRub'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sparkles_static',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+);
+
+id = 'glowingOozeSplat';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_glowing_ooze_white_splat',
+		emit_duration : 500,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxBuffBlue',
+		sound_kits : ['gooRub'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks',
+		emit_duration : 300,
+		dest_rand : 0.25,
+		tween : false,
+	}, out[id]),
+);
+
 id = 'skitteringSwarm';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
