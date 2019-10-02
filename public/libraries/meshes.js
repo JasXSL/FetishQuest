@@ -2703,7 +2703,46 @@ LibMesh.library = {
 				materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
 				tags : [stdTag.mTent], width: 2, height: 2,
 			}),
-		}
+		},
+
+		FortWall : {
+			Wall : new LibMesh({
+				url : 'structure/fort_wall.JD',
+				materials : [
+					libMat.Brick.Small,
+					libMat.Brick.DungeonBlack,
+				],
+			}),
+			Door : new LibMesh({
+				url : 'structure/fort_wall_door.JD',
+				materials : [
+					libMat.Brick.Small,
+					libMat.Brick.DungeonBlack,
+				],
+			}),
+			Tower : new LibMesh({
+				url : 'structure/fort_wall_tower.JD',
+				materials : [
+					libMat.Brick.Small,
+					libMat.Brick.DungeonBlack,
+				],
+			}),
+			DoorAnimated : new LibMesh({
+				auto_bounding_box : true,
+				url : 'structure/fort_wall_door_animated.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+				],
+				animations : {
+					"open" : {
+						clampWhenFinished : true,
+						loop : THREE.LoopOnce,
+						timeScale : 2
+					}
+				},
+			}),
+		},
 
 	},
 
