@@ -121,6 +121,8 @@ class LibMesh{
 			// SkinnedMesh needs a unique material or it goes tits up
 			let hasCustomDepthMaterial = false;
 			for( let mat of this.materials ){
+				if( mat === undefined )
+					console.error("Undefined material found in", this);
 				const m = mat.fetch(unique || obj.type === "SkinnedMesh");
 				mats.push(m);
 				if( mat.type === 'MeshDepthMaterial' )
@@ -2432,7 +2434,53 @@ LibMesh.library = {
 				width: 1, height: 1,
 				tags : [stdTag.mFence],
 			}),
-		}
+		},
+		City : {
+			X : new LibMesh({
+				url : 'land/yuug/town_x.JD',
+				materials : [
+					libMat.Land.TownX
+				],
+				width: 10,
+				height:10,
+				isRoom : true,
+				tags : [stdTag.mGrass, stdTag.mSand],
+				top:-4,left:-4,
+			}),
+			T : new LibMesh({
+				url : 'land/yuug/town_t.JD',
+				materials : [
+					libMat.Land.TownT
+				],
+				width: 10,
+				height:10,
+				isRoom : true,
+				tags : [stdTag.mGrass, stdTag.mSand],
+				top:-4,left:-4,
+			}),
+			Straight : new LibMesh({
+				url : 'land/yuug/town_straight.JD',
+				materials : [
+					libMat.Land.TownStraight
+				],
+				width: 10,
+				height:10,
+				isRoom : true,
+				tags : [stdTag.mGrass, stdTag.mSand],
+				top:-4,left:-4,
+			}),
+			Bend : new LibMesh({
+				url : 'land/yuug/town_bend.JD',
+				materials : [
+					libMat.Land.TownBend
+				],
+				width: 10,
+				height:10,
+				isRoom : true,
+				tags : [stdTag.mGrass, stdTag.mSand],
+				top:-4,left:-4,
+			}),
+		},
 	},
 
 	Cave : {
@@ -2618,6 +2666,15 @@ LibMesh.library = {
 				libMat.Brick.Small,
 			],
 		}),
+		CottageLong : new LibMesh({
+			url : 'structure/cottage_long.JD',
+			materials : [
+				libMat.Wood.Logs,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
 		CottageBent : new LibMesh({
 			url : 'structure/cottage_bent.JD',
 			materials : [
@@ -2658,6 +2715,79 @@ LibMesh.library = {
 			url : 'structure/cottage_2story_b.JD',
 			materials : [
 				libMat.Wood.Logs,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+		CabinDerelict : new LibMesh({
+			url : 'structure/cabin_derelict.JD',
+			materials : [
+				libMat.Wood.Logs,
+				libMat.Wood.Old,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+
+		Gym : new LibMesh({
+			url : 'structure/gym.JD',
+			materials : [
+				libMat.Structure.CottageRoof,
+				libMat.Structure.CottageWall2,
+				libMat.Wood.Crate,
+				libMat.Wood.Crate,
+				libMat.StoneTile.ChurchFloor2,
+			],
+		}),
+
+		Bank : new LibMesh({
+			url : 'structure/bank.JD',
+			materials : [
+				libMat.StoneTile.ChurchFloor2,
+				libMat.Rock.Wall,
+				libMat.Wood.Crate,
+				libMat.Brick.DungeonBlack,
+				libMat.Wood.Crate,
+				libMat.Glass.Brown
+			],
+		}),
+
+		Church : new LibMesh({
+			url : 'structure/church.JD',
+			materials : [
+				libMat.StoneTile.ChurchWall,
+				libMat.StoneTile.StoneWall,
+				libMat.Wood.Crate,
+				libMat.Brick.DungeonBlack,
+				libMat.Wood.Crate,
+				libMat.Glass.Brown
+			],
+		}),
+
+		Inn : new LibMesh({
+			url : 'structure/inn.JD',
+			materials : [
+				libMat.Structure.CottageRoof,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+		InnLarge : new LibMesh({
+			url : 'structure/inn_big.JD',
+			materials : [
+				libMat.Structure.CottageRoof,
+				libMat.Structure.CottageWall,
+				libMat.Wood.Crate,
+				libMat.Brick.Small,
+			],
+		}),
+
+		InnLarge : new LibMesh({
+			url : 'structure/inn_big.JD',
+			materials : [
+				libMat.Structure.CottageRoof,
 				libMat.Structure.CottageWall,
 				libMat.Wood.Crate,
 				libMat.Brick.Small,
@@ -2743,6 +2873,105 @@ LibMesh.library = {
 				},
 			}),
 		},
+
+	},
+
+	Room : {
+
+		CabinDerelict : new LibMesh({
+			isRoom : true,
+			url : 'rooms/cottage_interior_derelict.JD',
+			materials : [
+				libMat.Structure.CottageWall,
+				libMat.Wood.Old,
+				libMat.Wood.Crate,
+			],
+			tags : [stdTag.mWall],
+		}),
+
+		Gym : new LibMesh({
+			isRoom : true,
+			url : 'rooms/gym_interior.JD',
+			materials : [
+				libMat.StoneTile.ChurchFloor2,
+				libMat.Structure.CottageWall2,
+			],
+			tags : [stdTag.mWall],
+		}),
+
+		Bank : new LibMesh({
+			isRoom : true,
+			url : 'rooms/bank_interior.JD',
+			materials : [
+				libMat.StoneTile.ChurchFloor2,
+				libMat.Rock.Wall,
+			],
+			tags : [stdTag.mWall],
+		}),
+
+		Church : new LibMesh({
+			isRoom : true,
+			url : 'rooms/church_interior.JD',
+			materials : [
+				libMat.StoneTile.ChurchWall,
+				libMat.StoneTile.StoneWall,
+				libMat.StoneTile.ChurchFloor,
+			],
+			tags : [stdTag.mWall],
+		}),
+
+		ChurchSide : new LibMesh({
+			isRoom : true,
+			url : 'rooms/church_side_room.JD',
+			materials : [
+				libMat.StoneTile.ChurchWall,
+				libMat.StoneTile.StoneWall,
+				libMat.StoneTile.ChurchFloor,
+			],
+			tags : [stdTag.mWall],
+		}),
+
+
+	},
+
+	Door : {
+
+		GenericDouble : new LibMesh({
+			url : 'gates/doubledoor_generic.JD',
+			materials : [
+				libMat.Wood.Floor2,
+				libMat.Wood.Reinforced,
+				libMat.Metal.DarkGeneric,
+			],
+			animations : {
+				"open" : {
+					clampWhenFinished : true,
+					loop : THREE.LoopOnce,
+					timeScale : 2
+				}
+			},
+			onInteract : function( mesh, room, asset ){
+				LibMesh.playSound( mesh, asset, 'media/audio/castle_door.ogg', 0.75);
+			}
+		}),
+
+		Generic : new LibMesh({
+			url : 'gates/generic_door.JD',
+			materials : [
+				libMat.Wood.Crate,
+				libMat.Metal.DarkGeneric,
+			],
+			animations : {
+				"open" : {
+					clampWhenFinished : true,
+					loop : THREE.LoopOnce,
+					timeScale : 2
+				}
+			},
+			onInteract : function( mesh, room, asset ){
+				LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
+			}
+		}),
 
 	},
 

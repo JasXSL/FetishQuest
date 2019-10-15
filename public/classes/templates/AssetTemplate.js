@@ -84,7 +84,7 @@ class AssetTemplate extends Generic{
 
 	testLevel(level){
 
-		if( this.level < level )
+		if( this.level > level )
 			return false;
 			
 		let mats = this.getMats();

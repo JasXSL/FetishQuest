@@ -15,15 +15,16 @@ Medium rare:
 	- AFK mode. Go bot in netgame.
 
 	New meshes needed:
-	- School
-	- Bank
-	- Church
-	- Inn
-	- School interior
-	- Bank interior
-	- Church interior
-	- Inn interior
-	
+	- Floors for courtyard
+
+	- Garden patch
+	- Shovel
+	- Pitchfork
+	- Axe
+	- Pew
+	- Altar banner
+
+
 
 Big chungi:
 	- Spell learning system
@@ -38,7 +39,9 @@ Big chungi:
 		- Go to Yuug capital?
 		- What do there?
 
-	
+	- Bank system
+		- Exchange
+		- Store gold
 
 	Add actions:
 	- Generic

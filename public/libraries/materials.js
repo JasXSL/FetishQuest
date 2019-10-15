@@ -168,6 +168,26 @@ LibMaterial.library = {
 			metalness : 0.4,
 			roughness : 0.6
 		}),
+		ChurchFloor : new LibMaterial({
+			map : 'tileable/church_floor.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
+		ChurchFloor2 : new LibMaterial({
+			map : 'tileable/church_floor_2.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
+		ChurchWall : new LibMaterial({
+			map : 'tileable/church_wall.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
+		StoneWall : new LibMaterial({
+			map : 'tileable/stone_wall.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
 	},
 	Rock : {
 		Wall : new LibMaterial({
@@ -248,6 +268,21 @@ LibMaterial.library = {
 		}),
 		Floor : new LibMaterial({
 			map : 'tileable/wood_floor.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+		Reinforced : new LibMaterial({
+			map : 'tileable/wood_iron_wall.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+		Floor2 : new LibMaterial({
+			map : 'tileable/wood_floor_2.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+		Old : new LibMaterial({
+			map : 'tileable/old_wood.jpg',
 			metalness : 0.3,
 			roughness : 0.6,
 		}),
@@ -401,6 +436,11 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.7,
 		}),
+		CottageWall2 : new LibMaterial({
+			map : 'tileable/cottagewall_2.jpg',
+			metalness : 0.3,
+			roughness : 0.7,
+		}),
 		CottageRoof : new LibMaterial({
 			map : 'tileable/straw_roof.jpg',
 			metalness : 0.2,
@@ -503,6 +543,24 @@ LibMaterial.library = {
 			map : 'land/grassgen_005.jpg',
 			metalness : 0.1,roughness : 0.8,
 		}),
+
+		TownX : new LibMaterial({
+			map : 'land/town_x.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		TownT : new LibMaterial({
+			map : 'land/town_t.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		TownStraight : new LibMaterial({
+			map : 'land/town_straight.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		TownBend : new LibMaterial({
+			map : 'land/town_bend.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+
 	},
 
 	Water : {
