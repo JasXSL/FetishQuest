@@ -14,16 +14,6 @@ Medium rare:
 	- Character export/import
 	- AFK mode. Go bot in netgame.
 
-	New meshes needed:
-	- Floors for courtyard
-
-	- Garden patch
-	- Shovel
-	- Pitchfork
-	- Axe
-	- Pew
-	- Altar banner
-
 
 
 Big chungi:

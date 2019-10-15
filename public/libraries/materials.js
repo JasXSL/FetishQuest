@@ -705,6 +705,23 @@ LibMaterial.library = {
 			side : THREE.DoubleSide
 		}, "MeshDepthMaterial"),
 
+		Vines : new LibMaterial({
+			map : 'decals/vines.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		CarrotBush : new LibMaterial({
+			map : 'decals/carrot_bush.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+
 		RazzyBerryBush : new LibMaterial({
 			map : 'tileable/berrybush.png',
 			metalness : 0.3,
@@ -728,6 +745,12 @@ LibMaterial.library = {
 			map : 'tileable/soil.jpg',
 			metalness : 0.2,
 			roughness : 0.7,
+		}),
+
+		Pumpkin : new LibMaterial({
+			map : 'tileable/pumpkin.jpg',
+			metalness : 0.3,
+			roughness : 0.5,
 		}),
 
 		Seashell : new LibMaterial({

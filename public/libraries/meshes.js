@@ -479,6 +479,13 @@ LibMesh.library = {
 				height: 1,
 				tags : ["m_podium"],
 			}),
+			Pew : new LibMesh({
+				url : 'furniture/pew.JD',
+				materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric,libMat.Wood.Floor2],
+				width: 1,
+				height: 1,
+				tags : [stdTag.mPew, stdTag.mBench],
+			}),
 		},
 		Doodads : {
 			BannerAnimated : new LibMesh({
@@ -1001,6 +1008,21 @@ LibMesh.library = {
 				url : 'doodads/haybale.JD',
 				materials : [libMat.Structure.StrawRoof, libMat.Nature.PalmRoof, libMat.Cloth.Rope],
 				tags : [stdTag.mHaybale], width: 1, height: 1,
+			}),
+			Shovel : new LibMesh({
+				url : 'doodads/shovel.JD',
+				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
+				tags : [stdTag.mShovel],
+			}),
+			Pitchfork : new LibMesh({
+				url : 'doodads/pitchfork.JD',
+				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
+				tags : [stdTag.mPitchfork],
+			}),
+			Pitchfork : new LibMesh({
+				url : 'doodads/axe.JD',
+				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
+				tags : [stdTag.mAxe],
 			}),
 		},
 		Door : {
@@ -3190,6 +3212,11 @@ LibMesh.library = {
 				tags : [stdTag.mBush],
 				materials : [libMat.Nature.TreeB],
 			}),
+			VinePatch : new LibMesh({
+				url : 'nature/vinepatch.JD',
+				tags : [stdTag.mVines],
+				materials : [libMat.Nature.Vines],
+			}),
 			
 		},
 		Containers : {
@@ -3224,6 +3251,22 @@ LibMesh.library = {
 					mesh.material[0].visible = interactive;
 				},
 			}),
+			Pumpkin : new LibMesh({
+				auto_bounding_box : true,
+				url : 'nature/pumpkin.JD',
+				materials : [
+					libMat.Nature.Pumpkin,
+					libMat.Nature.Vines
+				],
+			}),
+			Carrot : new LibMesh({
+				auto_bounding_box : true,
+				url : 'nature/carrot.JD',
+				materials : [
+					libMat.Nature.Pumpkin,
+					libMat.Nature.Vines
+				],
+			}),
 		},
 		Doodads : {
 			Logs : new LibMesh({
@@ -3231,7 +3274,15 @@ LibMesh.library = {
 				url : 'nature/logs.JD',
 				materials : [libMat.Wood.Bark, libMat.Wood.Stump],
 			}),
-		}
+		},
+		Soil : {
+			FarmPatch : new LibMesh({
+				tags : [stdTag.mSoil],
+				url : 'nature/farm_patch.JD',
+				materials : [libMat.Nature.Soil],
+			}),
+		},
+
 	},
 	
 	

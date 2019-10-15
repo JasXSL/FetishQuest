@@ -220,6 +220,12 @@ export default {
 	mFlower : 'm_flower',
 	mTreeStump : 'm_tree_stump',
 	mStalagmite : 'm_stalagmite',
+	mSoil : 'm_soil',
+	mVines : 'm_vines',
+	mShovel : 'm_shovel',
+	mAxe : 'm_axe',
+	mPitchfork : 'm_pitchfork',
+	mPew : 'm_pew',
 
 	// Meta tags for texts
 	metaPunch : 'me_punch',
