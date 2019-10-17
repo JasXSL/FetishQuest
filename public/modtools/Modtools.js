@@ -713,7 +713,7 @@ export default class Modtools{
 
 		this.mml_generic( 
 			'texts', 
-			['Text','Enabled','Action','Weight','Conditions','TurnTags','HitSlot','Audio','nTarg','aOut','Debug'],
+			['CHAT','Text','Enabled','Action','Weight','Conditions','TurnTags','HitSlot','Audio','nTarg','aOut','Debug'],
 			this.mod.texts,
 			text => {
 				// This can be removed later, it's legacy
@@ -725,6 +725,7 @@ export default class Modtools{
 					text.audiokits = [text.audiokits];
 
 				return [
+					["","opt","REQ"][text.chat || 0],
 					text.text,
 					Boolean(text.en) || text.end === undefined ? 'X' : '',
 					Array.isArray(text.conditions) ? 
@@ -1003,12 +1004,13 @@ export default class Modtools{
 	mml_assetTemplates(){
 		this.mml_generic( 
 			'assetTemplates', 
-			['Label','Name','Slots','Materials','SV','Bon','Size','Tags'],
+			['Label','Name','Short','Slots','Materials','SV','Bon','Size','Tags'],
 			this.mod.assetTemplates,
 			asset => {
 				return [
 					asset.label,
 					asset.name,
+					asset.shortname,
 					Array.isArray(asset.slots) ? asset.slots.join(', ') : '!NONE!',
 					Array.isArray(asset.materials) ? asset.materials.join(', ') : '!NONE!',
 					JSON.stringify(asset.svStats),
@@ -1928,6 +1930,7 @@ export default class Modtools{
 		let html = '<p>Labels are unique to the game. Consider prefixing it with your mod name like mymod_NAME.</p>';
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name || 'Unnamed')+'" /><br />';
+			html += 'Short name: <input required type="text" name="shortname" value="'+esc(asset.shortname || '')+'" /><br />';
 			html += 'Icon: <input type="text" name="icon" value="'+esc(asset.icon || '')+'" /><br />';
 			html += 'Description: <textarea name="description">'+esc(asset.description || '')+'</textarea><br />';
 			html += 'Size: <input required type="number" name="size" value="'+esc(asset.size)+'" /><br />';
@@ -1973,6 +1976,7 @@ export default class Modtools{
 
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.name = $("input[name=name]", form).val().trim();
+			saveAsset.shortname = $("input[name=shortname]", form).val().trim();
 			saveAsset.icon = $("input[name=icon]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
 			saveAsset.size = +$("input[name=size]", form).val().trim();

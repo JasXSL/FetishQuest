@@ -1,6 +1,7 @@
 import GameAction from "../../classes/GameAction.js";
 import Condition from "../../classes/Condition.js";
 import { RoleplayStageOption } from "../../classes/Roleplay.js";
+import C from './conditions.js';
 
 const lib = {
 
@@ -20,6 +21,32 @@ const lib = {
 		]
 	},
  
+	conditional_rp_test : {
+		player : 'narrator',
+		stages : [
+			{
+				index : 0,
+				text : [
+					{text:'Nice bulge, %T!', conditions:[C.targetPenis, C.targetWearsLowerBody]},
+					{text:'This is a fallback!'}
+				],
+				options : [
+					{text:'Thanks', index:1},
+				]
+			},
+			{
+				index : 1,
+				text : [
+					{text:'[Narrator sticks a coin in %T\'s %TclothLower.]', conditions:[C.targetPenis, C.targetWearsLowerBody]},
+					{text:'No need to disrobe now!'}
+				],
+				options : [
+					{text:'[End]', index:-1, chat:RoleplayStageOption.ChatType.none},
+				]
+			},
+
+		]
+	}
 
 };
 

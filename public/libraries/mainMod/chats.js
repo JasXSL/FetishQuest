@@ -1,4 +1,5 @@
 import Text from '../../classes/Text.js';
+import stdTag from '../stdTag.js';
 //import conditions from './conditions.js';
 //import audioKits from './audioKits.js';
 //import stdTag from '../stdTag.js';

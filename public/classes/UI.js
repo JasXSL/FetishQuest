@@ -3333,6 +3333,7 @@ export default class UI{
 			html += '<div class="flexThreeColumns">';
 				html += '<div>Unique ID:<br /><input type="text" name="label" value="'+esc(a.label)+'" /></div>';
 				html += '<div>Name:<br /><input type="text" name="name" value="'+esc(a.name)+'" /></div>';
+				html += '<div>Shortname:<br /><input type="text" name="shortname" value="'+esc(a.shortname)+'" /></div>';
 				html += '<div>Level:<br /><input type="number" min=1 step=1 name="level" value="'+(+a.level)+'" /></div>';
 				html += '<div>Durability Bonus:<br /><input type="number" min=0 step=1 name="durability_bonus" value="'+(+a.durability_bonus)+'" /></div>';
 				html += '<div>Weight in grams:<br /><input type="number" min=0 step=1 name="weight" value="'+(+a.weight)+'" /></div>';
@@ -3408,6 +3409,7 @@ export default class UI{
 
 			a.label = $("input[name=label]", root).val().trim();
 			a.name = $("input[name=name]", root).val().trim();
+			a.shortname = $("input[name=shortname]", root).val().trim();
 			a.level = +$("input[name=level]", root).val();
 			a.durability_bonus = +$("input[name=durability_bonus]", root).val();
 			a.weight = +$("input[name=weight]", root).val();
@@ -3497,6 +3499,7 @@ export default class UI{
 
 			$("#saveAsset input[name=label]").val(ass.label);
 			$("#saveAsset input[name=name]").val(ass.name);
+			$("#saveAsset input[name=shortname]").val(ass.shortname);
 			$("#saveAsset textarea[name=description]").val(ass.description);
 			$("#saveAsset input[name=level]").val(ass.level);
 			$("#saveAsset input[name=durability_bonus]").val(ass.durability_bonus);
@@ -3641,13 +3644,19 @@ export default class UI{
 		if( !roleplay.completed && stage ){
 			
 			const portrait = stage.getPortrait();
-			$("div.portrait", div).css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none');
-			$('> div.left', div).toggleClass('hidden', !portrait);
+
+			$("div.portrait", div)
+				.css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none');
+			$('> div.left', div)
+				.toggleClass('hidden', !portrait);
+
 			const name = stage.getName();
 			let html = '';
 			if( name )
 				html += '<span class="name">'+stylizeText(name)+'</span><br />';
-			$("div.text", div).html(html+esc(stage.text));
+
+			
+			$("div.text", div).html(html+stylizeText(stage.getText()));
 			
 			html = '';
 			let sel = false;

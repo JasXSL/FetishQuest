@@ -25,14 +25,16 @@ const lib = [
 		conditions : [
 			{"type":"event","data":{"event":"battleStarted"}}
 		],
-		audiokits : ["battleStart"]
+		audiokits : ["battleStart"],
+		metaTags : [stdTag.metaBattleStarted],
 	},
 	// battle finished
 	{ text : "The battle has finished...",
 		conditions : [
 			{"type":"event","data":{"event":"battleEnded"}}
 		],
-		audiokits : ["battleFinished"]
+		audiokits : ["battleFinished"],
+		metaTags : [stdTag.metaBattleEnded],
 	},
 	// player defeated
 	{ text : "%T was defeated!",

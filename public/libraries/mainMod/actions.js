@@ -1634,7 +1634,7 @@ const lib = {
 	monk_lowKick : {
 		name : "Low Kick",
 		icon : 'van-damme-split',
-		description : "Knocks all enemies down for 1 turn, dealing 8 damage and interrupting them.",
+		description : "Knocks all enemies down for 1 turn, dealing 6 damage and interrupting them.",
 		ap : 2,
 		cooldown : 6,
 		hit_chance: 80,
@@ -1648,7 +1648,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {amount: 8}
+						data : {amount: 6}
 					},
 					{type : Effect.Types.interrupt}
 				]

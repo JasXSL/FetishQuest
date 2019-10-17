@@ -69,6 +69,7 @@ class Text extends Generic{
 		this.chat = 0;					// 0 = no chat, 1 = casual chat (has a built in cooldown), 2 = required chat
 		this.chatPlayerConditions = [];	// These conditions are run on each player to see if they can say this. Only usable when chat is true
 										// Both target and sender are the same player. You generally want at least "targetIsX" in here when using a text.
+
 		this.en = true;					// enabled
 
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
@@ -81,10 +82,13 @@ class Text extends Generic{
 
 		if( !data )
 			return;
+		
 		if( data.soundkits )
 			data.audiokits = data.soundkits;
+		
 		if( typeof data.audiokits === "string" )
 			data.audiokits = [data.audiokits];
+
 		this.g_autoload(data);
 		if( this.numTargets < 1 && this.numTargets !== -1 )
 			this.numTargets = 1;
@@ -112,7 +116,8 @@ class Text extends Generic{
 	}
 
 	save(full){
-		return {
+		const out = {
+			id : this.id,
 			text : this.text,
 			conditions : Condition.saveThese(this.conditions, full),
 			numTargets : this.numTargets,
@@ -128,6 +133,7 @@ class Text extends Generic{
 			metaTags : this.metaTags,
 			en : this.en
 		};
+		return out;
 	}
 	
 
@@ -155,19 +161,19 @@ class Text extends Generic{
 		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperBody] )
 			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperBody]);
 		
-		input = input.split(prefix+'clothUpper').join(c.length ? c[0].name : 'Outfit');
+		input = input.split(prefix+'clothUpper').join(c.length ? c[0].getShortName().toLowerCase() : 'Outfit');
 		
 		// Same as above but lowerBody
 		c = player.getEquippedAssetsBySlots([Asset.Slots.lowerBody]);
 		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerBody] )
 			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerBody]);
-		input = input.split(prefix+'clothLower').join(c.length ? c[0].name : 'Outfit');
+		input = input.split(prefix+'clothLower').join(c.length ? c[0].getShortName().toLowerCase() : 'Outfit');
 		
 		c = player.getEquippedAssetsBySlots([Asset.Slots.head]);
-		input = input.split(prefix+'head').join(c.length ? c[0].name : 'Headpiece');
+		input = input.split(prefix+'head').join(c.length ? c[0].getShortName().toLowerCase() : 'Headpiece');
 
 		c = player.getEquippedAssetsBySlots([Asset.Slots.hands]);
-		input = input.split(prefix+'gear').join(c.length ? c[0].name : 'Gear');
+		input = input.split(prefix+'gear').join(c.length ? c[0].getShortName().toLowerCase() : 'Gear');
 
 		input = input.split(prefix+'race').join(player.species ? player.species.toLowerCase() : 'combatant');
 
@@ -338,13 +344,24 @@ class Text extends Generic{
 	// Validate conditions
 	validate( event, debug, chatPlayer ){
 
-		if( this.debug )
+		if( !debug )
+			debug = this.debug;
+
+		if( debug )
 			console.debug("Validating", this, "against", event);
 
-		if( this._cache_event && !this._cache_event[event.type] )
+		if( 
+			this._cache_event && !this._cache_event[event.type] &&
+			(!event.custom.original || !this._cache_event[event.custom.original.type])
+		){
+			if( debug )
+				console.debug("FAIL because this._cache_event:", this._cache_event);
 			return false;
+		}
 
 		if( !this.en ){
+			if( debug )
+				console.debug("FAIL because not enabled");
 			return false;
 		}
 
@@ -353,20 +370,28 @@ class Text extends Generic{
 			event.text._chatPlayer = chatPlayer;	
 
 		// Chat already used by this player
-		if( this.chat && chatPlayer && chatPlayer._used_chats[this.id] )
+		if( this.chat && chatPlayer && chatPlayer._used_chats[this.id] ){
+			if( debug )
+				console.debug("FAIL because chat already used by player");
 			return false;
+		}
 
 		let targets = Array.isArray(event.target) ? event.target : [event.target];
-		if( targets.length < this.numTargets )
+		if( targets.length < this.numTargets ){
+			if( debug )
+				console.debug("FAIL because not enough targets");
 			return false;
+		}
 
 		// If this is a chat, we need to check who said it by validating chat player conditions
 		if( this.chat && this.chatPlayerConditions.length ){
+
 			const evt = event.clone();
 			evt.sender = evt.target = chatPlayer;
 			evt.text = this;
-			if( !Condition.all(this.chatPlayerConditions, evt) )
+			if( !Condition.all(this.chatPlayerConditions, evt, debug) )
 				return false;
+
 		}
 
 		
@@ -505,6 +530,41 @@ Text.runFromLibrary = function( event, debug = false ){
 
 	}
 
+	// Emulate chat events on all players for these types
+	if( ~this.CheckAllPlayerChatEvents.indexOf(event.type) ){
+		
+		const players = game.getEnabledPlayers();
+		const evt = event.clone();
+		evt.type = GameEvent.Types.textTrigger;
+		if( !evt.custom )
+			evt.custom = {};
+		evt.custom.original = event;
+		
+		for( let player of players ){
+
+			evt.sender = player;
+			evt.raise();
+			const pl = players.slice();
+			shuffle(pl);
+			for( let t of players ){
+
+				if( t === player )
+					continue;
+
+				evt.target = t;
+				const text = this.getFromEvent(evt);
+				//console.log("Scanned text", player, t, "=", text);
+				if( text ){
+					text.run(evt);
+					break;
+				}
+				//console.trace("Raising", evt.clone());
+			}
+
+		}
+		
+	}
+
 	for( let player of game.players )
 		player.uncacheTags();
 
@@ -522,7 +582,11 @@ Text.Chat = {
 	optional : 1,
 	required : 2,
 };
-
+// Events that should check all players for chats
+Text.CheckAllPlayerChatEvents = [
+	GameEvent.Types.battleEnded,
+	GameEvent.Types.battleStarted,
+];
 
 
 export default Text;

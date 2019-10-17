@@ -257,7 +257,6 @@ class Wrapper extends Generic{
 				
 				evt.type = GameEvent.Types.wrapperAdded;
 				evt.raise();
-				console.log("Raising", evt);
 
 				if( add_stacks ){
 					obj.addStacks(add_stacks);

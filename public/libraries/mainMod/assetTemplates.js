@@ -10,6 +10,7 @@ const lib = {
 			Asset.Slots.lowerBody,
 		],
 		name : "Sling Armor",
+		shortname : 'Sling Armor',
 		materials : [
 			"cotton",
 			"silk",
@@ -34,6 +35,8 @@ const lib = {
 		icon : 'underwear',
 		slots : [Asset.Slots.lowerBody],
 		name : "Thong",
+		shortname : 'Thong',
+
 		materials : [
 			"cotton",
 			"silk",
@@ -55,6 +58,8 @@ const lib = {
 		icon : 'shirt',
 		slots : [Asset.Slots.upperBody],
 		name : "Shirt",
+		shortname : 'Shirt',
+
 		materials : [
 			"cotton",
 			"silk",
@@ -71,6 +76,8 @@ const lib = {
 		icon : 'shirt',
 		slots : [Asset.Slots.upperBody],
 		name : "Tank Top",
+		shortname : 'Tank Top',
+
 		materials : [
 			"cotton",
 			"silk",
@@ -87,6 +94,8 @@ const lib = {
 		icon : 'shirt',
 		slots : [Asset.Slots.upperBody],
 		name : "Chestwraps",
+		shortname : 'Chestwraps',
+
 		materials : [
 			"cotton",
 			"silk",
@@ -101,6 +110,8 @@ const lib = {
 		icon : 'sleeveless-top',
 		slots : [Asset.Slots.upperBody, Asset.Slots.lowerBody],
 		name : "Bodysuit",
+		shortname : 'Bodysuit',
+
 		materials : [
 			"mageweave",
 			"shadowcloth",
@@ -117,6 +128,7 @@ const lib = {
 		icon : 'sleeveless-top',
 		slots : [Asset.Slots.upperBody, Asset.Slots.lowerBody],
 		name : "Thong Bodysuit",
+		shortname : 'Bodysuit',
 		materials : [
 			"mageweave",
 			"shadowcloth",
@@ -135,6 +147,8 @@ const lib = {
 		icon : 'chest-armor',
 		slots : [Asset.Slots.upperBody],
 		name : "Breastplate",
+		shortname : 'Breastplate',
+
 		materials : [
 			"plateCopper",
 			"plateSoftsilver",
@@ -150,6 +164,8 @@ const lib = {
 		icon : 'armored-pants',
 		slots : [Asset.Slots.lowerBody],
 		name : "Crotchplate",
+		shortname : 'Crotchplate',
+
 		materials : [
 			"plateCopper",
 			"plateSoftsilver",
@@ -168,6 +184,8 @@ const lib = {
 		icon : 'robe',
 		slots : [Asset.Slots.upperBody],
 		name : "Half-robe",
+		shortname : 'Half-robe',
+
 		materials : [
 			"cotton",
 			"silk",
@@ -189,6 +207,7 @@ const lib = {
 		icon : 'loincloth',
 		slots : [Asset.Slots.lowerBody],
 		name : "Loincloth",
+		shortname : 'Loincloth',
 		materials : [
 			"rawhide",
 			"cotton",

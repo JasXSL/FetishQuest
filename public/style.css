@@ -1220,7 +1220,7 @@ div.fxBuffRed{
 	#roleplay div.text{
 		font-weight: normal;
 	}
-	#roleplay div.text span{
+	#roleplay div.text span.name{
 		font-style: italic;
 		font-weight: bold;
 		font-size:1.5vmax;

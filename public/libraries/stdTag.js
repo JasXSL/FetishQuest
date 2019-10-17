@@ -158,7 +158,8 @@ export default {
 	ttBentOverTable : 'tt_bent_over_table',
 	ttSpanked : 'tt_spanked',
 	ttBreastsWedgie : 'tt_breasts_wedgie',
-
+	ttSittingChair : 'tt_sitting_chair',
+	ttPinnedChair : 'tt_pinned_chair',
 	
 	// Dungeon tags
 	duDark : 'du_dark',					// Dark dungeon set
@@ -228,6 +229,9 @@ export default {
 	mPew : 'm_pew',
 
 	// Meta tags for texts
+	metaBattleStarted : 'me_battle_started',
+	metaBattleEnded : 'me_battle_ended',
+
 	metaPunch : 'me_punch',
 	metaTickle : 'me_tickle',
 	metaRub : 'me_rub',

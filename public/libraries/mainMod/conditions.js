@@ -157,6 +157,7 @@ const lib = {
 	senderIsIxsplat : {type:Condition.Types.playerLabel, data:{label:['Ixsplat']}, caster:true},
 	senderIsLamprey : {type:Condition.Types.species, data:{species:['lamprey']}, caster:true},
 	senderIsAnemone : {type:Condition.Types.species, data:{species:['anemone']}, caster:true},
+	senderIsImp : {type:Condition.Types.species, data:{species:['imp']}, caster:true},
 
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}},
@@ -238,6 +239,9 @@ const lib = {
 	targetLevel1 : {type:Condition.Types.targetLevel, data:{amount:0, operation:">"}},
 	targetLevel2 : {type:Condition.Types.targetLevel, data:{amount:1, operation:">"}},
 	targetLevel3 : {type:Condition.Types.targetLevel, data:{amount:2, operation:">"}},
+
+	senderSadistic : {type:Condition.Types.sadism, data:{amount:0.75, operation:'>'}, sender:true},
+	senderNonsadistic : {type:Condition.Types.sadism, data:{amount:0.25, operation:'<'}, sender:true},
 
 	assetStealable : {type:Condition.Types.assetStealable},
 	targetHasStealableAsset : {type:Condition.Types.hasAsset, data:{conditions:['assetStealable']}},
@@ -396,6 +400,7 @@ const lib = {
 	eventIsPlayerDefeated : {"type":"event",data:{"event":["playerDefeated"]}},
 	eventIsDungeonExited : {"type":"event",data:{"event":["dungeonExited"]}},
 	eventIsDungeonEntered : {"type":"event",data:{"event":["dungeonEntered"]}},
+	eventIsBattleStarted : {type:Condition.Types.event,data:{"event":[GameEvent.Types.battleStarted]}},
 
 	targetChargingAction : {type:Condition.Types.charging},
 	
@@ -417,6 +422,9 @@ const lib = {
 	rand90 : {"type":"rng",data:{"chance":90}},
 
 	roomTable : {"type":Condition.Types.tag,data:{"tags":[stdTag.mTable]}},
+	roomHaybale : {"type":Condition.Types.tag,data:{"tags":[stdTag.mHaybale]}},
+	roomChair : {"type":Condition.Types.tag,data:{"tags":[stdTag.mChair]}},
+	roomBench : {type:Condition.Types.tag,data:{"tags":[stdTag.mBench]}},
 	roomBook : {type:Condition.Types.tag,data:{"tags":[stdTag.mBook]}},
 	roomTankard : {type:Condition.Types.tag,data:{"tags":[stdTag.mTankard]}},
 	roomBottle : {type:Condition.Types.tag,data:{"tags":[stdTag.mBottle]}},
@@ -440,6 +448,8 @@ const lib = {
 	ttBentOverTable : {"type":"tag",data:{"tags":[stdTag.ttBentOverTable]}},
 	ttSpanked : {"type":"tag",data:{"tags":[stdTag.ttSpanked]}},
 	ttNotSpanked : {"type":"tag",data:{"tags":[stdTag.ttSpanked]},"inverse":true},
+	ttSittingChair : {"type":"tag",data:{"tags":[stdTag.ttSittingChair]}},
+	ttPinnedChair : {"type":"tag",data:{"tags":[stdTag.ttPinnedChair]}},
 
 
 
@@ -479,7 +489,11 @@ const lib = {
 		],
 		min:-1,
 	},
+	metaGroin : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotVagina, stdTag.metaSlotPenis, stdTag.metaSlotGroin]}},
 	metaPainful : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPainful, stdTag.metaVeryPainful]}},
+	metaSqueeze : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSqueeze]}},
+	metaBite : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaBite]}},
+	metaWedgie : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaWedgie]}},
 	metaButtGrab : {
 		conditions : [
 			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotButt]}},
@@ -487,6 +501,9 @@ const lib = {
 		],
 		min:-1,
 	},
+	metaPunch : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPunch]}},
+	metaSlap : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlap]}},
+
 	// One or more breast slots included in text meta
 	metaBreastSlots : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotBreast, stdTag.metaSlotBreasts]}},
 	metaPelvisSlots : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotGroin, stdTag.metaSlotPenis, stdTag.metaSlotBalls, stdTag.metaSlotVagina, stdTag.metaSlotButt, stdTag.metaSlotTaint]}},
@@ -494,6 +511,8 @@ const lib = {
 	metaCameInside : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaInjection, stdTag.metaUsedPenis], all:true}},
 	metaPenetratedWithPenis : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration, stdTag.metaUsedPenis], all:true}},
 	metaUsedTentacle : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaUsedTentacles]}},
+	metaBattleStarted : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaBattleStarted]}},
+	metaBattleEnded : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaBattleEnded]}},
 
 	actionPhysical : {type:Condition.Types.actionType, data:{type:Action.Types.physical}},
 	actionDetrimental : {type:Condition.Types.actionDetrimental},

@@ -105,7 +105,7 @@ export default class Condition extends Generic{
 	// Runs a standard value comparison
 	// This relies on this.data having an amount property, which gets run through the Calculator
 	// Allowed operators are = > < >= <=
-	compareValue( sender, target, value ){
+	compareValue( sender, target, value, debug = false ){
 
 		let allowed_operators = ["=",">","<",">=","<="];
 		let val = Calculator.run(this.data.amount, new GameEvent({
@@ -122,6 +122,9 @@ export default class Condition extends Generic{
 			operator = ">";
 		if( allowed_operators.indexOf(operator) === -1 )
 			return false;
+
+		if( debug )
+			console.debug("Comparing ", value, "against", val, "using operator", operator);
 
 		return (
 			(operator === "=" && value == val) ||
@@ -193,17 +196,40 @@ export default class Condition extends Generic{
 
 			// Check the types
 			if( this.type === T.tag ){
-				// Only tags applied by sender
-				if( this.data.caster ){
-					let tagTarg = t;
-					if( this.caster )
-						tagTarg = s;
-					success = tagTarg && tagTarg.hasTagBy(this.data.tags, this.caster ? t : s);
+
+				const tags = toArray(this.data.tags);
+				const all = this.data.all;
+				success = Boolean(all);
+
+				for( let tag of tags ){
+
+					let found = false;
+					// Only tags applied by sender
+					if( this.data.caster ){
+
+						let tagTarg = t;
+						if( this.caster )
+							tagTarg = s;
+						found = tagTarg && tagTarg.hasTagBy([tag], this.caster ? t : s);
+
+					}
+					// Any tag applied by anyone
+					else
+						found = t && t.hasTag([tag], event.wrapperReturn);
+					
+					// only need one successful tag
+					if( found && !all ){
+						success = true;
+						break;
+					}
+					// Need all tags present
+					else if( !found && all ){
+						success = false;
+						break;
+					}
+
 				}
-				// Any tag applied by anyone
-				else{
-					success = t && t.hasTag(this.data.tags, event.wrapperReturn);
-				}
+
 			}
 			else if( this.type === T.targetIsSender ){
 				if(t && s && t.id === s.id)
@@ -233,11 +259,12 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.sameTeam )
 				success = s.team === t.team;
+
 			else if( this.type === T.event ){
-				let data = this.data.event;
-				if( !Array.isArray(data) )
-					data = [data];
+
+				const data = toArray(this.data.event);
 				success = data.indexOf(event.type) !== -1 || (event.custom && event.custom.original && data.indexOf(event.custom.original.type) !== -1);
+
 			}
 
 			else if( this.type === T.charging ){
@@ -302,12 +329,13 @@ export default class Condition extends Generic{
 			
 			else if( this.type === T.species ){
 
-				let species = this.data.species;
-				if( !Array.isArray(species) )
-					species = [species];
-				species = species.map(el => el.toLowerCase() );
-				success = species.indexOf(t.species.toLowerCase()) > -1;
-
+				if( t ){
+					let species = toArr(this.data.species);
+					species = species.map(el => el.toLowerCase() );
+					success = species.indexOf(t.species.toLowerCase()) > -1;
+					if( debug )
+						console.debug("TESTING SPECIES:: ", "data:", species, "target", t.species.toLowerCase());
+				}
 			}
 			else if( this.type === T.playerClass ){
 
@@ -445,6 +473,9 @@ export default class Condition extends Generic{
 				success = t && this.compareValue(s, t, t.mp);
 			else if( this.type === T.hpValue )
 				success = t && this.compareValue(s, t, t.hp);
+			else if( this.type === T.sadism ){
+				success = t && this.compareValue(s, t, t.sadistic);
+			}
 			else if( this.type === T.sizeValue )
 				success = t && this.compareValue(s, t, t.size);
 			else if( this.type === T.targetLevel )
@@ -586,6 +617,10 @@ export default class Condition extends Generic{
 					let find = this.data.tags;
 					if( !Array.isArray(find) )
 						find = [find];
+
+					if( !tagsToScan )
+						console.error("TagsToScan missing from", event, "in", this);
+					
 					const all = Boolean(this.data.all);
 					find = find.map(tag => {
 						if( typeof tag !== "string" )
@@ -938,6 +973,7 @@ Condition.Types = {
 	targetLevel : 'targetLevel',
 	charging : 'charging',
 	targetedSenderLastRound : 'targetedSenderLastRound',
+	sadism : 'sadism',
 };
 
 
@@ -949,7 +985,7 @@ Condition.Types = {
 	If originalWrapper is not present. It uses event.wrapper instead, as that's the original and has not been overwritten.
 */
 Condition.descriptions = {
-	[Condition.Types.tag] : '{tags:(arr)(str)tag, caster:(bool)limit_by_sender} one or many tags, many tags are ORed. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
+	[Condition.Types.tag] : '{tags:(arr)(str)tag, caster:(bool)limit_by_sender, all=false} one or many tags, many tags are ORed unless all is true. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
 	[Condition.Types.playerClass] : '{label:(arr)(str)label} Searches for label in target playerclass.',
 	[Condition.Types.charging] : '{(arr)conditions:[]} Checks if the target is charging an action. You can limit the actions to check for by conditions. Empty array checks if ANY action is charged.',
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag, originalWrapper:(bool)=false} one or more tags searched in any attached wrapper.',
@@ -972,6 +1008,7 @@ Condition.descriptions = {
 	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
+	[Condition.Types.sadism] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target sadism value.',
 	[Condition.Types.sizeValue] : 'Same as the other nValue conditions',
 	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >',
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',

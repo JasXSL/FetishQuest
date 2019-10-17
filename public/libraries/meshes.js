@@ -1019,7 +1019,7 @@ LibMesh.library = {
 				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
 				tags : [stdTag.mPitchfork],
 			}),
-			Pitchfork : new LibMesh({
+			Axe : new LibMesh({
 				url : 'doodads/axe.JD',
 				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
 				tags : [stdTag.mAxe],

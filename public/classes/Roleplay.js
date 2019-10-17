@@ -4,6 +4,7 @@ import GameEvent from './GameEvent.js';
 import GameAction from './GameAction.js';
 import { DungeonEncounter } from './Dungeon.js';
 import Game from './Game.js';
+import Text from './Text.js';
 export default class Roleplay extends Generic{
 
 	constructor(data, parent){
@@ -191,20 +192,29 @@ export default class Roleplay extends Generic{
 // queued chats
 class RoleplayChatQueue{
 	
-	constructor( sender, text, type ){
+	// Stage can either be a RoleplayStage or a string
+	constructor( sender, stage, type ){
 		
 		this.sender = sender;
-		this.text = text;
+		this.stage = stage;
 		this.type = type || RoleplayStageOption.ChatType.default;
+
+	}
+
+	getText(){
+
+		if( typeof this.stage === "string" )
+			return this.stage;
+		return this.stage.getText();
 
 	}
 
 }
 RoleplayChatQueue.timer = false;
 RoleplayChatQueue.queue = [];
-RoleplayChatQueue.output = function( sender, text, type ){
+RoleplayChatQueue.output = function( sender, stage, type ){
 	
-	this.queue.push(new RoleplayChatQueue(sender, text, type));
+	this.queue.push(new RoleplayChatQueue(sender, stage, type));
 	this.next();
 
 };
@@ -218,10 +228,12 @@ RoleplayChatQueue.next = function(){
 
 	
 	const chat = this.queue.shift();
-	game.speakAs( chat.sender.id, chat.text );
+	game.speakAs( chat.sender.id, chat.getText() );
 	this.timer = setTimeout(() => {
+		
 		this.timer = false;
 		RoleplayChatQueue.next();
+
 	}, 1000);
 
 };
@@ -237,17 +249,26 @@ export class RoleplayStage extends Generic{
 		this.index = 0;
 		this.portrait = '';
 		this.name = '';
-		this.text = '';
+		this.text = [];				// Text objects. When loading you can also make this a string and it auto converts into a roleplay
 		this.options = [];
 		this.player = '';			// Player label
 		this.chat = RoleplayStageOption.ChatType.default;
+
+		this._textEvent = false;	// Caches the active text event so the text doesn't change randomly.
+									// Not persistent between refreshes, but what can ya do.
 
 		this.load(data);
 
 	}
 
 	load(data){
+
+		// RP-ify text only roleplays
+		if( data && typeof data.text === "string" )
+			data.text = [{text:data.text}];
+
 		this.g_autoload(data);
+
 	}
 
 	// Data that should be saved to drive
@@ -259,7 +280,7 @@ export class RoleplayStage extends Generic{
 			index : this.index,
 			portrait : this.portrait,
 			name : this.name,
-			text: this.text,
+			text: Text.saveThese(this.text, full),
 			options : RoleplayStageOption.saveThese(this.options, full),
 			player : this.player,
 			chat : this.chat,
@@ -284,6 +305,7 @@ export class RoleplayStage extends Generic{
 			this.id = this.parent.id+'_'+this.index;
 		}
 
+		this.text = Text.loadThese(this.text, this);
 		this.options = RoleplayStageOption.loadThese(this.options, this);
 
 	}
@@ -324,15 +346,64 @@ export class RoleplayStage extends Generic{
 		return '';
 	}
 
+	// When the stage is initially presented
 	onStart( player ){
+
+		this._textEvent = false;
 
 		if( !player )
 			player = game.getMyActivePlayer();
 
 		const pl = this.getPlayer();
 		if( pl && this.chat !== RoleplayStageOption.ChatType.none )
-			RoleplayChatQueue.output(pl, this.text, this.chat);
+			RoleplayChatQueue.output(pl, this, this.chat);
 		
+	}
+
+	// Scans for the first viable text and returns an event with that object and the target player attached
+	// If no texts pass filter, the last one is returned
+	// TextPlayer is the NPC you are talking to in the RP. If it's missing it becomes the same as the target player.
+	getTextEvent(){
+
+		if( this._textEvent )
+			return this._textEvent;
+
+		const players = game.getTeamPlayers();
+		const textPlayer = this.getPlayer();
+		const evt = new GameEvent({sender:textPlayer});
+
+		for( let text of this.text ){
+
+			evt.text = text;
+			for( let player of players ){
+
+				if( !textPlayer )
+					evt.sender = player;
+				evt.target = player;
+				if( text.validate(evt) ){
+					
+					this._textEvent = evt;
+					return evt;
+
+				}
+
+			}
+		}
+
+		evt.text = this.text[this.text.length-1];
+		evt.target = players[0];
+		this._textEvent = evt;
+		return evt;
+
+	}
+
+	// Returns an unescaped string with the active text
+	getText(){
+		
+		const textEvt = this.getTextEvent();
+		const textOutput = textEvt.text.run(textEvt, true);
+		return textOutput;
+
 	}
 
 }

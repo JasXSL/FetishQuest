@@ -13,6 +13,7 @@ class AssetTemplate extends Generic{
 		this.label = '';
 		this.slots = [Asset.Slots.upperBody];
 		this.name = "";
+		this.shortname = "";
 		this.materials = ['cotton'];	// Available material labels
 		this.svStats = {};
 		this.bonStats = {};
@@ -33,6 +34,7 @@ class AssetTemplate extends Generic{
 
 	save(full ){
 		return {
+			shortname : this.shortname,
 			label : this.label,
 			slots : this.slots,
 			name : this.name,
@@ -129,6 +131,7 @@ class AssetTemplate extends Generic{
 		
 		return new AssetOutput({
 			name : mat.name + ' '+this.name,
+			shortname : this.shortname,
 			slots : this.slots,
 			svStats : mergeStats('sv',this.svStats, mat.svBons),
 			bonStats : mergeStats('bon',this.bonStats, mat.bonBons),
@@ -153,6 +156,7 @@ class AssetOutput extends Generic{
 		super(data);
 		this.slots = [Asset.Slots.upperBody];
 		this.name = "";
+		this.shortname = ""; 
 		this.svStats = {};
 		this.bonStats = {};
 		this.primaryStats = {};

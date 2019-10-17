@@ -19,6 +19,7 @@ export default class Asset extends Generic{
 		this.icon = 'perspective-dice-six-faces-random';
 		this.category = this.constructor.Categories.junk;
 		this.name = "";
+		this.shortname = "";
 		this.description = "";
 		this.slots = [];
 		this.equipped = false;
@@ -76,6 +77,7 @@ export default class Asset extends Generic{
 			_stacks : this._stacks,
 			_charges : this._charges,
 			soulbound : this.soulbound,
+			shortname : this.shortname,
 		};
 
 		if( full ){
@@ -111,6 +113,12 @@ export default class Asset extends Generic{
 
 	getName(){
 		return this.name;
+	}
+
+	getShortName(){
+		if( !this.shortname )
+			return this.getName();
+		return this.shortname;
 	}
 
 	// Makes sure targets are setup properly for wrappers
@@ -511,9 +519,10 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		level : level,
 		label : this.prototype.g_guid().substr(0,16),
 		name : ucFirst(template.name.trim()),
+		shortname : ucFirst(template.shortname.trim()),
 		tags : template.tags,
 		slots : template.slots,
-		weight : template.weight*weightModifier,
+		weight : Math.ceil(template.weight*weightModifier),
 		durability_bonus : Math.round(template.durability_bonus*durabilityModifier*template.slots.length),
 		description : template.description,
 		rarity : rarity,
@@ -521,7 +530,6 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 			Math.pow(1.25, level)+template.slots.length*10+(20*Math.pow(3,rarity))+Math.round(template.weight*weightModifier/100)
 		)
 	});
-
 
 	let addEffectToWrapper = function( wr, stype, snr ){
 		for( let effect of wr.effects ){
@@ -578,6 +586,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		out.loot_sound = 'lootLeather';
 
 	out.repair();
+
 	return out;
 
 };
