@@ -412,6 +412,7 @@ const lib = {
 	notInCombat : {"type":"notInCombat"},
 	inCombat : {"type":"notInCombat","inverse":true},
 	rand10 : {"type":"rng",data:{"chance":10}},
+	rand15 : {"type":"rng",data:{"chance":15}},
 	rand20 : {"type":"rng",data:{"chance":20}},
 	rand30 : {"type":"rng",data:{"chance":30}},
 	rand40 : {"type":"rng",data:{"chance":40}},

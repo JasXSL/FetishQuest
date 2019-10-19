@@ -117,6 +117,7 @@ export default class Player extends Generic{
 		this._difficulty = 1;					// Added from monster template, used in determining exp rewards
 		this._bound_wrappers = [];
 		this._cache_tags = null;					// Holds all active tags in a cache for quicker validation
+		this._cache_stamina = false;
 		this.load(data);
 		
 	}
@@ -1670,7 +1671,27 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
-		return Math.max((BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina)*4)*this.getPoweredMultiplier(), 1);
+
+		const calculateHP = stamina => {
+			return Math.max((BASE_HP+stamina*Player.STAMINA_MULTI)*this.getPoweredMultiplier(), 1);
+		}
+
+		const stamina = this.statPointsToNumber(Player.primaryStats.stamina);
+		let c_stamina = this._cache_stamina;
+		this._cache_stamina = stamina;
+
+		let out = calculateHP(stamina);
+
+		// Stamina has changed, recalculate HP based on percentage
+		if( window.game && game.is_host && c_stamina !== false && c_stamina !== stamina ){
+
+			const was_perc = this.hp / calculateHP(c_stamina);
+			this.hp = Math.floor(out*was_perc);
+
+		}
+
+		return out;
+
 	}
 	getMaxAP(){
 		return Math.max((BASE_AP+this.statPointsToNumber(Player.primaryStats.agility)), 1);
@@ -2401,6 +2422,7 @@ export default class Player extends Generic{
 }
 
 Player.MAX_LEVEL = 14;
+Player.STAMINA_MULTI = 4;
 
 Player.primaryStats = {
 	intellect : 'intellect',
@@ -2413,6 +2435,7 @@ Player.primaryStatsNames = {
 	[Player.primaryStats.stamina] : 'stamina',
 	[Player.primaryStats.agility] : 'agility',
 };
+
 
 
 // Returns a value where <= 0 = always miss, and >= 100 = always hit

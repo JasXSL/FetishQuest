@@ -2364,7 +2364,7 @@ export default class UI{
 					else if( stat === Player.primaryStats.intellect )
 						title = 'MP';
 					else
-						amount *= 2;
+						amount *= Player.STAMINA_MULTI;
 					html += '<div class="tag" title="Increases '+title+' by '+amount+'.">'+
 							ucFirst(stat)+' '+stats[stat]+
 						'</div>';
