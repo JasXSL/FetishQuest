@@ -257,7 +257,7 @@ const lib = {
 		name : "Ice Blast",
 		icon : 'ice-spell-cast',
 		ranged: Action.Range.Ranged,
-		description : "Blast your opponent with frost, dealing 6 elemental damage, plus 1 AP damage if your target is soaked.",
+		description : "Blast your opponent with frost, dealing 5 elemental damage, plus 1 AP damage if your target is soaked.",
 		ap : 2,
 		mp : 1,
 		type : Action.Types.elemental,
@@ -278,7 +278,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 6
+							"amount": 5
 						}
 					},
 					{
@@ -298,7 +298,7 @@ const lib = {
 	elementalist_healingSurge: {
 		name : "Healing Surge",
 		icon : 'splashy-stream',
-		description : "Restores 6 HP to your target and heals 2 HP at the start of their turn for 3 turns. Effect is increased by 30% if there's water nearby.",
+		description : "Restores 5 HP to your target and heals 2 HP at the start of their turn for 3 turns. Effect is increased by 30% if there's water nearby.",
 		ap : 1,
 		mp : 2,
 		ranged : Action.Range.Ranged,
@@ -322,7 +322,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "-6*(1+0.3*((g_rain+se_Tag_m_water)>0))"
+							"amount": "-5*(1+0.3*((g_rain+se_Tag_m_water)>0))"
 						}
 					},
 					
@@ -528,7 +528,7 @@ const lib = {
 	rogue_exploit: {
 		name : "Exploit",
 		icon : 'hooded-assassin',
-		description : "Deals 3 corruption damage plus another 2 per slot of upper and/or lower body armor missing from your target. Has a 4% chance per corruption advantage to unequip a random piece of clothing from your target.",
+		description : "Deals 3 corruption damage, damage is doubled if your target is a naked humanoid. Has a 4% chance per corruption advantage to unequip a random piece of clothing from your target.",
 		ap : 2,
 		mp : 0,
 		type : Action.Types.corruption,
@@ -543,7 +543,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {"amount": "7-ta_lowerBody*2-ta_upperBody*2"}
+						data : {"amount": "3*max(pl_nude-pl_beast+1, 1)"}
 					},
 					{
 						type : Effect.Types.disrobe,
@@ -561,7 +561,7 @@ const lib = {
 		name : "Corrupting Vial",
 		icon : 'poison-bottle',
 		description : "Inflicts your target with a corrupting poison, dealing 2 corruption damage at the start of their turn for 3 turns, and reduces corruption resist by 2. If used on yourself it instead restores 2 HP each turn.",
-		ap : 2,
+		ap : 1,
 		mp : 2,
 		type : Action.Types.corruption,
 		cooldown : 1,
@@ -647,7 +647,7 @@ const lib = {
 	rogue_comboBreaker :{
 		name : "Combo Breaker",
 		icon : 'halt',
-		description : "Interrupts and deals 10 corruption damage to an enemy who is actively charging an action.",
+		description : "Interrupts and deals 6 corruption damage to an enemy who is actively charging an action.",
 		ap : 1,
 		cooldown : 4,
 		tags : ["ac_damage", "acInterrupt"],
@@ -661,14 +661,13 @@ const lib = {
 					{type:Effect.Types.interrupt},
 					{
 						type:Effect.Types.damage,
-						data:{amount:10}
+						data:{amount:6}
 					}
 				]
 			}
 		]
 	},
 
-	// Todo: Need visual for summoning it
 	rogue_tripwire :{
 		name : "Tripwire",
 		icon : 'tripwire',
@@ -721,7 +720,6 @@ const lib = {
 		]
 	},
 
-	// Todo: Visual
 	rogue_steal : {
 		name : "Steal",
 		icon : 'snatch',
@@ -783,7 +781,7 @@ const lib = {
 	cleric_chastise: {
 		name : "Chastise",
 		icon : 'crossed-chains',
-		description : "Chastises up to 2 targets, dealing 3 holy damage every time they use a damaging action until the end of their next turn and reducing all their damage done by 1.",
+		description : "Chastises up to 2 targets, dealing 2 holy damage every time they use a damaging action until the end of their next turn and reducing all their damage done by 1.",
 		ap : 1,
 		mp : 1,
 		max_targets : 2,
@@ -798,7 +796,7 @@ const lib = {
 				duration : 1,
 				name : "Chastise",
 				icon : "holy-hand-grenade",
-				description : "Using damaging actions deals 3 holy damage back to the caster. Damage done reduced by 1.",
+				description : "Using damaging actions deals 2 holy damage back to the caster. Damage done reduced by 1.",
 				detrimental : true,
 				add_conditions : stdCond,
 				stay_conditions : stdCond,
@@ -814,7 +812,7 @@ const lib = {
 							"actionDamaging"
 						],
 						data : {
-							"amount": 3
+							"amount": 2
 						},
 						label : "cleric_chastise_proc"
 					},
@@ -832,7 +830,7 @@ const lib = {
 		name : "Heal",
 		icon : 'healing',
 		ranged : Action.Range.Ranged,
-		description : "Restores 6 HP, plus an additional 4 if your target's max health is less than 50%",
+		description : "Restores 4 HP, effect is doubled if your target's max health is less than 50%",
 		ap : 2,
 		mp : 1,
 		type : Action.Types.holy,
@@ -854,7 +852,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "-6-(ta_HP<(ta_MaxHP/2))*4"
+							"amount": "-4*((ta_HP<(ta_MaxHP/2))+1)"
 						}
 					},
 					
@@ -1031,7 +1029,7 @@ const lib = {
 	tentaclemancer_siphonCorruption: {
 		name : "Siphon Corruption",
 		icon : 'goo-skull',
-		description : "Consumes all charges of corrupting ooze on your target, dealing damage 2 damage plus 2 for each stacks consumed, and healing you for half the amount.",
+		description : "Consumes all charges of corrupting ooze on your target, dealing damage 2 damage plus 1 for each stack consumed, and healing you for the amount.",
 		ap : 1,
 		mp : 1,
 		type : Action.Types.corruption,
@@ -1046,12 +1044,12 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {"amount": "ta_Wrapper_corruptingOoze*2+2"}
+						data : {"amount": "ta_Wrapper_corruptingOoze+2"}
 					},
 					{
 						targets : ["CASTER"],
 						type : Effect.Types.damage,
-						data : {"amount": "-se_Wrapper_corruptingOoze+1"}
+						data : {"amount": "-se_Wrapper_corruptingOoze+2"}
 					},
 					{
 						type : Effect.Types.removeWrapperByLabel,
@@ -1196,7 +1194,7 @@ const lib = {
 	warrior_revenge: {
 		name : "Revenge",
 		icon : 'shield-bash',
-		description : "Deals 2 damage to an opponent plus 2 for every damaging effect you were a victim of since your last turn.",
+		description : "Deals 2 damage to an opponent plus 1 for every damaging effect you were a victim of since your last turn.",
 		ap : 2,
 		cooldown : 1,
 		tags : [stdTag.acDamage],
@@ -1212,7 +1210,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "2+se_damagingReceivedSinceLast*2",
+							"amount": "2+se_damagingReceivedSinceLast",
 							"threatMod": 4
 						}
 					},
@@ -1274,7 +1272,7 @@ const lib = {
 	warrior_viceGrip: {
 		name : "Vice Grip",
 		icon : 'grab',
-		description : "Grabs up to two targets and squeezes, dealing 4 damage and preventing them from attacking any other targets for 1 turn, and ends your turn.",
+		description : "Grabs up to two targets and squeezes, dealing 4 damage and preventing them from attacking any other targets for 1 turn.",
 		ap : 3,
 		mp : 0,
 		cooldown : 2,
@@ -1310,19 +1308,6 @@ const lib = {
 					},
 					
 				]
-			},
-			{
-				detrimental : false,
-				add_conditions : stdCond,
-				target : "CASTER",
-				effects : [
-					{
-						events : [
-							"internalWrapperAdded"
-						],
-						type : "endTurn"
-					}
-				]
 			}
 		]
 	},
@@ -1353,8 +1338,8 @@ const lib = {
 	warrior_injuryToInsult : {
 		name : "Injury to Insult",
 		icon : 'claw-hammer',
-		description : "Deals 7 physical damage to all enemies taunted by you.",
-		ap : 3,
+		description : "Deals 4 physical damage to all enemies taunted by you.",
+		ap : 2,
 		mp : 0,
 		cooldown : 4,
 		max_targets : 1,
@@ -1367,7 +1352,7 @@ const lib = {
 				detrimental : true,
 				add_conditions : stdCond.concat("targetTauntedBySender"),
 				effects : [
-					{type:Effect.Types.damage, data:{amount:7}}
+					{type:Effect.Types.damage, data:{amount:4}}
 				]
 			}
 		]
@@ -1443,7 +1428,7 @@ const lib = {
 		"level": 1,
 		name : "Round Kick",
 		icon : 'high-kick',
-		description : "A chi infused kick, dealing 7 physical damage to an enemy. Misses with this ability may allow your target to riposte, doing the same amount of damage back to you.",
+		description : "A chi infused kick, dealing 6 physical damage to an enemy. Misses with this ability may allow your target to riposte, doing the same amount of damage back to you.",
 		ap : 2,
 		mp : 1,
 		hit_chance: 70,
@@ -1462,7 +1447,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 7
+							"amount": 6
 						}
 					},
 					
@@ -1552,7 +1537,7 @@ const lib = {
 		ap : 1,
 		mp : 2,
 		cooldown : 2,
-		hit_chance: 100,
+		hit_chance: 9001,
 		tags : [stdTag.acDamage, stdTag.acNpcImportantLast],
 		show_conditions : ["inCombat"],
 		wrappers : [
@@ -1634,9 +1619,9 @@ const lib = {
 	monk_lowKick : {
 		name : "Low Kick",
 		icon : 'van-damme-split',
-		description : "Knocks all enemies down for 1 turn, dealing 6 damage and interrupting them.",
+		description : "Knocks all enemies down for 1 turn, dealing 2 damage and interrupting them.",
 		ap : 2,
-		cooldown : 6,
+		cooldown : 4,
 		hit_chance: 80,
 		detrimental : true,
 		target_type : Action.TargetTypes.aoe,
@@ -1648,7 +1633,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {amount: 6}
+						data : {amount: 2}
 					},
 					{type : Effect.Types.interrupt}
 				]
@@ -1712,9 +1697,9 @@ const lib = {
 	whip_legLash: {
 		name : "Leg Lash",
 		icon : 'whiplash',
-		description : "Whips your target's legs, dealing 4 damage. Has a 20% chance of knocking your target down for 1 round.",
+		description : "Whips your target's legs, dealing 3 damage. Has a 20% chance of knocking your target down for 1 round.",
 		ap : 2,
-		cooldown : 5,
+		cooldown : 4,
 		max_targets : 1,
 		detrimental : true,
 		type : Action.Types.physical,
@@ -1731,7 +1716,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 4
+							"amount": 3
 						}
 					},
 					
@@ -1761,9 +1746,9 @@ const lib = {
 	whip_powerLash: {
 		name : "Powerlash",
 		icon : 'slavery-whip',
-		description : "Whips your target's genitals unless they're wearing hardened armor, dealing 8 physical damage and interrupting any charged actions.",
+		description : "Whips your target's genitals unless they're wearing hardened armor, dealing 4 physical damage and interrupting any charged actions.",
 		ap : 2,
-		cooldown : 6,
+		cooldown : 5,
 		max_targets : 1,
 		detrimental : true,
 		type : Action.Types.physical,
@@ -1794,7 +1779,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 8
+							"amount": 4
 						}
 					},
 					"interrupt",
@@ -1850,7 +1835,7 @@ const lib = {
 	imp_blowFromBelow: {
 		name : "Blow From Below",
 		icon : 'fist',
-		description : "Attacks up to 2 larger targets from below, doing 5 physical damage.",
+		description : "Attacks up to 2 larger targets from below, doing 4 physical damage.",
 		ap : 3,
 		cooldown : 3,
 		max_targets : 2,
@@ -1869,7 +1854,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 5
+							"amount": 4
 						}
 					},
 					
@@ -1880,7 +1865,7 @@ const lib = {
 	imp_ankleBite: {
 		name : "Ankle Bite",
 		icon : 'mouth-watering',
-		description : "Bite your target's ankles, dealing 4 physical damage. Has a 20% chance to knock your target down for 1 turn.",
+		description : "Bite your target's ankles, dealing 3 physical damage. Has a 20% chance to knock your target down for 1 turn.",
 		ap : 2,
 		mp : 0,
 		cooldown : 1,
@@ -1897,7 +1882,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 4
+							"amount": 3
 						}
 					},
 					
@@ -1929,7 +1914,7 @@ const lib = {
 	imp_demonicPinch: {
 		name : "Demonic Pinch",
 		icon : 'hand-ok',
-		description : "Pinch your target using magic, dealing 2-6 physical damage.",
+		description : "Pinch your target using magic, dealing 1-5 physical damage.",
 		ap : 2,
 		mp : 3,
 		cooldown : 2,
@@ -1947,7 +1932,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": "1+ceil(random(5))"
+							"amount": "1+floor(random(4))"
 						}
 					},
 					
@@ -1958,7 +1943,7 @@ const lib = {
 	imp_claws: {
 		name : "Imp Claws",
 		icon : 'barbed-nails',
-		description : "Assault your target's clothes for 2 cloth damage, has a 10% chance of unequipping a random clothing item on your target.",
+		description : "Assault your target's clothes for 1 cloth damage, has a 15% chance of unequipping a random clothing item on your target.",
 		ap : 3,
 		mp : 0,
 		cooldown : 3,
@@ -1979,7 +1964,7 @@ const lib = {
 					{
 						type : "damageArmor",
 						data : {
-							"amount": 2,
+							amount : 1,
 							max_types : 1
 						}
 					},
@@ -1988,7 +1973,7 @@ const lib = {
 						data : {
 							numSlots : 1
 						},
-						conditions : ["rand10"]
+						conditions : ["rand15"]
 					},
 					
 				]
@@ -2518,7 +2503,7 @@ const lib = {
 	groper_groin_lash : {
 		name : "Groper Lash",
 		icon : 'whiplash',
-		description : "Lashes your target, dealing 5 physical damage and interrupting. Only usable on targets with their legs spread.",
+		description : "Lashes your target, dealing 4 physical damage and interrupting. Only usable on targets with their legs spread.",
 		ap : 3,
 		cooldown : 4,
 		detrimental : true,
@@ -2534,7 +2519,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {"amount": 5}
+						data : {"amount": 4}
 					},
 					{
 						type : Effect.Types.interrupt
@@ -2546,7 +2531,7 @@ const lib = {
 	groper_groin_grope : {
 		name : "Roper Grope",
 		icon : 'spiral-tentacle',
-		description : "Tentacle-gropes your target's groin, dealing 5 corruption damage. Only usable on targets with their legs spread.",
+		description : "Tentacle-gropes your target's groin, dealing 3 corruption damage. Only usable on targets with their legs spread.",
 		ap : 2,
 		cooldown : 2,
 		detrimental : true,
@@ -2563,7 +2548,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {"amount": 5}
+						data : {"amount": 3}
 					}
 				]
 			}
@@ -2640,7 +2625,7 @@ const lib = {
 		name : "Stinging Swarm",
 		icon : 'wasp-sting',
 		description : "Deals 3 physical damage to all enemies.",
-		ap : 3,
+		ap : 2,
 		mp : 2,
 		cooldown : 3,
 		detrimental : true,
@@ -2703,7 +2688,7 @@ const lib = {
 	groper_sap_inject : {
 		name : "Sap Inject",
 		icon : 'bamboo-fountain',
-		description : "Injects a target affected by leg spread by sticky sap, doing 8 corruption damage and leaving thick sticky sap behind for 2 turns, increasing the target's corruption avoidance by 5.",
+		description : "Injects a target affected by leg spread by sticky sap, doing 6 corruption damage and leaving thick sticky sap behind for 2 turns, increasing the target's corruption avoidance by 5.",
 		ap : 2,
 		mp : 4,
 		cooldown : 3,
@@ -2721,7 +2706,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {"amount": 8}
+						data : {"amount": 6}
 					}
 				]
 			},
@@ -2747,10 +2732,9 @@ const lib = {
 	crab_claw_pinch : {
 		name : "Claw Pinch",
 		icon : 'crossed-claws',
-		description : "Jumps onto and pinches a player with your claws, dealing 5 physical damage.",
+		description : "Jumps onto and pinches a player with your claws, dealing 3 physical damage.",
 		ap : 2,
-		cooldown : 3,
-		mp : 3,
+		cooldown : 2,
 		detrimental : true,
 		type : Action.Types.physical,
 		tags : [
@@ -2768,7 +2752,7 @@ const lib = {
 					{
 						type : Effect.Types.damage,
 						data : {
-							amount : 5
+							amount : 3
 						}
 					},
 				]
@@ -3086,7 +3070,7 @@ const lib = {
 		icon : 'heart-stake',
 		description : "Impales a grappled and exposed shorter target on yourself, doing 4 corruption damage and extending the grapple by 1 turn.",
 		ap : 2,
-		cooldown : 3,
+		cooldown : 5,
 		detrimental : true,
 		type : Action.Types.corruption,
 		tags : [stdTag.acDamage, stdTag.acNpcImportant],
@@ -3111,7 +3095,7 @@ const lib = {
 		icon : 'pelvis-bone',
 		description : "Exposes up to two targets' pelvic areas for 1 turn. Has a 10% chance of tugging the armor off.",
 		ap : 2,
-		cooldown : 2,
+		cooldown : 4,
 		max_targets : 2,
 		detrimental : true,
 		type : Action.Types.physical,
@@ -3283,7 +3267,7 @@ const lib = {
 	sharktopus_attack : {
 		icon : 'punch',
 		name : "Sharktopus Attack",
-		description : "Deals 3 physical damage to 2 players.",
+		description : "Deals 2 physical damage to 2 players.",
 		ap : 4,
 		cooldown : 0,
 		min_ap : 1,
@@ -3299,7 +3283,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 3
+							"amount": 2
 						}
 					},
 				]
@@ -3309,7 +3293,7 @@ const lib = {
 	sharktopus_arouse : {
 		name : "Sharktopus Arouse",
 		icon : 'hearts',
-		description : "Deals 3 corruption damage to 2 players.",
+		description : "Deals 2 corruption damage to 2 players.",
 		ap : 4,
 		cooldown : 0,
 		min_ap : 1,
@@ -3326,7 +3310,7 @@ const lib = {
 					{
 						type : "damage",
 						data : {
-							"amount": 3
+							"amount": 2
 						}
 					},
 				]
@@ -3389,7 +3373,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.addArousal,
-						data : {amount : 3}
+						data : {amount : 2}
 					},
 				]
 			}

@@ -3256,7 +3256,8 @@ LibMesh.library = {
 				url : 'nature/pumpkin.JD',
 				materials : [
 					libMat.Nature.Pumpkin,
-					libMat.Nature.Vines
+					libMat.Nature.Vines,
+					libMat.Solids.GreenA,
 				],
 			}),
 			Carrot : new LibMesh({

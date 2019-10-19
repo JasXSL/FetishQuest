@@ -12,7 +12,7 @@ import Dungeon from './Dungeon.js';
 import Roleplay from './Roleplay.js';
 import Condition from './Condition.js';
 
-const BASE_HP = 50;
+const BASE_HP = 40;
 const BASE_MP = 10;
 const BASE_AP = 10;
 const BASE_AROUSAL = 10;
@@ -45,7 +45,7 @@ export default class Player extends Generic{
 		this.wrappers = [];			// Wrappers, use getWrappers
 		this.auto_wrappers = [];	// Automatic wrappers such as encumbered
 		this.passives = [];			// Passive effects that should not be cleared when a battle starts or ends
-		this.hp = 60;				// 
+		this.hp = BASE_HP;				// 
 		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
 		this.team = 0;				// 0 = player
 		this.size = 5;				// 0-10
@@ -1670,7 +1670,7 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
-		return Math.max((BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina))*this.getPoweredMultiplier(), 1);
+		return Math.max((BASE_HP+this.statPointsToNumber(Player.primaryStats.stamina)*4)*this.getPoweredMultiplier(), 1);
 	}
 	getMaxAP(){
 		return Math.max((BASE_AP+this.statPointsToNumber(Player.primaryStats.agility)), 1);
@@ -1689,24 +1689,26 @@ export default class Player extends Generic{
 
 	/* STATS */
 	getPrimaryStats(){
+
+		if( !this.class )
+			this.class = new PlayerClass();
+
 		return {
-			stamina : Math.floor((this.getGenericAmountStatPoints(Effect.Types.staminaModifier)+this.stamina)*this.getGenericAmountStatMultiplier(Effect.Types.staminaModifier)),
-			agility : Math.floor((this.getGenericAmountStatPoints(Effect.Types.agilityModifier)+this.agility)*this.getGenericAmountStatMultiplier(Effect.Types.agilityModifier)),
-			intellect : Math.floor((this.getGenericAmountStatPoints(Effect.Types.intellectModifier)+this.intellect)*this.getGenericAmountStatMultiplier(Effect.Types.intellectModifier)),
+			stamina : Math.floor(
+				(this.getGenericAmountStatPoints(Effect.Types.staminaModifier)+this.stamina+this.class[Player.primaryStats.stamina])*
+				this.getGenericAmountStatMultiplier(Effect.Types.staminaModifier)),
+			agility : Math.floor(
+				(this.getGenericAmountStatPoints(Effect.Types.agilityModifier)+this.agility)+this.class[Player.primaryStats.agility]*
+				this.getGenericAmountStatMultiplier(Effect.Types.agilityModifier)),
+			intellect : Math.floor(
+				(this.getGenericAmountStatPoints(Effect.Types.intellectModifier)+this.intellect)+this.class[Player.primaryStats.intellect]*
+				this.getGenericAmountStatMultiplier(Effect.Types.intellectModifier)),
 		};
 	}
 
 	// Takes a Player.primaryStats value and converts it to a number to add to HP/MP etc for this character
 	statPointsToNumber( stat ){
-
-		if( !this.class )
-			this.class = new PlayerClass();
-		let stats = this.getPrimaryStats();
-		let ps = Player.primaryStats;
-		let val = stats[stat]+this.class[stat];
-		if( isNaN(val) )
-			return 0;
-		return 0;
+		return this.getPrimaryStats()[stat];
 	}
 
 	getPoweredMultiplier(){

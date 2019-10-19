@@ -58,13 +58,6 @@ const mod = new Mod(
 				"weight":400,
 				"level":1,
 				"durability_bonus":1,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
-				"stat_bonus":0
 			},
 			{"label":"silk",
 				"name":"Silk",
@@ -76,13 +69,9 @@ const mod = new Mod(
 				"weight":300,
 				"level":3,
 				"durability_bonus":1,
-				"svBons":{
-		
+				primaryStats : {
+					[Player.primaryStats.intellect] : 1
 				},
-				"bonBons":{
-		
-				},
-				"stat_bonus":1
 			},
 			{"label":"mageweave",
 				"name":"Mageweave",
@@ -94,9 +83,8 @@ const mod = new Mod(
 				"level":8,
 				"durability_bonus":1,
 				primaryStats : {
-					[Player.primaryStats.int] : 1
+					[Player.primaryStats.intellect] : 2
 				},
-				"stat_bonus":1
 			},
 			{"label":"shadowcloth",
 				"name":"Shadowcloth",
@@ -107,17 +95,11 @@ const mod = new Mod(
 				"weight":300,
 				"level":14,
 				"durability_bonus":1,
-				"svBons":{
-		
-				},
-				"bonBons":{
-		
-				},
 				primaryStats : {
-					[Player.primaryStats.int] : 2
+					[Player.primaryStats.intellect] : 3
 				},
-				"stat_bonus":1
 			},
+
 			{"label":"leather",
 				"name":"Leather",
 				"tags":[
@@ -126,7 +108,10 @@ const mod = new Mod(
 				"weight":2000,
 				"level":1,
 				"durability_bonus":1.25,
-				"stat_bonus":0
+				primaryStats : {
+					[Player.primaryStats.agility] : 1,
+					[Player.primaryStats.intellect] : -1,
+				},
 			},
 			{"label":"rawhide",
 				"name":"Rawhide",
@@ -137,7 +122,10 @@ const mod = new Mod(
 				"weight":3000,
 				"level":3,
 				"durability_bonus":1.5,
-				"stat_bonus":1
+				primaryStats : {
+					[Player.primaryStats.agility] : 1,
+					[Player.primaryStats.intellect] : -1,
+				},
 			},
 			{"label":"stretchhide",
 				"name":"Stretch-hide",
@@ -148,7 +136,10 @@ const mod = new Mod(
 				"weight":2000,
 				"level":6,
 				"durability_bonus":2,
-				"stat_bonus":2
+				primaryStats : {
+					[Player.primaryStats.agility] : 2,
+					[Player.primaryStats.intellect] : -1,
+				},
 			},
 			{"label":"mailCopper",
 				"name":"Copper-mail",
@@ -160,7 +151,6 @@ const mod = new Mod(
 				"weight":7000,
 				"level":3,
 				"durability_bonus":2,
-				"stat_bonus":0
 			},
 			{"label":"mailSteel",
 				"name":"Steel-mail",
@@ -172,7 +162,6 @@ const mod = new Mod(
 				"weight":5000,
 				"level":6,
 				"durability_bonus":2.5,
-				"stat_bonus":0
 			},
 			{"label":"mailMithril",
 				"name":"Mithril-mail",
@@ -184,7 +173,9 @@ const mod = new Mod(
 				"weight":1000,
 				"level":12,
 				"durability_bonus":3,
-				"stat_bonus":0
+				primaryStats : {
+					[Player.primaryStats.agility] : 1,
+				},
 			},
 			{"label":"plateCopper",
 				"name":"Copper",
@@ -197,13 +188,10 @@ const mod = new Mod(
 				"weight":9000,
 				"level":5,
 				"durability_bonus":2.5,
-				svBons:{
-					[Action.Types.physical] : 1
-				},
 				primaryStats : {
-					[Player.primaryStats.intellect] : -1
+					[Player.primaryStats.intellect] : -3,
+					[Player.primaryStats.stamina] : 2,
 				},
-				"stat_bonus":0
 			},
 			{"label":"plateSteel",
 				"name":"Steel",
@@ -216,13 +204,10 @@ const mod = new Mod(
 				"weight":8000,
 				"level":10,
 				"durability_bonus":3,
-				svBons:{
-					[Action.Types.physical] : 1
-				},
 				primaryStats : {
-					[Player.primaryStats.intellect] : -1
+					[Player.primaryStats.intellect] : -3,
+					[Player.primaryStats.stamina] : 3,
 				},
-				"stat_bonus":0
 			},
 			{"label":"plateSoftsilver",
 				"name":"Softsilver",
@@ -234,7 +219,10 @@ const mod = new Mod(
 				"weight":1500,
 				"level":20,
 				"durability_bonus":4,
-				"stat_bonus":1
+				primaryStats : {
+					[Player.primaryStats.intellect] : -2,
+					[Player.primaryStats.stamina] : 3,
+				},
 			}
 		],
 		dungeonTemplates:getDungeonTemplates(),

@@ -41,9 +41,17 @@ Big chungi:
 
 
 -- LATER UPDATE --
-- Give every modal its own screen instead of using the modal system
+	- Give every modal its own screen instead of using the modal system
+	- Show NPCs on the map
+		- The things that are on the character menu should show up on the map instead:
+			- Talk to
+			- Rent a room
+			- Loot
+			- Shop
+			- Repair
+			- Bank
+			- Train
 
-Next:
 	- West forest
 		- Hidden path down to the beach
 		- Otter and Broper show up there after completing their quest

@@ -3098,10 +3098,11 @@ export default class Modtools{
 
 			saveAsset.inventory = [];
 			let index = 0;
-			$("#assetForm div.assets input[name=asset].equipped").each(function(){
+			$("#assetForm div.assets input[name=asset]").each(function(){
 				if( !$(this).val().trim() )
 					return;
-				saveAsset.inventory.push(index);
+				if($(this).is('.equipped') )
+					saveAsset.inventory.push(index);
 				++index;
 			});
 			

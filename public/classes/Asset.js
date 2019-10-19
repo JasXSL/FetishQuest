@@ -421,7 +421,19 @@ Asset.protVal = 0.20;	// Max damage taken increase for not having this item equi
 // Level is the level of the item, numSlots is how many item slots it covers
 Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 
-	if( level <= 0 ){
+	const rarityPoints = [
+		0,	// Nada
+		2, 	// 2 to one stat
+		2, 	// 2 to two stats
+		2, 	// 2 to three stats
+		3, 	// 3 to three stats
+	];
+	let points = rarityPoints[rarity];
+	points += parseInt(bonusStats) || 0;
+	points *= numSlots;
+	
+	let effects = [];
+	if( level <= 0 || isNaN(level) || points <= 0 || isNaN(points) || rarity < 1 ){
 		return new Wrapper({
 			name : 'statsAutoGen',
 			detrimental : false,
@@ -429,49 +441,15 @@ Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 		});
 	}
 
-	if( isNaN(bonusStats) )
-		bonusStats = 0;
 
-	// Separate the stats into proficiency and primary
-	let n = Math.round(Math.random()*bonusStats);
-	let secondaryStats = rarity*numSlots+n,
-		primaryStats = Math.max(0, (rarity-1)*numSlots)+bonusStats-n;
+	effects.push(Effect.createStatBonus('sv'+Action.Types[randElem(Object.keys(Action.Types))], points));
+	effects.push(Effect.createStatBonus('bon'+Action.Types[randElem(Object.keys(Action.Types))], points));
+	effects.push(Effect.createStatBonus(randElem(Object.keys(Player.primaryStats))+'Modifier', points));
 	
+	shuffle(effects);
 
-	// Get viable effects for secondary stats
-	let viableEffects = [];
-	for( let type in Action.Types )
-		viableEffects.push('sv'+Action.Types[type], 'bon'+Action.Types[type]);
+	effects = effects.slice(0, rarity);
 
-	let selectedEffects = [];
-	for( let i =0; i<secondaryStats && i<2; ++i )
-		selectedEffects.push(randElem(viableEffects));
-
-	if( selectedEffects[0] === selectedEffects[1] )
-		selectedEffects.shift();
-
-	// Randomize the points into the above stats
-	let selectedEffectNumbers = {};
-	selectedEffects.map(el => selectedEffectNumbers[el] = 0);
-	for( let effect in selectedEffectNumbers )
-		selectedEffectNumbers[effect] = secondaryStats*(3-selectedEffects.length);
-	
-	// Add the effects
-	let effects = [];
-	for( let i in selectedEffectNumbers ){
-		if( selectedEffectNumbers[i] )
-			effects.push(Effect.createStatBonus(i, selectedEffectNumbers[i]));
-	}
-
-
-	// Generate the primary stats
-	let pKeys = Object.keys(Player.primaryStats), stats = pKeys.map(() => 0);
-	for( let i = 0; i< primaryStats; ++i)
-		++stats[Math.floor(Math.random()*pKeys.length)];
-	for( let i = 0; i<pKeys.length; ++i ){
-		if( stats[i] )
-			effects.push(Effect.createStatBonus(pKeys[i]+'Modifier', stats[i]));
-	}
 	
 	return new Wrapper({
 		duration : -1,

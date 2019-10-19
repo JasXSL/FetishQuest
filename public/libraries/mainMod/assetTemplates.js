@@ -1,6 +1,7 @@
 import Asset from "../../classes/Asset.js";
 import Action from "../../classes/Action.js";
 import stdTag from "../stdTag.js";
+import Player from "../../classes/Player.js";
 
 const lib = {
 	sling_armor : {
@@ -22,10 +23,7 @@ const lib = {
 			"mailMithril",
 			"plateSoftsilver"
 		],
-		bonStats : {
-			[Action.Types.physical] : 1
-		},
-		description : "An enchanted sling bikini. Easy to move around in.",
+		description : "A fancy sling bikini!",
 		tags : [
 			stdTag.asThong, stdTag.asSlingBikini, stdTag.asBodysuit
 		],
@@ -36,7 +34,6 @@ const lib = {
 		slots : [Asset.Slots.lowerBody],
 		name : "Thong",
 		shortname : 'Thong',
-
 		materials : [
 			"cotton",
 			"silk",
@@ -154,9 +151,6 @@ const lib = {
 			"plateSoftsilver",
 			"plateSteel"
 		],
-		svStats : {
-			[Action.Types.physical] : 1
-		},
 		description : "A rather modest breastplate, covering only the top of your chest.",
 		size : 0.6
 	},
@@ -171,9 +165,6 @@ const lib = {
 			"plateSoftsilver",
 			"plateSteel"
 		],
-		svStats : {
-			[Action.Types.physical] : 1
-		},
 		description : "A rather modest crotchplate, covering only your groin and half your butt.",
 		tags : [
 			stdTag.asWaistband
@@ -192,9 +183,6 @@ const lib = {
 			"mageweave",
 			"shadowcloth"
 		],
-		bonStats : {
-			[Action.Types.elemental]:1
-		},
 		description : "A robe ending above your hips, with a cloth flap hanging down in front of your groin and rear.",
 		tags : [
 			stdTag.asRobe,
@@ -214,9 +202,6 @@ const lib = {
 			"silk",
 			"shadowcloth"
 		],
-		bonStats : {
-			[Action.Types.elemental]:1
-		},
 		description : "A loincloth covering your groin, with a thong underneath it.",
 		tags : [
 			stdTag.asRobe,
