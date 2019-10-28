@@ -18,6 +18,7 @@ import Collection from './helpers/Collection.js';
 import Shop, { ShopSaveState } from './Shop.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
+import VibHub from './VibHub.js';
 
 export default class Game extends Generic{
 
@@ -114,11 +115,15 @@ export default class Game extends Generic{
 		});
 		// ALL event capture. Must be below the playerDefeated binding above
 		GameEvent.on(GameEvent.Types.all, event => {
+
 			for( let quest of this.quests )
 				quest.onEvent(event);
 
 			if( event.type !== GameEvent.Types.actionUsed || !event.action.no_use_text )
 				Text.runFromLibrary(event);
+
+			VibHub.onEvent(event);
+
 		});
 	}
 
@@ -1272,6 +1277,9 @@ export default class Game extends Generic{
 
 	// Checks if a player is owned by the netgame player. ExcludeDM can be used to ignore DM ownership
 	playerIsMe( player, excludeDM = false ){
+
+		if( !player )
+			return false;
 
 		if( this.is_host && !excludeDM )
 			return true;
@@ -2557,6 +2565,7 @@ Game.db = new Dexie("game");
 Game.db.version(1).stores({
 	games: 'id'
 });
+Game.VibHub = VibHub;		// Set by VibHub.js
 
 Game.EQUIP_COST = 4;
 Game.UNEQUIP_COST = 2;

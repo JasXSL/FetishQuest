@@ -257,6 +257,7 @@ export default {
 	metaVeryPainful : 'me_very_painful',
 	metaVeryArousing : 'me_very_arousing',
 	metaLargeInsertion : 'me_large_insertion',
+
 	metaSlotButt : 'me_slot_butt',
 	metaSlotBreasts : 'me_slot_breasts',
 	metaSlotPenis : 'me_slot_penis',
@@ -268,6 +269,9 @@ export default {
 	metaSlotNipple : 'me_slot_nipple',
 	metaSlotClit : 'me_slot_clit',
 	metaSlotBalls : 'me_slot_balls',
+	metaSlotFoot : 'me_slot_foot',
+	metaSlotArmpit : 'me_slot_armpit',
+
 	metaUsedTongue : 'me_used_tongue',
 	metaUsedStrapon : 'me_used_strapon',
 	metaUsedClaw : 'me_used_claw',
@@ -276,6 +280,8 @@ export default {
 	metaUsedFist : 'me_used_fist',
 	metaUsedPenis : 'me_used_penis',
 	metaUsedFinger : 'me_used_finger',
+	metaUsedInsect : 'me_used_insect',
+
 	metaSlotClothes : 'me_slot_clothes',
 	metaSlotFace : 'me_slot_face',
 	metaSlotTaint : 'me_slot_taint',

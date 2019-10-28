@@ -543,7 +543,7 @@ const lib = {
 				effects : [
 					{
 						type : Effect.Types.damage,
-						data : {"amount": "3*max(pl_nude-pl_beast+1, 1)"}
+						data : {"amount": "3*max(ta_Tag_pl_penis-ta_Tag_pl_beast+1, 1)"}
 					},
 					{
 						type : Effect.Types.disrobe,
