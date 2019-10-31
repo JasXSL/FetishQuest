@@ -28,7 +28,8 @@ export default class UI{
 		this.actionbar_actions = $("> div.actions", this.action_selector);
 
 		this.customModals = $("#customModals");
-		this.cmSleepSelect = $("> #sleepSelect", this.customModals);
+			this.cmSleepSelect = $("> #sleepSelect", this.customModals);
+			this.cmGym = $("> #gymSelect", this.customModals);
 
 		this.blackScreen = $("#blackScreen");
 
@@ -3620,6 +3621,14 @@ export default class UI{
 			this.toggleCustomModals(false);
 		});
 		$("input.cancel", this.cmSleepSelect).on('click', () => this.toggleCustomModals(false));
+	}
+
+	drawGym( player ){
+		this.toggleCustomModals(true);
+		this.cmGym.toggleClass('hidden', false);
+
+		
+		
 	}
 
 

@@ -59,7 +59,7 @@ class VibHub extends VH{
 	onEvent( gameEvent ){
 
 
-		if( gameEvent.type === GameEvent.Types.textTrigger && gameEvent.text ){
+		if( gameEvent.type === GameEvent.Types.textTrigger && gameEvent.text && this.device && this.device_online ){
 
 
 			//console.log(gameEvent);
@@ -116,7 +116,7 @@ class VibHub extends VH{
 
 			program.setPorts(ports);
 			console.log("Sending program with ports", ports, program);
-			
+			console.log("Event was", gameEvent);
 			this.device.sendProgram(program);
 
 		}
@@ -182,9 +182,9 @@ VibHub.Programs.Grind = new VhProgram(0, 0);
 
 VibHub.Programs.Squeeze = new VhProgram(0, 0);
 	VibHub.Programs.Squeeze.addStage(
-		new VhStage({intensity:100, duration:0}),
-		new VhStage({intensity:180, duration:500, repeats:1, yoyo:true}),
-		new VhStage({intensity:220, duration:2000, repeats:1, yoyo:true}),
+		new VhStage({intensity:50, duration:0}),
+		new VhStage({intensity:200, duration:500, repeats:1, yoyo:true}),
+		new VhStage({intensity:150, duration:200, repeats:7, yoyo:true}),
 		new VhStage({intensity:0, duration:500}),
 	);
 

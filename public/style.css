@@ -80,6 +80,8 @@ input[type=button]:active, input[type=submit]:active, div.button:active,
 	transform:scale(0.98,0.98);
 }
 
+
+
 input[type=range] {
 	-webkit-appearance: none;
 	width: 100%;
@@ -212,7 +214,6 @@ div.centered, h1.centered, .centered{
 *.bgMarble{
 	background: url(./media/ui/marble.jpg) repeat;
 }
-
 
 
 
@@ -467,19 +468,53 @@ div.fxBuffRed{
 		top:0; left:0;
 		background:rgba(0,0,0,.25);
 		backdrop-filter: blur(3px);
+		user-select: none;
+	}
+	#customModals > div > h1{
+		font-size:4vmax;
+		margin:0;
 	}
 	#customModals > div{
 		position: absolute;
 		left:50%; top:50%;
 		transform:translate(-50%, -50%);
+		overflow:visible;
 	}
-
-	#sleepSelect{
+	#customModals div.cmContent{
 		border: 0.2vmax solid #DDD;
 		border-radius: 0.5vmax;
-		box-shadow: 0 0.5vmax 2vmax 0.25vmax #000;
+		box-shadow: 0 0.5vmax 1vmax 0.1vmax #000;
 		padding: 1vmax;
 		font-size: 2.5vmax;
+	}
+	#customModals div.cmTabs{
+		position: absolute;
+		padding-left:3vw;
+	}
+	#customModals div.cmTab{
+		border: 0.2vmax solid #333;
+		border-bottom-left-radius: 0.5vmax;
+		border-bottom-right-radius: 0.5vmax;
+		box-shadow: 0 0.5vmax 1vmax 0.1vmax #000;
+		padding: 0.75vmax;
+		font-size: 2vmax;
+		border-top: none;
+		color:#AAA;
+		cursor:pointer;
+		display: inline-block;
+		vertical-align: top;
+	}
+	#customModals div.cmTab:hover, #customModals div.cmTab.active{
+		border-color:#FFF;
+	}
+	#customModals div.cmTab.active{
+		color:#FFF;
+		font-weight: bold;
+		padding:1vmax;
+	}
+
+	/* Sleep */
+	#sleepSelect{
 		text-align: center;
 	}
 
@@ -493,6 +528,37 @@ div.fxBuffRed{
 	#sleepSelect > input[type=button]{
 		font-size:2vmax;
 	}
+
+
+
+	/* Gym */
+	#gymSelect{
+		width:90vw;
+		position: absolute;
+		max-height:80vh;
+	}
+	
+	#gymSelect > div.modalMain{
+		overflow:auto;
+		padding:2vmax;
+	}
+
+	#gymSelect div.slots{
+		text-align: center;
+	}
+
+	#gymSelect div.action.button{
+		background-size: cover;
+		overflow: visible;
+		display: inline-block;
+		margin: 0 0.25vh 0 0.25vh;
+		vertical-align: middle;
+		width: 5.5vh;
+    	height: 5.5vh;
+	}
+
+
+
 
 /**/
 

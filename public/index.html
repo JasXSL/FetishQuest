@@ -148,12 +148,46 @@
 	</div>
 
 	<div id="customModals" class="hidden">
-		<div id="sleepSelect" class="bgMarble">
+		<div id="sleepSelect" class="bgMarble hidden cmContent">
 			<img class="bedIcon" src="media/wrapper_icons/bed.svg" />
 			<span class="title">How long would you like to sleep?</span><br />
 			<input type="range" min=1 max=24 value=1 /><br />
 			<input type="button" class="sleep" value="Sleep 1 Hour &#129130; 10 PM" />
 			<input type="button" class="cancel" value="Cancel" />
+		</div>
+		<div id="gymSelect">
+			<h1>Gym</h1>
+			<div class="modalMain bgMarble cmContent">
+				<div class="actives">
+
+					<div class="slots">
+						<div class="action button"></div>
+						<div class="action button"></div>
+						<div class="action button"></div>
+						<div class="action button"></div>
+						<div class="action button"></div>
+						<div class="action button"></div>
+					</div>
+
+					<div style="display:flex; width:100%; justify-content:space-between">
+						<div class="left">
+							Unlocked:
+							<div class="available"></div>
+						</div>
+						<div class="right" style="text-align:right">
+							Purchase:
+							<div class="purchasable"></div>
+						</div>
+					</div>
+				</div>
+				<div class="passives hidden">
+					Todo: Passives
+				</div>
+			</div>
+			<div class="cmTabs">
+				<div class="cmTab bgMarble actions active">Actions</div>
+				<div class="cmTab bgMarble talents">Talents</div>
+			</div>
 		</div>
 	</div>
 
