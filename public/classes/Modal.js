@@ -102,6 +102,8 @@ export default class Modal{
 			}, 3000);
 		}, 6000);
 		this.notices.append(out);
+		if( !isNotice )
+			console.error(text);
 	}
 	addNotice( text ){
 		this.addError(text, true);

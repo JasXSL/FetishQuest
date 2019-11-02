@@ -1914,7 +1914,7 @@ export default class Player extends Generic{
 			console.error("Invalid action add", action);
 			return false;
 		}
-		if( this.getActionByLabel(action.label) ){
+		if( this.getLearnedActionByLabel(action.label) ){
 			console.error("Action already learned");
 			return false;
 		}
@@ -1923,16 +1923,30 @@ export default class Player extends Generic{
 		if( !ac.hidden && !silent )
 			game.ui.addText( this.getColoredName()+" learned "+ac.name+"!", undefined, this.id, this.id, 'actionLearned' );
 		
-		for( let i in this.active_actions ){
-			
-			const slot = this.active_actions[i];
-			if( slot === 0 ){
-				this.activateAction(action.id, i);
-				break;
-			}
+		if( !this.actionSlotsFull() ){
+			for( let i in this.active_actions ){
+				
+				const slot = this.active_actions[i];
+				if( slot === 0 ){
+					this.activateAction(action.id, i);
+					break;
+				}
 
+			}
 		}
 		return true;
+	}
+
+	actionSlotsFull(){
+		const total = this.getNrActionSlots();
+		let n = 0;
+		for( let i=0; i<total; ++i ){
+			if( this.active_actions[i] ){
+				++n;
+				if( n >= total )
+					return true;
+			}
+		}
 	}
 
 	activateAction( id, slot ){
@@ -1940,20 +1954,59 @@ export default class Player extends Generic{
 		if( id instanceof Action )
 			id = id.id;
 
+		if( this.actionSlotsFull() )
+			throw "Action slots are full. Disable one first.";
+
 		slot = parseInt(slot);
-		this.deactivateAction(id);
-		const action = this.getLearnedAction(id);
-		if( !action ){
-			console.error("Trying to activate nonfound action");
-			return false;
-		}
-		
-		if( slot > this.active_actions.length-1 || slot < 0 || isNaN(slot) ){
-			console.error("Out of bounds error on action activation");
-			return false;
+		if( isNaN(slot) ){
+
+			for( let i=0; i<this.getNrActionSlots(); ++i ){
+				if( !this.active_actions[i] ){
+					slot = i;
+					break;
+				}
+			}
+
 		}
 
+
+		this.deactivateAction(id);
+		const action = this.getLearnedAction(id);
+		if( !action )
+			throw "Trying to activate nonfound action";
+		
+		if( slot > this.active_actions.length-1 || slot < 0 || isNaN(slot) )
+			throw "Out of bounds error on action activation";
+
 		this.active_actions[slot] = id;
+		return true;
+
+	}
+
+	deactivateAction( id ){
+
+		for( let i in this.active_actions ){
+
+			if( this.active_actions[i] === id ){
+				
+				this.active_actions[i] = 0;
+				return true;
+
+			}
+
+		}
+
+	}
+
+	toggleAction( id ){
+		
+		if( !this.getLearnedAction(id) )
+			throw 'Action not found: '+id;
+		if( this.isActionActive(id) )
+			this.deactivateAction(id);
+		else
+			this.activateAction(id);
+
 		return true;
 
 	}
@@ -1964,6 +2017,8 @@ export default class Player extends Generic{
 			return this.getLearnedAction(this.active_actions[index]);
 
 	}
+
+	
 
 	// Gets an action from the action array by id, regardless of if it's active or not
 	getLearnedAction( id ){
@@ -1982,21 +2037,7 @@ export default class Player extends Generic{
 		}
 	}
 
-	deactivateAction( id ){
-
-		for( let i in this.active_actions ){
-
-			const a = this.active_actions[i];
-			if( a.id === id ){
-				
-				this.active_actions[i] = 0;
-				return true;
-
-			}
-
-		}
-
-	}
+	
 
 	isActionActive( id ){
 
@@ -2217,16 +2258,17 @@ export default class Player extends Generic{
 	addActionsForClass(){
 		
 		let lib = Object.values(glib.getFull("ActionLearnable"));
-		const evt = new GameEvent({sender:this, target:this});
 		for( let a of lib ){
-			if( !a.auto_learn || this.getActionByLabel(a.action) )
+
+			if( !a.auto_learn || this.getActionByLabel(a.action) || !a.validate(this) )
 				continue;
-			if( Condition.all(a.conditions, evt) ){
-				const action = a.getAction();
-				if( !action )
-					continue;
-				this.addAction(action);
-			}
+
+			const action = a.getAction();
+			if( !action )
+				continue;
+			this.addAction(action);
+		
+
 		}
 
 

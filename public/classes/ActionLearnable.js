@@ -1,5 +1,6 @@
 import Generic from "./helpers/Generic.js";
 import Condition from "./Condition.js";
+import GameEvent from "./GameEvent.js";
 
 // Wrapper for the library of learnable actions.
 export default class ActionLearnable extends Generic{
@@ -11,7 +12,7 @@ export default class ActionLearnable extends Generic{
 		this.action = '';
 		this.conditions = [];
 		this.auto_learn = false;
-
+		this.cost = -1;					// -1 is auto
 
 		this.load(data);
 	}
@@ -32,9 +33,9 @@ export default class ActionLearnable extends Generic{
 			label : this.label,
 			action : this.action,
 			conditions : Condition.saveThese(this.conditions),
-			auto_learn : this.auto_learn
+			auto_learn : this.auto_learn,
+			cost : this.cost
 		};
-
 
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
@@ -42,10 +43,26 @@ export default class ActionLearnable extends Generic{
 		return out;
 
 	}
+
+	validate( player, debug ){
+
+		const evt = new GameEvent({sender:player, target:player});
+		return Condition.all(this.conditions, evt, debug);
+
+	}
 	
 	// fetches the action from library
 	getAction(){
 		return glib.get(this.action, "Action");
+	}
+
+	getCost(){
+
+		if( this.cost === -1 ){
+			return 800;
+		}
+		return this.cost;
+
 	}
 
 }

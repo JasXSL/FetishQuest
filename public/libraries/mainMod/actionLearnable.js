@@ -22,6 +22,7 @@ const lib = {
 	elementalist_earthShield : {
 		action : 'elementalist_earthShield',
 		conditions : ["targetClassElementalist"],
+		cost : 300,
 	},
 	elementalist_discharge : {
 		action : 'elementalist_discharge',
@@ -50,7 +51,8 @@ const lib = {
 	},
 	rogue_comboBreaker : {
 		action : 'rogue_comboBreaker',
-		conditions : ["targetClassRogue"]
+		conditions : ["targetClassRogue"],
+		cost : 300,
 	},
 	rogue_tripwire : {
 		action : 'rogue_tripwire',
@@ -83,11 +85,12 @@ const lib = {
 	},
 	cleric_penance : {
 		action : 'cleric_penance',
-		conditions : ["targetClassCleric"]
+		conditions : ["targetClassCleric"],
+		cost : 300,
 	},
 	cleric_radiant_heal : {
 		action : 'cleric_radiant_heal',
-		conditions : ["targetClassCleric"]
+		conditions : ["targetClassCleric"],
 	},
 	
 
@@ -116,7 +119,9 @@ const lib = {
 	},
 	tentaclemancer_slimeWard : {
 		action : 'tentaclemancer_slimeWard',
-		conditions : ["targetClassTentaclemancer"]
+		conditions : ["targetClassTentaclemancer"],
+		cost : 300,
+
 	},
 
 	warrior_revenge : {
@@ -137,6 +142,7 @@ const lib = {
 	warrior_masochism : {
 		action : 'warrior_masochism',
 		conditions : ["targetClassWarrior"],
+		cost : 300,
 	},
 	warrior_injuryToInsult : {
 		action : 'warrior_injuryToInsult',
@@ -168,6 +174,7 @@ const lib = {
 	monk_meditate : {
 		action : 'monk_meditate',
 		conditions : ["targetClassMonk"],
+		cost : 300,
 	},
 	monk_lowKick : {
 		action : 'monk_lowKick',
@@ -182,6 +189,7 @@ const lib = {
 
 	gen_lowBlow : {
 		action : 'lowBlow',
+		cost : 100,
 	},
 
 	

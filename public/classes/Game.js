@@ -2483,6 +2483,62 @@ export default class Game extends Generic{
 	}
 	
 
+	learnAction( player, learnable ){
+
+		// Todo: Check if there's a shop nearby
+
+		// Check if learnable exists and is valid
+		const action = glib.get(learnable, 'ActionLearnable');
+		if( !action )
+			throw "Action not found";
+
+		if( !(player instanceof Player) )
+			throw "Invalid player";
+
+		if( player.getLearnedActionByLabel(action.action) ) 
+			throw "Action alreday unlocked";
+
+		if( !action.validate(player) )
+			throw "That action can't be learned by you";
+
+		if( player.getMoney() < action.getCost() )
+			throw "Insufficient funds";
+
+		// If netcode, send to host & return
+		if( !this.is_host ){
+			console.error("Todo: Netcode");
+			return;
+		}
+
+		if( !player.addActionFromLibrary(action.action) )
+			return;
+		
+		player.consumeMoney(action.getCost());
+		this.playFxAudioKitById("buy_item", player, player, undefined, true);
+
+		this.save();
+		return true;
+
+	}
+
+	// Activates or deactivates an action
+	toggleAction( player, actionID ){
+
+		// Todo: check if there's a shop nearby
+		if( !(player instanceof Player) )
+			throw 'Invalid player';
+
+		if( !this.is_host ){
+			console.error("Todo: Netcode");
+			return;
+		}
+
+		if( player.toggleAction(actionID) )
+			this.save();
+
+	}
+
+
 
 	/* GAME-LIBRARY MANAGEMENT 
 		The game library is separate from GameLib in that it handles ad-hoc DM created assets and NPCs
@@ -2667,4 +2723,5 @@ Game.getNames = async () => {
 	return names;
 
 };
+
 

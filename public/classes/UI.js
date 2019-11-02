@@ -3650,7 +3650,7 @@ export default class UI{
 
 		this.toggleCustomModals(true);
 		this.cmGym.toggleClass('hidden', false);
-		this.cmGymActiveButtons.toggleClass('hidden', true);
+		this.cmGymActiveButtons.toggleClass('hidden', true).toggleClass("detrimental", false);
 		
 		// Active actions
 		const numSlots = player.getNrActionSlots();
@@ -3662,6 +3662,8 @@ export default class UI{
 			let action = player.getActiveActionByIndex(i);
 			if( action )
 				this.setActionButtonContent(el, action, player);
+			
+			el.toggleClass('empty', !action);
 
 		}
 
@@ -3670,36 +3672,114 @@ export default class UI{
 			learnable = player.getUnlockableActions();
 
 		let inactiveEls = $("> div.action", this.cmGymAvailable),
-			learnableEls = $("> div.action", this.cmGymPurchasable);
+			learnableEls = $("> div.learnable", this.cmGymPurchasable);
 		
 		// Append icons if need be
 		for( let i=inactiveEls.length; i<inactive.length; ++i )
 			this.cmGymAvailable.append(Templates.actionButton);
-		for( let i=learnableEls.length; i<learnable.length; ++i )
-			this.cmGymPurchasable.append(Templates.actionButton);
+		for( let i=learnableEls.length; i<learnable.length; ++i ){
+			this.cmGymPurchasable.append('<div class="learnable"><span class="name"></span>'+Templates.actionButton+'</div>');
+		}
 		inactiveEls = $("> div.action", this.cmGymAvailable);
-		learnableEls = $("> div.action", this.cmGymPurchasable);
+		learnableEls = $("> div.learnable > div.action", this.cmGymPurchasable);
 
 		inactiveEls.toggleClass("hidden", true);
-		learnableEls.toggleClass("hidden", true);
+		$("> div.learnable", this.cmGymPurchasable).toggleClass("hidden", true);
 
 		for( let i =0; i<inactive.length; ++i ){
 
 			const el = inactiveEls[i],
 				abil = inactive[i];
 			this.setActionButtonContent(el, abil, player);
+			
 
 		}
 
 		for( let i =0; i<learnable.length; ++i ){
 
 			const el = learnableEls[i],
-				abil = learnable[i].getAction();
-			console.log(learnableEls, i);
+				abil = learnable[i].getAction(),
+				parent = $(el).parent();
+				
 			this.setActionButtonContent(el, abil, player);
+
+			let html = esc(abil.getName());
+			const coins = Player.calculateMoneyExhange(learnable[i].getCost());
+			html += ': <span class="cost">';
+			for( let i in coins ){
+				const amt = coins[i];
+				if( amt ){
+					html += '<span style="color:'+Player.currencyColors[i]+';">'+amt+Player.currencyWeights[i].substr(0,1)+"</span> ";
+				}
+			}
+			html += '</span>';
+			
+			parent
+				.toggleClass("disabled", player.getMoney() < learnable[i].getCost())
+				.attr('data-id', learnable[i].label)
+				.toggleClass('hidden', false)
+			;
+
+			$("> span", parent).html(html);
+
 
 		}
 		
+
+		// Bind stuff
+		this.cmGymActiveButtons.off('click').on('click', event => {
+			
+			const el = $(event.currentTarget),
+				id = el.attr('data-id');
+
+			try{
+				game.toggleAction(player, id);
+			}catch(err){
+				game.modal.addError(err);
+			}
+
+			if( game.is_host ){
+				this.drawGym(player);
+				this.draw();
+			}
+
+
+		});
+
+		inactiveEls.off('click').on('click', event => {
+			const el = $(event.currentTarget),
+				id = el.attr('data-id');
+
+			try{
+				game.toggleAction(player, id);
+			}catch( err ){
+				game.modal.addError(err);
+			}
+			if( game.is_host ){
+				this.drawGym(player);
+				this.draw();
+			}
+
+
+		});
+
+		$("> div.learnable:not(.disabled)", this.cmGymPurchasable).off('click').on('click', event => {
+			
+			const el = $(event.currentTarget),
+				id = el.attr('data-id');
+
+			try{
+				game.learnAction( player, id );
+			}catch(err){
+				game.modal.addError(err);
+			}
+			if( game.is_host ){
+				this.drawGym(player);
+				this.draw();
+			}
+			
+
+		});
 		
 	}
 
