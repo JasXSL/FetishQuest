@@ -19,6 +19,18 @@ const lib = {
 		conditions : ["targetClassElementalist", "targetLevel3"],
 		auto_learn : true,
 	},
+	elementalist_earthShield : {
+		action : 'elementalist_earthShield',
+		conditions : ["targetClassElementalist"],
+	},
+	elementalist_discharge : {
+		action : 'elementalist_discharge',
+		conditions : ["targetClassElementalist"],
+	},
+	elementalist_riptide : {
+		action : 'elementalist_riptide',
+		conditions : ["targetClassElementalist"],
+	},
 
 
 	rogue_exploit : {
@@ -35,6 +47,18 @@ const lib = {
 		action : 'rogue_sneakAttack',
 		conditions : ["targetClassRogue", "targetLevel3"],
 		auto_learn : true,
+	},
+	rogue_comboBreaker : {
+		action : 'rogue_comboBreaker',
+		conditions : ["targetClassRogue"]
+	},
+	rogue_tripwire : {
+		action : 'rogue_tripwire',
+		conditions : ["targetClassRogue"]
+	},
+	rogue_steal : {
+		action : 'rogue_steal',
+		conditions : ["targetClassRogue"]
 	},
 
 
@@ -53,6 +77,19 @@ const lib = {
 		conditions : ["targetClassCleric", "targetLevel1"],
 		auto_learn : true,
 	},
+	cleric_reserection : {
+		action : 'cleric_reserection',
+		conditions : ["targetClassCleric"]
+	},
+	cleric_penance : {
+		action : 'cleric_penance',
+		conditions : ["targetClassCleric"]
+	},
+	cleric_radiant_heal : {
+		action : 'cleric_radiant_heal',
+		conditions : ["targetClassCleric"]
+	},
+	
 
 	tentaclemancer_tentacleWhip : {
 		action : 'tentaclemancer_tentacleWhip',
@@ -68,6 +105,18 @@ const lib = {
 		action : 'tentaclemancer_siphonCorruption',
 		conditions : ["targetClassTentaclemancer", "targetLevel3"],
 		auto_learn : true,
+	},
+	tentaclemancer_infusion : {
+		action : 'tentaclemancer_infusion',
+		conditions : ["targetClassTentaclemancer"]
+	},
+	tentaclemancer_grease : {
+		action : 'tentaclemancer_grease',
+		conditions : ["targetClassTentaclemancer"]
+	},
+	tentaclemancer_slimeWard : {
+		action : 'tentaclemancer_slimeWard',
+		conditions : ["targetClassTentaclemancer"]
 	},
 
 	warrior_revenge : {
@@ -93,6 +142,13 @@ const lib = {
 		action : 'warrior_injuryToInsult',
 		conditions : ["targetClassWarrior"],
 	},
+	warrior_infuriate : {
+		action : 'warrior_infuriate',
+		conditions : ["targetClassWarrior"],
+	},
+
+
+
 
 	monk_roundKick : {
 		action : 'monk_roundKick',
@@ -109,7 +165,25 @@ const lib = {
 		conditions : ["targetClassMonk", "targetLevel3"],
 		auto_learn : true,
 	},
+	monk_meditate : {
+		action : 'monk_meditate',
+		conditions : ["targetClassMonk"],
+	},
+	monk_lowKick : {
+		action : 'monk_lowKick',
+		conditions : ["targetClassMonk"],
+	},
+	monk_circleOfHarmony : {
+		action : 'monk_circleOfHarmony',
+		conditions : ["targetClassMonk"],
+	},
 	
+
+
+	gen_lowBlow : {
+		action : 'lowBlow',
+	},
+
 	
 
 };

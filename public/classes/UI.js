@@ -12,6 +12,21 @@ import * as THREE from '../ext/THREE.js';
 import { DungeonRoomAsset } from "./Dungeon.js";
 import Shop from "./Shop.js";
 
+const NUM_ACTIONS = 18;
+
+const Templates = {
+	actionButton : '<div class="action">'+
+			'<img>'+
+			'<div class="hotkey"></div>'+
+			'<div class="uses"></div>'+
+			'<div class="cd"><span></span></div>'+
+			'<div class="tooltip actionTooltip"></div>'+
+		'</div>',
+	
+};
+
+
+
 export default class UI{
 
 	constructor(parent){
@@ -30,6 +45,9 @@ export default class UI{
 		this.customModals = $("#customModals");
 			this.cmSleepSelect = $("> #sleepSelect", this.customModals);
 			this.cmGym = $("> #gymSelect", this.customModals);
+				this.cmGymActiveButtons = null;
+				this.cmGymPurchasable = $("> div.modalMain > div.actives div.right > div.purchasable", this.cmGym);
+				this.cmGymAvailable = $("> div.modalMain > div.actives div.left > div.available", this.cmGym);
 
 		this.blackScreen = $("#blackScreen");
 
@@ -53,6 +71,10 @@ export default class UI{
 		this.fct = $("#fct");
 		this.fctQue = [];
 		this.fctTimer = false;
+
+		
+
+		this.endTurnButton = null;
 
 		this.drawTimer = false;
 
@@ -193,11 +215,29 @@ export default class UI{
 	// Takes the 3d canvases
 	ini( map, fx ){
 
+		// Build the action bar
+		let html = '';
+		for( let i=0; i<NUM_ACTIONS; ++i )
+			html += Templates.actionButton;
+		html += '<div data-id="end-turn" class="action button autoWidth">End Turn</div>';
+		this.actionbar_actions.html(html);
+		this.endTurnButton = $('> div[data-id="end-turn"]',this.actionbar_actions);
+
+		// Build template buttons for the gym
+		html = '';
+		for( let i=0; i<6; ++i )
+			html += Templates.actionButton;
+		$("> div.modalMain > div.actives > div.slots", this.cmGym).html(html);
+		this.cmGymActiveButtons = $("> div.modalMain > div.actives > div.slots > div.action", this.cmGym);
+
 		this.map = map;
 		this.fx = fx;
 		$("#renderer").html(map);
 		$("#fx").html(fx);
 		this.toggle(this.visible);
+
+		// Todo: delete
+		this.drawGym(game.getTurnPlayer());
 
 	}
 
@@ -287,6 +327,52 @@ export default class UI{
 		}
 	}
 
+	// Sets the content of the button based on an action
+	setActionButtonContent( buttonElement, action, player ){
+
+		const button = $(buttonElement);
+		button[0].className = 
+			'action button tooltipParent tooltipAbove '+
+			(action.detrimental ? 'detrimental' : 'beneficial')+' '+
+			(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')
+		;
+
+		// Update id
+		button.attr('data-id', action.id);
+			
+		// Update icon
+		const img = $('img', button),
+			imgSrc = 'media/wrapper_icons/'+esc(action.getIcon())+'.svg';
+		if( img.attr('src') !== imgSrc )
+			img.attr('src', imgSrc);
+
+		// Update charges
+		let uses = false;	// false hides
+		// This action is tied to an asset
+		if( action.isAssetAction() && action.parent.charges !== -1 )
+			uses = player.numAssetUses(action.parent.label, game.battle_active);	
+		else if( action._charges > 1 )
+			uses = action._charges;
+
+		const usesEl = $('> div.uses', button);
+		usesEl.toggleClass('hidden', !uses)
+		if( +usesEl.text() !== uses )
+			usesEl.text(uses);
+
+		// Cooldown
+		const cdEl = $('> div.cd > span', button);
+		$('> div.cd', button).toggleClass('hidden', !action._cooldown);
+		if( +cdEl.text !== +action._cooldown )
+			cdEl.text(action._cooldown);
+
+		// Tooltip
+		const ttEl = $('> div.tooltip', button);
+		ttEl.toggleClass('enabled disabled', false); // .toggleClass(castableClass, true);
+		if( ttEl.html() !== action.getTooltipText() )
+			ttEl.html(action.getTooltipText());
+
+	}
+
 	// Draws action selector for a player
 	drawActionSelector( player ){
 
@@ -301,7 +387,6 @@ export default class UI{
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
 			this.toggleRope(false);
-
 			return;
 		}
 
@@ -316,24 +401,13 @@ export default class UI{
 		if( !myTurn )
 			this.toggleRope(false);
 
-
-	
-
 		// Update resources
 		this.updateResourceDots(this.ap_bar, player.ap, player.getMaxAP());
 		this.updateResourceDots(this.mp_bar, player.mp, player.getMaxMP());
 		
 
 		// Build end turn button and toggle visibility
-		let endTurnButton = $('> div[data-id="end-turn"]', this.actionbar_actions);
-		if( !endTurnButton.length ){
-			endTurnButton = $('<div data-id="end-turn" class="action button autoWidth">End Turn</div>');
-			this.actionbar_actions.append(endTurnButton);			
-		}
-		endTurnButton.toggleClass('hidden', !game.battle_active);
-
-
-		
+		this.endTurnButton.toggleClass('hidden', !game.battle_active);
 
 		// label : true
 		// makes sure stacking potions only show one icon
@@ -349,74 +423,24 @@ export default class UI{
 			return true;
 		});
 
-
-		const buttonTemplate = $(
-			'<div>'+
-				'<img>'+
-				'<div class="uses"></div>'+
-				'<div class="cd"><span></span></div>'+
-				'<div class="tooltip actionTooltip"></div>'+
-			'</div>'
-		);
-
-		
 		let castableActions = 0;
-		for( let i=0; i<actions.length; ++i ){
+		for( let i=0; i<NUM_ACTIONS; ++i ){
 
-			let button = buttons[i];
-			if( !button ){
-				button = buttonTemplate.clone()[0];
-				endTurnButton.before(button);
-			}
-			button = $(button);
-
+			const button = $(buttons[i]);
 			let action = actions[i];
+			if( !action )
+				continue;
+
 			let castable = action.castable() && myTurn;
 			castableActions += Boolean(castable);
 
 			// Update class name
+			this.setActionButtonContent(button, action, player);
+
+			// Custom stuff
 			const castableClass = (castable ? 'enabled' : 'disabled');
-			button[0].className = 
-				'action button tooltipParent tooltipAbove '+
-				castableClass + ' '+
-				(action.detrimental ? 'detrimental' : 'beneficial')+' '+
-				(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')
-			;
+			button.toggleClass(castableClass, true);
 
-			// Update id
-			button.attr('data-id', action.id);
-			
-			// Update icon
-			const img = $('img', button),
-				imgSrc = 'media/wrapper_icons/'+esc(action.getIcon())+'.svg';
-			if( img.attr('src') !== imgSrc )
-				img.attr('src', imgSrc);
-
-			// Update charges
-			let uses = false;	// false hides
-			// This action is tied to an asset
-			if( action.isAssetAction() && action.parent.charges !== -1 )
-				uses = player.numAssetUses(action.parent.label, game.battle_active);	
-			else if( action._charges > 1 )
-				uses = action._charges;
-
-			const usesEl = $('> div.uses', button);
-			usesEl.toggleClass('hidden', !uses)
-			if( +usesEl.text() !== uses )
-				usesEl.text(uses);
-
-			// Cooldown
-			const cdEl = $('> div.cd > span', button);
-			$('> div.cd', button).toggleClass('hidden', !action._cooldown);
-			if( +cdEl.text !== +action._cooldown )
-				cdEl.text(action._cooldown);
-
-			// Tooltip
-			const ttEl = $('> div.tooltip', button);
-			ttEl.toggleClass('enabled disabled', false)
-				.toggleClass(castableClass, true);
-			if( ttEl.html() !== action.getTooltipText() )
-				ttEl.html(action.getTooltipText());
 
 		}
 
@@ -436,7 +460,7 @@ export default class UI{
 						game.uiAudio( 'no_moves' );
 				}
 			}
-			endTurnButton.toggleClass('disabled enabled highlighted', false).toggleClass(etcolor, true);
+			this.endTurnButton.toggleClass('disabled enabled highlighted', false).toggleClass(etcolor, true);
 		}
 
 		// Bind events
@@ -1483,15 +1507,13 @@ export default class UI{
 				$("div.player[data-id='"+esc(t.id)+"']", this.players).toggleClass("castTarget", true);
 
 				
-			let hit = Math.min(Math.max(Player.getHitChance(pl, t, action), 0), 100);
-			let dmgbon = Math.round(Math.max(0, Player.getBonusDamageMultiplier(pl, t, action.type, action.isDetrimentalTo(t))*100-100));
+			const hit = Math.min(Math.max(Player.getHitChance(pl, t, action), 0), 100);
+			//let dmgbon = Math.round(Math.max(0, Player.getBonusDamageMultiplier(pl, t, action.type, action.isDetrimentalTo(t))*100-100));
 			const advantage = Player.getAdvantage( pl, t, action.type, action.isDetrimentalTo(t) );
-
 			$("div.player[data-id='"+esc(t.id)+"'] div.targetingStats", this.players).html(
 				!action.isDetrimentalTo(t) ?
 					'Pick Target' :
 					hit+'% Hit'+
-					(dmgbon ? '<br />+'+dmgbon+'% Dmg': '')+
 					'<br />Advantage: '+(advantage > 0 ? '+': '')+Math.round(advantage)
 			);
 			
@@ -2084,6 +2106,7 @@ export default class UI{
 			if( !c )
 				return game.modal.addError("Class not found");
 			const player = new Player({
+				auto_learn : false,
 				name : $("input[name=name]", base).val().trim() || 'Player',
 				species : $("input[name=species]", base).val().trim().toLowerCase() || 'human',
 				icon : $("input[name=icon]", base).val().trim(),
@@ -3624,9 +3647,58 @@ export default class UI{
 	}
 
 	drawGym( player ){
+
 		this.toggleCustomModals(true);
 		this.cmGym.toggleClass('hidden', false);
+		this.cmGymActiveButtons.toggleClass('hidden', true);
+		
+		// Active actions
+		const numSlots = player.getNrActionSlots();
+		for( let i = 0; i<numSlots; ++i ){
 
+			const el = $(this.cmGymActiveButtons[i]);
+			el.toggleClass("hidden", false).toggleClass('button', true);
+
+			let action = player.getActiveActionByIndex(i);
+			if( action )
+				this.setActionButtonContent(el, action, player);
+
+		}
+
+		// Inactive learned actions
+		const inactive = player.getInactiveActions(),
+			learnable = player.getUnlockableActions();
+
+		let inactiveEls = $("> div.action", this.cmGymAvailable),
+			learnableEls = $("> div.action", this.cmGymPurchasable);
+		
+		// Append icons if need be
+		for( let i=inactiveEls.length; i<inactive.length; ++i )
+			this.cmGymAvailable.append(Templates.actionButton);
+		for( let i=learnableEls.length; i<learnable.length; ++i )
+			this.cmGymPurchasable.append(Templates.actionButton);
+		inactiveEls = $("> div.action", this.cmGymAvailable);
+		learnableEls = $("> div.action", this.cmGymPurchasable);
+
+		inactiveEls.toggleClass("hidden", true);
+		learnableEls.toggleClass("hidden", true);
+
+		for( let i =0; i<inactive.length; ++i ){
+
+			const el = inactiveEls[i],
+				abil = inactive[i];
+			this.setActionButtonContent(el, abil, player);
+
+		}
+
+		for( let i =0; i<learnable.length; ++i ){
+
+			const el = learnableEls[i],
+				abil = learnable[i].getAction();
+			console.log(learnableEls, i);
+			this.setActionButtonContent(el, abil, player);
+
+		}
 		
 		
 	}

@@ -85,6 +85,8 @@ export default class Game extends Generic{
 		this.rain_start_val = 0;						// Value of last rain so we can tween
 		this.rain = 0.0;								// Level to fade to (over 2 minutes)
 
+		this.hotkeys = [1,2,3,4,5,6,7,8,9,0];
+
 		this._turn_timer = false;						// Timeout handling end of turn
 		
 

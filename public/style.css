@@ -42,6 +42,7 @@ input[type=text], input[type=number], textarea{
 
 #gameIcons > div > div.rollout.visible,
 div.gameListing,
+div.actionbar > div.actions > div.action,
 input[type=button], input[type=submit], div.button, label.button,
 #modal div.inventory div.item,
 #modal div.modalQuests div.right div.item,
@@ -470,10 +471,30 @@ div.fxBuffRed{
 		backdrop-filter: blur(3px);
 		user-select: none;
 	}
-	#customModals > div > h1{
-		font-size:4vmax;
+	#customModals.noBG{
+		backdrop-filter: none;
+		pointer-events: none;
+		background:none;
+	}
+	#customModals > div > div.header > h1{
+		font-size:2vmax;
 		margin:0;
 	}
+	#customModals > div > div.header{
+		border: 0.2vmax solid #DDD;
+		position: absolute;
+		left:50%;
+		transform:translate(-50%,-100%);
+		padding:1vmax;
+		border-bottom:none;
+		text-align: center;
+		text-transform: capitalize;
+		border-top-left-radius:0.5vmax;
+		border-top-right-radius:0.5vmax;
+		min-width:25%;
+		background: url(./media/ui/marble.jpg) repeat;
+	}
+
 	#customModals > div{
 		position: absolute;
 		left:50%; top:50%;
@@ -483,9 +504,8 @@ div.fxBuffRed{
 	#customModals div.cmContent{
 		border: 0.2vmax solid #DDD;
 		border-radius: 0.5vmax;
-		box-shadow: 0 0.5vmax 1vmax 0.1vmax #000;
 		padding: 1vmax;
-		font-size: 2.5vmax;
+		font-size: 2vmax;
 	}
 	#customModals div.cmTabs{
 		position: absolute;
@@ -497,7 +517,7 @@ div.fxBuffRed{
 		border-bottom-right-radius: 0.5vmax;
 		box-shadow: 0 0.5vmax 1vmax 0.1vmax #000;
 		padding: 0.75vmax;
-		font-size: 2vmax;
+		font-size: 1.5vmax;
 		border-top: none;
 		color:#AAA;
 		cursor:pointer;
@@ -533,9 +553,11 @@ div.fxBuffRed{
 
 	/* Gym */
 	#gymSelect{
-		width:90vw;
+		max-width:90vw;
+		min-width:60vw;
 		position: absolute;
 		max-height:80vh;
+		pointer-events: all;
 	}
 	
 	#gymSelect > div.modalMain{
@@ -547,7 +569,11 @@ div.fxBuffRed{
 		text-align: center;
 	}
 
-	#gymSelect div.action.button{
+	#gymSelect div.left{
+		width:50%;
+	}
+
+	#gymSelect div.action{
 		background-size: cover;
 		overflow: visible;
 		display: inline-block;
@@ -555,6 +581,9 @@ div.fxBuffRed{
 		vertical-align: middle;
 		width: 5.5vh;
     	height: 5.5vh;
+	}
+	#gymSelect div.action > div:not(.tooltip){
+		display:none;
 	}
 
 
@@ -1357,6 +1386,8 @@ div.fxBuffRed{
 		transform:none !important;
 	}
 
+	
+
 /**/
 
 
@@ -1890,14 +1921,19 @@ div.fxBuffRed{
 
 	#ui > div.actionbar > div.actions{
 		position: absolute;
+		display: flex;
+		justify-content: center;
 		left:0; right:0; bottom:0; top:0.25vh;
 		text-align: center;
 		-moz-user-select: none;
 		user-select: none;
 	}
 
+	div.action,
 	#ui > div.actionbar > div.actions > div.action{
-		width:5.5vh;
+		display:block;
+		max-width:5.5vh;
+		width:5%;
 		height:5.5vh;
 		border-color:#CFE;
 		border-width: 0.2vh;
@@ -1908,6 +1944,7 @@ div.fxBuffRed{
 		width:auto;
 		padding-top:1.75vh;
 		background-color:#474;
+		max-width:8vh;
 	}
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
 		color:#DFD;
@@ -1924,18 +1961,21 @@ div.fxBuffRed{
 		box-shadow: 0 0 1vmax #AFA;
 	}
 
+	div.action > *,
 	#ui > div.actionbar > div.actions > div.action *{
 		pointer-events: none;
 	}
 	#ui > div.actionbar > div.actions > div.action.spellSelected{
 		transform: translateY(-15%) scale(1.2,1.2);
 	}
+	div.action > img,
 	#ui > div.actionbar > div.actions > div.action > img{
 		width:100%;
 		height:100%;
 		position: absolute;
 		left:0; top:0;
 	}
+	div.action > div.uses,
 	#ui > div.actionbar > div.actions > div.action > div.uses,
 	#ui > div.actionbar > div.actions > div > div.cd{
 		position: absolute;
@@ -1945,6 +1985,7 @@ div.fxBuffRed{
 		border-radius:0.2vmax;
 		font-size:1.25vmax;
 	}
+	div.action > div.cd,
 	#ui > div.actionbar > div.actions > div > div.cd{
 		padding:0.5vmax;
 		right:auto; bottom:auto;
@@ -1958,9 +1999,30 @@ div.fxBuffRed{
 		box-shadow:0.25vmax 0.25vmax 1vmax rgba(0,0,0,.5);
 		border:0.2vmax solid rgba(255,255,255,.5);
 	}
+	#ui > div.actionbar > div.actions > div.action > div.hotkey{
+		position:absolute;
+		display:block;
+		top:0; left:0.1vmax;
+		font-weight: normal;
+		text-shadow:0.1vmax 0.1vmax 0.2vmax #000;
+		display:none;	/* Todo: Action hotkeys */
+	}
 	#ui > div.actionbar > div.actions > div.action.enabled:hover{
 		border-color:#FFF !important;
 	}
+	#ui > div.actionbar > div.actions > div.action.empty > *,
+	div.action.empty > div.cd
+	{
+		display: none;
+	}
+	#ui > div.actionbar > div.actions > div.action.empty,
+	div.action.empty
+	{
+		background:#333;
+		border-color:#666;
+		cursor:default;
+	}
+	
 	#ui > div.actionbar > div.actions > div[data-id=cancel]{
 		flex:100%;
 	}
@@ -1970,9 +2032,11 @@ div.fxBuffRed{
 		border:0.2vmax solid #DFD;
 	}
 	*/
+	div.action.detrimental,
 	#ui > div.actionbar > div.actions > div.action.detrimental{
 		border-color:#FDC;
 	}
+	div.action.disabled,
 	#ui > div.actionbar > div.actions > div.action.disabled,
 	div.item.disabled,
 	#modal div.inventory div.item.disabled{

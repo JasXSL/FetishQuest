@@ -23,8 +23,14 @@ Big chungi:
 			- Class trainers can teach you class abilities.
 			- Class trainers also lets you swap your actions around, regardless of their class.
 		- Who can learn?
-			- Spell unlocks should be limited by conditions
-		
+			- Spell unlocks should be limited by conditions		
+		- UI
+			- Purchase field should show the price
+			- Need to link it up to actually allow purchase
+			- Needs to tie it in with an NPC so you can't change abilities willy nilly
+			- netcode
+
+
 	- Main quest chapter 2
 		- Go to Yuug capital?
 		- What do there?

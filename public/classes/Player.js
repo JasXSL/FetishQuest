@@ -17,6 +17,7 @@ const BASE_MP = 10;
 const BASE_AP = 10;
 const BASE_AROUSAL = 10;
 
+
 export default class Player extends Generic{
 
 	constructor(data){
@@ -33,13 +34,14 @@ export default class Player extends Generic{
 		this.icon_upperBody = "";			// == || ==
 		this.icon_lowerBody = "";			// == || ==
 		this.icon_nude = "";				// == || ==
-
+		this.auto_learn = true;			// if true, this player always knows all their spells
 		this.leader = false;				// Party leader
 
-		this.actions = [];			// Action objects, use getActions since assets can also add actions
+		this.actions = [];			// Unlocked actions. Action objects, use getActions since assets can also add actions
 		this.assets = [];			// Asset objects, use getAssets
 		this.inventory = [];		// NPC only. This is an array of numbers specifying which items above are equipped when entering the game.
 		this.tmp_actions = [];		// Actions applied this battle
+		this.active_actions = [0,0,0,0,0,0];	// IDs of actions or 0 if empty
 
 		this.tags = [];				// Player tags, these are automatically prefixed with PL_, use getTags
 		this.wrappers = [];			// Wrappers, use getWrappers
@@ -136,7 +138,6 @@ export default class Player extends Generic{
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.passives = Wrapper.loadThese(this.passives, this);
 		this.tmp_actions = Action.loadThese(this.tmp_actions, this);
-		
 
 		if( window.game ){
 			this.class = PlayerClass.loadThis(this.class, this);
@@ -158,6 +159,7 @@ export default class Player extends Generic{
 			this.updateAutoWrappers();
 
 		const out = {
+			auto_learn : this.auto_learn,
 			disabled : this.disabled,
 			name : this.name,
 			icon : this.icon,
@@ -190,6 +192,7 @@ export default class Player extends Generic{
 			icon_upperBody : this.icon_upperBody,
 			powered : this.powered,
 			passives : Wrapper.saveThese(this.passives, full),
+			active_actions : this.active_actions,
 		};
 
 		if( this.rp )
@@ -1885,20 +1888,11 @@ export default class Player extends Generic{
 		if( !window.game )
 			return;
 
-		let lib = glib.getFull('Action');
-		let needed = [
-			lib.stdEscape,
-			lib.stdArouse,
-			lib.stdAttack,
-			lib.stdEndTurn,
-			lib.stdPunishDom,
-			lib.stdPunishSub,
-			lib.stdPunishSad,
-		];
-		for( let n of needed ){
+		let lib = Object.values(glib.getFull('Action')).filter(el => el.std);
+		for( let action of lib ){
 
-			if(!this.getActionByLabel(n.label))
-				this.actions.unshift(n.clone(this));
+			if(!this.getActionByLabel(action.label))
+				this.actions.unshift(action.clone(this));
 
 		}
 
@@ -1928,13 +1922,105 @@ export default class Player extends Generic{
 		this.actions.push(ac);
 		if( !ac.hidden && !silent )
 			game.ui.addText( this.getColoredName()+" learned "+ac.name+"!", undefined, this.id, this.id, 'actionLearned' );
+		
+		for( let i in this.active_actions ){
+			
+			const slot = this.active_actions[i];
+			if( slot === 0 ){
+				this.activateAction(action.id, i);
+				break;
+			}
+
+		}
 		return true;
 	}
 
+	activateAction( id, slot ){
+		
+		if( id instanceof Action )
+			id = id.id;
+
+		slot = parseInt(slot);
+		this.deactivateAction(id);
+		const action = this.getLearnedAction(id);
+		if( !action ){
+			console.error("Trying to activate nonfound action");
+			return false;
+		}
+		
+		if( slot > this.active_actions.length-1 || slot < 0 || isNaN(slot) ){
+			console.error("Out of bounds error on action activation");
+			return false;
+		}
+
+		this.active_actions[slot] = id;
+		return true;
+
+	}
+
+	getActiveActionByIndex( index ){
+
+		if( this.active_actions[index] )
+			return this.getLearnedAction(this.active_actions[index]);
+
+	}
+
+	// Gets an action from the action array by id, regardless of if it's active or not
+	getLearnedAction( id ){
+		for( let action of this.actions ){
+			if( action === id || action.id === id )
+				return action;
+		}
+		return false;
+	}
+
+	// Same as above but checks label
+	getLearnedActionByLabel( label ){
+		for( let action of this.actions ){
+			if( action.label === label )
+				return action;
+		}
+	}
+
+	deactivateAction( id ){
+
+		for( let i in this.active_actions ){
+
+			const a = this.active_actions[i];
+			if( a.id === id ){
+				
+				this.active_actions[i] = 0;
+				return true;
+
+			}
+
+		}
+
+	}
+
+	isActionActive( id ){
+
+		return ~this.active_actions.indexOf(id);
+
+	}
+
+	getInactiveActions(){
+
+		const out = [];
+		for( let action of this.actions ){
+			if( !action.std && !this.isActionActive(action.id) )
+				out.push(action);
+		}
+		return out;
+
+	}
+
+
 	// Checks effects whether an action is enabled
 	isActionEnabled( action ){
-			const a = action;
-			if( typeof action === "string" ){
+		
+		const a = action;
+		if( typeof action === "string" ){
 			action = this.getActionByLabel(a);
 			if( !action )
 				action = this.getActionById(a);
@@ -1945,6 +2031,7 @@ export default class Player extends Generic{
 		}
 		const effects = this.getDisableEffectsForAction(action);
 		return !effects.length;
+
 	}
 
 	// Returns disable EFFECTs that cause the supplied action not to be enabled to this player
@@ -1985,11 +2072,12 @@ export default class Player extends Generic{
 		let lib = glib.getFull('Action');
 		for(let i in this.actions){
 
-			let action = this.actions[i];
+			const action = this.actions[i];
 			if( lib[action.label] ){
 				console.debug("Rebasing action", action.label, "with", lib[action.label]);
 				this.actions[i] = lib[action.label].clone(this);
 			}
+
 		}
 
 	}
@@ -2020,7 +2108,25 @@ export default class Player extends Generic{
 			}
 
 		}
+		
+		if( !this.auto_learn ){
+
+			out = out.filter(el => {
+
+				if( 
+					Boolean(el.parent.use_action) ||		// It's an item
+					el.std ||								// It's a standard action
+					~this.active_actions.indexOf(el.id)		// It's an active action
+				)return true;
+
+				return false;
+
+			});
+
+		}
+
 		out.sort((a,b) => {
+
 			const aConsumable = Boolean(a.parent.use_action);
 			const bConsumable = Boolean(b.parent.use_action);
 			const aName = aConsumable ? a.parent.name : a.name;
@@ -2034,6 +2140,7 @@ export default class Player extends Generic{
 				return a.cooldown < b.cooldown ? -1 : 1;
 			// Finally name
 			return aName < bName ? -1 : 1;
+
 		});
 		
 		return out;
@@ -2115,7 +2222,7 @@ export default class Player extends Generic{
 			if( !a.auto_learn || this.getActionByLabel(a.action) )
 				continue;
 			if( Condition.all(a.conditions, evt) ){
-				const action = glib.get(a.action, "Action");
+				const action = a.getAction();
 				if( !action )
 					continue;
 				this.addAction(action);
@@ -2132,7 +2239,7 @@ export default class Player extends Generic{
 		let lib = Object.values(glib.getFull("ActionLearnable"));
 		const evt = new GameEvent({sender:this, target:this});
 		for( let a of lib ){
-			if( a.auto_learn || this.getActionByLabel(a.action) )
+			if( a.auto_learn || this.getLearnedActionByLabel(a.action) )
 				continue;
 			if( Condition.all(a.conditions, evt) )
 				out.push(a);
@@ -2518,3 +2625,5 @@ Player.currencyColors = [
 	'#AAA',
 	'#FA8'
 ];
+
+

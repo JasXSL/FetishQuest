@@ -14,6 +14,7 @@ const stdCond = ["senderNotDead","targetNotDead"];
 
 const lib = {
 	stdAttack: {
+		std : true,
 		icon : 'punch',
 		name : "Attack",
 		description : "Deals 3 physical damage.",
@@ -50,6 +51,7 @@ const lib = {
 		]
 	},
 	stdArouse: {
+		std : true,
 		name : "Arouse",
 		icon : 'hearts',
 		description : "Deals 3 corruption damage.",
@@ -87,6 +89,7 @@ const lib = {
 		]
 	},
 	stdEndTurn : {
+		std : true,
 		name : "End Turn",
 		description : "End your turn.",
 		ap : 0,
@@ -102,6 +105,7 @@ const lib = {
 		wrappers : ["endTurn"]
 	},
 	stdEscape: {
+		std : true,
 		name : "Escape",
 		description : "Flee from combat.",
 		ap : 0,
@@ -127,6 +131,7 @@ const lib = {
 		]
 	},
 	stdPunishDom: {
+		std : true,
 		name : "Punish Top",
 		icon : 'muscle-fat',
 		description : "Top-punish a defeated enemy.",
@@ -161,6 +166,7 @@ const lib = {
 		]
 	},
 	stdPunishSub: {
+		std : true,
 		name : "Punish Bottom",
 		icon : 'kneeling',
 		description : "Bottom-punish a defeated enemy.",
@@ -196,6 +202,7 @@ const lib = {
 		]
 	},
 	stdPunishSad: {
+		std : true,
 		name : "Punish Sadistic",
 		icon : 'slavery-whip',
 		description : "Use a sadistic punishment on a defeated enemy.",
@@ -606,7 +613,6 @@ const lib = {
 			}
 		]
 	},
-	
 	rogue_sneakAttack : {
 		name : "Sneak Attack",
 		icon : 'cloak-dagger',
@@ -643,7 +649,6 @@ const lib = {
 			}
 		]
 	},
-
 	rogue_comboBreaker :{
 		name : "Combo Breaker",
 		icon : 'halt',
@@ -667,7 +672,6 @@ const lib = {
 			}
 		]
 	},
-
 	rogue_tripwire :{
 		name : "Tripwire",
 		icon : 'tripwire',
@@ -719,7 +723,6 @@ const lib = {
 			}
 		]
 	},
-
 	rogue_steal : {
 		name : "Steal",
 		icon : 'snatch',

@@ -43,5 +43,9 @@ export default class ActionLearnable extends Generic{
 
 	}
 	
+	// fetches the action from library
+	getAction(){
+		return glib.get(this.action, "Action");
+	}
 
 }

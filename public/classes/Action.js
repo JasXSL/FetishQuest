@@ -16,6 +16,7 @@ class Action extends Generic{
 		// Parent is a Player OR Asset
 		this.parent = parent;
 		this.label = "";			// Same as name but not changing
+		this.std = false;			// Standard action that all players should know
 		this.name = "";				// can be %P% to use parent name
 		this.description = "";		// Can be %P% to use parent description
 		this.icon = '';				// Can be %P% to use parent icon
@@ -66,6 +67,7 @@ class Action extends Generic{
 		
 		let out = {
 			label : this.label,
+			std : this.std,
 			name : this.name,
 			description : this.description,
 			wrappers : this.wrappers.map(el => el.save(full)),
