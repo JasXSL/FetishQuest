@@ -11,19 +11,10 @@ import Mod from './Mod.js';
 import * as THREE from '../ext/THREE.js';
 import { DungeonRoomAsset } from "./Dungeon.js";
 import Shop from "./Shop.js";
+import StaticModal from "./StaticModal.js";
+import Modal from "./Modal.js";
 
 const NUM_ACTIONS = 18;
-
-const Templates = {
-	actionButton : '<div class="action">'+
-			'<img>'+
-			'<div class="hotkey"></div>'+
-			'<div class="uses"></div>'+
-			'<div class="cd"><span></span></div>'+
-			'<div class="tooltip actionTooltip"></div>'+
-		'</div>',
-	
-};
 
 
 
@@ -33,6 +24,10 @@ export default class UI{
 		
 		const th = this;
 		this.parent = parent;
+
+		this.modal = new Modal(this);					// Variable modal. It's slower and should really only be used for dm tools and yes/no.
+		this.staticModal = StaticModal;		// Static modal. These are created in index.html, and are shown/hidden instead of generated.
+
 		this.board = $("#ui");
 		this.players = $("#ui > div.players");
 		this.friendly = $("#ui > div.players > div.left");
@@ -41,13 +36,6 @@ export default class UI{
 		this.ap_bar = $("div.stat.ap", this.action_selector);
 		this.mp_bar = $("div.stat.mp", this.action_selector);
 		this.actionbar_actions = $("> div.actions", this.action_selector);
-
-		this.customModals = $("#customModals");
-			this.cmSleepSelect = $("> #sleepSelect", this.customModals);
-			this.cmGym = $("> #gymSelect", this.customModals);
-				this.cmGymActiveButtons = null;
-				this.cmGymPurchasable = $("> div.modalMain > div.actives div.right > div.purchasable", this.cmGym);
-				this.cmGymAvailable = $("> div.modalMain > div.actives div.left > div.available", this.cmGym);
 
 		this.blackScreen = $("#blackScreen");
 
@@ -139,24 +127,24 @@ export default class UI{
 				this.toggle();
 			}
 			else if( event.key === 'i' ){
-				if( game.modal.open === true && $("#modal > div.wrapper > div.content > div.inventory").length )
-					game.modal.close();
+				if( this.modal.open === true && $("#modal > div.wrapper > div.content > div.inventory").length )
+					this.modal.close();
 				else{
 					game.uiAudio( 'backpack' );
 					this.drawPlayerInventory();
 				}
 			}
 			else if( event.key === 'l' ){
-				if( game.modal.open === true && $("#modal > div.wrapper > div.content > div.modalQuests").length )
-					game.modal.close();
+				if( this.modal.open === true && $("#modal > div.wrapper > div.content > div.modalQuests").length )
+					this.modal.close();
 				else{
 					this.drawQuests();
 					game.uiAudio( 'toggle_quests' );
 				}
 			}
-			else if( event.key === 'Escape' && game.modal.open ){
+			else if( event.key === 'Escape' && this.modal.open ){
 				game.uiClick();
-				game.modal.close();
+				this.modal.close();
 			}
 
 
@@ -218,26 +206,19 @@ export default class UI{
 		// Build the action bar
 		let html = '';
 		for( let i=0; i<NUM_ACTIONS; ++i )
-			html += Templates.actionButton;
+			html += UI.Templates.actionButton;
 		html += '<div data-id="end-turn" class="action button autoWidth">End Turn</div>';
 		this.actionbar_actions.html(html);
 		this.endTurnButton = $('> div[data-id="end-turn"]',this.actionbar_actions);
 
-		// Build template buttons for the gym
-		html = '';
-		for( let i=0; i<6; ++i )
-			html += Templates.actionButton;
-		$("> div.modalMain > div.actives > div.slots", this.cmGym).html(html);
-		this.cmGymActiveButtons = $("> div.modalMain > div.actives > div.slots > div.action", this.cmGym);
-
+		this.staticModal.ini();
+		
 		this.map = map;
 		this.fx = fx;
 		$("#renderer").html(map);
 		$("#fx").html(fx);
 		this.toggle(this.visible);
 
-		// Todo: delete
-		this.drawGym(game.getTurnPlayer());
 
 	}
 
@@ -327,51 +308,6 @@ export default class UI{
 		}
 	}
 
-	// Sets the content of the button based on an action
-	setActionButtonContent( buttonElement, action, player ){
-
-		const button = $(buttonElement);
-		button[0].className = 
-			'action button tooltipParent tooltipAbove '+
-			(action.detrimental ? 'detrimental' : 'beneficial')+' '+
-			(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')
-		;
-
-		// Update id
-		button.attr('data-id', action.id);
-			
-		// Update icon
-		const img = $('img', button),
-			imgSrc = 'media/wrapper_icons/'+esc(action.getIcon())+'.svg';
-		if( img.attr('src') !== imgSrc )
-			img.attr('src', imgSrc);
-
-		// Update charges
-		let uses = false;	// false hides
-		// This action is tied to an asset
-		if( action.isAssetAction() && action.parent.charges !== -1 )
-			uses = player.numAssetUses(action.parent.label, game.battle_active);	
-		else if( action._charges > 1 )
-			uses = action._charges;
-
-		const usesEl = $('> div.uses', button);
-		usesEl.toggleClass('hidden', !uses)
-		if( +usesEl.text() !== uses )
-			usesEl.text(uses);
-
-		// Cooldown
-		const cdEl = $('> div.cd > span', button);
-		$('> div.cd', button).toggleClass('hidden', !action._cooldown);
-		if( +cdEl.text !== +action._cooldown )
-			cdEl.text(action._cooldown);
-
-		// Tooltip
-		const ttEl = $('> div.tooltip', button);
-		ttEl.toggleClass('enabled disabled', false); // .toggleClass(castableClass, true);
-		if( ttEl.html() !== action.getTooltipText() )
-			ttEl.html(action.getTooltipText());
-
-	}
 
 	// Draws action selector for a player
 	drawActionSelector( player ){
@@ -435,7 +371,7 @@ export default class UI{
 			castableActions += Boolean(castable);
 
 			// Update class name
-			this.setActionButtonContent(button, action, player);
+			this.constructor.setActionButtonContent(button, action, player);
 
 			// Custom stuff
 			const castableClass = (castable ? 'enabled' : 'disabled');
@@ -676,6 +612,7 @@ export default class UI{
 				'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
 				'<div class="interactions">'+
 					'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
+					'<div class="interaction hidden" data-type="gym"><img src="media/wrapper_icons/weight-lifting-up.svg" /></div>'+
 					'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
 					'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
 					'<div class="interaction hidden" data-type="rent"><img src="media/wrapper_icons/bed.svg" /></div>'+
@@ -754,7 +691,7 @@ export default class UI{
 
 			event.preventDefault();
 			event.stopImmediatePropagation();
-			const modal = game.modal;
+			const modal = this.modal;
 			modal.prepareSelectionBox();
 			const options = [];
 
@@ -1079,11 +1016,23 @@ export default class UI{
 				}
 			});
 
-			const showRent = game.roomRentalAvailableTo(p, myActive);
-			$("div.interaction[data-type=rent]", el).toggleClass("hidden", !showRent).off('click').on('click', event => {
+
+			const showGym = game.gymAvailableTo(p, myActive);
+			$("div.interaction[data-type=gym]", el).toggleClass("hidden", !showGym).off('click').on('click', event => {
 				event.stopImmediatePropagation();
-				game.roomRentalUsed(p, myActive);
+				if( this.staticModal.set('gym', p) ){
+					// Todo: Enter gym sound
+					//game.uiAudio( "gym_entered" );
+				}
 			});
+
+			try{
+				const showRent = game.roomRentalAvailableTo(p, myActive, true);
+				$("div.interaction[data-type=rent]", el).toggleClass("hidden", !showRent).off('click').on('click', event => {
+					event.stopImmediatePropagation();
+					game.roomRentalUsed(p, myActive);
+				});
+			}catch(err){}
 		}
 
 		// Effect wrappers
@@ -1365,7 +1314,7 @@ export default class UI{
 		;
 			
 
-		game.modal.set('<div class="dm_tools">'+html+'</div>');
+		this.modal.set('<div class="dm_tools">'+html+'</div>');
 
 		// Bind events
 		$("#modal div.option[data-action]").off('click').on('click', function(){
@@ -1403,7 +1352,7 @@ export default class UI{
 		const shadowsInput = $("#modal input[name=enableShadows]");
 		shadowsInput.on('change', () => {
 			localStorage.shadows = +shadowsInput.is(':checked');
-			game.modal.set(
+			this.modal.set(
 				'<p>This setting requires a browser refresh. Would you like to refresh now?</p>'+
 				'<input type="button" value="Yes" class="yes" />'+	
 				'<input type="button" value="No" />'
@@ -1586,10 +1535,10 @@ export default class UI{
 			return a.name < b.name ? -1 : 1;
 		});
 
-		game.modal.prepareSelectionBox();
+		this.modal.prepareSelectionBox();
 		for( let item of inventory ){
 
-			game.modal.addSelectionBoxItem( 
+			this.modal.addSelectionBoxItem( 
 				(item.equipped ? '<strong>' : '')+esc(item.name)+(item.equipped ? '</strong>' : ''), 
 				item.getTooltipText(), 
 				esc(item.id),
@@ -1597,7 +1546,7 @@ export default class UI{
 				false
 			);
 		}
-		game.modal.onSelectionBox(event => {
+		this.modal.onSelectionBox(event => {
 			
 			let element = event.currentTarget,
 				id = $(element).attr('data-id');
@@ -1607,7 +1556,7 @@ export default class UI{
 			else
 				this.addError("Todo: add non-asset armor repairs");
 
-			game.modal.closeSelectionBox();
+			this.modal.closeSelectionBox();
 			
 		});
 
@@ -1792,7 +1741,7 @@ export default class UI{
 	async drawMainMenu(){
 
 		let html = '',
-			modal = game.modal,
+			modal = this.modal,
 			modNames = await Mod.getNames(),
 			sortedMods = await Mod.getModsOrdered()
 		;
@@ -1942,7 +1891,7 @@ export default class UI{
 						return;
 					await m.save();
 					this.drawMainMenu();
-					game.modal.addNotice("Mod "+esc(m.name)+" installed!");
+					this.modal.addNotice("Mod "+esc(m.name)+" installed!");
 				}catch(err){
 					alert("File failed to load: "+err);
 				}
@@ -1988,7 +1937,7 @@ export default class UI{
 			https://freesound.org/people/ivolipa/sounds/326313/<br />`+
 		'</div>';
  
-		game.modal.set(html);
+		this.modal.set(html);
 
 	}
 
@@ -2056,7 +2005,7 @@ export default class UI{
 		html += '</div>';
 
 		html += '</div>';
-		game.modal.set(html);
+		this.modal.set(html);
 
 		const reloadIcon = () => {
 			$("#newGameForm div.portrait").css('background-image', 'url('+esc($("#newGameForm input[name=icon]").val().trim())+')');
@@ -2104,7 +2053,7 @@ export default class UI{
 			const base = $("#newGameForm");
 			const c = glib.get($("select[name=class]").val().trim(), 'PlayerClass');
 			if( !c )
-				return game.modal.addError("Class not found");
+				return this.modal.addError("Class not found");
 			const player = new Player({
 				auto_learn : false,
 				name : $("input[name=name]", base).val().trim() || 'Player',
@@ -2131,12 +2080,12 @@ export default class UI{
 			
 
 			if( !name ){
-				game.modal.addError("Name is empty");
+				this.modal.addError("Name is empty");
 				return false;
 			}
 
 			Game.new(name, [player]);
-			game.modal.close();
+			this.modal.close();
 			return false;
 
 		});
@@ -2180,7 +2129,7 @@ export default class UI{
 		}
 
 		html += '</div>';
-		game.modal.set(html);
+		this.modal.set(html);
 
 		$("#modal input[name=disconnect]").on('click', async () => {
 			game.net.disconnect();
@@ -2265,7 +2214,7 @@ export default class UI{
 			}
 			html += '</div>';
 		html += '</div>';
-		game.modal.set(html);
+		this.modal.set(html);
 
 		$("#modal div.modalQuests > div.left > div[data-id]").on('click', function(){
 			let id = $(this).attr('data-id');
@@ -2462,7 +2411,7 @@ export default class UI{
 				return;
 			game.removePlayer(player.id);
 			th.draw();
-			game.modal.close();
+			this.modal.close();
 		});
 
 		$("#modal input.addAction").on('click', () => {
@@ -2490,7 +2439,7 @@ export default class UI{
 		const th = this;
 		// Draw a list of acceptable targets
 		const targets = game.getTeamPlayers( player.team ).filter(el => el.id !== player.id);
-		const modal = game.modal;
+		const modal = this.modal;
 		modal.prepareSelectionBox( true );
 		for( let target of targets )
 			modal.addSelectionBoxItem( target.name, '', target.id );
@@ -2616,9 +2565,9 @@ export default class UI{
 	
 		
 		
-		game.modal.set(html);
+		this.modal.set(html);
 
-		game.modal.onPlayerChange(player.id, () => {
+		this.modal.onPlayerChange(player.id, () => {
 			this.drawPlayerInventory();
 		});
 
@@ -2637,7 +2586,7 @@ export default class UI{
 
 				const isHotbar = $(this).hasClass('equipmentSlot');
 				
-				const modal = game.modal;
+				const modal = this.modal;
 				modal.prepareSelectionBox();
 
 				
@@ -2692,7 +2641,7 @@ export default class UI{
 						}
 
 						if( action.targetable() )
-							game.modal.close();
+							this.modal.close();
 						else
 							th.drawPlayerInventory();
 						
@@ -2701,13 +2650,13 @@ export default class UI{
 
 						if( game.battle_active ){
 							if( player.ap < 3 ){
-								game.modal.addError("Not enough AP");
+								this.modal.addError("Not enough AP");
 								modal.closeSelectionBox();
 								return;
 							}
 							else if( game.getTurnPlayer().id !== player.id ){
 								modal.closeSelectionBox();
-								game.modal.addError("Not your turn");
+								this.modal.addError("Not your turn");
 								return;
 							}
 
@@ -2806,7 +2755,7 @@ export default class UI{
 		html += '<br /><input type="button" class="create green" value="Create" />'+' <input type="button" class="back red" value="Back" />';
 		html += '</div>';
 			
-		game.modal.set(html);
+		this.modal.set(html);
 
 		// Item clicked
 		$("#modal div.list.item[data-id]").on('click', async function(event){
@@ -2968,7 +2917,7 @@ export default class UI{
 			html += '</div>';
 		html += '</div>';
 		
-		game.modal.set(html);
+		this.modal.set(html);
 
 		this.bindTooltips();
 
@@ -2983,7 +2932,7 @@ export default class UI{
 			if( !asset )
 				return;
 			const maxQuant = asset.stacking ? asset._stacks : 1;
-			game.modal.makeSelectionBoxForm(
+			this.modal.makeSelectionBoxForm(
 				'Amount to SELL: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
 				function(){
 					const amount = Math.floor($("input:first", this).val());
@@ -3012,7 +2961,7 @@ export default class UI{
 			let maxQuant = Math.floor(gold/cost);
 			if( maxQuant > item.getRemaining() )
 				maxQuant = item.getRemaining();
-			game.modal.makeSelectionBoxForm(
+			this.modal.makeSelectionBoxForm(
 				'Amount to BUY: <input type="number" style="width:4vmax" min=1 '+(maxQuant > 0 ? 'max='+(maxQuant) : 'max=100')+' step=1 value=1 /><input type="submit" value="Ok" />',
 				function(){
 					const amount = Math.floor($("input:first", this).val());
@@ -3024,10 +2973,10 @@ export default class UI{
 			);
 		});
 		
-		game.modal.onShopChange(shop.id, () => {
+		this.modal.onShopChange(shop.id, () => {
 			this.drawShopInspector(shop);
 		});
-		game.modal.onPlayerChange(myPlayer.id, () => {
+		this.modal.onPlayerChange(myPlayer.id, () => {
 			this.drawShopInspector(shop);
 		});
 
@@ -3072,7 +3021,7 @@ export default class UI{
 			html += '<div class="assets repair shop inventory"><h3 class="center">No broken items.</h3></div>';
 		}
 
-		game.modal.set(html);
+		this.modal.set(html);
 		this.bindTooltips();
 
 		$("#modal div.assets.repair div.item").on('click', event => {
@@ -3082,7 +3031,7 @@ export default class UI{
 		});
 
 
-		game.modal.onPlayerChange(myPlayer.id, () => {
+		this.modal.onPlayerChange(myPlayer.id, () => {
 			this.drawSmithInspector(smith);
 			this.draw();
 		});
@@ -3216,7 +3165,7 @@ export default class UI{
 				html+= '<div style="text-align:center"><input type="submit" value="Save" /> <input type="button" class="cancelEdit red" value="Cancel" /></div>';
 			html+= '</form>';
 
-		game.modal.set(html);
+		this.modal.set(html);
 
 		// Events
 		$("#modal input[name=icon]").on('change', function(){
@@ -3313,7 +3262,7 @@ export default class UI{
 			if( game.getPlayerById(player.id) )
 				this.drawPlayerInspector(player);
 			else
-				game.modal.close();
+				this.modal.close();
 		});
 
 		this.bindTooltips();
@@ -3562,11 +3511,11 @@ export default class UI{
 	drawMyPlayerSelector( callback, keepPosition ){
 
 		let players = game.getMyPlayers().filter(p => p.team === 0);
-		game.modal.prepareSelectionBox(keepPosition);
+		this.modal.prepareSelectionBox(keepPosition);
 		for( let pl of players )
-			game.modal.addSelectionBoxItem(pl.name, false, pl.id);
+			this.modal.addSelectionBoxItem(pl.name, false, pl.id);
 		
-		game.modal.onSelectionBox(callback);
+		this.modal.onSelectionBox(callback);
 		
 	}
 
@@ -3576,213 +3525,31 @@ export default class UI{
 		const playAnimation = container instanceof DungeonRoomAsset ? container._stage_mesh.userData.playAnimation : false;
 		const th = this;
 
-		game.modal.prepareSelectionBox(keepPosition);
+		this.modal.prepareSelectionBox(keepPosition);
 		const items = container.getLootableAssets();		// Both player and container have this method
 		if( !items.length )
-			return game.modal.closeSelectionBox();
+			return this.modal.closeSelectionBox();
 
 		for( let item of items ){
-			game.modal.addSelectionBoxItem(item.name+(item._stacks > 1 ? ' ['+(+item._stacks)+']' : ''), item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
+			this.modal.addSelectionBoxItem(item.name+(item._stacks > 1 ? ' ['+(+item._stacks)+']' : ''), item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
 		}
 		if( playAnimation )
 			playAnimation("open");
 		
-		game.modal.onSelectionBox(function(){
+		this.modal.onSelectionBox(function(){
 
 			let asset = $(this).attr('data-id');
 			container.lootToPlayer(asset, player);			// Both player and DungeonRoomAsset have this method
 			th.drawContainerLootSelector(player, container, true);
 			
 		});
-		game.modal.onSelectionBoxClose(() => {
+		this.modal.onSelectionBoxClose(() => {
 			if( playAnimation && container.isInteractive() )
 				playAnimation("idle");
 		});
 		this.bindTooltips();
 
 	}
-
-
-
-	// Custom modals
-	toggleCustomModals( on = false ){
-		this.customModals.toggleClass("hidden", !on);
-		$("> div", this.customModals).toggleClass("hidden", true);
-	}
-	
-	drawSleepSelect( player, mesh ){
-		this.toggleCustomModals(true);
-		this.cmSleepSelect.toggleClass('hidden', false);
-		const sleepButton = $("input.sleep", this.cmSleepSelect),
-			range = $("input[type=range]", this.cmSleepSelect)
-		;
-		$("input", this.cmSleepSelect).off('click');
-		
-
-		const updateButton = () => {
-			const n = +range.val();
-			let currentHour = Math.floor(game.time%86400/3600)+n,
-				pm = 'AM';
-			if( currentHour > 23 )
-				currentHour -= 24;
-			if( currentHour >= 12 ){
-				pm = 'PM';
-				currentHour -= 12;
-			}
-			if( currentHour === 0 ){
-				currentHour = 12;
-				pm = pm === 'PM' ? 'Noon' : 'Midnight';
-			}
-			
-			sleepButton.val('Sleep '+n+" hour"+(n === 1 ? '' : 's')+" \u2794 "+currentHour+" "+pm);
-
-		};
-		range.on('input', updateButton);
-		updateButton();
-		sleepButton.on('click', () => {
-			game.sleep( game.getMyActivePlayer(), mesh.userData.dungeonAsset, +range.val() );
-			this.toggleCustomModals(false);
-		});
-		$("input.cancel", this.cmSleepSelect).on('click', () => this.toggleCustomModals(false));
-	}
-
-	drawGym( player ){
-
-		this.toggleCustomModals(true);
-		this.cmGym.toggleClass('hidden', false);
-		this.cmGymActiveButtons.toggleClass('hidden', true).toggleClass("detrimental", false);
-		
-		// Active actions
-		const numSlots = player.getNrActionSlots();
-		for( let i = 0; i<numSlots; ++i ){
-
-			const el = $(this.cmGymActiveButtons[i]);
-			el.toggleClass("hidden", false).toggleClass('button', true);
-
-			let action = player.getActiveActionByIndex(i);
-			if( action )
-				this.setActionButtonContent(el, action, player);
-			
-			el.toggleClass('empty', !action);
-
-		}
-
-		// Inactive learned actions
-		const inactive = player.getInactiveActions(),
-			learnable = player.getUnlockableActions();
-
-		let inactiveEls = $("> div.action", this.cmGymAvailable),
-			learnableEls = $("> div.learnable", this.cmGymPurchasable);
-		
-		// Append icons if need be
-		for( let i=inactiveEls.length; i<inactive.length; ++i )
-			this.cmGymAvailable.append(Templates.actionButton);
-		for( let i=learnableEls.length; i<learnable.length; ++i ){
-			this.cmGymPurchasable.append('<div class="learnable"><span class="name"></span>'+Templates.actionButton+'</div>');
-		}
-		inactiveEls = $("> div.action", this.cmGymAvailable);
-		learnableEls = $("> div.learnable > div.action", this.cmGymPurchasable);
-
-		inactiveEls.toggleClass("hidden", true);
-		$("> div.learnable", this.cmGymPurchasable).toggleClass("hidden", true);
-
-		for( let i =0; i<inactive.length; ++i ){
-
-			const el = inactiveEls[i],
-				abil = inactive[i];
-			this.setActionButtonContent(el, abil, player);
-			
-
-		}
-
-		for( let i =0; i<learnable.length; ++i ){
-
-			const el = learnableEls[i],
-				abil = learnable[i].getAction(),
-				parent = $(el).parent();
-				
-			this.setActionButtonContent(el, abil, player);
-
-			let html = esc(abil.getName());
-			const coins = Player.calculateMoneyExhange(learnable[i].getCost());
-			html += ': <span class="cost">';
-			for( let i in coins ){
-				const amt = coins[i];
-				if( amt ){
-					html += '<span style="color:'+Player.currencyColors[i]+';">'+amt+Player.currencyWeights[i].substr(0,1)+"</span> ";
-				}
-			}
-			html += '</span>';
-			
-			parent
-				.toggleClass("disabled", player.getMoney() < learnable[i].getCost())
-				.attr('data-id', learnable[i].label)
-				.toggleClass('hidden', false)
-			;
-
-			$("> span", parent).html(html);
-
-
-		}
-		
-
-		// Bind stuff
-		this.cmGymActiveButtons.off('click').on('click', event => {
-			
-			const el = $(event.currentTarget),
-				id = el.attr('data-id');
-
-			try{
-				game.toggleAction(player, id);
-			}catch(err){
-				game.modal.addError(err);
-			}
-
-			if( game.is_host ){
-				this.drawGym(player);
-				this.draw();
-			}
-
-
-		});
-
-		inactiveEls.off('click').on('click', event => {
-			const el = $(event.currentTarget),
-				id = el.attr('data-id');
-
-			try{
-				game.toggleAction(player, id);
-			}catch( err ){
-				game.modal.addError(err);
-			}
-			if( game.is_host ){
-				this.drawGym(player);
-				this.draw();
-			}
-
-
-		});
-
-		$("> div.learnable:not(.disabled)", this.cmGymPurchasable).off('click').on('click', event => {
-			
-			const el = $(event.currentTarget),
-				id = el.attr('data-id');
-
-			try{
-				game.learnAction( player, id );
-			}catch(err){
-				game.modal.addError(err);
-			}
-			if( game.is_host ){
-				this.drawGym(player);
-				this.draw();
-			}
-			
-
-		});
-		
-	}
-
 
 	async toggleBlackScreen( fnAtMidpoint ){
 		this.blackScreen.toggleClass("anim", true);
@@ -4256,4 +4023,66 @@ export default class UI{
 
 	}
 
-}
+
+
+	// TEMPLATES
+	// Sets the content of the button based on an action
+	static setActionButtonContent( buttonElement, action, player ){
+
+		const button = $(buttonElement);
+		button[0].className = 
+			'action button tooltipParent tooltipAbove '+
+			(action.detrimental ? 'detrimental' : 'beneficial')+' '+
+			(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')
+		;
+
+		// Update id
+		button.attr('data-id', action.id);
+			
+		// Update icon
+		const img = $('img', button),
+			imgSrc = 'media/wrapper_icons/'+esc(action.getIcon())+'.svg';
+		if( img.attr('src') !== imgSrc )
+			img.attr('src', imgSrc);
+
+		// Update charges
+		let uses = false;	// false hides
+		// This action is tied to an asset
+		if( action.isAssetAction() && action.parent.charges !== -1 )
+			uses = player.numAssetUses(action.parent.label, game.battle_active);	
+		else if( action._charges > 1 )
+			uses = action._charges;
+
+		const usesEl = $('> div.uses', button);
+		usesEl.toggleClass('hidden', !uses)
+		if( +usesEl.text() !== uses )
+			usesEl.text(uses);
+
+		// Cooldown
+		const cdEl = $('> div.cd > span', button);
+		$('> div.cd', button).toggleClass('hidden', !action._cooldown);
+		if( +cdEl.text !== +action._cooldown )
+			cdEl.text(action._cooldown);
+
+		// Tooltip
+		const ttEl = $('> div.tooltip', button);
+		ttEl.toggleClass('enabled disabled', false); // .toggleClass(castableClass, true);
+		if( ttEl.html() !== action.getTooltipText() )
+			ttEl.html(action.getTooltipText());
+
+	}
+
+
+};
+
+
+UI.Templates = {
+	actionButton : '<div class="action">'+
+			'<img>'+
+			'<div class="hotkey"></div>'+
+			'<div class="uses"></div>'+
+			'<div class="cd"><span></span></div>'+
+			'<div class="tooltip actionTooltip"></div>'+
+		'</div>',
+	
+};

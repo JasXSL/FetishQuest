@@ -25,10 +25,8 @@ Big chungi:
 		- Who can learn?
 			- Spell unlocks should be limited by conditions		
 		- UI
-			- Purchase field should show the price
-			- Need to link it up to actually allow purchase
-			- Needs to tie it in with an NPC so you can't change abilities willy nilly
-			- netcode
+			- Netcode
+			- Need to be able to close gym modal
 
 
 	- Main quest chapter 2

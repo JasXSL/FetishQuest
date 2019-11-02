@@ -84,6 +84,21 @@ const lib = {
 		]
 	},
 
+
+	yuug_city_gymleader : {
+		name : "Bob",
+		species : "rhino",
+		description : "A large muscular rhino.",
+		icon : "",
+		team : 1,
+		size : 7,
+		leveled : true,
+		sadistic : 0.3,
+		dominant : 0.8,
+		hetero : 0.5,
+		intelligence : 0.5,
+	},
+
 	MQ00_Boss : {
 		name : "Li Zurd",
 		species : "lizard",

@@ -1550,11 +1550,19 @@ export default class Player extends Generic{
 		}
 		game.ui.addText( this.getColoredName()+" gained "+points+" experience!", undefined, this.id, this.id, 'important statMessage' );
 
+		
+
 		let levelsGained = this.level-startLevel;
 		if( levelsGained ){
 			this.addActionsForClass();
 			game.onPlayerLevelup(this, levelsGained);
 		}
+
+		if( !this.actionSlotsFull() ){
+			const n = this.getNrFreeActionSlots();
+			game.ui.addText( this.getColoredName()+" has "+n+" free action slot"+(n === 1 ? '' : 's')+"! Visit a gym to learn new actions!", undefined, this.id, this.id, 'important statMessage' );
+		}
+
 		return levelsGained;
 	}
 
@@ -1937,16 +1945,21 @@ export default class Player extends Generic{
 		return true;
 	}
 
-	actionSlotsFull(){
+	getNrFreeActionSlots(){
+
 		const total = this.getNrActionSlots();
 		let n = 0;
-		for( let i=0; i<total; ++i ){
+		for( let i=0; i<this.active_actions.length; ++i ){
 			if( this.active_actions[i] ){
-				++n;
-				if( n >= total )
-					return true;
+				++n
 			}
 		}
+		return total-n;
+
+	}
+
+	actionSlotsFull(){
+		return this.getNrFreeActionSlots() <= 0;
 	}
 
 	activateAction( id, slot ){

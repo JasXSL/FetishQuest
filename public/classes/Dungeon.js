@@ -278,7 +278,7 @@ class Dungeon extends Generic{
 		await delay(800);
 		await game.renderer.drawActiveRoom();
 		this.transporting = false;
-		game.modal.closeSelectionBox();
+		game.ui.modal.closeSelectionBox();
 		this.getActiveRoom().onVisit(player);
 		game.updateAmbiance();
 		game.save();
@@ -350,18 +350,18 @@ class Dungeon extends Generic{
 		
 
 		if( !game.getAlivePlayersInTeam(0).length ){
-			game.modal.addError("Players are deeeeaaaad");
+			game.ui.modal.addError("Players are deeeeaaaad");
 			return;
 		}
 
 		// Prevent non-leaders from interacting with doors unless we're offline or a battle is active (run)
 		if( asset.isDoor() && !player.isLeader() && !game.battle_active ){
-			game.modal.addError(player.name+" is not the party leader.");
+			game.ui.modal.addError(player.name+" is not the party leader.");
 			return;
 		}
 
 		if( player.team !== 0 ){
-			game.modal.addError("Enemy characters can't interact with items.");
+			game.ui.modal.addError("Enemy characters can't interact with items.");
 			return;
 		}
 
@@ -1527,10 +1527,10 @@ class DungeonRoomAsset extends Generic{
 			}
 		}
 		if( asset.isLocked() )
-			return game.modal.addError("Locked");
+			return game.ui.modal.addError("Locked");
 
 		if( game.isInPersistentRoleplay() )
-			return game.modal.addError("Can't use items right now");
+			return game.ui.modal.addError("Can't use items right now");
 
 
 		// Ask host unless this is lootable
@@ -1552,15 +1552,15 @@ class DungeonRoomAsset extends Generic{
 				
 				if( !game.turnPlayerIsMe() ){
 					console.error("not your turn error", player, mesh);
-					return game.modal.addError("Not your turn");
+					return game.ui.modal.addError("Not your turn");
 				}
 				let player = game.getTurnPlayer();
-				game.modal.close();
+				game.ui.modal.close();
 				game.useActionOnTarget( player.getActionByLabel('stdEscape'), [player], player );
 				return;
 			}
 
-			game.modal.addError("Battle in progress");
+			game.ui.modal.addError("Battle in progress");
 			return;
 
 		}
@@ -1903,6 +1903,12 @@ class DungeonEncounter extends Generic{
 	getSmiths( targetPlayer ){
 		const actions = this.getViableActions( targetPlayer );
 		return actions.filter(action => action.type === GameAction.types.repairShop);
+	}
+
+	// Gets gym actions
+	getGyms( targetPlayer ){
+		const actions = this.getViableActions( targetPlayer );
+		return actions.filter(action => action.type === GameAction.types.gym);
 	}
 
 	// Gets room rental players

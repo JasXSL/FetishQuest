@@ -14,6 +14,7 @@ import Player from './Player.js';
 import Text from './Text.js';
 import HitFX from './HitFX.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
+import StaticModal from './StaticModal.js';
 
 export default class GameAction extends Generic{
 
@@ -346,7 +347,7 @@ export default class GameAction extends Generic{
 			game.onDungeonExit();
 			const dungeon = glib.get(this.data.dungeon, 'Dungeon');
 			if( !dungeon )
-				return game.modal.addError("Dungeon not found");
+				return game.ui.modal.addError("Dungeon not found");
 			const room = !isNaN(parseInt(this.data.index)) ? parseInt(this.data.index) : 0;
 			const load = game.setDungeon(dungeon, room);
 			const time = Math.floor(this.data.time) || 60;
@@ -478,7 +479,7 @@ export default class GameAction extends Generic{
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
 		}
 
-		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.rentRoom )
+		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.rentRoom || this.type === types.gym )
 			return;
 
 		else if( this.type === types.playerAction ){
@@ -522,7 +523,7 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.sleep ){
 			if( player.isLeader() )
-				game.ui.drawSleepSelect(player, mesh);
+				StaticModal.set('sleepSelect', player, mesh);
 		}
 
 		else if( this.type === types.addPlayer ){
@@ -609,6 +610,7 @@ GameAction.types = {
 	finishQuest : "finishQuest",			// {quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.
 	tooltip : "tooltip",					// {text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak
 	shop : "shop",							// {shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.
+	gym : "gym",							// {player:(str)player_offering} - Passive. Player is the player that should have the gym icon attached to them. 
 	playerAction : "playerAction",			// {player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it's the supplied triggering player that becomes the caster
 	repairShop : "repairShop",				// {player:(str)label} - Marks a player as offering repairs
 	text : "text",							// {text:(obj)text} - Triggers a text
@@ -631,6 +633,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.shop] : true,
 	[GameAction.types.repairShop] : true,
 	[GameAction.types.rentRoom] : true,
+	[GameAction.types.gym] : true,
 };
 
 

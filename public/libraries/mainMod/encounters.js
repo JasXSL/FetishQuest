@@ -80,7 +80,7 @@ const lib = {
 		],
 	},
 
-	// YUUG
+	// YUUG port
 	yuug_port_tavern_npcs : {
 		players: ["yuug_port_barkeep"],
 		friendly : true,
@@ -284,6 +284,161 @@ const lib = {
 		]
 	},
 
+	// NPCS outside the tavern
+	yuug_port : {
+		players : ['yuug_port_peasant'],
+		friendly : true,
+		game_actions : [
+			{
+				conditions : ['targetBreasts'],
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label : 'yuug_port',
+					player : 'yuug_port_peasant',
+					persistent : true,
+					once : true,
+					stages: [
+						{
+							index: 0,
+							text: "Hey you! Nice tits!",
+							options: [
+								{text: "Thanks.", index: 1, conditions:['targetBreasts']},
+								{text: "Thanks.", index: 4, conditions:['targetNotBreasts']},
+								// Strong
+								{text: "Fuck off.", index: 2, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>1"}, caster:true}]},
+								// Weak
+								{text: "Fuck off.", index: 3, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>1"}, inverse:true, caster:true}]},								
+								{text: "[Fight Him]", index: -1, game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 1,
+							text: "Don't suppose I may 'ave a squeeze?",
+							options: [
+								{text: "Fine.", index: 10, conditions:['targetBreasts'], game_actions:[{
+									type:GameAction.types.playerAction,
+									data:{
+										action:'breast_squeeze',
+										player:'yuug_port_peasant',
+									}
+								}]},
+								{text: "[Fight Him]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 10,
+							text: "Thank ye kindly ma'am.",
+							options: [
+								{text: "[Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
+							index: 2,
+							text: "Alright ye win, ye win. Have a good one!",
+							options : [
+								{text: "[Fight Him Anyway]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
+							index: 3,
+							text: "Aw there's no need fer that luv. Come on. Give us one!",
+							options : [
+								{text: "Fine.", index: 10, conditions:['targetBreasts'], game_actions:[{
+									type:GameAction.types.playerAction,
+									data:{
+										action:'breast_squeeze',
+										player:'yuug_port_peasant',
+									}
+								}]},
+								{text: "[Fight Him]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
+							index: 4,
+							text: "[The sailor frowns and walks away]",
+							options : [
+								{text: "[Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+					conditions : ["notInCombat"]
+				}}
+			}
+		]
+	},
+
+
+
+	// YUUG PORT BEACH
+	// MQ00
+	MQ00_Boss : {
+		players: [
+			'MQ00_Boss',
+			'MQ00_Minion',
+		],
+		friendly : true,
+		game_actions : [
+			// Boss talk
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					id: 'mq00_boss',
+					label: 'mq00_boss',
+					player : 'MQ00_Boss',
+					portrait : '/media/characters/li_zurd_portrait.jpg',
+					persistent : true,
+					stages: [
+						{
+							index: 0,
+							text: "The shrine is ready! Soon the master fate will take place! Wait... Who are you?",
+							options: [
+								{text: "The what with the what now?", index: 10},
+								{text: "Uh, strippogram?", index: 1, conditions:['targetNaked']},		// Without clothes
+								{text: "Uh, strippogram?", index: 2, conditions:['targetNotNaked']},	// With clothes
+							]
+						},
+						{
+							index: 1,
+							text: "Without clothes?",
+							options: [
+								{text: "You got me there.", index: -1, game_actions:['startBattle']},
+							]
+						},
+						{
+							index: 10,
+							text: "Foolish mortal! The master will consume you!",
+							options: [
+								{text: "[Attack]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
+							index: 2,
+							text: "Then why do you smell of battle?",
+							options: [
+								{text: "Isometric exercise! Care to join me?", index: 10},
+							]
+						},
+					],
+					conditions : [
+						"notInCombat",
+						{type:Condition.Types.questObjectiveCompleted, data:{quest:'MQ00_YuugBeach', objective:'caveCleared'}, inverse:true, targnr:0},
+					]
+				}}
+			}
+		]
+	},
+
+
+
+	// YUUG PORTSWOOD EAST
 	yuug_portswood_caravan_npcs : {
 		players: ["yuug_portswood_merchant"],
 		friendly : true,
@@ -448,6 +603,115 @@ const lib = {
 		]
 	},
 
+	// Impicus in yuug portswood cave
+	yuug_portswood_cave_impicus : {
+		players : ['Impicus'],
+		friendly : true,
+		
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					id: 'yuug_portswood_cave_impicus',
+					label : 'yuug_portswood_cave_impicus',
+					player : 'Impicus',
+					persistent : true,
+					once : true,
+					stages: [
+						{
+							index: 0,
+							text: "How you get past my tentacly fiends!?",
+							options: [
+								{text: "With tons of lube.", index: 10},
+								// Fake
+								{text: "They fell to my might!", index: 11, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>3"}, inverse:true, caster:true}]},
+								// Real
+								{text: "They fell to my might!", index: 12, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>3"}, caster:true}]},
+								{text: "One tentaclemancer to another: You're out of your league.", index: 13, conditions:["targetClassTentaclemancer"]},
+							]
+						},
+						{
+							index: 10,
+							text: "Then you prepared for what I do to you!",
+							options: [
+								{text: "[Begin Battle]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 11,
+							text: "Hah! You weak. Me can take you!",
+							options: [
+								{text: "[Begin Battle]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 12,
+							text: "Hm yes. You do look very strong. We do not need fight if you let me go.",
+							options: [
+								{text: "Fine you can go", index: -1},
+								{text: "No I'd rather fight", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 13,
+							text: "Oh uh. Impicus see now. Impicus will study harder. Maybe we can battle when we more even!",
+							options: [
+								{text: "Fine, come back when you're stronger", index: -1, game_actions:[{type:GameAction.types.dungeonVar, data:{id:"impicus_trained",val:true}}]},
+								{text: "No I'll deal with you now", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+					conditions : ["notInCombat"]
+				}}
+			}
+		]
+	},
+	yuug_portswood_cave_ixsplat : {
+		players : ['Ixsplat'],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					id: 'yuug_portswood_cave_ixsplat',
+					label : 'yuug_portswood_cave_ixsplat',
+					player : 'Ixsplat',
+					persistent : true,
+					once : true,
+					stages: [
+						{
+							index: 0,
+							text: "Ah ha! A test subject!",
+							options: [
+								{text: "What exactly are we testing?", index: 10},
+								{text: "[Just Attack]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 10,
+							text: "My wondrous groperope! A lovely rope made of groper vines, with a life of its own!",
+							options: [
+								{text: "Sounds exciting!", index: 100},
+								{text: "[Just Attack]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+						{
+							index: 100,
+							text: "Yes! Now stand still while I whip you!",
+							options: [
+								{text: "[Begin Battle]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+					conditions : ["notInCombat"]
+				}}
+			}
+		]
+	},
+
+
+
+	// YUUG PORTSWOOD ISLE
 	yuug_portswood_isle_east : {
 		players: ["yuug_portswood_isle_otter", "Broper", "SQ_sharktopus_camp_cultist"],
 		// Enable conditions
@@ -765,95 +1029,38 @@ const lib = {
 	},
 	
 
-	// NPCS outside the tavern
-	yuug_port : {
-		players : ['yuug_port_peasant'],
+
+	// YUUG_CITY
+	yuug_city_gym : {
+		players: ["yuug_city_gymleader"],
 		friendly : true,
 		game_actions : [
 			{
-				conditions : ['targetBreasts'],
 				type : GameAction.types.roleplay,
 				data : {rp:{
-					label : 'yuug_port',
-					player : 'yuug_port_peasant',
-					persistent : true,
-					once : true,
-					stages: [
+					label: 'yuug_city_gymleader',
+					stages : [
 						{
 							index: 0,
-							text: "Hey you! Nice tits!",
-							options: [
-								{text: "Thanks.", index: 1, conditions:['targetBreasts']},
-								{text: "Thanks.", index: 4, conditions:['targetNotBreasts']},
-								// Strong
-								{text: "Fuck off.", index: 2, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>1"}, caster:true}]},
-								// Weak
-								{text: "Fuck off.", index: 3, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>1"}, inverse:true, caster:true}]},								
-								{text: "[Fight Him]", index: -1, game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
-								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-						{
-							index: 1,
-							text: "Don't suppose I may 'ave a squeeze?",
-							options: [
-								{text: "Fine.", index: 10, conditions:['targetBreasts'], game_actions:[{
-									type:GameAction.types.playerAction,
-									data:{
-										action:'breast_squeeze',
-										player:'yuug_port_peasant',
-									}
-								}]},
-								{text: "[Fight Him]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
-								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-						{
-							index: 10,
-							text: "Thank ye kindly ma'am.",
-							options: [
-								{text: "[Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-
-						{
-							index: 2,
-							text: "Alright ye win, ye win. Have a good one!",
+							text: "Ah new blood! Welcome to the Yuug City gym! I'll be your personal trainer, but it'll cost ya!",
 							options : [
-								{text: "[Fight Him Anyway]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
-								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-
-						{
-							index: 3,
-							text: "Aw there's no need fer that luv. Come on. Give us one!",
-							options : [
-								{text: "Fine.", index: 10, conditions:['targetBreasts'], game_actions:[{
-									type:GameAction.types.playerAction,
-									data:{
-										action:'breast_squeeze',
-										player:'yuug_port_peasant',
-									}
-								}]},
-								{text: "[Fight Him]", index: -1,game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
-								{text: "[Just Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-
-						{
-							index: 4,
-							text: "[The sailor frowns and walks away]",
-							options : [
-								{text: "[Leave]", index: -1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
+								{text:'Thanks', index:-1}
+							],
+						}
 					],
-					conditions : ["notInCombat"]
+					once: true,
+					persistent : true,
+					player : 'yuug_city_gymleader'
 				}}
+			},
+			{
+				type : GameAction.types.gym,
+				data : {player:'yuug_city_gymleader'}
 			}
 		]
 	},
+
+	
 
 	mimic : {
 		startText : 'A mimic springs from the chest, grabbing hold of %T\'s ankles and pulling %Thim to the ground!',
@@ -883,171 +1090,6 @@ const lib = {
 		player_templates : ['mimic']
 	},
 
-	// Impicus in yuug portswood cave
-	yuug_portswood_cave_impicus : {
-		players : ['Impicus'],
-		friendly : true,
-		
-		game_actions : [
-			{
-				type : GameAction.types.roleplay,
-				data : {rp:{
-					id: 'yuug_portswood_cave_impicus',
-					label : 'yuug_portswood_cave_impicus',
-					player : 'Impicus',
-					persistent : true,
-					once : true,
-					stages: [
-						{
-							index: 0,
-							text: "How you get past my tentacly fiends!?",
-							options: [
-								{text: "With tons of lube.", index: 10},
-								// Fake
-								{text: "They fell to my might!", index: 11, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>3"}, inverse:true, caster:true}]},
-								// Real
-								{text: "They fell to my might!", index: 12, conditions:[{type:Condition.Types.formula, data:{formula:"(ta_BonPhysical-ta_Lv)>3"}, caster:true}]},
-								{text: "One tentaclemancer to another: You're out of your league.", index: 13, conditions:["targetClassTentaclemancer"]},
-							]
-						},
-						{
-							index: 10,
-							text: "Then you prepared for what I do to you!",
-							options: [
-								{text: "[Begin Battle]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-						{
-							index: 11,
-							text: "Hah! You weak. Me can take you!",
-							options: [
-								{text: "[Begin Battle]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-						{
-							index: 12,
-							text: "Hm yes. You do look very strong. We do not need fight if you let me go.",
-							options: [
-								{text: "Fine you can go", index: -1},
-								{text: "No I'd rather fight", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-						{
-							index: 13,
-							text: "Oh uh. Impicus see now. Impicus will study harder. Maybe we can battle when we more even!",
-							options: [
-								{text: "Fine, come back when you're stronger", index: -1, game_actions:[{type:GameAction.types.dungeonVar, data:{id:"impicus_trained",val:true}}]},
-								{text: "No I'll deal with you now", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-					],
-					conditions : ["notInCombat"]
-				}}
-			}
-		]
-	},
-	yuug_portswood_cave_ixsplat : {
-		players : ['Ixsplat'],
-		friendly : true,
-		game_actions : [
-			{
-				type : GameAction.types.roleplay,
-				data : {rp:{
-					id: 'yuug_portswood_cave_ixsplat',
-					label : 'yuug_portswood_cave_ixsplat',
-					player : 'Ixsplat',
-					persistent : true,
-					once : true,
-					stages: [
-						{
-							index: 0,
-							text: "Ah ha! A test subject!",
-							options: [
-								{text: "What exactly are we testing?", index: 10},
-								{text: "[Just Attack]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-						{
-							index: 10,
-							text: "My wondrous groperope! A lovely rope made of groper vines, with a life of its own!",
-							options: [
-								{text: "Sounds exciting!", index: 100},
-								{text: "[Just Attack]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-						{
-							index: 100,
-							text: "Yes! Now stand still while I whip you!",
-							options: [
-								{text: "[Begin Battle]", game_actions:['startBattle'], index:-1, chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-					],
-					conditions : ["notInCombat"]
-				}}
-			}
-		]
-	},
-
-
-	// MQ00
-	MQ00_Boss : {
-		players: [
-			'MQ00_Boss',
-			'MQ00_Minion',
-		],
-		friendly : true,
-		game_actions : [
-			// Boss talk
-			{
-				type : GameAction.types.roleplay,
-				data : {rp:{
-					id: 'mq00_boss',
-					label: 'mq00_boss',
-					player : 'MQ00_Boss',
-					portrait : '/media/characters/li_zurd_portrait.jpg',
-					persistent : true,
-					stages: [
-						{
-							index: 0,
-							text: "The shrine is ready! Soon the master fate will take place! Wait... Who are you?",
-							options: [
-								{text: "The what with the what now?", index: 10},
-								{text: "Uh, strippogram?", index: 1, conditions:['targetNaked']},		// Without clothes
-								{text: "Uh, strippogram?", index: 2, conditions:['targetNotNaked']},	// With clothes
-							]
-						},
-						{
-							index: 1,
-							text: "Without clothes?",
-							options: [
-								{text: "You got me there.", index: -1, game_actions:['startBattle']},
-							]
-						},
-						{
-							index: 10,
-							text: "Foolish mortal! The master will consume you!",
-							options: [
-								{text: "[Attack]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
-							]
-						},
-
-						{
-							index: 2,
-							text: "Then why do you smell of battle?",
-							options: [
-								{text: "Isometric exercise! Care to join me?", index: 10},
-							]
-						},
-					],
-					conditions : [
-						"notInCombat",
-						{type:Condition.Types.questObjectiveCompleted, data:{quest:'MQ00_YuugBeach', objective:'caveCleared'}, inverse:true, targnr:0},
-					]
-				}}
-			}
-		]
-	},
 
 
 	debug_shop : {

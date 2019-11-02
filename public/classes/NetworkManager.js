@@ -171,7 +171,7 @@ class NetworkManager{
 			await this.connect();
 
 		if( !this.parent.is_host ){
-			game.modal.addError('You are not the host of this game');
+			game.ui.modal.addError('You are not the host of this game');
 			return false;
 		}
 
@@ -183,7 +183,7 @@ class NetworkManager{
 					glib.autoloadMods();
 				}
 				else
-					game.modal.addError("Attempt to host failed");
+					game.ui.modal.addError("Attempt to host failed");
 				res();
 			});
 		});
@@ -215,12 +215,12 @@ class NetworkManager{
 		return new Promise(res => {
 			this.io.emit('join', {room:id, name:name}, success => {
 				if( success ){
-					game.modal.addNotice("You have joined the game");
+					game.ui.modal.addNotice("You have joined the game");
 					this.attempts = 0;
 					Game.joinNetGame();
 				}
 				else{
-					game.modal.addError("Failed to join a game");
+					game.ui.modal.addError("Failed to join a game");
 					this.disconnect();
 				}
 				res();
@@ -270,7 +270,7 @@ class NetworkManager{
 			return;
 
 		this._last_push = current;
-		game.modal.onGameUpdate(changes);
+		game.ui.modal.onGameUpdate(changes);
 		if( this.isConnected() && game.is_host ){
 			const now = Date.now();
 			this.io.emit('gameUpdate', {ch:changes,ts:this._pre_push_time,now:now});
@@ -682,7 +682,7 @@ class NetworkManager{
 		}
 
 		else if( task === NetworkManager.dmTasks.error && args && args.txt ){
-			game.modal.addError(args.txt, args.notice);
+			game.ui.modal.addError(args.txt, args.notice);
 		}
 
 		else if( task === NetworkManager.dmTasks.animation ){
@@ -820,7 +820,7 @@ class NetworkManager{
 			return;
 
 		console.debug("Got game data", data);
-		game.modal.onGameUpdate(data);
+		game.ui.modal.onGameUpdate(data);
 
 		if( this.debug )
 			console.debug("Game update received", data);
@@ -839,7 +839,7 @@ class NetworkManager{
 		
 		game.loadFromNet(data);
 		game.ui.draw();
-		game.modal.onGameUpdate(data);
+		game.ui.modal.onGameUpdate(data);
 		
 
 		if( dungeonPreId !== game.dungeon.id )

@@ -426,7 +426,7 @@ class Action extends Generic{
 
 		let err = msg => {
 			if( log )
-				game.modal.addError(msg);
+				game.ui.modal.addError(msg);
 			return false;
 		}
 
@@ -507,7 +507,7 @@ class Action extends Generic{
 
 		// make sure the supplied targets are enough
 		if( this.target_type !== Action.TargetTypes.aoe && (targets.length > this.max_targets || targets.length < this.min_targets) ){
-			game.modal.addError("Too few or too many targets selected");
+			game.ui.modal.addError("Too few or too many targets selected");
 			console.error("Attempted to use", targets, "on action", this);
 			return false;
 		}

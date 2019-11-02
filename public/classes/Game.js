@@ -33,7 +33,6 @@ export default class Game extends Generic{
 		this.players = [];
 		this.renderer = new WebGL();
 		this.ui = new UI(this);
-		this.modal = new Modal(this);
 		this.turn = 0;
 		this.is_host = true;
 		this.battle_active = false;
@@ -103,6 +102,7 @@ export default class Game extends Generic{
 	}
 
 	initialize(){
+
 		if( this.full_initialized )
 			return;
 		this.full_initialized = true;
@@ -127,8 +127,17 @@ export default class Game extends Generic{
 			VibHub.onEvent(event);
 
 		});
+
+		window.onerror = (...args) => this.onError(...args);
+
 	}
 
+	onError(...args){
+		args[0] = args[0].split('Uncaught ');
+		args[0].shift();
+		args[0] = args[0].join('Uncaught ');
+		this.ui.modal.addError(args[0]);
+	}
 
 
 	/* LOADING/SAVING */
@@ -199,7 +208,7 @@ export default class Game extends Generic{
 
 		if( !this.initialized && !allowInsert ){
 			console.error("ini error");
-			game.modal.addError("Unable to save, game failed to intialize");
+			this.ui.modal.addError("Unable to save, game failed to intialize");
 			return false;
 		}
 
@@ -831,16 +840,14 @@ export default class Game extends Generic{
 	// Output a chat message as a character or OOC. UUID can also be "DM"
 	speakAs( uuid, text, isOOC ){
 
-		if( uuid === "DM" && !this.is_host ){
-			game.modal.addError("You are not the DM");
-			return;
-		}
+		if( uuid === "DM" && !this.is_host )
+			throw "You are not the DM";
 
 		if( uuid === 'ooc' )
 			isOOC = true;
 
 		if( uuid !== "DM" && !isOOC && ((!this.getPlayerById(uuid) && !game.is_host) || !this.playerIsMe(this.getPlayerById(uuid))) )
-			return game.modal.addError("Player not yours: "+uuid);
+			throw "Player not yours";
 
 		if( !this.is_host )
 			return this.net.sendPlayerAction(NetworkManager.playerTasks.speak, {
@@ -866,7 +873,7 @@ export default class Game extends Generic{
 		else if( uuid !== "DM" ){
 			pl = this.getPlayerById(uuid);
 			if(!pl)
-				return game.modal.addError("Can't speak as player. Uuid "+uuid+" not found");
+				throw("Player UUID not found");
 			pl = pl.getColoredName();
 		}
 		
@@ -938,7 +945,7 @@ export default class Game extends Generic{
 
 		if( this.isInPersistentRoleplay() ){
 			if( addError )
-				this.modal.addError("Can't transport right now");
+				throw("Can't transport right now");
 			return false;
 		}
 		return true;
@@ -988,7 +995,7 @@ export default class Game extends Generic{
 				depth : -1,
 			});
 		if( !dungeon )
-			return game.modal.addError("Unable to generate a dungeon");
+			return this.ui.modal.addError("Unable to generate a dungeon");
 
 		dungeon.label = '_procedural_';
 		let quest = Quest.generate( type, dungeon, difficultyMultiplier);
@@ -1003,7 +1010,7 @@ export default class Game extends Generic{
 	}
 	addQuest(quest){
 		if( !(quest instanceof Quest) )
-			return this.modal.addError("Quest is not a Quest object");
+			throw("Quest is not a Quest object");
 		this.quests.push(quest);
 		this.onQuestAccepted(quest);
 		this.save();
@@ -1359,21 +1366,16 @@ export default class Game extends Generic{
 		if( game.battle_active ){
 			
 
-			if( player !== game.getTurnPlayer() ){
-				game.modal.addError("Not your turn");
-				console.error("not your turn error");
-				return false;
-			}
-			if( player.ap < apCost ){
-				game.modal.addError("Not enough AP");
-				return false;
-			}
+			if( player !== game.getTurnPlayer() )
+				throw("Not your turn");
+
+			if( player.ap < apCost )
+				throw("Not enough AP");
+			
 		}
 
-		if(!game.playerIsMe(player)){
-			game.modal.addError("not your player");
-			return false;
-		}
+		if(!game.playerIsMe(player))
+			throw("Not your player");
 
 		if( !this.is_host ){
 			this.net.sendPlayerAction(NetworkManager.playerTasks.toggleGear, {
@@ -1409,27 +1411,27 @@ export default class Game extends Generic{
 			toPlayer = this.getPlayerById(toPlayer);
 
 		if( !fromPlayer || !toPlayer )
-			return this.modal.addError("Player not found");
+			throw("Player not found");
 		if( !this.playerIsMe(fromPlayer) )
-			return this.modal.addError("Not your player");
+			throw("Not your player");
 		if( fromPlayer.team !== toPlayer.team )
-			return this.modal.addError("Invalid target");
+			throw("Invalid target");
 		if( fromPlayer.id === toPlayer.id )
-			return this.modal.addError("Can't trade with yourself");
+			throw("Can't trade with yourself");
 		if( this.battle_active && this.getTurnPlayer().id !== fromPlayer.id )
-			return game.modal.addError("Not your turn");
+			throw("Not your turn");
 		if( this.battle_active && fromPlayer.ap < 3 )
-			return game.modal.addError("Not enough AP");
+			throw("Not enough AP");
 
 
 		const asset = fromPlayer.getAssetById(id);
 		if( !asset )
-			return this.modal.addError("Asset not found");
+			throw("Asset not found");
 
 		if( amount > 1 && !asset.stacking )
-			return this.modal.addError("Trying to trade stack of nonstacking item");
+			throw("Trying to trade stack of nonstacking item");
 		if( asset.stacking && (amount > asset._stacks || amount < 1) )
-			return this.modal.addError("Invalid quantity");
+			throw("Invalid quantity");
 		
 
 		if( !this.is_host ){
@@ -1460,14 +1462,12 @@ export default class Game extends Generic{
 	// Deletes a player item by Player, Asset.id
 	deletePlayerItem( player, id, amount = 1 ){
 
-		if(!game.playerIsMe(player)){
-			game.modal.addError("not your player");
-			return false;
-		}
+		if(!game.playerIsMe(player))
+			throw("not your player");
 
 		const asset = player.getAssetById(id);
 		if( !asset )
-			return this.modal.addError("Asset not found");
+			throw("Asset not found");
 
 		if( !this.is_host ){
 			this.net.playerDeleteAsset(player, asset, amount);
@@ -1485,10 +1485,8 @@ export default class Game extends Generic{
 	// Deletes a player action by Player, Action.id
 	deletePlayerAction( player, id ){
 
-		if(!game.playerIsMe(player)){
-			game.modal.addError("not your player");
-			return false;
-		}
+		if(!game.playerIsMe(player))
+			throw("not your player");
 
 		if( player.removeActionById(id) ){
 			this.save();
@@ -1846,13 +1844,11 @@ export default class Game extends Generic{
 		if( !player )
 			player = this.getTurnPlayer();
 
-		if( this.battle_active && this.getTurnPlayer() !== player ){
-			console.error("not your turn error");
-			return game.modal.addError("Not your turn");
-		}
+		if( this.battle_active && this.getTurnPlayer() !== player )
+			throw "Not your turn";
 
 		if( !game.playerIsMe(player) )
-			return game.modal.addError("Not your player");
+			throw("Not your player");
 
 		// Convert player to array, and none to []
 		if( targets.constructor === Player )
@@ -2046,7 +2042,7 @@ export default class Game extends Generic{
 	useRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID){
 
 		if( !this.playerIsMe(senderPlayer) )
-			return this.modal.addError("Not your player");
+			throw("Not your player");
 
 		if( !this.is_host )
 			return this.net.playerUseRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID);
@@ -2054,9 +2050,9 @@ export default class Game extends Generic{
 		let kitAsset = senderPlayer.getAssetById(repairKitID);
 		let targetAsset = targetPlayer.getAssetById(assetID);
 		if( !kitAsset )
-			return this.modal.addError("Repair kit not found");
+			throw "Repair kit not found";
 		if( !targetAsset )
-			return this.modal.addError("Target asset not found");
+			throw "Target asset not found";
 
 		this.execRepairWithAsset(senderPlayer, targetPlayer, kitAsset, targetAsset);
 
@@ -2068,10 +2064,10 @@ export default class Game extends Generic{
 		let repairAmount = kitAsset.getRepairPointsFromUseAction( targetAsset, senderPlayer, targetPlayer );
 		
 		if( !repairAmount )
-			return console.error("No repair points in use action of asset", kitAsset);
+			throw "No repair points in use action of asset";
 
 		if( targetAsset.durability >= targetAsset.getMaxDurability() )
-			return console.error("Item already repaired", targetAsset);
+			throw "Item already repaired";
 
 		let points = targetAsset.repair(repairAmount);
 		kitAsset.consumeCharges(1);
@@ -2105,7 +2101,7 @@ export default class Game extends Generic{
 	// Returns game actions
 	getRepairShopByPlayer( player ){
 		const encounter = this.encounter;
-		const smiths = encounter.getSmiths();
+		const smiths = encounter.getSmiths(player);
 		if( !player )
 			return;
 		const out = [];
@@ -2115,6 +2111,21 @@ export default class Game extends Generic{
 		}
 		return out;
 	}
+
+	// Returns game actions
+	getGymsByPlayer( player, target ){
+		const encounter = this.encounter;
+		const gyms = encounter.getGyms(target);
+		if( !player )
+			return;
+		const out = [];
+		for( let gym of gyms ){
+			if( gym.data.player === player.label )
+				out.push(gym);
+		}
+		return out;
+	}
+
 
 	// Returns game actions
 	getRoomRentalByPlayer( player ){
@@ -2153,27 +2164,26 @@ export default class Game extends Generic{
 
 	// Checks if a shop object is available to a player
 	shopAvailableTo( shop, player ){
+		
 		if( this.battle_active )
-			return false;
-		if( !(shop instanceof Shop) ){
-			console.error("Shop is not a shop", shop);
-			return false;
-		}
-		if( !(player instanceof Player) ){
-			console.error("Player is not a player", player);
-			return false;
-		}
+			throw 'Battle in progress';
+
+		if( !(shop instanceof Shop) )
+			throw "Shop is not a shop";
+
+		if( !(player instanceof Player) )
+			throw "Player is not a player";
+
 		// Checks conditions
-		if( !shop.isAvailable(player) ){
-			console.error("Shop is not available to player", shop, player);
-			return false;
-		}
+		if( !shop.isAvailable(player) )
+			throw "Shop is not available to your active player";
+
 		// Checks if vendor is here
-		if( !this.getShopHere(shop.label) ){
-			console.error("Vendor", shop.player, "not in cell");
-			return false;
-		}
+		if( !this.getShopHere(shop.label) )
+			throw 'Vendor not found in current area';
+
 		return true;
+
 	}
 
 	// Checks if a smith object is available to a player
@@ -2181,14 +2191,13 @@ export default class Game extends Generic{
 
 		if( this.battle_active )
 			return false;
-		if( !(smithPlayer instanceof Player) ){
-			console.error("Smith is not a player", smithPlayer);
-			return false;
-		}
-		if( !(player instanceof Player) ){
-			console.error("Player is not a player", player);
-			return false;
-		}
+
+		if( !(smithPlayer instanceof Player) )
+			throw "Smith is not a player";
+			
+		if( !(player instanceof Player) )
+			throw "Player is not a player";
+
 		const smiths = this.getRepairShopByPlayer(smithPlayer);
 		for( let smith of smiths ){
 			if( smith.validate(player) )
@@ -2201,19 +2210,16 @@ export default class Game extends Generic{
 	roomRentalAvailableTo( renterPlayer, player ){
 
 		if( this.battle_active )
-			return false;
-		if( !(renterPlayer instanceof Player) ){
-			console.error("Renter is not a player", renterPlayer);
-			return false;
-		}
-		if( !(player instanceof Player) ){
-			console.error("Player is not a player", player);
-			return false;
-		}
+			throw 'Battle in progress';
 
-		if( !player.isLeader() ){
-			return false;
-		}
+		if( !(renterPlayer instanceof Player) )
+			throw "Renter is not a player";
+
+		if( !(player instanceof Player) )
+			throw 'Invalid player';
+
+		if( !player.isLeader() )
+			throw 'Player is not a party leader';
 
 		const renters = this.getRoomRentalByPlayer(renterPlayer);
 		for( let renter of renters ){
@@ -2225,17 +2231,13 @@ export default class Game extends Generic{
 
 	roomRentalUsed( renterPlayer, player ){
 
-		if( !player.isLeader() ){
-			console.error(player, "not leader error");
-			return;
-		}
-		if( !this.roomRentalAvailableTo(renterPlayer, player) ){
-			console.error("Rental not available to", player, "from", renterPlayer);
-			return;
-		}
+		if( !player.isLeader() )
+			throw 'Only the leader can do that';
+
+		if( !this.roomRentalAvailableTo(renterPlayer, player) )
+			throw 'Action unavailable to active player';	
 
 		if( !this.is_host ){
-			console.log("Sending rental");
 			this.net.playerRentRoom( renterPlayer, player );
 			return;
 		}
@@ -2272,7 +2274,7 @@ export default class Game extends Generic{
 	repairBySmith( smithPlayer, player, assetID, allowError = true ){
 		const out = text => {
 			if( allowError )
-				console.error(text);
+				throw text;
 		};
 		if( !(smithPlayer instanceof Player ) )
 			return out("smithPlayer is not a player");
@@ -2314,13 +2316,11 @@ export default class Game extends Generic{
 		if( typeof player !== "object" )
 			player = this.getPlayerById(player);
 
-		if( !player ){
-			this.modal.addError("Player missing");
-			return;
-		}
+		if( !player )
+			throw "Player missing";
 
 		if( this.battle_active )
-			return this.modal.addError("Battle in progress");
+			throw "Battle in progress";
 
 		// Netcode
 		if( !this.is_host ){
@@ -2335,30 +2335,23 @@ export default class Game extends Generic{
 		amount = parseInt(amount);
 		const maxAmount = asset && asset.stacking ? asset._stacks : 1;
 
-		if( !shop ){
-			this.modal.addError("Shop not found");
-			return;
-		}
+		if( !shop )
+			throw "Shop not found";
 
 		if( !shop.buys )
-			return this.modal.error("Shop doesn't buy items");
+			throw "Shop doesn't buy items";
 
-		if( !asset ){
-			this.modal.addError("Asset not found on player");
-			return;
-		}
-		if( amount > maxAmount ){
-			this.modal.addError("Asset not found on player");
-			return;
-		}
-		if( isNaN(amount) || amount < 1 ){
-			this.modal.addError("Invalid amount");
-			return;
-		}
-		if( !this.shopAvailableTo(shop, player) ){
-			this.modal.addError("Shop is not available");
-			return;
-		}
+		if( !asset )
+			throw "Asset not found on player";
+
+		if( amount > maxAmount )
+			throw "Asset not found on player";
+		
+		if( isNaN(amount) || amount < 1 )
+			throw "Invalid amount";
+
+		if( !this.shopAvailableTo(shop, player) )
+			throw "Shop is not available";
 		
 		// All done
 		const earning = asset.getSellCost(shop)*amount;
@@ -2379,26 +2372,22 @@ export default class Game extends Generic{
 			shop = this.getShopHere(shop);
 
 		if( !shop ){
-			this.modal.addError("Shop not found");
-			return;
+			throw "Shop not found";
 		}
 
 		if( this.battle_active )
-			return this.modal.addError("Battle in progress");
+			throw "Battle in progress";
+
+		if( isNaN(amount) || amount < 1 )
+			throw "Invalid amount";
 
 		// netcode
 		if( !this.is_host ){
 			this.net.playerBuyItem(shop, asset, amount, player);
 			return;
 		}
-		if( isNaN(amount) || amount < 1 ){
-			this.modal.addError("Invalid amount");
-			return;
-		}
-
-
+		
 		shop.loadState(this.state_shops[shop.label]);
-
 		if( typeof asset === "object" )
 			asset = asset.id;
 		asset = shop.getItemById(asset);
@@ -2407,40 +2396,31 @@ export default class Game extends Generic{
 		amount = parseInt(amount);
 		
 
-		if( !asset ){
-			this.modal.addError("Asset not found in shop");
-			return;
-		}
-		if( !player ){
-			this.modal.addError("Player missing");
-			return;
-		}
-		if( !this.shopAvailableTo(shop, player) ){
-			this.modal.addError("Shop is not available");
-			return;
-		}
-		if( !asset.isAvailable(player) ){
-			this.modal.addError("Asset is not available");
-			return;
-		}
+		if( !asset )
+			throw "Asset not found in shop";
+		
+		if( !player )
+			throw "Player missing";
+		
+		if( !this.shopAvailableTo(shop, player) )
+			throw "Shop is not available";
+		
+		if( !asset.isAvailable(player) )
+			throw "Asset is not available";
+
 		const remaining = asset.getRemaining();
-		if( ~remaining && remaining < amount ){
-			this.modal.addError("Amount not available");
-			return;
-		}
+		if( ~remaining && remaining < amount )
+			throw "Amount not available";
 
 		const cost = asset.getCost()*amount,
 			wallet = player.getMoney(),
 			a = asset.getAsset()
 		;
-		if( wallet < cost ){
-			this.modal.addError("Insufficient funds");
-			return;
-		}
-		if( !a ){
-			this.modal.addError("Asset missing from DB");
-			return;
-		}
+		if( wallet < cost )
+			throw "Insufficient funds";
+
+		if( !a )
+			throw "Asset missing from DB";
 
 		// Everything should be good to go
 		a.g_resetID();
@@ -2465,7 +2445,7 @@ export default class Game extends Generic{
 		if( !(myPlayer instanceof Player) )
 			myPlayer = this.getPlayerById(myPlayer);
 		if( !myPlayer )
-			return;
+			throw "You have no player";
 		
 		if( !this.is_host ){
 			this.net.playerExchangeGold(myPlayer);
@@ -2483,9 +2463,33 @@ export default class Game extends Generic{
 	}
 	
 
-	learnAction( player, learnable ){
+	
 
-		// Todo: Check if there's a shop nearby
+	// Check if a player is offering a gym to the target
+	gymAvailableTo( gymPlayer, player ){
+
+		if( this.battle_active )
+			return false;
+
+		if( !(gymPlayer instanceof Player) )
+			throw "GymPlayer is not a player";
+			
+		if( !(player instanceof Player) )
+			throw "Player is not a player";
+
+		const gyms = this.getGymsByPlayer(gymPlayer, player);
+		for( let gym of gyms ){
+			if( gym.validate(player) )
+				return true;
+		}
+		return false;
+
+	}
+
+	learnAction( gymPlayer, player, learnable ){
+
+		if( !this.gymAvailableTo(gymPlayer, player) )
+			throw 'Gym not available';
 
 		// Check if learnable exists and is valid
 		const action = glib.get(learnable, 'ActionLearnable');
@@ -2522,9 +2526,11 @@ export default class Game extends Generic{
 	}
 
 	// Activates or deactivates an action
-	toggleAction( player, actionID ){
+	toggleAction( gymPlayer, player, actionID ){
 
-		// Todo: check if there's a shop nearby
+		if( !this.gymAvailableTo(gymPlayer, player) )
+			throw 'Gym not available';
+
 		if( !(player instanceof Player) )
 			throw 'Invalid player';
 
@@ -2651,15 +2657,15 @@ Game.load = async () => {
 			'Nickname: <input type="text" value="'+esc(game.net.getStandardNick() || 'Anonymous #'+Math.floor(Math.random()*9999))+'">'+
 			'<input type="submit" value="Join" />'+
 		'</form>';
-		game.modal.set(html);
+		this.ui.modal.set(html);
 		$("#joinOnlineGame").on('submit', event => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			const nick = $("#joinOnlineGame input[type=text]").val().trim();
 			if( !nick )
-				return game.modal.addError("Please enter a proper nickname");
+				return this.ui.modal.addError("Please enter a proper nickname");
 			game.net.joinGame(gameID, nick);
-			game.modal.close();
+			this.ui.modal.close();
 		});
 		game.ui.draw();
 		return;

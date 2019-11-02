@@ -552,7 +552,7 @@ div.fxBuffRed{
 
 
 	/* Gym */
-	#gymSelect{
+	#gym{
 		max-width:90vw;
 		min-width:60vw;
 		position: absolute;
@@ -560,24 +560,24 @@ div.fxBuffRed{
 		pointer-events: all;
 	}
 	
-	#gymSelect > div.modalMain{
+	#gym > div.modalMain{
 		overflow:auto;
 		padding:2vmax;
 	}
 
-	#gymSelect div.slots{
+	#gym div.slots{
 		text-align: center;
 	}
 
-	#gymSelect div.left,
-	#gymSelect div.right{
+	#gym div.left,
+	#gym div.right{
 		width:50%;
 	}
 
-	#gymSelect div.right{
+	#gym div.right{
 		text-align:right;
 	}
-	#gymSelect div.right > div.purchasable > div.learnable{
+	#gym div.right > div.purchasable > div.learnable{
 		background:rgba(0,0,0,.5);
 		border-radius:0.5vmax;
 		padding:0.5vmax;
@@ -587,27 +587,27 @@ div.fxBuffRed{
 		vertical-align: middle;
 		border: 1px solid #AAA;
 	}
-	#gymSelect div.right > div.purchasable > div.learnable.disabled{
+	#gym div.right > div.purchasable > div.learnable.disabled{
 		background: rgba(100,0,0,.5);
 		border-color: #A33;
 	}
-	#gymSelect div.right > div.purchasable > div.learnable:hover:not(.disabled){
+	#gym div.right > div.purchasable > div.learnable:hover:not(.disabled){
 		cursor: pointer;
 		border-color: #FFF;
 	}
-	#gymSelect div.right > div.purchasable > div.learnable > span{
+	#gym div.right > div.purchasable > div.learnable > span{
 		display:block;
 		position: absolute;
 		top:50%;
 		transform:translateY(-50%);
 	}
-	#gymSelect div.right > div.purchasable > div.learnable > div.action{
+	#gym div.right > div.purchasable > div.learnable > div.action{
 		position: absolute;
 		right:0;
 		top:0;
 	}
 
-	#gymSelect div.action{
+	#gym div.action{
 		background-size: cover;
 		overflow: visible;
 		display: inline-block;
@@ -616,7 +616,7 @@ div.fxBuffRed{
 		width: 5.5vh;
     	height: 5.5vh;
 	}
-	#gymSelect div.action > div:not(.tooltip){
+	#gym div.action > div:not(.tooltip){
 		display:none;
 	}
 
