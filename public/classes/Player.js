@@ -192,7 +192,7 @@ export default class Player extends Generic{
 			icon_upperBody : this.icon_upperBody,
 			powered : this.powered,
 			passives : Wrapper.saveThese(this.passives, full),
-			active_actions : this.active_actions,
+			active_actions : this.active_actions.slice(),
 		};
 
 		if( this.rp )

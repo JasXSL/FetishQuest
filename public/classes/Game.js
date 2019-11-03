@@ -455,6 +455,12 @@ export default class Game extends Generic{
 			
 	}
 
+	// Raised after each save, both on host and client
+	onGameUpdate(data){
+		this.ui.modal.onGameUpdate(data);
+		this.ui.staticModal.onGameUpdate(data);
+	}
+
 	onDungeonExit(){
 		new GameEvent({type:GameEvent.Types.dungeonExited, dungeon:this.dungeon}).raise();
 	}

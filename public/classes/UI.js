@@ -142,9 +142,18 @@ export default class UI{
 					game.uiAudio( 'toggle_quests' );
 				}
 			}
-			else if( event.key === 'Escape' && this.modal.open ){
-				game.uiClick();
-				this.modal.close();
+			else if( event.key === 'Escape' ){
+				if( this.modal.open || this.staticModal.active ){
+					
+					game.uiClick();
+					if( this.modal.open ){
+						this.modal.close();
+						return;
+					}
+
+					this.staticModal.close();
+					
+				}
 			}
 
 
@@ -2398,8 +2407,8 @@ export default class UI{
 
 		html += '</div>';
 		
-		this.parent.modal.set(html);
-		this.parent.modal.onPlayerChange(player.id, () => this.drawPlayerInspector(player.id));
+		this.modal.set(html);
+		this.modal.onPlayerChange(player.id, () => this.drawPlayerInspector(player.id));
 
 		// Bind events
 		$("#modal input.editPlayer").on('click', () => {
@@ -2825,7 +2834,7 @@ export default class UI{
 			html+= '<br /><input type="button" class="back red" value="Back" />';
 		html += '</div>';
 		
-		this.parent.modal.set(html);
+		this.modal.set(html);
 
 		// Events
 		$("#modal div.list.item[data-id]").on('click', async function(){
@@ -3343,7 +3352,7 @@ export default class UI{
 
 			html += '<input type="submit" value="Save" class="green"> <input type="button" class="back red" value="Back" />';
 		html+= '</form></div>';
-		this.parent.modal.set(html);
+		this.modal.set(html);
 
 		let updateEffectStats = () => {
 			try{

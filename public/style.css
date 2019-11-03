@@ -476,11 +476,15 @@ div.fxBuffRed{
 		pointer-events: none;
 		background:none;
 	}
-	#customModals > div > div.header > h1{
+	
+	#customModals > div > div.header > h1,
+	#customModals > div > div.header > div.close > h1
+	{
 		font-size:2vmax;
 		margin:0;
 	}
-	#customModals > div > div.header{
+	#customModals > div > div.header,
+	#customModals > div > div.header > div.close{
 		border: 0.2vmax solid #DDD;
 		position: absolute;
 		left:50%;
@@ -493,6 +497,21 @@ div.fxBuffRed{
 		border-top-right-radius:0.5vmax;
 		min-width:25%;
 		background: url(./media/ui/marble.jpg) repeat;
+	}
+
+	#customModals > div > div.header > div.close{
+		top:0;
+		background:rgba(50,0,0,0.75);
+		transform:translateX(101%);
+		right:0;
+		left:auto;
+		min-width: 5vw;
+		cursor:pointer;
+		bottom:-0.2vmax;
+		top:-0.2vmax;
+	}
+	#customModals > div > div.header > div.close:hover{
+		background:rgba(100,0,0,.8);
 	}
 
 	#customModals > div{

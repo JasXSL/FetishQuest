@@ -10,7 +10,10 @@ export default class StaticModal{
 		this.id = id;
 		this.dom = 
 			$('<div id=\"'+esc(this.id)+'\" class="hidden">'+
-				'<div class="header"><h1>'+esc(title)+'</h1></div>'+
+				'<div class="header">'+
+					'<h1>'+esc(title)+'</h1>'+
+					'<div class="close"><h1>X</h1></div>'+
+				'</div>'+
 				'<div class="modalMain bgMarble cmContent"></div>'+
 				'<div class="cmTabs"></div>'+
 			'</div>');
@@ -20,8 +23,15 @@ export default class StaticModal{
 		this.contentContainer = $('> div.modalMain', this.dom);
 		this.tabContainer = $('> div.cmTabs', this.dom);
 
+		this.mainTab = 'default';
 		this.tabs = {};
+		this.refreshOn = [];	// Array of sub objects [{path:(arr)path, fn:(opt)fn}...]. Checked when game data changes to have a callback.
+		this.args = [];			// Args of the last time this was opened
 		
+		$("> div.header > div.close", this.dom).on('click', () => {
+			// Todo: Close sound
+			this.close();
+		});
 
 	}
 
@@ -44,10 +54,8 @@ export default class StaticModal{
 		$("> div.cmTab", this.tabContainer).toggleClass("active", false);
 		$("> div.cmTabContent", this.contentContainer).toggleClass("hidden", true);
 
-		this.tabContainer.toggleClass('hidden', Object.keys(this.tabs).length < 2 );
-		
 		obj.content.toggleClass("hidden", false);
-		obj.label.toggleClass("hidden", false);
+		obj.label.toggleClass("hidden", false).toggleClass("active", true);
 
 	}
 
@@ -68,9 +76,17 @@ export default class StaticModal{
 		};
 		this.contentContainer.append(this.tabs[label].content);
 		this.tabContainer.append(this.tabs[label].label);
-		if( Object.keys(this.tabs).length === 1 ){
+
+		if( Object.keys(this.tabs).length === 1 )
+			this.mainTab = label;
+
+		this.setActiveTab(this.mainTab);
+		this.tabContainer.toggleClass('hidden', Object.keys(this.tabs).length < 2 );
+
+		this.tabs[label].label.on('click', () => {
+			// Todo: tab change sound
 			this.setActiveTab(label);
-		}
+		});
 
 		return this;
 	}
@@ -85,6 +101,16 @@ export default class StaticModal{
 		this.constructor.set();
 	}
 
+	refresh(){
+		this.onDraw.apply(this, this.args);
+	}
+
+	addRefreshOn( path, fn ){
+
+		this.refreshOn.push({path:path, fn:fn});
+		return this;
+
+	}
 
 
 
@@ -108,15 +134,51 @@ export default class StaticModal{
 		obj.dom.toggleClass("hidden", false);
 		game.ui.bindTooltips();
 		this.main.toggleClass("hidden", false);
-
-		return obj.onDraw.call(obj, ...args);
+		this.active = obj;
+		
+		obj.args = [...args];
+		return obj.refresh();
 
 	}
 
 	static close(){
+		this.active = null;
 		// Close everything
 		this.main.toggleClass("hidden", true);
 		Object.values(this.lib).map(modal => modal.dom.toggleClass("hidden", true));
+	}
+
+	static onGameUpdate( data ){
+
+		if( !this.active )
+			return;
+
+		const hasBranch = tree => {
+
+			let cur = data;
+			for( let branch of tree ){
+				
+				cur = cur[branch];
+				if( cur === undefined ){
+					return false;
+				}
+
+			}
+			return true;
+		};
+
+		for( let tree of this.active.refreshOn ){
+
+			if( hasBranch(tree.path) ){
+				if( !tree.fn )
+					this.active.refresh();
+				else
+					tree.fn.call(this.active, tree.path);
+				return;
+			}
+
+		}
+		
 	}
 
 	// Chainable
@@ -136,6 +198,11 @@ export default class StaticModal{
 		this.built = true;
 
 		this.main = $("#customModals");
+
+		this.main.on('click', event => {
+			if( event.target === this.main[0] )
+				this.close();
+		});
 
 
 		// Sleep select
@@ -192,7 +259,8 @@ export default class StaticModal{
 
 		// Gym
 		this.add(new this("gym", "Gym"))
-			.addTab("actives", () => {
+			.addRefreshOn(["players"])
+			.addTab("Actions", () => {
 				return `
 					<div class="slots"></div>
 					<div style="display:flex; width:100%; justify-content:space-between">
@@ -206,12 +274,12 @@ export default class StaticModal{
 						</div>
 					</div>`;
 			})
-			.addTab("passives", () => {
+			.addTab("Talents", () => {
 				return 'Todo: Passives';
 			})
 			.setProperties(function(){
 
-				const actives = this.actives = this.getTabDom('actives');
+				const actives = this.actives = this.getTabDom('Actions');
 				
 				let html = '';
 				for( let i=0; i<6; ++i )
@@ -315,6 +383,7 @@ export default class StaticModal{
 				// Bind stuff
 				this.activeButtons.off('click').on('click', event => {
 					
+					// Todo: Sound
 					const el = $(event.currentTarget),
 						id = el.attr('data-id');
 					game.toggleAction(gymPlayer, player, id);
@@ -325,7 +394,7 @@ export default class StaticModal{
 					const el = $(event.currentTarget),
 						id = el.attr('data-id');
 
-
+					// Todo: sound
 					game.toggleAction(gymPlayer, player, id);
 
 				});
@@ -355,3 +424,4 @@ export default class StaticModal{
 StaticModal.lib = {};
 StaticModal.built = false;
 StaticModal.main = null;
+StaticModal.active = null;

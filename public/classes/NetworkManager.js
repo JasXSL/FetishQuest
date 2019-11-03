@@ -270,7 +270,7 @@ class NetworkManager{
 			return;
 
 		this._last_push = current;
-		game.ui.modal.onGameUpdate(changes);
+		game.onGameUpdate(changes);
 		if( this.isConnected() && game.is_host ){
 			const now = Date.now();
 			this.io.emit('gameUpdate', {ch:changes,ts:this._pre_push_time,now:now});
@@ -820,7 +820,7 @@ class NetworkManager{
 			return;
 
 		console.debug("Got game data", data);
-		game.ui.modal.onGameUpdate(data);
+		game.onGameUpdate(data);
 
 		if( this.debug )
 			console.debug("Game update received", data);
@@ -838,9 +838,7 @@ class NetworkManager{
 		let dungeonPreId = game.dungeon.id;
 		
 		game.loadFromNet(data);
-		game.ui.draw();
-		game.ui.modal.onGameUpdate(data);
-		
+		game.ui.draw();		
 
 		if( dungeonPreId !== game.dungeon.id )
 			game.renderer.loadActiveDungeon();
