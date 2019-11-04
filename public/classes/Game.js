@@ -748,6 +748,9 @@ export default class Game extends Generic{
 	setMasterVolume( volume = 1.0 ){
 		setMasterVolume(volume);
 	}
+	getMasterVolume(){
+		return +localStorage.masterVolume || 0;
+	}
 	// Supply falsy url to fade out
 	async setMusic( url, volume = 1.0, loop = false ){
 

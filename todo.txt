@@ -6,7 +6,6 @@ Smol:
 	- Enabling or disabling a mod while hosting should send a full game
 
 Medium rare:
-
 	- Change settings to a multi tab layout with different things
 		- Gameplay
 			- Difficulty setting
@@ -17,8 +16,6 @@ Medium rare:
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
 	- Character export/import
 	- AFK mode. Go bot in netgame.
-
-	- Add a barker for the gym when entering the city
 
 
 Big chungi:

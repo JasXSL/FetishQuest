@@ -21,7 +21,7 @@ export default class StaticModal{
 		this.contentContainer = $('> div.modalMain', this.dom);
 		this.tabContainer = $('> div.cmTabs', this.dom);
 
-		this.mainTab = 'default';
+		this.activeTab = 'default';
 		this.tabs = {};
 		this.refreshOn = [];	// Array of sub objects [{path:(arr)path, fn:(opt)fn}...]. Checked when game data changes to have a callback.
 		this.args = [];			// Args of the last time this was opened
@@ -54,9 +54,18 @@ export default class StaticModal{
 
 		obj.content.toggleClass("hidden", false);
 		obj.label.toggleClass("hidden", false).toggleClass("active", true);
+		this.activeTab = label;
+		this.constructor.onTabChanged();
 
 	}
 
+	toggleTab( label, visible = false ){
+
+		const button = this.tabs[label].label;
+		if( button )
+			this.tabs[label].label.toggleClass("hidden", !visible);
+
+	}
 
 	setProperties(fn){
 		fn.call(this);
@@ -75,10 +84,12 @@ export default class StaticModal{
 		this.contentContainer.append(this.tabs[label].content);
 		this.tabContainer.append(this.tabs[label].label);
 
-		if( Object.keys(this.tabs).length === 1 )
-			this.mainTab = label;
+		if( Object.keys(this.tabs).length === 1 || label === this.constructor.tabs[this.id] ){
+			this.activeTab = label;
+		}
 
-		this.setActiveTab(this.mainTab);
+		this.setActiveTab(this.activeTab);
+
 		this.tabContainer.toggleClass('hidden', Object.keys(this.tabs).length < 2 );
 
 		this.tabs[label].label.on('click', () => {
@@ -200,6 +211,15 @@ export default class StaticModal{
 
 	}
 
+	static onTabChanged(){
+		
+		if( !this.active )
+			return;
+		this.tabs[this.active.id] = this.active.activeTab;
+		localStorage.staticModalTabs = JSON.stringify(this.tabs);
+		
+	}
+
 	// Only gets called once when the DOM loads. Bulids all the modal bases
 	static ini(){
 
@@ -207,8 +227,10 @@ export default class StaticModal{
 			return;
 		this.built = true;
 
+		this.tabs = {};
 		this.main = $("#customModals");
 
+		try{this.tabs = JSON.parse(localStorage.staticModalTabs);}catch(err){}
 		this.main.on('click', event => {
 			if( event.target === this.main[0] )
 				this.close();
@@ -431,6 +453,164 @@ export default class StaticModal{
 			});
 
 
+		// Game settings
+		this.add(new this("settings", "Settings"))
+			.addRefreshOn(["players"])
+			.addRefreshOn(["battle_active"])
+			.addTab("Gameplay", () => {
+				return `
+					Difficulty: <input type="range" min=0 max=10 step=1 value=5 name="difficulty" />		
+				`;
+			})
+			.addTab("DM", () => {
+				return `
+					<div class="option button" data-action="toggleDMTools"><input type="checkbox" /><span> Show DM Tools</span></div>
+					<div class="option button" data-action="addPlayer">+ Add Player</div>
+					<div class="option button" data-action="fullRegen">Restore HPs</div>
+					<div class="option button" data-action="toggleBattle">Start Battle</div>
+				`;
+			})
+			.addTab("Video", () => {
+				return `
+					<div class="option button" data-action="enableBubbles"><input type="checkbox" /><span> Bubble Chat</span></div>
+					<div class="option button" data-action="enableShadows"><input type="checkbox" /><span> Shadows (Experimental, requires refresh)</span></div>
+					<div class="option button" data-action="enableAA"><input type="checkbox" /><span> Antialiasing</span></div>
+				`;
+			})
+			.addTab("Audio", () => {
+				return `
+					<strong>Main Volume:</strong> <input type="range" min=0 max=100 step=1 name="masterSoundVolume" /><br />
+					Ambient: <input type="range" min=0 max=100 step=1 name="ambientSoundVolume" />
+					Music: <input type="range" min=0 max=100 step=1 name="musicSoundVolume" /><br />
+					FX: <input type="range" min=0 max=100 step=1 name="fxSoundVolume" />
+					UI: <input type="range" min=0 max=100 step=1 name="uiSoundVolume" /><br />
+				`;
+			})
+			.setProperties(function(){
+				
+				const ui = game.ui;
+
+				
+
+				this.gameplay = {
+					difficulty : $("input[name=difficulty]", this.getTabDom("Gameplay"))
+				};
+
+				this.dm = {
+					toggle : $("div[data-action=toggleDMTools]", this.getTabDom("DM")),
+					addPlayer : $("div[data-action=addPlayer]", this.getTabDom("DM")),
+					fullRegen : $("div[data-action=fullRegen]", this.getTabDom("DM")),
+					toggleBattle : $("div[data-action=toggleBattle]", this.getTabDom("DM")),
+				};
+
+				this.video = {
+					enableBubbles : $("div[data-action=enableBubbles]", this.getTabDom("Video")),
+					enableShadows : $("div[data-action=enableShadows]", this.getTabDom("Video")),
+					enableAA : $("div[data-action=enableAA]", this.getTabDom("Video")),
+				};
+
+				// Bind events
+				
+				// Gameplay
+				this.gameplay.difficulty.on('input', event => {
+					console.log("Todo: Set difficulty to ", +$(event.currentTarget).val());	
+				});
+
+				// DM
+				this.dm.toggle.on('click', event => {
+					localStorage.hide_dm_tools = +ui.showDMTools();
+					ui.board.toggleClass("dev", ui.showDMTools());
+					$("input", event.currentTarget).prop("checked", ui.showDMTools());
+				});
+				this.dm.addPlayer.on('click', event => {
+					ui.drawPlayerEditor();
+					this.close();
+				});
+				this.dm.fullRegen.on('click', event => {
+					game.fullRegen();
+				});
+				this.dm.toggleBattle.on('click', event => {
+					game.toggleBattle();
+				});
+				
+				// Video
+				this.video.enableBubbles.on('click', event => {
+
+					const hide = Boolean(!+localStorage.hide_bubbles)
+					localStorage.hide_bubbles = +hide;
+					$("input", event.currentTarget).prop("checked", !hide);
+					ui.board.toggleClass("bubbles", !hide);
+
+				});
+				this.video.enableAA.on('click', event => {
+
+					const show = Boolean(!+localStorage.aa)
+					localStorage.aa = +show;
+					$("input", event.currentTarget).prop("checked", show);
+					game.renderer.aa.enabled = show;
+
+				});
+				this.video.enableShadows.on('click', event => {
+
+					const show = Boolean(!+localStorage.shadows)
+					localStorage.shadows = +show;
+					$("input", event.currentTarget).prop("checked", show);
+
+					ui.modal.set(
+						'<p>This setting requires a browser refresh. Would you like to refresh now?</p>'+
+						'<input type="button" value="Yes" class="yes" />'+	
+						'<input type="button" value="No" />'
+					);
+
+					$("#modal input[type=button]").on('click', event => {
+						const targ = $(event.currentTarget);
+						if( targ.is('.yes') )
+							window.location.reload();
+						ui.modal.close();
+					});
+
+				});
+				
+				// Audio
+				$("input", this.getTabDom("Audio")).on('input', event => {
+					
+					const el = $(event.currentTarget),
+						val = +el.val(),
+						name = el.attr("name").split('SoundVolume').shift();
+
+					if( name === 'master' )
+						game.setMasterVolume(val/100 || 0);
+					else
+						game['audio_'+name].setVolume(val/100 || 0);
+
+				});
+
+
+			})
+			.setDraw(function(){
+
+				const ui = game.ui;
+
+				$("input", this.dm.toggle).prop('checked', ui.showDMTools());
+				this.dm.toggleBattle.text(game.battle_active ? 'End Battle' : 'Start Battle').toggleClass('hidden',  game.teamsStanding().length < 2);
+
+				
+				$("input", this.video.enableBubbles).prop('checked', !+localStorage.hide_bubbles);
+				$("input", this.video.enableShadows).prop('checked', Boolean(+localStorage.shadows));
+				$("input", this.video.enableAA).prop('checked', Boolean(+localStorage.aa));
+
+
+				const knobs = ['ambient','fx','music','ui'];
+				const audio = this.getTabDom("Audio");
+				for( let knob of knobs ){
+					$("input[name="+knob+"SoundVolume]", audio).val(Math.round(game['audio_'+knob].volume*100));
+				}
+				$("input[name=masterSoundVolume]", audio).val(Math.round(game.getMasterVolume()*100));
+
+				this.toggleTab('DM', game.is_host);
+
+
+			});
 		
 		
 

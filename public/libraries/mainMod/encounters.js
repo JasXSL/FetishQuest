@@ -1042,11 +1042,32 @@ const lib = {
 					stages : [
 						{
 							index: 0,
-							text: "Ah new blood! Welcome to the Yuug City gym! I'll be your personal trainer, but it'll cost ya!",
+							text: "Ah new blood! Welcome to the Yuug City gym! I'm Chad, the local trainer!",
 							options : [
-								{text:'Thanks', index:-1}
+								{text:'What can you do here?', index:1}
 							],
-						}
+						},
+						{
+							index: 1,
+							text: "We teach new fighting techniques, with Virgil here we can teach magic too! Even though that's a skill for pansies!",
+							options : [
+								{text:'What kind of techniques can I learn?', index:2}
+							],
+						},
+						{
+							index: 2,
+							text: "It depends on your aptitude of various skills! Any idiot can learn to punch someone where it hurts, but it takes a certain kind of person to master complex elemental or stealth skills!",
+							options : [
+								{text:'And you can teach all that?', index:3}
+							],
+						},
+						{
+							index: 3,
+							text: "We can teach what we have on hand, but if you find a manual for an attack somewhere, we can help check your form and spot for you! And once you've mastered your new move, you can come back and brush up on it at any time for free!",
+							options : [
+								{text:'Sounds good, thanks!', index:-1}
+							],
+						},
 					],
 					once: true,
 					persistent : true,
@@ -1056,6 +1077,53 @@ const lib = {
 			{
 				type : GameAction.types.gym,
 				data : {player:'yuug_city_gymleader'}
+			}
+		]
+	},
+	yuug_city_entrance : {
+		players: ["yuug_city_barker"],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label: 'yuug_city_barker',
+					stages : [
+						{
+							index: 0,
+							text: "Oh hello! Want some directions? I'm here to help!",
+							options : [
+								{text:'I\'m looking to learn some skills!', index:1},
+								{text:'Is there an inn?', index:2},
+							],
+						},
+
+						{
+							index: 1,
+							text: "Looking to add a little muscle on you eh? Chad's gym is the place to visit! It's located along the west wall, you can't miss it!",
+							options : [
+								{text:'Thank you', index:-1}
+							],
+						},
+
+						{
+							index: 2,
+							text: "Two, actually! We have the Premium Inn right here near the city gates, but it's usually reserved for more... refined customers.",
+							options : [
+								{text:'Excuse me?', index:20},
+								{text:'[Leave]', index:-1, chat:RoleplayStageOption.ChatType.none}
+							],
+						},
+						{
+							index: 20,
+							text: "No offense! You're probably better off visiting the Greasy Backdoor inn in the north western part of the city anyhow! It's run by a lovely bear couple. You won't regret a stay there!",
+							options : [
+								{text:'Thank you', index:-1}
+							],
+						},
+					],
+					player : 'yuug_city_barker'
+				}}
 			}
 		]
 	},

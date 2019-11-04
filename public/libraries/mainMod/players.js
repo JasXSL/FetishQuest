@@ -128,7 +128,7 @@ const lib = {
 	yuug_city_greasy_backdoor_tavern : {
 		name : "Welt",
 		species : "brown bear",
-		description : "A large brawny bear wearing a dirty apron.",
+		description : "A large brawny bear man wearing a dirty apron.",
 		icon : "",
 		team : 1,
 		size : 7,
@@ -141,7 +141,7 @@ const lib = {
 	yuug_premium_inn_receptionist : {
 		name : "Veroniquette",
 		species : "cat",
-		description : "A cat with bright white fur and an oversized blonde hairdo. Wearing a cream colored dress with puffy arms.",
+		description : "A female cat with bright white fur and an oversized blonde hairdo. Wearing a cream colored dress with puffy arms.",
 		icon : "",
 		team : 1,
 		size : 4,
@@ -150,6 +150,19 @@ const lib = {
 		dominant : 0.6,
 		hetero : 0.8,
 		intelligence : 0.5,
+	},
+	yuug_city_barker : {
+		name : "Barker",
+		species : "dalmatian",
+		description : "A dalmatian standing near the city gates, visitors seem to gather around him.",
+		icon : "",
+		team : 1,
+		size : 5,
+		leveled : true,
+		sadistic : 0.2,
+		dominant : 0.2,
+		hetero : 0.2,
+		intelligence : 0.6,
 	},
 
 	MQ00_Boss : {

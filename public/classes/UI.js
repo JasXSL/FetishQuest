@@ -1177,125 +1177,47 @@ export default class UI{
 
 		const player = game.getMyActivePlayer();
 
-		let th = this;
 		let html = 
 			'<div class="button'+(!this.visible ? ' highlighted' : '')+'" data-id="map" style="background-image:url(/media/wrapper_icons/treasure-map.svg);"></div>'+
 			(player ? '<div class="button" data-id="inventory" style="background-image:url(/media/wrapper_icons/light-backpack.svg);"></div>' : '')+
 			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'+
-			'<div class="button" data-id="audioToggle" style="background-image: url(media/wrapper_icons/speaker.svg)">'+
-				'<div class="rollout audioSettings">'+
-					'Ambient:'+
-					'<input type="range" min=0 max=100 step=1 id="ambientSoundVolume" /><br />'+
-					'Music:'+
-					'<input type="range" min=0 max=100 step=1 id="musicSoundVolume" /><br />'+
-					'FX:'+
-					'<input type="range" min=0 max=100 step=1 id="fxSoundVolume" /><br />'+
-					'UI:'+
-					'<input type="range" min=0 max=100 step=1 id="uiSoundVolume" /><br />'+
-					'Master:'+
-					'<input type="range" min=0 max=100 step=1 id="masterSoundVolume" />'+
-				'</div>'+
-			'</div>'+
 			'<div data-id="multiplayer" class="button" style="background-image: url(media/wrapper_icons/multiplayer.svg)"></div>'+
-			( game.is_host ?
-				'<div data-id="DM" class="button" style="background-image: url(media/wrapper_icons/auto-repair.svg)"></div>' : 
-				''
-			)+
+			'<div data-id="settings" class="button" style="background-image: url(media/wrapper_icons/auto-repair.svg)"></div>'+
 			'<div data-id="mainMenu" class="button autoWidth">Game</div>'
 		;
 		this.gameIcons.html(html);
 		this.toggle(this.visible);
 
-		const masterVolume = $("[data-id=audioToggle]", this.gameIcons);
+		$("[data-id]", this.gameIcons).on('click', event => {
 
-		
+			const el = $(event.currentTarget);
 
-
-		$("[data-id]", this.gameIcons).on('click', function(event){
-
-			let id = $(this).attr("data-id");
+			let id = $(el).attr("data-id");
 			if( id === 'map' ){
 				game.uiAudio( 'map_toggle' );
-				th.toggle();
+				this.toggle();
 			}
 			else if( id === 'quest' ){
-				th.drawQuests();
+				this.drawQuests();
 				game.uiAudio( 'toggle_quests' );
 			}
 			else if( id === "mainMenu" ){
 				game.uiAudio( 'menu_generic' );
-				th.drawMainMenu();
+				this.drawMainMenu();
 			}
 			else if( id === 'multiplayer' ){
 				game.uiAudio( 'menu_generic' );
-				th.drawNetSettings();
+				this.drawNetSettings();
 			}
 			else if( id === 'inventory' ){
 				game.uiAudio( 'backpack' );
-				th.drawPlayerInventory();
+				this.drawPlayerInventory();
 			}
-			else if( id === 'audioToggle' ){
-
-				let el = $("> div", this);
-				el.toggleClass('visible');
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				if( el.hasClass('visible') ){
-					window.addEventListener('click', event => {
-						$("> div", this).toggleClass('visible', false);
-					}, {once:true});
-				}
-
-			}
-			else if( id === 'DM' ){
+			else if( id === 'settings' ){
 				game.uiAudio( 'menu_generic' );
-				th.drawDMTools();
+				this.staticModal.set('settings');
 			}
 		});
-
-		function updateVolumeIcon(){
-			masterVolume.css({
-				'background-image' : localStorage.masterVolume > 0 ? 'url(media/wrapper_icons/speaker.svg)' : 'url(media/wrapper_icons/speaker-off.svg)'
-			});
-		}
-
-		let volume = 0;
-		if( !isNaN(localStorage.masterVolume) )
-			volume = +localStorage.masterVolume;
-		$('#masterSoundVolume', masterVolume)
-			.val(Math.round(volume*100))
-			.off('input').on('input', function(event){
-				let preVolume = +localStorage.masterVolume;
-				game.setMasterVolume($(this).val()/100);
-				if( +localStorage.masterVolume > 0 !== preVolume > 0 )
-					updateVolumeIcon();
-			});
-		// Channels
-		$('#ambientSoundVolume', masterVolume)
-			.val(Math.round(game.audio_ambient.volume*100))
-			.off('input').on('input', function(event){
-				game.audio_ambient.setVolume($(this).val()/100);
-			});
-		$('#fxSoundVolume', masterVolume)
-			.val(Math.round(game.audio_fx.volume*100))
-			.off('input').on('input', function(event){
-				game.audio_fx.setVolume($(this).val()/100);
-			});
-		$('#musicSoundVolume', masterVolume)
-			.val(Math.round(game.audio_music.volume*100))
-			.off('input').on('input', function(event){
-				game.audio_music.setVolume($(this).val()/100);
-			});
-		$('#uiSoundVolume', masterVolume)
-			.val(Math.round(game.audio_ui.volume*100))
-			.off('input').on('input', function(event){
-				game.audio_ui.setVolume($(this).val()/100);
-			});
-
-		
-		$('div.rollout', masterVolume).on('click', event => event.stopImmediatePropagation());
-
-		updateVolumeIcon();
 
 		$("#mainMenuToggle > div").off('click').on('click', function(){
 			let id = $(this).attr("data-id");
@@ -1311,93 +1233,6 @@ export default class UI{
 
 	}
 
-	// DM Tools
-	drawDMTools(){
-
-		const showTools = this.showDMTools(),
-			showBubbles = this.showBubbles();
-		
-		const th = this;
-		let html = 
-			'<h3>Gameplay Settings & Debug</h3>'+
-			'<label class="option button"><input type="checkbox" name="toggleDMTools" '+(showTools ? 'checked' : '')+' /><span> DM Tools</span></label>'+
-			'<div class="option button" data-action="addPlayer">+ Add Player</div>'+
-			'<div class="option button" data-action="fullRegen">Restore HPs</div>'
-		;
-		// If there's more than one team standing, then draw the start battle
-		if( game.teamsStanding().length > 1 )
-			html += '<div class="option button '+(game.battle_active ? 'active' : 'inactive')+'" data-action="toggleBattle">'+
-				(game.battle_active ? 'End Battle' : 'Start Battle')+
-			'</div>';
-
-		let shadowsOn = +localStorage.shadows,
-			aaOn = +localStorage.aa
-		;
-		html += '<h3>Visual Settings</h3>'+
-			'<label class="option button"><input type="checkbox" name="enableBubbles" '+(showBubbles ? 'checked' : '')+' /><span> Bubble Chat</span></label>'+
-			'<label class="option button"><input type="checkbox" name="enableShadows" '+(shadowsOn ? 'checked' : '')+' /><span> Shadows (Experimental, requires refresh)</span></label>'+
-			'<label class="option button"><input type="checkbox" name="enableAA" '+(aaOn ? 'checked' : '')+' /><span> Antialiasing</span></label>'
-		;
-			
-
-		this.modal.set('<div class="dm_tools">'+html+'</div>');
-
-		// Bind events
-		$("#modal div.option[data-action]").off('click').on('click', function(){
-
-			let action = $(this).attr('data-action');
-			if( action == "addPlayer" )
-				th.drawPlayerEditor();
-			else if( action == "toggleBattle" ){
-				game.toggleBattle();
-				th.drawDMTools();
-			}
-			else if( action === "fullRegen" )
-				game.fullRegen();
-
-		});
-
-		const dmToolsInput = $("#modal input[name=toggleDMTools]");
-		dmToolsInput.on('change', () => {
-			localStorage.hide_dm_tools = +!dmToolsInput.is(':checked');
-			th.board.toggleClass("dev", th.showDMTools());
-		});
-
-		const bubblesInput = $("#modal input[name=enableBubbles]");
-		bubblesInput.on('change', () => {
-			localStorage.hide_bubbles = +!bubblesInput.is(':checked');
-			th.board.toggleClass("bubbles", th.showBubbles());
-		}); 
-
-		const aaInput = $("#modal input[name=enableAA]");
-		aaInput.on('change', () => {
-			localStorage.aa = +aaInput.is(':checked');
-			game.renderer.aa.enabled = Boolean(+localStorage.aa);
-		});
-
-		const shadowsInput = $("#modal input[name=enableShadows]");
-		shadowsInput.on('change', () => {
-			localStorage.shadows = +shadowsInput.is(':checked');
-			this.modal.set(
-				'<p>This setting requires a browser refresh. Would you like to refresh now?</p>'+
-				'<input type="button" value="Yes" class="yes" />'+	
-				'<input type="button" value="No" />'
-			);
-
-			$("#modal input[type=button]").on('click', event => {
-				const targ = $(event.currentTarget);
-				if( targ.is('.yes') ){
-					window.location.reload();
-				}
-				else{
-					this.drawDMTools();
-				}
-			});
-		});
-
-
-
-	}
 
 	updateMute(){
 		const mute = Boolean( !game.is_host && !game.getMyActivePlayer() && game.mute_spectators )

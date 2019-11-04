@@ -3419,7 +3419,7 @@ export default class Modtools{
 					interaction.data = {player:"Player Label",shop:'Shop obj/label'};
 
 				const div = $(th.formGameAction(interaction));
-				base.replaceWith(div);
+				base.html(div[0]);
 				th.formGameActionBind(div, interaction);
 
 			}

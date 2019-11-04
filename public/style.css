@@ -654,6 +654,15 @@ div.fxBuffRed{
 		display:none;
 	}
 
+	#settings{
+		min-width: 50%;
+		min-height:25%;
+	}
+
+	#settings input[type=checkbox]{
+		pointer-events: none;
+	}
+
 
 
 
