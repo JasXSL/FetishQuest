@@ -22,6 +22,15 @@ const lib = {
 		]
 	},
 
+	yuug_city_greasy_backdoor : {
+		name : 'Greasy Backdoor Tavern',
+		conditions : [],
+		items : [
+			{id:"ale", asset:'food_Ale', amount:20, restock_rate:80000},
+			{id:"fish", asset:'food_FriedFish', amount:20, restock_rate:80000},
+		]
+	},
+
 	debugShop : {
 		name : 'DEBUG SHOP',
 		conditions : [],

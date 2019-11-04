@@ -2516,7 +2516,7 @@ export default class Game extends Generic{
 
 		// If netcode, send to host & return
 		if( !this.is_host ){
-			console.error("Todo: Netcode");
+			this.net.playerBuyAction(gymPlayer, player, learnable);
 			return;
 		}
 
@@ -2541,7 +2541,7 @@ export default class Game extends Generic{
 			throw 'Invalid player';
 
 		if( !this.is_host ){
-			console.error("Todo: Netcode");
+			this.net.playerToggleAction(gymPlayer, player, actionID);
 			return;
 		}
 
@@ -2663,15 +2663,15 @@ Game.load = async () => {
 			'Nickname: <input type="text" value="'+esc(game.net.getStandardNick() || 'Anonymous #'+Math.floor(Math.random()*9999))+'">'+
 			'<input type="submit" value="Join" />'+
 		'</form>';
-		this.ui.modal.set(html);
+		game.ui.modal.set(html);
 		$("#joinOnlineGame").on('submit', event => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			const nick = $("#joinOnlineGame input[type=text]").val().trim();
 			if( !nick )
-				return this.ui.modal.addError("Please enter a proper nickname");
+				return game.ui.modal.addError("Please enter a proper nickname");
 			game.net.joinGame(gameID, nick);
-			this.ui.modal.close();
+			game.ui.modal.close();
 		});
 		game.ui.draw();
 		return;

@@ -1032,7 +1032,7 @@ const lib = {
 
 	// YUUG_CITY
 	yuug_city_gym : {
-		players: ["yuug_city_gymleader"],
+		players: ["yuug_city_gymleader", "yuug_city_gym_trainee"],
 		friendly : true,
 		game_actions : [
 			{
@@ -1060,6 +1060,77 @@ const lib = {
 		]
 	},
 
+	yuug_city_greasy_backdoor_reception : {
+		players : ['yuug_city_greasy_backdoor_receptionist'],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label: 'yuug_city_greasy_backdoor_welcome',
+					stages : [
+						{
+							index: 0,
+							text: "Oh hello there traveler! Welcome to The Greasy Backdoor Inn! If you're sleepy I have a room for you, or if you're hungry you can talk to my hubby over in the tavern here next to me!",
+							options : [
+								{text:'Thanks', index:-1}
+							],
+						}
+					],
+					once: true,
+					persistent : true,
+					player : 'yuug_city_greasy_backdoor_receptionist'
+				}}
+			},
+			{
+				type : GameAction.types.rentRoom,
+				data : {cost:100, text:"Oh you look dreadfully tired! We have a room upstairs just for you!", success_text:'It may be a little plain, I\'m sure you\'ll have a good rest!', player:'yuug_city_greasy_backdoor_receptionist'},
+			}
+		],
+	},
+	yuug_city_greasy_backdoor_tavern : {
+		players : ['yuug_city_greasy_backdoor_tavern'],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.shop,
+				data : {shop:'yuug_city_greasy_backdoor', player:'yuug_city_greasy_backdoor_tavern'},
+			}
+		],
+	},
+	yuug_city_greasy_backdoor_tavern : {
+		players : ['yuug_city_greasy_backdoor_tavern'],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.shop,
+				data : {shop:'yuug_city_greasy_backdoor', player:'yuug_city_greasy_backdoor_tavern'},
+			}
+		],
+	},
+	yuug_premium_inn : {
+		players : ['yuug_premium_inn_receptionist'],
+		friendly : true,
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label: 'yuug_premium_inn_receptionist',
+					stages : [
+						{
+							index: 0,
+							text: "Did you mistake our fine establishment for the greasy backdoor? We have no rooms to spare for you common rabble!",
+							options : [
+								{text:'[Leave]', index:-1, chat:RoleplayStageOption.ChatType.none}
+							],
+						}
+					],
+					player : 'yuug_premium_inn_receptionist'
+				}}
+			}
+		],
+	},
+	
 	
 
 	mimic : {

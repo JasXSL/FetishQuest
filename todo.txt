@@ -3,49 +3,48 @@
 
 Smol:	
 	- Add fog override to cells
+	- Enabling or disabling a mod while hosting should send a full game
 
 Medium rare:
 
-	- Difficulty setting
-		- Should probably be in options.
-		- Affect enemy damage done only?
-	
+	- Change settings to a multi tab layout with different things
+		- Gameplay
+			- Difficulty setting
+		- Audio
+		- Graphics
+		- Debug Tools
+
 	- Redesign errors to a try/catch system, that'll let netcode return errors as well
 	- Character export/import
 	- AFK mode. Go bot in netgame.
 
+	- Add a barker for the gym when entering the city
 
 
 Big chungi:
-	- Spell learning system
-		- Where to learn?
-			- In the city or from quests.
-			- Class trainers can teach you class abilities.
-			- Class trainers also lets you swap your actions around, regardless of their class.
-		- Who can learn?
-			- Spell unlocks should be limited by conditions		
-		- UI
-			- Netcode
-	- Esc needs to close new modal
+	Add actions:
+	- Generic
+		- Rest (pre-learned, but needs to be activated): 3 AP. Restores 1 MP and clears 2 pain, but lowers physical resistance by 2 for 1 turn. Ends your turn.
+		- ???
 
+	Necromancer Quest:
+		- Encounters in the woods but only at night
+		- Hidden door revealed at night
+		- Reward?
+
+
+
+
+
+
+-- LATER UPDATE --
 
 	- Main quest chapter 2
 		- Go to Yuug capital?
 		- What do there?
 
-	- Bank system
-		- Exchange
-		- Store gold
-
-	Add actions:
-	- Generic
-		- Pummel DONE
-		- Rest: 3 AP. Restores 1 MP and clears 2 pain, but lowers physical resistance by 2 for 1 turn. Ends your turn.
-		- ???
-
-
--- LATER UPDATE --
 	- Give every modal its own screen instead of using the modal system
+	- Books
 	- Show NPCs on the map
 		- The things that are on the character menu should show up on the map instead:
 			- Talk to
@@ -80,16 +79,21 @@ LATER:
 		- Sub = Restore mana
 		- Dom = restore HP
 		- 
-	
+	- Convert more stuff to the new modal system
+
+- Bank system
+	- Exchange
+	- Store gold
+
 
 - Punishments
-	- Custom cursors
-		- Arrow
-		- Interact
-		- Inspect
-		- Buy
-		- Sell
-		- Repair
+- Custom cursors
+	- Arrow
+	- Interact
+	- Inspect
+	- Buy
+	- Sell
+	- Repair
 
 
 Food for thought

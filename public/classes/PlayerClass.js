@@ -40,6 +40,7 @@ export default class PlayerClass extends Generic{
 
 	save( full ){
 		const out = {
+			label : this.label,	// Needed for class conditions
 			name : this.name,
 			svPhysical : this.svPhysical,
 			svElemental : this.svElemental,
@@ -57,7 +58,6 @@ export default class PlayerClass extends Generic{
 			name_type : this.name_type
 		};
 		if( full ){
-			out.label = this.label;
 			out.isMonsterClass = this.isMonsterClass;
 			out.actions = this.actions;
 		}

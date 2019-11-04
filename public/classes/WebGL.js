@@ -1901,6 +1901,10 @@ class Stage{
 // if reset is true, it tries to reset to the default value if found
 Stage.setMeshMatProperty = function( mesh, id, value, reset = false ){
 	
+	if( !mesh ){
+		console.error("Unable to set material on", mesh);
+		return;
+	}
 	let mat = mesh.material;
 
 	if( !mat )

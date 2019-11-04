@@ -27,6 +27,7 @@ export default class UI{
 
 		this.modal = new Modal(this);					// Variable modal. It's slower and should really only be used for dm tools and yes/no.
 		this.staticModal = StaticModal;		// Static modal. These are created in index.html, and are shown/hidden instead of generated.
+		this.initialized = false;
 
 		this.board = $("#ui");
 		this.players = $("#ui > div.players");
@@ -212,13 +213,17 @@ export default class UI{
 	// Takes the 3d canvases
 	ini( map, fx ){
 
+		if( this.initialized )
+			return;		
+
 		// Build the action bar
 		let html = '';
 		for( let i=0; i<NUM_ACTIONS; ++i )
 			html += UI.Templates.actionButton;
-		html += '<div data-id="end-turn" class="action button autoWidth">End Turn</div>';
+		html += '<div data-id="end-turn" class="action button autoWidth">End Turn</div><span class="hidden">Spectating</span>';
 		this.actionbar_actions.html(html);
 		this.endTurnButton = $('> div[data-id="end-turn"]',this.actionbar_actions);
+		this.spectatingText = $('> span', this.actionbar_actions);
 
 		this.staticModal.ini();
 		
@@ -228,6 +233,8 @@ export default class UI{
 		$("#fx").html(fx);
 		this.toggle(this.visible);
 
+		this.initialized = true;
+		this.draw();
 
 	}
 
@@ -267,6 +274,9 @@ export default class UI{
 	/* MAIN BOARD */
 	// Updates everything
 	draw(){
+
+		if( !this.initialized )
+			return;
 
 		if( this.drawTimer )
 			return;
@@ -328,9 +338,12 @@ export default class UI{
 		const buttons = $('> div.action:not([data-id="end-turn"])', this.actionbar_actions);
 		buttons.toggleClass("hidden", true);
 
+		this.spectatingText.toggleClass('hidden', Boolean(player));
+
 		if( !player ){
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
+			this.endTurnButton.toggleClass('hidden', true);
 			this.toggleRope(false);
 			return;
 		}
@@ -1001,7 +1014,10 @@ export default class UI{
 				game.setRoleplay(rp);
 		});
 
+		$("> div.interactions", el).toggleClass('hidden', !myActive);
+
 		if( myActive ){
+			
 			const showLoot = p.isLootableBy(myActive);
 			$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
 				event.stopImmediatePropagation();
@@ -1029,10 +1045,9 @@ export default class UI{
 			const showGym = game.gymAvailableTo(p, myActive);
 			$("div.interaction[data-type=gym]", el).toggleClass("hidden", !showGym).off('click').on('click', event => {
 				event.stopImmediatePropagation();
-				if( this.staticModal.set('gym', p) ){
-					// Todo: Enter gym sound
-					//game.uiAudio( "gym_entered" );
-				}
+				this.staticModal.set('gym', p);
+				game.uiAudio( "gym_entered" );
+				
 			});
 
 			try{
@@ -1043,6 +1058,8 @@ export default class UI{
 				});
 			}catch(err){}
 		}
+
+		
 
 		// Effect wrappers
 		const wrappers = p.getWrappers().filter(el => el.name.length && el.icon && el.parent instanceof Player),

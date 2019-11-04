@@ -32,7 +32,7 @@ export default class ActionLearnable extends Generic{
 		const out = {
 			label : this.label,
 			action : this.action,
-			conditions : Condition.saveThese(this.conditions),
+			conditions : Condition.saveThese(this.conditions, full),
 			auto_learn : this.auto_learn,
 			cost : this.cost
 		};

@@ -584,6 +584,16 @@ div.fxBuffRed{
 		padding:2vmax;
 	}
 
+	#gym div.slots,
+	#gym div.right,
+	#gym div.left{
+		padding: 0.5vmax;
+		border: 1px #666 solid;
+		background:rgba(0,0,0,.75);
+		margin:0.25vmax;
+		border-radius: 0.5vmax;
+	}
+
 	#gym div.slots{
 		text-align: center;
 	}
@@ -609,6 +619,11 @@ div.fxBuffRed{
 	#gym div.right > div.purchasable > div.learnable.disabled{
 		background: rgba(100,0,0,.5);
 		border-color: #A33;
+	}
+	#gym div.right > div.purchasable > div.learnable.disabled.empty{
+		background:none;
+		border:none;
+		font-size:1.5vmax;
 	}
 	#gym div.right > div.purchasable > div.learnable:hover:not(.disabled){
 		cursor: pointer;

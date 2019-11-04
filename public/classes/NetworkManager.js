@@ -3,6 +3,7 @@ import GameEvent from './GameEvent.js';
 import { AudioKit } from './Audio.js';
 import HitFX from './HitFX.js';
 import Comparer from './Comparer.js';
+import ActionLearnable from './ActionLearnable.js';
 
 class NetworkManager{
 
@@ -385,7 +386,7 @@ class NetworkManager{
 		if( typeof args !== "object" )
 			args = {};
 
-		function respondWithError( error ){
+		const respondWithError = error => {
 			th.sendHostTaskTo(netPlayer, NetworkManager.dmTasks.error, {
 				txt : error
 			});
@@ -394,257 +395,287 @@ class NetworkManager{
 
 		// Helper function that validates the player and returns it
 		// Depends on the player UUID being under args.player
-		function validatePlayer(){
+		const validatePlayer = () => {
 
 			let player = game.getPlayerById(args.player);
 			if(!player)
-				return respondWithError('Player not found');
+				throw('Player not found');
 			if(player.netgame_owner !== netPlayer)
-				return respondWithError('Player not owned by you');
+				throw('Player not owned by you');
 			return player;
 
 		}
 
+
 		
+		try{
 
-		// Equip or unequip gear
-		if( args && task === PT.toggleGear && typeof args.player === "string" && typeof args.item === "string" ){
+			// Equip or unequip gear
+			if( args && task === PT.toggleGear && typeof args.player === "string" && typeof args.item === "string" ){
 
-			let player = validatePlayer();
-			if( !player )
-				return;
+				let player = validatePlayer();
+				if( !player )
+					return;
 
-			game.equipPlayerItem( player, args.item );
-			game.ui.draw();
+				game.equipPlayerItem( player, args.item );
+				game.ui.draw();
 
-		}
-
-		if( task === PT.getFullGame ){
-			this.dmSendFullGame(netPlayer);
-		}
-
-		// Use an action (spell)
-		if( args && task === PT.useAction && Array.isArray(args.targets) ){
-
-			let player = validatePlayer();
-			if( !player )
-				return;
-			let spell = player.getActionById(args.action),
-				targs = args.targets.map(t => game.getPlayerById(t)).filter(t => !!t)
-			;
-			if( !spell ){
-				console.error("Player action", args.action, "not found in player", player);
-				return respondWithError("Action not found");
 			}
-			game.useActionOnTarget(spell, targs, player, netPlayer);
-		}
 
-		// Chat
-		if( args && task === PT.speak && typeof args.player === "string" && typeof args.text === "string" ){
-
-			let p = args.player, txt = args.text, pl = game.getPlayerById(p);
-
-			let isOOC = p === 'ooc';
-			if( !isOOC && pl.netgame_owner !== netPlayer )
-				return console.error("Player ", p, " not found or not owned by sender", netPlayer);
-			if( isOOC )
-				p = this.getPlayerNameById(netPlayer);
-			
-			if( +localStorage.muteSpectators && !this.getOwnedPlayers(netPlayer).length )
-				return;
-			
-
-			game.speakAs(p, escapeStylizeText(txt), isOOC);
-
-		}
-
-		if( task === PT.interact ){
-
-			let player = validatePlayer();
-			if( !player )
-				return;
-			let room = game.dungeon.getActiveRoom(),
-				asset = room.getAssetById(args.dungeonAsset)
-			;
-			if( !asset )
-				return respondWithError("Interacted asset not found in room", args.dungeonAsset);
-
-			game.dungeon.assetClicked( player, room, asset, asset._stage_mesh );
-
-		}
-
-		if( task === PT.loot ){
-
-			let player = validatePlayer();
-			if( !player )
-				return;
-
-			let room = game.dungeon.getActiveRoom(),
-				dungeonAsset = room.getAssetById(args.dungeonAsset)
-			;
-
-			if( dungeonAsset )
-				dungeonAsset.lootToPlayer( args.item, player );
-
-		}
-
-		if( task === PT.lootPlayer ){
-
-			let player = validatePlayer();
-			if( !player )
-				return;
-
-			let target = game.getPlayerById(args.target);
-			if( !target )
-				return respondWithError("Player not found");
-			if( !target.isLootableBy(player) )
-				return respondWithError("You can't loot that right now");
-			target.lootToPlayer(args.item, player );
-
-		}
-
-		if( task === PT.roleplayOption ){
-
-			let player = validatePlayer();
-			if( !player )
-				return;
-
-			let optID = args.option;
-			game.useRoleplayOption( player, optID );
-
-		}
-
-		if( task === PT.roleplay ){
-
-			let player = validatePlayer();
-			if( !player )
-				return;
-
-			let roleplay = game.getAvailableRoleplayForPlayerById(player, args.roleplay);
-			if( !roleplay )
-				return respondWithError("Roleplay not available");
-
-			game.setRoleplay( roleplay );
-
-		}
-
-		// Repair an item
-		else if( task === PT.useRepairAsset ){
-
-			let player = validatePlayer();
-			if( !player )
-				return;
-			let targ = game.getPlayerById(args.target);
-			if( !targ )
-				return respondWithError('Target not found');
-
-			game.useRepairAsset( player, targ, args.repairKit, args.asset)
-			
-		}
-
-		else if( task === PT.deleteAsset ){
-
-			// {player:(str)owner_id, item:(str)assetID}
-			if( !args.player || !args.item )
-				return;
-			let player = validatePlayer();
-			if( !player )
-				return;
-			game.deletePlayerItem( player, args.item, args.amount );
-
-			
-		}
-		else if( task === PT.tradeAsset ){
-
-			// {player:(str)sender_id, to:(str)sender_id, item:(str)assetID}
-			if( !args.player || !args.item || !args.to )
-				return;
-			let player = validatePlayer();
-			if( !player )
-				return;
-			game.tradePlayerItem( player, game.getPlayerById(args.to), args.item, args.amount );
-
-		}
-
-		else if( task === PT.buyItem ){
-
-			// {player:(str)sender_id, shop:(str)shop_id, item:(str)shopitem_id, amount:(int)amount}
-			if( !args.player || !args.shop || !args.item || !args.amount || isNaN(args.amount) ){
-				console.error("Net: Missing args in call", task, "got", args);
-				return;
+			if( task === PT.getFullGame ){
+				this.dmSendFullGame(netPlayer);
 			}
-			let player = validatePlayer();
-			if( !player )
-				return;
 
-			game.buyAsset(args.shop, args.item, args.amount, player);
+			// Use an action (spell)
+			if( args && task === PT.useAction && Array.isArray(args.targets) ){
+
+				let player = validatePlayer();
+				if( !player )
+					return;
+				let spell = player.getActionById(args.action),
+					targs = args.targets.map(t => game.getPlayerById(t)).filter(t => !!t)
+				;
+				if( !spell ){
+					console.error("Player action", args.action, "not found in player", player);
+					return respondWithError("Action not found");
+				}
+				game.useActionOnTarget(spell, targs, player, netPlayer);
+			}
+
+			// Chat
+			if( args && task === PT.speak && typeof args.player === "string" && typeof args.text === "string" ){
+
+				let p = args.player, txt = args.text, pl = game.getPlayerById(p);
+
+				let isOOC = p === 'ooc';
+				if( !isOOC && pl.netgame_owner !== netPlayer )
+					return console.error("Player ", p, " not found or not owned by sender", netPlayer);
+				if( isOOC )
+					p = this.getPlayerNameById(netPlayer);
+				
+				if( +localStorage.muteSpectators && !this.getOwnedPlayers(netPlayer).length )
+					return;
 				
 
-		}
+				game.speakAs(p, escapeStylizeText(txt), isOOC);
 
-		else if( task === PT.sellItem ){
-
-			// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
-			if( !args.player || !args.shop || !args.asset || !args.amount || isNaN(args.amount) ){
-				console.error("Net: Missing args in call", task, "got", args);
-				return;
 			}
-			let player = validatePlayer();
-			if( !player )
-				return;
 
-			game.sellAsset(args.shop, args.asset, args.amount, player);
+			if( task === PT.interact ){
 
-		}
+				let player = validatePlayer();
+				if( !player )
+					return;
+				let room = game.dungeon.getActiveRoom(),
+					asset = room.getAssetById(args.dungeonAsset)
+				;
+				if( !asset )
+					return respondWithError("Interacted asset not found in room", args.dungeonAsset);
 
-		else if( task === PT.repairItemAtBlacksmith ){
+				game.dungeon.assetClicked( player, room, asset, asset._stage_mesh );
 
-			// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
-			if( !args.player || !args.blacksmithPlayer || !args.asset ){
-				console.error("Net: Missing args in call", task, "got", args);
-				return;
 			}
-			let player = validatePlayer();
-			if( !player )
-				return;
 
-			const blacksmith = game.getPlayerById(args.blacksmithPlayer);
-			game.repairBySmith(blacksmith, player, args.asset);
+			if( task === PT.loot ){
+
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				let room = game.dungeon.getActiveRoom(),
+					dungeonAsset = room.getAssetById(args.dungeonAsset)
+				;
+
+				if( dungeonAsset )
+					dungeonAsset.lootToPlayer( args.item, player );
+
+			}
+
+			if( task === PT.lootPlayer ){
+
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				let target = game.getPlayerById(args.target);
+				if( !target )
+					return respondWithError("Player not found");
+				if( !target.isLootableBy(player) )
+					return respondWithError("You can't loot that right now");
+				target.lootToPlayer(args.item, player );
+
+			}
+
+			if( task === PT.roleplayOption ){
+
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				let optID = args.option;
+				game.useRoleplayOption( player, optID );
+
+			}
+
+			if( task === PT.roleplay ){
+
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				let roleplay = game.getAvailableRoleplayForPlayerById(player, args.roleplay);
+				if( !roleplay )
+					return respondWithError("Roleplay not available");
+
+				game.setRoleplay( roleplay );
+
+			}
+
+			// Repair an item
+			else if( task === PT.useRepairAsset ){
+
+				let player = validatePlayer();
+				if( !player )
+					return;
+				let targ = game.getPlayerById(args.target);
+				if( !targ )
+					return respondWithError('Target not found');
+
+				game.useRepairAsset( player, targ, args.repairKit, args.asset)
+				
+			}
+
+			else if( task === PT.deleteAsset ){
+
+				// {player:(str)owner_id, item:(str)assetID}
+				if( !args.player || !args.item )
+					return;
+				let player = validatePlayer();
+				if( !player )
+					return;
+				game.deletePlayerItem( player, args.item, args.amount );
+
+				
+			}
+			else if( task === PT.tradeAsset ){
+
+				// {player:(str)sender_id, to:(str)sender_id, item:(str)assetID}
+				if( !args.player || !args.item || !args.to )
+					return;
+				let player = validatePlayer();
+				if( !player )
+					return;
+				game.tradePlayerItem( player, game.getPlayerById(args.to), args.item, args.amount );
+
+			}
+
+			else if( task === PT.buyItem ){
+
+				// {player:(str)sender_id, shop:(str)shop_id, item:(str)shopitem_id, amount:(int)amount}
+				if( !args.player || !args.shop || !args.item || !args.amount || isNaN(args.amount) ){
+					console.error("Net: Missing args in call", task, "got", args);
+					return;
+				}
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				game.buyAsset(args.shop, args.item, args.amount, player);
+					
+
+			}
+
+			else if( task === PT.sellItem ){
+
+				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
+				if( !args.player || !args.shop || !args.asset || !args.amount || isNaN(args.amount) ){
+					console.error("Net: Missing args in call", task, "got", args);
+					return;
+				}
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				game.sellAsset(args.shop, args.asset, args.amount, player);
+
+			}
+
+			else if( task === PT.repairItemAtBlacksmith ){
+
+				// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
+				if( !args.player || !args.blacksmithPlayer || !args.asset ){
+					console.error("Net: Missing args in call", task, "got", args);
+					return;
+				}
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				const blacksmith = game.getPlayerById(args.blacksmithPlayer);
+				game.repairBySmith(blacksmith, player, args.asset);
+
+			}
+
+			else if( task === PT.exchangeGold ){
+				let player = validatePlayer();
+				if( !player )
+					return;
+				
+				// Todo: Later, add shop to this to make sure there's one available
+				game.exchangePlayerMoney(player);
+
+			}
+
+			else if( task === PT.rentRoom ){
+				let player = validatePlayer();
+				if( !player )
+					return;
+				
+				const renter = game.getPlayerById(args.renter);
+				game.roomRentalUsed(renter, player);
+
+			}
+			else if( task === PT.sleep ){
+				let player = validatePlayer();
+				if( !player )
+					return;
+				
+				let room = game.dungeon.getActiveRoom(),
+					dungeonAsset = room.getAssetById(args.asset)
+				;
+				let hours = args.hours;
+				game.sleep(player, dungeonAsset, hours);
+
+			}
+
+			else if( task === PT.buyAction ){
+
+				let player = validatePlayer();
+				if( !args.gym || !args.actionLearnable )
+					throw 'Invalid request';
+
+				game.learnAction(game.getPlayerById(args.gym), player, args.actionLearnable);
+					
+
+			}
+
+			else if( task === PT.toggleAction ){
+
+				let player = validatePlayer();
+				if( !args.gym || !args.action )
+					throw 'Invalid request';
+
+				game.toggleAction(game.getPlayerById(args.gym), player, args.action);
+
+			}
+
+		}catch(err){
+
+			respondWithError(err);
+			console.error("Net error returned -> ", err);
+			console.error("Received data was ", data);
 
 		}
-
-		else if( task === PT.exchangeGold ){
-			let player = validatePlayer();
-			if( !player )
-				return;
-			
-			// Todo: Later, add shop to this to make sure there's one available
-			game.exchangePlayerMoney(player);
-
-		}
-
-		else if( task === PT.rentRoom ){
-			let player = validatePlayer();
-			if( !player )
-				return;
-			
-			const renter = game.getPlayerById(args.renter);
-			game.roomRentalUsed(renter, player);
-
-		}
-		else if( task === PT.sleep ){
-			let player = validatePlayer();
-			if( !player )
-				return;
-			
-			let room = game.dungeon.getActiveRoom(),
-				dungeonAsset = room.getAssetById(args.asset)
-			;
-			let hours = args.hours;
-			game.sleep(player, dungeonAsset, hours);
-
-		}
-
 
 	}
 
@@ -662,6 +693,12 @@ class NetworkManager{
 			game.ui.destructor();
 			game.load(args);
 			game.renderer.loadActiveDungeon();
+
+			// Load in custom libraries that are needed
+			glib.actionLearnable = {};
+			ActionLearnable.loadThese(args.lib_actionLearnable).map(a => glib.actionLearnable[a.label] = a);
+
+
 			game.ui.updateMute();
 		}
 
@@ -820,7 +857,6 @@ class NetworkManager{
 			return;
 
 		console.debug("Got game data", data);
-		game.onGameUpdate(data);
 
 		if( this.debug )
 			console.debug("Game update received", data);
@@ -854,6 +890,8 @@ class NetworkManager{
 			game.ui.battleVis();
 			game.renderer.battleVis();
 		}
+
+		game.onGameUpdate(data); // Must be after gmae.load* or it won't update properly
 		
 	}
 
@@ -1003,6 +1041,22 @@ class NetworkManager{
 		});
 	}
 
+	playerBuyAction( gymPlayer, player, actionLearnableID ){
+		this.sendPlayerAction(NetworkManager.playerTasks.buyAction, {
+			player : player.id,
+			gym : gymPlayer.id,
+			actionLearnable : actionLearnableID
+		});
+	}
+
+	playerToggleAction( gymPlayer, player, actionID ){
+		this.sendPlayerAction(NetworkManager.playerTasks.toggleAction, {
+			player : player.id,
+			gym : gymPlayer.id,
+			action : actionID,
+		});
+	}
+
 
 
 	/* OUTPUT TASKS DM */
@@ -1016,7 +1070,8 @@ class NetworkManager{
 	}
 
 	dmSendFullGame( target ){
-		let fullGame = game.getSaveData();
+		const fullGame = game.getSaveData();
+		/*
 		const isCyclic = (obj => {
 			const keys = []
 			const stack = []
@@ -1053,9 +1108,12 @@ class NetworkManager{
 			detect(obj, 'obj')
 			return detected
 		});
+		*/
 		if( this.debug )
 			console.debug("JSON encoding", JSON.stringify(fullGame).length);
+		// Appends stuff that should only be sent with the full game on init
 		fullGame.chat_log = game.chat_log;
+		fullGame.lib_actionLearnable = ActionLearnable.saveThese(Object.values(glib.getFull("ActionLearnable")), "mod");
 		this.sendHostTaskTo( target, NetworkManager.dmTasks.sendFullGame, fullGame);
 	}
 
@@ -1181,6 +1239,8 @@ NetworkManager.playerTasks = {
 	repairItemAtBlacksmith : 'repairItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id}
 	sleep : 'sleep',									// {player:(str)sender_id, asset:(str)dungeon_asset_id, hours:(int)hours}
 	rentRoom : 'rentRoom',							// {renter:(str)rental_merchant_player_id, player:(str)player_id}
+	buyAction : 'buyAction',			// {player:(st)sender_id, gym:(str)gym_player_id, actionLearnable:(str)action_learnable_id}
+	toggleAction : 'toggleAction',		// {player:(st)sender_id, gym:(str)gym_player_id, action:(str)action_id}
 };
 
 export default NetworkManager;

@@ -1,7 +1,5 @@
 import UI from './UI.js';
 
-// Todo: Event bindings for modals to refresh etc
-
 export default class StaticModal{
 
 	// StaticModal works off of tabs. Even if your modal doesn't use tab, one "tab" is created, but is just not shown.
@@ -28,8 +26,8 @@ export default class StaticModal{
 		this.refreshOn = [];	// Array of sub objects [{path:(arr)path, fn:(opt)fn}...]. Checked when game data changes to have a callback.
 		this.args = [];			// Args of the last time this was opened
 		
-		$("> div.header > div.close", this.dom).on('click', () => {
-			// Todo: Close sound
+		$("> div.header > div.close", this.dom).on('click', event => {
+			game.uiClick(event.target);
 			this.close();
 		});
 
@@ -84,7 +82,7 @@ export default class StaticModal{
 		this.tabContainer.toggleClass('hidden', Object.keys(this.tabs).length < 2 );
 
 		this.tabs[label].label.on('click', () => {
-			// Todo: tab change sound
+			game.uiAudio( "tab_select" );
 			this.setActiveTab(label);
 		});
 
@@ -132,12 +130,13 @@ export default class StaticModal{
 			throw 'Modal not found: '+id;
 		
 		obj.dom.toggleClass("hidden", false);
-		game.ui.bindTooltips();
+		
 		this.main.toggleClass("hidden", false);
 		this.active = obj;
 		
 		obj.args = [...args];
-		return obj.refresh();
+		return this.refreshActive();
+		
 
 	}
 
@@ -146,6 +145,17 @@ export default class StaticModal{
 		// Close everything
 		this.main.toggleClass("hidden", true);
 		Object.values(this.lib).map(modal => modal.dom.toggleClass("hidden", true));
+	}
+
+	static refreshActive(){
+
+		if( !this.active )
+			return;
+		
+		const out = this.active.refresh();
+		game.ui.bindTooltips();
+		return out;
+
 	}
 
 	static onGameUpdate( data ){
@@ -171,7 +181,7 @@ export default class StaticModal{
 
 			if( hasBranch(tree.path) ){
 				if( !tree.fn )
-					this.active.refresh();
+					this.refreshActive();
 				else
 					tree.fn.call(this.active, tree.path);
 				return;
@@ -309,6 +319,8 @@ export default class StaticModal{
 					let action = player.getActiveActionByIndex(i);
 					if( action )
 						UI.setActionButtonContent(el, action, player);
+					else
+						el.toggleClass("tooltipParent", false);
 					
 					el.toggleClass('empty', !action);
 
@@ -364,7 +376,7 @@ export default class StaticModal{
 					parent
 						.toggleClass("disabled", player.getMoney() < learnable[i].getCost())
 						.attr('data-id', learnable[i].label)
-						.toggleClass('hidden', false)
+						.toggleClass('hidden empty', false)
 					;
 
 					$("> span", parent).html(html);
@@ -374,8 +386,8 @@ export default class StaticModal{
 
 				if( !learnable.length ){
 					const el = $('> div.learnable:first', this.purchasable);
-					el.toggleClass('hidden', false).toggleClass("disabled", true);
-					$("> span", el).html('Check back later.');
+					el.toggleClass('hidden', false).toggleClass("disabled empty", true);
+					$("> span", el).html('No unlearned actions. Check back later!');
 					$("> div.action", el).toggleClass("hidden", true);
 				}
 				
@@ -383,10 +395,13 @@ export default class StaticModal{
 				// Bind stuff
 				this.activeButtons.off('click').on('click', event => {
 					
-					// Todo: Sound
 					const el = $(event.currentTarget),
 						id = el.attr('data-id');
+					if( el.is('.empty') )
+						return;
+
 					game.toggleAction(gymPlayer, player, id);
+					game.uiAudio( "spell_disable" );
 
 				});
 
@@ -394,8 +409,8 @@ export default class StaticModal{
 					const el = $(event.currentTarget),
 						id = el.attr('data-id');
 
-					// Todo: sound
 					game.toggleAction(gymPlayer, player, id);
+					game.uiAudio( "spell_enable" );
 
 				});
 
@@ -403,6 +418,9 @@ export default class StaticModal{
 					
 					const el = $(event.currentTarget),
 						id = el.attr('data-id');
+
+					if( el.is('disabled') )
+						return;
 
 					game.learnAction( gymPlayer, player, id );
 					
