@@ -14,7 +14,6 @@ Medium rare:
 Big chungi:
 	Add actions:
 	- Generic
-		- Rest (pre-learned, but needs to be activated): 3 AP. Restores 1 MP and clears 2 pain, but lowers physical resistance by 2 for 1 turn. Ends your turn.
 		- ???
 
 	Necromancer Quest:
@@ -22,7 +21,7 @@ Big chungi:
 		- Hidden door revealed at night
 		- Reward?
 
-
+	Redesign character menu
 
 
 

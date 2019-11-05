@@ -191,7 +191,10 @@ const lib = {
 		action : 'lowBlow',
 		cost : 100,
 	},
-
+	gen_rest : {
+		action : 'rest',
+		cost : 1,
+	},
 	
 
 };

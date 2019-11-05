@@ -258,6 +258,37 @@ const lib = {
 			}
 		]
 	},
+	rest : {
+		name : "Rest",
+		description : "Restores 1 MP, 3 HP and clears 2 arousal. Ends your turn.",
+		icon : 'bed',
+		ap : 3,
+		cooldown : 0,
+		detrimental : false,
+		ranged : Action.Range.None,
+		target_type : Action.TargetTypes.self,
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : false,
+				effects : [
+					{
+						type : Effect.Types.addMP,
+						data : {"amount": 1}
+					},
+					{
+						type : Effect.Types.damage,
+						data : {"amount": -3}
+					},
+					{
+						type : Effect.Types.addArousal,
+						data : {"amount": -2}
+					},
+				]
+			},
+			"endTurn"
+		]
+	},
 
 	// Elementalist
 	elementalist_iceBlast: {
