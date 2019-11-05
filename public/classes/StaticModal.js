@@ -475,6 +475,9 @@ export default class StaticModal{
 					<div class="option button" data-action="enableBubbles"><input type="checkbox" /><span> Bubble Chat</span></div>
 					<div class="option button" data-action="enableShadows"><input type="checkbox" /><span> Shadows (Experimental, requires refresh)</span></div>
 					<div class="option button" data-action="enableAA"><input type="checkbox" /><span> Antialiasing</span></div>
+					<div class="option cacheLevel" style="margin-top:1vmax" title="Makes returning to previously visited areas faster, but increases memory use.">
+						<input type="range" style="width:50%; vertical-align:top" min=10 max=100 step=10 /><span></span> Cache Levels
+					</div>
 				`;
 			})
 			.addTab("Audio", () => {
@@ -507,6 +510,8 @@ export default class StaticModal{
 					enableBubbles : $("div[data-action=enableBubbles]", this.getTabDom("Video")),
 					enableShadows : $("div[data-action=enableShadows]", this.getTabDom("Video")),
 					enableAA : $("div[data-action=enableAA]", this.getTabDom("Video")),
+					cacheLevel : $("div.cacheLevel input", this.getTabDom("Video")),
+					cacheLevelSpan : $("div.cacheLevel span", this.getTabDom("Video")),
 				};
 
 				// Bind events
@@ -570,7 +575,12 @@ export default class StaticModal{
 					});
 
 				});
-				
+				this.video.cacheLevel.on('input', event => {
+					const val = parseInt($(event.currentTarget).val()) || 50;
+					localStorage.cache_level = val;
+					this.video.cacheLevelSpan.text(val);
+				});
+
 				// Audio
 				$("input", this.getTabDom("Audio")).on('input', event => {
 					
@@ -598,6 +608,10 @@ export default class StaticModal{
 				$("input", this.video.enableBubbles).prop('checked', !+localStorage.hide_bubbles);
 				$("input", this.video.enableShadows).prop('checked', Boolean(+localStorage.shadows));
 				$("input", this.video.enableAA).prop('checked', Boolean(+localStorage.aa));
+				const cacheLevel = parseInt(localStorage.cache_level) || 50;
+				this.video.cacheLevel.val(cacheLevel);
+				this.video.cacheLevelSpan.text(cacheLevel);
+				
 
 
 				const knobs = ['ambient','fx','music','ui'];

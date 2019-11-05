@@ -6,17 +6,14 @@ Smol:
 	- Enabling or disabling a mod while hosting should send a full game
 
 Medium rare:
-	- Change settings to a multi tab layout with different things
-		- Gameplay
-			- Difficulty setting
-		- Audio
-		- Graphics
-		- Debug Tools
-
-	- Redesign errors to a try/catch system, that'll let netcode return errors as well
+	- Keep redesigning errors to a try/catch system
 	- Character export/import
 	- AFK mode. Go bot in netgame.
-
+	- Keep the last couple of cells cached in memory to speed up loading.
+	- Ambient for inside the cabin
+	- Ambient for city
+	- Ambient for gym
+	
 
 Big chungi:
 	Add actions:
