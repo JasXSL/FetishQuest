@@ -44,7 +44,7 @@ input[type=text], input[type=number], textarea{
 div.gameListing,
 div.actionbar > div.actions > div.action,
 input[type=button], input[type=submit], div.button, label.button,
-#modal div.inventory div.item,
+div.inventory div.item,
 #modal div.modalQuests div.right div.item,
 #modal div.action,
 #modal div.netgame.player
@@ -70,13 +70,13 @@ input[type=button]:disabled{
 }
 div.gameListing:hover,
 input[type=button]:hover, input[type=submit]:hover, div.button:hover,
-#modal div.inventory div.item:hover,
+div.inventory div.item:hover,
 #modal div.action:hover{
 	border-color:#FFF;
 }
 div.gameListing:active,
 input[type=button]:active, input[type=submit]:active, div.button:active,
-#modal div.inventory div.item:active,
+div.inventory div.item:active,
 #modal div.action:active{
 	transform:scale(0.98,0.98);
 }
@@ -141,6 +141,14 @@ input.blue{
 input.yellow{
 	background-color:rgba(100,100,50,0.75);
 }
+
+*.green{
+	color:#CCFFCC;
+}
+*.red{
+	color:#FFCCCC;
+}
+
 
 textarea{
 	min-height:3vmax;
@@ -520,7 +528,8 @@ div.fxBuffRed{
 		transform:translate(-50%, -50%);
 		overflow:visible;
 	}
-	#customModals div.cmContent{
+	#customModals div.cmContent,
+	div.cmContentBlock{
 		border: 0.2vmax solid #DDD;
 		border-radius: 0.5vmax;
 		padding: 1vmax;
@@ -663,8 +672,102 @@ div.fxBuffRed{
 		pointer-events: none;
 	}
 
+	
 
 
+
+
+	/* PLAYER */
+	#player div.cmTabContent > div.right{
+		position: absolute;
+		width:30vw;
+		right:-1.2vmax;
+		top:-1.2vmax;
+		bottom:-1.2vmax;
+		transform:translateX(100%);
+		overflow:hidden;
+	}
+
+	#customModals > #player{
+		width:50vw;
+		transform:translate(-75%,-50%);
+	}
+	#customModals > #player div.cmTabContent[data-id=Character]{
+		min-height:60vh;
+		max-height:80vh;
+	}
+	#player div.cmTabContent h2.name{
+		margin:0;
+	}
+	#player div.cmTabContent div.right > div.image{
+		height: 100%;
+		position: absolute;
+		width: 100%;
+		top: 0; left:0;
+		background-size: cover;
+	}
+	#player div.cmTabContent div.right > div.inventory{
+		padding: 0;
+		position: absolute;
+		right: 0;
+		bottom:14%;
+	}
+	#player div.cmTabContent div.right > div.inventory > div.item{
+		width:5vmax; height:5vmax;
+		display:block;
+		padding:0;
+	}
+
+	#player div.cmTabContent div.right > div.primaryStats,
+	#player div.cmTabContent div.right > div.secondaryStats
+	{
+		left:0; right:0;
+		font-size:2vmax;
+		bottom:0;
+		height:8%;
+		position:absolute;
+		text-align: center;
+		flex-wrap:nowrap;
+	}
+	#player div.cmTabContent div.right > div.secondaryStats{
+		font-size:1.5vmax;
+		height:6%;
+	}
+
+	#player div.cmTabContent div.right div.tag{
+		background:rgba(0,0,0,.5);
+		margin:0.1vmax;
+		border-radius:0.5vmax;
+	}
+
+	#player div.cmTabContent div.right div.tag span{
+		
+		position: absolute;
+		width:100%;
+		left:0;
+		top:50%;
+		transform:translateY(-50%);
+		display:block;
+
+	}
+	#player div.cmTabContent div.right div.secondaryStats > div.tag{
+		width:25%;
+	}
+
+	#player div.cmTabContent div.right > div.primaryStats{
+		bottom:6%;
+	}
+
+	#player div.cmTabContent div.right > div.expBar{
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+	}
+	#player div.cmTabContent div.right > div.expBar > div.progressBar{
+		border:none;
+		border-radius:0;
+	}
 
 /**/
 
@@ -773,7 +876,6 @@ div.fxBuffRed{
 		box-shadow: 0 0 3vmax rgba(200,210,255,1);
 	}
 
-	#modal div.playerInspector,
 	div.flexTwoColumns,
 	div.flexThreeColumns,
 	div.flexAuto{
@@ -782,7 +884,6 @@ div.fxBuffRed{
 		flex-direction: row;
 		flex-wrap:wrap;
 	}
-	#modal div.playerInspector > div,
 	div.flexTwoColumns > div{
 		flex:50%;
 		padding:0.5vmax;
@@ -799,17 +900,13 @@ div.fxBuffRed{
 	#saveAsset div.quickStat{
 		display:inline-block;
 	}
-	#saveAsset div.quickStat,
-	#modal div.playerInspector div.tag{
+	#saveAsset div.quickStat{
 		background:rgba(0,0,0,.5);
 		border-radius:0.2vmax;
 		margin:0 0.2vmax 0.2vmax 0;
 		padding:0.25vmax;
 		box-shadow:0.25vmax 0.25vmax 1vmax rgba(0,0,0,.25);
 		cursor:help;
-	}
-	#modal div.playerInspector div.tag{
-		flex:1;
 	}
 	#modal img.player_icon_preview,
 	#modal img.inspect_icon
@@ -825,24 +922,24 @@ div.fxBuffRed{
 		width:150%;
 	}
 
-	#modal div.inventory{
+	div.inventory{
 		padding:5% 5%;
 	}
-	#modal div.inventory.characterSheet{
+	div.inventory.characterSheet{
 		padding:0;
 		text-align: center;
 	}
 	
-	#modal div.inventory div.item.list,
+	div.inventory div.item.list,
 	#modal div.actions div.action.list{
 		display:inline-block;
 		margin:0.2vmax;
 		border:1px solid #EEE;
 	}
-	#modal div.inventory div.item em.sub{
+	div.inventory div.item em.sub{
 		font-size:0.75vmax;
 	}
-	#modal div.inventory div.item{
+	div.inventory div.item{
 		font-weight:normal;
 		font-size:1vmax;
 		border-width: 1px;
@@ -852,7 +949,7 @@ div.fxBuffRed{
 		text-align: left;
 		padding-left: 4vmax;
 	}
-	#modal div.inventory div.item img.assetIcon{
+	div.inventory div.item img.assetIcon{
 		vertical-align: middle;
 		width: 3vmax;
 		height: 3vmax;
@@ -860,31 +957,31 @@ div.fxBuffRed{
 		left: 0.5vmax;
 		top: 0.5vmax;
 	}
-	#modal div.inventory > div.left{
+	div.inventory > div.left{
 		width:20%;
 		flex:20%;
 		margin-right:3vmax;
 	}
-	#modal div.inventory > div.left > div.progressBar{
+	div.inventory > div.left > div.progressBar{
 		width:93%;
 	}
-	#modal div.inventory div.item.equipmentSlot{
+	div.inventory div.item.equipmentSlot{
 		width:6.5vmax;
 		height:6.5vmax;
 		display:inline-block;
 		padding:0;
 	}
-	#modal div.inventory div.item.equipmentSlot img.bg{
+	div.inventory div.item.equipmentSlot img.bg{
 		width:100%; height:100%;
 	}
-	#modal div.inventory div.item.equipmentSlot img.bg.template{
+	div.inventory div.item.equipmentSlot img.bg.template{
 		opacity: 0.25;
 	}
 	
-	#modal div.inventory div.item.broken{
+	div.inventory div.item.broken{
 		background-color:#655;
 	}
-	#modal div.inventory div.item.custom{
+	div.inventory div.item.custom{
 		border:1px solid #FFD;
 	}
 
@@ -2119,7 +2216,7 @@ div.fxBuffRed{
 	div.action.disabled,
 	#ui > div.actionbar > div.actions > div.action.disabled,
 	div.item.disabled,
-	#modal div.inventory div.item.disabled{
+	div.inventory div.item.disabled{
 		color:#FDD !important;
 		border:0.2vmax solid #FDD !important;
 		background:rgba(100,0,0,0.75);
@@ -2350,6 +2447,12 @@ div.fxBuffRed{
 	#tooltip div.stats > span{
 		display:block;
 		flex:50%;
+	}
+	#tooltip div.stats > span{
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
 	}
 
 /**/

@@ -1,4 +1,7 @@
 import UI from './UI.js';
+import Player from './Player.js';
+import Asset from './Asset.js';
+import Action from './Action.js';
 
 export default class StaticModal{
 
@@ -626,7 +629,151 @@ export default class StaticModal{
 
 			});
 		
-		
+
+		// Player display
+		this.add(new this("player", "Player"))
+			.addRefreshOn(['players'])
+			// Icon, description, worn items, experience
+			.addTab("Character", () => {
+				return `
+
+					<h2 class="name"></h2>
+					<em class="subName"></em>
+					
+					<p class="description"></p>
+					<div class="devtool">
+						<input type="button" class="editPlayer yellow" value="Edit Player" />
+						<input type="button" class="red devtool" value="Delete" />
+					</div>
+
+					<div class="right cmContentBlock bgMarble">
+						<div class="image"></div>
+						<div class="expBar"></div>
+						<div class="equipment inventory"></div>
+						<div class="primaryStats flexThreeColumns"></div>
+						<div class="secondaryStats flexAuto"></div>
+					</div>
+				`;
+
+			})
+			// Stats & Stats
+			.addTab("DM", () => {
+				return 'Todo: DM tab';
+			})
+			.setProperties(function(){
+
+				const cDom = this.getTabDom('Character');
+				this.character = {
+					name : $("> h2.name", cDom),
+					subName : $("> em.subName", cDom),
+					description : $("> p.description", cDom),
+					devtool : $("> div.devtool", cDom),
+
+					right : $("> div.right", cDom),
+					image : $("> div.right > div.image", cDom),
+					expBar : $("> div.right > div.expBar", cDom),
+					equipment : $("> div.right > div.equipment", cDom),
+					primaryStats : $("> div.right > div.primaryStats", cDom),
+					secondaryStats : $("> div.right > div.secondaryStats", cDom),
+				};
+
+			})
+			.setDraw(function( player ){
+
+				if( !(player instanceof Player) )
+					player = game.getPlayerById(player);
+
+				if( !player )
+					return false;
+
+				// Character panel
+				const cDivs = this.character;
+				cDivs.name.text(player.name);
+				cDivs.subName.html('Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name));
+				cDivs.expBar.html(
+					player.level < Player.MAX_LEVEL ? 
+						game.ui.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()) : 
+						''
+				);
+				cDivs.description.html(
+					'<strong>About:</strong><br />'+
+					esc(player.description || 'No description')+'<br />'+
+					(player.class ?
+						'<br /><strong>'+esc(player.class.name)+'</strong><br />'+
+						esc(player.class.description)
+						: '')
+				);
+				
+				cDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
+
+				// Equipment
+				let html = '';
+				const slots = [
+					Asset.Slots.lowerBody,
+					Asset.Slots.upperBody,
+					Asset.Slots.action,
+					Asset.Slots.hands
+				];
+				const existing_assets = {};	// id:true
+				for( let slot of slots ){
+
+					const assets = player.getEquippedAssetsBySlots(slot, true);
+					for( let asset of assets ){
+
+						if( existing_assets[asset.id] )
+							continue;
+						existing_assets[asset.id] = true;
+
+						html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item">'+
+							'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" />'+
+							'<div class="tooltip">'+asset.getTooltipText()+'</div>'+
+						'</div>';
+
+					}
+					
+				}
+				cDivs.equipment.html(html);
+
+
+				html = '';
+				let stats = player.getPrimaryStats();
+				for( let stat in stats ){
+
+					let title = 'HP';
+					let amount = player.statPointsToNumber(stat);
+					if( stat === Player.primaryStats.agility )
+						title = 'AP';
+					else if( stat === Player.primaryStats.intellect )
+						title = 'MP';
+					else
+						amount *= Player.STAMINA_MULTI;
+					html += '<div class="tag tooltipParent" title="Increases '+title+' by '+amount+'.">'+
+							'<span>'+(stats[stat] > 0 ? '+' : '')+stats[stat]+' '+ucFirst(stat.substr(0,3))+'</span>'+
+							'<div class="tooltip">'+title+' '+(amount >= 0 ? 'increased' : 'decreased')+' by '+amount+'</div>'+
+						'</div>';
+
+				}
+				cDivs.primaryStats.html(html);
+
+
+				html = '';
+				const s = Object.values(Action.Types).map(el => ucFirst(el)).sort();
+				const myPlayer = game.getMyActivePlayer() || new Player();
+				for( let stat of s ){
+					const val = player.getSV(stat)-myPlayer.getBon(stat);
+					let color = val > 0 ? 'green' : 'red';
+					if( val === 0 )
+						color = '';
+					html += '<div class="tag tooltipParent '+color+'">'+
+						'<span>'+(val > 0 ? '+' : '')+val+' '+esc(stat.substr(0,4))+'</span>'+
+						'<div class="tooltip"><em>'+
+							'This is the character\'s avoidance compared to your active character\'s proficiency. Red means you have a higher hit chance and efficiency. Green means a lower hit chance.</em><br />Raw: '+player.getBon(stat)+' bon / '+player.getSV(stat)+' sv</div>'+
+					'</div>';
+				}
+				cDivs.secondaryStats.html(html);
+
+
+			});
 
 	}
 

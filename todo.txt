@@ -22,6 +22,8 @@ Big chungi:
 		- Reward?
 
 	Redesign character menu
+		- DM menu
+		- DM buttons
 
 
 

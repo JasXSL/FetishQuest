@@ -2131,7 +2131,6 @@ export default class UI{
 				const slots = [
 					Asset.Slots.lowerBody,
 					Asset.Slots.upperBody,
-					Asset.Slots.trinket,
 					Asset.Slots.action,
 					Asset.Slots.hands
 				];
@@ -2241,7 +2240,7 @@ export default class UI{
 					return a.type < b.type ? -1 : 1;
 				});
 				for( let stat of s )
-					html += '<div class="tag" title="Grants you a chance to resist detrimental '+esc(stat.type)+' effects based on the caster\'s '+esc(stat.type)+' proficiency.">'+stat.val+' '+esc(stat.type.substr(0,6))+(stat.type.length>6 ? '.' : '')+'</div>';
+					html += '<div class="tag">'+stat.val+' '+esc(stat.type.substr(0,6))+(stat.type.length>6 ? '.' : '')+'</div>';
 				html += '</div>';
 				
 				// Tags

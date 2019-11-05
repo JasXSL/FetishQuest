@@ -616,9 +616,8 @@ Asset.Slots = {
 	none : "",
 	upperBody : "upperBody",
 	lowerBody : "lowerBody",
-	trinket : "trinket",
 	hands : "hands",
-	action : "action",			// Goes into an action slot
+	action : "action",			// Toolbelt
 };
 
 Asset.Rarity = {
