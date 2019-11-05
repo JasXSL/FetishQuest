@@ -382,7 +382,14 @@ export default class Game extends Generic{
 		this.save();
 	}
 
+	toggleAFK(){
+		// game.net.isPlayerAFK(this.netgame_owner)
+		if( !this.net.isConnected() )
+			return false;
+		
+		this.net.playerToggleAFK();
 
+	}
 
 
 

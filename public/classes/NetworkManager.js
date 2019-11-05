@@ -16,6 +16,7 @@ class NetworkManager{
 		this.id = null;
 		this.public_id = null;
 		this.players = [];			// {id:id, name:name}
+		this.afk = {};				// id:afk_status
 		this._last_push = null;
 		this._pre_push_time = 0;		// Time of last push
 		this.timer_reconnect = null;
@@ -62,6 +63,7 @@ class NetworkManager{
 				if( this.players[i].id === data.id ){
 					game.uiAudio( 'player_disconnect' );
 					game.ui.addText( this.players[i].name+" has left the game.", undefined, undefined, undefined, 'dmInternal' );
+					delete this.afk[data.id];
 					this.players.splice(i, 1);
 				}
 			}
@@ -71,17 +73,26 @@ class NetworkManager{
 		// Player joined
 		this.io.on('playerJoined', data => {
 
-			this.players = data.players;
+			const players = data.players;
+			for( let player of players ){
+				
+				if( !this.getPlayerById(player.id) ){
 
-			// Try mapping up the players by name if possible
-			if( game.is_host ){
-				const players = game.getEnabledPlayers();
-				for( let player of players ){
-					if( 
-						player.netgame_owner_name === data.name && 			// Owned by this name
-						!this.getPlayerNameById(player.netgame_owner)		// Original owner id not present
-					)player.netgame_owner = data.id;
+					this.players.push(player);
+
+					if( game.is_host ){
+
+						const gp = game.players;
+						for( let p of gp ){
+							if( 
+								p.netgame_owner_name === player.name && 			// Owned by this name
+								!this.getPlayerNameById(p.netgame_owner)			// Original owner id not present
+							)p.netgame_owner = data.id;
+						}
+
+					}
 				}
+
 			}
 
 			game.ui.draw();
@@ -89,6 +100,7 @@ class NetworkManager{
 			// This wasn't me who joined
 			if( data.id !== this.id && game.is_host ){
 				this.dmSendFullGame(data.id);
+				this.dmRefreshAFK();
 			}
 
 			game.uiAudio( 'player_join' );
@@ -336,6 +348,48 @@ class NetworkManager{
 				return player.name;
 		}
 		return '';
+	}
+
+	// Returns a this.players object by id
+	getPlayerById( id ){
+		for( let p of this.players ){
+			if( p.id === id )
+				return p;
+		}
+	}
+
+	// ID is the netgame player id
+	isPlayerAFK( id ){
+
+		if( id === this.id && game.is_host )
+			id = 'DM';
+
+		return this.afk[id];
+	}
+
+	setPlayerAFK( id, afk ){
+
+		if( id === this.id && game.is_host )
+			id = 'DM';
+		this.afk[id] = Boolean(afk);
+		this.dmRefreshAFK();
+		game.ui.drawPlayers();
+		// Todo: check if all players are afk before doing this
+		if( game.battle_active && game.getTurnPlayer().netgame_owner === id && !this.allPlayersAfk() ){
+			game.getTurnPlayer().autoPlay();
+		}
+
+	}
+
+	// Returns true if all players are afk
+	allPlayersAfk(){
+
+		for( let player of game.players ){
+			if( player.netgame_owner && !this.isPlayerAFK(player.netgame_owner) )
+				return false;
+		}
+		return true;
+
 	}
 
 	// Takes a netplayer ID and returns an array of players controlled by them
@@ -668,6 +722,8 @@ class NetworkManager{
 				game.toggleAction(game.getPlayerById(args.gym), player, args.action);
 
 			}
+			else if( task === PT.toggleAFK )
+				this.setPlayerAFK(netPlayer, args.afk);
 
 		}catch(err){
 
@@ -700,6 +756,11 @@ class NetworkManager{
 
 
 			game.ui.updateMute();
+		}
+
+		else if( task === NetworkManager.dmTasks.afk ){
+			this.afk = args;
+			game.ui.drawPlayers();
 		}
 
 		// Visual effect
@@ -900,6 +961,16 @@ class NetworkManager{
 
 
 	/* OUTPUT TASKS PLAYER */
+	playerToggleAFK(){
+		const afk = !this.isPlayerAFK(this.id);
+		if( game.is_host ){
+			this.setPlayerAFK(this.id, afk);
+			return;
+		}
+		this.sendPlayerAction(NetworkManager.playerTasks.toggleAFK, {
+			afk:afk
+		});
+	}
 	// Player interacted with dungeon mesh
 	playerInteractWithAsset( player, dungeonAsset ){
 		this.sendPlayerAction(NetworkManager.playerTasks.interact, {
@@ -1060,6 +1131,10 @@ class NetworkManager{
 
 
 	/* OUTPUT TASKS DM */
+	dmRefreshAFK(){
+		this.sendHostTask(NetworkManager.dmTasks.afk, this.afk);
+	}
+
 	dmAnimation( dungeonAsset, animation ){
 		if( !game.is_host )
 			return;
@@ -1216,6 +1291,7 @@ NetworkManager.dmTasks = {
 	dmRpOptionSelected : 'rpOptionSelected', 		// {id:(str)id} - An RP option has been selected, send it
 	rope : 'rope',									// {player:(str)player_id, dur:(int)seconds} - Starts the turn timer rope for the player
 	blackScreen : 'blackScreen',					// void - Triggers a black screen visual
+	afk : 'afk',									// {id:(bool)afk...} - Sends AFK status to all players
 };
 
 // Player -> DM
@@ -1241,6 +1317,7 @@ NetworkManager.playerTasks = {
 	rentRoom : 'rentRoom',							// {renter:(str)rental_merchant_player_id, player:(str)player_id}
 	buyAction : 'buyAction',			// {player:(st)sender_id, gym:(str)gym_player_id, actionLearnable:(str)action_learnable_id}
 	toggleAction : 'toggleAction',		// {player:(st)sender_id, gym:(str)gym_player_id, action:(str)action_id}
+	toggleAFK : 'toggleAFK',			// {afk:(bool)afk}
 };
 
 export default NetworkManager;

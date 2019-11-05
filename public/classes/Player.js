@@ -27,6 +27,7 @@ export default class Player extends Generic{
 		this.label = '';					// Unique editor label
 		this.netgame_owner_name = '';		// This is a custom thing that should only be relied on when adding a new player
 		this.netgame_owner = '';			// ID corresponding to one from game.net.players
+		this.afk = false;					// Treats this as a bot if true. Can be toggled by the netgame owner
 		this.name = "Adventurer";			// Name
 		this.species = "";
 		this.description = "";
@@ -455,8 +456,12 @@ export default class Player extends Generic{
 		return this.hp <= 0;
 	}
 
+	isAFK(){
+		return game.net.isPlayerAFK(this.netgame_owner);
+	}
+
 	isNPC(){
-		return !this.netgame_owner;
+		return !this.netgame_owner || this.isAFK();
 	}
 
 	isLootableBy( player ){

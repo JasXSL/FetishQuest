@@ -8,12 +8,8 @@ Smol:
 Medium rare:
 	- Keep redesigning errors to a try/catch system
 	- Character export/import
-	- AFK mode. Go bot in netgame.
-	- Keep the last couple of cells cached in memory to speed up loading.
-	- Ambient for inside the cabin
-	- Ambient for city
-	- Ambient for gym
-	
+	- Populate the bazaar
+
 
 Big chungi:
 	Add actions:

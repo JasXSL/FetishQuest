@@ -941,8 +941,9 @@ export default class UI{
 		;
 		nameEl.toggleClass('active', isMyActive);
 
-		if( nameDisplayEl.text() !== p.getName() )
-			nameDisplayEl.text(p.getName());
+		const name = p.getName()+(p.isAFK() ? ' [AFK]' : '');
+		if( nameDisplayEl.text() !== name )
+			nameDisplayEl.text(name);
 		
 		ownerEl.toggleClass('hidden', !game.is_host);
 		ownEl.toggleClass('hidden', Boolean(game.getMyPlayers().length < 2 || isMyActive || !isMine));
@@ -3721,6 +3722,10 @@ export default class UI{
 			}
 			else if( task == "notice" ){
 				return this.addNotice(spl.join(' '));
+			}
+
+			else if( task === 'afk' ){
+				return game.toggleAFK();
 			}
 			
 			else if( task === "me" ){
