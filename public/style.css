@@ -46,7 +46,7 @@ div.actionbar > div.actions > div.action,
 input[type=button], input[type=submit], div.button, label.button,
 div.inventory div.item,
 #modal div.modalQuests div.right div.item,
-#modal div.action,
+div.action,
 #modal div.netgame.player
 {
 	user-select: none;
@@ -71,13 +71,13 @@ input[type=button]:disabled{
 div.gameListing:hover,
 input[type=button]:hover, input[type=submit]:hover, div.button:hover,
 div.inventory div.item:hover,
-#modal div.action:hover{
+div.action:hover{
 	border-color:#FFF;
 }
 div.gameListing:active,
 input[type=button]:active, input[type=submit]:active, div.button:active,
 div.inventory div.item:active,
-#modal div.action:active{
+div.action:active{
 	transform:scale(0.98,0.98);
 }
 
@@ -223,7 +223,9 @@ div.centered, h1.centered, .centered{
 *.bgMarble{
 	background: url(./media/ui/marble.jpg) repeat;
 }
-
+div.scroll{
+	overflow:auto;
+}
 
 
 
@@ -526,6 +528,7 @@ div.fxBuffRed{
 		position: absolute;
 		left:50%; top:50%;
 		transform:translate(-50%, -50%);
+		max-height:90%;
 		overflow:visible;
 	}
 	#customModals div.cmContent,
@@ -535,6 +538,9 @@ div.fxBuffRed{
 		padding: 1vmax;
 		font-size: 2vmax;
 	}
+
+	
+
 	#customModals div.cmTabs{
 		position: absolute;
 		padding-left:3vw;
@@ -691,6 +697,7 @@ div.fxBuffRed{
 	#customModals > #player{
 		width:50vw;
 		transform:translate(-75%,-50%);
+		max-height:70vh;
 	}
 	#customModals > #player div.cmTabContent[data-id=Character]{
 		min-height:60vh;
@@ -705,6 +712,7 @@ div.fxBuffRed{
 		width: 100%;
 		top: 0; left:0;
 		background-size: cover;
+		background-position: center;
 	}
 	#player div.cmTabContent div.right > div.inventory{
 		padding: 0;
@@ -767,6 +775,26 @@ div.fxBuffRed{
 	#player div.cmTabContent div.right > div.expBar > div.progressBar{
 		border:none;
 		border-radius:0;
+	}
+
+	#player div.cmTabContent[data-id=Edit]{
+		font-size:1.25vmax;
+	}
+	#player div.cmTabContent[data-id=Edit] h2{
+		margin-bottom:0;
+	}
+
+	#player div.cmTabContent > div.scroll{
+		max-height:60vh;
+		overflow-x: hidden;
+		padding:1vmax;
+	}
+
+	#player div.actions div.action{
+		display:inline-block;
+		width:auto;
+		height:auto;
+		max-width:none;
 	}
 
 /**/
@@ -878,6 +906,7 @@ div.fxBuffRed{
 
 	div.flexTwoColumns,
 	div.flexThreeColumns,
+	div.flexFourColumns,
 	div.flexAuto{
 		display:flex;
 		width:100%;
@@ -896,6 +925,12 @@ div.fxBuffRed{
 	}
 	div.flexThreeColumns > div{
 		width:33.33%;
+	}
+	div.flexFourColumns{
+		justify-content: left;
+	}
+	div.flexFourColumns > div{
+		width:25%;
 	}
 	#saveAsset div.quickStat{
 		display:inline-block;
@@ -2447,12 +2482,6 @@ div.fxBuffRed{
 	#tooltip div.stats > span{
 		display:block;
 		flex:50%;
-	}
-	#tooltip div.stats > span{
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
 	}
 
 /**/

@@ -293,7 +293,7 @@ const lib = {
 		name : "Anemone",
 		icon : "",
 		species : "anemone",
-		description : "A mass of wiggly tentacles growing out of hardened vents growing from the bottom of a body of water. Most tips are coated with small wiggly tendrils, but some have suction cups on them.\nAn enemy anemone if you will.",
+		description : "A mass of wiggly tentacles growing out of hardened vents growing from the bottom of a body of water. Most tips are coated with small wiggly tendrils, but some have suction cups on them.\n\nAn enemy anemone if you will.",
 		classes : ["anemone"],
 		max_actions : 4,
 		tags : [

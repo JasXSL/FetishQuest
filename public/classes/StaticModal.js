@@ -2,6 +2,7 @@ import UI from './UI.js';
 import Player from './Player.js';
 import Asset from './Asset.js';
 import Action from './Action.js';
+import PlayerTemplate from './templates/PlayerTemplate.js';
 
 export default class StaticModal{
 
@@ -43,6 +44,15 @@ export default class StaticModal{
 			label = 'default';
 
 		return this.tabs[label] && this.tabs[label].content;
+
+	}
+
+	getTabLabelDom( label ){
+
+		if( !label )
+			label = 'default';
+
+		return this.tabs[label] && this.tabs[label].label;
 
 	}
 
@@ -114,7 +124,7 @@ export default class StaticModal{
 	}
 
 	refresh(){
-		this.onDraw.apply(this, this.args);
+		return this.onDraw.apply(this, this.args);
 	}
 
 	addRefreshOn( path, fn ){
@@ -151,6 +161,15 @@ export default class StaticModal{
 		obj.args = [...args];
 		return this.refreshActive();
 		
+
+	}
+
+	static setWithTab( id, tab, ...args){
+
+		
+		this.set(id, ...args);
+		if( this.active )
+			this.active.setActiveTab(tab);
 
 	}
 
@@ -531,8 +550,14 @@ export default class StaticModal{
 					$("input", event.currentTarget).prop("checked", ui.showDMTools());
 				});
 				this.dm.addPlayer.on('click', event => {
-					ui.drawPlayerEditor();
-					this.close();
+					
+					const player = Player.loadThis({
+						name:'Unknown Player', 
+						class:'none',
+						level : game.getHighestLevelPlayer(),
+					});
+					this.constructor.setWithTab('player', 'Edit', player);
+
 				});
 				this.dm.fullRegen.on('click', event => {
 					game.fullRegen();
@@ -633,7 +658,7 @@ export default class StaticModal{
 		// Player display
 		this.add(new this("player", "Player"))
 			.addRefreshOn(['players'])
-			// Icon, description, worn items, experience
+
 			.addTab("Character", () => {
 				return `
 
@@ -641,15 +666,10 @@ export default class StaticModal{
 					<em class="subName"></em>
 					
 					<p class="description"></p>
-					<div class="devtool">
-						<input type="button" class="editPlayer yellow" value="Edit Player" />
-						<input type="button" class="red devtool" value="Delete" />
-					</div>
 
 					<div class="right cmContentBlock bgMarble">
 						<div class="image"></div>
 						<div class="expBar"></div>
-						<div class="equipment inventory"></div>
 						<div class="primaryStats flexThreeColumns"></div>
 						<div class="secondaryStats flexAuto"></div>
 					</div>
@@ -657,8 +677,68 @@ export default class StaticModal{
 
 			})
 			// Stats & Stats
-			.addTab("DM", () => {
-				return 'Todo: DM tab';
+			.addTab("Edit", () => {
+
+
+				return `
+					<div class="scroll">
+
+						<div class="top centered randomizer">
+							<select name="randomize_type"></select>
+							<input type="button" class="blue" value="Generate" id="randomizePlayer" />
+						</div>
+
+						<form id="playerEditor">
+							<input type="text" name="name" placeholder="Player Name" style="font-size:2vmax" /><br />
+							<input type="text" name="species" placeholder="Species" /><br />
+							<select name="class"></select><br />
+							Level:<br /><input type="number" name="level" min=1 step=1 /><br />
+							<div>Size:<br /><input type="range" name="size" min=0 max=10 step=1 /></div>
+							Image Dressed:<br /><input type="text" name="icon" placeholder="Image URL" /><br />
+							Image UpperBody:<br /><input type="text" name="icon_upperBody" placeholder="Image URL" /><br />
+							Image LowerBody:<br /><input type="text" name="icon_lowerBody" placeholder="Image URL" /><br />
+							Image Naked:<br /><input type="text" name="icon_nude" placeholder="Image URL" /><br />
+
+							<div class="flexThreeColumns">
+								<div>HP<br /><input type="number" name="hp" placeholder="HP" min=0 step=1 /></div>
+								<div>AP<br /><input type="number" name="ap" placeholder="AP" min=0 step=1 /></div>
+								<div>MP<br /><input type="number" name="mp" placeholder="MP" min=0 step=1 /></div>
+								<div>Arousal<br /><input type="number" name="arousal" placeholder="Arousal" min=0 step=1 /></div>
+								<div>Team<br /><input type="number" name="team" placeholder="Team" min=0 step=1 /></div>
+							</div>
+							Tags<br /><textarea name="tags"></textarea>
+							Description<br /><textarea name="description"></textarea>
+							<div class="flexThreeColumns">
+								<div>Stamina<br /><input type="number" name="stamina" step=1 /></div>
+								<div>Agility<br /><input type="number" name="agility" step=1 /></div>
+								<div>Intellect<br /><input type="number" name="intellect" step=1 /></div>
+							</div>
+							<h3>Avoidance:</h3>
+							<div class="flexFourColumns secondaryStat sv">
+								<div class="physical">Physical <input type="number" step=1 /></div>
+								<div class="corruption">Corruption <input type="number" step=1 /></div>
+								<div class="elemental">Elemental <input type="number" step=1 /></div>
+								<div class="holy">Holy <input type="number" step=1 /></div>
+							</div>
+							<h3>Proficiency:</h3>
+							<div class="flexFourColumns secondaryStat bon">
+								<div class="physical">Physical <input type="number" step=1 /></div>
+								<div class="corruption">Corruption <input type="number" step=1 /></div>
+								<div class="elemental">Elemental <input type="number" step=1 /></div>
+								<div class="holy">Holy <input type="number" step=1 /></div>
+							</div>
+							<input type="submit" value="Save" />
+							<input type="button" value="Delete Player" class="red deletePlayer" />
+						</form>
+						<hr />
+						<h3>Actions</h3>
+						<div class="actions"></div>
+						<input type="button" value="+ Learn Action" class="addAction blue devtool" />
+					</div>
+					<div class="right cmContentBlock bgMarble">
+						<div class="image"></div>
+					</div>
+				`;
 			})
 			.setProperties(function(){
 
@@ -677,100 +757,403 @@ export default class StaticModal{
 					secondaryStats : $("> div.right > div.secondaryStats", cDom),
 				};
 
+				const dDom = this.getTabDom('Edit');
+				this.edit = {
+					actions : $('div.actions', dDom),
+					addAction : $('input.addAction', dDom),
+					form : $('#playerEditor', dDom),
+					formName : $('#playerEditor input[name=name]', dDom),
+					formSpecies : $('#playerEditor input[name=species]', dDom),
+					formClass : $('#playerEditor select[name=class]', dDom),
+					formLevel : $('#playerEditor input[name=level]', dDom),
+					formSize : $('#playerEditor input[name=size]', dDom),
+					formDressed : $('#playerEditor input[name=icon]', dDom),
+					formNude : $('#playerEditor input[name=icon_nude]', dDom),
+					formUpperBody : $('#playerEditor input[name=icon_upperBody]', dDom),
+					formLowerBody : $('#playerEditor input[name=icon_lowerBody]', dDom),
+					formHP : $('#playerEditor input[name=hp]', dDom),
+					formAP : $('#playerEditor input[name=ap]', dDom),
+					formMP : $('#playerEditor input[name=mp]', dDom),
+					formArousal : $('#playerEditor input[name=arousal]', dDom),
+					formTeam : $('#playerEditor input[name=team]', dDom),
+					formTags : $('#playerEditor textarea[name=tags]', dDom),
+					formDescription : $('#playerEditor textarea[name=description]', dDom),
+					formStamina : $('#playerEditor input[name=stamina]', dDom),
+					formAgility : $('#playerEditor input[name=agility]', dDom),
+					formIntellect : $('#playerEditor input[name=intellect]', dDom),
+					formSecondaryStat : $('#playerEditor div.secondaryStat', dDom),
+					formDeletePlayer : $('#playerEditor input.deletePlayer', dDom),
+					image : $('> div.right > div.image', dDom),
+					randomizer : $('div.randomizer',  dDom),
+					randomizerSelect : $('div.randomizer > select', dDom),
+					randomizerButton : $('div.randomizer > input', dDom),
+
+				};
+
+				// Draws an action selector. Returns the ID clicked on (if you do)
+				this.edit.drawPlayerActionSelector = (player, callback) => {
+								
+					let html = '';
+					let libActions = glib.getFull('Action'); 
+
+					html+= '<div class="inventory tooltipShrink">';
+						html += '<h3>Learn Action for '+esc(player.name)+'</h3>';
+					for( let id in libActions ){
+
+						let asset = libActions[id];
+						if( player.getActionByLabel(asset.label) )
+							continue;
+						
+						html += '<div class="list item tooltipParent" data-id="'+esc(id)+'">';
+							html += esc(asset.name);
+							html += '<div class="tooltip actionTooltip">';
+								html += asset.getTooltipText();
+							html += '</div>';
+						html += '</div>';
+
+					}
+					html += '</div>';
+					
+					game.ui.modal.set(html);
+
+					// Events
+					$("#modal div.list.item[data-id]").on('click', async function(){
+
+						let id = $(this).attr('data-id');
+						game.ui.modal.close();
+						callback(id);
+
+					});
+
+
+					game.ui.bindTooltips();
+
+				};
+
+
+				
+
 			})
 			.setDraw(function( player ){
 
-				if( !(player instanceof Player) )
-					player = game.getPlayerById(player);
+				// Character tab
+					// Toggle the whole bottom bar
+					// If you add a second tab that non-DM can see, you'll want to only toggle the label itself
+					this.getTabLabelDom('Edit').parent().toggleClass('hidden', !game.ui.showDMTools());
 
-				if( !player )
-					return false;
+					if( !(player instanceof Player) )
+						player = game.getPlayerById(player);
 
-				// Character panel
-				const cDivs = this.character;
-				cDivs.name.text(player.name);
-				cDivs.subName.html('Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name));
-				cDivs.expBar.html(
-					player.level < Player.MAX_LEVEL ? 
-						game.ui.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()) : 
-						''
-				);
-				cDivs.description.html(
-					'<strong>About:</strong><br />'+
-					esc(player.description || 'No description')+'<br />'+
-					(player.class ?
-						'<br /><strong>'+esc(player.class.name)+'</strong><br />'+
-						esc(player.class.description)
-						: '')
-				);
-				
-				cDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
+					if( !player )
+						return false;
 
-				// Equipment
-				let html = '';
-				const slots = [
-					Asset.Slots.lowerBody,
-					Asset.Slots.upperBody,
-					Asset.Slots.action,
-					Asset.Slots.hands
-				];
-				const existing_assets = {};	// id:true
-				for( let slot of slots ){
+					// Character panel
+					const cDivs = this.character;
+					cDivs.name.text(player.name);
+					cDivs.subName.html('Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name));
+					cDivs.expBar.html(
+						player.level < Player.MAX_LEVEL ? 
+							game.ui.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()) : 
+							''
+					);
+					cDivs.description.html(
+						'<strong>About:</strong><br />'+
+						esc(player.description || 'No description')+'<br />'+
+						(player.class ?
+							'<br /><strong>'+esc(player.class.name)+'</strong><br />'+
+							esc(player.class.description)
+							: '')
+					);
+					
+					cDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
 
-					const assets = player.getEquippedAssetsBySlots(slot, true);
-					for( let asset of assets ){
+					// Equipment
+					let html = '';
+					const slots = [
+						Asset.Slots.lowerBody,
+						Asset.Slots.upperBody,
+						Asset.Slots.action,
+						Asset.Slots.hands
+					];
+					const existing_assets = {};	// id:true
+					for( let slot of slots ){
 
-						if( existing_assets[asset.id] )
-							continue;
-						existing_assets[asset.id] = true;
+						const assets = player.getEquippedAssetsBySlots(slot, true);
+						for( let asset of assets ){
 
-						html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item">'+
-							'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" />'+
-							'<div class="tooltip">'+asset.getTooltipText()+'</div>'+
-						'</div>';
+							if( existing_assets[asset.id] )
+								continue;
+							existing_assets[asset.id] = true;
+
+							html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item">'+
+								'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" />'+
+								'<div class="tooltip">'+asset.getTooltipText()+'</div>'+
+							'</div>';
+
+						}
+						
+					}
+					cDivs.equipment.html(html);
+
+
+					html = '';
+					let stats = player.getPrimaryStats();
+					for( let stat in stats ){
+
+						let title = 'HP';
+						let amount = player.statPointsToNumber(stat);
+						if( stat === Player.primaryStats.agility )
+							title = 'AP';
+						else if( stat === Player.primaryStats.intellect )
+							title = 'MP';
+						else
+							amount *= Player.STAMINA_MULTI;
+						html += '<div class="tag tooltipParent" title="Increases '+title+' by '+amount+'.">'+
+								'<span>'+(stats[stat] > 0 ? '+' : '')+stats[stat]+' '+ucFirst(stat.substr(0,3))+'</span>'+
+								'<div class="tooltip">'+title+' '+(amount >= 0 ? 'increased' : 'decreased')+' by '+amount+'</div>'+
+							'</div>';
 
 					}
-					
-				}
-				cDivs.equipment.html(html);
+					cDivs.primaryStats.html(html);
 
 
-				html = '';
-				let stats = player.getPrimaryStats();
-				for( let stat in stats ){
-
-					let title = 'HP';
-					let amount = player.statPointsToNumber(stat);
-					if( stat === Player.primaryStats.agility )
-						title = 'AP';
-					else if( stat === Player.primaryStats.intellect )
-						title = 'MP';
-					else
-						amount *= Player.STAMINA_MULTI;
-					html += '<div class="tag tooltipParent" title="Increases '+title+' by '+amount+'.">'+
-							'<span>'+(stats[stat] > 0 ? '+' : '')+stats[stat]+' '+ucFirst(stat.substr(0,3))+'</span>'+
-							'<div class="tooltip">'+title+' '+(amount >= 0 ? 'increased' : 'decreased')+' by '+amount+'</div>'+
+					html = '';
+					const s = Object.values(Action.Types).map(el => ucFirst(el)).sort();
+					const myPlayer = game.getMyActivePlayer() || new Player();
+					for( let stat of s ){
+						const val = player.getSV(stat)-myPlayer.getBon(stat);
+						let color = val > 0 ? 'green' : 'red';
+						if( val === 0 )
+							color = '';
+						html += '<div class="tag tooltipParent '+color+'">'+
+							'<span>'+(val > 0 ? '+' : '')+val+' '+esc(stat.substr(0,4))+'</span>'+
+							'<div class="tooltip"><em>'+
+								'This is the character\'s avoidance compared to your active character\'s proficiency. Red means you have a higher hit chance and efficiency. Green means a lower hit chance.</em><br />Raw: '+player.getBon(stat)+' bon / '+player.getSV(stat)+' sv</div>'+
 						'</div>';
+					}
+					cDivs.secondaryStats.html(html);
 
-				}
-				cDivs.primaryStats.html(html);
 
 
-				html = '';
-				const s = Object.values(Action.Types).map(el => ucFirst(el)).sort();
-				const myPlayer = game.getMyActivePlayer() || new Player();
-				for( let stat of s ){
-					const val = player.getSV(stat)-myPlayer.getBon(stat);
-					let color = val > 0 ? 'green' : 'red';
-					if( val === 0 )
-						color = '';
-					html += '<div class="tag tooltipParent '+color+'">'+
-						'<span>'+(val > 0 ? '+' : '')+val+' '+esc(stat.substr(0,4))+'</span>'+
-						'<div class="tooltip"><em>'+
-							'This is the character\'s avoidance compared to your active character\'s proficiency. Red means you have a higher hit chance and efficiency. Green means a lower hit chance.</em><br />Raw: '+player.getBon(stat)+' bon / '+player.getSV(stat)+' sv</div>'+
-					'</div>';
-				}
-				cDivs.secondaryStats.html(html);
+				// DM Tab
+					const dDivs = this.edit;
+					html = '';
+
+					dDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
+					dDivs.formDeletePlayer.toggleClass('hidden', !game.getPlayerById(player.id));
+					
+
+					// Form
+					dDivs.formName.val(player.name);
+					dDivs.formSpecies.val(player.species);
+					dDivs.formLevel.val(parseInt(player.level) || 1);
+					dDivs.formSize.val(parseInt(player.size) || 5);
+					dDivs.formDressed.val(player.icon);
+					dDivs.formNude.val(player.icon_nude);
+					dDivs.formUpperBody.val(player.icon_upperBody);
+					dDivs.formLowerBody.val(player.icon_lowerBody);
+					dDivs.formHP.val(parseInt(player.hp) || 10);
+					dDivs.formAP.val(parseInt(player.ap) || 0);
+					dDivs.formMP.val(parseInt(player.mp) || 0);
+					dDivs.formArousal.val(parseInt(player.arousal) || 0);
+					dDivs.formTeam.val(parseInt(player.team) || 0);
+					dDivs.formTags.val(player.tags.map(tag => tag.toLowerCase().startsWith('pl_') ? tag.substr(3) : tag ).join(' '));
+					dDivs.formDescription.val(player.description);
+					dDivs.formStamina.val(parseInt(player.stamina) || 0);
+					dDivs.formAgility.val(parseInt(player.agility) || 0);
+					dDivs.formIntellect.val(parseInt(player.intellect) || 0);
+
+
+					// Draw the class form
+					let clib = Object.values(glib.getFull('PlayerClass'));
+					clib.sort((a,b) => {
+						if(a.label === 'none')
+							return -1;
+						else if(b.label === 'none')
+							return 1;
+						if( a.isMonsterClass && !b.isMonsterClass )
+							return 1;
+						else if( !a.isMonsterClass && b.isMonsterClass )
+							return -1;
+						return a.name < b.name ? -1 : 1;
+					});
+					for( let c of clib )
+						html += '<option value="'+esc(c.label)+'">'+(c.isMonsterClass ? '[M] ':'')+esc(c.name)+'</option>';
+					dDivs.formClass.html(html);
+					dDivs.formClass.val(player.class.label);
+
+
+					// Draw the secondary stat form
+					const secondary = dDivs.formSecondaryStat;
+					for(let i in Action.Types){
+
+						const t = Action.Types[i];
+						$("> div."+i+" > input", secondary[0]).val(parseInt(player['sv'+t]) || 0);
+						$("> div."+i+" > input", secondary[1]).val(parseInt(player['bon'+t]) || 0);
+
+					}
+
+					// Draw the randomizer
+					html = '<option value="_RANDOM_">-RANDOM-</option>';
+					const libtemplates = Object.values(glib.getFull('PlayerTemplate'));
+					libtemplates.sort((a,b) => a.name < b.name ? -1 : 1);
+					for( let t of libtemplates )
+						html += '<option value="'+esc(t.label)+'">'+esc(t.name)+'</option>';
+					dDivs.randomizerSelect.html(html);
+					dDivs.randomizer.toggleClass('hidden', game.getPlayerById(player.id));
+					
+
+					// actions
+					let actions = player.getActions( false );
+					html = '';
+					for( let ability of actions ){
+
+						if( ability.hidden || ability.semi_hidden )
+							continue;
+
+						html+= '<div class="action tooltipParent'+(ability.label.substr(0,3) === 'std' ? ' noDelete' : '')+'" data-id="'+esc(ability.id)+'">';
+							html+= esc(ability.name);
+							html+= '<div class="tooltip actionTooltip">';
+								html += ability.getTooltipText();
+							html += '</div>';
+						html+= '</div>';
+
+					}
+					dDivs.actions.html(html);
+
+					// Events
+					// Add action
+					dDivs.addAction.off('click').on('click', () => {
+						this.edit.drawPlayerActionSelector(player, id => {
+
+							if( player.addActionFromLibrary(id) ){
+
+								game.save();
+								this.refresh();
+
+							}
+
+						});
+					});
+					// Delete action
+					$("> div.action:not(.noDelete)", dDivs.actions).off('click').on('click', event => {
+
+						// Todo: change confirm
+						if( confirm('Really unlearn?') && game.deletePlayerAction( player, $(event.currentTarget).attr('data-id')) ){
+							this.refresh();
+							game.ui.draw();
+						}
+
+					});
+					// Icon changed
+					dDivs.formDressed.on('change', () => {
+						dDivs.image.css('background-image', 'url(\''+esc(dDivs.formDressed.val().trim())+'\')');
+					});
+					dDivs.form.on('submit', event => {
+			
+						event.stopImmediatePropagation();
+						event.preventDefault();
+						
+						player.name = dDivs.formName.val().trim();
+						player.species = dDivs.formSpecies.val().trim();
+						player.description = dDivs.formDescription.val().trim();
+						player.icon = dDivs.formDressed.val().trim();
+						player.icon_upperBody = dDivs.formUpperBody.val().trim();
+						player.icon_lowerBody = dDivs.formLowerBody.val().trim();
+						player.icon_nude = dDivs.formNude.val().trim();
+						player.hp = parseInt(dDivs.formHP.val())||10;
+						player.ap = parseInt(dDivs.formAP.val())||0;
+						player.mp = parseInt(dDivs.formMP.val())||0;
+						player.arousal = parseInt(dDivs.formArousal.val())||0;
+			
+						player.stamina = parseInt(dDivs.formStamina.val())||0;
+						player.agility = parseInt(dDivs.formAgility.val())||0;
+						player.intellect = parseInt(dDivs.formIntellect.val())||0;
+						
+						player.level = parseInt(dDivs.formLevel.val())||0;
+						player.size = parseInt(dDivs.formSize.val())||0;
+						player.team = parseInt(dDivs.formTeam.val())||0;
+			
+						let cName = dDivs.formClass.val().trim();
+						let cl = glib.get(cName, 'PlayerClass');
+						if( cl ){
+							player.class = cl;
+							player.addActionsForClass();
+						}
+						player.tags = dDivs.formTags.val().split(' ').filter(el => {
+							if(!el.trim())
+								return false;
+							return true;
+						}).map(el => {
+							if( !el.toLowerCase().startsWith('pl_') )
+								el = 'pl_'+el.toLowerCase();
+							return el;	
+						});
+						
+						for(let i in Action.Types){
+
+							const t = Action.Types[i];
+							player['sv'+t] = parseInt($("> div."+i+" > input", secondary[0]).val()) || 0;
+							player['bon'+t] = parseInt($("> div."+i+" > input", secondary[1]).val()) || 0;
+	
+						}
+			
+						if( player.hp > player.getMaxHP() )
+							player.hp = player.getMaxHP();
+						if( player.ap > player.getMaxAP() )
+							player.ap = player.getMaxAP();
+						if( player.mp > player.getMaxMP() )
+							player.mp = player.getMaxMP();
+						
+						
+						if( !game.playerExists(player) ){
+							game.addPlayer(player);
+							player.onPlacedInWorld();
+						}
+			
+						game.save();
+						game.ui.draw();
+						this.close();
+			
+						return false;
+			
+					});
+
+					dDivs.formDeletePlayer.off('click').on('click', () => {
+
+						// Todo: change confirm to use modal
+						if( !confirm('Really delete?') )
+							return;
+						
+						game.removePlayer(player.id);
+						game.ui.draw();
+						this.close();
+						
+					});
+
+					
+					dDivs.randomizerButton.on('click', () => {
+						
+						let type = dDivs.randomizerSelect.val();
+						let allowed;
+						if( type !== '_RANDOM_' )
+							allowed = [type];
+			
+						let pl = PlayerTemplate.generate(parseInt(dDivs.formLevel.val()) || 1, allowed);
+						if( pl ){
+							let data = pl.save(true);
+							delete pl.id;
+							player.load(data);
+							this.refresh();
+						}
+						else
+							console.error("Unable to generate a player template with those conditions");
+			
+					});
+
+					
+			
+			
 
 
 			});
