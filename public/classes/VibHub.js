@@ -124,6 +124,18 @@ class VibHub extends VH{
 
 	}
 
+	// plays a program on port front and port back in order
+	async testMapping(){
+
+		const program = VibHub.Programs.Pleasure;
+		program.setPorts([this.port_front]);
+		this.device.sendProgram(program);
+		await delay(1000);
+		program.setPorts([this.port_back]);
+		this.device.sendProgram(program);
+
+	}
+
 	async setDevice( id ){
 
 		localStorage.vibHub_device = this.device_id = id;

@@ -253,7 +253,7 @@ export default class StaticModal{
 		this.main = $("#customModals");
 
 		try{this.tabs = JSON.parse(localStorage.staticModalTabs);}catch(err){}
-		this.main.on('click', event => {
+		this.main.on('mousedown touchstart', event => {
 			if( event.target === this.main[0] )
 				this.close();
 		});
@@ -836,6 +836,7 @@ export default class StaticModal{
 			})
 			.setDraw(function( player ){
 
+				
 				// Character tab
 					// Toggle the whole bottom bar
 					// If you add a second tab that non-DM can see, you'll want to only toggle the label itself
@@ -1004,7 +1005,7 @@ export default class StaticModal{
 					
 
 					// actions
-					let actions = player.getActions( false );
+					let actions = player.getActions( false, true, false );
 					html = '';
 					for( let ability of actions ){
 
@@ -1046,10 +1047,10 @@ export default class StaticModal{
 
 					});
 					// Icon changed
-					dDivs.formDressed.on('change', () => {
+					dDivs.formDressed.off('change').on('change', () => {
 						dDivs.image.css('background-image', 'url(\''+esc(dDivs.formDressed.val().trim())+'\')');
 					});
-					dDivs.form.on('submit', event => {
+					dDivs.form.off('submit').on('submit', event => {
 			
 						event.stopImmediatePropagation();
 						event.preventDefault();
@@ -1132,7 +1133,7 @@ export default class StaticModal{
 					});
 
 					
-					dDivs.randomizerButton.on('click', () => {
+					dDivs.randomizerButton.off('click').on('click', () => {
 						
 						let type = dDivs.randomizerSelect.val();
 						let allowed;

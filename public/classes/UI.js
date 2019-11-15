@@ -1908,12 +1908,14 @@ export default class UI{
 		$("#newGameForm div.galleryEntry:first").click();
 
 
-		$('#newGameForm').on('submit', () => {
+		$('#newGameForm').on('submit', event => {
+
+			event.preventDefault();
 
 			game.net.disconnect();
-			const name = $("input.gameName").val().trim();
+			const name = $("#newGameForm input.gameName").val().trim();
 			const base = $("#newGameForm");
-			const c = glib.get($("select[name=class]").val().trim(), 'PlayerClass');
+			const c = glib.get($("select[name=class]", base).val().trim(), 'PlayerClass');
 			if( !c )
 				return this.modal.addError("Class not found");
 			const player = new Player({
@@ -2244,7 +2246,7 @@ export default class UI{
 
 				const isHotbar = $(this).hasClass('equipmentSlot');
 				
-				const modal = this.modal;
+				const modal = th.modal;
 				modal.prepareSelectionBox();
 
 				
@@ -2299,7 +2301,7 @@ export default class UI{
 						}
 
 						if( action.targetable() )
-							this.modal.close();
+							modal.close();
 						else
 							th.drawPlayerInventory();
 						

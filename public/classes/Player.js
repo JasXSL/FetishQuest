@@ -2154,10 +2154,10 @@ export default class Player extends Generic{
 
 	}
 
-	getActions( include_items = true ){
+	getActions( include_items = true, include_non_learned = false, include_temp = true ){
 		
 		let out = this.actions.slice();
-		out = out.concat(this.getTempActions());
+		
 		if( include_items ){
 
 			for( let asset of this.assets ){
@@ -2168,7 +2168,7 @@ export default class Player extends Generic{
 
 		}
 		
-		if( !this.auto_learn ){
+		if( !this.auto_learn && !include_non_learned ){
 
 			out = out.filter(el => {
 
@@ -2183,6 +2183,10 @@ export default class Player extends Generic{
 			});
 
 		}
+
+		// Temp actions shouldn't be filtered
+		if( include_temp )
+			out = out.concat(this.getTempActions());
 
 		out.sort((a,b) => {
 

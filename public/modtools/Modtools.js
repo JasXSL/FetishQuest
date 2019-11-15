@@ -713,7 +713,7 @@ export default class Modtools{
 
 		this.mml_generic( 
 			'texts', 
-			['CHAT','Text','Enabled','Action','Weight','Conditions','TurnTags','HitSlot','Audio','nTarg','aOut','Debug'],
+			['CHAT','Text','Enabled','Action','Weight','Conditions','TurnTags','MetaTags','HitSlot','Audio','nTarg','aOut','Debug'],
 			this.mod.texts,
 			text => {
 				// This can be removed later, it's legacy
@@ -761,6 +761,7 @@ export default class Modtools{
 					text.weight,
 					(text.conditions ? text.conditions.map(el => typeof el === "string" ? el : 'Custom').join(', ') : ''),
 					(text.turnTags ? text.turnTags.map(el => el) : ''),
+					(text.metaTags ? text.metaTags.map(el => el) : ''),
 					(text.armor_slot ? text.armor_slot : ''),
 					(text.audiokits ? text.audiokits.map(el => typeof el === "string" ? el : 'Custom') : ''),
 					(isNaN(text.numTargets) ? 1 : +text.numTargets),
