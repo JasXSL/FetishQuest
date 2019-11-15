@@ -3292,7 +3292,9 @@ export default class Modtools{
 			'<option value="success" '+(interaction.break === 'success' ? 'selected' : '')+'>Success</option>'+
 			'<option value="fail" '+(interaction.break === 'fail' ? 'selected' : '')+'>Fail</option>'+
 		'</select><br />';
-		
+		if( !interaction.data )
+			interaction.data = {};
+
 		if( type === types.dungeonVar ){
 			if( !interaction.id )
 				interaction.id = Generic.generateUUID();
@@ -3310,8 +3312,6 @@ export default class Modtools{
 			html += '<input type="text" placeholder="Animation" value="'+esc(interaction.data.anim)+'" name="interaction_data" />';
 
 		else if( type === types.door && room ){
-			if( interaction.data === null )
-				interaction.data = {};
 			html += 'Door target: <select name="asset_room">';
 			for( let r of room.parent.rooms )
 				html += '<option value="'+esc(r.index)+'" '+(interaction.data.index === r.index ? 'selected' : '')+'>'+esc(r.name)+'</option>';
@@ -3319,6 +3319,12 @@ export default class Modtools{
 			html += '<br />Badge: <label><input type="radio" name="asset_badge" value="0" '+(!interaction.data.badge ? 'checked' : '')+' /> Auto</label>';
 			html += '<label><input type="radio" name="asset_badge" value="1" '+(interaction.data.badge === 1 ? 'checked' : '')+' /> Hide</label>';
 			html += '<label><input type="radio" name="asset_badge" value="2" '+(interaction.data.badge === 2 ? 'checked' : '')+' /> No Exit</label>';
+		}
+
+		else if( type === types.gym ){
+			if( !interaction.data.player )
+				interaction.data.player = 'MISSING_TARGET';
+			html += 'Player: '+this.inputPlayer(interaction.data.player)+'<br />';
 		}
 
 		else if( type === types.exit ){
@@ -3418,6 +3424,8 @@ export default class Modtools{
 					interaction.data = {text:"Tooltip Text"};
 				if( itype === types.shop )
 					interaction.data = {player:"Player Label",shop:'Shop obj/label'};
+				if( itype === types.gym )
+					interaction.data = {player:'Player Label'};
 
 				const div = $(th.formGameAction(interaction));
 				base.html(div[0]);
@@ -3458,6 +3466,11 @@ export default class Modtools{
 				if( name === "shop" )
 					interaction.data.shop = th.getValOrJson(this);
 				else if( name === 'player' ){
+					interaction.data.player = val;
+				}
+			}
+			else if( itype === types.gym ){
+				if( name === 'player' ){
 					interaction.data.player = val;
 				}
 			}

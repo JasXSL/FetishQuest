@@ -528,6 +528,8 @@ const lib = {
 
 	roomRentedActiveDungeon : {type:Condition.Types.dungeonVarMath, data:{vars:'room_last_rented', formula:'room_last_rented and (room_last_rented+'+Game.ROOM_RENTAL_DURATION+')>g_time'}},
 	
+	isNight : {type:Condition.Types.hourRange, data:{min:21,max:5}},
+	isDay : {type:Condition.Types.hourRange, data:{min:21,max:5}, inverse:true},
 
 };
 

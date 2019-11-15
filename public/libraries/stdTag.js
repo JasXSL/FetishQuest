@@ -38,6 +38,9 @@ export default {
 	plTongue : 'pl_tongue',
 	plEel : 'pl_eel',
 
+	plDemon : 'pl_demon',
+	plUndead : 'pl_undead',
+
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal

@@ -256,13 +256,33 @@ const lib = {
             'tentacle_pit', // tentacle_pit : Places a tentacle pit between the caster and players. Using a melee attack against the caster will trap the first player for 3 turns.
         ]
     },
-    skeleton : {
-        name : "",
-        description : "",
+    skeletonRattler : {
+        name : "Rattler",
+        description : "A regular skeleton with bony hands.",
         isMonsterClass : true,
         actions : [
             'skeleton_looseHand',
-            'lowBlow'
+            'lowBlow',
+        ]
+    },
+    // todo
+    skeletonMage : {
+        name : "Mage",
+        description : "Skeletal spells usually involve bones or milk, or both!",
+        isMonsterClass : true,
+        actions : [
+            // Todo
+        ]
+    },
+    
+
+    // Todo
+    ghoulRavener : {
+        name : "Ravener",
+        description : "It hungers.",
+        isMonsterClass : true,
+        actions : [
+            // Munch : Munch on your target's groin, doing armor damage or stealing health
         ]
     },
     groper : {

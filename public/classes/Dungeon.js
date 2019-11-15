@@ -1688,6 +1688,7 @@ class DungeonEncounter extends Generic{
 					const pl = mTemplate.generate(
 						Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
 					);
+					pl.generated = true;	// Set generated so it can be removed when leaving the area, regardless of allegiance
 					
 					if( mTemplate.difficulty+dif < difficulty ){
 

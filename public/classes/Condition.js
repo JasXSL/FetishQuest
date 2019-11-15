@@ -261,6 +261,21 @@ export default class Condition extends Generic{
 			else if( this.type === T.sameTeam )
 				success = s.team === t.team;
 
+			else if( this.type === T.hourRange ){
+
+				let min = +this.data.min || 0, 
+					max = +this.data.max || 0,
+					time = game.getHoursOfDay();
+
+				if( max < min ){
+					max += 24;
+					if( time < min )
+						time += 24;
+				}
+				success = (time >= min && time <= max);
+				
+			}
+
 			else if( this.type === T.event ){
 
 				const data = toArray(this.data.event);
@@ -975,6 +990,7 @@ Condition.Types = {
 	charging : 'charging',
 	targetedSenderLastRound : 'targetedSenderLastRound',
 	sadism : 'sadism',
+	hourRange : 'hourRange',
 };
 
 
@@ -1049,6 +1065,7 @@ Condition.descriptions = {
 	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
 	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level',
 	[Condition.Types.targetedSenderLastRound] : 'void - Target has successfully used a non-aoe action against sender since their last turn',
+	[Condition.Types.hourRange] : '{min:(number)min, max:(number)max} - Requires game.getHoursOfday() to be between min and max (24h format). Max can be greater than min for an example if you want something to happen at night: {min:21,max:6}',
 };
 
 

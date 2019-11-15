@@ -199,7 +199,8 @@ const lib = {
 			"pl_horns",
 			"pl_tail",
 			stdTag.plDishonorable,
-			stdTag.plTongue
+			stdTag.plTongue,
+			stdTag.plDemon,
 		],
 		min_level : 1,
 		max_level : 5,
@@ -379,7 +380,8 @@ const lib = {
 			"pl_tail",
 			"pl_big_penis",
 			stdTag.plDishonorable,
-			stdTag.plTongue
+			stdTag.plTongue,
+			stdTag.plDemon,
 		],
 		min_level : 3,
 		max_level : 10,
@@ -449,7 +451,8 @@ const lib = {
 			"pl_tail",
 			"pl_big_penis",
 			stdTag.plDishonorable,
-			stdTag.plTongue
+			stdTag.plTongue,
+			stdTag.plDemon,
 		],
 		min_level : 5,
 		max_level : 15,
@@ -567,6 +570,7 @@ const lib = {
 			stdTag.plBigPenis,
 			stdTag.plDishonorable,
 			stdTag.plTongue,
+			stdTag.plDemon,
 		],
 		min_level : 1,
 		max_level : 20,
@@ -746,31 +750,32 @@ const lib = {
 		icon : "",
 		species : "skeleton",
 		description : "A rattling skeleton.",
-		classes : ["skeleton"],
-		monetary_wealth : 5,
+		classes : ["skeletonRattler"],
+		monetary_wealth : 1,
 		max_actions : 2,
 		tags : [
 			stdTag.plBeast,
 			stdTag.plTargetBeast,	// This allows it to be only considered a beast as a target, not as sender
+			stdTag.plUndead,
 		],
 		min_level : 1,
 		max_level : 20,
 		primary_stats : {
 			[Player.primaryStats.agility] : 1,
-			[Player.primaryStats.stamina] : -3,
-			[Player.primaryStats.intellect] : -2
+			[Player.primaryStats.stamina] : -5,
+			[Player.primaryStats.intellect] : -5
 		},
 		sv : {
-			[Action.Types.corruption] : 0,
+			[Action.Types.corruption] : 2,
 			[Action.Types.elemental] : 0,
 			[Action.Types.holy] : -2,
-			[Action.Types.physical] : -2,
+			[Action.Types.physical] : 1,
 		},
 		bon : {
 			[Action.Types.corruption] : 0,
 			[Action.Types.elemental] : 0,
-			[Action.Types.holy] : -3,
-			[Action.Types.physical] : 2,
+			[Action.Types.holy] : -5,
+			[Action.Types.physical] : 1,
 		},
 		gear_chance : 0,
 		min_size : 4,
@@ -778,8 +783,51 @@ const lib = {
 		difficulty : 1,
 		viable_consumables : [],
 		intelligence_min : 0.2,
+		intelligence_max : 0.4,
+	},
+
+	ghoul : {
+		name : "Ghoul",
+		icon : "",
+		species : "ghoul",
+		description : "An undead creature seeking to feed upon the fluids of the living.",
+		classes : ["ghoulRavener"],
+		monetary_wealth : 1,
+		max_actions : 3,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plTargetBeast,	// This allows it to be only considered a beast as a target, not as sender
+			stdTag.plUndead,
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : 3,
+			[Player.primaryStats.stamina] : -2,
+			[Player.primaryStats.intellect] : -2
+		},
+		sv : {
+			[Action.Types.corruption] : 1,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : -4,
+			[Action.Types.physical] : 0,
+		},
+		bon : {
+			[Action.Types.corruption] : 2,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : -5,
+			[Action.Types.physical] : 0,
+		},
+		gear_chance : 0.25,
+		min_size : 3,
+		max_size : 5,
+		difficulty : 1,
+		viable_consumables : [],
+		intelligence_min : 0.2,
 		intelligence_max : 0.3,
 	},
+
+
 };
 
 

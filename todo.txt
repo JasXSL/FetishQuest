@@ -17,13 +17,13 @@ Big chungi:
 		- ???
 
 	Necromancer Quest:
+		- Townsperson warns you not to go out at night
+		- Monsters:
+			- Skeleton
+			
 		- Encounters in the woods but only at night
 		- Hidden door revealed at night
 		- Reward?
-
-	Redesign character menu
-		- DM menu
-		- DM buttons
 
 
 

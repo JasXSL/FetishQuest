@@ -451,10 +451,8 @@ export default class Game extends Generic{
 			}
 		}
 		
-		this.removeEnemies();
 		// Return to the dungeon entrance
 		this.ui.draw();
-
 		
 		game.ui.addText( "The players wake up at the dungeon's entrance!", undefined, undefined, undefined, 'center' );
 		this.dungeon.goToRoom(losers[0], 0);
@@ -510,7 +508,7 @@ export default class Game extends Generic{
 	onRoomChange(){
 
 		this.clearRoleplay();
-		this.removeEnemies();
+		this.removeGeneratedPlayers();
 		this.ui.draw();
 		for( let player of this.players )
 			player.onCellChange();
@@ -1159,13 +1157,13 @@ export default class Game extends Generic{
 		return false;
 	}
 
-	// Removes all players not on team 0
-	removeEnemies( deadOnly = false ){
+	// Removes all generated players
+	removeGeneratedPlayers( deadOnly = false ){
 
 		let p = this.players.slice();
 		for( let pl of p ){
 
-			if( pl.team !== 0 && (!deadOnly || pl.isDead()) )
+			if( pl.generated && (!deadOnly || pl.isDead()) )
 				this.removePlayer(pl.id);
 
 		}
@@ -1567,7 +1565,7 @@ export default class Game extends Generic{
 		const completed = this.encounter.completed;
 
 		// Update visible players
-		this.removeEnemies(merge);
+		this.removeGeneratedPlayers(merge);
 		for( let pl of encounter.players ){
 			pl.netgame_owner = '';
 			this.addPlayer(pl);
