@@ -670,6 +670,7 @@ export default class StaticModal{
 					<div class="right cmContentBlock bgMarble">
 						<div class="image"></div>
 						<div class="expBar"></div>
+						<div class="equipment inventory"></div>
 						<div class="primaryStats flexThreeColumns"></div>
 						<div class="secondaryStats flexAuto"></div>
 					</div>

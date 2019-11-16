@@ -777,7 +777,10 @@ const lib = {
 			[Action.Types.holy] : -5,
 			[Action.Types.physical] : 1,
 		},
-		gear_chance : 0,
+		viable_gear : [
+			"boneRod"
+		],
+		gear_chance : 0.3,
 		min_size : 4,
 		max_size : 5,
 		difficulty : 1,
@@ -803,12 +806,12 @@ const lib = {
 		max_level : 20,
 		primary_stats : {
 			[Player.primaryStats.agility] : 3,
-			[Player.primaryStats.stamina] : -2,
+			[Player.primaryStats.stamina] : -1,
 			[Player.primaryStats.intellect] : -2
 		},
 		sv : {
 			[Action.Types.corruption] : 1,
-			[Action.Types.elemental] : 0,
+			[Action.Types.elemental] : 2,
 			[Action.Types.holy] : -4,
 			[Action.Types.physical] : 0,
 		},

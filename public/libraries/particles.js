@@ -36,6 +36,8 @@ const textures = {
 	skitteringInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/skittering_insect.png')})),
 	stingingInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/stinging_insect.png')})),
 	coin : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/coin_particle.png')})),
+	bone_shards : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/bone_shards.png')})),
+
 };
 for( let i in textures )
 	textures[i].material.depthWrite = false;
@@ -289,6 +291,22 @@ particles.hitfx_sparks_big_yellow = {
 	color : ["#FFFFAA","#FFFFEE"],	
 	opacity: 1,
 	gravity:2,
+};
+
+particles.hitfx_punch_bones = {
+	texture : textures.bone_shards,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 10,
+	size_tween : [0.001,1],
+	part_max_age : .5,
+	velocity : new Proton.Span(15,20),
+	color : ["#DDDDDD","#FFFFFF"],	
+	opacity: 1,
+	gravity:1,
+	rotation : [0, Math.PI],
 };
 
 particles.hitfx_sparkles_static = {
@@ -1133,6 +1151,22 @@ particles.hitfx_stinging_swarm = {
 	rotation : [5,0,0],
 };
 
+particles.hitfx_bone_shards = {
+	texture : textures.bone_shards,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,3),
+	size : new Proton.Span(10,20),
+	size_tween : [1,.01, Proton.ease.easeOutCirc],
+	part_max_age : .5,
+	velocity : new Proton.Span(-15,15),
+	gravity : 0,
+	color : ['#DDDDDD', '#FFFFFF'],	
+	opacity: 1,
+	rotation : [5,0,0],
+};
+
 particles.hitfx_insect_dots_impact = {
 	texture : textures.glowSphere,
 	blending : THREE.NormalBlending,
@@ -1283,6 +1317,85 @@ particles.hitfx_sludge_bolt_impact = {
 	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
 	wiggle : 10
 };
+particles.hitfx_sludge_bolt_impact_residue = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,30),
+	size : [5,10],
+	part_max_age : [2,3],
+	velocity : 0,
+	gravity:0.025,
+	color : ['#6633AA', '#330033'],	
+	opacity: [1,0],
+	rotation : [new Proton.Span(0,Math.PI)],
+};
+
+
+particles.hitfx_spit = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,4),
+	size : [7,15],
+	size_tween : [1,0.05],
+	part_max_age : 0.5,
+	velocity : 2.5,
+	gravity : 1,
+	color : ['#DDFFDD', '#FFFFFF'],	
+	opacity: 0.25,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+	wiggle : [0,5],
+};
+particles.hitfx_spit_drops = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : [15,1,Proton.ease.easeInBack],
+	size_tween : [1,0.05],
+	part_max_age : 0.75,
+	velocity : 2.5,
+	gravity : 1,
+	color : ['#DDFFDD', '#AAFFAA'],	
+	opacity: 0.5,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+	wiggle : 10,
+};
+particles.hitfx_spit_impact = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : [15,30],
+	size_tween : [1,0.05],
+	part_max_age : 1,
+	velocity : new Proton.Span(20, 40),
+	gravity:1,
+	color : ['#AAFFAA', '#DDFFDD'],	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+	wiggle : 10
+};
+particles.hitfx_spit_impact_residue = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,30),
+	size : [5,10],
+	part_max_age : [2,3],
+	velocity : 0,
+	gravity:0.025,
+	color : ['#DDFFDD', '#FFFFFF'],	
+	opacity: [0.5,0],
+	rotation : [new Proton.Span(0,Math.PI)],
+};
+
 
 
 particles.hitfx_sludge_bolt_white = {
@@ -1318,20 +1431,7 @@ particles.hitfx_sludge_bolt_impact_white = {
 	wiggle : 10
 };
 
-particles.hitfx_sludge_bolt_impact_residue = {
-	texture : textures.splat,
-	blending : THREE.AdditiveBlending,
-	rate : 0.01,
-	count : 1,
-	position : new Proton.SphereZone(0,0,0,30),
-	size : [5,10],
-	part_max_age : [2,3],
-	velocity : 0,
-	gravity:0.025,
-	color : ['#6633AA', '#330033'],	
-	opacity: [1,0],
-	rotation : [new Proton.Span(0,Math.PI)],
-};
+
 
 particles.hitfx_sludge_bolt_proc = {
 	texture : textures.splat,
@@ -1393,6 +1493,21 @@ particles.hitfx_sludge_bolt_proc_black = {
 	color : "#000000",	
 	opacity: [1,0],
 	rotation : new Proton.Span(0,Math.PI*2),
+};
+
+particles.hitfx_hex_armor = {
+	texture : textures.smoke,
+	blending : THREE.AdditiveBlending,
+	rate : 0.025,
+	count : 3,
+	position : new Proton.BoxZone(0,0,0,20,40,20),
+	size : [5,20],
+	part_max_age : 1,
+	velocity : new Proton.Span(0, 1),
+	gravity: new Proton.Span(0,1),
+	color : "#551188",	
+	opacity: [0,0.5, Proton.ease.easeFullBridge],
+	rotation : [0,new Proton.Span(0,Math.PI*2)],
 };
 
 particles.hitfx_glowing_ooze = {
@@ -1489,6 +1604,19 @@ particles.hitfx_pulse = {
 	part_max_age : 1,
 	velocity : 0,
 	color : ["#FFFFFF","#DDEEFF"],	
+	opacity: [1,0,Proton.ease.easeInCirc],
+};
+particles.hitfx_vibration = {
+	texture : textures.pulse,
+	blending : THREE.AdditiveBlending,
+	rate : 0.02,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 50,
+	size_tween : [0,1],
+	part_max_age : .2,
+	velocity : 0,
+	color : ["#FFFFFF","#FFFFFF"],	
 	opacity: [1,0,Proton.ease.easeInCirc],
 };
 

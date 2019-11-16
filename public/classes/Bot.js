@@ -13,7 +13,7 @@ class Bot{
 	}
 
 	// Targs is an array, it performs a weighted rand based on threat, shifts off the character and returns it
-	shiftRandomTargetByThreat(targs){
+	shiftRandomTargetByThreat(targs, action){
 
 		let maxThreat = 0;
 		for( let targ of targs )
@@ -21,6 +21,11 @@ class Bot{
 		let r = Math.random()*maxThreat,
 			threat = 0;
 		shuffle(targs);
+
+		// If the action should ignore aggro and just cast at a random target
+		if( action.hasTag(stdTag.acNpcIgnoreAggro) )
+			return targs[0];
+
 		for( let i in targs ){
 			let targ = targs[i];
 			let pthreat = this.player.getPlayerThreat(targ);
@@ -30,7 +35,7 @@ class Bot{
 				return targ;
 			}
 		}
-		return targs[0]
+		return targs[0];
 
 	}
 
@@ -197,7 +202,7 @@ class Bot{
 				let t = [];
 				while( targs.length ){
 
-					const ta = this.shiftRandomTargetByThreat(targs);
+					const ta = this.shiftRandomTargetByThreat(targs, abil);
 					t.push(ta);
 					if( t.length >= abil.max_targets )
 						break;

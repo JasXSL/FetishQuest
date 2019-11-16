@@ -73,6 +73,7 @@ export default {
 	acFood : 'ac_food',							// 
 	acManaDamage : 'ac_mana_damage',
 	acDrink : 'ac_drink',
+	acNpcIgnoreAggro : 'ac_npc_ignore_aggro',
 
 	// Common asset tags. These are appended with _<slot> ex as_tight_upperBody
 	asUpperBody : 'as_upperBody',	// slots like these are automatically added while you're wearing items in those slots
@@ -120,7 +121,7 @@ export default {
 	
 	// Props
 	asWhip : 'as_whip',
-	
+	asDildoSpear : 'as_dildo_spear',
 	asStrapon : 'as_strapon',
 	
 
@@ -150,6 +151,8 @@ export default {
 	// Effects
 	fxLatching : 'fx_latching',			// Put on a player latched onto another
 	fxLatched : 'fx_latched',			// Put on a player that another is latching onto
+	fxPouncing : 'fx_pouncing',			// Put on a player pouncing another
+	fxPounced : 'fx_pounced',			// Put on a player that another is pounced onto
 
 	// Turn tags
 	ttButtExposed : 'tt_butt_exposed',
@@ -250,6 +253,7 @@ export default {
 	metaInjection : 'me_injection',
 	metaJiggle : 'me_jiggle',
 	metaWhip : 'me_whip',
+	metaBluntWeapon : 'me_blunt_weapon',
 	metaPinch : 'me_pinch',
 	metaPenetration : 'me_penetration',
 	metaTwist : 'me_twist',
@@ -260,6 +264,9 @@ export default {
 	metaVeryPainful : 'me_very_painful',
 	metaVeryArousing : 'me_very_arousing',
 	metaLargeInsertion : 'me_large_insertion',
+	metaVibration : 'me_vibration',
+	metaSting : 'me_sting',
+	metaSpit : 'me_spit',
 
 	metaSlotButt : 'me_slot_butt',
 	metaSlotBreasts : 'me_slot_breasts',

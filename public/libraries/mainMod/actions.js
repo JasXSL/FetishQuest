@@ -2875,6 +2875,194 @@ const lib = {
 			}
 		]
 	},
+	boneRattle: {
+		icon : 'pelvis-bone',
+		name : "Bone Rattle",
+		description : "Squeeze your target's groin and rattle your hand, doing 3 corruption damage. Has a 20% chance of damaging armor.",
+		ap : 2,
+		cooldown : 2,
+		type : Action.Types.corruption,
+		tags : [stdTag.acArousing],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				add_conditions : ["targetNotBeast"],
+				target : Wrapper.Targets.auto,
+				detrimental : true,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount:3},
+					},
+					{
+						type : Effect.Types.damageArmor,
+						conditions : ["rand20"],
+						data : {amount:1, slots:Asset.Slots.lowerBody},
+					}
+				]
+			}
+		]
+	},
+	boneShards: {
+		icon : 'broken-bone',
+		name : "Bone Shards",
+		description : "Assault your target with bone shards, dealing 3 physical damage.",
+		ap : 2,
+		mp : 4,
+		cooldown : 1,
+		ranged : Action.Range.Ranged,
+		tags : [stdTag.acPainful, stdTag.acNpcIgnoreAggro],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount:3},
+					},
+				]
+			}
+		]
+	},
+	hexArmor: {
+		icon : 'vibrating-ball',
+		name : "Hex Armor",
+		description : "Hexes your target's armor for 3 turns. While hexed, the target's melee actions have a 50% chance of causing their armor to vibrate, doing 2 corruption damage.",
+		ap : 1,
+		mp : 3,
+		cooldown : 3,
+		type : Action.Types.corruption,
+		tags : [stdTag.acNpcIgnoreAggro, stdTag.acDebuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.Targets.auto,
+				icon : 'vibrating-ball',
+				name : 'Hex Armor',
+				description : 'Using a melee action has a 50% chance of arousing you.',
+				duration : 3,
+				detrimental : true,
+				add_conditions : stdCond.concat({conditions:[
+					'targetWearsLowerBody',
+					{conditions:["targetWearsUpperBody", "targetBreasts"], min:-1}
+				], min:1}),
+				stay_conditions : stdCond.concat({conditions : [
+					'targetWearsLowerBody',
+					{conditions:["targetWearsUpperBody", "targetBreasts"], min:-1}
+				], min:1}),
+				effects : [
+					{
+						label : 'hexArmorProc',
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["senderIsWrapperParent", "actionMelee", "rand50", "actionNotHidden"],
+						type : Effect.Types.damage,
+						data : {amount:2},
+					}
+				]
+			}
+		]
+	},
+
+	// Ghoul
+	pounce : {
+		name : "Pounce",
+		icon : 'chalk-outline-murder',
+		description : "Pounces on your target, knocking them down and grappling them.",
+		ap : 4,
+		cooldown : 6,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				label : 'pounce',
+				duration : -1,
+				detrimental : true,
+				name : "Pounced",
+				icon : "chalk-outline-murder",
+				description : "Pounced by %S!",
+				trigger_immediate : true,
+				add_conditions : stdCond.concat("targetNotGrappledOrKnockedDown"),
+				tags : [stdTag.wrGrapple, stdTag.fxPounced],
+				effects : [
+					{type : Effect.Types.grapple},
+					{type : Effect.Types.knockdown, data:{type:Effect.KnockdownTypes.Back}},
+					'selfTaunt',
+					'pounceBreak',
+					'pounceBreakMonster'
+				]
+			}
+		]
+	},
+	ghoulMunch: {
+		icon : 'mouth-watering',
+		name : "Munch",
+		description : "Munch at your pounced target's groin, doing 4 corruption damage. If the target is not wearing lower body armor, the caster heals for the amount as well.",
+		ap : 2,
+		mp : 0,
+		cooldown : 1,
+		tags : [stdTag.acArousing],
+		type: Action.Types.corruption,
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : ["targetWearsLowerBody", "targetPounced", "targetNotBeast"],
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount:4},
+					}
+				],
+			},
+			{
+				add_conditions : ["targetNoLowerBody", "targetPounced", "targetNotBeast"],
+				detrimental : true,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount:4, leech:1},
+					},
+				]
+			}
+		]
+	},
+	ghoulSpit : {
+		icon : 'death-juice',
+		name : "Ghoul Spit",
+		description : "Spits ghoul goo at your target, doing 3 elemental damage immediately, and another 2 every turn for 2 turns.",
+		ap : 2,
+		mp : 4,
+		cooldown : 2,
+		ranged : Action.Range.Ranged,
+		type : Action.Types.elemental,
+		tags : [stdTag.acNpcIgnoreAggro, stdTag.acDebuff, stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.Targets.auto,
+				icon : 'death-juice',
+				name : 'Ghoul Spit',
+				description : 'Deals 2 elemental damage at the start of your turn.',
+				duration : 3,
+				detrimental : true,
+				effects : [
+					{
+						events : [GameEvent.Types.internalWrapperAdded],
+						type : Effect.Types.damage,
+						data : {amount:3},
+					},
+					{
+						events : [GameEvent.Types.internalWrapperTick],
+						type : Effect.Types.damage,
+						data : {amount:2},
+					},
+				]
+			}
+		]
+	},
 
 
 	// Lamprey
@@ -3437,6 +3625,31 @@ const lib = {
 				add_conditions : stdCond.concat('targetLatching'),
 				effects : [
 					'unlatch_target'
+				]
+			}
+		]
+	},
+	pounceBreak : {
+		name : "Pounce Break",
+		icon : 'push',
+		description : "Try to remove a pouncing enemy.",
+		ap : 2,
+		cooldown : 1,
+		mp : 0,
+		hit_chance : 70,
+		detrimental : true,
+		type : Action.Types.physical,
+		tags : [],
+		show_conditions : ["inCombat"],
+		ranged : Action.Range.None,
+		wrappers : [
+			{
+				target : Wrapper.TARGET_AUTO,
+				duration : 0,
+				detrimental : true,
+				add_conditions : stdCond.concat('targetPouncing'),
+				effects : [
+					'unpounceTarget'
 				]
 			}
 		]

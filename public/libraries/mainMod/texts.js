@@ -657,6 +657,20 @@ const lib = [
 		metaTags : [stdTag.metaWhip, stdTag.metaPainful, stdTag.metaUsedWhip, stdTag.metaSlotButt],
 	},
 
+
+	// DildoSpear
+	{ text : "%S whacks %T across %This %Trsize %butt with %Shis %Sgear!",
+		conditions : anyOnHumCond.concat([
+			"action_stdAttack","senderHasDildoSpear","targetLowerBodyOrNoDamage",
+		]),
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaBluntWeapon, stdTag.metaPainful, stdTag.metaSlotButt],
+	},
+	
+	
+
+
+
 	// stdArouse
 	{ text : "%S tickles %T!",
 		conditions : baseCond.concat([
@@ -1355,6 +1369,29 @@ const lib = [
 	},
 
 
+	// Dildo spears
+	{ text : "%S prods %Shis %Sgear at %T's %Trsize %butt, rapidly stroking it up and down between the %Trace's buttcheeks!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasDildoSpear", 'targetButtExposedOrThong'
+		]),
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaBluntWeapon, stdTag.metaArousing, stdTag.metaSlotButt],
+	},
+	{ text : "%S surprises %T by thrusting %Shis %Sgear at %T's %Trsize %butt, shoving it deep inside before pulling it out!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasDildoSpear", 'targetButtExposed'
+		]),
+		hitfx : ['squishLong'],
+		metaTags : [stdTag.metaBluntWeapon, stdTag.metaVeryArousing, stdTag.metaSlotButt, stdTag.metaPenetration],
+	},
+	{ text : "%S surprises %T by thrusting %Shis %Sgear at %T from behind, shoving it deep inside %This %vagina before pulling it out!",
+		conditions : anyOnHumCond.concat([
+			"action_stdArouse","senderHasDildoSpear", 'targetGroinExposed', "targetVagina"
+		]),
+		hitfx : ["squishLong"],
+		metaTags : [stdTag.metaBluntWeapon, stdTag.metaVeryArousing, stdTag.metaSlotVagina, stdTag.metaPenetration],
+	},
+
 
 
 
@@ -1678,6 +1715,11 @@ const lib = [
 		conditions : baseCond.concat("action_tentacle_ride"),
 		metaTags : [stdTag.metaUsedTentacles],
 	},
+
+
+
+
+
 
 
 	// action_groper_leg_spread
@@ -2717,6 +2759,123 @@ const lib = [
 		metaTags : [stdTag.metaRub, stdTag.metaArousing, stdTag.metaSlotVagina],
 	},
 	
+
+	// boneRattle
+	{ text : "%S wraps its bony fingers around %T's %groin and starts to rapidly rattle it!",
+		conditions : anyOnHumCond.concat("action_boneRattle"),
+		hitfx : ["boneRattle"],
+		metaTags : [stdTag.metaArousing, stdTag.metaSlotGroin],
+	},
+	{ text : "%S prods its bony fingers up between %T's buttcheeks and starts rapidly rattling, tickling %T!",
+		conditions : anyOnHumCond.concat("action_boneRattle", {conditions:["targetButtExposed", "targetWearsThong"], min:1}),
+		hitfx : ["boneRattle"],
+		metaTags : [stdTag.metaArousing, stdTag.metaSlotButt, stdTag.metaTickle],
+	},
+	
+
+	// boneShards
+	{ text : "%S summons a swarm of bone shards, sending them flying across %T!",
+		conditions : baseCond.concat("action_boneShards"),
+		hitfx : ["boneShards"],
+		metaTags : [stdTag.metaPainful],
+	},
+	{ text : "%S summons a swarm of bone shards behind %T, sending them bouncing across %T's %Trsize %butt!",
+		conditions : anyOnHumCond.concat("action_boneShards"),
+		hitfx : ["boneShards"],
+		metaTags : [stdTag.metaPainful, stdTag.metaSting, stdTag.metaSlotButt],
+	},
+
+
+	// hexArmor
+	{ text : "%S casts a spell at %T, causing %This outfit to shimmer with a dark purple haze!",
+		conditions : baseCond.concat("action_hexArmor"),
+		hitfx : ["hexArmor"],
+		metaTags : [],
+	},
+
+	// hexArmor_tick
+	{ text : "%S's action causes the hex to activate and starts energetically vibrating %This %TclothLower!",
+		conditions : ["eventIsEffectTrigger", "action_hexArmor_tick", "targetWearsLowerBody"],
+		hitfx : ["vibrationHit"],
+		metaTags : [stdTag.metaVibration, stdTag.metaSlotGroin, stdTag.metaArousing],
+	},
+	{ text : "%S's action activates the hex, causing %This %TclothUpper to start vibrating heavily against %This %Tbsize %breasts!",
+		conditions : ["eventIsEffectTrigger", "action_hexArmor_tick", "targetWearsUpperBody"],
+		hitfx : ["vibrationHit"],
+		metaTags : [stdTag.metaVibration, stdTag.metaSlotBreasts, stdTag.metaArousing],
+	},
+
+
+
+	// Ghoul
+
+
+	// pounceBreak
+	{ text : "%S shoves %T off %This victim!",
+		conditions : baseCond.concat("action_pounceBreak"),
+		hitfx : ["shove"],
+		metaTags : [],
+	},
+
+	// ghoulSpit
+	{ text : "%S spits a watery green liquid at %T!",
+		conditions : baseCond.concat("action_ghoulSpit"),
+		hitfx : ["ghoulSpit"],
+		metaTags : [stdTag.metaSpit, stdTag.metaGooey],
+	},
+	{ text : "%S spits a watery green right in %T's face!",
+		conditions : anyOnHumCond.concat("action_ghoulSpit"),
+		hitfx : ["ghoulSpit"],
+		metaTags : [stdTag.metaSpit, stdTag.metaGooey],
+	},
+	{ text : "%S spits a watery green liquid across %T's %Tbsize %breasts!",
+		conditions : anyOnHumCond.concat("action_ghoulSpit", "targetBreasts"),
+		hitfx : ["ghoulSpit"],
+		metaTags : [stdTag.metaSpit, stdTag.metaGooey, stdTag.metaSlotBreasts],
+	},
+	{ text : "%S spits a watery green liquid across %T's %Tbsize %butt!",
+		conditions : anyOnHumCond.concat("action_ghoulSpit"),
+		hitfx : ["ghoulSpit"],
+		metaTags : [stdTag.metaSpit, stdTag.metaGooey, stdTag.metaSlotButt],
+	},
+	{ text : "%S spits a watery green liquid across %T's %groin!",
+		conditions : anyOnHumCond.concat("action_ghoulSpit"),
+		hitfx : ["ghoulSpit"],
+		metaTags : [stdTag.metaSpit, stdTag.metaGooey, stdTag.metaSlotGroin],
+	},
+
+	// ghoulMunch
+	{ text : "%S envelops the front of %T's %TclothLower in its toothless maw and slides %Shis tongue across it!",
+		conditions : anyOnHumCond.concat("action_ghoulMunch", "targetWearsLowerBody"),
+		hitfx : ["squishLong"],
+		metaTags : [stdTag.metaGooey, stdTag.metaLick, stdTag.metaSlotGroin],
+	},
+	{ text : "%S envelops %T's %vagina with its toothless maw and prods its tongue inside, sucking firmly while stroking inside the %Trace with %Shis gooey appendage!",
+		conditions : anyOnHumCond.concat("action_ghoulMunch", "targetGroinExposed", "targetVagina"),
+		hitfx : ["squishLong"],
+		metaTags : [stdTag.metaGooey, stdTag.metaSlotVagina, stdTag.metaUsedTongue, stdTag.metaPenetration],
+	},
+	{ text : "%S envelops %T's %penis and balls with its toothless maw and wraps %Shis tongue around it, sucking firmly while stroking it up and down with %Shis gooey appendage!",
+		conditions : anyOnHumCond.concat("action_ghoulMunch", "targetGroinExposed", "targetPenis"),
+		hitfx : ["squishLong"],
+		metaTags : [stdTag.metaGooey, stdTag.metaSlotPenis, stdTag.metaUsedTongue, stdTag.metaPenetration, stdTag.metaSlotBalls],
+	},
+	
+	
+
+
+
+
+	// pounce
+	{ text : "%S pounces on %T, knocking %Thim to the floor!",
+		conditions : anyOnHumCond.concat("action_pounce"),
+		hitfx : ["claws"],
+		metaTags : [],
+	},
+
+
+
+
 
 
 	// action_lamprey_slither

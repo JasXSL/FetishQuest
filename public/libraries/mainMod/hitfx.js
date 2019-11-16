@@ -23,6 +23,31 @@ out[id].stages.push(
 );
 
 
+id = 'boneRattle';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxSqueeze',
+		sound_kits : ['boneRattle'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch_bones',
+		emit_duration : 100,
+		dest_rand : 0.5,
+	}, out[id]),
+);
+
+
 id = 'punchDouble';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
@@ -218,6 +243,15 @@ out[id].stages.push(
 	new Stage({
 		css_fx : 'fxStretch',
 		sound_kits : ['stretchGeneric'],
+	}, out[id]),
+);
+
+id = 'shove';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		css_fx : 'fxStretch',
+		sound_kits : ['shove'],
 	}, out[id]),
 );
 
@@ -1338,6 +1372,28 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'ghoulSpit';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({emit_duration:500, particles:'hitfx_spit_drops', origin:'attacker'}),
+	new Stage({
+		origin : 'attacker',
+		particles : 'hitfx_spit',
+		emit_duration : 500,
+		hold : 500,
+		sound_kits : ['tentacleSuctionFollow', 'ghoulSpit'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_spit_impact',
+		emit_duration : 100,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['cumSplat'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_spit_impact_residue',
+		emit_duration : 100,
+	}, out[id]),
+);
 
 
 id = 'throwStone';
@@ -1507,6 +1563,18 @@ out[id].stages.push(
 	}, out[id])
 );
 
+id = 'hexArmor';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_hex_armor',
+		emit_duration : 500,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+		sound_kits : ['hexArmor'],
+	}, out[id]),
+);
 
 id = 'glowingOoze';
 out[id] = new HitFX({label : id});
@@ -1608,13 +1676,33 @@ out[id].stages.push(
 	new Stage({
 		particles : 'hitfx_insect_dots_impact',
 		emit_duration : 500,
-		css_fx : 'fxTakeDamageCorruption',
+		css_fx : 'fxTakeDamage',
 		sound_kits : ['stingingSwarm'],
 	}, out[id]),
 	new Stage({
 		particles : 'hitfx_stinging_swarm_impact',
 		emit_duration : 500,
 	}, out[id]),
+);
+
+id = 'boneShards';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_insect_dots',
+		emit_duration : 500,
+		sound_kits : ['boneShards'],
+		origin : 'attacker',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_bone_shards',
+		emit_duration : 500,
+		origin : 'attacker',
+		hold : 500,
+	}, out[id]),
+	new Stage({
+		css_fx : 'fxTakeDamage',
+	}, out[id])
 );
 
 
@@ -1926,6 +2014,18 @@ out[id].stages.push(
 		tween : false,
 		css_fx : 'fxBuffBlue',
 		sound_kits : ['gong'],
+	}, out[id]),
+);
+
+id = 'vibrationHit';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_vibration',
+		emit_duration : 500,
+		tween : false,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['vibrationHit'],
 	}, out[id]),
 );
 

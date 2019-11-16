@@ -1679,9 +1679,9 @@ Effect.Types = {
 	//visual : "visual",
 	hitfx : "hitfx",
 	damageArmor : "damageArmor",
-	addAP : "addAP",			
-	addMP : "addMP",	
-	
+	addAP : "addAP",
+	addMP : "addMP",
+		
 	setHP : 'setHP',
 	setMP : 'setMP',
 	setArousal : 'setArousal',

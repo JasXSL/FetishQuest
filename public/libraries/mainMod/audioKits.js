@@ -216,6 +216,16 @@ const lib = {
         ],
         
     },
+    cumSplat : {
+        sounds : [
+            {
+                s : {path : "media/audio/cumsplat.ogg",volume : 0.5},
+                t : 0,
+                se : false
+            }
+        ],
+        
+    },
     slowThrusts: {
         sounds : [
             {
@@ -635,6 +645,12 @@ const lib = {
             }
         ],
     },
+    vibrationHit : {sounds : [{s : {path : "media/audio/vibrationHit.ogg",volume : 0.5}}]},
+    hexArmor : {sounds : [{s : {path : "media/audio/hexArmor.ogg",volume : 0.5}}]},
+    boneShards : {sounds : [{s : {path : "media/audio/boneShards.ogg",volume : 0.5}}]},
+    boneRattle : {sounds : [{s : {path : "media/audio/boneRattle.ogg",volume : 0.5}}]},
+    shove : {sounds : [{s : {path : "media/audio/shove.ogg",volume : 0.5}}]},
+    ghoulSpit : {sounds : [{s : {path : "media/audio/ghoulSpit.ogg",volume : 0.3}, se:true}]},
     steal : {
         sounds : [
             {
@@ -901,6 +917,15 @@ const lib = {
             }
         ],
         
+    },
+    lootSticks : {
+        sounds : [
+            {
+                s : {path : "media/audio/loot_sticks.ogg",volume : 0.4},
+                t : 0,
+                se : false
+            }
+        ],
     },
     coins_pickup : {
         sounds : [

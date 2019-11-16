@@ -29,13 +29,37 @@ const lib = {
 		tags : [stdTag.fxLatching],
 		targets : [Wrapper.TARGET_CASTER],
 	},
-
 	// unlatches the target FROM all players it's latched to
 	unlatch_target : {
 		type : Effect.Types.removeEffectWrapperByEffectTag,
 		//events:[GameEvent.Types.internalWrapperAdded],
 		data : {tag:[stdTag.fxLatching]}
 	},
+
+
+	// Same as above, both these are needed
+	pounceBreakMonster : {
+		type : Effect.Types.none,
+		tags : [stdTag.fxPouncing],
+		targets : [Wrapper.TARGET_CASTER],
+	},
+	pounceBreak : {
+		type : Effect.Types.addActions,
+		targets:[Wrapper.Targets.aoe],
+		events:[],
+		conditions : ['targetNotWrapperSender'],
+		data : {
+			actions : ['pounceBreak']
+		}
+	},
+	// unpounces the target FROM all players it's pounced to
+	unpounceTarget : {
+		type : Effect.Types.removeEffectWrapperByEffectTag,
+		//events:[GameEvent.Types.internalWrapperAdded],
+		data : {tag:[stdTag.fxPouncing]}
+	},
+
+	
 
 	bondageStruggle : {
 		type : Effect.Types.addStacks,

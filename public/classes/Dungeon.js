@@ -1689,7 +1689,6 @@ class DungeonEncounter extends Generic{
 						Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
 					);
 					pl.generated = true;	// Set generated so it can be removed when leaving the area, regardless of allegiance
-					
 					if( mTemplate.difficulty+dif < difficulty ){
 
 						this.players.push(pl);
@@ -1713,6 +1712,7 @@ class DungeonEncounter extends Generic{
 				const pl = mTemplate.generate(
 					Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
 				);
+				pl.generated = true;
 				this.players.push(pl);
 			}
 
@@ -1745,8 +1745,11 @@ class DungeonEncounter extends Generic{
 		if( !just_started )
 			return;
 		// Run world placement event on all players
-		for( let player of this.players )
+		for( let player of this.players ){
+			player.generated = true;
 			player.onPlacedInWorld();
+		}
+		
 	}
 
 	onRemoved(){

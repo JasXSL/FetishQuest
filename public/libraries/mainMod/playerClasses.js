@@ -263,7 +263,9 @@ const lib = {
         actions : [
             'skeleton_looseHand',
             'lowBlow',
-        ]
+            'boneRattle',           // Todo - tugs at your target's lower body armor and rattles, doing 3 corruption damage with a 30% chance of 1 armor damage
+        ],
+        stamina : 3,
     },
     // todo
     skeletonMage : {
@@ -271,8 +273,12 @@ const lib = {
         description : "Skeletal spells usually involve bones or milk, or both!",
         isMonsterClass : true,
         actions : [
-            // Todo
-        ]
+            'skeleton_looseHand',
+            'boneShards',           // Todo attack with bone shards, doing physical damage at a range
+            'boneRattle',   
+            'hexArmor',             // Todo Hexes target's armor, giving it a 40% chance to vibrate and add 1 arousal when they use a melee ability
+        ],
+        intellect : 2,
     },
     
 
@@ -282,7 +288,9 @@ const lib = {
         description : "It hungers.",
         isMonsterClass : true,
         actions : [
-            // Munch : Munch on your target's groin, doing armor damage or stealing health
+            'pounce',       // Todo Grapples a player on the ground until they manually break free
+            'ghoulMunch',   // Todo Munch on target's groin, doing armor damage or stealing health
+            'ghoulSpit',    // Todo Spits goo at your target, doing elemental damage immediately and every round for 3 rounds
         ]
     },
     groper : {

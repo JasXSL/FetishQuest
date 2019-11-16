@@ -163,7 +163,30 @@ const lib = {
 		charges : -1,
 		use_action : "gropeRope",
 	},
-	
+	boneRod : {
+		category : Asset.Categories.handheld,
+		name : "Bone Rod",
+		slots : [Asset.Slots.hands],
+		tags : [ stdTag.asDildoSpear ],
+		basevalue : 15,
+		wrappers : [
+			{
+				detrimental : false,
+				effects : [
+					{
+						type: Effect.Types.bonCorruption,
+						data:{amount:1},
+					}
+				],
+				trigger_immediate : false,
+				duration : 0
+			}
+		],
+		description : "A spear made of long bones all tied together. The tip is rounded off and has a soft surface.\n+1 Corruption Proficiency",
+		weight : 1000,
+		loot_sound : "lootSticks",
+		icon : 'bone-mace',
+	},
 
 
 

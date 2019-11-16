@@ -111,7 +111,15 @@ const lib = {
 	action_guardian_demon_expose : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_expose'}, targnr:0},
 	action_guardian_demon_remoteDelivery : {type:Condition.Types.actionLabel, data:{label:'guardian_demon_remoteDelivery'}, targnr:0},
 	action_throw_rock : {type:Condition.Types.actionLabel, data:{label:'throwRock'}, targnr:0},
-	
+	action_pounceBreak : {type:Condition.Types.actionLabel, data:{label:'pounceBreak'}, targnr:0},
+	action_ghoulSpit : {type:Condition.Types.actionLabel, data:{label:'ghoulSpit'}, targnr:0},
+	action_ghoulMunch : {type:Condition.Types.actionLabel, data:{label:'ghoulMunch'}, targnr:0},
+	action_pounce : {type:Condition.Types.actionLabel, data:{label:'pounce'}, targnr:0},
+	action_boneRattle : {type:Condition.Types.actionLabel, data:{label:'boneRattle'}, targnr:0},
+	action_pounceBreak : {type:Condition.Types.actionLabel, data:{label:'pounceBreak'}, targnr:0},
+	action_boneShards : {type:Condition.Types.actionLabel, data:{label:'boneShards'}, targnr:0},
+	action_hexArmor : {type:Condition.Types.actionLabel, data:{label:'hexArmor'}, targnr:0},
+	action_hexArmor_tick : {type:Condition.Types.effectLabel, data:{label:'hexArmorProc'}, targnr:0},
 
 	action_groper_root : {type:Condition.Types.actionLabel, data:{label:'groper_root'}, targnr:0},
 	action_groper_skittering_swarm : {type:Condition.Types.actionLabel, data:{label:'groper_skittering_swarm'}, targnr:0},
@@ -138,6 +146,11 @@ const lib = {
 	targetLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}},
 	senderLatching : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatching]}, caster:true},
 	senderLatchingToTarget : {type:Condition.Types.tag,data:{tags:[stdTag.fxLatched], caster:true}},
+
+	targetPouncing : {type:Condition.Types.tag,data:{tags:[stdTag.fxPouncing]}},
+	targetPounced : {type:Condition.Types.tag,data:{tags:[stdTag.fxPounced]}},
+	senderPouncing : {type:Condition.Types.tag,data:{tags:[stdTag.fxPouncing]}, caster:true},
+	senderPouncingToTarget : {type:Condition.Types.tag,data:{tags:[stdTag.fxPounced], caster:true}},
 	
 	senderBlockingMouth : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockMouth], caster:true}},
 	senderBlockingButt : {type:Condition.Types.tag,data:{tags:[stdTag.wrBlockButt], caster:true}},
@@ -349,6 +362,7 @@ const lib = {
 	targetGrappledByMe : {type:Condition.Types.tag, data:{tags:[stdTag.wrGrapple], caster:true}},
 	senderHasWhip : {"type":"tag",data:{"tags":["as_whip"]},"caster":true},
 	targetHasWhip : {type:Condition.Types.tag,data:{"tags":[stdTag.asWhip]}},
+	senderHasDildoSpear : {type:Condition.Types.tag, data:{"tags":[stdTag.asDildoSpear]}, caster:true},
 	senderHasStrapon : {type:Condition.Types.tag,data:{tags:[stdTag.asStrapon]},caster:true},
 	targetSoaked : {"type":"tag",data:{"tags":["wr_soaked"]}},
 	targetLegsSpread : {type:Condition.Types.tag,data:{tags:[stdTag.wrLegsSpread]}},
@@ -600,6 +614,10 @@ lib.targetLowerBodyDamagedNotStripped = {conditions:[
 	lib.targetLowerBodyNotStripped
 ], min:-1};
 
+lib.targetButtExposedOrThong = {conditions:[
+	'targetWearsThong',
+	'targetButtExposed'
+], min:1};
 
 // Special cases where it needs to refer to itself
 lib.targetHasUnblockedExposedOrifice = {conditions:[
