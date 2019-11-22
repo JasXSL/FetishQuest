@@ -456,6 +456,87 @@ LibMesh.library = {
 				height:6,
 				top:-2,left:-2,
 			}),
+			Necro8x6 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/necrodungeon_8x6.JD',
+				wall_indentation : 10,
+				tags : [stdTag.mWall],
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Tile,
+				],
+				width: 8,
+				height:6,
+				top:-3,left:-2,
+			}),
+			Necro6x6 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/necrodungeon_6x6.JD',
+				wall_indentation : 10,
+				tags : [stdTag.mWall],
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Tile,
+				],
+				width: 6,
+				height:6,
+				top:-2,left:-2,
+			}),
+			Necro8x6s : new LibMesh({
+				isRoom : true,
+				url : 'rooms/necrodungeon_8x6s.JD',
+				wall_indentation : 10,
+				tags : [stdTag.mWall],
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Tile,
+				],
+				width: 8,
+				height:6,
+				top:-3,left:-2,
+			}),
+			Necro8x8 : new LibMesh({
+				isRoom : true,
+				url : 'rooms/necrodungeon_8x8.JD',
+				wall_indentation : 10,
+				tags : [stdTag.mWall],
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Tile,
+				],
+				width: 8,
+				height:8,
+				top:-3,left:-3,
+			}),
+			Shackles : new LibMesh({
+				url : 'doodads/wall_shackles_1x1.JD',
+				tags : [stdTag.mShackles],
+				materials : [
+					libMat.Metal.Chain,
+					libMat.Metal.DarkGeneric,
+				],
+				width:1, height:1,
+				position_on_wall : true,
+			}),
+			WallMount : new LibMesh({
+				url : 'doodads/wall_mount_1x1.JD',
+				tags : [],
+				materials : [
+					libMat.Metal.DarkGeneric,
+					libMat.Brick.Tile,
+				],
+				width:1, height:1,
+				position_on_wall : true,
+			}),
+			WallChain : new LibMesh({
+				url : 'doodads/hanging_chains_1x1.JD',
+				tags : [],
+				materials : [
+					libMat.Metal.Chain,
+				],
+				width:1, height:1,
+				position_on_wall : true,
+			}),
 		},
 		Furniture : {
 			RugTorn : new LibMesh({
@@ -472,6 +553,27 @@ LibMesh.library = {
 				height: 1,
 				tags : [stdTag.mAltar],
 			}),
+			MetalFence : new LibMesh({
+				url : 'structure/metal_fence_2x1.JD',
+				materials : [libMat.Metal.DarkGeneric],
+				width: 2,
+				height: 1,
+				tags : [stdTag.mFence],
+			}),
+			MetalFenceRust : new LibMesh({
+				url : 'structure/metal_fence_2x1.JD',
+				materials : [libMat.Metal.Rust],
+				width: 2,
+				height: 1,
+				tags : [stdTag.mFence],
+			}),
+			Brazier : new LibMesh({
+				url : 'doodads/brazier_1x1.JD',
+				materials : [libMat.Metal.DarkGeneric],
+				width: 1,
+				height: 1,
+				tags : [],
+			}),
 			Podium : new LibMesh({
 				url : 'furniture/podium_1x1.JD',
 				materials : [libMat.StoneTile.DungeonFloor,libMat.Brick.DungeonBlack],
@@ -486,6 +588,55 @@ LibMesh.library = {
 				height: 1,
 				tags : [stdTag.mPew, stdTag.mBench],
 			}),
+			TortureX : new LibMesh({
+				url : 'furniture/torture_x_1x1.JD',
+				materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric],
+				width: 1,
+				height: 1,
+				tags : [stdTag.mTorture, stdTag.mBondage, 'm_bondage_x'],
+			}),
+			TortureTable : new LibMesh({
+				url : 'furniture/torture_table_1x2.JD',
+				materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric],
+				width: 1,
+				height: 2,
+				tags : [stdTag.mTorture, stdTag.mBondage, 'm_bondage_table'],
+			}),
+			TortureRack : new LibMesh({
+				url : 'furniture/torture_rack_1x3.JD',
+				materials : [libMat.Metal.Chain, libMat.Metal.DarkGeneric, libMat.Wood.Crate],
+				width: 1,
+				height: 3,
+				tags : [stdTag.mTorture, stdTag.mBondage, 'm_bondage_table', 'm_torture_rack'],
+			}),
+			CollarSeat : new LibMesh({
+				url : 'furniture/collarseat_1x1.JD',
+				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric, libMat.Metal.Chain],
+				width: 1,
+				height: 1,
+				tags : [stdTag.mTorture, stdTag.mBondage, 'm_bondage_seat', 'm_collar_seat'],
+			}),
+			Stocks : new LibMesh({
+				url : 'furniture/stocks_1x1.JD',
+				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
+				width: 1,
+				height: 1,
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks],
+			}),
+			StocksLegs : new LibMesh({
+				url : 'furniture/stocks_legs_1x1.JD',
+				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
+				width: 1,
+				height: 1,
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks],
+			}),
+			Sybian : new LibMesh({
+				url : 'furniture/sybian_1x1.JD',
+				materials : [libMat.Metal.DarkGeneric, libMat.Metal.Chain, libMat.Solids.Rubber, libMat.Wood.Crate],
+				width: 1,
+				height: 1,
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks],
+			}),
 		},
 		Doodads : {
 			BannerAnimated : new LibMesh({
@@ -498,6 +649,15 @@ LibMesh.library = {
 				width: 1,
 				height: 1,
 				tags : [stdTag.mBanner],
+			}),
+			Paddle : new LibMesh({
+				url : 'doodads/paddle_1x1.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+				width: 1,
+				height: 1,
+				tags : [],
 			}),
 		},
 		Door : {
@@ -666,6 +826,16 @@ LibMesh.library = {
 				height: 1,
 				position_on_wall : true,
 				tags : [stdTag.mStool],
+			}),
+			Chair : new LibMesh({
+				url : 'furniture/chair_1x1.JD',
+				materials : [
+					libMat.Wood.Crate
+				],
+				width: 1,
+				height: 1,
+				position_on_wall : true,
+				tags : [stdTag.mChair],
 			}),
 			Bench : new LibMesh({
 				url : 'furniture/bench_105_05.JD',
@@ -1938,6 +2108,33 @@ LibMesh.library = {
 			},
 			tags : [],
 		}),
+		RuneCirclePurple : new LibMesh({
+			width: 1,
+			height: 1,
+			auto_bounding_box : true,
+			url : function(){
+				let group = new THREE.Group();
+				let plane = new THREE.Mesh(
+					new THREE.PlaneGeometry(100,100,1,1),
+					new THREE.MeshBasicMaterial()
+				);
+				plane.rotation.set(-Math.PI/2, 0, 0);
+				plane.material = libMat.Decal.RuneCirclePurple.flatten();
+				//plane.customDepthMaterial = libMat.Splat.BloodDepth.flatten();
+				plane.receiveShadow = false;
+				plane.position.y = 5;
+				group.add(plane);
+				return group;
+			},
+			tags : [],
+			onStagePlaced : function(asset, mesh){
+				let particles = libParticles.get('runeSparkles', mesh);
+				const z = 0, y = 0;
+				particles.p.y = y;
+				particles.p.z = z; 
+				mesh.userData.particles = [particles];
+			}
+		}),
 	},
 	// Outdoors
 	Land : {
@@ -2896,6 +3093,14 @@ LibMesh.library = {
 			}),
 		},
 
+		Townstand : new LibMesh({
+			url : 'structure/townstand_5x2.JD',
+			materials : [
+				libMat.Wood.Crate,
+			],
+			width: 5, height:2,
+		}),
+
 	},
 
 	Room : {
@@ -2909,6 +3114,9 @@ LibMesh.library = {
 				libMat.Wood.Crate,
 			],
 			tags : [stdTag.mWall],
+			width: 8,
+			height:6,
+			top:-2,left:-3,
 		}),
 
 		Gym : new LibMesh({
@@ -2919,6 +3127,9 @@ LibMesh.library = {
 				libMat.Structure.CottageWall2,
 			],
 			tags : [stdTag.mWall],
+			width: 8,
+			height:6,
+			top:-2,left:-3,
 		}),
 
 		Bank : new LibMesh({
@@ -2929,6 +3140,9 @@ LibMesh.library = {
 				libMat.Rock.Wall,
 			],
 			tags : [stdTag.mWall],
+			width: 8,
+			height:6,
+			top:-2,left:-3,
 		}),
 
 		Church : new LibMesh({
@@ -2940,9 +3154,16 @@ LibMesh.library = {
 				libMat.StoneTile.ChurchFloor,
 			],
 			tags : [stdTag.mWall],
+			width: 8,
+			height:6,
+			top:-2,left:-3,
 		}),
 
+
 		ChurchSide : new LibMesh({
+			width: 8,
+			height:6,
+			top:-2,left:-3,
 			isRoom : true,
 			url : 'rooms/church_side_room.JD',
 			materials : [
@@ -3283,7 +3504,18 @@ LibMesh.library = {
 				materials : [libMat.Nature.Soil],
 			}),
 		},
-
+		Weather : {
+			Mist : new LibMesh({
+				url : 'nature/smokelayer.JD',
+				tags : [stdTag.mMist],
+				materials : [libMat.Nature.Mist],
+				cast_shadow : false,
+				receive_shadow : false,
+				onFlatten : function(mesh){
+					mesh.renderOrder = 1;
+				},
+			}),
+		},
 	},
 	
 	

@@ -239,7 +239,7 @@ export default class UI{
 	}
 
 	showDMTools(){
-		return !Boolean(+localStorage.hide_dm_tools);
+		return !Boolean(+localStorage.hide_dm_tools) && game.is_host;
 	}
 
 	showBubbles(){
@@ -2818,18 +2818,22 @@ export default class UI{
 			return false;
 		});
 
+		// todo: fix
 		$("#saveAsset input.autogen").on('click', () => {
 
 			let slots = [];
-			$("#saveAsset input[name=slots]:checked").each(function(){ slots.push($(this).val()); });
-			let level = +$("#saveAsset input[name=level]").val();
-			let wrapper = Asset.generateStatWrapper(level, slots.length);
-			$("#saveAsset textarea[name=wrappers]").val(JSON.stringify([wrapper.save(true)], null, 4));
+			$("input[name=slots]:checked").each(function(){ slots.push($(this).val()); });
+			let level = +$("input[name=level]").val();
+			let rarity = +$("input[name=rarity]").val();
+
+			let wrapper = Asset.generateStatWrapper(level, slots.length, 0, rarity);
+			$("textarea[name=wrappers]").val(JSON.stringify([wrapper.save(true)], null, 4));
+			console.log("Setting val");
 			updateEffectStats();
 
 		});
 
-		$("#saveAsset textarea[name=wrappers]").on('change', function(){
+		$("textarea[name=wrappers]").on('change', function(){
 			let val = $(this).val().trim();
 			try{
 				val = JSON.parse(val);
@@ -2845,7 +2849,7 @@ export default class UI{
 			}
 		});
 
-		$("#saveAsset input.back").on('click', () => {
+		$("input.back").on('click', () => {
 			if( a.parent )
 				this.staticModal.set('player', player);
 			else
@@ -2854,7 +2858,7 @@ export default class UI{
 
 		$("#saveAsset input.generateRandom").on('click', () => {
 
-			let ass = Asset.generate($("#saveAsset select[name=randSlot]").val(), +$("#saveAsset input[name=level]").val());
+			let ass = Asset.generate($("#saveAsset select[name=randSlot]").val(), +$("#saveAsset input[name=level]").val(), undefined, undefined, +$("#saveAsset input[name=rarity]").val() || 0);
 
 			if(!ass)
 				return;

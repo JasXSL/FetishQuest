@@ -260,6 +260,7 @@ const lib = {
         name : "Rattler",
         description : "A regular skeleton with bony hands.",
         isMonsterClass : true,
+        name_type : PlayerClass.NameType.Suffix,
         actions : [
             'skeleton_looseHand',
             'lowBlow',
@@ -267,11 +268,11 @@ const lib = {
         ],
         stamina : 3,
     },
-    // todo
     skeletonMage : {
         name : "Mage",
         description : "Skeletal spells usually involve bones or milk, or both!",
         isMonsterClass : true,
+        name_type : PlayerClass.NameType.Suffix,
         actions : [
             'skeleton_looseHand',
             'boneShards',           // Todo attack with bone shards, doing physical damage at a range
@@ -282,11 +283,11 @@ const lib = {
     },
     
 
-    // Todo
     ghoulRavener : {
         name : "Ravener",
         description : "It hungers.",
         isMonsterClass : true,
+        name_type : PlayerClass.NameType.Suffix,
         actions : [
             'pounce',       // Todo Grapples a player on the ground until they manually break free
             'ghoulMunch',   // Todo Munch on target's groin, doing armor damage or stealing health

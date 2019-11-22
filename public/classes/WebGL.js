@@ -1632,8 +1632,7 @@ class Stage{
 					existing.userData.dungeonAsset = asset;
 				}
 
-				if( asset.hide_no_interact )
-					existing.visible = asset.isInteractive();
+				existing.visible = !asset.isHidden();
 
 				continue;
 			}

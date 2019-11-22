@@ -217,6 +217,24 @@ textures.smoke.material.depthWrite = true;
 
 	};
 
+	particles.runeSparkles = {
+		
+		texture : textures.sparkle,
+		blending : THREE.AdditiveBlending,
+		rate : 0.1,
+		count : 1,
+		position : new Proton.SphereZone(0,0,0,50),
+		size : 5,
+		size_tween : [1,0.05],
+		part_max_age : 1.5,
+		velocity : 0,
+		gravity : -2,
+		color : ["#AA66FF", "#FFFFFF"],	
+		opacity: 1,
+		wiggle : 3,
+		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
+	};
+
 //
 
 particles.quest_stars = {

@@ -1135,6 +1135,7 @@ class DungeonRoomAsset extends Generic{
 		this.hide_no_interact = false;	// Hide whenever it's not interactive.
 		this.deleted = false;			// Deleted
 		this._interactive = null;		// Cache of if this object is interactive
+		this.conditions = [];			// show conditions
 		
 		this.respawn = 0;					// Time in seconds before it respawns
 		this._killed = 0;
@@ -1175,6 +1176,7 @@ class DungeonRoomAsset extends Generic{
 			interactions : GameAction.saveThese(this.interactions, full),
 			hide_no_interact: this.hide_no_interact,
 			id : this.id,
+			conditions : Condition.saveThese(this.conditions, full),
 		};
 		if( full !== 'mod' ){
 			if( full )
@@ -1223,6 +1225,7 @@ class DungeonRoomAsset extends Generic{
 
 	rebase(){
 		this.interactions = GameAction.loadThese(this.interactions, this);
+		this.conditions = Condition.loadThese(this.conditions, this);
 	}
 
 
@@ -1295,6 +1298,21 @@ class DungeonRoomAsset extends Generic{
 
 	isDoorLinkingTo( index ){
 		return this.getDoorTarget() === index;
+	}
+
+	isHidden(){
+
+		if( this.hide_no_interact )
+			return !this.isInteractive();
+		const pl = game.getMyActivePlayer()||game.players[0];
+		return !Condition.all(this.conditions, new GameEvent({
+			sender:pl,
+			target:pl,
+			dungeonRoomAsset: this,
+			dungeonRoom : this.parent,
+			dungeon : this.getDungeon(),
+		}));
+
 	}
 
 	hasActiveEncounter(){

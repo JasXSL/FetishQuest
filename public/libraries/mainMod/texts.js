@@ -2800,7 +2800,7 @@ const lib = [
 		metaTags : [stdTag.metaVibration, stdTag.metaSlotGroin, stdTag.metaArousing],
 	},
 	{ text : "%S's action activates the hex, causing %This %TclothUpper to start vibrating heavily against %This %Tbsize %breasts!",
-		conditions : ["eventIsEffectTrigger", "action_hexArmor_tick", "targetWearsUpperBody"],
+		conditions : ["eventIsEffectTrigger", "action_hexArmor_tick", "targetWearsUpperBody", "targetBreasts"],
 		hitfx : ["vibrationHit"],
 		metaTags : [stdTag.metaVibration, stdTag.metaSlotBreasts, stdTag.metaArousing],
 	},

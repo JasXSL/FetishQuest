@@ -2970,7 +2970,7 @@ const lib = {
 		icon : 'chalk-outline-murder',
 		description : "Pounces on your target, knocking them down and grappling them.",
 		ap : 4,
-		cooldown : 6,
+		cooldown : 4,
 		detrimental : true,
 		type : Action.Types.physical,
 		tags : [],

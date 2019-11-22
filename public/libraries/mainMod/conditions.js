@@ -213,6 +213,7 @@ const lib = {
 	actionHealing : {type:Condition.Types.actionTag,data:{tags:[stdTag.acHeal]}},
 	wrapperIsStun : {"type":"wrapperHasEffect",data:{"filters":{"type":"stun"}}},
 	targetWearsThong : {"type":"tag",data:{"tags":["as_thong"]}},
+	targetNotThong : {type:Condition.Types.tag,data:{"tags":[stdTag.asThong]}, inverse:true},
 	targetWearsSkirt : {"type":"tag",data:{"tags":["as_skirt"]}},
 	targetWearsSlingBikini : {"type":"tag",data:{"tags":["as_sling_bikini"]}},
 	targetNoBodysuit : {"type":"tag",data:{"tags":["as_bodysuit"]},"inverse":true},
@@ -337,12 +338,9 @@ const lib = {
 
 	targetHasRepairable : {"type":"hasRepairable"},
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
-	targetNotBeast : {"type":"tag",data:{"tags":["pl_beast"]},"inverse":true},
-	targetBeast : {"type":"tag",data:{"tags":["pl_beast"]}},
-	senderNotBeast : {conditions:[
-		{type:Condition.Types.tag,data:{tags:[stdTag.plBeast]},inverse:true,caster:true},
-		{type:Condition.Types.tag,data:{tags:[stdTag.plTargetBeast]},caster:true},
-	]},
+	targetNotBeast : {"type":"tag",data:{"tags":[stdTag.plBeast, stdTag.plTargetBeast]},"inverse":true},
+	targetBeast : {"type":"tag",data:{"tags":[stdTag.plBeast, stdTag.plTargetBeast]}},
+	senderNotBeast : {type:Condition.Types.tag,data:{tags:[stdTag.plBeast]},inverse:true,caster:true},
 	senderBeast : {"type":"tag",data:{"tags":["pl_beast"]},"caster":true},
 	senderHasTentacles : {"type":"tag",data:{"tags":["pl_tentacles"]},"caster":true},
 	senderHasCocktacles : {type:Condition.Types.tag,data:{tags:[stdTag.plCocktacle]}, caster:true},

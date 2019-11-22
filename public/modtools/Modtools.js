@@ -1509,6 +1509,8 @@ export default class Modtools{
 			for( let i in stats )
 				html += 'SV '+stats[i]+': <input type="number" name="sv'+stats[i]+'" step=1 min=-1 value="'+(+asset['sv'+stats[i]] || 0)+'"  /><br />';
 			
+			html += this.formActions(asset.actions, 'actions')+'<br />';
+
 		this.editor_generic('playerClasses', asset, this.mod.playerClasses, html, saveAsset => {
 
 			const form = $("#assetForm");
@@ -1516,6 +1518,7 @@ export default class Modtools{
 			saveAsset.name = $("input[name=label]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
 			saveAsset.isMonsterClass = $("input[name=isMonsterClass]", form).val().trim();
+			saveAsset.actions = this.compileAction('actions');
 
 			for( let i in stats ){
 				const stat = stats[i];
@@ -2736,6 +2739,9 @@ export default class Modtools{
 			html += 'Y <input type="number" step=0.01 name="scaleY" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleY)+'" /> ';
 			html += 'Z <input type="number" step=0.01 name="scaleZ" class="updateMesh" style="width:6vmax" value="'+esc(asset.scaleZ)+'" /> <br />';
 	
+			html += 'Conditions: '+this.formConditions(asset.conditions, 'assetConditions')+'<br />'; 
+
+			
 			html += '<div class="assetDataEditor"><input type="button" value="+Custom Interaction" class="addInteraction" /><input type="button" value="+Lib Interaction" class="addInteractionLib" /><div class="assetData"></div></div>';
 
 			
@@ -2775,6 +2781,8 @@ export default class Modtools{
 		}
 
 		div.html(html);
+
+		this.bindConditions();
 
 		// Room
 		$("select[name=roomAssetPath]", div).on('change', function(){
@@ -2982,7 +2990,11 @@ export default class Modtools{
 			asset._stage_mesh.scale.z = asset.scaleZ = +$("input[name=scaleZ]", div).val();
 			asset.name = $("input[name=name]", div).val();
 			asset.hide_no_interact = $("input[name=hide_no_interact]", div).prop('checked');
-			asset.respawn = +$("input[name=respawn]", div).val() || 0;
+			asset.respawn = +$("input[name=respawn]", div).val() || 0;		
+		});
+
+		$("div.assetConditions", div).on("change", "input", event => {
+			asset.conditions = this.compileConditions('assetConditions');
 		});
 
 		$("select[name=type]", div).on('change', () => {
@@ -3056,6 +3068,7 @@ export default class Modtools{
 			for( let r in Action.Types )
 				html += Action.Types[r]+' Proficiency: <input type="number" step=1 name="bon'+Action.Types[r]+'" value="'+esc(a['bon'+Action.Types[r]])+'" /><br />';
 		
+			html += 'Talkative: <input type="range" step=0.05 min=0 max=1 name="talkative" value="'+esc(a.talkative)+'" /><br />';
 			html += 'Sadistic: <input type="range" step=0.1 min=0 max=1 name="sadistic" value="'+esc(a.sadistic)+'" /><br />';
 			html += 'Dominant: <input type="range" step=0.1 min=0 max=1 name="dominant" value="'+esc(a.dominant)+'" /><br />';
 			html += 'Heterosexual: <input type="range" step=0.1 min=0 max=1 name="hetero" value="'+esc(a.hetero)+'" /><br />';
@@ -3094,6 +3107,7 @@ export default class Modtools{
 			}
 			saveAsset.sadistic = +$("input[name=sadistic]", form).val().trim();
 			saveAsset.dominant = +$("input[name=dominant]", form).val().trim();
+			saveAsset.talkative = +$("input[name=talkative]", form).val().trim();
 			saveAsset.hetero = +$("input[name=hetero]", form).val().trim();
 			saveAsset.intelligence = +$("input[name=intelligence]", form).val().trim();
 
@@ -3329,7 +3343,8 @@ export default class Modtools{
 
 		else if( type === types.exit ){
 			html += 'Exit to: <select name="asset_dungeon">';
-			for( let r of th.mod.dungeons )
+			const dungeons = Object.values(glib.getFull('Dungeon'));
+			for( let r of dungeons )
 				html += '<option value="'+esc(r.label)+'" '+(interaction.data.dungeon === r.label ? 'selected' : '')+'>'+esc(r.name)+'</option>';
 			html += '</select>';
 			html += '<select name="asset_room">';

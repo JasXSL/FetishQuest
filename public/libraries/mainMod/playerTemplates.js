@@ -750,11 +750,10 @@ const lib = {
 		icon : "",
 		species : "skeleton",
 		description : "A rattling skeleton.",
-		classes : ["skeletonRattler"],
-		monetary_wealth : 1,
+		classes : ["skeletonRattler", "skeletonMage"],
+		monetary_wealth : 10,
 		max_actions : 2,
 		tags : [
-			stdTag.plBeast,
 			stdTag.plTargetBeast,	// This allows it to be only considered a beast as a target, not as sender
 			stdTag.plUndead,
 		],
@@ -795,10 +794,9 @@ const lib = {
 		species : "ghoul",
 		description : "An undead creature seeking to feed upon the fluids of the living.",
 		classes : ["ghoulRavener"],
-		monetary_wealth : 1,
+		monetary_wealth : 20,
 		max_actions : 3,
 		tags : [
-			stdTag.plBeast,
 			stdTag.plTargetBeast,	// This allows it to be only considered a beast as a target, not as sender
 			stdTag.plUndead,
 		],

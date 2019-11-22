@@ -150,6 +150,36 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'scratchItch';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		css_fx : 'fxSqueeze',
+		sound_kits : ['scratchItch'],
+	}, out[id]),
+);
+
+id = 'scratchItchSqueeze';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false
+	}, out[id]),
+	new Stage({
+		css_fx : 'fxSqueeze',
+		sound_kits : ['scratchSqueeze'],
+	}, out[id]),
+);
+
 
 id = 'whipSqueeze';
 out[id] = new HitFX({label : id});

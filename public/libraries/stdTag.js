@@ -233,6 +233,11 @@ export default {
 	mAxe : 'm_axe',
 	mPitchfork : 'm_pitchfork',
 	mPew : 'm_pew',
+	mMist : 'm_mist',
+	mTorture : 'm_torture',
+	mBondage : 'm_bondage',
+	mStocks : 'm_stocks',
+	mShackles : 'm_shackles',
 
 	// Meta tags for texts
 	metaBattleStarted : 'me_battle_started',

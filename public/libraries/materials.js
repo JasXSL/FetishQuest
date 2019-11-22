@@ -107,6 +107,16 @@ LibMaterial.library = {
 			transparent : true,
 			alphaTest : 0.5,
 		}),
+		RuneCirclePurple : new LibMaterial({
+			map : 'decals/rune_circle.png',
+			emissive : new THREE.Color(0xDD55FF),
+			emissiveMap : 'decals/rune_circle.png',
+			color : new THREE.Color(0xDD55FF),
+			metalness : 0.4,
+			roughness : 0.8,
+			transparent : true,
+			//alphaTest : 0.5,
+		}),
 	},
 	Metal : {
 		DarkGeneric : new LibMaterial({
@@ -134,9 +144,17 @@ LibMaterial.library = {
 			metalness : 0.7,
 			roughness : 0.5,
 		}),
+		Chain : new LibMaterial({
+			map : 'tileable/chain.png',
+			transparent : true,
+			alphaTest : 0.5,
+			metalness : 0.8,
+			roughness : 0.8,
+		}),
 	},
 	Solids : {
 		Black : new LibMaterial({color:0, metalness:0,roughness:1}),
+		Rubber : new LibMaterial({color:0x111111, metalness:0.2,roughness:0.5}),
 		Brown : new LibMaterial({color:0x70634e, metalness:0,roughness:1}),
 		GreenA : new LibMaterial({color:0x739b42, metalness:0,roughness:1}),
 		GreenB : new LibMaterial({color:0x44a533, metalness:0,roughness:1}),
@@ -226,6 +244,11 @@ LibMaterial.library = {
 		}),
 		Small : new LibMaterial({
 			map : 'tileable/small_brick.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+		}),
+		Tile : new LibMaterial({
+			map : 'tileable/dungeon_brick_tile.jpg',
 			metalness : 0.4,
 			roughness : 0.7,
 		}),
@@ -703,6 +726,16 @@ LibMaterial.library = {
 			map : 'decals/tree_b.png',
 			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
 			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+
+		Mist : new LibMaterial({
+			map : 'particles/smokeparticle.png',
+			opacity : 0.1,
+			metalness : 0.0,
+			roughness : 1,
+			transparent : true,
+			emissive : new THREE.Color(0xFFFFFF),
+			side : THREE.DoubleSide,
 		}, "MeshDepthMaterial"),
 
 		Vines : new LibMaterial({

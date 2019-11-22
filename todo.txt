@@ -1,5 +1,9 @@
 -- CURRENT --
 
+Bugs:
+	- Damage numbers not working when not hosting
+	- Loot menu should probably refresh for non-host
+	- Empty loot chest anim not working on non-host
 
 Smol:	
 	- Add fog override to cells

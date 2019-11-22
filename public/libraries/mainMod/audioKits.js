@@ -646,6 +646,8 @@ const lib = {
         ],
     },
     vibrationHit : {sounds : [{s : {path : "media/audio/vibrationHit.ogg",volume : 0.5}}]},
+    scratchSqueeze : {sounds : [{s : {path : "media/audio/scratch_squeeze.ogg",volume : 0.5}}]},
+    scratchItch : {sounds : [{s : {path : "media/audio/scratch_itch.ogg",volume : 0.5}}]},
     hexArmor : {sounds : [{s : {path : "media/audio/hexArmor.ogg",volume : 0.5}}]},
     boneShards : {sounds : [{s : {path : "media/audio/boneShards.ogg",volume : 0.5}}]},
     boneRattle : {sounds : [{s : {path : "media/audio/boneRattle.ogg",volume : 0.5}}]},

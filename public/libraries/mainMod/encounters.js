@@ -7,7 +7,7 @@ import Condition from "../../classes/Condition.js";
 import {Wrapper, Effect} from "../../classes/EffectSys.js";
 import Roleplay, { RoleplayStageOption } from "../../classes/Roleplay.js";
 import GameEvent from "../../classes/GameEvent.js";
-
+import C from './conditions.js';
 
 
 const lib = {
@@ -79,6 +79,24 @@ const lib = {
 			"guardian_demon",
 		],
 	},
+	necromancer_minions : {
+		player_templates : [
+			"skeleton",
+			"ghoul",
+		],
+	},
+
+	necromancer_minions_night : {
+		player_templates : [
+			"skeleton",
+			"ghoul",
+		],
+		conditions : [
+			"isNight"
+		]
+	},
+
+
 
 	// YUUG port
 	yuug_port_tavern_npcs : {
@@ -1028,6 +1046,47 @@ const lib = {
 		]
 	},
 	
+
+
+	// YUUG_GATES
+	yuug_gates_forest_farmer : {
+		players: ["yuug_farmer"],
+		friendly : true,
+		conditions : ["isDay"],
+		player_conditions : {
+			yuug_farmer : [
+				'isDay'
+			],
+		},
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				persistent : true,
+				once : true,
+				data : {rp:{
+					label: 'yuug_farmer',
+					player : 'yuug_farmer',
+					stages : [
+						{
+							index: 0,
+							text: "Hey there stranger! A word of advice: Don't head out into this here forest at night!",
+							options : [
+								{text:'Why not?', index:1},
+								{text:'I\'ll keep that in mind', index:-1},
+							],
+						},
+						{
+							index: 1,
+							text: "There's some unholy shenanigans about the abandoned cabin out there! I've heard... things skulking about at night.",
+							options : [
+								{text:'I\'ll keep that in mind', index:-1},
+							],
+						},
+					],
+				}}
+			}
+		]
+	},
 
 
 	// YUUG_CITY

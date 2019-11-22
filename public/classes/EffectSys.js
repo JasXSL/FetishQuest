@@ -1138,7 +1138,10 @@ class Effect extends Generic{
 				let label = this.data.label;
 				if( !Array.isArray(label) )
 					label = [label];
+
 				let wrappers = t.wrappers.slice();		// Use temporary wrappers only
+				console.log("Removing wrappers", label, "from", t.wrappers);
+				
 				for( let wrapper of wrappers ){
 					if(
 						~label.indexOf(wrapper.label) &&

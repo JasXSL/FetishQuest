@@ -84,6 +84,19 @@ const lib = {
 		]
 	},
 
+	yuug_farmer : {
+		name : "Farmer",
+		species : "border collie",
+		description : "A border collie.",
+		icon : "",
+		team : 1,
+		size : 5,
+		leveled : true,
+		sadistic : 0.4,
+		dominant : 0.6,
+		hetero : 0.6,
+		intelligence : 0.5,
+	},
 
 	yuug_city_gymleader : {
 		name : "Chad",
