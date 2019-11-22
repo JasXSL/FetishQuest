@@ -637,6 +637,24 @@ LibMesh.library = {
 				height: 1,
 				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks],
 			}),
+			Coffin : new LibMesh({
+				url : 'furniture/coffin.JD',
+				materials : [libMat.Wood.Crate],
+				width: 1,height: 2,
+				tags : [stdTag.mCoffin],
+			}),
+			CoffinOpen : new LibMesh({
+				url : 'furniture/coffin_open.JD',
+				materials : [libMat.Wood.Crate],
+				width: 1,height: 2,
+				tags : [stdTag.mCoffin],
+			}),
+			CoffinFloating : new LibMesh({
+				url : 'furniture/coffin_floating.JD',
+				materials : [libMat.Wood.Crate],
+				width: 1,height: 2,
+				tags : [stdTag.mCoffin],
+			}),
 		},
 		Doodads : {
 			BannerAnimated : new LibMesh({
@@ -657,6 +675,14 @@ LibMesh.library = {
 				],
 				width: 1,
 				height: 1,
+				tags : [],
+			}),
+			Crop : new LibMesh({
+				url : 'doodads/crop.JD',
+				materials : [
+					libMat.Solids.Rubber
+				],
+				width: 1,height: 1,
 				tags : [],
 			}),
 		},

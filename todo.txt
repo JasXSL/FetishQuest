@@ -20,14 +20,25 @@ Big chungi:
 	- Generic
 		- ???
 
-	Necromancer Quest:
-		- Townsperson warns you not to go out at night
-		- Monsters:
-			- Skeleton
-			
-		- Encounters in the woods but only at night
-		- Hidden door revealed at night
-		- Reward?
+	Necromancer Quest:	
+		- Enter crypt, talk to necromancer. You can decide if you want to fight or join.
+			- Fighting makes you hostile permanently
+			- Joining makes you friendly permanently
+				- Outside the tavern is a bounty board. It has 2 quests for the same dungeon:
+					- Defeat the bone construct in the upper level. Rewards gold and unlocks SPELL for tentaclemancer/elementalist.
+					- Defeat the blob in the lower level. Rewards gold and unlocks SPELL for tentaclemancer/elementalist.
+				- You unlock a quartermaster who will sell you some special necromancer equipment
+		- Encounters:
+			- Quartermaster
+			- Necromancers (friendly/nonfriendly)
+			- Entrance necromancer
+			- Necro guarding the deeper crypt
+			- Count Blobula
+			- Bone construct
+			- Necro caught in stocks (only if friendly with necromancer faction)
+
+		- Spells
+
 
 
 

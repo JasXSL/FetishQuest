@@ -170,6 +170,28 @@ const lib = {
 		loot_sound : "loot_wood",
 		icon : 'cricket-bat',
 	},
+	ridingCrop : {
+		category : Asset.Categories.handheld,
+		name : "Riding Crop",
+		slots : [Asset.Slots.hands],
+		tags : [ stdTag.asRidingCrop ],
+		basevalue : 50,
+		wrappers : [
+			{
+				detrimental : false,
+				effects : [
+					{
+						type: Effect.Types.bonPhysical,
+						data:{amount:1},
+					}
+				]
+			}
+		],
+		description : "A leathery riding crop.\n+1 Physical Proficiency",
+		weight : 200,
+		loot_sound : "loot_wood",
+		icon : 'shepherds-crook',
+	},
 	gropeRope : {
 		category : Asset.Categories.handheld,
 		name : "Groperope",

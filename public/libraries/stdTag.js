@@ -124,6 +124,7 @@ export default {
 	asDildoSpear : 'as_dildo_spear',
 	asStrapon : 'as_strapon',
 	asPaddle : 'as_paddle',
+	asRidingCrop : 'as_riding_crop',
 	
 
 	// Wrapper tags that are auto generated
@@ -239,6 +240,7 @@ export default {
 	mBondage : 'm_bondage',
 	mStocks : 'm_stocks',
 	mShackles : 'm_shackles',
+	mCoffin : 'm_coffin',
 
 	// Meta tags for texts
 	metaBattleStarted : 'me_battle_started',
