@@ -123,6 +123,7 @@ export default {
 	asWhip : 'as_whip',
 	asDildoSpear : 'as_dildo_spear',
 	asStrapon : 'as_strapon',
+	asPaddle : 'as_paddle',
 	
 
 	// Wrapper tags that are auto generated

@@ -148,6 +148,28 @@ const lib = {
 		loot_sound : "whipPickup",
 		icon : 'whip',
 	},
+	woodenPaddle : {
+		category : Asset.Categories.handheld,
+		name : "Wooden Paddle",
+		slots : [Asset.Slots.hands],
+		tags : [ stdTag.asPaddle ],
+		basevalue : 35,
+		wrappers : [
+			{
+				detrimental : false,
+				effects : [
+					{
+						type: Effect.Types.bonPhysical,
+						data:{amount:1},
+					}
+				]
+			}
+		],
+		description : "A worn wooden paddle with holes in it.\n+1 Physical Proficiency",
+		weight : 200,
+		loot_sound : "loot_wood",
+		icon : 'cricket-bat',
+	},
 	gropeRope : {
 		category : Asset.Categories.handheld,
 		name : "Groperope",

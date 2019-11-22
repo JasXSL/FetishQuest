@@ -812,6 +812,42 @@ LibMesh.library = {
 					LibMesh.playSound( mesh, asset, 'media/audio/lever.ogg', 0.5);
 				}
 			}),
+			SpiralStair : new LibMesh({
+				url : 'gates/spiral_stairs_2x2.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Brick.Small,
+				],
+				width: 2,
+				height: 2,
+				tags : [stdTag.mStair],
+				onFlatten : function(mesh){
+					let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
+					lamp.intensity = 0;
+					lamp.position.y = 1000;
+					lamp.castShadow = true;
+					mesh.add(lamp);
+					lamp.target = mesh;
+					// Setting a tween like this allows the room to turn it off when the room changes
+					mesh.userData.tweens = {
+						interact : new TWEEN.Tween(lamp)
+							.to({angle:0.2, intensity:1},500)
+							.easing(TWEEN.Easing.Sinusoidal.Out)
+					};
+				},
+				// Reset the lamp when placed
+				onStagePlaced : function( asset, mesh ){
+					let lamp = mesh.children[0];
+					lamp.intensity = 0;
+					lamp.angle = 0.001;
+				},
+				onInteract : function(mesh, room, asset){
+
+					mesh.userData.tweens.interact.start();
+					LibMesh.playSound( mesh, asset, 'media/audio/ladder.ogg', 0.5);
+				
+				}
+			}),
 		}
 	},
 	Farm : {
@@ -1071,6 +1107,14 @@ LibMesh.library = {
 				width: 1,
 				height: 1,
 				position_on_wall : true,
+			}),
+			WoodSteps : new LibMesh({
+				url : 'furniture/wood_steps.JD',
+				materials : [
+					libMat.Wood.Crate,
+				],
+				tags : [stdTag.mStair],
+				width: 1,height: 1,
 			}),
 		},
 		Room : {
