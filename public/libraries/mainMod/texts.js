@@ -1427,6 +1427,23 @@ const lib = [
 		conditions : anyOnHumCond.concat("action_stdUseBondageDevice", "targetBoundRack"),
 		hitfx : ["shove"]
 	},
+	{ text : "%S knocks %T onto a bondage table, clamping the cold metal chains around the %Trace's wrists and ankles!", // Todo
+		conditions : anyOnHumCond.concat("action_stdUseBondageDevice", "targetBoundTable"),
+		hitfx : ["shove"]
+	},
+	{ text : "%S shoves %T from behind, making the %Trace stumble head first into a pillory! %S quickly snaps down the latch, locking %T's head and arms into place!", // Todo
+		conditions : anyOnHumCond.concat("action_stdUseBondageDevice", "targetBoundStocks"),
+		hitfx : ["shove"]
+	},
+	{ text : "%S shoves %T from behind, making the %Trace stumble forward into a pillory and stocks! %S quickly snaps down the latch, locking %T's head, arms and feet into place!", // Todo
+		conditions : anyOnHumCond.concat("action_stdUseBondageDevice", "targetBoundStocksLegs"),
+		hitfx : ["shove"]
+	},
+	{ text : "%S shoves %T backwards, right into a torture device resembling an X! The %Srace quickly snaps the cold iron cuffs around the %Trace's ankles and wrists!", // Todo
+		conditions : anyOnHumCond.concat("action_stdUseBondageDevice", "targetBoundX"),
+		hitfx : ["shove"]
+	},
+	
 
 
 

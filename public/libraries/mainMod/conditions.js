@@ -203,7 +203,8 @@ const lib = {
 	// Types
 	targetBoundTable : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageTable]}},
 	targetBoundStocks : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mStocks]}},
-	targetBoundX : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mStocksLegs]}},
+	targetBoundStocksLegs : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mStocksLegs]}},
+	targetBoundX : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageX]}},
 	targetBoundRack : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageRack]}},
 	targetBoundSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageSeat]}},
 	targetBoundCollarSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageCollarSeat]}},
