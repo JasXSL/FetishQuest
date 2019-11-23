@@ -6,6 +6,7 @@ import Asset from "../../classes/Asset.js";
 import Action from "../../classes/Action.js";
 import Game from "../../classes/Game.js";
 import { Effect } from "../../classes/EffectSys.js";
+import Faction from "../../classes/Faction.js";
 
 const lib = {
 	
@@ -542,6 +543,11 @@ const lib = {
 	
 	isNight : {type:Condition.Types.hourRange, data:{min:21,max:5}},
 	isDay : {type:Condition.Types.hourRange, data:{min:21,max:5}, inverse:true},
+
+
+	// Factions
+	yuugNecromancerHostile : {type:Condition.Types.formula, data:{formula:'fac_yuug_necromancer<='+Faction.Standings.hostile}},
+	yuugNecromancerFriendly : {type:Condition.Types.formula, data:{formula:'fac_yuug_necromancer>='+Faction.Standings.friendly}},
 
 };
 

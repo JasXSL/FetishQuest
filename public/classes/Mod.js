@@ -32,6 +32,7 @@ export default class Mod extends Generic{
 		this.gameActions = [];
 		this.shops = [];
 		this.actionLearnable = [];
+		this.factions = [];
 		this.load(data);
 	}
 
@@ -77,6 +78,7 @@ export default class Mod extends Generic{
 			gameActions : this.gameActions,
 			shops : this.shops,
 			actionLearnable : this.actionLearnable,
+			factions : this.factions,
 		};
 
 		return out;

@@ -22,6 +22,7 @@ import {getArray as getEffects} from './mainMod/effects.js';
 import {getArray as getQuests} from './mainMod/quests.js';
 import {getArray as getShops} from './mainMod/shops.js';
 import {getArray as getActionLearnable} from './mainMod/actionLearnable.js';
+import {getArray as getFactions} from './mainMod/factions.js';
 import chats from './mainMod/chats.js';
 
 import dungeons from './mainMod/dungeons.js';
@@ -225,6 +226,7 @@ const mod = new Mod(
 				},
 			}
 		],
+		factions : getFactions(),
 		dungeonTemplates:getDungeonTemplates(),
 		effects:getEffects(),
 		dungeonRoomTemplates:[

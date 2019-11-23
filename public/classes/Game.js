@@ -19,6 +19,7 @@ import Shop, { ShopSaveState } from './Shop.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
 import VibHub from './VibHub.js';
+import Faction from './Faction.js';
 
 export default class Game extends Generic{
 
@@ -55,6 +56,8 @@ export default class Game extends Generic{
 		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)} - These are fetched by the Dungeon object. They're the same objects here as they are in dungeon._state
 		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
 		this.state_shops = new Collection();			// label : (obj)shopState
+
+		this.factions = [];
 
 		// Library of custom items
 		this.libAsset = {};
@@ -147,7 +150,7 @@ export default class Game extends Generic{
 
 		let out = {
 			id : this.id,
-			players : this.players.map(el => el.save(full)),
+			players : Player.saveThese(this.players, full),
 			turn : this.turn,
 			battle_active : this.battle_active,
 			initiative : this.initiative.slice(),	
@@ -159,6 +162,7 @@ export default class Game extends Generic{
 			time : this.time,
 			state_shops : this.state_shops.save(full),
 			rain : this.rain,
+			factions : Faction.saveThese(this.factions, full)
 		};
 
 		out.state_dungeons = this.state_dungeons.save(full);
@@ -332,6 +336,7 @@ export default class Game extends Generic{
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
 		this.completed_quests = Collection.loadThis(this.completed_quests);
+		this.factions = Faction.loadThese(this.factions);
 		
 		// shops have 3 layers of recursive collections
 		this.state_shops = Collection.loadThis(this.state_shops);
@@ -686,6 +691,7 @@ export default class Game extends Generic{
 			'g_sod' : game.time%(3600*24),		// Seconds of day (int)
 			'g_time' : game.time,
 		};
+		// All quests
 		const all = glib.getFull('Quest');
 		for( let q in all ){
 			out['q_'+q+'__time'] = this.completed_quests[q] && this.completed_quests[q].__time || 0;
@@ -706,6 +712,13 @@ export default class Game extends Generic{
 		}
 		for( let i=0; i<maxTeam+1 || i<2; ++i )
 			out['g_team_'+i] = teams['t_'+i] || 0;
+
+		// fac_<factionLabel> = standing
+		const fac = Object.values(glib.getFull('Faction'));
+		for( let f of fac )
+			out['fac_'+f.label] = f.standing;
+		for( let f of this.factions )
+			out['fac_'+f.label] = f.standing;
 
 		return out;
 	}
@@ -1054,6 +1067,39 @@ export default class Game extends Generic{
 	}
 	removeQuestCompletion( label ){
 		this.completed_quests.unset(label);
+	}
+
+
+	/*  FACTIONS  */
+	addFactionStanding( label, standing = 0 ){
+
+		standing = parseInt(standing);
+		if( isNaN(standing) )
+			throw 'Trying to add non-numerical faction';
+
+		let faction = this.getFaction(label);
+		if( !faction )
+			throw "Faction not found "+label;
+		
+		
+		if( this.factions.indexOf(faction) === -1 ){
+			faction = faction.clone();
+			this.factions.push(faction);
+		}
+
+		faction.standing += standing;
+		this.save();
+
+	}
+	getFaction( label ){
+
+		for( let f of this.factions ){
+			if( f.label === label )
+				return f;
+		}
+
+		return glib.get(label, 'Faction');
+
 	}
 
 

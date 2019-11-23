@@ -19,6 +19,7 @@ import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
 import Shop from './Shop.js';
 import ActionLearnable from './ActionLearnable.js';
+import Faction from './Faction.js';
 
 
 const LIB_TYPES = {
@@ -38,6 +39,7 @@ const LIB_TYPES = {
 	'materialTemplates' : MaterialTemplate,
 	'assetTemplates' : AssetTemplate,
 	'actionLearnable' : ActionLearnable,
+	'factions' : Faction,
 	'audioKits' : AudioKit,
 	'hitFX' : HitFX,
 	'dungeonRoomTemplates' : RoomTemplate,
@@ -67,6 +69,8 @@ const load_order = [
 	
 	'materialTemplates',
 	'assetTemplates',
+
+	'factions',
 	
 	'roleplay',
 	'gameActions',
@@ -76,6 +80,7 @@ const load_order = [
 	'dungeonTemplates',
 	'dungeons',
 	'quests',
+	
 	
 ];
 
@@ -112,7 +117,7 @@ export default class GameLib{
 		this.roleplay = {};
 		this.gameActions = {};
 		this.actionLearnable = {};
-
+		this.factions = {};
 		this._cache_assets = {};
 		this.texts = [];
 	}
@@ -128,6 +133,8 @@ export default class GameLib{
 		for( let asset of db )
 			obj[asset.label] = new constructor(asset);
 
+		if( !constructor )
+			console.error("Missing constructor in", db, obj, constructor);
 		// Handle caches
 		if( constructor.name === "Asset" ){
 			this._cache_assets = {};
