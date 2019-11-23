@@ -1569,6 +1569,13 @@ export default class Game extends Generic{
 
 	}
 
+	// Same as above, but only replaces std actions
+	rebaseAllPlayersStd(){
+		for( let p of this.players ){
+			p.refetchActions(true);
+		}
+	}
+
 
 	
 

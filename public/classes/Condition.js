@@ -624,6 +624,11 @@ export default class Condition extends Generic{
 					success = this.objIs(event.dungeon, this.data);
 			}
 
+			// Checks if there's at least one free bondage device
+			else if( this.type === T.hasFreeBondageDevice ){
+				success = Boolean(game.dungeon.getActiveRoom().getBondageAssets(true).length);
+			}
+
 			else if( this.type === T.textMeta || this.type === T.textTurnTag ){
 
 				if( event.text ){
@@ -949,6 +954,8 @@ Condition.Types = {
 	hasAsset : 'hasAsset',
 	assetStealable : 'assetStealable',
 
+	hasFreeBondageDevice : 'hasFreeBondageDevice',
+
 	apValue : 'apValue', 			// 
 	mpValue : 'mpValue', 			// 
 	hpValue : 'hpValue', 			// 
@@ -1057,7 +1064,7 @@ Condition.descriptions = {
 	
 	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
-
+	[Condition.Types.hasFreeBondageDevice] : '{} - Checks if there\'s at least one free bondage device in the dungeon. See mBondage in stdTag.js',
 
 	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
 	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more turn tags. ORed unless ALL is set.',

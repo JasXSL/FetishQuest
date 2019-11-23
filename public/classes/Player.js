@@ -495,6 +495,10 @@ export default class Player extends Generic{
 		return this.leader || !game.net.isConnected();
 	}
 
+	canRiposte(){
+		return !this.hasTag(stdTag.wrNoRiposte);
+	}
+
 	// Can't accept their turn
 	isIncapacitated(){
 		let stun = this.getActiveEffectsByType(Effect.Types.stun);
@@ -659,9 +663,23 @@ export default class Player extends Generic{
 			f.getTags().map(addTag);
 
 		fx = this.getEffects();
-		for( let f of fx )
-			f.getTags().map(addTag);
+		for( let f of fx ){
 
+			f.getTags().map(addTag);
+			// Bondage device mapping
+			if( f.type === Effect.Types.tieToRandomBondageDevice && f.data._device ){
+
+				const device = game.dungeon.getActiveRoom().getAssetById(f.data._device);
+				if( device ){
+					
+					const dTags = device.getTags();
+					for( let tag of dTags )
+						out['bo_'+tag.toLowerCase()] = true;
+
+				}
+			}
+
+		}
 		this._turn_tags.map(t => out[t.tag.toLowerCase()] = true);
 
 		if( this.species )
@@ -1938,7 +1956,7 @@ export default class Player extends Generic{
 		if( !ac.hidden && !silent )
 			game.ui.addText( this.getColoredName()+" learned "+ac.name+"!", undefined, this.id, this.id, 'actionLearned' );
 		
-		if( !this.actionSlotsFull() ){
+		if( !this.actionSlotsFull() && !action.std ){
 			for( let i in this.active_actions ){
 				
 				const slot = this.active_actions[i];
@@ -2128,18 +2146,33 @@ export default class Player extends Generic{
 	}
 
 	// Tries to update actions from database, you should not do this if you've modified actions via the console or spell editor
-	refetchActions(){
+	refetchActions( std_only = false ){
 
 		let lib = glib.getFull('Action');
-		for(let i in this.actions){
 
-			const action = this.actions[i];
+		const add = [];
+		const actions = this.actions.slice();
+		for(let i in actions ){
+
+			const action = actions[i];
+			if( !action.std && std_only )
+				continue;
+			
 			if( lib[action.label] ){
+
 				console.debug("Rebasing action", action.label, "with", lib[action.label]);
-				this.actions[i] = lib[action.label].clone(this);
+				this.removeActionById(action.id);
+				add.push(lib[action.label]);
+				//this.actions[i] = lib[action.label].clone(this);
+
 			}
 
 		}
+
+		for( let a of add ){
+			this.addAction(a, true);
+		}
+
 
 	}
 
@@ -2200,9 +2233,11 @@ export default class Player extends Generic{
 			// nonconsumable first
 			if( aConsumable !== bConsumable )
 				return bConsumable ? -1 : 1;
+
+			const acd = a.getCooldown(), bcd = b.getCooldown();
 			// Lower cooldown second
-			if( a.cooldown !== b.cooldown )
-				return a.cooldown < b.cooldown ? -1 : 1;
+			if( acd !== bcd )
+				return acd < bcd ? -1 : 1;
 			// Finally name
 			return aName < bName ? -1 : 1;
 
@@ -2619,9 +2654,13 @@ Player.getHitChance = function( attacker, victim, action ){
 	if( action.hit_chance > 100 )
 		return 100;
 
-	let modified = ((attacker.getBon(action.type)-victim.getSV(action.type))*5+action.hit_chance+attacker.getGenericAmountStatPoints(Effect.Types.globalHitChanceMod))*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod);
+	let out = action.hit_chance;
+	let modifier = 1+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05);
+	if( modifier < 0.1 )
+		modifier = 0.1;
+
 	// Hit chance above 100 is set as "always hit"
-	return modified;
+	return Math.round(out*modifier);
 
 };
 

@@ -77,6 +77,26 @@ const lib = {
 		}
 	},
 
+	// Same as the above, but removes effect duration instead of stacks 
+	bondageStruggleDuration : {
+		type : Effect.Types.addWrapperTime,
+		data : {amount:-1, conditions:[{type:Condition.Types.wrapperTag, data:{tags:stdTag.wrBound}}], casterOnly:false}
+	},
+	// This is the effect that grants a wrapper the above one is attached to
+	bondageStruggleDurationEnable : {
+		type : Effect.Types.addActions,
+		targets:[Wrapper.Targets.aoe],
+		events:[],
+		//conditions : ['targetNotWrapperSender'],
+		data : {
+			actions : ['bondageStruggleDuration']
+		}
+	},
+	// Attaches the wrapper target to an unoccupied bondage device found in the dungeon
+	attachToBondageDevice : {
+		type : Effect.Types.tieToRandomBondageDevice,
+		events : [GameEvent.Types.internalWrapperAdded],
+	},
 
 	// Used to force the caster to only attack the victim of this wrapper
 	selfTaunt : {

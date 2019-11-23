@@ -588,33 +588,34 @@ LibMesh.library = {
 				height: 1,
 				tags : [stdTag.mPew, stdTag.mBench],
 			}),
+
 			TortureX : new LibMesh({
 				url : 'furniture/torture_x_1x1.JD',
 				materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric],
 				width: 1,
 				height: 1,
-				tags : [stdTag.mTorture, stdTag.mBondage, 'm_bondage_x'],
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageX],
 			}),
 			TortureTable : new LibMesh({
 				url : 'furniture/torture_table_1x2.JD',
 				materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric],
 				width: 1,
 				height: 2,
-				tags : [stdTag.mTorture, stdTag.mBondage, 'm_bondage_table'],
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageTable],
 			}),
 			TortureRack : new LibMesh({
 				url : 'furniture/torture_rack_1x3.JD',
 				materials : [libMat.Metal.Chain, libMat.Metal.DarkGeneric, libMat.Wood.Crate],
 				width: 1,
 				height: 3,
-				tags : [stdTag.mTorture, stdTag.mBondage, 'm_bondage_table', 'm_torture_rack'],
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageTable, stdTag.mBondageRack],
 			}),
 			CollarSeat : new LibMesh({
 				url : 'furniture/collarseat_1x1.JD',
 				materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric, libMat.Metal.Chain],
 				width: 1,
 				height: 1,
-				tags : [stdTag.mTorture, stdTag.mBondage, 'm_bondage_seat', 'm_collar_seat'],
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageSeat, stdTag.mBondageCollarSeat],
 			}),
 			Stocks : new LibMesh({
 				url : 'furniture/stocks_1x1.JD',
@@ -635,8 +636,9 @@ LibMesh.library = {
 				materials : [libMat.Metal.DarkGeneric, libMat.Metal.Chain, libMat.Solids.Rubber, libMat.Wood.Crate],
 				width: 1,
 				height: 1,
-				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks],
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks, stdTag.mStocksLegs],
 			}),
+
 			Coffin : new LibMesh({
 				url : 'furniture/coffin.JD',
 				materials : [libMat.Wood.Crate],

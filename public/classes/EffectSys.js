@@ -1366,6 +1366,21 @@ class Effect extends Generic{
 
 			}
 
+			else if( this.type === Effect.Types.tieToRandomBondageDevice ){
+
+				if( this.data._device )
+					return;
+
+				const viable = game.dungeon.getActiveRoom().getBondageAssets(true);
+				if( !viable )
+					throw 'Error: No viable bondage assets found in room';
+
+				const asset = randElem(viable);
+				this.data._device = asset.id;
+
+
+			}
+
 			else if( this.type === Effect.Types.addExposedOrificeTag ){
 
 				const tEvent = new GameEvent({
@@ -1755,6 +1770,7 @@ Effect.Types = {
 	taunt : 'taunt',	
 	addActions : 'addActions',	// handled in Player
 	addMissingFxTag : 'addMissingFxTag',
+	tieToRandomBondageDevice : 'tieToRandomBondageDevice',
 	addExposedOrificeTag : 'addExposedOrificeTag',
 	addTags : 'addTags',
 	addRandomTags : 'addRandomTags',
@@ -1858,6 +1874,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addActions] : '{actions:(str/arr)actions} - Unlocks specified actions while you\'re under the effect of this',
 	[Effect.Types.none] : 'Void. You probably only want to use this if you want an effect that adds tags but nothing else',
 	[Effect.Types.addMissingFxTag] : '{tag:(str/arr)tags, max:(int)=1} - Adds one or more tags to this Effect that the target doesn\'t have.',
+	[Effect.Types.tieToRandomBondageDevice] : '{_device:(str)DungeonAssetID} - _device is auto added. Ties the player to a random device that has the m_bondage tag. See stdTag.js for more info',
 	[Effect.Types.addExposedOrificeTag] : '{relax:(str)"notHard"/"all"} - Similar to above, but it checks availability and exposed status of stdTag.wrBlockGroin, wrBlockButt, wrBlockMouth, and adds one of them. Useful for latching that should occupy a slot. Checks for exposed by default, but you can also limit it to non-hard armor or no limits.',
 	[Effect.Types.addTags] : '{tags:(arr/str)tags} - Adds tags to the effect itself.',
 	[Effect.Types.addRandomTags] : '{tags:(arr)tag_objs, amount:(int)amount=1} - Adds a random set of tags from tag_objs. Tag objects consist of {tags:(arr/str)tags, conds:(arr)conditions}',

@@ -149,6 +149,7 @@ export default {
 	wrLegsSpread : 'wr_legs_spread',
 	wrTentacleRestrained : 'wr_tentacle_restrained',		// Restrained and lifted by tentacles
 	wrBound : 'wr_bound',
+	wrNoRiposte : 'wr_no_riposte',							// Prevents riposte
 
 	// Effects
 	fxLatching : 'fx_latching',			// Put on a player latched onto another
@@ -237,9 +238,23 @@ export default {
 	mPew : 'm_pew',
 	mMist : 'm_mist',
 	mTorture : 'm_torture',
+
+	// Bondage tags are a bit special in that they're used by conditions
+	// A bondage device should be marked by mBondage. It's then added to a pool of viable bondage devices in the dungeon
+	// When a player is strapped to the device, they inherit all that device's tags prepended by bo_*
+	// Ex: player gets put into stocks with tags ['m_bondage', 'm_stocks'], their getTags auto adds ['bo_m_shackles', 'bo_m_bondage']
 	mBondage : 'm_bondage',
 	mStocks : 'm_stocks',
+	mStocksLegs : 'm_stocks_legs',
 	mShackles : 'm_shackles',
+	mBondageX : 'm_bondage_x',
+	mBondageTable : 'm_bondage_table',
+	mBondageRack : 'm_bondage_rack',
+	mBondageSeat : 'm_bondage_seat',
+	mBondageCollarSeat : 'm_bondage_collar_seat',
+
+
+
 	mCoffin : 'm_coffin',
 
 	// Meta tags for texts

@@ -128,6 +128,9 @@ const lib = {
 	action_groper_skittering_swarm_wrapper : {type:Condition.Types.wrapperLabel, data:{label:'skitteringSwarm'}, targnr:0},
 	action_groper_stinging_swarm : {type:Condition.Types.actionLabel, data:{label:'groper_stinging_swarm'}, targnr:0},
 
+	action_bondageStruggleDuration : {type:Condition.Types.actionLabel, data:{label:'bondageStruggleDuration'}, targnr:0},
+	action_stdUseBondageDevice : {type:Condition.Types.actionLabel, data:{label:'stdUseBondageDevice'}, targnr:0},
+
 
 	action_sharktopus_attack : {type:Condition.Types.actionLabel, data:{label:'sharktopus_attack'}, targnr:0},
 	action_sharktopus_arouse : {type:Condition.Types.actionLabel, data:{label:'sharktopus_arouse'}, targnr:0},
@@ -188,14 +191,23 @@ const lib = {
 	], min:1},
 
 	targetIsSender : {type:Condition.Types.targetIsSender},
-	targetNotSender : {type:Condition.Types.targetIsSender, inverse:true},
+	targetNotSender : {type:Condition.Types.targetIsSender, inverse:true, anyPlayer:true},
 	targetIsWrapperSender : {type:Condition.Types.targetIsWrapperSender},
 	targetNotWrapperSender : {type:Condition.Types.targetIsWrapperSender, inverse:true},
 
+	// Bondage
 	targetNotTiedUp : {type:Condition.Types.tag, data:{tags:[stdTag.wrBound]}, inverse:true},
 	senderNotTiedUp : {type:Condition.Types.tag, data:{tags:[stdTag.wrBound]}, inverse:true, caster:true},
 	targetTiedUp : {type:Condition.Types.tag, data:{tags:[stdTag.wrBound]}},
 	targetHogtied : {type:Condition.Types.tag, data:{tags:[stdTag.wrHogtied]}},
+	// Types
+	targetBoundTable : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageTable]}},
+	targetBoundStocks : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mStocks]}},
+	targetBoundX : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mStocksLegs]}},
+	targetBoundRack : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageRack]}},
+	targetBoundSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageSeat]}},
+	targetBoundCollarSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageCollarSeat]}},
+
 
 	targetSameTeam : {"type":"sameTeam"},
 	targetOtherTeam : {"type":"sameTeam","inverse":true},
@@ -340,6 +352,7 @@ const lib = {
 	targetHasRepairable : {"type":"hasRepairable"},
 	targetNotFriendly : {"type":"sameTeam","inverse":true},
 	targetNotBeast : {"type":"tag",data:{"tags":[stdTag.plBeast, stdTag.plTargetBeast]},"inverse":true},
+	oneTargetNotBeast : {type:Condition.Types.tag, data:{tags:[stdTag.plBeast, stdTag.plTargetBeast]}, inverse:true, anyPlayer:true },
 	targetBeast : {"type":"tag",data:{"tags":[stdTag.plBeast, stdTag.plTargetBeast]}},
 	senderNotBeast : {type:Condition.Types.tag,data:{tags:[stdTag.plBeast]},inverse:true,caster:true},
 	senderBeast : {"type":"tag",data:{"tags":["pl_beast"]},"caster":true},
@@ -443,6 +456,10 @@ const lib = {
 	roomTankard : {type:Condition.Types.tag,data:{"tags":[stdTag.mTankard]}},
 	roomBottle : {type:Condition.Types.tag,data:{"tags":[stdTag.mBottle]}},
 	roomStalagmite : {type:Condition.Types.tag,data:{"tags":[stdTag.mStalagmite]}},
+	roomBondageMachine : {type:Condition.Types.tag, data:{tags:[stdTag.mBondage]}, targnr:0},
+	roomHasFreeBondageDevice : {type:Condition.Types.hasFreeBondageDevice, targnr:0},
+	
+
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},
 	targetDead : {"type":"defeated"},
@@ -548,6 +565,9 @@ const lib = {
 	// Factions
 	yuugNecromancerHostile : {type:Condition.Types.formula, data:{formula:'fac_yuug_necromancer<='+Faction.Standings.hostile}},
 	yuugNecromancerFriendly : {type:Condition.Types.formula, data:{formula:'fac_yuug_necromancer>='+Faction.Standings.friendly}},
+
+
+
 
 };
 

@@ -236,6 +236,64 @@ const lib = {
 			}
 		]
 	},
+	stdUseBondageDevice : {
+		std : true,
+		icon : 'manacles',
+		name : "Bondage Device",
+		description : "Use a nearby bondage device for 6 turns on a humanoid target, provided it's not already occupied. The affected target can only try to struggle free.",
+		ap : 5,
+		cooldown : 'g_team_0*10',
+		show_conditions : ["inCombat", "oneTargetNotBeast", "targetNotSender", "roomHasFreeBondageDevice"],
+		tags : [stdTag.acDebuff],
+		wrappers : [
+			{
+				duration : 6,
+				name : "Tied Up",
+				icon : "manacles",
+				description : "You have been tied up to a nearby device.",
+				detrimental : true,
+				add_conditions : stdCond.concat('targetNotTiedUp'),
+				stay_conditions : stdCond,
+				tags : [stdTag.wrBound, stdTag.wrNoRiposte],
+				effects : [
+					{
+						type : Effect.Types.disable,
+						data : {level:1, hide:true}
+					},
+					'bondageStruggleDurationEnable',
+					'attachToBondageDevice'
+				]
+			}
+		]
+	},
+	bondageStruggleDuration : {
+		name : "Untie",
+		icon : 'imprisoned',
+		description : "Struggle against the restraints of a tied up character. Reducing the duration by 1 turn.",
+		ap : 2,
+		cooldown : 0,
+		min_ap : 1,
+		mp : 0,
+		hit_chance : 100,
+		detrimental : false,
+		type : Action.Types.physical,
+		disable_override : 1,
+		wrappers : [
+			{
+				detrimental : false,
+				effects : [
+					'bondageStruggleDuration'
+				],
+				add_conditions : [
+					"targetTiedUp",
+					{conditions:[
+						'targetIsSender',
+						'senderNotTiedUp'
+					]},
+				]
+			}
+		]
+	},
 
 	lowBlow: {
 		icon : 'armor-punch',
@@ -2038,7 +2096,7 @@ const lib = {
 				detrimental : true,
 				stacks : 3,
 				max_stacks : 3,
-				tags : [stdTag.wrBound, stdTag.wrHogtied],
+				tags : [stdTag.wrBound, stdTag.wrHogtied, stdTag.wrNoRiposte],
 				add_conditions : stdCond.concat("targetNotBeast", "targetNotTiedUp"),
 				stay_conditions : ["senderNotDead"],
 				tick_on_turn_start : false,			// Tick on turn start

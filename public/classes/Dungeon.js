@@ -970,6 +970,37 @@ class DungeonRoom extends Generic{
 		return false;
 	}
 
+	// returns assets tagged with bondage
+	getBondageAssets( freeOnly = false ){
+		
+		return this.assets.filter(el => {
+			
+			if( !el.hasTag(stdTag.mBondage) )
+				return false;
+
+			if( !freeOnly )
+				return true;
+
+			// See if this one is used
+			const pl = game.getEnabledPlayers();
+			for( let p of pl ){
+
+				const effects = p.getActiveEffectsByType(Effect.Types.tieToRandomBondageDevice);
+				for( let effect of effects ){
+
+					if( effect.data._device === el.id )
+						return false;
+
+				}
+
+			}
+
+			return true;
+
+
+		});
+		
+	}
 
 	
 

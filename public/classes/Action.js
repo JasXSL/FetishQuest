@@ -26,7 +26,7 @@ class Action extends Generic{
 		this.ap = 1;
 		this.min_ap = 0;			// When reduced by effects, this is the minimum AP we can go to 
 		this.mp = 0;
-		this.cooldown = 0;						// Turns needed to add a charge. Setting this to 0 will make charges infinite
+		this.cooldown = null;					// Turns needed to add a charge. Setting this to 0 will make charges infinite. Can be a math formula.
 		this.min_targets = 1;
 		this.max_targets = 1;
 		this.target_type = Action.TargetTypes.target;
@@ -39,6 +39,7 @@ class Action extends Generic{
 		this.add_conditions = [];				// ADD conditions. These aren't saved, because they're only used for NPCs
 		this.conditions = [];					// Conditions run against all targets regardless of wrapper
 		this.show_conditions = [];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
+												// This is checked against all enabled players, and at least one check has to be viable
 												// You generally want this to be "inCombat"
 		this.no_use_text = false;				// Disable use texts.
 		this.no_action_selector = false;		// Hide from combat action selector
@@ -134,6 +135,12 @@ class Action extends Generic{
 		this.conditions = Condition.loadThese(this.conditions, this);
 		
 		this.add_conditions = Condition.loadThese(this.add_conditions, this);
+
+		if( typeof this.cooldown !== "string" && isNaN(parseInt(this.cooldown)) )
+			this.cooldown = 0;
+		if( typeof this.cooldown !== "string" )
+			this.cooldown = parseInt(this.cooldown);
+
 	}
 
 	getPlayerParent(){
@@ -161,6 +168,9 @@ class Action extends Generic{
 	}
 	isVisible(){
 
+		if( this.hidden )
+			return false;
+
 		if( this.hide_if_no_targets && !this.getViableTargets().length )
 			return false;
 
@@ -175,11 +185,20 @@ class Action extends Generic{
 					return false;
 			}
 		}
-		return !this.hidden && Condition.all(this.show_conditions, new GameEvent({
-			sender : this.getPlayerParent(),
-			target : this.getPlayerParent(),
-			action : this,
-		}));
+
+		// Validate visibility conditions against all players
+		const en = game.getEnabledPlayers(),
+			evt = new GameEvent({
+				sender : this.getPlayerParent(),
+				action : this
+			});
+		for( let player of en ){
+			
+			evt.target = player;
+			if( Condition.all(this.show_conditions, evt) )
+				return true;
+
+		}
 
 	}
 
@@ -236,6 +255,14 @@ class Action extends Generic{
 		return this.target_type !== Action.TargetTypes.self && this.target_type !== Action.TargetTypes.aoe;
 	}
 
+	getCooldown(){
+		
+		if( typeof this.cooldown === "number" )
+			return this.cooldown;
+		const pl = this.getPlayerParent() || game.players[0];
+		return Calculator.run(this.cooldown, new GameEvent({sender:pl, target:pl}));
+
+	}
 
 	/* Base functions */
 	// Automatically sets cooldown if needed
@@ -249,20 +276,20 @@ class Action extends Generic{
 		if( this._cooldown && !force )
 			return;
 		// Set the cooldown
-		this._cooldown = this.cooldown;
+		this._cooldown = this.getCooldown();
 	}
 
 	// Adds or subtracts from cooldown
 	addCooldown( amount = -1 ){
 
-		if( this.cooldown === -1 )
+		if( this.getCooldown() === -1 )
 			return;
 
 		this._cooldown += amount;
 		if( this._cooldown <= 0 && this._charges < this.charges )
 			this.consumeCharges(-1);
-		if( this._cooldown > this.cooldown )
-			this._cooldown = this.cooldown;
+		if( this._cooldown > this.getCooldown() )
+			this._cooldown = this.getCooldown();
 
 	}
 
@@ -270,7 +297,7 @@ class Action extends Generic{
 	consumeCharges( charges = 1 ){
 
 		// If there's no cooldown at all, the charge system is ignored
-		if( this.cooldown <= 0 )
+		if( this.getCooldown() <= 0 )
 			return;
 
 		// Subtract a charge
@@ -280,7 +307,7 @@ class Action extends Generic{
 	}
 
 	hasEnoughCharge(){
-		return this.cooldown <= 0 || this._charges > 0;
+		return this.getCooldown() <= 0 || this._charges > 0;
 	}
 
 	// Ends a charged cast
@@ -340,7 +367,7 @@ class Action extends Generic{
 		for( let p of pl ){
 
 			if( debug )
-				console.debug("Testing against", p, ". IsMe: ", (p !== parent || !this.isDetrimentalTo(p)));
+				console.debug("Testing against", p, ". Pass detrimental self-cast blocker: ", (p !== parent || !this.isDetrimentalTo(p)));
 			if( 
 				(p !== parent || !this.isDetrimentalTo(p)) && 
 				p.checkActionFilter(parent, this) && 
@@ -545,7 +572,7 @@ class Action extends Generic{
 					// Riposte
 					chance = Math.random()*100;
 					hit = Player.getHitChance(target, sender, this);
-					if( chance <= hit && this.riposte.length ){
+					if( chance <= hit && this.riposte.length && target.canRiposte() ){
 
 						for( let r of this.riposte )
 							wrapperReturn.merge(r.useAgainst(target, sender, false));
@@ -643,10 +670,10 @@ class Action extends Generic{
 			html += '<span style="color:'+Action.typeColor(this.type)+'">'+this.type+'</span>';
 			if( this.ranged !== Action.Range.None )
 				html += '<span style="color:'+(this.ranged ? '#AAD' : '#CCC')+';">'+(this.ranged ? 'Ranged' : 'Melee')+'</span>';
-			if( this.cooldown && this.charges > 1 )
+			if( this.getCooldown() && this.charges > 1 )
 				html += '<span style="color:#FDF">'+this.charges+' Charges</span>';
-			if( this.cooldown )
-				html += '<span style="color:#FFD">'+this.cooldown+' Round Cooldown</span>';
+			if( this.getCooldown() )
+				html += '<span style="color:#FFD">'+this.getCooldown()+' Round Cooldown</span>';
 			if( this.isAssetAction() )
 				html += '<span style="color:#FFF">'+this.parent.getWeightReadable()+'</span>';
 			if( this.cast_time )

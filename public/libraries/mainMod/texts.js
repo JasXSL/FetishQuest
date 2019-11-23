@@ -1402,6 +1402,46 @@ const lib = [
 
 
 
+
+
+
+
+
+	// action_bondageStruggleDuration
+	{ text : "%S struggles against %Shis restraints!",
+		conditions : anyOnHumCond.concat("action_bondageStruggleDuration", "targetIsSender"),
+		hitfx : ["stretch"]
+	},
+	{ text : "%S struggles against %T's restraints!",
+		conditions : anyOnHumCond.concat("action_bondageStruggleDuration", "targetNotSender"),
+		hitfx : ["stretch"]
+	},
+
+
+	// action_stdUseBondageDevice
+	{ text : "%S shoves %T into a bondage seat, clamping the cold metal collar around the %Trace's neck!", // Todo
+		conditions : anyOnHumCond.concat("action_stdUseBondageDevice", "targetBoundCollarSeat"),
+		hitfx : ["shove"]
+	},
+	{ text : "%S knocks %T onto a bondage table, clamping the cold metal chains around the %Trace's wrists and ankles!", // Todo
+		conditions : anyOnHumCond.concat("action_stdUseBondageDevice", "targetBoundRack"),
+		hitfx : ["shove"]
+	},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// DEFEATS
 
 	// stdPunishDom
