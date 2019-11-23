@@ -210,6 +210,12 @@ const lib = {
 	targetBoundSybian : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageSybian]}},
 	targetBoundCollarSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageCollarSeat]}},
 
+	// Limits attacks to the target not being knocked down, tied up, etc
+	targetStanding : {type:Condition.Types.tag, data:{tags:[
+		stdTag.wrKnockdown,
+		stdTag.wrBound,
+		stdTag.mBondage
+	]}, inverse:true},
 
 	targetSameTeam : {"type":"sameTeam"},
 	targetOtherTeam : {"type":"sameTeam","inverse":true},
@@ -376,6 +382,11 @@ const lib = {
 	targetGrappledByMe : {type:Condition.Types.tag, data:{tags:[stdTag.wrGrapple], caster:true}},
 	senderHasWhip : {"type":"tag",data:{"tags":["as_whip"]},"caster":true},
 	targetHasWhip : {type:Condition.Types.tag,data:{"tags":[stdTag.asWhip]}},
+
+	// Includes both hard and soft
+	senderHasWhippingProp : {type:Condition.Types.tag,data:{"tags":[stdTag.asRidingCrop, stdTag.asPaddle, stdTag.asWhip]},caster:true},
+	senderHasRidingCrop : {type:Condition.Types.tag,data:{"tags":[stdTag.asRidingCrop]},caster:true},
+	senderHasPaddle : {type:Condition.Types.tag,data:{"tags":[stdTag.asPaddle]},caster:true},
 	senderHasDildoSpear : {type:Condition.Types.tag, data:{"tags":[stdTag.asDildoSpear]}, caster:true},
 	senderHasStrapon : {type:Condition.Types.tag,data:{tags:[stdTag.asStrapon]},caster:true},
 	targetSoaked : {"type":"tag",data:{"tags":["wr_soaked"]}},

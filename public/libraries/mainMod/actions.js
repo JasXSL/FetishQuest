@@ -1940,7 +1940,8 @@ const lib = {
 				duration : 0,
 				add_conditions : stdCond.concat(
 					"targetNotBeast",
-					"targetTaller"
+					"targetTaller",
+					"targetStanding"
 				),
 				effects : [
 					{
@@ -1991,7 +1992,8 @@ const lib = {
 				add_conditions : stdCond.concat(
 					"targetNotGrappledOrKnockedDown",
 					"targetNotBeast",
-					"rand20"
+					"rand20",
+					"targetStanding"
 				),
 				stay_conditions : stdCond,
 				effects : [
@@ -2517,14 +2519,14 @@ const lib = {
 				description : "Lifted onto a tentacle, grappled.",
 				trigger_immediate : true,
 				add_conditions : stdCond.concat(
-					"targetNotBeast", "targetNotGrappledOrKnockedDown"
+					"targetNotBeast", "targetNotGrappledOrKnockedDown", "targetStanding"
 				),
 				tags : [stdTag.wrTentacleRide],
 				effects : [
 					{
 						type : Effect.Types.grapple,
 					},
-					
+
 				]
 			}
 		]
@@ -2578,7 +2580,7 @@ const lib = {
 				duration : 2,
 				detrimental : true,
 				tags : [stdTag.wrLegsSpread],
-				add_conditions : stdCond.concat("targetNotBeast","targetLegsNotSpread"),
+				add_conditions : stdCond.concat("targetNotBeast","targetLegsNotSpread", "targetStanding"),
 				effects : [
 					{
 						type : Effect.Types.svPhysical,
@@ -3042,7 +3044,7 @@ const lib = {
 				icon : "chalk-outline-murder",
 				description : "Pounced by %S!",
 				trigger_immediate : true,
-				add_conditions : stdCond.concat("targetNotGrappledOrKnockedDown"),
+				add_conditions : stdCond.concat("targetNotGrappledOrKnockedDown", "targetStanding"),
 				tags : [stdTag.wrGrapple, stdTag.fxPounced],
 				effects : [
 					{type : Effect.Types.grapple},
@@ -3315,7 +3317,7 @@ const lib = {
 				icon : "monster-grasp",
 				description : "Caught by %S!",
 				trigger_immediate : true,
-				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappledOrKnockedDown"),
+				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappledOrKnockedDown", "targetStanding"),
 				tags : [stdTag.wrGrapple],
 				effects : [
 					{type : Effect.Types.grapple},
