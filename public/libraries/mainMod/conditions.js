@@ -207,6 +207,7 @@ const lib = {
 	targetBoundX : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageX]}},
 	targetBoundRack : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageRack]}},
 	targetBoundSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageSeat]}},
+	targetBoundSybian : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageSybian]}},
 	targetBoundCollarSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageCollarSeat]}},
 
 

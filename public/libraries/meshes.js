@@ -636,7 +636,7 @@ LibMesh.library = {
 				materials : [libMat.Metal.DarkGeneric, libMat.Metal.Chain, libMat.Solids.Rubber, libMat.Wood.Crate],
 				width: 1,
 				height: 1,
-				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks, stdTag.mStocksLegs],
+				tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageSybian],
 			}),
 
 			Coffin : new LibMesh({
