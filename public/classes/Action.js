@@ -57,6 +57,7 @@ class Action extends Generic{
 		this._cast_time = 0;		// Turns remaining to cast this if cast_time > 0
 		this._charges = 1;			// Charges remaining for this action. A charge is added each time the cooldown triggers
 		this._cast_targets = [];		// UUIDs of players a charge spell is aimed at
+		this._cache_cooldown = false;		// Since this.cooldown can be a math formula, this lets you cache the cooldown to prevent lag. Wiped on turn start.
 
 		// Auto generated if loaded from a player library
 		this._custom = false;
@@ -211,6 +212,7 @@ class Action extends Generic{
 
 	onTurnStart(){
 
+		this._cache_cooldown = false;
 		// Handle cooldown
 		if( this._cooldown ){
 			this.addCooldown(-1);
@@ -241,6 +243,7 @@ class Action extends Generic{
 	}
 
 	onBattleStart(){
+		this._cache_cooldown = false;
 		this.onBattleEnd();
 	}
 
@@ -259,8 +262,15 @@ class Action extends Generic{
 		
 		if( typeof this.cooldown === "number" )
 			return this.cooldown;
-		const pl = this.getPlayerParent() || game.players[0];
-		return Calculator.run(this.cooldown, new GameEvent({sender:pl, target:pl}));
+
+		if( this._cache_cooldown === false ){
+
+			const pl = this.getPlayerParent() || game.players[0];
+			this._cache_cooldown = Calculator.run(this.cooldown, new GameEvent({sender:pl, target:pl}));
+		
+		}
+
+		return this._cache_cooldown;
 
 	}
 

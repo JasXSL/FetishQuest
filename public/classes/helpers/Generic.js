@@ -186,6 +186,7 @@ export default class Generic{
 
 		tags = tags.map(tag => tag.toLowerCase());
 
+		
 		let t = this.getTags.apply(this, [...args]);
 		for( let tag of t ){
 			if( ~tags.indexOf(tag.toLowerCase()) )

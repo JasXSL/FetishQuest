@@ -169,6 +169,7 @@ export default {
 	ttBreastsWedgie : 'tt_breasts_wedgie',
 	ttSittingChair : 'tt_sitting_chair',
 	ttPinnedChair : 'tt_pinned_chair',
+	ttUsedRack : 'tt_used_rack',
 	
 	// Dungeon tags
 	duDark : 'du_dark',					// Dark dungeon set
@@ -314,6 +315,7 @@ export default {
 	metaUsedPenis : 'me_used_penis',
 	metaUsedFinger : 'me_used_finger',
 	metaUsedInsect : 'me_used_insect',
+	metaUsedRack : 'me_used_rack',
 
 	metaSlotClothes : 'me_slot_clothes',
 	metaSlotFace : 'me_slot_face',

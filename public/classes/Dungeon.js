@@ -504,6 +504,8 @@ class DungeonRoom extends Generic{
 		this.ambiance = 'media/audio/ambiance/dungeon.ogg';
 		this.ambiance_volume = 0.2;
 
+		this._bondage_assets = null;
+
 		this.load(data);
 
 
@@ -973,11 +975,12 @@ class DungeonRoom extends Generic{
 	// returns assets tagged with bondage
 	getBondageAssets( freeOnly = false ){
 		
-		return this.assets.filter(el => {
+		let assets = this._bondage_assets;
+		if( !assets ){
+			this._bondage_assets = assets = this.assets.filter(el => el.hasTag(stdTag.mBondage));
+		}
+		return assets.filter(el => {
 			
-			if( !el.hasTag(stdTag.mBondage) )
-				return false;
-
 			if( !freeOnly )
 				return true;
 

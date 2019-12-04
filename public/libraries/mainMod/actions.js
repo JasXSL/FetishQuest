@@ -766,8 +766,8 @@ const lib = {
 		icon : 'tripwire',
 		description : "Sets up a tripwire for 2 turns. The next opponent to use a melee attack is knocked down and loses 3 avoidance of all types for 1 turn.",
 		ap : 1,
-		mp : 0,
-		cooldown : 2,
+		mp : 1,
+		cooldown : 3,
 		tags : ["ac_debuff"],
 		show_conditions : ["inCombat"],
 		type : Action.Types.corruption,
@@ -797,7 +797,7 @@ const lib = {
 									{type:Effect.Types.svHoly, data:{amount:-3}},
 									{type:Effect.Types.svElemental, data:{amount:-3}},
 									{type:Effect.Types.svPhysical, data:{amount:-3}},
-									{type:Effect.Types.knockdown}
+									{type:Effect.Types.knockdown, events : [GameEvent.Types.internalWrapperAdded]}
 								]
 							},
 							{
@@ -2897,7 +2897,7 @@ const lib = {
 		description : "Detach your hand inside your target's clothing and fondle their goods, adding 1 arousal every turn for 3 turns.",
 		ap : 1,
 		cooldown : 3,
-		tags : [stdTag.acArousing],
+		tags : [stdTag.acArousing, ],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -2942,7 +2942,7 @@ const lib = {
 		ap : 2,
 		cooldown : 2,
 		type : Action.Types.corruption,
-		tags : [stdTag.acArousing],
+		tags : [stdTag.acArousing, stdTag.acDamage],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -2971,7 +2971,7 @@ const lib = {
 		mp : 4,
 		cooldown : 1,
 		ranged : Action.Range.Ranged,
-		tags : [stdTag.acPainful, stdTag.acNpcIgnoreAggro],
+		tags : [stdTag.acPainful, stdTag.acNpcIgnoreAggro, stdTag.acDamage],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{
@@ -3063,7 +3063,7 @@ const lib = {
 		ap : 2,
 		mp : 0,
 		cooldown : 1,
-		tags : [stdTag.acArousing],
+		tags : [stdTag.acArousing, stdTag.acDamage],
 		type: Action.Types.corruption,
 		show_conditions : ["inCombat"],
 		wrappers : [

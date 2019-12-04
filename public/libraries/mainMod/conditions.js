@@ -175,6 +175,8 @@ const lib = {
 	senderIsLamprey : {type:Condition.Types.species, data:{species:['lamprey']}, caster:true},
 	senderIsAnemone : {type:Condition.Types.species, data:{species:['anemone']}, caster:true},
 	senderIsImp : {type:Condition.Types.species, data:{species:['imp']}, caster:true},
+	senderIsGhoul : {type:Condition.Types.species, data:{species:['ghoul']}, caster:true},
+	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
 
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}},
@@ -209,6 +211,9 @@ const lib = {
 	targetBoundSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageSeat]}},
 	targetBoundSybian : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageSybian]}},
 	targetBoundCollarSeat : {type:Condition.Types.tag, data:{tags:['bo_'+stdTag.mBondageCollarSeat]}},
+
+	rackInDungeon : {type:Condition.Types.tag, data:{tags:[stdTag.mBondageRack]}},
+	collarSeatInDungeon : {type:Condition.Types.tag, data:{tags:[stdTag.mBondageCollarSeat]}},
 
 	// Limits attacks to the target not being knocked down, tied up, etc
 	targetStanding : {type:Condition.Types.tag, data:{tags:[
@@ -494,7 +499,7 @@ const lib = {
 	ttNotSpanked : {"type":"tag",data:{"tags":[stdTag.ttSpanked]},"inverse":true},
 	ttSittingChair : {"type":"tag",data:{"tags":[stdTag.ttSittingChair]}},
 	ttPinnedChair : {"type":"tag",data:{"tags":[stdTag.ttPinnedChair]}},
-
+	ttUsedRack : {type:Condition.Types.tag, data:{tags:[stdTag.ttUsedRack]}},
 
 
 	// Quest completion

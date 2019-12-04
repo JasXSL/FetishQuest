@@ -278,10 +278,10 @@ const lib = [
 	
 	// Rack
 	{ text : "%S teasingly tugs at the wheel attached to the bottom of the table %T is strapped to, painfully stretching %This body!",
-		turnTags:[],
+		turnTags:[stdTag.ttUsedRack],
 		conditions : humOnHumCond.concat("action_stdAttack","targetBoundRack"),
 		hitfx : ["stretch"],
-		metaTags : [stdTag.metaPainful, stdTag.metaStretch],
+		metaTags : [stdTag.metaPainful, stdTag.metaStretch, stdTag.metaUsedRack],
 	},
 	// Sybian
 	{ text : "%S grabs at the flexible rubber dong sticking out of the machine that %Trace is strapped to and firmly bends it down forwards! %S rapidly lets go, causing it to twang painfully up across %T's %groin!",
@@ -819,6 +819,11 @@ const lib = [
 		metaTags : [stdTag.metaLick, stdTag.metaSlotBreast, stdTag.metaArousing, stdTag.metaSqueeze],
 		hitfx : ["squeeze"]
 	},
+	{ text : "%S slips between the larger %Trace's legs and licks across %This %groin!",
+		conditions : humOnHumCond.concat(["action_stdArouse", "targetMuchTaller", "senderIsImp"]),
+		metaTags : [stdTag.metaLick, stdTag.metaSlotGroin, stdTag.metaArousing],
+		hitfx : ["squishTiny"]
+	},
 
 	{ text : "%S jumps onto the knocked down %Trace's back, squeezes a firm hold of %T's %Trsize buttcheeks and jiggles them around!",
 		conditions : humOnHumCond.concat([
@@ -964,7 +969,7 @@ const lib = [
 		hitfx : ["squishTiny"],
 		metaTags : [stdTag.metaSlotVagina, stdTag.metaUsedFinger, stdTag.metaVeryArousing, stdTag.metaPenetration],
 	},
-	{ text : "%S slips %Shis hand down between the hogtied %Trace's legs and forces a finger up inside %T's %Trsize %butt, wiggling it around inside %Thim!",
+	{ text : "%S slips %Shis hand down across the hogtied %Trace's %Trsize %butt and forces a finger up inside, wiggling it around!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetHogtied","targetButtExposed"),
 		hitfx : ["squishTiny"],
@@ -976,7 +981,7 @@ const lib = [
 		hitfx : ["squishTiny"],
 		metaTags : [stdTag.metaSlotVagina, stdTag.metaUsedFinger, stdTag.metaVeryArousing, stdTag.metaPenetration],
 	},
-	{ text : "%S slips %Shis hand down between the hogtied %Trace's legs and forces a finger inside %T's %TclothLower and up inside %This %Trsize %Tbutt, wiggling it around inside %Thim!",
+	{ text : "%S slips %Shis hand down the hogtied %Trace's %TclothLower and forces a finger up inside %This %Trsize %butt, wiggling it around!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse","targetHogtied","targetLowerBodyNotHard"),
 		hitfx : ["squishTiny"],
@@ -1042,6 +1047,12 @@ const lib = [
 		conditions : humOnHumCond.concat("action_stdArouse","targetBoundStocks","senderIsImp", "targetButtExposedOrThong"),
 		hitfx : ["squishLong"],
 		metaTags : [stdTag.metaSlotButt, stdTag.metaArousing, stdTag.metaLick, stdTag.metaUsedTongue],
+	},
+	{ text : "%S slips underneath %T, surprising the restrained %Trace by rapidly licking %T %groin with %Shis large soggy tongue!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetBoundStocks","senderIsGhoul"),
+		hitfx : ["squishLong"],
+		metaTags : [stdTag.metaSlotGroin, stdTag.metaArousing, stdTag.metaLick, stdTag.metaUsedTongue, stdTag.metaWet],
 	},
 
 	// targetBoundSybian
@@ -1118,7 +1129,18 @@ const lib = [
 		hitfx : ["tickle"],
 		metaTags : [stdTag.metaArousing, stdTag.metaTickle],
 	},
-	
+	{ text : "%S surprises the restrained %Trace by grabbing a hold of %This %leftright ankle and rapidly licking %T's foot, tickling it with %Shis soggy tongue!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTiedUp","senderIsGhoul"),
+		hitfx : ["squishLong"],
+		metaTags : [stdTag.metaSlotFoot, stdTag.metaTickle, stdTag.metaLick, stdTag.metaUsedTongue, stdTag.metaWet],
+	},
+	{ text : "%S slips down %T's feet and starts rapidly tickling them, taking advantage of the %Trace being restrained and unable to fight back!",
+		turnTags:[],
+		conditions : humOnHumCond.concat("action_stdArouse","targetTiedUp"),
+		hitfx : ["tickle"],
+		metaTags : [stdTag.metaSlotFoot, stdTag.metaTickle, stdTag.metaUsedFinger],
+	},
 
 
 	// stdArouse - Tentacles
@@ -3187,7 +3209,7 @@ const lib = [
 		hitfx : ["ghoulSpit"],
 		metaTags : [stdTag.metaSpit, stdTag.metaGooey],
 	},
-	{ text : "%S spits a watery green right in %T's face!",
+	{ text : "%S spits a watery green liquid right in %T's face!",
 		conditions : anyOnHumCond.concat("action_ghoulSpit"),
 		hitfx : ["ghoulSpit"],
 		metaTags : [stdTag.metaSpit, stdTag.metaGooey],
@@ -3233,6 +3255,11 @@ const lib = [
 	// pounce
 	{ text : "%S pounces on %T, knocking %Thim to the floor!",
 		conditions : anyOnHumCond.concat("action_pounce"),
+		hitfx : ["claws"],
+		metaTags : [],
+	},
+	{ text : "%S grabs around %T's waist, suplexing %Thim to the floor!",
+		conditions : anyOnHumCond.concat("action_pounce", "targetShorter"),
 		hitfx : ["claws"],
 		metaTags : [],
 	},

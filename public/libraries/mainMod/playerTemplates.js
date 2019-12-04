@@ -414,7 +414,7 @@ const lib = {
 			"loincloth"
 		],
 		viable_gear : [
-			"simpleWhip"
+			"simpleWhip", "woodenPaddle", "ridingCrop"
 		],
 		gear_chance : 0.5,
 		min_size : 0,
@@ -610,7 +610,7 @@ const lib = {
 			"breastplate",
 			"crotchplate",
 		],
-		viable_gear : ["simpleWhip"],
+		viable_gear : ["simpleWhip", "woodenPaddle"],
 		gear_chance : 0.5,
 		min_size : 7,
 		max_size : 8,

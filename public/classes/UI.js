@@ -337,7 +337,6 @@ export default class UI{
 		// Hide the action buttons from start
 		const buttons = $('> div.action:not([data-id="end-turn"])', this.actionbar_actions);
 		buttons.toggleClass("hidden", true);
-
 		this.spectatingText.toggleClass('hidden', Boolean(player));
 
 		if( !player ){
@@ -422,7 +421,7 @@ export default class UI{
 		}
 
 		// Bind events
-		$("> div.action", this.actionbar_actions)
+		$("> div.action.button", this.actionbar_actions)
 			.off('mousedown mouseover mouseout click touchstart touchmove')
 			.on('mousedown mouseover mouseout click touchstart touchmove', function(event){
 

@@ -2655,12 +2655,14 @@ Player.getHitChance = function( attacker, victim, action ){
 		return 100;
 
 	let out = action.hit_chance;
-	let modifier = 1+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05);
+	let modifier = 1
+		+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05)
+		*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod);
 	if( modifier < 0.1 )
 		modifier = 0.1;
 
 	// Hit chance above 100 is set as "always hit"
-	return Math.round(out*modifier);
+	return Math.max(10, Math.round(out*modifier+attacker.getGenericAmountStatPoints(Effect.Types.globalHitChanceMod)));
 
 };
 
