@@ -299,6 +299,25 @@ export default class GameAction extends Generic{
 		return PlayerTemplate.loadThis(this.data.player, this);
 	}
 	
+	getParentRoleplay(){
+		
+		let p = this;
+		while( p.parent && !(p.parent instanceof Roleplay) ){
+			p = p.parent;
+		}
+		return p;
+	
+	}
+
+	getParentEncounter(){
+		
+		let p = this;
+		while( p.parent && !(p.parent instanceof DungeonEncounter) ){
+			p = p.parent;
+		}
+		return p;
+	
+	}
 
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
 	async trigger( player, mesh ){
@@ -322,6 +341,20 @@ export default class GameAction extends Generic{
 			game.mergeEncounter(player, DungeonEncounter.getRandomViable(DungeonEncounter.loadThese(this.data)));
 			this.remove();	// Prevent it from restarting
 			asset.updateInteractivity();	// After removing the action, update interactivity
+
+		}
+		else if( this.type === types.resetEncounter ){
+
+			let enc = this.data.encounter;
+			if( !enc )
+				enc = this.getParentEncounter();
+			if( !enc )
+				return false;
+
+			if( enc.label )
+				enc = enc.label;
+
+			
 
 		}
 
@@ -419,11 +452,27 @@ export default class GameAction extends Generic{
 			if( rp.completed && rp.once )
 				return false;
 			rp.completed = false;
-			if( rp.validate(player) )
+			if( rp.validate(player) ){
 				game.setRoleplay(rp);
+			}
+
+		}
+		else if( this.type === types.resetRoleplay ){
+			
+			let roleplay = this.data.roleplay;
+			if( !roleplay )
+				roleplay = this.getParentRoleplay();
+			if( !roleplay )
+				return;
+			if( roleplay.label )
+				roleplay = roleplay.label;
+			game.wipeRPState(roleplay);
 
 		}
 
+		else if( this.type === types.addFaction ){
+			// Todo: continue here
+		}
 
 		else if( this.type === types.finishQuest ){
 			let quests = toArr(this.data.quest);
@@ -521,6 +570,17 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.setDungeon ){
+			
+			let dungeon = this.data.dungeon,
+				room = this.data.room || 0;
+			if( dungeon )
+				game.setDungeon(dungeon, room);
+			else
+				game.dungeon.goToRoom( player, room );
+
+		}
+
 		else if( this.type === types.sleep ){
 			if( player.isLeader() )
 				StaticModal.set('sleepSelect', player, mesh);
@@ -592,6 +652,7 @@ export default class GameAction extends Generic{
 }
 GameAction.types = {
 	encounters : "enc",				// (arr)encounters - Picks one at random
+	resetEncounter : "resetEnc",	// {encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one
 	wrappers : "wra",				// (arr)wrappers
 	dungeonVar : "dvar",			// {id:(str)id, val:(var)val} - Can use a math formula
 	loot : "loot",					// Staging: {assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger "open" and "open_idle" animations. When first opened, it gets converted to an array.
@@ -620,6 +681,9 @@ GameAction.types = {
 	rentRoom : "rentRoom",					// {cost:(int)copper, text:(str)rp, success_text:(str)successfully_rented_text, player:(str)label} - Draws the rent a room icon
 	execRentRoom : "execRentRoom",			// {cost:(int)copper, success_text:(str)successfully_rented_text, renter:(str)renter_merchant_label} - Execs a room rental in this dungeon. This is generated automatically by above.
 	sleep : "sleep",						// 
+	resetRoleplay : "resetRoleplay",		// {roleplay:(str)label} - Resets a roleplay. If no roleplay is provided and the gameEvent can parent up to a roleplay, it resets that one
+	setDungeon : "setDungeon",				// {dungeon:(str)dungeon, room:(int)index} - Sets the dungeon. If you leave out dungeon, it targets your active dungeon
+	addFaction : "addFaction",				// {faction:(str)label, amount:(int)amount} - Adds or removes reputation
 };
 
 // These are types where data should be sent to netgame players

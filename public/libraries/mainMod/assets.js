@@ -495,6 +495,34 @@ const lib = {
 		loot_sound : "lootCloth",
 	},
 
+	genericNecromancerRobe : {
+		name : "Necromancer Robe",
+		basevalue : 85,
+		category : Asset.Categories.armor,
+		icon : 'robe',
+		slots : [Asset.Slots.upperBody],
+		equipped : false,
+		tags : [
+			stdTag.asStretchy,
+			stdTag.asRobe,
+			stdTag.asSkirt,
+		],
+		wrappers : [
+			{
+				effects : [
+					{type : Effect.Types.intellectModifier,data : {amount:1}}
+				],
+				duration : -1
+			}
+		],
+		description : "Dusty black robes that cover the upper body and a cloth flap that covers your crotch. It has a skull crudely painted on the front.\n+1 Int",
+		level : -1,
+		durability : 10,
+		weight : 50,
+		rarity : 1,
+		loot_sound : "lootCloth",
+	},
+
 	genericRawhideShirt : {
 		name : "Rawhide Shirt",
 		category : Asset.Categories.armor,
@@ -577,6 +605,22 @@ const lib = {
 		level : -1,
 		durability : 5,
 		weight : 100,
+		rarity : 0,
+		loot_sound : "lootCloth",
+	},
+
+	genericCottonThong : {
+		name : "Cotton Thong",
+		category : Asset.Categories.armor,
+		basevalue : 5,
+		icon : 'underwear',
+		slots : [Asset.Slots.lowerBody],
+		tags : [stdTag.asCloth, stdTag.asCotton],
+		wrappers : [],
+		description : "A simple cotton thong.",
+		level : -1,
+		durability : 5,
+		weight : 50,
 		rarity : 0,
 		loot_sound : "lootCloth",
 	},

@@ -134,10 +134,13 @@ export default class Roleplay extends Generic{
 
 	}
 
-	setStage( index, delay=false ){
+	// Note:
+	// If index is -1 it's finished
+	// If index is -2 it's finished but completed isn't saved
+	setStage( index, delay=false, player = false ){
 
-		if( index === -1 ){
-			if( this.once )
+		if( index < 0 ){
+			if( this.once && index === -1 )
 				this.completed = true;
 			game.clearRoleplay(true);
 		}
@@ -147,7 +150,7 @@ export default class Roleplay extends Generic{
 
 				const stage = this.getActiveStage();
 				if( index > -1 && stage )
-					stage.onStart();
+					stage.onStart(player);
 				game.ui.rpOptionSelected('');
 				game.ui.draw();
 				this._waiting = false;
@@ -193,11 +196,10 @@ export default class Roleplay extends Generic{
 class RoleplayChatQueue{
 	
 	// Stage can either be a RoleplayStage or a string
-	constructor( sender, stage, type ){
+	constructor( sender, stage ){
 		
 		this.sender = sender;
 		this.stage = stage;
-		this.type = type || RoleplayStageOption.ChatType.default;
 
 	}
 
@@ -212,9 +214,9 @@ class RoleplayChatQueue{
 }
 RoleplayChatQueue.timer = false;
 RoleplayChatQueue.queue = [];
-RoleplayChatQueue.output = function( sender, stage, type ){
+RoleplayChatQueue.output = function( sender, stage ){
 	
-	this.queue.push(new RoleplayChatQueue(sender, stage, type));
+	this.queue.push(new RoleplayChatQueue(sender, stage));
 	this.next();
 
 };
@@ -251,9 +253,10 @@ export class RoleplayStage extends Generic{
 		this.name = '';
 		this.text = [];				// Text objects. When loading you can also make this a string and it auto converts into a roleplay
 		this.options = [];
-		this.player = '';			// Player label
+		this.player = '';			// Player label of the one who is speaking
 		this.chat = RoleplayStageOption.ChatType.default;
 
+		this._iniPlayer = '';		// ID of player that triggered this stage
 		this._textEvent = false;	// Caches the active text event so the text doesn't change randomly.
 									// Not persistent between refreshes, but what can ya do.
 
@@ -284,6 +287,7 @@ export class RoleplayStage extends Generic{
 			options : RoleplayStageOption.saveThese(this.options, full),
 			player : this.player,
 			chat : this.chat,
+			_iniPlayer : this._iniPlayer,
 		};
 
 		if( full ){}
@@ -321,6 +325,11 @@ export class RoleplayStage extends Generic{
 		}
 	}
 
+	// Player who triggered this stage
+	getInitiatingPlayer(){
+		return game.getPlayerById(this._iniPlayer);
+	}
+
 	getPlayer(){
 		
 		let pl = game.getPlayerByLabel(this.player);
@@ -354,9 +363,12 @@ export class RoleplayStage extends Generic{
 		if( !player )
 			player = game.getMyActivePlayer();
 
+		if( player )
+			this._iniPlayer = player.id;
+
 		const pl = this.getPlayer();
 		if( pl && this.chat !== RoleplayStageOption.ChatType.none )
-			RoleplayChatQueue.output(pl, this, this.chat);
+			RoleplayChatQueue.output(pl, this);
 		
 	}
 
@@ -479,6 +491,13 @@ export class RoleplayStageOption extends Generic{
 
 	}
 
+	getText(){
+		
+		let text = new Text({text:this.text});
+		return text.run(new GameEvent({sender:this.parent.getInitiatingPlayer(), target:this.parent.getPlayer()}), true);
+
+	}
+
 	async use( player ){
 
 		if( !this.validate(player) )
@@ -489,12 +508,12 @@ export class RoleplayStageOption extends Generic{
 		const rp = this.getRoleplay();
 		const pl = this.parent.getPlayer();
 		if( player && this.chat !== RoleplayStageOption.ChatType.none )
-			RoleplayChatQueue.output( player, this.text, this.chat );
+			RoleplayChatQueue.output( player, this );
 
 		// Do this first to set the waiting flag
 		game.ui.rpOptionSelected(this.id);
 		game.net.dmRpOptionSelected(this.id);
-		rp.setStage(this.index, true);
+		rp.setStage(this.index, true, player);
 		
 		// Do these last as they might force a UI draw, which might draw the wrong RP option
 		for( let act of this.game_actions ){

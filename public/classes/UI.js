@@ -2984,8 +2984,9 @@ export default class UI{
 				let s = response.id === this.selected_rp;
 				if( s )
 					sel = true;
-				if( response.validate(game.getMyActivePlayer()) )
-					html += '<div class="option bg'+(s ? ' selected' : '')+'" data-id="'+esc(response.id)+'">'+esc(response.text)+'</div>';
+				if( response.validate(game.getMyActivePlayer()) ){
+					html += '<div class="option bg'+(s ? ' selected' : '')+'" data-id="'+esc(response.id)+'">'+stylizeText(response.getText())+'</div>';
+				}
 			}
 			
 			$("div.responses", div).html(html);

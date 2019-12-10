@@ -552,6 +552,162 @@ const lib = {
 		]
 	},
 
+
+
+	// NECROMANCERS
+	necro_entrance : {
+		name : "Malleus",
+		species : "crow",
+		description : "A crow covered in bone charms, charged with guarding the entrance of the Yuug necromancers guid.",
+		icon : "",
+		team : 1,
+		size : 5,
+		leveled : true,
+		sadistic : 0.7,
+		dominant : 0.6,
+		hetero : 0.6,
+		intelligence : 0.6,
+		talkative : 0.3,
+		stamina : -2,
+		intellect : 2,
+		agility : -2,
+		svPhysical : -2,
+        svElemental : 2,
+        svHoly : 0,
+        svCorruption : 2,
+        bonPhysical : -2,
+        bonElemental : 0,
+        bonHoly : -2,
+        bonCorruption : 2,
+		class : 'necromancer',
+		assets : [
+			'genericNecromancerRobe',
+			'genericCottonThong',
+			{"name":"silver","label":"__LABEL__","_stacks":5},
+			{"name":"copper","label":"__LABEL__","_stacks":13},
+		],
+		inventory : [0, 1],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plTongue, stdTag.plHair, stdTag.plBigPenis,
+		]
+	},
+	necro_bar : {
+		name : "Keyleigh",
+		species : "dalmatian",
+		description : "A larger than average dalmatian, standing at average height with a big butt and ample bosom. Runs the Underbar in the Yuug necromancers guild.",
+		icon : "",
+		team : 1,
+		size : 6,
+		leveled : true,
+		sadistic : 0.5,
+		dominant : 0.6,
+		hetero : 0.2,
+		intelligence : 0.6,
+		talkative : 0.8,
+		stamina : -2,
+		intellect : 2,
+		agility : -2,
+		svPhysical : -2,
+        svElemental : 2,
+        svHoly : 0,
+        svCorruption : 2,
+        bonPhysical : -2,
+        bonElemental : 0,
+        bonHoly : -2,
+        bonCorruption : 2,
+		class : 'necromancer',
+		assets : [
+			'genericNecromancerRobe',
+			'genericCottonThong',
+			{name:"platinum", label:"__LABEL__", "_stacks":1},
+			{name:"gold", label:"__LABEL__", "_stacks":12},
+			{"name":"silver","label":"__LABEL__","_stacks":5},
+			{"name":"copper","label":"__LABEL__","_stacks":13},
+		],
+		inventory : [0, 1],	// Which items should be equipped
+		tags : [
+			stdTag.breasts, stdTag.vagina, stdTag.plTongue, stdTag.plHair, stdTag.plBigBreasts, stdTag.plBigButt,
+			stdTag.plFurry, stdTag.plEars, stdTag.plTail, stdTag.penis, stdTag.plBigPenis
+		]
+	},
+	necro_bouncer : {
+		name : "Lumbar",
+		species : "pitbull",
+		description : "A large muscular male pitbull, guarding the entrance to the deep catacombs below the Yuug necromancers guild.",
+		icon : "",
+		team : 1,
+		size : 7,
+		leveled : true,
+		sadistic : 0.7,
+		dominant : 0.9,
+		hetero : 0.2,
+		intelligence : 0.4,
+		talkative : 0.1,
+		stamina : 2,
+		intellect : 0,
+		agility : 2,
+		svPhysical : 2,
+        svElemental : 0,
+        svHoly : 0,
+        svCorruption : 0,
+        bonPhysical : 2,
+        bonElemental : 0,
+        bonHoly : -2,
+        bonCorruption : 0,
+		class : 'necromancer',
+		assets : [
+			'genericNecromancerRobe',
+			'genericCottonThong',
+			{"name":"silver","label":"__LABEL__","_stacks":5},
+			{"name":"copper","label":"__LABEL__","_stacks":13},
+		],
+		inventory : [0, 1],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plTongue, stdTag.plHair, stdTag.plBigPenis,
+			stdTag.plFurry, stdTag.plEars, stdTag.plTail
+		]
+	},
+	necro_trainer : {
+		name : "Glutus",
+		species : "hyena",
+		description : "A toned hyena.",
+		icon : "",
+		team : 1,
+		size : 5,
+		leveled : true,
+		sadistic : 0.6,
+		dominant : 0.5,
+		hetero : 0.5,
+		intelligence : 0.6,
+		talkative : 0.9,
+		stamina : 0,
+		intellect : 1,
+		agility : 2,
+		svPhysical : 2,
+        svElemental : -2,
+        svHoly : 0,
+        svCorruption : 2,
+        bonPhysical : 2,
+        bonElemental : -2,
+        bonHoly : -2,
+        bonCorruption : 0,
+		class : 'necromancer',
+		assets : [
+			'genericNecromancerRobe',
+			'genericCottonThong',
+			{"name":"gold","label":"__LABEL__","_stacks":3},
+			{"name":"silver","label":"__LABEL__","_stacks":5},
+			{"name":"copper","label":"__LABEL__","_stacks":13},
+		],
+		inventory : [0, 1],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plTongue, stdTag.plHair, stdTag.plBigPenis,
+			stdTag.plFurry, stdTag.plEars, stdTag.plTail
+		]
+	},
+
+
+
 	Ixsplat : {
 		name : "Ixsplat",
 		species : "imp",

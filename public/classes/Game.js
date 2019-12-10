@@ -965,7 +965,7 @@ export default class Game extends Generic{
 	}
 
 	removeDungeonState( label ){
-		this.state_dungeons.unset(label);
+		console.error("Todo: Reset dungeon state");
 	}
 
 	canTransport( addError = true ){
@@ -1610,7 +1610,7 @@ export default class Game extends Generic{
 		if( !player )
 			player = this.players[0];
 
-		// Always prepare
+		// Always prepare, never just go
 		encounter.prepare();
 		
 		const started = this.encounter.started;
@@ -1672,6 +1672,12 @@ export default class Game extends Generic{
 	// Starting new encounters in a room that already has encounters needs to merge it into the main encounter
 	mergeEncounter( player, encounter ){
 		this.startEncounter(player, encounter, true);
+	}
+
+	resetEncounter( encounter ){
+
+
+
 	}
 
 	
@@ -2017,6 +2023,8 @@ export default class Game extends Generic{
 	}
 
 	setRoleplay( rp, force = false ){
+
+		console.log("Setting RP", rp);
 
 		if( this.isInPersistentRoleplay() && !rp.persistent && !force )
 			return;

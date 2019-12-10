@@ -282,6 +282,17 @@ const lib = {
         intellect : 2,
     },
     
+    necromancer : {
+        name : 'Necromancer',
+        description : 'A shadowy summoner of the undead.',
+        isMonsterClass : true,
+        name_type : PlayerClass.NameType.Suffix,
+        actions: [
+            'boneShards',
+            'hexArmor'
+        ],
+        intellect : 2,
+    },
 
     ghoulRavener : {
         name : "Ravener",

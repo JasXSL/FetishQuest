@@ -40,6 +40,10 @@ const lib = {
 		}
 	},
 
+	resetThisRoleplay : {
+		type : GameAction.types.resetRoleplay
+	},
+
 	splashVisual : {
 		type : GameAction.types.hitfx,
 		data : {
