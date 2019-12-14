@@ -4,6 +4,7 @@ import Asset from '../Asset.js';
 import Action from '../Action.js';
 import GameEvent from '../GameEvent.js';
 import Condition from '../Condition.js';
+import PlayerClass from '../PlayerClass.js';
 
 
 class PlayerTemplate extends Generic{
@@ -140,8 +141,18 @@ class PlayerTemplate extends Generic{
 		shuffle(this.viable_asset_templates);
 		shuffle(this.viable_gear);
 		for( let c of this.classes ){
-			if( libClasses[c] ){
-				player.class = libClasses[c];
+
+			const cl = libClasses[c];
+			if( cl ){
+				player.class = cl;
+
+				if( cl.name_type !== PlayerClass.NameType.None ){
+					if( cl.name_type === PlayerClass.NameType.Suffix )
+						player.name += ' '+cl.name;
+					else
+						player.name = cl.name + ' ' + out;
+				}
+
 				break;
 			}
 		}

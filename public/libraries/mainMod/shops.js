@@ -31,6 +31,28 @@ const lib = {
 		]
 	},
 
+	yuug_necro_tavern : {
+		name : 'The Undertavern',
+		conditions : [],
+		items : [
+			{id:"ale", asset:'food_Ale', amount:20, restock_rate:80000},
+			{id:"fish", asset:'food_FriedFish', amount:20, restock_rate:80000},
+			{id:"manaPotion", asset:'manaPotion', amount:5, restock_rate:80000},
+		]
+	},
+
+	yuug_necro_quartermaster : {
+		name : 'Necromancer Quartermaster',
+		conditions : [],
+		items : [
+			{id:"manaPotion", asset:'manaPotion', amount:5, restock_rate:80000},
+			{id:"healingPotion", asset:'healingPotion', amount:5, restock_rate:80000},
+			{id:"boneRod", asset:'boneRod', amount:1, restock_rate:80000},
+			{id:"genericCottonThong", asset:'genericCottonThong', amount:3, restock_rate:80000},
+			{id:"genericNecromancerRobe", asset:'genericNecromancerRobe', amount:3, restock_rate:80000},
+		]
+	},
+
 	debugShop : {
 		name : 'DEBUG SHOP',
 		conditions : [],

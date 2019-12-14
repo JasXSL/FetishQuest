@@ -560,6 +560,7 @@ const lib = {
 		species : "crow",
 		description : "A crow covered in bone charms, charged with guarding the entrance of the Yuug necromancers guid.",
 		icon : "",
+		level : 0,
 		team : 1,
 		size : 5,
 		leveled : true,
@@ -598,6 +599,7 @@ const lib = {
 		icon : "",
 		team : 1,
 		size : 6,
+		level : 0,
 		leveled : true,
 		sadistic : 0.5,
 		dominant : 0.6,
@@ -637,6 +639,7 @@ const lib = {
 		icon : "",
 		team : 1,
 		size : 7,
+		level : 0,
 		leveled : true,
 		sadistic : 0.7,
 		dominant : 0.9,
@@ -674,6 +677,7 @@ const lib = {
 		icon : "",
 		team : 1,
 		size : 5,
+		level : 0,
 		leveled : true,
 		sadistic : 0.6,
 		dominant : 0.5,
@@ -703,6 +707,42 @@ const lib = {
 		tags : [
 			stdTag.penis, stdTag.plTongue, stdTag.plHair, stdTag.plBigPenis,
 			stdTag.plFurry, stdTag.plEars, stdTag.plTail
+		]
+	},
+	necro_fox : {
+		name : "Fibula",
+		species : "fox",
+		description : "A fox lady with ragged dirty fur.",
+		icon : "",
+		team : 0,
+		size : 4,
+		level : 0,
+		leveled : true,
+		sadistic : 0.2,
+		dominant : 0.2,
+		hetero : 0.5,
+		intelligence : 0.5,
+		talkative : 0.9,
+		stamina : 2,
+		intellect : 1,
+		agility : 0,
+		svPhysical : -2,
+        svElemental : -2,
+        svHoly : 0,
+        svCorruption : 0,
+        bonPhysical : 0,
+        bonElemental : -2,
+        bonHoly : -2,
+        bonCorruption : 4,
+		class : 'necromancer',
+		assets : [
+			'genericNecromancerRobe',
+			'foxCottonPanties',
+		],
+		inventory : [0, 1],	// Which items should be equipped
+		tags : [
+			stdTag.vagina, stdTag.plTongue, stdTag.plHair, stdTag.breasts, stdTag.plBigBreasts,
+			stdTag.plFurry, stdTag.plEars, stdTag.plTail, stdTag.plLongTail
 		]
 	},
 

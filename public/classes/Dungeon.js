@@ -1690,6 +1690,7 @@ class DungeonEncounter extends Generic{
 		this.game_actions = [];		// Game actions to run when the encounter starts
 		this.time_completed = 0;
 		this.respawn = 0;			// Time to respawn
+		this.difficulty_adjust = 0;	// Offsets from difficulty. Can be useful when adding a friendly NPC
 
 		this.load(data);
 	}
@@ -1705,6 +1706,8 @@ class DungeonEncounter extends Generic{
 				difficulty = game.getTeamPlayers().length;
 
 		}
+
+		difficulty += this.difficulty_adjust;
 
 		if( this.started )
 			return;
@@ -1836,6 +1839,7 @@ class DungeonEncounter extends Generic{
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
 			out.conditions = Condition.saveThese(this.conditions, full);
 			out.respawn = this.respawn;
+			out.difficulty_adjust = this.difficulty_adjust;
 		}
 		out.friendly = this.friendly;
 		out.game_actions = GameAction.saveThese(this.game_actions, full);
@@ -2007,6 +2011,8 @@ DungeonEncounter.getFirstViable = function( arr, event ){
 	let valid = arr.filter(el => {
 		if( !Array.isArray(el.player_templates) )
 			console.error("El player templates is not an array, arr was:", arr, "el was", el);
+		if( !el.player_templates.length )
+			return true;
 		for( let pt of el.player_templates ){
 			if( pt.min_level <= level && pt.max_level >= level )
 				return true;

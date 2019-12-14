@@ -4,6 +4,7 @@ import Action from "../../classes/Action.js";
 import { Wrapper, Effect } from "../../classes/EffectSys.js";
 import GameEvent from "../../classes/GameEvent.js";
 import Condition from "../../classes/Condition.js";
+const stdCond = ["senderNotDead","targetNotDead"];
 
 const lib = {
 	
@@ -193,6 +194,25 @@ const lib = {
 					}]
 				}
 			},
+		]
+	},
+
+	stdUseBondageDevice : {
+		duration : 6,
+		name : "Tied Up",
+		icon : "manacles",
+		description : "You have been tied up to a nearby device.",
+		detrimental : true,
+		add_conditions : stdCond.concat('targetNotTiedUp'),
+		stay_conditions : stdCond,
+		tags : [stdTag.wrBound, stdTag.wrNoRiposte],
+		effects : [
+			{
+				type : Effect.Types.disable,
+				data : {level:1, hide:true}
+			},
+			'bondageStruggleDurationEnable',
+			'attachToBondageDevice'
 		]
 	},
 

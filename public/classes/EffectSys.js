@@ -654,6 +654,9 @@ class Effect extends Generic{
 		if( Array.isArray(this.data.conditions) )
 			this.data.conditions = Condition.loadThese(this.data.conditions, this);
 
+		if( this.type === Effect.Types.gameAction && this.data.action )
+			this.data.action = GameAction.loadThis(this.data.action);
+
 		// Unpack is required since it has nested objects
 		if( this.type === Effect.Types.addRandomTags ){
 			let n = 0;

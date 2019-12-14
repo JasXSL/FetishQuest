@@ -5,7 +5,7 @@ import GameAction from "../../classes/GameAction.js";
 import { DungeonEncounter } from "../../classes/Dungeon.js";
 import Condition from "../../classes/Condition.js";
 import {Wrapper, Effect} from "../../classes/EffectSys.js";
-import Roleplay, { RoleplayStageOption } from "../../classes/Roleplay.js";
+import Roleplay, { RoleplayStageOption, RoleplayStage } from "../../classes/Roleplay.js";
 import GameEvent from "../../classes/GameEvent.js";
 import C from './conditions.js';
 
@@ -1291,6 +1291,12 @@ const lib = {
 
 
 	// YUUG_NECROMANCER
+	yuug_necromancer_hostile : {
+		conditions : ['yuugNecromancerHostile'],
+		hostile : true,
+		player_templates : ["necromancer_crow_male", "necromancer_jackal_male", "necromancer_jackal_female"],
+	},
+
 	yuug_necromancer_intro : {
 		players: ["necro_entrance"],
 		friendly : true,
@@ -1359,6 +1365,222 @@ const lib = {
 
 					],
 				}}
+			}
+		]
+	},
+
+	yuug_necromancer_bar : {
+		players: ["necro_bar"],
+		friendly : true,
+		conditions : [],
+		player_conditions : {},
+		game_actions : [
+			{
+				type : GameAction.types.shop,
+				data : {shop:'yuug_necro_tavern', player:'necro_bar'},
+			}
+		]
+	},
+
+	yuug_necromancer_bouncer : {
+		players: ["necro_bouncer"],
+		friendly : true,
+		conditions : [],
+		player_conditions : {},
+		game_actions : [
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					persistent : true,
+					once : true,
+					label: 'necro_bouncer',
+					player : 'necro_bouncer',
+					stages : [
+						{
+							index: 0,
+							text: "Stop! I can't let you through here!",
+							options : [
+								{text:'Why not?', index:1},
+								{text:"Ok I'll leave.", index:-2, game_actions:[{type:GameAction.types.setDungeon, data:{room:11}}]},
+							],
+						},
+						{
+							index: 1,
+							text: "Oh you're a rookie? Well a few weeks back we had a little... incident in the lower section of our sanctuary.",
+							options : [
+								{text:"What happened?", index:2},
+							],
+						},
+						{
+							index: 2,
+							text: "We received a rare arcane crystal to be used in our experiments, and it uh... went south mildly put. Now we have reanimated bones running amok, and an out of control blob in the deepest reaches.",
+							options : [
+								{text:"I'll take care of it!", index:3},
+								{text:"Fair enough, I'll leave.", index:-2, game_actions:[{type:GameAction.types.setDungeon, data:{room:11}}]}
+							],
+						},
+						{
+							index: 3,
+							text: "Hmm well. I suppose I could let you try. But don't expect any of our help when you find yourself strapped to one of the many devices we assembled.",
+							options : [
+								{text:"I'll take the risk, let me in.", index:4, game_actions:[{type:GameAction.types.quest, data:{quest:'necro_crypt'}}]},
+								{text:"On second thought, maybe later.", index:-2, game_actions:[{type:GameAction.types.setDungeon, data:{room:11}}]}
+							],
+						},
+						{
+							index: 4,
+							text: "I'll let you through then. Report to the quartermaster if you succeed.",
+							options : [
+								{text:"[Done]", index:-1, chat:RoleplayStageOption.ChatType.none},
+							],
+						},
+						
+					],
+				}}
+			}
+		]
+	},
+
+	yuug_necromancer_quartermaster : {
+		players: ["necro_trainer"],
+		friendly : true,
+		conditions : [],
+		player_conditions : {},
+		game_actions : [
+			// Greeting RP
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					persistent : true,
+					once : true,
+					label: 'necro_trainer',
+					player : 'necro_trainer',
+					stages : [
+						{
+							index: 0,
+							text: "Ah a newcomer? I'm the quartermaster here. Let me know if you need training or a lightly stained robe!",
+							options : [
+								{text:'Thank you.', index:-1},
+							],
+						},
+					],
+				}}
+			},
+			// Generic
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label: 'necro_trainer',
+					player : 'necro_trainer',
+					stages : [
+						{
+							index: 0,
+							text: "Welcome back, here for more training?",
+							options : [
+								{text:'[Leave]', index:-1, chat:RoleplayStageOption.ChatType.none},
+							],
+						},
+					],
+				}}
+			},
+			{ type: GameAction.types.shop, data:{shop:'yuug_necro_quartermaster', player:'necro_trainer'} },
+			{ type: GameAction.types.gym, data:{player:'necro_trainer'}},
+		]
+	},
+
+	yuug_necromancer_fox_encounter : {
+		players: ["necro_fox"],
+		player_templates : ["skeleton"],
+		friendly : true,
+		conditions : [],
+		difficulty_adjust : 1,
+		player_conditions : {},
+		game_actions : [
+			// Greeting RP
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					persistent : true,
+					once : true,
+					label: 'necro_fox',
+					player : 'necro_fox',
+					stages : [
+						{
+							index: 0,
+							player : 'narrator',
+							text: "You stumble upon a female fox wearing a tattered necromancer robe, locked in a pillory and surrounded by skeletons. As you enter the room, they all turn to face you.",
+							options : [
+								{text:'Did I... Did I interrupt something?', index:1},
+								{text:'[Stare intensely at them]', index:1, chat:RoleplayStageOption.ChatType.none},
+								{text:'[Silently leave]', index:-2, chat:RoleplayStageOption.ChatType.none, game_actions:[{type:GameAction.types.setDungeon, data:{room:11}}]},
+							],
+						},
+						{
+							index: 1,
+							text: "Oh thank goodness! I was going to defeat the skeletal construct, but its minions caught me and locked me in here! Did they send you to rescue me?",
+							options : [
+								{text:'Of course, my lady!', index:-1, game_actions:['startBattle']},
+								{text:'Eh sure, why not?', index:-1, game_actions:['startBattle']},
+								{text:'[Just leave]', index:-2, chat:RoleplayStageOption.ChatType.none, game_actions:[{type:GameAction.types.setDungeon, data:{room:11}}]},
+							],
+						},
+					],
+				}}
+			},
+		],
+		passives : [
+			{effects:[
+				{
+					type:Effect.Types.gameAction,
+					data : {action:{
+						type : GameAction.types.roleplay,
+						data : {rp:{
+							persistent : true,
+							label : 'necro_fox',
+							player : 'necro_fox',
+							stages: [
+								{
+									index: 0,
+									text: "Oh thank you, hero! How can I ever repay you?",
+									options: [
+										{text:'Think nothing of it! It is what I do!', index:-1},
+										{text:"You could give me your panties!", index:1},
+										{text:'[Just leave]', index:-1, chat:RoleplayStageOption.ChatType.none},
+									]
+								},
+								{
+									index: 1,
+									text: "I... what?",
+									options: [
+										{text:'Er, never mind.', index:-1},
+										{text:"Your panties, I'll take them and we'll be even.", index:-1, game_actions:[
+											{type:GameAction.types.trade, data:{from:'necro_fox', asset:'foxCottonPanties'}}
+										]},
+									]
+								},
+							],
+						}}
+					}},
+					events : [
+						GameEvent.Types.encounterDefeated,
+					]
+				}
+			]}
+		],
+		wrappers : [
+			{	// Initial submerge is different in that it also stuns
+				label : 'fibula_init',
+				tags : [],
+				detrimental : false,
+				duration : 0,
+				target : Wrapper.TARGET_AOE,
+				add_conditions : [{type:Condition.Types.playerLabel, data:{label:'necro_fox'}}],
+				effects : [{
+					type : Effect.Types.runWrappers,
+					data : {wrappers:[
+						'stdUseBondageDevice'
+					]}
+				}]
 			}
 		]
 	},

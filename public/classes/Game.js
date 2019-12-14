@@ -1463,7 +1463,7 @@ export default class Game extends Generic{
 	}
 
 	// Trades a player item
-	tradePlayerItem( fromPlayer, toPlayer, id, amount = 1 ){
+	tradePlayerItem( fromPlayer, toPlayer, id, amount = 1, force = false ){
 
 		if( typeof fromPlayer === 'string' )
 			fromPlayer = this.getPlayerById(fromPlayer);
@@ -1472,15 +1472,15 @@ export default class Game extends Generic{
 
 		if( !fromPlayer || !toPlayer )
 			throw("Player not found");
-		if( !this.playerIsMe(fromPlayer) )
+		if( !this.playerIsMe(fromPlayer) && !force )
 			throw("Not your player");
-		if( fromPlayer.team !== toPlayer.team )
+		if( fromPlayer.team !== toPlayer.team && !force )
 			throw("Invalid target");
 		if( fromPlayer.id === toPlayer.id )
 			throw("Can't trade with yourself");
-		if( this.battle_active && this.getTurnPlayer().id !== fromPlayer.id )
+		if( this.battle_active && this.getTurnPlayer().id !== fromPlayer.id && !force )
 			throw("Not your turn");
-		if( this.battle_active && fromPlayer.ap < 3 )
+		if( this.battle_active && fromPlayer.ap < 3 && !force )
 			throw("Not enough AP");
 
 

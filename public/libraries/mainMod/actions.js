@@ -245,26 +245,7 @@ const lib = {
 		cooldown : 'g_team_0*10',
 		show_conditions : ["inCombat", "oneTargetNotBeast", "targetNotSender", "roomHasFreeBondageDevice"],
 		tags : [stdTag.acDebuff],
-		wrappers : [
-			{
-				duration : 6,
-				name : "Tied Up",
-				icon : "manacles",
-				description : "You have been tied up to a nearby device.",
-				detrimental : true,
-				add_conditions : stdCond.concat('targetNotTiedUp'),
-				stay_conditions : stdCond,
-				tags : [stdTag.wrBound, stdTag.wrNoRiposte],
-				effects : [
-					{
-						type : Effect.Types.disable,
-						data : {level:1, hide:true}
-					},
-					'bondageStruggleDurationEnable',
-					'attachToBondageDevice'
-				]
-			}
-		]
+		wrappers : ['stdUseBondageDevice']
 	},
 	bondageStruggleDuration : {
 		name : "Untie",

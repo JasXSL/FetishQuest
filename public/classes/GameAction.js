@@ -581,6 +581,39 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.trade ){
+
+			const findPlayer = labelOrId => {
+				let out = game.getPlayerById(labelOrId);
+				if( !out )
+					out = game.getPlayerByLabel(labelOrId);
+				return out;
+			};
+
+			let from = findPlayer(this.data.from), 
+				to = findPlayer(this.data.to)
+			;
+			if( !this.data.from )
+				from = player;
+			if( !this.data.to )
+				to = player;
+
+			if( !from || !to )
+				return false;
+
+			let asset = from.getAssetByLabel(this.data.asset);
+			let amount = parseInt(this.data.amount) || 1;
+			if( !amount || !asset )
+				return;
+
+			if( asset._stacks < amount )
+				amount = asset._stacks;
+
+			game.tradePlayerItem( from, to, asset.id, amount, true );
+
+
+		}
+
 		else if( this.type === types.sleep ){
 			if( player.isLeader() )
 				StaticModal.set('sleepSelect', player, mesh);
@@ -684,6 +717,7 @@ GameAction.types = {
 	resetRoleplay : "resetRoleplay",		// {roleplay:(str)label} - Resets a roleplay. If no roleplay is provided and the gameEvent can parent up to a roleplay, it resets that one
 	setDungeon : "setDungeon",				// {dungeon:(str)dungeon, room:(int)index} - Sets the dungeon. If you leave out dungeon, it targets your active dungeon
 	addFaction : "addFaction",				// {faction:(str)label, amount:(int)amount} - Adds or removes reputation
+	trade : "trade",						// {asset:(str)label, amount:(int)amount=1, from:(str)label/id, to:(str)label/id} - ID is checked first, then label. If either of from/to is unset, they use the event player.
 };
 
 // These are types where data should be sent to netgame players

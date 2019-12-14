@@ -37,6 +37,8 @@ export default {
 	plClaws : 'pl_claws',
 	plTongue : 'pl_tongue',
 	plEel : 'pl_eel',
+	plFeathers : 'pl_feathers',
+	plBeak : 'pl_beak',
 
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',

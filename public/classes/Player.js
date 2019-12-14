@@ -438,14 +438,6 @@ export default class Player extends Generic{
 
 	getName(){
 		let out = this.name;
-
-		if( this.class && this.class.name_type !== PlayerClass.NameType.None ){
-			if( this.class.name_type === PlayerClass.NameType.Suffix )
-				out += ' '+this.class.name;
-			else
-				out = this.class.name + ' ' + out;
-		}
-
 		return out;
 	}
 

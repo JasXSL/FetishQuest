@@ -523,6 +523,34 @@ const lib = {
 		loot_sound : "lootCloth",
 	},
 
+	foxCottonPanties : {
+		name : "Cotton Panties",
+		category : Asset.Categories.armor,
+		basevalue : 40,
+		icon : 'underwear',
+		slots : [Asset.Slots.lowerBody],
+		equipped : false,
+		tags : [stdTag.asWaistband,stdTag.asCotton,stdTag.asCanPullDown],
+		wrappers : [
+			{
+				effects : [
+					{
+						type : Effect.Types.bonCorruption,
+						data : {amount:1},
+					},
+				],
+				duration : -1
+			}
+		],
+		description : "A pair of bright white cotton panties with a little fox head embroidered on the front.\n+1 Corruption proficiency",
+		level : -1,
+		durability_bonus : 0,
+		durability : 10,
+		weight : 50,
+		rarity : 1,
+		loot_sound : "lootCloth",
+	},
+
 	genericRawhideShirt : {
 		name : "Rawhide Shirt",
 		category : Asset.Categories.armor,

@@ -55,6 +55,33 @@ const lib = {
 		exp_multiplier : 0.5,
 	},
 
+
+	// Necromancer quest
+	["necro_crypt"] : {
+		name : 'Move your dead bones',
+		description : 'An experiment beneath the Yuug Necromancer guild has gone wrong due to a strange crystal. If I can clear out the area, the necromancer trainer in the sanctum will surely give me a reward.',
+		objectives : [
+			{
+				label : 'boneConstruct',
+				name : 'Bone Construct Defeated',
+				amount : 1,
+				events : [] // Todo
+			},
+			{
+				label : 'sewerExperiment',
+				name : 'Sewer Experiment Purged',
+				amount : 1,
+				events : []	// Todo
+			},
+		],
+		rewards : [
+			// Todo
+			{label:Asset.Dummies.label, name:'gold', _stacks:2},
+		],
+		multiply_reward : true,
+		exp_multiplier : 4,
+	},
+
 	// Rod
 	["SQ_sharktopus_00"] : {
 		name : 'An Otter\'s Rod',
