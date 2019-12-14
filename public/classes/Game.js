@@ -2024,8 +2024,6 @@ export default class Game extends Generic{
 
 	setRoleplay( rp, force = false ){
 
-		console.log("Setting RP", rp);
-
 		if( this.isInPersistentRoleplay() && !rp.persistent && !force )
 			return;
 

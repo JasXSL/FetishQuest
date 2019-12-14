@@ -1320,7 +1320,10 @@ const lib = {
 							text: "Nonsense, necromancy is perfectly legal.",
 							options : [
 								{text:"Then why are you hiding down here?", index:10},
-								{text:"It's wrong and I shall strike you down! [Start Combat]", }, // Todo: Start combat and make the player hostile
+								{text:"No, I will strike you down!", index:-1, game_actions:[
+									{type:GameAction.types.toggleCombat, data:{on:true}}, 
+									{type:GameAction.types.addFaction, data:{faction:'yuug_necromancer', amount:-300}}
+								]},
 								{text:"Fair enough, can I join?", index:3},
 							],
 						},
@@ -1329,8 +1332,11 @@ const lib = {
 							text: "Just because it's legal doesn't mean it's socially acceptable. Like how the king made public nudity legal, but most people still won't for personal reasons. Now unless you want to join, I'm going to have to ask you to leave.",
 							options : [
 								{text:"I'll join!", index:3},
-								{text:"I'll leave.", }, // Todo: Leave and reset this roleplay
-								{text:"I think not! Die!", }, // Todo start combat and make necromancers hostile
+								{text:"I'll leave.", index : -2, game_actions:[{type:GameAction.types.setDungeon, data:{room:0}}]}, 
+								{text:"I think not! Die!", index:-1, game_actions:[
+									{type:GameAction.types.toggleCombat, data:{on:true}}, 
+									{type:GameAction.types.addFaction, data:{faction:'yuug_necromancer', amount:-300}}
+								]},
 							],
 						},
 
@@ -1339,7 +1345,7 @@ const lib = {
 							text: "Well hello %T, I'm %S. You seem polite, but I can only let necromancers past this point. Care to join us? We have cheap ale!",
 							options : [
 								{text:"Sounds good, sign me up!", index:3},
-								{text:"I'll come back after I have thought about it", index : -2, game_actions:[{type:GameAction.types.setDungeon, data:{room:1}}]}, // Todo: Leave and reset this roleplay
+								{text:"I'll come back after I have thought about it", index : -2, game_actions:[{type:GameAction.types.setDungeon, data:{room:0}}]}, // Todo: Leave and reset this roleplay
 							],
 						},
 						

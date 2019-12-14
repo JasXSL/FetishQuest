@@ -471,7 +471,7 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.addFaction ){
-			// Todo: continue here
+			game.addFactionStanding(this.data.faction, this.data.amount);
 		}
 
 		else if( this.type === types.finishQuest ){
