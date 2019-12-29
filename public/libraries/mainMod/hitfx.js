@@ -491,6 +491,28 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'big_green_burst';
+out[id] = new HitFX({label : id, once:true,});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_burst_green_large_drops',
+		emit_duration : 400,
+		dest_rand : 0,
+		tween : false,
+		origin : 'sender',
+		destination : 'sender',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_burst_green_large',
+		emit_duration : 400,
+		dest_rand : 0,
+		tween : false,
+		sound_kits : ['gooSplat'],
+		origin : 'sender',
+		destination : 'sender',
+	}, out[id]),
+);
+
 
 id = 'tentacleSqueezeZap';
 out[id] = new HitFX({label : id});
@@ -1383,6 +1405,43 @@ out[id].stages.push(
 		sound_kits : ['gooSplat'],
 	}, out[id]),
 );
+
+id = 'sludgeBoltBlue';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		origin : 'attacker',
+		particles : 'hitfx_sludge_bolt_blue',
+		emit_duration : 500,
+		hold : 500,
+		sound_kits : ['tentacleSuctionFollow', 'ghoulSpit'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sludge_bolt_impact_blue',
+		emit_duration : 100,
+		css_fx : 'fxTakeDamageElemental',
+		sound_kits : ['cumSplat'],
+	}, out[id]),
+);
+
+id = 'sludgeBoltGreen';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		origin : 'attacker',
+		particles : 'hitfx_sludge_bolt_green',
+		emit_duration : 500,
+		hold : 500,
+		sound_kits : ['tentacleSuctionFollow', 'ghoulSpit'],
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_sludge_bolt_impact_green',
+		emit_duration : 100,
+		css_fx : 'fxTakeDamageElemental',
+		sound_kits : ['cumSplat'],
+	}, out[id]),
+);
+
 
 id = 'sludgeBoltWhite';
 out[id] = new HitFX({label : id});

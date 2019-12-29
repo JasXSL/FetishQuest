@@ -2461,11 +2461,13 @@ export default class Player extends Generic{
 	/* Wrappers */
 	getWrappers(){
 
-		let out = this.wrappers.concat(this.passives);
+		let out = this.wrappers.concat(this.passives, game.encounter.passives);
 		for( let asset of this.assets ){
 			if( asset.equipped && asset.durability > 0 )
 				out = out.concat(asset.wrappers);
 		}
+
+
 		return out.concat(this.auto_wrappers);
 
 	}
@@ -2499,7 +2501,7 @@ export default class Player extends Generic{
 		}
 		
 		if( isStun.length )
-			this.interrupt( wrapper.getCaster() );
+			this.interrupt( wrapper.getCaster(), true );
 
 	}
 
@@ -2532,18 +2534,17 @@ export default class Player extends Generic{
 
 		if( !window.game )
 			return [];
-		let out = [];
+
+		let out = new Map();
 		for( let player of game.getEnabledPlayers() ){
 			const wrappers = player.getWrappers();
 			for( let wrapper of wrappers ){
-				out = out.concat(wrapper.getEffectsForPlayer(this));
+				const effects = wrapper.getEffectsForPlayer(this);
+				for( let effect of effects )
+					out.set(effect, true);
 			}
 		}
-		const passives = game.encounter.getPassivesForPlayer(this);
-		for( let enc of passives )
-			out = out.concat(enc.getEffectsForPlayer(this));
-
-		return out;
+		return Array.from(out.keys());
 
 	}	
 	getDisabledLevel(){
@@ -2624,6 +2625,9 @@ export default class Player extends Generic{
 Player.MAX_LEVEL = 14;
 Player.STAMINA_MULTI = 4;
 
+Player.TEAM_PLAYER = 0;
+Player.TEAM_ENEMY = 1;
+
 Player.primaryStats = {
 	intellect : 'intellect',
 	stamina : 'stamina',
@@ -2641,6 +2645,8 @@ Player.primaryStatsNames = {
 // Returns a value where <= 0 = always miss, and >= 100 = always hit
 Player.getHitChance = function( attacker, victim, action ){
 
+	if( attacker.id === victim.id )
+		return 100;
 	if( !action.detrimental )
 		return 100;
 	if( action.hit_chance > 100 )

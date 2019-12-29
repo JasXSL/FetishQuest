@@ -27,6 +27,7 @@ class Action extends Generic{
 		this.min_ap = 0;			// When reduced by effects, this is the minimum AP we can go to 
 		this.mp = 0;
 		this.cooldown = null;					// Turns needed to add a charge. Setting this to 0 will make charges infinite. Can be a math formula.
+		this.init_cooldown = 0;					// Cooldown to be set when a battle starts.
 		this.min_targets = 1;
 		this.max_targets = 1;
 		this.target_type = Action.TargetTypes.target;
@@ -41,12 +42,13 @@ class Action extends Generic{
 		this.show_conditions = [];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
 												// This is checked against all enabled players, and at least one check has to be viable
 												// You generally want this to be "inCombat"
+		this.allow_self = false;				// If detrimental and "target" cast, this has to be set to allow self cast
 		this.no_use_text = false;				// Disable use texts.
 		this.no_action_selector = false;		// Hide from combat action selector
 		this.cast_time = 0;						// Set to > 0 to make this a charged spell needing this many turns to complete
 		this.charges = 1;						// Max charges for the action. Ignored if cooldown is 0
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
-		this.no_interrupt = false;				// Charged action is not interruptable
+		this.no_interrupt = false;				// Charged action is not interruptable unless override is set
 		this.reset_interrupt = false;			// Reset cooldown when interrupted
 		this.hide_if_no_targets = false;		// hide this from the action picker if there's no viable targets
 		this.disable_override = 0;				// Level of disable override.
@@ -98,6 +100,7 @@ class Action extends Generic{
 			disable_override : this.disable_override,
 			reset_interrupt : this.reset_interrupt,
 			min_ap : this.min_ap,
+			allow_self : this.allow_self,
 		};
 
 		// Everything but mod
@@ -113,6 +116,7 @@ class Action extends Generic{
 			out.alias = this.alias;
 			out.riposte = this.riposte.map(el => el.save(full));
 			out.no_use_text = this.no_use_text;	
+			out.init_cooldown = this.init_cooldown;
 		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
@@ -245,6 +249,10 @@ class Action extends Generic{
 	onBattleStart(){
 		this._cache_cooldown = false;
 		this.onBattleEnd();
+		if( this.init_cooldown ){
+			this._charges = 0;
+			this._cooldown = this.init_cooldown;
+		}
 	}
 
 
@@ -324,7 +332,7 @@ class Action extends Generic{
 	interrupt( sender, force = false ){
 
 		const pp = this.getPlayerParent();
-		if( this.no_interrupt )
+		if( this.no_interrupt && !force )
 			return false;
 
 		// Not casting
@@ -373,13 +381,19 @@ class Action extends Generic{
 			pl = [this.getPlayerParent()];
 		}
 
+		const allowSelfCast = (
+			!this.isDetrimentalTo(parent) || 
+			this.target_type === Action.TargetTypes.aoe || 
+			this.target_type === Action.TargetTypes.self || 
+			this.allow_self
+		);
 
 		for( let p of pl ){
 
 			if( debug )
-				console.debug("Testing against", p, ". Pass detrimental self-cast blocker: ", (p !== parent || !this.isDetrimentalTo(p)));
+				console.debug("Testing against", p, ". Pass detrimental self-cast blocker: ", allowSelfCast);
 			if( 
-				(p !== parent || !this.isDetrimentalTo(p)) && 
+				(p !== parent || allowSelfCast) && 
 				p.checkActionFilter(parent, this) && 
 				this.getViableWrappersAgainst(p, isChargeFinish, debug).length 
 			)targets.push(p);

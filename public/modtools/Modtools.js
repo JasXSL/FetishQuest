@@ -2225,6 +2225,7 @@ export default class Modtools{
 			html += 'Player Label: '+this.inputPlayer(asset.player || '', 'player')+'<br />';
 			html += '<label>Persistent: <input type="checkbox" name="persistent" '+(asset.persistent ? 'checked' : '')+' /></label><br />';
 			html += '<label>Once: <input type="checkbox" name="once" '+(asset.once ? 'checked' : '')+' /></label><br />';
+			html += '<label>Conditions: '+this.formConditions(asset.conditions, 'rpConditions')+'</label><br />';
 			html += 'Stages: '+this.formRoleplayStages(asset.stages, 'stages')+'<br />'; 
 			
 		this.editor_generic('roleplay', asset, this.mod.roleplay, html, saveAsset => {
@@ -2235,6 +2236,7 @@ export default class Modtools{
 			saveAsset.persistent = $("input[name=persistent]", form).prop('checked');
 			saveAsset.once = $("input[name=once]", form).prop('checked');
 			
+			saveAsset.conditions = this.compileConditions('rpConditions');
 			saveAsset.stages = this.compileRoleplayStages('stages');
 			
 		});
@@ -3901,8 +3903,8 @@ export default class Modtools{
 		let out = '<div class="rpStage condWrapper fullWidth">';
 			out += 'Index: <input type="number" value="'+esc(stage.index)+'" name="index" disabled /><br />';
 			out += 'Name: <input type="text" value="'+esc(stage.name || '')+'" name="name" /><br />';
-			out += 'Text: <input type="text" value="'+esc(stage.text || '')+'" name="text" /><br />';
-			out += 'Icon: <input type="text" value="'+esc(stage.icon || '')+'" name="icon" /><br />';
+			out += 'Text: <input type="text" name="text" class="json" value="'+esc(JSON.stringify(stage.text) || '[{"text":"","conditions":[]}]')+'"><br />';
+			out += 'Icon: <input type="text"  value="'+esc(stage.icon || '')+'" name="icon" /><br />';
 			out += '<span style="cursor:help" title="Defaults to parent player">Player:</span> <input type="text" value="'+esc(stage.player || '')+'" name="player" /><br />';
 			out += '<div class="options">Options <input type="button" value="Add" class="addRoleplayOptionHere">:';
 			if( Array.isArray(stage.options) ){
@@ -3953,6 +3955,13 @@ export default class Modtools{
 				let val = input.val().trim();
 				if( e.type === 'number' )
 					val = +val;
+				else{
+					try{
+						let obj = JSON.parse(val);
+						val = obj;
+					}catch(err){}
+					
+				}
 				obj[input.attr('name')] = val;
 
 			});
@@ -3969,6 +3978,12 @@ export default class Modtools{
 					let val = input.val().trim();
 					if( e.type === 'number' )
 						val = +val;
+					else{
+						try{
+							let obj = JSON.parse(val);
+							val = obj;
+						}catch(err){}
+					}
 					optOut[input.attr('name')] = val;
 	
 				});

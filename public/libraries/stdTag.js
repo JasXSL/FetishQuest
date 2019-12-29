@@ -39,6 +39,7 @@ export default {
 	plEel : 'pl_eel',
 	plFeathers : 'pl_feathers',
 	plBeak : 'pl_beak',
+	plOoze : 'pl_ooze',
 
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',

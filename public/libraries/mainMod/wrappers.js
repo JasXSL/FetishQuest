@@ -9,30 +9,20 @@ const stdCond = ["senderNotDead","targetNotDead"];
 const lib = {
 	
 	soak : {
-		"target":"VICTIM",
-		"max_stacks":3,
-		"duration":2,
-		"name":"Soak",
-		"icon":"burst-blob",
-		"description":"Soaked, elemental avoidance lowered by 2 per stack.",
-		"detrimental":true,
-		"add_conditions":[
-			"senderNotDead",
-			"targetNotDead"
-		],
-		"stay_conditions":[
-			"senderNotDead",
-			"targetNotDead"
-		],
-		"tags":[
-			"wr_soaked"
-		],
-		"effects":[
+		target: Wrapper.TARGET_AUTO,
+		max_stacks : 1,
+		duration : 2,
+		name : "Soak",
+		icon : "burst-blob",
+		description : "Soaked, elemental avoidance lowered by 2.",
+		detrimental : true,
+		add_conditions :stdCond,
+		stay_conditions :stdCond,
+		tags: [ stdTag.wrSoaked ],
+		effects :[
 			{
-				"type":"svElemental",
-				"data":{
-				"amount":-2
-				}
+				type: Effect.Types.svElemental,
+				data:{"amount":-2}
 			}
 		]
 	},

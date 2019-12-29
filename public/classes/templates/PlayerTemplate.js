@@ -150,7 +150,7 @@ class PlayerTemplate extends Generic{
 					if( cl.name_type === PlayerClass.NameType.Suffix )
 						player.name += ' '+cl.name;
 					else
-						player.name = cl.name + ' ' + out;
+						player.name = cl.name + ' ' + player.name;
 				}
 
 				break;

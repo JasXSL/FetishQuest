@@ -7,6 +7,7 @@ import Calculator from './Calculator.js';
 import Player from './Player.js';
 import Asset from './Asset.js';
 import GameAction from './GameAction.js';
+import { DungeonEncounter } from './Dungeon.js';
 
 /*
 	A wrapper is a container for multiple effects
@@ -1562,7 +1563,8 @@ class Effect extends Generic{
 		if(
 			(~this.targets.indexOf(Wrapper.Targets.auto) && this.parent.victim === player.id) ||
 			(~this.targets.indexOf(Wrapper.Targets.caster) && this.parent.caster === player.id) ||
-			~this.targets.indexOf(Wrapper.Targets.aoe)
+			~this.targets.indexOf(Wrapper.Targets.aoe) ||
+			this.parent.parent instanceof DungeonEncounter
 		){
 			// Check conditions
 			return Condition.all(this.conditions, new GameEvent({

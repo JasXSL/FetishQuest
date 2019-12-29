@@ -438,6 +438,37 @@ particles.hitfx_zap_large = {
 	rotation : new Proton.Span(0,Math.PI)
 };
 
+particles.hitfx_burst_green_large_drops = {
+	
+	texture : textures.glowSphere,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,5),
+	size : 4,
+	size_tween : [1,0.001],
+	part_max_age : 0.5,
+	velocity : new Proton.Span(200,300),
+	color : ["#66FF66","#AAFFAA"],	
+	opacity: 1,
+	gravity:2,
+};
+particles.hitfx_burst_green_large = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 10,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : 30,
+	size_tween : [0.5,1],
+	part_max_age : .5,
+	velocity : new Proton.Span(80,120),
+	color : ["#66FF66","#003300"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI)
+};
+
 particles.hitfx_claws = {
 	texture : textures.clawMarks,
 	blending : THREE.NormalBlending,
@@ -1512,6 +1543,72 @@ particles.hitfx_sludge_bolt_proc_black = {
 	opacity: [1,0],
 	rotation : new Proton.Span(0,Math.PI*2),
 };
+
+particles.hitfx_sludge_bolt_blue = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,4),
+	size : [5,10],
+	size_tween : [1,0.05],
+	part_max_age : 0.5,
+	velocity : 2,
+	gravity : 2,
+	color : "#AADDFF",	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+
+};
+particles.hitfx_sludge_bolt_impact_blue = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : [10,15],
+	size_tween : [1,0.05],
+	part_max_age : 1,
+	velocity : new Proton.Span(20, 40),
+	gravity:2,
+	color : "#AADDFF",	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+};
+
+
+particles.hitfx_sludge_bolt_green = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,4),
+	size : [5,10],
+	size_tween : [1,0.05],
+	part_max_age : 0.5,
+	velocity : 2,
+	gravity : 2,
+	color : "#AAFFAA",	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+
+};
+particles.hitfx_sludge_bolt_impact_green = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : [10,15],
+	size_tween : [1,0.05],
+	part_max_age : 1,
+	velocity : new Proton.Span(20, 40),
+	gravity:2,
+	color : "#AAFFAA",	
+	opacity: 1,
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+};
+
 
 particles.hitfx_hex_armor = {
 	texture : textures.smoke,

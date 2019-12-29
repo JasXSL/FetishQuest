@@ -243,7 +243,7 @@ const lib = {
 		description : "Use a nearby bondage device for 6 turns on a humanoid target, provided it's not already occupied. The affected target can only try to struggle free.",
 		ap : 5,
 		cooldown : 'g_team_0*10',
-		show_conditions : ["inCombat", "oneTargetNotBeast", "targetNotSender", "roomHasFreeBondageDevice"],
+		show_conditions : ["inCombat", "oneTargetNotBeast", "targetNotSender", "roomHasFreeBondageDevice", "senderNotBeast"],
 		tags : [stdTag.acDebuff],
 		wrappers : ['stdUseBondageDevice']
 	},
@@ -3616,6 +3616,139 @@ const lib = {
 	},
 
 
+	// Count blobula
+	count_blobula_massive_burst : {
+		icon : 'gooey-molecule',
+		name : "Massive Burst",
+		description : "Deals 15 elemental damage to all players.",
+		ap : 4,
+		cooldown : 6,
+		cast_time : 1,
+		target_type : Action.TargetTypes.aoe,
+		show_conditions : ["inCombat"],
+		tags : [stdTag.acDamage],
+		type : Action.Types.elemental,
+		no_interrupt : true,
+		range : Action.Range.Ranged,
+		detrimental : true,
+		init_cooldown : 4,
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat("targetOtherTeam"),
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {"amount": 15}
+					},
+				]
+			}
+		]
+	},
+	slime_coat : {
+		icon : 'heavy-rain',
+		name : "Slime Coat",
+		description : "Slime coats your target, dealing 1 corruption damage every turn for 10 turns, stacking up to 10 times. Can be removed by wet effects.",
+		ap : 2,
+		cooldown : 2,
+		mp : 3,
+		show_conditions : ["inCombat"],
+		tags : [stdTag.acDamage, stdTag.acDebuff, stdTag.acNpcIgnoreAggro],
+		type : Action.Types.corruption,
+		range : Action.Range.Ranged,
+		detrimental : true,
+		wrappers : [
+			{
+				duration : 10,
+				stacking : 10,
+				name : "Slime Coat",
+				icon : "heavy-rain",
+				description : "Deals 1 corruption damage per stack at the start of your turn. Can be removed by wet effects.",
+				detrimental : true,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {"amount": 1}
+					},
+					{
+						events : [GameEvent.Types.textTrigger],
+						conditions : [{type:Condition.Types.textMeta, data:{tags:stdTag.metaWet}}, "targetIsWrapperParent"],
+						type : Effect.Types.removeParentWrapper
+					}
+				]
+			},
+		]
+	},
+	climb_flotsam : {
+		icon : 'ladder',
+		name : "Climb Flotsam",
+		description : "Climb a piece of flotsam, taking you out of the water for 1 turn.",
+		ap : 2,
+		cooldown : 2,
+		show_conditions : ["inCombat"],
+		tags : [],
+		target_type : Action.TargetTypes.self,
+		range : Action.Range.None,
+		detrimental : false,
+		wrappers : [
+			{
+				label : 'climbFlotsam',
+				duration : 1,
+				name : "Climb Flotsam",
+				icon : "ladder",
+				description : "You are no longer standing in the water.",
+				detrimental : false,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [],
+			}
+		]
+	},
+	activate_electrodes : {
+		icon : 'tesla-coil',
+		name : "Activate Electrodes",
+		description : "Enables the electrodes, stunning everything in direct contact with the water for 1 turn and dealing 15 damage.",
+		ap : 1,
+		cooldown : 5,
+		show_conditions : ["inCombat"],
+		tags : [],
+		range : Action.Range.None,
+		detrimental : true,
+		target_type : Action.TargetTypes.aoe, 
+		type : Action.Types.elemental,
+		hit_chance : 9001,
+		wrappers : [
+			{
+				duration : 2,
+				name : "Shock",
+				icon : "tesla-coil",
+				description : "Stunned.",
+				detrimental : true,
+				add_conditions : stdCond.concat({type:Condition.Types.hasWrapper, data:{label:'climbFlotsam'}, inverse:true}),
+				stay_conditions : stdCond,
+				effects : [
+					{type:Effect.Types.stun, data:{ignoreDiminishing:true}},
+					{
+						events:[GameEvent.Types.internalWrapperAdded],
+						type:Effect.Types.damage,
+						data:{amount:15}
+					}
+				],
+			},
+			{
+				target : Wrapper.TARGET_AOE,
+				effects:[{
+					type: Effect.Types.activateCooldown,
+					data : {actions:'activate_electrodes'},
+				}]
+			}
+		]
+	},
+
+
 	// Rat in yuug port
 	breast_squeeze : {
 		name : 'Breast Squeeze',
@@ -3851,6 +3984,19 @@ const lib = {
 				]
 			}
 		]
+	},
+
+	sewerWater : { // Todo: texts
+		icon : 'water-flask',
+		name : "Throw Sewer Water",
+		description : "Throws sewer water at your target, reducing their elemental avoidance by 2 for 2 turns.",
+		ap : 1,
+		cooldown : 1,
+		show_conditions : ["inCombat"],
+		tags : [],
+		hit_chance : 80,
+		wrappers : ['soak'],
+		allow_self : true
 	},
 
 	minorHealingPotion: {

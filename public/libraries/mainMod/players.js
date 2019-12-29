@@ -745,7 +745,41 @@ const lib = {
 			stdTag.plFurry, stdTag.plEars, stdTag.plTail, stdTag.plLongTail
 		]
 	},
-
+	necro_blobula : {
+		name : "Count Blobula",
+		species : "ooze",
+		description : "A massive bubbling ooze with flailing tendrils.",
+		icon : "",
+		team : 1,
+		size : 9,
+		leveled : true,
+		powered : true,
+		sadistic : 0.3,
+		dominant : 1,
+		hetero : 0.5,
+		intelligence : 0.2,
+		stamina : 10,
+		intellect : 0,
+		agility : 0,
+		class : 'none',
+		svPhysical : 0,
+        svElemental : 1,
+        svHoly : -1,
+        svCorruption : 1,
+        bonPhysical : 0,
+        bonElemental : 0,
+        bonHoly : 0,
+		bonCorruption : 0,	
+		actions : [
+			'count_blobula_massive_burst',	// Todo: Text, test
+			'slime_coat',					// Todo: Text, test 
+		],
+		tags : [
+			stdTag.gpBoss, stdTag.plTentacles, stdTag.plBeast, stdTag.plOoze
+		],
+		assets : [],
+		passives : [],
+	},
 
 
 	Ixsplat : {

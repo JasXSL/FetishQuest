@@ -671,7 +671,7 @@ export default class Condition extends Generic{
 
 			else if( this.type === T.defeated ){
 				if( !t || !t.isDead )
-					console.error(t, "doesn't have an isDead function in event", event);
+					console.error(t, "doesn't have an isDead function in event", event, "(condition)", this);
 				success = t.isDead();
 			}
 
@@ -1024,9 +1024,9 @@ Condition.descriptions = {
 	[Condition.Types.isActionParent] : 'void - If event event.wrapper.action is the same as event.action.id',
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
-	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false}',
+	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false} - Checks if the wrapper tied to the event has a label',
 	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false} - Operation is = by default',
-	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
+	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false} - Checks if the player has a wrapper with this label',
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',
 	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',

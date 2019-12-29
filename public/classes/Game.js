@@ -90,11 +90,12 @@ export default class Game extends Generic{
 		this.hotkeys = [1,2,3,4,5,6,7,8,9,0];
 
 		this._turn_timer = false;						// Timeout handling end of turn
-		
+		this._db_save_timer = null;						// Timer to store on HDD		
 
 	}
 
 	destructor(){
+
 		this.ui.destructor();
 		this.net.destructor();
 		this.renderer.destructor();
@@ -102,6 +103,7 @@ export default class Game extends Generic{
 		this.setAmbient();
 		this.setRainSound();
 		GameEvent.reset();
+
 	}
 
 	initialize(){
@@ -189,23 +191,28 @@ export default class Game extends Generic{
 	}
 
 	// Async file save
-	async save( ignoreNetGame ){
+	save( ignoreNetGame ){
 
 		if( !ignoreNetGame )
 			this.ignore_netgame = false;
 
 		clearTimeout(this.save_timer);
-		return new Promise(res => {
-			this.save_timer = setTimeout(() => {
-				
-				this.save_timer = null;
-				res( this.execSave(false, this.ignore_netgame) );
 
-			}, 100);
-		});
+		this.save_timer = setTimeout(() => {
+			
+			this.save_timer = null;
+			this.execSave(false, this.ignore_netgame);
+			
+		}, 100);
 		
+	}
 
-		
+	async saveToDB( data ){
+		try{
+			await Game.db.games.put(data);
+		}catch(err){
+			console.error("Error in saving", err, out);
+		}
 	}
 
 	async execSave( allowInsert, ignoreNetGame ){
@@ -227,24 +234,26 @@ export default class Game extends Generic{
 
 		if( !ignoreNetGame )
 			this.net.sendGameUpdate();
+
 		this.ignore_netgame = true;
 
 		let out = this.getSaveData(true);
-
 		localStorage.game = this.id;
-		let ret;
-		try{
-			ret = await Game.db.games.put(out);
-		}catch(err){
-			console.error("Error in saving", err, out);
-		}
-		if( allowInsert ){
-			this.initialize();
-			await this.load();	// Starts the actual game
-		}
 
+		// First insert
+		if( allowInsert ){
+			await this.saveToDB(out);
+			this.initialize();
+			this.load();
+		}
+		// Save
+		else{
+			clearTimeout(this._db_save_timer);
+			this._db_save_timer = setTimeout(() => {
+				this.saveToDB(out);
+			}, 3000);
+		}
 		
-		return ret;
 	}
 
 	// Std load

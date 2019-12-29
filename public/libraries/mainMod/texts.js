@@ -1163,6 +1163,10 @@ const lib = [
 		hitfx : ["squishLong"],
 		metaTags : [stdTag.metaSlotButt, stdTag.metaUsedTentacles, stdTag.metaTickle],
 	},
+	{ text : "%S slips some wiggly tentacles up between %T's legs and tickles the %Trace's inner thighs!",
+		hitfx : ["tentacleTickle"],
+		metaTags : [stdTag.metaUsedTentacles, stdTag.metaTickle],
+	},
 	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %vagina and thrusting a couple of times!",
 		conditions : anyOnHumCond.concat([
 			"action_stdArouse","senderHasTentacles","senderHasCocktacles","targetVagina","targetGroinExposed"
@@ -3730,9 +3734,40 @@ const lib = [
 
 	
 
+	// Count blobula
+	// action_count_blobula_massive_burst
+	{ text : "%S starts bubbling violently, preparing to unleash a massive burst!",
+		conditions : ["eventIsActionCharged","action_count_blobula_massive_burst"],
+		audiokits : ["waterSplash"]
+	},
+	{ text : "%S unleashes a large burst of slime, splattering across all %Shis enemies!",
+		conditions : baseCond.concat("action_count_blobula_massive_burst"),
+		metaTags : [stdTag.metaGooey],
+		hitfx : ['big_green_burst'],
+		numTargets : -1
+	},
 
+	// action_slime_coat
+	{ text : "%S flings a wad of undulating slime, splattering across %T!",
+		conditions : baseCond.concat("action_slime_coat"),
+		metaTags : [stdTag.metaGooey],
+		hitfx : ['sludgeBoltGreen']
+	},
 
+	// action_climb_flotsam
+	{ text : "%S climbs on top of a box floating in the water!",
+		conditions : baseCond.concat("action_climb_flotsam"),
+		metaTags : [],
+		hitfx : ['rummage']
+	},
 
+	// action_activate_electrodes
+	{ text : "%S activates the electrodes, shocking everything in contact with the water!",
+		conditions : baseCond.concat("action_activate_electrodes"),
+		numTargets : -1,
+		hitfx : ["lampreyShock", "elementalHitSparksNoSound"],	// self
+		metaTags : [stdTag.metaShock, stdTag.metaVeryPainful],
+	},
 
 
 
@@ -4697,7 +4732,7 @@ const lib = [
 	},
 
 	// action_elementalist_riptide
-	{ text : "%S starts chanting, condensation building around %Shim at an alarming pace!",
+	{ text : "%S starts chanting, condensation building around %Shim at a rapid pace!",
 		conditions : ["action_elementalist_riptide", "eventIsActionCharged"],
 		hitfx : ["water_cast"],
 		metaTags : [],
@@ -4708,7 +4743,7 @@ const lib = [
 	{ text : "%S sends a flood of enchanted water across the area!",
 		conditions : baseCond.concat(["action_elementalist_riptide"]),
 		hitfx : ["riptide", "healingSurgeSilent"],
-		metaTags : [],
+		metaTags : [stdTag.metaWet],
 		numTargets : -1,
 
 	},
@@ -4786,9 +4821,21 @@ const lib = [
 
 	{ text : "%S throws a small stone at %T!",
 		conditions : baseCond.concat("action_throw_rock"),
+		metaTags : [stdTag.metaPainful],
 		hitfx : ["throwStone"]
 	},
 
+
+	{ text : "%S splashes some sewer water across %T!",
+		conditions : baseCond.concat("action_sewer_water", "targetNotSender"),
+		metaTags : [stdTag.metaWet],
+		hitfx : ["sludgeBoltBlue"]
+	},
+	{ text : "%S splashes some sewer water onto %Thimself!",
+		conditions : baseCond.concat("action_sewer_water", "targetIsSender"),
+		metaTags : [stdTag.metaWet],
+		hitfx : ["sludgeBoltBlue"]
+	},
 
 	
 

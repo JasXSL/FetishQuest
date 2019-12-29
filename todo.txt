@@ -21,23 +21,24 @@ Big chungi:
 		- ???
 
 	Necromancer Quest:	
-		- Enter crypt, talk to necromancer. You can decide if you want to fight or join.
-			- Fighting makes you hostile permanently
-			- Joining makes you friendly permanently
-				- Outside the tavern is a bounty board. It has 2 quests for the same dungeon:
-					- Defeat the bone construct in the upper level. Rewards gold and unlocks SPELL for tentaclemancer/elementalist.
-					- Defeat the blob in the lower level. Rewards gold and unlocks SPELL for tentaclemancer/elementalist.
-				- You unlock a quartermaster who will sell you some special necromancer equipment
-		- Encounters:
-			- Quartermaster
-			- Necromancers (friendly/nonfriendly)
-			- Entrance necromancer
-			- Necro guarding the deeper crypt
+		- Meshes:
+			- Water jug
+			- Tesla coil
+		- Encounters:		
 			- Count Blobula
+				- Add sewer water bottles scattered about the area
 			- Bone construct
-			- Necro caught in stocks (only if friendly with necromancer faction)
+				- Keeps a slave cowgirl. At the start of her turn, she heals the construct for 2 HP. Can be killed.
+					- If left alive, she offers a quest giving a decent reward
+				- Summons skeletal bystanders. These don't normally attack.
+				- Grapples and spreads a player. While grappled, neither the player nor construct can attack.
+				- The skeletal bystanders can attack normally against a grappled player.
 
-		- Spells
+
+		- Spell Rewards
+			???
+		- Additional reward:
+			???
 
 
 

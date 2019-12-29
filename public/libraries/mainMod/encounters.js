@@ -1585,6 +1585,19 @@ const lib = {
 		]
 	},
 
+	yuug_necromancer_blob_boss : {
+		players : ['necro_blobula'],
+		passives : [
+			{
+				add_conditions : [],
+				stay_conditions : [],
+				effects:[
+					{type:Effect.Types.addActions, data:{actions:['climb_flotsam', 'activate_electrodes']}, conditions:["targetOnPlayerTeam"]}
+				]
+			}
+		]
+	},
+
 
 	debug_shop : {
 		players: ['Slurt'],

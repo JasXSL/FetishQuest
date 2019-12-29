@@ -2442,7 +2442,7 @@ export default class UI{
 			}
 
 			else if(player.addLibraryAsset(id)){
-				await game.save();
+				game.save();
 				th.drawPlayerInventory();
 				th.draw();
 			}

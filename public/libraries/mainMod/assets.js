@@ -350,6 +350,20 @@ const lib = {
 		ranged : Action.Range.Ranged,
 		stacking : true,
 	},
+	sewerWater : {
+		category : Asset.Categories.junk,
+		name :"Sewer Water",
+		basevalue : 1,
+		weight : 500,
+		charges : 1,
+		use_action : "sewerWater",
+		rarity : 0,
+		icon : 'water-flask',
+		slots : [Asset.Slots.action],
+		loot_sound : "lootPotion",
+		ranged : Action.Range.Ranged,
+		stacking : true,
+	},
 
 	food_RazzyBerry : {
 		category : Asset.Categories.food,

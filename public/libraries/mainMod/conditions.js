@@ -7,6 +7,7 @@ import Action from "../../classes/Action.js";
 import Game from "../../classes/Game.js";
 import { Effect } from "../../classes/EffectSys.js";
 import Faction from "../../classes/Faction.js";
+import Player from "../../classes/Player.js";
 
 const lib = {
 	
@@ -121,6 +122,12 @@ const lib = {
 	action_boneShards : {type:Condition.Types.actionLabel, data:{label:'boneShards'}, targnr:0},
 	action_hexArmor : {type:Condition.Types.actionLabel, data:{label:'hexArmor'}, targnr:0},
 	action_hexArmor_tick : {type:Condition.Types.effectLabel, data:{label:'hexArmorProc'}, targnr:0},
+	action_sewer_water : {type:Condition.Types.actionLabel, data:{label:'sewerWater'}, targnr:0},
+
+	action_count_blobula_massive_burst : {type:Condition.Types.actionLabel, data:{label:'count_blobula_massive_burst'}, targnr:0},
+	action_slime_coat : {type:Condition.Types.actionLabel, data:{label:'slime_coat'}, targnr:0},
+	action_climb_flotsam : {type:Condition.Types.actionLabel, data:{label:'climb_flotsam'}, targnr:0},
+	action_activate_electrodes : {type:Condition.Types.actionLabel, data:{label:'activate_electrodes'}, targnr:0},
 
 	action_groper_root : {type:Condition.Types.actionLabel, data:{label:'groper_root'}, targnr:0},
 	action_groper_skittering_swarm : {type:Condition.Types.actionLabel, data:{label:'groper_skittering_swarm'}, targnr:0},
@@ -181,6 +188,10 @@ const lib = {
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}},
 	isSolo : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}, inverse:true},
+
+	senderOnPlayerTeam : {type:Condition.Types.team, data:{team:Player.TEAM_PLAYER}, caster:true},
+	targetOnPlayerTeam : {type:Condition.Types.team, data:{team:Player.TEAM_PLAYER}},
+
 
 	// Block tags signify that the slot is currently occupied
 	targetHasUnblockedOrifice : {conditions:[

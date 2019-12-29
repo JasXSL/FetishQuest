@@ -1866,19 +1866,6 @@ class DungeonEncounter extends Generic{
 
 	}
 
-	// Takes a player object
-	getPassivesForPlayer( player ){
-		const out = [];
-		if( !(player instanceof Player) ){
-			console.error("Trying to get passives for non player", player);
-			return out;
-		}
-		for( let passive of this.passives ){
-			if( passive.testAgainst(new GameEvent({sender:player, target:player})) )
-				out.push(passive);
-		}
-		return out;
-	}
 
 	getEnemies(){
 		return this.players.filter(pl => pl.team !== 0);
