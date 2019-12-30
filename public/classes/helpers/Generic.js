@@ -293,6 +293,8 @@ export default class Generic{
 	static saveThese( entries = [], full = false ){
 		return entries.map(el => {
 			if( typeof el.save !== "function" ){
+				if( !window.game && typeof el === "string" )
+					return el;
 				if( full === "mod" )
 					return el;
 				console.error(el);

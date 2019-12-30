@@ -19,6 +19,13 @@ const lib = {
 			loot: ['prettyRock','prettyRock'],
 		},
 	},
+	loot_SewerWater : {
+		type : GameAction.types.loot,
+		data : {
+			min:1, max:1,
+			loot: ['sewerWater'],
+		},
+	},
 	startBattle : {
 		type : GameAction.types.toggleCombat,
 		data : {

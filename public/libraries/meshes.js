@@ -687,6 +687,21 @@ LibMesh.library = {
 				width: 1,height: 1,
 				tags : [],
 			}),
+			TeslaCoil : new LibMesh({
+				url : 'doodads/tesla_coil.JD',
+				materials : [
+					libMat.Metal.DarkGeneric,
+					libMat.Metal.Copper
+				],
+				width: 1,height: 1,
+				tags : [],
+				onStagePlaced : function(asset, mesh){
+					let particles = libParticles.get('teslaCoil', mesh);
+					particles.p.z = 0;
+					particles.p.y = 150;
+					mesh.userData.particles = [particles];
+				}
+			}),
 		},
 		Door : {
 			BarsAttachment : new LibMesh({
@@ -2935,6 +2950,13 @@ LibMesh.library = {
 			materials : [
 				libMat.Glass.BlueGlow,
 				libMat.Metal.Silver,
+			],
+		}),
+		SewerWaterJug : new LibMesh({
+			url : 'doodads/rusty_pitcher.JD',
+			materials : [
+				libMat.Metal.Rust,
+				libMat.Wood.Crate,
 			],
 		}),
 		BeerBottle : new LibMesh({

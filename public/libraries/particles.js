@@ -235,6 +235,24 @@ textures.smoke.material.depthWrite = true;
 		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
 	};
 
+	particles.teslaCoil = {
+		
+		texture : textures.electricSpark,
+		blending : THREE.AdditiveBlending,
+		rate : 0.1,
+		count : 1,
+		position : new Proton.SphereZone(0,0,0,10),
+		size : 80,
+		size_tween : [0.05, 1],
+		part_max_age : .2,
+		velocity : 0,
+		gravity : 0,
+		color : ["#AA66FF", "#FFFFFF"],	
+		opacity: 1,
+		wiggle : 3,
+		rotation : new Proton.Span(0, Math.PI*2),
+	};
+
 //
 
 particles.quest_stars = {
