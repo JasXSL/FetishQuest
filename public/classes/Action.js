@@ -183,29 +183,49 @@ class Action extends Generic{
 		if( pp && pp.getDisabledLevel() > this.disable_override && pp.getDisabledHidden() )
 			return false;
 
-		if( pp ){		
-			const disables = pp.getDisableEffectsForAction(this);
-			for( let d of disables ){
-				if( d.data.hide )
-					return false;
-			}
-		}
 
 		// Validate visibility conditions against all players
 		const en = game.getEnabledPlayers(),
 			evt = new GameEvent({
-				sender : this.getPlayerParent(),
+				sender : pp,
 				action : this
 			});
 		for( let player of en ){
 			
 			evt.target = player;
-			if( Condition.all(this.show_conditions, evt) )
-				return true;
+			if( 
+				Condition.all(this.show_conditions, evt) &&
+				!this.getDisabledEffectsAgainst(player, true).length
+			)return true;
 
 		}
 
 	}
+
+	// Returns effects that disable this against a player
+	getDisabledEffectsAgainst( player, hide_only = false ){
+
+		const effects = player.getDisableActionEffects(this);
+		const evt = new GameEvent({
+			sender : this.getPlayerParent(),
+			target : player,
+			action : this
+		});
+
+		const out = new Map();
+		for( let effect of effects ){
+
+			const conds = effect.data.conditions;
+			if( Condition.all(conds, evt) && (effect.data.hide || !hide_only) )
+				out.set(effect, true);
+
+		}
+		return Array.from(out.keys());
+
+	}
+
+
+
 
 
 
@@ -395,6 +415,7 @@ class Action extends Generic{
 			if( 
 				(p !== parent || allowSelfCast) && 
 				p.checkActionFilter(parent, this) && 
+				!this.getDisabledEffectsAgainst(p).length &&
 				this.getViableWrappersAgainst(p, isChargeFinish, debug).length 
 			)targets.push(p);
 			

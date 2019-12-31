@@ -29,10 +29,12 @@ Big chungi:
 				- Add sewer water bottles scattered about the area
 			- Bone construct
 				- Keeps a slave cowgirl. At the start of her turn, she heals the construct for 2 HP. Can be killed.
+					- Add
 					- If left alive, she offers a quest giving a decent reward
 				- Summons skeletal bystanders. These don't normally attack.
+					- Text & visual needed
 				- Grapples and spreads a player. While grappled, neither the player nor construct can attack.
-				- The skeletal bystanders can attack normally against a grappled player.
+					- Texts needed, audio needed
 
 
 		- Spell Rewards

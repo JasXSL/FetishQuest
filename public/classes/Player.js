@@ -1722,8 +1722,7 @@ export default class Player extends Generic{
 
 	}
 	getMaxAP(){
-		return Math.max((BASE_AP+this.statPointsToNumber(Player.primaryStats.agility)), 1);
-
+		return Math.round(Math.max((BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))+(this.getPoweredMultiplier()*2-2), 1));
 	}
 	getMaxMP(){
 		return Math.max((BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect)), 1);
@@ -2100,30 +2099,13 @@ export default class Player extends Generic{
 			console.error("Action not found", a);
 			return false;
 		}
-		const effects = this.getDisableEffectsForAction(action);
-		return !effects.length;
+		return true;
 
 	}
 
 	// Returns disable EFFECTs that cause the supplied action not to be enabled to this player
-	getDisableEffectsForAction( action ){
-		const effects = this.getActiveEffectsByType(Effect.Types.disableActions);
-		const evt = new GameEvent({
-			sender : this,
-			target : this,
-			action : action
-		});
-		const out = [];
-		for( let effect of effects ){
-			const conds = effect.data.conditions;
-			if( !Array.isArray(conds) ){
-				console.error("Conditions are not an array", conds);
-				continue;
-			}
-			if( Condition.all(conds, evt) )
-				out.push(effect);
-		}
-		return out;
+	getDisableActionEffects(){
+		return this.getActiveEffectsByType(Effect.Types.disableActions);
 	}
 
 	removeActionById( id ){

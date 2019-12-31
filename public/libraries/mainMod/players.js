@@ -528,9 +528,9 @@ const lib = {
 		dominant : 0.5,
 		hetero : 0.5,
 		intelligence : 0.1,
-		stamina : -15,
+		stamina : -8,
 		agility : -4,
-		remOnDeath : true,		// Todo: implement in game/player
+		remOnDeath : true,
 
 		svPhysical : -4,
         svElemental : -1,
@@ -779,6 +779,85 @@ const lib = {
 		],
 		assets : [],
 		passives : [],
+	},
+	necro_construct : {
+		name : "Bone Construct",
+		species : "skeleton",
+		description : "A massive bone construct with multiple sets of arms and legs.",
+		icon : "",
+		team : 1,
+		size : 9,
+		leveled : true,
+		powered : true,
+		sadistic : 0.8,
+		dominant : 1,
+		hetero : 0.5,
+		intelligence : 0.3,
+		stamina : 10,
+		intellect : 0,
+		agility : 0,
+		class : 'none',
+		svPhysical : 2,
+        svElemental : 0,
+        svHoly : -3,
+        svCorruption : 0,
+        bonPhysical : 2,
+        bonElemental : 0,
+        bonHoly : 0,
+		bonCorruption : 0,	
+		actions : [
+			'necro_construct_summon_bystander',
+			'necro_construct_spread',
+			'boneShards'
+		],
+		tags : [
+			stdTag.gpBoss, stdTag.plTargetBeast, stdTag.plUndead
+		],
+		assets : [],
+		passives : [],
+	},
+	necro_construct_bystander : {
+		name : "Opportunistic Skeleton",
+		species : "skeleton",
+		description : "A normal skeleton, it seems to be creeping along the walls.",
+		icon : "",
+		team : 1,
+		size : 4,
+		leveled : true,
+		powered : true,
+		sadistic : 0.2,
+		dominant : 1,
+		hetero : 0.5,
+		intelligence : 0.3,
+		stamina : -8,
+		intellect : -4,
+		agility : -4,
+		class : 'none',
+		svPhysical : 0,
+        svElemental : 0,
+        svHoly : -3,
+        svCorruption : 0,
+        bonPhysical : 0,
+        bonElemental : 0,
+        bonHoly : 0,
+		bonCorruption : 2,	
+		actions : [],
+		tags : [
+			stdTag.plTargetBeast, stdTag.plUndead
+		],
+		assets : [],
+		passives : [
+			{
+				effects : [{
+					type : Effect.Types.disableActions,
+					data : {conditions:[
+						{type:Condition.Types.actionLabel, data:{label:['stdAttack','stdArouse']}},
+						{type:Condition.Types.wrapperLabel, data:{label:'construct_spread'}, inverse:true}
+					]},
+				}]
+			}
+		],
+		remOnDeath : true,
 	},
 
 

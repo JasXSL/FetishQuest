@@ -7,6 +7,7 @@ import GameEvent from "../../classes/GameEvent.js";
 import C from './conditions.js';
 import Condition from "../../classes/Condition.js";
 import Asset from "../../classes/Asset.js";
+import GameAction from "../../classes/GameAction.js";
 
 
 // Standard wrapper conditions
@@ -3748,6 +3749,62 @@ const lib = {
 		]
 	},
 
+	// Necro construct
+	necro_construct_summon_bystander : {
+		icon : 'raise-skeleton',
+		name : "Summon Skeleton",
+		description : "Summons a skeleton. The skeleton will only attack players who are currently spread by the caster.",
+		ap : 4,
+		cooldown : 'max(5-g_team_0,2)',
+		show_conditions : ["inCombat"],
+		tags : [stdTag.acNpcImportant],
+		range : Action.Range.None,
+		detrimental : false,
+		target_type : Action.TargetTypes.self, 
+		type : Action.Types.corruption,
+		wrappers : [
+			{
+				add_conditions : stdCond.concat({type:Condition.Types.numGamePlayersGreaterThan, data:{amount:5, team:1}, inverse:true},),
+				effects:[{
+					type: Effect.Types.gameAction,
+					data : {action:{
+						type : GameAction.types.addPlayer,
+						data : {player:'necro_construct_bystander'}
+					}},
+				}]
+			}
+		]
+	},
+	necro_construct_spread:{
+		icon : 'knee-cap',
+		name : "Spread",
+		description : "Grabs your target's arms and legs, spreading them for 2 turns and stunning both.",
+		ap : 4,
+		cooldown : 'max(7-g_team_0,3)',
+		show_conditions : ["inCombat"],
+		tags : [stdTag.acNpcImportantLast],
+		range : Action.Range.Melee,
+		detrimental : true, 
+		type : Action.Types.physical,
+		wrappers : [
+			{
+				label : 'construct_spread',
+				duration : 2,
+				name : "Spread",
+				icon : "knee-cap",
+				description : "The skeletal construct has grabbed and spread your arms and legs!",
+				detrimental : true,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects:[
+					{
+						targets : [Wrapper.TARGET_AUTO, Wrapper.TARGET_CASTER],
+						type : Effect.Types.stun
+					},
+				]
+			}
+		]
+	},
 
 	// Rat in yuug port
 	breast_squeeze : {
