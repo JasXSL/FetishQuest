@@ -969,6 +969,19 @@ class Effect extends Generic{
 				t.addMP(amt, true);
 			}
 
+			else if( this.type === Effect.Types.addHP ){
+				let amt = Calculator.run(
+					this.data.amount, 
+					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+				}));
+				if( !this.no_stack_multi )
+					amt *= this.parent.stacks;
+				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
+				t.addHP(amt, s, this, true);
+			}
+
+			
+
 			else if( this.type === Effect.Types.addArousal ){
 
 				let amt = Calculator.run(
@@ -1704,6 +1717,7 @@ Effect.Types = {
 	damageArmor : "damageArmor",
 	addAP : "addAP",
 	addMP : "addMP",
+	addHP : "addHP",
 		
 	setHP : 'setHP',
 	setMP : 'setMP',
@@ -1801,7 +1815,9 @@ Effect.TypeDescs = {
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
 	[Effect.Types.addAP] : "{amount:(str)(nr)amount}, Adds AP",									
 	[Effect.Types.addMP] : "{amount:(str)(nr)amount}, Adds MP",									
-	[Effect.Types.addArousal] : "{amount:(str)(nr)amount} - Adds arousal points",				
+	[Effect.Types.addArousal] : "{amount:(str)(nr)amount} - Adds arousal points",	
+	[Effect.Types.addHP] : "{amount:(str)(nr)amount}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
+				
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
 	[Effect.Types.setMP] : "{amount:(str)(nr)amount} - Sets MP value",							

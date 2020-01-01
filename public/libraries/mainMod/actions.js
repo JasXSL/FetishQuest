@@ -3801,10 +3801,50 @@ const lib = {
 						targets : [Wrapper.TARGET_AUTO, Wrapper.TARGET_CASTER],
 						type : Effect.Types.stun
 					},
+					{
+						type: Effect.Types.grapple
+					}
 				]
 			}
 		]
 	},
+
+	// Used by the cow slave to heal the boss
+	necro_construct_slave_milk : {
+		icon : 'cow',
+		name : "Milk",
+		description : "The skeletal construct siphons health from this player.",
+		ap : 0,
+		cooldown : 1,
+		show_conditions : ["inCombat"],
+		tags : [stdTag.acNpcImportant],
+		range : Action.Range.Ranged,
+		detrimental : false,
+		type : Action.Types.physical,
+		wrappers : [
+			{
+				detrimental : false,
+				add_conditions : stdCond.concat({type:Condition.Types.playerLabel, data:{label:'necro_construct'}}),
+				stay_conditions : stdCond,
+				effects:[
+					{
+						type : Effect.Types.addHP,
+						data : {amount:'se_MaxHP*0.05'}
+					},
+					{
+						targets : [Wrapper.TARGET_CASTER],
+						type : Effect.Types.addHP,
+						data : {amount:'-ta_MaxHP*0.05'}
+					},
+				]
+			}
+		]
+		// Todo: Continue here
+	},
+
+
+
+
 
 	// Rat in yuug port
 	breast_squeeze : {

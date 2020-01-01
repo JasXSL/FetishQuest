@@ -205,13 +205,16 @@ class Action extends Generic{
 	// Returns effects that disable this against a player
 	getDisabledEffectsAgainst( player, hide_only = false ){
 
-		const effects = player.getDisableActionEffects(this);
+		const parent = this.getPlayerParent();
+		if( !parent )
+			return [];
+		const effects = parent.getDisableActionEffects();
 		const evt = new GameEvent({
 			sender : this.getPlayerParent(),
 			target : player,
 			action : this
 		});
-
+		
 		const out = new Map();
 		for( let effect of effects ){
 

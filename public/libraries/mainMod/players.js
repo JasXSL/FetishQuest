@@ -813,7 +813,7 @@ const lib = {
 		tags : [
 			stdTag.gpBoss, stdTag.plTargetBeast, stdTag.plUndead
 		],
-		assets : [],
+		assets : ['sharkanium'],
 		passives : [],
 	},
 	necro_construct_bystander : {
@@ -831,7 +831,7 @@ const lib = {
 		intelligence : 0.3,
 		stamina : -8,
 		intellect : -4,
-		agility : -4,
+		agility : 0,
 		class : 'none',
 		svPhysical : 0,
         svElemental : 0,
@@ -859,7 +859,52 @@ const lib = {
 		],
 		remOnDeath : true,
 	},
-
+	necro_construct_slave : {
+		name : "Illium",
+		species : "cow",
+		description : "A large-breasted cow lady, she's strapped to some kind of milking device.",
+		icon : "",
+		team : 1,
+		size : 5,
+		level : 0,
+		leveled : true,
+		sadistic : 0.2,
+		dominant : 0.2,
+		hetero : 0.5,
+		intelligence : 0.5,
+		talkative : 0.1,
+		stamina : 0,
+		intellect : 0,
+		agility : 0,
+		svPhysical : -4,
+        svElemental : -2,
+        svHoly : -2,
+        svCorruption : -2,
+        bonPhysical : -5,
+        bonElemental : -5,
+        bonHoly : -5,
+        bonCorruption : -5,
+		class : 'none',
+		assets : [],
+		inventory : [],	// Which items should be equipped
+		actions : [
+			'necro_construct_slave_milk'
+		],
+		tags : [
+			stdTag.vagina, stdTag.plTongue, stdTag.plHair, stdTag.breasts, stdTag.plBigBreasts,
+			stdTag.plFurry, stdTag.plEars, stdTag.plTail, stdTag.plLongTail, stdTag.plHorns
+		],
+		passives : [
+			{
+				effects : [{
+					type : Effect.Types.disableActions,
+					data : {conditions:[
+						{type:Condition.Types.actionLabel, data:{label:['stdAttack','stdArouse']}, caster:true}
+					]},
+				}]
+			}
+		],
+	},
 
 	Ixsplat : {
 		name : "Ixsplat",

@@ -25,17 +25,10 @@ Big chungi:
 			- Water jug
 			- Tesla coil
 		- Encounters:		
-			- Count Blobula
-				- Add sewer water bottles scattered about the area
 			- Bone construct
-				- Keeps a slave cowgirl. At the start of her turn, she heals the construct for 2 HP. Can be killed.
-					- Add
-					- If left alive, she offers a quest giving a decent reward
-				- Summons skeletal bystanders. These don't normally attack.
-					- Text & visual needed
-				- Grapples and spreads a player. While grappled, neither the player nor construct can attack.
-					- Texts needed, audio needed
-
+				- Add intro
+				- Add slave cowgirl survival quest
+				- Add texts and visuals
 
 		- Spell Rewards
 			???
