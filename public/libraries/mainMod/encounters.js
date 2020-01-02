@@ -745,30 +745,34 @@ const lib = {
 			]
 		},
 		passives : [
-			{effects:[
-				{
-					type:Effect.Types.gameAction,
-					data : {action:{
-						type : GameAction.types.roleplay,
-						data : {rp:{
-							stages: [
-								{
-									id: 's_0',
-									index: 0,
-									text: "You find a rusty key on the defeated cultist!",
-									options: [{id:'done', text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}]
-								},
-							],
-						}}
-					}},
-					events : [
-						GameEvent.Types.playerDefeated,
-					],
-					conditions : [
-						{type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_camp_cultist'}}
-					]
-				}
-			]}
+			{
+				add_conditions : [],
+				stay_conditions : [],
+				effects:[
+					{
+						type:Effect.Types.gameAction,
+						data : {action:{
+							type : GameAction.types.roleplay,
+							data : {rp:{
+								stages: [
+									{
+										id: 's_0',
+										index: 0,
+										text: "You find a rusty key on the defeated cultist!",
+										options: [{id:'done', text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}]
+									},
+								],
+							}}
+						}},
+						events : [
+							GameEvent.Types.playerDefeated,
+						],
+						conditions : [
+							{type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_camp_cultist'}}
+						]
+					}
+				]
+			}
 		],
 		friendly : true,
 		game_actions : [
@@ -989,27 +993,31 @@ const lib = {
 	SQ_sharktopus_boss : {
 		players : ['SQ_sharktopus_gong', 'SQ_sharktopus_boss'],
 		passives : [
-			{effects:[
-				{
-					type:Effect.Types.gameAction,
-					data : {action:{
-						type : GameAction.types.roleplay,
-						data : {rp:{
-							stages: [
-								{
-									id: 's_0',
-									index: 0,
-									text: "You collect a trophy from the defeated beast!",
-									options: [{id:'done', text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}]
-								},
-							],
-						}}
-					}},
-					events : [
-						GameEvent.Types.encounterDefeated,
-					]
-				}
-			]}
+			{
+				add_conditions : [],
+				stay_conditions : [],
+				effects:[
+					{
+						type:Effect.Types.gameAction,
+						data : {action:{
+							type : GameAction.types.roleplay,
+							data : {rp:{
+								stages: [
+									{
+										id: 's_0',
+										index: 0,
+										text: "You collect a trophy from the defeated beast!",
+										options: [{id:'done', text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}]
+									},
+								],
+							}}
+						}},
+						events : [
+							GameEvent.Types.encounterDefeated,
+						]
+					}
+				]
+			}
 		],
 		wrappers : [
 			{	// Initial submerge is different in that it also stuns
@@ -1019,6 +1027,7 @@ const lib = {
 				duration : -1,
 				target : Wrapper.TARGET_AOE,
 				add_conditions : [{type:Condition.Types.playerLabel, data:{label:'SQ_sharktopus_boss'}}],
+				stay_conditions : [],
 			}
 		]
 	},
@@ -1529,43 +1538,53 @@ const lib = {
 			},
 		],
 		passives : [
-			{effects:[
-				{
-					type:Effect.Types.gameAction,
-					data : {action:{
-						type : GameAction.types.roleplay,
-						data : {rp:{
-							persistent : true,
-							label : 'necro_fox',
-							player : 'necro_fox',
-							stages: [
-								{
-									index: 0,
-									text: "Oh thank you, hero! How can I ever repay you?",
-									options: [
-										{text:'Think nothing of it! It is what I do!', index:-1},
-										{text:"You could give me your panties!", index:1},
-										{text:'[Just leave]', index:-1, chat:RoleplayStageOption.ChatType.none},
-									]
-								},
-								{
-									index: 1,
-									text: "I... what?",
-									options: [
-										{text:'Er, never mind.', index:-1},
-										{text:"Your panties, I'll take them and we'll be even.", index:-1, game_actions:[
-											{type:GameAction.types.trade, data:{from:'necro_fox', asset:'foxCottonPanties'}}
-										]},
-									]
-								},
-							],
-						}}
-					}},
-					events : [
-						GameEvent.Types.encounterDefeated,
-					]
-				}
-			]}
+			{
+				add_conditions : [],
+				stay_conditions : [],
+				effects:[
+					{
+						type:Effect.Types.gameAction,
+						data : {action:{
+							type : GameAction.types.roleplay,
+							data : {rp:{
+								persistent : true,
+								label : 'necro_fox',
+								player : 'necro_fox',
+								stages: [
+									{
+										index: 0,
+										text: "Oh thank you, hero! How can I ever repay you?",
+										options: [
+											{text:'Think nothing of it! It is what I do!', index:-1},
+											{text:"You could give me your panties!", index:1},
+											{text:'[Just leave]', index:-1, chat:RoleplayStageOption.ChatType.none},
+										]
+									},
+									{
+										index: 1,
+										text: "I... what?",
+										options: [
+											{text:'Er, never mind.', index:-1},
+											{text:"Your panties, I'll take them and we'll be even.", index:-1, game_actions:[
+												{type:GameAction.types.trade, data:{from:'necro_fox', asset:'foxCottonPanties'}}
+											]},
+										]
+									},
+								],
+							}}
+						}},
+						events : [
+							GameEvent.Types.encounterDefeated,
+						],
+						conditions : [
+							{type:Condition.Types.hasActiveConditionalPlayer, data:{conditions:[
+								{type:Condition.Types.defeated, inverse:true},
+								{type:Condition.Types.playerLabel, data:{label:'necro_fox'}}
+							]}}
+						]
+					}
+				]
+			}
 		],
 		wrappers : [
 			{	// Initial submerge is different in that it also stuns
@@ -1575,6 +1594,7 @@ const lib = {
 				duration : 0,
 				target : Wrapper.TARGET_AOE,
 				add_conditions : [{type:Condition.Types.playerLabel, data:{label:'necro_fox'}}],
+				stay_conditions : [],
 				effects : [{
 					type : Effect.Types.runWrappers,
 					data : {wrappers:[
@@ -1597,6 +1617,71 @@ const lib = {
 			}
 		]
 	},
+
+	yuug_necromancer_construct : {
+		players : ['necro_construct','necro_construct_slave'],
+		passives : [
+			{
+				add_conditions : [],
+				stay_conditions : [],
+				effects:[
+					{
+						type:Effect.Types.gameAction,
+						data : {action:{
+							type : GameAction.types.roleplay,
+							data : {rp:{
+								player : 'necro_construct_slave',
+								stages: [
+									{
+										index: 0,
+										text: "Thank you! I thought he was going to milk me dry! It's not much, but please take this <todo: item>.",
+										options: [{text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}]
+									},
+								],
+							}}
+						}},
+						events : [
+							GameEvent.Types.encounterDefeated,
+						],
+						conditions : [
+							{type:Condition.Types.hasActiveConditionalPlayer, data:{conditions:[
+								{type:Condition.Types.defeated, inverse:true},
+								{type:Condition.Types.playerLabel, data:{label:'necro_construct_slave'}}
+							]}}
+						]
+					}
+				]
+			}
+		],
+		friendly : true,
+		game_actions : [
+			// Boss talk
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label: 'yuug_necromancer_construct',
+					player : 'necro_construct',
+					portrait : '',
+					persistent : true,
+					once : true,
+					stages: [
+						{
+							index: 0,
+							text: "Aah the necromancers finally sent a refreshment. The old one is starting to run dry!",
+							options: [
+								{text: "[Attack]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+					],
+					conditions : [
+						"notInCombat"
+					]
+				}}
+			}
+		]
+	},
+
+
 
 
 	debug_shop : {
@@ -1622,6 +1707,8 @@ const lib = {
 		friendly : true,
 		passives : [
 			{
+				add_conditions : [],
+				stay_conditions : [],
 				// If it has a passive modifier, conditions need to be set here.
 				//add_conditions : [{type:Condition.Types.team, data:{team:0}}],
 				detrimental:false,

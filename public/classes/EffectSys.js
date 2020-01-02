@@ -109,11 +109,16 @@ class Wrapper extends Generic{
 		this.tags = this.tags.slice();
 	}
 
-	clone(parent){
+	clone( parent ){
+		
+		if( parent === undefined )
+			parent = this.parent;
+
 		let out = new this.constructor(this.save(true), parent);
 		out.g_resetID();
 		out.template_id = this.id;
 		return out;
+
 	}
 
 	getCaster(){
@@ -124,6 +129,10 @@ class Wrapper extends Generic{
 	/* MAIN FUNCTIONALITY */
 	// Tests if the wrapper can be used against a single target
 	testAgainst( event, isTick, debug = false ){
+
+		// Dungeon encounter passives don't need to check
+		if( this.parent instanceof DungeonEncounter )
+			return true;
 
 		event.wrapper = this;
 		let conditions = this.add_conditions;
@@ -183,6 +192,7 @@ class Wrapper extends Generic{
 			let obj = this;
 			if( !obj.label )
 				obj.label = this.parent.label;
+
 			// This was just added, and not a tick
 			if( !isTick ){
 

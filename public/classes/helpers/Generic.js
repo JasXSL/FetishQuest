@@ -196,8 +196,9 @@ export default class Generic{
 	}
 
 	clone( parent, full = true ){
-		if( parent === undefined )
+		if( parent === undefined ){
 			parent = this.parent;
+		}
 		else if( !parent )
 			parent = undefined;
 		return new this.constructor(this.save(full), parent);

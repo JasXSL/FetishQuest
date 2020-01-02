@@ -232,17 +232,17 @@ export default class Game extends Generic{
 		if( this.dungeon.transporting )
 			return;
 
+		let time = Date.now();
 		if( !ignoreNetGame )
 			this.net.sendGameUpdate();
-
 		this.ignore_netgame = true;
 
-		let out = this.getSaveData(true);
+		time = Date.now();
 		localStorage.game = this.id;
 
 		// First insert
 		if( allowInsert ){
-			await this.saveToDB(out);
+			await this.saveToDB(this.getSaveData(true));
 			this.initialize();
 			this.load();
 		}
@@ -250,7 +250,7 @@ export default class Game extends Generic{
 		else{
 			clearTimeout(this._db_save_timer);
 			this._db_save_timer = setTimeout(() => {
-				this.saveToDB(out);
+				this.saveToDB(this.getSaveData(true));
 			}, 3000);
 		}
 		
@@ -1813,6 +1813,8 @@ export default class Game extends Generic{
 			
 			// Restore 25% HP and MP at the end of the battle
 			this.getTeamPlayers(0).map(pl => {
+				if( pl.generated )
+					return;
 				pl.addHP(Math.ceil(pl.getMaxHP()*0.25));
 				pl.addMP(Math.ceil(pl.getMaxMP()*0.25));
 				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.25));

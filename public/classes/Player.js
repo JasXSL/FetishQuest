@@ -2443,7 +2443,16 @@ export default class Player extends Generic{
 	/* Wrappers */
 	getWrappers(){
 
-		let out = this.wrappers.concat(this.passives, game.encounter.passives);
+		let out = this.wrappers.concat(this.passives, game.encounter.passives.map(el => { 
+			/*
+			el = el.clone();
+			el.caster = '';
+			el.victim = this.id;
+			*/
+			el.victim = this.id;
+			return el;
+
+		}));
 		for( let asset of this.assets ){
 			if( asset.equipped && asset.durability > 0 )
 				out = out.concat(asset.wrappers);

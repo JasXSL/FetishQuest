@@ -21,9 +21,6 @@ Big chungi:
 		- ???
 
 	Necromancer Quest:	
-		- Meshes:
-			- Water jug
-			- Tesla coil
 		- Encounters:		
 			- Bone construct
 				- Add intro

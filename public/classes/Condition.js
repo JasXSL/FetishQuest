@@ -94,6 +94,10 @@ export default class Condition extends Generic{
 			this.min = this.conditions.length;
 		if( this.max > this.conditions.length )
 			this.max = this.conditions.length;
+
+		if( this.type === Condition.Types.hasActiveConditionalPlayer )
+			this.data.conditions = Condition.loadThese(this.data.conditions);
+
 	}
 
 	clone( parent ){
@@ -785,6 +789,22 @@ export default class Condition extends Generic{
 				success = rain > amt;
 			}
 
+			else if( this.type === T.hasActiveConditionalPlayer ){
+
+				const players = game.getEnabledPlayers();
+				const evt = new GameEvent({});
+				for( let player of players ){
+
+					evt.sender = evt.target = player;
+					if( Condition.all(this.data.conditions, evt) ){
+						success = true;
+						break;
+					}
+
+				}
+
+			}
+
 			else if( this.type === T.targetedSenderLastRound )
 				success = Boolean(s._targeted_by_since_last[t.id]);
 
@@ -998,6 +1018,7 @@ Condition.Types = {
 	targetedSenderLastRound : 'targetedSenderLastRound',
 	sadism : 'sadism',
 	hourRange : 'hourRange',
+	hasActiveConditionalPlayer : 'hasActiveConditionalPlayer',
 };
 
 
@@ -1055,6 +1076,7 @@ Condition.descriptions = {
 	[Condition.Types.questObjectiveCompleted] : '{quest:(str)quest_label, objective:(str)objective_label} - Checks if a quest objective is done',
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
+	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any} - Nr game players are greater than amount. If team is undefined, it checks all players. Use -1 for enemies and -2 for friendlies',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',

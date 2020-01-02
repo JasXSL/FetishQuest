@@ -389,7 +389,7 @@ const lib = {
 							conditions : [
 								// Disable if
 								{conditions:[
-									//  
+									// 
 									{conditions:[
 										// Stdattack/arouse AND invis
 										{type:Condition.Types.actionLabel, data:{label:['stdAttack','stdArouse']}},
@@ -892,7 +892,8 @@ const lib = {
 		],
 		tags : [
 			stdTag.vagina, stdTag.plTongue, stdTag.plHair, stdTag.breasts, stdTag.plBigBreasts,
-			stdTag.plFurry, stdTag.plEars, stdTag.plTail, stdTag.plLongTail, stdTag.plHorns
+			stdTag.plFurry, stdTag.plEars, stdTag.plTail, stdTag.plLongTail, stdTag.plHorns,
+			stdTag.gpDisableVictoryCondition
 		],
 		passives : [
 			{
