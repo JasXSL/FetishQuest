@@ -1234,6 +1234,22 @@ particles.hitfx_bone_shards = {
 	rotation : [5,0,0],
 };
 
+particles.hitfx_bone_shards_big = {
+	texture : textures.bone_shards,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : new Proton.Span(10,15),
+	size_tween : [0.1,1, Proton.ease.easeOutCirc],
+	part_max_age : .25,
+	velocity : new Proton.Span(-200,200),
+	gravity : 5,
+	color : ['#666666', '#AAAAAA'],	
+	opacity: 1,
+	rotation : [5,0,0],
+};
+
 particles.hitfx_insect_dots_impact = {
 	texture : textures.glowSphere,
 	blending : THREE.NormalBlending,

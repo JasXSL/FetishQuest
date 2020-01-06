@@ -23,9 +23,7 @@ Big chungi:
 	Necromancer Quest:	
 		- Encounters:		
 			- Bone construct
-				- Add intro
-				- Add slave cowgirl survival quest
-				- Add texts and visuals
+				- Add reward to cow
 
 		- Spell Rewards
 			???

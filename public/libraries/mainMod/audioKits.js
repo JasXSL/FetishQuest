@@ -661,6 +661,8 @@ const lib = {
         ],
     },
 
+    animateBones : {sounds : [{s : {path : "media/audio/animate_bones.ogg",volume : 0.5}, se:true}]},
+
     tripwire_hit : {
         sounds : [
             {

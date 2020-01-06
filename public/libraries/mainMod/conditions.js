@@ -138,6 +138,9 @@ const lib = {
 	action_bondageStruggleDuration : {type:Condition.Types.actionLabel, data:{label:'bondageStruggleDuration'}, targnr:0},
 	action_stdUseBondageDevice : {type:Condition.Types.actionLabel, data:{label:'stdUseBondageDevice'}, targnr:0},
 
+	action_necro_construct_summon_bystander : {type:Condition.Types.actionLabel, data:{label:'necro_construct_summon_bystander'}, targnr:0},
+	action_necro_construct_spread : {type:Condition.Types.actionLabel, data:{label:'necro_construct_spread'}, targnr:0},
+	action_necro_construct_slave_milk : {type:Condition.Types.actionLabel, data:{label:'necro_construct_slave_milk'}, targnr:0},
 
 	action_sharktopus_attack : {type:Condition.Types.actionLabel, data:{label:'sharktopus_attack'}, targnr:0},
 	action_sharktopus_arouse : {type:Condition.Types.actionLabel, data:{label:'sharktopus_arouse'}, targnr:0},
@@ -145,6 +148,8 @@ const lib = {
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
 	action_food_ale : {type:Condition.Types.actionLabel,data:{label:"foodAle"},targnr:0},
+
+
 
 	overWhelmingOrgasm_end : {type:Condition.Types.effectLabel, data:{label:'overWhelmingOrgasm_end'}},
 	overWhelmingOrgasm_start : {type:Condition.Types.wrapperLabel, data:{label:'overWhelmingOrgasm'}},

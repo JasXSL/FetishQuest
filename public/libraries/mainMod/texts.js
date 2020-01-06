@@ -3771,6 +3771,29 @@ const lib = [
 
 
 
+	// Necro construct
+	// action_necro_construct_summon_bystander
+	{ text : "%S summons a scrawny skeleton that immediately retreats to a nearby wall!",
+		conditions : baseCond.concat("action_necro_construct_summon_bystander"),
+		hitfx : ["summonBones"],
+		metaTags : [],
+	},
+	// action_necro_construct_spread
+	{ text : "%S wraps %Shis many bony arms around %T's arms and legs! Lifting the %Trace into the air and spreading %This limbs!",
+		conditions : baseCond.concat("action_necro_construct_spread"),
+		hitfx : ["stretch"],
+		metaTags : [],
+	},
+	// action_necro_construct_slave_milk
+	{ text : "The device strapped to %S's %Sbsize %breasts activates, siphoning milk to %T!",
+		conditions : baseCond.concat("action_necro_construct_slave_milk"),
+		hitfx : ["siphonMilk"],
+		metaTags : [],
+	},
+	
+
+
+
 
 
 	// GENERIC ACTIONS

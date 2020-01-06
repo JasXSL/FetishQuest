@@ -1461,6 +1461,21 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'siphonMilk';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		origin : 'attacker',
+		particles : 'hitfx_sludge_bolt_white',
+		emit_duration : 500,
+		sound_kits : ['waterCharged'],
+		hold:500,
+	}, out[id]),
+	new Stage({
+		css_fx : 'fxHeal',
+	})
+);
+
 id = 'ghoulSpit';
 out[id] = new HitFX({label : id});
 out[id].stages.push(
@@ -1792,6 +1807,24 @@ out[id].stages.push(
 	new Stage({
 		css_fx : 'fxTakeDamage',
 	}, out[id])
+);
+
+id = 'summonBones';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_insect_dots_impact',
+		emit_duration : 500,
+		sound_kits : ['animateBones'],
+		origin : 'attacker',
+		destination : 'attacker',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_bone_shards_big',
+		emit_duration : 500,
+		origin : 'attacker',
+		destination : 'attacker',
+	}, out[id]),
 );
 
 
