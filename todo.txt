@@ -96,3 +96,7 @@ LATER:
 Food for thought
 	- Fast travel system
 		- Expensive
+
+Monster ideas:
+	- Flytrap type tentacle monster that grapples a player's butt with its maw
+	- 

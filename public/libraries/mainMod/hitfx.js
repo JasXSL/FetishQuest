@@ -1476,6 +1476,21 @@ out[id].stages.push(
 	})
 );
 
+id = 'siphonMilkReverse';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		destination : 'sender',
+		particles : 'hitfx_sludge_bolt_white',
+		emit_duration : 500,
+		sound_kits : ['waterCharged'],
+		hold:500,
+	}, out[id]),
+	new Stage({
+		css_fx : 'fxHeal',
+	})
+);
+
 id = 'ghoulSpit';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

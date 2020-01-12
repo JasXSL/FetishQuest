@@ -1634,8 +1634,15 @@ const lib = {
 								stages: [
 									{
 										index: 0,
-										text: "Thank you! I thought he was going to milk me dry! It's not much, but please take this <todo: item>.",
-										options: [{text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none}]
+										text: "Thank you! I thought he was going to milk me dry! Here, take his machine, it's still intact!",
+										options: [{text: "[Done]",index: -1, chat:RoleplayStageOption.ChatType.none, game_actions:[
+											{
+												type:GameAction.types.addInventory,
+												data:{
+													asset:'food_HumanoidMilk',
+												}
+											}
+										]}]
 									},
 								],
 							}}

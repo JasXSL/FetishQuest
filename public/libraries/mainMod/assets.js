@@ -231,7 +231,20 @@ const lib = {
 		loot_sound : "lootSticks",
 		icon : 'bone-mace',
 	},
-
+	necromanticMilker : {
+		name : "Necromantic Milker",
+		category : Asset.Categories.handheld,
+		slots : [Asset.Slots.hands],
+		tags : [],
+		basevalue : 500,
+		use_action : 'milkMachine',
+		description : "",
+		weight : 4000,
+		loot_sound : "loot_device",
+		icon : 'valve',
+		charges : -1,
+		rarity : 2,
+	},
 
 
 	minorRepairKit : {
@@ -407,6 +420,21 @@ const lib = {
 		rarity : 1,
 		loot_sound : "lootPotion",
 		icon : 'beer-stein',
+		ranged : Action.Range.None,
+	},
+
+	food_HumanoidMilk : {
+		category : Asset.Categories.food,
+		name : '"Milk"',
+		description : 'A small bottle of "Milk" of questionable origins. Restores 7 HP and 5 MP, and adds 1 arousal. Only usable out of combat.',
+		stacking : false,
+		basevalue : 5,
+		weight : 400,
+		charges : 1,
+		use_action : "foodHumanoidMilk",		// name not needed for use_action ones. it uses UA instead
+		rarity : 1,
+		loot_sound : "lootPotion",
+		icon : 'square-bottle',
 		ranged : Action.Range.None,
 	},
 
@@ -691,6 +719,7 @@ const lib = {
 		rarity : 2,
 		loot_sound : "lootCloth",
 	},
+	
 	
 
 	groperVine : {

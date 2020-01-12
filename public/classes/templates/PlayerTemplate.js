@@ -212,7 +212,10 @@ class PlayerTemplate extends Generic{
 
 		// Add a random prop
 		if( !player.getEquippedAssetsBySlots([Asset.Slots.hands]).length && Math.random() < this.gear_chance ){
-			for(let template of this.viable_gear){
+
+			const gear = this.viable_gear;
+			shuffle(gear);
+			for(let template of gear ){
 
 				if( libAssets[template] ){
 
@@ -221,6 +224,7 @@ class PlayerTemplate extends Generic{
 					player.addAsset(asset, undefined, undefined, true);
 					if( !this.no_equip )
 						player.equipAsset(asset.id);
+					break;
 
 				}
 

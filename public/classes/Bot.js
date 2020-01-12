@@ -131,7 +131,7 @@ class Bot{
 		if(
 			this.hasCastableImportant() ||
 			(AP >= highest_cost && (Math.random() < AP/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
-			Math.random() < 0.2 || AP > this.player.getMaxAP()-3
+			Math.random() < 0.2 || AP > this.player.getMaxAP()/2
 		){
 
 			shuffle(abils);

@@ -4275,6 +4275,38 @@ const lib = {
 			}
 		]
 	},
+	milkMachine : {
+		icon : 'valve',
+		name : "Milk Machine",
+		description : "Attempt to milk a humanoid with an exposed penis or breasts, adding 1 arousal and a bottle of 'milk' to your inventory.",
+		ap : 3,
+		cooldown : 10,
+		show_conditions : ["inCombat"],
+		tags : [stdTag.acArousing],
+		hit_chance : 70,
+		wrappers : [
+			{
+				detrimental : true,
+				add_conditions : stdCond.concat("targetNotBeast", {conditions:['targetPenisExposed', 'targetBreastsExposed'], min:1}),
+				effects : [
+					{type : Effect.Types.addArousal,data : {amount : 1}},
+					{
+						targets : [Wrapper.TARGET_CASTER],
+						type : Effect.Types.gameAction,
+						data : {
+							action:{
+								type:GameAction.types.addInventory,
+								data:{
+									asset:'food_HumanoidMilk',
+								}
+							}
+						}
+					}
+				]
+			}
+		]
+	},
+
 
 	// Food
 	foodRazzyberry : {
@@ -4349,6 +4381,32 @@ const lib = {
 				effects : [
 					{type : Effect.Types.addMP,data : {amount: -2}},
 					{type : Effect.Types.damage,data : {amount: -10}},
+				]
+			}
+		]
+	},
+	foodHumanoidMilk : {
+		ranged : Action.Range.None,
+		name : "%P%",		// %P% = parent
+		description : "%P%",
+		icon : '%P%',
+		ap : 0,
+		cooldown : 0,
+		detrimental : false,
+		tags : [
+			stdTag.acHeal,
+			stdTag.acManaHeal,
+			stdTag.acItem,
+			stdTag.acFood,
+		],
+		show_conditions : ["notInCombat"],
+		target_type: "self",
+		wrappers : [
+			{
+				effects : [
+					{type : Effect.Types.addMP,data : {amount: 5}},
+					{type : Effect.Types.damage,data : {amount: -7}},
+					{type : Effect.Types.addArousal,data : {amount: 1}},
 				]
 			}
 		]

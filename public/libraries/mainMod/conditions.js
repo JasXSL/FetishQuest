@@ -148,7 +148,8 @@ const lib = {
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
 	action_food_ale : {type:Condition.Types.actionLabel,data:{label:"foodAle"},targnr:0},
-
+	action_food_humanoid_milk : {type:Condition.Types.actionLabel,data:{label:"foodHumanoidMilk"},targnr:0},
+	action_milk_machine : {type:Condition.Types.actionLabel,data:{label:"milkMachine"},targnr:0},
 
 
 	overWhelmingOrgasm_end : {type:Condition.Types.effectLabel, data:{label:'overWhelmingOrgasm_end'}},
@@ -421,6 +422,8 @@ const lib = {
 		],
 		min : -1
 	},
+	targetTentacleRestrained : {type:Condition.Types.tag,data:{tags:[stdTag.wrTentacleRestrained]}},
+	
 
 	targetHorns : {"type":"tag",data:{"tags":["pl_horns"]}},
 	targetHorn : {"type":"tag",data:{"tags":[stdTag.plHorn]}},

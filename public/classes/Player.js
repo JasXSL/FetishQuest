@@ -2443,6 +2443,9 @@ export default class Player extends Generic{
 	/* Wrappers */
 	getWrappers(){
 
+		if( !window.game )
+			return [];
+
 		let out = this.wrappers.concat(this.passives, game.encounter.passives.map(el => { 
 			/*
 			el = el.clone();
