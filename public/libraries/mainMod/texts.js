@@ -3268,6 +3268,31 @@ const lib = [
 		metaTags : [stdTag.metaVibration, stdTag.metaSlotBreasts, stdTag.metaArousing],
 	},
 
+	// slimeBone
+	{ text : "%S summons a slimy bone beneath %T, the bone shoots up into the %Trace's exposed %Tvagina, prodding deep inside %Thim before sliding back out!",
+		conditions : baseCond.concat("action_slime_bone"),
+		hitfx : ["slimeBone"],
+		metaTags : [stdTag.metaVeryArousing, stdTag.metaPenetration, stdTag.metaSlotVagina],
+	},
+	{ text : "%S summons a slimy bone beneath %T, the bone shoots up into the %Trace's %Trsize exposed %butt, prodding deep inside %Thim before sliding back out!",
+		conditions : baseCond.concat("action_slime_bone"),
+		hitfx : ["slimeBone"],
+		metaTags : [stdTag.metaVeryArousing, stdTag.metaPenetration, stdTag.metaSlotButt],
+	},
+	{ text : "%S summons a slimy bone beneath %T, the bone shoots up into the %Trace's exposed %Tvagina, rattling around briefly before sliding back out!",
+		conditions : baseCond.concat("action_slime_bone"),
+		hitfx : ["slimeBone"],
+		metaTags : [stdTag.metaVeryArousing, stdTag.metaPenetration, stdTag.metaSlotVagina],
+	},
+	{ text : "%S summons a slimy bone beneath %T, the bone shoots up into the %Trace's exposed %Trsize %butt, rattling around briefly before sliding back out!",
+		conditions : baseCond.concat("action_slime_bone"),
+		hitfx : ["slimeBone"],
+		metaTags : [stdTag.metaVeryArousing, stdTag.metaPenetration, stdTag.metaSlotButt],
+	},
+
+
+
+
 
 
 	// Ghoul
@@ -3866,6 +3891,25 @@ const lib = [
 	},
 	
 
+
+	// Itching powder
+	{ text : "%S manages to slip a handful of itching powder down the front of %T's %TclothLower!",
+		conditions : anyOnHumCond.concat("action_itching_powder"),
+		hitfx : ["tickle"],
+		metaTags : [],
+	},
+	{ text : "%S scratches the front of %Shis %SclothLower, providing momentary relief!",
+		conditions : anyOnHumCond.concat("action_scratch_itch", "targetWearsLowerBody"),
+		hitfx : ["scratchItch"],
+		metaTags : [],
+	},
+	{ text : "%S scratches %Shis %groin, providing momentary relief!",
+		conditions : anyOnHumCond.concat("action_scratch_itch", "targetNoLowerBody"),
+		hitfx : ["scratchItch"],
+		metaTags : [],
+	},
+	
+	
 
 
 

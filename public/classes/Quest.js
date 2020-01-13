@@ -6,6 +6,7 @@ import Condition from './Condition.js';
 import Calculator from './Calculator.js';
 import Asset from './Asset.js';
 import GameEvent from './GameEvent.js';
+import Action from './Action.js';
 
 class Quest extends Generic{
 
@@ -14,7 +15,7 @@ class Quest extends Generic{
 		this.label = '';
 		this.name = '';
 		this.description = '';
-		this.rewards = [];							// Assets
+		this.rewards = [];							// QuestReward objects. Use getRewards
 		this.exp_multiplier = 1;					// Multiplied against average player level. This means 1x multiplier is worth about 4 sets of monsters
 		this.objectives = [];
 		this.completion_objectives = [];			// One of these will trigger. This allows you to add multiple ways of handing in a quest with different outcomes
@@ -33,7 +34,7 @@ class Quest extends Generic{
 			name : this.name,
 			description : this.description,
 			objectives : this.objectives.map(el => el.save(full)),
-			rewards : Asset.saveThese(this.rewards, full),
+			rewards : QuestReward.saveThese(this.rewards, full),
 			hide_rewards : this.hide_rewards,
 			exp_multiplier : this.exp_multiplier,
 			completion_objectives : this.completion_objectives.map(el =>el.save(full))
@@ -57,7 +58,7 @@ class Quest extends Generic{
 
 	rebase(){
 		this.objectives = QuestObjective.loadThese(this.objectives, this);
-		this.rewards = Asset.loadThese(this.rewards, this);
+		this.rewards = QuestReward.loadThese(this.rewards, this);
 		this.completion_objectives = QuestObjective.loadThese(this.completion_objectives, this);
 	}
 
@@ -86,19 +87,25 @@ class Quest extends Generic{
 	}
 
 	addGearReward( item, amount = 1 ){
+
 		if( !(item instanceof Asset) )
 			return console.error(item, "is not an asset");
 		item = item.clone(this);
 		item.g_resetID();
-		if( item.stacking )
+		if( item.stacking ){
 			item._stacks = amount;
-		else{
-			for( let i = 0; i<amount; ++i ){
-				item = item.clone(this);
-				item.g_resetID();
-				this.rewards.push(item);
-			}
-		}		
+			amount = 1;
+		}
+
+		for( let i = 0; i<amount; ++i ){
+			item = item.clone(this);
+			item.g_resetID();
+			const reward = new QuestReward();
+			reward.setAsset(item);
+			this.rewards.push(reward);
+		}
+		
+
 	}
 
 
@@ -130,24 +137,31 @@ class Quest extends Generic{
 
 			const rewards = this.rewards.slice();	// Prevents recursion
 			this.rewards = [];
-			for( let i in rewards ){
+			for( let reward of rewards ){
 
-				const reward = Asset.convertDummy(rewards[i], this);
-				if( !reward )
-					continue;
+				reward = reward.clone(this);
 				
-				this.rewards.push(reward);
-				if( reward.level === -1 )
-					reward.level = game.getAveragePlayerLevel();
+				// Asset reward type
+				if( reward.type === QuestReward.Types.Asset ){
 
-				if( reward.category === Asset.Categories.currency ){
-					if( this.multiply_money )
-						reward._stacks *= pLen;
+					// Leveled reward
+					if( reward.data.level === -1 )
+						reward.data.level = game.getAveragePlayerLevel();
+
+					/* Moved to hand-in
+					if( reward.category === Asset.Categories.currency ){
+						if( this.multiply_money )
+							reward._stacks *= pLen;
+					}
+					// Make copies if reward should be multiplied
+					else if( this.multiply_reward && pLen > 1 ){
+						this.addGearReward(reward, pLen-1);
+					}
+					*/
+
 				}
-				// Make copies if reward should be multiplied
-				else if( this.multiply_reward && pLen > 1 ){
-					this.addGearReward(reward, pLen-1);
-				}
+
+				this.rewards.push(reward);
 
 			}
 
@@ -156,6 +170,7 @@ class Quest extends Generic{
 	}
 
 	// Splits an array of assets to players
+	/*
 	splitStackToPlayers( asset, players ){
 		let total = asset._stacks;
 		let each = Math.floor(total/players.length);
@@ -173,14 +188,36 @@ class Quest extends Generic{
 			this.addRewardToPlayer(cl, player);
 		}
 	}
+	*/
 
-	addRewardToPlayer( asset, player ){
-		player.addAsset(asset);
-		game.ui.addText( player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", undefined, player.id,  player.id, 'statMessage important' );
-	}
 
 	getExperience(){
 		return Math.ceil(game.getAveragePlayerLevel()*this.exp_multiplier);
+	}
+
+	// Returns what players can receive a reward
+	getViablePlayersForReward( reward ){
+
+		const players = game.getTeamPlayers();
+		const out = [];
+		for( let player of players ){
+			if( reward.testPlayer(player) )
+				out.push(player);
+		}
+		return out;
+
+	}
+
+	// Gets all rewards that are viable to at least one player
+	getRewards(){
+
+		const out = [];
+		for( let reward of this.rewards ){
+			if( this.getViablePlayersForReward(reward).length )
+				out.push(reward);
+		}
+		return out;
+
 	}
 
 	// hand out rewards etc
@@ -193,27 +230,48 @@ class Quest extends Generic{
 			player.addExperience(this.getExperience());
 
 		
-		const order = shuffle(players.slice());
-		let i = 0;
-		for( let asset of this.rewards ){
+		for( let reward of this.rewards ){
 
-			if( asset._stacks > 1 ){
-				this.splitStackToPlayers(asset, order);
+			// Who is eligible for this?
+			players = this.getViablePlayersForReward(reward);
+
+			// No viable players
+			if( !players.length )
 				continue;
+
+			// If the reward should only be given to one player, pick one at random
+			if( reward.type === QuestReward.Types.Asset && reward.category !== Asset.Categories.currency && !this.multiply_reward ){
+				players = [players[Math.floor(Math.random()*players.length)]];
 			}
 
-			const rewardee = players[i];
-			this.addRewardToPlayer(asset, rewardee);
-			
-			++i;
-			if( i >= order.length )
-				i = 0;
+
+			// Give said reward to each player
+			for( let player of players ){
+
+				const asset = reward.data.clone();
+				if( reward.type === QuestReward.Types.Asset ){
+					
+					player.addAsset(asset);
+					game.ui.addText( 
+						player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", 
+						undefined, 
+						player.id, 
+						player.id, 
+						'statMessage important' 
+					);
+
+				}
+				else if( reward.type === QuestReward.Types.Action )
+					player.addAction(asset);	// This method outputs text
+
+			}
 
 		}
 
 		// Handle netcode
 		game.onQuestCompleted(this);		
 		game.removeQuest(this.id);
+
 	}
 
 
@@ -279,6 +337,80 @@ Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
 
 
 
+class QuestReward extends Generic{
+	constructor(data){
+		super();
+		
+		this.type = QuestReward.Types.Asset;
+		this.data = null;
+		this.conditions = [];
+		
+		this.load(data);
+	}
+	
+	save( full ){
+
+		const out = {
+			type : this.type,
+			data : this.data && this.data.save ? this.data.save(full) : this.data,
+			conditions : Condition.saveThese(this.conditions, full)
+		};
+
+		if( full !== "mod" ){
+			out.id = this.id;
+		}
+		else
+			this.g_sanitizeDefaults(out);
+
+		return out;
+
+	}
+	
+	load(data){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		
+		this.conditions = Condition.loadThese(this.conditions);
+
+		// Cast into object. This is needed for online multiplayer.
+		if( this.type === QuestReward.Types.Asset )
+			this.data = Asset.loadThis(this.data);
+		if( this.type == QuestReward.Types.Action )
+			this.data = Action.loadThis(this.data);
+
+	}
+
+	// Accepts an Asset object or label and adds it as a reward
+	setAsset( asset ){
+		this.type = QuestReward.Types.Asset;
+		this.data = Asset.convertDummy(Asset.loadThis(asset, this), this);
+	}
+
+	setAction( action ){
+		this.type = QuestReward.Types.Action;
+		this.data = Action.loadThis(action, this);
+	}
+
+	// Checks if a player is viable to receive this
+	testPlayer( player ){
+
+		const evt = new GameEvent({
+			asset : this.data,
+			sender : player,
+			target : player,
+		});
+		return Condition.all(this.conditions, evt);
+
+	}
+
+}
+
+QuestReward.Types = {
+	Asset : "Asset",
+	Action : "Action"
+};
 
 
 
@@ -481,5 +613,5 @@ QuestObjectiveEvent.Actions = {
 
 
 
-export {QuestObjective, QuestObjectiveEvent};
+export {QuestObjective, QuestObjectiveEvent, QuestReward};
 export default Quest;

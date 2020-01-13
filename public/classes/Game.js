@@ -1045,6 +1045,9 @@ export default class Game extends Generic{
 		
 	}
 	addQuest(quest){
+
+		if( typeof quest === "string" )
+			quest = glib.get(quest, "Quest");
 		if( !(quest instanceof Quest) )
 			throw("Quest is not a Quest object");
 		this.quests.push(quest);
@@ -1068,6 +1071,7 @@ export default class Game extends Generic{
 		}
 		return false;
 	}
+	// Gets an active quest by label
 	getQuestByLabel( label ){
 		for( let quest of this.quests ){
 			if( quest.label === label )

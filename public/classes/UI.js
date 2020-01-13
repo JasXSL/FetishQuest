@@ -13,6 +13,7 @@ import { DungeonRoomAsset } from "./Dungeon.js";
 import Shop from "./Shop.js";
 import StaticModal from "./StaticModal.js";
 import Modal from "./Modal.js";
+import {default as Quest, QuestReward} from './Quest.js';
 
 const NUM_ACTIONS = 18;
 
@@ -2026,6 +2027,8 @@ export default class UI{
 		let html = '', th = this;
 		let quests = game.quests;
 		let selectedQuest = quests[0];
+		const me = game.getMyActivePlayer();
+
 		for( let quest of quests ){
 			if( quest.id === localStorage.selected_quest )
 				selectedQuest = quest;
@@ -2061,13 +2064,32 @@ export default class UI{
 				if( !selectedQuest.hide_rewards ){
 					html += '<hr />';
 					html += '<h3>Rewards</h3>';
-					for( let asset of selectedQuest.rewards ){
-						html += '<div class="item tooltipParent '+Asset.RarityNames[asset.rarity]+'">';
-							html += esc(asset.name)+(asset._stacks > 1 ? ' x'+asset._stacks : '');
-							html += '<div class="tooltip">';
-								html += asset.getTooltipText();
+
+					const rewards = selectedQuest.getRewards();
+					for( let reward of rewards ){
+
+						const asset = reward.data;
+						const type = reward.type;
+						const viableToMe = me && reward.testPlayer(me);
+						
+
+						if( type === QuestReward.Types.Asset ){
+							html += '<div class="item tooltipParent '+(!viableToMe ? 'disabled ' : '' )+Asset.RarityNames[asset.rarity]+'">';
+								html += esc(asset.name)+(asset._stacks > 1 ? ' x'+asset._stacks : '');
+								html += '<div class="tooltip">';
+									html += asset.getTooltipText();
+								html += '</div>';
 							html += '</div>';
-						html += '</div>';
+						}
+						else{
+							html += '<div class="item tooltipParent '+(!viableToMe ? 'disabled ' : '' )+' disabled actionReward">';
+								html += esc(asset.name);
+								html += '<div class="tooltip">';
+									html += asset.getTooltipText();
+								html += '</div>';
+							html += '</div>';
+						}
+						
 					}
 				}
 				if( selectedQuest.rewards_exp ){

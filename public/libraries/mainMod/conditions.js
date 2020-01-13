@@ -120,7 +120,7 @@ const lib = {
 	action_boneRattle : {type:Condition.Types.actionLabel, data:{label:'boneRattle'}, targnr:0},
 	action_pounceBreak : {type:Condition.Types.actionLabel, data:{label:'pounceBreak'}, targnr:0},
 	action_boneShards : {type:Condition.Types.actionLabel, data:{label:'boneShards'}, targnr:0},
-	action_hexArmor : {type:Condition.Types.actionLabel, data:{label:'hexArmor'}, targnr:0},
+	action_hexArmor : {type:Condition.Types.actionLabel, data:{label:['hexArmor','improvedHexArmor']}, targnr:0},
 	action_hexArmor_tick : {type:Condition.Types.effectLabel, data:{label:'hexArmorProc'}, targnr:0},
 	action_sewer_water : {type:Condition.Types.actionLabel, data:{label:'sewerWater'}, targnr:0},
 
@@ -144,6 +144,10 @@ const lib = {
 
 	action_sharktopus_attack : {type:Condition.Types.actionLabel, data:{label:'sharktopus_attack'}, targnr:0},
 	action_sharktopus_arouse : {type:Condition.Types.actionLabel, data:{label:'sharktopus_arouse'}, targnr:0},
+	
+	action_itching_powder : {type:Condition.Types.actionLabel, data:{label:'itchingPowder'}, targnr:0},
+	action_scratch_itch : {type:Condition.Types.actionLabel, data:{label:'scratchItch'}, targnr:0},
+	action_slime_bone : {type:Condition.Types.actionLabel, data:{label:'slimeBone'}, targnr:0},
 
 	action_food_razzyberry : {type:Condition.Types.actionLabel,data:{label:"foodRazzyberry"},targnr:0},
 	action_food_fried_fish : {type:Condition.Types.actionLabel,data:{label:"foodFriedFish"},targnr:0},
@@ -684,6 +688,10 @@ lib.targetButtExposedOrThong = {conditions:[
 lib.targetHasUnblockedExposedOrifice = {conditions:[
 	lib.targetButtExposedAndUnblocked,
 	lib.targetMouthExposedAndUnblocked,
+	lib.targetVaginaExposedAndUnblocked,
+], min:1};
+lib.targetHasUnblockedExposedVagButt = {conditions:[
+	lib.targetButtExposedAndUnblocked,
 	lib.targetVaginaExposedAndUnblocked,
 ], min:1};
 lib.targetHasUnblockedNotHardOrifice = {conditions:[

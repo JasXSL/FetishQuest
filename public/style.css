@@ -1025,7 +1025,8 @@ div.fxBuffRed{
 	div.item.rare, strong.rare{ border-color: #ADF !important; color: #ADF !important; }
 	div.item.epic, strong.epic{ border-color: #FAF !important; color: #FAF !important; }
 	div.item.legendary, strong.legendary{ border-color: #FFA !important; color: #FFA !important; }
-
+	div.item.actionReward, strong.actionReward{ border-color: #AFF !important; color: #AFF !important; }
+	div.item.disabled{ border-color:#A00 !important; background:#FAA; }
 
 	#selectionbox{
 		position:fixed;

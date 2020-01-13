@@ -5,7 +5,7 @@ import PlayerClass from './PlayerClass.js';
 import Action from './Action.js';
 import Asset from './Asset.js';
 import Dungeon, {DungeonEncounter} from './Dungeon.js';
-import Quest from './Quest.js';
+import Quest, { QuestReward } from './Quest.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 import DungeonTemplate, { RoomTemplate } from './templates/DungeonTemplate.js';
@@ -47,6 +47,7 @@ const LIB_TYPES = {
 	'dungeonEncounters' : DungeonEncounter,
 	'roleplay' : Roleplay,
 	'gameActions' : GameAction,
+	'questReward' : QuestReward,
 };
 
 // Maps lib_types to caches used only in outputs
@@ -79,6 +80,7 @@ const load_order = [
 	'dungeonRoomTemplates',
 	'dungeonTemplates',
 	'dungeons',
+	'questReward',
 	'quests',
 	
 	

@@ -158,6 +158,8 @@ export default class GameAction extends Generic{
 			if( this.type === GameAction.types.addPlayerTemplate )
 				this.data.player = this.getDataAsPlayerTemplate();
 
+			if( this.type === GameAction.types.learnAction )
+				this.data.conditions = Condition.loadThese(this.data.conditions);
 			
 		}
 
@@ -650,6 +652,11 @@ export default class GameAction extends Generic{
 			game.ui.draw();
 
 		}
+		else if( this.type === types.learnAction ){
+
+			console.log("Todo: learnAction");
+
+		}
 
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
@@ -718,6 +725,8 @@ GameAction.types = {
 	setDungeon : "setDungeon",				// {dungeon:(str)dungeon, room:(int)index} - Sets the dungeon. If you leave out dungeon, it targets your active dungeon
 	addFaction : "addFaction",				// {faction:(str)label, amount:(int)amount} - Adds or removes reputation
 	trade : "trade",						// {asset:(str)label, amount:(int)amount=1, from:(str)label/id, to:(str)label/id} - ID is checked first, then label. If either of from/to is unset, they use the event player.
+	learnAction : "learnAction",			// {conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0. Use conditions to filter. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.
+
 };
 
 // These are types where data should be sent to netgame players

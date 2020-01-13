@@ -1824,6 +1824,31 @@ out[id].stages.push(
 	}, out[id])
 );
 
+id = 'slimeBone';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_insect_dots',
+		emit_duration : 500,
+		sound_kits : ['boneShards'],
+		origin : 'attacker',
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_bone_shards',
+		emit_duration : 500,
+		origin : 'attacker',
+		hold : 500,
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_splat_sparks_discrete',
+		emit_duration : 200,
+		dest_rand : 0.25,
+		tween : false,
+		css_fx : 'fxTakeDamageCorruption',
+		sound_kits : ['squishLong'],
+	}, out[id]),
+);
+
 id = 'summonBones';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

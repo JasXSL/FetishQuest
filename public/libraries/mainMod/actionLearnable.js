@@ -184,8 +184,6 @@ const lib = {
 		action : 'monk_circleOfHarmony',
 		conditions : ["targetClassMonk"],
 	},
-	
-
 
 	gen_lowBlow : {
 		action : 'lowBlow',

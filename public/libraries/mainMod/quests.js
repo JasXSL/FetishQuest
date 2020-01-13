@@ -1,4 +1,4 @@
-import Quest, { QuestObjectiveEvent } from "../../classes/Quest.js";
+import Quest, { QuestObjectiveEvent, QuestReward } from "../../classes/Quest.js";
 //import C from './conditions.js';
 import Condition from "../../classes/Condition.js";
 import Asset from "../../classes/Asset.js";
@@ -27,8 +27,14 @@ const lib = {
 			}
 		],
 		rewards : [
-			{label:Asset.Dummies.label, name:'gold', _stacks:1},		// polymorph into a gold library object with 2 stacks
-			'whiteSwimtrunks',
+			{
+				type : QuestReward.Types.Asset,
+				data: {label:Asset.Dummies.label, name:'gold', _stacks:1},		// polymorph into a gold library object with 2 stacks
+			},
+			{
+				type : QuestReward.Types.Asset,
+				data : 'whiteSwimtrunks',
+			}
 		],
 		multiply_reward : true,
 		exp_multiplier : 2
@@ -49,7 +55,10 @@ const lib = {
 			}
 		],
 		rewards : [
-			{label:Asset.Dummies.label, name:'gold', _stacks:2},
+			{
+				type : QuestReward.Types.Asset,
+				data : {label:Asset.Dummies.label, name:'gold', _stacks:2}
+			}
 		],
 		multiply_reward : true,
 		exp_multiplier : 0.5,
@@ -65,27 +74,61 @@ const lib = {
 				label : 'boneConstruct',
 				name : 'Bone Construct Defeated',
 				amount : 1,
-				events : [] // Todo
+				events : [{
+					action : QuestObjectiveEvent.Actions.add,
+					data : {amount:1},
+					conditions : [
+						"eventIsEncounterDefeated",
+						{
+							"type" : Condition.Types.encounterLabel,
+							"data" : {label:"yuug_necromancer_construct"},
+							"targnr" : 0
+						},
+					],
+				}]
 			},
 			{
 				label : 'sewerExperiment',
 				name : 'Sewer Experiment Purged',
 				amount : 1,
-				events : []	// Todo
+				events : [{
+					action : QuestObjectiveEvent.Actions.add,
+					data : {amount:1},
+					conditions : [
+						"eventIsEncounterDefeated",
+						{
+							"type" : Condition.Types.encounterLabel,
+							"data" : {label:"yuug_necromancer_blob_boss"},
+							"targnr" : 0
+						},
+					],
+				}]
 			},
 		],
 		rewards : [
-			// Todo
-			{label:Asset.Dummies.label, name:'gold', _stacks:2},
+			{
+				type : QuestReward.Types.Action,
+				data : 'slimeBone',
+				conditions : [{conditions:['targetClassTentaclemancer', 'targetClassElementalist'], min:1}]
+			},
+			{
+				type : QuestReward.Types.Action,
+				data : 'improvedHexArmor',
+				conditions : [{conditions:['targetClassTentaclemancer', 'targetClassElementalist'], min:1}]
+			},
+			{
+				type : QuestReward.Types.Asset,
+				data : {label:Asset.Dummies.label, name:'gold', _stacks:2},
+			}
 		],
 		multiply_reward : true,
-		exp_multiplier : 4,
+		exp_multiplier : 2,
 	},
 
 	// Rod
 	["SQ_sharktopus_00"] : {
 		name : 'An Otter\'s Rod',
-		description : 'An otter in Yuug Portswood Isle has asked you to located his missing fishing rod somewhere on the island.',
+		description : 'An otter in Yuug Portswood Isle has asked you to locate his missing fishing rod somewhere on the island.',
 		objectives : [
 			{
 				label : 'fishingRodFound',
@@ -95,7 +138,10 @@ const lib = {
 			}
 		],
 		rewards : [
-			{label:Asset.Dummies.label, name:'silver', _stacks:2},
+			{
+				type : QuestReward.Types.Asset,
+				data : {label:Asset.Dummies.label, name:'silver', _stacks:2},
+			}
 		],
 		multiply_reward : true,
 		exp_multiplier : 0.1,
@@ -168,9 +214,9 @@ const lib = {
 			},
 		],
 		rewards : [
-			{label:Asset.Dummies.label, name:'food_FriedFish', _stacks:2},
-			{label:Asset.Dummies.label, name:'food_Ale', _stacks:2},
-			"healingPotion"
+			{data:{label:Asset.Dummies.label, name:'food_FriedFish', _stacks:2}},
+			{data:{label:Asset.Dummies.label, name:'food_Ale', _stacks:2}},
+			{data:"healingPotion"}
 		],
 		multiply_reward : true,
 		exp_multiplier : 4,

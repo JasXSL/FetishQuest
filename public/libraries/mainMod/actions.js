@@ -2967,6 +2967,31 @@ const lib = {
 			}
 		]
 	},
+	slimeBone : {
+		icon : 'bone-mace',
+		name : "Slime Bone",
+		description : "Summon up slimy bones to penetrate up to two exposed humanoid targets, doing 8 corruption damage to each.",
+		ap : 1,
+		mp : 2,
+		cooldown : 2,
+		max_targets : 2,
+		ranged : Action.Range.Ranged,
+		type : Action.Types.corruption,
+		tags : [stdTag.acArousing, stdTag.acDamage],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				add_conditions : stdCond.concat("targetNotBeast", 'targetHasUnblockedExposedVagButt'),
+				detrimental : true,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {amount:8},
+					},
+				]
+			}
+		]
+	},
 	hexArmor: {
 		icon : 'vibrating-ball',
 		name : "Hex Armor",
@@ -3000,6 +3025,45 @@ const lib = {
 						conditions : ["senderIsWrapperParent", "actionMelee", "rand50", "actionNotHidden"],
 						type : Effect.Types.damage,
 						data : {amount:2},
+					}
+				]
+			}
+		]
+	},
+	improvedHexArmor: {
+		icon : 'vibrating-ball',
+		name : "Hex Armor",
+		description : "Hexes your target's armor for 3 turns. While hexed, the target's melee actions have a 50% chance of causing their armor to vibrate, doing 3 corruption damage.",
+		ap : 2,
+		mp : 1,
+		cooldown : 2,
+		charges : 2,
+		type : Action.Types.corruption,
+		tags : [stdTag.acNpcIgnoreAggro, stdTag.acDebuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				target : Wrapper.Targets.auto,
+				icon : 'vibrating-ball',
+				name : 'Hex Armor',
+				description : 'Using a melee action has a 50% chance of causing corruption damage.',
+				duration : 3,
+				detrimental : true,
+				add_conditions : stdCond.concat({conditions:[
+					'targetWearsLowerBody',
+					{conditions:["targetWearsUpperBody", "targetBreasts"], min:-1}
+				], min:1}),
+				stay_conditions : stdCond.concat({conditions : [
+					'targetWearsLowerBody',
+					{conditions:["targetWearsUpperBody", "targetBreasts"], min:-1}
+				], min:1}),
+				effects : [
+					{
+						label : 'hexArmorProc',
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["senderIsWrapperParent", "actionMelee", "rand50", "actionNotHidden"],
+						type : Effect.Types.damage,
+						data : {amount:3},
 					}
 				]
 			}
@@ -3955,6 +4019,74 @@ const lib = {
 		]
 	},
 
+
+
+	itchingPowder : {
+		name : 'Itching Powder',
+		icon : 'hot-spices',
+		ranged : Action.Range.Melee,
+		description : 'Slips itching powder down your target\'s pants for 4 turns. At the start of each turn, the target gets 1 level of itch, reducing all hit chances by 10%.',
+		ap : 1,
+		cooldown : 4,
+		mp : 1,
+		hit_chance : 80,
+		charges: 2,
+		detrimental : true,
+		type : Action.Types.physical,
+		wrappers : [
+			{
+				duration : 6,
+				detrimental : true,
+				name : "Itching Powder",
+				icon : "hot-spices",
+				description : "You're feeling increasingly itchy",
+				trigger_immediate : true,
+				add_conditions : stdCond.concat("targetNotBeast","targetWearsLowerBody"),
+				stay_conditions : stdCond.concat("targetWearsLowerBody"),
+				effects : [
+					{
+						type : "runWrappers",
+						data : {
+							wrappers : [
+								{
+									label : "itch",
+									duration : 6,
+									max_stacks : 6,
+									name : "Itch",
+									icon : "wool",
+									detrimental : true,
+									description : "Hit chance reduced by 10% per stack",
+									effects : [
+										{type:"globalHitChanceMod",data:{"amount":-10}},
+										{type : "addActions",data:{"actions":["scratchItch"]}}
+									],
+								}
+							]
+						}
+					}
+				]
+			}
+		]
+	},
+	scratchItch : {
+		name : 'Scratch Itch',
+		icon : 'barbed-nails',
+		ranged : Action.Range.None,
+		description : 'Scratch your itch, removing any active stacks.',
+		ap : 2,
+		mp : 0,
+		hit_chance : 100,
+		detrimental : false,
+		type : Action.Types.physical,
+		wrappers : [
+			{
+				detrimental : false,
+				effects : [
+				   {type: "removeWrapperByLabel",data : {"label": "itch"}}
+				]
+			 }
+		]
+	},
 
 
 	
