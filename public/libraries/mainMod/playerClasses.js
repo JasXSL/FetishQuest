@@ -199,22 +199,51 @@ const lib = {
             "tentacle_fiend_tentatug",
         ]
     },
-    "imp": {
-        name : "Imp",
-        description : "",
+    impScavenger : {
+        name : "Scavenger",
+        name_type : PlayerClass.NameType.Suffix,
+        description : "An ordinary imp.",
+        label : "imp",
+        isMonsterClass : true,
+        actions : [
+            "imp_specialDelivery",
+            "imp_ankleBite",
+            "imp_blowFromBelow",
+            "whip_legLash",
+			"whip_powerLash",
+            "imp_claws",
+        ]
+    },
+    impTrickster : {
+        name : "Trickster",
+        name_type : PlayerClass.NameType.Suffix,
+        description : "An imp that moves more gracefully than normal imps.",
         label : "imp",
         isMonsterClass : true,
         actions : [
             "imp_specialDelivery",
             "imp_blowFromBelow",
-            "imp_ankleBite",
-            "imp_demonicPinch",
             "whip_legLash",
 			"whip_powerLash",
+            "low_blow",
             "imp_claws",
-            "low_blow"
+            "itchingPowder"
         ]
     },
+    impMage : {
+        name : "Mage",
+        name_type : PlayerClass.NameType.Suffix,
+        description : "An imp with glowing purple runes tattooed on its body.",
+        label : "imp",
+        isMonsterClass : true,
+        actions : [
+            "hexArmor",
+            "imp_demonicPinch",
+            "guardian_demon_remoteDelivery"
+        ]
+    },
+
+
     guardian_demon_breaker : {
         name : "Breaker",
         description : "",
@@ -258,6 +287,7 @@ const lib = {
     },
     skeletonRattler : {
         name : "Rattler",
+        name_type : PlayerClass.NameType.Suffix,
         description : "A regular skeleton with bony hands.",
         isMonsterClass : true,
         name_type : PlayerClass.NameType.Suffix,
@@ -270,6 +300,7 @@ const lib = {
     },
     skeletonMage : {
         name : "Mage",
+        name_type : PlayerClass.NameType.Suffix,
         description : "Skeletal spells usually involve bones or milk, or both!",
         isMonsterClass : true,
         name_type : PlayerClass.NameType.Suffix,
@@ -289,7 +320,8 @@ const lib = {
         name_type : PlayerClass.NameType.Suffix,
         actions: [
             'boneShards',
-            'hexArmor'
+            'hexArmor',
+            'slimeBone'
         ],
         intellect : 2,
     },

@@ -243,7 +243,7 @@ const lib = {
         bonHoly : -4,
 		bonCorruption : 2,
 		
-		class : 'imp',
+		class : 'impScavenger',
 		actions : [
 			'imp_specialDelivery',
 			'mq00_ward_boss'
@@ -922,7 +922,7 @@ const lib = {
 		intelligence : 0.5,
 		stamina : 8,
 		intellect : 3,
-		class : 'imp',
+		class : 'impScavenger',
 		svPhysical : 1,
         svElemental : -1,
         svHoly : -3,
@@ -970,7 +970,7 @@ const lib = {
         bonElemental : 0,
         bonHoly : -2,
         bonCorruption : 3,
-		class : 'imp',
+		class : 'impMage',
 		talkative : 0.5,
 		actions : [
 			"imp_ankleBite",

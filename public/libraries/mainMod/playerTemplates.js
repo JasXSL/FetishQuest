@@ -184,75 +184,7 @@ const lib = {
 		intelligence_max : 0.3,
 		required_assets : []
 	},
-	stunted_imp : {
-		name : "Stunted Imp",
-		icon : "",
-		species : "Imp",
-		description : "A short imp with a pointed tail and little horns.",
-		classes : [
-			"imp"
-		],
-		monetary_wealth : 10,
-		max_actions : 1,
-		tags : [
-			"pl_penis",
-			"pl_horns",
-			"pl_tail",
-			stdTag.plDishonorable,
-			stdTag.plTongue,
-			stdTag.plDemon,
-		],
-		min_level : 1,
-		max_level : 5,
-		primary_stats : {
-			"intellect":0,
-			"stamina":-4,
-			"agility":1
-		},
-		sv : {
-			"Physical":-1,
-			"Elemental":-2,
-			"Holy":-4,
-			"Corruption":0
-		},
-		bon : {
-			"Physical":0,
-			"Elemental":0,
-			"Holy":0,
-			"Corruption":1
-		},
-		viable_asset_materials : [
-			"cotton"
-		],
-		viable_asset_templates : [
-			"thong",
-			"shirt",
-			"loincloth"
-		],
-		viable_gear : [
-
-		],
-		gear_chance : 0.5,
-		min_size : 0,
-		max_size : 0,
-		difficulty : 1,
-		viable_consumables : [
-
-		],
-		sadistic_min : 0.5,
-		sadistic_max : 1,
-		dominant_min : 0.8,
-		dominant_max : 1,
-
-		hetero_min:0,
-		hetero_max:1,
-		intelligence_min : 0.4,
-		intelligence_max : 0.5,
-		required_assets : [
-
-		]
-	},
-
+	
 	lamprey : {
 		name : "Lamprey",
 		icon : "",
@@ -364,13 +296,76 @@ const lib = {
 		intelligence_max : 0.4
 	},
 	
+	stunted_imp : {
+		name : "Stunted Imp",
+		icon : "",
+		species : "Imp",
+		description : "A short imp with a pointed tail and little horns.",
+		classes : [
+			"impScavenger"
+		],
+		monetary_wealth : 10,
+		max_actions : 1,
+		tags : [
+			"pl_penis",
+			"pl_horns",
+			"pl_tail",
+			stdTag.plDishonorable,
+			stdTag.plTongue,
+			stdTag.plDemon,
+		],
+		min_level : 1,
+		max_level : 5,
+		primary_stats : {
+			[Player.primaryStats.intellect] : 0,
+			[Player.primaryStats.stamina] : -4,
+			[Player.primaryStats.agility] : 1
+		},
+		sv : {
+			[Action.Types.physical] : -1,
+			[Action.Types.elemental] : -2,
+			[Action.Types.holy] : -4,
+			[Action.Types.corruption] : 0,
+		},
+		bon : {
+			[Action.Types.physical] : 0,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : 0,
+			[Action.Types.corruption] : 1,
+		},
+		viable_asset_materials : [
+			"cotton"
+		],
+		viable_asset_templates : [
+			"thong",
+			"shirt",
+			"loincloth"
+		],
+		viable_gear : [],
+		gear_chance : 0.5,
+		min_size : 0,
+		max_size : 0,
+		difficulty : 1,
+		viable_consumables : [],
+		sadistic_min : 0.5,
+		sadistic_max : 1,
+		dominant_min : 0.8,
+		dominant_max : 1,
+
+		hetero_min:0,
+		hetero_max:1,
+		intelligence_min : 0.4,
+		intelligence_max : 0.5,
+		required_assets : []
+	},
+
 	imp : {
 		name : "Imp",
 		icon : "",
 		species : "Imp",
 		description : "A short imp with a pointed tail and little horns.",
 		classes : [
-			"imp"
+			"impScavenger", "impTrickster"
 		],
 		monetary_wealth : 20,
 		max_actions : 2,
@@ -386,21 +381,21 @@ const lib = {
 		min_level : 3,
 		max_level : 10,
 		primary_stats : {
-			"intellect":2,
-			"stamina":0,
-			"agility":1
+			[Player.primaryStats.intellect] : 0,
+			[Player.primaryStats.stamina] : -2,
+			[Player.primaryStats.agility] : 1
 		},
 		sv : {
-			"Physical":0,
-			"Elemental":0,
-			"Holy":-4,
-			"Corruption":0
+			[Action.Types.physical] : 0,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : -4,
+			[Action.Types.corruption] : 0,
 		},
 		bon : {
-			"Physical":0,
-			"Elemental":0,
-			"Holy":0,
-			"Corruption":3
+			[Action.Types.physical] : 0,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : 0,
+			[Action.Types.corruption] : 2,
 		},
 		viable_asset_materials : [
 			"cotton",
@@ -431,9 +426,7 @@ const lib = {
 		hetero_max:1,
 		intelligence_min : 0.4,
 		intelligence_max : 0.6,
-		required_assets : [
-
-		]
+		required_assets : []
 	},
 	darkImp : {
 		name : "Dark Imp",
@@ -441,7 +434,7 @@ const lib = {
 		species : "Imp",
 		description : "A short imp with a pointed tail and little horns, this one is emanating a dark aura and has a sizable member.",
 		classes : [
-			"imp"
+			"impScavenger", "impTrickster", "impMage"
 		],
 		monetary_wealth : 50,
 		max_actions : 3,
@@ -457,22 +450,23 @@ const lib = {
 		min_level : 5,
 		max_level : 15,
 		primary_stats : {
-			"intellect":4,
-			"stamina":2,
-			"agility":2
+			[Player.primaryStats.intellect] : 2,
+			[Player.primaryStats.stamina] : 0,
+			[Player.primaryStats.agility] : 2
 		},
 		sv : {
-			"Physical":0,
-			"Elemental":0,
-			"Holy":-4,
-			"Corruption":0
+			[Action.Types.physical] : 0,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : -4,
+			[Action.Types.corruption] : 2,
 		},
 		bon : {
-			"Physical":0,
-			"Elemental":0,
-			"Holy":0,
-			"Corruption":5
+			[Action.Types.physical] : 1,
+			[Action.Types.elemental] : 0,
+			[Action.Types.holy] : -4,
+			[Action.Types.corruption] : 4,
 		},
+
 		viable_asset_materials : [
 			"rawhide",
 			"shadowcloth"
@@ -483,9 +477,7 @@ const lib = {
 			"half_robe",
 			"loincloth"
 		],
-		viable_gear : [
-
-		],
+		viable_gear : [],
 		gear_chance : 0.5,
 		min_size : 0,
 		max_size : 1,
@@ -761,7 +753,7 @@ const lib = {
 		max_level : 20,
 		primary_stats : {
 			[Player.primaryStats.agility] : 1,
-			[Player.primaryStats.stamina] : -5,
+			[Player.primaryStats.stamina] : -2,
 			[Player.primaryStats.intellect] : -5
 		},
 		sv : {
