@@ -702,6 +702,20 @@ export default class Condition extends Generic{
 					}
 				}
 			}
+			else if( this.type === T.questCanHandIn ){
+
+				const d = toArray(this.data.quest);
+				for( let quest of game.quests ){
+					if( ~d.indexOf(quest.label) ){
+						// Quest found, see if it's ready to be handed in
+						if( quest.isCompleted() ){
+							success = true;
+							break;
+						}
+					}
+				}
+
+			}
 
 			else if( this.type === T.questObjectiveCompleted ){
 
@@ -1001,6 +1015,7 @@ Condition.Types = {
 	questAccepted : 'questAccepted',			
 	questCompleted : 'questCompleted',
 	questObjectiveCompleted : 'questObjectiveCompleted',
+	questCanHandIn : 'questCanHandIn',
 	actionRanged : 'actionRanged',
 	playerLabel : 'playerLabel',
 	numGamePlayersGreaterThan : 'numGamePlayersGreaterThan',
@@ -1074,6 +1089,7 @@ Condition.descriptions = {
 	[Condition.Types.questAccepted] : '{quest:(str/arr)quest} - Checks if a quest has been started, regardless of completion status',	
 	[Condition.Types.questCompleted] : '{quest:(str/arr)quest} - Checks if any of these quests are completed',	
 	[Condition.Types.questObjectiveCompleted] : '{quest:(str)quest_label, objective:(str)objective_label} - Checks if a quest objective is done',
+	[Condition.Types.questCanHandIn] : '{quest:(str/arr)quest} - Checks if a quest is ready to be handed in',
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',

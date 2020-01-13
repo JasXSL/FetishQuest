@@ -1,6 +1,7 @@
 // Library of actions that should show up in the spell learning system.
 // Tied to actions.js library
 import C from './conditions.js';
+import Condition from '../../classes/Condition.js';
 
 const lib = {
 
@@ -183,6 +184,24 @@ const lib = {
 	monk_circleOfHarmony : {
 		action : 'monk_circleOfHarmony',
 		conditions : ["targetClassMonk"],
+	},
+
+
+	necro_slimeBone : {
+		action : 'slimeBone',
+		cost : 0,
+		conditions : [
+			{type:Condition.Types.questCompleted, data:{quest:'necro_crypt'}},
+			{conditions:['targetClassTentaclemancer', 'targetClassElementalist'], min:1}
+		],
+	},
+	necro_improvedHexArmor : {
+		action : 'improvedHexArmor',
+		cost : 0,
+		conditions : [
+			{type:Condition.Types.questCompleted, data:{quest:'necro_crypt'}},
+			{conditions:['targetClassTentaclemancer', 'targetClassElementalist'], min:1}
+		],
 	},
 
 	gen_lowBlow : {

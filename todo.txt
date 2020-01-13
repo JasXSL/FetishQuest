@@ -1,34 +1,20 @@
+-- Permanent to keep an eye for --
+	- Keep redesigning errors to a try/catch system
+
 -- CURRENT --
 
 Bugs:
 	- Damage numbers not working when not hosting
-	- Loot menu should probably refresh for non-host
+	- Loot menu should refresh for non-host
 	- Empty loot chest anim not working on non-host
 
 Smol:	
-	- Add fog override to cells
-	- Enabling or disabling a mod while hosting should send a full game
+
 
 Medium rare:
-	- Keep redesigning errors to a try/catch system
-	- Character export/import
-	- Populate the bazaar
 
 
 Big chungi:
-	Add actions:
-	- Generic
-		- ???
-
-	Necromancer Quest:	
-		- Encounters:		
-			- Bone construct
-				- Add reward to cow
-
-		- Spell Rewards
-			???
-		- Additional reward:
-			???
 
 
 
@@ -70,6 +56,10 @@ Big chungi:
 
 
 LATER:
+	- Add fog override to cells
+	- Enabling or disabling a mod while hosting should send a full game
+	- Character export/import
+	- Populate the bazaar
 	- Show what mods a quest belongs to
 	- Quest editor (later)
 	- Game benefit for using a punishment (generic passive)

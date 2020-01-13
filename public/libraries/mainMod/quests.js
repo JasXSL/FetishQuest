@@ -107,16 +107,6 @@ const lib = {
 		],
 		rewards : [
 			{
-				type : QuestReward.Types.Action,
-				data : 'slimeBone',
-				conditions : [{conditions:['targetClassTentaclemancer', 'targetClassElementalist'], min:1}]
-			},
-			{
-				type : QuestReward.Types.Action,
-				data : 'improvedHexArmor',
-				conditions : [{conditions:['targetClassTentaclemancer', 'targetClassElementalist'], min:1}]
-			},
-			{
 				type : QuestReward.Types.Asset,
 				data : {label:Asset.Dummies.label, name:'gold', _stacks:2},
 			}

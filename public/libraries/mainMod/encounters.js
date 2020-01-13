@@ -1486,9 +1486,30 @@ const lib = {
 							index: 0,
 							text: "Welcome back, here for more training?",
 							options : [
+								{
+									text:'I actually cleared out your runaway experiments!', 
+									index:1,
+									conditions : [
+										{
+											type : Condition.Types.questCanHandIn,
+											data : {quest:'necro_crypt'}
+										}
+									],
+									game_actions : [
+										{type : GameAction.types.finishQuest,data : {quest:'necro_crypt'}},
+										{type:GameAction.types.addFaction, data:{faction:'yuug_necromancer', amount:100}}
+									]
+								},
 								{text:'[Leave]', index:-1, chat:RoleplayStageOption.ChatType.none},
 							],
 						},
+						{
+							index: 1,
+							text: "So I heard! Nicely done initiate... or should I say member? Here's a small reward, and your new rank grants you access to some of our spells... provided you have the aptitude to learn them!",
+							options : [
+								{text:'[Leave]', index:-1, chat:RoleplayStageOption.ChatType.none},
+							],
+						}
 					],
 				}}
 			},
