@@ -376,7 +376,7 @@ class QuestReward extends Generic{
 
 		// Cast into object. This is needed for online multiplayer.
 		if( this.type === QuestReward.Types.Asset )
-			this.data = Asset.loadThis(this.data);
+			this.data = Asset.convertDummy(Asset.loadThis(this.data));
 		if( this.type == QuestReward.Types.Action )
 			this.data = Action.loadThis(this.data);
 

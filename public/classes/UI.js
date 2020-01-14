@@ -2941,12 +2941,14 @@ export default class UI{
 			return game.dungeon.getActiveRoom().getAssetById(container.id);
 		}
 
+		if( !container )
+			this.modal.closeSelectionBox();
 
 		const playAnimation = container instanceof DungeonRoomAsset ? container._stage_mesh.userData.playAnimation : false;
-
 		this.modal.prepareSelectionBox(keepPosition);
-		const items = container.getLootableAssets();		// Both player and container have this method
 
+
+		const items = container.getLootableAssets();		// Both player and container have this method
 		if( !items.length )
 			return this.modal.closeSelectionBox();
 
@@ -2957,11 +2959,18 @@ export default class UI{
 			playAnimation("open");
 
 
-		this.modal.onPlayerChange(player, () => this.drawContainerLootSelector(
-			game.getPlayerById(player.id), 
-			getUpdatedContainer(container), 
-			true
-		));
+		if( container instanceof Player )
+			this.modal.onPlayerChange(player, () => this.drawContainerLootSelector(
+				game.getPlayerById(player.id), 
+				getUpdatedContainer(container), 
+				true
+			), true);
+		else
+			this.modal.onMapUpdate(() => this.drawContainerLootSelector(
+				game.getPlayerById(player.id), 
+				getUpdatedContainer(container), 
+				true
+			), true);
 		
 
 		this.modal.onSelectionBox(function(){

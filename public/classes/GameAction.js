@@ -371,7 +371,7 @@ export default class GameAction extends Generic{
 
 			if( !game.canTransport() )
 				return;
-			game.onRoomChange();
+			
 			game.dungeon.goToRoom( player, this.data.index );
 			playAnim("open");
 

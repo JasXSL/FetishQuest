@@ -959,6 +959,7 @@ export default class Game extends Generic{
 		this.dungeon = dungeon;
 		this.dungeon.previous_room = this.dungeon.active_room = room;
 		if( resetSaveState ){
+			this.renderer.uncacheDungeon(dungeon.id);
 			this.dungeon.resetRoleplays();
 			this.dungeon.resetState();
 		}else{

@@ -1465,6 +1465,13 @@ LibMesh.library = {
 						loop : THREE.LoopOnce,
 					}
 				},
+				afterStagePlaced : function( dungeonAsset, mesh ){
+					
+					if( !dungeonAsset.isInteractive() ){
+						mesh.userData.playAnimation("idle_opened");
+					}
+
+				},
 			}),
 		},
 		Emitters : {

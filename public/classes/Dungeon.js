@@ -269,6 +269,7 @@ class Dungeon extends Generic{
 		if( this.transporting )
 			return false;
 
+		game.onRoomChange();
 		this.transporting = true;
 		this.previous_room = this.active_room;
 		if( this.getRoomByIndex(index) )

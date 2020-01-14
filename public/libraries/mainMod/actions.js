@@ -3726,7 +3726,7 @@ const lib = {
 		wrappers : [
 			{
 				duration : 10,
-				stacking : 10,
+				max_stacks : 10,
 				name : "Slime Coat",
 				icon : "heavy-rain",
 				description : "Deals 1 corruption damage per stack at the start of your turn. Can be removed by wet effects.",
@@ -4215,7 +4215,7 @@ const lib = {
 		]
 	},
 
-	sewerWater : { // Todo: texts
+	sewerWater : {
 		icon : 'water-flask',
 		name : "Throw Sewer Water",
 		description : "Throws sewer water at your target, reducing their elemental avoidance by 2 for 2 turns.",
@@ -4223,6 +4223,7 @@ const lib = {
 		cooldown : 1,
 		show_conditions : ["inCombat"],
 		tags : [],
+		type : Action.Types.elemental,
 		hit_chance : 80,
 		wrappers : ['soak'],
 		allow_self : true

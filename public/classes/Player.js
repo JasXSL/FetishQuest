@@ -2411,13 +2411,14 @@ export default class Player extends Generic{
 	}
 
 	// Returns nr actions interrupted successfully
-	interrupt( sender ){
+	interrupt( sender, force = false ){
+		
 		let actions = this.isCasting();
 		if( !actions )
 			return 0;
 		let out = 0;
 		for( let action of actions ){
-			if( action.interrupt(sender) )
+			if( action.interrupt(sender, force) )
 				++out;
 		}
 		return out;
@@ -2493,7 +2494,6 @@ export default class Player extends Generic{
 			this._stun_diminishing_returns += wrapper._duration*2;
 
 		}
-		
 		if( isStun.length )
 			this.interrupt( wrapper.getCaster(), true );
 

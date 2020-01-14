@@ -22,8 +22,14 @@ export default class Modal{
 		
 		this.open = false;
 		this._onPlayerChange = {};		// playerUUID : function
-		this._onShopChange = {};		// playerUUID : function
-		this.onMapChange = [];			// callbacks
+		this._onShopChange = {};		// shopUUID : function
+		this._onMapChange = [];			// callbacks
+
+		// Same but for selection box. The above can be deleted when the modal move is done
+		this._onPlayerChangeSel = {};		// playerUUID : function
+		this._onShopChangeSel = {};		// shopUUID : function
+		this._onMapChangeSel = [];			// callbacks
+
 		this.selBoxOpened = Date.now();		// Prevents misclicks
 		this._onSelectionBoxClose = null;
 		this._onModalClose = null;
@@ -114,24 +120,38 @@ export default class Modal{
 
 	/* EVENT BINDERS */
 	// Needs to be called after set, since set and close wipes all events
-	onPlayerChange(player, fn){
-		this._onPlayerChange[player instanceof Player ? player.id : player] = fn;
+	onPlayerChange(player, fn, selBox = false){
+		const targ = !selBox ? this._onPlayerChange : this._onPlayerChangeSel;
+		targ[player instanceof Player ? player.id : player] = fn;
 	}
-	onShopChange(shop, fn){
-		this._onShopChange[shop] = fn;
+	onShopChange(shop, fn, selBox = false){
+		const targ = !selBox ? this._onShopChange : this._onShopChangeSel;
+		targ[shop] = fn;
 	}
 	// The map has been changed
-	onMapUpdate(fn){
-		this.onMapChange.push(fn);
+	onMapUpdate(fn, selBox = false){
+		const targ = !selBox ? this._onMapChange : this._onMapChangeSel;
+		targ.push(fn);
 	}
 	// The small selectionBox tooltip has been closed
 	onSelectionBoxClose( callback ){
 		this._onSelectionBoxClose = callback;
 	}
-	wipeEvents(){
-		this._onPlayerChange = {};
-		this._onShopChange = {};
-		this.onMapChange = [];
+	wipeEvents( selBox = false ){
+		if( !selBox ){
+			
+			this._onPlayerChange = {};
+			this._onShopChange = {};
+			this._onMapChange = [];
+
+		}
+		else{
+
+			this._onPlayerChangeSel = {};
+			this._onShopChangeSel = {};
+			this._onMapChangeSel = [];
+			
+		}
 	}
 
 
@@ -140,20 +160,38 @@ export default class Modal{
 	onGameUpdate( changes ){
 
 		if( changes.players ){
+
 			for( let p of changes.players ){
-				if( 
-					Object.keys(p).length > 1 && 
-					this._onPlayerChange[p.id]
-				)this._onPlayerChange[p.id]();
+
+				if( Object.keys(p).length < 2 )
+					continue;
+
+				if( this._onPlayerChange[p.id] )
+					this._onPlayerChange[p.id]();
+
+				if( this._onPlayerChangeSel[p.id] )
+					this._onPlayerChangeSel[p.id]();
+
 			}
+
 		}
 
 		if( changes.state_shops ){
-			this.onShopChange(changes.state_shops);
+
+			for( let s of changes.state_shops ){
+				
+				if( this._onShopChange[s.id] )
+					this._onShopChange[s.id]();
+				if( this._onShopChangeSel[s.id] )
+					this._onShopChangeSel[s.id]();
+								
+			}
+
 		}
 
 		if( changes.dungeon ){
-			this.onMapChange.map(fn => fn());
+			this._onMapChange.map(fn => fn());
+			this._onMapChangeSel.map(fn => fn());
 		}
 
 	}
@@ -226,6 +264,7 @@ export default class Modal{
 			this._onSelectionBoxClose();
 			this._onSelectionBoxClose = null;
 		}
+		this.wipeEvents( true );
 		this.selectionbox.toggleClass('hidden', true);
 	}
 

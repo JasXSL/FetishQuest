@@ -1070,11 +1070,11 @@ const lib = {
 		game_actions : [
 			{
 				type : GameAction.types.roleplay,
-				persistent : true,
-				once : true,
 				data : {rp:{
 					label: 'yuug_farmer',
 					player : 'yuug_farmer',
+					persistent : true,
+					once : true,
 					stages : [
 						{
 							index: 0,
