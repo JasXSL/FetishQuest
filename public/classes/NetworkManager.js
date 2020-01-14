@@ -4,6 +4,7 @@ import { AudioKit } from './Audio.js';
 import HitFX from './HitFX.js';
 import Comparer from './Comparer.js';
 import ActionLearnable from './ActionLearnable.js';
+import Player from './Player.js';
 
 class NetworkManager{
 
@@ -895,6 +896,17 @@ class NetworkManager{
 				return;
 			game.ui.toggleRope(sec);
 		}
+		else if( task === NetworkManager.dmTasks.floatingCombatText ){
+			
+			const amt = parseInt(args.amount),
+				player = args.player,
+				type = args.type || ''
+			;
+			if( !amt || !player )
+				return;
+			game.ui.floatingCombatText(amt, player, type);
+
+		}
 
 
 	}
@@ -1272,6 +1284,14 @@ class NetworkManager{
 		this.sendHostTask(NetworkManager.dmTasks.blackScreen, {});
 	}
 
+	dmFloatingCombatText( amount, player, type ){
+		this.sendHostTask(NetworkManager.dmTasks.floatingCombatText, {
+			amount : amount,
+			player : player instanceof Player ? player.id : player,
+			type : type
+		});
+	}
+
 }
 
 // Send tasks from DM to player
@@ -1292,6 +1312,7 @@ NetworkManager.dmTasks = {
 	rope : 'rope',									// {player:(str)player_id, dur:(int)seconds} - Starts the turn timer rope for the player
 	blackScreen : 'blackScreen',					// void - Triggers a black screen visual
 	afk : 'afk',									// {id:(bool)afk...} - Sends AFK status to all players
+	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type}
 };
 
 // Player -> DM

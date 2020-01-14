@@ -3391,12 +3391,17 @@ export default class UI{
 
 	floatingCombatText(amount, player, type = ''){
 
-		if( amount !== undefined )
+		if( amount !== undefined ){
+			
 			this.fctQue.push({
 				amount : amount,
-				player : player.id,
+				player : player instanceof Player ? player.id : player,
 				type : type
 			});
+			if( game.is_host && game.net.isConnected() )
+				game.net.dmFloatingCombatText(amount, player.id, type);
+
+		}
 		if( this.fctTimer || !this.fctQue.length )
 			return;
 
@@ -3437,6 +3442,7 @@ export default class UI{
 		setTimeout(() => {
 			el.toggleClass('hidden free', true).toggleClass(type, false);
 		}, 3500);
+
 
 	}
 
