@@ -1,3 +1,5 @@
+import Player from "./Player.js";
+
 /*
 
 	The modal is the overlay which has the player info, 3d dungeon map etc
@@ -113,7 +115,7 @@ export default class Modal{
 	/* EVENT BINDERS */
 	// Needs to be called after set, since set and close wipes all events
 	onPlayerChange(player, fn){
-		this._onPlayerChange[player] = fn;
+		this._onPlayerChange[player instanceof Player ? player.id : player] = fn;
 	}
 	onShopChange(shop, fn){
 		this._onShopChange[shop] = fn;
@@ -150,7 +152,7 @@ export default class Modal{
 			this.onShopChange(changes.state_shops);
 		}
 
-		if( changes.dungeon && !game.is_host ){
+		if( changes.dungeon ){
 			this.onMapChange.map(fn => fn());
 		}
 

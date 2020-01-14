@@ -1458,19 +1458,29 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	remLootById( id ){
+
 		const viable = this.getViableInteractions();
 		for( let v of viable ){
+			
 			if( v.type === GameAction.types.loot ){
+
 				for( let i in v.data ){
+
 					if( v.data[i].id === id ){
+
 						v.data.splice(i, 1);
 						if( !v.data.length )
 							v.remove();
 						return true;
+
 					}
+
 				}
+
 			}
+
 		}
+
 	}
 
 	// Loots id from this.

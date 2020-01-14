@@ -4,8 +4,7 @@
 -- CURRENT --
 
 Bugs:
-	- Loot menu should refresh for non-host
-	- Empty loot chest anim not working on non-host
+
 
 Smol:	
 

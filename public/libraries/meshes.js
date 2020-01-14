@@ -1412,7 +1412,14 @@ LibMesh.library = {
 					// Opening and closing a chest is local
 					let stage = mesh.userData._stage;
 					stage.playSound(mesh, 'media/audio/chest_open.ogg', 0.5);
-				}
+				},
+				afterStagePlaced : function( dungeonAsset, mesh ){
+					
+					if( !dungeonAsset.isInteractive() ){
+						mesh.userData.playAnimation("idle_opened");
+					}
+
+				},
 			}),
 			LootBag : new LibMesh({
 				url : 'containers/lootbag_1x1.JD',

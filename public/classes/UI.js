@@ -2934,11 +2934,19 @@ export default class UI{
 	// Draws a loot selector for container. Container is a DungeonAsset OR Player
 	drawContainerLootSelector( player, container, keepPosition = false ){
 
+		// Returns an up to date container (the object pointers may change due to netcode)
+		const getUpdatedContainer = function( container ){
+			if( container instanceof Player )
+				return game.getPlayerById(container.id);
+			return game.dungeon.getActiveRoom().getAssetById(container.id);
+		}
+
+
 		const playAnimation = container instanceof DungeonRoomAsset ? container._stage_mesh.userData.playAnimation : false;
-		const th = this;
 
 		this.modal.prepareSelectionBox(keepPosition);
 		const items = container.getLootableAssets();		// Both player and container have this method
+
 		if( !items.length )
 			return this.modal.closeSelectionBox();
 
@@ -2947,17 +2955,27 @@ export default class UI{
 		}
 		if( playAnimation )
 			playAnimation("open");
+
+
+		this.modal.onPlayerChange(player, () => this.drawContainerLootSelector(
+			game.getPlayerById(player.id), 
+			getUpdatedContainer(container), 
+			true
+		));
 		
+
 		this.modal.onSelectionBox(function(){
 
 			let asset = $(this).attr('data-id');
 			container.lootToPlayer(asset, player);			// Both player and DungeonRoomAsset have this method
-			th.drawContainerLootSelector(player, container, true);
-			
+
 		});
 		this.modal.onSelectionBoxClose(() => {
-			if( playAnimation && container.isInteractive() )
+
+			const c = getUpdatedContainer(container);
+			if( playAnimation && c.isInteractive() )
 				playAnimation("idle");
+				
 		});
 		this.bindTooltips();
 

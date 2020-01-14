@@ -929,7 +929,7 @@ class NetworkManager{
 		if( typeof data !== "object" )
 			return;
 
-		console.debug("Got game data", data);
+		//console.debug("Got game data", data);
 
 		if( this.debug )
 			console.debug("Game update received", data);
