@@ -986,6 +986,7 @@ class Effect extends Generic{
 				}));
 				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
+				amt = Math.floor(amt);
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
 				t.addHP(amt, s, this, true);
 			}

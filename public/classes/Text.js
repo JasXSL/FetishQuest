@@ -73,7 +73,8 @@ class Text extends Generic{
 		this.en = true;					// enabled
 
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
-		this._cache_event = null;			// Cache of event type supplied in conditions. Should speed things up.
+		this._cache_event = null;		// Cache of event type supplied in conditions. Should speed things up.
+		this._cache_action = null;		// Cache of the action involved, since most texts are tied to an action.
 
 		this.load(...args);
 	}
@@ -105,12 +106,20 @@ class Text extends Generic{
 		this.hitfx = HitFX.loadThese(this.hitfx);
 
 		for( let condition of this.conditions ){
+			
 			if( condition.type === Condition.Types.event ){
 				this._cache_event = {};
 				let evts = toArray(condition.data.event);
 				for( let n of evts)
 					this._cache_event[n] = true;
 			}
+			else if( condition.type === Condition.Types.actionLabel ){
+				this._cache_action = {};
+				let actions = toArray(condition.data.label);
+				for( let n of actions )
+					this._cache_action[n] = true;
+			}
+
 		}
 
 	}
@@ -341,6 +350,28 @@ class Text extends Generic{
 		
 	}
 
+	// Helper for _cache_action
+	testAliases( event ){
+		
+		if( !event.action && (!event.custom.original || !event.custom.original.action) )
+			return false;
+
+		let names = [];
+		if( event.action )
+			names = names.concat(event.action.label, event.action.alias);
+		if( event.custom.original && event.custom.original.action )
+			names = names.concat(event.custom.original.action.label, event.custom.original.action.alias);
+
+		for( let name of names ){
+			
+			if( this._cache_action[name] )
+				return true;
+
+		}
+		return false;
+
+	}
+
 	// Validate conditions
 	validate( event, debug, chatPlayer ){
 
@@ -350,12 +381,19 @@ class Text extends Generic{
 		if( debug )
 			console.debug("Validating", this, "against", event);
 
+		const original = event.custom.original;
 		if( 
 			this._cache_event && !this._cache_event[event.type] &&
-			(!event.custom.original || !this._cache_event[event.custom.original.type])
+			(!original || !this._cache_event[original.type])
 		){
 			if( debug )
 				console.debug("FAIL because this._cache_event:", this._cache_event);
+			return false;
+		}
+
+		if( this._cache_action && !this.testAliases(event) ){
+			if( debug )
+				console.debug("FAIL because this._cache_action");
 			return false;
 		}
 
@@ -489,84 +527,82 @@ Text.actionChargeFallbackText = new Text({
 
 Text.runFromLibrary = function( event, debug = false ){
 
-	for( let player of game.players )
-		player.cacheTags();
-	
-	let t = event.target;
-	if( !Array.isArray(t) )
-		t = [t];
-	t = t.slice();
-
-	// Try to trigger a text on each player
-	while( t.length ){
-
-		let text = this.getFromEvent( event, debug );
-
-		// No text for this person
-		if( !text ){
-			// Action used needs to have a text, we'll create a template one
-			if( event.type === GameEvent.Types.actionUsed && event.action && !event.action.hidden ){
-				Text.actionFallbackText.run(event);
-			}
-			if( event.type === GameEvent.Types.actionCharged && event.action && !event.action.hidden )
-				Text.actionChargeFallbackText.run(event);
-			t.shift();
-		}else{
-
-			text.run(event);
-
-			let nt = text.numTargets;
-			if( nt === -1 )
-				nt = t.length;
-			t.splice(0,nt);
-
-			// Only allows one text per action
-			if( text.chat )
-				break;
-		}
-
-		event = event.clone();
-		event.target = t.slice();
-
-	}
-
-	// Emulate chat events on all players for these types
-	if( ~this.CheckAllPlayerChatEvents.indexOf(event.type) ){
+	game.lockPlayersAndRun(() => {
 		
-		const players = game.getEnabledPlayers();
-		const evt = event.clone();
-		evt.type = GameEvent.Types.textTrigger;
-		if( !evt.custom )
-			evt.custom = {};
-		evt.custom.original = event;
-		
-		for( let player of players ){
+		let t = event.target;
+		if( !Array.isArray(t) )
+			t = [t];
+		t = t.slice();
 
-			evt.sender = player;
-			evt.raise();
-			const pl = players.slice();
-			shuffle(pl);
-			for( let t of players ){
+		// Try to trigger a text on each player
+		while( t.length ){
 
-				if( t === player )
-					continue;
+			let text = this.getFromEvent( event, debug );
 
-				evt.target = t;
-				const text = this.getFromEvent(evt);
-				//console.log("Scanned text", player, t, "=", text);
-				if( text ){
-					text.run(evt);
-					break;
+			// No text for this person
+			if( !text ){
+				// Action used needs to have a text, we'll create a template one
+				if( event.type === GameEvent.Types.actionUsed && event.action && !event.action.hidden ){
+					Text.actionFallbackText.run(event);
 				}
-				//console.trace("Raising", evt.clone());
+				if( event.type === GameEvent.Types.actionCharged && event.action && !event.action.hidden )
+					Text.actionChargeFallbackText.run(event);
+				t.shift();
+			}else{
+
+				text.run(event);
+
+				let nt = text.numTargets;
+				if( nt === -1 )
+					nt = t.length;
+				t.splice(0,nt);
+
+				// Only allows one text per action
+				if( text.chat )
+					break;
 			}
 
-		}
-		
-	}
+			event = event.clone();
+			event.target = t.slice();
 
-	for( let player of game.players )
-		player.uncacheTags();
+		}
+
+		// Emulate chat events on all players for these types
+		if( ~this.CheckAllPlayerChatEvents.indexOf(event.type) ){
+			
+			const players = game.getEnabledPlayers();
+			const evt = event.clone();
+			evt.type = GameEvent.Types.textTrigger;
+			if( !evt.custom )
+				evt.custom = {};
+			evt.custom.original = event;
+			
+			for( let player of players ){
+
+				evt.sender = player;
+				evt.raise();
+				const pl = players.slice();
+				shuffle(pl);
+				for( let t of players ){
+
+					if( t === player )
+						continue;
+
+					evt.target = t;
+					const text = this.getFromEvent(evt);
+					//console.log("Scanned text", player, t, "=", text);
+					if( text ){
+						text.run(evt);
+						break;
+					}
+					//console.trace("Raising", evt.clone());
+				}
+
+			}
+			
+		}
+
+	});
 
 }
 

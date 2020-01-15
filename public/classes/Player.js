@@ -121,6 +121,8 @@ export default class Player extends Generic{
 		this._difficulty = 1;					// Added from monster template, used in determining exp rewards
 		this._bound_wrappers = [];
 		this._cache_tags = null;					// Holds all active tags in a cache for quicker validation
+		this._cache_effects = null;					// Holds all active effects in a cache for quicker validation
+		this._cache_wrappers = null;				// == || ==
 		this._cache_stamina = false;
 		this.load(data);
 		
@@ -278,17 +280,11 @@ export default class Player extends Generic{
 			wrapper.unbindEvents();
 	}
 
-	cacheTags(){
-		let tags = this.getTags(undefined, true);
-		this._cache_tags = {};
-		for( let tag of tags ){
-			this._cache_tags[tag] = true;
-		}
-		this._cache_tags = Object.keys(this._cache_tags);
-	}
 
-	uncacheTags(){
+	uncache(){
 		this._cache_tags = null;
+		this._cache_effects = null;
+		this._cache_wrappers = null;
 	}
 
 
@@ -619,9 +615,9 @@ export default class Player extends Generic{
 	}
 
 	// Overrides the generic definition for this
-	getTags(wrapperReturn, force = false){
+	getTags( wrapperReturn, force = false ){
 
-		if( this._cache_tags && !force )
+		if( game._caches && this._cache_tags && !force )
 			return this._cache_tags;
 
 		let out = {};
@@ -680,7 +676,11 @@ export default class Player extends Generic{
 		if( window.game && game.dungeon instanceof Dungeon )
 			game.dungeon.getTags().map(t => out[t.toLowerCase()] = true);
 
-		return Object.keys(out);
+		const ret = Object.keys(out);
+		if( game._caches )
+			this._cache_tags = ret;
+
+		return ret;
 
 	}
 
@@ -2442,10 +2442,13 @@ export default class Player extends Generic{
 
 
 	/* Wrappers */
-	getWrappers(){
+	getWrappers( force = false ){
 
 		if( !window.game )
 			return [];
+
+		if( game._caches && this._cache_wrappers && !force )
+			return this._cache_wrappers;
 
 		let out = this.wrappers.concat(this.passives, game.encounter.passives.map(el => { 
 			/*
@@ -2463,7 +2466,11 @@ export default class Player extends Generic{
 		}
 
 
-		return out.concat(this.auto_wrappers);
+		const ret = out.concat(this.auto_wrappers);
+		if( game._caches )
+			this._cache_wrappers = ret;
+
+		return ret;
 
 	}
 
@@ -2524,10 +2531,13 @@ export default class Player extends Generic{
 	
 	/* Effects */
 	// Gets all effects (effects on other players may affect you if the target is you or AoE)
-	getEffects(){
+	getEffects( force = false ){
 
 		if( !window.game )
 			return [];
+
+		if( game._caches && this._cache_effects && !force )
+			return this._cache_effects;
 
 		let out = new Map();
 		for( let player of game.getEnabledPlayers() ){
@@ -2538,7 +2548,11 @@ export default class Player extends Generic{
 					out.set(effect, true);
 			}
 		}
-		return Array.from(out.keys());
+
+		out = Array.from(out.keys());
+		if( game._caches )
+			this._cache_effects = out;
+		return out;
 
 	}	
 	getDisabledLevel(){

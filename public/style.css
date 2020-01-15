@@ -1185,21 +1185,27 @@ div.fxBuffRed{
 /* Players */
 	#ui > div.players{
 		position: absolute;
-		top:0; left:0; right:0; bottom:4.25vh;
+		top:0; left:0; right:0; bottom:7vh;
 		pointer-events: none;
 	}
 
-	#ui > div.players > div.left{
+	#ui > div.players > div{
+		display:flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 26vw;
+		top:0;
+		bottom:0;
 		position: absolute;
-		top:0; left:0;
-		width:26vw;
 		text-align: center;
 	}
+
+	#ui > div.players > div.left{
+		left:0;
+	}
 	#ui > div.players > div.right{
-		position: absolute;
-		top:0; right:0;
-		width:26vw;
-		text-align: center;
+		right:0;
 	}
 	#ui > div.players div.player{
 		margin-left:0;
@@ -1788,16 +1794,12 @@ div.fxBuffRed{
 
 /* Portraits based on player size */
 	#ui > div.players div.p2 div.player{
-		height:34vh;
 	}
 	#ui > div.players div.p3 div.player{
-		height:28vh;
 	}
 	#ui > div.players div.p4 div.player{
-		height:20.8vh;
 	}
 	#ui > div.players div.p5 div.player{
-		height:16.5vh;
 	}
 	#ui > div.players div.p6 div.player,
 	#ui > div.players div.p7 div.player,
@@ -1805,20 +1807,20 @@ div.fxBuffRed{
 	#ui > div.players div.p9 div.player,
 	#ui > div.players div.p10 div.player
 	{
-		height:13.5vh;
 	}
 
 
 
 
 	#ui > div.players div.player{
-		width:25.5vw; height:40vh;
-		display: inline-block;
+		width:25.5vw;
 		margin-bottom:0;
 		margin-top:0.25vmax;
 		user-select: none;
 		-moz-user-select: none;
 		cursor:pointer;
+		flex-grow: 1;
+		max-height:40vh;
 	}
 	@keyframes kfTargetSelector{
 		from{box-shadow:0 0 1vmax #FFA;}

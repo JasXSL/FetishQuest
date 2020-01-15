@@ -3893,12 +3893,12 @@ const lib = {
 				effects:[
 					{
 						type : Effect.Types.addHP,
-						data : {amount:'se_MaxHP*0.05'}
+						data : {amount:'g_team_0*2'}
 					},
 					{
 						targets : [Wrapper.TARGET_CASTER],
 						type : Effect.Types.addHP,
-						data : {amount:'-ta_MaxHP*0.05'}
+						data : {amount:'-g_team_0*2'}
 					},
 				]
 			}

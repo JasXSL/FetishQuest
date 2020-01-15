@@ -1660,7 +1660,7 @@ const lib = {
 											{
 												type:GameAction.types.addInventory,
 												data:{
-													asset:'food_HumanoidMilk',
+													asset:'necromanticMilker',
 												}
 											}
 										]}]
@@ -1673,8 +1673,8 @@ const lib = {
 						],
 						conditions : [
 							{type:Condition.Types.hasActiveConditionalPlayer, data:{conditions:[
-								{type:Condition.Types.defeated, inverse:true},
-								{type:Condition.Types.playerLabel, data:{label:'necro_construct_slave'}}
+								{type:Condition.Types.defeated, inverse:true, targnr:0},
+								{type:Condition.Types.playerLabel, data:{label:'necro_construct_slave'}, targnr:0}
 							]}}
 						]
 					}

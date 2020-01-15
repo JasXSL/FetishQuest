@@ -913,11 +913,11 @@ Condition.all = function( conditions, event, debug ){
 
 		if( !cond.test(event, debug) )
 			return false;
-
 		
 	}
 
 	return true;
+
 
 }
 

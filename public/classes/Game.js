@@ -91,6 +91,7 @@ export default class Game extends Generic{
 
 		this._turn_timer = false;						// Timeout handling end of turn
 		this._db_save_timer = null;						// Timer to store on HDD		
+		this._caches = 0;								// Level of depth of cache requests we're at
 
 	}
 
@@ -217,6 +218,7 @@ export default class Game extends Generic{
 
 	async execSave( allowInsert, ignoreNetGame ){
 
+		let time = Date.now();
 		if( !this.initialized && !allowInsert ){
 			console.error("ini error");
 			this.ui.modal.addError("Unable to save, game failed to intialize");
@@ -232,12 +234,11 @@ export default class Game extends Generic{
 		if( this.dungeon.transporting )
 			return;
 
-		let time = Date.now();
+		
 		if( !ignoreNetGame )
 			this.net.sendGameUpdate();
 		this.ignore_netgame = true;
 
-		time = Date.now();
 		localStorage.game = this.id;
 
 		// First insert
@@ -253,6 +254,9 @@ export default class Game extends Generic{
 				this.saveToDB(this.getSaveData(true));
 			}, 3000);
 		}
+
+		//console.log("Save took", Date.now()-time);
+
 		
 	}
 
@@ -1590,7 +1594,23 @@ export default class Game extends Generic{
 		}
 	}
 
+	// Temporarily enables caches on players to speed things up
+	lockPlayersAndRun( fn ){
 
+		let cached = this._caches;
+		if( !cached )
+			this._caches = true;
+
+		const out = fn();
+		if( !cached ){
+			this._caches = false;
+			for( let player of this.players )
+				player.uncache();
+		}
+		return out;
+
+	}	
+	
 	
 
 
@@ -1809,7 +1829,7 @@ export default class Game extends Generic{
 			else 
 				this.onEncounterLost(standing[0]);
 
-			new GameEvent({type:evt, encounter:this.encounter, dungeon:this.encounter.getDungeon()}).raise();
+			new GameEvent({type:evt, encounter:this.encounter, dungeon:this.encounter.getDungeon(), target:game.players}).raise();
 
 		}
 
@@ -1929,7 +1949,6 @@ export default class Game extends Generic{
 	// netPlayer is needed when received by the DM after a player uses this method; so that certain effects like repair can be relayed
 	useActionOnTarget( action, targets, player, netPlayer ){
 
-
 		if( !player )
 			player = this.getTurnPlayer();
 
@@ -1948,7 +1967,6 @@ export default class Game extends Generic{
 		if( !Array.isArray(targets) )
 			return console.error("Unknown target type (array or Player expected)", targets);
 
-		
 		targets = targets.filter(targ => !targ.isInvisible());
 
 		if( !this.is_host ){
@@ -1957,14 +1975,16 @@ export default class Game extends Generic{
 		}else
 			this.ui.captureActionMessage = true;
 		
-		let att = player.useActionId( action.id, targets, netPlayer );
-		
+		// Can't use caching here, or some texts will fail
+		const att = player.useActionId( action.id, targets, netPlayer )
+	
 		Wrapper.checkAllStayConditions();
 
 		this.save();
 		this.ui.draw();
 		this.ui.flushMessages();
 		this.checkEndTurn();
+
 		return att;
 
 	}

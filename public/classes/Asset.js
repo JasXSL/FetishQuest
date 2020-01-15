@@ -54,6 +54,10 @@ export default class Asset extends Generic{
 	// Data that should be saved to drive
 	save( full ){
 
+		let ua = this.use_action;
+		if( ua && ua.save )
+			ua = ua.save(full);
+
 		let out = {
 			name : this.name,
 			slots : this.slots,
@@ -67,7 +71,7 @@ export default class Asset extends Generic{
 			durability : this.durability,
 			weight : this.weight,
 			charges : this.charges,
-			use_action : this.use_action !== null ? this.use_action.save(full) : null,
+			use_action : ua,
 			rarity : this.rarity,
 			loot_sound : this.loot_sound,
 			icon : this.icon,

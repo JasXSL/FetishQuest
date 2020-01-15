@@ -21,7 +21,8 @@ class NetworkManager{
 		this._last_push = null;
 		this._pre_push_time = 0;		// Time of last push
 		this.timer_reconnect = null;
-		
+		this.comparer = new Comparer();
+
 		// This is for debugging purposes
 		setTimeout(() => {
 			this._last_push = parent.getSaveData();
@@ -247,7 +248,7 @@ class NetworkManager{
 
 	// Debugging
 	runComparer( data ){
-		return new Comparer().compare(this._last_push, data) ;
+		return this.comparer.compare(this._last_push, data) ;
 	}
 
 
@@ -273,13 +274,18 @@ class NetworkManager{
 			return;
 
 		// Auto
+		let time = Date.now();
 		const current = game.getSaveData();
 		if( this.debug )
 			console.debug("Full SaveData", current);
+		//console.log("Getting save data took", Date.now()-time); time = Date.now();
+
 		const changes = this.runComparer( current );
+		//console.log("Running comparer took", Date.now()-time); time = Date.now();
 
 		if( this.debug )
 			console.debug("Game changes", changes);
+
 		if( !Object.keys(changes).length )
 			return;
 

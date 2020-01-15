@@ -568,6 +568,8 @@ class Action extends Generic{
 		if( !this.castable(true, isChargeFinish) )
 			return;
 
+		let time = Date.now();
+
 		let sender = this.getPlayerParent();
 
 		if( !Array.isArray(targets) )
@@ -673,7 +675,7 @@ class Action extends Generic{
 
 				
 		}
-		
+
 		if( hits.length ){
 			
 			let evt = new GameEvent({
@@ -683,12 +685,12 @@ class Action extends Generic{
 				action : this,
 				wrapperReturn : wrapperReturn,
 			});
+			
 			evt.raise();
 			if( this.isAssetAction() && !this.parent.no_auto_consume )
 				this.parent.consumeCharges();
 
 		}
-		
 
 		this.getPlayerParent().addMP(-this.mp);
 		if( !isChargeFinish ){

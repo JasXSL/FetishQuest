@@ -286,51 +286,66 @@ export default class UI{
 	}
 
 	execDraw(){
-		this._hold_actionbar = false;
-		this.drawTimer = false;
 
-		const times = [];
-		let t = Date.now();
+		// Cache the players
+		game.lockPlayersAndRun(() => {
 
-		this.drawPlayers();
-		times.push(Date.now()-t);
-		t = Date.now();
+			let time = Date.now();
+			this._hold_actionbar = false;
+			this.drawTimer = false;
 
-		this.drawGameIcons();
-		times.push(Date.now()-t);
-		t = Date.now();
+			const times = [];
+			let t = Date.now();
 
-		this.drawActionSelector();
-		times.push(Date.now()-t);
-		t = Date.now();
+			this.drawPlayers();
+			times.push(Date.now()-t);
+			t = Date.now();
 
-		this.drawRoleplay();
-		times.push(Date.now()-t);
-		t = Date.now();
+			this.drawGameIcons();
+			times.push(Date.now()-t);
+			t = Date.now();
 
-		this.bindTooltips();
-		times.push(Date.now()-t);
+			this.drawActionSelector();
+			times.push(Date.now()-t);
+			t = Date.now();
+
+			this.drawRoleplay();
+			times.push(Date.now()-t);
+			t = Date.now();
+
+			this.bindTooltips();
+			times.push(Date.now()-t);
+
+			//console.log("execDraw took", Date.now()-time, times);
+
+		});
+		
 
 	}
 
 	// Helper functions for below
 	updateResourceDots( root, currentPoints, maxPoints ){
+
 		const dots = $("> div.point", root);
-		dots.toggleClass("hidden", true);
-		for( let i = 0; i<maxPoints; ++i ){
+		for( let i = 0; i<dots.length || i<maxPoints; ++i ){
+			
 			let div = dots[i];
 			if( !div ){
 				div = document.createElement('div');
 				div.className = 'point';
 				root.append(div);
 			}
-			$(div).toggleClass('filled', i < currentPoints).toggleClass("hidden", false);
+			$(div).toggleClass('filled', i < currentPoints).toggleClass("hidden", i >= maxPoints);
+
 		}
+
 	}
 
 
 	// Draws action selector for a player
 	drawActionSelector( player ){
+
+		let time = Date.now();
 
 		if( !player )
 			player = game.getMyActivePlayer();
@@ -341,12 +356,15 @@ export default class UI{
 		this.spectatingText.toggleClass('hidden', Boolean(player));
 
 		if( !player ){
+
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
 			this.endTurnButton.toggleClass('hidden', true);
 			this.toggleRope(false);
 			return;
+
 		}
+		
 
 		let actions = player.getActions(), 
 			th = this
@@ -359,6 +377,7 @@ export default class UI{
 		if( !myTurn )
 			this.toggleRope(false);
 
+		
 		// Update resources
 		this.updateResourceDots(this.ap_bar, player.ap, player.getMaxAP());
 		this.updateResourceDots(this.mp_bar, player.mp, player.getMaxMP());
@@ -367,6 +386,7 @@ export default class UI{
 		// Build end turn button and toggle visibility
 		this.endTurnButton.toggleClass('hidden', !game.battle_active);
 
+		// console.log("Init: ", Date.now()-time); time = Date.now(); 
 		// label : true
 		// makes sure stacking potions only show one icon
 		const filters = {};
@@ -380,7 +400,9 @@ export default class UI{
 				return false;
 			return true;
 		});
+		// console.log("Init2: ", Date.now()-time); 
 
+		time = Date.now();
 		let castableActions = 0;
 		for( let i=0; i<NUM_ACTIONS; ++i ){
 
@@ -405,6 +427,7 @@ export default class UI{
 
 		// Update color here now that we know if there are any actions left
 		// Colorize. No need if invis tho.
+		time = Date.now();
 		if( game.battle_active ){
 			let etcolor = 'disabled';
 			if( myTurn ){
@@ -420,8 +443,11 @@ export default class UI{
 			}
 			this.endTurnButton.toggleClass('disabled enabled highlighted', false).toggleClass(etcolor, true);
 		}
+		//console.log("Updating colors", Date.now()-time);
+
 
 		// Bind events
+		time = Date.now();
 		$("> div.action.button", this.actionbar_actions)
 			.off('mousedown mouseover mouseout click touchstart touchmove')
 			.on('mousedown mouseover mouseout click touchstart touchmove', function(event){
@@ -541,7 +567,7 @@ export default class UI{
 			}
 
 		});
-
+		//console.log("Binding the events", Date.now()-time);
 
 	}
 

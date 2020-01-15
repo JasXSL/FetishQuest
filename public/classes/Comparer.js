@@ -7,7 +7,11 @@ export default class Comparer{
 
 	compare( a, b, isArrayChange, parent ){
 
-		if( typeof a !== "object" || a === null || typeof b !== "object" || b === null || typeof a !== typeof b || (Array.isArray(a) && !Array.isArray(b)) )
+		const aType = typeof a,
+			bType = typeof b;
+
+
+		if( aType !== "object" || a === null || bType !== "object" || b === null || aType !== bType || (Array.isArray(a) && !Array.isArray(b)) )
 			return b;
 
 		if( Array.isArray(b) ){
@@ -111,7 +115,7 @@ export default class Comparer{
 				
 		}
 
-		if( typeof b === "object" && isArrayChange ){
+		if( bType === "object" && isArrayChange ){
 			out.id = b.id;
 			if( !b.id )
 				console.error("Every object put in an array sent to netcode MUST have an ID. Missing from", b, "previous asset here was", a, "parent", parent);
