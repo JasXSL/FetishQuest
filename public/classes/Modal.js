@@ -61,6 +61,10 @@ export default class Modal{
 
 	}
 
+	destructor(){
+		this.close();
+		this.closeSelectionBox();
+	}
 	
 	/* PRIMARY FUNCTIONALITY */
 	// If canvas is set, it sets up the canvas in a backdrop
@@ -176,7 +180,7 @@ export default class Modal{
 
 		}
 
-		if( changes.state_shops ){
+		if( Array.isArray(changes.state_shops) ){
 
 			for( let s of changes.state_shops ){
 				

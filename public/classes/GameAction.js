@@ -208,10 +208,13 @@ export default class GameAction extends Generic{
 			this.type = this.constructor.types.loot;
 			this.data = [];
 			this.g_resetID();	// needed for netcode to work
+
+			let money = 0;
+			if( Math.random()/2 < value )
+				money = Math.floor(Math.random()*Math.pow(value, 3)*1000);
 			
 			// weight of 0.5 adds loot
 			if( value >= 0.5 ){
-
 
 				// Generate a random piece of loot
 				const loot = Asset.generate( 
@@ -250,6 +253,14 @@ export default class GameAction extends Generic{
 					asset._stacks = split[i];
 					this.data.push(asset);
 				}
+			}
+
+			if( money ){
+
+				let assets = Player.copperToAssets(money);
+				for( let asset of assets )
+					this.data.push(asset);
+
 			}
 
 		}

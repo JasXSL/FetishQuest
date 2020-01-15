@@ -249,6 +249,7 @@ export default class UI{
 
 	destructor(){
 		this.clear();
+		this.modal.destructor();
 	}
 
 

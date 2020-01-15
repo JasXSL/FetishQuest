@@ -381,6 +381,12 @@ class Text extends Generic{
 		if( debug )
 			console.debug("Validating", this, "against", event);
 
+		if( this._cache_action && !this.testAliases(event) ){
+			if( debug )
+				console.debug("FAIL because this._cache_action");
+			return false;
+		}
+
 		const original = event.custom.original;
 		if( 
 			this._cache_event && !this._cache_event[event.type] &&
@@ -391,11 +397,7 @@ class Text extends Generic{
 			return false;
 		}
 
-		if( this._cache_action && !this.testAliases(event) ){
-			if( debug )
-				console.debug("FAIL because this._cache_action");
-			return false;
-		}
+		
 
 		if( !this.en ){
 			if( debug )

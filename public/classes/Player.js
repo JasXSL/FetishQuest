@@ -1479,7 +1479,7 @@ export default class Player extends Generic{
 
 	// Auto exchanges money assets to the fewest amounts of coins
 	exchangeMoney(){
-		const exchanged = this.calculateMoneyExhange(this.getMoney());
+		const copper = this.getMoney();
 		let asset;
 		if( asset = this.getAssetByLabel('platinum') )
 			this.destroyAsset(asset);
@@ -1490,16 +1490,10 @@ export default class Player extends Generic{
 		if( asset = this.getAssetByLabel('copper') )
 			this.destroyAsset(asset);
 		
-		const labels = ['platinum', 'gold','silver','copper'];
-		for( let i in exchanged ){
-			const amt = exchanged[i];
-			if( amt ){
-				const label = labels[i];
-				const a = glib.get(label, 'Asset');
-				a._stacks = amt;
-				this.addAsset(a);
-			}
-		}
+		let assets = Player.copperToAssets(copper);
+		for( let a of assets )
+			this.addAsset(a);
+		
 		return true;
 		
 	}
@@ -2713,6 +2707,25 @@ Player.calculateMoneyExhange = function( input = 0 ){
 		Math.floor((input%100)/10),
 		input%10
 	];
+};
+
+// Converts copper into an array of assets
+Player.copperToAssets = function( copper = 0 ){
+
+	const out = [];
+	const exchanged = this.calculateMoneyExhange( copper );
+
+	for( let i in exchanged ){
+		const amt = exchanged[i];
+		if( amt ){
+			const label = this.currencyWeights[i];
+			const a = glib.get(label, 'Asset');
+			a._stacks = amt;
+			out.push(a);
+		}
+	}
+	return out;
+
 };
 
 Player.copperToReadable = function( copper = 0 ){
