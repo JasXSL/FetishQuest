@@ -3009,7 +3009,7 @@ export default class UI{
 		this.modal.onSelectionBoxClose(() => {
 
 			const c = getUpdatedContainer(container);
-			if( playAnimation && c.isInteractive() )
+			if( playAnimation && c && c.isInteractive() )
 				playAnimation("idle");
 				
 		});

@@ -4078,6 +4078,7 @@ const lib = {
 		hit_chance : 100,
 		detrimental : false,
 		type : Action.Types.physical,
+		target_type : Action.TargetTypes.self,
 		wrappers : [
 			{
 				detrimental : false,
