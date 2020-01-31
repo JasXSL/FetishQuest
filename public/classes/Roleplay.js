@@ -257,7 +257,7 @@ export class RoleplayStage extends Generic{
 		this.chat = RoleplayStageOption.ChatType.default;
 
 		this._iniPlayer = '';		// ID of player that triggered this stage
-		this._textEvent = false;	// Caches the active text event so the text doesn't change randomly.
+		this._textEvent = null;	// Caches the active text event so the text doesn't change randomly.
 									// Not persistent between refreshes, but what can ya do.
 
 		this.load(data);
@@ -377,9 +377,9 @@ export class RoleplayStage extends Generic{
 	// TextPlayer is the NPC you are talking to in the RP. If it's missing it becomes the same as the target player.
 	getTextEvent(){
 
-		if( this._textEvent )
+		if( this._textEvent ){
 			return this._textEvent;
-
+		}
 		const players = game.getTeamPlayers();
 		const textPlayer = this.getPlayer();
 		const evt = new GameEvent({sender:textPlayer});

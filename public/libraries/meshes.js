@@ -537,6 +537,17 @@ LibMesh.library = {
 				width:1, height:1,
 				position_on_wall : true,
 			}),
+			SewerOutlet : new LibMesh({
+				url : 'doodads/sewer_outlet.JD',
+				tags : [],
+				materials : [
+					libMat.Brick.Tile,
+					libMat.Metal.Rust,
+					libMat.Solids.Black
+				],
+				width:2, height:1,
+				position_on_wall : true,
+			}),
 		},
 		Furniture : {
 			RugTorn : new LibMesh({
@@ -2072,6 +2083,27 @@ LibMesh.library = {
 					libMat.Metal.Copper
 				],
 			}),
+			Bucket : new LibMesh({
+				url : 'doodads/bucket_standing.JD',
+				tags : [stdTag.mBucket],
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+				],
+				width: 1,
+				height: 1,
+			}),
+			BucketHanging : new LibMesh({
+				url : 'doodads/bucket_hanging.JD',
+				tags : [stdTag.mBucket],
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Metal.DarkGeneric,
+				],
+				width: 1,
+				height: 1,
+			}),
+			
 		},
 		
 		Signs : {
@@ -2754,6 +2786,17 @@ LibMesh.library = {
 				width: 1, height: 1,
 				tags : [stdTag.mFence],
 			}),
+			Well : new LibMesh({
+				url : 'doodads/well.JD',
+				materials : [
+					libMat.Brick.Small,
+					libMat.Wood.Crate,
+					libMat.Metal.Rust,
+					libMat.Cloth.Rope
+				],
+				width: 1, height: 1,
+				tags : [stdTag.mFence],
+			}),
 		},
 		City : {
 			X : new LibMesh({
@@ -3282,6 +3325,86 @@ LibMesh.library = {
 			tags : [stdTag.mWall],
 		}),
 
+		Sewer : {
+			bend_6x6 : new LibMesh({
+				width: 6,
+				height:6,
+				//top:-2,left:-3,
+				isRoom : true,
+				url : 'rooms/sewer_bend_6x6.JD',
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Small,
+					libMat.Brick.Small,
+				],
+				tags : [stdTag.mWall],
+			}),
+			double_5x8 : new LibMesh({
+				width: 5,
+				height:8,
+				//top:-2,left:-3,
+				isRoom : true,
+				url : 'rooms/sewer_double_5x8.JD',
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Small,
+					libMat.Brick.Small,
+				],
+				tags : [stdTag.mWall],
+			}),
+			x_8x8 : new LibMesh({
+				width: 8,
+				height:8,
+				//top:-2,left:-3,
+				isRoom : true,
+				url : 'rooms/sewer_x_8x8.JD',
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Small,
+					libMat.Brick.Small,
+				],
+				tags : [stdTag.mWall],
+			}),
+			bend_8x8 : new LibMesh({
+				width: 8,
+				height:8,
+				//top:-2,left:-3,
+				isRoom : true,
+				url : 'rooms/sewer_bend_8x8.JD',
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Small,
+					libMat.Brick.Small,
+				],
+				tags : [stdTag.mWall],
+			}),
+			narrow_3x8 : new LibMesh({
+				width: 3,
+				height:8,
+				//top:-2,left:-3,
+				isRoom : true,
+				url : 'rooms/sewer_narrow_3x8.JD',
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Small,
+					libMat.Brick.Small,
+				],
+				tags : [stdTag.mWall],
+			}),
+			chamber_8x8 : new LibMesh({
+				width: 3,
+				height:8,
+				//top:-2,left:-3,
+				isRoom : true,
+				url : 'rooms/sewer_chamber_8x8.JD',
+				materials : [
+					libMat.Brick.DungeonBlack,
+					libMat.Brick.Small,
+					libMat.Brick.Small,
+				],
+				tags : [stdTag.mWall],
+			}),
+		},
 
 	},
 
@@ -3320,6 +3443,26 @@ LibMesh.library = {
 				}
 			},
 			onInteract : function( mesh, room, asset ){
+				LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
+			}
+		}),
+
+		Manhole : new LibMesh({
+			url : 'gates/manhole.JD',
+			materials : [
+				libMat.Brick.Tile,
+				libMat.Metal.DarkGeneric,
+				libMat.Wood.Crate,
+				libMat.Solids.Black
+			],
+			animations : {
+				"open" : {
+					clampWhenFinished : true,
+					loop : THREE.LoopOnce,
+				}
+			},
+			onInteract : function( mesh, room, asset ){
+				// Todo: better sound
 				LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
 			}
 		}),

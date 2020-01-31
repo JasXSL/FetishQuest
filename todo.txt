@@ -1,32 +1,49 @@
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system
 
+
 -- CURRENT --
 
 Bugs:
+	Players should not be able to click the party leader icon if not DM
+
+Meshes:
+	t Character portrait
 
 
 Smol:	
-
+	- Enabling or disabling a mod while hosting should send a full game
 
 Medium rare:
-
-
+	- Add fog override to cells
+	- Character export/import
+	
 Big chungi:
-
-
-
-
-
--- LATER UPDATE --
-
-	- Main quest chapter 2
-		- Go to Yuug capital?
-		- What do there?
-
-	- Give every modal its own screen instead of using the modal system
-	- Books
+	- Church quest
+		- Rewards
+			- Sacrament of Sin : Increases damage done by 5% per point of arousal for 1 turn and each action removes 1 corruption.
+			- Holy Chain : Taunts a target for 2 turns and increases all their AP costs by 1.
+			- Holy Rod : Small rod that can be picked up and grants +1 holy proficiency (purchasable at friendly)
+			- Goldweave Thong : Golden thong that inceases holy proficiencty and corruption resist
+			- Divine Scepter : Smites a demon or undead enemy, dealing damage and stunning for 1 turn.
+		- Premise: The clerics have had one of theirs kidnapped. They have managed to track down and lock a demon in their cellar, but not been able to get it to talk.
+		- Quest A: Getting the demon to talk
+			- Fight the demon to force it to confess. He reveals the location of the cleric, but that you're much too weak to free him.
+		- Quest B: The sewers
+			- Clerics tell you about the Divine Scepter, a relic that was dropped down a well, and send you to collect it.
+			- Find the well, and drop into it to enter the yuug sewers. <What monsters do you encounter there?>
+			- Navigate the sewers and fight <boss?> to get the scepter, but it seems quite dull.
+			- Take it back to the clerics, they restore its power and you get it as a reward.
+		- Quest C: Freeing the cleric
+			- Find a demonic rift located somewhere, enter it to enter a demonic dungeon.
+			- Fight your way through and kill the boss to free the cleric.
+			- Return to the church to get your rewards:
+				- Gold
+				- Spells for warrior/cleric
+				- Divine Plate Thong : Golden Plate thong. Grants increased holy proficiency and corruption resist
 	- Show NPCs on the map
+		- Design a mesh
+		- Cache these and hide them to speed up loading
 		- The things that are on the character menu should show up on the map instead:
 			- Talk to
 			- Rent a room
@@ -36,27 +53,28 @@ Big chungi:
 			- Bank
 			- Train
 
+
+-- LATER UPDATE --
+
+	- Main quest chapter 2
+		- Go to Yuug capital?
+		- What do there?
+
+	- Books
 	- West forest
 		- Hidden path down to the beach
 		- Otter and Broper show up there after completing their quest
-
-	- Capital
-
+			- What next?
 
 
-- Needed music
-	- Tavern
-	- Town
-	- Battle
-	- Forest
-	- Dungeon
+	- Needed music
+		- Tavern
+		- Town
+		- Battle
+		- Forest
+		- Dungeon
 
 
-
-LATER:
-	- Add fog override to cells
-	- Enabling or disabling a mod while hosting should send a full game
-	- Character export/import
 	- Populate the bazaar
 	- Show what mods a quest belongs to
 	- Quest editor (later)
@@ -66,25 +84,27 @@ LATER:
 		- 
 	- Convert more stuff to the new modal system
 
-- Bank system
-	- Exchange
-	- Store gold
+	- Bank system
+		- Exchange
+		- Store gold
+		- Should be tied to the game itself, and needs to be requested by coop players (not sent by default due to size)
 
 
-- Punishments
-- Custom cursors
-	- Arrow
-	- Interact
-	- Inspect
-	- Buy
-	- Sell
-	- Repair
+	- Punishments
+	- Custom cursors
+		- Arrow
+		- Interact
+		- Inspect
+		- Buy
+		- Sell
+		- Repair
 
 
-Food for thought
-	- Fast travel system
-		- Expensive
+	Food for thought
+		- Fast travel system
+			- Expensive
 
-Monster ideas:
-	- Flytrap type tentacle monster that grapples a player's butt with its maw
-	- 
+	Monster ideas:
+		- Flytrap type tentacle monster that grapples a player's butt with its maw
+		- Slime monster
+		
