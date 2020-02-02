@@ -864,6 +864,24 @@ class DungeonRoom extends Generic{
 	}
 
 
+
+
+	/* MARKERS */
+	// Get marker by 
+	getGenericMarkers(){
+		return this.assets.filter(el => {
+			return el.isMarkerFor("");
+		});
+	}
+	// Gets a marker by label
+	getPlayerMarker( label ){
+		for( let asset of this.assets ){
+			if( asset.isMarkerFor(label) )
+				return asset;
+		}
+		return false;
+	}
+
 	
 
 
@@ -1347,6 +1365,12 @@ class DungeonRoomAsset extends Generic{
 			dungeonRoom : this.parent,
 			dungeon : this.getDungeon(),
 		}));
+
+	}
+
+	isMarkerFor( label = "" ){
+
+		return this.name === label && this.hasTag(stdTag.mPLAYER_MARKER);
 
 	}
 

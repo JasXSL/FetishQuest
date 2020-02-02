@@ -184,6 +184,9 @@ export default {
 
 
 	// Mesh tags
+	mPLAYER_MARKER : 'm_PLAYER_MARKER',
+	mMARKER_GROUP : 'm_MARKER_GROUP',
+
 	mLever :'m_lever',					// Lever
 	mTrapdoor : 'm_trapdoor',
 	mLadder : 'm_ladder',				

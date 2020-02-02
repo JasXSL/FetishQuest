@@ -13,6 +13,9 @@ import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 import Proton from '../ext/three.proton.min.js';
+import { LibMesh } from '../libraries/meshes.js';
+import stdTag from '../libraries/stdTag.js';
+import Player from './Player.js';
 
 window.g_THREE = THREE;
 
@@ -301,6 +304,9 @@ class WebGL{
 		});
 		this.updateSize();
 		
+
+		// Player markers
+		this.playerMarkers = [];	// Holds playermarker objects, these are added on the fly and not removed. Opting instead to overwrite them on a room change
 
 		this.render();
 
@@ -687,6 +693,7 @@ class WebGL{
 
 		}
 
+		this.playerMarkerFrame();
 		
 
 		if( this.onRender )
@@ -890,8 +897,147 @@ class WebGL{
 		return this;
 	}
 
-	
 
+	/* PLAYER MARKERS */
+	clearPlayerMarkers(){
+		for( let marker of this.playerMarkers )
+			marker.visible = false;
+	}
+
+	// Creates a new player marker and adds it to the cache
+	async createPlayerMarker(){
+		
+		// Add a dummy so you don't overload
+		this.playerMarkers.push(false);
+		const obj = await LibMesh.library.Generic.Marker.Player.flatten([], true);
+		for( let i in this.playerMarkers ){
+			if( this.playerMarkers[i] === false ){
+				this.playerMarkers[i] = obj;
+				break;
+			}
+		}
+
+		const canvas = document.createElement("canvas");
+		canvas.width = 256;
+		canvas.height = 256;
+
+		obj.userData.marker = {
+			player : null,
+			dungeonAsset : null,
+			texture : canvas,
+			url : ''
+		};
+		obj.material[0] = new THREE.MeshBasicMaterial({
+			map : new THREE.CanvasTexture(canvas)
+		});
+
+		this.scene.add(obj);
+		return obj;
+
+	}
+
+	// Run on each frame
+	playerMarkerFrame(){
+
+		const cam = this.camera,
+			camX = cam.position.x,
+			camZ = cam.position.z;
+		for( let marker of this.playerMarkers ){
+			
+			// It's still loading
+			if( !marker )
+				continue;
+			marker.rotation.y = Math.atan2( camX - marker.position.x, camZ - marker.position.z );
+
+		}
+
+	}
+
+	// Attach a player to a marker. This also updates.
+	// If marker is empty, we'll have to create a new one.
+	async attachPlayerToMarker( player, dungeonAsset, marker ){
+		
+		if( !marker )
+			marker = await this.createPlayerMarker();
+		
+		// Gonna have to rebuild some stuff
+		if( marker.userData.marker.player !== player || marker.userData.marker.dungeonAsset !== dungeonAsset ){
+
+			marker.userData.marker.player = player;
+			marker.userData.marker.dungeonAsset = player;
+			marker.visible = true;
+
+			// Position
+			marker.position.copy(dungeonAsset._stage_mesh.position);
+
+			// Canvas
+			// Texture URL has changed
+			const url = player.getActiveIcon();
+			if( url !== marker.userData.marker.url ){
+
+				const canvas = marker.userData.marker.texture;
+				marker.userData.marker.url = url;
+				const context = canvas.getContext('2d');
+				const image = new Image();
+				image.addEventListener('load', e => {
+
+					this.constructor.drawCover(context, image, canvas.height, canvas.width, undefined, undefined, 1.33);
+					marker.material[0].map.needsUpdate = true;
+
+				});
+				image.crossOrigin = "anonymous";
+				image.src = url;
+
+			}
+
+		}
+		
+	}
+
+	async updatePlayerMarkers(){
+
+		if( !window.game )
+			return;
+
+		this.clearPlayerMarkers();
+
+		// Viable marker positions
+		const room = game.dungeon.getActiveRoom();
+		const generics = room.getGenericMarkers();
+
+		let markerIndex = 0;	// Tracks what marker to add to
+		const players = game.getEnabledPlayers();
+		for( let player of players ){
+			
+			// Draw only enemies that are generated. Friendly NPCs are technically enemies.
+			if( !player.generated || player.team === Player.TEAM_PLAYER )
+				continue;
+
+			// First try to get a specific marker if it exists
+			let marker = room.getPlayerMarker(player.label);
+			// Didn't exist, try getting a generic one
+			if( !marker ){
+				// No free generic markers, skip this. Maybe later add an error for the developer?
+				if( !generics.length )
+					continue;
+				marker = generics.shift();
+
+			}
+
+			this.attachPlayerToMarker(player, marker, this.playerMarkers[markerIndex]);
+			++markerIndex;
+
+		}
+
+		/*
+		const viableInScene = this.stage.group.children.filter(el => {
+			if( !el.userData || !el.userData.template || el.userData.template.tags.indexOf(stdTag.mPLAYER_MARKER) === -1)
+				return false;
+			if( )
+		});
+		*/
+
+	}
 
 
 	/* EVENTS */
@@ -1233,6 +1379,62 @@ class WebGL{
 			})
 			.start();
 		return this;
+	}
+
+
+
+
+
+	// Helpers
+	/**
+	 * Originally by Ken Fyrstenberg Nilsen
+	 * drawCover(context, image [, x, y, width, height [,offsetX, offsetY]])
+	 * Draws a texture onto a canvas using CSS COVER
+	 * If image and context are only arguments rectangle will equal canvas
+	*/
+	static drawCover(ctx, img, w, h, offsetX, offsetY, scalex = 1, scaley = 1) {
+
+		let x = 0, y = 0;
+
+		// default offset is center
+		offsetX = typeof offsetX === "number" ? offsetX : 0.5;
+		offsetY = typeof offsetY === "number" ? offsetY : 0.5;
+
+		// keep bounds [0.0, 1.0]
+		if (offsetX < 0) offsetX = 0;
+		if (offsetY < 0) offsetY = 0;
+		if (offsetX > 1) offsetX = 1;
+		if (offsetY > 1) offsetY = 1;
+
+		let iw = img.width,
+			ih = img.height,
+			r = Math.min(w / iw, h / ih),
+			nw = iw * r * scalex,   // new prop. width
+			nh = ih * r * scaley,   // new prop. height
+			cx, cy, cw, ch, ar = 1;
+
+		// decide which gap to fill    
+		if (nw < w) ar = w / nw;                             
+		if (Math.abs(ar - 1) < 1e-14 && nh < h) ar = h / nh;  // updated
+		nw *= ar;
+		nh *= ar;
+
+		// calc source rectangle
+		cw = iw / (nw / w);
+		ch = ih / (nh / h);
+
+		cx = (iw - cw) * offsetX;
+		cy = (ih - ch) * offsetY;
+
+		// make sure source rectangle is valid
+		if (cx < 0) cx = 0;
+		if (cy < 0) cy = 0;
+		if (cw > iw) cw = iw;
+		if (ch > ih) ch = ih;
+
+		// fill image in dest. rectangle
+		ctx.drawImage(img, cx, cy, cw, ch,  x, y, w, h);
+
 	}
 
 }
