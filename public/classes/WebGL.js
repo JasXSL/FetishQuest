@@ -787,7 +787,7 @@ class WebGL{
 			return false;
 		}
 
-		
+		this.clearPlayerMarkers();
 				
 		this.loading = true;
 		this.stages.map(s => s.destructor());
@@ -861,6 +861,7 @@ class WebGL{
 			this.roomEnterCameraTween();
 		}
 		this.updateFog();
+
 	}
 
 	resetStage( replace ){
@@ -898,10 +899,30 @@ class WebGL{
 	}
 
 
+
+
+
+
+
 	/* PLAYER MARKERS */
 	clearPlayerMarkers(){
+		
 		for( let marker of this.playerMarkers )
 			marker.visible = false;
+
+	}
+
+	onPlayerMarkerMouseover(){
+		game.renderer.renderer.domElement.style.cursor = "pointer";
+	}
+	onPlayerMarkerMouseout(){
+		game.renderer.renderer.domElement.style.cursor = "default";
+	}
+	onPlayerMarkerClick(){
+
+		const mesh = this;
+		game.ui.drawPlayerContextMenu(mesh.userData.marker.player);
+
 	}
 
 	// Creates a new player marker and adds it to the cache
@@ -925,11 +946,16 @@ class WebGL{
 			player : null,
 			dungeonAsset : null,
 			texture : canvas,
-			url : ''
+			url : '',
+			loading : false,
 		};
 		obj.material[0] = new THREE.MeshBasicMaterial({
 			map : new THREE.CanvasTexture(canvas)
 		});
+
+		obj.userData.mouseover = this.onPlayerMarkerMouseover.bind(obj);
+		obj.userData.mouseout = this.onPlayerMarkerMouseout.bind(obj);
+		obj.userData.click = this.onPlayerMarkerClick.bind(obj);
 
 		this.scene.add(obj);
 		return obj;
@@ -957,18 +983,23 @@ class WebGL{
 	// If marker is empty, we'll have to create a new one.
 	async attachPlayerToMarker( player, dungeonAsset, marker ){
 		
+		if( !dungeonAsset || !dungeonAsset._stage_mesh )
+			return;
+
 		if( !marker )
 			marker = await this.createPlayerMarker();
 		
+
 		// Gonna have to rebuild some stuff
 		if( marker.userData.marker.player !== player || marker.userData.marker.dungeonAsset !== dungeonAsset ){
 
 			marker.userData.marker.player = player;
 			marker.userData.marker.dungeonAsset = player;
-			marker.visible = true;
+			marker.visible = false;
 
 			// Position
 			marker.position.copy(dungeonAsset._stage_mesh.position);
+			marker.scale.copy(dungeonAsset._stage_mesh.scale);
 
 			// Canvas
 			// Texture URL has changed
@@ -983,12 +1014,19 @@ class WebGL{
 
 					this.constructor.drawCover(context, image, canvas.height, canvas.width, undefined, undefined, 1.33);
 					marker.material[0].map.needsUpdate = true;
+					marker.userData.marker.loading = false;
+					marker.visible = true;
 
 				});
 				image.crossOrigin = "anonymous";
 				image.src = url;
+				marker.userData.marker.loading = true;
+				marker.visible = false;
 
 			}
+			else if( !marker.userData.marker.loading )
+				marker.visible = true;
+			marker.material[0].color.set(player.isDead() ? 0xFF1111 : 0xFFFFFF); 
 
 		}
 		
@@ -996,10 +1034,8 @@ class WebGL{
 
 	async updatePlayerMarkers(){
 
-		if( !window.game )
+		if( !window.game || this.loading || game.dungeon.transporting )
 			return;
-
-		this.clearPlayerMarkers();
 
 		// Viable marker positions
 		const room = game.dungeon.getActiveRoom();
@@ -1018,8 +1054,10 @@ class WebGL{
 			// Didn't exist, try getting a generic one
 			if( !marker ){
 				// No free generic markers, skip this. Maybe later add an error for the developer?
-				if( !generics.length )
+				if( !generics.length ){
+					console.log("No generics free");
 					continue;
+				}
 				marker = generics.shift();
 
 			}
@@ -1028,16 +1066,18 @@ class WebGL{
 			++markerIndex;
 
 		}
-
-		/*
-		const viableInScene = this.stage.group.children.filter(el => {
-			if( !el.userData || !el.userData.template || el.userData.template.tags.indexOf(stdTag.mPLAYER_MARKER) === -1)
-				return false;
-			if( )
-		});
-		*/
+		
+		// Hide unused markers
+		for( ; markerIndex < this.playerMarkers.length; ++markerIndex )
+			this.playerMarkers[markerIndex].visible = false;
+		
 
 	}
+
+
+
+
+
 
 
 	/* EVENTS */
@@ -1483,6 +1523,7 @@ class Stage{
 	}
 
 	onTurnOn(){
+
 		for( let obj of this.group.children )
 			this.onObjStart(obj);
 
@@ -1494,6 +1535,9 @@ class Stage{
 		else
 			this.parent.toggleOutdoors(false);
 		this.parent.updateWeather();
+
+		this.parent.updatePlayerMarkers();
+
 	}
 
 	onTimeChanged(){
@@ -1504,6 +1548,7 @@ class Stage{
 	}
 
 	onTurnOff(){
+
 		this.stopAllSounds();
 		for( let tween of this.tweens )
 			this.removeTween(tween);
@@ -1512,6 +1557,7 @@ class Stage{
 		this.particles = [];
 		this.tweens = [];
 		this.mixers = [];
+
 	}
 
 	// Triggered on each (mesh) object when the room is drawn

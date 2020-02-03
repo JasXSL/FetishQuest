@@ -43,6 +43,7 @@ export default class Condition extends Generic{
 	}
 
 	save( full ){
+
 		let out = {
 			type : this.type,
 			data : Generic.flattenObject(this.data),
@@ -50,7 +51,7 @@ export default class Condition extends Generic{
 			targnr : this.targnr,
 			caster : this.caster,
 			anyPlayer : this.anyPlayer,
-			conditions : this.conditions.map(el => el.save(full)),
+			conditions : Condition.saveThese(this.conditions, full),
 			min : this.min,
 			max : this.max,
 		};
@@ -881,17 +882,22 @@ export default class Condition extends Generic{
 Condition.saveThese = function( conditions, full ){
 
 	let out = conditions.map(el => {
+
 		if( Array.isArray(el) )
 			el = ConditionPackage.buildOR(...el);
 
 		if( typeof el.save === "function" )
 			return el.save(full);
+
 		if( full === "mod" )
 			return el;
-		console.error(el);
+
+		console.error(el, "full was", full);
 		throw "Error, condition has no save method ^";
+
 	});
 	return out;
+
 };
 
 // Returns whether all conditions and condArrays validated

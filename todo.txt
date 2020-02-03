@@ -40,10 +40,6 @@ Big chungi:
 				- Spells for warrior/cleric
 				- Divine Plate Thong : Golden Plate thong. Grants increased holy proficiency and corruption resist
 	- Show NPCs on the map
-		- Hide when leaving a cell
-		- Draw when entering a cell
-		- Draw when a player has changed
-
 		- Things on the character menu should show up when clicking the player as well:
 			- Talk to
 			- Rent a room
@@ -52,8 +48,7 @@ Big chungi:
 			- Repair
 			- Bank
 			- Train
-		- Harmonize this menu so you can see which options are available from a single shared function
-
+		- The copper area should be a solid color in the same as the monster's color
 
 -- LATER UPDATE --
 

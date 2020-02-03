@@ -280,6 +280,7 @@ class Dungeon extends Generic{
 		await game.renderer.drawActiveRoom();
 		this.transporting = false;
 		game.ui.modal.closeSelectionBox();
+		game.renderer.updatePlayerMarkers();
 		this.getActiveRoom().onVisit(player);
 		game.updateAmbiance();
 		game.save();

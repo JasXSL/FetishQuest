@@ -317,6 +317,8 @@ export default class UI{
 			this.bindTooltips();
 			times.push(Date.now()-t);
 
+			game.renderer.updatePlayerMarkers();
+
 			//console.log("execDraw took", Date.now()-time, times);
 
 		});
@@ -830,6 +832,53 @@ export default class UI{
 
 	}
 
+	// Returns interaction types
+	getViableInteractionsOnPlayer( p ){
+
+		const myActive = game.getMyActivePlayer();
+		return {
+			inspect : true,
+			loot : myActive && p.isLootableBy(myActive),
+			shop : myActive && game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive)).length,
+			smith : myActive && game.smithAvailableTo(p, myActive),
+			gym : myActive && game.gymAvailableTo(p, myActive),
+			rent : myActive && game.roomRentalAvailableTo(p, myActive, true),
+		};
+
+	}
+
+	// Type correlates to a key in getViableInteractionsOnPlayer
+	onPlayerInteractionUsed( type, p ){
+
+		const myActive = game.getMyActivePlayer();
+		if( type === 'loot' )
+			this.drawContainerLootSelector(myActive, p);
+		else if( type === 'shop' ){
+
+			const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
+			if(this.drawShopInspector(shops[0])){
+				game.uiAudio( "shop_entered" );
+			}
+
+		}
+		else if( type === 'smith' ){
+			if( this.drawSmithInspector(p) ){
+				game.uiAudio( "smith_entered" );
+			}
+		}
+		else if( type === 'gym' ){
+			this.staticModal.set('gym', p);
+			game.uiAudio( "gym_entered" );
+		}
+		else if( type === 'rent' ){
+			game.roomRentalUsed(p, myActive);
+		}
+		else if( type === 'inspect' )
+			this.staticModal.set("player", p);
+		
+
+	}
+
 	drawPlayer(p){
 
 		const tp = game.getTurnPlayer(),
@@ -1044,48 +1093,44 @@ export default class UI{
 
 		$("> div.interactions", el).toggleClass('hidden', !myActive);
 
-		if( myActive ){
+		const interactions = this.getViableInteractionsOnPlayer(p);
+
+		const showLoot = interactions.loot;
+		$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.onPlayerInteractionUsed( "loot", p );
+		});
+
+		
+		const showShop = interactions.shop;
+		$("div.interaction[data-type=shop]", el).toggleClass("hidden", !showShop).off('click').on('click', event => {
 			
-			const showLoot = p.isLootableBy(myActive);
-			$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.onPlayerInteractionUsed( "shop", p );
+
+		});
+
+		const showSmith = interactions.smith;
+		$("div.interaction[data-type=repair]", el).toggleClass("hidden", !showSmith).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.onPlayerInteractionUsed( "smith", p );
+		});
+
+
+		const showGym = interactions.gym;
+		$("div.interaction[data-type=gym]", el).toggleClass("hidden", !showGym).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.onPlayerInteractionUsed( "gym", p );
+		});
+
+		try{
+			const showRent = interactions.rent;
+			$("div.interaction[data-type=rent]", el).toggleClass("hidden", !showRent).off('click').on('click', event => {
 				event.stopImmediatePropagation();
-				this.drawContainerLootSelector(myActive, p);
+				this.onPlayerInteractionUsed( "rent", p );
 			});
-
-			const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
-			const showShop = shops.length;
-			$("div.interaction[data-type=shop]", el).toggleClass("hidden", !showShop).off('click').on('click', event => {
-				event.stopImmediatePropagation();
-				if(this.drawShopInspector(shops[0])){
-					game.uiAudio( "shop_entered" );
-				}
-			});
-
-			const showSmith = game.smithAvailableTo(p, myActive);
-			$("div.interaction[data-type=repair]", el).toggleClass("hidden", !showSmith).off('click').on('click', event => {
-				event.stopImmediatePropagation();
-				if( this.drawSmithInspector(p) ){
-					game.uiAudio( "smith_entered" );
-				}
-			});
-
-
-			const showGym = game.gymAvailableTo(p, myActive);
-			$("div.interaction[data-type=gym]", el).toggleClass("hidden", !showGym).off('click').on('click', event => {
-				event.stopImmediatePropagation();
-				this.staticModal.set('gym', p);
-				game.uiAudio( "gym_entered" );
-				
-			});
-
-			try{
-				const showRent = game.roomRentalAvailableTo(p, myActive, true);
-				$("div.interaction[data-type=rent]", el).toggleClass("hidden", !showRent).off('click').on('click', event => {
-					event.stopImmediatePropagation();
-					game.roomRentalUsed(p, myActive);
-				});
-			}catch(err){}
-		}
+		}catch(err){}
+	
 
 		
 
@@ -3361,6 +3406,19 @@ export default class UI{
 
 		this.parent.speakAs(speaker, escapeStylizeText(message));	// this is done serverside on the DM too
 	}
+
+
+
+
+	/* 3d MODELS */
+	drawPlayerContextMenu( player ){
+		
+		// Player marker has been clicked
+		// Use: getViableInteractionsOnPlayer & onPlayerInteractionUsed
+		console.log("Draw context menu for", player);
+
+	}
+
 
 
 	/* SFX */

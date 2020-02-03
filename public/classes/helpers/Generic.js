@@ -293,6 +293,7 @@ export default class Generic{
 
 	static saveThese( entries = [], full = false ){
 		return entries.map(el => {
+			
 			if( typeof el.save !== "function" ){
 				if( !window.game && typeof el === "string" )
 					return el;
@@ -302,6 +303,7 @@ export default class Generic{
 				throw "Error: asset is missing save method ^";
 			}
 			return el.save(full);
+
 		});
 	}
 
