@@ -986,6 +986,11 @@ const lib = {
             s : {path : "media/audio/loot_device.ogg",volume : 0.4},
         }],
     },
+    loot_metal : {
+        sounds : [{
+            s : {path : "media/audio/loot_metal.ogg",volume : 0.3},
+        }],
+    },
 
     buy_item : {
         sounds : [{

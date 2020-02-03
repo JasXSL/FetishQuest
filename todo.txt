@@ -18,12 +18,15 @@ Medium rare:
 	
 Big chungi:
 	- Church quest
+		- Objective completion description: Adds to quest log when objective is completed
+
 		- Rewards
 			- Sacrament of Sin : Increases damage done by 5% per point of arousal for 1 turn and each action removes 1 corruption.
 			- Holy Chain : Taunts a target for 2 turns and increases all their AP costs by 1.
 			- Holy Rod : Small rod that can be picked up and grants +1 holy proficiency (purchasable at friendly)
 			- Goldweave Thong : Golden thong that inceases holy proficiencty and corruption resist
-			- Divine Scepter : Smites a demon or undead enemy, dealing damage and stunning for 1 turn.
+			- Divine Scepter : Smites an enemy, dealing holy damage.
+
 		- Premise: The clerics have had one of theirs kidnapped. They have managed to track down and lock a demon in their cellar, but not been able to get it to talk.
 		- Quest A: Getting the demon to talk
 			- Fight the demon to force it to confess. He reveals the location of the cleric, but that you're much too weak to free him.
@@ -39,22 +42,13 @@ Big chungi:
 				- Gold
 				- Spells for warrior/cleric
 				- Divine Plate Thong : Golden Plate thong. Grants increased holy proficiency and corruption resist
-	- Show NPCs on the map
-		- Things on the character menu should show up when clicking the player as well:
-			- Talk to
-			- Rent a room
-			- Loot
-			- Shop
-			- Repair
-			- Bank
-			- Train
-		- The copper area should be a solid color in the same as the monster's color
 
 -- LATER UPDATE --
 
 	- Main quest chapter 2
 		- Go to Yuug capital?
 		- What do there?
+		
 
 	- Books
 	- West forest

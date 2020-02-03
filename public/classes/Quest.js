@@ -248,21 +248,30 @@ class Quest extends Generic{
 			// Give said reward to each player
 			for( let player of players ){
 
-				const asset = reward.data.clone();
-				if( reward.type === QuestReward.Types.Asset ){
-					
-					player.addAsset(asset);
-					game.ui.addText( 
-						player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", 
-						undefined, 
-						player.id, 
-						player.id, 
-						'statMessage important' 
-					);
+				if( reward.type === QuestReward.Types.Reputation )
+					game.addFactionStanding(reward.data.faction, reward.data.amount);
 
+				// Clonable rewards
+				else{
+
+					const asset = reward.data.clone();
+					if( reward.type === QuestReward.Types.Asset ){
+						
+						player.addAsset(asset);
+						game.ui.addText( 
+							player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", 
+							undefined, 
+							player.id, 
+							player.id, 
+							'statMessage important' 
+						);
+
+					}
+					else if( reward.type === QuestReward.Types.Action )
+						player.addAction(asset);	// This method outputs text
+
+		
 				}
-				else if( reward.type === QuestReward.Types.Action )
-					player.addAction(asset);	// This method outputs text
 
 			}
 
@@ -409,7 +418,8 @@ class QuestReward extends Generic{
 
 QuestReward.Types = {
 	Asset : "Asset",
-	Action : "Action"
+	Action : "Action",
+	Reputation : "Reputation",	// {faction:(str)label, amount:(int)amount}
 };
 
 
@@ -428,6 +438,7 @@ class QuestObjective extends Generic{
 		this._amount = 0;
 		this.visibility_conditions = [];		// Conditions to show this in the log
 		this.events = [];						// QuestObjectiveEvent
+		this.completion_desc = '';				// Text to concat to description after completing the objective
 		this.load(data);
 	}
 
@@ -449,7 +460,8 @@ class QuestObjective extends Generic{
 			name : this.name,
 			amount : this.amount,
 			label : this.label,			// Needed for conditions
-			visibility_conditions : Condition.saveThese(this.visibility_conditions)
+			visibility_conditions : Condition.saveThese(this.visibility_conditions),
+			completion_desc : this.completion_desc,
 		};
 
 		if( full )

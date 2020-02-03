@@ -4940,6 +4940,15 @@ const lib = [
 	},
 
 
+	// divine scepter
+	{ text : "%S points %Shis divine scepter at %T, smiting %Thim with holy magic!",
+		conditions : baseCond.concat([
+			"action_divineScepter",
+		]),
+		hitfx : ["smite"]
+	},
+
+
 	// Milk machine
 	{ text : "%S latches %Shis milk machine onto %T's %Tbsize exposed %breasts, siphoning an amount of liquid into a small bottle attached to the machine!",
 		conditions : anyOnHumCond.concat("action_milk_machine", "targetBreastsExposed"),

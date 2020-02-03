@@ -3,6 +3,9 @@ const lib = {
 	yuug_necromancer : {
 		name : 'Yuug Necromancers',
 	},
+	yuug_priests : {
+		name : 'Yuug Priests',
+	}
 }; 
 
 function getArray(){

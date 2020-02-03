@@ -109,11 +109,133 @@ const lib = {
 			{
 				type : QuestReward.Types.Asset,
 				data : {label:Asset.Dummies.label, name:'gold', _stacks:2},
-			}
+			},
+			{type:QuestReward.Types.Reputation, data:{faction:"yuug_necromancer", amount:25}}
 		],
 		multiply_reward : true,
 		exp_multiplier : 2,
 	},
+
+
+
+	// Church quests
+	// Necromancer quest
+	["SQ_yuug_church_00"] : {
+		name : 'Getting Some Exorcise',
+		description : 'The priests of the Yuug Church have let me know about one of their members being kidnapped by a powerful demon. They have captured one demon\'s minions who they are holding prison beneath the Yuug Church. They want me to force the demon to reveal who kidnapped the priest and where he was taken.',
+		objectives : [
+			{
+				label : 'confession',
+				name : 'Demon Forced to Confess',
+				amount : 1,
+				completion_desc : 'I should take my findings back to the priests beneath the church.',
+				events : [{
+					action : QuestObjectiveEvent.Actions.add,
+					data : {amount:1},
+					conditions : [
+						"eventIsEncounterDefeated",
+						{
+							"type" : Condition.Types.encounterLabel,
+							"data" : {label:"yuug_church_interrogation"},
+							"targnr" : 0
+						},
+					],
+				}]
+			},
+		],
+		rewards : [
+			{
+				type : QuestReward.Types.Asset,
+				data : {label:Asset.Dummies.label, name:'gold', _stacks:1},
+			},
+			{type:QuestReward.Types.Reputation, data:{faction:"yuug_clerics", amount:100}}
+		],
+		multiply_reward : true,
+		exp_multiplier : 1,
+	},
+
+	["SQ_yuug_church_01"] : {
+		name : 'The Divine Scepter',
+		description : 'I have found the name of the demon, but he is too powerful to defeat alone. The priests have suggested I look for a relic known as "The Divine Scepter" that was stolen from the church recently. The Backdoor tavern in North West Yuug City might be a good place to start my search.',
+		objectives : [
+			{
+				label : 'informationGathered',
+				name : 'Scepter whereabouts discovered',
+				amount : 1,
+				completion_desc : 'I have found a raccoon named Cor in the backdoor tavern who has suggested the thieves might be hiding in the sewers beneath Yuug. I might have some luck entering through one of the many wells scattered around the city.',
+				events : [{
+					action : QuestObjectiveEvent.Actions.add,
+					data : {amount:1},
+				}],
+			},
+			{
+				label : 'informationGathered',
+				name : 'Scepter Recovered',
+				amount : 1,
+				completion_desc : 'It turns out Cor stole the scepter, but it seems to be sullied. I should bring it back to the church.',
+				events : [{
+					action : QuestObjectiveEvent.Actions.add,
+					data : {amount:1},
+					conditions : [
+						"eventIsEncounterDefeated",
+						{
+							"type" : Condition.Types.encounterLabel,
+							"data" : {label:"yuug_church_ambush"},
+							"targnr" : 0
+						},
+					],
+				}],
+			},
+		],
+		rewards : [
+			{
+				type : QuestReward.Types.Asset,
+				data : {label:Asset.Dummies.label, name:'gold', _stacks:1},
+				data : {label:Asset.Dummies.label, name:'divineScepter', _stacks:1},
+			},
+			{type:QuestReward.Types.Reputation, data:{faction:"yuug_clerics", amount:50}}
+		],
+		multiply_reward : true,
+		exp_multiplier : 3,
+	},
+
+	["SQ_yuug_church_02"] : {
+		name : 'A Subpreme Rescue',
+		description : 'The priests have located the demon Malthereus hiding in a derelict cabin on the east side of Yuug City, outside the walls. I should locate and defeat him to free the prisoner!',
+		objectives : [
+			{
+				label : 'malthereusDefeated',
+				name : 'Malthereus Defeated',
+				amount : 1,
+				completion_desc : 'It turns out the missing priest had not been kidnapped, but in fact eloped with the demon. He gave me his church insignia to take back to the church.',
+				events : [{
+					action : QuestObjectiveEvent.Actions.add,
+					data : {amount:1},
+					conditions : [
+						"eventIsEncounterDefeated",
+						{
+							"type" : Condition.Types.encounterLabel,
+							"data" : {label:"yuug_church_malthereus"},
+							"targnr" : 0
+						},
+					],
+				}],
+			},
+		],
+		rewards : [
+			{
+				type : QuestReward.Types.Asset,
+				data : {label:Asset.Dummies.label, name:'gold', _stacks:1},
+				// Todo: Rewards
+			},
+			{type:QuestReward.Types.Reputation, data:{faction:"yuug_clerics", amount:50}}
+		],
+		multiply_reward : true,
+		exp_multiplier : 3,
+	},
+
+
+
 
 	// Rod
 	["SQ_sharktopus_00"] : {

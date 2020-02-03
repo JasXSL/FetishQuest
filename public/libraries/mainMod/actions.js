@@ -4409,6 +4409,34 @@ const lib = {
 			}
 		]
 	},
+	divineScepter : {
+		icon : 'lasso',
+		name : "flanged-mace",
+		description : "Deals 3 holy damage.",
+		ap : 2,
+		cooldown : 2,
+		show_conditions : ["inCombat"],
+		tags : [
+			stdTag.acDamage,
+			stdTag.acPainful,
+		],
+		type : Action.Types.holy,
+		wrappers : [
+			{
+				target : "VICTIM",
+				detrimental : true,
+				add_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.damage,
+						data : {
+							amount : 3
+						}
+					},
+				]
+			}
+		]
+	},
 	milkMachine : {
 		icon : 'valve',
 		name : "Milk Machine",

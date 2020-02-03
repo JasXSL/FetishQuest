@@ -6,6 +6,21 @@ import Action from "../../classes/Action.js";
 
 const lib = {
 
+	// Dummy item for showing experience rewards
+	_dummy_experience : {
+		name : "Platinum",
+		slots : [],
+		category : Asset.Categories.currency,
+		tags : [],
+		description : "Adds player experience.",
+		weight : 0,
+		charges : 0,
+		rarity : 0,
+		loot_sound : "coins_pickup",
+		icon : 'upgrade',
+		stacking : true,
+	},
+
 	platinum : {
 		name : "Platinum",
 		slots : [],
@@ -199,13 +214,28 @@ const lib = {
 		tags : [ stdTag.asWhip ],
 		wrappers : [],
 		basevalue : 500,
-		description : "Adds the Groperope ability. Allowing you to deal 3 physical damage on an enemy every 3 turns.",
+		description : "Adds the Groperope ability. Allowing you to deal 3 physical damage on an enemy every 3 turns, causing high threat.",
 		weight : 750,
 		loot_sound : "whipPickup",
 		icon : 'lasso',
 		rarity : 2,
 		charges : -1,
 		use_action : "gropeRope",
+	},
+	divineScepter : {
+		category : Asset.Categories.handheld,
+		name : "Divine Scepter",
+		slots : [Asset.Slots.hands],
+		tags : [],
+		wrappers : [],
+		basevalue : 1000,
+		description : "Allows you to deal 3 holy damage on an enemy every 3 turns.",
+		weight : 2000,
+		loot_sound : "loot_metal",
+		icon : 'flanged-mace',
+		rarity : 2,
+		charges : -1,
+		use_action : "divineScepter",
 	},
 	boneRod : {
 		category : Asset.Categories.handheld,

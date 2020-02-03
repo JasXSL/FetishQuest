@@ -3,6 +3,7 @@ import Player from './Player.js';
 import Asset from './Asset.js';
 import Action from './Action.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
+import { QuestReward } from './Quest.js';
 
 export default class StaticModal{
 
@@ -228,6 +229,7 @@ export default class StaticModal{
 	static add( staticModal ){
 
 		this.lib[staticModal.id] = staticModal;
+		staticModal.parent = this;
 		this.main.append(staticModal.dom);
 		return staticModal;
 
@@ -471,6 +473,113 @@ export default class StaticModal{
 
 				});
 
+
+			});
+
+		// Quest
+		this.add(new this("quests", "Quests"))
+			.addRefreshOn(["quests"])
+			.addTab("Quests", () => {
+				return `
+					<div class="left">
+						Active quests:
+						<div class="available"></div>
+					</div>
+					<div class="right"></div>
+				`;
+			})
+			.setProperties(function(){
+
+				const main = this.main = this.getTabDom('Quests');
+				this.available = $("div.left > div.available", main);
+				this.right = $("div.right", main);
+				
+			})
+			.setDraw(function(){
+
+				let html = '', th = this;
+				let quests = game.quests;
+				let selectedQuest = quests[0];
+				const me = game.getMyActivePlayer();
+
+				for( let quest of quests ){
+					if( quest.id === localStorage.selected_quest )
+						selectedQuest = quest;
+				}
+
+				
+				if( !quests.length )
+					html += '<div class="selected">No active quests</div>';
+				else{
+					for( let quest of quests )
+						html += '<div data-id="'+esc(quest.id)+'" class="'+(quest === selectedQuest ? ' selected ' : '')+(quest.isCompleted() ? ' completed ' : '')+'">'+
+							(quest.difficulty > 1 ? '['+quest.difficulty+'] ' : '')+quest.name+(quest.isCompleted() ? ' (Completed)' : '')+
+						'</div>';
+				}
+				this.available.html(html);
+				
+				html = '';
+
+
+				if( !quests.length )
+					html += 'You have no active quests.';
+				else{
+					html += '<h1>'+esc(selectedQuest.name)+'</h1>';
+					
+					html += '<p>'+stylizeText(selectedQuest.description)+'</p>';
+
+					for( let objective of selectedQuest.objectives ){
+						if( objective.isCompleted() && objective.completion_desc )
+							html += '<p>'+stylizeText(objective.completion_desc)+'</p>';
+					}
+					
+					html += '<br /><h3>Objectives</h3>';
+
+					const objectives = selectedQuest.getVisibleObjectives();
+
+					for( let objective of objectives ){
+
+						html += '<div class="objective'+(objective.isCompleted() ? ' completed ' : '')+'">'+
+							esc(objective.name)+
+							(objective.amount ? '<br />'+objective._amount+'/'+objective.amount : '')+
+						'</div>';
+
+					}
+					
+					if( !selectedQuest.hide_rewards ){
+						html += '<hr />';
+						html += '<h3>Rewards</h3>';
+
+						html += '<div class="assets inventory">';
+						const rewards = selectedQuest.getRewards();
+						
+						const assets = rewards.filter(el => el.type === QuestReward.Types.Asset || el.type === QuestReward.Types.Action);
+						for( let reward of assets ){
+
+							const asset = reward.data;
+							const viableToMe = me && reward.testPlayer(me);
+									html += game.ui.getGenericAssetButton(asset, 0, !viableToMe ? 'disabled' : '');
+							
+						}
+						html += '</div>';
+
+					}
+
+					if( selectedQuest.rewards_exp )
+						html += '<div class="item">'+selectedQuest.rewards_exp+' Exp</div>';
+					
+
+				}
+
+				this.right.html(html);
+
+				$("> div[data-id]", this.available).on('click', function(){
+					
+					let id = $(this).attr('data-id');
+					localStorage.selected_quest = id;
+					StaticModal.refreshActive();
+
+				});
 
 			});
 
