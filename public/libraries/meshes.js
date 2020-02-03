@@ -2200,14 +2200,13 @@ LibMesh.library = {
 		},
 		// This is an NPC marker. Note that these are dummies and only visible in the editor. WebGL.js handles the actual rendering of them
 		Marker : {
-			// Dedicated player
 			Player : new LibMesh({
 				auto_bounding_box : true,
 				url : 'special/avatarMarker.JD',
 				materials : [
 					libMat.Solids.GreenArrow,
 					libMat.Metal.DarkGeneric,
-					libMat.Metal.Copper,
+					libMat.Solids.GreenArrow,
 				],
 				tags : [stdTag.mPLAYER_MARKER],
 				width: 1,

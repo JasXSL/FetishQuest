@@ -840,7 +840,7 @@ export default class UI{
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive)).length,
-			smith : myActive && game.smithAvailableTo(p, myActive),
+			repair : myActive && game.smithAvailableTo(p, myActive),
 			gym : myActive && game.gymAvailableTo(p, myActive),
 			rent : myActive && game.roomRentalAvailableTo(p, myActive, true),
 		};
@@ -861,7 +861,7 @@ export default class UI{
 			}
 
 		}
-		else if( type === 'smith' ){
+		else if( type === 'repair' ){
 			if( this.drawSmithInspector(p) ){
 				game.uiAudio( "smith_entered" );
 			}
@@ -1110,10 +1110,10 @@ export default class UI{
 
 		});
 
-		const showSmith = interactions.smith;
+		const showSmith = interactions.repair;
 		$("div.interaction[data-type=repair]", el).toggleClass("hidden", !showSmith).off('click').on('click', event => {
 			event.stopImmediatePropagation();
-			this.onPlayerInteractionUsed( "smith", p );
+			this.onPlayerInteractionUsed( "repair", p );
 		});
 
 
@@ -3414,8 +3414,22 @@ export default class UI{
 	drawPlayerContextMenu( player ){
 		
 		// Player marker has been clicked
-		// Use: getViableInteractionsOnPlayer & onPlayerInteractionUsed
-		console.log("Draw context menu for", player);
+		const interactions = this.getViableInteractionsOnPlayer(player);
+		this.modal.prepareSelectionBox();
+		for( let i in interactions ){
+			
+			if( interactions[i] )
+				this.modal.addSelectionBoxItem( ucFirst(i), '', i );
+
+		}
+		const th = this;
+		this.modal.onSelectionBox(function(){
+			
+			th.modal.closeSelectionBox();
+			const el = $(this);
+			th.onPlayerInteractionUsed(el.attr('data-id'), player);
+
+		});
 
 	}
 

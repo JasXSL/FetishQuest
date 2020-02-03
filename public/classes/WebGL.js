@@ -913,10 +913,21 @@ class WebGL{
 	}
 
 	onPlayerMarkerMouseover(){
+
 		game.renderer.renderer.domElement.style.cursor = "pointer";
+		this.material[2].emissive.copy(this.material[2].color);
+		if( !this.userData.baseScale )
+			this.userData.baseScale = this.scale.x;
+		this.scale.x = this.scale.y = this.scale.z = this.userData.baseScale*1.1;
+
 	}
 	onPlayerMarkerMouseout(){
+
 		game.renderer.renderer.domElement.style.cursor = "default";
+		this.material[2].emissive.set(0.1,0.1,0.1);
+		if( this.userData.baseScale )
+			this.scale.x = this.scale.y = this.scale.z = this.userData.baseScale;
+
 	}
 	onPlayerMarkerClick(){
 
@@ -951,6 +962,13 @@ class WebGL{
 		};
 		obj.material[0] = new THREE.MeshBasicMaterial({
 			map : new THREE.CanvasTexture(canvas)
+		});
+
+		obj.material[2] = new THREE.MeshStandardMaterial({
+			color : new THREE.Color(0xFFFFFF),
+			metalness : 0.6,
+			roughness : 0.4,
+			emissive : new THREE.Color(0x333333)
 		});
 
 		obj.userData.mouseover = this.onPlayerMarkerMouseover.bind(obj);
@@ -1027,6 +1045,12 @@ class WebGL{
 			else if( !marker.userData.marker.loading )
 				marker.visible = true;
 			marker.material[0].color.set(player.isDead() ? 0xFF1111 : 0xFFFFFF); 
+			const ring = marker.material[2];
+			ring.color.set(player.color);
+			ring.color.r = Math.pow(ring.color.r, 3);
+			ring.color.g = Math.pow(ring.color.g, 3);
+			ring.color.b = Math.pow(ring.color.b, 3);
+			marker.material[2].emissive.set(0.1,0.1,0.1);
 
 		}
 		
