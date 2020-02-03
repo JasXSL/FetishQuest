@@ -836,13 +836,18 @@ export default class UI{
 	getViableInteractionsOnPlayer( p ){
 
 		const myActive = game.getMyActivePlayer();
+		let rr = false;
+		try{
+			rr = game.roomRentalAvailableTo(p, myActive, true);
+		}catch(err){}
+
 		return {
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive)).length,
 			repair : myActive && game.smithAvailableTo(p, myActive),
 			gym : myActive && game.gymAvailableTo(p, myActive),
-			rent : myActive && game.roomRentalAvailableTo(p, myActive, true),
+			rent : myActive && rr,
 		};
 
 	}

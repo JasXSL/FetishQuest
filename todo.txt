@@ -18,30 +18,20 @@ Medium rare:
 	
 Big chungi:
 	- Church quest
-		- Objective completion description: Adds to quest log when objective is completed
-
-		- Rewards
+		- Add spell rewards:
 			- Sacrament of Sin : Increases damage done by 5% per point of arousal for 1 turn and each action removes 1 corruption.
 			- Holy Chain : Taunts a target for 2 turns and increases all their AP costs by 1.
-			- Holy Rod : Small rod that can be picked up and grants +1 holy proficiency (purchasable at friendly)
-			- Goldweave Thong : Golden thong that inceases holy proficiencty and corruption resist
-			- Divine Scepter : Smites an enemy, dealing holy damage.
 
-		- Premise: The clerics have had one of theirs kidnapped. They have managed to track down and lock a demon in their cellar, but not been able to get it to talk.
-		- Quest A: Getting the demon to talk
-			- Fight the demon to force it to confess. He reveals the location of the cleric, but that you're much too weak to free him.
-		- Quest B: The sewers
-			- Clerics tell you about the Divine Scepter, a relic that was dropped down a well, and send you to collect it.
-			- Find the well, and drop into it to enter the yuug sewers. <What monsters do you encounter there?>
-			- Navigate the sewers and fight <boss?> to get the scepter, but it seems quite dull.
-			- Take it back to the clerics, they restore its power and you get it as a reward.
-		- Quest C: Freeing the cleric
-			- Find a demonic rift located somewhere, enter it to enter a demonic dungeon.
-			- Fight your way through and kill the boss to free the cleric.
-			- Return to the church to get your rewards:
-				- Gold
-				- Spells for warrior/cleric
-				- Divine Plate Thong : Golden Plate thong. Grants increased holy proficiency and corruption resist
+		- Add faction vendor
+		- Add faction trainer
+
+		- Levels:
+			- Build yuug city walls south
+			- Build yuug sewers
+			- Build demon lair
+
+		- Scripting:
+			- TBD
 
 -- LATER UPDATE --
 

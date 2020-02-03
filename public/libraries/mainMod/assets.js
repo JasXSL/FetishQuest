@@ -275,6 +275,32 @@ const lib = {
 		charges : -1,
 		rarity : 2,
 	},
+	holyIdol : {
+		category : Asset.Categories.handheld,
+		name : "Holy Idol",
+		slots : [Asset.Slots.hands],
+		tags : [],
+		basevalue : 200,
+		wrappers : [
+			{
+				detrimental : false,
+				effects : [
+					{
+						type:Effect.Types.bonHoly,
+						data:{
+							amount:1
+						},
+					}
+				],
+				trigger_immediate : false,
+				duration : 0
+			}
+		],
+		description : "A simple gold colored metal symbol, it seems to resemble a dong.\n+1 Holy Proficiency",
+		weight : 300,
+		loot_sound : "loot_metal",
+		icon : 'holy-symbol',
+	},
 
 
 	minorRepairKit : {
@@ -496,6 +522,42 @@ const lib = {
 		rarity : 1,
 		loot_sound : "lootCloth"
 	},
+
+	goldweaveThong : {
+		name : "Goldweave Thong",
+		category : Asset.Categories.armor,
+		icon : 'underwear',
+		slots : [Asset.Slots.lowerBody],
+		equipped : false,
+		basevalue : 500,
+		tags : [
+			stdTag.asTight,
+			stdTag.asStretchy,
+			stdTag.asCanPullDown
+		],
+		wrappers : [
+			{
+				effects : [
+					{
+						type : Effect.Types.bonHoly,
+						data : {amount:2},
+					},
+					{
+						type : Effect.Types.svCorruption,
+						data : {amount:2},
+					}
+				],
+				duration : -1
+			}
+		],
+		description : "A shiny tight thong made in a golden fabric.\n+2 Holy Profiency, +2 Corruption Avoidance.",
+		level : -1,
+		durability : 15,
+		weight : 100,
+		rarity : 2,
+		loot_sound : "lootCloth"
+	},
+
 
 	mq00_boss_robe : {
 		name : "Crimson Robe",

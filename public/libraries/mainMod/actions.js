@@ -4410,8 +4410,8 @@ const lib = {
 		]
 	},
 	divineScepter : {
-		icon : 'lasso',
-		name : "flanged-mace",
+		icon : 'flanged-mace',
+		name : "Divine Scepter",
 		description : "Deals 3 holy damage.",
 		ap : 2,
 		cooldown : 2,
