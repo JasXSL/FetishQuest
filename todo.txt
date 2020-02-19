@@ -15,12 +15,22 @@ Smol:
 Medium rare:
 	- Add fog override to cells
 	- Character export/import
+
+	- Special case npc markers for mimics
 	
 Big chungi:
 	- Church quest
 		- Add spell rewards:
 			- Sacrament of Sin : Increases damage done by 5% per point of arousal for 1 turn and each action removes 1 corruption.
+				- Visual
+				- Texts
+				- Test
+				- Add to rewards
 			- Holy Chain : Taunts a target for 2 turns and increases all their AP costs by 1.
+				- Visual
+				- Texts
+				- Test
+				- Add to rewards
 
 		- Add faction vendor
 		- Add faction trainer

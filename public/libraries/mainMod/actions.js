@@ -1767,6 +1767,82 @@ const lib = {
 
 
 
+
+	// Priest guild
+	sacramentOfSin : {
+		name : "Sacrament of Sin",
+		icon : 'burning-book',
+		description : "Increases damage and healing done by 5% per point of arousal and each action used removes 2 arousal. Lasts until the end of your turn.",
+		ap : 0,
+		mp : 1,
+		target_type : Action.TargetTypes.self,
+		type : Action.Types.holy,
+		cooldown : 1,
+		tags : [stdTag.acBuff],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				duration : 1,
+				name : "Sacrament of Sin",
+				icon : "burning-book",
+				description : "Damage and healing done is increased by 5% per point of arousal. Each action removes 2 arousal.",
+				detrimental : false,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.globalDamageDoneMod,
+						data : {"amount":"1+se_Arousal*0.05"}
+					},
+					{
+						type : Effect.Types.addArousal,
+						events : [
+							"actionUsed"
+						],
+						conditions : [
+							"senderIsWrapperParent",
+							"actionNotHidden"
+						],
+						data : {"amount": -2},
+					}
+				]
+			},
+		]
+	},
+	holyChains : {
+		name : "Holy Chains",
+		icon : 'andromeda-chain',
+		description : "Chains a target to you, taunting them and increasing all their AP costs by 1.",
+		ap : 1,
+		mp : 1,
+		cooldown : 3,
+		type : Action.Types.holy,
+		tags : [stdTag.acDebuff, stdTag.acTaunt],
+		show_conditions : ["inCombat"],
+		wrappers : [
+			{
+				duration : 2,
+				name : "Holy Chains",
+				icon : "andromeda-chain",
+				description : "Taunted, AP costs increased by 1.",
+				detrimental : true,
+				add_conditions : stdCond,
+				stay_conditions : stdCond,
+				effects : [
+					{
+						type : Effect.Types.actionApCost,
+						data : {"amount":1}
+					},
+					{
+						type : Effect.Types.taunt,
+					}
+				]
+			},
+		]
+	},
+
+
+
 	// Item specific
 	whip_legLash: {
 		name : "Leg Lash",
@@ -3069,6 +3145,10 @@ const lib = {
 			}
 		]
 	},
+
+
+	
+
 
 	// Ghoul
 	pounce : {

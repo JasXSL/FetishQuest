@@ -1019,6 +1019,8 @@ class WebGL{
 			marker.position.copy(dungeonAsset._stage_mesh.position);
 			marker.scale.copy(dungeonAsset._stage_mesh.scale);
 
+			delete marker.userData.baseScale;
+
 			// Canvas
 			// Texture URL has changed
 			const url = player.getActiveIcon();
@@ -1079,7 +1081,7 @@ class WebGL{
 			if( !marker ){
 				// No free generic markers, skip this. Maybe later add an error for the developer?
 				if( !generics.length ){
-					console.log("No generics free");
+					console.error("No generics free");
 					continue;
 				}
 				marker = generics.shift();
@@ -1898,6 +1900,7 @@ class Stage{
 
 			let existing = this.findAsset( asset );
 			if( existing ){
+
 				// In the netcode, the tied in dungeonAsset may change, so we'll have to reset it
 				if( !game.is_host ){
 					asset._stage_mesh = existing;

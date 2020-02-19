@@ -737,6 +737,13 @@ const lib = [
 		hitfx : ["whip"],
 		metaTags : [stdTag.metaWhip, stdTag.metaPainful, stdTag.metaUsedWhip, stdTag.metaSlotButt],
 	},
+	{ text : "%S takes advantage of %T being bent over and lashes %Shis %Sgear across both of the %Trace's %Trsize buttcheeks!",
+		turnTags:[stdTag.ttBentOver],
+		conditions : humOnHumCond.concat("action_stdAttack","ttBentOver","senderHasWhippingProp","targetLowerBodyOrNoDamage",),
+		weight : Text.Weights.high,
+		hitfx : ["whipDouble"],
+		metaTags : [stdTag.metaWhip, stdTag.metaPainful, stdTag.metaUsedWhip, stdTag.metaSlotButt],
+	},
 
 	// paddle
 	{ text : "%S gets behind %T and brings %This %Sgear down across %T's exposed buttcheeks!",

@@ -876,11 +876,17 @@ class DungeonRoom extends Generic{
 	}
 	// Gets a marker by label
 	getPlayerMarker( label ){
+
+		// Don't allow generic markers here. They have to be shifted off in webgl to prevent duplicates.
+		if( !label )
+			return false;
+
 		for( let asset of this.assets ){
 			if( asset.isMarkerFor(label) )
 				return asset;
 		}
 		return false;
+
 	}
 
 	
@@ -1353,11 +1359,19 @@ class DungeonRoomAsset extends Generic{
 	isDoorLinkingTo( index ){
 		return this.getDoorTarget() === index;
 	}
+	
+	isMarker(){
+		return this.hasTag(stdTag.mPLAYER_MARKER);
+	}
 
 	isHidden(){
 
 		if( this.hide_no_interact )
 			return !this.isInteractive();
+
+		if( this.isMarker() )
+			return true;
+
 		const pl = game.getMyActivePlayer()||game.players[0];
 		return !Condition.all(this.conditions, new GameEvent({
 			sender:pl,
@@ -1371,7 +1385,7 @@ class DungeonRoomAsset extends Generic{
 
 	isMarkerFor( label = "" ){
 
-		return this.name === label && this.hasTag(stdTag.mPLAYER_MARKER);
+		return this.name === label && this.isMarker();
 
 	}
 

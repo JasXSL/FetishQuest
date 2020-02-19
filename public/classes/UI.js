@@ -841,7 +841,12 @@ export default class UI{
 			rr = game.roomRentalAvailableTo(p, myActive, true);
 		}catch(err){}
 
+		let rps = game.getRoleplaysForPlayer( p );
+		if( game.isInPersistentRoleplay() )
+			rps = [];
+
 		return {
+			talk : rps,
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive)).length,
@@ -880,7 +885,13 @@ export default class UI{
 		}
 		else if( type === 'inspect' )
 			this.staticModal.set("player", p);
-		
+		else if( type === 'talk' ){
+
+			const rp = game.getRoleplaysForPlayer(p).shift();
+			if( rp )
+				game.setRoleplay(rp);
+
+		}
 
 	}
 
@@ -1085,20 +1096,15 @@ export default class UI{
 
 
 		// Interactions
-		let rps = game.getRoleplaysForPlayer( p );
-		if( game.isInPersistentRoleplay() )
-			rps = [];
-
-		$("div.interaction[data-type=chat]", el).toggleClass("hidden", !rps.length).off('click').on('click', event => {
-			const rp = game.getRoleplaysForPlayer(p).shift();
-			event.stopImmediatePropagation();
-			if( rp )
-				game.setRoleplay(rp);
-		});
+		const interactions = this.getViableInteractionsOnPlayer(p);
 
 		$("> div.interactions", el).toggleClass('hidden', !myActive);
 
-		const interactions = this.getViableInteractionsOnPlayer(p);
+		$("div.interaction[data-type=chat]", el).toggleClass("hidden", !interactions.talk.length).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.onPlayerInteractionUsed( "talk", p );
+		});
+
 
 		const showLoot = interactions.loot;
 		$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
