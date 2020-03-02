@@ -87,6 +87,8 @@ const lib = {
 	action_cocktopus_inkject_tick : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_tick'}, targnr:0},
 	action_cocktopus_inkject_finish : {type:Condition.Types.effectLabel, data:{label:'cocktopus_inkject_expire'}, targnr:0},
 	action_detach : {type:Condition.Types.actionLabel, data:{label:'detach'}, targnr:0},
+	action_crit : {type:Condition.Types.actionCrit, targnr:0},
+	action_not_crit : {type:Condition.Types.actionCrit, targnr:0, inverse:true},
 	action_tentacle_pit : {type:Condition.Types.actionLabel, data:{label:'tentacle_pit'}, targnr:0},
 	action_tentacle_pit_proc : {type:Condition.Types.effectLabel, data:{label:'tentacle_pit_proc'}, targnr:0},
 	action_mq00_ward_boss : {type:Condition.Types.actionLabel, data:{label:'mq00_ward_boss'}, targnr:0},

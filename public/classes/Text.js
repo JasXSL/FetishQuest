@@ -75,6 +75,7 @@ class Text extends Generic{
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
 		this._cache_event = null;		// Cache of event type supplied in conditions. Should speed things up.
 		this._cache_action = null;		// Cache of the action involved, since most texts are tied to an action.
+		this._cache_crit = null;		// Set to true if it requires crit, false if it should not be a crit. remains null for either or
 
 		this.load(...args);
 	}
@@ -97,11 +98,14 @@ class Text extends Generic{
 	}
 
 	rebase(){
+
 		this.conditions = Condition.loadThese(this.conditions, this);
 		this.chatPlayerConditions = Condition.loadThese(this.chatPlayerConditions, this);
 		for( let sound of this.audiokits ){
+
 			if( !glib.audioKits[sound] )
 				console.error("AudioKit not found", sound, "in", this);
+
 		}
 		this.hitfx = HitFX.loadThese(this.hitfx);
 
@@ -118,6 +122,9 @@ class Text extends Generic{
 				let actions = toArray(condition.data.label);
 				for( let n of actions )
 					this._cache_action[n] = true;
+			}
+			else if( condition.type === Condition.Types.actionCrit ){
+				this._cache_crit = !condition.inverse;
 			}
 
 		}
@@ -385,6 +392,14 @@ class Text extends Generic{
 			if( debug )
 				console.debug("FAIL because this._cache_action");
 			return false;
+		}
+
+		if( this._cache_crit !== null ){
+			if( !event.action || event.action._crit !== this._cache_crit ){
+				if( debug )
+					console.debug("FAIL because this._cache_crit");
+				return false;
+			}
 		}
 
 		const original = event.custom.original;

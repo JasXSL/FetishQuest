@@ -63,6 +63,7 @@ class Action extends Generic{
 
 		// Auto generated if loaded from a player library
 		this._custom = false;
+		this._crit = false;						// Set when used indicating if it critically hit or not
 		
 		this.load(data);
 	}
@@ -227,6 +228,15 @@ class Action extends Generic{
 
 	}
 
+	// Only stdAttack and stdArouse can crit
+	canCrit(){
+
+		const names = {[this.label] : true};
+		for( let alias of this.alias )
+			names[alias] = true;
+		return alias['stdAttack'] || alias['stdArouse'];
+
+	}
 
 
 
@@ -569,6 +579,7 @@ class Action extends Generic{
 			return;
 
 		let time = Date.now();
+		this._crit = false;
 
 		let sender = this.getPlayerParent();
 
@@ -605,6 +616,9 @@ class Action extends Generic{
 			}).raise();
 			return true;
 		}
+
+		if( this.canCrit() )
+			this._crit = Math.random() < sender.getCritDoneChance();
 
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
@@ -653,10 +667,12 @@ class Action extends Generic{
 
 			let successes = 0;
 			for( let wrapper of this.wrappers ){
+
 				const data = wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer);
 				wrapperReturn.merge(data);
 				if( data )
 					++successes;
+
 			}
 
 			if( successes )
@@ -664,13 +680,17 @@ class Action extends Generic{
 
 			// Add damaging since last
 			if( this.hasTag(stdTag.acDamage) && successes ){
+
 				target.onDamagingAttackReceived(sender, this.type);
 				sender.onDamagingAttackDone(target, this.type);
+
 			}
 
 			if( successes && this.target_type === Action.TargetTypes.target ){
+
 				sender.onTargetedActionUsed(target);
 				target.onTargetedActionReceived(sender);
+				
 			}
 
 				

@@ -697,10 +697,13 @@ class Effect extends Generic{
 	trigger( event, template, wrapperReturn ){
 
 
+		const wrapper = this.parent;
+
 		let evt = event.clone();
 		evt.effect = this;
 		evt.originalWrapper = evt.wrapper;
-		evt.wrapper = this.parent;
+		evt.wrapper = wrapper;
+		
 
 		if( !(wrapperReturn instanceof WrapperReturn) )
 			wrapperReturn = new WrapperReturn();
@@ -743,7 +746,7 @@ class Effect extends Generic{
 			type : GameEvent.Types.effectTrigger,
 			sender : sender,
 			target : tout,
-			wrapper : this.parent,
+			wrapper : wrapper,
 			effect : this,
 		}).raise();
 
@@ -762,22 +765,27 @@ class Effect extends Generic{
 			if( this.type === Effect.Types.damage ){
 
 				let type = this.data.type;
-				if( !type && this.parent.parent.constructor === Action )
-					type = this.parent.parent.type;
+				if( !type && wrapper.parent.constructor === Action )
+					type = wrapper.parent.type;
 				if( !type )
 					type = Action.Types.physical;
 
 				let e = GameEvent.Types.damageDone, e2 = GameEvent.Types.damageTaken;
-				const calcEvt = new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this});
+				const calcEvt = new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this});
 				let amt = -Calculator.run(
 					this.data.amount, 
 					calcEvt
 				);
 				if( !this.no_stack_multi )
-					amt *= this.parent.stacks;
+					amt *= wrapper.stacks;
 
 				if( s.isHealInverted() )
 					amt = -Math.abs(amt);
+
+				// Only affects damage/healing
+				const crit = wrapper.parent instanceof Action && wrapper.parent._crit;
+				if( crit )
+					amt *= 2;
 
 				// Healing
 				if( amt > 0 ){
@@ -845,7 +853,7 @@ class Effect extends Generic{
 					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t );
 					
 					// Multipliers last
-					amt *= Player.getBonusDamageMultiplier( s,t,type,this.parent.detrimental ); // Negative because it's damage
+					amt *= Player.getBonusDamageMultiplier( s,t,type,wrapper.detrimental ); // Negative because it's damage
 					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t );
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
 					amt *= t.getNudityDamageMultiplier();
@@ -919,14 +927,14 @@ class Effect extends Generic{
 					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(change*this.data.leech)) : 0;
 					t.addThreat( s.id, -threat );
 					if( change )
-						game.ui.addText( t.getColoredName()+" took "+Math.abs(change)+" "+type+" damage"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage damage' );
+						game.ui.addText( t.getColoredName()+" took "+Math.abs(change)+" "+type+" damage"+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' :'')+".", undefined, s.id, t.id, 'statMessage damage' );
 					if( leech ){
 						s.addHP(leech, s, this, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
 					}
 
 				}else if(change){
-					game.ui.addText( t.getColoredName()+" gained "+change+" HP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage healing' );
+					game.ui.addText( t.getColoredName()+" gained "+change+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' : '')+".", undefined, s.id, t.id, 'statMessage healing' );
 				}
 
 
@@ -935,7 +943,7 @@ class Effect extends Generic{
 					type : e,
 					sender : s,
 					target : t,
-					wrapper : this.parent,
+					wrapper : wrapper,
 					effect : this,
 				}).raise();
 				
@@ -944,7 +952,7 @@ class Effect extends Generic{
 					type : e2,
 					sender : s,
 					target : t,
-					wrapper : this.parent,
+					wrapper : wrapper,
 					effect : this,
 				}).raise();
 				if( died )
@@ -952,7 +960,7 @@ class Effect extends Generic{
 						type : GameEvent.Types.playerDefeated,
 						sender : s,
 						target : t,
-						wrapper : this.parent,
+						wrapper : wrapper,
 						effect : this
 					}).raise();
 			}
@@ -971,23 +979,23 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.addMP ){
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
 				}));
 				if( !this.no_stack_multi )
-					amt *= this.parent.stacks;
-				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" MP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage MP' );
+					amt *= wrapper.stacks;
+				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" MP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage MP' );
 				t.addMP(amt, true);
 			}
 
 			else if( this.type === Effect.Types.addHP ){
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
 				}));
 				if( !this.no_stack_multi )
-					amt *= this.parent.stacks;
+					amt *= wrapper.stacks;
 				amt = Math.floor(amt);
-				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
+				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
 				t.addHP(amt, s, this, true);
 			}
 
@@ -1020,7 +1028,7 @@ class Effect extends Generic{
 				
 				let amt = Math.floor(Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
 				})));
 				if( !isNaN(amt) ){
 
@@ -1049,10 +1057,10 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.addThreat ){
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
 				}));
 				if( !this.no_stack_multi )
-					amt *= this.parent.stacks;
+					amt *= wrapper.stacks;
 				t.addThreat(s.id, amt);
 			}
 
@@ -1081,14 +1089,14 @@ class Effect extends Generic{
 				
 				let wrappers = this.data.wrappers;
 				if( !Array.isArray(wrappers) ){
-					console.error("Effect data in wrapper ", this.parent, "tried to run wrappers, but wrappers are not defined in", this);
+					console.error("Effect data in wrapper ", wrapper, "tried to run wrappers, but wrappers are not defined in", this);
 					return false;
 				}
 				
 				for( let w of this.data.wrappers ){
 
-					let wrapper = new Wrapper(w, this.parent.parent);
-					wrapper.useAgainst(s, t, false);
+					let wr = new Wrapper(w, wrapper.parent);
+					wr.useAgainst(s, t, false);
 
 				}
 
@@ -1120,7 +1128,7 @@ class Effect extends Generic{
 					if(t.unequipAsset(asset.id)){
 						if( asset.loot_sound )
 							game.playFxAudioKitById(asset.loot_sound, s, t, undefined, true );
-						game.ui.addText( t.getColoredName()+"'s "+asset.name+" was unequipped"+(this.parent.name ? ' by '+s.getColoredName() : '')+".", undefined, t.id, t.id, 'statMessage important' );
+						game.ui.addText( t.getColoredName()+"'s "+asset.name+" was unequipped"+(wrapper.name ? ' by '+s.getColoredName() : '')+".", undefined, t.id, t.id, 'statMessage important' );
 						for( let slot of asset.slots ){
 							stripData[slot] = asset;
 						}
@@ -1137,7 +1145,7 @@ class Effect extends Generic{
 					viable = [],
 					assets = t.getAssets()
 				;
-				const evt = new GameEvent({wrapper:this.parent, effect:this, sender:s, target:t});
+				const evt = new GameEvent({wrapper:wrapper, effect:this, sender:s, target:t});
 				for( let asset of assets ){
 					
 					evt.asset = asset;
@@ -1159,7 +1167,7 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.removeParentWrapper ){
-				this.parent.remove();
+				wrapper.remove();
 			}
 
 			else if( this.type === Effect.Types.removeWrapperByLabel ){
@@ -1170,11 +1178,11 @@ class Effect extends Generic{
 				let wrappers = t.wrappers.slice();		// Use temporary wrappers only
 				console.log("Removing wrappers", label, "from", t.wrappers);
 				
-				for( let wrapper of wrappers ){
+				for( let wr of wrappers ){
 					if(
-						~label.indexOf(wrapper.label) &&
-						(!this.data.casterOnly || wrapper.caster === s.id)
-					)wrapper.remove();					
+						~label.indexOf(wr.label) &&
+						(!this.data.casterOnly || wr.caster === s.id)
+					)wr.remove();					
 				}
 			}
 
@@ -1183,18 +1191,18 @@ class Effect extends Generic{
 				if( !Array.isArray(tags) )
 					tags = [tags];
 				let wrappers = t.wrappers.slice();		// Use temporary wrappers only
-				for( let wrapper of wrappers ){
+				for( let wr of wrappers ){
 					if(
 						label.hasTag(tags) &&
-						(!this.data.casterOnly || wrapper.caster === s.id)
-					)wrapper.remove();					
+						(!this.data.casterOnly || wr.caster === s.id)
+					)wr.remove();					
 				}
 			}
 
 			else if( this.type === Effect.Types.addStacks ){
 				
-				// {stacks:(int)(str)stacks=1, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true}
-				let wrappers = [this.parent];
+				// {stacks:(int)(str)stacks=1, conditions:(arr)conditions(undefined=wrapper), casterOnly:(bool)=true}
+				let wrappers = [wrapper];
 				let stacks = this.data.stacks;
 				let refreshTime = this.data.refreshTime;
 				if( isNaN(stacks) )
@@ -1226,14 +1234,14 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addWrapperTime ){
-				// {amount:(int)(str)amount, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true}
-				let wrappers = [this.parent];
+				// {amount:(int)(str)amount, conditions:(arr)conditions(undefined=wrapper), casterOnly:(bool)=true}
+				let wrappers = [wrapper];
 				let time = this.data.amount;
 				if( !time ){
 					console.error("Invalid time in", this);
 					return false;
 				}
-				time = Calculator.run(time, new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this}));
+				time = Calculator.run(time, new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this}));
 
 				if( this.data.conditions ){
 					wrappers = [];
@@ -1266,7 +1274,7 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.addActionCharges ){
 				t.addActionCharges(this.data.actions, Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
 				})));
 			}
 
@@ -1296,10 +1304,10 @@ class Effect extends Generic{
 				// {amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL}
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
 				}));
 				if( ! this.no_stack_multi )
-					amt *= this.parent.stacks;
+					amt *= wrapper.stacks;
 				if( !amt )
 					continue;
 
@@ -1342,7 +1350,7 @@ class Effect extends Generic{
 
 			// Unlike the above one, this will present the caster with an asset picker of damaged gear on the target
 			else if( this.type === Effect.Types.repair ){
-				let np = this.parent.netPlayer;
+				let np = wrapper.netPlayer;
 				if( np )
 					game.net.dmDrawRepair(np, s, t, template.parent );
 				else

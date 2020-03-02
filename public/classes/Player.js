@@ -1724,10 +1724,12 @@ export default class Player extends Generic{
 	getMaxArousal(){
 		return BASE_AROUSAL;
 	}
-
-
-	
-
+	// returns a random chance between 0 and 1
+	getCritDoneChance(){
+		// 10% baseline plus 5% per agility
+		let out = 0.1+this.statPointsToNumber(Player.primaryStats.agility)*0.05;
+		return out;
+	}
 
 	/* STATS */
 	getPrimaryStats(){

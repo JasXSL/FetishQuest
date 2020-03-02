@@ -256,12 +256,15 @@ export default class Condition extends Generic{
 			else if( this.type === T.wrapperTag ){
 
 				// Searches any attached wrapper for a tag
-				return eventWrapper && eventWrapper.hasTag(this.data.tags);
+				success = eventWrapper && eventWrapper.hasTag(this.data.tags);
 
 			}
 			else if( this.type === T.actionTag ){
 				// Searches any attached action for a tag
-				return event.action && event.action.hasTag(this.data.tags);
+				success = event.action && event.action.hasTag(this.data.tags);
+			}
+			else if( this.type === T.actionCrit ){
+				success = event.action && event.action._crit;
 			}
 			else if( this.type === T.sameTeam )
 				success = s.team === t.team;
@@ -1040,6 +1043,7 @@ Condition.Types = {
 	sadism : 'sadism',
 	hourRange : 'hourRange',
 	hasActiveConditionalPlayer : 'hasActiveConditionalPlayer',
+	actionCrit : 'actionCrit',
 };
 
 
@@ -1105,6 +1109,7 @@ Condition.descriptions = {
 	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',
 	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY can be used on things like stdattack',
 	[Condition.Types.itemStolen] : '{} - Requires wrapperReturn in event. Checks if at least one item steal is present',
+	[Condition.Types.actionCrit] : '{} - Needs a supplied action which critically hit',
 	
 	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
