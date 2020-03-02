@@ -1726,8 +1726,8 @@ export default class Player extends Generic{
 	}
 	// returns a random chance between 0 and 1
 	getCritDoneChance(){
-		// 10% baseline plus 5% per agility
-		let out = 0.1+this.statPointsToNumber(Player.primaryStats.agility)*0.05;
+		// 4% per agility plus 5% baseline. Only affects std attack and arouse
+		let out = 0.05+this.statPointsToNumber(Player.primaryStats.agility)*0.05;
 		return out;
 	}
 

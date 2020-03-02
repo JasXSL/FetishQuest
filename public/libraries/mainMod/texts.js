@@ -69,7 +69,7 @@ const lib = [
 
 	// STDAttack
 	{ text : "%S throws a punch at %T!",
-		"conditions":humOnAnyCond.concat("action_stdAttack", "action_not_crit"),
+		"conditions":humOnAnyCond.concat("action_stdAttack"),
 		hitfx : ["punch"],
 		metaTags : [stdTag.metaPainful, stdTag.metaPunch],
 	},
@@ -85,6 +85,22 @@ const lib = [
 		hitfx : ["doubleSlap"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotBreasts, stdTag.metaSlap],
 	},
+	{ text : "%S throws a slap up across %T's %groin!",
+		conditions : humOnHumCond.concat([ "action_stdAttack", "action_crit", "targetLowerBodyOrNoDamage" ]),
+		hitfx : ["slap"],
+		metaTags : [stdTag.metaPainful, stdTag.metaSlotGroin, stdTag.metaSlap],
+	},
+	{ text : "%S throws a hard punch right at %T's solar plexus, knocking the wind out of the %Trace!",
+		conditions : humOnHumCond.concat([ "action_stdAttack", "action_crit", "targetUpperBodyOrNoDamage" ]),
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaPainful, stdTag.metaPunch],
+	},
+	{ text : "%S gets behind %T and flattens %Shis hand, jabbing it hard up between %T's buttcheeks!",
+		conditions : humOnHumCond.concat([ "action_stdAttack", "action_crit", "targetLowerBodyOrNoDamage", "targetButtExposedOrThong"]),
+		hitfx : ["punch"],
+		metaTags : [stdTag.metaPainful, stdTag.metaPunch, stdTag.metaSlotButt],
+	},
+	
 	{ text : "%S jumps onto the knocked down %Trace's stomach, throwing two teasing slaps across %T's %groin!",
 		conditions : humOnHumCond.concat([ "action_stdAttack", "action_not_crit", "targetKnockedDownBack", "targetTaller",'targetLowerBodyOrNoDamage',
 			"targetLowerBodyNotHard"
@@ -111,7 +127,7 @@ const lib = [
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotButt, stdTag.metaSlap],
 	},
 	{ text : "%S jumps on top of %T, straddling %Thim and grabbing a hold of the back of %This %TclothLower, tugging firmly and giving the %Trace a wedgie!",
-		conditions : humOnHumCond.concat([ "action_stdAttack", "action_not_crit", "targetKnockedDownFront", "targetTaller","targetLowerBodyDamaged","targetLowerBodyNotHard"]),
+		conditions : humOnHumCond.concat([ "action_stdAttack", "targetKnockedDownFront", "targetTaller","targetLowerBodyDamaged","targetLowerBodyNotHard"]),
 		weight : Text.Weights.high,
 		hitfx : ["stretch"],
 		turnTags : [stdTag.ttWedgie],
@@ -126,7 +142,7 @@ const lib = [
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotNipples, stdTag.metaStretch],
 	},
 	{ text : "%S takes advantage of an opening in %T's defences, skillfully darting in and firmly pinching the front of the %Trace's %TclothLower before quickly tugging back until it slips free!",
-		conditions : humOnHumCond.concat([ "action_stdAttack", "action_not_crit", "targetPenis", "targetKnockedDownBack", "targetTaller",'targetLowerBodyOrNoDamage',"targetLowerBodyNotHard", "targetWearsLowerBody"]),
+		conditions : humOnHumCond.concat([ "action_stdAttack", "targetPenis", "targetKnockedDownBack", "targetTaller",'targetLowerBodyOrNoDamage',"targetLowerBodyNotHard", "targetWearsLowerBody"]),
 		hitfx : ["stretch"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotGroin, stdTag.metaStretch],
 	},
@@ -142,7 +158,7 @@ const lib = [
 	},
 
 	{ text : "%S slips %Shis hands in under the sides of %T's %TclothLower from the front and pulls out, damaging the piece in the process!",
-		conditions : humOnHumCond.concat([ "action_stdAttack", "action_not_crit", "targetPenis", "targetTaller", "targetLowerBodyDamaged", "targetLowerBodyNotPants", "targetLowerBodyNotHard"]),
+		conditions : humOnHumCond.concat([ "action_stdAttack", "targetPenis", "targetTaller", "targetLowerBodyDamaged", "targetLowerBodyNotPants", "targetLowerBodyNotHard"]),
 		hitfx : ["stretch"],
 		metaTags : [stdTag.metaStretch, stdTag.metaSlotGroin, stdTag.metaSlotClothes],
 	},
@@ -165,7 +181,7 @@ const lib = [
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotNipples, stdTag.metaStretch],
 	},
 	{ text : "%S pinches a hold of the front of %T's %TclothLower and pulls backwards, exposing %This %Tgenitals!",
-		conditions : humOnHumCond.concat("action_stdAttack", "action_not_crit","targetLowerBodyNotHard",'targetLowerBodyOrNoDamage', "targetWearsLowerBody"),
+		conditions : humOnHumCond.concat("action_stdAttack","targetLowerBodyNotHard",'targetLowerBodyOrNoDamage', "targetWearsLowerBody"),
 		audiokits : ["pinchGeneric"],
 		hitfx : ["stretch"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotGroin, stdTag.metaStretch],
@@ -276,7 +292,7 @@ const lib = [
 	},
 	{ text : "%S grabs at the waistline of the restrained %Trace's %TclothLower from the front, giving a firm tug up!",
 		turnTags:[],
-		conditions : humOnHumCond.concat("action_stdAttack", "action_not_crit","targetTiedUp", "targetLowerBodyDamaged", "targetLowerBodyNotHard", "targetLowerBodyWaistband"),
+		conditions : humOnHumCond.concat("action_stdAttack", "targetTiedUp", "targetLowerBodyDamaged", "targetLowerBodyNotHard", "targetLowerBodyWaistband"),
 		hitfx : ["stretch"],
 		metaTags : [stdTag.metaStretch, stdTag.metaPainful, stdTag.metaSlotClothes, stdTag.metaWedgie],
 	},
@@ -290,7 +306,7 @@ const lib = [
 	},
 	{ text : "%S takes advantage of %T's situation and grabs a firm hold of the waistline of %This %TclothLower! %S rapidly yanks up, lifting the %Trace's %Trsize %butt into the air!",
 		turnTags:[],
-		conditions : humOnHumCond.concat("action_stdAttack", "action_not_crit","targetBoundStocks", "targetLowerBodyOrNoDamage", "targetLowerBodyWaistband"),
+		conditions : humOnHumCond.concat("action_stdAttack", "targetBoundStocks", "targetLowerBodyOrNoDamage", "targetLowerBodyWaistband"),
 		hitfx : ["stretch"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotButt, stdTag.metaWedgie],
 	},
@@ -412,7 +428,7 @@ const lib = [
 	},
 	{ text : "%S wraps tentacles around %T's ankles and begins spreading %This legs, further stretching at %This %TclothLower!",
 		conditions : anyOnHumCond.concat([
-			"action_stdAttack", "action_not_crit", "senderHasTentacles", "ttWedgie", "targetWearsLowerBody", 'targetLowerBodyDamaged'
+			"action_stdAttack","senderHasTentacles", "ttWedgie", "targetWearsLowerBody", 'targetLowerBodyDamaged'
 		]),
 		hitfx : ["tentacleStretch"],
 		weight : Text.Weights.high,
@@ -444,7 +460,7 @@ const lib = [
 	},
 	{ text : "%S slithers a tendril around the front of %T's %TclothLower, constricting around %This package!",
 		conditions : anyOnHumCond.concat([
-			"action_stdAttack", "action_not_crit","senderHasTentacles","targetLowerBodyNotHard","targetWearsLowerBody","targetPenis", "targetLowerBodyOrNoDamage"
+			"action_stdAttack","senderHasTentacles","targetLowerBodyNotHard","targetWearsLowerBody","targetPenis", "targetLowerBodyOrNoDamage"
 		]),
 		hitfx : ["tentacleSqueeze"],
 		metaTags : [stdTag.metaSlotGroin, stdTag.metaWhip, stdTag.metaUsedTentacles, stdTag.metaJiggle, stdTag.metaPainful],
@@ -626,28 +642,28 @@ const lib = [
 		hitfx : ["tentacleSqueeze"]
 	},
 	{ text : "%S slips into %T's %TclothLower and starts swimming rapidly, stretching the piece out and exposing %This %groin!",
-		conditions : anyOnHumCond.concat("action_stdAttack", "action_not_crit","senderIsLamprey", "targetLowerBodyNotHard", "targetLowerBodyDamaged"),
+		conditions : anyOnHumCond.concat("action_stdAttack","senderIsLamprey", "targetLowerBodyNotHard", "targetLowerBodyDamaged"),
 		weight : Text.Weights.high,
 		turnTags : [stdTag.ttGroinExposed],
 		metaTags : [stdTag.metaStretch, stdTag.metaWet, stdTag.metaSlotClothes, stdTag.metaSlotGroin],
 		hitfx : ["tentacleStretch"]
 	},
 	{ text : "%S slips into %T's %TclothLower and starts swimming down rapidly, tugging the piece off!",
-		conditions : anyOnHumCond.concat("action_stdAttack", "action_not_crit","senderIsLamprey", "targetLowerBodyNotHard", "targetLowerBodyStripped", "targetLowerBodyCanPullDown"),
+		conditions : anyOnHumCond.concat("action_stdAttack", "senderIsLamprey", "targetLowerBodyNotHard", "targetLowerBodyStripped", "targetLowerBodyCanPullDown"),
 		weight : Text.Weights.high,
 		turnTags : [stdTag.ttGroinExposed],
 		metaTags : [stdTag.metaStretch, stdTag.metaWet, stdTag.metaSlotClothes, stdTag.metaSlotGroin],
 		hitfx : ["tentacleStretch"]
 	},
 	{ text : "%S slips into %T's %TclothUpper and starts swimming rapidly, stretching the piece up and exposing %This %Tbsize %breasts!",
-		conditions : anyOnHumCond.concat("action_stdAttack", "action_not_crit","senderIsLamprey", "targetBreasts", "targetUpperBodyNotHard", "targetUpperBodyCanPullUp", "targetUpperBodyDamaged"),
+		conditions : anyOnHumCond.concat("action_stdAttack", "senderIsLamprey", "targetBreasts", "targetUpperBodyNotHard", "targetUpperBodyCanPullUp", "targetUpperBodyDamaged"),
 		weight : Text.Weights.high,
 		turnTags : [stdTag.ttBreastsExposed],
 		metaTags : [stdTag.metaStretch, stdTag.metaWet, stdTag.metaSlotClothes, stdTag.metaSlotBreasts],
 		hitfx : ["tentacleStretch"]
 	},
 	{ text : "%S wraps around %T's butt-string and starts swimming away, %firmly stretching %This %TclothLower!",
-		conditions : anyOnHumCond.concat("action_stdAttack", "action_not_crit","senderIsLamprey", "targetWearsThong"),
+		conditions : anyOnHumCond.concat("action_stdAttack", "senderIsLamprey", "targetWearsThong"),
 		weight : Text.Weights.high,
 		turnTags : [stdTag.ttButtExposed],
 		metaTags : [stdTag.metaStretch, stdTag.metaWet, stdTag.metaSlotClothes, stdTag.metaSlotGroin],
@@ -660,7 +676,7 @@ const lib = [
 		metaTags : [stdTag.metaStretch, stdTag.metaWet, stdTag.metaSlotClothes, stdTag.metaSlotGroin, stdTag.metaPainful],
 		hitfx : ["tentacleStretch"]
 	},
-	{ text : "%S hoops a tentacle around the back of %T's %TclothLower and tugs at the same time as it pushes %This hips forward, exposing %This %Tbutt!",
+	{ text : "%S hoops a tentacle around the back of %T's %TclothLower and tugs at the same time as it pushes %This hips forward, exposing %This %butt!",
 		turnTags : [stdTag.ttButtExposed],
 		conditions : anyOnHumCond.concat("action_stdAttack","senderIsAnemone", "targetGrappledByMe", "targetLowerBodyDamaged", "targetLowerBodyCanPullDown"),
 		metaTags : [stdTag.metaStretch, stdTag.metaSlotClothes, stdTag.metaSlotButt],
@@ -899,6 +915,59 @@ const lib = [
 		metaTags : [stdTag.metaRub, stdTag.metaSlotGroin, stdTag.metaArousing],
 		hitfx : ["squeeze"]
 	},
+
+	{ text : "%S slinks %Shis hand inside %T's %TclothLower and rigidly fondles %This %penis!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "action_crit", "targetPenis", "targetWearsLowerBody"
+		]),
+		metaTags : [stdTag.metaRub, stdTag.metaSlotPenis, stdTag.metaArousing],
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S wraps %Shis hand around %T's %penis and gives it a couple of rapid strokes!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "action_crit", "targetPenis", "targetPenisExposed"
+		]),
+		metaTags : [stdTag.metaRub, stdTag.metaSlotPenis, stdTag.metaArousing],
+		hitfx : ["squeeze"]
+	},
+	{ text : "%S slinks %Shis hand into %T's %TclothLower and pushes a finger into the %Trace's %vagina, wriggling it around!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "action_crit", "targetVagina", "targetWearsLowerBody"
+		]),
+		metaTags : [stdTag.metaPenetration, stdTag.metaSlotVagina, stdTag.metaVeryArousing, stdTag.metaUsedFinger],
+		hitfx : ["squishTiny"]
+	},
+	{ text : "%S slips a finger up inside the %Trace's exposed %vagina, wriggling it around!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "action_crit", "targetVagina", "targetVaginaExposed"
+		]),
+		metaTags : [stdTag.metaPenetration, stdTag.metaSlotVagina, stdTag.metaVeryArousing, stdTag.metaUsedFinger],
+		hitfx : ["squishTiny"]
+	},
+	{ text : "%S slips a finger up inside the %Trace's exposed %butt, wriggling it around!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "action_crit", "targetButtExposed"
+		]),
+		metaTags : [stdTag.metaPenetration, stdTag.metaSlotButt, stdTag.metaVeryArousing, stdTag.metaUsedFinger],
+		hitfx : ["squishTiny"]
+	},
+	{ text : "%S takes advantage of %Shis smaller size and slips between %T's legs, forcing %Shis entire hand up the %Trace's exposed %vagina, churning it around briefly!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "action_crit", "targetVaginaExposed", "targetMuchTaller"
+		]),
+		metaTags : [stdTag.metaPenetration, stdTag.metaSlotVagina, stdTag.metaVeryArousing, stdTag.metaUsedFist],
+		hitfx : ["squishTiny"]
+	},
+	{ text : "%S, the smaller %Srace manages to get behind %T and tug at %This butt-string, exposing %This %vagina before shoving %Shis entire hand inside, churning it around briefly!",
+		conditions : humOnHumCond.concat([
+			"action_stdArouse", "action_crit", "targetVagina", "targetMuchTaller", "targetWearsThong"
+		]),
+		metaTags : [stdTag.metaPenetration, stdTag.metaSlotVagina, stdTag.metaVeryArousing, stdTag.metaUsedFist],
+		hitfx : ["squishTiny"]
+	},
+
+
+
 	{ text : "%S positions %Shimself behind %T, shoving %Shis %Spsize %penis inside the %Trace's %vagina and thrusting a %few times!",
 		turnTags:[stdTag.ttBentOver],
 		conditions : humOnHumCond.concat("action_stdArouse", "action_crit","ttBentOver","targetVagina","senderPenis","targetGroinExposed"),
@@ -1239,7 +1308,8 @@ const lib = [
 		metaTags : [stdTag.metaSlotButt, stdTag.metaUsedTentacles, stdTag.metaRub],
 	},
 	{ text : "%S slips some wiggly tentacles up between %T's legs and tickles the %Trace's inner thighs!",
-		hitfx : ["tentacleTickle", "action_not_crit"],
+		conditions : anyOnHumCond.concat("action_stdArouse","action_not_crit"),
+		hitfx : ["tentacleTickle"],
 		metaTags : [stdTag.metaUsedTentacles, stdTag.metaTickle],
 	},
 	{ text : "%S slips a cock-tipped tentacle up between %T's legs, forcing it into %This %vagina and thrusting a couple of times!",

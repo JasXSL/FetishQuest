@@ -60,10 +60,11 @@ class Action extends Generic{
 		this._charges = 1;			// Charges remaining for this action. A charge is added each time the cooldown triggers
 		this._cast_targets = [];		// UUIDs of players a charge spell is aimed at
 		this._cache_cooldown = false;		// Since this.cooldown can be a math formula, this lets you cache the cooldown to prevent lag. Wiped on turn start.
+		this._crit = false;
 
 		// Auto generated if loaded from a player library
 		this._custom = false;
-		this._crit = false;						// Set when used indicating if it critically hit or not
+		
 		
 		this.load(data);
 	}
@@ -234,7 +235,7 @@ class Action extends Generic{
 		const names = {[this.label] : true};
 		for( let alias of this.alias )
 			names[alias] = true;
-		return alias['stdAttack'] || alias['stdArouse'];
+		return names['stdAttack'] || names['stdArouse'];
 
 	}
 
@@ -579,7 +580,6 @@ class Action extends Generic{
 			return;
 
 		let time = Date.now();
-		this._crit = false;
 
 		let sender = this.getPlayerParent();
 
@@ -617,9 +617,10 @@ class Action extends Generic{
 			return true;
 		}
 
-		if( this.canCrit() )
-			this._crit = Math.random() < sender.getCritDoneChance();
-
+		// Needs to be cached for texts
+		this._crit = this.canCrit() && Math.random() < sender.getCritDoneChance();
+		
+		
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
 
@@ -668,7 +669,8 @@ class Action extends Generic{
 			let successes = 0;
 			for( let wrapper of this.wrappers ){
 
-				const data = wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer);
+				// caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined, crit = false
+				const data = wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer, this._crit);
 				wrapperReturn.merge(data);
 				if( data )
 					++successes;
@@ -690,7 +692,7 @@ class Action extends Generic{
 
 				sender.onTargetedActionUsed(target);
 				target.onTargetedActionReceived(sender);
-				
+
 			}
 
 				

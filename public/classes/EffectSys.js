@@ -47,7 +47,7 @@ class Wrapper extends Generic{
 		this.original_target = "";		// Set on targeted actions, this is the one the action targeted. Usually the same as victim
 		this._duration = 0; 
 		this._self_cast = false;		// This effect was placed on the caster by the caster
-
+		this._crit = false;
 
 		this.load(data);
 	}
@@ -152,7 +152,7 @@ class Wrapper extends Generic{
 	/*	Returns an object on success:
 		See out
 	*/
-	useAgainst( caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined ){
+	useAgainst( caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined, crit = false ){
 		
 		const out = new WrapperReturn();
 
@@ -203,6 +203,7 @@ class Wrapper extends Generic{
 				obj.netPlayer = netPlayer;
 				obj.original_target = player.id;
 				obj.action = this.parent instanceof Action ? this.parent.id : '';
+				obj._crit = crit;
 
 			}
 
@@ -783,7 +784,7 @@ class Effect extends Generic{
 					amt = -Math.abs(amt);
 
 				// Only affects damage/healing
-				const crit = wrapper.parent instanceof Action && wrapper.parent._crit;
+				const crit = wrapper._crit;
 				if( crit )
 					amt *= 2;
 

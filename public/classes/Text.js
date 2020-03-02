@@ -561,6 +561,7 @@ Text.runFromLibrary = function( event, debug = false ){
 				// Action used needs to have a text, we'll create a template one
 				if( event.type === GameEvent.Types.actionUsed && event.action && !event.action.hidden ){
 					Text.actionFallbackText.run(event);
+					console.error("Had to use a fallback for ", event);
 				}
 				if( event.type === GameEvent.Types.actionCharged && event.action && !event.action.hidden )
 					Text.actionChargeFallbackText.run(event);
