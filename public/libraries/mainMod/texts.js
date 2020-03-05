@@ -818,14 +818,14 @@ const lib = [
 	// stdArouse
 	{ text : "%S tickles %T!",
 		conditions : baseCond.concat([
-			"action_stdArouse", "action_not_crit", "senderBeast"
+			"action_stdArouse", "senderBeast"
 		]),
 		hitfx : ["tickle"],
 		metaTags : [stdTag.metaTickle],
 	},
 	{ text : "%S tickles %T!",
 		conditions : baseCond.concat([
-			"action_stdArouse", "action_not_crit", "targetBeast"
+			"action_stdArouse","targetBeast"
 		]),
 		metaTags : [stdTag.metaTickle],
 		hitfx : ["tickle"]
@@ -1308,7 +1308,7 @@ const lib = [
 		metaTags : [stdTag.metaSlotButt, stdTag.metaUsedTentacles, stdTag.metaRub],
 	},
 	{ text : "%S slips some wiggly tentacles up between %T's legs and tickles the %Trace's inner thighs!",
-		conditions : anyOnHumCond.concat("action_stdArouse","action_not_crit"),
+		conditions : anyOnHumCond.concat("action_stdArouse","action_not_crit","senderHasTentacles"),
 		hitfx : ["tentacleTickle"],
 		metaTags : [stdTag.metaUsedTentacles, stdTag.metaTickle],
 	},

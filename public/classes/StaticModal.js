@@ -306,9 +306,9 @@ export default class StaticModal{
 				updateButton();
 				sleepButton.on('click', () => {
 					game.sleep( game.getMyActivePlayer(), mesh.userData.dungeonAsset, +range.val() );
-					this.toggleCustomModals(false);
+					this.close();
 				});
-				this.cancel.on('click', () => this.toggleCustomModals(false));
+				this.cancel.on('click', () => this.close());
 
 			});
 

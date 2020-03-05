@@ -502,7 +502,7 @@ const lib = {
 	roomStalagmite : {type:Condition.Types.tag,data:{"tags":[stdTag.mStalagmite]}},
 	roomBondageMachine : {type:Condition.Types.tag, data:{tags:[stdTag.mBondage]}, targnr:0},
 	roomHasFreeBondageDevice : {type:Condition.Types.hasFreeBondageDevice, targnr:0},
-	
+	roomWater : {type:Condition.Types.tag, data:{tags:[stdTag.mWater]}, targnr:0},
 
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},

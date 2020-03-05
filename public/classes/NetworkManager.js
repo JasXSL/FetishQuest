@@ -906,11 +906,12 @@ class NetworkManager{
 			
 			const amt = parseInt(args.amount),
 				player = args.player,
-				type = args.type || ''
+				type = args.type || '',
+				crit = args.crit || false
 			;
 			if( !amt || !player )
 				return;
-			game.ui.floatingCombatText(amt, player, type);
+			game.ui.floatingCombatText(amt, player, type, crit);
 
 		}
 
@@ -1290,11 +1291,12 @@ class NetworkManager{
 		this.sendHostTask(NetworkManager.dmTasks.blackScreen, {});
 	}
 
-	dmFloatingCombatText( amount, player, type ){
+	dmFloatingCombatText( amount, player, type, crit ){
 		this.sendHostTask(NetworkManager.dmTasks.floatingCombatText, {
 			amount : amount,
 			player : player instanceof Player ? player.id : player,
-			type : type
+			type : type,
+			crit : crit
 		});
 	}
 
@@ -1318,7 +1320,7 @@ NetworkManager.dmTasks = {
 	rope : 'rope',									// {player:(str)player_id, dur:(int)seconds} - Starts the turn timer rope for the player
 	blackScreen : 'blackScreen',					// void - Triggers a black screen visual
 	afk : 'afk',									// {id:(bool)afk...} - Sends AFK status to all players
-	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type}
+	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type, crit:(bool)crit}
 };
 
 // Player -> DM

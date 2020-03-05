@@ -846,7 +846,7 @@ export default class UI{
 			rps = [];
 
 		return {
-			talk : rps,
+			talk : rps.length,
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive)).length,
@@ -3442,17 +3442,18 @@ export default class UI{
 		return free;
 	}
 
-	floatingCombatText(amount, player, type = ''){
+	floatingCombatText(amount, player, type = '', crit = false ){
 
 		if( amount !== undefined ){
 			
 			this.fctQue.push({
 				amount : amount,
 				player : player instanceof Player ? player.id : player,
-				type : type
+				type : type,
+				crit : crit
 			});
 			if( game.is_host && game.net.isConnected() )
-				game.net.dmFloatingCombatText(amount, player.id, type);
+				game.net.dmFloatingCombatText(amount, player.id, type, crit);
 
 		}
 		if( this.fctTimer || !this.fctQue.length )
@@ -3462,6 +3463,8 @@ export default class UI{
 		amount = entry.amount;
 		player = entry.player;
 		type = entry.type;
+		crit = entry.crit;
+
 		this.fctTimer = setTimeout(() => {
 			this.fctTimer = false;
 			this.floatingCombatText();
@@ -3491,6 +3494,7 @@ export default class UI{
 			.text(amount)
 			.attr('style', 'left:'+(left*100)+'%; top:'+(top*100)+'%')
 			.toggleClass(type, true)
+			.toggleClass('crit', Boolean(crit))
 		;
 		setTimeout(() => {
 			el.toggleClass('hidden free', true).toggleClass(type, false);
