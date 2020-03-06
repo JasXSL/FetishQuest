@@ -68,6 +68,20 @@ const lib = {
             }
         ],
     },
+    crit_attack: {
+        sounds : [
+            {
+                s : { path : "media/audio/melee_crit.ogg", volume : 0.5 }
+            }
+        ],
+    },
+    crit_arouse: {
+        sounds : [
+            {
+                s : { path : "media/audio/ar_crit.ogg", volume : 0.5 }
+            }
+        ],
+    },
     throwGenericSender : {
         sounds : [{
             s : { path : "media/audio/swing_small.ogg", volume : 0.3 },
@@ -184,6 +198,37 @@ const lib = {
         sounds : [
             {
                 s : {path : "media/audio/cloth_stretch.ogg",volume : 0.5},
+            }
+        ],
+        
+    },
+    stretchWhip: {
+        sounds : [
+            {
+                s : {path : "media/audio/cloth_stretch.ogg",volume : 0.5,},
+                t: 200,
+                se:false
+            },
+            {
+                s : {
+                    path : "media/audio/whip_snap.ogg",
+                    volume : 0.75,
+                    hit: true
+                },
+                se : false
+            }
+        ],
+        
+    },
+    stretchPunch: {
+        sounds : [
+            {
+                s : {path : "media/audio/cloth_stretch.ogg",volume : 0.5},
+                t: 200,
+                se:false
+            },
+            {
+                s : { path : "media/audio/basic_punch.ogg", volume : 0.5, hit: true },
             }
         ],
         

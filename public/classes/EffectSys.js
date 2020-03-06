@@ -928,7 +928,7 @@ class Effect extends Generic{
 					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(change*this.data.leech)) : 0;
 					t.addThreat( s.id, -threat );
 					if( change )
-						game.ui.addText( t.getColoredName()+" took "+Math.abs(change)+" "+type+" damage"+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' :'')+".", undefined, s.id, t.id, 'statMessage damage' );
+						game.ui.addText( t.getColoredName()+" took "+Math.abs(change)+" "+type+" damage"+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' :'')+".", undefined, s.id, t.id, 'statMessage damage'+(crit ? ' crit':'') );
 					if( leech ){
 						s.addHP(leech, s, this, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );

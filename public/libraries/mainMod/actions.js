@@ -647,6 +647,8 @@ const lib = {
 		tags : ["ac_damage","ac_debuff"],
 		show_conditions : ["inCombat"],
 		detrimental : Action.Detrimental.team,
+		ranged : Action.Range.Ranged,
+		
 		wrappers : [
 			{
 				duration : 3,
@@ -697,9 +699,6 @@ const lib = {
 		wrappers : [
 			{
 				duration : 0,
-				name : "Corrupting Vial",
-				icon : "poison-bottle",
-				description : "Taking corruption damage each turn. Corruption resist reduced by 2.",
 				detrimental : true,
 				add_conditions : stdCond.concat("targetNotSender", "notTargetedBySenderLastRound", "notSneakAttackedBySender"),
 				stay_conditions : stdCond,

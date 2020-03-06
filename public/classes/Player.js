@@ -227,7 +227,6 @@ export default class Player extends Generic{
 				out._damage_since_last = this._damage_since_last;
 				out._d_damaging_since_last = this._d_damaging_since_last;
 				out._d_damage_since_last = this._d_damage_since_last;
-				out._targeted_by_since_last = this._targeted_by_since_last;
 				out._turns = this._turns;
 			}
 
@@ -245,6 +244,7 @@ export default class Player extends Generic{
 			out.netgame_owner_name = this.netgame_owner_name;
 			out.color = this.color;
 			out.arousal = this.arousal;
+			out._targeted_by_since_last = this._targeted_by_since_last;		// Needed by netcode
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -617,7 +617,7 @@ export default class Player extends Generic{
 	// Overrides the generic definition for this
 	getTags( wrapperReturn, force = false ){
 
-		if( game._caches && this._cache_tags && !force )
+		if( window.game && game._caches && this._cache_tags && !force )
 			return this._cache_tags;
 
 		let out = {};
@@ -677,7 +677,7 @@ export default class Player extends Generic{
 			game.dungeon.getTags().map(t => out[t.toLowerCase()] = true);
 
 		const ret = Object.keys(out);
-		if( game._caches )
+		if( window.game && game._caches )
 			this._cache_tags = ret;
 
 		return ret;

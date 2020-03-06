@@ -533,6 +533,8 @@ class NetworkManager{
 				if( !asset )
 					return respondWithError("Interacted asset not found in room", args.dungeonAsset);
 
+				if( !asset._stage_mesh )
+					console.log("Clicked asset", asset, "is missing stage mesh");
 				game.dungeon.assetClicked( player, room, asset, asset._stage_mesh );
 
 			}

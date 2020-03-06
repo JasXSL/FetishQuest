@@ -1746,6 +1746,9 @@ div.fxBuffRed{
 	#ui > div.middle > div.content > div.line.statMessage.arousal{
 		color:#DBD;
 	}
+	#ui > div.middle > div.content > div.line.statMessage.crit{
+		font-weight:bold;
+	}
 	#ui > div.middle > div.content > div.line.statMessage.important{
 		color:#FA6;
 		font-weight: bold;

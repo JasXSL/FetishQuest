@@ -12,11 +12,16 @@ Meshes:
 Smol:	
 	- Enabling or disabling a mod while hosting should send a full game
 
+
 Medium rare:
 	- Add fog override to cells
 	- Character export/import
-
 	- Special case npc markers for mimics
+	
+	x Sneak attack not showing as disabled when it should be on online coop
+		- Test
+	x Moving between cells some times borks interactions in netgames (this is probably caused by the caching)
+		- Test
 	
 Big chungi:
 	- Church quest

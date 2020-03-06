@@ -229,13 +229,18 @@ class Action extends Generic{
 
 	}
 
-	// Only stdAttack and stdArouse can crit
-	canCrit(){
-
+	// Tests a label against this one's aliases
+	testLabel( label ){
 		const names = {[this.label] : true};
 		for( let alias of this.alias )
 			names[alias] = true;
-		return names['stdAttack'] || names['stdArouse'];
+		return names[label];
+	}
+
+	// Only stdAttack and stdArouse can crit
+	canCrit(){
+
+		return this.testLabel('stdAttack') || this.testLabel('stdArouse');
 
 	}
 
@@ -700,9 +705,10 @@ class Action extends Generic{
 
 		if( hits.length ){
 			
+			const pp = this.getPlayerParent();
 			let evt = new GameEvent({
 				type : GameEvent.Types.actionUsed,
-				sender : this.getPlayerParent(),
+				sender : pp,
 				target : hits,
 				action : this,
 				wrapperReturn : wrapperReturn,
@@ -711,6 +717,23 @@ class Action extends Generic{
 			evt.raise();
 			if( this.isAssetAction() && !this.parent.no_auto_consume )
 				this.parent.consumeCharges();
+
+			if( this._crit ){
+				for( let n = 0; n<hits.length; ++n ){
+
+					setTimeout(() => {
+						game.playFxAudioKitById(
+							this.testLabel('stdAttack') ? 'crit_attack' : 'crit_arouse', 
+							pp, 
+							hits[n], 
+							undefined, 
+							true, 
+							1.0
+						);
+					}, 1+n*200);
+
+				}
+			}
 
 		}
 

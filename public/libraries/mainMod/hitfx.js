@@ -400,6 +400,40 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'stretchWhip';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		css_fx : 'fxStretch',
+		sound_kits : ['stretchWhip'],
+		hold : 400
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+	}, out[id]),
+);
+
+id = 'stretchPunch';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		css_fx : 'fxStretch',
+		sound_kits : ['stretchPunch'],
+		hold : 400
+	}, out[id]),
+	new Stage({
+		particles : 'hitfx_punch',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		css_fx : 'fxTakeDamage',
+	}, out[id]),
+);
+
 id = 'tentacleSqueeze';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

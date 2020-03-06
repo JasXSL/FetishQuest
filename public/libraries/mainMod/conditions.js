@@ -478,7 +478,7 @@ const lib = {
 	targetMuchTaller : {type:Condition.Types.sizeValue,data:{amount:"se_Size+1",operator:">"}},
 	targetMuchShorter : {type:Condition.Types.sizeValue,data:{amount:"se_Size-1",operator:"<"}},
 	targetShorter : {"type":"sizeValue",data:{"amount":"se_Size","operator":"<"}},
-	targetNotTaller : {type:"sizeValue",data:{amount:"se_Size",operator:"<"}, inverse:true},
+	targetNotTaller : {type:"sizeValue",data:{amount:"se_Size",operator:"<"}},
 	notInCombat : {"type":"notInCombat"},
 	inCombat : {"type":"notInCombat","inverse":true},
 	rand10 : {"type":"rng",data:{"chance":10}},

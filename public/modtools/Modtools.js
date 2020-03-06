@@ -2291,6 +2291,7 @@ export default class Modtools{
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
 			html += 'Tags: '+this.formTags(asset.tags, 'tags')+'<br />';
+			html += '<label title="Ignores the dungeon exit markers">Free roam: <input name="freeRoam" type="checkbox" '+(asset.free_roam ? 'checked' : '')+' /></span><br />';	
 			html += 'Consumables: '+this.formAssets(dungeon.consumables, 'consumables')+'<br />';
 			html += 'Dungeon Vars: '+this.formDungeonVars(dungeon.vars)+'<br />';
 
@@ -2517,7 +2518,7 @@ export default class Modtools{
 			saveAsset.rooms = dungeon.rooms.map(el => el.save("mod"));
 			saveAsset.consumables = this.compileAssets("consumables");
 			saveAsset.vars = this.compileDungeonVars();
-			
+			saveAsset.free_roam = $("input[name=freeRoam]", form).is(':checked');
 		});
 
 		// Set stuff outside the form

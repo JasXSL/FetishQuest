@@ -752,7 +752,6 @@ class WebGL{
 		const cache_level = parseInt(localStorage.cache_level) || 50;
 		while( this.getNrCachedCells() > cache_level && Object.keys(this.dungeons).length > 1 ){
 
-			console.log("Pruned", this.getOldestCachedDungeon());
 			this.uncacheDungeon(this.getOldestCachedDungeon());
 
 		}
@@ -794,13 +793,24 @@ class WebGL{
 		this.stages = [];
 
 		game.ui.toggleLoadingBar(game.dungeon.rooms.length);
+
+		// This dungeon is cached
 		if( this.dungeons[game.dungeon.label] ){
+
 			this.stages = this.dungeons[game.dungeon.label].stages;
+			this.stages.forEach(stage => {
+				// Dungeon room objects change when entered, and I'm not sure why it's like that, but it do
+				stage.room = game.dungeon.getRoomById(stage.room.id);
+			});
 			await delay(100);
+
 		}
+		// not cached
 		else{
+
 			let i = 0;
 			for( let room of game.dungeon.rooms ){
+
 				let stage = new Stage( room, this );
 				this.stages.push(stage);
 				this.dungeonsGroup.add(stage.group);
@@ -810,6 +820,7 @@ class WebGL{
 				game.ui.setLoadingBarValue(++i);
 				if( this.load_after_load )
 					break;
+
 			}
 			
 		}
@@ -838,14 +849,18 @@ class WebGL{
 		let pre = this.stage;
 
 		for( let r of this.stages ){
+
 			if( r.room.id === room.id ){
+
 				if( !game.is_host )
 					r.room = room;				// Needed for netcode
 				this.stage = r;
 				this.cache_active_room = room.id;
 				await r.draw();
 				break;
+
 			}
+
 		}
 
 		// Weird, couldn't find the stage
@@ -1065,6 +1080,9 @@ class WebGL{
 
 		// Viable marker positions
 		const room = game.dungeon.getActiveRoom();
+		if( !room )
+			return;
+			
 		const generics = room.getGenericMarkers();
 
 		let markerIndex = 0;	// Tracks what marker to add to
@@ -1532,7 +1550,7 @@ class Stage{
 		this.sounds = [];		// [{id:(str)soundID, mesh:THREE.Mesh, sound:AudioSound}]
 		this.water = [];		// Meshes
 		this.isEditor = isEditor;	// Whether this was loaded through the editor or live
-		this.room = room;
+		this.room = room;			// DungeonRoom
 	}
 	destructor(){
 		this.onTurnOff();
@@ -1656,7 +1674,7 @@ class Stage{
 			}
 		}
 
-		if( linkedRoom && linkedRoom.index === asset.parent.parent_index && !game.battle_active && !interaction.data.badge ){
+		if( linkedRoom && linkedRoom.index === asset.parent.parent_index && !game.battle_active && !interaction.data.badge && !this.room.parent.free_roam ){
 			tagAlwaysVisible = true;
 			sprite = sprites.out;
 			sprite.material.opacity = 1;
@@ -1865,7 +1883,7 @@ class Stage{
 	}
 
 
-	// Returns a mesh based on DungeonAsset in stage. If stage is unset, it uses the current stage
+	// Returns a mesh based on DungeonAsset in stage.
 	findAsset( dungeonAsset ){
 		for( let mesh of this.group.children ){
 			if( mesh.userData.dungeonAsset.id === dungeonAsset.id )
@@ -1893,7 +1911,7 @@ class Stage{
 	// Chainable
 	async draw( ){
 
-		let room = this.room;
+		const room = this.room;
 
 		// Add assets
 		for( let asset of room.assets ){
@@ -1902,10 +1920,10 @@ class Stage{
 			if( existing ){
 
 				// In the netcode, the tied in dungeonAsset may change, so we'll have to reset it
-				if( !game.is_host ){
-					asset._stage_mesh = existing;
-					existing.userData.dungeonAsset = asset;
-				}
+				//if( !game.is_host ){
+				asset._stage_mesh = existing;
+				existing.userData.dungeonAsset = asset;
+				//}
 
 				existing.visible = !asset.isHidden();
 

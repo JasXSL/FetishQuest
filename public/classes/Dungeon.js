@@ -49,6 +49,7 @@ class Dungeon extends Generic{
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
 		this.difficulty = -1;		// Generally describes how many players this dungeon is for. -1 automatically sets it to nr friendly players
 		this.vars = new Collection({}, this);				// Dungeon vars. This one is loaded onto by _state
+		this.free_roam = false;		// When true, doesn't show the "back" icon leading you to exit
 		this.consumables = [
 			'manaPotion', 'majorManaPotion',
 			'minorHealingPotion', 'healingPotion', 'majorHealingPotion',
@@ -92,6 +93,7 @@ class Dungeon extends Generic{
 			difficulty : this.difficulty,
 			vars : vars,
 			label : this.label,	// Label is needed for dungeon state events
+			free_roam : this.free_roam,
 		};
 
 		// Full or mod
@@ -191,6 +193,13 @@ class Dungeon extends Generic{
 				return room;
 		}
 		return false;
+	}
+
+	getRoomById( id ){
+		for( let room of this.rooms ){
+			if( room.id === id )
+				return room;
+		}
 	}
 
 	generateRoom( shape ){
