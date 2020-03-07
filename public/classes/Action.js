@@ -205,7 +205,7 @@ class Action extends Generic{
 	}
 
 	// Returns effects that disable this against a player
-	getDisabledEffectsAgainst( player, hide_only = false ){
+	getDisabledEffectsAgainst( player, hide_only = false, debug = false ){
 
 		const parent = this.getPlayerParent();
 		if( !parent )
@@ -221,7 +221,7 @@ class Action extends Generic{
 		for( let effect of effects ){
 
 			const conds = effect.data.conditions;
-			if( Condition.all(conds, evt) && (effect.data.hide || !hide_only) )
+			if( Condition.all(conds, evt, debug) && (effect.data.hide || !hide_only) )
 				out.set(effect, true);
 
 		}

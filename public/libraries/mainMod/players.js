@@ -831,11 +831,11 @@ const lib = {
 		intelligence : 0.3,
 		stamina : -6,
 		intellect : -4,
-		agility : 0,
+		agility : -3,
 		class : 'none',
-		svPhysical : 0,
+		svPhysical : -3,
         svElemental : 0,
-        svHoly : -3,
+        svHoly : -6,
         svCorruption : 0,
         bonPhysical : 0,
         bonElemental : 0,
@@ -852,7 +852,7 @@ const lib = {
 					type : Effect.Types.disableActions,
 					data : {conditions:[
 						{type:Condition.Types.actionLabel, data:{label:['stdAttack','stdArouse']}},
-						{type:Condition.Types.wrapperLabel, data:{label:'construct_spread'}, inverse:true}
+						{type:Condition.Types.hasWrapper, data:{label:'construct_spread'}, inverse:true}
 					]},
 				}]
 			}

@@ -647,9 +647,9 @@ export default class Player extends Generic{
 			asset.getTags().map(addTag);
 
 		let fx = this.getWrappers();
-		for( let f of fx )
+		for( let f of fx ){
 			f.getTags().map(addTag);
-
+		}
 		fx = this.getEffects();
 		for( let f of fx ){
 
@@ -881,6 +881,7 @@ export default class Player extends Generic{
 		this._stun_diminishing_returns = 0;
 		this._turns = 0;
 		this.used_punish = false;
+		
 	}
 	// Item broken, repaired, equipped, or removed
 	onItemChange(){

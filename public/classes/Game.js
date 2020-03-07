@@ -1139,6 +1139,7 @@ export default class Game extends Generic{
 		p.initialize();
 		this.players.push(p);
 
+
 		// Add before the current player
 		if( this.battle_active ){
 			
@@ -1227,7 +1228,7 @@ export default class Game extends Generic{
 		let p = this.players.slice();
 		for( let pl of p ){
 
-			if( pl.generated && (!deadOnly || pl.isDead()) )
+			if( (pl.generated && (!deadOnly || pl.isDead())) || pl.remOnDeath )
 				this.removePlayer(pl.id);
 
 		}

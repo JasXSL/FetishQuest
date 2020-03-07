@@ -118,7 +118,7 @@ export default class GameAction extends Generic{
 		if( window.game ){
 			
 			
-
+			// Loot is needed in netcode
 			if( this.type === GameAction.types.loot ){
 				
 				if( typeof this.data !== "object" || this.data === null )
@@ -130,11 +130,15 @@ export default class GameAction extends Generic{
 					this.data.loot = Asset.loadThese(this.data.loot);
 				
 			}
+
+			// Encounters are needed by netcode
 			if( this.type === GameAction.types.encounters && game.is_host ){
 				if( !Array.isArray(this.data) )
 					console.error("Trying to load non-array to encounter type in interaction:", this);
 				this.data = DungeonEncounter.loadThese(this.data);
 			}
+
+			// RP is needed in netcode
 			if( this.type === GameAction.types.roleplay ){
 				
 				if( !this.data || !this.data.rp ){
@@ -145,22 +149,28 @@ export default class GameAction extends Generic{
 				
 			}
 
+			// Shop is needed in netcode
 			if( this.type === GameAction.types.shop ){
 				this.data.shop = this.getDataAsShop();
 			}
 
-			if( this.type === GameAction.types.text )
-				this.data.text = this.getDataAsText();
+			
 
-			if( this.type === GameAction.types.addPlayer )
-				this.data.player = this.getDataAsPlayer();
+			
 
-			if( this.type === GameAction.types.addPlayerTemplate )
-				this.data.player = this.getDataAsPlayerTemplate();
 
+			/*
+			These shouldn't be needed because they're not needed by netcode
 			if( this.type === GameAction.types.learnAction )
 				this.data.conditions = Condition.loadThese(this.data.conditions);
-			
+			if( this.type === GameAction.types.addPlayer )
+				this.data.player = this.getDataAsPlayer();
+			if( this.type === GameAction.types.addPlayerTemplate )
+				this.data.player = this.getDataAsPlayerTemplate();
+			if( this.type === GameAction.types.text )
+				this.data.text = this.getDataAsText();
+			*/
+
 		}
 
 
@@ -306,6 +316,9 @@ export default class GameAction extends Generic{
 	}
 
 	getDataAsPlayer(){
+		if( typeof this.data.player === 'string' ){
+			return glib.get(this.data.player, 'Player');
+		}
 		return Player.loadThis(this.data.player, this);
 	}
 	getDataAsPlayerTemplate(){
@@ -633,7 +646,10 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.addPlayer ){
-			game.addPlayer(this.getDataAsPlayer().clone().g_resetID(), this.data.nextTurn);
+			const player = this.getDataAsPlayer().clone().g_resetID();
+			player.onPlacedInWorld();
+			player.generated = true;	// Makes sure it gets removed
+			game.addPlayer(player, this.data.nextTurn);
 		}
 		else if( this.type === types.addPlayerTemplate ){
 			game.addPlayerFromTemplate(this.getDataAsPlayerTemplate(), this.data.nextTurn);
