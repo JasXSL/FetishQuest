@@ -532,7 +532,7 @@ const lib = {
 		max_size : 3,
 		difficulty : 1,
 		viable_consumables : ['majorManaPotion','majorHealingPotion','repairKit'],
-		powered : true,
+		power : -1,
 		sadistic_min : 0,
 		sadistic_max : 1,
 		dominant_min : 0,
@@ -554,7 +554,6 @@ const lib = {
 		description : "A lumbering muscular demon with a big horn on its head, and a large swinging dong.",
 		classes : ["guardian_demon_breaker"],
 		monetary_wealth : 40,
-		powered : true,
 		max_actions : 5,
 		tags : [
 			stdTag.penis,
@@ -827,7 +826,6 @@ const lib = {
 		description : "A dark feathered crow-man.",
 		classes : ["necromancer"],
 		monetary_wealth : 100,
-		powered : false,
 		max_actions : 3,
 		tags : [
 			stdTag.penis,
@@ -888,7 +886,6 @@ const lib = {
 		description : "A dark-furred jackal.",
 		classes : ["necromancer"],
 		monetary_wealth : 100,
-		powered : false,
 		max_actions : 3,
 		tags : [
 			stdTag.breasts,
@@ -951,7 +948,6 @@ const lib = {
 		description : "A dark-furred jackal.",
 		classes : ["necromancer"],
 		monetary_wealth : 100,
-		powered : false,
 		max_actions : 3,
 		tags : [
 			stdTag.penis,
@@ -1017,7 +1013,6 @@ const lib = {
 		description : "A large muscular horse with visible scars across his body.",
 		classes : ["outlaw_brute"],
 		monetary_wealth : 100,
-		powered : false,
 		max_actions : 3,
 		tags : [
 			stdTag.penis,
@@ -1069,7 +1064,6 @@ const lib = {
 		description : "A large muscular horse with large breasts.",
 		classes : ["outlaw_brute"],
 		monetary_wealth : 100,
-		powered : false,
 		max_actions : 3,
 		tags : [
 			stdTag.vagina,
@@ -1127,7 +1121,6 @@ const lib = {
 		description : "A rat man sporting visible scars.",
 		classes : ["outlaw_rogue","outlaw_tentaclemancer"],
 		monetary_wealth : 100,
-		powered : false,
 		max_actions : 3,
 		tags : [
 			stdTag.penis,
@@ -1177,7 +1170,6 @@ const lib = {
 		description : "A rat-lady with smaller than average breasts.",
 		classes : ["outlaw_rogue","outlaw_tentaclemancer"],
 		monetary_wealth : 100,
-		powered : false,
 		max_actions : 3,
 		tags : [
 			stdTag.vagina,
@@ -1230,7 +1222,6 @@ const lib = {
 		description : "A large-breasted lynx with toned muscles.",
 		classes : ["outlaw_rogue","outlaw_tentaclemancer","outlaw_brute"],
 		monetary_wealth : 150,
-		powered : false,
 		max_actions : 4,
 		tags : [
 			stdTag.vagina,

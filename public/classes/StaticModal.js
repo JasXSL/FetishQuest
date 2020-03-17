@@ -645,11 +645,12 @@ export default class StaticModal{
 					cacheLevelSpan : $("div.cacheLevel span", this.getTabDom("Video")),
 				};
 
+
 				// Bind events
 				
 				// Gameplay
 				this.gameplay.difficulty.on('input', event => {
-					console.log("Todo: Set difficulty to ", +$(event.currentTarget).val());	
+					game.difficulty = +$(event.currentTarget).val();
 				});
 
 				// DM
@@ -749,7 +750,7 @@ export default class StaticModal{
 				this.video.cacheLevel.val(cacheLevel);
 				this.video.cacheLevelSpan.text(cacheLevel);
 				
-
+				this.gameplay.difficulty.val(Math.round(game.difficulty) || 5);
 
 				const knobs = ['ambient','fx','music','ui'];
 				const audio = this.getTabDom("Audio");

@@ -56,7 +56,7 @@ export default class Game extends Generic{
 		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)} - These are fetched by the Dungeon object. They're the same objects here as they are in dungeon._state
 		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
 		this.state_shops = new Collection();			// label : (obj)shopState
-
+		this.difficulty = 5;							// Scale between 0 and 10. Below 5 and it reduces damage taken by 15% per tier. Above 5 and it reduces damage done by 15% per tier.
 		this.factions = [];
 
 		// Library of custom items
@@ -177,6 +177,7 @@ export default class Game extends Generic{
 			out.rain_next_refresh = this.rain_next_refresh;
 			out.rain_start_val = this.rain_start_val;
 			out.rain_started = this.rain_started;
+			out.difficulty = this.difficulty;
 
 			Object.values(this.libAsset).map(el => out.libAsset[el.label] = el.save(full));
 			out.name = this.name;

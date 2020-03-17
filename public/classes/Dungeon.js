@@ -1754,6 +1754,7 @@ class DungeonEncounter extends Generic{
 		this.load(data);
 	}
 
+	// Converts the template into a fixed encounter, generating players etc
 	prepare( difficulty ){
 
 		if( !difficulty ){
@@ -1772,7 +1773,7 @@ class DungeonEncounter extends Generic{
 			return;
 
 		// Run before an encounter is launched. If we're using templates, we should generate the NPCs here
-		difficulty = difficulty+Math.random()*0.25;
+		difficulty = difficulty+Math.random()*0.5;
 
 		let viableMonsters = [];
 		// if there are no viable monsters, go with the first one. Todo: Improve this
@@ -1792,10 +1793,12 @@ class DungeonEncounter extends Generic{
 
 			// This could be provided at runtime instead
 			let dif = 0;
-			while( dif < difficulty && this.players.length < 6 ){
+			const maxPlayers = Math.min(difficulty, game.getTeamPlayers().length+1);
+			while( dif+.25 < difficulty && this.players.length < maxPlayers ){
 
 				shuffle(viableMonsters);
 				let success = false;
+				// Find a monster to add
 				for( let mTemplate of viableMonsters ){
 
 					// Generate a player to push
@@ -1803,10 +1806,32 @@ class DungeonEncounter extends Generic{
 						Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
 					);
 					pl.generated = true;	// Set generated so it can be removed when leaving the area, regardless of allegiance
-					if( mTemplate.difficulty+dif < difficulty ){
+					let power = pl.power;
+					// Powered, make sure it stops here
+					if( power < 0 )
+						power = difficulty-dif;
+					// We can increase or lower the difficulty of this monster if it's not the last monster and isn't custom powered
+					else if( power >= 1  ){
+
+						if( this.players.length+1 < maxPlayers ){
+							if( Math.random() < 0.5 )
+								power /= 2;
+							pl.power = power;
+						}
+						// Last player should match the remainder
+						else{
+							power = difficulty-dif;
+							pl.power = Math.max(power, 0.5);
+						}
+
+					}
+
+					// This one is viable
+					if( mTemplate.difficulty*power+dif < difficulty ){
 
 						this.players.push(pl);
-						dif += mTemplate.difficulty*(mTemplate.powered ? game.getTeamPlayers() : 1);
+						const amt = mTemplate.difficulty*power*(mTemplate.power === -1 ? game.getTeamPlayers() : 1);
+						dif += amt;
 						success = true;
 						break;
 
@@ -1852,16 +1877,20 @@ class DungeonEncounter extends Generic{
 			pl.disabled = !Condition.all(this.player_conditions[i], new GameEvent({target:pl, sender:pl}));
 		}
 
+		// Bind passives
 		for( let wrapper of this.passives )
 			wrapper.bindEvents();
 
-		// Don't reset HP and such
+		// Don't reset HP and such if it was already started
 		if( !just_started )
 			return;
+
 		// Run world placement event on all players
 		for( let player of this.players ){
+
 			player.generated = true;
 			player.onPlacedInWorld();
+
 		}
 		
 	}
@@ -2072,10 +2101,14 @@ DungeonEncounter.getFirstViable = function( arr, event ){
 	}
 
 	for( let enc of valid ){
+		
 		if( enc.validate(event) ){
+
 			enc.g_resetID();
 			return enc.clone(enc.parent);
+
 		}
+
 	}
 	return false;
 

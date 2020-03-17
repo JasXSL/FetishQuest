@@ -393,7 +393,6 @@ const lib = {
     anemone : {
         name : "Tickler",
         isMonsterClass : true,
-        powered: true,
         actions : [
             "anemone_grab",         // Grapple a player
             "anemone_tickle",       // Tickle a player for corruption damage and +1 arousal

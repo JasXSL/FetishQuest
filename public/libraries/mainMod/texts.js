@@ -101,7 +101,7 @@ const lib = [
 		hitfx : ["slap"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotBreasts, stdTag.metaSlap],
 	},
-	{ text : "%S throws a %firm slap across %T's %Tbsize %breasts, %jiggling them around in %This %TclothUpper!",
+	{ text : "%S throws a %firmly slap across %T's %Tbsize %breasts, jiggling them around in %This %TclothUpper!",
 		conditions : humOnHumCond.concat([ "action_stdAttack", "action_crit", "targetBreasts", 'targetUpperBodyOrNoDamage', "targetUpperBodyStretchy", "targetBreastsLarge"]),
 		hitfx : ["slap"],
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotBreasts, stdTag.metaSlap],
@@ -2901,6 +2901,7 @@ const lib = [
 			"action_imp_blowFromBelow",
 			"targetLowerBodyOrNoDamage"
 		]),
+		numTargets : 2,
 		hitfx : ["punchDouble"],
 		metaTags : [stdTag.metaPunch, stdTag.metaVeryPainful, stdTag.metaSlotGroin],
 	},
@@ -5211,7 +5212,7 @@ const lib = [
 	},
 	{ text : "%T spins around attempting a rapid kick at %S. But %S slinks under and wraps a tendril around the bottom of %T's %TclothLower, tugging it aside and thrusting a tentacle up inside the %Trace's %Trsize %butt!",
 		conditions : [
-			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles","targetLowerBodyNotPants", "targetLowerBodyNotHard"
+			"actionHit","eventIsRiposte","action_monk_roundKick","senderHasTentacles","targetLowerBodyNotPants", "targetLowerBodyNotHard", "targetWearsLowerBody"
 		],
 		hitfx : ["slowThrustsTentacle"],
 		metaTags : [stdTag.metaUsedTentacles, stdTag.metaPenetration, stdTag.metaSlotButt, stdTag.metaVeryArousing],

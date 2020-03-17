@@ -58,7 +58,7 @@ export default class Player extends Generic{
 		this.mp = 10;				// Secondary stat used for spells. Mana points.
 		this.arousal = 0;
 		this.leveled = false;		// Level is an offset of the player average level
-		this.powered = false;		// Boost stats based on nr of players in the player team
+		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 
 		// Primary stats
@@ -194,7 +194,7 @@ export default class Player extends Generic{
 			icon_lowerBody : this.icon_lowerBody,
 			icon_nude : this.icon_nude,
 			icon_upperBody : this.icon_upperBody,
-			powered : this.powered,
+			power : this.power,
 			passives : Wrapper.saveThese(this.passives, full),
 			active_actions : this.active_actions.slice(),
 		};
@@ -837,19 +837,19 @@ export default class Player extends Generic{
 		}
 
 		this._turn_ap_spent = 0;
-		let ap = (3+Math.floor((this.getMaxAP()-10)/10))*this.getPoweredMultiplier();
-		// Add a chance to gain an extra AP based on 10% per point of AP above 10
-		let agility = this.getMaxAP()%10*10;
-		if(Math.random()<=(agility%100)/100)
+		// Restore 3/10ths each turn
+		let ap = this.getMaxAP()*0.3; // base AP to add
+		// Shuffle the remainder
+		if( Math.random() < ap-Math.floor(ap) )
 			++ap;
-		this.addAP(ap);
+		this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
 		
 		// Do the same for MP
-		let mp = (1+Math.floor((this.getMaxMP()-10)/10))*this.getPoweredMultiplier();
-		let intelligence = this.getMaxMP()%10*10;
-		if(Math.random()<=(intelligence%100)/100)
+		let mp = this.getMaxMP()*0.1;
+		if( Math.random() < mp-Math.floor(mp) )
 			++mp;
-		this.addMP(mp);
+		
+		this.addMP(Math.floor(mp));
 		
 	}
 	onBattleStart(){
@@ -1696,7 +1696,7 @@ export default class Player extends Generic{
 	getMaxHP(){
 
 		const calculateHP = stamina => {
-			return Math.max((BASE_HP+stamina*Player.STAMINA_MULTI)*this.getPoweredMultiplier(), 1);
+			return Math.max(Math.ceil((BASE_HP+stamina*Player.STAMINA_MULTI)*this.getPowerMultiplier()), 1);
 		}
 
 		const stamina = this.statPointsToNumber(Player.primaryStats.stamina);
@@ -1717,7 +1717,7 @@ export default class Player extends Generic{
 
 	}
 	getMaxAP(){
-		return Math.round(Math.max((BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))+(this.getPoweredMultiplier()*2-2), 1));
+		return Math.round(Math.max((BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))+(this.getPowerMultiplier()*2-2), 1));
 	}
 	getMaxMP(){
 		return Math.max((BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect)), 1);
@@ -1727,8 +1727,8 @@ export default class Player extends Generic{
 	}
 	// returns a random chance between 0 and 1
 	getCritDoneChance(){
-		// 4% per agility plus 5% baseline. Only affects std attack and arouse
-		let out = 0.05+this.statPointsToNumber(Player.primaryStats.agility)*0.05;
+		// 2% per agility plus 10% baseline. Only affects std attack and arouse
+		let out = 0.1+this.statPointsToNumber(Player.primaryStats.agility)*0.02;
 		return out;
 	}
 
@@ -1756,11 +1756,14 @@ export default class Player extends Generic{
 		return this.getPrimaryStats()[stat];
 	}
 
-	getPoweredMultiplier(){
-		if( this.powered ){
+	getPowerMultiplier(){
+		if( this.power < 0 )
 			return game.dungeon.getDifficulty();
-		}
-		return 1;
+		if( this.power === 0 )
+			return 1;
+		if( this.power < 0.1 )
+			return 0.1;
+		return this.power;
 	}
 
 	// Effect in these methods are only included to prevent recursion
@@ -2689,12 +2692,28 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 	// Add 25% bonus damage per additional player
 	let add = 1;
 	if( attacker.team !== 0 ){
+
 		const tp = game.getTeamPlayers().filter(pl => !pl.isNPC());
-		add = 1+(tp.length-1)*0.25;
+		add = 1+(tp.length-1)*0.2;
+		// increase enemy damage by 20% per player
+
+		// Reduce enemy damage at low levels
 		// level 1 has -50%, level 2 has -25%
 		if( attacker.level < 3 )
 			add -= 0.25*(3-attacker.level);
+
+		// Low difficulty decreases enemy damage
+		if( game.difficulty < 5 )
+			add *= game.difficulty*0.15+0.25;
+		
+
 	}
+	// High difficulty decreases damage done
+	else if( game.difficulty > 5 ){
+		add *= (1-(game.difficulty-5)*0.15);
+	}
+
+
 	const out = (1+tot*0.1)*add;
 	return out;
 
