@@ -32,6 +32,7 @@ const lib = {
 		wrappers : [],
 		startText : '',
 		conditions : [],
+		respawn : 260000
 	},
 	beach : {
 		player_templates : [
@@ -63,27 +64,32 @@ const lib = {
 		conditions : [],
 		respawn : 260000
 	},
+	forest : {
+		player_templates : [
+			"groper"
+		],
+		respawn : 260000
+	},
 	underwater : {
 		player_templates : [
 			"cocktopus",
 			"anemone",
 			"lamprey",
 		],
-		wrappers : [],
-		startText : '',
-		conditions : [],
 		respawn : 260000
 	},
 	large_demons : {
 		player_templates : [
 			"guardian_demon",
 		],
+		respawn : 260000
 	},
 	necromancer_minions : {
 		player_templates : [
 			"skeleton",
 			"ghoul",
 		],
+		respawn : 260000
 	},
 
 	necromancer_minions_night : {
@@ -95,7 +101,16 @@ const lib = {
 			"isNight"
 		]
 	},
-
+	outlaws : {
+		player_templates : [
+			"outlaw_horse_male",
+			"outlaw_horse_female",
+			"outlaw_rat_male",
+			"outlaw_rat_female",
+			"outlaw_lynx_female",
+		],
+		respawn : 260000
+	},
 
 
 	// YUUG port

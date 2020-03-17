@@ -3482,6 +3482,7 @@ const lib = {
 		type : Action.Types.corruption,
 		tags : [stdTag.acDamage, stdTag.acNpcImportant],
 		show_conditions : ["inCombat"],
+		add_conditions : ["senderPenis"],
 		wrappers : [
 			{
 				detrimental : true,

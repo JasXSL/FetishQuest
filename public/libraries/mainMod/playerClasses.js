@@ -408,6 +408,97 @@ const lib = {
         actions : []
     },
 
+    outlaw_brute : {
+        name : 'Brute',
+        description : 'A barbaric fighter with an intimidating presence!',
+        isMonsterClass : true,
+        name_type : PlayerClass.NameType.Suffix,
+        actions: [
+            'lowBlow', 
+            'rest',
+            'warrior_revenge',
+            'warrior_bolster',
+            'warrior_viceGrip',
+            'whip_legLash',
+            'whip_powerLash',
+            'guardian_demon_expose',
+            'guardian_demon_grapple',
+            'guardian_demon_impale',
+        ],
+        svPhysical : 3,
+		svElemental : 2,
+		svHoly : 0,
+		svCorruption : 0,
+
+		bonPhysical : 3,
+		bonElemental : -2,
+		bonHoly : -2,
+		bonCorruption : -2,
+
+		stamina : 4,
+		intellect : -1,
+		agility : 2,
+    },
+
+    outlaw_rogue : {
+        name : 'Rogue',
+        description : 'A stealthy, nimble fighter!',
+        isMonsterClass : true,
+        name_type : PlayerClass.NameType.Suffix,
+        actions: [
+            'lowBlow', 
+            'rest',
+            'whip_legLash',
+            'whip_powerLash',
+            'breast_squeeze',
+            'imp_blowFromBelow',
+            'rogue_exploit',
+            'rogue_sneakAttack',
+            'itchingPowder'
+        ],
+        svPhysical : 1,
+		svElemental : 0,
+		svHoly : 0,
+		svCorruption : 3,
+
+		bonPhysical : 2,
+		bonElemental : -2,
+		bonHoly : -2,
+		bonCorruption : 2,
+
+		stamina : 1,
+		intellect : 1,
+		agility : 2,
+    },
+
+    outlaw_tentaclemancer : {
+        name : 'Tentaclemancer',
+        description : 'A tentacle summoner!',
+        isMonsterClass : true,
+        name_type : PlayerClass.NameType.Suffix,
+        actions: [
+            'rest',
+            'tentacle_pit',
+            'hexArmor',
+            'imp_demonicPinch',
+            'tentaclemancer_grease',
+            'tentaclemancer_tentacleWhip'
+        ],
+        svPhysical : -2,
+		svElemental : 2,
+		svHoly : -2,
+		svCorruption : 3,
+
+		bonPhysical : -2,
+		bonElemental : 0,
+		bonHoly : -2,
+		bonCorruption : 3,
+
+		stamina : -2,
+		intellect : 3,
+		agility : -1,
+    },
+
     
 };
 

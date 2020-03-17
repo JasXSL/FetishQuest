@@ -22,6 +22,7 @@ Medium rare:
 		- Test
 	x Moving between cells some times borks interactions in netgames (this is probably caused by the caching)
 		- Test
+	Chats not showing on portrait, only on marker
 	
 Big chungi:
 	- Church quest
