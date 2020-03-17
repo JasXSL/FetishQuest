@@ -414,7 +414,6 @@ const lib = {
         name_type : PlayerClass.NameType.Suffix,
         actions: [
             'lowBlow', 
-            'rest',
             'warrior_revenge',
             'warrior_bolster',
             'warrior_viceGrip',
@@ -446,7 +445,6 @@ const lib = {
         name_type : PlayerClass.NameType.Suffix,
         actions: [
             'lowBlow', 
-            'rest',
             'whip_legLash',
             'whip_powerLash',
             'breast_squeeze',
@@ -476,7 +474,6 @@ const lib = {
         isMonsterClass : true,
         name_type : PlayerClass.NameType.Suffix,
         actions: [
-            'rest',
             'tentacle_pit',
             'hexArmor',
             'imp_demonicPinch',

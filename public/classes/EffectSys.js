@@ -831,7 +831,7 @@ class Effect extends Generic{
 				else{
 					
 					
-					/*
+					
 					console.debug(
 						s.name, "vs", t.name,
 						"input", amt, 
@@ -841,7 +841,7 @@ class Effect extends Generic{
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
 						"nudity multi", t.getNudityDamageMultiplier(),
 					);
-					*/
+					
 										
 					
 

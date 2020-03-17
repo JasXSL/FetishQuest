@@ -43,6 +43,7 @@ const lib = {
 	action_warrior_infuriate : {type:Condition.Types.actionLabel,data:{"label":"warrior_infuriate"},targnr:0},
 
 	action_rogue_exploit : {type:Condition.Types.actionLabel,data:{"label":"rogue_exploit"},targnr:0},
+	action_rest : {type:Condition.Types.actionLabel,data:{"label":"rest"},targnr:0},
 	action_rogue_corruptingVial : {type:Condition.Types.actionLabel,data:{"label":"rogue_corruptingVial"},targnr:0},
 	action_rogue_sneakAttack : {type:Condition.Types.actionLabel,data:{"label":"rogue_sneakAttack"},targnr:0},
 	action_rogue_steal : {type:Condition.Types.actionLabel,data:{"label":"rogue_steal"},targnr:0},

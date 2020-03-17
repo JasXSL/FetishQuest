@@ -67,6 +67,14 @@ const lib = [
 		conditions : ["eventIsEffectTrigger","overWhelmingOrgasm_end"],
 	},
 
+	// rest
+	
+	{ text : "%S rests!",
+		"conditions":baseCond.concat("action_rest"),
+		hitfx : [],
+		metaTags : [],
+	},
+
 	// STDAttack
 	{ text : "%S throws a punch at %T!",
 		"conditions":humOnAnyCond.concat("action_stdAttack"),
@@ -1508,7 +1516,7 @@ const lib = [
 	},
 	
 	// Generic restrained
-	{ text : "%S slips %Shis hand down between the restrained %Trace's legs and forces a finger inside %T's %TclothLower and up inside %This %Trsize %Tbutt, wiggling it around inside %Thim!",
+	{ text : "%S slips %Shis hand down between the restrained %Trace's legs and forces a finger inside %T's %TclothLower and up inside %This %Trsize %butt, wiggling it around inside %Thim!",
 		turnTags:[],
 		conditions : humOnHumCond.concat("action_stdArouse", "action_crit","targetTiedUp","targetLowerBodyNotHard"),
 		hitfx : ["squishTiny"],

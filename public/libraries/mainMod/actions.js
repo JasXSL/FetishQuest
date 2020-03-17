@@ -4115,7 +4115,7 @@ const lib = {
 		type : Action.Types.physical,
 		wrappers : [
 			{
-				duration : 6,
+				duration : 4,
 				detrimental : true,
 				name : "Itching Powder",
 				icon : "hot-spices",

@@ -1793,7 +1793,8 @@ class DungeonEncounter extends Generic{
 
 			// This could be provided at runtime instead
 			let dif = 0;
-			const maxPlayers = Math.min(difficulty, game.getTeamPlayers().length+1);
+			const maxPlayers = Math.min(difficulty+1, 6);
+			console.log("Max players: ", maxPlayers, "difficulty", difficulty);
 			while( dif+.25 < difficulty && this.players.length < maxPlayers ){
 
 				shuffle(viableMonsters);
@@ -1817,6 +1818,7 @@ class DungeonEncounter extends Generic{
 							if( Math.random() < 0.5 )
 								power /= 2;
 							pl.power = power;
+							console.log("Halved a difficulty on length", this.players.length, "out of", maxPlayers);
 						}
 						// Last player should match the remainder
 						else{
@@ -1832,6 +1834,7 @@ class DungeonEncounter extends Generic{
 						this.players.push(pl);
 						const amt = mTemplate.difficulty*power*(mTemplate.power === -1 ? game.getTeamPlayers() : 1);
 						dif += amt;
+						console.log("Added ", amt, "dif is now", dif);
 						success = true;
 						break;
 

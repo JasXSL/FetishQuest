@@ -112,7 +112,7 @@ class Bot{
 
 	play( force = false ){
 		
-		if( (!this.player.isNPC() && !force) || !game.battle_active )
+		if( (!this.player.isNPC() && !force) || !game.battle_active || game.getTurnPlayer() !== this.player )
 			return;
 
 		// Get viable abilities
