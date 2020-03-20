@@ -4105,7 +4105,7 @@ const lib = {
 		name : 'Itching Powder',
 		icon : 'hot-spices',
 		ranged : Action.Range.Melee,
-		description : 'Slips itching powder down your target\'s pants for 4 turns. At the start of each turn, the target gets 1 level of itch, reducing all hit chances by 10%.',
+		description : 'Slips itching powder down your target\'s pants for 3 turns. At the start of each turn, the target gets 1 level of itch, reducing all hit chances by 10%.',
 		ap : 1,
 		cooldown : 4,
 		mp : 1,
@@ -4115,7 +4115,7 @@ const lib = {
 		type : Action.Types.physical,
 		wrappers : [
 			{
-				duration : 4,
+				duration : 3,
 				detrimental : true,
 				name : "Itching Powder",
 				icon : "hot-spices",

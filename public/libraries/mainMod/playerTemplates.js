@@ -1027,7 +1027,7 @@ const lib = {
 		max_level : 20,
 		primary_stats : {
 			[Player.primaryStats.intellect] : -2,
-			[Player.primaryStats.stamina] : 4,
+			[Player.primaryStats.stamina] : 2,
 			[Player.primaryStats.agility] : 1, 
 		},
 		viable_asset_materials : [
@@ -1080,7 +1080,7 @@ const lib = {
 		max_level : 20,
 		primary_stats : {
 			[Player.primaryStats.intellect] : -2,
-			[Player.primaryStats.stamina] : 4,
+			[Player.primaryStats.stamina] : 2,
 			[Player.primaryStats.agility] : 1, 
 		},
 		viable_asset_materials : [
@@ -1239,6 +1239,59 @@ const lib = {
 		primary_stats : {
 			[Player.primaryStats.intellect] : 1,
 			[Player.primaryStats.stamina] : 1,
+			[Player.primaryStats.agility] : 2, 
+		},
+		viable_asset_materials : [
+			'leather', 'rawhide', 'stretchhide', 'cotton', 'silk', 'mageweave', 'mailCopper', 'mailSteel', 'mailMithril', 'plateCopper', 'plateSteel', 'plateSoftsilver'
+		],
+		viable_asset_templates : [ 
+			"thong",
+			"tank_top",
+			'chestwraps',
+			'half_robe',
+			'bodysuit',
+			'thong_bodysuit',
+			'sling_armor'
+		],
+		viable_gear : ["simpleWhip", "ridingCrop", 'woodenPaddle'],
+		gear_chance : 0.3,
+		min_size : 4,
+		max_size : 6,
+		difficulty : 1,
+		viable_consumables : ["healingPotion"],
+		sadistic_min : 0,
+		sadistic_max : 1,
+		dominant_min : 0.0,
+		dominant_max : 1,
+		hetero_min:0,
+		hetero_max:1,
+		intelligence_min : 0.4,
+		intelligence_max : 0.6,
+	},
+	outlaw_panther_female : {
+		name : 'Outlaw',
+		icon : "",
+		species : "panther",
+		description : "A large-breasted panther with toned muscles and a big butt.",
+		classes : ["outlaw_rogue","outlaw_tentaclemancer","outlaw_brute"],
+		monetary_wealth : 110,
+		max_actions : 4,
+		tags : [
+			stdTag.vagina,
+			stdTag.breasts,
+			stdTag.plBigButt,
+			stdTag.plBigBreasts,
+			stdTag.plFurry,
+			stdTag.plTail,
+			stdTag.plEars,
+			stdTag.plTongue,
+			stdTag.plClaws,
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.intellect] : 0,
+			[Player.primaryStats.stamina] : 2,
 			[Player.primaryStats.agility] : 2, 
 		},
 		viable_asset_materials : [

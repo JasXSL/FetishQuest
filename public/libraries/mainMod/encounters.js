@@ -108,6 +108,7 @@ const lib = {
 			"outlaw_rat_male",
 			"outlaw_rat_female",
 			"outlaw_lynx_female",
+			"outlaw_panther_female",
 		],
 		respawn : 260000
 	},
