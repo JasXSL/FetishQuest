@@ -822,20 +822,24 @@ export default class Game extends Generic{
 			return;
 		}
 
-		if( this.active_rain && !url ){
-			this.active_rain.stop(3000);
-		}
+		if( this.active_rain )
+			this.active_rain.stop(5000);
 		this.active_rain_file = url;
 
 		if( url ){
 			const song = await this.audio_ambient.play( url, volume, loop );
-			if( url !== this.active_rain_file )
-				song.stop(0);
-			else
+			if( url !== this.active_rain_file ){
+				song.stop(3000);
+			}
+			else{
 				this.active_rain = song;
+				const vol = 0.25+(this.rain*0.75);
+				song.setVolume(vol, 1);
+			}
 		}
-		this.updateAmbiance();	// handles volume shift for rain
+
 	}
+
 	// Sets ambiance to the current room
 	async updateAmbiance(){
 
@@ -854,9 +858,9 @@ export default class Game extends Generic{
 			rainSound = 'rain_moderate';
 		if( rain > 0.75 )
 			rainSound = 'rain_heavy';
-		await this.setRainSound(rainSound ? '/media/audio/ambiance/'+rainSound+'.ogg' : false, 0.01, true);
-		if( this.active_rain )
-			this.active_rain.setVolume(0.25+(this.rain*0.75));
+		const file = rainSound ? '/media/audio/ambiance/'+rainSound+'.ogg' : false;
+		this.setRainSound(file, 0.01, true);
+		
 
 	}
 

@@ -763,7 +763,7 @@ const lib = {
 				effects : [
 					{
 						events : [GameEvent.Types.actionUsed],
-						conditions : ["actionMelee", "actionDetrimental", "senderIsWrapperParent"],
+						conditions : ["actionMelee", "actionDetrimental", "senderIsWrapperParent", "actionNotHidden"],
 						type : Effect.Types.runWrappers,
 						data : {wrappers:[
 							{
@@ -1195,14 +1195,14 @@ const lib = {
 					},
 					{
 						events : [GameEvent.Types.actionUsed],
-						conditions : ["senderIsWrapperParent", "actionNotActionParent"],
+						conditions : ["senderIsWrapperParent", "actionNotActionParent", "actionNotHidden"],
 						type : Effect.Types.addArousal,
 						no_stack_multi : true,
 						data : {"amount": 1},
 					},
 					{
 						events : [GameEvent.Types.actionUsed],
-						conditions : ["senderIsWrapperParent", "actionNotActionParent"],
+						conditions : ["senderIsWrapperParent", "actionNotActionParent", "actionNotHidden"],
 						type : Effect.Types.addStacks,
 						no_stack_multi : true,
 						data : {stacks:-1},
@@ -2411,6 +2411,45 @@ const lib = {
 						conditions : ["rand30"]
 					},
 					
+				]
+			}
+		]
+	},
+	tentacle_fiend_slime_wad : {
+		name: "Slime Wad",
+		icon : 'slime',
+		description: "Injects your target's lower body armor with a goo wad for 2 turns. When the target uses an action, there's a 50% chance of the goo coming to life and doing 3 corruption damage.",
+		ap: 3,
+		mp: 3,
+		cooldown: 4,
+		detrimental: true,
+		type: Action.Types.corruption,
+		tags: [ stdTag.acDebuff ],
+		show_conditions: ["inCombat"],
+		wrappers: [
+			{
+				label: "tentacleGoo",
+				target: Wrapper.TARGET_AUTO,
+				duration: 2,
+				name: "Tentacle Goo",
+				icon: "slime",
+				description: "Lower body armor injected with tentacle goo, taking corruption damage at the start of your turn",
+				detrimental: true,
+				add_conditions: stdCond.concat(
+					"targetNotBeast",
+					"targetWearsLowerBody"
+				),
+				stay_conditions : stdCond.concat(
+					"targetWearsLowerBody"
+				),
+				effects : [
+					{
+						label : 'slimeWadProc',
+						events : [GameEvent.Types.actionUsed],
+						conditions : ["senderIsWrapperParent", "rand50", "actionNotHidden"],
+						type : Effect.Types.damage,
+						data : {amount:3},
+					}
 				]
 			}
 		]
@@ -3973,12 +4012,12 @@ const lib = {
 				effects:[
 					{
 						type : Effect.Types.addHP,
-						data : {amount:'g_team_0*2'}
+						data : {amount:'1'}
 					},
 					{
 						targets : [Wrapper.TARGET_CASTER],
 						type : Effect.Types.addHP,
-						data : {amount:'-g_team_0*2'}
+						data : {amount:'-1'}
 					},
 				]
 			}
@@ -4137,7 +4176,7 @@ const lib = {
 									detrimental : true,
 									description : "Hit chance reduced by 10% per stack",
 									effects : [
-										{type:"globalHitChanceMod",data:{"amount":-10}},
+										{type: Effect.Types.globalHitChanceMod,data:{"amount":-10}},
 										{type : "addActions",data:{"actions":["scratchItch"]}}
 									],
 								}

@@ -8,7 +8,7 @@ const lib = {
 		name : "Lesser Tentacle Fiend",
 		icon : "/media/characters/lesser_tentacle_fiend.jpg",
 		species : "",
-		description : "",
+		description : "A small mass of wriggly tentacle goo.",
 		classes : [
 			"tentacle_fiend"
 		],
@@ -48,7 +48,7 @@ const lib = {
 		name : "Tentacle Fiend",
 		icon : "/media/characters/tentacle_fiend.jpg",
 		species : "",
-		description : "",
+		description : "A mass of wriggly tentacle goo.",
 		classes : [
 			"tentacle_fiend"
 		],
@@ -102,7 +102,7 @@ const lib = {
 		name : "Greater Tentacle Fiend",
 		icon : "/media/characters/greater_tentacle_fiend.jpg",
 		species : "",
-		description : "",
+		description : "A large mass of wriggly tentacle goo.",
 		classes : ["tentacle_fiend"],
 		max_actions : 3,
 		tags : [stdTag.plBeast, stdTag.plTentacles, stdTag.plCocktacle,],
@@ -554,6 +554,7 @@ const lib = {
 		description : "A lumbering muscular demon with a big horn on its head, and a large swinging dong.",
 		classes : ["guardian_demon_breaker"],
 		monetary_wealth : 40,
+		power : -1,
 		max_actions : 5,
 		tags : [
 			stdTag.penis,

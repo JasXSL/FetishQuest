@@ -129,13 +129,17 @@ class AudioSound{
 		return master.currentTime;
 	}
 
-	setVolume( volume = 1 ){
-		this.volume.gain.setValueAtTime(volume, this.currentTime(), 0);
+	// Fade is in seconds (float)
+	setVolume( volume = 1, fade = 0 ){
+		if( !fade )
+			this.volume.gain.setValueAtTime(volume, this.currentTime(), 0);
+		else
+			this.volume.gain.linearRampToValueAtTime(volume, this.currentTime()+fade);
 	}
 
 	stop( time = 0 ){
 		time = Math.max(1, time);
-		this.volume.gain.exponentialRampToValueAtTime(0.001, this.currentTime()+time/1000);
+		this.volume.gain.linearRampToValueAtTime(0.001, this.currentTime()+time/1000);
 		this.source.stop(this.currentTime()+time/1000);
 		this.stopped = true;
 	}

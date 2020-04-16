@@ -128,6 +128,9 @@ const lib = {
 	action_hexArmor_tick : {type:Condition.Types.effectLabel, data:{label:'hexArmorProc'}, targnr:0},
 	action_sewer_water : {type:Condition.Types.actionLabel, data:{label:'sewerWater'}, targnr:0},
 
+	action_slime_wad : {type:Condition.Types.actionLabel, data:{label:'tentacle_fiend_slime_wad'}, targnr:0},
+	action_slime_wad_proc : {type:Condition.Types.effectLabel, data:{label:'slimeWadProc'}, targnr:0},
+
 	action_count_blobula_massive_burst : {type:Condition.Types.actionLabel, data:{label:'count_blobula_massive_burst'}, targnr:0},
 	action_slime_coat : {type:Condition.Types.actionLabel, data:{label:'slime_coat'}, targnr:0},
 	action_climb_flotsam : {type:Condition.Types.actionLabel, data:{label:'climb_flotsam'}, targnr:0},
@@ -243,8 +246,7 @@ const lib = {
 	// Limits attacks to the target not being knocked down, tied up, etc
 	targetStanding : {type:Condition.Types.tag, data:{tags:[
 		stdTag.wrKnockdown,
-		stdTag.wrBound,
-		stdTag.mBondage
+		stdTag.wrBound
 	]}, inverse:true},
 
 	targetSameTeam : {"type":"sameTeam"},

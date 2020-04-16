@@ -168,6 +168,7 @@ const lib = {
             "tentacle_fiend_tentacleMilker",
             "tentacle_fiend_injectacle",
             "tentacle_fiend_tentatug",
+            'tentacle_fiend_slime_wad'
         ]
 	},
 	"shocktacle": {

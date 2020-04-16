@@ -1814,7 +1814,7 @@ class DungeonEncounter extends Generic{
 					// We can increase or lower the difficulty of this monster if it's not the last monster and isn't custom powered
 					else if( power >= 1  ){
 
-						if( this.players.length+1 < maxPlayers ){
+						if( this.players.length+1 < Math.floor(maxPlayers) ){
 							if( Math.random() < 0.5 )
 								power /= 2;
 							pl.power = power;
@@ -1827,9 +1827,10 @@ class DungeonEncounter extends Generic{
 						}
 
 					}
+					
 
 					// This one is viable
-					if( mTemplate.difficulty*power+dif < difficulty ){
+					if( mTemplate.difficulty*power+dif <= difficulty ){
 
 						this.players.push(pl);
 						const amt = mTemplate.difficulty*power*(mTemplate.power === -1 ? game.getTeamPlayers() : 1);
@@ -1838,7 +1839,8 @@ class DungeonEncounter extends Generic{
 						success = true;
 						break;
 
-					}
+					}else
+						console.log("Skipped because", mTemplate.difficulty, "*", power, "+", dif + ">"+difficulty);
 
 				}
 				

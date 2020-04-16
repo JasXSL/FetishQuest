@@ -1100,7 +1100,7 @@ export default class UI{
 
 		$("> div.interactions", el).toggleClass('hidden', !myActive);
 
-		$("div.interaction[data-type=chat]", el).toggleClass("hidden", !interactions.talk.length).off('click').on('click', event => {
+		$("div.interaction[data-type=chat]", el).toggleClass("hidden", !interactions.talk).off('click').on('click', event => {
 			event.stopImmediatePropagation();
 			this.onPlayerInteractionUsed( "talk", p );
 		});
