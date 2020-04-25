@@ -1717,7 +1717,13 @@ export default class Player extends Generic{
 
 	}
 	getMaxAP(){
-		return Math.round(Math.max((BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))+(this.getPowerMultiplier()*2-2), 1));
+		return Math.round(
+			Math.max(
+				(BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))+
+				(this.getPowerMultiplier()*2-2)
+				, 1
+			)
+		);
 	}
 	getMaxMP(){
 		return Math.max((BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect)), 1);

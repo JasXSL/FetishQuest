@@ -245,6 +245,31 @@ const lib = {
     },
 
 
+    goblinScavenger : {
+        name : "Scavenger",
+        name_type : PlayerClass.NameType.Suffix,
+        description : "Adept at survival and utilizing their environment.",
+        isMonsterClass : true,
+        actions : [
+            "imp_ankleBite",
+            "imp_blowFromBelow",
+            "whip_legLash",
+			"whip_powerLash",
+        ]
+    },
+    goblinShaman : {
+        name : "Shaman",
+        name_type : PlayerClass.NameType.Suffix,
+        description : "A being skilled in the primal arts.",
+        isMonsterClass : true,
+        actions : [
+            "whip_legLash",
+			"whip_powerLash",
+            // todo goblin abilities
+        ]
+    },
+
+
     guardian_demon_breaker : {
         name : "Breaker",
         description : "",
@@ -267,6 +292,13 @@ const lib = {
             "tentacle_latch",
             "cocktopus_ink",
             "cocktopus_inkject",
+        ]
+    },
+    worm : {
+        name : "Burrower",
+        isMonsterClass : true,
+        actions : [
+            // Todo: Add actions
         ]
     },
     tentacrab : {

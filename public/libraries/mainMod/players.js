@@ -985,6 +985,127 @@ const lib = {
 		inventory : [0],
 	},
 
+
+
+	// Clerics guild
+	// Todo: writeme
+	yuug_church_cleric_a : {
+		name : "",
+		species : "",
+		description : "",
+		icon : "",
+		team : 1,
+		size : 7,
+		level : 0,
+		leveled : true,
+		sadistic : 0.7,
+		dominant : 0.9,
+		hetero : 0.2,
+		intelligence : 0.4,
+		talkative : 0.1,
+		stamina : 2,
+		intellect : 0,
+		agility : 2,
+		svPhysical : 2,
+        svElemental : 0,
+        svHoly : 0,
+        svCorruption : 0,
+        bonPhysical : 2,
+        bonElemental : 0,
+        bonHoly : -2,
+        bonCorruption : 0,
+		class : 'cleric',
+		assets : [
+			'goldweaveThong',
+			{"name":"silver","label":"__LABEL__","_stacks":5},
+			{"name":"copper","label":"__LABEL__","_stacks":13},
+		],
+		inventory : [0],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plTongue, stdTag.plHair, stdTag.plBigPenis,
+			stdTag.plFurry, stdTag.plEars, stdTag.plTail
+		]
+	},
+
+	// Todo: writeme
+	yuug_church_cleric_b : {
+		name : "",
+		species : "pitbull",
+		description : "",
+		icon : "",
+		team : 1,
+		size : 7,
+		level : 0,
+		leveled : true,
+		sadistic : 0.7,
+		dominant : 0.9,
+		hetero : 0.2,
+		intelligence : 0.4,
+		talkative : 0.1,
+		stamina : 2,
+		intellect : 0,
+		agility : 2,
+		svPhysical : 2,
+        svElemental : 0,
+        svHoly : 0,
+        svCorruption : 0,
+        bonPhysical : 2,
+        bonElemental : 0,
+        bonHoly : -2,
+        bonCorruption : 0,
+		class : 'cleric',
+		assets : [
+			'goldweaveThong',
+		],
+		inventory : [0],	// Which items should be equipped
+		tags : [
+			stdTag.penis, stdTag.plTongue, stdTag.plHair, stdTag.plBigPenis,
+			stdTag.plFurry, stdTag.plEars, stdTag.plTail
+		]
+	},
+
+
+	yuug_church_interrogation : {
+		// Todo: name me
+		name : "",
+		species : "demon",
+		description : "A large muscular demon with a horn on his head and a large dangling member.",
+		icon : "",
+		team : 1,
+		size : 8,
+		leveled : true,
+		power : -1,
+		sadistic : 0.8,
+		dominant : 1,
+		hetero : 0.5,
+		intelligence : 0.6,
+		stamina : 15,
+		intellect : 2,
+		agility : -1,
+		class : 'none',
+		svPhysical : 2,
+        svElemental : 0,
+        svHoly : -4,
+        svCorruption : 2,
+        bonPhysical : 2,
+        bonElemental : 0,
+        bonHoly : 0,
+		bonCorruption : 0,	
+		actions : [
+			'guardian_demon_grapple',
+			'guardian_demon_impale',
+			'guardian_demon_expose',
+			'lowBlow'
+		],
+		tags : [
+			stdTag.gpBoss, stdTag.plDemon, stdTag.penis, stdTag.plBigPenis, stdTag.plMuscular, stdTag.plHorn, stdTag.plTongue
+		],
+		assets : [],
+		passives : [],
+	},
+
+
+
 	// Goblin involved in the boat quest
 	Slurt : {
 		name : "Slurt",

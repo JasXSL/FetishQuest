@@ -659,6 +659,122 @@ const lib = {
 		intelligence_max : 0.15,
 	},
 
+	// Todo: add
+	worm : {
+		name : "Giant Worm",
+		icon : "",
+		species : "Worm",
+		description : "A giant slithery worm.",
+		classes : [
+			"worm"
+		],
+		max_actions : 3,
+		tags : [
+			stdTag.plBeast,
+			stdTag.plWorm,
+		],
+		min_level : 1,
+		max_level : 20,
+		primary_stats : {
+			[Player.primaryStats.agility] : -2,
+			[Player.primaryStats.stamina] : 0
+		},
+		sv : {
+			[Action.Types.corruption] : 2,
+			[Action.Types.elemental] : 2,
+			[Action.Types.holy] : -1,
+			[Action.Types.physical] : -2,
+		},
+		bon : {
+			[Action.Types.corruption] : 1,
+			[Action.Types.elemental] : 2,
+			[Action.Types.holy] : -3,
+			[Action.Types.physical] : 2,
+		},
+		gear_chance : 0,
+		min_size : 2,
+		max_size : 4,
+		difficulty : 1,
+		viable_consumables : [],
+		intelligence_min : 0.1,
+		intelligence_max : 0.15,
+	},
+
+	// Todo: come up with some more forest monsters
+	goblin : {
+		name : "Goblin",
+		icon : "",
+		species : "Goblin",
+		description : "A green-skinned creature with a large dangling dick.",
+		classes : [
+			"goblinScavenger",
+			"goblinShaman"
+		],
+		monetary_wealth : 20,
+		max_actions : 3,
+		tags : [
+			"pl_penis",
+			"pl_big_penis",
+			stdTag.plDishonorable,
+			stdTag.plTongue,
+		],
+		min_level : 1,
+		max_level : 10,
+		primary_stats : {
+			[Player.primaryStats.intellect] : -2,
+			[Player.primaryStats.stamina] : 1,
+			[Player.primaryStats.agility] : 1
+		},
+		sv : {
+			[Action.Types.physical] : 0,
+			[Action.Types.elemental] : 2,
+			[Action.Types.holy] : -1,
+			[Action.Types.corruption] : 2,
+		},
+		bon : {
+			[Action.Types.physical] : 1,
+			[Action.Types.elemental] : 1,
+			[Action.Types.holy] : -4,
+			[Action.Types.corruption] : 1,
+		},
+		viable_asset_materials : [
+			"cotton",
+			"leather",
+			"rawhide",
+			"copper",
+			"mailSteel",
+			"mailMithril"
+		],
+		viable_asset_templates : [ 
+			"thong",
+			"shirt",
+			"loincloth",
+			"breastplate",
+			"crotchplate"
+		],
+		viable_gear : [
+			"simpleWhip"
+		],
+		gear_chance : 0.7,
+		min_size : 2,
+		max_size : 5,
+		difficulty : 1,
+		viable_consumables : [
+			"minorHealingPotion",
+			"minorManaPotion",
+			"healingPotion"
+		],
+		sadistic_min : 0.25,
+		sadistic_max : 1,
+		dominant_min : 0.8,
+		dominant_max : 1,
+		hetero_min:0,
+		hetero_max:1,
+		intelligence_min : 0.3,
+		intelligence_max : 0.5,
+		required_assets : []
+	},
+
 	groper : {
 		name : "Groper",
 		icon : "",

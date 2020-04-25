@@ -21,7 +21,8 @@ const lib = {
 			"mailCopper",
 			"mailSteel",
 			"mailMithril",
-			"plateSoftsilver"
+			"plateSoftsilver",
+			"stretchhide"
 		],
 		description : "A fancy sling bikini!",
 		tags : [
@@ -44,6 +45,10 @@ const lib = {
 			"rawhide",
 			"plateSteel",
 			"plateCopper",
+			"mailCopper",
+			"mailSteel",
+			"mailMithril",
+			"stretchhide"
 		],
 		description : "The type of garment that goes between your buttcheeks.",
 		tags : [
@@ -82,6 +87,9 @@ const lib = {
 			"shadowcloth",
 			"leather",
 			"rawhide",
+			"mailCopper",
+			"mailSteel",
+			"mailMithril"
 		],
 		description : "A tight tank top. Favored by tigers and vegetarians across the world.",
 		tags : [stdTag.asShirt, stdTag.asCanPullUp],
@@ -136,7 +144,7 @@ const lib = {
 		description : "A a tight piece of clothing with shoulder straps. It has a fairly visible cleavage and exposed back. It wraps down over your groin and forming a thong shape joining together at your hips, leaving your legs exposed.",
 		tags : [stdTag.asTight, stdTag.asBodysuit, stdTag.asThong],
 		size : 0.6,
-		level : 8
+		level : 7
 	},
 	
 
@@ -150,6 +158,30 @@ const lib = {
 			"plateCopper",
 			"plateSoftsilver",
 			"plateSteel"
+		],
+		description : "A rather modest breastplate, covering only the top of your chest.",
+		size : 0.6
+	},
+	bikiniTop : {
+		icon : 'bow-tie',
+		slots : [Asset.Slots.upperBody],
+		name : "Bikini Top",
+		shortname : 'Top',
+
+		materials : [
+			"cotton",
+			"silk",
+			"mageweave",
+			"shadowcloth",
+			"leather",
+			"plateSoftsilver",
+			"rawhide",
+			"plateSteel",
+			"plateCopper",
+			"mailCopper",
+			"mailSteel",
+			"mailMithril",
+			"stretchhide"
 		],
 		description : "A rather modest breastplate, covering only the top of your chest.",
 		size : 0.6

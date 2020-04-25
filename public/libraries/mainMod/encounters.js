@@ -1624,7 +1624,7 @@ const lib = {
 			}
 		],
 		wrappers : [
-			{	// Initial submerge is different in that it also stuns
+			{	// Apply bondage device on fibula
 				label : 'fibula_init',
 				tags : [],
 				detrimental : false,
@@ -1725,6 +1725,116 @@ const lib = {
 		]
 	},
 
+
+
+	// Yuug church quest
+
+
+	
+	yuug_church_interrogation : {
+		players: [
+			'yuug_church_interrogation'
+		],
+		friendly : true,
+		game_actions : [
+			// Boss talk
+			{
+				type : GameAction.types.roleplay,
+				data : {rp:{
+					label: 'yuug_church_interrogation',
+					player : 'yuug_church_interrogation',
+					//portrait : '/media/characters/li_zurd_portrait.jpg',
+					persistent : true,
+					stages: [
+						{
+							index: 0,
+							text: "Let me guess? Those holy pansies sent you to gather information from me?",
+							options: [
+								{text: "What do you know!?", index: 1},
+								{text: "Nah I'm just here to fight", index: 2}
+							]
+						},
+						{
+							index: 2,
+							text: "Straight to the point! I like that. Just gotta break free of these cuffs first!",
+							options: [
+								{text: "[Start battle]", index: -1, chat:RoleplayStageOption.ChatType.none, game_actions:['startBattle']},
+							]
+						},
+						{
+							index: 1,
+							text: "Oh why would I tell you?",
+							options: [
+								{text: "The power of holy compels you!", index: 10},
+								{text: "[Commence beating]", index: -1, game_actions:['startBattle'], chat:RoleplayStageOption.ChatType.none},
+							]
+						},
+
+						{
+							index: 10,
+							text: "Foolish mortal! Lets see how well you exorcise when choking on my cock!",
+							options: [
+								{text: "[Start battle]", index: -1, chat:RoleplayStageOption.ChatType.none, game_actions:['startBattle']},
+							]
+						},
+					],
+					conditions : [
+						"notInCombat",
+						{type:Condition.Types.questObjectiveCompleted, data:{quest:'SQ_yuug_church_00', objective:'yuug_church_interrogation'}, inverse:true, targnr:0},
+					]
+				}}
+			}
+		],
+		passives : [
+			{
+				add_conditions : [],
+				stay_conditions : [],
+				effects:[
+					{
+						type:Effect.Types.gameAction,
+						data : {action:{
+							type : GameAction.types.roleplay,
+							data : {rp:{
+								persistent : true,
+								label : 'yuug_church_interrogation_outro',
+								player : 'yuug_church_interrogation',
+								stages: [
+									{
+										index: 0,
+										text: "Argh stop! That whelp you're asking about was taken by Malthereus. He's too powerful! You'll never stop him!",
+										options: [
+											{text:'We will see about that!', index:-1},
+											{text:'[Just leave]', index:-1, chat:RoleplayStageOption.ChatType.none},
+										]
+									},
+								],
+							}}
+						}},
+						events : [
+							GameEvent.Types.encounterDefeated,
+						],
+					}
+				]
+			}
+		],
+		wrappers : [
+			{	// Initial submerge is different in that it also stuns
+				label : 'yuug_church_interrogation_init',
+				tags : [],
+				detrimental : false,
+				duration : 0,
+				target : Wrapper.TARGET_AOE,
+				add_conditions : [{type:Condition.Types.playerLabel, data:{label:'yuug_church_interrogation'}}],
+				stay_conditions : [],
+				effects : [{
+					type : Effect.Types.runWrappers,
+					data : {wrappers:[
+						'stdUseBondageDevice'
+					]}
+				}]
+			}
+		]
+	},
 
 
 

@@ -119,7 +119,6 @@ const lib = {
 
 
 	// Church quests
-	// Necromancer quest
 	["SQ_yuug_church_00"] : {
 		name : 'Getting Some Exorcise',
 		description : 'The priests of the Yuug Church have let me know about one of their members being kidnapped by a powerful demon. They have captured one demon\'s minions who they are holding prison beneath the Yuug Church. They want me to force the demon to reveal who kidnapped the priest and where he was taken.',

@@ -40,6 +40,7 @@ export default {
 	plFeathers : 'pl_feathers',
 	plBeak : 'pl_beak',
 	plOoze : 'pl_ooze',
+	plWorm : 'pl_worm',
 
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',
@@ -259,7 +260,7 @@ export default {
 	mBondageRack : 'm_bondage_rack',
 	mBondageSeat : 'm_bondage_seat',
 	mBondageCollarSeat : 'm_bondage_collar_seat',
-
+	mBondageSybian : "m_bondage_sybian",
 
 
 	mCoffin : 'm_coffin',

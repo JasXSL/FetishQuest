@@ -629,6 +629,7 @@ const lib = {
 		loot_sound : "lootCloth",
 	},
 
+	// Nacro regalia
 	genericNecromancerRobe : {
 		name : "Necromancer Robe",
 		basevalue : 85,
@@ -656,6 +657,8 @@ const lib = {
 		rarity : 1,
 		loot_sound : "lootCloth",
 	},
+
+	
 
 	foxCottonPanties : {
 		name : "Cotton Panties",
