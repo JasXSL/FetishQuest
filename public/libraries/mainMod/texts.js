@@ -2526,7 +2526,7 @@ const lib = [
 		turnTags : [stdTag.ttBreastsExposed],
 		conditions : baseCond.concat(["action_tentacle_fiend_tentatug", "targetBreasts", "targetWearsSlingBikini", "targetUpperBodyDamagedNotStripped"])
 	},
-	{ text : "%S latches tentacles onto the back %TclothUpper, stretching backwards and squishing the %Trace's %Tbsize %breasts.",
+	{ text : "%S latches tentacles onto the back of %T's %TclothUpper, stretching backwards and squishing the %Trace's %Tbsize %breasts.",
 		hitfx : ["tentacleStretch"],
 		conditions : baseCond.concat(["action_tentacle_fiend_tentatug", "targetBreasts", "targetUpperBodyNotHard", "targetUpperBodyDamagedNotStripped"])
 	},
@@ -5490,7 +5490,7 @@ const lib = [
 	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself around the %Trace's torso before constricting, chafing into %This %breasts!",
 		conditions : anyOnHumCond.concat("action_gropeRope", "targetBreasts", "targetUpperBodyNotHard"),
 		hitfx : ["whipSqueeze"],
-		metaTags : [stdTag.metaUsedWhip, stdTag.metaSqueeze, stdTag.metaGrind, stdTag.metaSlotbreasts],
+		metaTags : [stdTag.metaUsedWhip, stdTag.metaSqueeze, stdTag.metaGrind, stdTag.metaSlotBreasts],
 	},
 	{ text : "%S lashes %Shis groperope at %T. The rope wraps itself down %This %groin and up across %This %butt, firmly constricting!",
 		conditions : anyOnHumCond.concat("action_gropeRope", "targetLowerBodyNotHard"),

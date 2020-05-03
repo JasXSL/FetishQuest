@@ -67,6 +67,7 @@ class Text extends Generic{
 		this.weight = 1;					// Lets you modify the weight of the text, higher weights are shown more often.
 											// If you use a value of or greater than 1000 (use Text.WEIGHT_REQUIRED)
 		this.chat = 0;					// 0 = no chat, 1 = casual chat (has a built in cooldown), 2 = required chat
+		this.chat_reuse = false;		// If a chat and this is set, the chat can be triggered multiple times in a session
 		this.chatPlayerConditions = [];	// These conditions are run on each player to see if they can say this. Only usable when chat is true
 										// Both target and sender are the same player. You generally want at least "targetIsX" in here when using a text.
 
@@ -147,7 +148,8 @@ class Text extends Generic{
 			chat : this.chat,
 			chatPlayerConditions : Condition.saveThese(this.chatPlayerConditions),
 			metaTags : this.metaTags,
-			en : this.en
+			en : this.en,
+			chat_reuse : this.chat_reuse
 		};
 		return out;
 	}
@@ -325,8 +327,11 @@ class Text extends Generic{
 		
 		if( this.chat ){
 			if( this._chatPlayer ){
-				this._chatPlayer.onChatUsed(this.id);
+
+				if( !this.chat_reuse )
+					this._chatPlayer.onChatUsed(this.id);
 				game.speakAs( this._chatPlayer.id, text, false );
+
 			}
 		}
 		else{

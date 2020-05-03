@@ -568,10 +568,29 @@ const lib = {
 		min:-1,
 	},
 	metaGroin : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotVagina, stdTag.metaSlotPenis, stdTag.metaSlotGroin]}},
+	metaTickle : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaTickle]}},
+	metaRub : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaRub]}},
 	metaPainful : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPainful, stdTag.metaVeryPainful]}},
+	metaVeryPainful : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaVeryPainful]}},
+	metaVeryArousing : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaVeryArousing]}},
 	metaSqueeze : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSqueeze]}},
 	metaBite : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaBite]}},
 	metaWedgie : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaWedgie]}},
+	metaCold : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaCold]}},
+	metaGooey : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaGooey]}},
+	metaInjection : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaInjection]}},
+	metaJiggle : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaJiggle]}},
+	metaLargeInsertion : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaLargeInsertion]}},
+	
+	metaMilking : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaMilking]}},
+	metaPinch : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPinch]}},
+	metaNipples : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotNipples]}},
+	metaStretch : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaStretch]}},
+	metaTwist : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaTwist]}},
+	metaVibration : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaVibration]}},
+	metaMouth : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotMouth]}},
+	
+	
 	metaButtGrab : {
 		conditions : [
 			{type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotButt]}},
@@ -589,6 +608,8 @@ const lib = {
 	metaCameInside : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaInjection, stdTag.metaUsedPenis], all:true}},
 	metaPenetratedWithPenis : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration, stdTag.metaUsedPenis], all:true}},
 	metaUsedTentacle : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaUsedTentacles]}},
+	metaPenetration : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration]}},
+	metaButt : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotButt]}},
 	metaBattleStarted : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaBattleStarted]}},
 	metaBattleEnded : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaBattleEnded]}},
 

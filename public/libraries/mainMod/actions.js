@@ -260,6 +260,7 @@ const lib = {
 		detrimental : false,
 		type : Action.Types.physical,
 		disable_override : 1,
+		range : Action.Range.None,
 		wrappers : [
 			{
 				detrimental : false,

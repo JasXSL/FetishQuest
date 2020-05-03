@@ -1341,6 +1341,8 @@ export default class Modtools{
 				'<option value="1" '+(+text.chat === 1 ? 'selected' : '')+'>Yes, optional</option>'+
 				'<option value="2" '+(+text.chat === 2 ? 'selected' : '')+'>Yes, required</option>'+
 			'</select><br />';
+			html += '<label>Reuse chat: <input type="checkbox" name="chat_reuse" '+(Boolean(text.chat_reuse) ? 'checked' : '')+' /></label><br />';
+
 			html += '<div class="chatPlayerConditions">Chat player conditions: '+this.formConditions(text.chatPlayerConditions, 'chatPlayerConditions')+'</div>';
 			
 			html += 'Weight: <input type="range" min=1 max=10 step=1 name="weight" value="'+(+text.weight || 1)+'" /><br />';
@@ -1367,6 +1369,7 @@ export default class Modtools{
 			saveAsset.armor_slot = this.compileArmorSlot();
 			saveAsset.audiokits = this.compileSoundKits();
 			saveAsset.conditions = this.compileConditions();
+			saveAsset.chat_reuse = $("input[name=chat_reuse]").is(':checked');
 			saveAsset.hitfx = this.compileHitFX();
 			saveAsset.chatPlayerConditions = this.compileConditions('chatPlayerConditions');
 			saveAsset.chat = parseInt($("select[name=chat]", form).val()) || 0;
