@@ -1769,7 +1769,7 @@ export default class Game extends Generic{
 			});
 
 			new GameEvent({
-				type : GameEvent.Types.battleStarted
+				type : GameEvent.Types.battleStarted,
 			}).raise();
 			this.advanceTurn();
 

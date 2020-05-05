@@ -24,9 +24,9 @@ const lib = {
 			"plateSoftsilver",
 			"stretchhide"
 		],
-		description : "A fancy sling bikini!",
+		description : "A stretchy outfit that's essentially two strings over your shoulder coming together at your groin and a thong shape at the back. Leaves a bit of the sides of your groin exposed.",
 		tags : [
-			stdTag.asThong, stdTag.asSlingBikini, stdTag.asBodysuit
+			stdTag.asThong, stdTag.asSlingBikini, stdTag.asBodysuit, stdTag.asGroinSemiExposed
 		],
 		size : 0.5
 	},
@@ -141,8 +141,8 @@ const lib = {
 			"stretchhide",
 			"plateSoftsilver"
 		],
-		description : "A a tight piece of clothing with shoulder straps. It has a fairly visible cleavage and exposed back. It wraps down over your groin and forming a thong shape joining together at your hips, leaving your legs exposed.",
-		tags : [stdTag.asTight, stdTag.asBodysuit, stdTag.asThong],
+		description : "A a tight piece of clothing with shoulder straps. It has a fairly visible cleavage and exposed back. It wraps down over your groin and forming a thong shape joining together at your hips, leaving your legs exposed. Leave a bit of the sides of your groin exposed.",
+		tags : [stdTag.asTight, stdTag.asBodysuit, stdTag.asThong, stdTag.asGroinSemiExposed],
 		size : 0.6,
 		level : 7
 	},

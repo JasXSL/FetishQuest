@@ -382,6 +382,8 @@ LibMesh.getByString = function(path){
 	return base;
 };
 
+//console.log("Sybian", stdTag.mBondageSybian);
+
 LibMesh.library = {
 
 	Dungeon : {

@@ -35,6 +35,9 @@ const SYNONYMS = [
 	['couple of', 'few', 'handful of'],
 	['pounding', 'thrusting', 'humping'],
 	['firmly', 'rigidly', 'thoroughly'],
+	['firm', 'tight', 'rigid', 'thorough'],
+	['quickly', 'rapidly', 'speedily', 'hastily'],
+	['rapid', 'quick', 'hasty', 'swift'],
 	['breast', 'boob', 'tit', 'breast', 'teat'],
 	['penis', 'dong', 'cock', 'member'],
 	['vagina', 'pussy', 'cunt'],
@@ -47,6 +50,7 @@ const SYNONYMS = [
 	['slither','slip','slink','wiggle'],
 	['rough','hard'],
 	['slightly', 'a little', 'somewhat'],
+	["big", "large"],
 ];
 
 class Text extends Generic{
@@ -328,6 +332,7 @@ class Text extends Generic{
 		if( this.chat ){
 			if( this._chatPlayer ){
 
+				console.log("Let through", this, "with event", event);
 				if( !this.chat_reuse )
 					this._chatPlayer.onChatUsed(this.id);
 				game.speakAs( this._chatPlayer.id, text, false );
@@ -487,18 +492,22 @@ Text.getFromEvent = function( event, debug = false ){
 	// max nr targets text available
 	let maxnr = 1;
 	for( let text of texts ){
+		event.text = text;
+
 		for( let p of testAgainst ){
+
 			if( 
 				Boolean(text.chat) === chat && 
 				(!text.chat || !event.sender || !event.sender.hasUsedChat(text.id) ) &&
 				(Boolean(text.chat) === Boolean(event.type === GameEvent.Types.textTrigger)) &&
-				text.validate(event, debug, p)
+				text.validate(event, debug === true, p)
 			){
 				const id = text.id;
 				text = text.clone();
 				text.id = id;			// ID isn't saved on text (regenerated each load). So when cloning we have to re-apply it
 				if( p )
 					text._chatPlayer = p;
+				
 				available.push(text);
 				if( text.numTargets > maxnr )
 					maxnr = text.numTargets;
@@ -506,11 +515,12 @@ Text.getFromEvent = function( event, debug = false ){
 		}
 	}
 
-	if( !available.length )
+
+	if( !available.length && chat )
 		return false ;
 		
 	const required = [];
-	
+
 	available = available.filter(el => el.numTargets === maxnr || el.numTargets === -1);
 	if( chat ){
 		
@@ -518,10 +528,15 @@ Text.getFromEvent = function( event, debug = false ){
 			if( text.chat === this.Chat.required )
 				required.push(text);
 		}
+
 		if( required.length )
 			available = required;
-		else if( !event.sender.canOptionalChat() )		//  If there's no required chats available, make sure the player can chat already
+
+		else if( !event.sender || !event.sender.canOptionalChat() ){		//  If there's no required chats available, make sure the player can chat already
 			available = [];
+		}
+
+
 	}else{
 		for( let text of available ){
 			if( text.weight >= this.WEIGHT_REQUIRED )
@@ -530,6 +545,7 @@ Text.getFromEvent = function( event, debug = false ){
 		if( required.length )
 			available = required;
 	}
+
 
 	return weightedRand( available, item => {
 		let chance = item.conditions.length;
@@ -602,23 +618,24 @@ Text.runFromLibrary = function( event, debug = false ){
 			
 			for( let player of players ){
 
-				evt.sender = player;
-				evt.raise();
+				const e = evt.clone();
+				e.sender = player;
+				e.raise();
+
 				const pl = players.slice();
 				shuffle(pl);
-				for( let t of players ){
+				for( let t of pl ){
 
 					if( t === player )
 						continue;
+					e.target = t;
 
-					evt.target = t;
-					const text = this.getFromEvent(evt);
-					//console.log("Scanned text", player, t, "=", text);
+
+					const text = this.getFromEvent(e);
 					if( text ){
-						text.run(evt);
+						text.run(e);
 						break;
 					}
-					//console.trace("Raising", evt.clone());
 				}
 
 			}

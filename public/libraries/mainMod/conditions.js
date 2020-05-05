@@ -267,6 +267,7 @@ const lib = {
 	wrapperIsStun : {"type":"wrapperHasEffect",data:{"filters":{"type":"stun"}}},
 	targetWearsThong : {"type":"tag",data:{"tags":["as_thong"]}},
 	targetNotThong : {type:Condition.Types.tag,data:{"tags":[stdTag.asThong]}, inverse:true},
+	targetWearsSemiExposedGroin : {type:Condition.Types.tag, data:{tags:[stdTag.asGroinSemiExposed]}},
 	targetWearsSkirt : {"type":"tag",data:{"tags":["as_skirt"]}},
 	targetWearsSlingBikini : {"type":"tag",data:{"tags":["as_sling_bikini"]}},
 	targetNoBodysuit : {"type":"tag",data:{"tags":["as_bodysuit"]},"inverse":true},
@@ -442,6 +443,7 @@ const lib = {
 	
 	targetVagina : {"type":"tag",data:{"tags":["pl_vagina"]}},
 	targetPenis : {"type":"tag",data:{"tags":["pl_penis"]}},
+	targetNotPenis : {"type":"tag",data:{"tags":[stdTag.penis]}, inverse:true},
 	targetBreasts : {"type":"tag",data:{"tags":["pl_breasts"]}},
 	targetNotBreasts : {type:Condition.Types.tag,data:{"tags":[stdTag.breasts]}, inverse:true},
 	targetNotCircumcised : {"type":"tag",data:{"tags":["pl_circumcised"]},"inverse":true},
@@ -506,6 +508,7 @@ const lib = {
 	roomBondageMachine : {type:Condition.Types.tag, data:{tags:[stdTag.mBondage]}, targnr:0},
 	roomHasFreeBondageDevice : {type:Condition.Types.hasFreeBondageDevice, targnr:0},
 	roomWater : {type:Condition.Types.tag, data:{tags:[stdTag.mWater]}, targnr:0},
+	roomSybian : {type:Condition.Types.tag, data:{tags:[stdTag.mBondageSybian]}, targnr:0},
 
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},
@@ -589,6 +592,7 @@ const lib = {
 	metaTwist : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaTwist]}},
 	metaVibration : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaVibration]}},
 	metaMouth : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotMouth]}},
+	metaLick : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaLick]}},
 	
 	
 	metaButtGrab : {
@@ -609,6 +613,7 @@ const lib = {
 	metaPenetratedWithPenis : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration, stdTag.metaUsedPenis], all:true}},
 	metaUsedTentacle : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaUsedTentacles]}},
 	metaPenetration : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration]}},
+	metaNotPenetration : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaPenetration]}, inverse:true},
 	metaButt : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaSlotButt]}},
 	metaBattleStarted : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaBattleStarted]}},
 	metaBattleEnded : {type:Condition.Types.textMeta, data:{tags:[stdTag.metaBattleEnded]}},

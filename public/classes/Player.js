@@ -2594,8 +2594,10 @@ export default class Player extends Generic{
 
 	/* CHATS */
 	onChatUsed( id ){
+
 		this._used_chats[id] = true;
-		this._last_chat = this._turns;
+		this._last_chat = this._turns || 1;	// Needed or they can use multiple ini texts
+
 	}
 
 	hasUsedChat( id ){
@@ -2603,10 +2605,13 @@ export default class Player extends Generic{
 	}
 	// Checks if this NPC has chatted too recently
 	canOptionalChat(){
-		
-		if( this.talkative >= 1 )
-			return true;
+
 		let turnsSinceLastSpoke = this._turns-this._last_chat;
+		// On battle start this is needed
+		if( !this._turns && !this._last_chat )	// Use talkativity percentage on battle start
+			turnsSinceLastSpoke = 1;
+		else if( !this._turns && this._last_chat )		// Cap to one battle start message
+			return false;
 		return Math.random() < turnsSinceLastSpoke*this.talkative;
 
 	}

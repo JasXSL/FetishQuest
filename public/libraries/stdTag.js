@@ -83,12 +83,12 @@ export default {
 	asUpperBody : 'as_upperBody',	// slots like these are automatically added while you're wearing items in those slots
 	asLowerBody : 'as_lowerBody',
 
-	asTight : 'as_tight',			// Tight close
 	asHard : 'as_hard',			// Hardened clothes, preventing gropes etc on top of the item
 	asTight : 'as_tight',			// Tight clothing revealing what's underneath
 
 	asSkirt : 'as_skirt',
 	asThong : 'as_thong',
+	asGroinSemiExposed : 'as_groin_semi_exposed',		// Groin semi exposed. Like if your thong leaves part of your mound or balls exposed
 	asShiny : 'as_shiny',
 	asPants : 'as_pants',					// Has legs attached to it, aka not briefs
 	asStockings : 'as_stockings',

@@ -232,6 +232,24 @@ out[id].stages.push(
 	}, out[id]),
 );
 
+id = 'pinchStretch';
+out[id] = new HitFX({label : id});
+out[id].stages.push(
+	new Stage({
+		particles : 'hitfx_sparks_smaller',
+		emit_duration : 100,
+		dest_rand : 0.5,
+		tween : false,
+		sound_kits : ['pinchGeneric'],
+		css_fx : 'fxTakeDamage',
+		hold: 100
+	}, out[id]),
+	new Stage({
+		css_fx : 'fxStretch',
+		sound_kits : ['stretchGeneric'],
+	}, out[id]),
+);
+
 id = 'doubleSlap';
 out[id] = new HitFX({label : id});
 out[id].stages.push(

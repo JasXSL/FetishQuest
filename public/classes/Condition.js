@@ -251,7 +251,7 @@ export default class Condition extends Generic{
 
 			}
 			else if( this.type === T.targetIsChatPlayer ){
-				success = ( event.text && event.text._chatPlayer && event.text._chatPlayer.id === t.id );
+				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.id === t.id );
 			}
 			else if( this.type === T.wrapperTag ){
 
@@ -267,7 +267,7 @@ export default class Condition extends Generic{
 				success = event.action && event.action._crit;
 			}
 			else if( this.type === T.sameTeam )
-				success = s.team === t.team;
+				success = s && t && s.team === t.team;
 
 			else if( this.type === T.hourRange ){
 
