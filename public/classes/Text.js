@@ -248,6 +248,10 @@ class Text extends Generic{
 	// Main entrypoint
 	run( event, returnResult = false ){
 
+		event.text = this;
+		// if it's not a chat, tie this text to the event
+		
+		//console.log("Running", event);
 
 		// Helper functions
 		let text = this.text;
@@ -332,7 +336,6 @@ class Text extends Generic{
 		if( this.chat ){
 			if( this._chatPlayer ){
 
-				console.log("Let through", this, "with event", event);
 				if( !this.chat_reuse )
 					this._chatPlayer.onChatUsed(this.id);
 				game.speakAs( this._chatPlayer.id, text, false );
@@ -352,12 +355,12 @@ class Text extends Generic{
 
 			
 			// Raise a text trigger event
-			const evt = event.clone();
+			const evt = event.clone();		// Create a clone for a custom text event
 			evt.type = GameEvent.Types.textTrigger;
 			evt.text = this;
 			if( !evt.custom )
 				evt.custom = {};
-			evt.custom.original = event;
+			evt.custom.original = event.clone();		// Make sure to stash the original
 			
 			evt.raise();
 					
@@ -489,36 +492,47 @@ Text.getFromEvent = function( event, debug = false ){
 
 	const chat = event.type === GameEvent.Types.textTrigger;
 
-	// max nr targets text available
 	let maxnr = 1;
 	for( let text of texts ){
-		event.text = text;
+		const evt = event;
+		evt.text = text;				// Needed for validation
 
 		for( let p of testAgainst ){
 
-			if( 
-				Boolean(text.chat) === chat && 
-				(!text.chat || !event.sender || !event.sender.hasUsedChat(text.id) ) &&
-				(Boolean(text.chat) === Boolean(event.type === GameEvent.Types.textTrigger)) &&
-				text.validate(event, debug === true, p)
-			){
-				const id = text.id;
-				text = text.clone();
-				text.id = id;			// ID isn't saved on text (regenerated each load). So when cloning we have to re-apply it
-				if( p )
-					text._chatPlayer = p;
-				
-				available.push(text);
-				if( text.numTargets > maxnr )
-					maxnr = text.numTargets;
+			if( Boolean(text.chat) !== chat )
+				continue;
+			if( Boolean(text.chat) !== Boolean(evt.type === GameEvent.Types.textTrigger))
+				continue;
+
+			
+			if( text.chat && evt.sender && evt.sender.hasUsedChat(text.id) ){
+				continue;
 			}
+
+			if( !text.validate(evt, debug === true, p) ){
+				if( chat && text.debug )
+					console.log("Validation failed on evt", evt.clone(), "for text", text);
+				continue;
+			}
+
+			const id = text.id;
+			text = text.clone();
+			text.id = id;			// ID isn't saved on text (regenerated each load). So when cloning we have to re-apply it
+			if( p )
+				text._chatPlayer = p;
+			
+			available.push(text);
+			if( text.numTargets > maxnr )
+				maxnr = text.numTargets;
+
+			
 		}
 	}
 
 
 	if( !available.length && chat )
 		return false ;
-		
+
 	const required = [];
 
 	available = available.filter(el => el.numTargets === maxnr || el.numTargets === -1);
@@ -589,6 +603,7 @@ Text.runFromLibrary = function( event, debug = false ){
 				t.shift();
 			}else{
 
+				event.text = text;	// Needs an update because it gets overriden in getFromEvent
 				text.run(event);
 
 				let nt = text.numTargets;
@@ -614,7 +629,7 @@ Text.runFromLibrary = function( event, debug = false ){
 			evt.type = GameEvent.Types.textTrigger;
 			if( !evt.custom )
 				evt.custom = {};
-			evt.custom.original = event;
+			evt.custom.original = event.clone();
 			
 			for( let player of players ){
 

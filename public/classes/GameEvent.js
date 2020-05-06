@@ -41,6 +41,12 @@ export default class GameEvent extends Generic{
 
 	rebase(){
 
+		for( let i in this.custom ){
+			if( this.custom[i] && typeof this.custom[i].clone === "function" ){
+				this.custom[i] = this.custom[i].clone();
+			}
+		}
+
 	}
 
 	clone(){

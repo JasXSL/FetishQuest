@@ -3109,7 +3109,7 @@ const lib = [
 		hitfx : ["slowThrustsCum"],
 		metaTags : [stdTag.metaVeryArousing, stdTag.metaUsedPenis, stdTag.metaPenetration, stdTag.metaInjection, stdTag.metaSlotVagina],		
 	},
-	{ text : "%S grasps a hand around the butt-string of %T's %TclothLower and yanks backwards, causing the %Trace to fall backwards as the %Srace skillfully jabs %Shis %Spsize %penis up into %T's %vagina, catching a hold of %This hair! %S holds %Thim firmly in place as %The tries to struggle free! A %few moments of squirming later, the %Srace's %penis twitches briefly before unleashing a load of sticky demon %cum into %T, and briefly thereafter letting %Ther go.",
+	{ text : "%S grasps a hand around the butt-string of %T's %TclothLower and yanks backwards, causing the %Trace to fall backwards as the %Srace skillfully jabs %Shis %Spsize %penis up into %T's %vagina, catching a hold of %This hair! %S holds %Thim firmly in place as %The tries to struggle free! A %few moments of squirming later, the %Srace's %penis twitches briefly before unleashing a load of sticky demon %cum into %T, and briefly thereafter letting %Thim go.",
 		conditions : humOnHumCond.concat([
 			"action_imp_specialDelivery","targetLongHair", "targetVagina", "targetWearsThong", "targetStanding"
 		]),

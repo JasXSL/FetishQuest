@@ -81,7 +81,7 @@ export default class Player extends Generic{
 		this.remOnDeath = false;				// Delete this player if it dies
 
 		// Personality types
-		this.talkative = 0.1;					// How often they output combat chats. Multiplied by nr turns. So after 1 turn, 0.5 = 50% chance, 2 turns = 100% etc. Setting this to one overrides the limit of one chat per turn.
+		this.talkative = 0.3;					// How often they output combat chats. Multiplied by nr turns. So after 1 turn, 0.5 = 50% chance, 2 turns = 100% etc. Setting this to one overrides the limit of one chat per turn.
 		this.sadistic = 0.5;					// Normal vs Sadistic
 		this.dominant = 0.8;					// Dominant vs submissive
 		this.hetero = 0.5;						// 0 = gay, 0.5 = bi, 1 = straight

@@ -314,6 +314,8 @@ const lib = {
 			stdTag.plTongue,
 			stdTag.plDemon,
 		],
+		talkative_min : 0.4,
+		talkative_max : 1,
 		min_level : 1,
 		max_level : 5,
 		primary_stats : {
@@ -426,6 +428,8 @@ const lib = {
 		hetero_max:1,
 		intelligence_min : 0.4,
 		intelligence_max : 0.6,
+		talkative_min : 0.4,
+		talkative_max : 1,
 		required_assets : []
 	},
 	darkImp : {
@@ -438,6 +442,8 @@ const lib = {
 		],
 		monetary_wealth : 50,
 		max_actions : 3,
+		talkative_min : 0.4,
+		talkative_max : 1,
 		tags : [
 			"pl_penis",
 			"pl_horns",

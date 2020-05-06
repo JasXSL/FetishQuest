@@ -640,9 +640,38 @@ export default class Condition extends Generic{
 			else if( this.type === T.textMeta || this.type === T.textTurnTag ){
 
 				if( event.text ){
-					let tagsToScan = event.text.metaTags;
-					if( this.type === T.textTurnTag )
-						tagsToScan = event.text.turnTags;
+
+					const metaTags = event.text.metaTags;
+					const originalMetaTags = event.custom.original && event.custom.original.text ? event.custom.original.text.metaTags : [];
+					const turnTags = event.text.turnTags;
+					const originalTurnTags = event.custom.original && event.custom.original.text ? event.custom.original.text.turnTags : [];
+					let tagsToScan = [];
+					// We need both
+					if( this.data.originalWrapper === undefined ){
+						
+						tagsToScan = metaTags.concat(originalMetaTags);
+						if( this.type === T.textTurnTag )
+							tagsToScan = turnTags.concat(originalTurnTags);
+
+					}
+					// Need original only
+					else if( this.data.originalWrapper ){
+
+						tagsToScan = originalMetaTags;
+						if( this.type === T.textTurnTag )
+							tagsToScan = originalTurnTags;
+
+					}
+					// Need only the overwriting event
+					else{
+
+						tagsToScan = metaTags;
+						if( this.type === T.textTurnTag )
+							tagsToScan = turnTags;
+
+					}
+
+
 					let find = this.data.tags;
 					if( !Array.isArray(find) )
 						find = [find];
@@ -662,17 +691,25 @@ export default class Condition extends Generic{
 						return tag.toLowerCase()
 					});
 					success = all;
+
+					if( debug )
+						console.log("Trying to find tags in", event.text);
 					for( let tag of find ){
+
 						if( ~tagsToScan.indexOf(tag) ){
+
 							if( !all ){
 								success = true;
 								break;
 							}
+
 						}else if( all ){
 							success = false;
 							break;
 						}
+
 					}
+
 				}
 
 			}
@@ -1115,8 +1152,8 @@ Condition.descriptions = {
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
 	[Condition.Types.hasFreeBondageDevice] : '{} - Checks if there\'s at least one free bondage device in the dungeon. See mBondage in stdTag.js',
 
-	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
-	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false} - Requires Text in event. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
+	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/undefined)} - Requires Text in event. If originalwrapper is unset, it uses both. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
+	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/undefined)} - Requires Text in event. If originalwrapper is unset, it uses both. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
 	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
 	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
 	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level',

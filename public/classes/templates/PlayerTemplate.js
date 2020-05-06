@@ -43,6 +43,8 @@ class PlayerTemplate extends Generic{
 		this.hetero_max = 1;						// 0 = gay, 0.5 = bi, 1 = straight
 		this.intelligence_min = 0.6;				// Starts off at human level
 		this.intelligence_max = 0.6;
+		this.talkative_min = 0;
+		this.talkative_max = 1;
 		this.required_assets = [];				// labels of assets that MUST be on this character
 		this.required_actions = [];				// labels of actions that MUST be on this character
 		this.no_equip = false;					// Prevents equip of the gear. Useful for things like mimics.
@@ -88,6 +90,8 @@ class PlayerTemplate extends Generic{
 			required_assets : this.required_assets,
 			power : this.power,
 			no_equip : this.no_equip,
+			talkative_min : this.talkative_min,
+			talkative_max : this.talkative_max
 		};
 	}
 
@@ -120,6 +124,7 @@ class PlayerTemplate extends Generic{
 		});
 		player.level = Math.min(Math.max(level, this.min_level), this.max_level);
 
+		player.talkative = this.talkative_min+(this.talkative_max-this.talkative_min)*Math.random();
 
 		player.sadistic = rand1(this.sadistic_min, this.sadistic_max);
 		player.dominant = rand1(this.dominant_min, this.dominant_max);
