@@ -1,0 +1,193 @@
+#topMenu{
+	position: absolute;
+	top:0;
+	left:0;
+	width:100%;
+	background:#333;
+	text-align: left;
+	height:40px;
+	font-size:14px;
+	overflow:hidden;
+}
+
+#topMenu > div[data-id]{
+	user-select: none;
+	border:1px solid rgba(0,0,0,0);
+	background:rgba(255,255,255,.3);
+	padding: 11px 20px;
+	display:inline-block;
+	cursor:pointer;
+}
+#topMenu > div[data-id]:hover,
+#libraryMenu > div:hover{
+	border-bottom:1px solid #FFF;
+	border-style:inset;
+	background:#999;
+}
+
+#topMenu > div[data-id]:active,
+#libraryMenu > div:active{
+	background: rgba(200,255,200,.2);
+}
+
+
+#modName{
+	position: absolute;
+	right:10px;
+	font-weight: bold;
+	top:50%;
+	transform:translateY(-50%);
+	font-size:20px;
+}
+
+
+
+#libraryMenu{
+	position:fixed;
+	left:0;
+	width:10vw;
+	top:40px;
+	background:#666;
+	bottom:0;
+	overflow:auto;
+}
+#libraryMenu > div {
+	border:1px solid rgba(0,0,0,0);
+	background:rgba(255,255,255,.3);
+	padding: 12px;
+	cursor:pointer;
+	border-bottom: 1px solid #AAA;
+	border-style: inset;
+	user-select: none;
+
+}
+
+
+
+/* Collection */
+
+#window{
+	position: fixed;
+	left: 0;
+	right:0;
+	top:0;
+	bottom:0;
+}
+
+/* Base style for all windows */
+div.window, #menuRollout{
+
+	position: fixed;
+	box-shadow: 5px 5px 30px rgba(0,0,0,.5);
+	display:flex;
+	flex-direction: column;
+}
+div.window > div.title{
+	overflow:hidden;
+	border: 3px groove #999;
+	border-bottom: 1px solid #999;
+	background: linear-gradient(to right, #2073aa 0%,#258dc8 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	padding: 5px;
+	user-select:none;
+}
+div.window > div.title > img{
+	vertical-align: middle;
+	width:16px;
+	height:16px;
+	margin-right:5px;
+}
+div.window > div.title > div.buttons{
+	position: absolute;
+	top:0; right:0;
+	display:flex;
+}
+div.window > div.title > div.buttons > input{
+	font-size:12px;
+	padding: 2px 10px;
+	height:22px;
+	margin:2px;
+	display:block;
+}
+div.window > div.content,
+#menuRollout > div{
+	overflow:auto;
+	background:rgb(100,100,100);
+	border: 3px groove #999;
+	padding: 5px;
+	flex:1;
+}
+div.window > div.resizer{
+	position: absolute;
+	width:15px; height:15px;
+	bottom:-5px; right:-5px;
+	cursor:se-resize;
+	user-select: none;
+}
+div.window.maximized{
+	right:0;
+	left:10vw;
+	top:40px;
+	bottom:0;
+}
+
+
+#tray {
+	display: flex;
+	flex-wrap: wrap-reverse;
+	position:fixed;
+	bottom:0;
+	right:0;
+	left: 10vw;
+}
+#tray > div.window{
+	width: 300px;
+	right:auto;
+	left:auto;
+	top:auto;
+	bottom:auto;
+}
+#tray > div.window > div.content {
+	display:none;
+}
+
+
+
+
+
+/* Menu rollout */
+#menuRollout{
+	border: 3px groove #999;
+}
+#menuRollout > div{
+	border:none;
+	cursor: default;
+	border-bottom:1px solid #AAA;
+	padding:5px 15px;
+}
+
+#menuRollout > div:hover{
+	background:#999;
+}
+
+
+
+/* Selectable tables */
+table.selectable{
+	width:100%;
+	box-sizing: border-box;
+	border: 2px outset;
+	background-color:#666;
+}
+table.selectable td{
+	background-color:#777;
+}
+table.selectable tr{
+	cursor:pointer;
+}
+table.selectable tr:nth-child(odd) td{
+	background-color:#999;
+}
+table.selectable tr:hover td{
+	background-color:#AAA;
+}
+

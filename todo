@@ -2,6 +2,34 @@
 	- Keep redesigning errors to a try/catch system
 
 
+
+
+New devtools:
+	- Have the 3d renderer in the background
+	- Use a "windowed" layout
+
+
+
+Game:
+	- Break encounters out into their own thing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+___ OLD ___
 -- CURRENT --
 
 Bugs:

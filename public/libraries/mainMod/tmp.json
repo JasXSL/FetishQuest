@@ -1,0 +1,468 @@
+{
+	"id": "1VAaVcFBzm",
+	"name": "Imp Taunts (male)",
+	"author": "",
+	"description": "Bunch of taunts for imps, targeting males and ambigious gender.",
+	"dungeons": [],
+	"quests": [],
+	"vars": {},
+	"texts": [
+		{
+			"text": "That must have hurt! I make it feel better if you stop fighting!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Let's get that %TclothLower off of you! ",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Maybe if I squeeze, bulge will get bigger!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Look at that %Tpsize %Tgenitals! I wanna feel it!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Nice bulge! Hold still so I can squeeze!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Gonna feel up those %Tpsize balls once you relax!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "You like that, %Trace? Gonna keep grabbing your %Tpsize %Tgenitals until you give up!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Smack! Gonna get that %TclothLower off of you!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "I'll stop smacking your %Tgenitals once you give up!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "You like that? Lemme keep stroking your %Tgenitals, %Trace!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "You have a %Tpsize bulge, I'm gonna feel!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "I can tell your %Tpsize %Tgenitals likes when I grab it!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Gonna get that %TclothLower off you so I can see that %Tgenitals!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "That %TclothLower is too small for your bulge, gonna take it off you!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Bet you enjoy me playing with your %Tpsize %Tgenitals!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Want me to keep stroking your %Tgenitals? Stop fighting!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Gonna make that %Tpsize %Tgenitals mine before I'm done with ya!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "Bet you have a tasty %Tgenitals, hold still so I can take a lick!",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		},
+		{
+			"text": "You like me grabbing those %Tpsize balls, don't ya?",
+			"audiokits": [],
+			"numTargets": 1,
+			"weight": 1,
+			"alwaysOutput": false,
+			"debug": false,
+			"turnTags": [],
+			"metaTags": [],
+			"armor_slot": "",
+			"conditions": [
+				"eventIsBattleStarted",
+				"targetOtherTeam",
+				"senderIsChatPlayer"
+			],
+			"chat_reuse": false,
+			"hitfx": [],
+			"chatPlayerConditions": [
+				"senderIsImp"
+			],
+			"chat": 1,
+			"en": true
+		}
+	],
+	"actions": [],
+	"assets": [],
+	"audioKits": [],
+	"playerClasses": [],
+	"conditions": [],
+	"playerTemplates": [],
+	"assetTemplates": [],
+	"materialTemplates": [],
+	"dungeonTemplates": [],
+	"effects": [],
+	"dungeonRoomTemplates": [],
+	"wrappers": [],
+	"dungeonEncounters": [],
+	"players": [],
+	"hitFX": [],
+	"roleplay": [],
+	"gameActions": [],
+	"shops": [],
+	"actionLearnable": [],
+	"factions": []
+}

@@ -2748,7 +2748,7 @@ Game.VibHub = VibHub;		// Set by VibHub.js
 
 Game.EQUIP_COST = 4;
 Game.UNEQUIP_COST = 2;
-Game.LOG_SIZE = 300;
+Game.LOG_SIZE = 800;
 Game.ROOM_RENTAL_DURATION = 3600*24;
 Game.MAX_SLEEP_DURATION = 24;			// Hours
 

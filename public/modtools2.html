@@ -1,0 +1,60 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="./style.css" />
+	<link rel="stylesheet" href="./style_devtools.css" />
+	<title>A bigger bluer panda</title>
+	<meta name="description" content="Zeralus' Dangly parts">
+	<meta name="author" content="JasX">
+	<script src="./globalFunctions.js"></script>
+</head>
+
+<body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.2.0/Tween.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script type="module">
+		import Modtools from './modtools/Modtools2.js';
+		import GameLib from './classes/GameLib.js';
+		window.glib = new GameLib();
+		window.mod = new Modtools();
+	</script>
+
+	<div id="wrap">
+		<div id="content" style="overflow:auto">
+			<div id="topMenu">
+				<div data-id="file">File</div>
+				<div data-id="window">Window</div>
+				<div id="modName">
+					<span class="dirty hidden">*</span>
+					<span class="name"></span>
+				</div>
+			</div>
+			<div id="libraryMenu" class="hidden">
+				<div data-category="texts">Texts</div>
+				<div data-category="dungeons">Dungeons</div>
+				<div data-category="encounters">Encounters</div>
+				<div data-category="players">Players</div>
+				<div data-category="assets">Assets</div>
+				
+				<!-- Templates -->
+				<hr />
+				<div data-category="playerTemplates">Player Templates</div>
+				<div data-category="assetTemplates">Asset Templates</div>
+				<hr />
+				Todo: Window browser
+			</div>
+			<div id="windows">
+			</div>
+			<!-- Minimization tray -->
+			<div id="tray"></div>
+			<div id="menuRollout" class="hidden"></div>
+		</div>
+	</div>
+	<div id="datalists" class="hidden"></div>
+	<div id="notices"></div>
+
+</body>
+</html>
