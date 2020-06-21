@@ -1,9 +1,9 @@
 
-export default function( asset ){
+export default function(){
 
 	const win = this;
 
-	console.log("Adding text list", win, asset);
+	console.log("Adding text list", win, this.asset);
 
 
 };

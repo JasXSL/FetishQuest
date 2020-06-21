@@ -7,11 +7,12 @@ export default class Window{
 
 
 	// id is a unique id, type is the type of asset (or window), parent is the parent window. Closing the parent also closes any children.
-	constructor( id, type, name, icon ){
+	constructor( id, type, name, icon, asset ){
 
 		this.id = id;
 		this.type = type;
 		this.icon = icon;
+		this.asset = asset;
 		this.dom = document.createElement("div");
 		this.dom.classList.add("window", type.toLowerCase().split(" ").join("_"));
 		this.dom.dataset.id = this.uniqid();
@@ -87,8 +88,12 @@ export default class Window{
 			if( !this.resizing && !this.dragging )
 				return;
 			
-			if( this.resizing )
+			if( this.resizing ){
 				Window.saveMeta(this);
+				Window.onWindowResized(this);
+			}
+			else
+				Window.onWindowMoved(this);
 			this.resizing = this.dragging = false; 
 			
 		});
@@ -162,6 +167,7 @@ export default class Window{
 		this.size.w = MIN_WIDTH;
 		this.size.h = MIN_HEIGHT;
 		this.center();
+		Window.onWindowResized();	// Moved is handled by center
 
 	}
 
@@ -195,6 +201,7 @@ export default class Window{
 		this.position.y = window.innerHeight/2-height/2;
 		
 		this.updatePosition();
+		Window.onWindowMoved(this);
 
 	}
 
@@ -204,6 +211,10 @@ export default class Window{
 
 	isHidden(){
 		return this.dom.classList.contains("hidden");
+	}
+
+	getZindex(){
+		return parseInt(this.dom.style.zIndex) || 0;
 	}
 
 	// Returning to a floating draggable state
@@ -235,6 +246,9 @@ export default class Window{
 			this.makeFloating();
 		}
 
+		Window.onWindowMaximized(this);
+
+
 	}
 
 	toggleMinimize( minimize ){
@@ -258,6 +272,8 @@ export default class Window{
 			this.makeFloating();
 			this.bringToFront();
 		}
+
+		Window.onWindowMinimized(this);
 		
 	}
 
@@ -277,14 +293,15 @@ export default class Window{
 		Window.remove(this);
 	}
 
-	bringToFront(){
+	bringToFront( force ){
 
-		if( Window.front === this )
+		if( Window.front === this && !force )
 			return;
 
 		++Window.zIndex;
 		this.dom.style.zIndex = Window.zIndex;
 		Window.front = this;
+		Window.onWindowToFront(this);
 
 	}
 
@@ -294,12 +311,17 @@ export default class Window{
 	// Custom events
 	static onWindowOpened( win ){}
 	static onWindowClosed(win){}
+	static onWindowMoved(win){}
+	static onWindowResized(win){}
+	static onWindowToFront(win){}
+	static onWindowMaximized(win){}		// Raised both on minimize an unminimize
+	static onWindowMinimized(win){}		// Raised both of maximize and unmaximize
 
 	// Creates a window if it doesn't exist and returns it
 	// If it does exist, it returns existing
 	static create( id, type, name, icon, onSpawn, asset ){
 
-		const w = new this(id, type, name, icon);
+		const w = new this(id, type, name, icon, asset);
 		const uid = w.uniqid();
 
 		const existing = this.get(uid);
@@ -309,7 +331,7 @@ export default class Window{
 		}
 		this.pages.set(uid, w);
 		this.windowContainer.append(w.dom);
-		onSpawn.call(w, asset);
+		onSpawn.call(w);
 		w.bringToFront();
 		
 		const settings = this.meta[w.type.split(" ").join("_")];
@@ -444,7 +466,7 @@ export default class Window{
 			if( win === ignore )
 				continue;
 
-			const z = parseInt(win.dom.style.zIndex);
+			const z = win.getZindex();
 			if( z > zindex ){
 				out = win;
 				zindex = z;

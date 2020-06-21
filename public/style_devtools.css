@@ -145,6 +145,7 @@ div.window.maximized{
 	left:auto;
 	top:auto;
 	bottom:auto;
+	position: relative;
 }
 #tray > div.window > div.content {
 	display:none;

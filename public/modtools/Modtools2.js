@@ -8,11 +8,24 @@ import Mod from '../classes/Mod.js';
 import EditorListText from './editors/EditorListText.js';
 import EditorListDungeon from './editors/EditorListDungeon.js';
 
+// Window types that should be tracked
+const TRACKED_WINDOWS = {
+	"Database" : true,
+};
+
 export default class Modtools{
 
 	constructor(){
 
-		this.mod = null;	// Active mod
+		this.mod = null;						// Active mod
+		this.loading = false;					// Used to prevent window states from being altered when loading window states
+		// Tracks what windows are open
+		this.window_states = new Map();			// uniqid : WindowState
+
+		this.db = new Dexie("editor");
+		this.db.version(1).stores({
+			window_states : 'mod'
+		});
 
 		this.topMenu = document.getElementById("topMenu");
 		this.sideMenu = document.getElementById("libraryMenu");
@@ -91,10 +104,9 @@ export default class Modtools{
 					label = button.dataset.category
 				;
 				if( label === "texts" )
-					Window.create("Texts", "Asset Selector", "", "database", EditorListText);
+					this.buildAssetSelector("Texts");
 				else if( label === "dungeons" )
-					Window.create("Dungeons", "Asset Selector", "", "database", EditorListDungeon);
-
+					this.buildAssetSelector("Dungeons");
 
 			};
 		});
@@ -119,6 +131,12 @@ export default class Modtools{
 
 		// Window events
 		Window.onWindowOpened = win => this.onWindowOpened(win);
+		Window.onWindowClosed = win => this.onWindowClosed(win);
+		Window.onWindowMoved = win => this.onWindowMoved(win);
+		Window.onWindowResized = win => this.onWindowResized(win);
+		Window.onWindowMaximized = win => this.onWindowMaximize(win);
+		Window.onWindowMinimized = win => this.onWindowMinimize(win);
+		Window.onWindowToFront = win => this.onWindowToFront(win);
 
 
 		// Auto loader
@@ -136,14 +154,153 @@ export default class Modtools{
 		}
 
 		
+		
 
+	}
+
+	onWindowMoved( win ){
+		this.refreshWindowState(win);
+	}
+
+	onWindowResized( win ){
+		this.refreshWindowState(win);
+	}
+
+	onWindowToFront( win ){
+		this.refreshWindowState(win);
+	}
+
+	onWindowMaximize( win ){
+		this.refreshWindowState(win);
+	}
+
+	onWindowMinimize(win){
+		this.refreshWindowState(win);
 	}
 
 	onWindowOpened( win ){
 
 		// Todo: Track dirty
-		
+
+		// Don't need to check loading here, it will rebuild the states
+		if( TRACKED_WINDOWS[win.type] )
+			this.window_states.set(
+				win.uniqid(), 
+				new WindowState()
+			);
+
+		this.refreshWindowState(win);
+
+
+			
 		//this.setDirty(true);
+
+	}
+
+	onWindowClosed( win ){
+
+		if( !this.loading ){
+
+			this.window_states.delete(win.uniqid());
+			this.saveWindowStates();
+
+		}
+
+	}
+
+	refreshWindowState( win ){
+
+		const state = this.window_states.get(win.uniqid());
+		if( !state )
+			return;
+
+		state.id = win.id;
+		state.type = win.type;
+		state.x = win.position.x; 
+		state.y = win.position.y; 
+		state.z = win.getZindex(); 
+		state.h = win.size.h; 
+		state.w = win.size.w;
+		state.max = win.isMaximized();
+		state.min = win.minimized;
+
+		this.saveWindowStates();
+
+	}
+
+	// Loads window states for the active mod
+	async loadWindowStates(){
+
+		const data = await this.db.window_states.get(this.mod.id);
+		if( !data )
+			return;
+
+		delete data.mod;	// Mod is tacked onto the object for identification
+
+		const order = [];
+		for( let id in data ){
+
+			const val = data[id];
+
+			// Open window
+			let win;
+			if( val.type === "Database")
+				win = this.buildAssetSelector(val.id);
+			else{
+				console.error("Ignoring window state for", data, "because it's an unsupported type");
+				continue;
+			}
+
+			if( val.max )
+				win.toggleMaximize();
+			if( val.min )
+				win.toggleMinimize();
+
+			win.position.x = val.x;
+			win.position.y = val.y;
+			win.size.w = val.w;
+			win.size.h = val.h;
+			win.makeFloating();
+
+			order.push({
+				id : id,
+				z : val.z
+			});
+
+		}
+
+		// Sort in ascending order since we loop through from back to front
+		order.sort((a, b) => {
+			return a.z < b.z ? -1 : 1;
+		});
+
+
+		Window.zIndex = 0;
+		for( let block of order ){
+			const win = Window.get(block.id);
+			if( win )
+				win.bringToFront( true );
+		}		
+
+	}
+
+	saveWindowStates(){
+
+		if( !this.mod )
+			return;
+			
+		clearTimeout(this._saveWindowStates);
+		this._saveWindowStates = setTimeout(async () => {
+			try{
+				
+				const data = Object.fromEntries(this.window_states);
+				data.mod = this.mod.id;
+				await this.db.window_states.put(data);
+				
+			}catch(err){
+				console.error("Error in saving", err);
+			}
+		}, 100);
 
 	}
 
@@ -206,7 +363,7 @@ export default class Modtools{
 
 
 	// If mod is undefined, reload the current mod
-	load( mod ){
+	async load( mod ){
 
 		if( !mod )
 			mod = this.mod;
@@ -218,6 +375,8 @@ export default class Modtools{
 			alert("Todo: Ask if you want to save first");
 		}
 
+		this.loading = true;
+
 		this.setDirty(false);
 		this.mod = mod;
 		Window.closeAll();
@@ -225,11 +384,11 @@ export default class Modtools{
 		localStorage.editor_mod = mod.id;		// Save this as the actively opened mod
 		this.updateModName();					// Set the mod name in the top bar
 
-		console.log("Todo: Window state load");
-		// Should load only assets and root lists
+		await this.loadWindowStates();
 
 		this.sideMenu.classList.toggle("hidden", false);
 
+		this.loading = false;
 
 	}
 
@@ -237,6 +396,7 @@ export default class Modtools{
 		
 		this.setDirty(false);
 		console.log("Save");
+		
 
 
 	}
@@ -244,4 +404,31 @@ export default class Modtools{
 
 
 
+	// Build windows
+	buildAssetSelector( id ){
+		return Window.create(id, "Database", "", "database", EditorListText);
+	}
+
+
+
 }
+
+
+
+class WindowState{
+
+	constructor( id, type, x, y, z, h, w, max, min ){
+		this.id = id;
+		this.type = type;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.h = h;
+		this.w = w;
+		this.max = max;
+		this.min = min;
+	}
+
+}
+
+
