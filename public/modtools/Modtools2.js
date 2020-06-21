@@ -15,6 +15,8 @@ const TRACKED_WINDOWS = {
 	"Database" : true,
 };
 
+// Todo: Asset picker for sub window
+
 // Maps database assets to functions
 // Type : fn
 // Type is named after the name of its array in Mod.js

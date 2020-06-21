@@ -196,3 +196,14 @@ table.selectable tr:hover td{
 	background-color:#AAA;
 }
 
+
+
+
+/* Tag editor */
+div.tagEditor{
+	display:inline-block;
+}
+div.tagEditor > input{
+	display:inline-block;
+	width:auto;
+}
