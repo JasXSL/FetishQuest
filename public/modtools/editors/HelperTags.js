@@ -45,7 +45,6 @@ export default {
 		if( !string )
 			return out;
 
-		console.log("returning", out);
 		return out.outerHTML;
 
 	},
