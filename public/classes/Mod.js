@@ -84,6 +84,20 @@ export default class Mod extends Generic{
 		return out;
 	}
 
+	getAssetById( type, id ){
+
+		if( !Array.isArray(this[type]) )
+			throw 'Trying to fetch an id from non array: '+type;
+
+		for( let asset of this[type] ){
+
+			if( asset.id === id )
+				return asset;
+
+		}
+
+	}
+
 	// mod save goes to databse
 	async save(){
 		

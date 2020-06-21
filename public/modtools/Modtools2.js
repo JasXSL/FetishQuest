@@ -8,9 +8,19 @@ import Mod from '../classes/Mod.js';
 import EditorListText from './editors/EditorListText.js';
 import EditorListDungeon from './editors/EditorListDungeon.js';
 
+import EditorText from './editors/EditorText.js';
+
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
 	"Database" : true,
+};
+
+// Maps database assets to functions
+// Type : fn
+// Type is named after the name of its array in Mod.js
+const DB_MAP = {
+	"texts" : { listing : EditorListText, asset : EditorText, icon : '' },
+	"dungeons" : { listing : EditorListDungeon },
 };
 
 export default class Modtools{
@@ -103,10 +113,7 @@ export default class Modtools{
 				const button = evt.currentTarget,
 					label = button.dataset.category
 				;
-				if( label === "texts" )
-					this.buildAssetSelector("Texts");
-				else if( label === "dungeons" )
-					this.buildAssetSelector("Dungeons");
+				this.buildDatabaseList(label);
 
 			};
 		});
@@ -183,7 +190,8 @@ export default class Modtools{
 		// Todo: Track dirty
 
 		// Don't need to check loading here, it will rebuild the states
-		if( TRACKED_WINDOWS[win.type] )
+		// Check for tracked windows (custom windows such as the asset listings) and also ALL asset editors (included in DB_MAP)
+		if( TRACKED_WINDOWS[win.type] || DB_MAP[win.type] )
 			this.window_states.set(
 				win.uniqid(), 
 				new WindowState()
@@ -223,6 +231,7 @@ export default class Modtools{
 		state.w = win.size.w;
 		state.max = win.isMaximized();
 		state.min = win.minimized;
+		state.data = win.data;
 
 		this.saveWindowStates();
 
@@ -244,10 +253,20 @@ export default class Modtools{
 
 			// Open window
 			let win;
-			if( val.type === "Database")
-				win = this.buildAssetSelector(val.id);
-			else{
-				console.error("Ignoring window state for", data, "because it's an unsupported type");
+			try{
+				// An asset database listing
+				if( val.type === "Database" )
+					win = this.buildDatabaseList(val.id);
+				// An asset editor
+				else if( DB_MAP[val.type] ){
+					win = this.buildAssetEditor(val.type, val.id);
+				}
+				else{
+					console.error("Ignoring window state for", data, "because it's an unsupported type. Add it to TRACKED_WINDOWS (or DB_MAP if a mod asset)");
+					continue;
+				}
+			}catch(err){
+				console.error(err);
 				continue;
 			}
 
@@ -292,7 +311,7 @@ export default class Modtools{
 		clearTimeout(this._saveWindowStates);
 		this._saveWindowStates = setTimeout(async () => {
 			try{
-				
+
 				const data = Object.fromEntries(this.window_states);
 				data.mod = this.mod.id;
 				await this.db.window_states.put(data);
@@ -395,9 +414,7 @@ export default class Modtools{
 	save(){
 		
 		this.setDirty(false);
-		console.log("Save");
-		
-
+		this.mod.save();		
 
 	}
 
@@ -405,8 +422,33 @@ export default class Modtools{
 
 
 	// Build windows
-	buildAssetSelector( id ){
-		return Window.create(id, "Database", "", "database", EditorListText);
+	buildDatabaseList( id ){
+
+		if( !DB_MAP[id] || !DB_MAP[id].listing )
+			throw 'Trying to build DB list for unknown type: '+id+'. Map the type to DB_MAP in ModTools2.js';
+
+		return Window.create(id, "Database", "", "database", DB_MAP[id].listing);
+	}
+
+	// Edit a text asset by id
+	buildAssetEditor( type, id, data ){
+
+		if( !DB_MAP[type] || !DB_MAP[type].asset)
+			throw 'Asset editor not found for type '+type+", add it to DB_MAP in Modtools2.js";
+
+		const asset = this.mod.getAssetById(type, id);
+		if( !asset )
+			throw 'Asset not found: '+id;
+
+		return Window.create(
+			id, 
+			type, 
+			asset.label, 
+			DB_MAP[type].icon || "pencil", 
+			DB_MAP[type].asset, 
+			data
+		);
+
 	}
 
 
@@ -414,10 +456,10 @@ export default class Modtools{
 }
 
 
-
+// Helper for saving window states
 class WindowState{
 
-	constructor( id, type, x, y, z, h, w, max, min ){
+	constructor( id, type, x, y, z, h, w, max, min, data ){
 		this.id = id;
 		this.type = type;
 		this.x = x;
@@ -427,6 +469,7 @@ class WindowState{
 		this.w = w;
 		this.max = max;
 		this.min = min;
+		this.data = data;
 	}
 
 }

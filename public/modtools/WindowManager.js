@@ -7,12 +7,15 @@ export default class Window{
 
 
 	// id is a unique id, type is the type of asset (or window), parent is the parent window. Closing the parent also closes any children.
-	constructor( id, type, name, icon, asset ){
+	// build is the build function
+	constructor( id, type, name, icon, asset, build ){
 
 		this.id = id;
 		this.type = type;
 		this.icon = icon;
 		this.asset = asset;
+		this.build = build;
+		this.name = name;
 		this.dom = document.createElement("div");
 		this.dom.classList.add("window", type.toLowerCase().split(" ").join("_"));
 		this.dom.dataset.id = this.uniqid();
@@ -22,10 +25,7 @@ export default class Window{
 		this.dom.innerHTML = 
 			'<div class="title">'+
 				(icon ? '<img class="icon" src="/media/wrapper_icons/'+esc(icon)+'.svg" />' : '' )+
-				(name ? 
-					esc(type) + ' &gt; ' + esc(name) +' ('+esc(id)+')' :
-					esc(type) + ' &gt; ' + esc(id)
-				)+
+				'<span class="title"></span>'+
 				'<div class="buttons">'+
 					'<input type="button" value="_" class="minimize" />'+
 					'<input type="button" value="&#x25FB;" class="maximize" />'+
@@ -41,6 +41,8 @@ export default class Window{
 		this.content = this.dom.querySelector("div.content");
 		this.title = this.dom.querySelector("div.title");
 		this.resizer = this.dom.querySelector("div.resizer");
+
+		this.updateTitle();
 
 		
 		// Drag operation in progress
@@ -155,6 +157,10 @@ export default class Window{
 		});
 
 
+	}
+
+	rebuild(){
+		this.build();
 	}
 
 	reset(){
@@ -283,6 +289,16 @@ export default class Window{
 
 	}
 
+	updateTitle(){
+
+		const name = this.name, type = this.type, id = this.id;
+		this.title.querySelector("span.title").innerHTML = (name ? 
+			esc(type) + ' &gt; ' + esc(name) +' ('+esc(id)+')' :
+			esc(type) + ' &gt; ' + esc(id)
+		);
+
+	}
+
 	// Returns a unique id for this type and 
 	uniqid(){
 		return this.type.split(" ").join("_")+"::"+this.id.split(" ").join("_");
@@ -297,6 +313,10 @@ export default class Window{
 
 		if( Window.front === this && !force )
 			return;
+
+		// Force is only set when loading a state, you can ignore minimize while doing so
+		if( this.minimized && !force )
+			this.toggleMinimize();
 
 		++Window.zIndex;
 		this.dom.style.zIndex = Window.zIndex;
@@ -321,7 +341,7 @@ export default class Window{
 	// If it does exist, it returns existing
 	static create( id, type, name, icon, onSpawn, asset ){
 
-		const w = new this(id, type, name, icon, asset);
+		const w = new this(id, type, name, icon, asset, onSpawn);
 		const uid = w.uniqid();
 
 		const existing = this.get(uid);
@@ -331,7 +351,7 @@ export default class Window{
 		}
 		this.pages.set(uid, w);
 		this.windowContainer.append(w.dom);
-		onSpawn.call(w);
+		w.rebuild();
 		w.bringToFront();
 		
 		const settings = this.meta[w.type.split(" ").join("_")];
@@ -366,6 +386,17 @@ export default class Window{
 
 	static get( uniqid ){
 		return this.pages.get(uniqid);
+	}
+
+	static rebuildWindowsByTypeAndId( type, id ){
+
+		for( let win of this.pages.values() ){
+
+			if( type === win.type && id === win.id )
+				win.rebuild();
+
+		}
+
 	}
 
 	// Saves window information for this window's type
@@ -463,7 +494,7 @@ export default class Window{
 		let zindex = -1, out = undefined;
 		for( let win of this.pages.values() ){
 
-			if( win === ignore )
+			if( win === ignore || win.type !== type )
 				continue;
 
 			const z = win.getZindex();

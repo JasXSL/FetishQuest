@@ -138,6 +138,7 @@ div.window.maximized{
 	bottom:0;
 	right:0;
 	left: 10vw;
+	z-index: 2000000000;
 }
 #tray > div.window{
 	width: 300px;
@@ -178,6 +179,9 @@ table.selectable{
 	box-sizing: border-box;
 	border: 2px outset;
 	background-color:#666;
+}
+table.selectable.autosize{
+	width:auto;
 }
 table.selectable td{
 	background-color:#777;
