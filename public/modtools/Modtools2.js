@@ -5,12 +5,8 @@ import * as THREE from '../ext/THREE.js';
 import TransformControls from '../ext/TransformControls.js';
 import Mod from '../classes/Mod.js';
 
-import EditorListText from './editors/EditorListText.js';
-import EditorListDungeon from './editors/EditorListDungeon.js';
-import EditorListCondition from './editors/EditorListCondition.js';
-
-import EditorText from './editors/EditorText.js';
-import EditorCondition from './editors/EditorCondition.js';
+import * as EditorText from './editors/EditorText.js';
+import * as EditorCondition from './editors/EditorCondition.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -23,9 +19,8 @@ const TRACKED_WINDOWS = {
 // Type : fn
 // Type is named after the name of its array in Mod.js
 const DB_MAP = {
-	"texts" : { listing : EditorListText, asset : EditorText, icon : '' },
-	"dungeons" : { listing : EditorListDungeon },
-	"conditions" : { listing : EditorListCondition, asset : EditorCondition, icon : 'check-mark' },
+	"texts" : { listing : EditorText, asset : EditorText.asset, icon : '' },
+	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark' },
 };
 
 export default class Modtools{
@@ -456,6 +451,37 @@ export default class Modtools{
 
 	}
 
+	// Create an asset linker window
+	/*
+		baseAsset is the asset from the mod we want to put the item into
+		baseKey is the key of the array in the asset we want to put the target asset into
+		targetType is a type defined in DB_MAP of the assets we want to pick from
+		data is {parentWindow:parentWindowUniqId, targetType:targetType} - targetType is supplied for windows updates if you modify one of the assets while you still have the picker open
+	*/
+	buildAssetLinker( parentWindow, baseAsset, baseKey, targetType ){
+
+		if( !DB_MAP[targetType] || !DB_MAP[targetType].listing )
+			throw 'Asset linker not found for type '+targetType+", add it to DB_MAP in Modtools2.js";
+
+		return Window.create(
+			baseKey,
+			"linker",
+			baseAsset.label,
+			'linked-rings',
+			DB_MAP[targetType].listing,
+			{parentWindow : parentWindow.uniqid(), targetType:targetType}
+		);
+
+	}
+
+
+	closeAssetEditors( type, id ){
+
+		const win = Window.getByTypeAndId(type, id);
+		if( win )
+			win.close();
+
+	}
 
 
 }

@@ -84,6 +84,7 @@ export default class Mod extends Generic{
 		return out;
 	}
 
+	// Note: allows to fetch by label if it exists
 	getAssetById( type, id ){
 
 		if( !Array.isArray(this[type]) )
@@ -91,8 +92,27 @@ export default class Mod extends Generic{
 
 		for( let asset of this[type] ){
 
-			if( asset.id === id )
+			if( asset.label === id || asset.id === id )
 				return asset;
+
+		}
+
+	}
+
+	deleteAsset( type, id ){
+
+		if( !Array.isArray(this[type]) )
+			throw 'Trying to delete an id from non array: '+type;
+
+		for( let i in this[type] ){
+
+			const asset = this[type][i];
+			if( asset.id === id ){
+				
+				this[type].splice(i, 1);
+				return true;
+
+			}
 
 		}
 

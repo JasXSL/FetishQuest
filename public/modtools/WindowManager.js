@@ -390,6 +390,13 @@ export default class Window{
 		return this.pages.get(uniqid);
 	}
 
+	static getByTypeAndId( type, id ){
+		for( let page of this.pages.values() ){
+			if( page.type === type && id === id )
+				return page;
+		}
+	}
+
 	static rebuildWindowsByTypeAndId( type, id ){
 
 		for( let win of this.pages.values() ){

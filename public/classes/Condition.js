@@ -38,6 +38,7 @@ export default class Condition extends Generic{
 		this.inverse = false;		// Return true if the condition does NOT validate
 		this.anyPlayer = false;		// Check against any player
 		this.debug = false;
+		this.desc = '';				// A helpful description
 
 		this.load(data);
 	}
@@ -60,6 +61,7 @@ export default class Condition extends Generic{
 		if( full ){
 			out.label = this.label;
 			out.debug = this.debug;
+			out.desc = this.desc;
 		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
