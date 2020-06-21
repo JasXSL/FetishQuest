@@ -3,7 +3,7 @@ import Tags from '../../libraries/stdTag.js';
 // Creates a tag editor. Put this inside a div with a name of the asset property you want to assign the tags to
 export default {
 	
-	build : function( tags ){
+	build( tags ){
 		tags = toArray(tags);
 
 		// Build datalist if not already built
@@ -33,7 +33,7 @@ export default {
 
 	},
 
-	buildInput : function( value, string = true ){
+	buildInput( value, string = true ){
 		
 		const out = document.createElement('input');
 		out.setAttribute('type', 'text');
@@ -52,7 +52,7 @@ export default {
 
 	// Binds the add new button, ctrl click and change. Calls onChange when a change is detected.
 	// Element should be the wrapping element defined in the parent code. The parent of div.tagEditor created in the default function above
-	bind : function( element, onChange ){
+	bind( element, onChange ){
 
 		const compile = () => {
 

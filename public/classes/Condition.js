@@ -45,6 +45,7 @@ export default class Condition extends Generic{
 	save( full ){
 
 		let out = {
+			id : this.id,	// ID is needed for mod editor to work
 			type : this.type,
 			data : Generic.flattenObject(this.data),
 			inverse : this.inverse,
@@ -62,8 +63,6 @@ export default class Condition extends Generic{
 		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
-		else
-			out.id = this.id;
 
 		return out;
 

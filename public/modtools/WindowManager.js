@@ -309,6 +309,8 @@ export default class Window{
 		Window.remove(this);
 	}
 
+	close(){ this.remove(); }
+
 	bringToFront( force ){
 
 		if( Window.front === this && !force )

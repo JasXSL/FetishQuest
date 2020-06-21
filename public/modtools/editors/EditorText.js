@@ -117,7 +117,7 @@ export default function(){
 	});
 
 
-	HelperAsset.autoBind( this, asset, Text);
+	HelperAsset.autoBind( this, asset, "texts" );
 
 
 

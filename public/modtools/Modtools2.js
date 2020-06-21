@@ -7,8 +7,10 @@ import Mod from '../classes/Mod.js';
 
 import EditorListText from './editors/EditorListText.js';
 import EditorListDungeon from './editors/EditorListDungeon.js';
+import EditorListCondition from './editors/EditorListCondition.js';
 
 import EditorText from './editors/EditorText.js';
+import EditorCondition from './editors/EditorCondition.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -23,6 +25,7 @@ const TRACKED_WINDOWS = {
 const DB_MAP = {
 	"texts" : { listing : EditorListText, asset : EditorText, icon : '' },
 	"dungeons" : { listing : EditorListDungeon },
+	"conditions" : { listing : EditorListCondition, asset : EditorCondition, icon : 'check-mark' },
 };
 
 export default class Modtools{
