@@ -116,62 +116,171 @@ export default{
 
 	},
 
+	// Takes a var and library name and turns it into an object (unless it's already one)
+	modEntryToObject( v, lib ){
+		if( typeof v === "string" )
+			v = this.getAssetById( lib, v );
+		return v;
+	},
+
 	// Creates a table inside an asset to show other assets. Such as a table of conditions tied to a text asset
 	// Returns a DOM table with events bound on it
 	// Asset is a mod asset
+	/*
+		win is the Window object that should act as the parent for the asset to link
+	*/
 	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'] ){
 
+		// Todo: Need to handle non array type linked assets
 		const entries = toArray(asset[key]);
 		const EDITOR = window.mod, MOD = EDITOR.mod;
 
 		let table = document.createElement("table");
+		table.classList.add("linkedTable", "selectable");
 		
 		let content = '';
 		for( let entry of entries ){
 
-			if( typeof entry === "string" )
-				entry = MOD.getAssetById( targetLibrary, entry );
-			const asset = new constructor(entry);
-
-			content += '<tr data-id="'+esc(asset.id)+'">';
-			for( let column of columns ){
+			const base = this.modEntryToObject(entry, targetLibrary),
+				asset = new constructor(base)
+			;
+			// prefer label before id
+			content += '<tr class="asset" data-id="'+esc(asset.label || asset.id)+'">';
+			for( let column of columns )
 				content += '<td>'+this.makeReadable(asset[column])+'</td>';
-			}
+			
+			content += '<td>'+(base.__MOD ? esc(base.__MOD) : 'THIS')+'</td>';
 			content += '</tr>';
 
 		}
-		content += '<tr><td colspan=3><input type="button" value="Add" /></td></tr>';
+		content += '<tr class="noselect"><td colspan=3><input type="button" value="Add" /></td></tr>';
 		table.innerHTML = content;
 
 		table.querySelector("input[value=Add]").onclick = () => {
-			this.openLinker( win, asset, key, targetLibrary );
+			window.mod.buildAssetLinker( win, asset, key, targetLibrary);
 		};
+
+		table.querySelectorAll("tr.asset").forEach(el => el.onclick = event => {
+			
+			if( event.ctrlKey && Array.isArray(asset[key]) ){
+
+				const index = [...event.currentTarget.parentElement.children].indexOf(event.currentTarget);
+				asset[key].splice(index, 1);	// Remove this
+				win.rebuild();
+				EDITOR.setDirty(true);
+
+				return;
+			}
+			else{
+
+				const id = event.currentTarget.dataset.id;
+				// See if it's from a mod
+				const asset = this.getAssetById(targetLibrary, id);
+				if( !asset )
+					throw 'Linked asset not found';
+				if( asset.__MOD ){
+					alert("Can't edit an asset from a different mod. Ctrl+click to delete.");
+					return;
+				}
+				EDITOR.buildAssetEditor( targetLibrary, id );
+			}
+
+
+		});
+
+		// Todo: Need some way to refresh the window if one of the linked assets are changed
 		
 		return table;
 
 	},
 
 
-	// Draws a linker window to link an asset to another and binds everything for you
-	/* 
-		asset is a raw object from the current mod
-		assetLibrary is the name of the library the asset lives in, such as text
-		targetLibrary is the name of the mod array you want to fetch assets from, such as condition
-	*/
-	openLinker( parentWindow, asset, key, targetLibrary ){
+	// Because list and linker use the same function, this can be used to check which it is
+	windowIsLinker( win ){
 
-		const win = window.mod.buildAssetLinker( parentWindow, asset, key, targetLibrary);
-
+		return win.type === 'linker';
 
 	},
 
+
+
+	// Tries to automatically build a selectable list of assets and return the HTML 
+	// Fields is an array of {field:true/func} If you use a non function, it'll try to auto generate the value based on the type, otherwise the function will be executed using win as parent and supply the var as an argument
+	// Nonfunction is auto escaped, function needs manual escaping
+	// Fields should contain an id or label field (or both), it will be used for tracking the TR and prefer label if it exists
+	// Constructor is the asset constructor (used for default values)
+	buildList( win, library, constr, fields ){
+
+		const db = window.mod.mod.conditions.slice(),
+			isLinker = this.windowIsLinker(win)
+		;
+
+		// Linker window should add parent mod assets
+		if( isLinker && window.mod.parentMod[library] )
+			db.push(...window.mod.parentMod[library]);
+
+		// New button
+		let html = '<input type="button" class="new" value="New" />';
+		
+		// Database table
+		html += '<table class="selectable autosize">';
+	
+		html += '<tr>';
+		for( let i in fields )
+			html += '<th>'+esc(i)+'</th>';
+		if( isLinker )
+			html += '<th>MOD</th>';
+		html += '</tr>';
+
+		for( let asset of db ){
+
+			const a = constr.loadThis(asset);
+
+			html += '<tr data-id="'+esc(asset.label || asset.id)+'" '+(asset.__MOD ? 'data-mod="'+esc(asset.__MOD)+'"' : '')+'>';		
+
+				for( let field in fields ){
+
+					let val = fields[field];
+					if( typeof val === "function" )
+						val = val.call(win, a);
+					else{
+
+						val = a[field];
+						if( typeof val === "boolean" )
+							val = val ? 'YES' : '';
+						else
+							val = this.makeReadable(val);
+
+					}
+					html += '<td>'+val+'</td>';
+		
+				}
+
+				// Linker should also show the mod
+				if( isLinker ){
+					html += '<td>'+(asset.__MOD ? esc(asset.__MOD) : 'THIS')+'</td>';
+				}
+
+			html += '</tr>';
+
+		}
+
+
+
+		
+
+		html += '</table>';
+		return html;
+
+	},
 
 	// Binds a window listing. This is used for the window types: database, linker
 	// Type is the name of the array of the asset in mod the list fetches elements from
 	bindList( win, type ){
 		const DEV = window.mod, MOD = DEV.mod;
-		const isLinker = win.type === 'linker';		// Checks if this is a linker or not
-		const parentWindow = win.asset && Window.get(win.asset.parentWindow);
+		const isLinker = this.windowIsLinker(win);
+				// Checks if this is a linker or not
+		const parentWindow = win.parent;
 
 		if( parentWindow ){
 
@@ -189,10 +298,12 @@ export default{
 		// Handle clicks on the rows
 		win.dom.querySelectorAll('tr[data-id]').forEach(el => el.onclick = event => {
 
-			const elId = event.currentTarget.dataset.id;
+			const elId = event.currentTarget.dataset.id,
+				mod = event.currentTarget.dataset.mod
+			;
 			
 			// Ctrl deletes unless it's a linker
-			if( !isLinker && event.ctrlKey && confirm("Really delete?") ){
+			if( !mod && !isLinker && event.ctrlKey && confirm("Really delete?") ){
 
 				if( MOD.deleteAsset(elId, type) ){
 
@@ -203,7 +314,7 @@ export default{
 
 			}
 			// If it's not a linker, or shift is pressed, we bring up an editor
-			else if( !isLinker || event.shiftKey ){
+			else if( !mod && (!isLinker || event.shiftKey) ){
 				DEV.buildAssetEditor(type, elId);
 			}
 			// This is a linker, we need to tie it to the parent
@@ -213,8 +324,8 @@ export default{
 					throw 'Parent window missing';
 
 				// Get the asset we need to modify
-				const baseAsset = MOD.getAssetById(type, parentWindow.id),	// Window id is the asset ID for asset editors
-					targAsset = MOD.getAssetById(win.asset.targetType, elId)				
+				const baseAsset = MOD.getAssetById(type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
+					targAsset = this.getAssetById(win.asset.targetType, elId)	// Target can be from a parent mod, so we'll need to include that in this search
 				;	
 
 				if( !baseAsset )
@@ -229,7 +340,7 @@ export default{
 
 				win.close();
 
-				// Todo: need to have a callback or something to refresh the datalist
+				parentWindow.rebuild();
 				DEV.setDirty(true);
 
 			}
@@ -277,6 +388,18 @@ export default{
 
 	},
 
+
+
+	// Tries to get an asset from our mod or a parent mod, tries to find id in label or actual id
+	getAssetById( type, id ){
+
+		let out = window.mod.mod.getAssetById(type, id);
+		if( out )
+			return out;
+		
+		return window.mod.parentMod.getAssetById(type, id);
+
+	},
 
 
 };

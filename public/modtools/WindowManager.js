@@ -8,7 +8,7 @@ export default class Window{
 
 	// id is a unique id, type is the type of asset (or window), parent is the parent window. Closing the parent also closes any children.
 	// build is the build function
-	constructor( id, type, name, icon, asset, build ){
+	constructor( id, type, name, icon, asset, build, parent ){
 
 		this.id = id;
 		this.type = type;
@@ -19,6 +19,7 @@ export default class Window{
 		this.dom = document.createElement("div");
 		this.dom.classList.add("window", type.toLowerCase().split(" ").join("_"));
 		this.dom.dataset.id = this.uniqid();
+		this.parent = parent;
 		
 		this.minimized = false;
 
@@ -304,6 +305,7 @@ export default class Window{
 		return this.type.split(" ").join("_")+"::"+this.id.split(" ").join("_");
 	}
 	
+	// Todo: remove any children recursively
 	remove(){
 		this.dom.parentNode.removeChild(this.dom);
 		Window.remove(this);
@@ -341,9 +343,9 @@ export default class Window{
 
 	// Creates a window if it doesn't exist and returns it
 	// If it does exist, it returns existing
-	static create( id, type, name, icon, onSpawn, asset ){
+	static create( id, type, name, icon, onSpawn, asset, parent ){
 
-		const w = new this(id, type, name, icon, asset, onSpawn);
+		const w = new this(id, type, name, icon, asset, onSpawn, parent);
 		const uid = w.uniqid();
 
 		const existing = this.get(uid);

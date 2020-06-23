@@ -202,15 +202,19 @@ table.selectable.autosize{
 table.selectable td{
 	background-color:#777;
 }
-table.selectable tr{
+table.selectable tr:not(.noselect){
 	cursor:pointer;
 }
-table.selectable tr:nth-child(odd) td{
+table.selectable tr:not(.noselect):nth-child(odd) td{
 	background-color:#999;
 }
-table.selectable tr:hover td{
+table.selectable tr:not(.noselect):hover td{
 	background-color:#AAA;
 }
+
+
+/* Linked tables */
+
 
 
 

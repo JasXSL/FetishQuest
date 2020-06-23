@@ -13,8 +13,6 @@ export function asset(){
 		dummy = Condition.loadThis(asset)
 	;
 
-	console.log(asset, dummy);
-
 	if( !asset )
 		return this.close();
 
@@ -71,55 +69,27 @@ export function asset(){
 
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name ){
-	return HelperAsset.linkedTable( win, modAsset, name, Condition, 'conditions', ['id', 'label', 'desc']);
+	return HelperAsset.linkedTable( win, modAsset, name, Condition, 'conditions', ['label', 'desc']);
 }
 
 
 // Listing
 export function list(){
 
-	const db = window.mod.mod.conditions;
-
-	let html = '<input type="button" class="new" value="New" />';
-	
-	html += '<table class="selectable autosize">';
-	
-	html += '<tr>';		
-		html += '<th>Id</th>';
-		html += '<th>Label</th>';
-		html += '<th>Subconditions</th>';
-		html += '<th>Min</th>';
-		html += '<th>Max</th>';
-		html += '<th>Type</th>';
-		html += '<th>Data</th>';
-		html += '<th>Caster</th>';
-		html += '<th>Targnr</th>';
-		html += '<th>Inverse</th>';
-		html += '<th>AnyPlayer</th>';
-		html += '<th>Debug</th>';
-	html += '</tr>';		
-
-	for( let asset of db ){
-		const a = Condition.loadThis(asset);
-		html += '<tr data-id="'+esc(a.id)+'">';		
-			html += '<td>'+esc(a.id)+'</td>';
-			html += '<td>'+esc(a.label)+'</td>';
-			html += '<td>'+esc(a.conditions.map(el => el.label).join(', '))+'</td>';
-			html += '<td>'+esc(a.min)+'</td>';
-			html += '<td>'+esc(a.max)+'</td>';
-			html += '<td>'+esc(a.type)+'</td>';
-			html += '<td>'+esc(JSON.stringify(a.data))+'</td>';
-			html += '<td>'+esc(a.caster ? 'YES' : '')+'</td>';
-			html += '<td>'+esc(a.targnr)+'</td>';
-			html += '<td>'+esc(a.inverse ? 'YES' : '')+'</td>';
-			html += '<td>'+esc(a.anyPlayer ? 'YES' : '')+'</td>';
-			html += '<td>'+esc(a.debug ? 'YES' : '')+'</td>';
-		html += '</tr>';		
-	}
-
-	
-	html += '</table>';
-	this.setDom(html);
+	this.setDom(HelperAsset.buildList(this, "conditions", Condition, {
+		"label" : true,
+		"desc" : true,
+		"conditions" : a => a.conditions.map(el => el.label).join(', '),
+		"min" : true,
+		"max" : true,
+		"type" : true,
+		"data" : true,
+		"caster" : true,
+		"targnr" : true,
+		"inverse" : true,
+		"anyPlayer" : true,
+		"debug" : true,
+	}));
 
 	HelperAsset.bindList(this, DB);
 

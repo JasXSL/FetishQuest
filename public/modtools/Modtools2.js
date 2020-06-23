@@ -5,8 +5,12 @@ import * as THREE from '../ext/THREE.js';
 import TransformControls from '../ext/TransformControls.js';
 import Mod from '../classes/Mod.js';
 
+import OfficialMod from '../libraries/_main_mod.js';
+
 import * as EditorText from './editors/EditorText.js';
 import * as EditorCondition from './editors/EditorCondition.js';
+
+
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -31,12 +35,14 @@ export default class Modtools{
 		this.loading = false;					// Used to prevent window states from being altered when loading window states
 		// Tracks what windows are open
 		this.window_states = new Map();			// uniqid : WindowState
+		this.parentMod = new Mod();	// Todo: At some point we'll want to allow mods loaded above in the load order to show up here as well. This is the parent mod which we can extend from.
 
 		this.db = new Dexie("editor");
 		this.db.version(1).stores({
 			window_states : 'mod'
 		});
 
+	
 		this.topMenu = document.getElementById("topMenu");
 		this.sideMenu = document.getElementById("libraryMenu");
 		this.modName = document.querySelector("#modName > span.name");
@@ -384,17 +390,40 @@ export default class Modtools{
 	// If mod is undefined, reload the current mod
 	async load( mod ){
 
+		if( this.dirty && !confirm("Are you sure you want to load? Unsaved changes will be discarded.") )
+			return;
+
 		if( !mod )
 			mod = this.mod;
 
 		if( !mod )
 			return;
 
-		if( this.dirty ){
-			alert("Todo: Ask if you want to save first");
-		}
-
 		this.loading = true;
+
+		this.parentMod = {};
+		// Mods above in the load order, for now just do Official
+		// Todo: Later on, allow us to load over multiple mods
+		const parentMods = [OfficialMod];
+		for( let mod of parentMods ){
+			for( let i in mod ){
+				if( Array.isArray(mod[i]) ){
+
+					// First make sure we know what mod the asset is from by adding __MOD
+					for( let asset of mod[i] )
+						asset.__MOD = mod.name || mod.id;
+
+					// later on allow you to search for labels and replace them
+					if( Array.isArray(this.parentMod[i]) ){
+						console.log("Todo: track down changed IDs and ");
+					}
+					// Not yet set in the parentMod, we're safe to copy the whole thing
+					else
+						this.parentMod[i] = mod[i].slice();
+					
+				}
+			}
+		}
 
 		this.setDirty(false);
 		this.mod = mod;
@@ -451,7 +480,7 @@ export default class Modtools{
 
 	}
 
-	// Create an asset linker window
+	// Create an asset linker window to link an asset to another
 	/*
 		baseAsset is the asset from the mod we want to put the item into
 		baseKey is the key of the array in the asset we want to put the target asset into
@@ -469,7 +498,8 @@ export default class Modtools{
 			baseAsset.label,
 			'linked-rings',
 			DB_MAP[targetType].listing,
-			{parentWindow : parentWindow.uniqid(), targetType:targetType}
+			{targetType:targetType},
+			parentWindow
 		);
 
 	}
