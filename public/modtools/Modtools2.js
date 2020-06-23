@@ -53,12 +53,15 @@ export default class Modtools{
 		this.modName = document.querySelector("#modName > span.name");
 		this.modDirty = document.querySelector("#modName > span.dirty");
 
+		this.dummyUploader = document.getElementById("dummyUploader");	// file input
+
 		this.dirty = false;
 		
 		Window.windowContainer = document.getElementById("windows");
 		Window.minimizeContainer = document.getElementById("tray");
 
 		const self = this;
+
 
 		// Click the top menu
 		this.topMenu.querySelectorAll("div[data-id]").forEach(el => {
@@ -73,27 +76,142 @@ export default class Modtools{
 
 					Window.addMenuOption("new", "New Mod", () => {
 
-						Window.create("New Mod", "New", "", "pencil", async function(){
-							this.setDom("Todo: New mod");
+						Window.create("New Mod", "New", "", "pencil", function(){
+
+							let html = '<h1>New Mod</h1>';
+							html += '<form class="center">';
+								html += '<input type="text" name="name" placeholder="Mod Name" required /><br />';
+								html += '<input type="text" name="author" placeholder="Author" required /><br />';
+								html += '<input type="submit" value="Create" />';
+							html += '</form>';
+							this.setDom(html);
+
+							this.dom.querySelector("form").onsubmit = async event => {
+								event.preventDefault();
+
+								const form = event.currentTarget,
+									name = form.querySelector("input[name=name]").value.trim(),
+									author = form.querySelector("input[name=author]").value.trim()
+								;
+								if( !name || !author )
+									return;
+
+								const mod = new Mod({
+									name : name,
+									author : author
+								});
+								await mod.save();
+								self.load(mod);								
+
+							};
+
 						});
 
 					});
 
-					Window.addMenuOption("open", "Open", () => { self.loadWindow(); });
+					Window.addMenuOption("open", "Open (Ctrl+O)", () => { self.loadWindow(); });
+
+					Window.addMenuOption("import", "Import", () => { 
+						
+						this.dummyUploader.setAttribute("accept", ".fqmod");
+						this.dummyUploader.onchange = evt => {
+							const file = event.target.files[0];
+							if( !file )
+								return;
+
+							const reader = new FileReader();
+							reader.addEventListener('load', async event => {
+								try{
+									const raw = JSON.parse(event.target.result);
+									if( !raw.id || !raw.name )
+										throw 'INVALID_ID';
+									
+									const mod = new Mod(raw);
+									const existing = await Mod.getByID(raw.id);
+									if( existing ){
+										if( !confirm("Mod already exists, are you sure you want to overwrite?") )
+											return;
+									}
+
+									await mod.save();
+									this.load(mod);
+
+								}catch(err){
+									let reason = "JSON Error";
+									if( err === "INVALID_ID" )
+										reason = 'Required parameters missing';
+									alert("This is not a valid mod file ("+reason+")");
+									console.error(err);
+								}
+							});
+							reader.readAsText(file);
+							
+
+							this.dummyUploader.value = "";
+						};
+						this.dummyUploader.click();
+					});
 
 					// Mod exists
 					if( this.mod ){
 
-						Window.addMenuOption("save", "Save", () => {
-							console.log("Todo: Save mod");
+						Window.addMenuOption("save", "Save (Ctrl+S)", () => {
+							this.save();
 						});
 
 						Window.addMenuOption("settings", "Settings", () => {
 							Window.create("Settings", "File Settings", "", "auto-repair", function(){
 
-								this.setDom('Todo: ');
+								let html = '';
+								html += '<form class="center">';
+									html += 'Name: <input type="text" name="name" placeholder="Mod Name" value="'+esc(self.mod.name)+'" required /><br />';
+									html += 'Author: <input type="text" name="author" placeholder="Author" value="'+esc(self.mod.author)+'" required /><br />';
+									html += 'Description: <br />';
+									html += '<textarea name="description">'+esc(self.mod.description)+'</textarea><br />';
+									html += '<input type="submit" value="Save" />';
+									html += '<input type="button" value="Cancel" />';
+								html += '</form>';
+								this.setDom(html);
+
+								this.dom.querySelector("input[value=Cancel]").onclick = () => {
+									this.close();
+								};
+
+								const form = this.dom.querySelector("form");
+								form.onsubmit = async event => {
+									event.preventDefault();
+
+									// Save changes
+									const name = form.querySelector("input[name=name]").value.trim(),
+										author = form.querySelector("input[name=author]").value.trim(),
+										desc = form.querySelector("textarea[name=description]").value.trim()
+									;
+
+									if( !name || !desc )
+										return;
+
+									self.mod.name = name;
+									self.mod.description = desc;
+									self.mod.author = author;
+
+									self.modName.innerText = name;
+
+									self.mod.save();
+									this.close();
+								};
 	
 							});
+						});
+
+						Window.addMenuOption("export", "Export", () => {
+
+							const a = document.createElement('a');
+							a.setAttribute('href', 'data:text/plain;charset=utf-8,'+encodeURIComponent(JSON.stringify(this.mod)));
+							a.setAttribute('download', this.mod.name.split(" ").join('_')+'.fqmod');
+							document.body.appendChild(a);
+							a.click();
+							a.remove();
+
 						});
 
 					}
@@ -103,11 +221,11 @@ export default class Modtools{
 				// Window menu
 				else if( button.dataset.id === "window" ){
 					Window.setMenu(button);
-					Window.addMenuOption("closeAll", "Close All", () => {
+					Window.addMenuOption("closeAll", "Close All (Alt+C)", () => {
 						Window.closeAll();
 					});
-					Window.addMenuOption("minimizeAll", "Minimize All", () => {
-						Window.minimizeAll();
+					Window.addMenuOption("minimizeAll", "Min/max All (Alt+D)", () => {
+						Window.toggleMinimizeAll();
 					});
 					Window.addMenuOption("resetAll", "Reset All", () => {
 						Window.resetAll();
@@ -143,6 +261,18 @@ export default class Modtools{
 			if( event.key === 's' && event.ctrlKey ){
 				event.preventDefault();
 				this.save();
+			}
+
+			// Alt+C - Close all
+			if( event.key === 'c' && event.altKey ){
+				event.preventDefault();
+				Window.closeAll();
+			}
+
+			// Alt+D - Min/max all
+			if( event.key === 'd' && event.altKey ){
+				event.preventDefault();
+				Window.toggleMinimizeAll();
 			}
 			
 		};
@@ -324,6 +454,9 @@ export default class Modtools{
 			
 		clearTimeout(this._saveWindowStates);
 		this._saveWindowStates = setTimeout(async () => {
+			if( !this.mod )
+				return;
+
 			try{
 
 				const data = Object.fromEntries(this.window_states);
@@ -374,6 +507,18 @@ export default class Modtools{
 				for( let m of mods ){
 
 					if( m.id === mod ){
+
+						if( event.ctrlKey ){
+
+							if( confirm("Are you sure you want to delete the mod: "+m.name+"?") ){
+								m.delete();
+								if( self.mod && m.id === self.mod.id )
+									self.closeMod();
+							}
+
+							return;
+						}
+
 						self.load(m);
 						return;
 					}
@@ -441,7 +586,6 @@ export default class Modtools{
 		this.updateModName();					// Set the mod name in the top bar
 
 		await this.loadWindowStates();
-
 		this.sideMenu.classList.toggle("hidden", false);
 
 		this.loading = false;
@@ -521,6 +665,15 @@ export default class Modtools{
 
 	}
 
+	// Closes the current mod
+	closeMod(){
+
+		Window.closeAll();
+		this.mod = null;
+		this.sideMenu.classList.toggle("hidden", true);
+		this.modName.innerText = '';
+
+	}
 
 }
 

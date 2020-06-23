@@ -265,17 +265,18 @@ export default class Window{
 	}
 
 	// Maximize changes the DOM
-	toggleMaximize( force ){
+	toggleMaximize( force, ignoreFront ){
 
 		const minimized = this.minimized;
-		this.bringToFront();
-		this.toggleMinimize(false);
+		if( !ignoreFront )
+			this.bringToFront();
+
+		this.toggleMinimize(false, ignoreFront);
 		
-		console.log("Toggling maximize", force);
 		if( (!this.isMaximized() || minimized || force) && force !== false ){
 
 			Window.minimizeAll();
-			this.toggleMinimize(false);
+			this.toggleMinimize(false, ignoreFront);
 			this.dom.classList.toggle("maximized", true);
 			this.dom.style.removeProperty("top");
 			this.dom.style.removeProperty("left");
@@ -293,7 +294,7 @@ export default class Window{
 
 	}
 
-	toggleMinimize( minimize ){
+	toggleMinimize( minimize, ignoreFront ){
 
 		if( minimize === undefined )
 			this.minimized = !this.minimized;
@@ -312,7 +313,8 @@ export default class Window{
 			// Move out of minimization tray
 			Window.windowContainer.appendChild(this.dom);
 			this.makeFloating();
-			this.bringToFront();
+			if( !ignoreFront )
+				this.bringToFront();
 		}
 
 		Window.onWindowMinimized(this);
@@ -474,8 +476,23 @@ export default class Window{
 	}
 	static minimizeAll(){
 		for( let win of this.pages.values() ){
-			win.toggleMinimize(true);
+			win.toggleMinimize(true, true);
 		}
+	}
+
+	// If a window is open, it minimizes all, otherwise it unminimizes all
+	static toggleMinimizeAll(){
+
+		if( this.hasUnminimized() ){
+			this.minimizeAll();
+			return;
+		}
+
+		for( let win of this.pages.values() ){
+			win.toggleMaximize(false, true);
+			win.toggleMinimize(false, true);
+		}
+
 	}
 
 	// Has a currently maximized window
@@ -484,6 +501,15 @@ export default class Window{
 			if( !page.minimized && page.isMaximized() )
 				return page;
 		}
+	}
+
+	static hasUnminimized(){
+
+		for( let page of this.pages.values() ){
+			if( !page.minimized )
+				return true;
+		}
+
 	}
 
 
