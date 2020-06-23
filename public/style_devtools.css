@@ -147,6 +147,13 @@ div.window input.large{
 	width:100%;
 }
 
+
+div.window div.editorBox{
+	background:#555;
+	padding: 15px;
+	margin: 15px 0;
+}
+
 #tray {
 	display: flex;
 	flex-wrap: wrap-reverse;
@@ -155,6 +162,7 @@ div.window input.large{
 	right:0;
 	left: 10vw;
 	z-index: 2000000000;
+	pointer-events: none;
 }
 #tray > div.window{
 	width: 300px;
@@ -163,6 +171,7 @@ div.window input.large{
 	top:auto;
 	bottom:auto;
 	position: relative;
+	pointer-events: all;
 }
 #tray > div.window > div.content {
 	display:none;
@@ -236,5 +245,11 @@ div.tagEditor > input{
 textarea.json{
 	width: 100%;
 	height: 200px;
+}
+
+input[type=button].small{
+	font-size:14px;
+	padding:5px;
+	margin:0;
 }
 

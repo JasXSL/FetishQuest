@@ -68,7 +68,6 @@ class AudioSound{
 		loop : looping
 		path : url
 		position : {x,y,z} - Values between 0 and 1 generally, with z being -1 by default
-		use_head : false,
 	*/
 	constructor( data, parent ){
 		if( !data )
@@ -81,7 +80,6 @@ class AudioSound{
 		this.startVolume = data.volume || 0.5;
 
 		this.stopped = false;
-		this.use_head = data.use_head;
 		if( use3d ){
 			this.panner = master.createPanner({
 				panningModel: "HRTF",
@@ -201,7 +199,7 @@ class AudioKit extends Generic{
 		};
 		if( full ){
 			out.label = this.label;
-			out.conditions = Condition.saveThese(this.conditions, complete);
+			out.conditions = Condition.saveThese(this.conditions, full);
 		}
 		return out;
 	}

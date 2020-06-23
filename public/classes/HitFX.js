@@ -12,6 +12,7 @@ export default class HitFX extends Generic{
 		this.label = '';
 		this.stages = [];
 		this.once = false;			// Used when triggering from a text to only play this effect on the first target
+		this.desc = '';				// Description
 
 		this._t_rand_offset = null;	// THREE.Vector2 Cache for randomizing
 		this._s_rand_offset = null;	// THREE.Vector2 Cache for randomizing
@@ -31,6 +32,8 @@ export default class HitFX extends Generic{
 			stages : Stage.saveThese(this.stages),
 			once : this.once
 		};
+		if( full )
+			out.desc = this.desc;
 		return out;
 	}
 

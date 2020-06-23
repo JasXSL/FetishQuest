@@ -1,5 +1,13 @@
 const MIN_WIDTH = 300, MIN_HEIGHT = 200;
 
+/*
+
+	This has two modes: Floating and maximized
+	Only one window can be drawn when it's maximized, the rest are minimized. Single click in the tray to swap between the windows.
+	Not having a maximized window puts it into floating mode, where all windows are floating
+
+*/
+
 // Recursive, kinda
 export default class Window{
 
@@ -63,6 +71,17 @@ export default class Window{
 		this.title.onmousedown = evt => {
 			evt.preventDefault();
 
+			if( this.minimized ){
+
+				// We're in maximized swapping mode
+				if( Window.hasMaximized() ){
+					this.toggleMaximize(true);
+				}
+
+				return;
+			}
+			
+
 			if( this.isMaximized() )
 				return;
 
@@ -71,9 +90,16 @@ export default class Window{
 			this.dragStart.y = evt.clientY-rect.top;
 			this.dragging = true;
 		};
+
+
 		this.title.ondblclick = evt => {
 			evt.preventDefault();
-			this.toggleMaximize();
+
+			// If we're in maximized swapping mode, single click swaps
+			if( Window.hasMaximized() && this.minimized )
+				return;
+
+			this.toggleMaximize(!this.minimized ? undefined : false);
 		};
 		
 		// Resizing
@@ -84,6 +110,8 @@ export default class Window{
 
 		this.resizing = false;
 		this.resizer.onmousedown = evt => {
+			if( this.minimized )
+				return;
 			this.resizing = true;
 		};
 
@@ -136,6 +164,8 @@ export default class Window{
 
 		
 		this.dom.addEventListener("mousedown", evt => {
+			if( this.minimized )
+				return;
 			this.bringToFront();
 		});
 
@@ -235,18 +265,23 @@ export default class Window{
 	}
 
 	// Maximize changes the DOM
-	toggleMaximize(){
+	toggleMaximize( force ){
 
 		const minimized = this.minimized;
 		this.bringToFront();
 		this.toggleMinimize(false);
 		
-		if( !this.isMaximized() || minimized ){
+		console.log("Toggling maximize", force);
+		if( (!this.isMaximized() || minimized || force) && force !== false ){
+
+			Window.minimizeAll();
+			this.toggleMinimize(false);
 			this.dom.classList.toggle("maximized", true);
 			this.dom.style.removeProperty("top");
 			this.dom.style.removeProperty("left");
 			this.dom.style.removeProperty("width");
 			this.dom.style.removeProperty("height");
+			
 		}
 		else{
 			this.dom.classList.toggle("maximized", false);
@@ -443,7 +478,13 @@ export default class Window{
 		}
 	}
 
-
+	// Has a currently maximized window
+	static hasMaximized(){
+		for( let page of this.pages.values() ){
+			if( !page.minimized && page.isMaximized() )
+				return page;
+		}
+	}
 
 
 

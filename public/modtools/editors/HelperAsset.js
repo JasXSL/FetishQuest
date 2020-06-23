@@ -102,8 +102,9 @@ export default{
 	// Tries to convert an object, array etc to something that can be put into a table, and escaped
 	makeReadable( val ){
 
-		if( Array.isArray(val) )
-			val = val.join(', ');
+		if( Array.isArray(val) ){
+			val = val.map(el => this.makeReadable(el)).join(', ');
+		}
 		else if( typeof val === "object" ){
 			if( val.label )
 				val = val.label;
@@ -153,7 +154,7 @@ export default{
 			content += '</tr>';
 
 		}
-		content += '<tr class="noselect"><td colspan=3><input type="button" value="Add" /></td></tr>';
+		content += '<tr class="noselect"><td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small" value="Add" /></td></tr>';
 		table.innerHTML = content;
 
 		table.querySelector("input[value=Add]").onclick = () => {
@@ -356,7 +357,9 @@ export default{
 	
 		win.dom.querySelector('input.new').onclick = event => {
 			
-			const asset = baseObject.clone();	
+			const asset = baseObject.clone();
+			asset.rebase();	// Needed because auto rebase is off in the editor
+
 			window.mod.mod[type].push(asset.save("mod"));
 			window.mod.setDirty(true);
 			window.mod.buildAssetEditor(type, asset.label || asset.id);
@@ -370,16 +373,13 @@ export default{
 	// Rebuilds all listings by type
 	rebuildAssetLists( type ){
 
-		console.log("Rebuilding with type", type);
 		for( let win of Window.pages.values() ){
 
-			console.log(win.type, win.asset);
 			if( 
 				(win.type === "Database" && win.id === type) ||		// This is a database listing of this type
 				(win.type === "linker" && win.asset && win.asset.targetType === type)
 			){
 
-				console.log("Rebuilding");
 				win.rebuild();
 
 			}

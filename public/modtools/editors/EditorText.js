@@ -6,6 +6,8 @@ import stdTag from '../../libraries/stdTag.js';
 import GameEvent from '../../classes/GameEvent.js';
 import HelperAsset from './HelperAsset.js';
 import * as EditorCondition from './EditorCondition.js';
+import * as EditorAudioKit from './EditorAudioKit.js';
+import * as EditorHitFX from './EditorHitFX.js';
 
 const DB = 'texts',
 	CONSTRUCTOR = Text
@@ -46,20 +48,24 @@ export function asset(){
 	html += '</select>';
 
 	// Things that should only show if this is a chat
-	html += '<div class="chatSub hidden">'
+	html += '<div class="chatSub hidden editorBox">';
 		html += 'Chat Player Conditions: <div class="chatPlayerConditions"></div>';
 		html += '<label>Reuse chat: <input type="checkbox" value="1" name="chat_reuse" /></label>';
 	html += '</div>';
 
 	// Things that should only show if this isn't a chat
-	html += '<div class="nonchatSub">';
+	html += '<div class="nonchatSub editorBox">';
 		html += 'Armor slot: <select name="armor_slot">';
 			html += '<option value="">NONE</option>';
 			for( let i in Asset.Slots )
 				html += '<option value="'+i+'" '+(dummy.armor_slot === i ? 'selected' : '')+'>'+Asset.Slots[i]+'</option>';
 		html += '</select><br />';
-		html += '<div>Todo: Audio kits listing</div>';
-		html += '<div>Todo: HitFX listing</div>';
+
+		html += 'Audio Kits:<br />';
+		html += '<div class="audiokits"></div>';
+		
+		html += 'HitFX:<br />';
+		html += '<div class="hitfx"></div>';
 	html += '</div>';
 
 
@@ -73,6 +79,20 @@ export function asset(){
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
 	this.dom.querySelector("div.chatPlayerConditions").appendChild(EditorCondition.assetTable(this, asset, "chatPlayerConditions"));
 
+	// audiokits
+	this.dom.querySelector("div.audiokits").appendChild(EditorAudioKit.assetTable(this, asset, "audiokits"));
+	// HitFX
+	this.dom.querySelector("div.hitfx").appendChild(EditorHitFX.assetTable(this, asset, "hitfx"));
+
+	// Make the chat/chatSub divs toggle based on setting this to chat
+	const chatSelector = this.dom.querySelector("select[name=chat]");
+	const updateChatOptions = () => {
+		const isChat = parseInt(chatSelector.value) > 0;
+		this.dom.querySelector("div.chatSub").classList.toggle("hidden", !isChat);
+		this.dom.querySelector("div.nonchatSub").classList.toggle("hidden", isChat);
+	};
+	chatSelector.onchange = updateChatOptions;
+	updateChatOptions();
 
 	// Text display
 	// Updates the display underneath the text where you can see a real world example

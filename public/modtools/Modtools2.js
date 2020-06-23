@@ -9,6 +9,9 @@ import OfficialMod from '../libraries/_main_mod.js';
 
 import * as EditorText from './editors/EditorText.js';
 import * as EditorCondition from './editors/EditorCondition.js';
+import * as EditorAudioKit from './editors/EditorAudioKit.js';
+import * as EditorHitFX from './editors/EditorHitFX.js';
+import Generic from '../classes/helpers/Generic.js';
 
 
 
@@ -25,6 +28,8 @@ const TRACKED_WINDOWS = {
 const DB_MAP = {
 	"texts" : { listing : EditorText.list, asset : EditorText.asset, icon : '' },
 	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark' },
+	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker' },
+	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion' },
 };
 
 export default class Modtools{
@@ -151,7 +156,6 @@ export default class Modtools{
 		Window.onWindowMinimized = win => this.onWindowMinimize(win);
 		Window.onWindowToFront = win => this.onWindowToFront(win);
 
-
 		// Auto loader
 		const autoload = localStorage.editor_mod;
 		if( autoload ){
@@ -166,7 +170,11 @@ export default class Modtools{
 
 		}
 
-		
+		window.onbeforeunload = e => {
+			if( !this.dirty )
+				return;
+			return 'You have unsaved changes. Really discard these?';
+		};
 		
 
 	}
