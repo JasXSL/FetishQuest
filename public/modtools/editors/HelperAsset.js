@@ -211,7 +211,7 @@ export default{
 	// Constructor is the asset constructor (used for default values)
 	buildList( win, library, constr, fields ){
 
-		const db = window.mod.mod.conditions.slice(),
+		const db = window.mod.mod[library].slice(),
 			isLinker = this.windowIsLinker(win)
 		;
 
@@ -276,7 +276,8 @@ export default{
 
 	// Binds a window listing. This is used for the window types: database, linker
 	// Type is the name of the array of the asset in mod the list fetches elements from
-	bindList( win, type ){
+	// baseObject is the object to insert when pressing "new"
+	bindList( win, type, baseObject ){
 		const DEV = window.mod, MOD = DEV.mod;
 		const isLinker = this.windowIsLinker(win);
 				// Checks if this is a linker or not
@@ -305,10 +306,11 @@ export default{
 			// Ctrl deletes unless it's a linker
 			if( !mod && !isLinker && event.ctrlKey && confirm("Really delete?") ){
 
-				if( MOD.deleteAsset(elId, type) ){
+				if( MOD.deleteAsset(type, elId) ){
 
 					DEV.closeAssetEditors(type, elId);
 					DEV.setDirty(true);
+					win.rebuild();
 
 				}
 
@@ -324,12 +326,17 @@ export default{
 					throw 'Parent window missing';
 
 				// Get the asset we need to modify
-				const baseAsset = MOD.getAssetById(type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
-					targAsset = this.getAssetById(win.asset.targetType, elId)	// Target can be from a parent mod, so we'll need to include that in this search
+				// Linker expects the parent window to be an asset editor
+				const baseAsset = MOD.getAssetById(parentWindow.type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
+					targAsset = this.getAssetById(type, elId)	// Target can be from a parent mod, so we'll need to include that in this search, which is why we use this instead of MOD
 				;	
 
-				if( !baseAsset )
-					throw 'Clicked asset not found';
+				if( !baseAsset ){
+					console.log("Type", type, "parentWindow", parentWindow);
+					throw 'Base asset not found';
+				}
+				if( !targAsset )
+					throw 'Target asset not found';
 
 				// win.id contains the field you're looking to link to
 				let label = targAsset.label || targAsset.id;
@@ -349,18 +356,11 @@ export default{
 	
 		win.dom.querySelector('input.new').onclick = event => {
 			
-			const asset = new Condition({
-				label : 'newCondition',
-				type : Condition.Types.tag,
-				data : {tags:[]}
-			});
-	
-			window.mod.mod.conditions.push(asset.save("mod"));
+			const asset = baseObject.clone();	
+			window.mod.mod[type].push(asset.save("mod"));
 			window.mod.setDirty(true);
-			window.mod.buildAssetEditor(type, asset.id);
-	
+			window.mod.buildAssetEditor(type, asset.label || asset.id);
 			this.rebuildAssetLists(type);
-			
 	
 		};
 

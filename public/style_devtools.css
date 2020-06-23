@@ -194,6 +194,7 @@ table.selectable{
 	width:100%;
 	box-sizing: border-box;
 	border: 2px outset;
+	margin-bottom:15px;
 	background-color:#666;
 }
 table.selectable.autosize{

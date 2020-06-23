@@ -23,7 +23,7 @@ const TRACKED_WINDOWS = {
 // Type : fn
 // Type is named after the name of its array in Mod.js
 const DB_MAP = {
-	"texts" : { listing : EditorText, asset : EditorText.asset, icon : '' },
+	"texts" : { listing : EditorText.list, asset : EditorText.asset, icon : '' },
 	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark' },
 };
 
@@ -401,7 +401,7 @@ export default class Modtools{
 
 		this.loading = true;
 
-		this.parentMod = {};
+		this.parentMod = new Mod();
 		// Mods above in the load order, for now just do Official
 		// Todo: Later on, allow us to load over multiple mods
 		const parentMods = [OfficialMod];
@@ -414,7 +414,7 @@ export default class Modtools{
 						asset.__MOD = mod.name || mod.id;
 
 					// later on allow you to search for labels and replace them
-					if( Array.isArray(this.parentMod[i]) ){
+					if( Array.isArray(this.parentMod[i]) && this.parentMod[i].length ){
 						console.log("Todo: track down changed IDs and ");
 					}
 					// Not yet set in the parentMod, we're safe to copy the whole thing

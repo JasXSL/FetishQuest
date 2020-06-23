@@ -5,17 +5,20 @@ import Player from '../../classes/Player.js';
 import stdTag from '../../libraries/stdTag.js';
 import GameEvent from '../../classes/GameEvent.js';
 import HelperAsset from './HelperAsset.js';
+import * as EditorCondition from './EditorCondition.js';
+
+const DB = 'texts',
+	CONSTRUCTOR = Text
+;
 
 // Asset editor
 export function asset(){
 
 	const modtools = window.mod,
 		id = this.id,
-		asset = modtools.mod.getAssetById("texts", id),
-		dummy = Text.loadThis(asset)
+		asset = modtools.mod.getAssetById(DB, id),
+		dummy = CONSTRUCTOR.loadThis(asset)
 	;
-
-	console.log(dummy);
 
 	if( !asset )
 		return this.close();
@@ -32,7 +35,7 @@ export function asset(){
 	html += 'Nr Targets: <input type="number" class="saveable" name="numTargets" min=-1 step=1 value="'+dummy.numTargets+'" /><br />';
 	html += 'Weight: <input type="range" class="saveable" name="weight" min=0 max=10 step=1 value="'+dummy.weight+'" /><br />';
 
-	html += 'Conditions: <div>Todo: Conditions listing here</div>';
+	html += 'Conditions: <div class="conditions"></div>';
 	html += 'Turn Tags: <div name="turnTags">'+HelperTags.build(dummy.turnTags)+'</div>';
 	html += 'Meta Tags: <div name="metaTags">'+HelperTags.build(dummy.metaTags)+'</div>';
 
@@ -44,7 +47,7 @@ export function asset(){
 
 	// Things that should only show if this is a chat
 	html += '<div class="chatSub hidden">'
-		html += 'Chat Player Conditions: <div></div>';
+		html += 'Chat Player Conditions: <div class="chatPlayerConditions"></div>';
 		html += '<label>Reuse chat: <input type="checkbox" value="1" name="chat_reuse" /></label>';
 	html += '</div>';
 
@@ -64,6 +67,11 @@ export function asset(){
 	
 
 	this.setDom(html);
+
+	// SUBTABLES
+	// condition
+	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
+	this.dom.querySelector("div.chatPlayerConditions").appendChild(EditorCondition.assetTable(this, asset, "chatPlayerConditions"));
 
 
 	// Text display
@@ -117,7 +125,7 @@ export function asset(){
 	});
 
 
-	HelperAsset.autoBind( this, asset, "texts" );
+	HelperAsset.autoBind( this, asset, DB );
 
 
 
@@ -129,73 +137,27 @@ export function asset(){
 export function list(){
 
 	//console.log("Adding text list", this, this.asset);
+	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
+		id : true,
+		text : true,
+		chat : true,
+		en : true,
+		debug : true,
+		conditions : tx => tx.conditions.map(el => el.label).join(', '),
+		chatPlayerConditions : tx => tx.chatPlayerConditions.map(el => el.label).join(', '),
+		audiokits : tx => tx.audiokits.map(el => el.label).join(', '),
+		alwaysOutput : true,
+		armor_slot : true,
+		chat_reuse : true,
+		hitfx : tx => tx.hitfx.map(el => el.label).join(', '),
+		metaTags : tx => tx.metaTags.join(', '),
+		numTargets : true,
+		turnTags : tx => tx.turnTags.join(', '),
+		weight : true
+	}));
 
-	const db = window.mod.mod.texts;
-
-	let html = '<input type="button" class="new" value="New" />';
-	
-	html += '<table class="selectable autosize">';
-	
-	html += '<tr>';		
-		html += '<th>Id</th>';
-		html += '<th>Chat</th>';
-		html += '<th>Enabled</th>';
-		html += '<th>Debug</th>';
-		html += '<th>Conditions</th>';
-		html += '<th>Chat P Conds</th>';
-		html += '<th>Audio Kits</th>';
-		html += '<th>Always Output</th>';
-		html += '<th>Armor Slot</th>';
-		html += '<th>Chat Reuse</th>';
-		html += '<th>Hitfx</th>';
-		html += '<th>Meta Tags</th>';
-		html += '<th>Num Targs</th>';
-		html += '<th>Text</th>';
-		html += '<th>TurnTags</th>';
-		html += '<th>Weight</th>';
-	html += '</tr>';		
-
-	for( let asset of db ){
-		const tx = Text.loadThis(asset);
-		html += '<tr data-id="'+esc(tx.id)+'">';		
-			html += '<td>'+esc(tx.id)+'</td>';
-			html += '<td>'+esc(tx.chat)+'</td>';
-			html += '<td>'+esc(tx.en ? 'YES' : '')+'</td>';
-			html += '<td>'+esc(tx.debug ? 'YES' : '')+'</td>';
-			html += '<td>'+esc(tx.conditions.map(el => el.label).join(', '))+'</td>';
-			html += '<td>'+esc(tx.chatPlayerConditions.map(el => el.label).join(', '))+'</td>';
-			html += '<td>'+esc(tx.audiokits.map(el => el.label).join(', '))+'</td>';
-			html += '<td>'+esc(tx.alwaysOutput ? 'YES' : '')+'</td>';
-			html += '<td>'+esc(tx.armor_slot)+'</td>';
-			html += '<td>'+esc(tx.chat_reuse ? 'YES' : '')+'</td>';
-			html += '<td>'+esc(tx.hitfx.map(el => el.label).join(', '))+'</td>';
-			html += '<td>'+esc(tx.metaTags.join(', '))+'</td>';
-			html += '<td>'+esc(tx.numTargets)+'</td>';
-			html += '<td>'+esc(tx.text)+'</td>';
-			html += '<td>'+esc(tx.turnTags.join(', '))+'</td>';
-			html += '<td>'+esc(tx.weight)+'</td>';
-		html += '</tr>';		
-	}
-
-	
-	html += '</table>';
-	this.setDom(html);
-
-	this.dom.querySelectorAll('tr[data-id]').forEach(el => el.onclick = event => {
-		window.mod.buildAssetEditor("texts", event.currentTarget.dataset.id);
-	});
-
-	this.dom.querySelector('input.new').onclick = event => {
-		
-		const text = new Text({
-			text : 'New Text'
-		});
-		window.mod.mod.texts.push(text.save("mod"));
-		window.mod.setDirty(true);
-		window.mod.buildAssetEditor("texts", text.id);
-
-		this.rebuildAssetLists("texts");
-
-	};
+	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
+		text : "%S spanks %T!"
+	}));
 
 };

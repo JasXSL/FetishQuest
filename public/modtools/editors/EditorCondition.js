@@ -1,7 +1,8 @@
 import HelperAsset from './HelperAsset.js';
 import Condition from '../../classes/Condition.js';
 
-const DB = 'conditions';
+const DB = 'conditions',
+	CONSTRUCTOR = Condition;
 
 // Single asset editor
 export function asset(){
@@ -76,7 +77,7 @@ export function assetTable( win, modAsset, name ){
 // Listing
 export function list(){
 
-	this.setDom(HelperAsset.buildList(this, "conditions", Condition, {
+	this.setDom(HelperAsset.buildList(this, "conditions", CONSTRUCTOR, {
 		"label" : true,
 		"desc" : true,
 		"conditions" : a => a.conditions.map(el => el.label).join(', '),
@@ -91,7 +92,11 @@ export function list(){
 		"debug" : true,
 	}));
 
-	HelperAsset.bindList(this, DB);
+	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
+		label : 'newCondition'+Math.ceil(Math.random()*0xFFFFFFF),
+		type : Condition.Types.tag,
+		data : {tags:[]}
+	}));
 
 };
 
