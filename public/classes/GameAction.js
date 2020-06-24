@@ -23,10 +23,9 @@ export default class GameAction extends Generic{
 
 		this.parent = parent;			// Either a roleplay or dungeon asset
 		this.label = '';
+		this.desc = '';
 		this.type = GameAction.types.door;
 		this.data = null;
-		this.break = null;		// Use "success" "fail" here to break on success or fail
-		this.repeats = -1;
 		this.conditions = [];
 
 		this.load(data);
@@ -37,14 +36,15 @@ export default class GameAction extends Generic{
 		const out = {
 			id : this.id,
 			type : this.type,
-			break : this.break,
 			repeats : this.repeats,
 			conditions : Condition.saveThese(this.conditions, full)
 		};
 
 
-		if( full === "mod" )
+		if( full === "mod" ){
 			out.label = this.label;
+			out.desc = this.desc;
+		}
 		if( full || GameAction.typesToSendOnline[this.type] ){
 			out.data = this.flattenData(full);
 		}
@@ -96,7 +96,9 @@ export default class GameAction extends Generic{
 	}
 
 	load( data ){
+
 		this.g_autoload(data);
+
 	}
 
 	rebase(){
@@ -718,42 +720,79 @@ export default class GameAction extends Generic{
 	
 }
 GameAction.types = {
-	encounters : "enc",				// (arr)encounters - Picks one at random
-	resetEncounter : "resetEnc",	// {encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one
-	wrappers : "wra",				// (arr)wrappers
-	dungeonVar : "dvar",			// {id:(str)id, val:(var)val} - Can use a math formula
-	loot : "loot",					// Staging: {assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger "open" and "open_idle" animations. When first opened, it gets converted to an array.
-	autoLoot : "aLoot",				// {val:(float)modifier} - This is replaced with "loot" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.
-	door : "door",					// {index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger "open" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit
-	exit : "exit",					// {dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}
-	anim : "anim",					// {anim:(str)animation}
-	lever : "lever",				// {id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations
-	quest : "quest",				// {quest:(str/Quest)q} - Starts a quest
-	questObjective : "questObjective",		// {quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1} - Adds or subtracts from an objective
-	addInventory : "addInventory",			// {"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1} - Adds or removes inventory from a player
-	toggleCombat : "toggleCombat",			// {on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.
-	generateDungeon : "generateDungeon",	// {difficulty:(int)difficulty=#players} - Resets the active procedural dungeon and clears any procedural quests you've started
-	visitDungeon : "visitDungeon",			// {} - Visits the current procedurally generated dungeon
-	roleplay : "roleplay",					// {rp:(str/obj)roleplay} - A label or roleplay object
-	finishQuest : "finishQuest",			// {quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.
-	tooltip : "tooltip",					// {text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak
-	shop : "shop",							// {shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.
-	gym : "gym",							// {player:(str)player_offering} - Passive. Player is the player that should have the gym icon attached to them. 
-	playerAction : "playerAction",			// {player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it's the supplied triggering player that becomes the caster
-	repairShop : "repairShop",				// {player:(str)label} - Marks a player as offering repairs
-	text : "text",							// {text:(obj)text} - Triggers a text
-	hitfx : "hitfx",						// {hitfx:(obj/str/arr)hitfx, caster_conds:(arr)caster_conditions, target_conds:(arr)target_conds, max_triggers:(int)=all} - Triggers a hitfx
-	addPlayer : "addPlayer",				// {player:(obj/str)monster, turn:(int)turn_offset=-1}
-	addPlayerTemplate : "addPlayerTemplate",	// {player:(obj/str)template, nextTurn:(bool)=false} - If nextTurn is true, it adds the player on next turn instead of before the current player
-	rentRoom : "rentRoom",					// {cost:(int)copper, text:(str)rp, success_text:(str)successfully_rented_text, player:(str)label} - Draws the rent a room icon
-	execRentRoom : "execRentRoom",			// {cost:(int)copper, success_text:(str)successfully_rented_text, renter:(str)renter_merchant_label} - Execs a room rental in this dungeon. This is generated automatically by above.
+	encounters : "enc",				
+	resetEncounter : "resetEnc",
+	wrappers : "wra",
+	dungeonVar : "dvar",
+	loot : "loot",
+	autoLoot : "aLoot",				// 
+	door : "door",					// 
+	exit : "exit",					// 
+	anim : "anim",					// 
+	lever : "lever",				// 
+	quest : "quest",				// 
+	questObjective : "questObjective",		// 
+	addInventory : "addInventory",			// 
+	toggleCombat : "toggleCombat",			// 
+	generateDungeon : "generateDungeon",	// 
+	visitDungeon : "visitDungeon",			// 
+	roleplay : "roleplay",					// 
+	finishQuest : "finishQuest",			// 
+	tooltip : "tooltip",					// 
+	shop : "shop",							// 
+	gym : "gym",							// 
+	playerAction : "playerAction",			// 
+	repairShop : "repairShop",				// 
+	text : "text",							// 
+	hitfx : "hitfx",						// 
+	addPlayer : "addPlayer",				// 
+	addPlayerTemplate : "addPlayerTemplate",	// 
+	rentRoom : "rentRoom",					// 
+	execRentRoom : "execRentRoom",			// 
 	sleep : "sleep",						// 
-	resetRoleplay : "resetRoleplay",		// {roleplay:(str)label} - Resets a roleplay. If no roleplay is provided and the gameEvent can parent up to a roleplay, it resets that one
-	setDungeon : "setDungeon",				// {dungeon:(str)dungeon, room:(int)index} - Sets the dungeon. If you leave out dungeon, it targets your active dungeon
-	addFaction : "addFaction",				// {faction:(str)label, amount:(int)amount} - Adds or removes reputation
-	trade : "trade",						// {asset:(str)label, amount:(int)amount=1, from:(str)label/id, to:(str)label/id} - ID is checked first, then label. If either of from/to is unset, they use the event player.
-	learnAction : "learnAction",			// {conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0. Use conditions to filter. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.
+	resetRoleplay : "resetRoleplay",		// 
+	setDungeon : "setDungeon",				// 
+	addFaction : "addFaction",				// 
+	trade : "trade",						// 
+	learnAction : "learnAction",			// 
 
+};
+
+GameAction.TypeDescs = {
+	[GameAction.types.encounters] : "(arr)encounters - Picks a random encounter to start",
+	[GameAction.types.resetEncounter] : "{encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one",
+	[GameAction.types.wrappers] : "(arr)wrappers - Triggers all viable wrappers",
+	[GameAction.types.dvar] : "{id:(str)id, val:(var)val} - Can use a math formula. Sets a dungeon var to a value.",
+	[GameAction.types.loot] : "{assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
+	[GameAction.types.aLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
+	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
+	[GameAction.types.exit] : "{dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}",
+	[GameAction.types.anim] : '{anim:(str)animation} - Usable on a dungeon room asset',
+	[GameAction.types.lever] : '{id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations',
+	[GameAction.types.quest] : '{quest:(str/Quest)q} - Starts a quest',
+	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1} - Adds or subtracts from an objective',
+	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1} - Adds or removes inventory from a player',
+	[GameAction.types.toggleCombat] : '{on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.',
+	[GameAction.types.generateDungeon] : '{difficulty:(int)difficulty=#players} - Resets the active procedural dungeon and clears any procedural quests you\'ve started',
+	[GameAction.types.visitDungeon] : '{} - Visits the current procedurally generated dungeon',
+	[GameAction.types.roleplay] : '{rp:(str/obj)roleplay} - A label or roleplay object',
+	[GameAction.types.finishQuest] : '{quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.',
+	[GameAction.types.tooltip] : '{text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak',
+	[GameAction.types.shop] : '{shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.',
+	[GameAction.types.gym] : '{player:(str)player_offering} - Passive. Player is the player that should have the gym icon attached to them. ',
+	[GameAction.types.playerAction] : '{player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it\'s the supplied triggering player that becomes the caster',
+	[GameAction.types.repairShop] : '{player:(str)label} - Marks a player as offering repairs',
+	[GameAction.types.text] : '{text:(str/obj)text} - Triggers a Text',
+	[GameAction.types.hitfx] : '{hitfx:(obj/str/arr)hitfx, caster_conds:(arr)caster_conditions, target_conds:(arr)target_conds, max_triggers:(int)=all} - Triggers a hitfx',
+	[GameAction.types.addPlayer] : '{player:(obj/str)monster, turn:(int)turn_offset=-1}',
+	[GameAction.types.addPlayerTemplate] : '{player:(obj/str)template, nextTurn:(bool)=false} - If nextTurn is true, it adds the player on next turn instead of before the current player',
+	[GameAction.types.rentRoom] : '{cost:(int)copper, text:(str)rp, success_text:(str)successfully_rented_text, player:(str)label} - Draws the rent a room icon on a target.',
+	[GameAction.types.sleep] : '{cost:(int)copper, success_text:(str)successfully_rented_text, renter:(str)renter_merchant_label} - Execs a room rental in this dungeon. This is generated automatically by above.',
+	[GameAction.types.resetRoleplay] : '{roleplay:(str)label} - Resets a roleplay. If no roleplay is provided and the gameEvent can parent up to a roleplay, it resets that one',
+	[GameAction.types.setDungeon] : '{dungeon:(str)dungeon, room:(int)index} - Sets the dungeon. If you leave out dungeon, it targets your active dungeon',
+	[GameAction.types.addFaction] : '{faction:(str)label, amount:(int)amount} - Adds or removes reputation',
+	[GameAction.types.trade] : '{asset:(str)label, amount:(int)amount=1, from:(str)label/id, to:(str)label/id} - ID is checked first, then label. If either of from/to is unset, they use the event player.',
+	[GameAction.types.learnAction] : '{conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0. Use conditions to filter. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.',
 };
 
 // These are types where data should be sent to netgame players
@@ -778,9 +817,6 @@ GameAction.getViable = function( actions = [], player = undefined, debug = false
 		let valid = action.validate(player, debug);
 		if( valid || !validate )
 			out.push(action);
-
-		if( (action.break === "success" && valid) || (action.break === "fail" && !valid) )
-			break;
 
 	}
 	return out;

@@ -1686,9 +1686,6 @@ class DungeonRoomAsset extends Generic{
 			if( valid )
 				i.trigger( player, mesh );
 
-			if( (i.break === "success" && valid) || (i.break === "fail" && !valid) )
-				break;
-
 		}
 
 		if( this.interact_cooldown )
@@ -2249,8 +2246,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					}
 					let action = new GameAction({
 						type : a.index === -1 ? GameAction.types.exit : GameAction.types.door,
-						data : adata,
-						break : "fail"
+						data : adata
 					}, door);
 					door.interactions.push(action);
 					
@@ -2400,7 +2396,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 						}, addedAsset),
 					);
 					
-					doorInteraction.break = "fail";
 					doorInteraction.conditions.push(cond);
 
 					found = true;											// We successfully placed something in this room, stop seeking door assets

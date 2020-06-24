@@ -17,6 +17,8 @@ import * as EditorMaterialTemplate from './editors/EditorMaterialTemplate.js';
 import * as EditorWrapper from './editors/EditorWrapper.js';
 import * as EditorEffect from './editors/EditorEffect.js';
 import * as EditorAction from './editors/EditorAction.js';
+import * as EditorActionLearnable from './editors/EditorActionLearnable.js';
+import * as EditorGameAction from './editors/EditorGameAction.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -39,12 +41,13 @@ const DB_MAP = {
 	"actions" : { listing : EditorAction.list, asset : EditorAction.asset, icon : 'juggler' },
 	"assetTemplates" : { listing : EditorAssetTemplate.list, asset : EditorAssetTemplate.asset, icon : 'mail-shirt' },
 	"materialTemplates" : { listing : EditorMaterialTemplate.list, asset : EditorMaterialTemplate.asset, icon : 'wool' },
+	"actionLearnable" : { listing : EditorActionLearnable.list, asset : EditorActionLearnable.asset, icon : 'graduate-cap' },
+	"gameActions" : { listing : EditorGameAction.list, asset : EditorGameAction.asset, icon : 'joystick' },
 };
 
 /*
 
 	Continuation order:
-	1. actionLearnable
 	2. gameActions
 	3. playerClasses
 	4. players
