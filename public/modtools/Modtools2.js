@@ -12,17 +12,11 @@ import * as EditorCondition from './editors/EditorCondition.js';
 import * as EditorAudioKit from './editors/EditorAudioKit.js';
 import * as EditorHitFX from './editors/EditorHitFX.js';
 import * as EditorAsset from './editors/EditorAsset.js';
+import * as EditorAssetTemplate from './editors/EditorAssetTemplate.js';
+import * as EditorMaterialTemplate from './editors/EditorMaterialTemplate.js';
 import * as EditorWrapper from './editors/EditorWrapper.js';
 import * as EditorEffect from './editors/EditorEffect.js';
 import * as EditorAction from './editors/EditorAction.js';
-
-/*
-	Implementation order:
-	- action
-	- asset (add action)
-
-*/
-
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -43,7 +37,26 @@ const DB_MAP = {
 	"wrappers" : { listing : EditorWrapper.list, asset : EditorWrapper.asset, icon : 'jigsaw-box' },
 	"effects" : { listing : EditorEffect.list, asset : EditorEffect.asset, icon : 'fairy-wand' },
 	"actions" : { listing : EditorAction.list, asset : EditorAction.asset, icon : 'juggler' },
+	"assetTemplates" : { listing : EditorAssetTemplate.list, asset : EditorAssetTemplate.asset, icon : 'mail-shirt' },
+	"materialTemplates" : { listing : EditorMaterialTemplate.list, asset : EditorMaterialTemplate.asset, icon : 'wool' },
 };
+
+/*
+
+	Continuation order:
+	1. actionLearnable
+	2. gameActions
+	3. playerClasses
+	4. players
+	5. playerTemplates
+
+	roleplay - Idea: Make a mod asset for roleplay stage, but have it prefixed with the roleplay id and filter the picker with it
+
+	Idea: For dungeon, have a dedicated window for the 3d editor which shows one room at a time
+
+
+*/
+
 
 export default class Modtools{
 
@@ -673,7 +686,7 @@ export default class Modtools{
 		return Window.create(
 			id, 
 			type, 
-			asset.label, 
+			asset.name || asset.label, 
 			DB_MAP[type].icon || "pencil", 
 			DB_MAP[type].asset, 
 			data

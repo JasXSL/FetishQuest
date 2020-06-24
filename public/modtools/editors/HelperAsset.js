@@ -22,6 +22,8 @@ export default{
 				name = targ.name
 			;
 
+			
+
 			let val = targ.value.trim();
 			
 			if( targ.tagName === 'INPUT' ){
@@ -35,10 +37,34 @@ export default{
 
 			}
 
-			// Soft = here because type isn't important
-			if( val != asset[name] ){
+			let path = name.split('::');
+			let base = asset;
+			while( path.length > 1 ){
+				base = base[path.shift()];
+				if( base === undefined ){
+					console.error("Path find failed for ", name, "in", asset);
+					throw "Unable to find path, see above";
+				}
+			}
+			path = path.shift();
 
-				asset[name] = val;
+			// Soft = here because type isn't important
+			if( val != base[path] ){
+
+				// Label change must update the window
+				if( name === "label" ){
+					val = val.trim();
+					if( !val )
+						throw 'Label cannot be empty';
+
+					win.id = val;
+					win.updateTitle();
+				}
+				else if( name === "name" ){
+					win.name = val;
+					win.updateTitle();
+				}
+				base[path] = val;
 				dev.setDirty(true);
 				if( list )
 					this.rebuildAssetLists(list);
@@ -112,13 +138,16 @@ export default{
 
 		const updateData = div => {
 
-			const out = [];
+			const out = [], pre = JSON.stringify(asset[div.getAttribute("name")] || []);
 			div.querySelectorAll('input[type=checkbox]:checked').forEach(el => {
 				out.push(el.value);
 			});
-			asset[div.getAttribute("name")] = out;
-			dev.setDirty(true);
-			this.rebuildAssetLists(list);
+
+			if( JSON.stringify(out) !== pre  ){
+				asset[div.getAttribute("name")] = out;
+				dev.setDirty(true);
+				this.rebuildAssetLists(list);
+			}
 
 		};
 
