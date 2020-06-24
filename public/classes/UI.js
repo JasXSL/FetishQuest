@@ -1911,7 +1911,7 @@ export default class UI{
 						const classes = glib.getFull('PlayerClass');
 						for( let c in classes ){
 							
-							if( !classes[c].isMonsterClass )
+							if( !classes[c].monster_only )
 								html += '<option value="'+esc(c)+'">'+esc(classes[c].name)+'</option>';
 								
 						}

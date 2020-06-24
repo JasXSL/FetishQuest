@@ -1083,14 +1083,14 @@ export default class StaticModal{
 							return -1;
 						else if(b.label === 'none')
 							return 1;
-						if( a.isMonsterClass && !b.isMonsterClass )
+						if( a.monster_only && !b.monster_only )
 							return 1;
-						else if( !a.isMonsterClass && b.isMonsterClass )
+						else if( !a.monster_only && b.monster_only )
 							return -1;
 						return a.name < b.name ? -1 : 1;
 					});
 					for( let c of clib )
-						html += '<option value="'+esc(c.label)+'">'+(c.isMonsterClass ? '[M] ':'')+esc(c.name)+'</option>';
+						html += '<option value="'+esc(c.label)+'">'+(c.monster_only ? '[M] ':'')+esc(c.name)+'</option>';
 					dDivs.formClass.html(html);
 					dDivs.formClass.val(player.class.label);
 

@@ -1,8 +1,4 @@
 import HelperAsset from './HelperAsset.js';
-import HelperTags from './HelperTags.js';
-import { Effect, Wrapper } from '../../classes/EffectSys.js';
-import GameEvent from '../../classes/GameEvent.js';
-
 import * as EditorCondition from './EditorCondition.js';
 import GameAction from '../../classes/GameAction.js';
 

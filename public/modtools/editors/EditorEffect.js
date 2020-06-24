@@ -52,8 +52,7 @@ export function asset(){
 
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 
-	html += 'Conditions: <br />';
-	html += '<div class="conditions"></div>';
+	html += 'Conditions: <div class="conditions"></div>';
 
 
 	this.setDom(html);

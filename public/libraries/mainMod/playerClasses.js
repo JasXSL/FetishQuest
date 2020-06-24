@@ -20,7 +20,7 @@ const lib = {
         bonCorruption : 0,
         description : "",
         label : "none",
-        isMonsterClass : false,
+        monster_only : false,
         actions : []
     },
     "warrior": {
@@ -38,7 +38,7 @@ const lib = {
         intellect : -1,
         description : "Standing toe to toe with their enemy, warriors enjoy both receiving and dealing out punishment. Good for sadomasochists.",
         label : "warrior",
-        isMonsterClass : false,
+        monster_only : false,
         actions : [
             "warrior_revenge",
             "warrior_bolster",
@@ -59,7 +59,7 @@ const lib = {
         agility : 2,
         description : "A lightweight martial artist who primarily deals damage, monks can also heal their friends and weaken enemeies. Good for exhibitionists.",
         label : "monk",
-        isMonsterClass : false,
+        monster_only : false,
         actions : [
             "monk_roundKick",
             "monk_disablingStrike",
@@ -80,7 +80,7 @@ const lib = {
         stamina : 1,
         description : "An adept of the elemental ways, elementalists are good healers and damage dealers. Good for those into electrostim and breathplay.",
         label : "elementalist",
-        isMonsterClass : false,
+        monster_only : false,
         actions : [
             "elementalist_iceBlast",
             "elementalist_healingSurge",
@@ -99,7 +99,7 @@ const lib = {
         bonCorruption : 4,
         description : "A stealthy class, there are no places a rogue can't enter, especially clothes. Rogues are good if you're into teasing and humiliation of your enemy.",
         label : "rogue",
-        isMonsterClass : false,
+        monster_only : false,
         agility : 3,
         actions : [
             "rogue_exploit",
@@ -122,7 +122,7 @@ const lib = {
         intellect : 1,
         description : "Upholding the morals, clerics chastise their enemies and make highly potent healers. Clerics may interest players into chastity and bondage.",
         label : "cleric",
-        isMonsterClass : false,
+        monster_only : false,
         actions : [
             "cleric_heal",
             "cleric_chastise",
@@ -143,7 +143,7 @@ const lib = {
         intellect : 1,
         description : "Tentaclemancers summon forth slithering assailants from the nether realms. Good if you enjoy tentacles.",
         label : "tentaclemancer",
-        isMonsterClass : false,
+        monster_only : false,
         actions : [
             "tentaclemancer_tentacleWhip",
             "tentaclemancer_corruptingOoze",
@@ -162,7 +162,7 @@ const lib = {
         bonCorruption : 0,
         description : "",
         label : "tentacle_fiend",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentacleMilker",
@@ -174,7 +174,7 @@ const lib = {
 	"shocktacle": {
         name : "Shocktacle",
         description : "",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "tentacle_fiend_tentatug",
             "tentacle_ride",
@@ -193,7 +193,7 @@ const lib = {
         bonCorruption : 0,
         description : "",
         label : "mimic",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentacleMilker",
@@ -205,7 +205,7 @@ const lib = {
         name_type : PlayerClass.NameType.Suffix,
         description : "An ordinary imp.",
         label : "imp",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "imp_specialDelivery",
             "imp_ankleBite",
@@ -220,7 +220,7 @@ const lib = {
         name_type : PlayerClass.NameType.Suffix,
         description : "An imp that moves more gracefully than normal imps.",
         label : "imp",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "imp_specialDelivery",
             "imp_blowFromBelow",
@@ -236,7 +236,7 @@ const lib = {
         name_type : PlayerClass.NameType.Suffix,
         description : "An imp with glowing purple runes tattooed on its body.",
         label : "imp",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "hexArmor",
             "imp_demonicPinch",
@@ -249,7 +249,7 @@ const lib = {
         name : "Scavenger",
         name_type : PlayerClass.NameType.Suffix,
         description : "Adept at survival and utilizing their environment.",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "imp_ankleBite",
             "imp_blowFromBelow",
@@ -261,7 +261,7 @@ const lib = {
         name : "Shaman",
         name_type : PlayerClass.NameType.Suffix,
         description : "A being skilled in the primal arts.",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "whip_legLash",
 			"whip_powerLash",
@@ -273,7 +273,7 @@ const lib = {
     guardian_demon_breaker : {
         name : "Breaker",
         description : "",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "guardian_demon_consume",       // Lifts a grappled, exposed player off the ground, doing corruption damage and healing the caster based on target arousal
             "guardian_demon_impale",        // Impale a grappled and exposed player, doing 5 corruption damage and extending the grapple by 2 turns
@@ -285,7 +285,7 @@ const lib = {
     },
     cocktopus : {
         name : "Cocktopus",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "tentacle_fiend_legWrap",
             "tentacle_fiend_tentatug",
@@ -296,14 +296,14 @@ const lib = {
     },
     worm : {
         name : "Burrower",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             // Todo: Add actions
         ]
     },
     tentacrab : {
         name : "Pincher",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "crab_claw_pinch",
             "crab_claw_tug",
@@ -312,7 +312,7 @@ const lib = {
     MQ00_Boss : {
         name : "Nethermancer",
         description : "",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             'imp_demonicPinch',
             'tentacle_pit', // tentacle_pit : Places a tentacle pit between the caster and players. Using a melee attack against the caster will trap the first player for 3 turns.
@@ -322,7 +322,7 @@ const lib = {
         name : "Rattler",
         name_type : PlayerClass.NameType.Suffix,
         description : "A regular skeleton with bony hands.",
-        isMonsterClass : true,
+        monster_only : true,
         name_type : PlayerClass.NameType.Suffix,
         actions : [
             'skeleton_looseHand',
@@ -335,7 +335,7 @@ const lib = {
         name : "Mage",
         name_type : PlayerClass.NameType.Suffix,
         description : "Skeletal spells usually involve bones or milk, or both!",
-        isMonsterClass : true,
+        monster_only : true,
         name_type : PlayerClass.NameType.Suffix,
         actions : [
             'skeleton_looseHand',
@@ -349,7 +349,7 @@ const lib = {
     necromancer : {
         name : 'Necromancer',
         description : 'A shadowy summoner of the undead.',
-        isMonsterClass : true,
+        monster_only : true,
         name_type : PlayerClass.NameType.Suffix,
         actions: [
             'boneShards',
@@ -362,7 +362,7 @@ const lib = {
     ghoulRavener : {
         name : "Ravener",
         description : "It hungers.",
-        isMonsterClass : true,
+        monster_only : true,
         name_type : PlayerClass.NameType.Suffix,
         actions : [
             'pounce',       // Todo Grapples a player on the ground until they manually break free
@@ -371,10 +371,9 @@ const lib = {
         ]
     },
     groper : {
-        player_icon : '',
         name_type : PlayerClass.NameType.Suffix,
         name : "Lasher",
-        isMonsterClass : true,
+        monster_only : true,
         description : 'This groper has a multitude of extra tendrils flailing about!',
         actions : [
             "tentacle_fiend_legWrap",
@@ -386,10 +385,9 @@ const lib = {
     },
     groper_sapbeast : {
         name : "Sapbeast",
-        player_icon : '',
         description : 'This groper has a couple of thicker sap-coated tendrils.',
         name_type : PlayerClass.NameType.Suffix,
-        isMonsterClass : true,
+        monster_only : true,
         intellect : 2,
         actions : [
             "tentacle_fiend_legWrap",
@@ -400,10 +398,9 @@ const lib = {
     },
     groper_infested : {
         name : "Infested",
-        player_icon : '',
         name_type : PlayerClass.NameType.Prefix,
         description : 'This groper seems to be half hollowed out and has a nest of skittering insects living in it!',
-        isMonsterClass : true,
+        monster_only : true,
         stamina : -4,
         agility : 2,
         actions : [
@@ -415,7 +412,7 @@ const lib = {
 
     lamprey : {
         name : "Lamprey",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "lamprey_slither",      // slither into a target's clothes, doing corruption damage
             "leech",        // Sucks on your target's exposed genitals, doing corruption damage and stealing HP
@@ -425,7 +422,7 @@ const lib = {
 
     anemone : {
         name : "Tickler",
-        isMonsterClass : true,
+        monster_only : true,
         actions : [
             "anemone_grab",         // Grapple a player
             "anemone_tickle",       // Tickle a player for corruption damage and +1 arousal
@@ -436,14 +433,14 @@ const lib = {
 
     sharktopus : {
         name : "Tentacler",
-        isMonsterClass : true,
+        monster_only : true,
         actions : []
     },
 
     outlaw_brute : {
         name : 'Brute',
         description : 'A barbaric fighter with an intimidating presence!',
-        isMonsterClass : true,
+        monster_only : true,
         name_type : PlayerClass.NameType.Suffix,
         actions: [
             'lowBlow', 
@@ -474,7 +471,7 @@ const lib = {
     outlaw_rogue : {
         name : 'Rogue',
         description : 'A stealthy, nimble fighter!',
-        isMonsterClass : true,
+        monster_only : true,
         name_type : PlayerClass.NameType.Suffix,
         actions: [
             'lowBlow', 
@@ -504,7 +501,7 @@ const lib = {
     outlaw_tentaclemancer : {
         name : 'Tentaclemancer',
         description : 'A tentacle summoner!',
-        isMonsterClass : true,
+        monster_only : true,
         name_type : PlayerClass.NameType.Suffix,
         actions: [
             'tentacle_pit',

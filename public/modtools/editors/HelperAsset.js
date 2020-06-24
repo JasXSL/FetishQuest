@@ -201,7 +201,7 @@ export default{
 		asset is the parent asset
 		key is the key in the asset to modify
 	*/
-	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false ){
+	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, ){
 
 		// Todo: Need to handle non array type linked assets
 		const entries = toArray(asset[key]);
@@ -233,7 +233,7 @@ export default{
 			window.mod.buildAssetLinker( win, asset, key, targetLibrary, single );
 		};
 
-		table.querySelectorAll("tr.asset").forEach(el => el.onclick = event => {
+		const clickListener = event => {
 
 			if( event.ctrlKey && Array.isArray(asset[key]) ){
 
@@ -265,6 +265,11 @@ export default{
 			}
 
 
+		};
+
+		table.querySelectorAll("tr.asset").forEach(el => {
+			el.onclick = clickListener;
+			el.linkedTableListener = clickListener;	// Stores the listener in the TR in case you want to override it
 		});
 
 		// Todo: Need some way to refresh the window if one of the linked assets are changed

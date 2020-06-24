@@ -1505,7 +1505,7 @@ export default class Modtools{
 			html += 'Label: <input required type="text" name="label" value="'+esc(asset.label)+'" /><br />';
 			html += 'Name: <input required type="text" name="name" value="'+esc(asset.name)+'" /><br />';
 			html += '<textarea name="description">'+esc(asset.description)+'</textarea>';
-			html += '<span title="Lists it separately">MonsterClass</span>: <input type="checkbox" value="1" name="isMonsterClass" '+(asset.isMonsterClass ? 'checked' : '')+' /><br />';
+			html += '<span title="Lists it separately">MonsterClass</span>: <input type="checkbox" value="1" name="monster_only" '+(asset.monster_only ? 'checked' : '')+' /><br />';
 			const stats = Action.Types;
 			for( let i in stats )
 				html += 'Bon '+stats[i]+': <input type="number" name="bon'+stats[i]+'" step=1 min=-1 value="'+(+asset['bon'+stats[i]] || 0)+'"  /><br />';
@@ -1520,7 +1520,7 @@ export default class Modtools{
 			saveAsset.label = $("input[name=label]", form).val().trim();
 			saveAsset.name = $("input[name=label]", form).val().trim();
 			saveAsset.description = $("textarea[name=description]", form).val().trim();
-			saveAsset.isMonsterClass = $("input[name=isMonsterClass]", form).val().trim();
+			saveAsset.monster_only = $("input[name=monster_only]", form).val().trim();
 			saveAsset.actions = this.compileAction('actions');
 
 			for( let i in stats ){

@@ -9,10 +9,10 @@ export default class PlayerClass extends Generic{
 
 		this.label = 'none';
 		this.name = '';
-		this.isMonsterClass = false;
+		this.monster_only = false;
+		// Todo: delete this and make it actionlearnable for NPCs too
 		this.actions = [];				// Used only for NPCs. Players should instead use ActionLearnable.
 		this.description = '';
-		this.player_icon = '';			// TODO: If the player doesn't have an icon, use the class icon instead
 		this.name_type = PlayerClass.NameType.None;		// Lets you append or prepend the class name to the player's name. Useful for player templates with many classes.
 
 		// 10 points total, these are floats, and add 10% per point from leveling, rounded up
@@ -54,11 +54,10 @@ export default class PlayerClass extends Generic{
 			stamina : this.stamina,
 			intellect : this.intellect,
 			agility : this.agility,
-			player_icon : this.player_icon,
 			name_type : this.name_type
 		};
 		if( full ){
-			out.isMonsterClass = this.isMonsterClass;
+			out.monster_only = this.monster_only;
 			out.actions = this.actions;
 		}
 

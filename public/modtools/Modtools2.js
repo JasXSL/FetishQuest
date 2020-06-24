@@ -19,6 +19,8 @@ import * as EditorEffect from './editors/EditorEffect.js';
 import * as EditorAction from './editors/EditorAction.js';
 import * as EditorActionLearnable from './editors/EditorActionLearnable.js';
 import * as EditorGameAction from './editors/EditorGameAction.js';
+import * as EditorPlayerClass from './editors/EditorPlayerClass.js';
+import * as EditorPlayer from './editors/EditorPlayer.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -43,15 +45,17 @@ const DB_MAP = {
 	"materialTemplates" : { listing : EditorMaterialTemplate.list, asset : EditorMaterialTemplate.asset, icon : 'wool' },
 	"actionLearnable" : { listing : EditorActionLearnable.list, asset : EditorActionLearnable.asset, icon : 'graduate-cap' },
 	"gameActions" : { listing : EditorGameAction.list, asset : EditorGameAction.asset, icon : 'joystick' },
+	"playerClasses" : { listing : EditorPlayerClass.list, asset : EditorPlayerClass.asset, icon : 'vitruvian-man' },
+	"players" : { listing : EditorPlayer.list, asset : EditorPlayer.asset, icon : 'mustache' },
 };
 
 /*
 
 	Continuation order:
-	2. gameActions
-	3. playerClasses
 	4. players
 	5. playerTemplates
+
+	6. Edit the main code to move PlayerClass.actions to actionlearnable for NPCs as well. You should also be able to remove add_conditions from Action since they can use actionlearnable instead
 
 	roleplay - Idea: Make a mod asset for roleplay stage, but have it prefixed with the roleplay id and filter the picker with it
 

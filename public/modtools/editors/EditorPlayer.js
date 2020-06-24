@@ -1,0 +1,188 @@
+import HelperAsset from './HelperAsset.js';
+import HelperTags from './HelperTags.js';
+import Action from '../../classes/Action.js';
+import Player from '../../classes/Player.js';
+import * as EditorPlayerClass from './EditorPlayerClass.js';
+import * as EditorWrapper from './EditorWrapper.js';
+import * as EditorAsset from './EditorAsset.js';
+import * as EditorAction from './EditorAction.js';
+
+const DB = 'players',
+	CONSTRUCTOR = Player;
+
+// Single asset editor
+export function asset(){
+
+	const 
+		modtools = window.mod,
+		id = this.id,
+		asset = modtools.mod.getAssetById(DB, id),
+		dummy = CONSTRUCTOR.loadThis(asset)
+	;
+
+	if( !asset )
+		return this.close();
+
+		
+	let html = '';
+	html += '<div class="labelFlex">';
+		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
+		html += '<label>Species: <input type="text" name="species" class="saveable" value="'+esc(dummy.species)+'" /></label>';
+		html += '<label>Image Dressed: <input type="text" name="icon" class="saveable" value="'+esc(dummy.icon)+'" /></label>';
+		html += '<label>Image Upper Body Armor: <input type="text" name="icon_upperBody" class="saveable" value="'+esc(dummy.icon_upperBody)+'" /></label>';
+		html += '<label>Image Lower Body Armor: <input type="text" name="icon_lowerBody" class="saveable" value="'+esc(dummy.icon_lowerBody)+'" /></label>';
+		html += '<label>Image Nude: <input type="text" name="icon_nude" class="saveable" value="'+esc(dummy.icon_nude)+'" /></label>';
+		html += '<label title="0 = player team">Team: <input type="number" step=1 min=0 name="team" class="saveable" value="'+esc(dummy.team)+'" /></label>';
+		html += '<label title="0-10 where 5 is average human and 10 giant">Size: <input type="number" step=1 min=0 max=10 name="size" class="saveable" value="'+esc(dummy.size)+'" /></label>';
+		html += '<label>Level: <input type="number" step=1 name="level" class="saveable" value="'+esc(dummy.level)+'" /></label>';
+		html += '<label title="If checked, Level is instead the offset from party average level">Level is offset from party: <input type="checkbox" name="leveled" '+(dummy.leveled ? 'checked' : '')+' class="saveable"  /></label>';
+		html += '<label title="Used for NPCs. Difficulty multiplier, higher increases stats. -1 means automatic">Power: <input type="number" step=0.01 min=-1 name="power" class="saveable" value="'+esc(dummy.power)+'" /></label>';
+		
+		html += '<label title="Used for NPCs. Chance of speaking in combat.">Talkative: <input type="number" step=0.01 min=0 max=1 name="talkative" class="saveable" value="'+esc(dummy.talkative)+'" /></label>';
+		html += '<label title="Used for NPCs and affects punishments and using arouse vs attack">Sadistic: <input name="sadistic" value="'+esc(dummy.sadistic)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
+		html += '<label title="Used for NPCs and affects punishments">Dominant: <input name="dominant" value="'+esc(dummy.dominant)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
+		html += '<label title="Used for NPCs and affects punishments & to some degree who it will attack. 0.5 = no preference">Hetero: <input name="hetero" value="'+esc(dummy.hetero)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
+		html += '<label title="Will be used for AI later. 0.6 = human, 0.3 animal, 1 = mastermind">Intelligence: <input name="intelligence" value="'+esc(dummy.intelligence)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
+
+		html += '<label title="Player have ALL actions activated. NPCs use this.">Ignore spell slots: <input type="checkbox" name="auto_learn" '+(dummy.auto_learn ? 'checked' : '')+' class="saveable"  /></label>';
+		html += '<label title="Deletes the player immediately upon dying. Useful for summoned enemies.">Remove on death: <input type="checkbox" name="remOnDeath" '+(dummy.remOnDeath ? 'checked' : '')+' class="saveable"  /></label>';
+
+	html += '</div>';
+
+
+	html += 'Stats: <div class="labelFlex">';
+
+	// Stats:
+		for( let i in Action.Types ){
+			const label = "sv"+Action.Types[i];
+			html += '<label>'+esc(label)+': <input name="'+esc(label)+'" value="'+esc(dummy[label])+'" class="saveable" type="number" step=1 /></label>';
+		}
+		for( let i in Action.Types ){
+			const label = "bon"+Action.Types[i];
+			html += '<label>'+esc(label)+': <input name="'+esc(label)+'" value="'+esc(dummy[label])+'" class="saveable" type="number" step=1 /></label>';
+		}
+		for( let i in Player.primaryStats ){
+			const label = Player.primaryStats[i];
+			html += '<label>'+esc(label)+': <input name="'+esc(label)+'" value="'+esc(dummy[label])+'" class="saveable" type="number" step=1 /></label>';
+		}
+		
+
+	html += '</div>';
+
+	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description)+'</textarea><br />';
+
+	html += 'PlayerClass: <div class="class"></div>';
+	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
+	html += 'Actions: <div class="actions"></div>';
+	html += 'Assets (press shift to equip): <div class="assets"></div>'; // Todo: the Player.inventory array specifies which assets should be equipped. Nrs showing indexes
+	html += 'Passives: <div class="passives"></div>';
+	
+
+	this.setDom(html);
+
+
+
+	this.dom.querySelector("div.class").appendChild(EditorPlayerClass.assetTable(this, asset, "class", true));
+	this.dom.querySelector("div.actions").appendChild(EditorAction.assetTable(this, asset, "actions"));
+	this.dom.querySelector("div.assets").appendChild(EditorAsset.assetTable(this, asset, "assets", false));
+	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
+	
+
+	// Tags
+	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
+		HelperTags.autoHandleAsset('tags', tags, asset);
+	});
+
+	// Override the click handler
+	console.log(this.dom.querySelectorAll("div.assets tr[data-id]"));
+	this.dom.querySelectorAll("div.assets tr[data-id]").forEach(el => {
+		
+		const defaultListener = el.linkedTableListener;	// Get the listener from HelperAsset
+		el.onclick = event => {
+			event.stopImmediatePropagation();
+			
+			if( event.shiftKey ){
+
+				console.log("Todo: mark as equipped");
+				el.classList.toggle("equipped");
+				// Todo: You probably want to use an ID here or something instead of index, since otherwise you'll have to rebuild it whenever an asset is deleted
+
+				return;
+			}
+			
+
+			// Do default
+			if( defaultListener )
+				defaultListener(event);
+
+		};
+	});
+
+	HelperAsset.autoBind( this, asset, DB);
+
+	
+
+};
+
+
+// Creates a table for this asset in another asset
+export function assetTable( win, modAsset, name, single ){
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'name', 'description'], single);
+}
+
+
+// Listing
+export function list(){
+
+
+
+	const fields = {
+		label : true,
+		name : true,
+		species : true,
+		description : true,
+		icon : true,
+		icon_upperBody : true,
+		icon_lowerBody : true,
+		icon_nude : true,
+		auto_learn : true,
+
+		team : true,
+		size: true,
+		level : true,
+		leveled : true,
+		
+		remOnDeath : true,
+		talkative : true,
+		sadistic : true,
+		dominant : true,
+		hetero : true,
+		intelligence : true,
+
+		class : true,
+
+		actions : true,
+		assets : true,
+		inventory : true,
+		tags : true,
+		passives : true,
+
+	};
+
+	for( let i in Action.Types )
+		fields["sv"+Action.Types[i]] = true;
+	for( let i in Player.primaryStats )
+		fields[Player.primaryStats[i]] = true;
+		
+
+	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, fields));
+
+	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
+		label : 'player'+Math.ceil(Math.random()*0xFFFFFFF),
+		name : 'New Player',
+		description : 'Describe your player here',
+	}));
+
+};
+

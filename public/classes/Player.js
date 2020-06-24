@@ -174,7 +174,7 @@ export default class Player extends Generic{
 			description : this.description,
 			size : this.size,
 			level : this.level,
-			class : this.class.save(full),
+			class : this.class instanceof PlayerClass ? this.class.save(full) : this.class,
 			stamina : this.stamina,
 			agility : this.agility,
 			intellect : this.intellect,

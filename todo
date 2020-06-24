@@ -3,6 +3,11 @@
 
 
 
+Important:
+	- Move playerclass actions to actionlearnable for NPCs as well. That way you can have actions that are added based on level and other things
+
+
+
 
 New devtools:
 	- Have the 3d renderer in the background
