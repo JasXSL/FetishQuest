@@ -11,8 +11,17 @@ import * as EditorText from './editors/EditorText.js';
 import * as EditorCondition from './editors/EditorCondition.js';
 import * as EditorAudioKit from './editors/EditorAudioKit.js';
 import * as EditorHitFX from './editors/EditorHitFX.js';
-import Generic from '../classes/helpers/Generic.js';
+import * as EditorAsset from './editors/EditorAsset.js';
+import * as EditorWrapper from './editors/EditorWrapper.js';
+import * as EditorEffect from './editors/EditorEffect.js';
+import * as EditorAction from './editors/EditorAction.js';
 
+/*
+	Implementation order:
+	- action
+	- asset (add action)
+
+*/
 
 
 // Window types that should be tracked
@@ -30,6 +39,10 @@ const DB_MAP = {
 	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark' },
 	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker' },
 	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion' },
+	"assets" : { listing : EditorAsset.list, asset : EditorAsset.asset, icon : 'underwear' },
+	"wrappers" : { listing : EditorWrapper.list, asset : EditorWrapper.asset, icon : 'jigsaw-box' },
+	"effects" : { listing : EditorEffect.list, asset : EditorEffect.asset, icon : 'fairy-wand' },
+	"actions" : { listing : EditorAction.list, asset : EditorAction.asset, icon : 'juggler' },
 };
 
 export default class Modtools{
@@ -52,6 +65,7 @@ export default class Modtools{
 		this.sideMenu = document.getElementById("libraryMenu");
 		this.modName = document.querySelector("#modName > span.name");
 		this.modDirty = document.querySelector("#modName > span.dirty");
+		this.datalists = document.getElementById("datalists");
 
 		this.dummyUploader = document.getElementById("dummyUploader");	// file input
 
@@ -578,6 +592,8 @@ export default class Modtools{
 			}
 		}
 
+		
+
 		this.setDirty(false);
 		this.mod = mod;
 		Window.closeAll();
@@ -585,8 +601,13 @@ export default class Modtools{
 		localStorage.editor_mod = mod.id;		// Save this as the actively opened mod
 		this.updateModName();					// Set the mod name in the top bar
 
+		// Build new datalists
+		this.buildDataLists();
+
 		await this.loadWindowStates();
 		this.sideMenu.classList.toggle("hidden", false);
+
+		
 
 		this.loading = false;
 
@@ -599,6 +620,34 @@ export default class Modtools{
 
 	}
 
+
+	// Builds the autocomplete datalists
+	buildDataLists(){
+		
+		const lists = ['actions'];
+		for( let db of lists ){
+
+			const compile = {};
+			this.mod[db].concat(this.parentMod[db]).forEach(el => compile[el.label] = true);
+			const existing = this.datalists.querySelector("datalist_"+db);
+			if( existing )
+				existing.remove();
+
+			const datalist = document.createElement("datalist");
+			datalist.id = 'datalist_tags';
+			this.datalists.appendChild(datalist);
+	
+			for( let tag in compile ){
+				
+				const node = document.createElement("option");
+				node.value = tag;
+				datalist.appendChild(node);
+
+			}
+
+		}
+
+	}
 
 
 
@@ -639,7 +688,7 @@ export default class Modtools{
 		targetType is a type defined in DB_MAP of the assets we want to pick from
 		data is {parentWindow:parentWindowUniqId, targetType:targetType} - targetType is supplied for windows updates if you modify one of the assets while you still have the picker open
 	*/
-	buildAssetLinker( parentWindow, baseAsset, baseKey, targetType ){
+	buildAssetLinker( parentWindow, baseAsset, baseKey, targetType, single ){
 
 		if( !DB_MAP[targetType] || !DB_MAP[targetType].listing )
 			throw 'Asset linker not found for type '+targetType+", add it to DB_MAP in Modtools2.js";
@@ -650,7 +699,7 @@ export default class Modtools{
 			baseAsset.label,
 			'linked-rings',
 			DB_MAP[targetType].listing,
-			{targetType:targetType},
+			{targetType:targetType, single:single},
 			parentWindow
 		);
 

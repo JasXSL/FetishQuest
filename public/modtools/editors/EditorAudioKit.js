@@ -50,8 +50,8 @@ export function asset(){
 
 
 // Creates a table for this asset in another asset
-export function assetTable( win, modAsset, name ){
-	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label']);
+export function assetTable( win, modAsset, name, single ){
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label'], single);
 }
 
 

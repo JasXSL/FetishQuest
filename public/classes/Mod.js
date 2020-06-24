@@ -99,6 +99,7 @@ export default class Mod extends Generic{
 
 	}
 
+	// Note: allows both label and id
 	deleteAsset( type, id ){
 
 		if( !Array.isArray(this[type]) )
@@ -107,7 +108,7 @@ export default class Mod extends Generic{
 		for( let i in this[type] ){
 
 			const asset = this[type][i];
-			if( asset.id === id ){
+			if( asset.id === id || asset.label === id ){
 				
 				this[type].splice(i, 1);
 				return true;

@@ -3,29 +3,31 @@ import Tags from '../../libraries/stdTag.js';
 // Creates a tag editor. Put this inside a div with a name of the asset property you want to assign the tags to
 export default {
 	
-	build( tags ){
+	build( tags, customDataList ){
 		tags = toArray(tags);
 
 		// Build datalist if not already built
-		let datalist = document.getElementById("datalist_tags");
-		if( !datalist ){
-			datalist = document.createElement("datalist");
-			datalist.id = 'datalist_tags';
-			document.getElementById("datalists").appendChild(datalist);
+		if( !customDataList ){
+			let datalist = document.getElementById("datalist_tags");
+			if( !datalist ){
+				datalist = document.createElement("datalist");
+				datalist.id = 'datalist_tags';
+				document.getElementById("datalists").appendChild(datalist);
 
-			for( let tag of Object.values(Tags) ){
-				
-				const node = document.createElement("option");
-				node.value = tag;
-				datalist.appendChild(node);
+				for( let tag of Object.values(Tags) ){
+					
+					const node = document.createElement("option");
+					node.value = tag;
+					datalist.appendChild(node);
+
+				}
 
 			}
-
 		}
 
 		let out = '<div class="tagEditor">';
 		for( let tag of tags )
-			out += this.buildInput(tag);
+			out += this.buildInput(tag, undefined, customDataList);
 		out += '</div>';
 		out += '<input type="button" value="Add" />';
 
@@ -33,12 +35,13 @@ export default {
 
 	},
 
-	buildInput( value, string = true ){
+
+	buildInput( value, string = true, customDataList = 'tags' ){
 		
 		const out = document.createElement('input');
 		out.setAttribute('type', 'text');
 		out.classList.add('tag');
-		out.setAttribute('list', 'datalist_tags');
+		out.setAttribute('list', 'datalist_'+customDataList);
 		if( value )
 			out.setAttribute('value', value);
 

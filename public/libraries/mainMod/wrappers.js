@@ -27,6 +27,7 @@ const lib = {
 		]
 	},
 	stun1turn : {
+		editor_desc : 'Stuns auto target for 1 turn',
 		"duration":1,
 		"name":"Stun",
 		"description":"Stunned",

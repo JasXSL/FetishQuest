@@ -49,7 +49,7 @@ export default{
 		}));
 
 		this.bindJson( win, asset, list );
-
+		this.bindArrayPickers(win, asset, list);
 
 	},
 
@@ -85,18 +85,53 @@ export default{
 				let pos = parseInt(e.pop());
 				textarea.focus();
 				textarea.setSelectionRange(pos, pos);
-
+				return false;
 			}
+
+			return true;
 
 		};
 
 		win.dom.querySelectorAll('textarea.json[name]').forEach(el => {
 
 			updateData(el);
-			el.addEventListener('change', () => updateData(el) );
+			el.addEventListener('change', event => {
+				if( !updateData(el) )
+					event.stopImmediatePropagation();
+			});
 
 		});
 
+	},
+
+	// Automatically binds arrayPickers (arrays of checkboxes). Needs to be a div with class arrayPicker and name being the field to put the resulting array in
+	bindArrayPickers( win, asset, list ){
+
+		const dev = window.mod;		
+
+
+		const updateData = div => {
+
+			const out = [];
+			div.querySelectorAll('input[type=checkbox]:checked').forEach(el => {
+				out.push(el.value);
+			});
+			asset[div.getAttribute("name")] = out;
+			dev.setDirty(true);
+			this.rebuildAssetLists(list);
+
+		};
+
+		const picker = win.dom.querySelectorAll('div.arrayPicker[name]');
+		picker.forEach(pickerEl => {
+
+			pickerEl.querySelectorAll('input[type=checkbox]').forEach(el => el.addEventListener("change", () => {
+				updateData(pickerEl);
+			}));
+
+			updateData(pickerEl);
+		});
+		
 	},
 
 	// Tries to convert an object, array etc to something that can be put into a table, and escaped
@@ -105,13 +140,18 @@ export default{
 		if( Array.isArray(val) ){
 			val = val.map(el => this.makeReadable(el)).join(', ');
 		}
-		else if( typeof val === "object" ){
+		else if( val === null ){
+			val = '{}';
+		}
+		else if( typeof val === "object" ){	// NULL is technically an object
+
 			if( val.label )
 				val = val.label;
 			else if( val.id )
 				val = val.id;
 			else
 				val = JSON.stringify(val);
+
 		}
 		return esc(val);
 
@@ -129,8 +169,10 @@ export default{
 	// Asset is a mod asset
 	/*
 		win is the Window object that should act as the parent for the asset to link
+		asset is the parent asset
+		key is the key in the asset to modify
 	*/
-	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'] ){
+	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false ){
 
 		// Todo: Need to handle non array type linked assets
 		const entries = toArray(asset[key]);
@@ -145,6 +187,7 @@ export default{
 			const base = this.modEntryToObject(entry, targetLibrary),
 				asset = new constructor(base)
 			;
+
 			// prefer label before id
 			content += '<tr class="asset" data-id="'+esc(asset.label || asset.id)+'">';
 			for( let column of columns )
@@ -154,19 +197,25 @@ export default{
 			content += '</tr>';
 
 		}
-		content += '<tr class="noselect"><td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small" value="Add" /></td></tr>';
+		content += '<tr class="noselect"><td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small addNew" value="'+(single ? 'Replace' : 'Add')+'" /></td></tr>';
 		table.innerHTML = content;
 
-		table.querySelector("input[value=Add]").onclick = () => {
-			window.mod.buildAssetLinker( win, asset, key, targetLibrary);
+		table.querySelector("input.addNew").onclick = () => {
+			window.mod.buildAssetLinker( win, asset, key, targetLibrary, single );
 		};
 
 		table.querySelectorAll("tr.asset").forEach(el => el.onclick = event => {
-			
+
 			if( event.ctrlKey && Array.isArray(asset[key]) ){
 
-				const index = [...event.currentTarget.parentElement.children].indexOf(event.currentTarget);
-				asset[key].splice(index, 1);	// Remove this
+				if( single ){
+					delete asset[key];	// Don't need to store this param in the mod anymore
+				}
+				else{
+					// Remove from the array
+					const index = [...event.currentTarget.parentElement.children].indexOf(event.currentTarget);
+					asset[key].splice(index, 1);	// Remove this
+				}
 				win.rebuild();
 				EDITOR.setDirty(true);
 
@@ -194,6 +243,7 @@ export default{
 		return table;
 
 	},
+
 
 
 	// Because list and linker use the same function, this can be used to check which it is
@@ -236,7 +286,6 @@ export default{
 		for( let asset of db ){
 
 			const a = constr.loadThis(asset);
-
 			html += '<tr data-id="'+esc(asset.label || asset.id)+'" '+(asset.__MOD ? 'data-mod="'+esc(asset.__MOD)+'"' : '')+'>';		
 
 				for( let field in fields ){
@@ -280,7 +329,9 @@ export default{
 	// baseObject is the object to insert when pressing "new"
 	bindList( win, type, baseObject ){
 		const DEV = window.mod, MOD = DEV.mod;
-		const isLinker = this.windowIsLinker(win);
+		const isLinker = this.windowIsLinker(win),
+				single = isLinker && win.data && win.data.single		// This is a linker for only ONE object, otherwise it's an array
+		;
 				// Checks if this is a linker or not
 		const parentWindow = win.parent;
 
@@ -316,6 +367,7 @@ export default{
 				}
 
 			}
+			
 			// If it's not a linker, or shift is pressed, we bring up an editor
 			else if( !mod && (!isLinker || event.shiftKey) ){
 				DEV.buildAssetEditor(type, elId);
@@ -342,10 +394,15 @@ export default{
 				// win.id contains the field you're looking to link to
 				let label = targAsset.label || targAsset.id;
 
-				if( !baseAsset[win.id] )
-					baseAsset[win.id] = [];
-				baseAsset[win.id].push(label);
-
+				// Single assigns directly to the key
+				if( single )
+					baseAsset[win.id] = label;
+				// Nonsingle appends to array
+				else{
+					if( !Array.isArray(baseAsset[win.id]) )
+						baseAsset[win.id] = [];
+					baseAsset[win.id].push(label);
+				}
 				win.close();
 
 				parentWindow.rebuild();
@@ -357,12 +414,9 @@ export default{
 	
 		win.dom.querySelector('input.new').onclick = event => {
 			
-			const asset = baseObject.clone();
-			asset.rebase();	// Needed because auto rebase is off in the editor
-
-			window.mod.mod[type].push(asset.save("mod"));
+			window.mod.mod[type].push(baseObject.save("mod"));
 			window.mod.setDirty(true);
-			window.mod.buildAssetEditor(type, asset.label || asset.id);
+			window.mod.buildAssetEditor(type, baseObject.label || baseObject.id);
 			this.rebuildAssetLists(type);
 	
 		};

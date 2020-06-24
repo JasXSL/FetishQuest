@@ -32,6 +32,7 @@ class Wrapper extends Generic{
 		this.name = "";
 		this.icon = "";
 		this.description = "";
+		this.editor_desc = '';					// Short description for the editor
 		this.detrimental = true;
 		this.trigger_immediate = false;			// Trigger immediate if it's a duration effect
 		
@@ -63,7 +64,7 @@ class Wrapper extends Generic{
 			target : this.target,
 			add_conditions : Condition.saveThese(this.add_conditions, full),
 			stay_conditions : Condition.saveThese(this.stay_conditions, full),
-			effects : this.effects.map(el => el.save(full)),
+			effects : Effect.saveThese(this.effects, full),
 			tags : this.tags,
 			label : this.label,
 			duration : this.duration,
@@ -74,9 +75,13 @@ class Wrapper extends Generic{
 			out.tick_on_turn_start = this.tick_on_turn_start;
 			out.max_stacks = this.max_stacks;
 			out.trigger_immediate = this.trigger_immediate;
+			out.editor_desc = this.editor_desc;
+
 			if( full !== "mod" ){
+
 				out._self_cast = this._self_cast;
 				out.netPlayer = this.netPlayer;
+
 			}
 
 		}
@@ -109,12 +114,12 @@ class Wrapper extends Generic{
 		this.tags = this.tags.slice();
 	}
 
-	clone( parent ){
+	clone( parent, full = true ){
 		
 		if( parent === undefined )
 			parent = this.parent;
 
-		let out = new this.constructor(this.save(true), parent);
+		let out = new this.constructor(this.save(full), parent);
 		out.g_resetID();
 		out.template_id = this.id;
 		return out;
@@ -614,6 +619,7 @@ class Effect extends Generic{
 		this.events = [GameEvent.Types.internalWrapperTick];	// Limits triggers to certain events. Anything other than wrapper* functions require a duration wrapper parent
 		this.no_stack_multi = false;
 		this.debug = false;
+		this.desc = '';
 
 		this._bound_events = [];
 		this.load(data);
@@ -634,6 +640,7 @@ class Effect extends Generic{
 			out.conditions = Condition.saveThese(this.conditions, full);
 			out.events = this.events;
 			out.debug = this.debug;
+			out.desc = this.desc;
 		}
 
 		if( full !== "mod" ){
