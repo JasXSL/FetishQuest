@@ -37,7 +37,6 @@ class Action extends Generic{
 		this.hidden = false;					// Hidden action
 		this.semi_hidden = false;				// Only show in the action selector
 		this.tags = [];
-		this.add_conditions = [];				// ADD conditions. These aren't saved, because they're only used for NPCs
 		this.conditions = [];					// Conditions run against all targets regardless of wrapper
 		this.show_conditions = [];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
 												// This is checked against all enabled players, and at least one check has to be viable
@@ -140,8 +139,7 @@ class Action extends Generic{
 		this.riposte = Wrapper.loadThese(this.riposte, this);
 		this.show_conditions = Condition.loadThese(this.show_conditions, this);
 		this.conditions = Condition.loadThese(this.conditions, this);
-		
-		this.add_conditions = Condition.loadThese(this.add_conditions, this);
+
 
 		if( typeof this.cooldown !== "string" && isNaN(parseInt(this.cooldown)) )
 			this.cooldown = 0;

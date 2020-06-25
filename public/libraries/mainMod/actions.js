@@ -1854,7 +1854,6 @@ const lib = {
 		detrimental : true,
 		type : Action.Types.physical,
 		tags : [ stdTag.acDamage, stdTag.acPainful ],
-		add_conditions : ["senderHasWhip"],
 		conditions : ["senderHasWhip"],
 		show_conditions : ["inCombat"],
 		wrappers : [
@@ -1904,7 +1903,6 @@ const lib = {
 		type : Action.Types.physical,
 		tags : [ stdTag.acDamage, stdTag.acInterrupt, stdTag.acPainful],
 		conditions : ["senderHasWhip"],
-		add_conditions : ["senderHasWhip"],
 		show_conditions : ["inCombat"],
 		wrappers : [
 			{

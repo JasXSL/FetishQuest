@@ -11,7 +11,6 @@ export default class PlayerClass extends Generic{
 		this.name = '';
 		this.monster_only = false;
 		// Todo: delete this and make it actionlearnable for NPCs too
-		this.actions = [];				// Used only for NPCs. Players should instead use ActionLearnable.
 		this.description = '';
 		this.name_type = PlayerClass.NameType.None;		// Lets you append or prepend the class name to the player's name. Useful for player templates with many classes.
 

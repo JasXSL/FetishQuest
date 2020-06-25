@@ -88,9 +88,6 @@ export function asset(){
 
 	html += 'Conditions: <br /><div class="conditions"></div>';
 	html += '<span title="Conditions needed to be met for this to show in the ability bar">Show Conditions: </span><br /><div class="show_conditions"></div>';
-	html += '<span title="Used for NPCs to check if they can use this action. Useful for actions that might require an NPC to hold an asset like a power lash requiring a whip">Add Conditions: </span><br /><div class="add_conditions"></div>';
-
-
 
 
 	this.setDom(html);
@@ -106,8 +103,6 @@ export function asset(){
 	// conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
 	this.dom.querySelector("div.show_conditions").appendChild(EditorCondition.assetTable(this, asset, "show_conditions"));
-	this.dom.querySelector("div.add_conditions").appendChild(EditorCondition.assetTable(this, asset, "add_conditions"));
-
 	
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
@@ -168,7 +163,6 @@ export function list(){
 		disable_override : true,
 		alias : true,
 		tags : true,
-		add_conditions : true,
 		conditions : true,
 		show_conditions : true,		
 	}));

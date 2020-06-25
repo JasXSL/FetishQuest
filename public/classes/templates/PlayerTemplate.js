@@ -265,6 +265,8 @@ class PlayerTemplate extends Generic{
 			maxActions = 0;
 
 		let viableActions = [];
+		// Todo: Replace with actionLearnable 
+		/*
 		for( let a of player.class.actions ){
 			if( !libActions[a] )
 				continue;
@@ -274,10 +276,11 @@ class PlayerTemplate extends Generic{
 				sender : player,
 				action : libActions[a]
 			});
-			if( Condition.all(libActions[a].add_conditions, evt) )
+			if( Condition.all(libActions[a].add_conditions, evt) ) -- Add conditions don't exist anymore, use actionLearnable conditions instead
 				viableActions.push(libActions[a]);
 
 		}
+		*/
 
 		shuffle(viableActions);
 

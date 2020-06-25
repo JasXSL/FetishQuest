@@ -202,6 +202,7 @@ const lib = {
 	senderIsImp : {type:Condition.Types.species, data:{species:['imp']}, caster:true, desc:''},
 	senderIsGhoul : {type:Condition.Types.species, data:{species:['ghoul']}, caster:true, desc:''},
 	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
+	senderIsTentacleFiend : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
 
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}, desc:''},
@@ -304,6 +305,33 @@ const lib = {
 	targetClassMonk : {type:Condition.Types.playerClass, data:{label:"monk"}},	
 	targetClassRogue : {type:Condition.Types.playerClass, data:{label:"rogue"}},	
 	targetClassCleric : {type:Condition.Types.playerClass, data:{label:"cleric"}},	
+	
+	targetClassShocktacle : {type:Condition.Types.playerClass, data:{label:"shocktacle"}, inverse:true, desc:'Target class is not shocktacle'},	
+	targetClassTentacleFiend : {type:Condition.Types.playerClass, data:{label:"tentacle_fiend"}, desc:'Target class is tentacle_fiend'},	
+	targetClassMimic : {type:Condition.Types.playerClass, data:{label:"mimic"}, desc:'Target class is mimic'},	
+	targetClassImpScavenger : {type:Condition.Types.playerClass, data:{label:"impScavenger"}, desc:'Target class is impScavenger'},	
+	targetClassImpTrickster : {type:Condition.Types.playerClass, data:{label:"impTrickster"}, desc:'Target class is impTrickster'},	
+	targetClassImpMage : {type:Condition.Types.playerClass, data:{label:"impMage"}, desc:'Target class is impScavenger'},	
+	targetClassGoblinScavenger : {type:Condition.Types.playerClass, data:{label:"goblinScavenger"}, desc:'Target class is goblinScavenger'},	
+	targetClassGuardianDemonBreaker : {type:Condition.Types.playerClass, data:{label:"guardian_demon_breaker"}, desc:'Target class is guardian_demon_breaker'},	
+	targetClassCocktopus : {type:Condition.Types.playerClass, data:{label:"cocktopus"}, desc:'Target class is cocktopus'},	
+	targetClassTentacrab : {type:Condition.Types.playerClass, data:{label:"tentacrab"}, desc:'Target class is tentacrab'},	
+	targetClassSkeletonMage : {type:Condition.Types.playerClass, data:{label:"skeletonMage"}, desc:'Target class is skeletonMage'},	
+	targetClassSkeletonRattler : {type:Condition.Types.playerClass, data:{label:"skeletonRattler"}, desc:'Target class is skeletonRattler'},	
+	targetClassNecromancer : {type:Condition.Types.playerClass, data:{label:"necromancer"}, desc:'Target class is necromancer'},	
+	targetClassGhoulRavener : {type:Condition.Types.playerClass, data:{label:"ghoulRavener"}, desc:'Target class is ghoulRavener'},	
+	targetClassGroper : {type:Condition.Types.playerClass, data:{label:"groper"}, desc:'Target class is groper'},	
+	targetClassGroperSapbeast : {type:Condition.Types.playerClass, data:{label:"groper_sapbeast"}, desc:'Target class is groper_sapbeast'},	
+	targetClassGroperInfested : {type:Condition.Types.playerClass, data:{label:"groper_infested"}, desc:'Target class is groper_infested'},	
+	targetClassLamprey : {type:Condition.Types.playerClass, data:{label:"lamprey"}, desc:'Target class is lamprey'},	
+	targetClassAnemone : {type:Condition.Types.playerClass, data:{label:"anemone"}, desc:'Target class is anemone'},	
+	targetClassOutlawBrute : {type:Condition.Types.playerClass, data:{label:"outlaw_brute"}, desc:'Target class is outlaw_brute'},	
+	targetClassOutlawRogue : {type:Condition.Types.playerClass, data:{label:"outlaw_rogue"}, desc:'Target class is outlaw_rogue'},	
+	targetClassOutlawTentaclemancer : {type:Condition.Types.playerClass, data:{label:"outlaw_tentaclemancer"}, desc:'Target class is outlaw_tentaclemancer'},	
+	
+
+	
+
 
 	targetLevel1 : {type:Condition.Types.targetLevel, data:{amount:0, operation:">"}},
 	targetLevel2 : {type:Condition.Types.targetLevel, data:{amount:1, operation:">"}},
