@@ -75,7 +75,7 @@ export function asset(){
 	html += 'PlayerClass: <div class="class"></div>';
 	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	html += 'Actions: <div class="actions"></div>';
-	html += 'Assets (press shift to equip): <div class="assets"></div>'; // Todo: the Player.inventory array specifies which assets should be equipped. Nrs showing indexes
+	html += 'Assets (press shift to equip): <div class="assets"></div>';
 	html += 'Passives: <div class="passives"></div>';
 	
 
@@ -94,27 +94,68 @@ export function asset(){
 		HelperTags.autoHandleAsset('tags', tags, asset);
 	});
 
+	// Handles a removal from the inventory array (the one that tracks worn items
+	const handleInventorySplice = index => {
+
+		// Remove from inventory list
+		const pos = asset.inventory.indexOf(index);
+		if( ~pos )
+			asset.inventory.splice(index, 1);
+
+	};
+
 	// Override the click handler
-	console.log(this.dom.querySelectorAll("div.assets tr[data-id]"));
-	this.dom.querySelectorAll("div.assets tr[data-id]").forEach(el => {
+	// Note: This functionality relies on the whole page being rebuilt when an asset is added or removed. If you change this in the future you'll need to change this bit of code.
+	this.dom.querySelectorAll("div.assets tr[data-id]").forEach((el, index) => {
 		
+		if( dummy.inventory.includes(index) )
+			el.classList.toggle("equipped", true);
+
 		const defaultListener = el.linkedTableListener;	// Get the listener from HelperAsset
 		el.onclick = event => {
 			event.stopImmediatePropagation();
 			
+			// Toggle equipped
 			if( event.shiftKey ){
 
-				console.log("Todo: mark as equipped");
 				el.classList.toggle("equipped");
-				// Todo: You probably want to use an ID here or something instead of index, since otherwise you'll have to rebuild it whenever an asset is deleted
+
+				// Add to array
+				if( el.classList.contains("equipped") ){
+					
+					if( !Array.isArray(asset.inventory) )
+						asset.inventory = [];
+					asset.inventory.push(index);
+					
+
+				}
+				else
+					handleInventorySplice(index);
+
+				modtools.setDirty(true);
+				HelperAsset.rebuildAssetLists(DB);
 
 				return;
+
 			}
 			
+			if( event.ctrlKey ){
+
+				// Remove from Player.inventory as well
+				handleInventorySplice(index);
+
+				// Anything greater needs to be shifted down by 1 because we deleted an asset
+				for( let i in asset.inventory ){
+					if( asset.inventory[i] > index )
+						--asset.inventory[i];
+				}
+
+			}
 
 			// Do default
 			if( defaultListener )
 				defaultListener(event);
+
 
 		};
 	});

@@ -218,12 +218,17 @@ table.selectable{
 	border: 2px outset;
 	margin-bottom:15px;
 	background-color:#666;
+	user-select: none;
 }
 table.selectable.autosize{
 	width:auto;
 }
 table.selectable td{
 	background-color:#777;
+}
+table.selectable tr.equipped td{
+	background-color:#7A7 !important;
+	font-weight:bold;
 }
 table.selectable tr:not(.noselect){
 	cursor:pointer;

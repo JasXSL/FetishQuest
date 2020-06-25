@@ -235,6 +235,7 @@ export default{
 
 		const clickListener = event => {
 
+			// Ctrl deletes
 			if( event.ctrlKey && Array.isArray(asset[key]) ){
 
 				if( single ){
@@ -247,6 +248,8 @@ export default{
 				}
 				win.rebuild();
 				EDITOR.setDirty(true);
+				this.rebuildAssetLists(win.type);
+
 
 				return;
 			}
@@ -397,6 +400,7 @@ export default{
 					DEV.closeAssetEditors(type, elId);
 					DEV.setDirty(true);
 					win.rebuild();
+					this.rebuildAssetLists(type);
 
 				}
 
@@ -441,6 +445,7 @@ export default{
 
 				parentWindow.rebuild();
 				DEV.setDirty(true);
+				this.rebuildAssetLists(parentWindow.type);
 
 			}
 	

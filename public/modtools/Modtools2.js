@@ -21,13 +21,13 @@ import * as EditorActionLearnable from './editors/EditorActionLearnable.js';
 import * as EditorGameAction from './editors/EditorGameAction.js';
 import * as EditorPlayerClass from './editors/EditorPlayerClass.js';
 import * as EditorPlayer from './editors/EditorPlayer.js';
+import * as EditorPlayerTemplate from './editors/EditorPlayerTemplate.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
 	"Database" : true,
 };
 
-// Todo: Asset picker for sub window
 
 // Maps database assets to functions
 // Type : fn
@@ -47,19 +47,19 @@ const DB_MAP = {
 	"gameActions" : { listing : EditorGameAction.list, asset : EditorGameAction.asset, icon : 'joystick' },
 	"playerClasses" : { listing : EditorPlayerClass.list, asset : EditorPlayerClass.asset, icon : 'vitruvian-man' },
 	"players" : { listing : EditorPlayer.list, asset : EditorPlayer.asset, icon : 'mustache' },
+	"playerTemplates" : { listing : EditorPlayerTemplate.list, asset : EditorPlayerTemplate.asset, icon : 'anatomy' },
 };
 
 /*
 
 	Continuation order:
-	4. players
-	5. playerTemplates
-
 	6. Edit the main code to move PlayerClass.actions to actionlearnable for NPCs as well. You should also be able to remove add_conditions from Action since they can use actionlearnable instead
 
 	roleplay - Idea: Make a mod asset for roleplay stage, but have it prefixed with the roleplay id and filter the picker with it
 
 	Idea: For dungeon, have a dedicated window for the 3d editor which shows one room at a time
+
+	Figure out how to do quests
 
 
 */
