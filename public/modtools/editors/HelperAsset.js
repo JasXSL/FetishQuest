@@ -52,13 +52,16 @@ export default{
 			if( val != base[path] ){
 
 				// Label change must update the window
-				if( name === "label" ){
+				if( name === "label" || name === "id" ){
+
 					val = val.trim();
 					if( !val )
-						throw 'Label cannot be empty';
+						throw 'Label/id cannot be empty';
 
 					win.id = val;
 					win.updateTitle();
+					dev.mod.updateChildLabels(win.type, base[path], val);	// Make sure any child objects notice the label change
+
 				}
 				else if( name === "name" ){
 					win.name = val;
@@ -200,11 +203,12 @@ export default{
 		win is the Window object that should act as the parent for the asset to link
 		asset is the parent asset
 		key is the key in the asset to modify
+		if parented, it sets the _mParent : {type:(str)type, label:(str)label} parameter on any new assets created, and only shows assets with the same _mParent set
 	*/
-	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, ){
+	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false ){
 
 		// Todo: Need to handle non array type linked assets
-		const entries = toArray(asset[key]);
+		let entries = toArray(asset[key]);
 		const EDITOR = window.mod, MOD = EDITOR.mod;
 
 		let table = document.createElement("table");
@@ -226,26 +230,68 @@ export default{
 			content += '</tr>';
 
 		}
-		content += '<tr class="noselect"><td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small addNew" value="'+(single ? 'Replace' : 'Add')+'" /></td></tr>';
+		// Parented single can only add if one is missing. Otherwise they have to edit by clicking. This works because parented can only belong to the same mod.
+		if( !single || !parented || !asset[key] )
+			content += '<tr class="noselect"><td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td></tr>';
 		table.innerHTML = content;
 
 		table.querySelector("input.addNew").onclick = () => {
-			window.mod.buildAssetLinker( win, asset, key, targetLibrary, single );
+
+			// If parented, insert a new asset immediately, as there's no point in listing assets that are only viable for this parent
+			if( parented ){
+
+				let a = new constructor();
+				if( a.hasOwnProperty("label") )
+					a.label = (asset.label||asset.id)+'>>'+targetLibrary+Math.floor(Math.random(0xFFFFFFF));
+				a = a.save("mod");
+				
+				if( single )
+					asset[key] = a;
+				else{
+					if( !Array.isArray(asset[key]) )
+						asset[key] = [];
+					asset[key].push(a.label || a.id);
+				}
+
+				// Insert handles other window refreshers
+				this.insertAsset(targetLibrary, a, {
+					type : win.type,
+					label : win.id,
+				});
+
+				// But we still need to refresh this
+				win.rebuild();
+
+			}
+			else
+				window.mod.buildAssetLinker( win, asset, key, targetLibrary, single );
+
 		};
 
 		const clickListener = event => {
 
 			// Ctrl deletes
-			if( event.ctrlKey && Array.isArray(asset[key]) ){
+			if( event.ctrlKey ){
 
+				
+				let deletedAsset = asset[key];	// Assume single to start with
 				if( single ){
 					delete asset[key];	// Don't need to store this param in the mod anymore
 				}
 				else{
+
 					// Remove from the array
 					const index = [...event.currentTarget.parentElement.children].indexOf(event.currentTarget);
+					deletedAsset = asset[key][index];
 					asset[key].splice(index, 1);	// Remove this
+
 				}
+
+				// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
+				// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
+				if( parented )
+					MOD.deleteAsset(targetLibrary, deletedAsset);
+
 				win.rebuild();
 				EDITOR.setDirty(true);
 				this.rebuildAssetLists(win.type);
@@ -299,13 +345,19 @@ export default{
 	// Constructor is the asset constructor (used for default values)
 	buildList( win, library, constr, fields ){
 
-		const db = window.mod.mod[library].slice(),
+		let db = window.mod.mod[library].slice(),
 			isLinker = this.windowIsLinker(win)
 		;
 
 		// Linker window should add parent mod assets
 		if( isLinker && window.mod.parentMod[library] )
 			db.push(...window.mod.parentMod[library]);
+
+		// Don't show parented assets, they only show in linkedTable
+		db = db.filter(el => {
+			return !el._mParent;
+		});
+	
 
 		// New button
 		let html = '<input type="button" class="new" value="New" />';
@@ -352,10 +404,6 @@ export default{
 
 		}
 
-
-
-		
-
 		html += '</table>';
 		return html;
 
@@ -367,8 +415,9 @@ export default{
 	bindList( win, type, baseObject ){
 		const DEV = window.mod, MOD = DEV.mod;
 		const isLinker = this.windowIsLinker(win),
-				single = isLinker && win.data && win.data.single		// This is a linker for only ONE object, otherwise it's an array
+				single = isLinker && win.asset && win.asset.single		// This is a linker for only ONE object, otherwise it's an array
 		;
+
 				// Checks if this is a linker or not
 		const parentWindow = win.parent;
 
@@ -382,6 +431,7 @@ export default{
 					el.remove();
 				
 			}
+
 
 		}
 
@@ -433,8 +483,9 @@ export default{
 				let label = targAsset.label || targAsset.id;
 
 				// Single assigns directly to the key
-				if( single )
+				if( single ){
 					baseAsset[win.id] = label;
+				}
 				// Nonsingle appends to array
 				else{
 					if( !Array.isArray(baseAsset[win.id]) )
@@ -453,13 +504,25 @@ export default{
 	
 		win.dom.querySelector('input.new').onclick = event => {
 			
-			window.mod.mod[type].push(baseObject.save("mod"));
-			window.mod.setDirty(true);
-			window.mod.buildAssetEditor(type, baseObject.label || baseObject.id);
-			this.rebuildAssetLists(type);
+			const obj = baseObject.save("mod");
+			this.insertAsset(type, obj);
 	
 		};
 
+
+	},
+
+	// mParent should be an object if supplied (see Mod.js for info about parented assets)
+	insertAsset( type, asset = {}, mParent = false ){
+		const DEV = window.mod, MOD = DEV.mod;
+
+		MOD[type].push(asset);
+		DEV.setDirty(true);
+		DEV.buildAssetEditor(type, asset.label || asset.id);
+		this.rebuildAssetLists(type);
+
+		if( mParent )
+			asset._mParent = mParent;
 
 	},
 

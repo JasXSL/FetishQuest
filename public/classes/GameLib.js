@@ -14,7 +14,7 @@ import MAIN_MOD from '../libraries/_main_mod.js';
 import Mod from './Mod.js';
 import Player from './Player.js';
 import HitFX from './HitFX.js';
-import Roleplay from './Roleplay.js';
+import Roleplay, { RoleplayStage, RoleplayStageOption } from './Roleplay.js';
 import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
 import Shop from './Shop.js';
@@ -46,6 +46,8 @@ const LIB_TYPES = {
 	'dungeonTemplates' : DungeonTemplate,
 	'dungeonEncounters' : DungeonEncounter,
 	'roleplay' : Roleplay,
+	'roleplayStage' : RoleplayStage,
+	'roleplayStageOption' : RoleplayStageOption,
 	'gameActions' : GameAction,
 	'questReward' : QuestReward,
 };
@@ -73,7 +75,10 @@ const load_order = [
 
 	'factions',
 	
+	'roleplayStageOption',
+	'roleplayStage',
 	'roleplay',
+
 	'gameActions',
 	'actionLearnable',
 	'dungeonEncounters',
@@ -117,6 +122,8 @@ export default class GameLib{
 		this.players = {};
 		this.hitFX = {};
 		this.roleplay = {};
+		this.roleplayStage = {};
+		this.roleplayStageOption = {};
 		this.gameActions = {};
 		this.actionLearnable = {};
 		this.factions = {};

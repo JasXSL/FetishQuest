@@ -1,20 +1,6 @@
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system
 
-
-
-Important:
-	- Move playerclass actions to actionlearnable for NPCs as well. That way you can have actions that are added based on level and other things
-
-
-
-
-New devtools:
-	- Have the 3d renderer in the background
-	- Use a "windowed" layout
-
-
-
 Game:
 	- Break encounters out into their own thing
 

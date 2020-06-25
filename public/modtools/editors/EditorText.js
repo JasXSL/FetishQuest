@@ -152,6 +152,11 @@ export function asset(){
 };
 
 
+// Creates a table for this asset in another asset
+export function assetTable( win, modAsset, name, single, parented ){
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['id', 'text', "conditions"], single, parented);
+}
+
 
 // listing
 export function list(){

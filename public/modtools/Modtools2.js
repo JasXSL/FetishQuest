@@ -22,6 +22,8 @@ import * as EditorGameAction from './editors/EditorGameAction.js';
 import * as EditorPlayerClass from './editors/EditorPlayerClass.js';
 import * as EditorPlayer from './editors/EditorPlayer.js';
 import * as EditorPlayerTemplate from './editors/EditorPlayerTemplate.js';
+import * as EditorRoleplay from './editors/EditorRoleplay.js';
+import * as EditorRoleplayStage from './editors/EditorRoleplayStage.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -48,13 +50,15 @@ const DB_MAP = {
 	"playerClasses" : { listing : EditorPlayerClass.list, asset : EditorPlayerClass.asset, icon : 'vitruvian-man' },
 	"players" : { listing : EditorPlayer.list, asset : EditorPlayer.asset, icon : 'mustache' },
 	"playerTemplates" : { listing : EditorPlayerTemplate.list, asset : EditorPlayerTemplate.asset, icon : 'anatomy' },
+	"roleplay" : { listing : EditorRoleplay.list, asset : EditorRoleplay.asset, icon : 'talk' },
+	"roleplayStage" : { listing : EditorRoleplayStage.list, asset : EditorRoleplayStage.asset, icon : 'conversation' },
+	"roleplayStageOption" : { listing : EditorRoleplayStageOption.list, asset : EditorRoleplayStageOption.asset, icon : 'click' },
 };
+
 
 /*
 
 	Continuation order:
-	6. Edit the main code to move PlayerClass.actions to actionlearnable for NPCs as well. You should also be able to remove add_conditions from Action since they can use actionlearnable instead
-
 	roleplay - Idea: Make a mod asset for roleplay stage, but have it prefixed with the roleplay id and filter the picker with it
 
 	Idea: For dungeon, have a dedicated window for the 3d editor which shows one room at a time
@@ -729,6 +733,7 @@ export default class Modtools{
 	closeAssetEditors( type, id ){
 
 		const win = Window.getByTypeAndId(type, id);
+		console.log("Getting windows by type and id", win);
 		if( win )
 			win.close();
 

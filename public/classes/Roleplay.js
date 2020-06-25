@@ -248,6 +248,7 @@ export class RoleplayStage extends Generic{
 		
 		this.parent = parent;
 		
+		this.label = '';
 		this.index = 0;
 		this.portrait = '';
 		this.name = '';
@@ -279,7 +280,6 @@ export class RoleplayStage extends Generic{
 
 		let out = {
 			id : this.id,
-			label : this.label,
 			index : this.index,
 			portrait : this.portrait,
 			name : this.name,
@@ -290,7 +290,11 @@ export class RoleplayStage extends Generic{
 			_iniPlayer : this._iniPlayer,
 		};
 
-		if( full ){}
+		if( full ){
+			
+			out.label = this.label;
+
+		}
 		if( full !== "mod" ){
 			
 		}
@@ -427,6 +431,7 @@ export class RoleplayStageOption extends Generic{
 		
 		this.parent = parent;
 		
+		this.label = '';
 		this.index = 0;			// Target index
 		this.text = '';
 		this.chat = RoleplayStageOption.ChatType.default;			// Chat type
@@ -461,6 +466,7 @@ export class RoleplayStageOption extends Generic{
 		};
 
 		if( full ){
+			out.label = this.label;
 			out.index = this.index;
 			out.chat = this.chat;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
