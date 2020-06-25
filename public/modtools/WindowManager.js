@@ -36,6 +36,7 @@ export default class Window{
 				(icon ? '<img class="icon" src="/media/wrapper_icons/'+esc(icon)+'.svg" />' : '' )+
 				'<span class="title"></span>'+
 				'<div class="buttons">'+
+					'<input type="button" value="&#x1f5d8;" class="refresh" />'+
 					'<input type="button" value="_" class="minimize" />'+
 					'<input type="button" value="&#x25FB;" class="maximize" />'+
 					'<input type="button" value="X" class="close" />'+
@@ -183,6 +184,8 @@ export default class Window{
 					this.toggleMaximize();
 				else if( button.classList.contains("close") )
 					this.remove();
+				else if( button.classList.contains("refresh") )
+					this.rebuild();
 
 			};
 		});
@@ -445,6 +448,11 @@ export default class Window{
 
 		}
 
+	}
+
+	static rebuildAll(){
+		for( let win of this.pages.values() )
+			win.rebuild();
 	}
 
 	// Saves window information for this window's type

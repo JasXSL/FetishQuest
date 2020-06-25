@@ -204,6 +204,7 @@ export default{
 		asset is the parent asset
 		key is the key in the asset to modify
 		if parented, it sets the _mParent : {type:(str)type, label:(str)label} parameter on any new assets created, and only shows assets with the same _mParent set
+		columns can also contain functions, they'll be run with the asset as an argument
 	*/
 	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false ){
 
@@ -224,7 +225,7 @@ export default{
 			// prefer label before id
 			content += '<tr class="asset" data-id="'+esc(asset.label || asset.id)+'">';
 			for( let column of columns )
-				content += '<td>'+this.makeReadable(asset[column])+'</td>';
+				content += '<td>'+this.makeReadable(typeof column === 'function' ? column(asset) : asset[column])+'</td>';
 			
 			content += '<td>'+(base.__MOD ? esc(base.__MOD) : 'THIS')+'</td>';
 			content += '</tr>';
@@ -242,7 +243,7 @@ export default{
 
 				let a = new constructor();
 				if( a.hasOwnProperty("label") )
-					a.label = (asset.label||asset.id)+'>>'+targetLibrary+Math.floor(Math.random(0xFFFFFFF));
+					a.label = (asset.label||asset.id)+'>>'+targetLibrary+Math.floor(Math.random()*0xFFFFFFF);
 				a = a.save("mod");
 				
 				if( single )
@@ -253,11 +254,13 @@ export default{
 					asset[key].push(a.label || a.id);
 				}
 
-				// Insert handles other window refreshers
-				this.insertAsset(targetLibrary, a, {
+				a._mParent = {
 					type : win.type,
 					label : win.id,
-				});
+				};
+
+				// Insert handles other window refreshers
+				this.insertAsset(targetLibrary, a, win);
 
 				// But we still need to refresh this
 				win.rebuild();
@@ -505,7 +508,7 @@ export default{
 		win.dom.querySelector('input.new').onclick = event => {
 			
 			const obj = baseObject.save("mod");
-			this.insertAsset(type, obj);
+			this.insertAsset(type, obj, win);
 	
 		};
 
@@ -513,17 +516,19 @@ export default{
 	},
 
 	// mParent should be an object if supplied (see Mod.js for info about parented assets)
-	insertAsset( type, asset = {}, mParent = false ){
+	insertAsset( type, asset = {}, win ){
 		const DEV = window.mod, MOD = DEV.mod;
 
 		MOD[type].push(asset);
+
+		if( win.editorOnCreate )
+			win.editorOnCreate(win, asset);
+
 		DEV.setDirty(true);
 		DEV.buildAssetEditor(type, asset.label || asset.id);
 		this.rebuildAssetLists(type);
 
-		if( mParent )
-			asset._mParent = mParent;
-
+		
 	},
 
 	// Rebuilds all listings by type

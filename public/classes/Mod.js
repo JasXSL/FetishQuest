@@ -83,7 +83,7 @@ export default class Mod extends Generic{
 			hitFX : this.hitFX,
 			roleplay : this.roleplay,
 			roleplayStage : this.roleplayStage,
-			roleplayStageOptions : this.roleplayStageOption,
+			roleplayStageOption : this.roleplayStageOption,
 			gameActions : this.gameActions,
 			shops : this.shops,
 			actionLearnable : this.actionLearnable,
@@ -191,6 +191,16 @@ export default class Mod extends Generic{
 
 	}
 
+	// Tries to get the parent asset using _mParent
+	getAssetParent( type, id ){
+		
+		const asset = this.getAssetById(type, id);
+		if( !asset || !asset._mParent )
+			return;
+
+		return this.getAssetById(asset._mParent.type, asset._mParent.label);
+
+	}
 
 
 

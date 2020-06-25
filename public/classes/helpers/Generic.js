@@ -276,7 +276,7 @@ export default class Generic{
 
 			let n = glib.get(entry, this.name);
 			if( typeof n !== "object" )
-				console.error("Found a none-object asset in library", n, "entry was", entry, "parent was", parent);
+				console.error("Found a none-object asset in library", this.name, ":", n, "entry was", entry, "parent was", parent);
 
 			if( !n ){
 				console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", glib.getFull(this.name));

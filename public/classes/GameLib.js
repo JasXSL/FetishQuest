@@ -50,6 +50,7 @@ const LIB_TYPES = {
 	'roleplayStageOption' : RoleplayStageOption,
 	'gameActions' : GameAction,
 	'questReward' : QuestReward,
+	'texts' : Text
 };
 
 // Maps lib_types to caches used only in outputs
@@ -128,7 +129,7 @@ export default class GameLib{
 		this.actionLearnable = {};
 		this.factions = {};
 		this._cache_assets = {};
-		this.texts = [];
+		this.texts = {};				// The texts array gets throw into an object for easier fetching
 	}
 
 
@@ -165,14 +166,27 @@ export default class GameLib{
 
 			
 			for( let k of load_order ){
+				
 				if( Array.isArray(mod[k]) ){
+
 					this.loadModOnto(mod[k], this[k], LIB_TYPES[k]);
+
 				}
+
 			}
 			
 			// Texts can be last, it's not linked to anything other than conditions
-			if( mod.texts )
-				this.texts = this.texts.concat(mod.texts.map(el => new Text(el)));
+			// But they need to be mapped to an object
+			if( Array.isArray(mod.texts) ){
+
+				for( let text of mod.texts ){
+
+					const t = new Text(text);
+					this.texts[t.id] = t;
+
+				}
+
+			}
 
 		}
 
@@ -270,14 +284,21 @@ export default class GameLib{
 	}
 
 	getFull( cName ){
+
 		for( let i in LIB_TYPES ){
+
 			if( cName === LIB_TYPES[i].name ){
+
 				if( CACHE_MAP[i] )
 					return this[CACHE_MAP[i]];
 				return this[i];
+
 			}
+
 		}
+		
 		console.error("Asset type", cName, "not in library");
+
 	}
 
 }

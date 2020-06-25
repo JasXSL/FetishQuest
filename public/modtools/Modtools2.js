@@ -24,6 +24,7 @@ import * as EditorPlayer from './editors/EditorPlayer.js';
 import * as EditorPlayerTemplate from './editors/EditorPlayerTemplate.js';
 import * as EditorRoleplay from './editors/EditorRoleplay.js';
 import * as EditorRoleplayStage from './editors/EditorRoleplayStage.js';
+import * as EditorRoleplayStageOption from './editors/EditorRoleplayStageOption.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -268,6 +269,13 @@ export default class Modtools{
 					Window.addMenuOption("resetAll", "Reset All", () => {
 						Window.resetAll();
 					});
+					Window.addMenuOption("refresh", "Refresh Selected (Ctrl+E)", () => {
+						Window.front && window.front.rebuild();
+					});
+					Window.addMenuOption("refreshAll", "Refresh All (Ctrl+Alt+E)", () => {
+						Window.rebuildAll();
+					});
+					
 				}
 
 			};
@@ -312,6 +320,20 @@ export default class Modtools{
 				event.preventDefault();
 				Window.toggleMinimizeAll();
 			}
+
+			// Ctrl+Alt+E - Refresh all
+			if( event.key === 'e' && event.altKey && event.ctrlKey ){
+				event.preventDefault();
+				Window.rebuildAll();
+			}
+
+			// Ctrl+E - Rebuild active
+			if( event.key === 'e' && event.ctrlKey ){
+				event.preventDefault();
+				Window.front && Window.front.rebuild();
+			}
+
+			
 			
 		};
 

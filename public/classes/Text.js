@@ -493,7 +493,9 @@ Text.getFromEvent = function( event, debug = false ){
 	const chat = event.type === GameEvent.Types.textTrigger;
 
 	let maxnr = 1;
-	for( let text of texts ){
+	for( let i in texts ){
+
+		let text = texts[i];
 		const evt = event;
 		evt.text = text;				// Needed for validation
 

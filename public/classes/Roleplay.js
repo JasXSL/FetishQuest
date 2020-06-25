@@ -432,7 +432,7 @@ export class RoleplayStageOption extends Generic{
 		this.parent = parent;
 		
 		this.label = '';
-		this.index = 0;			// Target index
+		this.index = -1;			// Target index
 		this.text = '';
 		this.chat = RoleplayStageOption.ChatType.default;			// Chat type
 		this.conditions = [];

@@ -90,6 +90,12 @@ div.window > div.title{
 	padding: 5px;
 	user-select:none;
 }
+div.window > div.title span{
+	display:inline-block;
+	max-width:80%;
+	height:12px;
+	white-space: pre;
+}
 div.window > div.title > img{
 	vertical-align: middle;
 	width:16px;
