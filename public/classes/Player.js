@@ -2318,12 +2318,13 @@ export default class Player extends Generic{
 
 		let out = [];
 		let lib = Object.values(glib.getFull("ActionLearnable"));
-		const evt = new GameEvent({sender:this, target:this});
 		for( let a of lib ){
+
 			if( a.auto_learn || this.getLearnedActionByLabel(a.action) )
 				continue;
-			if( Condition.all(a.conditions, evt) )
+			if( a.validate(this) )
 				out.push(a);
+
 		}
 
 		return out;

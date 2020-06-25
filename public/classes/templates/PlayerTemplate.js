@@ -5,6 +5,7 @@ import Action from '../Action.js';
 import GameEvent from '../GameEvent.js';
 import Condition from '../Condition.js';
 import PlayerClass from '../PlayerClass.js';
+import ActionLearnable from '../ActionLearnable.js';
 
 
 class PlayerTemplate extends Generic{
@@ -117,6 +118,7 @@ class PlayerTemplate extends Generic{
 		let player = new Player();
 		player.name = this.name;
 		player.icon = this.icon;
+		player.generated = true;	// Also set in dungeon encounter, but it's needed here for learnable actions to work
 		player.description = this.description;
 		player.species = this.species;
 		player.tags = this.tags.map(el => {
@@ -264,28 +266,14 @@ class PlayerTemplate extends Generic{
 		if( maxActions < 0 )
 			maxActions = 0;
 
-		let viableActions = [];
-		// Todo: Replace with actionLearnable 
-		/*
-		for( let a of player.class.actions ){
-			if( !libActions[a] )
-				continue;
-				
-			let evt = new GameEvent({
-				target : player,
-				sender : player,
-				action : libActions[a]
-			});
-			if( Condition.all(libActions[a].add_conditions, evt) ) -- Add conditions don't exist anymore, use actionLearnable conditions instead
-				viableActions.push(libActions[a]);
-
-		}
-		*/
-
+		
+		let viableActions = player.getUnlockableActions();
 		shuffle(viableActions);
 
 		if( this.max_actions > 0 )
 			viableActions = viableActions.slice(0, this.max_actions);
+
+		viableActions = ActionLearnable.getActions(viableActions);
 
 		viableActions = viableActions.concat(Action.loadThese(this.required_actions));
 
@@ -294,6 +282,7 @@ class PlayerTemplate extends Generic{
 				return a.name < b.name ? -1 : 1;
 			return a.level < b.level ? -1 : 1;
 		});
+
 		for( let action of viableActions )
 			player.addAction(action, true);
 

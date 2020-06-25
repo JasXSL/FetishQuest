@@ -306,7 +306,7 @@ const lib = {
 	targetClassRogue : {type:Condition.Types.playerClass, data:{label:"rogue"}},	
 	targetClassCleric : {type:Condition.Types.playerClass, data:{label:"cleric"}},	
 	
-	targetClassShocktacle : {type:Condition.Types.playerClass, data:{label:"shocktacle"}, inverse:true, desc:'Target class is not shocktacle'},	
+	targetClassShocktacle : {type:Condition.Types.playerClass, data:{label:"shocktacle"}, desc:'Target class is shocktacle'},	
 	targetClassTentacleFiend : {type:Condition.Types.playerClass, data:{label:"tentacle_fiend"}, desc:'Target class is tentacle_fiend'},	
 	targetClassMimic : {type:Condition.Types.playerClass, data:{label:"mimic"}, desc:'Target class is mimic'},	
 	targetClassImpScavenger : {type:Condition.Types.playerClass, data:{label:"impScavenger"}, desc:'Target class is impScavenger'},	

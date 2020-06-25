@@ -48,6 +48,8 @@ export default class ActionLearnable extends Generic{
 
 	validate( player, debug ){
 
+		if( player.generated !== this.gen_only )
+			return false; 
 		const evt = new GameEvent({sender:player, target:player});
 		return Condition.all(this.conditions, evt, debug);
 
@@ -65,6 +67,12 @@ export default class ActionLearnable extends Generic{
 		}
 		return this.cost;
 
+	}
+
+
+	// Same as getAction but takes an array
+	static getActions( actions ){
+		return actions.map(a => a.getAction());
 	}
 
 }
