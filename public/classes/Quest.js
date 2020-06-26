@@ -630,7 +630,11 @@ QuestObjectiveEvent.Actions = {
 	finish : "finish",		// void - Hands in the quest
 };
 
-
+QuestObjectiveEvent.ActionsDescs = {
+	inv : "{label : (str)assetLabel} - Custom, sets _amount to nr of inventory items. Use with inventory change condition.",
+	add : "{amount : (str int)amount} - Adds to the objective emount. Math formulas are allowed",
+	finish : "void - Hands in the quest",
+};
 
 
 

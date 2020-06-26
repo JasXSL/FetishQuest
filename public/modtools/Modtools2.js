@@ -30,7 +30,8 @@ import * as EditorShopAsset from './editors/EditorShopAsset.js';
 import * as EditorFaction from './editors/EditorFaction.js';
 import * as EditorQuest from './editors/EditorQuest.js';
 import * as EditorQuestReward from './editors/EditorQuestReward.js';
-import * as EditorQuestObjective from './editors/EditorQuestReward.js';
+import * as EditorQuestObjective from './editors/EditorQuestObjective.js';
+import * as EditorQuestObjectiveEvent from './editors/EditorQuestObjectiveEvent.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -65,19 +66,13 @@ const DB_MAP = {
 	"factions" : { listing : EditorFaction.list, asset : EditorFaction.asset, icon : 'tattered-banner' },
 	"quests" : { listing : EditorQuest.list, asset : EditorQuest.asset, icon : 'scroll-quill' },
 	"questRewards" : { listing : EditorQuestReward.list, asset : EditorQuestReward.asset, icon : 'open-treasure-chest' },
-	"questObjective" : { listing : EditorQuestObjective.list, asset : EditorQuestObjective.asset, icon : 'direction-sign' },
+	"questObjectives" : { listing : EditorQuestObjective.list, asset : EditorQuestObjective.asset, icon : 'direction-sign' },
+	"questObjectiveEvents" : { listing : EditorQuestObjectiveEvent.list, asset : EditorQuestObjectiveEvent.asset, icon : 'annexation' },
 };
 
 /*
 
 	Continuation order:
-
-	1. Assorted:
-		- quests
-			- QuestReward
-			- QuestObjective
-				- QuestObjectiveEvent
-
 
 	2. Encounter
 	3. Dungeon
@@ -735,7 +730,8 @@ export default class Modtools{
 		if( !asset )
 			throw 'Asset not found: '+id;
 
-		return Window.create(
+
+		const w = Window.create(
 			id, 
 			type, 
 			asset.name || asset.label, 
@@ -743,6 +739,8 @@ export default class Modtools{
 			DB_MAP[type].asset, 
 			data
 		);
+
+		return w;
 
 	}
 

@@ -1,7 +1,7 @@
 import HelperAsset from './HelperAsset.js';
 import * as EditorAsset from './EditorAsset.js';
 import * as EditorAction from './EditorAction.js';
-import * as EditorCondition from './EditorAction.js';
+import * as EditorCondition from './EditorCondition.js';
 
 import Quest, { QuestReward, QuestObjective } from '../../classes/Quest.js';
 
