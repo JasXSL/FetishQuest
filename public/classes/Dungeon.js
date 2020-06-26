@@ -493,6 +493,7 @@ class DungeonRoom extends Generic{
 	constructor(data, parent){
 		super(data);
 
+		this.label = '';
 		this.name = '';
 		this.parent = parent;
 		this.index = 0;
@@ -503,7 +504,7 @@ class DungeonRoom extends Generic{
 		this.z = 0;
 
 		this.outdoors = false;
-		this.zoom = null;			// Lets you manually set the zoom value
+		this.zoom = 0;				// Lets you manually set the zoom value
 		this.encounters = null;		// This is either an array of encounters ready to begin or a single encounter tha has begun. Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
 									// Or a single encounter that has started.
 		this.assets = [];			// First asset is always the room. These are DungeonRoomAssets
@@ -544,9 +545,10 @@ class DungeonRoom extends Generic{
 		if( full !== 'mod' ){
 			out.discovered = this.discovered;
 		}
-		else
+		else{
+			out.label = this.label;
 			this.g_sanitizeDefaults(out);
-
+		}
 		
 		return out;
 	}
@@ -1173,6 +1175,7 @@ class DungeonRoomAsset extends Generic{
 	constructor(data, parentObj){
 		super(data);
 
+		this.label = '';
 		this.parent = parentObj;
 		this.name = '';
 		this.model = '';		// Use . notation and select a model from libMeshes
@@ -1249,6 +1252,7 @@ class DungeonRoomAsset extends Generic{
 				out._killed = this._killed;
 		}	
 		else{
+			out.label = this.label;
 			this.g_sanitizeDefaults(out);
 		}
 		if( full ){

@@ -68,6 +68,8 @@ export default class Mod extends Generic{
 			author : this.author,
 			description : this.description,
 			dungeons : this.dungeons,
+			dungeonRooms : this.dungeonRooms,
+			dungeonRoomAssets : this.dungeonRoomAssets,
 			quests : this.quests,
 			questRewards : this.questRewards,
 			questObjectives : this.questObjectives,

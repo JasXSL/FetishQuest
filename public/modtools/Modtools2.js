@@ -33,6 +33,8 @@ import * as EditorQuestReward from './editors/EditorQuestReward.js';
 import * as EditorQuestObjective from './editors/EditorQuestObjective.js';
 import * as EditorQuestObjectiveEvent from './editors/EditorQuestObjectiveEvent.js';
 import * as EditorEncounter from './editors/EditorEncounter.js';
+import * as EditorDungeon from './editors/EditorDungeon.js';
+import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -70,6 +72,8 @@ const DB_MAP = {
 	"questObjectives" : { listing : EditorQuestObjective.list, asset : EditorQuestObjective.asset, icon : 'direction-sign' },
 	"questObjectiveEvents" : { listing : EditorQuestObjectiveEvent.list, asset : EditorQuestObjectiveEvent.asset, icon : 'annexation' },
 	"encounters" : { listing : EditorEncounter.list, asset : EditorEncounter.asset, icon : 'kraken-tentacle' },
+	"dungeons" : { listing : EditorDungeon.list, asset : EditorDungeon.asset, icon : 'castle' },
+	"dungeonRooms" : { listing : EditorDungeonRoom.list, asset : EditorDungeonRoom.asset, icon : 'doorway' },
 };
 
 /*

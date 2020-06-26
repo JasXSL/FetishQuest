@@ -4,7 +4,7 @@ import { Effect, Wrapper } from './EffectSys.js';
 import PlayerClass from './PlayerClass.js';
 import Action from './Action.js';
 import Asset from './Asset.js';
-import Dungeon from './Dungeon.js';
+import Dungeon, { DungeonRoom, DungeonRoomAsset } from './Dungeon.js';
 import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from './Quest.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
@@ -35,6 +35,8 @@ const LIB_TYPES = {
 	'players' : Player,
 
 	'dungeons' : Dungeon,
+	'dungeonRooms' : DungeonRoom,
+	'dungeonRoomAssets' : DungeonRoomAsset,
 	'quests' : Quest,
 	'questRewards' : QuestReward,	// Note that this was renamed to questRewards from questReward, not sure if this causes issues
 	'questObjectives' : QuestObjective,
@@ -54,7 +56,7 @@ const LIB_TYPES = {
 	'roleplayStage' : RoleplayStage,
 	'roleplayStageOption' : RoleplayStageOption,
 	'gameActions' : GameAction,
-	'texts' : Text
+	'texts' : Text,
 };
 
 // Maps lib_types to caches used only in outputs
@@ -88,8 +90,11 @@ const load_order = [
 	'gameActions',
 	'actionLearnable',
 	'encounters',
+
 	'dungeonRoomTemplates',
 	'dungeonTemplates',
+	'dungeonRoomAssets',
+	'dungeonRooms',
 	'dungeons',
 
 	'questObjectiveEvents',
@@ -115,6 +120,8 @@ export default class GameLib{
 		this.conditions = {};			//x Condition library
 		this.playerClasses = {};
 		this.dungeons = {};
+		this.dungeonRooms = {};
+		this.dungeonRoomAssets = {};
 		this.quests = {};
 		this.questObjectiveEvents = {},
 		this.questObjectives = {},
