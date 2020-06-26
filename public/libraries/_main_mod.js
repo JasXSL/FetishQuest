@@ -281,7 +281,7 @@ const mod = new Mod(
 			}
 		],
 		wrappers:getWrappers(),
-		dungeonEncounters : getEncounters(),
+		encounters : getEncounters(),
 		hitFX : getHitFX(),
 		players : getPlayers(),
 		roleplay : getRoleplays(),

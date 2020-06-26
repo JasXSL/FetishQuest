@@ -4,7 +4,7 @@ import { Effect, Wrapper } from './EffectSys.js';
 import PlayerClass from './PlayerClass.js';
 import Action from './Action.js';
 import Asset from './Asset.js';
-import Dungeon, {DungeonEncounter} from './Dungeon.js';
+import Dungeon from './Dungeon.js';
 import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from './Quest.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
@@ -20,6 +20,7 @@ import Generic from './helpers/Generic.js';
 import Shop, { ShopAsset } from './Shop.js';
 import ActionLearnable from './ActionLearnable.js';
 import Faction from './Faction.js';
+import Encounter from './Encounter.js';
 
 
 const LIB_TYPES = {
@@ -48,7 +49,7 @@ const LIB_TYPES = {
 	'hitFX' : HitFX,
 	'dungeonRoomTemplates' : RoomTemplate,
 	'dungeonTemplates' : DungeonTemplate,
-	'dungeonEncounters' : DungeonEncounter,
+	'encounters' : Encounter,
 	'roleplay' : Roleplay,
 	'roleplayStage' : RoleplayStage,
 	'roleplayStageOption' : RoleplayStageOption,
@@ -86,7 +87,7 @@ const load_order = [
 
 	'gameActions',
 	'actionLearnable',
-	'dungeonEncounters',
+	'encounters',
 	'dungeonRoomTemplates',
 	'dungeonTemplates',
 	'dungeons',
@@ -130,7 +131,7 @@ export default class GameLib{
 		this.dungeonRoomTemplates = {};
 		this.effects = {};
 		this.wrappers = {};
-		this.dungeonEncounters = {};
+		this.encounters = {};
 		this.players = {};
 		this.hitFX = {};
 		this.roleplay = {};

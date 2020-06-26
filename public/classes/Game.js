@@ -5,7 +5,7 @@ import Modal from './Modal.js';
 import GameEvent from './GameEvent.js';
 import Asset from './Asset.js';
 import NetworkManager from './NetworkManager.js';
-import {default as Dungeon, DungeonEncounter, DungeonSaveState} from './Dungeon.js';
+import {default as Dungeon, DungeonSaveState} from './Dungeon.js';
 import WebGL from './WebGL.js';
 import Text from './Text.js';
 import Quest from './Quest.js';
@@ -20,6 +20,7 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
 import VibHub from './VibHub.js';
 import Faction from './Faction.js';
+import ENcounter from './Encounter.js';
 
 export default class Game extends Generic{
 
@@ -43,7 +44,7 @@ export default class Game extends Generic{
 		this.chat_log = [];					// Chat log
 		this.net = new NetworkManager(this);
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
-		this.encounter = new DungeonEncounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
+		this.encounter = new Encounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.roleplay = new Roleplay({completed:true}, this);
 		this.quests = [];								// Quest Objects of quests the party is on. 
 		this.net_load = false;							// Currently loading from network
@@ -346,7 +347,7 @@ export default class Game extends Generic{
 		this.quests = Quest.loadThese(this.quests, this);		
 		this.dungeon = new Dungeon(this.dungeon, this);
 		this.procedural_dungeon = new Dungeon(this.procedural_dungeon, this);
-		this.encounter = new DungeonEncounter(this.encounter, this);
+		this.encounter = new Encounter(this.encounter, this);
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
 		this.completed_quests = Collection.loadThis(this.completed_quests);
@@ -1019,7 +1020,7 @@ export default class Game extends Generic{
 		return this.procedural_dungeon.label === '_procedural_';
 	}
 
-	makeDungeonEncounterHostile(){
+	makeEncounterHostile(){
 		this.encounter.friendly = false;
 		this.dungeon.getActiveRoom().makeEncounterHostile();
 	}

@@ -3,7 +3,7 @@
 */
 import Generic from '../helpers/Generic.js';
 import Asset from '../Asset.js';
-import { DungeonEncounter } from '../Dungeon.js';
+import Encounter from '../Encounter.js';
 
 class DungeonTemplate extends Generic{
 	constructor(...args){
@@ -31,7 +31,7 @@ class DungeonTemplate extends Generic{
 			rooms : this.rooms,
 			doors_hor : this.doors_hor,
 			doors_down : this.doors_down,
-			encounters : DungeonEncounter.saveThese(this.encounters, full),
+			encounters : Encounter.saveThese(this.encounters, full),
 			consumables : this.consumables,
 		};
 
@@ -43,7 +43,7 @@ class DungeonTemplate extends Generic{
 
 	rebase(){
 
-		this.encounters = DungeonEncounter.loadThese(this.encounters, this);
+		this.encounters = Encounter.loadThese(this.encounters, this);
 		this.consumables = Asset.loadThese(this.consumables, this);
 	}
 

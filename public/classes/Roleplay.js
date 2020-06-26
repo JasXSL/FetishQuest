@@ -2,7 +2,6 @@ import Generic from './helpers/Generic.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import GameAction from './GameAction.js';
-import { DungeonEncounter } from './Dungeon.js';
 import Game from './Game.js';
 import Text from './Text.js';
 export default class Roleplay extends Generic{

@@ -2,7 +2,7 @@ import stdTag from "../stdTag.js";
 // Player templates
 import PT from './playerTemplates.js';
 import GameAction from "../../classes/GameAction.js";
-import { DungeonEncounter } from "../../classes/Dungeon.js";
+import Encounter from "../../classes/Encounter.js";
 import Condition from "../../classes/Condition.js";
 import {Wrapper, Effect} from "../../classes/EffectSys.js";
 import Roleplay, { RoleplayStageOption, RoleplayStage } from "../../classes/Roleplay.js";

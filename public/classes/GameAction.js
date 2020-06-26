@@ -5,7 +5,7 @@ import Generic from './helpers/Generic.js';
 import Condition from './Condition.js';
 import Asset from './Asset.js';
 import GameEvent from './GameEvent.js';
-import Dungeon, { DungeonEncounter, DungeonRoomAsset } from './Dungeon.js';
+import Dungeon, { DungeonRoomAsset } from './Dungeon.js';
 import Calculator from './Calculator.js';
 import Quest from './Quest.js';
 import Roleplay, { RoleplayStageOption } from './Roleplay.js';
@@ -15,6 +15,7 @@ import Text from './Text.js';
 import HitFX from './HitFX.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import StaticModal from './StaticModal.js';
+import Encounter from './Encounter.js';
 
 export default class GameAction extends Generic{
 
@@ -137,7 +138,7 @@ export default class GameAction extends Generic{
 			if( this.type === GameAction.types.encounters && game.is_host ){
 				if( !Array.isArray(this.data) )
 					console.error("Trying to load non-array to encounter type in interaction:", this);
-				this.data = DungeonEncounter.loadThese(this.data);
+				this.data = Encounter.loadThese(this.data);
 			}
 
 			// RP is needed in netcode
@@ -340,7 +341,7 @@ export default class GameAction extends Generic{
 	getParentEncounter(){
 		
 		let p = this;
-		while( p.parent && !(p.parent instanceof DungeonEncounter) ){
+		while( p.parent && !(p.parent instanceof Encounter) ){
 			p = p.parent;
 		}
 		return p;
@@ -366,7 +367,7 @@ export default class GameAction extends Generic{
 
 		if( this.type === types.encounters ){
 
-			game.mergeEncounter(player, DungeonEncounter.getRandomViable(DungeonEncounter.loadThese(this.data)));
+			game.mergeEncounter(player, Encounter.getRandomViable(Encounter.loadThese(this.data)));
 			this.remove();	// Prevent it from restarting
 			asset.updateInteractivity();	// After removing the action, update interactivity
 
@@ -461,7 +462,7 @@ export default class GameAction extends Generic{
 		else if( this.type === types.toggleCombat ){
 			let makeHostile = this.data.enc !== false;
 			if( makeHostile ){
-				game.makeDungeonEncounterHostile();
+				game.makeEncounterHostile();
 			}
 			game.toggleBattle(this.data.on);
 		}

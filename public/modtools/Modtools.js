@@ -19,10 +19,11 @@ import PlayerTemplate from '../classes/templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from '../classes/templates/AssetTemplate.js';
 import { default as DungeonTemplate, RoomTemplate } from '../classes/templates/DungeonTemplate.js';
 import { default as Audio, AudioKit } from '../classes/Audio.js';
-import Dungeon, { DungeonRoom, DungeonRoomAsset, DungeonEncounter } from '../classes/Dungeon.js';
+import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../classes/Dungeon.js';
 import GameAction from '../classes/GameAction.js';
 import Roleplay from '../classes/Roleplay.js';
 import Shop from '../classes/Shop.js';
+import Encounter from '../classes/Encounter.js';
 
 
 const meshLib = LibMesh.getFlatLib();
@@ -316,7 +317,7 @@ export default class Modtools{
 		for( let i in playerTempLib )
 			playerTemplates += '<option value="'+esc(i)+'"/>';
 
-		const encounterLib = glib.getFull('DungeonEncounter');
+		const encounterLib = glib.getFull('Encounter');
 		for( let i in encounterLib )
 			encounters += '<option value="'+esc(i)+'"/>';
 		const playerLib = glib.getFull('Player');
@@ -1149,7 +1150,7 @@ export default class Modtools{
 		this.mml_generic( 
 			'encounters', 
 			['Label','#Pl','#PlTemplates', '#Wrappers'],
-			this.mod.dungeonEncounters,
+			this.mod.encounters,
 			asset => {
 				return [
 					asset.label,
@@ -1159,7 +1160,7 @@ export default class Modtools{
 				];
 			},
 			() => {
-				let asset = new DungeonEncounter({label:'UNKNOWN_ENCOUNTER'}).save("mod");
+				let asset = new Encounter({label:'UNKNOWN_ENCOUNTER'}).save("mod");
 				return asset;
 			}
 		);
@@ -2180,7 +2181,7 @@ export default class Modtools{
 			html += 'Conditions: '+this.formConditions(asset.conditions, 'conditions')+'<br />'; 
 			html += 'Roleplays: '+this.formRoleplays(asset.rp, 'roleplays');
 
-		this.editor_generic('encounters', asset, this.mod.dungeonEncounters, html, saveAsset => {
+		this.editor_generic('encounters', asset, this.mod.encounters, html, saveAsset => {
 
 			const form = $("#assetForm");
 			saveAsset.label = $("input[name=label]", form).val().trim();

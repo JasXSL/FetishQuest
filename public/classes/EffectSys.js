@@ -7,7 +7,8 @@ import Calculator from './Calculator.js';
 import Player from './Player.js';
 import Asset from './Asset.js';
 import GameAction from './GameAction.js';
-import { DungeonEncounter } from './Dungeon.js';
+import Encounter from './Encounter.js';
+
 
 /*
 	A wrapper is a container for multiple effects
@@ -136,7 +137,7 @@ class Wrapper extends Generic{
 	testAgainst( event, isTick, debug = false ){
 
 		// Dungeon encounter passives don't need to check
-		if( this.parent instanceof DungeonEncounter )
+		if( this.parent instanceof Encounter )
 			return true;
 
 		event.wrapper = this;
@@ -1604,7 +1605,7 @@ class Effect extends Generic{
 			(~this.targets.indexOf(Wrapper.Targets.auto) && this.parent.victim === player.id) ||
 			(~this.targets.indexOf(Wrapper.Targets.caster) && this.parent.caster === player.id) ||
 			~this.targets.indexOf(Wrapper.Targets.aoe) ||
-			this.parent.parent instanceof DungeonEncounter
+			this.parent.parent instanceof Encounter
 		){
 			// Check conditions
 			return Condition.all(this.conditions, new GameEvent({

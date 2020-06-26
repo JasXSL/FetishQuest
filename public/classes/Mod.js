@@ -31,7 +31,7 @@ export default class Mod extends Generic{
 		this.effects = [];
 		this.dungeonRoomTemplates = [];	
 		this.wrappers = [];
-		this.dungeonEncounters = [];
+		this.encounters = [];
 		this.hitFX = [];
 		this.roleplay = [];
 		this.roleplayStage = [];
@@ -86,7 +86,7 @@ export default class Mod extends Generic{
 			effects : this.effects,
 			dungeonRoomTemplates : this.dungeonRoomTemplates,
 			wrappers : this.wrappers,
-			dungeonEncounters : this.dungeonEncounters,
+			encounters : this.encounters,
 			players : this.players,
 			hitFX : this.hitFX,
 			roleplay : this.roleplay,

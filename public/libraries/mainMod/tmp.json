@@ -457,7 +457,7 @@
 	"effects": [],
 	"dungeonRoomTemplates": [],
 	"wrappers": [],
-	"dungeonEncounters": [],
+	"encounters": [],
 	"players": [],
 	"hitFX": [],
 	"roleplay": [],
