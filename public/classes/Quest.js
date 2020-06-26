@@ -18,7 +18,7 @@ class Quest extends Generic{
 		this.rewards = [];							// QuestReward objects. Use getRewards
 		this.exp_multiplier = 1;					// Multiplied against average player level. This means 1x multiplier is worth about 4 sets of monsters
 		this.objectives = [];
-		this.completion_objectives = [];			// One of these will trigger. This allows you to add multiple ways of handing in a quest with different outcomes
+		this.completion_objectives = [];			// One of these will trigger. This allows you to add auto hand ins through events
 		this.completed = false;						// Set internally when the quest finishes to prevent further objective evaluation
 		this.hide_rewards = false;					// Todo: Hide rewards from screen
 		this.multiply_money = true;					// Multiplies the money reward by nr of players when quest is accepted
@@ -350,6 +350,7 @@ class QuestReward extends Generic{
 	constructor(data){
 		super();
 		
+		this.label = '';
 		this.type = QuestReward.Types.Asset;
 		this.data = null;
 		this.conditions = [];
@@ -368,9 +369,10 @@ class QuestReward extends Generic{
 		if( full !== "mod" ){
 			out.id = this.id;
 		}
-		else
+		else{
+			out.label = this.label;
 			this.g_sanitizeDefaults(out);
-
+		}
 		return out;
 
 	}
@@ -420,6 +422,12 @@ QuestReward.Types = {
 	Asset : "Asset",
 	Action : "Action",
 	Reputation : "Reputation",	// {faction:(str)label, amount:(int)amount}
+};
+
+QuestReward.TypeDescs = {
+	[QuestReward.Types.Asset] : "Label of an asset, or an asset object",
+	[QuestReward.Types.Action] : "Label of an action",
+	[QuestReward.Types.Reputation] : "{faction:(str)label, amount:(int)amount}",
 };
 
 
@@ -552,6 +560,7 @@ class QuestObjectiveEvent extends Generic{
 		super(data);
 
 		this.parent = parent;
+		this.label = '';
 		this.conditions = [];
 		this.action = QuestObjectiveEvent.Actions.add;
 		this.data = {amount:1};
@@ -568,9 +577,10 @@ class QuestObjectiveEvent extends Generic{
 		if( full !== "mod" ){
 			out.id = this.id;
 		}
-		else
+		else{
+			out.label = this.label;
 			this.g_sanitizeDefaults(out);
-
+		}
 		// No need for full since this won't be sent
 		return out;
 	}

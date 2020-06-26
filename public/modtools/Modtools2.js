@@ -27,6 +27,10 @@ import * as EditorRoleplayStage from './editors/EditorRoleplayStage.js';
 import * as EditorRoleplayStageOption from './editors/EditorRoleplayStageOption.js';
 import * as EditorShop from './editors/EditorShop.js';
 import * as EditorShopAsset from './editors/EditorShopAsset.js';
+import * as EditorFaction from './editors/EditorFaction.js';
+import * as EditorQuest from './editors/EditorQuest.js';
+import * as EditorQuestReward from './editors/EditorQuestReward.js';
+import * as EditorQuestObjective from './editors/EditorQuestReward.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -58,6 +62,10 @@ const DB_MAP = {
 	"roleplayStageOption" : { listing : EditorRoleplayStageOption.list, asset : EditorRoleplayStageOption.asset, icon : 'click' },
 	"shops" : { listing : EditorShop.list, asset : EditorShop.asset, icon : 'shopping-cart' },
 	"shopAssets" : { listing : EditorShopAsset.list, asset : EditorShopAsset.asset, icon : 'receive-money' },
+	"factions" : { listing : EditorFaction.list, asset : EditorFaction.asset, icon : 'tattered-banner' },
+	"quests" : { listing : EditorQuest.list, asset : EditorQuest.asset, icon : 'scroll-quill' },
+	"questRewards" : { listing : EditorQuestReward.list, asset : EditorQuestReward.asset, icon : 'open-treasure-chest' },
+	"questObjective" : { listing : EditorQuestObjective.list, asset : EditorQuestObjective.asset, icon : 'direction-sign' },
 };
 
 /*
@@ -65,7 +73,6 @@ const DB_MAP = {
 	Continuation order:
 
 	1. Assorted:
-		- factions
 		- quests
 			- QuestReward
 			- QuestObjective

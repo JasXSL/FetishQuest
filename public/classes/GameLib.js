@@ -5,7 +5,7 @@ import PlayerClass from './PlayerClass.js';
 import Action from './Action.js';
 import Asset from './Asset.js';
 import Dungeon, {DungeonEncounter} from './Dungeon.js';
-import Quest, { QuestReward } from './Quest.js';
+import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from './Quest.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 import DungeonTemplate, { RoomTemplate } from './templates/DungeonTemplate.js';
@@ -35,6 +35,9 @@ const LIB_TYPES = {
 
 	'dungeons' : Dungeon,
 	'quests' : Quest,
+	'questRewards' : QuestReward,	// Note that this was renamed to questRewards from questReward, not sure if this causes issues
+	'questObjectives' : QuestObjective,
+	'questObjectiveEvents' : QuestObjectiveEvent,
 
 	'playerTemplates' : PlayerTemplate,
 	'materialTemplates' : MaterialTemplate,
@@ -50,7 +53,6 @@ const LIB_TYPES = {
 	'roleplayStage' : RoleplayStage,
 	'roleplayStageOption' : RoleplayStageOption,
 	'gameActions' : GameAction,
-	'questReward' : QuestReward,
 	'texts' : Text
 };
 
@@ -88,7 +90,10 @@ const load_order = [
 	'dungeonRoomTemplates',
 	'dungeonTemplates',
 	'dungeons',
-	'questReward',
+
+	'questObjectiveEvents',
+	'questObjectives',
+	'questRewards',
 	'quests',
 	
 	
@@ -110,6 +115,9 @@ export default class GameLib{
 		this.playerClasses = {};
 		this.dungeons = {};
 		this.quests = {};
+		this.questObjectiveEvents = {},
+		this.questObjectives = {},
+		this.questRewards = {},
 		this.actions = {};
 		this.assets = {};
 		this.shopAssets = {};

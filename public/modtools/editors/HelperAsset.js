@@ -206,7 +206,7 @@ export default{
 		if parented, it sets the _mParent : {type:(str)type, label:(str)label} parameter on any new assets created, and only shows assets with the same _mParent set
 		columns can also contain functions, they'll be run with the asset as an argument
 	*/
-	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false ){
+	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false ){
 
 		// Todo: Need to handle non array type linked assets
 		let entries = toArray(asset[key]);
@@ -216,21 +216,23 @@ export default{
 		table.classList.add("linkedTable", "selectable");
 		
 		let content = '';
-		for( let entry of entries ){
+		if( !ignoreAsset ){	// Used in EditorQuestReward where there are multiple inputs all corresponding to the same field
+			for( let entry of entries ){
 
-			
-			const base = this.modEntryToObject(entry, targetLibrary),
-				asset = new constructor(base)
-			;
+				
+				const base = this.modEntryToObject(entry, targetLibrary),
+					asset = new constructor(base)
+				;
 
-			// prefer label before id
-			content += '<tr class="asset" data-id="'+esc(asset.label || asset.id)+'">';
-			for( let column of columns )
-				content += '<td>'+this.makeReadable(typeof column === 'function' ? column(asset) : asset[column])+'</td>';
-			
-			content += '<td>'+(base.__MOD ? esc(base.__MOD) : 'THIS')+'</td>';
-			content += '</tr>';
+				// prefer label before id
+				content += '<tr class="asset" data-id="'+esc(asset.label || asset.id)+'">';
+				for( let column of columns )
+					content += '<td>'+this.makeReadable(typeof column === 'function' ? column(asset) : asset[column])+'</td>';
+				
+				content += '<td>'+(base.__MOD ? esc(base.__MOD) : 'THIS')+'</td>';
+				content += '</tr>';
 
+			}
 		}
 		// Parented single can only add if one is missing. Otherwise they have to edit by clicking. This works because parented can only belong to the same mod.
 		if( !single || !parented || !asset[key] )
@@ -243,8 +245,9 @@ export default{
 			if( parented ){
 
 				let a = new constructor();
-				if( a.hasOwnProperty("label") )
+				if( a.hasOwnProperty("label") ){
 					a.label = (asset.label||asset.id)+'>>'+targetLibrary+Math.floor(Math.random()*0xFFFFFFF);
+				}
 				a = a.save("mod");
 				
 				if( single )

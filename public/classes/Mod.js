@@ -41,6 +41,9 @@ export default class Mod extends Generic{
 		this.shopAssets = [];
 		this.actionLearnable = [];
 		this.factions = [];
+		this.questRewards = [];
+		this.questObjectives = [];
+		this.questObjectiveEvents = [];
 
 		this.load(data);
 	}
@@ -66,6 +69,9 @@ export default class Mod extends Generic{
 			description : this.description,
 			dungeons : this.dungeons,
 			quests : this.quests,
+			questRewards : this.questRewards,
+			questObjectives : this.questObjectives,
+			questObjectiveEvents : this.questObjectiveEvents,
 			vars : this.vars,
 			texts : this.texts,
 			actions : this.actions,

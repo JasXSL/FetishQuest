@@ -8,6 +8,7 @@ export default class Faction extends Generic{
 		this.parent = parent;			// Either a roleplay or dungeon asset
 		this.label = '';
 		this.name = '';
+		this.desc = '';
 		this.standing = 0;
 
 		this.load(data);
@@ -19,6 +20,7 @@ export default class Faction extends Generic{
 			id : this.id,
 			label : this.label,
 			name : this.name,
+			desc : this.desc,
 			standing : this.standing,
 		};
 
