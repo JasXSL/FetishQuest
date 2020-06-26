@@ -218,6 +218,7 @@ export default{
 		let content = '';
 		for( let entry of entries ){
 
+			
 			const base = this.modEntryToObject(entry, targetLibrary),
 				asset = new constructor(base)
 			;

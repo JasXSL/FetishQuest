@@ -25,6 +25,8 @@ import * as EditorPlayerTemplate from './editors/EditorPlayerTemplate.js';
 import * as EditorRoleplay from './editors/EditorRoleplay.js';
 import * as EditorRoleplayStage from './editors/EditorRoleplayStage.js';
 import * as EditorRoleplayStageOption from './editors/EditorRoleplayStageOption.js';
+import * as EditorShop from './editors/EditorShop.js';
+import * as EditorShopAsset from './editors/EditorShopAsset.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -54,18 +56,28 @@ const DB_MAP = {
 	"roleplay" : { listing : EditorRoleplay.list, asset : EditorRoleplay.asset, icon : 'talk' },
 	"roleplayStage" : { listing : EditorRoleplayStage.list, asset : EditorRoleplayStage.asset, icon : 'conversation' },
 	"roleplayStageOption" : { listing : EditorRoleplayStageOption.list, asset : EditorRoleplayStageOption.asset, icon : 'click' },
+	"shops" : { listing : EditorShop.list, asset : EditorShop.asset, icon : 'shopping-cart' },
+	"shopAssets" : { listing : EditorShopAsset.list, asset : EditorShopAsset.asset, icon : 'receive-money' },
 };
-
 
 /*
 
 	Continuation order:
-	roleplay - Idea: Make a mod asset for roleplay stage, but have it prefixed with the roleplay id and filter the picker with it
+
+	1. Assorted:
+		- factions
+		- quests
+			- QuestReward
+			- QuestObjective
+				- QuestObjectiveEvent
+
+
+	2. Encounter
+	3. Dungeon
 
 	Idea: For dungeon, have a dedicated window for the 3d editor which shows one room at a time
-
-	Figure out how to do quests
-
+	Do quests same way as roleplays
+	
 
 */
 

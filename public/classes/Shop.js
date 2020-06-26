@@ -14,7 +14,7 @@ export default class Shop extends Generic{
 		this.parent = parent;			// Either a roleplay or dungeon asset
 		this.label = '';
 		this.name = '';
-		this.items = [];
+		this.items = [];				// ShopAsset
 		this.conditions = [];
 		this.buys = true;
 
@@ -127,6 +127,7 @@ export class ShopAsset extends Generic{
 		super();
 
 		this.parent = parent;		// Either a roleplay or dungeon asset
+		this.label = '';
 		this.asset = null;			// String or object. Use getAsset
 		this.cost = -1;				// -1 uses the items own cost. This is the cost in copper.
 		this.amount = -1;			// Max amount sold by the vendor
@@ -147,7 +148,7 @@ export class ShopAsset extends Generic{
 
 		const out = {
 			id : this.id,
-			asset : typeof this.asset === 'object' ? this.asset.save(full) : this.asset,
+			asset : this.asset && this.asset.save ? this.asset.save(full) : this.asset,
 			cost : this.cost,
 			amount : this.amount,
 			restock_rate : this.restock_rate,
@@ -156,9 +157,10 @@ export class ShopAsset extends Generic{
 
 
 		if( full !== "mod" ){}
-		else
+		else{
+			out.label = this.label;
 			this.g_sanitizeDefaults(out);
-
+		}
 		return out;
 	}
 

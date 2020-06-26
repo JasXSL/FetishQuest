@@ -38,8 +38,10 @@ export default class Mod extends Generic{
 		this.roleplayStageOption = [];
 		this.gameActions = [];
 		this.shops = [];
+		this.shopAssets = [];
 		this.actionLearnable = [];
 		this.factions = [];
+
 		this.load(data);
 	}
 
@@ -86,6 +88,7 @@ export default class Mod extends Generic{
 			roleplayStageOption : this.roleplayStageOption,
 			gameActions : this.gameActions,
 			shops : this.shops,
+			shopAssets : this.shopAssets,
 			actionLearnable : this.actionLearnable,
 			factions : this.factions,
 		};
