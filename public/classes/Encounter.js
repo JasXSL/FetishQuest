@@ -22,12 +22,13 @@ export default class Encounter extends Generic{
 
 		this.parent = parent;		// Parent varies, but usually trickles up to a quest or game
 		this.label = '';
+		this.desc = '';
 		this.friendly = false;		// Don't start a battle when starting this encounter
 		this.started = false;		// Encounter has started (only set on Game clone of this)
 		this.completed = 0;			// Encounter completed (only set on Game clone of this)
 		this.players = [];			// Players that MUST be in this event. On encounter start, this may be filled with player_templates to satisfy difficulty
 		this.player_templates = [];		// 
-		this.player_conditions = new Collection({}, this);	// {id:(arr)conditions}
+		this.player_conditions = new Collection({}, this);	// player_label {id:(arr)conditions}
 		this.wrappers = [];			// Wrappers to apply when starting the encounter. auto target is the player that started the encounter
 		this.passives = [];			// Use add_conditions to filter out the player(s) the passive should affect
 		this.startText = '';		// Text to trigger when starting
@@ -230,9 +231,10 @@ export default class Encounter extends Generic{
 			out.completed = this.completed;
 			out.started = this.started;
 		}
-		else
+		else{
+			out.desc = this.desc;
 			this.g_sanitizeDefaults(out);
-
+		}
 		// Not really gonna need a full because these are never output to webplayers
 		return out;
 	}

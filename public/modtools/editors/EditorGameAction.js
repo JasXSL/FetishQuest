@@ -78,7 +78,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'effect'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'gameAction'+Math.ceil(Math.random()*0xFFFFFFF),
 		desc : 'Teleports the users back to Yuug port',
 		type : GameAction.types.setDungeon,
 		data : {

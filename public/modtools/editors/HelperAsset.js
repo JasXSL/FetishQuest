@@ -208,8 +208,17 @@ export default{
 	*/
 	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false ){
 
+		const fullKey = key;
 		// Todo: Need to handle non array type linked assets
-		let entries = toArray(asset[key]);
+		let k = key.split('::');
+		let entries = asset;
+		while( k.length > 1 ){
+			entries = entries[k.shift()];
+		}
+		key = k.shift();
+
+		const allEntries = toArray(entries[key]);
+
 		const EDITOR = window.mod, MOD = EDITOR.mod;
 
 		let table = document.createElement("table");
@@ -217,7 +226,7 @@ export default{
 		
 		let content = '';
 		if( !ignoreAsset ){	// Used in EditorQuestReward where there are multiple inputs all corresponding to the same field
-			for( let entry of entries ){
+			for( let entry of allEntries ){
 
 				
 				const base = this.modEntryToObject(entry, targetLibrary),
@@ -234,8 +243,9 @@ export default{
 
 			}
 		}
+
 		// Parented single can only add if one is missing. Otherwise they have to edit by clicking. This works because parented can only belong to the same mod.
-		if( !single || !parented || !asset[key] )
+		if( !single || !parented || !entries[key] )
 			content += '<tr class="noselect"><td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td></tr>';
 		table.innerHTML = content;
 
@@ -251,11 +261,11 @@ export default{
 				a = a.save("mod");
 				
 				if( single )
-					asset[key] = a;
+					entries[key] = a;
 				else{
-					if( !Array.isArray(asset[key]) )
-						asset[key] = [];
-					asset[key].push(a.label || a.id);
+					if( !Array.isArray(entries[key]) )
+					entries[key] = [];
+					entries[key].push(a.label || a.id);
 				}
 
 				a._mParent = {
@@ -271,7 +281,7 @@ export default{
 
 			}
 			else
-				window.mod.buildAssetLinker( win, asset, key, targetLibrary, single );
+				window.mod.buildAssetLinker( win, asset, fullKey, targetLibrary, single );
 
 		};
 
@@ -281,16 +291,16 @@ export default{
 			if( event.ctrlKey ){
 
 				
-				let deletedAsset = asset[key];	// Assume single to start with
+				let deletedAsset = entries[key];	// Assume single to start with
 				if( single ){
-					delete asset[key];	// Don't need to store this param in the mod anymore
+					delete entries[key];	// Don't need to store this param in the mod anymore
 				}
 				else{
 
 					// Remove from the array
 					const index = [...event.currentTarget.parentElement.children].indexOf(event.currentTarget);
-					deletedAsset = asset[key][index];
-					asset[key].splice(index, 1);	// Remove this
+					deletedAsset = entries[key][index];
+					entries[key].splice(index, 1);	// Remove this
 
 				}
 
@@ -475,10 +485,11 @@ export default{
 
 				// Get the asset we need to modify
 				// Linker expects the parent window to be an asset editor
-				const baseAsset = MOD.getAssetById(parentWindow.type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
+				let baseAsset = MOD.getAssetById(parentWindow.type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
 					targAsset = this.getAssetById(type, elId)	// Target can be from a parent mod, so we'll need to include that in this search, which is why we use this instead of MOD
 				;	
 
+				
 				if( !baseAsset ){
 					console.log("Type", type, "parentWindow", parentWindow);
 					throw 'Base asset not found';
@@ -486,18 +497,25 @@ export default{
 				if( !targAsset )
 					throw 'Target asset not found';
 
+				// Handle subsets. This is pretty much just used for Collection type assets since they don't have their own database
+				let targ = win.id.split('::');
+				while( targ.length > 1 )
+					baseAsset = baseAsset[targ.shift()];
+
+				const key = targ.shift();
+
 				// win.id contains the field you're looking to link to
 				let label = targAsset.label || targAsset.id;
 
 				// Single assigns directly to the key
 				if( single ){
-					baseAsset[win.id] = label;
+					baseAsset[key] = label;
 				}
 				// Nonsingle appends to array
 				else{
-					if( !Array.isArray(baseAsset[win.id]) )
-						baseAsset[win.id] = [];
-					baseAsset[win.id].push(label);
+					if( !Array.isArray(baseAsset[key]) )
+						baseAsset[key] = [];
+					baseAsset[key].push(label);
 				}
 				win.close();
 

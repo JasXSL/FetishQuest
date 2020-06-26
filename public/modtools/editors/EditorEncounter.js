@@ -4,6 +4,10 @@ import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import GameEvent from '../../classes/GameEvent.js';
 import Encounter from '../../classes/Encounter.js';
 import * as EditorCondition from './EditorCondition.js';
+import * as EditorGameAction from './EditorGameAction.js';
+import * as EditorWrapper from './EditorWrapper.js';
+import * as EditorPlayer from './EditorPlayer.js';
+import * as EditorPlayerTemplate from './EditorPlayerTemplate.js';
 
 
 const DB = 'encounters',
@@ -23,79 +27,64 @@ export function asset(){
 		return this.close();
 
 
+
+		
+		
 	let html = '';
 	html += '<div class="labelFlex">';
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
-		html += '<label>Type: <select name="type" class="saveable">';
-		for( let i in Effect.Types )
-			html += '<option value="'+esc(Effect.Types[i])+'" '+(Effect.Types[i] === dummy.type ? 'selected' : '')+'>'+esc(i)+'</option>';
-		html += '</select></label>';
-		html += '<label>Don\'t multiply by stacks <input type="checkbox" class="saveable" name="no_stack_multi" '+(dummy.no_stack_multi ? 'checked' : '')+' /></label><br />';
-		html += '<label>Debug <input type="checkbox" class="saveable" name="debug" '+(dummy.debug ? 'checked' : '')+' /></label><br />';
+		html += '<label>Friendly <input type="checkbox" class="saveable" name="friendly" '+(dummy.friendly ? 'checked' : '')+' /></label><br />';
+		html += '<label title="Text to output when the encounter starts (string, not an asset)">Start text: <input type="text" name="startText" class="saveable" value="'+esc(dummy.startText)+'" /></label>';
+		html += '<label title="In seconds, 0 = no respawn">Respawn time: <input type="number" step=1 min=0 name="respawn" class="saveable" value="'+esc(dummy.respawn)+'" /></label>';
+		html += '<label title="Lets you increase or decrease difficulty, 1 = 100% more difficult">Difficulty Adjust: <input type="number" step=0.01 min=-0.95 name="difficulty_adjust" class="saveable" value="'+esc(dummy.difficulty_adjust)+'" /></label>';
 	html += '</div>';
 
 
-	html += 'Targets: <div class="arrayPicker" name="targets">';
-	for( let i in Wrapper.Targets )
-		html += '<label>'+esc(i)+' <input type="checkbox" value="'+esc(Wrapper.Targets[i])+'" '+(~dummy.targets.indexOf(Wrapper.Targets[i]) ? 'checked' : '')+' /></label>';
+	html += '<span title="Players that MUST be in this event. If difficulty is not satisfied on start, it can add additional players from player_templates below">Players: </span><div class="players"></div>';
+	html += '<span>Player Templates: </span><div class="player_templates"></div>';
+	html += '<span title="Wrappers to apply when the encounter starts. auto target is the player who started the encounter, usually by entering a room or picking an RP option">Wrappers: </span><div class="wrappers"></div>';
+	html += '<span title="Passive effects to apply to all players">Passives: </span><div class="passives"></div>';
+	html += '<span>Conditions: </span><div class="conditions"></div>';
+	html += '<span title="Game actions to run when the encounter starts">Game Actions: </span><div class="game_actions"></div>';
+	
+	// Collections can contain sub arrays. Build one for each player
+	html += '<span title="Conditions for each player in order for it to show up">Player Conditions: </span><div class="player_conditions">';
+		if( !asset.player_conditions )
+			asset.player_conditions = {};
+		for( let player of dummy.players )
+			html += esc(player)+': <div data-label="'+esc(player)+'"></div>';	
 	html += '</div>';
 
-
-	html += 'Events: <div class="arrayPicker" name="events">';
-	for( let i in GameEvent.Types )
-		html += '<label>'+esc(i)+' <input type="checkbox" value="'+esc(GameEvent.Types[i])+'" '+(~dummy.events.indexOf(GameEvent.Types[i]) ? 'checked' : '')+' /></label>';
-	html += '</div>';
-
-	html += '<pre class="wrap typeDesc"></pre><br />';
-	html += '<textarea class="json" name="data">'+esc(JSON.stringify(dummy.data))+'</textarea><br />';
-
-
-	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
-
-	html += 'Conditions: <div class="conditions"></div>';
-
+	
 
 	this.setDom(html);
 
-
-	// Describe what the json editor data should look like
-	const typeSelect = this.dom.querySelector("select[name=type]");
-	const updateTypeDesc = () => {
-		
-		const typeDesc = this.dom.querySelector("pre.typeDesc"),
-			type = typeSelect.value;
-
-		
-		typeDesc.innerText = Effect.TypeDescs[type] || "Unknown type";		
-
-	};
-	updateTypeDesc();
-	typeSelect.addEventListener("change", updateTypeDesc);
-	
-
-
-
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
+	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions"));
+	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
+	this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "wrappers"));
+	this.dom.querySelector("div.player_templates").appendChild(EditorPlayerTemplate.assetTable(this, asset, "player_templates"));
+	this.dom.querySelector("div.players").appendChild(EditorPlayer.assetTable(this, asset, "players"));
 
-	// Tags
-	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
-		HelperTags.autoHandleAsset('tags', tags, asset);
+	// Handle collection with multiple assets
+	this.dom.querySelectorAll("div.player_conditions > div[data-label]").forEach(el => {
+
+		const player = el.dataset.label;
+		el.appendChild(EditorCondition.assetTable(this, asset, "player_conditions::"+player));
+
 	});
 
+
 	HelperAsset.autoBind( this, asset, DB);
-
-
-
-
 
 };
 
 
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name, single ){
-	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'type'], single);
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'description'], single);
 }
 
 
@@ -105,24 +94,18 @@ export function list(){
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
 		label : true,
 		desc : true,
-		type : true,
-		data : true,
-		tags : true,
-		targets : true,
-		events : true,
-		debug : true,
-		no_stack_multi : true,
-		conditions : a => a.conditions.map(el => el.label).join(', '),
+		friendly:true, startText:true, respawn:true, difficulty_adjust:true,
+		players: true,
+		player_templates : true,
+		wrappers : true,
+		passives : true,
+		conditions : true,
+		game_actions : true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'effect'+Math.ceil(Math.random()*0xFFFFFFF),
-		desc : 'Deals 1 damage to auto target inheriting action damage type',
-		type : Effect.Types.damage,
-		targets : [Wrapper.TARGET_AUTO],
-		data : {
-			amount : 1
-		}
+		label : 'encounter'+Math.ceil(Math.random()*0xFFFFFFF),
+		desc : 'Describe your encounter',
 	}));
 
 };
