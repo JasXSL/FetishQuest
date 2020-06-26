@@ -15,15 +15,12 @@
 import Generic from './helpers/Generic.js';
 import {default as libMeshes, LibMesh as libMeshTools} from '../libraries/meshes.js';
 import stdTag from '../libraries/stdTag.js';
-import Player from './Player.js';
-import { Wrapper, Effect } from './EffectSys.js';
+import {  Effect } from './EffectSys.js';
 import Asset from './Asset.js';
 
 import Quest from './Quest.js';
-import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
-import Roleplay from './Roleplay.js';
 import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
 

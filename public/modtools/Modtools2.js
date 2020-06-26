@@ -75,13 +75,9 @@ const DB_MAP = {
 /*
 
 	Continuation order:
-
-	2. Encounter
 	3. Dungeon
-
-	Idea: For dungeon, have a dedicated window for the 3d editor which shows one room at a time
-	Do quests same way as roleplays
-	
+		DungeonRoom - Dedicated window for the room with the 3d editor, only one room can be open at a time. Double clicking a 3d asset should open an editor for it.
+			DungeonRoomAsset
 
 */
 
