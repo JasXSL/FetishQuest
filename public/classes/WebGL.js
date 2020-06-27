@@ -2297,7 +2297,7 @@ Stage.bindGenericHover = function( mesh ){
 	c.userData.mouseover = () => {
 		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0x222222));
 		Stage.setMeshMatProperty(c, 'emissiveMap', false, false);
-		if( game ){
+		if( window.game ){
 			game.renderer.renderer.domElement.style.cursor = "pointer";
 			if( tooltip ){
 				game.ui.setTooltipAtCursor(tooltip.data.text);
@@ -2307,7 +2307,7 @@ Stage.bindGenericHover = function( mesh ){
 	c.userData.mouseout = () => {
 		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0), true);
 		Stage.setMeshMatProperty(c, 'emissiveMap', false, true);
-		if( game ){
+		if( window.game ){
 			game.renderer.renderer.domElement.style.cursor = "auto";
 			if( tooltip ){
 				game.ui.setTooltipAtCursor('');

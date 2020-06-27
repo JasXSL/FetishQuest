@@ -360,7 +360,6 @@ div.dungeonDesigner > div[data-index] span.down{
 div.webglRenderer{
 	width:100%;
 	display: inline-block;
-	overflow:hidden;
 }
 div.webglRenderer > div.pusher{
 	margin-top:56.25%;
@@ -368,4 +367,9 @@ div.webglRenderer > div.pusher{
 div.webglRenderer > div.content{
 	position: absolute;
 	top:0; left:0; right:0; bottom:0;
+}
+
+div.webglRenderer canvas:focus{
+	outline: #FFF solid 3px;
+	outline-style: inset;
 }
