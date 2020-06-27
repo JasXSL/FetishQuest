@@ -79,8 +79,7 @@ const DB_MAP = {
 /*
 
 	Continuation order:
-	3. Dungeon
-		DungeonRoom - Dedicated window for the room with the 3d editor, only one room can be open at a time. Double clicking a 3d asset should open an editor for it.
+	3. DungeonRoom - Dedicated window for the room with the 3d editor, only one room can be open at a time. Double clicking a 3d asset should open an editor for it.
 			DungeonRoomAsset
 
 */
@@ -109,6 +108,12 @@ export default class Modtools{
 		this.datalists = document.getElementById("datalists");
 
 		this.dummyUploader = document.getElementById("dummyUploader");	// file input
+
+
+		this.webgl = new WebGL({
+			fullControls : true,
+			enableGrid : true
+		});
 
 		this.dirty = false;
 		
@@ -382,6 +387,8 @@ export default class Modtools{
 			return 'You have unsaved changes. Really discard these?';
 		};
 		
+
+
 
 	}
 

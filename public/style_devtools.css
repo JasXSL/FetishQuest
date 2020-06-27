@@ -281,7 +281,11 @@ pre.wrap{
 	white-space: normal;
 }
 
-
+div.dungeonLevelSelector{
+	position: absolute;
+	top:0; left:50%;
+	transform:translateX(-50%);
+}
 
 div.dungeonDesigner{
 	background-color : #333;
@@ -293,7 +297,7 @@ div.dungeonDesigner{
 }
 
 div.dungeonDesigner > div[data-index]{
-	position: absolute;;
+	position: absolute;
 	background-color: #555;
 	border-radius:5px;
 	border:2px solid #CCC;
@@ -349,4 +353,19 @@ div.dungeonDesigner > div[data-index] span.up{
 }
 div.dungeonDesigner > div[data-index] span.down{
 	bottom: 25%;
+}
+
+
+
+div.webglRenderer{
+	width:100%;
+	display: inline-block;
+	overflow:hidden;
+}
+div.webglRenderer > div.pusher{
+	margin-top:56.25%;
+}
+div.webglRenderer > div.content{
+	position: absolute;
+	top:0; left:0; right:0; bottom:0;
 }

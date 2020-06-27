@@ -23,6 +23,7 @@ import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
+import Encounter from './Encounter.js';
 
 //const always_chest = true;
 const always_chest = false;

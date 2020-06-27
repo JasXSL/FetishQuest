@@ -122,6 +122,7 @@ export default class Window{
 			
 			if( this.resizing ){
 				Window.saveMeta(this);
+				this.onResize();
 				Window.onWindowResized(this);
 			}
 			else
@@ -285,7 +286,8 @@ export default class Window{
 			this.dom.style.removeProperty("left");
 			this.dom.style.removeProperty("width");
 			this.dom.style.removeProperty("height");
-			
+			this.onResize();
+
 		}
 		else{
 			this.dom.classList.toggle("maximized", false);
@@ -318,6 +320,7 @@ export default class Window{
 			this.makeFloating();
 			if( !ignoreFront )
 				this.bringToFront();
+			this.onResize();
 		}
 
 		Window.onWindowMinimized(this);
@@ -369,7 +372,8 @@ export default class Window{
 
 	}
 
-	
+
+	onResize(){}	// overridable
 
 
 	// Custom events
@@ -430,6 +434,12 @@ export default class Window{
 
 	static get( uniqid ){
 		return this.pages.get(uniqid);
+	}
+
+	static getByType( type ){
+		
+		return Array.from(this.pages.values()).filter(win => win.type === type);
+
 	}
 
 	static getByTypeAndId( type, id ){

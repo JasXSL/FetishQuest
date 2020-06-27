@@ -1,5 +1,6 @@
 import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
+import Window from '../WindowManager.js';
 import * as EditorAsset from './EditorAsset.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom } from '../../classes/Dungeon.js';
@@ -94,7 +95,7 @@ export function list(){
 class DungeonLayoutEditor{
 
 
-	
+
 	// Todo: add a way to set the active level
 
 
@@ -116,10 +117,15 @@ class DungeonLayoutEditor{
 		pusher.style = 'margin-top:100%;';
 		element.appendChild(pusher);
 
+		// Add content div
 		this.content = document.createElement('div');
-		this.content.classList.toggle('dungeonDesigner', true);
-		
+		this.content.classList.toggle('dungeonDesigner', true);	
 		element.appendChild(this.content);
+
+		// Add selector
+		this.levelSelector = document.createElement('div');
+		this.levelSelector.classList.toggle('dungeonLevelSelector', true);	
+		element.appendChild(this.levelSelector);
 
 		// Check if we have an entrance
 		if( !asset.rooms ){
@@ -146,6 +152,34 @@ class DungeonLayoutEditor{
 		
 
 		this.setLevel(0);
+
+		this.updateLevelSelector();
+
+	}
+
+	updateLevelSelector(){
+
+		let minLevel = 0, maxLevel = 0;
+		for( let room of this.cache_rooms ){
+			if( room.z > maxLevel )
+				maxLevel = room.z;
+			if( room.z < minLevel )
+				minLevel = room.z;
+		}
+
+
+		let html = '<select class="zSelector">';
+			html += '<option value="0">-- Z Level --</option>';
+		for( let i=minLevel; i <= maxLevel; ++i )
+			html += '<option value="'+i+'" '+(i === this.active_level ? 'selected' : '')+'>'+i+'</option>';
+		html += '</select>';
+		this.levelSelector.innerHTML = html;
+
+		const selector = this.levelSelector.querySelector('select');
+		selector.onchange = () => {
+			let val = parseInt(selector.value)||0;
+			this.setLevel(val);
+		};
 
 	}
 
@@ -185,6 +219,7 @@ class DungeonLayoutEditor{
 
 		this.content.innerHTML = '';
 		this.getRoomsOnLevel().map(room => this.buildRoom(room));
+		this.updateLevelSelector();
 
 	}
 
@@ -279,12 +314,12 @@ class DungeonLayoutEditor{
 		html += '<span class="name">'+esc(roomAsset.name.substr(0, 8) || 'Unknown')+'</span>';
 
 		const dir_offsets = {
-			'top' : {y:1}, 
-			'left' : {x:-1}, 
-			'right' : {x:1}, 
-			'bottom': {y:-1}, 
-			'up' : {z:1}, 
-			'down' : {z:-1}
+			'top' : {y:1,l:'N'}, 
+			'left' : {x:-1,l:'W'}, 
+			'right' : {x:1,l:'E'}, 
+			'bottom': {y:-1,l:'S'}, 
+			'up' : {z:1,l:'U'}, 
+			'down' : {z:-1, l:'D'}
 		};
 
 		
@@ -296,7 +331,7 @@ class DungeonLayoutEditor{
 				z = roomAsset.z+(dir_offsets[dir].z||0)
 			;
 			if( !this.roomExistsAtLocation(x, y, z) )
-				html += '<span data-dir="'+dir+'" class="dir '+dir+'">+</span>';
+				html += '<span data-dir="'+dir+'" class="dir '+dir+'">'+dir_offsets[dir].l+'</span>';
 		}
 
 		div.innerHTML = html;
@@ -317,9 +352,9 @@ class DungeonLayoutEditor{
 			const room = {
 				label:baseName, 
 				name:'Room '+index, 
-				x:x, 
-				y:y, 
-				z:z, 
+				x:x,
+				y:y,
+				z:z,
 				index : index,
 				parent_index:roomAsset.index, 
 				_mParent:{
@@ -362,7 +397,11 @@ class DungeonLayoutEditor{
 				return;
 			}
 
-			console.log("Todo: open room editor:", room);
+
+			// Bring up the room editor
+			Window.getByType('dungeonRooms').map(el => el.remove());
+
+			window.mod.buildAssetEditor("dungeonRooms", room.label);
 
 		};
 

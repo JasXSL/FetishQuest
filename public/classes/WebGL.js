@@ -114,7 +114,7 @@ class WebGL{
 		this.updateArrow();
 		setTimeout(() => this.toggleArrow(false), 1000);
 
-		const chelper = new THREE.CameraHelper(pLight.shadow.camera);
+		//const chelper = new THREE.CameraHelper(pLight.shadow.camera);
 		//this.fxScene.add(chelper);
 
 
