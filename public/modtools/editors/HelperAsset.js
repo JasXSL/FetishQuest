@@ -60,7 +60,7 @@ export default{
 
 					win.id = val;
 					win.updateTitle();
-					dev.mod.updateChildLabels(win.type, base[path], val);	// Make sure any child objects notice the label change
+					dev.mod.updateChildLabels(base, win.type, base[path], val);	// Make sure any child objects notice the label change
 
 				}
 				else if( name === "name" ){
@@ -87,7 +87,7 @@ export default{
 
 		const dev = window.mod;		
 
-		const updateData = textarea => {
+		const updateData = (textarea, checkChange = true) => {
 
 			try{
 				
@@ -100,7 +100,7 @@ export default{
 				textarea.value = JSON.stringify(data, undefined, 2);	// Auto format
 
 				// Check if it has changed
-				if( JSON.stringify(data) !== JSON.stringify(asset.data) ){
+				if( JSON.stringify(data) !== JSON.stringify(asset.data) && checkChange ){
 					
 					asset[textarea.name] = data;
 					dev.setDirty(true);
@@ -123,7 +123,7 @@ export default{
 
 		win.dom.querySelectorAll('textarea.json[name]').forEach(el => {
 
-			updateData(el);
+			updateData(el, false);
 			el.addEventListener('change', event => {
 				if( !updateData(el) )
 					event.stopImmediatePropagation();
@@ -538,7 +538,7 @@ export default{
 	},
 
 	// mParent should be an object if supplied (see Mod.js for info about parented assets)
-	insertAsset( type, asset = {}, win ){
+	insertAsset( type, asset = {}, win, openEditor = true ){
 		const DEV = window.mod, MOD = DEV.mod;
 
 		MOD[type].push(asset);
@@ -547,7 +547,8 @@ export default{
 			win.editorOnCreate(win, asset);
 
 		DEV.setDirty(true);
-		DEV.buildAssetEditor(type, asset.label || asset.id);
+		if( openEditor )
+			DEV.buildAssetEditor(type, asset.label || asset.id);
 		this.rebuildAssetLists(type);
 
 		

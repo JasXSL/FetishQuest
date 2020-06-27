@@ -15,6 +15,8 @@ export default class Mod extends Generic{
 		this.description = '';
 		this.author = '';
 		this.dungeons = [];		//x mod prefab dungeons
+		this.dungeonRooms = [];		//x mod prefab dungeons
+		this.dungeonRoomAssets = [];		//x mod prefab dungeons
 		this.quests = [];		//x mod prefab quests
 		this.vars = {};			//x default modvars. Modvars are stored in Game, these are just defaults
 		this.texts = [];		//x mod texts
@@ -181,7 +183,24 @@ export default class Mod extends Generic{
 
 	// Changes a label of an asset and updates any assets parented to it
 	// For assets that are parented, this will update all labels accordingly
-	updateChildLabels( type, preLabel, postLabel ){
+	// Also tries to change the label of the child if it's using the parentLabel>>childLabel syntax, and any references to that one in the parent
+	updateChildLabels( baseObject, type, preLabel, postLabel ){
+
+		// Scans an object 
+		const replaceLabelRecursively = (base, oldLabel, newLabel) => {
+
+			for( let i in base ){
+
+				// Nested objects
+				if( typeof base[i] === 'object' )
+					replaceLabelRecursively(base[i], oldLabel, newLabel);
+
+				else if( base[i] === oldLabel )
+					base[i] = newLabel;
+
+			}
+
+		}
 
 		for( let i in this ){
 
@@ -192,8 +211,27 @@ export default class Mod extends Generic{
 			for( let index in db ){
 
 				const asset = db[index];
-				if( asset && asset._mParent && asset._mParent.type === type && asset._mParent.label === preLabel )
+				if( asset && asset._mParent && asset._mParent.type === type && asset._mParent.label === preLabel ){
+
+					// Update the label too
+					if( asset.label ){
+
+						const old = asset.label;
+						let spl = asset.label.split('>>');
+						if( spl.length > 1 )
+							spl[spl.length-2] = postLabel;
+
+						asset.label = spl.join('>>');
+
+						// Find where it was used in the parent and replace it
+						console.log("Trying to replace", old, "with ", asset.label, "in", baseObject);
+						replaceLabelRecursively(baseObject, old, asset.label);
+						
+
+					}
 					asset._mParent.label = postLabel;
+
+				}
 				
 			}
 
