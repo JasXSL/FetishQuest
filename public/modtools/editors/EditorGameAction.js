@@ -1,6 +1,7 @@
 import HelperAsset from './HelperAsset.js';
 import * as EditorCondition from './EditorCondition.js';
 import GameAction from '../../classes/GameAction.js';
+import Dungeon, { DungeonRoom } from '../../classes/Dungeon.js';
 
 const DB = 'gameActions',
 	CONSTRUCTOR = GameAction;
@@ -11,7 +12,7 @@ export function asset(){
 	const 
 		modtools = window.mod,
 		id = this.id,
-		asset = modtools.mod.getAssetById(DB, id),
+		asset = this.asset.asset || modtools.mod.getAssetById(DB, id),
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
 
@@ -27,6 +28,22 @@ export function asset(){
 			html += '<option value="'+esc(GameAction.types[i])+'" '+(GameAction.types[i] === dummy.type ? 'selected' : '')+'>'+esc(i)+'</option>';
 		html += '</select></label>';
 	html += '</div>';
+
+	
+	// Door editor if we can actually fetch the dungeon
+	if( 
+		dummy.type === GameAction.types.door && 
+		objectHasPath(this, ['parent', 'asset', 'asset', 'parent', 'parent']) && 
+		this.parent.asset.asset.parent.parent instanceof Dungeon 
+	){
+
+		const dungeon = this.parent.asset.asset.parent.parent,
+			room = this.parent.asset.asset.parent,
+			roomAsset = this.parent.asset.asset
+		;
+		console.log("Todo: Custom door editor for", dungeon, this);
+
+	}
 
 	html += 'Data: <br /><pre class="wrap typeDesc"></pre><br />';
 	html += '<textarea class="json" name="data">'+esc(JSON.stringify(dummy.data))+'</textarea><br />';
@@ -61,8 +78,8 @@ export function asset(){
 
 
 // Creates a table for this asset in another asset
-export function assetTable( win, modAsset, name, single ){
-	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'type', 'description'], single);
+export function assetTable( win, modAsset, name, single, parented, ignoreAsset ){
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'type', 'desc'], single, parented, ignoreAsset);
 }
 
 

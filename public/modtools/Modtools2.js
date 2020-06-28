@@ -79,8 +79,7 @@ const DB_MAP = {
 /*
 
 	Continuation order:
-	3. DungeonRoom - Dedicated window for the room with the 3d editor, only one room can be open at a time. Double clicking a 3d asset should open an editor for it.
-			DungeonRoomAsset
+	- Update gameActions with fancier controls
 
 */
 
@@ -703,7 +702,7 @@ export default class Modtools{
 				existing.remove();
 
 			const datalist = document.createElement("datalist");
-			datalist.id = 'datalist_tags';
+			datalist.id = 'datalist_'+db;
 			this.datalists.appendChild(datalist);
 	
 			for( let tag in compile ){
@@ -729,16 +728,27 @@ export default class Modtools{
 		return Window.create(id, "Database", "", "database", DB_MAP[id].listing);
 	}
 
-	// Edit a text asset by id
-	buildAssetEditor( type, id, data ){
+	// Edit a text asset by id. ID can also be an object to edit directly, in which case it gets appended to data as {asset:}
+	// Note that if you use an object directly it won't save the window, and should only be used in special cases like the dungeonAsset GameActions to save space
+	buildAssetEditor( type, id, data, parent ){
 
 		if( !DB_MAP[type] || !DB_MAP[type].asset)
 			throw 'Asset editor not found for type '+type+", add it to DB_MAP in Modtools2.js";
 
-		const asset = this.mod.getAssetById(type, id);
+		const asset = typeof id === 'object' ? id : this.mod.getAssetById(type, id);
 		if( !asset )
 			throw 'Asset not found: '+id;
 
+		if( typeof data !== "object" )
+			data = {};
+
+		if( typeof id === "object" ){
+
+			id = id.label || id.id;
+			data.asset = asset;
+
+		}
+		
 
 		const w = Window.create(
 			id, 
@@ -746,7 +756,8 @@ export default class Modtools{
 			asset.name || asset.label, 
 			DB_MAP[type].icon || "pencil", 
 			DB_MAP[type].asset, 
-			data
+			data, 
+			parent
 		);
 
 		return w;

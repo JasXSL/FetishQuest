@@ -1,15 +1,23 @@
 import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
 import * as EditorAsset from './EditorAsset.js';
+import * as EditorCondition from './EditorCondition.js';
+import * as EditorGameAction from './EditorGameAction.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../../classes/Dungeon.js';
 import {default as WebGL, Stage} from '../../classes/WebGL.js';
 import {default as libMeshes, LibMesh, getNonDoorMeshes} from '../../libraries/meshes.js';
 import TransformControls from '../../ext/TransformControls.js';
 import * as THREE from '../../ext/THREE.js'; 
+import Window from '../WindowManager.js';
+import GameAction from '../../classes/GameAction.js';
 
 const DB = 'dungeonRooms',
-	CONSTRUCTOR = DungeonRoom;
+	CONSTRUCTOR = DungeonRoom,
+	ASSET_HISTORY_STATES = 50	
+;
+	
+
 
 // Single asset editor
 export function asset(){
@@ -92,12 +100,14 @@ export function assetTable( win, modAsset, name, single, parented, ignoreAsset )
 
 class Editor{
 
+	// Asset is the room
 	constructor( win, asset ){
 
 		const modtools = window.mod,
 			gl = modtools.webgl;
 		this.gl = gl;
 		this.win = win;
+		this.assetWindow = null;
 
 		// Add transform controls
 		const control = new TransformControls( gl.camera, gl.renderer.domElement, () => {});
@@ -110,11 +120,14 @@ class Editor{
 
 		// Handle dragging the tool
 		this.saveTimer;
-		control.addEventListener( 'objectChange', evt => {
+		this.dragging = false;
+		this.changed = false;
+		
 
-			clearTimeout(this.saveTimer);
-			this.saveTimer = setTimeout(() => {
+		control.addEventListener( 'mouseUp', evt => {
+			if( this.changed ){
 
+				this.changed = false;
 				const mesh = evt.target.object,
 					entry = mesh.userData.dungeonAsset
 				;
@@ -132,8 +145,12 @@ class Editor{
 
 				this.save();
 
-			}, 25);
-			
+				this.addHistory(entry);
+
+			}
+		});
+		control.addEventListener( 'objectChange', evt => {
+			this.changed = true;
 		});
 
 		gl.scene.add(control);
@@ -162,22 +179,26 @@ class Editor{
 				control.setMode( "rotate" );
 			else if( event.key === "r" )
 				control.setMode( "scale" );
-			else if( event.key === "z" ){
-				control.reset();
-			}
 			else if( event.key === "q" )
 				control.setSpace( control.space === "local" ? "world" : "local" );
 			else if( event.key === 'Control' ){
 				control.setTranslationSnap( 100 );
 				control.setRotationSnap( THREE.Math.degToRad( 15 ) );
 			}
-			else if( event.key === "Delete" )
+			else if( event.key === "Delete" ){
 				this.removeMesh(control.object);
-
+				this.buildAssetEditor();
+			}
+			else if( event.key === "z" && event.ctrlKey )
+				this.traverseHistory(control.object.userData.dungeonAsset, -1);
+			else if( event.key === "y" && event.ctrlKey )
+				this.traverseHistory(control.object.userData.dungeonAsset, 1);
+			
 		};
 
 		modtools.webgl.renderer.domElement.onkeyup = event => {
 			if( event.key === 'Control' ){
+
 				control.setTranslationSnap( null );
 				control.setRotationSnap( null );
 			}
@@ -267,7 +288,7 @@ class Editor{
 	}
 
 	// Adds a new mesh and returns a dungeonRoomAsset
-	addMesh( path ){
+	async addMesh( path ){
 
 		const mesh = LibMesh.getByString(path);
 		if( !mesh )
@@ -276,10 +297,14 @@ class Editor{
 		let asset = new DungeonRoomAsset({
 			model : path,
 		}, this.room);
+
+		asset.__history = [asset.save('mod')];
+		asset.__historyMarker = 0;
 		this.room.addAsset(asset);
-		this.gl.stage.addDungeonAsset(asset);
+		await this.gl.stage.addDungeonAsset(asset);
 		this.save();
 		this.bindMeshes();
+		this.buildAssetEditor();
 		return asset;
 
 	}
@@ -334,7 +359,36 @@ class Editor{
 
 	}
 
-	// Try to rebase
+	traverseHistory( asset, direction = -1 ){
+
+		asset.__historyMarker = Math.min(Math.max(asset.__historyMarker+direction, 0), asset.__history.length-1);
+		asset.load(asset.__history[asset.__historyMarker]);
+		this.gl.stage.updatePositionByAsset(asset);
+		this.save();
+
+	}
+
+
+	addHistory( asset ){
+
+		// Start by splicing anything ahead of us
+		if( asset.__historyMarker < asset.__history.length-1 ){
+			console.log("Splicing from index", asset.__historyMarker+1);
+			asset.__history.splice(asset.__historyMarker+1);
+		}
+
+		asset.__history.push(asset.save("mod"));
+		++asset.__historyMarker;
+
+		if( asset.__history.length > ASSET_HISTORY_STATES ){
+			asset.__history.shift();
+			--asset.__historyMarker;
+		}
+		console.log("After adding: ", asset.__history);
+
+	}
+
+	// Try to rebase on start. If you rebase any time later, you'll fuck up history states
 	rebase(){
 		
 		// Encounters can be a single encounter once one has started, but is always an array in the editor
@@ -351,15 +405,22 @@ class Editor{
 			this.room.addAsset(roomAsset);
 			this.save();
 		}
+		
 		this.room.rebase();
+		this.room.parent = new Dungeon(window.mod.mod.getAssetById(this.room_raw._mParent.type, this.room_raw._mParent.label ));
 
-
+		// Build initial history state
+		for( let asset of this.room.assets ){
+			asset.__history = [asset.save("mod")];
+			asset.__historyMarker = 0;
+		}
 
 	}
 
 	// Tries to save the room dummy onto room_raw
 	save(){
 
+		
 		const data = this.room.save("mod");
 		this.room_raw.assets = data.assets;
 		window.mod.setDirty(true);
@@ -379,8 +440,9 @@ class Editor{
 				
 				this.control.detach();
 				this.control.attach(mesh);
-				// Todo: draw mesh editor window
-
+				
+				this.buildAssetEditor();
+				
 			};
 
 			Stage.bindGenericHover(mesh);
@@ -404,6 +466,142 @@ class Editor{
 
 	}
 	
+
+	// Build the asset editor co-screen
+	buildAssetEditor(){
+
+		// Asset window already exists, rebuild it
+		if( this.assetWindow ){
+			this.assetWindow.rebuild();
+			return;
+		}
+		const th = this;
+
+		const build = function( isRebuild = false ){
+
+			const asset = th.control.object.userData.dungeonAsset;
+			if( !asset ){
+				this.dom.classList.toggle("hidden", true);
+				return;
+			}
+
+			this.asset.asset = asset;	// Needs to be set because dungeonAsset doesn't have a library
+
+			this.dom.classList.toggle("hidden", false);
+
+			let html = '';
+			html += '<div class="labelFlex">';
+				html += '<label>Name: <input name="name" value="'+esc(asset.name)+'" type="text" class="saveable" /></label>';
+				html += '<label title="Time in seconds, 0 = no respawn">Respawn: <input name="respawn" value="'+esc(asset.respawn)+'" type="text" class="saveable" /></label>';
+				html += '<label>Hide if non-interactive: <input name="hide_no_interact" '+(asset.hide_no_interact ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
+			html += '</div>';
+
+			html += 'Tags: <div class="tags">'+HelperTags.build(asset.tags)+'</div>';
+			html += 'Game Actions: <div class="interactions"></div>';
+			html += 'Conditions: <div class="conditions"></div>';
+
+			this.setDom(html);
+
+
+			HelperTags.bind(this.dom.querySelector("div.tags"), tags => {
+				HelperTags.autoHandleAsset('tags', tags, asset);
+				th.save();
+			});
+
+			// Todo: How do?
+			this.dom.querySelector("div.interactions").appendChild(EditorGameAction.assetTable(this, asset, "interactions", false, 2));
+
+			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false, false));	
+
+
+			HelperAsset.autoBind( this, asset, DB, (field, value) => {
+				th.save();
+			});
+
+			const table = this.dom.querySelector('div.interactions table');
+
+
+			// Searches our interactions by id
+			const openGameActionEditor = id => {
+				
+				// Find it in our list
+				for( let a of asset.interactions ){
+
+					// This was a string, open editor
+					if( a === id ){
+						const asset = window.mod.mod.getAssetById('gameActions', a);
+						if( !asset ){
+							alert("Asset missing or not from this mod");
+							return;
+						}
+						const editor = window.mod.buildAssetEditor( 'gameActions', id, undefined, this );
+						return;
+					}
+					else if( a && a.id === id ){
+
+						const editor = window.mod.buildAssetEditor( 'gameActions', a, undefined, this );
+
+					}
+
+				}
+				
+			}
+
+
+			// Bind each table row
+			table.querySelectorAll("tr.asset").forEach(el => el.onclick = event => {
+				
+				const id = el.dataset.id;
+
+				// Delete from linked array
+				if( event.ctrlKey ){
+
+					for( let i in asset.interactions ){
+						const e = asset.interactions[i];
+						if( e === id || e.id === id ){
+
+							asset.interactions.splice(i, 1);
+							this.rebuild();
+							return;
+						}
+						
+					}
+
+					return;
+				}
+				openGameActionEditor(id);
+
+			});
+			
+			// Bind the add new button
+			table.querySelector("input.addNew").onclick = () => {
+
+				const linker = window.mod.buildAssetLinker( this, asset, 'interactions', 'gameActions', false );
+				console.log("Opened linker ", linker);
+				linker.dom.querySelector('input.new').onclick = event => {
+			
+					const obj = new GameAction();
+					if( !asset.interactions )
+						asset.interactions = [];
+					asset.interactions.push(obj);
+					linker.remove();
+					this.rebuild();	
+					
+					openGameActionEditor(obj.id);
+
+				};
+	
+			};
+
+			if( isRebuild )
+				th.save();
+
+		};
+
+		this.assetWindow = Window.create('REPLACE_ID', 'dungeonAssets', '', 'crafting', build, {}, this.win);
+		this.assetWindow.rebuild(false);	// Needed in case the window already exists
+
+	}
 
 
 }

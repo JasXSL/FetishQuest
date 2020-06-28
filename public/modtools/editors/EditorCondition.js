@@ -69,8 +69,8 @@ export function asset(){
 
 
 // Creates a table for this asset in another asset
-export function assetTable( win, modAsset, name, single ){
-	return HelperAsset.linkedTable( win, modAsset, name, Condition, 'conditions', ['label', 'desc'], single);
+export function assetTable( win, modAsset, name, single, parented, ignoreAsset ){
+	return HelperAsset.linkedTable( win, modAsset, name, Condition, 'conditions', ['label', 'desc'], single, parented, ignoreAsset);
 }
 
 

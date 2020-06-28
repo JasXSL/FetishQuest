@@ -121,13 +121,13 @@ export default class Window{
 				return;
 			
 			if( this.resizing ){
-				Window.saveMeta(this);
 				this.onResize();
 				Window.onWindowResized(this);
 			}
 			else
 				Window.onWindowMoved(this);
 			this.resizing = this.dragging = false; 
+			Window.saveMeta(this);
 			
 		});
 
@@ -186,7 +186,7 @@ export default class Window{
 				else if( button.classList.contains("close") )
 					this.remove();
 				else if( button.classList.contains("refresh") )
-					this.rebuild();
+					this.rebuild(false);	// Needs to be false to prevent dirty in dungeonAsset
 
 			};
 		});
@@ -194,8 +194,8 @@ export default class Window{
 
 	}
 
-	rebuild(){
-		this.build();
+	rebuild( isRebuild = true ){
+		this.build(isRebuild);
 	}
 
 	reset(){
@@ -249,6 +249,8 @@ export default class Window{
 	isMaximized(){
 		return this.dom.classList.contains("maximized");
 	}
+
+	
 
 	isHidden(){
 		return this.dom.classList.contains("hidden");
@@ -399,7 +401,7 @@ export default class Window{
 		}
 		this.pages.set(uid, w);
 		this.windowContainer.append(w.dom);
-		w.rebuild();
+		w.rebuild(false);
 		w.bringToFront();
 		
 		const settings = this.meta[w.type.split(" ").join("_")];
@@ -415,9 +417,14 @@ export default class Window{
 			w.position.y = Math.min(lastOf.position.y+25, window.innerHeight-10);
 			w.updatePosition();
 		}
-		else
+		else if( settings && settings.x ){
+			w.position.x = settings.x || 0;
+			w.position.y = settings.y || 0;
+			w.updatePosition();
+		}
+		else{
 			w.center();
-
+		}
 		this.onWindowOpened(w);
 
 		return w;
@@ -469,7 +476,9 @@ export default class Window{
 	static saveMeta( win ){
 
 		this.meta[win.type.split(' ').join('_')] = {
-			s : win.size
+			s : win.size,
+			x : win.position.x,
+			y : win.position.y
 		};
 
 		clearTimeout(this._metaSave);

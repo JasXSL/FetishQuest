@@ -1227,6 +1227,7 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	save( full ){
+
 		const out = {
 			model : this.model,
 			x : this.x,
@@ -1260,6 +1261,7 @@ class DungeonRoomAsset extends Generic{
 			out.respawn = this.respawn;
 		}
 		return out;
+		
 	}
 
 

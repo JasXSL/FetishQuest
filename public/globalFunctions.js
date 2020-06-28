@@ -52,6 +52,21 @@ function objectRandElem(obj){
 	return obj[keys[Math.floor(Math.random()*keys.length)]];
 }
 
+// Searches an object to see if it has a path
+function objectHasPath( obj, path = [] ){
+
+	while( path.length ){
+
+		obj = obj[path.shift()];
+		if( !obj )
+			return false;
+
+	}
+	
+	return true;
+
+}
+
 // returns the sum of all values
 function objectSum( obj ){
 	let out = 0;

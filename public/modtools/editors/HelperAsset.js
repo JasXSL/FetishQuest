@@ -9,7 +9,7 @@ export default{
 	// Autobind ADDS an event, so you can use el.eventType = fn before calling autobind if you want
 	// List is the name of the array in mod.<array> that the asset is stored in
 	// Also binds JSON
-	autoBind( win, asset, list ){
+	autoBind( win, asset, list, onChange ){
 
 		const dom = win.dom,
 			dev = window.mod
@@ -22,7 +22,6 @@ export default{
 				name = targ.name
 			;
 
-			
 
 			let val = targ.value.trim();
 			
@@ -36,6 +35,8 @@ export default{
 					val = Boolean(targ.checked);
 
 			}
+
+			
 
 			let path = name.split('::');
 			let base = asset;
@@ -72,6 +73,8 @@ export default{
 				if( list )
 					this.rebuildAssetLists(list);
 
+				if( typeof onChange === "function" )
+					onChange(name, val);
 
 			}
 
@@ -205,6 +208,7 @@ export default{
 		key is the key in the asset to modify
 		if parented, it sets the _mParent : {type:(str)type, label:(str)label} parameter on any new assets created, and only shows assets with the same _mParent set
 		columns can also contain functions, they'll be run with the asset as an argument
+		ignoreAsset doesn't put the asset into the list. Used by EditorQuestReward where you have multiple fields mapping the same key to different types of objects
 	*/
 	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false ){
 
@@ -484,8 +488,8 @@ export default{
 					throw 'Parent window missing';
 
 				// Get the asset we need to modify
-				// Linker expects the parent window to be an asset editor
-				let baseAsset = MOD.getAssetById(parentWindow.type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
+				// Linker expects the parent window to be an asset editor unles parentWindow.asset.asset is set
+				let baseAsset = parentWindow.asset.asset || MOD.getAssetById(parentWindow.type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
 					targAsset = this.getAssetById(type, elId)	// Target can be from a parent mod, so we'll need to include that in this search, which is why we use this instead of MOD
 				;	
 
@@ -507,6 +511,7 @@ export default{
 				// win.id contains the field you're looking to link to
 				let label = targAsset.label || targAsset.id;
 
+				console.log("Setting", baseAsset, key, "to", label);
 				// Single assigns directly to the key
 				if( single ){
 					baseAsset[key] = label;

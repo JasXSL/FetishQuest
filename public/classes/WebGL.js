@@ -1759,13 +1759,8 @@ class Stage{
 	}
 
 	// Adds from a dungeon asset
-	async addDungeonAsset(asset){
+	async addDungeonAsset( asset ){
 
-		const room = this.room;
-		const roomAsset = room.getRoomAsset();
-		let roomModel;
-		if( roomAsset )
-			roomModel = roomAsset.getModel();
 
 		const libEntry = asset.getModel();
 		const attachmentIndexes = asset.attachments;
@@ -1773,7 +1768,7 @@ class Stage{
 			console.error("Found invalid model in asset", asset);
 		const c = await this.addFromMeshLib(libEntry, attachmentIndexes, asset.isInteractive() || this.isEditor);
 
-		let meshTemplate = asset.getModel();			// Library entry
+		
 		c.userData.dungeonAsset = asset;
 		c.userData.hoverTexts = {};
 		asset.setStageMesh(c);
@@ -1804,7 +1799,23 @@ class Stage{
 		}
 
 
-		
+		this.updatePositionByAsset( asset );
+
+		this.onObjStart(c);
+
+	}
+
+	updatePositionByAsset( asset ){
+
+		const room = this.room;
+		const roomAsset = room.getRoomAsset();
+		let roomModel;
+		if( roomAsset )
+			roomModel = roomAsset.getModel();
+
+		const c = asset._stage_mesh;
+		let meshTemplate = asset.getModel();			// Library entry
+
 		// Position it
 		if( asset.absolute || asset.isRoom() ){
 			c.position.x = asset.x;
@@ -1843,8 +1854,6 @@ class Stage{
 				c.position.z += coords[1]*roomModel.wall_indentation*meshTemplate.wall_indentation;
 			}
 		}
-
-		this.onObjStart(c);
 
 	}
 
