@@ -201,7 +201,7 @@ export function asset(){
 
 			html += '<label>Room: <select class="saveable" name="data::index">';
 			for( let r of cache_rooms )
-				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.index ? 'selected' : '')+'>'+esc(r.name || 'Unknown Room')+'</option>';
+				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.index ? 'selected' : '')+'>['+esc(r.index || 0)+'] '+esc(r.name || 'Unknown Room')+'</option>';
 			html += '</label>';
 
 		}
@@ -446,7 +446,7 @@ export function asset(){
 				target_conds : [],
 				max_triggers : 1,
 			};
-		// Todo: bind
+
 		html += 'Hitfx: <div class="hitfx"></div>';
 		html += 'Caster Conditions: <div class="caster_conds"></div>';
 		html += 'Target Conditions: <div class="target_conds"></div>';
@@ -525,7 +525,7 @@ export function asset(){
 				cost : '',
 				success_text : ''
 			};
-		// Todo: bind
+
 		html += 'Renter: <div class="renter"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label>Cost in copper: <input type="number" step=1 min=0 name="data::cost" class="saveable" value="'+esc(asset.data.cost)+'" /></label>';
@@ -554,7 +554,45 @@ export function asset(){
 		
 	}
 	else if( type === Types.setDungeon ){
-		// Todo: need to fetch a list of dungeons and then rooms etc
+		// {dungeon:(str)dungeon, room:(int)index}
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {};
+
+		html += 'Dungeon: <div class="dungeon"></div>';
+
+		html += '<div class="labelFlex">';
+
+		// HelperAsset because other mods are allowed here
+		let dungeonAsset = asset.data.dungeon && HelperAsset.getAssetById('dungeons', asset.data.dungeon);
+		if( dungeonAsset ){
+
+			const cache_rooms = [];
+			let indexExists = false;
+			for( let room of dungeonAsset.rooms ){
+				// room might be an object due to the main mod
+				const r = typeof room === "object" ? room : HelperAsset.getAssetById('dungeonRooms', room);
+				if( r ){
+					cache_rooms.push(r);
+					if( r.index === asset.data.index )
+						indexExists = true;
+				}
+			}
+			if( !indexExists )
+				asset.data.index = 0;
+
+			html += '<label>Room: <select class="saveable" name="data::room">';
+			for( let r of cache_rooms )
+				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.room ? 'selected' : '')+'>['+esc(r.index || 0)+'] '+esc(r.name || 'Unknown Room')+'</option>';
+			html += '</label>';
+
+		}
+
+		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.dungeon").appendChild(EditorDungeon.assetTable(this, asset, "data::dungeon", true));
+		};
+
 	}
 	else if( type === Types.addFaction ){
 
