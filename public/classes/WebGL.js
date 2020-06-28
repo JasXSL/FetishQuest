@@ -188,6 +188,8 @@ class WebGL{
 				return;
 			this.onMouseClick(event);
 		};
+
+		this.renderer.domElement.addEventListener('dblclick', event => this.onDblClick(event));
 		this.renderer.domElement.addEventListener('mousedown', event => touchStart(event));
 		this.renderer.domElement.addEventListener('touchstart', event => touchStart(event));
 		this.renderer.domElement.addEventListener('mouseup', event => touchEnd(event));
@@ -1137,6 +1139,21 @@ class WebGL{
 		this.mouseAbs.y = event.clientY;
 		this.mouse.x = ( (event.clientX-offset.left) / (this.renderer.domElement.width/window.devicePixelRatio) ) * 2 - 1;
 		this.mouse.y = - ( (event.clientY-offset.top) / (this.renderer.domElement.height/window.devicePixelRatio) ) * 2 + 1;
+
+	}
+
+	onDblClick(event){
+
+		for( let obj of this.intersecting ){
+			
+			if( obj.userData && typeof obj.userData.dblclick === "function" ){
+				
+				if( obj.userData.dblclick.call(obj, obj) )
+					break;
+
+			}
+			
+		}
 
 	}
 

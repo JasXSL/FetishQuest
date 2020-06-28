@@ -1,6 +1,21 @@
 import HelperAsset from './HelperAsset.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorEncounter from './EditorEncounter.js';
+import * as EditorWrapper from './EditorWrapper.js';
+import * as EditorAsset from './EditorAsset.js';
+import * as EditorQuest from './EditorQuest.js';
+import * as EditorRoleplay from './EditorRoleplay.js';
+import * as EditorShop from './EditorShop.js';
+import * as EditorPlayer from './EditorPlayer.js';
+import * as EditorAction from './EditorAction.js';
+import * as EditorText from './EditorText.js';
+import * as EditorHitFX from './EditorHitFX.js';
+import * as EditorPlayerTemplate from './EditorPlayerTemplate.js';
+import * as EditorFaction from './EditorFaction.js';
+import * as EditorDungeon from './EditorDungeon.js';
+
+
+
 import GameAction from '../../classes/GameAction.js';
 import Dungeon, { DungeonRoom } from '../../classes/Dungeon.js';
 
@@ -22,7 +37,8 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !this.parent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
 		html += '<label>Type: <select name="type" class="saveable">';
 		for( let i in GameAction.types )
@@ -46,12 +62,42 @@ export function asset(){
 		objectHasPath(this, ['parent', 'asset', 'asset', 'parent', 'parent']) && 
 		this.parent.asset.asset.parent.parent instanceof Dungeon 
 	){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				room : 0,
+				badge : 0
+			};
 
+		console.log("Asset: ", asset);
 		const dungeon = this.parent.asset.asset.parent.parent,
 			room = this.parent.asset.asset.parent,
-			roomAsset = this.parent.asset.asset
+			roomAsset = this.parent.asset.asset,
+			cache_rooms = []
 		;
-		console.log("Todo: Custom door editor for", dungeon, this);
+		for( let label of dungeon.rooms ){
+			let r = window.mod.mod.getAssetById('dungeonRooms', label);
+			if( r )
+				cache_rooms.push(r);
+		}
+
+		html += '<div class="labelFlex">';
+			// {index:(int)room_index, badge:(int)badge_type}
+			html += '<label>Room: <select name="data::room" class="saveable">';
+			for( let r of cache_rooms )
+				html += '<option value="'+esc(r.index)+'" '+(r.index === asset.data.room ? 'selected' : '')+'>'+esc(r.name)+'</option>';
+			html += '</select></label>';
+
+			const badgeTypes  = {
+				'Default' : 0,
+				'Hide' : 1,
+				'Default minus exit tracker' : 2
+			};
+			html += '<label>Badge: <select name="data::badge" class="saveable">';
+			for( let label in badgeTypes )
+				html += '<option value="'+esc(badgeTypes[label])+'" '+(badgeTypes[label] === asset.data.badge ? 'selected' : '')+'>'+esc(label)+'</option>';
+			html += '</select></label>';
+
+		html += '</div>';
 
 	}
 	else if( type === Types.encounters ){
@@ -69,21 +115,32 @@ export function asset(){
 	else if( type === Types.resetEncounter ){
 
 		if( !asset.data )
-			asset.data = {};
-		// Todo: Bind
-		html += 'Encounter: <div class="encounter" data-path="encounter"></div>';
+			asset.data = {
+				encounter : ''
+			};
+			
+		html += 'Encounter: <div class="encounter"></div>';
 
-		// Todo: Continue here
+		fnBind = () => {
+			this.dom.querySelector("div.encounter").appendChild(EditorEncounter.assetTable(this, asset, "data::encounter", true));
+		};
 
 	}
 	else if( type === Types.wrappers ){
+
 		if( !Array.isArray(asset.data) )
 			asset.data = [];
-		// Todo: Bind
+
 		html += 'Wrappers: <div class="wrappers"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "data", false));
+		};
+
 	}
 	else if( type === Types.loot ){
-		if( typeof asset.data !== "object" )
+
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				assets : [],
 				min : 1,
@@ -93,23 +150,75 @@ export function asset(){
 			html += '<label title="Min assets to pick">Min: <input type="number" min=-1 step=1 name="data::min" class="saveable" value="'+esc(asset.data.min || 1)+'" /></label>';
 			html += '<label title="Max assets to pick">Max: <input type="number" min=-1 step=1 name="data::max" class="saveable" value="'+esc(asset.data.max === undefined ? -1 : asset.data.max)+'" /></label>';
 		html += '</div>';
-		// Todo: Bind
 		html += '<div class="assets"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.assets").appendChild(EditorAsset.assetTable(this, asset, "data::assets", false));
+		};
+
 	}
 	else if( type === Types.autoLoot ){
-		if( typeof asset.data !== "object" )
+
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				val : 0.5
 			};
 		html += '<div class="labelFlex">';
 			html += '<label>Loot quality: <input type="range" min=0.01 max=1 step=0.01 name="data::val" class="saveable" value="'+esc(asset.data.min || 0.5)+'" /></label>';
 		html += '</div>';
+
 	}
 	else if( type === Types.exit ){
-		console.log("Todo: Need to pick a dungeon, then redraw, then pick from rooms from that dungeon");
+
+		// {dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				index : 0,
+				time : 60
+			};
+
+		html += 'Dungeon: <div class="dungeon"></div>';
+
+		html += '<div class="labelFlex">';
+
+		// HelperAsset because other mods are allowed here
+		let dungeonAsset = asset.data.dungeon && HelperAsset.getAssetById('dungeons', asset.data.dungeon);
+		if( dungeonAsset ){
+
+			const cache_rooms = [];
+			let indexExists = false;
+			for( let room of dungeonAsset.rooms ){
+				// room might be an object due to the main mod
+				const r = typeof room === "object" ? room : HelperAsset.getAssetById('dungeonRooms', room);
+				if( r ){
+					cache_rooms.push(r);
+					if( r.index === asset.data.index )
+						indexExists = true;
+				}
+			}
+			if( !indexExists )
+				asset.data.index = 0;
+
+			html += '<label>Room: <select class="saveable" name="data::index">';
+			for( let r of cache_rooms )
+				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.index ? 'selected' : '')+'>'+esc(r.name || 'Unknown Room')+'</option>';
+			html += '</label>';
+
+		}
+		
+		
+			html += '<label>Travel time in seconds: <input type=number min=0 step=1 value="'+esc(asset.data.time)+'" name="data::time" class="saveable" /></label>';
+		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.dungeon").appendChild(EditorDungeon.assetTable(this, asset, "data::dungeon", true));
+		};
+
+
+
 	}
 	else if( type === Types.anim ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				anim : 'open'
 			};
@@ -118,19 +227,44 @@ export function asset(){
 		html += '</div>';
 	}
 	else if( type === Types.lever ){
-		console.log("Todo: need to fetch dvars");
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				id : 'myLever'
+			};
+
+		if( window.mod.mod.vars[asset.data.id] === undefined )
+			window.mod.mod.vars[asset.data.id] = false;
+
+		html += '<div class="labelFlex">';
+			html += '<label>ID: <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';
+		html += '</div>';
+
+		const preLabel = asset.data.id;
+		fnBind = () => {
+			const input = this.dom.querySelector("input[name='data::id']");
+			input.addEventListener('change', () => {
+				delete window.mod.mod.vars[preLabel];
+				window.mod.mod.vars[input.value.trim()] = false;
+			});
+		};
+
+
 	}
 	else if( type === Types.quest ){
-		// Todo: Bind
-		if( typeof asset.data !== "object" )
+
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				quest : ''
 			};
-		html += 'Ques: <div class="quest"></div>';
+		html += 'Quest: <div class="quest"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.quest").appendChild(EditorQuest.assetTable(this, asset, "data::quest", true));
+		};
 	}
 	else if( type === Types.questObjective ){
 		/*
-		if( typeof asset.data !== "object" || !asset.data.quest )
+		if( !asset.data || typeof asset.data !== "object" || !asset.data.quest )
 			asset.data = {
 				quest : ''
 				objective : '',
@@ -142,22 +276,27 @@ export function asset(){
 		// Todo: need to fetch objectives from the quest
 	}
 	else if( type === Types.addInventory ){
-		// Todo: Bind
-		if( typeof asset.data !== "object" )
+
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
 				asset : '',
 				amount : 1
 			};
-		// Todo: bind
+
 		html += 'Asset: <div class="asset"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label title="If unset, tied to the event target">Target player label: <input type="text" name="data::player" class="saveable" value="'+esc(asset.data.player || '')+'" /></label>';
 			html += '<label title="Nr copies of the asset to give">Amount: <input type="number" min=1 step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 0)+'" /></label>';
 		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.asset").appendChild(EditorAsset.assetTable(this, asset, "data::asset", true));
+		};
+		
 	}
 	else if( type === Types.toggleCombat ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				on : true,
 				enc : true
@@ -172,15 +311,18 @@ export function asset(){
 		asset.data = {};
 	}
 	else if( type === Types.roleplay ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				rp : '',
 			};
-		// Todo: Bind
 		html += 'Roleplay: <div class="roleplay"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.roleplay").appendChild(EditorRoleplay.assetTable(this, asset, "data::rp", true));
+		};
 	}
 	else if( type === Types.finishQuest ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				quest : '',
 				force : false
@@ -188,11 +330,15 @@ export function asset(){
 		html += '<div class="labelFlex">';
 			html += '<label>Force: <input type="checkbox" name="data::force" '+(asset.data.force ? 'checked' : '')+' class="saveable" /></label>';
 		html += '</div>';
-		// Todo: Bind
+
 		html += 'Quest: <div class="quest"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.quest").appendChild(EditorQuest.assetTable(this, asset, "data::quest", true));
+		};
 	}
 	else if( type === Types.tooltip ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				text : ''
 			};
@@ -201,107 +347,151 @@ export function asset(){
 		html += '</div>';
 	}
 	else if( type === Types.shop ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
 				shop : ''
 			};
-		// Todo: bind
+			
 		html += 'Player: <div class="player"></div>';
 		html += 'Shop: <div class="shop"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+			this.dom.querySelector("div.shop").appendChild(EditorShop.assetTable(this, asset, "data::shop", true));
+		};
+		
 	}
 	else if( type === Types.gym ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
 			};
-		// Todo: bind
+			
 		html += 'Player: <div class="player"></div>';
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
 	}
 	else if( type === Types.playerAction ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
 				action : ''
 			};
-		// Todo: bind
+			
 		html += 'Player: <div class="player"></div>';
-		html += 'Action: <div class="action"></div>';
+		html += 'Action: <div class="action_edit"></div>';
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+			this.dom.querySelector("div.action_edit").appendChild(EditorAction.assetTable(this, asset, "data::action", true));
+		};
 	}
 	else if( type === Types.repairShop ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
 			};
-		// Todo: bind
+			
 		html += 'Player: <div class="player"></div>';
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
 	}
 	else if( type === Types.text ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				text : '',
 			};
-		// Todo: bind
+			
 		html += 'Text: <div class="text"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.text").appendChild(EditorText.assetTable(this, asset, "data::text", true, true));
+		};
 	}
 	else if( type === Types.hitfx ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				hitfx : '',
 				caster_conds : [],
 				target_conds : [],
-				max_triggers : [],
+				max_triggers : 1,
 			};
 		// Todo: bind
 		html += 'Hitfx: <div class="hitfx"></div>';
-		html += 'Caster Conditions: <div class="hitfx"></div>';
-		html += 'Target Conditions: <div class="hitfx"></div>';
+		html += 'Caster Conditions: <div class="caster_conds"></div>';
+		html += 'Target Conditions: <div class="target_conds"></div>';
 		html += '<div class="labelFlex">';
-			html += '<label>Max triggers: <input type="number" min=1 step=1 name="data::max_triggers" class="saveable" value="'+esc(asset.data.max_triggers || 1)+'" /></label>';
+			html += '<label title="0 = No max">Max triggers: <input type="number" min=0 step=1 name="data::max_triggers" class="saveable" value="'+esc(asset.data.max_triggers || 1)+'" /></label>';
 		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.hitfx").appendChild(EditorHitFX.assetTable(this, asset, "data::hitfx", true));
+			this.dom.querySelector("div.caster_conds").appendChild(EditorCondition.assetTable(this, asset, "data::caster_conds", false));
+			this.dom.querySelector("div.target_conds").appendChild(EditorCondition.assetTable(this, asset, "data::target_conds", false));
+		};
+
 	}
 	else if( type === Types.addPlayer ){
-		if( typeof asset.data !== "object" )
+
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
 				turn : -1
 			};
-		// Todo: bind
+
 		html += 'Player: <div class="player"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label>Turn: <input type="number" step=1 name="data::turn" class="saveable" value="'+esc(asset.data.turn)+'" /></label>';
 		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
+
 	}
 	else if( type === Types.addPlayerTemplate ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
 				next_turn : false
 			};
-		// Todo: bind
+
 		html += 'Player: <div class="player"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label>Next turn: <input type="checkbox" name="data::next_turn" class="saveable" '+(asset.data.next_turn ? 'checked' :'' )+' /></label>';
 		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayerTemplate.assetTable(this, asset, "data::player", true));
+		};
+
 	}
 	else if( type === Types.rentRoom ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				cost:0, 
 				text:'', 
 				success_text:'', 
 				player:''
 			};
-		// Todo: bind
+
+			
 		html += 'Player: <div class="player"></div>';
 		html += 'Text: <div class="text"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label>Cost in copper: <input type="number" step=1 min=0 name="data::cost" class="saveable" value="'+esc(asset.data.cost)+'" /></label>';
 			html += '<label>Success text: <input type="text" name="data::success_text" class="saveable" value="'+esc(asset.data.success_text)+'" /></label>';
 		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+			this.dom.querySelector("div.text").appendChild(EditorText.assetTable(this, asset, "data::text", true, true));
+		};
 	}
 	else if( type === Types.execRentRoom ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				renter:'',
 				cost : '',
@@ -313,61 +503,84 @@ export function asset(){
 			html += '<label>Cost in copper: <input type="number" step=1 min=0 name="data::cost" class="saveable" value="'+esc(asset.data.cost)+'" /></label>';
 			html += '<label>Success text: <input type="text" name="data::success_text" class="saveable" value="'+esc(asset.data.success_text)+'" /></label>';
 		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.renter").appendChild(EditorPlayer.assetTable(this, asset, "data::renter", true));
+		};
 		
 	}
 	else if( type === Types.sleep ){
 		asset.data = {};
 	}
 	else if( type === Types.resetRoleplay ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				roleplay : '',
 			};
-		// Todo: bind
+			
 		html += 'Roleplay: <div class="roleplay"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.roleplay").appendChild(EditorRoleplay.assetTable(this, asset, "data::roleplay", true));
+		};
 		
 	}
 	else if( type === Types.setDungeon ){
 		// Todo: need to fetch a list of dungeons and then rooms etc
 	}
 	else if( type === Types.addFaction ){
-		if( typeof asset.data !== "object" )
+
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				faction:'', 
 				amount:5
 			};
-		// Todo: bind
+			
 		html += 'Faction: <div class="faction"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label>Amount of rep: <input type="number" step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
 		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.faction").appendChild(EditorFaction.assetTable(this, asset, "data::faction", true));
+		};
+
 	}
 	else if( type === Types.trade ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				asset:'', 
 				amount:1, 
-				from:'', 
-				to:''
 			};
-		// Todo: bind
+			
 		html += 'Asset: <div class="asset"></div>';
-		html += 'Amount: <div class="amount"></div>';
 		html += 'From: <div class="from"></div>';
 		html += 'To: <div class="to"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label>Amount of the item: <input type="number" step=1 min=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
 		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.asset").appendChild(EditorAsset.assetTable(this, asset, "data::asset", true));
+			this.dom.querySelector("div.from").appendChild(EditorPlayer.assetTable(this, asset, "data::from", true));
+			this.dom.querySelector("div.to").appendChild(EditorPlayer.assetTable(this, asset, "data::to", true));
+		};
+
 	}
 	else if( type === Types.learnAction ){
-		if( typeof asset.data !== "object" )
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				conditions:[], 
 				action:''
 			};
-		// Todo: bind
-		html += 'Player Conditions: <div class="conditions"></div>';
-		html += 'Action: <div class="action"></div>';
+
+		html += 'Player Conditions: <div class="player_conditions"></div>';
+		html += 'Action: <div class="action_edit"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player_conditions").appendChild(EditorCondition.assetTable(this, asset, "data::conditions", false));
+			this.dom.querySelector("div.action_edit").appendChild(EditorAction.assetTable(this, asset, "data::action", true));
+		};
 	}
 	else{
 		// Fall back on JSON
@@ -407,7 +620,13 @@ export function asset(){
 
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name, single, parented, ignoreAsset ){
-	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'type', 'desc'], single, parented, ignoreAsset);
+	
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, [
+		'label', 
+		'type', 
+		'desc', 
+		'data'
+	], single, parented, ignoreAsset);
 }
 
 

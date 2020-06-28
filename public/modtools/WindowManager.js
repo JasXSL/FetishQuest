@@ -28,6 +28,7 @@ export default class Window{
 		this.dom.classList.add("window", type.toLowerCase().split(" ").join("_"));
 		this.dom.dataset.id = this.uniqid();
 		this.parent = parent;
+		this.hideOnClose = false;
 		
 		this.minimized = false;
 
@@ -186,7 +187,7 @@ export default class Window{
 				else if( button.classList.contains("close") )
 					this.remove();
 				else if( button.classList.contains("refresh") )
-					this.rebuild(false);	// Needs to be false to prevent dirty in dungeonAsset
+					this.rebuild();	// Needs to be false to prevent dirty in dungeonAsset
 
 			};
 		});
@@ -194,8 +195,8 @@ export default class Window{
 
 	}
 
-	rebuild( isRebuild = true ){
-		this.build(isRebuild);
+	rebuild(){
+		this.build();
 	}
 
 	reset(){
@@ -352,11 +353,19 @@ export default class Window{
 	
 	// Todo: remove any children recursively
 	remove(){
-		this.dom.parentNode.removeChild(this.dom);
-		Window.remove(this);
+		
+		if( this.hideOnClose )
+			this.dom.classList.toggle("hidden", true);
+		else{
+			this.dom.parentNode.removeChild(this.dom);
+			Window.remove(this);
+		}
+
 	}
 
-	close(){ this.remove(); }
+	close(){ 
+		this.remove(); 
+	}
 
 	bringToFront( force ){
 
@@ -401,7 +410,7 @@ export default class Window{
 		}
 		this.pages.set(uid, w);
 		this.windowContainer.append(w.dom);
-		w.rebuild(false);
+		w.rebuild();
 		w.bringToFront();
 		
 		const settings = this.meta[w.type.split(" ").join("_")];

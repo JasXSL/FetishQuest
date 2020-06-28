@@ -73,6 +73,7 @@ export default{
 				if( list )
 					this.rebuildAssetLists(list);
 
+				this.propagateChange(win);
 				if( typeof onChange === "function" )
 					onChange(name, val);
 
@@ -108,6 +109,7 @@ export default{
 					asset[textarea.name] = data;
 					dev.setDirty(true);
 					this.rebuildAssetLists(list);
+					this.propagateChange(win);
 
 				}
 
@@ -153,6 +155,8 @@ export default{
 				asset[div.getAttribute("name")] = out;
 				dev.setDirty(true);
 				this.rebuildAssetLists(list);
+				this.propagateChange(win);
+				
 			}
 
 		};
@@ -222,6 +226,9 @@ export default{
 		key = k.shift();
 
 		const allEntries = toArray(entries[key]);
+		// Needed because :: may need to set '' as a value in order to work
+		if( single && allEntries[0] === '' )
+			allEntries.splice(0);
 
 		const EDITOR = window.mod, MOD = EDITOR.mod;
 
@@ -230,6 +237,7 @@ export default{
 		
 		let content = '';
 		if( !ignoreAsset ){	// Used in EditorQuestReward where there are multiple inputs all corresponding to the same field
+
 			for( let entry of allEntries ){
 
 				
@@ -248,46 +256,49 @@ export default{
 			}
 		}
 
-		// Parented single can only add if one is missing. Otherwise they have to edit by clicking. This works because parented can only belong to the same mod.
-		if( !single || !parented || !entries[key] )
+		// Parented single asset can only add if one is missing. Otherwise they have to edit by clicking. This works because parented can only belong to the same mod.
+		const hasButton = !single || !parented || !entries[key];
+		if( hasButton )
 			content += '<tr class="noselect"><td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td></tr>';
 		table.innerHTML = content;
 
-		table.querySelector("input.addNew").onclick = () => {
+		if( hasButton ){
+			table.querySelector("input.addNew").onclick = () => {
 
-			// If parented, insert a new asset immediately, as there's no point in listing assets that are only viable for this parent
-			if( parented ){
+				// If parented, insert a new asset immediately, as there's no point in listing assets that are only viable for this parent
+				if( parented ){
 
-				let a = new constructor();
-				if( a.hasOwnProperty("label") ){
-					a.label = (asset.label||asset.id)+'>>'+targetLibrary+Math.floor(Math.random()*0xFFFFFFF);
+					let a = new constructor();
+					if( a.hasOwnProperty("label") ){
+						a.label = (asset.label||asset.id)+'>>'+targetLibrary+Math.floor(Math.random()*0xFFFFFFF);
+					}
+					a = a.save("mod");
+					
+					if( single )
+						entries[key] = a.label || a.id;		// Store only the ID
+					else{
+						if( !Array.isArray(entries[key]) )
+						entries[key] = [];
+						entries[key].push(a.label || a.id);
+					}
+
+					a._mParent = {
+						type : win.type,
+						label : win.id,
+					};
+
+					// Insert handles other window refreshers
+					this.insertAsset(targetLibrary, a, win);
+
+					// But we still need to refresh this
+					win.rebuild();
+
 				}
-				a = a.save("mod");
-				
-				if( single )
-					entries[key] = a;
-				else{
-					if( !Array.isArray(entries[key]) )
-					entries[key] = [];
-					entries[key].push(a.label || a.id);
-				}
+				else
+					window.mod.buildAssetLinker( win, asset, fullKey, targetLibrary, single );
 
-				a._mParent = {
-					type : win.type,
-					label : win.id,
-				};
-
-				// Insert handles other window refreshers
-				this.insertAsset(targetLibrary, a, win);
-
-				// But we still need to refresh this
-				win.rebuild();
-
-			}
-			else
-				window.mod.buildAssetLinker( win, asset, fullKey, targetLibrary, single );
-
-		};
+			};
+		}
 
 		const clickListener = event => {
 
@@ -310,9 +321,9 @@ export default{
 
 				// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
 				// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
-				if( parented )
+				if( parented ){
 					MOD.deleteAsset(targetLibrary, deletedAsset);
-
+				}
 				win.rebuild();
 				EDITOR.setDirty(true);
 				this.rebuildAssetLists(win.type);
@@ -396,7 +407,7 @@ export default{
 		for( let asset of db ){
 
 			const a = constr.loadThis(asset);
-			html += '<tr data-id="'+esc(asset.label || asset.id)+'" '+(asset.__MOD ? 'data-mod="'+esc(asset.__MOD)+'"' : '')+'>';		
+			html += '<tr data-id="'+esc(asset.label || asset.id || a.label || a.id)+'" '+(asset.__MOD ? 'data-mod="'+esc(asset.__MOD)+'"' : '')+'>';		
 
 				for( let field in fields ){
 
@@ -457,7 +468,7 @@ export default{
 		}
 
 		// Handle clicks on the rows
-		win.dom.querySelectorAll('tr[data-id]').forEach(el => el.onclick = event => {
+		win.dom.querySelectorAll('tr[data-id]').forEach(el => el.addEventListener('click', event => {
 
 			const elId = event.currentTarget.dataset.id,
 				mod = event.currentTarget.dataset.mod
@@ -495,7 +506,7 @@ export default{
 
 				
 				if( !baseAsset ){
-					console.log("Type", type, "parentWindow", parentWindow);
+					console.error("Type", type, "parentWindow", parentWindow);
 					throw 'Base asset not found';
 				}
 				if( !targAsset )
@@ -511,7 +522,6 @@ export default{
 				// win.id contains the field you're looking to link to
 				let label = targAsset.label || targAsset.id;
 
-				console.log("Setting", baseAsset, key, "to", label);
 				// Single assigns directly to the key
 				if( single ){
 					baseAsset[key] = label;
@@ -530,7 +540,9 @@ export default{
 
 			}
 	
-		});
+		}, {
+			passive : true
+		}));
 	
 		win.dom.querySelector('input.new').onclick = event => {
 			
@@ -578,6 +590,22 @@ export default{
 	},
 
 
+	// Checks for an onChildChange method on win and any parents, and calls it
+	propagateChange( win ){
+
+		let p = win;
+		while( true ){
+
+			if( typeof p.onChange === "function" )
+				p.onChange(win);
+			p = p.parent;
+
+			if( !p )
+				return;
+
+		}
+
+	},
 
 	// Tries to get an asset from our mod or a parent mod, tries to find id in label or actual id
 	getAssetById( type, id ){

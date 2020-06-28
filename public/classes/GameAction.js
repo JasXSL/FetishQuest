@@ -37,7 +37,6 @@ export default class GameAction extends Generic{
 		const out = {
 			id : this.id,
 			type : this.type,
-			repeats : this.repeats,
 			conditions : Condition.saveThese(this.conditions, full)
 		};
 
@@ -45,6 +44,7 @@ export default class GameAction extends Generic{
 		if( full === "mod" ){
 			out.label = this.label;
 			out.desc = this.desc;
+			this.g_sanitizeDefaults(out);
 		}
 		if( full || GameAction.typesToSendOnline[this.type] ){
 			out.data = this.flattenData(full);

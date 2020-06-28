@@ -264,6 +264,12 @@ div.tagEditor > input{
 
 
 
+div.assetInserter > select{
+	height: 128px;
+	font-size:12px;
+}
+
+
 
 
 textarea.json{
