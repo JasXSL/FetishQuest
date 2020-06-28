@@ -32,8 +32,8 @@ import Action from "../classes/Action.js";
 // This is a special mod 
 const mod = new Mod(
 	{
-		id:"MAIN_MOD",
-		name:"MAIN_EDIT",
+		id:"MAIN",
+		name:"MAIN",
 		author:"JasX",
 		description:"This is a copy of main. Export into _main_mod.js",
 		dungeons:dungeons,
