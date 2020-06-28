@@ -263,17 +263,45 @@ export function asset(){
 		};
 	}
 	else if( type === Types.questObjective ){
-		/*
-		if( !asset.data || typeof asset.data !== "object" || !asset.data.quest )
+		// {quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1}
+		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
-				quest : ''
-				objective : '',
+				type : 'add',
+				amount : 1
 			};
-			objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1
-		// Todo: bind
+		
 		html += '<div class="quest"></div>';
-		*/
-		// Todo: need to fetch objectives from the quest
+		
+
+		html += '<div class="labelFlex">';
+
+			// If quest exists: Fetch objectives
+			const a = asset.data.quest && HelperAsset.getAssetById('quests', asset.data.quest);
+			if( a ){
+
+				html += '<label><select name="data::objective" class="saveable">';
+				for( let objective of a.objectives ){
+					if( objective && typeof objective === "object" )
+						objective = objective.label;
+					html += '<option value="'+esc(objective)+'" '+(objective === asset.data.objective ? 'selected' : '')+'>'+esc(objective)+'</option>';
+				}
+				html += '</select></label>';
+
+			}
+
+		
+			html += '<label title="Action to perform">Action: <select name="data::type" class="saveable">';
+				html += '<option value="add">Add</option>';
+				html += '<option value="set" '+(asset.data.type === 'set' ? 'selected' : '')+'>Set</option>';
+			html += '</select></label>';
+			html += '<label title="Amount to add">Amount: <input type="number" step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 1)+'" /></label>';
+		html += '</div>';
+		
+
+		fnBind = () => {
+			this.dom.querySelector("div.quest").appendChild(EditorQuest.assetTable(this, asset, "data::quest", true));
+		};
+
 	}
 	else if( type === Types.addInventory ){
 

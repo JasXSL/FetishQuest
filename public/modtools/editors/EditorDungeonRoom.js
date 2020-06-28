@@ -495,8 +495,10 @@ class Editor{
 
 			this.asset.asset = asset;	// Needs to be set because dungeonAsset doesn't have a library
 
+			if( this.isHidden() )
+				this.bringToFront();
 			this.dom.classList.toggle("hidden", false);
-			this.bringToFront();
+			
 
 			let html = '';
 			html += '<div class="labelFlex">';
@@ -517,7 +519,7 @@ class Editor{
 				th.save();
 			});
 
-			// Todo: How do?
+			
 			this.dom.querySelector("div.interactions").appendChild(EditorGameAction.assetTable(this, asset, "interactions", false, 2));
 
 			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false, false));	
