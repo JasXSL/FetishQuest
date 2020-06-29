@@ -557,7 +557,7 @@ RoleplayStageOption.ChatType = {
 	none : 2,			// Don't output chat or emote
 };
 
-class RoleplayStageOptionGoto extends Generic{
+export class RoleplayStageOptionGoto extends Generic{
 
 	constructor(data, parent){
 		super(data);
@@ -589,7 +589,6 @@ class RoleplayStageOptionGoto extends Generic{
 	save( full ){
 
 		let out = {
-			id : this.id,
 			index : this.index,
 			conditions : Condition.saveThese(this.conditions, full)
 		};

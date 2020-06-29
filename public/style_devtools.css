@@ -154,7 +154,8 @@ div.window.maximized{
 	bottom:0;
 }
 
-div.window label{
+div.window label,
+div.labelStyle{
 	display:inline-block;
 	background-color:rgba(0,0,0,.5);
 	padding:5px;
@@ -225,7 +226,8 @@ div.labelFlex{
 	display:flex;
 	flex-wrap: wrap;
 }
-div.labelFlex > label{
+div.labelFlex > label,
+div.labelStyle{
 	display: block;
 	flex:1;
 }

@@ -3,7 +3,7 @@ import HelperAsset from './HelperAsset.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorGameAction from './EditorGameAction.js';
 
-import { RoleplayStageOption } from '../../classes/Roleplay.js';
+import { RoleplayStageOption, RoleplayStageOptionGoto } from '../../classes/Roleplay.js';
 
 const DB = 'roleplayStageOption',
 	CONSTRUCTOR = RoleplayStageOption;
@@ -30,28 +30,10 @@ export function asset(){
 	if( !parentRoleplay )
 		return this.close();
 	
+
 	let html = '';
 	html += '<div class="labelFlex">';
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
-
-		html += '<label>Go to stage: <select name="index" class="saveable">';
-			html += '<option value="-1">-- END RP --</option>';
-			for( let s of parentRoleplay.stages ){
-				const stage = modtools.mod.getAssetById("roleplayStage", s);
-				if( !stage )
-					continue;
-				// Try to fetch the text from said stage
-				let text = '!! NO_TEXT !!';
-				if( Array.isArray(stage.text) && stage.text.length ){
-					
-					const t = modtools.mod.getAssetById("texts", stage.text[0]);
-					if( t )
-						text = t.text;
-
-				}
-				html += '<option value="'+esc(stage.index)+'" '+(stage.index === dummy.index ? 'selected' : '')+'>'+esc('['+esc(stage.index || 0)+'] '+text)+'</option>';
-			}
-		html += '</select></label>';
 
 		html += '<label>Text: <input type="text" name="text" class="saveable" value="'+esc(dummy.text)+'" /></label>';
 		
@@ -64,6 +46,48 @@ export function asset(){
 	html += '</div>';
 
 
+	// Handle gotos
+	const stages = parentRoleplay.stages.map(el => modtools.mod.getAssetById("roleplayStage", el));
+	const buildStageSelect = (index, gotoIndex) => {
+		let out = 'Stage: <select name="index::'+index+'::index" class="saveable">';
+		out += '<option value="-1">-- END RP --</option>';
+		for( let stage of stages ){
+			// Try to fetch the text from said stage
+			let text = '!! NO_TEXT !!';
+			if( Array.isArray(stage.text) && stage.text.length ){
+
+				const t = modtools.mod.getAssetById("texts", stage.text[0]);
+				if( t )
+					text = t.text;
+
+			}
+			out += '<option value="'+esc(stage.index)+'" '+(stage.index === gotoIndex ? 'selected' : '')+'>'+esc('['+esc(stage.index || 0)+'] '+text)+'</option>';
+		}
+		out += '</select>';
+		return out;
+	};
+	
+
+	dummy.index = RoleplayStageOptionGoto.loadThese(dummy.index, this);
+	asset.index = RoleplayStageOptionGoto.saveThese(dummy.index, "mod");
+
+	html += 'Go to:<div class="goto labelFlex">';
+	let n = 0;
+	for( let opt of dummy.index ){
+
+		html += '<div class="option labelStyle">';
+			html += buildStageSelect(n, opt.index);
+			html += 'Conditions: <div class="optConds" data-index="'+n+'"></div>';
+		html += '</div>';
+
+
+		++n;
+	}
+	html += '</div>';
+
+	html += '<div><input type="button" class="addGoto" value="Add Go To Option" /></div>';
+
+
 	html += 'Game Actions: <div class="game_actions"></div>';
 	html += 'Conditions: <div class="conditions"></div>';
 
@@ -74,6 +98,34 @@ export function asset(){
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions", false, false));
 	
 	// Todo: options
+	this.dom.querySelectorAll('div.optConds[data-index]').forEach(el => {
+		const idx = parseInt(el.dataset.index);
+		el.appendChild(EditorCondition.assetTable(this, asset, "index::"+idx+"::conditions", false, false));
+	});
+
+	this.dom.querySelectorAll('div.goto > div.option').forEach((el, idx) => {
+
+		el.onclick = event => {
+			
+			if( event.ctrlKey ){
+				
+				console.log("Event raised", event, "on", el);
+				event.stopImmediatePropagation();
+				console.log("Splicing 1 asset from", idx);
+				asset.index.splice(idx, 1);
+				window.mod.setDirty(true);
+				this.rebuild();
+				
+			}
+
+		};
+	});
+
+	this.dom.querySelector('input.addGoto').onclick = event => {
+		asset.index.push({index:-1});
+		this.rebuild();
+		window.mod.setDirty(true);
+	};
 
 
 	HelperAsset.autoBind( this, asset, DB);
