@@ -113,6 +113,19 @@ export default class Modtools{
 			fullControls : true,
 			enableGrid : true
 		});
+		const gl = this.webgl;
+		const control = new TransformControls( gl.camera, gl.renderer.domElement, () => {});
+		this.transformControls = control;
+		control.setTranslationSnap(1);
+		control.setRotationSnap(THREE.Math.degToRad(1));
+		control.addEventListener( 'dragging-changed', function( event ){
+			gl.controls.enabled = !event.value;
+		});
+		gl.scene.add(control);
+		gl.onRender = function(){
+			control.update();
+		};
+		
 
 		this.dirty = false;
 		
@@ -807,6 +820,201 @@ export default class Modtools{
 		this.modName.innerText = '';
 
 	}
+
+
+
+
+	// Converts 
+	convertLegacyMod( modVersion = 0 ){
+
+		const mod = this.mod;
+		// Mod needs some assets broken out into their own table
+		if( modVersion < 1 ){
+
+			// Dungeons
+			for( let dungeon of mod.dungeons ){
+
+				// Break dungeon rooms out into their own thing
+				for( let i in dungeon.rooms ){
+					const room = dungeon.rooms[i];
+					if( typeof room !== "object" )
+						continue;
+
+					const label = dungeon.label+'>>'+(room.index||0);
+					dungeon.rooms[i].label = label;
+					dungeon.rooms[i]._mParent = {
+						type : 'dungeons',
+						label : dungeon.label
+					};
+					
+					this.mod.dungeonRooms.push(dungeon.rooms[i]);
+					dungeon.rooms[i] = label;
+
+
+				}
+
+			}
+
+			// Roleplay
+			for( let rp of mod.roleplay ){
+
+				for( let i in rp.stages ){
+
+					const stage = rp.stages[i];
+					if( typeof stage !== "object" )
+						continue;
+
+					const stageLabel = rp.label+'>>'+stage.index;
+					stage.label = stageLabel;
+					stage._mParent = {
+						type : 'roleplay',
+						label : rp.label
+					};
+					rp.stages[i] = stageLabel;
+					mod.roleplayStage.push(stage);
+
+					// Continue by doing the responses
+					for( let o in stage.options ){
+
+						const opt = stage.options[0];
+						if( typeof opt !== "object" )
+							continue;
+
+						const optLabel = stageLabel+'>>'+o;
+						opt.label = optLabel;
+						opt._mParent = {
+							type : 'roleplayStage',
+							label : stageLabel
+						};
+
+						stage.options[i] = optLabel;
+						mod.roleplayStageOption.push(opt);
+
+					}
+
+					// And the text objects
+					for( let o in stage.text ){
+
+						const opt = stage.text[0];
+						if( typeof opt !== "object" )
+							continue;
+
+						const optLabel = stageLabel+'>>'+o;
+						opt.label = optLabel;
+						opt._mParent = {
+							type : 'roleplayStage',
+							label : stageLabel
+						};
+
+						stage.text[i] = optLabel;
+						mod.texts.push(opt);
+
+					}
+
+				}
+
+			}
+
+
+			// Todo: Quest
+			/*
+			for( let rp of mod.roleplay ){
+
+				for( let i in rp.stages ){
+
+					const stage = rp.stages[i];
+					if( typeof stage !== "object" )
+						continue;
+
+					const stageLabel = rp.label+'>>'+stage.index;
+					stage.label = stageLabel;
+					stage._mParent = {
+						type : 'roleplay',
+						label : rp.label
+					};
+					rp.stages[i] = stageLabel;
+					mod.roleplayStage.push(stage);
+
+					// Continue by doing the responses
+					for( let o in stage.options ){
+
+						const opt = stage.options[0];
+						if( typeof opt !== "object" )
+							continue;
+
+						const optLabel = stageLabel+'>>'+o;
+						opt.label = optLabel;
+						opt._mParent = {
+							type : 'roleplayStage',
+							label : stageLabel
+						};
+
+						stage.options[i] = optLabel;
+						mod.roleplayStageOption.push(opt);
+
+					}
+
+					// And the text objects
+					for( let o in stage.text ){
+
+						const opt = stage.text[0];
+						if( typeof opt !== "object" )
+							continue;
+
+						const optLabel = stageLabel+'>>'+o;
+						opt.label = optLabel;
+						opt._mParent = {
+							type : 'roleplayStage',
+							label : stageLabel
+						};
+
+						stage.text[i] = optLabel;
+						mod.texts.push(opt);
+
+					}
+
+				}
+
+			}
+			*/
+			// Break up quests into
+				// questRewards
+				// questObjectives
+					// questObjectiveEvents
+
+			// Break up shops into
+				// shopAssets
+
+			// Shops
+			for( let shop of mod.shops ){
+
+				// Break out shop assets
+				for( let i in shop.items ){
+
+					const asset = shop.items[i];
+					if( typeof asset !== "object" )
+						continue;
+
+					const label = shop.label+'>>'+(asset.label||i);
+					asset.label = label;
+					asset._mParent = {
+						type : 'shops',
+						label : shop.label
+					};
+					
+					this.mod.shopAssets.push(asset);
+					shop.items[i] = label;
+
+					console.log("Split it off with label", label);
+
+				}
+
+			}
+
+		}
+
+	}
+
 
 }
 

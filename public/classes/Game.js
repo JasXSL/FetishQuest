@@ -20,7 +20,7 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
 import VibHub from './VibHub.js';
 import Faction from './Faction.js';
-import ENcounter from './Encounter.js';
+import Encounter from './Encounter.js';
 
 export default class Game extends Generic{
 

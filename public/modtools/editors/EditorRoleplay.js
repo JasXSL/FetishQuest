@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
 
 import * as EditorCondition from './EditorCondition.js';
+import * as EditorPlayer from './EditorPlayer.js';
 import * as EditorRoleplayStage from './EditorRoleplayStage.js';
 import Roleplay from '../../classes/Roleplay.js';
 
@@ -27,7 +28,6 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Title: <input type="text" name="title" class="saveable" value="'+esc(dummy.title)+'" /></label>';
-		html += '<label title="Label of player in encounter to tie it to">Player: <input type="text" name="player" class="saveable" value="'+esc(dummy.player)+'" /></label>';
 		html += '<label title="A small headshot of the player">Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
 
 		html += '<label title="Preserves stage when reopened">Persistent <input type="checkbox" class="saveable" name="persistent" '+(dummy.persistent ? 'checked' : '')+' /></label><br />';
@@ -35,6 +35,7 @@ export function asset(){
 		html += '<label title="Autoplay">Auto Play <input type="checkbox" class="saveable" name="autoplay" '+(dummy.autoplay ? 'checked' : '')+' /></label><br />';
 	html += '</div>';
 
+	html += '<label title="Player in encounter to tie it to">Player: </label><div class="player"></div>';
 
 	html += 'Stages: <div class="stages"></div>';
 
@@ -49,9 +50,9 @@ export function asset(){
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "add_conditions", false, false));
 
-	// Todo: stages
 	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, true));
 
+	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 
 	HelperAsset.autoBind( this, asset, DB);
 

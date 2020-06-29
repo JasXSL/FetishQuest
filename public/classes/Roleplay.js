@@ -421,6 +421,8 @@ export class RoleplayStage extends Generic{
 
 	}
 
+	
+
 }
 
 export class RoleplayStageOption extends Generic{
@@ -431,7 +433,7 @@ export class RoleplayStageOption extends Generic{
 		this.parent = parent;
 		
 		this.label = '';
-		this.index = -1;			// Target index
+		this.index = [];			// Target index. An array of goto objects or integers. Integers get converted to goto objects. The first valid one will be picked or an exit option will be created.
 		this.text = '';
 		this.chat = RoleplayStageOption.ChatType.default;			// Chat type
 		this.conditions = [];
@@ -442,6 +444,8 @@ export class RoleplayStageOption extends Generic{
 	}
 
 	load(data){
+		if( data && data.index !== undefined && !Array.isArray(data.index) )
+			data.index = toArray(data.index);
 		this.g_autoload(data);
 	}
 	// Automatically invoked after g_autoload
@@ -451,7 +455,8 @@ export class RoleplayStageOption extends Generic{
 			this.id = this.parent.id+'_'+this.index;
 		this.conditions = Condition.loadThese(this.conditions, this);
 		this.game_actions = GameAction.loadThese(this.game_actions, this);
-		
+		this.index = RoleplayStageOptionGoto.loadThese(this.index, this);
+
 	}
 
 
@@ -466,7 +471,7 @@ export class RoleplayStageOption extends Generic{
 
 		if( full ){
 			out.label = this.label;
-			out.index = this.index;
+			out.index = RoleplayStageOptionGoto.saveThese(this.index, full);
 			out.chat = this.chat;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
@@ -518,7 +523,10 @@ export class RoleplayStageOption extends Generic{
 		// Do this first to set the waiting flag
 		game.ui.rpOptionSelected(this.id);
 		game.net.dmRpOptionSelected(this.id);
-		rp.setStage(this.index, true, player);
+
+		const goto = this.getIndex( player );
+
+		rp.setStage(goto.index, true, player);
 		
 		// Do these last as they might force a UI draw, which might draw the wrong RP option
 		for( let act of this.game_actions ){
@@ -526,6 +534,18 @@ export class RoleplayStageOption extends Generic{
 		}
 
 		return true;
+
+	}
+
+	// Where do we go to after pushing the button?
+	getIndex( target ){
+
+		for( let opt of this.index ){
+			if( opt.validate(target) )
+				return opt;
+		}
+		
+		return new RoleplayStageOptionGoto({index : -1}, this);
 
 	}
 
@@ -537,3 +557,64 @@ RoleplayStageOption.ChatType = {
 	none : 2,			// Don't output chat or emote
 };
 
+class RoleplayStageOptionGoto extends Generic{
+
+	constructor(data, parent){
+		super(data);
+		
+		this.parent = parent;
+		
+		this.index = -1;
+		this.conditions = [];
+
+		this.load(data);
+
+	}
+
+	load(data){
+		if( !isNaN(data) )
+			data = {index:data};
+		this.g_autoload(data);
+	}
+	// Automatically invoked after g_autoload
+	rebase(){
+		
+		if( !this.id )
+			this.id = this.parent.id+'_'+this.index;
+		this.conditions = Condition.loadThese(this.conditions, this);
+		
+	}
+
+	// Data that should be saved to drive
+	save( full ){
+
+		let out = {
+			id : this.id,
+			index : this.index,
+			conditions : Condition.saveThese(this.conditions, full)
+		};
+
+		
+		if( full !== "mod" ){}
+		else
+			this.g_sanitizeDefaults(out);
+
+		return out;
+
+	}
+	
+	validate( target ){
+
+		let sender = this.parent.parent.getPlayer();
+		if( !sender )
+			sender = target;
+
+		const evt = new GameEvent({
+			sender : sender,
+			target : target
+		});
+		return Condition.all(this.conditions, evt);
+
+	}
+
+}

@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
 
 import * as EditorText from './EditorText.js';
+import * as EditorPlayer from './EditorPlayer.js';
 import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import Roleplay, { RoleplayStage, RoleplayStageOption } from '../../classes/Roleplay.js';
 import Action from '../../classes/Action.js';
@@ -26,7 +27,6 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		html += '<label title="Lets you override the name of the speaking player">Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label title="A unique identifier number">Index: <input type="number" step=1 name="index" class="saveable" value="'+esc(dummy.index)+'" /></label>';
-		html += '<label title="Label of player in encounter to tie it to, overrides RP parent">Player: <input type="text" name="player" class="saveable" value="'+esc(dummy.player)+'" /></label>';
 		html += '<label title="A small headshot of the player, overrides RP parent">Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
 		html += '<label>Chat type: <select name="chat">';
 		for( let i in RoleplayStageOption.ChatType )
@@ -36,6 +36,7 @@ export function asset(){
 	html += '</div>';
 
 
+	html += '<label title="Player in encounter to tie it to, overrides RP parent">Player: </label><div class="player"></div>';
 
 
 	// Conditions
@@ -49,6 +50,7 @@ export function asset(){
 	// Conditions
 	this.dom.querySelector("div.text").appendChild(EditorText.assetTable(this, asset, "text", false, true));
 	this.dom.querySelector("div.options").appendChild(EditorRoleplayStageOption.assetTable(this, asset, "options", false, true));
+	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 	
 
 

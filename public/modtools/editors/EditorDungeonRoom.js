@@ -3,6 +3,7 @@ import HelperTags from './HelperTags.js';
 import * as EditorAsset from './EditorAsset.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorGameAction from './EditorGameAction.js';
+import * as EditorEncounter from './EditorEncounter.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../../classes/Dungeon.js';
 import {default as WebGL, Stage} from '../../classes/WebGL.js';
@@ -77,7 +78,7 @@ export function asset(){
 
 	this.setDom(html);
 	// Bind linked objects
-	this.dom.querySelector("div.encounters").appendChild(EditorAsset.assetTable(this, asset, "encounters"));	
+	this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "encounters"));	
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
 		HelperTags.autoHandleAsset('tags', tags, asset);
@@ -110,13 +111,10 @@ class Editor{
 		this.assetWindow = null;
 
 		// Add transform controls
-		const control = new TransformControls( gl.camera, gl.renderer.domElement, () => {});
+		const control = modtools.transformControls;
 		this.control = control;
-		control.setTranslationSnap(1);
-		control.setRotationSnap(THREE.Math.degToRad(1));
-		control.addEventListener( 'dragging-changed', function( event ){
-			gl.controls.enabled = !event.value;
-		});
+		
+		control.detach();
 
 		// Handle dragging the tool
 		this.saveTimer;
@@ -124,7 +122,8 @@ class Editor{
 		this.changed = false;
 		
 
-		control.addEventListener( 'mouseUp', evt => {
+		control._listeners.mouseUp = [evt => {
+
 			if( this.changed ){
 
 				this.changed = false;
@@ -148,15 +147,11 @@ class Editor{
 				this.addHistory(entry);
 
 			}
-		});
-		control.addEventListener( 'objectChange', evt => {
+		}];
+		control._listeners.objectChange = [evt => {
 			this.changed = true;
-		});
+		}];
 
-		gl.scene.add(control);
-		gl.onRender = function(){
-			control.update();
-		};
 		
 
 

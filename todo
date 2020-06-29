@@ -1,8 +1,9 @@
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system
 
-Game:
-	- Break encounters out into their own thing
+
+1. Make a test mod
+2. Once all assets are working properly, convert the main mod to the new mod format
 
 
 

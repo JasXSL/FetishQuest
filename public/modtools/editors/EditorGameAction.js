@@ -583,7 +583,7 @@ export function asset(){
 			html += '<label>Room: <select class="saveable" name="data::room">';
 			for( let r of cache_rooms )
 				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.room ? 'selected' : '')+'>['+esc(r.index || 0)+'] '+esc(r.name || 'Unknown Room')+'</option>';
-			html += '</label>';
+			html += '</select></label>';
 
 		}
 

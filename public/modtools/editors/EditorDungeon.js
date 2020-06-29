@@ -85,7 +85,12 @@ export function list(){
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
 		label : 'dungeon'+Math.ceil(Math.random()*0xFFFFFFF),
 		name : 'New Dungeon',
-		rooms : []
+		rooms : [],
+		consumables : [
+			'manaPotion', 'majorManaPotion',
+			'minorHealingPotion', 'healingPotion',
+			'minorRepairKit', 'repairKit'
+		]
 	}));
 
 };

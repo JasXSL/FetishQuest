@@ -240,10 +240,12 @@ export default{
 
 			for( let entry of allEntries ){
 
-				
 				const base = this.modEntryToObject(entry, targetLibrary),
 					asset = new constructor(base)
 				;
+
+				if( !base )
+					console.error("Base not found, trying to find", entry, "in", targetLibrary, "asset was", asset, "all assets", allEntries);
 
 				// prefer label before id
 				content += '<tr class="asset" data-id="'+esc(asset.label || asset.id)+'">';

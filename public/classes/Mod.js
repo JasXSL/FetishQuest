@@ -56,7 +56,13 @@ export default class Mod extends Generic{
 
 	
 	load( data ){
+		
+		// Legacy reasons, can remove in the future
+		if( data && data.dungeonEncounters )
+			data.encounters = data.dungeonEncounters;
 		this.g_autoload(data);
+
+		
 	}
 
 	rebase(){
