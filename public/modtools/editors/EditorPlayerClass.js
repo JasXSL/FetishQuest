@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 import PlayerClass from '../../classes/PlayerClass.js';
 import Action from '../../classes/Action.js';
 import Player from '../../classes/Player.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'playerClasses',
 	CONSTRUCTOR = PlayerClass;
@@ -83,7 +84,7 @@ export function list(){
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, fields));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'class'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'class_'+Generic.generateUUID(),
 		name : 'Custom Class',
 		desc : 'This is my custom class',
 	}));

@@ -9,6 +9,7 @@ import * as EditorAction from './EditorAction.js';
 import * as EditorAssetTemplate from './EditorAssetTemplate.js';
 import PlayerTemplate from '../../classes/templates/PlayerTemplate.js';
 import stdTag from '../../libraries/stdTag.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 
 
@@ -172,7 +173,7 @@ export function list(){
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, fields));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'playerTemplate'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'playerTemplate_'+Generic.generateUUID(),
 		name : 'Cock Goblin',
 		description : 'A chest high green goblin with a massive donger.',
 		species : "goblin",

@@ -5,6 +5,7 @@ import * as EditorCondition from './EditorCondition.js';
 import * as EditorPlayer from './EditorPlayer.js';
 import * as EditorRoleplayStage from './EditorRoleplayStage.js';
 import Roleplay from '../../classes/Roleplay.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 
 const DB = 'roleplay',
@@ -48,7 +49,7 @@ export function asset(){
 	this.setDom(html);
 
 	// Conditions
-	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "add_conditions", false, false));
+	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
 
 	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, true));
 
@@ -81,7 +82,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'RP'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'RP_'+Generic.generateUUID(),
 		title : 'New Roleplay',
 		autoplay : true,
 		once : true,

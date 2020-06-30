@@ -3,6 +3,7 @@ import HelperTags from './HelperTags.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorAction from './EditorAction.js';
 import ActionLearnable from '../../classes/ActionLearnable.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 
 const DB = 'actionLearnable',
@@ -70,7 +71,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'action'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'action_'+Generic.generateUUID(),
 		action : 'lowBlow',
 		auto_learn : false,
 	}));

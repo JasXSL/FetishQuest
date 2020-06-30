@@ -1,5 +1,6 @@
 import HelperAsset from './HelperAsset.js';
 import HitFX, { Stage } from '../../classes/HitFX.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'hitFX',
 	CONSTRUCTOR = HitFX;
@@ -69,7 +70,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, CONSTRUCTOR.loadThis({
-		label : 'hitFX'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'hitFX_'+Generic.generateUUID(),
 		description : 'Describe your effect',
 		stages : [
             new Stage({

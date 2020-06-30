@@ -6,6 +6,7 @@ import * as EditorAudioKit from './EditorAudioKit.js';
 import * as EditorAction from './EditorAction.js';
 import Asset from '../../classes/Asset.js';
 import stdTag from '../../libraries/stdTag.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 
 const DB = 'assets',
@@ -135,7 +136,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'asset'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'asset_'+Generic.generateUUID(),
 		name : 'Epic Purple Thong',
 		shortname : 'thong',
 		level : 20,

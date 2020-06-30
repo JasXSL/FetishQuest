@@ -6,6 +6,7 @@ import * as EditorPlayer from './EditorPlayer.js';
 import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import Roleplay, { RoleplayStage, RoleplayStageOption } from '../../classes/Roleplay.js';
 import Action from '../../classes/Action.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'roleplayStage',
 	CONSTRUCTOR = RoleplayStage;
@@ -120,7 +121,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'RPStage'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'RPStage_'+Generic.generateUUID(),
 	}));
 
 };

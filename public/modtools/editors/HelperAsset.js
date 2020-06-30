@@ -1,6 +1,7 @@
 // This is a helper script for all ASSET editors
 import Window from '../WindowManager.js';
 import Condition from '../../classes/Condition.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 export default{
 
@@ -272,7 +273,7 @@ export default{
 
 					let a = new constructor();
 					if( a.hasOwnProperty("label") ){
-						a.label = (asset.label||asset.id)+'>>'+targetLibrary+Math.floor(Math.random()*0xFFFFFFF);
+						a.label = (asset.label||asset.id)+'>>'+targetLibrary+'_'+Generic.generateUUID();
 					}
 					a = a.save("mod");
 					
@@ -489,11 +490,30 @@ export default{
 				}
 
 			}
-			
-			// If it's not a linker, or shift is pressed, we bring up an editor
-			else if( !mod && (!isLinker || event.shiftKey) ){
+			// If it's a linker you can use shift to bring up an editor
+			else if( event.shiftKey && (isLinker && mod)  ){
 				DEV.buildAssetEditor(type, elId);
 			}
+			// Alt clones
+			else if( event.altKey ){
+
+				const asset = MOD.getAssetById(type, elId);
+				if( !asset )
+					throw 'Asset not found', type, elId;
+				const obj = new baseObject.constructor(asset);
+				if( obj.label )
+					obj.label += '_'+Generic.generateUUID();
+				if( obj.id )
+					obj.id = Generic.generateUUID();
+
+				this.insertAsset(type, obj.save("mod"), win);
+
+			}
+			// Unmodified non linker click opens
+			else if( !isLinker ){
+				DEV.buildAssetEditor(type, elId);
+			}
+
 			// This is a linker, we need to tie it to the parent
 			else{
 

@@ -1,5 +1,6 @@
 import HelperAsset from './HelperAsset.js';
 import { AudioKit } from '../../classes/Audio.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'audioKits',
 	CONSTRUCTOR = AudioKit;
@@ -66,7 +67,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'sound'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'sound_'+Generic.generateUUID(),
 		sounds : [
             {
                 s : {

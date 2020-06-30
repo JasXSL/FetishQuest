@@ -4,6 +4,7 @@ import * as EditorCondition from './EditorCondition.js';
 import * as EditorGameAction from './EditorGameAction.js';
 
 import { RoleplayStageOption, RoleplayStageOptionGoto } from '../../classes/Roleplay.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'roleplayStageOption',
 	CONSTRUCTOR = RoleplayStageOption;
@@ -97,7 +98,6 @@ export function asset(){
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions", false, false));
 	
-	// Todo: options
 	this.dom.querySelectorAll('div.optConds[data-index]').forEach(el => {
 		const idx = parseInt(el.dataset.index);
 		el.appendChild(EditorCondition.assetTable(this, asset, "index::"+idx+"::conditions", false, false));
@@ -107,11 +107,9 @@ export function asset(){
 
 		el.onclick = event => {
 			
-			if( event.ctrlKey ){
+			if( event.ctrlKey && event.target === el ){
 				
-				console.log("Event raised", event, "on", el);
 				event.stopImmediatePropagation();
-				console.log("Splicing 1 asset from", idx);
 				asset.index.splice(idx, 1);
 				window.mod.setDirty(true);
 				this.rebuild();
@@ -137,7 +135,7 @@ export function asset(){
 export function assetTable( win, modAsset, name, single, parented ){
 	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, [
 		'text',
-		asset => 'Go to '+asset.index,
+		asset => asset.index ? 'Go to '+asset.index.map(el => el.index === undefined ? -1 : el.index).join(' OR ') : 'NO GOTO',
 		asset => asset.game_actions ? asset.game_actions.length+' Actions' : 'NO GAME ACTIONS',
 		asset => {
 			for( let i in RoleplayStageOption.ChatType ){
@@ -164,7 +162,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'RPStage'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'RPStage_'+Generic.generateUUID(),
 	}));
 
 };

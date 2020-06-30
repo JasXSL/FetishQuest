@@ -6,6 +6,7 @@ import * as EditorAudioKit from './EditorAudioKit.js';
 import stdTag from '../../libraries/stdTag.js';
 import Action from '../../classes/Action.js';
 import { TorusBufferGeometry } from '../../ext/THREE.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 
 const DB = 'actions',
@@ -168,7 +169,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'action'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'action_'+Generic.generateUUID(),
 		cooldown : 1
 	}));
 

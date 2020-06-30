@@ -8,6 +8,7 @@ import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorWrapper from './EditorWrapper.js';
 import * as EditorPlayer from './EditorPlayer.js';
 import * as EditorPlayerTemplate from './EditorPlayerTemplate.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 
 const DB = 'encounters',
@@ -104,7 +105,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'encounter'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'encounter_'+Generic.generateUUID(),
 		desc : 'Describe your encounter',
 	}));
 

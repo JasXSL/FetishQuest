@@ -6,6 +6,7 @@ import * as EditorPlayerClass from './EditorPlayerClass.js';
 import * as EditorWrapper from './EditorWrapper.js';
 import * as EditorAsset from './EditorAsset.js';
 import * as EditorAction from './EditorAction.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'players',
 	CONSTRUCTOR = Player;
@@ -220,7 +221,7 @@ export function list(){
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, fields));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'player'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'player_'+Generic.generateUUID(),
 		name : 'New Player',
 		description : 'Describe your player here',
 	}));

@@ -1,5 +1,6 @@
 import HelperAsset from './HelperAsset.js';
 import Condition from '../../classes/Condition.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'conditions',
 	CONSTRUCTOR = Condition;
@@ -93,7 +94,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'newCondition'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'newCondition_'+Generic.generateUUID(),
 		type : Condition.Types.tag,
 		data : {tags:[]}
 	}));

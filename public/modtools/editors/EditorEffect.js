@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import GameEvent from '../../classes/GameEvent.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 import * as EditorCondition from './EditorCondition.js';
 
@@ -115,7 +116,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'effect'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'effect_'+Generic.generateUUID(),
 		desc : 'Deals 1 damage to auto target inheriting action damage type',
 		type : Effect.Types.damage,
 		targets : [Wrapper.TARGET_AUTO],

@@ -1,6 +1,7 @@
 import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
 import { Wrapper } from '../../classes/EffectSys.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 import * as EditorEffect from './EditorEffect.js';
 import * as EditorCondition from './EditorCondition.js';
@@ -109,7 +110,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'wrapper'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'wrapper_'+Generic.generateUUID(),
 		editor_desc : 'Interrupts auto target',
 		detrimental : true,
 		effects : ['interrupt'],

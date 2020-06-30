@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 
 import * as EditorCondition from './EditorCondition.js';
 import Faction from '../../classes/Faction.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'factions',
 	CONSTRUCTOR = Faction;
@@ -57,7 +58,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'faction'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'faction_'+Generic.generateUUID(),
 		name : 'New Faction'
 	}));
 

@@ -13,6 +13,7 @@ import * as EditorHitFX from './EditorHitFX.js';
 import * as EditorPlayerTemplate from './EditorPlayerTemplate.js';
 import * as EditorFaction from './EditorFaction.js';
 import * as EditorDungeon from './EditorDungeon.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 
 
@@ -708,7 +709,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'gameAction'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'gameAction_'+Generic.generateUUID(),
 		desc : 'Teleports the users back to Yuug port',
 		type : GameAction.types.setDungeon,
 		data : {

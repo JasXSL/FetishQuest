@@ -58,6 +58,7 @@ class Text extends Generic{
 	constructor(...args){
 		super(...args);
 
+		this.label = '';				// Only used when a text is used as a sub object, otherwise ID is usually used because it's auto generated
 		this.text = '';
 		this.conditions = [];
 		this.numTargets = 1;			// How many targets this text is meant for. Not a condition because we need to sort on it. Use -1 for ANY
@@ -155,6 +156,10 @@ class Text extends Generic{
 			en : this.en,
 			chat_reuse : this.chat_reuse
 		};
+
+		if( full === "mod" && this.label )
+			out.label = label;
+
 		return out;
 	}
 	

@@ -4,6 +4,7 @@ import Window from '../WindowManager.js';
 import * as EditorAsset from './EditorAsset.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom } from '../../classes/Dungeon.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'dungeons',
 	CONSTRUCTOR = Dungeon;
@@ -83,7 +84,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'dungeon'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'dungeon_'+Generic.generateUUID(),
 		name : 'New Dungeon',
 		rooms : [],
 		consumables : [

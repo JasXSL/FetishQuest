@@ -1,5 +1,6 @@
 import HelperAsset from './HelperAsset.js';
 import * as EditorCondition from './EditorCondition.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from '../../classes/Quest.js';
 
@@ -81,7 +82,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'reward'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'reward_'+Generic.generateUUID(),
 		type : QuestReward.Types.Asset
 	}));
 

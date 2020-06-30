@@ -282,7 +282,6 @@ export class RoleplayStage extends Generic{
 			index : this.index,
 			portrait : this.portrait,
 			name : this.name,
-			text: Text.saveThese(this.text, full),
 			options : RoleplayStageOption.saveThese(this.options, full),
 			player : this.player,
 			chat : this.chat,
@@ -291,6 +290,7 @@ export class RoleplayStage extends Generic{
 
 		if( full ){
 			
+			out.text = Text.saveThese(this.text, full);
 			out.label = this.label;
 
 		}

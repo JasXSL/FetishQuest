@@ -8,6 +8,7 @@ import stdTag from '../../libraries/stdTag.js';
 import AssetTemplate from '../../classes/templates/AssetTemplate.js';
 import Action from '../../classes/Action.js';
 import Player from '../../classes/Player.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 
 const DB = 'assetTemplates',
@@ -115,7 +116,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'asset'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'asset_'+Generic.generateUUID(),
 		name : 'Adorned Thong',
 		shortname : 'thong',
 		level : 5,

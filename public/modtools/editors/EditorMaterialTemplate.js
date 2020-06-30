@@ -7,6 +7,7 @@ import Player from '../../classes/Player.js';
 
 const DB = 'materialTemplates',
 	CONSTRUCTOR = MaterialTemplate;
+	import Generic from '../../classes/helpers/Generic.js';
 
 // Single asset editor
 export function asset(){
@@ -82,7 +83,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'material'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'material_'+Generic.generateUUID(),
 		name : 'My Material',
 	}));
 

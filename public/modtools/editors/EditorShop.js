@@ -3,6 +3,7 @@ import HelperAsset from './HelperAsset.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorShopAsset from './EditorShopAsset.js';
 import Shop from '../../classes/Shop.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'shops',
 	CONSTRUCTOR = Shop;
@@ -74,7 +75,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'vendor'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'vendor_'+Generic.generateUUID(),
 		name : 'New Shop'
 	}));
 

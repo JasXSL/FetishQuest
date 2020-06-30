@@ -1,6 +1,7 @@
 import HelperAsset from './HelperAsset.js';
 import * as EditorQuestReward from './EditorQuestReward.js';
 import * as EditorQuestObjective from './EditorQuestObjective.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 import Quest from '../../classes/Quest.js';
 
@@ -75,7 +76,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'vendor'+Math.ceil(Math.random()*0xFFFFFFF),
+		label : 'vendor_'+Generic.generateUUID(),
 		name : 'New Shop'
 	}));
 

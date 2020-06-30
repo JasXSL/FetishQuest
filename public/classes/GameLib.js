@@ -201,7 +201,8 @@ export default class GameLib{
 				for( let text of mod.texts ){
 
 					const t = new Text(text);
-					this.texts[t.id] = t;
+					let label = t.label || t.id;	// Labels can be used. These are only used when a text is used as a custom sub object, such as in a roleplay
+					this.texts[label] = t;
 
 				}
 
