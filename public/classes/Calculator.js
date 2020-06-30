@@ -38,7 +38,9 @@ Calculator.run = function( formula, event, customMathVars ){
 	let out = 0;
 	while(true){
 		try{
+
 			out = math.eval(formula, vars);
+
 		}catch(err){
 			let message = err.message;
 			if( message.startsWith('Undefined symbol ') ){

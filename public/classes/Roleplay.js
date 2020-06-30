@@ -19,11 +19,13 @@ export default class Roleplay extends Generic{
 		this.stages = [];			// Roleplay stages
 		this.player = '';
 		this.portrait = '';
+		
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
 		this.autoplay = true;
 
 		this._waiting = false;		// Waiting to change stage
+		this._targetPlayer = '';	// Can be set on roleplay stage to store the target, for use with texts and conditions
 
 		this.load(data);
 
@@ -62,6 +64,7 @@ export default class Roleplay extends Generic{
 			conditions : Condition.saveThese(this.conditions),
 			once : this.once,
 			portrait : this.portrait,
+			_targetPlayer : this._targetPlayer
 		};
 
 		if( full )
@@ -175,6 +178,8 @@ export default class Roleplay extends Generic{
 	}
 
 	onStart(){
+
+		this._targetPlayer = '';
 		const stage = this.getActiveStage();
 		if( stage )
 			stage.onStart();
@@ -255,6 +260,7 @@ export class RoleplayStage extends Generic{
 		this.options = [];
 		this.player = '';			// Player label of the one who is speaking
 		this.chat = RoleplayStageOption.ChatType.default;
+		this.store_pl = false;		// Store player as parent._targetPlayer for use in conditions and texts
 
 		this._iniPlayer = '';		// ID of player that triggered this stage
 		this._textEvent = null;	// Caches the active text event so the text doesn't change randomly.
@@ -292,6 +298,7 @@ export class RoleplayStage extends Generic{
 			
 			out.text = Text.saveThese(this.text, full);
 			out.label = this.label;
+			out.store_pl = this.store_pl;
 
 		}
 		if( full !== "mod" ){
@@ -366,8 +373,13 @@ export class RoleplayStage extends Generic{
 		if( !player )
 			player = game.getMyActivePlayer();
 
-		if( player )
+		if( player ){
+			
 			this._iniPlayer = player.id;
+			if( this.store_pl )
+				this.parent._targetPlayer = player.id;
+
+		}
 
 		const pl = this.getPlayer();
 		if( pl && this.chat !== RoleplayStageOption.ChatType.none )

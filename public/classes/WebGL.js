@@ -1572,7 +1572,6 @@ class Stage{
 		this.isEditor = isEditor;	// Whether this was loaded through the editor or live
 		this.room = room;			// DungeonRoom
 
-		console.log("Setting stage room to", room);
 	}
 	destructor(){
 		this.onTurnOff();
@@ -1699,7 +1698,6 @@ class Stage{
 		if( linkedRoom && linkedRoom.index === asset.parent.parent_index && !game.battle_active && !interaction.data.badge && !this.room.parent.free_roam ){
 
 			tagAlwaysVisible = true;
-			console.log("C", c);
 			sprite = sprites.out;
 			sprite.material.opacity = 1;
 

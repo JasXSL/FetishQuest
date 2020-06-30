@@ -1674,11 +1674,16 @@ export default class Game extends Generic{
 
 			this.clearRoleplay();
 
+			// Game actions
 			const viable = GameAction.getViable(this.encounter.game_actions, player);
 			for( let action of viable ){
-				if( action.type === GameAction.types.roleplay && !action.getDataAsRoleplay().autoplay )
-					continue;
+
+				if( 
+					action.type === GameAction.types.roleplay && 
+					!action.getDataAsRoleplay().autoplay 
+				)continue;
 				action.trigger(player);
+
 			}
 			for( let wrapper of encounter.wrappers )
 				wrapper.useAgainst( encounter.players[0], player );

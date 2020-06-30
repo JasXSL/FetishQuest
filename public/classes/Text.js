@@ -15,6 +15,7 @@ import HitFX from './HitFX.js';
 			%T : Target 
 			%T2... : Additional targets
 			%S for sender
+			%P for RP player (if it exists, _targetPlayer)
 			%RtagName for turntag sender, ex %Rspanked - Targets the player that applied the "spanked" turntag. Make sure to use the proper TT conditions for these to work
 		%T - Player name
 		%Tpsize, %Tbsize, %Trsize - Grants a size tag for penis, breasts, rear in that order. Must be preceded by a space, which gets removed if the size is average.
@@ -158,7 +159,7 @@ class Text extends Generic{
 		};
 
 		if( full === "mod" && this.label )
-			out.label = label;
+			out.label = this.label;
 
 		return out;
 	}
@@ -291,6 +292,14 @@ class Text extends Generic{
 		}
 		if( event.sender )
 			text = this.targetTextConversion(text, '%S', event.sender, event);
+
+		if( game.roleplay && game.roleplay._targetPlayer ){
+			
+			const rpPlayer = game.getPlayerById(game.roleplay._targetPlayer);
+			if( rpPlayer )
+				text = this.targetTextConversion(text, '%P', rpPlayer, event);
+
+		}
 
 		if( event.asset )
 			text = text.split('%asset').join(event.asset.name);

@@ -238,6 +238,9 @@ export default class Condition extends Generic{
 				}
 
 			}
+			else if( this.type === T.targetIsRpPlayer ){
+				success = (t && game.roleplay && t.id === game.roleplay._targetPlayer);		
+			}
 			else if( this.type === T.targetIsSender ){
 				if(t && s && t.id === s.id)
 					success = true;
@@ -1082,6 +1085,7 @@ Condition.Types = {
 	hourRange : 'hourRange',
 	hasActiveConditionalPlayer : 'hasActiveConditionalPlayer',
 	actionCrit : 'actionCrit',
+	targetIsRpPlayer : 'targetIsRpPlayer'
 };
 
 
@@ -1141,6 +1145,7 @@ Condition.descriptions = {
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',
+	[Condition.Types.targetIsRpPlayer] : '{} - Checks if target is roleplay _targetPlayer, which can be set by RP stages to lock an rp target',
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any} - Nr game players are greater than amount. If team is undefined, it checks all players. Use -1 for enemies and -2 for friendlies',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',

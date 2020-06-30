@@ -40,7 +40,7 @@ export function asset(){
 		
 		html += '<label>Output: <select name="chat" class="saveable">';
 		for( let i in RoleplayStageOption.ChatType ){
-			html += '<option value="'+esc(RoleplayStageOption.ChatType[i])+'" '+(dummy.chat === dummy.chat[i] ? 'selected' : '' )+'>'+esc(i)+'</option>';
+			html += '<option value="'+esc(RoleplayStageOption.ChatType[i])+'" '+(dummy.chat === RoleplayStageOption.ChatType[i] ? 'selected' : '' )+'>'+esc(i)+'</option>';
 		}
 		html += '</select></label>';
 
