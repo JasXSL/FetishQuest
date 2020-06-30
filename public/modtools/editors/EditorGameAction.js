@@ -65,11 +65,10 @@ export function asset(){
 	){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
-				room : 0,
+				index : 0,
 				badge : 0
 			};
 
-		console.log("Asset: ", asset);
 		const dungeon = this.parent.asset.asset.parent.parent,
 			room = this.parent.asset.asset.parent,
 			roomAsset = this.parent.asset.asset,
@@ -83,9 +82,9 @@ export function asset(){
 
 		html += '<div class="labelFlex">';
 			// {index:(int)room_index, badge:(int)badge_type}
-			html += '<label>Room: <select name="data::room" class="saveable">';
+			html += '<label>Room: <select name="data::index" data-type="int" class="saveable">';
 			for( let r of cache_rooms )
-				html += '<option value="'+esc(r.index)+'" '+(r.index === asset.data.room ? 'selected' : '')+'>'+esc(r.name)+'</option>';
+				html += '<option value="'+esc(r.index)+'" '+(r.index === asset.data.index ? 'selected' : '')+'>'+esc(r.name)+'</option>';
 			html += '</select></label>';
 
 			const badgeTypes  = {
@@ -93,7 +92,7 @@ export function asset(){
 				'Hide' : 1,
 				'Default minus exit tracker' : 2
 			};
-			html += '<label>Badge: <select name="data::badge" class="saveable">';
+			html += '<label>Badge: <select name="data::badge" data-type="int" class="saveable">';
 			for( let label in badgeTypes )
 				html += '<option value="'+esc(badgeTypes[label])+'" '+(badgeTypes[label] === asset.data.badge ? 'selected' : '')+'>'+esc(label)+'</option>';
 			html += '</select></label>';
@@ -200,7 +199,7 @@ export function asset(){
 			if( !indexExists )
 				asset.data.index = 0;
 
-			html += '<label>Room: <select class="saveable" name="data::index">';
+			html += '<label>Room: <select class="saveable"  data-type="int" name="data::index">';
 			for( let r of cache_rooms )
 				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.index ? 'selected' : '')+'>['+esc(r.index || 0)+'] '+esc(r.name || 'Unknown Room')+'</option>';
 			html += '</label>';
@@ -581,7 +580,7 @@ export function asset(){
 			if( !indexExists )
 				asset.data.index = 0;
 
-			html += '<label>Room: <select class="saveable" name="data::room">';
+			html += '<label>Room: <select class="saveable"  data-type="int" name="data::room">';
 			for( let r of cache_rooms )
 				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.room ? 'selected' : '')+'>['+esc(r.index || 0)+'] '+esc(r.name || 'Unknown Room')+'</option>';
 			html += '</select></label>';

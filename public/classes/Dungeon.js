@@ -186,6 +186,8 @@ class Dungeon extends Generic{
 	}
 
 	getRoomByIndex( index ){
+
+		index = parseInt(index);
 		for( let room of this.rooms ){
 			if( room.index === index )
 				return room;
@@ -523,6 +525,12 @@ class DungeonRoom extends Generic{
 
 	save( full ){
 
+		let enc = [];
+		if( Array.isArray(this.encounters) ) 
+			enc = Encounter.saveThese(this.encounters, full);
+		else if( this.encounters )
+			enc = this.encounters.save(full);
+
 		// shared
 		const out = {
 			index : this.index,
@@ -537,7 +545,7 @@ class DungeonRoom extends Generic{
 			zoom : this.zoom,
 			outdoors : this.outdoors,
 			ambiance : this.ambiance,
-			encounters : Array.isArray(this.encounters) ? Encounter.saveThese(this.encounters, full) : this.encounters.save(full),
+			encounters : enc,
 			id : this.id,	// needed for modtools to work
 		};
 

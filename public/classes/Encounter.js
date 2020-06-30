@@ -6,7 +6,7 @@ import PlayerTemplate from "./templates/PlayerTemplate.js";
 import Condition from "./Condition.js";
 import GameAction from "./GameAction.js";
 import Dungeon, { DungeonRoom } from "./Dungeon.js";
-
+import GameEvent from "./GameEvent.js";
 
 
 

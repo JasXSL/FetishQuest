@@ -426,10 +426,12 @@ export default class Window{
 			w.position.y = Math.min(lastOf.position.y+25, window.innerHeight-10);
 			w.updatePosition();
 		}
-		else if( settings && settings.x ){
+		else if( settings && settings.x && settings.y && settings.x < window.innerWidth-10 && settings.y < window.innerHeight-10 ){
+
 			w.position.x = settings.x || 0;
 			w.position.y = settings.y || 0;
 			w.updatePosition();
+
 		}
 		else{
 			w.center();

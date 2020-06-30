@@ -8,6 +8,7 @@ let app = Express();
 const server = require('http').Server(app);
 const Game = require('./Game');
 const serveIndex = require('serve-index');
+const ImageProxy = require('./ImageProxy');
 
 const io = require('socket.io')(server);
 server.listen(port);
@@ -23,6 +24,7 @@ if( process.env.PASS ){
 
 const textureDir = __dirname+'/public/media/textures';
 app.use('/media/textures', Express.static(textureDir), serveIndex(textureDir, {icons:true}));
+app.use('/imgproxy', ImageProxy);
 app.use(Express.static(__dirname+'/public'));
 
 

@@ -26,7 +26,13 @@ export default{
 
 			let val = targ.value.trim();
 			
-			if( targ.tagName === 'INPUT' ){
+			if( targ.dataset.type === 'int' ){
+				val = parseInt(val) || 0;
+			}
+			else if( targ.dataset.type === 'float' ){
+				val = +val || 0;
+			}
+			else if( targ.tagName === 'INPUT' ){
 
 				const type = targ.type;
 				if( type === 'range' || type === 'number' )
@@ -36,7 +42,6 @@ export default{
 					val = Boolean(targ.checked);
 
 			}
-
 			
 
 			let path = name.split('::');

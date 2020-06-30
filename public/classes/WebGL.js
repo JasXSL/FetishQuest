@@ -803,6 +803,7 @@ class WebGL{
 			this.stages.forEach(stage => {
 				// Dungeon room objects change when entered, and I'm not sure why it's like that, but it do
 				stage.room = game.dungeon.getRoomById(stage.room.id);
+
 			});
 			await delay(100);
 
@@ -852,6 +853,8 @@ class WebGL{
 
 		for( let r of this.stages ){
 
+			if( !r.room )
+				console.error("R doesnt' have a room flag", r);
 			if( r.room.id === room.id ){
 
 				if( !game.is_host )
@@ -1054,9 +1057,9 @@ class WebGL{
 					marker.userData.marker.loading = false;
 					marker.visible = true;
 
-				});
-				image.crossOrigin = "anonymous";
-				image.src = url;
+				}, false);
+				image.crossOrigin = "Anonymous";
+				image.src = '/imgproxy/?image='+encodeURIComponent(url);
 				marker.userData.marker.loading = true;
 				marker.visible = false;
 
@@ -1568,6 +1571,8 @@ class Stage{
 		this.water = [];		// Meshes
 		this.isEditor = isEditor;	// Whether this was loaded through the editor or live
 		this.room = room;			// DungeonRoom
+
+		console.log("Setting stage room to", room);
 	}
 	destructor(){
 		this.onTurnOff();
@@ -1692,9 +1697,12 @@ class Stage{
 		}
 
 		if( linkedRoom && linkedRoom.index === asset.parent.parent_index && !game.battle_active && !interaction.data.badge && !this.room.parent.free_roam ){
+
 			tagAlwaysVisible = true;
+			console.log("C", c);
 			sprite = sprites.out;
 			sprite.material.opacity = 1;
+
 		}
 
 		if( sprite ){
@@ -1798,18 +1806,17 @@ class Stage{
 		// Door
 		if( window.game && asset.isDoor() && !this.isEditor ){
 		
-			
 			let linkedRoom = game.dungeon.getRoomByIndex(asset.getDoorTarget());
 			if( asset.isExit() && !asset.name ){
 				this.createIndicatorForMesh('exit', 'Exit', c);
 			}
 			else{
 				if( !linkedRoom && !asset.name )
-					console.error("Required linked room missing, ", linkedRoom);
+					console.error("Required linked room missing, ", linkedRoom, "searched for index", asset.getDoorTarget(), "from", asset, "in", game.dungeon);
 				this.createIndicatorForMesh('run', "Run", c);
 				this.createIndicatorForMesh('back', "", c);
 				this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
-				const name = asset.name ? asset.name : room.getBearingLabel(room.getAdjacentBearing( linkedRoom ));
+				const name = asset.name ? asset.name : linkedRoom.getBearingLabel(linkedRoom.getAdjacentBearing( linkedRoom ));
 				this.createIndicatorForMesh('bearing', name, c);
 			}
 		

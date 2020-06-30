@@ -482,18 +482,23 @@ class Editor{
 
 		const build = function(){
 
+			if( !th.control.object ){
+				console.error("No control object");
+				return;
+			}
+
 			const asset = th.control.object.userData.dungeonAsset;
 			if( !asset ){
 				this.close();
 				return;
 			}
 
+
 			this.asset.asset = asset;	// Needs to be set because dungeonAsset doesn't have a library
 
 			if( this.isHidden() )
 				this.bringToFront();
 			this.dom.classList.toggle("hidden", false);
-			
 
 			let html = '';
 			html += '<div class="labelFlex">';
@@ -601,9 +606,11 @@ class Editor{
 	
 			};
 
+			console.log("Parent", this.parent);
 
 		};
 
+		
 		this.assetWindow = Window.create('REPLACE_ID', 'dungeonAssets', '', 'crafting', build, {}, this.win);
 		this.assetWindow.hideOnClose = true;
 		this.assetWindow.rebuild();	// Needed in case the window already exists

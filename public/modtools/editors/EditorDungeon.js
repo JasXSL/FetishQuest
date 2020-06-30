@@ -133,12 +133,15 @@ class DungeonLayoutEditor{
 		this.levelSelector.classList.toggle('dungeonLevelSelector', true);	
 		element.appendChild(this.levelSelector);
 
+
 		// Check if we have an entrance
-		if( !asset.rooms ){
+		if( !asset.rooms || !asset.rooms.length ){
 
 			// Make sure there's a first room
 			const baseName = asset.label+'>>ENTRANCE';
-			HelperAsset.insertAsset( 'dungeonRooms', {label:baseName, name:'entrance', _mParent:{type:'dungeons', label:asset.label}}, this, false );
+			const room = new DungeonRoom({label:baseName, name:'entrance'}).save("mod");
+			room._mParent = {type:'dungeons', label:asset.label};
+			HelperAsset.insertAsset( 'dungeonRooms',  room, this, false );
 			asset.rooms = [baseName];
 		
 		}
@@ -355,18 +358,18 @@ class DungeonLayoutEditor{
 			const index = this.getUnusedIndex(),
 				baseName = this.asset.label+'>>'+index;
 			
-			const room = {
+			const room = new DungeonRoom({
 				label:baseName, 
 				name:'Room '+index, 
 				x:x,
 				y:y,
 				z:z,
 				index : index,
-				parent_index:roomAsset.index, 
-				_mParent:{
-					type:'dungeons', 
-					label:this.asset.label
-				}
+				parent_index:roomAsset.index
+			}).save("mod");
+			room._mParent = {
+				type:'dungeons', 
+				label:this.asset.label
 			};
 			HelperAsset.insertAsset( 'dungeonRooms', room, this, false );
 
