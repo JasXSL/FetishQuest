@@ -76,7 +76,6 @@ class Text extends Generic{
 		this.chat_reuse = false;		// If a chat and this is set, the chat can be triggered multiple times in a session
 		this.chatPlayerConditions = [];	// These conditions are run on each player to see if they can say this. Only usable when chat is true
 										// Both target and sender are the same player. You generally want at least "targetIsX" in here when using a text.
-
 		this.en = true;					// enabled
 
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
@@ -293,7 +292,7 @@ class Text extends Generic{
 		if( event.sender )
 			text = this.targetTextConversion(text, '%S', event.sender, event);
 
-		if( game.roleplay && game.roleplay._targetPlayer ){
+		if( window.game && game.roleplay && game.roleplay._targetPlayer ){
 			
 			const rpPlayer = game.getPlayerById(game.roleplay._targetPlayer);
 			if( rpPlayer )

@@ -895,7 +895,7 @@ export default class UI{
 
 	}
 
-	drawPlayer(p){
+	drawPlayer( p ){
 
 		const tp = game.getTurnPlayer(),
 			myTurn = tp && tp.id === p.id,
@@ -1189,9 +1189,26 @@ export default class UI{
 			if( wrapper.stacks > 1 && +elStacks.attr('data-stacks') !== +wrapper.stacks )
 				elStacks.text('x'+wrapper.stacks).attr('data-stacks', wrapper.stacks);
 
-			elDuration.toggleClass('hidden', wrapper._duration < 1);
-			if( wrapper._duration > 0 && +elDuration.text() !== wrapper._duration )
-				elDuration.text(wrapper._duration);
+			let duration = wrapper._duration;
+			if( wrapper.ext )
+				duration = wrapper._added+wrapper.duration-game.time;
+			elDuration.toggleClass('hidden', duration < 1);
+			if( duration > 0 && +elDuration.text() !== duration ){
+				
+				let dText = duration;
+				if( wrapper.ext ){
+					if( dText/(3600*24) > 1 )
+						dText = Math.ceil(dText/(3600*24))+'d';
+					else if( dText/3600 > 1 )
+						dText = Math.ceil(dText/3600)+'h';
+					else if( dText/60 > 1 )
+						dText = Math.ceil(dText/60)+'m';
+					else
+						dText = tText+'s';
+				}
+				elDuration.text(dText);
+
+			}
 			
 			const tooltip = 
 				'<strong>'+esc(wrapper.name)+'</strong><br />'+

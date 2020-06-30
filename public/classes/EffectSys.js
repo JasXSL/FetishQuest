@@ -36,6 +36,7 @@ class Wrapper extends Generic{
 		this.editor_desc = '';					// Short description for the editor
 		this.detrimental = true;
 		this.trigger_immediate = false;			// Trigger immediate if it's a duration effect
+		this.ext = false;						// Makes the timer count use in game time intead of combat arounds, and makes it persist outside of combat. Duration becomes time in seconds.
 		
 		this.tick_on_turn_start = true;			// Tick on turn start
 		this.tick_on_turn_end = false;			// Tick on turn end
@@ -47,9 +48,10 @@ class Wrapper extends Generic{
 		this.caster = "";				// Player UUID
 		this.action = "";				// action UUID (not always applicable)
 		this.original_target = "";		// Set on targeted actions, this is the one the action targeted. Usually the same as victim
-		this._duration = 0; 
+		this._duration = 0;
 		this._self_cast = false;		// This effect was placed on the caster by the caster
 		this._crit = false;
+		this._added = 0;				// Time in game seconds when this effect was added. Only for ext wrappers.
 
 		this.load(data);
 	}
@@ -69,6 +71,7 @@ class Wrapper extends Generic{
 			tags : this.tags,
 			label : this.label,
 			duration : this.duration,
+			ext : this.ext,
 		};
 
 		if( full ){
@@ -94,7 +97,8 @@ class Wrapper extends Generic{
 			out.caster = this.caster;
 			out.stacks = this.stacks;
 			out.action = this.action;
-
+			if( this.ext )
+				out._added = this._added;
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -187,6 +191,14 @@ class Wrapper extends Generic{
 					return 0;
 				pl = [party[0]];
 			}
+			else if( this.target === Wrapper.TARGET_RP_TP ){
+
+				pl = [];
+				const targ = game.getPlayerById(game.roleplay._targetPlayer);
+				if( targ )
+					pl = [targ];
+
+			}
 			else
 				pl = [player]; 
 			
@@ -210,6 +222,9 @@ class Wrapper extends Generic{
 				obj.original_target = player.id;
 				obj.action = this.parent instanceof Action ? this.parent.id : '';
 				obj._crit = crit;
+
+				if( this.ext )
+					obj._added = game.time;
 
 			}
 
@@ -347,6 +362,8 @@ class Wrapper extends Generic{
 	remove( expired = false ){
 		
 		let target = game.getPlayerById(this.victim);
+
+
 
 		const evt = new GameEvent({
 			type : GameEvent.Types.wrapperExpired,
@@ -540,6 +557,9 @@ class Wrapper extends Generic{
 
 	onTurnStart(){
 
+		if( this.ext )
+			return;
+
 		if( this.tick_on_turn_start ){
 			this.tick();
 		}
@@ -553,6 +573,9 @@ class Wrapper extends Generic{
 	}
 	onTurnEnd(){
 
+		if( this.ext )
+			return;
+
 		if( this.tick_on_turn_end )
 			this.tick();
 
@@ -563,7 +586,21 @@ class Wrapper extends Generic{
 
 	}
 	onBattleEnd(){
+
+		if( this.ext )
+			return;
 		this._duration = 0;
+
+	}
+
+	onTimePassed(){
+		if( !this.ext )
+			return;
+
+		if( this._added+this._duration < game.time ){
+			this.remove(true);
+		}
+
 	}
 
 }
@@ -585,6 +622,7 @@ Wrapper.TARGET_SMART_HEAL = "SMART_HEAL";	// Targets the lowest HP viable player
 Wrapper.TARGET_EVENT_RAISER = "EVENT_RAISER";	// Used only for Effect.Types.runWrappers, targets the player that raised the event that triggered the effect
 Wrapper.TARGET_EVENT_TARGETS = "EVENT_TARGETS";	// Used only for Effect.Types.runWrappers, targets the player(s) that were the targets of the event that triggered the effect
 Wrapper.TARGET_ORIGINAL = "ORIGINAL";		// Used only in effects. Specifies the target of the action that triggered this. Same as AUTO except in SMART_HEAL
+Wrapper.TARGET_RP_TP = "RPTP";				// Uses game.roleplay._targetPlayer if it exists
 
 Wrapper.Targets = {
 	none : 'none',	// used in the editor to delete a target  
@@ -594,7 +632,8 @@ Wrapper.Targets = {
 	smart_heal : Wrapper.TARGET_SMART_HEAL,
 	event_raiser : Wrapper.TARGET_EVENT_RAISER,
 	event_targets : Wrapper.TARGET_EVENT_TARGETS,
-	original_target : Wrapper.TARGET_ORIGINAL
+	original_target : Wrapper.TARGET_ORIGINAL,
+	rp_targplayer : Wrapper.TARGET_RP_TP,
 };
 
 
@@ -745,6 +784,11 @@ class Effect extends Generic{
 				tout = tout.concat(event.target);
 			else if( ta === Wrapper.TARGET_AOE ){
 				tout = tout.concat(game.getEnabledPlayers());
+			}
+			else if( ta === Wrapper.TARGET_RP_TP ){
+				const p = game.getPlayerById(game.roleplay._targetPlayer);
+				if( p )
+					tout.push(p);
 			}
 		}
 

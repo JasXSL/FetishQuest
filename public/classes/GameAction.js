@@ -16,6 +16,7 @@ import HitFX from './HitFX.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import StaticModal from './StaticModal.js';
 import Encounter from './Encounter.js';
+import { Wrapper } from './EffectSys.js';
 
 export default class GameAction extends Generic{
 
@@ -297,7 +298,6 @@ export default class GameAction extends Generic{
 			console.error("Error, ", this.data.rp, "is not a valid roleplay in", this);
 			return false;
 		}
-		
 		rp = rp.clone();
 		rp.loadState();
 		return rp;
@@ -685,6 +685,14 @@ export default class GameAction extends Generic{
 		else if( this.type === types.learnAction ){
 
 			console.log("Todo: learnAction");
+
+		}
+
+		else if( this.type === types.wrappers ){
+
+			const wrappers = Wrapper.loadThese(this.data);
+			for( let wrapper of wrappers )
+				wrapper.useAgainst( player, player );
 
 		}
 

@@ -212,6 +212,7 @@ export default class GameLib{
 
 		// Allow auto rebasing now that mods have loaded
 		Generic.auto_rebase = true;
+
 		
 		this.rebase();
 

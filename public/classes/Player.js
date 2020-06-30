@@ -872,9 +872,17 @@ export default class Player extends Generic{
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleEnd();
-		for( let wrapper of this.wrappers )
+
+		this.wrappers = this.wrappers.filter(wrapper => {
+
+			if( wrapper.ext )	// Use external timer (game time)
+				return true;
+
+			// Purge the wrapper
 			wrapper.unbindEvents();
-		this.wrappers = [];
+
+		});			
+
 		let wrappers = this.getWrappers();
 		for(let wrapper of wrappers)
 			wrapper.onBattleEnd();
@@ -891,6 +899,12 @@ export default class Player extends Generic{
 
 	onCellChange(){
 		this.used_punish = true;
+	}
+
+	onTimePassed(){
+		
+		this.getWrappers().map(wrapper => wrapper.onTimePassed());
+
 	}
 
 	
@@ -1791,7 +1805,7 @@ export default class Player extends Generic{
 		);
 	}
 
-	// SV Bon types
+	// Bon types
 	getBon( type ){
 
 		let grappled = 0;
@@ -2489,16 +2503,23 @@ export default class Player extends Generic{
 
 	}
 
-	removeWrapper(wrapper){
+	removeWrapper( wrapper ){
+
 		for(let i in this.wrappers){
+
 			if( this.wrappers[i] === wrapper ){
+
 				this.wrappers.splice(i, 1);
 				return true;
+
 			}
+
 		}
 		return false;
+
 	}
 
+	// Use Wrapper.useAgainst, not this
 	addWrapper( wrapper ){
 
 		wrapper.parent = this;

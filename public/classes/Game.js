@@ -566,6 +566,8 @@ export default class Game extends Generic{
 		this.renderer.updateWeather();
 		this.updateAmbiance();			// Handle rain sounds and updates the room
 
+		this.players.map(player => player.onTimePassed());
+
 	}
 
 	onPlayerLevelup( player, levelsGained = 1 ){

@@ -265,6 +265,7 @@ export class RoleplayStage extends Generic{
 		this._iniPlayer = '';		// ID of player that triggered this stage
 		this._textEvent = null;	// Caches the active text event so the text doesn't change randomly.
 									// Not persistent between refreshes, but what can ya do.
+		this.game_actions = [];			// GameActions to apply when encountering this stage
 
 		this.load(data);
 
@@ -299,7 +300,7 @@ export class RoleplayStage extends Generic{
 			out.text = Text.saveThese(this.text, full);
 			out.label = this.label;
 			out.store_pl = this.store_pl;
-
+			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
 		if( full !== "mod" ){
 			
@@ -321,7 +322,8 @@ export class RoleplayStage extends Generic{
 
 		this.text = Text.loadThese(this.text, this);
 		this.options = RoleplayStageOption.loadThese(this.options, this);
-
+		this.game_actions = GameAction.loadThese(this.game_actions, this);
+		
 	}
 
 	getOptions( player ){
@@ -366,7 +368,7 @@ export class RoleplayStage extends Generic{
 	}
 
 	// When the stage is initially presented
-	onStart( player ){
+	async onStart( player ){
 
 		this._textEvent = false;
 
@@ -384,6 +386,10 @@ export class RoleplayStage extends Generic{
 		const pl = this.getPlayer();
 		if( pl && this.chat !== RoleplayStageOption.ChatType.none )
 			RoleplayChatQueue.output(pl, this);
+
+		for( let act of this.game_actions ){
+			await act.trigger(player, pl);
+		}
 		
 	}
 

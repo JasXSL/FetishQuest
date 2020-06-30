@@ -3,6 +3,7 @@ import HelperTags from './HelperTags.js';
 
 import * as EditorText from './EditorText.js';
 import * as EditorPlayer from './EditorPlayer.js';
+import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import Roleplay, { RoleplayStage, RoleplayStageOption } from '../../classes/Roleplay.js';
 import Action from '../../classes/Action.js';
@@ -40,8 +41,8 @@ export function asset(){
 	html += '<label title="Player in encounter to tie it to, overrides RP parent">Player: </label><div class="player"></div>';
 
 
-	// Conditions
 	html += '<span title="Text conditions are checked and the first valid text is used">Texts: </span><div class="text"></div>';
+	html += '<span title="Sender is the person who triggered this stage, target is the player tied to the RP if possible">Game Actions: </span><div class="game_actions"></div>';
 
 
 	html += 'Responses: <div class="options"></div>';
@@ -52,6 +53,7 @@ export function asset(){
 	this.dom.querySelector("div.text").appendChild(EditorText.assetTable(this, asset, "text", false, true));
 	this.dom.querySelector("div.options").appendChild(EditorRoleplayStageOption.assetTable(this, asset, "options", false, true));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
+	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions"));
 	
 
 
