@@ -385,13 +385,13 @@ export default{
 	// Constructor is the asset constructor (used for default values)
 	buildList( win, library, constr, fields ){
 
-		let db = window.mod.mod[library].slice(),
+		let db = window.mod.mod[library].slice().reverse(),
 			isLinker = this.windowIsLinker(win)
 		;
 
 		// Linker window should add parent mod assets
 		if( isLinker && window.mod.parentMod[library] )
-			db.push(...window.mod.parentMod[library]);
+			db.push(...window.mod.parentMod[library].slice().reverse());
 
 		// Don't show parented assets, they only show in linkedTable
 		db = db.filter(el => {

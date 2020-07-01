@@ -203,6 +203,7 @@ const lib = {
 	senderIsGhoul : {type:Condition.Types.species, data:{species:['ghoul']}, caster:true, desc:''},
 	senderIsSkeleton : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
 	senderIsTentacleFiend : {type:Condition.Types.species, data:{species:['skeleton']}, caster:true},
+	senderIsShocktacle : {type:Condition.Types.species, data:{species:['shocktacle']}, caster:true},
 
 	// There are at least 2 characters on team 0
 	isCoop : {type:Condition.Types.numGamePlayersGreaterThan, data:{team:0, amount:1}, desc:''},

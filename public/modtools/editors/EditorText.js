@@ -38,6 +38,15 @@ export function asset(){
 	html += 'Weight: <input type="range" class="saveable" name="weight" min=0 max=10 step=1 value="'+dummy.weight+'" /><br />';
 
 	html += 'Conditions: <div class="conditions"></div>';
+
+	html += 'Condition templates:<div>'
+		html += '<input type="button" value="Generic Action" class="template" />';
+		html += '<input type="button" value="Any on Humanoid" class="template" />';
+		html += '<input type="button" value="Beast on Humanoid" class="template" />';
+		html += '<input type="button" value="Humanoid on Humanoid" class="template" />';
+		html += '<input type="button" value="Humanoid on Beast" class="template" />';
+	html += '</div>';
+
 	html += 'Turn Tags: <div name="turnTags">'+HelperTags.build(dummy.turnTags)+'</div>';
 	html += 'Meta Tags: <div name="metaTags">'+HelperTags.build(dummy.metaTags)+'</div>';
 
@@ -73,6 +82,52 @@ export function asset(){
 	
 
 	this.setDom(html);
+
+	// Templating
+	this.dom.querySelectorAll("input.template").forEach(el => el.onclick = event => {
+
+		// All template conds, pressing a template removes all these and adds only the ones for that template
+		const allConds = [
+			'actionHit',
+			'eventIsActionUsed',
+			'targetNotBeast',
+			'senderNotBeast',
+			'senderBeast',
+			'targetBeast'
+		];
+		// ActionHit and eventIsActionUsed are given
+		const templates = {
+			'Generic Action' : [],
+			'Any on Humanoid' : ['targetNotBeast'],
+			'Beast on Humanoid' : ['senderBeast', 'targetNotBeast'],
+			'Humanoid on Humanoid' : ['senderNotBeast', 'targetNotBeast'],
+			'Humanoid on Beast' : ['senderNotBeast', 'targetBeast'],
+		};
+
+		let type = el.value;
+		if( !templates[type] )
+			return;
+
+		let tags = ['actionHit', 'eventIsActionUsed', ...templates[type]];
+
+		// remove all tags
+		if( Array.isArray(asset.conditions) ){
+			asset.conditions = asset.conditions.filter(cond => {
+				if( allConds.includes(cond) )
+					return false;
+				return true;
+			});
+
+		}
+		else
+			asset.conditions = [];
+		
+		// add new
+		asset.conditions.push(...tags);
+		window.mod.setDirty(true);
+		this.rebuild();
+
+	});
 
 	// SUBTABLES
 	// condition
@@ -168,7 +223,7 @@ export function list(){
 		chat : true,
 		en : true,
 		debug : true,
-		conditions : tx => tx.conditions.map(el => el.label).join(', '),
+		conditions : tx => tx.conditions.map(el => el.label ? el.label : el).join(', '),
 		chatPlayerConditions : tx => tx.chatPlayerConditions.map(el => el.label).join(', '),
 		audiokits : tx => tx.audiokits.map(el => el.label).join(', '),
 		alwaysOutput : true,

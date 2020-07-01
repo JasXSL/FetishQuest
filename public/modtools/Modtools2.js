@@ -35,6 +35,7 @@ import * as EditorQuestObjectiveEvent from './editors/EditorQuestObjectiveEvent.
 import * as EditorEncounter from './editors/EditorEncounter.js';
 import * as EditorDungeon from './editors/EditorDungeon.js';
 import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
+import Generic from '../classes/helpers/Generic.js';
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -750,7 +751,7 @@ export default class Modtools{
 
 		const asset = typeof id === 'object' ? id : this.mod.getAssetById(type, id);
 		if( !asset )
-			throw 'Asset not found: '+id;
+			throw 'Asset not found: '+id+" type: "+type;
 
 		if( typeof data !== "object" )
 			data = {};
@@ -984,6 +985,14 @@ export default class Modtools{
 
 			// Break up shops into
 				// shopAssets
+
+			// Make sure every text has an id
+			for( let text of mod.texts ){
+
+				if( !text.id )
+					text.id = Generic.generateUUID();
+
+			}
 
 			// Shops
 			for( let shop of mod.shops ){
