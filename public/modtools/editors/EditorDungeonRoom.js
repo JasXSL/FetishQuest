@@ -300,6 +300,17 @@ class Editor{
 			this.save();
 		};
 
+		try{
+			const path = JSON.parse(localStorage.editor_mesh_select_path);
+			for( let i in path ){
+				const sel = this.win.dom.querySelectorAll('div.assetInserter > select')[i];
+				if( sel ){
+					sel.value = path[i];
+					this.updateMeshSelects(i);
+				}
+			}
+		}catch(err){}
+
 	}
 	
 
@@ -365,6 +376,8 @@ class Editor{
 
 		if( !path.length )
 			return;
+
+		localStorage.editor_mesh_select_path = JSON.stringify(path);
 
 		let i = "";
 		for( i of path )
@@ -518,6 +531,10 @@ class Editor{
 				return;
 
 			for( let n of asset.interactions ){
+
+				if( typeof n === "string" )
+					n = window.mod.mod.getAssetById("gameActions", n);
+
 				if( n.type === interaction )
 					return true;
 			}
@@ -578,7 +595,7 @@ class Editor{
 	buildAssetEditor(){
 
 		// Asset window already exists, rebuild it
-		if( this.assetWindow ){
+		if( this.assetWindow && !this.assetWindow.dead ){
 			this.assetWindow.rebuild.call(this.assetWindow);
 			return;
 		}
@@ -588,7 +605,7 @@ class Editor{
 		const build = function(){
 
 			if( !th.control.object ){
-				console.error("No control object");
+				this.close();
 				return;
 			}
 
@@ -600,14 +617,9 @@ class Editor{
 
 
 			this.asset.asset = asset;	// Needs to be set because dungeonAsset doesn't have a library
-
-			if( this.isHidden() )
-				this.bringToFront();
-			this.dom.classList.toggle("hidden", false);
-
 			let html = '';
 			html += '<div class="labelFlex">';
-				html += '<label>Name: <input name="name" value="'+esc(asset.name)+'" type="text" class="saveable" /></label>';
+				html += '<label>Name: <input name="name" value="'+esc(asset.name)+'" type="text" class="saveable" autocomplete="chrome-off" /></label>';
 				html += '<label title="Time in seconds, 0 = no respawn">Respawn: <input name="respawn" value="'+esc(asset.respawn)+'" type="text" class="saveable" /></label>';
 				html += '<label>Hide if non-interactive: <input name="hide_no_interact" '+(asset.hide_no_interact ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 			html += '</div>';
@@ -680,6 +692,8 @@ class Editor{
 
 							asset.interactions.splice(i, 1);
 							this.rebuild();
+							th.save();
+							window.mod.setDirty(true);
 							return;
 						}
 						

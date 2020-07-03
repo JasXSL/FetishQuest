@@ -773,7 +773,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.wrappers] : "(arr)wrappers - Triggers all viable wrappers",
 	[GameAction.types.dvar] : "{id:(str)id, val:(var)val} - Can use a math formula. Sets a dungeon var to a value.",
 	[GameAction.types.loot] : "{assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
-	[GameAction.types.aLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
+	[GameAction.types.autoLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
 	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
 	[GameAction.types.exit] : "{dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}",
 	[GameAction.types.anim] : '{anim:(str)animation} - Usable on a dungeon room asset',

@@ -335,7 +335,7 @@ export default{
 				win.rebuild();
 				EDITOR.setDirty(true);
 				this.rebuildAssetLists(win.type);
-
+				this.propagateChange(win);
 
 				return;
 			}
@@ -564,6 +564,7 @@ export default{
 				parentWindow.rebuild();
 				DEV.setDirty(true);
 				this.rebuildAssetLists(parentWindow.type);
+				this.propagateChange(win);
 
 			}
 	

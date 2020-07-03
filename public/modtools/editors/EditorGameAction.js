@@ -48,7 +48,6 @@ export function asset(){
 	html += '</div>';
 
 	
-	
 	html += 'Data: <br /><pre class="wrap typeDesc">'+esc(GameAction.TypeDescs[dummy.type] || "Unknown type")+'</pre><br />';
 
 	const type = dummy.type,
@@ -164,7 +163,7 @@ export function asset(){
 				val : 0.5
 			};
 		html += '<div class="labelFlex">';
-			html += '<label>Loot quality: <input type="range" min=0.01 max=1 step=0.01 name="data::val" class="saveable" value="'+esc(asset.data.min || 0.5)+'" /></label>';
+			html += '<label>Loot quality: <input type="range" min=0.01 max=1 step=0.01 name="data::val" class="saveable" value="'+esc(asset.data.val || 0.5)+'" /></label>';
 		html += '</div>';
 
 	}

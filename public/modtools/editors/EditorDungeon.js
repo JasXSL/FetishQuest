@@ -101,11 +101,6 @@ export function list(){
 class DungeonLayoutEditor{
 
 
-
-	// Todo: add a way to set the active level
-
-
-
 	constructor( win, asset, element ){
 
 		this.win = win;
@@ -160,9 +155,14 @@ class DungeonLayoutEditor{
 		}
 		
 
-		this.setLevel(0);
-
 		this.updateLevelSelector();
+
+		this.cache_dungeon_levels = {};
+		try{
+			this.cache_dungeon_levels = JSON.parse(localStorage.editor_dungeon_levels);
+		}catch(err){}
+
+		this.setLevel(parseInt(this.cache_dungeon_levels["lv"+(this.asset.level || 0)]) || 0);
 
 	}
 
@@ -220,6 +220,7 @@ class DungeonLayoutEditor{
 
 	}
 
+	// Updates the map for Z level
 	setLevel( level ){
 
 		this.active_level = level;
@@ -229,6 +230,9 @@ class DungeonLayoutEditor{
 		this.content.innerHTML = '';
 		this.getRoomsOnLevel().map(room => this.buildRoom(room));
 		this.updateLevelSelector();
+
+		this.cache_dungeon_levels["lv"+(this.asset.level || 0)] = level;
+		localStorage.editor_dungeon_levels = JSON.stringify(this.cache_dungeon_levels);
 
 	}
 
@@ -397,7 +401,7 @@ class DungeonLayoutEditor{
 				--this.active_level;
 
 			this.setLevel(this.active_level);	// Refreshes this
-
+			this.setRoomEditor(r.label);
 		});
 
 		// Bind click on the actual thing
@@ -422,14 +426,16 @@ class DungeonLayoutEditor{
 			}
 
 
-			// Bring up the room editor
-			Window.getByType('dungeonRooms').map(el => el.remove());
-			Window.getByType('dungeonAssets').map(el => el.remove());
-
-			window.mod.buildAssetEditor("dungeonRooms", room.label);
-
+			this.setRoomEditor(room.label);
 		};
 
+	}
+
+	setRoomEditor( label ){
+		// Bring up the room editor
+		Window.getByType('dungeonRooms').map(el => el.remove());
+		Window.getByType('dungeonAssets').map(el => el.remove());
+		window.mod.buildAssetEditor("dungeonRooms", label);
 	}
 
 

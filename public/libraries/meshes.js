@@ -1425,6 +1425,7 @@ LibMesh.library = {
 				height: 1,
 				position_on_wall : true,
 				tags : [stdTag.mChest],
+				want_actions : [[GameAction.types.loot,GameAction.types.autoLoot]],
 				// Animation settings
 				animations : {
 					"open" : {
@@ -1451,6 +1452,7 @@ LibMesh.library = {
 					libMat.Cloth.Rope,
 					libMat.Cloth.Dark,
 				],
+				want_actions : [[GameAction.types.loot,GameAction.types.autoLoot]],
 				width: 1,
 				height: 1,
 				onFlatten : function(mesh){
@@ -1479,6 +1481,7 @@ LibMesh.library = {
 					libMat.Metal.Rust,
 					libMat.Rock.FloorRunes,
 				],
+				want_actions : [[GameAction.types.loot,GameAction.types.autoLoot]],
 				tags : [stdTag.mChest],
 				width: 2,
 				height: 1,

@@ -29,6 +29,7 @@ export default class Window{
 		this.dom.dataset.id = this.uniqid();
 		this.parent = parent;
 		this.hideOnClose = false;
+		this.dead = false;
 		
 		this.minimized = false;
 
@@ -351,9 +352,9 @@ export default class Window{
 		return this.type.split(" ").join("_")+"::"+this.id.split(" ").join("_");
 	}
 	
-	// Todo: remove any children recursively
 	remove(){
 		
+		this.dead = true;
 		if( this.hideOnClose )
 			this.dom.classList.toggle("hidden", true);
 		else{
