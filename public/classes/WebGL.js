@@ -2146,6 +2146,8 @@ class Stage{
 		this.stopSound(mesh, id);
 
 		const soundController = window.game ? game.audio_fx : mod.audio_fx;
+		if( !soundController )
+			return;
 		let reg = {
 			mesh : mesh,
 			id : id,

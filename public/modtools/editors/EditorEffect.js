@@ -103,10 +103,10 @@ export function assetTable( win, modAsset, name, single ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		desc : true,
-		type : true,
-		data : true,
+		'*label' : true,
+		'*desc' : true,
+		'*type' : true,
+		'*data' : true,
 		tags : true,
 		targets : true,
 		events : true,

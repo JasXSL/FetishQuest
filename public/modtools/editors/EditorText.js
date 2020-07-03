@@ -64,7 +64,7 @@ export function asset(){
 
 	// Things that should only show if this isn't a chat
 	html += '<div class="nonchatSub editorBox">';
-		html += 'Armor slot: <select name="armor_slot">';
+		html += 'Armor slot: <select name="armor_slot" class="saveable">';
 			html += '<option value="">NONE</option>';
 			for( let i in Asset.Slots )
 				html += '<option value="'+i+'" '+(dummy.armor_slot === i ? 'selected' : '')+'>'+Asset.Slots[i]+'</option>';
@@ -219,11 +219,11 @@ export function list(){
 	//console.log("Adding text list", this, this.asset);
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
 		id : true,
-		text : true,
-		chat : true,
-		en : true,
+		['*text'] : true,
+		['*chat'] : true,
+		['*en'] : true,
 		debug : true,
-		conditions : tx => tx.conditions.map(el => el.label ? el.label : el).join(', '),
+		['*conditions'] : tx => tx.conditions.map(el => el.label ? el.label : el).join(', '),
 		chatPlayerConditions : tx => tx.chatPlayerConditions.map(el => el.label).join(', '),
 		audiokits : tx => tx.audiokits.map(el => el.label).join(', '),
 		alwaysOutput : true,

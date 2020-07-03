@@ -131,9 +131,9 @@ export function list(){
 
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		name : true,
-		description : true,
+		['*label'] : true,
+		['*name'] : true,
+		['*description'] : true,
 		std : true,
 		icon : true,
 		ranged : true,
@@ -162,7 +162,7 @@ export function list(){
 		reset_interrupt : true,
 		hide_if_no_targets : true,
 		disable_override : true,
-		alias : true,
+		['*alias'] : true,
 		tags : true,
 		conditions : true,
 		show_conditions : true,		

@@ -100,7 +100,9 @@ export default class Modtools{
 			window_states : 'mod'
 		});
 
-	
+		
+
+		this.content = document.getElementById('content');
 		this.topMenu = document.getElementById("topMenu");
 		this.sideMenu = document.getElementById("libraryMenu");
 		this.modName = document.querySelector("#modName > span.name");
@@ -109,6 +111,9 @@ export default class Modtools{
 
 		this.dummyUploader = document.getElementById("dummyUploader");	// file input
 
+
+		this.essentialOnly = parseInt(localStorage.editor_essentialOnly);	// In DB lists, only show essential information
+		this.toggleEssentialOnly(this.essentialOnly);
 
 		this.webgl = new WebGL({
 			fullControls : true,
@@ -311,6 +316,15 @@ export default class Modtools{
 					});
 					
 				}
+				else if( button.dataset.id === "view" ){
+					Window.setMenu(button);
+
+					
+					Window.addMenuOption("essential", "DB List only essential (Alt+E) "+(this.essentialOnly ? '&#9745;' : '	&#9744;'), () => {
+						this.toggleEssentialOnly();
+					}, false);
+					
+				}
 
 			};
 		});
@@ -366,7 +380,11 @@ export default class Modtools{
 				event.preventDefault();
 				Window.front && Window.front.rebuild();
 			}
-
+			// Ctrl+E - Rebuild active
+			if( event.key === 'e' && event.altKey ){
+				event.preventDefault();
+				this.toggleEssentialOnly();
+			}
 			
 			
 		};
@@ -823,6 +841,18 @@ export default class Modtools{
 	}
 
 
+
+	toggleEssentialOnly( on ){
+		
+		if( on === undefined )
+			this.essentialOnly = this.essentialOnly ? 0 : 1;
+		else 
+			on = parseInt(on);
+
+		localStorage.editor_essentialOnly = this.essentialOnly;
+		this.content.classList.toggle('essentialOnly', Boolean(this.essentialOnly));
+
+	}
 
 
 	// Converts 

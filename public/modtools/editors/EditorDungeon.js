@@ -73,8 +73,8 @@ export function assetTable( win, modAsset, name, single ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		name : true,
+		'*label' : true,
+		'*name' : true,
 		difficulty : true,
 		free_roam : true,
 		vars : true,

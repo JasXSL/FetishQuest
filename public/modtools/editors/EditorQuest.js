@@ -63,13 +63,13 @@ export function assetTable( win, modAsset, name, single, parented ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		name : true,
+		'*label' : true,
+		'*name' : true,
 		exp_multiplier : true,
 		hide_rewards : true,
 		multiply_money : true,
 		multiply_reward : true,
-		description : true,
+		'*description' : true,
 		rewards : true,
 		objectives : true,
 		completion_objectives : true,

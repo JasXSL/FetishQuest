@@ -93,9 +93,9 @@ export function assetTable( win, modAsset, name, single ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		desc : true,
-		friendly:true, startText:true, respawn:true, difficulty_adjust:true,
+		'*label' : true,
+		'*desc' : true,
+		'*friendly':true, startText:true, respawn:true, difficulty_adjust:true,
 		players: true,
 		player_templates : true,
 		wrappers : true,

@@ -379,7 +379,9 @@ export default{
 
 
 	// Tries to automatically build a selectable list of assets and return the HTML 
-	// Fields is an array of {field:true/func} If you use a non function, it'll try to auto generate the value based on the type, otherwise the function will be executed using win as parent and supply the var as an argument
+	// Fields is an array of {field:true/func} If you use a non function, it'll try to auto generate the value based on the type, 
+	// otherwise the function will be executed using win as parent and supply the var as an argument
+	// If a field name starts with * it counts as essential
 	// Nonfunction is auto escaped, function needs manual escaping
 	// Fields should contain an id or label field (or both), it will be used for tracking the TR and prefer label if it exists
 	// Constructor is the asset constructor (used for default values)
@@ -398,16 +400,23 @@ export default{
 			return !el._mParent;
 		});
 	
+		const fieldIsEssential = field => field.startsWith('*');
+		const getFieldName = field => { 
+			if( fieldIsEssential(field) )
+				return field.slice(1);
+			return field;
+		};
 
 		// New button
 		let html = '<input type="button" class="new" value="New" />';
+			html += ' <input type="text" class="search" placeholder="Search" />';
 		
 		// Database table
-		html += '<table class="selectable autosize">';
+		html += '<table class="dblist selectable autosize">';
 	
 		html += '<tr>';
 		for( let i in fields )
-			html += '<th>'+esc(i)+'</th>';
+			html += '<th '+(fieldIsEssential(i) ? 'class="essential"' : '')+'>'+esc(getFieldName(i))+'</th>';
 		if( isLinker )
 			html += '<th>MOD</th>';
 		html += '</tr>';
@@ -419,19 +428,22 @@ export default{
 
 				for( let field in fields ){
 
-					let val = fields[field];
+					const essential = fieldIsEssential(field);
+					const fieldName = getFieldName(field);
+					let val = fields[fieldName];
+
 					if( typeof val === "function" )
 						val = val.call(win, a);
 					else{
 
-						val = a[field];
+						val = a[fieldName];
 						if( typeof val === "boolean" )
 							val = val ? 'YES' : '';
 						else
 							val = this.makeReadable(val);
 
 					}
-					html += '<td>'+val+'</td>';
+					html += '<td '+(essential ? 'class="essential"' : '')+'>'+val+'</td>';
 		
 				}
 
@@ -476,7 +488,8 @@ export default{
 		}
 
 		// Handle clicks on the rows
-		win.dom.querySelectorAll('tr[data-id]').forEach(el => el.addEventListener('click', event => {
+		const rows = win.dom.querySelectorAll('tr[data-id]');
+		rows.forEach(el => el.addEventListener('click', event => {
 
 			const elId = event.currentTarget.dataset.id,
 				mod = event.currentTarget.dataset.mod
@@ -579,6 +592,45 @@ export default{
 	
 		};
 
+		
+
+		// Search filter
+		const searchInput = win.dom.querySelector('input.search');
+		searchInput.focus();
+		let searchTimeout;
+		searchInput.onkeyup = event => {
+			clearTimeout(searchTimeout);
+			searchTimeout = setTimeout(() => {
+				
+				const searchTerm = searchInput.value.toLowerCase();
+
+				for( let row of rows ){
+
+					// Just unhide
+					if( !searchTerm.length ){
+						row.classList.toggle('hidden', false);
+						continue;
+					}
+
+					let found = false;
+					for( let td of row.children ){
+
+						const text = td.innerText;
+						if( text.toLowerCase().includes(searchTerm) ){
+							found = true;
+							break;
+						}
+
+					}
+					
+					row.classList.toggle('hidden', !found);
+
+				}
+
+
+			}, 250);
+
+		};
 
 	},
 

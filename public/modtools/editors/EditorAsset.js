@@ -112,13 +112,13 @@ export function assetTable( win, modAsset, name, single, parented, ignoreAsset )
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		name : true,
+		['*label'] : true,
+		['*name'] : true,
 		shortname : true,
-		level : true,
-		rarity : true,
-		category : true,
-		description : true,
+		['*level'] : true,
+		['*rarity'] : true,
+		['*category'] : true,
+		['*description'] : true,
 		slots: true,
 		icon : true,
 		equip_conditions: true,

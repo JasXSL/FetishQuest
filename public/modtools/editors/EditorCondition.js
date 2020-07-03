@@ -79,12 +79,12 @@ export function assetTable( win, modAsset, name, single, parented, ignoreAsset )
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, "conditions", CONSTRUCTOR, {
-		"label" : true,
-		"desc" : true,
+		"*label" : true,
+		"*desc" : true,
 		"conditions" : a => a.conditions.map(el => el.label).join(', '),
 		"min" : true,
 		"max" : true,
-		"type" : true,
+		"*type" : true,
 		"data" : true,
 		"caster" : true,
 		"targnr" : true,

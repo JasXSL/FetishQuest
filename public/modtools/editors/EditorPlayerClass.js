@@ -69,10 +69,10 @@ export function list(){
 
 
 	const fields = {
-		label : true,
-		name : true,
+		'*label' : true,
+		'*name' : true,
 		name_type : true,
-		description : true,
+		'*description' : true,
 		monster_only : true,
 	};
 	for( let i in Action.Types )

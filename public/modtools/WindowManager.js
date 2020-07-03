@@ -578,14 +578,17 @@ export default class Window{
 
 	}
 
-	static addMenuOption( id, label, onClick ){
+	static addMenuOption( id, label, onClick, escape=true ){
 
 		if( !this._menu )
 			throw 'Unable to add menu option, menu not opened';
 		
 		const el = document.createElement("div");
 		el.dataset.id = id;
-		el.innerText = label;
+		if( escape )
+			el.innerText = label;
+		else
+			el.innerHTML = label;
 		el.onclick = event => {
 			event.stopImmediatePropagation();
 			event.preventDefault();

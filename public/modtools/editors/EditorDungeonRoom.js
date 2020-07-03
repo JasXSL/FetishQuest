@@ -429,10 +429,24 @@ class Editor{
 
 		// Start by splicing anything ahead of us
 		if( asset.__historyMarker < asset.__history.length-1 ){
+			console.log("Splicing history states ahead");
 			asset.__history.splice(asset.__historyMarker+1);
 		}
 
-		asset.__history.push(asset.save("mod"));
+		const fieldsToSave = [
+			'rotX',
+			'rotY',
+			'rotZ',
+			'scaleX',
+			'scaleY',
+			'scaleZ',
+			'x','y','z'
+		];
+		let saveState = {};
+		for( let field of fieldsToSave ){
+			saveState[field] = asset[field];
+		}
+		asset.__history.push(saveState);
 		++asset.__historyMarker;
 
 		if( asset.__history.length > ASSET_HISTORY_STATES ){

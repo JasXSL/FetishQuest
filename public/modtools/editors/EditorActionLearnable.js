@@ -62,12 +62,12 @@ export function assetTable( win, modAsset, name, single ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		action : true,
+		['*label'] : true,
+		['*action'] : true,
 		auto_learn : true,
 		cost : true,
 		conditions : true,
-		gen_only : true,
+		['*gen_only'] : true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

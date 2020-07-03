@@ -131,11 +131,11 @@ export function list(){
 
 
 	const fields = {
-		label : true,
-		name : true,
+		'*label' : true,
+		'*name' : true,
 		icon : true,
-		species : true,
-		description : true,
+		'*species' : true,
+		'*description' : true,
 		classes : true,
 		max_actions : true,
 		tags : true,
@@ -152,9 +152,9 @@ export function list(){
 		gear_chance : true,
 		min_size : true,
 		max_size : true,
-		difficulty : true,
+		'*difficulty' : true,
 		viable_consumables : true,
-		power : true,
+		'*power' : true,
 		sadistic_min : true,
 		sadistic_max : true,
 		dominant_min : true,

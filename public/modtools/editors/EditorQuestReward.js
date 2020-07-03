@@ -115,9 +115,9 @@ export function assetTable( win, modAsset, name, single, parented ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		type : true,
-		data : true,
+		'*label' : true,
+		'*type' : true,
+		'*data' : true,
 		conditions : true,
 	}));
 

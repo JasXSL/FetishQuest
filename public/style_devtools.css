@@ -267,6 +267,20 @@ table.selectable tr:not(.noselect):hover td{
 }
 
 
+
+
+
+#content.essentialOnly table.dblist th,
+#content.essentialOnly table.dblist td{
+	display:none;
+}
+#content.essentialOnly table.dblist th.essential,
+#content.essentialOnly table.dblist td.essential{
+	display:table-cell;
+}
+
+
+
 /* Linked tables */
 
 

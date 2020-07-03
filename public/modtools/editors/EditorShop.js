@@ -57,9 +57,9 @@ export function assetTable( win, modAsset, name, single, parented ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		name : true,
-		buys : true,
+		'*label' : true,
+		'*name' : true,
+		'*buys' : true,
 		items : asset => {
 			const out = [];
 			for( let item of asset.items ){

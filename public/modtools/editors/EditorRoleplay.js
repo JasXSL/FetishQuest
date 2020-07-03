@@ -70,13 +70,13 @@ export function assetTable( win, modAsset, name, single, parented ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		title : true,
-		player : true,
+		'*label' : true,
+		'*title' : true,
+		'*player' : true,
 		portrait : true,
-		persistent : true,
-		once : true,
-		autoplay : true,
+		'*persistent' : true,
+		'*once' : true,
+		'*autoplay' : true,
 		stages : true,
 		conditions : true,
 	}));

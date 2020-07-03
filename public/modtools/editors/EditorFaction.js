@@ -51,10 +51,10 @@ export function assetTable( win, modAsset, name, single, parented ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		label : true,
-		name : true,
-		standing : true,
-		desc : true,
+		'*label' : true,
+		'*name' : true,
+		'*standing' : true,
+		'*desc' : true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

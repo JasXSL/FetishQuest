@@ -60,7 +60,7 @@ export function assetTable( win, modAsset, name, single ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		"label" : true,
+		"*label" : true,
 		"follow_parts" : true,
 		"sounds" : true,
 		"conditions" : a => a.conditions.map(el => el.label).join(', '),

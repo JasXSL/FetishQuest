@@ -60,10 +60,10 @@ export function assetTable( win, modAsset, name, single, parented ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		asset: true,
-		cost: true,
-		amount: true,
-		restock_rate: true,
+		'*asset': true,
+		'*cost': true,
+		'*amount': true,
+		'*restock_rate': true,
 		conditions: true,
 	}));
 

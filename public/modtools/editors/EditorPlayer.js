@@ -180,20 +180,20 @@ export function list(){
 
 
 	const fields = {
-		label : true,
-		name : true,
-		species : true,
-		description : true,
+		'*label' : true,
+		'*name' : true,
+		'*species' : true,
+		'*description' : true,
 		icon : true,
 		icon_upperBody : true,
 		icon_lowerBody : true,
 		icon_nude : true,
 		auto_learn : true,
 
-		team : true,
+		'*team' : true,
 		size: true,
-		level : true,
-		leveled : true,
+		'*level' : true,
+		'*leveled' : true,
 		
 		remOnDeath : true,
 		talkative : true,
