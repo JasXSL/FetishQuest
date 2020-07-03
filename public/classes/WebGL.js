@@ -715,7 +715,7 @@ class WebGL{
 	
 	cacheActiveDungeon(){
 
-		if( game.dungeon.label === "_procedural_" )
+		if( game.dungeon.label === "_procedural_" || !window.game )
 			return;
 
 		if( !this.dungeons[game.dungeon.label] )
@@ -884,15 +884,15 @@ class WebGL{
 
 	}
 
+	// This is used in the editor to replace the active room
 	resetStage( replace ){
 
 		if( this.stage )
 			this.stage.destructor();
 	
-		if( this.precache_stage ){
-			this.scene.remove(this.precache_stage);
-			this.precache_stage = null;
-		}
+		if( this.stage )
+			this.scene.remove(this.stage.group);
+
 		let stage = replace;
 		if( !stage )
 			stage = new Stage(undefined, this);
@@ -900,16 +900,6 @@ class WebGL{
 		this.stage.group.position.y = 0;
 		this.scene.add(stage.group);
 
-	}
-
-	setPrecacheStage( stage ){
-		this.removePrecacheStage();
-	}
-
-	removePrecacheStage(){
-		if( this.precache_stage ){
-			this.scene.remove(this.precache_stage);
-		}
 	}
 
 	// Adds an object to the stage, can be chained

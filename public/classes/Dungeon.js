@@ -1387,11 +1387,16 @@ class DungeonRoomAsset extends Generic{
 
 	isHidden(){
 
+		if( !window.game )
+			return false;
+			
 		if( this.hide_no_interact )
 			return !this.isInteractive();
 
 		if( this.isMarker() )
 			return true;
+
+		
 
 		const pl = game.getMyActivePlayer()||game.players[0];
 		return !Condition.all(this.conditions, new GameEvent({

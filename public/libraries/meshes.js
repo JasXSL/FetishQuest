@@ -40,6 +40,7 @@ import AC from '../classes/AssetCache.js';
 import stdTag from './stdTag.js';
 import Water from '../ext/Water.js';
 import Water2 from '../ext/Water2.js';
+import GameAction from '../classes/GameAction.js';
 
 
 class LibMesh{
@@ -77,6 +78,9 @@ class LibMesh{
 		this.min_attachments = isNaN(data.min_attachments) ? -1 : data.min_attachments;
 		this.max_attachments = data.max_attachments;
 		this.auto_bounding_box = data.auto_bounding_box;										// Creates an automatic invisible prim to use as a bounding box for raycasting
+
+		// helper flags
+		this.want_actions = data.want_actions;	// Array of GameAction types that this asset wants. If not, it gets highlighted in the editor. Use sub arrays for OR
 
 		// Events
 		this.beforeFlatten = data.beforeFlatten || function(mesh){};		// Raised before you flatten. Only raised once
@@ -741,6 +745,7 @@ LibMesh.library = {
 				width: 2,
 				height: 1,
 				lockable : true,
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
 				animations : {
 					"open" : {
 						clampWhenFinished : true,
@@ -772,6 +777,7 @@ LibMesh.library = {
 				],
 				width: 1,
 				height: 1,
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
 				tags : [stdTag.mLadder],
 				onFlatten : function(mesh){
 					let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
@@ -810,6 +816,7 @@ LibMesh.library = {
 				],
 				width: 2,
 				height: 2,
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
 				tags : [stdTag.mTrapdoor],
 				animations : {
 					"open" : {
@@ -834,6 +841,7 @@ LibMesh.library = {
 				use_wall_indentation : true,
 				width: 1,
 				height: 1,
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
 				tags : [stdTag.mLever],
 				animations : {
 					"open" : {
@@ -876,6 +884,7 @@ LibMesh.library = {
 				],
 				width: 2,
 				height: 2,
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
 				tags : [stdTag.mStair],
 				onFlatten : function(mesh){
 					let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
@@ -1303,6 +1312,7 @@ LibMesh.library = {
 				],
 				width: 2,
 				height: 1,
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
 				tags : [stdTag.mStair],
 				onFlatten : function(mesh){
 					let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
@@ -1340,6 +1350,7 @@ LibMesh.library = {
 				],
 				width: 2,
 				height: 1,
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
 				tags : [stdTag.mTrapdoor],
 				animations : {
 					"open" : {
@@ -2981,6 +2992,7 @@ LibMesh.library = {
 		Door : {
 			CaveDoor : new LibMesh({
 				url : 'gates/cave_door.JD',
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
 				materials : [
 					libMat.Rock.Wall,
 					libMat.Solids.Black,
@@ -3433,7 +3445,8 @@ LibMesh.library = {
 
 		GenericDouble : new LibMesh({
 			url : 'gates/doubledoor_generic.JD',
-			materials : [
+				want_actions : [[GameAction.types.door,GameAction.types.exit]],
+				materials : [
 				libMat.Wood.Floor2,
 				libMat.Wood.Reinforced,
 				libMat.Metal.DarkGeneric,
@@ -3452,6 +3465,7 @@ LibMesh.library = {
 
 		Generic : new LibMesh({
 			url : 'gates/generic_door.JD',
+			want_actions : [[GameAction.types.door,GameAction.types.exit]],
 			materials : [
 				libMat.Wood.Crate,
 				libMat.Metal.DarkGeneric,
@@ -3470,6 +3484,7 @@ LibMesh.library = {
 
 		Manhole : new LibMesh({
 			url : 'gates/manhole.JD',
+			want_actions : [[GameAction.types.door,GameAction.types.exit]],
 			materials : [
 				libMat.Brick.Tile,
 				libMat.Metal.DarkGeneric,

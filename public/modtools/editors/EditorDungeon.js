@@ -357,24 +357,39 @@ class DungeonLayoutEditor{
 			
 			const index = this.getUnusedIndex(),
 				baseName = this.asset.label+'>>'+index;
-			
-			const room = new DungeonRoom({
+
+			let r = new DungeonRoom({
 				label:baseName, 
 				name:'Room '+index, 
 				x:x,
 				y:y,
 				z:z,
 				index : index,
-				parent_index:roomAsset.index
-			}).save("mod");
-			room._mParent = {
+				parent_index:roomAsset.index,
+			});
+			
+			const pa = DungeonRoom.loadThis(room);
+			pa.rebase();
+			const ra = pa.getRoomAsset();
+			if( ra ){
+				r.addAsset(ra);
+			}
+
+			r.ambiance = pa.ambiance;
+			r.ambiance_volume = pa.ambiance_volume;
+			r.outdoors = pa.outdoors;
+
+			r = r.save("mod");
+			r._mParent = {
 				type:'dungeons', 
 				label:this.asset.label
 			};
-			HelperAsset.insertAsset( 'dungeonRooms', room, this, false );
+
+			console.log("inserting room", r);
+			HelperAsset.insertAsset( 'dungeonRooms', r, this, false );
 
 			this.asset.rooms.push(baseName);
-			this.cache_rooms.push(room);
+			this.cache_rooms.push(r);
 
 			if( dir === 'up' )
 				++this.active_level;
@@ -409,6 +424,7 @@ class DungeonLayoutEditor{
 
 			// Bring up the room editor
 			Window.getByType('dungeonRooms').map(el => el.remove());
+			Window.getByType('dungeonAssets').map(el => el.remove());
 
 			window.mod.buildAssetEditor("dungeonRooms", room.label);
 

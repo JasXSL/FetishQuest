@@ -2,7 +2,8 @@
 	- Keep redesigning errors to a try/catch system
 
 
-
+- View dropdown
+	- Essentials only dropdown which shows only the most interesting parts of an asset in the listing
 - Emote type roleplays
 
 - Once all assets are working properly, convert the main mod to the new mod format

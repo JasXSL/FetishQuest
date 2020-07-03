@@ -76,8 +76,8 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'vendor_'+Generic.generateUUID(),
-		name : 'New Shop'
+		label : 'quest_'+Generic.generateUUID(),
+		name : 'New Quest'
 	}));
 
 };
