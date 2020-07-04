@@ -18,6 +18,7 @@ const lib = {
 	action_stdPunishSub : {type:Condition.Types.actionLabel,data:{"label":"stdPunishSub"},targnr:0, desc:'The event action is submissive punishment'},
 	action_tentacle_fiend_tentacleMilker : {type:Condition.Types.actionLabel,data:{"label":"tentacle_fiend_tentacleMilker"},targnr:0, desc:'The event action is tentacle_fiend_tentacleMilker'},
 	action_tentacle_fiend_legWrap : {type:Condition.Types.actionLabel,data:{"label":"tentacle_fiend_legWrap"},targnr:0, desc:'The event action is tentacle_fiend_legWrap'},
+	target_has_wrapper_legWrap_from_sender : {type:Condition.Types.hasWrapper, data:{label:'legWrap', byCaster:true}, desc:'Target is affected by sender legWrap effect'},
 	action_tentacle_fiend_injectacle : {type:Condition.Types.actionLabel,data:{"label":"tentacle_fiend_injectacle"},targnr:0, desc:'The event action is tentacle_fiend_injectacle'},
 	action_tentacle_fiend_tentatug : {type:Condition.Types.actionLabel,data:{"label":"tentacle_fiend_tentatug"},targnr:0, desc:'The event action is tentacle_fiend_tentatug'},
 	action_tentacle_ride : {type:Condition.Types.actionLabel,data:{"label":"tentacle_ride"},targnr:0, desc:'The event action is tentacle_ride'},
@@ -249,7 +250,8 @@ const lib = {
 	// Limits attacks to the target not being knocked down, tied up, etc
 	targetStanding : {type:Condition.Types.tag, data:{tags:[
 		stdTag.wrKnockdown,
-		stdTag.wrBound
+		stdTag.wrBound,
+		stdTag.wrGrapple
 	]}, inverse:true},
 
 	targetSameTeam : {"type":"sameTeam", desc:''},
@@ -519,7 +521,7 @@ const lib = {
 	rand10 : {"type":"rng",data:{"chance":10}},
 	rand15 : {"type":"rng",data:{"chance":15}},
 	rand20 : {"type":"rng",data:{"chance":20}},
-	rand30 : {"type":"rng",data:{"chance":30}},
+	rand30 : {"type":"rng",data:{"chance":30}, desc:'Validates 30% of the time'},
 	rand40 : {"type":"rng",data:{"chance":40}},
 	rand50 : {"type":"rng",data:{"chance":50}},
 	rand60 : {"type":"rng",data:{"chance":60}},
@@ -539,6 +541,9 @@ const lib = {
 	roomHasFreeBondageDevice : {type:Condition.Types.hasFreeBondageDevice, targnr:0},
 	roomWater : {type:Condition.Types.tag, data:{tags:[stdTag.mWater]}, targnr:0},
 	roomSybian : {type:Condition.Types.tag, data:{tags:[stdTag.mBondageSybian]}, targnr:0},
+	roomTree : {type:Condition.Types.tag, data:{tags:[stdTag.mTree]}, targnr:0},
+	roomDirt : {type:Condition.Types.tag, data:{tags:[stdTag.mTree]}, targnr:0},
+	roomGrass : {type:Condition.Types.tag, data:{tags:[stdTag.mGrass, stdTag.mGrassLong]}, targnr:0},
 
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},

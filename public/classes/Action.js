@@ -26,7 +26,7 @@ class Action extends Generic{
 		this.ap = 1;
 		this.min_ap = 0;			// When reduced by effects, this is the minimum AP we can go to 
 		this.mp = 0;
-		this.cooldown = null;					// Turns needed to add a charge. Setting this to 0 will make charges infinite. Can be a math formula.
+		this.cooldown = null;					// Turns needed to add a charge. Setting this to 0 will make charges infinite. Can be a math formula. Use getCooldown()
 		this.init_cooldown = 0;					// Cooldown to be set when a battle starts.
 		this.min_targets = 1;
 		this.max_targets = 1;
@@ -54,7 +54,7 @@ class Action extends Generic{
 		this.alias = [];						// Aliases to use for texts. Useful when you want multiple actions with the same texts
 
 		// User stuff
-		this._cooldown = 0;			// Turns remaining to add a charge
+		this._cooldown = 0;			// Turns remaining to add a charge.
 		this._cast_time = 0;		// Turns remaining to cast this if cast_time > 0
 		this._charges = 1;			// Charges remaining for this action. A charge is added each time the cooldown triggers
 		this._cast_targets = [];		// UUIDs of players a charge spell is aimed at
@@ -169,7 +169,7 @@ class Action extends Generic{
 
 	/* Conditions */
 	getConditions(){
-		return this.conditions.concat(this.show_conditions);
+		return [...this.conditions,...this.show_conditions];
 	}
 	isVisible(){
 
@@ -288,7 +288,7 @@ class Action extends Generic{
 		this.onBattleEnd();
 		if( this.init_cooldown ){
 			this._charges = 0;
-			this._cooldown = this.init_cooldown;
+			this._cooldown = this.getCooldown();
 		}
 	}
 
@@ -305,14 +305,15 @@ class Action extends Generic{
 
 	getCooldown(){
 		
+
 		if( typeof this.cooldown === "number" )
 			return this.cooldown;
 
 		if( this._cache_cooldown === false ){
 
 			const pl = this.getPlayerParent() || game.players[0];
-			this._cache_cooldown = Calculator.run(this.cooldown, new GameEvent({sender:pl, target:pl}));
-		
+			this._cache_cooldown = parseInt(Calculator.run(this.cooldown, new GameEvent({sender:pl, target:pl})))||1;
+
 		}
 
 		return this._cache_cooldown;
@@ -341,8 +342,9 @@ class Action extends Generic{
 			return;
 
 		this._cooldown += amount;
-		if( this._cooldown <= 0 && this._charges < this.charges )
+		if( this._cooldown <= 0 && this._charges < this.charges ){
 			this.consumeCharges(-1);
+		}
 		if( this._cooldown > this.getCooldown() )
 			this._cooldown = this.getCooldown();
 
@@ -351,8 +353,9 @@ class Action extends Generic{
 	// consumes charges and updates the cooldown if needed
 	consumeCharges( charges = 1 ){
 
+
 		// If there's no cooldown at all, the charge system is ignored
-		if( this.getCooldown() <= 0 )
+		if( this.getCooldown() <= 0 && charges > 0 )
 			return;
 
 		// Subtract a charge

@@ -596,7 +596,7 @@ export default{
 
 		// Search filter
 		const searchInput = win.dom.querySelector('input.search');
-		searchInput.focus();
+
 		let searchTimeout;
 		searchInput.onkeyup = event => {
 			clearTimeout(searchTimeout);
@@ -615,6 +615,9 @@ export default{
 					let found = false;
 					for( let td of row.children ){
 
+						if( window.mod.essentialOnly && !td.classList.contains('essential') )
+							continue;
+
 						const text = td.innerText;
 						if( text.toLowerCase().includes(searchTerm) ){
 							found = true;
@@ -631,6 +634,11 @@ export default{
 			}, 250);
 
 		};
+
+		setTimeout(() => {
+			if( win === Window.front)
+				searchInput.focus();
+		}, 10)
 
 	},
 

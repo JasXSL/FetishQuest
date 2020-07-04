@@ -1204,7 +1204,7 @@ export default class UI{
 					else if( dText/60 > 1 )
 						dText = Math.ceil(dText/60)+'m';
 					else
-						dText = tText+'s';
+						dText = dText+'s';
 				}
 				elDuration.text(dText);
 

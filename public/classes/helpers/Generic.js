@@ -2,6 +2,8 @@
 export default class Generic{
 
 	constructor(data){
+
+		this._rebased = false;
 		this.id = this.g_guid();	// Random ID
 	}
 
@@ -271,8 +273,9 @@ export default class Generic{
 		if( typeof entry === "string" ){
 
 			// Mod editor returns strings as is
-			if( !window.game )
+			if( !window.game ){
 				return entry;
+			}
 
 			let n = glib.get(entry, this.name);
 			if( typeof n !== "object" )
@@ -284,7 +287,9 @@ export default class Generic{
 			}
 			delete entry.id;	// Assign a new ID if this was fetched from a template
 			entry = n;
+
 		}
+
 		return new this(entry, parent);
 
 

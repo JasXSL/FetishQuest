@@ -1461,7 +1461,7 @@ class DungeonRoomAsset extends Generic{
 	getModel(){
 		if( this._model )
 			return this._model;
-		let mesh = libMeshes,
+		let mesh = libMeshes(),
 			path = this.model.split('.')
 		;
 		while( path.length ){

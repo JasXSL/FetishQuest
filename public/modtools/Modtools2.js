@@ -1,6 +1,5 @@
 import Window from './WindowManager.js';
 import {default as WebGL, Stage} from '../classes/WebGL.js';
-import {default as libMeshes, LibMesh, getNonDoorMeshes} from '../libraries/meshes.js';
 import * as THREE from '../ext/THREE.js';
 import TransformControls from '../ext/TransformControls.js';
 import Mod from '../classes/Mod.js';

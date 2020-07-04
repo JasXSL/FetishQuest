@@ -284,6 +284,12 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.8,
 		}),
+		// todo
+		BarkMoss : new LibMaterial({
+			map : 'tileable/bogtree.jpg',
+			metalness : 0.3,
+			roughness : 0.8,
+		}),
 		Stump : new LibMaterial({
 			map : 'decals/stump.jpg',
 			metalness : 0.3,
@@ -584,6 +590,27 @@ LibMaterial.library = {
 			metalness : 0.1,roughness : 0.8,
 		}),
 
+		SwampA : new LibMaterial({
+			map : 'land/swamp_a.jpg',
+			metalness : 0.1,
+			roughness : 0.6,
+		}),
+		SwampB : new LibMaterial({
+			map : 'land/swamp_b.jpg',
+			metalness : 0.1,
+			roughness : 0.6,
+		}),
+		SwampC : new LibMaterial({
+			map : 'land/swamp_c.jpg',
+			metalness : 0.1,
+			roughness : 0.6,
+		}),
+		SwampD : new LibMaterial({
+			map : 'land/swamp_d.jpg',
+			metalness : 0.1,
+			roughness : 0.6,
+		}),
+
 	},
 
 	Water : {
@@ -674,6 +701,56 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}, 'MeshDepthMaterial'),
+
+		BushThicc : new LibMaterial({
+			map : 'decals/bush_thicc.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
+		BushGrass : new LibMaterial({
+			map : 'decals/grassbush.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
+		BushTropical : new LibMaterial({
+			map : 'decals/bush_tropical.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
+		BushPalm : new LibMaterial({
+			map : 'decals/bush_palm.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
+		BushRedgrass : new LibMaterial({
+			map : 'decals/grass_red.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
+		BushTree : new LibMaterial({
+			map : 'decals/treebush.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
+
 		FlowersA : new LibMaterial({
 			map : 'decals/flowers_a.png',
 			metalness : 0.3,
@@ -746,6 +823,24 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}, "MeshDepthMaterial"),
+
+		TreeVines : new LibMaterial({
+			map : 'decals/hanging_vines.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		Bogtree : new LibMaterial({
+			map : 'decals/bogtree_crown.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+
 		CarrotBush : new LibMaterial({
 			map : 'decals/carrot_bush.png',
 			metalness : 0.3,

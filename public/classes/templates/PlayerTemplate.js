@@ -6,6 +6,7 @@ import GameEvent from '../GameEvent.js';
 import Condition from '../Condition.js';
 import PlayerClass from '../PlayerClass.js';
 import ActionLearnable from '../ActionLearnable.js';
+import { Wrapper } from '../EffectSys.js';
 
 
 class PlayerTemplate extends Generic{
@@ -48,6 +49,7 @@ class PlayerTemplate extends Generic{
 		this.talkative_max = 1;
 		this.required_assets = [];				// labels of assets that MUST be on this character
 		this.required_actions = [];				// labels of actions that MUST be on this character
+		this.passives = [];						// Passive wrappers that need to be applied to this. Labels only.
 		this.no_equip = false;					// Prevents equip of the gear. Useful for things like mimics.
 		this.load(...args);
 	}
@@ -92,7 +94,8 @@ class PlayerTemplate extends Generic{
 			power : this.power,
 			no_equip : this.no_equip,
 			talkative_min : this.talkative_min,
-			talkative_max : this.talkative_max
+			talkative_max : this.talkative_max,
+			passives : this.passives,
 		};
 	}
 
@@ -174,6 +177,14 @@ class PlayerTemplate extends Generic{
 			player.addAsset(item, undefined, undefined, true);
 			if( !this.no_equip )
 				item.equipped = true;
+		}
+
+		for( let passive of this.passives ){
+
+			const p = glib.get(passive, 'Wrapper');
+			if( p )
+				player.passives.push(p.clone());
+
 		}
 
 		let gearLevelOffset = -2;

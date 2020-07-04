@@ -47,7 +47,7 @@ export function asset(){
 	// Todo: Add the asset inserter
 	html += '<div class="assetInserter">';
 		html += '<select id="meshToTest" multiple>';
-		for( let i in libMeshes )
+		for( let i in libMeshes() )
 			html += '<option value="'+i+'">'+i+'</option>';
 		html += '</select>';
 	html += '</div>';
@@ -161,8 +161,9 @@ class Editor{
 
 				obj = obj.clone("mod", this.room);
 				obj.g_resetID();
-				obj.__history = [obj.save('mod')];
+				obj.__history = [];
 				obj.__historyMarker = 0;
+				this.addHistory(obj);
 				this.room.addAsset(obj);
 				this.gl.stage.addDungeonAsset(obj).then(() => {
 					this.save();
@@ -349,8 +350,10 @@ class Editor{
 			model : path,
 		}, this.room);
 
-		asset.__history = [asset.save('mod')];
+		asset.__history = [];
 		asset.__historyMarker = 0;
+		asset.absolute = true;
+		this.addHistory(asset);
 		this.room.addAsset(asset);
 		await this.gl.stage.addDungeonAsset(asset);
 		this.save();
@@ -364,13 +367,15 @@ class Editor{
 	updateMeshSelects( index ){
 
 		let path = [];
-		const selects = this.win.dom.querySelectorAll('div.assetInserter > select');
+		let selects = this.win.dom.querySelectorAll('div.assetInserter > select');
 		selects.forEach((el, i) => {
 			if( i > index )
 				el.remove();
 			else if( el.value )
 				path.push(el.value);
 		});
+		selects = this.win.dom.querySelectorAll('div.assetInserter > select');	// in case we deleted one
+
 
 		let meshes = getNonDoorMeshes();
 
@@ -418,6 +423,7 @@ class Editor{
 	traverseHistory( asset, direction = -1 ){
 
 		asset.__historyMarker = Math.min(Math.max(asset.__historyMarker+direction, 0), asset.__history.length-1);
+		console.log("Loading history", asset.__history, asset.__historyMarker);
 		asset.load(asset.__history[asset.__historyMarker]);
 		this.gl.stage.updatePositionByAsset(asset);
 		this.save();
@@ -429,9 +435,11 @@ class Editor{
 
 		// Start by splicing anything ahead of us
 		if( asset.__historyMarker < asset.__history.length-1 ){
-			console.log("Splicing history states ahead");
 			asset.__history.splice(asset.__historyMarker+1);
 		}
+
+		if( asset.__historyMarker >= asset.__history.length )
+			asset.__historyMarker = asset.__history.length-1;
 
 		const fieldsToSave = [
 			'rotX',
@@ -481,8 +489,9 @@ class Editor{
 		// Build initial history state
 		for( let asset of this.room.assets ){
 			asset.rebase();
-			asset.__history = [asset.save("mod")];
+			asset.__history = [];
 			asset.__historyMarker = 0;
+			this.addHistory(asset);
 		}
 
 	}

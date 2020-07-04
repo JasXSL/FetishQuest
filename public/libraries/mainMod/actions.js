@@ -2155,7 +2155,7 @@ const lib = {
 				stacks : 3,
 				max_stacks : 3,
 				tags : [stdTag.wrBound, stdTag.wrHogtied, stdTag.wrNoRiposte],
-				add_conditions : stdCond.concat("targetNotBeast", "targetNotTiedUp"),
+				add_conditions : stdCond.concat("targetNotBeast", "targetNotTiedUp", "targetStanding"),
 				stay_conditions : ["senderNotDead"],
 				tick_on_turn_start : false,			// Tick on turn start
 				tick_on_turn_end : true,
@@ -2307,7 +2307,7 @@ const lib = {
 					"wr_legs_spread"
 				],
 				add_conditions : stdCond.concat(
-					"targetNotGrappledOrKnockedDown",
+					"targetStanding",
 					"targetNotBeast",
 					{
 						type : "apValue",
@@ -2614,7 +2614,7 @@ const lib = {
 				description : "Lifted onto a tentacle, grappled.",
 				trigger_immediate : true,
 				add_conditions : stdCond.concat(
-					"targetNotBeast", "targetNotGrappledOrKnockedDown", "targetStanding"
+					"targetNotBeast", "targetStanding"
 				),
 				tags : [stdTag.wrTentacleRide],
 				effects : [
@@ -3207,7 +3207,7 @@ const lib = {
 				icon : "chalk-outline-murder",
 				description : "Pounced by %S!",
 				trigger_immediate : true,
-				add_conditions : stdCond.concat("targetNotGrappledOrKnockedDown", "targetStanding"),
+				add_conditions : stdCond.concat("targetStanding"),
 				tags : [stdTag.wrGrapple, stdTag.fxPounced],
 				effects : [
 					{type : Effect.Types.grapple},
@@ -3393,7 +3393,7 @@ const lib = {
 				icon : "daemon-pull",
 				description : "Caught in %S's tendrils!",
 				trigger_immediate : true,
-				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappledOrKnockedDown"),
+				add_conditions : stdCond.concat("targetNotBeast", "targetStanding"),
 				tags : [stdTag.wrTentacleRide],
 				effects : [
 					{type : Effect.Types.grapple},
@@ -3480,7 +3480,7 @@ const lib = {
 				icon : "monster-grasp",
 				description : "Caught by %S!",
 				trigger_immediate : true,
-				add_conditions : stdCond.concat("targetNotBeast", "targetNotGrappledOrKnockedDown", "targetStanding"),
+				add_conditions : stdCond.concat("targetNotBeast", "targetStanding"),
 				tags : [stdTag.wrGrapple],
 				effects : [
 					{type : Effect.Types.grapple},
@@ -3976,7 +3976,7 @@ const lib = {
 				icon : "knee-cap",
 				description : "The skeletal construct has grabbed and spread your arms and legs!",
 				detrimental : true,
-				add_conditions : stdCond,
+				add_conditions : stdCond.concat("targetStanding"),
 				stay_conditions : stdCond,
 				effects:[
 					{

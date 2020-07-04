@@ -13,7 +13,7 @@ import Sky from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 import Proton from '../ext/three.proton.min.js';
-import { LibMesh } from '../libraries/meshes.js';
+import libMesh from '../libraries/meshes.js';
 import stdTag from '../libraries/stdTag.js';
 import Player from './Player.js';
 
@@ -951,7 +951,7 @@ class WebGL{
 		
 		// Add a dummy so you don't overload
 		this.playerMarkers.push(false);
-		const obj = await LibMesh.library.Generic.Marker.Player.flatten([], true);
+		const obj = await libMesh().Generic.Marker.Player.flatten([], true);
 		for( let i in this.playerMarkers ){
 			if( this.playerMarkers[i] === false ){
 				this.playerMarkers[i] = obj;

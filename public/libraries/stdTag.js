@@ -40,7 +40,9 @@ export default {
 	plFeathers : 'pl_feathers',
 	plBeak : 'pl_beak',
 	plOoze : 'pl_ooze',
+	plSlimy : 'pl_slimy',
 	plWorm : 'pl_worm',
+	plLeech : 'pl_leech',
 
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',
@@ -226,6 +228,8 @@ export default {
 	mGrass : 'm_grass',
 	mSand : 'm_sand',
 	mDirt : 'm_dirt',
+	mMoss : 'm_moss',
+	mSwamp : 'm_swamp',
 	mWater : 'm_water',
 	mBucket : 'm_bucket',
 	mEmitter : 'm_emitter',

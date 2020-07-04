@@ -26,7 +26,7 @@ class Wrapper extends Generic{
 		this.add_conditions = ["senderNotDead","targetNotDead"];			// Conditions needed to add
 		this.stay_conditions = ["senderNotDead","targetNotDead"];			// Conditions needed to stay. These are checked at the end of turn end/start, and after an action is used
 		this.effects = [];
-		this.duration = 0;
+		this.duration = 0;					// Use -1 for permanent
 		this.tags = [];						// wr_ is prepended
 		this.stacks = 1;
 		this.max_stacks = 1;
@@ -59,51 +59,62 @@ class Wrapper extends Generic{
 
 	// Data that should be saved to drive
 	save( full ){
-		const out = {
-			name : this.name,
-			description : this.description,
-			icon : this.icon,
-			detrimental : this.detrimental,
-			target : this.target,
-			add_conditions : Condition.saveThese(this.add_conditions, full),
-			stay_conditions : Condition.saveThese(this.stay_conditions, full),
-			effects : Effect.saveThese(this.effects, full),
-			tags : this.tags,
-			label : this.label,
-			duration : this.duration,
-			ext : this.ext,
-		};
 
-		if( full ){
-			out.tick_on_turn_end = this.tick_on_turn_end;
-			out.tick_on_turn_start = this.tick_on_turn_start;
-			out.max_stacks = this.max_stacks;
-			out.trigger_immediate = this.trigger_immediate;
-			out.editor_desc = this.editor_desc;
+		
+		try{
+			const out = {
+				name : this.name,
+				description : this.description,
+				icon : this.icon,
+				detrimental : this.detrimental,
+				target : this.target,
+				add_conditions : Condition.saveThese(this.add_conditions, full),
+				stay_conditions : Condition.saveThese(this.stay_conditions, full),
+				effects : Effect.saveThese(this.effects, full),
+				tags : this.tags,
+				label : this.label,
+				duration : this.duration,
+				ext : this.ext,
+			};
+			
 
-			if( full !== "mod" ){
+			if( full ){
+				out.tick_on_turn_end = this.tick_on_turn_end;
+				out.tick_on_turn_start = this.tick_on_turn_start;
+				out.max_stacks = this.max_stacks;
+				out.trigger_immediate = this.trigger_immediate;
+				out.editor_desc = this.editor_desc;
 
-				out._self_cast = this._self_cast;
-				out.netPlayer = this.netPlayer;
+				if( full !== "mod" ){
+
+					out._self_cast = this._self_cast;
+					out.netPlayer = this.netPlayer;
+
+				}
 
 			}
 
+			if( full !== "mod" ){
+				out.id = this.id;
+				out._duration = this._duration;
+				out.victim = this.victim;
+				out.caster = this.caster;
+				out.stacks = this.stacks;
+				out.action = this.action;
+				if( this.ext )
+					out._added = this._added;
+			}
+			else
+				this.g_sanitizeDefaults(out);
+
+			return out;
+
+		}catch(err){
+			console.error("Save error occurred in ", this);
+			throw err;
 		}
 
-		if( full !== "mod" ){
-			out.id = this.id;
-			out._duration = this._duration;
-			out.victim = this.victim;
-			out.caster = this.caster;
-			out.stacks = this.stacks;
-			out.action = this.action;
-			if( this.ext )
-				out._added = this._added;
-		}
-		else
-			this.g_sanitizeDefaults(out);
-
-		return out;
+		
 	}
 
 	load( data ){
@@ -370,7 +381,7 @@ class Wrapper extends Generic{
 			wrapper : this,
 			sender : this.getCaster(),
 			target : target,
-			action : this.parent.constructor === Action ? this.parent : null,
+			action : this.parent && this.parent.constructor === Action ? this.parent : null,
 		}).raise();
 
 		if( expired ){
@@ -706,15 +717,17 @@ class Effect extends Generic{
 		if( !Effect.Types[this.type] )
 			console.error("Unknown effect type", this.type, "in", this);
 
-		if( this.type === Effect.Types.runWrappers && Array.isArray(this.data.wrappers) )
+		if( this.type === Effect.Types.runWrappers && Array.isArray(this.data.wrappers) ){
 			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
+		}
 		
 		// If an effect has a conditions data field, it's 
 		if( Array.isArray(this.data.conditions) )
 			this.data.conditions = Condition.loadThese(this.data.conditions, this);
 
-		if( this.type === Effect.Types.gameAction && this.data.action )
+		if( this.type === Effect.Types.gameAction && this.data.action ){
 			this.data.action = GameAction.loadThis(this.data.action);
+		}
 
 		// Unpack is required since it has nested objects
 		if( this.type === Effect.Types.addRandomTags ){
@@ -742,7 +755,7 @@ class Effect extends Generic{
 	// template is the original effect if it was just added
 	// otherwise it's parent
 	// WrapperReturn lets you put data into the wrapper trigger return object 
-	trigger( event, template, wrapperReturn ){
+	trigger( event, template, wrapperReturn, debug ){
 
 
 		const wrapper = this.parent;
@@ -752,11 +765,10 @@ class Effect extends Generic{
 		evt.originalWrapper = evt.wrapper;
 		evt.wrapper = wrapper;
 		
-
 		if( !(wrapperReturn instanceof WrapperReturn) )
 			wrapperReturn = new WrapperReturn();
 
-		if( !this.validateConditions(evt, this.label === 'tmp_debug') )
+		if( !this.validateConditions(evt, this.label === 'tmp_debug' || debug) )
 			return false;
 
 		let sender = game.getPlayerById(this.parent.caster),
@@ -825,15 +837,19 @@ class Effect extends Generic{
 
 				let e = GameEvent.Types.damageDone, e2 = GameEvent.Types.damageTaken;
 				const calcEvt = new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this});
+
 				let amt = -Calculator.run(
 					this.data.amount, 
 					calcEvt
 				);
+
 				if( !this.no_stack_multi )
 					amt *= wrapper.stacks;
 
+
 				if( s.isHealInverted() )
 					amt = -Math.abs(amt);
+
 
 				// Only affects damage/healing
 				const crit = wrapper._crit;
@@ -898,10 +914,10 @@ class Effect extends Generic{
 					
 
 					// Get target global damage point taken modifier
-					
 
 					// Amt is negative
 					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s );
+					
 					// amt is negative when attacking, that's why we use - here
 					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t );
 					
@@ -948,6 +964,8 @@ class Effect extends Generic{
 
 				}
 
+				
+
 				// Calculate arousal (allowed for both healing and damaging)
 				if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
 
@@ -969,6 +987,8 @@ class Effect extends Generic{
 				}
 
 				const preHP = t.hp;
+				if( isNaN(amt) )
+					console.error("NaN damage amount found in", this);
 				let died = t.addHP(amt, s, this, true);
 				const change = t.hp - preHP;
 
@@ -1229,7 +1249,6 @@ class Effect extends Generic{
 					label = [label];
 
 				let wrappers = t.wrappers.slice();		// Use temporary wrappers only
-				console.log("Removing wrappers", label, "from", t.wrappers);
 				
 				for( let wr of wrappers ){
 					if(
@@ -1564,9 +1583,11 @@ class Effect extends Generic{
 		this.unbindEvents();
 		for(let evt of this.events){
 			
-			if( evt.substr(0,8) !== "internal" )
-				this._bound_events.push(GameEvent.on(evt, event => this.trigger(event)));
-
+			if( evt.substr(0,8) !== "internal" ){
+				this._bound_events.push(GameEvent.on(evt, event => {
+					this.trigger(event);
+				}));
+			}
 		}
 
 	}
@@ -1574,6 +1595,7 @@ class Effect extends Generic{
 
 		for(let evt of this._bound_events)
 			GameEvent.off(evt);
+		this._bound_events = [];
 
 	}
 	

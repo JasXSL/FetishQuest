@@ -48,7 +48,7 @@ export default class Player extends Generic{
 		this.tags = [];				// Player tags, these are automatically prefixed with PL_, use getTags
 		this.wrappers = [];			// Wrappers, use getWrappers
 		this.auto_wrappers = [];	// Automatic wrappers such as encumbered
-		this.passives = [];			// Passive effects that should not be cleared when a battle starts or ends
+		this.passives = [];			// Passive wrappers that should not be cleared when a battle starts or ends
 		this.hp = BASE_HP;				// 
 		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
 		this.team = 0;				// 0 = player
@@ -2552,8 +2552,10 @@ export default class Player extends Generic{
 
 	// Makes sure passives have the right ID
 	updatePassives(){
-		for( let passive of this.passives )
+		for( let passive of this.passives ){
 			passive.caster = passive.victim = this.id;
+			passive.parent = this;
+		}
 	}
 
 	
@@ -2719,6 +2721,7 @@ Player.getAdvantage = function( attacker, victim, stat, detrimental ){
 Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental ){
 
 	let tot = this.getAdvantage(attacker, victim, stat, detrimental);
+
 	if( tot < 0 )
 		tot = 0;
 
@@ -2745,7 +2748,6 @@ Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental 
 	else if( game.difficulty > 5 ){
 		add *= (1-(game.difficulty-5)*0.15);
 	}
-
 
 	const out = (1+tot*0.1)*add;
 	return out;

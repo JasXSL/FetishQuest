@@ -222,7 +222,7 @@ export default class GameLib{
 		for( let i of all ){
 			let lib = this[i];
 			for( let iter in lib ){
-				if( lib[iter].rebase ){
+				if( lib[iter].rebase && !lib[iter]._rebased ){
 					lib[iter].rebase();
 					++n;
 				}
@@ -292,9 +292,15 @@ export default class GameLib{
 			console.error("Asset", label, "not found in", lib, "(", Object.keys(lib), ")", "constructor was ", constructorName);
 			return false;
 		}
+
 		if( !this._allow_clone )
 			return lib[label];
-		return lib[label].clone();
+
+		// Rebase if not already rebased. This is needed for wrappers in wrappers to work.
+		let obj = lib[label];
+		if( !obj._rebased && obj.rebase )
+			obj.rebase();
+		return obj.clone();
 
 	}
 

@@ -936,7 +936,7 @@ Condition.saveThese = function( conditions, full ){
 		if( full === "mod" )
 			return el;
 
-		console.error(el, "full was", full);
+		console.error(el, "full was", full, "in conditions pack", conditions);
 		throw "Error, condition has no save method ^";
 
 	});

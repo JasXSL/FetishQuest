@@ -358,7 +358,8 @@ export default class Window{
 		if( this.hideOnClose )
 			this.dom.classList.toggle("hidden", true);
 		else{
-			this.dom.parentNode.removeChild(this.dom);
+			if( this.dom && this.dom.parentNode )
+				this.dom.parentNode.removeChild(this.dom);
 			Window.remove(this);
 		}
 

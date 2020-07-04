@@ -7,6 +7,7 @@ import * as EditorMaterialTemplate from './EditorMaterialTemplate.js';
 import * as EditorAsset from './EditorAsset.js';
 import * as EditorAction from './EditorAction.js';
 import * as EditorAssetTemplate from './EditorAssetTemplate.js';
+import * as EditorWrapper from './EditorWrapper.js';
 import PlayerTemplate from '../../classes/templates/PlayerTemplate.js';
 import stdTag from '../../libraries/stdTag.js';
 import Generic from '../../classes/helpers/Generic.js';
@@ -28,6 +29,8 @@ export function asset(){
 
 	if( !asset )
 		return this.close();
+
+	console.trace("draw");
 
 	let html = '';
 	html += '<div class="labelFlex">';
@@ -69,11 +72,11 @@ export function asset(){
 	// Stats:
 		for( let i in Action.Types ){
 			const t = Action.Types[i];
-			html += '<label>'+esc(i)+': <input name="'+esc('sv::'+t)+'" value="'+esc(dummy.sv[t] || 0)+'" class="saveable" type="number" step=1 /></label>';
+			html += '<label>sv '+esc(i)+': <input name="'+esc('sv::'+t)+'" value="'+esc(dummy.sv[t] || 0)+'" class="saveable" type="number" step=1 /></label>';
 		}
 		for( let i in Action.Types ){
 			const t = Action.Types[i];
-			html += '<label>'+esc(i)+': <input name="'+esc('bon::'+t)+'" value="'+esc(dummy.bon[t] || 0)+'" class="saveable" type="number" step=1 /></label>';
+			html += '<label>bon '+esc(i)+': <input name="'+esc('bon::'+t)+'" value="'+esc(dummy.bon[t] || 0)+'" class="saveable" type="number" step=1 /></label>';
 		}
 		for( let i in Player.primaryStats ){
 			const t = Player.primaryStats[i];
@@ -94,6 +97,7 @@ export function asset(){
 	html += 'Required Assets: <div class="required_assets"></div>';
 	html += 'Required Actions: <div class="required_actions"></div>';
 	html += 'Viable Classes: <div class="classes"></div>';
+	html += 'Passives: <div class="passives"></div>';
 	
 
 	this.setDom(html);
@@ -105,7 +109,8 @@ export function asset(){
 	this.dom.querySelector("div.viable_consumables").appendChild(EditorAsset.assetTable(this, asset, "viable_consumables"));
 	this.dom.querySelector("div.required_assets").appendChild(EditorAsset.assetTable(this, asset, "required_assets"));
 	this.dom.querySelector("div.required_actions").appendChild(EditorAction.assetTable(this, asset, "required_actions"));
-	this.dom.querySelector("div.classes").appendChild(EditorPlayerClass.assetTable(this, asset, "required_actions"));
+	this.dom.querySelector("div.classes").appendChild(EditorPlayerClass.assetTable(this, asset, "classes"));
+	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
 	
 
 	// Tags
