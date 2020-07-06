@@ -178,7 +178,7 @@ class Wrapper extends Generic{
 		const out = new WrapperReturn();
 
 		let pl = [game.getPlayerById(this.victim)];
-		
+
 
 		// If this effect isn't yet applied, we need to apply it against multiple players if target is an override
 		if( !isTick ){
@@ -765,6 +765,8 @@ class Effect extends Generic{
 		evt.originalWrapper = evt.wrapper;
 		evt.wrapper = wrapper;
 		
+		
+
 		if( !(wrapperReturn instanceof WrapperReturn) )
 			wrapperReturn = new WrapperReturn();
 
@@ -815,7 +817,10 @@ class Effect extends Generic{
 			effect : this,
 		}).raise();
 
-
+		/*
+		if( this.parent && this.parent.label === 'dWedgie' )
+			console.trace("Checking", event.clone(), this);
+		*/
 		for( let t of tout ){
 
 			// If the target is the sender, then it flipflops
@@ -972,6 +977,9 @@ class Effect extends Generic{
 					// 30% chance per point of damage
 					let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
 					let ch = Math.abs(amt*procChance);
+
+					ch *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
+					
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 					const start = t.arousal;
 
@@ -1039,14 +1047,33 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addAP ){
+
 				let amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
 				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
-				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage AP' );
+
+				
+				let pre = t.ap;
 				t.addAP(amt, true);
+				let change = t.ap-pre;
+				if( change )
+					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage AP' );
+					
+				if( +this.data.leech ){
+
+					pre = s.ap;
+					s.addAP(-amt, true);
+					change = s.ap-pre;
+					if( change )
+						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, t.id, s.id, 'statMessage AP' );
+
+				}
+
+				
+
 			}
 
 			else if( this.type === Effect.Types.addMP ){
@@ -1056,8 +1083,24 @@ class Effect extends Generic{
 				}));
 				if( !this.no_stack_multi )
 					amt *= wrapper.stacks;
-				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" MP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage MP' );
+
+				let pre = t.mp;
 				t.addMP(amt, true);
+				let change = t.mp-pre;
+				if( change )
+					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" MP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage MP' );
+
+
+				if( +this.data.leech ){
+
+					pre = s.mp;
+					s.addMP(-amt, true);
+					let change = s.mp-pre;
+					if( change )
+						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" MP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, t.id, s.id, 'statMessage MP' );
+
+				}
+
 			}
 
 			else if( this.type === Effect.Types.addHP ){
@@ -1080,15 +1123,32 @@ class Effect extends Generic{
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
+
+				if( amt > 0 )
+					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );				
+
 				if( !this.no_stack_multi )
 					amt *= this.parent.stacks;
 
+
 				let pre = t.arousal;
 				t.addArousal(amt, true);
-				amt = t.arousal-pre;
+				let change = t.arousal-pre;
 				
-				if( amt )
-					game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" arousal"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage arousal' );
+				if( change )
+					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" arousal"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage arousal' );
+				
+				
+				if( +this.data.leech ){
+
+					pre = s.arousal;
+					s.addArousal(-amt, true);
+					let change = s.arousal-pre;
+					if( change )
+						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" arousal"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, t.id, s.id, 'statMessage arousal' );
+					
+
+				}
 				
 			}
 
@@ -1244,6 +1304,7 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.removeWrapperByLabel ){
+
 				let label = this.data.label;
 				if( !Array.isArray(label) )
 					label = [label];
@@ -1252,9 +1313,11 @@ class Effect extends Generic{
 				
 				for( let wr of wrappers ){
 					if(
-						~label.indexOf(wr.label) &&
+						label.includes(wr.label) &&
 						(!this.data.casterOnly || wr.caster === s.id)
-					)wr.remove();					
+					){
+						wr.remove();					
+					}
 				}
 			}
 
@@ -1824,6 +1887,7 @@ Effect.Types = {
 	globalHitChanceMod : 'globalHitChanceMod',
 	globalDamageTakenMod : 'globalDamageTakenMod',
 	globalDamageDoneMod : 'globalDamageDoneMod',
+	globalArousalTakenMod : 'globalArousalTakenMod',
 	gameAction : 'gameAction',
 	addActionCharges : 'addActionCharges',		
 
@@ -1907,10 +1971,10 @@ Effect.TypeDescs = {
 	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
-	[Effect.Types.addAP] : "{amount:(str)(nr)amount}, Adds AP",									
-	[Effect.Types.addMP] : "{amount:(str)(nr)amount}, Adds MP",									
-	[Effect.Types.addArousal] : "{amount:(str)(nr)amount} - Adds arousal points",	
-	[Effect.Types.addHP] : "{amount:(str)(nr)amount}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
+	[Effect.Types.addAP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds AP",									
+	[Effect.Types.addMP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds MP",									
+	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier} - Adds arousal points",	
+	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
 				
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
@@ -1924,6 +1988,7 @@ Effect.TypeDescs = {
 	[Effect.Types.healInversion] : "void - Makes healing effects do damage instead",			
 	[Effect.Types.globalHitChanceMod] : '{amount:(int)(float)(string)amount Modifies your hit chance with ALL types by percentage, multiplier:(bool)isMultiplier=false }',
 	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
+	[Effect.Types.globalArousalTakenMod] : '{amount:(int)(float)(string)multiplier, casterOnly:(bool)limit_to_caster=false} - Only works on ADDing arousal. If casterOnly is set, it only affects arousal dealt from the caster', 
 	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
 	[Effect.Types.gameAction] : '{action:(obj)gameAction} - Lets you run a game action',
 	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }

@@ -76,6 +76,7 @@ export function asset(){
 		html += '<label title="Reset cooldown if interrupted">Reset Interrupt: <input name="reset_interrupt" '+(dummy.reset_interrupt ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Punishments use this">Hide if no viable targets: <input name="hide_if_no_targets" '+(dummy.hide_if_no_targets ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		
+		html += '<label title="Max wrappers to apply, wrappers applied from top to bottom, 0 = no limit">Max wrappers: <input name="max_wrappers" value="'+esc(dummy.max_wrappers)+'" type="number" step=1 min=0 class="saveable" /></label>';
 
 	html += '</div>';
 
@@ -170,7 +171,8 @@ export function list(){
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
 		label : 'action_'+Generic.generateUUID(),
-		cooldown : 1
+		cooldown : 1,
+		show_conditions : ['inCombat']
 	}));
 
 };

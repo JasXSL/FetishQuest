@@ -22,6 +22,7 @@ class Action extends Generic{
 		this.icon = '';				// Can be %P% to use parent icon
 		this.ranged = Action.Range.Melee;			// This is a ranged attack
 		this.wrappers = [];			// Effect wrappers needed to cast the spell
+		this.max_wrappers = 0;		// Max nr of wrappers to apply, 0 = undefined
 		this.riposte = [];			// Wrappers that are triggered when an ability misses. Riposte is sent from the target to attacker
 		this.ap = 1;
 		this.min_ap = 0;			// When reduced by effects, this is the minimum AP we can go to 
@@ -75,7 +76,7 @@ class Action extends Generic{
 			std : this.std,
 			name : this.name,
 			description : this.description,
-			wrappers : this.wrappers.map(el => el.save(full)),
+			wrappers : Wrapper.saveThese(this.wrappers, full),
 			cooldown : this.cooldown,
 			ap : this.ap,
 			min_targets : this.min_targets,
@@ -94,7 +95,7 @@ class Action extends Generic{
 			charges : this.charges,
 			allow_when_charging : this.allow_when_charging,
 			no_interrupt : this.no_interrupt,
-			show_conditions : this.show_conditions.map(el => el.save(full)),
+			show_conditions : Condition.saveThese(this.show_conditions, full),
 			hide_if_no_targets : this.hide_if_no_targets,
 			semi_hidden : this.semi_hidden,
 			icon : this.icon,
@@ -118,6 +119,7 @@ class Action extends Generic{
 			out.riposte = this.riposte.map(el => el.save(full));
 			out.no_use_text = this.no_use_text;	
 			out.init_cooldown = this.init_cooldown;
+			out.max_wrappers = this.max_wrappers;
 		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
@@ -288,7 +290,7 @@ class Action extends Generic{
 		this.onBattleEnd();
 		if( this.init_cooldown ){
 			this._charges = 0;
-			this._cooldown = this.getCooldown();
+			this._cooldown = this.init_cooldown+1;
 		}
 	}
 
@@ -585,8 +587,6 @@ class Action extends Generic{
 		if( !this.castable(true, isChargeFinish) )
 			return;
 
-		let time = Date.now();
-
 		let sender = this.getPlayerParent();
 
 		if( !Array.isArray(targets) )
@@ -630,6 +630,8 @@ class Action extends Generic{
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
 
+			
+
 			// Check if it hit
 			if( this.isDetrimentalTo(target) ){
 
@@ -672,15 +674,21 @@ class Action extends Generic{
 
 			}
 
+
+			let maxWrappers = this.max_wrappers;
 			let successes = 0;
 			for( let wrapper of this.wrappers ){
 
 				// caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined, crit = false
 				const data = wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer, this._crit);
 				wrapperReturn.merge(data);
-				if( data )
+				if( data ){
 					++successes;
 
+					if( successes >= maxWrappers && maxWrappers )
+						break;
+
+				}
 			}
 
 			if( successes )

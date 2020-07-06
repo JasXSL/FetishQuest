@@ -500,6 +500,7 @@ const lib = {
 	eventIsActionCharged : {type:Condition.Types.event,data:{event:[GameEvent.Types.actionCharged]},targnr:0},
 	eventIsDiminishingResist : {"type":"event",data:{"event":"diminishingResist"}},
 	eventIsWrapperAdded : {type:Condition.Types.event,data:{"event":GameEvent.Types.wrapperAdded}},
+	eventIsWrapperTick : {type:Condition.Types.event,data:{"event":GameEvent.Types.wrapperTick}},
 	eventIsRiposte : {"type":"event",data:{"event":"actionRiposte"}},
 	eventIsEffectTrigger : {type:Condition.Types.event,data:{event:GameEvent.Types.effectTrigger}},
 	eventIsInterrupt : {"type":"event",data:{"event":"interrupt"}},
@@ -544,6 +545,8 @@ const lib = {
 	roomTree : {type:Condition.Types.tag, data:{tags:[stdTag.mTree]}, targnr:0},
 	roomDirt : {type:Condition.Types.tag, data:{tags:[stdTag.mTree]}, targnr:0},
 	roomGrass : {type:Condition.Types.tag, data:{tags:[stdTag.mGrass, stdTag.mGrassLong]}, targnr:0},
+	roomMoss : {type:Condition.Types.tag, data:{tags:[stdTag.mMoss]}, targnr:0},
+	roomSand : {type:Condition.Types.tag, data:{tags:[stdTag.mSand]}, targnr:0},
 
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},

@@ -44,8 +44,8 @@ export function asset(){
 		html += '<label title="Varies +-50%">Carried copper: <input name="monetary_wealth" value="'+esc(dummy.monetary_wealth)+'" type="number" min=0 step=1 class="saveable" /></label>';
 		html += '<label>Gear Quality - Common <input name="gear_quality" value="'+esc(dummy.gear_quality)+'" type="range" min=0 step=0.01 max=1 class="saveable" /> Legendary</label>';
 		html += '<label>Gear Chance: <input name="gear_chance" value="'+esc(dummy.gear_chance)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label title="Left = tiny, mid = human, right = giant">Min Size: <input name="min_size" value="'+esc(dummy.min_size)+'" type="range" min=0 step=1 max=5 class="saveable" /></label>';
-		html += '<label title="Left = tiny, mid = human, right = giant">Max Size: <input name="max_size" value="'+esc(dummy.max_size)+'" type="range" min=0 step=1 max=5 class="saveable" /></label>';
+		html += '<label title="Left = tiny, mid = human, right = giant">Min Size: <input name="min_size" value="'+esc(dummy.min_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
+		html += '<label title="Left = tiny, mid = human, right = giant">Max Size: <input name="max_size" value="'+esc(dummy.max_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
 		html += '<label title="1 = average, 2 = about the same as 2 monsters">Difficulty: <input name="difficulty" value="'+esc(dummy.difficulty)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
 		html += '<label title="Multiplies against all stats">Power: <input name="power" value="'+esc(dummy.power)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
 		html += '<label title="Prevents equipping the gear. Useful for things like mimics that carry gear but can\'t wear it.">No equip: <input type="checkbox" name="no_equip" '+(dummy.no_equip ? 'checked' : '')+' class="saveable"  /></label>';

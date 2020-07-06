@@ -51,8 +51,12 @@ export default class ActionLearnable extends Generic{
 		if( player.generated !== this.gen_only )
 			return false; 
 		const evt = new GameEvent({sender:player, target:player});
-		return Condition.all(this.conditions, evt, debug);
-
+		try{
+			return Condition.all(this.conditions, evt, debug);
+		}catch(err){
+			console.error("Error ocurred in actionLearnable:", this);
+			throw err;
+		}
 	}
 	
 	// fetches the action from library

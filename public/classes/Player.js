@@ -1853,7 +1853,7 @@ export default class Player extends Generic{
 		;
 		
 		for( let effect of w ){
-			if( !effect.data.multiplier )
+			if( !effect.data.multiplier && type !== Effect.Types.globalArousalTakenMod )
 				continue;
 			if( player && effect.data.casterOnly && player.id !== effect.parent.caster )
 				continue;
@@ -1861,7 +1861,7 @@ export default class Player extends Generic{
 				effect.data.amount, 
 				new GameEvent({sender:this, target:this, wrapper:effect.parent, effect:effect})
 			);
-			out *= Math.pow(n, (effect.no_stack_multi ? 1 : effect.parent.stacks));
+			out *= ((n-1)*(effect.no_stack_multi ? 1 : effect.parent.stacks)+1);
 		}
 		return out;
 	}

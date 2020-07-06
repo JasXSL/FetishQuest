@@ -52,6 +52,13 @@ const SYNONYMS = [
 	['rough','hard'],
 	['slightly', 'a little', 'somewhat'],
 	["big", "large"],
+	['glob', 'wad', 'blob'],
+	['flings','launches','lobs','slings'],
+	['sticky', 'syrupy', 'viscous'],
+	['letting', 'allowing'],
+	['splattering', 'splashing'],
+	['jostle', 'shake', 'rattle'],
+	["wiggling", "squirming", "wriggling"],
 ];
 
 class Text extends Generic{
@@ -375,6 +382,7 @@ class Text extends Generic{
 				evt.custom = {};
 			evt.custom.original = event.clone();		// Make sure to stash the original
 			
+			//console.log("Raising event", evt);
 			evt.raise();
 					
 		}
@@ -620,6 +628,7 @@ Text.runFromLibrary = function( event, debug = false ){
 
 				event.text = text;	// Needs an update because it gets overriden in getFromEvent
 				text.run(event);
+				//console.log("Running text", event.text);
 
 				let nt = text.numTargets;
 				if( nt === -1 )

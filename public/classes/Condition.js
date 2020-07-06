@@ -371,7 +371,7 @@ export default class Condition extends Generic{
 				if( !Array.isArray(c) )
 					c = [c];
 				c = c.map(el => el.toLowerCase() );
-				success = c.indexOf(t.class.label.toLowerCase()) > -1;
+				success = c.includes(t.class.label.toLowerCase());
 
 			}
 			
@@ -1121,7 +1121,7 @@ Condition.descriptions = {
 	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.sadism] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target sadism value.',
-	[Condition.Types.sizeValue] : 'Same as the other nValue conditions',
+	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target size value.',
 	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >',
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',
 	[Condition.Types.hasRepairable] : 'void - Has repairable items in their inventory',
