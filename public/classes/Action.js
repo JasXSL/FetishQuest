@@ -46,6 +46,7 @@ class Action extends Generic{
 		this.no_use_text = false;				// Disable use texts.
 		this.no_action_selector = false;		// Hide from combat action selector
 		this.cast_time = 0;						// Set to > 0 to make this a charged spell needing this many turns to complete
+		this.ct_taunt = false;					// Taunt can override the charge target
 		this.charges = 1;						// Max charges for the action. Ignored if cooldown is 0
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
 		this.no_interrupt = false;				// Charged action is not interruptable unless override is set
@@ -92,6 +93,7 @@ class Action extends Generic{
 			conditions : Condition.saveThese(this.conditions, full),
 			no_action_selector : this.no_action_selector,
 			cast_time : this.cast_time,
+			ct_taunt : this.ct_taunt,
 			charges : this.charges,
 			allow_when_charging : this.allow_when_charging,
 			no_interrupt : this.no_interrupt,
@@ -255,11 +257,14 @@ class Action extends Generic{
 
 	onTurnStart(){
 
+		
+
 		this._cache_cooldown = false;
+
 		// Handle cooldown
-		if( this._cooldown ){
+		if( this._cooldown )
 			this.addCooldown(-1);
-		}
+
 
 		// Handle charged spells
 		if( this._cast_time ){
@@ -267,10 +272,13 @@ class Action extends Generic{
 			let targs = this.getChargePlayers();
 			if( !targs.length )
 				this.interrupt();
+
 			else if( --this._cast_time == 0 ){
+				
 				// Cast finished
 				this.useOn(targs, true);
 				this._cast_targets = [];
+
 			}
 
 		}
@@ -411,9 +419,11 @@ class Action extends Generic{
 
 		let pl = game.getEnabledPlayers();
 		if( this.detrimental && !isChargeFinish && this.target_type !== Action.TargetTypes.aoe ){
-			pl = this.getPlayerParent().getTauntedOrGrappledBy(debug);
+
+			pl = this.getPlayerParent().getTauntedOrGrappledBy(this.ranged, true, debug);
 			if( debug )
 				console.debug("Getting taunted or grappled by:", pl);
+
 		}
 
 		let targets = [];
@@ -487,7 +497,8 @@ class Action extends Generic{
 		let out = this.ap;
 		const evt = new GameEvent({sender:pl, target:pl, action:this});
 		
-		if( pl ){
+		// Hidden can't have AP cost altered
+		if( pl && !this.hidden ){
 
 			const effects = pl.getActiveEffectsByType(Effect.Types.actionApCost);
 			for( let effect of effects ){
@@ -589,6 +600,9 @@ class Action extends Generic{
 
 		let sender = this.getPlayerParent();
 
+		if( !this.hidden )
+			++sender._turn_action_used;
+
 		if( !Array.isArray(targets) )
 			targets = [targets];
 
@@ -608,6 +622,7 @@ class Action extends Generic{
 
 		// Charged actions
 		if( this.cast_time > 0 && !isChargeFinish ){
+
 			this._cast_time = this.cast_time;
 			this._cast_targets = targets.map(t => t.id);
 			// AP and charges are consumed immediately, but MP is consumed when it succeeds
@@ -621,6 +636,7 @@ class Action extends Generic{
 				action : this,
 			}).raise();
 			return true;
+
 		}
 
 		// Needs to be cached for texts
@@ -814,9 +830,41 @@ class Action extends Generic{
 
 	// Gets target Player objects this is charged at
 	getChargePlayers(){
-		return this._cast_targets
-		.map(el => game.getPlayerById(el))
-		.filter(el => Boolean(el));		// Might want to check if conditions are still valid
+
+		const ctargets = this._cast_targets.map(el => game.getPlayerById(el));
+
+		// This can be taunted. Should generally just be used on actions without conditions
+		if( this.ct_taunt ){
+
+			let overrides = [];
+			let taunts = this.getPlayerParent().getTauntedOrGrappledBy(this.ranged, false);
+
+			// If the original target is taunting, add that
+			for( let pl of taunts ){
+				if( ctargets.includes(pl) )
+					overrides.push(pl);
+			}
+
+			// Add additional taunts if that wasn't enough
+			if( ctargets.length > overrides.length ){
+				for( let pl of taunts ){
+					if( !overrides.includes(pl) ){
+						overrides.push(pl);
+						if( ctargets.length === overrides.length )
+							break;
+					}
+				}
+			}
+
+
+			if( overrides.length )
+				return overrides;
+
+		}
+
+		return ctargets.filter(el => Boolean(el));		// Might want to check if conditions are still valid
+
+
 	}
 
 	isDetrimentalTo( player ){

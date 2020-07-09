@@ -129,7 +129,7 @@ export default class Game extends Generic{
 				quest.onEvent(event);
 
 			if( event.type !== GameEvent.Types.actionUsed || !event.action.no_use_text )
-				Text.runFromLibrary(event);
+				Text.runFromLibrary(event.clone());
 
 			VibHub.onEvent(event);
 
@@ -253,7 +253,9 @@ export default class Game extends Generic{
 		else{
 			clearTimeout(this._db_save_timer);
 			this._db_save_timer = setTimeout(() => {
-				this.saveToDB(this.getSaveData(true));
+				this.lockPlayersAndRun(() => {
+					this.saveToDB(this.getSaveData(true));
+				});
 			}, 3000);
 		}
 
@@ -1138,15 +1140,24 @@ export default class Game extends Generic{
 
 	// Add a player by data
 	// If data is a Player object, it uses that directly
-	addPlayer(data, nextTurn = false){
+	addPlayer(data, nextTurn = false ){
 
 		let p = data;
+		
+		const fromLib = typeof data === "string";
+		if( fromLib )
+			p = glib.get(data, 'Player');
+
 		if( !p || !(p instanceof Player) )
 			p = new Player(data);
 		p.color = '';
+		p.g_resetID();
 		p.initialize();
 		this.players.push(p);
 
+
+		if( fromLib )
+			p.onPlacedInWorld();
 
 		// Add before the current player
 		if( this.battle_active ){

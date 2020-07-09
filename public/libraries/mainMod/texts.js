@@ -234,7 +234,7 @@ const lib = [
 		metaTags : [stdTag.metaPainful, stdTag.metaSlotNipples, stdTag.metaStretch],
 	},
 	{ text : "%S pinches a hold of the front of %T's %TclothLower and pulls backwards, exposing %This %Tgenitals!",
-		conditions : humOnHumCond.concat("action_stdAttack","targetLowerBodyNotHard",'targetLowerBodyOrNoDamage', "targetWearsLowerBody"),
+		conditions : humOnHumCond.concat("action_stdAttack","targetLowerBodyNotHard",'targetLowerBodyOrNoDamage', "targetWearsLowerBody", "targetNotBeast"),
 		audiokits : ["pinchGeneric"],
 		hitfx : ["stretch"],
 		turnTags : [stdTag.ttGroinExposed],

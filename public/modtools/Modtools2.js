@@ -719,6 +719,15 @@ export default class Modtools{
 
 	}
 
+	// Tries to first fetch an asset by label/id from mod, if that doesn't exist, try official 
+	getAssetById(...args){
+		let out = this.mod.getAssetById(...args);
+		if( out )
+			return out;
+
+		return this.parentMod.getAssetById(...args);
+
+	}
 
 	// Builds the autocomplete datalists
 	buildDataLists(){

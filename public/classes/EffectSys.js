@@ -784,6 +784,7 @@ class Effect extends Generic{
 		if( !target )
 			target = new Player();	// Create a dummy player if it's missing. This is useful for events like battle ended etc
 
+
 		// Default to AoE
 		let tout = [];
 		for( let ta of this.targets ){
@@ -932,6 +933,7 @@ class Effect extends Generic{
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
 					amt *= t.getNudityDamageMultiplier();
 
+					console.debug("amt", amt);
 					
 					amt = randRound(amt);
 					if( amt > 0 )
@@ -1647,9 +1649,13 @@ class Effect extends Generic{
 		for(let evt of this.events){
 			
 			if( evt.substr(0,8) !== "internal" ){
-				this._bound_events.push(GameEvent.on(evt, event => {
+
+				const binding = GameEvent.on(evt, event => {
 					this.trigger(event);
-				}));
+				});
+				binding.parent = this;
+				this._bound_events.push(binding);
+
 			}
 		}
 
@@ -1730,12 +1736,17 @@ class Effect extends Generic{
 
 		if( debug )
 			console.debug("Target", this.targets, "parent", this.parent, player.id, this.parent.victim);
+		
+		// This makes it so that procs can work, otherwise there'd be an infinite loop. Passives should not use conditions that might generate cyclic checks, such as player tags.
+		if( !Effect.Passive[this.type] )
+			return false;
 		if(
 			(~this.targets.indexOf(Wrapper.Targets.auto) && this.parent.victim === player.id) ||
 			(~this.targets.indexOf(Wrapper.Targets.caster) && this.parent.caster === player.id) ||
 			~this.targets.indexOf(Wrapper.Targets.aoe) ||
 			this.parent.parent instanceof Encounter
 		){
+			
 			// Check conditions
 			return Condition.all(this.conditions, new GameEvent({
 				sender : this.parent.parent,		// Sender in this case is the person who has the wrapper
@@ -1743,6 +1754,7 @@ class Effect extends Generic{
 				wrapper : this.parent,
 				effect : this
 			}));
+
 		}
 		return false;
 	}
@@ -1958,6 +1970,49 @@ Effect.Types = {
 		
 };
 
+// Effect types that can be passive. Helps prevent recursion
+Effect.Passive = {
+
+	[Effect.Types.globalHitChanceMod] : true,
+	[Effect.Types.globalDamageTakenMod] : true,
+	[Effect.Types.globalDamageDoneMod] : true,
+	[Effect.Types.globalArousalTakenMod] : true,
+	[Effect.Types.staminaModifier] : true,
+	[Effect.Types.agilityModifier] : true,
+	[Effect.Types.intellectModifier] : true,
+
+	[Effect.Types.svPhysical] : true,
+	[Effect.Types.svElemental] : true,
+	[Effect.Types.svHoly] : true,
+	[Effect.Types.svCorruption] : true,
+
+	[Effect.Types.bonPhysical] : true,
+	[Effect.Types.bonElemental] : true,
+	[Effect.Types.bonHoly] : true,
+	[Effect.Types.bonCorruption] : true,
+
+	[Effect.Types.physicalProcMultiplier] : true,
+	[Effect.Types.elementalProcMultiplier] : true,
+	[Effect.Types.holyProcMultiplier] : true,
+	[Effect.Types.corruptionProcMultiplier] : true,
+	[Effect.Types.healAggroMultiplier] : true,
+	[Effect.Types.knockdown] : true,
+	[Effect.Types.grapple] : true,
+	[Effect.Types.daze] : true,
+	[Effect.Types.disable] : true,
+	[Effect.Types.healInversion] : true,
+
+	[Effect.Types.stun] : true,
+	[Effect.Types.taunt] : true,
+	[Effect.Types.addActions] : true,
+	[Effect.Types.allowReceiveSpells] : true,
+	[Effect.Types.disableActions] : true,
+	[Effect.Types.actionApCost] : true,
+	[Effect.Types.tieToRandomBondageDevice] : true,
+		
+
+};
+
 Effect.KnockdownTypes = {
 	Forward : 0,
 	Back : 1,
@@ -2049,7 +2104,7 @@ Effect.TypeDescs = {
 	[Effect.Types.punishmentUsed] : 'void - Sets the punishment used flag on the target to prevent them from using further punishments',
 
 	[Effect.Types.stun] : '{ignoreDiminishing:(bool)=false}',
-	[Effect.Types.taunt] : '{victim:(bool)} - If victim is true, it makes the victim the target of the taunt. Useful for when a player gets "marked", like in the cocktopus spell.',
+	[Effect.Types.taunt] : '{victim:(bool)=false, melee:(bool)=undefined} - If victim is true, it makes the caster taunted by the victim instead. Useful for when a player gets "marked", like in the cocktopus spell. If melee is true it only taunts melee spells, if false it only taunts ranged, if undefined it taunts both.',
 
 	[Effect.Types.addActions] : '{actions:(str/arr)actions} - Unlocks specified actions while you\'re under the effect of this',
 	[Effect.Types.none] : 'Void. You probably only want to use this if you want an effect that adds tags but nothing else',

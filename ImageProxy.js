@@ -71,7 +71,7 @@ module.exports = async (req, res, next) => {
 			const parse = URL.parse(url);
 			const myHost = req.get('host');
 			if( parse.host === myHost || !parse.host ){
-				res.redirect('/'+parse.path);	// This is our host, redirect to that instead
+				res.redirect('https://'+myHost+'/'+parse.path);	// This is our host, redirect to that instead
 				return;
 			}
 			

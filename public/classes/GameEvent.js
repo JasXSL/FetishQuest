@@ -59,8 +59,9 @@ export default class GameEvent extends Generic{
 		// Run the event
 		for(let binding of GameEvent.bindings){
 			
-			if( binding.type === this.type || binding.type === GameEvent.Types.all )
+			if( binding.type === this.type || binding.type === GameEvent.Types.all ){
 				binding.fn(this);
+			}
 
 		}
 		return this;

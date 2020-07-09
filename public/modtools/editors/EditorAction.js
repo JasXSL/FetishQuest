@@ -40,6 +40,8 @@ export function asset(){
 		html += '<label title="Allows this to be cast while a disable is in effect">Override disable lv: <input name="disable_override" value="'+esc(dummy.disable_override)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Cast time: <input name="cast_time" value="'+esc(dummy.cast_time)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Allow while charging: <input name="allow_when_charging" '+(dummy.allow_when_charging ? 'checked' : '')+' class="saveable" type="checkbox" /></label>';
+		html += '<label title="If checked, taunts can override the charge target">Taunt override charge: <input name="ct_taunt" '+(dummy.ct_taunt ? 'checked' : '')+' class="saveable" type="checkbox" /></label>';
+		
 		html += '<label>Charges: <input name="charges" value="'+esc(dummy.charges)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Min targets: <input name="min_targets" value="'+esc(dummy.min_targets)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Max targets: <input name="max_targets" value="'+esc(dummy.max_targets)+'" type="number" step=1 class="saveable" /></label>';

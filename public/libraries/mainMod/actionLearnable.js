@@ -464,7 +464,7 @@ const lib = {
 		action : 'ghoulMunch',
 		conditions : ['targetClassGhoulRavener'],
 	},
-	ghoulMunch : {
+	ghoulSpit : {
 		gen_only : true,
 		action : 'ghoulSpit',
 		conditions : ['targetClassGhoulRavener'],

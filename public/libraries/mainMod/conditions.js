@@ -254,8 +254,8 @@ const lib = {
 		stdTag.wrGrapple
 	]}, inverse:true},
 
-	targetSameTeam : {"type":"sameTeam", desc:''},
-	targetOtherTeam : {"type":"sameTeam","inverse":true, desc:''},
+	targetSameTeam : {"type":"sameTeam", desc:'Target team is same as sender team'},
+	targetOtherTeam : {"type":"sameTeam","inverse":true, desc:'Target tam is different from sender team'},
 	actionNotHidden : {"type":"actionHidden","inverse":true, desc:''},
 	actionHit : {"type":"actionResisted","inverse":true,targnr:0, desc:''},
 	actionResist : {"type":"actionResisted", desc:''},
@@ -437,6 +437,7 @@ const lib = {
 	// Those are mainly for checking characteristics of a player.
 	senderIsChatPlayer : {type:Condition.Types.targetIsChatPlayer, caster:true},
 	targetIsChatPlayer : {type:Condition.Types.targetIsChatPlayer},
+	targetNotChatPlayer : {type:Condition.Types.targetIsChatPlayer, inverse:true},
 	
 	targetNotKnockedDown : {"type":"tag",data:{"tags":["wr_knocked_down"]},"inverse":true},
 	targetKnockedDown : {"type":"tag",data:{"tags":["wr_knocked_down"]}},
@@ -547,6 +548,7 @@ const lib = {
 	roomGrass : {type:Condition.Types.tag, data:{tags:[stdTag.mGrass, stdTag.mGrassLong]}, targnr:0},
 	roomMoss : {type:Condition.Types.tag, data:{tags:[stdTag.mMoss]}, targnr:0},
 	roomSand : {type:Condition.Types.tag, data:{tags:[stdTag.mSand]}, targnr:0},
+	roomWall : {type:Condition.Types.tag, data:{tags:[stdTag.mWall]}, targnr:0, desc:'There is a wall in the current cell'},
 
 	senderHasNotPunished : {"type":"punishNotUsed","caster":true},
 	senderNotDead : {type:Condition.Types.defeated, inverse:true, caster:true},

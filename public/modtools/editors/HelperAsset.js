@@ -515,7 +515,7 @@ export default{
 			// Alt clones
 			else if( event.altKey ){
 
-				const asset = MOD.getAssetById(type, elId);
+				const asset = DEV.getAssetById(type, elId);
 				if( !asset )
 					throw 'Asset not found', type, elId;
 				const obj = new baseObject.constructor(asset);

@@ -166,7 +166,7 @@ VibHub.Programs.PainHeavy = new VhProgram(0, 0);
 VibHub.Programs.Pleasure = new VhProgram(0, 0);
 	VibHub.Programs.Pleasure.addStage(
 		new VhStage({intensity:50, duration:0}),
-		new VhStage({intensity:150, duration:100, yoyo:true, repeats:5}),
+		new VhStage({intensity:180, duration:100, yoyo:true, repeats:5}),
 		new VhStage({intensity:0, duration:1000}),
 	);
 
@@ -195,7 +195,7 @@ VibHub.Programs.Grind = new VhProgram(0, 0);
 VibHub.Programs.Squeeze = new VhProgram(0, 0);
 	VibHub.Programs.Squeeze.addStage(
 		new VhStage({intensity:50, duration:0}),
-		new VhStage({intensity:200, duration:500, repeats:1, yoyo:true}),
+		new VhStage({intensity:230, duration:500, repeats:1, yoyo:true}),
 		new VhStage({intensity:150, duration:200, repeats:7, yoyo:true}),
 		new VhStage({intensity:0, duration:500}),
 	);

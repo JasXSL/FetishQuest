@@ -59,6 +59,7 @@ const SYNONYMS = [
 	['splattering', 'splashing'],
 	['jostle', 'shake', 'rattle'],
 	["wiggling", "squirming", "wriggling"],
+	["bulge","package"],
 ];
 
 class Text extends Generic{
@@ -156,9 +157,9 @@ class Text extends Generic{
 			audiokits : this.audiokits,
 			armor_slot : this.armor_slot,
 			weight : this.weight,
-			hitfx : HitFX.saveThese(this.hitfx),
+			hitfx : HitFX.saveThese(this.hitfx, full),
 			chat : this.chat,
-			chatPlayerConditions : Condition.saveThese(this.chatPlayerConditions),
+			chatPlayerConditions : Condition.saveThese(this.chatPlayerConditions, full),
 			metaTags : this.metaTags,
 			en : this.en,
 			chat_reuse : this.chat_reuse
@@ -263,7 +264,7 @@ class Text extends Generic{
 		event.text = this;
 		// if it's not a chat, tie this text to the event
 		
-		//console.log("Running", event);
+		
 
 		// Helper functions
 		let text = this.text;
@@ -381,8 +382,6 @@ class Text extends Generic{
 			if( !evt.custom )
 				evt.custom = {};
 			evt.custom.original = event.clone();		// Make sure to stash the original
-			
-			//console.log("Raising event", evt);
 			evt.raise();
 					
 		}
@@ -626,10 +625,8 @@ Text.runFromLibrary = function( event, debug = false ){
 				t.shift();
 			}else{
 
-				event.text = text;	// Needs an update because it gets overriden in getFromEvent
 				text.run(event);
-				//console.log("Running text", event.text);
-
+				
 				let nt = text.numTargets;
 				if( nt === -1 )
 					nt = t.length;

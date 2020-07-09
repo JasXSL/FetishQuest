@@ -115,7 +115,6 @@ class Bot{
 		if( (!this.player.isNPC() && !force) || !game.battle_active || game.getTurnPlayer() !== this.player )
 			return;
 
-		// Get viable abilities
 		let abils = this.player.getActions().filter(el => {
 			return !el.hidden && el.castable();
 		});
@@ -129,9 +128,12 @@ class Bot{
 
 		// Adds some randomness to abilities
 		if(
-			this.hasCastableImportant() ||
-			(AP >= highest_cost && (Math.random() < AP/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
-			Math.random() < 0.2 || AP > this.player.getMaxAP()/2
+			!this.player.hasTag(stdTag.acNpcNoAttack) &&
+			(
+				this.hasCastableImportant() ||
+				(AP >= highest_cost && (Math.random() < AP/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
+				Math.random() < 0.2 || AP > this.player.getMaxAP()/2
+			)
 		){
 
 			shuffle(abils);

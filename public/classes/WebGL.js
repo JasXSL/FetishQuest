@@ -1011,12 +1011,12 @@ class WebGL{
 	// If marker is empty, we'll have to create a new one.
 	async attachPlayerToMarker( player, dungeonAsset, marker ){
 		
+
 		if( !dungeonAsset || !dungeonAsset._stage_mesh )
 			return;
 
 		if( !marker )
 			marker = await this.createPlayerMarker();
-		
 
 		// Gonna have to rebuild some stuff
 		if( marker.userData.marker.player !== player || marker.userData.marker.dungeonAsset !== dungeonAsset ){
@@ -1092,6 +1092,7 @@ class WebGL{
 			let marker = room.getPlayerMarker(player.label);
 			// Didn't exist, try getting a generic one
 			if( !marker ){
+
 				// No free generic markers, skip this. Maybe later add an error for the developer?
 				if( !generics.length ){
 					console.error("No generics free");
@@ -1100,6 +1101,7 @@ class WebGL{
 				marker = generics.shift();
 
 			}
+
 
 			this.attachPlayerToMarker(player, marker, this.playerMarkers[markerIndex]);
 			++markerIndex;

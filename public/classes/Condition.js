@@ -221,9 +221,11 @@ export default class Condition extends Generic{
 
 					}
 					// Any tag applied by anyone
-					else
+					else{
+
 						found = t && t.hasTag([tag], event.wrapperReturn);
 					
+					}
 					// only need one successful tag
 					if( found && !all ){
 						success = true;
@@ -406,18 +408,22 @@ export default class Condition extends Generic{
 
 			else if( this.type === T.wrapperStacks ){
 
-				if( eventWrapper && (~['>','<','='].indexOf(this.data.operation) || !this.data.operation) ){
+				let wrapper = eventWrapper;
+				if( this.data.label )
+					wrapper = t.getWrapperByLabel(this.data.label);
+
+				if( wrapper && (~['>','<','='].indexOf(this.data.operation) || !this.data.operation) ){
 
 					let operation = "=";
 					if( this.data.operation )
 						operation = this.data.operation;
 					let amount = Calculator.run(this.data.amount, new GameEvent({
-						wrapper : eventWrapper,
+						wrapper : wrapper,
 					}));
 					success = 
-						(operation === "=" && eventWrapper.stacks === amount ) ||
-						(operation === "<" && eventWrapper.stacks < amount ) ||
-						(operation === ">" && eventWrapper.stacks > amount )
+						(operation === "=" && wrapper.stacks === amount ) ||
+						(operation === "<" && wrapper.stacks < amount ) ||
+						(operation === ">" && wrapper.stacks > amount )
 					;
 
 				}
@@ -721,7 +727,7 @@ export default class Condition extends Generic{
 			else if( this.type === T.defeated ){
 				if( !t || !t.isDead )
 					console.error(t, "doesn't have an isDead function in event", event, "(condition)", this);
-				success = t.isDead();
+				success = !t || t.isDead();
 			}
 
 			else if( this.type === T.encounterLabel ){
@@ -1113,7 +1119,7 @@ Condition.descriptions = {
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false} - Checks if the wrapper tied to the event has a label',
-	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false} - Operation is = by default',
+	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false, label:wrapperLabel=_EVT_WRAPPER_} - Operation is = by default. Leave label undefined to use the event wrapper',
 	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false} - Checks if the player has a wrapper with this label',
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',

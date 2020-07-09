@@ -251,9 +251,19 @@ class DungeonLayoutEditor{
 
 	roomExistsAtLocation( x, y, z ){
 
+		x = x || 0;
+		y = y || 0;
+		z = z || 0;
+
 		for( let r of this.cache_rooms ){
 
-			if( r.x === x && r.y == y && r.z === z )
+			let 
+				rx = r.x || 0,
+				ry = r.y || 0,
+				rz = r.z || 0
+			;
+
+			if( rx === x && ry == y && rz === z )
 				return true;
 
 		}

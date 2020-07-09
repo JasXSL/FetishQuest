@@ -243,7 +243,7 @@ const lib = {
 		name : "Bondage Device",
 		description : "Use a nearby bondage device for 6 turns on a humanoid target, provided it's not already occupied. The affected target can only try to struggle free.",
 		ap : 5,
-		cooldown : 'g_team_0*10',
+		cooldown : 'se_TeamPlayers*8',
 		show_conditions : ["inCombat", "oneTargetNotBeast", "targetNotSender", "roomHasFreeBondageDevice", "senderNotBeast", "targetStanding"],
 		tags : [stdTag.acDebuff],
 		wrappers : ['stdUseBondageDevice']

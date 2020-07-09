@@ -99,6 +99,7 @@ export default class Player extends Generic{
 
 		this._turns = 0;						// Total turns played in combat
 		this._turn_ap_spent = 0;				// AP spent on actions this turn
+		this._turn_action_used = 0;				// Actions used this turn
 		this._threat = {};						// playerID : threatAmount
 
 		// These are incoming damage
@@ -108,7 +109,6 @@ export default class Player extends Generic{
 		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
 		this._targeted_by_since_last = {};			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
-		
 		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
 		this._last_chat = 0;					// Turn we last spoke on. 
 
@@ -228,6 +228,7 @@ export default class Player extends Generic{
 				out._d_damaging_since_last = this._d_damaging_since_last;
 				out._d_damage_since_last = this._d_damage_since_last;
 				out._turns = this._turns;
+				out._turn_action_used = this._turn_action_used;
 			}
 
 		}
@@ -379,12 +380,14 @@ export default class Player extends Generic{
 		vars[prefix+'Arousal'] = this.arousal;
 		vars[prefix+'Team'] = this.team;
 		vars[prefix+'Size'] = this.size;
+		vars[prefix+'TeamPlayers'] = game.getTeamPlayers(this.team).length;
 		vars[prefix+'MaxHP'] = this.getMaxHP();
 		vars[prefix+'MaxAP'] = this.getMaxAP();
 		vars[prefix+'MaxMP'] = this.getMaxMP();
 		vars[prefix+'MaxArousal'] = this.getMaxArousal();
 		vars[prefix+'Money'] = this.getMoney();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
+		vars[prefix+'actionsUsedThisTurn'] = this._turn_action_used;
 
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
@@ -494,14 +497,14 @@ export default class Player extends Generic{
 	}
 
 	// Returns taunting players unless there's a grappling player, in which case that's returned instead
-	getTauntedOrGrappledBy( debug ){
+	getTauntedOrGrappledBy( actionRange, returnAllIfNone = true, debug ){
 		
 		let players = this.getGrappledBy();
 		if( debug )
 			console.debug("Grappled by ", players);
 		if( players.length )
 			return players;
-		return this.getTauntedBy(debug);
+		return this.getTauntedBy(actionRange, returnAllIfNone, debug);
 
 	}
 
@@ -518,21 +521,43 @@ export default class Player extends Generic{
 
 	}
 
-	getTauntedBy( debug ){
+	// ActionRange is from Action.Range
+	getTauntedBy( actionRange, returnAllIfNone = true, debug ){
 
 		let tauntEffects = this.getActiveEffectsByType(Effect.Types.taunt);
+
+		// Filter by range
+		tauntEffects = tauntEffects.filter(effect => {
+
+			// Either works
+			if( effect.data.melee === undefined )
+				return true;
+
+			if( effect.data.melee && actionRange !== Action.Range.Melee )
+				return false;
+
+			if( !effect.data.melee && actionRange !== Action.Range.Ranged )
+				return false;
+			
+			return true;
+
+		});
+
 		if( debug )
 			console.debug("Taunt effects", tauntEffects);
 		if( !tauntEffects.length )
-			return game.getEnabledPlayers();
+			return returnAllIfNone ? game.getEnabledPlayers() : [];
 
 		let out = [];
 		for( let effect of tauntEffects ){
+			// Pick the sender
 			let sender = effect.parent.getCaster();
 			if( effect.data && effect.data.victim )
 				sender = effect.parent.parent;
+
 			if( sender && out.indexOf(sender) === -1 )
 				out.push(sender);
+
 		}
 		return out;
 
@@ -836,6 +861,7 @@ export default class Player extends Generic{
 			this.addArousal(rem);
 		}
 
+		this._turn_action_used = 0;
 		this._turn_ap_spent = 0;
 		// Restore 3/10ths each turn
 		let ap = this.getMaxAP()*0.3; // base AP to add
@@ -861,6 +887,7 @@ export default class Player extends Generic{
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
 		this._last_chat = 0;
+		this._turn_action_used = 0;
 
 		let actions = this.getActions();
 		for(let action of actions)
@@ -2495,6 +2522,16 @@ export default class Player extends Generic{
 
 	}
 
+	getWrapperByLabel( label ){
+		const wrappers = this.getWrappers();
+		for( let wrapper of wrappers ){
+
+			if( wrapper.label === label )
+				return wrapper;
+
+		}
+	}
+
 	getActiveEffectsByType( type ){
 		
 		return this.getEffects().filter(fx => {
@@ -2571,12 +2608,17 @@ export default class Player extends Generic{
 
 		let out = new Map();
 		for( let player of game.getEnabledPlayers() ){
+			
 			const wrappers = player.getWrappers();
+
 			for( let wrapper of wrappers ){
+
 				const effects = wrapper.getEffectsForPlayer(this);
 				for( let effect of effects )
 					out.set(effect, true);
+
 			}
+
 		}
 
 		out = Array.from(out.keys());
