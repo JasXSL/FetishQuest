@@ -4,6 +4,7 @@ import * as THREE from '../ext/THREE.js';
 import TransformControls from '../ext/TransformControls.js';
 import Mod from '../classes/Mod.js';
 
+// Todo: Move to the zip file
 import OfficialMod from '../libraries/_main_mod.js';
 
 import * as EditorText from './editors/EditorText.js';
@@ -35,6 +36,7 @@ import * as EditorEncounter from './editors/EditorEncounter.js';
 import * as EditorDungeon from './editors/EditorDungeon.js';
 import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
 import Generic from '../classes/helpers/Generic.js';
+
 
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
@@ -192,36 +194,56 @@ export default class Modtools{
 						
 						this.dummyUploader.setAttribute("accept", ".fqmod");
 						this.dummyUploader.onchange = evt => {
+
 							const file = event.target.files[0];
 							if( !file )
 								return;
 
-							const reader = new FileReader();
-							reader.addEventListener('load', async event => {
-								try{
-									const raw = JSON.parse(event.target.result);
-									if( !raw.id || !raw.name )
-										throw 'INVALID_ID';
+							
+							JSZip.loadAsync(file).then(zip => {
+
+								let found;
+
+								zip.forEach(async (path, entry) => {
 									
-									const mod = new Mod(raw);
-									const existing = await Mod.getByID(raw.id);
-									if( existing ){
-										if( !confirm("Mod already exists, are you sure you want to overwrite?") )
-											return;
+									if( path === 'mod.json' ){
+										found = true;
+										try{
+
+											const raw = JSON.parse(await entry.async("text"));
+											if( !raw.id || !raw.name )
+												throw 'INVALID_ID';
+											
+											const mod = new Mod(raw);
+											const existing = await Mod.getByID(raw.id);
+											if( existing ){
+												if( !confirm("Mod already exists, are you sure you want to overwrite?") )
+													return;
+											}
+		
+											await mod.save();
+											this.load(mod);
+		
+										}catch(err){
+											let reason = "JSON Error";
+											if( err === "INVALID_ID" )
+												reason = 'Required parameters missing';
+											alert("This is not a valid mod file ("+reason+")");
+											console.error(err);
+										}
+
+
+
+										return false;
 									}
+									
+								});
 
-									await mod.save();
-									this.load(mod);
+								if( !found )
+									alert("Invalid mod file");
 
-								}catch(err){
-									let reason = "JSON Error";
-									if( err === "INVALID_ID" )
-										reason = 'Required parameters missing';
-									alert("This is not a valid mod file ("+reason+")");
-									console.error(err);
-								}
 							});
-							reader.readAsText(file);
+
 							
 
 							this.dummyUploader.value = "";
@@ -282,12 +304,27 @@ export default class Modtools{
 
 						Window.addMenuOption("export", "Export", () => {
 
-							const a = document.createElement('a');
-							a.setAttribute('href', 'data:text/plain;charset=utf-8,'+encodeURIComponent(JSON.stringify(this.mod)));
-							a.setAttribute('download', this.mod.name.split(" ").join('_')+'.fqmod');
-							document.body.appendChild(a);
-							a.click();
-							a.remove();
+							const zip = new JSZip();
+							zip.file('mod.json', JSON.stringify(this.mod.getSaveData()));
+							zip.generateAsync({
+								type:"blob",
+								compression : "DEFLATE",
+								compressionOptions : {
+									level: 9
+								}
+							}).then(content => {
+
+								const a = document.createElement('a');
+								const url = URL.createObjectURL(content);
+
+								a.setAttribute('href', url);
+								a.setAttribute('download', this.mod.name.split(" ").join('_')+'.fqmod');
+
+								document.body.appendChild(a);
+								a.click();
+								a.remove();
+
+							});
 
 						});
 
@@ -954,76 +991,53 @@ export default class Modtools{
 
 			}
 
+			for( let quest of mod.quests ){
 
-			// Todo: Quest
-			/*
-			for( let rp of mod.roleplay ){
+				const mparent = {
+					type : 'quests',
+					label : quest.label
+				};
 
-				for( let i in rp.stages ){
+				// rewards
+				for( let i in quest.rewards ){
 
-					const stage = rp.stages[i];
-					if( typeof stage !== "object" )
+					const reward = quest.rewards[i];
+					if( typeof reward !== "object" )
 						continue;
 
-					const stageLabel = rp.label+'>>'+stage.index;
-					stage.label = stageLabel;
-					stage._mParent = {
-						type : 'roleplay',
-						label : rp.label
-					};
-					rp.stages[i] = stageLabel;
-					mod.roleplayStage.push(stage);
-
-					// Continue by doing the responses
-					for( let o in stage.options ){
-
-						const opt = stage.options[0];
-						if( typeof opt !== "object" )
-							continue;
-
-						const optLabel = stageLabel+'>>'+o;
-						opt.label = optLabel;
-						opt._mParent = {
-							type : 'roleplayStage',
-							label : stageLabel
-						};
-
-						stage.options[i] = optLabel;
-						mod.roleplayStageOption.push(opt);
-
-					}
-
-					// And the text objects
-					for( let o in stage.text ){
-
-						const opt = stage.text[0];
-						if( typeof opt !== "object" )
-							continue;
-
-						const optLabel = stageLabel+'>>'+o;
-						opt.label = optLabel;
-						opt._mParent = {
-							type : 'roleplayStage',
-							label : stageLabel
-						};
-
-						stage.text[i] = optLabel;
-						mod.texts.push(opt);
-
-					}
+					const label = quest.label+'>>'+i;
+					reward.label = label;
+					reward._mParent = mparent;
+					mod.questRewards.push(reward);
+					quest.rewards[i] = reward;
 
 				}
 
+				const convertObjectives = (arr, prefix='') => {
+
+					// objectives
+					for( let i in arr ){
+
+						const obj = arr[i];
+						if( typeof obj !== "object" )
+							continue;
+
+						const label = quest.label+'>>'+prefix+i;
+						obj.label = label;
+						obj._mParent = mparent;
+						mod.questObjectives.push(obj);
+						arr[i] = obj;
+
+					}
+
+				};
+
+				convertObjectives(quest.objectives);
+				convertObjectives(quest.completion_objectives);
+
 			}
-			*/
-			// Break up quests into
-				// questRewards
-				// questObjectives
-					// questObjectiveEvents
 
-			// Break up shops into
-				// shopAssets
-
+			
 			// Make sure every text has an id
 			for( let text of mod.texts ){
 

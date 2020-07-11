@@ -279,11 +279,21 @@ export default class Mod extends Generic{
 }
 
 Mod.db = new Dexie("mod");
-Mod.db.version(1).stores({
-	mods: 'id'
+Mod.db.version(1).stores({mods: 'id'});
+Mod.db.version(2).stores({
+	mods: 'id,name,version'
+}).upgrade(trans => {
+	return trans.mods.toCollection().modify(entry => {
+		entry.version = entry.version || '0.0.1';
+		entry.name = entry.name || 'Unnamed Mod';
+	});
 });
 
 Mod.getNames = async function(){
+
+	if( this._cache_names )
+		return this._cache_names;
+	
 	let names = {};	// id:name
 	await Mod.db.mods.each(g => {
 		let name = g.name;
@@ -291,7 +301,9 @@ Mod.getNames = async function(){
 			name = "Unnamed";
 		names[g.id] = name;
 	});
+	this._cache_names = names;
 	return names;
+
 };
 
 Mod.getAll = async function(){

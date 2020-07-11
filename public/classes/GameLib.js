@@ -10,7 +10,7 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 import DungeonTemplate, { RoomTemplate } from './templates/DungeonTemplate.js';
 import { AudioKit } from './Audio.js';
-import MAIN_MOD from '../libraries/_main_mod.js';
+//import MAIN_MOD from '../libraries/_main_mod.js';
 import Mod from './Mod.js';
 import Player from './Player.js';
 import HitFX from './HitFX.js';
@@ -111,6 +111,7 @@ const load_order = [
 export default class GameLib{
 
 	constructor(){
+		this._main_mod;
 		this._custom_assets = {};
 		this._allow_clone = false;	// used to allow cyclic linkage. Set to true after mods have loaded
 		this.reset();
@@ -151,8 +152,24 @@ export default class GameLib{
 		this.texts = {};				// The texts array gets throw into an object for easier fetching
 	}
 
+	async loadMainMod(){
+
+		// Load the main mod
+		let data = await JSZipUtils.getBinaryContent('./libraries/MAIN.fqmod');
+		data = await JSZip.loadAsync(data);
+
+		const file = data.files['mod.json'];
+		if( !file )
+			throw 'Missing main mod file';
+		
+		this._main_mod = new Mod(JSON.parse(await file.async("text")));
+
+	}
 
 	async ini(){
+
+		if( !this._main_mod )
+			await this.loadMainMod();
 		await this.autoloadMods();
 	}
 
@@ -243,15 +260,31 @@ export default class GameLib{
 	// Tries to auto load enabled mods
 	async autoloadMods(){
 		
+		let hasMainOverride = false;	// If a mod is named MAIN, we won't load the MAIN mod
+		
 		let mods = await Mod.getModsOrdered();
-		mods = mods.filter(el => el.enabled && (el.netgame || !game.is_host || !game.net.isConnected()));
+		mods = mods.filter(el => {
+			if( el.enabled && (el.netgame || !game.is_host || !game.net.isConnected()) ){
+				if( el.id === "MAIN" )
+					hasMainOverride = true;
+
+				return true;
+			}
+		});
 		let promises = [];
 		for( let mod of mods )
 			promises.push(Mod.getByID(mod.id));
 		mods = await Promise.all(promises);
 		
 		mods = mods.filter(el => el);
-		mods.unshift(MAIN_MOD);
+
+		if( !hasMainOverride ){
+			mods.unshift(this._main_mod);
+		}
+		else{
+			console.log("You are now using an alternate MAIN mod");
+		}
+
 		this.reset();
 		return this.loadMods(mods);
 
