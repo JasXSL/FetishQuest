@@ -899,6 +899,16 @@ export default class Modtools{
 
 	}
 
+	async mergeMod( id ){
+
+		const mod = await Mod.getByID(id);
+		if( !mod )
+			throw 'Mod not found';
+
+		this.mod.mergeMod(mod);
+
+	}
+
 
 	// Converts 
 	convertLegacyMod( modVersion = 0 ){

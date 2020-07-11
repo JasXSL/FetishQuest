@@ -186,6 +186,67 @@ export default class Mod extends Generic{
 
 	}
 
+	mergeMod( mod ){
+
+		if( !(mod instanceof this.constructor) )
+			throw 'Invalid mod';
+
+		for( let i in this ){
+
+			if( !Array.isArray(this[i]) || !Array.isArray(mod[i]) )
+				continue;
+
+			console.log("Merging", i);
+			let inserts = 0, overwrites = 0;
+			for( let asset of mod[i] ){
+				try{
+					if( this.mergeAsset(i, asset) )
+						++overwrites;
+					else
+						++inserts;
+				}
+				catch(err){
+					console.error(err);
+				}
+			}
+			console.log("Inserts: ", inserts, "overwrites", overwrites);
+
+		}
+
+	}
+
+	// Merges an asset into a member array of this, overwriting if a label or id exists 
+	// Returns true if an item was overwritten
+	mergeAsset( table, asset ){
+
+		if( !Array.isArray(this[table]) )
+			throw 'Table not found';
+
+		if( typeof asset !== "object" )
+			throw 'Invalid asset';
+
+		if( !asset.id && !asset.label )
+			throw 'Invalid asset, no label or id';
+
+		let mergeBy = 'id';
+		if( asset.label )
+			mergeBy = 'label';
+
+		const mergeData = asset[mergeBy];
+		for( let i in this[table] ){
+
+			const current = this[table][i];
+			if( current[mergeBy] === mergeData ){
+				console.log("Overwriting", this[table][i], "with", asset);
+				this[table][i] = asset;
+				return true;
+			}
+
+		}
+
+		this[table].push(asset);
+
+	}
 
 	// Changes a label of an asset and updates any assets parented to it
 	// For assets that are parented, this will update all labels accordingly
