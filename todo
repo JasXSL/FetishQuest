@@ -2,33 +2,11 @@
 	- Keep redesigning errors to a try/catch system
 
 
-- "Help" dropdown
-	- 3D editor Help
-	- Text editor cheat sheet
-	
+- "Help" Question mark button settable on windows, bringing up a help window for that window
+
+- Update mod installer on main menu to support zip files
+
 - Emote type roleplays
-
-- Once all assets are working properly, convert the main mod to the new mod format
-
-
-
-
-
-- Leech
-	- Passive: Melee attacks on the monster has a chance of attaching a leech to the player, stacking
-	- Gnaw: Does damage and heals the caster
-	- Tail Whip: Does damage with a chance of knocking down
-- Stingspore mushroom
-	- Some kind of leeching
-
-- Bullfrog
-	- Tongue something???
-
-
-
-
-
-
 
 
 

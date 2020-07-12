@@ -199,7 +199,7 @@ export default{
 				val = JSON.stringify(val);
 
 		}
-		return esc(val);
+		return String(val);
 
 	},
 
@@ -242,9 +242,9 @@ export default{
 		let table = document.createElement("table");
 		table.classList.add("linkedTable", "selectable");
 		
-		let content = '';
 		if( !ignoreAsset ){	// Used in EditorQuestReward where there are multiple inputs all corresponding to the same field
 
+			let n = 0;
 			for( let entry of allEntries ){
 
 				const base = this.modEntryToObject(entry, targetLibrary),
@@ -254,23 +254,37 @@ export default{
 				if( !base )
 					console.error("Base not found, trying to find", entry, "in", targetLibrary, "asset was", asset, "all assets", allEntries);
 
+				const tr = document.createElement('tr');
+				table.appendChild(tr);
+				tr.classList.add("asset");
+				tr.dataset.id = asset.label || asset.id;
+				tr.dataset.index = n++;
 				// prefer label before id
-				content += '<tr class="asset" data-id="'+esc(asset.label || asset.id)+'">';
-				for( let column of columns )
-					content += '<td>'+this.makeReadable(typeof column === 'function' ? column(asset) : asset[column])+'</td>';
-				
-				content += '<td>'+(base.__MOD ? esc(base.__MOD) : 'THIS')+'</td>';
-				content += '</tr>';
+				for( let column of columns ){
+
+					const td = document.createElement('td');
+					tr.appendChild(td);
+					td.innerText = this.makeReadable(typeof column === 'function' ? column(asset) : asset[column]);
+
+				}
+				const td = document.createElement("td");
+				tr.appendChild(td);
+				td.innerText = (base.__MOD ? base.__MOD : 'THIS');
 
 			}
 		}
 
 		// Parented single asset can only add if one is missing. Otherwise they have to edit by clicking. This works because parented can only belong to the same mod.
 		const hasButton = !single || !parented || !entries[key];
-		if( hasButton )
-			content += '<tr class="noselect"><td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td></tr>';
-		table.innerHTML = content;
+		if( hasButton ){
 
+			const tr = document.createElement("tr");
+			table.appendChild(tr);
+			tr.classList.add("noselect");
+			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td>';
+
+		}
+		
 		if( hasButton ){
 			table.querySelector("input.addNew").onclick = () => {
 
@@ -311,28 +325,26 @@ export default{
 
 		const clickListener = event => {
 
+			const index = parseInt(event.currentTarget.dataset.index);
+			const entry = single ? entries[key] : entries[key][index];
+			const id = event.currentTarget.dataset.id;
+
 			// Ctrl deletes
 			if( event.ctrlKey ){
 
 				
-				let deletedAsset = entries[key];	// Assume single to start with
-				if( single ){
-					delete entries[key];	// Don't need to store this param in the mod anymore
-				}
-				else{
-
-					// Remove from the array
-					const index = [...event.currentTarget.parentElement.children].indexOf(event.currentTarget);
-					deletedAsset = entries[key][index];
+				// Don't need to store this param in the mod anymore
+				if( single )
+					delete entries[key];	
+				// Remove from the array
+				else
 					entries[key].splice(index, 1);	// Remove this
-
-				}
 
 				// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
 				// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
-				if( parented ){
-					MOD.deleteAsset(targetLibrary, deletedAsset);
-				}
+				if( parented )
+					MOD.deleteAsset(targetLibrary, entry);
+
 				win.rebuild();
 				EDITOR.setDirty(true);
 				this.rebuildAssetLists(win.type);
@@ -342,16 +354,28 @@ export default{
 			}
 			else{
 
-				const id = event.currentTarget.dataset.id;
-				// See if it's from a mod
-				const asset = this.getAssetById(targetLibrary, id);
-				if( !asset )
-					throw 'Linked asset not found';
+				let asset = entry;
+
+				// Fetch from library
+				if( typeof asset === "string" ){
+
+					asset = this.getAssetById(targetLibrary, id);
+					if( !asset )
+						throw 'Linked asset not found';
+
+				}
+
+				if( typeof asset !== "object" )
+					throw 'Linked asset is not an object';
+
+				// Check if from this mod
 				if( asset.__MOD ){
 					alert("Can't edit an asset from a different mod. Ctrl+click to delete.");
 					return;
 				}
-				EDITOR.buildAssetEditor( targetLibrary, id );
+
+				// prefer editing by string since that can be put into save state, but custom assets can be edited via object for legacy reasons
+				EDITOR.buildAssetEditor( targetLibrary, entry );
 			}
 
 

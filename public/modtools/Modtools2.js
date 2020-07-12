@@ -825,7 +825,6 @@ export default class Modtools{
 			data.asset = asset;
 
 		}
-		
 
 		const w = Window.create(
 			id, 

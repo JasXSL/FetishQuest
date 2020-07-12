@@ -18,7 +18,7 @@ export function asset(){
 	const 
 		modtools = window.mod,
 		id = this.id,
-		asset = modtools.mod.getAssetById(DB, id),
+		asset = this.asset.asset || modtools.mod.getAssetById(DB, id),
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
 
@@ -34,6 +34,9 @@ export function asset(){
 		html += '<label>Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>Durability Bonus: <input name="durability_bonus" value="'+esc(dummy.durability_bonus)+'" step=1 type="number" class="saveable" /></label>';
 		html += '<label>Stacking: <input name="stacking" class="saveable" type="checkbox" '+(dummy.stacking ? 'checked' : '')+' /></label>';
+		html += '<label title="Stacks of this to add when adding this particular asset. Useful in templates.">'+
+			'Stacks to add: <input name="_stacks" class="saveable" type="number" min=1 step=1 value="'+(parseInt(dummy._stacks) || 1)+'" />'+
+		'</label>';
 		html += '<label title="0 = no use, -1 = infinite use">Charges: <input name="charges" value="'+esc(dummy.charges)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>No auto consume: <input name="no_auto_consume" class="saveable" type="checkbox" '+(dummy.no_auto_consume ? 'checked' : '')+' /></label>';
 		html += '<label>Soulbound: <input name="soulbound" class="saveable" type="checkbox" '+(dummy.soulbound ? 'checked' : '')+' /></label>';
