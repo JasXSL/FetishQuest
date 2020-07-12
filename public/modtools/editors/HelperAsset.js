@@ -2,6 +2,7 @@
 import Window from '../WindowManager.js';
 import Condition from '../../classes/Condition.js';
 import Generic from '../../classes/helpers/Generic.js';
+import AssetTemplate from '../../classes/templates/AssetTemplate.js';
 
 export default{
 
@@ -407,25 +408,88 @@ export default{
 			return field;
 		};
 
-		// New button
-		let html = '<input type="button" class="new" value="New" />';
-			html += ' <input type="text" class="search" placeholder="Search" />';
-		
-		// Database table
-		html += '<table class="dblist selectable autosize">';
-	
-		html += '<tr>';
-		for( let i in fields )
-			html += '<th '+(fieldIsEssential(i) ? 'class="essential"' : '')+'>'+esc(getFieldName(i))+'</th>';
-		if( isLinker )
-			html += '<th>MOD</th>';
-		html += '</tr>';
+		// Create the element to return
+		const container = document.createElement('template');
+
+		// "new" button
+		let el = document.createElement('input');
+		container.appendChild(el);
+		el.classList.add('new');
+		el.type = 'button';
+		el.value = 'New';
+
+		// Search bar
+		el = document.createElement('input');
+		container.appendChild(el);
+		el.classList.add('search');
+		el.type = 'text';
+		el.placeholder = 'Search';
+
+		// Batch operation span
+		el = document.createElement('span');
+		container.appendChild(el);
+		el.classList.add('hidden', 'batch');
+
+			// Batch delete
+			let elSub = document.createElement('input');
+			el.appendChild(elSub);
+			elSub.classList.add('deleteSelected');
+			elSub.type = 'button';
+			elSub.value = 'Delete Selected';
+
+		const table = document.createElement('table');
+		container.appendChild(table);
+		table.classList.add('dblist', 'selectable', 'autosize');
+
+
+		let tr = document.createElement('tr');
+		table.appendChild(tr);
+		// Add checkbox placeholder
+		if( !isLinker ){
+			let th = document.createElement('th');
+			tr.appendChild(th);
+			th.classList.add("essential");
+			let checkbox = document.createElement('input');
+			th.appendChild(checkbox);
+			checkbox.classList.add('checkAll');
+			checkbox.type = 'checkbox';
+		}
+		for( let i in fields ){
+
+			let th = document.createElement('th');
+			tr.appendChild(th);
+			if( fieldIsEssential(i) )
+				th.classList.add('essential');
+			th.innerText = getFieldName(i);
+		}
+
+		// mod shows up in linker
+		if( isLinker ){
+
+			let th = document.createElement('th');
+			tr.appendChild(th);
+			th.innerText = "MOD";
+
+		}
 
 		for( let asset of db ){
 
 			const a = constr.loadThis(asset);
-			html += '<tr data-id="'+esc(asset.label || asset.id || a.label || a.id)+'" '+(asset.__MOD ? 'data-mod="'+esc(asset.__MOD)+'"' : '')+'>';		
+			let tr = document.createElement('tr');
+			table.appendChild(tr);
+			tr.dataset.id = asset.label || asset.id || a.label || a.id;
+			if( asset.__MOD )
+				tr.dataset.mod = asset.__MOD;
 
+				if( !isLinker ){
+
+					let td = document.createElement('td');
+					tr.appendChild(td);
+					td.classList.add('essential');
+					td.innerHTML = '<input type="checkbox" class="marker" />';
+
+				}
+				
 				for( let field in fields ){
 
 					const essential = fieldIsEssential(field);
@@ -443,21 +507,30 @@ export default{
 							val = this.makeReadable(val);
 
 					}
-					html += '<td '+(essential ? 'class="essential"' : '')+'>'+val+'</td>';
+
+					const td = document.createElement('td');
+					tr.appendChild(td);
+					if( essential )
+						td.classList.add("essential");
+					td.innerText = val;
+					td.cache_lowercase = val.toLowerCase();
 		
 				}
 
 				// Linker should also show the mod
 				if( isLinker ){
-					html += '<td>'+(asset.__MOD ? esc(asset.__MOD) : 'THIS')+'</td>';
-				}
 
-			html += '</tr>';
+					const td = document.createElement('td');
+					tr.appendChild(td);
+					td.innerText = asset.__MOD ? asset.__MOD : 'THIS';
+
+				}
 
 		}
 
-		html += '</table>';
-		return html;
+		container.appendChild(table);
+
+		return container;
 
 	},
 
@@ -467,12 +540,13 @@ export default{
 	bindList( win, type, baseObject ){
 		const DEV = window.mod, MOD = DEV.mod;
 		const isLinker = this.windowIsLinker(win),
-				single = isLinker && win.asset && win.asset.single		// This is a linker for only ONE object, otherwise it's an array
+				single = isLinker && win.asset && win.asset.single,		// This is a linker for only ONE object, otherwise it's an array
+				batchDiv = win.dom.querySelector('span.batch'),
+				rows = win.dom.querySelectorAll('tr[data-id]')			// TRs in the table
 		;
 
-				// Checks if this is a linker or not
-		const parentWindow = win.parent;
 
+		const parentWindow = win.parent;
 		if( parentWindow ){
 
 			// Parent is the same type as this, such as adding subconditions. You need to remove the parent from the list to prevent recursion.
@@ -487,103 +561,180 @@ export default{
 
 		}
 
-		// Handle clicks on the rows
-		const rows = win.dom.querySelectorAll('tr[data-id]');
-		rows.forEach(el => el.addEventListener('click', event => {
-
-			const elId = event.currentTarget.dataset.id,
-				mod = event.currentTarget.dataset.mod
-			;
+		// Checks if any of the checkboxes are checked
+		const markers = [...win.dom.querySelectorAll("input.marker")];	// Checkboxes
+		const checkBatchSelections = () => {
 			
-			// Ctrl deletes unless it's a linker
-			if( !mod && !isLinker && event.ctrlKey && confirm("Really delete?") ){
+			let checked = false;
+			
+			for( let marker of markers ){
+				if( marker.checked ){
+					checked = true;
+					break;
+				}
+			}
+			
+			batchDiv.classList.toggle("hidden", !checked);
 
-				if( MOD.deleteAsset(type, elId) ){
+		};
 
-					DEV.closeAssetEditors(type, elId);
-					DEV.setDirty(true);
+		// Delete asset
+		const del = elId => {
+			if( MOD.deleteAsset(type, elId) ){
+
+				DEV.closeAssetEditors(type, elId);
+				DEV.setDirty(true);
+
+			}
+		};
+
+		
+		// If not linker, handle the batch selectors
+		if( !isLinker ){
+			
+			checkBatchSelections();
+			batchDiv.querySelector('input.deleteSelected').onclick = event => {
+				
+				const checkedLabels = [];
+				const markers = win.dom.querySelectorAll("input.marker:checked").values();
+				for( let marker of markers )
+					checkedLabels.push(marker.parentElement.parentElement.dataset.id);
+				
+				if( !checkedLabels.length )
+					return;
+
+				if( confirm("Really delete "+checkedLabels.length+" items?") ){
+
+					for( let label of checkedLabels )
+						del(label);
+
 					win.rebuild();
 					this.rebuildAssetLists(type);
 
 				}
-
-			}
-			// If it's a linker you can use shift to bring up an editor
-			else if( event.shiftKey && (isLinker && mod)  ){
-				DEV.buildAssetEditor(type, elId);
-			}
-			// Alt clones
-			else if( event.altKey ){
-
-				const asset = DEV.getAssetById(type, elId);
-				if( !asset )
-					throw 'Asset not found', type, elId;
-				const obj = new baseObject.constructor(asset);
-				if( obj.label )
-					obj.label += '_'+Generic.generateUUID();
-				if( obj.id )
-					obj.id = Generic.generateUUID();
-
-				this.insertAsset(type, obj.save("mod"), win);
-
-			}
-			// Unmodified non linker click opens
-			else if( !isLinker ){
-				DEV.buildAssetEditor(type, elId);
-			}
-
-			// This is a linker, we need to tie it to the parent
-			else{
-
-				if( !parentWindow )
-					throw 'Parent window missing';
-
-				// Get the asset we need to modify
-				// Linker expects the parent window to be an asset editor unles parentWindow.asset.asset is set
-				let baseAsset = parentWindow.asset.asset || MOD.getAssetById(parentWindow.type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
-					targAsset = this.getAssetById(type, elId)	// Target can be from a parent mod, so we'll need to include that in this search, which is why we use this instead of MOD
-				;	
-
 				
-				if( !baseAsset ){
-					console.error("Type", type, "parentWindow", parentWindow);
-					throw 'Base asset not found';
+			};
+
+			const checkAll = win.dom.querySelector('input.checkAll');
+			checkAll.onchange = event => {
+				
+				for( let el of markers ){
+					el.checked = !el.parentElement.parentElement.classList.contains("hidden") && checkAll.checked;
 				}
-				if( !targAsset )
-					throw 'Target asset not found';
+				checkBatchSelections();
 
-				// Handle subsets. This is pretty much just used for Collection type assets since they don't have their own database
-				let targ = win.id.split('::');
-				while( targ.length > 1 )
-					baseAsset = baseAsset[targ.shift()];
+			};
 
-				const key = targ.shift();
+		}
+		
+		rows.forEach(el => {
 
-				// win.id contains the field you're looking to link to
-				let label = targAsset.label || targAsset.id;
+			if( !isLinker ){
+				
+				const base = el.querySelector("input[type=checkbox].marker");
+				base.parentElement.onclick = event => {
+					event.stopImmediatePropagation();
 
-				// Single assigns directly to the key
-				if( single ){
-					baseAsset[key] = label;
-				}
-				// Nonsingle appends to array
-				else{
-					if( !Array.isArray(baseAsset[key]) )
-						baseAsset[key] = [];
-					baseAsset[key].push(label);
-				}
-				win.close();
-
-				parentWindow.rebuild();
-				DEV.setDirty(true);
-				this.rebuildAssetLists(parentWindow.type);
-				this.propagateChange(win);
+					if( event.target === event.currentTarget )
+						base.checked = !base.checked;
+					checkBatchSelections();
+				};
 
 			}
-	
-		}, {
-			passive : true
-		}));
+
+			// Bind click on row
+			el.addEventListener('click', event => {
+
+				const elId = event.currentTarget.dataset.id,
+					mod = event.currentTarget.dataset.mod
+				;
+				
+
+				// Ctrl deletes unless it's a linker
+				if( !mod && !isLinker && event.ctrlKey && confirm("Really delete?") ){
+					del(elId);
+					win.rebuild();
+					this.rebuildAssetLists(type);
+				}
+				
+				// If it's a linker you can use shift to bring up an editor
+				else if( event.shiftKey && (isLinker && mod)  ){
+					DEV.buildAssetEditor(type, elId);
+				}
+				// Alt clones
+				else if( event.altKey ){
+
+					const asset = DEV.getAssetById(type, elId);
+					if( !asset )
+						throw 'Asset not found', type, elId;
+					const obj = new baseObject.constructor(asset);
+					if( obj.label )
+						obj.label += '_'+Generic.generateUUID();
+					if( obj.id )
+						obj.id = Generic.generateUUID();
+
+					this.insertAsset(type, obj.save("mod"), win);
+
+				}
+				// Unmodified non linker click opens
+				else if( !isLinker ){
+					DEV.buildAssetEditor(type, elId);
+				}
+
+				// This is a linker, we need to tie it to the parent
+				else{
+
+					if( !parentWindow )
+						throw 'Parent window missing';
+
+					// Get the asset we need to modify
+					// Linker expects the parent window to be an asset editor unles parentWindow.asset.asset is set
+					let baseAsset = parentWindow.asset.asset || MOD.getAssetById(parentWindow.type, parentWindow.id),		// Window id is the asset ID for asset editors. Can only edit our mod, so get from that
+						targAsset = this.getAssetById(type, elId)	// Target can be from a parent mod, so we'll need to include that in this search, which is why we use this instead of MOD
+					;	
+
+					
+					if( !baseAsset ){
+						console.error("Type", type, "parentWindow", parentWindow);
+						throw 'Base asset not found';
+					}
+					if( !targAsset )
+						throw 'Target asset not found';
+
+					// Handle subsets. This is pretty much just used for Collection type assets since they don't have their own database
+					let targ = win.id.split('::');
+					while( targ.length > 1 )
+						baseAsset = baseAsset[targ.shift()];
+
+					const key = targ.shift();
+
+					// win.id contains the field you're looking to link to
+					let label = targAsset.label || targAsset.id;
+
+					// Single assigns directly to the key
+					if( single ){
+						baseAsset[key] = label;
+					}
+					// Nonsingle appends to array
+					else{
+						if( !Array.isArray(baseAsset[key]) )
+							baseAsset[key] = [];
+						baseAsset[key].push(label);
+					}
+					win.close();
+
+					parentWindow.rebuild();
+					DEV.setDirty(true);
+					this.rebuildAssetLists(parentWindow.type);
+					this.propagateChange(win);
+
+				}
+		
+			}, {
+				passive : true
+			});
+
+		});
 	
 		win.dom.querySelector('input.new').onclick = event => {
 			
@@ -596,41 +747,47 @@ export default{
 
 		// Search filter
 		const searchInput = win.dom.querySelector('input.search');
+		const performSearch = () => {
+			const searchTerm = searchInput.value.toLowerCase();
+			win._search = searchTerm;
+
+			for( let row of rows ){
+
+				// Just unhide
+				if( !searchTerm.length ){
+					row.classList.toggle('hidden', false);
+					continue;
+				}
+
+				let found = false;
+				for( let td of row.children ){
+
+					if( !td.cache_lowercase || (window.mod.essentialOnly && !td.classList.contains('essential')) )
+						continue;
+
+					const text = td.cache_lowercase;
+					if( text.includes(searchTerm) ){
+						found = true;
+						break;
+					}
+
+				}
+				
+				row.classList.toggle('hidden', !found);
+
+			}
+		};
+
+		if( win._search ){
+			searchInput.value = win._search;
+			performSearch();
+		}
 
 		let searchTimeout;
 		searchInput.onkeyup = event => {
 			clearTimeout(searchTimeout);
 			searchTimeout = setTimeout(() => {
-				
-				const searchTerm = searchInput.value.toLowerCase();
-
-				for( let row of rows ){
-
-					// Just unhide
-					if( !searchTerm.length ){
-						row.classList.toggle('hidden', false);
-						continue;
-					}
-
-					let found = false;
-					for( let td of row.children ){
-
-						if( window.mod.essentialOnly && !td.classList.contains('essential') )
-							continue;
-
-						const text = td.innerText;
-						if( text.toLowerCase().includes(searchTerm) ){
-							found = true;
-							break;
-						}
-
-					}
-					
-					row.classList.toggle('hidden', !found);
-
-				}
-
-
+				performSearch();
 			}, 250);
 
 		};

@@ -333,7 +333,14 @@ export default class Window{
 
 	setDom( html ){
 
-		this.content.innerHTML = html;
+		if( html instanceof HTMLElement ){
+			this.content.innerHTML = '';
+			for( let child of [...html.childNodes] )
+				this.content.appendChild(child);
+
+		}
+		else
+			this.content.innerHTML = html;
 
 	}
 
