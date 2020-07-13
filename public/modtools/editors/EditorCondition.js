@@ -11,7 +11,7 @@ export function asset(){
 	const 
 		modtools = window.mod,
 		id = this.id,
-		asset = modtools.mod.getAssetById(DB, id),
+		asset = this.asset.asset || modtools.mod.getAssetById(DB, id),
 		dummy = Condition.loadThis(asset)
 	;
 

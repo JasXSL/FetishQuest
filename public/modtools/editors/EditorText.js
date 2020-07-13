@@ -25,6 +25,10 @@ export function asset(){
 	if( !asset )
 		return this.close();
 
+	// If a text is parented to something, it should fall outside of the main DB
+	if( asset._mParent )
+		dummy.enabled = false;
+
 	this.name = asset.text.substr(0, 16)+'...';
 	this.updateTitle();
 
@@ -33,7 +37,8 @@ export function asset(){
 	html += 'Text:<br /><input type="text" class="large saveable" value="'+esc(dummy.text)+'" name="text" /><br />';
 	html += '<span class="textPreview"></span><br /><br />';
 
-	html += '<label>Enabled: <input type="checkbox" class="saveable" name="en" value="1" '+(dummy.en ? 'checked' : '')+' /></label><br />';
+	if( !asset._mParent )
+		html += '<label>Enabled: <input type="checkbox" class="saveable" name="en" value="1" '+(dummy.en ? 'checked' : '')+' /></label><br />';
 	html += 'Nr Targets: <input type="number" class="saveable" name="numTargets" min=-1 step=1 value="'+dummy.numTargets+'" /><br />';
 	html += 'Weight: <input type="range" class="saveable" name="weight" min=0 max=10 step=1 value="'+dummy.weight+'" /><br />';
 

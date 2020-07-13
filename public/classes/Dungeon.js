@@ -1231,7 +1231,7 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	isLocked(){
-		return !this.getViableInteractions().length;
+		return window.game && !this.getViableInteractions().length;
 	}
 
 	save( full ){

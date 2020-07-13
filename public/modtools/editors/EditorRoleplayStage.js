@@ -72,7 +72,7 @@ function onCreate( win, asset ){
 	if( !parent ||!Array.isArray(parent.stages) )
 		return;
 
-	let highest = 0;
+	let highest = -1;
 	for( let stage of parent.stages ){
 		const s = window.mod.mod.getAssetById(DB, stage);
 		if( s && s.index > highest )

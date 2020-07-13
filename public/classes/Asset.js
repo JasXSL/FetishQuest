@@ -63,7 +63,7 @@ export default class Asset extends Generic{
 			slots : this.slots,
 			equipped : this.equipped,
 			tags : this.tags,
-			wrappers : this.wrappers.map(el => el.save(full)),
+			wrappers : Wrapper.saveThese(this.wrappers, full),
 			label : this.label,
 			description : this.description,
 			level : this.level,

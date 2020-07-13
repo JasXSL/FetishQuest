@@ -4,8 +4,6 @@ import * as THREE from '../ext/THREE.js';
 import TransformControls from '../ext/TransformControls.js';
 import Mod from '../classes/Mod.js';
 
-// Todo: Move to the zip file
-import OfficialMod from '../libraries/_main_mod.js';
 
 import * as EditorText from './editors/EditorText.js';
 import * as EditorCondition from './editors/EditorCondition.js';
@@ -36,6 +34,7 @@ import * as EditorEncounter from './editors/EditorEncounter.js';
 import * as EditorDungeon from './editors/EditorDungeon.js';
 import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
 import Generic from '../classes/helpers/Generic.js';
+import GameLib from '../classes/GameLib.js';
 
 
 // Window types that should be tracked
@@ -707,23 +706,29 @@ export default class Modtools{
 		this.parentMod = new Mod();
 		// Mods above in the load order, for now just do Official
 		// Todo: Later on, allow us to load over multiple mods
-		const parentMods = [OfficialMod];
-		for( let mod of parentMods ){
-			for( let i in mod ){
-				if( Array.isArray(mod[i]) ){
 
-					// First make sure we know what mod the asset is from by adding __MOD
-					for( let asset of mod[i] )
-						asset.__MOD = mod.name || mod.id;
+		// We're working on the root mod
+		if( mod.id !== "MAIN" ){
 
-					// later on allow you to search for labels and replace them
-					if( Array.isArray(this.parentMod[i]) && this.parentMod[i].length ){
-						console.log("Todo: track down changed IDs and ");
+			const parentMods = [await GameLib.getMainMod()];
+
+			for( let mod of parentMods ){
+				for( let i in mod ){
+					if( Array.isArray(mod[i]) ){
+
+						// First make sure we know what mod the asset is from by adding __MOD
+						for( let asset of mod[i] )
+							asset.__MOD = mod.name || mod.id;
+
+						// later on allow you to search for labels and replace them
+						if( Array.isArray(this.parentMod[i]) && this.parentMod[i].length ){
+							console.log("Todo: track down changed IDs and ");
+						}
+						// Not yet set in the parentMod, we're safe to copy the whole thing
+						else
+							this.parentMod[i] = mod[i].slice();
+						
 					}
-					// Not yet set in the parentMod, we're safe to copy the whole thing
-					else
-						this.parentMod[i] = mod[i].slice();
-					
 				}
 			}
 		}

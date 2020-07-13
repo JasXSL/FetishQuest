@@ -28,6 +28,7 @@ export function asset(){
 	let html = '';
 	html += '<div class="labelFlex">';
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		html += '<label title="This is only shown in the editor">Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
 		html += '<label>Title: <input type="text" name="title" class="saveable" value="'+esc(dummy.title)+'" /></label>';
 		html += '<label title="A small headshot of the player">Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
 
@@ -62,7 +63,7 @@ export function asset(){
 
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name, single, parented ){
-	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'title'], single, parented);
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'title', 'desc'], single, parented);
 }
 
 
@@ -72,6 +73,7 @@ export function list(){
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
 		'*label' : true,
 		'*title' : true,
+		'*desc' : true,
 		'*player' : true,
 		portrait : true,
 		'*persistent' : true,

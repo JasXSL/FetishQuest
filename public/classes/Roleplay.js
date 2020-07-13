@@ -10,6 +10,7 @@ export default class Roleplay extends Generic{
 		super(data);
 		
 		this.parent = parent;
+		this.desc = '';				// Editor description
 		
 		this.stage = 0;
 		this.persistent = false;	// If set to true, the stage is saved and continued from there. Otherwise if you close and re-open, it resets to 0
@@ -67,9 +68,10 @@ export default class Roleplay extends Generic{
 			_targetPlayer : this._targetPlayer
 		};
 
-		if( full )
+		if( full ){
 			out.autoplay = this.autoplay;
-
+			out.desc = this.desc;
+		}
 		if( full !== "mod" ){
 			out.completed = this.completed;
 			out.stage = this.stage;

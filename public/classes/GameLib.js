@@ -154,15 +154,7 @@ export default class GameLib{
 
 	async loadMainMod(){
 
-		// Load the main mod
-		let data = await JSZipUtils.getBinaryContent('./libraries/MAIN.fqmod');
-		data = await JSZip.loadAsync(data);
-
-		const file = data.files['mod.json'];
-		if( !file )
-			throw 'Missing main mod file';
-		
-		this._main_mod = new Mod(JSON.parse(await file.async("text")));
+		this._main_mod = await this.constructor.getMainMod();
 
 	}
 
@@ -358,6 +350,21 @@ export default class GameLib{
 		}
 		
 		console.error("Asset type", cName, "not in library");
+
+	}
+
+
+	static async getMainMod(){
+
+		// Load the main mod
+		let data = await JSZipUtils.getBinaryContent('./libraries/MAIN.fqmod');
+		data = await JSZip.loadAsync(data);
+
+		const file = data.files['mod.json'];
+		if( !file )
+			throw 'Missing main mod file';
+		
+		return new Mod(JSON.parse(await file.async("text")));
 
 	}
 

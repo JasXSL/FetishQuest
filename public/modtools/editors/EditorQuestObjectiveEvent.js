@@ -1,8 +1,7 @@
 import HelperAsset from './HelperAsset.js';
 import * as EditorCondition from './EditorCondition.js';
-import Generic from '../../classes/helpers/Generic.js';
 
-import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from '../../classes/Quest.js';
+import { QuestObjectiveEvent } from '../../classes/Quest.js';
 
 const DB = 'questObjectiveEvents',
 	CONSTRUCTOR = QuestObjectiveEvent;
@@ -13,7 +12,7 @@ export function asset(){
 	const  
 		modtools = window.mod,
 		id = this.id,
-		asset = modtools.mod.getAssetById(DB, id),
+		asset = this.asset.asset || modtools.mod.getAssetById(DB, id),
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
 

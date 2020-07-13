@@ -213,8 +213,8 @@ export default class Encounter extends Generic{
 		const out = {};
 		if( full ){
 			out.startText = this.startText;
-			out.wrappers = this.wrappers.map(el => el.save(full));
-			out.players = this.players.map(el => el.save(full));
+			out.wrappers = Wrapper.saveThese(this.wrappers, full);
+			out.players = Player.saveThese(this.players, full);
 			out.label = this.label;
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
 			out.conditions = Condition.saveThese(this.conditions, full);
@@ -223,7 +223,7 @@ export default class Encounter extends Generic{
 		}
 		out.friendly = this.friendly;
 		out.game_actions = GameAction.saveThese(this.game_actions, full);
-		out.passives = this.passives.map(el => el.save(full));
+		out.passives = Wrapper.saveThese(this.passives, full);
 		out.player_conditions = this.player_conditions.save(full);
 		
 		if( full !== "mod" ){

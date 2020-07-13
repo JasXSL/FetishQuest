@@ -251,14 +251,15 @@ export default{
 					asset = new constructor(base)
 				;
 
-				if( !base )
+				if( !base ){
 					console.error("Base not found, trying to find", entry, "in", targetLibrary, "asset was", asset, "all assets", allEntries);
-
+					continue;
+				}
 				const tr = document.createElement('tr');
 				table.appendChild(tr);
 				tr.classList.add("asset");
 				tr.dataset.id = asset.label || asset.id;
-				tr.dataset.index = n++;
+				tr.dataset.index = n;
 				// prefer label before id
 				for( let column of columns ){
 
@@ -267,10 +268,24 @@ export default{
 					td.innerText = this.makeReadable(typeof column === 'function' ? column(asset) : asset[column]);
 
 				}
-				const td = document.createElement("td");
+				let td = document.createElement("td");
 				tr.appendChild(td);
 				td.innerText = (base.__MOD ? base.__MOD : 'THIS');
 
+				// order buttons
+				if( !single ){
+
+					td = document.createElement("td");
+					tr.appendChild(td);
+					td.classList.add("order");
+					if( n )
+						td.innerHTML += '<input type="button" class="small up" value="&#9650;" />';
+					if( n !== allEntries.length-1 )
+						td.innerHTML += '<input type="button" class="small down" value="&#9660;" />';
+
+				}
+
+				++n;
 			}
 		}
 
@@ -281,11 +296,9 @@ export default{
 			const tr = document.createElement("tr");
 			table.appendChild(tr);
 			tr.classList.add("noselect");
-			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1)+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td>';
+			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td>';
 
-		}
-		
-		if( hasButton ){
+
 			table.querySelector("input.addNew").onclick = () => {
 
 				// If parented, insert a new asset immediately, as there's no point in listing assets that are only viable for this parent
@@ -374,6 +387,10 @@ export default{
 					return;
 				}
 
+				// This is just for legacy reasons, makes sure it has an ID, which the window manager wants
+				if( !asset.label && !asset.id && typeof entry === "object" )
+					entry.id = Generic.generateUUID();
+
 				// prefer editing by string since that can be put into save state, but custom assets can be edited via object for legacy reasons
 				EDITOR.buildAssetEditor( targetLibrary, entry );
 			}
@@ -381,10 +398,41 @@ export default{
 
 		};
 
+		const onArrowClick = event => {
+
+			const up = event.currentTarget.classList.contains("up"),
+				index = event.currentTarget.parentNode.parentNode.dataset.index
+			;
+			
+			if( up ){
+				let pre = entries[key][index-1];
+				entries[key][index-1] = entries[key][index];
+				entries[key][index] = pre;
+			}
+				
+			else{
+				let pre = entries[key][index+1];
+				entries[key][index+1] = entries[key][index];
+				entries[key][index] = pre;
+			}
+
+			win.rebuild();
+			EDITOR.setDirty(true);
+			this.propagateChange(win);
+						
+		};
+
 		table.querySelectorAll("tr.asset").forEach(el => {
 			el.onclick = clickListener;
 			el.linkedTableListener = clickListener;	// Stores the listener in the TR in case you want to override it
 		});
+
+		// Prevents default action when clicking one the td contining the arrows
+		table.querySelectorAll('td.order').forEach(el => {
+			el.onclick = event => event.stopImmediatePropagation();
+		});
+
+		table.querySelectorAll('td.order > input').forEach(el => el.onclick = onArrowClick);
 
 		// Todo: Need some way to refresh the window if one of the linked assets are changed
 		
@@ -537,7 +585,7 @@ export default{
 					if( essential )
 						td.classList.add("essential");
 					td.innerText = val;
-					td.cache_lowercase = val.toLowerCase();
+					td.cache_lowercase = String(val).toLowerCase();
 		
 				}
 
@@ -772,8 +820,14 @@ export default{
 		// Search filter
 		const searchInput = win.dom.querySelector('input.search');
 		const performSearch = () => {
-			const searchTerm = searchInput.value.toLowerCase();
+			let searchTerm = searchInput.value.toLowerCase();
 			win._search = searchTerm;
+
+			let inverse = false;
+			if( searchTerm.startsWith("!") ){
+				inverse = true;
+				searchTerm = searchTerm.substr(1);
+			}
 
 			for( let row of rows ){
 
@@ -783,7 +837,7 @@ export default{
 					continue;
 				}
 
-				let found = false;
+				let found = inverse;
 				for( let td of row.children ){
 
 					if( !td.cache_lowercase || (window.mod.essentialOnly && !td.classList.contains('essential')) )
@@ -791,7 +845,7 @@ export default{
 
 					const text = td.cache_lowercase;
 					if( text.includes(searchTerm) ){
-						found = true;
+						found = !inverse;
 						break;
 					}
 
