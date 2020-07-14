@@ -317,6 +317,9 @@ input[type=button].small{
 	margin:0;
 }
 
+h3{
+	margin-bottom:0;
+}
 
 pre.wrap{
 	white-space: normal;

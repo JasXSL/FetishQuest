@@ -47,7 +47,7 @@ const TRACKED_WINDOWS = {
 // Type : fn
 // Type is named after the name of its array in Mod.js
 const DB_MAP = {
-	"texts" : { listing : EditorText.list, asset : EditorText.asset, icon : '' },
+	"texts" : { listing : EditorText.list, asset : EditorText.asset, help : EditorText.help, icon : '' },
 	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark' },
 	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker' },
 	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion' },
@@ -511,6 +511,11 @@ export default class Modtools{
 
 	refreshWindowState( win ){
 
+		if( !win ){
+			console.error("Undefined win", win);
+			return;
+		}
+
 		const state = this.window_states.get(win.uniqid());
 		if( !state )
 			return;
@@ -840,6 +845,9 @@ export default class Modtools{
 			data, 
 			parent
 		);
+
+		if( DB_MAP[type].help )
+			w.setHelp(DB_MAP[type].help);
 
 		return w;
 

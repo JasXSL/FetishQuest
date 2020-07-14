@@ -38,6 +38,7 @@ export default class Window{
 				(icon ? '<img class="icon" src="/media/wrapper_icons/'+esc(icon)+'.svg" />' : '' )+
 				'<span class="title"></span>'+
 				'<div class="buttons">'+
+					'<input type="button" value="?" class="help hidden" />'+
 					'<input type="button" value="&#x1f5d8;" class="refresh" />'+
 					'<input type="button" value="_" class="minimize" />'+
 					'<input type="button" value="&#x25FB;" class="maximize" />'+
@@ -189,7 +190,8 @@ export default class Window{
 					this.remove();
 				else if( button.classList.contains("refresh") )
 					this.rebuild();	// Needs to be false to prevent dirty in dungeonAsset
-
+				else if( button.classList.contains("help") )
+					this.constructor.setHelp(this._help, this.type);
 			};
 		});
 
@@ -197,7 +199,8 @@ export default class Window{
 	}
 
 	rebuild(){
-		this.build();
+		if( this.build )
+			this.build();
 	}
 
 	reset(){
@@ -212,6 +215,14 @@ export default class Window{
 		this.center();
 		Window.onWindowResized();	// Moved is handled by center
 
+	}
+
+	// Help can be either a text or a function that returns a text
+	setHelp( help ){
+
+		this._help = help;
+		this.title.querySelector("input.help").classList.toggle("hidden", !help);
+		
 	}
 
 	// Updates position based on position and offset
@@ -448,6 +459,19 @@ export default class Window{
 		this.onWindowOpened(w);
 
 		return w;
+
+	}
+
+	static setHelp( help, type ){
+
+		let text = help;
+		if( typeof help === "function" )
+			text = help.call(this);
+		
+
+		const helpWindow = this.create(type, "help", undefined, "help");
+		helpWindow.setDom(text);
+		return helpWindow;
 
 	}
 
