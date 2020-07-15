@@ -31,6 +31,11 @@ export function asset(){
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input name="name" value="'+esc(dummy.name)+'" type="text" class="saveable" /></label>';
 		html += '<label>Shortname: <input name="shortname" value="'+esc(dummy.shortname)+'" type="text" class="saveable" /></label>';
+		html += '<label title="When using label, set the name of the object to an object you want to polymorph this into. This is used to create stacks of another asset, such as gold.">Dummy Type: <select name="dummy" class="saveable">';
+		for( let i in Asset.Dummies ){
+			html += '<option value="'+esc(Asset.Dummies[i])+'" '+(Asset.Dummies[i] === dummy.dummy ? 'selected' : '' )+'>'+esc(i)+'</option>';
+		}
+		html += '</select></label>';
 		html += '<label>Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>Durability Bonus: <input name="durability_bonus" value="'+esc(dummy.durability_bonus)+'" step=1 type="number" class="saveable" /></label>';
 		html += '<label>Stacking: <input name="stacking" class="saveable" type="checkbox" '+(dummy.stacking ? 'checked' : '')+' /></label>';

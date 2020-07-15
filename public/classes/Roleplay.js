@@ -609,6 +609,7 @@ export class RoleplayStageOptionGoto extends Generic{
 	save( full ){
 
 		let out = {
+			id : this.id,
 			index : this.index,
 			conditions : Condition.saveThese(this.conditions, full)
 		};

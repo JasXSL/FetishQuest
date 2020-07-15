@@ -1071,23 +1071,32 @@ div.fxBuffRed{
 	}
 	#quests div.modalMain h1{
 		margin:0 0 1vmax 0;
+		font-size:2.5vmax;
 	}
 	#quests div.modalMain h3{
+		font-size:2vmax;
 		margin-bottom:0;
 	}
+	#quests div.modalMain p{
+		font-size:1.5vmax;
+	}
+	
 	#quests div.modalMain div.left{
 		padding-right:1vmax; margin-right:1vmax;
 		border-right:1px dotted #FFF;
 		width:25%;
+		display:flex;
+		flex-flow: column;
+		justify-content: center;
 	}	
 
-	#quests div.modalMain div.left div{
-		background:rgba(0,0,0,0.5);
+	#quests div.modalMain div.left div[data-id]{
+		background:rgba(50,50,50,0.75);
 		padding:1vmax;
-		font-weight: bold;
 		cursor:pointer;
 		transition:transform 0.2s ease-out;
-		font-size:1.5vmax;
+		font-size:1.25vmax;
+		box-shadow: -0.25vmax 0.25vmax 0.25vmax #000;
 	}
 	#quests div.modalMain div.left div:hover{
 		transform:scale(1.01,1);
@@ -1097,29 +1106,24 @@ div.fxBuffRed{
 		transform:scale(.99,.99);
 		transition:none;
 	}
-	#quests div.modalMain div.left div.selected{
-		border:1px solid #FFF;
-		transform:scale(1.05,1);
-	}
 	#quests div.modalMain div.left div.completed{
 		background:rgba(100,200,100, 0.5);
 	}
 
 	#quests div.modalMain div.right{
 		width:75%;
+		padding:3vmax;
 	}
 	#quests div.modalMain div.right div.objective{
 		font-weight:bold;
-		margin:1vmax;
-		padding:1vmax;
+		margin:0 2vmax;
+		padding:0.5vmax 1vmax;
 		font-size:1.5vmax;
-		background-color:rgba(0,0,0,.5);
 	}
 	#quests div.modalMain div.right div.objective.completed{
 		font-weight:normal;
-		font-size:1vmax;
 		font-style: italic;
-		color:#DDD;
+		color:#AAA;
 	}
 
 

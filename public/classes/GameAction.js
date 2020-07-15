@@ -514,6 +514,7 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.questObjective ){
+
 			const quest = this.data.quest, 
 				objective = this.data.objective, 
 				type = this.data.type || "add";
@@ -532,6 +533,8 @@ export default class GameAction extends Generic{
 			obj.addAmount(amount, type==="set");
 			game.save();
 			game.ui.draw();
+			game.renderer.drawActiveRoom();
+			
 		}
 
 		else if( this.type === types.addInventory ){

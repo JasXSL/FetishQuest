@@ -102,6 +102,51 @@ export function assetTable( win, modAsset, name, single, parented, ignoreAsset )
 }
 
 
+export function help(){
+
+	let out = '';
+	out += '<h3>3d Editor:</h3>'+
+		'<p>Click the 3d editor to select it (it will get white borders). While selected, you can use the following hotkeys:</p>'+
+		'<ul>'+
+			'<li>Q - Swaps between local and world coordinates</li>'+
+			'<li>W - Move tool</li>'+
+			'<li>E - Rotation tool</li>'+
+			'<li>R - Scale tool</li>'+
+			'<li>Ctrl - Snap to grid</li>'+
+			'<li>Ctrl+Z/Ctrl+Y - Undo/redo</li>'+
+			'<li>Del - Deletes the selected asset, hurdur</li>'+
+		'</ul>'+
+		'<p>Double click a mesh to bring up a property editor.</p>'	
+	;
+		
+
+	out += '<h3>Asset library:</h3>'+
+		'<p>Below the editor is the asset library, items starting with [M] are meshes, you can double click these to add them to the scene.</p>';
+
+	const url = 'https://'+window.location.hostname+'/media/audio/ambiance/';
+	out += '<h3>Ambiance:</h3>'+
+		'<p>URL to an ambiance you want to use, preferably ogg. You can find built in ones at <a href="'+url+'">'+url+'</a></p>';
+
+	out += '<h3>Room mesh:</h3>'+
+		'<p>This is the base mesh for the room to use.</p>';
+
+	out += '<h3>Room asset rotation:</h3>'+
+		'<p>Rotation of the base room asset. You generally want to do 90 degree increases, like 90, 180, or 270.</p>';
+
+		
+	out += '<h3>Tags:</h3>'+
+		'<p>These are tags that will be added to all players when in this room. Note that many meshes are tagged already for you, so you rarely need to use this.</p>';
+
+
+	out += '<h3>Encounters:</h3>'+
+		'<p>These are encounters to play in this room, the first viable one will be the one used. '+HelperAsset.helpLinkedList+'</p>';
+
+
+	return out;
+
+};
+
+
 class Editor{
 
 	// Asset is the room
@@ -754,6 +799,31 @@ class Editor{
 		
 		this.assetWindow = Window.create('REPLACE_ID', 'dungeonAssets', '', 'crafting', build, {}, this.win);
 		this.assetWindow.onChange = () => build.call(this.assetWindow);
+		this.assetWindow.setHelp(() => {
+
+			let out = '';
+
+			out += '<h3>Name:</h3>'+
+				'<p>Name the asset (optional). If the asset has a door action, this is what will be displayed above the door.</p>';
+
+			out += '<h3>Respawn:</h3>'+
+				'<p>Respawn time in seconds if a container. 0 for never respawn.</p>';
+
+			out += '<h3>Hide if non-interactive:</h3>'+
+				'<p>Hides the object if it has no viable game actions bound to it.</p>';
+
+			out += '<h3>Tags:</h3>'+
+				'<p>Often auto added, but these are tags that will be added to all players in the room.</p>';
+
+			out += '<h3>Game Actions:</h3>'+
+				'<p>GameActions to trigger when clicking this mesh. '+HelperAsset.helpLinkedList+'</p>';
+
+			out += '<h3>Conditions:</h3>'+
+				'<p>Conditions needed to be met in order to draw this mesh. '+HelperAsset.helpLinkedList+'</p>';
+
+
+			return out;
+		});
 
 	}
 

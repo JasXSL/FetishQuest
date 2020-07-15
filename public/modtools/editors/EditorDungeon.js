@@ -96,6 +96,31 @@ export function list(){
 
 };
 
+export function help(){
+
+	let out = '';
+	out += '<h3>Difficulty:</h3>'+
+		'<p>Leave this at -1 for auto. This is left here for legacy purposes, in the future it may be used for something else.</p>';
+
+	out += '<h3>Free roam:</h3>'+
+		'<p>Removes all the "back" buttons on doors. Useful for dungeons with no defined start or end, such as when navigating the outdoor world.</p>';
+
+	out += '<h3>Vars:</h3>'+
+		'<p>JSON object of variables that can be set in the dungeon by things like levers or custom game actions.</p>';
+
+	out += '<h3>Tags:</h3>'+
+		'<p>These tags are added to all players when they\'re in the dungeon.</p>';
+
+	out += '<h3>Default consumables:</h3>'+
+		'<p>These are consumables that can be found in chests with autoloot in this dungeon. '+HelperAsset.helpLinkedList+'</p>';
+
+	out += '<h3>Rooms:</h3>'+
+		'<p>This is where you layout your dungeon rooms. The dropdown in the top right can be used to set the Z level of the dungeon. Click a direction arrow to add a new linked room. Ctrl+click to delete a room. But beware that this deletes any rooms connected to that one.</p>';	
+
+	return out;
+
+};
+
 
 // Helper class
 class DungeonLayoutEditor{
@@ -450,5 +475,7 @@ class DungeonLayoutEditor{
 
 
 }
+
+
 
 

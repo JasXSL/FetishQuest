@@ -404,6 +404,10 @@ export default class Game extends Generic{
 		this.save();
 	}
 
+	clearRoleplayHistory(){
+		this.state_roleplays = new Collection();
+	}
+
 	toggleAFK(){
 		// game.net.isPlayerAFK(this.netgame_owner)
 		if( !this.net.isConnected() )
@@ -2118,7 +2122,7 @@ export default class Game extends Generic{
 
 		const out = [];
 		const encounter = this.encounter;
-		const roleplays = encounter.getRoleplays(player);
+		const roleplays = encounter.getRoleplays(player, true);
 		for( let ga of roleplays ){
 
 			const rp = ga.getDataAsRoleplay();

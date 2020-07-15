@@ -481,18 +481,15 @@ export default class StaticModal{
 			.addRefreshOn(["quests"])
 			.addTab("Quests", () => {
 				return `
-					<div class="left">
-						Active quests:
-						<div class="available"></div>
-					</div>
+					<div class="left"></div>
 					<div class="right"></div>
 				`;
 			})
 			.setProperties(function(){
 
 				const main = this.main = this.getTabDom('Quests');
-				this.available = $("div.left > div.available", main);
 				this.right = $("div.right", main);
+				this.left = $("div.left", main);
 				
 			})
 			.setDraw(function(){
@@ -507,16 +504,15 @@ export default class StaticModal{
 						selectedQuest = quest;
 				}
 
-				
-				if( !quests.length )
-					html += '<div class="selected">No active quests</div>';
-				else{
-					for( let quest of quests )
-						html += '<div data-id="'+esc(quest.id)+'" class="'+(quest === selectedQuest ? ' selected ' : '')+(quest.isCompleted() ? ' completed ' : '')+'">'+
-							(quest.difficulty > 1 ? '['+quest.difficulty+'] ' : '')+quest.name+(quest.isCompleted() ? ' (Completed)' : '')+
-						'</div>';
+				for( let quest of quests ){
+
+					html += '<div data-id="'+esc(quest.id)+'" class="'+(quest === selectedQuest ? ' selected ' : '')+(quest.isCompleted() ? ' completed ' : '')+'">'+
+						(quest === selectedQuest ? '&#10148; ' :'')+(quest.difficulty > 1 ? '['+quest.difficulty+'] ' : '')+quest.name+(quest.isCompleted() ? ' (Completed)' : '')+
+					'</div>';
+
 				}
-				this.available.html(html);
+
+				this.left.html(html);
 				
 				html = '';
 
@@ -533,23 +529,22 @@ export default class StaticModal{
 							html += '<p>'+stylizeText(objective.completion_desc)+'</p>';
 					}
 					
-					html += '<br /><h3>Objectives</h3>';
 
 					const objectives = selectedQuest.getVisibleObjectives();
 
 					for( let objective of objectives ){
 
-						html += '<div class="objective'+(objective.isCompleted() ? ' completed ' : '')+'">'+
-							esc(objective.name)+
-							(objective.amount ? '<br />'+objective._amount+'/'+objective.amount : '')+
-						'</div>';
+						const completed = objective.isCompleted();
+						html += '<div class="objective'+(completed ? ' completed ' : '')+'">'+
+							(completed ? '&#10003;' : '&#8226;')+' '+esc(objective.name);
+
+						if( !objective.isCompleted() )
+							html += ' - '+objective._amount+'/'+objective.amount;
+						html += '</div>';
 
 					}
 					
 					if( !selectedQuest.hide_rewards ){
-						html += '<hr />';
-						html += '<h3>Rewards</h3>';
-
 						html += '<div class="assets inventory">';
 						const rewards = selectedQuest.getRewards();
 						
@@ -573,7 +568,7 @@ export default class StaticModal{
 
 				this.right.html(html);
 
-				$("> div[data-id]", this.available).on('click', function(){
+				$("> div[data-id]", this.left).on('click', function(){
 					
 					let id = $(this).attr('data-id');
 					localStorage.selected_quest = id;

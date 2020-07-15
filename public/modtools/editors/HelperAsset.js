@@ -942,5 +942,7 @@ export default{
 	},
 
 
+	helpLinkedList : 'This is a linked list. Click an item to edit it (provided it belongs to this mod), ctrl+click to remove an item. Use the arrows to move it up/down.',
+
 };
 

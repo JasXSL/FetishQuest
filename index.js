@@ -23,7 +23,9 @@ if( process.env.PASS ){
 }
 
 const textureDir = __dirname+'/public/media/textures';
+const ambianceDir = __dirname+'/public/media/audio/ambiance';
 app.use('/media/textures', Express.static(textureDir), serveIndex(textureDir, {icons:true}));
+app.use('/media/audio/ambiance', Express.static(ambianceDir), serveIndex(ambianceDir, {icons:true}));
 app.use('/imgproxy', ImageProxy);
 app.use(Express.static(__dirname+'/public'));
 

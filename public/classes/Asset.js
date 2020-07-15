@@ -16,6 +16,7 @@ export default class Asset extends Generic{
 		this.parent = parent;
 		
 		this.label = '';
+		this.dummy = '';	// use Asset.Dummies.x to set this as a dummy object. See Asset.Dummies for more info.
 		this.icon = 'perspective-dice-six-faces-random';
 		this.category = this.constructor.Categories.junk;
 		this.name = "";
@@ -85,6 +86,7 @@ export default class Asset extends Generic{
 		};
 
 		if( full ){
+			out.dummy = this.dummy;
 			out.no_auto_consume = this.no_auto_consume;
 		}
 
@@ -671,12 +673,13 @@ Asset.CategoriesNames = {
 };
 
 
-// These are IDs that can be used which lets you transform this asset into a different one based on the label.
+// These are labels that can be used which lets you transform this asset into a different one.
+// For legacy reasons this works when set as a label, but you should use the asset.dummy property for this instead
 // You can't use these labels in asset templates
 // Overwrites are fields that are overwritten in the transform
 Asset.Dummies = {
-	label : "__LABEL__",			// Use this and set label to polymorph into a clone of that object. 
-									// Uses: name -> ID of library asset you want to polymorph this into
+	none : '',
+	label : "__LABEL__",			// Uses: name -> ID of library asset you want to polymorph this into
 									// Overwrites: _stacks
 	autoloot : "__AUTOLOOT__",		// (todo) Automatically generates a lootable item.
 									// Overwrites: (none atm)
@@ -686,7 +689,9 @@ Asset.Dummies = {
 // Converts an asset if it's a dummy
 Asset.convertDummy = function( asset, parent ){
 
-	if( asset.label === Asset.Dummies.label ){
+	const l = asset.dummy || asset.label;
+
+	if( l === Asset.Dummies.label ){
 
 		const converted = glib.get(asset.name, 'Asset').clone(parent);
 		if( !converted ){
@@ -698,7 +703,7 @@ Asset.convertDummy = function( asset, parent ){
 		return converted;
 	}
 
-	if( asset.label === Asset.Dummies.autoloot ){
+	if( l === Asset.Dummies.autoloot ){
 		console.error("Todo: auto generate a piece of loot");
 		return;
 	}
