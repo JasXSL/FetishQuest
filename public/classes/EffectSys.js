@@ -1625,6 +1625,18 @@ class Effect extends Generic{
 				ga.trigger(t);
 			}
 
+			else if( this.type === Effect.Types.summonAsset ){
+
+				let label = this.data.asset, 
+					autoEquip = this.data.equip === undefined || this.data.equip
+				;
+
+				const assets = t.addLibraryAsset(label);
+				if( assets && autoEquip )
+					assets.map(asset => t.equipAsset(asset.id));
+
+			}
+
 			else if( this.type === Effect.Types.trace )
 				console.trace(this.data.message, this);
 			// LAST
@@ -1967,6 +1979,8 @@ Effect.Types = {
 	disableActions : 'disableActions',
 
 	actionApCost : 'actionApCost',
+
+	summonAsset : 'summonAsset',
 		
 };
 
@@ -2113,6 +2127,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addExposedOrificeTag] : '{relax:(str)"notHard"/"all"} - Similar to above, but it checks availability and exposed status of stdTag.wrBlockGroin, wrBlockButt, wrBlockMouth, and adds one of them. Useful for latching that should occupy a slot. Checks for exposed by default, but you can also limit it to non-hard armor or no limits.',
 	[Effect.Types.addTags] : '{tags:(arr/str)tags} - Adds tags to the effect itself.',
 	[Effect.Types.addRandomTags] : '{tags:(arr)tag_objs, amount:(int)amount=1} - Adds a random set of tags from tag_objs. Tag objects consist of {tags:(arr/str)tags, conds:(arr)conditions}',
+	[Effect.Types.summonAsset] : '{asset:(str)assetLabel, equip:(bool)autoEquip=true} - Creates an asset and puts it in the target inventory. If equip is set, it equips as well.',
 };
 
 

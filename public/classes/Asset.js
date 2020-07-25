@@ -37,13 +37,16 @@ export default class Asset extends Generic{
 		this.no_auto_consume = false;		// Prevents auto consume of charges
 		this.rarity = this.constructor.Rarity.COMMON;
 		this.loot_sound = '';				// Also equip and unequip sound. audioKit ID
-		this.soulbound = false;			// Todo: Prevent stealing and trading
+		this.soulbound = false;			// Prevent stealing and trading
 		this.basevalue = 0;				// Store value in copper. 0 = no sell
+		this.expires = 0;				// Lets an item expire, deleting it after time has passed in game.
+		this.rem_unequip = false;		// Remove this on unequip
 
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
 		this._charges = -1;				// How many charges remain. Setting to -1 will automatically set it to this.charges on load
+		this._created = 0;				// Time when this was acquired
 		this.load(data);
 
 	}
@@ -83,15 +86,19 @@ export default class Asset extends Generic{
 			_charges : this._charges,
 			soulbound : this.soulbound,
 			shortname : this.shortname,
+			expires : this.expires,
+			rem_unequip : this.rem_unequip,
 		};
 
 		if( full ){
 			out.dummy = this.dummy;
 			out.no_auto_consume = this.no_auto_consume;
+			
 		}
 
 		if( full !== "mod" ){
 			out.id = this.id;
+			out._created = this._created;
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -131,6 +138,18 @@ export default class Asset extends Generic{
 	onEquip(){
 		for( let wrapper of this.wrappers ){
 			wrapper.caster = wrapper.victim = this.parent.id;
+		}
+	}
+
+	onTimePassed(){
+
+		if( this.expires && game.time-this._created > this.expires && this.parent instanceof Player ){
+
+			if( this.equipped )
+				game.ui.addText( this.parent.getColoredName()+"'s "+this.name+" fades away!", undefined, this.parent.id, this.parent.id, 'statMessage important' );
+
+			this.parent.destroyAsset(this.id);
+
 		}
 	}
 
@@ -367,12 +386,19 @@ export default class Asset extends Generic{
 	// Makes sure the asset is up to date
 	// Called when added to a player's inventory or when a player is placed in world
 	onPlacedInWorld(){
+
+		if( !this._created )
+			this._created = game.time;
+
 		if( this.level === -1 ){
+
 			if( this.parent instanceof Player )
 				this.level = this.parent.level;
 			else
 				this.level = game.getAveragePlayerLevel();
+
 		}
+
 	}
 
 	// Gets tooltip text for UI

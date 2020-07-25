@@ -454,18 +454,22 @@ export default class Game extends Generic{
 		let winners = shuffle(this.getAlivePlayersInTeam(winningTeam));
 		for( let winner of winners ){
 			if( winner.isNPC() ){	// Async function, check before each call
+
 				let l = armorSteal.shift();
 				// Allow steal
 				if( l && !winner.isBeast() ){
+
 					let gear = l.getEquippedAssetsBySlots([Asset.Slots.lowerBody, Asset.Slots.upperBody], true);
 					let item = shuffle(gear).shift();
-					if( item && Math.random() < 0.5 ){
+					if( item && Math.random() < 0.5 && !item.soulbound ){
 						l.transferAsset(item.id, winner);
 						game.ui.addText( winner.getColoredName()+" STOLE "+l.getColoredName()+"'s "+item.name+"!", undefined, winner.id, l.id, 'statMessage important' );
 					}
+
 				}
 				winner.usePunishment( losers );
 				await delay(3000);
+
 			}
 		}
 		await delay(2000);
@@ -1525,10 +1529,12 @@ export default class Game extends Generic{
 		if( this.battle_active && fromPlayer.ap < 3 && !force )
 			throw("Not enough AP");
 
-
 		const asset = fromPlayer.getAssetById(id);
 		if( !asset )
 			throw("Asset not found");
+
+		if( asset.soulbound )
+			throw 'Asset is soulbound';
 
 		if( amount > 1 && !asset.stacking )
 			throw("Trying to trade stack of nonstacking item");

@@ -45,6 +45,8 @@ export function asset(){
 		html += '<label title="0 = no use, -1 = infinite use">Charges: <input name="charges" value="'+esc(dummy.charges)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>No auto consume: <input name="no_auto_consume" class="saveable" type="checkbox" '+(dummy.no_auto_consume ? 'checked' : '')+' /></label>';
 		html += '<label>Soulbound: <input name="soulbound" class="saveable" type="checkbox" '+(dummy.soulbound ? 'checked' : '')+' /></label>';
+		html += '<label title="Destroys the item when unequipped">Rem on unequip: <input name="rem_unequip" class="saveable" type="checkbox" '+(dummy.rem_unequip ? 'checked' : '')+' /></label>';
+		html += '<label title="Deleted after n seconds have passed in game, 0 disables">Expires: <input name="expires" value="'+esc(dummy.expires)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label title="In copper. 0 = no sell">Monetary Value: <input name="basevalue" value="'+esc(dummy.basevalue)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label>Weight (grams): <input name="weight" value="'+esc(dummy.weight)+'" step=1 min=0 type="number" class="saveable" /></label>';
 	html += '</div>';

@@ -2299,7 +2299,8 @@ export default class UI{
 
 				if( 
 					game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
-					(!game.battle_active || game.getTurnPlayer().id === player.id) 
+					(!game.battle_active || game.getTurnPlayer().id === player.id) &&
+					!asset.soulbound
 				)
 					modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
 

@@ -931,6 +931,7 @@ export default class Player extends Generic{
 	onTimePassed(){
 		
 		this.getWrappers().map(wrapper => wrapper.onTimePassed());
+		this.getAssets().map(asset => asset.onTimePassed());
 
 	}
 
@@ -1028,6 +1029,7 @@ export default class Player extends Generic{
 
 	/* Assets */
 	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
+	// returns false on fail, or an array of all added assets on success
 	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = false ){
 		if( !(asset instanceof Asset) ){
 			console.error("Trying to add non-asset. Did you mean to use addLibraryAsset?");
@@ -1035,6 +1037,7 @@ export default class Player extends Generic{
 		}
 		asset.equipped = false;
 
+		const out = {};
 		asset.onPlacedInWorld();
 		for( let i = 0; i<amount && (!fromStacks || i<1); ++i ){
 			// Needs to be its own object
@@ -1066,9 +1069,12 @@ export default class Player extends Generic{
 					this.equipAsset(a.id);
 
 			}
+
+			out[a.id] = a;
+
 		}
 		this.raiseInvChange();
-		return true;
+		return Object.values(out);
 	}
 	raiseInvChange(){
 		new GameEvent({type:GameEvent.Types.inventoryChanged, sender:this, target:this}).raise();
@@ -1153,14 +1159,21 @@ export default class Player extends Generic{
 
 		let assets = this.getAssetsEquipped(true);
 		for(let asset of assets){
-			if(asset.id === id){
+
+			if( asset.id === id ){
+
+				if( asset.rem_unequip )
+					this.destroyAsset(asset.id);
+
 				asset.equipped = false;
 				this.onItemChange();
 				if( game.battle_active && byPlayer )
 					game.ui.addText( this.getColoredName()+" unequips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
 				this.rebindWrappers();
 				return asset;
+
 			}
+
 		}
 		return true;
 

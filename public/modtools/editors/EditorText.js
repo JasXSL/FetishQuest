@@ -27,7 +27,7 @@ export function asset(){
 
 	// If a text is parented to something, it should fall outside of the main DB
 	if( asset._mParent )
-		dummy.enabled = false;
+		dummy.en = asset.en = false;
 
 	this.name = asset.text.substr(0, 16)+'...';
 	this.updateTitle();
