@@ -322,6 +322,20 @@ export function asset(){
 		};
 		
 	}
+	else if( type === Types.addCopper ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				player : '',
+				amount : 1
+			};
+
+		html += '<div class="labelFlex">';
+			html += '<label title="If unset, tied to the event target">Target player label: <input type="text" name="data::player" class="saveable" value="'+esc(asset.data.player || '')+'" /></label>';
+			html += '<label title="Copper to add, negative to subtract">Amount: <input type="number" step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 0)+'" /></label>';
+		html += '</div>';
+		
+	}
 	else if( type === Types.toggleCombat ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {

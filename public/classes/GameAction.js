@@ -560,6 +560,25 @@ export default class GameAction extends Generic{
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
 		}
 
+		else if( this.type === types.addCopper ){
+
+			let pl = player;
+			if( this.data.player )
+				pl = game.getPlayerByLabel(this.data.player);
+
+			if( !pl ){
+				console.error("Player not found", pl);
+				return;
+			}
+
+			const amount = isNaN(parseInt(this.data.amount)) ? 1 : parseInt(this.data.amount);
+			if( amount > 0 )
+				pl.addCopperAsMoney(amount);
+			else
+				pl.consumeMoney(Math.abs(amount));
+
+		}
+
 		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.rentRoom || this.type === types.gym )
 			return;
 
@@ -767,7 +786,7 @@ GameAction.types = {
 	addFaction : "addFaction",				// 
 	trade : "trade",						// 
 	learnAction : "learnAction",			// 
-
+	addCopper : 'addCopper',
 };
 
 GameAction.TypeDescs = {
@@ -806,6 +825,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.addFaction] : '{faction:(str)label, amount:(int)amount} - Adds or removes reputation',
 	[GameAction.types.trade] : '{asset:(str)label, amount:(int)amount=1, from:(str)label/id, to:(str)label/id} - ID is checked first, then label. If either of from/to is unset, they use the event player.',
 	[GameAction.types.learnAction] : '{conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0. Use conditions to filter. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.',
+	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
 };
 
 // These are types where data should be sent to netgame players

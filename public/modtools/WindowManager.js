@@ -199,8 +199,11 @@ export default class Window{
 	}
 
 	rebuild(){
-		if( this.build )
+		if( this.build ){
+			const scroll = this.dom.scrollTop;
 			this.build();
+			this.dom.scrollTo(0, scroll);
+		}
 	}
 
 	reset(){

@@ -505,8 +505,11 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.mpValue )
 				success = t && this.compareValue(s, t, t.mp);
-			else if( this.type === T.hpValue )
+			else if( this.type === T.hpValue ){
 				success = t && this.compareValue(s, t, t.hp);
+			}
+			else if( this.type === T.copperValue )
+				success = t && this.compareValue(s, t, t.getMoney());
 			else if( this.type === T.sadism ){
 				success = t && this.compareValue(s, t, t.sadistic);
 			}
@@ -1049,6 +1052,7 @@ Condition.Types = {
 	apValue : 'apValue', 			// 
 	mpValue : 'mpValue', 			// 
 	hpValue : 'hpValue', 			// 
+	copperValue : 'copperValue',
 	sizeValue : 'sizeValue',		// 
 	genitalSizeValue : 'genitalSizeValue',		// 
 	notInCombat : 'notInCombat',				// 
@@ -1126,6 +1130,7 @@ Condition.descriptions = {
 	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
+	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.sadism] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target sadism value.',
 	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target size value.',
 	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >',
