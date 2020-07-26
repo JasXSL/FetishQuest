@@ -42,17 +42,16 @@ export default class Encounter extends Generic{
 	}
 
 	// Converts the template into a fixed encounter, generating players etc
-	prepare( difficulty ){
+	prepare(){
 
-		if( !difficulty ){
 
-			const dungeon = this.getDungeon();
-			if( dungeon )
-				difficulty = dungeon.getDifficulty();
-			else
-				difficulty = game.getTeamPlayers().length;
+		const dungeon = this.getDungeon();
+		let difficulty = 1;
+		if( dungeon )
+			difficulty = dungeon.getDifficulty();
+		else
+			difficulty = game.getTeamPlayers().length;
 
-		}
 
 		difficulty += this.difficulty_adjust;
 
@@ -81,8 +80,7 @@ export default class Encounter extends Generic{
 			// This could be provided at runtime instead
 			let dif = 0;
 			const maxPlayers = Math.min(difficulty+1, 6);
-			console.log("Max players: ", maxPlayers, "difficulty", difficulty);
-			while( dif+.25 < difficulty && this.players.length < maxPlayers ){
+			while( dif < difficulty && this.players.length < maxPlayers ){
 
 				shuffle(viableMonsters);
 				let success = false;
@@ -105,12 +103,25 @@ export default class Encounter extends Generic{
 							if( Math.random() < 0.5 )
 								power /= 2;
 							pl.power = power;
-							console.log("Halved a difficulty on length", this.players.length, "out of", maxPlayers);
 						}
 						// Last player should match the remainder
 						else{
+
 							power = difficulty-dif;
-							pl.power = Math.max(power, 0.5);
+
+							// Not enough power left to create a new player, append the remainder to an existing one
+							if( power < 0.25 ){
+
+								randElem(this.players).power += power;
+								dif = difficulty;
+								
+								break;
+							}
+							// Can add a player
+							else{
+								
+								pl.power = Math.max(power, 0.25);
+							}
 						}
 
 					}
@@ -122,7 +133,6 @@ export default class Encounter extends Generic{
 						this.players.push(pl);
 						const amt = mTemplate.difficulty*power*(mTemplate.power === -1 ? game.getTeamPlayers().length : 1);
 						dif += amt;
-						console.log("Added ", amt, "dif is now", dif);
 						success = true;
 						break;
 
