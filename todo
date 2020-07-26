@@ -2,17 +2,11 @@
 	- Keep redesigning errors to a try/catch system
 
 
-- "Help" Question mark button settable on windows, bringing up a help window for that window
-
-- Update mod installer on main menu to support zip files
-
-- Emote type roleplays
-
 - Need a game action that re-checks active players in the room for when the zebra leaves to go upstairs
 
 Church quest pt2:
 	- Go to the hidden section and fight bandits to get the scepter.
-	- Fight the boss (a female rat), who has charged steal abilities targeting armor slots.
+	- Fight the boss (a female rat) (todo abilities exist)
 	- Return the scepter to hand in the quest.
 
 

@@ -120,7 +120,7 @@ export default class Encounter extends Generic{
 					if( mTemplate.difficulty*power+dif <= difficulty ){
 
 						this.players.push(pl);
-						const amt = mTemplate.difficulty*power*(mTemplate.power === -1 ? game.getTeamPlayers() : 1);
+						const amt = mTemplate.difficulty*power*(mTemplate.power === -1 ? game.getTeamPlayers().length : 1);
 						dif += amt;
 						console.log("Added ", amt, "dif is now", dif);
 						success = true;

@@ -149,10 +149,10 @@ export function asset(){
 			html += '<label title="Min assets to pick">Min: <input type="number" min=-1 step=1 name="data::min" class="saveable" value="'+esc(asset.data.min || 1)+'" /></label>';
 			html += '<label title="Max assets to pick">Max: <input type="number" min=-1 step=1 name="data::max" class="saveable" value="'+esc(asset.data.max === undefined ? -1 : asset.data.max)+'" /></label>';
 		html += '</div>';
-		html += '<div class="assets"></div>';
+		html += '<div class="loot"></div>';
 
 		fnBind = () => {
-			this.dom.querySelector("div.assets").appendChild(EditorAsset.assetTable(this, asset, "data::assets", false));
+			this.dom.querySelector("div.loot").appendChild(EditorAsset.assetTable(this, asset, "data::loot", false));
 		};
 
 	}

@@ -433,9 +433,16 @@ export class RoleplayStage extends Generic{
 	}
 
 	// Returns an unescaped string with the active text
-	getText(){
+	// convertMe will replace /me at the start with the name of the sender
+	getText( convertMe = false ){
 		
 		const textEvt = this.getTextEvent();
+		if( convertMe ){
+
+			textEvt.text = textEvt.text.clone();
+			textEvt.text.text = textEvt.text.text.replace('/me', '%S');
+			
+		}
 		const textOutput = textEvt.text.run(textEvt, true);
 		return textOutput;
 
@@ -572,9 +579,8 @@ export class RoleplayStageOption extends Generic{
 }
 
 RoleplayStageOption.ChatType = {
-	default : 0,		// Output into chat
-	emote : 1,			// todo: implement
-	none : 2,			// Don't output chat or emote
+	default : 0,		// Output into chat. Use /me for emote
+	none : 2,			// Don't output chat
 };
 
 export class RoleplayStageOptionGoto extends Generic{

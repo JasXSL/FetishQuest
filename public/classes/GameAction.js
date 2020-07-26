@@ -128,8 +128,10 @@ export default class GameAction extends Generic{
 				if( typeof this.data !== "object" || this.data === null )
 					console.error("Trying to load non-object to loot type in interaction:", this);
 
+				// Looks like this after being put in world
 				if( Array.isArray(this.data) )
 					this.data = Asset.loadThese(this.data);
+				// Looks like this as a template
 				else
 					this.data.loot = Asset.loadThese(this.data.loot);
 				
@@ -198,11 +200,13 @@ export default class GameAction extends Generic{
 
 			if( min > loot.length )
 				min = loot.length;
-			if( max > loot.length )
+			if( max > loot.length || max < 0 )
 				max = loot.length;			
 
 
 			let numItems = Math.floor(Math.random()*(max+1-min))+min;
+
+
 			const out = [];
 			for( let i =0; i<numItems && loot.length; ++i ){
 				let n = Math.floor(Math.random()*loot.length);
@@ -794,7 +798,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.resetEncounter] : "{encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one",
 	[GameAction.types.wrappers] : "(arr)wrappers - Triggers all viable wrappers",
 	[GameAction.types.dvar] : "{id:(str)id, val:(var)val} - Can use a math formula. Sets a dungeon var to a value.",
-	[GameAction.types.loot] : "{assets:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
+	[GameAction.types.loot] : "{loot:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
 	[GameAction.types.autoLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
 	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
 	[GameAction.types.exit] : "{dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}",

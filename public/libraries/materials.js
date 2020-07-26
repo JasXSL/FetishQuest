@@ -96,6 +96,13 @@ LibMaterial.library = {
 			transparent : true,
 			alphaTest : 0.5,
 		}),
+		LockedBadge : new LibMaterial({
+			map : 'decals/locked.png',
+			metalness : 0,
+			roughness : 1,
+			transparent : true,
+			alphaTest : 0.5,
+		}),
 	},
 	Decal : {
 		SmolderingAsh : new LibMaterial({

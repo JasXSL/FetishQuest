@@ -3027,23 +3027,37 @@ export default class UI{
 		const div = this.roleplay;
 		const stage = roleplay.getActiveStage();
 		const player = game.getMyActivePlayer();
+
+		// Detect a stage change due to synonyms in text
+		const stageChanged = this._cache_rp_stage !== stage;
+		this._cache_rp_stage = stage;
+
+		
+
+		// Roleplay exists
 		if( !roleplay.completed && stage ){
-			
-			const portrait = stage.getPortrait();
 
-			$("div.portrait", div)
-				.css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none');
-			$('> div.left', div)
-				.toggleClass('hidden', !portrait);
-
-			const name = stage.getName();
 			let html = '';
-			if( name )
-				html += '<span class="name">'+stylizeText(name)+'</span><br />';
 
-			
-			$("div.text", div).html(html+stylizeText(stage.getText()));
-			
+			// only update text is the stage has changed
+			if( stageChanged ){
+				
+				const portrait = stage.getPortrait();
+
+				$("div.portrait", div)
+					.css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none');
+				$('> div.left', div)
+					.toggleClass('hidden', !portrait);
+
+				const name = stage.getName();
+				if( name )
+					html += '<span class="name">'+stylizeText(name)+'</span><br />';
+				
+				$("div.text", div).html(html+stylizeText(stage.getText(true)));
+				
+			}
+
+
 			html = '';
 			let sel = false;
 			for( let response of stage.options ){

@@ -1648,8 +1648,9 @@ class Stage{
 		let linkedRoom = !this.isEditor ? game.dungeon.getRoomByIndex(asset.getDoorTarget()) : false;
 		//let tagAlwaysVisible = (asset.isExit() && !asset.isLocked() &&) || (linkedRoom && (linkedRoom.index === game.dungeon.previous_room || !linkedRoom.discovered || linkedRoom.index === asset.parent.parent_index));
 		let tagAlwaysVisible = false;
-		const interaction = asset.getDoorInteraction();
-		const alwaysHide = interaction && interaction.data.badge === 1;
+		const interaction = asset.getDoorInteraction(),
+			alwaysHide = interaction && interaction.data.badge === 1,
+			locked = asset.isLocked();
 
 		let sprites = c.userData.hoverTexts;
 		for( let i in sprites )
@@ -1659,7 +1660,11 @@ class Stage{
 		if( sprite )
 			sprite.material.opacity = 1;
 		
-		if( asset.isExit() ){
+
+		if( locked ){
+			sprite = sprites.locked;
+		}
+		else if( asset.isExit() ){
 			if( !asset.name ) 
 				sprite = sprites.exit;
 			tagAlwaysVisible = true;
@@ -1672,7 +1677,7 @@ class Stage{
 			}
 		}
 
-		if( sprite && asset.isLocked() )
+		if( sprite && locked )
 			sprite.material.opacity = 0;
 		
 		if( linkedRoom && linkedRoom.index === game.dungeon.previous_room ){
@@ -1797,6 +1802,8 @@ class Stage{
 		if( window.game && asset.isDoor() && !this.isEditor ){
 		
 			let linkedRoom = game.dungeon.getRoomByIndex(asset.getDoorTarget());
+
+			this.createIndicatorForMesh('locked', '_LOCKED_', c, 0.4);
 			if( asset.isExit() && !asset.name ){
 				this.createIndicatorForMesh('exit', 'Exit', c);
 			}
@@ -2252,9 +2259,11 @@ class Stage{
 	createIndicatorForMesh(label, text, mesh, scale = 1){
 
 		let map = new THREE.CanvasTexture(this.createIndicatorCanvas(text));
-		if( text === '_OUT_' ){
+		if( text === '_OUT_' )
 			map = LibMaterial.library.Sprites.ExitBadge.fetch().map;
-		}
+		else if( text === '_LOCKED_' )
+			map = LibMaterial.library.Sprites.LockedBadge.fetch().map;
+
 		let material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true, alphaTest:0.5 } );
 		let sprite = new THREE.Sprite( material );
 		sprite.name = text;
