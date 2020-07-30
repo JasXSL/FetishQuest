@@ -47,6 +47,8 @@ export default {
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',
 
+
+
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal
@@ -56,7 +58,7 @@ export default {
 	gpDisableVictoryCondition : 'gp_no_victory_condition',		// Disregards this one's death status when it comes to calculating if a battle is over
 	gpInvisible : 'gp_invisible',				// Doesn't draw in the UI and can't be targeted.
 	gpSkipTurns : 'gp_skip_turns',				// Automatically skip turns
-
+	gpNoBondageTarget : 'gp_no_bondage_targ',	// Can't be targeted by bondage device
 	
 	// Player behavior tags
 	plDishonorable : "pl_dishonorable",

@@ -895,6 +895,7 @@ export default class Player extends Generic{
 
 	}
 	onBattleEnd(){
+
 		this.ap = 0;
 		let actions = this.getActions();
 		for(let action of actions)
@@ -916,6 +917,7 @@ export default class Player extends Generic{
 		this._stun_diminishing_returns = 0;
 		this._turns = 0;
 		this.used_punish = false;
+
 		
 	}
 	// Item broken, repaired, equipped, or removed
@@ -1716,11 +1718,11 @@ export default class Player extends Generic{
 
 	}
 
-	addArousal( amount, fText = false ){
+	addArousal( amount, fText = false, force = false ){
 
-		if( this.isArousalDisabled() )
+		if( this.isArousalDisabled() && !force )
 			return false;
-		if( this.isOrgasming() )
+		if( this.isOrgasming() && !force )
 			return;
 		if( isNaN(amount) )
 			return console.error("Invalid amount of arousal", amount);
@@ -2691,6 +2693,7 @@ export default class Player extends Generic{
 			turnsSinceLastSpoke = 1;
 		else if( !this._turns && this._last_chat )		// Cap to one battle start message
 			return false;
+
 		return Math.random() < turnsSinceLastSpoke*this.talkative;
 
 	}

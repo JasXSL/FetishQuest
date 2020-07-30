@@ -1877,7 +1877,7 @@ export default class Game extends Generic{
 					return;
 				pl.addHP(Math.ceil(pl.getMaxHP()*0.25));
 				pl.addMP(Math.ceil(pl.getMaxMP()*0.25));
-				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.25));
+				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.25), undefined, true);
 			});
 			
 		}

@@ -1987,6 +1987,8 @@ Effect.Types = {
 // Effect types that can be passive. Helps prevent recursion
 Effect.Passive = {
 
+	[Effect.Types.none] : true,
+	[Effect.Types.addExposedOrificeTag] : true,	// Needed for cocktopus
 	[Effect.Types.globalHitChanceMod] : true,
 	[Effect.Types.globalDamageTakenMod] : true,
 	[Effect.Types.globalDamageDoneMod] : true,
@@ -2093,7 +2095,7 @@ Effect.TypeDescs = {
 	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. ',
 
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
-	[Effect.Types.steal] : '{conditions:(arr)conditions, num_items:(str/int)nr_items_to_steal=1}',	// Steals one or many random items from your target
+	[Effect.Types.steal] : '{conditions:(arr)conditions, num_items:(str/int)nr_items_to_steal=1} - Steals one or many random items from your target. Conditions are run against an event with asset, wrapper, effect, sender, target',
 
 	[Effect.Types.addStacks] : '{stacks:(int)(str)stacks=1, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)=true, refreshTime=(bool)=auto} - If refreshTime is unset, it reset the time when adding, but not when removing stacks. If conditions is unset, it tries to affect the effect parent.',
 	[Effect.Types.addWrapperTime] : '{amount:(int)(str)time, conditions:(arr)conditions(undefined=this.parent), casterOnly:(bool)true}',

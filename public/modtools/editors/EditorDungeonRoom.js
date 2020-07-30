@@ -683,7 +683,6 @@ class Editor{
 				return;
 			}
 
-
 			this.asset.asset = asset;	// Needs to be set because dungeonAsset doesn't have a library
 			let html = '';
 			html += '<div class="labelFlex">';
@@ -695,6 +694,17 @@ class Editor{
 			html += 'Tags: <div class="tags">'+HelperTags.build(asset.tags)+'</div>';
 			html += 'Game Actions: <div class="interactions"></div>';
 			html += 'Conditions: <div class="conditions"></div>';
+
+			const animated = Boolean(th.control.object.userData.playAnimation);
+			if( animated ){
+				
+				html += '<br />Preview animation: <select class="animPreviewer">';
+				for( let clip of th.control.object.userData.mixer._actions ){
+					html += '<option value="'+esc(clip._clip.name)+'">'+esc(clip._clip.name)+'</option>';
+				}
+				html += '</select>';
+
+			}
 
 			this.setDom(html);
 
@@ -745,6 +755,13 @@ class Editor{
 				
 			}
 
+			if( animated ){
+				this.dom.querySelector('select.animPreviewer').onchange = event => {
+
+					th.control.object.userData.playAnimation(event.currentTarget.value);
+
+				};
+			}
 
 			// Bind each table row
 			table.querySelectorAll("tr.asset").forEach(el => el.onclick = event => {

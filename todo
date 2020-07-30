@@ -5,10 +5,7 @@
 - Need a game action that re-checks active players in the room for when the zebra leaves to go upstairs
 
 Church quest pt2:
-	- Go to the hidden section and fight bandits to get the scepter.
-	- Fight the boss (a female rat) (todo abilities exist)
-	- Return the scepter to hand in the quest.
-
+	- Test
 
 Church quest pt3:
 	- Go to the dungeon.
@@ -17,6 +14,8 @@ Church quest pt3:
 	- Priest gives you a signet and a note to take back to the church.
 	- Hand in the quest.
 
+
+- Add hotkeys for combat
 
 ___ OLD ___
 -- CURRENT --
@@ -56,7 +55,10 @@ Big chungi:
 				- Add to rewards
 
 		- Add faction vendor
+			- What does she sell?
+
 		- Add faction trainer
+
 
 		- Scripting:
 			- TBD

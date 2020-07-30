@@ -778,6 +778,33 @@ function build(){
 						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5 );
 					}
 				}),
+				Hatched : new LibMesh({
+					auto_bounding_box : true,
+					url : 'gates/dungeon_door_hatch_2x1.JD',
+					materials : [
+						libMat.Solids.Black,
+						libMat.StoneTile.DungeonWall,
+						libMat.Metal.DarkGeneric,
+						libMat.Wood.Crate,
+						libMat.Metal.Rust
+					],
+					position_on_wall : true,
+					width: 2,
+					height: 1,
+					lockable : true,
+					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					animations : {
+						"open" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce,
+							timeScale : 2
+						}
+					},
+					onStagePlaced : function( dungeonAsset, mesh ){},
+					onInteract : function( mesh, room, asset ){
+						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5 );
+					}
+				}),
 				Ladder : new LibMesh({
 					url : 'gates/ladder_1x1.JD',
 					materials : [

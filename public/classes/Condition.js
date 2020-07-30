@@ -399,6 +399,11 @@ export default class Condition extends Generic{
 				success = eventWrapper && t && eventWrapper.victim === t.id;
 
 			}
+			else if( this.type === T.isRoleplayPlayer ){
+
+				success = t && game.rp && t.id == game.rp._targetPlayer;
+
+			}
 
 			else if( this.type === T.isActionParent ){
 
@@ -639,6 +644,21 @@ export default class Condition extends Generic{
 				success = event.asset && !event.asset.soulbound;
 
 			}
+			else if( this.type === T.assetSlot ){
+
+				const slots = toArray(this.data.slots);
+				for( let slot of slots ){
+					if( event.asset && event.asset.slots.includes(slot) ){
+						success = true;
+						break;
+					}
+				}
+				
+			}
+			else if( this.type === T.assetEquipped )
+				success = event.asset && event.asset.equipped;
+				
+
 
 			else if( this.type === T.dungeonIs ){
 				if( event.dungeon && typeof this.data === "object" )
@@ -1036,6 +1056,7 @@ Condition.Types = {
 	rng : "rng",								// 
 	isWrapperParent : 'isWrapperParent',		// 
 	isActionParent : 'isActionParent',
+	isRoleplayPlayer : 'isRoleplayPlayer',
 	actionHidden : 'actionHidden',				// 
 	effectLabel : 'effectLabel',				// 
 	wrapperLabel : 'wrapperLabel',
@@ -1046,6 +1067,8 @@ Condition.Types = {
 
 	hasAsset : 'hasAsset',
 	assetStealable : 'assetStealable',
+	assetSlot : 'assetSlot',
+	assetEquipped : 'assetEquipped',
 
 	hasFreeBondageDevice : 'hasFreeBondageDevice',
 
@@ -1095,7 +1118,7 @@ Condition.Types = {
 	hourRange : 'hourRange',
 	hasActiveConditionalPlayer : 'hasActiveConditionalPlayer',
 	actionCrit : 'actionCrit',
-	targetIsRpPlayer : 'targetIsRpPlayer'
+	targetIsRpPlayer : 'targetIsRpPlayer',
 };
 
 
@@ -1119,6 +1142,7 @@ Condition.descriptions = {
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
 	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100%',
 	[Condition.Types.isWrapperParent] : '{originalWrapper:(bool)false} - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
+	[Condition.Types.isRoleplayPlayer] : '{} - Target is the player stored in the RP. Useful when an NPC does something to a specific player in an RP.',
 	[Condition.Types.isActionParent] : 'void - If event event.wrapper.action is the same as event.action.id',
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
@@ -1167,7 +1191,12 @@ Condition.descriptions = {
 	
 	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
+	[Condition.Types.assetSlot] : '{slots:(str/arr)slots} - Requires asset in event. Checks whether asset is equipped to at least one of these slots, from Asset.Slots',
+	[Condition.Types.assetEquipped] : '{} - Requires asset in event. Checks if said asset is equipped.',
+	
 	[Condition.Types.hasFreeBondageDevice] : '{} - Checks if there\'s at least one free bondage device in the dungeon. See mBondage in stdTag.js',
+
+
 
 	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/undefined)} - Requires Text in event. If originalwrapper is unset, it uses both. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
 	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/undefined)} - Requires Text in event. If originalwrapper is unset, it uses both. Checks if the text object has one or more turn tags. ORed unless ALL is set.',

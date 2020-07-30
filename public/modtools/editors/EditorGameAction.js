@@ -141,7 +141,7 @@ export function asset(){
 
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
-				assets : [],
+				loot : [],
 				min : 1,
 				max : -1,
 			};
@@ -346,6 +346,16 @@ export function asset(){
 			html += '<label>Combat on: <input type="checkbox" name="data::on" '+(asset.data.on ? 'checked' : '')+' class="saveable" /></label>';
 			html += '<label>Save hostility state: <input type="checkbox" name="data::enc" '+(asset.data.enc ? 'checked' : '')+' class="saveable" /></label>';
 		html += '</div>';
+	}
+	else if( type == Types.addTime ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				seconds : 1
+			};
+
+		html += '<div class="labelFlex">';
+			html += '<label title="Seconds to add">Seconds: <input type="number" step=1 name="data::seconds" class="saveable" value="'+esc(asset.data.seconds || 0)+'" /></label>';
+		html += '</div>';	
 	}
 	// No data, just set it to empty
 	else if( type === Types.visitDungeon ){
@@ -661,7 +671,24 @@ export function asset(){
 			this.dom.querySelector("div.action_edit").appendChild(EditorAction.assetTable(this, asset, "data::action", true));
 		};
 	}
+	else if( type === Types.dungeonVar ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				id : '',
+				val : ''
+			};
+
+		html += '<div class="labelFlex">';
+			html += '<label title="ID of the var to set">ID: <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';
+			html += '<label>Value: Can be a formula<br />';
+			html += '<input type="text" name="data::val" class="saveable" value="'+esc(dummy.data.val)+'" /></label>';
+
+		html += '</div>';
+	}
+
 	else{
+
+
 		// Fall back on JSON
 		html += '<textarea class="json" name="data">'+esc(JSON.stringify(dummy.data))+'</textarea><br />';
 	}

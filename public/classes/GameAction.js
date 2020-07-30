@@ -407,7 +407,18 @@ export default class GameAction extends Generic{
 			playAnim("open");
 
 		}
+		
+		else if( this.type === types.addTime ){
 
+			const seconds = parseInt(this.data.seconds);
+			if( !seconds ){
+				console.error(this);
+				throw 'Invalid amounts of seconds to add in GameAction';
+			}
+
+			game.addSeconds(seconds);			
+
+		}
 		else if( this.type === types.exit ){
 			
 			game.onDungeonExit();
@@ -424,21 +435,20 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.dungeonVar || this.type === types.lever ){
 
-			const dungeon = this.getDungeon();
-			if( !dungeon )
-				console.error("Trying to set a dvar on gameaction that has no dungeon parent", this);
+			const dungeon = game.dungeon;
+			
+			let val = !dungeon.vars[this.data.id];
+			if( this.type === types.dungeonVar )
+				val = Calculator.run(this.data.val, new GameEvent({sender:player,target:player,dungeon:dungeon}), dungeon.vars);
 			else{
-				let val = !dungeon.vars[this.data.id];
-				if( this.type === types.dungeonVar )
-					val = Calculator.run(this.data.val, new GameEvent({sender:player,target:player,dungeon:dungeon}), dungeon.vars);
-				else{
-					if( val )
-						playAnim("open");
-					else
-						playAnim("close");
-				}
-				dungeon.setVar(this.data.id, val);
+				if( val )
+					playAnim("open");
+				else
+					playAnim("close");
 			}
+
+			dungeon.setVar(this.data.id, val);
+			
 		}
 		else if( this.type === types.anim ){
 			playAnim(this.data.anim);
@@ -563,6 +573,8 @@ export default class GameAction extends Generic{
 			else if( amount < 0 )
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
 		}
+
+
 
 		else if( this.type === types.addCopper ){
 
@@ -791,13 +803,13 @@ GameAction.types = {
 	trade : "trade",						// 
 	learnAction : "learnAction",			// 
 	addCopper : 'addCopper',
+	addTime : 'addTime'
 };
 
 GameAction.TypeDescs = {
 	[GameAction.types.encounters] : "(arr)encounters - Picks a random encounter to start",
 	[GameAction.types.resetEncounter] : "{encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one",
 	[GameAction.types.wrappers] : "(arr)wrappers - Triggers all viable wrappers",
-	[GameAction.types.dvar] : "{id:(str)id, val:(var)val} - Can use a math formula. Sets a dungeon var to a value.",
 	[GameAction.types.loot] : "{loot:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
 	[GameAction.types.autoLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
 	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
@@ -830,6 +842,8 @@ GameAction.TypeDescs = {
 	[GameAction.types.trade] : '{asset:(str)label, amount:(int)amount=1, from:(str)label/id, to:(str)label/id} - ID is checked first, then label. If either of from/to is unset, they use the event player.',
 	[GameAction.types.learnAction] : '{conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0. Use conditions to filter. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.',
 	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
+	[GameAction.types.addTime] : '{seconds:(int)seconds}',
+	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula} - Sets a variable in the currently active dungeon',
 };
 
 // These are types where data should be sent to netgame players

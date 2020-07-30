@@ -160,6 +160,8 @@ class Dungeon extends Generic{
 		const state = this.getState();
 		state.vars.set(key, val);
 		game.save();
+
+
 	}
 
 

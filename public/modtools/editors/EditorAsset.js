@@ -51,7 +51,7 @@ export function asset(){
 		html += '<label>Weight (grams): <input name="weight" value="'+esc(dummy.weight)+'" step=1 min=0 type="number" class="saveable" /></label>';
 	html += '</div>';
 
-	html += 'Description: <br /><textarea name="description" class="saveable">'+esc(dummy.description)+'</textarea><br />';
+	html += 'Description: <br /><textarea name="description" class="saveable">'+esc(dummy.description, true)+'</textarea><br />';
 
 	html += '<span title="Go to game icons.net and search for one such as https://game-icons.net/1x1/cathelineau/swordman.html and use that name (swordman)">'+
 		'Icon: <input name="icon" value="'+esc(dummy.icon)+'" type="text" class="saveable" />'+

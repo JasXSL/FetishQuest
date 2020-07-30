@@ -18,7 +18,6 @@ export default class Mod extends Generic{
 		this.dungeonRooms = [];		//x mod prefab dungeons
 		this.dungeonRoomAssets = [];		//x mod prefab dungeons
 		this.quests = [];		//x mod prefab quests
-		this.vars = {};			//x default modvars. Modvars are stored in Game, these are just defaults
 		this.texts = [];		//x mod texts
 		this.actions = [];		//x mod actions
 		this.assets = [];		//x equipment prefabs
@@ -82,7 +81,6 @@ export default class Mod extends Generic{
 			questRewards : this.questRewards,
 			questObjectives : this.questObjectives,
 			questObjectiveEvents : this.questObjectiveEvents,
-			vars : this.vars,
 			texts : this.texts,
 			actions : this.actions,
 			assets : this.assets,
