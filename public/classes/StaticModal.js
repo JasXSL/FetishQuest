@@ -362,7 +362,7 @@ export default class StaticModal{
 					const el = $(this.activeButtons[i]);
 					el.toggleClass("hidden", false).toggleClass('button', true);
 
-					let action = player.getActiveActionByIndex(i);
+					let action = player.getActionAtSlot(i);
 					if( action )
 						UI.setActionButtonContent(el, action, player);
 					else

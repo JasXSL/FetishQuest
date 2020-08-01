@@ -62,6 +62,7 @@ class Action extends Generic{
 		this._cast_targets = [];		// UUIDs of players a charge spell is aimed at
 		this._cache_cooldown = false;		// Since this.cooldown can be a math formula, this lets you cache the cooldown to prevent lag. Wiped on turn start.
 		this._crit = false;
+		this._slot = -1;						// Action slot. -1 if deactivated. If autolearn is enabled on the player, this is ignored.
 
 		// Auto generated if loaded from a player library
 		this._custom = false;
@@ -105,6 +106,7 @@ class Action extends Generic{
 			reset_interrupt : this.reset_interrupt,
 			min_ap : this.min_ap,
 			allow_self : this.allow_self,
+			_slot : this._slot,
 		};
 
 		// Everything but mod

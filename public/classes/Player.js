@@ -43,7 +43,6 @@ export default class Player extends Generic{
 		this.assets = [];			// Asset objects, use getAssets
 		this.inventory = [];		// NPC only. This is an array of numbers specifying which items above are equipped when entering the game.
 		this.tmp_actions = [];		// Actions applied this battle
-		this.active_actions = [0,0,0,0,0,0];	// IDs of actions or 0 if empty
 
 		this.tags = [];				// Player tags, these are automatically prefixed with PL_, use getTags
 		this.wrappers = [];			// Wrappers, use getWrappers
@@ -196,7 +195,6 @@ export default class Player extends Generic{
 			icon_upperBody : this.icon_upperBody,
 			power : this.power,
 			passives : Wrapper.saveThese(this.passives, full),
-			active_actions : this.active_actions.slice(),
 		};
 
 		if( this.rp )
@@ -1983,6 +1981,7 @@ export default class Player extends Generic{
 		}
 
 	}
+
 	addActionFromLibrary( label ){
 
 		let asset = glib.getFull('Action')[label];
@@ -2004,40 +2003,43 @@ export default class Player extends Generic{
 			console.error("Action already learned");
 			return false;
 		}
+
 		let ac = action.clone(this);
 		this.actions.push(ac);
 		if( !ac.hidden && !silent )
 			game.ui.addText( this.getColoredName()+" learned "+ac.name+"!", undefined, this.id, this.id, 'actionLearned' );
 		
-		if( !this.actionSlotsFull() && !action.std ){
-			for( let i in this.active_actions ){
-				
-				const slot = this.active_actions[i];
-				if( slot === 0 ){
-					this.activateAction(action.id, i);
-					break;
-				}
+		if( !this.actionSlotsFull() && !action.std )
+			this.activateAction(ac.id);
 
-			}
-		}
 		return true;
 	}
 
 	getNrFreeActionSlots(){
 
 		const total = this.getNrActionSlots();
-		let n = 0;
-		for( let i=0; i<this.active_actions.length; ++i ){
-			if( this.active_actions[i] ){
-				++n
-			}
+		let occupied = 0;
+		for( let action of this.actions ){
+
+			if( !action.std && action._active )
+				++occupied;
+				
 		}
-		return total-n;
+		return total-occupied;
 
 	}
 
 	actionSlotsFull(){
 		return this.getNrFreeActionSlots() <= 0;
+	}
+
+	getActionAtSlot( slot ){
+
+		for( let action of this.actions ){
+			if( !action.std && action._slot === slot )
+				return action;
+		}
+
 	}
 
 	activateAction( id, slot ){
@@ -2052,10 +2054,12 @@ export default class Player extends Generic{
 		if( isNaN(slot) ){
 
 			for( let i=0; i<this.getNrActionSlots(); ++i ){
-				if( !this.active_actions[i] ){
+
+				if( !this.getActionAtSlot(i) ){
 					slot = i;
 					break;
 				}
+
 			}
 
 		}
@@ -2066,26 +2070,20 @@ export default class Player extends Generic{
 		if( !action )
 			throw "Trying to activate nonfound action";
 		
-		if( slot > this.active_actions.length-1 || slot < 0 || isNaN(slot) )
+		if( slot < 0 || isNaN(slot) )
 			throw "Out of bounds error on action activation";
 
-		this.active_actions[slot] = id;
+		action._slot = slot;
 		return true;
 
 	}
 
 	deactivateAction( id ){
 
-		for( let i in this.active_actions ){
-
-			if( this.active_actions[i] === id ){
-				
-				this.active_actions[i] = 0;
-				return true;
-
-			}
-
-		}
+		// Disable an action
+		const action = this.getLearnedAction(id);
+		if( action )
+			action._slot = -1;
 
 	}
 
@@ -2102,37 +2100,40 @@ export default class Player extends Generic{
 
 	}
 
-	getActiveActionByIndex( index ){
-
-		if( this.active_actions[index] )
-			return this.getLearnedAction(this.active_actions[index]);
-
-	}
-
 	
 
 	// Gets an action from the action array by id, regardless of if it's active or not
 	getLearnedAction( id ){
+
 		for( let action of this.actions ){
 			if( action === id || action.id === id )
 				return action;
 		}
 		return false;
+
 	}
 
 	// Same as above but checks label
 	getLearnedActionByLabel( label ){
+
 		for( let action of this.actions ){
+
 			if( action.label === label )
 				return action;
+
 		}
+
 	}
 
 	
 
 	isActionActive( id ){
 
-		return ~this.active_actions.indexOf(id);
+		const action = this.getLearnedAction(id);
+		if( !action )
+			return false;
+
+		return action._slot > -1;
 
 	}
 
@@ -2148,7 +2149,7 @@ export default class Player extends Generic{
 	}
 
 
-	// Checks effects whether an action is enabled
+	// Checks effects whether an action is enabled.
 	isActionEnabled( action ){
 		
 		const a = action;
@@ -2161,7 +2162,9 @@ export default class Player extends Generic{
 			console.error("Action not found", a);
 			return false;
 		}
-		return true;
+
+		// Action is considered enabled if it's tied to an action slot, or the player is auto learn, or the action is std, or tied to an object
+		return action._slot > -1 || this.auto_learn || action.std || Boolean(action.parent.use_action);
 
 	}
 
@@ -2239,22 +2242,10 @@ export default class Player extends Generic{
 
 		}
 		
-		if( !this.auto_learn && !include_non_learned ){
-
-			out = out.filter(el => {
-
-				if( 
-					Boolean(el.parent.use_action) ||		// It's an item
-					el.std ||								// It's a standard action
-					~this.active_actions.indexOf(el.id)		// It's an active action
-				)return true;
-
-				return false;
-
-			});
-
-		}
-
+		// Filter out nonenabled
+		if( !this.auto_learn && !include_non_learned )
+			out = out.filter(el => this.isActionEnabled(el));
+		
 		// Temp actions shouldn't be filtered
 		if( include_temp )
 			out = out.concat(this.getTempActions());
@@ -2271,6 +2262,11 @@ export default class Player extends Generic{
 				return bConsumable ? -1 : 1;
 
 			const acd = a.getCooldown(), bcd = b.getCooldown();
+
+			// Then sort on spell slot
+			if( a._slot !== b._slot )
+				return a._slot < b._slot ? -1 : 1;
+
 			// Lower cooldown second
 			if( acd !== bcd )
 				return acd < bcd ? -1 : 1;
