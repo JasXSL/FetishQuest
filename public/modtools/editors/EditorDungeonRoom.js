@@ -601,7 +601,7 @@ class Editor{
 			for( let n of asset.interactions ){
 
 				if( typeof n === "string" )
-					n = window.mod.mod.getAssetById("gameActions", n);
+					n = window.mod.getAssetById("gameActions", n);
 
 				if( n.type === interaction )
 					return true;

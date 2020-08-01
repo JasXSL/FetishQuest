@@ -8,14 +8,9 @@ Church quest pt2:
 	- Test
 
 Church quest pt3:
-	- Go to the dungeon.
-	- Fight demons.
-	- Fight the boss, a safeword RP takes place after finishing it.
-	- Priest gives you a signet and a note to take back to the church.
-	- Hand in the quest.
+	- Test
 
 
-- Add hotkeys for combat
 
 ___ OLD ___
 -- CURRENT --
@@ -36,34 +31,10 @@ Medium rare:
 	
 	x Sneak attack not showing as disabled when it should be on online coop
 		- Test
-	x Moving between cells some times borks interactions in netgames (this is probably caused by the caching)
-		- Test
-	Chats not showing on portrait, only on marker
 	
-Big chungi:
-	- Church quest
-		- Add spell rewards:
-			- Sacrament of Sin : Increases damage done by 5% per point of arousal for 1 turn and each action removes 1 corruption.
-				- Visual
-				- Texts
-				- Test
-				- Add to rewards
-			- Holy Chain : Taunts a target for 2 turns and increases all their AP costs by 1.
-				- Visual
-				- Texts
-				- Test
-				- Add to rewards
-
-		- Add faction vendor
-			- What does she sell?
-
-		- Add faction trainer
-
-
-		- Scripting:
-			- TBD
-
 -- LATER UPDATE --
+
+	- Add hotkeys for combat
 
 	- Main quest chapter 2
 		- Go to Yuug capital?
@@ -98,7 +69,7 @@ Big chungi:
 		- Exchange
 		- Store gold
 		- Should be tied to the game itself, and needs to be requested by coop players (not sent by default due to size)
-
+		- Monsters should be able to steal a percentage of your held gold
 
 	- Punishments
 	- Custom cursors
@@ -118,3 +89,11 @@ Big chungi:
 		- Flytrap type tentacle monster that grapples a player's butt with its maw
 		- Slime monster
 		
+
+	Action ideas:
+		Chains : Cast on 2 targets, increasing all their AP costs by 1 for 3 turns.
+					- Visual
+					- Texts
+					- Test
+					- Add to rewards
+

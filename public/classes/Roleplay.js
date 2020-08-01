@@ -236,6 +236,7 @@ RoleplayChatQueue.next = function(){
 
 	
 	const chat = this.queue.shift();
+
 	game.speakAs( chat.sender.id, chat.getText() );
 	this.timer = setTimeout(() => {
 		
@@ -373,7 +374,6 @@ export class RoleplayStage extends Generic{
 	async onStart( player ){
 
 		this._textEvent = false;
-
 		if( !player )
 			player = game.getMyActivePlayer();
 
@@ -406,14 +406,31 @@ export class RoleplayStage extends Generic{
 		const players = game.getTeamPlayers();
 		const textPlayer = this.getPlayer();
 		const evt = new GameEvent({sender:textPlayer});
+		const initiating = this.getInitiatingPlayer();
+		if( !textPlayer )
+			evt.sender = player;
+
 
 		for( let text of this.text ){
 
 			evt.text = text;
-			for( let player of players ){
 
-				if( !textPlayer )
-					evt.sender = player;
+			// If initiating player exists outside of the first stage, always use that 
+			if( initiating && this.index ){
+
+				evt.target = initiating;
+				if( text.validate(evt) ){
+					
+					this._textEvent = evt;
+					return evt;
+
+				}
+				continue;
+			}
+
+			// Otherwise try all players
+			for( let player of players ){
+				
 				evt.target = player;
 				if( text.validate(evt) ){
 					
@@ -426,7 +443,7 @@ export class RoleplayStage extends Generic{
 		}
 
 		evt.text = this.text[this.text.length-1];
-		evt.target = players[0];
+		evt.target = initiating || players[0];
 		this._textEvent = evt;
 		return evt;
 
@@ -544,6 +561,7 @@ export class RoleplayStageOption extends Generic{
 
 		const rp = this.getRoleplay();
 		const pl = this.parent.getPlayer();
+
 		if( player && this.chat !== RoleplayStageOption.ChatType.none )
 			RoleplayChatQueue.output( player, this );
 

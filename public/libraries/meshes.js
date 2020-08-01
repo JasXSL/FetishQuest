@@ -293,8 +293,12 @@ LibMesh.loader = new JDLoader();
 LibMesh.cache = new AC();
 LibMesh.cache.fetchMissingAsset = function( path ){
 	return new Promise(res => {
-		LibMesh.loader.load(path, res);
-	}); 
+		try{
+			return LibMesh.loader.load(path, res);
+		}catch(err){
+			console.error("Error detected in path", path, err);
+		}
+	});
 };
 
 // Useful helper to play a sound both locally and on netplayers, attached to a DungeonAsset 

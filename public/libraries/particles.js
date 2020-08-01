@@ -26,6 +26,7 @@ const textures = {
 	plus : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/plus.png')})),
 	snowflakes : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/snowflakes.png')})),
 	cursedStar : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/cursed_star.png')})),
+	cowl : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/cowl.png')})),
 	yinYang : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/yinyang.png')})),
 	swirlOrb : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/swirl_orb.png')})),
 	pulse : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/soundpulse.png')})),
@@ -538,6 +539,28 @@ particles.hitfx_smite = {
 			rad = 10;
 		emitter.p.x = Math.cos(ang)*rad+emitter._startpos.x;
 		emitter.p.y = Math.sin(ang)*rad+emitter._startpos.y+rad;
+	}
+};
+
+particles.hitfx_repentance = {
+	texture : textures.glowSphere,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,4),
+	size : 10,
+	size_tween : [0.001,1,Proton.ease.easeFullSine],
+	part_max_age : .5,
+	velocity : 1,
+	velocity_type : 10,
+	color : ["#FFCCAA","#FFFFCC"],	
+	opacity: 1,
+	gravity:-0.5,
+	tick : function(emitter){
+		if( !emitter._startpos ){
+			emitter._startpos = {x:emitter.p.x, y:emitter.p.y}
+		}
+		emitter.p.y = emitter._startpos.y+emitter.currentEmitTime*15;
 	}
 };
 
@@ -1725,6 +1748,21 @@ particles.hitfx_dark_star = {
 	color : ["#110033","#000000"],	
 	opacity: [0,1,Proton.ease.easeFullBridge],
 };
+
+particles.hitfx_cowl = {
+	texture : textures.cowl,
+	blending : THREE.NormalBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [0,1, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#110033","#000000"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
+};
+
 
 particles.hitfx_yin_yang = {
 	texture : textures.yinYang,
