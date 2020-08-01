@@ -159,7 +159,7 @@ export default class GameLib{
 	}
 
 	async ini(){
-
+		
 		if( !this._main_mod )
 			await this.loadMainMod();
 		await this.autoloadMods();
@@ -251,7 +251,7 @@ export default class GameLib{
 
 	// Tries to auto load enabled mods
 	async autoloadMods(){
-		
+
 		let hasMainOverride = false;	// If a mod is named MAIN, we won't load the MAIN mod
 		
 		let mods = await Mod.getModsOrdered();
@@ -286,6 +286,7 @@ export default class GameLib{
 
 	// Rebuild caches
 	rebase(){
+
 		this._cache_assets = {};
 		for( let i in this.assets )
 			this._cache_assets[i] = this.assets[i];

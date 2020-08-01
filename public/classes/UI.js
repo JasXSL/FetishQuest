@@ -2834,6 +2834,7 @@ export default class UI{
 			}
 
 			if( a.parent ){
+
 				a.repair(0);	// Makes sure durability doesn't go above max
 				let owner = $("select[name=owner]", root).val();
 				let newOwner = game.getPlayerById(owner);
@@ -2843,6 +2844,7 @@ export default class UI{
 					// Remove form old owner
 					a.parent.destroyAsset(a.id);
 				}
+				
 			}
 
 			if( !asset )
@@ -2850,7 +2852,7 @@ export default class UI{
 
 			game.save();
 			if( a.parent )
-				this.staticModal.set('player', player);
+				this.drawPlayerInventory(player);
 			else
 				this.drawPlayerAssetSelector(player);
 			return false;

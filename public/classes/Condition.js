@@ -894,7 +894,7 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.targetedSenderLastRound )
-				success = Boolean(s._targeted_by_since_last[t.id]);
+				success = Boolean(s._targeted_by_since_last.get(t.id));
 
 			
 

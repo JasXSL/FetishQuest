@@ -11,6 +11,7 @@ import GameEvent from './GameEvent.js';
 import Dungeon from './Dungeon.js';
 import Roleplay from './Roleplay.js';
 import Condition from './Condition.js';
+import Collection from './helpers/Collection.js';
 
 const BASE_HP = 40;
 const BASE_MP = 10;
@@ -107,7 +108,9 @@ export default class Player extends Generic{
 		// Same as above, but DONE by this player
 		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
-		this._targeted_by_since_last = {};			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
+
+		// If an object should be netcoded, it needs to be a collection, otherwise it's passed by reference
+		this._targeted_by_since_last = new Collection();			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
 		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
 		this._last_chat = 0;					// Turn we last spoke on. 
 
@@ -141,6 +144,7 @@ export default class Player extends Generic{
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.passives = Wrapper.loadThese(this.passives, this);
 		this.tmp_actions = Action.loadThese(this.tmp_actions, this);
+		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
 
 		if( window.game ){
 			this.class = PlayerClass.loadThis(this.class, this);
@@ -243,7 +247,7 @@ export default class Player extends Generic{
 			out.netgame_owner_name = this.netgame_owner_name;
 			out.color = this.color;
 			out.arousal = this.arousal;
-			out._targeted_by_since_last = this._targeted_by_since_last;		// Needed by netcode
+			out._targeted_by_since_last = this._targeted_by_since_last.save(full);		// Needed by netcode
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -400,7 +404,7 @@ export default class Player extends Generic{
 		vars[prefix+'damageReceivedSinceLast'] = this.datTotal( this._damage_since_last );
 		vars[prefix+'damagingDoneSinceLast'] = this.datTotal( this._d_damaging_since_last );
 		vars[prefix+'damageDoneSinceLast'] = this.datTotal( this._d_damage_since_last );
-		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last);
+		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last.save());
 		for( let i in Action.Types ){
 			let type = Action.Types[i];
 			vars[prefix+'damagingReceivedSinceLast'+type] = this.datTotal( this._damage_since_last, type );
@@ -826,7 +830,7 @@ export default class Player extends Generic{
 			--this._stun_diminishing_returns;
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
-		this._targeted_by_since_last = {};
+		this._targeted_by_since_last = new Collection();
 		++this._turns;
 
 	}
@@ -975,9 +979,9 @@ export default class Player extends Generic{
 	onTargetedActionUsed( target ){
 	}
 	onTargetedActionReceived( sender ){
-		if( !this._targeted_by_since_last[sender.id] )
-			this._targeted_by_since_last[sender.id] = 0;
-		++this._targeted_by_since_last[sender.id];
+		let amount = this._targeted_by_since_last.get(sender.id) || 0;
+		++amount;
+		this._targeted_by_since_last.set(sender.id, amount);
 	}
 
 	onDeath( attacker, effect ){

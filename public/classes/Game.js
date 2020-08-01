@@ -280,7 +280,7 @@ export default class Game extends Generic{
 
 		
 		
-		await glib.autoloadMods();
+		//await glib.autoloadMods();
 		glib.setCustomAssets(this.libAsset);
 
 		this.ui.draw();

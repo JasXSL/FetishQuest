@@ -122,6 +122,10 @@ export default class Modal{
 
 
 
+
+
+	
+
 	/* EVENT BINDERS */
 	// Needs to be called after set, since set and close wipes all events
 	onPlayerChange(player, fn, selBox = false){
@@ -157,6 +161,10 @@ export default class Modal{
 			
 		}
 	}
+
+
+
+
 
 
 	/* EVENT HANDLERS */
@@ -207,6 +215,10 @@ export default class Modal{
 				this._onShopChange[i]();
 		}
 	}
+
+
+
+
 
 
 	/* SELECTION BOX (small option tooltip) */
