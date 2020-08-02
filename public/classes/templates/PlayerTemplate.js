@@ -120,6 +120,7 @@ class PlayerTemplate extends Generic{
 
 		let player = new Player();
 		player.name = this.name;
+		player.label = this.label;	// Player labels aren't unique in game, only in the mod. This lets you attach player markers to generated NPCs
 		player.icon = this.icon;
 		player.generated = true;	// Also set in dungeon encounter, but it's needed here for learnable actions to work
 		player.description = this.description;

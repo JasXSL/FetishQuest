@@ -43,7 +43,6 @@ export default class Player extends Generic{
 		this.actions = [];			// Unlocked actions. Action objects, use getActions since assets can also add actions
 		this.assets = [];			// Asset objects, use getAssets
 		this.inventory = [];		// NPC only. This is an array of numbers specifying which items above are equipped when entering the game.
-		this.tmp_actions = [];		// Actions applied this battle
 
 		this.tags = [];				// Player tags, these are automatically prefixed with PL_, use getTags
 		this.wrappers = [];			// Wrappers, use getWrappers
@@ -126,6 +125,10 @@ export default class Player extends Generic{
 		this._cache_effects = null;					// Holds all active effects in a cache for quicker validation
 		this._cache_wrappers = null;				// == || ==
 		this._cache_stamina = false;
+
+		this._tmp_actions = [];					// Actions from effects and such bound to a battle
+
+
 		this.load(data);
 		
 	}
@@ -143,7 +146,9 @@ export default class Player extends Generic{
 		this.assets = Asset.loadThese(this.assets, this);
 		this.wrappers = Wrapper.loadThese(this.wrappers, this);
 		this.passives = Wrapper.loadThese(this.passives, this);
-		this.tmp_actions = Action.loadThese(this.tmp_actions, this);
+		// only load tmp actions in a netgame (for ID mostly)
+		if( game && game !== true && !game.is_host && game.net.isConnected() )
+			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
 		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
 
 		if( window.game ){
@@ -192,7 +197,6 @@ export default class Player extends Generic{
 			used_punish : this.used_punish,
 			leader : this.leader,
 			talkative : this.talkative,
-			tmp_actions : Action.saveThese(this.tmp_actions, full),
 			label : this.label,
 			icon_lowerBody : this.icon_lowerBody,
 			icon_nude : this.icon_nude,
@@ -206,6 +210,10 @@ export default class Player extends Generic{
 
 		if( full !== "mod" )
 			out.experience = this.experience;
+
+		// Should only be sent while we're hosting a netgame
+		if( game && game.net.isHostingNetgame() )
+			out._tmp_actions = Action.saveThese(this._tmp_actions);
 
 		// Assets are only sent if equipped, PC, or full
 		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC() || this.isDead()), full);
@@ -2025,7 +2033,7 @@ export default class Player extends Generic{
 		let occupied = 0;
 		for( let action of this.actions ){
 
-			if( !action.std && action._active )
+			if( !action.std && action._slot > -1 )
 				++occupied;
 				
 		}
@@ -2048,11 +2056,17 @@ export default class Player extends Generic{
 
 	activateAction( id, slot ){
 		
+		// Doesn't need to be activated if we auto learn. Otherwise this causes issues in the npc generator
+		if( this.auto_learn )
+			return;
+
 		if( id instanceof Action )
 			id = id.id;
 
 		if( this.actionSlotsFull() )
 			throw "Action slots are full. Disable one first.";
+
+		
 
 		slot = parseInt(slot);
 		if( isNaN(slot) ){
@@ -2068,14 +2082,13 @@ export default class Player extends Generic{
 
 		}
 
-
 		this.deactivateAction(id);
 		const action = this.getLearnedAction(id);
 		if( !action )
 			throw "Trying to activate nonfound action";
 		
 		if( slot < 0 || isNaN(slot) )
-			throw "Out of bounds error on action activation";
+			throw "Out of bounds error on action activation: "+slot;
 
 		action._slot = slot;
 		return true;
@@ -2167,8 +2180,8 @@ export default class Player extends Generic{
 			return false;
 		}
 
-		// Action is considered enabled if it's tied to an action slot, or the player is auto learn, or the action is std, or tied to an object
-		return action._slot > -1 || this.auto_learn || action.std || Boolean(action.parent.use_action);
+		// Action is considered enabled if it's tied to an action slot, or the player is auto learn, or the action is std, or not directly tied to this player. Such as an item or a wrapper
+		return ~action._slot || this.auto_learn || action.std || action.parent !== this;
 
 	}
 
@@ -2283,11 +2296,16 @@ export default class Player extends Generic{
 
 	}
 
+	// Gets temporary actions such as actions granted from effects
 	getTempActions(){
+		
+		// Nonhost gets this from the host
+		if( game && !game.is_host && game.net.isConnected() )
+			return this._tmp_actions;	
 		
 		const ids = {};
 		const scanned = {};
-		for( let a of this.tmp_actions )
+		for( let a of this._tmp_actions )
 			ids[a.label] = true;
 
 		const effects = this.getActiveEffectsByType(Effect.Types.addActions);
@@ -2296,22 +2314,26 @@ export default class Player extends Generic{
 			for( let action of actions ){
 				scanned[action.label] = true;
 				if( !ids[action.label] ){
+
 					ids[action.label] = true;
 					action.g_resetID();
-					this.tmp_actions.push(action);
+					action._slot = -2;			// TMP action gets assigned -2
+					this._tmp_actions.push(action);
+
 				}
 			}
 		}
+		
 		// Remove missing ones
-		for( let i =0; i<this.tmp_actions.length && this.tmp_actions.length; ++i ){
-			const action = this.tmp_actions[i];
+		for( let i =0; i<this._tmp_actions.length && this._tmp_actions.length; ++i ){
+			const action = this._tmp_actions[i];
 			if( !scanned[action.label] ){
-				this.tmp_actions.splice(i, 1);
+				this._tmp_actions.splice(i, 1);
 				--i;
 			}
 		}
 
-		return this.tmp_actions;
+		return this._tmp_actions;
 
 	}
 

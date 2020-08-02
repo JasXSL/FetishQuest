@@ -681,8 +681,7 @@ export function asset(){
 		html += '<div class="labelFlex">';
 			html += '<label title="ID of the var to set">ID: <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';
 			html += '<label>Value: Can be a formula<br />';
-			html += '<input type="text" name="data::val" class="saveable" value="'+esc(dummy.data.val)+'" /></label>';
-
+			html += '<input type="text" name="data::val" class="saveable" data-type="smart" value="'+esc(dummy.data.val)+'" /></label>';
 		html += '</div>';
 	}
 

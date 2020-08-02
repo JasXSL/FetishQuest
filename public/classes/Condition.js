@@ -759,12 +759,18 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.questAccepted ){
+
 				const d = toArray(this.data.quest);
-				for( let quest of game.quests ){
-					if( ~d.indexOf(quest.label) ){
+
+				const all = [...game.quests.map(q => q.label), ...game.completed_quests.keys()];
+
+				for( let quest of all ){
+
+					if( ~d.indexOf(quest) ){
 						success = true;
 						break;
 					}
+
 				}
 			}
 			else if( this.type === T.questCompleted ){

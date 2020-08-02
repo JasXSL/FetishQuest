@@ -244,6 +244,10 @@ class NetworkManager{
 
 	}
 
+	// Checks if we're hosting a netgame
+	isHostingNetgame(){
+		return this.isConnected() && this.parent.is_host;
+	}
 
 
 	// Debugging

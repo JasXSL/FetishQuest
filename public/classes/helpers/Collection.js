@@ -42,6 +42,15 @@ export default class Collection{
 
 	rebase(){}	// Not used, but still needed to work as Generic
 
+	keys(){
+		
+		const out = [];
+		for( let i in this )
+			out.push(i);
+		return out;
+
+	}
+
 	flatten( obj, full = false ){
 		if( obj === undefined )
 			obj = this;

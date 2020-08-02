@@ -452,7 +452,15 @@ class Action extends Generic{
 				!this.getDisabledEffectsAgainst(p).length &&
 				this.getViableWrappersAgainst(p, isChargeFinish, debug).length 
 			)targets.push(p);
-			
+			else if( debug ){
+				console.debug("Pass FAILED: ",
+					(p !== parent || allowSelfCast),
+					p.checkActionFilter(parent, this),
+					!this.getDisabledEffectsAgainst(p).length,
+					this.getViableWrappersAgainst(p, isChargeFinish, debug).length
+				);
+			}
+
 		}
 		return targets;
 

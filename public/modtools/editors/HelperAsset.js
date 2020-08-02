@@ -27,7 +27,19 @@ export default{
 
 			let val = targ.value.trim();
 			
-			if( targ.dataset.type === 'int' ){
+
+			// Try to auto typecast
+			if( targ.dataset.type === 'smart' ){
+
+				if( val.toLowerCase() === 'true' )
+					val = true;
+				else if( val.toLowerCase() === 'false' )
+					val = false;
+				else if( !isNaN(val) )
+					val = +val;
+
+			}
+			else if( targ.dataset.type === 'int' ){
 				val = parseInt(val) || 0;
 			}
 			else if( targ.dataset.type === 'float' ){
@@ -253,7 +265,6 @@ export default{
 
 				if( !base ){
 					console.error("Base not found, trying to find", entry, "in", targetLibrary, "asset was", asset, "all assets", allEntries);
-					continue;
 				}
 				const tr = document.createElement('tr');
 				table.appendChild(tr);
@@ -270,7 +281,11 @@ export default{
 				}
 				let td = document.createElement("td");
 				tr.appendChild(td);
-				td.innerText = (base.__MOD ? base.__MOD : 'THIS');
+
+				if( !base )
+					td.innerText = 'MISSING_ASSET';
+				else
+					td.innerText = (base.__MOD ? base.__MOD : 'THIS');
 
 				// order buttons
 				if( !single ){

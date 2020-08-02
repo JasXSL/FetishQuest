@@ -296,11 +296,11 @@ export class RoleplayStage extends Generic{
 			player : this.player,
 			chat : this.chat,
 			_iniPlayer : this._iniPlayer,
+			text : Text.saveThese(this.text, full),	// Needed for netcode
 		};
 
 		if( full ){
 			
-			out.text = Text.saveThese(this.text, full);
 			out.label = this.label;
 			out.store_pl = this.store_pl;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
