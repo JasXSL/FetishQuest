@@ -119,8 +119,10 @@ class Quest extends Generic{
 
 	// Checks if an objective is completed by label
 	isObjectiveCompleted( label ){
+		
 		const ob = this.getObjectiveByLabel(label);
 		return ob && ob.isCompleted();
+
 	}
 
 	getObjectiveByLabel( label ){

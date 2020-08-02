@@ -144,9 +144,11 @@ export default class Roleplay extends Generic{
 	setStage( index, delay=false, player = false ){
 
 		if( index < 0 ){
+
 			if( this.once && index === -1 )
 				this.completed = true;
 			game.clearRoleplay(true);
+			
 		}
 		else{
 			let fn = () => {
