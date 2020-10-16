@@ -823,11 +823,13 @@ export default class UI{
 
 		// click
 		// PLAYER PORTRAIT CLICK
-		$('div.player', this.players).off('click').on('click', function( event ){
+		$('div.player', this.players).off('click').on('click', async function( event ){
 
-			if( !th.action_selected && !th.block_inspect )
-				th.staticModal.set('player', $(this).attr('data-id'));
+			if( !th.action_selected && !th.block_inspect ){
 
+				await th.staticModal.set('player', $(this).attr('data-id'));
+
+			}
 		});
 
 	}

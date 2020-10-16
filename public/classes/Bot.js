@@ -23,7 +23,7 @@ class Bot{
 		shuffle(targs);
 
 		// If the action should ignore aggro and just cast at a random target
-		if( action.hasTag(stdTag.acNpcIgnoreAggro) )
+		if( action.hasTag(stdTag.acNpcIgnoreAggro) || this.player.hasTag(stdTag.plIgnoreAggro) )
 			return targs[0];
 
 		for( let i in targs ){

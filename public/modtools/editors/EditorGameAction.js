@@ -172,6 +172,7 @@ export function asset(){
 		// {dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
+				dungeon : '',
 				index : 0,
 				time : 60
 			};

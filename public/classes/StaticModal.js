@@ -124,8 +124,11 @@ export default class StaticModal{
 		this.constructor.set();
 	}
 
-	refresh(){
-		return this.onDraw.apply(this, this.args);
+	async refresh(){
+
+		const out = await this.onDraw.apply(this, this.args);
+		return out;
+
 	}
 
 	addRefreshOn( path, fn ){
@@ -144,7 +147,7 @@ export default class StaticModal{
 	// STATIC
 
 	// Sets the active modal
-	static set( id, ...args ){
+	static async set( id, ...args ){
 
 		this.close();
 		if( !id )
@@ -160,8 +163,9 @@ export default class StaticModal{
 		this.active = obj;
 		
 		obj.args = [...args];
-		return this.refreshActive();
+		const out = await this.refreshActive();
 		
+		return out;
 
 	}
 
@@ -181,13 +185,16 @@ export default class StaticModal{
 		Object.values(this.lib).map(modal => modal.dom.toggleClass("hidden", true));
 	}
 
-	static refreshActive(){
+	static async refreshActive(){
 
 		if( !this.active )
 			return;
-		
-		const out = this.active.refresh();
+
+		const out = await this.active.refresh();
 		game.ui.bindTooltips();
+
+
+
 		return out;
 
 	}
@@ -849,6 +856,9 @@ export default class StaticModal{
 			.setProperties(function(){
 
 				const cDom = this.getTabDom('Character');
+
+				this.randomizerOption = null;	// Last picked option in the randomizer
+
 				this.character = {
 					name : $("> h2.name", cDom),
 					subName : $("> em.subName", cDom),
@@ -1041,7 +1051,6 @@ export default class StaticModal{
 					cDivs.secondaryStats.html(html);
 
 
-
 				// DM Tab
 					const dDivs = this.edit;
 					html = '';
@@ -1070,7 +1079,6 @@ export default class StaticModal{
 					dDivs.formAgility.val(parseInt(player.agility) || 0);
 					dDivs.formIntellect.val(parseInt(player.intellect) || 0);
 
-
 					// Draw the class form
 					let clib = Object.values(glib.getFull('PlayerClass'));
 					clib.sort((a,b) => {
@@ -1089,6 +1097,7 @@ export default class StaticModal{
 					dDivs.formClass.html(html);
 					dDivs.formClass.val(player.class.label);
 
+					
 
 					// Draw the secondary stat form
 					const secondary = dDivs.formSecondaryStat;
@@ -1100,15 +1109,17 @@ export default class StaticModal{
 
 					}
 
+					
+
 					// Draw the randomizer
 					html = '<option value="_RANDOM_">-RANDOM-</option>';
 					const libtemplates = Object.values(glib.getFull('PlayerTemplate'));
 					libtemplates.sort((a,b) => a.name < b.name ? -1 : 1);
 					for( let t of libtemplates )
-						html += '<option value="'+esc(t.label)+'">'+esc(t.name)+'</option>';
+						html += '<option value="'+esc(t.label)+'" '+(this.randomizerOption === t.label ? 'selected' : '')+'>'+esc(t.name)+'</option>';
 					dDivs.randomizerSelect.html(html);
-					dDivs.randomizer.toggleClass('hidden', game.getPlayerById(player.id));
-					
+					dDivs.randomizer.toggleClass('hidden', Boolean(game.getPlayerById(player.id)));
+			
 
 					// actions
 					let actions = player.getActions( false, true, false );
@@ -1127,6 +1138,7 @@ export default class StaticModal{
 
 					}
 					dDivs.actions.html(html);
+
 
 					// Events
 					// Add action
@@ -1249,6 +1261,7 @@ export default class StaticModal{
 						let pl = PlayerTemplate.generate(parseInt(dDivs.formLevel.val()) || 1, allowed);
 						if( pl ){
 							let data = pl.save(true);
+							this.randomizerOption = type;
 							delete pl.id;
 							player.load(data);
 							this.refresh();
@@ -1259,7 +1272,7 @@ export default class StaticModal{
 					});
 
 					
-			
+					
 			
 
 

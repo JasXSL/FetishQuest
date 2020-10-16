@@ -1813,7 +1813,7 @@ class Stage{
 				this.createIndicatorForMesh('run', "Run", c);
 				this.createIndicatorForMesh('back', "", c);
 				this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
-				const name = asset.name ? asset.name : linkedRoom.getBearingLabel(linkedRoom.getAdjacentBearing( linkedRoom ));
+				const name = asset.name ? asset.name : this.room.getBearingLabel(this.room.getAdjacentBearing( linkedRoom ));
 				this.createIndicatorForMesh('bearing', name, c);
 			}
 		

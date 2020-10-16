@@ -712,10 +712,24 @@ export default class Modtools{
 		// Mods above in the load order, for now just do Official
 		// Todo: Later on, allow us to load over multiple mods
 
+
 		// We're working on the root mod
 		if( mod.id !== "MAIN" ){
 
-			const parentMods = [await GameLib.getMainMod()];
+			const mods = await Mod.getAll();
+			let main = null;
+			for( let mod of mods ){
+				if( mod.id === "MAIN" ){
+					
+					console.log("Using a custom main mod");
+					main = mod;
+
+				}
+			}
+
+			const parentMods = [
+				main ? main : await GameLib.getMainMod()
+			];
 
 			for( let mod of parentMods ){
 				for( let i in mod ){

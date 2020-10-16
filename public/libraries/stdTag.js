@@ -47,6 +47,8 @@ export default {
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',
 
+	plIgnoreAggro : 'pl_ignore_aggro',		// make a player only attack randomly 
+
 
 
 	// Used for gameplay
@@ -112,6 +114,7 @@ export default {
 	asCanPullDown : 'as_can_pull_down',		// Can pull the garment down. Such as a strapless top or a thong 
 	asCanPullUp : 'as_can_pull_up',			// Can pull the garment up. Such as a tube top or bra. 
 	asWraps : 'as_wraps',					// Made by wrapping a long strip of the material around the area 
+	asCleavage : 'as_cleavage',				// Pushes breasts together in a way where at least the top of the breasts are exposed
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',
