@@ -964,7 +964,7 @@ export default class Game extends Generic{
 
 
 	/* DUNGEON */
-	setDungeon( dungeon, room = 0, resetSaveState = false ){
+	setDungeon( dungeon, room = 0, resetSaveState = false, difficulty = -1 ){
 
 		if( dungeon === this.dungeon )
 			return;
@@ -987,6 +987,7 @@ export default class Game extends Generic{
 		}else{
 			this.dungeon.loadState();
 		}
+		this.dungeon.difficulty = difficulty;
 		this.updateAmbiance();
 		this.onDungeonEntered();
 		this.dungeon.onEntered();

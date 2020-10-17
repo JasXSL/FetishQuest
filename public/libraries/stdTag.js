@@ -115,6 +115,8 @@ export default {
 	asCanPullUp : 'as_can_pull_up',			// Can pull the garment up. Such as a tube top or bra. 
 	asWraps : 'as_wraps',					// Made by wrapping a long strip of the material around the area 
 	asCleavage : 'as_cleavage',				// Pushes breasts together in a way where at least the top of the breasts are exposed
+	asUnderboob : 'as_underboob',			// Bottom of breasts (if applicable) exposed
+	asSideboob : 'as_sideboob',				// Sides of breasts (if applicable) exposed
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',

@@ -39,7 +39,7 @@ const SYNONYMS = [
 	['firm', 'tight', 'rigid', 'thorough'],
 	['quickly', 'rapidly', 'speedily', 'hastily'],
 	['rapid', 'quick', 'hasty', 'swift'],
-	['breast', 'boob', 'tit', 'breast', 'teat'],
+	['breast', 'boob', 'tit', 'breast'],
 	['penis', 'dong', 'cock', 'member'],
 	['vagina', 'pussy', 'cunt'],
 	['butt', 'rear', 'behind'],
@@ -58,6 +58,7 @@ const SYNONYMS = [
 	['letting', 'allowing'],
 	['splattering', 'splashing'],
 	['jostle', 'shake', 'rattle'],
+	['jostling', 'shaking', 'rattling'],
 	["wiggling", "squirming", "wriggling"],
 	["bulge","package"],
 ];
