@@ -551,21 +551,9 @@ export default class StaticModal{
 
 					}
 					
-					if( !selectedQuest.hide_rewards ){
-						html += '<div class="assets inventory">';
-						const rewards = selectedQuest.getRewards();
-						
-						const assets = rewards.filter(el => el.type === QuestReward.Types.Asset || el.type === QuestReward.Types.Action);
-						for( let reward of assets ){
+					
+					html += '<div class="assets inventory"></div>';
 
-							const asset = reward.data;
-							const viableToMe = me && reward.testPlayer(me);
-									html += game.ui.getGenericAssetButton(asset, 0, !viableToMe ? 'disabled' : '');
-							
-						}
-						html += '</div>';
-
-					}
 
 					if( selectedQuest.rewards_exp )
 						html += '<div class="item">'+selectedQuest.rewards_exp+' Exp</div>';
@@ -574,6 +562,21 @@ export default class StaticModal{
 				}
 
 				this.right.html(html);
+
+				if( !selectedQuest.hide_rewards ){
+
+					const inv = this.right[0].querySelector('div.assets.inventory');
+					const rewards = selectedQuest.getRewards();
+					const assets = rewards.filter(el => el.type === QuestReward.Types.Asset || el.type === QuestReward.Types.Action);
+					for( let reward of assets ){
+
+						const asset = reward.data;
+						const viableToMe = me && reward.testPlayer(me);
+						inv.appendChild(game.ui.getGenericAssetButton(asset, 0, !viableToMe ? 'disabled' : ''));
+						
+					}
+
+				}
 
 				$("> div[data-id]", this.left).on('click', function(){
 					
@@ -985,14 +988,17 @@ export default class StaticModal{
 					cDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
 
 					// Equipment
-					let html = '';
 					const slots = [
 						Asset.Slots.lowerBody,
 						Asset.Slots.upperBody,
 						Asset.Slots.action,
 						Asset.Slots.hands
 					];
+					
 					const existing_assets = {};	// id:true
+
+					const eq = cDivs.equipment[0];
+					eq.innerHTML = '';
 					for( let slot of slots ){
 
 						const assets = player.getEquippedAssetsBySlots(slot, true);
@@ -1002,18 +1008,25 @@ export default class StaticModal{
 								continue;
 							existing_assets[asset.id] = true;
 
-							html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item">'+
-								'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" />'+
-								'<div class="tooltip">'+asset.getTooltipText()+'</div>'+
-							'</div>';
+							const div = game.ui.getGenericAssetButton(asset, undefined, undefined, true);
+							div.classList.toggle('equipmentSlot', true);
+							eq.appendChild(div);
 
+							if( game.is_host ){
+
+								div.addEventListener('click', event => {
+									if( event.shiftKey )
+										game.ui.drawAssetEditor( asset, player );
+								});
+
+							}
+							
 						}
 						
 					}
-					cDivs.equipment.html(html);
 
 
-					html = '';
+					let html = '';
 					let stats = player.getPrimaryStats();
 					for( let stat in stats ){
 

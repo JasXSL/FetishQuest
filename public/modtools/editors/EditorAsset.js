@@ -31,6 +31,11 @@ export function asset(){
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input name="name" value="'+esc(dummy.name)+'" type="text" class="saveable" /></label>';
 		html += '<label>Shortname: <input name="shortname" value="'+esc(dummy.shortname)+'" type="text" class="saveable" /></label>';
+		html += '<label title="Name of dyed color (optional).">Dye name: <input name="color_tag" value="'+esc(dummy.color_tag)+'" type="text" class="saveable" /></label>';
+		html += '<label title="Color of dye (optional). Only used if name exists.">Dye color: <input name="color" value="'+esc(dummy.color)+'" type="color" class="saveable" /></label>';
+		html += '<label title="Base name of base color">Base Color name: <input name="color_tag_base" value="'+esc(dummy.color_tag_base)+'" type="text" class="saveable" /></label>';
+		html += '<label title="Base color of item">Base color: <input name="color_base" value="'+esc(dummy.color_base)+'" type="color" class="saveable" /></label>';
+
 		html += '<label title="When using label, set the name of the object to an object you want to polymorph this into. This is used to create stacks of another asset, such as gold.">Dummy Type: <select name="dummy" class="saveable">';
 		for( let i in Asset.Dummies ){
 			html += '<option value="'+esc(Asset.Dummies[i])+'" '+(Asset.Dummies[i] === dummy.dummy ? 'selected' : '' )+'>'+esc(i)+'</option>';
@@ -45,6 +50,7 @@ export function asset(){
 		html += '<label title="0 = no use, -1 = infinite use">Charges: <input name="charges" value="'+esc(dummy.charges)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>No auto consume: <input name="no_auto_consume" class="saveable" type="checkbox" '+(dummy.no_auto_consume ? 'checked' : '')+' /></label>';
 		html += '<label>Soulbound: <input name="soulbound" class="saveable" type="checkbox" '+(dummy.soulbound ? 'checked' : '')+' /></label>';
+		html += '<label>Colorable: <input name="colorable" class="saveable" type="checkbox" '+(dummy.colorable ? 'checked' : '')+' /></label>';
 		html += '<label title="Destroys the item when unequipped">Rem on unequip: <input name="rem_unequip" class="saveable" type="checkbox" '+(dummy.rem_unequip ? 'checked' : '')+' /></label>';
 		html += '<label title="Deleted after n seconds have passed in game, 0 disables">Expires: <input name="expires" value="'+esc(dummy.expires)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label title="In copper. 0 = no sell">Monetary Value: <input name="basevalue" value="'+esc(dummy.basevalue)+'" step=1 min=0 type="number" class="saveable" /></label>';

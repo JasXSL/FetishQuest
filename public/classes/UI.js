@@ -2152,11 +2152,14 @@ export default class UI{
 
 	}
 
-	getGenericAssetButton( item, cost = 0, additionalClassName = '' ){
+	getGenericAssetButton( item, cost = 0, additionalClassName = '', hideText = false ){
+
+
 		let html = '';
 		html += '<div class="item '+additionalClassName+' '+Asset.RarityNames[item.rarity]+' tooltipParent '+(item.equippable() ? 'equippable' : '')+(item.equipped ? ' equipped' : '')+(item.durability <= 0 ? ' broken' : '')+'" data-id="'+esc(item.id)+'">';
-			html += '<img class="assetIcon" src="media/wrapper_icons/'+esc(item.icon)+'.svg" />';
-			html += (item.equipped ? '<strong>' : '')+(item.stacking && item._stacks > 1 ? item._stacks+'x ' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
+			html += '<img class="assetIcon" />';// Placeholder
+			if( !hideText )
+				html += (item.equipped ? '<strong>' : '')+(item.stacking && item._stacks > 1 ? item._stacks+'x ' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
 			// This item can be sold
 			if( cost ){
 				const coins = Player.calculateMoneyExhange(cost);
@@ -2173,15 +2176,28 @@ export default class UI{
 				html += item.getTooltipText();
 			html += '</div>';
 		html+= '</div>';
-		return html;
+		
+		let dom = document.createElement('template');
+		dom.innerHTML = html;
+		dom = dom.content.childNodes[0];
+
+		item.getImgElement().then(el => {
+			dom.replaceChild(el, dom.querySelector('img.assetIcon'));
+		});
+
+			
+		return dom;
+
 	}
 
 	// Draws inventory for active player
-	drawPlayerInventory(){
+	async drawPlayerInventory(){
 		const player = game.getMyActivePlayer();
 		const th = this;
 		if( !player )
 			return;
+
+		const svgs = {};	// id : promise
 
 		// Draw inventory
 		let html = '';
@@ -2205,21 +2221,31 @@ export default class UI{
 
 				html += '<h3>Equipment</h3>';
 			for( let slot of slots ){
+
 				const asset = player.getEquippedAssetsBySlots(slot.slot, true)[0];
+				
+				if( asset )
+					svgs[asset.id] = asset.getImgElement();
+				
 				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item" data-slot="'+slot.slot+'" data-id="'+esc(asset ? asset.id : '')+'">'+
 					(asset ? 
-						'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" /><div class="tooltip">'+asset.getTooltipText()+'</div>' : 
+						'<div class="tooltip">'+asset.getTooltipText()+'</div>' : 
 						'<img class="bg template" src="media/wrapper_icons/'+slot.icon+'.svg" />'
 					)+
 				'</div>';
+
 			}
 				html += '<h3>Toolbelt</h3>';
 
 			for( let i =0; i<3; ++i ){
+
 				const asset = player.getEquippedAssetsBySlots(Asset.Slots.action, true)[i];
+
+				if( asset )
+					svgs[asset.id] = asset.getImgElement();
 				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '' )+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item" data-slot="'+Asset.Slots.action+'" data-id="'+esc(asset ? asset.id : '')+'">'+
 					(asset ? 
-						'<img class="bg" src="media/wrapper_icons/'+asset.icon+'.svg" /><div class="tooltip">'+asset.getTooltipText()+'</div>' : 
+						'<div class="tooltip">'+asset.getTooltipText()+'</div>' : 
 						'<img class="bg template" src="media/wrapper_icons/potion-ball.svg" />'
 					)+
 				'</div>';
@@ -2248,7 +2274,7 @@ export default class UI{
 						cat = item.category;
 						html += '<h3 class="category">'+esc(Asset.CategoriesNames[cat])+'</h3>';
 					}
-					html += this.getGenericAssetButton(item);
+					html += '<div class="assetDummy"></div>';
 				}
 				
 
@@ -2265,6 +2291,25 @@ export default class UI{
 		
 		
 		this.modal.set(html);
+
+		// Workaround: Add the icons
+		for( let id in svgs ){
+
+			const dom = await svgs[id];
+			this.modal.content[0].querySelectorAll('div.item[data-id=\''+esc(id)+'\'] > div.tooltip').forEach(el => {
+				el.parentNode.prepend(dom);
+			});
+
+		}
+
+		// and the inventory items
+		
+		for( let item of inv ){
+			const dummy = this.modal.content[0].querySelector('div.assetDummy');
+			dummy.parentNode.replaceChild(this.getGenericAssetButton(item), dummy);
+			
+		}
+
 
 		this.modal.onPlayerChange(player.id, () => {
 			this.drawPlayerInventory();
@@ -2429,6 +2474,8 @@ export default class UI{
 		});
 
 		this.bindTooltips();
+
+		
 		
 	}
 
@@ -2513,6 +2560,9 @@ export default class UI{
 		if( !game.shopAvailableTo(shop, myPlayer) )
 			return;
 
+		// workaround for SVG coloring
+		const assetButtons = [];
+
 		let html = '<h1 class="center">'+esc(shop.name)+'</h1>';
 
 		html += '<h3 class="center">Your Money:<br />';
@@ -2544,7 +2594,8 @@ export default class UI{
 						if( asset.isSellable() ){
 							const a = asset.clone();
 							a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
-							html += this.getGenericAssetButton(a, a.getSellCost(shop));
+							html += '<div data-dummy="'+assetButtons.length+'"></div>';
+							assetButtons.push(this.getGenericAssetButton(a, a.getSellCost(shop)));
 						}
 					}
 					html += '</div>';
@@ -2565,13 +2616,22 @@ export default class UI{
 						continue;
 					asset.name = (remaining !== -1 ? '['+remaining+']' : '&infin;')+" "+asset.name;
 					asset.id = item.id;
-					html += this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : '');
+					html += '<div data-dummy="'+assetButtons.length+'"></div>';
+					assetButtons.push(this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : ''));
 				}
 				html += '</div>';
 			html += '</div>';
 		html += '</div>';
 		
 		this.modal.set(html);
+
+		// Workaround, needs to be fixed later
+		for( let i in assetButtons ){
+
+			const el = this.modal.content[0].querySelector('div[data-dummy="'+i+'"]');
+			el.parentNode.replaceChild(assetButtons[i], el);
+
+		}
 
 		this.bindTooltips();
 
@@ -2731,15 +2791,21 @@ export default class UI{
 
 			}
 
-
+				
 			html += '<div class="flexThreeColumns">';
 				html += '<div>Unique ID:<br /><input type="text" name="label" value="'+esc(a.label)+'" /></div>';
 				html += '<div>Name:<br /><input type="text" name="name" value="'+esc(a.name)+'" /></div>';
 				html += '<div>Shortname:<br /><input type="text" name="shortname" value="'+esc(a.shortname)+'" /></div>';
+
+				
+				
+
 				html += '<div>Level:<br /><input type="number" min=1 step=1 name="level" value="'+(+a.level)+'" /></div>';
 				html += '<div>Durability Bonus:<br /><input type="number" min=0 step=1 name="durability_bonus" value="'+(+a.durability_bonus)+'" /></div>';
 				html += '<div>Weight in grams:<br /><input type="number" min=0 step=1 name="weight" value="'+(+a.weight)+'" /></div>';
 				html += '<div>Rarity:<br /><input type="number" min=0 step=1 max=4 name="rarity" value="'+(+a.rarity)+'" /></div>';
+
+				
 				if( a.parent )
 					html += '<div>Durability:<br /><input type="number" min=0 step=1 name="durability" value="'+(+a.durability)+'" /></div>';
 				html += '<div>Loot Sound:<br /><input type="text" min=0 step=1 name="loot_sound" value="'+esc(a.loot_sound)+'" /></div>';
@@ -2751,7 +2817,20 @@ export default class UI{
 
 			html += '</div>';
 			
-			
+			html += '<label><input type="checkbox" name="colorable" value="1" '+(a.colorable ? 'checked' : '')+' /> Tintable</label><br />';
+ 
+			html += '<div class="flexTwoColumns">';
+				html += '<div>'+
+					'Dye:<br /><input type="text" style="width:auto" name="color_tag" value="'+esc(a.color_tag)+'" />'+
+					'<input type="color" name="color" value="'+esc(a.color)+'" />'+
+				'</div>';
+
+				html += '<div>'+
+					'Base color:<br /><input type="text" style="width:auto" name="color_tag_base" value="'+esc(a.color_tag_base)+'" />'+
+					'<input type="color" name="color_base" value="'+esc(a.color_base)+'" />'+
+				'</div>';
+			html += '</div>';
+
 			html += 'Slots:<br />';
 			for( let i in Asset.Slots ){
 				if( Asset.Slots[i] === Asset.Slots.none )
@@ -2819,6 +2898,13 @@ export default class UI{
 			a.loot_sound = $("input[name=loot_sound]", root).val();
 			a.category = $("select[name=category]", root).val();
 			a.icon = $("input[name=icon]", root).val();
+			a.colorable = $("input[name=colorable]", root).is(':checked');
+			a.color = $("input[name=color]", root).val();
+			a.color_base = $("input[name=color_base]", root).val();
+			a.color_tag = $("input[name=color_tag]", root).val();
+			a.color_tag_base = $("input[name=color_tag_base]", root).val();
+			
+
 			if( a.parent ){
 				a.durability = +$("input[name=durability]", root).val();
 			}
@@ -2917,6 +3003,13 @@ export default class UI{
 			$("#saveAsset input[name=loot_sound]").val(ass.loot_sound);
 			$("#saveAsset select[name=category]").val(ass.category);
 			$("#saveAsset input[name=icon]").val(ass.icon);
+
+			$("#saveAsset input[name=colorable]").prop('checked', ass.colorable);
+			$("#saveAsset input[name=color]").val(ass.color_color);
+			$("#saveAsset input[name=color_base]").val(ass.color_base);
+			$("#saveAsset input[name=color_tag]").val(ass.color_tag);
+			$("#saveAsset input[name=color_tag_base]").val(ass.color_tag_base || '#000000');
+
 			ass.durability = ass.getMaxDurability();
 			
 			$("#saveAsset input[name=slots]").each(function(){

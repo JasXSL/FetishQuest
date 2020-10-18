@@ -7,9 +7,27 @@ import AssetTemplate from './templates/AssetTemplate.js';
 import Player from './Player.js';
 import Game from './Game.js';
 import stdTag from '../libraries/stdTag.js';
+import Collection from './helpers/Collection.js';
 
 export default class Asset extends Generic{
 	
+	// Dyable colors. Custom colors and material colors are available.
+	static COLORS = {
+		none : '',
+		white : "#FFFFFF",
+		black : "#000000",
+		grey : "#999999",
+		yellow : "#FFFF00",
+		orange : "#FF9900",
+		lime : "#99FF00",
+		green : "#00FF00",
+		cyan : "#00FFFF",
+		blue : "#0000FF",
+		purple : "#9900FF",
+		pink : "#FF00FF",
+		red : "#FF0000",
+	};
+
 	constructor(data, parent){
 		super(data);
 		
@@ -31,7 +49,12 @@ export default class Asset extends Generic{
 		this.durability_bonus = 0;
 		this.durability = this.getMaxDurability();
 		this.stacking = false;			// Setting this to true makes it non unique, but frees up space in your inventory
-		
+		this.colorable = false;			// Can be recolored (Todo)
+		this.color_tag = '';
+		this.color_tag_base = '';		// Base color name
+		this.color = "#FFFFFF";		// Currently dyed color
+		this.color_base = "#FFFFFF";		// Base color of the item
+
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
 		this.use_action = null;			// Set to an Action along with charges above to enable use
 		this.no_auto_consume = false;		// Prevents auto consume of charges
@@ -88,7 +111,13 @@ export default class Asset extends Generic{
 			shortname : this.shortname,
 			expires : this.expires,
 			rem_unequip : this.rem_unequip,
+			colorable : this.colorable,
+			color : this.color,
+			color_base : this.color_base,
+			color_tag : this.color_tag,
+			color_tag_base : this.color_tag_base,
 		};
+
 
 		if( full ){
 			out.dummy = this.dummy;
@@ -401,6 +430,30 @@ export default class Asset extends Generic{
 
 	}
 
+	// Creates a tooltip img element
+	async getImgElement(){
+
+		let color = this.color_base;
+		// It's dyed
+		if( this.color_tag )
+			color = this.color;
+
+		if( !this._icon ){
+			const data = await fetch('media/wrapper_icons/'+this.icon+'.svg');
+			const template = document.createElement('template');
+			template.innerHTML = await data.text();
+			this._icon = template.content.childNodes[0];
+			this._icon.classList.add('assetIcon');
+		}
+
+
+		for( let i =0; i< this._icon.children.length; ++i )
+			this._icon.children[i].setAttribute('fill', color);
+		
+		return this._icon;
+
+	}
+
 	// Gets tooltip text for UI
 	getTooltipText(){
 		
@@ -523,6 +576,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		durabilityModifier = Math.random() < 0.2 ? 1.5 : 1		// Mastercrafted
 	;
 
+
 	let out = new Asset({
 		category : this.Categories.armor,
 		icon : template.icon,
@@ -538,7 +592,10 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		rarity : rarity,
 		basevalue : Math.round(
 			Math.pow(1.25, level)+template.slots.length*10+(20*Math.pow(3,rarity))+Math.round(template.weight*weightModifier/100)
-		)
+		),
+		colorable : template.colorable,
+		color_tag_base : template.color_tag_base, 
+		color_base : template.color_base
 	});
 
 	let addEffectToWrapper = function( wr, stype, snr ){
@@ -596,7 +653,6 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		out.loot_sound = 'lootLeather';
 
 	out.repair();
-
 	return out;
 
 };
@@ -738,3 +794,4 @@ Asset.convertDummy = function( asset, parent ){
 	return asset;
 
 };
+

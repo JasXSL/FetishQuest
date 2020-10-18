@@ -24,6 +24,7 @@ class AssetTemplate extends Generic{
 		this.level = 0;
 		this.size = 1.0;					// Size multiplier, used in weight calculations
 		this.icon = 'perspective-dice-six-faces-random';
+		
 
 		this.load(data);
 	}
@@ -129,6 +130,8 @@ class AssetTemplate extends Generic{
 		
 		let mat = viableMats[Math.floor(Math.random()*viableMats.length)];
 		
+		console.log("mat", mat);
+
 		return new AssetOutput({
 			name : mat.name + ' '+this.name,
 			shortname : this.shortname,
@@ -143,6 +146,9 @@ class AssetTemplate extends Generic{
 			stat_bonus : mat.stat_bonus,
 			icon : this.icon,
 			wrappers : this.wrappers, 		// Raw data
+			colorable : mat.colorable,
+			color_tag_base : mat.color_tag_base,
+			color_base : mat.color_base
 		});
 
 	}
@@ -167,6 +173,9 @@ class AssetOutput extends Generic{
 		this.stat_bonus = 0;
 		this.icon = '';
 		this.wrappers = [];
+		this.colorable = true;
+		this.color_tag_base = 'white';
+		this.color_base = '#FFFFFF';
 		this.load(data);
 	}
 
@@ -231,6 +240,10 @@ class MaterialTemplate extends Generic{
 		this.bonBons = {}; // == || ==
 		this.primaryStats = {};
 		this.stat_bonus = 0;		// Adds additional stat points to generator
+		this.colorable = true;
+		this.color_tag_base = 'white';
+		this.color_base = '#FFFFFF';
+
 		this.load(data);
 	}
 
@@ -250,6 +263,9 @@ class MaterialTemplate extends Generic{
 			bonBons : this.bonBons,
 			stat_bonus : this.stat_bonus,
 			primaryStats : this.primaryStats,
+			colorable : this.colorable,
+			color_tag_base : this.color_tag_base,
+			color_base : this.color_base,
 		};
 	}
 

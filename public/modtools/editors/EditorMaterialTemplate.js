@@ -28,6 +28,9 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input name="name" value="'+esc(dummy.name)+'" type="text" class="saveable" /></label>';
+		html += '<label>Base color name: <input name="color_tag_base" value="'+esc(dummy.color_tag_base)+'" type="text" class="saveable" /></label>';
+		html += '<label>Base color: <input name="color_base" value="'+esc(dummy.color_base)+'" type="color" class="saveable" /></label>';
+		html += '<label>Tintable: <input name="colorable" '+(dummy.colorable ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Average weight of a shirt of this material, in grams">Weight: <input name="weight" value="'+esc(dummy.weight)+'" type="number" min=0 step=1 class="saveable" /></label>';
 		html += '<label title="Min level">Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=0 step=1 class="saveable" /></label>';
 		html += '<label>Durability Bonus Multiplier: <input name="durability_bonus" value="'+esc(dummy.durability_bonus)+'" type="number" min=0 step=0.01 class="saveable" /></label>';
@@ -80,6 +83,7 @@ export function list(){
 		bonBons: true,
 		primaryStats : true,
 		tags: true,
+		
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

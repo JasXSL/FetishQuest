@@ -37,7 +37,13 @@ input, textarea, select{
 input[type=text], input[type=number], textarea{
 	width:100%;
 }
-
+input[type=color], div.window input[type=color]{
+	width: 4vmax;
+    height: 2vmax;
+    padding: 0;
+    border: none;
+    background: none;
+}
 
 
 #gameIcons > div > div.rollout.visible,
@@ -984,7 +990,9 @@ div.fxBuffRed{
 		text-align: left;
 		padding-left: 4vmax;
 	}
-	div.inventory div.item img.assetIcon{
+	div.inventory div.item img.assetIcon,
+	div.inventory div.item svg.assetIcon
+	{
 		vertical-align: middle;
 		width: 3vmax;
 		height: 3vmax;
@@ -1006,11 +1014,15 @@ div.fxBuffRed{
 		display:inline-block;
 		padding:0;
 	}
-	div.inventory div.item.equipmentSlot img.bg{
+	div.inventory div.item.equipmentSlot svg.assetIcon{
 		width:100%; height:100%;
+		position: absolute;
+		top:0; left:0;
 	}
 	div.inventory div.item.equipmentSlot img.bg.template{
 		opacity: 0.25;
+		position: absolute;
+		top:0; left:0;
 	}
 	
 	div.inventory div.item.broken{

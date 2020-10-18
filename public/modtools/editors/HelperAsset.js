@@ -18,87 +18,89 @@ export default{
 		;
 
 		// Binds simple inputs
-		dom.querySelectorAll(".saveable[name]").forEach(el => el.addEventListener('change', event => {
+		dom.querySelectorAll(".saveable[name]").forEach(el => {
 
-			const targ = event.currentTarget,
-				name = targ.name
-			;
+			el.addEventListener('change', event => {
+
+				const targ = event.currentTarget,
+					name = targ.name
+				;
 
 
-			let val = targ.value.trim();
-			
+				let val = targ.value.trim();
 
-			// Try to auto typecast
-			if( targ.dataset.type === 'smart' ){
+				// Try to auto typecast
+				if( targ.dataset.type === 'smart' ){
 
-				if( val.toLowerCase() === 'true' )
-					val = true;
-				else if( val.toLowerCase() === 'false' )
-					val = false;
-				else if( !isNaN(val) )
-					val = +val;
-
-			}
-			else if( targ.dataset.type === 'int' ){
-				val = parseInt(val) || 0;
-			}
-			else if( targ.dataset.type === 'float' ){
-				val = +val || 0;
-			}
-			else if( targ.tagName === 'INPUT' ){
-
-				const type = targ.type;
-				if( type === 'range' || type === 'number' )
-					val = +val;
-				
-				if( type === 'checkbox' )
-					val = Boolean(targ.checked);
-
-			}
-			
-
-			let path = name.split('::');
-			let base = asset;
-			while( path.length > 1 ){
-				base = base[path.shift()];
-				if( base === undefined ){
-					console.error("Path find failed for ", name, "in", asset);
-					throw "Unable to find path, see above";
-				}
-			}
-			path = path.shift();
-
-			// Soft = here because type isn't important
-			if( val != base[path] ){
-
-				// Label change must update the window
-				if( name === "label" || name === "id" ){
-
-					val = val.trim();
-					if( !val )
-						throw 'Label/id cannot be empty';
-
-					win.id = val;
-					win.updateTitle();
-					dev.mod.updateChildLabels(base, win.type, base[path], val);	// Make sure any child objects notice the label change
+					if( val.toLowerCase() === 'true' )
+						val = true;
+					else if( val.toLowerCase() === 'false' )
+						val = false;
+					else if( !isNaN(val) )
+						val = +val;
 
 				}
-				else if( name === "name" ){
-					win.name = val;
-					win.updateTitle();
+				else if( targ.dataset.type === 'int' ){
+					val = parseInt(val) || 0;
 				}
-				base[path] = val;
-				dev.setDirty(true);
-				if( list )
-					this.rebuildAssetLists(list);
+				else if( targ.dataset.type === 'float' ){
+					val = +val || 0;
+				}
+				else if( targ.tagName === 'INPUT' ){
 
-				this.propagateChange(win);
-				if( typeof onChange === "function" )
-					onChange(name, val);
+					const type = targ.type;
+					if( type === 'range' || type === 'number' )
+						val = +val;
+					
+					if( type === 'checkbox' )
+						val = Boolean(targ.checked);
 
-			}
+				}
 
-		}));
+
+				let path = name.split('::');
+				let base = asset;
+				while( path.length > 1 ){
+					base = base[path.shift()];
+					if( base === undefined ){
+						console.error("Path find failed for ", name, "in", asset);
+						throw "Unable to find path, see above";
+					}
+				}
+				path = path.shift();
+
+				// Soft = here because type isn't important
+				if( val != base[path] ){
+
+					// Label change must update the window
+					if( name === "label" || name === "id" ){
+
+						val = val.trim();
+						if( !val )
+							throw 'Label/id cannot be empty';
+
+						win.id = val;
+						win.updateTitle();
+						dev.mod.updateChildLabels(base, win.type, base[path], val);	// Make sure any child objects notice the label change
+
+					}
+					else if( name === "name" ){
+						win.name = val;
+						win.updateTitle();
+					}
+					base[path] = val;
+					dev.setDirty(true);
+					if( list )
+						this.rebuildAssetLists(list);
+
+					this.propagateChange(win);
+					if( typeof onChange === "function" )
+						onChange(name, val);
+
+				}
+
+			})
+	});
 
 		this.bindJson( win, asset, list );
 		this.bindArrayPickers(win, asset, list);
