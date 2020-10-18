@@ -191,15 +191,25 @@ export default class Asset extends Generic{
 		let pre = this.constructor.name.substr(0,2).toLowerCase();
 		let out = [];
 		for( let slot of this.slots ){
+
+
 			if( typeof slot !== "string" )
 				console.error("non-string slot detected in item", this);
 			else{
-				out.push(pre+'_'+slot.toLowerCase());
+				
+				slot = slot.toLowerCase();
+
+				out.push(pre+'_'+slot);
+				const color = this.getColorTag().toLowerCase();
+				if( color )
+					out.push('as_'+slot+'_'+color);
 				for( let tag of this.tags ){
-					out.push(tag.toLowerCase());
-					out.push(tag.toLowerCase()+'_'+slot.toLowerCase());
+					const t = tag.toLowerCase();
+					out.push(t);
+					out.push(t+'_'+slot);
 				}
 			}
+
 		}
 		return Array.from(new Set(out));
 
@@ -430,13 +440,22 @@ export default class Asset extends Generic{
 
 	}
 
+	getColorTag(){
+		if( this.color_tag )
+			return this.color_tag;
+		return this.color_tag_base;
+	}
+	getColor(){
+		if( this.color_tag )
+			return this.color;
+		return this.color_base;
+	}
+	
+
 	// Creates a tooltip img element
 	async getImgElement(){
 
-		let color = this.color_base;
-		// It's dyed
-		if( this.color_tag )
-			color = this.color;
+		
 
 		if( !this._icon ){
 			const data = await fetch('media/wrapper_icons/'+this.icon+'.svg');
@@ -448,7 +467,7 @@ export default class Asset extends Generic{
 
 
 		for( let i =0; i< this._icon.children.length; ++i )
-			this._icon.children[i].setAttribute('fill', color);
+			this._icon.children[i].setAttribute('fill', this.getColor());
 		
 		return this._icon;
 

@@ -1125,6 +1125,7 @@ Condition.Types = {
 	hasActiveConditionalPlayer : 'hasActiveConditionalPlayer',
 	actionCrit : 'actionCrit',
 	targetIsRpPlayer : 'targetIsRpPlayer',
+
 };
 
 

@@ -670,12 +670,16 @@ export default class Player extends Generic{
 
 		let assets = this.getAssetsEquipped();
 		if( wrapperReturn && wrapperReturn.armor_strips[this.id] ){
+
 			for( let slot in wrapperReturn.armor_strips[this.id]){
+
 				const a = wrapperReturn.armor_strips[this.id][slot];
 				if( assets.indexOf(a) === -1 ){
 					assets.push(a);
 				}
+				
 			}
+
 		}
 
 		for( let asset of assets )
