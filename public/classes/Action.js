@@ -649,13 +649,15 @@ class Action extends Generic{
 
 		}
 
-		// Needs to be cached for texts
-		this._crit = this.canCrit() && Math.random() < sender.getCritDoneChance();
+		
 		
 		
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
 
+			// Needs to be cached for texts
+			// note that since this only affects the base attack, you should be safe to assume there's only one target
+			this._crit = this.canCrit() && Math.random() < sender.getCritDoneChance(target);
 			
 
 			// Check if it hit

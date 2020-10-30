@@ -866,9 +866,15 @@ class Effect extends Generic{
 				if( amt > 0 ){
 
 					amt = randRound(amt);
+					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalHealingDoneMod, t );
+					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalHealingTakenMod, s );
 
+					// Set event types
 					e = GameEvent.Types.healingDone;
 					e2 = GameEvent.Types.healingTaken;
+					
+					
+					
 					// Holy arousal purging
 					if( type === Action.Types.holy ){
 
@@ -1911,6 +1917,12 @@ Effect.Types = {
 	globalHitChanceMod : 'globalHitChanceMod',
 	globalDamageTakenMod : 'globalDamageTakenMod',
 	globalDamageDoneMod : 'globalDamageDoneMod',
+	globalHealingDoneMod : 'globalHealingDoneMod',
+	globalHealingTakenMod : 'globalHealingTakenMod',
+
+	critDoneMod : 'critDoneMod',
+	critTakenMod : 'critTakenMod',
+
 	globalArousalTakenMod : 'globalArousalTakenMod',
 	gameAction : 'gameAction',
 	addActionCharges : 'addActionCharges',		
@@ -1992,6 +2004,10 @@ Effect.Passive = {
 	[Effect.Types.globalHitChanceMod] : true,
 	[Effect.Types.globalDamageTakenMod] : true,
 	[Effect.Types.globalDamageDoneMod] : true,
+	[Effect.Types.globalHealingDoneMod] : true,
+	[Effect.Types.critDoneMod] : true,
+	[Effect.Types.critTakenMod] : true,
+	[Effect.Types.globalHealingTakenMod] : true,
 	[Effect.Types.globalArousalTakenMod] : true,
 	[Effect.Types.staminaModifier] : true,
 	[Effect.Types.agilityModifier] : true,
@@ -2061,6 +2077,15 @@ Effect.TypeDescs = {
 	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
 	[Effect.Types.globalArousalTakenMod] : '{amount:(int)(float)(string)multiplier, casterOnly:(bool)limit_to_caster=false} - Only works on ADDing arousal. If casterOnly is set, it only affects arousal dealt from the caster', 
 	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
+	
+	[Effect.Types.globalHealingDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
+	[Effect.Types.globalHealingTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
+	
+	// These add or subtract critical hit chance
+	[Effect.Types.critDoneMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects crit chance for the cast. Note that this is ADDITIVE, so 0.25 = 25%',
+	[Effect.Types.critTakenMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects the caster critting on the target. ADDITIVE. 0.25 = +25% etc',
+
+	
 	[Effect.Types.gameAction] : '{action:(obj)gameAction} - Lets you run a game action',
 	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
 

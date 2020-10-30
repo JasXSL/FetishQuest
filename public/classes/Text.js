@@ -10,6 +10,7 @@ import HitFX from './HitFX.js';
 	List of tags you can use:
 	GENERIC
 		%leftright - left or right at random
+		%frontback
 
 	TARGET PREFIXED - These are prefixed with 
 			%T : Target 
@@ -270,6 +271,7 @@ class Text extends Generic{
 		// Helper functions
 		let text = this.text;
 		text = text.split('%leftright').join(Math.random()<0.5 ? 'left' : 'right');
+		text = text.split('%frontback').join(Math.random()<0.5 ? 'front' : 'back');
 		for( let block of SYNONYMS )
 			text = this._replaceArray(text, block);
 			

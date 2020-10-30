@@ -1802,11 +1802,18 @@ export default class Player extends Generic{
 		return BASE_AROUSAL;
 	}
 	// returns a random chance between 0 and 1
-	getCritDoneChance(){
+	getCritDoneChance( targ ){
+
 		// 2% per agility plus 10% baseline. Only affects std attack and arouse
-		let out = 0.1+this.statPointsToNumber(Player.primaryStats.agility)*0.02;
+		// critDoneMod and critTakenMod are ADDITIVE
+		let out = 0.1+this.statPointsToNumber(Player.primaryStats.agility)*0.02+this.getGenericAmountStatPoints(Effect.Types.critDoneMod, targ);
+		if( targ instanceof Player )
+			out += targ.getGenericAmountStatPoints(Effect.Types.critTakenMod, this);
 		return out;
+
 	}
+
+
 
 	/* STATS */
 	getPrimaryStats(){
@@ -1886,20 +1893,33 @@ export default class Player extends Generic{
 		let w = this.getActiveEffectsByType(type),
 			out = 0
 		;
+
 		for(let effect of w){
+
 			if( effect.data.multiplier )
 				continue;
 
 			if( player && effect.data.casterOnly && player.id !== effect.parent.caster )
 				continue;
 
-			let n = Math.round(Calculator.run(
+			let n = Calculator.run(
 				effect.data.amount, 
 				new GameEvent({sender:this, target:this, wrapper:effect.parent, effect:effect})
-			));
-			out+= n*(effect.no_stack_multi ? 1 : effect.parent.stacks);
+			);
+			out += n*(effect.no_stack_multi ? 1 : effect.parent.stacks);
+
 		}
-		return out;
+
+		// Effects that should allow a floating point number
+		const ALLOW_FLOAT = [
+			Effect.Types.critDoneMod,
+			Effect.Types.critTakenMod,
+		]
+		
+		if( ALLOW_FLOAT.includes(type) )
+			return out;
+		
+		return Math.round(out);
 		
 	}
 
@@ -1907,18 +1927,30 @@ export default class Player extends Generic{
 		let w = this.getActiveEffectsByType(type),
 			out = 1
 		;
+
+		// The effect might have a setting to make it a flat stat, or multiply. Multiply being off by default.
+		// Some effects are ALWAYS multiplicative, so they can be included here
+		const ALWAYS_MULTIPLY = [
+			Effect.Types.critDoneMod,
+		];
 		
 		for( let effect of w ){
-			if( !effect.data.multiplier && type !== Effect.Types.globalArousalTakenMod )
+
+			if( !effect.data.multiplier && !ALWAYS_MULTIPLY.includes(type) )
 				continue;
+
 			if( player && effect.data.casterOnly && player.id !== effect.parent.caster )
 				continue;
+
 			let n = Calculator.run(
 				effect.data.amount, 
 				new GameEvent({sender:this, target:this, wrapper:effect.parent, effect:effect})
 			);
+
 			out *= ((n-1)*(effect.no_stack_multi ? 1 : effect.parent.stacks)+1);
+			
 		}
+
 		return out;
 	}
 
