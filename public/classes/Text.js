@@ -62,6 +62,7 @@ const SYNONYMS = [
 	['jostling', 'shaking', 'rattling'],
 	["wiggling", "squirming", "wriggling"],
 	["bulge","package"],
+	["stomach", "belly", "tummy"],
 ];
 
 class Text extends Generic{

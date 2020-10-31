@@ -202,6 +202,7 @@ export default {
 	mTrapdoor : 'm_trapdoor',
 	mLadder : 'm_ladder',				
 	mStool : 'm_stool',
+	mChairBackless : 'm_chair_backless',
 	mBench : 'm_bench',
 	mTable : 'm_table',
 	mChair : 'm_chair',

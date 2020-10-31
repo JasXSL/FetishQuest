@@ -256,8 +256,10 @@ export default class Condition extends Generic{
 					success = true;
 
 			}
-			else if( this.type === T.targetIsChatPlayer ){
+			else if( this.type === T.targetIsChatPlayer )
 				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.id === t.id );
+			else if( this.type === T.targetIsChatPlayerTeam ){
+				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.team === t.team );
 			}
 			else if( this.type === T.wrapperTag ){
 
@@ -1097,6 +1099,7 @@ Condition.Types = {
 	dungeonVarMath : 'dungeonVarMath',
 	targetIsSender : 'targetIsSender',
 	targetIsChatPlayer : 'targetIsChatPlayer',
+	targetIsChatPlayerTeam : 'targetIsChatPlayerTeam',
 	targetIsWrapperSender : 'targetIsWrapperSender',
 	hasFxTagBySender : 'hasFxTagBySender',		//
 	species : 'species',
@@ -1208,6 +1211,7 @@ Condition.descriptions = {
 	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/undefined)} - Requires Text in event. If originalwrapper is unset, it uses both. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
 	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/undefined)} - Requires Text in event. If originalwrapper is unset, it uses both. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
 	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
+	[Condition.Types.targetIsChatPlayerTeam] : 'void - Requires Text in event. Checks if text._chatPlayer team is the same as target',
 	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
 	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level',
 	[Condition.Types.targetedSenderLastRound] : 'void - Target has successfully used a non-aoe action against sender since their last turn',

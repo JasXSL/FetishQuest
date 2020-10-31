@@ -975,7 +975,7 @@ function build(){
 					width: 1,
 					height: 1,
 					position_on_wall : true,
-					tags : [stdTag.mChair],
+					tags : [stdTag.mChair, stdTag.mChairBackless],
 				}),
 				Bench : new LibMesh({
 					url : 'furniture/bench_105_05.JD',
@@ -1158,7 +1158,7 @@ function build(){
 					height: 2,
 				}),
 				BarStool : new LibMesh({
-					tags : [stdTag.mChair],
+					tags : [stdTag.mChair, stdTag.mChairBackless],
 					url : 'furniture/barstool.JD',
 					materials : [
 						libMat.Wood.Crate

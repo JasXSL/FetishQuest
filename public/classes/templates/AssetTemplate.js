@@ -130,8 +130,6 @@ class AssetTemplate extends Generic{
 		
 		let mat = viableMats[Math.floor(Math.random()*viableMats.length)];
 		
-		console.log("mat", mat);
-
 		return new AssetOutput({
 			name : mat.name + ' '+this.name,
 			shortname : this.shortname,
