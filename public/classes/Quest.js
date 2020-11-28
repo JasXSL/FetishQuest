@@ -28,16 +28,16 @@ class Quest extends Generic{
 	}
 	
 	save( full ){
-
+		
 		const out = {
 			label : this.label,
 			name : this.name,
 			description : this.description,
-			objectives : this.objectives.map(el => el.save(full)),
+			objectives :  QuestObjective.saveThese(this.objectives, full),
 			rewards : QuestReward.saveThese(this.rewards, full),
 			hide_rewards : this.hide_rewards,
 			exp_multiplier : this.exp_multiplier,
-			completion_objectives : this.completion_objectives.map(el =>el.save(full))
+			completion_objectives : QuestObjective.saveThese(this.completion_objectives, full)
 		};
 
 		if( full !== "mod" ){

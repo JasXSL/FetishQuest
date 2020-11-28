@@ -433,8 +433,23 @@ export default class Game extends Generic{
 		// Players won the encounter
 		let winners = this.getTeamPlayers(0);
 		let expReward = 0;
-		for( let p of this.encounter.players )
-			expReward += p.getExperienceWorth();
+		for( let p of this.encounter.players ){
+
+			if( p.team !== Player.TEAM_PLAYER ){ 
+				
+				new GameEvent({
+					type : GameEvent.Types.encounterEnemyDefeated,
+					sender : winners[0],
+					target : p,
+					encounter : this.encounter,
+					dungeon : this.dungeon,
+					room : this.dungeon.getActiveRoom(),
+				}).raise();
+				expReward += p.getExperienceWorth();
+
+			}
+
+		}
 		for( let p of winners )
 			p.addExperience(Math.ceil(expReward));
 		this.save();

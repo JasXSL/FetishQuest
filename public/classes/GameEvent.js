@@ -138,7 +138,8 @@ GameEvent.Types = {
 	encounterDefeated : 'encounterDefeated',
 	encounterLost : 'encounterLost',		
 	assetUsed : 'assetUsed',				
-	inventoryChanged : 'inventoryChanged',				
+	inventoryChanged : 'inventoryChanged',		
+	encounterEnemyDefeated : 'encounterEnemyDefeated',		
 
 	encounterStarted : 'encounterStarted',	
 	
@@ -183,6 +184,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.battleStarted] : 'battleStarted',
 	[GameEvent.Types.battleEnded] : 'battleEnded',
 	[GameEvent.Types.encounterDefeated] : 'encounter, Raised when the players defeat an encounter. Generally you want to attach a .quest to it with the quest checking a condition',			// 
+	[GameEvent.Types.encounterEnemyDefeated] : 'Raised for each defeated enemy in an encounter. Sender is the first player on the winning team, but should not be relied on. This event already checks that they were hostile.',			// 
 	[GameEvent.Types.encounterLost] : 'encounter, Same as encounterDefeated but players lost',					// 
 	[GameEvent.Types.assetUsed] : 'Asset used',							// 
 

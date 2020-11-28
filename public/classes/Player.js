@@ -212,7 +212,7 @@ export default class Player extends Generic{
 			out.experience = this.experience;
 
 		// Should only be sent while we're hosting a netgame
-		if( game && game.net.isHostingNetgame() )
+		if( window.game && game.net.isHostingNetgame() )
 			out._tmp_actions = Action.saveThese(this._tmp_actions);
 
 		// Assets are only sent if equipped, PC, or full
