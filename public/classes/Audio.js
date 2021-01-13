@@ -227,18 +227,26 @@ class AudioKit extends Generic{
 		audioSound.setPosition(offset.x, offset.y, offset.z);
 		audioSound.play();
 		if( armor_slot && audioSound.hit ){
+
 			let slots = target.getEquippedAssetsBySlots(armor_slot);
 			if( !slots.length )
 				return;
 			let sound = '';
 			let piece = slots[0];
-			if( piece.hasTag(stdTag.asPlate) )
+
+			if( piece.hit_sound )
+				sound = piece.hit_sound;
+			// Automatic hit sounds can be added for plate and mail
+			else if( piece.hasTag(stdTag.asPlate) )
 				sound = 'hit_plate.ogg';
 			else if( piece.hasTag(stdTag.asMail) )
 				sound = 'hit_mail.ogg';
+
 			if( !sound )
 				return;
-			setTimeout(() => audioSound.parent.play( 'media/audio/'+sound, 0.5*volume_multiplier, false, offset.x, offset.y, offset.z ), 50)
+				
+			setTimeout(() => audioSound.parent.play( 'media/audio/'+sound, 0.5*volume_multiplier, false, offset.x, offset.y, offset.z ), 50);
+
 		}
 
 	}

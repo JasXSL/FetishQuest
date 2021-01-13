@@ -55,6 +55,8 @@ export function asset(){
 		html += '<label title="Deleted after n seconds have passed in game, 0 disables">Expires: <input name="expires" value="'+esc(dummy.expires)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label title="In copper. 0 = no sell">Monetary Value: <input name="basevalue" value="'+esc(dummy.basevalue)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label>Weight (grams): <input name="weight" value="'+esc(dummy.weight)+'" step=1 min=0 type="number" class="saveable" /></label>';
+		html += '<label title="Plate/mail tags are handled automatically, this can be used to override">Hit sound: <input name="hit_sound" value="'+esc(dummy.hit_sound)+'" type="text" class="saveable" /></label>';
+		
 	html += '</div>';
 
 	html += 'Description: <br /><textarea name="description" class="saveable">'+esc(dummy.description, true)+'</textarea><br />';

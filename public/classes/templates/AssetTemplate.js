@@ -24,6 +24,7 @@ class AssetTemplate extends Generic{
 		this.level = 0;
 		this.size = 1.0;					// Size multiplier, used in weight calculations
 		this.icon = 'perspective-dice-six-faces-random';
+		this.hit_sound = '';
 		
 
 		this.load(data);
@@ -49,6 +50,7 @@ class AssetTemplate extends Generic{
 			icon : this.icon,
 			wrappers : this.wrappers,
 			level : this.level,
+			hit_sound : this.hit_sound,
 		};
 	}
 
@@ -128,8 +130,14 @@ class AssetTemplate extends Generic{
 			.map(el => mats[el])
 			.filter(el => el.level <= level);
 		
-		let mat = viableMats[Math.floor(Math.random()*viableMats.length)];
+
 		
+
+		let mat = viableMats[Math.floor(Math.random()*viableMats.length)];
+		let hitSound = this.hit_sound;
+		if( !hitSound )
+			hitSound = mat.hit_sound;
+
 		return new AssetOutput({
 			name : mat.name + ' '+this.name,
 			shortname : this.shortname,
@@ -146,7 +154,8 @@ class AssetTemplate extends Generic{
 			wrappers : this.wrappers, 		// Raw data
 			colorable : mat.colorable,
 			color_tag_base : mat.color_tag_base,
-			color_base : mat.color_base
+			color_base : mat.color_base,
+			hit_sound : hitSound,
 		});
 
 	}
@@ -174,6 +183,7 @@ class AssetOutput extends Generic{
 		this.colorable = true;
 		this.color_tag_base = 'white';
 		this.color_base = '#FFFFFF';
+		this.hit_sound = '';
 		this.load(data);
 	}
 
@@ -241,6 +251,7 @@ class MaterialTemplate extends Generic{
 		this.colorable = true;
 		this.color_tag_base = 'white';
 		this.color_base = '#FFFFFF';
+		this.hit_sound = '';
 
 		this.load(data);
 	}
@@ -264,6 +275,7 @@ class MaterialTemplate extends Generic{
 			colorable : this.colorable,
 			color_tag_base : this.color_tag_base,
 			color_base : this.color_base,
+			hit_sound : this.hit_sound
 		};
 	}
 

@@ -2810,6 +2810,7 @@ export default class UI{
 					html += '<div>Durability:<br /><input type="number" min=0 step=1 name="durability" value="'+(+a.durability)+'" /></div>';
 				html += '<div>Loot Sound:<br /><input type="text" min=0 step=1 name="loot_sound" value="'+esc(a.loot_sound)+'" /></div>';
 				html += '<div>Icon:<br /><input type="text" min=0 step=1 max=4 name="icon" value="'+esc(a.icon)+'" /></div>';
+				html += '<div>Hit sound:<br /><input type="text" name="hit_sound" value="'+esc(a.hit_sound)+'" /></div>';
 				html += '<div><select name="category">';
 				for( let cat in Asset.Categories )
 					html += '<option value="'+esc(cat)+'" '+(a.category === cat ? 'selected' : '')+'>'+esc(Asset.CategoriesNames[cat])+'</option>';
@@ -2903,6 +2904,7 @@ export default class UI{
 			a.color_base = $("input[name=color_base]", root).val();
 			a.color_tag = $("input[name=color_tag]", root).val();
 			a.color_tag_base = $("input[name=color_tag_base]", root).val();
+			a.hit_sound = $("input[name=hit_sound]", root).val();
 			
 
 			if( a.parent ){
@@ -3009,6 +3011,7 @@ export default class UI{
 			$("#saveAsset input[name=color_base]").val(ass.color_base);
 			$("#saveAsset input[name=color_tag]").val(ass.color_tag);
 			$("#saveAsset input[name=color_tag_base]").val(ass.color_tag_base || '#000000');
+			$("#saveAsset input[name=hit_sound]").val(ass.hit_sound || '');
 
 			ass.durability = ass.getMaxDurability();
 			

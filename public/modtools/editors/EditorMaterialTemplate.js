@@ -35,6 +35,7 @@ export function asset(){
 		html += '<label title="Min level">Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=0 step=1 class="saveable" /></label>';
 		html += '<label>Durability Bonus Multiplier: <input name="durability_bonus" value="'+esc(dummy.durability_bonus)+'" type="number" min=0 step=0.01 class="saveable" /></label>';
 		html += '<label title="Add bonus points to the stat generator">Stat bonus: <input name="stat_bonus" value="'+esc(dummy.stat_bonus)+'" type="number" min=0 step=1 class="saveable" /></label>';
+		html += '<label title="Plate/mail tags are handled automatically, this can be used to override">Hit sound: <input name="hit_sound" value="'+esc(dummy.hit_sound)+'" type="text" class="saveable" /></label>';
 	html += '</div>';
 
 	

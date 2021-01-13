@@ -54,6 +54,7 @@ export default class Asset extends Generic{
 		this.color_tag_base = '';		// Base color name
 		this.color = "#FFFFFF";		// Currently dyed color
 		this.color_base = "#FFFFFF";		// Base color of the item
+		this.hit_sound = '';			// Hit sound from punch etc attacks
 
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
 		this.use_action = null;			// Set to an Action along with charges above to enable use
@@ -116,6 +117,7 @@ export default class Asset extends Generic{
 			color_base : this.color_base,
 			color_tag : this.color_tag,
 			color_tag_base : this.color_tag_base,
+			hit_sound : this.hit_sound
 		};
 
 
@@ -595,7 +597,6 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		durabilityModifier = Math.random() < 0.2 ? 1.5 : 1		// Mastercrafted
 	;
 
-
 	let out = new Asset({
 		category : this.Categories.armor,
 		icon : template.icon,
@@ -614,7 +615,8 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		),
 		colorable : template.colorable,
 		color_tag_base : template.color_tag_base, 
-		color_base : template.color_base
+		color_base : template.color_base,
+		hit_sound : template.hit_sound
 	});
 
 	let addEffectToWrapper = function( wr, stype, snr ){

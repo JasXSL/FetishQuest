@@ -37,6 +37,8 @@ export function asset(){
 		html += '<label title="Go to game icons.net and search for one such as https://game-icons.net/1x1/cathelineau/swordman.html and use that name (swordman)">'+
 			'Icon: <input name="icon" value="'+esc(dummy.icon)+'" type="text" class="saveable" />'+
 		'</label><br />';
+		html += '<label title="Plate/mail tags are handled automatically, this can be used to override that and any sound set in MaterialTemplate">Hit sound: <input name="hit_sound" value="'+esc(dummy.hit_sound)+'" type="text" class="saveable" /></label>';
+
 	html += '</div>';
 
 	html += 'Description: <br /><textarea name="description" class="saveable">'+esc(dummy.description)+'</textarea><br />';
