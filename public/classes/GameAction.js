@@ -552,9 +552,11 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.addInventory ){
+
 			let pl = player;
 			if( this.data.player )
 				pl = game.getPlayerByLabel(this.data.player);
+
 			if( !pl ){
 				console.error("Player not found", pl);
 				return;
@@ -568,6 +570,7 @@ export default class GameAction extends Generic{
 			asset.restore();
 
 			const amount = isNaN(parseInt(this.data.amount)) ? 1 : parseInt(this.data.amount);
+			console.log("Adding ", asset, amount, pl);
 			if( amount > 0 )
 				pl.addAsset( asset, amount );
 			else if( amount < 0 )

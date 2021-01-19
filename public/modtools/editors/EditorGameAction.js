@@ -267,7 +267,7 @@ export function asset(){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				type : 'add',
-				amount : 1
+				amount : 1,
 			};
 		
 		html += '<div class="quest"></div>';
@@ -286,6 +286,12 @@ export function asset(){
 					html += '<option value="'+esc(objective)+'" '+(objective === asset.data.objective ? 'selected' : '')+'>'+esc(objective)+'</option>';
 				}
 				html += '</select></label>';
+
+				if( !asset.data.objective )
+					asset.data.objective = a.objectives[0];
+
+				if( typeof asset.data.objective === "object" )
+					asset.data.objective = asset.data.objective.label;
 
 			}
 

@@ -836,9 +836,11 @@ export default class Modtools{
 		if( !DB_MAP[type] || !DB_MAP[type].asset)
 			throw 'Asset editor not found for type '+type+", add it to DB_MAP in Modtools2.js";
 
+		//console.log("Getting asset", type, id);
 		const asset = typeof id === 'object' ? id : this.mod.getAssetById(type, id);
 		if( !asset )
 			throw 'Asset not found: '+id+" type: "+type;
+
 
 		if( typeof data !== "object" )
 			data = {};
@@ -849,6 +851,8 @@ export default class Modtools{
 			data.asset = asset;
 
 		}
+
+		//console.log("Creating window", id, type, asset, data, parent);
 
 		const w = Window.create(
 			id, 

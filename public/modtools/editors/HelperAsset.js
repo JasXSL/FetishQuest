@@ -100,7 +100,7 @@ export default{
 				}
 
 			})
-	});
+		});
 
 		this.bindJson( win, asset, list );
 		this.bindArrayPickers(win, asset, list);
@@ -358,6 +358,7 @@ export default{
 			const index = parseInt(event.currentTarget.dataset.index);
 			const entry = single ? entries[key] : entries[key][index];
 			const id = event.currentTarget.dataset.id;
+
 
 			// Ctrl deletes
 			if( event.ctrlKey ){

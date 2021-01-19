@@ -322,6 +322,7 @@ class Wrapper extends Generic{
 				for( let effect of obj.effects )
 					effect.trigger(evt, this, out);
 				
+				
 
 			}
 			++successes;
@@ -425,13 +426,18 @@ class Wrapper extends Generic{
 		if( !(this.parent instanceof Player))
 			return;
 
-		if( !Condition.all(this.stay_conditions, new GameEvent({
+		const evt = new GameEvent({
 			sender : this.getCaster(),
 			target : this.parent,
 			wrapper : this,
 			action : this.parent.constructor === Action ? this.parent : null,
-		})) )this.remove();
+		});
 
+		if( !Condition.all(this.stay_conditions, evt )){
+			
+			this.remove();
+
+		}
 	}
 
 
@@ -487,6 +493,7 @@ class Wrapper extends Generic{
 			tags.push(stdTag.wrDetrimental);
 		
 		for( let effect of this.effects ){
+
 			if( effect.type === Effect.Types.knockdown ){
 				tags.push(stdTag.wrKnockdown);
 				let type = stdTag.wrKnockdownFront;
@@ -498,6 +505,8 @@ class Wrapper extends Generic{
 				tags.push(stdTag.wrDazed);
 			else if( effect.type === Effect.Types.grapple )
 				tags.push(stdTag.wrGrapple);
+			
+			tags.push(...effect.tags);
 			
 		}
 
@@ -1619,9 +1628,12 @@ class Effect extends Generic{
 				}
 				const amount = this.data.amount > 0 ? this.data.amount : 1;
 				for( let i =0; i<amount && viable.length; ++i ){
+
 					const entry = randElem(viable, true);
-					for( let tag of entry )
+					for( let tag of entry ){
 						this.tags.push(tag);
+					}
+
 				}
 
 			}

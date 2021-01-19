@@ -457,16 +457,17 @@ export default class Asset extends Generic{
 	// Creates a tooltip img element
 	async getImgElement(){
 
-		
-
 		if( !this._icon ){
+
 			const data = await fetch('media/wrapper_icons/'+this.icon+'.svg');
 			const template = document.createElement('template');
 			template.innerHTML = await data.text();
+			
 			this._icon = template.content.childNodes[0];
+			this._icon.style = '';
 			this._icon.classList.add('assetIcon');
+			
 		}
-
 
 		for( let i =0; i< this._icon.children.length; ++i )
 			this._icon.children[i].setAttribute('fill', this.getColor());

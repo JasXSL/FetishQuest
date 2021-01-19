@@ -312,7 +312,10 @@ export default class Mod extends Generic{
 		if( !asset || !asset._mParent )
 			return;
 
-		return this.getAssetById(asset._mParent.type, asset._mParent.label);
+		return this.getAssetById(
+			asset._mParent.type, 
+			asset._mParent.label
+		);
 
 	}
 

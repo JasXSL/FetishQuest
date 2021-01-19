@@ -19,18 +19,22 @@ export function asset(){
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
 
-	if( !asset )
+	if( !asset ){
+		console.error("roleplayStageOption missing in window", this);
 		return this.close();
-
+	}
 	// This is hardcoded, but it works because only RoleplayStage uses RoleplayStageOption and only in one field
 	const parentRoleplayStage = modtools.mod.getAssetParent(DB, asset.label || asset.id);
-	if( !parentRoleplayStage )
+	if( !parentRoleplayStage ){
+		console.error("Parent missing for roleplayStageOption", asset);
 		return this.close();
+	}
 
 	const parentRoleplay = modtools.mod.getAssetParent("roleplayStage", parentRoleplayStage.label || parentRoleplayStage.label);
-	if( !parentRoleplay )
+	if( !parentRoleplay ){
+		console.error("Roleplay parent missing for stageoption", asset, "stage", parentRoleplayStage);
 		return this.close();
-	
+	}
 
 	let html = '';
 	html += '<div class="labelFlex">';
