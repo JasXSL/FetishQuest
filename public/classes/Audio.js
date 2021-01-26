@@ -234,8 +234,9 @@ class AudioKit extends Generic{
 			let sound = '';
 			let piece = slots[0];
 
-			if( piece.hit_sound )
-				sound = piece.hit_sound;
+			if( piece.hit_sound ){
+				sound = randElem(piece.hit_sound.split(','));
+			}
 			// Automatic hit sounds can be added for plate and mail
 			else if( piece.hasTag(stdTag.asPlate) )
 				sound = 'hit_plate.ogg';

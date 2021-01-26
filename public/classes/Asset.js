@@ -54,7 +54,7 @@ export default class Asset extends Generic{
 		this.color_tag_base = '';		// Base color name
 		this.color = "#FFFFFF";		// Currently dyed color
 		this.color_base = "#FFFFFF";		// Base color of the item
-		this.hit_sound = '';			// Hit sound from punch etc attacks
+		this.hit_sound = '';			// Hit sound from punch etc attacks. You can use commas to pick one at random
 
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
 		this.use_action = null;			// Set to an Action along with charges above to enable use
