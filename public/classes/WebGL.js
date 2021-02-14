@@ -1838,44 +1838,16 @@ class Stage{
 		let meshTemplate = asset.getModel();			// Library entry
 
 		// Position it
-		if( asset.absolute || asset.isRoom() ){
-			c.position.x = asset.x;
-			c.position.y = asset.y;
-			c.position.z = asset.z;
-			c.rotation.x = asset.rotX;
-			c.rotation.y = asset.rotY;
-			c.rotation.z = asset.rotZ;
-			c.scale.x = asset.scaleX;
-			c.scale.y = asset.scaleY;
-			c.scale.z = asset.scaleZ;
-		}
-		else{
-			//console.debug("Adding", asset, "x", asset.x, "y", asset.y, "rotatedWidth", asset.getRotatedWidth(), "rotatedHeight", asset.getRotatedHeight());
-			let width = asset.getRotatedWidth(), height = asset.getRotatedHeight();
-			let x = asset.x*100, y = asset.y * 100;
-			if( !asset.isRoom() ){
-				if( width > 2 )
-					x += Math.floor((width-1)/2)*100;
-				if( height > 2 )
-					y += Math.floor((height-1)/2)*100;
-				if( width%2 )
-					x -= 50;
-				if( height%2 )
-					y -= 50;
-			}
-
-			c.position.x = x;
-			c.position.z = y;
-			c.rotation.y = -asset.rotZ/360*Math.PI*2;
-
-			// Handle wall insets
-			if( roomModel && roomModel.wall_indentation && meshTemplate.use_wall_indentation ){
-				let coords = room.getBearingCoords(Math.floor(asset.rotZ/90));
-				c.position.x += coords[0]*roomModel.wall_indentation*meshTemplate.wall_indentation;
-				c.position.z += coords[1]*roomModel.wall_indentation*meshTemplate.wall_indentation;
-			}
-		}
-
+		c.position.x = asset.x;
+		c.position.y = asset.y;
+		c.position.z = asset.z;
+		c.rotation.x = asset.rotX;
+		c.rotation.y = asset.rotY;
+		c.rotation.z = asset.rotZ;
+		c.scale.x = asset.scaleX;
+		c.scale.y = asset.scaleY;
+		c.scale.z = asset.scaleZ;
+	
 	}
 
 	// Adds a mesh to stage, or many

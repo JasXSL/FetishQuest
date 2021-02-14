@@ -766,132 +766,11 @@ class DungeonRoom extends Generic{
 		return this.assets.filter(asset => {
 			const template = asset.getModel();
 			return template.
+			// Todo
 		});
 
 	}
 
-
-
-	/* TILES */
-	getBusyTiles(){
-		let out = [];
-		let room = this.assets[0].getModel();
-
-		// Start at the top left;
-		for( let x = -room.width/2+1; x<=room.width/2; ++x) {
-
-			for( let y = -room.height/2+1; y<=room.height/2; ++y ){
-
-				if( this.isTileBusy(x, y) )
-					out.push({x:x,y:y});
-
-			}
-
-		}
-		return out;
-
-	}
-
-	getNumFreeTiles(){
-		let roomAsset = this.getRoomAsset().getModel();
-		let width = roomAsset.width,
-			height = roomAsset.height,
-			top = roomAsset.top,
-			left = roomAsset.left
-		;
-		let out = 0;
-		for( let x = 0; x< width; ++x ){
-			for( let y = 0; y<height; ++y ){
-				if(this.getFreeTileOffsets(x+top, y+left, 1, 1))
-					++ out;
-			}
-		}
-		return out;
-	}
-
-	// Checks if all tiles enclosed by width/height from x/y offsets are available
-	getFreeTileOffsets(x, y, width, height){
-		for( let w = 0; w<width; ++w ){
-			for( let h = 0; h<height; ++h ){
-				if( this.isTileBusy(x+w,y+h) )
-					return false;
-			}
-		}
-		return true;
-	}
-
-	// Same as above but checks if all coordinates are holes
-	getTileHoleOffsets(roomMesh, x, y, width, height){
-		for( let w = 0; w<width; ++w ){
-			for( let h = 0; h<height; ++h ){
-				if( !roomMesh.isHoleCoordinate(x+w, y+h) )
-					return false;
-			}
-		}
-		return true;
-	}
-
-	getFreeTilesForObject( roomAsset, bearing, onWall ){
-		let width = roomAsset.getRotatedWidth(),
-			height = roomAsset.getRotatedHeight(),
-			coords = this.getBearingCoords(bearing),
-			xNorm = coords[0],
-			yNorm = coords[1],
-			room = this.assets[0],
-			roomMesh = room.getModel(),
-			roomWidth = roomMesh.width,
-			roomHeight = roomMesh.height,
-			roomTop = roomMesh.top,
-			roomLeft = roomMesh.left
-		;
-
-		let viable = [];	// Sub arrays of X/Y
-		for( let x=0; x<roomWidth; ++x ){
-			for( let y = 0; y<roomHeight; ++y ){
-				let yCoord = roomTop+y, xCoord = roomLeft+x;
-				// Bearing is set, this mesh needs to be placed near a wall
-				if( onWall && !this.getTileHoleOffsets(roomMesh, xCoord+xNorm, yCoord+yNorm, width, height) )
-					continue;
-
-				if( this.getFreeTileOffsets(xCoord, yCoord, width, height) )
-					viable.push([xCoord, yCoord]);
-			}
-		}
-
-		return viable;
-
-	}
-
-	isTileBusy( x,y ){
-
-		for( let asset of this.assets ){
-
-			// Handle room  mesh
-			if( asset.isRoom() ){
-				// This is a hole coordinate in the room
-				if( asset.getModel().isHoleCoordinate(x,y) )
-					return true;
-				// Disregard room
-				continue;
-			}
-
-			let width = asset.getRotatedWidth(),
-				height = asset.getRotatedHeight(),
-				ax = asset.x,
-				ay = asset.y
-			;
-			
-			for(let ix = ax; ix<ax+width; ++ix){
-				for( let iy = ay; iy<ay+height; ++iy){
-					if( ix === x && iy === y )
-						return true;
-				}
-			}
-			
-		}
-		return false;
-
-	}
 
 
 
@@ -1219,7 +1098,6 @@ class DungeonRoomAsset extends Generic{
 		this._stage_mesh = null;		// Mesh tied to this object in the current scene
 
 		this.tags = [];
-		this.absolute = false;			// Makes X/Y/Z absolute coordinates
 		this.room = false;				// This is the room asset
 		this.interactions = [];			// Game actions to trigger when interacted with
 		this.hide_no_interact = false;	// Hide whenever it's not interactive.
@@ -1261,7 +1139,6 @@ class DungeonRoomAsset extends Generic{
 			scaleZ : this.scaleZ,
 			attachments : this.attachments,
 			tags : this.tags,
-			absolute : this.absolute,
 			name : this.name,
 			room : this.room,
 			interactions : GameAction.saveThese(this.interactions, full),

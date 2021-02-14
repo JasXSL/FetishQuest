@@ -49,18 +49,9 @@ class LibMesh{
 		this.isRoom = data.isRoom;					// Set to true if this is a base room mesh		
 		this.url = data.url;		// Relative to media/models/ - Can also be a function that returns a mesh
 		this.materials = data.materials || [];		// Should be Material objects from materials.js
-		this.width = data.width || 1;				// Blocks of 1m
-		this.height = data.height || 1;				
-		this.depth = data.depth || 1;
-		this.top = data.top || 0;
-		this.left = data.left || 0;					// The 0/0 block is the one northwest
-		this.hole_coordinates = data.hole_coordinates || [];
+		
 		this.animations = data.animations;			// object of animation : (obj)properties
 													// https://threejs.org/docs/#api/en/animation/AnimationAction
-		this.wall_indentation = !isNaN(data.wall_indentation) ? data.wall_indentation : 1;				
-			// Used for aligning wall meshes if the wall is sticking out or in.
-			// For rooms, this is a unit in centimeters
-			// For assets, this is a multiplier of above unit
 		this.receive_shadow = data.receive_shadow !== false;
 		this.cast_shadow = data.cast_shadow !== false;
 		this.name = data.name || "";
@@ -68,12 +59,8 @@ class LibMesh{
 		this.tags = Array.isArray(data.tags) ? data.tags : [];								// Game tags. These get merged over to dungeonAsset for netcode reasons
 		this.static = data.static;					// If true this mesh can be cached after flattening
 													// If unset, the code tries to figure it out automatically based on the events set, if it's animated etc
-		//this.interactive = data.interactive;		// Needs to be set on all assets that can be interactive in order to make the material unique
+
 		// Metadata for dungeon generator
-		this.position_on_wall = data.position_on_wall || false;		// Where to prefer this mesh to be placed in a dungeon
-		this.void_tiles = data.void_tiles || false;							// Does not occupy tiles, useful for rugs and such
-		this.use_wall_indentation = data.use_wall_indentation || false;		// Apply wall indentation of the room mesh
-		this.no_rotation = data.no_rotation || false;						// Don't rotate in generator
 		this.lockable = data.lockable || false;								// Use the door lock system
 		this.attachments = Array.isArray(data.attachments) ? data.attachments : [];	// use LibMeshAttachment
 		this.min_attachments = isNaN(data.min_attachments) ? -1 : data.min_attachments;
@@ -274,21 +261,6 @@ class LibMesh{
 		return Object.keys(tags);
 	}
 
-	isHoleCoordinate(x,y){
-
-		// out of bounds
-		if( 
-			x > this.left+this.width-1 || 
-			y > this.height+this.top-1 ||
-			y < this.top || x < this.left
-		)return true;
-		for( let coord of this.hole_coordinates ){
-			if( coord[0] === x && coord[1] === y )
-				return true;
-		}
-		return false;
-	}
-
 }
 
 LibMesh.DoorTypes = {
@@ -426,10 +398,6 @@ function build(){
 						libMat.StoneTile.DungeonWall,
 					],
 					tags : [stdTag.mWall],
-					width: 10,
-					height:10,
-					wall_indentation : 10,
-					top:-4,left:-4,
 				}),
 				R10x10RL : new LibMesh({
 					isRoom : true,
@@ -441,24 +409,10 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.StoneTile.DungeonWall,
 					],
-					wall_indentation : 10,
-					width: 10,
-					height:10,
-					hole_coordinates : [
-						[-4,-4],[-3,-4],[-2,-4],[-1,-4],[0,-4],[1,-4],
-						[-4,-3],[-3,-3],[-2,-3],[-1,-3],[0,-3],[1,-3],
-						[-4,-2],[-3,-2],[-2,-2],[-1,-2],[0,-2],[1,-2],
-						[-4,-1],[-3,-1],[-2,-1],[-1,-1],[0,-1],[1,-1],
-						[-4,0],[-3,0],[-2,0],[-1,0],[0,0],[1,0],
-						[-4,1],[-3,1],[-2,1],[-1,1],[0,1],[1,1],
-					],
-					top:-4,left:-4,
-
 				}),
 				R6x10 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/dungeon_6x10.JD',
-					wall_indentation : 10,
 					tags : [stdTag.mWall],
 					materials : [
 						libMat.StoneTile.DungeonWall,
@@ -466,15 +420,10 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.StoneTile.DungeonWall,
 					],
-					width: 6,
-					height:10,
-					top:-4,left:-2,
-
 				}),
 				R6x6 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/dungeon_6x6.JD',
-					wall_indentation : 10,
 					tags : [stdTag.mWall],
 					materials : [
 						libMat.StoneTile.DungeonWall,
@@ -482,61 +431,42 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.StoneTile.DungeonWall,
 					],
-					width: 6,
-					height:6,
-					top:-2,left:-2,
 				}),
 				Necro8x6 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/necrodungeon_8x6.JD',
-					wall_indentation : 10,
 					tags : [stdTag.mWall],
 					materials : [
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
 					],
-					width: 8,
-					height:6,
-					top:-3,left:-2,
 				}),
 				Necro6x6 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/necrodungeon_6x6.JD',
-					wall_indentation : 10,
 					tags : [stdTag.mWall],
 					materials : [
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
 					],
-					width: 6,
-					height:6,
-					top:-2,left:-2,
 				}),
 				Necro8x6s : new LibMesh({
 					isRoom : true,
 					url : 'rooms/necrodungeon_8x6s.JD',
-					wall_indentation : 10,
 					tags : [stdTag.mWall],
 					materials : [
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
 					],
-					width: 8,
-					height:6,
-					top:-3,left:-2,
 				}),
 				Necro8x8 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/necrodungeon_8x8.JD',
-					wall_indentation : 10,
 					tags : [stdTag.mWall],
 					materials : [
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
 					],
-					width: 8,
-					height:8,
-					top:-3,left:-3,
 				}),
 				Shackles : new LibMesh({
 					url : 'doodads/wall_shackles_1x1.JD',
@@ -545,8 +475,8 @@ function build(){
 						libMat.Metal.Chain,
 						libMat.Metal.DarkGeneric,
 					],
-					width:1, height:1,
-					position_on_wall : true,
+
+					
 				}),
 				WallMount : new LibMesh({
 					url : 'doodads/wall_mount_1x1.JD',
@@ -555,8 +485,8 @@ function build(){
 						libMat.Metal.DarkGeneric,
 						libMat.Brick.Tile,
 					],
-					width:1, height:1,
-					position_on_wall : true,
+
+					
 				}),
 				WallChain : new LibMesh({
 					url : 'doodads/hanging_chains_1x1.JD',
@@ -564,8 +494,8 @@ function build(){
 					materials : [
 						libMat.Metal.Chain,
 					],
-					width:1, height:1,
-					position_on_wall : true,
+
+					
 				}),
 				SewerOutlet : new LibMesh({
 					url : 'doodads/sewer_outlet.JD',
@@ -575,127 +505,127 @@ function build(){
 						libMat.Metal.Rust,
 						libMat.Solids.Black
 					],
-					width:2, height:1,
-					position_on_wall : true,
+
+					
 				}),
 			},
 			Furniture : {
 				RugTorn : new LibMesh({
 					url : 'furniture/rug_3x2.JD',
 					materials : [libMat.Cloth.Rug.Torn],
-					width: 3,
-					height: 2,
+
+
 					tags : [stdTag.mRug],
 				}),
 				Altar : new LibMesh({
 					url : 'furniture/altar_2x1.JD',
 					materials : [libMat.StoneTile.DungeonFloor,libMat.Metal.Rust],
-					width: 2,
-					height: 1,
+
+
 					tags : [stdTag.mAltar],
 				}),
 				MetalFence : new LibMesh({
 					url : 'structure/metal_fence_2x1.JD',
 					materials : [libMat.Metal.DarkGeneric],
-					width: 2,
-					height: 1,
+
+
 					tags : [stdTag.mFence],
 				}),
 				MetalFenceRust : new LibMesh({
 					url : 'structure/metal_fence_2x1.JD',
 					materials : [libMat.Metal.Rust],
-					width: 2,
-					height: 1,
+
+
 					tags : [stdTag.mFence],
 				}),
 				Brazier : new LibMesh({
 					url : 'doodads/brazier_1x1.JD',
 					materials : [libMat.Metal.DarkGeneric],
-					width: 1,
-					height: 1,
+
+
 					tags : [],
 				}),
 				Podium : new LibMesh({
 					url : 'furniture/podium_1x1.JD',
 					materials : [libMat.StoneTile.DungeonFloor,libMat.Brick.DungeonBlack],
-					width: 1,
-					height: 1,
+
+
 					tags : ["m_podium"],
 				}),
 				Pew : new LibMesh({
 					url : 'furniture/pew.JD',
 					materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric,libMat.Wood.Floor2],
-					width: 1,
-					height: 1,
+
+
 					tags : [stdTag.mPew, stdTag.mBench],
 				}),
 
 				TortureX : new LibMesh({
 					url : 'furniture/torture_x_1x1.JD',
 					materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric],
-					width: 1,
-					height: 1,
+
+
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageX],
 				}),
 				TortureTable : new LibMesh({
 					url : 'furniture/torture_table_1x2.JD',
 					materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric],
-					width: 1,
-					height: 2,
+
+
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageTable],
 				}),
 				TortureRack : new LibMesh({
 					url : 'furniture/torture_rack_1x3.JD',
 					materials : [libMat.Metal.Chain, libMat.Metal.DarkGeneric, libMat.Wood.Crate],
-					width: 1,
-					height: 3,
+
+
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageTable, stdTag.mBondageRack],
 				}),
 				CollarSeat : new LibMesh({
 					url : 'furniture/collarseat_1x1.JD',
 					materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric, libMat.Metal.Chain],
-					width: 1,
-					height: 1,
+
+
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageSeat, stdTag.mBondageCollarSeat],
 				}),
 				Stocks : new LibMesh({
 					url : 'furniture/stocks_1x1.JD',
 					materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
-					width: 1,
-					height: 1,
+
+
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks],
 				}),
 				StocksLegs : new LibMesh({
 					url : 'furniture/stocks_legs_1x1.JD',
 					materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
-					width: 1,
-					height: 1,
+
+
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mStocks],
 				}),
 				Sybian : new LibMesh({
 					url : 'furniture/sybian_1x1.JD',
 					materials : [libMat.Metal.DarkGeneric, libMat.Metal.Chain, libMat.Solids.Rubber, libMat.Wood.Crate],
-					width: 1,
-					height: 1,
+
+
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageSybian],
 				}),
 
 				Coffin : new LibMesh({
 					url : 'furniture/coffin.JD',
 					materials : [libMat.Wood.Crate],
-					width: 1,height: 2,
+
 					tags : [stdTag.mCoffin],
 				}),
 				CoffinOpen : new LibMesh({
 					url : 'furniture/coffin_open.JD',
 					materials : [libMat.Wood.Crate],
-					width: 1,height: 2,
+
 					tags : [stdTag.mCoffin],
 				}),
 				CoffinFloating : new LibMesh({
 					url : 'furniture/coffin_floating.JD',
 					materials : [libMat.Wood.Crate],
-					width: 1,height: 2,
+
 					tags : [stdTag.mCoffin],
 				}),
 			},
@@ -705,10 +635,6 @@ function build(){
 					materials : [
 						libMat.Cloth.Banner.RaggedHand
 					],
-					position_on_wall : true,
-					use_wall_indentation: true,
-					width: 1,
-					height: 1,
 					tags : [stdTag.mBanner],
 				}),
 				Paddle : new LibMesh({
@@ -716,8 +642,8 @@ function build(){
 					materials : [
 						libMat.Wood.Crate
 					],
-					width: 1,
-					height: 1,
+
+
 					tags : [],
 				}),
 				Crop : new LibMesh({
@@ -725,7 +651,7 @@ function build(){
 					materials : [
 						libMat.Solids.Rubber
 					],
-					width: 1,height: 1,
+
 					tags : [],
 				}),
 				TeslaCoil : new LibMesh({
@@ -734,7 +660,7 @@ function build(){
 						libMat.Metal.DarkGeneric,
 						libMat.Metal.Copper
 					],
-					width: 1,height: 1,
+
 					tags : [],
 					onStagePlaced : function(asset, mesh){
 						let particles = libParticles.get('teslaCoil', mesh);
@@ -765,9 +691,9 @@ function build(){
 					attachments : [
 						new LibMeshAttachment({path:"Dungeon.Door.BarsAttachment"}),
 					],
-					position_on_wall : true,
-					width: 2,
-					height: 1,
+					
+
+
 					lockable : true,
 					want_actions : [[GameAction.types.door,GameAction.types.exit]],
 					animations : {
@@ -806,9 +732,9 @@ function build(){
 						libMat.Wood.Crate,
 						libMat.Metal.Rust
 					],
-					position_on_wall : true,
-					width: 2,
-					height: 1,
+					
+
+
 					lockable : true,
 					want_actions : [[GameAction.types.door,GameAction.types.exit]],
 					animations : {
@@ -830,8 +756,8 @@ function build(){
 					materials : [
 						libMat.Wood.Crate,
 					],
-					width: 1,
-					height: 1,
+
+
 					want_actions : [[GameAction.types.door,GameAction.types.exit]],
 					tags : [stdTag.mLadder],
 					onFlatten : function(mesh){
@@ -870,8 +796,8 @@ function build(){
 						libMat.Metal.DarkGeneric,
 						libMat.Solids.Black
 					],
-					width: 2,
-					height: 2,
+
+
 					want_actions : [[GameAction.types.door,GameAction.types.exit]],
 					tags : [stdTag.mTrapdoor],
 					animations : {
@@ -894,11 +820,6 @@ function build(){
 						libMat.Metal.Rust,
 						libMat.Metal.DarkGeneric,
 					],
-					position_on_wall : true,
-					wall_indentation : 1.4,
-					use_wall_indentation : true,
-					width: 1,
-					height: 1,
 					want_actions : [GameAction.types.lever],
 					tags : [stdTag.mLever, stdTag.mLEVER_MARKER],
 					animations : {
@@ -940,8 +861,8 @@ function build(){
 						libMat.Wood.Crate,
 						libMat.Brick.Small,
 					],
-					width: 2,
-					height: 2,
+
+
 					want_actions : [[GameAction.types.door,GameAction.types.exit]],
 					tags : [stdTag.mStair],
 					onFlatten : function(mesh){
@@ -982,9 +903,9 @@ function build(){
 						libMat.Wood.Crate,
 						libMat.Metal.DarkGeneric
 					],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 					tags : [stdTag.mStool],
 				}),
 				Chair : new LibMesh({
@@ -992,9 +913,9 @@ function build(){
 					materials : [
 						libMat.Wood.Crate
 					],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 					tags : [stdTag.mChair, stdTag.mChairBackless],
 				}),
 				Bench : new LibMesh({
@@ -1004,15 +925,15 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 					tags : [stdTag.mBench],
-					width: 2,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 				TableOneChair : new LibMesh({
 					url : 'furniture/table_2x1.JD',
 					materials : [libMat.Wood.Crate],
-					width: 2,
-					height: 2,
+
+
 					tags : [stdTag.mTable],
 					attachments : [
 						new LibMeshAttachment({path:"Generic.Doodads.Tankard",position:new THREE.Vector3(30.27,75,33.55),rotation:new THREE.Vector3(0,-0.5029,0),scale:new THREE.Vector3(0.87,0.87,0.87),is_key_item:false}),
@@ -1024,8 +945,8 @@ function build(){
 				TableTwoBenches : new LibMesh({
 					url : 'furniture/table_2x1.JD',
 					materials : [libMat.Wood.Crate],
-					width: 2,
-					height: 2,
+
+
 					tags : [stdTag.mTable],
 					attachments : [
 						new LibMeshAttachment({path:"Generic.Doodads.Tankard",position:new THREE.Vector3(18,74,27),rotation:new THREE.Vector3(0,-0.5029,0),scale:new THREE.Vector3(0.87,0.87,0.87),}),
@@ -1043,9 +964,9 @@ function build(){
 						libMat.Wood.Crate
 					],
 					tags : [stdTag.mTable],
-					width: 2,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 				Shelf : new LibMesh({
 					url : 'furniture/dungeon_shelf_2x1.JD',
@@ -1053,9 +974,9 @@ function build(){
 						libMat.Wood.Board
 					],
 					tags : [stdTag.mShelf],
-					width: 1,
-					height: 2,
-					position_on_wall : true,
+
+
+					
 				}),
 				WallShelf : new LibMesh({
 					url : 'furniture/shelf.JD',
@@ -1063,9 +984,9 @@ function build(){
 						libMat.Wood.Board
 					],
 					tags : [stdTag.mShelf],
-					width: 2,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 				ShelfContainers : new LibMesh({
 					url : 'furniture/dungeon_shelf_2x1.JD',
@@ -1073,9 +994,9 @@ function build(){
 						libMat.Wood.Board
 					],
 					tags : [stdTag.mShelf],
-					width: 1,
-					height: 2,
-					position_on_wall : true,
+
+
+					
 					attachments : [
 						new LibMeshAttachment({path:"Generic.Containers.Crate",position:new THREE.Vector3(35,205,0),rotation:new THREE.Vector3(0,0.0698,0),scale:new THREE.Vector3(0.74,0.74,0.74),}),
 						new LibMeshAttachment({path:"Generic.Containers.Crate",position:new THREE.Vector3(-32.98,1.15,15),rotation:new THREE.Vector3(0,0,-0.0349),scale:new THREE.Vector3(1,1,1),}),
@@ -1090,9 +1011,9 @@ function build(){
 						libMat.Wood.Board
 					],
 					tags : [stdTag.mShelf],
-					width: 1,
-					height: 2,
-					position_on_wall : true,
+
+
+					
 					attachments : [
 						new LibMeshAttachment({path:"Generic.Containers.Crate",position:new THREE.Vector3(-55,97,0),rotation:new THREE.Vector3(-0.0035,0,-0.0698),scale:new THREE.Vector3(0.61,0.61,0.61),}),
 						new LibMeshAttachment({path:"Generic.Doodads.Tankard",position:new THREE.Vector3(45,104,-25),rotation:new THREE.Vector3(0,0,0),scale:new THREE.Vector3(1.72,1.72,1.72),}),
@@ -1109,8 +1030,8 @@ function build(){
 					materials : [
 						libMat.Cloth.Rug.Torn
 					],
-					width: 3,
-					height: 2,
+
+
 				}),
 				RugHide : new LibMesh({
 					tags : [stdTag.mRug],
@@ -1118,8 +1039,8 @@ function build(){
 					materials : [
 						libMat.Cloth.Rug.Hide
 					],
-					width: 3,
-					height: 2,
+
+
 				}),
 				RugWhite : new LibMesh({
 					tags : [stdTag.mRug],
@@ -1127,8 +1048,8 @@ function build(){
 					materials : [
 						libMat.Cloth.Rug.White
 					],
-					width: 3,
-					height: 2,
+
+
 				}),
 				RugYellow : new LibMesh({
 					tags : [stdTag.mRug],
@@ -1136,8 +1057,8 @@ function build(){
 					materials : [
 						libMat.Cloth.Rug.Yellow
 					],
-					width: 3,
-					height: 2,
+
+
 				}),
 				Fireplace : new LibMesh({
 					tags : [stdTag.mFireplace],
@@ -1147,8 +1068,8 @@ function build(){
 						libMat.StoneTile.DungeonFloor,
 						libMat.Metal.DarkGeneric
 					],
-					width: 2,
-					height: 1,
+
+
 				}),
 				BarShelf : new LibMesh({
 					tags : [stdTag.mShelf],
@@ -1156,8 +1077,8 @@ function build(){
 					materials : [
 						libMat.Wood.Crate
 					],
-					width: 2,
-					height: 1,
+
+
 				}),
 				BarTable : new LibMesh({
 					tags : [stdTag.mTable],
@@ -1165,8 +1086,8 @@ function build(){
 					materials : [
 						libMat.Wood.Crate
 					],
-					width: 3,
-					height: 2,
+
+
 				}),
 				BarTableSquare : new LibMesh({
 					tags : [stdTag.mTable],
@@ -1174,8 +1095,6 @@ function build(){
 					materials : [
 						libMat.Wood.Crate
 					],
-					width: 4,
-					height: 2,
 				}),
 				BarStool : new LibMesh({
 					tags : [stdTag.mChair, stdTag.mChairBackless],
@@ -1183,8 +1102,8 @@ function build(){
 					materials : [
 						libMat.Wood.Crate
 					],
-					width: 1,
-					height: 1,
+
+
 				}),
 				BannerNavy : new LibMesh({
 					url : 'doodads/banner_animated.JD',
@@ -1192,10 +1111,6 @@ function build(){
 						libMat.Cloth.Banner.Navy
 					],
 					tags : [stdTag.mBanner],
-					position_on_wall : true,
-					use_wall_indentation: true,
-					width: 1,
-					height: 1,
 				}),
 				Bed : new LibMesh({
 					url : 'furniture/bed_1x2.JD',
@@ -1206,9 +1121,9 @@ function build(){
 						libMat.Cloth.Sheet,
 					],
 					tags : [stdTag.mTable],
-					width: 1,
-					height: 2,
-					position_on_wall : true,
+
+
+					
 				}),
 				Drawers : new LibMesh({
 					url : 'furniture/drawers_2x1.JD',
@@ -1217,9 +1132,9 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 					tags : [stdTag.mTable],
-					width: 2,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 				Nightstand : new LibMesh({
 					url : 'furniture/nightstand_1x1.JD',
@@ -1228,9 +1143,9 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 					tags : [stdTag.mTable],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 				WoodSteps : new LibMesh({
 					url : 'furniture/wood_steps.JD',
@@ -1238,7 +1153,6 @@ function build(){
 						libMat.Wood.Crate,
 					],
 					tags : [stdTag.mStair],
-					width: 1,height: 1,
 				}),
 			},
 			Room : {
@@ -1252,10 +1166,6 @@ function build(){
 						libMat.Wood.Crate,
 					],
 					tags : [stdTag.mWall],
-					width: 8,
-					height:6,
-					wall_indentation : 10,
-					top:-2,left:-3,
 				}),
 				R8x4 : new LibMesh({
 					isRoom : true,
@@ -1266,10 +1176,6 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall],
-					width: 8,
-					height:4,
-					wall_indentation : 10,
-					top:-1,left:-3,
 				}),
 				R6x4 : new LibMesh({
 					isRoom : true,
@@ -1280,10 +1186,6 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall],
-					width: 6,
-					height:4,
-					wall_indentation : 10,
-					top:-1,left:-2,
 				}),
 				R10x3 : new LibMesh({
 					isRoom : true,
@@ -1294,10 +1196,6 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall],
-					width: 6,
-					height:4,
-					wall_indentation : 10,
-					top:0,left:-4,
 				}),
 				Window : new LibMesh({
 					url : 'rooms/cottage_window.JD',
@@ -1314,38 +1212,38 @@ function build(){
 						libMat.Cloth.Rope
 					],
 					tags : [stdTag.mRope],
-					width: 1,
-					height: 1,
+
+
 				}),
 				CartWheel : new LibMesh({
 					url : 'doodads/cart_wheel.JD',
 					materials : [libMat.Wood.Crate],
-					tags : [], width: 1, height: 1,
+					tags : [], 
 				}),
 				Cart : new LibMesh({
 					url : 'doodads/cart.JD',
 					materials : [libMat.Wood.Crate],
-					tags : [stdTag.mCart], width: 1, height: 1,
+					tags : [stdTag.mCart], 
 				}),
 				ShopCart : new LibMesh({
 					url : 'doodads/shop_cart.JD',
 					materials : [libMat.Wood.Crate],
-					tags : [stdTag.mMerchantCart], width: 1, height: 1,
+					tags : [stdTag.mMerchantCart], 
 				}),
 				ShopCartTent : new LibMesh({
 					url : 'doodads/merchant_cart.JD',
 					materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
-					tags : [stdTag.mMerchantCart], width: 1, height: 1,
+					tags : [stdTag.mMerchantCart], 
 				}),
 				WoodBoards : new LibMesh({
 					url : 'doodads/woodboards.JD',
 					materials : [libMat.Wood.Crate],
-					tags : [], width: 1, height: 1,
+					tags : [], 
 				}),
 				Haybale : new LibMesh({
 					url : 'doodads/haybale.JD',
 					materials : [libMat.Structure.StrawRoof, libMat.Nature.PalmRoof, libMat.Cloth.Rope],
-					tags : [stdTag.mHaybale], width: 1, height: 1,
+					tags : [stdTag.mHaybale], 
 				}),
 				Shovel : new LibMesh({
 					url : 'doodads/shovel.JD',
@@ -1370,8 +1268,8 @@ function build(){
 					materials : [
 						libMat.Wood.Crate,
 					],
-					width: 2,
-					height: 1,
+
+
 					want_actions : [[GameAction.types.door,GameAction.types.exit]],
 					tags : [stdTag.mStair],
 					onFlatten : function(mesh){
@@ -1408,8 +1306,8 @@ function build(){
 						libMat.Wood.Crate,
 						libMat.Solids.Black
 					],
-					width: 2,
-					height: 1,
+
+
 					want_actions : [[GameAction.types.door,GameAction.types.exit]],
 					tags : [stdTag.mDoor],
 					animations : {
@@ -1435,9 +1333,9 @@ function build(){
 						libMat.Metal.DarkGeneric
 					],
 					tags : [stdTag.mBarrel],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 				Crate : new LibMesh({
 					url : 'containers/crate_1x1.JD',
@@ -1445,18 +1343,18 @@ function build(){
 						libMat.Wood.Crate
 					],
 					tags : [stdTag.mCrate],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 				CrateOpen : new LibMesh({
 					url : 'containers/crate_open_1x1.JD',
 					materials : [
 						libMat.Wood.Crate
 					],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 				Chest : new LibMesh({
 					url : 'containers/chest_1x1.JD',
@@ -1465,9 +1363,9 @@ function build(){
 						libMat.Wood.Crate
 					],
 					tags : [stdTag.mChest],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 					animations : {
 						"open" : {
 							clampWhenFinished : true,
@@ -1482,9 +1380,9 @@ function build(){
 						libMat.Metal.DarkGeneric,
 						libMat.Wood.Crate
 					],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 					tags : [stdTag.mChest],
 					want_actions : [[GameAction.types.loot,GameAction.types.autoLoot]],
 					// Animation settings
@@ -1514,8 +1412,8 @@ function build(){
 						libMat.Cloth.Dark,
 					],
 					want_actions : [[GameAction.types.loot,GameAction.types.autoLoot]],
-					width: 1,
-					height: 1,
+
+
 					onFlatten : function(mesh){
 						let plane = new THREE.Mesh(
 							new THREE.PlaneGeometry(100,100,1,1),
@@ -1544,9 +1442,9 @@ function build(){
 					],
 					want_actions : [[GameAction.types.loot,GameAction.types.autoLoot]],
 					tags : [stdTag.mChest],
-					width: 2,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 					animations : {
 						open : {
 							clampWhenFinished : true,
@@ -1572,10 +1470,6 @@ function build(){
 						libMat.Candle.Wick,
 					],
 					tags : [stdTag.mEmitter, stdTag.mFire, stdTag.mCandle],
-					width: 1,
-					height: 1,
-					use_wall_indentation: true,
-					position_on_wall : true,
 					onFlatten : function(mesh){
 						let y = 200, z = -24;
 						let light = new THREE.PointLight(0xFFDDAA, 0.5, 300, 2);
@@ -1624,10 +1518,6 @@ function build(){
 						libMat.Candle.Wax,
 						libMat.Candle.Wick,
 					],
-					width: 1,
-					height: 1,
-					use_wall_indentation: true,
-					position_on_wall : true,
 					onFlatten : function(mesh){
 						let light = new THREE.SpotLight(0xFFDDAA, 0.5, 300, 1.3, 0.1);
 						let z = -16, y = 198;
@@ -1675,10 +1565,6 @@ function build(){
 						libMat.Metal.Rust,
 						libMat.Metal.DarkGeneric,
 					],
-					width: 1,
-					height: 1,
-					position_on_wall : true,
-					use_wall_indentation: true,
 					onFlatten : function(mesh){
 						let light = new THREE.PointLight(0xFFDDAA, 0.5, 1600, 2);
 						let z = -13, y = 180;
@@ -1734,8 +1620,8 @@ function build(){
 						libMat.Wood.Board,
 						libMat.Wood.Firewood,
 					],
-					width: 1,
-					height: 1,
+
+
 					soundLoops : [
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
@@ -1796,8 +1682,8 @@ function build(){
 						libMat.Wood.Firewood,
 						libMat.Decal.SmolderingAsh,
 					],
-					width: 1,
-					height: 1,
+
+
 					soundLoops : [
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
@@ -1854,8 +1740,8 @@ function build(){
 						libMat.Decal.SmolderingAsh,
 						libMat.Rock.Floor
 					],
-					width: 1,
-					height: 1,
+
+
 					soundLoops : [
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
@@ -1918,8 +1804,8 @@ function build(){
 						libMat.Decal.SmolderingAsh,
 					],
 					tags : [stdTag.mEmitter, stdTag.mFire],
-					width: 1,
-					height: 1,
+
+
 					soundLoops : [
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
@@ -1983,8 +1869,8 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 					tags : [stdTag.mTankard],
-					width: 1,
-					height: 1,
+
+
 				}),
 				Bowl : new LibMesh({
 					url : 'doodads/bowl.JD',
@@ -1992,8 +1878,8 @@ function build(){
 					materials : [
 						libMat.Wood.Crate,
 					],
-					width: 1,
-					height: 1,
+
+
 				}),
 				Papers : new LibMesh({
 					url : 'doodads/papers.JD',
@@ -2001,8 +1887,8 @@ function build(){
 					materials : [
 						libMat.Paper.Torn
 					],
-					width: 1,
-					height: 1,
+
+
 				}),
 				PaperStack : new LibMesh({
 					url : 'doodads/paperstack.JD',
@@ -2010,8 +1896,8 @@ function build(){
 					materials : [
 						libMat.Paper.Torn
 					],
-					width: 1,
-					height: 1,
+
+
 				}),
 				Candle : new LibMesh({
 					url : 'doodads/candle.JD',
@@ -2021,8 +1907,8 @@ function build(){
 						libMat.Candle.Wax,
 						libMat.Candle.Wick,
 					],
-					width: 1,
-					height: 1,
+
+
 				}),
 				CandleLit : new LibMesh({
 					url : 'doodads/candle.JD',
@@ -2032,8 +1918,8 @@ function build(){
 						libMat.Candle.Wax,
 						libMat.Candle.Wick,
 					],
-					width: 1,
-					height: 1,
+
+
 					onFlatten : function(mesh){
 
 						let light = new THREE.PointLight(0xFFDDAA, 0.5, 600, 2);
@@ -2079,8 +1965,8 @@ function build(){
 						libMat.Book.Closed,
 						libMat.Paper.Torn,
 					],
-					width: 1,
-					height: 1,
+
+
 				}),
 				BookOpen : new LibMesh({
 					url : 'doodads/book_open.JD',
@@ -2089,8 +1975,8 @@ function build(){
 						libMat.Book.Full,
 						libMat.Paper.Torn,
 					],
-					width: 1,
-					height: 1,
+
+
 				}),
 				BarBottles : new LibMesh({
 					url : 'doodads/bar_bottles.JD',
@@ -2102,8 +1988,8 @@ function build(){
 						libMat.Cloth.Rope
 					],
 					tags : [stdTag.mBottle],
-					width: 1,
-					height: 1,
+
+
 				}),
 				Firewood : new LibMesh({
 					url : 'doodads/firewood.JD',
@@ -2111,8 +1997,8 @@ function build(){
 						libMat.Wood.Board,
 						libMat.Wood.Firewood,
 					],
-					width: 1,
-					height: 1,
+
+
 				}),
 				BannerAnimated : new LibMesh({
 					url : 'doodads/banner_animated.JD',
@@ -2120,10 +2006,6 @@ function build(){
 						libMat.Cloth.Banner.RaggedHand
 					],
 					tags : [stdTag.mBanner],
-					position_on_wall : true,
-					use_wall_indentation: true,
-					width: 1,
-					height: 1
 				}),
 				Planks : new LibMesh({
 					url : 'doodads/planks.JD',
@@ -2167,8 +2049,6 @@ function build(){
 						libMat.Wood.Crate,
 						libMat.Metal.DarkGeneric,
 					],
-					width: 1,
-					height: 1,
 				}),
 				BucketHanging : new LibMesh({
 					url : 'doodads/bucket_hanging.JD',
@@ -2177,8 +2057,6 @@ function build(){
 						libMat.Wood.Crate,
 						libMat.Metal.DarkGeneric,
 					],
-					width: 1,
-					height: 1,
 				}),
 				
 			},
@@ -2192,8 +2070,6 @@ function build(){
 						libMat.Sign.Store
 					],
 					tags : [],
-					width: 1,
-					height: 1,
 				}),
 				Blacksmith : new LibMesh({
 					url : 'doodads/store_sign.JD',
@@ -2203,8 +2079,6 @@ function build(){
 						libMat.Sign.Blacksmith
 					],
 					tags : [],
-					width: 1,
-					height: 1,
 				}),
 				Dojo : new LibMesh({
 					url : 'doodads/store_sign.JD',
@@ -2214,8 +2088,6 @@ function build(){
 						libMat.Sign.Dojo
 					],
 					tags : [],
-					width: 1,
-					height: 1,
 				}),
 				Port : new LibMesh({
 					url : 'doodads/store_sign.JD',
@@ -2225,8 +2097,6 @@ function build(){
 						libMat.Sign.Port
 					],
 					tags : [],
-					width: 1,
-					height: 1,
 				}),
 				Tavern : new LibMesh({
 					url : 'doodads/store_sign.JD',
@@ -2236,8 +2106,6 @@ function build(){
 						libMat.Sign.Tavern
 					],
 					tags : [],
-					width: 1,
-					height: 1,
 				}),
 				BountyBoard : new LibMesh({
 					url : 'furniture/bountyboard.JD',
@@ -2248,8 +2116,6 @@ function build(){
 						libMat.Paper.Torn
 					],
 					tags : [],
-					width: 2,
-					height: 1,
 				}),
 				Warning : new LibMesh({
 					url : 'doodads/sign.JD',
@@ -2259,8 +2125,6 @@ function build(){
 						libMat.Sign.Warning
 					],
 					tags : [],
-					width: 1,
-					height: 1,
 				}),
 			},
 			Shapes : {
@@ -2273,8 +2137,6 @@ function build(){
 						libMat.Solids.GreenArrow
 					],
 					tags : [],
-					width: 1,
-					height: 1,
 				}),
 			},
 			// This is an NPC marker. Note that these are dummies and only visible in the editor. WebGL.js handles the actual rendering of them
@@ -2288,8 +2150,6 @@ function build(){
 						libMat.Solids.GreenArrow,
 					],
 					tags : [stdTag.mPLAYER_MARKER],
-					width: 1,
-					height: 1,
 					onStagePlaced : function(asset, mesh){
 						if( window.game )
 							mesh.visible = false;
@@ -2303,16 +2163,12 @@ function build(){
 						libMat.Solids.GreenArrow,
 					],
 					tags : [stdTag.mTREASURE_MARKER],
-					width: 1,
-					height: 1,
 				}),
 			},
 			
 		},
 		Decals : {
 			BloodSplat : new LibMesh({
-				width: 1,
-				height: 1,
 				auto_bounding_box : true,
 				url : function(){
 					let group = new THREE.Group();
@@ -2331,8 +2187,6 @@ function build(){
 				tags : [],
 			}),
 			BloodSplatBlack : new LibMesh({
-				width: 1,
-				height: 1,
 				auto_bounding_box : true,
 				url : function(){
 					let group = new THREE.Group();
@@ -2351,8 +2205,6 @@ function build(){
 				tags : [],
 			}),
 			RuneCirclePurple : new LibMesh({
-				width: 1,
-				height: 1,
 				auto_bounding_box : true,
 				url : function(){
 					let group = new THREE.Group();
@@ -2389,9 +2241,6 @@ function build(){
 						materials : [
 							libMat.Land.Yuug
 						],
-						width: 10,
-						height: 10,
-						top:-4,left:-4,
 						attachments : [
 							new LibMeshAttachment({path:"Land.Yuug.Ocean"})
 						]
@@ -2401,11 +2250,7 @@ function build(){
 						materials : [
 							libMat.Water.Ocean
 						],
-						
-						width: 10,
-						height:10,
 						tags : [stdTag.mWater],
-						top:-4, left:-4,
 						onStagePlaced(_,mesh){
 							mesh.rotation.x = -Math.PI/2;
 						}
@@ -2432,10 +2277,7 @@ function build(){
 							group.add(water);
 							return group;
 						},
-						width: 10,
-						height:10,
 						tags : [stdTag.mWater],
-						top:-4, left:-4,
 					}),
 					Ocean_Room : new LibMesh({
 						isRoom : true,
@@ -2443,10 +2285,7 @@ function build(){
 						materials : [
 							libMat.Water.Ocean
 						],
-						width: 10,
-						height:10,
 						tags : [stdTag.mWater],
-						top:-4, left:-4,
 						onStagePlaced(_,mesh){
 							mesh.rotation.x = -Math.PI/2;
 						}
@@ -2672,66 +2511,62 @@ function build(){
 						materials : [
 							libMat.Land.BeachA
 						],
-						width: 10,
-						height:10,
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand],
-						top:-4,left:-4,
+
 					}),
 					B : new LibMesh({
 						url : 'land/yuug/beach_b.JD',
 						materials : [
 							libMat.Land.BeachB
 						],
-						width: 10,
-						height:10,
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand],
-						top:-4,left:-4,
+
 					}),
 					C : new LibMesh({
 						url : 'land/yuug/beach_c.JD',
 						materials : [
 							libMat.Land.BeachC
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand],
-						top:-4,left:-4,
+
 					}),
 					D : new LibMesh({
 						url : 'land/yuug/beach_d.JD',
 						materials : [
 							libMat.Land.BeachD
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand],
-						top:-4,left:-4,
+
 					}),
 					E : new LibMesh({
 						url : 'land/yuug/beach_e.JD',
 						materials : [
 							libMat.Land.BeachE
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand],
-						top:-4,left:-4,
+
 					}),
 					F : new LibMesh({
 						url : 'land/yuug/beach_f.JD',
 						materials : [
 							libMat.Land.BeachF
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand],
-						top:-4,left:-4,
+
 					}),
 				},
 				
@@ -2741,92 +2576,92 @@ function build(){
 						materials : [
 							libMat.Land.MainroadA
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt],
-						top:-4,left:-4,
+
 					}),
 					mainroadB : new LibMesh({
 						url : 'land/yuug/woods_mainroad_2.JD',
 						materials : [
 							libMat.Land.MainroadB
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt],
-						top:-4,left:-4,
+
 					}),
 					mainroadC : new LibMesh({
 						url : 'land/yuug/woods_mainroad_3.JD',
 						materials : [
 							libMat.Land.MainroadC
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt],
-						top:-4,left:-4,
+
 					}),
 					mainroadD : new LibMesh({
 						url : 'land/yuug/woods_mainroad_4.JD',
 						materials : [
 							libMat.Land.MainroadD
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt],
-						top:-4,left:-4,
+
 					}),
 					mainroadE : new LibMesh({
 						url : 'land/yuug/woods_mainroad_5.JD',
 						materials : [
 							libMat.Land.MainroadE
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt],
-						top:-4,left:-4,
+
 					}),
 
 					grassgen000 : new LibMesh({
 						url : 'land/yuug/GrassGen_000.JD',
 						materials : [libMat.Land.GrassGen_000],
 						tags : [stdTag.mGrass],
-						width: 10,height:10,isRoom : true,top:-4,left:-4,
+						isRoom: true,
 					}),
 					grassgen001 : new LibMesh({
 						url : 'land/yuug/GrassGen_001.JD',
 						materials : [libMat.Land.GrassGen_001],
 						tags : [stdTag.mGrass],
-						width: 10,height:10,isRoom : true,top:-4,left:-4,
+						isRoom: true,
 					}),
 					grassgen002 : new LibMesh({
 						url : 'land/yuug/GrassGen_002.JD',
 						materials : [libMat.Land.GrassGen_002],
 						tags : [stdTag.mGrass],
-						width: 10,height:10,isRoom : true,top:-4,left:-4,
+						isRoom: true,
 					}),
 					grassgen003 : new LibMesh({
 						url : 'land/yuug/GrassGen_003.JD',
 						materials : [libMat.Land.GrassGen_003],
 						tags : [stdTag.mGrass],
-						width: 10,height:10,isRoom : true,top:-4,left:-4,
+						isRoom: true,
 					}),
 					grassgen004 : new LibMesh({
 						url : 'land/yuug/GrassGen_004.JD',
 						materials : [libMat.Land.GrassGen_004],
 						tags : [stdTag.mGrass],
-						width: 10,height:10,isRoom : true,top:-4,left:-4,
+						isRoom: true,
 					}),
 					grassgen005 : new LibMesh({
 						url : 'land/yuug/GrassGen_005.JD',
 						materials : [libMat.Land.GrassGen_005],
 						tags : [stdTag.mGrass],
-						width: 10,height:10,isRoom : true,top:-4,left:-4,
+						isRoom: true,
 					}),
 					
 				},
@@ -2837,10 +2672,10 @@ function build(){
 						materials : [
 							libMat.Land.YuugPortMid,
 						],
-						width: 10,
-						height:10,
+
+
 						isRoom : true,
-						top:-4,left:-4,
+
 						tags : [stdTag.mGrass, stdTag.mSand],
 					}),
 					JettyMid : new LibMesh({
@@ -2890,12 +2725,12 @@ function build(){
 				FenceA : new LibMesh({
 					url : 'structure/fence_a.JD',
 					materials : [libMat.Wood.Crate,],
-					tags : [stdTag.mFence], width: 1, height: 1,
+					tags : [stdTag.mFence], 
 				}),
 				FenceB : new LibMesh({
 					url : 'structure/fence_b.JD',
 					materials : [libMat.Wood.Crate,],
-					width: 1, height: 1,
+					
 					tags : [stdTag.mFence],
 				}),
 				Well : new LibMesh({
@@ -2906,7 +2741,7 @@ function build(){
 						libMat.Metal.Rust,
 						libMat.Cloth.Rope
 					],
-					width: 1, height: 1,
+					
 					tags : [stdTag.mFence],
 				}),
 			},
@@ -2916,44 +2751,44 @@ function build(){
 					materials : [
 						libMat.Land.TownX
 					],
-					width: 10,
-					height:10,
+
+
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mSand],
-					top:-4,left:-4,
+
 				}),
 				T : new LibMesh({
 					url : 'land/yuug/town_t.JD',
 					materials : [
 						libMat.Land.TownT
 					],
-					width: 10,
-					height:10,
+
+
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mSand],
-					top:-4,left:-4,
+
 				}),
 				Straight : new LibMesh({
 					url : 'land/yuug/town_straight.JD',
 					materials : [
 						libMat.Land.TownStraight
 					],
-					width: 10,
-					height:10,
+
+
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mSand],
-					top:-4,left:-4,
+
 				}),
 				Bend : new LibMesh({
 					url : 'land/yuug/town_bend.JD',
 					materials : [
 						libMat.Land.TownBend
 					],
-					width: 10,
-					height:10,
+
+
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mSand],
-					top:-4,left:-4,
+
 				}),
 			},
 			Swamp : {
@@ -2962,44 +2797,44 @@ function build(){
 					materials : [
 						libMat.Land.SwampA
 					],
-					width: 10,
-					height:10,
+
+
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp],
-					top:-4,left:-4,
+
 				}),
 				B : new LibMesh({
 					url : 'land/swamp/bog_ground_b.JD',
 					materials : [
 						libMat.Land.SwampB
 					],
-					width: 10,
-					height:10,
+
+
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp],
-					top:-4,left:-4,
+
 				}),
 				C : new LibMesh({
 					url : 'land/swamp/bog_ground_c.JD',
 					materials : [
 						libMat.Land.SwampC
 					],
-					width: 10,
-					height:10,
+
+
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp],
-					top:-4,left:-4,
+
 				}),
 				D : new LibMesh({
 					url : 'land/swamp/bog_ground_d.JD',
 					materials : [
 						libMat.Land.SwampD
 					],
-					width: 10,
-					height:10,
+
+
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp],
-					top:-4,left:-4,
+
 				}),
 				Water : new LibMesh({
 					url : function(){
@@ -3024,10 +2859,10 @@ function build(){
 						group.add(water);
 						return group;
 					},
-					width: 10,
-					height:10,
+
+
 					tags : [stdTag.mWater],
-					top:-4, left:-4,
+
 				}),
 			},
 		},
@@ -3042,9 +2877,9 @@ function build(){
 						libMat.Rock.Wall,
 					],
 					tags : [stdTag.mWall],
-					width: 10,
-					height: 6,
-					top:-2,left:-4,
+
+
+
 				}),
 				R10x8 : new LibMesh({
 					isRoom : true,
@@ -3054,9 +2889,7 @@ function build(){
 						libMat.Rock.Wall,
 					],
 					tags : [stdTag.mWall],
-					width: 10,
-					height: 8,
-					top:-3,left:-4,
+
 				}),
 				R6x6 : new LibMesh({
 					isRoom : true,
@@ -3066,9 +2899,9 @@ function build(){
 						libMat.Rock.Wall,
 					],
 					tags : [stdTag.mWall],
-					width: 6,
-					height: 6,
-					top:-2,left:-2,
+
+
+
 				}),
 				R8x6River : new LibMesh({
 					url : 'rooms/cave_8x6_river.JD',
@@ -3088,9 +2921,9 @@ function build(){
 						new LibMeshAttachment({path:"Cave.Room.R8x6River", always:true, rotation:new THREE.Vector3(-Math.PI/2,0,0), position:new THREE.Vector3(0,65,-90)}),
 					],
 					tags : [stdTag.mWall],
-					width: 6,
-					height: 6,
-					top:-2,left:-3,
+
+
+
 				}),
 			},
 			Stalagmite : new LibMesh({
@@ -3138,9 +2971,9 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 					tags : [stdTag.mBench],
-					width: 2,
-					height: 1,
-					position_on_wall : true,
+
+
+					
 				}),
 			},
 			Door : {
@@ -3380,17 +3213,17 @@ function build(){
 				Small : new LibMesh({
 					url : 'structure/tent_small.JD',
 					materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
-					tags : [stdTag.mTent], width: 1, height: 1,
+					tags : [stdTag.mTent], 
 				}),
 				Large : new LibMesh({
 					url : 'structure/tent_large.JD',
 					materials : [libMat.Cloth.DarkDoublesided,libMat.Wood.Crate],
-					tags : [stdTag.mTent], width: 1, height: 1,
+					tags : [stdTag.mTent], 
 				}),
 				Open : new LibMesh({
 					url : 'doodads/tent_open.JD',
 					materials : [libMat.Wood.Crate,libMat.Cloth.DarkDoublesided],
-					tags : [stdTag.mTent], width: 2, height: 2,
+					tags : [stdTag.mTent],
 				}),
 			},
 
@@ -3438,7 +3271,6 @@ function build(){
 				materials : [
 					libMat.Wood.Crate,
 				],
-				width: 5, height:2,
 			}),
 
 		},
@@ -3454,9 +3286,9 @@ function build(){
 					libMat.Wood.Crate,
 				],
 				tags : [stdTag.mWall],
-				width: 8,
-				height:6,
-				top:-2,left:-3,
+
+
+
 			}),
 
 			Gym : new LibMesh({
@@ -3467,9 +3299,9 @@ function build(){
 					libMat.Structure.CottageWall2,
 				],
 				tags : [stdTag.mWall],
-				width: 8,
-				height:6,
-				top:-2,left:-3,
+
+
+
 			}),
 
 			Bank : new LibMesh({
@@ -3480,9 +3312,9 @@ function build(){
 					libMat.Rock.Wall,
 				],
 				tags : [stdTag.mWall],
-				width: 8,
-				height:6,
-				top:-2,left:-3,
+
+
+
 			}),
 
 			Church : new LibMesh({
@@ -3494,16 +3326,16 @@ function build(){
 					libMat.StoneTile.ChurchFloor,
 				],
 				tags : [stdTag.mWall],
-				width: 8,
-				height:6,
-				top:-2,left:-3,
+
+
+
 			}),
 
 
 			ChurchSide : new LibMesh({
-				width: 8,
-				height:6,
-				top:-2,left:-3,
+
+
+
 				isRoom : true,
 				url : 'rooms/church_side_room.JD',
 				materials : [
@@ -3516,9 +3348,9 @@ function build(){
 
 			Sewer : {
 				bend_6x6 : new LibMesh({
-					width: 6,
-					height:6,
-					//top:-2,left:-3,
+
+	
+
 					isRoom : true,
 					url : 'rooms/sewer_bend_6x6.JD',
 					materials : [
@@ -3529,9 +3361,6 @@ function build(){
 					tags : [stdTag.mWall],
 				}),
 				double_5x8 : new LibMesh({
-					width: 5,
-					height:8,
-					//top:-2,left:-3,
 					isRoom : true,
 					url : 'rooms/sewer_double_5x8.JD',
 					materials : [
@@ -3542,9 +3371,7 @@ function build(){
 					tags : [stdTag.mWall],
 				}),
 				x_8x8 : new LibMesh({
-					width: 8,
-					height:8,
-					//top:-2,left:-3,
+	
 					isRoom : true,
 					url : 'rooms/sewer_x_8x8.JD',
 					materials : [
@@ -3555,9 +3382,7 @@ function build(){
 					tags : [stdTag.mWall],
 				}),
 				bend_8x8 : new LibMesh({
-					width: 8,
-					height:8,
-					//top:-2,left:-3,
+	
 					isRoom : true,
 					url : 'rooms/sewer_bend_8x8.JD',
 					materials : [
@@ -3568,9 +3393,7 @@ function build(){
 					tags : [stdTag.mWall],
 				}),
 				narrow_3x8 : new LibMesh({
-					width: 3,
-					height:8,
-					//top:-2,left:-3,
+
 					isRoom : true,
 					url : 'rooms/sewer_narrow_3x8.JD',
 					materials : [
@@ -3581,9 +3404,7 @@ function build(){
 					tags : [stdTag.mWall],
 				}),
 				chamber_8x8 : new LibMesh({
-					width: 3,
-					height:8,
-					//top:-2,left:-3,
+
 					isRoom : true,
 					url : 'rooms/sewer_chamber_8x8.JD',
 					materials : [
