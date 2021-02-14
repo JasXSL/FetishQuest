@@ -33,6 +33,7 @@ import * as EditorQuestObjectiveEvent from './editors/EditorQuestObjectiveEvent.
 import * as EditorEncounter from './editors/EditorEncounter.js';
 import * as EditorDungeon from './editors/EditorDungeon.js';
 import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
+import * as EditorDungeonTemplate from './editors/EditorDungeonTemplate.js';
 import Generic from '../classes/helpers/Generic.js';
 import GameLib from '../classes/GameLib.js';
 
@@ -75,6 +76,7 @@ const DB_MAP = {
 	"encounters" : { listing : EditorEncounter.list, asset : EditorEncounter.asset, icon : 'kraken-tentacle' },
 	"dungeons" : { listing : EditorDungeon.list, asset : EditorDungeon.asset, icon : 'castle', help : EditorDungeon.help },
 	"dungeonRooms" : { listing : EditorDungeonRoom.list, asset : EditorDungeonRoom.asset, icon : 'doorway', help : EditorDungeonRoom.help },
+	"dungeonTemplates" : { listing : EditorDungeonTemplate.list, asset : EditorDungeonTemplate.asset, icon : 'tower-fall', help : EditorDungeonTemplate.help },
 };
 
 /*
@@ -615,6 +617,8 @@ export default class Modtools{
 
 				const data = Object.fromEntries(this.window_states);
 				data.mod = this.mod.id;
+
+				console.log("Saving", data);
 				await this.db.window_states.put(data);
 				
 			}catch(err){
@@ -641,13 +645,14 @@ export default class Modtools{
 			let mods = await Mod.getAll();
 
 			let html = '<table class="selectable">';
-				html += '<tr><th>ID</th><th>Name</th><th>Author</th></tr>';
+				html += '<tr><th>ID</th><th>Name</th><th>Author</th><th>Description</th></tr>';
 			for( let mod of mods ){
 
 				html += '<tr data-id="'+esc(mod.id)+'">';
 					html += '<td>'+esc(mod.id)+'</td>';
 					html += '<td>'+esc(mod.name)+'</td>';
 					html += '<td>'+esc(mod.author)+'</td>';
+					html += '<td>'+esc(mod.description)+'</td>';
 				html += '</tr>';
 
 			}
@@ -899,7 +904,6 @@ export default class Modtools{
 	closeAssetEditors( type, id ){
 
 		const win = Window.getByTypeAndId(type, id);
-		console.log("Getting windows by type and id", win);
 		if( win )
 			win.close();
 

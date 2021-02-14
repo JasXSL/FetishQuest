@@ -229,57 +229,6 @@ const mod = new Mod(
 		factions : getFactions(),
 		dungeonTemplates:getDungeonTemplates(),
 		effects:getEffects(),
-		dungeonRoomTemplates:[
-			{
-				"label":"darkChamber",
-				"tags":[
-					"du_dark",
-					"du_room"
-				],
-				"basemeshes":[
-					"Dungeon.Room.R10x10",
-					"Dungeon.Room.R6x6"
-				],
-				"containers":[
-					"Generic.Containers.ChestInteractive"
-				],
-				"props":[
-					"Generic.Containers.Barrel",
-					"Generic.Containers.Crate",
-					"Generic.Containers.CrateOpen",
-					"Farm.Furniture.TableCorner",
-					"Farm.Furniture.TableOneChair",
-					"Farm.Furniture.TableTwoBenches",
-					"Farm.Furniture.ShelfContainers",
-					"Farm.Furniture.ShelfProps",
-					"Dungeon.Doodads.BannerAnimated",
-					"Farm.Furniture.Bench",
-					"Dungeon.Furniture.RugTorn",
-					"Generic.Emitters.WallSconce"
-				]
-			},
-			{
-				"label":"darkCorridor",
-				"tags":[
-					"du_dark",
-					"du_room"
-				],
-				"basemeshes":[
-					"Dungeon.Room.R10x10RL",
-					"Dungeon.Room.R6x10"
-				],
-				"containers":[
-					"Generic.Containers.ChestInteractive"
-				],
-				"props":[
-					"Generic.Emitters.TorchHolder",
-					"Dungeon.Furniture.RugTorn",
-					"Dungeon.Doodads.BannerAnimated",
-					"Farm.Furniture.ShelfContainers",
-					"Farm.Furniture.ShelfProps"
-				]
-			}
-		],
 		wrappers:getWrappers(),
 		encounters : getEncounters(),
 		hitFX : getHitFX(),

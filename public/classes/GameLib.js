@@ -8,7 +8,7 @@ import Dungeon, { DungeonRoom, DungeonRoomAsset } from './Dungeon.js';
 import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from './Quest.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
-import DungeonTemplate, { RoomTemplate } from './templates/DungeonTemplate.js';
+import DungeonTemplate from './templates/DungeonTemplate.js';
 import { AudioKit } from './Audio.js';
 //import MAIN_MOD from '../libraries/_main_mod.js';
 import Mod from './Mod.js';
@@ -49,7 +49,6 @@ const LIB_TYPES = {
 	'factions' : Faction,
 	'audioKits' : AudioKit,
 	'hitFX' : HitFX,
-	'dungeonRoomTemplates' : RoomTemplate,
 	'dungeonTemplates' : DungeonTemplate,
 	'encounters' : Encounter,
 	'roleplay' : Roleplay,
@@ -91,7 +90,6 @@ const load_order = [
 	'actionLearnable',
 	'encounters',
 
-	'dungeonRoomTemplates',
 	'dungeonTemplates',
 	'dungeonRoomAssets',
 	'dungeonRooms',
@@ -136,7 +134,6 @@ export default class GameLib{
 		this.audioKits = {};
 		this.materialTemplates = {};	// AssetTemplate Material
 		this.dungeonTemplates = {};
-		this.dungeonRoomTemplates = {};
 		this.effects = {};
 		this.wrappers = {};
 		this.encounters = {};

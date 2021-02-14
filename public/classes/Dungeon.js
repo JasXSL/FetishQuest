@@ -759,6 +759,16 @@ class DungeonRoom extends Generic{
 	}
 
 
+	/* Procedural templating helper functions */
+	// Gets assets where the mesh is a door
+	pGetDoors(){
+		
+		return this.assets.filter(asset => {
+			const template = asset.getModel();
+			return template.
+		});
+
+	}
 
 
 
@@ -1747,6 +1757,8 @@ class DungeonRoomAsset extends Generic{
 // In a SemiLinear one, the room number is multiplied by 1.5, 50% being the side rooms
 Dungeon.generate = function( numRooms, kit, settings ){
 
+	console.log("Todo");
+	/*
 	let out = new this(settings);
 	numRooms = Math.max(numRooms, 1);
 	let maxAttempts = 1000;
@@ -2032,7 +2044,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	}
 
 	return out;
-
+	*/
 };
 
 

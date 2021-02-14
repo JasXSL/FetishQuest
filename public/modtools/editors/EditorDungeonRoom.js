@@ -1,17 +1,18 @@
 import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
-import * as EditorAsset from './EditorAsset.js';
+//import * as EditorAsset from './EditorAsset.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorEncounter from './EditorEncounter.js';
-import { Effect, Wrapper } from '../../classes/EffectSys.js';
+//import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../../classes/Dungeon.js';
 import {default as WebGL, Stage} from '../../classes/WebGL.js';
 import {default as libMeshes, LibMesh, getNonDoorMeshes} from '../../libraries/meshes.js';
-import TransformControls from '../../ext/TransformControls.js';
+//import TransformControls from '../../ext/TransformControls.js';
 import * as THREE from '../../ext/THREE.js'; 
 import Window from '../WindowManager.js';
 import GameAction from '../../classes/GameAction.js';
+import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'dungeonRooms',
 	CONSTRUCTOR = DungeonRoom,
@@ -23,11 +24,13 @@ const DB = 'dungeonRooms',
 // Single asset editor
 export function asset(){
 
+
 	const 
 		modtools = window.mod,
 		id = this.id,
 		asset = modtools.mod.getAssetById(DB, id),
-		dummy = CONSTRUCTOR.loadThis(asset)
+		dummy = CONSTRUCTOR.loadThis(asset),
+		isTemplate = !asset._mParent				// We're editing a procedural room template
 	;
 
 	if( !asset )
@@ -37,14 +40,14 @@ export function asset(){
 
 	let html = '';
 
-	// Todo: Put the 3d editor here
 	html += '<div class="webglRenderer">'+
 		'<div class="pusher"></div>'+
 		'<div class="content"></div>'+
 	'</div>';
 
+	if( isTemplate )
+		html += '<div class="missingAssets" style="color:#F66"></div>';
 
-	// Todo: Add the asset inserter
 	html += '<div class="assetInserter">';
 		html += '<select id="meshToTest" multiple>';
 		for( let i in libMeshes() )
@@ -53,7 +56,10 @@ export function asset(){
 	html += '</div>';
 
 	html += '<div class="labelFlex">';
+		if( isTemplate )	// Editing a template for procedural dungeon
+			html += '<label>Label: <input name="label" value="'+esc(asset.label)+'" type="text" class="saveable" autocomplete="chrome-off" /></label>';
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
+		
 		html += '<label>Outdoors <input type="checkbox" class="saveable" name="outdoors" '+(dummy.outdoors ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Lets you change the loading zoom, 0 for auto">Zoom: <input type="number" min=0 step=1 name="zoom" class="saveable" value="'+esc(dummy.zoom)+'" /></label>';
 		html += '<label>Ambiance: <input type="text" name="ambiance" class="saveable" value="'+esc(dummy.ambiance)+'" /></label>';
@@ -71,12 +77,9 @@ export function asset(){
 		
 	html += '</div>';
 
-	
-
-	
-
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	html += '<span title="Picks the first viable one when you enter, stays with it until respawn is triggered">Encounters:</span> <div class="encounters"></div>';
+	
 	
 
 	this.setDom(html);
@@ -100,6 +103,21 @@ export function asset(){
 export function assetTable( win, modAsset, name, single, parented, ignoreAsset ){
 	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'name'], single, parented, ignoreAsset);
 }
+
+
+// Listing
+export function list(){
+
+	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
+		'*label' : true,
+		'*name' : true,
+	}));
+
+	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
+		label : 'rTemp_'+Generic.generateUUID(),
+	}));
+
+};
 
 
 export function help(){
@@ -509,6 +527,11 @@ class Editor{
 
 	}
 
+	// We're editing a template for a procedural dungeon
+	isTemplate(){
+		return !this.room_raw._mParent;
+	}
+
 	// Try to rebase on start. If you rebase any time later, you'll fuck up history states
 	rebase(){
 		
@@ -529,7 +552,9 @@ class Editor{
 		}
 		
 		this.room.rebase();
-		this.room.parent = new Dungeon(window.mod.mod.getAssetById(this.room_raw._mParent.type, this.room_raw._mParent.label ));
+		// Editing a room in a dungeon
+		if( !this.isTemplate() )
+			this.room.parent = new Dungeon(window.mod.mod.getAssetById(this.room_raw._mParent.type, this.room_raw._mParent.label ));
 
 		// Build initial history state
 		for( let asset of this.room.assets ){
@@ -591,8 +616,15 @@ class Editor{
 
 	}
 	
-	// Updated wanted gameActions
+	// Updated wanted gameActions and template requirements
 	updateWants(){
+
+		if( this.isTemplate ){
+
+			const div = this.win.dom.querySelector('div.missingAssets');
+			console.log(this.room, div);
+
+		}
 
 		const assetHasInteraction = (asset, interaction) => {
 			if( !Array.isArray(asset.interactions) )

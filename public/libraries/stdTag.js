@@ -195,11 +195,14 @@ export default {
 
 
 	// Mesh tags
-	mPLAYER_MARKER : 'm_PLAYER_MARKER',
-	mMARKER_GROUP : 'm_MARKER_GROUP',
+	mPLAYER_MARKER : 'm_PLAYER_MARKER',			// Used to identify player marker meshes
+	mMARKER_GROUP : 'm_MARKER_GROUP',			// Not used
+	mTREASURE_MARKER : 'm_TREASURE_MARKER',		// Used to identify treasure locations for the procedural generator
+	mLEVER_MARKER : 'm_LEVER_MARKER',			// Used to identify an interactive lever in the dungeon generator
 
 	mLever :'m_lever',					// Lever
 	mTrapdoor : 'm_trapdoor',
+	mDoor  : 'm_door',
 	mLadder : 'm_ladder',				
 	mStool : 'm_stool',
 	mChairBackless : 'm_chair_backless',

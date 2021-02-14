@@ -79,6 +79,7 @@ class LibMesh{
 		this.min_attachments = isNaN(data.min_attachments) ? -1 : data.min_attachments;
 		this.max_attachments = data.max_attachments;
 		this.auto_bounding_box = data.auto_bounding_box;										// Creates an automatic invisible prim to use as a bounding box for raycasting
+		this.door = LibMesh.DoorTypes.DOOR_NONE;	// used for the procedural generator to figure out where a door can go. Their placement rotation matters. Where 0 = north, pi/2 = west...
 
 		// helper flags
 		this.want_actions = data.want_actions;	// Array of GameAction types that this asset wants. If not, it gets highlighted in the editor. Use sub arrays for OR
@@ -289,6 +290,17 @@ class LibMesh{
 	}
 
 }
+
+LibMesh.DoorTypes = {
+	DOOR_NONE : 0,
+	DOOR_NORTH : 0x1,
+	DOOR_EAST : 0x2,
+	DOOR_SOUTH : 0x4,
+	DOOR_WEST : 0x8,
+	DOOR_UP : 0x10,
+	DOOR_DOWN : 0x20
+}
+
 LibMesh.loader = new JDLoader();
 LibMesh.cache = new AC();
 LibMesh.cache.fetchMissingAsset = function( path ){
@@ -780,7 +792,9 @@ function build(){
 					},
 					onInteract : function( mesh, room, asset ){
 						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5 );
-					}
+					},
+					tags : [stdTag.mDoor],
+					door : LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST|LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH,
 				}),
 				Hatched : new LibMesh({
 					auto_bounding_box : true,
@@ -807,7 +821,9 @@ function build(){
 					onStagePlaced : function( dungeonAsset, mesh ){},
 					onInteract : function( mesh, room, asset ){
 						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5 );
-					}
+					},
+					tags : [stdTag.mDoor],
+					door : LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST|LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH,
 				}),
 				Ladder : new LibMesh({
 					url : 'gates/ladder_1x1.JD',
@@ -844,7 +860,8 @@ function build(){
 						mesh.userData.tweens.interact.start();
 						LibMesh.playSound( mesh, asset, 'media/audio/ladder.ogg', 0.5);
 					
-					}
+					},
+					door : LibMesh.DoorTypes.DOOR_UP,
 				}),
 				Trapdoor : new LibMesh({
 					url : 'gates/trapdoor_2x2.JD',
@@ -866,7 +883,9 @@ function build(){
 					},
 					onInteract : function( mesh, room, asset ){
 						LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
-					}
+					},
+					tags : [stdTag.mDoor],
+					door : LibMesh.DoorTypes.DOOR_DOWN,
 				}),
 				WallLever : new LibMesh({
 					auto_bounding_box : true,
@@ -881,7 +900,7 @@ function build(){
 					width: 1,
 					height: 1,
 					want_actions : [GameAction.types.lever],
-					tags : [stdTag.mLever],
+					tags : [stdTag.mLever, stdTag.mLEVER_MARKER],
 					animations : {
 						"open" : {
 							clampWhenFinished : true,
@@ -950,7 +969,8 @@ function build(){
 						mesh.userData.tweens.interact.start();
 						LibMesh.playSound( mesh, asset, 'media/audio/ladder.ogg', 0.5);
 					
-					}
+					},
+					door : LibMesh.DoorTypes.DOOR_UP
 				}),
 			}
 		},
@@ -1345,6 +1365,7 @@ function build(){
 			},
 			Door : {
 				Stairs : new LibMesh({
+					door : LibMesh.DoorTypes.DOOR_UP,
 					url : 'gates/wood_stairs.JD',
 					materials : [
 						libMat.Wood.Crate,
@@ -1390,7 +1411,7 @@ function build(){
 					width: 2,
 					height: 1,
 					want_actions : [[GameAction.types.door,GameAction.types.exit]],
-					tags : [stdTag.mTrapdoor],
+					tags : [stdTag.mDoor],
 					animations : {
 						"open" : {
 							clampWhenFinished : true,
@@ -1400,7 +1421,8 @@ function build(){
 					},
 					onInteract : function( mesh, room, asset ){
 						LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
-					}
+					},
+					door : LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH|LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST,
 				}),
 			}
 		},
@@ -2273,6 +2295,17 @@ function build(){
 							mesh.visible = false;
 					}
 				}),
+				Treasure : new LibMesh({
+					auto_bounding_box : true,
+					url : 'containers/chest_1x1.JD',
+					materials : [
+						libMat.Solids.GreenArrow,
+						libMat.Solids.GreenArrow,
+					],
+					tags : [stdTag.mTREASURE_MARKER],
+					width: 1,
+					height: 1,
+				}),
 			},
 			
 		},
@@ -3128,7 +3161,9 @@ function build(){
 					},
 					onInteract : function( mesh, room, asset ){
 						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5);
-					}
+					},
+					tags : [stdTag.mDoor],
+					door : LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH|LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST,
 				}),
 				
 			}
@@ -3581,7 +3616,9 @@ function build(){
 				},
 				onInteract : function( mesh, room, asset ){
 					LibMesh.playSound( mesh, asset, 'media/audio/castle_door.ogg', 0.75);
-				}
+				},
+				tags : [stdTag.mDoor],
+				door : LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH|LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST,
 			}),
 
 			Generic : new LibMesh({
@@ -3600,7 +3637,9 @@ function build(){
 				},
 				onInteract : function( mesh, room, asset ){
 					LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
-				}
+				},
+				tags : [stdTag.mDoor],
+				door : LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH|LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST,
 			}),
 
 			Manhole : new LibMesh({
@@ -3621,7 +3660,9 @@ function build(){
 				onInteract : function( mesh, room, asset ){
 					// Todo: better sound
 					LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
-				}
+				},
+				tags : [stdTag.mTrapdoor],
+				door : LibMesh.DoorTypes.DOOR_DOWN,
 			}),
 
 		},

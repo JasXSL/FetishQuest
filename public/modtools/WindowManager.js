@@ -16,7 +16,10 @@ export default class Window{
 
 	// id is a unique id, type is the type of asset (or window), parent is the parent window. Closing the parent also closes any children.
 	// build is the build function
-	constructor( id, type, name, icon, asset, build, parent ){
+	constructor( id, type, name, icon, asset, build, parent, custom = {} ){
+
+		if( typeof custom !== "object" )
+			custom = {};
 
 		this.id = id;
 		this.type = type;
@@ -30,6 +33,7 @@ export default class Window{
 		this.parent = parent;
 		this.hideOnClose = false;
 		this.dead = false;
+		this.custom = custom;		// Holds special window properties such as if it should only list orphans etc. Not currently used.
 		
 		this.minimized = false;
 

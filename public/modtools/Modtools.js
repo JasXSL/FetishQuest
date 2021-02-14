@@ -408,7 +408,6 @@ export default class Modtools{
 				'<td>'+mod.actions.length+'</td>'+
 				'<td>'+
 					mod.assetTemplates.length+'a, '+
-					mod.dungeonRoomTemplates.length+'dr, '+
 					mod.dungeonTemplates.length+'d, '+
 					mod.playerTemplates.length+'p, '+
 					mod.materialTemplates.length+'m'+

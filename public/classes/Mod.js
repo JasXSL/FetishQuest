@@ -30,7 +30,6 @@ export default class Mod extends Generic{
 		this.materialTemplates = [];	// AssetTemplate Material
 		this.dungeonTemplates = [];
 		this.effects = [];
-		this.dungeonRoomTemplates = [];	
 		this.wrappers = [];
 		this.encounters = [];
 		this.hitFX = [];
@@ -92,7 +91,6 @@ export default class Mod extends Generic{
 			materialTemplates: this.materialTemplates,
 			dungeonTemplates: this.dungeonTemplates,
 			effects : this.effects,
-			dungeonRoomTemplates : this.dungeonRoomTemplates,
 			wrappers : this.wrappers,
 			encounters : this.encounters,
 			players : this.players,
