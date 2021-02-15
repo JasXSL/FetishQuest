@@ -156,7 +156,7 @@ class WebGL{
 
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		//this.controls = new OrbitControls(this.fxCam, this.fxRenderer.domElement);
-		
+
 		this.controls.enableDamping = true;
 		this.controls.dampingFactor = 0.3;
 		this.controls.rotateSpeed = 0.2;
@@ -167,6 +167,7 @@ class WebGL{
 			this.controls.maxPolarAngle = Math.PI/3+0.2;
 		}
 		this.controls.update();
+
 
 		this.raycaster = new THREE.Raycaster();
 		this.mouse = new THREE.Vector2();
@@ -711,6 +712,7 @@ class WebGL{
 			this.composer.render();
 		else
 			this.renderer.render( this.scene, this.camera);
+
 	}
 	
 	cacheActiveDungeon(){
@@ -1449,12 +1451,13 @@ class WebGL{
 	roomEnterCameraTween(){
 
 		let room = game.dungeon.getActiveRoom();
-		let asset = room.getRoomAsset();
-		let mesh = asset.getModel();
-		
-		let size = Math.max(mesh.width,mesh.height);
-		let posY = size*220/Math.pow(1.05, size), 
-			posZ = size*80/Math.pow(1.05, size);
+		let asset = room.getRoomAsset()._stage_mesh;
+
+		const box = new THREE.Box3().setFromObject(asset).getSize();
+		const max = Math.max(box.x, box.y, box.z);
+		let posY = max, 
+			posZ = max*.75;
+
 		this.camera.position.y = posY*1.1;
 		this.camera.position.z = posZ*1.1;
 		this.camera.position.x = 0;
@@ -1827,15 +1830,8 @@ class Stage{
 	}
 
 	updatePositionByAsset( asset ){
-
-		const room = this.room;
-		const roomAsset = room.getRoomAsset();
-		let roomModel;
-		if( roomAsset )
-			roomModel = roomAsset.getModel();
-
+		
 		const c = asset._stage_mesh;
-		let meshTemplate = asset.getModel();			// Library entry
 
 		// Position it
 		c.position.x = asset.x;
@@ -2109,15 +2105,22 @@ class Stage{
 	updateSoundPositions( debug ){
 
 		for( let s of this.sounds ){
+
 			if( s.sound instanceof AudioSound ){
+
 				let pos = s.mesh.position.clone();
 				let camera = this.parent.camera;
 
+				
+
 				camera.matrixWorldInverse.getInverse( camera.matrixWorld );
 				pos.applyMatrix4( camera.matrixWorldInverse );
+				
 				let falloff = 800;
 				s.sound.setPosition(pos.x/falloff,pos.y/falloff,pos.z/falloff);
+
 			}
+
 		}
 	}
 	playSound( mesh, url, volume, loop, id){

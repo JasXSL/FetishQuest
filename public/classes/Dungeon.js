@@ -14,7 +14,7 @@
 import * as THREE from '../ext/THREE.js';
 
 import Generic from './helpers/Generic.js';
-import {default as libMeshes, LibMesh, LibMesh as libMeshTools} from '../libraries/meshes.js';
+import {default as libMeshes, LibMesh} from '../libraries/meshes.js';
 import stdTag from '../libraries/stdTag.js';
 import {  Effect } from './EffectSys.js';
 import Asset from './Asset.js';
@@ -206,24 +206,30 @@ class Dungeon extends Generic{
 	}
 
 	generateRoom( shape ){
+
 		if( isNaN(shape) )
 			shape = this.shape;
 
 		let room = new DungeonRoom({}, this);
 		if( !this.rooms.length ){
+
 			room.discovered = true;
 			this.rooms.push(room);
 			return room;
+
 		}
 
-		// Shuffle the rooms
+		// Shuffle the rooms and pick one at random
 		let rooms = this.rooms.slice();
 		if( shape === Dungeon.Shapes.Linear || shape === Dungeon.Shapes.SemiLinear )
 			rooms = [this.rooms[this.rooms.length-1]];
+
 		shuffle(rooms);
 		for( let r of rooms ){
+
 			let empty = this.getEmptyRoomDirectionsFrom(r);
 			if( empty.length ){
+
 				shuffle(empty);
 				let xyz = empty.shift();
 				room.x = r.x+xyz[0];
@@ -233,7 +239,9 @@ class Dungeon extends Generic{
 				room.parent_index = r.index;
 				this.rooms.push(room);
 				return room;
+
 			}
+
 		}
 
 		return false;
@@ -863,7 +871,7 @@ class DungeonRoom extends Generic{
 	// Path in assetLib
 	placeAsset( assetPath, generated = false ){
 
-		let mesh = libMeshTools.getByString(assetPath);
+		let mesh = LibMesh.getByString(assetPath);
 		let bearing = Math.floor(Math.random()*4);
 		if( mesh.no_rotation )
 			bearing = undefined;
@@ -1082,9 +1090,6 @@ class DungeonRoomAsset extends Generic{
 		this.name = '';
 		this.model = '';		// Use . notation and select a model from libMeshes
 		this.generated = false;	// Whether this was generated through the game or modified.
-		// In absolute mode these are absolute positions and rotations
-		// In normal mode, they're based on tiles
-		// Absolute objects are excempt from the tiling system in the generator
 		this.x = 0;				// X block
 		this.y = 0;				// Y block
 		this.z = 0;				// Z block
@@ -1700,26 +1705,38 @@ DungeonRoomAsset.Dir = {
 
 // Procedural dungeon generator
 // In a SemiLinear one, the room number is multiplied by 1.5, 50% being the side rooms
+/*
+	numRooms : nr rooms to generate
+	kit : name of the dungeon template to use
+	settings : additional settings passed directly to the Dungeon constructor
+*/
 Dungeon.generate = function( numRooms, kit, settings ){
 
-	console.log("Todo");
-	/*
 	let out = new this(settings);
 	numRooms = Math.max(numRooms, 1);
+
+	// Generate the map by creating rooms with no assets
+
 	let maxAttempts = 1000;
 	for( let i=0; i<numRooms; ++i ){
+
 		let attempt = out.generateRoom();
 
 		if( !attempt ){
+
 			out.rooms = [];
 			i = -1;
 			--maxAttempts;
 			console.debug("Got stuck, trying again");
 			if( maxAttempts === 0 ){
+
 				console.error("Unable to generate a linear dungeon");
 				break;
+
 			}
+
 		}
+
 	}
 
 	// SemiLinear requires at least 2 rooms
@@ -1732,6 +1749,12 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		
 	}
 
+	// We now have a dungeon layout, but nothing in it
+
+	console.log("Empty Template", out);
+
+
+	/*
 	// Fetch a dungeon kit
 	let dungeonTemplateLib = glib.getFull("DungeonTemplate");
 	if( dungeonTemplateLib[kit] )
