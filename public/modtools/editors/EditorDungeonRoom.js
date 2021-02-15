@@ -13,6 +13,7 @@ import * as THREE from '../../ext/THREE.js';
 import Window from '../WindowManager.js';
 import GameAction from '../../classes/GameAction.js';
 import Generic from '../../classes/helpers/Generic.js';
+import stdTag from '../../libraries/stdTag.js';
 
 const DB = 'dungeonRooms',
 	CONSTRUCTOR = DungeonRoom,
@@ -619,8 +620,62 @@ class Editor{
 
 		if( this.isTemplate ){
 
-			const div = this.win.dom.querySelector('div.missingAssets');
-			console.log(this.room, div);
+			let html = [];
+			const needed_doors = [true, true, true, true, true, true];	// One for each direction
+			let hasTreasure = false, hasLever = false, playerMarkers = 0;
+
+			for( let asset of this.room.assets ){
+
+				for( let i in needed_doors ){
+					
+					if( !needed_doors[i] )
+						continue;
+
+					if( asset.pIsDoorDir(i) )
+						needed_doors[i] = false;
+
+				}
+
+				if( asset.hasTag(stdTag.mLEVER_MARKER) )
+					hasLever = true;
+					
+				if( asset.hasTag(stdTag.mTREASURE_MARKER) )
+					hasTreasure = true;
+
+				if( asset.hasTag(stdTag.mPLAYER_MARKER) )
+					++playerMarkers;
+
+			}
+
+			// Calculate needed doors
+			let totalNeeded = 0;
+			for( let v of needed_doors )
+				totalNeeded += v;
+			
+			if( totalNeeded ){
+
+				let doors = [];
+				for( let i in needed_doors ){
+					
+					if( needed_doors[i] )
+						doors.push(DungeonRoomAsset.getDirName(parseInt(i)));
+					
+
+				}
+				html.push('Doors: '+doors.join(', '));
+
+
+			}
+
+			if( !hasTreasure )
+				html.push('Treasure');
+			if( !hasLever )
+				html.push('Lever');
+			if( playerMarkers < 4 )
+				html.push((4-playerMarkers)+" player markers");
+			
+
+			this.win.dom.querySelector('div.missingAssets').innerHTML = html.join(" | ");
 
 		}
 

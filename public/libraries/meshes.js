@@ -66,7 +66,7 @@ class LibMesh{
 		this.min_attachments = isNaN(data.min_attachments) ? -1 : data.min_attachments;
 		this.max_attachments = data.max_attachments;
 		this.auto_bounding_box = data.auto_bounding_box;										// Creates an automatic invisible prim to use as a bounding box for raycasting
-		this.door = LibMesh.DoorTypes.DOOR_NONE;	// used for the procedural generator to figure out where a door can go. Their placement rotation matters. Where 0 = north, pi/2 = west...
+		this.door = data.door || LibMesh.DoorTypes.DOOR_NONE;	// used for the procedural generator to figure out where a door can go. Their placement rotation matters. Where 0 = north, pi/2 = west...
 
 		// helper flags
 		this.want_actions = data.want_actions;	// Array of GameAction types that this asset wants. If not, it gets highlighted in the editor. Use sub arrays for OR
@@ -261,17 +261,20 @@ class LibMesh{
 		return Object.keys(tags);
 	}
 
+	
+
 }
 
 LibMesh.DoorTypes = {
 	DOOR_NONE : 0,
-	DOOR_NORTH : 0x1,
-	DOOR_EAST : 0x2,
-	DOOR_SOUTH : 0x4,
-	DOOR_WEST : 0x8,
-	DOOR_UP : 0x10,
-	DOOR_DOWN : 0x20
+	DOOR_AUTO_XY : 1,	// Based on object rotation 
+	DOOR_UPDOWN : 2,	// Accept both, ex an elevator
+	DOOR_ALL : 3,		// 
+	DOOR_DOWN : 4,
+	DOOR_UP : 5,
 }
+
+
 
 LibMesh.loader = new JDLoader();
 LibMesh.cache = new AC();
@@ -720,7 +723,7 @@ function build(){
 						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5 );
 					},
 					tags : [stdTag.mDoor],
-					door : LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST|LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH,
+					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
 				}),
 				Hatched : new LibMesh({
 					auto_bounding_box : true,
@@ -749,7 +752,7 @@ function build(){
 						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5 );
 					},
 					tags : [stdTag.mDoor],
-					door : LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST|LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH,
+					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
 				}),
 				Ladder : new LibMesh({
 					url : 'gates/ladder_1x1.JD',
@@ -1320,7 +1323,7 @@ function build(){
 					onInteract : function( mesh, room, asset ){
 						LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
 					},
-					door : LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH|LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST,
+					door : LibMesh.DoorTypes.AUTO_XY,
 				}),
 			}
 		},
@@ -2996,7 +2999,7 @@ function build(){
 						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5);
 					},
 					tags : [stdTag.mDoor],
-					door : LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH|LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST,
+					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
 				}),
 				
 			}
@@ -3439,7 +3442,7 @@ function build(){
 					LibMesh.playSound( mesh, asset, 'media/audio/castle_door.ogg', 0.75);
 				},
 				tags : [stdTag.mDoor],
-				door : LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH|LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST,
+				door : LibMesh.DoorTypes.DOOR_AUTO_XY,
 			}),
 
 			Generic : new LibMesh({
@@ -3460,7 +3463,7 @@ function build(){
 					LibMesh.playSound( mesh, asset, 'media/audio/trapdoor.ogg', 0.5);
 				},
 				tags : [stdTag.mDoor],
-				door : LibMesh.DoorTypes.DOOR_EAST|LibMesh.DoorTypes.DOOR_SOUTH|LibMesh.DoorTypes.DOOR_NORTH|LibMesh.DoorTypes.DOOR_WEST,
+				door : LibMesh.DoorTypes.DOOR_AUTO_XY,
 			}),
 
 			Manhole : new LibMesh({

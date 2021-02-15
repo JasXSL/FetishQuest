@@ -11,9 +11,10 @@
 */
 
 
+import * as THREE from '../ext/THREE.js';
 
 import Generic from './helpers/Generic.js';
-import {default as libMeshes, LibMesh as libMeshTools} from '../libraries/meshes.js';
+import {default as libMeshes, LibMesh, LibMesh as libMeshTools} from '../libraries/meshes.js';
 import stdTag from '../libraries/stdTag.js';
 import {  Effect } from './EffectSys.js';
 import Asset from './Asset.js';
@@ -765,11 +766,12 @@ class DungeonRoom extends Generic{
 		
 		return this.assets.filter(asset => {
 			const template = asset.getModel();
-			return template.
-			// Todo
+			return template.door;
 		});
 
 	}
+
+	
 
 
 
@@ -1619,9 +1621,75 @@ class DungeonRoomAsset extends Generic{
 	getTags(){
 		return this.tags;
 	}
+
+
+
+	/* Procedural generator helpers */
+	// Tries to turn an XY door into a direction. The door mesh should be pointing towards the camera (negative Z)
+	pIsDoorDir( dir ){
+
+		dir = parseInt(dir);
+		const template = this.getModel();
+
+		// allow all, no need to check
+		if( template.door === LibMesh.DoorTypes.DOOR_ALL )
+			return true;
+		
+		if( template.door === LibMesh.DoorTypes.DOOR_NONE || dir == DungeonRoomAsset.Dir.INVALID ){
+			return false;
+		}
+		
+		if( dir === DungeonRoomAsset.Dir.UP )
+			return template.door === LibMesh.DoorTypes.DOOR_UPDOWN || template.door === LibMesh.DoorTypes.DOOR_UP;
+		if( dir === DungeonRoomAsset.Dir.DOWN )
+			return template.door === LibMesh.DoorTypes.DOOR_UPDOWN || template.door === LibMesh.DoorTypes.DOOR_DOWN;
+		
+		if( dir > 5 || template.door !== LibMesh.DoorTypes.DOOR_AUTO_XY ){
+			return false;
+		}
+
+		// Handle xy
+		const d = new THREE.Vector3(0,0,1);
+		d.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.rotX, this.rotY, this.rotZ)));
+		
+		if( dir === DungeonRoomAsset.Dir.SOUTH ){
+			return Math.abs(d.z) > Math.abs(d.x) && d.z < 0;
+		}
+		else if( dir === DungeonRoomAsset.Dir.NORTH )
+			return Math.abs(d.z) > Math.abs(d.x) && d.z > 0;
+		else if( dir === DungeonRoomAsset.Dir.EAST )
+			return Math.abs(d.x) > Math.abs(d.z) && d.x < 0;
+		else if( dir === DungeonRoomAsset.Dir.WEST )
+			return Math.abs(d.x) > Math.abs(d.z) && d.x > 0;
+		
+		return false;
+
+	}
 	
 }
 
+DungeonRoomAsset.getDirName = function( dir ){
+
+	for( let i in this.Dir ){
+
+		if( dir === this.Dir[i] )
+			return i;
+
+	}
+	return '???';
+
+};
+
+// Direction indexes
+DungeonRoomAsset.Dir = {
+	INVALID : -1,
+	NORTH : 0,
+	EAST : 1,
+	SOUTH : 2,
+	WEST : 3,
+	UP : 4,
+	DOWN : 5
+};
 
 
 

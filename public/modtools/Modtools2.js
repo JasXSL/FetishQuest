@@ -618,7 +618,6 @@ export default class Modtools{
 				const data = Object.fromEntries(this.window_states);
 				data.mod = this.mod.id;
 
-				console.log("Saving", data);
 				await this.db.window_states.put(data);
 				
 			}catch(err){
