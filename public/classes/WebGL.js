@@ -856,7 +856,8 @@ class WebGL{
 		for( let r of this.stages ){
 
 			if( !r.room )
-				console.error("R doesnt' have a room flag", r);
+				console.error("R doesnt' have a room", r, "Stages", this.stages);
+
 			if( r.room.id === room.id ){
 
 				if( !game.is_host )

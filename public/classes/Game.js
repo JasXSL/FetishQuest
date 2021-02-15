@@ -1012,8 +1012,12 @@ export default class Game extends Generic{
 
 	}
 
-	removeDungeonState( label ){
-		console.error("Todo: Reset dungeon state");
+	removeProceduralDungeonState(){
+		
+		this.state_dungeons.unset('_procedural_');
+		this.renderer.uncacheDungeon('_procedural_');
+		
+
 	}
 
 	canTransport( addError = true ){
@@ -1032,10 +1036,10 @@ export default class Game extends Generic{
 		const existing = this.getQuestByLabel('_procedural_');
 		if( existing )
 			this.removeQuest(existing.id);
-		this.removeDungeonState('_procedural_');
+		this.removeProceduralDungeonState();
 		this.removeQuestCompletion('_procedural_');
 
-		this.addRandomQuest();
+		//this.addRandomQuest(); Todo: re-enable when done
 
 	}
 

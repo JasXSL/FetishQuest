@@ -164,7 +164,7 @@ export default class Generic{
 		}
 	}
 
-	// Generic tag one
+	// Returns this object's tags in lowercase
 	getTags(){
 
 		if( !this.tags )
@@ -179,17 +179,18 @@ export default class Generic{
 	}
 	
 	// ...args is supplied as arguments to getTags
-	hasTag( tags, ...args ){
+	hasTag( ...tags ){
 		if( !Array.isArray(this.tags) )
 			return false;
 
-		if( !Array.isArray(tags) )
-			tags = [tags];
-
-		tags = tags.map(tag => tag.toLowerCase());
+		let arr = [];
+		for( let tag of tags )
+			arr = arr.concat(tag);
+		
+		tags = arr.map(tag => tag.toLowerCase());
 
 		
-		let t = this.getTags.apply(this, [...args]);
+		let t = this.getTags.apply(this);
 		for( let tag of t ){
 			if( ~tags.indexOf(tag.toLowerCase()) )
 				return true;

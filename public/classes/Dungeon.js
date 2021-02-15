@@ -196,6 +196,7 @@ class Dungeon extends Generic{
 				return room;
 		}
 		return false;
+
 	}
 
 	getRoomById( id ){
@@ -579,6 +580,19 @@ class DungeonRoom extends Generic{
 		this.g_autoload(data);
 	}
 
+	loadFromTemplate( template ){
+		
+		if( !(template instanceof DungeonRoom) )
+			return;
+
+		this.outdoors = template.outdoors;
+		this.zoom = template.zoom;
+		this.tags = template.tags;
+		this.ambiance = template.ambiance;
+		this.ambiance_volume = template.ambiance_volume;
+		
+
+	}
 
 	loadState( state ){
 
@@ -685,17 +699,18 @@ class DungeonRoom extends Generic{
 		;
 
 		if( x > mx )
-			return 1;
+			return DungeonRoomAsset.Dir.EAST;
 		if( x < mx )
-			return 3;
+			return DungeonRoomAsset.Dir.WEST;
 		if( y < my )
-			return 2;
+			return DungeonRoomAsset.Dir.SOUTH;
 		if( z > mz )
-			return 4;
+			return DungeonRoomAsset.Dir.UP;
 		if( z < mz )
-			return 5;
+			return DungeonRoomAsset.Dir.DOWN;
 	
-		return 0;
+		return DungeonRoomAsset.Dir.NORTH;
+
 	}
 
 	// Helper function for getting a piece of text based on the bearing int supplied
@@ -717,13 +732,16 @@ class DungeonRoom extends Generic{
 	}
 
 	// Gets bearings of all rooms linking to this in the form of {bearing:name}
+	// Bearings are DungeonRoomAsset.Dir
 	getAdjacentBearings(){
+
 		const cons = this.getDirectConnections();
 		const out = {};
 		for( let room of cons )
 			out[String(this.getAdjacentBearing(room))] = room; 
 		
 		return out;
+
 	}
 
 	// Gets parents of this room in order
@@ -778,7 +796,33 @@ class DungeonRoom extends Generic{
 		});
 
 	}
+	// Gets the first best door with this bearing
+	pGetDoorByBearing(bearing){
 
+		const doors = this.pGetDoors();
+		for( let door of doors ){
+
+			if( door.pIsDoorDir(bearing) )
+				return door;
+
+		}
+
+		return false;
+
+	};
+
+	// Gets assets where the mesh is a lever
+	pGetLevers(){
+		return this.assets.filter(asset => {
+			return asset.hasTag(stdTag.mLEVER_MARKER);
+		});
+	}
+	// Gets assets where the mesh is a treasure
+	pGetTreasures(){
+		return this.assets.filter(asset => {
+			return asset.hasTag(stdTag.mTREASURE_MARKER);
+		});
+	}
 	
 
 
@@ -1009,15 +1053,6 @@ class DungeonRoom extends Generic{
 	
 
 }
-
-DungeonRoom.Dirs = {
-	North : 0,
-	East : 1,
-	South : 2,
-	West : 3,
-	Up : 4,
-	Down : 5
-};
 
 class DungeonRoomSaveState extends Generic{
 	constructor(data, parent){
@@ -1671,6 +1706,10 @@ class DungeonRoomAsset extends Generic{
 
 	}
 	
+	pIsDoor(){
+		const template = this.getModel();
+		return template.door !== LibMesh.DoorTypes.DOOR_NONE;
+	}
 }
 
 DungeonRoomAsset.getDirName = function( dir ){
@@ -1712,7 +1751,12 @@ DungeonRoomAsset.Dir = {
 */
 Dungeon.generate = function( numRooms, kit, settings ){
 
+
+
 	let out = new this(settings);
+	out.label = '_procedural_';
+	out.id = '_procedural_';		// Both need to be procedural
+
 	numRooms = Math.max(numRooms, 1);
 
 	// Generate the map by creating rooms with no assets
@@ -1751,11 +1795,9 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	// We now have a dungeon layout, but nothing in it
 
-	console.log("Empty Template", out);
 
 
-	/*
-	// Fetch a dungeon kit
+	// Fetch a dungeon kit, try the specified one and then randomize
 	let dungeonTemplateLib = glib.getFull("DungeonTemplate");
 	if( dungeonTemplateLib[kit] )
 		kit = dungeonTemplateLib[kit];
@@ -1763,8 +1805,124 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	// Pick one at random
 	kit = objectRandElem(dungeonTemplateLib);
 
-	out.consumables = kit.consumables.slice();
+	let viableRooms = kit.rooms;
+	
+	const getViableRoomTemplate = room => {
+		
+		
 
+		// Helper function that checks if template is viable for room
+		const isRoomViable = template => {
+
+			
+			// Get required bearings first
+			const adjacent = room.getAdjacentBearings();
+			// First room always needs an exit door
+			if( room.index === 0 )
+				adjacent[DungeonRoomAsset.Dir.SOUTH] = true;
+
+			for( let i in adjacent ){
+
+				if( !template.pGetDoorByBearing(parseInt(i)) )
+					return false;
+
+			}
+
+			// Todo: Check for levers and treasures
+
+			return true;
+
+		};
+	
+
+		// Shuffle the rooms and try to find a viable one
+		shuffle(viableRooms);
+		for( let test of viableRooms ){
+
+			if( isRoomViable(test) )
+				return test;
+			
+		}
+
+		// Failed to find a viable room
+		return false;
+
+
+	};
+
+
+	// Todo: Generate levers
+	// Todo: Generate treasures
+	// Todo: Generate encounters
+
+
+	for( let room of out.rooms ){
+
+		const viableTemplate = getViableRoomTemplate(room);
+		
+		if( !viableTemplate )
+			throw 'Error, unviable templates for this dungeon';
+
+		room.loadFromTemplate(viableTemplate);
+		
+
+		// Todo: add encounter
+
+
+		// Re-add the assets
+		
+		// add the doors
+		const adjacent = room.getAdjacentBearings();
+		// Force add an exit
+		if( room.index === 0 )
+			adjacent[DungeonRoomAsset.Dir.SOUTH] = true;	// mark exit as true, other ones will have the room object attached
+
+		// Put the doors back in
+		for( let i in adjacent ){
+			
+			
+			const adjRoom = adjacent[i],
+				isExit = adjRoom === true,
+				door = viableTemplate.pGetDoorByBearing(parseInt(i)).clone()
+			;
+
+			let adata = isExit ? 
+				{dungeon:game.dungeon.label, index:game.dungeon.active_room} : // Exit to the room where we generated the quest
+				{index:adjRoom.index}
+			;
+			
+			let action = new GameAction({
+				type : isExit ? GameAction.types.exit : GameAction.types.door,
+				data : adata
+			}, door);
+			door.interactions.push(action);
+
+			room.assets.push(door);
+
+		}
+
+		// Todo: Add the treasures
+		// Todo: Add the levers
+
+		for( let asset of viableTemplate.assets ){
+
+			// Treasures/levers should be done above
+			if( asset.hasTag(stdTag.mLEVER_MARKER, stdTag.mTREASURE_MARKER) || asset.pIsDoor() )
+				continue;
+
+			room.addAsset(asset.clone());
+
+		}
+
+		
+
+		window.ROOM = room;
+
+	}
+
+	console.log(out);
+
+	/*
 	// Add encounters
 	let i = 0;
 	let encounters = out.rooms.map(() => ++i);
@@ -2010,9 +2168,10 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		
 
 	}
+	*/
 
 	return out;
-	*/
+	
 };
 
 

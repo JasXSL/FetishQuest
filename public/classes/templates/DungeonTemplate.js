@@ -2,8 +2,7 @@
 	This is a template used in the asset generator
 */
 import Generic from '../helpers/Generic.js';
-import Asset from '../Asset.js';
-import Encounter from '../Encounter.js';
+import { DungeonRoom } from '../Dungeon.js';
 
 class DungeonTemplate extends Generic{
 	constructor(...args){
@@ -27,7 +26,11 @@ class DungeonTemplate extends Generic{
 		return out;
 	}
 
-	rebase(){}
+	rebase(){
+
+		this.rooms = DungeonRoom.loadThese(this.rooms);
+
+	}
 
 
 	load(data){

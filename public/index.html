@@ -28,7 +28,7 @@
 	<script>
 		console.debug("Entry point for debugging is 'game'");
 		// Globals
-		var game = true, glib, g_Condition, g_GameEvent, g_Audio, g_Mod, g_Comparer, g_Collection, g_Generic, g_Asset, g_Text, g_Calculator, g_GameAction, g_Player, stdTag;
+		var game = true, glib, gCondition, gGameEvent, gAudio, gMod, gComparer, gCollection, gGeneric, gAsset, gText, gCalculator, gGameAction, gPlayer, stdTag, gDungeon;
 	</script>
 	<script type="module">
 		import Game from './classes/Game.js';
@@ -45,22 +45,24 @@
 		import Text from './classes/Text.js';
 		import Calculator from './classes/Calculator.js';
 		import GameAction from './classes/GameAction.js';
+		import Dungeon from './classes/Dungeon.js';
 		import Tags from './libraries/stdTag.js';
 
 		console.debug("Modules imported, starting game");
 		
-		g_Condition = Condition;
-		g_GameEvent = GameEvent;
-		g_Audio = Audio;
-		g_Mod = Mod;
-		g_Comparer = Comparer;
-		g_Collection = Collection;
-		g_Generic = Generic;
-		g_Asset = Asset;
-		g_Text = Text;
-		g_Calculator = Calculator;
-		g_GameAction = GameAction;
-		g_Player = Player;
+		gCondition = Condition;
+		gGameEvent = GameEvent;
+		gAudio = Audio;
+		gMod = Mod;
+		gComparer = Comparer;
+		gCollection = Collection;
+		gGeneric = Generic;
+		gAsset = Asset;
+		gText = Text;
+		gCalculator = Calculator;
+		gGameAction = GameAction;
+		gPlayer = Player;
+		gDungeon = Dungeon;
 		stdTag = Tags;
 		glib = new GameLib();
 		window.Player = Player;
@@ -86,7 +88,7 @@
 			Game.load();
 		})
 		.then(() => {
-			console.debug("Game initialized. Globals:\ngame = Active game\nglib = Game asset library\ng_Condition = Condition class\ng_Mod = Mod class\ng_GameEvent = GameEvent class\ng_Audio = Audio class");
+			console.debug("Game initialized. Globals:\ngame = Active game\nglib = Game asset library\ngCondition = Condition class\ngMod = Mod class\ngGameEvent = GameEvent class\ngAudio = Audio class");
 		})
 		.catch(err => console.error(err));
 		
@@ -95,7 +97,7 @@
 
 	<div id="content">
 		<div id="renderer"></div>
-		<div id="loading_screen" class="hidden">
+		<div id="loadingscreen" class="hidden">
 			<div class="loadingBar">
 				<div class="slider"></div>
 			</div>
