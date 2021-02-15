@@ -1907,7 +1907,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		for( let asset of viableTemplate.assets ){
 
 			// Treasures/levers should be done above
-			if( asset.hasTag(stdTag.mLEVER_MARKER, stdTag.mTREASURE_MARKER) || asset.pIsDoor() )
+			if( asset.hasTag([stdTag.mLEVER_MARKER, stdTag.mTREASURE_MARKER]) || asset.pIsDoor() )
 				continue;
 
 			room.addAsset(asset.clone());
