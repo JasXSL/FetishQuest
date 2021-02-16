@@ -3,6 +3,7 @@
 */
 import Generic from '../helpers/Generic.js';
 import { DungeonRoom } from '../Dungeon.js';
+import Encounter from '../Encounter.js';
 
 class DungeonTemplate extends Generic{
 	constructor(...args){
@@ -10,6 +11,7 @@ class DungeonTemplate extends Generic{
 
 		this.label = 'fort';	// Generic dark dungeon
 		this.rooms = [];		// Viable room templates
+		this.encounters = [];	// Viable encounter templates
 		this.load(...args);
 
 	}
@@ -29,6 +31,7 @@ class DungeonTemplate extends Generic{
 	rebase(){
 
 		this.rooms = DungeonRoom.loadThese(this.rooms);
+		this.encounters = Encounter.loadThese(this.encounters);
 
 	}
 

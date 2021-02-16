@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 import Generic from '../../classes/helpers/Generic.js';
 import DungeonTemplate from '../../classes/templates/DungeonTemplate.js';
 import * as EditorDungeonRoom from './EditorDungeonRoom.js';
+import * as EditorEncounter from './EditorEncounter.js';
 
 const DB = 'dungeonTemplates',
 	CONSTRUCTOR = DungeonTemplate;
@@ -23,11 +24,11 @@ export function asset(){
 	let html = '';
 	html += '<div class="labelFlex">';
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
-		html += '<label>Todo: <input type="number" min=-1 step=0.01 name="difficulty" class="saveable" value="'+esc(dummy.difficulty)+'" /></label>';
 	html += '</div>';
 
 	// Keep
 	html += 'Viable Room Templates: <div class="rooms"></div>';
+	html += 'Encounters: <div class="encounters"></div>';
 
 
 	this.setDom(html);
@@ -35,7 +36,8 @@ export function asset(){
 	
 
 	// Bind linked objects
-	this.dom.querySelector("div.rooms").appendChild(EditorDungeonRoom.assetTable(this, asset, "rooms", undefined, undefined, undefined, EditorDungeonRoom.filterOnlyOrphaned));
+	this.dom.querySelector("div.rooms").appendChild(EditorDungeonRoom.assetTable(this, asset, "rooms"));
+	this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "encounters"));
 
 	HelperAsset.autoBind( this, asset, DB);
 
@@ -55,6 +57,7 @@ export function list(){
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
 		'*label' : true,
 		'*rooms' : true,
+		'*encounters' : true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
@@ -66,8 +69,8 @@ export function list(){
 export function help(){
 
 	let out = '';
-	out += '<h3>Todo</h3>'+
-		'<p>Todo</p>';
+	out += '<h3>Here you can create dungeon templates for the procedural generator</h3>'+
+		'<p></p>';
 
 	return out;
 

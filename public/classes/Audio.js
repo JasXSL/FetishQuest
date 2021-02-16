@@ -228,6 +228,9 @@ class AudioKit extends Generic{
 		audioSound.play();
 		if( armor_slot && audioSound.hit ){
 
+			if( !target.getEquippedAssetsBySlots )
+				console.log("Target received: ", target);
+
 			let slots = target.getEquippedAssetsBySlots(armor_slot);
 			if( !slots.length )
 				return;
@@ -268,6 +271,9 @@ class AudioKit extends Generic{
 			let ta = target;
 			if( entry.se )
 				ta = sender;
+
+			if( Array.isArray(ta) )
+				ta = ta[0];
 
 			if( !entry.t )
 				this.playOnTarget(loaded[i], ta, armorHitSound, volume_multiplier);

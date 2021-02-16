@@ -1761,6 +1761,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	// Generate the map by creating rooms with no assets
 
+	console.log("Generating", numRooms);
 	let maxAttempts = 1000;
 	for( let i=0; i<numRooms; ++i ){
 
@@ -1792,6 +1793,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			out.generateRoom( Dungeon.Shapes.Random );
 		
 	}
+
 
 	// We now have a dungeon layout, but nothing in it
 
@@ -1853,8 +1855,41 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	// Todo: Generate levers
 	// Todo: Generate treasures
-	// Todo: Generate encounters
+	
+	let numEncounters = Math.ceil(out.rooms.length*0.4)+Math.floor(Math.random()*out.rooms.length*0.3);
+	let viableEncounterRooms = out.rooms.filter(el => el.index);
+	shuffle(viableEncounterRooms);
 
+	const isEncounterViableForRoom = (encounter, room) => {
+		return true;	// Todo: Check room conditions
+	};
+
+	let viableEncounters = kit.encounters.filter(encounter => {
+
+		let numViableRooms = 0;
+		for( let room of viableEncounterRooms )
+			numViableRooms += Boolean(isEncounterViableForRoom(encounter, room));
+		return numViableRooms >= numEncounters;
+
+	});
+
+	let encounterTemplate = randElem(viableEncounters);
+	let roomsPopulated = 0;
+	for( let room of viableEncounterRooms ){
+
+		// Todo: check if encounter is viable in t his room
+		if( isEncounterViableForRoom(encounterTemplate, room) ){
+			
+			room.encounters = [encounterTemplate.clone()];
+
+			++roomsPopulated;
+			if( roomsPopulated >= numEncounters )
+				break;
+
+		}
+
+	}
+	
 
 	for( let room of out.rooms ){
 
@@ -1865,10 +1900,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 		room.loadFromTemplate(viableTemplate);
 		
-
-		// Todo: add encounter
-
-
 		// Re-add the assets
 		
 		// add the doors
