@@ -1827,6 +1827,45 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	let viableRooms = kit.rooms;
 	
+	
+
+	let numEncounters = Math.ceil(out.rooms.length*0.4)+Math.floor(Math.random()*out.rooms.length*0.3);
+	let viableEncounterRooms = out.rooms.filter(el => el.index);
+	shuffle(viableEncounterRooms);
+	const isEncounterViableForRoom = (encounter, room) => {
+		return true;	// Todo: Check room conditions
+	};
+
+
+	let viableEncounters = kit.encounters.filter(encounter => {
+
+		let numViableRooms = 0;
+		for( let room of viableEncounterRooms )
+			numViableRooms += Boolean(isEncounterViableForRoom(encounter, room));
+		return numViableRooms >= numEncounters;
+
+	});
+
+	let encounterTemplate = randElem(viableEncounters);
+	let roomsPopulated = 0;
+	for( let room of viableEncounterRooms ){
+
+		// Todo: check if encounter is viable in t his room
+		if( isEncounterViableForRoom(encounterTemplate, room) ){
+			
+			room.encounters = [encounterTemplate.clone()];
+
+			++roomsPopulated;
+			if( roomsPopulated >= numEncounters )
+				break;
+
+		}
+
+	}
+	
+
+
+	// Add the doors and base assets
 	const getViableRoomTemplate = room => {
 		
 		
@@ -1869,52 +1908,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 
 	};
-
-
-
-	
-	
-	// Todo: Generate treasures
-	
-
-
-
-	let numEncounters = Math.ceil(out.rooms.length*0.4)+Math.floor(Math.random()*out.rooms.length*0.3);
-	let viableEncounterRooms = out.rooms.filter(el => el.index);
-	shuffle(viableEncounterRooms);
-
-	const isEncounterViableForRoom = (encounter, room) => {
-		return true;	// Todo: Check room conditions
-	};
-
-
-	let viableEncounters = kit.encounters.filter(encounter => {
-
-		let numViableRooms = 0;
-		for( let room of viableEncounterRooms )
-			numViableRooms += Boolean(isEncounterViableForRoom(encounter, room));
-		return numViableRooms >= numEncounters;
-
-	});
-
-	let encounterTemplate = randElem(viableEncounters);
-	let roomsPopulated = 0;
-	for( let room of viableEncounterRooms ){
-
-		// Todo: check if encounter is viable in t his room
-		if( isEncounterViableForRoom(encounterTemplate, room) ){
-			
-			room.encounters = [encounterTemplate.clone()];
-
-			++roomsPopulated;
-			if( roomsPopulated >= numEncounters )
-				break;
-
-		}
-
-	}
-	
-
 	for( let room of out.rooms ){
 
 		const viableTemplate = getViableRoomTemplate(room);
@@ -1957,10 +1950,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 		}
 
-
-		// Todo: Add the treasures
-		// Todo: Add the levers
-
 		for( let asset of viableTemplate.assets ){
 
 			// Put the non door assets in
@@ -1973,10 +1962,90 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	}
 
+
+	// Add treasures
+	let bigTreasures = Math.floor(out.rooms.length/5)+(Math.random() <= (out.rooms.length%5)/5 ? 1 : 0);
+	let treasureRooms = out.rooms.slice(1);	// Can't be in the first room
+	shuffle(treasureRooms);
+	treasureRooms = treasureRooms.slice(0, bigTreasures);
+
+	// Small treasures can have a fixed 20% chance per room
+	for( let room of out.rooms ){
+
+		const treasureTemplates = room.pGetTreasures();
+		if( !treasureTemplates.length )
+			continue;
+		shuffle(treasureTemplates);
+
+		if( treasureRooms.includes(room) ){
+			
+			const parents = room.getParents().length;
+			const asset = treasureTemplates.shift();
+			
+
+			// Rarity generated first regardless of if it's a mimic, because the mesh needs to be set
+			// Start at 50% and add based on how far in the room is
+			const rarity = Math.min( 1.0, 0.5 + room.getParents().length/20 );
+			let path = 'Generic.Containers.ChestInteractive';
+			if( rarity > 0.75 )
+				path = 'Generic.Containers.Sarcophagus';
+
+			let chest = asset.clone();
+			chest.model = path;
+			chest.tags = [];
+
+			// Mimics can appear between room 1 and 6, but has a greater chance the closer to the exit it is
+			// Generate a mimic
+			if( Math.random() > parents/6 ){
+
+				let encounter = new GameAction({
+					type : GameAction.types.encounters,
+					data : ['mimic']
+				}, chest);
+				chest.interactions.push(encounter);
+
+			}
+			else{
+
+				
+
+				let action = new GameAction({
+					type : GameAction.types.autoLoot,
+					data : {val:rarity}
+				}, chest);
+				
+				chest.interactions.push(action);
+
+			}
+
+			room.addAsset(chest);
+			
+
+		}
+
+		// 20% chance of a bag
+		if( Math.random() < 0.2 && treasureTemplates.length ){
+			
+			// Length
+			const asset = treasureTemplates.shift().clone();
+			asset.tags = [];
+			asset.model = 'Generic.Containers.LootBag';
+			let action = new GameAction({
+				type : GameAction.types.autoLoot,
+				data : {val:0.1+Math.random()*0.5}
+			}, asset);
+			asset.interactions.push(action);
+			asset.hide_no_interact = true;
+			room.addAsset(asset);
+
+		}
+
+	}
+
+
+
 	// Generate some locked rooms
-	let numLevers = Math.floor(out.rooms.length/5);
-	if( Math.random() <= (out.rooms.length-numLevers*5)/5 )
-		++numLevers;
+	let numLevers = Math.floor(out.rooms.length/5) + (Math.random() <= (out.rooms.length%5)/5 ? 1 :0 );
 
 	let viableLockedRooms = out.rooms.filter(room => 
 		room.getParents().length > 1
@@ -2051,6 +2120,10 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		}
 
 	});
+
+
+
+	// Generate treasure
 
 
 
