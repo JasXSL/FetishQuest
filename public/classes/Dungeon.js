@@ -1963,13 +1963,15 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	}
 
 
+
+
 	// Add treasures
 	let bigTreasures = Math.floor(out.rooms.length/5)+(Math.random() <= (out.rooms.length%5)/5 ? 1 : 0);
 	let treasureRooms = out.rooms.slice(1);	// Can't be in the first room
 	shuffle(treasureRooms);
 	treasureRooms = treasureRooms.slice(0, bigTreasures);
 
-	// Small treasures can have a fixed 20% chance per room
+	// Replace the treasure templates in the rooms with the actual treasures
 	for( let room of out.rooms ){
 
 		const treasureTemplates = room.pGetTreasures();
@@ -2041,6 +2043,8 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		}
 
 	}
+
+
 
 
 
@@ -2123,9 +2127,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 
 
-	// Generate treasure
-
-
 
 	// Clean up unused templates
 	for( let room of out.rooms ){
@@ -2150,253 +2151,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	out.rebase();
 	console.log(out);
 
-	/*
-	// Add encounters
-	let i = 0;
-	let encounters = out.rooms.map(() => ++i);
-	encounters.shift();	// First room can never be
-	shuffle(encounters);
-	
-	// Between 40% and 60% of all rooms can have encounters
-	let numEncounters = Math.ceil(out.rooms.length*(0.4+Math.random()*0.2));
-	encounters = encounters.slice(0, numEncounters);
-
-	let numChests = 0;
-	// Generates assets and encounters in the rooms
-	for( let room of out.rooms ){
-		
-		// Pick a room at random
-		let templates = shuffle(kit.rooms.slice());
-
-		// Try to find a template that can fit all the required assets
-		for(let rt of templates){
-
-			const roomTemplate = glib.get(rt, "RoomTemplate");
-			room.assets = [];	// Reset room assets
-			let requiredAssetsPlaced = true;
-
-			// ROOM
-			let roomAsset = new DungeonRoomAsset({
-				model : roomTemplate.basemeshes[Math.floor(roomTemplate.basemeshes.length*Math.random())],
-				room : true
-			}, room);
-			room.addAsset(roomAsset);
-
-			// Audio
-			room.ambiance = roomTemplate.ambiance;
-			room.ambiance_volume = roomTemplate.ambiance_volume;
-
-			// TRY TO PLACE ALL DOORS
-			let adjacent = room.getDirectConnections();				// Adjacent rooms
-
-			// The first rooms needs an additional adjacent to add an exit
-			if( room.isEntrance() ){
-				adjacent.push(new DungeonRoom({
-					index : -1,
-					y : -1,
-				}, out));
-			}
-
-			// Add the doors
-			for( let a of adjacent ){
-
-				let bearing = room.getAdjacentBearing(a);		// NESWUD
-				let doorLib = kit.doors_hor;
-				if( bearing === 4 )
-					doorLib = kit.doors_up;
-				if( bearing === 5 )
-					doorLib = kit.doors_down;
-
-				let modelPath = doorLib[Math.floor(doorLib.length*Math.random())];	// Path in dungeon generator library, not drive
-				let door = new DungeonRoomAsset({
-					model : modelPath,
-					rotZ : bearing < 4 ? bearing*90 : 0,
-				}, room);
-				let mesh = libMeshTools.getByString(modelPath);
-
-				let positions = shuffle(room.getFreeTilesForObject(door, (bearing < 4 ? bearing : undefined), mesh.position_on_wall));
-				let position = positions.shift();
-				if( position ){
-					door.x = position[0];
-					door.y = position[1];
-
-					let adata = {index:a.index};
-					// Exit to the bounty board where we accepted the quest
-					if( a.index === -1 ){
-						adata = {dungeon:game.dungeon.label, index:game.dungeon.active_room};
-					}
-					let action = new GameAction({
-						type : a.index === -1 ? GameAction.types.exit : GameAction.types.door,
-						data : adata
-					}, door);
-					door.interactions.push(action);
-					
-					room.addAsset(door);
-
-				}
-				else{
-					requiredAssetsPlaced = false;
-					break;
-				}
-
-			}
-
-			// Failed to place required assets, continue
-			if( !requiredAssetsPlaced )
-				continue;
-
-			
-			// All required assets have been placed
-			// Put down non-required stuff and stop trying to find a working template
-
-			// Optional assets
-			
-			// Add props based on room size
-			let numAssets = Math.ceil(Math.min(10,Math.ceil(room.getNumFreeTiles()/6))*(Math.random()*0.5+0.5));
-			let usedAssets = {};
-			for( let i =0; i<numAssets; ++i ){
-
-				let asset = roomTemplate.props[Math.floor(Math.random()*roomTemplate.props.length)];
-				if( !asset )
-					break;
-
-				// Limit to 3 same assets
-				if( usedAssets[asset] > 2 )
-					continue;
-
-				if( room.placeAsset(asset) ){
-				
-					if(!usedAssets[asset])
-						usedAssets[asset] = 0;
-					++usedAssets[asset];
-
-				}
-
-			}
-
-			// Add a tresure
-			let containers = roomTemplate.containers;
-			let chance = room.getParents().length*0.05;
-			let mimicChance = Math.min(0.5, numChests*0.1);
-			let treasureExists = false;
-			if( containers.length && (Math.random() < chance || always_chest) ){
-
-				let path = containers[Math.floor(Math.random()*containers.length)];
-				let chest = room.placeAsset(path);
-				if( chest ){
-					
-					// Generate a mimic
-					if( Math.random() < mimicChance ){
-
-						let encounter = new GameAction({
-							type : GameAction.types.encounters,
-							data : ['mimic']
-						}, chest);
-						chest.interactions.push(encounter);
-
-					}
-					else{
-
-						treasureExists = true;
-						let lootValue = Math.pow(Math.random(), 2);	// Assuming gear starts at 0.5, it's a 30% chance of an item
-						let action = new GameAction({
-							type : GameAction.types.autoLoot,
-							data : {val:lootValue}
-						}, chest);
-						
-						chest.interactions.push(action);
-
-					}
-
-				}
-				
-			}
-
-			// See if we need an encounter here
-			if( ~encounters.indexOf(room.index) )
-				room.encounters = clone(kit.encounters, room);
-				
-			// This was a working template, so break here and let the loop resume to the next room
-			if( treasureExists )
-				++numChests;
-			break;
-
-		}
-
-	}
-
-	// Place down levers and lock some doors
-	let numLevers = Math.round( out.rooms.length/4 );
-	for( let i=0; i<numLevers; ++i ){
-		// Let's lock a random door
-		let room = out.rooms[Math.floor(Math.random()*out.rooms.length)];
-		let rpl = room.getParents().length;
-
-		// See if there are any viable doors in this room
-		for( let asset of room.assets ){
-
-			let found = false;
-			if( 
-				!asset.isDoor() || 						// Can only lock a door type asset
-				asset.isExit() || 					// Can't look the entrance door
-				asset.isLocked() ||							// This door is already locked
-				!asset.getModel().lockable ||			// This asset has no lock state
-				asset.getDoorTarget() === room.parent_index	// Can't lock the "back" door
-			)continue;
-				
-			// Ok this door is valid. Let's find a room to place the lever in.
-			let targetRooms = shuffle(out.rooms.slice());
-			for( let tr of targetRooms ){
-
-				// Need to put the switch in a room that has equal or lower amount of parents as this. And not the room itself.
-				if( tr.index === room.index || tr.getParents().length > rpl )
-					continue;
-
-				let addedAsset = tr.placeAsset('Dungeon.Door.WallLever');
-				if( addedAsset ){
-
-					const id = 'lever_'+asset.id.substr(0,8);
-					// Build the condition saying the lever is down
-					const doorInteraction = asset.getDoorInteraction();
-					const cond = new Condition({
-						type : Condition.Types.dungeonVar,
-						data : {
-							id : id,
-							data : true
-						}
-					}, doorInteraction);
-
-					out.vars[id] = false;
-
-
-					// Success
-					addedAsset.interactions.push(
-						new GameAction({
-							type : GameAction.types.lever,
-							data : {id:id}
-						}, addedAsset),
-					);
-					
-					doorInteraction.conditions.push(cond);
-
-					found = true;											// We successfully placed something in this room, stop seeking door assets
-					break;
-
-				}
-				
-			
-			}
-
-			// Continue adding levers
-			if( found )
-				break;
-
-		}
-		// The lever must be in a room that has the same or fewer number of parents than the room the lock was in
-		
-
-	}
-	*/
 
 	return out;
 	
