@@ -1805,7 +1805,7 @@ class Stage{
 		// Door
 		if( window.game && asset.isDoor() && !this.isEditor ){
 		
-			let linkedRoom = game.dungeon.getRoomByIndex(asset.getDoorTarget());
+			let linkedRoom = game.dungeon.getRoomByIndex(asset.getDoorTarget(true));
 
 			this.createIndicatorForMesh('locked', '_LOCKED_', c, 0.4);
 			if( asset.isExit() && !asset.name ){

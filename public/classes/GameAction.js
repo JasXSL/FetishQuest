@@ -761,7 +761,8 @@ export default class GameAction extends Generic{
 			sender: player,
 			dungeon : this.parent.parent.parent,
 			room : this.parent.parent,
-			dungeonRoomAsset : this.parent
+			dungeonRoomAsset : this.parent,
+			debug : this
 		}), debug) )return false;
 		
 		return true;

@@ -773,7 +773,9 @@ class DungeonRoom extends Generic{
 		return false;
 	}
 
+	// Gets direct children
 	getChildren(){
+
 		const rooms = this.parent.rooms;
 		let out = [];
 		for( let room of rooms ){
@@ -783,6 +785,7 @@ class DungeonRoom extends Generic{
 			}
 		}
 		return out;
+
 	}
 
 
@@ -823,7 +826,23 @@ class DungeonRoom extends Generic{
 			return asset.hasTag(stdTag.mTREASURE_MARKER);
 		});
 	}
-	
+	// Gets a door interaction leading to a room. Can only be called AFTER generating the doors. The purpose of this function is to be used for locking doors in the generator.
+	pGetDoorInteractionToRoom( room ){
+		if( !(room instanceof DungeonRoom))
+			throw 'DungeonRoom expected';
+
+		for( let door of this.pGetDoors() ){
+
+			for( let action of door.interactions ){
+
+				if( action.type === GameAction.types.door && action.data.index === room.index )
+					return action;
+
+			}
+
+		}
+
+	}
 
 
 
@@ -1794,7 +1813,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		
 	}
 
-
 	// We now have a dungeon layout, but nothing in it
 
 
@@ -1853,9 +1871,14 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	};
 
 
-	// Todo: Generate levers
+
+	
+	
 	// Todo: Generate treasures
 	
+
+
+
 	let numEncounters = Math.ceil(out.rooms.length*0.4)+Math.floor(Math.random()*out.rooms.length*0.3);
 	let viableEncounterRooms = out.rooms.filter(el => el.index);
 	shuffle(viableEncounterRooms);
@@ -1863,6 +1886,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	const isEncounterViableForRoom = (encounter, room) => {
 		return true;	// Todo: Check room conditions
 	};
+
 
 	let viableEncounters = kit.encounters.filter(encounter => {
 
@@ -1927,30 +1951,130 @@ Dungeon.generate = function( numRooms, kit, settings ){
 				data : adata
 			}, door);
 			door.interactions.push(action);
+			door.name = '';	// Needed for auto label generation
 
 			room.assets.push(door);
 
 		}
+
 
 		// Todo: Add the treasures
 		// Todo: Add the levers
 
 		for( let asset of viableTemplate.assets ){
 
-			// Treasures/levers should be done above
-			if( asset.hasTag([stdTag.mLEVER_MARKER, stdTag.mTREASURE_MARKER]) || asset.pIsDoor() )
+			// Put the non door assets in
+			if( asset.pIsDoor() )
 				continue;
 
 			room.addAsset(asset.clone());
 
 		}
 
+	}
+
+	// Generate some locked rooms
+	let numLevers = Math.floor(out.rooms.length/5);
+	if( Math.random() <= (out.rooms.length-numLevers*5)/5 )
+		++numLevers;
+
+	let viableLockedRooms = out.rooms.filter(room => 
+		room.getParents().length > 1
+	);
+	shuffle(viableLockedRooms);
+	viableLockedRooms = viableLockedRooms.slice(0, numLevers);
+	const placedLevers = new Map();	// leverRoom : [targetRoom...]
+	for( let room of viableLockedRooms ){
+
+		let parents = room.getParents().slice(1);	// The parent directly above it can't house the lever
+		shuffle(parents);
+		let found = false;
+		for( let parent of parents ){
+
+			let indexes = placedLevers.get(parent);
+			if( !indexes )
+				indexes = [];
+
+			// Get nr levers
+			const levers = parent.pGetLevers();
+			if( indexes.length >= levers )
+				continue;
+
+			found = true;
+			indexes.push(room);
+			placedLevers.set(parent, indexes);			
+			break;
+
+		}
+		if( !found )
+			console.log("Didn't find a working lever for locked room", room, "parents", parents);
+
+	}
+	// Place the locks and levers
+	placedLevers.forEach((lockedRooms, leverRoom) => {
+
+		console.log(leverRoom, lockedRooms);
+
 		
 
-		window.ROOM = room;
+		let levers = leverRoom.pGetLevers();
+		shuffle(levers);
+
+		// Create lever names
+		for( let r of lockedRooms ){
+
+			const dVar = "lever"+r.index;
+			
+			out.vars[dVar] = false;
+			let lever = levers.shift();	// Grab a lever
+			lever.interactions.push(new GameAction({
+				type: GameAction.types.lever,
+				data : {id:dVar}
+			}, lever));
+
+			// Find the door of the parent room
+			const parentRoom = out.getRoomByIndex(r.parent_index);
+			const interaction = parentRoom.pGetDoorInteractionToRoom(r);
+
+			// Build the condition saying the lever is down
+			const cond = new Condition({
+				type : Condition.Types.dungeonVar,
+				data : {
+					id : dVar,
+					data : true
+				}
+			}, interaction);
+
+			interaction.conditions.push(cond);
+
+			
+		}
+
+	});
+
+
+
+	// Clean up unused templates
+	for( let room of out.rooms ){
+
+		// Remove any levers with unused actions
+		const levers = room.pGetLevers();
+		for( let lever of levers ){
+			if( !lever.interactions.length )
+				room.removeAsset(lever);
+		}
+
+		// Treasures are replaced with NEW assets. So just remove ALL placeholders.
+		const treasures = room.pGetTreasures();
+		for( let treasure of treasures ){
+			room.removeAsset(treasure);
+		}
 
 	}
 
+
+
+	out.rebase();
 	console.log(out);
 
 	/*

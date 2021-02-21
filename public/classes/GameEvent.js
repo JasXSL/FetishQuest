@@ -29,6 +29,7 @@ export default class GameEvent extends Generic{
 		this.wrapperReturn = null;		// See WrapperReturn @ EffectSys.js
 		this.text = null;				// Text object
 		this.custom = {};		// Custom data related to the event	
+		this.debug = null;		// Can be used for debugging
 		this.load(data);
 
 	}

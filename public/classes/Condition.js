@@ -823,9 +823,14 @@ export default class Condition extends Generic{
 			
 			else if( this.type === T.dungeonVar ){
 
+				if( !event.dungeon ){
+					console.error("Event was", event);
+					throw "Expected event.dungeon in event, see log";
+				}
 				let dungeon = event.dungeon.label;
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
+
 				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
 				
 			}
