@@ -26,9 +26,6 @@ import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
 import Encounter from './Encounter.js';
 
-//const always_chest = true;
-const always_chest = false;
-
 const interact_cooldowns = {};	// id:true etc
 
 class Dungeon extends Generic{
@@ -1709,7 +1706,9 @@ class DungeonRoomAsset extends Generic{
 
 		// Handle xy
 		const d = new THREE.Vector3(0,0,1);
-		d.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.rotX, this.rotY, this.rotZ)));
+		const offs = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, template.doorRotOffs, 0));
+		d.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.rotX, this.rotY, this.rotZ)).multiply(offs));
+		
 		
 		if( dir === DungeonRoomAsset.Dir.SOUTH ){
 			return Math.abs(d.z) > Math.abs(d.x) && d.z < 0;
@@ -1778,6 +1777,29 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	numRooms = Math.max(numRooms, 1);
 
+	// Fetch a dungeon kit, try the specified one and then randomize
+	let dungeonTemplateLib = glib.getFull("DungeonTemplate");
+	if( kit )
+		kit = dungeonTemplateLib[kit];
+	else
+		kit = objectRandElem(dungeonTemplateLib); // Pick one at random
+
+	if( !kit )
+		throw 'Kit not found';
+
+
+	// Calculate how many rooms to make
+	let viableRooms = kit.rooms;
+
+	// Generate width/height
+	const maxFloors = Math.floor(numRooms/4) + (Math.random() <= (numRooms%4)/4 ? 1 : 0);
+	if( kit.allowUp )
+		out.height = maxFloors;
+	if( kit.allowDown )
+		out.depth = -maxFloors;
+		
+
+
 	// Generate the map by creating rooms with no assets
 
 	console.log("Generating", numRooms);
@@ -1817,17 +1839,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 
 
-	// Fetch a dungeon kit, try the specified one and then randomize
-	let dungeonTemplateLib = glib.getFull("DungeonTemplate");
-	if( dungeonTemplateLib[kit] )
-		kit = dungeonTemplateLib[kit];
-
-	// Pick one at random
-	kit = objectRandElem(dungeonTemplateLib);
-
-	let viableRooms = kit.rooms;
-	
-	
 
 	let numEncounters = Math.ceil(out.rooms.length*0.4)+Math.floor(Math.random()*out.rooms.length*0.3);
 	let viableEncounterRooms = out.rooms.filter(el => el.index);
@@ -1887,8 +1898,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 			}
 
-			// Todo: Check for levers and treasures
-
 			return true;
 
 		};
@@ -1912,9 +1921,10 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 		const viableTemplate = getViableRoomTemplate(room);
 		
-		if( !viableTemplate )
+		if( !viableTemplate ){
+			console.error("Kit selected:", kit);
 			throw 'Error, unviable templates for this dungeon';
-
+		}
 		room.loadFromTemplate(viableTemplate);
 		
 		// Re-add the assets
@@ -2049,83 +2059,82 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 
 	// Generate some locked rooms
-	let numLevers = Math.floor(out.rooms.length/5) + (Math.random() <= (out.rooms.length%5)/5 ? 1 :0 );
+	if( kit.levers ){
+		
+		let numLevers = Math.floor(out.rooms.length/5) + (Math.random() <= (out.rooms.length%5)/5 ? 1 :0 );
 
-	let viableLockedRooms = out.rooms.filter(room => 
-		room.getParents().length > 1
-	);
-	shuffle(viableLockedRooms);
-	viableLockedRooms = viableLockedRooms.slice(0, numLevers);
-	const placedLevers = new Map();	// leverRoom : [targetRoom...]
-	for( let room of viableLockedRooms ){
+		let viableLockedRooms = out.rooms.filter(room => 
+			room.getParents().length > 1
+		);
+		shuffle(viableLockedRooms);
+		viableLockedRooms = viableLockedRooms.slice(0, numLevers);
+		const placedLevers = new Map();	// leverRoom : [targetRoom...]
+		for( let room of viableLockedRooms ){
 
-		let parents = room.getParents().slice(1);	// The parent directly above it can't house the lever
-		shuffle(parents);
-		let found = false;
-		for( let parent of parents ){
+			let parents = room.getParents().slice(1);	// The parent directly above it can't house the lever
+			shuffle(parents);
+			let found = false;
+			for( let parent of parents ){
 
-			let indexes = placedLevers.get(parent);
-			if( !indexes )
-				indexes = [];
+				let indexes = placedLevers.get(parent);
+				if( !indexes )
+					indexes = [];
 
-			// Get nr levers
-			const levers = parent.pGetLevers();
-			if( indexes.length >= levers )
-				continue;
+				// Get nr levers
+				const levers = parent.pGetLevers();
+				if( indexes.length >= levers )
+					continue;
 
-			found = true;
-			indexes.push(room);
-			placedLevers.set(parent, indexes);			
-			break;
+				found = true;
+				indexes.push(room);
+				placedLevers.set(parent, indexes);			
+				break;
+
+			}
+			if( !found )
+				console.log("Didn't find a working lever for locked room", room, "parents", parents);
 
 		}
-		if( !found )
-			console.log("Didn't find a working lever for locked room", room, "parents", parents);
+		// Place the locks and levers
+		placedLevers.forEach((lockedRooms, leverRoom) => {
+
+
+			let levers = leverRoom.pGetLevers();
+			shuffle(levers);
+
+			// Create lever names
+			for( let r of lockedRooms ){
+
+				const dVar = "lever"+r.index;
+				
+				out.vars[dVar] = false;
+				let lever = levers.shift();	// Grab a lever
+				lever.interactions.push(new GameAction({
+					type: GameAction.types.lever,
+					data : {id:dVar}
+				}, lever));
+
+				// Find the door of the parent room
+				const parentRoom = out.getRoomByIndex(r.parent_index);
+				const interaction = parentRoom.pGetDoorInteractionToRoom(r);
+
+				// Build the condition saying the lever is down
+				const cond = new Condition({
+					type : Condition.Types.dungeonVar,
+					data : {
+						id : dVar,
+						data : true
+					}
+				}, interaction);
+
+				interaction.conditions.push(cond);
+
+				
+			}
+
+		});
 
 	}
-	// Place the locks and levers
-	placedLevers.forEach((lockedRooms, leverRoom) => {
-
-		console.log(leverRoom, lockedRooms);
-
-		
-
-		let levers = leverRoom.pGetLevers();
-		shuffle(levers);
-
-		// Create lever names
-		for( let r of lockedRooms ){
-
-			const dVar = "lever"+r.index;
-			
-			out.vars[dVar] = false;
-			let lever = levers.shift();	// Grab a lever
-			lever.interactions.push(new GameAction({
-				type: GameAction.types.lever,
-				data : {id:dVar}
-			}, lever));
-
-			// Find the door of the parent room
-			const parentRoom = out.getRoomByIndex(r.parent_index);
-			const interaction = parentRoom.pGetDoorInteractionToRoom(r);
-
-			// Build the condition saying the lever is down
-			const cond = new Condition({
-				type : Condition.Types.dungeonVar,
-				data : {
-					id : dVar,
-					data : true
-				}
-			}, interaction);
-
-			interaction.conditions.push(cond);
-
-			
-		}
-
-	});
-
-
 
 
 	// Clean up unused templates

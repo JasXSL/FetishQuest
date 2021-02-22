@@ -59,7 +59,7 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		if( isTemplate )	// Editing a template for procedural dungeon
 			html += '<label>Label: <input name="label" value="'+esc(asset.label)+'" type="text" class="saveable" autocomplete="chrome-off" /></label>';
-		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
+		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" autocomplete="chrome-off" /></label>';
 		
 		html += '<label>Outdoors <input type="checkbox" class="saveable" name="outdoors" '+(dummy.outdoors ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Lets you change the loading zoom, 0 for auto">Zoom: <input type="number" min=0 step=1 name="zoom" class="saveable" value="'+esc(dummy.zoom)+'" /></label>';

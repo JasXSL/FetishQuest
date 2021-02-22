@@ -67,6 +67,7 @@ class LibMesh{
 		this.max_attachments = data.max_attachments;
 		this.auto_bounding_box = data.auto_bounding_box;										// Creates an automatic invisible prim to use as a bounding box for raycasting
 		this.door = data.door || LibMesh.DoorTypes.DOOR_NONE;	// used for the procedural generator to figure out where a door can go. Their placement rotation matters. Where 0 = north, pi/2 = west...
+		this.doorRotOffs = data.doorRotOffs || 0;									// Helper for above in order to show which direction is forward
 
 		// helper flags
 		this.want_actions = data.want_actions;	// Array of GameAction types that this asset wants. If not, it gets highlighted in the editor. Use sub arrays for OR
@@ -2139,7 +2140,8 @@ function build(){
 					materials : [
 						libMat.Solids.GreenArrow
 					],
-					tags : [],
+					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
+					doorRotOffs : Math.PI/2
 				}),
 			},
 			// This is an NPC marker. Note that these are dummies and only visible in the editor. WebGL.js handles the actual rendering of them
