@@ -172,7 +172,7 @@ export default class Generic{
 		
 		let out = [];
 		for( let tag of this.tags )
-			out.push(tag.toLowerCase());
+			out.push(tag);
 
 		return out;
 
@@ -185,13 +185,10 @@ export default class Generic{
 
 		if( !Array.isArray(tags) )
 			tags = [tags];
-
-		tags = tags.map(tag => tag.toLowerCase());
-
 		
 		let t = this.getTags.apply(this, [...args]);
 		for( let tag of t ){
-			if( ~tags.indexOf(tag.toLowerCase()) )
+			if( tags.includes(tag) )
 				return true;
 		}
 		return false;

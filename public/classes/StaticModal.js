@@ -1086,7 +1086,7 @@ export default class StaticModal{
 					dDivs.formMP.val(parseInt(player.mp) || 0);
 					dDivs.formArousal.val(parseInt(player.arousal) || 0);
 					dDivs.formTeam.val(parseInt(player.team) || 0);
-					dDivs.formTags.val(player.tags.map(tag => tag.toLowerCase().startsWith('pl_') ? tag.substr(3) : tag ).join(' '));
+					dDivs.formTags.val(player.tags.map(tag => tag.startsWith('pl_') ? tag.substr(3) : tag ).join(' '));
 					dDivs.formDescription.val(player.description);
 					dDivs.formStamina.val(parseInt(player.stamina) || 0);
 					dDivs.formAgility.val(parseInt(player.agility) || 0);

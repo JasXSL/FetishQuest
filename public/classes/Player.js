@@ -161,6 +161,8 @@ export default class Player extends Generic{
 		if( this.class === null )
 			this.class = new PlayerClass();
 
+		this.tags = this.tags.map(tag => tag.toLowerCase());
+
 
 	}
 
@@ -660,18 +662,20 @@ export default class Player extends Generic{
 			out[stdTag.dead] = true;
 
 		for( let tag of this.tags ){
+
 			if( !tag.startsWith('pl_') )
 				tag = 'pl_'+tag;
-			out[tag.toLowerCase()] = true;
+			out[tag] = true;
+
 		}
 
 		// adds a tag to the name map
-		const addTag = tag => out[tag.toLowerCase()] = true;
+		const addTag = tag => out[tag] = true;
 
 		let assets = this.getAssetsEquipped();
 		if( wrapperReturn && wrapperReturn.armor_strips[this.id] ){
 
-			for( let slot in wrapperReturn.armor_strips[this.id]){
+			for( let slot in wrapperReturn.armor_strips[this.id] ){
 
 				const a = wrapperReturn.armor_strips[this.id][slot];
 				if( assets.indexOf(a) === -1 ){
@@ -689,6 +693,7 @@ export default class Player extends Generic{
 		for( let f of fx ){
 			f.getTags().map(addTag);
 		}
+
 		fx = this.getEffects();
 		for( let f of fx ){
 
@@ -701,19 +706,19 @@ export default class Player extends Generic{
 					
 					const dTags = device.getTags();
 					for( let tag of dTags )
-						out['bo_'+tag.toLowerCase()] = true;
+						out['bo_'+tag] = true;
 
 				}
 			}
 
 		}
-		this._turn_tags.map(t => out[t.tag.toLowerCase()] = true);
+		this._turn_tags.map(t => out[t.tag] = true);
 
 		if( this.species )
 			out['p_'+this.species.toLowerCase()] = true;
 
 		if( window.game && game.dungeon instanceof Dungeon )
-			game.dungeon.getTags().map(t => out[t.toLowerCase()] = true);
+			game.dungeon.getTags().map(t => out[t] = true);
 
 		const ret = Object.keys(out);
 		if( window.game && game._caches )

@@ -718,12 +718,12 @@ export default class Condition extends Generic{
 					find = find.map(tag => {
 						if( typeof tag !== "string" )
 							console.error("Non-string tag in", this);
-						return tag.toLowerCase();
+						return tag;
 					});
 					tagsToScan = tagsToScan.map(tag => {
 						if( typeof tag !== "string" )
 							console.error("Non-string tag in", event.text, "this was", this);
-						return tag.toLowerCase()
+						return tag;
 					});
 					success = all;
 

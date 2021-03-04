@@ -127,7 +127,7 @@ class Wrapper extends Generic{
 		this.add_conditions = Condition.loadThese(this.add_conditions, this);
 		this.stay_conditions = Condition.loadThese(this.stay_conditions, this);
 		this.effects = Effect.loadThese(this.effects, this);
-		this.tags = this.tags.slice();
+		this.tags = this.tags.map(tag => tag.toLowerCase());
 	}
 
 	clone( parent, full = true ){
@@ -492,6 +492,9 @@ class Wrapper extends Generic{
 		if( this.detrimental )
 			tags.push(stdTag.wrDetrimental);
 		
+		/*
+		Don't add effect tags, some effects might be affecting a different player
+		Removing this may have issues down the line, I'm not sure
 		for( let effect of this.effects ){
 
 			if( effect.type === Effect.Types.knockdown ){
@@ -509,12 +512,9 @@ class Wrapper extends Generic{
 			tags.push(...effect.tags);
 			
 		}
+		*/
 
-		let out = [];
-		for( let tag of tags )
-			out.push(tag.toLowerCase());
-
-		return out;
+		return tags;
 
 	}
 	
@@ -758,7 +758,27 @@ class Effect extends Generic{
 		return out;
 	}
 
+	// Override the default handler
+	getTags(){
 
+		let tags = this.tags.slice();
+
+		if( this.type === Effect.Types.knockdown ){
+			tags.push(stdTag.wrKnockdown);
+			let type = stdTag.wrKnockdownFront;
+			if( this.data.type === Effect.KnockdownTypes.Back )
+				type = stdTag.wrKnockdownBack;
+			tags.push(type);
+		}
+		else if( this.type === Effect.Types.daze )
+			tags.push(stdTag.wrDazed);
+		else if( this.type === Effect.Types.grapple )
+			tags.push(stdTag.wrGrapple);
+		
+		return tags;
+
+
+	}
 
 	/* MAIN FUNCTIONALITY - This is where the magic happens */
 	// template is the original effect if it was just added
@@ -1538,7 +1558,7 @@ class Effect extends Generic{
 				const mapTag = tag => {
 					if( typeof tag !== "string" )
 						console.error("Found a non string tag in addMissingFxTag, tag was ", tag, "fx was", this);
-					return tag.toLowerCase();
+					return tag;
 				};
 				mTags = mTags.map(mapTag);
 				let viable = [];

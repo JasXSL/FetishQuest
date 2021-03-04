@@ -190,7 +190,7 @@ export default class Asset extends Generic{
 		if( !this.tags )
 			return [];
 		
-		let pre = this.constructor.name.substr(0,2).toLowerCase();
+		const pre = "as"; // Prefix for tags
 		let out = [];
 		for( let slot of this.slots ){
 
@@ -199,17 +199,15 @@ export default class Asset extends Generic{
 				console.error("non-string slot detected in item", this);
 			else{
 				
-				slot = slot.toLowerCase();
-
 				out.push(pre+'_'+slot);
-				const color = this.getColorTag().toLowerCase();
+				const color = this.getColorTag();
 				if( color )
 					out.push('as_'+slot+'_'+color);
-				for( let tag of this.tags ){
-					const t = tag.toLowerCase();
+				for( let t of this.tags ){
 					out.push(t);
 					out.push(t+'_'+slot);
 				}
+
 			}
 
 		}
