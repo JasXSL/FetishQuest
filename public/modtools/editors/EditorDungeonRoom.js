@@ -618,7 +618,7 @@ class Editor{
 	// Updated wanted gameActions and template requirements
 	updateWants(){
 
-		if( this.isTemplate ){
+		if( this.isTemplate() ){
 
 			let html = [];
 			const needed_doors = [true, true, true, true, true, true];	// One for each direction

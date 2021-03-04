@@ -1454,7 +1454,11 @@ class WebGL{
 		let room = game.dungeon.getActiveRoom();
 		let asset = room.getRoomAsset()._stage_mesh;
 
-		const box = new THREE.Box3().setFromObject(asset).getSize();
+
+		const box = new THREE.Vector3(), 
+			b = new THREE.Box3().setFromObject(asset);
+			b.getSize(box);
+
 		const max = Math.max(box.x, box.y, box.z);
 		let posY = max, 
 			posZ = max*.75;

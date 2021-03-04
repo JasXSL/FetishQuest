@@ -2746,8 +2746,7 @@ function build(){
 						libMat.Metal.Rust,
 						libMat.Cloth.Rope
 					],
-					
-					tags : [stdTag.mFence],
+					door : LibMesh.DoorTypes.DOOR_DOWN,
 				}),
 			},
 			City : {

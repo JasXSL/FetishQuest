@@ -1848,11 +1848,13 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	};
 
 
+
 	let viableEncounters = kit.encounters.filter(encounter => {
 
 		let numViableRooms = 0;
 		for( let room of viableEncounterRooms )
 			numViableRooms += Boolean(isEncounterViableForRoom(encounter, room));
+
 		return numViableRooms >= numEncounters;
 
 	});
