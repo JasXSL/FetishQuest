@@ -6,6 +6,7 @@ import AssetTemplate from '../../classes/templates/AssetTemplate.js';
 
 export default{
 
+
 	// Automatically binds all inputs, textareas, and selects with the class saveable and a name attribute indicating the field to to save
 	// win is a windowmanager object
 	// Autobind ADDS an event, so you can use el.eventType = fn before calling autobind if you want
@@ -310,6 +311,36 @@ export default{
 			}
 		}
 
+		// Stores a created asset in this asset's key
+		// a is the new asset
+		const storeAsset = (a, parented) => {
+
+			if( a.hasOwnProperty("label") )
+				a.label = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID();
+
+			if( single )
+				entries[key] = a.label || a.id;		// Store only the ID
+			else{
+
+				if( !Array.isArray(entries[key]) )
+					entries[key] = [];
+				entries[key].push(a.label || a.id);
+
+			}
+
+			if( parented ){
+
+				a._mParent = {
+					type : win.type,
+					label : win.id,
+				};
+
+			}
+			
+
+		};
+
+
 		// Parented single asset can only add if one is missing. Otherwise they have to edit by clicking. This works because parented can only belong to the same mod.
 		const hasButton = !single || !parented || !entries[key];
 		if( hasButton ){
@@ -319,31 +350,15 @@ export default{
 			tr.classList.add("noselect");
 			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td>';
 
-
+			
 			table.querySelector("input.addNew").onclick = () => {
 
 				// If parented, insert a new asset immediately, as there's no point in listing assets that are only viable for this parent
 				if( parented ){
 
 					let a = new constructor();
-					if( a.hasOwnProperty("label") )
-						a.label = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID();
-					
 					a = a.save("mod");
-					
-					if( single )
-						entries[key] = a.label || a.id;		// Store only the ID
-					else{
-						if( !Array.isArray(entries[key]) )
-							entries[key] = [];
-						entries[key].push(a.label || a.id);
-
-					}
-
-					a._mParent = {
-						type : win.type,
-						label : win.id,
-					};
+					storeAsset(a, true);
 
 					// Insert handles other window refreshers
 					this.insertAsset(targetLibrary, a, win, undefined, windowData);
@@ -403,6 +418,20 @@ export default{
 
 				if( typeof asset !== "object" )
 					throw 'Linked asset is not an object';
+
+				if( event.altKey && !single ){
+
+					const a = new constructor(asset);
+					const inserted = this.insertCloneAsset(targetLibrary, a, constructor, win);
+
+					// Add it to the list
+					storeAsset(inserted);
+					this.rebuildAssetLists(targetLibrary);
+					this.propagateChange(win);
+					win.rebuild();
+					return;
+	
+				}
 
 				// Check if from this mod
 				if( asset.__MOD ){
@@ -762,14 +791,7 @@ export default{
 					const asset = DEV.getAssetById(type, elId);
 					if( !asset )
 						throw 'Asset not found', type, elId;
-					const obj = new baseObject.constructor(asset);
-
-					if( obj.label )
-						obj.label += '_'+Generic.generateUUID();
-					if( obj.id )
-						obj.id = Generic.generateUUID();
-
-					this.insertAsset(type, obj.save("mod"), win);
+					this.insertCloneAsset(type, asset, baseObject.constructor, win);
 
 				}
 				// Unmodified non linker click opens
@@ -903,6 +925,26 @@ export default{
 		}, 10)
 
 	},
+
+
+	// Takes an asset and tries to clone it, returns the cloned object
+	// Type: key in the mod, such as dungeonTemplate
+	// Asset: Asset to clone such as a DungeonTemplate
+	insertCloneAsset( type, asset, constructor, parentWindow ){
+
+		const obj = new constructor(asset);
+		if( obj.label )
+			obj.label += '_'+Generic.generateUUID();
+		if( obj.id )
+			obj.id = Generic.generateUUID();
+
+		const out = obj.save("mod");
+		this.insertAsset(type, out, parentWindow, false);
+		
+		return out;
+
+	},
+
 
 	// mParent should be an object if supplied (see Mod.js for info about parented assets)
 	/*

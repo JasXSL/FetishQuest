@@ -23,9 +23,7 @@ export function asset(){
 		asset = modtools.mod.getAssetById(DB, id),
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
-	
-	console.log("Custom", this.custom);
-	
+		
 	if( !asset || !this.custom || !(["room", "encounter"].includes(this.custom)) ){
 		return this.close();
 	}

@@ -57,7 +57,6 @@ export default class PlayerClass extends Generic{
 		};
 		if( full ){
 			out.monster_only = this.monster_only;
-			out.actions = this.actions;
 		}
 
 		if( full !== "mod" ){

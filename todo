@@ -4,13 +4,29 @@
 
 - Need a game action that re-checks active players in the room for when the zebra leaves to go upstairs
 
-___ OLD ___
+
+
 -- CURRENT --
+	- EDITOR:
+		- Add alt-click copy to dungeonTemplates room templates listing
+		- Add new conditions for generator
+		- Implement dungeon subtemplates in generator
+
+
 
 Meshes:
 
+
+
+
 Smol:	
 	- Enabling or disabling a mod while hosting should send a full game
+
+
+
+
+
+
 
 
 Medium rare:
