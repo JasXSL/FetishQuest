@@ -28,6 +28,7 @@ export default class Mod extends Generic{
 		this.playerTemplates = [];		// NPC generator templates
 		this.assetTemplates = [];		// Asset templates
 		this.materialTemplates = [];	// AssetTemplate Material
+		this.dungeonSubTemplates = [];
 		this.dungeonTemplates = [];
 		this.effects = [];
 		this.wrappers = [];
@@ -103,6 +104,7 @@ export default class Mod extends Generic{
 			shopAssets : this.shopAssets,
 			actionLearnable : this.actionLearnable,
 			factions : this.factions,
+			dungeonSubTemplates : this.dungeonSubTemplates,
 		};
 
 		return out;

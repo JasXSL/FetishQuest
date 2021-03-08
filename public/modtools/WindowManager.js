@@ -18,9 +18,6 @@ export default class Window{
 	// build is the build function
 	constructor( id, type, name, icon, asset, build, parent, custom = {} ){
 
-		if( typeof custom !== "object" )
-			custom = {};
-
 		this.id = id;
 		this.type = type;
 		this.icon = icon;
@@ -33,7 +30,7 @@ export default class Window{
 		this.parent = parent;
 		this.hideOnClose = false;
 		this.dead = false;
-		this.custom = custom;		// Holds special window properties such as if it should only list orphans etc. Not currently used.
+		this.custom = custom;		// Holds special window properties that can be set when creating the window, and saved as state
 		
 		this.minimized = false;
 
@@ -425,9 +422,9 @@ export default class Window{
 
 	// Creates a window if it doesn't exist and returns it
 	// If it does exist, it returns existing
-	static create( id, type, name, icon, onSpawn, asset, parent ){
+	static create( id, type, name, icon, onSpawn, asset, parent, custom ){
 
-		const w = new this(id, type, name, icon, asset, onSpawn, parent);
+		const w = new this(id, type, name, icon, asset, onSpawn, parent, custom);
 		const uid = w.uniqid();
 
 		const existing = this.get(uid);

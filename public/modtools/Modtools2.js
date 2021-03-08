@@ -34,6 +34,7 @@ import * as EditorEncounter from './editors/EditorEncounter.js';
 import * as EditorDungeon from './editors/EditorDungeon.js';
 import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
 import * as EditorDungeonTemplate from './editors/EditorDungeonTemplate.js';
+import * as EditorDungeonSubTemplate from './editors/EditorDungeonSubTemplate.js';
 import Generic from '../classes/helpers/Generic.js';
 import GameLib from '../classes/GameLib.js';
 
@@ -77,6 +78,7 @@ const DB_MAP = {
 	"dungeons" : { listing : EditorDungeon.list, asset : EditorDungeon.asset, icon : 'castle', help : EditorDungeon.help },
 	"dungeonRooms" : { listing : EditorDungeonRoom.list, asset : EditorDungeonRoom.asset, icon : 'doorway', help : EditorDungeonRoom.help },
 	"dungeonTemplates" : { listing : EditorDungeonTemplate.list, asset : EditorDungeonTemplate.asset, icon : 'tower-fall', help : EditorDungeonTemplate.help },
+	"dungeonSubTemplates" : { listing : EditorDungeonSubTemplate.list, asset : EditorDungeonSubTemplate.asset, icon : 'tower-fall', help : EditorDungeonSubTemplate.help },
 };
 
 /*
@@ -532,6 +534,7 @@ export default class Modtools{
 		state.max = win.isMaximized();
 		state.min = win.minimized;
 		state.data = win.data;
+		state.custom = win.custom;
 
 		this.saveWindowStates();
 
@@ -554,12 +557,13 @@ export default class Modtools{
 			// Open window
 			let win;
 			try{
+
 				// An asset database listing
 				if( val.type === "Database" )
 					win = this.buildDatabaseList(val.id);
 				// An asset editor
 				else if( DB_MAP[val.type] ){
-					win = this.buildAssetEditor(val.type, val.id);
+					win = this.buildAssetEditor(val.type, val.id, undefined, undefined, val.custom);
 				}
 				else{
 					console.error("Ignoring window state for", data, "because it's an unsupported type. Add it to TRACKED_WINDOWS (or DB_MAP if a mod asset)");
@@ -570,6 +574,7 @@ export default class Modtools{
 				continue;
 			}
 
+			
 			if( val.max )
 				win.toggleMaximize();
 			if( val.min )
@@ -580,6 +585,7 @@ export default class Modtools{
 			win.size.w = val.w;
 			win.size.h = val.h;
 			win.makeFloating();
+			
 
 			order.push({
 				id : id,
@@ -835,7 +841,7 @@ export default class Modtools{
 
 	// Edit a text asset by id. ID can also be an object to edit directly, in which case it gets appended to data as {asset:}
 	// Note that if you use an object directly it won't save the window, and should only be used in special cases like the dungeonAsset GameActions to save space
-	buildAssetEditor( type, id, data, parent ){
+	buildAssetEditor( type, id, data, parent, custom ){
 
 		if( !DB_MAP[type] || !DB_MAP[type].asset)
 			throw 'Asset editor not found for type '+type+", add it to DB_MAP in Modtools2.js";
@@ -865,7 +871,8 @@ export default class Modtools{
 			DB_MAP[type].icon || "pencil", 
 			DB_MAP[type].asset, 
 			data, 
-			parent
+			parent,
+			custom
 		);
 
 		if( DB_MAP[type].help )

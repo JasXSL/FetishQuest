@@ -234,8 +234,9 @@ export default{
 		if parented, it sets the _mParent : {type:(str)type, label:(str)label} parameter on any new assets created, and only shows assets with the same _mParent set
 		columns can also contain functions, they'll be run with the asset as an argument
 		ignoreAsset doesn't put the asset into the list. Used by EditorQuestReward where you have multiple fields mapping the same key to different types of objects
+		windowData is passed to the new window
 	*/
-	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false ){
+	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false, windowData = '' ){
 
 		const fullKey = key;
 		// Todo: Need to handle non array type linked assets
@@ -245,13 +246,14 @@ export default{
 			entries = entries[k.shift()];
 		}
 		key = k.shift();
-
+		
 		const allEntries = toArray(entries[key]);
 		// Needed because :: may need to set '' as a value in order to work
 		if( single && allEntries[0] === '' )
 			allEntries.splice(0);
 
 		const EDITOR = window.mod, MOD = EDITOR.mod;
+
 
 		let table = document.createElement("table");
 		table.classList.add("linkedTable", "selectable");
@@ -268,11 +270,13 @@ export default{
 				if( !base ){
 					console.error("Base not found, trying to find", entry, "in", targetLibrary, "asset was", asset, "all assets", allEntries);
 				}
+
 				const tr = document.createElement('tr');
 				table.appendChild(tr);
 				tr.classList.add("asset");
 				tr.dataset.id = asset.label || asset.id;
 				tr.dataset.index = n;
+
 				// prefer label before id
 				for( let column of columns ){
 
@@ -322,17 +326,18 @@ export default{
 				if( parented ){
 
 					let a = new constructor();
-					if( a.hasOwnProperty("label") ){
-						a.label = (asset.label||asset.id)+'>>'+targetLibrary+'_'+Generic.generateUUID();
-					}
+					if( a.hasOwnProperty("label") )
+						a.label = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID();
+					
 					a = a.save("mod");
 					
 					if( single )
 						entries[key] = a.label || a.id;		// Store only the ID
 					else{
 						if( !Array.isArray(entries[key]) )
-						entries[key] = [];
+							entries[key] = [];
 						entries[key].push(a.label || a.id);
+
 					}
 
 					a._mParent = {
@@ -341,7 +346,7 @@ export default{
 					};
 
 					// Insert handles other window refreshers
-					this.insertAsset(targetLibrary, a, win);
+					this.insertAsset(targetLibrary, a, win, undefined, windowData);
 
 					// But we still need to refresh this
 					win.rebuild();
@@ -391,9 +396,9 @@ export default{
 				if( typeof asset === "string" ){
 
 					asset = this.getAssetById(targetLibrary, id);
-					if( !asset )
+					if( !asset ){
 						throw 'Linked asset not found';
-
+					}
 				}
 
 				if( typeof asset !== "object" )
@@ -410,7 +415,7 @@ export default{
 					entry.id = Generic.generateUUID();
 
 				// prefer editing by string since that can be put into save state, but custom assets can be edited via object for legacy reasons
-				EDITOR.buildAssetEditor( targetLibrary, entry );
+				EDITOR.buildAssetEditor( targetLibrary, entry, undefined, win, windowData );
 			}
 
 
@@ -758,6 +763,7 @@ export default{
 					if( !asset )
 						throw 'Asset not found', type, elId;
 					const obj = new baseObject.constructor(asset);
+
 					if( obj.label )
 						obj.label += '_'+Generic.generateUUID();
 					if( obj.id )
@@ -776,6 +782,7 @@ export default{
 
 					if( !parentWindow )
 						throw 'Parent window missing';
+
 
 					// Get the asset we need to modify
 					// Linker expects the parent window to be an asset editor unles parentWindow.asset.asset is set
@@ -807,9 +814,11 @@ export default{
 					}
 					// Nonsingle appends to array
 					else{
+
 						if( !Array.isArray(baseAsset[key]) )
 							baseAsset[key] = [];
 						baseAsset[key].push(label);
+
 					}
 					win.close();
 
@@ -896,7 +905,14 @@ export default{
 	},
 
 	// mParent should be an object if supplied (see Mod.js for info about parented assets)
-	insertAsset( type, asset = {}, win, openEditor = true ){
+	/*
+		type is the window type (needs to be listed in Modtools2.js
+		asset is the asset to insert
+		win is the parent window
+		openEditor is if you should open the editor immediately
+		windowData is custom data stored on the window. AVOID OBJECTS
+	*/
+	insertAsset( type, asset = {}, win, openEditor = true, windowData = '' ){
 		const DEV = window.mod, MOD = DEV.mod;
 
 		MOD[type].push(asset);
@@ -906,7 +922,7 @@ export default{
 
 		DEV.setDirty(true);
 		if( openEditor )
-			DEV.buildAssetEditor(type, asset.label || asset.id);
+			DEV.buildAssetEditor(type, asset.label || asset.id, undefined, undefined, windowData);
 		this.rebuildAssetLists(type);
 
 		

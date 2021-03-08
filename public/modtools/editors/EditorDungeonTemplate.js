@@ -1,8 +1,8 @@
 import HelperAsset from './HelperAsset.js';
 import Generic from '../../classes/helpers/Generic.js';
 import DungeonTemplate from '../../classes/templates/DungeonTemplate.js';
-import * as EditorDungeonRoom from './EditorDungeonRoom.js';
-import * as EditorEncounter from './EditorEncounter.js';
+import * as EditorDungeonSubtemplate from './EditorDungeonSubTemplate.js';
+
 
 const DB = 'dungeonTemplates',
 	CONSTRUCTOR = DungeonTemplate;
@@ -29,17 +29,16 @@ export function asset(){
 	html += '</div>';
 
 	// Keep
-	html += 'Viable Room Templates: <div class="rooms"></div>';
+	html += 'Room Templates: <div class="rooms"></div>';
 	html += 'Encounters: <div class="encounters"></div>';
 
 
 	this.setDom(html);
 
-	
 
 	// Bind linked objects
-	this.dom.querySelector("div.rooms").appendChild(EditorDungeonRoom.assetTable(this, asset, "rooms"));
-	this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "encounters"));
+	this.dom.querySelector("div.rooms").appendChild(EditorDungeonSubtemplate.assetTable(this, asset, "rooms", false, true, false, 'room'));
+	this.dom.querySelector("div.encounters").appendChild(EditorDungeonSubtemplate.assetTable(this, asset, "encounters", false, true, false, 'encounter'));
 
 	HelperAsset.autoBind( this, asset, DB);
 
