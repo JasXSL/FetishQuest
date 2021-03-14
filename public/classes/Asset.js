@@ -42,7 +42,7 @@ export default class Asset extends Generic{
 		this.description = "";
 		this.slots = [];
 		this.equipped = false;
-		this.equip_conditions = [];
+		this.equip_conditions = [];		// Todo: Implement this?
 		this.tags = [];					// Prefixed with AS_, use getTags
 		this.wrappers = [];				// Passive effects
 		this.level = 1;

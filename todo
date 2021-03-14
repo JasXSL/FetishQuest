@@ -8,9 +8,7 @@
 
 -- CURRENT --
 	- EDITOR:
-		- Add alt-click copy to dungeonTemplates room templates listing
-		- Add new conditions for generator
-		- Implement dungeon subtemplates in generator
+		- Figure out how to do sub-encounters
 
 
 

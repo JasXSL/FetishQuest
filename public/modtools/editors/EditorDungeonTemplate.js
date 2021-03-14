@@ -26,6 +26,7 @@ export function asset(){
 		html += '<label>Allow up: <input type="checkbox" name="allowUp" class="saveable" '+(dummy.allowUp ? 'checked' : '')+' /></label>';
 		html += '<label>Allow down: <input type="checkbox" name="allowDown" class="saveable" '+(dummy.allowDown ? 'checked' : '')+' /></label>';
 		html += '<label>Levers: <input type="checkbox" name="levers" class="saveable" '+(dummy.levers ? 'checked' : '')+' /></label>';
+		html += '<label>Random Encounters: <input type="checkbox" name="randomEncounters" class="saveable" '+(dummy.randomEncounters ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
 	// Keep

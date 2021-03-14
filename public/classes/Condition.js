@@ -299,6 +299,35 @@ export default class Condition extends Generic{
 
 			}
 
+			else if( this.type === T.roomIsOutdoors ){
+				
+				let room = event.room;
+				if( !room && window.game )
+					room = window.game.dungeon.getActiveRoom();
+
+				success = room && room.outdoors;
+
+			}
+
+			else if( this.type === T.roomZ ){
+				
+				let min = parseInt(this.data.min);
+				if( isNaN(min) )
+					min = -Infinity;
+				let max = parseInt(this.data.max);
+				if( this.data.max === undefined || max < min )
+					max = min;
+				if( this.data.max === "inf" )
+					max = Infinity;
+
+				let room = event.room;
+				if( !room && window.game )
+					room = window.game.dungeon.getActiveRoom();
+
+				success = room && room.z >= min && room.z <= max;
+
+			}
+
 			else if( this.type === T.charging ){
 				
 				const conds = this.data.conditions || [],
@@ -1134,6 +1163,11 @@ Condition.Types = {
 	actionCrit : 'actionCrit',
 	targetIsRpPlayer : 'targetIsRpPlayer',
 
+
+	// Dungeon room conditions
+	roomIsOutdoors : 'roomIsOutdoors',
+	roomZ : 'roomZ',
+
 };
 
 
@@ -1221,6 +1255,10 @@ Condition.descriptions = {
 	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level',
 	[Condition.Types.targetedSenderLastRound] : 'void - Target has successfully used a non-aoe action against sender since their last turn',
 	[Condition.Types.hourRange] : '{min:(number)min, max:(number)max} - Requires game.getHoursOfday() to be between min and max (24h format). Max can be greater than min for an example if you want something to happen at night: {min:21,max:6}',
+	
+	[Condition.Types.roomZ] : '{min:(number)min, max:(number)max=min} - The attached dungeon room (or game.dungeon active room if not in event) must have a z level between min and max. If max is unset, it makes min a FIXED value. Use "inf" for infinity (max)/negative infinity(min).',
+	[Condition.Types.roomIsOutdoors] : 'void - Checks if the attached dungeon room(or game.dungeon active room if unspecified) is outdoors',
+
 };
 
 

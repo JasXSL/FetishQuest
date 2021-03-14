@@ -25,6 +25,7 @@ import GameEvent from './GameEvent.js';
 import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
 import Encounter from './Encounter.js';
+import Player from './Player.js';
 
 const interact_cooldowns = {};	// id:true etc
 
@@ -1789,7 +1790,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 
 	// Calculate how many rooms to make
-	let viableRooms = kit.rooms;
+	let viableRooms = kit.rooms.slice();
 
 	// Generate width/height
 	const maxFloors = Math.floor(numRooms/4) + (Math.random() <= (numRooms%4)/4 ? 1 : 0);
@@ -1799,6 +1800,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		out.depth = -maxFloors;
 		
 
+	console.log("Using kit", kit);
 
 	// Generate the map by creating rooms with no assets
 
@@ -1840,53 +1842,15 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 
 
-	let numEncounters = Math.ceil(out.rooms.length*0.4)+Math.floor(Math.random()*out.rooms.length*0.3);
-	let viableEncounterRooms = out.rooms.filter(el => el.index);
-	shuffle(viableEncounterRooms);
-	const isEncounterViableForRoom = (encounter, room) => {
-		return true;	// Todo: Check room conditions
-	};
-
-
-
-	let viableEncounters = kit.encounters.filter(encounter => {
-
-		let numViableRooms = 0;
-		for( let room of viableEncounterRooms )
-			numViableRooms += Boolean(isEncounterViableForRoom(encounter, room));
-
-		return numViableRooms >= numEncounters;
-
-	});
-
-	let encounterTemplate = randElem(viableEncounters);
-	let roomsPopulated = 0;
-	for( let room of viableEncounterRooms ){
-
-		// Todo: check if encounter is viable in t his room
-		if( isEncounterViableForRoom(encounterTemplate, room) ){
-			
-			room.encounters = [encounterTemplate.clone()];
-
-			++roomsPopulated;
-			if( roomsPopulated >= numEncounters )
-				break;
-
-		}
-
-	}
-	
-
-
 	// Add the doors and base assets
 	const getViableRoomTemplate = room => {
-		
-		
 
+		const templatePlayer = new Player();
+		
 		// Helper function that checks if template is viable for room
-		const isRoomViable = template => {
+		const isRoomViable = subTemplate => {
 
-			
+			const template = subTemplate.getAsRoom();
 			// Get required bearings first
 			const adjacent = room.getAdjacentBearings();
 			// First room always needs an exit door
@@ -1900,12 +1864,23 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 			}
 
+			templatePlayer.tags = template.getTags().concat(room.getTags());	// Fetch tags from both rooms
+
+			// Check conditions
+			if( !Condition.all(subTemplate.conditions, new GameEvent({
+				dungeon : out,
+				room : room,				// Test the room, not the template
+				sender: templatePlayer,
+				target: templatePlayer,
+			})) )
+				return false;
+
 			return true;
 
 		};
 	
 
-		// Shuffle the rooms and try to find a viable one
+		// Shuffle the rooms in the template and try to find a viable one
 		shuffle(viableRooms);
 		for( let test of viableRooms ){
 
@@ -1921,12 +1896,15 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	};
 	for( let room of out.rooms ){
 
-		const viableTemplate = getViableRoomTemplate(room);
+		let viableTemplate = getViableRoomTemplate(room);
 		
 		if( !viableTemplate ){
 			console.error("Kit selected:", kit);
 			throw 'Error, unviable templates for this dungeon';
 		}
+
+		viableTemplate = viableTemplate.getAsRoom();
+
 		room.loadFromTemplate(viableTemplate);
 		
 		// Re-add the assets
@@ -1974,6 +1952,72 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	}
 
+
+
+	// Encounters
+	let numEncounters = Math.ceil(out.rooms.length*0.4)+Math.floor(Math.random()*out.rooms.length*0.3);
+	let viableEncounterRooms = out.rooms.filter(el => el.index);	// Basically any room except the first
+	shuffle(viableEncounterRooms);
+	const isEncounterViableForRoom = (encounter, room) => {
+
+		const enc = encounter.getAsEncounter();
+
+		const templatePlayer = new Player();
+		templatePlayer.tags = room.getTags();	// Fetch tags so we can use mesh tags
+
+		if( !Condition.all(
+			encounter.conditions,
+			new GameEvent({
+				sender: templatePlayer,
+				target: templatePlayer,
+				dungeon : out,
+				room : room,
+				encounter : enc
+			})
+		) )
+			return false;
+
+		return true;	// Todo: Check room conditions
+	};
+
+
+
+	let viableEncounters = kit.encounters.filter(encounter => {
+
+		let numViableRooms = 0;
+		for( let room of viableEncounterRooms )
+			numViableRooms += Boolean(isEncounterViableForRoom(encounter, room));
+
+		return numViableRooms >= numEncounters;
+
+	});
+
+	let encounterTemplate = randElem(viableEncounters);
+	let roomsPopulated = 0;
+	for( let room of viableEncounterRooms ){
+
+		// Random encounters checks viable for room
+		if( kit.randomEncounters ){
+
+			viableEncounters = kit.encounters.filter(enc => isEncounterViableForRoom(enc, room));
+			if( !viableEncounters.length )
+				continue;
+
+			encounterTemplate = randElem(viableEncounters);
+
+		}
+		// Must be the one encounter for this dungeon
+		else if( !isEncounterViableForRoom(encounterTemplate, room) )
+			continue;
+
+		room.encounters = [encounterTemplate.getAsEncounter().clone()];
+
+		++roomsPopulated;
+		if( roomsPopulated >= numEncounters )
+			break;
+
+
+	}
 
 
 

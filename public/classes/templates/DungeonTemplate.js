@@ -18,7 +18,8 @@ class DungeonTemplate extends Generic{
 		this.allowUp = true;		// Can generate rooms above 0 level
 		this.allowDown = true;		// Can generate rooms below 0 level
 		this.levers = true;
-		
+		this.randomEncounters = false;	// Pick encounters at random instead of picking one
+
 		this.load(...args);
 
 	}
@@ -27,7 +28,9 @@ class DungeonTemplate extends Generic{
 		const out = {
 			id : this.id,
 			label : this.label,
-			rooms : this.rooms,
+			rooms : DungeonTemplateSub.saveThese(this.rooms),
+			encounters : DungeonTemplateSub.saveThese(this.encounters),
+			randomEncounters : this.randomEncounters,
 		};
 
 		if( full === "mod" )
@@ -60,6 +63,8 @@ export class DungeonTemplateSub extends Generic{
 		this.asset = '';
 		this.conditions = [];
 
+		this._asset = false;
+
 		this.load(...args);
 	}
 
@@ -68,7 +73,7 @@ export class DungeonTemplateSub extends Generic{
 			id : this.id,
 			label : this.label,
 			asset : this.asset && this.asset.save ? this.asset.save() : this.asset,
-			conditions: Condition.saveThese(this.conditions),
+			conditions: Condition.saveThese(this.conditions, full),
 		};
 
 		if( full === "mod" )
@@ -79,7 +84,7 @@ export class DungeonTemplateSub extends Generic{
 
 	rebase(){
 
-		this.conditions = Condition.loadThese(this.conditions);
+		this.conditions = Condition.loadThese(this.conditions, this);
 
 	}
 	
@@ -87,6 +92,21 @@ export class DungeonTemplateSub extends Generic{
 		this.g_autoload(data);
 	}
 
+	getAsRoom(){
+		
+		if( !this._asset )
+			this._asset = glib.get(this.asset, 'DungeonRoom');
+		return this._asset;
+
+	}
+
+	getAsEncounter(){
+		
+		if( !this._asset )
+			this._asset = glib.get(this.asset, 'Encounter');
+		return this._asset;
+
+	}
 
 }
 

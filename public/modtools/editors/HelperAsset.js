@@ -313,9 +313,10 @@ export default{
 
 		// Stores a created asset in this asset's key
 		// a is the new asset
-		const storeAsset = (a, parented) => {
+		const storeAsset = a => {
 
-			if( a.hasOwnProperty("label") )
+			let template = new constructor();
+			if( template.hasOwnProperty("label") )
 				a.label = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID();
 
 			if( single )
@@ -324,7 +325,8 @@ export default{
 
 				if( !Array.isArray(entries[key]) )
 					entries[key] = [];
-				entries[key].push(a.label || a.id);
+
+				entries[key].push(a.label);
 
 			}
 
@@ -358,7 +360,7 @@ export default{
 
 					let a = new constructor();
 					a = a.save("mod");
-					storeAsset(a, true);
+					storeAsset(a);
 
 					// Insert handles other window refreshers
 					this.insertAsset(targetLibrary, a, win, undefined, windowData);
