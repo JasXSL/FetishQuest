@@ -717,7 +717,7 @@ class WebGL{
 	
 	cacheActiveDungeon(){
 
-		if( game.dungeon.label === "_procedural_" || !window.game )
+		if( !window.game )
 			return;
 
 		if( !this.dungeons[game.dungeon.label] )

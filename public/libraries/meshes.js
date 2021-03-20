@@ -383,6 +383,8 @@ LibMesh.getByString = function(path){
 // Has to be wrapped like this due to cyclic dependency
 function build(){
 
+	const gameActionDoors = [GameAction.types.door,GameAction.types.exit,GameAction.types.proceduralDungeon];
+
 	if( LibMesh.library )
 		return LibMesh.library;
 	
@@ -699,7 +701,7 @@ function build(){
 
 
 					lockable : true,
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					animations : {
 						"open" : {
 							clampWhenFinished : true,
@@ -740,7 +742,7 @@ function build(){
 
 
 					lockable : true,
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					animations : {
 						"open" : {
 							clampWhenFinished : true,
@@ -762,7 +764,7 @@ function build(){
 					],
 
 
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					tags : [stdTag.mLadder],
 					onFlatten : function(mesh){
 						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
@@ -802,7 +804,7 @@ function build(){
 					],
 
 
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					tags : [stdTag.mTrapdoor],
 					animations : {
 						"open" : {
@@ -867,7 +869,7 @@ function build(){
 					],
 
 
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					tags : [stdTag.mStair],
 					onFlatten : function(mesh){
 						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
@@ -1274,7 +1276,7 @@ function build(){
 					],
 
 
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					tags : [stdTag.mStair],
 					onFlatten : function(mesh){
 						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
@@ -1312,7 +1314,7 @@ function build(){
 					],
 
 
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					tags : [stdTag.mDoor],
 					animations : {
 						"open" : {
@@ -2135,7 +2137,7 @@ function build(){
 				DirArrow : new LibMesh({
 					auto_bounding_box : true,
 					url : 'gates/dir_arrows.JD',
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 
 					materials : [
 						libMat.Solids.GreenArrow
@@ -2983,7 +2985,7 @@ function build(){
 			Door : {
 				CaveDoor : new LibMesh({
 					url : 'gates/cave_door.JD',
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					materials : [
 						libMat.Rock.Wall,
 						libMat.Solids.Black,
@@ -3426,7 +3428,7 @@ function build(){
 
 			GenericDouble : new LibMesh({
 				url : 'gates/doubledoor_generic.JD',
-					want_actions : [[GameAction.types.door,GameAction.types.exit]],
+					want_actions : [gameActionDoors],
 					materials : [
 					libMat.Wood.Floor2,
 					libMat.Wood.Reinforced,
@@ -3448,7 +3450,7 @@ function build(){
 
 			Generic : new LibMesh({
 				url : 'gates/generic_door.JD',
-				want_actions : [[GameAction.types.door,GameAction.types.exit]],
+				want_actions : [gameActionDoors],
 				materials : [
 					libMat.Wood.Crate,
 					libMat.Metal.DarkGeneric,
@@ -3469,7 +3471,7 @@ function build(){
 
 			Manhole : new LibMesh({
 				url : 'gates/manhole.JD',
-				want_actions : [[GameAction.types.door,GameAction.types.exit]],
+				want_actions : [gameActionDoors],
 				materials : [
 					libMat.Brick.Tile,
 					libMat.Metal.DarkGeneric,

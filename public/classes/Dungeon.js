@@ -47,6 +47,8 @@ class Dungeon extends Generic{
 		this.difficulty = -1;		// Generally describes how many players this dungeon is for. -1 automatically sets it to nr friendly players
 		this.vars = new Collection({}, this);				// Dungeon vars. This one is loaded onto by _state
 		this.free_roam = false;		// When true, doesn't show the "back" icon leading you to exit
+		this.procedural = 0;		// If the dungeon is procedural, this is the time in world when it was created
+
 		this.consumables = [
 			'manaPotion', 'majorManaPotion',
 			'minorHealingPotion', 'healingPotion', 'majorHealingPotion',
@@ -105,6 +107,8 @@ class Dungeon extends Generic{
 
 		// Everything except mod
 		if( full !== 'mod' ){
+			out.procedural = this.procedural;
+			out.created = this.created;
 			out.id = this.id;
 			out.active_room = this.active_room;
 			out.previous_room = this.previous_room;
@@ -1775,6 +1779,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	let out = new this(settings);
 	out.label = '_procedural_';
 	out.id = '_procedural_';		// Both need to be procedural
+	out.procedural = game.time || 1;
 
 	numRooms = Math.max(numRooms, 1);
 

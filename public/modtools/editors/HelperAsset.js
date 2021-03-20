@@ -384,7 +384,6 @@ export default{
 
 			// Ctrl deletes
 			if( event.ctrlKey ){
-
 				
 				// Don't need to store this param in the mod anymore
 				if( single )

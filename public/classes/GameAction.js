@@ -480,14 +480,7 @@ export default class GameAction extends Generic{
 			}
 			game.toggleBattle(this.data.on);
 		}
-		
-		else if( this.type === types.generateDungeon){
-			game.generateProceduralDungeon();
-		}
 
-		else if( this.type === types.visitDungeon ){
-			game.gotoProceduralDungeon();
-		}
 
 		else if( this.type === types.roleplay ){
 
@@ -737,6 +730,12 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.proceduralDungeon ){
+
+			game.setProceduralDungeon( this.data );
+
+		}
+
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
 			return false;
@@ -779,14 +778,13 @@ GameAction.types = {
 	autoLoot : "aLoot",				// 
 	door : "door",					// 
 	exit : "exit",					// 
+	proceduralDungeon : "proceduralDungeon",					// 
 	anim : "anim",					// 
 	lever : "lever",				// 
 	quest : "quest",				// 
 	questObjective : "questObjective",		// 
 	addInventory : "addInventory",			// 
 	toggleCombat : "toggleCombat",			// 
-	generateDungeon : "generateDungeon",	// 
-	visitDungeon : "visitDungeon",			// 
 	roleplay : "roleplay",					// 
 	finishQuest : "finishQuest",			// 
 	tooltip : "tooltip",					// 
@@ -807,7 +805,7 @@ GameAction.types = {
 	trade : "trade",						// 
 	learnAction : "learnAction",			// 
 	addCopper : 'addCopper',
-	addTime : 'addTime'
+	addTime : 'addTime',
 };
 
 GameAction.TypeDescs = {
@@ -818,14 +816,13 @@ GameAction.TypeDescs = {
 	[GameAction.types.autoLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
 	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
 	[GameAction.types.exit] : "{dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}",
+	[GameAction.types.proceduralDungeon] : "{label:(str)label, templates:(arr)viable_templates}",
 	[GameAction.types.anim] : '{anim:(str)animation} - Usable on a dungeon room asset',
 	[GameAction.types.lever] : '{id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations',
 	[GameAction.types.quest] : '{quest:(str/Quest)q} - Starts a quest',
 	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1} - Adds or subtracts from an objective',
 	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1} - Adds or removes inventory from a player',
 	[GameAction.types.toggleCombat] : '{on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.',
-	[GameAction.types.generateDungeon] : '{difficulty:(int)difficulty=#players} - Resets the active procedural dungeon and clears any procedural quests you\'ve started',
-	[GameAction.types.visitDungeon] : '{} - Visits the current procedurally generated dungeon',
 	[GameAction.types.roleplay] : '{rp:(str/obj)roleplay} - A label or roleplay object',
 	[GameAction.types.finishQuest] : '{quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.',
 	[GameAction.types.tooltip] : '{text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak',

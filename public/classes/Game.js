@@ -55,7 +55,7 @@ export default class Game extends Generic{
 		this.state_dungeons = new Collection();			// label : (obj)dungeonstate - See the dungeon loadstate/savestate. Dungeon stage is fetched from a method in Dungeon
 		this.completed_quests = new Collection();		// label : {objective_label:true,__time:(int)time_completed}
 		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)} - These are fetched by the Dungeon object. They're the same objects here as they are in dungeon._state
-		this.procedural_dungeon = new Dungeon({}, this);		// Snapshot of the current procedural dungeon
+		this.procedural = [];							// Dungeon objects
 		this.state_shops = new Collection();			// label : (obj)shopState
 		this.difficulty = 5;							// Scale between 0 and 10. Below 5 and it reduces damage taken by 15% per tier. Above 5 and it reduces damage done by 15% per tier.
 		this.factions = [];
@@ -179,12 +179,12 @@ export default class Game extends Generic{
 			out.rain_start_val = this.rain_start_val;
 			out.rain_started = this.rain_started;
 			out.difficulty = this.difficulty;
+			out.procedural = Dungeon.saveThese(out.procedural, full);
 
 			Object.values(this.libAsset).map(el => out.libAsset[el.label] = el.save(full));
 			out.name = this.name;
 			out.id = this.id;
 			out.chat_log = this.chat_log;
-			out.procedural_dungeon = this.procedural_dungeon.save(full);
 		}
 		else{
 			out.mute_spectators = this.mute_spectators;
@@ -348,7 +348,6 @@ export default class Game extends Generic{
 		
 		this.quests = Quest.loadThese(this.quests, this);		
 		this.dungeon = new Dungeon(this.dungeon, this);
-		this.procedural_dungeon = new Dungeon(this.procedural_dungeon, this);
 		this.encounter = new Encounter(this.encounter, this);
 		// Players last as they may rely on the above
 		this.players = Player.loadThese(this.players, this);
@@ -1012,11 +1011,51 @@ export default class Game extends Generic{
 
 	}
 
+	// Sets the dungeon to a procedural one. Data corresponds to proceduralDungeon data in GameAction
+	setProceduralDungeon( data = {} ){
+
+		const label = data.label;
+		if( !label )
+			throw 'Trying to set procedural dungeon without label';
+
+		// Todo: reset if it's been active for more than a week
+
+		let dungeon = this.getProceduralDungeon();
+		if( !dungeon ){
+
+			let kit = data.templates;
+			if( Array.isArray(kits) )
+				kit = randElem(kits);
+
+			dungeon = Dungeon.generate(16, kit, data.settings);
+			dungeon.label = label;
+			dungeon.g_resetID();
+
+			this.procedural.push(dungeon);
+
+		}
+		this.setDungeon(dungeon);
+
+
+	}
+
+	getProceduralDungeon( label ){
+
+		for( let dungeon of this.procedural ){
+
+			if( dungeon.label === label )
+				return dungeon;
+
+		}
+
+		return false;
+
+	}
+
 	removeProceduralDungeonState(){
 		
 		this.state_dungeons.unset('_procedural_');
 		this.renderer.uncacheDungeon('_procedural_');
-		
 
 	}
 
@@ -1031,6 +1070,7 @@ export default class Game extends Generic{
 
 	}
 
+	/*
 	generateProceduralDungeon(){
 
 		const existing = this.getQuestByLabel('_procedural_');
@@ -1042,15 +1082,7 @@ export default class Game extends Generic{
 		//this.addRandomQuest(); Todo: re-enable when done
 
 	}
-
-	gotoProceduralDungeon(){
-		if( this.hasProceduralDungeon() )
-			this.setDungeon(this.procedural_dungeon);
-	}
-
-	hasProceduralDungeon(){
-		return this.procedural_dungeon.label === '_procedural_';
-	}
+	*/
 
 	makeEncounterHostile(){
 		this.encounter.friendly = false;
@@ -1061,6 +1093,7 @@ export default class Game extends Generic{
 	/* QUEST */
 
 	// Procedurally generates a quest and dungeon
+	/*
 	addRandomQuest( type, difficultyMultiplier = 1 ){
 
 		const dungeonType = [Dungeon.Shapes.Random, Dungeon.Shapes.SemiLinear][Math.round(Math.random())];
@@ -1087,6 +1120,8 @@ export default class Game extends Generic{
 		this.save();
 		
 	}
+	*/
+
 	addQuest(quest){
 
 		if( typeof quest === "string" )

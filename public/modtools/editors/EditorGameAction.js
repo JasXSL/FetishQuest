@@ -13,6 +13,7 @@ import * as EditorHitFX from './EditorHitFX.js';
 import * as EditorPlayerTemplate from './EditorPlayerTemplate.js';
 import * as EditorFaction from './EditorFaction.js';
 import * as EditorDungeon from './EditorDungeon.js';
+import * as EditorDungeonTemplate from './EditorDungeonTemplate.js';
 import Generic from '../../classes/helpers/Generic.js';
 
 
@@ -212,6 +213,27 @@ export function asset(){
 
 		fnBind = () => {
 			this.dom.querySelector("div.dungeon").appendChild(EditorDungeon.assetTable(this, asset, "data::dungeon", true));
+		};
+
+
+
+	}
+	else if( type === Types.proceduralDungeon ){
+
+		// {dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				label : '',
+				templates : []
+			};
+
+		html += 'Dungeon: <div class="dungeon"></div>';
+		html += '<label title="Make up a unique label for this dungeon">Dungeon Label: <input type=text value="'+esc(asset.data.label)+'" name="data::label" class="saveable" /></label>';
+
+		html += '<br />Templates: <br /><div class="templates"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.templates").appendChild(EditorDungeonTemplate.assetTable(this, asset, "data::templates", false));
 		};
 
 

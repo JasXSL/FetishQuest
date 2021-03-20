@@ -300,6 +300,7 @@ class Quest extends Generic{
 }
 
 // These are only used for the procedural generator
+// Todo
 Quest.Types = {
 	DungeonClear : 0,			// Wipe out an entire dungeon
 	//DungeonReagents : 1,		// Find all assets in a dungeon

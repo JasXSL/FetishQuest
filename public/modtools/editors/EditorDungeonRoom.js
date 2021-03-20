@@ -852,24 +852,18 @@ class Editor{
 			table.querySelectorAll("tr.asset").forEach(el => el.onclick = event => {
 				
 				const id = el.dataset.id;
+				
 
 				// Delete from linked array
 				if( event.ctrlKey ){
 
-					for( let i in asset.interactions ){
-						const e = asset.interactions[i];
-						if( e === id || e.id === id || e.label === id ){
-
-							asset.interactions.splice(i, 1);
-							this.rebuild();
-							th.save();
-							window.mod.setDirty(true);
-							return;
-						}
-						
-					}
-
+					const index = parseInt(el.dataset.index);
+					asset.interactions.splice(index, 1);
+					this.rebuild();
+					th.save();
+					window.mod.setDirty(true);
 					return;
+
 				}
 				openGameActionEditor(id);
 
