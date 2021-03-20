@@ -619,7 +619,7 @@ class DungeonRoom extends Generic{
 			let cur = this.getAssetById(id);
 			
 			if( !cur ){
-				this.addAsset(new DungeonRoomAsset(asset, this), true);
+				this.addAsset(new DungeonRoomAsset(asset, this));
 				continue;
 			}
 
@@ -876,43 +876,13 @@ class DungeonRoom extends Generic{
 
 
 	/* ASSETS */
-	addAsset( dungeonRoomAsset, generated = false ){
+	addAsset( dungeonRoomAsset ){
 
 		this.assets.push(dungeonRoomAsset);
-		dungeonRoomAsset.generated = generated;
 		let model = dungeonRoomAsset.getModel();
-		let attachments = model.attachments.slice();
-		let min = isNaN(model.min_attachments) ? 0 :model.min_attachments,
-			max = isNaN(model.max_attachments) ? attachments.length : 0;
-
 		if( model )
 			dungeonRoomAsset.addTags(model.getTags());
 		
-		// Make a list of indexes of the assets
-		let indexes = [];
-		for( let i=0; i<attachments.length; ++i )
-			indexes.push(i);
-
-		// If min is -1 (default) use ALL assets in their order
-		// Otherwise randomize some assets
-		if( min !== -1 ){
-			shuffle(indexes);
-			let total = Math.floor(Math.random()*(max-min))+min;
-			indexes = indexes.slice(0,total);
-		}
-		dungeonRoomAsset.attachments = indexes;
-	}
-	
-	// Dungeon assets placed that are generated
-	getGeneratedAssets(){
-		
-		const out = [];
-		for( let asset of this.assets ){
-			if( asset.generated )
-				out.push(asset);
-		}
-		return out;
-
 	}
 
 	removeAsset( asset ){
@@ -931,35 +901,6 @@ class DungeonRoom extends Generic{
 				return a;
 		}
 		return false;
-	}
-	
-	// Path in assetLib
-	placeAsset( assetPath, generated = false ){
-
-		let mesh = LibMesh.getByString(assetPath);
-		let bearing = Math.floor(Math.random()*4);
-		if( mesh.no_rotation )
-			bearing = undefined;
-
-		let prop = new DungeonRoomAsset({
-			model : assetPath,
-			rotZ : bearing ? bearing*90 : 0,
-		}, this);
-
-		let positions = this.getFreeTilesForObject(prop, bearing, mesh.position_on_wall);
-		let position = shuffle(positions).shift();
-		if( position ){
-
-			prop.x = position[0];
-			prop.y = position[1];
-			this.addAsset(prop, generated);
-			return prop;
-
-		}
-
-		prop.onModified();
-		return false;
-
 	}
 
 
@@ -1155,7 +1096,6 @@ class DungeonRoomAsset extends Generic{
 		this.scaleX = 1.0;
 		this.scaleY = 1.0;
 		this.scaleZ = 1.0;
-		this.attachments = [];			// Indexes of attachments available in new LibMesh().attachments
 		this.interact_cooldown = 1000;	// ms between how often you can interact with this 
 		this._model = null;				// Generic mesh model
 		this._stage_mesh = null;		// Mesh tied to this object in the current scene
@@ -1200,7 +1140,6 @@ class DungeonRoomAsset extends Generic{
 			scaleX : this.scaleX,
 			scaleY : this.scaleY,
 			scaleZ : this.scaleZ,
-			attachments : this.attachments,
 			tags : this.tags,
 			name : this.name,
 			room : this.room,

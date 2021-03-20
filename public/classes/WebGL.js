@@ -16,6 +16,7 @@ import Proton from '../ext/three.proton.min.js';
 import libMesh from '../libraries/meshes.js';
 import stdTag from '../libraries/stdTag.js';
 import Player from './Player.js';
+import { DungeonRoomAsset } from './Dungeon.js';
 
 window.g_THREE = THREE;
 
@@ -296,6 +297,11 @@ class WebGL{
 		this.cache_active_room = null;		// ID of active room for room detection
 		this.dungeonGroup = new THREE.Group();	// Stores the whole current dungeon 
 		this.scene.add(this.dungeonGroup);
+
+		this.assetCache = new THREE.Group();	// Stores assets here as they load 
+		this.assetCache.visible = false;
+		this.scene.add(this.assetCache);		// 
+		this.currentCache = [];					// Stores the cached assets we're currently using in the active dungeon
 
 		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) in the last cell. 
 											// If this has changed on cell entry, redraw rain.
@@ -736,7 +742,10 @@ class WebGL{
 			s.destructor();
 			
 		});
+
+		this.currentCache.map(asset => this.cacheModel(asset));
 		this.stages = [];
+		this.currentCache = [];
 
 		game.ui.toggleLoadingBar(game.dungeon.rooms.length);
 
@@ -760,8 +769,6 @@ class WebGL{
 		this.cache_active_room = -1;
 		this.drawActiveRoom();
 
-		console.log(this.load_after_load);
-
 		// Cancel
 		if( this.load_after_load ){
 			this.load_after_load = false;
@@ -773,6 +780,8 @@ class WebGL{
 		this.dungeonGroup.add(this.stage.group);
 		/* Can put stuff here to do when the loading is finished */
 	
+		this.pruneCache();	// Prune after a load
+
 		game.ui.toggleLoadingBar();
 
 	}
@@ -821,7 +830,6 @@ class WebGL{
 		}
 		this.updateFog();
 
-		console.log("Drawing", this);
 
 	}
 
@@ -852,6 +860,66 @@ class WebGL{
 
 
 
+
+	/* CACHE */
+	// Gets an asset from cache, or creates a new one if necessary
+	async getAssetFromCache( asset, unique ){
+
+		if( !(asset instanceof DungeonRoomAsset) )
+			throw 'Trying to load non DungeonAsset';
+
+		const path = asset.model;
+
+		// Try to find this in cache
+		if( !unique ){
+			
+			for( let asset of this.assetCache.children ){
+
+				// Not checking current_cache works because THREE rips the asset out of there when added to the scene
+				// But if you start doing this in parallel you'll need to start checking for current_cache
+				if( path !== asset.userData._c_path )
+					continue;
+
+				this.currentCache.push(asset);
+				return asset;
+
+			}
+			
+		}
+
+		// Not found or unique
+		const model = asset.getModel();
+		const out = await model.flatten(unique);
+
+		// This temporarily adds to the cache
+		// THREE automatically pulls it out of the cache when used
+		if( !unique )
+			this.cacheModel(out, path);
+
+		return out;
+
+	}
+
+	cacheModel( model, path ){
+
+		if( path )
+			model.userData._c_path = path;
+		else if( !model.userData._c_path )
+			return;	// Can't cache items without a path
+
+		this.assetCache.add(model);
+		this.currentCache.push(model);
+
+	}
+
+	pruneCache(){
+
+		const cache_level = Math.max(10, (parseInt(localStorage.cache_level) || 50))*10;
+		const children = this.assetCache.children;
+		while( children.length > cache_level )
+			this.assetCache.remove(children[children.length-1]);
+
+	}
 
 
 
@@ -892,7 +960,7 @@ class WebGL{
 		
 		// Add a dummy so you don't overload
 		this.playerMarkers.push(false);
-		const obj = await libMesh().Generic.Marker.Player.flatten([], true);
+		const obj = await libMesh().Generic.Marker.Player.flatten(true);
 		for( let i in this.playerMarkers ){
 			if( this.playerMarkers[i] === false ){
 				this.playerMarkers[i] = obj;
@@ -1713,11 +1781,9 @@ class Stage{
 
 	/* Primary actions */
 	// Adds from libraries/meshes.js, returns the library object that was added
-	async addFromMeshLib(asset, attachments, unique){
+	async addFromMeshLib(asset, unique){
 
-		if( !asset.flatten )
-			console.error("Asset can't flatten", asset, "in", this);
-		let obj = await asset.flatten(attachments, unique);
+		const obj = await this.parent.getAssetFromCache( asset, unique );
 		this.add(obj);
 		
 		return obj;
@@ -1728,11 +1794,7 @@ class Stage{
 	async addDungeonAsset( asset ){
 
 
-		const libEntry = asset.getModel();
-		const attachmentIndexes = asset.attachments;
-		if( !libEntry.flatten )
-			console.error("Found invalid model in asset", asset);
-		const c = await this.addFromMeshLib(libEntry, attachmentIndexes, asset.isInteractive() || this.isEditor);
+		const c = await this.addFromMeshLib(asset, asset.isInteractive() || this.isEditor);
 
 		
 		c.userData.dungeonAsset = asset;

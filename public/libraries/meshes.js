@@ -63,8 +63,6 @@ class LibMesh{
 		// Metadata for dungeon generator
 		this.lockable = data.lockable || false;								// Use the door lock system
 		this.attachments = Array.isArray(data.attachments) ? data.attachments : [];	// use LibMeshAttachment
-		this.min_attachments = isNaN(data.min_attachments) ? -1 : data.min_attachments;
-		this.max_attachments = data.max_attachments;
 		this.auto_bounding_box = data.auto_bounding_box;										// Creates an automatic invisible prim to use as a bounding box for raycasting
 		this.door = data.door || LibMesh.DoorTypes.DOOR_NONE;	// used for the procedural generator to figure out where a door can go. Their placement rotation matters. Where 0 = north, pi/2 = west...
 		this.doorRotOffs = data.doorRotOffs || 0;									// Helper for above in order to show which direction is forward
@@ -84,18 +82,16 @@ class LibMesh{
 
 	// Note: Avoid parallelization to prevent the viewer from freezing
 	// Returns a promise that resolves with a mesh
-	async flatten( attachmentIndexes, unique = false ){
+	async flatten( unique = false ){
 
 
 		// Attachmentindexes is an array of attachments that should be allowed
 		// Use ["ALL"] to enable all attachments
 		let submeshes = [];
-		for( let i = 0; i<this.attachments.length; ++i ){
-			
-			if( this.attachments[i].always || !Array.isArray(attachmentIndexes) || ~attachmentIndexes.indexOf(i) ){
-				let sub = await this.attachments[i].flatten();
-				submeshes.push(sub);
-			}
+		for( att of this.attachments ){
+		
+			let sub = await att.flatten();
+			submeshes.push(sub);
 
 		}
 
