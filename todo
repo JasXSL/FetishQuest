@@ -2,13 +2,23 @@
 	- Keep redesigning errors to a try/catch system
 
 
+
 - Need a game action that re-checks active players in the room for when the zebra leaves to go upstairs
 
 
 
+
+
 -- CURRENT --
-	- EDITOR:
-		- Figure out how to do sub-encounters
+	- Procedural
+		- Add an explorer's guild
+		- Add tokens you get for fully clearing a procedural dungeon
+		- Add title to procedural dungeon showing the exploration percentage
+	
+	- Overhaul level caching
+
+	Maybe?
+		- Procedural dungeon affixes
 
 
 

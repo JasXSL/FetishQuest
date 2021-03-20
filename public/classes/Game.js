@@ -179,7 +179,7 @@ export default class Game extends Generic{
 			out.rain_start_val = this.rain_start_val;
 			out.rain_started = this.rain_started;
 			out.difficulty = this.difficulty;
-			out.procedural = Dungeon.saveThese(out.procedural, full);
+			out.procedural = Dungeon.saveThese(this.procedural, full);
 
 			Object.values(this.libAsset).map(el => out.libAsset[el.label] = el.save(full));
 			out.name = this.name;
@@ -365,6 +365,8 @@ export default class Game extends Generic{
 			if( typeof this.state_roleplays[i] !== 'function' )
 				this.state_roleplays[i] = Collection.loadThis(this.state_roleplays[i], this);
 		}
+
+		this.procedural = Dungeon.loadThese(this.procedural);
 
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
@@ -587,6 +589,20 @@ export default class Game extends Generic{
 				this.setRain();
 
 		}
+		const week = 3600*24*7;
+
+		// Procedural
+		for( let d of this.procedural ){
+			
+			if( this.time-d.procedural > week ){
+				
+				this.removeProceduralDungeonState(d);
+				this.save();
+
+			}
+
+		}
+
 		this.renderer.updateWeather();
 		this.updateAmbiance();			// Handle rain sounds and updates the room
 
@@ -623,19 +639,23 @@ export default class Game extends Generic{
 	/* TIME */
 	addSeconds(seconds){
 		seconds = +seconds||0;
-		this.time += seconds;
+		this.time += parseInt(seconds);
 		this.onTimeChanged();
 	}
 	addMinutes(minutes){
 		minutes = +minutes || 0;
-		this.time += minutes*60;
-		this.onTimeChanged();
+		this.addSeconds(minutes*60);
 	}
 	addHours(hours){
 		hours = +hours || 0;
-		this.time += hours*3600;
-		this.onTimeChanged();
+		this.addSeconds(hours*3600);
 	}
+	addDays(days){
+		days = +days || 0;
+		this.addSeconds(days*3600*24);
+	}
+	
+
 	// returns a value between 0 and 1 from midnight to midnight
 	getDayPercentage(){
 		const day = 3600*24;
@@ -995,7 +1015,6 @@ export default class Game extends Generic{
 		this.dungeon = dungeon;
 		this.dungeon.previous_room = this.dungeon.active_room = room;
 		if( resetSaveState ){
-			this.renderer.uncacheDungeon(dungeon.id);
 			this.dungeon.resetRoleplays();
 			this.dungeon.resetState();
 		}else{
@@ -1018,14 +1037,13 @@ export default class Game extends Generic{
 		if( !label )
 			throw 'Trying to set procedural dungeon without label';
 
-		// Todo: reset if it's been active for more than a week
-
-		let dungeon = this.getProceduralDungeon();
+		let dungeon = this.getProceduralDungeon( label );
+		console.log("Dungeon", dungeon);
 		if( !dungeon ){
 
 			let kit = data.templates;
-			if( Array.isArray(kits) )
-				kit = randElem(kits);
+			if( Array.isArray(kit) )
+				kit = randElem(kit);
 
 			dungeon = Dungeon.generate(16, kit, data.settings);
 			dungeon.label = label;
@@ -1052,10 +1070,14 @@ export default class Game extends Generic{
 
 	}
 
-	removeProceduralDungeonState(){
+	removeProceduralDungeonState( dungeon ){
 		
-		this.state_dungeons.unset('_procedural_');
-		this.renderer.uncacheDungeon('_procedural_');
+		let index = this.procedural.indexOf(dungeon);
+		if( index === -1 )
+			return;
+
+		this.procedural.splice(index);
+		this.state_dungeons.unset(dungeon.label);
 
 	}
 

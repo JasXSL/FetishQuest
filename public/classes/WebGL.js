@@ -753,6 +753,8 @@ class WebGL{
 
 	pruneCache(){
 
+		// Todo: Replace
+
 		const cache_level = parseInt(localStorage.cache_level) || 50;
 		while( this.getNrCachedCells() > cache_level && Object.keys(this.dungeons).length > 1 ){
 
