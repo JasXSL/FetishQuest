@@ -56,10 +56,6 @@ class WebGL{
 		this.camera = new THREE.PerspectiveCamera( viewAngle, width / height, nearClipping, farClipping );
 		this.cameraTween = new TWEEN.Tween();
 
-		this.dungeons = {};	// dungeon_id : {time:(int)timestamp, stages:(arr)stages}
-		this.dungeonsGroup = new THREE.Group();
-		this.scene.add(this.dungeonsGroup);
-
 		// SPELL EFFECTS / ARROW
 		this.fxScene = new THREE.Scene();
 		this.fxCam = new THREE.PerspectiveCamera( viewAngle, width/height, nearClipping, farClipping);
@@ -298,6 +294,8 @@ class WebGL{
 		this.stage = null;					// Current stage object
 		this.stages = [];					// Stores all stages for a dungeon
 		this.cache_active_room = null;		// ID of active room for room detection
+		this.dungeonGroup = new THREE.Group();	// Stores the whole current dungeon 
+		this.scene.add(this.dungeonGroup);
 
 		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) in the last cell. 
 											// If this has changed on cell entry, redraw rain.
@@ -715,74 +713,13 @@ class WebGL{
 
 	}
 	
-	cacheActiveDungeon(){
-
-		if( !window.game )
-			return;
-
-		if( !this.dungeons[game.dungeon.label] )
-			this.dungeons[game.dungeon.label] = {stages:this.stages};
-		this.dungeons[game.dungeon.label].time = Date.now();
-		
-		this.pruneCache();
-
-	}
-
-	// Returns nr cached cells minus the current dungeon
-	getNrCachedCells(){
-		// Save 50 cells in cache
-		let nCells =0;
-		for( let i in this.dungeons ){
-			if( i !== game.dungeon.label )
-				nCells += this.dungeons[i].stages.length;
-		}
-		return nCells;
-	}
-
-	getOldestCachedDungeon(){
-		let time = false, out = null;
-		for( let i in this.dungeons ){
-			const t = this.dungeons[i].time;
-			if( time === false || t < time ){
-				time = t;
-				out = i;
-			}
-		}
-		return out;
-	}
-
-	pruneCache(){
-
-		// Todo: Replace
-
-		const cache_level = parseInt(localStorage.cache_level) || 50;
-		while( this.getNrCachedCells() > cache_level && Object.keys(this.dungeons).length > 1 ){
-
-			this.uncacheDungeon(this.getOldestCachedDungeon());
-
-		}
-		
-
-	}
-
-	uncacheDungeon( id ){
-
-		if( !this.dungeons[id] )
-			return;
-		for( let stage of this.dungeons[id].stages ){
-			this.dungeonsGroup.remove(stage.group);
-		}
-		delete this.dungeons[id];
-
-	}
-
 	// Dungeon stage cache
 	async loadActiveDungeon(){
 
 		if( DISABLE_DUNGEON )
 			return;
 
-		if( !game.dungeon )//|| game.dungeon.id === this.cache_dungeon )
+		if( !game.dungeon )
 			return;
 		
 			
@@ -795,53 +732,47 @@ class WebGL{
 		this.clearPlayerMarkers();
 				
 		this.loading = true;
-		this.stages.map(s => s.destructor());
+		this.stages.map(s => {
+			s.destructor();
+			
+		});
 		this.stages = [];
 
 		game.ui.toggleLoadingBar(game.dungeon.rooms.length);
 
-		// This dungeon is cached
-		if( this.dungeons[game.dungeon.label] ){
+		let i = 0;
+		for( let room of game.dungeon.rooms ){
 
-			this.stages = this.dungeons[game.dungeon.label].stages;
-			this.stages.forEach(stage => {
-				// Dungeon room objects change when entered, and I'm not sure why it's like that, but it do
-				stage.room = game.dungeon.getRoomById(stage.room.id);
-
-			});
-			await delay(100);
-
-		}
-		// not cached
-		else{
-
-			let i = 0;
-			for( let room of game.dungeon.rooms ){
-
-				let stage = new Stage( room, this );
-				this.stages.push(stage);
-				this.dungeonsGroup.add(stage.group);
-				await stage.draw();
-				this.execRender( true );
-				stage.toggle(false);
-				game.ui.setLoadingBarValue(++i);
-				if( this.load_after_load )
-					break;
-
-			}
+			let stage = new Stage( room, this );
+			this.stages.push(stage);
+			this.dungeonGroup.add(stage.group);
 			
-		}
+			await stage.draw();
+			this.execRender( true );
+			stage.toggle(false);
+			game.ui.setLoadingBarValue(++i);
+			if( this.load_after_load )
+				break;
 
+		}
+			
 		this.loading = false;
 		this.cache_active_room = -1;
 		this.drawActiveRoom();
+
+		console.log(this.load_after_load);
+
+		// Cancel
 		if( this.load_after_load ){
 			this.load_after_load = false;
 			return this.loadActiveDungeon();
 		}
-		else
-			this.cacheActiveDungeon();
 
+		
+		
+		this.dungeonGroup.add(this.stage.group);
+		/* Can put stuff here to do when the loading is finished */
+	
 		game.ui.toggleLoadingBar();
 
 	}
@@ -878,14 +809,19 @@ class WebGL{
 			console.error("Stage not found", room.id);
 			return;
 		}
+		
 
 		if( roomChanged ){
+
 			if( pre )
 				pre.toggle(false);
 			this.stage.toggle(true);
 			this.roomEnterCameraTween();
+
 		}
 		this.updateFog();
+
+		console.log("Drawing", this);
 
 	}
 
@@ -1576,8 +1512,8 @@ class Stage{
 
 	}
 	destructor(){
-		this.onTurnOff();
 		this.toggle(false);
+		this.parent.dungeonGroup.remove(this.group);
 	}
 
 	toggle( on ){
