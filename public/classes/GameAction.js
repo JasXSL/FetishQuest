@@ -511,13 +511,18 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.finishQuest ){
+
 			let quests = toArr(this.data.quest);
 			for( let quest of game.quests ){
+
 				if( quests.indexOf(quest.label) === -1 )
 					continue;
+
 				if( quest.isCompleted() || this.data.force )
 					quest.onFinish();
+					
 			}
+
 		}
 
 		else if( this.type === types.questObjective ){

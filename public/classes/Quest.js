@@ -224,6 +224,7 @@ class Quest extends Generic{
 
 	// hand out rewards etc
 	onFinish( event ){
+		
 		this.completed = true;
 		
 		// Give exp

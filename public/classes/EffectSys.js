@@ -319,9 +319,9 @@ class Wrapper extends Generic{
 				}).raise();
 				
 				evt.type = GameEvent.Types.internalWrapperTick;
-				for( let effect of obj.effects )
+				for( let effect of obj.effects ){
 					effect.trigger(evt, this, out);
-				
+				}
 				
 
 			}
@@ -1531,6 +1531,7 @@ class Effect extends Generic{
 			
 			else if( this.type === Effect.Types.interrupt )
 				t.interrupt(s);
+			
 
 			else if( this.type === Effect.Types.removeEffectWrapperByEffectTag ){
 

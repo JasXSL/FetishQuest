@@ -862,6 +862,36 @@ div.fxBuffRed{
 
 /**/
 
+
+/* YOUR TURN*/
+	#dungeonProgress{
+
+		position: fixed;
+		top:0;
+		left:50%;
+		transform:translateX(-50%);
+		text-align: center;
+		padding:0.5vmax 0;
+		color:#FFF;
+		font-style: italic;
+		text-transform: capitalize;
+		font-size:2vmax;
+		text-shadow: 0.1vmax 0.1vmax 0.2vmax #000;
+		pointer-events: none;
+		opacity:0.5;
+		font-size:1.5vmax;
+		clip-path: polygon(0 0, 100% 0, 100% 75%, 95% 100%, 5% 100%, 0 75%);
+		width: 18%;
+
+	}
+	#dungeonProgress.completed{
+		color: #AFA;
+	}
+/**/
+
+
+
+
 /* Progress bars */
 	div.progressBar{
 		border-radius:0.5vmax;
@@ -888,8 +918,6 @@ div.fxBuffRed{
 	div.progressBar.yellow div.bar{
 		background: linear-gradient(to bottom, #d2ae54 0%,#baa72a 50%,#aa9900 51%,#cbb32d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	}
-	
-
 /**/
 
 

@@ -377,10 +377,12 @@ export default class Game extends Generic{
 
 		// Check if the players are from the encounter, in that case overwrite them
 		for( let i in this.players ){
+
 			let p = this.players[i];
 			let pl = this.encounter.getPlayerById(p.id);
 			if( pl )
 				this.players[i] = pl;
+
 		}
 
 		this.roleplay = Roleplay.loadThis(this.roleplay, this);
@@ -523,6 +525,7 @@ export default class Game extends Generic{
 		
 		if( !(quest instanceof Quest) )
 			return;
+
 		this.playFxAudioKitById('questCompleted', undefined, undefined, undefined, true);
 		this.ui.questAcceptFlyout( 'Quest Completed:', quest.name );
 		if( this.is_host && this.net.id )
@@ -1078,6 +1081,39 @@ export default class Game extends Generic{
 
 		this.procedural.splice(index);
 		this.state_dungeons.unset(dungeon.label);
+
+	}
+
+	// Current procedural dungeon fully explored
+	onProceduralFullyExplored(){
+
+		
+		this.playFxAudioKitById('explorationCompleted', undefined, undefined, undefined, true);
+		const name = game.dungeon.label.split(/[_\s]+/).map(el => ucFirst(el)).join(' ');
+		this.ui.questAcceptFlyout( 'Exploration Complete: ', name );
+
+		if( this.is_host && this.net.id )
+			this.net.dmQuestAccepted( 'Exploration Complete:', name );
+
+		const players = this.getTeamPlayers(Player.TEAM_PLAYER);
+		const numRooms = this.dungeon.rooms.length;
+		let rewards = Math.floor(numRooms/10) || 1;
+		if( numRooms > 10 && (numRooms%10)/10 < Math.random() )
+			++rewards;
+
+		for( let player of players ){
+			
+			player.addLibraryAsset("cartograph", rewards);
+			this.ui.addText( 
+				player.getColoredName()+" acquired Cartograph"+(rewards > 1 ? ' x'+rewards : '')+".", 
+				undefined, 
+				player.id, 
+				player.id, 
+				'statMessage important' 
+			);
+
+		}
+		this.save();
 
 	}
 
@@ -1952,9 +1988,9 @@ export default class Game extends Generic{
 			this.getTeamPlayers(0).map(pl => {
 				if( pl.generated )
 					return;
-				pl.addHP(Math.ceil(pl.getMaxHP()*0.25));
-				pl.addMP(Math.ceil(pl.getMaxMP()*0.25));
-				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.25), undefined, true);
+				pl.addHP(Math.ceil(pl.getMaxHP()*0.15));
+				pl.addMP(Math.ceil(pl.getMaxMP()*0.15));
+				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.15), undefined, true);
 			});
 			
 		}

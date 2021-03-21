@@ -62,6 +62,8 @@ export default class UI{
 		this.fctQue = [];
 		this.fctTimer = false;
 
+		this.dungeonProgress = $("#dungeonProgress");
+
 		
 
 		this.endTurnButton = null;
@@ -319,6 +321,9 @@ export default class UI{
 
 			game.renderer.updatePlayerMarkers();
 
+			this.drawProceduralTooltip();
+			
+
 			//console.log("execDraw took", Date.now()-time, times);
 
 		});
@@ -344,6 +349,24 @@ export default class UI{
 
 	}
 
+	// Draws the procedural exploration percentage
+	drawProceduralTooltip(){
+
+		const dungeon = game.dungeon;
+		const isProcedural = Boolean(dungeon.procedural);
+		this.dungeonProgress.toggleClass("hidden", !isProcedural || game.battle_active);
+		if( isProcedural && !game.battle_active ){
+
+			const numExplored = dungeon.getNumExploredRooms();
+			const numRooms = dungeon.rooms.length;
+			const completed = numExplored === numRooms;
+
+			this.dungeonProgress[0].innerText = completed ? 'Exploration Complete' : Math.floor(numExplored/numRooms*100)+'% Explored';
+			this.dungeonProgress.toggleClass("completed", completed);
+
+		}
+
+	}
 
 	// Draws action selector for a player
 	drawActionSelector( player ){
@@ -1898,7 +1921,8 @@ export default class UI{
 			https://freesound.org/people/Nightwatcher98/sounds/407292/<br />
 			https://freesound.org/people/Meepalicious/sounds/244808/<br />
 			https://freesound.org/people/conleec/sounds/212094/<br />
-			https://freesound.org/people/ivolipa/sounds/326313/<br />`+
+			https://freesound.org/people/ivolipa/sounds/326313/<br />
+			https://freesound.org/people/humanoide9000/sounds/505426/<br />`+
 		'</div>';
  
 		this.modal.set(html);

@@ -259,6 +259,19 @@ class Dungeon extends Generic{
 		return false;
 	}
 
+	getNumExploredRooms(){
+		
+		let out = 0;
+		for( let room of this.rooms ){
+
+			if( room.discovered )
+				++out;
+
+		}
+		return out;
+
+	}
+
 	// Returns an array of sub-arrays [x,y,z]
 	getEmptyRoomDirectionsFrom(origin){
 		let out = [];
@@ -977,9 +990,19 @@ class DungeonRoom extends Generic{
 
 		// First visit
 		if( !this.discovered ){
+
+			const dungeon = this.getDungeon();
+			if( dungeon.procedural > 0 ){
+
+				if( dungeon.getNumExploredRooms()+1 === dungeon.rooms.length )
+					game.onProceduralFullyExplored();
+
+			}
+
 			this.discovered = true;
 			for( let asset of this.assets )
 				asset.onRoomFirstVisit();
+
 		}
 		for( let asset of this.assets )
 			asset.onRoomVisit();
@@ -1227,7 +1250,7 @@ class DungeonRoomAsset extends Generic{
 
 	/* Type checking */
 	isDoor(){
-		return ( this.getDoorTarget( true ) !== false || this.isExit() );
+		return ( this.getDoorTarget( true ) !== false || this.isExit() || this.isProceduralEntry() );
 	}
 
 	// returns the index
@@ -1244,6 +1267,14 @@ class DungeonRoomAsset extends Generic{
 	isExit(){
 		for( let i of this.interactions ){
 			if( i.type === GameAction.types.exit )
+				return true;
+		}
+		return false;
+	}
+
+	isProceduralEntry(){
+		for( let i of this.interactions ){
+			if( i.type === GameAction.types.proceduralDungeon )
 				return true;
 		}
 		return false;
