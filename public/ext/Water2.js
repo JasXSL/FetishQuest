@@ -7,7 +7,8 @@
  *
  */
 import * as THREE from './THREE.js';
-import {Reflector, Refractor} from './EffectComposer.js';
+import {Reflector} from './Reflector.js';
+import {Refractor} from './Refractor.js';
 
 const Water = function ( geometry, options ) {
 

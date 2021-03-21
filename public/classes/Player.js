@@ -946,8 +946,9 @@ export default class Player extends Generic{
 	}
 	// only triggers on PC for now
 	onBattleWon(){
-		if( pl.generated )
-					return;
+		
+		if( this.generated )
+			return;
 
 		const primary = this.getPrimaryStats();
 		this.addHP(6+Math.ceil(Math.max(0,primary.stamina*Player.STAMINA_MULTI/2)));	// Each player gets 6 HP back plus half of whatever additional HP they gain from their stamina

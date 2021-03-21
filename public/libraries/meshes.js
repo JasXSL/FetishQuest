@@ -41,7 +41,8 @@ import AC from '../classes/AssetCache.js';
 import stdTag from './stdTag.js';
 import Water from '../ext/Water.js';
 import Water2 from '../ext/Water2.js';
-
+import {BufferGeometryUtils} from '../ext/BufferGeometryUtils.js';
+import {GLTFLoader} from '../ext/GLTFLoader.js';
 
 
 class LibMesh{
@@ -88,7 +89,7 @@ class LibMesh{
 		// Attachmentindexes is an array of attachments that should be allowed
 		// Use ["ALL"] to enable all attachments
 		let submeshes = [];
-		for( att of this.attachments ){
+		for( let att of this.attachments ){
 		
 			let sub = await att.flatten();
 			submeshes.push(sub);
@@ -96,39 +97,84 @@ class LibMesh{
 		}
 
 		// Load the model
-		let mesh, geometry, mats = [];
+		let mesh, mats = [], animations;
 		if( typeof this.url === "function" ){
+
 			mesh = this.url();
-			geometry = mesh.geometry;
+			
 		}
 		else{
+
 			let data = await LibMesh.cache.fetch('media/models/'+this.url);
-			let obj = data.objects[0];
 			
-			geometry = obj.geometry;
+			const ext = this.url.split('.').pop().toLowerCase();
+
+			// JD loader has built in management
+			if( ext === "jd" ){
+				data = data.createObject(0);
+				if( data.isSkinnedMesh )
+					animations = data.geometry.animations;
+
+			}
+			// The other one is retarded and needs mesh merging
+			else{
+				
+				data.scene.animations = animations = data.animations;
+				data = data.scene;
+				// Since this importer deals entirely with groups, we gotta set the sub-names to HITBOX in order for mouse events to work
+				data.traverse(el => {
+					if( el.isMesh )
+						el.name = 'HITBOX';
+				});
+
+			}
+
 			
 			// Load the materials
 			// SkinnedMesh needs a unique material or it goes tits up
 			let hasCustomDepthMaterial = false;
 			for( let mat of this.materials ){
+
 				if( mat === undefined )
 					console.error("Undefined material found in", this);
-				const m = mat.fetch(unique || obj.type === "SkinnedMesh");
+
+				const m = mat.fetch(unique || data.type === "SkinnedMesh");
 				mats.push(m);
 				if( mat.type === 'MeshDepthMaterial' )
 					hasCustomDepthMaterial = true;
+
 			}
 
 			if( mats[0].type === 'Water'){
-				mesh = new Water(geometry, mats[0].material);
+				mesh = new Water(data.geometry, mats[0].material);
 				mesh.userData._is_water = true;
 			}
 			else if( mats[0].type === 'Water2'){
-				mesh = new Water2(geometry, mats[0].material);
+				mesh = new Water2(data.geometry, mats[0].material);
 			}
-			else
-				mesh = obj.type === 'SkinnedMesh' ? new THREE.SkinnedMesh(geometry, mats) : new THREE.Mesh(geometry, mats);
+			else{
 
+				if( data.isMesh )
+					data.material = mats;
+				else{
+					
+					let n = 0;
+					data.traverse(el => {
+
+						if( !el.material )
+							return;
+
+						el.material = mats[n];
+						++n;
+						
+					});
+
+				}
+					
+
+				mesh = data;
+
+			}
 			
 			if( hasCustomDepthMaterial ){
 				// This doesn't work in three yet
@@ -146,11 +192,20 @@ class LibMesh{
 				}
 				mesh.customDepthMaterial = dm;
 			}
+
 		}
+
 		await this.beforeFlatten( mesh );
+
 		let ud = mesh.userData;
-		mesh.receiveShadow = this.receive_shadow;
-		mesh.castShadow = this.cast_shadow;
+		mesh.traverse(el => {
+			
+			if( el.isMesh ){
+				el.receiveShadow = this.receive_shadow;
+				el.castShadow = this.cast_shadow;
+			}
+
+		});
 
 
 		if( this.auto_bounding_box ){
@@ -172,19 +227,25 @@ class LibMesh{
 			mesh.add(boundingBox);
 		}
 
+
 		// Handle skinning
-		if( mesh.type === "SkinnedMesh" && geometry.animations.length ){
+		if( animations && animations.length ){
 
 			let mixer = new THREE.AnimationMixer(mesh);
+			mesh.userData.mixer = mixer;
 
 			// Enable animations
-			for( let anim of geometry.animations ){
+			for( let anim of animations ){
+
 				let clip = mixer.clipAction(anim.name);
 				if( typeof this.animations === "object" && typeof this.animations[anim.name] === "object" ){
+
 					for( let i in this.animations[anim.name] )
 						clip[i] = this.animations[anim.name][i];
+
 				}
 				clip.enabled = true;
+
 			}
 
 			// Enable skinning on the materials
@@ -219,7 +280,6 @@ class LibMesh{
 			};
 
 			mesh.userData.activeAnimation = 'idle';
-			mesh.userData.mixer = mixer;
 
 		}
 
@@ -241,7 +301,7 @@ class LibMesh{
 		mesh.name = this.name;
 		await this.onFlatten(mesh);
 
-		await delay(10);
+		await delay(10); // Helps prevent browser freezing
 
 		return mesh;
 
@@ -274,11 +334,17 @@ LibMesh.DoorTypes = {
 
 
 LibMesh.loader = new JDLoader();
+LibMesh.gltf = new GLTFLoader();
 LibMesh.cache = new AC();
 LibMesh.cache.fetchMissingAsset = function( path ){
 	return new Promise(res => {
 		try{
-			return LibMesh.loader.load(path, res);
+			const ext = path.split(".").pop().toLowerCase();
+			if( ext === 'jd' )
+				return LibMesh.loader.load(path, res);
+			return LibMesh.gltf.load(path, data => {
+				res(data);
+			});
 		}catch(err){
 			console.error("Error detected in path", path, err);
 		}
@@ -2062,6 +2128,31 @@ function build(){
 				}),
 				
 			},
+			Furniture : {
+				Bookshelf : new LibMesh({
+					url : 'furniture/bookshelf.glb',
+					materials : [
+						libMat.Wood.Crate
+					],
+					tags : [stdTag.mShelf],
+				}),
+				BookshelfBooksBottom : new LibMesh({
+					url : 'furniture/bookshelf_books_bottom.glb',
+					materials : [
+						libMat.Wood.Crate,
+						libMat.Book.Full,
+					],
+					tags : [stdTag.mShelf, stdTag.mBook],
+				}),
+				BookshelfFull : new LibMesh({
+					url : 'furniture/bookshelf_stacked.glb',
+					materials : [
+						libMat.Wood.Crate,
+						libMat.Book.Full,
+					],
+					tags : [stdTag.mShelf, stdTag.mBook],
+				}),
+			},
 			
 			Signs : {
 				Store : new LibMesh({
@@ -2128,6 +2219,14 @@ function build(){
 					],
 					tags : [],
 				}),
+				Cartographers : new LibMesh({
+					url : 'doodads/cum_sign.JD',
+					materials : [
+						libMat.Marble.Tiles,
+						libMat.Metal.Copper,
+					],
+					tags : [],
+				}),
 			},
 			Shapes : {
 				DirArrow : new LibMesh({
@@ -2140,6 +2239,20 @@ function build(){
 					],
 					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
 					doorRotOffs : Math.PI/2
+				}),
+				WiggleTest : new LibMesh({
+					url : 'tests/wiggletest.glb',
+					materials : [
+						libMat.Wood.Crate,
+					],
+					tags : [],
+				}),
+				WiggleTestJD : new LibMesh({
+					url : 'special/wiggletest.JD',
+					materials : [
+						libMat.Wood.Crate,
+					],
+					tags : [],
 				}),
 			},
 			// This is an NPC marker. Note that these are dummies and only visible in the editor. WebGL.js handles the actual rendering of them

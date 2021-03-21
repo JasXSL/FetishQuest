@@ -5,8 +5,15 @@
 	The Stage is an object which is a reflection of a DungeonRoom
 */
 import * as THREE from '../ext/THREE.js';
-import {default as EffectComposer, ShaderPass, RenderPass, HorizontalBlurShader, VerticalBlurShader, CopyShader, ColorifyShader, FXAAShader} from '../ext/EffectComposer.js';
-import OrbitControls from '../ext/OrbitControls.js';
+import {EffectComposer} from '../ext/EffectComposer.js';
+import { ColorifyShader } from '../ext/ColorifyShader.js';
+import { CopyShader } from '../ext/CopyShader.js';
+import { FXAAShader } from '../ext/FXAAShader.js';
+import { VerticalBlurShader } from '../ext/VerticalBlurShader.js';
+import { HorizontalBlurShader } from '../ext/HorizontalBlurShader.js';
+import { ShaderPass } from '../ext/ShaderPass.js';
+import { RenderPass } from '../ext/RenderPass.js';
+import {OrbitControls} from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
 import Sky from '../ext/Sky.js';
@@ -156,7 +163,7 @@ class WebGL{
 
 		this.controls.enableDamping = true;
 		this.controls.dampingFactor = 0.3;
-		this.controls.rotateSpeed = 0.2;
+		this.controls.rotateSpeed = 0.4;
 		if( !config.fullControls ){
 			this.controls.enablePan = false;
 			this.controls.maxDistance = 2000;
@@ -179,12 +186,14 @@ class WebGL{
 			
 		};
 		const touchEnd = event => {
+			
 			this.onMouseMove(event);
 			const a = new THREE.Vector2(this.mouseDownPos.x, this.mouseDownPos.y);
 			const b = new THREE.Vector2(event.offsetX,event.offsetY);
 			if( a.distanceTo(b) > 5 )
 				return;
 			this.onMouseClick(event);
+
 		};
 
 		this.renderer.domElement.addEventListener('dblclick', event => this.onDblClick(event));
@@ -192,11 +201,13 @@ class WebGL{
 		this.renderer.domElement.addEventListener('touchstart', event => touchStart(event));
 		this.renderer.domElement.addEventListener('mouseup', event => touchEnd(event));
 		this.renderer.domElement.addEventListener('touchend', event => touchEnd(event));
+
 		
 		this.bind(document, 'mousemove', event => this.onMouseMove(event));
 		this.bind(document, 'touchmove', event => this.onMouseMove(event));
 		this.bind(document, 'touchstart', event => this.onMouseMove(event));
 		this.bind(document, 'touchend', event => this.onMouseMove(event));
+		
 		
 		// outdoor skybox
 		let sky = new Sky();
@@ -331,6 +342,7 @@ class WebGL{
 	}
 
 	bind( target, evt, func ){
+
 		target.addEventListener(evt, func);
 		this.events.push({
 			targ : target,
@@ -653,12 +665,18 @@ class WebGL{
 		this.fxRenderer.render( this.fxScene, this.fxCam );
 
 		const intersecting = [];	// Meshes being raycasted onto
-		if( !window.game || game === true || !game.ui.visible ){
+		
+		if( (!window.game || game === true || !game.ui.visible) && this.stage && this.stage.group ){
 
 			this.raycaster.setFromCamera( this.mouse, this.camera );
+
+			
+			const meshes =  this.stage.group.children.concat(this.playerMarkers.filter(el => el));
 			let objCache = [];
-			let intersects = this.raycaster.intersectObjects( this.scene.children, true )
+
+			let intersects = this.raycaster.intersectObjects( meshes, true )
 				.map(el => {
+
 					if( !this.stage )
 						return false;
 					// This one has its own mouseover handler, return that
@@ -668,14 +686,18 @@ class WebGL{
 					if( el.object.name === 'HITBOX' )
 						el.object = this.stage.getMeshStageParent(el.object);
 					return el;
+
 				}).filter(el => {
-					if(!(el && el.object && el.object.userData && typeof el.object.userData.mouseover === "function"))
+
+					if(!(el && el.object && el.object.visible && el.object.userData && typeof el.object.userData.mouseover === "function"))
 						return false;
 					if( ~objCache.indexOf(el.object) )
 						return false;
 					objCache.push(el.object);
 					return true;	
+
 				});
+
 
 			// Raycaster
 			// Mouseover
@@ -699,6 +721,7 @@ class WebGL{
 			}
 
 		}
+		
 
 		this.playerMarkerFrame();
 		
@@ -707,7 +730,6 @@ class WebGL{
 			this.onRender();
 
 		this.intersecting = intersecting;
-
 		
 		
 		this.controls.update();
@@ -870,8 +892,8 @@ class WebGL{
 
 		const path = asset.model;
 
-		// Try to find this in cache
-		if( !unique ){
+		// Try to find this in cache, no caching allowed for editor
+		if( !unique && window.game ){
 			
 			for( let asset of this.assetCache.children ){
 
@@ -1395,7 +1417,7 @@ class WebGL{
 			
 
 			const geo = new THREE.PlaneGeometry(10,8);
-			geo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, -4, 0 ) );
+			geo.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, -4, 0 ) );
 
 			const texture = loader.load('media/textures/sprites/arrow.png');
 			texture.side = THREE.DoubleSide;
@@ -2117,8 +2139,8 @@ class Stage{
 				let camera = this.parent.camera;
 
 				
-
-				camera.matrixWorldInverse.getInverse( camera.matrixWorld );
+				camera.matrixWorldInverse = new THREE.Matrix4().copy(camera.matrixWorld).invert();
+				//camera.matrixWorldInverse.getInverse(  );
 				pos.applyMatrix4( camera.matrixWorldInverse );
 				
 				let falloff = 800;
@@ -2281,22 +2303,29 @@ Stage.setMeshMatProperty = function( mesh, id, value, reset = false ){
 		console.error("Unable to set material on", mesh);
 		return;
 	}
-	let mat = mesh.material;
 
-	if( !mat )
+	let mats = [];
+	mesh.traverse(el => {
+		if( el.material )
+			mats = mats.concat(el.material);
+	});
+
+	if( !mats.length )
 		return;
-	if( !Array.isArray(mat) )
-		mat = [mat];
 
-	for( let m of mat ){
+	for( let m of mats ){
+
 		let val = value;
 		if( reset && m.userData.settings && m.userData.settings[id] ){
+
 			val = m.userData.settings[id];
 			if( val.clone && !(val instanceof THREE.Texture) )
 				val = val.clone();
+
 		}
 
 		m[id] = val;
+
 	}
 
 };
@@ -2309,24 +2338,33 @@ Stage.bindGenericHover = function( mesh ){
 
 	let c = mesh;
 	c.userData.mouseover = () => {
+
 		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0x222222));
 		Stage.setMeshMatProperty(c, 'emissiveMap', false, false);
 		if( window.game ){
+
 			game.renderer.renderer.domElement.style.cursor = "pointer";
 			if( tooltip ){
 				game.ui.setTooltipAtCursor(tooltip.data.text);
 			}
+
 		}
+
 	};
 	c.userData.mouseout = () => {
+
 		Stage.setMeshMatProperty(c, 'emissive', new THREE.Color(0), true);
 		Stage.setMeshMatProperty(c, 'emissiveMap', false, true);
+
 		if( window.game ){
+
 			game.renderer.renderer.domElement.style.cursor = "auto";
 			if( tooltip ){
 				game.ui.setTooltipAtCursor('');
 			}
+
 		}
+
 	};
 	
 };

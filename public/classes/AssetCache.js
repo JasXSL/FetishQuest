@@ -20,15 +20,22 @@ class Cache{
 
 	// Fetches the CacheAsset asset from cache
 	fetch( path ){
+
 		for( let c of this.cache ){
+
 			if( c.path === path ){
+
 				c.use();
+				c.asset.__cached = true;
 				return c.asset;
+
 			}
+
 		}
 		let ca = new CacheAsset(path, this.fetchMissingAsset(path));
 		this.cache.push(ca);
 		return ca.asset;
+		
 	}
 
 	// Needs to be overwritten in the implementation
