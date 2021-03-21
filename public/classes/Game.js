@@ -1075,10 +1075,10 @@ export default class Game extends Generic{
 
 	removeProceduralDungeonState( dungeon ){
 		
+		
 		let index = this.procedural.indexOf(dungeon);
 		if( index === -1 )
 			return;
-
 		this.procedural.splice(index);
 		this.state_dungeons.unset(dungeon.label);
 
@@ -1985,14 +1985,8 @@ export default class Game extends Generic{
 		if( standing[0] !== undefined && standing[0] === 0 ){
 			
 			// Restore 25% HP and MP at the end of the battle
-			this.getTeamPlayers(0).map(pl => {
-				if( pl.generated )
-					return;
-				pl.addHP(Math.ceil(pl.getMaxHP()*0.15));
-				pl.addMP(Math.ceil(pl.getMaxMP()*0.15));
-				pl.addArousal(-Math.ceil(pl.getMaxArousal()*0.15), undefined, true);
-			});
-			
+			this.getTeamPlayers(0).map(pl => pl.onBattleWon());
+
 		}
 
 		// Battle ended

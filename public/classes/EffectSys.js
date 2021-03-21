@@ -296,9 +296,9 @@ class Wrapper extends Generic{
 					wrapper : obj,
 					action : this.parent && this.parent.constructor === Action ? this.parent : null,
 				});
-				for( let effect of obj.effects )
+				for( let effect of obj.effects ){
 					effect.trigger(evt, undefined, out);
-				
+				}
 				evt.type = GameEvent.Types.wrapperAdded;
 				evt.raise();
 
@@ -1626,13 +1626,17 @@ class Effect extends Generic{
 					console.error("addRandomTags called on", this, "but no tags set");
 					return false;
 				}
+
 				let viable = [];
 				const tEvent = new GameEvent({target:t, sender:s});
+
 				for( let tag of this.data.tags ){
+
 					if( !tag.tags ){
 						console.error("No tags set on", tag, "in", this);
 						continue;
 					}
+
 					if( tag.conds ){
 						let conds = tag.conds;
 						if( !Array.isArray(conds) )
@@ -1646,16 +1650,18 @@ class Effect extends Generic{
 						t = [t];
 					
 					viable.push(t);
+
 				}
+
 				const amount = this.data.amount > 0 ? this.data.amount : 1;
 				for( let i =0; i<amount && viable.length; ++i ){
 
 					const entry = randElem(viable, true);
-					for( let tag of entry ){
+					for( let tag of entry )
 						this.tags.push(tag);
-					}
 
 				}
+
 
 			}
 			
@@ -2029,7 +2035,7 @@ Effect.Types = {
 		
 };
 
-// Effect types that can be passive. Helps prevent recursion
+// Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
 Effect.Passive = {
 
 	[Effect.Types.none] : true,
@@ -2045,6 +2051,8 @@ Effect.Passive = {
 	[Effect.Types.staminaModifier] : true,
 	[Effect.Types.agilityModifier] : true,
 	[Effect.Types.intellectModifier] : true,
+	[Effect.Types.addTags] : true,
+	[Effect.Types.addRandomTags] : true,
 
 	[Effect.Types.svPhysical] : true,
 	[Effect.Types.svElemental] : true,

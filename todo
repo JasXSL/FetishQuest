@@ -11,11 +11,23 @@
 
 -- CURRENT --
 	- Procedural
+		- Add faction rewards when completing an exploration
+		- Add exp rewards when completing an exploration
 		- Add an explorer's guild
-		- Add tokens you get for fully clearing a procedural dungeon
-		- Add title to procedural dungeon showing the exploration percentage
-		- Add a way to track procedrually generated dungeons (probably journal)
-	
+			- Cartograph vendor, sells gear and such
+			- Intro RP
+			- Meshes:
+				- C.U.M Sign
+				- Bookshelf
+				- Marble counter
+				- Marble couch
+				- Stack of books and paper
+				- Map
+				- Spyglass
+				- Displaycase for artifacts
+				- 
+		- Track generated dungeons in journal
+		- Add additional dungeons
 
 	Maybe?
 		- Procedural dungeon affixes

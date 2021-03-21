@@ -872,12 +872,15 @@ export default class Player extends Generic{
 		for(let action of actions)
 			action.onTurnStart();
 		
-		if( this.arousal > 0 && this._turns%3 === 0 ){
+		if( this.arousal > 0 && this._turns%2 === 0 ){
+			/*
 			let sub = -this.getMaxArousal()/10;	// You lose 10% every 3 turns
 			let rem = Math.floor(sub);
 			if( Math.random() < sub-rem )
 				--rem;
-			this.addArousal(rem);
+			*/
+			this.addArousal(-1);	// Lose 1 every 2 turns
+			
 		}
 
 		this._turn_action_used = 0;
@@ -889,12 +892,14 @@ export default class Player extends Generic{
 			++ap;
 		this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
 		
-		// Do the same for MP
+		// Gain 1 MP every 2 turns
+		/*
 		let mp = this.getMaxMP()*0.1;
 		if( Math.random() < mp-Math.floor(mp) )
 			++mp;
-		
-		this.addMP(Math.floor(mp));
+		*/
+		if( this.mp < this.getMaxMP() && this._turns%2 )
+			this.addMP(1);
 		
 	}
 	onBattleStart(){
@@ -939,6 +944,18 @@ export default class Player extends Generic{
 
 		
 	}
+	// only triggers on PC for now
+	onBattleWon(){
+		if( pl.generated )
+					return;
+
+		const primary = this.getPrimaryStats();
+		this.addHP(6+Math.ceil(Math.max(0,primary.stamina*Player.STAMINA_MULTI/2)));	// Each player gets 6 HP back plus half of whatever additional HP they gain from their stamina
+		this.addMP(3+Math.max(0,primary.intellect));									// Gain more back at the end
+		this.addArousal(-Math.ceil(this.getMaxArousal()*0.15), undefined, true);
+
+	}
+
 	// Item broken, repaired, equipped, or removed
 	onItemChange(){
 		this.addHP(0);
