@@ -708,7 +708,7 @@ class Editor{
 
 
 			const wants = template.want_actions;
-			if( !Array.isArray(wants) )
+			if( !Array.isArray(wants) || !wants.length )
 				continue;
 
 

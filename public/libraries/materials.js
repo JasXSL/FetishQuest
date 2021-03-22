@@ -21,35 +21,46 @@ class LibMaterial{
 		}
 		// Textures can be an object also with "texture" being the URL, and any other thee texture properties setup
 		else if( type === "MeshDepthMaterial" ){
+
 			this.material = new THREE.MeshStandardMaterial(settings);
 			this.material.userData.customDepthMaterial = new THREE.MeshDepthMaterial({
 				map : this.getTexture(settings.map),
 				depthPacking : THREE.RGBADepthPacking,
 				alphaTest:0.5
 			});
+
 		}
-		else
+		else{
+			
 			this.material = new THREE.MeshStandardMaterial(settings);
+
+		}
 
 		if( this.material.userData )
 			this.material.userData.settings = settings;
-			
+		
 	}
 
 	getTexture( input ){
+
 		let texture = input;
 		let props = {};
 		if( typeof texture === "object" ){
+
 			props = texture;
 			texture = texture.texture;
 			delete props.texture;
+
 		}
+
 		let map = LibMaterial.texCache.fetch('media/textures/'+texture);
 		map.wrapS = map.wrapT = THREE.RepeatWrapping;
 		for( let prop in props ){
 			map[prop] = props[prop];
 		}
+		
 		return map;
+
 	}
 	
 	// Fetches from cache and makes unique if need be 
@@ -172,6 +183,7 @@ LibMaterial.library = {
 	},
 	Glass : {
 		Green : new LibMaterial({color:new THREE.Color(0x226622), metalness:0.3,roughness:0.4}),
+		BlueTransparent : new LibMaterial({color:new THREE.Color(0x226699), metalness:0.3,roughness:0.3, opacity:0.5, transparent:true}),
 		Brown : new LibMaterial({color:new THREE.Color(0x332200), metalness:0.3,roughness:0.4}),
 		Purple : new LibMaterial({color:new THREE.Color(0x331155), metalness:0.3,roughness:0.4}),
 		RedGlow : new LibMaterial({color:new THREE.Color(0xF0A0A0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x400000)}),
@@ -382,6 +394,14 @@ LibMaterial.library = {
 				alphaTest : 0.5,
 				side:THREE.DoubleSide
 			}),
+			Cum : new LibMaterial({
+				map : 'tileable/banner_cum.png',
+				metalness : 0.3,
+				roughness : 0.5,
+				transparent : true,
+				alphaTest : 0.5,
+				side:THREE.DoubleSide
+			}),
 		},
 		
 		Rug : {
@@ -429,6 +449,11 @@ LibMaterial.library = {
 			map : 'tileable/cloth_sheet.jpg',
 			metalness : 0.3,
 			roughness : 0.8,
+		}),
+		RedFelt : new LibMaterial({
+			map : 'tileable/red_felt.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
 		}),
 		Green : new LibMaterial({
 			map : 'tileable/cloth_green.jpg',
@@ -915,7 +940,22 @@ LibMaterial.library = {
 			side : THREE.DoubleSide,
 		}),
 
-	}
+	},
+
+	Poster : {
+		MapFancy : new LibMaterial({
+			map : 'tileable/map_fancy.jpg',
+			metalness : 0.3,
+			roughness : 0.5,
+		}),
+		MapTorn : new LibMaterial({
+			map : 'tileable/torn_map.png',
+			metalness : 0.3,
+			roughness : 0.5,
+			transparent : true,
+			alphaTest : 0.5,
+		}),
+	},
 };
 
 

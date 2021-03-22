@@ -138,7 +138,7 @@ class LibMesh{
 				if( mat === undefined )
 					console.error("Undefined material found in", this);
 
-				const m = mat.fetch(unique || data.type === "SkinnedMesh");
+				const m = mat.fetch(unique || (animations && animations.length));
 				mats.push(m);
 				if( mat.type === 'MeshDepthMaterial' )
 					hasCustomDepthMaterial = true;
@@ -153,6 +153,7 @@ class LibMesh{
 				mesh = new Water2(data.geometry, mats[0].material);
 			}
 			else{
+
 
 				if( data.isMesh )
 					data.material = mats;
@@ -177,6 +178,7 @@ class LibMesh{
 			}
 			
 			if( hasCustomDepthMaterial ){
+
 				// This doesn't work in three yet
 				const depthMats = [];
 				let dm = null;
@@ -191,11 +193,14 @@ class LibMesh{
 						}));
 				}
 				mesh.customDepthMaterial = dm;
+
 			}
 
 		}
 
 		await this.beforeFlatten( mesh );
+
+		
 
 		let ud = mesh.userData;
 		mesh.traverse(el => {
@@ -1473,6 +1478,40 @@ function build(){
 
 					},
 				}),
+				DisplayCase : new LibMesh({
+					url : 'furniture/displaycase.JD',
+					materials : [
+						libMat.Wood.Crate,
+						libMat.Cloth.RedFelt,
+						libMat.Metal.Copper,
+						libMat.Glass.BlueTransparent
+					],
+
+
+					
+					tags : [],
+					want_actions : [/*[GameAction.types.loot,GameAction.types.autoLoot]*/],
+					// Animation settings
+					animations : {
+						"open" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce,
+						}
+					},
+					onInteract : function( mesh, room, asset ){
+						// Opening and closing a chest is local
+						let stage = mesh.userData._stage;
+						// Todo
+						//stage.playSound(mesh, 'media/audio/chest_open.ogg', 0.5);
+					},
+					afterStagePlaced : function( dungeonAsset, mesh ){
+						
+						if( !dungeonAsset.isInteractive() ){
+							mesh.userData.playAnimation("idle_opened");
+						}
+
+					},
+				}),
 				LootBag : new LibMesh({
 					url : 'containers/lootbag_1x1.JD',
 					materials : [
@@ -2046,6 +2085,20 @@ function build(){
 
 
 				}),
+				BookStackSmall : new LibMesh({
+					url : 'doodads/bookstack_small.JD',
+					tags : [stdTag.mBook],
+					materials : [
+						libMat.Book.Full,
+					],
+				}),
+				BookStackMed : new LibMesh({
+					url : 'doodads/bookstack_med.JD',
+					tags : [stdTag.mBook],
+					materials : [
+						libMat.Book.Full,
+					],
+				}),
 				BarBottles : new LibMesh({
 					url : 'doodads/bar_bottles.JD',
 					materials : [
@@ -2110,6 +2163,15 @@ function build(){
 						libMat.Metal.Copper
 					],
 				}),
+				Spyglass : new LibMesh({
+					url : 'doodads/spyglass.JD',
+					tags : [],
+					materials : [
+						libMat.Metal.Copper,
+						libMat.Glass.Green,
+						libMat.Wood.Crate,
+					],
+				}),
 				Bucket : new LibMesh({
 					url : 'doodads/bucket_standing.JD',
 					tags : [stdTag.mBucket],
@@ -2129,29 +2191,57 @@ function build(){
 				
 			},
 			Furniture : {
-				Bookshelf : new LibMesh({
-					url : 'furniture/bookshelf.glb',
-					materials : [
-						libMat.Wood.Crate
-					],
-					tags : [stdTag.mShelf],
-				}),
-				BookshelfBooksBottom : new LibMesh({
-					url : 'furniture/bookshelf_books_bottom.glb',
-					materials : [
-						libMat.Wood.Crate,
-						libMat.Book.Full,
-					],
-					tags : [stdTag.mShelf, stdTag.mBook],
-				}),
-				BookshelfFull : new LibMesh({
-					url : 'furniture/bookshelf_stacked.glb',
-					materials : [
-						libMat.Wood.Crate,
-						libMat.Book.Full,
-					],
-					tags : [stdTag.mShelf, stdTag.mBook],
-				}),
+				Bookshelf : {
+					Bookshelf : new LibMesh({
+						url : 'furniture/bookshelf.glb',
+						materials : [
+							libMat.Wood.Crate
+						],
+						tags : [stdTag.mShelf],
+					}),
+					BookshelfBooksBottom : new LibMesh({
+						url : 'furniture/bookshelf_books_bottom.glb',
+						materials : [
+							libMat.Wood.Crate,
+							libMat.Book.Full,
+						],
+						tags : [stdTag.mShelf, stdTag.mBook],
+					}),
+					BookshelfFull : new LibMesh({
+						url : 'furniture/bookshelf_stacked.JD',
+						materials : [
+							libMat.Wood.Crate,
+							libMat.Book.Full,
+						],
+						tags : [stdTag.mShelf, stdTag.mBook],
+					}),
+				},
+				Marble : {
+					Bench : new LibMesh({
+						url : 'furniture/marble_bench.JD',
+						materials : [
+							libMat.Marble.Tiles
+						],
+						tags : [stdTag.mBench],
+					}),
+					Podium : new LibMesh({
+						url : 'furniture/marble_podium.JD',
+						materials : [
+							libMat.Marble.Tiles,
+							libMat.Wood.Floor2,
+							libMat.Metal.Gold
+						],
+						tags : [],
+					}),
+					Table : new LibMesh({
+						url : 'furniture/marble_table.JD',
+						materials : [
+							libMat.Marble.Tiles,
+							libMat.Wood.Floor2
+						],
+						tags : [stdTag.mTable],
+					}),
+				},
 			},
 			
 			Signs : {
@@ -2219,14 +2309,23 @@ function build(){
 					],
 					tags : [],
 				}),
-				Cartographers : new LibMesh({
-					url : 'doodads/cum_sign.JD',
-					materials : [
-						libMat.Marble.Tiles,
-						libMat.Metal.Copper,
-					],
-					tags : [],
-				}),
+				Poster : {
+					MapFancy : new LibMesh({
+						url : 'doodads/poster.JD',
+						materials : [
+							libMat.Poster.MapFancy
+						],
+						tags : [stdTag.mPaper],
+					}),
+					MapTorn : new LibMesh({
+						url : 'doodads/poster.JD',
+						materials : [
+							libMat.Poster.MapTorn
+						],
+						tags : [stdTag.mPaper],
+					}),
+					
+				}
 			},
 			Shapes : {
 				DirArrow : new LibMesh({
@@ -2280,9 +2379,29 @@ function build(){
 					],
 					tags : [stdTag.mTREASURE_MARKER],
 				}),
-			},
-			
+			},		
 		},
+		
+		Faction : {
+			Cartographers : {
+				Banner : new LibMesh({
+					url : 'doodads/banner_animated.JD',
+					materials : [
+						libMat.Cloth.Banner.Cum
+					],
+					tags : [stdTag.mBanner],
+				}),
+				Sign : new LibMesh({
+					url : 'doodads/cum_sign.JD',
+					materials : [
+						libMat.Marble.Tiles,
+						libMat.Metal.Copper,
+					],
+					tags : [],
+				}),
+			}
+		},
+
 		Decals : {
 			BloodSplat : new LibMesh({
 				auto_bounding_box : true,

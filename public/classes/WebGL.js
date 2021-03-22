@@ -1088,6 +1088,7 @@ class WebGL{
 			else if( !marker.userData.marker.loading )
 				marker.visible = true;
 			marker.material[0].color.set(player.isDead() ? 0xFF1111 : 0xFFFFFF); 
+
 			const ring = marker.material[2];
 			ring.color.set(player.color);
 			ring.color.r = Math.pow(ring.color.r, 3);
@@ -1819,6 +1820,8 @@ class Stage{
 		const c = await this.addFromMeshLib(asset, asset.isInteractive() || this.isEditor);
 
 		
+
+		
 		c.userData.dungeonAsset = asset;
 		c.userData.hoverTexts = {};
 		asset.setStageMesh(c);
@@ -1853,6 +1856,8 @@ class Stage{
 		this.updatePositionByAsset( asset );
 
 		this.onObjStart(c);
+
+		
 
 	}
 
@@ -1960,7 +1965,7 @@ class Stage{
 		
 		}
 
-
+		
 
 		// Remove assets that have been removed from the room
 		for( let ch of this.group.children ){
@@ -1973,7 +1978,8 @@ class Stage{
 		for( let asset of this.group.children )
 			this.onObjRefresh(asset);
 
-
+			
+	
 	}
 
 
