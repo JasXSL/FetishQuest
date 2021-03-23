@@ -17,7 +17,7 @@ import HitFX from './HitFX.js';
 import Roleplay, { RoleplayStage, RoleplayStageOption } from './Roleplay.js';
 import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
-import Shop, { ShopAsset } from './Shop.js';
+import Shop, { ShopAsset, ShopAssetToken } from './Shop.js';
 import ActionLearnable from './ActionLearnable.js';
 import Faction from './Faction.js';
 import Encounter from './Encounter.js';
@@ -30,6 +30,7 @@ const LIB_TYPES = {
 	'playerClasses' : PlayerClass,
 	'actions' : Action,
 	'assets' : Asset,
+	'shopAssetTokens' : ShopAssetToken, 
 	'shopAssets' : ShopAsset,
 	'shops' : Shop,
 	'players' : Player,
@@ -74,6 +75,7 @@ const load_order = [
 	'hitFX',
 	'actions',
 	'assets',
+	'shopAssetTokens',
 	'shopAssets',
 	'shops',
 	'players',
@@ -130,6 +132,7 @@ export default class GameLib{
 		this.questRewards = {},
 		this.actions = {};
 		this.assets = {};
+		this.shopAssetTokens = {};
 		this.shopAssets = {};
 		this.shops = {};
 		this.playerTemplates = {};

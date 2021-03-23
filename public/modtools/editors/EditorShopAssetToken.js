@@ -3,12 +3,11 @@ import HelperAsset from './HelperAsset.js';
 
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorAsset from './EditorAsset.js';
-import * as EditorShopAssetToken from './EditorShopAssetToken.js';
-import { ShopAsset } from '../../classes/Shop.js';
+import { ShopAsset, ShopAssetToken } from '../../classes/Shop.js';
 import Generic from '../../classes/helpers/Generic.js';
 
-const DB = 'shopAssets',
-	CONSTRUCTOR = ShopAsset;
+const DB = 'shopAssetTokens',
+	CONSTRUCTOR = ShopAssetToken;
 
 // Single asset editor
 export function asset(){
@@ -29,26 +28,15 @@ export function asset(){
 	html += 'Item: <div class="asset"></div>';
 
 	html += '<div class="labelFlex">';
-		html += '<label title="Cost in copper. -1 auto generates.">Cost: <input type="number" min=-1 step=1 name="cost" class="saveable" value="'+esc(dummy.cost)+'" /></label>';
-		html += '<label title="Amount to stock, -1 for infinite">Amount: <input type="number" min=-1 step=1 name="amount" class="saveable" value="'+esc(dummy.amount)+'" /></label>';
-		html += '<label title="Time in seconds in game time">Restock Rate: <input type="number" min=0 step=1 name="restock_rate" class="saveable" value="'+esc(dummy.restock_rate)+'" /></label>';
+		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		html += '<label title="Cost">Cost: <input type="number" min=1 step=1 name="amount" class="saveable" value="'+esc(dummy.amount)+'" /></label>';
 	html += '</div>';
-
-	html += 'Alt currency: <div class="tokens"></div>';
-	
-	
-
-	html += 'Conditions: <div class="conditions"></div>';
 
 	this.setDom(html);
 
 	this.dom.querySelector("div.asset").appendChild(EditorAsset.assetTable(this, asset, "asset", true));
-	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
-	this.dom.querySelector("div.tokens").appendChild(EditorShopAssetToken.assetTable(this, asset, "tokens"));
-
 
 	HelperAsset.autoBind( this, asset, DB);
-
 
 };
 
@@ -56,8 +44,9 @@ export function asset(){
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name, single, parented ){
 	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, [
+		'label',
 		'asset',
-		'cost'
+		'amount'
 	], single, parented);
 }
 
@@ -66,16 +55,14 @@ export function assetTable( win, modAsset, name, single, parented ){
 export function list(){
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
+		'*label': true,
 		'*asset': true,
-		'*cost': true,
 		'*amount': true,
-		'*restock_rate': true,
-		conditions: true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
-		label : 'vendorAsset_'+Generic.generateUUID(),
-		name : 'New Asset'
+		label : 'vendorAssetToken_'+Generic.generateUUID(),
+		amount : 1
 	}));
 
 };

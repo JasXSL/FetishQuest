@@ -2616,7 +2616,7 @@ export default class Game extends Generic{
 	}
 
 	// Shop is a label, asset is an ID of an item in shop, amount is nr items to buy, player is the buying player
-	buyAsset(shop, asset, amount, player){
+	buyAsset( shop, asset, amount, player ){
 
 		// Find a shop in active stage
 		if( !(shop instanceof Shop) )
@@ -2642,8 +2642,13 @@ export default class Game extends Generic{
 		if( typeof asset === "object" )
 			asset = asset.id;
 		asset = shop.getItemById(asset);
+
 		if( typeof player !== "object" )
 			player = this.getPlayerById(player);
+
+		if( !(player instanceof Player) )
+			throw 'Non Player instance received';
+		
 		amount = parseInt(amount);
 		
 
@@ -2664,10 +2669,9 @@ export default class Game extends Generic{
 			throw "Amount not available";
 
 		const cost = asset.getCost()*amount,
-			wallet = player.getMoney(),
 			a = asset.getAsset()
 		;
-		if( wallet < cost )
+		if( !asset.affordableByPlayer(player) )
 			throw "Insufficient funds";
 
 		if( !a )
@@ -2677,7 +2681,12 @@ export default class Game extends Generic{
 		a.g_resetID();
 		a.restore();
 
-		player.consumeMoney(cost);
+		if( cost )
+			player.consumeMoney(cost);
+
+		for( let token of asset.tokens )
+			player.destroyAssetsByLabel(token.asset.label, token.amount);
+
 		player.addAsset(a, amount, undefined, undefined, true);
 		asset.onPurchase(amount);
 		this.saveShopState(shop);

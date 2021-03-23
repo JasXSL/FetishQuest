@@ -74,7 +74,12 @@ export default class Modal{
 		if( !canvas )
 			this.closeSelectionBox();
 		this.wipeEvents();
-		this.content.html(html);
+		this.content.html('');
+		if( typeof html === 'string' )
+			this.content.html(html);
+		else{
+			this.content[0].append(...html);
+		}
 		this.bg.toggleClass("hidden", false).toggleClass('canvas', !!canvas);
 		this.open = true;
 

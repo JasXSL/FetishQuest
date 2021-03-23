@@ -470,7 +470,7 @@ export default class Asset extends Generic{
 		for( let i =0; i< this._icon.children.length; ++i )
 			this._icon.children[i].setAttribute('fill', this.getColor());
 		
-		return this._icon;
+		return this._icon.cloneNode(true);
 
 	}
 

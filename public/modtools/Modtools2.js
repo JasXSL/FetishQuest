@@ -25,6 +25,7 @@ import * as EditorRoleplayStage from './editors/EditorRoleplayStage.js';
 import * as EditorRoleplayStageOption from './editors/EditorRoleplayStageOption.js';
 import * as EditorShop from './editors/EditorShop.js';
 import * as EditorShopAsset from './editors/EditorShopAsset.js';
+import * as EditorShopAssetToken from './editors/EditorShopAssetToken.js';
 import * as EditorFaction from './editors/EditorFaction.js';
 import * as EditorQuest from './editors/EditorQuest.js';
 import * as EditorQuestReward from './editors/EditorQuestReward.js';
@@ -69,6 +70,7 @@ const DB_MAP = {
 	"roleplayStageOption" : { listing : EditorRoleplayStageOption.list, asset : EditorRoleplayStageOption.asset, icon : 'click' },
 	"shops" : { listing : EditorShop.list, asset : EditorShop.asset, icon : 'shopping-cart' },
 	"shopAssets" : { listing : EditorShopAsset.list, asset : EditorShopAsset.asset, icon : 'receive-money' },
+	"shopAssetTokens" : { listing : EditorShopAssetToken.list, asset : EditorShopAssetToken.asset, icon : 'token' },
 	"factions" : { listing : EditorFaction.list, asset : EditorFaction.asset, icon : 'tattered-banner' },
 	"quests" : { listing : EditorQuest.list, asset : EditorQuest.asset, icon : 'scroll-quill' },
 	"questRewards" : { listing : EditorQuestReward.list, asset : EditorQuestReward.asset, icon : 'open-treasure-chest' },

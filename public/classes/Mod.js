@@ -40,6 +40,7 @@ export default class Mod extends Generic{
 		this.gameActions = [];
 		this.shops = [];
 		this.shopAssets = [];
+		this.shopAssetTokens = [];
 		this.actionLearnable = [];
 		this.factions = [];
 		this.questRewards = [];
@@ -102,6 +103,7 @@ export default class Mod extends Generic{
 			gameActions : this.gameActions,
 			shops : this.shops,
 			shopAssets : this.shopAssets,
+			shopAssetTokens : this.shopAssetTokens,
 			actionLearnable : this.actionLearnable,
 			factions : this.factions,
 			dungeonSubTemplates : this.dungeonSubTemplates,

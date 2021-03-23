@@ -5,6 +5,7 @@ import Generic from './helpers/Generic.js';
 import Asset from './Asset.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
+import Player from './Player.js';
 
 export default class Shop extends Generic{
 
@@ -133,9 +134,10 @@ export class ShopAsset extends Generic{
 		this.amount = -1;			// Max amount sold by the vendor
 		this.restock_rate = 260000;	// About once every 3 days
 		this.conditions = [];
+		this.tokens = [];			// ShopAssetToken, trade custom assets instead of money
 
 		// State (saved in game)
-		this._amount_bought = 0;			
+		this._amount_bought = 0;
 		this._time_bought = 0;
 
 		if( data && !data.id )
@@ -153,6 +155,7 @@ export class ShopAsset extends Generic{
 			amount : this.amount,
 			restock_rate : this.restock_rate,
 			conditions : Condition.saveThese(this.conditions, full),
+			tokens : ShopAssetToken.saveThese(this.tokens, full),
 		};
 
 
@@ -171,6 +174,7 @@ export class ShopAsset extends Generic{
 	rebase(){
 		this.conditions = Condition.loadThese(this.conditions);
 		this.asset = Asset.loadThis(this.asset, this);
+		this.tokens = ShopAssetToken.loadThese(this.tokens, this);
 	}
 
 	getCost(){
@@ -230,6 +234,72 @@ export class ShopAsset extends Generic{
 			this._time_bought = game.time;
 	}
 
+	affordableByPlayer( player ){
+
+		if( !(player instanceof Player) )
+			throw 'Trying to check item affordable by nonplayer';
+
+		const money = player.getMoney();
+		if( money < this.getCost() )
+			return false;
+
+		for( let token of this.tokens ){
+
+			if( player.numAssets(token.asset.label) < token.amount )
+				return false;
+
+		}
+		
+		return true;
+
+	}
+
+}
+
+export class ShopAssetToken extends Generic{
+
+	constructor(data, parent){
+		super();
+
+		this.parent = parent;
+
+		this.label = '';
+		this.asset = null;			// String or Asset
+		this.amount = 1;
+
+		this.load(data);
+	}
+
+	load( data ){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+
+		this.asset = Asset.loadThis(this.asset, this);
+
+	}
+
+	save( full ){
+
+		const out = {
+			id : this.id,
+			asset : this.asset && this.asset.save ? this.asset.save(full) : this.asset,
+			amount : this.amount,
+		};
+
+		if( full !== "mod" ){}
+		else{
+
+			out.label = this.label;
+			this.g_sanitizeDefaults(out);
+
+		}
+
+		return out;
+
+	}
+
 }
 
 
@@ -260,4 +330,6 @@ class ShopAssetSaveState extends Generic{
 	}
 
 	rebase(){}
+
+
 }

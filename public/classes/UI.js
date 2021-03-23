@@ -418,6 +418,7 @@ export default class UI{
 		const filters = {};
 		// Charges
 		actions = actions.filter(el => {
+
 			if( !el.isVisible() || el.no_action_selector)
 				return false;
 			if( !filters[el.label] )
@@ -425,6 +426,7 @@ export default class UI{
 			else
 				return false;
 			return true;
+
 		});
 		// console.log("Init2: ", Date.now()-time); 
 
@@ -2176,7 +2178,13 @@ export default class UI{
 
 	}
 
-	getGenericAssetButton( item, cost = 0, additionalClassName = '', hideText = false ){
+	// hideText can also be 'compact'
+	// When compact is set, cost becomes quant
+	async getGenericAssetButton( item, cost = 0, additionalClassName = '', hideText = false ){
+
+		const compact = hideText === 'compact';
+		if( compact )
+			additionalClassName += ' compact';
 
 
 		let html = '';
@@ -2185,31 +2193,36 @@ export default class UI{
 			if( !hideText )
 				html += (item.equipped ? '<strong>' : '')+(item.stacking && item._stacks > 1 ? item._stacks+'x ' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
 			// This item can be sold
-			if( cost ){
+
+			if( !compact ){
 				const coins = Player.calculateMoneyExhange(cost);
 				html += '<div class="cost">';
 				for( let i in coins ){
+
 					const amt = coins[i];
 					if( amt ){
 						html += '<span style="color:'+Player.currencyColors[i]+';">'+amt+Player.currencyWeights[i].substr(0,1)+"</span> ";
 					}
+
 				}
 				html += '</div>';
 			}
+			else{
+				html += '<div class="quant">'+cost+'</div>';
+			}
+			
 			html += '<div class="tooltip">';
 				html += item.getTooltipText();
 			html += '</div>';
+
 		html+= '</div>';
 		
 		let dom = document.createElement('template');
 		dom.innerHTML = html;
 		dom = dom.content.childNodes[0];
 
-		item.getImgElement().then(el => {
-			dom.replaceChild(el, dom.querySelector('img.assetIcon'));
-		});
-
-			
+		dom.replaceChild(await item.getImgElement(), dom.querySelector('img.assetIcon'));
+		
 		return dom;
 
 	}
@@ -2310,17 +2323,15 @@ export default class UI{
 			html += '</div>';
 
 
-		
-	
-		
-		
-		this.modal.set(html);
+		const template = document.createElement('template');
+		template.innerHTML = html;
+
 
 		// Workaround: Add the icons
 		for( let id in svgs ){
 
 			const dom = await svgs[id];
-			this.modal.content[0].querySelectorAll('div.item[data-id=\''+esc(id)+'\'] > div.tooltip').forEach(el => {
+			template.content.querySelectorAll('div.item[data-id=\''+esc(id)+'\'] > div.tooltip').forEach(el => {
 				el.parentNode.prepend(dom);
 			});
 
@@ -2329,10 +2340,14 @@ export default class UI{
 		// and the inventory items
 		
 		for( let item of inv ){
-			const dummy = this.modal.content[0].querySelector('div.assetDummy');
-			dummy.parentNode.replaceChild(this.getGenericAssetButton(item), dummy);
-			
+			const dummy = template.content.querySelector('div.assetDummy');
+			dummy.parentNode.replaceChild(await this.getGenericAssetButton(item), dummy);
 		}
+			
+		
+		this.modal.set(template.content.childNodes);
+
+		
 
 
 		this.modal.onPlayerChange(player.id, () => {
@@ -2572,7 +2587,7 @@ export default class UI{
 	}
 
 	// Shop inspect
-	drawShopInspector( shop ){
+	async drawShopInspector( shop ){
 
 
 		const myPlayer = game.getMyActivePlayer();
@@ -2585,7 +2600,7 @@ export default class UI{
 			return;
 
 		// workaround for SVG coloring
-		const assetButtons = [];
+		const assetButtons = [], altCurrency = new Map();
 
 		let html = '<h1 class="center">'+esc(shop.name)+'</h1>';
 
@@ -2594,6 +2609,7 @@ export default class UI{
 		if( !money )
 			html += 'Broke';
 		else{
+
 			for( let i in Player.currencyWeights ){
 				let asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
 				if( !asset )
@@ -2603,13 +2619,19 @@ export default class UI{
 					html += '<span style="color:'+Player.currencyColors[i]+';"><b>'+amt+'</b>'+Player.currencyWeights[i]+"</span> ";
 				}
 			}
+
 		}
+
+		html += '<div class="altCurrency center inventory"></div>';
+
+
 		if( myPlayer.canExchange() )
 			html += '<br /><br /><input type="button" name="exchange" value="Exchange" />';
 		html += '</h3>';
 
 		html += '<div class="shop inventory flexTwoColumns">';
 			if( shop.buys ){
+
 				html += '<div class="left full">';
 					html += '<h2>Sell</h2>';
 					html += '<div class="assets sell">';
@@ -2619,34 +2641,73 @@ export default class UI{
 							const a = asset.clone();
 							a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
 							html += '<div data-dummy="'+assetButtons.length+'"></div>';
-							assetButtons.push(this.getGenericAssetButton(a, a.getSellCost(shop)));
+							assetButtons.push(await this.getGenericAssetButton(a, a.getSellCost(shop)));
 						}
 					}
 					html += '</div>';
 				html += '</div>';
+
 			}
+
 			html += '<div class="right">';
+
 				html += '<h2>Buy</h2>';
 				html += '<div class="assets buy">';
 				for( let item of shop.items ){
+
 					const cost = item.getCost();
-					if( !cost )
-						continue;
 					const asset = item.getAsset();
 					if( !asset )
 						continue;
+
 					const remaining = item.getRemaining();
 					if( remaining === 0 )
 						continue;
+
 					asset.name = (remaining !== -1 ? '['+remaining+']' : '&infin;')+" "+asset.name;
 					asset.id = item.id;
+
+					const affordable = item.affordableByPlayer(myPlayer);
+
 					html += '<div data-dummy="'+assetButtons.length+'"></div>';
-					assetButtons.push(this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : ''));
+
+					const button = await this.getGenericAssetButton(
+						asset, 
+						cost, 
+						!affordable ? 'disabled' : '',
+						false,
+					);
+					assetButtons.push(button);
+
+					// Alt currency
+					const costDiv = button.querySelector('div.cost');
+					for( let token of item.tokens ){
+
+						const div = document.createElement('div');
+						div.classList.add('token');
+
+						const svg = await token.asset.getImgElement();
+						div.append(svg);
+
+						const quant = document.createElement('div');
+						div.append(quant);
+						quant.innerText = 'x'+token.amount;
+						
+						costDiv.append(div);
+
+						if( !altCurrency.get(token.asset.label) )
+							altCurrency.set(token.asset.label, token.asset);
+
+					}
+
 				}
+
 				html += '</div>';
+
 			html += '</div>';
+
 		html += '</div>';
-		
+
 		this.modal.set(html);
 
 		// Workaround, needs to be fixed later
@@ -2654,6 +2715,15 @@ export default class UI{
 
 			const el = this.modal.content[0].querySelector('div[data-dummy="'+i+'"]');
 			el.parentNode.replaceChild(assetButtons[i], el);
+
+		}
+
+		const altValues = altCurrency.values();
+		const altDiv = this.modal.content[0].querySelector('div.altCurrency');
+		for( let cur of altValues ){
+
+			const div = await this.getGenericAssetButton(cur, myPlayer.numAssets(cur.label), '', 'compact');
+			altDiv.append(div);
 
 		}
 
@@ -2683,22 +2753,28 @@ export default class UI{
 			
 		});
 		$("#modal div.assets.buy div.item").on('click', event => {
+
 			const th = $(event.currentTarget),
 				id = th.attr('data-id');
+				
 			const item = shop.getItemById(id);
 			if( !item ){
 				return;
 			}
+
 			const asset = item.getAsset();
 			if( !asset )
 				return;
+
 			const cost = item.getCost();
 			const gold = myPlayer.getMoney();
 			if( cost > gold )
 				return;
+
 			let maxQuant = Math.floor(gold/cost);
 			if( maxQuant > item.getRemaining() )
 				maxQuant = item.getRemaining();
+
 			this.modal.makeSelectionBoxForm(
 				'Amount to BUY: <input type="number" style="width:4vmax" min=1 '+(maxQuant > 0 ? 'max='+(maxQuant) : 'max=100')+' step=1 value=1 /><input type="submit" value="Ok" />',
 				function(){
@@ -2709,6 +2785,7 @@ export default class UI{
 				},
 				false
 			);
+
 		});
 		
 		this.modal.onShopChange(shop.id, () => {
@@ -2722,7 +2799,7 @@ export default class UI{
 	}
 
 
-	drawSmithInspector( smith ){
+	async drawSmithInspector( smith ){
 		
 		const myPlayer = game.getMyActivePlayer();
 		if( !myPlayer )
@@ -2749,17 +2826,22 @@ export default class UI{
 		const repairable = myPlayer.getRepairableAssets();
 
 		if( repairable.length ){
-			html += '<div class="assets repair shop inventory">';
-			for( let asset of repairable ){
-				const cost = asset.getRepairCost(smith);
-				html += this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : '');
-			}
-			html += '</div>';
+			html += '<div class="assets repair shop inventory"></div>';
 		}else{
 			html += '<div class="assets repair shop inventory"><h3 class="center">No broken items.</h3></div>';
 		}
 
-		this.modal.set(html);
+		const template = document.createElement('template');
+		template.innerHTML = html;
+
+		for( let asset of repairable ){
+			const cost = asset.getRepairCost(smith);
+			template.content.querySelector('div.assets').append(await this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : ''));
+		}
+
+		this.modal.set(template.content.childNodes);
+
+
 		this.bindTooltips();
 
 		$("#modal div.assets.repair div.item").on('click', event => {

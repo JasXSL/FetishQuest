@@ -1018,6 +1018,11 @@ div.fxBuffRed{
 		text-align: left;
 		padding-left: 4vmax;
 	}
+	div.inventory div.item.compact{
+		width:auto;
+		padding:0.5vmax;
+	}
+	
 	div.inventory div.item img.assetIcon,
 	div.inventory div.item svg.assetIcon
 	{
@@ -1028,6 +1033,16 @@ div.fxBuffRed{
 		left: 0.5vmax;
 		top: 0.5vmax;
 	}
+	div.inventory.altCurrency{
+		padding:0.5vmax 0;
+	}
+	div.inventory.altCurrency div.item.compact{
+		cursor: help;
+	}
+	div.inventory.altCurrency div.item.compact:active{
+		transform:none;
+	}
+	
 	div.inventory > div.left{
 		width:20%;
 		flex:20%;
@@ -1227,6 +1242,24 @@ div.fxBuffRed{
 		right:0.5vmax;
 		top:50%;
 		transform:translateY(-50%);
+	}
+	#modal div.shop.inventory div.item div.token{
+		display:inline-block;
+	}
+	div.inventory div.item.compact svg,
+	#modal div.shop.inventory div.item div.token > svg{
+		position: relative;
+		display:inline-block;
+		left:auto;
+		top:auto;
+	}
+	div.inventory div.item.compact div.quant,
+	#modal div.shop.inventory div.item div.token > div{
+		position: absolute;
+		bottom:-0.25vmax;
+		right:-.25vmax;
+		background:rgba(0,0,0,.75);
+		padding:0.25vmax;
 	}
 /**/
 
