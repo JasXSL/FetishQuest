@@ -53,7 +53,7 @@ input[type=button], input[type=submit], div.button, label.button,
 div.inventory div.item,
 #modal div.modalQuests div.right div.item,
 div.action,
-#modal div.netgame.player
+div.netgame.player
 {
 	user-select: none;
 	-moz-user-select: none;
@@ -685,6 +685,16 @@ div.fxBuffRed{
 		pointer-events: none;
 	}
 
+	#settings div.netgameLink{
+
+		padding:1vmax;
+		margin:1vmax 3vmax;
+		background: rgba(0,0,0,.75);
+		font-weight: bold;
+		user-select: all;
+		text-align:center;
+
+	}
 	
 
 
@@ -1219,14 +1229,7 @@ div.fxBuffRed{
 	}
 
 
-	#modal div.netgameLink{
-		padding:1vmax;
-		margin:1vmax 3vmax;
-		background: rgba(0,0,0,.75);
-		font-weight: bold;
-		user-select: all;
-		text-align:center;
-	}
+	
 
 	
 

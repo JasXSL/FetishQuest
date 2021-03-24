@@ -23,6 +23,8 @@ class NetworkManager{
 		this.timer_reconnect = null;
 		this.comparer = new Comparer();
 
+		this.eventBindings = {'*':[]};		// EventLabel : [fn1, fn2...]
+
 		// This is for debugging purposes
 		setTimeout(() => {
 			this._last_push = parent.getSaveData();
@@ -45,22 +47,29 @@ class NetworkManager{
 
 		// Connection event
 		this.io.on('connect', () => {
+
 			console.debug("Server connection established");
 			clearTimeout(this.timer_reconnect);
 			game.onTurnTimerChanged();
 			window.onbeforeunload = function() {
 				return true;
 			};
+			this.handleEvent('connect');
+
 		});
 
 		// Host left
 		this.io.on('hostLeft', () => {
+			
 			console.debug("Host left the game");
 			this.disconnect();
+			this.handleEvent('hostLeft');
+
 		});
 
 		// Player left
 		this.io.on('playerLeft', data => {
+
 			for( let i in this.players ){
 				if( this.players[i].id === data.id ){
 					game.uiAudio( 'player_disconnect' );
@@ -70,6 +79,8 @@ class NetworkManager{
 				}
 			}
 			game.ui.draw();
+			this.handleEvent('playerLeft');
+
 		});
 
 		// Player joined
@@ -93,6 +104,8 @@ class NetworkManager{
 						}
 
 					}
+					this.handleEvent('playerJoined', player);
+
 				}
 
 			}
@@ -108,6 +121,7 @@ class NetworkManager{
 			game.uiAudio( 'player_join' );
 			game.ui.addText( data.name+" has joined the game.", undefined, undefined, undefined, 'dmInternal' );
 			this.attempts = 0;
+			
 
 		});
 
@@ -125,6 +139,7 @@ class NetworkManager{
 					console.debug("Reconnect failed");
 					this.disconnect();
 				}, 10000);
+				this.handleEvent('disconnect');
 				return;
 
 			}
@@ -256,6 +271,35 @@ class NetworkManager{
 	}
 
 
+	// Binds an event
+	bind( evt, callback ){
+
+		if( !Array.isArray(evt) )
+			evt = [evt];
+
+		for( let e of evt ){
+			
+			if( !Array.isArray(this.eventBindings[e]) )
+				this.eventBindings[e] = [];
+			this.eventBindings[e].push(callback);
+			
+		}
+
+	}
+
+	handleEvent( evt, data ){
+
+		let evts = this.eventBindings[evt];
+		let run = [];
+		if( evts )
+			run = evts;
+
+		run.push(...this.eventBindings['*']);
+		
+		for( let e of run )
+			e(data);
+
+	}
 
 
 

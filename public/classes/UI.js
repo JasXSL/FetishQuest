@@ -1309,7 +1309,6 @@ export default class UI{
 			'<div class="button'+(!this.visible ? ' highlighted' : '')+'" data-id="map" style="background-image:url(/media/wrapper_icons/treasure-map.svg);"></div>'+
 			(player ? '<div class="button" data-id="inventory" style="background-image:url(/media/wrapper_icons/light-backpack.svg);"></div>' : '')+
 			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'+
-			'<div data-id="multiplayer" class="button" style="background-image: url(media/wrapper_icons/multiplayer.svg)"></div>'+
 			'<div data-id="settings" class="button" style="background-image: url(media/wrapper_icons/auto-repair.svg)"></div>'+
 			'<div data-id="mainMenu" class="button autoWidth">Game</div>'
 		;
@@ -1332,10 +1331,6 @@ export default class UI{
 			else if( id === "mainMenu" ){
 				game.uiAudio( 'menu_generic' );
 				this.drawMainMenu();
-			}
-			else if( id === 'multiplayer' ){
-				game.uiAudio( 'menu_generic' );
-				this.drawNetSettings();
 			}
 			else if( id === 'inventory' ){
 				game.uiAudio( 'backpack' );
@@ -2083,66 +2078,6 @@ export default class UI{
 		});
 
 		$("#newGameForm input.addTag").on('click', () => addTag(''));
-
-		this.bindTooltips();
-
-	}
-
-
-	// Netgame settings
-	// Todo: StaticModal (Merge into settings?)
-	drawNetSettings(){
-
-		let html = '<div class="infoBox centered">';
-		if( game.net.isConnected() && game.initialized && game.is_host ){
-			html += 'Share the invite code or direct invite URL to invite a player to your game:<br /><div class="netgameLink">'+esc(game.net.public_id)+'</div>';
-			html += '<div class="netgameLink">'+esc('https://'+window.location.hostname+'/#net/'+game.net.public_id)+'</div>';
-		}
-
-		else if( !game.net.isConnected() && game.initialized && game.is_host ){
-			html += '<h1>Put Session Online</h1>';
-			html += '<p>If you want, you can put this session online and invite your friends.</p>';
-			html += '<input type="button" class="blue" name="hostGame" value="Put This Session Online" /><br />';
-		}
-
-		if( game.net.isConnected() ){
-
-			html += '<input type="button" class="red" name="disconnect" value="Disconnect" />';
-
-			html += '<h3>Connected players</h3>';
-			// Todo: Stylize
-			for( let player of game.net.players )
-				html+= '<div class="netgame player">'+esc(player.name)+'</div>';
-
-			if( game.is_host ){
-				html += '<label>Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" '+(+localStorage.turnTimer ? 'checked' : '')+' /></label><br />';
-				html += '<label>Mute spectators: <input type="checkbox" class="muteSpectators" '+(+localStorage.muteSpectators ? 'checked' : '')+' /></label><br />';
-			}
-
-		}
-
-		html += '</div>';
-		this.modal.set(html);
-
-		$("#modal input[name=disconnect]").on('click', async () => {
-			game.net.disconnect();
-			this.drawMainMenu();
-		});
-
-		$("#modal input[name=hostGame]").on('click', async () => {
-			await game.net.hostGame();
-			this.drawNetSettings();
-		});
-
-		$("#modal input.enableTurnTimer").on('click', event => {
-			localStorage.turnTimer = +$(event.currentTarget).is(':checked');
-			game.onTurnTimerChanged();
-		});
-		$("#modal input.muteSpectators").on('click', event => {
-			localStorage.muteSpectators = +$(event.currentTarget).is(':checked');
-			game.mute_spectators = +localStorage.muteSpectators || 0;
-			game.save();
-		});
 
 		this.bindTooltips();
 

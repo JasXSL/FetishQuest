@@ -27,11 +27,14 @@ export default class StaticModal{
 		this.contentContainer = $('> div.modalMain', this.dom);
 		this.tabContainer = $('> div.cmTabs', this.dom);
 
+		this.drawn = false;			// Set to true after the first draw
+		this.drawing = false;		// Actively updating the dom
+
 		this.activeTab = 'default';
 		this.tabs = {};
 		this.refreshOn = [];	// Array of sub objects [{path:(arr)path, fn:(opt)fn}...]. Checked when game data changes to have a callback.
 		this.args = [];			// Args of the last time this was opened
-		
+
 		$("> div.header > div.close", this.dom).on('click', event => {
 			game.uiClick(event.target);
 			this.close();
@@ -127,7 +130,14 @@ export default class StaticModal{
 
 	async refresh(){
 
+		if( this.drawing )
+			return false;
+
+		this.drawing = true;
 		const out = await this.onDraw.apply(this, this.args);
+		this.drawn = true;
+		this.drawing = false;
+
 		return out;
 
 	}
@@ -626,6 +636,25 @@ export default class StaticModal{
 					UI: <input type="range" min=0 max=100 step=1 name="uiSoundVolume" /><br />
 				`;
 			})
+			.addTab("Online", () => {
+				
+				return `
+					<div class="connected center">
+						<p class="description">Share the invite code or direct invite URL to invite a player to your game:</p>
+						<div class="netgameLink a"></div>
+						<div class="netgameLink b"></div>
+						<input type="button" class="red disconnect" value="Disconnect" />
+						<div class="connectedPlayers"></div>
+						<label>Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" /></label><br />
+						<label>Mute spectators: <input type="checkbox" class="muteSpectators" /></label><br />
+					</div>
+					<div class="disconnected">
+						<p class="description">If you want, you can put this session online and invite your friends.</p>
+						<input type="button" class="blue hostgame" value="Put This Session Online" />
+					</div>
+				`;
+
+			})
 			.setProperties(function(){
 				
 				const ui = game.ui;
@@ -651,6 +680,21 @@ export default class StaticModal{
 					cacheLevelSpan : $("div.cacheLevel span", this.getTabDom("Video")),
 				};
 
+				const netgame = this.getTabDom("Online")[0];
+				this.netgame = {
+					connected : netgame.querySelector('div.connected'),
+					disconnected : netgame.querySelector('div.disconnected'),
+					connectedDesc : netgame.querySelector('div.connected p.description'),
+					disconnectedDesc : netgame.querySelector('div.disconnected p.description'),
+					netgameLinkA : netgame.querySelector('div.connected div.netgameLink.a'),
+					netgameLinkB : netgame.querySelector('div.connected div.netgameLink.b'),
+					hostButton : netgame.querySelector('input.hostgame'),
+					disconnectButton : netgame.querySelector('input.disconnect'),
+					connectedPlayers : netgame.querySelector('div.connectedPlayers'),
+					enableTurnTimer : netgame.querySelector('input.enableTurnTimer'),
+					muteSpectators : netgame.querySelector('input.muteSpectators'),
+				};
+				
 
 				// Bind events
 				
@@ -764,6 +808,78 @@ export default class StaticModal{
 					$("input[name="+knob+"SoundVolume]", audio).val(Math.round(game['audio_'+knob].volume*100));
 				}
 				$("input[name=masterSoundVolume]", audio).val(Math.round(game.getMasterVolume()*100));
+
+
+				// Netgame
+				const isConnected = game.net.isConnected();
+
+
+				// Not connected
+				if( isConnected ){
+
+					const isHosting = game.initialized && game.is_host;
+					if( isHosting ){
+
+						this.netgame.netgameLinkA.innerText = game.net.public_id;
+						this.netgame.netgameLinkB.innerText = 'https://'+window.location.hostname+'/#net/'+game.net.public_id;
+
+					}
+
+					let divs = [];
+					for( let player of game.net.players ){
+
+						const div = document.createElement('div');
+						div.classList.add('netgame', 'player');
+						div.innerText = player.name;
+						divs.push(div);
+
+					}
+					this.netgame.connectedPlayers.replaceChildren(...divs);
+
+					// LocalStorage stores strings, so we can't store true/false
+					this.netgame.enableTurnTimer.checked = Boolean(+localStorage.turnTimer);
+					this.netgame.muteSpectators.checked = Boolean(+localStorage.muteSpectators);
+
+				}
+
+				this.netgame.disconnected.classList.toggle('hidden', isConnected);
+				this.netgame.connected.classList.toggle('hidden', !isConnected);
+
+				// First load
+				if( !this.drawn ){
+
+					this.netgame.hostButton.addEventListener('click', async event => {
+
+						await game.net.hostGame();
+						this.refresh();
+
+					});
+
+					this.netgame.disconnectButton.addEventListener('click', event => {
+						
+						game.net.disconnect();
+						this.refresh();
+
+					});
+
+					this.netgame.enableTurnTimer.addEventListener('click', event => {
+						
+						localStorage.turnTimer = +event.currentTarget.checked;
+						game.onTurnTimerChanged();
+
+					});
+					this.netgame.muteSpectators.addEventListener('click', event => {
+
+						localStorage.muteSpectators = +event.currentTarget.checked;
+						game.mute_spectators = +localStorage.muteSpectators || 0;
+						game.save();
+
+					});
+
+					game.net.bind('*', () => this.refresh());
+
+				}
+
 
 				this.toggleTab('DM', game.is_host);
 
@@ -1689,7 +1805,7 @@ export default class StaticModal{
 				this.assets.replaceChildren(...divs);
 
 			});
-		
+		// 
 
 		
 
