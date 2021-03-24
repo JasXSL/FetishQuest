@@ -142,7 +142,7 @@ export default class UI{
 				if( this.modal.open === true && $("#modal > div.wrapper > div.content > div.modalQuests").length )
 					this.modal.close();
 				else{
-					this.drawQuests();
+					this.staticModal.set('quests');
 					game.uiAudio( 'toggle_quests' );
 				}
 			}
@@ -898,9 +898,10 @@ export default class UI{
 
 		}
 		else if( type === 'repair' ){
-			if( this.drawSmithInspector(p) ){
-				game.uiAudio( "smith_entered" );
-			}
+
+			this.staticModal.set('smith', p);
+			game.uiAudio( "smith_entered" );
+			
 		}
 		else if( type === 'gym' ){
 			this.staticModal.set('gym', p);
@@ -1325,7 +1326,7 @@ export default class UI{
 				this.toggle();
 			}
 			else if( id === 'quest' ){
-				this.drawQuests();
+				this.staticModal.set('quests');
 				game.uiAudio( 'toggle_quests' );
 			}
 			else if( id === "mainMenu" ){
@@ -1725,7 +1726,7 @@ export default class UI{
 
 
 	/* MODAL INSPECTS */
-
+	// Todo: StaticModal
 	async drawMainMenu(){
 
 		let html = '',
@@ -1894,7 +1895,7 @@ export default class UI{
 
 	}
 
-
+	// Todo: StaticModal
 	drawCredits(){
 
 		let html = '<div class="center">'+
@@ -1930,7 +1931,7 @@ export default class UI{
 
 	}
 
-
+	// Todo: StaticModal
 	drawNewGame(){
 
 		// /media/characters/otter.jpg
@@ -2089,6 +2090,7 @@ export default class UI{
 
 
 	// Netgame settings
+	// Todo: StaticModal (Merge into settings?)
 	drawNetSettings(){
 
 		let html = '<div class="infoBox centered">';
@@ -2149,14 +2151,8 @@ export default class UI{
 
 	
 
-	// Quest explorer
-	drawQuests(){
-		this.staticModal.set('quests');
-	}
-
 	// Player inspect
 	// uuid can also be a player object
-
 	drawAssetTradeTarget( asset, amount ){
 
 		const player = asset.parent;
@@ -2179,6 +2175,7 @@ export default class UI{
 
 	// hideText can also be 'compact'
 	// When compact is set, cost becomes quant
+	// Todo: Delete when no longer needed here
 	async getGenericAssetButton( item, cost = 0, additionalClassName = '', hideText = false ){
 
 		const compact = hideText === 'compact';
@@ -2227,6 +2224,7 @@ export default class UI{
 	}
 
 	// Draws inventory for active player
+	// Todo: StaticModal
 	async drawPlayerInventory(){
 		const player = game.getMyActivePlayer();
 		const th = this;
@@ -2585,66 +2583,6 @@ export default class UI{
 
 	}
 	
-	async drawSmithInspector( smith ){
-		
-		const myPlayer = game.getMyActivePlayer();
-		if( !myPlayer )
-			return;
-
-		let html = '<h1 class="center">Repair</h1>';
-		html += '<h3 class="center">Your Money:<br />';
-		const money = myPlayer.getMoney();
-		if( !money )
-			html += 'Broke';
-		else{
-			for( let i in Player.currencyWeights ){
-				let asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
-				if( !asset )
-					continue;
-				const amt = parseInt(asset._stacks);
-				if( amt ){
-					html += '<span style="color:'+Player.currencyColors[i]+';"><b>'+amt+'</b>'+Player.currencyWeights[i]+"</span> ";
-				}
-			}
-		}
-		html += '</h3>';
-		
-		const repairable = myPlayer.getRepairableAssets();
-
-		if( repairable.length ){
-			html += '<div class="assets repair shop inventory"></div>';
-		}else{
-			html += '<div class="assets repair shop inventory"><h3 class="center">No broken items.</h3></div>';
-		}
-
-		const template = document.createElement('template');
-		template.innerHTML = html;
-
-		for( let asset of repairable ){
-			const cost = asset.getRepairCost(smith);
-			template.content.querySelector('div.assets').append(await this.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : ''));
-		}
-
-		this.modal.set(template.content.childNodes);
-
-
-		this.bindTooltips();
-
-		$("#modal div.assets.repair div.item").on('click', event => {
-			const targ = $(event.currentTarget);
-			const id = targ.attr('data-id');
-			game.repairBySmith(smith, myPlayer, id);
-		});
-
-
-		this.modal.onPlayerChange(myPlayer.id, () => {
-			this.drawSmithInspector(smith);
-			this.draw();
-		});
-
-		return true;
-	}
-
 
 	/* MODAL EDITORS */
 

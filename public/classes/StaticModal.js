@@ -1324,7 +1324,6 @@ export default class StaticModal{
 			})
 			.setProperties(function(){
 
-				console.log(this);
 				const buyPage = this.getTabDom('Buy')[0],
 					sellPage = this.getTabDom('Sell')[0]
 				;
@@ -1542,6 +1541,7 @@ export default class StaticModal{
 
 				this.buyInventory.replaceChildren(...newDivs);
 				this.buyEmpty.classList.toggle('hidden', Boolean(availableAssets));
+				this.buyInventory.classList.toggle('hidden', !availableAssets);
 				
 
 
@@ -1593,10 +1593,105 @@ export default class StaticModal{
 				}
 				this.sellInventory.replaceChildren(...newDivs);
 				this.sellEmpty.classList.toggle('hidden', Boolean(availableAssets));
+				this.sellInventory.classList.toggle('hidden', !availableAssets);
 
 
 			});
-			
+		// Smith
+		this.add(new this("smith", "Smith"))
+			.addRefreshOn(["players"])
+			.addTab("Smith", () => {
+				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+							<br /><input type="button" name="exchange" value="Exchange" />
+						</div>
+					</div>
+					<div class="assets repair shop inventory container"></div>
+					<div class="assets repair shop inventory empty">
+						<h3>No broken items.</h3>
+					</div>
+				`;
+			})
+			.setProperties(function(){
+				
+				const smith = this.getTabDom('Smith')[0];
+				this.money = smith.querySelector('div.myMoney');
+				this.assets = smith.querySelector('div.repair.container');
+				this.empty = smith.querySelector('div.repair.empty');
+
+			})
+			.setDraw(async function( smith ){
+
+				const myPlayer = game.getMyActivePlayer();
+				if( !myPlayer )
+					throw 'You have no active player';
+				if( !smith )
+					throw 'Invalid smith';
+
+				// Update coins
+				const currencyDiv = this.money.querySelector('span.coins');
+				for( let i in Player.currencyWeights ){
+
+					const currency = Player.currencyWeights[i];
+
+					let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
+					if( !sub ){
+
+						sub = document.createElement('span');
+						sub.dataset.currency = currency;
+						sub.style = 'color:'+Player.currencyColors[i];
+						currencyDiv.append(sub);
+						currencyDiv.append(document.createTextNode(' '));
+
+					}
+
+					sub.classList.toggle('hidden', true);
+
+					const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
+					if( !asset )
+						continue;
+
+					const amt = parseInt(asset._stacks);
+					if( !amt )
+						continue;
+
+					sub.classList.toggle('hidden', false);
+					sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
+
+				}
+	
+
+				// Output repairable
+				const handleRepairableClick = event => {
+					
+					const id = event.currentTarget.dataset.id;
+					game.repairBySmith(smith, myPlayer, id);
+
+				};
+
+				const repairable = myPlayer.getRepairableAssets();
+				this.empty.classList.toggle("hidden", Boolean(repairable.length));
+				this.assets.classList.toggle("hidden", !repairable.length);
+
+				const money = myPlayer.getMoney();
+				const divs = [];				
+				for( let asset of repairable ){
+
+					const cost = asset.getRepairCost(smith);
+					const div = await StaticModal.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : '');
+					divs.push(div);
+					div.addEventListener('click', handleRepairableClick);
+					
+				}
+				this.assets.replaceChildren(...divs);
+
+			});
+		
+
+		
 
 	}
 
@@ -1687,6 +1782,7 @@ export default class StaticModal{
 		return div;
 
 	}
+
 
 
 }
