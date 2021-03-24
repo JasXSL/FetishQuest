@@ -10,6 +10,8 @@
 
 
 -- CURRENT --
+	- Convert more stuff from UI to staticmodal, because the current design is slow AF
+
 	- Procedural
 		- Add faction rewards when completing an exploration
 		- Add exp rewards when completing an exploration

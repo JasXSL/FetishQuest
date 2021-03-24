@@ -457,20 +457,38 @@ export default class Asset extends Generic{
 
 		if( !this._icon ){
 
-			const data = await fetch('media/wrapper_icons/'+this.icon+'.svg');
-			const template = document.createElement('template');
-			template.innerHTML = await data.text();
+			let data = Asset.imageCache[this.icon];
+			if( !data ){
+
+				data = await fetch('media/wrapper_icons/'+this.icon+'.svg');
+				data = await data.text();
+
+				const template = document.createElement('template');
+				template.innerHTML = data;
+
+				data = template.content.childNodes[0];	// Store raw SVG
+				data.style = '';
+				data.classList.add('assetIcon');
+
+				Asset.imageCache[this.icon] = data;	// Store it in cache
+
+			}
 			
-			this._icon = template.content.childNodes[0];
-			this._icon.style = '';
-			this._icon.classList.add('assetIcon');
+			this._icon = data.cloneNode(true);	// Clone a special one just for this asset
 			
 		}
 
-		for( let i =0; i< this._icon.children.length; ++i )
-			this._icon.children[i].setAttribute('fill', this.getColor());
+		// Only recolor on change
+		const color = this.getColor();
+		if( color !== this._icon._color ){
 		
-		return this._icon.cloneNode(true);
+			for( let i =0; i< this._icon.children.length; ++i )
+				this._icon.children[i].setAttribute('fill', color);
+
+		}
+		this._icon._color = color;
+
+		return this._icon.cloneNode(true);	// Clone is needed because a DOM element can only live in one place at a time
 
 	}
 
@@ -521,6 +539,8 @@ export default class Asset extends Generic{
 }
 
 Asset.protVal = 0.20;	// Max damage taken increase for not having this item equipped (lower/upperBody only)
+
+Asset.imageCache = {};	// icon : svg data
 
 // Automatically creates a stat wrapper
 // Level is the level of the item, numSlots is how many item slots it covers

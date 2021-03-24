@@ -498,6 +498,7 @@ div.fxBuffRed{
 	{
 		font-size:2vmax;
 		margin:0;
+		white-space: nowrap;
 	}
 	#customModals > div > div.header,
 	#customModals > div > div.header > div.close{
@@ -1233,38 +1234,51 @@ div.fxBuffRed{
 
 
 /* Shop */
-	#modal div.shop.inventory div.item{
-		width:auto;
-		display:block;
+	#shop{
+		min-width: 60vw;
 	}
-	#modal div.shop.inventory div.item div.cost{
+	#shop div.modalMain{
+		max-height:70vh;
+		overflow: auto;
+	}
+	#shop div.inventory div.item{
+		height: 4.25vmax;
+	}
+	
+	#shop div.inventory div.item div.cost{
 		position: absolute;
 		right:0.5vmax;
 		top:50%;
 		transform:translateY(-50%);
+		overflow:hidden;
 	}
-	#modal div.shop.inventory div.item div.token{
+	#shop div.inventory div.item div.token{
 		display:inline-block;
 	}
 	div.inventory div.item.compact svg,
-	#modal div.shop.inventory div.item div.token > svg{
+	#shop div.inventory div.item div.token > svg{
 		position: relative;
 		display:inline-block;
 		left:auto;
 		top:auto;
 	}
 	div.inventory div.item.compact div.quant,
-	#modal div.shop.inventory div.item div.token > div{
+	#shop div.inventory div.item div.token > div{
 		position: absolute;
 		bottom:-0.25vmax;
 		right:-.25vmax;
 		background:rgba(0,0,0,.75);
 		padding:0.25vmax;
 	}
+	#shop div.myMoney{
+		text-align: center;
+		font-size:1.5vmax;
+	}
+	
 /**/
 
 /* REPAIR shop */
-	#modal div.shop.repair{
+	#shop div.repair{
 		width:auto;
 		display:block;
 		margin:0 20%;

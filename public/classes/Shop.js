@@ -87,6 +87,20 @@ export default class Shop extends Generic{
 		}));
 	}
 
+	// Returns an array of unique tokens used in this store
+	getTokenAssets(){
+
+		const out = new Map();
+		for( let item of this.items ){
+
+			for( let token of item.tokens )
+				out.set(token.asset, true);
+
+		}
+		return Array.from(out.keys());
+
+	}
+
 }
 
 export class ShopSaveState extends Generic{

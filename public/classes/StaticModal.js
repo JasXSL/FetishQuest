@@ -4,11 +4,12 @@ import Asset from './Asset.js';
 import Action from './Action.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import { QuestReward } from './Quest.js';
+import Shop from './Shop.js';
 
 export default class StaticModal{
 
 	// StaticModal works off of tabs. Even if your modal doesn't use tab, one "tab" is created, but is just not shown.
-	constructor(id, title){
+	constructor(id, title ){
 
 		this.id = id;
 		this.dom = 
@@ -138,6 +139,9 @@ export default class StaticModal{
 
 	}
 
+	setTitle( text ){
+		this.headerContainer[0].querySelector('h1').innerText = text;
+	}
 
 
 
@@ -192,9 +196,6 @@ export default class StaticModal{
 
 		const out = await this.active.refresh();
 		game.ui.bindTooltips();
-
-
-
 		return out;
 
 	}
@@ -1290,6 +1291,400 @@ export default class StaticModal{
 
 
 			});
+
+		// Shop
+		this.add(new this("shop", "Shop"))
+			.addRefreshOn(["players"])
+			.addTab("Buy", () => {
+				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+							<br /><input type="button" name="exchange" value="Exchange" />
+						</div>
+						<div class="altCurrency center inventory"></div>
+					</div>
+					<div class="shop inventory"></div>
+					<div class="shop empty hidden">Sold out!</div>
+				`;
+			})
+			.addTab("Sell", () => {
+				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+							<br /><input type="button" name="exchange" value="Exchange" />
+						</div>
+					</div>
+					<div class="shop inventory"></div>
+					<div class="shop empty hidden">No sellable items!</div>
+				`;
+			})
+			.setProperties(function(){
+
+				console.log(this);
+				const buyPage = this.getTabDom('Buy')[0],
+					sellPage = this.getTabDom('Sell')[0]
+				;
+
+				this.headers = [
+					buyPage.querySelector('div.myMoney'),
+					sellPage.querySelector('div.myMoney')
+				];
+				
+				this.buyInventory = buyPage.querySelector('div.shop.inventory');
+				this.sellInventory = sellPage.querySelector('div.shop.inventory');
+
+				this.buyEmpty = buyPage.querySelector('div.shop.empty');
+				this.sellEmpty = sellPage.querySelector('div.shop.empty');
+
+
+			})
+			.setDraw(async function( shop ){
+
+				const 
+					myPlayer = game.getMyActivePlayer()
+				;
+
+
+
+				if( !(shop instanceof Shop) || !myPlayer )
+					throw 'Invalid shop or player';
+
+				shop.loadState(game.state_shops[shop.label]);
+
+				if( !game.shopAvailableTo(shop, myPlayer) )
+					return;
+
+				// Titles
+				this.setTitle(shop.name);
+				
+
+
+
+				// My money
+				const updateWallet = async baseElement => {
+
+					// Exchange button
+					const exchangeButton = baseElement.querySelector('input[name=exchange]');
+					exchangeButton.classList.toggle('hidden', !myPlayer.canExchange());
+					if( !exchangeButton._bound ){
+
+						exchangeButton.addEventListener('click', event => {
+							game.exchangePlayerMoney(myPlayer);
+						});
+						exchangeButton._bound = true;
+
+					}
+
+
+					// Update coins
+					const currencyDiv = baseElement.querySelector('span.coins');
+					for( let i in Player.currencyWeights ){
+
+						const currency = Player.currencyWeights[i];
+
+						let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
+						if( !sub ){
+
+							sub = document.createElement('span');
+							sub.dataset.currency = currency;
+							sub.style = 'color:'+Player.currencyColors[i];
+							currencyDiv.append(sub);
+							currencyDiv.append(document.createTextNode(' '));
+
+						}
+
+						sub.classList.toggle('hidden', true);
+
+						const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
+						if( !asset )
+							continue;
+
+						const amt = parseInt(asset._stacks);
+						if( !amt )
+							continue;
+
+						sub.classList.toggle('hidden', false);
+						sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
+
+					}
+
+
+					// Update tokens (alt currency)
+					const tokenBase = baseElement.querySelector('div.altCurrency'),
+						tokenElements = baseElement.querySelectorAll('div.altCurrency > div')
+					;
+
+					// only buy shows tokens
+					if( tokenBase ){
+
+						tokenElements.forEach(el => el.classList.toggle('hidden', true));
+
+						const tokens = shop.getTokenAssets();
+						for( let i = 0; i < tokens.length; ++i ){
+
+							const token = tokens[i];
+							let div = tokenElements[i];
+							if( !div || div.dataset.id !== token.id ){
+
+								const created = await StaticModal.getGenericAssetButton(token, myPlayer.numAssets(token.label), '', 'compact');
+								// Already exists, replace
+								if( div )
+									div.parentNode.replaceChild(div, created);
+								// Doesn't exist, add
+								else
+									tokenBase.append(created);
+
+								div = created;
+
+							}
+							
+							div.classList.toggle('hidden', false);
+
+						}
+
+					}
+
+				};
+				for( let footer of this.headers )
+					await updateWallet(footer);
+
+
+
+
+				// Assets for sale
+				const handleSellAssetClick = event => {
+
+					const th = $(event.currentTarget),
+						id = th.attr('data-id');
+						
+					const item = shop.getItemById(id);
+					if( !item )
+						return;
+					
+					const asset = item.getAsset();
+					if( !asset )
+						return;
+
+					const cost = item.getCost();
+					const gold = myPlayer.getMoney();
+					if( cost > gold )
+						return;
+
+					let maxQuant = Math.floor(gold/cost);
+					if( maxQuant > item.getRemaining() )
+						maxQuant = item.getRemaining();
+
+					game.ui.modal.makeSelectionBoxForm(
+						'Amount to BUY: <input type="number" style="width:4vmax" min=1 '+(maxQuant > 0 ? 'max='+(maxQuant) : 'max=100')+' step=1 value=1 /><input type="submit" value="Ok" />',
+						function(){
+							const amount = Math.floor($("input:first", this).val());
+							if( !amount )
+								return;
+							game.buyAsset(shop.label, item.id, amount, myPlayer.id);
+						},
+						false
+					);
+
+				};
+				let newDivs = [];
+				let availableAssets = 0;
+				for( let item of shop.items ){
+
+					const cost = item.getCost();
+					const asset = item.getAsset();
+					if( !asset )
+						continue;
+
+					const remaining = item.getRemaining();
+					if( remaining === 0 )
+						continue;
+					
+					asset.name = (remaining !== -1 ? '['+remaining+']' : '&infin;')+" "+asset.name;
+					asset.id = item.id;
+
+					const affordable = item.affordableByPlayer(myPlayer);
+
+					++availableAssets;
+
+					const button = await StaticModal.getGenericAssetButton(
+						asset, 
+						cost, 
+						!affordable ? 'disabled' : '',
+						false
+					);
+					button.addEventListener('click', handleSellAssetClick);
+					newDivs.push(button);
+
+					// Alt currency
+					const costDiv = button.querySelector('div.cost');
+					for( let token of item.tokens ){
+
+						const div = document.createElement('div');
+						div.classList.add('token');
+
+						const svg = await token.asset.getImgElement();
+						div.append(svg);
+
+						const quant = document.createElement('div');
+						div.append(quant);
+						quant.innerText = 'x'+token.amount;
+						
+						costDiv.append(div);
+
+					}
+					
+				}
+				
+
+				this.buyInventory.replaceChildren(...newDivs);
+				this.buyEmpty.classList.toggle('hidden', Boolean(availableAssets));
+				
+
+
+
+
+				// Assets the vendor is buying
+				const handleBuyAssetClick = event => {
+
+					const th = event.currentTarget,
+						id = th.dataset.id,
+						asset = myPlayer.getAssetById(id)
+					;
+
+					if( !asset )
+						return;
+
+					const maxQuant = asset.stacking ? asset._stacks : 1;
+					game.ui.modal.makeSelectionBoxForm(
+						'Amount to SELL: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
+						function(){
+
+							const amount = Math.floor($("input:first", this).val());
+							if( !amount )
+								return;
+							game.sellAsset(shop.label, asset.id, amount, myPlayer.id);
+
+						},
+						false
+					);
+
+				};
+				newDivs = [];
+				availableAssets = 0;
+				for( let asset of myPlayer.assets ){
+
+					if( !asset.isSellable() )
+						continue;
+
+						
+					const a = asset.clone();
+					a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
+
+					const div = await StaticModal.getGenericAssetButton(a, a.getSellCost(shop));
+					newDivs.push(div);
+					div.addEventListener('click', handleBuyAssetClick);
+
+					++availableAssets;
+
+				}
+				this.sellInventory.replaceChildren(...newDivs);
+				this.sellEmpty.classList.toggle('hidden', Boolean(availableAssets));
+
+
+			});
+			
+
+	}
+
+
+	// Tools:
+	static async getGenericAssetButton( item, cost = 0, additionalClassName = '', hideText = false ){
+
+		const compact = hideText === 'compact';
+		if( compact )
+			additionalClassName += ('compact '+additionalClassName).trim();
+		
+		if( additionalClassName )
+			additionalClassName = additionalClassName.split(' ');
+
+		const div = document.createElement('div');
+		div.classList.add(
+			'item',  
+			Asset.RarityNames[item.rarity], 
+			'tooltipParent'
+		);
+
+		if( additionalClassName && additionalClassName.length )
+			div.classList.add(...additionalClassName);
+		if( item.equippable() )
+			div.classList.add('equippable');
+		if( item.equipped )
+			div.classList.add('equipped');
+		if( item.durability <= 0 )
+			div.classList.add('broken');
+
+		div.dataset.id = item.id;
+
+		let sub = await item.getImgElement();
+		div.append(sub);
+
+		if( !hideText ){
+
+			sub = document.createElement('span');
+			sub.innerHTML = 
+				(item.equipped ? '<strong>' : '')+
+				(item.stacking && item._stacks > 1 ? item._stacks+'x ' : '')+
+				esc(item.name)+
+				(item.equipped ? ' ['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '')
+			;
+			div.append(sub);
+
+		}
+
+		if( !compact ){
+
+			sub = document.createElement('div');
+			sub.classList.toggle('cost', true);
+
+			const coins = Player.calculateMoneyExhange(cost);
+
+			for( let i in coins ){
+
+				const amt = coins[i];
+				if( amt ){
+
+					sub.innerHTML += 
+						'<span style="color:'+Player.currencyColors[i]+';">'+
+							amt+
+							Player.currencyWeights[i].substr(0,1)+
+						"</span> "
+					;
+
+				}
+
+			}
+			div.prepend(sub);
+
+		}
+		else{
+
+			sub = document.createElement('div');
+			sub.classList.toggle('quant', true);
+			sub.innerHTML = cost;
+			div.append(sub);
+
+		}
+
+		sub = document.createElement('div');
+		sub.classList.toggle('tooltip');
+		sub.innerHTML = item.getTooltipText();
+		div.append(sub);
+
+		return div;
 
 	}
 
