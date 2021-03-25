@@ -27,7 +27,6 @@ export default class UI{
 		this.parent = parent;
 
 		this.modal = new Modal(this);					// Variable modal. It's slower and should really only be used for dm tools and yes/no.
-		this.staticModal = StaticModal;		// Static modal. These are created in index.html, and are shown/hidden instead of generated.
 		this.initialized = false;
 
 		this.board = $("#ui");
@@ -61,6 +60,7 @@ export default class UI{
 		this.fct = $("#fct");
 		this.fctQue = [];
 		this.fctTimer = false;
+		this.renderer = $("#renderer");
 
 		this.dungeonProgress = $("#dungeonProgress");
 
@@ -142,12 +142,12 @@ export default class UI{
 				if( this.modal.open === true && $("#modal > div.wrapper > div.content > div.modalQuests").length )
 					this.modal.close();
 				else{
-					this.staticModal.set('quests');
+					StaticModal.set('quests');
 					game.uiAudio( 'toggle_quests' );
 				}
 			}
 			else if( event.key === 'Escape' ){
-				if( this.modal.open || this.staticModal.active ){
+				if( this.modal.open || StaticModal.active ){
 					
 					game.uiClick();
 					if( this.modal.open ){
@@ -155,7 +155,7 @@ export default class UI{
 						return;
 					}
 
-					this.staticModal.close();
+					StaticModal.close();
 					
 				}
 			}
@@ -211,10 +211,13 @@ export default class UI{
 
 		this.board.toggleClass("dev", this.showDMTools());
 		this.board.toggleClass("bubbles", this.showBubbles());
+
 	}
  
 	// Takes the 3d canvases
 	ini( map, fx ){
+
+		this.toggle(true);
 
 		if( this.initialized )
 			return;		
@@ -228,16 +231,39 @@ export default class UI{
 		this.endTurnButton = $('> div[data-id="end-turn"]',this.actionbar_actions);
 		this.spectatingText = $('> span', this.actionbar_actions);
 
-		this.staticModal.ini();
-		
 		this.map = map;
 		this.fx = fx;
-		$("#renderer").html(map);
+		this.renderer.html(map);
 		$("#fx").html(fx);
-		this.toggle(this.visible);
+		this.toggleAll(this.visible);
 
 		this.initialized = true;
 		this.draw();
+
+		
+
+
+	}
+
+	toggleAll( visible ){
+
+		const hidden = !visible;
+		this.board.toggleClass('hidden', hidden);
+		this.gameIcons.toggleClass('hidden', hidden);
+		this.fct.toggleClass('hidden', hidden);
+		this.renderer.toggleClass('hidden', hidden);
+
+		if( hidden ){
+
+			this.blackScreen.toggleClass('hidden', hidden);
+			this.multiCastPicker.toggleClass('hidden', hidden);
+			this.roleplay.toggleClass('hidden', hidden);
+			this.loadingScreen.toggleClass('hidden', hidden);
+			this.yourTurnBorder.toggleClass('hidden', hidden);
+			this.mapChat.toggleClass('hidden', hidden);
+			this.dungeonProgress.toggleClass('hidden', hidden);
+
+		}
 
 	}
 
@@ -250,8 +276,11 @@ export default class UI{
 	}
 
 	destructor(){
+
 		this.clear();
 		this.modal.destructor();
+		this.toggleAll(false);
+
 	}
 
 
@@ -893,25 +922,25 @@ export default class UI{
 		else if( type === 'shop' ){
 
 			const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
-			this.staticModal.set('shop', shops[0]);
+			StaticModal.set('shop', shops[0]);
 			game.uiAudio( "shop_entered" );
 
 		}
 		else if( type === 'repair' ){
 
-			this.staticModal.set('smith', p);
+			StaticModal.set('smith', p);
 			game.uiAudio( "smith_entered" );
 			
 		}
 		else if( type === 'gym' ){
-			this.staticModal.set('gym', p);
+			StaticModal.set('gym', p);
 			game.uiAudio( "gym_entered" );
 		}
 		else if( type === 'rent' ){
 			game.roomRentalUsed(p, myActive);
 		}
 		else if( type === 'inspect' )
-			this.staticModal.set("player", p);
+			StaticModal.set("player", p);
 		else if( type === 'talk' ){
 
 			const rp = game.getRoleplaysForPlayer(p).shift();
@@ -1325,12 +1354,12 @@ export default class UI{
 				this.toggle();
 			}
 			else if( id === 'quest' ){
-				this.staticModal.set('quests');
+				StaticModal.set('quests');
 				game.uiAudio( 'toggle_quests' );
 			}
 			else if( id === "mainMenu" ){
 				game.uiAudio( 'menu_generic' );
-				this.staticModal.set('mainMenu');
+				StaticModal.set('mainMenu');
 			}
 			else if( id === 'inventory' ){
 				game.uiAudio( 'backpack' );
@@ -1338,7 +1367,7 @@ export default class UI{
 			}
 			else if( id === 'settings' ){
 				game.uiAudio( 'menu_generic' );
-				this.staticModal.set('settings');
+				StaticModal.set('settings');
 			}
 		});
 
@@ -1721,166 +1750,6 @@ export default class UI{
 
 
 	/* MODAL INSPECTS */
-	// Todo: StaticModal
-	drawNewGame(){
-
-		// /media/characters/otter.jpg
-		const gallery = [
-			{name : 'Otter', size:5, 'icon':'/media/characters/otter_dressed.jpg', description: 'Art by GothWolf', icon_lowerBody:'/media/characters/otter_lb.jpg', icon_upperBody:'/media/characters/otter_ub.jpg', icon_nude:'/media/characters/otter_nude.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.plTongue, stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
-			{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', description:'Art by Maddworld', class:'monk', tags:[stdTag.plTongue, stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
-		];
-
-
-		let html = '<div class="newGame">'+
-			'<h1>New Game</h1>'+
-			'<form id="newGameForm">'+
-				'<input type="text" class="gameName" value="Unnamed Adventure" /><br />'+
-				'<div class="flexTwoColumns">'+
-					'<div class="left">'+
-						'<h3>Character</h3>'+
-						'<div style="text-align:center"><div class="portrait"></div></div>'+
-						'<input type="text" name="name" placeholder="Character Name" required /><br />'+
-						'<input type="text" name="species" placeholder="Species" required /><br />'+
-						'Size: <input type="range" name="size" min=0 max=10 /><br />'+
-						'Class: <select name="class">';
-						const classes = glib.getFull('PlayerClass');
-						for( let c in classes ){
-							
-							if( !classes[c].monster_only )
-								html += '<option value="'+esc(c)+'">'+esc(classes[c].name)+'</option>';
-								
-						}
-						html += '</select><br />';
-						html += 'Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />';
-						html += '<div class="tags"></div>';
-						html += '<textarea name="description"></textarea>';
-						
-						html += 'Dressed: <input type="text" name="icon" placeholder="Dressed Art" /><br />'+
-						'Nude: <input type="text" name="icon_nude" placeholder="Nude Art" /><br />'+
-						'UpperBody: <input type="text" name="icon_upperBody" placeholder="UpperBody Art" /><br />'+
-						'LowerBody: <input type="text" name="icon_lowerBody" placeholder="LowerBody Art" /><br />'
-						;
-
-
-					html += '</div>'+
-					'<div class="right"><h3>Gallery</h3>';
-					for( let item of gallery )
-						html += '<div class="galleryEntry button" data-data="'+esc(JSON.stringify(item))+'" style="background-image:url('+esc(item.icon)+')"></div>';
-					html += '</div>'+
-				'</div>'+
-				'<hr />'+
-				'<input type="submit" value="Start Game">'+
-			'</form>'
-		;
-		html += '<div id="datalist" class="hidden">';
-			html += '<datalist id="tags"><select>';
-			for( let tag in stdTag ){
-				const spl = stdTag[tag].split('_');
-				if( spl[0] === 'pl' ){
-					spl.shift();
-					html += '<option value="'+esc(spl.join('_'))+'" />';
-				}
-			}
-			html += '</select></datalist>';
-		html += '</div>';
-
-		html += '</div>';
-		this.modal.set(html);
-
-		const reloadIcon = () => {
-			$("#newGameForm div.portrait").css('background-image', 'url('+esc($("#newGameForm input[name=icon]").val().trim())+')');
-		};
-
-		const addTag = tag => {
-			tag = tag.split('_');
-			tag.shift();
-			tag = tag.join('_');
-			$("#newGameForm div.tags").append('<input type="text" value="'+esc(tag)+'" name="tag" class="tag" list="tags" />');
-			$("#newGameForm input.tag").off('click').on('click', function(event){
-				if( event.ctrlKey )
-					$(this).remove();
-			});
-		};
-
-		$("#newGameForm div.galleryEntry").on('click', event => {
-			const el = $(event.currentTarget);
-			const data = JSON.parse(el.attr('data-data'));
-			$("#newGameForm input[name=name]").val(data.name);
-			$("#newGameForm input[name=icon]").val(data.icon);
-			$("#newGameForm input[name=icon_nude]").val(data.icon_nude);
-			$("#newGameForm input[name=icon_upperBody]").val(data.icon_upperBody);
-			$("#newGameForm input[name=icon_lowerBody]").val(data.icon_lowerBody);
-			$("#newGameForm textarea[name=description]").val(data.description);
-			$("#newGameForm select[name=class]").val(data.class);
-			$("#newGameForm input[name=species]").val(data.species);
-			$("#newGameForm input[name=size]").val(data.size || 0);
-			$("#newGameForm div.tags").html('');
-			for( let tag of data.tags )
-				addTag(tag);
-			reloadIcon();
-		});
-
-		$("#newGameForm input[name=icon]").on('change', reloadIcon);
-		$("#newGameForm input.addTag").on('change', reloadIcon);
-
-		$("#newGameForm div.galleryEntry:first").click();
-
-
-		$('#newGameForm').on('submit', event => {
-
-			event.preventDefault();
-
-			game.net.disconnect();
-			const name = $("#newGameForm input.gameName").val().trim();
-			const base = $("#newGameForm");
-			const c = glib.get($("select[name=class]", base).val().trim(), 'PlayerClass');
-			if( !c )
-				return this.modal.addError("Class not found");
-			const player = new Player({
-				auto_learn : false,
-				name : $("input[name=name]", base).val().trim() || 'Player',
-				species : $("input[name=species]", base).val().trim().toLowerCase() || 'human',
-				icon : $("input[name=icon]", base).val().trim(),
-				icon_nude : $("input[name=icon_nude]", base).val().trim(),
-				icon_upperBody : $("input[name=icon_upperBody]", base).val().trim(),
-				icon_lowerBody : $("input[name=icon_lowerBody]", base).val().trim(),
-				description : $("textarea[name=description]", base).val().trim(),
-				size : +$("input[name=size]", base).val().trim() || 0,
-				class : c.save(true),
-				netgame_owner_name : 'DM',
-				netgame_owner : 'DM'
-			});
-
-			
-			const tags = [];
-			$("div.tags input.tag", base).each((idx, el) => {
-				const val = $(el).val().trim();
-				if( val )
-					tags.push('pl_'+val);
-			});
-			player.setTags(tags).addActionsForClass();
-			
-
-			if( !name ){
-				this.modal.addError("Name is empty");
-				return false;
-			}
-
-			Game.new(name, [player]);
-			this.modal.close();
-			return false;
-
-		});
-
-		$("#newGameForm input.addTag").on('click', () => addTag(''));
-
-		this.bindTooltips();
-
-	}
-
-
-	
-
 	// Player inspect
 	// uuid can also be a player object
 	drawAssetTradeTarget( asset, amount ){
@@ -2541,7 +2410,7 @@ export default class UI{
 
 		$("input.back").on('click', () => {
 			if( a.parent )
-				this.staticModal.set('player', player);
+				StaticModal.set('player', player);
 			else
 				this.drawPlayerAssetSelector(player);
 		});

@@ -5,6 +5,7 @@ import HitFX from './HitFX.js';
 import Comparer from './Comparer.js';
 import ActionLearnable from './ActionLearnable.js';
 import Player from './Player.js';
+import StaticModal from './StaticModal.js';
 
 class NetworkManager{
 
@@ -186,9 +187,10 @@ class NetworkManager{
 		this.io.disconnect();
 		this.io = null;
 
-		if( !game.is_host )
+		if( !game.is_host ){
 			await Game.load();
-		game.ui.drawMainMenu();
+			StaticModal.set('mainMenu');
+		}
 		game.ui.draw();
 		game.onTurnTimerChanged();
 

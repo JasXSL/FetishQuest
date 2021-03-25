@@ -22,6 +22,7 @@ import VibHub from './VibHub.js';
 import Faction from './Faction.js';
 import Encounter from './Encounter.js';
 import Mod from './Mod.js';
+import StaticModal from './StaticModal.js';
 
 export default class Game extends Generic{
 
@@ -298,6 +299,7 @@ export default class Game extends Generic{
 		this.initialized = true;
 		this.initialize();
 
+		console.log("Init ui");
 		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement);
 		
 		
@@ -512,7 +514,7 @@ export default class Game extends Generic{
 	// Raised after each save, both on host and client
 	onGameUpdate(data){
 		this.ui.modal.onGameUpdate(data);
-		this.ui.staticModal.onGameUpdate(data);
+		StaticModal.onGameUpdate(data);
 	}
 
 	onDungeonExit(){
@@ -2900,11 +2902,12 @@ Game.MAX_SLEEP_DURATION = 24;			// Hours
 
 Game.load = async () => {
 	
+	StaticModal.ini();
+
 	if( game instanceof Game )
 		game.destructor();
 
 	game = new Game();
-
 	let hash = window.location.hash;
 	if( hash.charAt(0) === '#' )
 		hash = hash.substr(1);
@@ -2942,7 +2945,21 @@ Game.load = async () => {
 		}
 	}
 
-	game.ui.drawMainMenu();
+	StaticModal.set('mainMenu');
+
+};
+
+// Get save files names
+Game.getNames = async () => {
+
+	let names = {};	// id:name
+	await Game.db.games.each(g => {
+		let name = g.name;
+		if(!name)
+			name = "Unnamed";
+		names[g.id] = name;
+	});
+	return names;
 
 };
 

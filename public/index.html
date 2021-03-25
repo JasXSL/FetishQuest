@@ -71,6 +71,7 @@
 
 			console.log("Waiting for window load");
 			window.addEventListener('load', function() {
+				
 				console.log("Loading serviceworker");
 				navigator.serviceWorker.register('/serviceworker.js').then(function(registration) {
 					// Registration was successful
@@ -79,6 +80,7 @@
 					// registration failed :(
 					console.log('ServiceWorker registration failed: ', err);
 				});
+
 			});
 
 		}
@@ -96,15 +98,15 @@
 	<div id="bg"></div>
 
 	<div id="content">
-		<div id="renderer"></div>
+		<div id="renderer" class="hidden"></div>
 		<div id="loading_screen" class="hidden">
 			<div class="loadingBar">
 				<div class="slider"></div>
 			</div>
 			<p>LOADING <span class="loadState">(?/?)</span></p>
 		</div>
-		<div id="mapChat"></div>
-		<div id="ui">
+		<div id="mapChat" class="hidden"></div>
+		<div id="ui" class="hidden">
 			<div class="middle">
 				<div class="content"></div>
 				<div class="chat" contenteditable></div>
@@ -133,11 +135,11 @@
 		<div id="dungeonProgress" class="bgMarble hidden"></div>
 		<div id="fx"></div>
 		
-		<div id="gameIcons"></div>
+		<div id="gameIcons" class="hidden"></div>
 	</div>
 
 	<!-- Floating combat text -->
-	<div id="fct"></div>
+	<div id="fct" class="hidden"></div>
 	
 	<div id="roleplay" class="hidden">
 		<div class="left">
@@ -177,7 +179,7 @@
 
 	<div id="tooltip" class="hidden"></div>
 	
-	<div id="blackScreen"></div>
+	<div id="blackScreen" class="hidden"></div>
 
 </body>
 </html>

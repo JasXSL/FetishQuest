@@ -46,6 +46,12 @@ input[type=color], div.window input[type=color]{
 }
 
 
+div.cmTabContent{
+	max-height:80vh;
+	overflow-y:auto;
+	overflow-x: hidden;
+}
+
 #gameIcons > div > div.rollout.visible,
 div.gameListing,
 div.actionbar > div.actions > div.action,
@@ -1122,6 +1128,7 @@ div.fxBuffRed{
 		height:100%;
 		min-height:20vh;
 		min-width:75vw;
+		overflow:auto;
 	}
 	#quests div.modalMain h1{
 		margin:0 0 1vmax 0;
@@ -1179,27 +1186,41 @@ div.fxBuffRed{
 		font-style: italic;
 		color:#AAA;
 	}
+	
+
+/**/
 
 
-	#modal div.newGame{
-		padding:0 10vw;
-		text-align: center;
+/* New game menu */
+
+	#newGame{
+		min-width: 70vw;
 	}
 
-	#modal div.newGame input.gameName{
+	#newGame div.newGame{
+		padding-top:5vh;
+		text-align: center;
+		font-size: 1.5vmax;
+	}
+
+	#newGame input.small{
+		font-size:1vmax;
+	}
+
+	#newGame input.gameName{
 		width:auto;
 		display: inline-block;
-		font-size:2vmax;
+		font-size:3vmax;
 		text-align: center;
 	}
 
-	#modal div.newGame div.galleryEntry{
+	#newGame div.galleryEntry{
 		width:10vmax; height:10vmax;
 		background-size: cover;
 		display:inline-block;
 		margin:0.5vmax;
 	}
-	#modal div.newGame div.portrait{
+	#newGame div.portrait{
 		border: 0.2vmax solid #FFF;
 		border-radius:0.5vmax;
 		width:20vmax;
@@ -1209,16 +1230,28 @@ div.fxBuffRed{
 		background-size:cover;
 		background-position: center;
 	}
-	
-	#modal div.newGame div.tags input{
+
+	#newGame div.tags input{
 		width:auto;
 		display:inline-block;
 		width:6em;
 	}
 
-
-	
-	
+	#newGame label{
+		display:inline-block;
+		margin: 0.5vmax;
+		padding: 0.5vmax 1vmax;
+		background:rgba(0,0,0,.8);
+		border-radius: 3px;
+		border: 1px solid #666;
+		cursor:pointer;
+	}
+	#newGame label.selected{
+		border-color: #FFF;
+	}
+	#newGame label:hover{
+		background:rgba(80, 80, 80, .8);
+	}
 
 /**/
 

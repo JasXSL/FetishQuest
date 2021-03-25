@@ -126,8 +126,8 @@ export default class StaticModal{
 		return this;
 	}
 	
-	close(){
-		this.constructor.set();
+	close( force ){
+		this.constructor.close( force );
 	}
 
 	async refresh(){
@@ -194,11 +194,17 @@ export default class StaticModal{
 
 	}
 
-	static close(){
+	static close( force ){
+
+		if( !game.initialized && !force )
+			return;
+
 		this.active = null;
 		// Close everything
-		this.main.toggleClass("hidden", true);
+		if( this.main )
+			this.main.toggleClass("hidden", true);
 		Object.values(this.lib).map(modal => modal.dom.toggleClass("hidden", true));
+
 	}
 
 	static async refreshActive(){
@@ -1909,8 +1915,6 @@ export default class StaticModal{
 			.setDraw(async function(){
 
 				
-
-
 				// Show game saves
 				const handleGameClick = event => {
 					
@@ -1918,10 +1922,17 @@ export default class StaticModal{
 
 					if( event.ctrlKey ){
 
-						if( confirm('Really delete this game?') )
+						if( confirm('Really delete this game?') ){
+
+							const isActiveGame = id === game.id;
 							Game.delete(id).then(() => {
-								th.drawMainMenu();
+								this.refresh();
+								if( isActiveGame ){
+									game.ui.destructor();
+								}
 							});
+
+						}
 
 						return false;
 
@@ -1935,7 +1946,7 @@ export default class StaticModal{
 				};
 
 				const divs = [];
-				let names = await Mod.getNames(true);	// refreshes mod name cache
+				let names = await Game.getNames(true);	// refreshes mod name cache
 				for( let id in names ){
 
 					let name = names[id];
@@ -2111,36 +2122,295 @@ export default class StaticModal{
 
 			});
 		
-			/*
-		// Todo: New game
+			
 		this.add(new this("newGame", "New Game"))
-			.addRefreshOn(["players"])
-			.addTab("Main Menu", () => {
+			.addTab("New Game", () => {
 				return `
-					<div class="myMoney">
-						<div>
-							<span class="title">My Money:</span>
-							<span class="coins"></span>
-							<br /><input type="button" name="exchange" value="Exchange" />
+					<div class="newGame"><form class="newGameForm">
+
+						<input type="text" class="gameName" value="Unnamed Adventure" /><br />
+						<div class="flexTwoColumns">
+							<div class="left">
+								<input type="text" class="autoSave" name="name" placeholder="Character Name" required /><br />
+								<input type="text" class="autoSave" name="species" placeholder="Species" required /><br />
+								Class: <div class="class"><!-- Class listing goes here --></div>
+								Size: <input type="range" class="autoSave" name="size" min=0 max=10 /><br />
+								Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />
+								<div class="tags"></div>
+								<textarea name="description" class="autoSave"></textarea>
+								Dressed: <input type="text" class="small reloadIcon autoSave" name="icon" placeholder="Dressed Art" /><br />
+								Nude: <input type="text" class="small reloadIcon autoSave" name="icon_nude" placeholder="Nude Art" /><br />
+								UpperBody: <input type="text" class="small reloadIcon autoSave" name="icon_upperBody" placeholder="UpperBody Art" /><br />
+								LowerBody: <input type="text" class="small reloadIcon autoSave" name="icon_lowerBody" placeholder="LowerBody Art" /><br />
+							</div>
+							<div class="right">
+								<div style="text-align:center">
+									<div class="portrait"></div>
+								</div>
+								<h3>Templates</h3>
+								<div class="gallery"><!-- Gallery entries here --></div>
+							</div>
 						</div>
-					</div>
-					<div class="assets repair shop inventory container"></div>
-					<div class="assets repair shop inventory empty">
-						<h3>No broken items.</h3>
+
+						<hr />
+
+						<input type="submit" value="Start Game" />
+
+					</form></div>
+					<div class="hidden datalists">
+						<datalist id="newGameTags"><select><!-- Tag options here --></select></datalist>
 					</div>
 				`;
 			})
 			.setProperties(function(){
 				
-				const smith = this.getTabDom('Smith')[0];
-				this.money = smith.querySelector('div.myMoney');
-				this.assets = smith.querySelector('div.repair.container');
-				this.empty = smith.querySelector('div.repair.empty');
+				const dom = this.getTabDom('New Game')[0];
+
+				this.cData = {
+					form : dom.querySelector('form.newGameForm'),
+					portrait : dom.querySelector('div.portrait'),
+					name : dom.querySelector('input[name=name]'),
+					species : dom.querySelector('input[name=species]'),
+					size : dom.querySelector('input[name=size]'),
+					class : dom.querySelector('div.class'),
+					addTagButton : dom.querySelector('input.addTag'),
+					tags : dom.querySelector('div.tags'),
+					description : dom.querySelector('textarea[name=description]'),
+					dressed : dom.querySelector('input[name=icon]'),
+					nude : dom.querySelector('input[name=icon_nude]'),
+					upperBody : dom.querySelector('input[name=icon_upperBody]'),
+					lowerBody : dom.querySelector('input[name=icon_lowerBody]'),
+				};
+				this.gallery = dom.querySelector('div.gallery');
+				this.tagList = document.getElementById('newGameTags');
+
+				// Set up static things that should be set by the game
+				const classes = glib.getFull('PlayerClass');
+				for( let c in classes ){
+					
+					const obj = classes[c];
+					if( !obj.monster_only ){
+
+						const label = document.createElement('label');
+						this.cData.class.append(label);
+						label.innerText = obj.name+" ";
+						
+						const radio = document.createElement('input');
+						radio.type = 'radio';
+						radio.name = 'playerClass';
+						radio.classList.add('playerClass', 'hidden', 'autoSave');
+						radio.value = c;
+						label.append(radio);
+
+
+					}
+					
+				}
+				this.cData.classLabels = this.cData.class.querySelectorAll('label');
+				this.cData.classInputs = this.cData.class.querySelectorAll('input');
+
+
+				// Template characters
+				const gallery = [
+					{name : 'Otter', size:5, 'icon':'/media/characters/otter_dressed.jpg', description: 'Art by GothWolf', icon_lowerBody:'/media/characters/otter_lb.jpg', icon_upperBody:'/media/characters/otter_ub.jpg', icon_nude:'/media/characters/otter_nude.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.plTongue, stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+					{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', description:'Art by Maddworld', class:'monk', tags:[stdTag.plTongue, stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
+				];
+				for( let item of gallery ){
+
+					const div = document.createElement('div');
+					div.classList.add('galleryEntry', 'button');
+					div.dataset.data = JSON.stringify(item);
+					div.style = 'background-image:url('+esc(item.icon)+')';
+					this.gallery.append(div);
+
+				}
+
+				for( let tag in stdTag ){
+
+					const spl = stdTag[tag].split('_');
+					if( spl[0] === 'pl' ){
+
+						spl.shift();
+						const option = document.createElement('option');
+						option.value = spl.join('_');
+						this.tagList.append(option);
+
+					}
+
+				}
+
+
 
 			})
 			.setDraw(async function(){
+
+				const player = new Player();
+				console.log("Player", player);
+
+				
+
+				// Updates the class labels
+				const updateClass = () => {
+
+					this.cData.classInputs.forEach(input => {
+
+						const checked = input.value === player.class.label;
+						input.checked = checked;
+						input.parentNode.classList.toggle('selected', checked);
+
+					});
+
+				};
+				
+				const reloadIcon = () => {
+					this.cData.portrait.style = 'background-image:url('+esc(player.icon)+')';
+				};
+
+				// Updates fields from player
+				const updateFields = () => {
+
+					reloadIcon();
+					this.cData.name.value = player.name;
+					this.cData.species.value = player.species;
+					this.cData.size.value = player.size;
+					
+					updateClass();
+
+					this.cData.description.value = player.description;
+					this.cData.dressed.value = player.icon;
+					this.cData.nude.value = player.icon_nude;
+					this.cData.upperBody.value = player.icon_upperBody;
+					this.cData.lowerBody.value = player.icon_lowerBody;
+
+					this.cData.tags.replaceChildren();
+					for( let tag of player.tags )
+						this.addTag(tag);
+
+
+				};
+
+				// Updates player from fields
+				const updatePlayer = () => {
+
+					player.icon = this.cData.dressed.value.trim();
+					player.icon_nude = this.cData.nude.value.trim();
+					player.icon_upperBody = this.cData.upperBody.value.trim();
+					player.icon_lowerBody = this.cData.lowerBody.value.trim();
+					player.description = this.cData.description.value.trim();
+					player.size = +this.cData.size.value || 0;
+					player.species = this.cData.species.value.trim();
+					player.name = this.cData.name.value;
+
+					this.cData.classInputs.forEach(input => {
+						if( input.checked )
+							player.class = glib.get(input.value, 'PlayerClass');
+					});
+					
+					player.tags = [];
+					for( let tagDom of this.cData.tags.children ){
+
+						const tag = tagDom.value.trim().toLowerCase();
+						if( tag )
+							player.tags.push('pl_'+tag);
+
+					}
+				};
+
+				const loadTemplate = jsonData => {
+
+					const data = JSON.parse(jsonData);
+					player.load(data);
+
+				};
+
+				
+				const onGalleryClick = event => {
+					
+					loadTemplate(event.target.dataset.data);
+					updateFields();
+
+				};
+				Array.from(this.gallery.children).map(el => el.addEventListener('click', onGalleryClick))
+
+				
+				// First build
+				if( !this.built ){
+
+					// Autosave static forms
+					const onAutosaveChange = () => {
+						updatePlayer();
+						updateClass();	
+					};
+					this.cData.form.querySelectorAll(".autoSave").forEach(el => el.addEventListener('change', onAutosaveChange));
+
+					// Tag helpers
+					this.onTagClick = event => {
+
+						if( !event.ctrlKey )
+							return;
+						event.currentTarget.remove();
+						updatePlayer();
+						
+					};
+					this.addTag = tag => {
+						
+						if( typeof tag !== "string" )
+							tag = '';
+
+						tag = tag.split('_');
+						tag.shift();
+						tag = tag.join('_');
+						const input = document.createElement('input');
+						input.type = 'text';
+						input.value = tag;
+						input.name = 'tag';
+						input.classList.add('tag');
+						input.setAttribute('list', 'newGameTags');
+						input.addEventListener('change', onAutosaveChange);
+						input.addEventListener('click', this.onTagClick);
+						this.cData.tags.append(input);
+
+					};
+					this.cData.addTagButton.addEventListener('click', this.addTag);
+
+					this.cData.form.querySelectorAll('.reloadIcon').forEach(el => el.addEventListener('change', reloadIcon));
+
+					this.cData.form.addEventListener('submit', event => {
+						event.stopImmediatePropagation();
+						event.preventDefault();
+
+						const name = this.cData.name.value.trim();
+						if( !name ){
+
+							game.ui.modal.addError("Name is empty");
+							return;
+
+						}
+			
+						const pl = player.clone();
+						pl.auto_learn = false;
+						pl.netgame_owner_name = 'DM';
+						pl.netgame_owner = 'DM';
+
+
+						Game.new(name, [pl]);
+						this.close( true );
+					});
+
+				}
+				
+
+
+				// Load a default template and update fields
+				loadTemplate(this.gallery.children[0].dataset.data);
+				updateFields();
+
 			});
 
+
+
+
+		/*
 		// Todo: Inventory
 		this.add(new this("inventory", "Inventory"))
 			.addRefreshOn(["players"])
