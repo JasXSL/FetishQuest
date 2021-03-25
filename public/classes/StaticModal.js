@@ -5,6 +5,8 @@ import Action from './Action.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import { QuestReward } from './Quest.js';
 import Shop from './Shop.js';
+import Mod from './Mod.js';
+import Game from './Game.js';
 
 export default class StaticModal{
 
@@ -1070,7 +1072,7 @@ export default class StaticModal{
 				
 
 			})
-			.setDraw(function( player ){
+			.setDraw(async function( player ){
 
 				
 				// Character tab
@@ -1125,7 +1127,7 @@ export default class StaticModal{
 								continue;
 							existing_assets[asset.id] = true;
 
-							const div = game.ui.getGenericAssetButton(asset, undefined, undefined, true);
+							const div = await StaticModal.getGenericAssetButton(asset, undefined, undefined, true);
 							div.classList.toggle('equipmentSlot', true);
 							eq.appendChild(div);
 
@@ -1805,8 +1807,369 @@ export default class StaticModal{
 				this.assets.replaceChildren(...divs);
 
 			});
-		// 
 
+		
+		this.add(new this("mainMenu", "FetishQuest"))
+			.addTab("Main Menu", () => {
+				return `
+					<p class="centered subtitle">
+						<strong>This game contains adult content. But you\'ve probably worked that out from the title already.</strong><br />
+						Follow development on <a href="https://discord.jasx.org" target="_blank">Discord</a>.<br />
+						If you like the game, consider becoming a <a href="https://www.patreon.com/jasx_games" target="_blank">Patron</a>!
+					</p>
+
+					<p style="text-align:center">
+						<input type="button" class="green newGameButton" name="newGame" value="New Game" />
+					</p>
+					<hr />
+					<div class="loadGame">
+						<p>
+							<strong>LOAD</strong>
+						</p>
+						<div class="gameSaves"></div><br />
+						<p class="subtitle">Ctrl+click to delete</p>
+					</div>
+				`;
+			})
+			.addTab("Mods", () => {
+				return `
+					<table class="editor">
+						<tr class="head">
+							<th>Name</th>
+							<th>Enabled</th>
+							<th>Netgame</th>
+							<th>Load Order</th>
+						</tr>
+						<tr class="noMods hidden">
+							<td colspan=4>No mods installed</td>
+						</tr>
+					</table>
+					<br />
+					Install Mod: <input type="file" class="modFile" />
+				`;
+			})
+			.addTab("Online", () => {
+				return `
+					<h3>Join Existing Online Game</h3>
+					<form class="joinGame">
+						<input type="text" placeholder="Nickname" name="nickname" style="width:auto" />
+						<input type="text" placeholder="Game ID" name="gameID" style="width:auto" />
+						<input type="submit" value="Join Online Game"  />
+					</form>
+				`;
+			})
+			.addTab("Credits", () => {
+				return `
+					<div class="center">
+					<h1>Credits</h1>
+					<p>Concept/Programming/Models: JasX</p>
+					<p>Additional Models:</p>
+					Kitaro "Huskebutt" Kun<br />
+					<p>Art:</p>
+					<a href="http://www.furaffinity.net/gallery/gothwolf">GothWolf</a><br />
+					<a href="http://www.furaffinity.net/gallery/maddworld">Maddworld</a><br />
+					<p>Audio:</p>
+					https://freesound.org/people/GameDevC/sounds/422836/<br />
+					https://freesound.org/people/LittleRobotSoundFactory/sounds/270401/<br />
+					https://freesound.org/people/vacuumfan7072/sounds/394155/<br />
+					https://freesound.org/people/FoolBoyMedia/sounds/352658/<br />
+					https://freesound.org/people/InspectorJ/sounds/416179/<br />
+					https://freesound.org/people/Adam_N/sounds/164661/<br />
+					https://freesound.org/people/INNORECORDS/sounds/456899/<br />
+					https://freesound.org/people/kyles/sounds/452104/<br />
+					https://freesound.org/people/GoodListener/sounds/322855/<br />
+					https://freesound.org/people/VKProduktion/sounds/231537/<br />
+					https://freesound.org/people/Schoggimousse/sounds/443061/<br />
+					https://freesound.org/people/kwahmah_02/sounds/275563/<br />
+					https://freesound.org/people/Andy_Gardner/sounds/196713/<br />
+					https://freesound.org/people/Nightwatcher98/sounds/407292/<br />
+					https://freesound.org/people/Meepalicious/sounds/244808/<br />
+					https://freesound.org/people/conleec/sounds/212094/<br />
+					https://freesound.org/people/ivolipa/sounds/326313/<br />
+					https://freesound.org/people/humanoide9000/sounds/505426/<br />
+				</div>
+				`;
+			})
+			.setProperties(function(){
+				
+				const 
+					mainMenu = this.getTabDom('Main Menu')[0],
+					mods = this.getTabDom('Mods')[0],
+					online = this.getTabDom('Online')[0]
+				;
+
+				this.newGameButton = mainMenu.querySelector('input.newGameButton');
+				this.gameSaves = mainMenu.querySelector('div.gameSaves');
+				this.loadGame = mainMenu.querySelector('div.loadGame');
+				this.modsTable = mods.querySelector('table.editor');
+				this.loadMod = mods.querySelector('input.modFile');
+				this.joinGameForm = online.querySelector('form.joinGame');
+
+			})
+			.setDraw(async function(){
+
+				
+
+
+				// Show game saves
+				const handleGameClick = event => {
+					
+					const id = event.currentTarget.dataset.id;
+
+					if( event.ctrlKey ){
+
+						if( confirm('Really delete this game?') )
+							Game.delete(id).then(() => {
+								th.drawMainMenu();
+							});
+
+						return false;
+
+					}
+
+					game.net.disconnect();
+					localStorage.game = id;
+					Game.load();
+					this.close();
+
+				};
+
+				const divs = [];
+				let names = await Mod.getNames(true);	// refreshes mod name cache
+				for( let id in names ){
+
+					let name = names[id];
+					const div = document.createElement('div');
+					div.classList.add('gameListing');
+					div.dataset.id = id;
+					div.innerText = name;
+
+					div.addEventListener('click', handleGameClick);
+
+					divs.push(div);
+
+				}
+				this.gameSaves.replaceChildren(...divs);
+				this.loadGame.classList.toggle('hidden', !Object.keys(names).length);
+
+
+
+				// Mods
+				const sortedMods = await Mod.getModsOrdered();
+				for( let i in sortedMods )
+					sortedMods[i].index = +i;
+
+				const createCheckbox = (base, cname, checked) => {
+
+					const td = document.createElement('td');
+					base.append(td);
+					const checkbox = document.createElement('input');
+					td.append(checkbox);
+					checkbox.type = 'checkbox';
+					checkbox.classList.add(cname);
+					if( checked )
+						checkbox.checked = true;
+
+					checkbox.addEventListener('change', () => {
+
+						clearTimeout(this._saveLoadOrder);
+						this._saveLoadOrder = setTimeout(saveLoadOrder, 3000);
+
+					});
+
+				};
+
+				const saveLoadOrder = () => {
+
+					// Save order
+					const 
+						order = {},
+						mods = this.modsTable.querySelectorAll('tr.mod')
+					;
+
+					mods.forEach((el, idx) => {
+
+						const 
+							id = el.dataset.mod,
+							en = el.querySelector('input.enableMod').checked,
+							net = el.querySelector('input.netgame').checked
+						;
+						order[id] = {idx:idx, en:en, netgame:net};
+
+					});
+					
+					Mod.saveLoadOrder(order);
+					glib.autoloadMods();
+		
+				};
+
+				const handleModOrderButtonClick = event => {
+
+					const 
+						targ = event.currentTarget,
+						up = targ.classList.contains('moveUp'),
+						row = targ.closest("tr")
+					;
+					if( up && row.previousSibling )
+						row.previousSibling.before(row);
+					else if( !up && row.nextSibling )
+						row.nextSibling.after(row);
+					
+					clearTimeout(this._saveLoadOrder);
+					this._saveLoadOrder = setTimeout(saveLoadOrder, 3000);
+
+				};
+
+				this.modsTable.querySelectorAll('tr.mod').forEach(el => el.remove());
+				for( let mod of sortedMods ){
+				
+					let td;
+					const tr = document.createElement('tr');
+					tr.classList.add('mod');
+					tr.dataset.mod = mod.id;
+					this.modsTable.append(tr);
+					
+					td = document.createElement('td');
+					td.innerText = mod.name;
+					tr.append(td);
+					
+					createCheckbox(tr, 'enableMod', mod.enabled);
+					createCheckbox(tr, 'netgame', mod.netgame);
+
+					td = document.createElement('td');
+					tr.append(td);
+
+					let button = document.createElement('input');
+					td.append(button);
+					button.type = 'button';
+					button.value = 'Up';
+					button.classList.add('moveUp');
+					button.addEventListener('click', handleModOrderButtonClick);
+
+					button = document.createElement('input');
+					td.append(button);
+					button.type = 'button';
+					button.value = 'Down';
+					button.classList.add('moveDown');
+					button.addEventListener('click', handleModOrderButtonClick);
+
+					tr.addEventListener('click', async event => {
+
+						if( !event.ctrlKey )
+							return;
+
+						const m = await Mod.getByID(mod.id);
+						if( !m )
+							return;
+
+						const del = await m.delete(true);
+						if( del )
+							this.refresh();
+
+					});
+					
+				}
+				this.modsTable.querySelector('tr.noMods').classList.toggle('hidden', Boolean(sortedMods.length));
+
+				
+
+				// First run
+				if( !this.drawn ){
+
+					this.newGameButton.addEventListener('click', event => {
+						StaticModal.set('newGame');
+					});
+
+					this.joinGameForm.addEventListener('submit', event => {
+
+						event.stopImmediatePropagation();
+						game.net.joinGame(
+							this.joinGameForm.querySelector("input[name=gameID]").value, 
+							this.joinGameForm.querySelector("input[name=nickname]").value
+						).then(() => this.refresh());
+						return false;
+
+					});
+
+					this.loadMod.addEventListener('change', async event => {
+						
+						const mod = await Mod.import(event);
+						if( !mod )
+							return;
+
+						this.refresh();
+						game.ui.modal.addNotice("Mod "+esc(mod.name)+" installed!");
+						this.loadMod.value = '';
+
+					});
+
+					this.loadMod.setAttribute("accept", ".fqmod");
+
+
+				}
+
+
+			});
+		
+			/*
+		// Todo: New game
+		this.add(new this("newGame", "New Game"))
+			.addRefreshOn(["players"])
+			.addTab("Main Menu", () => {
+				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+							<br /><input type="button" name="exchange" value="Exchange" />
+						</div>
+					</div>
+					<div class="assets repair shop inventory container"></div>
+					<div class="assets repair shop inventory empty">
+						<h3>No broken items.</h3>
+					</div>
+				`;
+			})
+			.setProperties(function(){
+				
+				const smith = this.getTabDom('Smith')[0];
+				this.money = smith.querySelector('div.myMoney');
+				this.assets = smith.querySelector('div.repair.container');
+				this.empty = smith.querySelector('div.repair.empty');
+
+			})
+			.setDraw(async function(){
+			});
+
+		// Todo: Inventory
+		this.add(new this("inventory", "Inventory"))
+			.addRefreshOn(["players"])
+			.addTab("Main Menu", () => {
+				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+							<br /><input type="button" name="exchange" value="Exchange" />
+						</div>
+					</div>
+					<div class="assets repair shop inventory container"></div>
+					<div class="assets repair shop inventory empty">
+						<h3>No broken items.</h3>
+					</div>
+				`;
+			})
+			.setProperties(function(){
+				
+				const smith = this.getTabDom('Smith')[0];
+				this.money = smith.querySelector('div.myMoney');
+				this.assets = smith.querySelector('div.repair.container');
+				this.empty = smith.querySelector('div.repair.empty');
+
+			})
+			.setDraw(async function(){
+			});
+		*/
 		
 
 	}

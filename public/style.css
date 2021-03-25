@@ -540,10 +540,12 @@ div.fxBuffRed{
 	}
 	#customModals div.cmContent,
 	div.cmContentBlock{
+
 		border: 0.2vmax solid #DDD;
 		border-radius: 0.5vmax;
 		padding: 1vmax;
 		font-size: 2vmax;
+		
 	}
 
 	
@@ -678,7 +680,6 @@ div.fxBuffRed{
 
 	#settings{
 		min-width: 50%;
-		min-height:25%;
 	}
 
 	#settings input[type=checkbox]{
@@ -934,20 +935,7 @@ div.fxBuffRed{
 
 
 /* Modal editor */
-	#modal div.mainMenu{
-		text-align: center;
-	}
-	#modal div.mainMenu > div{
-		padding:1vmax;
-	}
-
-	#modal input.newGameButton{
-		background-color: #335;
-		font-size:2.5vmax;
-		margin:2vmax;
-		padding:1vmax;
-		box-shadow: 0 0 3vmax rgba(200,210,255,1);
-	}
+	
 
 	div.flexTwoColumns,
 	div.flexThreeColumns,
@@ -1230,11 +1218,53 @@ div.fxBuffRed{
 
 
 	
-
 	
 
 /**/
 
+/* Main menu */
+	/* Main menu */
+	#mainMenu{
+		text-align: center;
+		min-width:60vw;
+	}
+	#mainMenu p.subtitle{
+		font-style: italic;
+		font-size:1.5vmax;
+		margin:0;
+		padding:0 10vw;
+	}
+
+	#mainMenu input.newGameButton{
+		background-color: #335;
+		font-size:2.5vmax;
+		margin:2vmax;
+		padding:1vmax;
+		box-shadow: 0 0 3vmax rgba(200,210,255,1);
+	}
+
+	#mainMenu div.gameListing{
+		margin:1vh 15vw;
+	}
+
+	#mainMenu table.editor td:nth-child(1){
+		text-align: left;
+	}
+
+	#mainMenu div.cmTabContent{
+		padding-bottom: 5vh;
+	}
+
+	#mainMenu div.cmTabContent[data-id=Credits]{
+
+		font-size:1.5vmax;
+		overflow:auto;
+		max-height:80vh;
+
+	}
+	
+
+/**/
 
 /* Shop */
 	#shop, #smith{

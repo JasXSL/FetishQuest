@@ -200,61 +200,17 @@ export default class Modtools{
 					Window.addMenuOption("import", "Import", () => { 
 						
 						this.dummyUploader.setAttribute("accept", ".fqmod");
-						this.dummyUploader.onchange = evt => {
+						this.dummyUploader.onchange = async event => {
 
-							const file = event.target.files[0];
-							if( !file )
-								return;
+							const mod = await Mod.import(event);
 
-							
-							JSZip.loadAsync(file).then(zip => {
-
-								let found;
-
-								zip.forEach(async (path, entry) => {
-									
-									if( path === 'mod.json' ){
-										found = true;
-										try{
-
-											const raw = JSON.parse(await entry.async("text"));
-											if( !raw.id || !raw.name )
-												throw 'INVALID_ID';
-											
-											const mod = new Mod(raw);
-											const existing = await Mod.getByID(raw.id);
-											if( existing ){
-												if( !confirm("Mod already exists, are you sure you want to overwrite?") )
-													return;
-											}
-		
-											await mod.save();
-											this.load(mod);
-		
-										}catch(err){
-											let reason = "JSON Error";
-											if( err === "INVALID_ID" )
-												reason = 'Required parameters missing';
-											alert("This is not a valid mod file ("+reason+")");
-											console.error(err);
-										}
-
-
-
-										return false;
-									}
-									
-								});
-
-								if( !found )
-									alert("Invalid mod file");
-
-							});
-
-							
+							if( mod )
+								this.load(mod);
 
 							this.dummyUploader.value = "";
+
 						};
+
 						this.dummyUploader.click();
 					});
 
@@ -669,7 +625,7 @@ export default class Modtools{
 			
 			this.setDom(html);
 
-			this.dom.querySelectorAll("table.selectable tr[data-id]").forEach(el => el.onclick = event => {
+			this.dom.querySelectorAll("table.selectable tr[data-id]").forEach(el => el.onclick = async event => {
 				
 				const mod = event.currentTarget.dataset.id;
 				for( let m of mods ){
@@ -678,11 +634,9 @@ export default class Modtools{
 
 						if( event.ctrlKey ){
 
-							if( confirm("Are you sure you want to delete the mod: "+m.name+"?") ){
-								m.delete();
-								if( self.mod && m.id === self.mod.id )
-									self.closeMod();
-							}
+							const del = await m.delete(true);
+							if( del && self.mod && m.id === self.mod.id )
+								self.closeMod();
 
 							return;
 						}

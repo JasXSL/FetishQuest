@@ -21,6 +21,7 @@ import Condition from './Condition.js';
 import VibHub from './VibHub.js';
 import Faction from './Faction.js';
 import Encounter from './Encounter.js';
+import Mod from './Mod.js';
 
 export default class Game extends Generic{
 
@@ -2975,19 +2976,4 @@ Game.delete = async id => {
 		Game.load();
 	}
 };
-
-
-Game.getNames = async () => {
-
-	let names = {};	// id:name
-	await Game.db.games.each(g => {
-		let name = g.name;
-		if(!name)
-			name = "Unnamed";
-		names[g.id] = name;
-	});
-	return names;
-
-};
-
 

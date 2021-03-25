@@ -335,9 +335,15 @@ export default class Mod extends Generic{
 
 	}
 
-	async delete(){
-		let ret = await Mod.db.mods.delete(this.id);
-		return ret;
+	async delete( conf = true ){
+
+
+		if( conf && !confirm("Are you sure you want to delete the mod: "+this.name+"?") )
+			return false;
+
+		await Mod.db.mods.delete(this.id);
+		return true;
+
 	}
 
 }
@@ -353,9 +359,9 @@ Mod.db.version(2).stores({
 	});
 });
 
-Mod.getNames = async function(){
+Mod.getNames = async function( force ){
 
-	if( this._cache_names )
+	if( this._cache_names && !force )
 		return this._cache_names;
 	
 	let names = {};	// id:name
@@ -385,9 +391,82 @@ Mod.getByID = async function( id ){
 	return false;
 };
 
+// Takes an event and tries to import a mod from the first file passed to the event
+Mod.import = async function( event ){
+
+	const file = event.target.files[0];
+	if( !file )
+		return;
+
+	const zip = await JSZip.loadAsync(file);
+
+	let mod;
+	for( let path in zip.files ){
+
+		if( path !== 'mod.json' )
+			continue;
+
+		const entry = zip.files[path];
+
+		try{
+
+			const raw = JSON.parse(await entry.async("text"));
+			if( !raw.id || !raw.name )
+				throw 'INVALID_ID';
+			
+			mod = new Mod(raw);
+			const existing = await Mod.getByID(raw.id);
+			if( existing ){
+				if( !confirm("Mod already exists, are you sure you want to overwrite?") )
+					return;
+			}
+
+			await mod.save();
+
+			// Auto enable it
+			let modLoadOrder = {};
+			try{
+				modLoadOrder = JSON.parse(localStorage.modLoadOrder);
+			}catch(err){
+				console.error("Mod load order error", err);
+				modLoadOrder = {};
+			}
+
+			if( !modLoadOrder[mod.label] ){
+
+				const length = Object.values(modLoadOrder).length;
+				modLoadOrder[mod.label] = {idx:length, en:true, netgame:false};
+				this.saveLoadOrder(modLoadOrder);
+
+			}
+			
+
+		}catch(err){
+
+			let reason = "JSON Error";
+			if( err === "INVALID_ID" )
+				reason = 'Required parameters missing';
+			alert("This is not a valid mod file ("+reason+")");
+			console.error(err);
+
+		}
+
+
+		break;
+
+	}
+
+	if( !mod )
+		alert("Invalid mod file");
+
+	return mod;
+
+};
+
 // Returns an array of objects sorted by load order: 
 // {id:modUUID, name:modName, enabled:modIsEnabled, index:load_order_index(lower first)}
 Mod.getModsOrdered = async function(){
+
 	const modNames = await Mod.getNames();
 	let modLoadOrder = {};
 	const sortedMods = [];
@@ -415,7 +494,9 @@ Mod.getModsOrdered = async function(){
 		return a.index < b.index ? -1 : 1;
 	});
 	return sortedMods;
+
 }
+
 
 // Stores the mod load order in localStorage
 Mod.saveLoadOrder = async function( order ){
