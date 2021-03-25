@@ -1774,58 +1774,8 @@ export default class UI{
 
 	}
 
-	// hideText can also be 'compact'
-	// When compact is set, cost becomes quant
-	// Todo: Delete when no longer needed here
-	async getGenericAssetButton( item, cost = 0, additionalClassName = '', hideText = false ){
-
-		const compact = hideText === 'compact';
-		if( compact )
-			additionalClassName += ' compact';
-
-
-		let html = '';
-		html += '<div class="item '+additionalClassName+' '+Asset.RarityNames[item.rarity]+' tooltipParent '+(item.equippable() ? 'equippable' : '')+(item.equipped ? ' equipped' : '')+(item.durability <= 0 ? ' broken' : '')+'" data-id="'+esc(item.id)+'">';
-			html += '<img class="assetIcon" />';// Placeholder
-			if( !hideText )
-				html += (item.equipped ? '<strong>' : '')+(item.stacking && item._stacks > 1 ? item._stacks+'x ' : '')+esc(item.name)+(item.equipped ? '<br />['+item.slots.map(el => el.toUpperCase()).join(' + ')+']</strong>' : '');
-			// This item can be sold
-
-			if( !compact ){
-				const coins = Player.calculateMoneyExhange(cost);
-				html += '<div class="cost">';
-				for( let i in coins ){
-
-					const amt = coins[i];
-					if( amt ){
-						html += '<span style="color:'+Player.currencyColors[i]+';">'+amt+Player.currencyWeights[i].substr(0,1)+"</span> ";
-					}
-
-				}
-				html += '</div>';
-			}
-			else{
-				html += '<div class="quant">'+cost+'</div>';
-			}
-			
-			html += '<div class="tooltip">';
-				html += item.getTooltipText();
-			html += '</div>';
-
-		html+= '</div>';
-		
-		let dom = document.createElement('template');
-		dom.innerHTML = html;
-		dom = dom.content.childNodes[0];
-
-		dom.replaceChild(await item.getImgElement(), dom.querySelector('img.assetIcon'));
-		
-		return dom;
-
-	}
-
-
 	// Asset library, allows you to add assets to a player 
+	// Todo: Merge in with asset editor
 	drawPlayerAssetSelector(){
 
 		let html = '',

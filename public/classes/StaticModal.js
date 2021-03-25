@@ -528,6 +528,11 @@ export default class StaticModal{
 					<div class="right"></div>
 				`;
 			})
+			.addTab("Exploration", () => {
+				return `
+					<!-- Todo: Add exploration tab -->
+				`;
+			})
 			.setProperties(function(){
 
 				const main = this.main = this.getTabDom('Quests');
@@ -535,7 +540,7 @@ export default class StaticModal{
 				this.left = $("div.left", main);
 				
 			})
-			.setDraw(function(){
+			.setDraw(async function(){
 
 				let html = '', th = this;
 				let quests = game.quests;
@@ -608,7 +613,7 @@ export default class StaticModal{
 
 						const asset = reward.data;
 						const viableToMe = me && reward.testPlayer(me);
-						inv.appendChild(game.ui.getGenericAssetButton(asset, 0, !viableToMe ? 'disabled' : ''));
+						inv.appendChild(await StaticModal.getGenericAssetButton(asset, 0, !viableToMe ? 'disabled' : ''));
 						
 					}
 
@@ -2769,6 +2774,41 @@ export default class StaticModal{
 
 				
 				mainInv.querySelectorAll('div.item[data-id]').forEach(el => el.addEventListener('click', onAssetClick));
+
+				
+				
+			});
+		// Asset editor
+		this.add(new this("assetLibrary", "Asset Library"))
+			.addTab("Library", () => {
+				return `
+					<div class="inventory flexTwoColumns">
+						
+					</div>
+				`;
+			})
+			.addTab("Editor", () => {
+				return `
+					<div class="inventory flexTwoColumns">
+						
+					</div>
+				`;
+			})
+			.setProperties(function(){
+				
+				const library = this.getTabDom('Library')[0];
+				const editor = this.getTabDom('Editor')[0];
+
+				this.library = {
+				};
+				this.editor = {
+
+				};
+								
+
+			})
+			.setDraw(async function( asset ){
+
 
 				
 				
