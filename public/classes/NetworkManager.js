@@ -188,8 +188,10 @@ class NetworkManager{
 		this.io = null;
 
 		if( !game.is_host ){
+			
 			await Game.load();
 			StaticModal.set('mainMenu');
+
 		}
 		game.ui.draw();
 		game.onTurnTimerChanged();

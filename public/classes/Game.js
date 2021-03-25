@@ -299,7 +299,6 @@ export default class Game extends Generic{
 		this.initialized = true;
 		this.initialize();
 
-		console.log("Init ui");
 		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement);
 		
 		

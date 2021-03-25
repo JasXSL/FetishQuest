@@ -135,7 +135,7 @@ export default class UI{
 					this.modal.close();
 				else{
 					game.uiAudio( 'backpack' );
-					this.drawPlayerInventory();
+					StaticModal.set('inventory');
 				}
 			}
 			else if( event.key === 'l' ){
@@ -1363,7 +1363,7 @@ export default class UI{
 			}
 			else if( id === 'inventory' ){
 				game.uiAudio( 'backpack' );
-				this.drawPlayerInventory();
+				StaticModal.set('inventory');
 			}
 			else if( id === 'settings' ){
 				game.uiAudio( 'menu_generic' );
@@ -1763,11 +1763,13 @@ export default class UI{
 		for( let target of targets )
 			modal.addSelectionBoxItem( target.name, '', target.id );
 		modal.onSelectionBox(function(){
+
 			const pid = $(this).attr("data-id");
 			if( game.tradePlayerItem( player.id, pid, asset.id, amount ) ){
-				th.drawPlayerInventory();
+				StaticModal.set('inventory');
 			}
 			modal.closeSelectionBox();
+
 		});
 
 	}
@@ -1822,297 +1824,6 @@ export default class UI{
 
 	}
 
-	// Draws inventory for active player
-	// Todo: StaticModal
-	async drawPlayerInventory(){
-		const player = game.getMyActivePlayer();
-		const th = this;
-		if( !player )
-			return;
-
-		const svgs = {};	// id : promise
-
-		// Draw inventory
-		let html = '';
-		html+= '<div class="inventory flexTwoColumns">';
-
-			const slots = [
-				{slot:Asset.Slots.upperBody, icon:'breastplate'},
-				{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
-				{slot:Asset.Slots.hands, icon:'crossed-swords'}
-			];
-
-			// Equipment
-			html += '<div class="left">';
-
-				html += this.buildProgressBar(
-					(Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg', 
-					player.getCarriedWeight()/player.getCarryingCapacity(), 
-					player.getCarriedWeight() > player.getCarryingCapacity() ? 'red' : 'yellow'
-				)+
-				'<br />';
-
-				html += '<h3>Equipment</h3>';
-			for( let slot of slots ){
-
-				const asset = player.getEquippedAssetsBySlots(slot.slot, true)[0];
-				
-				if( asset )
-					svgs[asset.id] = asset.getImgElement();
-				
-				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '')+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item" data-slot="'+slot.slot+'" data-id="'+esc(asset ? asset.id : '')+'">'+
-					(asset ? 
-						'<div class="tooltip">'+asset.getTooltipText()+'</div>' : 
-						'<img class="bg template" src="media/wrapper_icons/'+slot.icon+'.svg" />'
-					)+
-				'</div>';
-
-			}
-				html += '<h3>Toolbelt</h3>';
-
-			for( let i =0; i<3; ++i ){
-
-				const asset = player.getEquippedAssetsBySlots(Asset.Slots.action, true)[i];
-
-				if( asset )
-					svgs[asset.id] = asset.getImgElement();
-				html += '<div class="equipmentSlot '+(asset ? Asset.RarityNames[asset.rarity] : '' )+(asset && asset.durability <= 0 ? ' broken' : '')+' item tooltipParent item" data-slot="'+Asset.Slots.action+'" data-id="'+esc(asset ? asset.id : '')+'">'+
-					(asset ? 
-						'<div class="tooltip">'+asset.getTooltipText()+'</div>' : 
-						'<img class="bg template" src="media/wrapper_icons/potion-ball.svg" />'
-					)+
-				'</div>';
-			}
-
-
-			html += '</div>';
-
-			// listing
-			html += '<div class="right">';
-
-				let inv = [];
-				for(let asset of player.assets)
-					inv.push(asset);
-				inv = inv.filter(el => !el.equipped).sort((a,b) => {
-					if( a.category !== b.category ){
-						return a.category < b.category ? -1 : 1;
-					}
-					if(a.name === b.name)
-						return 0;
-					return a.name < b.name ? -1 : 1;
-				});
-				let cat = '';
-				for(let item of inv){
-					if( !cat || item.category !== cat ){
-						cat = item.category;
-						html += '<h3 class="category">'+esc(Asset.CategoriesNames[cat])+'</h3>';
-					}
-					html += '<div class="assetDummy"></div>';
-				}
-				
-
-				if( game.is_host )
-					html+= '<br /><input type="button" value="+ Add Item" class="addInventory blue devtool" /><br /><br />';
-
-				html+= '</div>';
-
-			html += '</div>';
-
-
-		const template = document.createElement('template');
-		template.innerHTML = html;
-
-
-		// Workaround: Add the icons
-		for( let id in svgs ){
-
-			const dom = await svgs[id];
-			template.content.querySelectorAll('div.item[data-id=\''+esc(id)+'\'] > div.tooltip').forEach(el => {
-				el.parentNode.prepend(dom);
-			});
-
-		}
-
-		// and the inventory items
-		
-		for( let item of inv ){
-			const dummy = template.content.querySelector('div.assetDummy');
-			dummy.parentNode.replaceChild(await this.getGenericAssetButton(item), dummy);
-		}
-			
-		
-		this.modal.set(template.content.childNodes);
-
-		
-
-
-		this.modal.onPlayerChange(player.id, () => {
-			this.drawPlayerInventory();
-		});
-
-
-		$("#modal div.item[data-id]").on('click', function(event){
-			
-			let id = $(this).attr('data-id');
-			let asset = player.getAssetById(id);
-
-			if( event.shiftKey  && game.is_host ){
-				if( asset )
-					th.drawAssetEditor( asset, player );
-			}
-			// Toggle equip / use
-			else if( asset ){
-
-				const isHotbar = $(this).hasClass('equipmentSlot');
-				
-				const modal = th.modal;
-				modal.prepareSelectionBox();
-
-				
-
-				if( isHotbar )
-					modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
-				else if( asset.equippable() )
-					modal.addSelectionBoxItem( 'Equip', '', 'equip' );
-
-				if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
-					modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
-				}
-
-				if( 
-					game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
-					(!game.battle_active || game.getTurnPlayer().id === player.id) &&
-					!asset.soulbound
-				)
-					modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
-
-				if( !game.battle_active )
-					modal.addSelectionBoxItem( 'Destroy', false, 'destroy' );
-				
-
-
-				modal.onSelectionBox(function(){
-
-					th.onTooltipMouseout();
-					let element = $(this);
-					const task = element.attr('data-id');
-
-					if( (task === 'unequip' || task === 'equip') && asset.equippable() && game.equipPlayerItem(player, id) ){
-						
-						if( asset.loot_sound )
-							game.playFxAudioKitById(asset.loot_sound, player, player );
-						th.drawPlayerInventory();
-						th.draw();
-						
-					}
-					else if( task === 'use' ){
-
-						let action = asset.use_action;
-						let targets = action.getViableTargets();
-						if( !targets.length )
-							return;
-
-						th.action_selected = action;
-						th.targets_selected = [];
-
-						if( action.castable(true) ){
-							th.targets_selected = [];
-							th.drawTargetSelector();
-						}
-
-						if( action.targetable() )
-							modal.close();
-						else
-							th.drawPlayerInventory();
-						
-					}
-					else if( task == 'trade' ){
-
-						if( game.battle_active ){
-							if( player.ap < 3 ){
-								this.modal.addError("Not enough AP");
-								modal.closeSelectionBox();
-								return;
-							}
-							else if( game.getTurnPlayer().id !== player.id ){
-								modal.closeSelectionBox();
-								this.modal.addError("Not your turn");
-								return;
-							}
-
-						}
-
-						if( asset.stacking && asset._stacks > 1 ){
-							modal.makeSelectionBoxForm(
-								'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
-								function(){
-									const amount = Math.floor($("input:first", this).val());
-									if( !amount )
-										return;
-									th.drawAssetTradeTarget(asset, amount);
-								}
-							);
-							return;
-						}
-						th.drawAssetTradeTarget(asset);
-						return;
-
-					}
-					else if( task === 'destroy' ){
-
-						modal.prepareSelectionBox( true );
-						// Delete from stack
-						if( asset.stacking && asset._stacks >1 ){
-							modal.makeSelectionBoxForm(
-								'Amount to destroy: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
-								function(){
-									const amount = Math.floor($("input:first", this).val());
-									if( amount > 0 ){
-										if(game.deletePlayerItem( player, id, parseInt(amount))){
-											th.drawPlayerInventory();
-											th.draw();
-										}
-									}
-								}
-							);
-						}
-						// Delete single
-						else{
-							modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
-							modal.onSelectionBox(function(){
-								const pid = $(this).attr("data-id");
-								if( pid === 'delete' && game.deletePlayerItem( player, id) ){
-									th.drawPlayerInventory();
-									th.draw();
-								}
-								modal.closeSelectionBox();
-							});
-						}
-					
-						return;
-					}
-
-					modal.closeSelectionBox();
-
-
-				});
-				
-			}
-
-			th.onTooltipMouseout();
-		});
-
-
-
-		$("#modal input.addInventory").on('click', () => {
-			this.drawPlayerAssetSelector();
-		});
-
-		this.bindTooltips();
-
-		
-		
-	}
 
 	// Asset library, allows you to add assets to a player 
 	drawPlayerAssetSelector(){
@@ -2166,14 +1877,14 @@ export default class UI{
 
 			else if(player.addLibraryAsset(id)){
 				game.save();
-				th.drawPlayerInventory();
+				StaticModal.set('inventory');
 				th.draw();
 			}
 
 		});
 
 		$("#modal input.back").on('click', () => {
-			this.drawPlayerInventory();
+			StaticModal.set('inventory');
 		});
 
 		$("#modal input.create").on('click', () => this.drawAssetEditor(undefined, player));
@@ -2186,6 +1897,7 @@ export default class UI{
 	/* MODAL EDITORS */
 
 	// Asset editor
+	// Todo: StaticModal
 	drawAssetEditor( asset, player ){
 
 		const players = game.getEnabledPlayers();
@@ -2371,7 +2083,7 @@ export default class UI{
 
 			game.save();
 			if( a.parent )
-				this.drawPlayerInventory(player);
+				StaticModal.set('inventory');
 			else
 				this.drawPlayerAssetSelector(player);
 			return false;
@@ -2950,16 +2662,6 @@ export default class UI{
 			out.y = y*2-1;
 		}
 		return out;
-	}
-
-
-	/* Helpers */
-	// percent is a float between 0 and 1
-	buildProgressBar( text, percent = 0.0, cname = '' ){
-		return '<div class="progressBar '+esc(cname)+'">'+
-			'<div class="bar" style="width:'+(+percent*100)+'%;"></div>'+
-			'<span class="content">'+esc(text)+'</span>'+
-		'</div>';
 	}
 
 

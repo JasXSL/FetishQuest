@@ -996,9 +996,6 @@ div.fxBuffRed{
 		width:150%;
 	}
 
-	div.inventory{
-		padding:5% 5%;
-	}
 	div.inventory.characterSheet{
 		padding:0;
 		text-align: center;
@@ -1014,6 +1011,7 @@ div.fxBuffRed{
 		font-size:0.75vmax;
 	}
 	div.inventory div.item{
+		
 		font-weight:normal;
 		font-size:1vmax;
 		border-width: 1px;
@@ -1022,6 +1020,14 @@ div.fxBuffRed{
 		padding: 1.5vmax;
 		text-align: left;
 		padding-left: 4vmax;
+		height: 4.25vmax;
+		overflow: hidden;
+
+	}
+	div.inventory div.item > span{
+		display: inline-block;
+		transform: translateY(-50%);
+		top:50%;
 	}
 	div.inventory div.item.compact{
 		width:auto;
@@ -1190,6 +1196,23 @@ div.fxBuffRed{
 
 /**/
 
+/* Inventory */
+	#inventory div.cmTabContent{
+		min-width:80vw;
+		padding:1vmax 5vmax;
+	}
+
+	#inventory h3{
+		margin:0.25vmax 0;
+		font-size:1.5vmax;
+		color:#AAA;
+		font-style: italic;
+		font-weight: normal;
+
+	}
+
+
+/**/
 
 /* New game menu */
 
@@ -1307,13 +1330,9 @@ div.fxBuffRed{
 	#shop div.modalMain{
 		max-height:70vh;
 		overflow: auto;
+		padding: 1vmax 5vmax;
 	}
-	#smith div.inventory div.item,
-	#shop div.inventory div.item{
-		height: 4.25vmax;
-		overflow: hidden;
-	}
-	
+
 	#smith div.inventory div.item div.cost,
 	#shop div.inventory div.item div.cost{
 		position: absolute;

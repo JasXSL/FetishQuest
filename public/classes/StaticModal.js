@@ -2431,27 +2431,347 @@ export default class StaticModal{
 			.addRefreshOn(["players"])
 			.addTab("Inventory", () => {
 				return `
-					<div class="myMoney">
-						<div>
-							<span class="title">My Money:</span>
-							<span class="coins"></span>
-							<br /><input type="button" name="exchange" value="Exchange" />
+					<div class="inventory flexTwoColumns">
+						<div class="left">
+
+							<h3>Equipment</h3>
+							<div class="equipment"><!-- Worn assets here --></div>
+							
+							<h3>Toolbelt</h3>
+							<div class="toolbelt"><!-- Toolbelt assets here --></div>
+							<br />
+							<div class="progressBar weight">
+								<div class="bar" style="width:0%;"><!-- Set width here base on percentage --></div>
+								<span class="content"><!-- Progress bar text here --></span>
+							</div>
+
 						</div>
-					</div>
-					<div class="assets repair shop inventory container"></div>
-					<div class="assets repair shop inventory empty">
-						<h3>No broken items.</h3>
+
+						<div class="right">
+							<div class="inventory mainInventory">
+								<!-- Inventory assets here -->
+							</div>
+							<br /><input type="button" value="+ Add Item" class="addInventory blue devtool" />
+						</div>
 					</div>
 				`;
 			})
 			.setProperties(function(){
 				
-				//const smith = this.getTabDom('Smith')[0];
+				const main = this.getTabDom('Inventory')[0];
+
+				this.main = {
+					equipment : main.querySelector('div.equipment'),
+					toolbelt : main.querySelector('div.toolbelt'),
+					weight : main.querySelector('div.weight'),
+					weightBar : main.querySelector('div.weight div.bar'),
+					weightContent : main.querySelector('div.weight span.content'),
+					mainInventory : main.querySelector('div.mainInventory'),
+					addInventory : main.querySelector('input.addInventory'),
+				};
+
+				// Can bind this here since it's a static item
+				// Todo: update
+				this.main.addInventory.addEventListener('click', () => {
+					game.ui.drawPlayerAssetSelector();
+				});
+
+								
 
 			})
 			.setDraw(async function(){
 
+				const player = game.getMyActivePlayer();
+				if( !player )
+					return;
 
+
+				this.main.weightBar.style = 'width:'+Math.max(0, Math.min(100, player.getCarriedWeight()/player.getCarryingCapacity()*100))+'%';
+				this.main.weightContent.innerText = (Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg';
+				const encumbered = player.getCarriedWeight() > player.getCarryingCapacity();
+				this.main.weight.classList.toggle('red', encumbered);
+				this.main.weight.classList.toggle('yellow', !encumbered);
+
+
+				// Handle inventory asset click
+				const onAssetClick = event => {
+
+					const 
+						element = event.currentTarget, 
+						ui = game.ui,
+						th = this
+					;
+					let id = element.dataset.id;
+					let asset = player.getAssetById(id);
+					
+
+					if( event.shiftKey  && game.is_host ){
+
+						// Todo: Update to modal
+						if( asset )
+							game.ui.drawAssetEditor( asset, player );
+
+					}
+					// Toggle equip / use
+					else if( asset ){
+
+						const isHotbar = element.classList.contains('equipmentSlot');
+
+						const modal = game.ui.modal;
+						modal.prepareSelectionBox();
+						
+
+						if( isHotbar )
+							modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
+						else if( asset.equippable() )
+							modal.addSelectionBoxItem( 'Equip', '', 'equip' );
+
+						if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
+							modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
+						}
+
+						if( 
+							game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
+							(!game.battle_active || game.getTurnPlayer().id === player.id) &&
+							!asset.soulbound
+						)
+							modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
+
+						if( !game.battle_active )
+							modal.addSelectionBoxItem( 'Destroy', false, 'destroy' );
+						
+
+
+						modal.onSelectionBox(function(){
+
+							ui.onTooltipMouseout();
+							let element = this;
+							const task = element.dataset.id;
+
+							if( (task === 'unequip' || task === 'equip') && asset.equippable() && game.equipPlayerItem(player, id) ){
+								
+								if( asset.loot_sound )
+									game.playFxAudioKitById(asset.loot_sound, player, player );
+								th.refresh();
+								ui.draw();
+								
+							}
+							else if( task === 'use' ){
+
+								let action = asset.use_action;
+								let targets = action.getViableTargets();
+								if( !targets.length )
+									return;
+
+								ui.action_selected = action;
+								ui.targets_selected = [];
+
+								if( action.castable(true) ){
+									ui.targets_selected = [];
+									ui.drawTargetSelector();
+								}
+
+								if( action.targetable() )
+									modal.close();
+								else
+									th.refresh();
+								
+							}
+							else if( task == 'trade' ){
+
+								if( game.battle_active ){
+
+									if( player.ap < 3 ){
+
+										modal.addError("Not enough AP");
+										modal.closeSelectionBox();
+										return;
+
+									}
+									else if( game.getTurnPlayer().id !== player.id ){
+
+										modal.closeSelectionBox();
+										modal.addError("Not your turn");
+										return;
+
+									}
+
+								}
+
+								if( asset.stacking && asset._stacks > 1 ){
+
+									modal.makeSelectionBoxForm(
+										'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
+										function(){
+
+											const amount = Math.floor( this.querySelector('input').value );
+											if( !amount )
+												return;
+											ui.drawAssetTradeTarget(asset, amount);
+
+										}
+									);
+									return;
+
+								}
+								ui.drawAssetTradeTarget(asset);
+								return;
+
+							}
+							else if( task === 'destroy' ){
+
+								modal.prepareSelectionBox( true );
+								// Delete from stack
+								if( asset.stacking && asset._stacks >1 ){
+
+									modal.makeSelectionBoxForm(
+										'Amount to destroy: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
+										function(){
+
+											const amount = Math.floor( this.querySelector('input').value );
+											if( amount > 0 ){
+												if(game.deletePlayerItem( player, id, parseInt(amount))){
+													th.refresh();
+													ui.draw();
+												}
+											}
+
+										}
+									);
+
+								}
+								// Delete single
+								else{
+
+									modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
+									modal.onSelectionBox(function(){
+
+										const pid = this.dataset.id;
+										if( pid === 'delete' && game.deletePlayerItem( player, id) ){
+											th.refresh();
+											ui.draw();
+										}
+										modal.closeSelectionBox();
+
+									});
+
+								}
+							
+								return;
+							}
+
+							modal.closeSelectionBox();
+
+
+						});
+						
+					}
+
+					ui.onTooltipMouseout();
+
+				};
+
+
+				// Create equipment slots
+				const slots = [
+					{slot:Asset.Slots.upperBody, icon:'breastplate'},
+					{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
+					{slot:Asset.Slots.hands, icon:'crossed-swords'}
+				];
+				const createEquipSlot = async (slot, fallback) => {
+
+					const asset = player.getEquippedAssetsBySlots(slot, true)[0];
+
+					const div = document.createElement('div');
+					div.classList.add('equipmentSlot', 'item', 'tooltipParent');
+					if( asset )
+						div.classList.add(Asset.RarityNames[asset.rarity]);
+					if(asset && asset.durability <= 0 )
+						div.classList.add('broken');
+
+					div.dataset.slot = slot;
+					
+
+					if( asset ){
+
+						div.dataset.id = asset.id || '';
+
+						const img = await asset.getImgElement();
+						div.append(img);
+
+						const tooltip = document.createElement('div');
+						div.append(tooltip);
+						tooltip.classList.add('tooltip');
+						tooltip.innerHTML = asset.getTooltipText();
+
+					}
+					else{
+						
+						const img = document.createElement('img');
+						div.append(img);
+						img.classList.add('bg', 'template');
+						img.src = fallback;
+
+					}
+
+					div.addEventListener('click', onAssetClick);
+
+					return div;
+
+
+				};
+				let divs = [];
+				for( let slot of slots )
+					divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
+				this.main.equipment.replaceChildren(...divs);
+
+				divs = [];
+				for( let i =0; i<3; ++i )
+					divs.push(await createEquipSlot(Asset.Slots.action, 'media/wrapper_icons/potion-ball.svg'));
+				this.main.toolbelt.replaceChildren(...divs);
+
+
+				// Create listing
+				let inv = [];
+				for(let asset of player.assets)
+					inv.push(asset);
+
+				// Sort by category
+				inv = inv.filter(el => !el.equipped).sort((a,b) => {
+					if( a.category !== b.category ){
+						return a.category < b.category ? -1 : 1;
+					}
+					if(a.name === b.name)
+						return 0;
+					return a.name < b.name ? -1 : 1;
+				});
+
+				divs = [];
+				const mainInv = this.main.mainInventory;
+				let cat;
+				for( let item of inv ){
+
+					if( !cat || item.category !== cat ){
+
+						cat = item.category;
+						const title = document.createElement('h3');
+						divs.push(title);
+						title.classList.add('category');
+						title.innerText = Asset.CategoriesNames[cat];
+						
+					}
+
+					const div = await StaticModal.getGenericAssetButton(item);
+					divs.push(div);
+					
+				}
+				mainInv.replaceChildren(...divs);
+
+				
+				mainInv.querySelectorAll('div.item[data-id]').forEach(el => el.addEventListener('click', onAssetClick));
+
+				
+				
 			});
 		
 
