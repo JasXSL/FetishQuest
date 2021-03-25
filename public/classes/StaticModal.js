@@ -28,6 +28,7 @@ export default class StaticModal{
 		this.headerContainer = $('> div.header', this.dom);
 		this.contentContainer = $('> div.modalMain', this.dom);
 		this.tabContainer = $('> div.cmTabs', this.dom);
+		this.closeButton = $('> div.header > div.close', this.dom);
 
 		this.drawn = false;			// Set to true after the first draw
 		this.drawing = false;		// Actively updating the dom
@@ -37,7 +38,7 @@ export default class StaticModal{
 		this.refreshOn = [];	// Array of sub objects [{path:(arr)path, fn:(opt)fn}...]. Checked when game data changes to have a callback.
 		this.args = [];			// Args of the last time this was opened
 
-		$("> div.header > div.close", this.dom).on('click', event => {
+		this.closeButton.on('click', event => {
 			game.uiClick(event.target);
 			this.close();
 		});
@@ -180,7 +181,7 @@ export default class StaticModal{
 		
 		obj.args = [...args];
 		const out = await this.refreshActive();
-		
+
 		return out;
 
 	}
@@ -194,10 +195,19 @@ export default class StaticModal{
 
 	}
 
+	// newID is to prevent recursion
 	static close( force ){
 
-		if( !game.initialized && !force )
+		if( !game.initialized && !force ){
+
+			// Special case to let you go back to the main menu
+			if( this.active && this.active.id === 'newGame' ){
+				this.close(true);
+				this.set('mainMenu');
+			}
+
 			return;
+		}
 
 		this.active = null;
 		// Close everything
@@ -214,6 +224,11 @@ export default class StaticModal{
 
 		const out = await this.active.refresh();
 		game.ui.bindTooltips();
+
+		// Special case for main menu when you have no active game
+		if( this.active.id === 'mainMenu' )
+			this.active.closeButton.toggleClass('hidden', !game.initialized);
+
 		return out;
 
 	}
@@ -282,8 +297,10 @@ export default class StaticModal{
 
 		try{this.tabs = JSON.parse(localStorage.staticModalTabs);}catch(err){}
 		this.main.on('mousedown touchstart', event => {
-			if( event.target === this.main[0] )
+			// Special case so you don't accidentally click outside the box when making a new game and the game isn't initialized
+			if( event.target === this.main[0] && (game.initialized || this.active.id !== 'newGame') ){
 				this.close();
+			}
 		});
 
 
@@ -1941,7 +1958,7 @@ export default class StaticModal{
 					game.net.disconnect();
 					localStorage.game = id;
 					Game.load();
-					this.close();
+					this.close(true);
 
 				};
 
@@ -2122,7 +2139,8 @@ export default class StaticModal{
 
 			});
 		
-			
+		
+		// New game
 		this.add(new this("newGame", "New Game"))
 			.addTab("New Game", () => {
 				return `
@@ -2408,13 +2426,10 @@ export default class StaticModal{
 			});
 
 
-
-
-		/*
-		// Todo: Inventory
+		// Inventory
 		this.add(new this("inventory", "Inventory"))
 			.addRefreshOn(["players"])
-			.addTab("Main Menu", () => {
+			.addTab("Inventory", () => {
 				return `
 					<div class="myMoney">
 						<div>
@@ -2431,15 +2446,13 @@ export default class StaticModal{
 			})
 			.setProperties(function(){
 				
-				const smith = this.getTabDom('Smith')[0];
-				this.money = smith.querySelector('div.myMoney');
-				this.assets = smith.querySelector('div.repair.container');
-				this.empty = smith.querySelector('div.repair.empty');
+				//const smith = this.getTabDom('Smith')[0];
 
 			})
 			.setDraw(async function(){
+
+
 			});
-		*/
 		
 
 	}
