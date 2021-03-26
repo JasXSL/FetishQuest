@@ -10,7 +10,6 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 import DungeonTemplate, { DungeonTemplateSub } from './templates/DungeonTemplate.js';
 import { AudioKit } from './Audio.js';
-//import MAIN_MOD from '../libraries/_main_mod.js';
 import Mod from './Mod.js';
 import Player from './Player.js';
 import HitFX from './HitFX.js';

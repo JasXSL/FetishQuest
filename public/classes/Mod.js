@@ -10,6 +10,9 @@ export default class Mod extends Generic{
 	constructor(data){
 		super(data);
 
+		this.version = 1;
+		this.build_nr = 1;
+
 		// x = not yet implemented
 		this.name = '';
 		this.description = '';
@@ -72,6 +75,8 @@ export default class Mod extends Generic{
 	getSaveData(){
 		
 		const out = {
+			build_nr : this.build_nr,
+			version : this.version,
 			id : this.id,
 			name : this.name,
 			author : this.author,
