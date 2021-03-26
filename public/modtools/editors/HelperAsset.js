@@ -619,10 +619,11 @@ export default{
 
 					const essential = fieldIsEssential(field);
 					const fieldName = getFieldName(field);
-					let val = fields[fieldName];
+					let val = fields[field];
 
-					if( typeof val === "function" )
+					if( typeof val === "function" ){
 						val = val.call(win, a);
+					}
 					else{
 
 						val = a[fieldName];

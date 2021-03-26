@@ -21,6 +21,7 @@ import Shop, { ShopAsset, ShopAssetToken } from './Shop.js';
 import ActionLearnable from './ActionLearnable.js';
 import Faction from './Faction.js';
 import Encounter from './Encounter.js';
+import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
 
 
 const LIB_TYPES = {
@@ -59,6 +60,7 @@ const LIB_TYPES = {
 	'roleplayStageOption' : RoleplayStageOption,
 	'gameActions' : GameAction,
 	'texts' : Text,
+	'gallery' : PlayerGalleryTemplate,
 };
 
 // Maps lib_types to caches used only in outputs
@@ -104,7 +106,7 @@ const load_order = [
 	'questObjectives',
 	'questRewards',
 	'quests',
-	
+	'gallery',
 	
 ];
 
@@ -154,6 +156,7 @@ export default class GameLib{
 		this.factions = {};
 		this._cache_assets = {};
 		this.texts = {};				// The texts array gets throw into an object for easier fetching
+		this.gallery = {};				// Player gallery
 	}
 
 	async loadMainMod(){

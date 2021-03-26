@@ -2276,22 +2276,6 @@ export default class StaticModal{
 				this.cData.classLabels = this.cData.class.querySelectorAll('label');
 				this.cData.classInputs = this.cData.class.querySelectorAll('input');
 
-
-				// Template characters
-				const gallery = [
-					{name : 'Otter', size:5, 'icon':'/media/characters/otter_dressed.jpg', description: 'Art by GothWolf', icon_lowerBody:'/media/characters/otter_lb.jpg', icon_upperBody:'/media/characters/otter_ub.jpg', icon_nude:'/media/characters/otter_nude.jpg', 'species':'otter', class:'elementalist', tags:[stdTag.plTongue, stdTag.penis, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
-					{name : 'Wolfess', size:5, 'icon':'/media/characters/wolf.jpg', 'species':'wolf', description:'Art by Maddworld', class:'monk', tags:[stdTag.plTongue, stdTag.vagina, stdTag.breasts, stdTag.plFurry, stdTag.plTail, stdTag.plHair, stdTag.plEars, stdTag.plLongTail]},
-				];
-				for( let item of gallery ){
-
-					const div = document.createElement('div');
-					div.classList.add('galleryEntry', 'button');
-					div.dataset.data = JSON.stringify(item);
-					div.style = 'background-image:url('+esc(item.icon)+')';
-					this.gallery.append(div);
-
-				}
-
 				for( let tag in stdTag ){
 
 					const spl = stdTag[tag].split('_');
@@ -2305,8 +2289,6 @@ export default class StaticModal{
 					}
 
 				}
-
-
 
 			})
 			.setDraw(async function(){
@@ -2383,21 +2365,40 @@ export default class StaticModal{
 					}
 				};
 
-				const loadTemplate = jsonData => {
+				const loadTemplate = label => {
 
-					const data = JSON.parse(jsonData);
-					player.load(data);
+					const template = glib.get(label, 'PlayerGalleryTemplate');
+					player.load(template.player);
+					player.g_resetID();
 
 				};
 
 				
+				// Update default characters
+				// Template characters
 				const onGalleryClick = event => {
 					
-					loadTemplate(event.target.dataset.data);
+					loadTemplate(event.target.dataset.label);
 					updateFields();
 
 				};
-				Array.from(this.gallery.children).map(el => el.addEventListener('click', onGalleryClick))
+				const gallery = glib.getFull('PlayerGalleryTemplate');
+				let divs = [];
+				for( let i in gallery ){
+
+					const item = gallery[i],
+						div = document.createElement('div')
+					;
+					div.classList.add('galleryEntry', 'button');
+					div.dataset.label = i;
+					div.style = 'background-image:url('+esc(item.player.icon)+')';
+					div.addEventListener('click', onGalleryClick);
+					divs.push(div);
+
+				}
+				this.gallery.replaceChildren(...divs);
+
+
 
 				
 				// First build
@@ -2469,7 +2470,7 @@ export default class StaticModal{
 
 
 				// Load a default template and update fields
-				loadTemplate(this.gallery.children[0].dataset.data);
+				loadTemplate(this.gallery.children[0].dataset.label);
 				updateFields();
 
 			});

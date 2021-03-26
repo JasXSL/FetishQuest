@@ -46,6 +46,7 @@ export default class Mod extends Generic{
 		this.questRewards = [];
 		this.questObjectives = [];
 		this.questObjectiveEvents = [];
+		this.gallery = [];
 
 		this.load(data);
 	}
@@ -107,6 +108,7 @@ export default class Mod extends Generic{
 			actionLearnable : this.actionLearnable,
 			factions : this.factions,
 			dungeonSubTemplates : this.dungeonSubTemplates,
+			gallery : this.gallery,
 		};
 
 		return out;
@@ -321,6 +323,7 @@ export default class Mod extends Generic{
 
 	}
 
+	
 
 
 	// mod save goes to databse

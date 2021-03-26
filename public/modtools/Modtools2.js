@@ -36,6 +36,7 @@ import * as EditorDungeon from './editors/EditorDungeon.js';
 import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
 import * as EditorDungeonTemplate from './editors/EditorDungeonTemplate.js';
 import * as EditorDungeonSubTemplate from './editors/EditorDungeonSubTemplate.js';
+import * as EditorGallery from './editors/EditorGallery.js';
 import Generic from '../classes/helpers/Generic.js';
 import GameLib from '../classes/GameLib.js';
 
@@ -81,6 +82,7 @@ const DB_MAP = {
 	"dungeonRooms" : { listing : EditorDungeonRoom.list, asset : EditorDungeonRoom.asset, icon : 'doorway', help : EditorDungeonRoom.help },
 	"dungeonTemplates" : { listing : EditorDungeonTemplate.list, asset : EditorDungeonTemplate.asset, icon : 'tower-fall', help : EditorDungeonTemplate.help },
 	"dungeonSubTemplates" : { listing : EditorDungeonSubTemplate.list, asset : EditorDungeonSubTemplate.asset, icon : 'tower-fall', help : EditorDungeonSubTemplate.help },
+	"gallery" : { listing : EditorGallery.list, asset : EditorGallery.asset, icon : 'mona-lisa', help : EditorGallery.help },
 };
 
 /*
