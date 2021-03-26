@@ -1,3 +1,5 @@
+const TOOL_VERSION = 1;	// Version of the exporter
+
 import Window from './WindowManager.js';
 import {default as WebGL, Stage} from '../classes/WebGL.js';
 import * as THREE from '../ext/THREE.js';
@@ -269,6 +271,11 @@ export default class Modtools{
 
 						Window.addMenuOption("export", "Export", () => {
 
+							++this.mod.buildNr;
+							this.mod.version = TOOL_VERSION;
+							this.mod.save();
+							this.updateModName();
+
 							const zip = new JSZip();
 							zip.file('mod.json', JSON.stringify(this.mod.getSaveData()));
 							zip.generateAsync({
@@ -283,7 +290,7 @@ export default class Modtools{
 								const url = URL.createObjectURL(content);
 
 								a.setAttribute('href', url);
-								a.setAttribute('download', this.mod.name.split(" ").join('_')+'.fqmod');
+								a.setAttribute('download', this.mod.name.split(" ").join('_')+'_b'+(this.mod.buildNr)+'.fqmod');
 
 								document.body.appendChild(a);
 								a.click();
@@ -612,7 +619,7 @@ export default class Modtools{
 			let mods = await Mod.getAll();
 
 			let html = '<table class="selectable">';
-				html += '<tr><th>ID</th><th>Name</th><th>Author</th><th>Description</th></tr>';
+				html += '<tr><th>ID</th><th>Name</th><th>Author</th><th>Description</th><th>Build</th><th>Editor V</th></tr>';
 			for( let mod of mods ){
 
 				html += '<tr data-id="'+esc(mod.id)+'">';
@@ -620,6 +627,8 @@ export default class Modtools{
 					html += '<td>'+esc(mod.name)+'</td>';
 					html += '<td>'+esc(mod.author)+'</td>';
 					html += '<td>'+esc(mod.description)+'</td>';
+					html += '<td>'+esc(mod.buildNr)+'</td>';
+					html += '<td>'+esc(mod.version)+'</td>';
 				html += '</tr>';
 
 			}
@@ -660,7 +669,7 @@ export default class Modtools{
 
 	// UI stuff
 	updateModName(){
-		this.modName.innerText = esc(this.mod.name) || "Unnamed Mod";
+		this.modName.innerText = (esc(this.mod.name) || "Unnamed Mod") + ' b'+this.mod.buildNr;
 	}
 
 

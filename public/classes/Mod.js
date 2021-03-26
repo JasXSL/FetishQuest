@@ -10,8 +10,8 @@ export default class Mod extends Generic{
 	constructor(data){
 		super(data);
 
-		this.version = 1;
-		this.build_nr = 1;
+		this.version = 1;			// Version of the FQ modtools
+		this.buildNr = 1;			// Build nr (incremented automatically when exported)
 
 		// x = not yet implemented
 		this.name = '';
@@ -75,7 +75,7 @@ export default class Mod extends Generic{
 	getSaveData(){
 		
 		const out = {
-			build_nr : this.build_nr,
+			buildNr : this.buildNr,
 			version : this.version,
 			id : this.id,
 			name : this.name,
