@@ -50,24 +50,29 @@
 
 		console.debug("Modules imported, starting game");
 		
-		gCondition = Condition;
-		gGameEvent = GameEvent;
-		gAudio = Audio;
-		gMod = Mod;
-		gComparer = Comparer;
-		gCollection = Collection;
-		gGeneric = Generic;
-		gAsset = Asset;
-		gText = Text;
-		gCalculator = Calculator;
-		gGameAction = GameAction;
-		gPlayer = Player;
-		gDungeon = Dungeon;
-		stdTag = Tags;
-		glib = new GameLib();
-		window.Player = Player;
+		const globals = {
+			gCondition : Condition,
+			gGameEvent : GameEvent,
+			gAudio : Audio,
+			gMod : Mod,
+			gComparer : Comparer,
+			gCollection : Collection,
+			gGeneric : Generic,
+			gAsset : Asset,
+			gText : Text,
+			gCalculator : Calculator,
+			gGameAction : GameAction,
+			gPlayer : Player,
+			gDungeon : Dungeon,
+			stdTag : Tags,
+			glib : new GameLib(),
+			Player : Player
+		};
+		
+		for( let i in globals )
+			window[i] = globals[i];
 
-		if( 'serviceWorker' in navigator ){
+		if( 'serviceWorker' in navigator && window.location.hostname.split('.')[0].toLowerCase() === 'fetishquest' ){
 
 			console.log("Waiting for window load");
 			window.addEventListener('load', function() {
@@ -86,11 +91,25 @@
 		}
 
 		glib.ini()
+		.then(Game.load)
 		.then(() => {
-			Game.load();
-		})
-		.then(() => {
-			console.debug("Game initialized. Globals:\ngame = Active game\nglib = Game asset library\ngCondition = Condition class\ngMod = Mod class\ngGameEvent = GameEvent class\ngAudio = Audio class");
+			
+			const commonCommands = {
+				'game.quests[<index>].onFinish()' : 'Finishes specific quest. Use game.quests to see a list.',
+				'game.setDungeon(<str dungeonName>, <int room>, <bool reset>, <int difficulty>)' : 'Move to a dungeon by name, use glib.getFull("Dungeon") to see all.',
+				'glib.getFull(<str assetType>)' : 'Gets a list of library items available in your current game. assetType is the class name such as Dungeon, Asset, Player etc.',
+				'game.players[<index>].addExperience(<int points>)' : 'Adds experience to a player.',
+			};
+
+			let iniMessage = 'Game initialized!\n';
+			iniMessage += 'Type "game" to see your current game.\n';
+			iniMessage += 'Common debug commands:\n';
+			for( let i in commonCommands )
+				iniMessage += '  '+i+' : '+commonCommands[i]+'\n';
+			iniMessage += 'Globals: '+Object.keys(globals).join(' ')+'\n';
+
+			console.log(iniMessage);
+
 		})
 		.catch(err => console.error(err));
 		
