@@ -95,6 +95,7 @@ class Wrapper extends Generic{
 			}
 
 			if( full !== "mod" ){
+				
 				out.id = this.id;
 				out._duration = this._duration;
 				out.victim = this.victim;
@@ -103,6 +104,7 @@ class Wrapper extends Generic{
 				out.action = this.action;
 				if( this.ext )
 					out._added = this._added;
+
 			}
 			else
 				this.g_sanitizeDefaults(out);

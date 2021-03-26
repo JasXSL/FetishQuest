@@ -7,6 +7,7 @@ import { QuestReward } from './Quest.js';
 import Shop from './Shop.js';
 import Mod from './Mod.js';
 import Game from './Game.js';
+import { Wrapper } from './EffectSys.js';
 
 export default class StaticModal{
 
@@ -131,13 +132,13 @@ export default class StaticModal{
 		this.constructor.close( force );
 	}
 
-	async refresh(){
+	async refresh( clean = false ){
 
 		if( this.drawing )
 			return false;
 
 		this.drawing = true;
-		const out = await this.onDraw.apply(this, this.args);
+		const out = await this.onDraw.apply(this, clean ? [] : this.args);
 		this.drawn = true;
 		this.drawing = false;
 
@@ -931,7 +932,12 @@ export default class StaticModal{
 
 					<div class="right cmContentBlock bgMarble">
 						<div class="image"></div>
-						<div class="expBar"></div>
+						<div class="expBar">
+							<div class="progressBar">
+								<div class="bar" style="width:0%;"><!-- Set width here base on percentage --></div>
+								<span class="content"><!-- Progress bar text here --></span>
+							</div>
+						</div>
 						<div class="equipment inventory"></div>
 						<div class="primaryStats flexThreeColumns"></div>
 						<div class="secondaryStats flexAuto"></div>
@@ -1018,6 +1024,8 @@ export default class StaticModal{
 					right : $("> div.right", cDom),
 					image : $("> div.right > div.image", cDom),
 					expBar : $("> div.right > div.expBar", cDom),
+					expBarBar : $("> div.right > div.expBar > div.progressBar div.bar", cDom),
+					expBarText : $("> div.right > div.expBar > div.progressBar span.content", cDom),
 					equipment : $("> div.right > div.equipment", cDom),
 					primaryStats : $("> div.right > div.primaryStats", cDom),
 					secondaryStats : $("> div.right > div.secondaryStats", cDom),
@@ -1118,11 +1126,9 @@ export default class StaticModal{
 					const cDivs = this.character;
 					cDivs.name.text(player.name);
 					cDivs.subName.html('Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name));
-					cDivs.expBar.html(
-						player.level < Player.MAX_LEVEL ? 
-							game.ui.buildProgressBar(player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP', player.experience/player.getExperienceUntilNextLevel()) : 
-							''
-					);
+					this.character.expBarBar[0].style = 'width:'+Math.max(0, Math.min(100, player.experience/player.getExperienceUntilNextLevel()*100))+'%';
+					this.character.expBarText[0].innerText = player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP';
+
 					cDivs.description.html(
 						'<strong>About:</strong><br />'+
 						esc(player.description || 'No description')+'<br />'+
@@ -2476,9 +2482,8 @@ export default class StaticModal{
 				};
 
 				// Can bind this here since it's a static item
-				// Todo: update
 				this.main.addInventory.addEventListener('click', () => {
-					game.ui.drawPlayerAssetSelector();
+					StaticModal.setWithTab('assetLibrary', 'Library', game.getMyActivePlayer());
 				});
 
 								
@@ -2782,16 +2787,72 @@ export default class StaticModal{
 		this.add(new this("assetLibrary", "Asset Library"))
 			.addTab("Library", () => {
 				return `
-					<div class="inventory flexTwoColumns">
-						
+					<div class="inventory tooltipShrink">
+						<h3 class="title"></h3>
+						<div class="listing"></div>
+						<input type="button" class="create green" value="Create" />
+						<input type="button" class="back red" value="Back" />
 					</div>
 				`;
 			})
 			.addTab("Editor", () => {
 				return `
-					<div class="inventory flexTwoColumns">
+					<div class="inventory"><form class="saveAsset">
+						<div class="centered">
+							<input type="button" class="generateRandom yellow" value="Randomize As:" /> 
+							<select name="randSlot"><!-- Randomizer slot here --></select>
+							<div class="parentInfo"><!-- Enabled when this item is owned -->
+								<div class="centered">
+									Owner : <select name="owner"><!-- Player names here --></select>
+								</div>
+							</div>
+						</div>
+
+						<div class="flexThreeColumns">
+
+							<div>Unique ID:<br /><input type="text" name="label" /></div>
+							<div>Name:<br /><input type="text" name="name" /></div>
+							<div>Shortname:<br /><input type="text" name="shortname" /></div>
+							<div>Level:<br /><input type="number" min=-1 step=1 name="level" /></div>
+							<div>Durability Bonus:<br /><input type="number" min=0 step=1 name="durability_bonus" /></div>
+							<div>Weight in grams:<br /><input type="number" min=0 step=1 name="weight" /></div>
+							<div>Rarity:<br /><input type="number" min=0 step=1 max=4 name="rarity" /></div>
+							<div>Durability:<br /><input type="number" min=0 step=1 name="durability" /></div>
+							<div>Loot Sound:<br /><input type="text" name="loot_sound" /></div>
+							<div>Icon:<br /><input type="text" name="icon" /></div>
+							<div>Hit sound:<br /><input type="text" name="hit_sound" /></div>
+							<div>Type:<br /><select name="category"><!-- Category listing here --></select></div>
+									
+							<label><input type="checkbox" name="colorable" value="1" /> Tintable</label><br />
+				
+						</div>
+
+						<div class="flexTwoColumns">
+							<div>
+								Dye:<br /><input type="text" style="width:auto" name="color_tag" />
+								<input type="color" name="color" />
+							</div>
+							<div>
+								Base color:<br /><input type="text" style="width:auto" name="color_tag_base" />
+								<input type="color" name="color_base" />
+							</div>
+						</div>
+
+						Slots:
+						<div class="slots"><!-- Slots here --></div>
+						<br />
+						Description:<br />
+						<textarea name="description"><!-- Description here --></textarea><br />
+						Tags: <br />
+						<textarea name="tags"></textarea><br />
+						<br />
+						Effects JSON - <input type="button" class="autogen yellow" value="Auto Generate Stats for Level" /><br />
+						Quick Stats: <span class="quickStats"></span>
+						<textarea name="wrappers" style="width:100%; height:20vh;"><!-- Wrapper editor here --></textarea><br />
+
+						<input type="submit" value="Save" class="green"> 						
 						
-					</div>
+					</form></div>
 				`;
 			})
 			.setProperties(function(){
@@ -2800,18 +2861,399 @@ export default class StaticModal{
 				const editor = this.getTabDom('Editor')[0];
 
 				this.library = {
+					title : library.querySelector('h3.title'),
+					listing : library.querySelector('div.listing'),
+					create : library.querySelector('input.create'),
+					back : library.querySelector('input.back'),
 				};
 				this.editor = {
-
+					form : editor.querySelector('form.saveAsset'),
 				};
-								
+
+				const getEl = query => this.editor.form.querySelector(query);
+
+				// Create the random slots array
+				const randslot = this.editor.form.querySelector('select[name=randSlot]');
+				const equipSlots = this.editor.form.querySelector('div.slots');
+				for( let i in Asset.Slots ){
+
+					if( Asset.Slots[i] === Asset.Slots.none )
+						continue;
+
+					let opt = document.createElement('option');
+					randslot.append(opt);
+					opt.value = opt.innerText = i;
+
+					opt = document.createElement('label');
+					equipSlots.append(opt);
+					opt.innerText = i+' ';
+					const checkbox = document.createElement('input');
+					opt.prepend(checkbox);
+					checkbox.type = 'checkbox';
+					checkbox.name = 'slots';
+					checkbox.value = Asset.Slots[i];
+					
+				}
+				
+				const catslot = this.editor.form.querySelector('select[name=category]');
+				for( let cat in Asset.Categories ){
+					
+					const opt = document.createElement('option');
+					catslot.append(opt);
+					opt.value = cat;
+					opt.innerText = Asset.CategoriesNames[cat];
+
+				}
+
+
+
+				this._player = null;
+				this._asset = null;
+
+				// Static events
+				this.library.back.addEventListener('click', () => {
+					StaticModal.set('player', this._player);
+				});
+				this.library.create.addEventListener('click', () => {
+
+					StaticModal.setWithTab('assetLibrary', 'Editor', undefined, new Asset());
+
+				});
+
+
+				// Saves an asset
+				this.editor.form.addEventListener('submit', event => {
+					event.stopImmediatePropagation();
+					event.preventDefault();
+
+					const root = this.editor.form;
+					
+
+					const a = this._asset;
+		
+					a.label = getEl("input[name=label]").value.trim();
+					a.name = getEl("input[name=name]").value.trim();
+					a.shortname = getEl("input[name=shortname]").value.trim();
+					a.level = parseInt(getEl("input[name=level]").value) || 0;
+					a.durability_bonus = parseInt(getEl("input[name=durability_bonus]").value) || 0;
+					a.weight = parseInt(getEl("input[name=weight]").value) || 0;
+					a.rarity = parseInt(getEl("input[name=rarity]").value) || 0;
+					a.loot_sound = getEl("input[name=loot_sound]").value;
+					a.category = getEl("select[name=category]").value;
+					a.icon = getEl("input[name=icon]").value;
+					a.colorable = getEl("input[name=colorable]").checked;
+					a.color = getEl("input[name=color]").value;
+					a.color_base = getEl("input[name=color_base]").value;
+					a.color_tag = getEl("input[name=color_tag]").value;
+					a.color_tag_base = getEl("input[name=color_tag_base]").value;
+					a.hit_sound = getEl("input[name=hit_sound]").value;
+					
+					if( a.parent )
+						a.durability = parseInt(getEl("input[name=durability]").value) || 0;
+					
+					
+					a.slots = [];
+					root.querySelectorAll('input[name=slots]').forEach(el => {
+						if( el.checked )
+							a.slots.push(el.value);
+					});
+					
+					a.description = getEl("textarea[name=description]").value.trim();
+					a.tags = getEl("textarea[name=tags]").value.trim().split(' ').filter(el => el !== "").map(el => 'as_'+el.toLowerCase());
+					
+					try{
+						a.wrappers = JSON.parse(getEl("textarea[name=wrappers]").value.trim()).map(el => new Wrapper(el, a.parent));
+					}catch(err){
+						console.error("Unable to save, invalid JSON: ", err);
+						return false;
+					}
+		
+					if( a.parent ){
+		
+						a.repair(0);	// Makes sure durability doesn't go above max
+						let owner = getEl("select[name=owner]").value;
+						let newOwner = game.getPlayerById(owner);
+						if( owner !== a.parent.id && newOwner ){
+							// Creates a clone
+							newOwner.addAsset(a);
+							// Remove form old owner
+							a.parent.destroyAsset(a.id);
+						}
+						
+					}
+		
+					// If custom isn't set (on new/randomized assets, this isn't set), add it to library
+					if( !a._custom ){
+
+						a._custom = true;
+						game.addToLibrary(a);
+
+					}
+
+					game.save();
+					if( a.parent )
+						StaticModal.set('inventory');
+					else
+						StaticModal.setWithTab('assetLibrary', 'Library', game.getMyActivePlayer());
+
+				});
+
+				// Draws the stats in a human readable format
+				this.updateEffectStats = () => {
+					try{
+
+
+						let wrappers = JSON.parse(getEl("textarea[name=wrappers]").value.trim()).map(el => new Wrapper(el));
+						let stats = {};
+						for( let i in Action.Types ){
+							stats['sv'+Action.Types[i]] = 0;
+							stats['bon'+Action.Types[i]] = 0;
+						}
+		
+						for( let i in Player.primaryStats )
+							stats[i+'Modifier'] = 0;
+		
+						for( let wrapper of wrappers ){
+		
+							for( let effect of wrapper.effects ){
+		
+								if( stats.hasOwnProperty(effect.type) && effect.data && !isNaN(effect.data.amount) )
+									stats[effect.type] += effect.data.amount;
+		
+							}
+		
+						}
+	
+						let out = '';
+						for(let i in stats ){
+							if( stats[i] )
+								out += '<div class="quickStat">'+stats[i]+' '+Asset.stringifyStat(i)+'</div>';
+						}
+						getEl("span.quickStats").innerHTML = out;
+
+					}catch(err){
+						console.error(err);
+					}
+				};
+
+				// Auto stats generator button
+				getEl("input.autogen").addEventListener('click', () => {
+
+					let slots = [];
+					this.editor.form.querySelectorAll("input[name=slots]:checked").forEach(el => slots.push(el.value));
+
+					let level = parseInt(getEl("input[name=level]").value) || 0;
+					let rarity = parseInt(getEl("input[name=rarity]").value) || 0;
+		
+					let wrapper = Asset.generateStatWrapper(slots.length, 0, rarity);
+					getEl("textarea[name=wrappers]").value = JSON.stringify([wrapper.save("mod")], null, 4);
+					this.updateEffectStats();
+		
+				});
+
+				// Wrapper JSON validator
+				getEl("textarea[name=wrappers]").addEventListener('change', event => {
+					
+					let val = event.currentTarget.value.trim();
+					try{
+
+						val = JSON.parse(val);
+						event.currentTarget.value = JSON.stringify(val, null, 4);
+						this.updateEffectStats();
+
+					}catch(err){
+
+						let nr = +err.message.split(' ').pop();
+						if( !isNaN(nr) ){
+
+							event.currentTarget.focus();
+							event.currentTarget.selectionEnd = event.currentTarget.selectionStart = nr;
+
+						}
+						alert(err);
+
+					}
+
+				});
+
+
+
+				getEl("input.generateRandom").addEventListener('click', () => {
+
+					let ass = Asset.generate(
+						getEl("select[name=randSlot]").value,
+						parseInt(getEl("input[name=level]").value) || 0, 
+						undefined, 
+						undefined, 
+						parseInt(getEl("input[name=rarity]").value) || 0
+					);
+
+					if(!ass)
+						return;
+					
+					this._asset = ass;
+					ass._generated = false;	// Make it insert on save
+
+					this.refresh(true);	// Do a clean refresh, we don't need args
+		
+				});
+				
+
 
 			})
-			.setDraw(async function( asset ){
-
+			.setDraw(async function( player, asset ){
 
 				
-				
+
+				if( player instanceof Player )
+					this._player = player;
+								
+				if( !this._player )
+					return;
+					
+				if( asset instanceof Asset )
+					this._asset = asset;
+
+				// Don't set _custom on the asset because it's needed for saving
+				if( !(this._asset instanceof Asset) )
+					this._asset = new Asset();
+
+				asset = this._asset;
+
+				// Update library
+				const handleAssetClick = event => {
+
+					let id = event.currentTarget.dataset.id,
+						assetObj = lib[id]
+					;
+					if(event.ctrlKey){
+
+						if( !event.currentTarget.classList.contains('custom') ){
+							
+							game.ui.modal.addError("Can't delete a built in asset");
+							return false;
+
+						}
+
+						game.removeFromLibrary(assetObj);
+						this.refresh();
+						game.ui.setTooltip();
+						game.save();
+
+					}
+
+					else if( event.shiftKey ){
+
+						let obj = assetObj;
+						// Shift clicking a built in asset makes a copy
+						if( !event.currentTarget.classList.contains('custom') ){
+
+							obj = obj.clone();
+							// Generate a new ID and label
+							obj.g_resetID();
+							obj.label = obj.id;
+
+						}
+							
+						StaticModal.setWithTab('assetLibrary', 'Editor', player, obj);						
+						game.ui.setTooltip();
+
+					}
+
+					else if(player.addLibraryAsset(id)){
+
+						
+						game.save();
+						StaticModal.set('inventory');
+						game.ui.draw();
+						game.ui.setTooltip();
+
+					}
+
+				};
+
+				let lib = glib.getFull('Asset');
+				let divs = [];
+				for( let id in lib ){
+
+					let asset = lib[id];
+					const div = await StaticModal.getGenericAssetButton(asset);
+					div.dataset.id = asset.label;
+					if( asset._custom )
+						div.classList.add('custom');
+					divs.push(div);
+					div.addEventListener('click', handleAssetClick);
+
+				}
+				this.library.listing.replaceChildren(...divs);
+
+				// Update the fields
+				if( asset ){
+
+					const a = asset;
+
+					const getFields = qs => this.editor.form.querySelectorAll(qs);
+					const getField = qs => this.editor.form.querySelector(qs);
+
+					getField('input[name=label]').value = a.label;
+					getField('input[name=name]').value = a.name;
+					getField('input[name=shortname]').value = a.shortname;
+					getField('input[name=level]').value = parseInt(a.level) || 1;
+					getField('input[name=durability_bonus]').value = parseInt(a.durability_bonus) || 0;
+					getField('input[name=weight]').value = parseInt(a.weight) || 0;
+					getField('input[name=rarity]').value = parseInt(a.rarity) || 0;
+
+					getField('input[name=durability]').parentNode.classList.toggle('hidden', !a.parent);
+					getField('input[name=durability]').value = parseInt(a.durability) || 0;
+
+					getField('input[name=loot_sound]').value = a.loot_sound;
+					getField('input[name=icon]').value = a.icon;
+					getField('input[name=hit_sound]').value = a.hit_sound;
+
+					getFields('select[name=category] option').forEach(el => el.selected = (a.category === el.value));
+
+					getField('input[name=colorable]').checked = Boolean(a.colorable);
+					getField('input[name=color_tag]').value = a.color_tag;
+					getField('input[name=color]').value = a.color;
+					getField('input[name=color_tag_base]').value = a.color_tag_base;
+					getField('input[name=color_base]').value = a.color_base;
+					
+					getFields('input[name=slots]').forEach(el => {
+						
+						const val = Asset.Slots[el.value];
+						el.checked = Boolean(~a.slots.indexOf(val));
+
+					});
+					
+					getField('textarea[name=description]').value = a.description;
+					getField('textarea[name=tags]').value = a.tags.map(el => el.substr(3)).join(' ');
+
+					getField('textarea[name=wrappers]').value = JSON.stringify(a.wrappers.map(el => el.save("mod")), null, 4);
+
+
+					getField('div.parentInfo').classList.toggle('hidden', !a.parent);
+					if( a.parent ){
+						
+						const players = game.getEnabledPlayers();
+						let divs = [];
+						for( let player of players ){
+							
+							const div = document.createElement('option');
+							divs.push(div);
+							div.value = player.id;
+							if( a.parent.id === player.id )
+								div.selected = true;
+							div.innerText = player.name;
+							
+						}
+						getField('select[name=owner]').replaceChildren(...divs);
+
+					}
+
+					this.updateEffectStats();
+
+				}
+
 			});
 		
 

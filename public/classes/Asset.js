@@ -460,13 +460,20 @@ export default class Asset extends Generic{
 			let data = Asset.imageCache[this.icon];
 			if( !data ){
 
-				data = await fetch('media/wrapper_icons/'+this.icon+'.svg');
-				data = await data.text();
+				if( !this.icon )
+					data = document.createElement('svg');
+				else{
 
-				const template = document.createElement('template');
-				template.innerHTML = data;
+					data = await fetch('media/wrapper_icons/'+this.icon+'.svg');
+					data = await data.text();
 
-				data = template.content.childNodes[0];	// Store raw SVG
+					const template = document.createElement('template');
+					template.innerHTML = data;
+
+					data = template.content.childNodes[0];	// Store raw SVG
+
+				}
+
 				data.style = '';
 				data.classList.add('assetIcon');
 
@@ -544,7 +551,7 @@ Asset.imageCache = {};	// icon : svg data
 
 // Automatically creates a stat wrapper
 // Level is the level of the item, numSlots is how many item slots it covers
-Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
+Asset.generateStatWrapper = function( numSlots, bonusStats, rarity = 0 ){
 
 	const rarityPoints = [
 		0,	// Nada
@@ -558,7 +565,7 @@ Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 	points *= numSlots;
 	
 	let effects = [];
-	if( level <= 0 || isNaN(level) || points <= 0 || isNaN(points) || rarity < 1 ){
+	if( points <= 0 || isNaN(points) || rarity < 1 ){
 		return new Wrapper({
 			name : 'statsAutoGen',
 			detrimental : false,
@@ -576,14 +583,15 @@ Asset.generateStatWrapper = function( level, numSlots, bonusStats, rarity = 0 ){
 	effects = effects.slice(0, rarity);
 
 	
-	return new Wrapper({
+	const out = new Wrapper({
 		duration : -1,
 		name : 'statsAutoGen',
 		detrimental : false,
 		effects : effects,
-		stay_conditions : [],
-		add_conditions : []
 	});
+	out.add_conditions = [];
+	out.stay_conditions = [];
+	return out;
 
 };
 
@@ -648,7 +656,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		// Not found
 		wr.effects.push(Effect.createStatBonus(stype, snr));
 	};
-	let wrapper = Asset.generateStatWrapper( level, template.slots.length, template.stat_bonus, rarity );
+	let wrapper = Asset.generateStatWrapper( template.slots.length, template.stat_bonus, rarity );
 	for( let i in template.bonStats )
 		addEffectToWrapper(wrapper, i, template.bonStats[i]);
 	for( let i in template.svStats )
@@ -691,6 +699,11 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		out.loot_sound = 'lootMail';
 	else if( out.hasTag(stdTag.asLeather) )
 		out.loot_sound = 'lootLeather';
+
+	for( let wrapper of out.wrappers ){
+		wrapper.add_conditions = [];
+		wrapper.stay_conditions = [];
+	}
 
 	out.repair();
 	return out;

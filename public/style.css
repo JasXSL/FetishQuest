@@ -726,6 +726,7 @@ div.fxBuffRed{
 	#customModals > #player div.cmTabContent[data-id=Character]{
 		min-height:60vh;
 		max-height:80vh;
+		overflow:visible;
 	}
 	#player div.cmTabContent h2.name{
 		margin:0;
@@ -971,17 +972,6 @@ div.fxBuffRed{
 	div.flexFourColumns > div{
 		width:25%;
 	}
-	#saveAsset div.quickStat{
-		display:inline-block;
-	}
-	#saveAsset div.quickStat{
-		background:rgba(0,0,0,.5);
-		border-radius:0.2vmax;
-		margin:0 0.2vmax 0.2vmax 0;
-		padding:0.25vmax;
-		box-shadow:0.25vmax 0.25vmax 1vmax rgba(0,0,0,.25);
-		cursor:help;
-	}
 	#modal img.player_icon_preview,
 	#modal img.inspect_icon
 	{
@@ -1083,7 +1073,7 @@ div.fxBuffRed{
 		background-color:#655;
 	}
 	div.inventory div.item.custom{
-		border:1px solid #FFD;
+		background-color: rgba(50,100,50,.75);
 	}
 
 	div.item.common, strong.common{ border-color: #DDD !important; color: #DDD !important; }
@@ -1319,6 +1309,26 @@ div.fxBuffRed{
 
 	}
 	
+
+/**/
+
+/* Asset library */
+
+	#assetLibrary div.cmTabContent{
+		min-width: 70vw;
+	}
+
+	#assetLibrary div.quickStat{
+		display:inline-block;
+	}
+	#assetLibrary div.quickStat{
+		background:rgba(0,0,0,.5);
+		border-radius:0.2vmax;
+		margin:0 0.2vmax 0.2vmax 0;
+		padding:0.25vmax;
+		box-shadow:0.25vmax 0.25vmax 1vmax rgba(0,0,0,.25);
+		cursor:help;
+	}
 
 /**/
 
