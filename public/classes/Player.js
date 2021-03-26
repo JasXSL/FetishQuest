@@ -1446,7 +1446,15 @@ export default class Player extends Generic{
 
 	// Encumbrance
 	getCarryingCapacity(){
-		return 35000+this.getPrimaryStats()[Player.primaryStats.stamina]*3000;
+
+		let flat = 
+			35000+
+			this.getPrimaryStats()[Player.primaryStats.stamina]*3000+
+			this.getGenericAmountStatPoints(Effect.Types.carryModifier)
+		;
+
+		return flat*this.getGenericAmountStatMultiplier(Effect.Types.carryModifier);
+
 	}
 	getCarriedWeight(){
 		let out = 0;

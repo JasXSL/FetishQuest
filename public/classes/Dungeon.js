@@ -675,6 +675,7 @@ class DungeonRoom extends Generic{
 		return this === this.parent.rooms[0];
 	}
 
+
 	// Limits to 1 per room and 1 per asset
 	getNumEncounters(){
 		let out = Encounter.getFirstViable(this.encounters) ? 1 : 0;

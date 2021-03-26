@@ -94,10 +94,10 @@ export default class Shop extends Generic{
 		for( let item of this.items ){
 
 			for( let token of item.tokens )
-				out.set(token.asset, true);
+				out.set(token.asset.label, token.asset);
 
 		}
-		return Array.from(out.keys());
+		return Array.from(out.values());
 
 	}
 
@@ -248,18 +248,18 @@ export class ShopAsset extends Generic{
 			this._time_bought = game.time;
 	}
 
-	affordableByPlayer( player ){
+	affordableByPlayer( player, amount = 1 ){
 
 		if( !(player instanceof Player) )
 			throw 'Trying to check item affordable by nonplayer';
 
 		const money = player.getMoney();
-		if( money < this.getCost() )
+		if( money < this.getCost()*amount )
 			return false;
 
 		for( let token of this.tokens ){
 
-			if( player.numAssets(token.asset.label) < token.amount )
+			if( player.numAssets(token.asset.label) < token.amount*amount )
 				return false;
 
 		}

@@ -10,19 +10,8 @@
 
 
 -- CURRENT --
-	- Convert more stuff from UI to staticmodal, because the current design is slow AF
-
-	- Procedural
-		- Add faction rewards when completing an exploration
-		- Add exp rewards when completing an exploration
-		- Add an explorer's guild
-			- Cartograph vendor, sells gear and such
-			- Intro RP
-		- Track generated dungeons in journal
-		- Add additional dungeons
-
-	Maybe?
-		- Procedural dungeon affixes
+	
+		
 
 
 
@@ -50,6 +39,8 @@ Medium rare:
 		- Test
 	
 -- LATER UPDATE --
+
+	- Procedural dungeon affixes
 
 	- Add hotkeys for combat
 

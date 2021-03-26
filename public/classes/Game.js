@@ -58,6 +58,7 @@ export default class Game extends Generic{
 		this.completed_quests = new Collection();		// label : {objective_label:true,__time:(int)time_completed}
 		this.state_roleplays = new Collection();		// label : (collection){completed:(bool), stage:(int)} - These are fetched by the Dungeon object. They're the same objects here as they are in dungeon._state
 		this.procedural = [];							// Dungeon objects
+		this.proceduralDiscovery = new Collection();	// label : {perc:(float)exploredPercentage}
 		this.state_shops = new Collection();			// label : (obj)shopState
 		this.difficulty = 5;							// Scale between 0 and 10. Below 5 and it reduces damage taken by 15% per tier. Above 5 and it reduces damage done by 15% per tier.
 		this.factions = [];
@@ -168,7 +169,8 @@ export default class Game extends Generic{
 			time : this.time,
 			state_shops : this.state_shops.save(full),
 			rain : this.rain,
-			factions : Faction.saveThese(this.factions, full)
+			factions : Faction.saveThese(this.factions, full),
+			proceduralDiscovery : this.proceduralDiscovery.save(full)
 		};
 
 		out.state_dungeons = this.state_dungeons.save(full);
@@ -369,6 +371,7 @@ export default class Game extends Generic{
 		}
 
 		this.procedural = Dungeon.loadThese(this.procedural);
+		this.proceduralDiscovery = Collection.loadThis(this.proceduralDiscovery);
 
 		// Map Quests and Players
 		// If our current encounter is in the current dungeon, then use the dungeon encounter object
@@ -564,6 +567,20 @@ export default class Game extends Generic{
 		for( let player of this.players )
 			player.onCellChange();
 		this.addSeconds(30);
+
+		// Update exploration
+		if( this.dungeon.procedural ){
+
+			this.discoverProceduralDungeon(this.dungeon.label);
+
+			const disc = this.proceduralDiscovery.get(this.dungeon.label),
+				explored = this.dungeon.getNumExploredRooms()/this.dungeon.rooms.length
+			;
+			
+			if( explored != disc.perc )
+				disc.perc = explored;
+
+		}
 		
 	}
 	// This one is raised both on host and client.
@@ -594,19 +611,8 @@ export default class Game extends Generic{
 				this.setRain();
 
 		}
-		const week = 3600*24*7;
-
-		// Procedural
-		for( let d of this.procedural ){
-			
-			if( this.time-d.procedural > week ){
-				
-				this.removeProceduralDungeonState(d);
-				this.save();
-
-			}
-
-		}
+		
+		this.updateProceduralStates();
 
 		this.renderer.updateWeather();
 		this.updateAmbiance();			// Handle rain sounds and updates the room
@@ -1043,7 +1049,7 @@ export default class Game extends Generic{
 			throw 'Trying to set procedural dungeon without label';
 
 		let dungeon = this.getProceduralDungeon( label );
-		console.log("Dungeon", dungeon);
+
 		if( !dungeon ){
 
 			let kit = data.templates;
@@ -1055,6 +1061,7 @@ export default class Game extends Generic{
 			dungeon.g_resetID();
 
 			this.procedural.push(dungeon);
+			this.updateProceduralStates();
 
 		}
 		this.setDungeon(dungeon);
@@ -1075,6 +1082,41 @@ export default class Game extends Generic{
 
 	}
 
+	// Discovers a procedural dungeon if not already discovered
+	discoverProceduralDungeon( label ){
+
+		if( this.proceduralDiscovery.get(label) )
+			return;
+		this.proceduralDiscovery.set(label, {perc:0});
+
+	}
+
+	updateProceduralStates(){
+
+		let needSave = false;
+		const week = 3600*24*7;
+		// Procedural
+		for( let d of this.procedural ){
+			
+			if( this.time-d.procedural > week ){
+
+				this.removeProceduralDungeonState(d);
+				needSave = true;
+
+			}
+
+			// Add if we haven't discovered this yet
+			if( !this.proceduralDiscovery.get(d.label) )
+				this.discoverProceduralDungeon(d.label);
+
+		}
+
+		if( needSave )
+			this.save();
+		
+	}
+
+
 	removeProceduralDungeonState( dungeon ){
 		
 		
@@ -1091,7 +1133,7 @@ export default class Game extends Generic{
 
 		
 		this.playFxAudioKitById('explorationCompleted', undefined, undefined, undefined, true);
-		const name = game.dungeon.label.split(/[_\s]+/).map(el => ucFirst(el)).join(' ');
+		const name = labelToName(game.dungeon.label);
 		this.ui.questAcceptFlyout( 'Exploration Complete: ', name );
 
 		if( this.is_host && this.net.id )
@@ -1103,6 +1145,9 @@ export default class Game extends Generic{
 		if( numRooms > 10 && (numRooms%10)/10 < Math.random() )
 			++rewards;
 
+		this.addFactionStanding('cartographers', 10);
+		players.map(player => player.addExperience(game.getAveragePlayerLevel()*2));
+		
 		for( let player of players ){
 			
 			player.addLibraryAsset("cartograph", rewards);
@@ -1151,37 +1196,6 @@ export default class Game extends Generic{
 
 
 	/* QUEST */
-
-	// Procedurally generates a quest and dungeon
-	/*
-	addRandomQuest( type, difficultyMultiplier = 1 ){
-
-		const dungeonType = [Dungeon.Shapes.Random, Dungeon.Shapes.SemiLinear][Math.round(Math.random())];
-		const cells = 6+Math.floor(Math.random()*7);
-		const dungeon = Dungeon.generate(
-			cells, 
-			undefined, 
-			{
-				difficulty:game.getTeamPlayers(0).length*difficultyMultiplier,
-				shape : dungeonType,
-				depth : -1,
-			});
-		if( !dungeon )
-			return this.ui.modal.addError("Unable to generate a dungeon");
-
-		dungeon.label = '_procedural_';
-		let quest = Quest.generate( type, dungeon, difficultyMultiplier);
-		if( !quest )
-			return false;
-		quest.label = '_procedural_';
-		quest.description += '\n|s|This is a procedurally generated quest. Visit a bounty board to enter the dungeon.|/s|';
-		this.addQuest(quest);
-		this.procedural_dungeon = dungeon.clone(this);		// Create a snapshot so we can travel to and from the dungeon
-		this.save();
-		
-	}
-	*/
-
 	addQuest(quest){
 
 		if( typeof quest === "string" )
@@ -2673,7 +2687,7 @@ export default class Game extends Generic{
 		const cost = asset.getCost()*amount,
 			a = asset.getAsset()
 		;
-		if( !asset.affordableByPlayer(player) )
+		if( !asset.affordableByPlayer(player, amount) )
 			throw "Insufficient funds";
 
 		if( !a )

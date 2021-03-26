@@ -523,6 +523,7 @@ export default class StaticModal{
 		// Quest
 		this.add(new this("quests", "Quests"))
 			.addRefreshOn(["quests"])
+			.addRefreshOn(["proceduralDiscovery"])
 			.addTab("Quests", () => {
 				return `
 					<div class="left"></div>
@@ -531,7 +532,8 @@ export default class StaticModal{
 			})
 			.addTab("Exploration", () => {
 				return `
-					<!-- Todo: Add exploration tab -->
+					<p class="center">Exploration dungeons are scattered around the world. Fully exploring these will award Cartographs that the Cartographers United Magistrate might be interested in. These dungeons are repopulated every now and then.</p>
+					<div class="explorationStatus"></div>
 				`;
 			})
 			.setProperties(function(){
@@ -539,6 +541,11 @@ export default class StaticModal{
 				const main = this.main = this.getTabDom('Quests');
 				this.right = $("div.right", main);
 				this.left = $("div.left", main);
+
+				const exploration = this.getTabDom('Exploration')[0];
+				this.exploration = {
+					status : exploration.querySelector('div.explorationStatus')
+				};
 				
 			})
 			.setDraw(async function(){
@@ -627,6 +634,52 @@ export default class StaticModal{
 					StaticModal.refreshActive();
 
 				});
+
+
+				// Exploration tab
+
+				// Gets or creates an exploration div
+				const getEntry = label => {
+					
+					let el = this.exploration.status.querySelector('div[data-label=\''+label+'\']');
+					if( !el ){
+						
+						el = document.createElement('div');
+						this.exploration.status.append(el);
+						el.classList.add('dungeon', 'progressBar');
+						el.dataset.label = label;
+
+						const bar = document.createElement('div');
+						el.append(bar);
+						bar.classList.add('bar');
+						bar.style = 'width:0%';
+
+						const content = document.createElement('div');
+						content.classList.add('content');
+						el.append(content);
+
+					}
+					return el;
+
+				};
+
+				for( let label in game.proceduralDiscovery ){
+
+					const 
+						data = game.proceduralDiscovery[label],
+						perc = data.perc,
+						div = getEntry(label),
+						bar = div.querySelector('div.bar'),
+						content = div.querySelector('div.content')
+					;
+
+					content.innerText = labelToName(label)+' '+Math.floor(perc*100)+'%';
+					div.classList.toggle('red', perc < 1);
+					bar.style = 'width:'+(perc*100)+'%';
+
+
+				}
+
 
 			});
 
@@ -1126,6 +1179,7 @@ export default class StaticModal{
 					const cDivs = this.character;
 					cDivs.name.text(player.name);
 					cDivs.subName.html('Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name));
+					this.character.expBar[0].classList.toggle('hidden', player.team !== Player.TEAM_PLAYER);
 					this.character.expBarBar[0].style = 'width:'+Math.max(0, Math.min(100, player.experience/player.getExperienceUntilNextLevel()*100))+'%';
 					this.character.expBarText[0].innerText = player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP';
 
@@ -1565,37 +1619,21 @@ export default class StaticModal{
 
 
 					// Update tokens (alt currency)
-					const tokenBase = baseElement.querySelector('div.altCurrency'),
-						tokenElements = baseElement.querySelectorAll('div.altCurrency > div')
-					;
+					const tokenBase = baseElement.querySelector('div.altCurrency');
 
 					// only buy shows tokens
 					if( tokenBase ){
 
-						tokenElements.forEach(el => el.classList.toggle('hidden', true));
-
 						const tokens = shop.getTokenAssets();
+						let divs = [];
 						for( let i = 0; i < tokens.length; ++i ){
 
 							const token = tokens[i];
-							let div = tokenElements[i];
-							if( !div || div.dataset.id !== token.id ){
-
-								const created = await StaticModal.getGenericAssetButton(token, myPlayer.numAssets(token.label), '', 'compact');
-								// Already exists, replace
-								if( div )
-									div.parentNode.replaceChild(div, created);
-								// Doesn't exist, add
-								else
-									tokenBase.append(created);
-
-								div = created;
-
-							}
+							let div = await StaticModal.getGenericAssetButton(token, myPlayer.numAssets(token.label), '', 'compact');
+							divs.push(div);
 							
-							div.classList.toggle('hidden', false);
-
 						}
+						tokenBase.replaceChildren(...divs);
 
 					}
 
@@ -1842,7 +1880,7 @@ export default class StaticModal{
 
 			});
 
-		
+		// Main menu
 		this.add(new this("mainMenu", "FetishQuest"))
 			.addTab("Main Menu", () => {
 				return `

@@ -110,6 +110,11 @@ function randRound( val = 0 ){
 	return base;
 }
 
+// Turns a label like yuug_deep_forest into a name like Yuug Deep Forest
+function labelToName( label ){
+	return label.split(/[_\s]+/).map(el => ucFirst(el)).join(' ');
+}
+
 // Converts one or more vars into an array if it's not already
 function toArray(...args){
 	if( args[0] === undefined )

@@ -1975,6 +1975,9 @@ Effect.Types = {
 	// Intellect
 	intellectModifier : "intellectModifier",	
 
+	carryModifier : "carryModifier",	
+
+
 	svPhysical : 'svPhysical',				
 	svElemental : 'svElemental',			
 	svHoly : 'svHoly',						
@@ -2053,6 +2056,7 @@ Effect.Passive = {
 	[Effect.Types.staminaModifier] : true,
 	[Effect.Types.agilityModifier] : true,
 	[Effect.Types.intellectModifier] : true,
+	[Effect.Types.carryModifier] : true,
 	[Effect.Types.addTags] : true,
 	[Effect.Types.addRandomTags] : true,
 
@@ -2124,6 +2128,8 @@ Effect.TypeDescs = {
 	[Effect.Types.globalHealingDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
 	[Effect.Types.globalHealingTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
 	
+	[Effect.Types.carryModifier] : '{amount:(nr)(string)amount, multiplier:(bool)isMultiplier=false} - Adds or multiplies target carrying capacity. Nonmultiplier is in grams',
+
 	// These add or subtract critical hit chance
 	[Effect.Types.critDoneMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects crit chance for the cast. Note that this is ADDITIVE, so 0.25 = 25%',
 	[Effect.Types.critTakenMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects the caster critting on the target. ADDITIVE. 0.25 = +25% etc',
@@ -2147,7 +2153,6 @@ Effect.TypeDescs = {
 	[Effect.Types.agilityModifier] : '{amount:(int)amount}',
 	// Intellect
 	[Effect.Types.intellectModifier] : '{amount:(int)amount}',
-
 
 
 	[Effect.Types.svPhysical] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
