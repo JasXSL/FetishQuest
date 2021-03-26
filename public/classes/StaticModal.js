@@ -833,7 +833,7 @@ export default class StaticModal{
 					localStorage.shadows = +show;
 					$("input", event.currentTarget).prop("checked", show);
 
-					ui.modal.set(
+					game.ui.modal.set(
 						'<p>This setting requires a browser refresh. Would you like to refresh now?</p>'+
 						'<input type="button" value="Yes" class="yes" />'+	
 						'<input type="button" value="No" />'
@@ -843,7 +843,7 @@ export default class StaticModal{
 						const targ = $(event.currentTarget);
 						if( targ.is('.yes') )
 							window.location.reload();
-						ui.modal.close();
+						this.ui.modal.close();
 					});
 
 				});
