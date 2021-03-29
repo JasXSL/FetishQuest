@@ -1559,6 +1559,7 @@ export default class UI{
 				false
 			);
 		}
+
 		this.modal.onSelectionBox(event => {
 			
 			let element = event.currentTarget,

@@ -92,7 +92,8 @@ class Bot{
 			return;
 		}
 		
-		if( Math.random() < 1-this.player.dominant ){
+		// Beasts don't use sub
+		if( Math.random() < 1-this.player.dominant && !this.player.isBeast() ){
 			game.useActionOnTarget( actions.stdPunishSub, target, this.player );
 			return;
 		}
@@ -112,7 +113,7 @@ class Bot{
 
 	play( force = false ){
 		
-		if( (!this.player.isNPC() && !force) || !game.battle_active || game.getTurnPlayer() !== this.player )
+		if( (!this.player.isNPC() && !force) || this.player.isDead() || !game.battle_active || game.getTurnPlayer() !== this.player )
 			return;
 
 		let abils = this.player.getActions().filter(el => {

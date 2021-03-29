@@ -131,9 +131,10 @@ export function help(){
 			'<li>W - Move tool</li>'+
 			'<li>E - Rotation tool</li>'+
 			'<li>R - Scale tool</li>'+
+			'<li>F - Drop to floor</li>'+
 			'<li>Ctrl - Snap to grid</li>'+
-			'<li>Ctrl+Z/Ctrl+Y - Undo/redo</li>'+
-			'<li>Del - Deletes the selected asset, hurdur</li>'+
+			'<li>Ctrl+Z/Ctrl+Y - Undo/redo edits on a particular mesh</li>'+
+			'<li>Del - Deletes the selected asset, hurdur. Note that you can\'t undo this.</li>'+
 		'</ul>'+
 		'<p>Double click a mesh to bring up a property editor.</p>'	
 	;
@@ -172,10 +173,13 @@ class Editor{
 	constructor( win, asset ){
 
 		const modtools = window.mod,
-			gl = modtools.webgl;
+			gl = modtools.webgl
+		;
 		this.gl = gl;
 		this.win = win;
 		this.assetWindow = null;
+		this.raycaster = new THREE.Raycaster();
+		this.raycaster.far = 1000;
 
 		// Add transform controls
 		const control = modtools.transformControls;
@@ -189,35 +193,39 @@ class Editor{
 		this.changed = false;
 		this.shift_held = false;
 
-		control._listeners.mouseUp = [evt => {
+		const handleObjectChange = event => {
 
-			if( this.changed ){
 
-				this.changed = false;
-				const mesh = evt.target.object,
-					entry = mesh.userData.dungeonAsset
-				;
+			this.changed = false;
+			const mesh = event.target.object,
+				entry = mesh.userData.dungeonAsset
+			;
 
-				entry.x = Math.round(mesh.position.x);
-				entry.y = Math.round(mesh.position.y);
-				entry.z = Math.round(mesh.position.z);
-				entry.rotX = Math.round(mesh.rotation.x*100)/100;
-				entry.rotY = Math.round(mesh.rotation.y*100)/100;
-				entry.rotZ = Math.round(mesh.rotation.z*100)/100;
-				entry.scaleX = Math.round(mesh.scale.x*100)/100;
-				entry.scaleY = Math.round(mesh.scale.y*100)/100;
-				entry.scaleZ = Math.round(mesh.scale.z*100)/100;
+			entry.x = Math.round(mesh.position.x);
+			entry.y = Math.round(mesh.position.y);
+			entry.z = Math.round(mesh.position.z);
+			entry.rotX = Math.round(mesh.rotation.x*100)/100;
+			entry.rotY = Math.round(mesh.rotation.y*100)/100;
+			entry.rotZ = Math.round(mesh.rotation.z*100)/100;
+			entry.scaleX = Math.round(mesh.scale.x*100)/100;
+			entry.scaleY = Math.round(mesh.scale.y*100)/100;
+			entry.scaleZ = Math.round(mesh.scale.z*100)/100;
 
-				this.save();
+			this.save();
+			this.addHistory(entry);
 
-				this.addHistory(entry);
+			
+		};
 
-			}
+		control._listeners.mouseUp = [event => {
+			if( this.changed )
+				handleObjectChange(event);
 		}];
 		control._listeners.objectChange = [evt => {
 
 			// Shift clone
 			if( !this.changed && this.shift_held ){
+
 				let obj = evt.target.object.userData.dungeonAsset;
 				if( !obj )
 					return;
@@ -252,8 +260,10 @@ class Editor{
 
 		this.rebase();
 
-		modtools.webgl.renderer.domElement.tabIndex = 0;
-		modtools.webgl.renderer.domElement.onkeydown = event => {
+		gl.renderer.domElement.tabIndex = 0;
+		gl.renderer.domElement.onkeydown = event => {
+
+			event.preventDefault();
 
 			if( event.key === 'Shift' ){
 				this.shift_held = true;	
@@ -274,6 +284,35 @@ class Editor{
 				this.removeMesh(control.object);
 				this.buildAssetEditor();
 			}
+			else if( event.key === 'f' && control.object ){
+
+				const start = control.object.position,
+					end = new THREE.Vector3(0,-1,0)
+				;
+
+				const raycaster = this.raycaster;
+				raycaster.set(start, end);
+
+				const meshes = [];
+				control.object.parent.traverse(el => {
+					if( el.isMesh )
+						meshes.push(el);
+				});
+
+				const intersects = raycaster.intersectObjects(meshes);
+				for( let i of intersects ){
+
+					if( i.object === control.object )
+						continue;
+
+					control.object.position.y = i.point.y;
+					const evt = {target : {object: control.object}};
+					handleObjectChange(evt);
+					break;
+
+				}
+
+			}
 			else if( event.key === "z" && event.ctrlKey )
 				this.traverseHistory(control.object.userData.dungeonAsset, -1);
 			else if( event.key === "y" && event.ctrlKey )
@@ -282,6 +321,7 @@ class Editor{
 		};
 
 		modtools.webgl.renderer.domElement.onkeyup = event => {
+			event.preventDefault();
 			if( event.key === 'Shift' ){
 				this.shift_held = false;
 			}
@@ -290,6 +330,12 @@ class Editor{
 				control.setTranslationSnap( null );
 				control.setRotationSnap( null );
 			}
+		};
+		modtools.webgl.renderer.domElement.onclick = event => {
+			event.preventDefault();
+		};
+		modtools.webgl.renderer.domElement.onmousedown = event => {
+			event.preventDefault();
 		};
 
 		const baseAssetSelect = win.dom.querySelector('select.roomBaseAsset');

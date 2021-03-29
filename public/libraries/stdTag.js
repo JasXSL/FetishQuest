@@ -262,6 +262,16 @@ export default {
 	mPew : 'm_pew',
 	mMist : 'm_mist',
 	mTorture : 'm_torture',
+	mFloorRock : 'm_floor_rock',
+	mWallRock : 'm_floor_rock',
+	mFloorStoneTile : 'm_floor_stone_tile',
+	mWallStoneTile : 'm_wall_stone_tile',
+	mFloorWood : 'm_floor_wood',
+	mFloorSand : 'm_floor_sand',
+	mFloorDirt : 'm_floor_dirt',
+	mFloorGrass : 'm_floor_grass',
+	mFloorMoss : 'm_floor_moss',
+	mWallWood : 'm_wall_wood',
 
 	// Bondage tags are a bit special in that they're used by conditions
 	// A bondage device should be marked by mBondage. It's then added to a pool of viable bondage devices in the dungeon

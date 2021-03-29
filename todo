@@ -10,9 +10,7 @@
 
 
 -- CURRENT --
-	
-		
-
+	- Add hot key to drop current selected object to floor
 
 
 Meshes:
@@ -66,7 +64,6 @@ Medium rare:
 
 	- Populate the bazaar
 	- Show what mods a quest belongs to
-	- Quest editor (later)
 	- Game benefit for using a punishment (generic passive)
 		- Sub = Restore mana
 		- Dom = restore HP
@@ -94,14 +91,5 @@ Medium rare:
 			- Expensive
 
 	Monster ideas:
-		- Flytrap type tentacle monster that grapples a player's butt with its maw
 		- Slime monster
-		
-
-	Action ideas:
-		Chains : Cast on 2 targets, increasing all their AP costs by 1 for 3 turns.
-					- Visual
-					- Texts
-					- Test
-					- Add to rewards
 

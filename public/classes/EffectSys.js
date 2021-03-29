@@ -1524,11 +1524,13 @@ class Effect extends Generic{
 
 			// Unlike the above one, this will present the caster with an asset picker of damaged gear on the target
 			else if( this.type === Effect.Types.repair ){
+
 				let np = wrapper.netPlayer;
 				if( np )
 					game.net.dmDrawRepair(np, s, t, template.parent );
 				else
 					game.ui.drawRepair(s, t, template.parent );		// Supply the original effect since it has the proper parent. When cloned, parent always becomes the victim player
+					
 			}
 			
 			else if( this.type === Effect.Types.interrupt )

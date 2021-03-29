@@ -1667,13 +1667,17 @@ export default class Player extends Generic{
 
 		let levelsGained = this.level-startLevel;
 		if( levelsGained ){
+			
 			this.addActionsForClass();
 			game.onPlayerLevelup(this, levelsGained);
+
 		}
 
 		if( !this.actionSlotsFull() ){
+
 			const n = this.getNrFreeActionSlots();
 			game.ui.addText( this.getColoredName()+" has "+n+" free action slot"+(n === 1 ? '' : 's')+"! Visit a gym to learn new actions!", undefined, this.id, this.id, 'important statMessage' );
+
 		}
 
 		return levelsGained;
@@ -2439,7 +2443,7 @@ export default class Player extends Generic{
 	}
 
 	// Adds auto unlock actions for your class
-	addActionsForClass(){
+	addActionsForClass( silent ){
 		
 		let lib = Object.values(glib.getFull("ActionLearnable"));
 		for( let a of lib ){
@@ -2450,7 +2454,7 @@ export default class Player extends Generic{
 			const action = a.getAction();
 			if( !action )
 				continue;
-			this.addAction(action);
+			this.addAction(action, silent);
 		
 
 		}
@@ -2779,7 +2783,7 @@ export default class Player extends Generic{
 		let turnsSinceLastSpoke = this._turns-this._last_chat;
 		// On battle start this is needed
 		if( !this._turns && !this._last_chat )	// Use talkativity percentage on battle start
-			turnsSinceLastSpoke = 1;
+			turnsSinceLastSpoke = 0.5;
 		else if( !this._turns && this._last_chat )		// Cap to one battle start message
 			return false;
 

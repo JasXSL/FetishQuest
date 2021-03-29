@@ -470,12 +470,12 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.StoneTile.DungeonWall,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 				}),
 				R10x10RL : new LibMesh({
 					isRoom : true,
 					url : 'rooms/dungeon_10x10_reverse_l.JD',
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 					materials : [
 						libMat.StoneTile.DungeonWall,
 						libMat.StoneTile.DungeonFloor,
@@ -486,7 +486,7 @@ function build(){
 				R6x10 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/dungeon_6x10.JD',
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 					materials : [
 						libMat.StoneTile.DungeonWall,
 						libMat.StoneTile.DungeonFloor,
@@ -497,7 +497,7 @@ function build(){
 				R6x6 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/dungeon_6x6.JD',
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 					materials : [
 						libMat.StoneTile.DungeonWall,
 						libMat.StoneTile.DungeonFloor,
@@ -508,7 +508,7 @@ function build(){
 				Necro8x6 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/necrodungeon_8x6.JD',
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 					materials : [
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
@@ -517,7 +517,7 @@ function build(){
 				Necro6x6 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/necrodungeon_6x6.JD',
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 					materials : [
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
@@ -526,7 +526,7 @@ function build(){
 				Necro8x6s : new LibMesh({
 					isRoom : true,
 					url : 'rooms/necrodungeon_8x6s.JD',
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 					materials : [
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
@@ -535,7 +535,7 @@ function build(){
 				Necro8x8 : new LibMesh({
 					isRoom : true,
 					url : 'rooms/necrodungeon_8x8.JD',
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 					materials : [
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
@@ -543,7 +543,7 @@ function build(){
 				}),
 				Shackles : new LibMesh({
 					url : 'doodads/wall_shackles_1x1.JD',
-					tags : [stdTag.mShackles],
+					tags : [stdTag.mShackles, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
 					materials : [
 						libMat.Metal.Chain,
 						libMat.Metal.DarkGeneric,
@@ -1238,7 +1238,7 @@ function build(){
 						libMat.Wood.Logs,
 						libMat.Wood.Crate,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
 				}),
 				R8x4 : new LibMesh({
 					isRoom : true,
@@ -1248,7 +1248,7 @@ function build(){
 						libMat.Wood.Floor,
 						libMat.Wood.Logs,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
 				}),
 				R6x4 : new LibMesh({
 					isRoom : true,
@@ -1258,7 +1258,7 @@ function build(){
 						libMat.Wood.Floor,
 						libMat.Wood.Logs,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
 				}),
 				R10x3 : new LibMesh({
 					isRoom : true,
@@ -1268,7 +1268,7 @@ function build(){
 						libMat.Wood.Floor,
 						libMat.Wood.Logs,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
 				}),
 				Window : new LibMesh({
 					url : 'rooms/cottage_window.JD',
@@ -2747,7 +2747,7 @@ function build(){
 							libMat.Land.BeachA
 						],
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mSand],
+						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
 
 					}),
 					B : new LibMesh({
@@ -2756,7 +2756,7 @@ function build(){
 							libMat.Land.BeachB
 						],
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mSand],
+						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
 
 					}),
 					C : new LibMesh({
@@ -2767,7 +2767,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mSand],
+						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
 
 					}),
 					D : new LibMesh({
@@ -2778,7 +2778,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mSand],
+						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
 
 					}),
 					E : new LibMesh({
@@ -2789,7 +2789,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mSand],
+						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
 
 					}),
 					F : new LibMesh({
@@ -2800,7 +2800,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mSand],
+						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
 
 					}),
 				},
@@ -2814,7 +2814,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mDirt],
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 					}),
 					mainroadB : new LibMesh({
@@ -2825,7 +2825,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mDirt],
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 					}),
 					mainroadC : new LibMesh({
@@ -2836,7 +2836,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mDirt],
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 					}),
 					mainroadD : new LibMesh({
@@ -2847,7 +2847,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mDirt],
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 					}),
 					mainroadE : new LibMesh({
@@ -2858,7 +2858,7 @@ function build(){
 
 
 						isRoom : true,
-						tags : [stdTag.mGrass, stdTag.mDirt],
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 					}),
 
@@ -2911,7 +2911,7 @@ function build(){
 
 						isRoom : true,
 
-						tags : [stdTag.mGrass, stdTag.mSand],
+						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
 					}),
 					JettyMid : new LibMesh({
 						url : 'land/yuug/yuug_port_mid_dock.JD',
@@ -2988,7 +2988,7 @@ function build(){
 
 
 					isRoom : true,
-					tags : [stdTag.mGrass, stdTag.mSand],
+					tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 				}),
 				T : new LibMesh({
@@ -2999,7 +2999,7 @@ function build(){
 
 
 					isRoom : true,
-					tags : [stdTag.mGrass, stdTag.mSand],
+					tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 				}),
 				Straight : new LibMesh({
@@ -3010,7 +3010,7 @@ function build(){
 
 
 					isRoom : true,
-					tags : [stdTag.mGrass, stdTag.mSand],
+					tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 				}),
 				Bend : new LibMesh({
@@ -3021,7 +3021,7 @@ function build(){
 
 
 					isRoom : true,
-					tags : [stdTag.mGrass, stdTag.mSand],
+					tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
 				}),
 			},
@@ -3034,7 +3034,7 @@ function build(){
 
 
 					isRoom : true,
-					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp],
+					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp, stdTag.mFloorMoss, stdTag.mFloorGrass],
 
 				}),
 				B : new LibMesh({
@@ -3045,7 +3045,7 @@ function build(){
 
 
 					isRoom : true,
-					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp],
+					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp, stdTag.mFloorMoss, stdTag.mFloorGrass],
 
 				}),
 				C : new LibMesh({
@@ -3056,7 +3056,7 @@ function build(){
 
 
 					isRoom : true,
-					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp],
+					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp, stdTag.mFloorMoss, stdTag.mFloorGrass],
 
 				}),
 				D : new LibMesh({
@@ -3067,7 +3067,7 @@ function build(){
 
 
 					isRoom : true,
-					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp],
+					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp, stdTag.mFloorMoss, stdTag.mFloorGrass],
 
 				}),
 				Water : new LibMesh({
@@ -3110,7 +3110,7 @@ function build(){
 						libMat.Rock.Floor,
 						libMat.Rock.Wall,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
 
 
 
@@ -3122,7 +3122,7 @@ function build(){
 						libMat.Rock.Floor,
 						libMat.Rock.Wall,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
 
 				}),
 				R6x6 : new LibMesh({
@@ -3132,7 +3132,7 @@ function build(){
 						libMat.Rock.Floor,
 						libMat.Rock.Wall,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
 
 
 
@@ -3154,7 +3154,7 @@ function build(){
 						// Needs to be rotated -90 degrees for water to work
 						new LibMeshAttachment({path:"Cave.Room.R8x6River", always:true, rotation:new THREE.Vector3(-Math.PI/2,0,0), position:new THREE.Vector3(0,65,-90)}),
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
 
 
 
@@ -3519,10 +3519,7 @@ function build(){
 					libMat.Wood.Old,
 					libMat.Wood.Crate,
 				],
-				tags : [stdTag.mWall],
-
-
-
+				tags : [stdTag.mWall, stdTag.mFloorWood, stdTag.mWallWood],
 			}),
 
 			Gym : new LibMesh({
@@ -3532,7 +3529,7 @@ function build(){
 					libMat.StoneTile.ChurchFloor2,
 					libMat.Structure.CottageWall2,
 				],
-				tags : [stdTag.mWall],
+				tags : [stdTag.mWall, stdTag.mFloorStoneTile,],
 
 
 
@@ -3545,7 +3542,7 @@ function build(){
 					libMat.StoneTile.ChurchFloor2,
 					libMat.Rock.Wall,
 				],
-				tags : [stdTag.mWall],
+				tags : [stdTag.mWall, stdTag.mFloorStoneTile],
 
 
 
@@ -3559,7 +3556,7 @@ function build(){
 					libMat.StoneTile.StoneWall,
 					libMat.StoneTile.ChurchFloor,
 				],
-				tags : [stdTag.mWall],
+				tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 
 
 
@@ -3577,7 +3574,7 @@ function build(){
 					libMat.StoneTile.StoneWall,
 					libMat.StoneTile.ChurchFloor,
 				],
-				tags : [stdTag.mWall],
+				tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 			}),
 
 			Sewer : {
@@ -3602,7 +3599,7 @@ function build(){
 						libMat.Brick.Small,
 						libMat.Brick.Small,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 				}),
 				x_8x8 : new LibMesh({
 	
@@ -3613,7 +3610,7 @@ function build(){
 						libMat.Brick.Small,
 						libMat.Brick.Small,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 				}),
 				bend_8x8 : new LibMesh({
 	
@@ -3624,7 +3621,7 @@ function build(){
 						libMat.Brick.Small,
 						libMat.Brick.Small,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 				}),
 				narrow_3x8 : new LibMesh({
 
@@ -3635,7 +3632,7 @@ function build(){
 						libMat.Brick.Small,
 						libMat.Brick.Small,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 				}),
 				chamber_8x8 : new LibMesh({
 
@@ -3646,7 +3643,7 @@ function build(){
 						libMat.Brick.Small,
 						libMat.Brick.Small,
 					],
-					tags : [stdTag.mWall],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 				}),
 			},
 

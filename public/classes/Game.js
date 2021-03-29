@@ -1296,6 +1296,14 @@ export default class Game extends Generic{
 		if( fromLib )
 			p.onPlacedInWorld();
 
+		if( !p.auto_learn ){
+			
+			if( p.level < 1 )
+				p.level = 1;
+			p.addActionsForClass(true);
+
+		}
+
 		// Add before the current player
 		if( this.battle_active ){
 			

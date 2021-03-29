@@ -612,7 +612,7 @@ export default class StaticModal{
 
 				this.right.html(html);
 
-				if( !selectedQuest.hide_rewards ){
+				if( selectedQuest && !selectedQuest.hide_rewards ){
 
 					const inv = this.right[0].querySelector('div.assets.inventory');
 					const rewards = selectedQuest.getRewards();
@@ -1222,8 +1222,10 @@ export default class StaticModal{
 							if( game.is_host ){
 
 								div.addEventListener('click', event => {
-									if( event.shiftKey )
-										game.ui.drawAssetEditor( asset, player );
+									if( event.shiftKey ){
+										StaticModal.setWithTab( 'assetLibrary', 'Editor', player, asset );
+
+									}
 								});
 
 							}
@@ -2247,6 +2249,7 @@ export default class StaticModal{
 					nude : dom.querySelector('input[name=icon_nude]'),
 					upperBody : dom.querySelector('input[name=icon_upperBody]'),
 					lowerBody : dom.querySelector('input[name=icon_lowerBody]'),
+					gameName : dom.querySelector('input.gameName')
 				};
 				this.gallery = dom.querySelector('div.gallery');
 				this.tagList = document.getElementById('newGameTags');
@@ -2293,8 +2296,8 @@ export default class StaticModal{
 			})
 			.setDraw(async function(){
 
-				const player = new Player();
-				console.log("Player", player);
+				this.player = new Player();
+
 
 				
 
@@ -2303,7 +2306,7 @@ export default class StaticModal{
 
 					this.cData.classInputs.forEach(input => {
 
-						const checked = input.value === player.class.label;
+						const checked = input.value === this.player.class.label;
 						input.checked = checked;
 						input.parentNode.classList.toggle('selected', checked);
 
@@ -2312,27 +2315,27 @@ export default class StaticModal{
 				};
 				
 				const reloadIcon = () => {
-					this.cData.portrait.style = 'background-image:url('+esc(player.icon)+')';
+					this.cData.portrait.style = 'background-image:url('+esc(this.player.icon)+')';
 				};
 
 				// Updates fields from player
 				const updateFields = () => {
 
 					reloadIcon();
-					this.cData.name.value = player.name;
-					this.cData.species.value = player.species;
-					this.cData.size.value = player.size;
+					this.cData.name.value = this.player.name;
+					this.cData.species.value = this.player.species;
+					this.cData.size.value = this.player.size;
 					
 					updateClass();
 
-					this.cData.description.value = player.description;
-					this.cData.dressed.value = player.icon;
-					this.cData.nude.value = player.icon_nude;
-					this.cData.upperBody.value = player.icon_upperBody;
-					this.cData.lowerBody.value = player.icon_lowerBody;
+					this.cData.description.value = this.player.description;
+					this.cData.dressed.value = this.player.icon;
+					this.cData.nude.value = this.player.icon_nude;
+					this.cData.upperBody.value = this.player.icon_upperBody;
+					this.cData.lowerBody.value = this.player.icon_lowerBody;
 
 					this.cData.tags.replaceChildren();
-					for( let tag of player.tags )
+					for( let tag of this.player.tags )
 						this.addTag(tag);
 
 
@@ -2341,26 +2344,26 @@ export default class StaticModal{
 				// Updates player from fields
 				const updatePlayer = () => {
 
-					player.icon = this.cData.dressed.value.trim();
-					player.icon_nude = this.cData.nude.value.trim();
-					player.icon_upperBody = this.cData.upperBody.value.trim();
-					player.icon_lowerBody = this.cData.lowerBody.value.trim();
-					player.description = this.cData.description.value.trim();
-					player.size = +this.cData.size.value || 0;
-					player.species = this.cData.species.value.trim();
-					player.name = this.cData.name.value;
+					this.player.icon = this.cData.dressed.value.trim();
+					this.player.icon_nude = this.cData.nude.value.trim();
+					this.player.icon_upperBody = this.cData.upperBody.value.trim();
+					this.player.icon_lowerBody = this.cData.lowerBody.value.trim();
+					this.player.description = this.cData.description.value.trim();
+					this.player.size = +this.cData.size.value || 0;
+					this.player.species = this.cData.species.value.trim();
+					this.player.name = this.cData.name.value;
 
 					this.cData.classInputs.forEach(input => {
 						if( input.checked )
-							player.class = glib.get(input.value, 'PlayerClass');
+							this.player.class = glib.get(input.value, 'PlayerClass');
 					});
 					
-					player.tags = [];
+					this.player.tags = [];
 					for( let tagDom of this.cData.tags.children ){
 
 						const tag = tagDom.value.trim().toLowerCase();
 						if( tag )
-							player.tags.push('pl_'+tag);
+							this.player.tags.push('pl_'+tag);
 
 					}
 				};
@@ -2368,8 +2371,8 @@ export default class StaticModal{
 				const loadTemplate = label => {
 
 					const template = glib.get(label, 'PlayerGalleryTemplate');
-					player.load(template.player);
-					player.g_resetID();
+					this.player.load(template.player);
+					this.player.g_resetID();
 
 				};
 
@@ -2447,7 +2450,7 @@ export default class StaticModal{
 						event.stopImmediatePropagation();
 						event.preventDefault();
 
-						const name = this.cData.name.value.trim();
+						const name = this.cData.gameName.value.trim();
 						if( !name ){
 
 							game.ui.modal.addError("Name is empty");
@@ -2455,7 +2458,7 @@ export default class StaticModal{
 
 						}
 			
-						const pl = player.clone();
+						const pl = this.player.clone();
 						pl.auto_learn = false;
 						pl.netgame_owner_name = 'DM';
 						pl.netgame_owner = 'DM';
@@ -2556,9 +2559,8 @@ export default class StaticModal{
 
 					if( event.shiftKey  && game.is_host ){
 
-						// Todo: Update to modal
 						if( asset )
-							game.ui.drawAssetEditor( asset, player );
+							StaticModal.setWithTab( 'assetLibrary', 'Editor', player, asset );
 
 					}
 					// Toggle equip / use
@@ -2577,6 +2579,7 @@ export default class StaticModal{
 
 						if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
 							modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
+
 						}
 
 						if( 
@@ -2621,7 +2624,7 @@ export default class StaticModal{
 								}
 
 								if( action.targetable() )
-									modal.close();
+									th.close();
 								else
 									th.refresh();
 								
@@ -3001,7 +3004,12 @@ export default class StaticModal{
 					a.tags = getEl("textarea[name=tags]").value.trim().split(' ').filter(el => el !== "").map(el => 'as_'+el.toLowerCase());
 					
 					try{
-						a.wrappers = JSON.parse(getEl("textarea[name=wrappers]").value.trim()).map(el => new Wrapper(el, a.parent));
+						const wrappers = JSON.parse(getEl("textarea[name=wrappers]").value.trim());
+						a.wrappers = wrappers.map(el => {
+							const out = new Wrapper(el, a.parent);
+							out.victim = a.parent.id;
+							return out;
+						});
 					}catch(err){
 						console.error("Unable to save, invalid JSON: ", err);
 						return false;
@@ -3013,6 +3021,7 @@ export default class StaticModal{
 						let owner = getEl("select[name=owner]").value;
 						let newOwner = game.getPlayerById(owner);
 						if( owner !== a.parent.id && newOwner ){
+
 							// Creates a clone
 							newOwner.addAsset(a);
 							// Remove form old owner
@@ -3081,7 +3090,6 @@ export default class StaticModal{
 					let slots = [];
 					this.editor.form.querySelectorAll("input[name=slots]:checked").forEach(el => slots.push(el.value));
 
-					let level = parseInt(getEl("input[name=level]").value) || 0;
 					let rarity = parseInt(getEl("input[name=rarity]").value) || 0;
 		
 					let wrapper = Asset.generateStatWrapper(slots.length, 0, rarity);
