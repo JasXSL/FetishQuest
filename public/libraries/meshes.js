@@ -659,7 +659,7 @@ function build(){
 				}),
 				CollarSeat : new LibMesh({
 					url : 'furniture/collarseat_1x1.JD',
-					materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric, libMat.Metal.Chain],
+					materials : [libMat.Wood.Crate, libMat.Metal.Chain, libMat.Metal.DarkGeneric],
 
 
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageSeat, stdTag.mBondageCollarSeat],

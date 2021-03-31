@@ -168,6 +168,7 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			metalness : 0.8,
 			roughness : 0.8,
+			side : THREE.DoubleSide,
 		}),
 	},
 	Solids : {

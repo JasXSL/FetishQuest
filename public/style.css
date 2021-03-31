@@ -626,11 +626,22 @@ div.fxBuffRed{
 
 	#gym div.slots{
 		text-align: center;
+		padding: 2vmax;
+	}
+
+	#gym div.titleSpan > span{
+		position: absolute;
+		font-size: 1.25vmax;
+		top: 0.5vmax;
+		left: 0.5vmax;
+		font-style: italic;
+		color: rgba(255,255,255,.6);
 	}
 
 	#gym div.left,
 	#gym div.right{
 		width:50%;
+		padding:2vmax;
 	}
 
 	#gym div.right{
@@ -680,8 +691,24 @@ div.fxBuffRed{
 		width: 5.5vh;
     	height: 5.5vh;
 	}
+	/*
 	#gym div.action > div:not(.tooltip){
 		display:none;
+	}
+	*/
+	#gym div.action > div.hotkey{
+		display:block;
+	}
+	#gym div.action > div.uses{
+		display:block;
+		position:absolute;
+		color:#FAA;
+		top:50%; left:0; right:0;
+		text-align: center;
+		font-style: italic;
+		transform:translateY(-50%);
+		font-size:1vmax;
+		background:none;
 	}
 
 	#settings{
@@ -1527,10 +1554,16 @@ div.fxBuffRed{
 
 	#ui > div.players div.topRight{
 		position: absolute;
-		top:0; left:0;
+		top:0; left:3vmax;
 		right:0;
-		text-align: left;
+		text-align: right;
 	}
+	#ui > div.players div.topLeft{
+		font-size: 1.5vmax;
+		top: 0.5vmax;
+		left: 0.5vmax;
+	}
+	
 
 	@keyframes chargedAction{
 		from{ background:rgba(0,0,0,.75); }
@@ -1557,7 +1590,8 @@ div.fxBuffRed{
 		top:0; left:0;
 	}
 	#ui > div.players > div.left div.topRight{
-		text-align: right;
+		text-align: left;
+		left:0; right: 3vmax;
 	}
 	#ui > div.players div > div.wrapper{
 		width: 3vmax;
@@ -1666,6 +1700,7 @@ div.fxBuffRed{
 
 /* multiCastPicker */
 	#multiCastPicker{
+
 		position: fixed;
 		bottom:50%;
 		left:50%;
@@ -1685,11 +1720,14 @@ div.fxBuffRed{
 		pointer-events: none;
 		opacity:1;
 		transition: bottom 0.25s ease-out, opacity, 0.25s ease-out;
+		background: url(./media/ui/marble.jpg) repeat;
+
 	}
 	#multiCastPicker > input{
 		font-size:3vmax;
 		padding:1vmax;
 		pointer-events: all;
+		margin:1vmax;
 	}
 	#multiCastPicker.hidden > input{
 		display:none;
@@ -1788,8 +1826,16 @@ div.fxBuffRed{
 		text-align: center;
 		border-top:0.2vh groove rgba(255,255,255,.5);
 	}
+	@keyframes gameIconsHighlight{
+		from{box-shadow:0 0 2vmax 1vmax rgba(255,255,100, 1);}
+		to{box-shadow:0 0 1vmax 0.5vmax rgba(255,255,100, 1);}
+	}
+	#gameIcons > div.highlight{
+		animation:gameIconsHighlight 1s alternate infinite ease-in-out;		
+	}
 	#gameIcons > div,
 	#ui > div.actionbar > div.actions > div{
+
 		width:4.25vh;
 		height:4.25vh;
 		background-size: cover;
@@ -1797,6 +1843,7 @@ div.fxBuffRed{
 		display:inline-block;
 		margin:0 0.25vh 0 0.25vh;
 		vertical-align: middle;
+
 	}
 	#gameIcons > div.highlighted,
 	#mainMenuToggle > div.highlighted{
@@ -2435,13 +2482,18 @@ div.fxBuffRed{
 		box-shadow:0.25vmax 0.25vmax 1vmax rgba(0,0,0,.5);
 		border:0.2vmax solid rgba(255,255,255,.5);
 	}
+
+	div.players div.topLeft,
+	div.action > div.hotkey,
 	#ui > div.actionbar > div.actions > div.action > div.hotkey{
-		position:absolute;
-		display:block;
-		top:0; left:0.1vmax;
+
+		color:rgba(255,255,255,.75);
+		font-style: italic;
+		position: absolute;
+		top:-0.15vmax; left:0;
+		text-shadow: 1px 1px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #001;
 		font-weight: normal;
-		text-shadow:0.1vmax 0.1vmax 0.2vmax #000;
-		display:none;	/* Todo: Action hotkeys */
+
 	}
 	#ui > div.actionbar > div.actions > div.action.enabled:hover{
 		border-color:#FFF !important;

@@ -362,14 +362,17 @@ export default class StaticModal{
 			.addRefreshOn(["players"])
 			.addTab("Actions", () => {
 				return `
-					<div class="slots"></div>
+					<div class="slots titleSpan">
+						<span>Active</span>
+						<div class="slotsWrapper"></div>
+					</div>
 					<div style="display:flex; width:100%; justify-content:space-between">
-						<div class="left">
-							Unlocked:
+						<div class="left titleSpan">
+							<span>Available</span>
 							<div class="available"></div>
 						</div>
-						<div class="right">
-							Purchase:
+						<div class="right titleSpan">
+							<span>Learnable</span>
 							<div class="purchasable"></div>
 						</div>
 					</div>`;
@@ -382,11 +385,13 @@ export default class StaticModal{
 				const actives = this.actives = this.getTabDom('Actions');
 				
 				let html = '';
-				for( let i=0; i<6; ++i )
+				for( let i=0; i < Player.MAX_ACTION_SLOTS; ++i )
 					html += UI.Templates.actionButton;
-				$("> div.slots", actives).html(html);
+				$("div.slots > div.slotsWrapper", actives).html(html);
 
-				this.activeButtons = $("> div.slots > div.action", actives);
+
+
+				this.activeButtons = $("div.slots > div.slotsWrapper > div.action", actives);
 				this.purchasable = $("div.right > div.purchasable", actives);
 				this.available = $("div.left > div.available", actives);
 
@@ -397,21 +402,36 @@ export default class StaticModal{
 				if( !player )
 					return;
 
-				this.activeButtons.toggleClass('hidden', true).toggleClass("detrimental", false);
+				this.activeButtons.toggleClass("detrimental disabled", false);
 				
 				// Active actions
 				const numSlots = player.getNrActionSlots();
-				for( let i = 0; i<numSlots; ++i ){
+				for( let i = 0; i<Player.MAX_ACTION_SLOTS; ++i ){
 
 					const el = $(this.activeButtons[i]);
-					el.toggleClass("hidden", false).toggleClass('button', true);
+					el.toggleClass('button', true);
 
 					let action = player.getActionAtSlot(i);
+
+					// We have an action in this slot
 					if( action )
-						UI.setActionButtonContent(el, action, player);
-					else
-						el.toggleClass("tooltipParent", false);
-					
+						UI.setActionButtonContent(el, action, player, i+3);
+					else{
+
+						const slotUnlocked = i < numSlots;
+						el.toggleClass("tooltipParent", false).toggleClass('disabled', !slotUnlocked);
+						let content = '';
+						if( !slotUnlocked ){
+
+							const lv = Player.getLevelForActionSlot(i);
+							content = 'Lv. '+lv;
+
+						}
+						// Use the uses div to show when the slot is locked
+						$('div.uses', el).html(content);
+
+						
+					}
 					el.toggleClass('empty', !action);
 
 				}
@@ -3336,6 +3356,18 @@ export default class StaticModal{
 						<tr>
 							<td>l</td>
 							<td>Toggle quest log</td>
+						</tr>
+						<tr>
+							<td>1-9</td>
+							<td>Use action</td>
+						</tr>
+						<tr>
+							<td>e</td>
+							<td>End turn</td>
+						</tr>
+						<tr>
+							<td>q</td>
+							<td>Select multi target</td>
 						</tr>
 					</table>
 				`;

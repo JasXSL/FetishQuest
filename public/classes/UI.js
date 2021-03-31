@@ -15,7 +15,7 @@ import StaticModal from "./StaticModal.js";
 import Modal from "./Modal.js";
 import {default as Quest, QuestReward} from './Quest.js';
 
-const NUM_ACTIONS = 18;
+const NUM_ACTIONS = 18;	// Max nr actions the UI can draw
 
 
 
@@ -131,22 +131,30 @@ export default class UI{
 				this.toggle();
 			}
 			else if( event.key === 'i' ){
+
 				if( this.modal.open === true && $("#modal > div.wrapper > div.content > div.inventory").length )
 					this.modal.close();
 				else{
 					game.uiAudio( 'backpack' );
 					StaticModal.set('inventory');
 				}
+
 			}
 			else if( event.key === 'l' ){
+
 				if( this.modal.open === true && $("#modal > div.wrapper > div.content > div.modalQuests").length )
 					this.modal.close();
 				else{
 					StaticModal.set('quests');
 					game.uiAudio( 'toggle_quests' );
 				}
+
 			}
 			else if( event.key === 'Escape' ){
+
+				if( this.action_selected )
+					this.closeTargetSelector();
+
 				if( this.modal.open || StaticModal.active ){
 					
 					game.uiClick();
@@ -158,6 +166,39 @@ export default class UI{
 					StaticModal.close();
 					
 				}
+
+			}
+
+			// Hotbar
+			else if( +event.key && +event.key < 10 ){
+
+				if( this.action_selected ){
+
+					$('div.player[data-index='+event.key+']', this.players).mousedown().mouseup();
+
+				}
+				else{
+
+					const button = this.actionbar_actions[0].children[event.key-1];
+					if( button )
+						$(button).mousedown().mouseup();
+
+				}
+
+			}
+
+			// E ends turn
+			else if( event.key === 'e' ){
+
+				if( this.parent.isMyTurn() )
+					this.endTurnButton.click();
+
+			}
+
+			else if( event.key === 'q' ){
+
+				$("#execMultiCast").click();
+
 			}
 
 
@@ -191,7 +232,9 @@ export default class UI{
 					selectedPlayers = $("div.player.highlighted", th.players);
 
 				if( selectedPlayers.length ){
+
 					th.playerMouseUp(selectedPlayers[0]);
+
 				}
 
 				if( th.action_selected.max_targets < 2 || !selectedPlayers.length )
@@ -461,7 +504,7 @@ export default class UI{
 
 		time = Date.now();
 		let castableActions = 0;
-		for( let i=0; i<NUM_ACTIONS; ++i ){
+		for( let i=0; i < NUM_ACTIONS; ++i ){
 
 			const button = $(buttons[i]);
 			let action = actions[i];
@@ -472,7 +515,7 @@ export default class UI{
 			castableActions += Boolean(castable);
 
 			// Update class name
-			this.constructor.setActionButtonContent(button, action, player);
+			this.constructor.setActionButtonContent(button, action, player, (i < 10 ? i+1 : false));
 
 			// Custom stuff
 			const castableClass = (castable ? 'enabled' : 'disabled');
@@ -486,6 +529,7 @@ export default class UI{
 		// Colorize. No need if invis tho.
 		time = Date.now();
 		if( game.battle_active ){
+
 			let etcolor = 'disabled';
 			if( myTurn ){
 				etcolor = 'enabled';
@@ -499,6 +543,7 @@ export default class UI{
 				}
 			}
 			this.endTurnButton.toggleClass('disabled enabled highlighted', false).toggleClass(etcolor, true);
+
 		}
 		//console.log("Updating colors", Date.now()-time);
 
@@ -566,9 +611,11 @@ export default class UI{
 			if( id === "end-turn" ){
 
 				if( event.type === 'click'){
+
 					th.action_selected = game.getTurnPlayer().getActionByLabel('stdEndTurn');
 					th.targets_selected = [game.getTurnPlayer()];
 					th.performSelectedAction();
+
 				}
 				return;
 
@@ -605,14 +652,17 @@ export default class UI{
 				event.stopImmediatePropagation();
 				// Non directed targets are handled by mousedown
 				if( !th._action_used && spell.castable(true) ){
+
 					th.targets_selected = [];
 					th.drawTargetSelector();
+
 				}
 
 			}
 
 			else if( event.type === 'mouseover' && enabled )
 				th.drawSpellCosts(spell);
+
 			else if( event.type === 'mouseout' && enabled ){
 
 				if( th.action_selected && targetable ){
@@ -713,6 +763,8 @@ export default class UI{
 					'<div class="wrappers"></div>'+
 					'<div class="charging"></div>'+
 				'</div>'+
+				'<div class="topLeft hidden"></div>'+
+				
 				'<div class="targetingStats"></div>'+
 				'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
 				'<div class="interactions">'+
@@ -775,17 +827,28 @@ export default class UI{
 		
 
 		let nr_friendly = 0,
-			nr_hostile = 0;
+			nr_hostile = 0
+		;
 
+		
 		// Update the individual players
+		i = 0;
 		for( let p of players ){
-			this.drawPlayer(p);
-			if( !p.isInvisible() ){
+
+			const invis = p.isInvisible();
+			this.drawPlayer(
+				p, 
+				(invis ? false : ++i)
+			);
+			if( !invis ){
+
 				if( p.team === 0 )
 					++nr_friendly;
 				else
 					++nr_hostile;
+
 			}
+
 		}
 		
 
@@ -951,7 +1014,7 @@ export default class UI{
 
 	}
 
-	drawPlayer( p ){
+	drawPlayer( p, index ){
 
 		const tp = game.getTurnPlayer(),
 			myTurn = tp && tp.id === p.id,
@@ -959,6 +1022,9 @@ export default class UI{
 			myActive = game.getMyActivePlayer(),
 			friendly = p.team === 0
 		;
+
+		
+		el.attr('data-index', index || -1);
 
 		if( isNaN(el.attr('data-team')) )
 			el.attr('data-team', 0);
@@ -998,9 +1064,15 @@ export default class UI{
 			bgEl = $('> div.bg', contentEl),
 			topRightEl = $('> div.topRight', el),
 				wrappersEl = $('> div.wrappers', topRightEl),
-				chargingEl = $('> div.charging', topRightEl)
+				chargingEl = $('> div.charging', topRightEl),
+			topLeftEl = $('> div.topLeft', el)
 		;
 
+
+		index = +index;
+		if( !index || index > 9 )
+			index = '';
+		topLeftEl.text(index);
 
 		// Check if elements need to be reordered
 		let cacheFriendly = +el.attr('data-team') === 0;
@@ -1012,7 +1084,6 @@ export default class UI{
 			el.attr('data-team', p.team);
 
 		}
-
 
 		// Check if image has changed
 		const icon = p.getActiveIcon();
@@ -1339,7 +1410,7 @@ export default class UI{
 			(player ? '<div class="button" data-id="inventory" style="background-image:url(/media/wrapper_icons/light-backpack.svg);"></div>' : '')+
 			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'+
 			'<div data-id="settings" class="button" style="background-image: url(media/wrapper_icons/auto-repair.svg)"></div>'+
-			'<div data-id="help" class="button" style="background-image: url(media/wrapper_icons/help.svg)"></div>'+
+			'<div data-id="help" class="button'+(localStorage.helpClicked ? '' : ' highlight')+'" style="background-image: url(media/wrapper_icons/help.svg)"></div>'+
 			'<div data-id="mainMenu" class="button autoWidth">Game</div>'
 		;
 		this.gameIcons.html(html);
@@ -1371,8 +1442,12 @@ export default class UI{
 				StaticModal.set('settings');
 			}
 			else if( id === 'help' ){
+				
 				game.uiAudio( 'menu_generic' );
 				StaticModal.set('help');
+				localStorage.helpClicked = 1;
+				el.toggleClass('highlight', false);
+
 			}
 		});
 
@@ -1399,6 +1474,10 @@ export default class UI{
 
 
 
+	/* Events */
+	onNewGame(){
+		delete localStorage.helpClicked;
+	}
 	
 
 
@@ -1430,7 +1509,6 @@ export default class UI{
 	// Updates the players with hit chances etc
 	// pl defaults to turn player
 	drawTargetSelector(){
-
 
 		const pl = game.getMyActivePlayer();
 		const action = this.action_selected;
@@ -1486,6 +1564,8 @@ export default class UI{
 			
 		}
 
+		$('div.player > div.topLeft', this.players).toggleClass('hidden', false);
+
 		
 
 	}
@@ -1500,6 +1580,7 @@ export default class UI{
 			this.action_selected = false;
 		this.multiCastPicker.toggleClass('hidden', true);
 		this.drawSpellCosts();
+		$('div.player > div.topLeft', this.players).toggleClass('hidden', true);
 
 	}
 
@@ -1512,18 +1593,24 @@ export default class UI{
 
 		let currentTargets = this.targets_selected.length;
 		let ht = 'Pick '+(+spell.min_targets)+' to '+(+spell.max_targets)+' targets.<br />';
+
 		if( currentTargets < spell.min_targets )
 			ht += 'Need '+(spell.min_targets-currentTargets)+' more';
 		else
-			ht += '<input type="button" value="Done" id="execMultiCast" />';
+			ht += '<input type="button" value="[Q] Done" id="execMultiCast" />';
+
 		this.multiCastPicker.html(ht).toggleClass('hidden', false);
 
 
 		$("#execMultiCast", this.multiCastPicker).off('click').on('click', event => {
+
 			if( $(event.currentTarget).hasClass('hidden') )
 				return;
+
 			this.performSelectedAction();
+
 			return;
+
 		});
 
 	}
@@ -2376,7 +2463,7 @@ export default class UI{
 
 	// TEMPLATES
 	// Sets the content of the button based on an action
-	static setActionButtonContent( buttonElement, action, player ){
+	static setActionButtonContent( buttonElement, action, player, hotkey ){
 
 		const button = $(buttonElement);
 		button[0].className = 
@@ -2412,6 +2499,12 @@ export default class UI{
 		$('> div.cd', button).toggleClass('hidden', !action._cooldown);
 		if( +cdEl.text !== +action._cooldown )
 			cdEl.text(action._cooldown);
+
+		const hotkeyEl = $('> div.hotkey', button);
+		if( hotkey === undefined || hotkey === null || hotkey === false )
+			hotkey = '';
+		if( hotkeyEl.text !== hotkey )
+			hotkeyEl.text(hotkey);
 
 		// Tooltip
 		const ttEl = $('> div.tooltip', button);

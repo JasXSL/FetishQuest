@@ -2997,6 +2997,7 @@ Game.new = async (name, players) => {
 	}
 	await game.execSave( true );
 	game.setDungeon( 'yuug_port', 1 );
+	game.ui.onNewGame();
 
 };
 

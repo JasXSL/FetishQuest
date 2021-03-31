@@ -2338,16 +2338,28 @@ export default class Player extends Generic{
 		if( include_temp )
 			out = out.concat(this.getTempActions());
 
+		const alwaysFirst = ['stdAttack', 'stdArouse'];
 		out.sort((a,b) => {
 
 			const aConsumable = Boolean(a.parent.use_action);
 			const bConsumable = Boolean(b.parent.use_action);
 			const aName = aConsumable ? a.parent.name : a.name;
 			const bName = bConsumable ? b.parent.name : b.name;
+			const aIsStd = alwaysFirst.includes(a.label);
+			const bIsStd = alwaysFirst.includes(b.label);
 			
 			// nonconsumable first
 			if( aConsumable !== bConsumable )
 				return bConsumable ? -1 : 1;
+
+			// Then std
+			if( aIsStd !== bIsStd )
+				return aIsStd ? -1 : 1;
+
+			// Then positive slots
+			if( (a._slot >= 0) !== (b._slot >= 0) )
+				return a._slot >= 0 ? -1 : 1;
+
 
 			const acd = a.getCooldown(), bcd = b.getCooldown();
 
@@ -2481,9 +2493,11 @@ export default class Player extends Generic{
 	}
 	
 	getNrActionSlots(){
+
 		if( this.level < 3 )
 			return this.level;
-		return Math.min(6, Math.floor((this.level-4)/3)+4);
+		return Player.getActionSlotsForLevel(this.level);	// 3 unlocked by default, then at 4, 7, 10
+
 	}
 
 	getNrPassiveSlots(){
@@ -2814,6 +2828,134 @@ export default class Player extends Generic{
 	}
 	
 
+
+	// Static
+	static getActionSlotsForLevel( level ){
+		return Math.min(this.MAX_ACTION_SLOTS, Math.floor((level-4)/3)+4);
+	}
+	static getLevelForActionSlot( index ){
+
+		// First 3 slots are unlocked immediately
+		if( index < 3 )
+			return 1;
+		
+		return 4+Math.floor((index-3)*3);
+
+	}
+
+	// Returns a value where <= 0 = always miss, and >= 100 = always hit
+	static getHitChance( attacker, victim, action ){
+
+		if( attacker.id === victim.id )
+			return 100;
+		if( !action.detrimental )
+			return 100;
+		if( action.hit_chance > 100 )
+			return 100;
+
+		let out = action.hit_chance;
+		let modifier = 1
+			+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05)
+			*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod);
+		if( modifier < 0.1 )
+			modifier = 0.1;
+
+		// Hit chance above 100 is set as "always hit"
+		return Math.max(10, Math.round(out*modifier+attacker.getGenericAmountStatPoints(Effect.Types.globalHitChanceMod)));
+
+	};
+
+
+	static getAdvantage( attacker, victim, stat, detrimental ){
+
+		let tot = attacker.getBon(stat);
+		if( detrimental )
+			tot -= victim.getSV(stat);
+		return tot;
+
+	};
+
+	// Returns a multiplier of 4% if you go over 100% hit chance
+	static getBonusDamageMultiplier( attacker, victim, stat, detrimental ){
+
+		let tot = this.getAdvantage(attacker, victim, stat, detrimental);
+
+		if( tot < 0 )
+			tot = 0;
+
+		// Add 25% bonus damage per additional player
+		let add = 1;
+		if( attacker.team !== 0 ){
+
+			const tp = game.getTeamPlayers().filter(pl => !pl.isNPC());
+			add = 1+(tp.length-1)*0.2;
+			// increase enemy damage by 20% per player
+
+			// Reduce enemy damage at low levels
+			// level 1 has -50%, level 2 has -25%
+			if( attacker.level < 3 )
+				add -= 0.25*(3-attacker.level);
+
+			// Low difficulty decreases enemy damage
+			if( game.difficulty < 5 )
+				add *= game.difficulty*0.15+0.25;
+			
+
+		}
+		// High difficulty decreases damage done
+		else if( game.difficulty > 5 ){
+			add *= (1-(game.difficulty-5)*0.15);
+		}
+
+		const out = (1+tot*0.1)*add;
+		return out;
+
+	};
+
+
+	// Exchanges copper into the fewest coins possible
+	// returns an array of [platinum, gold, silver, copper] after exchange. You can use Player.currencyWeights to map this to assets
+	static calculateMoneyExhange( input = 0 ){
+		return [
+			Math.floor(input/1000),
+			Math.floor((input%1000)/100),
+			Math.floor((input%100)/10),
+			input%10
+		];
+	};
+
+	// Converts copper into an array of assets
+	static copperToAssets( copper = 0 ){
+
+		const out = [];
+		const exchanged = this.calculateMoneyExhange( copper );
+
+		for( let i in exchanged ){
+			const amt = exchanged[i];
+			if( amt ){
+				const label = this.currencyWeights[i];
+				const a = glib.get(label, 'Asset');
+				a._stacks = amt;
+				out.push(a);
+			}
+		}
+		return out;
+
+	};
+
+	static copperToReadable( copper = 0 ){
+		const coins = this.calculateMoneyExhange(copper);
+		let out = [];
+		for( let i in coins ){
+			if( coins[i] )
+				out.push(coins[i]+' '+Player.currencyWeights[i]);
+		}
+		if( !out.length )
+			return '0 copper';
+		return out.join(', ');
+	};
+
+
 }
 
 Player.MAX_LEVEL = 14;
@@ -2821,6 +2963,8 @@ Player.STAMINA_MULTI = 4;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
+
+Player.MAX_ACTION_SLOTS = 6;
 
 Player.primaryStats = {
 	intellect : 'intellect',
@@ -2834,119 +2978,6 @@ Player.primaryStatsNames = {
 	[Player.primaryStats.agility] : 'agility',
 };
 
-
-
-// Returns a value where <= 0 = always miss, and >= 100 = always hit
-Player.getHitChance = function( attacker, victim, action ){
-
-	if( attacker.id === victim.id )
-		return 100;
-	if( !action.detrimental )
-		return 100;
-	if( action.hit_chance > 100 )
-		return 100;
-
-	let out = action.hit_chance;
-	let modifier = 1
-		+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05)
-		*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod);
-	if( modifier < 0.1 )
-		modifier = 0.1;
-
-	// Hit chance above 100 is set as "always hit"
-	return Math.max(10, Math.round(out*modifier+attacker.getGenericAmountStatPoints(Effect.Types.globalHitChanceMod)));
-
-};
-
-
-Player.getAdvantage = function( attacker, victim, stat, detrimental ){
-
-	let tot = attacker.getBon(stat);
-	if( detrimental )
-		tot -= victim.getSV(stat);
-	return tot;
-
-};
-
-// Returns a multiplier of 4% if you go over 100% hit chance
-Player.getBonusDamageMultiplier = function( attacker, victim, stat, detrimental ){
-
-	let tot = this.getAdvantage(attacker, victim, stat, detrimental);
-
-	if( tot < 0 )
-		tot = 0;
-
-	// Add 25% bonus damage per additional player
-	let add = 1;
-	if( attacker.team !== 0 ){
-
-		const tp = game.getTeamPlayers().filter(pl => !pl.isNPC());
-		add = 1+(tp.length-1)*0.2;
-		// increase enemy damage by 20% per player
-
-		// Reduce enemy damage at low levels
-		// level 1 has -50%, level 2 has -25%
-		if( attacker.level < 3 )
-			add -= 0.25*(3-attacker.level);
-
-		// Low difficulty decreases enemy damage
-		if( game.difficulty < 5 )
-			add *= game.difficulty*0.15+0.25;
-		
-
-	}
-	// High difficulty decreases damage done
-	else if( game.difficulty > 5 ){
-		add *= (1-(game.difficulty-5)*0.15);
-	}
-
-	const out = (1+tot*0.1)*add;
-	return out;
-
-};
-
-
-// Exchanges copper into the fewest coins possible
-// returns an array of [platinum, gold, silver, copper] after exchange. You can use Player.currencyWeights to map this to assets
-Player.calculateMoneyExhange = function( input = 0 ){
-	return [
-		Math.floor(input/1000),
-		Math.floor((input%1000)/100),
-		Math.floor((input%100)/10),
-		input%10
-	];
-};
-
-// Converts copper into an array of assets
-Player.copperToAssets = function( copper = 0 ){
-
-	const out = [];
-	const exchanged = this.calculateMoneyExhange( copper );
-
-	for( let i in exchanged ){
-		const amt = exchanged[i];
-		if( amt ){
-			const label = this.currencyWeights[i];
-			const a = glib.get(label, 'Asset');
-			a._stacks = amt;
-			out.push(a);
-		}
-	}
-	return out;
-
-};
-
-Player.copperToReadable = function( copper = 0 ){
-	const coins = this.calculateMoneyExhange(copper);
-	let out = [];
-	for( let i in coins ){
-		if( coins[i] )
-			out.push(coins[i]+' '+Player.currencyWeights[i]);
-	}
-	if( !out.length )
-		return '0 copper';
-	return out.join(', ');
-};
 Player.currencyWeights = [
 	'platinum',
 	'gold',
