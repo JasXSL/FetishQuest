@@ -1512,12 +1512,12 @@ class DungeonRoomAsset extends Generic{
 		if( !this._stage_mesh )
 			return;
 
-		if( !this._stage_mesh.userData )
+		if( !this._stage_mesh.userData || !this._stage_mesh.userData.template )
 			return;
 
 		const pre = this._interactive;
 		this._interactive = this.isInteractive();
-		if( this._interactive !== pre && this._stage_mesh.userData.template )
+		if( this._interactive !== pre )
 			this._stage_mesh.userData.template.onInteractivityChange(this, this._interactive);
 
 		if( this._interactive )

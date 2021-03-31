@@ -319,7 +319,23 @@ export default{
 			if( template.hasOwnProperty("label") )
 				a.label = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID();
 
-			if( single )
+	
+			// There's not target library, this should be stored as an object
+			if( !mod.mod[targetLibrary] ){
+
+				if( single )
+					entries[key] = a;
+				else{
+
+					if( !Array.isArray(entries[key]) )
+						entries[key] = [];
+
+					entries[key].push(a);
+					
+				}
+
+			}
+			else if( single )
 				entries[key] = a.label || a.id;		// Store only the ID
 			else{
 
@@ -394,7 +410,7 @@ export default{
 
 				// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
 				// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
-				if( parented )
+				if( parented && mod.mod[targetLibrary] )
 					MOD.deleteAsset(targetLibrary, entry);
 
 				win.rebuild();
@@ -957,16 +973,21 @@ export default{
 		windowData is custom data stored on the window. AVOID OBJECTS
 	*/
 	insertAsset( type, asset = {}, win, openEditor = true, windowData = '' ){
-		const DEV = window.mod, MOD = DEV.mod;
+		const DEV = window.mod, MOD = DEV.mod, isDirectSub = !MOD[type];	// isDirectSub is used for sub assets that don't have a DB, such as PlayerTemplateLoot
 
-		MOD[type].push(asset);
+		if( !isDirectSub )
+			MOD[type].push(asset);
 
 		if( win.editorOnCreate )
 			win.editorOnCreate(win, asset);
 
 		DEV.setDirty(true);
-		if( openEditor )
-			DEV.buildAssetEditor(type, asset.label || asset.id, undefined, undefined, windowData);
+		if( openEditor ){
+
+			DEV.buildAssetEditor(type, (isDirectSub ? asset : asset.label || asset.id), undefined, win, windowData);
+			
+
+		}
 		this.rebuildAssetLists(type);
 
 		

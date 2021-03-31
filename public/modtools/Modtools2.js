@@ -22,6 +22,7 @@ import * as EditorGameAction from './editors/EditorGameAction.js';
 import * as EditorPlayerClass from './editors/EditorPlayerClass.js';
 import * as EditorPlayer from './editors/EditorPlayer.js';
 import * as EditorPlayerTemplate from './editors/EditorPlayerTemplate.js';
+import * as EditorPlayerTemplateLoot from './editors/EditorPlayerTemplateLoot.js';
 import * as EditorRoleplay from './editors/EditorRoleplay.js';
 import * as EditorRoleplayStage from './editors/EditorRoleplayStage.js';
 import * as EditorRoleplayStageOption from './editors/EditorRoleplayStageOption.js';
@@ -68,6 +69,7 @@ const DB_MAP = {
 	"playerClasses" : { listing : EditorPlayerClass.list, asset : EditorPlayerClass.asset, icon : 'vitruvian-man' },
 	"players" : { listing : EditorPlayer.list, asset : EditorPlayer.asset, icon : 'mustache' },
 	"playerTemplates" : { listing : EditorPlayerTemplate.list, asset : EditorPlayerTemplate.asset, icon : 'anatomy' },
+	"playerTemplateLoots" : { listing : EditorPlayerTemplateLoot.list, asset : EditorPlayerTemplateLoot.asset, icon : 'open-treasure-chest' },
 	"roleplay" : { listing : EditorRoleplay.list, asset : EditorRoleplay.asset, icon : 'talk' },
 	"roleplayStage" : { listing : EditorRoleplayStage.list, asset : EditorRoleplayStage.asset, icon : 'conversation' },
 	"roleplayStageOption" : { listing : EditorRoleplayStageOption.list, asset : EditorRoleplayStageOption.asset, icon : 'click' },
@@ -811,6 +813,8 @@ export default class Modtools{
 	// Edit a text asset by id. ID can also be an object to edit directly, in which case it gets appended to data as {asset:}
 	// Note that if you use an object directly it won't save the window, and should only be used in special cases like the dungeonAsset GameActions to save space
 	buildAssetEditor( type, id, data, parent, custom ){
+
+		console.log(type, id, data, parent, custom);
 
 		if( !DB_MAP[type] || !DB_MAP[type].asset)
 			throw 'Asset editor not found for type '+type+", add it to DB_MAP in Modtools2.js";

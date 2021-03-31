@@ -8,6 +8,7 @@ import * as EditorAsset from './EditorAsset.js';
 import * as EditorAction from './EditorAction.js';
 import * as EditorAssetTemplate from './EditorAssetTemplate.js';
 import * as EditorWrapper from './EditorWrapper.js';
+import * as EditorPlayerTemplateLoot from './EditorPlayerTemplateLoot.js';
 import PlayerTemplate from '../../classes/templates/PlayerTemplate.js';
 import stdTag from '../../libraries/stdTag.js';
 import Generic from '../../classes/helpers/Generic.js';
@@ -87,7 +88,8 @@ export function asset(){
 	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description)+'</textarea><br />';
 
 	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
-
+	
+	html += 'Random unequipped loot: <div class="random_loot"></div>';
 	html += 'Viable Gear: <div class="viable_gear"></div>';
 	html += 'Viable Asset Materials: <div class="viable_asset_materials"></div>';
 	html += 'Viable Asset Templates: <div class="viable_asset_templates"></div>';
@@ -109,6 +111,7 @@ export function asset(){
 	this.dom.querySelector("div.required_actions").appendChild(EditorAction.assetTable(this, asset, "required_actions"));
 	this.dom.querySelector("div.classes").appendChild(EditorPlayerClass.assetTable(this, asset, "classes"));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
+	this.dom.querySelector("div.random_loot").appendChild(EditorPlayerTemplateLoot.assetTable(this, asset, "random_loot", false, true));
 	
 
 	// Tags

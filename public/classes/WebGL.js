@@ -1489,8 +1489,8 @@ class WebGL{
 			b.getSize(box);
 
 		const max = Math.max(box.x, box.y, box.z);
-		let posY = max, 
-			posZ = max*.75;
+		let posY = max*1.2, 
+			posZ = max*.6;
 
 		this.camera.position.y = posY*1.1;
 		this.camera.position.z = posZ*1.1;

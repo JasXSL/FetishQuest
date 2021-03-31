@@ -14,12 +14,65 @@ import Window from '../WindowManager.js';
 import GameAction from '../../classes/GameAction.js';
 import Generic from '../../classes/helpers/Generic.js';
 import stdTag from '../../libraries/stdTag.js';
-
+import {GLTFExporter} from '../../ext/GLTFExporter.js';
 const DB = 'dungeonRooms',
 	CONSTRUCTOR = DungeonRoom,
 	ASSET_HISTORY_STATES = 50	
 ;
+let link;
+function save( blob, filename ){
 	
+	if( !link ){
+
+		link = document.createElement( 'a' );
+		link.style.display = 'none';
+		document.body.appendChild( link ); // Firefox workaround, see #6594
+
+	}
+
+	link.href = URL.createObjectURL( blob );
+	link.download = filename;
+	link.click();
+
+	// URL.revokeObjectURL( url ); breaks Firefox...
+
+}
+
+function saveString( text, filename ) {
+
+	save( new Blob( [ text ], { type: 'text/plain' } ), filename );
+
+}
+
+function saveArrayBuffer( buffer, filename ) {
+
+	save( new Blob( [ buffer ], { type: 'application/octet-stream' } ), filename );
+
+}
+
+window.exportActiveMesh = function(){
+
+	const gltfExporter = new GLTFExporter();
+	gltfExporter.parse( window.ACTIVE_MESH, function ( result ) {
+
+		const name = window.ACTIVE_MESH.name+'.gltf';
+		if ( result instanceof ArrayBuffer ) {
+
+			saveArrayBuffer( result, name );
+
+		} else {
+
+			const output = JSON.stringify( result, null, 2 );
+			console.log( output );
+			saveString( output, name );
+
+		}
+
+	}, {
+
+	});
+
+};
 
 
 // Single asset editor
@@ -467,6 +520,7 @@ class Editor{
 		this.save();
 		this.bindMeshes();
 		this.control.attach(asset._stage_mesh);
+		window.ACTIVE_MESH = asset._stage_mesh;
 		this.gl.renderer.domElement.focus();
 		return asset;
 
@@ -633,6 +687,7 @@ class Editor{
 			mesh.userData.click = () => {
 				this.control.detach();
 				this.control.attach(mesh);
+				window.ACTIVE_MESH = mesh;
 			};
 
 			mesh.userData.dblclick = () => {

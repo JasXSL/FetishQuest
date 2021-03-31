@@ -10,8 +10,16 @@
 
 
 -- CURRENT --
-	- Add hot key to drop current selected object to floor
+	- Add loot indicator to unlooted enemies on map
+	- Fix missing chains texture
+	- Make gyms more explicit in showing active and learned abilities (show when new abilities unlock)
+	- Combat hotkeys
+	- Add highlighting to help button on a new game
 
+	Need reproduce:
+	- Caching might make certain razzyberries unpickable??
+	
+	
 
 Meshes:
 

@@ -36,6 +36,7 @@ class PlayerTemplate extends Generic{
 		this.max_size = 3;
 		this.difficulty = 1;
 		this.viable_consumables = [];			// Viable consumable assets this can spawn with
+		this.random_loot = [];					// {}
 		this.power = 1;
 		this.sadistic_min = 0;
 		this.sadistic_max = 1;
@@ -96,10 +97,12 @@ class PlayerTemplate extends Generic{
 			talkative_min : this.talkative_min,
 			talkative_max : this.talkative_max,
 			passives : this.passives,
+			random_loot : PlayerTemplateLoot.saveThese(this.random_loot, full),
 		};
 	}
 
 	rebase(){
+		this.random_loot = PlayerTemplateLoot.loadThese(this.random_loot, this);
 	}
 
 	// Generates a new player from this template
@@ -171,6 +174,7 @@ class PlayerTemplate extends Generic{
 		
 		let libAssets = glib.getFull('Asset');
 		for( let asset of this.required_assets ){
+
 			let item = libAssets[asset];
 			if( !item )
 				continue;
@@ -178,6 +182,36 @@ class PlayerTemplate extends Generic{
 			player.addAsset(item, undefined, undefined, true);
 			if( !this.no_equip )
 				item.equipped = true;
+
+		}
+
+		for( let asset of this.random_loot ){
+
+			let nrToAdd = asset.min;
+			if( asset.max > asset.min ){
+
+				for( let i = 0; i < asset.max-asset.min; ++i ){
+					
+					if( Math.random() < asset.chance )
+						++nrToAdd;
+
+				}
+
+			}
+
+			if( !nrToAdd )
+				continue;
+
+			let item = libAssets[asset.asset];
+			if( !item )
+				continue;
+			
+			item.restore();
+
+			player.addAsset(item, nrToAdd, undefined, true);
+			
+
+
 		}
 
 		for( let passive of this.passives ){
@@ -322,6 +356,37 @@ class PlayerTemplate extends Generic{
 	}
 
 
+
+}
+
+export class PlayerTemplateLoot extends Generic{
+
+	constructor( ...data ){
+		super(...data);
+
+		this.min = 0;		// max nr to generate
+		this.max = 1;		// min nr to generate
+		this.chance = 0.5;	// Chance of each generated, rolled for each max-min
+		this.asset = '';	// Asset label
+
+		this.load(...data);
+	}
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	save( full ){
+		return {
+			min : this.min,
+			max : this.max,
+			chance : this.chance,
+			asset : this.asset
+		};
+	}
+
+	rebase(){
+	}
 
 }
 

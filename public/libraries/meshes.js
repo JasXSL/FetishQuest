@@ -43,6 +43,7 @@ import Water from '../ext/Water.js';
 import Water2 from '../ext/Water2.js';
 import {BufferGeometryUtils} from '../ext/BufferGeometryUtils.js';
 import {GLTFLoader} from '../ext/GLTFLoader.js';
+import {SkeletonUtils} from '../ext/SkeletonUtils.js';
 
 
 class LibMesh{
@@ -111,6 +112,7 @@ class LibMesh{
 
 			// JD loader has built in management
 			if( ext === "jd" ){
+
 				data = data.createObject(0);
 				if( data.isSkinnedMesh )
 					animations = data.geometry.animations;
@@ -119,8 +121,9 @@ class LibMesh{
 			// The other one is retarded and needs mesh merging
 			else{
 				
-				data.scene.animations = animations = data.animations;
-				data = data.scene;
+				const scene = SkeletonUtils.clone(data.scene);
+				scene.animations = animations = data.animations.slice();
+				data = scene;
 				// Since this importer deals entirely with groups, we gotta set the sub-names to HITBOX in order for mouse events to work
 				data.traverse(el => {
 					if( el.isMesh )
@@ -3864,14 +3867,14 @@ function build(){
 				}),
 				GrassWideGroup : new LibMesh({
 					tags : [stdTag.mGrassLong],
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					materials : [
 						libMat.Nature.Grass
 					],
 				}),
 				BushBalls : new LibMesh({
 					tags : [stdTag.mBush],
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					materials : [libMat.Nature.BushA],
 				}),
 				BushBall : new LibMesh({
@@ -3886,7 +3889,7 @@ function build(){
 				}),
 				FlowersYellowGroup : new LibMesh({
 					tags : [stdTag.mGrassLong, stdTag.mFlower],
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					materials : [libMat.Nature.FlowersB],
 				}),
 				FlowersYellow : new LibMesh({
@@ -3895,7 +3898,7 @@ function build(){
 					materials : [libMat.Nature.FlowersB],
 				}),
 				GrassShortGroup : new LibMesh({
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mGrassLong],
 					materials : [libMat.Nature.GrassA],
 				}),
@@ -3905,7 +3908,7 @@ function build(){
 					materials : [libMat.Nature.GrassA],
 				}),
 				GrassDryGroup : new LibMesh({
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mGrassLong],
 					materials : [libMat.Nature.GrassB],
 				}),
@@ -3915,7 +3918,7 @@ function build(){
 					materials : [libMat.Nature.GrassB],
 				}),
 				GrassThickGroup : new LibMesh({
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mGrassLong],
 					materials : [libMat.Nature.GrassC],
 				}),
@@ -3925,7 +3928,7 @@ function build(){
 					materials : [libMat.Nature.GrassC],
 				}),
 				BushFlowersGroup : new LibMesh({
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mBush, stdTag.mFlower],
 					materials : [libMat.Nature.TreeA],
 				}),
@@ -3946,7 +3949,7 @@ function build(){
 				}),
 
 				BushThiccGroup : new LibMesh({
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mBush],
 					materials : [libMat.Nature.BushThicc],
 				}),
@@ -3957,7 +3960,7 @@ function build(){
 				}),
 
 				GrassBushGroup : new LibMesh({
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mBush],
 					materials : [libMat.Nature.BushGrass],
 				}),
@@ -3968,7 +3971,7 @@ function build(){
 				}),
 
 				BushTropical : new LibMesh({
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mBush],
 					materials : [libMat.Nature.BushTropical],
 				}),
@@ -3979,7 +3982,7 @@ function build(){
 				}),
 
 				BushBogTree : new LibMesh({
-					url : 'nature/grass_wide_group.JD',
+					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mBush],
 					materials : [libMat.Nature.Bogtree],
 				}),

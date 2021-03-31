@@ -2405,7 +2405,7 @@ export default class StaticModal{
 
 				
 				// First build
-				if( !this.built ){
+				if( !this.drawn ){
 
 					// Autosave static forms
 					const onAutosaveChange = () => {
@@ -3302,7 +3302,52 @@ export default class StaticModal{
 				}
 
 			});
-		
+		// Help
+		this.add(new this("help", "Help"))
+			.addRefreshOn(["players"])
+			.addTab("Inventory", () => {
+				return `
+					<h3>Map Controls</h3>
+					<table>
+						<tr>
+							<td>Click+drag</td>
+							<td>Rotate map</td>
+						</tr>
+						<tr>
+							<td>RightClick+drag</td>
+							<td>Zoom</td>
+						</tr>
+						<tr>
+							<td>Mousewheel</td>
+							<td>Zoom</td>
+						</tr>
+					</table>
+
+					<h3>Hotkeys</h3>
+					<table>
+						<tr>
+							<td>Space</td>
+							<td>Toggle combat UI</td>
+						</tr>
+						<tr>
+							<td>i</td>
+							<td>Toggle inventory</td>
+						</tr>
+						<tr>
+							<td>l</td>
+							<td>Toggle quest log</td>
+						</tr>
+					</table>
+				`;
+			})
+			.setProperties(function(){
+				
+
+			})
+			.setDraw(async function(){
+
+				
+			});
 
 	}
 

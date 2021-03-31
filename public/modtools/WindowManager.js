@@ -1,3 +1,5 @@
+import Generic from "../classes/helpers/Generic.js";
+
 const MIN_WIDTH = 300, MIN_HEIGHT = 200;
 
 /*
@@ -18,7 +20,7 @@ export default class Window{
 	// build is the build function
 	constructor( id, type, name, icon, asset, build, parent, custom = {} ){
 
-		this.id = id;
+		this.id = id || Generic.generateUUID();
 		this.type = type;
 		this.icon = icon;
 		this.asset = asset;

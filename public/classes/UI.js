@@ -1339,6 +1339,7 @@ export default class UI{
 			(player ? '<div class="button" data-id="inventory" style="background-image:url(/media/wrapper_icons/light-backpack.svg);"></div>' : '')+
 			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'+
 			'<div data-id="settings" class="button" style="background-image: url(media/wrapper_icons/auto-repair.svg)"></div>'+
+			'<div data-id="help" class="button" style="background-image: url(media/wrapper_icons/help.svg)"></div>'+
 			'<div data-id="mainMenu" class="button autoWidth">Game</div>'
 		;
 		this.gameIcons.html(html);
@@ -1368,6 +1369,10 @@ export default class UI{
 			else if( id === 'settings' ){
 				game.uiAudio( 'menu_generic' );
 				StaticModal.set('settings');
+			}
+			else if( id === 'help' ){
+				game.uiAudio( 'menu_generic' );
+				StaticModal.set('help');
 			}
 		});
 
