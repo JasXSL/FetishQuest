@@ -2099,6 +2099,9 @@ export default class StaticModal{
 					
 					Mod.saveLoadOrder(order);
 					glib.autoloadMods();
+
+					if( game.net.isHostingNetgame() )
+						game.net.dmSendFullGame();
 		
 				};
 

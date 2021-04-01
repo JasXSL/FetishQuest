@@ -1218,6 +1218,7 @@ class NetworkManager{
 	}
 
 	dmSendFullGame( target ){
+
 		const fullGame = game.getSaveData();
 		/*
 		const isCyclic = (obj => {
@@ -1263,6 +1264,7 @@ class NetworkManager{
 		fullGame.chat_log = game.chat_log;
 		fullGame.lib_actionLearnable = ActionLearnable.saveThese(Object.values(glib.getFull("ActionLearnable")), "mod");
 		this.sendHostTaskTo( target, NetworkManager.dmTasks.sendFullGame, fullGame);
+		
 	}
 
 	// All except netplayer are objects

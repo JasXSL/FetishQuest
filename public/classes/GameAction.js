@@ -474,11 +474,13 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.toggleCombat ){
+			
 			let makeHostile = this.data.enc !== false;
 			if( makeHostile ){
 				game.makeEncounterHostile();
 			}
 			game.toggleBattle(this.data.on);
+
 		}
 
 

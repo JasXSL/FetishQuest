@@ -10,19 +10,7 @@
 
 
 -- CURRENT --
-	Need reproduce:
-
-	- Caching might make certain razzyberries unpickable??
-	
-	
-
-Meshes:
-
-
-
-
-Smol:	
-	- Enabling or disabling a mod while hosting should send a full game
+	- Special case npc markers for mimics that are auto spawned when the mimic spawns
 
 
 
@@ -33,16 +21,11 @@ Smol:
 
 Medium rare:
 	- Character export/import
-	- Special case npc markers for mimics
 	
-	x Sneak attack not showing as disabled when it should be on online coop
-		- Test
-	
+
 -- LATER UPDATE --
 
 	- Procedural dungeon affixes
-
-	- Add hotkeys for combat
 
 	- Main quest chapter 2
 		- Go to Yuug capital?

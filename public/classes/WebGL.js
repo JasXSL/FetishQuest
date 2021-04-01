@@ -23,7 +23,7 @@ import Proton from '../ext/three.proton.min.js';
 import libMesh from '../libraries/meshes.js';
 import stdTag from '../libraries/stdTag.js';
 import Player from './Player.js';
-import { DungeonRoomAsset } from './Dungeon.js';
+import { DungeonRoomAsset, DungeonRoomMarker } from './Dungeon.js';
 
 window.g_THREE = THREE;
 
@@ -308,9 +308,11 @@ class WebGL{
 		this.stages = [];					// Stores all stages for a dungeon
 		this.cache_active_room = null;		// ID of active room for room detection
 		this.dungeonGroup = new THREE.Group();	// Stores the whole current dungeon 
+		this.dungeonGroup.name = 'DUNGEON';
 		this.scene.add(this.dungeonGroup);
 
 		this.assetCache = new THREE.Group();	// Stores assets here as they load 
+		this.assetCache.name = 'CACHE';
 		this.assetCache.visible = false;
 		this.scene.add(this.assetCache);		// 
 		this.currentCache = [];					// Stores the cached assets we're currently using in the active dungeon
@@ -1023,10 +1025,12 @@ class WebGL{
 		this.playerMarkers.push(false);
 		const obj = await libMesh().Generic.Marker.Player.flatten(true);
 		for( let i in this.playerMarkers ){
+
 			if( this.playerMarkers[i] === false ){
 				this.playerMarkers[i] = obj;
 				break;
 			}
+
 		}
 
 		const canvas = document.createElement("canvas");
@@ -1054,6 +1058,7 @@ class WebGL{
 		obj.userData.mouseover = this.onPlayerMarkerMouseover.bind(obj);
 		obj.userData.mouseout = this.onPlayerMarkerMouseout.bind(obj);
 		obj.userData.click = this.onPlayerMarkerClick.bind(obj);
+		obj.name = 'MARKER';
 
 		this.scene.add(obj);
 		return obj;
@@ -1077,12 +1082,28 @@ class WebGL{
 
 	}
 
-	// Attach a player to a marker. This also updates.
-	// If marker is empty, we'll have to create a new one.
-	async attachPlayerToMarker( player, dungeonAsset, marker ){
-		
+	onMarkerLoad( marker ){
+		if( marker.userData.marker.tween )
+			marker.userData.marker.tween.stop();
 
-		if( !dungeonAsset || !dungeonAsset._stage_mesh )
+		const targ = marker.userData.marker.dungeonAsset.y;
+		const pos = {y : targ + 100};
+		marker.userData.marker.tween = new TWEEN.Tween(pos).to({y:targ}, 300).easing(TWEEN.Easing.Bounce.Out)
+		.onUpdate(() => {
+			marker.position.y = pos.y;
+		})
+		//.onComplete(() => this.arrowTween.tween=null)
+		.start();
+
+		marker.visible = true;
+
+	}
+
+	// Attach a player to a marker from cache. This also updates.
+	// If marker is empty, we'll have to create a new one and add it to cache.
+	async attachPlayerToMarker( player, dungeonAsset, marker ){
+
+		if( !dungeonAsset )
 			return;
 
 		if( !marker )
@@ -1092,20 +1113,22 @@ class WebGL{
 		if( marker.userData.marker.player !== player || marker.userData.marker.dungeonAsset !== dungeonAsset ){
 
 			marker.userData.marker.player = player;
-			marker.userData.marker.dungeonAsset = player;
+			marker.userData.marker.dungeonAsset = dungeonAsset;
 			marker.visible = false;
 
 			// Position
-			marker.position.copy(dungeonAsset._stage_mesh.position);
-			marker.scale.copy(dungeonAsset._stage_mesh.scale);
+			marker.position.set(dungeonAsset.x, dungeonAsset.y, dungeonAsset.z);
+			marker.scale.set(dungeonAsset.scaleX, dungeonAsset.scaleY, dungeonAsset.scaleZ);
 
 			delete marker.userData.baseScale;
+			
 
 			// Canvas
 			// Texture URL has changed
 			const url = player.getActiveIcon();
 			if( url !== marker.userData.marker.url ){
 
+				
 				const canvas = marker.userData.marker.texture;
 				marker.userData.marker.url = url;
 				const context = canvas.getContext('2d');
@@ -1115,7 +1138,7 @@ class WebGL{
 					this.constructor.drawCover(context, image, canvas.height, canvas.width, undefined, undefined, 1.33);
 					marker.material[0].map.needsUpdate = true;
 					marker.userData.marker.loading = false;
-					marker.visible = true;
+					this.onMarkerLoad(marker);
 
 				}, false);
 				image.crossOrigin = "Anonymous";
@@ -1125,8 +1148,7 @@ class WebGL{
 
 			}
 			else if( !marker.userData.marker.loading )
-				marker.visible = true;
-			marker.material[0].color.set(player.isDead() ? 0xFF1111 : 0xFFFFFF); 
+				this.onMarkerLoad(marker);
 
 			const ring = marker.material[2];
 			ring.color.set(player.color);
@@ -1135,8 +1157,13 @@ class WebGL{
 			ring.color.b = Math.pow(ring.color.b, 3);
 			marker.material[2].emissive.set(0.1,0.1,0.1);
 
-		}
-		
+		}		
+
+		marker.material[0].color.set(player.isDead() ? 0xFF1111 : 0xFFFFFF); 
+
+		if( !marker.visible )
+			this.onMarkerLoad(marker);
+
 	}
 
 	async updatePlayerMarkers(){
@@ -1153,14 +1180,21 @@ class WebGL{
 
 		let markerIndex = 0;	// Tracks what marker to add to
 		const players = game.getEnabledPlayers();
+		let needStateSave = false;
+
 		for( let player of players ){
 			
 			// Draw only enemies that are generated. Friendly NPCs are technically enemies.
 			if( !player.generated || player.team === Player.TEAM_PLAYER )
 				continue;
 
-			// First try to get a specific marker if it exists
-			let marker = room.getPlayerMarker(player.label);
+			// First try to see if we've stored a marker for this player by id
+			let marker = room.getStoredPlayerMarkerAsDungeonRoomAsset(player.id);
+			
+			// Try to get a specific marker for this label if it exists
+			if( !marker )
+				marker = room.getPlayerMarker(player.label);
+
 			// Didn't exist, try getting a generic one
 			if( !marker ){
 
@@ -1169,15 +1203,21 @@ class WebGL{
 					console.error("No generics free");
 					continue;
 				}
+
 				marker = generics.shift();
+				room.storePlayerMarker(player.id, {x:marker.x, y:marker.y, z:marker.z}, marker.scaleY);
+				needStateSave = true;
 
 			}
-
 
 			this.attachPlayerToMarker(player, marker, this.playerMarkers[markerIndex]);
 			++markerIndex;
 
 		}
+
+		if( needStateSave )
+			game.dungeon.roomModified(room);
+
 		
 		// Hide unused markers
 		for( ; markerIndex < this.playerMarkers.length; ++markerIndex )
@@ -1632,6 +1672,7 @@ class Stage{
 
 		this.parent = parent;
 		this.group = new THREE.Group();
+		this.group.name = room.name || 'ROOM'+room.index;
 		this.enabled = false;
 		this.tweens = [];		// Library of tweens active in this scene 
 		this.particles = [];	// Particles active in the scene
@@ -1999,6 +2040,10 @@ class Stage{
 
 				continue;
 			}
+
+			// Don't add player tags, they're generated
+			if( asset.hasTag(stdTag.mPLAYER_MARKER) )
+				continue;
 
 			// Don't try to do this in parallel or you'll freeze the browser
 			await this.addDungeonAsset(asset);

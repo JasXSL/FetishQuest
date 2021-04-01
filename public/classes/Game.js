@@ -1800,8 +1800,10 @@ export default class Game extends Generic{
 		
 		// Merge should reset the encounter status
 		if( merge ){
+			
 			this.encounter.setCompleted(false);
 			this.encounter.started = false;
+
 		}else{
 			// override the encounter
 			this.encounter = encounter;
