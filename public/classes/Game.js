@@ -10,7 +10,6 @@ import WebGL from './WebGL.js';
 import Text from './Text.js';
 import Quest from './Quest.js';
 import {default as Audio, setMasterVolume}  from './Audio.js';
-import stdTag from '../libraries/stdTag.js';
 import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
 import GameAction from './GameAction.js';
@@ -21,12 +20,9 @@ import Condition from './Condition.js';
 import VibHub from './VibHub.js';
 import Faction from './Faction.js';
 import Encounter from './Encounter.js';
-import Mod from './Mod.js';
 import StaticModal from './StaticModal.js';
 
 export default class Game extends Generic{
-
-
 
 	constructor(name){
 		super(name);
@@ -96,6 +92,8 @@ export default class Game extends Generic{
 		this._turn_timer = false;						// Timeout handling end of turn
 		this._db_save_timer = null;						// Timer to store on HDD		
 		this._caches = 0;								// Level of depth of cache requests we're at
+
+		this._looted_players = {};						// local only, contains id : true for players looted in this room
 
 	}
 
@@ -218,7 +216,7 @@ export default class Game extends Generic{
 		try{
 			await Game.db.games.put(data);
 		}catch(err){
-			console.error("Error in saving", err, out);
+			console.error("Error in saving", err);
 		}
 	}
 
@@ -523,7 +521,10 @@ export default class Game extends Generic{
 		new GameEvent({type:GameEvent.Types.dungeonExited, dungeon:this.dungeon}).raise();
 	}
 	onDungeonEntered(){
+
+		this._looted_players = {};	// Reset looted players
 		new GameEvent({type:GameEvent.Types.dungeonEntered, dungeon:this.dungeon}).raise();
+
 	}
 	// Draw quest completed message
 	onQuestCompleted( quest ){
@@ -1287,8 +1288,8 @@ export default class Game extends Generic{
 
 		if( !p || !(p instanceof Player) )
 			p = new Player(data);
+
 		p.color = '';
-		p.g_resetID();
 		p.initialize();
 		this.players.push(p);
 
@@ -1331,6 +1332,7 @@ export default class Game extends Generic{
 
 	// Adds a player form player template
 	addPlayerFromTemplate( template, nextTurn = false ){
+
 		if( typeof template === "string" )
 			template = glib.get(template, 'PlayerTemplate');
 		if( !(template instanceof PlayerTemplate) )
@@ -1338,6 +1340,7 @@ export default class Game extends Generic{
 		const player = template.generate();
 		if( player )
 			return this.addPlayer(player, nextTurn);
+
 	}
 
 	// Remove a player by id
@@ -1813,19 +1816,23 @@ export default class Game extends Generic{
 
 		// Always prepare, never just go
 		encounter.prepare();
+
 		
 		const started = this.encounter.started;
 		this.encounter.started = true;
 		const completed = this.encounter.completed;
 
+
 		// Update visible players
 		this.removeGeneratedPlayers(merge);
 		for( let pl of encounter.players ){
+
 			pl.netgame_owner = '';
 			this.addPlayer(pl);
 			// Merge the new players into the encounter
 			if( merge )
 				this.encounter.players.push(pl);
+
 		}
 		
 		// Encounter isn't finished, start a battle 
@@ -1862,6 +1869,7 @@ export default class Game extends Generic{
 			}));
 		}
 
+		
 
 		
 		encounter.onPlacedInWorld( !started );	// This has to go after, since players need to be put in world for effects and conditions to work
@@ -1872,6 +1880,8 @@ export default class Game extends Generic{
 		// Purge is needed after each overwrite
 		this.save();
 		this.ui.draw();
+
+
 		
 	}
 
@@ -1879,14 +1889,6 @@ export default class Game extends Generic{
 	mergeEncounter( player, encounter ){
 		this.startEncounter(player, encounter, true);
 	}
-
-	resetEncounter( encounter ){
-
-
-
-	}
-
-	
 
 
 
@@ -2992,9 +2994,16 @@ Game.new = async (name, players) => {
 	game = new Game(name);
 
 	if( Array.isArray(players) ){
-		for( let player of players )
+
+		for( let player of players ){
+
+			player.g_resetID();
 			game.addPlayer(player);
+
+		}
+
 	}
+	
 	await game.execSave( true );
 	game.setDungeon( 'yuug_port', 1 );
 	game.ui.onNewGame();

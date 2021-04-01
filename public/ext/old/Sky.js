@@ -1,16 +1,9 @@
-import {
-	BackSide,
-	BoxGeometry,
-	Mesh,
-	ShaderMaterial,
-	UniformsUtils,
-	Vector3
-} from './THREE.js';
-
 /**
+ * @author zz85 / https://github.com/zz85
+ *
  * Based on "A Practical Analytic Model for Daylight"
  * aka The Preetham Model, the de facto standard analytic skydome model
- * https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight
+ * http://www.cs.utah.edu/~shirley/papers/sunsky/sunsky.pdf
  *
  * First implemented by Simon Wallner
  * http://www.simonwallner.at/projects/atmospheric-scattering
@@ -20,35 +13,34 @@ import {
  *
  * Three.js integration by zz85 http://twitter.com/blurspline
 */
+import * as THREE from './THREE.js';
 
-var Sky = function () {
+export default function Sky() {
 
 	var shader = Sky.SkyShader;
 
-	var material = new ShaderMaterial( {
-		name: 'SkyShader',
+	var material = new THREE.ShaderMaterial( {
 		fragmentShader: shader.fragmentShader,
 		vertexShader: shader.vertexShader,
-		uniforms: UniformsUtils.clone( shader.uniforms ),
-		side: BackSide,
-		depthWrite: false
+		uniforms: THREE.UniformsUtils.clone( shader.uniforms ),
+		side: THREE.BackSide
 	} );
 
-	Mesh.call( this, new BoxGeometry( 1, 1, 1 ), material );
+	THREE.Mesh.call( this, new THREE.BoxBufferGeometry( 1, 1, 1 ), material );
 
 };
 
-Sky.prototype = Object.create( Mesh.prototype );
+Sky.prototype = Object.create( THREE.Mesh.prototype );
 
 Sky.SkyShader = {
 
 	uniforms: {
-		'turbidity': { value: 2 },
-		'rayleigh': { value: 1 },
-		'mieCoefficient': { value: 0.005 },
-		'mieDirectionalG': { value: 0.8 },
-		'sunPosition': { value: new Vector3() },
-		'up': { value: new Vector3( 0, 1, 0 ) }
+		luminance: { value: 1 },
+		turbidity: { value: 2 },
+		rayleigh: { value: 1 },
+		mieCoefficient: { value: 0.005 },
+		mieDirectionalG: { value: 0.8 },
+		sunPosition: { value: new THREE.Vector3() }
 	},
 
 	vertexShader: [
@@ -56,7 +48,6 @@ Sky.SkyShader = {
 		'uniform float rayleigh;',
 		'uniform float turbidity;',
 		'uniform float mieCoefficient;',
-		'uniform vec3 up;',
 
 		'varying vec3 vWorldPosition;',
 		'varying vec3 vSunDirection;',
@@ -64,6 +55,8 @@ Sky.SkyShader = {
 		'varying vec3 vBetaR;',
 		'varying vec3 vBetaM;',
 		'varying float vSunE;',
+
+		'const vec3 up = vec3( 0.0, 1.0, 0.0 );',
 
 		// constants for atmospheric scattering
 		'const float e = 2.71828182845904523536028747135266249775724709369995957;',
@@ -132,8 +125,8 @@ Sky.SkyShader = {
 		'varying vec3 vBetaM;',
 		'varying float vSunE;',
 
+		'uniform float luminance;',
 		'uniform float mieDirectionalG;',
-		'uniform vec3 up;',
 
 		'const vec3 cameraPos = vec3( 0.0, 0.0, 0.0 );',
 
@@ -141,11 +134,13 @@ Sky.SkyShader = {
 		'const float pi = 3.141592653589793238462643383279502884197169;',
 
 		'const float n = 1.0003;', // refractive index of air
-		'const float N = 2.545E25;', // number of molecules per unit volume for air at 288.15K and 1013mb (sea level -45 celsius)
+		'const float N = 2.545E25;', // number of molecules per unit volume for air at
+									// 288.15K and 1013mb (sea level -45 celsius)
 
 		// optical length at zenith for molecules
 		'const float rayleighZenithLength = 8.4E3;',
 		'const float mieZenithLength = 1.25E3;',
+		'const vec3 up = vec3( 0.0, 1.0, 0.0 );',
 		// 66 arc seconds -> degrees, and the cosine of that
 		'const float sunAngularDiameterCos = 0.999956676946448443553574619906976478926848692873900859324;',
 
@@ -164,13 +159,25 @@ Sky.SkyShader = {
 		'	return ONE_OVER_FOURPI * ( ( 1.0 - g2 ) * inverse );',
 		'}',
 
+		// Filmic ToneMapping http://filmicgames.com/archives/75
+		'const float A = 0.15;',
+		'const float B = 0.50;',
+		'const float C = 0.10;',
+		'const float D = 0.20;',
+		'const float E = 0.02;',
+		'const float F = 0.30;',
+
+		'const float whiteScale = 1.0748724675633854;', // 1.0 / Uncharted2Tonemap(1000.0)
+
+		'vec3 Uncharted2Tonemap( vec3 x ) {',
+		'	return ( ( x * ( A * x + C * B ) + D * E ) / ( x * ( A * x + B ) + D * F ) ) - E / F;',
+		'}',
+
+
 		'void main() {',
-
-		'	vec3 direction = normalize( vWorldPosition - cameraPos );',
-
 		// optical length
 		// cutoff angle at 90 to avoid singularity in next formula.
-		'	float zenithAngle = acos( max( 0.0, dot( up, direction ) ) );',
+		'	float zenithAngle = acos( max( 0.0, dot( up, normalize( vWorldPosition - cameraPos ) ) ) );',
 		'	float inverse = 1.0 / ( cos( zenithAngle ) + 0.15 * pow( 93.885 - ( ( zenithAngle * 180.0 ) / pi ), -1.253 ) );',
 		'	float sR = rayleighZenithLength * inverse;',
 		'	float sM = mieZenithLength * inverse;',
@@ -179,7 +186,7 @@ Sky.SkyShader = {
 		'	vec3 Fex = exp( -( vBetaR * sR + vBetaM * sM ) );',
 
 		// in scattering
-		'	float cosTheta = dot( direction, vSunDirection );',
+		'	float cosTheta = dot( normalize( vWorldPosition - cameraPos ), vSunDirection );',
 
 		'	float rPhase = rayleighPhase( cosTheta * 0.5 + 0.5 );',
 		'	vec3 betaRTheta = vBetaR * rPhase;',
@@ -191,6 +198,7 @@ Sky.SkyShader = {
 		'	Lin *= mix( vec3( 1.0 ), pow( vSunE * ( ( betaRTheta + betaMTheta ) / ( vBetaR + vBetaM ) ) * Fex, vec3( 1.0 / 2.0 ) ), clamp( pow( 1.0 - dot( up, vSunDirection ), 5.0 ), 0.0, 1.0 ) );',
 
 		// nightsky
+		'	vec3 direction = normalize( vWorldPosition - cameraPos );',
 		'	float theta = acos( direction.y ); // elevation --> y-axis, [-pi/2, pi/2]',
 		'	float phi = atan( direction.z, direction.x ); // azimuth --> x-axis [-pi/2, pi/2]',
 		'	vec2 uv = vec2( phi, theta ) / vec2( 2.0 * pi, pi ) + vec2( 0.5, 0.0 );',
@@ -202,16 +210,14 @@ Sky.SkyShader = {
 
 		'	vec3 texColor = ( Lin + L0 ) * 0.04 + vec3( 0.0, 0.0003, 0.00075 );',
 
-		'	vec3 retColor = pow( texColor, vec3( 1.0 / ( 1.2 + ( 1.2 * vSunfade ) ) ) );',
+		'	vec3 curr = Uncharted2Tonemap( ( log2( 2.0 / pow( luminance, 4.0 ) ) ) * texColor );',
+		'	vec3 color = curr * whiteScale;',
+
+		'	vec3 retColor = pow( color, vec3( 1.0 / ( 1.2 + ( 1.2 * vSunfade ) ) ) );',
 
 		'	gl_FragColor = vec4( retColor, 1.0 );',
-
-		'#include <tonemapping_fragment>',
-		'#include <encodings_fragment>',
 
 		'}'
 	].join( '\n' )
 
 };
-
-export { Sky };

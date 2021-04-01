@@ -39,7 +39,7 @@ import JDLoader from '../ext/JDLoader.min.js';
 import libParticles from './particles.js';
 import AC from '../classes/AssetCache.js';
 import stdTag from './stdTag.js';
-import Water from '../ext/Water.js';
+import {Water} from '../ext/Water.js';
 import Water2 from '../ext/Water2.js';
 import {BufferGeometryUtils} from '../ext/BufferGeometryUtils.js';
 import {GLTFLoader} from '../ext/GLTFLoader.js';

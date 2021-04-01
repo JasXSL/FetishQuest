@@ -16,7 +16,7 @@ import { RenderPass } from '../ext/RenderPass.js';
 import {OrbitControls} from '../ext/OrbitControls.js';
 import {AudioSound} from './Audio.js';
 import { LibMaterial } from '../libraries/materials.js';
-import Sky from '../ext/Sky.js';
+import {Sky} from '../ext/Sky.js';
 import JDLoader from '../ext/JDLoader.min.js';
 import HitFX from './HitFX.js';
 import Proton from '../ext/three.proton.min.js';
@@ -259,6 +259,7 @@ class WebGL{
 		light.position.z = 1000;
 		light.castShadow = true;
 		this.dirLight = light;
+		this.dirLight.intensity = 1;
 		this.scene.add(light);
 
 
@@ -381,56 +382,74 @@ class WebGL{
 	toggleOutdoors( outdoors ){
 		
 		let light = this.dirLight;
-		this.sky.visible = !!outdoors;
+		this.sky.visible = Boolean(outdoors);
 		if( !outdoors ){
+
+			light.position.x = 0;
 			light.position.y = 1000;
-			light.position.z = 1000;
+			light.position.z = 100;
+
+			let color = new THREE.Color();
+			color.r = color.g = color.b = .5;
+			if( this.stage && this.stage.room.getDirLight() ){
+
+				color.set(this.stage.room.getDirLight());
+
+			}
+			this.dirLight.color.copy(color);
+
 		}
 
 	}
 
 	setOutdoorTime( hours ){
 
-		// Delay nighttime
-		if( hours > 12 ){
-			hours = 12+Math.pow((hours-12)/12, 2)*12;
-		}
+		this.updateFog( hours );
 
-		const effectController = {
-			turbidity: 10,
-			rayleigh: 2,
-			mieCoefficient: 0.005,
-			mieDirectionalG: 0.8,
-			luminance: 1,
-			inclination: hours >= 12 ? (hours-12)/12 : hours/12, // elevation / inclination
-			azimuth: hours >= 12 ? 0.25 : 0.75, // Going up or down,
-			sun: ! true
-		};
+		// Clock should start at 0.75 because 0.0 is morning
+		hours = hours/24 - 0.25;
+		if( hours < 0 )
+			hours += 1.0;
+		
+		const daytime = 1.0/24*10;	// 06-16
+		if( hours < daytime )
+			hours = Math.sin(hours*Math.PI*1.2)*.4;
+		else
+			hours = Math.cos(hours*Math.PI/1.2 + Math.PI/2 + Math.PI/6)*.6+1;
+
+		const inclination = 0;
+
+		let azimuth = hours;
 
 		const sky = this.sky;
 		const distance = 100000;
 		const uniforms = sky.material.uniforms;
-		uniforms.turbidity.value = effectController.turbidity;
-		uniforms.rayleigh.value = effectController.rayleigh;
-		uniforms.luminance.value = effectController.luminance;
-		uniforms.mieCoefficient.value = effectController.mieCoefficient;
-		uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+		uniforms.turbidity.value = 1;
+		uniforms.rayleigh.value = 0.6;
 
-		const theta = Math.PI * ( effectController.inclination - 0.5 );
-		const phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
+		uniforms.mieCoefficient.value = 0.05;
+		uniforms.mieDirectionalG.value = 0.9;
+
+		const theta = Math.PI * ( inclination - 0.5 );
+		const phi = 2 * Math.PI * ( azimuth - 0.5 );
 
 		const position = uniforms.sunPosition.value;
-		
 		
 		position.x = distance * Math.cos( phi );
 		position.y = distance * Math.sin( phi ) * Math.sin( theta );
 		position.z = distance * Math.sin( phi ) * Math.cos( theta );
+
+
 		this.dirLight.position.copy( position ).normalize().multiplyScalar(CAM_DIST);
+		if( hours > 0.5 ){
+			this.dirLight.position.y = -this.dirLight.position.y;
+		}
+
 		this.sunSphere.position.copy( position );
 		this.dirLightHelper.update();
 
-		this.updateFog();
-
+		
+		
 	}
 
 	
@@ -543,7 +562,7 @@ class WebGL{
 					proton.addEmitter(emitter);
 				*/
 			}
-			this.updateFog(rain);
+			this.updateFog( game.getHoursOfDay() );
 
 		}
 
@@ -597,50 +616,70 @@ class WebGL{
 		
 	}
 
-	updateFog( override ){
-		if(!window.game)
-			return;
+	updateFog( currentHour ){
 
-		const rain = isNaN(override) ? game.getRain() : override;
-		this.scene.fog.density = !rain ? 0 : 0.0001+rain*0.0008;
 		
-		let swatches = [
-			[0,0,0],
-			[0,0,0],
-			[0,0,0],
-			[0,0,0],
-			[0,0,0],
-			[0,0,0],
-			[18,9,8],
-			[118,124,130],
-			[160,170,176],
-			[181,190,196],
-			[195,203,208],
-			[206,213,217],
-			[215,221,224],
-			[215,221,224],
-			[215,221,224],
-			[215,221,224],
-			[215,221,224],
-			[215,221,224],
-			[213,218,220],
-			[183,190,194],
-			[144,142,145],
-			[3,5,7],
-			[0,0,0],
-			[0,0,0]
-		];
+		const rain = window.game ? game.getRain() : 0;
+		this.scene.fog.density = !rain ? this.stage.room.getFog() || 0.0002 : this.stage.room.getFog() + 0.0001+rain*0.0008;
+		
+		if( this.stage.room.outdoors ){
 
-		const secOfDay = game.time%(3600*24),
-			currentHour = Math.floor(secOfDay/3600),
-			nextHour = Math.ceil(secOfDay/3600) === 24 ? 0 : Math.ceil(secOfDay/3600),
-			percBetween = (secOfDay-currentHour*3600)/3600
-		;
+			let swatches = [
+				[10,20,50],
+				[20,40,100],
+				[20,40,100],
+				[20,40,100],
+				[20,40,100],
+				[10,20,50],
+				[50,40,8],
+				[118,124,130],
+				[150,150,176],
+				[161,190,196],
+				[175,203,208],
+				[186,213,217],
+				[195,221,224],
+				[195,221,224],
+				[195,221,224],
+				[195,221,224],
+				[195,221,224],
+				[195,221,224],
+				[213,218,220],
+				[183,190,150],
+				[144,110,40],
+				[100,80,30],
+				[0,0,0],
+				[10,20,50]
+			];
 
-		const a = swatches[currentHour], b = swatches[nextHour];
-		this.scene.fog.color.r = ((b[0]-a[0])*percBetween+a[0])/255;
-		this.scene.fog.color.g = ((b[1]-a[1])*percBetween+a[1])/255;
-		this.scene.fog.color.b = ((b[2]-a[2])*percBetween+a[2])/255;
+
+			const 
+				nextHour = currentHour+1 >= 24 ? currentHour-Math.floor(currentHour) : currentHour+1,
+				percBetween = currentHour-Math.floor(currentHour)
+			;
+
+
+			const a = swatches[Math.floor(currentHour)], b = swatches[Math.floor(nextHour)];
+			this.scene.fog.color.r =  ((b[0]-a[0])*percBetween+a[0])/255;
+			this.scene.fog.color.g = ((b[1]-a[1])*percBetween+a[1])/255;
+			this.scene.fog.color.b = ((b[2]-a[2])*percBetween+a[2])/255;
+
+		
+
+			this.dirLight.color.r = this.scene.fog.color.r;
+			this.dirLight.color.g = this.scene.fog.color.g;
+			this.dirLight.color.b = this.scene.fog.color.b;
+
+		}
+		else{
+
+			// Use fog from ambient light, or white
+			let color = new THREE.Color(0xFFFFFF);
+			if( this.stage.room && this.stage.room.getDirLight() )
+				color.set(this.stage.room.getDirLight());
+			this.scene.fog.color.copy(color);
+
+		}
+		
 
 	}
 
@@ -850,7 +889,7 @@ class WebGL{
 			this.roomEnterCameraTween();
 
 		}
-		this.updateFog();
+		this.updateFog( game.getHoursOfDay() );
 
 
 	}
@@ -1590,6 +1629,7 @@ class WebGL{
 class Stage{
 
 	constructor( room, parent, isEditor = false ){
+
 		this.parent = parent;
 		this.group = new THREE.Group();
 		this.enabled = false;

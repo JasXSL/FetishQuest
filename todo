@@ -10,10 +10,8 @@
 
 
 -- CURRENT --
-	- Add loot indicator to unlooted enemies on map
-	- Make gyms more explicit in showing active and learned abilities (show when new abilities unlock)
-
 	Need reproduce:
+
 	- Caching might make certain razzyberries unpickable??
 	
 	
@@ -34,7 +32,6 @@ Smol:
 
 
 Medium rare:
-	- Add fog override to cells
 	- Character export/import
 	- Special case npc markers for mimics
 	

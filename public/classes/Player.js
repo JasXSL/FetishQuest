@@ -128,7 +128,6 @@ export default class Player extends Generic{
 
 		this._tmp_actions = [];					// Actions from effects and such bound to a battle
 
-
 		this.load(data);
 		
 	}
@@ -248,6 +247,7 @@ export default class Player extends Generic{
 
 		// Everything except mod
 		if( full !== "mod" ){
+			
 			out.id = this.id;
 			out.ap = this.ap;
 			out.hp = this.hp;
@@ -258,6 +258,7 @@ export default class Player extends Generic{
 			out.color = this.color;
 			out.arousal = this.arousal;
 			out._targeted_by_since_last = this._targeted_by_since_last.save(full);		// Needed by netcode
+
 		}
 		else
 			this.g_sanitizeDefaults(out);

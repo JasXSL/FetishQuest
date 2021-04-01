@@ -118,6 +118,8 @@ export function asset(){
 		html += '<label title="Lets you change the loading zoom, 0 for auto">Zoom: <input type="number" min=0 step=1 name="zoom" class="saveable" value="'+esc(dummy.zoom)+'" /></label>';
 		html += '<label>Ambiance: <input type="text" name="ambiance" class="saveable" value="'+esc(dummy.ambiance)+'" /></label>';
 		html += '<label>Ambiance volume: <input type="range" name="ambiance_volume" min=0 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
+		html += '<label title="Use a low value like less than 0.001. Use 0 for default.">Fog override: <input type="number" name="fog" min=0 max=1 class="saveable" value="'+esc(dummy.fog)+'" /></label>';
+		html += '<label title="Indoors only. Hex code such as #AA33AA">Ambient light: <input type="text" name="dirLight" class="saveable" value="'+esc(dummy.dirLight)+'" /></label>';
 
 		html += '<label>Room Mesh: <select class="roomBaseAsset">';
 		LibMesh.iterate((mesh, path) => {
@@ -417,6 +419,19 @@ class Editor{
 			this.draw();
 		});
 
+		const fogOverride = win.dom.querySelector('input[name=fog]');
+		fogOverride.addEventListener('change', () => {
+			this.room.fog = +fogOverride.value || 0;
+			console.log(this.room.fog);
+			this.draw();
+		});
+
+		const lightOverride = win.dom.querySelector('input[name=dirLight]');
+		lightOverride.addEventListener('change', () => {
+			this.room.dirLight = lightOverride.value.trim();
+			this.draw();
+		});
+
 		contentDiv.appendChild(modtools.webgl.renderer.domElement);
 
 		const onResize = () => {
@@ -710,6 +725,9 @@ class Editor{
 		this.gl.resetStage( stage );
 		await stage.draw();
 		stage.toggle( true );
+
+		this.gl.toggleOutdoors( this.room.outdoors );
+		this.gl.updateFog( 12 );
 
 		this.bindMeshes();
 		this.updateWants();

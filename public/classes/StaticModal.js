@@ -863,7 +863,7 @@ export default class StaticModal{
 						const targ = $(event.currentTarget);
 						if( targ.is('.yes') )
 							window.location.reload();
-						this.ui.modal.close();
+						game.ui.modal.close();
 					});
 
 				});

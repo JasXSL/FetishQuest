@@ -49,6 +49,9 @@ class Dungeon extends Generic{
 		this.free_roam = false;		// When true, doesn't show the "back" icon leading you to exit
 		this.procedural = 0;		// If the dungeon is procedural, this is the time in world when it was created
 
+		this.dirLight = '';			// If a room doesn't have dirLight, it can use the dungeon one
+		this.fog = 0;				// If a room doesn't have fog, it can use from the dungeon instead
+
 		this.consumables = [
 			'manaPotion', 'majorManaPotion',
 			'minorHealingPotion', 'healingPotion', 'majorHealingPotion',
@@ -93,6 +96,8 @@ class Dungeon extends Generic{
 			vars : vars,
 			label : this.label,	// Label is needed for dungeon state events
 			free_roam : this.free_roam,
+			dirLight : this.dirLight,
+			fog : this.fog,
 		};
 
 		// Full or mod
@@ -154,8 +159,10 @@ class Dungeon extends Generic{
 	}
 
 	resetState(){
+
 		this._state = new DungeonSaveState({}, this);
 		game.state_dungeons.set(this.label, this._state);
+		
 	}
 
 	setVar( key, val ){
@@ -543,6 +550,9 @@ class DungeonRoom extends Generic{
 		this.ambiance = 'media/audio/ambiance/dungeon.ogg';
 		this.ambiance_volume = 0.2;
 
+		this.fog = 0;				// Lets you override the scene fog level
+		this.dirLight = '';			// can be a hex code if you want to override default #808080
+
 		this._bondage_assets = null;
 
 		this.load(data);
@@ -574,6 +584,8 @@ class DungeonRoom extends Generic{
 			ambiance : this.ambiance,
 			encounters : enc,
 			id : this.id,	// needed for modtools to work
+			fog : this.fog,
+			dirLight : this.dirLight,
 		};
 
 
@@ -628,21 +640,30 @@ class DungeonRoom extends Generic{
 			this.discovered = true;
 
 		for( let id in state.assets ){
-			const asset = state.assets[id];
+
+			const asset = state.assets[id].save();
 			let cur = this.getAssetById(id);
 			
+			// This shouldn't happen. Saved an asset that didn't exist previously
 			if( !cur ){
-				this.addAsset(new DungeonRoomAsset(asset, this));
+
+				console.error("Trying to load state on mesh that doesn't exist", id);
+				//this.addAsset(new DungeonRoomAsset(asset, this));
 				continue;
+
 			}
 
 			const respawnTime = asset._killed+cur.respawn;
 			const curRespawn = !isNaN(respawnTime) && cur.respawn && game.time > respawnTime;
 			if( curRespawn ){
+
 				delete state.assets[id];
 				continue;	// Don't load, it has expired. Let it stay the way it originally was.
+
 			}
+
 			cur.load(asset);
+
 		}
 		
 
@@ -862,6 +883,23 @@ class DungeonRoom extends Generic{
 
 
 
+	getFog(){
+		
+		if( this.fog )
+			return this.fog;
+
+		return this.parent.fog;
+		
+	}
+
+	getDirLight(){
+		
+		if( this.dirLight )
+			return this.dirLight;
+
+		return this.parent.dirLight;
+		
+	}
 
 
 	/* MARKERS */
@@ -1074,16 +1112,19 @@ class DungeonRoomSaveState extends Generic{
 	rebase(){
 		this.assets = Collection.loadThis(this.assets, this);
 		for( let i in this.assets )
-			this.assets[i] = DungeonRoomAsset.loadThis(this.assets[i], this.assets);
+			this.assets[i] = DungeonRoomAssetSaveState.loadThis(this.assets[i], this.assets);
 	}
 
 	assetModified(asset){
+
 		let existing = this.assets[asset.id];
 		if( !existing ){
-			this.assets[asset.id] = new DungeonRoomAsset({}, this.assets);
+			this.assets[asset.id] = new DungeonRoomAssetSaveState({}, this.assets);
 		}
 		this.assets[asset.id].load(asset);
+
 	}
+
 }
 
 
@@ -1382,19 +1423,25 @@ class DungeonRoomAsset extends Generic{
 	// Gets a generic model, useful for the procedural generator
 	// If you're looking for the model placed in the actual 3d renderer, use this._stage_mesh
 	getModel(){
+
 		if( this._model )
 			return this._model;
 		let mesh = libMeshes(),
 			path = this.model.split('.')
 		;
 		while( path.length ){
+
 			mesh = mesh[path.shift()];
 			if(!mesh){
+
 				console.error("Mesh not found", this.model, "in", this);
-				return false;
+				return libMeshes().Farm.Furniture.Stool;
+
 			}
+			
 		}
 		return mesh;
+
 	}
 
 	setStageMesh( c ){
@@ -1517,8 +1564,11 @@ class DungeonRoomAsset extends Generic{
 
 		const pre = this._interactive;
 		this._interactive = this.isInteractive();
-		if( this._interactive !== pre )
+		if( this._interactive !== pre ){
+
 			this._stage_mesh.userData.template.onInteractivityChange(this, this._interactive);
+
+		}
 
 		if( this._interactive )
 			return;
@@ -1705,6 +1755,42 @@ class DungeonRoomAsset extends Generic{
 		return template.door !== LibMesh.DoorTypes.DOOR_NONE;
 	}
 }
+
+// Holds whatever data can be saved about a dungeon room asset
+class DungeonRoomAssetSaveState extends Generic{
+
+	constructor(data, parent){
+		super(data);
+		this.parent = parent;
+
+		this.deleted = false;
+		this.generated = false;
+		this.interactions = [];
+		this._killed = 0;
+
+		this.load(data);
+
+	}
+
+	save( full ){
+		return {
+			deleted : this.deleted,
+			generated : this.generated,
+			interactions : GameAction.saveThese(this.interactions, full),
+			_killed : this._killed
+		};
+	}
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.interactions = GameAction.loadThese(this.interactions, this);
+	}
+
+}
+
 
 DungeonRoomAsset.getDirName = function( dir ){
 

@@ -71,9 +71,12 @@ export default class Encounter extends Generic{
 			const level = game.getAveragePlayerLevel();
 			
 			for( let p of this.player_templates ){
+
 				if( p.min_level <= level && p.max_level >= level  )
 					viableMonsters.push(p);
+
 			}
+
 			if( !viableMonsters.length )
 				viableMonsters.push(templateMonster);
 
@@ -160,9 +163,13 @@ export default class Encounter extends Generic{
 
 		}	
 
+
 		for( let player of this.players ){
+
 			player.g_resetID();
+
 		}
+
 
 	}
 
@@ -220,8 +227,10 @@ export default class Encounter extends Generic{
 	}
 
 	save( full ){
+
 		const out = {};
 		if( full ){
+			
 			out.startText = this.startText;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
 			out.players = Player.saveThese(this.players, full);
@@ -230,6 +239,7 @@ export default class Encounter extends Generic{
 			out.conditions = Condition.saveThese(this.conditions, full);
 			out.respawn = this.respawn;
 			out.difficulty_adjust = this.difficulty_adjust;
+
 		}
 		out.friendly = this.friendly;
 		out.game_actions = GameAction.saveThese(this.game_actions, full);
@@ -247,6 +257,7 @@ export default class Encounter extends Generic{
 		}
 		// Not really gonna need a full because these are never output to webplayers
 		return out;
+
 	}
 	
 	validate( event ){

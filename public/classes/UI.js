@@ -980,8 +980,13 @@ export default class UI{
 	onPlayerInteractionUsed( type, p ){
 
 		const myActive = game.getMyActivePlayer();
-		if( type === 'loot' )
+		if( type === 'loot' ){
+			
+			game._looted_players[p.id] = true;
+			$("div.player[data-id='"+p.id+"'] div.interaction[data-type=loot]", this.players).toggleClass("highlight", false);
 			this.drawContainerLootSelector(myActive, p);
+
+		}
 		else if( type === 'shop' ){
 
 			const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
@@ -1227,17 +1232,25 @@ export default class UI{
 
 		$("> div.interactions", el).toggleClass('hidden', !myActive);
 
-		$("div.interaction[data-type=chat]", el).toggleClass("hidden", !interactions.talk).off('click').on('click', event => {
-			event.stopImmediatePropagation();
-			this.onPlayerInteractionUsed( "talk", p );
-		});
+		$("div.interaction[data-type=chat]", el)
+			.toggleClass("hidden", !interactions.talk).off('click').on('click', event => {
+
+				event.stopImmediatePropagation();
+				this.onPlayerInteractionUsed( "talk", p );
+
+			});
 
 
-		const showLoot = interactions.loot;
-		$("div.interaction[data-type=loot]", el).toggleClass("hidden", !showLoot).off('click').on('click', event => {
-			event.stopImmediatePropagation();
-			this.onPlayerInteractionUsed( "loot", p );
-		});
+		const showLoot = interactions.loot, lootDiv = $("div.interaction[data-type=loot]", el);
+		lootDiv
+			.toggleClass("hidden", !showLoot)
+			.toggleClass("highlight", !game._looted_players[p.id])
+			.off('click').on('click', event => {
+
+				event.stopImmediatePropagation();
+				this.onPlayerInteractionUsed( "loot", p );
+
+			});
 
 		
 		const showShop = interactions.shop;

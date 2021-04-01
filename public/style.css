@@ -1830,6 +1830,7 @@ div.fxBuffRed{
 		from{box-shadow:0 0 2vmax 1vmax rgba(255,255,100, 1);}
 		to{box-shadow:0 0 1vmax 0.5vmax rgba(255,255,100, 1);}
 	}
+	div.interaction.highlight,
 	#gameIcons > div.highlight{
 		animation:gameIconsHighlight 1s alternate infinite ease-in-out;		
 	}
