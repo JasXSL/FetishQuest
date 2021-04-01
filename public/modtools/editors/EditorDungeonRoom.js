@@ -698,7 +698,6 @@ class Editor{
 				continue;
 
 			const mesh = asset._stage_mesh;
-
 			mesh.userData.click = () => {
 				this.control.detach();
 				this.control.attach(mesh);

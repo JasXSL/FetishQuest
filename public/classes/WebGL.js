@@ -2042,7 +2042,7 @@ class Stage{
 			}
 
 			// Don't add player tags, they're generated
-			if( asset.hasTag(stdTag.mPLAYER_MARKER) )
+			if( window.game && asset.hasTag(stdTag.mPLAYER_MARKER) )
 				continue;
 
 			// Don't try to do this in parallel or you'll freeze the browser

@@ -713,6 +713,22 @@ export function asset(){
 			html += '<input type="text" name="data::val" class="saveable" data-type="smart" value="'+esc(dummy.data.val)+'" /></label>';
 		html += '</div>';
 	}
+	else if( type === Types.playerMarker ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				x : 0, y : 0, z : 0,
+				scale : 1.0
+			};
+
+		html += '<div class="labelFlex">';
+			html += '<label title="X offset from chest">XYZ: '+
+				'<input type="number" name="data::x" class="saveable" step=1 value="'+esc(asset.data.x || 0)+'" />'+
+				'<input type="number" name="data::y" class="saveable" step=1 value="'+esc(asset.data.y || 0)+'" />'+
+				'<input type="number" name="data::z" class="saveable" step=1 value="'+esc(asset.data.z || 0)+'" />'+
+				'<input type="number" name="data::scale" class="saveable" value="'+esc(asset.data.scale || 0)+'" />'+
+			'</label>';
+		html += '</div>';
+	}
 
 	else{
 

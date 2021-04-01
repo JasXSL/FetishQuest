@@ -21,6 +21,7 @@ import VibHub from './VibHub.js';
 import Faction from './Faction.js';
 import Encounter from './Encounter.js';
 import StaticModal from './StaticModal.js';
+import * as THREE from '../ext/THREE.js';
 
 export default class Game extends Generic{
 
@@ -1790,7 +1791,8 @@ export default class Game extends Generic{
 
 	/* ENCOUNTER */
 	// Start an encounter
-	startEncounter( player, encounter, merge = false ){
+	// If the encounter was started by clicking a mesh, it's included as a THREE object
+	startEncounter( player, encounter, merge = false, mesh = false ){
 
 		if( !encounter )
 			return;
@@ -1800,7 +1802,7 @@ export default class Game extends Generic{
 		
 		// Merge should reset the encounter status
 		if( merge ){
-			
+
 			this.encounter.setCompleted(false);
 			this.encounter.started = false;
 
@@ -1824,20 +1826,37 @@ export default class Game extends Generic{
 		this.encounter.started = true;
 		const completed = this.encounter.completed;
 
+		const markerActions = GameAction.getByType(encounter.game_actions, GameAction.types.playerMarker);
+		const room = this.dungeon.getActiveRoom();
 
 		// Update visible players
-		this.removeGeneratedPlayers(merge);
+		this.removeGeneratedPlayers(merge);	// Removes from the Game player list
 		for( let pl of encounter.players ){
 
 			pl.netgame_owner = '';
 			this.addPlayer(pl);
 			// Merge the new players into the encounter
-			if( merge )
+			if( merge ){
+				
 				this.encounter.players.push(pl);
+				const marker = markerActions.shift();
+				if( mesh && marker ){
+
+					// Create a custom player marker
+					const pos = new THREE.Vector3(marker.data.x, marker.data.y, marker.data.z)
+						.multiplyScalar(mesh.scale.y)
+						.add(mesh.position)
+					;
+					room.storePlayerMarker( pl.id, {x:pos.x, y:pos.y, z:pos.z}, mesh.scale.y*marker.data.scale );
+
+				}
+
+
+			}
 
 		}
 		
-		// Encounter isn't finished, start a battle 
+		// Encounter isn't finished
 		if( !this.encounter.completed ){
 			
 
@@ -1854,22 +1873,14 @@ export default class Game extends Generic{
 				action.trigger(player);
 
 			}
+
 			for( let wrapper of encounter.wrappers )
 				wrapper.useAgainst( encounter.players[0], player );
 
 
 		}
 
-
-		if( encounter.startText && !started ){
-			let text = new Text({text : encounter.startText});
-			text.run(new GameEvent({
-				sender : encounter.players[0],
-				target : player,
-				type : GameEvent.Types.encounterStarted,
-				encounter : this.encounter
-			}));
-		}
+		
 
 		
 
@@ -1878,6 +1889,18 @@ export default class Game extends Generic{
 
 		if( !encounter.friendly && !completed )
 			this.toggleBattle(true);
+
+		if( encounter.startText && !started ){
+
+			let text = new Text({text : encounter.startText});
+			text.run(new GameEvent({
+				sender : encounter.players[0],
+				target : player,
+				type : GameEvent.Types.encounterStarted,
+				encounter : this.encounter
+			}));
+
+		}
 
 		// Purge is needed after each overwrite
 		this.save();
@@ -1888,8 +1911,8 @@ export default class Game extends Generic{
 	}
 
 	// Starting new encounters in a room that already has encounters needs to merge it into the main encounter
-	mergeEncounter( player, encounter ){
-		this.startEncounter(player, encounter, true);
+	mergeEncounter( player, encounter, mesh ){
+		this.startEncounter(player, encounter, true, mesh);
 	}
 
 

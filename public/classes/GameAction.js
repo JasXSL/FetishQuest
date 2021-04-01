@@ -371,7 +371,7 @@ export default class GameAction extends Generic{
 
 		if( this.type === types.encounters ){
 
-			game.mergeEncounter(player, Encounter.getRandomViable(Encounter.loadThese(this.data)));
+			game.mergeEncounter(player, Encounter.getRandomViable(Encounter.loadThese(this.data)), mesh);
 			this.remove();	// Prevent it from restarting
 			asset.updateInteractivity();	// After removing the action, update interactivity
 
@@ -774,6 +774,28 @@ export default class GameAction extends Generic{
 		return true;
 	}
 
+
+
+
+	// Static
+	static getByType( actions = [], type = '' ){
+
+		return actions.filter(el => el.type === type );
+
+	}
+	
+	static getViable( actions = [], player = undefined, debug = false, validate = true ){
+		let out = [];
+		for( let action of actions ){
+	
+			let valid = action.validate(player, debug);
+			if( valid || !validate )
+				out.push(action);
+	
+		}
+		return out;
+	}
+
 	
 }
 GameAction.types = {
@@ -813,6 +835,7 @@ GameAction.types = {
 	learnAction : "learnAction",			// 
 	addCopper : 'addCopper',
 	addTime : 'addTime',
+	playerMarker : 'playerMarker',
 };
 
 GameAction.TypeDescs = {
@@ -852,6 +875,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
 	[GameAction.types.addTime] : '{seconds:(int)seconds}',
 	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula} - Sets a variable in the currently active dungeon',
+	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',
 };
 
 // These are types where data should be sent to netgame players
@@ -869,14 +893,4 @@ GameAction.typesToSendOnline = {
 };
 
 
-GameAction.getViable = function( actions = [], player = undefined, debug = false, validate = true ){
-	let out = [];
-	for( let action of actions ){
 
-		let valid = action.validate(player, debug);
-		if( valid || !validate )
-			out.push(action);
-
-	}
-	return out;
-}
