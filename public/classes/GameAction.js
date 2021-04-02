@@ -515,14 +515,29 @@ export default class GameAction extends Generic{
 		else if( this.type === types.finishQuest ){
 
 			let quests = toArr(this.data.quest);
-			for( let quest of game.quests ){
+			for( let quest of quests ){
 
-				if( quests.indexOf(quest.label) === -1 )
-					continue;
+				let active = game.getQuestByLabel(quest);
+				// We don't have this quest
+				if( !active ){
 
-				if( quest.isCompleted() || this.data.force )
-					quest.onFinish();
-					
+					if( !this.data.force )
+						continue;
+
+					// Force finish this quest by starting it
+					game.addQuest(quest, true);
+					active = game.getQuestByLabel(quest);
+					// Happens if you mistyped the label
+					if( !active ){
+						console.error("Quest missing from DB", quest);
+						continue;
+					}
+
+				}
+
+				if( active.isCompleted() || this.data.force )
+					active.onFinish();
+
 			}
 
 		}

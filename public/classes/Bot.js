@@ -113,131 +113,132 @@ class Bot{
 
 	play( force = false ){
 		
-		if( (!this.player.isNPC() && !force) || this.player.isDead() || !game.battle_active || game.getTurnPlayer() !== this.player )
+		if( (!this.player.isNPC() && !force) || !game.battle_active || game.getTurnPlayer() !== this.player )
 			return;
 
-		let abils = this.player.getActions().filter(el => {
-			return !el.hidden && el.castable();
-		});
-		let highest_cost = 0;
-		for( let abil of abils ){
-			if( highest_cost < abil.ap && abil._cooldown === 0 )
-				highest_cost = abil.ap;
-		}
-
-		const AP = this.player.ap;
-
-		// Adds some randomness to abilities
-		if(
-			!this.player.hasTag(stdTag.acNpcNoAttack) &&
-			(
-				this.hasCastableImportant() ||
-				(AP >= highest_cost && (Math.random() < AP/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
-				Math.random() < 0.2 || AP > this.player.getMaxAP()/2
-			)
-		){
-
-			shuffle(abils);
-			abils.sort((a,b) => {
-
-				const aLast = a.hasTag(stdTag.acNpcImportantLast) && AP <= Math.ceil(a.ap*1.2),
-					bLast = b.hasTag(stdTag.acNpcImportantLast) && AP <= Math.ceil(b.ap*1.2)
-				;
-
-
-				// NPC important are run first
-				let atag = a.hasTag(stdTag.acNpcImportant) || aLast,
-					btag = b.hasTag(stdTag.acNpcImportant) || bLast,
-					aIsSTD = a.label === 'stdAttack' || a.label === 'stdArouse',
-					bIsSTD = b.label === 'stdAttack' || b.label === 'stdArouse'
-				;
-
-				// Deprioritize important_last
-				if( !aLast && a.hasTag(stdTag.acNpcImportantLast) )
-					return 1;
-				if( !bLast && b.hasTag(stdTag.acNpcImportantLast) )
-					return -1;
-				
-								
-				
-				if( atag && !btag )
-					return -1;
-				if( btag && !atag )
-					return 1;
-
-				// Put standard attacks last on the first action
-				if( aIsSTD && !bIsSTD && !this.actions_used )
-					return 1;
-				if( bIsSTD && !aIsSTD && !this.actions_used )
-					return -1;
-				
-				// Handle sadism
-				if( aIsSTD && bIsSTD ){
-					const favorAttack = Math.random() < this.player.sadistic;	// Favor attack if rolling below sadism 
-					if( a.label === 'stdAttack' )
-						return favorAttack ? -1 : 1;	// A was attack, return -1 if sadism roll
-					return favorAttack ? 1 : -1;		// A was arouse, return 1 if sadism roll
-				}
-
-				return 0;
+		if( !this.player.isDead() ){
+			let abils = this.player.getActions().filter(el => {
+				return !el.hidden && el.castable();
 			});
-
+			let highest_cost = 0;
 			for( let abil of abils ){
-
-				let targs = abil.getViableTargets().filter(el => {
-					// Don't use a detrimental spell on a friend
-					// Don't use a beneficial spell on an enemy
-					if( abil.isDetrimentalTo(el) === (el.team === this.player.team) )
-						return false;
-					if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.5 )
-						return false;
-					if( abil.hasTag(stdTag.acManaHeal) && el.mp/el.getMaxMP() > 0.5 )
-						return false;
-					return true;
-				});
-
-				if( abil.hasTag(stdTag.acSelfHeal) && this.player.hp/this.player.getMaxHP() < 0.5 )
-					continue;
-				if( targs.length < abil.min_targets )
-					continue;
-
-				// Pick a target
-				let t = [];
-				while( targs.length ){
-
-					const ta = this.shiftRandomTargetByThreat(targs, abil);
-					t.push(ta);
-					if( t.length >= abil.max_targets )
-						break;
-				}
-
-				// Game
-				setTimeout(() => {
-
-					let success = game.useActionOnTarget( abil, t );
-					let time = 2000+Math.random()*1000;
-					if( this.player.team === 0 )
-						time = Math.floor(time*0.5);
-					if( !success )
-						time = 400;
-					++this.actions_used;
-
-					setTimeout(() => {
-						this.play();	
-					}, time);
-
-				}, 100);
-				
-				
-
-
-				
-				
-				return;
+				if( highest_cost < abil.ap && abil._cooldown === 0 )
+					highest_cost = abil.ap;
 			}
 
-		}
+			const AP = this.player.ap;
 
+			// Adds some randomness to abilities
+			if(
+				!this.player.hasTag(stdTag.acNpcNoAttack) &&
+				(
+					this.hasCastableImportant() ||
+					(AP >= highest_cost && (Math.random() < AP/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
+					Math.random() < 0.2 || AP > this.player.getMaxAP()/2
+				)
+			){
+
+				shuffle(abils);
+				abils.sort((a,b) => {
+
+					const aLast = a.hasTag(stdTag.acNpcImportantLast) && AP <= Math.ceil(a.ap*1.2),
+						bLast = b.hasTag(stdTag.acNpcImportantLast) && AP <= Math.ceil(b.ap*1.2)
+					;
+
+
+					// NPC important are run first
+					let atag = a.hasTag(stdTag.acNpcImportant) || aLast,
+						btag = b.hasTag(stdTag.acNpcImportant) || bLast,
+						aIsSTD = a.label === 'stdAttack' || a.label === 'stdArouse',
+						bIsSTD = b.label === 'stdAttack' || b.label === 'stdArouse'
+					;
+
+					// Deprioritize important_last
+					if( !aLast && a.hasTag(stdTag.acNpcImportantLast) )
+						return 1;
+					if( !bLast && b.hasTag(stdTag.acNpcImportantLast) )
+						return -1;
+					
+									
+					
+					if( atag && !btag )
+						return -1;
+					if( btag && !atag )
+						return 1;
+
+					// Put standard attacks last on the first action
+					if( aIsSTD && !bIsSTD && !this.actions_used )
+						return 1;
+					if( bIsSTD && !aIsSTD && !this.actions_used )
+						return -1;
+					
+					// Handle sadism
+					if( aIsSTD && bIsSTD ){
+						const favorAttack = Math.random() < this.player.sadistic;	// Favor attack if rolling below sadism 
+						if( a.label === 'stdAttack' )
+							return favorAttack ? -1 : 1;	// A was attack, return -1 if sadism roll
+						return favorAttack ? 1 : -1;		// A was arouse, return 1 if sadism roll
+					}
+
+					return 0;
+				});
+
+				for( let abil of abils ){
+
+					let targs = abil.getViableTargets().filter(el => {
+						// Don't use a detrimental spell on a friend
+						// Don't use a beneficial spell on an enemy
+						if( abil.isDetrimentalTo(el) === (el.team === this.player.team) )
+							return false;
+						if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.5 )
+							return false;
+						if( abil.hasTag(stdTag.acManaHeal) && el.mp/el.getMaxMP() > 0.5 )
+							return false;
+						return true;
+					});
+
+					if( abil.hasTag(stdTag.acSelfHeal) && this.player.hp/this.player.getMaxHP() < 0.5 )
+						continue;
+					if( targs.length < abil.min_targets )
+						continue;
+
+					// Pick a target
+					let t = [];
+					while( targs.length ){
+
+						const ta = this.shiftRandomTargetByThreat(targs, abil);
+						t.push(ta);
+						if( t.length >= abil.max_targets )
+							break;
+					}
+
+					// Game
+					setTimeout(() => {
+
+						let success = game.useActionOnTarget( abil, t );
+						let time = 2000+Math.random()*1000;
+						if( this.player.team === 0 )
+							time = Math.floor(time*0.5);
+						if( !success )
+							time = 400;
+						++this.actions_used;
+
+						setTimeout(() => {
+							this.play();	
+						}, time);
+
+					}, 100);
+					
+					
+
+
+					
+					
+					return;
+				}
+
+			}
+		}
 		// Send end of turn
 		game.useActionOnTarget( this.player.getActionByLabel('stdEndTurn'), this.player );
 

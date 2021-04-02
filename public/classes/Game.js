@@ -551,13 +551,13 @@ export default class Game extends Generic{
 		
 
 	}
+	// Only put visuals here, use addQuest for data
 	onQuestAccepted( quest ){
 
 		this.ui.questAcceptFlyout( 'Quest Started:', quest.name );
 		this.playFxAudioKitById('questPickup', undefined, undefined, undefined, true);
 		if( this.is_host && this.net )
 			this.net.dmQuestAccepted( 'Quest Started:', quest.name );
-		quest.onAccepted();
 
 	}
 	// Raised before a room changes
@@ -1198,15 +1198,21 @@ export default class Game extends Generic{
 
 
 	/* QUEST */
-	addQuest(quest){
+	addQuest( quest, silent = false ){
 
 		if( typeof quest === "string" )
 			quest = glib.get(quest, "Quest");
 		if( !(quest instanceof Quest) )
 			throw("Quest is not a Quest object");
+			
 		this.quests.push(quest);
-		this.onQuestAccepted(quest);
+		quest.onAccepted();
+
+		if( !silent )
+			this.onQuestAccepted(quest);
+
 		this.save();
+
 	}
 	removeQuest(questID){
 		let quest = this.getQuestById(questID);

@@ -204,6 +204,8 @@ export default class Player extends Generic{
 			icon_upperBody : this.icon_upperBody,
 			power : this.power,
 			passives : Wrapper.saveThese(this.passives, full),
+			generated : this.generated,	// Needed for playerMarkers in webgl
+
 		};
 
 		if( this.rp )
@@ -220,7 +222,6 @@ export default class Player extends Generic{
 		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC() || this.isDead()), full);
 
 		if( full ){
-			out.generated = this.generated;
 			out.remOnDeath = this.remOnDeath;
 			out.leveled = this.leveled;
 			out.inventory = this.inventory;

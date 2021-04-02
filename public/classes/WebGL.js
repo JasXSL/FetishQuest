@@ -1110,7 +1110,13 @@ class WebGL{
 			marker = await this.createPlayerMarker();
 
 		// Gonna have to rebuild some stuff
-		if( marker.userData.marker.player !== player || marker.userData.marker.dungeonAsset !== dungeonAsset ){
+		// Need to use ID because of netgame
+		if( 
+			!marker.userData.marker.player || 
+			marker.userData.marker.player.id !== player.id || 
+			!marker.userData.marker.dungeonAsset ||
+			marker.userData.marker.dungeonAsset.id !== dungeonAsset.id 
+		){
 
 			marker.userData.marker.player = player;
 			marker.userData.marker.dungeonAsset = dungeonAsset;
