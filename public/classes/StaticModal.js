@@ -809,9 +809,9 @@ export default class StaticModal{
 
 				// DM
 				this.dm.toggle.on('click', event => {
-					localStorage.hide_dm_tools = +ui.showDMTools();
-					ui.board.toggleClass("dev", ui.showDMTools());
-					$("input", event.currentTarget).prop("checked", ui.showDMTools());
+					localStorage.hide_dm_tools = +game.ui.showDMTools();
+					ui.board.toggleClass("dev", game.ui.showDMTools());
+					$("input", event.currentTarget).prop("checked", game.ui.showDMTools());
 				});
 				this.dm.addPlayer.on('click', event => {
 					
@@ -1575,18 +1575,18 @@ export default class StaticModal{
 					myPlayer = game.getMyActivePlayer()
 				;
 
+				this.shop = shop;
 
-
-				if( !(shop instanceof Shop) || !myPlayer )
+				if( !(this.shop instanceof Shop) || !myPlayer )
 					throw 'Invalid shop or player';
 
-				shop.loadState(game.state_shops[shop.label]);
+				this.shop.loadState(game.state_shops[this.shop.label]);
 
-				if( !game.shopAvailableTo(shop, myPlayer) )
+				if( !game.shopAvailableTo(this.shop, myPlayer) )
 					return;
 
 				// Titles
-				this.setTitle(shop.name);
+				this.setTitle(this.shop.name);
 				
 
 
@@ -1646,7 +1646,7 @@ export default class StaticModal{
 					// only buy shows tokens
 					if( tokenBase ){
 
-						const tokens = shop.getTokenAssets();
+						const tokens = this.shop.getTokenAssets();
 						let divs = [];
 						for( let i = 0; i < tokens.length; ++i ){
 
@@ -1669,6 +1669,7 @@ export default class StaticModal{
 				// Assets for sale
 				const handleSellAssetClick = event => {
 
+					const shop = this.shop;
 					const th = $(event.currentTarget),
 						id = th.attr('data-id');
 						
@@ -1703,7 +1704,7 @@ export default class StaticModal{
 				};
 				let newDivs = [];
 				let availableAssets = 0;
-				for( let item of shop.items ){
+				for( let item of this.shop.items ){
 
 					const cost = item.getCost();
 					const asset = item.getAsset();
@@ -1762,6 +1763,7 @@ export default class StaticModal{
 				// Assets the vendor is buying
 				const handleBuyAssetClick = event => {
 
+					const shop = this.shop;
 					const th = event.currentTarget,
 						id = th.dataset.id,
 						asset = myPlayer.getAssetById(id)
@@ -1796,7 +1798,7 @@ export default class StaticModal{
 					const a = asset.clone();
 					a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
 
-					const div = await StaticModal.getGenericAssetButton(a, a.getSellCost(shop));
+					const div = await StaticModal.getGenericAssetButton(a, a.getSellCost(this.shop));
 					newDivs.push(div);
 					div.addEventListener('click', handleBuyAssetClick);
 
@@ -2753,9 +2755,9 @@ export default class StaticModal{
 					{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
 					{slot:Asset.Slots.hands, icon:'crossed-swords'}
 				];
-				const createEquipSlot = async (slot, fallback) => {
+				const createEquipSlot = async (slot, fallback, index = 0) => {
 
-					const asset = player.getEquippedAssetsBySlots(slot, true)[0];
+					const asset = player.getEquippedAssetsBySlots(slot, true)[index];
 
 					const div = document.createElement('div');
 					div.classList.add('equipmentSlot', 'item', 'tooltipParent');
@@ -2802,7 +2804,7 @@ export default class StaticModal{
 
 				divs = [];
 				for( let i =0; i<3; ++i )
-					divs.push(await createEquipSlot(Asset.Slots.action, 'media/wrapper_icons/potion-ball.svg'));
+					divs.push(await createEquipSlot(Asset.Slots.action, 'media/wrapper_icons/potion-ball.svg', i));
 				this.main.toolbelt.replaceChildren(...divs);
 
 
@@ -2981,7 +2983,8 @@ export default class StaticModal{
 				});
 				this.library.create.addEventListener('click', () => {
 
-					StaticModal.setWithTab('assetLibrary', 'Editor', undefined, new Asset());
+					this._asset = null;
+					StaticModal.setWithTab('assetLibrary', 'Editor');
 
 				});
 
@@ -3029,9 +3032,12 @@ export default class StaticModal{
 					try{
 						const wrappers = JSON.parse(getEl("textarea[name=wrappers]").value.trim());
 						a.wrappers = wrappers.map(el => {
+
 							const out = new Wrapper(el, a.parent);
-							out.victim = a.parent.id;
+							if( a.parent )
+								out.victim = a.parent.id;
 							return out;
+
 						});
 					}catch(err){
 						console.error("Unable to save, invalid JSON: ", err);
@@ -3185,8 +3191,12 @@ export default class StaticModal{
 					this._asset = asset;
 
 				// Don't set _custom on the asset because it's needed for saving
-				if( !(this._asset instanceof Asset) )
+				if( !(this._asset instanceof Asset) ){
+
 					this._asset = new Asset();
+					this._asset.level = game.getAveragePlayerLevel();
+
+				}
 
 				asset = this._asset;
 

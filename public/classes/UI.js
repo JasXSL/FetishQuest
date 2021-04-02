@@ -132,8 +132,8 @@ export default class UI{
 			}
 			else if( event.key === 'i' ){
 
-				if( this.modal.open === true && $("#modal > div.wrapper > div.content > div.inventory").length )
-					this.modal.close();
+				if( StaticModal.active && StaticModal.active.id === 'inventory' )
+					StaticModal.close();
 				else{
 					game.uiAudio( 'backpack' );
 					StaticModal.set('inventory');
@@ -142,8 +142,8 @@ export default class UI{
 			}
 			else if( event.key === 'l' ){
 
-				if( this.modal.open === true && $("#modal > div.wrapper > div.content > div.modalQuests").length )
-					this.modal.close();
+				if( StaticModal.active && StaticModal.active.id === 'quests' )
+					StaticModal.close();
 				else{
 					StaticModal.set('quests');
 					game.uiAudio( 'toggle_quests' );
@@ -1955,11 +1955,13 @@ export default class UI{
 	}
 
 	async toggleBlackScreen( fnAtMidpoint ){
+		
 		this.blackScreen.toggleClass("anim", true);
 		await delay(3200);
 		if( typeof fnAtMidpoint === "function" )
 			fnAtMidpoint();
 		this.blackScreen.toggleClass("anim", false);
+
 	}
 
 

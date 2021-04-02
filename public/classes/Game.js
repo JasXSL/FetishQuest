@@ -679,6 +679,7 @@ export default class Game extends Generic{
 	}
 	// Sleep players
 	sleep( player, dungeonAsset, duration ){
+
 		if( !player.isLeader() )
 			return false;
 		if( !dungeonAsset || !dungeonAsset.interactions.length )
@@ -2487,9 +2488,9 @@ export default class Game extends Generic{
 			throw "Shop is not available to your active player";
 
 		// Checks if vendor is here
-		if( !this.getShopHere(shop.label) )
+		if( !this.getShopHere(shop.label) ){
 			throw 'Vendor not found in current area';
-
+		}
 		return true;
 
 	}
