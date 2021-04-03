@@ -6,6 +6,8 @@ import AssetTemplate from '../../classes/templates/AssetTemplate.js';
 
 export default{
 
+	PAGINATION_LENGTH : 250,
+
 
 	// Automatically binds all inputs, textareas, and selects with the class saveable and a name attribute indicating the field to to save
 	// win is a windowmanager object
@@ -527,27 +529,102 @@ export default{
 	// Nonfunction is auto escaped, function needs manual escaping
 	// Fields should contain an id or label field (or both), it will be used for tracking the TR and prefer label if it exists
 	// Constructor is the asset constructor (used for default values)
-	buildList( win, library, constr, fields ){
+	buildList( win, library, constr, fields, start ){
 
-		let db = window.mod.mod[library].slice().reverse(),
+		let fulldb = window.mod.mod[library].slice().reverse(),
 			isLinker = this.windowIsLinker(win)
 		;
 
+		const fieldIsEssential = field => field.startsWith('*');
+		const getFieldName = field => { 
+			
+			if( fieldIsEssential(field) )
+				return field.slice(1);
+			return field;
+
+		};
+
+		// Used to stringify a key from fields that should exist in asset
+		const stringifyVal = (field, asset) => {
+
+			if( typeof field === "function" )
+				return field.call(win, asset);
+
+			const val = asset[getFieldName(field)];
+			if( typeof val === "boolean" )
+				return val ? 'YES' : '';
+			
+			return this.makeReadable(val);
+
+		};
+
+		if( !start ){
+			start = parseInt(win.custom._page) || 0;
+		}
+		win.custom._page = start;
+
+		
+		
 		// Linker window should add parent mod assets
 		if( isLinker && window.mod.parentMod[library] )
-			db.push(...window.mod.parentMod[library].slice().reverse());
+			fulldb.push(...window.mod.parentMod[library].slice().reverse());
 
+		if( win._search ){
+
+			// Use cached search results
+			if( win._searchResults )
+				fulldb = win._searchResults;
+
+			else{
+
+				fulldb = win._searchResults = fulldb.filter(el => {
+
+					const searchTerm = win._search.toLowerCase();
+
+					let inverse = false;
+					if( searchTerm.startsWith("!") ){
+						inverse = true;
+						searchTerm = searchTerm.substr(1);
+					}
+
+					// Accept
+					if( !searchTerm.length )
+						return true;
+					
+					let found = false;
+					for( let i in fields ){
+
+						// Ignore this field
+						if( window.mod.essentialOnly && !fieldIsEssential(i) )
+							continue;
+
+						const data = stringifyVal(i, el);
+						const text = typeof data === 'string' ? data.toLowerCase() : String(data);
+						if( text.includes(win._search) ){
+							
+							found = true;
+							break;
+
+						}
+							
+
+					}
+
+					return found !== inverse;
+
+				});
+
+			}
+
+		}
+
+		let db = fulldb.slice(win.custom._page, win.custom._page+this.PAGINATION_LENGTH);
 		// Don't show parented assets, they only show in linkedTable
 		db = db.filter(el => {
 			return !el._mParent;
 		});
 	
-		const fieldIsEssential = field => field.startsWith('*');
-		const getFieldName = field => { 
-			if( fieldIsEssential(field) )
-				return field.slice(1);
-			return field;
-		};
+		
 
 		// Create the element to return
 		const container = document.createElement('template');
@@ -587,6 +664,7 @@ export default{
 		table.appendChild(tr);
 		// Add checkbox placeholder
 		if( !isLinker ){
+
 			let th = document.createElement('th');
 			tr.appendChild(th);
 			th.classList.add("essential");
@@ -594,6 +672,7 @@ export default{
 			th.appendChild(checkbox);
 			checkbox.classList.add('checkAll');
 			checkbox.type = 'checkbox';
+
 		}
 		for( let i in fields ){
 
@@ -602,6 +681,7 @@ export default{
 			if( fieldIsEssential(i) )
 				th.classList.add('essential');
 			th.innerText = getFieldName(i);
+
 		}
 
 		// mod shows up in linker
@@ -634,28 +714,15 @@ export default{
 				for( let field in fields ){
 
 					const essential = fieldIsEssential(field);
-					const fieldName = getFieldName(field);
-					let val = fields[field];
+					let val = stringifyVal(field, a);
 
-					if( typeof val === "function" ){
-						val = val.call(win, a);
-					}
-					else{
-
-						val = a[fieldName];
-						if( typeof val === "boolean" )
-							val = val ? 'YES' : '';
-						else
-							val = this.makeReadable(val);
-
-					}
+					
 
 					const td = document.createElement('td');
 					tr.appendChild(td);
 					if( essential )
 						td.classList.add("essential");
 					td.innerText = val;
-					td.cache_lowercase = String(val).toLowerCase();
 		
 				}
 
@@ -670,7 +737,45 @@ export default{
 
 		}
 
+
 		container.appendChild(table);
+
+		if( start > 0 ){
+
+			let back = document.createElement('input');
+			back.type = 'button';
+			back.className = 'backFull';
+			back.value = '<<<<';
+			
+			container.appendChild(back);
+
+			back = document.createElement('input');
+			back.type = 'button';
+			back.className = 'back';
+			back.value = '<<';
+			
+			container.appendChild(back);
+
+		}
+
+		if( fulldb.length > this.PAGINATION_LENGTH ){
+
+			const paginate = document.createElement('span');
+			paginate.innerText = ' '+(win.custom._page/this.PAGINATION_LENGTH)+'/'+Math.floor(Math.max(0,fulldb.length-1)/100)+' ';
+			container.append(paginate);
+
+		}
+
+		if( fulldb.length > win.custom._page+this.PAGINATION_LENGTH ){
+
+			const next = document.createElement('input');
+			next.type = 'button';
+			next.className = 'next';
+			next.value = '>>';
+			
+			container.append(next);
+			
+		}
 
 		return container;
 
@@ -684,9 +789,32 @@ export default{
 		const isLinker = this.windowIsLinker(win),
 				single = isLinker && win.asset && win.asset.single,		// This is a linker for only ONE object, otherwise it's an array
 				batchDiv = win.dom.querySelector('span.batch'),
-				rows = win.dom.querySelectorAll('tr[data-id]')			// TRs in the table
+				rows = win.dom.querySelectorAll('tr[data-id]'),			// TRs in the table
+				nextButton = win.dom.querySelector('input.next'),
+				backButton = win.dom.querySelector('input.back'),
+				backFullButton = win.dom.querySelector('input.backFull')
 		;
 
+		if( nextButton )
+			nextButton.addEventListener('click', () => {
+
+				win.custom._page += this.PAGINATION_LENGTH;
+				win.rebuild();
+			});
+
+		if( backButton )
+			backButton.addEventListener('click', () => {
+
+				win.custom._page -= this.PAGINATION_LENGTH;
+				win.rebuild();
+			});
+
+		if( backFullButton )
+			backFullButton.addEventListener('click', () => {
+
+				win.custom._page = 0;
+				win.rebuild();
+			});
 
 		const parentWindow = win.parent;
 		if( parentWindow ){
@@ -887,46 +1015,16 @@ export default{
 		// Search filter
 		const searchInput = win.dom.querySelector('input.search');
 		const performSearch = () => {
+
+			delete win._searchResults;
 			let searchTerm = searchInput.value.toLowerCase();
 			win._search = searchTerm;
+			win.rebuild();
 
-			let inverse = false;
-			if( searchTerm.startsWith("!") ){
-				inverse = true;
-				searchTerm = searchTerm.substr(1);
-			}
-
-			for( let row of rows ){
-
-				// Just unhide
-				if( !searchTerm.length ){
-					row.classList.toggle('hidden', false);
-					continue;
-				}
-
-				let found = inverse;
-				for( let td of row.children ){
-
-					if( !td.cache_lowercase || (window.mod.essentialOnly && !td.classList.contains('essential')) )
-						continue;
-
-					const text = td.cache_lowercase;
-					if( text.includes(searchTerm) ){
-						found = !inverse;
-						break;
-					}
-
-				}
-				
-				row.classList.toggle('hidden', !found);
-
-			}
 		};
 
-		if( win._search ){
+		if( win._search )
 			searchInput.value = win._search;
-			performSearch();
-		}
 
 		let searchTimeout;
 		searchInput.onkeyup = event => {
