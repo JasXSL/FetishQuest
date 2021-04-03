@@ -1437,10 +1437,9 @@ export default class StaticModal{
 			
 						let cName = dDivs.formClass.val().trim();
 						let cl = glib.get(cName, 'PlayerClass');
-						if( cl ){
+						if( cl )
 							player.class = cl;
-							player.addActionsForClass();
-						}
+						
 						player.tags = dDivs.formTags.val().split(' ').filter(el => {
 							if(!el.trim())
 								return false;
@@ -1467,9 +1466,15 @@ export default class StaticModal{
 							player.mp = player.getMaxMP();
 						
 						
+						// INSERT player
 						if( !game.playerExists(player) ){
+
+							if( player.team === Player.TEAM_PLAYER )
+								player.auto_learn = false;
+							
 							game.addPlayer(player);
 							player.onPlacedInWorld();
+
 						}
 			
 						game.save();

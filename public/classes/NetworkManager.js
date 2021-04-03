@@ -6,6 +6,8 @@ import Comparer from './Comparer.js';
 import ActionLearnable from './ActionLearnable.js';
 import Player from './Player.js';
 import StaticModal from './StaticModal.js';
+import Asset from './Asset.js';
+import Quest from './Quest.js';
 
 class NetworkManager{
 
@@ -869,6 +871,15 @@ class NetworkManager{
 
 		}
 
+		else if( task === NetworkManager.dmTasks.inventoryAdd ){
+
+			let player = game.getPlayerById(args.player),
+				asset = args.asset	// Not used atm, but can in the future
+			;
+			game.onInventoryAdd(player);
+
+		}
+
 		else if( task === NetworkManager.dmTasks.blackScreen )
 			game.ui.toggleBlackScreen();
 		
@@ -1322,6 +1333,24 @@ class NetworkManager{
 		}); 
 	}
 
+	dmInventoryAdd( player, asset ){
+
+		if( !(player instanceof Player) )
+			throw 'Invalid player passed to dmInventoryAdd';
+		if( !(asset instanceof Asset) )
+			throw 'Invalid asset passed to dmInventoryAdd';
+		
+		// Don't send to self
+		if( player.netgame_owner === 'DM' )
+			return;
+
+		this.sendHostTaskTo(player.netgame_owner, NetworkManager.dmTasks.inventoryAdd, {
+			player : player.id,
+			asset : asset.id,
+		});
+
+	}
+
 	// IDs only
 	dmRaiseInteractOnMesh( dungeonAssetId ){
 		this.sendHostTask(NetworkManager.dmTasks.raiseInteractOnMesh, {
@@ -1377,6 +1406,7 @@ NetworkManager.dmTasks = {
 	blackScreen : 'blackScreen',					// void - Triggers a black screen visual
 	afk : 'afk',									// {id:(bool)afk...} - Sends AFK status to all players
 	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type, crit:(bool)crit}
+	inventoryAdd : 'inventoryAdd',					// {player:(str)player_uuid, asset:(str)asset_uuid} Raises the game.onInventoryAdd event
 };
 
 // Player -> DM

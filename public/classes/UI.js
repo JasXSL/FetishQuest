@@ -97,6 +97,8 @@ export default class UI{
 		this.touch_update = new THREE.Vector2(0,0);	// Last touch update positoin
 		this.block_inspect = false;					// prevents left click inspect
 
+		this.pgi = {};	// "popped" game icons
+
 		this.csl.off('keydown').on('keydown', event => {
 			event.stopImmediatePropagation();
 			if( event.altKey ){
@@ -1418,63 +1420,76 @@ export default class UI{
 
 		const player = game.getMyActivePlayer();
 
-		let html = 
-			'<div class="button'+(!this.visible ? ' highlighted' : '')+'" data-id="map" style="background-image:url(/media/wrapper_icons/treasure-map.svg);"></div>'+
-			(player ? '<div class="button" data-id="inventory" style="background-image:url(/media/wrapper_icons/light-backpack.svg);"></div>' : '')+
-			'<div class="button" data-id="quest" style="background-image:url(/media/wrapper_icons/bookmarklet.svg);"></div>'+
-			'<div data-id="settings" class="button" style="background-image: url(media/wrapper_icons/auto-repair.svg)"></div>'+
-			'<div data-id="help" class="button'+(localStorage.helpClicked ? '' : ' highlight')+'" style="background-image: url(media/wrapper_icons/help.svg)"></div>'+
-			'<div data-id="mainMenu" class="button autoWidth">Game</div>'
+		const 
+			map = $('div.button[data-id=map]', this.gameIcons),
+			inventory = $('div.button[data-id=inventory]', this.gameIcons),
+			quest = $('div.button[data-id=quest]', this.gameIcons),
+			settings = $('div.button[data-id=settings]', this.gameIcons),
+			help = $('div.button[data-id=help]', this.gameIcons),
+			mainMenu = $('div.button[data-id=mainMenu]', this.gameIcons)
 		;
-		this.gameIcons.html(html);
+
+		inventory.toggleClass('hidden', !player);
+		map.toggleClass('highlighted', !this.visible);
+		help.toggleClass('highlight', !localStorage.helpClicked);
+
 		this.toggle(this.visible);
 
-		$("[data-id]", this.gameIcons).on('click', event => {
+		if( !this._gameIconsDrawn ){
+			
+			this._gameIconsDrawn = true;
+			$("[data-id]", this.gameIcons).on('click', event => {
 
-			const el = $(event.currentTarget);
+				const el = $(event.currentTarget);
 
-			let id = $(el).attr("data-id");
-			if( id === 'map' ){
-				game.uiAudio( 'map_toggle' );
-				this.toggle();
-			}
-			else if( id === 'quest' ){
-				StaticModal.set('quests');
-				game.uiAudio( 'toggle_quests' );
-			}
-			else if( id === "mainMenu" ){
-				game.uiAudio( 'menu_generic' );
-				StaticModal.set('mainMenu');
-			}
-			else if( id === 'inventory' ){
-				game.uiAudio( 'backpack' );
-				StaticModal.set('inventory');
-			}
-			else if( id === 'settings' ){
-				game.uiAudio( 'menu_generic' );
-				StaticModal.set('settings');
-			}
-			else if( id === 'help' ){
-				
-				game.uiAudio( 'menu_generic' );
-				StaticModal.set('help');
-				localStorage.helpClicked = 1;
-				el.toggleClass('highlight', false);
+				let id = $(el).attr("data-id");
+				if( id === 'map' ){
+					game.uiAudio( 'map_toggle' );
+					this.toggle();
+				}
+				else if( id === 'quest' ){
+					StaticModal.set('quests');
+					game.uiAudio( 'toggle_quests' );
+				}
+				else if( id === "mainMenu" ){
+					game.uiAudio( 'menu_generic' );
+					StaticModal.set('mainMenu');
+				}
+				else if( id === 'inventory' ){
+					game.uiAudio( 'backpack' );
+					StaticModal.set('inventory');
+				}
+				else if( id === 'settings' ){
+					game.uiAudio( 'menu_generic' );
+					StaticModal.set('settings');
+				}
+				else if( id === 'help' ){
+					
+					game.uiAudio( 'menu_generic' );
+					StaticModal.set('help');
+					localStorage.helpClicked = 1;
+					el.toggleClass('highlight', false);
 
-			}
-		});
+				}
+			});
 
-		$("#mainMenuToggle > div").off('click').on('click', function(){
-			let id = $(this).attr("data-id");
-			if( id === 'toggle' ){
-				th.gameIcons.toggleClass('visible');
-			}
-			else if( id === 'map' ){
-				game.uiAudio( 'map_toggle' );
-				th.toggle();
-			}
+			$("#mainMenuToggle > div").off('click').on('click', function(){
 
-		});
+				let id = $(this).attr("data-id");
+				if( id === 'toggle' ){
+					
+					th.gameIcons.toggleClass('visible');
+
+				}
+				else if( id === 'map' ){
+
+					game.uiAudio( 'map_toggle' );
+					th.toggle();
+
+				}
+
+			});
+		}
 
 	}
 
@@ -1484,6 +1499,18 @@ export default class UI{
 		this.board.toggleClass("mute", mute);
 	}
 
+
+	gameIconPop( icon ){
+
+		icon = esc(icon);
+		
+		const tt = $("div[data-id='"+icon+"']", this.gameIcons);
+		tt.toggleClass('pop', true);
+		
+		clearTimeout(this.pgi[icon]);
+		this.pgi[icon] = setTimeout(() => tt.toggleClass('pop', false), 50);
+
+	}
 
 
 

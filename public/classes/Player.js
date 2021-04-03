@@ -1115,7 +1115,9 @@ export default class Player extends Generic{
 
 		}
 		this.raiseInvChange();
+		game.onInventoryAdd( this, asset );
 		return Object.values(out);
+
 	}
 	raiseInvChange(){
 		new GameEvent({type:GameEvent.Types.inventoryChanged, sender:this, target:this}).raise();
@@ -2094,8 +2096,10 @@ export default class Player extends Generic{
 		if( !ac.hidden && !silent )
 			game.ui.addText( this.getColoredName()+" learned "+ac.name+"!", undefined, this.id, this.id, 'actionLearned' );
 		
-		if( !this.actionSlotsFull() && !action.std )
+
+		if( !this.actionSlotsFull() && !action.std ){
 			this.activateAction(ac.id);
+		}
 
 		return true;
 	}

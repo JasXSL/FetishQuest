@@ -100,6 +100,7 @@ export default class Game extends Generic{
 
 	destructor(){
 
+		this.renderer.destructor();
 		this.ui.destructor();
 		this.net.destructor();
 		this.renderer.destructor();
@@ -556,6 +557,7 @@ export default class Game extends Generic{
 
 		this.ui.questAcceptFlyout( 'Quest Started:', quest.name );
 		this.playFxAudioKitById('questPickup', undefined, undefined, undefined, true);
+		this.ui.gameIconPop('quest');
 		if( this.is_host && this.net )
 			this.net.dmQuestAccepted( 'Quest Started:', quest.name );
 
@@ -620,6 +622,24 @@ export default class Game extends Generic{
 		this.updateAmbiance();			// Handle rain sounds and updates the room
 
 		this.players.map(player => player.onTimePassed());
+
+	}
+
+	// Asset isn't present when received from the netgame atm
+	onInventoryAdd( player, asset ){
+
+		if( !(player instanceof Player) )
+			return;
+
+
+		if( player === this.getMyActivePlayer() )
+			this.ui.gameIconPop('inventory');
+
+		if( this.net.isHostingNetgame() && player.netgame_owner !== 'DM' ){
+			console.log("Sending to ", player, "asset", asset);
+			this.net.dmInventoryAdd(player, asset);
+		}
+		
 
 	}
 

@@ -750,7 +750,7 @@ div.fxBuffRed{
 		transform:translate(-75%,-50%);
 		max-height:70vh;
 	}
-	#customModals > #player div.cmTabContent[data-id=Character]{
+	#customModals > #player div.cmTabContent{
 		min-height:60vh;
 		max-height:80vh;
 		overflow:visible;
@@ -1830,6 +1830,10 @@ div.fxBuffRed{
 		from{box-shadow:0 0 2vmax 1vmax rgba(255,255,100, 1);}
 		to{box-shadow:0 0 1vmax 0.5vmax rgba(255,255,100, 1);}
 	}
+	#gameIcons > div.pop{
+		transition:none;
+		transform:scale(1.3, 1.3);
+	}
 	div.interaction.highlight,
 	#gameIcons > div.highlight{
 		animation:gameIconsHighlight 1s alternate infinite ease-in-out;		
@@ -1837,6 +1841,7 @@ div.fxBuffRed{
 	#gameIcons > div,
 	#ui > div.actionbar > div.actions > div{
 
+		transition:transform 0.5s ease-out;
 		width:4.25vh;
 		height:4.25vh;
 		background-size: cover;

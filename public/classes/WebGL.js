@@ -339,9 +339,9 @@ class WebGL{
 	}
 
 	destructor(){
-		for( let event of this.events ){
-			event.targ.removeEventListener(event.evt, event.func);
-		}
+
+		this.renderer.dispose();
+
 	}
 
 	bind( target, evt, func ){
@@ -801,12 +801,16 @@ class WebGL{
 		this.clearPlayerMarkers();
 				
 		this.loading = true;
+		this.currentCache.map(asset => this.cacheModel(asset));
+
 		this.stages.map(s => {
+
 			s.destructor();
-			
+			this.destroyUncached(s);
+
 		});
 
-		this.currentCache.map(asset => this.cacheModel(asset));
+		
 		this.stages = [];
 		this.currentCache = [];
 
@@ -963,12 +967,50 @@ class WebGL{
 
 	}
 
+	destroyUncached( stage ){
+
+		if( !(stage instanceof Stage) )
+			throw 'Trying to destroy nonstage';
+
+		for( let asset of stage.group.children ){
+
+			if( !this.currentCache.includes(asset) ){
+				
+				this.destroyModel(asset);
+
+			}
+
+		}
+
+	}
+
+	destroyModel( model ){
+
+		model.traverse(el => {
+
+			if( !el.isMesh )
+				return;
+
+			// Materials are always unique. Geometries and textures are always shared.
+			// This should be enough to prevent memory leaks
+			toArray(model.material)
+				.map(mat => {
+					mat.dispose()
+				});
+			
+
+		});
+
+	}
+
 	cacheModel( model, path ){
 
 		if( path )
 			model.userData._c_path = path;
-		else if( !model.userData._c_path )
+		else if( !model.userData._c_path ){
+			console.log("Path missing from model", model);
 			return;	// Can't cache items without a path
+		}
 
 		this.assetCache.add(model);
 		this.currentCache.push(model);
@@ -979,8 +1021,12 @@ class WebGL{
 
 		const cache_level = Math.max(10, (parseInt(localStorage.cache_level) || 50))*10;
 		const children = this.assetCache.children;
-		while( children.length > cache_level )
+		while( children.length > cache_level ){
+			
 			this.assetCache.remove(children[children.length-1]);
+			this.destroyModel(children[children.length]);
+
+		}
 
 	}
 
