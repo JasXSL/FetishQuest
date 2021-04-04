@@ -856,6 +856,17 @@ class NetworkManager{
 
 		}
 
+		else if( task === NetworkManager.dmTasks.openShop ){
+
+			const shop = game.getShopHere(args.shop);
+			if( !shop )
+				throw 'Shop missing: '+args.shop;
+
+			if( game.getMyActivePlayer() )
+				game.ui.openShopWindow(shop);
+
+		}
+
 		// Draw repair selector
 		else if( task === NetworkManager.dmTasks.drawRepair ){
 
@@ -1351,6 +1362,19 @@ class NetworkManager{
 
 	}
 
+	// Tells a player to open a shop window for a shop in the cell by label
+	// Player is a player object
+	dmOpenShop( player, shopLabel ){
+
+		if( !(player instanceof Player) )
+			throw 'Invalid player passed to dmOpenShop';
+
+		this.sendHostTaskTo(player.netgame_owner, NetworkManager.dmTasks.openShop, {
+			shop : shopLabel
+		});
+
+	}
+
 	// IDs only
 	dmRaiseInteractOnMesh( dungeonAssetId ){
 		this.sendHostTask(NetworkManager.dmTasks.raiseInteractOnMesh, {
@@ -1407,6 +1431,7 @@ NetworkManager.dmTasks = {
 	afk : 'afk',									// {id:(bool)afk...} - Sends AFK status to all players
 	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type, crit:(bool)crit}
 	inventoryAdd : 'inventoryAdd',					// {player:(str)player_uuid, asset:(str)asset_uuid} Raises the game.onInventoryAdd event
+	openShop : 'openShop',							// {shop:(str)shop_label} Asks the player to open the shop window for a shop in the cell
 };
 
 // Player -> DM

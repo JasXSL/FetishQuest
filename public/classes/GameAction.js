@@ -592,6 +592,20 @@ export default class GameAction extends Generic{
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
 		}
 
+		else if( this.type === types.openShop ){
+
+			const shop = game.getShopHere(this.data.shop);
+			if( !shop )
+				throw 'Shop missing: '+this.data.shop;
+
+			// open a shop locally
+			if( player.netgame_owner === "DM" || !game.net.isHostingNetgame() ){
+				game.ui.openShopWindow(shop);
+			}
+			else
+				game.net.dmOpenShop(player, this.data.shop);
+
+		}
 
 
 		else if( this.type === types.addCopper ){
@@ -833,6 +847,7 @@ GameAction.types = {
 	finishQuest : "finishQuest",			// 
 	tooltip : "tooltip",					// 
 	shop : "shop",							// 
+	openShop : "openShop",							// 
 	gym : "gym",							// 
 	playerAction : "playerAction",			// 
 	repairShop : "repairShop",				// 
@@ -872,6 +887,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.finishQuest] : '{quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.',
 	[GameAction.types.tooltip] : '{text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak',
 	[GameAction.types.shop] : '{shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.',
+	[GameAction.types.openShop] : '{shop:(str)shop} - Tries to open a shop on the player that triggered the event',
 	[GameAction.types.gym] : '{player:(str)player_offering} - Passive. Player is the player that should have the gym icon attached to them. ',
 	[GameAction.types.playerAction] : '{player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it\'s the supplied triggering player that becomes the caster',
 	[GameAction.types.repairShop] : '{player:(str)label} - Marks a player as offering repairs',

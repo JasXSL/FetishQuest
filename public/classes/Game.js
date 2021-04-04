@@ -2481,14 +2481,18 @@ export default class Game extends Generic{
 
 	// Checks each players and returns it if one of them has a shop by label
 	getShopHere( label ){
+		
 		const players = this.getEnabledPlayers();
 		for( let player of players ){
+
 			let shops = this.getShopsByPlayer(player);
 			for( let shop of shops ){
 				if( shop.label === label )
 					return shop;
 			}
+
 		}
+
 	}
 
 	// Checks if a shop object is available to a player
@@ -2651,6 +2655,9 @@ export default class Game extends Generic{
 		if( this.battle_active )
 			throw "Battle in progress";
 
+		if( !shop.buys )
+			throw "Cannot sell to this shop";
+
 		// Netcode
 		if( !this.is_host ){
 			this.net.playerSellItem(shop, asset, amount, player);
@@ -2763,7 +2770,7 @@ export default class Game extends Generic{
 			player.consumeMoney(cost);
 
 		for( let token of asset.tokens )
-			player.destroyAssetsByLabel(token.asset.label, token.amount);
+			player.destroyAssetsByLabel(token.asset.label, token.amount*amount);
 
 		player.addAsset(a, amount, undefined, undefined, true);
 		asset.onPurchase(amount);

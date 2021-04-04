@@ -978,6 +978,13 @@ export default class UI{
 
 	}
 
+	openShopWindow( shop ){
+
+		StaticModal.set('shop', shop);
+		game.uiAudio( "shop_entered" );
+
+	}
+
 	// Type correlates to a key in getViableInteractionsOnPlayer
 	onPlayerInteractionUsed( type, p ){
 
@@ -992,8 +999,7 @@ export default class UI{
 		else if( type === 'shop' ){
 
 			const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
-			StaticModal.set('shop', shops[0]);
-			game.uiAudio( "shop_entered" );
+			this.openShopWindow(shops[0]);
 
 		}
 		else if( type === 'repair' ){

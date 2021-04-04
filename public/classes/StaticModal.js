@@ -1592,8 +1592,9 @@ export default class StaticModal{
 
 				// Titles
 				this.setTitle(this.shop.name);
-				
-
+				this.toggleTab('Sell', shop.buys);
+				if( this.activeTab === 'Sell' && !shop.buys )
+					this.setActiveTab('Buy');
 
 
 				// My money

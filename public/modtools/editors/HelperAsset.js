@@ -716,8 +716,6 @@ export default{
 					const essential = fieldIsEssential(field);
 					let val = stringifyVal(field, a);
 
-					
-
 					const td = document.createElement('td');
 					tr.appendChild(td);
 					if( essential )
@@ -761,7 +759,7 @@ export default{
 		if( fulldb.length > this.PAGINATION_LENGTH ){
 
 			const paginate = document.createElement('span');
-			paginate.innerText = ' '+(win.custom._page/this.PAGINATION_LENGTH)+'/'+Math.floor(Math.max(0,fulldb.length-1)/100)+' ';
+			paginate.innerText = ' '+(win.custom._page/this.PAGINATION_LENGTH)+'/'+Math.floor(Math.max(0,fulldb.length-1)/this.PAGINATION_LENGTH)+' ';
 			container.append(paginate);
 
 		}
@@ -1019,6 +1017,7 @@ export default{
 			delete win._searchResults;
 			let searchTerm = searchInput.value.toLowerCase();
 			win._search = searchTerm;
+
 			win.rebuild();
 
 		};
@@ -1027,7 +1026,7 @@ export default{
 			searchInput.value = win._search;
 
 		let searchTimeout;
-		searchInput.onkeyup = event => {
+		searchInput.onchange = event => {
 			clearTimeout(searchTimeout);
 			searchTimeout = setTimeout(() => {
 				performSearch();
@@ -1055,7 +1054,7 @@ export default{
 			obj.id = Generic.generateUUID();
 
 		const out = obj.save("mod");
-		this.insertAsset(type, out, parentWindow, false);
+		this.insertAsset(type, out, parentWindow, true);
 		
 		return out;
 

@@ -900,7 +900,7 @@ export default class Player extends Generic{
 		if( Math.random() < mp-Math.floor(mp) )
 			++mp;
 		*/
-		if( this.mp < this.getMaxMP() && this._turns%2 )
+		if( this.mp < this.getMaxMP() && !this._turns%3 )
 			this.addMP(1);
 		
 	}

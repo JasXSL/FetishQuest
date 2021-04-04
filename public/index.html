@@ -28,7 +28,7 @@
 	<script>
 		console.debug("Entry point for debugging is 'game'");
 		// Globals
-		var game = true, glib, gCondition, gGameEvent, gAudio, gMod, gComparer, gCollection, gGeneric, gAsset, gText, gCalculator, gGameAction, gPlayer, stdTag, gDungeon;
+		var game = true;
 	</script>
 	<script type="module">
 		import Game from './classes/Game.js';
@@ -47,6 +47,7 @@
 		import GameAction from './classes/GameAction.js';
 		import Dungeon from './classes/Dungeon.js';
 		import Tags from './libraries/stdTag.js';
+		import StaticModal from './classes/StaticModal.js';
 
 		console.debug("Modules imported, starting game");
 		
@@ -66,7 +67,8 @@
 			gDungeon : Dungeon,
 			stdTag : Tags,
 			glib : new GameLib(),
-			Player : Player
+			gPlayer : Player,
+			gStaticModal : StaticModal
 		};
 		
 		for( let i in globals )

@@ -785,11 +785,7 @@ function build(){
 						if( !lock )
 							return;
 
-						// Hide if the dungeon asset is unlocked and doesn't have a way of opening it
-						if( !dungeonAsset.isLocked() )
-							lock.position.y -= 160;
-						else
-							lock.position.y = 0;
+						lock.visible = dungeonAsset.isLocked();
 
 					},
 					onInteract : function( mesh, room, asset ){

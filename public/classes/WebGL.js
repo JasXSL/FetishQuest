@@ -986,6 +986,9 @@ class WebGL{
 
 	destroyModel( model ){
 
+		if( !model )
+			return;
+
 		model.traverse(el => {
 
 			if( !el.isMesh )

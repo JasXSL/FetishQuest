@@ -442,6 +442,23 @@ export function asset(){
 		};
 		
 	}
+	else if( type === Types.openShop ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				shop : ''
+			};
+		/*
+		html += '<div class="labelFlex">';
+			html += '<label>All players: <input type="checkbox" name="data::all" '+(asset.data.all ? 'checked' : '')+' class="saveable" /></label>';
+		html += '</div>';
+		*/
+		html += 'Shop: <div class="shop"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.shop").appendChild(EditorShop.assetTable(this, asset, "data::shop", true));
+		};
+		
+	}
 	else if( type === Types.gym ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
