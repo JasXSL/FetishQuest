@@ -521,7 +521,7 @@ Text.getFromEvent = function( event, debug = false ){
 		for( let p of testAgainst ){
 
 			// Text disabled (should live here because RP can run text.validate on disabled texts)
-			if( !this.en )
+			if( !text.en )
 				continue;
 			if( Boolean(text.chat) !== chat )
 				continue;

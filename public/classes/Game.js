@@ -636,8 +636,9 @@ export default class Game extends Generic{
 			this.ui.gameIconPop('inventory');
 
 		if( this.net.isHostingNetgame() && player.netgame_owner !== 'DM' ){
-			console.log("Sending to ", player, "asset", asset);
+			
 			this.net.dmInventoryAdd(player, asset);
+
 		}
 		
 

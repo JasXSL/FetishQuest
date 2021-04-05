@@ -1842,9 +1842,18 @@ particles.get = function(id, mesh, debug = false){
 		if( p.texture ){
 			let texture = p.texture;
 			if( p.blending ){
-				texture = texture.clone();
-				texture.material = texture.material.clone();
-				texture.material.blending = p.blending;
+
+				const label = 'blend_'+p.blending;
+				if( !texture.userData[label] ){
+					
+					texture.userData[label] = texture.clone();
+					texture.userData[label].material = texture.userData[label].material.clone();
+					texture.material.blending = p.blending;
+
+				}
+
+				texture = texture.userData[label];
+
 			}
 			emitter.addInitialize(new Proton.Body(texture));
 		}

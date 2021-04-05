@@ -325,6 +325,7 @@ class WebGL{
 		});
 		this.updateSize();
 		
+		this._last_rc = 0;					// MS last raycast
 
 		// Player markers
 		this.playerMarkers = [];	// Holds playermarker objects, these are added on the fly and not removed. Opting instead to overwrite them on a room change
@@ -694,6 +695,7 @@ class WebGL{
 	// Scene rendering function - This is where the magic happens
 	execRender(){
 
+		const time = Date.now();
 		let delta = this.clock.getDelta();
 		TWEEN.update();
 		if( this.stage )
@@ -705,12 +707,15 @@ class WebGL{
 			this.updateArrow();
 		this.fxRenderer.render( this.fxScene, this.fxCam );
 
-		const intersecting = [];	// Meshes being raycasted onto
 		
-		if( (!window.game || game === true || !game.ui.visible) && this.stage && this.stage.group ){
+		// RC runs at 30 FPS
+		if( time-this._last_rc > 33 && (!window.game || game === true || !game.ui.visible) && this.stage && this.stage.group ){
 
+			const intersecting = [];	// Meshes being raycasted onto
+
+
+			this._last_rc = time;
 			this.raycaster.setFromCamera( this.mouse, this.camera );
-
 			
 			const meshes =  this.stage.group.children.concat(this.playerMarkers.filter(el => el));
 			let objCache = [];
@@ -752,14 +757,22 @@ class WebGL{
 				obj.object.userData._mouseover = true;
 
 			}
+
 			// Mouseout
 			for( let obj of this.intersecting ){
+
 				if( obj.userData._mouseover && intersecting.indexOf(obj) === -1 ){
+
 					obj.userData._mouseover = false;
 					if( typeof obj.userData.mouseout === "function" )
 						obj.userData.mouseout.call(obj, obj);
+
 				}
+
 			}
+
+			this.intersecting = intersecting;
+
 
 		}
 		
@@ -770,7 +783,6 @@ class WebGL{
 		if( this.onRender )
 			this.onRender();
 
-		this.intersecting = intersecting;
 		
 		
 		this.controls.update();
