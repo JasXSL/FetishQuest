@@ -526,8 +526,14 @@ export default class Asset extends Generic{
 				apCost+' AP to '+(this.equipped ? 'take off' : 'equip')+
 			'</span>]<br />';
 
-		if( this.equippable() )
-			html += 'Lv '+(+this.level)+' | '+(+this.durability)+'/'+this.getMaxDurability()+' Durability | ';
+		if( this.equippable() ){
+
+			let lv = parseInt(this.level) || 0;
+			if( lv < 0 )
+				lv = game.getAveragePlayerLevel()+Math.abs(lv)-1;
+			html += 'Lv '+lv+' | '+(+this.durability)+'/'+this.getMaxDurability()+' Durability | ';
+
+		}
 		html += this.getWeightReadable()+' ';
 		if( this.equippable() ){
 			html += '| ';

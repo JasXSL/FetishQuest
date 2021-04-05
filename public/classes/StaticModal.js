@@ -1439,11 +1439,17 @@ export default class StaticModal{
 						player.size = parseInt(dDivs.formSize.val())||0;
 						player.team = parseInt(dDivs.formTeam.val())||0;
 			
+						const preClass = player.class;
+
 						let cName = dDivs.formClass.val().trim();
 						let cl = glib.get(cName, 'PlayerClass');
-						if( cl )
+						if( cl ){
 							player.class = cl;
-						
+
+							if( cl.label !== preClass.label )
+								player.addActionsForClass();
+
+						}
 						player.tags = dDivs.formTags.val().split(' ').filter(el => {
 							if(!el.trim())
 								return false;

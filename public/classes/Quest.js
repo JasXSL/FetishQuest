@@ -142,27 +142,6 @@ class Quest extends Generic{
 			for( let reward of rewards ){
 
 				reward = reward.clone(this);
-				
-				// Asset reward type
-				if( reward.type === QuestReward.Types.Asset ){
-
-					// Leveled reward
-					if( reward.data.level === -1 )
-						reward.data.level = game.getAveragePlayerLevel();
-
-					/* Moved to hand-in
-					if( reward.category === Asset.Categories.currency ){
-						if( this.multiply_money )
-							reward._stacks *= pLen;
-					}
-					// Make copies if reward should be multiplied
-					else if( this.multiply_reward && pLen > 1 ){
-						this.addGearReward(reward, pLen-1);
-					}
-					*/
-
-				}
-
 				this.rewards.push(reward);
 
 			}
@@ -242,11 +221,17 @@ class Quest extends Generic{
 			if( !players.length )
 				continue;
 
-			// If the reward should only be given to one player, pick one at random
-			if( reward.type === QuestReward.Types.Asset && reward.category !== Asset.Categories.currency && !this.multiply_reward ){
-				players = [players[Math.floor(Math.random()*players.length)]];
-			}
+			// Asset reward type
+			if( reward.type === QuestReward.Types.Asset ){
 
+				// Leveled reward
+				if( reward.data.level === -1 )
+					reward.data.level = game.getAveragePlayerLevel();
+				
+				if( reward.category !== Asset.Categories.currency && !this.multiply_reward )
+					players = [players[Math.floor(Math.random()*players.length)]];
+
+			}
 
 			// Give said reward to each player
 			for( let player of players ){

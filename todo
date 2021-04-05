@@ -4,8 +4,6 @@
 
 
 -- CURRENT --
-	- Saving a player with a different class no longer adds abilities
-	- Quest reward should be leveled when finished, not when quest is accepted
 	
 	- Add a way to alter parent mod dungeon cells
 	- Make a CDN for mods
