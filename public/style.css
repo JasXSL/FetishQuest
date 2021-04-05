@@ -1772,11 +1772,13 @@ div.fxBuffRed{
 	
 
 	#roleplay div.bg{
+
 		box-shadow:0.5vmax 0.5vmax 1vmax rgba(0,0,0,1);
 		border:0.1vmax solid #FFF;
 		text-align: left;
 		border-radius: 0.25vmax;
-		background:rgba(0,50,100,.95);
+		background:url(media/ui/marble.jpg);
+		background-repeat: repeat;
 		padding:1vmax;
 		margin:0.25vmax;
 		user-select: none;

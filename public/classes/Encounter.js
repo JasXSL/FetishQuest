@@ -311,18 +311,19 @@ export default class Encounter extends Generic{
 	}
 
 	// Helper function for below
-	getViableActions( targetPlayer, validate = false ){
-		return GameAction.getViable(this.game_actions, targetPlayer, false, validate);
+	getViableActions( targetPlayer, validate = false, debug = false ){
+		return GameAction.getViable(this.game_actions, targetPlayer, debug, validate);
 	}
 
 	// Gets roleplay ACTIONs
-	getRoleplays( player, validate = true ){
+	getRoleplays( player, validate = true, debug = false ){
 
-		const actions = this.getViableActions(player, validate);
+		const actions = this.getViableActions(player, validate, debug);
 		return actions.filter(action => {
 
 			if( action.type !== GameAction.types.roleplay )
 				return false;
+
 			const rp = action.getDataAsRoleplay();
 			if( !rp )
 				return false;

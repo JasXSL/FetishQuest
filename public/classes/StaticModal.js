@@ -203,17 +203,21 @@ export default class StaticModal{
 
 			// Special case to let you go back to the main menu
 			if( this.active && this.active.id === 'newGame' ){
+
 				this.close(true);
 				this.set('mainMenu');
+
 			}
 
 			return;
 		}
 
+
 		this.active = null;
 		// Close everything
 		if( this.main )
 			this.main.toggleClass("hidden", true);
+		game.ui.setTooltip();
 		Object.values(this.lib).map(modal => modal.dom.toggleClass("hidden", true));
 
 	}

@@ -2309,11 +2309,10 @@ export default class Game extends Generic{
 	}
 
 	// Gets all available noncompleted roleplays for a player
-	getRoleplaysForPlayer( player ){
+	getRoleplaysForPlayer( player, debug = false ){
 
 		const out = [];
-		const encounter = this.encounter;
-		const roleplays = encounter.getRoleplays(player, true);
+		const roleplays = this.encounter.getRoleplays(player, true, debug);
 		for( let ga of roleplays ){
 
 			const rp = ga.getDataAsRoleplay();
@@ -2321,7 +2320,7 @@ export default class Game extends Generic{
 				continue;
 			rp.loadState();
 			const pl = rp.getPlayer();
-			if( pl.id === player.id && !rp.completed && rp.validate(game.getMyActivePlayer()) )
+			if( pl.id === player.id && !rp.completed && rp.validate(game.getMyActivePlayer(), debug) )
 				out.push(rp);
 
 		}

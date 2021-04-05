@@ -39,8 +39,7 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		if( !this.parent )
-			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
 		html += '<label>Type: <select name="type" class="saveable">';
 		for( let i in GameAction.types )
@@ -337,13 +336,15 @@ export function asset(){
 			asset.data = {
 				player : '',
 				asset : '',
-				amount : 1
+				amount : 1,
+				alert : false,
 			};
 
 		html += 'Asset: <div class="asset"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label title="If unset, tied to the event target">Target player label: <input type="text" name="data::player" class="saveable" value="'+esc(asset.data.player || '')+'" /></label>';
 			html += '<label title="Nr copies of the asset to give">Amount: <input type="number" min=1 step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 0)+'" /></label>';
+			html += '<label title="Outputs a chat message">Notify chat: <input type="checkbox" name="data::alert" class="saveable" '+( asset.alert ? 'checked' : '' )+' /></label>';
 		html += '</div>';
 
 		fnBind = () => {

@@ -585,11 +585,14 @@ export default class GameAction extends Generic{
 			asset.restore();
 
 			const amount = isNaN(parseInt(this.data.amount)) ? 1 : parseInt(this.data.amount);
-			console.log("Adding ", asset, amount, pl);
+			if( this.data.alert )
+				game.ui.addText( player.getColoredName()+" received "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
+				
 			if( amount > 0 )
 				pl.addAsset( asset, amount );
 			else if( amount < 0 )
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
+
 		}
 
 		else if( this.type === types.openShop ){
@@ -881,7 +884,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.lever] : '{id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations',
 	[GameAction.types.quest] : '{quest:(str/Quest)q} - Starts a quest',
 	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1} - Adds or subtracts from an objective',
-	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1} - Adds or removes inventory from a player',
+	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1, "alert":(bool)notify=false} - Adds or removes inventory from a player',
 	[GameAction.types.toggleCombat] : '{on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.',
 	[GameAction.types.roleplay] : '{rp:(str/obj)roleplay} - A label or roleplay object',
 	[GameAction.types.finishQuest] : '{quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.',

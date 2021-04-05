@@ -40,14 +40,6 @@ export default class Roleplay extends Generic{
 		return false;
 	}
 
-	getViableStages( player ){
-		return this.stages.filter(stage => stage.validate(player));
-	}
-
-	validate( player ){
-		return this.getViableStages( player ).length;
-	}
-
 	load(data){
 		this.g_autoload(data);
 	}
@@ -109,14 +101,23 @@ export default class Roleplay extends Generic{
 	}
 
 	loadState(){
+		
 		// When loaded from a game, grab from state
 		if( window.game && window.game !== true && this.label && game.state_roleplays[this.label] && glib && !glib.loading ){
+
 			const state = game.state_roleplays[this.label];
+
 			if( this.persistent && state.hasOwnProperty("stage") && state.stage !== -1 )
 				this.stage = state.stage;
-			if( this.once && state.hasOwnProperty("completed") )
+
+			if( this.once && state.hasOwnProperty("completed") ){
 				this.completed = state.completed;
+			}
+
 		}
+
+		return this;
+
 	}
 
 	clone(parent){
@@ -190,12 +191,14 @@ export default class Roleplay extends Generic{
 	}
 
 	validate( player, debug ){
+
 		const evt = new GameEvent({
 			sender : player,
 			target : player,
 			roleplay : this
 		});
 		return Condition.all(this.conditions, evt, debug);
+
 	}
 
 }
@@ -400,9 +403,10 @@ export class RoleplayStage extends Generic{
 	// Scans for the first viable text and returns an event with that object and the target player attached
 	// If no texts pass filter, the last one is returned
 	// TextPlayer is the NPC you are talking to in the RP. If it's missing it becomes the same as the target player.
-	getTextEvent(){
+	// Debug resets the currently selected text and tries to generate a new one
+	getTextEvent( debug = false ){
 
-		if( this._textEvent ){
+		if( this._textEvent && !debug ){
 			return this._textEvent;
 		}
 		const players = game.getTeamPlayers();
@@ -421,7 +425,7 @@ export class RoleplayStage extends Generic{
 			if( initiating && this.index ){
 
 				evt.target = initiating;
-				if( text.validate(evt) ){
+				if( text.validate(evt, debug) ){
 					
 					this._textEvent = evt;
 					return evt;
@@ -434,7 +438,7 @@ export class RoleplayStage extends Generic{
 			for( let player of players ){
 				
 				evt.target = player;
-				if( text.validate(evt) ){
+				if( text.validate(evt, debug) ){
 					
 					this._textEvent = evt;
 					return evt;

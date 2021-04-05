@@ -3,14 +3,9 @@
 
 
 
-- Need a game action that re-checks active players in the room for when the zebra leaves to go upstairs
-
-
-
-
-
 -- CURRENT --
-
+	- Add a way to alter parent mod dungeon cells
+	- Make a CDN for mods
 
 
 Medium rare:
@@ -40,23 +35,13 @@ Medium rare:
 		- Forest
 		- Dungeon
 
-
-	- Populate the bazaar
-	- Show what mods a quest belongs to
-	- Game benefit for using a punishment (generic passive)
-		- Sub = Restore mana
-		- Dom = restore HP
-		- 
-	- Convert more stuff to the new modal system
-
 	- Bank system
 		- Exchange
 		- Store gold
 		- Should be tied to the game itself, and needs to be requested by coop players (not sent by default due to size)
 		- Monsters should be able to steal a percentage of your held gold
 
-	- Punishments
-	- Custom cursors
+	- Custom cursors?
 		- Arrow
 		- Interact
 		- Inspect

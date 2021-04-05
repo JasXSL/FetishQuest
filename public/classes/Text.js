@@ -87,7 +87,7 @@ class Text extends Generic{
 		this.chat_reuse = false;		// If a chat and this is set, the chat can be triggered multiple times in a session
 		this.chatPlayerConditions = [];	// These conditions are run on each player to see if they can say this. Only usable when chat is true
 										// Both target and sender are the same player. You generally want at least "targetIsX" in here when using a text.
-		this.en = true;					// enabled
+		this.en = true;					// enabled for use in event based text triggers
 
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
 		this._cache_event = null;		// Cache of event type supplied in conditions. Should speed things up.
@@ -417,6 +417,9 @@ class Text extends Generic{
 	}
 
 	// Validate conditions
+	// event is the event that should get tested
+	// debug enables debug output
+	// chatPlayer is a Player object that's used in AI speech bubbles
 	validate( event, debug, chatPlayer ){
 
 		if( !debug )
@@ -446,14 +449,6 @@ class Text extends Generic{
 		){
 			if( debug )
 				console.debug("FAIL because this._cache_event:", this._cache_event);
-			return false;
-		}
-
-		
-
-		if( !this.en ){
-			if( debug )
-				console.debug("FAIL because not enabled");
 			return false;
 		}
 
@@ -525,6 +520,9 @@ Text.getFromEvent = function( event, debug = false ){
 
 		for( let p of testAgainst ){
 
+			// Text disabled (should live here because RP can run text.validate on disabled texts)
+			if( !this.en )
+				continue;
 			if( Boolean(text.chat) !== chat )
 				continue;
 			if( Boolean(text.chat) !== Boolean(evt.type === GameEvent.Types.textTrigger))
