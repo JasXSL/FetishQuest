@@ -2201,6 +2201,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	let treasureRooms = out.rooms.slice(1);	// Can't be in the first room
 	shuffle(treasureRooms);
 	treasureRooms = treasureRooms.slice(0, bigTreasures);
+	let maxMimics = Math.max(1, Math.floor(out.rooms.length/10))+(out.rooms.length > 0 ? Math.random() <= (out.rooms.length%10)/10 : 0);
 
 	// Replace the treasure templates in the rooms with the actual treasures
 	for( let room of out.rooms ){
@@ -2229,8 +2230,9 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 			// Mimics can appear between room 1 and 6, but has a greater chance the closer to the exit it is
 			// Generate a mimic
-			if( Math.random() > parents/6 ){
+			if( Math.random() > parents/6 && maxMimics ){
 
+				--maxMimics;
 				let encounter = new GameAction({
 					type : GameAction.types.encounters,
 					data : ['mimic']

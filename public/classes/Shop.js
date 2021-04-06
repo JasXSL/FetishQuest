@@ -63,15 +63,21 @@ export default class Shop extends Generic{
 		if( !(data instanceof ShopSaveState) )
 			return;
 		
+		let needSave = false;	// If we need to save state due to an item being restocked
 		const items = data.items.slice();
 		for( let item of items ){
 			const cur = this.getItemById(item.id);
 			if( !cur )
 				data.items.splice(data.items.indexOf(item));
 			else{
-				cur.loadState(item);
+				if( cur.loadState(item) )
+					needSave = true;
 			}
 		}
+
+		if( needSave )
+			game.saveShopState(this);
+
 	}
 
 	saveState(){
@@ -217,6 +223,7 @@ export class ShopAsset extends Generic{
 		return out;
 	}
 
+	// Returns true if data was altered
 	loadState( data ){
 
 		if( !(data instanceof ShopAssetSaveState) )
@@ -224,9 +231,11 @@ export class ShopAsset extends Generic{
 		this._amount_bought = data._amount_bought;
 		this._time_bought = data._time_bought;
 		if( game.time-this._time_bought > this.restock_rate && this.restock_rate > 0 ){
+			
 			this._time_bought = 0;
 			this._amount_bought = 0;
-			game.saveShopState(this.parent);
+			return true;
+
 		}
 
 	}
