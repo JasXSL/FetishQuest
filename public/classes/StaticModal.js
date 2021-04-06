@@ -970,7 +970,7 @@ export default class StaticModal{
 
 					});
 
-					this.netgame.enableTurnTimer.addEventListener('click', event => {
+					this.netgame.enableTurnTimer.addEventListener('change', event => {
 						
 						localStorage.turnTimer = +event.currentTarget.checked;
 						game.onTurnTimerChanged();

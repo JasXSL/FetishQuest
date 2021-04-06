@@ -316,9 +316,13 @@ export default class Encounter extends Generic{
 	}
 
 	// Gets roleplay ACTIONs
+	// player is the Player who offers the RP. GameAction is validated against that player. The RP itself should be validated later against the game active player
 	getRoleplays( player, validate = true, debug = false ){
 
+		// GameAction is validated against the player
 		const actions = this.getViableActions(player, validate, debug);
+		if( debug )
+			console.log("getViableActions ->", actions);
 		return actions.filter(action => {
 
 			if( action.type !== GameAction.types.roleplay )
@@ -329,7 +333,7 @@ export default class Encounter extends Generic{
 				return false;
 			if( !validate )
 				return true;
-			return rp.validate(player);
+			return true;
 
 		});
 

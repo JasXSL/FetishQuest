@@ -1,14 +1,16 @@
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system
-
+	- 2nd player was not able to talk to the sailor
 
 
 -- CURRENT --
 	
 	- Add a way to alter parent mod dungeon cells
 	- Make a CDN for mods
-
-
+	- Show when a player is in a menu
+	- Change so NPCs talk on the first turn
+	- Host loading bar
+	- Generated vendor loot
 
 
 Medium rare:
@@ -22,7 +24,7 @@ Medium rare:
 	- Main quest chapter 2
 		- Go to Yuug capital?
 		- What do there?
-		
+	- Mini map
 
 	- Books
 	- West forest

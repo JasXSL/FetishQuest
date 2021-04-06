@@ -270,12 +270,10 @@ class NetworkManager{
 		return this.isConnected() && this.parent.is_host;
 	}
 
-
 	// Debugging
 	runComparer( data ){
 		return this.comparer.compare(this._last_push, data) ;
 	}
-
 
 	// Binds an event
 	bind( evt, callback ){
@@ -995,7 +993,7 @@ class NetworkManager{
 	}
 
 	// From DM to player
-	onGameUpdate(data){
+	onGameUpdate( data ){
 
 		
 		if( game.is_host )
@@ -1018,10 +1016,12 @@ class NetworkManager{
 			console.debug("Game update received", data);
 
 		if( this._pre_push_time != ts && this._pre_push_time !== 0 ){
+			
 			this._pre_push_time = 0;
 			console.error("Desync detected, requesting whole game");
 			this.playerRequestFullGame();
 			return;
+
 		}
 
 		this._pre_push_time = now;

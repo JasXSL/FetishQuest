@@ -11,10 +11,12 @@ export default class Comparer{
 			bType = typeof b;
 
 
-		if( aType !== "object" || a === null || bType !== "object" || b === null || aType !== bType || (Array.isArray(a) && !Array.isArray(b)) )
+		if( aType !== "object" || a === null || bType !== "object" || b === null || aType !== bType || (Array.isArray(a) && !Array.isArray(b)) ){
 			return b;
+		}
 
 		if( Array.isArray(b) ){
+
 			// One of these has changed state, need to send all
 			let nrChanges = 0;
 			let out = [];
@@ -28,9 +30,11 @@ export default class Comparer{
 
 					// if an ID has changed, we need to push the whole thing since that's how the loading works on the receiving end
 					if( a[i] && a[i].id && b[i] && b[i].id && a[i].id !== b[i].id ){
+
 						++nrChanges;
 						out.push(b[i]);
 						continue;
+
 					}
 
 					const comp = this.compare(a[i], b[i], true, b, path+'.'+i);
@@ -85,7 +89,6 @@ export default class Comparer{
 
 					if( changes )
 						out[i] = changes;
-					
 
 				}
 				// Object is an object
@@ -95,8 +98,10 @@ export default class Comparer{
 					// This property has been deleted. This is generally not good form, so don't design things around that
 					// But this catch is needed for debugging, like when you wipe save progress
 					if( o === undefined ){
+
 						//console.error("Object property deletion detected, this is poor design and should be avoided other than for debugging.", "Found in", a[i], b[i], "parents", a, b, "selector", i);
 						out[i] = '__DEL__';
+
 					}
 
 					else if( o === true ){
@@ -110,15 +115,24 @@ export default class Comparer{
 				}
 			}
 			// Compare the values directly
-			else if( a[i] !== b[i] )
-				out[i] = b[i];
+			else if( a[i] !== b[i] ){
+				
+				// New value is undefined, so it's been deleted
+				if( b[i] === undefined )
+					out[i] = '__DEL__';
+				else
+					out[i] = b[i];
+
+			}
 				
 		}
 
 		if( bType === "object" && isArrayChange ){
+
 			out.id = b.id;
 			if( !b.id )
 				console.error("Every object put in an array sent to netcode MUST have an ID. Missing from", b, "previous asset here was", a, "parent", parent, path);
+
 		}
 
 		return out;

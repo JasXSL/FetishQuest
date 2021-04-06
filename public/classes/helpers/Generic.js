@@ -20,13 +20,20 @@ export default class Generic{
 		// Game can't use NULL types in the netcode, because creating a new game object does a whole heap of stuff you don't want
 		const n = this.constructor.name === "Game" ? this : new this.constructor();
 		for(let i in data){
+
 			if( this.hasOwnProperty(i) && typeof n[i] !== "function" && i !== "parent" ){
 				// Special tag to delete an object property
 				if( data[i] === '__DEL__' ){
+
 					delete this[i];
-				}else{
-					this[i] = this.g_typecast(data[i], n[i], i );
+
 				}
+				else{
+
+					this[i] = this.g_typecast(data[i], n[i], i );
+					
+				}
+
 			}
 		}
 

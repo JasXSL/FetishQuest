@@ -738,15 +738,20 @@ export default class Game extends Generic{
 
 	/* Turn timer */
 	onTurnTimerChanged(){
+
 		if( !this.turnTimerEnabled() )
 			this.endTurnTimer();
 		else if( !this._turn_timer )
 			this.setTurnTimer();
+
 	}
 
 	endTurnTimer(){
+
 		clearTimeout(this._turn_timer);
 		this._turn_timer = false;
+		game.ui.toggleRope();
+
 	}
 
 	turnTimerEnabled(){
@@ -2319,8 +2324,12 @@ export default class Game extends Generic{
 			const rp = ga.getDataAsRoleplay();
 			if( !rp )
 				continue;
+
 			rp.loadState();
 			const pl = rp.getPlayer();
+
+			if( debug )
+				console.log(pl, player, pl.id === player.id, rp.completed);
 			if( pl.id === player.id && !rp.completed && rp.validate(game.getMyActivePlayer(), debug) )
 				out.push(rp);
 

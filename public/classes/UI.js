@@ -1444,7 +1444,7 @@ export default class UI{
 		if( !this._gameIconsDrawn ){
 			
 			this._gameIconsDrawn = true;
-			$("[data-id]", this.gameIcons).on('click', event => {
+			$("[data-id]", this.gameIcons).off('click').on('click', event => {
 
 				const el = $(event.currentTarget);
 
@@ -1737,11 +1737,14 @@ export default class UI{
 		clearTimeout(this.yourTurnTimer);
 
 		if( this.yourTurnSoundLoop ){
+
 			this.yourTurnSoundLoop.stop(100);
 			this.yourTurnSoundLoop = false;
+
 		}
 
 		if( +seconds ){
+			
 			this.yourTurn.toggleClass("rope", Boolean(seconds));
 			this.yourTurnTimeLeft = seconds;
 			const tick = () => {
@@ -1760,6 +1763,7 @@ export default class UI{
 		}else{
 			
 			$("span.timeLeft", this.yourTurn).html('');
+
 		}
 	}
 

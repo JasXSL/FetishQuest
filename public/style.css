@@ -1970,6 +1970,7 @@ div.fxBuffRed{
 		margin:0.5vmax;
 		width:auto;
 		box-shadow: 0.2vmax 0.2vmax 0.2vmax #000;
+		overflow:hidden;
 	}
 	#ui > div.middle > div.content > div.line.dmChat{
 		color: #DEF;
