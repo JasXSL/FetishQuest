@@ -571,46 +571,72 @@ export default{
 
 		if( win._search ){
 
+			let searchTerms = {};	// Object where key * searches all fields, otherwise 'key' : 'search'
+			try{
+				searchTerms = JSON.parse(win._search);
+			}catch(err){
+				searchTerms = {'*' : win._search};
+			}
+
+			for( let term in searchTerms )
+				searchTerms[term] = String(searchTerms[term]).toLowerCase();
+
 			// Use cached search results
 			if( win._searchResults )
 				fulldb = win._searchResults;
 
 			else{
 
+				// Returns true if the term validated
+				const findTermInEntry = (terms, entry) => {
+
+					// Validates all terms
+					for( let searchTerm of terms ){
+
+						let inverse = false;
+						if( searchTerm.startsWith("!") ){
+
+							inverse = true;
+							searchTerm = searchTerm.substr(1);
+
+						}
+
+						let found = entry.includes(searchTerm);
+						if( found === inverse )
+							return false;
+
+					}
+					return true;
+
+				};
+
 				fulldb = win._searchResults = fulldb.filter(el => {
 
-					const searchTerm = win._search.toLowerCase();
-
-					let inverse = false;
-					if( searchTerm.startsWith("!") ){
-						inverse = true;
-						searchTerm = searchTerm.substr(1);
-					}
-
-					// Accept
-					if( !searchTerm.length )
-						return true;
-					
-					let found = false;
 					for( let i in fields ){
+
+						let fieldName = i;
+						if( fieldName.charAt(0) === '*' )
+							fieldName = fieldName.substring(1);
+
+						let texts = [];
+						if( searchTerms['*'] )
+							texts.push(searchTerms['*']);
+						if( searchTerms[fieldName] )
+							texts.push(searchTerms[fieldName]);
+
+						// no search terms for this field
+						if( !texts.length )
+							continue;
 
 						// Ignore this field
 						if( window.mod.essentialOnly && !fieldIsEssential(i) )
 							continue;
 
-						const data = stringifyVal(i, el);
+						let data = stringifyVal(fieldName, el);
 						const text = typeof data === 'string' ? data.toLowerCase() : String(data);
-						if( text.includes(win._search) ){
-							
-							found = true;
-							break;
 
-						}
-							
-
+						return findTermInEntry( texts, text );
 					}
-
-					return found !== inverse;
 
 				});
 
@@ -629,8 +655,12 @@ export default{
 		// Create the element to return
 		const container = document.createElement('template');
 
+		let el = document.createElement('div');
+		el.innerText = 'To search specific fields use a JSON object {"fieldName":"searchTerm", "*":"globalSearchTerm"}. You can use ! at the start of a search term to inverse.';
+		container.appendChild(el);
+
 		// "new" button
-		let el = document.createElement('input');
+		el = document.createElement('input');
 		container.appendChild(el);
 		el.classList.add('new');
 		el.type = 'button';
@@ -1027,10 +1057,19 @@ export default{
 
 		let searchTimeout;
 		searchInput.onchange = event => {
+			
 			clearTimeout(searchTimeout);
 			searchTimeout = setTimeout(() => {
 				performSearch();
 			}, 250);
+
+		};
+		searchInput.onkeypress = event => {
+
+			if( event.key === 'Enter' ){
+				clearTimeout(searchTimeout);
+				performSearch();
+			}
 
 		};
 

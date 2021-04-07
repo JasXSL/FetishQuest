@@ -222,6 +222,8 @@ export function assetTable( win, modAsset, name, single, parented ){
 export function list(){
 
 	//console.log("Adding text list", this, this.asset);
+	const out = document.createElement('template');
+
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
 		id : true,
 		['*text'] : true,

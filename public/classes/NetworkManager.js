@@ -807,7 +807,8 @@ class NetworkManager{
 
 		// Load the full game
 		if( task === NetworkManager.dmTasks.sendFullGame ){
-			game.ui.destructor();
+			
+			//game.ui.destructor();
 			game.load(args);
 			game.renderer.loadActiveDungeon();
 
