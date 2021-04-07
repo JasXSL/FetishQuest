@@ -215,11 +215,7 @@ export default class Game extends Generic{
 	}
 
 	async saveToDB( data ){
-		try{
-			await Game.db.games.put(data);
-		}catch(err){
-			console.error("Error in saving", err);
-		}
+		return this.constructor.saveToDB(data);
 	}
 
 	async execSave( allowInsert, ignoreNetGame ){
@@ -566,7 +562,6 @@ export default class Game extends Generic{
 	onRoomChange(){
 
 		this.clearRoleplay();
-		this.removeGeneratedPlayers();
 		this.ui.draw();
 		for( let player of this.players )
 			player.onCellChange();
@@ -1148,12 +1143,16 @@ export default class Game extends Generic{
 
 	removeProceduralDungeonState( dungeon ){
 		
+		if( typeof dungeon === 'string' )
+			dungeon = this.getProceduralDungeon(dungeon);
 		
 		let index = this.procedural.indexOf(dungeon);
 		if( index === -1 )
 			return;
+
 		this.procedural.splice(index);
 		this.state_dungeons.unset(dungeon.label);
+		this.discoverProceduralDungeon(dungeon.label);
 
 	}
 
@@ -1864,6 +1863,7 @@ export default class Game extends Generic{
 
 		// Update visible players
 		this.removeGeneratedPlayers(merge);	// Removes from the Game player list
+
 		for( let pl of encounter.players ){
 
 			pl.netgame_owner = '';
@@ -3028,7 +3028,7 @@ Game.load = async () => {
 
 	if(localStorage.game){
 		try{
-			let g = await Game.db.games.get(localStorage.game);
+			let g = await Game.getDataByID(localStorage.game);
 			if(g)
 				return game.load(g);
 		}catch(err){
@@ -3038,6 +3038,18 @@ Game.load = async () => {
 
 	StaticModal.set('mainMenu');
 
+};
+
+Game.saveToDB = async data => {
+	try{
+		await Game.db.games.put(data);
+	}catch(err){
+		console.error("Error in saving", err);
+	}
+};
+
+Game.getDataByID = async id => {
+	return Game.db.games.get(id);
 };
 
 // Get save files names

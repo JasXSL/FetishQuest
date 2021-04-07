@@ -900,7 +900,7 @@ export default class Player extends Generic{
 		if( Math.random() < mp-Math.floor(mp) )
 			++mp;
 		*/
-		if( this.mp < this.getMaxMP() && !this._turns%3 )
+		if( this.mp < this.getMaxMP() && !(this._turns%3) )
 			this.addMP(1);
 		
 	}
@@ -2960,6 +2960,82 @@ export default class Player extends Generic{
 			return '0 copper';
 		return out.join(', ');
 	};
+
+
+	async exportFile(){
+
+		const zip = new JSZip();
+		zip.file(
+			'player.json', 
+			JSON.stringify(this.save(true))
+		);
+
+		const content = await zip.generateAsync({
+			type:"blob",
+			compression : "DEFLATE",
+			compressionOptions : {
+				level: 9
+			}
+		})
+		
+		const a = document.createElement('a');
+		const url = URL.createObjectURL(content);
+
+		a.setAttribute('href', url);
+		a.setAttribute('download', this.name + '.fqchar');
+
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+
+		game.ui.modal.addNotice('Player exported!');
+
+	};
+
+	// Takes a file event, imports it, and returns a new player
+	static async importFile( event ){
+
+		const file = event.target.files[0];
+		if( !file )
+			return;
+
+		const zip = await JSZip.loadAsync(file);
+
+		let player;
+		for( let path in zip.files ){
+
+			if( path !== 'player.json' )
+				continue;
+
+			const entry = zip.files[path];
+			try{
+
+				const raw = JSON.parse(await entry.async("text"));
+				if( !raw.id || !raw.name )
+					throw 'INVALID_ID';
+				
+				player = new this(raw);
+				player.g_resetID();
+
+
+			}catch(err){
+
+				let reason = "JSON Error";
+				if( err === "INVALID_ID" )
+					reason = 'Required parameters missing';
+				alert("This is not a valid player file ("+reason+")");
+				console.error(err);
+
+			}
+
+			break;
+
+		}
+
+		return player;
+
+	};
+
 
 
 }

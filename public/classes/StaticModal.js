@@ -721,6 +721,7 @@ export default class StaticModal{
 				return `
 					<div class="option button" data-action="toggleDMTools"><input type="checkbox" /><span> Show DM Tools</span></div>
 					<div class="option button" data-action="addPlayer">+ Add Player</div>
+					<div class="option button" data-action="importPlayer">Import Player<input class="charImport hidden" accept=".fqchar" type="file" /></div>
 					<div class="option button" data-action="fullRegen">Restore HPs</div>
 					<div class="option button" data-action="toggleBattle">Start Battle</div>
 				`;
@@ -767,17 +768,19 @@ export default class StaticModal{
 				
 				const ui = game.ui;
 
-				
-
+				const gameplay = this.getTabDom('Gameplay');
 				this.gameplay = {
-					difficulty : $("input[name=difficulty]", this.getTabDom("Gameplay"))
+					difficulty : $("input[name=difficulty]", gameplay),
 				};
 
+				const dm = this.getTabDom('DM');
 				this.dm = {
 					toggle : $("div[data-action=toggleDMTools]", this.getTabDom("DM")),
 					addPlayer : $("div[data-action=addPlayer]", this.getTabDom("DM")),
 					fullRegen : $("div[data-action=fullRegen]", this.getTabDom("DM")),
 					toggleBattle : $("div[data-action=toggleBattle]", this.getTabDom("DM")),
+					importPlayer : dm[0].querySelector('div[data-action=importPlayer]'),
+					importPlayerInput : dm[0].querySelector('input.charImport'),
 				};
 
 				this.video = {
@@ -888,6 +891,29 @@ export default class StaticModal{
 						game.setMasterVolume(val/100 || 0);
 					else
 						game['audio_'+name].setVolume(val/100 || 0);
+
+				});
+
+				this.dm.importPlayer.addEventListener('click', () => {
+					this.dm.importPlayerInput.click();
+				});
+
+				this.dm.importPlayerInput.addEventListener('change', async event => {
+
+					try{
+
+						const player = await Player.importFile(event);
+						if( !player )
+							throw 'Invalid player file';
+
+						game.addPlayer(player);
+
+					}
+					catch(err){
+						game.ui.modal.addError('Failed to import: '+err);
+					}
+
+					this.dm.importPlayerInput.value = '';
 
 				});
 
@@ -1019,6 +1045,9 @@ export default class StaticModal{
 						<div class="primaryStats flexThreeColumns"></div>
 						<div class="secondaryStats flexAuto"></div>
 					</div>
+					<div class="export">
+						<input type="button" value="Export" class="exportPlayer" />
+					</div>
 				`;
 
 			})
@@ -1106,6 +1135,8 @@ export default class StaticModal{
 					equipment : $("> div.right > div.equipment", cDom),
 					primaryStats : $("> div.right > div.primaryStats", cDom),
 					secondaryStats : $("> div.right > div.secondaryStats", cDom),
+
+					exportPlayer : $('input.exportPlayer', cDom),
 				};
 
 				const dDom = this.getTabDom('Edit');
@@ -1180,9 +1211,6 @@ export default class StaticModal{
 					game.ui.bindTooltips();
 
 				};
-
-
-				
 
 			})
 			.setDraw(async function( player ){
@@ -1528,10 +1556,10 @@ export default class StaticModal{
 			
 					});
 
+					this.character.exportPlayer.off('click').on('click', () => {
+						player.exportFile();
+					});
 					
-					
-			
-
 
 			});
 
@@ -1939,7 +1967,8 @@ export default class StaticModal{
 							<strong>LOAD</strong>
 						</p>
 						<div class="gameSaves"></div><br />
-						<p class="subtitle">Ctrl+click to delete</p>
+						<p class="subtitle">Ctrl+click to Delete<br />Shift+Click to Export</p>
+						<input type="file" class="loadGame" accept=".fqsav" />
 					</div>
 				`;
 			})
@@ -2013,18 +2042,22 @@ export default class StaticModal{
 				this.newGameButton = mainMenu.querySelector('input.newGameButton');
 				this.gameSaves = mainMenu.querySelector('div.gameSaves');
 				this.loadGame = mainMenu.querySelector('div.loadGame');
+				this.loadGameInput = mainMenu.querySelector('input.loadGame');
 				this.modsTable = mods.querySelector('table.editor');
 				this.loadMod = mods.querySelector('input.modFile');
 				this.joinGameForm = online.querySelector('form.joinGame');
+				
 
 			})
 			.setDraw(async function(){
 
 				
+				
 				// Show game saves
-				const handleGameClick = event => {
+				const handleGameClick = async event => {
 					
-					const id = event.currentTarget.dataset.id;
+					const id = event.currentTarget.dataset.id,
+						text = event.currentTarget.innerText;
 
 					if( event.ctrlKey ){
 
@@ -2041,6 +2074,37 @@ export default class StaticModal{
 						}
 
 						return false;
+
+					}
+
+					else if( event.shiftKey ){
+
+
+						game.ui.modal.addNotice('Exporting...');
+						const zip = new JSZip();
+						zip.file('save.json', JSON.stringify(await Game.db.games.get(id)));
+						const content = await zip.generateAsync({
+							type:"blob",
+							compression : "DEFLATE",
+							compressionOptions : {
+								level: 9
+							}
+						})
+						
+						const a = document.createElement('a');
+						const url = URL.createObjectURL(content);
+
+						a.setAttribute('href', url);
+						a.setAttribute('download', text+'.fqsav');
+
+						document.body.appendChild(a);
+						a.click();
+						a.remove();
+
+						
+						game.ui.modal.addNotice('Game exported!');
+
+						return;
 
 					}
 
@@ -2225,6 +2289,58 @@ export default class StaticModal{
 
 					this.loadMod.setAttribute("accept", ".fqmod");
 
+					this.loadGameInput.addEventListener('change', async event => {
+
+						const file = event.target.files[0];
+						if( !file )
+							return;
+
+						const zip = await JSZip.loadAsync(file);
+
+						for( let path in zip.files ){
+
+							if( path !== 'save.json' )
+								continue;
+
+							const entry = zip.files[path];
+
+							try{
+
+								const raw = JSON.parse(await entry.async("text"));
+								const existing = await Game.getDataByID(raw.id);
+								if( existing ){
+
+									if( !confirm("Game ID already exists, are you sure you want to overwrite?") )
+										return;
+
+
+								}
+
+								await Game.saveToDB(raw);
+								this.loadGameInput.value = "";
+							
+								game.net.disconnect();
+								localStorage.game = raw.id;
+								Game.load();
+								this.close(true);
+
+
+							}catch(err){
+
+								let reason = "JSON Error";
+								if( err === "INVALID_ID" )
+									reason = 'Required parameters missing';
+								alert("This is not a valid game file ("+reason+")");
+								console.error(err);
+
+							}
+
+
+							break;
+
+						}
+
+					});
 
 				}
 
