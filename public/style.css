@@ -2158,6 +2158,42 @@ div.fxBuffRed{
 	div.players div.right div.player span.name > span{
 		margin-right:0.5vmax;
 	}
+
+	div.players div.player div.netgameStatus{
+		position: absolute;
+		bottom:0.5vmax; left:1.5vmax;
+	}
+	div.players div.right div.player div.netgameStatus{
+		left:auto; right:1.5vmax;
+	}
+
+	@keyframes netgameInfo{
+		from{box-shadow:0 0 1vmax 0.25vmax rgba(255,255,255, 1);}
+		to{box-shadow:0 0 .5vmax 0 rgba(255,255,255, 1);}
+	}
+	div.players div.player div.netgameStatus > div{
+		width:4vmax; height:4vmax;
+		border-radius:1vmax;
+		border: 2px solid #FFF;
+		margin-bottom: 0.5vmax;
+		animation: netgameInfo 1s ease-in-out alternate infinite;
+		background:rgba(255,255,255,.5);
+	}
+	div.players div.player div.netgameStatus img{
+		width:100%; height: 100%;
+	}
+	div.players div.player div.netgameStatus span{
+		
+		position: absolute;
+		color:#000;
+		left:50%; top:50%;
+		transform:translate(-50%, -50%);
+		font-size:1.7vmax;
+		font-weight: bold;
+		
+
+	}
+	
 	
 
 	#ui > div.players div.player span.name > div.button{
@@ -2786,23 +2822,28 @@ div.fxBuffRed{
 		position: absolute;
 		background:#000;
 	}
+
+	#loading_screen > div {
+		position: absolute;
+		left:50%; top:50%;
+		transform:translate(-50%, -50%);
+		width:50%;
+	}
 	@keyframes loadingBarBorder{
 		from{border-color:#FFF;}
 		to{border-color:#54bdd2;}
 	}
-	#loading_screen > div.loadingBar{
-		width:50%;
+	#loading_screen div.loadingBar{
+		width:100%;
 		height:0.5vmax;
-		position: absolute;
 		overflow: hidden;
-		left:50%; top:5%;
-		transform:translate(-50%, -50%);
 		border-radius: 0.25vmax;
 		background:#359;
 		animation: loadingBarBorder 1s alternate infinite ease-in-out;
 		pointer-events: none;
+		margin-bottom:2vmax;
 	}
-	#loading_screen > div.loadingBar > div.slider{
+	#loading_screen div.slider{
 		height:100%;
 		position: absolute;
 		left:0;
@@ -2810,11 +2851,9 @@ div.fxBuffRed{
 		transition: width 0.5s ease-in-out;
 		background: linear-gradient(to bottom, #54bdd2 0%,#2a8cba 50%,#006eaa 51%,#2d9ccb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	}
-	#loading_screen > p{
-		position: absolute;
+	#loading_screen p{
 		font-size:1vmax;
-		left:50%; top:7%;
-		transform:translate(-50%,-50%);
+		text-align: center;
 		margin:0; padding:0;
 		vertical-align: middle;
 	}

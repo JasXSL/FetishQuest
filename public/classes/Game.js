@@ -194,6 +194,7 @@ export default class Game extends Generic{
 			out.mute_spectators = this.mute_spectators;
 		}
 
+
 		return out;
 	}
 
@@ -422,6 +423,44 @@ export default class Game extends Generic{
 	}
 
 
+	isHostLoaded(){
+		if( !this.net.isConnected() || game.host )
+			return true;
+
+		return this.load_perc >= 1.0;
+		
+	}
+
+	setRoomsLoaded( rooms ){
+
+		this.ui.updateLoadingBar(rooms);
+
+		// These are needed because they cache the nr of loaded cells for when a player joins
+		if( this.is_host ){
+
+			this.net.dmCellsLoaded( rooms );
+			this.ui.updateLoadingBar();
+
+		}
+		else
+			this.net.playerCellsLoaded(rooms);
+
+
+	}
+	
+	// Tells the netplayer if we're in a menu
+	setInMenu( menu ){
+
+		if( this.is_host ){
+
+			this.net.dmSetInMenu( menu );
+			this.ui.onMenuStatusChanged();
+
+		}
+		else
+			this.net.playerSetInMenu( menu );
+
+	}
 
 
 

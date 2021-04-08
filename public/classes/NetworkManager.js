@@ -26,6 +26,9 @@ class NetworkManager{
 		this.timer_reconnect = null;
 		this.comparer = new Comparer();
 
+		this.load_status  = {DM : 0};	// Cells loaded
+		this.in_menu = {DM : false};	// Tracks if players are in a menu
+
 		this.eventBindings = {'*':[]};		// EventLabel : [fn1, fn2...]
 
 		// This is for debugging purposes
@@ -64,7 +67,7 @@ class NetworkManager{
 		// Host left
 		this.io.on('hostLeft', () => {
 			
-			console.debug("Host left the game");
+			game.ui.modal.addNotice("Host left the game");
 			this.disconnect();
 			this.handleEvent('hostLeft');
 
@@ -75,10 +78,14 @@ class NetworkManager{
 
 			for( let i in this.players ){
 				if( this.players[i].id === data.id ){
+
 					game.uiAudio( 'player_disconnect' );
 					game.ui.addText( this.players[i].name+" has left the game.", undefined, undefined, undefined, 'dmInternal' );
 					delete this.afk[data.id];
+					delete this.in_menu[data.id];
+					delete this.load_status[data.id];
 					this.players.splice(i, 1);
+
 				}
 			}
 			game.ui.draw();
@@ -117,8 +124,11 @@ class NetworkManager{
 
 			// This wasn't me who joined
 			if( data.id !== this.id && game.is_host ){
-				this.dmSendFullGame(data.id);
-				this.dmRefreshAFK();
+
+				this.dmSendFullGame(data.id);			// Give them the full game
+				this.dmRefreshAFK();					// Refresh AFK status
+				this.dmCellsLoaded();					// Send cells loaded
+
 			}
 
 			game.uiAudio( 'player_join' );
@@ -305,6 +315,23 @@ class NetworkManager{
 
 	}
 
+	// If you're hosting it returns DM, otherwise your ID
+	getMyLoadStatusID(){
+
+		if( game.is_host )
+			return 'DM';
+		return this.id;
+
+	}
+
+	// Returns an int of how many cells you've loaded
+	getMyLoadStatus(){
+		return this.load_status[this.getMyLoadStatusID()];
+	}
+
+	getDMLoadStatus(){
+		return this.load_status.DM;
+	}
 
 
 	/* STANDARD OUTPUT */
@@ -473,8 +500,8 @@ class NetworkManager{
 	}
 
 
-	
 
+	
 
 
 
@@ -786,6 +813,29 @@ class NetworkManager{
 			else if( task === PT.toggleAFK )
 				this.setPlayerAFK(netPlayer, args.afk);
 
+			else if( task === PT.loadedCells ){
+
+				const cells = parseInt(args.cells);
+				if( isNaN(cells) )
+					return;
+
+				this.load_status[netPlayer] = cells;
+				this.dmCellsLoaded();	// Send an update to the players
+				game.ui.updateLoadingBar();
+
+			}
+			else if( task === PT.inMenu ){
+
+				const menu = parseInt(args.in);
+				if( isNaN(menu) )
+					return;
+
+				this.in_menu[netPlayer] = menu;
+				this.dmSetInMenu();	// Send an update to the players
+				game.ui.onMenuStatusChanged();
+
+			}
+
 		}catch(err){
 
 			respondWithError(err);
@@ -990,6 +1040,24 @@ class NetworkManager{
 
 		}
 
+		else if( task === NetworkManager.dmTasks.loadedCells ){
+			
+			if( typeof args.cells !== "object" )
+				throw 'DM cell task received without cells';
+
+			this.load_status = args.cells;
+			game.ui.updateLoadingBar();
+			
+		}
+		else if( task === NetworkManager.dmTasks.inMenu ){
+			
+			if( typeof args.in !== "object" )
+				throw 'DM inMenu task received without in';
+
+			this.in_menu = args.in;
+			game.ui.onMenuStatusChanged();
+			
+		}
 
 	}
 
@@ -1224,6 +1292,22 @@ class NetworkManager{
 		});
 	}
 
+	// Auto updates for all players
+	playerCellsLoaded( nrCells ){
+
+		this.sendPlayerAction(NetworkManager.playerTasks.loadedCells, {cells:nrCells});
+
+	}
+
+	playerSetInMenu( menu ){
+
+		if( isNaN(menu) )
+			return;
+
+		this.sendPlayerAction(NetworkManager.playerTasks.inMenu, {in:parseInt(menu)});
+
+	}
+
 
 
 	/* OUTPUT TASKS DM */
@@ -1410,6 +1494,27 @@ class NetworkManager{
 		});
 	}
 
+	// Auto updates for all players. Can use undefined to not change.
+	dmCellsLoaded( nrCells ){
+
+		if( !isNaN(parseInt(nrCells)) )
+			this.load_status['DM'] = nrCells;
+		
+		this.sendHostTask(NetworkManager.dmTasks.loadedCells, {cells:this.load_status});
+
+	}
+
+	// Auto updates for all players. Can use undefined to not change.
+	// 0 = no menu
+	dmSetInMenu( menu ){
+
+		if( !isNaN(parseInt(menu)) )
+			this.in_menu['DM'] = parseInt(menu);
+		
+		this.sendHostTask(NetworkManager.dmTasks.inMenu, {in:this.in_menu});
+
+	}
+
 }
 
 // Send tasks from DM to player
@@ -1433,6 +1538,8 @@ NetworkManager.dmTasks = {
 	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type, crit:(bool)crit}
 	inventoryAdd : 'inventoryAdd',					// {player:(str)player_uuid, asset:(str)asset_uuid} Raises the game.onInventoryAdd event
 	openShop : 'openShop',							// {shop:(str)shop_label} Asks the player to open the shop window for a shop in the cell
+	loadedCells : 'loadedCells',					// {cells:{netgame_id:(int)cells}}
+	inMenu : 'inMenu',								// {in:{netgame_id:(int)menu}}
 };
 
 // Player -> DM
@@ -1459,6 +1566,9 @@ NetworkManager.playerTasks = {
 	buyAction : 'buyAction',			// {player:(st)sender_id, gym:(str)gym_player_id, actionLearnable:(str)action_learnable_id}
 	toggleAction : 'toggleAction',		// {player:(st)sender_id, gym:(str)gym_player_id, action:(str)action_id}
 	toggleAFK : 'toggleAFK',			// {afk:(bool)afk}
+	loadedCells : 'loadedCells',					// {cells:(int)cells_loaded}
+	inMenu : 'inMenu',					// {in:(int)menu}
+
 };
 
 export default NetworkManager;

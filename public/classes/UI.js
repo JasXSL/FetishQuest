@@ -48,8 +48,13 @@ export default class UI{
 		this.selected_rp = '';	// ID of selected roleplay option
 		this.tooltip = $("#tooltip");
 		this.loadingScreen = $("#loading_screen");
-		this.loadingBar = $("> div.loadingBar > div.slider", this.loadingScreen);
-		this.loadingStatusText = $("> p > span", this.loadingScreen);
+
+		this.myLoadingBar = $("div.mine > div.loadingBar > div.slider", this.loadingScreen);
+		this.myLoadingStatusText = $("div.mine > p > span", this.loadingScreen);
+		this.hostLoadingWrapper = $("div.host", this.loadingScreen);
+		this.hostLoadingBar = $("div.loadingBar > div.slider", this.hostLoadingWrapper);
+		this.hostLoadingStatusText = $("p > span", this.hostLoadingWrapper);
+
 		this.loadingMaxSteps = 0;	// Steps to load
 		this.yourTurn = $("#ui > div.yourTurnBadge");
 		this.yourTurnBorder = $("#yourTurnBorder");
@@ -768,6 +773,18 @@ export default class UI{
 				'<div class="topLeft hidden"></div>'+
 				
 				'<div class="targetingStats"></div>'+
+
+				'<div class="netgameStatus hidden">'+
+					'<div class="loadingPerc hidden">'+
+						'<img src="media/wrapper_icons/empty-hourglass.svg" />'+
+						'<span>0%</span>'+
+					'</div>'+
+					'<div class="inMenu tooltipParent hidden">'+
+						'<img src="media/wrapper_icons/auto-repair.svg" />'+
+						'<div class="tooltip">Player is currently in a menu</div>'+
+					'</div>'+
+				'</div>'+
+
 				'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
 				'<div class="interactions">'+
 					'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
@@ -1078,9 +1095,12 @@ export default class UI{
 			topRightEl = $('> div.topRight', el),
 				wrappersEl = $('> div.wrappers', topRightEl),
 				chargingEl = $('> div.charging', topRightEl),
-			topLeftEl = $('> div.topLeft', el)
+			topLeftEl = $('> div.topLeft', el),
+			netgameStatus = $('> div.netgameStatus', el)
 		;
 
+		netgameStatus.toggleClass('hidden', (!game.net.isConnected() || !p.netgame_owner));
+		
 
 		index = +index;
 		if( !index || index > 9 )
@@ -1164,8 +1184,6 @@ export default class UI{
 				legsEl.text(lText);
 		}
 		
-		
-
 		nameDisplayEl
 			.toggleClass('mine', isMine)
 			.toggleClass('npc', isNPC)
@@ -1518,6 +1536,20 @@ export default class UI{
 
 	}
 
+
+	onMenuStatusChanged(){
+
+		for( let player of game.players ){
+
+			// Hiding should take place on the parent in drawPlayer
+			if( !player.netgame_owner )
+				continue;
+
+			$("div.player[data-id='"+esc(player.id)+"'] div.netgameStatus > div.inMenu", this.players).toggleClass('hidden', !game.net.in_menu[player.netgame_owner]);
+
+		}
+
+	}
 
 
 	/* Events */
@@ -2416,23 +2448,57 @@ export default class UI{
 		this.loadingScreen.toggleClass("hidden", !maxSteps);
 
 		if( maxSteps > 0 ){
+
+			game.net.load_status[game.net.getMyLoadStatusID()] = 0;
+			game.net.load_status['DM'] = 0;
 			this.loadingMaxSteps = +maxSteps;
-			this.setLoadingBarValue( 0 );
+			this.updateLoadingBar();
+
+			this.hostLoadingWrapper.toggleClass( 'hidden', Boolean(game.is_host) );
+
 		}
 		else{
-			this.loadingBar.css({width:0});
+
+			this.myLoadingBar.css({width:0});
+			this.hostLoadingBar.css({width:0});
+
 		}
 
 	}
 
-	setLoadingBarValue( val ){
+	updateLoadingBar(){
 		
 		if( !this.loadingMaxSteps )
 			return;
-		val = +val || 0;
-		const perc = val/this.loadingMaxSteps;
-		this.loadingStatusText.html('('+val+'/'+this.loadingMaxSteps+')');
-		this.loadingBar.css({'width': perc*100+'%'});
+
+		let val = parseInt(game.net.getMyLoadStatus()) || 0;
+		let perc = val/this.loadingMaxSteps;
+		this.myLoadingStatusText.html('('+val+'/'+this.loadingMaxSteps+')');
+		this.myLoadingBar.css({'width': perc*100+'%'});
+
+		let dmVal = parseInt(game.net.getDMLoadStatus()) || 0;
+		perc = dmVal/this.loadingMaxSteps;
+		this.hostLoadingStatusText.html('('+dmVal+'/'+this.loadingMaxSteps+')');
+		this.hostLoadingBar.css({'width': perc*100+'%'});
+
+		if( val >= this.loadingMaxSteps && dmVal >= this.loadingMaxSteps )
+			this.toggleLoadingBar();
+
+		for( let player of game.players ){
+
+			// This isn't a player
+			if( !player.netgame_owner )
+				continue;
+
+			val = parseInt(game.net.load_status[player.netgame_owner]);
+			if( isNaN(val) )
+				val = this.loadingMaxSteps;
+			perc = Math.round(val/this.loadingMaxSteps*100);
+			const status = $("div.player[data-id='"+player.id+"'] > div.netgameStatus > div.loadingPerc > span", this.players);
+			status.parent().toggleClass('hidden', val >= this.loadingMaxSteps)
+			status.text(perc+'%');
+
+		}
 
 	}
 

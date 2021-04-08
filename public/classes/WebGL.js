@@ -838,7 +838,7 @@ class WebGL{
 			await stage.draw();
 			this.execRender( true );
 			stage.toggle(false);
-			game.ui.setLoadingBarValue(++i);
+			game.setRoomsLoaded(++i);
 			if( this.load_after_load )
 				break;
 
@@ -861,7 +861,6 @@ class WebGL{
 	
 		this.pruneCache();	// Prune after a load
 
-		game.ui.toggleLoadingBar();
 
 	}
 

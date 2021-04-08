@@ -167,7 +167,7 @@ export default class StaticModal{
 	// Sets the active modal
 	static async set( id, ...args ){
 
-		this.close();
+		this.close( false, true );
 		if( !id )
 			return true;
 
@@ -175,6 +175,8 @@ export default class StaticModal{
 		if( !obj )
 			throw 'Modal not found: '+id;
 		
+		game.setInMenu(1); // If you want you can differentiate between menus here later by assigning a numeric ID to each menu
+
 		obj.dom.toggleClass("hidden", false);
 		
 		this.main.toggleClass("hidden", false);
@@ -183,6 +185,7 @@ export default class StaticModal{
 		obj.args = [...args];
 		const out = await this.refreshActive();
 
+		
 		return out;
 
 	}
@@ -197,7 +200,7 @@ export default class StaticModal{
 	}
 
 	// newID is to prevent recursion
-	static close( force ){
+	static close( force, sendUpdate = true ){
 
 		if( !game.initialized && !force ){
 
@@ -219,6 +222,9 @@ export default class StaticModal{
 			this.main.toggleClass("hidden", true);
 		game.ui.setTooltip();
 		Object.values(this.lib).map(modal => modal.dom.toggleClass("hidden", true));
+
+		if( sendUpdate )
+			game.setInMenu(0);	
 
 	}
 
@@ -817,7 +823,7 @@ export default class StaticModal{
 				// DM
 				this.dm.toggle.on('click', event => {
 					localStorage.hide_dm_tools = +game.ui.showDMTools();
-					ui.board.toggleClass("dev", game.ui.showDMTools());
+					game.ui.board.toggleClass("dev", game.ui.showDMTools());
 					$("input", event.currentTarget).prop("checked", game.ui.showDMTools());
 				});
 				this.dm.addPlayer.on('click', event => {
