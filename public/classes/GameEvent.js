@@ -136,6 +136,8 @@ GameEvent.Types = {
 	
 	battleStarted : 'battleStarted',
 	battleEnded : 'battleEnded',
+	playerFirstTurn : 'playerFirstTurn',	// Special case raised on each player's first turn in order to tie chats to it
+
 	encounterDefeated : 'encounterDefeated',
 	encounterLost : 'encounterLost',		
 	assetUsed : 'assetUsed',				
@@ -182,8 +184,10 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.internalWrapperTick] : 'Duration ticks and trigger immediates',		// *, == || ==
 	[GameEvent.Types.internalWrapperStackChange] : 'Raised when a stack changes through an effect. Combine with add/tick. For now, sender/target correspond to the affected wrapper, not the person who raised the event',		// 
 	
-	[GameEvent.Types.battleStarted] : 'battleStarted',
-	[GameEvent.Types.battleEnded] : 'battleEnded',
+	[GameEvent.Types.battleStarted] : 'Battle has started. This event is raised by and against all players.',
+	[GameEvent.Types.battleEnded] : 'Battle has ended. This event is raised by and against all players.',
+	[GameEvent.Types.playerFirstTurn] : 'Player has started their first turn. Raised with sender being the player whose turn it is, and targets being all enabled enemies',
+
 	[GameEvent.Types.encounterDefeated] : 'encounter, Raised when the players defeat an encounter. Generally you want to attach a .quest to it with the quest checking a condition',			// 
 	[GameEvent.Types.encounterEnemyDefeated] : 'Raised for each defeated enemy in an encounter. Sender is the first player on the winning team, but should not be relied on. This event already checks that they were hostile.',			// 
 	[GameEvent.Types.encounterLost] : 'encounter, Same as encounterDefeated but players lost',					// 

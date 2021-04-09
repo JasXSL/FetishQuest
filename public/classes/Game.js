@@ -2012,12 +2012,13 @@ export default class Game extends Generic{
 			
 			// Battle just started, roll for initiative
 			let initiative = this.players.map(el => {
+
 				el.onBattleStart();
-				// For now, there's no speed stat
 				return {
 					p : el,
-					i : Math.random()
+					i : Math.random()+el.getPrimaryStats().agility*0.1
 				};
+
 			});
 
 			initiative.sort((a,b) => {
@@ -2129,7 +2130,6 @@ export default class Game extends Generic{
 	// Advances turn
 	advanceTurn(){
 
-
 		this.endTurnTimer();
 
 		const th = this;
@@ -2165,6 +2165,18 @@ export default class Game extends Generic{
 
 			this.ui.captureActionMessage = true;
 			npl.onTurnStart();
+			// Turns are added on turn end
+			if( !npl._turns ){
+
+				let evt = new GameEvent({
+					type : GameEvent.Types.playerFirstTurn,
+					sender : npl,
+					target : this.getPlayersNotOnTeam(npl.team),
+				});
+				evt.raise();
+				
+			}
+				
 			Wrapper.checkAllStayConditions();
 			this.ui.flushMessages();
 			

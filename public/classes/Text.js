@@ -605,10 +605,7 @@ Text.runFromLibrary = function( event, debug = false ){
 
 	game.lockPlayersAndRun(() => {
 		
-		let t = event.target;
-		if( !Array.isArray(t) )
-			t = [t];
-		t = t.slice();
+		let t = toArray(event.target).slice();
 
 		// Try to trigger a text on each player
 		while( t.length ){
@@ -645,9 +642,13 @@ Text.runFromLibrary = function( event, debug = false ){
 		}
 
 		// Emulate chat events on all players for these types
-		if( ~this.CheckAllPlayerChatEvents.indexOf(event.type) ){
+		if( this.CheckAllPlayerChatEvents.includes(event.type) || this.IndividualTargetsEvents.includes(event.type) ){
 			
-			const players = game.getEnabledPlayers();
+			const targetsOnly = this.IndividualTargetsEvents.includes(event.type);
+
+			// Players that should count as sender
+			const players = targetsOnly ? [event.sender] : game.getEnabledPlayers();
+			const targets = game.getEnabledPlayers();
 			const evt = event.clone();
 			evt.type = GameEvent.Types.textTrigger;
 			if( !evt.custom )
@@ -660,20 +661,22 @@ Text.runFromLibrary = function( event, debug = false ){
 				e.sender = player;
 				e.raise();
 
-				const pl = players.slice();
+				const pl = targets.slice();
 				shuffle(pl);
 				for( let t of pl ){
 
 					if( t === player )
 						continue;
+
 					e.target = t;
-
-
 					const text = this.getFromEvent(e);
 					if( text ){
+
 						text.run(e);
 						break;
+
 					}
+
 				}
 
 			}
@@ -701,6 +704,9 @@ Text.CheckAllPlayerChatEvents = [
 	GameEvent.Types.battleEnded,
 	GameEvent.Types.battleStarted,
 ];
-
+// Similar to above, but doesn't change the sender, only running with sender against each individual player until a working text is found
+Text.IndividualTargetsEvents = [
+	GameEvent.Types.playerFirstTurn
+];
 
 export default Text;

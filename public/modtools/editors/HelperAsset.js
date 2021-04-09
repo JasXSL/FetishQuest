@@ -590,6 +590,7 @@ export default{
 				// Returns true if the term validated
 				const findTermInEntry = (terms, entry) => {
 
+					terms = toArray(terms); 
 					// Validates all terms
 					for( let searchTerm of terms ){
 
@@ -610,8 +611,14 @@ export default{
 
 				};
 
+				// Find out how many fields we need, * is only counted if it's the only field
+				let minTerms = Object.keys(searchTerms).length;
+				if( minTerms > 1 && searchTerms['*'] )
+					--minTerms;
+
 				fulldb = win._searchResults = fulldb.filter(el => {
 
+					let fieldsFound = 0;
 					for( let i in fields ){
 
 						let fieldName = i;
@@ -635,8 +642,20 @@ export default{
 						let data = stringifyVal(fieldName, el);
 						const text = typeof data === 'string' ? data.toLowerCase() : String(data);
 
-						return findTermInEntry( texts, text );
+						// Wildcard found
+						if( findTermInEntry( texts, text ) ){
+
+							++fieldsFound;
+							// Found enough fields
+							if( fieldsFound >= minTerms )
+								return true;
+							continue;
+
+						}
+						/// {"chat":1,"conditions":"eventisbattlestarted"}
 					}
+
+					return false;
 
 				});
 

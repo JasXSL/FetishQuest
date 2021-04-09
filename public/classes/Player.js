@@ -912,7 +912,7 @@ export default class Player extends Generic{
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
-		this._last_chat = 0;
+		this._last_chat = -1;
 		this._turn_action_used = 0;
 
 		let actions = this.getActions();
@@ -2801,12 +2801,6 @@ export default class Player extends Generic{
 	canOptionalChat(){
 
 		let turnsSinceLastSpoke = this._turns-this._last_chat;
-		// On battle start this is needed
-		if( !this._turns && !this._last_chat )	// Use talkativity percentage on battle start
-			turnsSinceLastSpoke = 0.5;
-		else if( !this._turns && this._last_chat )		// Cap to one battle start message
-			return false;
-
 		return Math.random() < turnsSinceLastSpoke*this.talkative;
 
 	}

@@ -318,8 +318,8 @@ class Action extends Generic{
 	getCooldown(){
 		
 
-		if( typeof this.cooldown === "number" )
-			return this.cooldown;
+		if( !isNaN(this.cooldown) )
+			return +this.cooldown;
 
 		if( this._cache_cooldown === false ){
 
