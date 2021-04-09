@@ -166,18 +166,22 @@ export function asset(){
 			tags : [stdTag.penis, stdTag.vagina, stdTag.breasts, stdTag.plBigPenis, stdTag.plBigButt, stdTag.plBigBreasts],
 			assets : [
 				new Asset({name:'Breastplate', slots:[Asset.Slots.upperBody], equipped:true}),
-				new Asset({name:'Crotchplate', slots:[Asset.Slots.lowerBody], equipped:true}),
+				new Asset({name:'Ornate Crotchplate', slots:[Asset.Slots.lowerBody], equipped:true}),
 				new Asset({name:'Whip', slots:[Asset.Slots.hands], equipped:true}),
 			]
 		});
 		const victim = new Player({
 			name : 'Victim',
-			species : 'cat',
+			species : 'otter',
+			spre : 'an',
 			color : '#AFA',
+			he: 'he',
+			him: 'him',
+			his: 'his',
 			tags : [stdTag.penis, stdTag.vagina, stdTag.breasts, stdTag.plBigPenis, stdTag.plBigButt, stdTag.plBigBreasts],
 			assets : [
-				new Asset({name:'Leather Shirt', slots:[Asset.Slots.upperBody]}),
-				new Asset({name:'Leather Thong', slots:[Asset.Slots.lowerBody]}),
+				new Asset({name:'Leather Shirt', slots:[Asset.Slots.upperBody], equipped:true}),
+				new Asset({name:'Swimtrunks', snpre:'some', slots:[Asset.Slots.lowerBody], equipped:true}),
 				new Asset({name:'Whip', slots:[Asset.Slots.hands], equipped:true}),
 			]
 		});
@@ -186,7 +190,7 @@ export function asset(){
 		converted.text = textEditor.value.trim();
 		const out = converted.run( new GameEvent({
 			sender : attacker,
-			target : victim
+			target : [victim]
 		}), true );
 		
 		this.dom.querySelector("span.textPreview").innerHTML = stylizeText(out);
@@ -281,6 +285,28 @@ export function help(){
 	}
 	out += '</ul>';
 
+	out += '<h3>Modifiers:</h3>';
+	out += '<p>Some tags have additional modifiers you can use.</p>';
+	out += '<table>'+
+		'<tr>'+
+			'<th>Modifier</th>'+
+			'<th>Example</th>'+
+			'<th>Output</th>'+
+			'<th>Description</th>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>!</td>'+
+			'<td>%!The</td>'+
+			'<td>He</td>'+
+			'<td>Turns the first character uppercase.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>a</td>'+
+			'<td>%S is %SaRace wearing %SaClothUpper</td>'+
+			'<td>Jas is a lynx wearing an oversized hauberk.</td>'+
+			'<td>Adds the prefix defined with a species or asset followed by the asset name. Note that "some" will be removed entirely.</td>'+
+		'</tr>'+
+	'</table>';
 
 	out += '<h3>Enabled:</h3>'+
 		'<p>Unchecking makes this text not trigger.</p>';

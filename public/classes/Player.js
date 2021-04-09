@@ -31,6 +31,7 @@ export default class Player extends Generic{
 		this.afk = false;					// Treats this as a bot if true. Can be toggled by the netgame owner
 		this.name = "Adventurer";			// Name
 		this.species = "";
+		this.spre = "";						// A/AN for species
 		this.description = "";
 		this.icon = "";						// URL - Has to be HTTPS
 		this.icon_upperBody = "";			// == || ==
@@ -93,6 +94,12 @@ export default class Player extends Generic{
 													>= 0.6 + Judging = Able to set traps, triggering at the start of a battle
 													>= 0.8 = Now too smart for aggro, always picks targets carefully
 												*/
+		// Pronouns
+		this.he = '';
+		this.him = '';
+		this.his = '';
+		
+		
 		this.class = null;
 		this._stun_diminishing_returns = 0;		// Rounds you can't be stunned
 
@@ -180,6 +187,7 @@ export default class Player extends Generic{
 			tags : this.tags,
 			team : this.team,
 			species : this.species,
+			spre : this.spre,
 			description : this.description,
 			size : this.size,
 			level : this.level,
@@ -204,6 +212,9 @@ export default class Player extends Generic{
 			icon_upperBody : this.icon_upperBody,
 			power : this.power,
 			passives : Wrapper.saveThese(this.passives, full),
+			he : this.he,
+			him : this.him,
+			his : this.his,
 			generated : this.generated,	// Needed for playerMarkers in webgl
 
 		};
@@ -269,16 +280,19 @@ export default class Player extends Generic{
 
 	// Code that's run after the game has finished loading
 	initialize(){
+
 		// Apply constraints
 		this.addHP(0);
 		this.addMP(0);
 		this.addAP(0);
 		this.updateAutoWrappers();
 		this.addDefaultActions();
+		this.addTagSynonyms();
 		
 		if( game.is_host ){
 			this.rebindWrappers();
 		}
+
 	}
 
 	rebindWrappers(){
@@ -449,6 +463,14 @@ export default class Player extends Generic{
 		return vars;
 	}
 
+	getArticle(){
+		
+		if( this.spre )
+			return this.spre;
+		return 'aeiou'.includes(this.species.charAt(0).toLowerCase()) ? 'an' : 'a';
+
+	}
+
 	getName(){
 		let out = this.name;
 		return out;
@@ -609,6 +631,38 @@ export default class Player extends Generic{
 
 	// RP Tags
 
+	// Auto adds base tags like pl_penis if the player only has pl_big_penis etc
+	addTagSynonyms(){
+
+		
+		const tags = this.getTags();
+		const hasSynonymTag = ending => {
+			
+			for( let tag of tags ){
+				
+				if( tag.startsWith('pl_') && tag.endsWith('_'+ending) )
+					return true;
+
+			}
+
+		};
+		let synonyms = [
+			'penis',
+			'breasts'
+		];
+		for( let synonym of synonyms ){
+
+			if( hasSynonymTag(synonym) ){
+
+				const tn = 'pl_'+synonym;
+				if( !this.tags.includes(tn) )
+					this.tags.push(tn);
+
+			}
+		}
+
+	}
+
 	// Searches tags for pl_<prefix>_huge/big/small and returns a synonym
 	getSizeTag( prefix ){
 
@@ -764,6 +818,14 @@ export default class Player extends Generic{
 	}
 
 	getPronoun(pronoun){
+
+		if( pronoun === 'he' && this.he )
+			return this.he;
+		if( pronoun === 'him' && this.him )
+			return this.him;
+		if( pronoun === 'his' && this.his )
+			return this.his;
+
 		let out = 
 			(this.hasTag('pl_penis') ? 1 : 0) |
 			(this.hasTag('pl_vagina') ? 2 : 0) |

@@ -64,6 +64,39 @@ const SYNONYMS = [
 	["bulge","package"],
 	["stomach", "belly", "tummy"],
 ];
+/*
+const A_EXCEPTIONS = {
+	'a' : [
+		'unicorn',
+		'eukaryot',
+		'unite',
+		'unique',
+		'onesie',
+		'use',
+		'union',
+		'universit',
+		'unit',
+		'univers',
+		'uniform',
+		'utilit',
+		'urin',
+		'euphor',
+		'utopi',
+		'urethra',
+		'ewe',
+		'euphemis',
+		'usurp',
+		'usab',
+		'utensi',
+		'ukulele',
+		'unar',
+	],
+	'an' : [
+		'hour', 
+		'heir',
+		'honour',
+	]
+};*/
 
 class Text extends Generic{
 
@@ -174,6 +207,42 @@ class Text extends Generic{
 		return out;
 	}
 	
+	// Inputs is an array of objects {se : (str)search, re : (str/arr)replace}. Prefixes should not have percentage signs. They're automatically handled along with ! for uppercase
+	// If replace is an array or a function, it picks random elements for each one
+	textReplace( inputs = [], originalText = '' ){
+
+		const replaceCustom = (search, replace, uc = false) => {
+
+			let val = Array.isArray(replace) ? randElem(replace) : replace();
+			if( uc )
+				val = ucFirst(val, true);
+
+			return replace.replace(search, val);
+
+		};
+
+		for( let input of inputs ){
+
+			const search = input.se,
+				replace = input.re
+			;
+			if( Array.isArray(replace) || typeof replace === "function" ){
+
+				// A bit pricier since we can have multiple synonyms
+				while( originalText.includes('%'+search) )
+					originalText = replaceCustom('%'+search, replace);
+				while( originalText.includes('%!'+search) )
+					originalText = replaceCustom('%'+search, replace, true);
+				
+				continue;
+			}
+			originalText = originalText.replaceAll('%'+search, replace);
+			originalText = originalText.replaceAll('%!'+search, ucFirst(replace, true));
+
+		}
+		return originalText;
+
+	}
 
 	// Converts tags for a specific player
 	targetTextConversion( input, prefix, player, event ){
@@ -181,82 +250,125 @@ class Text extends Generic{
 		if( !player || player.constructor !== Player )
 			return input;
 
-		
-		input = input.split(prefix+'bsize').join(player.getBreastSizeTag());
-		input = input.split(prefix+'psize').join(player.getPenisSizeTag());
-		input = input.split(prefix+'rsize').join(player.getButtSizeTag());
-		
+		let replacements = [
+			{se:prefix+'bsize', re:player.getBreastSizeTag()},
+			{se:prefix+'psize', re:player.getPenisSizeTag()},
+			{se:prefix+'rsize', re:player.getButtSizeTag()},
+		];
 		
 		let synonyms = ['vagina', 'pussy', 'cunt'];
 		// Check if male here, otherwise we can reuse
 		if( player.hasTag(stdTag.penis) )
 			synonyms = ['penis', 'dong', 'cock', 'member'];
-		input = input.split(prefix+'genitals').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		replacements.push({
+			se: prefix+'genitals',
+			re: synonyms
+		});
 
 		// Clothes
-		let c = player.getEquippedAssetsBySlots([Asset.Slots.upperBody]);			
+		let c = player.getEquippedAssetsBySlots([Asset.Slots.upperBody]);		
+		let slotName = c.length ? c[0].getShortName().toLowerCase() : 'Outfit';
 		// If an item was just stripped in the event (usually Action use), you can use that one here
 		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperBody] )
 			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.upperBody]);
-		
-		input = input.split(prefix+'clothUpper').join(c.length ? c[0].getShortName().toLowerCase() : 'Outfit');
-		
+		replacements.push(
+			{se: prefix+'clothUpper', re: slotName},
+			{se: prefix+'aClothUpper', re: (c.length ? c[0].getArticle() : 'an') +' '+slotName}
+		);
+
 		// Same as above but lowerBody
 		c = player.getEquippedAssetsBySlots([Asset.Slots.lowerBody]);
+		slotName = c.length ? c[0].getShortName().toLowerCase() : 'Outfit';	
 		if( !c.length && event.wrapperReturn && event.wrapperReturn.armor_strips[player.id] && event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerBody] )
 			c.push(event.wrapperReturn.armor_strips[player.id][Asset.Slots.lowerBody]);
-		input = input.split(prefix+'clothLower').join(c.length ? c[0].getShortName().toLowerCase() : 'Outfit');
-		
-		c = player.getEquippedAssetsBySlots([Asset.Slots.head]);
-		input = input.split(prefix+'head').join(c.length ? c[0].getShortName().toLowerCase() : 'Headpiece');
+		replacements.push(
+			{se: prefix+'clothLower', re: slotName},
+			{se: prefix+'aClothLower', re: (c.length ? c[0].getArticle() : 'an') +' '+slotName}
+		);
 
 		c = player.getEquippedAssetsBySlots([Asset.Slots.hands]);
-		input = input.split(prefix+'gear').join(c.length ? c[0].getShortName().toLowerCase() : 'Gear');
+		slotName = c.length ? c[0].getShortName().toLowerCase() : 'gear';
+		replacements.push(
+			{se: prefix+'gear', re: slotName},
+			{se: prefix+'aGear', re: (c.length ? c[0].getArticle() : 'a')+' '+slotName},
+		);
 
-		input = input.split(prefix+'race').join(player.species ? player.species.toLowerCase() : 'combatant');
+		slotName = player.species ? player.species : 'combatant';
+		replacements.push(
+			{se: prefix+'race', re: slotName},
+			{se: prefix+'aRace', re: (player.spre && player.species ? player.spre : 'a')+' '+slotName},
+		);
 
 		synonyms = ['groin', 'crotch'];
-		input = input.split(prefix+'groin').join(synonyms[Math.floor(Math.random()*synonyms.length)]);
+		replacements.push({ se: prefix+'groin', re: synonyms });
 
 		let items = [];
 		if( event.wrapperReturn && event.wrapperReturn.steals[player.id] ){
 			
 			for( let item of event.wrapperReturn.steals[player.id] ){
+
 				let text = '';
 				if( item._stacks > 1 )
 					text += item._stacks+'x ';
 				items.push(text+item.getName());
+
 			}
 
 		}
-		input = input.split(prefix+'itemsStolenFrom').join(items.join(', '));
+		replacements.push({ se:prefix+'itemsStolenFrom', re: items.join(', ')});
 
 		let pronouns = ['he', 'him', 'his'];
 		for( let p of pronouns )
-			input = input.split(prefix+p).join(player.getPronoun(p));
+			replacements.push({ se: prefix+p, re: player.getPronoun(p) });
+
+		// Exec replacements
+		input = this.textReplace(replacements, input);
 
 		// needs to be last
-		input = input.split(prefix).join(player.getColoredName());
+		// Colored name doesn't use the textReplace because it should always be capitalized, and it adds pipes to the start and end
+		input = input.split('%'+prefix).join(player.getColoredName());
 
+		
 		return input;
 	}
 
 	// Takes replaces all occurences of a %synonym with a random one from synonyms 
 	// Only useful for direct synonyms. Not usable when the tag is not the synonym, like %leftright
 	_replaceArray(text, synonyms){
-		for( let synonym of synonyms ){
-			let esc = ("%"+synonym).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+
+		const repl = (synonym, uc) => {
+
+			let pre = '%';
+			if( uc )
+				pre = '%!';
+
+			let esc = (pre+synonym).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 			let spl = text.split(new RegExp('('+esc+')', 'g'));
 			for( let i in spl ){
+
 				let t = spl[i];
-				if( t.startsWith("%") ){
-					t = t.substring(1);
-					if( ~synonyms.indexOf(t) ){
-						spl[i] = randElem(synonyms);
+				if( t.startsWith(pre) ){
+
+					t = t.substring(pre.length);
+					if( synonyms.includes(t) ){
+
+						let synonym = randElem(synonyms);
+						if( uc )
+							synonym = ucFirst(synonym, true);
+						spl[i] = synonym;
+
 					}
+
 				}
+
 			}
 			text = spl.join('');
+
+		};
+
+		for( let synonym of synonyms ){
+			repl(synonym, true);
+			repl(synonym, false);
 		}
 		return text;
 	}
@@ -271,8 +383,16 @@ class Text extends Generic{
 
 		// Helper functions
 		let text = this.text;
-		text = text.split('%leftright').join(Math.random()<0.5 ? 'left' : 'right');
-		text = text.split('%frontback').join(Math.random()<0.5 ? 'front' : 'back');
+		text = this.textReplace([
+			// These two are picked ONCE per text
+			{se: 'leftright', re: (Math.random()<0.5 ? 'left' : 'right')},
+			{se: 'frontback', re: (Math.random()<0.5 ? 'front' : 'back')},
+			// These are picked each time it's used in text
+			{se: 'rleftright', re: ['left', 'right']},
+			{se: 'rfrontback', re: ['front', 'back']},
+		], text);
+		
+
 		for( let block of SYNONYMS )
 			text = this._replaceArray(text, block);
 			
@@ -283,7 +403,7 @@ class Text extends Generic{
 				t = [t];
 			for( let i = t.length-1; i>=0; --i ){
 
-				let prefix = '%T';
+				let prefix = 'T';
 				if( i )
 					prefix = prefix+(i+1);	// %T2, %T3 etc
 				text = this.targetTextConversion(text, prefix, t[i], event);
@@ -292,7 +412,7 @@ class Text extends Generic{
 				for( let tag of t[i]._turn_tags ){
 					let tText = tag.tag;
 					let tSender = tag.s;
-					text = this.targetTextConversion(text, "%R"+tText, tSender, event);
+					text = this.targetTextConversion(text, "R"+tText, tSender, event);
 				}
 
 				t[i]._turn_tags = [];
@@ -302,21 +422,21 @@ class Text extends Generic{
 
 		}
 		if( event.sender )
-			text = this.targetTextConversion(text, '%S', event.sender, event);
+			text = this.targetTextConversion(text, 'S', event.sender, event);
 
 		if( window.game && game.roleplay && game.roleplay._targetPlayer ){
 			
 			const rpPlayer = game.getPlayerById(game.roleplay._targetPlayer);
 			if( rpPlayer )
-				text = this.targetTextConversion(text, '%P', rpPlayer, event);
+				text = this.targetTextConversion(text, 'P', rpPlayer, event);
 
 		}
 
 		if( event.asset )
-			text = text.split('%asset').join(event.asset.name);
+			text = this.textReplace([{ se: 'asset', re: event.asset.name}], text);
 
 		if( event.action )
-			text = text.split('%action').join(event.action.getName());
+			text = this.textReplace([{ se: 'action', re: event.action.name}], text);
 
 		if( returnResult )
 			return text;

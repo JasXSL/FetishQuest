@@ -1071,7 +1071,11 @@ export default class StaticModal{
 
 						<form id="playerEditor">
 							<input type="text" name="name" placeholder="Player Name" style="font-size:2vmax" /><br />
-							<input type="text" name="species" placeholder="Species" /><br />
+							<input type="text" name="spre" placeholder="Article a/an/some" style="width:18%" />
+							<input type="text" name="species" placeholder="Species" style="width:80%" /><br />
+							<input type="text" name="he" placeholder="He pronoun" style="width:30%" />
+							<input type="text" name="him" placeholder="Him pronoun" style="width:30%" />
+							<input type="text" name="his" placeholder="His pronoun" style="width:30%" /><br />
 							<select name="class"></select><br />
 							Level:<br /><input type="number" name="level" min=1 step=1 /><br />
 							<div>Size:<br /><input type="range" name="size" min=0 max=10 step=1 /></div>
@@ -1151,6 +1155,10 @@ export default class StaticModal{
 					addAction : $('input.addAction', dDom),
 					form : $('#playerEditor', dDom),
 					formName : $('#playerEditor input[name=name]', dDom),
+					formSpre : $('#playerEditor input[name=spre]', dDom),
+					formHe : $('#playerEditor input[name=he]', dDom),
+					formHim : $('#playerEditor input[name=him]', dDom),
+					formHis : $('#playerEditor input[name=his]', dDom),
 					formSpecies : $('#playerEditor input[name=species]', dDom),
 					formClass : $('#playerEditor select[name=class]', dDom),
 					formLevel : $('#playerEditor input[name=level]', dDom),
@@ -1342,6 +1350,10 @@ export default class StaticModal{
 					// Form
 					dDivs.formName.val(player.name);
 					dDivs.formSpecies.val(player.species);
+					dDivs.formSpre.val(player.spre);
+					dDivs.formHe.val(player.he);
+					dDivs.formHim.val(player.him);
+					dDivs.formHis.val(player.his);
 					dDivs.formLevel.val(parseInt(player.level) || 1);
 					dDivs.formSize.val(parseInt(player.size) || 5);
 					dDivs.formDressed.val(player.icon);
@@ -1454,7 +1466,11 @@ export default class StaticModal{
 						event.preventDefault();
 						
 						player.name = dDivs.formName.val().trim();
-						player.species = dDivs.formSpecies.val().trim();
+						player.species = dDivs.formSpecies.val().trim().toLowerCase();
+						player.spre = dDivs.formSpre.val().trim().toLowerCase();
+						player.he = dDivs.formHe.val().trim().toLowerCase();
+						player.him = dDivs.formHim.val().trim().toLowerCase();
+						player.his = dDivs.formHis.val().trim().toLowerCase();
 						player.description = dDivs.formDescription.val().trim();
 						player.icon = dDivs.formDressed.val().trim();
 						player.icon_upperBody = dDivs.formUpperBody.val().trim();
@@ -1520,6 +1536,8 @@ export default class StaticModal{
 							player.onPlacedInWorld();
 
 						}
+
+						player.addTagSynonyms();
 			
 						game.save();
 						game.ui.draw();
@@ -2626,6 +2644,12 @@ export default class StaticModal{
 						pl.netgame_owner_name = 'DM';
 						pl.netgame_owner = 'DM';
 
+						pl.species = pl.species.toLowerCase();
+						pl.spre = 'a';
+						if( 
+							!['unicorn', 'ewe'].includes(pl.species) && 
+							'aeiou'.includes(pl.species.charAt(0)) 
+						)pl.spre = 'an';
 
 						Game.new(name, [pl]);
 						this.close( true );

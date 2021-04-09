@@ -39,6 +39,7 @@ export default class Asset extends Generic{
 		this.category = this.constructor.Categories.junk;
 		this.name = "";
 		this.shortname = "";
+		this.snpre = "";				// Whether A/AN/SOME should be prefixed before the shortname in ?definite? form. If not set, it tries to automatically assume a/an based on the initial character
 		this.description = "";
 		this.slots = [];
 		this.equipped = false;
@@ -117,7 +118,8 @@ export default class Asset extends Generic{
 			color_base : this.color_base,
 			color_tag : this.color_tag,
 			color_tag_base : this.color_tag_base,
-			hit_sound : this.hit_sound
+			hit_sound : this.hit_sound,
+			snpre : this.snpre, 
 		};
 
 
@@ -163,6 +165,19 @@ export default class Asset extends Generic{
 		if( !this.shortname )
 			return this.getName();
 		return this.shortname;
+	}
+
+	getArticle(){
+
+		if( this.snpre ){
+
+			if( this.snpre === 'some' )
+				return '';
+			return this.snpre;
+			
+		}
+		return 'aeiou'.includes(this.shortname.charAt(0).toLowerCase()) ? 'an' : 'a';
+
 	}
 
 	// Makes sure targets are setup properly for wrappers

@@ -29,7 +29,12 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
+		html += '<label title="Sets a/an. Leave empty to auto generate. Only needed for words like unicorn because the u sounds like a consonant">Species article: <input type="text" name="spre" class="saveable" value="'+esc(dummy.spre)+'" /></label>';
 		html += '<label>Species: <input type="text" name="species" class="saveable" value="'+esc(dummy.species)+'" /></label>';
+		html += '<label title="Leave empty to autogenerate">Pronoun he: <input name="he" value="'+esc(dummy.he)+'" type="text" class="saveable" style="width:3em" /></label>';
+		html += '<label title="Leave empty to autogenerate">Pronoun him: <input name="him" value="'+esc(dummy.him)+'" type="text" class="saveable" style="width:3em" /></label>';
+		html += '<label title="Leave empty to autogenerate">Pronoun his: <input name="his" value="'+esc(dummy.his)+'" type="text" class="saveable" style="width:3em" /></label>';
+		
 		html += '<label>Image Dressed: <input type="text" name="icon" class="saveable" value="'+esc(dummy.icon)+'" /></label>';
 		html += '<label>Image Upper Body Armor: <input type="text" name="icon_upperBody" class="saveable" value="'+esc(dummy.icon_upperBody)+'" /></label>';
 		html += '<label>Image Lower Body Armor: <input type="text" name="icon_lowerBody" class="saveable" value="'+esc(dummy.icon_lowerBody)+'" /></label>';

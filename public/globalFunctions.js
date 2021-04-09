@@ -21,7 +21,9 @@ function shuffle(a){
 	}
 	return a;
 }
-function ucFirst(a){
+function ucFirst(a, single = false){
+	if( single )
+		return String(a).charAt(0).toUpperCase()+String(a).substring(1);
 	return String(a).split(' ').map(el => el.substr(0,1).toUpperCase()+el.substr(1)).join(' ');
 }
 

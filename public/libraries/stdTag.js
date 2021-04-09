@@ -36,6 +36,7 @@ export default {
 	plElectric : "pl_electric",
 	plClaws : 'pl_claws',
 	plTongue : 'pl_tongue',
+	plNose : 'pl_nose',
 	plEel : 'pl_eel',
 	plFeathers : 'pl_feathers',
 	plBeak : 'pl_beak',
@@ -43,11 +44,28 @@ export default {
 	plSlimy : 'pl_slimy',
 	plWorm : 'pl_worm',
 	plLeech : 'pl_leech',
+	plRodent : 'pl_rodent',
+	plLagomorph : 'pl_lagomorph',
+	
 
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',
-
+	plRattani : 'pl_rattani',
 	plIgnoreAggro : 'pl_ignore_aggro',		// make a player only attack randomly 
+
+	plFeline : 'pl_feline',					// Cats
+	plCanine : 'pl_canine',					// Wolves too for ease of use
+	plVulpine : 'pl_vulpine',				// Foxes
+	plMustelid : 'pl_mustelid',				// Weasels, otters go in here too
+	plEquine : 'pl_equine',					// Horses, zebras etc
+	plBovine : 'pl_bovine',					// Cows and such
+	plAvian : 'pl_avian',					// Birbs
+	plUrsine : 'pl_ursine',					// Bears
+	plCervine : 'pl_cervine',				// Deer
+	plSuine : 'pl_suine',					// pig basically
+	plRodent : 'pl_rodent',					// Guinea pigs, hamsters etc go here too
+	
+
 
 
 
