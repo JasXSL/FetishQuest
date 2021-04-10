@@ -66,9 +66,6 @@ export default {
 	plRodent : 'pl_rodent',					// Guinea pigs, hamsters etc go here too
 	
 
-
-
-
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal

@@ -17,6 +17,7 @@ import PlayerTemplate from './templates/PlayerTemplate.js';
 import StaticModal from './StaticModal.js';
 import Encounter from './Encounter.js';
 import { Wrapper } from './EffectSys.js';
+import Collection from './helpers/Collection.js';
 
 export default class GameAction extends Generic{
 
@@ -27,7 +28,7 @@ export default class GameAction extends Generic{
 		this.label = '';
 		this.desc = '';
 		this.type = GameAction.types.door;
-		this.data = null;
+		this.data = new Collection({}, this);
 		this.conditions = [];
 
 		this.load(data);
@@ -41,49 +42,21 @@ export default class GameAction extends Generic{
 			conditions : Condition.saveThese(this.conditions, full)
 		};
 
+		if( full || GameAction.typesToSendOnline[this.type] ){
+			
+			out.data = full === 'mod' ? this.data : this.data.save(full);
+
+		}
 
 		if( full === "mod" ){
 			out.label = this.label;
 			out.desc = this.desc;
 			this.g_sanitizeDefaults(out);
 		}
-		if( full || GameAction.typesToSendOnline[this.type] ){
-			out.data = this.flattenData(full);
-		}
+		
+
 
 		return out;
-	}
-
-	flattenData( full ){
-
-		const data = this.data;
-		if( data === null || typeof data !== "object" )
-			return {};
-		if( typeof data.save === "function" )
-			return data.save(full);
-
-		const flatten = function(input){
-			
-			let out = {};
-			if( Array.isArray(input) )
-				out = [];
-
-			for( let i in input ){
-
-				out[i] = input[i];
-				if( input[i] && typeof input[i].save === "function" )
-					out[i] = input[i].save(full);
-				else if( typeof input[i] === "object" )
-					out[i] = flatten(input[i]);
-
-			}
-
-			return out;
-		}
-
-		const out = flatten(data);
-		return out;
-
 	}
 
 
@@ -98,6 +71,12 @@ export default class GameAction extends Generic{
 	}
 
 	load( data ){
+		// Workaround for changed saving
+		// Todo: go through the existing assets and convert them in the editor to the correct format
+		if( data && data.type === GameAction.types.encounters && Array.isArray(data.data) )
+			data.data = {encounter : data.data};
+		if( data && data.type === GameAction.types.wrappers && Array.isArray(data.data) )
+			data.data = {wrappers : data.data};
 
 		this.g_autoload(data);
 
@@ -111,13 +90,7 @@ export default class GameAction extends Generic{
 		this.conditions = Condition.loadThese(this.conditions);
 
 		// make sure data is escaped
-		if( typeof this.data === "object" ){
-			for( let i in this.data ){
-				if( this.data[i] && this.data[i].save ){
-					this.data[i] = this.data[i].save(true);
-				}
-			}
-		}
+		this.data = Collection.loadThis(this.data);
 
 		if( window.game ){
 			
@@ -125,23 +98,22 @@ export default class GameAction extends Generic{
 			// Loot is needed in netcode
 			if( this.type === GameAction.types.loot ){
 				
-				if( typeof this.data !== "object" || this.data === null )
-					console.error("Trying to load non-object to loot type in interaction:", this);
-
 				// Looks like this after being put in world
-				if( Array.isArray(this.data) )
-					this.data = Asset.loadThese(this.data);
-				// Looks like this as a template
-				else
-					this.data.loot = Asset.loadThese(this.data.loot);
-				
+				if( Array.isArray(this.data.genLoot) ){
+					this.data.genLoot = Asset.loadThese(this.data.genLoot, this);
+				}
+				// Looks like this is a template
+				else{
+					this.data.loot = Asset.loadThese(this.data.loot, this);
+				}
 			}
 
 			// Encounters are needed by netcode
 			if( this.type === GameAction.types.encounters && game.is_host ){
-				if( !Array.isArray(this.data) )
+
+				if( !Array.isArray(this.data.encounter) )
 					console.error("Trying to load non-array to encounter type in interaction:", this);
-				this.data = Encounter.loadThese(this.data);
+				this.data.encounter = Encounter.loadThese(this.data.encounter, this);
 			}
 
 			// RP is needed in netcode
@@ -163,20 +135,6 @@ export default class GameAction extends Generic{
 			
 
 			
-
-
-			/*
-			These shouldn't be needed because they're not needed by netcode
-			if( this.type === GameAction.types.learnAction )
-				this.data.conditions = Condition.loadThese(this.data.conditions);
-			if( this.type === GameAction.types.addPlayer )
-				this.data.player = this.getDataAsPlayer();
-			if( this.type === GameAction.types.addPlayerTemplate )
-				this.data.player = this.getDataAsPlayerTemplate();
-			if( this.type === GameAction.types.text )
-				this.data.text = this.getDataAsText();
-			*/
-
 		}
 
 
@@ -188,6 +146,7 @@ export default class GameAction extends Generic{
 
 		if( !this.data )
 			console.error("Data is missing from", this);
+
 
 		if( this.type === this.constructor.types.loot && !Array.isArray(this.data) ){
 
@@ -208,13 +167,19 @@ export default class GameAction extends Generic{
 
 
 			const out = [];
-			for( let i =0; i<numItems && loot.length; ++i ){
+			for( let i =0; i<numItems && loot.length; ++i )
+			{
 				let n = Math.floor(Math.random()*loot.length);
 				const asset = Asset.convertDummy(loot.splice(n, 1).shift(), this);
 				asset.g_resetID();
 				out.push(asset);
+
 			}
-			this.data = out;
+
+			this.data = new Collection({
+				genLoot : out
+			}, this);
+			
 
 		}
 		else if( this.type === this.constructor.types.autoLoot ){
@@ -224,7 +189,7 @@ export default class GameAction extends Generic{
 			const dungeon = this.getDungeon();
 
 			this.type = this.constructor.types.loot;
-			this.data = [];
+			this.data = new Collection({genLoot : []}, this);
 			this.g_resetID();	// needed for netcode to work
 
 			let money = 0;
@@ -244,7 +209,7 @@ export default class GameAction extends Generic{
 					Math.floor((value-0.5)*2*Asset.Rarity.LEGENDARY), // Min rarity
 				);
 				if( loot )
-					this.data.push(loot);
+					this.data.genLoot.push(loot);
 					
 			}
 
@@ -257,7 +222,7 @@ export default class GameAction extends Generic{
 				if( !consumable )
 					break;
 				consumable.g_resetID();
-				this.data.push(consumable.clone(this.parent));
+				this.data.genLoot.push(consumable.clone(this.parent));
 				++consumablesAdded;
 			}
 			
@@ -269,7 +234,7 @@ export default class GameAction extends Generic{
 						continue;
 					const asset = glib.get(Player.currencyWeights[i], 'Asset');
 					asset._stacks = split[i];
-					this.data.push(asset);
+					this.data.genLoot.push(asset);
 				}
 			}
 
@@ -277,9 +242,10 @@ export default class GameAction extends Generic{
 
 				let assets = Player.copperToAssets(money);
 				for( let asset of assets )
-					this.data.push(asset);
+					this.data.genLoot.push(asset);
 
 			}
+
 
 		}
 		else
@@ -308,6 +274,10 @@ export default class GameAction extends Generic{
 	}
 
 	getDataAsShop(){
+
+		if( this.data.shop instanceof Shop )
+			return this.data.shop;
+
 		let shop = Shop.loadThis(this.data.shop, this);
 		if( typeof shop !== "object" ){
 			console.error("Error, ", this.data.shop, "is not a valid shop in", this);
@@ -371,7 +341,8 @@ export default class GameAction extends Generic{
 
 		if( this.type === types.encounters ){
 
-			game.mergeEncounter(player, Encounter.getRandomViable(Encounter.loadThese(this.data)), mesh);
+			const encounter = Encounter.getRandomViable(Encounter.loadThese(this.data.encounter));
+			game.mergeEncounter(player, encounter, mesh);
 			this.remove();	// Prevent it from restarting
 			asset.updateInteractivity();	// After removing the action, update interactivity
 
@@ -763,7 +734,7 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.wrappers ){
 
-			const wrappers = Wrapper.loadThese(this.data);
+			const wrappers = Wrapper.loadThese(this.data.wrappers);
 			for( let wrapper of wrappers )
 				wrapper.useAgainst( player, player );
 
@@ -872,10 +843,10 @@ GameAction.types = {
 };
 
 GameAction.TypeDescs = {
-	[GameAction.types.encounters] : "(arr)encounters - Picks a random encounter to start",
+	[GameAction.types.encounters] : "{encounter:(arr)encounters} - Picks a random encounter to start",
 	[GameAction.types.resetEncounter] : "{encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one",
-	[GameAction.types.wrappers] : "(arr)wrappers - Triggers all viable wrappers",
-	[GameAction.types.loot] : "{loot:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: [asset, asset, asset...] - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
+	[GameAction.types.wrappers] : "{wrappers:(arr)wrappers} - Triggers all viable wrappers",
+	[GameAction.types.loot] : "{loot:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: {genLoot:[asset, asset, asset...]} - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
 	[GameAction.types.autoLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
 	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
 	[GameAction.types.exit] : "{dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}",

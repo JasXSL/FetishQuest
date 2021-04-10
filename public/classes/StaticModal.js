@@ -1772,7 +1772,8 @@ export default class StaticModal{
 				};
 				let newDivs = [];
 				let availableAssets = 0;
-				for( let item of this.shop.items ){
+				const items = this.shop.getItems();
+				for( let item of items ){
 
 					const cost = item.getCost();
 					const asset = item.getAsset();

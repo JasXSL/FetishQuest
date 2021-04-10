@@ -858,6 +858,8 @@ class WebGL{
 		
 		this.dungeonGroup.add(this.stage.group);
 		/* Can put stuff here to do when the loading is finished */
+
+		this.updatePlayerMarkers();
 	
 		this.pruneCache();	// Prune after a load
 
@@ -1266,7 +1268,7 @@ class WebGL{
 
 				// No free generic markers, skip this. Maybe later add an error for the developer?
 				if( !generics.length ){
-					console.error("No generics free");
+					console.error("No generics free for", player);
 					continue;
 				}
 
@@ -1777,7 +1779,8 @@ class Stage{
 			this.parent.toggleOutdoors(false);
 		this.parent.updateWeather();
 
-		this.parent.updatePlayerMarkers();
+		// Should be handled by Dungeon since players won't be updated until after the room has loaded
+		//this.parent.updatePlayerMarkers();
 
 	}
 

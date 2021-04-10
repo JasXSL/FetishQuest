@@ -6,6 +6,7 @@ import Asset from './Asset.js';
 import Condition from './Condition.js';
 import GameEvent from './GameEvent.js';
 import Player from './Player.js';
+import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 
 export default class Shop extends Generic{
 
@@ -17,6 +18,15 @@ export default class Shop extends Generic{
 		this.name = '';
 		this.items = [];				// ShopAsset
 		this.conditions = [];
+
+		this.gen_nr = 0;				// Amount of generated assets to add
+		this.gen_rarity_min = Asset.Rarity.UNCOMMON;
+		this.gen_assets = [];			// Asset templates
+		this.gen_mats = [];				// Material templates
+		
+		this._time_generated = 0;		// Time loot was auto generated
+		this._generated_assets = [];	// Custom generated gear
+
 		this.buys = true;
 
 		this.load(data);
@@ -31,7 +41,17 @@ export default class Shop extends Generic{
 			items : ShopAsset.saveThese(this.items, full),
 			conditions : Condition.saveThese(this.conditions, full),
 			buys : this.buys,
+			_generated_assets : ShopAsset.saveThese(this._generated_assets, full),
 		};
+
+		if( full ){
+			
+			out.gen_nr = this.gen_nr;
+			out.gen_rarity_min = this.gen_rarity_min;
+			out.gen_assets = this.gen_assets;
+			out.gen_mats = this.gen_mats;
+			
+		}
 
 		if( full !== "mod" ){}
 		else
@@ -47,32 +67,95 @@ export default class Shop extends Generic{
 
 	rebase(){
 		this.items = ShopAsset.loadThese(this.items, this);
-		this.conditions = Condition.loadThese(this.conditions);
+		this.conditions = Condition.loadThese(this.conditions, this);
+		this._generated_assets = ShopAsset.loadThese(this._generated_assets, this);
 	}
 
 	getItemById( id ){
-		for( let item of this.items ){
+
+		const items = this.getItems();
+		for( let item of items ){
 			if( item.id === id )
 				return item;
 		}
+
+	}
+
+	generateItems(){
+
+		// Todo: enable
+		this._time_generated = game.time;
+		
+		this._generated_assets = [];
+		for( let i = 0; i < this.gen_nr; ++i ){
+
+			const asset = Asset.generate(
+				undefined, // Slot
+				undefined, 
+				this.gen_assets, 
+				this.gen_mats, 
+				undefined, 
+				this.gen_rarity_min
+			);
+
+			console.log("Gen", asset);
+			if( !asset )
+				continue;
+
+			const id = Generic.generateUUID();
+			const add = new ShopAsset({
+				id : id,
+				label : id,
+				amount : 1,
+				restock_rate : 0,
+				asset : asset,
+			}, this);
+
+			
+			this._generated_assets.push(add);
+
+		}
+
 	}
 
 	loadState(){
 
-		const data = game.state_shops[this.label];
-		if( !(data instanceof ShopSaveState) )
+		if( !game.is_host )
 			return;
-		
+
 		let needSave = false;	// If we need to save state due to an item being restocked
-		const items = data.items.slice();
-		for( let item of items ){
-			const cur = this.getItemById(item.id);
-			if( !cur )
-				data.items.splice(data.items.indexOf(item));
-			else{
-				if( cur.loadState(item) )
-					needSave = true;
+		const data = game.state_shops[this.label];
+
+		this._generated_assets = [];
+		this._time_generated = 0;
+
+		if( data instanceof ShopSaveState ){
+			
+			const items = data.items.slice();
+			for( let item of items ){
+
+				const cur = this.getItemById(item.id);
+				if( !cur )
+					data.items.splice(data.items.indexOf(item));
+				else{
+					if( cur.loadState(item) )
+						needSave = true;
+				}
+
 			}
+
+			this._time_generated = data.time_generated;
+			this._generated_assets = ShopAsset.loadThese(data.generated_assets, this);
+
+		}
+
+		
+		// Restock every 3 days
+		if( this.gen_nr && (!this._time_generated || game.time-this._time_generated > 260000) ){	// Every 3 days
+
+			this.generateItems();
+			needSave = true;
+
 		}
 
 		if( needSave )
@@ -81,11 +164,16 @@ export default class Shop extends Generic{
 	}
 
 	saveState(){
+		if( !game.is_host )
+			return;
 		return new ShopSaveState({
+			time_generated : this._time_generated,
+			generated_assets : ShopAsset.saveThese(this._generated_assets, this),
 			items : this.items.map(el => el.saveState())
 		});
 	}
-	
+
+
 	isAvailable(player){
 		return Condition.all(this.conditions, new GameEvent({
 			sender : player,
@@ -107,6 +195,10 @@ export default class Shop extends Generic{
 
 	}
 
+	getItems(){
+		return this.items.concat(this._generated_assets);
+	}
+
 }
 
 export class ShopSaveState extends Generic{
@@ -114,31 +206,58 @@ export class ShopSaveState extends Generic{
 		super();
 
 		this.parent = parent;
-		this.items = [];
+		this.items = [];				// SaveStates
+		this.generated_assets = [];		// Actual assets (since they're generated on the fly)
+		this.time_generated = 0;
 		
 		this.load(data);
 	}
 
 	save( full ){
+
 		const out = {
-			items : ShopAssetSaveState.saveThese(this.items)
+			items : ShopAssetSaveState.saveThese(this.items, full),
+			generated_assets : ShopAsset.saveThese(this.generated_assets),
+			time_generated : this.time_generated
 		};
 		return out;
+		
 	}
 
 	load( data ){
 		this.g_autoload(data);
 	}
 
+	unsetAsset( asset ){
+
+		if( asset instanceof ShopAsset )
+			asset = asset.id;
+
+		for( let i = 0; i < this.items.length; ++i ){
+
+			if( this.items[i].id === asset ){
+
+				this.items.splice(i, 1);
+				return true;
+
+			}
+
+		}
+
+	}
+
 	getItemById( id ){
+		
 		for( let item of this.items ){
 			if( item.id === id )
 				return item;
 		}
+
 	}
 
 	rebase(){
 		this.items = ShopAssetSaveState.loadThese(this.items, this);
+		this.generated_assets = ShopAsset.loadThese(this.generated_assets, this);
 	}
 }
 
@@ -179,7 +298,9 @@ export class ShopAsset extends Generic{
 		};
 
 
-		if( full !== "mod" ){}
+		if( full !== "mod" ){
+			out._amount_bought = this._amount_bought;
+		}
 		else{
 			out.label = this.label;
 			this.g_sanitizeDefaults(out);
@@ -241,20 +362,27 @@ export class ShopAsset extends Generic{
 	}
 
 	saveState(){
-		return new ShopAssetSaveState({
+
+		const out = new ShopAssetSaveState({
 			id : this.id,
 			_amount_bought : this._amount_bought,
-			_time_bought : this._time_bought
+			_time_bought : this._time_bought,
 		});
+		return out;
+
 	}
 
 	onPurchase( amount ){
+
 		amount = parseInt(amount);
 		if( isNaN(amount) || amount < 1 )
 			return;
 		this._amount_bought += amount;
 		if( !this._time_bought )
 			this._time_bought = game.time;
+
+		console.log("Bought", this, this._amount_bought);
+
 	}
 
 	affordableByPlayer( player, amount = 1 ){
@@ -334,7 +462,6 @@ class ShopAssetSaveState extends Generic{
 		this.id = '';
 		this._amount_bought = 0;
 		this._time_bought = 0;
-
 		
 		this.load(data);
 	}

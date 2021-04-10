@@ -858,6 +858,8 @@ class NetworkManager{
 		// Load the full game
 		if( task === NetworkManager.dmTasks.sendFullGame ){
 			
+			if( this.debug )
+				console.debug("FULL GAME", JSON.parse(JSON.stringify(args)));
 			//game.ui.destructor();
 			game.load(args);
 			game.renderer.loadActiveDungeon();
@@ -1079,7 +1081,8 @@ class NetworkManager{
 		if( typeof data !== "object" )
 			return;
 
-		//console.debug("Got game data", data);
+		if( this.debug )
+			console.debug("Got game data", data);
 
 		if( this.debug )
 			console.debug("Game update received", data);

@@ -211,13 +211,13 @@ class Text extends Generic{
 	// If replace is an array or a function, it picks random elements for each one
 	textReplace( inputs = [], originalText = '' ){
 
-		const replaceCustom = (search, replace, uc = false) => {
+		const replaceCustom = (text, search, replace, uc = false) => {
 
 			let val = Array.isArray(replace) ? randElem(replace) : replace();
 			if( uc )
 				val = ucFirst(val, true);
 
-			return replace.replace(search, val);
+			return text.replace(search, val);
 
 		};
 
@@ -230,9 +230,9 @@ class Text extends Generic{
 
 				// A bit pricier since we can have multiple synonyms
 				while( originalText.includes('%'+search) )
-					originalText = replaceCustom('%'+search, replace);
+					originalText = replaceCustom(originalText, '%'+search, replace);
 				while( originalText.includes('%!'+search) )
-					originalText = replaceCustom('%'+search, replace, true);
+					originalText = replaceCustom(originalText, '%'+search, replace, true);
 				
 				continue;
 			}

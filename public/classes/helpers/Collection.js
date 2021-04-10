@@ -32,10 +32,27 @@ export default class Collection{
 			data = {};
 
 		for( let i in data ){
+
 			if( data[i] === '__DEL__')
 				delete this[i];
-			else
+			else{
+
+				// A netgame player needs to load over existing
+				if( window.game && !game.is_host ){
+
+					if( this[i] && typeof this[i].load === "function" ){
+						
+						this[i].load(data[i], this);	// "this" might not lead to correct parenting here
+						continue;
+						
+					}
+
+				}
+				
 				this[i] = data[i];
+
+			}
+
 		}
 
 	}
@@ -52,6 +69,7 @@ export default class Collection{
 	}
 
 	flatten( obj, full = false ){
+
 		if( obj === undefined )
 			obj = this;
 
@@ -63,13 +81,16 @@ export default class Collection{
 		let out = {};
 		if( Array.isArray(obj) )
 			out = [];
+
 		for( let i in obj ){
 			if( typeof obj[i] === "object" )
 				out[i] = this.flatten(obj[i], full);
 			else
 				out[i] = obj[i];
 		}
+
 		return out;
+
 	}
 
 	save(full){

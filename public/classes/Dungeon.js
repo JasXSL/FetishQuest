@@ -1589,22 +1589,26 @@ class DungeonRoomAsset extends Generic{
 
 	// returns loot that can be accessed
 	getLootableAssets(){
+
 		const viable = this.getViableInteractions();
 		let out = [];
 		for( let v of viable ){
 			if( v.type === GameAction.types.loot )
-				out = out.concat(v.data);
+				out = out.concat(v.data.genLoot);
 		}
 		return out.map(el => new Asset(el, this));
+
 	}
 
 	getLootById( id ){
+
 		const lootable = this.getLootableAssets();
 		for( let item of lootable ){
 			if( item.id === id )
 				return new Asset(item, this);
 		}
 		return false;
+
 	}
 
 	remLootById( id ){
@@ -1614,12 +1618,12 @@ class DungeonRoomAsset extends Generic{
 			
 			if( v.type === GameAction.types.loot ){
 
-				for( let i in v.data ){
+				for( let i in v.data.genLoot ){
 
-					if( v.data[i].id === id ){
+					if( v.data.genLoot[i].id === id ){
 
-						v.data.splice(i, 1);
-						if( !v.data.length )
+						v.data.genLoot.splice(i, 1);
+						if( !v.data.genLoot.length )
 							v.remove();
 						return true;
 

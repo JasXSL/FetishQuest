@@ -101,13 +101,18 @@ export function asset(){
 	}
 	else if( type === Types.encounters ){
 
-		if( !Array.isArray(asset.data) )
-			asset.data = [];
+		// Converts legacy encounters
+		if( Array.isArray(asset.data) )
+			asset.data = {encounter:asset.data};
+		
+		if( !asset.data )
+			asset.data = {encounter:[]};
+		
 			
 		html += 'Encounters: <div class="encounters"></div>';
 
 		fnBind = () => {
-			this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "data", false));
+			this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "data::encounter", false));
 		};
 
 	}
@@ -127,13 +132,17 @@ export function asset(){
 	}
 	else if( type === Types.wrappers ){
 
-		if( !Array.isArray(asset.data) )
-			asset.data = [];
+		// Converts legacy wrappers
+		if( Array.isArray(asset.data) )
+			asset.data = {wrappers:asset.data};
+
+		if( !asset.data )
+			asset.data = {wrappers:[]};
 
 		html += 'Wrappers: <div class="wrappers"></div>';
 
 		fnBind = () => {
-			this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "data", false));
+			this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "data::wrappers", false));
 		};
 
 	}
@@ -770,7 +779,7 @@ export function asset(){
 
 	// Describe what the json editor data should look like
 	this.dom.querySelector("select[name=type]").addEventListener("change", event => {
-		asset.data = false;
+		asset.data = {};
 		asset.type = event.currentTarget.value;
 		this.rebuild();
 		HelperAsset.rebuildAssetLists(DB);

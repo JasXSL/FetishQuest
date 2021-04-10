@@ -167,23 +167,24 @@ export default class Game extends Generic{
 			roleplay : this.roleplay.save(full),
 			completed_quests : this.completed_quests.save(),	// A shallow clone is enough
 			time : this.time,
-			state_shops : this.state_shops.save(full),
 			rain : this.rain,
 			factions : Faction.saveThese(this.factions, full),
 			proceduralDiscovery : this.proceduralDiscovery.save(full)
 		};
 
-		out.state_dungeons = this.state_dungeons.save(full);
-		out.state_roleplays = this.state_roleplays.save();
+		
 
 		
 		if( full ){
+			out.state_shops = this.state_shops.save(full);
 			out.libAsset = {};
 			out.rain_next_refresh = this.rain_next_refresh;
 			out.rain_start_val = this.rain_start_val;
 			out.rain_started = this.rain_started;
 			out.difficulty = this.difficulty;
 			out.procedural = Dungeon.saveThese(this.procedural, full);
+			out.state_dungeons = this.state_dungeons.save(full);
+			out.state_roleplays = this.state_roleplays.save();
 
 			Object.values(this.libAsset).map(el => out.libAsset[el.label] = el.save(full));
 			out.name = this.name;
@@ -342,10 +343,17 @@ export default class Game extends Generic{
 	// Automatically invoked after g_autoload() in load()
 	rebase(){
 
+		// States need priority in the load order
+		
 		this.state_dungeons = Collection.loadThis(this.state_dungeons);
 		for( let i in this.state_dungeons ){
 			this.state_dungeons[i] = new DungeonSaveState(this.state_dungeons[i]);
 		}
+		
+		// shops have 3 layers of recursive collections
+		this.state_shops = Collection.loadThis(this.state_shops);
+		for( let i in this.state_shops )
+			this.state_shops[i] = ShopSaveState.loadThis(this.state_shops[i], this);
 		
 		this.quests = Quest.loadThese(this.quests, this);		
 		this.dungeon = new Dungeon(this.dungeon, this);
@@ -355,10 +363,7 @@ export default class Game extends Generic{
 		this.completed_quests = Collection.loadThis(this.completed_quests);
 		this.factions = Faction.loadThese(this.factions);
 		
-		// shops have 3 layers of recursive collections
-		this.state_shops = Collection.loadThis(this.state_shops);
-		for( let i in this.state_shops )
-			this.state_shops[i] = new ShopSaveState(this.state_shops[i], this);
+		
 		
 
 		this.state_roleplays = Collection.loadThis(this.state_roleplays);

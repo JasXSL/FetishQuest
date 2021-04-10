@@ -105,7 +105,8 @@ export default class Generic{
 		if( typeof to === "object" ){
 
 			if( typeof from !== "object" ){
-				console.error("Trying to typecast object '"+ident+"', from", from, "to", to, "in", this);
+				if( from !== undefined )
+					console.error("Trying to typecast object '"+ident+"', from", from, "to", to, "in", this);
 				return {};
 			}
 
@@ -114,11 +115,13 @@ export default class Generic{
 				to.load(from);
 				return to;
 			}
+
 			
 			// Overwrite
 			let out = {};
 			for( let i in from )
 				out[i] = from[i];
+
 			return out;
 		}
 
