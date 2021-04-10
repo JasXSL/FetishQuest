@@ -548,6 +548,12 @@ class Text extends Generic{
 		if( debug )
 			console.debug("Validating", this, "against", event);
 
+		if( this.chat && (!event.sender || !event.sender.isNPC()) ){
+			if( debug )
+				console.debug("FAIL because only NPC can speak");
+			return false;
+		}
+
 		if( this._cache_action && !this.testAliases(event) ){
 			if( debug )
 				console.debug("FAIL because this._cache_action");
@@ -775,6 +781,8 @@ Text.runFromLibrary = function( event, debug = false ){
 				evt.custom = {};
 			evt.custom.original = event.clone();
 			
+			
+
 			for( let player of players ){
 
 				const e = evt.clone();

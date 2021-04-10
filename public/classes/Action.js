@@ -194,7 +194,9 @@ class Action extends Generic{
 		const en = game.getEnabledPlayers(),
 			evt = new GameEvent({
 				sender : pp,
-				action : this
+				action : this,
+				dungeon : game.dungeon,
+				room : game.dungeon.getActiveRoom(),
 			});
 		for( let player of en ){
 			

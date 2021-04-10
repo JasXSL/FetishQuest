@@ -24,6 +24,7 @@ import libMesh from '../libraries/meshes.js';
 import stdTag from '../libraries/stdTag.js';
 import Player from './Player.js';
 import { DungeonRoomAsset, DungeonRoomMarker } from './Dungeon.js';
+import Stats from '../ext/stats.module.js';
 
 window.g_THREE = THREE;
 
@@ -43,13 +44,15 @@ class WebGL{
 
 		const conf = {
 			aa : localStorage.aa === undefined ? true : Boolean(+localStorage.aa),
-			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows
+			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows,
+			fps : localStorage.fps === undefined ? false : Boolean(+localStorage.fps),
 		};
 		
 		this.events = [];		// Events that should be unbound
 
 		this.width = 1.0;		// vw
 		this.height = 1.0;		// vh
+		
 
 		// Optional event bindings
 		this.onRender = undefined;
@@ -91,6 +94,7 @@ class WebGL{
 
 		const pLight = new THREE.DirectionalLight();
 		this.fxScene.add(pLight);
+		pLight.name = 'pLight';
 		pLight.shadow.mapSize.width = pLight.shadow.mapSize.height = 1024;
 		pLight.lookAt(new THREE.Vector3());
 		pLight.position.z = 110;
@@ -120,6 +124,11 @@ class WebGL{
 
 		//const chelper = new THREE.CameraHelper(pLight.shadow.camera);
 		//this.fxScene.add(chelper);
+
+		this.stats = new Stats();
+		this.stats.showPanel(0);
+		document.body.appendChild(this.stats.dom);
+		this.toggleFPS(conf.fps);
 
 
 		this.renderer = new THREE.WebGLRenderer({
@@ -255,6 +264,7 @@ class WebGL{
 			this.scene.add(grid);
 		}
 		let light = new THREE.DirectionalLight(0xFFFFFF, 0.6);
+		light.name = 'light';
 		light.position.y = 1000;
 		light.position.z = 1000;
 		light.castShadow = true;
@@ -263,14 +273,12 @@ class WebGL{
 		this.scene.add(light);
 
 
-		this.lightningLight = new THREE.DirectionalLight(0xFFFFFF, 3.0);
-		this.lightningLight.castShadow = true;
-		this.lightningLight.shadow.mapSize.width = this.lightningLight.shadow.mapSize.height = 256;
-		this.lightningLight.position.z = this.lightningLight.position.x = -1000;
-		this.lightningLight.position.y = 1000;
+		this.lightningLight = new THREE.AmbientLight(0xFFFFFF, 3.0);
+		this.lightningLight.name = 'lightning';
 		this.lightningLight.visible = false;
 		this.scene.add(this.lightningLight);
 
+		/*
 		let helper = new THREE.DirectionalLightHelper(light, 1000);
 		//this.scene.add(helper);
 		this.dirLightHelper = helper;
@@ -286,7 +294,8 @@ class WebGL{
 		//Create a helper for the shadow camera (optional)
 		helper = new THREE.CameraHelper( light.shadow.camera );
 		//this.scene.add( helper );
-		
+		*/
+
 		let bg = new THREE.Mesh(new THREE.PlaneGeometry(10000,10000), new THREE.MeshStandardMaterial({color:0x222222}));
 		bg.rotation.x = -Math.PI/2;
 		bg.receiveShadow = true;
@@ -449,10 +458,14 @@ class WebGL{
 		}
 
 		this.sunSphere.position.copy( position );
-		this.dirLightHelper.update();
+		//this.dirLightHelper.update();
 
 		
 		
+	}
+
+	toggleFPS( on ){
+		this.stats.dom.classList.toggle('hidden', !on);
 	}
 
 	
@@ -688,8 +701,13 @@ class WebGL{
 
 	/* Main */
 	render(){
-		this.execRender();
+		
 		requestAnimationFrame( () => this.render() );
+
+		this.stats.begin();
+		this.execRender();
+		this.stats.end();
+
 	}
 
 	// Scene rendering function - This is where the magic happens
@@ -717,7 +735,7 @@ class WebGL{
 			this._last_rc = time;
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			
-			const meshes =  this.stage.group.children.concat(this.playerMarkers.filter(el => el));
+			const meshes = this.stage.group.children.concat(this.playerMarkers.filter(el => el));
 			let objCache = [];
 
 			let intersects = this.raycaster.intersectObjects( meshes, true )
@@ -782,10 +800,6 @@ class WebGL{
 
 		if( this.onRender )
 			this.onRender();
-
-		
-		
-		this.controls.update();
 
 		if( USE_FX && window.game )
 			this.composer.render();
@@ -1288,8 +1302,10 @@ class WebGL{
 
 		
 		// Hide unused markers
-		for( ; markerIndex < this.playerMarkers.length; ++markerIndex )
-			this.playerMarkers[markerIndex].visible = false;
+		for( ; markerIndex < this.playerMarkers.length; ++markerIndex ){
+			if( this.playerMarkers[markerIndex] )
+				this.playerMarkers[markerIndex].visible = false;
+		}
 		
 
 	}

@@ -737,6 +737,7 @@ export default class StaticModal{
 					<div class="option button" data-action="enableBubbles"><input type="checkbox" /><span> Bubble Chat</span></div>
 					<div class="option button" data-action="enableShadows"><input type="checkbox" /><span> Shadows (Experimental, requires refresh)</span></div>
 					<div class="option button" data-action="enableAA"><input type="checkbox" /><span> Antialiasing</span></div>
+					<div class="option button" data-action="enableFpsMeter"><input type="checkbox" /><span> FPS Meter</span></div>
 					<div class="option cacheLevel" style="margin-top:1vmax" title="Makes returning to previously visited areas faster, but increases memory use.">
 						<input type="range" style="width:50%; vertical-align:top" min=10 max=100 step=10 /><span></span> Cache Levels
 					</div>
@@ -793,6 +794,7 @@ export default class StaticModal{
 					enableBubbles : $("div[data-action=enableBubbles]", this.getTabDom("Video")),
 					enableShadows : $("div[data-action=enableShadows]", this.getTabDom("Video")),
 					enableAA : $("div[data-action=enableAA]", this.getTabDom("Video")),
+					enableFpsMeter : $("div[data-action=enableFpsMeter]", this.getTabDom("Video")),
 					cacheLevel : $("div.cacheLevel input", this.getTabDom("Video")),
 					cacheLevelSpan : $("div.cacheLevel span", this.getTabDom("Video")),
 				};
@@ -860,6 +862,16 @@ export default class StaticModal{
 					game.renderer.aa.enabled = show;
 
 				});
+				this.video.enableFpsMeter.on('click', event => {
+
+					event.preventDefault();
+					const show = !(+localStorage.fps);
+					localStorage.fps = +show;
+					$("input", event.currentTarget).prop("checked", show);
+					game.renderer.toggleFPS(show);
+
+				});
+				
 				this.video.enableShadows.on('click', event => {
 
 					const show = Boolean(!+localStorage.shadows)
@@ -936,6 +948,7 @@ export default class StaticModal{
 				$("input", this.video.enableBubbles).prop('checked', !+localStorage.hide_bubbles);
 				$("input", this.video.enableShadows).prop('checked', Boolean(+localStorage.shadows));
 				$("input", this.video.enableAA).prop('checked', Boolean(+localStorage.aa));
+				$("input", this.video.enableFpsMeter).prop('checked', Boolean(+localStorage.fps));
 				const cacheLevel = parseInt(localStorage.cache_level) || 50;
 				this.video.cacheLevel.val(cacheLevel);
 				this.video.cacheLevelSpan.text(cacheLevel);

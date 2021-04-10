@@ -900,7 +900,7 @@ class DungeonRoom extends Generic{
 
 	getFog(){
 		
-		if( this.fog )
+		if( this.fog || !this.parent )
 			return this.fog;
 
 		return this.parent.fog;
