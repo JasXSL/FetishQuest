@@ -148,7 +148,7 @@ export default class GameAction extends Generic{
 			console.error("Data is missing from", this);
 
 
-		if( this.type === this.constructor.types.loot && !Array.isArray(this.data) ){
+		if( this.type === this.constructor.types.loot && !Array.isArray(this.data.genLoot) ){
 
 			let min = isNaN(this.data.min) || this.data.min < 0 ? Infinity : +this.data.min,
 				max = isNaN(this.data.max) || this.data.min < 0 ? Infinity : +this.data.max,

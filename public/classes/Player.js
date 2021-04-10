@@ -1684,11 +1684,13 @@ export default class Player extends Generic{
 	}
 
 	canExchange(){
-		const labels = Player.currencyWeights;
+
+		const labels = Player.currencyWeights.slice(1);
 		for( let asset of this.assets ){
 			if( ~labels.indexOf(asset.label) && asset._stacks >= 10 )
 				return true;
 		}
+
 	}
 
 
