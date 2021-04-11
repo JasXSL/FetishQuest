@@ -1163,8 +1163,8 @@ export default class UI{
 			mpEl.text(mpText);
 
 		// Armor
-		chestEl.add(legsEl).toggleClass('hidden', p.isBeast());
-		if( !p.isBeast() ){
+		chestEl.add(legsEl).toggleClass('hidden', p.isTargetBeast());
+		if( !p.isTargetBeast() ){
 			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperBody);
 			const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerBody);
 			const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : Asset.protVal;

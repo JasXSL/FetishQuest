@@ -322,9 +322,10 @@ class Dungeon extends Generic{
 		await game.renderer.drawActiveRoom();
 		this.transporting = false;
 		game.ui.modal.closeSelectionBox();
-		this.getActiveRoom().onVisit(player);
+		
 		game.updateAmbiance();
 		game.onRoomChange();
+		this.getActiveRoom().onVisit(player);
 
 		game.save();
 
@@ -1120,22 +1121,28 @@ class DungeonRoom extends Generic{
 
 		// Start a dummy encounter just to set the proper NPCs
 		if( Array.isArray(this.encounters) && !this.encounters.length ){
+
 			this.encounters = new Encounter({
 				started : true,
 				completed : true
 			}, this);
+
+		}
+
+		if( !(this.encounters instanceof Encounter) ){
+
+			let viable = Encounter.getRandomViable(this.encounters);
+			if( !viable )
+				viable = new Encounter({
+					started : true,
+					completed : true
+				}, this);
+			this.encounters = viable;
+				
 		}
 
 		// An encounter is already running
-		if( !Array.isArray(this.encounters) )
-			game.startEncounter(player, this.encounters);
-		else{
-			const viable = Encounter.getRandomViable(this.encounters);
-			if( viable ){
-				this.encounters = viable;	// Override templates with the active encounter
-				game.startEncounter( player, viable );
-			}
-		}
+		game.startEncounter(player, this.encounters);
 
 		this.onModified();
 	}

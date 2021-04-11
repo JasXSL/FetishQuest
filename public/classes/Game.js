@@ -2567,8 +2567,11 @@ export default class Game extends Generic{
 	// Checks if a shop object is available to a player
 	shopAvailableTo( shop, player ){
 		
-		if( this.battle_active )
-			throw 'Battle in progress';
+		if( this.battle_active ){
+			console.error("Battle in progress");
+			return false;
+			
+		}
 
 		if( !(shop instanceof Shop) )
 			throw "Shop is not a shop";

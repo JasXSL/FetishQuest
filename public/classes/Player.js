@@ -602,7 +602,9 @@ export default class Player extends Generic{
 	isBeast(){
 		return this.hasTag(stdTag.plBeast);
 	}
-
+	isTargetBeast(){
+		return this.hasTag([stdTag.plBeast, stdTag.plTargetBeast]);
+	}
 
 
 
@@ -2061,7 +2063,7 @@ export default class Player extends Generic{
 	getNudityDamageMultiplier(){
 
 		// Beasts are never nude
-		if( this.isBeast() )
+		if( this.isTargetBeast() )
 			return 1;
 
 		let out = 1;

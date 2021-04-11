@@ -1254,12 +1254,16 @@ export default class StaticModal{
 					// If you add a second tab that non-DM can see, you'll want to only toggle the label itself
 					this.getTabLabelDom('Edit').parent().toggleClass('hidden', !game.ui.showDMTools());
 
+					
+
 					if( !(player instanceof Player) )
 						player = game.getPlayerById(player);
 
 					if( !player )
 						return false;
 
+					this.character.exportPlayer.toggleClass('hidden', player.isNPC());
+					
 					// Character panel
 					const cDivs = this.character;
 					cDivs.name.text(player.name);
@@ -1504,7 +1508,7 @@ export default class StaticModal{
 						player.agility = parseInt(dDivs.formAgility.val())||0;
 						player.intellect = parseInt(dDivs.formIntellect.val())||0;
 						
-						player.level = parseInt(dDivs.formLevel.val())||0;
+						player.level = parseInt(dDivs.formLevel.val())||1;
 						player.size = parseInt(dDivs.formSize.val())||0;
 						player.team = parseInt(dDivs.formTeam.val())||0;
 			
@@ -1512,13 +1516,7 @@ export default class StaticModal{
 
 						let cName = dDivs.formClass.val().trim();
 						let cl = glib.get(cName, 'PlayerClass');
-						if( cl ){
-							player.class = cl;
-
-							if( cl.label !== preClass.label )
-								player.addActionsForClass();
-
-						}
+						
 						player.tags = dDivs.formTags.val().split(' ').filter(el => {
 							if(!el.trim())
 								return false;
@@ -1553,6 +1551,14 @@ export default class StaticModal{
 							
 							game.addPlayer(player);
 							player.onPlacedInWorld();
+
+						}
+
+						if( cl ){
+							player.class = cl;
+
+							if( cl.label !== preClass.label )
+								player.addActionsForClass();
 
 						}
 
@@ -1659,7 +1665,8 @@ export default class StaticModal{
 			.setDraw(async function( shop ){
 
 				const 
-					myPlayer = game.getMyActivePlayer()
+					myPlayer = game.getMyActivePlayer(),
+					th = this
 				;
 
 				this.shop = shop;
@@ -1674,8 +1681,8 @@ export default class StaticModal{
 
 				// Titles
 				this.setTitle(this.shop.name);
-				this.toggleTab('Sell', shop.buys);
-				if( this.activeTab === 'Sell' && !shop.buys )
+				this.toggleTab('Sell', this.shop.buys);
+				if( this.activeTab === 'Sell' && !this.shop.buys )
 					this.setActiveTab('Buy');
 
 
@@ -1751,17 +1758,16 @@ export default class StaticModal{
 				for( let footer of this.headers )
 					await updateWallet(footer);
 
-
+				
 
 
 				// Assets for sale
 				const handleSellAssetClick = event => {
 
-					const shop = this.shop;
-					const th = $(event.currentTarget),
-						id = th.attr('data-id');
+					const targ = $(event.currentTarget),
+						id = targ.attr('data-id');
 						
-					const item = shop.getItemById(id);
+					const item = this.shop.getItemById(id);
 					if( !item )
 						return;
 					
@@ -1784,7 +1790,7 @@ export default class StaticModal{
 							const amount = Math.floor($("input:first", this).val());
 							if( !amount )
 								return;
-							game.buyAsset(shop.label, item.id, amount, myPlayer.id);
+							game.buyAsset(th.shop.label, item.id, amount, myPlayer.id);
 						},
 						false
 					);
@@ -1852,9 +1858,8 @@ export default class StaticModal{
 				// Assets the vendor is buying
 				const handleBuyAssetClick = event => {
 
-					const shop = this.shop;
-					const th = event.currentTarget,
-						id = th.dataset.id,
+					const targ = event.currentTarget,
+						id = targ.dataset.id,
 						asset = myPlayer.getAssetById(id)
 					;
 
@@ -1869,7 +1874,7 @@ export default class StaticModal{
 							const amount = Math.floor($("input:first", this).val());
 							if( !amount )
 								return;
-							game.sellAsset(shop.label, asset.id, amount, myPlayer.id);
+							game.sellAsset(th.shop.label, asset.id, amount, myPlayer.id);
 
 						},
 						false
