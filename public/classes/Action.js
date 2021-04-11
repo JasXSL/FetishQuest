@@ -120,7 +120,7 @@ class Action extends Generic{
 
 		if( full ){
 			out.alias = this.alias;
-			out.riposte = this.riposte.map(el => el.save(full));
+			out.riposte = Wrapper.saveThese(this.riposte, full);
 			out.no_use_text = this.no_use_text;	
 			out.init_cooldown = this.init_cooldown;
 			out.max_wrappers = this.max_wrappers;

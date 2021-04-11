@@ -1106,9 +1106,22 @@ class NetworkManager{
 
 		if( dungeonPreId !== game.dungeon.id )
 			game.renderer.loadActiveDungeon();
-		else if( data.dungeon )
+		else if( data.dungeon ){
+
+			// Room changed
+			const preRoom = game.dungeon.active_room;
+			if( !isNaN(data.dungeon.active_room) && preRoom !== game.dungeon.active_room ){
+
+				if( StaticModal.active && StaticModal.active.closeOnCellMove )
+					StaticModal.close();
+
+			}
+
+
+
 			game.renderer.drawActiveRoom(false);
-		
+		}
+
 		if( gameCombatPre !== game.battle_active )
 			game.renderer.onBattleStateChange();
 

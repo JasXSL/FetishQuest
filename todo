@@ -7,7 +7,17 @@
 	
 	- Add a way to alter parent mod dungeon cells
 	- Make a CDN for mods
-
+	- Hello I am %S shows wrong player in coop
+	- Put wrong NPC outside undertavern?
+	- Make bone construct spread a charged action but uninterruptable
+	- Fibula in netcode has incorrect chat button
+	- Lower bone boss HP
+	- Lumbar stuck too?
+	- Unlocked door in necro showed locked
+	- Close shop/rp/smith when changing cell
+	- Razpan had wrong shop (clientside issue after opening yuug leathers)
+	- Sludge bolt should do some damage
+	- Disable NPC export
 
 Medium rare:
 	

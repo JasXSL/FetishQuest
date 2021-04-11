@@ -621,6 +621,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 
 	if( level === undefined )
 		level = game.getAveragePlayerLevel();
+		
 	if( isNaN(level) ){
 		console.error("Invalid level in randomizer "+String(level));
 		return false;

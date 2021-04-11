@@ -436,7 +436,7 @@ class Text extends Generic{
 			text = this.textReplace([{ se: 'asset', re: event.asset.name}], text);
 
 		if( event.action )
-			text = this.textReplace([{ se: 'action', re: event.action.name}], text);
+			text = this.textReplace([{ se: 'action', re: event.action.getName()}], text);
 
 		if( returnResult )
 			return text;

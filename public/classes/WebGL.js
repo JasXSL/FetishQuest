@@ -45,7 +45,7 @@ class WebGL{
 		const conf = {
 			aa : localStorage.aa === undefined ? true : Boolean(+localStorage.aa),
 			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows,
-			fps : localStorage.fps === undefined ? false : Boolean(+localStorage.fps),
+			fps : localStorage.fps === undefined || !window.game ? false : Boolean(+localStorage.fps),
 		};
 		
 		this.events = [];		// Events that should be unbound

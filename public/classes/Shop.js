@@ -83,7 +83,6 @@ export default class Shop extends Generic{
 
 	generateItems(){
 
-		// Todo: enable
 		this._time_generated = game.time;
 		
 		this._generated_assets = [];

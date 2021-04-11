@@ -132,6 +132,9 @@ export default {
 	asCleavage : 'as_cleavage',				// Pushes breasts together in a way where at least the top of the breasts are exposed
 	asUnderboob : 'as_underboob',			// Bottom of breasts (if applicable) exposed
 	asSideboob : 'as_sideboob',				// Sides of breasts (if applicable) exposed
+	asExposedUpperBack : 'as_exposed_upper_back',		// Majority of your upper back is exposed
+	asExposedLowerBack : 'as_exposed_lower_back',		// Majority of your lower back is exposed
+	asExposedStomach : 'as_exposed_stomach',		// The majority of your stomach is exposed
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',

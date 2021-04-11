@@ -605,11 +605,15 @@ export default class Game extends Generic{
 	// Raised before a room changes
 	onRoomChange(){
 
-		this.clearRoleplay();
+		this.clearRoleplay(true);
 		this.ui.draw();
 		for( let player of this.players )
 			player.onCellChange();
 		this.addSeconds(30);
+
+		// Also lives in netcode
+		if( StaticModal.active && StaticModal.active.closeOnCellMove )
+			StaticModal.close();
 
 		// Update exploration
 		if( this.dungeon.procedural ){

@@ -33,6 +33,7 @@ export default class StaticModal{
 
 		this.drawn = false;			// Set to true after the first draw
 		this.drawing = false;		// Actively updating the dom
+		this.closeOnCellMove = false;
 
 		this.activeTab = 'default';
 		this.tabs = {};
@@ -157,7 +158,10 @@ export default class StaticModal{
 		this.headerContainer[0].querySelector('h1').innerText = text;
 	}
 
-
+	setCloseOnCellMove( close ){
+		this.closeOnCellMove = Boolean(close);
+		return this;
+	}
 
 
 
@@ -317,6 +321,7 @@ export default class StaticModal{
 
 		// Sleep select
 		this.add(new this("sleepSelect", "Rest"))
+			.setCloseOnCellMove(true)
 			.addTab("default", () => {
 				return '<img class="bedIcon" src="media/wrapper_icons/bed.svg" />'+
 					'<span class="title">How long would you like to sleep?</span><br />'+
@@ -369,6 +374,7 @@ export default class StaticModal{
 
 		// Gym
 		this.add(new this("gym", "Gym"))
+			.setCloseOnCellMove(true)
 			.addRefreshOn(["players"])
 			.addTab("Actions", () => {
 				return `
@@ -1602,6 +1608,7 @@ export default class StaticModal{
 
 		// Shop
 		this.add(new this("shop", "Shop"))
+			.setCloseOnCellMove(true)
 			.addRefreshOn(["players"])
 			.addTab("Buy", () => {
 				return `
@@ -1895,6 +1902,7 @@ export default class StaticModal{
 			});
 		// Smith
 		this.add(new this("smith", "Smith"))
+			.setCloseOnCellMove(true)
 			.addRefreshOn(["players"])
 			.addTab("Smith", () => {
 				return `
