@@ -103,9 +103,16 @@ export default class Roleplay extends Generic{
 	loadState(){
 		
 		// When loaded from a game, grab from state
-		if( window.game && window.game !== true && this.label && game.state_roleplays[this.label] && glib && !glib.loading ){
+		if( window.game && window.game !== true && this.label && game.is_host && glib && !glib.loading ){
 
-			const state = game.state_roleplays[this.label];
+			let state = game.state_roleplays[this.label];
+
+			// Reset to default
+			if( !state )
+				state = {
+					stage : 0,
+					completed : false
+				};
 
 			if( this.persistent && state.hasOwnProperty("stage") && state.stage !== -1 )
 				this.stage = state.stage;
@@ -214,11 +221,11 @@ class RoleplayChatQueue{
 
 	}
 
-	getText(){
+	getText( player ){
 
 		if( typeof this.stage === "string" )
 			return this.stage;
-		return this.stage.getText();
+		return this.stage.getText(player);
 
 	}
 
@@ -242,7 +249,7 @@ RoleplayChatQueue.next = function(){
 	
 	const chat = this.queue.shift();
 
-	game.speakAs( chat.sender.id, chat.getText() );
+	game.speakAs( chat.sender.id, chat.getText( chat.sender ) );
 	this.timer = setTimeout(() => {
 		
 		this.timer = false;
@@ -551,10 +558,15 @@ export class RoleplayStageOption extends Generic{
 
 	}
 
-	getText(){
+	getText( player ){
+
+		if( !player )
+			player = game.getMyActivePlayer();
 		
 		let text = new Text({text:this.text});
-		return text.run(new GameEvent({sender:this.parent.getInitiatingPlayer(), target:this.parent.getPlayer()}), true);
+		// this.parent.getInitiatingPlayer()
+		// Responses use your active player as sender, main text uses whoever got you to that stage
+		return text.run(new GameEvent({sender:player, target:this.parent.getPlayer()}), true);
 
 	}
 

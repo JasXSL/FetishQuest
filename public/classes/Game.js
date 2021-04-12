@@ -138,6 +138,11 @@ export default class Game extends Generic{
 
 		});
 
+		// Things that needs ALL players initialized to run, since we might fetch non-rebased wrappers if we don't do it until all players have loaded
+		this.players.map(pl => {
+			pl.addDefaultActions();
+		});
+
 		window.onerror = (...args) => this.onError(...args);
 
 	}
@@ -171,10 +176,7 @@ export default class Game extends Generic{
 			factions : Faction.saveThese(this.factions, full),
 			proceduralDiscovery : this.proceduralDiscovery.save(full)
 		};
-
-		
-
-		
+	
 		if( full ){
 			out.state_shops = this.state_shops.save(full);
 			out.libAsset = {};
@@ -192,7 +194,41 @@ export default class Game extends Generic{
 			out.chat_log = this.chat_log;
 		}
 		else{
+			
 			out.mute_spectators = this.mute_spectators;
+
+			// Send a lighter version of state dungeons with only the thing netgame players need
+			// Currently only the vars are needed as they affect conditions in other dungeons
+			let sd = new Collection();
+			for( let i in this.state_dungeons ){
+
+				const st = this.state_dungeons[i];
+				if( st.vars && Object.keys(st.vars).length ){
+					sd[i] = new Collection({
+						id : st.id,
+						vars : st.vars
+					});
+				}
+
+			}
+			out.state_dungeons = sd.save();
+
+			// Send a lighter version of state roleplay since players will need the completion status of each RP
+			// This is so it can properly show/hide the roleplay icon
+			let sr = new Collection();
+			for( let i in this.state_roleplays ){
+
+				const rp = this.state_roleplays[i];
+				if( rp.completed ){
+
+					sr[i] = new Collection({completed: true});
+
+				}
+
+
+			}
+			out.state_roleplays = sr.save();
+
 		}
 
 
@@ -277,8 +313,11 @@ export default class Game extends Generic{
 			this.libAsset[i] = new Asset(this.libAsset[i]);
 
 		// Auto wrappers need all players loaded before generating
-		if( this.is_host )
-			this.players.map(pl => pl.initialize());
+		if( this.is_host ){
+			this.players.map(pl => {
+				pl.initialize();	// Updates actions and such
+			});
+		}
 
 		
 		
@@ -2385,9 +2424,7 @@ export default class Game extends Generic{
 			if( !rp )
 				continue;
 
-			rp.loadState();
 			const pl = rp.getPlayer();
-
 			if( debug )
 				console.log(pl, player, pl.id === player.id, rp.completed);
 			if( pl.id === player.id && !rp.completed && rp.validate(game.getMyActivePlayer(), debug) )

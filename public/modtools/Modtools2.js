@@ -922,6 +922,70 @@ export default class Modtools{
 
 	}
 
+	// Takes a roleplay nested in ex a game action and unrolls it, adding it to the flat DB and letting you replace the nested one with the flat one
+	unrollRoleplay( rpObj ){
+
+		let rp = rpObj;
+		if( !rp.id )
+			rp.id = Generic.generateUUID();
+		if( !rp.label )
+			rp.label = rp.id;
+
+		this.mod.roleplay.push(rp);
+		console.log("Added RP: ", rp);
+
+		if( rp.stages ){
+
+			rp.stages = rp.stages.map((stage, index) => {
+
+				stage.id = stage.label = rp.label+'>>'+index;
+				console.log("Added Stage", stage.label);
+				this.mod.roleplayStage.push(stage);
+				stage._mParent = {type:'roleplay', label:rp.label};
+
+				if( stage.options ){
+
+					stage.options = stage.options.map((opt, index) => {
+
+						opt.id = opt.label = stage.label+'>>'+index;
+						console.log("Added option", opt.id);
+						this.mod.roleplayStageOption.push(opt);
+						opt._mParent = {type:'roleplayStage', label:stage.id};
+
+						return opt.label;
+
+					});
+
+				}
+
+				if( stage.text ){
+
+					if( typeof stage.text === 'string' )
+						stage.text = [{text:stage.text, en:false}];
+
+					stage.text = stage.text.map((text, index) => {
+
+						text.id = text.label = stage.id+'>>'+index;
+						console.log("Added text", text.id);
+						text._mParent = {type:'roleplayStage', label:stage.id};
+						this.mod.texts.push(text);
+						
+						return text.id;
+
+					});
+
+				}
+
+				
+				return stage.label;
+
+			});
+
+		}
+
+
+
+	}
 
 	// Converts 
 	convertLegacyMod( modVersion = 0 ){

@@ -948,7 +948,7 @@ export default class StaticModal{
 				const ui = game.ui;
 
 				$("input", this.dm.toggle).prop('checked', ui.showDMTools());
-				this.dm.toggleBattle.text(game.battle_active ? 'End Battle' : 'Start Battle').toggleClass('hidden',  game.teamsStanding().length < 2);
+				this.dm.toggleBattle.text(game.battle_active ? 'End Battle' : 'Start Battle').toggleClass('hidden',  game.teamsStanding().length < 2 && !game.battle_active);
 
 				
 				$("input", this.video.enableBubbles).prop('checked', !+localStorage.hide_bubbles);

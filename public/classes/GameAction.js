@@ -263,14 +263,15 @@ export default class GameAction extends Generic{
 	
 	// Converts data to roleplay
 	getDataAsRoleplay(){
-		let rp = Roleplay.loadThis(this.data.rp, this);
-		if( typeof rp !== "object" ){
-			console.error("Error, ", this.data.rp, "is not a valid roleplay in", this);
-			return false;
-		}
-		rp = rp.clone();
-		rp.loadState();
-		return rp;
+
+		// only clone once
+		if( !(this.data.rp instanceof Roleplay) )
+			this.data.rp = Roleplay.loadThis(this.data.rp, this).clone();
+
+		// Load state each time it's fetched
+		this.data.rp.loadState();
+		return this.data.rp;
+
 	}
 
 	getDataAsShop(){

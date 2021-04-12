@@ -141,6 +141,9 @@ export default class Player extends Generic{
 
 	load(data){
 
+		if( window.game && game.is_host && data )
+			delete data._tmp_actions;
+
 		this.g_autoload(data);
 
 	}
@@ -155,6 +158,7 @@ export default class Player extends Generic{
 		// only load tmp actions in a netgame (for ID mostly)
 		if( game && game !== true && !game.is_host && game.net.isConnected() )
 			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
+		
 		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
 
 		if( window.game ){
@@ -226,7 +230,7 @@ export default class Player extends Generic{
 			out.experience = this.experience;
 
 		// Should only be sent while we're hosting a netgame
-		if( window.game && game.net.isHostingNetgame() )
+		if( window.game && game.net.isHostingNetgame() && !full )
 			out._tmp_actions = Action.saveThese(this._tmp_actions);
 
 		// Assets are only sent if equipped, PC, or full
@@ -286,13 +290,12 @@ export default class Player extends Generic{
 		this.addMP(0);
 		this.addAP(0);
 		this.updateAutoWrappers();
-		this.addDefaultActions();
 		this.addTagSynonyms();
 		
 		if( game.is_host ){
 			this.rebindWrappers();
+			
 		}
-
 	}
 
 	rebindWrappers(){
@@ -2410,6 +2413,7 @@ export default class Player extends Generic{
 		if( include_temp )
 			out = out.concat(this.getTempActions());
 
+
 		const alwaysFirst = ['stdAttack', 'stdArouse'];
 		out.sort((a,b) => {
 
@@ -2455,8 +2459,9 @@ export default class Player extends Generic{
 	getTempActions(){
 		
 		// Nonhost gets this from the host
-		if( game && !game.is_host && game.net.isConnected() )
+		if( game && !game.is_host && game.net.isConnected() ){
 			return this._tmp_actions;	
+		}
 		
 		const ids = {};
 		const scanned = {};
@@ -2465,8 +2470,10 @@ export default class Player extends Generic{
 
 		const effects = this.getActiveEffectsByType(Effect.Types.addActions);
 		for( let effect of effects ){
+
 			const actions = Action.loadThese(effect.data.actions, this);
 			for( let action of actions ){
+
 				scanned[action.label] = true;
 				if( !ids[action.label] ){
 
@@ -2476,16 +2483,22 @@ export default class Player extends Generic{
 					this._tmp_actions.push(action);
 
 				}
+
 			}
+
 		}
 		
 		// Remove missing ones
 		for( let i =0; i<this._tmp_actions.length && this._tmp_actions.length; ++i ){
+
 			const action = this._tmp_actions[i];
 			if( !scanned[action.label] ){
+
 				this._tmp_actions.splice(i, 1);
 				--i;
+
 			}
+
 		}
 
 		return this._tmp_actions;

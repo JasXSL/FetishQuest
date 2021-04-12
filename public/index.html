@@ -48,6 +48,8 @@
 		import Dungeon from './classes/Dungeon.js';
 		import Tags from './libraries/stdTag.js';
 		import StaticModal from './classes/StaticModal.js';
+		import Action from './classes/Action.js';
+		import {Wrapper, Effect} from './classes/EffectSys.js';
 
 		console.debug("Modules imported, starting game");
 		
@@ -68,7 +70,10 @@
 			stdTag : Tags,
 			glib : new GameLib(),
 			gPlayer : Player,
-			gStaticModal : StaticModal
+			gStaticModal : StaticModal,
+			gAction : Action,
+			gWrapper : Wrapper,
+			gEffect: Effect
 		};
 		
 		for( let i in globals )

@@ -1693,6 +1693,7 @@ div.fxBuffRed{
 		display: block !important;
 		opacity:0;
 		transition: opacity 1s ease-in-out;
+		pointer-events: none;
 	}
 	#ui.bubbles > div.players > div.left div.player div.speechBubble.hidden.immediate{
 		transition:none;
