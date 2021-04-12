@@ -1594,7 +1594,7 @@ export default class StaticModal{
 			
 						let pl = PlayerTemplate.generate(parseInt(dDivs.formLevel.val()) || 1, allowed);
 						if( pl ){
-							let data = pl.save(true);
+							let data = Player.saveThis(pl, true);
 							this.randomizerOption = type;
 							delete pl.id;
 							player.load(data);
@@ -3497,7 +3497,7 @@ export default class StaticModal{
 					getField('textarea[name=description]').value = a.description;
 					getField('textarea[name=tags]').value = a.tags.map(el => el.substr(3)).join(' ');
 
-					getField('textarea[name=wrappers]').value = JSON.stringify(a.wrappers.map(el => el.save("mod")), null, 4);
+					getField('textarea[name=wrappers]').value = JSON.stringify(Wrapper.saveThese(a.wrappers, "mod"), null, 4);
 
 
 					getField('div.parentInfo').classList.toggle('hidden', !a.parent);

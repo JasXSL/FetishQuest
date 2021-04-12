@@ -166,11 +166,11 @@ export default class Game extends Generic{
 			turn : this.turn,
 			battle_active : this.battle_active,
 			initiative : this.initiative.slice(),	
-			dungeon : this.dungeon.save(full),
-			encounter : this.encounter.save(full),
-			quests : this.quests.map(el => el.save(full)),
-			roleplay : this.roleplay.save(full),
-			completed_quests : this.completed_quests.save(),	// A shallow clone is enough
+			dungeon : Dungeon.saveThis(this.dungeon, full),
+			encounter : Encounter.saveThis(this.encounter, full),
+			quests : Quest.saveThese(this.quests, full),
+			roleplay : Roleplay.saveThis(this.roleplay, full),
+			completed_quests : this.completed_quests.save(),	// A shallow clone is enough. Collection.
 			time : this.time,
 			rain : this.rain,
 			factions : Faction.saveThese(this.factions, full),

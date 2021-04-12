@@ -90,7 +90,7 @@ class Dungeon extends Generic{
 			name : this.name,
 			tags : this.tags,
 			rooms : this.rooms.map(el => {
-				return el.save(full);
+				return DungeonRoom.saveThis(el, full);
 			}),
 			difficulty : this.difficulty,
 			vars : vars,
@@ -106,8 +106,6 @@ class Dungeon extends Generic{
 			out.height = this.height;
 			out.shape = this.shape;
 			out.consumables = Asset.saveThese(this.consumables, full);
-			//if( full !== "mod" )
-			//	out._state = this._state.save();
 		}
 
 		// Everything except mod
@@ -124,7 +122,7 @@ class Dungeon extends Generic{
 	}
 
 	clone(){
-		return new this.constructor(this.save(true));
+		return new this.constructor(Dungeon.saveThis(this, true));
 	}
 
 	loadState(){
@@ -470,12 +468,14 @@ class DungeonSaveState extends Generic{
 	}
 
 	save( full ){
+
 		const out = {
 			vars : this.vars.save(full)
 		};
 		if( full )
 			out.rooms = this.rooms.save();
 		return out;
+
 	}
 
 	load(data){
@@ -578,7 +578,7 @@ class DungeonRoom extends Generic{
 		if( Array.isArray(this.encounters) ) 
 			enc = Encounter.saveThese(this.encounters, full);
 		else if( this.encounters )
-			enc = this.encounters.save(full);
+			enc = Encounter.saveThis(this.encounters, full);
 
 		// shared
 		const out = {

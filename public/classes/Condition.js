@@ -104,7 +104,7 @@ export default class Condition extends Generic{
 
 	clone( parent ){
 
-		let out = new this.constructor(this.save(true), parent);
+		let out = new this.constructor(Asset.saveThis(this, true), parent);
 		return out;
 
 	}
@@ -996,13 +996,14 @@ export default class Condition extends Generic{
 // Exports conditions, handles arrays and ConditionPackages
 Condition.saveThese = function( conditions, full ){
 
+	
 	let out = conditions.map(el => {
 
 		if( Array.isArray(el) )
 			el = ConditionPackage.buildOR(...el);
 
 		if( typeof el.save === "function" )
-			return el.save(full);
+			return el.constructor.saveThis(el, full);
 
 		if( full === "mod" )
 			return el;

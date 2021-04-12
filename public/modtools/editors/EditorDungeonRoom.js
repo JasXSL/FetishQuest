@@ -683,7 +683,7 @@ class Editor{
 	// Tries to save the room dummy onto room_raw
 	save(){
 
-		const data = this.room.save("mod");
+		const data = DungeonRoom.saveThis(this.room, "mod");
 		this.room_raw.assets = data.assets;
 		window.mod.setDirty(true);
 		this.updateWants();

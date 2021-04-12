@@ -377,7 +377,7 @@ export default{
 				if( parented ){
 
 					let a = new constructor();
-					a = a.save("mod");
+					a = constructor.saveThis(a, "mod");
 					storeAsset(a);
 
 					// Insert handles other window refreshers
@@ -1052,7 +1052,7 @@ export default{
 	
 		win.dom.querySelector('input.new').onclick = event => {
 			
-			const obj = baseObject.save("mod");
+			const obj = baseObject.constructor.saveThis(baseObject, "mod");
 			this.insertAsset(type, obj, win);
 	
 		};
@@ -1111,7 +1111,7 @@ export default{
 		if( obj.id )
 			obj.id = Generic.generateUUID();
 
-		const out = obj.save("mod");
+		const out = obj.constructor.saveThis(obj, "mod");
 		this.insertAsset(type, out, parentWindow, true);
 		
 		return out;

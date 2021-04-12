@@ -18,7 +18,7 @@ export default class PlayerGalleryTemplate extends Generic{
 	save( full ){
 		return {
 			label : this.label,
-			player : this.player instanceof Player ? this.player.save(full) : this.player
+			player : this.player instanceof Player ? Player.saveThis(this.player, full) : this.player
 		};
 	}
 

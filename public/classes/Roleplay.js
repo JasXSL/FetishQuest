@@ -129,7 +129,7 @@ export default class Roleplay extends Generic{
 
 	clone(parent){
 
-		let out = new this.constructor(this.save(true), parent);
+		let out = new this.constructor(Roleplay.saveThis(this, true), parent);
 		return out;
 
 	}

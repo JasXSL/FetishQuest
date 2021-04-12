@@ -166,7 +166,7 @@ class Action extends Generic{
 	clone(parent){
 
 		// This rebases by cloning the wrappers as well
-		let out = new this.constructor(this.save(true), parent);
+		let out = new this.constructor(Action.saveThis(this, true), parent);
 		return out;
 
 	}

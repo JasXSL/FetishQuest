@@ -137,7 +137,7 @@ class Wrapper extends Generic{
 		if( parent === undefined )
 			parent = this.parent;
 
-		let out = new this.constructor(this.save(full), parent);
+		let out = new this.constructor(Wrapper.saveThis(this, full), parent);
 		out.g_resetID();
 		out.template_id = this.id;
 		return out;
@@ -755,7 +755,7 @@ class Effect extends Generic{
 	}
 
 	clone(parent){
-		let out = new this.constructor(this.save(true), parent);
+		let out = new this.constructor(Effect.saveThis(this, true), parent);
 		out.g_resetID();
 		return out;
 	}

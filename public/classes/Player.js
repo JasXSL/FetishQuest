@@ -195,7 +195,7 @@ export default class Player extends Generic{
 			description : this.description,
 			size : this.size,
 			level : this.level,
-			class : this.class instanceof PlayerClass ? this.class.save(full) : this.class,
+			class : this.class instanceof PlayerClass ? PlayerClass.saveThis(this.class, full) : this.class,
 			stamina : this.stamina,
 			agility : this.agility,
 			intellect : this.intellect,
@@ -222,9 +222,6 @@ export default class Player extends Generic{
 			generated : this.generated,	// Needed for playerMarkers in webgl
 
 		};
-
-		if( this.rp )
-			out.rp = this.rp.save(full);
 
 		if( full !== "mod" )
 			out.experience = this.experience;
@@ -268,7 +265,7 @@ export default class Player extends Generic{
 			out.ap = this.ap;
 			out.hp = this.hp;
 			out.mp = this.mp;
-			out.wrappers = this.wrappers.map(el => el.save(full));
+			out.wrappers = Wrapper.saveThese(this.wrappers, full);
 			out.netgame_owner = this.netgame_owner;
 			out.netgame_owner_name = this.netgame_owner_name;
 			out.color = this.color;
@@ -3040,7 +3037,7 @@ export default class Player extends Generic{
 		const zip = new JSZip();
 		zip.file(
 			'player.json', 
-			JSON.stringify(this.save(true))
+			JSON.stringify(Player.saveThis(this, true))
 		);
 
 		const content = await zip.generateAsync({

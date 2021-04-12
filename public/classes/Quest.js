@@ -462,7 +462,7 @@ class QuestObjective extends Generic{
 		};
 
 		if( full )
-			out.events = this.events.map(el => el.save(full));
+			out.events = QuestObjectiveEvent.loadThese(this.events, full);
 
 		if( full !== "mod" ){
 			
@@ -482,7 +482,7 @@ class QuestObjective extends Generic{
 
 
 	clone(parent){
-		let data = this.save(true);
+		let data = Quest.saveThis(this, true);
 		delete data.id;
 		return new this.constructor(data, parent);
 	}

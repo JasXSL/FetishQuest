@@ -5,6 +5,8 @@ export default class Generic{
 
 		this._rebased = false;
 		this.id = this.g_guid();	// Random ID
+		this._e = '';			// This extends an asset
+
 	}
 
 	// Auto loads and typecasts
@@ -302,21 +304,29 @@ export default class Generic{
 
 	}
 
+	static saveThis( el, full ){
+		
+		if( typeof el.save !== "function" ){
+			if( !window.game && typeof el === "string" )
+				return el;
+			if( full === "mod" )
+				return el;
+			console.error(el);
+			throw "Error: asset is missing save method ^";
+		}
+
+		const sd = el.save(full);
+		if( full === "mod" )
+			sd._e = this._e;
+
+		return sd;
+
+	}
 
 	static saveThese( entries = [], full = false ){
-		return entries.map(el => {
-			
-			if( typeof el.save !== "function" ){
-				if( !window.game && typeof el === "string" )
-					return el;
-				if( full === "mod" )
-					return el;
-				console.error(el);
-				throw "Error: asset is missing save method ^";
-			}
-			return el.save(full);
 
-		});
+		return entries.map(el => this.saveThis(el, full));
+
 	}
 
 	static generateUUID(){

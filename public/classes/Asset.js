@@ -85,7 +85,7 @@ export default class Asset extends Generic{
 
 		let ua = this.use_action;
 		if( ua && ua.save )
-			ua = ua.save(full);
+			ua = Action.saveThis(ua, full);
 
 		let out = {
 			name : this.name,
@@ -152,7 +152,7 @@ export default class Asset extends Generic{
 
 	clone(parent){
 
-		let out = new this.constructor(this.save(true), parent);
+		let out = new this.constructor(Asset.saveThis(this, true), parent);
 		return out;
 
 	}

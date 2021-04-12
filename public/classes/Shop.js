@@ -288,7 +288,7 @@ export class ShopAsset extends Generic{
 
 		const out = {
 			id : this.id,
-			asset : this.asset && this.asset.save ? this.asset.save(full) : this.asset,
+			asset : this.asset && this.asset.save ? Asset.saveThis( this.asset, full) : this.asset,
 			cost : this.cost,
 			amount : this.amount,
 			restock_rate : this.restock_rate,
@@ -434,7 +434,7 @@ export class ShopAssetToken extends Generic{
 
 		const out = {
 			id : this.id,
-			asset : this.asset && this.asset.save ? this.asset.save(full) : this.asset,
+			asset : this.asset && this.asset.save ? Asset.saveThis(this.asset, full) : this.asset,
 			amount : this.amount,
 		};
 

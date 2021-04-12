@@ -161,7 +161,7 @@ class DungeonLayoutEditor{
 
 			// Make sure there's a first room
 			const baseName = asset.label+'>>ENTRANCE';
-			const room = new DungeonRoom({label:baseName, name:'entrance'}).save("mod");
+			const room = DungeonRoom.saveThis(new DungeonRoom({label:baseName, name:'entrance'}), "mod");
 			room._mParent = {type:'dungeons', label:asset.label};
 			HelperAsset.insertAsset( 'dungeonRooms',  room, this, false );
 			asset.rooms = [baseName];
@@ -420,7 +420,7 @@ class DungeonLayoutEditor{
 			r.ambiance_volume = pa.ambiance_volume;
 			r.outdoors = pa.outdoors;
 
-			r = r.save("mod");
+			r = DungeonRoom.saveThis(r, "mod");
 			r._mParent = {
 				type:'dungeons', 
 				label:this.asset.label

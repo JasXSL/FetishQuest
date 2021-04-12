@@ -1,9 +1,12 @@
 import Generic from './helpers/Generic.js';
 
-// Note that DB assets can have a special _mParent : {type:libraryType, label:label/id} 
-// which is used to recursively delete children of one to many or one to one relations.
-// These _mParent assets are special in that they only appear in the parent editor, and is never listed anywhere
-// Ex: roleplayStage always only has one parent roleplay
+/* DB Asset special fields: 
+	_mParent : {type:libraryType, label:label/id} 
+		Used to recursively delete children of one to many or one to one relations.
+		Ex: roleplayStage always only has one parent roleplay
+
+	_e : Built into every Generic object
+*/
 
 export default class Mod extends Generic{
 
