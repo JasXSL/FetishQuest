@@ -137,7 +137,7 @@ class Wrapper extends Generic{
 		if( parent === undefined )
 			parent = this.parent;
 
-		let out = new this.constructor(Wrapper.saveThis(this, full), parent);
+		let out = new this.constructor(this.constructor.saveThis(this, full), parent);
 		out.g_resetID();
 		out.template_id = this.id;
 		return out;

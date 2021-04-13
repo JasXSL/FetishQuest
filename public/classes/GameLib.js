@@ -199,6 +199,7 @@ export default class GameLib{
 			}
 
 			delete override.label;	// Use the original label, everything else is overwritten
+			override = Mod.mergeExtensionAssets(obj, override);	// Handle arrays since they have {__DEL__} objects
 			obj[override._e].load(override);
 
 		}
@@ -262,9 +263,12 @@ export default class GameLib{
 				for( let text of overrides ){
 
 					const existing = this.texts[text._e];
-					if( existing )
+					if( existing ){
+
+						text = Mod.mergeExtensionAssets(existing, text);	// Handle {__DEL__} objects
 						existing.load(text);
 
+					}
 				}
 
 			}

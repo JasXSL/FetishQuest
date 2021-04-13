@@ -212,7 +212,7 @@ export default class Generic{
 		}
 		else if( !parent )
 			parent = undefined;
-		return new this.constructor(this.save(full), parent);
+		return new this.constructor(this.constructor.saveThis(this, full), parent);
 	}
 
 	// Returns a library tied to this asset type if possible

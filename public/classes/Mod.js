@@ -7,6 +7,7 @@ import Generic from './helpers/Generic.js';
 		Ex: roleplayStage always only has one parent roleplay
 
 	_e : Built into every Generic object
+	_ext : true -> Already extended
 */
 
 export default class Mod extends Generic{
@@ -121,6 +122,7 @@ export default class Mod extends Generic{
 			gallery : this.gallery,
 		};
 
+		// Removes del except for in arrays
 		const removeDel = obj => {
 
 			if( typeof obj !== "object" )
@@ -138,6 +140,67 @@ export default class Mod extends Generic{
 			return obj;
 
 		};
+
+		const handleComparedArrays = (base, compared) => {
+
+			for( let i in compared ){
+
+				if( !Array.isArray(compared[i]) ){
+					if( typeof compared[i] === "object" && typeof base[i] === "object" )
+						compared[i] = handleComparedArrays(base[i], compared[i]);
+					continue;
+				}
+
+				let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
+				// Check how many of each entry we have
+				for( let c of compared[i] ){
+					
+					if( !adds.get(c) )
+						adds.set(c, 0);
+
+					adds.set(c, adds.get(c)+1);
+
+				}
+				// Check which ones have been removed
+				for( let c of base[i] ){
+
+					if( adds.get(c) ){
+
+						adds.set(c, adds.get(c)-1);
+
+						if( !currents.get(c) )
+							currents.set(c, 0);
+						currents.set(c, currents.get(c)+1);
+						continue;
+
+					}
+
+					let rem = typeof c === "object" ? c.id || c.label : c;
+					removes.push(rem);
+
+				}
+				// Check which ones are newly added
+				for( let c of compared[i] ){
+
+					if( currents.get(c) ){
+
+						currents.set(c, currents.get(c)-1);
+						continue;
+
+					}
+					build.push(c);
+
+				}
+
+
+				compared[i] = removes.map(el => {
+					return {'__DEL__' : el};
+				}).concat(build);
+
+			}
+
+		}
+
 		// Run comparer on items changed by mod
 		for( let i in out ){
 
@@ -150,6 +213,13 @@ export default class Mod extends Generic{
 			
 			for( let entry in arr ){
 
+				const clone = {};
+				for( let i in arr[entry] ){
+					if( i !== '_ext' )
+						clone[i] = arr[entry][i];
+				}
+				arr[entry] = clone;
+
 				const extension = arr[entry];
 				if( !extension._e )
 					continue;
@@ -159,8 +229,13 @@ export default class Mod extends Generic{
 				if( !base )
 					continue;	// Todo: error?
 
+				// Array comparator
+
 				const comparison = comparer.compare(base, extension);
 				delete comparison.__MOD;
+
+				handleComparedArrays(base, comparison);
+
 				removeDel(comparison);
 				// mParent is allowed to be the same on both
 				if( extension._mParent )
@@ -190,12 +265,18 @@ export default class Mod extends Generic{
 
 	}
 
+
+	
+
 	// Note: allows to fetch by label if it exists
 	// 
 	getAssetById( type, id, extend = true ){
 
 		if( !Array.isArray(this[type]) )
 			throw 'Trying to fetch an id from non array: '+type;
+
+
+		
 
 		for( let asset of this[type] ){
 
@@ -226,20 +307,21 @@ export default class Mod extends Generic{
 
 					}
 
-					if( original ){
+					if( original && !asset._ext ){
+
+
+						// Handles arrays with {__DEL__} objects and loads asset keys onto original
+						original = Mod.mergeExtensionAssets(original, asset);
 
 						//console.log("Loading", original, "onto", asset);
 						// Fill out any unfilled fields from the parentMod asset
-						for( let i in original ){
-
-							// Don't overwrite?
-							if( asset.hasOwnProperty(i) || i === '_e' || i === '__MOD' )
-								continue;
-
-							asset[i] = JSON.parse(JSON.stringify(original[i]));	// Ugly but simple way of cloning
-							// At some point you probably want to add a __DEL__ and use that instead
-
-						}
+						
+						// Need to load directly over the asset in library for _ext to work
+						for( let i in original )
+							asset[i] = original[i];
+						
+						asset._ext = true;
+						
 
 					}
 
@@ -492,6 +574,7 @@ export default class Mod extends Generic{
 			return;
 
 		const out = this.getSaveData();
+		
 		let ret = await Mod.db.mods.put(out);
 		return ret;
 
@@ -505,6 +588,80 @@ export default class Mod extends Generic{
 
 		await Mod.db.mods.delete(this.id);
 		return true;
+
+	}
+
+	// Handles delete options
+	static mergeExtensionAssets( original, extension ){
+
+		let out = {};
+
+		// Handle arrays. If an array is present in extension but not original, it's accepted directly in the second loop
+		for( let i in original ){
+
+			if( i === '_e' || i === '__MOD' )
+				continue;
+
+			let og = original[i];
+			const ext = extension[i];
+			if( Array.isArray(og) && Array.isArray(ext) ){
+
+				out[i] = og.slice();
+				og = out[i];
+
+				for( let e of ext ){
+
+					if( e && e.hasOwnProperty('__DEL__') ){
+
+						let pos = og.indexOf(e.__DEL__);
+						if( ~pos )
+							og.splice(pos, 1);
+						continue;
+
+					}
+
+					og.push(e);
+
+				}
+				
+			}
+			else if( typeof og === "object" && typeof ext === "object" ){
+
+				out[i] = this.mergeExtensionAssets(original[i], ext);
+
+			}
+			else if( extension[i] )
+				out[i] = extension[i]; 
+			else
+				out[i] = original[i];
+			
+		}
+
+
+		// Load any custom extension things onto base
+		for( let i in extension ){
+
+			if( i === '_e' || i === '__MOD' )
+				continue;
+
+			if( !out.hasOwnProperty(i) ){
+
+				out[i] = extension[i];
+
+				// Might happen if a base array is deleted but the extension has deleted assets, in that case we need to purge deletions here
+				if( Array.isArray(out[i]) ){
+
+					out[i] = out[i].filter(el => 
+						typeof el !== "object" || !el.hasOwnProperty('__DEL__')
+					);
+
+				}
+
+			}
+
+		}
+
+		return out;
 
 	}
 

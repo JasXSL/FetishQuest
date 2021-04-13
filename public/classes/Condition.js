@@ -104,7 +104,7 @@ export default class Condition extends Generic{
 
 	clone( parent ){
 
-		let out = new this.constructor(Asset.saveThis(this, true), parent);
+		let out = new this.constructor(this.constructor.saveThis(this, true), parent);
 		return out;
 
 	}
