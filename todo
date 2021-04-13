@@ -5,7 +5,10 @@
 
 -- CURRENT --
 	
-	- Add a way to alter parent mod dungeon cells
+	PROJECT MOD EDIT:
+	- Need to add __DELETE__ tags in array extenders so you can add/remove to something
+	- Add a way to edit dungeon cells this way
+
 	- Make a CDN for mods
 
 Medium rare:

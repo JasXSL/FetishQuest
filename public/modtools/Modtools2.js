@@ -856,6 +856,16 @@ export default class Modtools{
 			else
 				newAsset.label = asset.label+'_ext';
 
+			if( asset._mParent ){
+
+				// When deleting _mParent, it checks for both original and extension 
+				newAsset._mParent = {
+					type: asset._mParent.type,
+					label : asset._mParent.label,
+				};
+
+			}
+
 			this.mod[type].push(newAsset);
 			asset = newAsset;
 			this.setDirty(true);

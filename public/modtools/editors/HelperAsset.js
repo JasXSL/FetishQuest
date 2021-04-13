@@ -266,6 +266,10 @@ export default{
 			let n = 0;
 			for( let entry of allEntries ){
 
+				if( typeof entry === 'object' ){
+					console.error("Entry should probably not be an object in ", asset, targetLibrary);
+				}
+
 				const base = this.modEntryToObject(entry, targetLibrary),
 					asset = new constructor(base)
 				;
@@ -274,11 +278,23 @@ export default{
 					console.error("Base not found, trying to find", entry, "in", targetLibrary, "asset was", asset, "all assets", allEntries);
 				}
 
+
 				const tr = document.createElement('tr');
 				table.appendChild(tr);
 				tr.classList.add("asset");
 				tr.dataset.id = asset.label || asset.id;
 				tr.dataset.index = n;
+
+				if( base && typeof entry !== 'object' && (base.__MOD || base._e) ){
+
+					if( base.__MOD ){
+						tr.dataset.mod = base.__MOD;
+					}						
+					if( base._e ){
+						tr.dataset.ext = base._e;
+					}
+
+				}
 
 				// prefer label before id
 				for( let column of columns ){
@@ -322,7 +338,7 @@ export default{
 				a.label = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID();
 
 	
-			// There's not target library, this should be stored as an object
+			// There's no target library, this should be stored as an object
 			if( !mod.mod[targetLibrary] ){
 
 				if( single )
@@ -403,17 +419,24 @@ export default{
 			// Ctrl deletes
 			if( event.ctrlKey ){
 				
-				// Don't need to store this param in the mod anymore
-				if( single )
-					delete entries[key];	
-				// Remove from the array
-				else
-					entries[key].splice(index, 1);	// Remove this
-
-				// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
-				// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
-				if( parented && mod.mod[targetLibrary] )
+				// Remove an extension
+				if( event.currentTarget.dataset.ext ){
 					MOD.deleteAsset(targetLibrary, entry);
+				}
+				else{
+					// Don't need to store this param in the mod anymore
+					if( single )
+						delete entries[key];	
+					// Remove from the array
+					else
+						entries[key].splice(index, 1);	// Remove this
+
+					// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
+					// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
+					if( parented && mod.mod[targetLibrary] )
+						MOD.deleteAsset(targetLibrary, entry);
+
+				}
 
 				win.rebuild();
 				EDITOR.setDirty(true);
@@ -450,12 +473,6 @@ export default{
 					win.rebuild();
 					return;
 	
-				}
-
-				// Check if from this mod
-				if( asset.__MOD ){
-					alert("Can't edit an asset from a different mod. Ctrl+click to delete.");
-					return;
 				}
 
 				// This is just for legacy reasons, makes sure it has an ID, which the window manager wants
@@ -751,7 +768,7 @@ export default{
 				tr.dataset.mod = asset.__MOD;
 				ext = window.mod.parentMod.getAssetById(library, asset.id || asset.label, true) || a;
 				if( (ext.id && ext.id !== a.id) || (ext.label && ext.label !== a.label) )	// This is an extension on the base mod
-					tr.dataset.ext = ext.id;
+					tr.dataset.ext = ext.id || ext.label;
 
 			}
 			

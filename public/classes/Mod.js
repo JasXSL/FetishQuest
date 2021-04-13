@@ -162,6 +162,9 @@ export default class Mod extends Generic{
 				const comparison = comparer.compare(base, extension);
 				delete comparison.__MOD;
 				removeDel(comparison);
+				// mParent is allowed to be the same on both
+				if( extension._mParent )
+					comparison._mParent = extension._mParent;
 
 				arr[entry] = comparison;
 
@@ -283,6 +286,22 @@ export default class Mod extends Generic{
 				
 				this[type].splice(i, 1);
 				this.deleteChildrenOf( type, id );	// Delete any child objects recursively
+
+				// We're only allowed to delete from the mod being edited so, just grab the base asset
+				// Extensions can have either an extension root or the base root
+				let root = mod.parentMod.getAssetById(type, id, false);
+				if( !root )
+					root = mod.parentMod.getAssetById(type, asset.label, false);
+				if( root ){
+
+					if( root.id )
+						this.deleteChildrenOf( type, root.id );
+					if( root.label )
+						this.deleteChildrenOf( type, root.label );
+
+				}
+
+
 				return true;
 
 			}
