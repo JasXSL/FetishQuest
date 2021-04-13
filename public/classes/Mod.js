@@ -1,3 +1,4 @@
+import Comparer from './Comparer.js';
 import Generic from './helpers/Generic.js';
 
 /* DB Asset special fields: 
@@ -77,6 +78,7 @@ export default class Mod extends Generic{
 
 	getSaveData(){
 		
+		const comparer = new Comparer();
 		const out = {
 			buildNr : this.buildNr,
 			version : this.version,
@@ -119,23 +121,153 @@ export default class Mod extends Generic{
 			gallery : this.gallery,
 		};
 
+		const removeDel = obj => {
+
+			if( typeof obj !== "object" )
+				return obj;
+
+			let keys = Object.keys(obj);
+			for( let key of keys ){
+				
+				if( obj[key] === '__DEL__' )
+					delete obj[key];
+				else
+					obj[key] = removeDel(obj[key]);
+
+			}
+			return obj;
+
+		};
+		// Run comparer on items changed by mod
+		for( let i in out ){
+
+			if( !Array.isArray(out[i]) )
+				continue;
+			
+			// We're going to make changes to this list, so shallow-clone the array
+			out[i] = out[i].slice();
+			const arr = out[i];
+			
+			for( let entry in arr ){
+
+				const extension = arr[entry];
+				if( !extension._e )
+					continue;
+
+				// Remove unchanged data
+				const base = window.mod.parentMod.getAssetById(i, extension._e, false);
+				if( !base )
+					continue;	// Todo: error?
+
+				const comparison = comparer.compare(base, extension);
+				delete comparison.__MOD;
+				removeDel(comparison);
+
+				arr[entry] = comparison;
+
+			}
+
+		}
+
+		console.log(out.texts);
 		return out;
 	}
 
+	getExtensionFor( type, asset ){
+
+		if( !Array.isArray(this[type]) )
+			throw 'Trying to fetch an id from non array: '+type;
+
+		for( let a of this[type] ){
+
+			if( a._e === asset.id || a._e === asset.label )
+				return a;
+
+		}
+
+	}
+
 	// Note: allows to fetch by label if it exists
-	getAssetById( type, id ){
+	// 
+	getAssetById( type, id, extend = true ){
 
 		if( !Array.isArray(this[type]) )
 			throw 'Trying to fetch an id from non array: '+type;
 
 		for( let asset of this[type] ){
 
-			if( asset.label === id || asset.id === id )
+			if( asset.label === id || asset.id === id ){
+
+				if( extend ){
+
+					let original;
+
+					// Find an extension for this
+					if( asset.__MOD ){
+
+						let base = window.mod.mod.getExtensionFor(type, asset);
+						if( base && base.id !== id && base.label !== id ){	// Prevent recursion
+
+							// We want to return the asset that extends the original
+							original = asset;
+							asset = base;
+
+						}
+
+					}
+
+					// Find the root of this
+					else if( asset._e ){
+
+						original = window.mod.parentMod.getAssetById( type, asset._e, true);
+
+					}
+
+					if( original ){
+
+						//console.log("Loading", original, "onto", asset);
+						// Fill out any unfilled fields from the parentMod asset
+						for( let i in original ){
+
+							// Don't overwrite?
+							if( asset.hasOwnProperty(i) || i === '_e' || i === '__MOD' )
+								continue;
+
+							asset[i] = JSON.parse(JSON.stringify(original[i]));	// Ugly but simple way of cloning
+							// At some point you probably want to add a __DEL__ and use that instead
+
+						}
+
+					}
+
+				}
+
 				return asset;
+			}
 
 		}
 
 	}
+
+	// Updates an asset based on its ID
+	setAssetById( type, newAsset ){
+		
+		if( !Array.isArray(this[type]) )
+			throw 'Trying to fetch an id from non array: '+type;
+
+		for( let i in this[type] ){
+
+			const asset = this[type][i];
+			if( asset.id === newAsset.id ){
+
+				this[type][i] = newAsset;
+				return;
+
+			}
+
+		}
+	}
+
 
 	// Deletes a single asset
 	// Note: allows both label and id

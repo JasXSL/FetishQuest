@@ -534,6 +534,10 @@ export default{
 		let fulldb = window.mod.mod[library].slice().reverse(),
 			isLinker = this.windowIsLinker(win)
 		;
+		// Parent mod assets
+		fulldb.push(...window.mod.parentMod[library].slice().reverse());
+
+		fulldb = fulldb.filter(el => !el._mParent && !el._e);
 
 		const fieldIsEssential = field => field.startsWith('*');
 		const getFieldName = field => { 
@@ -565,9 +569,7 @@ export default{
 
 		
 		
-		// Linker window should add parent mod assets
-		if( isLinker && window.mod.parentMod[library] )
-			fulldb.push(...window.mod.parentMod[library].slice().reverse());
+		
 
 		if( win._search ){
 
@@ -664,12 +666,6 @@ export default{
 		}
 
 		let db = fulldb.slice(win.custom._page, win.custom._page+this.PAGINATION_LENGTH);
-		// Don't show parented assets, they only show in linkedTable
-		db = db.filter(el => {
-			return !el._mParent;
-		});
-	
-		
 
 		// Create the element to return
 		const container = document.createElement('template');
@@ -748,39 +744,47 @@ export default{
 			let tr = document.createElement('tr');
 			table.appendChild(tr);
 			tr.dataset.id = asset.label || asset.id || a.label || a.id;
-			if( asset.__MOD )
-				tr.dataset.mod = asset.__MOD;
+			let ext = a;
 
-				if( !isLinker ){
-
-					let td = document.createElement('td');
-					tr.appendChild(td);
-					td.classList.add('essential');
-					td.innerHTML = '<input type="checkbox" class="marker" />';
-
-				}
+			if( asset.__MOD ){
 				
-				for( let field in fields ){
+				tr.dataset.mod = asset.__MOD;
+				ext = window.mod.parentMod.getAssetById(library, asset.id || asset.label, true) || a;
+				if( (ext.id && ext.id !== a.id) || (ext.label && ext.label !== a.label) )	// This is an extension on the base mod
+					tr.dataset.ext = ext.id;
 
-					const essential = fieldIsEssential(field);
-					let val = stringifyVal(field, a);
+			}
+			
+			if( !isLinker ){
 
-					const td = document.createElement('td');
-					tr.appendChild(td);
-					if( essential )
-						td.classList.add("essential");
-					td.innerText = val;
-		
-				}
+				let td = document.createElement('td');
+				tr.appendChild(td);
+				td.classList.add('essential');
+				td.innerHTML = '<input type="checkbox" class="marker" />';
 
-				// Linker should also show the mod
-				if( isLinker ){
+			}
+			
+			for( let field in fields ){
 
-					const td = document.createElement('td');
-					tr.appendChild(td);
-					td.innerText = asset.__MOD ? asset.__MOD : 'THIS';
+				const essential = fieldIsEssential(field);
+				let val = stringifyVal(field, ext);
 
-				}
+				const td = document.createElement('td');
+				tr.appendChild(td);
+				if( essential )
+					td.classList.add("essential");
+				td.innerText = val;
+	
+			}
+
+			// Linker should also show the mod
+			if( isLinker ){
+
+				const td = document.createElement('td');
+				tr.appendChild(td);
+				td.innerText = asset.__MOD ? asset.__MOD : 'THIS';
+
+			}
 
 		}
 
@@ -963,15 +967,18 @@ export default{
 			el.addEventListener('click', event => {
 
 				const elId = event.currentTarget.dataset.id,
-					mod = event.currentTarget.dataset.mod
+					mod = event.currentTarget.dataset.mod,
+					ext = event.currentTarget.dataset.ext	// This is an extend of another asset
 				;
 				
 
 				// Ctrl deletes unless it's a linker
-				if( !mod && !isLinker && event.ctrlKey && confirm("Really delete?") ){
-					del(elId);
+				if( (!mod || ext) && !isLinker && event.ctrlKey && confirm("Really delete?") ){
+
+					del(ext ? ext : elId);
 					win.rebuild();
 					this.rebuildAssetLists(type);
+
 				}
 				
 				// If it's a linker you can use shift to bring up an editor
@@ -989,7 +996,9 @@ export default{
 				}
 				// Unmodified non linker click opens
 				else if( !isLinker ){
+
 					DEV.buildAssetEditor(type, elId);
+
 				}
 
 				// This is a linker, we need to tie it to the parent

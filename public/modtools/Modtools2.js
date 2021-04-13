@@ -713,7 +713,9 @@ export default class Modtools{
 			];
 
 			for( let mod of parentMods ){
+
 				for( let i in mod ){
+
 					if( Array.isArray(mod[i]) ){
 
 						// First make sure we know what mod the asset is from by adding __MOD
@@ -729,10 +731,25 @@ export default class Modtools{
 							this.parentMod[i] = mod[i].slice();
 						
 					}
+
 				}
+
 			}
 		}
 
+		/*
+
+			// Create a copy of our mod onto the parent mod
+			for( let table in this.mod ){
+
+				if( !Array.isArray(this.mod[table]) )
+					continue;
+
+				this.parentMod[i].push(...this.mod[i]);
+
+			}
+
+		*/
 		
 
 		this.setDirty(false);
@@ -820,10 +837,34 @@ export default class Modtools{
 			throw 'Asset editor not found for type '+type+", add it to DB_MAP in Modtools2.js";
 
 		//console.log("Getting asset", type, id);
-		const asset = typeof id === 'object' ? id : this.mod.getAssetById(type, id);
+		let asset = typeof id === 'object' ? id : this.mod.getAssetById(type, id, true);
+		if( !asset )
+			asset = this.parentMod.getAssetById(type, id);
+
 		if( !asset )
 			throw 'Asset not found: '+id+" type: "+type;
 
+		// If we try to edit a library asset, we'll have to crete an extension
+		if( asset.__MOD ){
+
+			// See if it already exists
+			const newAsset = {
+				_e : asset.id || asset.label
+			};
+			if( asset.id )
+				newAsset.id = Generic.generateUUID();
+			else
+				newAsset.label = asset.label+'_ext';
+
+			this.mod[type].push(newAsset);
+			asset = newAsset;
+			this.setDirty(true);
+			
+			Window.rebuildWindowsByTypeAndId('Database', type);
+			
+		}
+
+		id = asset.id || asset.label;
 
 		if( typeof data !== "object" )
 			data = {};
@@ -836,11 +877,10 @@ export default class Modtools{
 		}
 
 		//console.log("Creating window", id, type, asset, data, parent);
-
 		const w = Window.create(
 			id, 
 			type, 
-			asset.name || asset.label, 
+			asset.name || asset.label || asset.id, 
 			DB_MAP[type].icon || "pencil", 
 			DB_MAP[type].asset, 
 			data, 
@@ -850,6 +890,7 @@ export default class Modtools{
 
 		if( DB_MAP[type].help )
 			w.setHelp(DB_MAP[type].help);
+
 
 		return w;
 

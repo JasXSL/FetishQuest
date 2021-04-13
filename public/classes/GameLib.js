@@ -174,16 +174,45 @@ export default class GameLib{
 	// Loads a mod db array onto one of this objects
 	loadModOnto( db, obj, constructor ){
 
-		for( let asset of db )
+		let overrides = [];	// Objects that should extend existing data
+
+		for( let asset of db ){
+			
+			if( asset._e ){
+
+				overrides.push(asset);
+				continue;
+
+			}
+
 			obj[asset.label] = new constructor(asset);
+
+		}
+
+		for( let override of overrides ){
+
+			if( !obj[override._e] ){
+				
+				console.error("Missing base asset for", override, "check mod load order");
+				continue;
+
+			}
+
+			delete override.label;	// Use the original label, everything else is overwritten
+			obj[override._e].load(override);
+
+		}
 
 		if( !constructor )
 			console.error("Missing constructor in", db, obj, constructor);
+
 		// Handle caches
 		if( constructor.name === "Asset" ){
+
 			this._cache_assets = {};
 			for( let i in this.assets )
 				this._cache_assets[i] = this.assets[i];
+
 		}
 
 	}
@@ -213,11 +242,28 @@ export default class GameLib{
 			// But they need to be mapped to an object
 			if( Array.isArray(mod.texts) ){
 
+				let overrides = [];
+
 				for( let text of mod.texts ){
 
+					if( text._e ){
+						
+						overrides.push(text);
+						continue;
+
+					}
 					const t = new Text(text);
 					let label = t.label || t.id;	// Labels can be used. These are only used when a text is used as a custom sub object, such as in a roleplay
 					this.texts[label] = t;
+
+				}
+
+				// Handle text overrides as well
+				for( let text of overrides ){
+
+					const existing = this.texts[text._e];
+					if( existing )
+						existing.load(text);
 
 				}
 

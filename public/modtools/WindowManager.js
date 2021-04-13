@@ -511,8 +511,11 @@ export default class Window{
 
 		for( let win of this.pages.values() ){
 
-			if( type === win.type && id === win.id )
+			if( type === win.type && (id === win.id || id === undefined) ){
+				
 				win.rebuild();
+
+			}
 
 		}
 

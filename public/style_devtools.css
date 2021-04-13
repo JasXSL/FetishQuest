@@ -267,7 +267,12 @@ table.selectable tr:not(.noselect):nth-child(odd) td{
 table.selectable tr:not(.noselect):hover td{
 	background-color:#AAA;
 }
-
+table.selectable tr[data-mod]{
+	color:#DDD;
+}
+table.selectable tr[data-ext]{
+	color:#ABD;
+}
 
 
 
