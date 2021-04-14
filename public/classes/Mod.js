@@ -269,7 +269,7 @@ export default class Mod extends Generic{
 
 		for( let a of this[type] ){
 
-			if( a._e === asset.label || a._e === asset.id )
+			if( (asset.label && a._e === asset.label) || (asset.id && a._e === asset.id) )
 				return a;
 
 		}
@@ -287,11 +287,10 @@ export default class Mod extends Generic{
 			throw 'Trying to fetch an id from non array: '+type;
 
 
-		
 
 		for( let asset of this[type] ){
 
-			if( asset.label === id || asset.id === id ){
+			if( (asset.label && asset.label === id) || (asset.id && asset.id === id) ){
 
 				if( extend ){
 
@@ -301,6 +300,7 @@ export default class Mod extends Generic{
 					if( asset.__MOD ){
 
 						let base = window.mod.mod.getExtensionFor(type, asset);
+						
 						if( base && base.id !== id && base.label !== id ){	// Prevent recursion
 
 							// We want to return the asset that extends the original
