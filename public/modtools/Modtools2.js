@@ -831,25 +831,27 @@ export default class Modtools{
 	// Note that if you use an object directly it won't save the window, and should only be used in special cases like the dungeonAsset GameActions to save space
 	buildAssetEditor( type, id, data, parent, custom ){
 
-		console.log(type, id, data, parent, custom);
-
 		if( !DB_MAP[type] || !DB_MAP[type].asset)
 			throw 'Asset editor not found for type '+type+", add it to DB_MAP in Modtools2.js";
 
 		//console.log("Getting asset", type, id);
 		let asset = typeof id === 'object' ? id : this.mod.getAssetById(type, id, true);
+
+
 		if( !asset )
 			asset = this.parentMod.getAssetById(type, id);
 
+
 		if( !asset )
 			throw 'Asset not found: '+id+" type: "+type;
+		
 
 		// If we try to edit a library asset, we'll have to crete an extension
 		if( asset.__MOD ){
 
-			// See if it already exists
+			// See if it already exists. Prefer label.
 			const newAsset = {
-				_e : asset.id || asset.label
+				_e : asset.label || asset.id
 			};
 			if( asset.id )
 				newAsset.id = Generic.generateUUID();
@@ -874,7 +876,6 @@ export default class Modtools{
 			
 		}
 
-		id = asset.id || asset.label;
 
 		if( typeof data !== "object" )
 			data = {};
@@ -885,8 +886,10 @@ export default class Modtools{
 			data.asset = asset;
 
 		}
+		else
+			id = asset.label || asset.id;
 
-		//console.log("Creating window", id, type, asset, data, parent);
+		console.log("Creating window", id, type, asset, data, parent);
 		const w = Window.create(
 			id, 
 			type, 

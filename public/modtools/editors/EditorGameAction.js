@@ -34,6 +34,7 @@ export function asset(){
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
 
+
 	if( !asset )
 		return this.close();
 
@@ -211,12 +212,12 @@ export function asset(){
 			html += '<label>Room: <select class="saveable"  data-type="int" name="data::index">';
 			for( let r of cache_rooms )
 				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.index ? 'selected' : '')+'>['+esc(r.index || 0)+'] '+esc(r.name || 'Unknown Room')+'</option>';
-			html += '</label>';
+			html += '</select></label>';
 
 		}
 		
 		
-			html += '<label>Travel time in seconds: <input type=number min=0 step=1 value="'+esc(asset.data.time)+'" name="data::time" class="saveable" /></label>';
+			html += '<label>Travel time in seconds: <input type="number" min=0 step=1 value="'+esc(asset.data.time)+'" name="data::time" class="saveable" /></label>';
 		html += '</div>';
 
 		fnBind = () => {

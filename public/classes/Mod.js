@@ -143,6 +143,12 @@ export default class Mod extends Generic{
 
 		const handleComparedArrays = (base, compared) => {
 
+			const getId = c => {
+				if( typeof c === "object" )
+					return c.label || c.id;
+				return c;
+			};
+
 			for( let i in compared ){
 
 				if( !Array.isArray(compared[i]) ){
@@ -151,9 +157,11 @@ export default class Mod extends Generic{
 					continue;
 				}
 
+				console.log("Comparing", base, compared);
 				let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
 				// Check how many of each entry we have
 				for( let c of compared[i] ){
+					c = getId(c);
 					
 					if( !adds.get(c) )
 						adds.set(c, 0);
@@ -163,6 +171,7 @@ export default class Mod extends Generic{
 				}
 				// Check which ones have been removed
 				for( let c of base[i] ){
+					c = getId(c);
 
 					if( adds.get(c) ){
 
@@ -175,22 +184,24 @@ export default class Mod extends Generic{
 
 					}
 
-					let rem = typeof c === "object" ? c.id || c.label : c;
-					removes.push(rem);
+					removes.push(c);
 
 				}
 				// Check which ones are newly added
-				for( let c of compared[i] ){
-
+				for( let cur of compared[i] ){
+					const c = getId(cur);
+					
 					if( currents.get(c) ){
 
 						currents.set(c, currents.get(c)-1);
 						continue;
 
 					}
-					build.push(c);
+					build.push(cur);
 
 				}
+
+				console.log(removes, build, adds, currents);
 
 
 				compared[i] = removes.map(el => {
@@ -247,7 +258,7 @@ export default class Mod extends Generic{
 
 		}
 
-		console.log(out.texts);
+		console.log("Saved", out);
 		return out;
 	}
 
@@ -258,7 +269,7 @@ export default class Mod extends Generic{
 
 		for( let a of this[type] ){
 
-			if( a._e === asset.id || a._e === asset.label )
+			if( a._e === asset.label || a._e === asset.id )
 				return a;
 
 		}
@@ -313,6 +324,8 @@ export default class Mod extends Generic{
 						// Handles arrays with {__DEL__} objects and loads asset keys onto original
 						original = Mod.mergeExtensionAssets(original, asset);
 
+						console.log("merging", original, "with", asset);
+						//debugger
 						//console.log("Loading", original, "onto", asset);
 						// Fill out any unfilled fields from the parentMod asset
 						
@@ -369,17 +382,10 @@ export default class Mod extends Generic{
 				this[type].splice(i, 1);
 				this.deleteChildrenOf( type, id );	// Delete any child objects recursively
 
-				// We're only allowed to delete from the mod being edited so, just grab the base asset
-				// Extensions can have either an extension root or the base root
-				let root = mod.parentMod.getAssetById(type, id, false);
-				if( !root )
-					root = mod.parentMod.getAssetById(type, asset.label, false);
-				if( root ){
+				// We deleted an extension, so we gotta delete whatever we were extending as well
+				if( asset._e ){
 
-					if( root.id )
-						this.deleteChildrenOf( type, root.id );
-					if( root.label )
-						this.deleteChildrenOf( type, root.label );
+					this.deleteChildrenOf( type, asset._e );
 
 				}
 
@@ -596,6 +602,20 @@ export default class Mod extends Generic{
 
 		let out = {};
 
+		// Searches for an exact entry, entry.label, or entry.id
+		const findInArray = (array, label) => {
+
+			for( let i =0; i < array.length; ++i ){
+
+				if( array[i] === label || (array[i] && (array[i].label === label || array[i].id === label)))
+					return i;
+
+			}
+
+			return false;
+
+		};
+
 		// Handle arrays. If an array is present in extension but not original, it's accepted directly in the second loop
 		for( let i in original ){
 
@@ -613,8 +633,8 @@ export default class Mod extends Generic{
 
 					if( e && e.hasOwnProperty('__DEL__') ){
 
-						let pos = og.indexOf(e.__DEL__);
-						if( ~pos )
+						let pos = findInArray(og, e.__DEL__);
+						if( pos !== false )
 							og.splice(pos, 1);
 						continue;
 

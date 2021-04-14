@@ -266,10 +266,6 @@ export default{
 			let n = 0;
 			for( let entry of allEntries ){
 
-				if( typeof entry === 'object' ){
-					console.error("Entry should probably not be an object in ", asset, targetLibrary);
-				}
-
 				const base = this.modEntryToObject(entry, targetLibrary),
 					asset = new constructor(base)
 				;
@@ -419,24 +415,26 @@ export default{
 			// Ctrl deletes
 			if( event.ctrlKey ){
 				
-				// Remove an extension
+				// Remove an extension (should only be needed in the main one, not the linker)
+				/*
 				if( event.currentTarget.dataset.ext ){
 					MOD.deleteAsset(targetLibrary, entry);
 				}
 				else{
-					// Don't need to store this param in the mod anymore
-					if( single )
-						delete entries[key];	
-					// Remove from the array
-					else
-						entries[key].splice(index, 1);	// Remove this
+				*/
+				// Don't need to store this param in the mod anymore
+				if( single )
+					delete entries[key];	
+				// Remove from the array
+				else
+					entries[key].splice(index, 1);	// Remove this
 
-					// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
-					// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
-					if( parented && mod.mod[targetLibrary] )
-						MOD.deleteAsset(targetLibrary, entry);
+				// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
+				// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
+				if( parented && mod.mod[targetLibrary] )
+					MOD.deleteAsset(targetLibrary, entry);
 
-				}
+				//}
 
 				win.rebuild();
 				EDITOR.setDirty(true);
@@ -1048,6 +1046,8 @@ export default{
 
 					// win.id contains the field you're looking to link to
 					let label = targAsset.label || targAsset.id;
+					if( targAsset._e )
+						label = targAsset._e;
 
 					// Single assigns directly to the key
 					if( single ){

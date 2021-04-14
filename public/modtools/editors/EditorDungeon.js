@@ -171,7 +171,9 @@ class DungeonLayoutEditor{
 
 		for( let roomLabel of this.asset.rooms ){
 
-			const room = window.mod.mod.getAssetById('dungeonRooms', roomLabel);
+			let room = window.mod.mod.getAssetById('dungeonRooms', roomLabel);
+			if( !room )
+				room = window.mod.parentMod.getAssetById('dungeonRooms', roomLabel);
 			if( !room ){
 				console.error("Warning: Room asset not found", roomLabel);
 				continue;

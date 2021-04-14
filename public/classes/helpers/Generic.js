@@ -317,7 +317,7 @@ export default class Generic{
 
 		const sd = el.save(full);
 		if( full === "mod" )
-			sd._e = this._e;
+			sd._e = this._e || '';
 
 		return sd;
 

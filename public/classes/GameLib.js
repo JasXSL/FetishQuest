@@ -191,16 +191,17 @@ export default class GameLib{
 
 		for( let override of overrides ){
 
-			if( !obj[override._e] ){
+			const editId = override._e;
+			if( !obj[editId] ){
 				
-				console.error("Missing base asset for", override, "check mod load order");
+				console.error("Missing base asset for", override, "check mod load order. Tried finding it in", obj);
 				continue;
 
 			}
 
 			delete override.label;	// Use the original label, everything else is overwritten
-			override = Mod.mergeExtensionAssets(obj, override);	// Handle arrays since they have {__DEL__} objects
-			obj[override._e].load(override);
+			override = Mod.mergeExtensionAssets(obj[editId], override);	// Handle arrays since they have {__DEL__} objects
+			obj[editId].load(override);
 
 		}
 
