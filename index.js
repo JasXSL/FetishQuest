@@ -22,6 +22,40 @@ if( process.env.PASS ){
 	}));
 }
 
+app.use(Express.json());
+
+try{
+
+	const Repo = require('./mod_repo/ModRepo');
+	Repo.init();
+	app.use('/mods', async (req, res) => {
+
+		if( !Repo.ini ){
+
+			res.json({success:false, data:{error:'__INITIALIZING__'}});
+			return;
+
+		}
+
+		let out = {};
+		try{
+			const r = new Repo(req);
+			out = await r.run();
+		}catch(err){
+			out.success = false;
+			out.err = err;
+		}
+
+		res.json(out);
+	});
+		
+}catch(err){
+	console.log("Mod repo was not detected");
+	app.use('/mods', async (req, res) => {
+		res.json({success:false, data:{error:'__UNSUPPORTED__'}});
+	});
+}
+
 const textureDir = __dirname+'/public/media/textures';
 const ambianceDir = __dirname+'/public/media/audio/ambiance';
 app.use('/media/textures', Express.static(textureDir), serveIndex(textureDir, {icons:true}));
@@ -112,3 +146,6 @@ io.on('connection', socket => {
 	
 	
 });
+
+
+

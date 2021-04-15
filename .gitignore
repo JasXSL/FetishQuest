@@ -1,5 +1,6 @@
 public/media/
 public/libraries/cdn/
+mod_repo/
 .vscode/
 .eslintrc.json
 FetishQuest.code-workspace

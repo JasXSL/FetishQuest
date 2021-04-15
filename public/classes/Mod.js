@@ -63,7 +63,6 @@ export default class Mod extends Generic{
 		return new this.constructor(JSON.parse(JSON.stringify(this.getSaveData())));
 	}
 
-	
 	load( data ){
 		
 		// Legacy reasons, can remove in the future
@@ -245,6 +244,7 @@ export default class Mod extends Generic{
 				const comparison = comparer.compare(base, extension);
 				delete comparison.__MOD;
 
+				console.log("Doing comparison of", base, comparison);
 				handleComparedArrays(base, comparison);
 
 				removeDel(comparison);
