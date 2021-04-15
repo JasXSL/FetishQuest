@@ -50,7 +50,7 @@ try{
 	});
 		
 }catch(err){
-	console.log("Mod repo was not detected");
+	console.log("Mod repo was not detected", err);
 	app.use('/mods', async (req, res) => {
 		res.json({success:false, data:{error:'__UNSUPPORTED__'}});
 	});
@@ -58,6 +58,9 @@ try{
 
 const textureDir = __dirname+'/public/media/textures';
 const ambianceDir = __dirname+'/public/media/audio/ambiance';
+app.use('/modtools2.html', (req, res) => {
+	res.redirect('/modtools.html');
+});
 app.use('/media/textures', Express.static(textureDir), serveIndex(textureDir, {icons:true}));
 app.use('/media/audio/ambiance', Express.static(ambianceDir), serveIndex(ambianceDir, {icons:true}));
 app.use('/imgproxy', ImageProxy);
