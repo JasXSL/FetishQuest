@@ -37,6 +37,9 @@ export function asset(){
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label>Species: <input type="text" name="species" class="saveable" value="'+esc(dummy.species)+'" /></label>';
 		html += '<label>Image: <input name="icon" value="'+esc(dummy.icon)+'" type="text" class="saveable" /></label>';
+		html += '<label>Image Upper Body: <input name="icon_upperBody" value="'+esc(dummy.icon_upperBody)+'" type="text" class="saveable" /></label>';
+		html += '<label>Image Lower Body: <input name="icon_lowerBody" value="'+esc(dummy.icon_lowerBody)+'" type="text" class="saveable" /></label>';
+		html += '<label>Image Nude: <input name="icon_nude" value="'+esc(dummy.icon_nude)+'" type="text" class="saveable" /></label>';
 		html += '<label title="Max actions this can have, -1 = infinite">Max Actions: <input name="max_actions" value="'+esc(dummy.max_actions)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>Min Level: <input name="min_level" value="'+esc(dummy.min_level)+'" type="number" min=1 step=1 class="saveable" /></label>';
 		html += '<label>Max Level: <input name="max_level" value="'+esc(dummy.max_level)+'" type="number" min=1 step=1 class="saveable" /></label>';
