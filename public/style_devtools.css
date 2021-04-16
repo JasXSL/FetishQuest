@@ -273,7 +273,10 @@ table.selectable tr[data-mod]{
 table.selectable tr[data-ext]{
 	color:#ABD;
 }
-
+table.allowMarking,
+table.allowMarking *{
+	user-select: auto;
+}
 
 
 

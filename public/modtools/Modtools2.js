@@ -47,6 +47,7 @@ import GameLib from '../classes/GameLib.js';
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
 	"Database" : true,
+	"My Mods" : true
 };
 
 
@@ -157,7 +158,7 @@ export default class Modtools{
 
 		// Click the top menu
 		this.topMenu.querySelectorAll("div[data-id]").forEach(el => {
-			el.onclick = evt => {
+			el.onclick = async evt => {
 				evt.stopImmediatePropagation();
 				const button = evt.currentTarget;
 
@@ -334,6 +335,88 @@ export default class Modtools{
 						this.toggleEssentialOnly();
 					}, false);
 					
+				}
+
+				else if( button.dataset.id === "online" ){
+					
+					Window.setMenu(button);
+
+					const userData = await this.isLoggedIn();
+
+					if( !userData ){
+
+						Window.addMenuOption("login", "Log In", () => {
+
+							Window.create("JasX Login", "Log in", "", "wireframe-globe", function(){
+
+								let html = '<h1>JasX Log In</h1>';
+								html += '<p>If you don\'t already have a JasX account, you can create one at <a href="https://jasx.org">https://jasx.org</a></p>';
+								html += '<form class="center">';
+									html += '<input type="text" name="username" placeholder="Username" required /><br />';
+									html += '<input type="password" name="password" placeholder="Password" required /><br />';
+									html += '<input type="submit" value="Log In" />';
+								html += '</form>';
+								this.setDom(html);
+
+								this.dom.querySelector("form").onsubmit = async event => {
+									event.preventDefault();
+
+									const form = event.currentTarget,
+										name = form.querySelector("input[name=username]").value.trim(),
+										pass = form.querySelector("input[name=password]").value.trim()
+									;
+									if( !name || !pass )
+										return;
+
+									if( await self.logIn(name, pass) ){
+
+										this.close();
+
+									}
+
+								};
+
+							});
+
+						});
+
+					}
+
+					// While logged in
+					else{
+
+						Window.addMenuOption('mymods', 'My Mods', () => {
+							
+							this.drawMyMods();
+
+						});
+
+						Window.addMenuOption('logout', 'Log Out ('+esc(userData.name)+')', () => {
+							this.logOut();
+						});
+
+					}
+
+					/*
+					Window.addMenuOption("open", "Open (Ctrl+O)", () => { self.loadWindow(); });
+
+					Window.addMenuOption("import", "Import", () => { 
+						
+						this.dummyUploader.setAttribute("accept", ".fqmod");
+						this.dummyUploader.onchange = async event => {
+
+							const mod = await Mod.import(event);
+
+							if( mod )
+								this.load(mod);
+
+							this.dummyUploader.value = "";
+
+						};
+
+						this.dummyUploader.click();
+					});
+					*/
 				}
 
 			};
@@ -536,6 +619,8 @@ export default class Modtools{
 				else if( DB_MAP[val.type] ){
 					win = this.buildAssetEditor(val.type, val.id, undefined, undefined, val.custom);
 				}
+				else if( val.type === 'My Mods' )
+					win = await this.drawMyMods();
 				else{
 					console.error("Ignoring window state for", data, "because it's an unsupported type. Add it to TRACKED_WINDOWS (or DB_MAP if a mod asset)");
 					continue;
@@ -545,6 +630,8 @@ export default class Modtools{
 				continue;
 			}
 
+			if( !win )
+				return;
 			
 			if( val.max )
 				win.toggleMaximize();
@@ -1216,6 +1303,183 @@ export default class Modtools{
 		}
 
 	}
+
+
+
+
+
+	async logIn( user, pass ){
+		
+		const req = await this.modReq('Login', {user:user, pass:pass});
+		if( !req )
+			return;
+
+		localStorage.jasx_session = req.token;
+		return true;
+
+	}
+
+	async logOut(){
+		delete localStorage.jasx_session;
+	}
+
+	// returns false or user data {id:(str)id, name:(str)name}
+	async isLoggedIn(){
+		
+		if( !localStorage.jasx_session )
+			return false;
+
+		const att = await this.modReq('ValidateLoginToken', {token : localStorage.jasx_session});
+		if( !att )
+			this.logOut();
+
+		return att;
+
+	}
+
+	// Draws online mods
+	drawMyMods(){
+
+		const self = this;
+		return Window.create("My Mods", "My Mods", "", "wireframe-globe", async function(){
+
+			const mods = await self.modReq('ListMyMods');
+
+			let html = '<h1>My Mods</h1>';
+			html += '<p>Here you can upload or update your mods to the official mod repo.</p>';
+
+			html += '<label>Upload new mod: <input type="file" class="modUpload" data-token="_NEW_" accept=".fqmod"  /></label>';
+			
+			if( !mods.mods.length )
+				html += '<p>You have not shared any mods yet!</p>';
+			else{
+
+				html += '<table class="selectable allowMarking">';
+				html += '<tr class="noselect">'+
+					'<th>Public</th>'+
+					'<th>Name</th>'+
+					'<th>Category</th>'+
+					'<th>Build</th>'+
+					'<th>FQ</th>'+
+					'<th>Last Update</th>'+
+					'<th>Filesize</th>'+
+					'<th>Created</th>'+
+					'<th>Upload New File</th>'+
+					'<th>Delete</th>'+
+				'</tr>';
+
+				for( let mod of mods.mods ){
+
+					html += '<tr class="noselect" data-token="'+esc(mod.token)+'">';
+						html += '<td><input type="checkbox" class="public" '+(mod.public ? 'checked' : '')+' /></td>';
+						html += '<td>'+esc(mod.name)+'</td>';
+						html += '<td>'+esc(mod.category)+' (Dropdown)</td>';
+						html += '<td>'+esc(mod.build_nr)+'</td>';
+						html += '<td>'+esc(mod.fq_version)+'</td>';
+						html += '<td>'+esc(mod.date_updated)+'</td>';
+						html += '<td>'+esc(mod.filesize)+'</td>';
+						html += '<td>'+esc(mod.date_created)+'</td>';
+						html += '<td><input type="file" class="modUpload" data-token="'+esc(mod.token)+'" accept=".fqmod"  /></td>';
+						html += '<td><input type="button" value="Delete" class="delete" /></td>';
+					html += '</tr>';
+
+				}
+
+				html += '</table>';
+
+			}
+
+			this.setDom(html);
+
+			this.dom.querySelectorAll(".modUpload").forEach(el => { 
+				
+				el.onchange = async event => {
+
+					if( !el.value )
+						return;
+
+					let token = event.target.dataset.token;
+					if( token === '_NEW_' )
+						token = false;
+
+					if( !event.target.files.length )
+						return;
+
+					await self.modReq('UpdateMod', {token:token}, event.target.files[0]);
+
+					this.rebuild();
+				};
+
+			});
+
+			this.dom.querySelectorAll("input.public").forEach(el => {
+
+				el.onchange = async event => {
+
+					await self.modReq('ToggleModPublic', {
+						token:event.target.parentNode.parentNode.dataset.token, 
+						pub:event.target.checked
+					});
+					this.rebuild();
+
+				};
+
+			});
+
+			this.dom.querySelectorAll("input.delete").forEach(el => {
+
+				el.onclick = async event => {
+
+					if( !confirm("Are you sure you want to delete your mod from the repo?") )
+						return;
+
+					if( await self.modReq("DeleteMod", {token:event.target.parentNode.parentNode.dataset.token}) )
+						this.rebuild();
+				};
+
+			});
+			
+
+			self.saveWindowStates();
+
+		});
+
+	}
+
+	// Sends a request to the server
+	async modReq( task, data = {}, file = false ){
+
+		// TOdo: error handler
+
+		const formData = new FormData();
+		formData.append('data', JSON.stringify(data));
+		formData.append('token', localStorage.jasx_session);
+		formData.append('task', task);
+		if( file ){
+			formData.append('file', file);
+		}
+
+		try{
+			const req = await fetch('/mods', {
+				method : 'POST',
+				body : formData
+			});
+			const out = await req.json();
+			
+			if( out.success )
+				return out.data;
+			
+			console.log("out", out);
+			if( out.data.error )
+				console.error("Task error:", out.data.error);
+
+		}catch(err){
+			console.error("Online error:", err);
+		}
+		return false;
+
+	}
+
 
 
 }

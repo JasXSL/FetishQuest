@@ -9,6 +9,9 @@ const server = require('http').Server(app);
 const Game = require('./Game');
 const serveIndex = require('serve-index');
 const ImageProxy = require('./ImageProxy');
+const multer = require('multer');
+const upload = multer({dest : __dirname+'/public/media/usrdata/temp/'});
+
 
 const io = require('socket.io')(server);
 server.listen(port);
@@ -22,13 +25,11 @@ if( process.env.PASS ){
 	}));
 }
 
-app.use(Express.json());
-
 try{
 
 	const Repo = require('./mod_repo/ModRepo');
 	Repo.init();
-	app.use('/mods', async (req, res) => {
+	app.use('/mods', upload.single('file'), async (req, res) => {
 
 		if( !Repo.ini ){
 
@@ -55,6 +56,10 @@ try{
 		res.json({success:false, data:{error:'__UNSUPPORTED__'}});
 	});
 }
+
+process.on('unhandledRejection', (reason, p) => {
+	console.log("Unhandled rejection at", p, "reason", reason);
+});
 
 const textureDir = __dirname+'/public/media/textures';
 const ambianceDir = __dirname+'/public/media/audio/ambiance';
