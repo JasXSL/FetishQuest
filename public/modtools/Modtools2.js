@@ -235,7 +235,13 @@ export default class Modtools{
 								html += '<form class="center">';
 									html += 'Name: <input type="text" name="name" placeholder="Mod Name" value="'+esc(self.mod.name)+'" required /><br />';
 									html += 'Author: <input type="text" name="author" placeholder="Author" value="'+esc(self.mod.author)+'" required /><br />';
+									html += 'Category: <select name="category">';
+									for( let i in Mod.Category ){
+										html += '<option value="'+Mod.Category[i]+'" '+(self.mod.category === Mod.Category[i] ? 'selected' : '')+'>'+i+'</option>';
+									}
+									html += '<br />';
 									html += 'Description: <br />';
+									html += '<span class="subtitle">If you intend to share this mod online, consider including what fetishes your mod caters to, if any.</span>';
 									html += '<textarea name="description">'+esc(self.mod.description)+'</textarea><br />';
 									html += '<input type="submit" value="Save" />';
 									html += '<input type="button" value="Cancel" />';
@@ -253,6 +259,7 @@ export default class Modtools{
 									// Save changes
 									const name = form.querySelector("input[name=name]").value.trim(),
 										author = form.querySelector("input[name=author]").value.trim(),
+										category = form.querySelector("select[name=category]").value,
 										desc = form.querySelector("textarea[name=description]").value.trim()
 									;
 
@@ -262,6 +269,7 @@ export default class Modtools{
 									self.mod.name = name;
 									self.mod.description = desc;
 									self.mod.author = author;
+									self.mod.category = category;
 
 									self.modName.innerText = name;
 
@@ -1345,11 +1353,15 @@ export default class Modtools{
 
 			const mods = await self.modReq('ListMyMods');
 
-			let html = '<h1>My Mods</h1>';
-			html += '<p>Here you can upload or update your mods to the official mod repo.</p>';
+			let html = '<div class="center">'+
+				'<h1>My Mods</h1>';
+				html += '<p>Here you can upload or update your mods to the official mod repo.</p>';
 
-			html += '<label>Upload new mod: <input type="file" class="modUpload" data-token="_NEW_" accept=".fqmod"  /></label>';
-			
+				html += '<label>Upload new mod: <input type="file" class="modUpload" data-token="_NEW_" accept=".fqmod"  /></label>';
+			html += '</div>';
+
+			html += '<br /><br />';
+
 			if( !mods.mods.length )
 				html += '<p>You have not shared any mods yet!</p>';
 			else{
@@ -1370,15 +1382,19 @@ export default class Modtools{
 
 				for( let mod of mods.mods ){
 
+					const dateUpdated = new Date(mod.date_updated),
+						dateCreated = new Date(mod.date_created);
+					
+
 					html += '<tr class="noselect" data-token="'+esc(mod.token)+'">';
 						html += '<td><input type="checkbox" class="public" '+(mod.public ? 'checked' : '')+' /></td>';
 						html += '<td>'+esc(mod.name)+'</td>';
-						html += '<td>'+esc(mod.category)+' (Dropdown)</td>';
+						html += '<td>'+esc(mod.category)+'</td>';
 						html += '<td>'+esc(mod.build_nr)+'</td>';
 						html += '<td>'+esc(mod.fq_version)+'</td>';
-						html += '<td>'+esc(mod.date_updated)+'</td>';
-						html += '<td>'+esc(mod.filesize)+'</td>';
-						html += '<td>'+esc(mod.date_created)+'</td>';
+						html += '<td title="'+esc(mod.date_updated)+'">'+fuzzyTime(dateUpdated.getTime())+'</td>';
+						html += '<td>'+fuzzyFileSize(mod.filesize)+'</td>';
+						html += '<td title="'+esc(mod.date_created)+'">'+fuzzyTime(dateCreated)+'</td>';
 						html += '<td><input type="file" class="modUpload" data-token="'+esc(mod.token)+'" accept=".fqmod"  /></td>';
 						html += '<td><input type="button" value="Delete" class="delete" /></td>';
 					html += '</tr>';

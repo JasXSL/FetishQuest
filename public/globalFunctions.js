@@ -157,3 +157,79 @@ function stylizeText( txt ){
 	return out;
 
 }
+
+function fuzzyTime( unix_time_ms ){
+
+	let dif = Date.now()-unix_time_ms;
+	const positive = dif >= 0;
+	let out = '';
+	if( !positive ){
+
+		out = 'In ';
+		dif = Math.abs(dif);
+
+	}
+
+	dif = Math.floor(dif/1000);
+	
+	let slots = [
+		{u:'year', v:3600*24*365},
+		{u:'month', v:3600*24*30},
+		{u:'week', v:3600*24*7},
+		{u:'day', v:3600*24},
+		{u:'hour', v:3600},
+		{u:'minute', v:60}
+	];
+
+	let unit = 'second';
+	for( let slot of slots ){
+
+		if( dif >= slot.v ){
+	
+			unit = slot.u;
+			dif /= slot.v;
+			break;
+
+		}
+
+	}
+
+	dif = Math.floor(dif);
+	
+	out += dif + ' ' + unit + (dif !== 1 ? 's' : '');
+	
+	if( positive )
+		out += ' ago';
+
+	return out;
+
+}
+
+function fuzzyFileSize( size_in_bytes ){
+	
+	let dif = size_in_bytes;
+	let slots = [
+		{u:'gb', v:1000000000},
+		{u:'mb', v:1000000},
+		{u:'kb', v:1000},
+	];
+
+	let unit = 'b';
+	for( let slot of slots ){
+
+		if( dif >= slot.v ){
+	
+			unit = slot.u;
+			dif /= slot.v;
+			break;
+
+		}
+
+	}
+	
+	dif = Math.floor(dif*10)/10;
+
+	return dif + unit;
+
+
+}

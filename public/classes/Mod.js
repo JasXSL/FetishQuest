@@ -21,6 +21,7 @@ export default class Mod extends Generic{
 		// x = not yet implemented
 		this.name = '';
 		this.description = '';
+		this.category = Mod.Category.Unsorted;
 		this.author = '';
 		this.dungeons = [];		//x mod prefab dungeons
 		this.dungeonRooms = [];		//x mod prefab dungeons
@@ -74,6 +75,8 @@ export default class Mod extends Generic{
 	}
 
 	rebase(){
+		if( !Object.values(Mod.Category).includes(this.category))
+			this.category = Mod.Category.Unsorted;
 	}
 
 	getSaveData(){
@@ -85,6 +88,7 @@ export default class Mod extends Generic{
 			id : this.id,
 			name : this.name,
 			author : this.author,
+			category : this.category,
 			description : this.description,
 			dungeons : this.dungeons,
 			dungeonRooms : this.dungeonRooms,
@@ -697,6 +701,15 @@ Mod.db.version(2).stores({
 		entry.name = entry.name || 'Unnamed Mod';
 	});
 });
+
+Mod.Category = {
+	Unsorted : 'unsorted',
+	Expansion : 'expansion',
+	Texts : 'texts',
+	Characters : 'characters',
+	Monsters : 'monsters',
+	Items : 'items',
+};
 
 Mod.getNames = async function( force ){
 
