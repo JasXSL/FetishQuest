@@ -22,6 +22,7 @@ import Faction from './Faction.js';
 import Encounter from './Encounter.js';
 import StaticModal from './StaticModal.js';
 import * as THREE from '../ext/THREE.js';
+import ModRepo from './ModRepo.js';
 
 export default class Game extends Generic{
 
@@ -59,6 +60,8 @@ export default class Game extends Generic{
 		this.state_shops = new Collection();			// label : (obj)shopState
 		this.difficulty = 5;							// Scale between 0 and 10. Below 5 and it reduces damage taken by 15% per tier. Above 5 and it reduces damage done by 15% per tier.
 		this.factions = [];
+
+		this.modRepo = new ModRepo();
 
 		// Library of custom items
 		this.libAsset = {};

@@ -42,6 +42,7 @@ import * as EditorDungeonSubTemplate from './editors/EditorDungeonSubTemplate.js
 import * as EditorGallery from './editors/EditorGallery.js';
 import Generic from '../classes/helpers/Generic.js';
 import GameLib from '../classes/GameLib.js';
+import ModRepo from '../classes/ModRepo.js';
 
 
 // Window types that should be tracked
@@ -113,7 +114,7 @@ export default class Modtools{
 			window_states : 'mod'
 		});
 
-		
+		this.modRepo = new ModRepo();
 
 		this.content = document.getElementById('content');
 		this.topMenu = document.getElementById("topMenu");
@@ -349,7 +350,7 @@ export default class Modtools{
 					
 					Window.setMenu(button);
 
-					const userData = await this.isLoggedIn();
+					const userData = await this.modRepo.isLoggedIn();
 
 					if( !userData ){
 
@@ -376,7 +377,7 @@ export default class Modtools{
 									if( !name || !pass )
 										return;
 
-									if( await self.logIn(name, pass) ){
+									if( await self.modRepo.logIn(name, pass) ){
 
 										this.close();
 
@@ -400,7 +401,7 @@ export default class Modtools{
 						});
 
 						Window.addMenuOption('logout', 'Log Out ('+esc(userData.name)+')', () => {
-							this.logOut();
+							this.modRepo.logOut();
 						});
 
 					}
@@ -1316,42 +1317,13 @@ export default class Modtools{
 
 
 
-	async logIn( user, pass ){
-		
-		const req = await this.modReq('Login', {user:user, pass:pass});
-		if( !req )
-			return;
-
-		localStorage.jasx_session = req.token;
-		return true;
-
-	}
-
-	async logOut(){
-		delete localStorage.jasx_session;
-	}
-
-	// returns false or user data {id:(str)id, name:(str)name}
-	async isLoggedIn(){
-		
-		if( !localStorage.jasx_session )
-			return false;
-
-		const att = await this.modReq('ValidateLoginToken', {token : localStorage.jasx_session});
-		if( !att )
-			this.logOut();
-
-		return att;
-
-	}
-
 	// Draws online mods
 	drawMyMods(){
 
 		const self = this;
 		return Window.create("My Mods", "My Mods", "", "wireframe-globe", async function(){
 
-			const mods = await self.modReq('ListMyMods');
+			const mods = await self.modRepo.listMyMods();
 
 			let html = '<div class="center">'+
 				'<h1>My Mods</h1>';
@@ -1377,6 +1349,7 @@ export default class Modtools{
 					'<th>Filesize</th>'+
 					'<th>Created</th>'+
 					'<th>Upload New File</th>'+
+					'<th>Download</th>'+
 					'<th>Delete</th>'+
 				'</tr>';
 
@@ -1396,6 +1369,7 @@ export default class Modtools{
 						html += '<td>'+fuzzyFileSize(mod.filesize)+'</td>';
 						html += '<td title="'+esc(mod.date_created)+'">'+fuzzyTime(dateCreated)+'</td>';
 						html += '<td><input type="file" class="modUpload" data-token="'+esc(mod.token)+'" accept=".fqmod"  /></td>';
+						html += '<td><input type="button" value="Download" class="download" /></td>';
 						html += '<td><input type="button" value="Delete" class="delete" /></td>';
 					html += '</tr>';
 
@@ -1421,7 +1395,7 @@ export default class Modtools{
 					if( !event.target.files.length )
 						return;
 
-					await self.modReq('UpdateMod', {token:token}, event.target.files[0]);
+					await self.modRepo.updateMod(token, event.target.files[0]);
 
 					this.rebuild();
 				};
@@ -1432,12 +1406,20 @@ export default class Modtools{
 
 				el.onchange = async event => {
 
-					await self.modReq('ToggleModPublic', {
-						token:event.target.parentNode.parentNode.dataset.token, 
-						pub:event.target.checked
-					});
+					await self.modRepo.togglePublic(
+						event.target.parentNode.parentNode.dataset.token, 
+						event.target.checked
+					);
 					this.rebuild();
 
+				};
+
+			});
+
+			this.dom.querySelectorAll("input.download").forEach(el => {
+
+				el.onclick = async event => {
+					self.modRepo.downloadMod(event.target.parentNode.parentNode.dataset.token);
 				};
 
 			});
@@ -1449,7 +1431,7 @@ export default class Modtools{
 					if( !confirm("Are you sure you want to delete your mod from the repo?") )
 						return;
 
-					if( await self.modReq("DeleteMod", {token:event.target.parentNode.parentNode.dataset.token}) )
+					if( await self.modRepo.deleteMod(event.target.parentNode.parentNode.dataset.token) )
 						this.rebuild();
 				};
 
@@ -1462,39 +1444,7 @@ export default class Modtools{
 
 	}
 
-	// Sends a request to the server
-	async modReq( task, data = {}, file = false ){
-
-		// TOdo: error handler
-
-		const formData = new FormData();
-		formData.append('data', JSON.stringify(data));
-		formData.append('token', localStorage.jasx_session);
-		formData.append('task', task);
-		if( file ){
-			formData.append('file', file);
-		}
-
-		try{
-			const req = await fetch('/mods', {
-				method : 'POST',
-				body : formData
-			});
-			const out = await req.json();
-			
-			if( out.success )
-				return out.data;
-			
-			console.log("out", out);
-			if( out.data.error )
-				console.error("Task error:", out.data.error);
-
-		}catch(err){
-			console.error("Online error:", err);
-		}
-		return false;
-
-	}
+	
 
 
 

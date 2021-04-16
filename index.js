@@ -10,7 +10,7 @@ const Game = require('./Game');
 const serveIndex = require('serve-index');
 const ImageProxy = require('./ImageProxy');
 const multer = require('multer');
-const upload = multer({dest : __dirname+'/public/media/usrdata/temp/'});
+const upload = multer({dest : __dirname+'/temp/'});
 
 
 const io = require('socket.io')(server);
@@ -40,8 +40,17 @@ try{
 
 		let out = {};
 		try{
-			const r = new Repo(req);
+
+			const r = new Repo(req, res);
 			out = await r.run();
+
+			if( r.download && r.downloadName ){
+
+				res.download(r.download, r.downloadName);
+				return;
+
+			}
+
 		}catch(err){
 			out.success = false;
 			out.err = err;
