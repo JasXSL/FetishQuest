@@ -1328,8 +1328,10 @@ export default class Modtools{
 			let html = '<div class="center">'+
 				'<h1>My Mods</h1>';
 				html += '<p>Here you can upload or update your mods to the official mod repo.</p>';
-
+				
 				html += '<label>Upload new mod: <input type="file" class="modUpload" data-token="_NEW_" accept=".fqmod"  /></label>';
+				html += '<p class="subtitle">Please note that by uploading files to the mod repo, you agree to license your mod file under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons By</a>.</p>';
+
 			html += '</div>';
 
 			html += '<br /><br />';

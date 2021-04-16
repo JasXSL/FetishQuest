@@ -6,14 +6,8 @@
 -- CURRENT --
 	
 	PROJECT MOD EDIT:
-	- Need to add __DELETE__ tags in array extenders so you can add/remove to something
-	- Add a way to edit dungeon cells this way
+	- See if you can't edit dungeon cells?
 
-	- Make a CDN for mods
-		- License dedication for mods
-		- Need to be able to download mods
-
-Medium rare:
 	
 
 -- LATER UPDATE --
@@ -61,3 +55,6 @@ Medium rare:
 	Monster ideas:
 		- Slime monster
 
+
+Mod improvements:
+	- Mod pagination once we have more than 50 mods

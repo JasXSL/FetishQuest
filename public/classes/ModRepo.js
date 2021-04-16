@@ -8,15 +8,9 @@ export default class ModRepo{
 
 	}
 
-	getDownloadUrl( user, token, modName ){
-
-		return '/media/usrdata/'+String(user)+"/mods/"+encodeURIComponent(token)+"/"+encodeURIComponent(modName);
-
-	}
-
 	async downloadMod( token ){
 
-		return mod.modRepo.modReq('Download', {token:token});
+		return this.modReq('Download', {token:token});
 
 	}
 

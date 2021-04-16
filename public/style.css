@@ -1312,7 +1312,7 @@ div.fxBuffRed{
 	/* Main menu */
 	#mainMenu{
 		text-align: center;
-		min-width:60vw;
+		min-width:80vw;
 	}
 	#mainMenu p.subtitle{
 		font-style: italic;
@@ -1348,6 +1348,44 @@ div.fxBuffRed{
 		max-height:80vh;
 
 	}
+
+	#mainMenu div.search input{
+		display: inline-block;
+		width:auto;
+	}
+
+	#mainMenu div.searchResults{
+		display: flex;
+		justify-content:space-evenly;
+		flex-wrap: wrap;
+		margin-top:3vmax;
+	}
+
+	#mainMenu div.searchResults div.mod{
+		width:48%;
+		
+		background: linear-gradient(to bottom, #4c4c4c 0%,#131313 100%);
+		box-shadow:0.5vmax 0.5vmax 1vmax rgba(0,0,0,.5);
+		border: 0.2vmax solid #AAA;
+		border-radius: 1vmax;
+		padding:2vmax;
+	}
+
+	#mainMenu div.searchResults div.mod h3{
+		margin:0;
+	}
+	#mainMenu div.searchResults div.mod p.subtitle{
+		font-size:1.2vmax;
+		padding:0;
+	}
+	#mainMenu div.searchResults div.mod p{
+		font-size:1.4vmax;
+	}
+	#mainMenu div.searchResults div.mod p.desc{
+		max-height:20vh;
+		overflow:hidden;
+	}
+	
 	
 
 /**/

@@ -2023,7 +2023,7 @@ export default class StaticModal{
 					</div>
 				`;
 			})
-			.addTab("Mods", () => {
+			.addTab("My Mods", () => {
 				return `
 					<table class="editor">
 						<tr class="head">
@@ -2038,9 +2038,10 @@ export default class StaticModal{
 					</table>
 					<br />
 					Install Mod: <input type="file" class="modFile" />
+					<p class="subtitle">Make your own mod with <a href="modtools.html">the devtools</a>!</p>
 				`;
 			})
-			.addTab("Online", () => {
+			.addTab("Multiplayer", () => {
 				return `
 					<h3>Join Existing Online Game</h3>
 					<form class="joinGame">
@@ -2048,6 +2049,17 @@ export default class StaticModal{
 						<input type="text" placeholder="Game ID" name="gameID" style="width:auto" />
 						<input type="submit" value="Join Online Game"  />
 					</form>
+				`;
+			})
+			.addTab("Mod DB", () => {
+				return `
+					<div class="search">
+						<form class="searchForm">
+							<input type="text" class="search" placeholder="Search mods" />
+							<input type="submit" value="Search" />
+						</form>
+					</div>
+					<div class="searchResults"></div>
 				`;
 			})
 			.addTab("Credits", () => {
@@ -2086,8 +2098,9 @@ export default class StaticModal{
 				
 				const 
 					mainMenu = this.getTabDom('Main Menu')[0],
-					mods = this.getTabDom('Mods')[0],
-					online = this.getTabDom('Online')[0]
+					mods = this.getTabDom('My Mods')[0],
+					online = this.getTabDom('Multiplayer')[0],
+					modDB = this.getTabDom('Mod DB')[0]
 				;
 
 				this.newGameButton = mainMenu.querySelector('input.newGameButton');
@@ -2097,7 +2110,9 @@ export default class StaticModal{
 				this.modsTable = mods.querySelector('table.editor');
 				this.loadMod = mods.querySelector('input.modFile');
 				this.joinGameForm = online.querySelector('form.joinGame');
-				
+				this.modSearchForm = modDB.querySelector('form.searchForm');
+				this.modSearchInput = this.modSearchForm.querySelector('input.search');
+				this.modSearchResults = modDB.querySelector('div.searchResults');
 
 			})
 			.setDraw(async function(){
@@ -2392,6 +2407,60 @@ export default class StaticModal{
 						}
 
 					});
+
+					const onModDownloadClick = event => {
+
+						clearTimeout(event.target._timeout);
+						event.target.value = 'Downloading...';
+						event.target._timeout = setTimeout(() => {
+							event.target.value = event.target._value;
+						}, 3000);
+						game.modRepo.downloadMod(event.target.dataset.mod);
+
+					};
+
+					const searchMods = async () => {
+
+						const results = await game.modRepo.search(this.modSearchInput.value);
+
+						let html = '';
+						for( let mod of results.results ){
+							
+							html += '<div class="mod">';
+
+								html += '<h3>'+esc(mod.name)+'</h3>';
+								html += '<p class="subtitle">By '+esc(mod.creatorName)+', last updated '+fuzzyTime(new Date(mod.date_updated).getTime())+'.</p>';
+								html += '<p class="subtitle">'+
+									'In '+esc(mod.category)+' - '+
+									'Build '+(parseInt(mod.build_nr) || 1)+' - '+
+									'FQ '+(parseInt(mod.fq_version) || 1)
+								'</p>';
+								html += '<p class="desc">'+esc(mod.description.trim())+'</p>';
+
+								html += '<input type="button" data-mod="'+esc(mod.token)+'" value="Download ('+fuzzyFileSize(parseInt(mod.filesize) || 1)+')">';
+								
+							html += '</div>';
+
+						}
+
+						this.modSearchResults.innerHTML = html;
+
+						this.modSearchResults.querySelectorAll("input[data-mod]").forEach(el => {
+							el._value = el.value;
+							el.onclick = onModDownloadClick;	
+						});
+
+					};
+
+					this.modSearchForm.addEventListener('submit', event => {
+						event.preventDefault();
+
+						// Perform search
+						searchMods();
+
+					});
+
+					searchMods();
 
 				}
 
