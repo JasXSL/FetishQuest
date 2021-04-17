@@ -502,6 +502,9 @@ class Editor{
 			const asset = this.room.assets[i];
 			if( dungeonAsset === asset ){
 
+				// Remove from OUR db (both extending and original)
+				mod.mod.deleteAsset('dungeonRoomAssets', asset.id);
+
 				this.room.assets.splice(i, 1);
 				this.gl.stage.remove(mesh);
 				if( mesh === this.control.object )
@@ -677,6 +680,7 @@ class Editor{
 
 		let parents = [];
 		
+		//console.log("Fetching assets", this.room.assets);
 		this.room.assets = this.room.assets.map(el => {
 			
 			if( typeof el === "object" ){
@@ -690,9 +694,9 @@ class Editor{
 				m = mod.parentMod.getAssetById('dungeonRoomAssets', el);
 				if( !m )
 					console.error("Unable to find ", el, "in either mod");
-				else
+				else if( !m._ext ){	// Make sure it's not already extended
 					parents.push(m.id);
-
+				}
 			}
 			return m;
 
@@ -703,8 +707,10 @@ class Editor{
 
 		// Mark parents
 		for( let asset of this.room.assets ){
+
 			if( parents.includes(asset.id) )
 				asset.__isParent = true;
+
 		}
 
 		// Editing a room in a dungeon
@@ -727,7 +733,6 @@ class Editor{
 
 	// Tries to save the room dummy onto room_raw
 	save(){
-
 
 		let ids = this.room.assets.map(el => {
 
@@ -1061,6 +1066,7 @@ class Editor{
 				// Delete from linked array
 				if( event.ctrlKey ){
 
+					console.log("Splicing from", asset);
 					const index = parseInt(el.dataset.index);
 					asset.interactions.splice(index, 1);
 					this.rebuild();
