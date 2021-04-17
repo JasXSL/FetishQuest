@@ -376,7 +376,7 @@ export default class Mod extends Generic{
 
 
 	// Deletes a single asset
-	// Note: allows both label and id
+	// Note: allows both label and id and _e, allowing you to technically delete "root" extensions this way by root id
 	deleteAsset( type, id ){
 
 		if( !Array.isArray(this[type]) )
@@ -385,15 +385,14 @@ export default class Mod extends Generic{
 		for( let i in this[type] ){
 
 			const asset = this[type][i];
-			if( asset.id === id || asset.label === id ){
+			if( asset.id === id || asset.label === id || asset._e === id ){
 				
-				this.deleteChildrenOf( type, id, asset );	// Delete any child objects recursively
+				this.deleteChildrenOf( type, id );	// Delete any child objects recursively. getAssetById is needed to delete extensions
 				
-
-				// We deleted an extension, so we gotta delete whatever we were extending as well
-				if( asset._e ){
-					this.deleteChildrenOf( type, asset._e, asset );
-				}
+				// We deleted an extension, so we gotta delete whatever we were extending as well since they can have either the parent id or extending id
+				if( asset._e )
+					this.deleteChildrenOf( type, asset._e );
+				
 				this[type].splice(i, 1);
 
 				return true;
@@ -404,28 +403,11 @@ export default class Mod extends Generic{
 
 	}
 
-	// Deletes any children of an asset and that one's children recursively
-	deleteChildrenOf( type, id, asset ){
+	// Deletes any children and extensions of an asset and that one's children recursively
+	deleteChildrenOf( type, id ){
 
+		// Stores children that have been removed
 		const removeChildren = {};	// Type: (arr)[asset1, asset2...]
-
-		// To save space, dungeonRoom doesn't use mParent for assets, we'll just need to add the assets manually for deletion
-		if( type === "dungeonRooms" ){
-			
-			if( asset && asset.assets ){
-
-				if( !removeChildren.dungeonRoomAssets )
-					removeChildren.dungeonRoomAssets = [];
-
-				// Delete these separately
-				asset.assets.map(el => {
-					this.deleteAsset('dungeonRoomAssets', el);
-				});
-				asset.assets = [];
-
-			}
-				
-		}
 
 		for( let i in this ){
 
@@ -433,13 +415,42 @@ export default class Mod extends Generic{
 			if( !Array.isArray(db) )
 				continue;
 
+			// Filter out any children from the database
 			this[i] = this[i].filter(asset => {
 
-				if( asset && asset._mParent && asset._mParent.type === type && (asset._mParent.label == id || asset._mParent.id === id) ){
+				if( 
+					asset && asset._mParent && asset._mParent.type === type && (asset._mParent.label == id || asset._mParent.id === id)
+				){
 
 					if( !removeChildren[i] )
 						removeChildren[i] = [];
+
 					removeChildren[i].push(asset);
+
+
+					// To save space, dungeonRoom doesn't use mParent for assets (it's a one to many relationship), we'll just need to add the assets manually for deletion
+					if( i === "dungeonRooms" ){
+						
+						let removeThese = asset.assets.slice();
+
+						// _e should be pointing towards root objects
+						// get the base asset if possible
+						if( asset._e )
+							asset = mod.parentMod.getAssetById(i, asset._e, false);
+
+						// If it's not an extension, you can trust the assets are what they say
+						if( asset && asset.assets )
+							removeThese = removeThese.concat(asset.assets);
+
+						//console.log("Yeeting", removeThese);
+
+						// asset.assets is now a mix of our custom asset ids, and ids of root assets that may or may not have been extended
+						for( let a of removeThese )
+							this.deleteAsset('dungeonRoomAssets', a);
+
+						
+					}
+
 					return false;
 
 				}
@@ -450,11 +461,15 @@ export default class Mod extends Generic{
 
 		}
 
+		//console.log(type, id, removeChildren);
 		for( let i in removeChildren ){
 
-			for( let a of removeChildren[i] )
-				this.deleteChildrenOf(i, a.label || a.id, a);
+			for( let a of removeChildren[i] ){
 
+				//console.log("Removing grandchildren of", a);
+				this.deleteChildrenOf(i, a._e || a.label || a.id);
+
+			}
 		}
 
 	}
@@ -754,7 +769,8 @@ Mod.Category = {
 // These tables use ID instead of labels because they're in a one to many relation
 // Many to many relations use label
 Mod.UseID = [
-	'dungeonRoomAssets'
+	'dungeonRoomAssets',
+	'texts'
 ];
 
 Mod.getNames = async function( force ){

@@ -949,14 +949,15 @@ export default class Modtools{
 			const newAsset = {
 				_e : asset.label || asset.id
 			};
-			if( asset.id )
+
+			if( Mod.UseID.includes(type) )
 				newAsset.id = Generic.generateUUID();
 			else
 				newAsset.label = asset.label+'_ext';
 
 			if( asset._mParent ){
 
-				// When deleting _mParent, it checks for both original and extension 
+				// In an extension, mParent points towards the original asset, original assets in an extension point towards the extension parent 
 				newAsset._mParent = {
 					type: asset._mParent.type,
 					label : asset._mParent.label,
@@ -968,6 +969,8 @@ export default class Modtools{
 			asset = newAsset;
 			this.setDirty(true);
 			
+			console.log("Created asset", newAsset);
+
 			Window.rebuildWindowsByTypeAndId('Database', type);
 			
 		}
