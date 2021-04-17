@@ -7,7 +7,8 @@ import Generic from './helpers/Generic.js';
 		Ex: roleplayStage always only has one parent roleplay
 
 	_e : Built into every Generic object
-	_ext : true -> Already extended
+	_ext : true -> Already extended (not saved)
+	_h : hidden from main list
 */
 
 export default class Mod extends Generic{
@@ -232,8 +233,10 @@ export default class Mod extends Generic{
 
 				const clone = {};
 				for( let i in arr[entry] ){
+
 					if( i !== '_ext' )
 						clone[i] = arr[entry][i];
+
 				}
 				arr[entry] = clone;
 
@@ -247,8 +250,6 @@ export default class Mod extends Generic{
 					continue;	// Todo: error?
 
 				// Array comparator
-
-
 				const comparison = comparer.compare(base, extension);
 				delete comparison.__MOD;
 				handleComparedArrays(base, comparison);
@@ -282,10 +283,8 @@ export default class Mod extends Generic{
 	}
 
 
-	
 
 	// Note: allows to fetch by label if it exists
-	// 
 	getAssetById( type, id, extend = true ){
 
 		if( !Array.isArray(this[type]) )
@@ -379,6 +378,27 @@ export default class Mod extends Generic{
 	// Note: allows both label and id and _e, allowing you to technically delete "root" extensions this way by root id
 	deleteAsset( type, id ){
 
+		//console.log("Delete", type, id);
+
+		const yeetSubAssets = (subtype, asset, field ) => {
+
+			let removeThese = asset[field] ? asset[field].slice() : [];
+
+			// _e should be pointing towards root objects
+			// get the base asset if possible
+			if( asset._e )
+				asset = mod.parentMod.getAssetById(type, asset._e, false);
+
+			// If it's not an extension, you can trust the assets are what they say
+			if( asset && asset[field] )
+				removeThese = removeThese.concat(asset[field]);
+
+			//console.log(type, asset, field, "of subtype", subtype, "yeeting", removeThese);
+			for( let a of removeThese )
+				this.deleteAsset(subtype, a);
+
+		};
+
 		if( !Array.isArray(this[type]) )
 			throw 'Trying to delete an id from non array: '+type;
 
@@ -387,6 +407,7 @@ export default class Mod extends Generic{
 			const asset = this[type][i];
 			if( asset.id === id || asset.label === id || asset._e === id ){
 				
+				//console.log("Found it!", type, asset);
 				this.deleteChildrenOf( type, id );	// Delete any child objects recursively. getAssetById is needed to delete extensions
 				
 				// We deleted an extension, so we gotta delete whatever we were extending as well since they can have either the parent id or extending id
@@ -394,6 +415,18 @@ export default class Mod extends Generic{
 					this.deleteChildrenOf( type, asset._e );
 				
 				this[type].splice(i, 1);
+
+				// To save space, dungeonRoom doesn't use mParent for assets (it's a one to many relationship), we'll just need to add the assets manually for deletion
+				if( type === "dungeonRooms" )
+					yeetSubAssets('dungeonRoomAssets', asset, 'assets');
+
+				// roomassets uses special conditions and game actions
+				else if( type === "dungeonRoomAssets" ){
+
+					yeetSubAssets('conditions', asset, 'conditions');
+					yeetSubAssets('gameActions', asset, 'interactions');
+
+				}
 
 				return true;
 
@@ -416,41 +449,15 @@ export default class Mod extends Generic{
 				continue;
 
 			// Filter out any children from the database
-			this[i] = this[i].filter(asset => {
+			this[i].map(asset => {
 
-				if( 
-					asset && asset._mParent && asset._mParent.type === type && (asset._mParent.label == id || asset._mParent.id === id)
-				){
+				// Find assets that should be deleted
+				if( asset._mParent && asset._mParent.type === type && (asset._mParent.label == id || asset._mParent.id === id) ){
 
 					if( !removeChildren[i] )
 						removeChildren[i] = [];
 
 					removeChildren[i].push(asset);
-
-
-					// To save space, dungeonRoom doesn't use mParent for assets (it's a one to many relationship), we'll just need to add the assets manually for deletion
-					if( i === "dungeonRooms" ){
-						
-						let removeThese = asset.assets.slice();
-
-						// _e should be pointing towards root objects
-						// get the base asset if possible
-						if( asset._e )
-							asset = mod.parentMod.getAssetById(i, asset._e, false);
-
-						// If it's not an extension, you can trust the assets are what they say
-						if( asset && asset.assets )
-							removeThese = removeThese.concat(asset.assets);
-
-						//console.log("Yeeting", removeThese);
-
-						// asset.assets is now a mix of our custom asset ids, and ids of root assets that may or may not have been extended
-						for( let a of removeThese )
-							this.deleteAsset('dungeonRoomAssets', a);
-
-						
-					}
-
 					return false;
 
 				}
@@ -461,15 +468,17 @@ export default class Mod extends Generic{
 
 		}
 
+		// Delete them
 		//console.log(type, id, removeChildren);
 		for( let i in removeChildren ){
 
 			for( let a of removeChildren[i] ){
 
 				//console.log("Removing grandchildren of", a);
-				this.deleteChildrenOf(i, a._e || a.label || a.id);
+				this.deleteAsset(i, a._e || a.label || a.id);
 
 			}
+
 		}
 
 	}
@@ -625,7 +634,7 @@ export default class Mod extends Generic{
 
 
 	// mod save goes to databse
-	async save(){
+	async save( force ){
 		
 		if( this.id === '__MAIN__' )
 			return;
@@ -636,7 +645,7 @@ export default class Mod extends Generic{
 		
 		console.log("Got savedata ", out);
 
-		if( disable ){
+		if( disable && !force ){
 			console.log("Saving is temporarily disabled");
 			return;
 		}
@@ -688,11 +697,15 @@ export default class Mod extends Generic{
 				out[i] = og.slice();
 				og = out[i];
 
+				//console.log(i, out[i], ext);
+				//debugger
+
 				for( let e of ext ){
 
 					if( e && e.hasOwnProperty('__DEL__') ){
 
 						let pos = findInArray(og, e.__DEL__);
+						//console.log("Found e.__DEL__", e.__DEL__, pos);
 						if( pos !== false )
 							og.splice(pos, 1);
 						continue;
@@ -702,6 +715,8 @@ export default class Mod extends Generic{
 					og.push(e);
 
 				}
+
+				//console.log("SET", og);
 				
 			}
 			else if( typeof og === "object" && typeof ext === "object" ){

@@ -34,7 +34,6 @@ export function asset(){
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
 
-
 	if( !asset )
 		return this.close();
 
@@ -63,6 +62,7 @@ export function asset(){
 		objectHasPath(this, ['parent', 'asset', 'asset', 'parent', 'parent']) && 
 		this.parent.asset.asset.parent.parent instanceof Dungeon 
 	){
+
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				index : 0,
@@ -70,12 +70,11 @@ export function asset(){
 			};
 
 		const dungeon = this.parent.asset.asset.parent.parent,
-			room = this.parent.asset.asset.parent,
-			roomAsset = this.parent.asset.asset,
 			cache_rooms = []
 		;
+
 		for( let label of dungeon.rooms ){
-			let r = window.mod.mod.getAssetById('dungeonRooms', label);
+			let r = window.mod.getAssetById('dungeonRooms', label);
 			if( r )
 				cache_rooms.push(r);
 		}

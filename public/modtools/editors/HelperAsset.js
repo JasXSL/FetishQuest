@@ -235,6 +235,7 @@ export default{
 		asset is the parent asset
 		key is the key in the asset to modify
 		if parented, it sets the _mParent : {type:(str)type, label:(str)label} parameter on any new assets created, and only shows assets with the same _mParent set
+		if parented is === 2, it sets _h instead to hide it. Used only in sub assets of dungeon room assets to save memory
 		columns can also contain functions, they'll be run with the asset as an argument
 		ignoreAsset doesn't put the asset into the list. Used by EditorQuestReward where you have multiple fields mapping the same key to different types of objects
 		windowData is passed to the new window
@@ -362,10 +363,15 @@ export default{
 
 			if( parented ){
 
-				a._mParent = {
-					type : win.type,
-					label : win.id,
-				};
+				if( parented === 2 )
+					a._h = true;
+				else{
+					a._mParent = {
+						type : win.type,
+						label : win.id,
+					};
+				}
+				
 
 			}
 			
@@ -397,6 +403,8 @@ export default{
 
 					// But we still need to refresh this
 					win.rebuild();
+
+					this.propagateChange(win);
 
 				}
 				else
@@ -552,7 +560,7 @@ export default{
 		// Parent mod assets
 		fulldb.push(...window.mod.parentMod[library].slice().reverse());
 
-		fulldb = fulldb.filter(el => !el._mParent && !el._e);
+		fulldb = fulldb.filter(el => !el._mParent && !el._e && !el._h);
 
 		const fieldIsEssential = field => field.startsWith('*');
 		const getFieldName = field => { 

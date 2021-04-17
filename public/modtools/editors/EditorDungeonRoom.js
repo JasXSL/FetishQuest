@@ -310,8 +310,7 @@ class Editor{
 		this.renderDiv = renderDiv;
 		this.contentDiv = contentDiv;
 		this.room_raw = asset;
-		this.room = DungeonRoom.loadThis(asset);
-
+		this.room = DungeonRoom.loadThis(mod.mod.getAssetById('dungeonRooms', asset.label));
 
 		this.rebase();
 
@@ -714,9 +713,12 @@ class Editor{
 		}
 
 		// Editing a room in a dungeon
-		if( !this.isTemplate() )
-			this.room.parent = new Dungeon(window.mod.mod.getAssetById(this.room_raw._mParent.type, this.room_raw._mParent.label ));
-
+		if( !this.isTemplate() ){
+			// Get asset from either mod or base
+			this.room.parent = new Dungeon(
+				window.mod.getAssetById(this.room_raw._mParent.type, this.room_raw._mParent.label) 
+			);
+		}
 		
 
 		// Build initial history state
@@ -754,6 +756,7 @@ class Editor{
 					let originalId = el.id;
 					mod.mod.insert('dungeonRoomAssets', data);
 					data._e = el._e = originalId;
+					mod._ext = true;	// Needed for optimization to work. Auto set when you fetch from mod with extend true
 					
 					el.id = data.id;	// Update the work asset
 					delete el.__isParent;
@@ -1010,8 +1013,7 @@ class Editor{
 
 			
 			this.dom.querySelector("div.interactions").appendChild(EditorGameAction.assetTable(this, asset, "interactions", false, 2));
-
-			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false, false));	
+			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, 2));	
 
 
 			HelperAsset.autoBind( this, asset, DB, (field, value) => {
@@ -1021,33 +1023,7 @@ class Editor{
 			const table = this.dom.querySelector('div.interactions table');
 
 
-			// Searches our interactions by id
-			const openGameActionEditor = id => {
-				
-				// Find it in our list
-				for( let a of asset.interactions ){
 
-					// This was a string, open editor
-					if( a === id ){
-
-						const asset = window.mod.mod.getAssetById('gameActions', a);
-						if( !asset ){
-							alert("Asset missing or not from this mod");
-							return;
-						}
-						window.mod.buildAssetEditor( 'gameActions', id, undefined, this );
-						return;
-
-					}
-					else if( a && a.id === id || a.label === id ){
-
-						window.mod.buildAssetEditor( 'gameActions', a, undefined, this );
-
-					}
-
-				}
-				
-			}
 
 			if( animated ){
 				this.dom.querySelector('select.animPreviewer').onchange = event => {
@@ -1058,53 +1034,19 @@ class Editor{
 			}
 
 			// Bind each table row
-			table.querySelectorAll("tr.asset").forEach(el => el.onclick = event => {
-				
-				const id = el.dataset.id;
-				
-
-				// Delete from linked array
-				if( event.ctrlKey ){
-
-					console.log("Splicing from", asset);
-					const index = parseInt(el.dataset.index);
-					asset.interactions.splice(index, 1);
-					this.rebuild();
-					th.save();
-					window.mod.setDirty(true);
-					return;
-
-				}
-				openGameActionEditor(id);
-
-			});
 			
-			// Bind the add new button
-			table.querySelector("input.addNew").onclick = () => {
-
-				const linker = window.mod.buildAssetLinker( this, asset, 'interactions', 'gameActions', false );
-
-				linker.dom.querySelector('input.new').onclick = event => {
-			
-					const obj = new GameAction();
-					if( !asset.interactions )
-						asset.interactions = [];
-					asset.interactions.push(obj);
-					linker.remove();
-					this.rebuild();	
-					
-					openGameActionEditor(obj.id);
-
-				};
-	
-			};
-
 
 		};
 
 		
 		this.assetWindow = Window.create('REPLACE_ID', 'dungeonAssets', '', 'crafting', build, {}, this.win);
-		this.assetWindow.onChange = () => build.call(this.assetWindow);
+		this.assetWindow.onChange = () => {
+			
+			this.save();
+			// Might not be needed now?
+			// build.call(this.assetWindow);
+
+		};
 		this.assetWindow.setHelp(() => {
 
 			let out = '';
