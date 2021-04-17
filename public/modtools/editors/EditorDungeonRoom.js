@@ -179,6 +179,13 @@ export function list(){
 export function help(){
 
 	let out = '';
+
+	out += '<h3>Common pitfalls!</h3>';
+	out += '<ul>';
+		out += '<li>Although you can edit and delete assets when extending an official dungeon, I would recommend against it due to the likelihood of it changing down the line.</li>';
+		out += '<li>I highly recommend creating a new door or arrow and linking it to your own network of dungeons.</li>';
+	out += '</ul>';
+
 	out += '<h3>3d Editor:</h3>'+
 		'<p>Click the 3d editor to select it (it will get white borders). While selected, you can use the following hotkeys:</p>'+
 		'<ul>'+
@@ -190,6 +197,7 @@ export function help(){
 			'<li>Ctrl - Snap to grid</li>'+
 			'<li>Ctrl+Z/Ctrl+Y - Undo/redo edits on a particular mesh</li>'+
 			'<li>Del - Deletes the selected asset, hurdur. Note that you can\'t undo this.</li>'+
+			'<li>Double click on a mesh for more options (the floor is handled separately).</li>'+
 		'</ul>'+
 		'<p>Double click a mesh to bring up a property editor.</p>'	
 	;
@@ -693,7 +701,7 @@ class Editor{
 				m = mod.parentMod.getAssetById('dungeonRoomAssets', el);
 				if( !m )
 					console.error("Unable to find ", el, "in either mod");
-				else if( !m._ext ){	// Make sure it's not already extended
+				else if( !m._ext ){	// Make sure it's not already extended before inserting
 					parents.push(m.id);
 				}
 			}

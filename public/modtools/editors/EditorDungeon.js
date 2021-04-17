@@ -101,6 +101,12 @@ export function list(){
 export function help(){
 
 	let out = '';
+	out += '<h3>Common pitfalls!</h3>';
+	out += '<ul>';
+		out += '<li>Avoid adding new rooms to official dungeons. Your rooms may be overwritten in the future.</li>';
+		out += '<li>Create your own "world" by making dungeons and adding portal objects like doors and direction arrows linked in the room 3d editor to your custom dungeon in order to extend the world.</li>';
+	out += '</ul>';
+
 	out += '<h3>Difficulty:</h3>'+
 		'<p>Leave this at -1 for auto. This is left here for legacy purposes, in the future it may be used for something else.</p>';
 
@@ -171,9 +177,7 @@ class DungeonLayoutEditor{
 
 		for( let roomLabel of this.asset.rooms ){
 
-			let room = window.mod.mod.getAssetById('dungeonRooms', roomLabel);
-			if( !room )
-				room = window.mod.parentMod.getAssetById('dungeonRooms', roomLabel);
+			let room = window.mod.getAssetById('dungeonRooms', roomLabel);
 			if( !room ){
 				console.error("Warning: Room asset not found", roomLabel);
 				continue;

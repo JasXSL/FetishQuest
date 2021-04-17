@@ -96,7 +96,7 @@ export function assetTable( win, modAsset, name, single, parented ){
 		asset => {
 
 			if( asset.text && asset.text.length ){
-				const text = window.mod.mod.getAssetById('texts', asset.text[0]);
+				const text = window.mod.getAssetById('texts', asset.text[0]);
 				if( text )
 					return text.text;
 			}

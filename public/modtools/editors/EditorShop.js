@@ -79,7 +79,7 @@ export function list(){
 			const out = [];
 			for( let item of asset.items ){
 
-				const a = window.mod.mod.getAssetById("shopAssets", item);
+				const a = window.mod.getAssetById("shopAssets", item);
 				if( a )
 					out.push(a.asset);
 					
