@@ -154,13 +154,16 @@ export default class Mod extends Generic{
 
 			for( let i in compared ){
 
+				// Not an array, HANDLE IT
 				if( !Array.isArray(compared[i]) ){
+
 					if( typeof compared[i] === "object" && typeof base[i] === "object" )
 						compared[i] = handleComparedArrays(base[i], compared[i]);
+
 					continue;
 				}
 
-				console.log("Comparing", base, compared);
+				// Awe shiet, we have an array
 				let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
 				// Check how many of each entry we have
 				for( let c of compared[i] ){
@@ -245,10 +248,9 @@ export default class Mod extends Generic{
 
 				// Array comparator
 
+
 				const comparison = comparer.compare(base, extension);
 				delete comparison.__MOD;
-
-				console.log("Doing comparison of", base, comparison);
 				handleComparedArrays(base, comparison);
 
 				removeDel(comparison);
@@ -262,7 +264,6 @@ export default class Mod extends Generic{
 
 		}
 
-		console.log("Saved", out);
 		return out;
 	}
 
@@ -327,15 +328,18 @@ export default class Mod extends Generic{
 
 						// Handles arrays with {__DEL__} objects and loads asset keys onto original
 						original = Mod.mergeExtensionAssets(original, asset);
-
-						console.log("merging", original, "with", asset);
 						//debugger
 						//console.log("Loading", original, "onto", asset);
 						// Fill out any unfilled fields from the parentMod asset
 						
 						// Need to load directly over the asset in library for _ext to work
-						for( let i in original )
+						for( let i in original ){
+
 							asset[i] = original[i];
+							if( typeof asset[i] === 'object' )
+								asset[i] = JSON.parse(JSON.stringify(asset[i]));
+
+						}
 						
 						asset._ext = true;
 						
@@ -383,16 +387,14 @@ export default class Mod extends Generic{
 			const asset = this[type][i];
 			if( asset.id === id || asset.label === id ){
 				
-				this[type].splice(i, 1);
-				this.deleteChildrenOf( type, id );	// Delete any child objects recursively
+				this.deleteChildrenOf( type, id, asset );	// Delete any child objects recursively
+				
 
 				// We deleted an extension, so we gotta delete whatever we were extending as well
 				if( asset._e ){
-
-					this.deleteChildrenOf( type, asset._e );
-
+					this.deleteChildrenOf( type, asset._e, asset );
 				}
-
+				this[type].splice(i, 1);
 
 				return true;
 
@@ -403,9 +405,27 @@ export default class Mod extends Generic{
 	}
 
 	// Deletes any children of an asset and that one's children recursively
-	deleteChildrenOf( type, id ){
+	deleteChildrenOf( type, id, asset ){
 
-		const removeChildren = {};	// Type: (arr)[id1, id2...]
+		const removeChildren = {};	// Type: (arr)[asset1, asset2...]
+
+		// To save space, dungeonRoom doesn't use mParent for assets, we'll just need to add the assets manually for deletion
+		if( type === "dungeonRooms" ){
+			
+			if( asset && asset.assets ){
+
+				if( !removeChildren.dungeonRoomAssets )
+					removeChildren.dungeonRoomAssets = [];
+
+				// Delete these separately
+				asset.assets.map(el => {
+					this.deleteAsset('dungeonRoomAssets', el);
+				});
+				asset.assets = [];
+
+			}
+				
+		}
 
 		for( let i in this ){
 
@@ -419,7 +439,7 @@ export default class Mod extends Generic{
 
 					if( !removeChildren[i] )
 						removeChildren[i] = [];
-					removeChildren[i].push(asset.label || asset.id);
+					removeChildren[i].push(asset);
 					return false;
 
 				}
@@ -432,8 +452,8 @@ export default class Mod extends Generic{
 
 		for( let i in removeChildren ){
 
-			for( let id of removeChildren[i] )
-				this.deleteChildrenOf(i, id);
+			for( let a of removeChildren[i] )
+				this.deleteChildrenOf(i, a.label || a.id, a);
 
 		}
 
@@ -574,7 +594,19 @@ export default class Mod extends Generic{
 
 	}
 
-	
+	// Resets an ID and inserts it
+	insert( table, asset ){
+
+		if( asset === undefined && typeof table === 'object' )
+			console.error('You forgot to assign a table in insert');
+
+		asset.id = Generic.generateUUID();
+		this.mergeAsset(table, asset);
+		return asset.id;
+
+	}
+
+
 
 
 	// mod save goes to databse
@@ -584,10 +616,18 @@ export default class Mod extends Generic{
 			return;
 
 		const out = this.getSaveData();
+
+		const disable = false;
 		
+		console.log("Got savedata ", out);
+
+		if( disable ){
+			console.log("Saving is temporarily disabled");
+			return;
+		}
 		let ret = await Mod.db.mods.put(out);
 		return ret;
-
+		
 	}
 
 	async delete( conf = true ){
@@ -710,6 +750,12 @@ Mod.Category = {
 	Monsters : 'monsters',
 	Items : 'items',
 };
+
+// These tables use ID instead of labels because they're in a one to many relation
+// Many to many relations use label
+Mod.UseID = [
+	'dungeonRoomAssets'
+];
 
 Mod.getNames = async function( force ){
 
@@ -854,5 +900,6 @@ Mod.getModsOrdered = async function(){
 Mod.saveLoadOrder = async function( order ){
 	localStorage.modLoadOrder = JSON.stringify(order);
 }
+
 
 

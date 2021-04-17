@@ -172,10 +172,9 @@ export default class GameLib{
 	}
 
 	// Loads a mod db array onto one of this objects
-	loadModOnto( db, obj, constructor ){
+	loadModOnto( db, obj, constructor, useID = false ){
 
 		let overrides = [];	// Objects that should extend existing data
-
 		for( let asset of db ){
 			
 			if( asset._e ){
@@ -185,7 +184,11 @@ export default class GameLib{
 
 			}
 
-			obj[asset.label] = new constructor(asset);
+			let index = asset.label;
+			if( useID )
+				index = asset.id;
+
+			obj[index] = new constructor(asset);
 
 		}
 
@@ -199,7 +202,11 @@ export default class GameLib{
 
 			}
 
-			delete override.label;	// Use the original label, everything else is overwritten
+			if( useID )
+				delete override.id;
+			else
+				delete override.label;	// Use the original label, everything else is overwritten
+
 			override = Mod.mergeExtensionAssets(obj[editId], override);	// Handle arrays since they have {__DEL__} objects
 			obj[editId].load(override);
 
@@ -234,7 +241,7 @@ export default class GameLib{
 				
 				if( Array.isArray(mod[k]) ){
 
-					this.loadModOnto(mod[k], this[k], LIB_TYPES[k]);
+					this.loadModOnto(mod[k], this[k], LIB_TYPES[k], Mod.UseID.includes(k));
 
 				}
 
@@ -286,6 +293,7 @@ export default class GameLib{
 		const all = load_order.slice();
 		all.push('texts');
 		for( let i of all ){
+
 			let lib = this[i];
 			for( let iter in lib ){
 				if( lib[iter].rebase && !lib[iter]._rebased ){
@@ -293,6 +301,7 @@ export default class GameLib{
 					++n;
 				}
 			}
+
 		}
 
 

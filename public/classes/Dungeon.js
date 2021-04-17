@@ -660,7 +660,7 @@ class DungeonRoom extends Generic{
 			// This shouldn't happen. Saved an asset that didn't exist previously
 			if( !cur ){
 
-				console.error("Trying to load state on mesh that doesn't exist", id);
+				console.debug("Trying to load state on mesh that doesn't exist", id, "if this was caused by a mod deleting a base asset, it can be disregarded");
 				//this.addAsset(new DungeonRoomAsset(asset, this));
 				continue;
 

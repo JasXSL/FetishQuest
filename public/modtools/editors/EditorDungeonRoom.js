@@ -286,7 +286,7 @@ class Editor{
 					return;
 
 				obj = obj.clone("mod", this.room);
-				obj.g_resetID();
+				delete obj.id;	// Forces it to insert a new entry when saving
 				obj.__history = [];
 				obj.__historyMarker = 0;
 				this.addHistory(obj);
@@ -517,7 +517,8 @@ class Editor{
 	}
 
 	// Adds a new mesh and returns a dungeonRoomAsset
-	async addMesh( path ){
+	// Async if addToStage is false
+	addMesh( path, addToStage = true ){
 
 		const mesh = LibMesh.getByString(path);
 		if( !mesh )
@@ -526,17 +527,28 @@ class Editor{
 		let asset = new DungeonRoomAsset({
 			model : path,
 		}, this.room);
+		delete asset.id;
 
 		asset.__history = [];
 		asset.__historyMarker = 0;
 		this.addHistory(asset);
 		this.room.addAsset(asset);
-		await this.gl.stage.addDungeonAsset(asset);
-		this.save();
-		this.bindMeshes();
-		this.control.attach(asset._stage_mesh);
-		window.ACTIVE_MESH = asset._stage_mesh;
-		this.gl.renderer.domElement.focus();
+
+		if( addToStage ){
+
+			return this.gl.stage.addDungeonAsset(asset).then(() => {
+
+				this.save();
+				this.bindMeshes();
+				this.control.attach(asset._stage_mesh);
+				window.ACTIVE_MESH = asset._stage_mesh;
+				this.gl.renderer.domElement.focus();
+				return asset;
+
+			});
+			
+
+		}
 		return asset;
 
 	}
@@ -656,26 +668,59 @@ class Editor{
 		// Make sure there's a room asset
 		if( !this.room.assets.length ){
 
-			const roomAsset = new DungeonRoomAsset({
-				model : 'Dungeon.Room.R10x10',
-				room : true
-			}, this.room);
-			this.room.addAsset(roomAsset);
+			
+			const roomAsset = this.addMesh('Dungeon.Room.R10x10', false);
+			roomAsset.room = true;
 			this.save();
 
 		}
+
+		let parents = [];
 		
+		this.room.assets = this.room.assets.map(el => {
+			
+			if( typeof el === "object" ){
+				return el;
+			}
+			
+			let m = mod.mod.getAssetById('dungeonRoomAssets', el);
+			// See if we can find a parent one
+			if( !m ){
+
+				m = mod.parentMod.getAssetById('dungeonRoomAssets', el);
+				if( !m )
+					console.error("Unable to find ", el, "in either mod");
+				else
+					parents.push(m.id);
+
+			}
+			return m;
+
+		});
+
+		// This creates new objects and wipes parenting information
 		this.room.rebase();
+
+		// Mark parents
+		for( let asset of this.room.assets ){
+			if( parents.includes(asset.id) )
+				asset.__isParent = true;
+		}
+
 		// Editing a room in a dungeon
 		if( !this.isTemplate() )
 			this.room.parent = new Dungeon(window.mod.mod.getAssetById(this.room_raw._mParent.type, this.room_raw._mParent.label ));
 
+		
+
 		// Build initial history state
 		for( let asset of this.room.assets ){
+
 			asset.rebase();
 			asset.__history = [];
 			asset.__historyMarker = 0;
 			this.addHistory(asset);
+
 		}
 
 	}
@@ -683,8 +728,49 @@ class Editor{
 	// Tries to save the room dummy onto room_raw
 	save(){
 
-		const data = DungeonRoom.saveThis(this.room, "mod");
-		this.room_raw.assets = data.assets;
+
+		let ids = this.room.assets.map(el => {
+
+			let data = DungeonRoomAsset.saveThis(el, 'mod');
+
+			// Insert new
+			if( !el.id ){
+
+				let newID = mod.mod.insert('dungeonRoomAssets', data);
+				el.id = newID;
+				//console.log("Inserted", el, data);
+
+			}
+			else{
+
+				// This object was from the root mod in an extension
+				if( el.__isParent ){
+
+					let originalId = el.id;
+					mod.mod.insert('dungeonRoomAssets', data);
+					data._e = el._e = originalId;
+					
+					el.id = data.id;	// Update the work asset
+					delete el.__isParent;
+					//console.log("Extended", el, data);
+
+				}
+				// Update db entry
+				else{
+					mod.mod.setAssetById('dungeonRoomAssets', data);
+					//console.log("Updated", el, data);
+				}
+
+			}
+
+			// Use the original ID when pointing to places
+			return el._e || el.id;
+
+		});
+
+		this.room_raw.assets = ids;
+		//console.log("Raw:", this.room_raw);
+
 		window.mod.setDirty(true);
 		this.updateWants();
 

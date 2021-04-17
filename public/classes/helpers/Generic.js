@@ -307,17 +307,21 @@ export default class Generic{
 	static saveThis( el, full ){
 		
 		if( typeof el.save !== "function" ){
+
 			if( !window.game && typeof el === "string" )
 				return el;
+
 			if( full === "mod" )
 				return el;
+
 			console.error(el);
 			throw "Error: asset is missing save method ^";
+
 		}
 
 		const sd = el.save(full);
-		if( full === "mod" )
-			sd._e = this._e || '';
+		if( full === "mod" && el._e )
+			sd._e = el._e;
 
 		return sd;
 
@@ -331,11 +335,11 @@ export default class Generic{
 
 	static generateUUID(){
 
-		const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 		let array = new Uint8Array(10);
 		crypto.getRandomValues(array);
 		array = array.map(x => validChars.charCodeAt(x % validChars.length));
-		return String.fromCharCode.apply(null, array); return randomState;
+		return String.fromCharCode.apply(null, array);
 
 	}
 
