@@ -152,8 +152,8 @@ class Stage extends Generic{
 			}
 			else{
 
-				aEl = $("#ui div.player[data-id="+esc(attacker.id)+"]");
-				vEl = $("#ui div.player[data-id="+esc(victim.id)+"]");
+				aEl = $("#ui div.player[data-id='"+esc(attacker.id)+"']");
+				vEl = $("#ui div.player[data-id='"+esc(victim.id)+"']");
 				
 			}
 

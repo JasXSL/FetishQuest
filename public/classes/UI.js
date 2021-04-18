@@ -2425,7 +2425,7 @@ export default class UI{
 		if( Array.isArray(element) )
 			element = element[0];
 		if( player instanceof Player )
-			element = $('div.player[data-id='+esc(player.id)+']', this.players);
+			element = $('div.player[data-id=\''+esc(player.id)+'\']', this.players);
 
 		if( element.length ){
 			let pos = element.offset(),

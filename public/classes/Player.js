@@ -12,6 +12,7 @@ import Dungeon from './Dungeon.js';
 import Roleplay from './Roleplay.js';
 import Condition from './Condition.js';
 import Collection from './helpers/Collection.js';
+import Encounter from './Encounter.js';
 
 const BASE_HP = 40;
 const BASE_MP = 10;
@@ -296,17 +297,28 @@ export default class Player extends Generic{
 	}
 
 	rebindWrappers(){
+
 		this.unbindWrappers();
 		let w = this.getWrappers();
 		w.map(wrapper => {
 			wrapper.bindEvents();
 		});
 		this._bound_wrappers = w;
+
 	}
 
 	unbindWrappers(){
-		for( let wrapper of this._bound_wrappers )
+
+		for( let wrapper of this._bound_wrappers ){
+
+			// These are bound on an encounter by encounter basis, and all players share these
+			if( wrapper.parent && wrapper.parent instanceof Encounter )
+				continue;
+				
 			wrapper.unbindEvents();
+
+		}
+
 	}
 
 
@@ -877,6 +889,8 @@ export default class Player extends Generic{
 			this.level += game.getHighestLevelPlayer();
 			this.leveled = false;
 		}
+
+		this.addDefaultActions();
 
 		this.assets = this.assets.map(el => Asset.convertDummy(el, this));
 		for( let index of this.inventory ){

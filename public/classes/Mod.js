@@ -624,9 +624,16 @@ export default class Mod extends Generic{
 		if( asset === undefined && typeof table === 'object' )
 			console.error('You forgot to assign a table in insert');
 
-		asset.id = Generic.generateUUID();
+		let newid = Generic.generateUUID();
+		if( Mod.UseID.includes(table) )
+			asset.id = newid;
+		else{
+			asset.label = newid;
+			delete asset.id;
+		}
 		this.mergeAsset(table, asset);
-		return asset.id;
+
+		return newid;
 
 	}
 
@@ -647,11 +654,10 @@ export default class Mod extends Generic{
 				if( typeof asset !== "object" )
 					return asset;
 
-				// Create a reference
-				if( !asset.id )
-					asset.id = Generic.generateUUID();
+				// Create a new ID because the old editor may have duplicates
+				asset.id = Generic.generateUUID();
 				
-					this.dungeonRoomAssets.push(asset);
+				this.dungeonRoomAssets.push(asset);
 				asset._h = 1;	// Hide asset
 
 				++assetsUpdated;
@@ -675,9 +681,12 @@ export default class Mod extends Generic{
 					if( typeof cond !== 'object' )
 						return cond;
 
-					if( !cond.id )
-						cond.id = Generic.generateUUID();
+					cond.id = Generic.generateUUID();
 					cond._h = 1;
+					if( !cond.label )
+						cond.label = cond.id;
+
+					delete cond.id;
 
 					this.conditions.push(cond);
 					++condsUpdated;
@@ -693,10 +702,12 @@ export default class Mod extends Generic{
 					if( typeof asset !== 'object' )
 						return asset;
 
-					if( !asset.id )
-						asset.id = Generic.generateUUID();
-					asset._h = 1;
+					asset.id = Generic.generateUUID();
 
+					if( !asset.label )
+						asset.label = asset.id;
+					asset._h = 1;
+					delete asset.id;
 					this.gameActions.push(asset);
 					++assetsUpdated;
 

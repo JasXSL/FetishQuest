@@ -2058,6 +2058,7 @@ export default class Game extends Generic{
 
 		if( this.battle_active ){
 
+			this.encounter.setCompleted(false);
 			this.ui.battleVis();
 			this.renderer.battleVis();
 			
@@ -2146,8 +2147,10 @@ export default class Game extends Generic{
 
 			let evt = GameEvent.Types.encounterLost;
 			if( standing[0] !== undefined && standing[0] === 0 ){
+
 				this.onEncounterDefeated();
 				evt = GameEvent.Types.encounterDefeated;
+
 			}
 			else 
 				this.onEncounterLost(standing[0]);

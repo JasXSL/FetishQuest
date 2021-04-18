@@ -295,6 +295,50 @@ class Editor{
 
 				obj = obj.clone("mod", this.room);
 				delete obj.id;	// Forces it to insert a new entry when saving
+
+				if( Array.isArray(obj.interactions) ){
+
+					
+					obj.interactions = obj.interactions.map(el => {
+
+						let base = mod.getAssetById('gameActions', el);
+
+						if( base && base._h ){
+
+							base = JSON.parse(JSON.stringify(base));
+							// This condition was a sub of the original, we need to clone it
+							base.label = mod.mod.insert('gameActions', base);
+							return base.label;
+
+						}
+
+						return el;
+
+					});
+				}
+
+				if( Array.isArray(obj.conditions) ){
+
+					
+					obj.conditions = obj.conditions.map(el => {
+
+						let base = mod.getAssetById('conditions', el);
+
+						if( base && base._h ){
+							
+							// This condition was a sub of the original, we need to clone it
+							base = JSON.parse(JSON.stringify(base));
+							base.label = mod.mod.insert('conditions', base);
+							return base.label;
+
+						}
+
+						return el;
+
+					});
+				}
+				
+
 				obj.__history = [];
 				obj.__historyMarker = 0;
 				this.addHistory(obj);

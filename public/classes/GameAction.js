@@ -459,8 +459,10 @@ export default class GameAction extends Generic{
 		else if( this.type === types.roleplay ){
 
 			const rp = this.getDataAsRoleplay();
+
 			if( rp.completed && rp.once )
 				return false;
+
 			rp.completed = false;
 			if( rp.validate(player) ){
 				game.setRoleplay(rp);

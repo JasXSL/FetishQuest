@@ -7,8 +7,9 @@
 	
 	PROJECT MOD EDIT:
 	- Make RP use only links as well
-	- 
-
+		- Afaik RoleplayStageOptionGoto should be the only asset that needs a table entry
+		- Add automatic unroll
+		
 	
 
 -- LATER UPDATE --

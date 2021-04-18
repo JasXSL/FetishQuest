@@ -795,8 +795,6 @@ class Effect extends Generic{
 		evt.effect = this;
 		evt.originalWrapper = evt.wrapper;
 		evt.wrapper = wrapper;
-		
-		
 
 		if( !(wrapperReturn instanceof WrapperReturn) )
 			wrapperReturn = new WrapperReturn();
@@ -1670,8 +1668,10 @@ class Effect extends Generic{
 			}
 			
 			else if( this.type === Effect.Types.gameAction ){
+
 				const ga = GameAction.loadThis(this.data.action);
 				ga.trigger(t);
+
 			}
 
 			else if( this.type === Effect.Types.summonAsset ){

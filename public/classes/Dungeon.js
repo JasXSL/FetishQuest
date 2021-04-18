@@ -640,10 +640,12 @@ class DungeonRoom extends Generic{
 
 		// If encounter is complete, set it to completed
 		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
+			
 			// Prevents overwriting encounter data when returning to a dungeon after you've left it (the encounter reverts to array)
 			if( Array.isArray(this.encounters) )
 				this.encounters = new Encounter({"id":"_BLANK_"}, this);
 			this.encounters.completed = true;
+
 		}
 
 		if( state.encounter_friendly !== -1 && this.encounters instanceof Encounter && !respawn )

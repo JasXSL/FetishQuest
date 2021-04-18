@@ -58,10 +58,12 @@ export default class GameEvent extends Generic{
 	raise(){
 
 		// Run the event
-		for(let binding of GameEvent.bindings){
+		for( let binding of GameEvent.bindings ){
 			
 			if( binding.type === this.type || binding.type === GameEvent.Types.all ){
+
 				binding.fn(this);
+
 			}
 
 		}
