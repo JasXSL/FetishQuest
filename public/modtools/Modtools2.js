@@ -852,6 +852,8 @@ export default class Modtools{
 		this.mod = mod;
 		Window.closeAll();
 
+		mod.runLegacyConversion();
+
 		localStorage.editor_mod = mod.id;		// Save this as the actively opened mod
 		this.updateModName();					// Set the mod name in the top bar
 

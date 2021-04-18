@@ -908,7 +908,7 @@ class Editor{
 				if( typeof n === "string" )
 					n = window.mod.getAssetById("gameActions", n);
 
-				if( n.type === interaction )
+				if( n && new GameAction(n).type === interaction )
 					return true;
 			}
 

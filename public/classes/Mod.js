@@ -632,6 +632,91 @@ export default class Mod extends Generic{
 
 
 
+	// Un-nests legacy nested assets
+	runLegacyConversion(){
+		
+		/* Remove nested objects from dungeonRooms */
+		let assetsUpdated = 0;
+		for( let el of this.dungeonRooms ){
+
+			if( !Array.isArray(el.assets) )
+				continue;
+
+			el.assets = el.assets.map(asset => {
+				// Already a reference
+				if( typeof asset !== "object" )
+					return asset;
+
+				// Create a reference
+				if( !asset.id )
+					asset.id = Generic.generateUUID();
+				
+					this.dungeonRoomAssets.push(asset);
+				asset._h = 1;	// Hide asset
+
+				++assetsUpdated;
+				return asset.id;
+
+			});
+
+		}
+		if( assetsUpdated )
+			console.log("Un-nested", assetsUpdated, "dungeonRoomAssets");
+
+		assetsUpdated = 0;
+		let condsUpdated = 0; 
+		/* Next un-nest dungeon room assets */
+		for( let el of this.dungeonRoomAssets ){
+
+			if( Array.isArray(el.conditions) ){
+
+				el.conditions = el.conditions.map(cond => {
+
+					if( typeof cond !== 'object' )
+						return cond;
+
+					if( !cond.id )
+						cond.id = Generic.generateUUID();
+					cond._h = 1;
+
+					this.conditions.push(cond);
+					++condsUpdated;
+					return cond.id;
+				});
+				
+			}
+			if( Array.isArray(el.interactions) ){
+				
+
+				el.interactions = el.interactions.map(asset => {
+
+					if( typeof asset !== 'object' )
+						return asset;
+
+					if( !asset.id )
+						asset.id = Generic.generateUUID();
+					asset._h = 1;
+
+					this.gameActions.push(asset);
+					++assetsUpdated;
+
+					return asset.id;
+
+				});
+				
+			}
+			
+		}
+
+		if( assetsUpdated )
+			console.log("Un-nested ", assetsUpdated, "game actions from dungeonRoomAssets");
+		if( condsUpdated )
+			console.log("Un-nested ", condsUpdated, "conditions from dungeonRoomAssets");
+		
+
+	}
+
+
 
 	// mod save goes to databse
 	async save( force ){
