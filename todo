@@ -1,18 +1,16 @@
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system
-	- 2nd player was not able to talk to the sailor
-
+	- Add more automatic asset unrolling as you discover rolled up assets
 
 -- CURRENT --
 	
-	PROJECT MOD EDIT:
-	- Make RP use only links as well
-		- Afaik RoleplayStageOptionGoto should be the only asset that needs a table entry
-		- Add automatic unroll
-		
+	
+	
 	
 
 -- LATER UPDATE --
+
+	- Cache main mod in indexeddb until it's updated somehow
 
 	- Procedural dungeon affixes
 

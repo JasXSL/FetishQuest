@@ -13,7 +13,7 @@ import { AudioKit } from './Audio.js';
 import Mod from './Mod.js';
 import Player from './Player.js';
 import HitFX from './HitFX.js';
-import Roleplay, { RoleplayStage, RoleplayStageOption } from './Roleplay.js';
+import Roleplay, { RoleplayStage, RoleplayStageOption, RoleplayStageOptionGoto } from './Roleplay.js';
 import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
 import Shop, { ShopAsset, ShopAssetToken } from './Shop.js';
@@ -57,6 +57,7 @@ const LIB_TYPES = {
 	'roleplay' : Roleplay,
 	'roleplayStage' : RoleplayStage,
 	'roleplayStageOption' : RoleplayStageOption,
+	'roleplayStageOptionGoto' : RoleplayStageOptionGoto,
 	'gameActions' : GameAction,
 	'texts' : Text,
 	'gallery' : PlayerGalleryTemplate,
@@ -87,6 +88,7 @@ const load_order = [
 
 	'factions',
 	
+	'roleplayStageOptionGoto',
 	'roleplayStageOption',
 	'roleplayStage',
 	'roleplay',
@@ -150,6 +152,7 @@ export default class GameLib{
 		this.roleplay = {};
 		this.roleplayStage = {};
 		this.roleplayStageOption = {};
+		this.roleplayStageOptionGoto = {};
 		this.gameActions = {};
 		this.actionLearnable = {};
 		this.factions = {};
@@ -381,7 +384,7 @@ export default class GameLib{
 			return;
 		
 		if( !lib[label] ){
-			console.error("Asset", label, "not found in", lib, "(", Object.keys(lib), ")", "constructor was ", constructorName);
+			console.error("Asset", label, "not found in", Object.keys(lib), "constructor was ", constructorName);
 			return false;
 		}
 

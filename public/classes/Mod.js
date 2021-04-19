@@ -47,6 +47,7 @@ export default class Mod extends Generic{
 		this.roleplay = [];
 		this.roleplayStage = [];
 		this.roleplayStageOption = [];
+		this.roleplayStageOptionGoto = [];
 		this.gameActions = [];
 		this.shops = [];
 		this.shopAssets = [];
@@ -116,6 +117,7 @@ export default class Mod extends Generic{
 			roleplay : this.roleplay,
 			roleplayStage : this.roleplayStage,
 			roleplayStageOption : this.roleplayStageOption,
+			roleplayStageOptionGoto : this.roleplayStageOptionGoto,
 			gameActions : this.gameActions,
 			shops : this.shops,
 			shopAssets : this.shopAssets,
@@ -393,7 +395,6 @@ export default class Mod extends Generic{
 			if( asset && asset[field] )
 				removeThese = removeThese.concat(asset[field]);
 
-			//console.log(type, asset, field, "of subtype", subtype, "yeeting", removeThese);
 			for( let a of removeThese )
 				this.deleteAsset(subtype, a);
 
@@ -416,6 +417,8 @@ export default class Mod extends Generic{
 				
 				this[type].splice(i, 1);
 
+				// These are types that don't use _mParent for storage reasons, you'll need to manually remove assets here
+				// Look in the editor at Editor<type>.assetTable where the parented argument is 2, those fields need manual removal
 				// To save space, dungeonRoom doesn't use mParent for assets (it's a one to many relationship), we'll just need to add the assets manually for deletion
 				if( type === "dungeonRooms" )
 					yeetSubAssets('dungeonRoomAssets', asset, 'assets');
@@ -426,6 +429,16 @@ export default class Mod extends Generic{
 					yeetSubAssets('conditions', asset, 'conditions');
 					yeetSubAssets('gameActions', asset, 'interactions');
 
+				}
+				else if( type === "roleplay" ){
+					yeetSubAssets('roleplayStage', asset, 'stages');
+				}
+				else if( type === "roleplayStage" ){
+					yeetSubAssets('texts', asset, 'text');
+					yeetSubAssets('roleplayStageOption', asset, 'options');
+				}
+				else if( type === "roleplayStageOption" ){
+					yeetSubAssets('roleplayStageOptionGoto', asset, 'index');
 				}
 
 				return true;
@@ -604,7 +617,25 @@ export default class Mod extends Generic{
 
 	}
 
-	// Tries to get the parent asset using _mParent
+	
+	// If an asset doesn't use _mParent, you'll have to do some manual list searching
+	getListObjectParent( parentTable, parentField, id ){
+
+		if( !Array.isArray(this[parentTable]) )
+			throw "Trying to get a non existing table: "+parentTable;
+
+		for( let obj of this[parentTable] ){
+
+			if( 
+				obj[parentField] === id ||
+				(Array.isArray(obj[parentField]) && obj[parentField].includes(id) )
+			)return this.getAssetById(parentTable, obj.id);
+
+		}
+
+	}
+
+	// Tries to get the parent asset using _mParent. Only works on assets that use _mParent 
 	getAssetParent( type, id ){
 		
 		const asset = this.getAssetById(type, id);
@@ -643,7 +674,10 @@ export default class Mod extends Generic{
 	runLegacyConversion(){
 		
 		/* Remove nested objects from dungeonRooms */
-		let assetsUpdated = 0;
+		let aUpdated = 0;
+		let bUpdated = 0; 
+		let cUpdated = 0; 
+
 		for( let el of this.dungeonRooms ){
 
 			if( !Array.isArray(el.assets) )
@@ -660,17 +694,16 @@ export default class Mod extends Generic{
 				this.dungeonRoomAssets.push(asset);
 				asset._h = 1;	// Hide asset
 
-				++assetsUpdated;
+				++aUpdated;
 				return asset.id;
 
 			});
 
 		}
-		if( assetsUpdated )
-			console.log("Un-nested", assetsUpdated, "dungeonRoomAssets");
+		if( aUpdated )
+			console.log("Un-nested", aUpdated, "dungeonRoomAssets");
 
-		assetsUpdated = 0;
-		let condsUpdated = 0; 
+		aUpdated = 0;
 		/* Next un-nest dungeon room assets */
 		for( let el of this.dungeonRoomAssets ){
 
@@ -681,16 +714,18 @@ export default class Mod extends Generic{
 					if( typeof cond !== 'object' )
 						return cond;
 
-					cond.id = Generic.generateUUID();
 					cond._h = 1;
 					if( !cond.label )
 						cond.label = cond.id;
 
+					if( !cond.label )
+						cond.label = Generic.generateUUID();
+
 					delete cond.id;
 
 					this.conditions.push(cond);
-					++condsUpdated;
-					return cond.id;
+					++bUpdated;
+					return cond.label;
 				});
 				
 			}
@@ -702,16 +737,17 @@ export default class Mod extends Generic{
 					if( typeof asset !== 'object' )
 						return asset;
 
-					asset.id = Generic.generateUUID();
-
 					if( !asset.label )
 						asset.label = asset.id;
+					if( !asset.label )
+						asset.label = Generic.generateUUID();
+
 					asset._h = 1;
 					delete asset.id;
 					this.gameActions.push(asset);
-					++assetsUpdated;
+					++aUpdated;
 
-					return asset.id;
+					return asset.label;
 
 				});
 				
@@ -719,11 +755,253 @@ export default class Mod extends Generic{
 			
 		}
 
-		if( assetsUpdated )
-			console.log("Un-nested ", assetsUpdated, "game actions from dungeonRoomAssets");
-		if( condsUpdated )
-			console.log("Un-nested ", condsUpdated, "conditions from dungeonRoomAssets");
+		if( aUpdated )
+			console.log("Un-nested ", aUpdated, "game actions from dungeonRoomAssets");
+		if( bUpdated )
+			console.log("Un-nested ", bUpdated, "conditions from dungeonRoomAssets");
 		
+
+		// Unroll roleplays
+		aUpdated = 0;
+		bUpdated = 0;
+		for( let el of this.roleplay ){
+
+			if( Array.isArray(el.stages) ){
+				// Stages
+				el.stages = el.stages.map(stage => {
+
+					if( typeof stage === "object" ){
+
+						if( stage.label )
+							stage.id = stage.label;
+						delete stage.label;
+						if( !stage.id )
+							stage.id = Generic.generateUUID();
+						
+						this.roleplayStage.push(stage);
+						++aUpdated;
+						return stage.id;
+
+					}
+
+
+					return stage;
+				});
+
+			}
+
+			// Conditions
+			if( Array.isArray(el.conditions) ){
+
+				el.conditions = el.conditions.map(cond => {
+
+					if( typeof cond !== 'object' )
+						return cond;
+
+					cond._h = 1;
+					if( !cond.label )
+						cond.label = cond.id;
+					if( !cond.label )
+						cond.label = Generic.generateUUID();
+
+					delete cond.id;
+
+					this.conditions.push(cond);
+					++bUpdated;
+					return cond.label;
+
+				});
+
+			}
+
+		}
+
+		if( aUpdated )
+			console.log("Un-nested ", aUpdated, "roleplays from roleplays");
+		if( bUpdated )
+			console.log("Un-nested ", bUpdated, "conditions from roleplays");
+
+		// Unroll roleplayStages
+		aUpdated = 0;
+		bUpdated = 0;
+		cUpdated = 0;
+		for( let el of this.roleplayStage ){
+
+			// Texts
+			if( Array.isArray(el.text) ){
+
+				el.text = el.text.map(asset => {
+
+					if( typeof asset === "object" ){
+
+						asset._h = 1;
+						if( asset.label )
+							asset.id = asset.label;
+						delete asset.label;
+						if( !asset.id )
+							asset.id = Generic.generateUUID();
+						
+						this.texts.push(asset);
+						++aUpdated;
+						return asset.id;
+
+					}
+
+
+					return asset;
+				});
+
+			}
+
+			// Options
+			if( Array.isArray(el.options) ){
+
+				el.options = el.options.map(asset => {
+
+					if( typeof asset === "object" ){
+
+						asset._h = 1;
+						if( asset.label )
+							asset.id = asset.label;
+						delete asset.label;
+						if( !asset.id )
+							asset.id = Generic.generateUUID();
+						
+						this.roleplayStageOption.push(asset);
+						++bUpdated;
+						return asset.id;
+
+					}
+
+					return asset;
+				});
+
+			}
+
+			// Game actions
+			if( Array.isArray(el.game_actions) ){
+
+				el.game_actions = el.game_actions.map(asset => {
+
+					if( typeof asset !== 'object' )
+						return asset;
+
+					if( !asset.label )
+						asset.label = asset.id;
+					if( !asset.label )
+						asset.label = Generic.generateUUID();
+
+					delete asset.id;
+
+					this.game_actions.push(asset);
+					++cUpdated;
+					return asset.label;
+
+				});
+
+			}
+
+		}
+
+		if( aUpdated )
+			console.log("Un-nested ", aUpdated, "texts from roleplayStages");
+		if( bUpdated )
+			console.log("Un-nested ", bUpdated, "roleplayStageOptions from roleplayStages");
+		if( cUpdated )
+			console.log("Un-nested ", cUpdated, "gameActions from roleplayStages");
+
+		// Unroll roleplayStageOptions
+		aUpdated = 0;
+		bUpdated = 0;
+		cUpdated = 0;
+		for( let el of this.roleplayStageOption ){
+
+			if( typeof el.index === 'number' )
+				el.index = [{index:el.index}];
+
+			// Index
+			if( Array.isArray(el.index) ){
+
+				el.index = el.index.map(asset => {
+
+					if( typeof asset === "number" )
+						asset = {'index':asset};
+
+					if( typeof asset === "object" ){
+
+						asset._h = 1;
+						if( asset.label )
+							asset.id = asset.label;
+						delete asset.label;
+						if( !asset.id )
+							asset.id = Generic.generateUUID();
+						
+						this.roleplayStageOptionGoto.push(asset);
+						++aUpdated;
+						return asset.id;
+
+					}
+
+
+					return asset;
+				});
+
+			}
+
+			// Game actions
+			if( Array.isArray(el.game_actions) ){
+
+				el.game_actions = el.game_actions.map(asset => {
+
+					if( typeof asset !== 'object' )
+						return asset;
+
+					if( !asset.label )
+						asset.label = asset.id;
+					if( !asset.label )
+						asset.label = Generic.generateUUID();
+
+					delete asset.id;
+					asset._h = 1;
+					this.gameActions.push(asset);
+					++bUpdated;
+					return asset.label;
+
+				});
+
+			}
+
+			// Game actions
+			if( Array.isArray(el.conditions) ){
+
+				el.conditions = el.conditions.map(asset => {
+
+					if( typeof asset !== 'object' )
+						return asset;
+
+					if( !asset.label )
+						asset.label = asset.id;
+					if( !asset.label )
+						asset.label = Generic.generateUUID();
+
+					delete asset.id;
+					asset._h = 1;
+					this.conditions.push(asset);
+					++cUpdated;
+					return asset.label;
+
+				});
+
+			}
+
+		}
+
+		if( aUpdated )
+			console.log("Un-nested ", aUpdated, "indexes from roleplayStageOption");
+		if( bUpdated )
+			console.log("Un-nested ", bUpdated, "gameActions from roleplayStageOption");
+		if( cUpdated )
+			console.log("Un-nested ", cUpdated, "conditions from roleplayStageOption");
 
 	}
 
@@ -881,7 +1159,10 @@ Mod.Category = {
 // Many to many relations use label
 Mod.UseID = [
 	'dungeonRoomAssets',
-	'texts'
+	'texts',
+	'roleplayStage',
+	'roleplayStageOption',
+	'roleplayStageOptionGoto',
 ];
 
 Mod.getNames = async function( force ){

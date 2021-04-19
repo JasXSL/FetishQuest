@@ -1,13 +1,10 @@
 import HelperAsset from './HelperAsset.js';
-import HelperTags from './HelperTags.js';
 
 import * as EditorText from './EditorText.js';
 import * as EditorPlayer from './EditorPlayer.js';
 import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import Roleplay, { RoleplayStage, RoleplayStageOption } from '../../classes/Roleplay.js';
-import Action from '../../classes/Action.js';
-import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'roleplayStage',
 	CONSTRUCTOR = RoleplayStage;
@@ -50,8 +47,8 @@ export function asset(){
 	this.setDom(html);
 
 	// Conditions
-	this.dom.querySelector("div.text").appendChild(EditorText.assetTable(this, asset, "text", false, true));
-	this.dom.querySelector("div.options").appendChild(EditorRoleplayStageOption.assetTable(this, asset, "options", false, true));
+	this.dom.querySelector("div.text").appendChild(EditorText.assetTable(this, asset, "text", false, 2));
+	this.dom.querySelector("div.options").appendChild(EditorRoleplayStageOption.assetTable(this, asset, "options", false, 2));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions"));
 	
@@ -65,18 +62,19 @@ export function asset(){
 // Special onCreate function to update the number using the highest number of parent
 function onCreate( win, asset ){
 
-	if( !asset._mParent )
-		return;
-
-	const parent = window.mod.mod.getAssetById(asset._mParent.type, asset._mParent.label);
+	let parent = mod.getListObjectParent('roleplay', 'stages', asset.id);
+	console.log("Parent", parent);
 	if( !parent ||!Array.isArray(parent.stages) )
 		return;
 
+	console.log("Stages", parent.stages);
 	let highest = -1;
 	for( let stage of parent.stages ){
-		const s = window.mod.mod.getAssetById(DB, stage);
-		if( s && s.index > highest )
-			highest = s.index;
+
+		const s = window.mod.getAssetById(DB, stage);
+		let index = (s && parseInt(s.index)) || 0;
+		if( index > highest )
+			highest = index;
 
 	}
 	

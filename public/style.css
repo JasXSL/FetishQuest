@@ -1385,6 +1385,10 @@ div.fxBuffRed{
 		max-height:20vh;
 		overflow:hidden;
 	}
+
+	#mainMenu img.portalLogo{
+		height:5vmax;
+	}
 	
 	
 

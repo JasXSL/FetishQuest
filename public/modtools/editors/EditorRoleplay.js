@@ -1,5 +1,4 @@
 import HelperAsset from './HelperAsset.js';
-import HelperTags from './HelperTags.js';
 
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorPlayer from './EditorPlayer.js';
@@ -51,9 +50,7 @@ export function asset(){
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
-
-	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, true));
-
+	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, 2));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 
 	HelperAsset.autoBind( this, asset, DB);

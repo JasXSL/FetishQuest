@@ -2003,15 +2003,10 @@ export default class StaticModal{
 		this.add(new this("mainMenu", "FetishQuest"))
 			.addTab("Main Menu", () => {
 				return `
-					<p class="centered subtitle">
-						<strong>This game contains adult content. But you\'ve probably worked that out from the title already.</strong><br />
-						Follow development on <a href="https://discord.jasx.org" target="_blank">Discord</a>.<br />
-						If you like the game, consider becoming a <a href="https://www.patreon.com/jasx_games" target="_blank">Patron</a>!
-					</p>
-
 					<p style="text-align:center">
 						<input type="button" class="green newGameButton" name="newGame" value="New Game" />
 					</p>
+					<p class="centered">This game contains adult content... obviously.</p>
 					<hr />
 					<div class="loadGame">
 						<p>
@@ -2021,6 +2016,11 @@ export default class StaticModal{
 						<p class="subtitle">Ctrl+click to Delete<br />Shift+Click to Export</p>
 						<input type="file" class="loadGame" accept=".fqsav" />
 					</div>
+					<p class="centered">
+						<a href="https://github.com/JasXSL/FetishQuest" target="_blank"><img class="portalLogo" src="/media/ui/GitHub-Mark-Light-120px-plus.png" /></a>
+						<a href="https://discord.jasx.org" target="_blank"><img class="portalLogo" src="/media/ui/discord.png" /></a>
+						<a href="https://www.patreon.com/jasx_games" target="_blank"><img class="portalLogo" src="/media/ui/patreon.png" /></a>
+					</p>
 				`;
 			})
 			.addTab("My Mods", () => {
@@ -2072,6 +2072,7 @@ export default class StaticModal{
 					<p>Art:</p>
 					<a href="http://www.furaffinity.net/gallery/gothwolf">GothWolf</a><br />
 					<a href="http://www.furaffinity.net/gallery/maddworld">Maddworld</a><br />
+					<a href="https://www.furaffinity.net/user/carduelis/">Carduelis</a><br />
 					<p>Audio:</p>
 					https://freesound.org/people/GameDevC/sounds/422836/<br />
 					https://freesound.org/people/LittleRobotSoundFactory/sounds/270401/<br />
@@ -2091,6 +2092,8 @@ export default class StaticModal{
 					https://freesound.org/people/conleec/sounds/212094/<br />
 					https://freesound.org/people/ivolipa/sounds/326313/<br />
 					https://freesound.org/people/humanoide9000/sounds/505426/<br />
+
+					<p>Made with <a href="https://threejs.org/" target="_blank">THREE.js</a></p>
 				</div>
 				`;
 			})

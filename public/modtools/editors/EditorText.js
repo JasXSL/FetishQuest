@@ -29,7 +29,7 @@ export function asset(){
 	if( asset._mParent )
 		dummy.en = asset.en = false;
 
-	this.name = asset.text.substr(0, 16)+'...';
+	this.name = dummy.text.substr(0, 16)+'...';
 	this.updateTitle();
 
 	let html = '';

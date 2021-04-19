@@ -26,6 +26,7 @@ import * as EditorPlayerTemplateLoot from './editors/EditorPlayerTemplateLoot.js
 import * as EditorRoleplay from './editors/EditorRoleplay.js';
 import * as EditorRoleplayStage from './editors/EditorRoleplayStage.js';
 import * as EditorRoleplayStageOption from './editors/EditorRoleplayStageOption.js';
+import * as EditorRoleplayStageOptionGoto from './editors/EditorRoleplayStageOptionGoto.js';
 import * as EditorShop from './editors/EditorShop.js';
 import * as EditorShopAsset from './editors/EditorShopAsset.js';
 import * as EditorShopAssetToken from './editors/EditorShopAssetToken.js';
@@ -57,33 +58,34 @@ const TRACKED_WINDOWS = {
 // Type is named after the name of its array in Mod.js
 const DB_MAP = {
 	"texts" : { listing : EditorText.list, asset : EditorText.asset, help : EditorText.help, icon : '' },
-	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark' },
-	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker' },
-	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion' },
-	"assets" : { listing : EditorAsset.list, asset : EditorAsset.asset, icon : 'underwear' },
-	"wrappers" : { listing : EditorWrapper.list, asset : EditorWrapper.asset, icon : 'jigsaw-box' },
-	"effects" : { listing : EditorEffect.list, asset : EditorEffect.asset, icon : 'fairy-wand' },
-	"actions" : { listing : EditorAction.list, asset : EditorAction.asset, icon : 'juggler' },
-	"assetTemplates" : { listing : EditorAssetTemplate.list, asset : EditorAssetTemplate.asset, icon : 'mail-shirt' },
-	"materialTemplates" : { listing : EditorMaterialTemplate.list, asset : EditorMaterialTemplate.asset, icon : 'wool' },
-	"actionLearnable" : { listing : EditorActionLearnable.list, asset : EditorActionLearnable.asset, icon : 'graduate-cap' },
-	"gameActions" : { listing : EditorGameAction.list, asset : EditorGameAction.asset, icon : 'joystick' },
-	"playerClasses" : { listing : EditorPlayerClass.list, asset : EditorPlayerClass.asset, icon : 'vitruvian-man' },
-	"players" : { listing : EditorPlayer.list, asset : EditorPlayer.asset, icon : 'mustache' },
-	"playerTemplates" : { listing : EditorPlayerTemplate.list, asset : EditorPlayerTemplate.asset, icon : 'anatomy' },
-	"playerTemplateLoots" : { listing : EditorPlayerTemplateLoot.list, asset : EditorPlayerTemplateLoot.asset, icon : 'open-treasure-chest' },
-	"roleplay" : { listing : EditorRoleplay.list, asset : EditorRoleplay.asset, icon : 'talk' },
-	"roleplayStage" : { listing : EditorRoleplayStage.list, asset : EditorRoleplayStage.asset, icon : 'conversation' },
-	"roleplayStageOption" : { listing : EditorRoleplayStageOption.list, asset : EditorRoleplayStageOption.asset, icon : 'click' },
-	"shops" : { listing : EditorShop.list, asset : EditorShop.asset, icon : 'shopping-cart' },
-	"shopAssets" : { listing : EditorShopAsset.list, asset : EditorShopAsset.asset, icon : 'receive-money' },
-	"shopAssetTokens" : { listing : EditorShopAssetToken.list, asset : EditorShopAssetToken.asset, icon : 'token' },
-	"factions" : { listing : EditorFaction.list, asset : EditorFaction.asset, icon : 'tattered-banner' },
-	"quests" : { listing : EditorQuest.list, asset : EditorQuest.asset, icon : 'scroll-quill' },
-	"questRewards" : { listing : EditorQuestReward.list, asset : EditorQuestReward.asset, icon : 'open-treasure-chest' },
-	"questObjectives" : { listing : EditorQuestObjective.list, asset : EditorQuestObjective.asset, icon : 'direction-sign' },
-	"questObjectiveEvents" : { listing : EditorQuestObjectiveEvent.list, asset : EditorQuestObjectiveEvent.asset, icon : 'annexation' },
-	"encounters" : { listing : EditorEncounter.list, asset : EditorEncounter.asset, icon : 'kraken-tentacle' },
+	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark', help : EditorCondition.help },
+	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker', help : EditorAudioKit.help },
+	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion', help : EditorHitFX.help },
+	"assets" : { listing : EditorAsset.list, asset : EditorAsset.asset, icon : 'underwear', help : EditorAsset.help },
+	"wrappers" : { listing : EditorWrapper.list, asset : EditorWrapper.asset, icon : 'jigsaw-box', help : EditorWrapper.help },
+	"effects" : { listing : EditorEffect.list, asset : EditorEffect.asset, icon : 'fairy-wand', help : EditorEffect.help },
+	"actions" : { listing : EditorAction.list, asset : EditorAction.asset, icon : 'juggler', help : EditorAction.help },
+	"assetTemplates" : { listing : EditorAssetTemplate.list, asset : EditorAssetTemplate.asset, icon : 'mail-shirt', help : EditorAssetTemplate.help },
+	"materialTemplates" : { listing : EditorMaterialTemplate.list, asset : EditorMaterialTemplate.asset, icon : 'wool', help : EditorMaterialTemplate.help },
+	"actionLearnable" : { listing : EditorActionLearnable.list, asset : EditorActionLearnable.asset, icon : 'graduate-cap', help : EditorActionLearnable.help },
+	"gameActions" : { listing : EditorGameAction.list, asset : EditorGameAction.asset, icon : 'joystick', help : EditorGameAction.help },
+	"playerClasses" : { listing : EditorPlayerClass.list, asset : EditorPlayerClass.asset, icon : 'vitruvian-man', help : EditorPlayerClass.help },
+	"players" : { listing : EditorPlayer.list, asset : EditorPlayer.asset, icon : 'mustache', help : EditorPlayer.help },
+	"playerTemplates" : { listing : EditorPlayerTemplate.list, asset : EditorPlayerTemplate.asset, icon : 'anatomy', help : EditorPlayerTemplate.help },
+	"playerTemplateLoots" : { listing : EditorPlayerTemplateLoot.list, asset : EditorPlayerTemplateLoot.asset, icon : 'open-treasure-chest', help : EditorPlayerTemplateLoot.help },
+	"roleplay" : { listing : EditorRoleplay.list, asset : EditorRoleplay.asset, icon : 'talk', help : EditorRoleplay.help },
+	"roleplayStage" : { listing : EditorRoleplayStage.list, asset : EditorRoleplayStage.asset, icon : 'conversation', help : EditorRoleplayStage.help },
+	"roleplayStageOption" : { listing : EditorRoleplayStageOption.list, asset : EditorRoleplayStageOption.asset, icon : 'click', help : EditorRoleplayStageOption.help },
+	"roleplayStageOptionGoto" : { listing : EditorRoleplayStageOptionGoto.list, asset : EditorRoleplayStageOptionGoto.asset, icon : 'click', help : EditorRoleplayStageOptionGoto.help },
+	"shops" : { listing : EditorShop.list, asset : EditorShop.asset, icon : 'shopping-cart', help : EditorShop.help },
+	"shopAssets" : { listing : EditorShopAsset.list, asset : EditorShopAsset.asset, icon : 'receive-money', help : EditorShopAsset.help },
+	"shopAssetTokens" : { listing : EditorShopAssetToken.list, asset : EditorShopAssetToken.asset, icon : 'token', help : EditorShopAssetToken.help },
+	"factions" : { listing : EditorFaction.list, asset : EditorFaction.asset, icon : 'tattered-banner', help : EditorFaction.help },
+	"quests" : { listing : EditorQuest.list, asset : EditorQuest.asset, icon : 'scroll-quill', help : EditorQuest.help },
+	"questRewards" : { listing : EditorQuestReward.list, asset : EditorQuestReward.asset, icon : 'open-treasure-chest', help : EditorQuestReward.help },
+	"questObjectives" : { listing : EditorQuestObjective.list, asset : EditorQuestObjective.asset, icon : 'direction-sign', help : EditorQuestObjective.help },
+	"questObjectiveEvents" : { listing : EditorQuestObjectiveEvent.list, asset : EditorQuestObjectiveEvent.asset, icon : 'annexation', help : EditorQuestObjectiveEvent.help },
+	"encounters" : { listing : EditorEncounter.list, asset : EditorEncounter.asset, icon : 'kraken-tentacle', help : EditorEncounter.help },
 	"dungeons" : { listing : EditorDungeon.list, asset : EditorDungeon.asset, icon : 'castle', help : EditorDungeon.help },
 	"dungeonRooms" : { listing : EditorDungeonRoom.list, asset : EditorDungeonRoom.asset, icon : 'doorway', help : EditorDungeonRoom.help },
 	"dungeonTemplates" : { listing : EditorDungeonTemplate.list, asset : EditorDungeonTemplate.asset, icon : 'tower-fall', help : EditorDungeonTemplate.help },
@@ -883,6 +885,15 @@ export default class Modtools{
 			return out;
 
 		return this.parentMod.getAssetById(...args);
+
+	}
+
+	getListObjectParent(...args){
+		let out = this.mod.getListObjectParent(...args);
+		if( out )
+			return out;
+
+		return this.parentMod.getListObjectParent(...args);
 
 	}
 

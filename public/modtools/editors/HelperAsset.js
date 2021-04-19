@@ -3,6 +3,7 @@ import Window from '../WindowManager.js';
 import Condition from '../../classes/Condition.js';
 import Generic from '../../classes/helpers/Generic.js';
 import AssetTemplate from '../../classes/templates/AssetTemplate.js';
+import Mod from '../../classes/Mod.js';
 
 export default{
 
@@ -331,12 +332,17 @@ export default{
 		const storeAsset = a => {
 
 			let template = new constructor();
+			let text = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID().substr(0,4)
 			if( template.hasOwnProperty("label") )
-				a.label = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID();
+				a.label = text;
+			else
+				a.id = text;
 
 	
 			// There's no target library, this should be stored as an object
 			if( !mod.mod[targetLibrary] ){
+
+				console.log("Note: Stored asset as object (may be unwanted)", a, "in", asset);
 
 				if( single )
 					entries[key] = a;
@@ -357,14 +363,14 @@ export default{
 				if( !Array.isArray(entries[key]) )
 					entries[key] = [];
 
-				entries[key].push(a.label);
+				entries[key].push(a.label || a.id);
 
 			}
 
 			if( parented ){
 
 				if( parented === 2 )
-					a._h = true;
+					a._h = 1;
 				else{
 					a._mParent = {
 						type : win.type,

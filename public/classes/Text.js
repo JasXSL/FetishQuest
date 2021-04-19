@@ -201,8 +201,13 @@ class Text extends Generic{
 			chat_reuse : this.chat_reuse
 		};
 
-		if( full === "mod" && this.label )
-			out.label = this.label;
+		// Not sure why this is here since texts should allow labels
+		// Disabling it for now, but re-enable it if you get problems
+		//if( full === "mod" && this.label )
+		//	out.label = this.label;
+
+		if( full === "mod" )
+			this.g_sanitizeDefaults(out);
 
 		return out;
 	}

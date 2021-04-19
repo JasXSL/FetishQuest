@@ -267,7 +267,6 @@ export class RoleplayStage extends Generic{
 		
 		this.parent = parent;
 		
-		this.label = '';
 		this.index = 0;
 		this.portrait = '';
 		this.name = '';
@@ -313,7 +312,6 @@ export class RoleplayStage extends Generic{
 
 		if( full ){
 			
-			out.label = this.label;
 			out.store_pl = this.store_pl;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
@@ -489,8 +487,7 @@ export class RoleplayStageOption extends Generic{
 		
 		this.parent = parent;
 		
-		this.label = '';
-		this.index = [];			// Target index. An array of goto objects or integers. Integers get converted to goto objects. The first valid one will be picked or an exit option will be created.
+		this.index = [];			// Target index. An array of goto objects. Integers get converted to goto objects. The first valid one will be picked or an exit option will be created.
 		this.text = '';
 		this.chat = RoleplayStageOption.ChatType.default;			// Chat type
 		this.conditions = [];
@@ -527,7 +524,6 @@ export class RoleplayStageOption extends Generic{
 		};
 
 		if( full ){
-			out.label = this.label;
 			out.index = RoleplayStageOptionGoto.saveThese(this.index, full);
 			out.chat = this.chat;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
@@ -604,10 +600,13 @@ export class RoleplayStageOption extends Generic{
 	getIndex( target ){
 
 		for( let opt of this.index ){
+
 			if( opt.validate(target) )
 				return opt;
+
 		}
 		
+		// if none are valid, create a quick end rp
 		return new RoleplayStageOptionGoto({index : -1}, this);
 
 	}
