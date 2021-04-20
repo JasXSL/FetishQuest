@@ -37,10 +37,10 @@ export function asset(){
 	if( !stage )
 		console.error("Unable to find parent of roleplayStageOption", stage.id);
 	let stageIdx = getIndex(stage.index, 0);
-	let rp = mod.getListObjectParent('roleplay', 'stages', stage);
+
+	let rp = mod.getListObjectParent('roleplay', 'stages', stage.id);
 	if( !rp && stage._e )
 		rp = mod.getListObjectParent('roleplay', 'stages', stage._e);
-
 	if( !rp )
 		console.error("Unable to find parent of roleplayStage", stage);
 

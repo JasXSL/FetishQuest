@@ -1,8 +1,9 @@
 import Comparer from './Comparer.js';
+import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
 
 /* DB Asset special fields: 
-	_mParent : {type:libraryType, label:label/id} 
+	_mParent : {type:libraryTableName, label:label/id} 
 		Used to recursively delete children of one to many or one to one relations.
 		Ex: roleplayStage always only has one parent roleplay
 
@@ -36,6 +37,7 @@ export default class Mod extends Generic{
 		this.conditions = [];			//x Condition library
 		this.players = [];
 		this.playerTemplates = [];		// NPC generator templates
+		this.playerTemplateLoot = [];
 		this.assetTemplates = [];		// Asset templates
 		this.materialTemplates = [];	// AssetTemplate Material
 		this.dungeonSubTemplates = [];
@@ -106,6 +108,7 @@ export default class Mod extends Generic{
 			playerClasses : this.playerClasses,
 			conditions : this.conditions,
 			playerTemplates : this.playerTemplates,
+			playerTemplateLoot :  this.playerTemplateLoot,
 			assetTemplates : this.assetTemplates,
 			materialTemplates: this.materialTemplates,
 			dungeonTemplates: this.dungeonTemplates,
@@ -672,337 +675,219 @@ export default class Mod extends Generic{
 
 	// Un-nests legacy nested assets
 	runLegacyConversion(){
-		
-		/* Remove nested objects from dungeonRooms */
-		let aUpdated = 0;
-		let bUpdated = 0; 
-		let cUpdated = 0; 
 
-		for( let el of this.dungeonRooms ){
+		// Note: this only works on assets that have labels
+		const parentCast = (parentLibrary, parent, field, subLibrary) => {
 
-			if( !Array.isArray(el.assets) )
-				continue;
+			if( !this[parentLibrary] )
+				throw 'Library not found: '+parentLibrary;
+			if( !this[subLibrary] )
+				throw 'Library not found: '+subLibrary;
 
-			el.assets = el.assets.map(asset => {
-				// Already a reference
-				if( typeof asset !== "object" )
-					return asset;
+			if( typeof parent[field] === 'object' && !Array.isArray(parent[field]) )
+				parent[field] = [parent[field]];
 
-				// Create a new ID because the old editor may have duplicates
-				asset.id = Generic.generateUUID();
+			// Special case as this has in the past been treated as either int or array
+			if( parentLibrary === 'roleplayStageOption' && field === 'index' ){
+
+				if( typeof parent[field] === 'number' )
+					parent[field] = [{index:parent[field]}];
+
+			}
+
+			if( !Array.isArray(parent[field]) )
+				return 0;
+
+			let out = 0;
+			parent[field] = parent[field].map(el => {
+
+				if( typeof el !== 'object' )
+					return el;
+
+				// Since this was a sub object, nothing else should have been pointing to it.
+				// A lot of assets will have duplicate IDs when entered manually, so let's just reset all the ids
+				let newid = el.id = el.label = Generic.generateUUID();
+				if( Mod.UseID.includes(subLibrary) ){
+
+					delete el.label;
+					el._h = 1;
+
+				}
+				else{
+
+					delete el.id;
+					let parentid = parent.label;
+					el._mParent = {type:parentLibrary, label:parentid};
+
+				}
 				
-				this.dungeonRoomAssets.push(asset);
-				asset._h = 1;	// Hide asset
+				if( this.getAssetById(subLibrary, newid, false) )
+					console.error('Error, inserting duplicate id '+newid+" into "+subLibrary);
 
-				++aUpdated;
-				return asset.id;
+				this[subLibrary].push(el);
+				++out;
+				return newid;
 
 			});
 
+			return out;
+		};
+
+		let gameActions = 0;
+		// We'll have to do a special case conversion for gameactions
+		for( let ga of this.gameActions ){
+
+			if( ga.type === GameAction.types.roleplay ){
+				
+				if( ga.data && typeof ga.data.rp === "object" ){
+
+					ga.data.rp.label = Generic.generateUUID();
+					this.roleplay.push(ga.data.rp);
+					ga.data.rp = ga.data.rp.label;
+					delete ga.id;
+					++gameActions;
+
+				}
+
+			}
+
 		}
-		if( aUpdated )
-			console.log("Un-nested", aUpdated, "dungeonRoomAssets");
-
-		aUpdated = 0;
-		/* Next un-nest dungeon room assets */
-		for( let el of this.dungeonRoomAssets ){
-
-			if( Array.isArray(el.conditions) ){
-
-				el.conditions = el.conditions.map(cond => {
-
-					if( typeof cond !== 'object' )
-						return cond;
-
-					cond._h = 1;
-					if( !cond.label )
-						cond.label = cond.id;
-
-					if( !cond.label )
-						cond.label = Generic.generateUUID();
-
-					delete cond.id;
-
-					this.conditions.push(cond);
-					++bUpdated;
-					return cond.label;
-				});
-				
-			}
-			if( Array.isArray(el.interactions) ){
-				
-
-				el.interactions = el.interactions.map(asset => {
-
-					if( typeof asset !== 'object' )
-						return asset;
-
-					if( !asset.label )
-						asset.label = asset.id;
-					if( !asset.label )
-						asset.label = Generic.generateUUID();
-
-					asset._h = 1;
-					delete asset.id;
-					this.gameActions.push(asset);
-					++aUpdated;
-
-					return asset.label;
-
-				});
-				
-			}
-			
+		if( gameActions ){
+			console.log("Unrolled ", gameActions, "special cases of gameActions");
 		}
 
-		if( aUpdated )
-			console.log("Un-nested ", aUpdated, "game actions from dungeonRoomAssets");
-		if( bUpdated )
-			console.log("Un-nested ", bUpdated, "conditions from dungeonRoomAssets");
+		let unroll = {
+			'dungeonRooms' : {
+				'assets' : 'dungeonRoomAssets',
+				'encounters' : 'encounters',
+			},
+			'dungeonRoomAssets' : {
+				'conditions' : 'conditions',
+				'interactions' : 'gameActions',
+			},
+			'roleplay' : {
+				'stages' : 'roleplayStage',
+				'conditions' : 'conditions',
+			},
+			'roleplayStage' : {
+				'text' : 'texts',
+				'options' :'roleplayStageOption',
+				'game_actions' : 'gameActions',
+			},
+			'roleplayStageOption' : {
+				'index' : 'roleplayStageOptionGoto',
+				'game_actions' : 'gameActions',
+				'conditions' : 'conditions',
+			},
+			'players' : {
+				'assets' : 'assets',
+				'passives' : 'wrappers'
+			},
+			'playerTemplates' : {
+				'random_loot' : 'playerTemplateLoot'
+			},
+			'assets' : {
+				'wrappers' : 'wrappers',
+			},
+			'actions' : {
+				'wrappers' : 'wrappers',
+				'riposte' : 'wrappers',
+				'show_conditions' : 'conditions',
+			},
+			'wrappers' : {
+				'effects' : 'effects',
+				'stay_conditions' : 'conditions',
+				'add_conditions' : 'conditions',
+			},
+			'quests' : {
+				'objectives' : 'questObjectives',
+				'rewards' : 'questRewards',
+			},
+			'questObjectives' : {
+				'events' : 'questObjectiveEvents',
+				'visibility_conditions' : 'conditions',
+			},
+			'questObjectiveEvents' : {
+				'conditions' : 'conditions',
+			},
+			'texts' : {
+				'conditions' : 'conditions',
+			},
+			'encounters' : {
+				'game_actions' : 'gameActions',
+				'passives' : 'wrappers',
+				'wrappers' : 'wrappers',
+			},
+			'gameActions' : {
+				'conditions' : 'conditions',
+			},
+			'actionLearnable' : {
+				'conditions' : 'conditions'
+			},
+			'effects' : {
+				'conditions' : 'conditions'
+			},
+			'conditions' : {
+				'conditions' : 'conditions',
+			},
+
+		};
+
+		for( let table in unroll ){
+
+			let updates = {};
+			for( let asset of this[table] ){
+
+				for( let field in unroll[table] ){
+
+					let subLibrary = unroll[table][field];
+					let changes = parentCast(table, asset, field, subLibrary);
+					if( !updates[subLibrary] )
+						updates[subLibrary] = 0;
+					updates[subLibrary] += changes; 
+
+				}
+
+			}
+
+			for( let type in updates ){
+				
+				if( updates[type] )
+					console.log("Updated ", updates[type], type, "in", table);
+
+			}
+
+		}
+
 		
 
-		// Unroll roleplays
-		aUpdated = 0;
-		bUpdated = 0;
-		for( let el of this.roleplay ){
+	}
 
-			if( Array.isArray(el.stages) ){
-				// Stages
-				el.stages = el.stages.map(stage => {
+	findArrayObjects(){
+		// Detecting root level objects:
+		for( let i in this ){
+			if( !Array.isArray(this[i]) || i === 'audioKits' || i === 'hitFX' )
+				continue;
 
-					if( typeof stage === "object" ){
-
-						if( stage.label )
-							stage.id = stage.label;
-						delete stage.label;
-						if( !stage.id )
-							stage.id = Generic.generateUUID();
+			for( let root of this[i] ){
+				
+				for( let n in root ){
+					if( Array.isArray(root[n]) ){
 						
-						this.roleplayStage.push(stage);
-						++aUpdated;
-						return stage.id;
+						for( let obj of root[n] ){
+							
+							if( typeof obj === 'object' ){
+								console.log("Object detected", obj, "in", i, n);
+							}
+
+						}
+
 
 					}
-
-
-					return stage;
-				});
-
-			}
-
-			// Conditions
-			if( Array.isArray(el.conditions) ){
-
-				el.conditions = el.conditions.map(cond => {
-
-					if( typeof cond !== 'object' )
-						return cond;
-
-					cond._h = 1;
-					if( !cond.label )
-						cond.label = cond.id;
-					if( !cond.label )
-						cond.label = Generic.generateUUID();
-
-					delete cond.id;
-
-					this.conditions.push(cond);
-					++bUpdated;
-					return cond.label;
-
-				});
-
+				}
 			}
 
 		}
-
-		if( aUpdated )
-			console.log("Un-nested ", aUpdated, "roleplays from roleplays");
-		if( bUpdated )
-			console.log("Un-nested ", bUpdated, "conditions from roleplays");
-
-		// Unroll roleplayStages
-		aUpdated = 0;
-		bUpdated = 0;
-		cUpdated = 0;
-		for( let el of this.roleplayStage ){
-
-			// Texts
-			if( Array.isArray(el.text) ){
-
-				el.text = el.text.map(asset => {
-
-					if( typeof asset === "object" ){
-
-						asset._h = 1;
-						if( asset.label )
-							asset.id = asset.label;
-						delete asset.label;
-						if( !asset.id )
-							asset.id = Generic.generateUUID();
-						
-						this.texts.push(asset);
-						++aUpdated;
-						return asset.id;
-
-					}
-
-
-					return asset;
-				});
-
-			}
-
-			// Options
-			if( Array.isArray(el.options) ){
-
-				el.options = el.options.map(asset => {
-
-					if( typeof asset === "object" ){
-
-						asset._h = 1;
-						if( asset.label )
-							asset.id = asset.label;
-						delete asset.label;
-						if( !asset.id )
-							asset.id = Generic.generateUUID();
-						
-						this.roleplayStageOption.push(asset);
-						++bUpdated;
-						return asset.id;
-
-					}
-
-					return asset;
-				});
-
-			}
-
-			// Game actions
-			if( Array.isArray(el.game_actions) ){
-
-				el.game_actions = el.game_actions.map(asset => {
-
-					if( typeof asset !== 'object' )
-						return asset;
-
-					if( !asset.label )
-						asset.label = asset.id;
-					if( !asset.label )
-						asset.label = Generic.generateUUID();
-
-					delete asset.id;
-
-					this.game_actions.push(asset);
-					++cUpdated;
-					return asset.label;
-
-				});
-
-			}
-
-		}
-
-		if( aUpdated )
-			console.log("Un-nested ", aUpdated, "texts from roleplayStages");
-		if( bUpdated )
-			console.log("Un-nested ", bUpdated, "roleplayStageOptions from roleplayStages");
-		if( cUpdated )
-			console.log("Un-nested ", cUpdated, "gameActions from roleplayStages");
-
-		// Unroll roleplayStageOptions
-		aUpdated = 0;
-		bUpdated = 0;
-		cUpdated = 0;
-		for( let el of this.roleplayStageOption ){
-
-			if( typeof el.index === 'number' )
-				el.index = [{index:el.index}];
-
-			// Index
-			if( Array.isArray(el.index) ){
-
-				el.index = el.index.map(asset => {
-
-					if( typeof asset === "number" )
-						asset = {'index':asset};
-
-					if( typeof asset === "object" ){
-
-						asset._h = 1;
-						if( asset.label )
-							asset.id = asset.label;
-						delete asset.label;
-						if( !asset.id )
-							asset.id = Generic.generateUUID();
-						
-						this.roleplayStageOptionGoto.push(asset);
-						++aUpdated;
-						return asset.id;
-
-					}
-
-
-					return asset;
-				});
-
-			}
-
-			// Game actions
-			if( Array.isArray(el.game_actions) ){
-
-				el.game_actions = el.game_actions.map(asset => {
-
-					if( typeof asset !== 'object' )
-						return asset;
-
-					if( !asset.label )
-						asset.label = asset.id;
-					if( !asset.label )
-						asset.label = Generic.generateUUID();
-
-					delete asset.id;
-					asset._h = 1;
-					this.gameActions.push(asset);
-					++bUpdated;
-					return asset.label;
-
-				});
-
-			}
-
-			// Game actions
-			if( Array.isArray(el.conditions) ){
-
-				el.conditions = el.conditions.map(asset => {
-
-					if( typeof asset !== 'object' )
-						return asset;
-
-					if( !asset.label )
-						asset.label = asset.id;
-					if( !asset.label )
-						asset.label = Generic.generateUUID();
-
-					delete asset.id;
-					asset._h = 1;
-					this.conditions.push(asset);
-					++cUpdated;
-					return asset.label;
-
-				});
-
-			}
-
-		}
-
-		if( aUpdated )
-			console.log("Un-nested ", aUpdated, "indexes from roleplayStageOption");
-		if( bUpdated )
-			console.log("Un-nested ", bUpdated, "gameActions from roleplayStageOption");
-		if( cUpdated )
-			console.log("Un-nested ", cUpdated, "conditions from roleplayStageOption");
-
 	}
 
 

@@ -373,6 +373,7 @@ export class PlayerTemplateLoot extends Generic{
 	constructor( ...data ){
 		super(...data);
 
+		this.label = '';
 		this.min = 0;		// max nr to generate
 		this.max = 1;		// min nr to generate
 		this.chance = 0.5;	// Chance of each generated, rolled for each max-min
@@ -390,7 +391,8 @@ export class PlayerTemplateLoot extends Generic{
 			min : this.min,
 			max : this.max,
 			chance : this.chance,
-			asset : this.asset
+			asset : this.asset,
+			label : this.label
 		};
 	}
 

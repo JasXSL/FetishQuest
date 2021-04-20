@@ -14,16 +14,20 @@ import Generic from '../../classes/helpers/Generic.js';
 
 
 
-const DB = 'playerTemplateLoots',
+const DB = 'playerTemplateLoot',
 	CONSTRUCTOR = PlayerTemplateLoot;
 
 // Single asset editor
 export function asset(){
 
 	const 
-		asset = this.asset.asset,
+		modtools = window.mod,
+		id = this.id,
+		asset = modtools.mod.getAssetById(DB, id),
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
+
+	console.log(asset, dummy);
 
 	if( !asset )
 		return this.close();

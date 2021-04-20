@@ -6,7 +6,7 @@ import Action from './Action.js';
 import Asset from './Asset.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset } from './Dungeon.js';
 import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from './Quest.js';
-import PlayerTemplate from './templates/PlayerTemplate.js';
+import PlayerTemplate, { PlayerTemplateLoot } from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 import DungeonTemplate, { DungeonTemplateSub } from './templates/DungeonTemplate.js';
 import { AudioKit } from './Audio.js';
@@ -44,6 +44,7 @@ const LIB_TYPES = {
 	'questObjectiveEvents' : QuestObjectiveEvent,
 
 	'playerTemplates' : PlayerTemplate,
+	'playerTemplateLoot' : PlayerTemplateLoot,
 	'materialTemplates' : MaterialTemplate,
 	'assetTemplates' : AssetTemplate,
 	'actionLearnable' : ActionLearnable,
@@ -81,6 +82,7 @@ const load_order = [
 	'shopAssets',
 	'shops',
 	'players',
+	'playerTemplateLoot',
 	'playerTemplates',
 	
 	'materialTemplates',
@@ -139,6 +141,7 @@ export default class GameLib{
 		this.shopAssets = {};
 		this.shops = {};
 		this.playerTemplates = {};
+		this.playerTemplateLoot = {};
 		this.assetTemplates = {};
 		this.audioKits = {};
 		this.materialTemplates = {};	// AssetTemplate Material
@@ -190,6 +193,9 @@ export default class GameLib{
 			let index = asset.label;
 			if( useID )
 				index = asset.id;
+
+			if( obj === undefined )
+				console.error(db, obj, constructor, useID);
 
 			obj[index] = new constructor(asset);
 

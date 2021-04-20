@@ -265,12 +265,17 @@ export default{
 		
 		if( !ignoreAsset ){	// Used in EditorQuestReward where there are multiple inputs all corresponding to the same field
 
+			//console.log(key, targetLibrary, allEntries);
+
 			let n = 0;
 			for( let entry of allEntries ){
+
+				
 
 				const base = this.modEntryToObject(entry, targetLibrary),
 					asset = new constructor(base)
 				;
+
 
 				if( !base ){
 					console.error("Base not found, trying to find", entry, "in", targetLibrary, "asset was", asset, "all assets", allEntries);
@@ -466,7 +471,7 @@ export default{
 
 					asset = this.getAssetById(targetLibrary, id);
 					if( !asset ){
-						throw 'Linked asset not found';
+						throw 'Linked asset not found, '+id+" in "+targetLibrary;
 					}
 				}
 

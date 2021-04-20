@@ -105,7 +105,6 @@ export function asset(){
 
 	this.setDom(html);
 
-
 	this.dom.querySelector("div.viable_gear").appendChild(EditorAsset.assetTable(this, asset, "viable_gear"));
 	this.dom.querySelector("div.viable_asset_materials").appendChild(EditorMaterialTemplate.assetTable(this, asset, "viable_asset_materials"));
 	this.dom.querySelector("div.viable_asset_templates").appendChild(EditorAssetTemplate.assetTable(this, asset, "viable_asset_templates"));
@@ -114,7 +113,7 @@ export function asset(){
 	this.dom.querySelector("div.required_actions").appendChild(EditorAction.assetTable(this, asset, "required_actions"));
 	this.dom.querySelector("div.classes").appendChild(EditorPlayerClass.assetTable(this, asset, "classes"));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
-	this.dom.querySelector("div.random_loot").appendChild(EditorPlayerTemplateLoot.assetTable(this, asset, "random_loot", false, true));
+	this.dom.querySelector("div.random_loot").appendChild(EditorPlayerTemplateLoot.assetTable(this, asset, "random_loot"));
 	
 
 	// Tags

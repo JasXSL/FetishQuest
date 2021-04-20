@@ -3,57 +3,10 @@
 	- Add more automatic asset unrolling as you discover rolled up assets
 
 -- CURRENT --
+	Add linker manager to conditions
+	Update conditions with proper description
+	Go through all the quests and update references to objectives
 	
-	Things you need to unroll:
-	- dungeonRooms -> encounters
-	- quests -> objectives
-	- quests -> rewards
-	- texts -> conditions (a lot of grouped conditions) Many of these are duplicates. Might be able to convert them?
-	- actions -> wrappers
-	- actions -> riposte
-	- conditions -> conditions - Subconditions. Might be able to run a duplication detect?
-	- players -> assets
-	- playerTemplates -> random_loot (Needs a new PlayerTemplateLoot library)
-	- wrappers -> effects
-	- encounters -> game_actions
-	- encounters -> passives
-	- encounters -> wrappers
-	- gameActions -> conditions
-	- actionLearnable -> conditions
-	- questObjectives -> events
-	- questObjectives -> visibilityConditions
-
-
-	Things you can ignore:
-	- audioKits -> *
-	- hitfx -> *
-
-	
-
-// Detecting root level objects:
-for( let i in mod.mod ){
-    if( !Array.isArray(mod.mod[i]) || i === 'audioKits' || i === 'hitFX' )
-        continue;
-
-    for( let root of mod.mod[i] ){
-        
-        for( let n in root ){
-            if( Array.isArray(root[n]) ){
-                
-                for( let obj of root[n] ){
-                    
-                    if( typeof obj === 'object' ){
-                        console.log("Object detected", obj, "in", i, n);
-                    }
-
-                }
-
-
-            }
-        }
-    }
-
-}
 	
 
 -- LATER UPDATE --
