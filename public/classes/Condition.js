@@ -409,7 +409,15 @@ export default class Condition extends Generic{
 			}
 			
 			else if( this.type === T.actionResisted )
-				success = !!event.custom.resist && (typeof this.data !== "object" || !Object.keys(this.data).length || (event.action && this.data.type === event.action.type)); 
+				success = Boolean(
+					event.custom.resist && 
+					(
+						typeof this.data !== "object" || 
+						!Object.keys(this.data).length || 
+						!this.data.type ||
+						(event.action && this.data.type === event.action.type)
+					)
+				); 
 			
 			else if( this.type === T.actionDetrimental )
 				success = event.action && event.action.detrimental;
@@ -568,14 +576,19 @@ export default class Condition extends Generic{
 
 				let filters = this.data.filters;
 				if( typeof filters === "object" && eventWrapper ){
+
 					if( !Array.isArray(filters) )
 						filters = [filters];
+
 					for( let filter of filters ){
+
 						if( eventWrapper.getEffects(filter) ){
 							success = true;
 							break;
 						}
+
 					}
+
 				}
 
 			}
@@ -711,7 +724,7 @@ export default class Condition extends Generic{
 					const originalTurnTags = event.custom.original && event.custom.original.text ? event.custom.original.text.turnTags : [];
 					let tagsToScan = [];
 					// We need both
-					if( this.data.originalWrapper === undefined ){
+					if( this.data.originalWrapper === undefined || parseInt(this.data.originalWrapper) === -1 ){
 						
 						tagsToScan = metaTags.concat(originalMetaTags);
 						if( this.type === T.textTurnTag )
@@ -860,7 +873,7 @@ export default class Condition extends Generic{
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 
-				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] === this.data.data;
+				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] == this.data.data; // Soft == because it's a text input in the editor
 				
 			}
 			else if( this.type === T.dungeonVarMath ){
@@ -892,6 +905,7 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.numGamePlayersGreaterThan ){
+
 				const team = parseInt(this.data.team),
 					amount = this.data.amount
 				;
@@ -1136,7 +1150,6 @@ Condition.Types = {
 	targetIsChatPlayer : 'targetIsChatPlayer',
 	targetIsChatPlayerTeam : 'targetIsChatPlayerTeam',
 	targetIsWrapperSender : 'targetIsWrapperSender',
-	hasFxTagBySender : 'hasFxTagBySender',		//
 	species : 'species',
 	encounterLabel : 'encounterLabel',			// label of event encounter
 	questAccepted : 'questAccepted',			
@@ -1154,7 +1167,7 @@ Condition.Types = {
 	itemStolen : 'itemStolen',
 	textMeta : 'textMeta',
 	textTurnTag : 'textTurnTag',		
-	rain : 'rainGreaterThan',
+	rainGreaterThan : 'rainGreaterThan',
 	targetLevel : 'targetLevel',
 	charging : 'charging',
 	targetedSenderLastRound : 'targetedSenderLastRound',
@@ -1180,6 +1193,7 @@ Condition.Types = {
 	If originalWrapper is not present. It uses event.wrapper instead, as that's the original and has not been overwritten.
 */
 Condition.descriptions = {
+	[Condition.Types.sameTeam] : 'void - Checks if sender and target are on the same team',
 	[Condition.Types.tag] : '{tags:(arr)(str)tag, caster:(bool)limit_by_sender, all=false} one or many tags, many tags are ORed unless all is true. If sender is true, it checks if the tag was a textTag or wrapperTag applied by the sender. If condition caster flag is set, it checks if caster received the tag from sender.',
 	[Condition.Types.playerClass] : '{label:(arr)(str)label} Searches for label in target playerclass.',
 	[Condition.Types.charging] : '{(arr)conditions:[]} Checks if the target is charging an action. You can limit the actions to check for by conditions. Empty array checks if ANY action is charged.',
@@ -1190,7 +1204,7 @@ Condition.descriptions = {
 	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',
 	[Condition.Types.actionDetrimental] : 'Data is void',
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
-	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100%',
+	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100 where 100 = always and 0 = never',
 	[Condition.Types.isWrapperParent] : '{originalWrapper:(bool)false} - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
 	[Condition.Types.isRoleplayPlayer] : '{} - Target is the player stored in the RP. Useful when an NPC does something to a specific player in an RP.',
 	[Condition.Types.isActionParent] : 'void - If event event.wrapper.action is the same as event.action.id',
@@ -1205,18 +1219,18 @@ Condition.descriptions = {
 	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
-	[Condition.Types.sadism] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target sadism value.',
+	[Condition.Types.sadism] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic).',
 	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target size value.',
 	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >',
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',
 	[Condition.Types.hasRepairable] : 'void - Has repairable items in their inventory',
-	[Condition.Types.hasInventory] : '{label:(str)label, amount:(int)amount=1} - Has at least n amount of label in inventory',
+	[Condition.Types.hasInventory] : '{label:(str)label, amount:(int)amount=1} - Has at least n amount of label in inventory. For a conditional search, use hasAsset.',
 	[Condition.Types.questIs] : 'obj - Compares properties of the event quest property to obj properties. Simple check of ===',
 	[Condition.Types.dungeonIs] : 'obj - Compares properties of the event dungeon property to obj properties. Simple check of ===',
 	[Condition.Types.team] : '{team:(int arr)team(s)}',
 	[Condition.Types.defeated] : 'void - Player is defeated',
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
-	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter, originalWrapper:(bool)=false} - Searches through filters and returns true if at least one matches',	
+	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter, originalWrapper:(bool)=false} - Searches through filters and returns true if at least one matches. See EffectSys.js getEffects for more info',	
 	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data with EXACT',	
 	[Condition.Types.dungeonVarMath] : '{vars:(str/arr)var_ids, formula:(str)formula, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data via a math formula. vars have to contain all dVars included in the formula. If one is not set, it becomes 0.',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
@@ -1231,33 +1245,27 @@ Condition.descriptions = {
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',
 	[Condition.Types.targetIsRpPlayer] : '{} - Checks if target is roleplay _targetPlayer, which can be set by RP stages to lock an rp target',
-	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any} - Nr game players are greater than amount. If team is undefined, it checks all players. Use -1 for enemies and -2 for friendlies',
+	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies.',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
 	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',
 	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY can be used on things like stdattack',
 	[Condition.Types.itemStolen] : '{} - Requires wrapperReturn in event. Checks if at least one item steal is present',
 	[Condition.Types.actionCrit] : '{} - Needs a supplied action which critically hit',
-	
 	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
 	[Condition.Types.assetSlot] : '{slots:(str/arr)slots} - Requires asset in event. Checks whether asset is equipped to at least one of these slots, from Asset.Slots',
 	[Condition.Types.assetEquipped] : '{} - Requires asset in event. Checks if said asset is equipped.',
-	
 	[Condition.Types.hasFreeBondageDevice] : '{} - Checks if there\'s at least one free bondage device in the dungeon. See mBondage in stdTag.js',
-
-
-
-	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/undefined)} - Requires Text in event. If originalwrapper is unset, it uses both. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
-	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/undefined)} - Requires Text in event. If originalwrapper is unset, it uses both. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
+	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/int/undefined=-1)} - Requires Text in event. If originalwrapper is unset or -1, it uses both. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
+	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/int/undefined=-1)} - Requires Text in event. If originalwrapper is unset or -1, it uses both. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
 	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
 	[Condition.Types.targetIsChatPlayerTeam] : 'void - Requires Text in event. Checks if text._chatPlayer team is the same as target',
 	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
 	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level',
 	[Condition.Types.targetedSenderLastRound] : 'void - Target has successfully used a non-aoe action against sender since their last turn',
 	[Condition.Types.hourRange] : '{min:(number)min, max:(number)max} - Requires game.getHoursOfday() to be between min and max (24h format). Max can be greater than min for an example if you want something to happen at night: {min:21,max:6}',
-	
-	[Condition.Types.roomZ] : '{min:(number)min, max:(number)max=min} - The attached dungeon room (or game.dungeon active room if not in event) must have a z level between min and max. If max is unset, it makes min a FIXED value. Use "inf" for infinity (max)/negative infinity(min).',
+	[Condition.Types.roomZ] : '{min:(number)min, max:(number)max=min} - The attached dungeon room (or game.dungeon active room if not in event) must have a z level between min and max. Use "inf" for infinity (max)/negative infinity(min).',
 	[Condition.Types.roomIsOutdoors] : 'void - Checks if the attached dungeon room(or game.dungeon active room if unspecified) is outdoors',
 
 };

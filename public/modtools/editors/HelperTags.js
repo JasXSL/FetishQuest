@@ -103,7 +103,19 @@ export default {
 		if( pre === post )
 			return;
 		window.mod.setDirty(true);
-		asset[field] = tags;
+
+		let f = field.split('::');
+		let targ = asset;
+		while( f.length > 1 ){
+
+			targ = targ[f.shift()];
+			if( typeof targ !== "object" ){
+				console.error("UNable to set ", field, "on", asset, "path not found");
+				return false;
+			}
+
+		}
+		targ[f[0]] = tags;
 
 	}
 

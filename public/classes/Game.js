@@ -89,7 +89,7 @@ export default class Game extends Generic{
 		this.rain_next_refresh = 0;						// When to randomize rain status next time
 		this.rain_started = 0;							// Time when the rain started
 		this.rain_start_val = 0;						// Value of last rain so we can tween
-		this.rain = 0.0;								// Level to fade to (over 2 minutes)
+		this.rain = 0.0;								// Level to fade to (over 2 minutes). between 0 and 1
 
 		this.hotkeys = [1,2,3,4,5,6,7,8,9,0];
 
