@@ -706,25 +706,53 @@ export default class Mod extends Generic{
 
 				// Since this was a sub object, nothing else should have been pointing to it.
 				// A lot of assets will have duplicate IDs when entered manually, so let's just reset all the ids
-				let newid = el.id = el.label = Generic.generateUUID();
+				let newid;
+
 				if( Mod.UseID.includes(subLibrary) ){
 
+					if( !el.id )
+						el.id = el.label;
+					if( !el.id )
+						el.id = Generic.generateUUID();
+					newid = el.id;
+					
 					delete el.label;
 					el._h = 1;
 
 				}
 				else{
 
+					if( !el.label )
+						el.label = el.id;
+					if( !el.label )
+						el.label = Generic.generateUUID();
+					newid = el.label;
 					delete el.id;
 					let parentid = parent.label;
 					el._mParent = {type:parentLibrary, label:parentid};
 
 				}
-				
-				if( this.getAssetById(subLibrary, newid, false) )
-					console.error('Error, inserting duplicate id '+newid+" into "+subLibrary);
 
-				this[subLibrary].push(el);
+				if( el.label === '__LABEL__' ){
+
+					el.dummy = el.label;
+					el.label = el.name+'_'+(el._stacks || 1);
+					newid = el.label;
+					delete el._mParent;
+
+				}
+				
+				let existing = this.getAssetById(subLibrary, newid, false);
+				if( existing ){
+					
+					console.error('Note: Ignoring duplicate id '+newid+" into "+subLibrary+' EXISTING: ', existing, ' NEW IGNORED: ', el);
+					// Unparent it if multiple assets are using it
+					delete existing._mParent;
+					delete existing._h;
+
+				}
+				else
+					this[subLibrary].push(el);
 				++out;
 				return newid;
 
@@ -838,6 +866,7 @@ export default class Mod extends Generic{
 			let updates = {};
 			for( let asset of this[table] ){
 
+				// Unroll direct fields
 				for( let field in unroll[table] ){
 
 					let subLibrary = unroll[table][field];
@@ -845,6 +874,27 @@ export default class Mod extends Generic{
 					if( !updates[subLibrary] )
 						updates[subLibrary] = 0;
 					updates[subLibrary] += changes; 
+
+				}
+
+				// Game actions and conditions will have custom data fields
+				if( table === 'gameActions' ){
+
+					let type = asset.type || 'door';
+
+					// Unrolling loot
+					if( type === 'loot' && asset.data && asset.data.loot ){
+
+						if( !Array.isArray(asset.data.loot) )
+							asset.data.loot = [asset.data.loot];
+
+						let subLibrary = 'assets';
+						let changes = parentCast(table, asset.data, 'loot', subLibrary);
+						if( !updates[subLibrary] )
+							updates[subLibrary] = 0;
+						updates[subLibrary] += changes; 
+
+					}
 
 				}
 
@@ -890,6 +940,31 @@ export default class Mod extends Generic{
 		}
 	}
 
+	findDuplicateGameActions(){
+
+		this.dungeonRooms.map(el => {
+			let assets = el.assets.map(d => mod.getAssetById('dungeonRoomAssets', d, false));
+			let uas = {};
+			for( let asset of assets ){
+				if( !Array.isArray(asset.interactions) )
+					continue;        
+				for( let n of asset.interactions ){
+					if( typeof n === "object" )
+						throw 'Object detected';
+					if( !uas[n] )
+						uas[n] = 0;
+					++uas[n];
+				}
+			}
+			for( let i in uas ){
+				if( uas[i] > 1 ){
+					console.log("Duplicates detected of asset:", mod.getAssetById('gameActions', i), uas[i]-1, "in room", el);
+				}
+			}
+		
+		});
+		
+	}
 
 
 	// mod save goes to databse

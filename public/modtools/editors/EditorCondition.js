@@ -695,9 +695,17 @@ export function asset(){
 		const q = mod.getAssetById('quests', asset.data.quest);
 		if( q ){
 			
-			let objectives = (q.objectives || []).map(el => mod.getAssetById('questObjectives', el)).filter(el => el);
+			let obj = q.objectives;
+			if( !Array.isArray(q.objectives) )
+				obj = q.objectives;
+
+			if( !obj.includes(asset.data.objective) )
+				asset.data.objective = obj[0];
+
+			let objectives = obj.map(el => mod.getAssetById('questObjectives', el)).filter(el => el);
 			if( objectives.length && !asset.data.objective )
 				asset.data.objective = objectives[0].label;
+			
 
 			html += 'Objective: <select name="data::objective" class="saveable">';
 			for( let objective of objectives )

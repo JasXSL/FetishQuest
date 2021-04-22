@@ -1088,7 +1088,7 @@ Condition.loadThese = function( conditions, parent ){
 		}
 		
 		if( typeof condition !== 'object'){
-			console.error("Trying to load invalid condition", pre);
+			console.error("Trying to load invalid condition", pre, "parent", parent);
 			continue;
 		}
 

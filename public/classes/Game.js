@@ -1997,9 +1997,12 @@ export default class Game extends Generic{
 
 			}
 
-			for( let wrapper of encounter.wrappers )
-				wrapper.useAgainst( encounter.players[0], player );
+			for( let wrapper of encounter.wrappers ){
+				
+				let wr = wrapper.clone();
+				wr.useAgainst( encounter.players[0], player );
 
+			}
 
 		}
 
