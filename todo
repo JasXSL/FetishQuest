@@ -3,11 +3,15 @@
 	- Add more automatic asset unrolling as you discover rolled up assets
 
 -- CURRENT --
-	Add linker manager to conditions
-	Update conditions with proper description
-	Go through all the quests and update references to objectives
-	
-	
+	- Flesh out west portwood
+	- Add inn area:
+		MESHES:
+			- Hills room assets
+			- River with hill
+			- Inn with water wheel
+			- Cozy inn interior
+
+
 
 -- LATER UPDATE --
 

@@ -344,8 +344,10 @@ class Editor{
 				this.addHistory(obj);
 				this.room.addAsset(obj);
 				this.gl.stage.addDungeonAsset(obj).then(() => {
+
 					this.save();
 					this.bindMeshes();
+
 				});				
 					
 			}
@@ -363,7 +365,6 @@ class Editor{
 		this.contentDiv = contentDiv;
 		this.room_raw = asset;
 		this.room = DungeonRoom.loadThis(mod.mod.getAssetById('dungeonRooms', asset.label));
-
 		this.rebase();
 
 		gl.renderer.domElement.tabIndex = 0;
@@ -719,18 +720,6 @@ class Editor{
 		if( !Array.isArray(this.room.encounters) )
 			this.room.encounters = [];
 
-		// Make sure there's a room asset
-		if( !this.room.assets.length ){
-
-			
-			const roomAsset = this.addMesh('Dungeon.Room.R10x10', false);
-			roomAsset.room = true;
-			this.save();
-
-		}
-
-		let parents = [];
-		
 		//console.log("Fetching assets", this.room.assets);
 		this.room.assets = this.room.assets.map(el => {
 			
@@ -751,11 +740,22 @@ class Editor{
 			}
 			return m;
 
-		});
+		}).filter(el => el);
 
-		// This creates new objects and wipes parenting information
 		this.room.rebase();
 
+		// Make sure there's a room asset, otherwise INSERT DUNGEON ROOM ASSET
+		if( !this.room.assets.length || !this.room.getRoomAsset() ){
+
+			const roomAsset = this.addMesh('Dungeon.Room.R10x10', false);
+			roomAsset.room = true;
+			this.room.rebase();
+			this.save();
+
+		}
+
+		let parents = [];
+		// This creates new objects and wipes parenting information
 		// Mark parents
 		for( let asset of this.room.assets ){
 
@@ -782,6 +782,8 @@ class Editor{
 			this.addHistory(asset);
 
 		}
+
+		
 
 	}
 

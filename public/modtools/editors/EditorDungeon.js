@@ -3,7 +3,7 @@ import HelperTags from './HelperTags.js';
 import Window from '../WindowManager.js';
 import * as EditorAsset from './EditorAsset.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
-import Dungeon, { DungeonRoom } from '../../classes/Dungeon.js';
+import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../../classes/Dungeon.js';
 import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'dungeons',
@@ -412,14 +412,29 @@ class DungeonLayoutEditor{
 				y:y,
 				z:z,
 				index : index,
-				parent_index:roomAsset.index,
+				parent_index:roomAsset.index || 0,
 			});
 			
 			const pa = DungeonRoom.loadThis(room);
 			pa.rebase();
-			const ra = pa.getRoomAsset();
+
+			// Gotta map up the assets
+			pa.assets = pa.assets.map(el => {
+				
+				if( typeof el === "string" )
+					return new DungeonRoomAsset(mod.getAssetById('dungeonRoomAssets', el), room);
+				return new DungeonRoomAsset(el, room);
+
+			});
+
+			let ra = pa.getRoomAsset();
 			if( ra ){
+
+				
+				ra = ra.clone();
+				ra.id = mod.mod.insert('dungeonRoomAssets', ra.save('mod'));
 				r.addAsset(ra);
+
 			}
 
 			r.ambiance = pa.ambiance;
@@ -459,6 +474,8 @@ class DungeonLayoutEditor{
 						to_delete.push(r);
 
 				}
+
+				console.log("room", to_delete);
 
 				for( let r of to_delete )
 					this.deleteRoom(r, false);

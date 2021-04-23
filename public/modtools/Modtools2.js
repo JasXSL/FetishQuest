@@ -1,4 +1,4 @@
-const TOOL_VERSION = 1;	// Version of the exporter
+const TOOL_VERSION = 2;	// Version of the exporter
 
 import Window from './WindowManager.js';
 import {default as WebGL, Stage} from '../classes/WebGL.js';

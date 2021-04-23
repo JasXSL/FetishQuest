@@ -1023,11 +1023,16 @@ class DungeonRoom extends Generic{
 
 	// Gets the DungeonRoomAsset that's the room
 	getRoomAsset(){
+
 		for( let a of this.assets ){
+
 			if( a.isRoom() )
 				return a;
+
 		}
+
 		return false;
+
 	}
 
 
@@ -1269,7 +1274,7 @@ export class DungeonRoomMarker extends Generic{
 */
 class DungeonRoomAsset extends Generic{
 
-	constructor(data, parentObj){
+	constructor( data, parentObj ){
 		super(data);
 
 		this.label = '';
