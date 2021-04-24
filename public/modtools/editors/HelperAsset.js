@@ -400,10 +400,10 @@ export default{
 			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td>';
 
 			
-			table.querySelector("input.addNew").onclick = () => {
+			table.querySelector("input.addNew").onclick = event => {
 
 				// If parented, insert a new asset immediately, as there's no point in listing assets that are only viable for this parent
-				if( parented ){
+				if( parented && !event.shiftKey ){
 
 					let a = new constructor();
 					a = constructor.saveThis(a, "mod");

@@ -230,6 +230,7 @@ export function help(){
 };
 
 
+
 class Editor{
 
 	// Asset is the room
@@ -749,10 +750,12 @@ class Editor{
 
 			const roomAsset = this.addMesh('Dungeon.Room.R10x10', false);
 			roomAsset.room = true;
+			this.save();		
 			this.room.rebase();
-			this.save();
 
 		}
+
+		
 
 		let parents = [];
 		// This creates new objects and wipes parenting information
@@ -1066,8 +1069,8 @@ class Editor{
 			});
 
 			
-			this.dom.querySelector("div.interactions").appendChild(EditorGameAction.assetTable(this, asset, "interactions", false, 2));
-			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, 2));	
+			this.dom.querySelector("div.interactions").appendChild(EditorGameAction.assetTable(this, asset, "interactions", false, true));
+			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, true));	
 
 
 			HelperAsset.autoBind( this, asset, DB, (field, value) => {
@@ -1118,10 +1121,10 @@ class Editor{
 				'<p>Often auto added, but these are tags that will be added to all players in the room.</p>';
 
 			out += '<h3>Game Actions:</h3>'+
-				'<p>GameActions to trigger when clicking this mesh. '+HelperAsset.helpLinkedList+'</p>';
+				'<p>GameActions to trigger when clicking this mesh. '+HelperAsset.helpLinkedList+'. Shift click to pick one from the library, otherwise a specific one will be created only for this mesh.</p>';
 
 			out += '<h3>Conditions:</h3>'+
-				'<p>Conditions needed to be met in order to draw this mesh. '+HelperAsset.helpLinkedList+'</p>';
+				'<p>Conditions needed to be met in order to draw this mesh. '+HelperAsset.helpLinkedList+'. Shift click to pick one from the library, otherwise a specific one will be created only for this mesh.</p>';
 
 
 			return out;

@@ -613,6 +613,19 @@ LibMaterial.library = {
 			metalness : 0.1,roughness : 0.8,
 		}),
 
+		RiverBridge : new LibMaterial({
+			map : 'land/river_bridge_d.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		RiverBridgePath : new LibMaterial({
+			map : 'land/river_bridge_path_d.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		RiverPlateau : new LibMaterial({
+			map : 'land/river_plateau.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+
 		TownX : new LibMaterial({
 			map : 'land/town_x.jpg',
 			metalness : 0.1,roughness : 0.8,

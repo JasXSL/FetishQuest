@@ -2897,6 +2897,25 @@ function build(){
 						tags : [stdTag.mGrass],
 						isRoom: true,
 					}),
+
+					grasshills000 : new LibMesh({
+						url : 'land/yuug/Hills_000.JD',
+						materials : [libMat.Land.RiverBridge],
+						tags : [stdTag.mGrass],
+						isRoom: true,
+					}),
+					grasshills000a : new LibMesh({
+						url : 'land/yuug/Hills_000.JD',
+						materials : [libMat.Land.RiverBridgePath],
+						tags : [stdTag.mGrass],
+						isRoom: true,
+					}),
+					grasshills001 : new LibMesh({
+						url : 'land/yuug/Hills_001.JD',
+						materials : [libMat.Land.RiverPlateau],
+						tags : [stdTag.mGrass],
+						isRoom: true,
+					}),
 					
 				},
 

@@ -6,12 +6,19 @@
 	- Flesh out west portwood
 	- Add inn area:
 		MESHES:
-			- Hills room assets
-			- River with hill
 			- Inn with water wheel
 			- Cozy inn interior
-
-
+		QUEST:
+			- Fetch algae from an underground cave inhabited by shark people
+			- Shark people are friendly, but you may be able to fight them?
+			- Shark people will trade you for landwalker items
+			- Reward: ???
+	- Otter area:
+		QUEST:
+			- ???
+	- Mini map
+	- Regen out of combat
+	- 
 
 -- LATER UPDATE --
 
