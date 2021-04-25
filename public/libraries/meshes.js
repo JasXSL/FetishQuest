@@ -126,8 +126,21 @@ class LibMesh{
 				data = scene;
 				// Since this importer deals entirely with groups, we gotta set the sub-names to HITBOX in order for mouse events to work
 				data.traverse(el => {
-					if( el.isMesh )
+					if( el.isMesh ){
 						el.name = 'HITBOX';
+
+						if( el.geometry && el.geometry.attributes && el.geometry.attributes.uv ){
+
+							let arr = el.geometry.attributes.uv.array;
+							for( let i = 0; i < arr.length; i = i+2 ){
+								
+								arr[i+1] = 1-arr[i+1];
+
+							}
+
+						}
+
+					}
 				});
 
 			}
@@ -458,8 +471,6 @@ function build(){
 	if( LibMesh.library )
 		return LibMesh.library;
 	
-
-		
 	LibMesh.library = {
 
 		Dungeon : {
@@ -2917,6 +2928,7 @@ function build(){
 						isRoom: true,
 					}),
 					
+					
 				},
 
 				Port : {
@@ -2995,6 +3007,18 @@ function build(){
 						libMat.Cloth.Rope
 					],
 					door : LibMesh.DoorTypes.DOOR_DOWN,
+				}),
+				WaterWheel : new LibMesh({
+					url : 'structure/waterwheel.glb',
+					materials : [
+						libMat.Wood.Crate,
+						libMat.Structure.CottageWall2,
+					],
+					animations : {
+						"idle" : {
+							timeScale : 0.1
+						}
+					},
 				}),
 			},
 			City : {
@@ -3425,6 +3449,51 @@ function build(){
 					libMat.Structure.CottageWall,
 					libMat.Wood.Crate,
 					libMat.Brick.Small,
+				],
+			}),
+			InnFancy : new LibMesh({
+				url : 'structure/inn_fancy.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Structure.CottageRoof,
+					libMat.Structure.CottageWall2,
+				],
+			}),
+			InnSmallStorage : new LibMesh({
+				url : 'structure/inn_small_storage_ext.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Structure.CottageRoof,
+				],
+			}),
+			InnDoorway : new LibMesh({
+				url : 'structure/inn_fancy_doorway.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Structure.CottageRoof,
+				],
+			}),
+			Terrace : new LibMesh({
+				url : 'structure/terrace.glb',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Cloth.Rope,
+					libMat.Nature.Vines
+				],
+			}),
+
+			WindowRound : new LibMesh({
+				url : 'structure/inn_window_round.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Glass.BrownHighRes,
+				],
+			}),
+			WindowDefault : new LibMesh({
+				url : 'structure/inn_window_default.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Glass.BrownHighRes,
 				],
 			}),
 
@@ -3961,6 +4030,16 @@ function build(){
 					url : 'nature/vinepatch.JD',
 					tags : [stdTag.mVines],
 					materials : [libMat.Nature.Vines],
+				}),
+				WallVines : new LibMesh({
+					url : 'nature/wall_vines.glb',
+					tags : [stdTag.mVines],
+					materials : [libMat.Nature.Vines],
+					animations : {
+						"idle" : {
+							timeScale : 0.1
+						}
+					},
 				}),
 
 				BushThiccGroup : new LibMesh({

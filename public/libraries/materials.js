@@ -98,6 +98,13 @@ LibMaterial.texCache.fetchMissingAsset = function( path ){
 };
 
 
+const cubeLoader = new THREE.CubeTextureLoader();
+cubeLoader.setPath('media/textures/cubemaps/');
+LibMaterial.cubeMaps = {
+	bridge : cubeLoader.load(['posx.jpg','negx.jpg','posy.jpg','negy.jpg','posx.jpg','negx.jpg'])
+};
+
+
 LibMaterial.library = {
 	Sprites : {
 		ExitBadge : new LibMaterial({
@@ -189,6 +196,13 @@ LibMaterial.library = {
 		Purple : new LibMaterial({color:new THREE.Color(0x331155), metalness:0.3,roughness:0.4}),
 		RedGlow : new LibMaterial({color:new THREE.Color(0xF0A0A0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x400000)}),
 		BlueGlow : new LibMaterial({color:new THREE.Color(0xA0C0F0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x004060)}),
+		BrownHighRes : new LibMaterial({
+			color:new THREE.Color(0x332200), metalness:0.3,
+			roughnessMap : 'tileable/glass_plane_r.jpg',
+			normalMap : 'tileable/glass_plane_n.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
+		}),
+
 	},
 	StoneTile : {
 		DungeonWall : new LibMaterial({
