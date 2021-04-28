@@ -1022,10 +1022,29 @@ class WebGL{
 				return;
 
 			// Materials are always unique. Geometries and textures are always shared.
+			// textures have an exception where ._dispose can be set to force dispose it
 			// This should be enough to prevent memory leaks
 			toArray(model.material)
 				.map(mat => {
-					mat.dispose()
+
+					for( let i in el ){
+
+						let sub = el[i];
+						if( sub && (Array.isArray(sub) || sub.isTexture) ){
+	
+							sub = toArray(sub);
+							for( let tx of sub ){
+	
+								if( tx && tx.isTexture && tx._dispose )
+									tx.dispose();
+	
+							}
+	
+						}
+	
+					}
+					
+					mat.dispose();
 				});
 			
 

@@ -290,6 +290,7 @@ export default {
 	mFloorGrass : 'm_floor_grass',
 	mFloorMoss : 'm_floor_moss',
 	mWallWood : 'm_wall_wood',
+	mSeaweed : 'm_seaweed',
 
 	// Bondage tags are a bit special in that they're used by conditions
 	// A bondage device should be marked by mBondage. It's then added to a pool of viable bondage devices in the dungeon

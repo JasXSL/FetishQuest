@@ -158,16 +158,22 @@ LibMaterial.library = {
 			color : new THREE.Color(0xFFFFAA),
 			metalness : 0.65,
 			roughness : 0.6,
+			normalMap : 'tileable/glass_plane_n.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
 		}),
 		Silver : new LibMaterial({
 			color : new THREE.Color(0xDDDDFF),
 			metalness : 0.65,
 			roughness : 0.6,
+			normalMap : 'tileable/glass_plane_n.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
 		}),
 		Copper : new LibMaterial({
 			color : new THREE.Color(0xDDAA66),
 			metalness : 0.7,
 			roughness : 0.5,
+			normalMap : 'tileable/glass_plane_n.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
 		}),
 		Chain : new LibMaterial({
 			map : 'tileable/chain.png',
@@ -678,6 +684,22 @@ LibMaterial.library = {
 			roughness : 0.6,
 		}),
 
+		SeafloorA : new LibMaterial({
+			map : 'land/seafloor_a.jpg',
+			metalness : 0.1,
+			roughness : 0.6,
+		}),
+		SeafloorB : new LibMaterial({
+			map : 'land/seafloor_b.jpg',
+			metalness : 0.1,
+			roughness : 0.6,
+		}),
+		SeafloorC : new LibMaterial({
+			map : 'land/seafloor_c.jpg',
+			metalness : 0.1,
+			roughness : 0.6,
+		}),
+
 	},
 
 	Water : {
@@ -699,7 +721,14 @@ LibMaterial.library = {
 			textureHeight: 512,
 			normalMap0 : 'land/waternormals_small.jpg',
 			normalMap1 : 'land/waternormals_small.jpg',
-		}, "Water2")
+		}, "Water2"),
+		WaterRing : new LibMaterial({
+			map : 'particles/glow_ring.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+		}, "MeshDepthMaterial"),
 	},
 
 	Sign : {
@@ -884,6 +913,15 @@ LibMaterial.library = {
 
 		Vines : new LibMaterial({
 			map : 'decals/vines.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+
+		Seaweed : new LibMaterial({
+			map : 'decals/seaweed.png',
 			metalness : 0.3,
 			roughness : 0.6,
 			transparent : true,

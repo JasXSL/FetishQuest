@@ -129,8 +129,10 @@ class LibMesh{
 					if( el.isMesh ){
 						el.name = 'HITBOX';
 
-						if( el.geometry && el.geometry.attributes && el.geometry.attributes.uv ){
+						// Flip UV map
+						if( !el.geometry._f && el.geometry && el.geometry.attributes && el.geometry.attributes.uv ){
 
+							el.geometry._f = true;
 							let arr = el.geometry.attributes.uv.array;
 							for( let i = 0; i < arr.length; i = i+2 ){
 								
@@ -1237,6 +1239,29 @@ function build(){
 					],
 					tags : [stdTag.mStair],
 				}),
+				Sofa : new LibMesh({
+					url : 'furniture/sofa.JD',
+					materials : [
+						libMat.Wood.Crate,
+						libMat.Cloth.RedFelt,
+					],
+					tags : [stdTag.mStair],
+				}),
+				WoodRailing : new LibMesh({
+					url : 'furniture/wood_railing.JD',
+					materials : [
+						libMat.Wood.Crate,
+					],
+					tags : [],
+				}),
+				Curtains : new LibMesh({
+					url : 'furniture/curtains.JD',
+					materials : [
+						libMat.Metal.Copper,
+						libMat.Cloth.RedFelt,
+					],
+					tags : [],
+				}),
 			},
 			Room : {
 				R8x6 : new LibMesh({
@@ -1285,6 +1310,56 @@ function build(){
 					materials : [
 						libMat.Wood.Crate,
 					],
+				}),
+				InnA : new LibMesh({
+					isRoom : true,
+					url : 'rooms/inn_interior_a.JD',
+					materials : [
+						libMat.Structure.CottageWall2,
+						libMat.Wood.Floor2,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				InnB : new LibMesh({
+					isRoom : true,
+					url : 'rooms/inn_interior_b.JD',
+					materials : [
+						libMat.Structure.CottageWall2,
+						libMat.Wood.Floor2,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				InnC : new LibMesh({
+					isRoom : true,
+					url : 'rooms/inn_interior_c.JD',
+					materials : [
+						libMat.Structure.CottageWall2,
+						libMat.Wood.Floor2,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				InnD : new LibMesh({
+					isRoom : true,
+					url : 'rooms/inn_interior_d.JD',
+					materials : [
+						libMat.Structure.CottageWall2,
+						libMat.Wood.Floor2,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				InnE : new LibMesh({
+					isRoom : true,
+					url : 'rooms/inn_interior_e.JD',
+					materials : [
+						libMat.Structure.CottageWall2,
+						libMat.Wood.Floor2,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
 				}),
 			},
 			Doodads : {
@@ -1737,8 +1812,6 @@ function build(){
 						libMat.Wood.Board,
 						libMat.Wood.Firewood,
 					],
-
-
 					soundLoops : [
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
@@ -2252,6 +2325,7 @@ function build(){
 						tags : [stdTag.mTable],
 					}),
 				},
+				
 			},
 			
 			Signs : {
@@ -2474,6 +2548,61 @@ function build(){
 					mesh.userData.particles = [particles];
 				}
 			}),
+			WaterRings : new LibMesh({
+				auto_bounding_box : true,
+				url : 'nature/water_rings.JD',
+				tags : [],
+				materials : [
+					libMat.Water.WaterRing,
+					libMat.Water.WaterRing,
+					libMat.Water.WaterRing,
+				],
+				cast_shadow : false,
+				receive_shadow : false,
+				onFlatten : function(mesh){
+
+					mesh.userData.tweens = {};
+					mesh.renderOrder = 1;
+					let i = 0;
+					for( let material of mesh.material ){
+
+						material.map = material.map.clone();
+						const tx = material.map;
+						tx._dispose = true;
+						tx.wrapS = tx.wrapT = THREE.ClampToEdgeWrapping;
+						tx.needsUpdate = true;
+						tx.center.x = tx.center.y = 0.5;
+						material.alphaTest = 0;
+						material.blending = THREE.AdditiveBlending;
+						let tweening = {
+							p : 0
+						};
+
+						const cl = i;
+						let onTweenUpdate = () => {
+
+							let offset = tweening.p+(1/mesh.material.length)*cl;
+							if( offset > 1 )
+								offset -= 1;
+							//console.log(tweening.rep, tweening.opacity);
+							material.opacity = (Math.sin(offset*Math.PI*2-Math.PI/2)/2+.5)*.25;
+							//console.log(tweening.p);
+							tx.repeat.x = tx.repeat.y = (1.0-Math.sin(offset*Math.PI/2))*7+0.9;
+
+						};
+						let a = new TWEEN.Tween(tweening)
+						.to({p:1.0},3000)
+						.repeat(Infinity)
+						.onUpdate(onTweenUpdate)
+						.start();
+						
+						mesh.userData.tweens['tween_'+i] = a;
+						++i;
+					}
+					console.log("onFlatten", mesh);
+
+				},
+			}),
 		},
 		// Outdoors
 		Land : {
@@ -2533,6 +2662,8 @@ function build(){
 						tags : [stdTag.mWater],
 						onStagePlaced(_,mesh){
 							mesh.rotation.x = -Math.PI/2;
+							mesh.rotation.y = 0;
+							mesh.rotation.z = 0;
 						}
 					}),
 
@@ -2812,6 +2943,35 @@ function build(){
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
 
+					}),
+
+					
+				},
+
+				Seafloor : {
+					A : new LibMesh({
+						url : 'rooms/seafloor_a.JD',
+						materials : [
+							libMat.Land.SeafloorA
+						],
+						isRoom : true,
+						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock]
+					}),
+					B : new LibMesh({
+						url : 'rooms/seafloor_b.JD',
+						materials : [
+							libMat.Land.SeafloorB
+						],
+						isRoom : true,
+						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock]
+					}),
+					C : new LibMesh({
+						url : 'rooms/seafloor_c.JD',
+						materials : [
+							libMat.Land.SeafloorC
+						],
+						isRoom : true,
+						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock]
 					}),
 				},
 				
@@ -3593,6 +3753,12 @@ function build(){
 					libMat.Wood.Crate,
 				],
 			}),
+			Stage : new LibMesh({
+				url : 'structure/stage.JD',
+				materials : [
+					libMat.Wood.Crate,
+				],
+			}),
 
 		},
 
@@ -4102,7 +4268,17 @@ function build(){
 					tags : [stdTag.mGrassLong],
 					materials : [libMat.Nature.BushTree],
 				}),
-				
+
+				Seaweed : new LibMesh({
+					url : 'nature/kelp.glb',
+					tags : [stdTag.mSeaweed],
+					materials : [libMat.Nature.Seaweed],
+					animations : {
+						idle : {
+							timeScale : 0.1
+						}
+					},
+				}),
 				
 			},
 			Containers : {
@@ -4179,6 +4355,40 @@ function build(){
 					onFlatten : function(mesh){
 						mesh.renderOrder = 1;
 					},
+				}),
+				Bubbles : new LibMesh({
+					url : function(){
+
+						const mesh = new THREE.Mesh(new THREE.BoxGeometry(20,20,20), new THREE.MeshStandardMaterial(0xFFFFFF));
+						mesh.rotation.x = -Math.PI/2;
+						mesh.name = 'HITBOX';
+
+						const group = new THREE.Group();
+						group.add(mesh);
+						return group;
+
+					},
+					onStagePlaced : function(asset, mesh){
+						let particles = libParticles.get('bubblesFull', mesh, true);
+						mesh.userData.particles = [particles];
+					}
+				}),
+				BubblesDense : new LibMesh({
+					url : function(){
+
+						const mesh = new THREE.Mesh(new THREE.BoxGeometry(20,20,20), new THREE.MeshStandardMaterial(0xFFFFFF));
+						mesh.rotation.x = -Math.PI/2;
+						mesh.name = 'HITBOX';
+
+						const group = new THREE.Group();
+						group.add(mesh);
+						return group;
+
+					},
+					onStagePlaced : function(asset, mesh){
+						let particles = libParticles.get('bubblesDense', mesh, true);
+						mesh.userData.particles = [particles];
+					}
 				}),
 			},
 		},

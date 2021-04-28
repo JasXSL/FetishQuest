@@ -20,6 +20,16 @@
 	- Regen out of combat
 	- 
 
+
+	Bugs:
+		- Shortcut back to imp lair goes to the entrance
+		- Make name tag bigger for rooms?
+		- Force update log after finishing an exploration
+		- Add rune of exploration to cartographers
+		- Nerf warrior enrage
+		- I can tell your cock likes it when <- invalid start text
+		- 
+
 -- LATER UPDATE --
 
 	- Cache main mod in indexeddb until it's updated somehow

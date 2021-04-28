@@ -940,7 +940,7 @@ class Effect extends Generic{
 				else{
 					
 					
-					
+					/*
 					console.debug(
 						s.name, "vs", t.name,
 						"input", amt, 
@@ -950,7 +950,7 @@ class Effect extends Generic{
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
 						"nudity multi", t.getNudityDamageMultiplier(),
 					);
-					
+					*/
 										
 					
 
@@ -968,7 +968,7 @@ class Effect extends Generic{
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
 					amt *= t.getNudityDamageMultiplier();
 
-					console.debug("amt", amt);
+					//console.debug("amt", amt);
 					
 					amt = randRound(amt);
 					if( amt > 0 )

@@ -10989,6 +10989,8 @@ function checkBufferGeometryIntersection( object, material, raycaster, ray, posi
 
 	const morphInfluences = object.morphTargetInfluences;
 
+	if( !material )
+		console.error("Material missing for", object, "you probably forgot to setup multiple materials in jdloader");
 	if ( material.morphTargets && morphPosition && morphInfluences ) {
 
 		_morphA.set( 0, 0, 0 );

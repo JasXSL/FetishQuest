@@ -8,6 +8,7 @@ const loader = new THREE.TextureLoader();
 const textures = {
 	candleFlame : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/candleflame.png')})),
 	flame : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/flame_particle.png')})),
+	bubble : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/bubble.png')})),
 	smoke : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/smokeparticle.png')})),
 	glowSphere : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/glow_sphere.png')})),
 	sparkle : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/sparkle.png')})),
@@ -252,6 +253,39 @@ textures.smoke.material.depthWrite = true;
 		opacity: 1,
 		wiggle : 3,
 		rotation : new Proton.Span(0, Math.PI*2),
+	};
+
+	particles.bubblesFull = {
+		texture : textures.bubble,
+		blending : THREE.AdditiveBlending,
+		rate : 0.1,
+		count : 1,
+		position : new Proton.BoxZone(0,0,0, 1000,1000,1000),
+		size : 15,
+		size_tween : [0.2,1],
+		part_max_age : 5,
+		velocity : 0,
+		gravity : -1,
+		color : ["#FFFFFF"],	
+		opacity: [0,1,Proton.ease.easeFullBridge],
+		wiggle : 15,
+		//rotation : [new Proton.Span(-0.1,0.1), 1, 1],
+	};
+	particles.bubblesDense = {
+		texture : textures.bubble,
+		blending : THREE.AdditiveBlending,
+		rate : 0.2,
+		count : 1,
+		position : new Proton.BoxZone(0,0,0, 10,10,10),
+		size : 15,
+		size_tween : [0.2,1],
+		part_max_age : 3,
+		velocity : 5,
+		gravity : -2,
+		color : ["#FFFFFF"],	
+		opacity: [0,1,Proton.ease.easeFullBridge],
+		wiggle : 25,
+		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
 	};
 
 //

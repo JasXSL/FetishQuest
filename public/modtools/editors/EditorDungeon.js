@@ -430,7 +430,6 @@ class DungeonLayoutEditor{
 			let ra = pa.getRoomAsset();
 			if( ra ){
 
-				
 				ra = ra.clone();
 				ra.id = mod.mod.insert('dungeonRoomAssets', ra.save('mod'));
 				r.addAsset(ra);
@@ -440,6 +439,8 @@ class DungeonLayoutEditor{
 			r.ambiance = pa.ambiance;
 			r.ambiance_volume = pa.ambiance_volume;
 			r.outdoors = pa.outdoors;
+			r.dirLight = pa.dirLight;
+			r.fog = pa.fog;
 
 			r = DungeonRoom.saveThis(r, "mod");
 			r._mParent = {

@@ -754,10 +754,9 @@ class Action extends Generic{
 			});
 			
 			evt.raise();
-			if( this.isAssetAction() && !this.parent.no_auto_consume )
-				this.parent.consumeCharges();
 
 			if( this._crit ){
+
 				for( let n = 0; n<hits.length; ++n ){
 
 					setTimeout(() => {
@@ -772,9 +771,14 @@ class Action extends Generic{
 					}, 1+n*200);
 
 				}
+
 			}
 
 		}
+
+		// Always consume charges, even on fail
+		if( this.isAssetAction() && !this.parent.no_auto_consume )
+			this.parent.consumeCharges();
 
 		this.getPlayerParent().addMP(-this.mp);
 		if( !isChargeFinish ){
