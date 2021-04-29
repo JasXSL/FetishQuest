@@ -68,9 +68,25 @@ export default class Encounter extends Generic{
 		// This encounter has players
 		if( templateMonster ){
 
+			const gameGenders = window.game && game.genders || 0;
+
+			let genderViable = this.player_templates;
+			if( gameGenders ){
+
+				// First off, let's try to sort by gender
+				genderViable = this.player_templates.filter(pl => (
+					(gameGenders&pl.getGameGender()) || 
+					pl.isBeast()
+				));
+
+			}
+
+			if( !genderViable.length )
+				genderViable = this.player_templates;
+
 			const level = game.getAveragePlayerLevel();
 			
-			for( let p of this.player_templates ){
+			for( let p of genderViable ){
 
 				if( p.min_level <= level && p.max_level >= level  )
 					viableMonsters.push(p);
@@ -408,20 +424,27 @@ export default class Encounter extends Generic{
 		// Prefer one with a proper level range
 		const level = game.getAveragePlayerLevel();
 		let valid = arr.filter(el => {
+
 			if( !Array.isArray(el.player_templates) )
 				console.error("El player templates is not an array, arr was:", arr, "el was", el);
+
 			if( !el.player_templates.length )
 				return true;
+
 			for( let pt of el.player_templates ){
+
 				if( pt.min_level <= level && pt.max_level >= level )
 					return true;
 			}
+
 		});
 		// None in level range. Allow all D:
 
 		if( !valid.length ){
+
 			valid = arr;
 			console.debug("Note: No monsters in level range for in encounter list", arr, "allowing all through");
+
 		}
 
 		for( let enc of valid ){

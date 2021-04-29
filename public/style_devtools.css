@@ -223,19 +223,6 @@ div.window div.editorBox{
 	background:#999;
 }
 
-/* A div with labels treated as flex items. Used in assets editor for an instance. */
-div.labelFlex{
-	display:flex;
-	flex-wrap: wrap;
-}
-div.labelFlex > label,
-div.labelStyle{
-	display: block;
-	flex:1;
-}
-div.labelFlex > label > *{
-	vertical-align: middle;
-}
 
 
 

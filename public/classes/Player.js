@@ -13,6 +13,7 @@ import Roleplay from './Roleplay.js';
 import Condition from './Condition.js';
 import Collection from './helpers/Collection.js';
 import Encounter from './Encounter.js';
+import Game from './Game.js';
 
 const BASE_HP = 40;
 const BASE_MP = 10;
@@ -858,6 +859,22 @@ export default class Player extends Generic{
 		if( pronoun === 'him' )
 			return pronouns[1];
 		return pronouns[2];
+
+	}
+	// Get gender according to Game.Genders
+	getGameGender(){
+
+		let out = 
+			(this.hasTag('pl_penis') ? 1 : 0) |
+			(this.hasTag('pl_vagina') ? 2 : 0) |
+			(this.hasTag('pl_breasts') ? 4 : 0)
+		;
+		
+		if( out === 1 )
+			return Game.Genders.Male;
+		else if( out === 6 )
+			return Game.Genders.Female;
+		return Game.Genders.Other;
 
 	}
 

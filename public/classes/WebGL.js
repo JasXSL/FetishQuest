@@ -2427,7 +2427,7 @@ class Stage{
 
 			for( let i=0; i<txout.length; ++i ){
 				tx = txout[txout.length-1-i];
-				let fontSize = 40-len*3;
+				let fontSize = 40-len*4;
 				ctx.font = fontSize+"px Arial";
 				ctx.strokeStyle = "white";
 				ctx.textAlign = "center";

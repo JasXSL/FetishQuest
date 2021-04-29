@@ -59,6 +59,7 @@ export default class Game extends Generic{
 		this.proceduralDiscovery = new Collection();	// label : {perc:(float)exploredPercentage}
 		this.state_shops = new Collection();			// label : (obj)shopState
 		this.difficulty = 5;							// Scale between 0 and 10. Below 5 and it reduces damage taken by 15% per tier. Above 5 and it reduces damage done by 15% per tier.
+		this.genders = 0;								// Prefer these genders when generating template NPCs. See Game.Genders
 		this.factions = [];
 
 		this.modRepo = new ModRepo();
@@ -187,6 +188,7 @@ export default class Game extends Generic{
 			out.rain_start_val = this.rain_start_val;
 			out.rain_started = this.rain_started;
 			out.difficulty = this.difficulty;
+			out.genders = this.genders;
 			out.procedural = Dungeon.saveThese(this.procedural, full);
 			out.state_dungeons = this.state_dungeons.save(full);
 			out.state_roleplays = this.state_roleplays.save();
@@ -1279,6 +1281,7 @@ export default class Game extends Generic{
 
 		}
 		this.save();
+		new GameEvent({type:GameEvent.Types.explorationComplete}).raise();
 
 	}
 
@@ -3099,6 +3102,12 @@ Game.UNEQUIP_COST = 2;
 Game.LOG_SIZE = 800;
 Game.ROOM_RENTAL_DURATION = 3600*24;
 Game.MAX_SLEEP_DURATION = 24;			// Hours
+
+Game.Genders = {
+	Male : 0x1,
+	Female : 0x2,
+	Other : 0x4
+};
 
 Game.load = async () => {
 	

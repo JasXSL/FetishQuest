@@ -319,6 +319,10 @@ export default class StaticModal{
 		});
 
 
+
+		
+
+
 		// Sleep select
 		this.add(new this("sleepSelect", "Rest"))
 			.setCloseOnCellMove(true)
@@ -727,6 +731,7 @@ export default class StaticModal{
 			.addTab("Gameplay", () => {
 				return `
 					Difficulty: <input type="range" min=0 max=10 step=1 value=5 name="difficulty" />		
+					Preferred enemy sex: <div class="preferredGender labelFlex"></div>
 				`;
 			})
 			.addTab("DM", () => {
@@ -784,6 +789,7 @@ export default class StaticModal{
 				const gameplay = this.getTabDom('Gameplay');
 				this.gameplay = {
 					difficulty : $("input[name=difficulty]", gameplay),
+					gender : $("div.preferredGender", gameplay)
 				};
 
 				const dm = this.getTabDom('DM');
@@ -941,6 +947,22 @@ export default class StaticModal{
 
 				});
 
+				// Handle labels
+				for( let i in Game.Genders )
+					this.gameplay.gender[0].innerHTML += '<label><input type="checkbox" value="'+Game.Genders[i]+'" /> '+i+'</label>';					
+				const genderInputs = [...this.gameplay.gender[0].querySelectorAll('input')];
+				this.gameplay.genderInputs = genderInputs;
+				const onGenderInputChanged = () => {
+					let out = 0;
+					genderInputs.forEach(el => {
+						if( el.checked )
+							out = out | parseInt(el.value);
+					});
+					game.genders = out;
+					game.save();
+				};
+				for( let i of genderInputs )
+					i.addEventListener('change', onGenderInputChanged);
 
 			})
 			.setDraw(function(){
@@ -959,6 +981,11 @@ export default class StaticModal{
 				this.video.cacheLevel.val(cacheLevel);
 				this.video.cacheLevelSpan.text(cacheLevel);
 				
+
+				console.log(game.genders);
+				for( let i of this.gameplay.genderInputs)
+					i.checked = (!game.genders || game.genders&parseInt(i.value));
+
 				this.gameplay.difficulty.val(Math.round(game.difficulty) || 5);
 
 				const knobs = ['ambient','fx','music','ui'];
@@ -967,6 +994,8 @@ export default class StaticModal{
 					$("input[name="+knob+"SoundVolume]", audio).val(Math.round(game['audio_'+knob].volume*100));
 				}
 				$("input[name=masterSoundVolume]", audio).val(Math.round(game.getMasterVolume()*100));
+
+
 
 
 				// Netgame
@@ -1687,76 +1716,9 @@ export default class StaticModal{
 
 
 				// My money
-				const updateWallet = async baseElement => {
-
-					// Exchange button
-					const exchangeButton = baseElement.querySelector('input[name=exchange]');
-					exchangeButton.classList.toggle('hidden', !myPlayer.canExchange());
-					if( !exchangeButton._bound ){
-
-						exchangeButton.addEventListener('click', event => {
-							game.exchangePlayerMoney(myPlayer);
-						});
-						exchangeButton._bound = true;
-
-					}
-
-
-					// Update coins
-					const currencyDiv = baseElement.querySelector('span.coins');
-					for( let i in Player.currencyWeights ){
-
-						const currency = Player.currencyWeights[i];
-
-						let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
-						if( !sub ){
-
-							sub = document.createElement('span');
-							sub.dataset.currency = currency;
-							sub.style = 'color:'+Player.currencyColors[i];
-							currencyDiv.append(sub);
-							currencyDiv.append(document.createTextNode(' '));
-
-						}
-
-						sub.classList.toggle('hidden', true);
-
-						const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
-						if( !asset )
-							continue;
-
-						const amt = parseInt(asset._stacks);
-						if( !amt )
-							continue;
-
-						sub.classList.toggle('hidden', false);
-						sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
-
-					}
-
-
-					// Update tokens (alt currency)
-					const tokenBase = baseElement.querySelector('div.altCurrency');
-
-					// only buy shows tokens
-					if( tokenBase ){
-
-						const tokens = this.shop.getTokenAssets();
-						let divs = [];
-						for( let i = 0; i < tokens.length; ++i ){
-
-							const token = tokens[i];
-							let div = await StaticModal.getGenericAssetButton(token, myPlayer.numAssets(token.label), '', 'compact');
-							divs.push(div);
-							
-						}
-						tokenBase.replaceChildren(...divs);
-
-					}
-
-				};
+				
 				for( let footer of this.headers )
-					await updateWallet(footer);
+					await StaticModal.updateWallet(footer, this.shop);
 
 				
 
@@ -1971,6 +1933,9 @@ export default class StaticModal{
 					sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
 
 				}
+
+
+				await StaticModal.updateWallet(this.money);
 	
 
 				// Output repairable
@@ -3745,6 +3710,78 @@ export default class StaticModal{
 
 	}
 
+	static async updateWallet(baseElement, shop){
+
+		const myPlayer = game.getMyActivePlayer();
+		// Exchange button
+		const exchangeButton = baseElement.querySelector('input[name=exchange]');
+		exchangeButton.classList.toggle('hidden', !myPlayer.canExchange());
+		if( !exchangeButton._bound ){
+
+			exchangeButton.addEventListener('click', event => {
+				game.exchangePlayerMoney(myPlayer);
+			});
+			exchangeButton._bound = true;
+
+		}
+
+
+		// Update coins
+		const currencyDiv = baseElement.querySelector('span.coins');
+		for( let i in Player.currencyWeights ){
+
+			const currency = Player.currencyWeights[i];
+
+			let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
+			if( !sub ){
+
+				sub = document.createElement('span');
+				sub.dataset.currency = currency;
+				sub.style = 'color:'+Player.currencyColors[i];
+				currencyDiv.append(sub);
+				currencyDiv.append(document.createTextNode(' '));
+
+			}
+
+			sub.classList.toggle('hidden', true);
+
+			const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
+			if( !asset )
+				continue;
+
+			const amt = parseInt(asset._stacks);
+			if( !amt )
+				continue;
+
+			sub.classList.toggle('hidden', false);
+			sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
+
+		}
+
+
+		if( shop ){
+
+			// Update tokens (alt currency)
+			const tokenBase = baseElement.querySelector('div.altCurrency');
+			// only buy shows tokens
+			if( tokenBase ){
+
+				const tokens = shop.getTokenAssets();
+				let divs = [];
+				for( let i = 0; i < tokens.length; ++i ){
+
+					const token = tokens[i];
+					let div = await StaticModal.getGenericAssetButton(token, myPlayer.numAssets(token.label), '', 'compact');
+					divs.push(div);
+					
+				}
+				tokenBase.replaceChildren(...divs);
+
+			}
+
+		}
+
+	};
 
 
 }

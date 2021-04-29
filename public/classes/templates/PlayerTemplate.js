@@ -7,6 +7,7 @@ import Condition from '../Condition.js';
 import PlayerClass from '../PlayerClass.js';
 import ActionLearnable from '../ActionLearnable.js';
 import { Wrapper } from '../EffectSys.js';
+import Game from '../Game.js';
 
 
 class PlayerTemplate extends Generic{
@@ -364,6 +365,24 @@ class PlayerTemplate extends Generic{
 
 	}
 
+	getGameGender(){
+
+		let out = 
+			(this.hasTag('pl_penis') ? 1 : 0) |
+			(this.hasTag('pl_vagina') ? 2 : 0) |
+			(this.hasTag('pl_breasts') ? 4 : 0)
+		;
+		if( out === 1 )
+			return Game.Genders.Male;
+		else if( out === 6 )
+			return Game.Genders.Female;
+		return Game.Genders.Other;
+
+	}
+
+	isBeast(){
+		return this.hasTag(stdTag.plBeast);
+	}
 
 
 }

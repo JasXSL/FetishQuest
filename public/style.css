@@ -95,6 +95,23 @@ div.action:active{
 
 
 
+
+/* A div with labels treated as flex items. Used in assets editor for an instance. */
+div.labelFlex{
+	display:flex;
+	flex-wrap: wrap;
+}
+div.labelFlex > label,
+div.labelStyle{
+	display: block;
+	flex:1;
+}
+div.labelFlex > label > *{
+	vertical-align: middle;
+}
+
+
+
 input[type=range] {
 	-webkit-appearance: none;
 	width: 100%;
@@ -1290,7 +1307,7 @@ div.fxBuffRed{
 		width:6em;
 	}
 
-	#newGame label{
+	#newGame label, div.labelFlex label{
 		display:inline-block;
 		margin: 0.5vmax;
 		padding: 0.5vmax 1vmax;

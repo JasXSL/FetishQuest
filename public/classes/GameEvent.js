@@ -152,7 +152,8 @@ GameEvent.Types = {
 	dungeonEntered : 'dungeonEntered',		
 	
 	rpStage : 'rpStage',	// Roleplay stage changed		
-	textTrigger : 'textTrigger',			
+	textTrigger : 'textTrigger',
+	explorationComplete : 'explorationComplete',			
 };
 
 GameEvent.TypeDescs = {
@@ -200,6 +201,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.dungeonExited] : 'Raised with the dungeon being the dungeon you just left',					// 
 	[GameEvent.Types.dungeonEntered] : 'Raised with the dungeon being the dungeon you just entered',					// 
 	[GameEvent.Types.textTrigger] : 'Raised when a text is triggered.',			
+	[GameEvent.Types.explorationComplete] : 'Raised when a procedural dungeon is fully explored.',			
 
 };
 
