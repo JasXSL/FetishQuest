@@ -18,17 +18,14 @@
 			- ???
 	- Mini map
 	- Regen out of combat
-	- 
-
+	- Use IDs for roleplays instead of indexes
+	- Use IDs for rooms instead of indexes
 
 	Bugs:
-		x Earth grasp should also lower attack
-		x Add +2 to monk heal
-		x Jugs in necro give fresh water instead of sewer water
-		x Yuug portswood to city exterior is wrong
-		- Smith exchange not working
 		- Force update log after finishing an exploration. Not sure what causes this, it should be set? Maybe game.proceduralDiscovery isn't updated correct?
 		- I can tell your cock likes it when <- invalid start text. not sure what causes this
+		- Shops are auto generated immediately on netcode?
+		
 
 -- LATER UPDATE --
 

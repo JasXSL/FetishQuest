@@ -632,7 +632,7 @@ export default class Mod extends Generic{
 			if( 
 				obj[parentField] === id ||
 				(Array.isArray(obj[parentField]) && obj[parentField].includes(id) )
-			)return this.getAssetById(parentTable, obj.id);
+			)return this.getAssetById(parentTable, obj.id || obj.label);
 
 		}
 
@@ -904,6 +904,85 @@ export default class Mod extends Generic{
 				
 				if( updates[type] )
 					console.log("Updated ", updates[type], type, "in", table);
+
+			}
+
+		}
+
+
+		for( let rp of this.roleplay ){
+
+			if( !rp.stages )
+				continue;
+
+			let stages = rp.stages.map(el => this.getAssetById('roleplayStage', el, false));
+			for( let stage of stages ){
+
+				if( stage )
+					delete stage.index;
+
+				if( !stage || !stage.options )
+					continue;
+
+				for( let opt of stage.options ){
+
+					opt = this.getAssetById('roleplayStageOption', opt, false);
+					if( !opt || !opt.index )
+						continue;
+
+					opt.index = opt.index.map(el => {
+
+						let goto = mod.mod.getAssetById('roleplayStageOptionGoto', el, false);
+						if( !goto ){
+							
+							// Using the old format with just an array of ints
+							if( !isNaN(el) ){
+
+								goto = {
+									id : Generic.generateUUID(),
+									_h : 1,
+									index: el
+								};
+								this.roleplayStageOptionGoto.push(goto);
+								console.log("Converting old numeric goto", goto, "in", rp, stage, opt);
+
+							}
+							else
+								console.error("Goto ", el, " not found in", rp, stage, opt);
+
+						}
+
+						if( goto.index === undefined || isNaN(goto.index) || goto.index === "" )
+							return goto.id;
+
+						if( goto.index == -1 )
+							goto.index = '';
+						else if( goto.index == -2 )
+							goto.index = '_EXIT_';
+						else{
+
+							for( let stage of stages ){
+
+								if( stage.index == goto.index ){
+
+									console.log("Updated", goto, "to", stage);
+									goto.index = stage.id;
+									return goto.id;
+
+								}
+
+
+							}
+							
+							console.error("Stage not found:", goto);
+
+						}
+
+						return goto.id;
+
+					});
+					
+				}
 
 			}
 

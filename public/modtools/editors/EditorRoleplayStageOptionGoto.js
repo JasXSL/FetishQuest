@@ -20,23 +20,14 @@ export function asset(){
 	if( !asset )
 		return this.close();
 
-	// Gets an index, defaulting to def
-	const getIndex = (idx, def) => {
-		if( isNaN(idx) )
-			return def;
-		return parseInt(idx);
-	}
-
-	console.log("Mod:", mod);
-
 	// Find parent mod
 	let stageOption = mod.getListObjectParent('roleplayStageOption', 'index', id);
 	if( !stageOption )
 		console.error("Unable to find parent of roleplayStageOptionGoto", asset);
+
 	let stage = mod.getListObjectParent('roleplayStage', 'options', stageOption.id);
 	if( !stage )
-		console.error("Unable to find parent of roleplayStageOption", stage.id);
-	let stageIdx = getIndex(stage.index, 0);
+		console.error("Unable to find stage of roleplayStageOptionGoto", dummy);
 
 	let rp = mod.getListObjectParent('roleplay', 'stages', stage.id);
 	if( !rp && stage._e )
@@ -46,20 +37,17 @@ export function asset(){
 
 	let stages = rp.stages.map(el => mod.getAssetById('roleplayStage', el));
 
-	console.log("Stages:", stages);
 
+	//console.log("Dummy", dummy, "Parent stage", stage, "stages", stages);
 	let html = '';
-	let index = getIndex(dummy.index, -1);
 	html += '<div class="labelFlex">';
 		html += '<label title="">Go to: <select name="index" class="saveable">';
-			html += '<option value="-1">- END RP -</option>';
+			html += '<option value="">- END RP -</option>';
+			html += '<option value="_EXIT_" '+(dummy.index === '_EXIT_' ? 'selected' : '')+'>- END But do not set finished -</option>';
 		for( let s of stages ){
 
 			let text = s.text ? mod.getAssetById('texts', s.text[0]) : '???';
-			let idx = getIndex(s.index, 0);
-			if( idx === stageIdx )
-				continue;
-			html += '<option value="'+idx+'" '+(idx === index ? 'selected' : '')+'>'+idx+' '+esc((text.text || '').substr(0, 16)+'...')+'</option>';
+			html += '<option value="'+esc(s.id)+'" '+(s.id === dummy.index ? 'selected' : '')+'>['+esc(s.id)+'] '+esc((text.text || '').substr(0, 64)+'...')+'</option>';
 
 		}
 		html += '<select></label>';
@@ -84,7 +72,27 @@ export function assetTable( win, modAsset, name, single, parented ){
 	//win.editorOnCreate = onCreate;
 
 	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, [
-		'index', 
+		'id',
+		asset => {
+
+			let idx = asset.index;
+			let stage = mod.getAssetById('roleplayStage', idx);
+			if( stage ){
+				idx = 's_'+stage.id;
+
+				if( Array.isArray(stage.text) ){
+
+					let text = mod.getAssetById('texts', stage.text[0]);
+					if( text )
+						idx = text.text.substr(0, 128)+'...';
+
+				}
+
+			}
+
+			return idx;
+					
+		}, 
 		'conditions'
 	], single, parented);
 }

@@ -60,17 +60,34 @@ export function asset(){
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name, single, parented ){
 	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, [
+		'id',
 		'text',
 		asset => {
 			
 			if( asset.index && asset.index.length ){ 
 
-				return 'Go to '+asset.index.map(el => { 
+				return '-> '+asset.index.map(el => { 
+
 					let data = mod.getAssetById('roleplayStageOptionGoto', el);
 					let idx = '???';
-					if( data )
-						idx = isNaN(data.index) ? -1 : parseInt(data.index);
+					if( data ){
+						idx = data.index;
+						let stage = mod.getAssetById('roleplayStage', idx);
+						if( stage ){
+							idx = 's_'+stage.id;
+
+							if( Array.isArray(stage.text) ){
+
+								let text = mod.getAssetById('texts', stage.text[0]);
+								if( text )
+									idx = text.text.substr(0, 32)+'...';
+
+							}
+
+						}
+					}
 					return idx;
+
 				}).join(' OR ');
 
 			}

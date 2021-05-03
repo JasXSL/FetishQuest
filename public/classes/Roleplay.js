@@ -12,7 +12,7 @@ export default class Roleplay extends Generic{
 		this.parent = parent;
 		this.desc = '';				// Editor description
 		
-		this.stage = 0;
+		this.stage = '';
 		this.persistent = false;	// If set to true, the stage is saved and continued from there. Otherwise if you close and re-open, it resets to 0
 		this.completed = false;
 		this.label = '';
@@ -33,11 +33,16 @@ export default class Roleplay extends Generic{
 	}
 
 	getActiveStage(){
+
+		if( !this.stage )
+			return this.stages[0];
+
 		for( let stage of this.stages ){
-			if( stage.index === this.stage )
+			if( stage.id === this.stage )
 				return stage;
 		}
 		return false;
+
 	}
 
 	load(data){
@@ -147,31 +152,34 @@ export default class Roleplay extends Generic{
 	}
 
 	// Note:
-	// If index is -1 it's finished
-	// If index is -2 it's finished but completed isn't saved
+	// If index is '' it's finished
+	// If index is '_EXIT_' it's finished but completed isn't saved
 	setStage( index, delay=false, player = false ){
 
-		if( index < 0 ){
+		if( index === '' || index === '_EXIT_' ){
 
-			if( this.once && index === -1 )
+			if( this.once && index !== '_EXIT_' )
 				this.completed = true;
 			game.clearRoleplay(true);
 			
 		}
 		else{
+			
 			let fn = () => {
-				this.stage = index;
 
+				this.stage = index;
 				const stage = this.getActiveStage();
-				if( index > -1 && stage )
+				if( stage )
 					stage.onStart(player);
 				game.ui.rpOptionSelected('');
 				game.ui.draw();
 				this._waiting = false;
 				game.saveRPState(this);
 				game.save();
+
 			};
 			if( delay ){
+
 				this._waiting = true;
 				setTimeout(fn, 1000);
 			}
@@ -267,7 +275,7 @@ export class RoleplayStage extends Generic{
 		
 		this.parent = parent;
 		
-		this.index = 0;
+		//this.index = 0;
 		this.portrait = '';
 		this.name = '';
 		this.text = [];				// Text objects. When loading you can also make this a string and it auto converts into a roleplay
@@ -300,7 +308,7 @@ export class RoleplayStage extends Generic{
 
 		let out = {
 			id : this.id,
-			index : this.index,
+			//index : this.index,
 			portrait : this.portrait,
 			name : this.name,
 			options : RoleplayStageOption.saveThese(this.options, full),
@@ -329,10 +337,8 @@ export class RoleplayStage extends Generic{
 	// Automatically invoked after g_autoload
 	rebase(){
 
-		if( !this.id ){
-			this.id = this.parent.id+'_'+this.index;
-		}
-
+		if( !this.id )
+			this.id = Generic.generateUUID();
 		this.text = Text.loadThese(this.text, this);
 		this.options = RoleplayStageOption.loadThese(this.options, this);
 		this.game_actions = GameAction.loadThese(this.game_actions, this);
@@ -405,6 +411,13 @@ export class RoleplayStage extends Generic{
 		
 	}
 
+	isDefaultStage(){
+		const firstStage = this.parent && this.parent.stages[0];
+		if( !firstStage )
+			return false;
+		return firstStage === this || firstStage === this.id || firstStage.id === this.id; 
+	}
+
 	// Scans for the first viable text and returns an event with that object and the target player attached
 	// If no texts pass filter, the last one is returned
 	// TextPlayer is the NPC you are talking to in the RP. If it's missing it becomes the same as the target player.
@@ -427,7 +440,7 @@ export class RoleplayStage extends Generic{
 			evt.text = text;
 
 			// If initiating player exists outside of the first stage, always use that 
-			if( initiating && this.index ){
+			if( initiating && !this.isDefaultStage() ){
 
 				evt.target = initiating;
 				if( text.validate(evt, debug) ){
@@ -506,7 +519,7 @@ export class RoleplayStageOption extends Generic{
 	rebase(){
 		
 		if( !this.id )
-			this.id = this.parent.id+'_'+this.index;
+			this.id = Generic.generateUUID();
 		this.conditions = Condition.loadThese(this.conditions, this);
 		this.game_actions = GameAction.loadThese(this.game_actions, this);
 		this.index = RoleplayStageOptionGoto.loadThese(this.index, this);
@@ -607,7 +620,7 @@ export class RoleplayStageOption extends Generic{
 		}
 		
 		// if none are valid, create a quick end rp
-		return new RoleplayStageOptionGoto({index : -1}, this);
+		return new RoleplayStageOptionGoto({}, this);
 
 	}
 
@@ -625,7 +638,7 @@ export class RoleplayStageOptionGoto extends Generic{
 		
 		this.parent = parent;
 		
-		this.index = -1;
+		this.index = '';
 		this.conditions = [];
 
 		this.load(data);
@@ -641,7 +654,7 @@ export class RoleplayStageOptionGoto extends Generic{
 	rebase(){
 		
 		if( !this.id )
-			this.id = this.parent.id+'_'+this.index;
+			this.id = Generic.generateUUID();
 		this.conditions = Condition.loadThese(this.conditions, this);
 		
 	}
@@ -655,7 +668,6 @@ export class RoleplayStageOptionGoto extends Generic{
 			conditions : Condition.saveThese(this.conditions, full)
 		};
 
-		
 		if( full !== "mod" ){}
 		else
 			this.g_sanitizeDefaults(out);

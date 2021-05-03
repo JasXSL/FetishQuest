@@ -24,7 +24,6 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		html += '<label title="A unique identifier number">Index: <input type="number" step=1 name="index" class="saveable" value="'+esc(dummy.index)+'" /></label>';
 		html += '<label title="Lets you override the name of the speaking player">Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" autocomplete="chrome-off" /></label>';
 		html += '<label title="A small headshot of the player, overrides RP parent">Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
 		html += '<label>Chat type: <select name="chat" class="saveable" name="chat">';
@@ -60,6 +59,7 @@ export function asset(){
 
 
 // Special onCreate function to update the number using the highest number of parent
+/* Legacy
 function onCreate( win, asset ){
 
 	let parent = mod.getListObjectParent('roleplay', 'stages', asset.id);
@@ -81,16 +81,16 @@ function onCreate( win, asset ){
 	asset.index = highest+1;
 
 };
-
+*/
 
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name, single, parented ){
 
 	// Set an optional onCreate callback
-	win.editorOnCreate = onCreate;
+	//win.editorOnCreate = onCreate;
 
 	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, [
-		'index', 
+		'id', 
 		asset => {
 
 			if( asset.text && asset.text.length ){

@@ -981,8 +981,6 @@ export default class StaticModal{
 				this.video.cacheLevel.val(cacheLevel);
 				this.video.cacheLevelSpan.text(cacheLevel);
 				
-
-				console.log(game.genders);
 				for( let i of this.gameplay.genderInputs)
 					i.checked = (!game.genders || game.genders&parseInt(i.value));
 
