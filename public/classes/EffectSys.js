@@ -16,6 +16,12 @@ import Encounter from './Encounter.js';
 */
 class Wrapper extends Generic{
 
+	static RELATIONS = {
+		add_conditions : Condition,
+		stay_conditions : Condition,
+		effects : Effect,
+	};
+
 	// Parent is the owner of this wrapper, such as an action, asset, or player
 	constructor(data, parent){
 		super(data);
@@ -667,6 +673,10 @@ class Effect extends Generic{
 	// Parent is always a wrapper
 	// Parent of parent varies. If the wrapper is applied to a player, parent.parent is the player
 	
+	static RELATIONS = {
+		conditions : Condition,
+	};
+
 	constructor(data, parent){
 
 		super(data);

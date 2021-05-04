@@ -23,6 +23,14 @@ const BASE_AROUSAL = 10;
 
 export default class Player extends Generic{
 
+	static RELATIONS = {
+		actions : Action,
+		assets : Asset,
+		wrappers : Wrapper,
+		passives : Wrapper,
+		class : PlayerClass,
+	};
+
 	constructor(data){
 
 		super(data);

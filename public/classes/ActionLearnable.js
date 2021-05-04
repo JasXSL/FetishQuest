@@ -5,6 +5,11 @@ import GameEvent from "./GameEvent.js";
 // Wrapper for the library of learnable actions.
 export default class ActionLearnable extends Generic{
 
+	// Map the relational asset types
+	static RELATIONS = {
+		conditions : Condition,
+	};
+
 	constructor(data){
 		super(data);
 

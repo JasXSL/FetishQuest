@@ -31,6 +31,12 @@ const interact_cooldowns = {};	// id:true etc
 
 class Dungeon extends Generic{
 
+	static RELATIONS = {
+		rooms : DungeonRoom,
+		consumables : Asset,
+		vars : Collection
+	};
+
 	constructor(data, parent){
 		super(data);
 
@@ -536,6 +542,12 @@ class DungeonSaveState extends Generic{
 	They store data of whether it has been visited or not
 */
 class DungeonRoom extends Generic{
+
+	static RELATIONS = {
+		assets : DungeonRoomAsset,
+		encounters : Encounter,
+		playerMarkers : DungeonRoomMarker
+	};
 
 	constructor(data, parent){
 		super(data);
@@ -1273,6 +1285,11 @@ export class DungeonRoomMarker extends Generic{
 
 */
 class DungeonRoomAsset extends Generic{
+
+	static RELATIONS = {
+		interactions : GameAction,
+		conditions : Condition,
+	};
 
 	constructor( data, parentObj ){
 		super(data);

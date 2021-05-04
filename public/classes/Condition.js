@@ -13,6 +13,10 @@ import stdTag from '../libraries/stdTag.js';
 import Action from './Action.js';
 
 export default class Condition extends Generic{
+
+	static RELATIONS = {
+		conditions : Condition,
+	};
 	
 	// Parent varies based on the object that created this
 	constructor( data, parent ){

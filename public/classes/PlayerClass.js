@@ -3,7 +3,6 @@ import Generic from "./helpers/Generic.js";
 
 export default class PlayerClass extends Generic{
 
-
 	constructor(...args){
 		super(...args);
 

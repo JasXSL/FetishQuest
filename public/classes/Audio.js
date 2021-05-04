@@ -175,6 +175,10 @@ class AudioSound{
 // Kit that can play
 class AudioKit extends Generic{
 
+	static RELATIONS = {
+		conditions : Condition,
+	};
+
 	constructor( data ){
 		super(data);
 		this.label = '';

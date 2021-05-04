@@ -10,6 +10,11 @@ import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 
 export default class Shop extends Generic{
 
+	static RELATIONS = {
+		conditions : Condition,
+		items : ShopAsset,
+	};
+
 	constructor(data, parent){
 		super();
 
@@ -201,6 +206,7 @@ export default class Shop extends Generic{
 }
 
 export class ShopSaveState extends Generic{
+
 	constructor(data, parent){
 		super();
 
@@ -261,6 +267,12 @@ export class ShopSaveState extends Generic{
 }
 
 export class ShopAsset extends Generic{
+
+	static RELATIONS = {
+		conditions : Condition,
+		asset : Asset,
+		tokens : ShopAssetToken,
+	};
 
 	constructor(data, parent){
 		super();
@@ -407,6 +419,10 @@ export class ShopAsset extends Generic{
 }
 
 export class ShopAssetToken extends Generic{
+
+	static RELATIONS = {
+		asset : Asset,
+	};
 
 	constructor(data, parent){
 		super();

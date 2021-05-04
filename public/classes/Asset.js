@@ -28,6 +28,13 @@ export default class Asset extends Generic{
 		red : "#FF0000",
 	};
 
+	// Map the relational asset types
+	static RELATIONS = {
+		equip_conditions : Condition,
+		wrappers : Wrapper,
+		use_action : Action,
+	};
+
 	constructor(data, parent){
 		super(data);
 		

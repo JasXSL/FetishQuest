@@ -10,6 +10,12 @@ import Action from './Action.js';
 
 class Quest extends Generic{
 
+	static RELATIONS = {
+		objectives : QuestObjective,
+		rewards : QuestReward,
+		completion_objectives : QuestObjective,
+	};
+
 	constructor(data){
 		super();
 		this.label = '';
@@ -336,6 +342,11 @@ Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
 
 
 class QuestReward extends Generic{
+
+	static RELATIONS = {
+		conditions : Condition,
+	};
+
 	constructor(data){
 		super();
 		
@@ -425,6 +436,11 @@ QuestReward.TypeDescs = {
 
 
 class QuestObjective extends Generic{
+
+	static RELATIONS = {
+		events : QuestObjectiveEvent,
+		visbility_conditions : Condition,
+	};
 
 	constructor(data, parent){
 		super();
@@ -545,6 +561,11 @@ QuestObjective.buildDungeonExitObjective = function( quest, dungeon ){
 
 
 class QuestObjectiveEvent extends Generic{
+
+	static RELATIONS = {
+		conditions : Condition,
+	};
+	
 	constructor(data, parent){
 		super(data);
 

@@ -1150,6 +1150,8 @@ export default{
 	// Asset: Asset to clone such as a DungeonTemplate
 	insertCloneAsset( type, asset, constructor, parentWindow ){
 
+		// Todo: Auto check relational children
+
 		const obj = new constructor(asset);
 		if( obj.label )
 			obj.label += '_'+Generic.generateUUID();

@@ -21,8 +21,13 @@ import Collection from './helpers/Collection.js';
 
 export default class GameAction extends Generic{
 
+	static RELATIONS = {
+		conditions : Condition,
+		data : Collection
+	};
+
 	constructor(data, parent){
-		super();
+		super(data, parent);
 
 		this.parent = parent;			// Either a roleplay or dungeon asset
 		this.label = '';

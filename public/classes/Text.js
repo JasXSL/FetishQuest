@@ -100,6 +100,12 @@ const A_EXCEPTIONS = {
 
 class Text extends Generic{
 
+	static RELATIONS = {
+		conditions : Condition,
+		chatPlayerConditions : Condition,
+		hitfx : HitFX,
+	};
+
 	constructor(...args){
 		super(...args);
 

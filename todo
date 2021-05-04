@@ -5,9 +5,6 @@
 -- CURRENT --
 	- Flesh out west portwood
 	- Add inn area:
-		MESHES:
-			- Inn with water wheel
-			- Cozy inn interior
 		QUEST:
 			- Fetch algae from an underground cave inhabited by shark people
 			- Shark people are friendly, but you may be able to fight them?
@@ -18,8 +15,10 @@
 			- ???
 	- Mini map
 	- Regen out of combat
-	- Use IDs for roleplays instead of indexes
-	- Use IDs for rooms instead of indexes
+	- Underwater procedural dungeon
+
+	- Make rebase automatic using static RELATIONS
+
 
 	Bugs:
 		- Force update log after finishing an exploration. Not sure what causes this, it should be set? Maybe game.proceduralDiscovery isn't updated correct?
@@ -77,3 +76,7 @@
 
 Mod improvements:
 	- Mod pagination once we have more than 50 mods
+
+
+Deprecated:
+	- Use IDs for rooms instead of indexes: You should just not add rooms to official dungeons since I may go back and add an overlapping room later.

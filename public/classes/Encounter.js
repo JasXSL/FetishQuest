@@ -17,6 +17,16 @@ import GameEvent from "./GameEvent.js";
 */
 export default class Encounter extends Generic{
 
+	static RELATIONS = {
+		conditions : Condition,
+		players : Player,
+		wrappers : Wrapper,
+		passives : Wrapper,
+		player_templates : PlayerTemplate,
+		game_actions : GameAction,
+		player_conditions : Collection
+	};
+
 	constructor(data, parent){
 		super(data);
 

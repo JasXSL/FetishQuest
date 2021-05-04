@@ -8,6 +8,14 @@ import Asset from './Asset.js';
 import Calculator from './Calculator.js';
 
 class Action extends Generic{
+
+	// Map the relational asset types
+	static RELATIONS = {
+		wrappers : Wrapper,
+		riposte : Wrapper,
+		conditions : Condition,
+		show_conditions : Condition,
+	};
 	
 	/* Loading & Saving */
 	constructor(data, parent){

@@ -6,6 +6,11 @@ import Game from './Game.js';
 import Text from './Text.js';
 export default class Roleplay extends Generic{
 
+	static RELATIONS = {
+		conditions : Condition,
+		stages : RoleplayStage,
+	};
+
 	constructor(data, parent){
 		super(data);
 		
@@ -270,6 +275,12 @@ RoleplayChatQueue.next = function(){
 
 export class RoleplayStage extends Generic{
 
+	static RELATIONS = {
+		text : Text,
+		options : RoleplayStageOption,
+		game_actions : GameAction,
+	};
+
 	constructor(data, parent){
 		super(data);
 		
@@ -495,6 +506,12 @@ export class RoleplayStage extends Generic{
 
 export class RoleplayStageOption extends Generic{
 
+	static RELATIONS = {
+		conditions : Condition,
+		game_actions : GameAction,
+		index : RoleplayStageOptionGoto
+	};
+
 	constructor(data, parent){
 		super(data);
 		
@@ -632,6 +649,10 @@ RoleplayStageOption.ChatType = {
 };
 
 export class RoleplayStageOptionGoto extends Generic{
+
+	static RELATIONS = {
+		conditions : Condition,
+	};
 
 	constructor(data, parent){
 		super(data);
