@@ -16,11 +16,14 @@ import Encounter from './Encounter.js';
 */
 class Wrapper extends Generic{
 
-	static RELATIONS = {
-		add_conditions : Condition,
-		stay_conditions : Condition,
-		effects : Effect,
-	};
+	
+	static getRelations(){
+		return {
+			add_conditions : Condition,
+			stay_conditions : Condition,
+			effects : Effect,
+		};
+	}
 
 	// Parent is the owner of this wrapper, such as an action, asset, or player
 	constructor(data, parent){
@@ -131,10 +134,9 @@ class Wrapper extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+		this.g_rebase();	// Super
+
 		//console.error("Add conditions", this.add_conditions);
-		this.add_conditions = Condition.loadThese(this.add_conditions, this);
-		this.stay_conditions = Condition.loadThese(this.stay_conditions, this);
-		this.effects = Effect.loadThese(this.effects, this);
 		this.tags = this.tags.map(tag => tag.toLowerCase());
 	}
 
@@ -673,9 +675,11 @@ class Effect extends Generic{
 	// Parent is always a wrapper
 	// Parent of parent varies. If the wrapper is applied to a player, parent.parent is the player
 	
-	static RELATIONS = {
-		conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+		};
+	}
 
 	constructor(data, parent){
 
@@ -730,6 +734,7 @@ class Effect extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+		this.g_rebase();	// Super
 		
 		// Auto generate damage type from an ability
 		if( this.parent && this.parent.parent && this.parent.parent.constructor === Action && this.type === Effect.Types.damage && typeof this.data === "object" && !this.data.type )
@@ -761,7 +766,6 @@ class Effect extends Generic{
 			}
 		}
 		
-		this.conditions = Condition.loadThese(this.conditions, this);		
 	}
 
 	clone(parent){

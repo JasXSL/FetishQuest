@@ -233,6 +233,7 @@ export default class GameLib{
 
 		}
 
+
 	}
 
 	// Loads mods into the library
@@ -390,8 +391,10 @@ export default class GameLib{
 			return;
 		
 		if( !lib[label] ){
+
 			console.error("Asset", label, "not found in", Object.keys(lib), "constructor was ", constructorName);
 			return false;
+
 		}
 
 		if( !this._allow_clone )

@@ -6,9 +6,11 @@ import GameEvent from "./GameEvent.js";
 export default class ActionLearnable extends Generic{
 
 	// Map the relational asset types
-	static RELATIONS = {
-		conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+		};
+	}
 
 	constructor(data){
 		super(data);
@@ -30,7 +32,7 @@ export default class ActionLearnable extends Generic{
 	}
 
 	rebase(){
-		this.conditions = Condition.loadThese(this.conditions, this);
+		this.g_rebase();	// Super
 	}
 
 	save( full ){

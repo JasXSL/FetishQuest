@@ -21,10 +21,12 @@ import Collection from './helpers/Collection.js';
 
 export default class GameAction extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-		data : Collection
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+			data : Collection
+		};
+	}
 
 	constructor(data, parent){
 		super(data, parent);
@@ -88,17 +90,12 @@ export default class GameAction extends Generic{
 	}
 
 	rebase(){
-
+		this.g_rebase();	// Super
+		
 		if( !this.id )
 			this.g_resetID();
 
-		this.conditions = Condition.loadThese(this.conditions);
-
-		// make sure data is escaped
-		this.data = Collection.loadThis(this.data);
-
 		if( window.game ){
-			
 			
 			// Loot is needed in netcode
 			if( this.type === GameAction.types.loot ){
@@ -137,9 +134,6 @@ export default class GameAction extends Generic{
 				this.data.shop = this.getDataAsShop();
 			}
 
-			
-
-			
 		}
 
 

@@ -7,7 +7,12 @@ import Encounter from '../Encounter.js';
 
 class DungeonTemplate extends Generic{
 
-	
+	static getRelations(){ 
+		return {
+			rooms : DungeonTemplateSub,
+			encounters : DungeonTemplateSub
+		};
+	}
 
 	constructor(...args){
 		super(...args);
@@ -40,10 +45,8 @@ class DungeonTemplate extends Generic{
 	}
 
 	rebase(){
-
-		this.rooms = DungeonTemplateSub.loadThese(this.rooms);
-		this.encounters = DungeonTemplateSub.loadThese(this.encounters);
-
+		this.g_rebase();	// Super
+		
 	}
 
 
@@ -55,6 +58,12 @@ class DungeonTemplate extends Generic{
 
 // Helper wrapper for conditions.
 export class DungeonTemplateSub extends Generic{
+
+	static getRelations(){ 
+		return {
+			conditions : Condition
+		};
+	}
 
 	constructor(...args){
 		super(...args);
@@ -83,9 +92,7 @@ export class DungeonTemplateSub extends Generic{
 	}
 
 	rebase(){
-
-		this.conditions = Condition.loadThese(this.conditions, this);
-
+		this.g_rebase();	// Super
 	}
 	
 	load(data){

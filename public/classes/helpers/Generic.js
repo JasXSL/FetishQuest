@@ -47,6 +47,25 @@ export default class Generic{
 
 	}
 
+	g_rebase(){
+
+		if( this.constructor.getRelations ){
+
+			const rel = this.constructor.getRelations();
+			for( let i in rel ){
+
+				// Handle auto loading
+				if( Array.isArray(this[i]) )
+					this[i] = rel[i].loadThese(this[i], this);
+				else
+					this[i] = rel[i].loadThis(this[i], this);
+
+			}
+
+		}
+
+	}
+
 	g_findIdInArray( arr, id ){
 		for( let o of arr ){
 			if( o.id === id )

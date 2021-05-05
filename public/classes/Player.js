@@ -23,13 +23,15 @@ const BASE_AROUSAL = 10;
 
 export default class Player extends Generic{
 
-	static RELATIONS = {
-		actions : Action,
-		assets : Asset,
-		wrappers : Wrapper,
-		passives : Wrapper,
-		class : PlayerClass,
-	};
+	static getRelations(){ 
+		return {
+			actions : Action,
+			assets : Asset,
+			wrappers : Wrapper,
+			passives : Wrapper,
+			class : PlayerClass,
+		};
+	}
 
 	constructor(data){
 
@@ -151,6 +153,9 @@ export default class Player extends Generic{
 
 	load(data){
 
+		if( data && data.class === null )
+			data.class = '';
+
 		if( window.game && game.is_host && data )
 			delete data._tmp_actions;
 
@@ -160,11 +165,8 @@ export default class Player extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+		this.g_rebase();	// Super
 
-		this.actions = Action.loadThese(this.actions, this);
-		this.assets = Asset.loadThese(this.assets, this);
-		this.wrappers = Wrapper.loadThese(this.wrappers, this);
-		this.passives = Wrapper.loadThese(this.passives, this);
 		// only load tmp actions in a netgame (for ID mostly)
 		if( game && game !== true && !game.is_host && game.net.isConnected() )
 			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
@@ -172,14 +174,16 @@ export default class Player extends Generic{
 		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
 
 		if( window.game ){
-			this.class = PlayerClass.loadThis(this.class, this);
+			
 			this.updatePassives();
 			if( !game.is_host )
 				this.auto_wrappers = Wrapper.loadThese(this.auto_wrappers, this);
+
 		}
 		
 		if( this.class === null )
-			this.class = new PlayerClass();
+			this.class = new PlayerClass({}, this);
+		
 
 		this.tags = this.tags.map(tag => tag.toLowerCase());
 
@@ -2832,10 +2836,14 @@ export default class Player extends Generic{
 
 	// Makes sure passives have the right ID
 	updatePassives(){
+
 		for( let passive of this.passives ){
+
 			passive.caster = passive.victim = this.id;
 			passive.parent = this;
+
 		}
+
 	}
 
 	

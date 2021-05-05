@@ -17,15 +17,17 @@ import GameEvent from "./GameEvent.js";
 */
 export default class Encounter extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-		players : Player,
-		wrappers : Wrapper,
-		passives : Wrapper,
-		player_templates : PlayerTemplate,
-		game_actions : GameAction,
-		player_conditions : Collection
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+			players : Player,
+			wrappers : Wrapper,
+			passives : Wrapper,
+			player_templates : PlayerTemplate,
+			game_actions : GameAction,
+			player_conditions : Collection
+		};
+	}
 
 	constructor(data, parent){
 		super(data);
@@ -240,16 +242,12 @@ export default class Encounter extends Generic{
 	}
 
 	rebase(){
-		this.players = Player.loadThese(this.players, this);
-		this.wrappers = Wrapper.loadThese(this.wrappers, this);
-		this.passives = Wrapper.loadThese(this.passives, this);
-		this.player_templates = PlayerTemplate.loadThese(this.player_templates, this);
-		this.conditions = Condition.loadThese(this.conditions, this);
-		this.game_actions = GameAction.loadThese(this.game_actions, this);
-		this.player_conditions = Collection.loadThis(this.player_conditions, this);
+		this.g_rebase();	// Super
+		
 		for( let i in this.player_conditions ){
 			this.player_conditions[i] = Condition.loadThese(this.player_conditions[i], this);
 		}
+		
 	}
 
 	save( full ){

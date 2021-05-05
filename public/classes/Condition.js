@@ -14,9 +14,11 @@ import Action from './Action.js';
 
 export default class Condition extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+		};
+	}
 	
 	// Parent varies based on the object that created this
 	constructor( data, parent ){
@@ -87,9 +89,8 @@ export default class Condition extends Generic{
 	}
 
 	rebase(){
-		// Load subs
-		this.conditions = Condition.loadThese(this.conditions, this);
-
+		this.g_rebase();	// Super
+		
 		if( this.min === -1 )
 			this.min = Infinity;
 		if( this.max === -1 )

@@ -10,11 +10,13 @@ import Action from './Action.js';
 
 class Quest extends Generic{
 
-	static RELATIONS = {
-		objectives : QuestObjective,
-		rewards : QuestReward,
-		completion_objectives : QuestObjective,
-	};
+	static getRelations(){ 
+		return {
+			objectives : QuestObjective,
+			rewards : QuestReward,
+			completion_objectives : QuestObjective,
+		};
+	}
 
 	constructor(data){
 		super();
@@ -63,9 +65,7 @@ class Quest extends Generic{
 	}
 
 	rebase(){
-		this.objectives = QuestObjective.loadThese(this.objectives, this);
-		this.rewards = QuestReward.loadThese(this.rewards, this);
-		this.completion_objectives = QuestObjective.loadThese(this.completion_objectives, this);
+		this.g_rebase();	// Super
 	}
 
 	addObjective( objective, isCompletionObjective = false ){
@@ -343,9 +343,11 @@ Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
 
 class QuestReward extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+		};
+	}
 
 	constructor(data){
 		super();
@@ -382,8 +384,7 @@ class QuestReward extends Generic{
 	}
 
 	rebase(){
-		
-		this.conditions = Condition.loadThese(this.conditions);
+		this.g_rebase();	// Super
 
 		// Cast into object. This is needed for online multiplayer.
 		if( this.type === QuestReward.Types.Asset )
@@ -437,10 +438,12 @@ QuestReward.TypeDescs = {
 
 class QuestObjective extends Generic{
 
-	static RELATIONS = {
-		events : QuestObjectiveEvent,
-		visbility_conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			events : QuestObjectiveEvent,
+			visbility_conditions : Condition,
+		};
+	}
 
 	constructor(data, parent){
 		super();
@@ -504,8 +507,7 @@ class QuestObjective extends Generic{
 	}
 
 	rebase(){
-		this.events = QuestObjectiveEvent.loadThese(this.events, this);
-		this.visibility_conditions = Condition.loadThese(this.visibility_conditions, this);
+		this.g_rebase();	// Super
 	}
 
 	onEvent( event ){
@@ -562,9 +564,11 @@ QuestObjective.buildDungeonExitObjective = function( quest, dungeon ){
 
 class QuestObjectiveEvent extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+		};
+	}
 	
 	constructor(data, parent){
 		super(data);
@@ -598,7 +602,7 @@ class QuestObjectiveEvent extends Generic{
 		this.g_autoload(data);
 	}
 	rebase(){
-		this.conditions = Condition.loadThese(this.conditions, this);
+		this.g_rebase();	// Super
 	}
 
 	getQuest(){

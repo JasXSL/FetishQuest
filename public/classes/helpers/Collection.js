@@ -57,7 +57,9 @@ export default class Collection{
 
 	}
 
-	rebase(){}	// Not used, but still needed to work as Generic
+	rebase(){
+		this.g_rebase();	// Super
+	}	// Not used, but still needed to work as Generic
 
 	keys(){
 		

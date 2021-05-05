@@ -12,6 +12,12 @@ import Game from '../Game.js';
 
 class PlayerTemplate extends Generic{
 
+	static getRelations(){ 
+		return {
+			random_loot : PlayerTemplateLoot
+		};
+	}
+
 	constructor(...args){
 		super(...args);
 		this.label = '';
@@ -109,7 +115,7 @@ class PlayerTemplate extends Generic{
 	}
 
 	rebase(){
-		this.random_loot = PlayerTemplateLoot.loadThese(this.random_loot, this);
+		this.g_rebase();	// Super
 	}
 
 	// Generates a new player from this template
@@ -416,6 +422,7 @@ export class PlayerTemplateLoot extends Generic{
 	}
 
 	rebase(){
+		this.g_rebase();
 	}
 
 }

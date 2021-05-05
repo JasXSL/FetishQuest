@@ -100,11 +100,13 @@ const A_EXCEPTIONS = {
 
 class Text extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-		chatPlayerConditions : Condition,
-		hitfx : HitFX,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+			chatPlayerConditions : Condition,
+			hitfx : HitFX,
+		};
+	}
 
 	constructor(...args){
 		super(...args);
@@ -154,16 +156,14 @@ class Text extends Generic{
 	}
 
 	rebase(){
-
-		this.conditions = Condition.loadThese(this.conditions, this);
-		this.chatPlayerConditions = Condition.loadThese(this.chatPlayerConditions, this);
+		this.g_rebase();	// Super
+		
 		for( let sound of this.audiokits ){
 
 			if( !glib.audioKits[sound] )
 				console.error("AudioKit not found", sound, "in", this);
 
 		}
-		this.hitfx = HitFX.loadThese(this.hitfx);
 
 		for( let condition of this.conditions ){
 			

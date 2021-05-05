@@ -56,7 +56,7 @@ class AssetTemplate extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
-		
+		this.g_rebase();	// Super
 	}
 
 	// Returns objects of materials
@@ -192,6 +192,7 @@ class AssetOutput extends Generic{
 	}
 	// Automatically invoked after g_autoload
 	rebase(){
+		this.g_rebase();	// Super
 	}
 	
 }

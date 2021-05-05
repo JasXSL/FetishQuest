@@ -386,6 +386,7 @@ export default class Game extends Generic{
 
 	// Automatically invoked after g_autoload() in load()
 	rebase(){
+		this.g_rebase();	// Super
 
 		// States need priority in the load order
 		

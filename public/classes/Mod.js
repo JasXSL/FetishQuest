@@ -79,6 +79,8 @@ export default class Mod extends Generic{
 	}
 
 	rebase(){
+		this.g_rebase();	// Super
+		
 		if( !Object.values(Mod.Category).includes(this.category))
 			this.category = Mod.Category.Unsorted;
 	}

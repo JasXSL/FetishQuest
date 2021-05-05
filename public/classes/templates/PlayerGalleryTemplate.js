@@ -4,6 +4,12 @@ import Generic from '../helpers/Generic.js';
 
 export default class PlayerGalleryTemplate extends Generic{
 
+	static getRelations(){ 
+		return {
+			player : Player
+		};
+	}
+
 	constructor(...args){
 		super(...args);
 		this.label = '';
@@ -23,7 +29,7 @@ export default class PlayerGalleryTemplate extends Generic{
 	}
 
 	rebase(){
-		this.player = Player.loadThis(this.player)
+		this.g_rebase();	// Super
 	}
 
 

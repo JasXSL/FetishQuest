@@ -37,7 +37,7 @@ export default class Faction extends Generic{
 	}
 
 	rebase(){
-		
+		this.g_rebase();	// Super
 	}
 
 }

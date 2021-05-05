@@ -31,11 +31,13 @@ const interact_cooldowns = {};	// id:true etc
 
 class Dungeon extends Generic{
 
-	static RELATIONS = {
-		rooms : DungeonRoom,
-		consumables : Asset,
-		vars : Collection
-	};
+	static getRelations(){ 
+		return {
+			rooms : DungeonRoom,
+			consumables : Asset,
+			vars : Collection
+		};
+	}
 
 	constructor(data, parent){
 		super(data);
@@ -81,9 +83,7 @@ class Dungeon extends Generic{
 	}
 
 	rebase(){
-		this.rooms = DungeonRoom.loadThese(this.rooms, this);
-		this.consumables = Asset.loadThese(this.consumables, this);
-		this.vars = Collection.loadThis(this.vars);
+		this.g_rebase();	// Super
 	}
 
 	save( full ){
@@ -489,6 +489,8 @@ class DungeonSaveState extends Generic{
 	}
 
 	rebase(){
+		this.g_rebase();	// Super
+
 		this.vars = new Collection(this.vars, this);
 		this.rooms = new Collection(this.rooms, this);
 		for( let r in this.rooms ){
@@ -543,11 +545,13 @@ class DungeonSaveState extends Generic{
 */
 class DungeonRoom extends Generic{
 
-	static RELATIONS = {
-		assets : DungeonRoomAsset,
-		encounters : Encounter,
-		playerMarkers : DungeonRoomMarker
-	};
+	static getRelations(){ 
+		return {
+			assets : DungeonRoomAsset,
+			encounters : Encounter,
+			playerMarkers : DungeonRoomMarker
+		};
+	}
 
 	constructor(data, parent){
 		super(data);
@@ -629,7 +633,11 @@ class DungeonRoom extends Generic{
 
 
 	load(data){
+
+		if( data && !data.encounters )
+			data.encounters = [];
 		this.g_autoload(data);
+
 	}
 
 	loadFromTemplate( template ){
@@ -701,13 +709,7 @@ class DungeonRoom extends Generic{
 	}
 
 	rebase(){
-
-		this.assets = DungeonRoomAsset.loadThese(this.assets, this);
-		if( !this.encounters )
-			this.encounters = [];
-		this.encounters = Array.isArray(this.encounters) ? Encounter.loadThese(this.encounters, this) : new Encounter(this.encounters, this);
-		this.playerMarkers = DungeonRoomMarker.loadThese( this.playerMarkers, this );
-
+		this.g_rebase();	// Super
 	}
 
 	resetRoleplays(){
@@ -1211,6 +1213,7 @@ class DungeonRoomSaveState extends Generic{
 	}
 
 	rebase(){
+		this.g_rebase();	// Super
 		
 		this.assets = Collection.loadThis(this.assets, this);
 		for( let i in this.assets )
@@ -1264,7 +1267,9 @@ export class DungeonRoomMarker extends Generic{
 		this.g_autoload(data);
 	}
 
-	rebase(){}
+	rebase(){
+		this.g_rebase();	// Super
+	}
 
 
 };
@@ -1286,10 +1291,12 @@ export class DungeonRoomMarker extends Generic{
 */
 class DungeonRoomAsset extends Generic{
 
-	static RELATIONS = {
-		interactions : GameAction,
-		conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			interactions : GameAction,
+			conditions : Condition,
+		};
+	}
 
 	constructor( data, parentObj ){
 		super(data);
@@ -1408,8 +1415,7 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	rebase(){
-		this.interactions = GameAction.loadThese(this.interactions, this);
-		this.conditions = Condition.loadThese(this.conditions, this);
+		this.g_rebase();	// Super
 	}
 
 
@@ -1937,6 +1943,8 @@ class DungeonRoomAssetSaveState extends Generic{
 	}
 
 	rebase(){
+		this.g_rebase();	// Super
+		
 		this.interactions = GameAction.loadThese(this.interactions, this);
 	}
 

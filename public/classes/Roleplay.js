@@ -6,10 +6,12 @@ import Game from './Game.js';
 import Text from './Text.js';
 export default class Roleplay extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-		stages : RoleplayStage,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+			stages : RoleplayStage,
+		};
+	}
 
 	constructor(data, parent){
 		super(data);
@@ -88,10 +90,8 @@ export default class Roleplay extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+		this.g_rebase();	// Super
 		
-		this.stages = RoleplayStage.loadThese(this.stages, this);
-		this.conditions = Condition.loadThese(this.conditions, this);
-
 		if( this.once && !this.label )
 			console.error("ONCE roleplay doesn't have a label", this);
 
@@ -275,11 +275,13 @@ RoleplayChatQueue.next = function(){
 
 export class RoleplayStage extends Generic{
 
-	static RELATIONS = {
-		text : Text,
-		options : RoleplayStageOption,
-		game_actions : GameAction,
-	};
+	static getRelations(){ 
+		return {
+			text : Text,
+			options : RoleplayStageOption,
+			game_actions : GameAction,
+		};
+	}
 
 	constructor(data, parent){
 		super(data);
@@ -347,12 +349,10 @@ export class RoleplayStage extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+		this.g_rebase();	// Super
 
 		if( !this.id )
 			this.id = Generic.generateUUID();
-		this.text = Text.loadThese(this.text, this);
-		this.options = RoleplayStageOption.loadThese(this.options, this);
-		this.game_actions = GameAction.loadThese(this.game_actions, this);
 		
 	}
 
@@ -506,11 +506,13 @@ export class RoleplayStage extends Generic{
 
 export class RoleplayStageOption extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-		game_actions : GameAction,
-		index : RoleplayStageOptionGoto
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+			game_actions : GameAction,
+			index : RoleplayStageOptionGoto
+		};
+	}
 
 	constructor(data, parent){
 		super(data);
@@ -534,12 +536,10 @@ export class RoleplayStageOption extends Generic{
 	}
 	// Automatically invoked after g_autoload
 	rebase(){
-		
+		this.g_rebase();	// Super
+
 		if( !this.id )
 			this.id = Generic.generateUUID();
-		this.conditions = Condition.loadThese(this.conditions, this);
-		this.game_actions = GameAction.loadThese(this.game_actions, this);
-		this.index = RoleplayStageOptionGoto.loadThese(this.index, this);
 
 	}
 
@@ -650,9 +650,11 @@ RoleplayStageOption.ChatType = {
 
 export class RoleplayStageOptionGoto extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+		};
+	}
 
 	constructor(data, parent){
 		super(data);
@@ -673,10 +675,10 @@ export class RoleplayStageOptionGoto extends Generic{
 	}
 	// Automatically invoked after g_autoload
 	rebase(){
+		this.g_rebase();	// Super
 		
 		if( !this.id )
 			this.id = Generic.generateUUID();
-		this.conditions = Condition.loadThese(this.conditions, this);
 		
 	}
 

@@ -10,10 +10,12 @@ import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 
 export default class Shop extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-		items : ShopAsset,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+			items : ShopAsset,
+		};
+	}
 
 	constructor(data, parent){
 		super();
@@ -71,8 +73,7 @@ export default class Shop extends Generic{
 	}
 
 	rebase(){
-		this.items = ShopAsset.loadThese(this.items, this);
-		this.conditions = Condition.loadThese(this.conditions, this);
+		this.g_rebase();	// Super
 		this._generated_assets = ShopAsset.loadThese(this._generated_assets, this);
 	}
 
@@ -261,6 +262,7 @@ export class ShopSaveState extends Generic{
 	}
 
 	rebase(){
+		this.g_rebase();	// Super
 		this.items = ShopAssetSaveState.loadThese(this.items, this);
 		this.generated_assets = ShopAsset.loadThese(this.generated_assets, this);
 	}
@@ -268,11 +270,13 @@ export class ShopSaveState extends Generic{
 
 export class ShopAsset extends Generic{
 
-	static RELATIONS = {
-		conditions : Condition,
-		asset : Asset,
-		tokens : ShopAssetToken,
-	};
+	static getRelations(){ 
+		return {
+			conditions : Condition,
+			asset : Asset,
+			tokens : ShopAssetToken,
+		};
+	}
 
 	constructor(data, parent){
 		super();
@@ -324,9 +328,7 @@ export class ShopAsset extends Generic{
 	}
 
 	rebase(){
-		this.conditions = Condition.loadThese(this.conditions);
-		this.asset = Asset.loadThis(this.asset, this);
-		this.tokens = ShopAssetToken.loadThese(this.tokens, this);
+		this.g_rebase();	// Super
 	}
 
 	getCost(){
@@ -420,9 +422,11 @@ export class ShopAsset extends Generic{
 
 export class ShopAssetToken extends Generic{
 
-	static RELATIONS = {
-		asset : Asset,
-	};
+	static getRelations(){ 
+		return {
+			asset : Asset,
+		};
+	}
 
 	constructor(data, parent){
 		super();
@@ -441,9 +445,7 @@ export class ShopAssetToken extends Generic{
 	}
 
 	rebase(){
-
-		this.asset = Asset.loadThis(this.asset, this);
-
+		this.g_rebase();	// Super
 	}
 
 	save( full ){
@@ -494,7 +496,9 @@ class ShopAssetSaveState extends Generic{
 		this.g_autoload(data);
 	}
 
-	rebase(){}
+	rebase(){
+		this.g_rebase();	// Super
+	}
 
 
 }

@@ -10,12 +10,14 @@ import Calculator from './Calculator.js';
 class Action extends Generic{
 
 	// Map the relational asset types
-	static RELATIONS = {
-		wrappers : Wrapper,
-		riposte : Wrapper,
-		conditions : Condition,
-		show_conditions : Condition,
-	};
+	static getRelations(){ 
+		return {
+			wrappers : Wrapper,
+			riposte : Wrapper,
+			conditions : Condition,
+			show_conditions : Condition,
+		};
+	}
 	
 	/* Loading & Saving */
 	constructor(data, parent){
@@ -149,11 +151,7 @@ class Action extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
-		this.wrappers = Wrapper.loadThese(this.wrappers, this);
-		this.riposte = Wrapper.loadThese(this.riposte, this);
-		this.show_conditions = Condition.loadThese(this.show_conditions, this);
-		this.conditions = Condition.loadThese(this.conditions, this);
-
+		this.g_rebase();	// Super
 
 		if( typeof this.cooldown !== "string" && isNaN(parseInt(this.cooldown)) )
 			this.cooldown = 0;

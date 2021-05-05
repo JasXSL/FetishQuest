@@ -3,6 +3,12 @@ import libParticles from '../libraries/particles.js';
 import * as THREE from '../ext/THREE.js'; 
 import Player from './Player.js';
 export default class HitFX extends Generic{
+
+	static getRelations(){ 
+		return {
+			stages : Stage,
+		};
+	}
 	
 	constructor(data, parent){
 		super(data);
@@ -39,7 +45,7 @@ export default class HitFX extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
-		this.stages = Stage.loadThese(this.stages, this);
+		this.g_rebase();	// Super
 	}
 
 	// See Stage.run for args
@@ -96,6 +102,7 @@ class Stage extends Generic{
 	}
 
 	rebase(){
+		this.g_rebase();	// Super
 		this.sound_kits = this.sound_kits.slice();
 		this.start_offs = new THREE.Vector3(this.start_offs.x || 0,this.start_offs.y || 0 ,this.start_offs.z||0);
 		this.end_offs = new THREE.Vector3(this.end_offs.x||0,this.end_offs.y||0,this.end_offs.z||0);

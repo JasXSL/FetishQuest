@@ -7,7 +7,6 @@ import AssetTemplate from './templates/AssetTemplate.js';
 import Player from './Player.js';
 import Game from './Game.js';
 import stdTag from '../libraries/stdTag.js';
-import Collection from './helpers/Collection.js';
 
 export default class Asset extends Generic{
 	
@@ -29,11 +28,13 @@ export default class Asset extends Generic{
 	};
 
 	// Map the relational asset types
-	static RELATIONS = {
-		equip_conditions : Condition,
-		wrappers : Wrapper,
-		use_action : Action,
-	};
+	static getRelations(){ 
+		return {
+			equip_conditions : Condition,
+			wrappers : Wrapper,
+			use_action : Action,
+		};
+	}
 
 	constructor(data, parent){
 		super(data);
@@ -150,11 +151,11 @@ export default class Asset extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
-		this.wrappers = Wrapper.loadThese(this.wrappers, this);
-		this.equip_conditions = Condition.loadThese(this.equip_conditions, this);
-		this.use_action = Action.loadThis(this.use_action, this);
+		this.g_rebase();	// Super
+		
 		if( this._charges === -1 )
 			this._charges = this.charges;
+			
 	}
 
 	clone(parent){
