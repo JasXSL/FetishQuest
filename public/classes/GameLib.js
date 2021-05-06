@@ -1,68 +1,6 @@
 import Text from './Text.js';
-import Condition from './Condition.js';
-import { Effect, Wrapper } from './EffectSys.js';
-import PlayerClass from './PlayerClass.js';
-import Action from './Action.js';
-import Asset from './Asset.js';
-import Dungeon, { DungeonRoom, DungeonRoomAsset } from './Dungeon.js';
-import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from './Quest.js';
-import PlayerTemplate, { PlayerTemplateLoot } from './templates/PlayerTemplate.js';
-import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
-import DungeonTemplate, { DungeonTemplateSub } from './templates/DungeonTemplate.js';
-import { AudioKit } from './Audio.js';
 import Mod from './Mod.js';
-import Player from './Player.js';
-import HitFX from './HitFX.js';
-import Roleplay, { RoleplayStage, RoleplayStageOption, RoleplayStageOptionGoto } from './Roleplay.js';
-import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
-import Shop, { ShopAsset, ShopAssetToken } from './Shop.js';
-import ActionLearnable from './ActionLearnable.js';
-import Faction from './Faction.js';
-import Encounter from './Encounter.js';
-import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
-
-
-const LIB_TYPES = {
-	'conditions' : Condition,
-	'effects' : Effect,
-	'wrappers' : Wrapper,
-	'playerClasses' : PlayerClass,
-	'actions' : Action,
-	'assets' : Asset,
-	'shopAssetTokens' : ShopAssetToken, 
-	'shopAssets' : ShopAsset,
-	'shops' : Shop,
-	'players' : Player,
-
-	'dungeons' : Dungeon,
-	'dungeonRooms' : DungeonRoom,
-	'dungeonRoomAssets' : DungeonRoomAsset,
-	'quests' : Quest,
-	'questRewards' : QuestReward,	// Note that this was renamed to questRewards from questReward, not sure if this causes issues
-	'questObjectives' : QuestObjective,
-	'questObjectiveEvents' : QuestObjectiveEvent,
-
-	'playerTemplates' : PlayerTemplate,
-	'playerTemplateLoot' : PlayerTemplateLoot,
-	'materialTemplates' : MaterialTemplate,
-	'assetTemplates' : AssetTemplate,
-	'actionLearnable' : ActionLearnable,
-	'factions' : Faction,
-	'audioKits' : AudioKit,
-	'hitFX' : HitFX,
-	'dungeonTemplates' : DungeonTemplate,
-	'dungeonSubTemplates' : DungeonTemplateSub,
-
-	'encounters' : Encounter,
-	'roleplay' : Roleplay,
-	'roleplayStage' : RoleplayStage,
-	'roleplayStageOption' : RoleplayStageOption,
-	'roleplayStageOptionGoto' : RoleplayStageOptionGoto,
-	'gameActions' : GameAction,
-	'texts' : Text,
-	'gallery' : PlayerGalleryTemplate,
-};
 
 // Maps lib_types to caches used only in outputs
 const CACHE_MAP = {
@@ -166,7 +104,7 @@ export default class GameLib{
 
 	async loadMainMod(){
 
-		this._main_mod = await this.constructor.getMainMod();
+		this._main_mod = await Mod.getMainMod();
 
 	}
 
@@ -251,7 +189,7 @@ export default class GameLib{
 				
 				if( Array.isArray(mod[k]) ){
 
-					this.loadModOnto(mod[k], this[k], LIB_TYPES[k], Mod.UseID.includes(k));
+					this.loadModOnto(mod[k], this[k], Mod.LIB_TYPES[k], Mod.UseID.includes(k));
 
 				}
 
@@ -416,9 +354,9 @@ export default class GameLib{
 
 	getFull( cName ){
 
-		for( let i in LIB_TYPES ){
+		for( let i in Mod.LIB_TYPES ){
 
-			if( cName === LIB_TYPES[i].name ){
+			if( cName === Mod.LIB_TYPES[i].name ){
 
 				if( CACHE_MAP[i] )
 					return this[CACHE_MAP[i]];
@@ -432,19 +370,6 @@ export default class GameLib{
 
 	}
 
-
-	static async getMainMod(){
-
-		// Load the main mod
-		let data = await JSZipUtils.getBinaryContent('./libraries/MAIN.fqmod');
-		data = await JSZip.loadAsync(data);
-
-		const file = data.files['mod.json'];
-		if( !file )
-			throw 'Missing main mod file';
-		
-		return new Mod(JSON.parse(await file.async("text")));
-
-	}
+	
 
 }

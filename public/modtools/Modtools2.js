@@ -1,10 +1,13 @@
 const TOOL_VERSION = 2;	// Version of the exporter
 
+// Mod is needed first
+import Mod from '../classes/Mod.js';
+
 import Window from './WindowManager.js';
-import {default as WebGL, Stage} from '../classes/WebGL.js';
+import {default as WebGL} from '../classes/WebGL.js';
 import * as THREE from '../ext/THREE.js';
 import {TransformControls} from '../ext/TransformControls.js';
-import Mod from '../classes/Mod.js';
+
 
 
 import * as EditorText from './editors/EditorText.js';
@@ -42,7 +45,6 @@ import * as EditorDungeonTemplate from './editors/EditorDungeonTemplate.js';
 import * as EditorDungeonSubTemplate from './editors/EditorDungeonSubTemplate.js';
 import * as EditorGallery from './editors/EditorGallery.js';
 import Generic from '../classes/helpers/Generic.js';
-import GameLib from '../classes/GameLib.js';
 import ModRepo from '../classes/ModRepo.js';
 
 
@@ -807,7 +809,7 @@ export default class Modtools{
 			}
 
 			const parentMods = [
-				main ? main : await GameLib.getMainMod()
+				main ? main : await Mod.getMainMod()
 			];
 
 			for( let mod of parentMods ){
@@ -1464,6 +1466,7 @@ export default class Modtools{
 
 	
 
+	
 
 
 }

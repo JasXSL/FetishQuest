@@ -926,7 +926,7 @@ class DungeonRoom extends Generic{
 
 	getDirLight(){
 		
-		if( this.dirLight )
+		if( this.dirLight || !this.parent )
 			return this.dirLight;
 
 		return this.parent.dirLight;

@@ -796,6 +796,7 @@ class Editor{
 		let ids = this.room.assets.map(el => {
 
 			let data = DungeonRoomAsset.saveThis(el, 'mod');
+			data._h = 1;	// Marks as unique. Needed for cloning parents.
 
 			// Insert new
 			if( !el.id ){

@@ -1,6 +1,26 @@
 import Comparer from './Comparer.js';
 import GameAction from './GameAction.js';
 import Generic from './helpers/Generic.js';
+import Text from './Text.js';
+import { Effect, Wrapper } from './EffectSys.js';
+import PlayerClass from './PlayerClass.js';
+import Action from './Action.js';
+import Asset from './Asset.js';
+import Dungeon, { DungeonRoom, DungeonRoomAsset } from './Dungeon.js';
+import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from './Quest.js';
+import PlayerTemplate, { PlayerTemplateLoot } from './templates/PlayerTemplate.js';
+import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
+import DungeonTemplate, { DungeonTemplateSub } from './templates/DungeonTemplate.js';
+import { AudioKit } from './Audio.js';
+import Player from './Player.js';
+import HitFX from './HitFX.js';
+import Roleplay, { RoleplayStage, RoleplayStageOption, RoleplayStageOptionGoto } from './Roleplay.js';
+import Shop, { ShopAsset, ShopAssetToken } from './Shop.js';
+import ActionLearnable from './ActionLearnable.js';
+import Faction from './Faction.js';
+import Encounter from './Encounter.js';
+import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
+import Condition from './Condition.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -11,6 +31,9 @@ import Generic from './helpers/Generic.js';
 	_ext : true -> Already extended (not saved)
 	_h : hidden from main list
 */
+
+
+
 
 export default class Mod extends Generic{
 
@@ -673,6 +696,95 @@ export default class Mod extends Generic{
 
 	}
 
+	// Deep clones an asset object and inserts. Returns the new asset
+	deepCloneAsset( table, constructor, asset, isSub = false ){
+
+		const 
+			obj = new constructor(asset),
+			useID = Mod.UseID.includes(table)
+		;
+
+		if( useID )
+			obj.id = Generic.generateUUID();
+		else{
+			if( isSub )
+				obj.label = Generic.generateUUID();	// Not graceful, but otherwise making clone of a clone of a clone... will create MASSIVE labels
+			else 
+				obj.label += '_'+Generic.generateUUID();
+		}
+
+		const out = obj.constructor.saveThis(obj, "mod");
+		let tag = out.label;
+		if( useID ){
+			tag = out.id;
+			delete out.label;
+		}
+		else
+			delete out.id;
+
+		
+		if( constructor.getRelations ){
+
+			const rel = constructor.getRelations();
+			for( let i in rel ){
+				
+				if( !out[i] )
+					continue;
+
+				const subConstructor = rel[i];
+				const subTable = Mod.getTableNameByConstructor(subConstructor);
+				const single = !Array.isArray(out[i]);
+				let arr = out[i];
+				if( single )
+					arr = [arr];
+
+				//console.log("Searching", arr, "in", subTable);
+
+				for( let index in arr ){
+
+					const subLabel = arr[index];
+					// Legacy
+					if( typeof subLabel === "object" ){
+						
+						arr[index] = JSON.parse(JSON.stringify(subLabel));
+						continue;
+
+					}
+
+					// Get existing
+					let sub = this.getAssetById(subTable, subLabel);
+					//console.log("Found", sub);
+					if( !sub )
+						continue;
+
+					// Deep clone only if the asset is parented
+					if( sub._h || sub._mParent ){
+
+						//console.log("Cloning", sub, "into", subTable);
+						const created = this.deepCloneAsset(subTable, subConstructor, sub, true);
+
+						if( sub._mParent )
+							created._mParent = {
+								type: table,
+								label: tag
+							};
+
+						arr[index] = created.label || created.id;
+
+					}
+
+				}
+				
+			}
+
+		}
+
+		console.log("Created", out, "In", table);
+		this.mergeAsset(table, out);
+		return out;
+
+
+	}
 
 
 	// Un-nests legacy nested assets
@@ -1174,7 +1286,75 @@ export default class Mod extends Generic{
 
 	}
 
+	static getTableNameByConstructor( constructor ){
+
+		for( let i in this.LIB_TYPES ){
+
+			if( constructor === this.LIB_TYPES[i] )
+				return i;
+				
+		}
+
+	}
+
+	static async getMainMod(){
+
+		// Load the main mod
+		let data = await JSZipUtils.getBinaryContent('./libraries/MAIN.fqmod');
+		data = await JSZip.loadAsync(data);
+
+		const file = data.files['mod.json'];
+		if( !file )
+			throw 'Missing main mod file';
+		
+		return new this(JSON.parse(await file.async("text")));
+
+	}
+
 }
+
+// Stores the constructors bound to the different fields
+Mod.LIB_TYPES = {
+	'conditions' : Condition,
+	'effects' : Effect,
+	'wrappers' : Wrapper,
+	'playerClasses' : PlayerClass,
+	'actions' : Action,
+	'assets' : Asset,
+	'shopAssetTokens' : ShopAssetToken, 
+	'shopAssets' : ShopAsset,
+	'shops' : Shop,
+	'players' : Player,
+
+	'dungeons' : Dungeon,
+	'dungeonRooms' : DungeonRoom,
+	'dungeonRoomAssets' : DungeonRoomAsset,
+	'quests' : Quest,
+	'questRewards' : QuestReward,	// Note that this was renamed to questRewards from questReward, not sure if this causes issues
+	'questObjectives' : QuestObjective,
+	'questObjectiveEvents' : QuestObjectiveEvent,
+
+	'playerTemplates' : PlayerTemplate,
+	'playerTemplateLoot' : PlayerTemplateLoot,
+	'materialTemplates' : MaterialTemplate,
+	'assetTemplates' : AssetTemplate,
+	'actionLearnable' : ActionLearnable,
+	'factions' : Faction,
+	'audioKits' : AudioKit,
+	'hitFX' : HitFX,
+	'dungeonTemplates' : DungeonTemplate,
+	'dungeonSubTemplates' : DungeonTemplateSub,
+
+	'encounters' : Encounter,
+	'roleplay' : Roleplay,
+	'roleplayStage' : RoleplayStage,
+	'roleplayStageOption' : RoleplayStageOption,
+	'roleplayStageOptionGoto' : RoleplayStageOptionGoto,
+	'gameActions' : GameAction,
+	'texts' : Text,
+	'gallery' : PlayerGalleryTemplate,
+};
+
 
 Mod.db = new Dexie("mod");
 Mod.db.version(1).stores({mods: 'id'});

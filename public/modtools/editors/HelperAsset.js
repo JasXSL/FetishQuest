@@ -2,8 +2,6 @@
 import Window from '../WindowManager.js';
 import Condition from '../../classes/Condition.js';
 import Generic from '../../classes/helpers/Generic.js';
-import AssetTemplate from '../../classes/templates/AssetTemplate.js';
-import Mod from '../../classes/Mod.js';
 
 export default{
 
@@ -1146,21 +1144,12 @@ export default{
 
 
 	// Takes an asset and tries to clone it, returns the cloned object
-	// Type: key in the mod, such as dungeonTemplate
+	// Type: table in the mod, such as dungeonTemplate
 	// Asset: Asset to clone such as a DungeonTemplate
 	insertCloneAsset( type, asset, constructor, parentWindow ){
 
-		// Todo: Auto check relational children
-
-		const obj = new constructor(asset);
-		if( obj.label )
-			obj.label += '_'+Generic.generateUUID();
-		if( obj.id )
-			obj.id = Generic.generateUUID();
-
-		const out = obj.constructor.saveThis(obj, "mod");
-		this.insertAsset(type, out, parentWindow, true);
-		
+		const out = mod.mod.deepCloneAsset(type, constructor, asset);
+		this.onInsertAsset(type, out, parentWindow, true);
 		return out;
 
 	},
@@ -1175,24 +1164,21 @@ export default{
 		windowData is custom data stored on the window. AVOID OBJECTS
 	*/
 	insertAsset( type, asset = {}, win, openEditor = true, windowData = '' ){
-		const DEV = window.mod, MOD = DEV.mod, isDirectSub = !MOD[type];	// isDirectSub is used for sub assets that don't have a DB, such as PlayerTemplateLoot
+		mod.mod[type].push(asset);
+		this.onInsertAsset(type, asset, win, openEditor, windowData);
+	},
 
-		if( !isDirectSub )
-			MOD[type].push(asset);
+	onInsertAsset( type, asset, win, openEditor = true, windowData = '' ){
 
 		if( win.editorOnCreate )
 			win.editorOnCreate(win, asset);
 
-		DEV.setDirty(true);
-		if( openEditor ){
+		mod.setDirty(true);
+		if( openEditor )
+			mod.buildAssetEditor(type, asset.label || asset.id, undefined, win, windowData);
 
-			DEV.buildAssetEditor(type, (isDirectSub ? asset : asset.label || asset.id), undefined, win, windowData);
-			
-
-		}
 		this.rebuildAssetLists(type);
 
-		
 	},
 
 	// Rebuilds all listings by type

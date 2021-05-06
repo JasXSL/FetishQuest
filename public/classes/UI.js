@@ -3,17 +3,11 @@ import GameEvent from "./GameEvent.js";
 import Action from './Action.js';
 import Game from './Game.js';
 import Asset from "./Asset.js";
-import {Wrapper, Effect} from './EffectSys.js';
 import NetworkManager from './NetworkManager.js';
-import PlayerTemplate from "./templates/PlayerTemplate.js";
-import stdTag from "../libraries/stdTag.js";
-import Mod from './Mod.js';
 import * as THREE from '../ext/THREE.js';
 import { DungeonRoomAsset } from "./Dungeon.js";
-import Shop from "./Shop.js";
 import StaticModal from "./StaticModal.js";
 import Modal from "./Modal.js";
-import {default as Quest, QuestReward} from './Quest.js';
 
 const NUM_ACTIONS = 18;	// Max nr actions the UI can draw
 
