@@ -201,18 +201,13 @@ export default class Encounter extends Generic{
 
 	}
 
+
 	// Whenever the encounter is placed in world, regardless of if it just started or not
 	// This is always triggered after the encounter starts, otherwise player effects won't work (since they need game.players populated)
 	// If just_started is true, it means the encounter just started
 	onPlacedInWorld( just_started = true ){
 
-		// Toggle hide/show of players
-		for( let i in this.player_conditions ){
-			const pl = this.getPlayerByLabel(i);
-			if( !pl )
-				continue;
-			pl.disabled = !Condition.all(this.player_conditions[i], new GameEvent({target:pl, sender:pl}));
-		}
+		
 
 		// Bind passives
 		for( let wrapper of this.passives )
@@ -244,6 +239,7 @@ export default class Encounter extends Generic{
 	rebase(){
 		this.g_rebase();	// Super
 		
+		this.player_conditions = Collection.loadThis(this.player_conditions);
 		for( let i in this.player_conditions ){
 			this.player_conditions[i] = Condition.loadThese(this.player_conditions[i], this);
 		}
@@ -268,7 +264,10 @@ export default class Encounter extends Generic{
 		out.friendly = this.friendly;
 		out.game_actions = GameAction.saveThese(this.game_actions, full);
 		out.passives = Wrapper.saveThese(this.passives, full);
-		out.player_conditions = this.player_conditions.save(full);
+
+		out.player_conditions = this.player_conditions;
+		if( this.player_conditions && this.player_conditions.save )
+			out.player_conditions = this.player_conditions.save(full);
 		
 		if( full !== "mod" ){
 			out.id = this.id;

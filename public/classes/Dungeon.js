@@ -2378,6 +2378,9 @@ Dungeon.generate = function( numRooms, kit, settings ){
 				
 				out.vars[dVar] = false;
 				let lever = levers.shift();	// Grab a lever
+
+				if( !lever )
+					console.error("Lever missing", levers, leverRoom);
 				lever.interactions.push(new GameAction({
 					type: GameAction.types.lever,
 					data : {id:dVar}

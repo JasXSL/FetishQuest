@@ -338,7 +338,7 @@ class DungeonLayoutEditor{
 			this.asset.rooms.splice(index, 1);
 
 		// Remove from database
-		window.mod.mod.deleteAsset('dungeonRooms', room.label);
+		window.mod.mod.deleteAsset('dungeonRooms', room.label, true);
 
 		if( rebuild )
 			this.setLevel(this.active_level);

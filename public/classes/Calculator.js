@@ -60,6 +60,7 @@ Calculator.run = function( formula, event, customMathVars ){
 					}
 				}
 			}
+			console.error("Failed to evaluate formula", formula, "vars", vars);
 			console.error(err);
 		}
 		break;

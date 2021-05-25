@@ -294,7 +294,7 @@ class Editor{
 				if( !obj )
 					return;
 
-				obj = obj.clone("mod", this.room);
+				obj = obj.clone(this.room, "mod");
 				delete obj.id;	// Forces it to insert a new entry when saving
 
 				if( Array.isArray(obj.interactions) ){
@@ -556,7 +556,7 @@ class Editor{
 			if( dungeonAsset === asset ){
 
 				// Remove from OUR db (both extending and original)
-				mod.mod.deleteAsset('dungeonRoomAssets', asset.id);
+				mod.mod.deleteAsset('dungeonRoomAssets', asset.id, true);
 
 				this.room.assets.splice(i, 1);
 				this.gl.stage.remove(mesh);

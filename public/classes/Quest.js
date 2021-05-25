@@ -441,7 +441,7 @@ class QuestObjective extends Generic{
 	static getRelations(){ 
 		return {
 			events : QuestObjectiveEvent,
-			visbility_conditions : Condition,
+			visibility_conditions : Condition,
 		};
 	}
 

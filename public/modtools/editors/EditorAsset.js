@@ -101,7 +101,7 @@ export function asset(){
 	this.dom.querySelector("div.equip_conditions").appendChild(EditorCondition.assetTable(this, asset, "equip_conditions"));
 
 	// wrappers
-	this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "wrappers"));
+	this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "wrappers", false, true));
 	
 	// loot sound
 	this.dom.querySelector("div.loot_sound").appendChild(EditorAudioKit.assetTable(this, asset, "loot_sound", true));

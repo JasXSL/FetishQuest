@@ -353,7 +353,7 @@ export function asset(){
 		html += '<div class="labelFlex">';
 			html += '<label title="If unset, tied to the event target">Target player label: <input type="text" name="data::player" class="saveable" value="'+esc(asset.data.player || '')+'" /></label>';
 			html += '<label title="Nr copies of the asset to give">Amount: <input type="number" min=1 step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 0)+'" /></label>';
-			html += '<label title="Outputs a chat message">Notify chat: <input type="checkbox" name="data::alert" class="saveable" '+( asset.alert ? 'checked' : '' )+' /></label>';
+			html += '<label title="Outputs a chat message">Notify chat: <input type="checkbox" name="data::alert" class="saveable" '+( asset.data.alert ? 'checked' : '' )+' /></label>';
 		html += '</div>';
 
 		fnBind = () => {
@@ -756,6 +756,7 @@ export function asset(){
 			'</label>';
 		html += '</div>';
 	}
+	else if( type === Types.refreshPlayerVisibility ){}	// No data
 
 	else{
 

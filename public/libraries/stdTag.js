@@ -135,6 +135,7 @@ export default {
 	asExposedUpperBack : 'as_exposed_upper_back',		// Majority of your upper back is exposed
 	asExposedLowerBack : 'as_exposed_lower_back',		// Majority of your lower back is exposed
 	asExposedStomach : 'as_exposed_stomach',		// The majority of your stomach is exposed
+	asHighRiding : 'as_high_riding',		// High riding things like the bodysuits or hip hugging bikini bottoms
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',

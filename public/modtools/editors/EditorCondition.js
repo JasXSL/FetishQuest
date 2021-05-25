@@ -24,6 +24,7 @@ import Asset from '../../classes/Asset.js';
 import GameEvent from '../../classes/GameEvent.js';
 import stdTag from '../../libraries/stdTag.js';
 import { Effect } from '../../classes/EffectSys.js';
+import Game from '../../classes/Game.js';
 
 const DB = 'conditions',
 	CONSTRUCTOR = Condition;
@@ -680,6 +681,29 @@ export function asset(){
 		fnBind = () => {
 			this.dom.querySelector("div.quest").appendChild(EditorQuest.assetTable(this, asset, "data::quest", false));
 		};
+
+	}
+	else if( type === types.isGenderEnabled ){
+		
+		setDefaultData({
+			genders : Game.Genders.Male,
+		});
+
+		html += '<div class="labelFlex">';
+		for( let gender in Game.Genders ){
+			const g = Game.Genders[gender];
+			html += '<label>'+gender+': <input type="checkbox" value='+g+' name="data::genders" class="saveable bitwise" '+(asset.data.genders & g ? 'checked' : '')+' /></label>';
+		}
+		html += '</div>';
+
+	}
+	else if( type === types.targetGenderEnabled ){
+		
+		setDefaultData({
+		});
+
+		html += '<div class="labelFlex">';
+		html += '</div>';
 
 	}
 	//else if( type === types.questIs ){} JSON only

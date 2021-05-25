@@ -183,7 +183,6 @@ export default class GameLib{
 		console.log("Loading in ", mods.length, "mods");
 
 		for( let mod of mods ){
-
 			
 			for( let k of load_order ){
 				
@@ -210,6 +209,9 @@ export default class GameLib{
 
 					}
 					const t = new Text(text);
+					if( text._h )
+						t.en = false;		// Hidden texts (hooked up to an object such as an RP stage) should always be disabled by default
+
 					let label = t.label || t.id;	// Labels can be used. These are only used when a text is used as a custom sub object, such as in a roleplay
 					this.texts[label] = t;
 

@@ -366,8 +366,8 @@ export default class Window{
 
 		const name = this.name, type = this.type, id = this.id;
 		this.title.querySelector("span.title").innerHTML = (name ? 
-			esc(type) + ' &gt; ' + esc(name) +' ('+esc(id)+')' :
-			esc(type) + ' &gt; ' + esc(id)
+			esc(type, true) + ' &gt; ' + esc(name.split('\n').join(' '), true) +' ('+esc(id, true)+')' :
+			esc(type, true) + ' &gt; ' + esc(id, true)
 		);
 
 	}

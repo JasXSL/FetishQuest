@@ -34,7 +34,7 @@ export function asset(){
 
 	let html = '';
 
-	html += 'Text:<br /><input type="text" class="large saveable" value="'+esc(dummy.text)+'" name="text" /><br />';
+	html += 'Text:<br /><textarea class="large saveable" name="text">'+esc(dummy.text, true)+'</textarea><br />';
 	html += '<span class="textPreview"></span><br /><br />';
 
 	if( !asset._mParent )
@@ -156,7 +156,7 @@ export function asset(){
 
 	// Text display
 	// Updates the display underneath the text where you can see a real world example
-	const textEditor = this.dom.querySelector("input[name=text]");
+	const textEditor = this.dom.querySelector("textarea[name=text]");
 	const updateTextDisplay = () => {
 
 		const attacker = new Player({

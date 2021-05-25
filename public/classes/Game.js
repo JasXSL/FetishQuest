@@ -514,7 +514,14 @@ export default class Game extends Generic{
 
 
 
+	// Config
+	isGenderEnabled( genders ){
 
+		if( !this.genders )
+			return true;
+		return (this.genders&genders) === genders;
+
+	}
 
 
 
@@ -1908,7 +1915,20 @@ export default class Game extends Generic{
 
 	}	
 	
-	
+	updatePlayerVisbility(){
+		
+		const conds = this.encounter.player_conditions;
+		// Toggle hide/show of players
+		for( let i in conds ){
+
+			const pl = this.getPlayerByLabel(i);
+			if( !pl )
+				continue;
+			pl.disabled = !Condition.all(conds[i], new GameEvent({target:pl, sender:pl}));
+
+		}
+
+	}
 
 
 
@@ -2016,6 +2036,8 @@ export default class Game extends Generic{
 
 		
 		encounter.onPlacedInWorld( !started );	// This has to go after, since players need to be put in world for effects and conditions to work
+
+		this.updatePlayerVisbility();
 
 		if( !encounter.friendly && !completed )
 			this.toggleBattle(true);
@@ -2405,6 +2427,10 @@ export default class Game extends Generic{
 			game.net.playerRoleplay( game.getMyActivePlayer(), rp );
 			return;
 		}
+
+		if( typeof rp === "string" )
+			rp = glib.get(rp, 'Roleplay');
+		
 		this.roleplay = rp.clone(this);
 		this.roleplay.stage = 0;
 		this.roleplay.onStart();

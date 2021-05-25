@@ -31,8 +31,19 @@ export default{
 
 				let val = targ.value.trim();
 
+				if( targ.classList.contains('bitwise') ){
+
+					let v = 0;
+					const all = [...dom.querySelectorAll('input[name="'+name+'"]')];
+					for( let sub of all ){
+						if( sub.checked && parseInt(sub.value) )
+							v = v|parseInt(sub.value);
+					}
+					val = v;
+
+				}
 				// Try to auto typecast
-				if( targ.dataset.type === 'smart' ){
+				else if( targ.dataset.type === 'smart' ){
 
 					if( val.toLowerCase() === 'true' )
 						val = true;
@@ -58,6 +69,8 @@ export default{
 						val = Boolean(targ.checked);
 
 				}
+
+				
 
 
 				let path = name.split('::');
@@ -431,7 +444,7 @@ export default{
 
 			// Ctrl deletes
 			if( event.ctrlKey ){
-				
+
 				// Remove an extension (should only be needed in the main one, not the linker)
 				/*
 				if( event.currentTarget.dataset.ext ){
@@ -449,7 +462,7 @@ export default{
 				// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
 				// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
 				if( parented && mod.mod[targetLibrary] )
-					MOD.deleteAsset(targetLibrary, entry);
+					MOD.deleteAsset(targetLibrary, entry, true);
 
 				//}
 
@@ -504,7 +517,7 @@ export default{
 		const onArrowClick = event => {
 
 			const up = event.currentTarget.classList.contains("up"),
-				index = event.currentTarget.parentNode.parentNode.dataset.index
+				index = parseInt(event.currentTarget.parentNode.parentNode.dataset.index)
 			;
 			
 			if( up ){
@@ -514,9 +527,11 @@ export default{
 			}
 				
 			else{
+
 				let pre = entries[key][index+1];
 				entries[key][index+1] = entries[key][index];
 				entries[key][index] = pre;
+
 			}
 
 			win.rebuild();

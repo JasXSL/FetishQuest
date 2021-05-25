@@ -20,6 +20,11 @@
 	- Make rebase automatic using static RELATIONS
 
 
+	Tailor quest:
+		- Add more outfit pieces
+		- Add player dialog
+		- Add mini dungeon
+
 	Bugs:
 		- Force update log after finishing an exploration. Not sure what causes this, it should be set? Maybe game.proceduralDiscovery isn't updated correct?
 		- I can tell your cock likes it when <- invalid start text. not sure what causes this

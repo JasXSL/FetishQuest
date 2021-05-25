@@ -406,9 +406,7 @@ export default class Mod extends Generic{
 
 	// Deletes a single asset
 	// Note: allows both label and id and _e, allowing you to technically delete "root" extensions this way by root id
-	deleteAsset( type, id ){
-
-		//console.log("Delete", type, id);
+	deleteAsset( type, id, onlyIfParented = false ){
 
 		const yeetSubAssets = (subtype, asset, field ) => {
 
@@ -424,7 +422,7 @@ export default class Mod extends Generic{
 				removeThese = removeThese.concat(asset[field]);
 
 			for( let a of removeThese )
-				this.deleteAsset(subtype, a);
+				this.deleteAsset(subtype, a, onlyIfParented);
 
 		};
 
@@ -435,6 +433,9 @@ export default class Mod extends Generic{
 
 			const asset = this[type][i];
 			if( asset.id === id || asset.label === id || asset._e === id ){
+
+				if( onlyIfParented && !asset._h && !asset._mParent )
+					continue;
 				
 				//console.log("Found it!", type, asset);
 				this.deleteChildrenOf( type, id );	// Delete any child objects recursively. getAssetById is needed to delete extensions
@@ -516,7 +517,7 @@ export default class Mod extends Generic{
 			for( let a of removeChildren[i] ){
 
 				//console.log("Removing grandchildren of", a);
-				this.deleteAsset(i, a._e || a.label || a.id);
+				this.deleteAsset(i, a._e || a.label || a.id, true);
 
 			}
 

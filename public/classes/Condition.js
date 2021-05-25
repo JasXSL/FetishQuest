@@ -107,9 +107,9 @@ export default class Condition extends Generic{
 
 	}
 
-	clone( parent ){
+	clone( parent, full = true ){
 
-		let out = new this.constructor(this.constructor.saveThis(this, true), parent);
+		let out = new this.constructor(this.constructor.saveThis(this, full), parent);
 		return out;
 
 	}
@@ -295,6 +295,15 @@ export default class Condition extends Generic{
 				}
 				success = (time >= min && time <= max);
 				
+			}
+
+			else if( this.type === T.isGenderEnabled ){
+				success = game.isGenderEnabled(this.data.genders);
+			}
+			else if( this.type === T.targetGenderEnabled ){
+
+				success = t && game.isGenderEnabled(t.getGameGender());
+
 			}
 
 			else if( this.type === T.event ){
@@ -1182,6 +1191,8 @@ Condition.Types = {
 	actionCrit : 'actionCrit',
 	targetIsRpPlayer : 'targetIsRpPlayer',
 
+	isGenderEnabled : 'isGenderEnabled',
+	targetGenderEnabled : 'targetGenderEnabled',
 
 	// Dungeon room conditions
 	roomIsOutdoors : 'roomIsOutdoors',
@@ -1272,6 +1283,8 @@ Condition.descriptions = {
 	[Condition.Types.hourRange] : '{min:(number)min, max:(number)max} - Requires game.getHoursOfday() to be between min and max (24h format). Max can be greater than min for an example if you want something to happen at night: {min:21,max:6}',
 	[Condition.Types.roomZ] : '{min:(number)min, max:(number)max=min} - The attached dungeon room (or game.dungeon active room if not in event) must have a z level between min and max. Use "inf" for infinity (max)/negative infinity(min).',
 	[Condition.Types.roomIsOutdoors] : 'void - Checks if the attached dungeon room(or game.dungeon active room if unspecified) is outdoors',
+	[Condition.Types.isGenderEnabled] : '{genders:(int)genders} - Checks if any of the specified genders are enabled in game gender preferences',
+	[Condition.Types.targetGenderEnabled] : 'void - Checks if the target\'s gender is enabled in game gender preferences',
 
 };
 
