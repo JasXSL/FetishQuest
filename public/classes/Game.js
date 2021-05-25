@@ -92,6 +92,8 @@ export default class Game extends Generic{
 		this.rain_start_val = 0;						// Value of last rain so we can tween
 		this.rain = 0.0;								// Level to fade to (over 2 minutes). between 0 and 1
 
+		this._combat_changed = 0;						// Host only. Game time when combat was last toggled
+
 		this.hotkeys = [1,2,3,4,5,6,7,8,9,0];
 
 		this._turn_timer = false;						// Timeout handling end of turn
@@ -99,6 +101,7 @@ export default class Game extends Generic{
 		this._caches = 0;								// Level of depth of cache requests we're at
 
 		this._looted_players = {};						// local only, contains id : true for players looted in this room
+		
 
 	}
 
@@ -182,6 +185,7 @@ export default class Game extends Generic{
 		};
 	
 		if( full ){
+
 			out.state_shops = this.state_shops.save(full);
 			out.libAsset = {};
 			out.rain_next_refresh = this.rain_next_refresh;
@@ -197,6 +201,8 @@ export default class Game extends Generic{
 			out.name = this.name;
 			out.id = this.id;
 			out.chat_log = this.chat_log;
+			out._combat_changed = this._combat_changed;
+
 		}
 		else{
 			
@@ -695,7 +701,7 @@ export default class Game extends Generic{
 
 	}
 	// force can be set to a float to force the rain value
-	onTimeChanged( force ){
+	onTimeChanged( delta = 0 ){
 		
 		const rainChance = 0.1;
 
@@ -711,12 +717,16 @@ export default class Game extends Generic{
 
 		}
 		
-		this.updateProceduralStates();
-
 		this.renderer.updateWeather();
 		this.updateAmbiance();			// Handle rain sounds and updates the room
 
-		this.players.map(player => player.onTimePassed());
+		if( this.is_host ){
+
+			this.updateProceduralStates();
+			this.players.map(player => player.onTimePassed(delta));
+			this.ui.draw();
+
+		}
 
 	}
 
@@ -767,9 +777,12 @@ export default class Game extends Generic{
 
 	/* TIME */
 	addSeconds(seconds){
+
+		let pre = this.time;
 		seconds = +seconds||0;
 		this.time += parseInt(seconds);
-		this.onTimeChanged();
+		this.onTimeChanged(this.time-pre);
+
 	}
 	addMinutes(minutes){
 		minutes = +minutes || 0;
@@ -1215,7 +1228,11 @@ export default class Game extends Generic{
 
 	}
 
+	// Checks procedural dungeon progress and removes dungeons that have timed out
 	updateProceduralStates(){
+
+		if( !this.is_host )
+			return;
 
 		let needSave = false;
 		const week = 3600*24*7;
@@ -2132,6 +2149,8 @@ export default class Game extends Generic{
 			}).raise();
 
 		}
+
+		this._combat_changed = this.time;
 
 		this.save();
 		this.ui.draw();

@@ -9,7 +9,6 @@ import PlayerClass from './PlayerClass.js';
 import Calculator from './Calculator.js';
 import GameEvent from './GameEvent.js';
 import Dungeon from './Dungeon.js';
-import Roleplay from './Roleplay.js';
 import Condition from './Condition.js';
 import Collection from './helpers/Collection.js';
 import Encounter from './Encounter.js';
@@ -248,6 +247,7 @@ export default class Player extends Generic{
 		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC() || this.isDead()), full);
 
 		if( full ){
+
 			out.remOnDeath = this.remOnDeath;
 			out.leveled = this.leveled;
 			out.inventory = this.inventory;
@@ -1051,6 +1051,9 @@ export default class Player extends Generic{
 		this._turns = 0;
 		this.used_punish = false;
 
+		// Prevent PCs from ending a battle at max arousal
+		if( this.arousal >= this.getMaxArousal() && this.team === Player.TEAM_PLAYER )
+			this.arousal = this.getMaxArousal()-1;
 		
 	}
 	// only triggers on PC for now
@@ -1076,10 +1079,34 @@ export default class Player extends Generic{
 		this.used_punish = true;
 	}
 
-	onTimePassed(){
+	onTimePassed( delta ){
 		
 		this.getWrappers().map(wrapper => wrapper.onTimePassed());
 		this.getAssets().map(asset => asset.onTimePassed());
+
+		// Out of combat regen
+		if( !game.battle_active && this.team === Player.TEAM_PLAYER ){
+			
+			const 
+				startTime = game._combat_changed,
+				curTime = game.time
+			;
+
+			const 
+				preMinutes = Math.floor((curTime-startTime-delta)/60),
+				postMinutes = Math.floor((curTime-startTime)/60)
+			;
+			
+			// Newly added minutes
+			if( postMinutes > preMinutes ){
+
+				this.addMP(postMinutes-preMinutes);
+				this.addHP(postMinutes-preMinutes);
+				this.addArousal(-(postMinutes-preMinutes));
+
+			}
+
+		}
 
 	}
 
@@ -1804,12 +1831,17 @@ export default class Player extends Generic{
 
 	/* RESOURCES */
 	addAP( amount, fText = false ){
+
 		if( this.isAPDisabled() )
 			return false;
+
 		if( isNaN(amount) ){
+
 			console.error("AP amount is NaN", amount);
 			return false;
+
 		}
+
 		const pre = this.ap;
 		this.ap += amount;
 		this.ap = Math.floor(Math.max(0, Math.min(this.getMaxAP(), this.ap)));
@@ -1819,12 +1851,17 @@ export default class Player extends Generic{
 	}
 
 	addMP( amount, fText = false ){
+
 		if( this.isMPDisabled() )
 			return false;
+
 		if( isNaN(amount) ){
+
 			console.error("MP amount is NaN", amount);
 			return false;
+
 		}
+
 		const pre = this.mp;
 		this.mp += amount;
 		this.mp = Math.floor( Math.max(0, Math.min(this.getMaxMP(), this.mp)) );
@@ -1859,21 +1896,31 @@ export default class Player extends Generic{
 			return false;
 
 		if( isNaN(amount) ){
+
 			console.error("HP amount is NaN", amount);
 			return false;
+
 		}
+
 		const pre = this.hp;
 		let wasDead = this.hasTag(stdTag.dead);
 		this.hp += amount;
 		this.hp = Math.floor( Math.max(0, Math.min(this.getMaxHP(), this.hp)) );
 
+		// Out of combat HP damage can occur, but players can't go under 1. Use SET HP instead if you want to kill someone through an RP.
+		if( !game.battle_active && amount < 0 && this.hp <= 0 )
+			this.hp = 1;
+
 		if( fText && this.hp-pre !== 0 )
 			game.ui.floatingCombatText(this.hp-pre, this, "hp");
 
 		if( this.hp === 0 && !wasDead ){
+
 			this.onDeath( sender, effect );
+
 			if( this.hp === 0 )
 				return true;
+
 		}
 
 		return false;
@@ -1892,6 +1939,10 @@ export default class Player extends Generic{
 		const pre = this.arousal, max = this.getMaxArousal();
 		this.arousal += amount;
 		this.arousal = Math.floor( Math.min(max, Math.max(0, this.arousal)) );
+
+		// Out of combat arousal can occur, but players are limited to max-1. Use SET arousal instead if used in an RP.
+		if( !game.battle_active && amount > 0 && this.arousal >= max )
+			this.arousal = max-1;
 
 		if( this.arousal >= max && pre < max ){
 
