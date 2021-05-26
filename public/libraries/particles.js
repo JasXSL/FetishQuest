@@ -237,6 +237,42 @@ textures.smoke.material.depthWrite = true;
 		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
 	};
 
+	particles.waygateOrbs = {
+		
+		texture : textures.glowRing,
+		blending : THREE.AdditiveBlending,
+		rate : 0.1,
+		count : 1,
+		position : new Proton.SphereZone(0,0,0,100),
+		size : 500,
+		size_tween : [1,0],
+		part_max_age : 1.5,
+		velocity : 0,
+		gravity : 0,
+		color : ["#AA66FF", "#FFFFFF"],	
+		opacity: [.05,1, Proton.ease.easeFullSine],
+		wiggle : 3,
+		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
+	};
+
+	particles.waygateSparkles = {
+		
+		texture : textures.sparkle,
+		blending : THREE.AdditiveBlending,
+		rate : 0.1,
+		count : 1,
+		position : new Proton.SphereZone(0,0,0,100),
+		size : 60,
+		size_tween : [1,0.1],
+		part_max_age : 1.5,
+		velocity : 500,
+		gravity : 100,
+		color : ["#AA66FF", "#FFFFFF"],	
+		opacity: 1,
+		wiggle : 3,
+		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
+	};
+
 	particles.teslaCoil = {
 		
 		texture : textures.electricSpark,

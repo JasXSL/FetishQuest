@@ -780,9 +780,6 @@ function build(){
 					attachments : [
 						new LibMeshAttachment({path:"Dungeon.Door.BarsAttachment"}),
 					],
-					
-
-
 					lockable : true,
 					want_actions : [gameActionDoors],
 					animations : {
@@ -977,6 +974,101 @@ function build(){
 					
 					},
 					door : LibMesh.DoorTypes.DOOR_UP
+				}),
+				Waygate : new LibMesh({
+					auto_bounding_box : true,
+					url : 'gates/waygate.glb',
+					materials : [
+						libMat.StoneTile.DungeonWall,
+						libMat.StoneTile.BigBlocks,
+						libMat.Metal.Chain,
+						libMat.Glass.PurpleGlow,
+						libMat.Water.WaterRing,
+					],
+					lockable : true,
+					//want_actions : [gameActionDoors],
+					onStagePlaced : function( dungeonAsset, mesh ){
+
+						
+						
+						const parts = mesh.children[0].children[0].children;
+						const gem = parts[3];
+						const mid = parts[4];
+
+						if( dungeonAsset.isLocked() ){
+
+							gem.visible = mid.visible = false;
+							return;
+						}
+
+						mesh.userData.tweens = {};
+						mesh.renderOrder = 1;
+
+						let material = mid.material;
+						material.map = material.map.clone();
+						const tx = material.map;
+						tx._dispose = true;
+						tx.wrapS = tx.wrapT = THREE.ClampToEdgeWrapping;
+						tx.needsUpdate = true;
+						tx.center.x = tx.center.y = 0.5;
+						material.alphaTest = 0;
+						material.blending = THREE.AdditiveBlending;
+						let tweening = {
+							p : 0
+						};
+
+						let onTweenUpdate = () => {
+
+							let offset = tweening.p;
+							//console.log(tweening.rep, tweening.opacity);
+							material.opacity = (Math.sin(offset*Math.PI*2-Math.PI/2)/2+.5);
+							//console.log(tweening.p);
+							tx.repeat.x = tx.repeat.y = (1.0-Math.sin(offset*Math.PI/2))*7+0.9;
+
+						};
+						let a = new TWEEN.Tween(tweening)
+						.to({p:1.0},3000)
+						.repeat(Infinity)
+						.onUpdate(onTweenUpdate)
+						.start();
+						
+						mesh.userData.tweens.tween_mid = a;
+
+						let light = new THREE.SpotLight(0xCC00FF, 1, 5000, .75, 0.5);
+						let helper = new THREE.SpotLightHelper(light);
+						light.position.y = 1300;
+						mesh.add(light, light.target);
+
+						//mesh.parent.parent.add(helper);
+						const bTween = {
+							z : 0
+						};
+						let b = new TWEEN.Tween(bTween).to({z:Math.PI*2}, 3000).repeat(Infinity).onUpdate(() => {
+							gem.rotation.z = bTween.z;
+							gem.position.z = Math.sin(bTween.z)*2;
+						}).start();
+						mesh.userData.tweens.gem_spin = b;
+
+						const cTween = {
+							z : 0
+						};
+						let c = new TWEEN.Tween(cTween).to({z:Math.PI*2}, 500).repeat(Infinity).onUpdate(() => {
+							light.angle = 0.3+Math.sin(cTween.z)*0.02;
+						}).start();
+						mesh.userData.tweens.lightTween = c;
+
+						const y = 300, z = 0;
+						let particles = libParticles.get('waygateOrbs', mesh);
+						let particlesB = libParticles.get('waygateSparkles', mesh);
+						particles.p.z = particlesB.p.z = z;
+						particles.p.y = particlesB.p.y = y;
+						
+						mesh.userData.particles = [
+							particles,
+							particlesB
+						];
+
+					},
 				}),
 			}
 		},

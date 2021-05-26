@@ -202,6 +202,12 @@ LibMaterial.library = {
 		Purple : new LibMaterial({color:new THREE.Color(0x331155), metalness:0.3,roughness:0.4}),
 		RedGlow : new LibMaterial({color:new THREE.Color(0xF0A0A0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x400000)}),
 		BlueGlow : new LibMaterial({color:new THREE.Color(0xA0C0F0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x004060)}),
+		PurpleGlow : new LibMaterial({
+			color:new THREE.Color(0x331155), metalness:0.3,roughness:0.4,
+			roughnessMap : 'tileable/glass_plane_r.jpg',
+			normalMap : 'tileable/glass_plane_n.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
+		}),
 		BrownHighRes : new LibMaterial({
 			color:new THREE.Color(0x332200), metalness:0.3,
 			roughnessMap : 'tileable/glass_plane_r.jpg',
@@ -727,7 +733,7 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.6,
 			transparent : true,
-			alphaTest : 0.5,
+			depthWrite : false,
 		}, "MeshDepthMaterial"),
 	},
 

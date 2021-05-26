@@ -296,6 +296,7 @@ export class RoleplayStage extends Generic{
 		this.player = '';			// Player label of the one who is speaking
 		this.chat = RoleplayStageOption.ChatType.default;
 		this.store_pl = false;		// Store player as parent._targetPlayer for use in conditions and texts
+		this.shuffle_texts = RoleplayStage.Shuffle.NONE;	// Shuffles the text order
 
 		this._iniPlayer = '';		// ID of player that triggered this stage
 		this._textEvent = null;	// Caches the active text event so the text doesn't change randomly.
@@ -329,6 +330,7 @@ export class RoleplayStage extends Generic{
 			chat : this.chat,
 			_iniPlayer : this._iniPlayer,
 			text : Text.saveThese(this.text, full),	// Needed for netcode
+			shuffle_texts : this.shuffle_texts,
 		};
 
 		if( full ){
@@ -442,11 +444,22 @@ export class RoleplayStage extends Generic{
 		const textPlayer = this.getPlayer();
 		const evt = new GameEvent({sender:textPlayer});
 		const initiating = this.getInitiatingPlayer();
+		// Fallback in case you fail to add the player to the scene
 		if( !textPlayer )
-			evt.sender = player;
+			evt.sender = players[0];
 
+		let allTexts = this.text.slice();
+		if( this.shuffle_texts === RoleplayStage.Shuffle.ALL )
+			shuffle(allTexts);
+		else if( this.shuffle_texts === RoleplayStage.Shuffle.ALL_BUT_LAST ){
 
-		for( let text of this.text ){
+			let last = allTexts.pop();
+			shuffle(allTexts);
+			allTexts.push(last);
+
+		}
+
+		for( let text of allTexts ){
 
 			evt.text = text;
 
@@ -477,7 +490,7 @@ export class RoleplayStage extends Generic{
 			}
 		}
 
-		evt.text = this.text[this.text.length-1];
+		evt.text = allTexts[allTexts.length-1];
 		evt.target = initiating || players[0];
 		this._textEvent = evt;
 		return evt;
@@ -503,6 +516,15 @@ export class RoleplayStage extends Generic{
 	
 
 }
+
+RoleplayStage.Shuffle = {
+	NONE : 0,
+	ALL : 1,
+	ALL_BUT_LAST : 2,
+};
+
+
+
 
 export class RoleplayStageOption extends Generic{
 

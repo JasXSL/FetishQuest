@@ -1047,6 +1047,7 @@ export default class Player extends Generic{
 		let wrappers = this.getWrappers();
 		for(let wrapper of wrappers)
 			wrapper.onBattleEnd();
+			
 		this._stun_diminishing_returns = 0;
 		this._turns = 0;
 		this.used_punish = false;

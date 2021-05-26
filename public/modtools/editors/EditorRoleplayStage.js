@@ -31,6 +31,12 @@ export function asset(){
 			html += '<option value="'+esc(RoleplayStageOption.ChatType[i])+'" '+(dummy.chat === RoleplayStageOption.ChatType[i] ? 'selected' : '')+'>'+esc(i)+'</option>';
 		html += '</select></label>';
 		html += '<label title="Stores target for rpTarget conditions and %P in texts">Store target: <input type="checkbox" name="store_pl" class="saveable" '+(dummy.store_pl ? 'checked' : '')+' /></label>';
+		html += '<label title="Shuffles the text order">Shuffle type: <select name="shuffle_texts" class="saveable">';
+		for( let stype in RoleplayStage.Shuffle ){
+			const n = RoleplayStage.Shuffle[stype];
+			html += '<option value="'+n+'" '+(parseInt(n) === parseInt(asset.shuffle_texts) ? 'selected' : '')+'>'+stype+'</option>';
+		}
+		html += '</select></label>';
 	html += '</div>';
 
 
