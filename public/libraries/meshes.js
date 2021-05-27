@@ -44,6 +44,7 @@ import Water2 from '../ext/Water2.js';
 import {BufferGeometryUtils} from '../ext/BufferGeometryUtils.js';
 import {GLTFLoader} from '../ext/GLTFLoader.js';
 import {SkeletonUtils} from '../ext/SkeletonUtils.js';
+import GameEvent from '../classes/GameEvent.js';
 
 
 class LibMesh{
@@ -79,6 +80,7 @@ class LibMesh{
 		this.onStagePlaced = data.onStagePlaced || function(dungeonAsset, mesh){};		// Raised when placed into world. Can happen multiple times.
 		this.afterStagePlaced = data.afterStagePlaced || function(dungeonAsset, mesh){};
 		this.onInteractivityChange = data.onInteractivityChange || function(dungeonAsset, interactive){};
+		this.onRefresh = data.onRefresh || function(dungeonAsset, mesh){};				// Raised by a game action
 
 	}
 
@@ -986,20 +988,37 @@ function build(){
 						libMat.Water.WaterRing,
 					],
 					lockable : true,
-					//want_actions : [gameActionDoors],
-					onStagePlaced : function( dungeonAsset, mesh ){
+					onRefresh : function( dungeonAsset, mesh ){
 
-						
-						
 						const parts = mesh.children[0].children[0].children;
 						const gem = parts[3];
 						const mid = parts[4];
+						const particles = mesh.children[4];
+						const light = mesh.children[2];
 
-						if( dungeonAsset.isLocked() ){
-
-							gem.visible = mid.visible = false;
+						if( !light )
 							return;
-						}
+
+						// Hardcoded lock state, may wanna replace this later
+						const locked = window.game && (
+							dungeonAsset.isLocked() || 
+							!glib.get('waygateActiveActiveDungeon', 'Condition').test(new GameEvent({
+								sender : game.players[0],
+								target : game.players[0],
+								dungeon : game.dungeon,
+								room : game.dungeon.getActiveRoom()
+							}))
+						);
+
+						gem.visible = mid.visible = particles.visible = light.visible = !locked;
+												
+					},
+					//want_actions : [gameActionDoors],
+					onStagePlaced : function( dungeonAsset, mesh ){
+
+						const parts = mesh.children[0].children[0].children;
+						const gem = parts[3];
+						const mid = parts[4];
 
 						mesh.userData.tweens = {};
 						mesh.renderOrder = 1;
@@ -1057,9 +1076,13 @@ function build(){
 						}).start();
 						mesh.userData.tweens.lightTween = c;
 
+						let particleGroup = new THREE.Group();
+						particleGroup.name = 'PARTICLES';
+						mesh.add(particleGroup);
+
 						const y = 300, z = 0;
-						let particles = libParticles.get('waygateOrbs', mesh);
-						let particlesB = libParticles.get('waygateSparkles', mesh);
+						let particles = libParticles.get('waygateOrbs', particleGroup);
+						let particlesB = libParticles.get('waygateSparkles', particleGroup);
 						particles.p.z = particlesB.p.z = z;
 						particles.p.y = particlesB.p.y = y;
 						
@@ -1067,6 +1090,8 @@ function build(){
 							particles,
 							particlesB
 						];
+
+						this.onRefresh(dungeonAsset, mesh);
 
 					},
 				}),

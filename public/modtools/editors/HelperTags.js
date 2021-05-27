@@ -76,7 +76,7 @@ export default {
 		element.querySelectorAll("div.tagEditor input.tag").forEach(el => el.onclick = evt => {
 			
 			const el = evt.currentTarget;
-			if( evt.ctrlKey ){
+			if( evt.ctrlKey || evt.metaKey ){
 				el.remove();
 				compile();
 			}

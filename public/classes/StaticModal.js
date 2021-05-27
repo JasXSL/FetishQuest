@@ -2091,7 +2091,7 @@ export default class StaticModal{
 					const id = event.currentTarget.dataset.id,
 						text = event.currentTarget.innerText;
 
-					if( event.ctrlKey ){
+					if( event.ctrlKey || event.metaKey ){
 
 						if( confirm('Really delete this game?') ){
 
@@ -2271,7 +2271,7 @@ export default class StaticModal{
 
 					tr.addEventListener('click', async event => {
 
-						if( !event.ctrlKey )
+						if( !event.ctrlKey && !event.metaKey )
 							return;
 
 						const m = await Mod.getByID(mod.id);
@@ -2660,7 +2660,7 @@ export default class StaticModal{
 					// Tag helpers
 					this.onTagClick = event => {
 
-						if( !event.ctrlKey )
+						if( !event.ctrlKey && !event.metaKey )
 							return;
 						event.currentTarget.remove();
 						updatePlayer();
@@ -3430,7 +3430,7 @@ export default class StaticModal{
 					let id = event.currentTarget.dataset.id,
 						assetObj = lib[id]
 					;
-					if(event.ctrlKey){
+					if( event.ctrlKey || event.metaKey ){
 
 						if( !event.currentTarget.classList.contains('custom') ){
 							

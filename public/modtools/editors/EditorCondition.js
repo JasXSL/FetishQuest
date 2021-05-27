@@ -157,7 +157,7 @@ export function asset(){
 
 		const onMultiSelectClicked = event => {
 
-			if( event.ctrlKey ){
+			if( event.ctrlKey || event.metaKey ){
 				
 				event.currentTarget.parentNode.removeChild(event.currentTarget);
 				storeMultiSelect();
@@ -208,7 +208,7 @@ export function asset(){
 
 		const onMultiSelectClicked = event => {
 
-			if( event.ctrlKey ){
+			if( event.ctrlKey || event.metaKey ){
 				
 				event.currentTarget.parentNode.removeChild(event.currentTarget);
 				storeMultiSelect();
@@ -377,6 +377,14 @@ export function asset(){
 			html += '</div>';
 
 		}
+		else if( !dungeon ){
+
+			html += '<p>Checking in active dungeon instead of specific dungeon</p>';
+			html += '<label>Dvar: <input class="saveable" name="data::id" value="'+esc(asset.data.id)+'" /></label>';
+			html += '<label>Value: <input class="jsonify" name="data::data" value="'+esc(asset.data.data)+'" /></label>';
+
+		}
+
 		fnBind = () => {
 
 			this.dom.querySelector("div.dungeon").appendChild(EditorDungeon.assetTable(this, asset, "data::dungeon", true));

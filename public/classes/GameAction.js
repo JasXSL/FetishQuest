@@ -365,6 +365,10 @@ export default class GameAction extends Generic{
 		else if( this.type === types.refreshPlayerVisibility )
 			game.refreshPlayerVisibility();
 
+		else if( this.type === types.refreshMeshes ){
+			game.renderer.stage.onRefresh();			
+		}
+			
 		else if( this.type === types.door ){
 			if( !this.data ){
 				console.error("Trying to trigger a door with no data", this);
@@ -846,6 +850,7 @@ GameAction.types = {
 	addTime : 'addTime',
 	playerMarker : 'playerMarker',
 	refreshPlayerVisibility : 'refreshPlayerVisibility',
+	refreshMeshes : 'refreshMeshes',
 };
 
 GameAction.TypeDescs = {
@@ -888,6 +893,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula} - Sets a variable in the currently active dungeon',
 	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',
 	[GameAction.types.refreshPlayerVisibility] : 'void - Forces the game to refresh visibility of players.',
+	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
 };
 
 // These are types where data should be sent to netgame players

@@ -452,13 +452,13 @@ export default class Modtools{
 		window.onkeydown = event => {
 
 			// Ctrl+O = Open
-			if( event.key === 'o' && event.ctrlKey ){
+			if( event.key === 'o' && (event.ctrlKey || event.metaKey) ){
 				event.preventDefault();
 				this.loadWindow();
 			}
 
 			// Ctrl+S Save
-			if( event.key === 's' && event.ctrlKey ){
+			if( event.key === 's' && (event.ctrlKey || event.metaKey) ){
 				event.preventDefault();
 				this.save();
 			}
@@ -476,13 +476,13 @@ export default class Modtools{
 			}
 
 			// Ctrl+Alt+E - Refresh all
-			if( event.key === 'e' && event.altKey && event.ctrlKey ){
+			if( event.key === 'e' && event.altKey && (event.ctrlKey || event.metaKey) ){
 				event.preventDefault();
 				Window.rebuildAll();
 			}
 
 			// Ctrl+E - Rebuild active
-			if( event.key === 'e' && event.ctrlKey ){
+			if( event.key === 'e' && (event.ctrlKey || event.metaKey) ){
 				event.preventDefault();
 				Window.front && Window.front.rebuild();
 			}
@@ -745,7 +745,7 @@ export default class Modtools{
 
 					if( m.id === mod ){
 
-						if( event.ctrlKey ){
+						if( event.ctrlKey || event.metaKey ){
 
 							const del = await m.delete(true);
 							if( del && self.mod && m.id === self.mod.id )

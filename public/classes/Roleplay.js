@@ -442,7 +442,11 @@ export class RoleplayStage extends Generic{
 		}
 		const players = game.getTeamPlayers();
 		const textPlayer = this.getPlayer();
-		const evt = new GameEvent({sender:textPlayer});
+		const evt = new GameEvent({
+			sender:textPlayer,
+			dungeon : game.dungeon,
+			room : game.dungeon.getActiveRoom()
+		});
 		const initiating = this.getInitiatingPlayer();
 		// Fallback in case you fail to add the player to the scene
 		if( !textPlayer )
@@ -600,7 +604,9 @@ export class RoleplayStageOption extends Generic{
 
 		const evt = new GameEvent({
 			sender : player,
-			target : player
+			target : player,
+			dungeon : game.dungeon,
+			room : game.dungeon.getActiveRoom()
 		});
 		return Condition.all(this.conditions, evt);
 

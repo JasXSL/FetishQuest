@@ -1981,9 +1981,21 @@ class Stage{
 				;
 				game.dungeon.assetClicked(player, room, dungeonAsset, mesh);
 			};
+
 		}
+
+		if( obj.userData.template )
+			obj.userData.template.onRefresh( dungeonAsset, obj );
 		
 	
+
+	}
+
+	// calls the onRefresh method on all meshes
+	onRefresh(){
+
+		for( let asset of this.group.children )
+			this.onObjRefresh(asset);
 
 	}
 
@@ -2184,8 +2196,7 @@ class Stage{
 	/* Battle state change */
 	onBattleStateChange(){
 		
-		for( let asset of this.group.children )
-			this.onObjRefresh(asset);
+		this.onRefresh();
 
 	}
 
@@ -2195,9 +2206,13 @@ class Stage{
 	// Adds particles from a mesh recursively
 	addParticlesRecursive( obj ){
 
+		
+
 		if( Array.isArray(obj.userData.particles) ){
+
 			for( let psys of obj.userData.particles)
 				this.addParticleSystem(psys);
+
 		}
 
 		for( let c of obj.children )
@@ -2205,17 +2220,21 @@ class Stage{
 
 	}
 	addParticleSystem(sys){
+
 		if( ~this.particles.indexOf(sys) )
 			return;
 		this.parent.proton.addEmitter(sys);
-		this.particles.push(sys);
+		this.particles.push(sys);		
+
 	}
 	removeParticleSystem(sys){
+
 		let index = this.particles.indexOf(sys);
 		if( ~index ){
 			sys.destroy();
 			this.particles.splice(index,1);
 		}
+
 	}
 
 

@@ -443,7 +443,7 @@ export default{
 
 
 			// Ctrl deletes
-			if( event.ctrlKey ){
+			if( event.ctrlKey || event.metaKey ){
 
 				// Remove an extension (should only be needed in the main one, not the linker)
 				/*
@@ -1020,7 +1020,7 @@ export default{
 				
 
 				// Ctrl deletes unless it's a linker
-				if( (!mod || ext) && !isLinker && event.ctrlKey && confirm("Really delete?") ){
+				if( (!mod || ext) && !isLinker && (event.ctrlKey || event.metaKey) && confirm("Really delete?") ){
 
 					del(ext ? ext : elId);
 					win.rebuild();

@@ -756,7 +756,7 @@ export function asset(){
 			'</label>';
 		html += '</div>';
 	}
-	else if( type === Types.refreshPlayerVisibility ){}	// No data
+	else if( type === Types.refreshPlayerVisibility || type === Types.refreshMeshes ){}	// No data
 
 	else{
 

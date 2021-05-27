@@ -145,7 +145,7 @@ export function asset(){
 
 			}
 			
-			if( event.ctrlKey ){
+			if( event.ctrlKey || event.metaKey ){
 
 				// Remove from Player.inventory as well
 				handleInventorySplice(index);

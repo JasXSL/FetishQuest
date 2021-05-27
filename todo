@@ -3,27 +3,43 @@
 	- Add more automatic asset unrolling as you discover rolled up assets
 
 -- CURRENT --
-	- Flesh out west portwood
+	
 	- Add inn area:
 		QUEST:
+			- Need to get underwater breathing first. If not, she can start the underwater breathing quest.
 			- Fetch algae from an underground cave inhabited by shark people
-			- Shark people are friendly, but you may be able to fight them?
-			- Shark people will trade you for landwalker items
-			- Reward: ???
-	- Otter area:
-		QUEST:
-			- ???
+			- Shark people are friendly
+			- Shark people will trade you for landwalker items after clearing a dungeon for them
+			- Shark people will teach you about sharkanium and waygates
+			- Reward: Fresh food and bread, and free room.
+
 	- Mini map
-	- Regen out of combat
-	- Underwater procedural dungeon
+	- Books: Reading a book adds to a "recollection" tab in inventory that describes it.
+	- 
 
-	- Make rebase automatic using static RELATIONS
+	Haunted house quest:
+		- Auntie Reven
+			- Is a cougar
+			- Is very fast
+		- Quest to find out what is haunting the house
+		- Quest starts with a person outside the house who is her nephew
+		- Rewards an owometer?
 
+	Great anemone quest:
+		- Get told about a secret entrance from scruffy sailor, or the bartender in inn ara
+		- Kill various sea creatures
+		- Get to the great anemone
+		- RP to get the anemone off and causing it to spawn magic goo everywhere
+		- Quest rewards exp and water breathing
 
+	Fast travel system:
+		- TEST
 	Tailor quest:
-		- Add more outfit pieces
-		- Add player dialog
-		- Add mini dungeon
+		- TEST
+	Underwater procedural:
+		- TEST
+	
+	
 
 	Bugs:
 		- Force update log after finishing an exploration. Not sure what causes this, it should be set? Maybe game.proceduralDiscovery isn't updated correct?
@@ -40,13 +56,9 @@
 	- Main quest chapter 2
 		- Go to Yuug capital?
 		- What do there?
-	- Mini map
 
-	- Books
-	- West forest
-		- Hidden path down to the beach
-		- Otter and Broper show up there after completing their quest
-			- What next?
+
+	- Otter and broper beach party quest
 
 
 	- Needed music

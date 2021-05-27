@@ -421,9 +421,9 @@ class Editor{
 				}
 
 			}
-			else if( event.key === "z" && event.ctrlKey )
+			else if( event.key === "z" && (event.ctrlKey || event.metaKey) )
 				this.traverseHistory(control.object.userData.dungeonAsset, -1);
-			else if( event.key === "y" && event.ctrlKey )
+			else if( event.key === "y" && (event.ctrlKey || event.metaKey) )
 				this.traverseHistory(control.object.userData.dungeonAsset, 1);
 			
 		};

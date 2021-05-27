@@ -467,7 +467,7 @@ class DungeonLayoutEditor{
 		// Bind click on the actual thing
 		div.onclick = event => {
 
-			if( event.ctrlKey && confirm("Really delete this room and any children?") ){
+			if( (event.ctrlKey || event.metaKey) && confirm("Really delete this room and any children?") ){
 
 				let to_delete = [room];	// contains room objects to delete
 				for( let r of this.cache_rooms ){
