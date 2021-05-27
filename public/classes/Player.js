@@ -631,7 +631,10 @@ export default class Player extends Generic{
 		return this.hasTag([stdTag.plBeast, stdTag.plTargetBeast]);
 	}
 
-
+	// Gets level including difficulty adjust. Used only in rolls.
+	getLevel(){
+		return this.level + (this.team !== Player.TEAM_PLAYER ? game.difficulty : 0);
+	}
 
 
 	// ICONS
@@ -915,8 +918,10 @@ export default class Player extends Generic{
 
 		this.netgame_owner = '';
 		if( this.leveled ){
+			
 			this.level += game.getHighestLevelPlayer();
 			this.leveled = false;
+
 		}
 
 		this.addDefaultActions();
@@ -2060,7 +2065,7 @@ export default class Player extends Generic{
 		return Math.floor(
 			(
 				this.getGenericAmountStatPoints('sv'+type)+
-				this.level+
+				this.getLevel()+
 				this.class['sv'+type]+
 				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)+
 				grappled
@@ -2078,7 +2083,7 @@ export default class Player extends Generic{
 		return Math.floor(
 			(
 				this.getGenericAmountStatPoints('bon'+type)+
-				this.level+
+				this.getLevel()+
 				(this.class ? this.class['bon'+type] : 0)+
 				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)+
 				grappled
@@ -3071,15 +3076,8 @@ export default class Player extends Generic{
 			if( attacker.level < 3 )
 				add -= 0.25*(3-attacker.level);
 
-			// Low difficulty decreases enemy damage
-			if( game.difficulty < 5 )
-				add *= game.difficulty*0.15+0.25;
 			
 
-		}
-		// High difficulty decreases damage done
-		else if( game.difficulty > 5 ){
-			add *= (1-(game.difficulty-5)*0.15);
 		}
 
 		const out = (1+tot*0.1)*add;

@@ -58,7 +58,7 @@ export default class Game extends Generic{
 		this.procedural = [];							// Dungeon objects
 		this.proceduralDiscovery = new Collection();	// label : {perc:(float)exploredPercentage}
 		this.state_shops = new Collection();			// label : (obj)shopState
-		this.difficulty = 5;							// Scale between 0 and 10. Below 5 and it reduces damage taken by 15% per tier. Above 5 and it reduces damage done by 15% per tier.
+		this.difficulty = 0;							// Scale between -3 and 3. Alters enemy level 
 		this.genders = 0;								// Prefer these genders when generating template NPCs. See Game.Genders
 		this.factions = [];
 

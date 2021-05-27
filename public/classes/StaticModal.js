@@ -730,7 +730,7 @@ export default class StaticModal{
 			.addRefreshOn(["battle_active"])
 			.addTab("Gameplay", () => {
 				return `
-					Difficulty: <input type="range" min=0 max=10 step=1 value=5 name="difficulty" />		
+					Difficulty: <input type="range" min=-5 max=5 step=1 value=0 name="difficulty" />		
 					Preferred enemy sex: <div class="preferredGender labelFlex"></div>
 				`;
 			})
@@ -984,7 +984,7 @@ export default class StaticModal{
 				for( let i of this.gameplay.genderInputs)
 					i.checked = (!game.genders || game.genders&parseInt(i.value));
 
-				this.gameplay.difficulty.val(Math.round(game.difficulty) || 5);
+				this.gameplay.difficulty.val(Math.round(game.difficulty) || 0);
 
 				const knobs = ['ambient','fx','music','ui'];
 				const audio = this.getTabDom("Audio");
@@ -1294,7 +1294,7 @@ export default class StaticModal{
 					// Character panel
 					const cDivs = this.character;
 					cDivs.name.text(player.name);
-					cDivs.subName.html('Lv '+player.level+' '+esc(player.species)+' '+esc(player.class.name));
+					cDivs.subName.html('Lv '+Math.max(0, player.getLevel())+' '+esc(player.species)+' '+esc(player.class.name));
 					this.character.expBar[0].classList.toggle('hidden', player.team !== Player.TEAM_PLAYER);
 					this.character.expBarBar[0].style = 'width:'+Math.max(0, Math.min(100, player.experience/player.getExperienceUntilNextLevel()*100))+'%';
 					this.character.expBarText[0].innerText = player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP';
