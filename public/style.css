@@ -1,3 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap'); /* Header */
+@import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap'); /* Good for books */
+@import url('https://fonts.googleapis.com/css2?family=Redressed&display=swap'); /* Fancy books */
+
+
 body, html{
 	margin:0;
 	padding:0;
@@ -22,6 +27,10 @@ body, html{
 a{
 	font-weight:bold;
 	color:#DDF;
+}
+
+h1, h2, h3{
+	font-family: 'Germania One', cursive;
 }
 
 input, textarea, select{
@@ -1242,6 +1251,102 @@ div.fxBuffRed{
 	
 
 /**/
+
+/* Book overlay */
+#book{
+	position: fixed;
+	top:0; left:0; bottom:0; right:0;
+	background:rgba(0,0,0,.25);
+	backdrop-filter: blur(5px);
+	font-size:2vmax;
+	user-select: none;
+	font-family: 'Redressed', cursive;
+}
+#book.handwriting{
+	font-family: 'Rock Salt', cursive;
+}
+#book > div.mid{
+	position: absolute;
+	left:50%; top:50%;
+	transform:translate(-50%, -50%);
+	height:45vmax;
+	width:70vmax;
+	max-width:80%;
+	max-height: 80%;
+	background:#000;
+	background:url(media/ui/book.png);
+	background-size:100% 100%;
+	color:#000;
+}
+#book div.page{
+	/* Todo: custom font */
+	position: absolute;
+    top: 10%;
+    left: 15%;
+	width:30%;
+	overflow:hidden;
+}
+#book div.page.B{
+	left:auto;
+	right:15%;
+}
+#book div.pageNr{
+	position: absolute;
+	left:30%;
+	bottom:10%;
+	transform:translateX(-50%);
+}
+#book div.pageNr.B{
+	left:auto;
+	right:30%;
+}
+#book div.nav{
+	width:15%;
+	left:0;
+	font-size: 4vmax;
+	top:0;
+	bottom:0;
+	position:absolute;
+	cursor:pointer;
+}
+#book div.nav:hover div.icon{
+	color:#FFF;
+	text-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
+	
+}
+#book div.nav div.icon{
+	top: 50%;
+	right:0;
+	transform: translateY(-50%);
+	position:absolute;
+}
+#book div.nav.B{
+	right:0;
+	left:auto;
+}
+#book div.nav.B div.icon{
+	left:0; right:auto;
+}
+#book div.close{
+	position: absolute;
+    color: #FFF;
+    border: 3px double #AAA;
+    padding: 1vmax 3vmax;
+    bottom: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0.5vmax 0.5vmax 1vmax #000;
+    font-size: 3vmax;
+    user-select: none;
+    border-radius: 1vmax;
+	cursor: pointer;
+}
+#book div.close:hover{
+	filter:brightness(2);
+}
+#book div.close:active{
+	transform:translateX(-50%) scale(0.95, 0.95);
+}
 
 /* Inventory */
 	#inventory div.cmTabContent{

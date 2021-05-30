@@ -4,6 +4,7 @@ import * as EditorCondition from './EditorCondition.js';
 import * as EditorWrapper from './EditorWrapper.js';
 import * as EditorAudioKit from './EditorAudioKit.js';
 import * as EditorAction from './EditorAction.js';
+import * as EditorGameAction from './EditorGameAction.js';
 import Asset from '../../classes/Asset.js';
 import stdTag from '../../libraries/stdTag.js';
 import Generic from '../../classes/helpers/Generic.js';
@@ -90,6 +91,8 @@ export function asset(){
 
 	html += 'Use Action: <div class="use_action"></div>';
 
+	html += '<label title="Description is the context menu option">Game Actions: </label><div class="game_actions"></div>';
+
 	html += 'Loot sound: <div class="loot_sound"></div>';
 
 
@@ -108,6 +111,9 @@ export function asset(){
 	
 	// Use action
 	this.dom.querySelector("div.use_action").appendChild(EditorAction.assetTable(this, asset, "use_action", true));
+	
+	// Game actions
+	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions", false));
 
 
 	// Tags

@@ -8,6 +8,7 @@ import Player from './Player.js';
 import StaticModal from './StaticModal.js';
 import Asset from './Asset.js';
 import Quest from './Quest.js';
+import Book from './Book.js';
 
 class NetworkManager{
 
@@ -516,6 +517,7 @@ class NetworkManager{
 		;
 		if( this.debug )
 			console.debug("PlayerTask", data);
+
 		if( !game.is_host || typeof data !== "object" )
 			return;
 
@@ -835,6 +837,53 @@ class NetworkManager{
 				game.ui.onMenuStatusChanged();
 
 			}
+			else if( task === PT.getLargeAsset ){
+				// Return a large asset
+
+				let player = validatePlayer();
+				if( !player )
+					throw 'Invalid player';
+
+				const type = args.type, label = args.label;
+				if( type === 'book' ){
+
+					// See if we've read this book
+					if( !game.books_read[label] )
+						throw 'Invalid book';
+
+					let bookOut = glib.get(label, 'Book');
+					if( !bookOut )
+						throw 'Book not found';
+
+					this.dmGetLargeAsset(netPlayer, type, bookOut.save());
+
+				}
+				else
+					throw 'Invalid asset fetch request';
+
+
+			}
+			else if( task === PT.useAssetGameAction ){
+
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				const action = args.action;
+
+				for( let asset of player.assets ){
+
+					const ua = asset.getUseActionById(action);
+					if( ua ){
+
+						game.useAssetGameAction(ua);
+						break;
+
+					}
+
+				}
+
+			}
 
 		}catch(err){
 
@@ -1059,6 +1108,17 @@ class NetworkManager{
 			this.in_menu = args.in;
 			game.ui.onMenuStatusChanged();
 			
+		}
+		else if( task === NetworkManager.dmTasks.getLargeAsset ){
+
+			const type = args.type, data = args.asset;
+			if( type === 'book' ){
+
+				const book = new Book(data);
+				game.ui.openBook(book);
+
+			}
+
 		}
 
 	}
@@ -1324,6 +1384,22 @@ class NetworkManager{
 
 	}
 
+	playerGetLargeAsset( player, type, label ){
+
+		this.sendPlayerAction(NetworkManager.playerTasks.getLargeAsset, {
+			type : type,
+			label : label,
+			player : player.id,
+		});
+
+	}
+
+	playerUseAssetGameAction( player, action ){
+		this.sendPlayerAction(NetworkManager.playerTasks.useAssetGameAction, {
+			action : action.id,
+			player : player.id,
+		});
+	}
 
 
 	/* OUTPUT TASKS DM */
@@ -1531,6 +1607,14 @@ class NetworkManager{
 
 	}
 
+	// Sends a large asset to the player
+	dmGetLargeAsset( netPlayer, type, assetSaveData ){
+		this.sendHostTaskTo( netPlayer, NetworkManager.dmTasks.getLargeAsset, {
+			type : type,
+			asset : assetSaveData
+		});
+	}
+
 }
 
 // Send tasks from DM to player
@@ -1556,6 +1640,7 @@ NetworkManager.dmTasks = {
 	openShop : 'openShop',							// {shop:(str)shop_label} Asks the player to open the shop window for a shop in the cell
 	loadedCells : 'loadedCells',					// {cells:{netgame_id:(int)cells}}
 	inMenu : 'inMenu',								// {in:{netgame_id:(int)menu}}
+	getLargeAsset : 'getLargeAsset',				// {type:(str)type, asset:(obj)asset_data} - Counterpart to playerTasks getLargeAsset
 };
 
 // Player -> DM
@@ -1584,7 +1669,8 @@ NetworkManager.playerTasks = {
 	toggleAFK : 'toggleAFK',			// {afk:(bool)afk}
 	loadedCells : 'loadedCells',					// {cells:(int)cells_loaded}
 	inMenu : 'inMenu',					// {in:(int)menu}
-
+	getLargeAsset : 'getLargeAsset',		// {player:(str)player_uuid, type:(str)type, label:(str)label} - Fetches a large DB asset from the host. Currently used for books, because they're a bit too heavy to send along to all players constantly. On success, sends DM->Player getLargeAsset
+	useAssetGameAction : 'useAssetGameAction',	// {player:(str)player_uuid, label:(str)label} - Tries to use a game action from Asset.game_actions by label
 };
 
 export default NetworkManager;

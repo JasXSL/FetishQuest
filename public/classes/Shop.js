@@ -103,7 +103,7 @@ export default class Shop extends Generic{
 				this.gen_rarity_min
 			);
 
-			console.log("Gen", asset);
+			console.trace("Gen", asset);
 			if( !asset )
 				continue;
 
@@ -155,9 +155,12 @@ export default class Shop extends Generic{
 		}
 
 		
-		// Restock every 3 days
-		if( this.gen_nr && (!this._time_generated || game.time-this._time_generated > 260000) ){	// Every 3 days
+		// Todo: Make this trigger every 3 levels as well
 
+		// Restock every 3 days
+		if( this.gen_nr && (!this._time_generated || game.time-this._time_generated > /*260000*/ 3600) ){	// Every 3 days or every 3 levels
+
+			console.trace("Generating new items");
 			this.generateItems();
 			needSave = true;
 

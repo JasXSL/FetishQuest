@@ -21,6 +21,7 @@ import Faction from './Faction.js';
 import Encounter from './Encounter.js';
 import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
 import Condition from './Condition.js';
+import Book, { BookPage } from './Book.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -83,6 +84,8 @@ export default class Mod extends Generic{
 		this.questObjectives = [];
 		this.questObjectiveEvents = [];
 		this.gallery = [];
+		this.books = [];
+		this.bookPages = [];
 
 		this.load(data);
 	}
@@ -154,6 +157,8 @@ export default class Mod extends Generic{
 			factions : this.factions,
 			dungeonSubTemplates : this.dungeonSubTemplates,
 			gallery : this.gallery,
+			bookPages : this.bookPages,
+			books : this.books,
 		};
 
 		// Removes del except for in arrays
@@ -1341,6 +1346,8 @@ Mod.LIB_TYPES = {
 	'assetTemplates' : AssetTemplate,
 	'actionLearnable' : ActionLearnable,
 	'factions' : Faction,
+	'books' : Book,
+	'bookPages' : BookPage,
 	'audioKits' : AudioKit,
 	'hitFX' : HitFX,
 	'dungeonTemplates' : DungeonTemplate,
@@ -1385,6 +1392,7 @@ Mod.UseID = [
 	'roleplayStage',
 	'roleplayStageOption',
 	'roleplayStageOptionGoto',
+	'bookPages',
 ];
 
 Mod.getNames = async function( force ){

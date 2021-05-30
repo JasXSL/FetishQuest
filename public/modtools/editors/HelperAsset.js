@@ -596,10 +596,10 @@ export default{
 		};
 
 		// Used to stringify a key from fields that should exist in asset
-		const stringifyVal = (field, asset) => {
+		const stringifyVal = (field, custom, asset) => {
 
-			if( typeof field === "function" )
-				return field.call(win, asset);
+			if( typeof custom === "function" )
+				return custom.call(win, asset);
 
 			const val = asset[getFieldName(field)];
 			if( typeof val === "boolean" )
@@ -688,7 +688,7 @@ export default{
 						if( window.mod.essentialOnly && !fieldIsEssential(i) )
 							continue;
 
-						let data = stringifyVal(fieldName, el);
+						let data = stringifyVal(fieldName, fields[i], el);
 						const text = typeof data === 'string' ? data.toLowerCase() : String(data);
 
 						// Wildcard found
@@ -814,7 +814,7 @@ export default{
 			for( let field in fields ){
 
 				const essential = fieldIsEssential(field);
-				let val = stringifyVal(field, ext);
+				let val = stringifyVal(field, fields[field], ext);
 
 				const td = document.createElement('td');
 				tr.appendChild(td);

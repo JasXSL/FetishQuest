@@ -46,7 +46,8 @@ export default class GameAction extends Generic{
 		const out = {
 			id : this.id,
 			type : this.type,
-			conditions : Condition.saveThese(this.conditions, full)
+			conditions : Condition.saveThese(this.conditions, full),
+			desc : this.desc,	// Needed for asset interactions
 		};
 
 		if( full || GameAction.typesToSendOnline[this.type] ){
@@ -57,7 +58,6 @@ export default class GameAction extends Generic{
 
 		if( full === "mod" ){
 			out.label = this.label;
-			out.desc = this.desc;
 			this.g_sanitizeDefaults(out);
 		}
 		
@@ -275,6 +275,7 @@ export default class GameAction extends Generic{
 
 	getDataAsShop(){
 
+		// This is called when loading a mod...
 		if( this.data.shop instanceof Shop )
 			return this.data.shop;
 
@@ -755,6 +756,10 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.book ){
+			game.readBook(player, this.data.label);
+		}
+
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
 			return false;
@@ -772,14 +777,14 @@ export default class GameAction extends Generic{
 		}
 	}
 
-	validate(player, debug){
+	validate(player, roomAsset, debug){
 
 		if( !Condition.all(this.conditions, new GameEvent({
 			target: player,
 			sender: player,
-			dungeon : this.parent.parent.parent,
-			room : this.parent.parent,
-			dungeonRoomAsset : this.parent,
+			dungeon : game.dungeon,
+			room : game.dungeon.getActiveRoom(),
+			dungeonRoomAsset : roomAsset,
 			debug : this
 		}), debug) )return false;
 		
@@ -796,11 +801,11 @@ export default class GameAction extends Generic{
 
 	}
 	
-	static getViable( actions = [], player = undefined, debug = false, validate = true ){
+	static getViable( actions = [], player = undefined, debug = false, validate = true, roomAsset = undefined ){
 		let out = [];
 		for( let action of actions ){
 	
-			let valid = action.validate(player, debug);
+			let valid = action.validate(player, roomAsset, debug);
 			if( valid || !validate )
 				out.push(action);
 	
@@ -851,6 +856,7 @@ GameAction.types = {
 	playerMarker : 'playerMarker',
 	refreshPlayerVisibility : 'refreshPlayerVisibility',
 	refreshMeshes : 'refreshMeshes',
+	book : 'book',
 };
 
 GameAction.TypeDescs = {
@@ -894,6 +900,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',
 	[GameAction.types.refreshPlayerVisibility] : 'void - Forces the game to refresh visibility of players.',
 	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
+	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 };
 
 // These are types where data should be sent to netgame players

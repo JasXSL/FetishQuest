@@ -7,6 +7,7 @@ import AssetTemplate from './templates/AssetTemplate.js';
 import Player from './Player.js';
 import Game from './Game.js';
 import stdTag from '../libraries/stdTag.js';
+import GameAction from './GameAction.js';
 
 export default class Asset extends Generic{
 	
@@ -33,6 +34,7 @@ export default class Asset extends Generic{
 			equip_conditions : Condition,
 			wrappers : Wrapper,
 			use_action : Action,
+			game_actions : GameAction,
 		};
 	}
 
@@ -68,6 +70,7 @@ export default class Asset extends Generic{
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
 		this.use_action = null;			// Set to an Action along with charges above to enable use
 		this.no_auto_consume = false;		// Prevents auto consume of charges
+		this.game_actions = [];			// Can only be used from inventory. Uses the description of the game action as a label in the context menu.
 		this.rarity = this.constructor.Rarity.COMMON;
 		this.loot_sound = '';				// Also equip and unequip sound. audioKit ID
 		this.soulbound = false;			// Prevent stealing and trading
@@ -128,6 +131,7 @@ export default class Asset extends Generic{
 			color_tag_base : this.color_tag_base,
 			hit_sound : this.hit_sound,
 			snpre : this.snpre, 
+			game_actions: GameAction.saveThese(this.game_actions, full),
 		};
 
 
@@ -185,6 +189,17 @@ export default class Asset extends Generic{
 			
 		}
 		return 'aeiou'.includes(this.shortname.charAt(0).toLowerCase()) ? 'an' : 'a';
+
+	}
+
+	getUseActionById( id ){
+
+		for( let action of this.game_actions ){
+
+			if( action.id === id )
+				return action;
+
+		}
 
 	}
 
@@ -824,6 +839,7 @@ Asset.Categories = {
 	reagent : 'reagent',
 	tool : 'tool',
 	currency : 'currency',
+	book : 'book',
 };
 
 Asset.CategoriesNames = {
@@ -835,6 +851,7 @@ Asset.CategoriesNames = {
 	[Asset.Categories.tool] : 'Tools',
 	[Asset.Categories.reagent] : 'Reagent',
 	[Asset.Categories.currency] : 'Currency',
+	[Asset.Categories.book] : 'Book',
 };
 
 

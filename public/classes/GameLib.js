@@ -27,6 +27,8 @@ const load_order = [
 	'assetTemplates',
 
 	'factions',
+	'bookPages',
+	'books',
 	
 	'roleplayStageOptionGoto',
 	'roleplayStageOption',
@@ -97,6 +99,8 @@ export default class GameLib{
 		this.gameActions = {};
 		this.actionLearnable = {};
 		this.factions = {};
+		this.books = {};
+		this.bookPages = {};
 		this._cache_assets = {};
 		this.texts = {};				// The texts array gets throw into an object for easier fetching
 		this.gallery = {};				// Player gallery

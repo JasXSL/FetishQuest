@@ -8,6 +8,7 @@ import * as THREE from '../ext/THREE.js';
 import { DungeonRoomAsset } from "./Dungeon.js";
 import StaticModal from "./StaticModal.js";
 import Modal from "./Modal.js";
+import Book from "./Book.js";
 
 const NUM_ACTIONS = 18;	// Max nr actions the UI can draw
 
@@ -63,6 +64,15 @@ export default class UI{
 
 		this.dungeonProgress = $("#dungeonProgress");
 
+		this.book = $("#book");
+		this.bookPageA = $("div.page.A", book);
+		this.bookPageB = $("div.page.B", book);
+		this.bookPageNrA = $("div.pageNr.A", book);
+		this.bookPageNrB = $("div.pageNr.B", book);
+		this.bookNavA = $("div.nav.A", book);
+		this.bookNavB = $("div.nav.B", book);
+		this.bookClose = $("div.close", book);
+		
 		
 
 		this.endTurnButton = null;
@@ -253,9 +263,28 @@ export default class UI{
 			th.mouseDown = true;
 		});
 
-		this.board.toggleClass("dev", this.showDMTools());
+		this.updateDMTools();
 		this.board.toggleClass("bubbles", this.showBubbles());
 
+		const closeBook = () => {
+			this.book.toggleClass('hidden', true);
+			game.uiAudio( 'book_close' );
+		};
+
+		this.book.off('click').on('click', event => {
+			
+			if( event.target === event.currentTarget )
+				closeBook();
+			
+		});
+		this.bookClose.off('click').on('click', () => {
+			closeBook();
+		});
+
+	}
+
+	updateDMTools(){
+		this.board.toggleClass("dev", this.showDMTools());
 	}
  
 	// Takes the 3d canvases
@@ -2103,6 +2132,49 @@ export default class UI{
 	}
 
 
+
+	/* Book */
+	// Page is a full fold, covering 2 pages in total
+	openBook( book, page ){
+
+		if( page === undefined ){
+
+			game.uiAudio( 'book_open' );
+			page = 0;
+
+		}
+		else{
+			const sounds = 'abdc';
+			game.uiAudio( 'book_page_flip_'+sounds[Math.floor(Math.random()*sounds.length)] );
+		}
+		if( !(book instanceof Book) )
+			throw 'Book not found!';
+
+		const 
+			pageA = book.pages[page*2],
+			pageB = book.pages[page*2+1]
+		;
+
+		this.bookPageA.html(pageA ? esc(pageA.text) : '');
+		this.bookPageB.html(pageB ? esc(pageB.text) : '');
+		
+		this.bookPageNrA.html(page*2+1);
+		this.bookPageNrB.html(pageB ? page*2+2 : '');
+
+		this.book.toggleClass('hidden', false);
+
+		this.bookNavA
+			.toggleClass('hidden', page <= 0)
+			.off('click').on('click', () => {
+				this.openBook(book, page-1);
+			});
+		this.bookNavB
+			.toggleClass('hidden', !book.pages[page*2+2])
+			.off('click').on('click', () => {
+				this.openBook(book, page+1);
+			});
+
+	}
 
 
 

@@ -1335,11 +1335,13 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	getViableInteractions( player, debug = false ){
+
 		if( !player && window.game )
 			player = game.getMyActivePlayer();
 		if( !player && window.game )
 			player = game.players[0];
-		return GameAction.getViable(this.interactions, player, debug);
+		return GameAction.getViable(this.interactions, player, debug, true, this);
+
 	}
 
 	isLocked(){
@@ -1486,10 +1488,15 @@ class DungeonRoomAsset extends Generic{
 			return false;
 
 		for( let i of this.interactions ){
-			if( !i.validate )
+
+			if( !(i instanceof GameAction) ){
 				console.error("Found invalid interaction", i, "in", this);
-			if( i.validate(game.getMyActivePlayer() || game.players[0]) )
+				continue;
+			}
+
+			if( i.validate(game.getMyActivePlayer() || game.players[0], this) )
 				return true;
+
 		}
 		return false;
 	}
@@ -1533,10 +1540,14 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	hasActiveEncounter(){
+
 		for( let i of this.interactions ){
-			if( i.type === GameAction.types.encounters && i.validate() )
+
+			if( i.type === GameAction.types.encounters && i.validate(game.getMyActivePlayer() || game.players[0], this) )
 				return true;
+
 		}
+
 	}
 
 	
@@ -1545,13 +1556,17 @@ class DungeonRoomAsset extends Generic{
 
 	/* Encounters */
 	getEncounters(){
+
 		let encounters = [];
 		for( let i of this.interactions ){
-			if( i.type === GameAction.types.encounters && i.validate() ){
+
+			if( i.type === GameAction.types.encounters && i.validate(game.getMyActivePlayer() || game.players[0], this) ){
 				encounters = encounters.concat(Encounter.loadThese(i.data));
 			}
+
 		}
 		return encounters;
+
 	}
 	getAllRoleplayGameActions(){
 		const out = [];
@@ -1829,7 +1844,7 @@ class DungeonRoomAsset extends Generic{
 			if( i !== -1 && i < 1 )
 				continue;
 
-			let valid = i.validate(player);
+			let valid = i.validate(player, this);
 			if( valid )
 				i.trigger( player, mesh );
 

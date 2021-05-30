@@ -14,6 +14,7 @@ import * as EditorPlayerTemplate from './EditorPlayerTemplate.js';
 import * as EditorFaction from './EditorFaction.js';
 import * as EditorDungeon from './EditorDungeon.js';
 import * as EditorDungeonTemplate from './EditorDungeonTemplate.js';
+import * as EditorBook from './EditorBook.js';
 import Generic from '../../classes/helpers/Generic.js';
 
 
@@ -755,6 +756,20 @@ export function asset(){
 				'<input type="number" name="data::scale" class="saveable" value="'+esc(asset.data.scale || 0)+'" />'+
 			'</label>';
 		html += '</div>';
+	}
+	else if( type === Types.book ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				label : ''
+			};
+
+		html += '<div class="labelFlex"></div>';
+		html += 'Book: <br /><div class="book"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.book").appendChild(EditorBook.assetTable(this, asset, "data::label", true, false));
+		};
+
 	}
 	else if( type === Types.refreshPlayerVisibility || type === Types.refreshMeshes ){}	// No data
 

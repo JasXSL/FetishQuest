@@ -837,7 +837,7 @@ export default class StaticModal{
 				// DM
 				this.dm.toggle.on('click', event => {
 					localStorage.hide_dm_tools = +game.ui.showDMTools();
-					game.ui.board.toggleClass("dev", game.ui.showDMTools());
+					game.ui.updateDMTools();
 					$("input", event.currentTarget).prop("checked", game.ui.showDMTools());
 				});
 				this.dm.addPlayer.on('click', event => {
@@ -1701,7 +1701,10 @@ export default class StaticModal{
 				if( !(this.shop instanceof Shop) || !myPlayer )
 					throw 'Invalid shop or player';
 
-				this.shop.loadState(game.state_shops[this.shop.label]);
+				// Todo: this doesn't work because a netcode player opening the shop will not refresh items
+				// Figure this out next
+				if( game.is_host )
+					this.shop.loadState(game.state_shops[this.shop.label]);
 
 				if( !game.shopAvailableTo(this.shop, myPlayer) )
 					return;
@@ -2758,6 +2761,15 @@ export default class StaticModal{
 					</div>
 				`;
 			})
+			.addTab("Library", () => {
+				return `
+					<p>This is your party's shared recollection of stories.</p>
+					<div class="library flexAuto">
+						<div class="noBooks">You have not read any books yet</div>
+						<div class="books hidden"></div>
+					</div>
+				`;
+			})
 			.setProperties(function(){
 				
 				const main = this.getTabDom('Inventory')[0];
@@ -2777,6 +2789,12 @@ export default class StaticModal{
 					StaticModal.setWithTab('assetLibrary', 'Library', game.getMyActivePlayer());
 				});
 
+
+				const library = this.getTabDom('Library')[0];
+				this.library = {
+					noBooks : library.querySelector('div.noBooks'),
+					books : library.querySelector('div.books')
+				};
 								
 
 			})
@@ -2828,8 +2846,16 @@ export default class StaticModal{
 
 						if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
 							modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
+						}
+
+						const game_actions = asset.game_actions.filter(el => el.validate(player));
+						for( let i in game_actions ){
+
+							const a = game_actions[i];
+							modal.addSelectionBoxItem(a.desc, false, 'GA:'+a.id);
 
 						}
+						
 
 						if( 
 							game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
@@ -2960,6 +2986,9 @@ export default class StaticModal{
 							
 								return;
 							}
+							else if( task.startsWith('GA:') ){
+								game.useAssetGameAction( asset.getUseActionById(task.substring(3)));
+							}
 
 							modal.closeSelectionBox();
 
@@ -3071,7 +3100,40 @@ export default class StaticModal{
 				
 				mainInv.querySelectorAll('div.item[data-id]').forEach(el => el.addEventListener('click', onAssetClick));
 
+
+
+				// Library
+				const booksRead = game.books_read.keys();
+				this.library.noBooks.classList.toggle('hidden', Boolean(booksRead.length));
+				this.library.books.classList.toggle('hidden', !booksRead.length);
 				
+				// Update books
+				let children = [];
+				booksRead.sort();
+				for( let key of booksRead ){
+					
+					let child = document.createElement('div');
+					let name = game.books_read[key].name;
+					child.classList.add('book', 'button');
+					children.push(child);
+					child.innerText = name;
+
+					child.addEventListener('click', () => {
+
+						if( !game.is_host ){
+
+							game.net.playerGetLargeAsset(player, 'book', key);
+							return;
+
+						}
+							
+						game.readBook(player, key);
+
+
+					});
+
+				}
+				this.library.books.replaceChildren(...children);
 				
 			});
 		// Asset editor

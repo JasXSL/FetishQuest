@@ -234,16 +234,16 @@ export function list(){
 		['*chat'] : true,
 		['*en'] : true,
 		debug : true,
-		['*conditions'] : tx => tx.conditions.map(el => el.label ? el.label : el).join(', '),
-		chatPlayerConditions : tx => tx.chatPlayerConditions.map(el => el.label).join(', '),
-		audiokits : tx => tx.audiokits.map(el => el.label).join(', '),
+		['*conditions'] : tx => tx.conditions ? tx.conditions.map(el => el.label ? el.label : el).join(', ') : '',
+		chatPlayerConditions : tx => tx.chatPlayerConditions ? tx.chatPlayerConditions.map(el => el.label).join(', ') : '',
+		audiokits : tx => tx.audiokits ? tx.audiokits.map(el => el.label).join(', ') : '',
 		alwaysOutput : true,
 		armor_slot : true,
 		chat_reuse : true,
-		hitfx : tx => tx.hitfx.map(el => el.label).join(', '),
-		metaTags : tx => tx.metaTags.join(', '),
+		hitfx : tx => tx.hitfx ? tx.hitfx.map(el => el.label).join(', ') : '',
+		metaTags : tx => (tx.metaTags || []).join(', '),
 		numTargets : true,
-		turnTags : tx => tx.turnTags.join(', '),
+		turnTags : tx => (tx.turnTags || []).join(', '),
 		weight : true
 	}));
 

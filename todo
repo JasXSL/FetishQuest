@@ -14,7 +14,11 @@
 			- Reward: Fresh food and bread, and free room.
 
 	- Mini map
-	- Books: Reading a book adds to a "recollection" tab in inventory that describes it.
+	- Books: 
+		- netcode Game.useAssetGameAction
+		- 
+		- Reading a book adds to a "recollection" tab in inventory that describes it.
+	- Fetish asset with name and descriptor that gets linked to main menu
 
 	Haunted house quest:
 		- Auntie Reven

@@ -23,6 +23,7 @@ import Encounter from './Encounter.js';
 import StaticModal from './StaticModal.js';
 import * as THREE from '../ext/THREE.js';
 import ModRepo from './ModRepo.js';
+import Book from './Book.js';
 
 export default class Game extends Generic{
 
@@ -58,6 +59,7 @@ export default class Game extends Generic{
 		this.procedural = [];							// Dungeon objects
 		this.proceduralDiscovery = new Collection();	// label : {perc:(float)exploredPercentage}
 		this.state_shops = new Collection();			// label : (obj)shopState
+		this.books_read = new Collection();				// label : {}
 		this.difficulty = 0;							// Scale between -3 and 3. Alters enemy level 
 		this.genders = 0;								// Prefer these genders when generating template NPCs. See Game.Genders
 		this.factions = [];
@@ -181,7 +183,8 @@ export default class Game extends Generic{
 			time : this.time,
 			rain : this.rain,
 			factions : Faction.saveThese(this.factions, full),
-			proceduralDiscovery : this.proceduralDiscovery.save(full)
+			proceduralDiscovery : this.proceduralDiscovery.save(full),
+			books_read : this.books_read.save(full),
 		};
 	
 		if( full ){
@@ -388,6 +391,8 @@ export default class Game extends Generic{
 		if( this.time !== time_pre )
 			this.onTimeChanged();
 
+		
+
 	}
 
 	// Automatically invoked after g_autoload() in load()
@@ -406,6 +411,8 @@ export default class Game extends Generic{
 		for( let i in this.state_shops )
 			this.state_shops[i] = ShopSaveState.loadThis(this.state_shops[i], this);
 		
+		this.books_read = Collection.loadThis(this.books_read);
+
 		this.quests = Quest.loadThese(this.quests, this);		
 		this.dungeon = new Dungeon(this.dungeon, this);
 		this.encounter = new Encounter(this.encounter, this);
@@ -1141,7 +1148,7 @@ export default class Game extends Generic{
 
 
 
-
+	
 
 
 
@@ -1957,6 +1964,7 @@ export default class Game extends Generic{
 	// If the encounter was started by clicking a mesh, it's included as a THREE object
 	startEncounter( player, encounter, merge = false, mesh = false ){
 
+		console.log("Starting", encounter);
 		if( !encounter )
 			return;
 
@@ -2046,10 +2054,7 @@ export default class Game extends Generic{
 			}
 
 		}
-
-		
-
-		
+	
 
 		
 		encounter.onPlacedInWorld( !started );	// This has to go after, since players need to be put in world for effects and conditions to work
@@ -2529,6 +2534,54 @@ export default class Game extends Generic{
 	}
 
 
+	/* Adds a book to read state, and sends the data to the netcode player if need be */
+	/* Host only */
+	readBook( player, book ){
+
+		if( !this.is_host )
+			return;
+
+		if( !(book instanceof Book) )
+			book = glib.get(book, 'Book');
+
+		if( !(player instanceof Player) )
+			throw 'Invalid player';
+			
+		if( !book )
+			throw 'Book not found';
+
+		// Always add to library
+		this.books_read.set(book.label, {
+			name : book.name,
+		});
+		this.save();
+
+		for( let action of book.game_actions ){
+			
+			if( !(action instanceof GameAction) )
+				continue;
+			
+			if( !action.validate(player) )
+				continue;
+
+			action.trigger(player);
+
+		}
+
+		const isMyPlayer = player === game.getMyActivePlayer();
+		if( !isMyPlayer && (!this.net.isHostingNetgame() || !player.netgame_owner) )
+			return;
+
+		if( isMyPlayer ){
+
+			this.ui.openBook(book);
+			return;
+		}
+
+		this.net.dmGetLargeAsset(player.netgame_owner, 'book', book.save());
+
+	}
+
 
 
 	/* ASSETS */
@@ -2548,6 +2601,37 @@ export default class Game extends Generic{
 			throw "Target asset not found";
 
 		this.execRepairWithAsset(senderPlayer, targetPlayer, kitAsset, targetAsset);
+
+	}
+
+	useAssetGameAction( assetGameAction ){
+		
+		if( !(assetGameAction instanceof GameAction) )
+			throw 'Game action not found';
+
+		let player = assetGameAction;
+		while( player && player.parent ){
+
+			player = player.parent;
+			if( player instanceof Player )
+				break;
+
+		}
+
+		if( !player )
+			throw 'Player not found for useAssetGameAction';
+
+
+		if( !this.is_host ){
+
+			this.net.playerUseAssetGameAction(player, assetGameAction);
+			return;
+
+		}	
+
+		
+
+		assetGameAction.trigger(player);
 
 	}
 
@@ -3259,6 +3343,7 @@ Game.joinNetGame = () => {
 	
 	game.is_host = false;
 	game.name = '_Netgame_';
+	game.ui.updateDMTools();
 
 };
 

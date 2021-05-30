@@ -44,6 +44,8 @@ import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
 import * as EditorDungeonTemplate from './editors/EditorDungeonTemplate.js';
 import * as EditorDungeonSubTemplate from './editors/EditorDungeonSubTemplate.js';
 import * as EditorGallery from './editors/EditorGallery.js';
+import * as EditorBook from './editors/EditorBook.js';
+import * as EditorBookPage from './editors/EditorBookPage.js';
 import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
 
@@ -93,6 +95,8 @@ const DB_MAP = {
 	"dungeonTemplates" : { listing : EditorDungeonTemplate.list, asset : EditorDungeonTemplate.asset, icon : 'tower-fall', help : EditorDungeonTemplate.help },
 	"dungeonSubTemplates" : { listing : EditorDungeonSubTemplate.list, asset : EditorDungeonSubTemplate.asset, icon : 'tower-fall', help : EditorDungeonSubTemplate.help },
 	"gallery" : { listing : EditorGallery.list, asset : EditorGallery.asset, icon : 'mona-lisa', help : EditorGallery.help },
+	"books" : { listing : EditorBook.list, asset : EditorBook.asset, icon : 'archive-register', help : EditorBook.help },
+	"bookPages" : { listing : EditorBookPage.list, asset : EditorBookPage.asset, icon : 'folded-paper', help : EditorBookPage.help },
 };
 
 /*
