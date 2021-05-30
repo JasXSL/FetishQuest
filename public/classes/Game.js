@@ -1964,7 +1964,6 @@ export default class Game extends Generic{
 	// If the encounter was started by clicking a mesh, it's included as a THREE object
 	startEncounter( player, encounter, merge = false, mesh = false ){
 
-		console.log("Starting", encounter);
 		if( !encounter )
 			return;
 
@@ -2075,6 +2074,8 @@ export default class Game extends Generic{
 			}));
 
 		}
+
+		this.updateShops();
 
 		// Purge is needed after each overwrite
 		this.save();
@@ -2743,6 +2744,27 @@ export default class Game extends Generic{
 
 	}
 
+	getAllShopsHere(){
+		
+		let out = [];
+		const players = this.getEnabledPlayers();
+		for( let player of players )
+			out.push(...this.getShopsByPlayer(player));
+
+		return out;
+
+	}
+
+	// Updates all shops in the current area
+	updateShops(){
+
+		const shops = this.getAllShopsHere();
+		// Figure this out next
+		for( let shop of shops )
+			shop.loadState();
+
+	}
+
 	// Checks if a shop object is available to a player
 	shopAvailableTo( shop, player ){
 		
@@ -2974,7 +2996,7 @@ export default class Game extends Generic{
 			return;
 		}
 		
-		shop.loadState(this.state_shops[shop.label]);
+		shop.loadState();
 		if( typeof asset === "object" )
 			asset = asset.id;
 		asset = shop.getItemById(asset);

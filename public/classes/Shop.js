@@ -90,7 +90,8 @@ export default class Shop extends Generic{
 	generateItems(){
 
 		this._time_generated = game.time;
-		
+		this._level_generated = game.getHighestLevelPlayer();
+
 		this._generated_assets = [];
 		for( let i = 0; i < this.gen_nr; ++i ){
 
@@ -133,6 +134,7 @@ export default class Shop extends Generic{
 
 		this._generated_assets = [];
 		this._time_generated = 0;
+		this._level_generated = 0;
 
 		if( data instanceof ShopSaveState ){
 			
@@ -151,14 +153,16 @@ export default class Shop extends Generic{
 
 			this._time_generated = data.time_generated;
 			this._generated_assets = ShopAsset.loadThese(data.generated_assets, this);
+			this._level_generated = data.level_generated;
 
 		}
 
-		
-		// Todo: Make this trigger every 3 levels as well
-
 		// Restock every 3 days
-		if( this.gen_nr && (!this._time_generated || game.time-this._time_generated > /*260000*/ 3600) ){	// Every 3 days or every 3 levels
+		if( this.gen_nr && (
+			!this._time_generated || 
+			game.time-this._time_generated > 260000 ||
+			game.getHighestLevelPlayer() >= this._level_generated+3
+		) ){	// Every 3 days or every 3 levels
 
 			console.trace("Generating new items");
 			this.generateItems();
@@ -172,13 +176,16 @@ export default class Shop extends Generic{
 	}
 
 	saveState(){
+
 		if( !game.is_host )
 			return;
 		return new ShopSaveState({
+			level_generated : this._level_generated,
 			time_generated : this._time_generated,
 			generated_assets : ShopAsset.saveThese(this._generated_assets, this),
 			items : this.items.map(el => el.saveState())
 		});
+
 	}
 
 

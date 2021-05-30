@@ -1701,11 +1701,6 @@ export default class StaticModal{
 				if( !(this.shop instanceof Shop) || !myPlayer )
 					throw 'Invalid shop or player';
 
-				// Todo: this doesn't work because a netcode player opening the shop will not refresh items
-				// Figure this out next
-				if( game.is_host )
-					this.shop.loadState(game.state_shops[this.shop.label]);
-
 				if( !game.shopAvailableTo(this.shop, myPlayer) )
 					return;
 

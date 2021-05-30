@@ -284,8 +284,10 @@ export default class GameAction extends Generic{
 			console.error("Error, ", this.data.shop, "is not a valid shop in", this);
 			return false;
 		}
+		/* State should be loaded when entering a cell with a shop. This shouldn't be needed
 		if( game && typeof game === "object" )
-			shop.loadState(game.state_shops[shop.label]);
+			shop.loadState();
+		*/
 		return shop;
 	}
 
