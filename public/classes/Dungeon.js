@@ -331,10 +331,9 @@ class Dungeon extends Generic{
 		game.onRoomChange();
 		this.getActiveRoom().onVisit(player);
 
-		game.save();
-
 		game.renderer.updatePlayerMarkers();
 
+		game.onAfterRoomChange();
 
 	}
 
@@ -2228,6 +2227,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	});
 
+
 	let encounterTemplate = randElem(viableEncounters);
 	let roomsPopulated = 0;
 	for( let room of viableEncounterRooms ){
@@ -2260,7 +2260,24 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	// Add treasures
 	let bigTreasures = Math.floor(out.rooms.length/5)+(Math.random() <= (out.rooms.length%5)/5 ? 1 : 0);
 	let treasureRooms = out.rooms.slice(1);	// Can't be in the first room
-	shuffle(treasureRooms);
+	// Put treasures in the deepest rooms without parents
+	treasureRooms.sort((a, b) => {
+		
+		const al = a.getParents().length,
+			bl = b.getParents().length,
+			ac = Boolean(a.getChildren().length),
+			bc = Boolean(b.getChildren().length)
+		;
+		// Prefer rooms without children
+		if( ac !== bc )
+			return bc ? -1 : 1;
+
+		if( al === bl )
+			return 0;
+		return al > bl ? -1 : 1;
+		
+	});
+
 	treasureRooms = treasureRooms.slice(0, bigTreasures);
 	let maxMimics = Math.max(1, Math.floor(out.rooms.length/10))+(out.rooms.length > 0 ? Math.random() <= (out.rooms.length%10)/10 : 0);
 
@@ -2352,27 +2369,36 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		);
 		shuffle(viableLockedRooms);
 		viableLockedRooms = viableLockedRooms.slice(0, numLevers);
-		const placedLevers = new Map();	// leverRoom : [targetRoom...]
+
+		let lockedRooms = new Map();	// room => lever
+		let usedLevers = [];
 		for( let room of viableLockedRooms ){
 
-			let parents = room.getParents().slice(1);	// The parent directly above it can't house the lever
+			let parents = room.getParents().slice(1);	// The parent directly above it can't house the lever because there's no animation for unlocking
 			shuffle(parents);
+
 			let found = false;
 			for( let parent of parents ){
 
-				let indexes = placedLevers.get(parent);
-				if( !indexes )
-					indexes = [];
-
 				// Get nr levers
 				const levers = parent.pGetLevers();
-				if( indexes.length >= levers )
+				shuffle(levers);
+				if( !levers.length )
 					continue;
 
-				found = true;
-				indexes.push(room);
-				placedLevers.set(parent, indexes);			
-				break;
+				// Find a viable lever
+				for( let l of levers ){
+					
+					if( !usedLevers.includes(l) ){
+
+						usedLevers.push(l);
+						lockedRooms.set(room, l);
+						found = true;
+						break;
+
+					}
+					
+				}
 
 			}
 			if( !found )
@@ -2380,44 +2406,34 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 		}
 		// Place the locks and levers
-		placedLevers.forEach((lockedRooms, leverRoom) => {
+		lockedRooms.forEach((lever, lockedRoom) => {
 
+			const dVar = "lever"+lockedRoom.index;
+			
+			out.vars[dVar] = false;
+			
+			lever.interactions.push(new GameAction({
+				type: GameAction.types.lever,
+				data : {id:dVar}
+			}, lever));
 
-			let levers = leverRoom.pGetLevers();
-			shuffle(levers);
+			// Find the door of the parent room
+			const parentRoom = out.getRoomByIndex(lockedRoom.parent_index);
+			const interaction = parentRoom.pGetDoorInteractionToRoom(lockedRoom);
 
-			// Create lever names
-			for( let r of lockedRooms ){
+			// Build the condition saying the lever is down
+			const cond = new Condition({
+				type : Condition.Types.dungeonVar,
+				data : {
+					id : dVar,
+					data : true
+				}
+			}, interaction);
 
-				const dVar = "lever"+r.index;
-				
-				out.vars[dVar] = false;
-				let lever = levers.shift();	// Grab a lever
+			interaction.conditions.push(cond);
 
-				if( !lever )
-					console.error("Lever missing", levers, leverRoom);
-				lever.interactions.push(new GameAction({
-					type: GameAction.types.lever,
-					data : {id:dVar}
-				}, lever));
-
-				// Find the door of the parent room
-				const parentRoom = out.getRoomByIndex(r.parent_index);
-				const interaction = parentRoom.pGetDoorInteractionToRoom(r);
-
-				// Build the condition saying the lever is down
-				const cond = new Condition({
-					type : Condition.Types.dungeonVar,
-					data : {
-						id : dVar,
-						data : true
-					}
-				}, interaction);
-
-				interaction.conditions.push(cond);
-
-				
-			}
+			
+		
 
 		});
 

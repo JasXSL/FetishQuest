@@ -22,6 +22,7 @@ import Encounter from './Encounter.js';
 import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
 import Condition from './Condition.js';
 import Book, { BookPage } from './Book.js';
+import Fetish from './Fetish.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -59,6 +60,7 @@ export default class Mod extends Generic{
 		this.audioKits = [];	//x AudioKit
 		this.playerClasses = [];	//x Custom player classes
 		this.conditions = [];			//x Condition library
+		this.fetishes = [];
 		this.players = [];
 		this.playerTemplates = [];		// NPC generator templates
 		this.playerTemplateLoot = [];
@@ -135,6 +137,7 @@ export default class Mod extends Generic{
 			audioKits : this.audioKits,
 			playerClasses : this.playerClasses,
 			conditions : this.conditions,
+			fetishes : this.fetishes,
 			playerTemplates : this.playerTemplates,
 			playerTemplateLoot :  this.playerTemplateLoot,
 			assetTemplates : this.assetTemplates,
@@ -1321,6 +1324,7 @@ export default class Mod extends Generic{
 
 // Stores the constructors bound to the different fields
 Mod.LIB_TYPES = {
+	'fetishes' : Fetish,
 	'conditions' : Condition,
 	'effects' : Effect,
 	'wrappers' : Wrapper,

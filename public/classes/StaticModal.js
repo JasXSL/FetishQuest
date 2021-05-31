@@ -1984,6 +1984,29 @@ export default class StaticModal{
 					</p>
 				`;
 			})
+			.addTab("Fetishes", () => {
+				return `
+					<table class="fetishes editor">
+						<tr class="head">
+							<th>On</th>
+							<th>Name</th>
+							<th>Description</th>
+						</tr>
+					</table>
+					<br />
+					<p>Note that mod fetishes depend on the modder setting up Fetish Conditions properly. This isn't a catch-all.</p>
+				`;
+			})
+			.addTab("Multiplayer", () => {
+				return `
+					<h3>Join Existing Online Game</h3>
+					<form class="joinGame">
+						<input type="text" placeholder="Nickname" name="nickname" style="width:auto" />
+						<input type="text" placeholder="Game ID" name="gameID" style="width:auto" />
+						<input type="submit" value="Join Online Game"  />
+					</form>
+				`;
+			})
 			.addTab("My Mods", () => {
 				return `
 					<table class="editor">
@@ -2000,16 +2023,6 @@ export default class StaticModal{
 					<br />
 					Install Mod: <input type="file" class="modFile" />
 					<p class="subtitle">Make your own mod with <a href="modtools.html">the devtools</a>!</p>
-				`;
-			})
-			.addTab("Multiplayer", () => {
-				return `
-					<h3>Join Existing Online Game</h3>
-					<form class="joinGame">
-						<input type="text" placeholder="Nickname" name="nickname" style="width:auto" />
-						<input type="text" placeholder="Game ID" name="gameID" style="width:auto" />
-						<input type="submit" value="Join Online Game"  />
-					</form>
 				`;
 			})
 			.addTab("Mod DB", () => {
@@ -2064,7 +2077,8 @@ export default class StaticModal{
 					mainMenu = this.getTabDom('Main Menu')[0],
 					mods = this.getTabDom('My Mods')[0],
 					online = this.getTabDom('Multiplayer')[0],
-					modDB = this.getTabDom('Mod DB')[0]
+					modDB = this.getTabDom('Mod DB')[0],
+					fetishes = this.getTabDom('Fetishes')[0]
 				;
 
 				this.newGameButton = mainMenu.querySelector('input.newGameButton');
@@ -2077,7 +2091,7 @@ export default class StaticModal{
 				this.modSearchForm = modDB.querySelector('form.searchForm');
 				this.modSearchInput = this.modSearchForm.querySelector('input.search');
 				this.modSearchResults = modDB.querySelector('div.searchResults');
-
+				this.fetishes = fetishes.querySelector('table.fetishes');
 			})
 			.setDraw(async function(){
 
@@ -2285,7 +2299,52 @@ export default class StaticModal{
 				}
 				this.modsTable.querySelector('tr.noMods').classList.toggle('hidden', Boolean(sortedMods.length));
 
-				
+
+				// Fetishes
+				let rows = [];
+				const fs = Object.values(glib.getFull('Fetish'));
+				let active = game.getFetishSettings();
+				const onFetishClick = event => {
+					event.preventDefault();
+
+					const fetish = event.currentTarget.dataset.label;
+					game.toggleFetish(fetish, !game.hasFetish(fetish));
+					this.refresh();
+
+				};
+
+				let th = document.createElement('tr');
+				rows.push(th);
+				th.innerHTML = '<th>Enabled</th><th>Name</th><th>Description</th>';
+
+				for( let f of fs ){
+
+					let tr = document.createElement('tr');
+					rows.push(tr);
+					tr.dataset.label = f.label;
+
+					const label = f.label;
+
+					let td = document.createElement('td');
+					tr.appendChild(td);
+					let input = document.createElement('input');
+					td.appendChild(input);
+					input.type = 'checkbox';
+					if( active[label] )
+						input.checked = true;
+					
+					td = document.createElement('td');
+					tr.appendChild(td);
+					td.innerText = labelToName(label);
+
+					td = document.createElement('td');
+					tr.appendChild(td);
+					td.innerText = labelToName(f.description);
+
+					tr.addEventListener('click', onFetishClick);
+					
+				}
+				this.fetishes.replaceChildren(...rows);
 
 				// First run
 				if( !this.drawn ){

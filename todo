@@ -14,10 +14,6 @@
 			- Reward: Fresh food and bread, and free room.
 
 	- Mini map
-	- Books: 
-		- netcode Game.useAssetGameAction
-		- 
-		- Reading a book adds to a "recollection" tab in inventory that describes it.
 	- Fetish asset with name and descriptor that gets linked to main menu
 
 	Haunted house quest:
@@ -47,7 +43,6 @@
 	Bugs:
 		- Force update log after finishing an exploration. Not sure what causes this, it should be set? Maybe game.proceduralDiscovery isn't updated correct?
 		- I can tell your cock likes it when <- invalid start text. not sure what causes this
-		- Shops are auto generated immediately on netcode?
 		
 
 -- LATER UPDATE --

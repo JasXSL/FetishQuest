@@ -19,6 +19,7 @@ import * as EditorPlayerTemplate from './EditorPlayerTemplate.js';
 import * as EditorFaction from './EditorFaction.js';
 import * as EditorDungeon from './EditorDungeon.js';
 import * as EditorDungeonTemplate from './EditorDungeonTemplate.js';
+import * as EditorFetish from './EditorFetish.js';
 import Action from '../../classes/Action.js';
 import Asset from '../../classes/Asset.js';
 import GameEvent from '../../classes/GameEvent.js';
@@ -918,6 +919,18 @@ export function asset(){
 
 		fnBind = () => {
 			this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "data::label", false));
+		};
+
+	}
+	else if( type === types.fetish ){
+
+		setDefaultData({
+			label : [],
+		});
+		html += 'Fetishes: <div class="fetishes"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.fetishes").appendChild(EditorFetish.assetTable(this, asset, "data::label", false));
 		};
 
 	}

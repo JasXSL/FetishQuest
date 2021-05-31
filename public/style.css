@@ -1419,7 +1419,6 @@ div.fxBuffRed{
 		background:rgba(0,0,0,.8);
 		border-radius: 3px;
 		border: 1px solid #666;
-		cursor:pointer;
 	}
 	#newGame label.selected{
 		border-color: #FFF;

@@ -46,6 +46,7 @@ import * as EditorDungeonSubTemplate from './editors/EditorDungeonSubTemplate.js
 import * as EditorGallery from './editors/EditorGallery.js';
 import * as EditorBook from './editors/EditorBook.js';
 import * as EditorBookPage from './editors/EditorBookPage.js';
+import * as EditorFetish from './editors/EditorFetish.js';
 import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
 
@@ -97,6 +98,7 @@ const DB_MAP = {
 	"gallery" : { listing : EditorGallery.list, asset : EditorGallery.asset, icon : 'mona-lisa', help : EditorGallery.help },
 	"books" : { listing : EditorBook.list, asset : EditorBook.asset, icon : 'archive-register', help : EditorBook.help },
 	"bookPages" : { listing : EditorBookPage.list, asset : EditorBookPage.asset, icon : 'folded-paper', help : EditorBookPage.help },
+	"fetishes" : { listing : EditorFetish.list, asset : EditorFetish.asset, icon : 'love-mystery', help : EditorFetish.help },
 };
 
 /*

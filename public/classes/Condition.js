@@ -963,6 +963,22 @@ export default class Condition extends Generic{
 
 			}
 
+			else if( this.type === T.fetish ){
+
+				const labels = toArray(this.data.label);
+				for( let i in labels ){
+					
+					if( game.hasFetish(i) ){
+
+						success = true;
+						break;
+
+					}
+
+				}
+
+			}
+
 			else if( this.type === T.targetedSenderLastRound )
 				success = Boolean(s._targeted_by_since_last.get(t.id));
 
@@ -1197,7 +1213,7 @@ Condition.Types = {
 	// Dungeon room conditions
 	roomIsOutdoors : 'roomIsOutdoors',
 	roomZ : 'roomZ',
-
+	fetish : 'fetish',
 };
 
 
@@ -1285,7 +1301,7 @@ Condition.descriptions = {
 	[Condition.Types.roomIsOutdoors] : 'void - Checks if the attached dungeon room(or game.dungeon active room if unspecified) is outdoors',
 	[Condition.Types.isGenderEnabled] : '{genders:(int)genders} - Checks if any of the specified genders are enabled in game gender preferences',
 	[Condition.Types.targetGenderEnabled] : 'void - Checks if the target\'s gender is enabled in game gender preferences',
-
+	[Condition.Types.fetish] : '{label:(str/arr)label} - Requires a fetish to be enabled, by label',
 };
 
 

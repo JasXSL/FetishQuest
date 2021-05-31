@@ -679,6 +679,9 @@ export default class Game extends Generic{
 		// Also lives in netcode
 		if( StaticModal.active && StaticModal.active.closeOnCellMove )
 			StaticModal.close();
+		
+	}
+	onAfterRoomChange(){
 
 		// Update exploration
 		if( this.dungeon.procedural ){
@@ -693,7 +696,9 @@ export default class Game extends Generic{
 				disc.perc = explored;
 
 		}
-		
+
+		game.save();
+
 	}
 	// This one is raised both on host and client.
 	// It's only raised on coop after the turn is changed proper, if a player dies, they're likely skipped
@@ -939,6 +944,29 @@ export default class Game extends Generic{
 		return out;
 	}
 
+
+	/* FETISHES */
+	getFetishSettings(){
+		try{
+			return JSON.parse(localStorage._fetishes);
+		}catch(err){
+			return {};
+		}
+	}
+	hasFetish( label ){
+
+		const f = this.getFetishSettings()[label];
+		return f === undefined || f;
+
+	}
+	toggleFetish( label, on ){
+
+		on = Boolean(on);
+		const f = this.getFetishSettings();
+		f[label] = on;
+		localStorage._fetishes = JSON.stringify(f);
+
+	}
 
 
 	/* AUDIO */
@@ -1264,19 +1292,29 @@ export default class Game extends Generic{
 		
 	}
 
+	getIndexOfProceduralDungeonByLabel( label ){
+		for( let i = 0; i< this.procedural.length; ++i ){
+
+			if( label === this.procedural[i].label )
+				return i;
+
+		}
+		return false;
+	}
 
 	removeProceduralDungeonState( dungeon ){
 		
-		if( typeof dungeon === 'string' )
-			dungeon = this.getProceduralDungeon(dungeon);
+		if( dungeon instanceof Dungeon )
+			dungeon = dungeon.label;
 		
-		let index = this.procedural.indexOf(dungeon);
-		if( index === -1 )
+		let index = this.getIndexOfProceduralDungeonByLabel(dungeon);
+		if( index === false )
 			return;
+		
 
 		this.procedural.splice(index);
-		this.state_dungeons.unset(dungeon.label);
-		this.discoverProceduralDungeon(dungeon.label);
+		this.state_dungeons.unset(dungeon);
+		this.discoverProceduralDungeon(dungeon);
 
 	}
 

@@ -8,6 +8,7 @@ const CACHE_MAP = {
 };
 
 const load_order = [
+	'fetishes',
 	'conditions',
 	'effects',
 	'wrappers',
@@ -88,6 +89,7 @@ export default class GameLib{
 		this.dungeonSubTemplates = {};
 		this.dungeonTemplates = {};
 		this.effects = {};
+		this.fetishes = {};
 		this.wrappers = {};
 		this.encounters = {};
 		this.players = {};
