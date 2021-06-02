@@ -3024,6 +3024,103 @@ div.fxBuffRed{
 	
 /**/
 
+/* Mini map */
+	#miniMap{
+		position: absolute;
+		top:0; left:0;
+		width:20vmax;
+		height: 20vmax;
+		font-size:1vmax;
+		user-select: none;
+		/*pointer-events: none;*/
+	}
+
+	#miniMap > div.top{
+		position: absolute;
+		top:0;
+		left:0;
+		display: flex;
+	}
+
+	#miniMap > div.top.flat div.nav,
+	#miniMap:not(.on) > div.top > div:not(.minimize){
+		/* Flat Z height */
+		display: none;
+	}
+
+	#miniMap > div.top > div{
+		
+		margin-left:1px;
+		vertical-align: middle;
+		flex:1;
+		text-align: center;
+		padding:1vmax 0;
+		width:3vmax;
+		display:inline-block;
+		pointer-events:initial;
+		line-height: 0%;
+
+	}
+
+	#miniMap.on > div.top > div.minimize{
+		background:#ACA;
+	}
+
+	#miniMap > div.top > div:not(.zLevel){
+		background:url(media/ui/marble.jpg);
+		border: 1px solid #AAA;
+		border-top:none;
+		cursor:pointer;
+	}
+
+	#miniMap > div.zLevel{
+		position: absolute;
+		top:1vmax; left:50%;
+		transform:translateX(-50%);
+		color:rgba(255,255,255,.75);
+		font-family: 'Germania One', cursive;
+	}
+
+	
+
+
+	#miniMap > div.top > div:not(.zLevel):hover{
+		background:rgba(255,255,255,.75);
+	}
+	#miniMap > div.top > div:not(.zLevel):active{
+		font-weight: bold;
+	}
+
+	#miniMap:not(.on) > div.content{
+		display:none;
+	}
+
+	#miniMap > div.content{
+		position: absolute;
+		width:100%;
+		height:100%;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		padding:2%;
+		top:2vmax;
+	}
+	#miniMap > div.content > div.cell{
+		background:rgba(255,255,255,.5);
+		border:1px solid rgba(0,0,0,.5);
+		border-radius: 1vmax;
+	}
+	#miniMap > div.content > div.cell.current{
+		background: rgba(100, 255, 100, 0.5);
+	}
+	#miniMap > div.content > div.cell.empty{
+		visibility: hidden;
+	}
+
+
+/**/
+
+
 /* Quest accept */
 
 	@keyframes questAccept{

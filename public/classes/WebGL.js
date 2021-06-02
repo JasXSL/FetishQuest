@@ -1686,6 +1686,7 @@ class WebGL{
 		}
 		
 		this.camera.lookAt(0,0,0);
+		this.controls.target.y = game.dungeon.getActiveRoom().outdoors ? 0 : 100;
 		this.controls.update();
 		this.cameraTween.stop();
 		this.cameraTween = new TWEEN.Tween(this.camera.position).to({y:posY, z:posZ}, 500).easing(TWEEN.Easing.Sinusoidal.Out)

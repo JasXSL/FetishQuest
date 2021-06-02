@@ -450,6 +450,32 @@ class Dungeon extends Generic{
 		return Object.keys(t);
 	}
 
+	getDiscoveredRooms(){
+		return this.rooms.filter(room => room.discovered);
+	}
+
+	getDiscoveredZ(){
+
+		let min = 0, max = 0;
+		for( let room of this.rooms ){
+
+			if( !room.discovered )
+				continue;
+
+			if( room.z > max )
+				max = room.z;
+			if( room.z < min )
+				min = room.z;
+
+		}
+
+		return {
+			min : min,
+			max : max
+		};
+
+	}
+
 }
 
 

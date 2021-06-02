@@ -11,7 +11,7 @@ const serveIndex = require('serve-index');
 const ImageProxy = require('./ImageProxy');
 const multer = require('multer');
 const upload = multer({dest : __dirname+'/temp/'});
-
+const fs = require('fs').promises;
 
 const io = require('socket.io')(server);
 server.listen(port);
@@ -78,6 +78,21 @@ app.use('/modtools2.html', (req, res) => {
 app.use('/media/textures', Express.static(textureDir), serveIndex(textureDir, {icons:true}));
 app.use('/media/audio/ambiance', Express.static(ambianceDir), serveIndex(ambianceDir, {icons:true}));
 app.use('/imgproxy', ImageProxy);
+app.use('/build_date', async (req, res) => {
+
+	let version = '';
+	let success = false;
+	try{
+		const stat = await fs.stat('public/libraries/MAIN.fqmod');
+		version = stat.mtime;
+		success = true;
+	}catch(err){
+		version = err.message;
+	}
+
+	res.json({success:success, data:version});
+
+});
 app.use(Express.static(__dirname+'/public'));
 
 

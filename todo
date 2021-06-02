@@ -4,7 +4,8 @@
 
 -- CURRENT --
 	
-	- Add inn area:
+	
+	Inn quest:
 		QUEST:
 			- Need to get underwater breathing first. If not, she can start the underwater breathing quest.
 			- Fetch algae from an underground cave inhabited by shark people
@@ -12,9 +13,6 @@
 			- Shark people will trade you for landwalker items after clearing a dungeon for them
 			- Shark people will teach you about sharkanium and waygates
 			- Reward: Fresh food and bread, and free room.
-
-	- Mini map
-	- Fetish asset with name and descriptor that gets linked to main menu
 
 	Haunted house quest:
 		- Auntie Reven
@@ -31,13 +29,12 @@
 		- RP to get the anemone off and causing it to spawn magic goo everywhere
 		- Quest rewards exp and water breathing
 
-	Fast travel system:
-		- TEST
-	Tailor quest:
-		- TEST
-	Underwater procedural:
-		- TEST
-	
+
+-- TEST --
+	Fast travel system
+	Tailor quest
+	Underwater procedural
+	Mini map
 	
 
 	Bugs:

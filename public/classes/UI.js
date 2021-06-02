@@ -65,14 +65,21 @@ export default class UI{
 		this.dungeonProgress = $("#dungeonProgress");
 
 		this.book = $("#book");
-		this.bookPageA = $("div.page.A", book);
-		this.bookPageB = $("div.page.B", book);
-		this.bookPageNrA = $("div.pageNr.A", book);
-		this.bookPageNrB = $("div.pageNr.B", book);
-		this.bookNavA = $("div.nav.A", book);
-		this.bookNavB = $("div.nav.B", book);
-		this.bookClose = $("div.close", book);
-		
+		this.bookPageA = $("div.page.A", this.book);
+		this.bookPageB = $("div.page.B", this.book);
+		this.bookPageNrA = $("div.pageNr.A", this.book);
+		this.bookPageNrB = $("div.pageNr.B", this.book);
+		this.bookNavA = $("div.nav.A", this.book);
+		this.bookNavB = $("div.nav.B", this.book);
+		this.bookClose = $("div.close", this.book);
+
+		this.miniMap = $("#miniMap");
+		this.miniMapTop = $("> div.top", this.miniMap);
+		this.miniMapNav = $("> div.nav", this.miniMapTop);
+		this.miniMapMinimize = $("> div.minimize", this.miniMapTop);
+		this.miniMapZ = $("> div.zLevel", this.miniMapTop);
+		this.miniMapContent = $("> div.content", this.miniMap);
+		this.minimap_current_z = 0;
 		
 
 		this.endTurnButton = null;
@@ -84,7 +91,7 @@ export default class UI{
 
 		// Active player has viable moves
 		this._has_moves = false;
-		this.visible = localStorage.ui_visible === undefined ? true : Boolean(+localStorage.ui_visible);	// main UI layer visible
+		this.visible = localStorage.ui_visible === undefined ? true : Boolean(parseInt(localStorage.ui_visible));	// main UI layer visible
 
 		this.previousConsoleCommands = [];
 		try{
@@ -177,6 +184,12 @@ export default class UI{
 					StaticModal.close();
 					
 				}
+
+			}
+			else if( event.key === 'w' ){
+
+				game.uiClick();
+				this.toggleMiniMap();
 
 			}
 
@@ -281,6 +294,23 @@ export default class UI{
 			closeBook();
 		});
 
+		this.miniMapMinimize.off('click').on('click', () => {
+
+			game.uiClick();
+			this.toggleMiniMap();
+
+		});
+		this.miniMapNav.off('click').on('click', event => {
+			
+			game.uiClick();
+			this.changeMinimapLevel(
+				event.currentTarget.innerText === '+' ? 1 : -1
+			);
+
+		});
+
+		this.toggleMiniMap(Boolean(localStorage.mini_map));
+
 	}
 
 	updateDMTools(){
@@ -290,7 +320,7 @@ export default class UI{
 	// Takes the 3d canvases
 	ini( map, fx ){
 
-		this.toggle(true);
+		this.toggle(this.visible);
 
 		if( this.initialized )
 			return;		
@@ -308,7 +338,7 @@ export default class UI{
 		this.fx = fx;
 		this.renderer.html(map);
 		$("#fx").html(fx);
-		this.toggleAll(this.visible);
+		this.toggleAll(true);
 
 		this.initialized = true;
 		this.draw();
@@ -425,6 +455,7 @@ export default class UI{
 
 			this.drawProceduralTooltip();
 			
+			this.updateMiniMap();
 
 			//console.log("execDraw took", Date.now()-time, times);
 
@@ -1574,6 +1605,15 @@ export default class UI{
 
 	}
 
+	onAfterRoomChange(){
+
+		const z = game.dungeon.getActiveRoom().z;
+		if( this.miniMapZ !== z ){
+			this.setMinimapLevel(z);
+		}
+
+	}
+
 
 	/* Events */
 	onNewGame(){
@@ -2451,6 +2491,105 @@ export default class UI{
 	}
 
 
+	/* Mini map */
+	updateMiniMap(){
+
+		let d = game.dungeon;
+		const disc = d.getDiscoveredZ();
+		let z = Math.abs(disc.max-disc.min)+1;
+		// Update the level
+		const curZ = this.minimap_current_z;
+
+		this.miniMapTop.toggleClass('flat', (z < 2))
+		this.miniMapZ.text((curZ-disc.min+1)+'/'+z).toggleClass('hidden', (z<2));
+
+		let children = [];
+		// Get explored rooms on this floor
+		let exploredRooms = d.getDiscoveredRooms().filter(el => el.z === curZ);
+		let minX, minY, maxX, maxY;
+		for( let room of exploredRooms ){
+
+			if( room.x > maxX || maxX === undefined )
+				maxX = room.x;
+			if( room.x < minX || minX === undefined )
+				minX = room.x;
+			if( room.y > maxY || maxY === undefined )
+				maxY = room.y;
+			if( room.y < minY || minY === undefined )
+				minY = room.y;
+
+		}
+
+		const getRoomAtCoordinate = (x,y) => {
+			for( let room of exploredRooms ){
+				if( room.x === x && room.y === y )
+					return room;
+			}
+		};
+
+		let scale = Math.max(
+			6,
+			Math.abs(maxX-minX),
+			Math.abs(maxY-minY)
+		);
+
+		for( let y = 0; y < scale; ++y ){
+			
+			for( let x = 0; x < scale; ++x ){
+
+				const room = getRoomAtCoordinate(minX+x, maxY-y);
+
+				let div = document.createElement('div');
+				children.push(div);
+				div.classList.add('cell');
+				const size = 1.0/scale*98;
+				div.style = 'width:'+size+'%; height:'+size+'%';
+
+				if( !room ){
+					div.classList.add('empty');
+					continue;
+				}
+				if( room.id === game.dungeon.getActiveRoom().id )
+					div.classList.add('current');
+
+			}
+
+		}
+
+		this.miniMapContent[0].replaceChildren(...children);
+
+
+	}
+	// Change Z level of minimap
+	changeMinimapLevel( dir = 1 ){
+
+		const disc = game.dungeon.getDiscoveredZ();
+		this.minimap_current_z = Math.min(disc.max, Math.max(disc.min, this.minimap_current_z+dir)) || 0;
+		this.updateMiniMap();
+
+	}
+	setMinimapLevel( level ){
+
+		this.minimap_current_z = level || 0;
+		this.updateMiniMap();
+
+	}
+	toggleMiniMap( on ){
+
+		let cur = Boolean(localStorage.mini_map);
+		if( on === undefined )
+			cur = !cur;
+		else
+			cur = Boolean(on);
+		
+		if( !cur )
+			delete localStorage.mini_map;
+		else
+			localStorage.mini_map = "ON";
+
+		this.miniMap.toggleClass('on', cur);
+		
+	}
 
 
 	/* 3d MODELS */

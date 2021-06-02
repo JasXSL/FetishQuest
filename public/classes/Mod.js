@@ -1308,15 +1308,50 @@ export default class Mod extends Generic{
 
 	static async getMainMod(){
 
-		// Load the main mod
-		let data = await JSZipUtils.getBinaryContent('./libraries/MAIN.fqmod');
-		data = await JSZip.loadAsync(data);
+		let fetches = await Promise.all([
+			Mod.db.cache.get('main_build'),
+			fetch('/build_date')
+		]);
+		const cVer = fetches[0] && fetches[0].data,
+			dbVer = await fetches[1].json()
+		;
 
-		const file = data.files['mod.json'];
-		if( !file )
-			throw 'Missing main mod file';
+		let mainMod;
+		// We already have this one, try to fetch it
+		if( dbVer && dbVer.success && dbVer.data === cVer ){
+			
+			mainMod = await Mod.db.cache.get('main_mod');
+			mainMod = mainMod && mainMod.data;
+
+		}
 		
-		return new this(JSON.parse(await file.async("text")));
+		// We don't have the main mod, fetch it and unzip it
+		if( !mainMod ){
+
+			console.log("Downloading main mod");
+			// Load the main mod
+			let data = await JSZipUtils.getBinaryContent('./libraries/MAIN.fqmod');
+			data = await JSZip.loadAsync(data);
+
+			const file = data.files['mod.json'];
+			if( !file )
+				throw 'Missing main mod file';
+
+			mainMod = JSON.parse(await file.async("text"));
+
+			console.log(dbVer);
+			// Store it
+			if( dbVer && dbVer.data ){
+				
+				console.log("Storing mod build date", dbVer.data);
+				Mod.db.cache.put({id:'main_build', data:dbVer.data});
+				Mod.db.cache.put({id:'main_mod', data:mainMod});
+
+			}
+		}else
+			console.log("Using cached main mod v", dbVer);
+
+		return new this(mainMod);
 
 	}
 
@@ -1377,6 +1412,10 @@ Mod.db.version(2).stores({
 		entry.version = entry.version || '0.0.1';
 		entry.name = entry.name || 'Unnamed Mod';
 	});
+});
+Mod.db.version(3).stores({
+	mods: 'id,name,version',
+	cache : 'id'	// id : type, data : data
 });
 
 Mod.Category = {

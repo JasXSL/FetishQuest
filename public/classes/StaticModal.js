@@ -752,6 +752,9 @@ export default class StaticModal{
 					<div class="option cacheLevel" style="margin-top:1vmax" title="Makes returning to previously visited areas faster, but increases memory use.">
 						<input type="range" style="width:50%; vertical-align:top" min=10 max=100 step=10 /><span></span> Cache Levels
 					</div>
+					<div class="option logLevel" style="margin-top:1vmax" title="Nr of combat texts to log">
+						<input type="range" style="width:50%; vertical-align:top" min=100 max=1000 step=100 /><span></span> Combat Log Size
+					</div>
 				`;
 			})
 			.addTab("Audio", () => {
@@ -808,7 +811,9 @@ export default class StaticModal{
 					enableAA : $("div[data-action=enableAA]", this.getTabDom("Video")),
 					enableFpsMeter : $("div[data-action=enableFpsMeter]", this.getTabDom("Video")),
 					cacheLevel : $("div.cacheLevel input", this.getTabDom("Video")),
+					logLevel : $("div.logLevel input", this.getTabDom("Video")),
 					cacheLevelSpan : $("div.cacheLevel span", this.getTabDom("Video")),
+					logLevelSpan : $("div.logLevel span", this.getTabDom("Video")),
 				};
 
 				const netgame = this.getTabDom("Online")[0];
@@ -909,6 +914,12 @@ export default class StaticModal{
 					localStorage.cache_level = val;
 					this.video.cacheLevelSpan.text(val);
 				});
+				this.video.logLevel.on('input', event => {
+					const val = parseInt($(event.currentTarget).val()) || 100;
+					localStorage.log_size = val;
+					this.video.logLevelSpan.text(val);
+					Game.LOG_SIZE = val;
+				});
 
 				// Audio
 				$("input", this.getTabDom("Audio")).on('input', event => {
@@ -980,6 +991,10 @@ export default class StaticModal{
 				const cacheLevel = parseInt(localStorage.cache_level) || 50;
 				this.video.cacheLevel.val(cacheLevel);
 				this.video.cacheLevelSpan.text(cacheLevel);
+				
+				this.video.logLevel.val(Game.LOG_SIZE);
+				this.video.logLevelSpan.text(Game.LOG_SIZE);
+
 				
 				for( let i of this.gameplay.genderInputs)
 					i.checked = (!game.genders || game.genders&parseInt(i.value));
@@ -3721,6 +3736,10 @@ export default class StaticModal{
 						<tr>
 							<td>q</td>
 							<td>Select multi target</td>
+						</tr>
+						<tr>
+							<td>w</td>
+							<td>Toggle mini map</td>
 						</tr>
 					</table>
 				`;

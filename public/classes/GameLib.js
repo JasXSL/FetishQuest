@@ -110,15 +110,15 @@ export default class GameLib{
 
 	async loadMainMod(){
 
-		this._main_mod = await Mod.getMainMod();
+		if( !this._main_mod )
+			this._main_mod = await Mod.getMainMod();
 
 	}
 
 	async ini(){
 		
-		if( !this._main_mod )
-			await this.loadMainMod();
 		await this.autoloadMods();
+
 	}
 
 	// Loads a mod db array onto one of this objects
@@ -242,8 +242,10 @@ export default class GameLib{
 		// Allow auto rebasing now that mods have loaded
 		Generic.auto_rebase = true;
 
-		
+		console.log("Loading custom game assets");
 		this.rebase();
+
+		console.log("Connecting links");
 
 		let n =  0;
 		const all = load_order.slice();
@@ -260,8 +262,7 @@ export default class GameLib{
 
 		}
 
-
-		console.log("Rebased", n, "objects");
+		console.log(n, "assets prepared");
 		this._allow_clone = true;
 		this.loading = false;
 		console.debug("MODS FINISHED LOADING. LIBRARY:", this);
@@ -293,7 +294,10 @@ export default class GameLib{
 		mods = mods.filter(el => el);
 
 		if( !hasMainOverride ){
+			
+			await this.loadMainMod();
 			mods.unshift(this._main_mod);
+
 		}
 		else{
 			console.log("You are now using an alternate MAIN mod");

@@ -124,6 +124,7 @@ export default class Game extends Generic{
 
 		if( this.full_initialized )
 			return;
+
 		this.full_initialized = true;
 		// Bind events
 		GameEvent.on(GameEvent.Types.playerDefeated, event => {
@@ -319,8 +320,10 @@ export default class Game extends Generic{
 	// Std load
 	async load( data ){
 
+		console.log("Loading game");
 		this.initialized = false;		// prevents text sounds from being played when a netgame loads
 		this.g_autoload(data);
+		console.log("Game save loaded");
 
 		// Custom ad-hoc libraries do not need to be rebased
 		for( let i in this.libAsset )
@@ -338,7 +341,10 @@ export default class Game extends Generic{
 		//await glib.autoloadMods();
 		glib.setCustomAssets(this.libAsset);
 
+
 		this.ui.draw();
+
+
 		if( !this.roleplay.persistent && this.is_host && this.full_initialized )
 			this.clearRoleplay();
 
@@ -347,11 +353,11 @@ export default class Game extends Generic{
 		this.chat_log = [];
 		for( let ch of log )
 			this.ui.addText.apply(this.ui, ch);
-		
+
 		this.assignAllColors();
 		this.initialized = true;
-		this.initialize();
 
+		this.initialize();
 		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement);
 		
 		
@@ -362,12 +368,18 @@ export default class Game extends Generic{
 			this.addRandomQuest();
 		*/
 		if( this.dungeon.label ){
+
+			console.log("Setting up renderer");
 			this.dungeon.loadState();
 			this.renderer.loadActiveDungeon();
+
 		}
 		this.verifyLeader();
 
+		this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);
+
 		this.encounter.onPlacedInWorld( false );	// Sets up event bindings and such
+		console.log("Game loaded");
 
 	}
 
@@ -631,6 +643,7 @@ export default class Game extends Generic{
 
 		this._looted_players = {};	// Reset looted players
 		new GameEvent({type:GameEvent.Types.dungeonEntered, dungeon:this.dungeon}).raise();
+		this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);
 
 	}
 	// Draw quest completed message
@@ -679,7 +692,7 @@ export default class Game extends Generic{
 		// Also lives in netcode
 		if( StaticModal.active && StaticModal.active.closeOnCellMove )
 			StaticModal.close();
-		
+					
 	}
 	onAfterRoomChange(){
 
@@ -696,6 +709,8 @@ export default class Game extends Generic{
 				disc.perc = explored;
 
 		}
+
+		this.ui.onAfterRoomChange();
 
 		game.save();
 
@@ -3289,7 +3304,7 @@ Game.VibHub = VibHub;		// Set by VibHub.js
 
 Game.EQUIP_COST = 4;
 Game.UNEQUIP_COST = 2;
-Game.LOG_SIZE = 800;
+Game.LOG_SIZE = parseInt(localStorage.log_size) || 800;
 Game.ROOM_RENTAL_DURATION = 3600*24;
 Game.MAX_SLEEP_DURATION = 24;			// Hours
 
