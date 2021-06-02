@@ -571,6 +571,12 @@ export default class Condition extends Generic{
 			else if( this.type === T.sadism ){
 				success = t && this.compareValue(s, t, t.sadistic);
 			}
+			else if( this.type === T.dom ){
+				success = t && this.compareValue(s, t, t.dominant);
+			}
+			else if( this.type === T.hetero ){
+				success = t && this.compareValue(s, t, t.hetero);
+			}
 			else if( this.type === T.sizeValue )
 				success = t && this.compareValue(s, t, t.size);
 			else if( this.type === T.targetLevel )
@@ -1202,6 +1208,8 @@ Condition.Types = {
 	charging : 'charging',
 	targetedSenderLastRound : 'targetedSenderLastRound',
 	sadism : 'sadism',
+	dom : 'dom',
+	hetero : 'hetero',
 	hourRange : 'hourRange',
 	hasActiveConditionalPlayer : 'hasActiveConditionalPlayer',
 	actionCrit : 'actionCrit',
@@ -1251,7 +1259,9 @@ Condition.descriptions = {
 	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
 	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
-	[Condition.Types.sadism] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic).',
+	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic).',
+	[Condition.Types.dom] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target dominant value, between 0 (sub) 0.5 (switch) and 1 (dom).',
+	[Condition.Types.hetero] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target hetero value, between 0 (not gay), 0.5 (gay) 1 (completely straight).',
 	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target size value.',
 	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >',
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',

@@ -791,6 +791,12 @@ export function asset(){
 	else if( type === types.sadism ){
 		html += buildDefaultValueFields();
 	}
+	else if( type === types.dom ){
+		html += buildDefaultValueFields();
+	}
+	else if( type === types.hetero ){
+		html += buildDefaultValueFields();
+	}
 	else if( type === types.sameTeam ){}
 	else if( type === types.sizeValue ){
 		html += buildDefaultValueFields();

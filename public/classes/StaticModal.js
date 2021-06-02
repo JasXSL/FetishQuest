@@ -1173,6 +1173,9 @@ export default class StaticModal{
 								<div class="elemental">Elemental <input type="number" step=1 /></div>
 								<div class="holy">Holy <input type="number" step=1 /></div>
 							</div>
+							<div class="center">Non-sadistic <input type="range" name="sadistic" min=0 max=1 step=0.1 style="width:40%" /> Sadistic</div>
+							<div class="center">Sub <input type="range" name="dominant" min=0 max=1 step=0.1 style="width:40%" /> Dom</div>
+							<div class="center">Gay <input type="range" name="hetero" min=0 max=1 step=0.1 style="width:40%" /> Hetero</div>
 							<input type="submit" value="Save" />
 							<input type="button" value="Delete Player" class="red deletePlayer" />
 						</form>
@@ -1238,6 +1241,9 @@ export default class StaticModal{
 					formStamina : $('#playerEditor input[name=stamina]', dDom),
 					formAgility : $('#playerEditor input[name=agility]', dDom),
 					formIntellect : $('#playerEditor input[name=intellect]', dDom),
+					formSadistic : $('#playerEditor input[name=sadistic]', dDom),
+					formDominant : $('#playerEditor input[name=dominant]', dDom),
+					formHetero : $('#playerEditor input[name=hetero]', dDom),
 					formSecondaryStat : $('#playerEditor div.secondaryStat', dDom),
 					formDeletePlayer : $('#playerEditor input.deletePlayer', dDom),
 					image : $('> div.right > div.image', dDom),
@@ -1435,6 +1441,9 @@ export default class StaticModal{
 					dDivs.formStamina.val(parseInt(player.stamina) || 0);
 					dDivs.formAgility.val(parseInt(player.agility) || 0);
 					dDivs.formIntellect.val(parseInt(player.intellect) || 0);
+					dDivs.formSadistic.val(+player.sadistic || 0);
+					dDivs.formDominant.val(+player.dominant || 0);
+					dDivs.formHetero.val(+player.hetero || 0);
 
 					// Draw the class form
 					let clib = Object.values(glib.getFull('PlayerClass'));
@@ -1541,7 +1550,7 @@ export default class StaticModal{
 						player.icon_upperBody = dDivs.formUpperBody.val().trim();
 						player.icon_lowerBody = dDivs.formLowerBody.val().trim();
 						player.icon_nude = dDivs.formNude.val().trim();
-						player.hp = parseInt(dDivs.formHP.val())||10;
+						player.hp = parseInt(dDivs.formHP.val())||1;
 						player.ap = parseInt(dDivs.formAP.val())||0;
 						player.mp = parseInt(dDivs.formMP.val())||0;
 						player.arousal = parseInt(dDivs.formArousal.val())||0;
@@ -1549,6 +1558,10 @@ export default class StaticModal{
 						player.stamina = parseInt(dDivs.formStamina.val())||0;
 						player.agility = parseInt(dDivs.formAgility.val())||0;
 						player.intellect = parseInt(dDivs.formIntellect.val())||0;
+
+						player.sadistic = Math.max(0, Math.min(1, +dDivs.formSadistic.val())) || 0;
+						player.dominant = Math.max(0, Math.min(1, +dDivs.formDominant.val())) || 0;
+						player.hetero = Math.max(0, Math.min(1, +dDivs.formHetero.val())) || 0;
 						
 						player.level = parseInt(dDivs.formLevel.val())||1;
 						player.size = parseInt(dDivs.formSize.val())||0;
@@ -2518,7 +2531,8 @@ export default class StaticModal{
 								<input type="text" class="autoSave" name="name" placeholder="Character Name" required /><br />
 								<input type="text" class="autoSave" name="species" placeholder="Species" required /><br />
 								Class: <div class="class"><!-- Class listing goes here --></div>
-								Size: <input type="range" class="autoSave" name="size" min=0 max=10 /><br />
+								Size: <br />
+								<div class="center">Tiny <input type="range" style="width:60%" class="autoSave" name="size" min=0 max=10 /> Giant</div>
 								Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />
 								<div class="tags"></div>
 								<textarea name="description" class="autoSave"></textarea>
@@ -2526,6 +2540,8 @@ export default class StaticModal{
 								Nude: <input type="text" class="small reloadIcon autoSave" name="icon_nude" placeholder="Nude Art" /><br />
 								UpperBody: <input type="text" class="small reloadIcon autoSave" name="icon_upperBody" placeholder="UpperBody Art" /><br />
 								LowerBody: <input type="text" class="small reloadIcon autoSave" name="icon_lowerBody" placeholder="LowerBody Art" /><br />
+								<div class="center">Sub <input type="range" style="width:60%" class="autoSave" name="dominant" min=0 max=1 step=0.1 /> Dom</div>
+								<div class="center">Gay <input type="range" style="width:60%" class="autoSave" name="hetero" min=0 max=1 step=0.1 /> Het</div>
 							</div>
 							<div class="right">
 								<div style="text-align:center">
@@ -2556,6 +2572,8 @@ export default class StaticModal{
 					name : dom.querySelector('input[name=name]'),
 					species : dom.querySelector('input[name=species]'),
 					size : dom.querySelector('input[name=size]'),
+					dominant : dom.querySelector('input[name=dominant]'),
+					hetero : dom.querySelector('input[name=hetero]'),
 					class : dom.querySelector('div.class'),
 					addTagButton : dom.querySelector('input.addTag'),
 					tags : dom.querySelector('div.tags'),
@@ -2640,6 +2658,8 @@ export default class StaticModal{
 					this.cData.name.value = this.player.name;
 					this.cData.species.value = this.player.species;
 					this.cData.size.value = this.player.size;
+					this.cData.hetero.value = this.player.hetero;
+					this.cData.dominant.value = this.player.dominant;
 					
 					updateClass();
 
