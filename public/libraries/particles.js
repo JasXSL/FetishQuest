@@ -273,6 +273,42 @@ textures.smoke.material.depthWrite = true;
 		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
 	};
 
+	particles.dustMotes = {
+		
+		texture : textures.sparkle,
+		blending : THREE.NormalBlending,
+		rate : 0.1,
+		count : 1,
+		position : new Proton.BoxZone(0,0,0,500, 100, 500),
+		size : 5,
+		size_tween : [0,1, Proton.ease.easeFullSine],
+		part_max_age : 3,
+		velocity : 30,
+		gravity : 0.25,
+		color : "#FFFFFF",	
+		opacity: 1,
+		wiggle : 3,
+		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
+	};
+
+	particles.questSparkles = {
+		
+		texture : textures.sparkle,
+		blending : THREE.AdditiveBlending,
+		rate : 0.1,
+		count : 1,
+		position : new Proton.BoxZone(0,0,0,100, 100, 100),
+		size : 20,
+		size_tween : [1,0.1],
+		part_max_age : .5,
+		velocity : 50,
+		gravity : -15,
+		color : "#FFFFAA",	
+		opacity: 1,
+		wiggle : 3,
+		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
+	};
+
 	particles.teslaCoil = {
 		
 		texture : textures.electricSpark,

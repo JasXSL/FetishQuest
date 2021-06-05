@@ -414,7 +414,8 @@ export default{
 			table.querySelector("input.addNew").onclick = event => {
 
 				// If parented, insert a new asset immediately, as there's no point in listing assets that are only viable for this parent
-				if( parented && !event.shiftKey ){
+				// Holding shift key for a non-parent by default creates a parented one
+				if( (parented && !event.shiftKey) || (!parented && event.shiftKey) ){
 
 					let a = new constructor();
 					a = constructor.saveThis(a, "mod");
@@ -502,6 +503,7 @@ export default{
 					return;
 	
 				}
+
 
 				// This is just for legacy reasons, makes sure it has an ID, which the window manager wants
 				if( !asset.label && !asset.id && typeof entry === "object" )

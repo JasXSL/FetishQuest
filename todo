@@ -22,20 +22,35 @@
 		- Quest starts with a person outside the house who is her nephew
 		- Rewards an owometer?
 
-	Great anemone quest:
-		- Get told about a secret entrance from scruffy sailor, or the bartender in inn ara
-		- Kill various sea creatures
-		- Get to the great anemone
-		- RP to get the anemone off and causing it to spawn magic goo everywhere
-		- Quest rewards exp and water breathing
+	Sharkanist enchant rewards:
+		- Powerful enchants. You can buy shards with sharkanium and trade them for enchants. An item can only have 1 enchant.
+		- Enchant ideas:
+			- 
 
+
+
+	Fun tensorflow generated words I can use:
+		- Moinather - An item of some sort
+		- Fabmaren 
+		- Divantle
+		- rubor chair
+		- chaptence
+		- procedo
+		- treather
+		- slimy rough sogle
+		- demalline
+		- tipten 
+		- therrage 
+		- Tworef 
+		- Yuglow earthen
+		- 
 
 -- TEST --
 	Fast travel system
 	Tailor quest
 	Underwater procedural
 	Mini map
-	
+	Anem'ogus quest
 
 	Bugs:
 		- Force update log after finishing an exploration. Not sure what causes this, it should be set? Maybe game.proceduralDiscovery isn't updated correct?

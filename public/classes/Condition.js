@@ -943,6 +943,7 @@ export default class Condition extends Generic{
 				}
 				success = np > amount;
 			}
+			
 
 			else if( this.type === T.actionRanged ){
 				success = event.action && event.action.ranged === Action.Range.Ranged;

@@ -108,8 +108,8 @@ export function list(){
 		tick_on_turn_end : true,
 		tags : true,
 		effects : true,
-		add_conditions : a => a.add_conditions.map(el => el.label).join(', '),
-		stay_conditions : a => a.add_conditions.map(el => el.label).join(', '),
+		add_conditions : a => !a.add_conditions ? '' : a.add_conditions.map(el => el.label).join(', '),
+		stay_conditions : a => !a.stay_conditions ?  '' : a.stay_conditions.map(el => el.label).join(', '),
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

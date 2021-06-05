@@ -208,6 +208,7 @@ export default class Roleplay extends Generic{
 		const stage = this.getActiveStage();
 		if( stage )
 			stage.onStart();
+
 	}
 
 	validate( player, debug ){
@@ -259,9 +260,7 @@ RoleplayChatQueue.next = function(){
 	if( !this.queue.length )
 		return;
 
-	
 	const chat = this.queue.shift();
-
 	game.speakAs( chat.sender.id, chat.getText( chat.sender ) );
 	this.timer = setTimeout(() => {
 		
@@ -421,6 +420,9 @@ export class RoleplayStage extends Generic{
 		for( let act of this.game_actions ){
 			await act.trigger(player, pl);
 		}
+
+		const tevt = this.getTextEvent();
+		tevt.text.triggerVisuals(tevt);
 		
 	}
 
@@ -512,6 +514,7 @@ export class RoleplayStage extends Generic{
 			textEvt.text.text = textEvt.text.text.replace('/me', '%S');
 			
 		}
+
 		const textOutput = textEvt.text.run(textEvt, true);
 		return textOutput;
 

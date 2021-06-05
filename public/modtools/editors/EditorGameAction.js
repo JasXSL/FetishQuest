@@ -258,13 +258,11 @@ export function asset(){
 		html += '</div>';
 	}
 	else if( type === Types.lever ){
+
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				id : 'myLever'
 			};
-
-		if( window.mod.mod.vars[asset.data.id] === undefined )
-			window.mod.mod.vars[asset.data.id] = false;
 
 		html += '<div class="labelFlex">';
 			html += '<label>ID: <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';

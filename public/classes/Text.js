@@ -192,19 +192,6 @@ class Text extends Generic{
 			id : this.id,
 			text : this.text,
 			conditions : Condition.saveThese(this.conditions, full),
-			numTargets : this.numTargets,
-			debug : this.debug,
-			alwaysOutput : this.alwaysOutput,
-			turnTags : this.turnTags,
-			audiokits : this.audiokits,
-			armor_slot : this.armor_slot,
-			weight : this.weight,
-			hitfx : HitFX.saveThese(this.hitfx, full),
-			chat : this.chat,
-			chatPlayerConditions : Condition.saveThese(this.chatPlayerConditions, full),
-			metaTags : this.metaTags,
-			en : this.en,
-			chat_reuse : this.chat_reuse
 		};
 
 		// Not sure why this is here since texts should allow labels
@@ -212,6 +199,21 @@ class Text extends Generic{
 		//if( full === "mod" && this.label )
 		//	out.label = this.label;
 
+		if( full ){
+			out.hitfx = HitFX.saveThese(this.hitfx, full);
+			out.numTargets = this.numTargets;
+			out.debug = this.debug;
+			out.alwaysOutput = this.alwaysOutput;
+			out.turnTags = this.turnTags;
+			out.audiokits = this.audiokits;
+			out.armor_slot = this.armor_slot;
+			out.weight = this.weight;
+			out.chat = this.chat;
+			out.chatPlayerConditions = Condition.saveThese(this.chatPlayerConditions, full);
+			out.metaTags = this.metaTags;
+			out.en = this.en;
+			out.chat_reuse = this.chat_reuse;
+		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
 
@@ -452,37 +454,7 @@ class Text extends Generic{
 		if( returnResult )
 			return text;
 
-		for( let kit of this.audiokits ){
-			let kd = glib.audioKits[kit];
-			if( !kd )
-				continue;
-			if( Condition.all(kd.conditions, event) ){
-				game.playFxAudioKitById(
-					kit, 
-					event.sender, 
-					event.target, 
-					this.armor_slot,
-					true
-				);
-			}
-		}
-		
-		
-		let targs = event.target;
-		if( !Array.isArray(targs) )
-			targs = [targs];
-
-		if( event.type === GameEvent.Types.actionCharged )
-			targs = [event.sender];
-		
-		let i = 0;
-		for( let fx of this.hitfx ){
-			for( let targ of targs ){
-				setTimeout(() => game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true), ++i*200);
-				if( fx.once )
-					break;
-			}
-		}
+		this.triggerVisuals(event);
 
 
 		let targ = event.target;
@@ -523,6 +495,42 @@ class Text extends Generic{
 
 
 		
+	}
+
+	// triggers FX and audio kits
+	triggerVisuals( event ){
+		for( let kit of this.audiokits ){
+			let kd = glib.audioKits[kit];
+			if( !kd )
+				continue;
+			if( Condition.all(kd.conditions, event) ){
+				game.playFxAudioKitById(
+					kit, 
+					event.sender, 
+					event.target, 
+					this.armor_slot,
+					true
+				);
+			}
+		}
+		
+		
+		let targs = event.target;
+		if( !Array.isArray(targs) )
+			targs = [targs];
+
+		if( event.type === GameEvent.Types.actionCharged )
+			targs = [event.sender];
+		
+
+		let i = 0;
+		for( let fx of this.hitfx ){
+			for( let targ of targs ){
+				setTimeout(() => game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true), ++i*200);
+				if( fx.once )
+					break;
+			}
+		}
 	}
 
 	// Helper for _cache_action

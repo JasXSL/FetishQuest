@@ -1032,7 +1032,7 @@ export function list(){
 	this.setDom(HelperAsset.buildList(this, "conditions", CONSTRUCTOR, {
 		"*label" : true,
 		"*desc" : true,
-		"conditions" : a => a.conditions.map(el => el.label).join(', '),
+		"conditions" : a => a.conditions ? a.conditions.map(el => el.label).join(', ') : '',
 		"min" : true,
 		"max" : true,
 		"*type" : true,

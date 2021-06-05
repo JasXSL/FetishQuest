@@ -2167,8 +2167,10 @@ export default class UI{
 		
 	}
 	rpOptionSelected( id ){
+		
 		this.selected_rp = id;
 		this.drawRoleplay();
+
 	}
 
 

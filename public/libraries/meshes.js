@@ -1832,7 +1832,7 @@ function build(){
 						let z = -16, y = 198;
 						light.position.z = z;
 						light.position.y = y+20;
-						mesh.add(light);
+						mesh.add(light, light.target);
 						
 
 						//let helper = new THREE.SpotLightHelper(light);
@@ -2165,6 +2165,31 @@ function build(){
 						particles.p.y = y+5;
 						particles.p.z = z;
 						mesh.userData.particles.push(particles);
+					}
+				}),
+				SpotlightBlue : new LibMesh({
+					url : function(){
+
+						const mesh = new THREE.Mesh(new THREE.BoxGeometry(20,20,20), new THREE.MeshStandardMaterial(0xFFFFFF));
+						mesh.rotation.x = -Math.PI/2;
+						mesh.name = 'HITBOX';
+
+						const light = new THREE.SpotLight(0xAADDFF, 2, 1000, 0.5, 0.5);
+
+						const group = new THREE.Group();
+						group.add(mesh, light, light.target);
+						
+
+						return group;
+
+					},
+					onStagePlaced : function(asset, mesh){
+						/*
+						let particles = libParticles.get('dustMotes', mesh, true);
+						mesh.userData.particles = [particles];
+						*/
+						if( window.game )
+							mesh.children[0].visible = false;
 					}
 				}),
 			},
@@ -2581,6 +2606,53 @@ function build(){
 					tags : [stdTag.mTREASURE_MARKER],
 				}),
 			},		
+		},
+
+		Particles : {
+			DustMotes : new LibMesh({
+				url : function(){
+
+					const mesh = new THREE.Mesh(new THREE.BoxGeometry(20,20,20), new THREE.MeshStandardMaterial(0xFFFFFF));
+					mesh.rotation.x = -Math.PI/2;
+					mesh.name = 'HITBOX';
+
+					const group = new THREE.Group();
+					group.add(mesh);
+					
+					return group;
+
+				},
+				onStagePlaced : function(asset, mesh){
+
+					let particles = libParticles.get('dustMotes', mesh, true);
+					mesh.userData.particles = [particles];
+
+					if( window.game )
+						mesh.children[0].visible = false;
+				}
+			}),
+			QuestSparkles : new LibMesh({
+				url : function(){
+
+					const mesh = new THREE.Mesh(new THREE.BoxGeometry(20,20,20), new THREE.MeshStandardMaterial(0xFFFFFF));
+					mesh.rotation.x = -Math.PI/2;
+					mesh.name = 'HITBOX';
+
+					const group = new THREE.Group();
+					group.add(mesh);
+					
+					return group;
+
+				},
+				onStagePlaced : function(asset, mesh){
+
+					let particles = libParticles.get('questSparkles', mesh, true);
+					mesh.userData.particles = [particles];
+
+					if( window.game )
+						mesh.children[0].visible = false;
+				}
+			}),
 		},
 		
 		Faction : {
