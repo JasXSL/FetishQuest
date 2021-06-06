@@ -1988,6 +1988,184 @@ export default class StaticModal{
 
 			});
 
+		// Transmog
+		this.add(new this("transmog", "Transmogrification"))
+			.setCloseOnCellMove(true)
+			//.addRefreshOn(["players"])
+			.addTab("Transmogrification", () => {
+				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+							<br /><input type="button" name="exchange" value="Exchange" />
+						</div>
+					</div>
+					<div class="transmogViable center" style="margin:2vmax 0">Pick an equipped item to transmogrify:</div>
+					<div class="assets transmog shop inventory container"></div>
+					<div class="noEquippedAssets hidden">No transmogrifiable items equipped.</div>
+					<div class="noTargetAssets hidden">No viable equipment to copy appearance from.</div>
+					<div class="targetViable center hidden" style="margin-top:2vmax">Pick an item to copy appearance from. This item will be destroyed.</div>
+					<div class="assets transmogTarget shop inventory container"></div>
+					<div class="finalInstruction center" style="margin-top:2vmax;">
+						Resulting item:
+					</div>
+					<div class="assets finalTarget shop inventory container center"></div>
+					<div class="finalButton center">
+						<input type="button" value="Transmogrify!" />
+					</div>
+				`;
+			})
+			.setProperties(function(){
+				
+				const base = this.getTabDom('Transmogrification')[0];
+				this.money = base.querySelector('div.myMoney');
+				this.assets = base.querySelector('div.transmog.container');
+				this.noEquippedAssets = base.querySelector('div.noEquippedAssets');
+				this.noTargetAssets = base.querySelector('div.noTargetAssets');
+				this.transmogViable = base.querySelector('div.transmogViable');
+				this.transmogTarget = base.querySelector('div.transmogTarget');
+				this.targetViable = base.querySelector('div.targetViable');
+				this.finalInstruction = base.querySelector('div.finalInstruction');
+				this.itemPreview = base.querySelector('div.finalTarget');
+				this.finalButton = base.querySelector('div.finalButton');
+
+			})
+			.setDraw(async function( transmogger ){
+
+				const myPlayer = game.getMyActivePlayer();
+				if( !myPlayer )
+					throw 'You have no active player';
+				if( !transmogger )
+					throw 'Invalid transmogger';
+
+				// Update coins
+				const currencyDiv = this.money.querySelector('span.coins');
+				StaticModal.generateWallet(currencyDiv);
+				await StaticModal.updateWallet(this.money, undefined, this);
+	
+				const money = myPlayer.getMoney();
+				const divs = [];		
+				
+				// Updates stage in the transmog process, 0 = pick target, 1 = pick from, 2 = confirm
+				const updateStage = stage => {
+
+					// Picking equipped item
+					if( stage === 0 ){
+
+						this.noTargetAssets.classList.toggle('hidden', true);
+						this.targetViable.classList.toggle('hidden', true);
+						this.transmogTarget.replaceChildren();
+
+					}
+
+					if( stage === 0 || stage === 1 ){
+
+						this.finalInstruction.classList.toggle('hidden', true);
+						this.itemPreview.classList.toggle('hidden', true);
+						this.finalButton.classList.toggle('hidden', true);
+
+					}
+
+				};
+
+
+				const viableEquipped = myPlayer.getEquippedAssetsBySlots(Asset.SlotsTransmoggable, true);
+
+				const handleMainAssetClick = async event => {
+					
+					let asset = myPlayer.getAssetById(event.currentTarget.dataset.id);
+					if( !asset )
+						return;
+
+					game.uiClick();
+					updateStage(1);
+
+					const handleTargetAssetClick = async event => {
+
+						let targ = myPlayer.getAssetById(event.currentTarget.dataset.id);
+						if( !targ )
+							return;
+
+						game.uiClick();
+						updateStage(2);
+
+						for( let ch of this.transmogTarget.children )
+							ch.classList.toggle('selected', ch.dataset.id === targ.id );
+
+						const dummy = asset.clone();
+						dummy.transmogrifyFrom(targ);
+						dummy.equipped = false;
+
+						this.itemPreview.replaceChildren(await StaticModal.getGenericAssetButton(dummy));
+
+						this.finalInstruction.classList.toggle('hidden', false);
+						this.finalButton.classList.toggle('hidden', false);
+						this.itemPreview.classList.toggle('hidden', false);
+
+						this.finalButton.onclick = () => {
+							try{
+								game.transmogrify(transmogger, myPlayer, asset.id, targ.id);
+								game.uiClick();
+								this.close();
+							}catch(err){
+								game.ui.modal.addError(err);
+							}
+						};
+
+						game.ui.bindTooltips();
+
+					};
+
+					for( let ch of this.assets.children )
+						ch.classList.toggle('selected', ch.dataset.id === asset.id );
+						
+					let viableTargets = myPlayer.assets.filter(el => el.checkTransmogViability(asset));
+
+					this.noTargetAssets.classList.toggle('hidden', Boolean(viableTargets.length));
+					this.targetViable.classList.toggle('hidden', !viableTargets.length);
+
+					let subdivs = [];
+					for( let targ of viableTargets ){
+						
+						if( !(targ instanceof Asset) )
+							continue;
+
+						const div = await StaticModal.getGenericAssetButton(targ);
+						subdivs.push(div);
+						div.addEventListener('click', handleTargetAssetClick);
+
+					}
+					this.transmogTarget.replaceChildren(...subdivs);
+
+					game.ui.bindTooltips();
+
+				};
+				
+				this.noEquippedAssets.classList.toggle('hidden', Boolean(viableEquipped.length));
+				this.transmogViable.classList.toggle('hidden', !viableEquipped.length);
+				
+
+				updateStage(0);
+
+				let used_assets = [];
+				for( let asset of viableEquipped ){
+
+					if( !(asset instanceof Asset) )
+						continue;
+					if( used_assets.includes(asset) )
+						continue;
+					used_assets.push(asset);
+					const cost = asset.getSellCost();
+					const div = await StaticModal.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : '');
+					divs.push(div);
+					div.addEventListener('click', handleMainAssetClick);
+					
+				}
+				this.assets.replaceChildren(...divs);
+
+			});
+
 		// Main menu
 		this.add(new this("mainMenu", "FetishQuest"))
 			.addTab("Main Menu", () => {
@@ -3911,7 +4089,43 @@ export default class StaticModal{
 
 	}
 
-	static async updateWallet(baseElement, shop){
+	static async generateWallet( currencyDiv ){
+
+		const myPlayer = game.getMyActivePlayer();
+
+		for( let i in Player.currencyWeights ){
+
+			const currency = Player.currencyWeights[i];
+
+			let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
+			if( !sub ){
+
+				sub = document.createElement('span');
+				sub.dataset.currency = currency;
+				sub.style = 'color:'+Player.currencyColors[i];
+				currencyDiv.append(sub);
+				currencyDiv.append(document.createTextNode(' '));
+
+			}
+
+			sub.classList.toggle('hidden', true);
+
+			const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
+			if( !asset )
+				continue;
+
+			const amt = parseInt(asset._stacks);
+			if( !amt )
+				continue;
+
+			sub.classList.toggle('hidden', false);
+			sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
+
+		}
+
+	}
+
+	static async updateWallet(baseElement, shop, win){
 
 		const myPlayer = game.getMyActivePlayer();
 		// Exchange button
@@ -3921,6 +4135,8 @@ export default class StaticModal{
 
 			exchangeButton.addEventListener('click', event => {
 				game.exchangePlayerMoney(myPlayer);
+				if( win )
+					win.refresh();
 			});
 			exchangeButton._bound = true;
 

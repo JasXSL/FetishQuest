@@ -112,7 +112,7 @@ export function list(){
 		events : true,
 		debug : true,
 		no_stack_multi : true,
-		conditions : a => a.conditions.map(el => el.label).join(', '),
+		conditions : a => a.conditions ? a.conditions.map(el => el.label).join(', ') : '',
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

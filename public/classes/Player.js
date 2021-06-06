@@ -1603,7 +1603,7 @@ export default class Player extends Generic{
 	getCarriedWeight(){
 		let out = 0;
 		for(let asset of this.assets){
-			let weight = asset.weight;
+			let weight = asset.getWeight();
 			out+= weight;
 		}
 		return out;

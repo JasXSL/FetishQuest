@@ -2757,6 +2757,22 @@ export default class Game extends Generic{
 		return out;
 	}
 
+	// Returns game actions
+	getTransmogByPlayer( player ){
+		const encounter = this.encounter;
+		const ga = encounter.getTransmogs(player);
+		if( !player )
+			return;
+		const out = [];
+		for( let a of ga ){
+			if( a.data.player === player.label )
+				out.push(a);
+		}
+		return out;
+	}
+
+	
+
 
 	// Returns game actions
 	getRoomRentalByPlayer( player ){
@@ -2863,6 +2879,78 @@ export default class Game extends Generic{
 				return true;
 		}
 		return false;
+	}
+
+	// Checks if a transmog object is available to a player
+	transmogAvailableTo( transmogPlayer, player ){
+
+		if( this.battle_active )
+			return false;
+
+		if( !(transmogPlayer instanceof Player) )
+			throw "Transmog player is not a player";
+			
+		if( !(player instanceof Player) )
+			throw "Player is not a player";
+
+		const out = this.getTransmogByPlayer(transmogPlayer);
+		for( let a of out ){
+			if( a.validate(player) )
+				return true;
+		}
+		return false;
+	}
+
+	transmogrify( transmogrifier, player, baseAsset, copyFrom ){
+
+		if( !(player instanceof Player) )
+			player = this.getPlayerById(player);
+
+		if( !(transmogrifier instanceof Player) )
+			transmogrifier = this.getPlayerById(transmogrifier);
+
+		if( !transmogrifier )
+			throw 'Transmogrifier not found';
+
+		if( !player )
+			throw 'Player not found';
+		
+		if( !this.transmogAvailableTo(transmogrifier, player) )
+			throw 'Transmogrifier not available';
+
+		baseAsset = player.getAssetById(baseAsset);
+		copyFrom = player.getAssetById(copyFrom);
+		if( !baseAsset )
+			throw 'Invalid base asset in transmog';
+		if( !copyFrom )
+			throw 'Invalid copy from asset in transmog';
+
+		const cost = baseAsset.getSellCost();
+		if( player.getMoney() < cost )
+			throw 'Insufficient funds';
+		
+		if( copyFrom.soulbound )
+			throw 'Unable to transmog soulbound items';
+
+		if( !baseAsset.checkTransmogViability(copyFrom) )
+			throw 'These items cannot be transmogged like that';
+
+		if( !player.getEquippedAssetsBySlots(Asset.SlotsTransmoggable).includes(baseAsset) )
+			throw 'Invalid transmog item';
+
+		if( !this.is_host ){
+			this.net.playerTransmogrify(transmogrifier, player, baseAsset, copyFrom);
+			return;
+		}
+
+		baseAsset.transmogrifyFrom(copyFrom);
+		player.destroyAsset(copyFrom.id, 1);
+		player.consumeMoney(cost);
+
+		this.playFxAudioKitById("buy_item", player, player, undefined, true);
+		this.playFxAudioKitById("transmogrifyExec", player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+" transmogrified an item.", "transmog", player.id, player.id, 'transmog');
+
 	}
 
 	// Checks if a smith object is available to a player

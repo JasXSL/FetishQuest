@@ -744,6 +744,19 @@ class NetworkManager{
 
 			}
 
+			else if( task === PT.transmogrify ){
+
+				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
+				if( !args.mogger || !args.baseAsset || !args.targetAsset )
+					throw 'Missing arguments to transmogrify';
+				let player = validatePlayer();
+				if( !player )
+					throw 'Player not found';
+
+				game.transmogrify(args.mogger, player, args.baseAsset, args.targetAsset);
+
+			}
+
 			else if( task === PT.repairItemAtBlacksmith ){
 
 				// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
@@ -1330,6 +1343,24 @@ class NetworkManager{
 			player : player,
 		});
 	}
+
+	playerTransmogrify(mogger, player, baseAsset, targetAsset){
+		if( mogger instanceof Player )
+			mogger = mogger.id;
+		if( player instanceof Player )
+			player = player.id;
+		if( baseAsset instanceof Asset )
+			baseAsset = baseAsset.id;
+		if( targetAsset instanceof Asset )
+			targetAsset = targetAsset.id;
+
+		this.sendPlayerAction(NetworkManager.playerTasks.transmogrify, {
+			mogger : mogger,
+			player : player,
+			baseAsset : baseAsset,
+			targetAsset : targetAsset
+		});
+	}
 	
 	playerExchangeGold(player){
 		this.sendPlayerAction(NetworkManager.playerTasks.exchangeGold, {
@@ -1400,6 +1431,7 @@ class NetworkManager{
 			player : player.id,
 		});
 	}
+
 
 
 	/* OUTPUT TASKS DM */
@@ -1671,6 +1703,7 @@ NetworkManager.playerTasks = {
 	inMenu : 'inMenu',					// {in:(int)menu}
 	getLargeAsset : 'getLargeAsset',		// {player:(str)player_uuid, type:(str)type, label:(str)label} - Fetches a large DB asset from the host. Currently used for books, because they're a bit too heavy to send along to all players constantly. On success, sends DM->Player getLargeAsset
 	useAssetGameAction : 'useAssetGameAction',	// {player:(str)player_uuid, label:(str)label} - Tries to use a game action from Asset.game_actions by label
+	transmogrify : 'transmogrify',		// {mogger : player_offering_transmogs, player : player_transmogging, baseAsset : asset to transmogrify onto, targetAsset : asset to use for the looks}
 };
 
 export default NetworkManager;

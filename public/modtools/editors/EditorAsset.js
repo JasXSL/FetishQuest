@@ -46,6 +46,8 @@ export function asset(){
 		html += '<label>Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>Durability Bonus: <input name="durability_bonus" value="'+esc(dummy.durability_bonus)+'" step=1 type="number" class="saveable" /></label>';
 		html += '<label>Stacking: <input name="stacking" class="saveable" type="checkbox" '+(dummy.stacking ? 'checked' : '')+' /></label>';
+		html += '<label title="Durability doubled">Mastercrafted: <input name="mastercrafted" class="saveable" type="checkbox" '+(dummy.mastercrafted ? 'checked' : '')+' /></label>';
+		html += '<label title="Weight is cut in half">Fitted: <input name="fitted" class="saveable" type="checkbox" '+(dummy.fitted ? 'checked' : '')+' /></label>';
 		html += '<label title="Stacks of this to add when adding this particular asset. Useful in templates.">'+
 			'Stacks to add: <input name="_stacks" class="saveable" type="number" min=1 step=1 value="'+(parseInt(dummy._stacks) || 1)+'" />'+
 		'</label>';
@@ -148,7 +150,7 @@ export function list(){
 		icon : true,
 		equip_conditions: true,
 		tags : true,
-		wrappers : a => a.wrappers.length,
+		wrappers : a => a.wrappers ? a.wrappers.length : 0,
 		durability_bonus : true,
 		stacking : true,
 		charges : true,

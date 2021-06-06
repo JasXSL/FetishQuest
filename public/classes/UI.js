@@ -844,6 +844,7 @@ export default class UI{
 					'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
 					'<div class="interaction hidden" data-type="gym"><img src="media/wrapper_icons/weight-lifting-up.svg" /></div>'+
 					'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
+					'<div class="interaction hidden" data-type="transmog"><img src="media/wrapper_icons/gold-nuggets.svg" /></div>'+
 					'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
 					'<div class="interaction hidden" data-type="rent"><img src="media/wrapper_icons/bed.svg" /></div>'+
 					'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
@@ -1042,6 +1043,7 @@ export default class UI{
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive)).length,
+			transmog : myActive && game.transmogAvailableTo(p, myActive),
 			repair : myActive && game.smithAvailableTo(p, myActive),
 			gym : myActive && game.gymAvailableTo(p, myActive),
 			rent : myActive && rr,
@@ -1077,6 +1079,12 @@ export default class UI{
 
 			StaticModal.set('smith', p);
 			game.uiAudio( "smith_entered" );
+			
+		}
+		else if( type === 'transmog' ){
+
+			StaticModal.set('transmog', p);
+			game.uiAudio( "enter_transmogrify" );
 			
 		}
 		else if( type === 'gym' ){
@@ -1345,6 +1353,12 @@ export default class UI{
 		$("div.interaction[data-type=repair]", el).toggleClass("hidden", !showSmith).off('click').on('click', event => {
 			event.stopImmediatePropagation();
 			this.onPlayerInteractionUsed( "repair", p );
+		});
+
+		const showTransmog = interactions.transmog;
+		$("div.interaction[data-type=transmog]", el).toggleClass("hidden", !showTransmog).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.onPlayerInteractionUsed( "transmog", p );
 		});
 
 

@@ -451,6 +451,19 @@ export function asset(){
 		};
 		
 	}
+	else if( type === Types.transmog ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				player : '',
+			};
+			
+		html += 'Player: <div class="player"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
+		
+	}
 	else if( type === Types.openShop ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {

@@ -613,7 +613,7 @@ export default class GameAction extends Generic{
 
 		}
 
-		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.rentRoom || this.type === types.gym )
+		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.rentRoom || this.type === types.gym || this.type === types.transmog )
 			return;
 
 		else if( this.type === types.playerAction ){
@@ -859,6 +859,7 @@ GameAction.types = {
 	refreshPlayerVisibility : 'refreshPlayerVisibility',
 	refreshMeshes : 'refreshMeshes',
 	book : 'book',
+	transmog : 'transmog',
 };
 
 GameAction.TypeDescs = {
@@ -903,6 +904,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.refreshPlayerVisibility] : 'void - Forces the game to refresh visibility of players.',
 	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
+	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
 };
 
 // These are types where data should be sent to netgame players
@@ -917,6 +919,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.repairShop] : true,
 	[GameAction.types.rentRoom] : true,
 	[GameAction.types.gym] : true,
+	[GameAction.types.transmog] : true,
 };
 
 

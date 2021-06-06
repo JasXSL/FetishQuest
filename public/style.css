@@ -1536,9 +1536,10 @@ div.fxBuffRed{
 /**/
 
 /* Shop */
-	#shop, #smith{
+	#shop, #smith, #transmog{
 		min-width: 60vw;
 	}
+	#transmog div.modalMain,
 	#smith div.modalMain,
 	#shop div.modalMain{
 		max-height:70vh;
@@ -1547,6 +1548,7 @@ div.fxBuffRed{
 	}
 
 	#smith div.inventory div.item div.cost,
+	#transmog div.inventory div.item div.cost,
 	#shop div.inventory div.item div.cost{
 		position: absolute;
 		right:0.5vmax;
@@ -1572,6 +1574,7 @@ div.fxBuffRed{
 		background:rgba(0,0,0,.75);
 		padding:0.25vmax;
 	}
+	#shop div.myMoney,
 	#smith div.myMoney,
 	#shop div.myMoney{
 		text-align: center;
@@ -1595,6 +1598,11 @@ div.fxBuffRed{
 
 /**/
 
+/* Transmog */
+#transmog div.inventory div.item.selected{
+	border-color:#FFF;
+	border-width: 0.3vmax;
+}
 
 /* Players */
 	#ui > div.players{

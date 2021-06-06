@@ -66,6 +66,8 @@ export default class Asset extends Generic{
 		this.color = "#FFFFFF";		// Currently dyed color
 		this.color_base = "#FFFFFF";		// Base color of the item
 		this.hit_sound = '';			// Hit sound from punch etc attacks. You can use commas to pick one at random
+		this.fitted = false;			// Use half the weight
+		this.mastercrafted = false;		// Use twice the durability
 
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
 		this.use_action = null;			// Set to an Action along with charges above to enable use
@@ -132,6 +134,8 @@ export default class Asset extends Generic{
 			hit_sound : this.hit_sound,
 			snpre : this.snpre, 
 			game_actions: GameAction.saveThese(this.game_actions, full),
+			fitted : this.fitted,
+			mastercrafted : this.mastercrafted,
 		};
 
 
@@ -254,7 +258,7 @@ export default class Asset extends Generic{
 	}
 
 	getMaxDurability(){
-		return 10+this.durability_bonus;
+		return (10+this.durability_bonus) * (this.mastercrafted ? 2 : 1);
 	}
 
 	equippable(){
@@ -283,6 +287,7 @@ export default class Asset extends Generic{
 	isSellable(){
 		return this.getSellCost() > 0;
 	}
+	// Note: shop might not always be present
 	getSellCost( shop ){
 		if( this.basevalue < 1 )
 			return 0;
@@ -445,16 +450,20 @@ export default class Asset extends Generic{
 		this.durability = 1+Math.floor(Math.random()*(this.getMaxDurability()-1));
 	}
 
+	getWeight(){
+		return Math.floor(this.weight * (this.fitted ? 0.5 : 1));
+	}
+
 	getWeightReadable(){
-		if( this.weight <= 10 )
+		if( this.getWeight() <= 10 )
 			return 'Very Lightweight';
-		else if( this.weight <= 100 )
+		else if( this.getWeight() <= 100 )
 			return 'Lightweight';
-		else if( this.weight <= 1000 )
+		else if( this.getWeight() <= 1000 )
 			return 'Fairly Lightweight';
-		else if( this.weight <= 5000 )
+		else if( this.getWeight() <= 5000 )
 			return 'Moderately Heavy';
-		else if( this.weight <= 10000 )
+		else if( this.getWeight() <= 10000 )
 			return 'Heavy';
 		return 'Very Heavy';	
 	}
@@ -590,7 +599,62 @@ export default class Asset extends Generic{
 
 		html += esc(this.description);
 
+		html += '<div class="green stats">';
+		for( let wrapper of this.wrappers ){
+			if( wrapper.description )
+				html += '<br />'+esc(wrapper.description);
+		}
+		html += '</div>';
+
 		return html;
+	}
+
+	// Takes an item's appearance and adds it onto this
+	transmogrifyFrom( asset ){
+
+		if( !(asset instanceof Asset) )
+			throw 'Invalid asset passed to transmog';
+
+		
+		this.icon = asset.icon;
+		this.name = asset.name;
+		this.shortname = asset.shortname;
+		this.snpre = asset.snpre;
+		this.description = asset.description;
+		this.tags = asset.tags.slice();					// Prefixed with AS_, use getTags
+		this.colorable = asset.colorable;			// Can be recolored (Todo)
+		this.color_tag = asset.color_tag;
+		this.color_tag_base = asset.color_tag_base;		// Base color name
+		this.color = asset.color;		// Currently dyed color
+		this.color_base = asset.color_base;		// Base color of the item
+		this.hit_sound = asset.hit_sound;			// Hit sound from punch etc attacks. You can use commas to pick one at random
+		this.loot_sound = asset.loot_sound;				// Also equip and unequip sound. audioKit ID
+		this._icon = null;
+
+	}
+
+	checkTransmogViability( asset ){
+
+		if( asset.id === this.id )
+			return false;
+
+		if( asset.slots.length !== this.slots.length )
+			return false;
+
+		if( !asset.equippable() || !this.equippable() )
+			return false;
+
+		if( asset.soulbound )
+			return false;
+
+		// Make sure it has the same slots
+		for( let slot of this.slots ){
+			if( !asset.slots.includes(slot) )
+				return false;
+		}
+
+		return true;
+
 	}
 	
 }
@@ -598,6 +662,8 @@ export default class Asset extends Generic{
 Asset.protVal = 0.20;	// Max damage taken increase for not having this item equipped (lower/upperBody only)
 
 Asset.imageCache = {};	// icon : svg data
+
+
 
 // Automatically creates a stat wrapper
 // Level is the level of the item, numSlots is how many item slots it covers
@@ -632,13 +698,14 @@ Asset.generateStatWrapper = function( numSlots, bonusStats, rarity = 0 ){
 
 	effects = effects.slice(0, rarity);
 
-	
 	const out = new Wrapper({
 		duration : -1,
 		name : 'statsAutoGen',
 		detrimental : false,
 		effects : effects,
 	});
+	console.log("Wrapper", out);
+
 	out.add_conditions = [];
 	out.stay_conditions = [];
 	return out;
@@ -669,12 +736,10 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		//console.error("Unable to generate a viable template from", viable_asset_templates, viable_asset_materials);
 		return false;
 	}
-	
-	// Additional bonus stats
-	let weightModifier = Math.random() < 0.2 ? 0.5 : 1,			// Fitted
-		durabilityModifier = Math.random() < 0.2 ? 1.5 : 1		// Mastercrafted
-	;
 
+	const fitted = Math.random() < 0.2;
+	const mastercrafted = Math.random() < 0.2;
+	
 	let out = new Asset({
 		category : this.Categories.armor,
 		icon : template.icon,
@@ -684,12 +749,17 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		shortname : ucFirst(template.shortname.trim()),
 		tags : template.tags,
 		slots : template.slots,
-		weight : Math.ceil(template.weight*weightModifier),
-		durability_bonus : Math.round(template.durability_bonus*durabilityModifier*template.slots.length),
+		weight : template.weight,
+		durability_bonus : template.durability_bonus*template.slots.length,
 		description : template.description,
+		fitted : fitted,
+		mastercrafted : mastercrafted,
 		rarity : rarity,
 		basevalue : Math.round(
-			Math.pow(1.25, level)+template.slots.length*10+(20*Math.pow(3,rarity))+Math.round(template.weight*weightModifier/100)
+			Math.pow(1.25, level)+
+			template.slots.length*10+
+			(20*Math.pow(3,rarity))+
+			Math.round(template.weight/100)
 		),
 		colorable : template.colorable,
 		color_tag_base : template.color_tag_base, 
@@ -731,14 +801,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 	for( let effect of wrapper.effects )
 		allStats.push((effect.data.amount > 0 ? "+" : '')+effect.data.amount+" "+this.stringifyStat(effect.type));
 		
-	out.description += "\n"+allStats.join(', ');
-	let additionalDesc = [];
-	if( weightModifier < 1 )
-		additionalDesc.push("FITTED");
-	if( durabilityModifier > 1 )
-		additionalDesc.push("MASTERCRAFTED");
-	if( additionalDesc.length )
-		out.description += "\n"+additionalDesc.join(', ');
+	wrapper.description += allStats.join(', ');
 
 	out.wrappers = [wrapper]
 		.concat(Wrapper.loadThese(template.wrappers, out));
@@ -811,7 +874,7 @@ Asset.Slots = {
 	hands : "hands",
 	action : "action",			// Toolbelt
 };
-
+Asset.SlotsTransmoggable = [Asset.Slots.upperBody, Asset.Slots.lowerBody];
 Asset.Rarity = {
 	COMMON : 0,
 	UNCOMMON : 1,

@@ -382,6 +382,12 @@ export default class Encounter extends Generic{
 		return actions.filter(action => action.type === GameAction.types.repairShop);
 	}
 
+	// Get transmog actions
+	getTransmogs( targetPlayer ){
+		const actions = this.getViableActions( targetPlayer );
+		return actions.filter(action => action.type === GameAction.types.transmog);
+	}
+
 	// Gets gym actions
 	getGyms( targetPlayer ){
 		const actions = this.getViableActions( targetPlayer );
