@@ -38,7 +38,7 @@ export function asset(){
 	let stages = rp.stages.map(el => mod.getAssetById('roleplayStage', el));
 
 
-	//console.log("Dummy", dummy, "Parent stage", stage, "stages", stages);
+	console.log("Dummy", dummy, "Parent stage", stage, "stages", stages);
 	let html = '';
 	html += '<div class="labelFlex">';
 		html += '<label title="">Go to: <select name="index" class="saveable">';
@@ -47,7 +47,7 @@ export function asset(){
 		for( let s of stages ){
 
 			let text = s.text ? mod.getAssetById('texts', s.text[0]) : '???';
-			html += '<option value="'+esc(s.id)+'" '+(s.id === dummy.index ? 'selected' : '')+'>['+esc(s.id)+'] '+esc((text.text || '').substr(0, 64)+'...')+'</option>';
+			html += '<option value="'+esc(s._e || s.id)+'" '+(s.id === dummy.index ? 'selected' : '')+'>['+esc(s._e || s.id)+'] '+esc((text.text || '').substr(0, 64)+'...')+'</option>';
 
 		}
 		html += '<select></label>';

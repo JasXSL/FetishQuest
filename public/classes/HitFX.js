@@ -35,7 +35,7 @@ export default class HitFX extends Generic{
 	save( full ){
 		let out = {
 			label : this.label,
-			stages : Stage.saveThese(this.stages),
+			stages : Stage.saveThese(this.stages, full),
 			once : this.once
 		};
 		if( full )

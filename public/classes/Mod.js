@@ -722,7 +722,8 @@ export default class Mod extends Generic{
 				obj.label += '_'+Generic.generateUUID();
 		}
 
-		const out = obj.constructor.saveThis(obj, "mod");
+		// If the constructor doesn't have a save method, it's likely a generic object. If you get recursion errors here the object should probably have a save method
+		const out = obj.constructor.saveThis ? obj.constructor.saveThis(obj, "mod") : JSON.parse(JSON.stringify(obj));
 		let tag = out.label;
 		if( useID ){
 			tag = out.id;
@@ -824,7 +825,8 @@ export default class Mod extends Generic{
 			let out = 0;
 			parent[field] = parent[field].map(el => {
 
-				if( typeof el !== 'object' )
+				// Ignore custom override delete objects
+				if( typeof el !== 'object' || el.__DEL__ )
 					return el;
 
 				// Since this was a sub object, nothing else should have been pointing to it.

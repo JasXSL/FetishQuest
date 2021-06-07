@@ -461,14 +461,13 @@ class Text extends Generic{
 		if( Array.isArray(event.target) )
 			targ = event.target[0];
 		
-		if( this.chat ){
-			if( this._chatPlayer ){
+		if( this.chat && this._chatPlayer ){
 
-				if( !this.chat_reuse )
-					this._chatPlayer.onChatUsed(this.id);
-				game.speakAs( this._chatPlayer.id, text, false );
+			if( !this.chat_reuse )
+				this._chatPlayer.onChatUsed(this.id);
+			game.speakAs( this._chatPlayer.id, text, false );
 
-			}
+
 		}
 		else{
 
@@ -489,7 +488,10 @@ class Text extends Generic{
 			if( !evt.custom )
 				evt.custom = {};
 			evt.custom.original = event.clone();		// Make sure to stash the original
+
 			evt.raise();
+
+			
 					
 		}
 
@@ -565,13 +567,7 @@ class Text extends Generic{
 			debug = this.debug;
 
 		if( debug )
-			console.debug("Validating", this, "against", event);
-
-		if( this.chat && (!event.sender || !event.sender.isNPC()) ){
-			if( debug )
-				console.debug("FAIL because only NPC can speak");
-			return false;
-		}
+			console.debug("Validating", this, "against", event, chatPlayer);
 
 		if( this._cache_action && !this.testAliases(event) ){
 			if( debug )
@@ -649,7 +645,6 @@ Text.getFromEvent = function( event, debug = false ){
 	let available = [];
 	let texts = glib.texts;
 
-
 	let testAgainst = [false];	// This is only used on chats
 	if( event.type === GameEvent.Types.textTrigger )
 		testAgainst = game.getEnabledPlayers();
@@ -674,7 +669,7 @@ Text.getFromEvent = function( event, debug = false ){
 				continue;
 
 			
-			if( text.chat && evt.sender && evt.sender.hasUsedChat(text.id) ){
+			if( text.chat && evt.sender && (!evt.sender.isNPC() ||evt.sender.hasUsedChat(text.id)) ){
 				continue;
 			}
 
@@ -759,6 +754,7 @@ Text.runFromLibrary = function( event, debug = false ){
 
 			// No text for this person
 			if( !text ){
+
 				// Action used needs to have a text, we'll create a template one
 				if( event.type === GameEvent.Types.actionUsed && event.action && !event.action.hidden ){
 					Text.actionFallbackText.run(event);
@@ -767,6 +763,7 @@ Text.runFromLibrary = function( event, debug = false ){
 				if( event.type === GameEvent.Types.actionCharged && event.action && !event.action.hidden )
 					Text.actionChargeFallbackText.run(event);
 				t.shift();
+
 			}else{
 
 				text.run(event);
@@ -779,6 +776,7 @@ Text.runFromLibrary = function( event, debug = false ){
 				// Only allows one text per action
 				if( text.chat )
 					break;
+
 			}
 
 			event = event.clone();
@@ -799,9 +797,8 @@ Text.runFromLibrary = function( event, debug = false ){
 			if( !evt.custom )
 				evt.custom = {};
 			evt.custom.original = event.clone();
+			evt.custom.original.text = null;		// The code above will attach a text to this, we'll need to remove it
 			
-			
-
 			for( let player of players ){
 
 				const e = evt.clone();

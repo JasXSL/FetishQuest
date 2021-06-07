@@ -80,7 +80,7 @@ export default class Condition extends Generic{
 		
 		this.g_autoload(data);
 		if( data && !this.conditions.length && !Condition.Types[this.type] )
-			console.error("Invalid condition type loaded: ", String(this.type), " data received was ", data, "and parent was", this.parent);
+			console.error("Invalid condition type loaded: ", String(this.type), "in", this, " data received was ", data, "and parent was", this.parent);
 
 		if( Array.isArray(this.data.conditions) ){
 			this.data.conditions = Condition.loadThese(this.data.conditions);
@@ -168,11 +168,17 @@ export default class Condition extends Generic{
 
 		// This is a collection, validate subs instead
 		if( this.conditions.length ){
+
+			if( debug )
+				console.debug("Validating subconditions");
+
 			const out = this.validateSubs(event, debug);
 			if( this.inverse )
 				return !out;
 			return out;
+
 		}
+
 		let targs = event.target,
 			success = false,
 			T = Condition.Types,
@@ -213,7 +219,13 @@ export default class Condition extends Generic{
 				const all = this.data.all;
 				success = Boolean(all);
 
+				if( debug )
+					console.debug("Checking tags");
+
 				for( let tag of tags ){
+
+					if( debug )
+						console.debug("Searching tag", tag, "on", t); 
 
 					let found = false;
 					// Only tags applied by sender
@@ -231,6 +243,10 @@ export default class Condition extends Generic{
 						found = t && t.hasTag([tag], event.wrapperReturn);
 					
 					}
+
+					if( debug )
+						console.debug("Found", found);
+
 					// only need one successful tag
 					if( found && !all ){
 						success = true;
@@ -1001,7 +1017,7 @@ export default class Condition extends Generic{
 
 			if( !success && !this.anyPlayer ){
 				if( debug )
-					console.debug("Condition DEBUG :: FAIL to validate ALL players on type", this.type);
+					console.debug("Condition DEBUG :: FAIL to validate ALL players on type", this.type, this, "with evt", event);
 				return false;
 			}
 			else if( success && this.anyPlayer ){

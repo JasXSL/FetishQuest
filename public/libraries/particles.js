@@ -34,6 +34,7 @@ const textures = {
 	glowRing : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/glow_ring.png')})),
 	holyRune : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/holy_rune.png')})),
 	rock : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/rock.png')})),
+	worms : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/worms.png')})),
 	roots : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/roots.png')})),
 	skitteringInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/skittering_insect.png')})),
 	stingingInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/stinging_insect.png')})),
@@ -435,6 +436,21 @@ particles.hitfx_sparks_big_yellow = {
 	opacity: 1,
 	gravity:2,
 };
+particles.hitfx_sparks_big_blue = {
+			
+	texture : textures.glowSphere,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 5,
+	size_tween : [0.001,1],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(60,120),
+	color : ["#AADDFF","#DDEEFF"],	
+	opacity: 1,
+	gravity:2,
+};
 
 particles.hitfx_punch_bones = {
 	texture : textures.bone_shards,
@@ -480,6 +496,21 @@ particles.hitfx_holy_runes = {
 	velocity_type : 0,
 	gravity : 0,
 	color : ["#FFFFAA","#FFFFFF"],	
+	opacity: [1,0],
+};
+
+particles.hitfx_holy_runes_blue = {
+	texture : textures.holyRune,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 1,
+	position : new Proton.BoxZone(0,0,0, 30,30,30),
+	size : new Proton.Span(5,10),
+	part_max_age : new Proton.Span(1,3),
+	velocity : 0,
+	velocity_type : 0,
+	gravity : 0,
+	color : ["#AADDFF","#FFDDFF"],	
 	opacity: [1,0],
 };
 
@@ -745,6 +776,39 @@ particles.hitfx_throw_rock_impact_sparks = {
 };
 
 
+particles.hitfx_worm_bolt_worms = {
+	texture : textures.worms,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : new Proton.Span(5,15),
+	size_tween : [1,0],
+	part_max_age : 1,
+	velocity : new Proton.Span(0,30),
+	color : ["#999999","#000000"],	
+	opacity: 1,
+	gravity:5,
+	rotation : [0,Math.PI],
+};
+
+particles.hitfx_worm_bolt_hit = {
+	texture : textures.worms,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,5),
+	size : new Proton.Span(10,30),
+	size_tween : [1,0.1],
+	part_max_age : 1,
+	velocity : new Proton.Span(50,100),
+	gravity : 3,
+	color : '#553300',	
+	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,50],
+	rotation : [new Proton.Span(-Math.PI, 0),new Proton.Span(0,Math.PI)],
+};
 
 particles.hitfx_poison_pink = {
 	texture : textures.poison,

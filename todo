@@ -10,9 +10,11 @@
 			- Need to get underwater breathing first. If not, she can start the underwater breathing quest.
 			- Fetch algae from an underground cave inhabited by shark people
 			- Shark people are friendly
-			- Shark people will trade you for landwalker items after clearing a dungeon for them
+			- Shark people will give you the algae after clearing a dungeon for them
 			- Shark people will teach you about sharkanium and waygates
+			- After clearing the dungeon, they also start offering transmogging
 			- Reward: Fresh food and bread, and free room.
+			- Add waygate to shark area
 
 	Haunted house quest:
 		- Auntie Reven
@@ -22,10 +24,9 @@
 		- Quest starts with a person outside the house who is her nephew
 		- Rewards an owometer?
 
-	Sharkanist enchant rewards:
-		- Powerful enchants. You can buy shards with sharkanium and trade them for enchants. An item can only have 1 enchant.
-		- Enchant ideas:
-			- 
+
+	Sharkanist rewards:
+		- Transmogrification
 
 
 
@@ -43,6 +44,7 @@
 		- therrage 
 		- Tworef 
 		- Yuglow earthen
+		- Scorbus
 		- 
 
 -- TEST --

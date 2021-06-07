@@ -335,7 +335,7 @@ export default class Generic{
 			if( full === "mod" )
 				return el;
 
-			console.error(el);
+			console.error(el, "full:", full);
 			throw "Error: asset is missing save method ^";
 
 		}
