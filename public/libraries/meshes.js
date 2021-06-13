@@ -2192,6 +2192,30 @@ function build(){
 							mesh.children[0].visible = false;
 					}
 				}),
+				Lightacles : new LibMesh({
+					url : 'nature/lightacles.glb',
+					materials : [
+						libMat.Bakes.Lightacles
+					],
+					tags : [stdTag.mEmitter, stdTag.mTentacle],
+
+					onStagePlaced : function(asset, mesh){
+
+						mesh.traverse(el => {
+							if( el.name === 'Bone035' || el.name === 'Bone057' ){
+
+								const light = new THREE.PointLight(0x4080FF, 1.5, 200, 0.5);
+								el.add(light);
+								/*
+								let helper = new THREE.PointLightHelper(light, 10);
+								mod.webgl.scene.add(helper);
+
+								console.log(light);
+								*/
+							}
+						});
+					}
+				}),
 			},
 			Doodads : {
 				Tankard : new LibMesh({
@@ -3333,6 +3357,16 @@ function build(){
 					url : 'doodads/rowboat.JD',
 					materials : [libMat.Wood.Crate,libMat.Metal.Rust],
 					tags : [stdTag.mOar],
+				}),
+				Anchor : new LibMesh({
+					url : 'doodads/anchor.JD',
+					materials : [libMat.Metal.Rust],
+					tags : [],
+				}),
+				SharkJaw : new LibMesh({
+					url : 'doodads/sharkjaw.JD',
+					materials : [libMat.Misc.Bone],
+					tags : [],
 				}),
 			},
 			Generic : {

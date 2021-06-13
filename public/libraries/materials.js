@@ -1028,6 +1028,24 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 		}),
 	},
+
+	Bakes : {
+		Lightacles : new LibMaterial({
+			map : 'bakes/lightacle_d.jpg',
+			emissiveMap : 'bakes/lightacle_glow.jpg',
+			emissive : 0xFFFFFF,
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+	},
+
+	Misc : {
+		Bone : new LibMaterial({
+			map : 'tileable/bone_seamless.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+	}
 };
 
 

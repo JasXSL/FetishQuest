@@ -240,6 +240,10 @@ export default class StaticModal{
 		const out = await this.active.refresh();
 		game.ui.bindTooltips();
 
+		// might still not have because of async
+		if( !this.active )
+			return;
+
 		// Special case for main menu when you have no active game
 		if( this.active.id === 'mainMenu' )
 			this.active.closeButton.toggleClass('hidden', !game.initialized);
