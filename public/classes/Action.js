@@ -14,8 +14,11 @@ class Action extends Generic{
 		return {
 			wrappers : Wrapper,
 			riposte : Wrapper,
+			passives : Wrapper,
 			conditions : Condition,
 			show_conditions : Condition,
+			cpassives : Wrapper,
+			interrupt_wrappers : Wrapper,
 		};
 	}
 	
@@ -31,7 +34,10 @@ class Action extends Generic{
 		this.description = "";		// Can be %P% to use parent description
 		this.icon = '';				// Can be %P% to use parent icon
 		this.ranged = Action.Range.Melee;			// This is a ranged attack
-		this.wrappers = [];			// Effect wrappers needed to cast the spell
+		this.wrappers = [];				// Effect wrappers needed to cast the spell
+		this.passives = [];				// Wrappers that are added passively to any player that has this action equipped
+		this.cpassives = [];			// Wrappers that are added passively while casting this action
+		this.interrupt_wrappers = [];	// Wrappers that are added when this is interrupted
 		this.max_wrappers = 0;		// Max nr of wrappers to apply, 0 = undefined
 		this.riposte = [];			// Wrappers that are triggered when an ability misses. Riposte is sent from the target to attacker
 		this.ap = 1;
@@ -64,6 +70,7 @@ class Action extends Generic{
 		this.hide_if_no_targets = false;		// hide this from the action picker if there's no viable targets
 		this.disable_override = 0;				// Level of disable override.
 		this.alias = [];						// Aliases to use for texts. Useful when you want multiple actions with the same texts
+		
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge.
@@ -89,6 +96,8 @@ class Action extends Generic{
 			name : this.name,
 			description : this.description,
 			wrappers : Wrapper.saveThese(this.wrappers, full),
+			cpassives : Wrapper.saveThese(this.cpassives, full),
+			passives : Wrapper.saveThese(this.passives, full),
 			cooldown : this.cooldown,
 			ap : this.ap,
 			min_targets : this.min_targets,
@@ -131,6 +140,7 @@ class Action extends Generic{
 		if( full ){
 			out.alias = this.alias;
 			out.riposte = Wrapper.saveThese(this.riposte, full);
+			out.interrupt_wrappers = Wrapper.saveThese(this.interrupt_wrappers, full);
 			out.no_use_text = this.no_use_text;	
 			out.init_cooldown = this.init_cooldown;
 			out.max_wrappers = this.max_wrappers;
@@ -404,16 +414,27 @@ class Action extends Generic{
 
 		this._cast_time = 0;
 		this._cast_targets = [];
-		new GameEvent({
+		const interruptEvent = new GameEvent({
 			type : GameEvent.Types.interrupt,
 			sender : sender,
 			target : pp,
 			action : this,
-		}).raise();
+		});
+		interruptEvent.raise();
+		
+		for( let wr of this.interrupt_wrappers ){
+			if( !(wr instanceof Wrapper) )
+				continue;
+			wr.useAgainst(sender, pp);
+		}
+		
 		game.ui.addText( pp.getColoredName()+"'s "+this.name+" was interrupted!", undefined, sender ? sender.id : undefined, pp.id, 'statMessage' );
 		game.playFxAudioKitById('interrupt', sender, pp, undefined, true );
 		if( this.reset_interrupt )
 			this.consumeCharges(-1);
+
+			
+		pp.rebindWrappers();
 
 		return true;
 
@@ -653,6 +674,7 @@ class Action extends Generic{
 				target : targets,
 				action : this,
 			}).raise();
+			sender.rebindWrappers();
 			return true;
 
 		}
@@ -744,6 +766,9 @@ class Action extends Generic{
 				target.onTargetedActionReceived(sender);
 
 			}
+
+			if( this.cast_time )
+				sender.rebindWrappers();
 
 				
 		}

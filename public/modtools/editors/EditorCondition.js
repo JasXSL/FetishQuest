@@ -126,7 +126,7 @@ export function asset(){
 
 		let html = '';
 		html += '<div class="labelFlex">';
-			html += '<label title="">Value: <input type="number" name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
+			html += '<label title="">Value: <input type="text" name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
 			html += '<label>'+buildMathOperators('data::operation', asset.data.operation)+'</label>';
 		html += '</div>';
 		return html;

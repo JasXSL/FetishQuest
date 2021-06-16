@@ -86,6 +86,9 @@ export function asset(){
 
 	html += 'Wrappers: <br /><div class="wrappers"></div>';
 	html += 'Riposte Wrappers: <br /><div class="riposte"></div>';
+	html += '<span title="Note: Does not work on actions added by wrappers for recursion reasons">Passives:</span> <br /><div class="passives"></div>';
+	html += '<span title="Triggered with sender being the player who interrupted, target being the player with this action">Interrupt wrappers:</span> <br /><div class="interrupt_wrappers"></div>';
+	html += '<span title="Passives added while the spell is being cast (multi-turn cast)">Cast passives:</span> <br /><div class="cpassives"></div>';
 
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	html += '<span title="Aliases to use for texts. Useful when you want multiple actions with the same texts">Aliases: </span><br /><div name="alias">'+HelperTags.build(dummy.alias, "actions")+'</div>';
@@ -102,6 +105,9 @@ export function asset(){
 	// wrappers
 	this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "wrappers"));
 	this.dom.querySelector("div.riposte").appendChild(EditorWrapper.assetTable(this, asset, "riposte"));
+	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
+	this.dom.querySelector("div.interrupt_wrappers").appendChild(EditorWrapper.assetTable(this, asset, "interrupt_wrappers"));
+	this.dom.querySelector("div.cpassives").appendChild(EditorWrapper.assetTable(this, asset, "cpassives"));
 	
 
 	// conditions

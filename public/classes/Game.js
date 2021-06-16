@@ -372,11 +372,12 @@ export default class Game extends Generic{
 			console.log("Setting up renderer");
 			this.dungeon.loadState();
 			this.renderer.loadActiveDungeon();
-
+			this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);
+			
 		}
 		this.verifyLeader();
 
-		this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);
+		
 
 		this.encounter.onPlacedInWorld( false );	// Sets up event bindings and such
 		console.log("Game loaded");

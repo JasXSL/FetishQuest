@@ -937,10 +937,9 @@ export default class Player extends Generic{
 		for( let inv of this.assets )
 			inv.onPlacedInWorld();
 
-		for( let passive of this.passives ){
+		for( let passive of this.passives )
 			passive.g_resetID();
-		}
-
+		
 		this.addHP(Infinity);
 		this.addMP(Infinity);
 		this.arousal = 0;
@@ -2233,6 +2232,8 @@ export default class Player extends Generic{
 
 		}
 
+		this.rebindWrappers();
+
 	}
 
 	addActionFromLibrary( label ){
@@ -2266,6 +2267,8 @@ export default class Player extends Generic{
 		if( !this.actionSlotsFull() && !action.std ){
 			this.activateAction(ac.id);
 		}
+
+		this.rebindWrappers();
 
 		return true;
 	}
@@ -2333,7 +2336,11 @@ export default class Player extends Generic{
 		if( slot < 0 || isNaN(slot) )
 			throw "Out of bounds error on action activation: "+slot;
 
+
 		action._slot = slot;
+		
+		this.rebindWrappers();
+
 		return true;
 
 	}
@@ -2344,6 +2351,8 @@ export default class Player extends Generic{
 		const action = this.getLearnedAction(id);
 		if( action )
 			action._slot = -1;
+
+		this.rebindWrappers();
 
 	}
 
@@ -2488,7 +2497,7 @@ export default class Player extends Generic{
 
 	}
 
-	getActions( include_items = true, include_non_learned = false, include_temp = true ){
+	getActions( include_items = true, include_non_learned = false, include_temp = true, sort_result = true ){
 		
 		let out = this.actions.slice();
 		
@@ -2510,43 +2519,46 @@ export default class Player extends Generic{
 		if( include_temp )
 			out = out.concat(this.getTempActions());
 
+		if( sort_result ){
 
-		const alwaysFirst = ['stdAttack', 'stdArouse'];
-		out.sort((a,b) => {
+			const alwaysFirst = ['stdAttack', 'stdArouse'];
+			out.sort((a,b) => {
 
-			const aConsumable = Boolean(a.parent.use_action);
-			const bConsumable = Boolean(b.parent.use_action);
-			const aName = aConsumable ? a.parent.name : a.name;
-			const bName = bConsumable ? b.parent.name : b.name;
-			const aIsStd = alwaysFirst.includes(a.label);
-			const bIsStd = alwaysFirst.includes(b.label);
-			
-			// nonconsumable first
-			if( aConsumable !== bConsumable )
-				return bConsumable ? -1 : 1;
+				const aConsumable = Boolean(a.parent.use_action);
+				const bConsumable = Boolean(b.parent.use_action);
+				const aName = aConsumable ? a.parent.name : a.name;
+				const bName = bConsumable ? b.parent.name : b.name;
+				const aIsStd = alwaysFirst.includes(a.label);
+				const bIsStd = alwaysFirst.includes(b.label);
+				
+				// nonconsumable first
+				if( aConsumable !== bConsumable )
+					return bConsumable ? -1 : 1;
 
-			// Then std
-			if( aIsStd !== bIsStd )
-				return aIsStd ? -1 : 1;
+				// Then std
+				if( aIsStd !== bIsStd )
+					return aIsStd ? -1 : 1;
 
-			// Then positive slots
-			if( (a._slot >= 0) !== (b._slot >= 0) )
-				return a._slot >= 0 ? -1 : 1;
+				// Then positive slots
+				if( (a._slot >= 0) !== (b._slot >= 0) )
+					return a._slot >= 0 ? -1 : 1;
 
 
-			const acd = a.getCooldown(), bcd = b.getCooldown();
+				const acd = a.getCooldown(), bcd = b.getCooldown();
 
-			// Then sort on spell slot
-			if( a._slot !== b._slot )
-				return a._slot < b._slot ? -1 : 1;
+				// Then sort on spell slot
+				if( a._slot !== b._slot )
+					return a._slot < b._slot ? -1 : 1;
 
-			// Lower cooldown second
-			if( acd !== bcd )
-				return acd < bcd ? -1 : 1;
-			// Finally name
-			return aName < bName ? -1 : 1;
+				// Lower cooldown second
+				if( acd !== bcd )
+					return acd < bcd ? -1 : 1;
+				// Finally name
+				return aName < bName ? -1 : 1;
 
-		});
+			});
+
+		}
 		
 		return out;
 
@@ -2749,9 +2761,12 @@ export default class Player extends Generic{
 		}
 	}
 
-	// returns an array of charged actions or false if none 
-	isCasting(){
-		let actions = this.getActions();
+	// returns an array of charged actions or false if none. You can supply your own actions array to prevent recursion or check specific actions. 
+	isCasting( actions ){
+
+		if( !actions )
+			actions = this.getActions();
+
 		let spells = [];
 		for( let action of actions ){
 			if( action._cast_time > 0 )
@@ -2760,6 +2775,7 @@ export default class Player extends Generic{
 		if( spells.length )
 			return spells;
 		return false;
+
 	}
 
 	// Returns nr actions interrupted successfully
@@ -2817,6 +2833,18 @@ export default class Player extends Generic{
 				out = out.concat(asset.wrappers);
 		}
 
+		// Note: temp actions can't have passives for recursion reasons
+		const actions = this.getActions(true, false, false, false);
+		for( let action of actions )
+			out = out.concat(action.passives);
+
+		let casting = this.isCasting( actions );
+		if( casting ){
+
+			for( let c of casting )
+				out = out.concat(c.cpassives);
+
+		}
 
 		const ret = out.concat(this.auto_wrappers);
 		if( game._caches )

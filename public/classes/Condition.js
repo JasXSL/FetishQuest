@@ -130,7 +130,7 @@ export default class Condition extends Generic{
 			return false;
 		}
 		let operator = this.data.operator;
-		if( this.data.operator === undefined )
+		if( this.data.operation === undefined )
 			operator = ">";
 		if( allowed_operators.indexOf(operator) === -1 )
 			return false;
@@ -579,6 +579,7 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.mpValue )
 				success = t && this.compareValue(s, t, t.mp);
+
 			else if( this.type === T.hpValue ){
 				success = t && this.compareValue(s, t, t.hp);
 			}
@@ -1268,19 +1269,19 @@ Condition.descriptions = {
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false} - Checks if the wrapper tied to the event has a label',
-	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false, label:wrapperLabel=_EVT_WRAPPER_} - Operation is = by default. Leave label undefined to use the event wrapper',
+	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false, label:wrapperLabel=_EVT_WRAPPER_} - Operation is = by default. Leave label undefined to use the event wrapper. Amount can be a math var.',
 	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false} - Checks if the player has a wrapper with this label',
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',
-	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
-	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
-	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
-	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default >',
-	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic).',
-	[Condition.Types.dom] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target dominant value, between 0 (sub) 0.5 (switch) and 1 (dom).',
-	[Condition.Types.hetero] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target hetero value, between 0 (not gay), 0.5 (gay) 1 (completely straight).',
-	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target size value.',
-	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >',
+	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
+	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
+	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
+	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
+	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic). Amount can be a math var.',
+	[Condition.Types.dom] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target dominant value, between 0 (sub) 0.5 (switch) and 1 (dom).  Amount can be a math var.',
+	[Condition.Types.hetero] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target hetero value, between 0 (not gay), 0.5 (gay) 1 (completely straight).  Amount can be a math var.',
+	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target size value. Amount can be a math var.',
+	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >  Amount can be a math var.',
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',
 	[Condition.Types.hasRepairable] : 'void - Has repairable items in their inventory',
 	[Condition.Types.hasInventory] : '{label:(str)label, amount:(int)amount=1} - Has at least n amount of label in inventory. For a conditional search, use hasAsset.',
@@ -1321,7 +1322,7 @@ Condition.descriptions = {
 	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
 	[Condition.Types.targetIsChatPlayerTeam] : 'void - Requires Text in event. Checks if text._chatPlayer team is the same as target',
 	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
-	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level',
+	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level.  Amount can be a math var.',
 	[Condition.Types.targetedSenderLastRound] : 'void - Target has successfully used a non-aoe action against sender since their last turn',
 	[Condition.Types.hourRange] : '{min:(number)min, max:(number)max} - Requires game.getHoursOfday() to be between min and max (24h format). Max can be greater than min for an example if you want something to happen at night: {min:21,max:6}',
 	[Condition.Types.roomZ] : '{min:(number)min, max:(number)max=min} - The attached dungeon room (or game.dungeon active room if not in event) must have a z level between min and max. Use "inf" for infinity (max)/negative infinity(min).',

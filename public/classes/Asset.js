@@ -704,7 +704,6 @@ Asset.generateStatWrapper = function( numSlots, bonusStats, rarity = 0 ){
 		detrimental : false,
 		effects : effects,
 	});
-	console.log("Wrapper", out);
 
 	out.add_conditions = [];
 	out.stay_conditions = [];

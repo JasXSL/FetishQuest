@@ -430,6 +430,29 @@ class Wrapper extends Generic{
 
 	}
 
+	getPlayerParent(){
+
+		let p = this;
+		while( p && p.parent && !(p instanceof Player))
+			p = p.parent;
+		
+		return p;
+
+	}
+
+	getOriginalTarget(){
+
+		// First check if original target has been marked (added automatically on added effects)
+		if( this.original_target )
+			return game.getPlayerById(this.original_target);
+
+		if( this.victim )
+			return game.getPlayerById(this.vbictim);
+		// Passive effects don't have original target, so we can try to find a player parent
+		return this.getPlayerParent();
+
+	}
+
 	checkStayConditions(){
 		
 		// For clothes
@@ -651,8 +674,8 @@ Wrapper.TARGET_AOE = "AOE";					// Validate against all players
 Wrapper.TARGET_SMART_HEAL = "SMART_HEAL";	// Targets the lowest HP viable player
 Wrapper.TARGET_EVENT_RAISER = "EVENT_RAISER";	// Used only for Effect.Types.runWrappers, targets the player that raised the event that triggered the effect
 Wrapper.TARGET_EVENT_TARGETS = "EVENT_TARGETS";	// Used only for Effect.Types.runWrappers, targets the player(s) that were the targets of the event that triggered the effect
-Wrapper.TARGET_ORIGINAL = "ORIGINAL";		// Used only in effects. Specifies the target of the action that triggered this. Same as AUTO except in SMART_HEAL
-Wrapper.TARGET_RP_TP = "RPTP";				// Uses game.roleplay._targetPlayer if it exists
+Wrapper.TARGET_ORIGINAL = "ORIGINAL";		// Specifies the target of the action that triggered this. Same as AUTO except in SMART_HEAL. Can also be used in effect events to target the owner of the wrapper containing the event that triggered the effect. Also used in Used only in Effect.Types.hitfx currently to trigger on the targeted victim of a smart heal action.
+
 
 Wrapper.Targets = {
 	none : 'none',	// used in the editor to delete a target  
@@ -831,6 +854,7 @@ class Effect extends Generic{
 		// Default to AoE
 		let tout = [];
 		for( let ta of this.targets ){
+
 			if( ta === Wrapper.TARGET_AUTO ){
 				tout.push(target);
 			}
@@ -848,6 +872,9 @@ class Effect extends Generic{
 				if( p )
 					tout.push(p);
 			}
+			else if( ta === Wrapper.TARGET_ORIGINAL )
+				tout.push(this.parent.getOriginalTarget());
+
 		}
 
 		if( this.data.dummy_sender )
@@ -861,10 +888,9 @@ class Effect extends Generic{
 			effect : this,
 		}).raise();
 
-		/*
-		if( this.parent && this.parent.label === 'dWedgie' )
-			console.trace("Checking", event.clone(), this);
-		*/
+		if( debug || this.debug )
+			console.debug("Allowed ", this, "to trigger", event);
+
 		for( let t of tout ){
 
 			// If the target is the sender, then it flipflops
@@ -1545,8 +1571,9 @@ class Effect extends Generic{
 					
 			}
 			
-			else if( this.type === Effect.Types.interrupt )
-				t.interrupt(s);
+			else if( this.type === Effect.Types.interrupt ){
+				t.interrupt(s, this.data && this.data.force);
+			}
 			
 
 			else if( this.type === Effect.Types.removeEffectWrapperByEffectTag ){
@@ -2133,7 +2160,7 @@ Effect.TypeDescs = {
 	[Effect.Types.setAP] : "{amount:(str)(nr)amount} - Sets AP value",							
 	
 	
-	[Effect.Types.interrupt] : "void - Interrupts all charged actions",							
+	[Effect.Types.interrupt] : "{force:false} - Interrupts all charged actions. If force is true, it also interrupts non-interruptable spells (useful for boss abilities).",							
 	[Effect.Types.blockInterrupt] : "void - Prevents normal interrupt effects",							
 	[Effect.Types.healInversion] : "void - Makes healing effects do damage instead",			
 	[Effect.Types.globalHitChanceMod] : '{amount:(int)(float)(string)amount Modifies your hit chance with ALL types by percentage, multiplier:(bool)isMultiplier=false }',
