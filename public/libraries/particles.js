@@ -484,6 +484,38 @@ particles.hitfx_sparkles_static = {
 	opacity: 1,
 };
 
+particles.hitfx_sparkles_static_pink = {
+	texture : textures.sparkle,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 5,
+	position : new Proton.BoxZone(0,0,0, 25,25,25),
+	size : new Proton.Span(1,5),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,2),
+	velocity : new Proton.Span(0,0.5),
+	velocity_type : 0,
+	gravity : -0.2,
+	color : ["#FFAAFF","#FFFFFF"],	
+	opacity: 1,
+};
+
+particles.hitfx_sparkles_static_arcane = {
+	texture : textures.holyRune,
+	blending : THREE.AdditiveBlending,
+	rate : 0.1,
+	count : 2,
+	position : new Proton.BoxZone(0,0,0, 50,50,50),
+	size : new Proton.Span(5,10),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,2),
+	velocity : new Proton.Span(0,0.5),
+	velocity_type : 0,
+	gravity : 0,
+	color : ["#AA00AA","#FFAAFF"],	
+	opacity: 1,
+};
+
 particles.hitfx_holy_runes = {
 	texture : textures.holyRune,
 	blending : THREE.NormalBlending,
@@ -624,6 +656,40 @@ particles.hitfx_burst_green_large = {
 	gravity:2,
 	rotation : new Proton.Span(0,Math.PI)
 };
+
+
+particles.hitfx_burst_arcane_sparkles = {
+	
+	texture : textures.sparkle,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,5),
+	size : 5,
+	size_tween : [1,0.001],
+	part_max_age : 1,
+	velocity : new Proton.Span(200,400),
+	color : ["#FF66FF","#FFAAFF"],	
+	opacity: 1,
+	gravity:0.5,
+};
+particles.hitfx_burst_arcane_runes = {
+	texture : textures.holyRune,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,50),
+	size : 10,
+	size_tween : [1,0.05],
+	part_max_age : .5,
+	velocity : new Proton.Span(0,50),
+	color : ["#FF66FF","#FFFFFF"],	
+	opacity: 1,
+	gravity:2
+};
+
+
+
 
 particles.hitfx_claws = {
 	texture : textures.clawMarks,

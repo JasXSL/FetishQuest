@@ -129,7 +129,7 @@ export default class Condition extends Generic{
 			console.error("invalid data in condition", this);
 			return false;
 		}
-		let operator = this.data.operator;
+		let operator = this.data.operation;
 		if( this.data.operation === undefined )
 			operator = ">";
 		if( allowed_operators.indexOf(operator) === -1 )

@@ -501,10 +501,13 @@ class Text extends Generic{
 
 	// triggers FX and audio kits
 	triggerVisuals( event ){
+
 		for( let kit of this.audiokits ){
+
 			let kd = glib.audioKits[kit];
 			if( !kd )
 				continue;
+
 			if( Condition.all(kd.conditions, event) ){
 				game.playFxAudioKitById(
 					kit, 
@@ -513,7 +516,9 @@ class Text extends Generic{
 					this.armor_slot,
 					true
 				);
+
 			}
+
 		}
 		
 		
@@ -527,11 +532,15 @@ class Text extends Generic{
 
 		let i = 0;
 		for( let fx of this.hitfx ){
+
 			for( let targ of targs ){
+				
 				setTimeout(() => game.renderer.playFX(event.sender, targ, fx, this.armor_slot, true), ++i*200);
 				if( fx.once )
 					break;
+					
 			}
+
 		}
 	}
 

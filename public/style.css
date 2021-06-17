@@ -419,6 +419,10 @@ div.scroll{
 	30%{transform:scale(1.05);}
 	75%{transform:scale(0.99);}
 }
+@keyframes arcaneCharge{
+	0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(285deg) saturate(200%);}
+	95%{transform:scale(1.05);}
+}
 div.fxTakeDamage{
 	animation: takeDamage 0.5s ease-in-out;
 }
@@ -433,6 +437,9 @@ div.fxTakeDamageHoly{
 }
 div.fxHeal{
 	animation: heal 0.5s ease-in-out;
+}
+div.fxArcaneCharge{
+	animation: arcaneCharge 1s;
 }
 div.fxStretch{
 	animation: takeDamageStretchPC 0.75s ease-in-out;
