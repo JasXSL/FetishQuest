@@ -2654,7 +2654,7 @@ div.fxBuffRed{
 		width:auto;
 		padding-top:1.75vh;
 		background-color:#474;
-		max-width:8vh;
+		max-width:9vh;
 	}
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
 		color:#DFD;

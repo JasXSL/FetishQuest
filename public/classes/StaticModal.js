@@ -1305,6 +1305,8 @@ export default class StaticModal{
 					// Toggle the whole bottom bar
 					// If you add a second tab that non-DM can see, you'll want to only toggle the label itself
 					this.getTabLabelDom('Edit').parent().toggleClass('hidden', !game.ui.showDMTools());
+					if( !game.ui.showDMTools() && this.activeTab === 'Edit' )
+						this.setActiveTab('Character');
 
 					
 
@@ -2767,9 +2769,9 @@ export default class StaticModal{
 								<div class="tags"></div>
 								<textarea name="description" class="autoSave"></textarea>
 								Dressed: <input type="text" class="small reloadIcon autoSave" name="icon" placeholder="Dressed Art" /><br />
-								Nude: <input type="text" class="small reloadIcon autoSave" name="icon_nude" placeholder="Nude Art" /><br />
 								UpperBody: <input type="text" class="small reloadIcon autoSave" name="icon_upperBody" placeholder="UpperBody Art" /><br />
 								LowerBody: <input type="text" class="small reloadIcon autoSave" name="icon_lowerBody" placeholder="LowerBody Art" /><br />
+								Nude: <input type="text" class="small reloadIcon autoSave" name="icon_nude" placeholder="Nude Art" /><br />
 								<div class="center">Sub <input type="range" style="width:60%" class="autoSave" name="dominant" min=0 max=1 step=0.1 /> Dom</div>
 								<div class="center">Gay <input type="range" style="width:60%" class="autoSave" name="hetero" min=0 max=1 step=0.1 /> Het</div>
 							</div>

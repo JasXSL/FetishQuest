@@ -21,6 +21,13 @@ export default class Collection{
 			delete this[id];
 	}
 
+	findIdInArray( id, arr ){
+		for( let o of arr ){
+			if( o && o.id && o.id === id )
+				return o;
+		}
+	}
+
 	// Auto loads and typecasts
 	// If accept_all_nulls is true, all target nulls are set to the supplied value and not typecast or cloned
 	load( data ){
@@ -31,6 +38,7 @@ export default class Collection{
 		if(typeof data !== "object")
 			data = {};
 
+
 		for( let i in data ){
 
 			if( data[i] === '__DEL__')
@@ -39,6 +47,29 @@ export default class Collection{
 
 				// A netgame player needs to load over existing
 				if( window.game && !game.is_host ){
+
+					// Handle array loads
+					if( Array.isArray(this[i]) && Array.isArray(data[i]) ){
+
+						let newArray = [];
+						for( let o of data[i] ){
+
+							let add = this.findIdInArray(o.id, this[i]);
+							if( !add || typeof add.load !== "function" )
+								add = o;
+							else
+								add.load(o);
+								
+							newArray.push(add);
+
+						}
+
+						this[i] = newArray;
+						
+						continue;
+
+					}
+
 
 					if( this[i] && typeof this[i].load === "function" ){
 						

@@ -866,14 +866,19 @@ export default class Condition extends Generic{
 			else if( this.type === T.questCanHandIn ){
 
 				const d = toArray(this.data.quest);
+
 				for( let quest of game.quests ){
+
 					if( ~d.indexOf(quest.label) ){
+						
 						// Quest found, see if it's ready to be handed in
 						if( quest.isCompleted() ){
 							success = true;
 							break;
 						}
+
 					}
+
 				}
 
 			}
@@ -906,11 +911,39 @@ export default class Condition extends Generic{
 					console.error("Event was", event);
 					throw "Expected event.dungeon in event, see log";
 				}
+
 				let dungeon = event.dungeon.label;
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 
-				success = window.game && game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars[this.data.id] == this.data.data; // Soft == because it's a text input in the editor
+				// Get default vars
+				let base = glib.get(dungeon, 'Dungeon');
+				if( !base )
+					base = {};
+
+				// Shallow clone
+				let sd = {};
+				for( let i in base )
+					sd[i] = base[i];
+
+				// Next fetch from game save state
+				base = game.state_dungeons[dungeon];
+				if( base ){
+
+					for( let i in base )
+						sd[i] = base[i];
+
+				}
+
+				// If it's the current dungeon, override by that
+				if( game.dungeon.label === dungeon ){
+					
+					for( let i in game.dungeon.vars )
+						sd[i] = game.dungeon.vars[i];
+
+				}
+
+				success = sd[this.data.id] == this.data.data; // Soft == because it's a text input in the editor
 				
 			}
 			else if( this.type === T.dungeonVarMath ){

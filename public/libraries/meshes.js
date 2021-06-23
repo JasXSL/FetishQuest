@@ -754,10 +754,16 @@ function build(){
 
 					tags : [],
 					onStagePlaced : function(asset, mesh){
+
+						// Already set up
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						let particles = libParticles.get('teslaCoil', mesh);
 						particles.p.z = 0;
 						particles.p.y = 150;
 						mesh.userData.particles = [particles];
+
 					}
 				}),
 			},
@@ -828,7 +834,6 @@ function build(){
 							timeScale : 2
 						}
 					},
-					onStagePlaced : function( dungeonAsset, mesh ){},
 					onInteract : function( mesh, room, asset ){
 						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5 );
 					},
@@ -965,9 +970,11 @@ function build(){
 					},
 					// Reset the lamp when placed
 					onStagePlaced : function( asset, mesh ){
+
 						let lamp = mesh.children[0];
 						lamp.intensity = 0;
 						lamp.angle = 0.001;
+
 					},
 					onInteract : function(mesh, room, asset){
 
@@ -999,22 +1006,30 @@ function build(){
 						if( !light )
 							return;
 
+						const ct = glib.get('waygateActiveActiveDungeon', 'Condition').test(new GameEvent({
+							sender : game.players[0],
+							target : game.players[0],
+							dungeon : game.dungeon,
+							room : game.dungeon.getActiveRoom()
+						}));
+
 						// Hardcoded lock state, may wanna replace this later
-						const locked = window.game && (
-							dungeonAsset.isLocked() || 
-							!glib.get('waygateActiveActiveDungeon', 'Condition').test(new GameEvent({
-								sender : game.players[0],
-								target : game.players[0],
-								dungeon : game.dungeon,
-								room : game.dungeon.getActiveRoom()
-							}))
-						);
+						const locked = 
+							window.game && 
+							(
+								dungeonAsset.isLocked() || 
+								!ct
+							);
 
 						gem.visible = mid.visible = particles.visible = light.visible = !locked;
 												
 					},
 					//want_actions : [gameActionDoors],
 					onStagePlaced : function( dungeonAsset, mesh ){
+
+						// Already added
+						if( mesh.userData.tweens )
+							return;
 
 						const parts = mesh.children[0].children[0].children;
 						const gem = parts[3];
@@ -1039,9 +1054,7 @@ function build(){
 						let onTweenUpdate = () => {
 
 							let offset = tweening.p;
-							//console.log(tweening.rep, tweening.opacity);
 							material.opacity = (Math.sin(offset*Math.PI*2-Math.PI/2)/2+.5);
-							//console.log(tweening.p);
 							tx.repeat.x = tx.repeat.y = (1.0-Math.sin(offset*Math.PI/2))*7+0.9;
 
 						};
@@ -1564,9 +1577,11 @@ function build(){
 					},
 					// Reset the lamp when placed
 					onStagePlaced : function( asset, mesh ){
+
 						let lamp = mesh.children[0];
 						lamp.intensity = 0;
 						lamp.angle = 0.001;
+
 					},
 					onInteract : function(mesh, room, asset){
 
@@ -1809,6 +1824,10 @@ function build(){
 						
 					},
 					onStagePlaced : function(asset, mesh){
+
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						const y = 200, z = -24;
 						let particles = libParticles.get('candleFlameLarge', mesh);
 						particles.p.z = z;
@@ -1816,6 +1835,7 @@ function build(){
 						mesh.userData.particles = [
 							particles
 						];
+
 					}
 				}),
 				WallSconceFancy : new LibMesh({
@@ -1858,6 +1878,11 @@ function build(){
 						
 					},
 					onStagePlaced : function(asset, mesh){
+
+						// Already added
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						let particles = libParticles.get('candleFlameLarge', mesh);
 						const z = -16, y = 198;
 						particles.p.y = y;
@@ -1865,6 +1890,7 @@ function build(){
 						mesh.userData.particles = [
 							particles
 						];
+
 					}
 				}),
 				TorchHolder : new LibMesh({
@@ -1905,6 +1931,11 @@ function build(){
 						
 					},
 					onStagePlaced : function(asset, mesh){
+
+						// Already initialized
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						const z = -13, y = 180;
 						let particles = libParticles.get('torchFlame', mesh, true);
 						particles.p.y = y;
@@ -1920,6 +1951,7 @@ function build(){
 						particles.p.y = y+5;
 						particles.p.z = z;
 						mesh.userData.particles.push(particles);
+
 					},
 
 				}),
@@ -1963,6 +1995,12 @@ function build(){
 						
 					},
 					onStagePlaced : function(asset, mesh){
+
+
+						// Already setup
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						const z = 0, y = 30;
 						let particles = libParticles.get('fireplaceFlame', mesh, true);
 						particles.p.y = y;
@@ -1978,6 +2016,7 @@ function build(){
 						particles.p.y = y+5;
 						particles.p.z = z;
 						mesh.userData.particles.push(particles);
+
 					}
 				}),
 				Firebarrel : new LibMesh({
@@ -2021,6 +2060,11 @@ function build(){
 						
 					},
 					onStagePlaced : function(asset, mesh){
+
+						// Already started
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						const z = 0, y = 30;
 
 						let particles = libParticles.get('firebarrelFlame', mesh, true);
@@ -2083,8 +2127,12 @@ function build(){
 						
 					},
 					onStagePlaced : function(asset, mesh){
-						const z = -3, y = 20;
 
+						// Already setup
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
+						const z = -3, y = 20;
 						let particles = libParticles.get('torchFlame', mesh);
 
 						particles.p.y = y;
@@ -2117,6 +2165,7 @@ function build(){
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
 					onFlatten : function(mesh){
+
 						let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
 						let z = -2, y = 30;
 						light.position.z = z;
@@ -2147,6 +2196,10 @@ function build(){
 						
 					},
 					onStagePlaced : function(asset, mesh){
+						// Already setup
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						let particles = libParticles.get('fireplaceFlame', mesh);
 						const z = -2, y = 30;
 
@@ -2165,6 +2218,7 @@ function build(){
 						particles.p.y = y+5;
 						particles.p.z = z;
 						mesh.userData.particles.push(particles);
+
 					}
 				}),
 				SpotlightBlue : new LibMesh({
@@ -2204,7 +2258,12 @@ function build(){
 						mesh.traverse(el => {
 							if( el.name === 'Bone035' || el.name === 'Bone057' ){
 
+								if( el.userData.light )
+									return;
+								
+								
 								const light = new THREE.PointLight(0x4080FF, 1.5, 200, 0.5);
+								el.userData.light = light;
 								el.add(light);
 								/*
 								let helper = new THREE.PointLightHelper(light, 10);
@@ -2307,11 +2366,16 @@ function build(){
 
 					},
 					onStagePlaced : function(asset, mesh){
+
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						let particles = libParticles.get('candleFlame', mesh, true);
 						particles.p.y = 22;
 						mesh.userData.particles = [
 							particles
 						];
+
 					}
 				}),
 				BookClosed : new LibMesh({
@@ -2616,8 +2680,10 @@ function build(){
 					],
 					tags : [stdTag.mPLAYER_MARKER],
 					onStagePlaced : function(asset, mesh){
+
 						if( window.game )
 							mesh.visible = false;
+
 					}
 				}),
 				Treasure : new LibMesh({
@@ -2648,11 +2714,15 @@ function build(){
 				},
 				onStagePlaced : function(asset, mesh){
 
+					if( Array.isArray(mesh.userData.particles) )
+						return;
+
 					let particles = libParticles.get('dustMotes', mesh, true);
 					mesh.userData.particles = [particles];
 
 					if( window.game )
 						mesh.children[0].visible = false;
+
 				}
 			}),
 			QuestSparkles : new LibMesh({
@@ -2669,6 +2739,9 @@ function build(){
 
 				},
 				onStagePlaced : function(asset, mesh){
+
+					if( Array.isArray(mesh.userData.particles) )
+						return;
 
 					let particles = libParticles.get('questSparkles', mesh, true);
 					mesh.userData.particles = [particles];
@@ -2754,6 +2827,10 @@ function build(){
 				},
 				tags : [],
 				onStagePlaced : function(asset, mesh){
+
+					if( Array.isArray(mesh.userData.particles) )
+						return;
+
 					let particles = libParticles.get('runeSparkles', mesh);
 					const z = 0, y = 0;
 					particles.p.y = y;
@@ -2797,9 +2874,7 @@ function build(){
 							let offset = tweening.p+(1/mesh.material.length)*cl;
 							if( offset > 1 )
 								offset -= 1;
-							//console.log(tweening.rep, tweening.opacity);
 							material.opacity = (Math.sin(offset*Math.PI*2-Math.PI/2)/2+.5)*.25;
-							//console.log(tweening.p);
 							tx.repeat.x = tx.repeat.y = (1.0-Math.sin(offset*Math.PI/2))*7+0.9;
 
 						};
@@ -2812,7 +2887,6 @@ function build(){
 						mesh.userData.tweens['tween_'+i] = a;
 						++i;
 					}
-					console.log("onFlatten", mesh);
 
 				},
 			}),
@@ -4592,6 +4666,10 @@ function build(){
 
 					},
 					onStagePlaced : function(asset, mesh){
+
+						if( Array.isArray(mesh.userData.particles) )
+							return;
+
 						let particles = libParticles.get('bubblesFull', mesh, true);
 						mesh.userData.particles = [particles];
 					}
@@ -4609,8 +4687,12 @@ function build(){
 
 					},
 					onStagePlaced : function(asset, mesh){
+
+						if( Array.isArray(mesh.userData.particles) )
+							return;
 						let particles = libParticles.get('bubblesDense', mesh, true);
 						mesh.userData.particles = [particles];
+
 					}
 				}),
 			},

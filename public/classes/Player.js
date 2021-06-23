@@ -2497,6 +2497,7 @@ export default class Player extends Generic{
 
 	}
 
+	// If include_items is 'e' it only includes equipped items
 	getActions( include_items = true, include_non_learned = false, include_temp = true, sort_result = true ){
 		
 		let out = this.actions.slice();
@@ -2504,9 +2505,11 @@ export default class Player extends Generic{
 		if( include_items ){
 
 			for( let asset of this.assets ){
+
 				let action = asset.use_action;
-				if( asset.isConsumable() && (asset.equipped || !game.battle_active) )
+				if( asset.isConsumable() && (asset.equipped || include_items !== 'e') )
 					out.push(action);
+
 			}
 
 		}

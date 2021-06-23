@@ -202,12 +202,12 @@ export default class Roleplay extends Generic{
 		return game.getPlayerByLabel(this.player);
 	}
 
-	onStart(){
+	onStart( player ){
 
 		this._targetPlayer = '';
 		const stage = this.getActiveStage();
 		if( stage )
-			stage.onStart();
+			stage.onStart( player );
 
 	}
 

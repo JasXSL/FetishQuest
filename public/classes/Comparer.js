@@ -1,5 +1,3 @@
-const debug = true;
-
 export default class Comparer{
 
 	constructor(){}
@@ -141,3 +139,4 @@ export default class Comparer{
 
 }
 
+Comparer.debug = false;

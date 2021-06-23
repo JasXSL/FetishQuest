@@ -514,7 +514,7 @@ export default class UI{
 		buttons.toggleClass("hidden", true);
 		this.spectatingText.toggleClass('hidden', Boolean(player));
 
-		if( !player ){
+		if( !(player instanceof Player) ){
 
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
@@ -525,7 +525,7 @@ export default class UI{
 		}
 		
 
-		let actions = player.getActions(), 
+		let actions = player.getActions('e'), 
 			th = this
 		;
 

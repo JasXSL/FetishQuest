@@ -258,7 +258,7 @@ export default class Asset extends Generic{
 	}
 
 	getMaxDurability(){
-		return (10+this.durability_bonus) * (this.mastercrafted ? 2 : 1);
+		return Math.ceil(10+this.durability_bonus) * (this.mastercrafted ? 2 : 1);
 	}
 
 	equippable(){
@@ -563,7 +563,7 @@ export default class Asset extends Generic{
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
 		if( dmgTaken && isBreakable ){
 
-			if( this.durability )
+			if( this.getMaxDurability() )
 				html += '<em style="color:#FAA">'+Math.round((Asset.protVal-dmgTaken)*100)+'% damage reduction (low level)</em><br />';
 			else
 				html += '<em style="color:#FAA">Broken!</em><br />';

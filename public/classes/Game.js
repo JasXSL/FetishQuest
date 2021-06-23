@@ -1993,7 +1993,7 @@ export default class Game extends Generic{
 
 	}	
 	
-	updatePlayerVisbility(){
+	refreshPlayerVisibility(){
 		
 		const conds = this.encounter.player_conditions;
 		// Toggle hide/show of players
@@ -2112,7 +2112,7 @@ export default class Game extends Generic{
 		
 		encounter.onPlacedInWorld( !started );	// This has to go after, since players need to be put in world for effects and conditions to work
 
-		this.updatePlayerVisbility();
+		this.refreshPlayerVisibility();
 
 		if( !encounter.friendly && !completed )
 			this.toggleBattle(true);
@@ -2497,7 +2497,7 @@ export default class Game extends Generic{
 
 	}
 
-	setRoleplay( rp, force = false ){
+	setRoleplay( rp, force = false, player = undefined ){
 
 		if( this.isInPersistentRoleplay() && !rp.persistent && !force )
 			return;
@@ -2511,8 +2511,8 @@ export default class Game extends Generic{
 			rp = glib.get(rp, 'Roleplay');
 		
 		this.roleplay = rp.clone(this);
-		this.roleplay.stage = 0;
-		this.roleplay.onStart();
+		this.roleplay.stage = '';
+		this.roleplay.onStart( player );
 
 		this.ui.draw();
 		if( this.roleplay.stages.length )
@@ -2713,21 +2713,39 @@ export default class Game extends Generic{
 
 	// Returns Shop objects attached to an NPC
 	// Doesn't do any filtering, so remember to check shopAvailableTo
-	getShopsByPlayer( player ){
+	getShopsByPlayer( player, filter = false ){
+
 		const encounter = this.encounter;
 		const shops = encounter.getShops();
 		if( !player )
 			return;
+
+		const mp = this.getMyActivePlayer();
+		if( filter && !mp )
+			return [];
+
 		const out = [];
 		for( let shopAction of shops ){
+
+			if( !(shopAction instanceof GameAction) )
+				continue;
+
 			const shop = shopAction.getDataAsShop();
 			if( !shop )
 				continue;
+
 			if( shopAction.data.player === player.label ){
+
+				if( filter && (!shopAction.validate(mp) || !this.shopAvailableTo(shop, mp)) )
+					continue;
+
 				out.push(shop);
+
 			}
+
 		}
 		return out;
+
 	}
 
 	// Returns game actions

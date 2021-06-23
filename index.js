@@ -83,7 +83,7 @@ app.use('/build_date', async (req, res) => {
 	let version = '';
 	let success = false;
 	try{
-		const stat = await fs.stat('public/libraries/MAIN.fqmod');
+		const stat = await fs.stat(__dirname+'/public/libraries/MAIN.fqmod');
 		version = stat.mtime;
 		success = true;
 	}catch(err){

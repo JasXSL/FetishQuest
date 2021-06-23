@@ -364,6 +364,7 @@ export class ShopAsset extends Generic{
 		const out = this.asset.clone();
 		out.g_resetID();
 		out.onPlacedInWorld();
+		out.restore();
 		return out;
 	}
 

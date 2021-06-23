@@ -1021,6 +1021,8 @@ class WebGL{
 			if( !el.isMesh )
 				return;
 
+			if( el.userData.particles )
+				el.userData.particles.map(p => p.destroy());
 			// Materials are always unique. Geometries and textures are always shared.
 			// textures have an exception where ._dispose can be set to force dispose it
 			// This should be enough to prevent memory leaks
@@ -1832,8 +1834,6 @@ class Stage{
 		this.stopAllSounds();
 		for( let tween of this.tweens )
 			this.removeTween(tween);
-		for( let p of this.particles )
-			p.destroy();
 		this.particles = [];
 		this.tweens = [];
 		this.mixers = [];
@@ -1864,7 +1864,7 @@ class Stage{
 
 	}
 
-	// Triggered when a door is changed
+	// Raised on all meshes to check their door status and update labels
 	onDoorRefresh( c ){
 
 		let asset = c.userData.dungeonAsset;
@@ -1876,6 +1876,7 @@ class Stage{
 			locked = asset.isLocked();
 
 		let sprites = c.userData.hoverTexts;
+
 		for( let i in sprites )
 			sprites[i].visible = false;
 
@@ -1919,11 +1920,13 @@ class Stage{
 
 			tagAlwaysVisible = true;
 			sprite = sprites.out;
-			sprite.material.opacity = 1;
+			if( sprite )
+				sprite.material.opacity = 1;
 
 		}
 
 		if( sprite ){
+
 			sprite.visible = !alwaysHide;
 
 			// Fade tween (Needed for the tags)
@@ -1954,6 +1957,7 @@ class Stage{
 				c.userData.tween.start();
 				this.parent.renderer.domElement.style.cursor = "auto";
 			};
+
 		}
 
 	}
@@ -1964,7 +1968,7 @@ class Stage{
 		let dungeonAsset = obj.userData.dungeonAsset;
 		dungeonAsset.updateInteractivity();
 		// Update the room tags
-		if( window.game && dungeonAsset.isDoor() )
+		if( window.game )
 			this.onDoorRefresh(obj);
 
 
@@ -2018,15 +2022,39 @@ class Stage{
 		const c = await this.addFromMeshLib(asset, asset.isInteractive() || this.isEditor);
 
 		
+		// Wipe hovertexts
+		if( c.userData.hoverTexts ){
 
+			for( let i in c.userData.hoverTexts ){
+				
+				const text = c.userData.hoverTexts[i];
+				this.parent.destroyModel(c);
+				c.remove(text);
+
+			}
+			
+		}
 		
-		c.userData.dungeonAsset = asset;
 		c.userData.hoverTexts = {};
+		c.userData.dungeonAsset = asset;
+		
 		asset.setStageMesh(c);
 		if( !c.name )
 			c.name = asset.name || asset.model;
 
 		
+		// Must be done before labels are created in order for them to take rotation into consideration
+		this.updatePositionByAsset( asset );
+		
+
+		// Calculate a bounding box before attaching anything to the mesh
+		const bb = new THREE.Box3();
+		c.traverse(el => {
+			if( el.geometry )
+				el.geometry.computeBoundingBox();
+		});
+		c.userData.boundingBox = bb;
+		bb.setFromObject(c);			// Note: THREE.js bounding box calculation is BROKEN, may be fixed in a future update
 
 		// Create labels
 		// Door
@@ -2036,9 +2064,12 @@ class Stage{
 
 			this.createIndicatorForMesh('locked', '_LOCKED_', c, 0.4);
 			if( asset.isExit() && !asset.name ){
+
 				this.createIndicatorForMesh('exit', 'Exit', c);
+
 			}
 			else{
+
 				if( !linkedRoom && !asset.name )
 					console.error("Required linked room missing, ", linkedRoom, "searched for index", asset.getDoorTarget(), "from", asset, "in", game.dungeon);
 				this.createIndicatorForMesh('run', "Run", c);
@@ -2046,16 +2077,12 @@ class Stage{
 				this.createIndicatorForMesh('out', "_OUT_", c, 0.4);
 				const name = asset.name ? asset.name : this.room.getBearingLabel(this.room.getAdjacentBearing( linkedRoom ));
 				this.createIndicatorForMesh('bearing', name, c);
+
 			}
 		
-		}
-
-
-		this.updatePositionByAsset( asset );
+		}	
 
 		this.onObjStart(c);
-
-		
 
 	}
 
@@ -2207,8 +2234,6 @@ class Stage{
 	// Adds particles from a mesh recursively
 	addParticlesRecursive( obj ){
 
-		
-
 		if( Array.isArray(obj.userData.particles) ){
 
 			for( let psys of obj.userData.particles)
@@ -2231,10 +2256,8 @@ class Stage{
 	removeParticleSystem(sys){
 
 		let index = this.particles.indexOf(sys);
-		if( ~index ){
-			sys.destroy();
+		if( ~index )
 			this.particles.splice(index,1);
-		}
 
 	}
 
@@ -2420,6 +2443,7 @@ class Stage{
 	/* TOOLS */
 	// Creates an arrow indicator to go above a door
 	createIndicatorCanvas(text){
+
 		const canvas = document.createElement('canvas');
 		canvas.width = 256;
 		canvas.height = 256;
@@ -2427,9 +2451,11 @@ class Stage{
 		ctx.save();
 		
 		if( text.length ){
+
 			let tx = text.split(' ');
-			let txout = [];
+			let txout = [];	// Sets a limit of 10 characters per row
 			while( tx.length ){
+
 				let t = tx.shift();
 				let block = txout[txout.length-1]+" "+t;
 				block = block.trim();
@@ -2437,15 +2463,22 @@ class Stage{
 					txout.push(t);
 				else
 					txout[txout.length-1] = block;
+
 			}
+
 			let longest = 0;
 			for( let t of txout ){
+
 				if( t.length > longest )
 					longest = t.length;
+
 			}
 			let len = Math.max(0, longest-10);
+			if( txout.length-1 > len )
+				len = txout.length-1;
 
-			for( let i=0; i<txout.length; ++i ){
+			for( let i = 0; i < txout.length; ++i ){
+
 				tx = txout[txout.length-1-i];
 				let fontSize = 40-len*4;
 				ctx.font = fontSize+"px Arial";
@@ -2456,6 +2489,7 @@ class Stage{
 				ctx.strokeText(tx,canvas.width/2, canvas.height/2-fontSize*(i+1));
 				ctx.fillText(tx,canvas.width/2, canvas.height/2-fontSize*(i+1));
 				ctx.restore();
+
 			}
 			
 		}
@@ -2471,10 +2505,17 @@ class Stage{
 		ctx.stroke();
 		ctx.fill();
 		return canvas;
+
 	}
 
+	/*
+		Special case labels:
+		_OUT_ Exit badge
+		_LOCKED_ Lock icon
+	*/
 	createIndicatorForMesh(label, text, mesh, scale = 1){
 
+		
 		let map = new THREE.CanvasTexture(this.createIndicatorCanvas(text));
 		if( text === '_OUT_' )
 			map = LibMaterial.library.Sprites.ExitBadge.fetch().map;
@@ -2484,22 +2525,30 @@ class Stage{
 		let material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true, alphaTest:0.5 } );
 		let sprite = new THREE.Sprite( material );
 		sprite.name = text;
-		sprite.scale.set(180*scale,180*scale,1);
 
-		if( Object.keys(mesh.userData.hoverTexts).length )
-			sprite.position.copy(mesh.userData.hoverTexts[Object.keys(mesh.userData.hoverTexts).shift()].position);
-		else{
-			let box = new THREE.Box3().setFromObject( mesh );
-			let min = box.min, max = box.max;
-			let x = min.x+(max.x-min.x)/2;
-			let y = box.max.y+50;
-			let z = min.z+(max.z-min.z)/2;
-			sprite.position.set(x,y,z);
-		}
+		
+		
+		sprite.scale.set(
+			180*scale,
+			180*scale,
+			1
+		);
+
+		
+		const box = mesh.userData.boundingBox;
+		let min = box.min, max = box.max;
+		let x = min.x+(max.x-min.x)/2;
+		let y = max.y+50;
+		let z = min.z+(max.z-min.z)/2;
+		sprite.position.set(x,y,z);
+
 		sprite.visible = false;
 		mesh.userData.hoverTexts[label] = sprite;
-		mesh.add(sprite);
+		this.parent.scene.add(sprite);
+		mesh.attach(sprite);
+		
 		return sprite;
+
 	}
 
 	// Sets a material property on a mesh

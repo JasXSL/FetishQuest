@@ -671,7 +671,7 @@ class NetworkManager{
 				if( !roleplay )
 					return respondWithError("Roleplay not available");
 
-				game.setRoleplay( roleplay );
+				game.setRoleplay( roleplay, false, player );
 
 			}
 
