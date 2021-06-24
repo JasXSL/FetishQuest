@@ -20,10 +20,8 @@
 	x Stats show too low durability in icons
 	x Tailoring quest hands in immediately
 
-
-	- Minimap auto Z level doesn't work in coop
-	- Minimap doesn't cover the whole portswood west area
-	- Fitting extend didn't work
+	- Cloth fitting RP extend didn't work
+	- Player markers occasionally double-spawn. Need more info.
 
 
 -- TEST --

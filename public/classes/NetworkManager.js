@@ -1173,26 +1173,31 @@ class NetworkManager{
 
 		let gameCombatPre = game.battle_active;
 		let dungeonPreId = game.dungeon.id;
-		
+		// Load data in
 		game.loadFromNet(data);
 		game.ui.draw();		
 
+		
+		// DETECT CHANGES
+
+		// Dungeon changed
 		if( dungeonPreId !== game.dungeon.id )
 			game.renderer.loadActiveDungeon();
+
+		// Something in the dungeon has changed
 		else if( data.dungeon ){
 
-			// Room changed
-			const preRoom = game.dungeon.active_room;
-			if( !isNaN(data.dungeon.active_room) && preRoom !== game.dungeon.active_room ){
+			// Room changed. Param only included when it's changed
+			if( data.dungeon.active_room ){
 
 				if( StaticModal.active && StaticModal.active.closeOnCellMove )
 					StaticModal.close();
+				game.ui.onAfterRoomChange();
 
 			}
 
-
-
 			game.renderer.drawActiveRoom(false);
+
 		}
 
 		if( gameCombatPre !== game.battle_active )

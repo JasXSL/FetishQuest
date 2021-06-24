@@ -3063,6 +3063,10 @@ div.fxBuffRed{
 		display: none;
 	}
 
+	#miniMap > div.top > div.zLevel{
+		text-shadow: 1px 1px 1px #000;
+	}
+
 	#miniMap > div.top > div{
 		
 		margin-left:1px;

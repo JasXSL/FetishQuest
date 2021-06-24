@@ -715,6 +715,7 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.execRentRoom ){
+
 			const cost = this.data.copper || 0;
 			if( player.getMoney() < cost )
 				return;
@@ -729,13 +730,14 @@ export default class GameAction extends Generic{
 				stages : [
 					{
 						text : this.data.success_text || 'Thank you, enjoy your stay!',
-						options : [{index:-1, text:'[Done]',chat:RoleplayStageOption.ChatType.none}]
+						options : [{text:'[Done]',chat:RoleplayStageOption.ChatType.none}]
 					}
 				]	
 			});
 			game.setRoleplay(rp);
 			game.renderer.drawActiveRoom();
 			game.ui.draw();
+
 
 		}
 		else if( this.type === types.learnAction ){

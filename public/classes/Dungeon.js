@@ -400,6 +400,8 @@ class Dungeon extends Generic{
 		if( !player && game.is_host )
 			player = game.getTeamPlayers()[0];
 		
+		if( !player )
+			return;
 
 		if( !game.getAlivePlayersInTeam(0).length ){
 			game.ui.modal.addError("Players are deeeeaaaad");

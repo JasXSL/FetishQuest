@@ -632,9 +632,11 @@ export default class Game extends Generic{
 	}
 
 	// Raised after each save, both on host and client
-	onGameUpdate(data){
+	onGameUpdate( data ){
+		
 		this.ui.modal.onGameUpdate(data);
 		StaticModal.onGameUpdate(data);
+
 	}
 
 	onDungeonExit(){
@@ -3019,15 +3021,15 @@ export default class Game extends Generic{
 					text : ga.data.text || "Want to rent a room? It's "+Player.copperToReadable(cost)+" a night!",
 					options : [
 						{
-							index:-1, text:"Sure I'll take it.",
+							text:"Sure I'll take it.",
 							conditions : [{type:Condition.Types.formula, data:{formula:'ta_Money>='+cost}}],
 							game_actions : [{type:GameAction.types.execRentRoom, data:{copper:cost, success_text:ga.data.success_text, renter:renterPlayer.label}}]
 						},
 						{
-							index:-1, text:"Sorry I don't have enough money.",
+							text:"Sorry I don't have enough money.",
 							conditions : [{type:Condition.Types.formula, data:{formula:'ta_Money<'+cost}}],
 						},
-						{index:-1, text:"No thank you."},
+						{text:"No thank you."},
 					]
 				}
 			]	

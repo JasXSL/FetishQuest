@@ -2543,10 +2543,11 @@ export default class UI{
 			}
 		};
 
+		// Sets minimum size
 		let scale = Math.max(
 			6,
-			Math.abs(maxX-minX),
-			Math.abs(maxY-minY)
+			Math.abs(maxX-minX+1),
+			Math.abs(maxY-minY+1)
 		);
 
 		for( let y = 0; y < scale; ++y ){
