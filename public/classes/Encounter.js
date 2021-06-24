@@ -67,6 +67,9 @@ export default class Encounter extends Generic{
 
 		difficulty += this.difficulty_adjust;
 
+		if( difficulty < 0.1 )
+			difficulty = 0.1;
+
 		if( this.started )
 			return;
 

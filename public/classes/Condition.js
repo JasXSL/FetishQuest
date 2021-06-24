@@ -977,21 +977,24 @@ export default class Condition extends Generic{
 			else if( this.type === T.numGamePlayersGreaterThan ){
 
 				const team = parseInt(this.data.team),
-					amount = this.data.amount
+					amount = this.data.amount,
+					controlled = Boolean(this.data.controlled)
 				;
-				const players = game.getEnabledPlayers();
+				const players = game.getEnabledPlayers().filter(player => {
+
+					if( controlled && !player.netgame_owner )
+						return false;
+
+					return (
+						(team === -1 && t.team === player.team) ||
+						(team === -2 && t.team !== player.team) ||
+						(player.team === team)
+					);
+
+				});
 				let np = players.length;
-				if( !isNaN(team) ){
-					np = 0;
-					for( let player of players ){
-						if(
-							(team === -1 && t.team === player.team) ||
-							(team === -2 && t.team !== player.team) ||
-							(player.team === team)
-						)++np;
-					}
-				}
 				success = np > amount;
+
 			}
 			
 
@@ -1338,7 +1341,7 @@ Condition.descriptions = {
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',
 	[Condition.Types.targetIsRpPlayer] : '{} - Checks if target is roleplay _targetPlayer, which can be set by RP stages to lock an rp target',
-	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies.',
+	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any, controlled:(bool)pc_controlled=false} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies. If controlled is true it ignores NPCs.',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
 	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',

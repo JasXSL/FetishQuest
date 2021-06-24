@@ -1170,7 +1170,8 @@ class DungeonRoom extends Generic{
 
 			this.encounters = new Encounter({
 				started : true,
-				completed : true
+				completed : true,
+				id : '_BLANK_'
 			}, this);
 
 		}
@@ -1181,7 +1182,8 @@ class DungeonRoom extends Generic{
 			if( !viable )
 				viable = new Encounter({
 					started : true,
-					completed : true
+					completed : true,
+					id : '_BLANK_'
 				}, this);
 			this.encounters = viable;
 				

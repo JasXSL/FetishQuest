@@ -607,12 +607,14 @@ export function asset(){
 
 		setDefaultData({
 			amount : 1,
-			team : 0
+			team : 0,
+			controlled : false
 		});
 
 		html += '<div class="labelFlex">'+
 			'<label title="">Amount: <input type="number" name="data::amount" class="saveable" value="'+(parseInt(asset.data.amount)||0)+'" /></label>'+
 			'<label title="Enter a value that is not a number to check ALL players">Team: <input type="text" name="data::team" class="saveable dataTeam" value="'+(isNaN(asset.data.team) ? "undefined" : parseInt(asset.data.team))+'" /></label>'+
+			'<label title="Only count player owned characters">PC Only: <input type="checkbox" name="data::controlled" class="saveable" '+(asset.data.controlled ? 'checked' : '')+' /></label>'+
 		'</div>';
 
 		fnBind = () => {

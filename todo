@@ -20,18 +20,13 @@
 	x Stats show too low durability in icons
 	x Tailoring quest hands in immediately
 
-	- particles no longer work
-	- No generics in tailor boss
-	- Remove nametags when re-using a mesh (non-door boat had a nametag)
-	- Figure out how to make markers not scale by parent (water circles is massive)
-	- Add NPCs to west portwood
-	
 
 	- Minimap auto Z level doesn't work in coop
+	- Minimap doesn't cover the whole portswood west area
+	- Fitting extend didn't work
 
 
 -- TEST --
-	- Test fix for lever in waterbreathing dungeon
 	- Test shark shop properly not showing before completing shark quest
 	- Test if tailor boss outro actually hides the bosses
 

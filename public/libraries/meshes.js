@@ -1006,7 +1006,8 @@ function build(){
 						if( !light )
 							return;
 
-						const ct = glib.get('waygateActiveActiveDungeon', 'Condition').test(new GameEvent({
+						
+						const ct = window.game && glib.get('waygateActiveActiveDungeon', 'Condition').test(new GameEvent({
 							sender : game.players[0],
 							target : game.players[0],
 							dungeon : game.dungeon,

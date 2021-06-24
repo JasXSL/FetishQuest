@@ -1042,7 +1042,7 @@ export default class UI{
 			talk : rps.length,
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
-			shop : myActive && game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive)).length,
+			shop : myActive && game.getShopsByPlayer(p, true).length,
 			transmog : myActive && game.transmogAvailableTo(p, myActive),
 			repair : myActive && game.smithAvailableTo(p, myActive),
 			gym : myActive && game.gymAvailableTo(p, myActive),
