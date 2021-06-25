@@ -446,26 +446,26 @@ export default{
 			// Ctrl deletes
 			if( event.ctrlKey || event.metaKey ){
 
-				// Remove an extension (should only be needed in the main one, not the linker)
-				/*
+				// Remove an extension
 				if( event.currentTarget.dataset.ext ){
 					MOD.deleteAsset(targetLibrary, entry);
 				}
+				// Remove the actual thing
 				else{
-				*/
-				// Don't need to store this param in the mod anymore
-				if( single )
-					delete entries[key];	
-				// Remove from the array
-				else
-					entries[key].splice(index, 1);	// Remove this
+				
+					// Don't need to store this param in the mod anymore
+					if( single )
+						delete entries[key];	
+					// Remove from the array
+					else
+						entries[key].splice(index, 1);	// Remove this
 
-				// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
-				// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
-				if( parented && mod.mod[targetLibrary] )
-					MOD.deleteAsset(targetLibrary, entry, true);
+					// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
+					// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
+					if( parented && mod.mod[targetLibrary] )
+						MOD.deleteAsset(targetLibrary, entry, true);
 
-				//}
+				}
 
 				win.rebuild();
 				EDITOR.setDirty(true);
@@ -795,14 +795,17 @@ export default{
 			tr.dataset.id = asset.label || asset.id || a.label || a.id;
 			let ext = a;
 
+			// This asset is not from this mod
 			if( asset.__MOD ){
 				
-				tr.dataset.mod = asset.__MOD;
-				ext = window.mod.parentMod.getAssetById(library, asset.id || asset.label, true) || a;
-				if( (ext.id && ext.id !== a.id) || (ext.label && ext.label !== a.label) )	// This is an extension on the base mod
-					tr.dataset.ext = ext.id || ext.label;
-
+				tr.dataset.mod = asset.__MOD;	
+				
+				
 			}
+
+			ext = window.mod.parentMod.getAssetById(library, asset.id || asset.label, true) || a;
+			if( (ext.id && ext.id !== a.id) || (ext.label && ext.label !== a.label) )	// This is an extension on the base mod
+				tr.dataset.ext = ext.id || ext.label;
 			
 			if( !isLinker ){
 

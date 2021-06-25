@@ -5,33 +5,17 @@
 -- CURRENT --
 
 	Haunted house quest:
-		- Auntie Reven
-			- Is a cougar
-			- Is very fast
-		- Quest to find out what is haunting the house
-		- Quest starts with a person outside the house who is her nephew
-		- Rewards an owometer?
-
-	x = need test
-	u = unable to reproduce
-
-	u Tavern dweller has no RP
-	u Treasure in coop did not show a name for the item in it when the last item is looted
-	x Stats show too low durability in icons
-	x Tailoring quest hands in immediately
-
-	- Cloth fitting RP extend didn't work
+		- Snep outside tells you that the house is haunted, and asks you to figure out what's going on
+		- Need to find an Enchantment-magic Field Reader, a book, and handprints
+		- After doing so, the whole place will flicker and players will hide in a closet
+		- Player leave and the snep tells you that it's his great aunt reven, a cougar who used to run a lot
+		- Players go back in there and take her down to finish the quest
+		- Quest reward: ???
+		
 	- Player markers occasionally double-spawn. Need more info.
 
 
 -- TEST --
-	- Test shark shop properly not showing before completing shark quest
-	- Test if tailor boss outro actually hides the bosses
-
-	- Fast travel system
-	- Underwater procedural
-	- Shark quest
-	- Tavern quest
 
 	Bugs:
 		- Force update log after finishing an exploration. Not sure what causes this, it should be set? Maybe game.proceduralDiscovery isn't updated correct?
