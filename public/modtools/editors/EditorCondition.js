@@ -796,6 +796,9 @@ export function asset(){
 	else if( type === types.dom ){
 		html += buildDefaultValueFields();
 	}
+	else if( type === types.intelligence ){
+		html += buildDefaultValueFields();
+	}
 	else if( type === types.hetero ){
 		html += buildDefaultValueFields();
 	}

@@ -44,10 +44,10 @@ export function asset(){
 		html += '<label>Min Level: <input name="min_level" value="'+esc(dummy.min_level)+'" type="number" min=1 step=1 class="saveable" /></label>';
 		html += '<label>Max Level: <input name="max_level" value="'+esc(dummy.max_level)+'" type="number" min=1 step=1 class="saveable" /></label>';
 		html += '<label title="Varies +-50%">Carried copper: <input name="monetary_wealth" value="'+esc(dummy.monetary_wealth)+'" type="number" min=0 step=1 class="saveable" /></label>';
-		html += '<label>Gear Quality - Common <input name="gear_quality" value="'+esc(dummy.gear_quality)+'" type="range" min=0 step=0.01 max=1 class="saveable" /> Legendary</label>';
-		html += '<label>Gear Chance: <input name="gear_chance" value="'+esc(dummy.gear_chance)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label title="Left = tiny, mid = human, right = giant">Min Size: <input name="min_size" value="'+esc(dummy.min_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
-		html += '<label title="Left = tiny, mid = human, right = giant">Max Size: <input name="max_size" value="'+esc(dummy.max_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
+		html += '<label>Gear Quality <span class="valueExact"></span><br />Common <input name="gear_quality" value="'+esc(dummy.gear_quality)+'" type="range" min=0 step=0.01 max=1 class="saveable" /> Legendary</label>';
+		html += '<label>Gear Chance: <span class="valueExact"></span><input name="gear_chance" value="'+esc(dummy.gear_chance)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label title="Left = tiny, mid = human, right = giant">Min Size: <span class="valueExact"></span><input name="min_size" value="'+esc(dummy.min_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
+		html += '<label title="Left = tiny, mid = human, right = giant">Max Size: <span class="valueExact"></span><input name="max_size" value="'+esc(dummy.max_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
 		html += '<label title="1 = average, 2 = about the same as 2 monsters">Difficulty: <input name="difficulty" value="'+esc(dummy.difficulty)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
 		html += '<label title="Multiplies against all stats">Power: <input name="power" value="'+esc(dummy.power)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
 		html += '<label title="Prevents equipping the gear. Useful for things like mimics that carry gear but can\'t wear it.">No equip: <input type="checkbox" name="no_equip" '+(dummy.no_equip ? 'checked' : '')+' class="saveable"  /></label>';
@@ -56,16 +56,16 @@ export function asset(){
 
 	// Social skill
 	html += '<div class="labelFlex">';
-		html += '<label>Sadistic min <input name="sadistic_min" value="'+esc(dummy.sadistic_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Sadistic max <input name="sadistic_max" value="'+esc(dummy.sadistic_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Dominant min <input name="dominant_min" value="'+esc(dummy.dominant_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Dominant max <input name="dominant_max" value="'+esc(dummy.dominant_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Hetero min <input name="hetero_min" value="'+esc(dummy.hetero_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Hetero max <input name="hetero_max" value="'+esc(dummy.hetero_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Intelligence min <input name="intelligence_min" value="'+esc(dummy.intelligence_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Intelligence max <input name="intelligence_max" value="'+esc(dummy.intelligence_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Talkative min <input name="talkative_min" value="'+esc(dummy.talkative_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
-		html += '<label>Talkative max <input name="talkative_max" value="'+esc(dummy.talkative_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Sadistic min <span class="valueExact"></span><input name="sadistic_min" value="'+esc(dummy.sadistic_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Sadistic max <span class="valueExact"></span><input name="sadistic_max" value="'+esc(dummy.sadistic_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Dominant min <span class="valueExact"></span><input name="dominant_min" value="'+esc(dummy.dominant_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Dominant max <span class="valueExact"></span><input name="dominant_max" value="'+esc(dummy.dominant_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Hetero min <span class="valueExact"></span><input name="hetero_min" value="'+esc(dummy.hetero_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Hetero max <span class="valueExact"></span><input name="hetero_max" value="'+esc(dummy.hetero_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Intelligence min <span class="valueExact"></span><input name="intelligence_min" value="'+esc(dummy.intelligence_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Intelligence max <span class="valueExact"></span><input name="intelligence_max" value="'+esc(dummy.intelligence_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Talkative min <span class="valueExact"></span><input name="talkative_min" value="'+esc(dummy.talkative_min)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
+		html += '<label>Talkative max <span class="valueExact"></span><input name="talkative_max" value="'+esc(dummy.talkative_max)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
 	html += '</div>';
 
 

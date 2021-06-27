@@ -1108,6 +1108,11 @@ export default class Player extends Generic{
 				this.addMP(postMinutes-preMinutes);
 				this.addHP(postMinutes-preMinutes);
 				this.addArousal(-(postMinutes-preMinutes));
+				this.addAP((postMinutes-preMinutes)*3);	// 3 AP per minute
+				
+				const actions = this.getActions(true, false, true, false);
+				for( let action of actions )	// Subtract 1 cooldown per minute
+					action.addCooldown(-(postMinutes-preMinutes));
 
 			}
 

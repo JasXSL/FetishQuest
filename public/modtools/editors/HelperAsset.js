@@ -19,102 +19,114 @@ export default{
 			dev = window.mod
 		;
 
-		// Binds simple inputs
-		dom.querySelectorAll(".saveable[name]").forEach(el => {
+		const updateExact = (el, val) => {
+			if( el )
+				el.innerText = '('+val+')';
+		};
 
-			el.addEventListener('change', event => {
+		const handleChange = event => {
 
-				const targ = event.currentTarget,
+			const targ = event.currentTarget,
 					name = targ.name
 				;
 
 
-				let val = targ.value.trim();
+			let val = targ.value.trim();
 
-				if( targ.classList.contains('bitwise') ){
+			if( targ.classList.contains('bitwise') ){
 
-					let v = 0;
-					const all = [...dom.querySelectorAll('input[name="'+name+'"]')];
-					for( let sub of all ){
-						if( sub.checked && parseInt(sub.value) )
-							v = v|parseInt(sub.value);
-					}
-					val = v;
-
+				let v = 0;
+				const all = [...dom.querySelectorAll('input[name="'+name+'"]')];
+				for( let sub of all ){
+					if( sub.checked && parseInt(sub.value) )
+						v = v|parseInt(sub.value);
 				}
-				// Try to auto typecast
-				else if( targ.dataset.type === 'smart' ){
+				val = v;
 
-					if( val.toLowerCase() === 'true' )
-						val = true;
-					else if( val.toLowerCase() === 'false' )
-						val = false;
-					else if( !isNaN(val) )
-						val = +val;
+			}
+			// Try to auto typecast
+			else if( targ.dataset.type === 'smart' ){
 
-				}
-				else if( targ.dataset.type === 'int' ){
-					val = parseInt(val) || 0;
-				}
-				else if( targ.dataset.type === 'float' ){
-					val = +val || 0;
-				}
-				else if( targ.tagName === 'INPUT' ){
+				if( val.toLowerCase() === 'true' )
+					val = true;
+				else if( val.toLowerCase() === 'false' )
+					val = false;
+				else if( !isNaN(val) )
+					val = +val;
 
-					const type = targ.type;
-					if( type === 'range' || type === 'number' )
-						val = +val;
-					
-					if( type === 'checkbox' )
-						val = Boolean(targ.checked);
+			}
+			else if( targ.dataset.type === 'int' ){
+				val = parseInt(val) || 0;
+			}
+			else if( targ.dataset.type === 'float' ){
+				val = +val || 0;
+			}
+			else if( targ.tagName === 'INPUT' ){
 
-				}
-
+				const type = targ.type;
+				if( type === 'range' || type === 'number' )
+					val = +val;
 				
+				if( type === 'checkbox' )
+					val = Boolean(targ.checked);
 
+			}
 
-				let path = name.split('::');
-				let base = asset;
-				while( path.length > 1 ){
-					base = base[path.shift()];
-					if( base === undefined ){
-						console.error("Path find failed for ", name, "in", asset);
-						throw "Unable to find path, see above";
-					}
+			let path = name.split('::');
+			let base = asset;
+			while( path.length > 1 ){
+				base = base[path.shift()];
+				if( base === undefined ){
+					console.error("Path find failed for ", name, "in", asset);
+					throw "Unable to find path, see above";
 				}
-				path = path.shift();
+			}
+			path = path.shift();
 
-				// Soft = here because type isn't important
-				if( val != base[path] ){
+			// Soft = here because type isn't important
+			if( val != base[path] ){
 
-					// Label change must update the window
-					if( name === "label" || name === "id" ){
+				// Label change must update the window
+				if( name === "label" || name === "id" ){
 
-						val = val.trim();
-						if( !val )
-							throw 'Label/id cannot be empty';
+					val = val.trim();
+					if( !val )
+						throw 'Label/id cannot be empty';
 
-						win.id = val;
-						win.updateTitle();
-						dev.mod.updateChildLabels(base, win.type, base[path], val);	// Make sure any child objects notice the label change
-
-					}
-					else if( name === "name" ){
-						win.name = val;
-						win.updateTitle();
-					}
-					base[path] = val;
-					dev.setDirty(true);
-					if( list )
-						this.rebuildAssetLists(list);
-
-					this.propagateChange(win);
-					if( typeof onChange === "function" )
-						onChange(name, val);
+					win.id = val;
+					win.updateTitle();
+					dev.mod.updateChildLabels(base, win.type, base[path], val);	// Make sure any child objects notice the label change
 
 				}
+				else if( name === "name" ){
+					win.name = val;
+					win.updateTitle();
+				}
+				base[path] = val;
+				dev.setDirty(true);
+				if( list )
+					this.rebuildAssetLists(list);
 
-			})
+				this.propagateChange(win);
+				if( typeof onChange === "function" )
+					onChange(name, val);
+
+			}
+
+			updateExact(targ._valExact, val);
+
+		};
+
+		// Binds simple inputs
+		dom.querySelectorAll(".saveable[name]").forEach(el => {
+
+			// Cache any exact val span
+			el._valExact = el.parentElement.querySelector('span.valueExact');
+			if( el.parentElement.tagName !== 'LABEL' )
+				delete el._valExact;
+			updateExact( el._valExact, el.value );
+			el.addEventListener('change', handleChange);
+
 		});
 
 		this.bindJson( win, asset, list );
@@ -1128,6 +1140,8 @@ export default{
 
 			delete win._searchResults;
 			let searchTerm = searchInput.value.toLowerCase();
+			if( win._search !== searchTerm )
+				win.custom._page = 0;
 			win._search = searchTerm;
 
 			win.rebuild();

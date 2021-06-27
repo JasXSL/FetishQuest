@@ -594,6 +594,8 @@ export default class Condition extends Generic{
 			else if( this.type === T.hetero ){
 				success = t && this.compareValue(s, t, t.hetero);
 			}
+			else if( this.type === T.intelligence )
+				success = t && this.compareValue(s, t, t.intelligence);
 			else if( this.type === T.sizeValue )
 				success = t && this.compareValue(s, t, t.size);
 			else if( this.type === T.targetLevel )
@@ -1262,6 +1264,7 @@ Condition.Types = {
 	charging : 'charging',
 	targetedSenderLastRound : 'targetedSenderLastRound',
 	sadism : 'sadism',
+	intelligence : 'intelligence',
 	dom : 'dom',
 	hetero : 'hetero',
 	hourRange : 'hourRange',
@@ -1316,7 +1319,8 @@ Condition.descriptions = {
 	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic). Amount can be a math var.',
 	[Condition.Types.dom] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target dominant value, between 0 (sub) 0.5 (switch) and 1 (dom).  Amount can be a math var.',
 	[Condition.Types.hetero] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target hetero value, between 0 (not gay), 0.5 (gay) 1 (completely straight).  Amount can be a math var.',
-	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=} - Default >. Checks target size value. Amount can be a math var.',
+	[Condition.Types.intelligence] : '{amount:(float)amount, operation:(str)<>=} - Default >. The player intelligence slider, NOT the int stat. Between 0 and 1. Generally 0 = no thinking at all. 0.2 = animals/beasts. 0.3 = Min functioning human intelligence ogres are here, 0.4 = not the brightest, 0.5 = average, 0.6 = clever, 1.0 = mastermind',
+	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=, dif:(bool)=false} - Default >. Checks target size value. Amount can be a math var.',
 	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >  Amount can be a math var.',
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',
 	[Condition.Types.hasRepairable] : 'void - Has repairable items in their inventory',

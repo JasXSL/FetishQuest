@@ -173,7 +173,7 @@ export function asset(){
 				val : 0.5
 			};
 		html += '<div class="labelFlex">';
-			html += '<label>Loot quality: <input type="range" min=0.01 max=1 step=0.01 name="data::val" class="saveable" value="'+esc(asset.data.val || 0.5)+'" /></label>';
+			html += '<label>Loot quality <span class="valueExact"></span>: <input type="range" min=0.01 max=1 step=0.01 name="data::val" class="saveable" value="'+esc(asset.data.val || 0.5)+'" /></label>';
 		html += '</div>';
 
 	}

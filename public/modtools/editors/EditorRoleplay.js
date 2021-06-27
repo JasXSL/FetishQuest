@@ -28,7 +28,6 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label title="This is only shown in the editor">Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
-		html += '<label>Title: <input type="text" name="title" class="saveable" value="'+esc(dummy.title)+'" /></label>';
 		html += '<label title="A small headshot of the player">Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
 
 		html += '<label title="Preserves stage when reopened">Persistent <input type="checkbox" class="saveable" name="persistent" '+(dummy.persistent ? 'checked' : '')+' /></label><br />';
@@ -90,3 +89,60 @@ export function list(){
 
 };
 
+
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Roleplay:</h3>'+
+		'<p>Roleplay is the dialog popup with multiple options you may encounter. In order to trigger a roleplay, you need to tie it to a game action.</p>';
+
+	out += '<h3>Tying a roleplay to an NPC in a cell</h3>';
+	out += '<p>In order to attach a roleplay to a player in a cell, you need to first create an encounter for that cell, and add the player. Then create a game action in that encounter of the Roleplay type, and select your roleplay.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Only visited in the mod tools, helpful note about the roleplay</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Portrait</td>'+
+			'<td>Optional override image of the player or item you are talking to. Useful if you are talking to something like an item or adding narration.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Persistent</td>'+
+			'<td>Players cannot leave the RP, take actions, or interact with the world while the RP is active.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Once</td>'+
+			'<td>Only starts the RP once.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Auto Play</td>'+
+			'<td>Automatically play the RP (used when tying the RP to an encounter).</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player</td>'+
+			'<td>Player you want the main player you are talking of to be. This can be overridden in stages. Optional.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Stages</td>'+
+			'<td>These are the different stages of the roleplay. Including the NPC text and any options the player may pick. I suggest you create the stages with only NPC text first, then go back and link them together.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Conditions</td>'+
+			'<td>Conditions needed for the RP to start. You can also put conditions in the GameAction that triggers it.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};

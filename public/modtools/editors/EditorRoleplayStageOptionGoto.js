@@ -119,3 +119,10 @@ export function list(){
 
 };
 */
+
+export function help(){
+	let out = '<h3>RoleplayStageOptionGoto</h3>';
+	out += '<p>Lets you select a stage in the roleplay to go to, and set conditions for that option to trigger.</p>';
+
+	return out;
+}

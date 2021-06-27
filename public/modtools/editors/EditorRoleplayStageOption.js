@@ -106,8 +106,34 @@ export function assetTable( win, modAsset, name, single, parented ){
 
 
 export function help(){
-	let out = '';
-	out += '<p>This is a player response to a roleplay stage. When a player responds, gameActions are triggered and they are sent to the first viable stage set in Goto Options. If no option is viable, it ends the RP. This means if you want this option to end the RP, you can leave Goto Options empty!</p>';
+	let out = '<h3>RoleplayStageOption</h3>';
+	out += '<p>This is where you setup replies to roleplay NPC texts!</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Text</td>'+
+			'<td>The text on the response button. You can use %S and %T here. Where %S is the player and %T the NPC.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Output</td>'+
+			'<td>If set to default the player will output a chat bubble with the option text. Set it to none for options like [leave]</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Goto Options</td>'+
+			'<td>Set a RoleplayStage target. The first viable one will be picked. This allows you to have a single response take the player to different Roleplay Stages based on conditions such as gender, stats, random chance etc.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>GameActions</td>'+
+			'<td>Lets you trigger GameActions when the user selects this option.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Conditions</td>'+
+			'<td>Allows you to set a condition for showing this option. Such as requiring a certain level of physical proficiency to intimidate etc.</td>'+
+		'</tr>'
+	;
+	out += '</table>';
 
 	return out;
 }

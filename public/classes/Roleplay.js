@@ -23,7 +23,6 @@ export default class Roleplay extends Generic{
 		this.persistent = false;	// If set to true, the stage is saved and continued from there. Otherwise if you close and re-open, it resets to 0
 		this.completed = false;
 		this.label = '';
-		this.title = '';
 		this.stages = [];			// Roleplay stages
 		this.player = '';
 		this.portrait = '';
@@ -64,7 +63,6 @@ export default class Roleplay extends Generic{
 			label : this.label,
 			stages : RoleplayStage.saveThese(this.stages, full),
 			persistent : this.persistent,
-			title : this.title,
 			player : this.player,
 			conditions : Condition.saveThese(this.conditions),
 			once : this.once,

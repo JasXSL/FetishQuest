@@ -132,3 +132,59 @@ export function list(){
 
 };
 */
+
+export function help(){
+
+	let out = '';
+
+	out += '<h3>RoleplayStage:</h3>'+
+		'<p>Contains texts the NPC can output, responses, GameActions to run, and metadata.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Optional. Lets you override the name of the player or NPC name specified in the parent roleplay.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Portrait</td>'+
+			'<td>Optional override image of the player or item you are talking to. Useful if you are talking to something like an item or adding narration. Overrides any portrait/player specified in the parent roleplay.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Chat type</td>'+
+			'<td>Whether the text should be output in a speech bubble by the NPC.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Store target</td>'+
+			'<td>Lets you store the person who brought you to this stage in the roleplay, and use that target for use in a %P text in future stages.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Shuffle type</td>'+
+			'<td>When using multiple texts you can use this to shuffle their order. ALL_BUT_LAST allows you to set a default response if no above responses pass filter. An example is the scruffy bar patron who shuffles a rumor text when you ask him for rumors, and has a fallback if he has no viable ones.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player</td>'+
+			'<td>Player you want the main player you are talking of to be. Overrides the parent roleplay player. Optional.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Texts</td>'+
+			'<td>Texts that should be output by the NPC. You can use multiple ones and attach conditions to the texts. Unless shuffle is set, it will trigger the first viable. Make sure to have a fallback without conditions last.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Game Actions</td>'+
+			'<td>GameActions to trigger when entering this stage.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Responses</td>'+
+			'<td>Player response options. I suggest you set these up after creating all stages with NPC texts.</td>'+
+		'</tr>'
+	;
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

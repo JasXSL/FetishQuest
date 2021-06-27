@@ -855,6 +855,7 @@ GameAction.types = {
 	addFaction : "addFaction",				// 
 	trade : "trade",						// 
 	learnAction : "learnAction",			// 
+	trap : "trap",
 	addCopper : 'addCopper',
 	addTime : 'addTime',
 	playerMarker : 'playerMarker',
@@ -907,6 +908,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
+	[GameAction.types.trap] : '{min_targets:(int)=1, max_targets:(int)=1, action:(str)action_label, chance:(float)=1.0, conditions:(arr)condition_labels} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap.',
 };
 
 // These are types where data should be sent to netgame players
