@@ -18,6 +18,7 @@ import StaticModal from './StaticModal.js';
 import Encounter from './Encounter.js';
 import { Wrapper } from './EffectSys.js';
 import Collection from './helpers/Collection.js';
+import Action from './Action.js';
 
 export default class GameAction extends Generic{
 
@@ -760,6 +761,54 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.trap ){
+
+			// Todo: Should work like loot where it's removed from lootable objects regardless of trigger
+
+			// Didn't trigger
+			if( Math.random() > this.data.chance )
+				return false;
+
+			let action = glib.get(this.data.action, 'Action');
+			if( !(action instanceof Action) )
+				throw 'Action not found in trap: '+this.data.action;
+			action = action.clone();
+
+
+			const attacker = new Player();
+			attacker.name = this.data.name || 'Trap';
+			attacker.level = game.getAveragePlayerLevel();
+			attacker['bon'+action.type] = this.data.stat || 0;
+			action.parent = attacker;
+
+			let targets = [player];
+			let players = game.getTeamPlayers();
+			shuffle(players);
+
+			for( let p of players ){
+				
+				if( targets.includes(p) )
+					continue;
+				targets.push(p);
+
+			}
+
+			const viable = action.getViableTargets();
+			targets = targets.filter(p => viable.includes(p));
+
+			// Not enough players for this trap
+			if( targets.length < action.min_targets )
+				return;
+
+			if( action.max_targets > 0 )
+				targets = targets.slice(0, action.max_targets);
+			
+			action.useOn(targets, false, '');
+
+			game.ui.draw();
+
+		}
+
 		else if( this.type === types.book ){
 			game.readBook(player, this.data.label);
 		}
@@ -908,7 +957,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
-	[GameAction.types.trap] : '{min_targets:(int)=1, max_targets:(int)=1, action:(str)action_label, chance:(float)=1.0, conditions:(arr)condition_labels} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap.',
+	[GameAction.types.trap] : '{action:(str)action_label, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, elemental etc), and name specified in the action.',
 };
 
 // These are types where data should be sent to netgame players

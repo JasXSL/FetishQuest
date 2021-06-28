@@ -2070,7 +2070,7 @@ export default class Player extends Generic{
 			(
 				this.getGenericAmountStatPoints('sv'+type)+
 				this.getLevel()+
-				this.class['sv'+type]+
+				(this.class ? this.class['sv'+type] : 0)+
 				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)+
 				grappled
 			)*this.getGenericAmountStatMultiplier('sv'+type)

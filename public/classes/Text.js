@@ -200,6 +200,7 @@ class Text extends Generic{
 		//	out.label = this.label;
 
 		if( full ){
+
 			out.hitfx = HitFX.saveThese(this.hitfx, full);
 			out.numTargets = this.numTargets;
 			out.debug = this.debug;
@@ -213,6 +214,7 @@ class Text extends Generic{
 			out.metaTags = this.metaTags;
 			out.en = this.en;
 			out.chat_reuse = this.chat_reuse;
+
 		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
@@ -725,20 +727,26 @@ Text.getFromEvent = function( event, debug = false ){
 
 
 	}else{
+
 		for( let text of available ){
+
 			if( text.weight >= this.WEIGHT_REQUIRED )
 				required.push(text);
+
 		}
 		if( required.length )
 			available = required;
+
 	}
 
 
 	return weightedRand( available, item => {
+
 		let chance = item.conditions.length;
 		chance *= Math.max(1,item.numTargets);
 		chance *= item.weight;
 		return chance;
+
 	});
 
 };

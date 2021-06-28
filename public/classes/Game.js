@@ -2091,11 +2091,18 @@ export default class Game extends Generic{
 
 			// Game actions
 			const viable = GameAction.getViable(this.encounter.game_actions, player);
+			console.log("Viable actions");
 			for( let action of viable ){
 
 				if( 
-					action.type === GameAction.types.roleplay && 
-					!action.getDataAsRoleplay().autoplay 
+					(	// Ignore RP if not autoplay
+						action.type === GameAction.types.roleplay && 
+						!action.getDataAsRoleplay().autoplay 
+					) ||
+					(	// Ignore trap if area already visited
+						action.type === GameAction.types.trap &&
+						started
+					)
 				)continue;
 				action.trigger(player);
 

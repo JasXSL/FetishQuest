@@ -782,6 +782,29 @@ export function asset(){
 		};
 
 	}
+	else if( type === Types.trap ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				min_targets : 1,
+				max_targets : 1,
+				action : '',
+				chance : 1.0,
+				stat : 0,
+				name : 'Trap'
+			};
+		html += '<div class="labelFlex">'+
+			'<label title="Name of the trap">Name: <input name="data::name" value="'+esc(asset.data.name || '')+'" class="saveable" /></label>'+
+			'<label title="Between 0 and 1">Chance: <input name="data::chance" type="number" min=0 max=1 value="'+(asset.data.chance || 1)+'" class="saveable" /></label>'+
+			'<label title="Proficiency of the trap added to the action type such as phys, corrupt etc">Stat: <input name="data::stat" type="number" step=1 value="'+(asset.data.stat || 0)+'" class="saveable" /></label>'+
+		'</div>';
+		html += 'Action: <br /><div class="game_action"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.game_action").appendChild(EditorAction.assetTable(this, asset, "data::action", true));
+		};
+
+	}
 	else if( type === Types.refreshPlayerVisibility || type === Types.refreshMeshes ){}	// No data
 
 	else{

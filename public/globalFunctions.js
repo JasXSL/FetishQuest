@@ -29,20 +29,26 @@ function ucFirst(a, single = false){
 
 // returns a random item by weight, input are objects to pick one from, and weightFunc is called on each object
 function weightedRand( input, weightFunc ){
+
 	let totalWeight = 0, items = [];
 	for( let a of input ){
+
 		let weight = weightFunc(a);
 		items.push({i:a,w:weight});
 		totalWeight += weight;
+
 	}
 
 	let random = Math.random() * totalWeight;
 	for( let i of items ) {
+
 		if( random < i.w )
 			return i.i;
 		random -= i.w;
+		
 	}
 	return false;
+
 }
 
 function delay(ms = 1000){

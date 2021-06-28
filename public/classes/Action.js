@@ -642,8 +642,7 @@ class Action extends Generic{
 		if( !this.hidden )
 			++sender._turn_action_used;
 
-		if( !Array.isArray(targets) )
-			targets = [targets];
+		targets = toArray(targets);
 
 		// Enforced target types
 		if( this.target_type === Action.TargetTypes.aoe )
@@ -679,9 +678,7 @@ class Action extends Generic{
 
 		}
 
-		
-		
-		
+
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
 
@@ -731,7 +728,6 @@ class Action extends Generic{
 				}
 
 			}
-
 
 			let maxWrappers = this.max_wrappers;
 			let successes = 0;

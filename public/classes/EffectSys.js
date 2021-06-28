@@ -153,7 +153,12 @@ class Wrapper extends Generic{
 	}
 
 	getCaster(){
-		return game.getPlayerById(this.caster);
+
+		const out = game.getPlayerById(this.caster);
+		if( out )
+			return out;
+		return this.parent;	// Used in traps since they don't add the "trap player" to the game
+
 	}
 
 	
@@ -224,6 +229,8 @@ class Wrapper extends Generic{
 				pl = [player]; 
 			
 		}
+
+		console.log("pl", pl, "caster", caster_player);
 
 		let successes = 0;
 		for( let p of pl ){	
