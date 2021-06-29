@@ -70,11 +70,15 @@ export default class GameAction extends Generic{
 
 	remove(){
 		for( let i in this.parent.interactions ){
+
 			if( this.parent.interactions[i] === this ){
+
 				this.parent.interactions.splice(i, 1);
 				this.parent.onModified();
 				return true;
+
 			}
+
 		}
 	}
 
@@ -334,11 +338,35 @@ export default class GameAction extends Generic{
 
 
 		// Helper function for playing animation on this asset. Returns the animation played if any
-		function playAnim( anim ){
-			if( !mesh || !mesh.userData || !mesh.userData.playAnimation )
-				return;
-			game.net.dmAnimation( asset, anim );
-			return mesh.userData.playAnimation(anim);
+		function playAnim( anim, targ ){
+
+			if( !targ )
+				targ = mesh.userData.dungeonAsset;
+			else
+				targ = game.dungeon.getActiveRoom().assets.filter(el => el.name === targ);
+
+			if( !targ )
+				return false;
+
+			targ = toArray(targ);
+
+			let succ = 0;
+			for( let t of targ ){
+
+				if( !t._stage_mesh )
+					continue;
+
+				if( t._stage_mesh.userData.playAnimation ){
+
+					t._stage_mesh.userData.playAnimation(anim);
+					game.net.dmAnimation( t, anim );
+					++succ;
+
+				}
+
+			}
+
+			return succ;
 
 		}
 
@@ -374,6 +402,7 @@ export default class GameAction extends Generic{
 		}
 			
 		else if( this.type === types.door ){
+
 			if( !this.data ){
 				console.error("Trying to trigger a door with no data", this);
 				return;
@@ -433,7 +462,9 @@ export default class GameAction extends Generic{
 			
 		}
 		else if( this.type === types.anim ){
-			playAnim(this.data.anim);
+
+			playAnim(this.data.anim, this.data.targ);
+
 		}
 
 		else if( this.type === types.loot ){
@@ -763,24 +794,41 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.trap ){
 
-			// Todo: Should work like loot where it's removed from lootable objects regardless of trigger
+			// Remove if parent is a DungeonRoomAsset to prevent retrigger
+			if( this.parent instanceof DungeonRoomAsset )
+				this.remove();
 
 			// Didn't trigger
 			if( Math.random() > this.data.chance )
 				return false;
 
+			// Use the game actions first
+			if( Array.isArray(this.data.game_actions) ){
+
+				const actions = GameAction.loadThese(this.data.game_actions);
+				for( let action of actions ){
+					// prevent recursion
+					if( action.id !== this.id )
+						action.trigger(player, mesh);
+
+				}
+
+			}
+
+			// Find if we had an action attached
 			let action = glib.get(this.data.action, 'Action');
 			if( !(action instanceof Action) )
-				throw 'Action not found in trap: '+this.data.action;
+				return false;
 			action = action.clone();
 
-
+			// Create a "player" to act as the trap
 			const attacker = new Player();
 			attacker.name = this.data.name || 'Trap';
 			attacker.level = game.getAveragePlayerLevel();
 			attacker['bon'+action.type] = this.data.stat || 0;
 			action.parent = attacker;
 
+			// Pick targets
 			let targets = [player];
 			let players = game.getTeamPlayers();
 			shuffle(players);
@@ -792,6 +840,8 @@ export default class GameAction extends Generic{
 				targets.push(p);
 
 			}
+
+			
 
 			const viable = action.getViableTargets();
 			targets = targets.filter(p => viable.includes(p));
@@ -806,6 +856,8 @@ export default class GameAction extends Generic{
 			action.useOn(targets, false, '');
 
 			game.ui.draw();
+			game.ui.toggle(true);
+			game.net.dmToggleUI(true);
 
 		}
 
@@ -923,7 +975,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
 	[GameAction.types.exit] : "{dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}",
 	[GameAction.types.proceduralDungeon] : "{label:(str)label, templates:(arr)viable_templates}",
-	[GameAction.types.anim] : '{anim:(str)animation} - Usable on a dungeon room asset',
+	[GameAction.types.anim] : '{anim:(str)animation, targ:(str)name=parentMesh} - If targs is unset and the GameAction has a mesh parent, that is used as a target',
 	[GameAction.types.lever] : '{id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations',
 	[GameAction.types.quest] : '{quest:(str/Quest)q} - Starts a quest',
 	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1} - Adds or subtracts from an objective',
@@ -957,7 +1009,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
-	[GameAction.types.trap] : '{action:(str)action_label, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, elemental etc), and name specified in the action.',
+	[GameAction.types.trap] : '{action:(str)action_label, game_actions:(arr)labels, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, elemental etc), and name specified in the action. Game actions are always triggered when the trap is triggered regardless of if it hit or not. They are ran with the sender and target being the person who triggered the trap.',
 };
 
 // These are types where data should be sent to netgame players

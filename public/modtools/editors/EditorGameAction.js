@@ -249,12 +249,16 @@ export function asset(){
 
 	}
 	else if( type === Types.anim ){
+
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
-				anim : 'open'
+				anim : 'open',
+				targ : ''
 			};
+
 		html += '<div class="labelFlex">';
 			html += '<label>Animation: <input type="text" name="data::anim" class="saveable" value="'+esc(asset.data.anim || '')+'" /></label>';
+			html += '<label title="Name of the asset(s) to trigger the animation on">Target (leave blank for parent mesh): <input type="text" name="data::targ" class="saveable" value="'+esc(asset.data.targ || '')+'" /></label>';
 		html += '</div>';
 	}
 	else if( type === Types.lever ){
@@ -452,6 +456,7 @@ export function asset(){
 		
 	}
 	else if( type === Types.transmog ){
+
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
@@ -791,17 +796,20 @@ export function asset(){
 				action : '',
 				chance : 1.0,
 				stat : 0,
-				name : 'Trap'
+				name : 'Trap',
+				game_actions : []
 			};
 		html += '<div class="labelFlex">'+
 			'<label title="Name of the trap">Name: <input name="data::name" value="'+esc(asset.data.name || '')+'" class="saveable" /></label>'+
-			'<label title="Between 0 and 1">Chance: <input name="data::chance" type="number" min=0 max=1 value="'+(asset.data.chance || 1)+'" class="saveable" /></label>'+
+			'<label title="Between 0 and 1">Chance: <input name="data::chance" type="number" min=0 max=1 step=0.001 value="'+(isNaN(asset.data.chance) ? 1 : +asset.data.chance)+'" class="saveable" /></label>'+
 			'<label title="Proficiency of the trap added to the action type such as phys, corrupt etc">Stat: <input name="data::stat" type="number" step=1 value="'+(asset.data.stat || 0)+'" class="saveable" /></label>'+
 		'</div>';
 		html += 'Action: <br /><div class="game_action"></div>';
+		html += 'Game Actions: <br /><div class="game_actions"></div>';
 
 		fnBind = () => {
 			this.dom.querySelector("div.game_action").appendChild(EditorAction.assetTable(this, asset, "data::action", true));
+			this.dom.querySelector("div.game_actions").appendChild(assetTable(this, asset, "data::game_actions", false));
 		};
 
 	}

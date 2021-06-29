@@ -1109,7 +1109,7 @@ function build(){
 
 					},
 				}),
-			}
+			},
 		},
 		Farm : {
 			Furniture : {
@@ -4699,6 +4699,46 @@ function build(){
 			},
 		},
 		
+		Mech : {
+			Traps : {
+				DildoArm : new LibMesh({
+					url : 'doodads/vibtrap.glb',
+					materials : [
+						libMat.Metal.DarkGeneric,
+						libMat.Metal.Silver,
+						libMat.Metal.Rust,
+						libMat.Solids.Rubber,
+					],
+					tags : [],
+					onStagePlaced : function(asset, mesh){
+
+						if( mesh._ini )
+							return;
+						
+						mesh._ini = true;
+
+						// Chains on the idle after playing the intro sequence
+						mesh.userData.mixer.stopAllAction();
+						mesh.userData.mixer.addEventListener('finished', e => {
+
+							if( e.action.getClip().name !== 'up' )
+								return;
+
+        					e.target.existingAction('idle_up').play();
+							e.action.stop();
+
+						});
+
+					},
+					animations : {
+						"up" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce,
+						}
+					},
+				}),
+			}
+		},
 		
 
 

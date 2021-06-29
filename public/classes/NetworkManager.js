@@ -1133,6 +1133,11 @@ class NetworkManager{
 			}
 
 		}
+		else if( task === NetworkManager.dmTasks.toggleUI ){
+
+			game.ui.toggle(args.on);
+
+		}
 
 	}
 
@@ -1652,6 +1657,12 @@ class NetworkManager{
 		});
 	}
 
+	dmToggleUI( on ){
+
+		this.sendHostTask(NetworkManager.dmTasks.toggleUI, {on:on});
+
+	}
+
 }
 
 // Send tasks from DM to player
@@ -1678,6 +1689,7 @@ NetworkManager.dmTasks = {
 	loadedCells : 'loadedCells',					// {cells:{netgame_id:(int)cells}}
 	inMenu : 'inMenu',								// {in:{netgame_id:(int)menu}}
 	getLargeAsset : 'getLargeAsset',				// {type:(str)type, asset:(obj)asset_data} - Counterpart to playerTasks getLargeAsset
+	toggleUI : 'toggleUI',							// {on:(bool)on} - Forces the UI to open or close
 };
 
 // Player -> DM

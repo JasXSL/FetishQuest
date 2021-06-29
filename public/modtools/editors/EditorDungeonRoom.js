@@ -717,6 +717,8 @@ class Editor{
 	// Try to rebase on start. If you rebase any time later, you'll fuck up history states
 	rebase(){
 		
+		let parents = [];
+
 		// Encounters can be a single encounter once one has started, but is always an array in the editor
 		if( !Array.isArray(this.room.encounters) )
 			this.room.encounters = [];
@@ -757,7 +759,7 @@ class Editor{
 
 		
 
-		let parents = [];
+		
 		// This creates new objects and wipes parenting information
 		// Mark parents
 		for( let asset of this.room.assets ){

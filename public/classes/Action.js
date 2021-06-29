@@ -353,16 +353,20 @@ class Action extends Generic{
 	/* Base functions */
 	// Automatically sets cooldown if needed
 	setCooldown( force = false ){
+
 		// We're already at max capacity, can't put one here
 		if( this._charges >= this.charges ){
+
 			this._cooldown = 0;
 			return;
+
 		}
 		// We're already on a cooldown, but we can restart it if force is set
 		if( this._cooldown && !force )
 			return;
 		// Set the cooldown
 		this._cooldown = this.getCooldown();
+
 	}
 
 	// Adds or subtracts from cooldown
@@ -372,9 +376,11 @@ class Action extends Generic{
 			return;
 
 		this._cooldown += amount;
-		if( this._cooldown <= 0 && this._charges < this.charges ){
+		if( this._cooldown <= 0 && this._charges < this.charges )
 			this.consumeCharges(-1);
-		}
+		else if( this._cooldown <= 0 )
+			this._cooldown = 0;
+
 		if( this._cooldown > this.getCooldown() )
 			this._cooldown = this.getCooldown();
 
