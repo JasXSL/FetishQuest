@@ -506,7 +506,7 @@ export default class GameAction extends Generic{
 
 			rp.completed = false;
 			if( rp.validate(player) ){
-				game.setRoleplay(rp);
+				game.setRoleplay(rp, false, player);
 			}
 
 		}

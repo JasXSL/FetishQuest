@@ -1876,7 +1876,7 @@ class DungeonRoomAsset extends Generic{
 			let valid = i.validate(player, this);
 			if( valid )
 				i.trigger( player, mesh );
-
+			
 		}
 
 		if( this.interact_cooldown )

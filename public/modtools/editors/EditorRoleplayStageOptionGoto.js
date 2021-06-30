@@ -38,7 +38,6 @@ export function asset(){
 	let stages = rp.stages.map(el => mod.getAssetById('roleplayStage', el));
 
 
-	console.log("Dummy", dummy, "Parent stage", stage, "stages", stages);
 	let html = '';
 	html += '<div class="labelFlex">';
 		html += '<label title="">Go to: <select name="index" class="saveable">';
@@ -58,7 +57,7 @@ export function asset(){
 	this.setDom(html);
 
 	// Conditions
-	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "text", false, false));
+	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
 	
 	HelperAsset.autoBind( this, asset, DB);
 

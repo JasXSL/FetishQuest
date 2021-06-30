@@ -9,8 +9,13 @@
 */
 class Calculator{}
 
+Calculator.debug = false;
 
 Calculator.run = function( formula, event, customMathVars ){
+
+	if( this.debug )
+		console.log("Formula", formula, isNaN(formula));
+
 	// This is already a number
 	if( !isNaN(formula) )
 		return formula;
@@ -65,6 +70,10 @@ Calculator.run = function( formula, event, customMathVars ){
 		}
 		break;
 	}
+
+	if( this.debug )
+		console.log("Calculated", formula, event, customMathVars, '>>>>>', out);
+
 	return out;
 };
 

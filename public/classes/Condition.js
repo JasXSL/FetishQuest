@@ -200,7 +200,7 @@ export default class Condition extends Generic{
 		// Trying to target a nonexistend target
 		if( targs[0] === undefined ){
 			if( debug )
-				console.debug("Condition DEBUG :: Targs is undefined");
+				console.debug("Condition DEBUG :: Targs is undefined, check targnr", event.target, this.caster, this.targnr);
 			return false;
 		}
 

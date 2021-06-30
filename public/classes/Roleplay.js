@@ -172,6 +172,7 @@ export default class Roleplay extends Generic{
 
 				this.stage = index;
 				const stage = this.getActiveStage();
+				
 				if( stage )
 					stage.onStart(player);
 				game.ui.rpOptionSelected('');
@@ -466,11 +467,11 @@ export class RoleplayStage extends Generic{
 		for( let text of allTexts ){
 
 			evt.text = text;
+			evt.target = initiating;
 
 			// If initiating player exists outside of the first stage, always use that 
 			if( initiating && !this.isDefaultStage() ){
 
-				evt.target = initiating;
 				if( text.validate(evt, debug) ){
 					
 					this._textEvent = evt;
@@ -478,11 +479,24 @@ export class RoleplayStage extends Generic{
 
 				}
 				continue;
+
 			}
 
-			// Otherwise try all players
+			// Even if it's the first stage, see if initiating player is valid first
+			if( text.validate(evt, debug) ){
+				
+				this._textEvent = evt;
+				return evt;
+
+			}
+
+
+			// Otherwise try all players, but prefer initiating
 			for( let player of players ){
 				
+				if( player === initiating )
+					continue;
+
 				evt.target = player;
 				if( text.validate(evt, debug) ){
 					
@@ -630,7 +644,6 @@ export class RoleplayStageOption extends Generic{
 		if( !this.validate(player) )
 			return false;
 		
-		
 
 		const rp = this.getRoleplay();
 		const pl = this.parent.getPlayer();
@@ -738,6 +751,7 @@ export class RoleplayStageOptionGoto extends Generic{
 			sender : sender,
 			target : target
 		});
+
 		return Condition.all(this.conditions, evt);
 
 	}

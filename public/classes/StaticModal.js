@@ -1403,15 +1403,17 @@ export default class StaticModal{
 					const s = Object.values(Action.Types).map(el => ucFirst(el)).sort();
 					const myPlayer = game.getMyActivePlayer() || new Player();
 					for( let stat of s ){
-						const val = player.getSV(stat)-myPlayer.getBon(stat);
+						
+						const val = myPlayer.getBon(stat)-player.getSV(stat);
 						let color = val > 0 ? 'green' : 'red';
 						if( val === 0 )
 							color = '';
 						html += '<div class="tag tooltipParent '+color+'">'+
 							'<span>'+(val > 0 ? '+' : '')+val+' '+esc(stat.substr(0,4))+'</span>'+
 							'<div class="tooltip"><em>'+
-								'This is the character\'s avoidance compared to your active character\'s proficiency. Red means you have a higher hit chance and efficiency. Green means a lower hit chance.</em><br />Raw: '+player.getBon(stat)+' bon / '+player.getSV(stat)+' sv</div>'+
+								'This is your active character\'s proficiency vs this player\'s avoidance. Green means you have a higher hit chance and efficiency. Red means a lower hit chance.</em><br />Raw: '+player.getBon(stat)+' bon / '+player.getSV(stat)+' sv</div>'+
 						'</div>';
+
 					}
 					cDivs.secondaryStats.html(html);
 
