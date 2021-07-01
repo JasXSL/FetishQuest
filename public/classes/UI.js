@@ -1427,30 +1427,22 @@ export default class UI{
 			if( wrapper.ext )
 				duration = wrapper._added+wrapper.duration-game.time;
 			elDuration.toggleClass('hidden', duration < 1);
-			if( duration > 0 && +elDuration.text() !== duration ){
+			if( duration > 0 && +elDuration.text() !== duration )
+				elDuration.text(fuzzyTimeShort(duration));
+
+			let durText = 'Permanent';
+			if( duration > 0 ){
 				
-				let dText = duration;
-				if( wrapper.ext ){
-					if( dText/(3600*24) > 1 )
-						dText = Math.ceil(dText/(3600*24))+'d';
-					else if( dText/3600 > 1 )
-						dText = Math.ceil(dText/3600)+'h';
-					else if( dText/60 > 1 )
-						dText = Math.ceil(dText/60)+'m';
-					else
-						dText = dText+'s';
-				}
-				elDuration.text(dText);
+				durText = duration+' Turn'+(duration > 1 ? 's' : '');
+				if( wrapper.ext )
+					durText = fuzzyTimeShort(duration);
 
 			}
 			
 			const tooltip = 
 				'<strong>'+esc(wrapper.name)+'</strong><br />'+
 				'<em>'+
-					(+wrapper.duration === -1 ? 
-						'Permanent' :
-						(+wrapper._duration)+' Turn'+(wrapper._duration>1 ? 's' : '')
-					)+
+					durText+
 					(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' )+
 				'</em><br />'+
 				stylizeText(esc(wrapper.getDescription()));

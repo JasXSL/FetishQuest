@@ -211,6 +211,28 @@ function fuzzyTime( unix_time_ms ){
 
 }
 
+function fuzzyTimeShort( seconds ){
+
+	let slots = [
+		{u:'w', v:3600*24*7},
+		{u:'d', v:3600*24},
+		{u:'h', v:3600},
+		{u:'m', v:60},
+		{u:'s', v:0}
+	];
+
+	for( let slot of slots ){
+
+		if( seconds >= slot.v ){
+	
+			return Math.floor(seconds/slot.v) + slot.u;
+
+		}
+
+	}
+
+}
+
 function fuzzyFileSize( size_in_bytes ){
 	
 	let dif = size_in_bytes;
