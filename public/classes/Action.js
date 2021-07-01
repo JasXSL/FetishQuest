@@ -717,7 +717,9 @@ class Action extends Generic{
 							action : this,
 							wrapperReturn : wrapperReturn,
 						}).raise();
+
 					}else{
+
 						new GameEvent({
 							type : GameEvent.Types.actionUsed,
 							sender : sender,
@@ -727,6 +729,7 @@ class Action extends Generic{
 								resist : true
 							}
 						}).raise();
+
 					}
 
 					continue;

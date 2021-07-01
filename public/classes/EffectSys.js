@@ -230,7 +230,6 @@ class Wrapper extends Generic{
 			
 		}
 
-		console.log("pl", pl, "caster", caster_player);
 
 		let successes = 0;
 		for( let p of pl ){	
@@ -287,8 +286,10 @@ class Wrapper extends Generic{
 				obj._duration = obj.duration;
 				const stunEffects = obj.getEffects({type : Effect.Types.stun}).filter(el => !el.data.ignoreDiminishing);
 				if(stunEffects.length){
+
 					obj._duration-=victim._stun_diminishing_returns;
 					if( obj._duration <= 0 ){
+
 						// Fully resisted stun
 						new GameEvent({
 							type : GameEvent.Types.diminishingResist,
@@ -298,7 +299,9 @@ class Wrapper extends Generic{
 							action : this.parent && this.parent.constructor === Action ? this.parent : null,
 						}).raise();
 						continue;
+
 					}
+
 				}
 				
 				victim.addWrapper(obj);
@@ -475,6 +478,8 @@ class Wrapper extends Generic{
 
 		if( !Condition.all(this.stay_conditions, evt )){
 			
+			if( Wrapper.debugStayConditions )
+				console.log("Removed", this, "because stay conditions");
 			this.remove();
 
 		}
@@ -664,6 +669,8 @@ class Wrapper extends Generic{
 	}
 
 }
+
+Wrapper.debugStayConditions = false;
 
 // Checks stay conditions, raised on turn change and after an action is used
 Wrapper.checkAllStayConditions = function(){
@@ -1036,6 +1043,7 @@ class Effect extends Generic{
 
 					// AP Damage
 					if( type === Action.Types.elemental && t.ap ){
+						
 						// 10% chance per point of damage, max 1
 						let procChance = 10*s.getStatProcMultiplier(Action.Types.elemental, false)*t.getStatProcMultiplier(Action.Types.elemental, true);
 						let ch = Math.abs(amt*procChance);
@@ -1047,6 +1055,7 @@ class Effect extends Generic{
 							t.addAP(-tot, true);
 							game.ui.addText( t.getColoredName()+" lost "+Math.abs(tot)+" AP from elemental damage.", undefined, s.id, t.id, 'statMessage AP' );
 						}
+
 					}
 
 

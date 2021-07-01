@@ -111,7 +111,6 @@ class Text extends Generic{
 	constructor(...args){
 		super(...args);
 
-		this.label = '';				// Only used when a text is used as a sub object, otherwise ID is usually used because it's auto generated
 		this.text = '';
 		this.conditions = [];
 		this.numTargets = 1;			// How many targets this text is meant for. Not a condition because we need to sort on it. Use -1 for ANY
@@ -704,11 +703,10 @@ Text.getFromEvent = function( event, debug = false ){
 		}
 	}
 
-
 	if( !available.length && chat )
 		return false ;
 
-	const required = [];
+	const required = [], normal = [], zeroes = [];
 
 	available = available.filter(el => el.numTargets === maxnr || el.numTargets === -1);
 	if( chat ){
@@ -732,10 +730,19 @@ Text.getFromEvent = function( event, debug = false ){
 
 			if( text.weight >= this.WEIGHT_REQUIRED )
 				required.push(text);
+			else if( text.weight <= 0 )
+				zeroes.push(text);
+			else
+				normal.push(text);
 
 		}
+
 		if( required.length )
 			available = required;
+		else if( normal.length )
+			available = normal;
+		else
+			available = zeroes;
 
 	}
 
@@ -745,6 +752,8 @@ Text.getFromEvent = function( event, debug = false ){
 		let chance = item.conditions.length;
 		chance *= Math.max(1,item.numTargets);
 		chance *= item.weight;
+		if( chance < 0.01 )
+			chance = 0.01;
 		return chance;
 
 	});

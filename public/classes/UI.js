@@ -1427,8 +1427,13 @@ export default class UI{
 			if( wrapper.ext )
 				duration = wrapper._added+wrapper.duration-game.time;
 			elDuration.toggleClass('hidden', duration < 1);
-			if( duration > 0 && +elDuration.text() !== duration )
-				elDuration.text(fuzzyTimeShort(duration));
+			if( duration > 0 && +elDuration.text() !== duration ){
+
+				let time = duration;
+				if( wrapper.ext )
+					time = fuzzyTimeShort(duration);
+				elDuration.text(time);
+			}
 
 			let durText = 'Permanent';
 			if( duration > 0 ){
@@ -2158,11 +2163,13 @@ export default class UI{
 			
 			$("div.responses", div).html(html);
 			if( !sel ){
+
 				this.selected_rp = '';
 				$("div.responses div.option[data-id]").on('click', event => {
 					const el = $(event.target);
 					game.useRoleplayOption(game.getMyActivePlayer(), el.attr('data-id'));
 				});
+
 			}
 
 		}
