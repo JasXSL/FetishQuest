@@ -1867,8 +1867,9 @@ class DungeonRoomAsset extends Generic{
 
 		}
 
+		const interactions = this.interactions.slice();	// Needed because interactions may remove themselves
 		// Trigger interactions in order
-		for( let i of this.interactions ){
+		for( let i of interactions ){
 
 			if( i !== -1 && i < 1 )
 				continue;

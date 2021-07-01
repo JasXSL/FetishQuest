@@ -3072,7 +3072,8 @@ export default class Player extends Generic{
 		let out = action.hit_chance;
 		let modifier = 1
 			+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05)
-			*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod);
+			*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod)
+		;
 		if( modifier < 0.1 )
 			modifier = 0.1;
 

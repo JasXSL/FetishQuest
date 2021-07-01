@@ -1269,7 +1269,27 @@ class WebGL{
 
 	}
 
+	// Prevents you from running the _updatePlayerMarkers multiple times, always wait until the previous one finishes before launching the next
 	async updatePlayerMarkers(){
+
+		if( this._updating_markers ){
+			this._update_next_markers = true;
+			return;
+		}
+		this._updating_markers = true;
+
+		await this._updatePlayerMarkers();
+
+		this._updating_markers = false;
+
+		if( this._update_next_markers ){
+			this._update_next_markers = false;
+			this.updatePlayerMarkers();
+		}
+
+	}
+
+	async _updatePlayerMarkers(){
 
 		if( !window.game || this.loading || game.dungeon.transporting )
 			return;
@@ -1285,6 +1305,8 @@ class WebGL{
 		const players = game.getEnabledPlayers();
 		let needStateSave = false;
 
+		const promises = [];
+
 		for( let player of players ){
 			
 			// Draw only enemies that are generated. Friendly NPCs are technically enemies.
@@ -1293,17 +1315,18 @@ class WebGL{
 
 			// First try to see if we've stored a marker for this player by id
 			let marker = room.getStoredPlayerMarkerAsDungeonRoomAsset(player.id);
-			
+
 			// Try to get a specific marker for this label if it exists
-			if( !marker )
+			if( !marker ){
 				marker = room.getPlayerMarker(player.label);
+			}
 
 			// Didn't exist, try getting a generic one
 			if( !marker ){
 
 				// No free generic markers, skip this. Maybe later add an error for the developer?
 				if( !generics.length ){
-					console.error("No generics free for", player);
+					console.error("No generics free for", player, "did you forget to add player markers here?");
 					continue;
 				}
 
@@ -1313,10 +1336,15 @@ class WebGL{
 
 			}
 
-			this.attachPlayerToMarker(player, marker, this.playerMarkers[markerIndex]);
+			promises.push(
+				this.attachPlayerToMarker(player, marker, this.playerMarkers[markerIndex])
+			);
 			++markerIndex;
+			//debugger;
 
 		}
+
+		await Promise.all(promises);
 
 		if( needStateSave )
 			game.dungeon.roomModified(room);

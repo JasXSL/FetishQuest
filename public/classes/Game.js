@@ -2091,7 +2091,6 @@ export default class Game extends Generic{
 
 			// Game actions
 			const viable = GameAction.getViable(this.encounter.game_actions, player);
-			console.log("Viable actions");
 			for( let action of viable ){
 
 				if( 
@@ -2620,7 +2619,8 @@ export default class Game extends Generic{
 		});
 		this.save();
 
-		for( let action of book.game_actions ){
+		let actions = book.game_actions.slice();
+		for( let action of actions ){
 			
 			if( !(action instanceof GameAction) )
 				continue;

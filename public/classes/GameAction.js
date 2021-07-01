@@ -825,8 +825,10 @@ export default class GameAction extends Generic{
 			const attacker = new Player();
 			attacker.name = this.data.name || 'Trap';
 			attacker.level = game.getAveragePlayerLevel();
+			attacker.ap = attacker.mp = 100;
 			attacker['bon'+action.type] = this.data.stat || 0;
 			action.parent = attacker;
+			
 
 			// Pick targets
 			let targets = [player];
