@@ -2044,6 +2044,10 @@ export default class Game extends Generic{
 		if( !player )
 			player = this.players[0];
 
+
+		// Check before prepare since prepare sets the time
+		const time_started = this.encounter.time_started;
+
 		// Always prepare, never just go
 		encounter.prepare();
 
@@ -2100,7 +2104,7 @@ export default class Game extends Generic{
 					) ||
 					(	// Ignore trap if area already visited
 						action.type === GameAction.types.trap &&
-						started
+						time_started !== -1
 					)
 				)continue;
 				action.trigger(player);

@@ -36,7 +36,7 @@ export default class Encounter extends Generic{
 		this.label = '';
 		this.desc = '';
 		this.friendly = false;		// Don't start a battle when starting this encounter
-		this.started = false;		// Encounter has started (only set on Game clone of this)
+		this.started = false;			// Encounter has started (only set on Game clone of this)
 		this.completed = 0;			// Encounter completed (only set on Game clone of this)
 		this.players = [];			// Players that MUST be in this event. On encounter start, this may be filled with player_templates to satisfy difficulty
 		this.player_templates = [];		// 
@@ -46,16 +46,16 @@ export default class Encounter extends Generic{
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
 		this.game_actions = [];		// Game actions to run when the encounter starts
-		this.time_completed = 0;
 		this.respawn = 0;			// Time to respawn
 		this.difficulty_adjust = 0;	// Offsets from difficulty. Can be useful when adding a friendly NPC
+
+		this.time_started = -1;
 
 		this.load(data);
 	}
 
 	// Converts the template into a fixed encounter, generating players etc
 	prepare(){
-
 
 		const dungeon = this.getDungeon();
 		let difficulty = 1;
@@ -72,6 +72,8 @@ export default class Encounter extends Generic{
 
 		if( this.started )
 			return;
+
+		this.time_started = game.time;
 
 		// Run before an encounter is launched. If we're using templates, we should generate the NPCs here
 		difficulty = difficulty+Math.random()*0.5;
@@ -195,12 +197,10 @@ export default class Encounter extends Generic{
 		}	
 
 
-		for( let player of this.players ){
-
+		for( let player of this.players )
 			player.g_resetID();
 
-		}
-
+		this.onModified();
 
 	}
 
@@ -276,6 +276,7 @@ export default class Encounter extends Generic{
 			out.id = this.id;
 			out.completed = this.completed;
 			out.started = this.started;
+			out.time_started = this.time_started;
 		}
 		else{
 			out.desc = this.desc;
@@ -419,9 +420,18 @@ export default class Encounter extends Generic{
 		this.completed = completed;
 		if( this.completed === true )
 			this.completed = game.time;
+		
+		this.onModified();
+
+	}
+
+	// Updates saved dungeon state
+	onModified(){
+
 		const dungeon = this.getDungeon(), room = this.getRoom();
 		if( room && dungeon )
 			dungeon.roomModified(room);
+
 	}
 
 

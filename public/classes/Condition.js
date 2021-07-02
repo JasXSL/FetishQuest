@@ -212,6 +212,10 @@ export default class Condition extends Generic{
 		// Check against all targeted players
 		for( let t of targs ){
 
+			// Use a single target for each player
+			const evt = event.clone();
+			evt.target = t;
+
 			// Check the types
 			if( this.type === T.tag ){
 
@@ -909,12 +913,8 @@ export default class Condition extends Generic{
 			
 			else if( this.type === T.dungeonVar ){
 
-				if( !event.dungeon ){
-					console.error("Event was", event);
-					throw "Expected event.dungeon in event, see log";
-				}
-
-				let dungeon = event.dungeon.label;
+				
+				let dungeon = event.dungeon && event.dungeon.label;
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 
@@ -922,6 +922,8 @@ export default class Condition extends Generic{
 				let base = glib.get(dungeon, 'Dungeon');
 				if( !base )
 					base = {};
+				else
+					base = base.vars;
 
 				// Shallow clone
 				let sd = {};
@@ -929,7 +931,7 @@ export default class Condition extends Generic{
 					sd[i] = base[i];
 
 				// Next fetch from game save state
-				base = game.state_dungeons[dungeon];
+				base = game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars;
 				if( base ){
 
 					for( let i in base )
@@ -973,7 +975,7 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.formula ){
-				success = Calculator.run(this.data.formula, event);
+				success = Calculator.run(this.data.formula, evt);
 			}
 
 			else if( this.type === T.numGamePlayersGreaterThan ){

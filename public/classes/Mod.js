@@ -1113,6 +1113,22 @@ export default class Mod extends Generic{
 
 		}
 
+		let fixedTexts = 0;
+		// Fix text parenting
+		for( let text of this.texts ){
+
+			if( text.label ){
+
+				text.id = text.label;
+				delete text.label;
+				++fixedTexts;
+
+			}
+
+		}
+
+		if( fixedTexts )
+			console.log("Fixed ", fixedTexts, "improper texts");
 		
 
 	}

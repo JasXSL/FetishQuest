@@ -541,6 +541,7 @@ class DungeonSaveState extends Generic{
 
 		if( room.encounters instanceof Encounter && room.encounters.id !== "_BLANK_" ){
 
+			sr.encounter_started = room.encounters.time_started;
 			sr.encounter_complete = room.encounters.completed;
 			sr.encounter_friendly = room.encounters.friendly;
 			sr.encounter_respawn = room.encounters.respawn;
@@ -681,9 +682,10 @@ class DungeonRoom extends Generic{
 
 	}
 
+	// Loads room and encounter state
 	loadState( state ){
 
-		const respawn = ~state.encounter_complete && game.time-state.encounter_complete > state.encounter_respawn && state.encounter_respawn;
+		const respawn = ~state.encounter_started && game.time-state.encounter_started > state.encounter_respawn && state.encounter_respawn;
 
 		// If encounter is complete, set it to completed
 		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
@@ -693,6 +695,11 @@ class DungeonRoom extends Generic{
 				this.encounters = new Encounter({"id":"_BLANK_"}, this);
 			this.encounters.completed = true;
 
+		}
+
+		if( !respawn && state.encounter_started !== -1 ){
+			let enc = toArray(this.encounters);
+			enc.map(e => e.time_started = state.encounter_started);
 		}
 
 		if( state.encounter_friendly !== -1 && this.encounters instanceof Encounter && !respawn )
@@ -1159,7 +1166,6 @@ class DungeonRoom extends Generic{
 
 			}
 
-			this.discovered = true;
 			for( let asset of this.assets )
 				asset.onRoomFirstVisit();
 
@@ -1171,7 +1177,6 @@ class DungeonRoom extends Generic{
 		if( Array.isArray(this.encounters) && !this.encounters.length ){
 
 			this.encounters = new Encounter({
-				started : true,
 				completed : true,
 				id : '_BLANK_'
 			}, this);
@@ -1183,7 +1188,6 @@ class DungeonRoom extends Generic{
 			let viable = Encounter.getRandomViable(this.encounters);
 			if( !viable )
 				viable = new Encounter({
-					started : true,
 					completed : true,
 					id : '_BLANK_'
 				}, this);
@@ -1193,6 +1197,8 @@ class DungeonRoom extends Generic{
 
 		// An encounter is already running
 		game.startEncounter(player, this.encounters);
+		
+		this.discovered = true;	// Set last because encounters may require this to be false
 
 		this.onModified();
 	}
@@ -1218,6 +1224,7 @@ class DungeonRoomSaveState extends Generic{
 		this.encounter_complete = -1;		// Time when encounter was completed
 		this.encounter_friendly = -1;	
 		this.encounter_respawn = 0;					// Respawn timer of the generated encounter
+		this.encounter_started = -1;					// Used for respawn
 		this.playerMarkers = [];	// PlayerMarker
 
 		this.load(data);
@@ -1225,7 +1232,9 @@ class DungeonRoomSaveState extends Generic{
 
 
 	save( full ){
+
 		return {
+
 			id : this.id,
 			index : this.index,
 			assets : this.assets.save(true),	// Save full assets when changed
@@ -1233,8 +1242,11 @@ class DungeonRoomSaveState extends Generic{
 			encounter_complete : this.encounter_complete,
 			encounter_friendly : this.encounter_friendly,
 			encounter_respawn : this.encounter_respawn,
+			encounter_started : this.encounter_started,
 			playerMarkers : DungeonRoomMarker.saveThese(this.playerMarkers, full)
+
 		};
+
 	}
 
 	load(data){
@@ -1251,7 +1263,7 @@ class DungeonRoomSaveState extends Generic{
 
 	}
 
-	assetModified(asset){
+	assetModified( asset ){
 
 		let existing = this.assets[asset.id];
 		if( !existing ){

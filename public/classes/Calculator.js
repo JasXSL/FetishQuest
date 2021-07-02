@@ -33,6 +33,8 @@ Calculator.run = function( formula, event, customMathVars ){
 			vars[i] = customMathVars[i];
 	}
 
+	if( event.target && !event.target.appendMathVars )
+		console.error("No mathVars in event target", event);
 	
 	if( event.sender )
 		event.sender.appendMathVars('se_', vars, event);
