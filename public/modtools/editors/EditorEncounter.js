@@ -47,7 +47,8 @@ export function asset(){
 	html += '<span title="Wrappers to apply when the encounter starts. auto target is the player who started the encounter, usually by entering a room or picking an RP option">Wrappers: </span><div class="wrappers"></div>';
 	html += '<span title="Passive effects to apply to all players">Passives: </span><div class="passives"></div>';
 	html += '<span>Conditions: </span><div class="conditions"></div>';
-	html += '<span title="Game actions to run when the encounter starts">Game Actions: </span><div class="game_actions"></div>';
+	html += '<span title="Game actions to run when the encounter starts">Start Game Actions: </span><div class="game_actions"></div>';
+	html += '<span title="Game actions to run when the encounter starts">Finish Game Actions: </span><div class="completion_actions"></div>';
 	
 	// Collections can contain sub arrays. Build one for each player
 	html += '<span title="Conditions for each player in order for it to show up">Player Conditions: </span><div class="player_conditions">';
@@ -64,6 +65,7 @@ export function asset(){
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions"));
+	this.dom.querySelector("div.completion_actions").appendChild(EditorGameAction.assetTable(this, asset, "completion_actions"));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
 	this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "wrappers"));
 	this.dom.querySelector("div.player_templates").appendChild(EditorPlayerTemplate.assetTable(this, asset, "player_templates"));
@@ -102,6 +104,7 @@ export function list(){
 		passives : true,
 		conditions : true,
 		game_actions : true,
+		completion_actions : true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

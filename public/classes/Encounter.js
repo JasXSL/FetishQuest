@@ -25,7 +25,8 @@ export default class Encounter extends Generic{
 			passives : Wrapper,
 			player_templates : PlayerTemplate,
 			game_actions : GameAction,
-			player_conditions : Collection
+			player_conditions : Collection,
+			completion_actions : GameAction,
 		};
 	}
 
@@ -46,6 +47,7 @@ export default class Encounter extends Generic{
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
 		this.game_actions = [];		// Game actions to run when the encounter starts
+		this.completion_actions = [];	// Game actions to run when the encounter completes
 		this.respawn = 0;			// Time to respawn
 		this.difficulty_adjust = 0;	// Offsets from difficulty. Can be useful when adding a friendly NPC
 
@@ -266,6 +268,7 @@ export default class Encounter extends Generic{
 		}
 		out.friendly = this.friendly;
 		out.game_actions = GameAction.saveThese(this.game_actions, full);
+		out.completion_actions = GameAction.saveThese(this.completion_actions, full);
 		out.passives = Wrapper.saveThese(this.passives, full);
 
 		out.player_conditions = this.player_conditions;
@@ -416,6 +419,14 @@ export default class Encounter extends Generic{
 		
 		if( Boolean(this.completed) === Boolean(completed) )
 			return;
+
+
+		if( !this.completed && completed ){
+
+			for( let action of this.completion_actions )
+				action.trigger(game.players[0]);
+
+		}
 		
 		this.completed = completed;
 		if( this.completed === true )
