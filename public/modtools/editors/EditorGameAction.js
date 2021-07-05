@@ -603,15 +603,15 @@ export function asset(){
 
 			
 		html += 'Player: <div class="player"></div>';
-		html += 'Text: <div class="text"></div>';
+		
 		html += '<div class="labelFlex">';
+			html += '<label>Text: <textarea name="data::text" class="saveable">'+esc(asset.data.text, true)+'</textarea></label>';
 			html += '<label>Cost in copper: <input type="number" step=1 min=0 name="data::cost" class="saveable" value="'+esc(asset.data.cost)+'" /></label>';
 			html += '<label>Success text: <input type="text" name="data::success_text" class="saveable" value="'+esc(asset.data.success_text)+'" /></label>';
 		html += '</div>';
 
 		fnBind = () => {
 			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
-			this.dom.querySelector("div.text").appendChild(EditorText.assetTable(this, asset, "data::text", true, true));
 		};
 	}
 	else if( type === Types.execRentRoom ){

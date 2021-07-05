@@ -2808,6 +2808,7 @@ export default class Game extends Generic{
 
 	// Returns game actions
 	getRoomRentalByPlayer( player ){
+
 		const encounter = this.encounter;
 		const renters = encounter.getRenters();
 		if( !player )
@@ -2827,6 +2828,7 @@ export default class Game extends Generic{
 			}
 		}
 		return out;
+		
 	}
 
 	// Checks each players and returns it if one of them has a shop by label

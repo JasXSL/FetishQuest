@@ -141,12 +141,6 @@ class Dungeon extends Generic{
 		if( this._state === null )
 			return;
 			
-		for( let i in this._state.rooms ){
-			const room = this.getRoomByIndex(this._state.rooms[i].index);
-			if( room )
-				room.loadState(this._state.rooms[i]);
-		}
-
 		for( let v in this._state.vars )
 			this.vars[v] = this._state.vars[v];
 
@@ -691,8 +685,8 @@ class DungeonRoom extends Generic{
 		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
 			
 			// Prevents overwriting encounter data when returning to a dungeon after you've left it (the encounter reverts to array)
-			if( Array.isArray(this.encounters) )
-				this.encounters = new Encounter({"id":"_BLANK_"}, this);
+			//if( Array.isArray(this.encounters) )
+			this.encounters = new Encounter({"id":"_BLANK_"}, this);
 			this.encounters.completed = true;
 
 		}
@@ -1192,7 +1186,19 @@ class DungeonRoom extends Generic{
 					id : '_BLANK_'
 				}, this);
 			this.encounters = viable;
-				
+
+			const st = this.parent._state;
+			if( st ){
+
+				const idx = st.rooms['index_'+this.index];
+				if( idx ){
+					// Need to load state here since it depends on an encounter being present
+					this.loadState(idx);
+
+				}
+
+			}
+
 		}
 
 		// An encounter is already running

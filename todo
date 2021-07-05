@@ -6,11 +6,6 @@
 
 	Add a group finder?
 
-
-	Genination rod:
-		- Test
-
-
 	Haunted house quest:
 		- Snep outside tells you that the house is haunted, and asks you to figure out what's going on
 		- Need to find an Enchantment-magic Field Reader, a book, and handprints
@@ -21,12 +16,6 @@
 		
 
 -- TEST --
-
-	Bugs:
-		- Force update log after finishing an exploration. Not sure what causes this, it should be set? Maybe game.proceduralDiscovery isn't updated correct?
-		- I can tell your cock likes it when <- invalid start text. not sure what causes this
-		
-
 	Fun tensorflow generated words I can use:
 		- Moinather - An item of some sort
 		- Fabmaren 
@@ -47,14 +36,15 @@
 
 -- LATER UPDATE --
 
-	- Cache main mod in indexeddb until it's updated somehow
-
 	- Procedural dungeon affixes
+	- Prodecural dungeon traps
+	- Loading screen tips
 
 	- Main quest chapter 2
 		- Go to Yuug capital?
 		- What do there?
 
+	- Compress dungeon asset table on save by adding a lookup table and numeric indexes
 
 	- Otter and broper beach party quest
 
@@ -84,9 +74,6 @@
 	Food for thought
 		- Fast travel system
 			- Expensive
-
-	Monster ideas:
-		- Slime monster
 
 
 Mod improvements:
