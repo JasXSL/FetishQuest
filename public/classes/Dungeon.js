@@ -1660,14 +1660,10 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	setStageMesh( c ){
-		this._stage_mesh = c;
-		let tags = {};
-		const all = this.tags.concat(c.userData.template.tags);
-		for( let t of all )
-			tags[t] = true;
-		this.tags = Object.keys(tags);
-	}
 
+		this._stage_mesh = c;
+
+	}
 
 	/* Transforms */
 	// These only work for non-absolute
@@ -1838,14 +1834,20 @@ class DungeonRoomAsset extends Generic{
 		if( dungeon && dungeon.transporting )
 			return false;
 
+
 		// Helper function for interact action
 		function raiseInteractOnMesh( shared = true ){
+
 			if( mesh.userData.template.onInteract ){
+				
 				mesh.userData.template.onInteract.call(mesh.userData.template, mesh, mesh.parent, asset);
 				if( game.is_host && shared )
 					game.net.dmRaiseInteractOnMesh( asset.id );
+
 			}
+
 		}
+
 		if( asset.isLocked() )
 			return game.ui.modal.addError("Locked");
 
@@ -1853,16 +1855,18 @@ class DungeonRoomAsset extends Generic{
 			return game.ui.modal.addError("Can't use items right now");
 
 
-		// Ask host unless this is lootable
-		if( !game.is_host && !lootable && !isSleep ){
+		// Ask host unless this is only lootable
+		if( !game.is_host ){
+
 			game.net.playerInteractWithAsset( player, asset );
-			return;
+			
+			if( !lootable && !isSleep )
+				return;
+
 		}
 
 
 		raiseInteractOnMesh( !lootable );
-
-
 
 		// Custom logic for if battle is active
 		if( game.battle_active ){
@@ -1891,6 +1895,14 @@ class DungeonRoomAsset extends Generic{
 
 			if( i !== -1 && i < 1 )
 				continue;
+
+			const typeIsClientside = GameAction.typesAllowedClientside[i.type];
+			// If not hosting, only allow certain client-side actions such as loot and sleep 
+			// If hosting, ignore clientside actions from netplayers
+			if( 
+				(!typeIsClientside && !game.is_host ) ||
+				(typeIsClientside && player !== game.getMyActivePlayer() )
+			)continue;
 
 			let valid = i.validate(player, this);
 			if( valid )
@@ -1921,7 +1933,13 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	getTags(){
-		return this.tags;
+
+		let meshTags =this?._stage_mesh?.userData?.template?.tags;
+		if( !Array.isArray(meshTags) )
+			meshTags = [];
+
+		return this.tags.concat(meshTags);
+
 	}
 
 

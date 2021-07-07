@@ -1029,5 +1029,10 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.transmog] : true,
 };
 
+// Action types that should run clientside
+GameAction.typesAllowedClientside = {
+	[GameAction.types.loot] : true,
+	[GameAction.types.sleep] : true,
+}; 
 
 

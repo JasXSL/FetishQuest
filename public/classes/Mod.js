@@ -34,6 +34,12 @@ import Fetish from './Fetish.js';
 	_h : hidden from main list
 */
 
+// Ext is internal only
+const specialSaveFields = [
+	"_mParent",
+	"_e",
+	"_h",
+];
 
 
 
@@ -1219,6 +1225,200 @@ export default class Mod extends Generic{
 
 	}
 
+	async exportFile( toolVersion, updateBuild = true ){
+
+		if( updateBuild )
+			++this.buildNr;
+		
+		if( toolVersion )
+			this.version = toolVersion;
+
+		this.save();
+
+		const data = this.getSaveData();
+
+
+		const map = {
+			keys : {},	// shortened version of: "oldKey" : "shortenedKey". Each key is unique, so you can technically flip it
+			meshPaths : []	// Indexed of the old keys
+		};
+
+		let keyIndex = 0;
+
+		// Clean up the mod on export
+		for( let lib in data ){
+
+			// Needs to have an object mapped for compression
+			if( !Mod.LIB_TYPES[lib] || !Array.isArray(data[lib]) )
+				continue;
+
+			
+			const defaults = new Mod.LIB_TYPES[lib]();
+			const keys = Object.keys(defaults).concat(specialSaveFields);
+			data[lib] = data[lib].map(asset => {
+
+				if( typeof asset !== "object" )
+					return asset;
+
+				let aKeys = Object.keys(asset);
+
+				// Remove defaults
+				for( let i of keys ){
+					
+					if( asset[i] === defaults[i] && i !== "label" && i !== "id" ) // Label defaults may cause problems since assets aren't rebased when linking
+						delete asset[i];
+
+				}
+
+				// Remove unsupported
+				for( let i of aKeys ){
+					
+					if( !keys.includes(i) )
+						delete asset[i];
+
+				}
+
+				// Shorten numbers to 6 decimals
+				for( let i in asset ){
+
+					if( typeof asset[i] === 'number' )
+						asset[i] = Math.round(asset[i]*1000000)/1000000;
+
+				}
+
+				// Run compression
+				let out = {};
+				for( let i in asset ){
+
+					let newIndex = map.keys[i];
+					// Convert all keys into short forms
+					// This key label already exists in the map
+					if( newIndex ){
+
+						out[newIndex] = asset[i];
+
+					}
+					// We need to make a new one
+					else{
+						
+						++keyIndex;
+						newIndex = Base64.fromNumber(keyIndex);
+						map.keys[i] = newIndex;
+						out[newIndex] = asset[i];
+
+					}
+
+					// Special case for dungeonRoomAssets since these make up the bulk of most mods
+					if( lib === 'dungeonRoomAssets' && i === 'model' ){
+
+						let val = asset.model;
+						const pos = map.meshPaths.indexOf(val);
+						if( ~pos )
+							out[newIndex] = pos;
+						else{
+
+							out[newIndex] = map.meshPaths.length;
+							map.meshPaths.push(val);
+
+						}
+
+					}
+
+				}
+
+
+				
+				return out;
+
+			});
+
+
+		}
+		
+		
+		data._map = map;
+		console.log(map, data);
+		
+
+		const zip = new JSZip();
+		zip.file('mod.json', JSON.stringify(data));
+		const content = await zip.generateAsync({
+			type:"blob",
+			compression : "DEFLATE",
+			compressionOptions : {
+				level: 9
+			}
+		});
+
+		const a = document.createElement('a');
+		const url = URL.createObjectURL(content);
+
+		a.setAttribute('href', url);
+		a.setAttribute('download', this.name.split(" ").join('_')+'_b'+(this.buildNr)+'.fqmod');
+
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+
+	}
+
+	static unpackExportData( data ){
+
+		// This is an older mod, return as is
+		if( !data._map )
+			return data;
+
+		const keyMap = {},		// "oldKey" : "shortenedKey"
+			meshPaths = data._map.meshPaths			// Array of mesh paths, indexes are stored in dungeonRoomAssets
+		;
+
+		// Flip key values in kv map
+		for( let i in data._map.keys ){
+
+			const v = data._map.keys[i];
+			keyMap[v] = i;
+
+		}
+
+		// Clean up the mod on export
+		for( let lib in data ){
+
+			// Needs to have an object mapped for compression
+			if( !Mod.LIB_TYPES[lib] || !Array.isArray(data[lib]) )
+				continue;
+
+			data[lib] = data[lib].map(asset => {
+
+				if( typeof asset !== "object" )
+					return asset;
+
+				let out = {};
+
+				// Unpack keys
+				let aKeys = Object.keys(asset);
+				for( let i of aKeys ){
+					
+					let realIndex = keyMap[i];
+					out[realIndex] = asset[i];
+
+					// Grab model from valmap by index
+					if( lib === 'dungeonRoomAssets' && realIndex === 'model' )
+						out[realIndex] = meshPaths[asset[i]];
+
+				}
+
+				
+				return out;
+
+			});
+
+
+		}
+
+		return data;
+
+	}
+
 	// Handles delete options
 	static mergeExtensionAssets( original, extension ){
 
@@ -1355,7 +1555,7 @@ export default class Mod extends Generic{
 			if( !file )
 				throw 'Missing main mod file';
 
-			mainMod = JSON.parse(await file.async("text"));
+			mainMod = this.unpackExportData(JSON.parse(await file.async("text")));
 
 			console.log(dbVer);
 			// Store it
@@ -1482,10 +1682,12 @@ Mod.getAll = async function(){
 };
 
 Mod.getByID = async function( id ){
+
 	let g = await Mod.db.mods.get(id);
 	if(g)
 		return new Mod(g);
 	return false;
+
 };
 
 // Takes an event and tries to import a mod from the first file passed to the event
@@ -1511,11 +1713,16 @@ Mod.import = async function( event ){
 			if( !raw.id || !raw.name )
 				throw 'INVALID_ID';
 			
-			mod = new Mod(raw);
+
+			// Unpack raw
+			mod = new Mod(this.unpackExportData(raw));
+
 			const existing = await Mod.getByID(raw.id);
 			if( existing ){
+
 				if( !confirm("Mod already exists, are you sure you want to overwrite?") )
 					return;
+
 			}
 
 			await mod.save();

@@ -608,6 +608,7 @@ class NetworkManager{
 				let player = validatePlayer();
 				if( !player )
 					return;
+
 				let room = game.dungeon.getActiveRoom(),
 					asset = room.getAssetById(args.dungeonAsset)
 				;

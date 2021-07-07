@@ -1,4 +1,4 @@
-const TOOL_VERSION = 2;	// Version of the exporter
+const TOOL_VERSION = 3;	// Version of the exporter
 
 // Mod is needed first
 import Mod from '../classes/Mod.js';
@@ -292,34 +292,8 @@ export default class Modtools{
 						});
 
 						Window.addMenuOption("export", "Export", () => {
-
-							++this.mod.buildNr;
-							this.mod.version = TOOL_VERSION;
-							this.mod.save();
+							this.mod.exportFile(TOOL_VERSION, true);
 							this.updateModName();
-
-							const zip = new JSZip();
-							zip.file('mod.json', JSON.stringify(this.mod.getSaveData()));
-							zip.generateAsync({
-								type:"blob",
-								compression : "DEFLATE",
-								compressionOptions : {
-									level: 9
-								}
-							}).then(content => {
-
-								const a = document.createElement('a');
-								const url = URL.createObjectURL(content);
-
-								a.setAttribute('href', url);
-								a.setAttribute('download', this.mod.name.split(" ").join('_')+'_b'+(this.mod.buildNr)+'.fqmod');
-
-								document.body.appendChild(a);
-								a.click();
-								a.remove();
-
-							});
-
 						});
 
 					}

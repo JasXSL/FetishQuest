@@ -1121,7 +1121,7 @@ class Editor{
 				'<p>Hides the object if it has no viable game actions bound to it.</p>';
 
 			out += '<h3>Tags:</h3>'+
-				'<p>Often auto added, but these are tags that will be added to all players in the room.</p>';
+				'<p>These are tags that will be added to all players in the room in addition to the mesh built in tags.</p>';
 
 			out += '<h3>Game Actions:</h3>'+
 				'<p>GameActions to trigger when clicking this mesh. '+HelperAsset.helpLinkedList+'. Shift click to pick one from the library, otherwise a specific one will be created only for this mesh.</p>';

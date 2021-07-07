@@ -286,9 +286,11 @@ export default class GameLib{
 				return true;
 			}
 		});
+
 		let promises = [];
 		for( let mod of mods )
 			promises.push(Mod.getByID(mod.id));
+			
 		mods = await Promise.all(promises);
 		
 		mods = mods.filter(el => el);
