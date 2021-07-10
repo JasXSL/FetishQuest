@@ -252,6 +252,11 @@ LibMaterial.library = {
 			metalness : 0.4,
 			roughness : 0.6
 		}),
+		RoofShingles : new LibMaterial({
+			map : 'tileable/roof_tiles.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
 	},
 	Marble : {
 		Tiles : new LibMaterial({

@@ -119,6 +119,7 @@ export default class Mod extends Generic{
 			this.category = Mod.Category.Unsorted;
 	}
 
+
 	getSaveData(){
 		
 		const comparer = new Comparer();
@@ -170,140 +171,146 @@ export default class Mod extends Generic{
 			books : this.books,
 		};
 
-		// Removes del except for in arrays
-		const removeDel = obj => {
+		// When saved from the modtools, trim out any extended asset values that are equal to the same values in MAIN
+		if( window.mod ){
 
-			if( typeof obj !== "object" )
+			// Removes del except for in arrays
+			const removeDel = obj => {
+
+				if( typeof obj !== "object" )
+					return obj;
+
+				let keys = Object.keys(obj);
+				for( let key of keys ){
+					
+					if( obj[key] === '__DEL__' )
+						delete obj[key];
+					else
+						obj[key] = removeDel(obj[key]);
+
+				}
 				return obj;
 
-			let keys = Object.keys(obj);
-			for( let key of keys ){
-				
-				if( obj[key] === '__DEL__' )
-					delete obj[key];
-				else
-					obj[key] = removeDel(obj[key]);
-
-			}
-			return obj;
-
-		};
-
-		const handleComparedArrays = (base, compared) => {
-
-			const getId = c => {
-				if( typeof c === "object" )
-					return c.label || c.id;
-				return c;
 			};
 
-			for( let i in compared ){
+			const handleComparedArrays = (base, compared) => {
 
-				// Not an array, HANDLE IT
-				if( !Array.isArray(compared[i]) ){
+				const getId = c => {
+					if( typeof c === "object" )
+						return c.label || c.id;
+					return c;
+				};
 
-					if( typeof compared[i] === "object" && typeof base[i] === "object" )
-						compared[i] = handleComparedArrays(base[i], compared[i]);
+				for( let i in compared ){
 
-					continue;
-				}
+					// Not an array, HANDLE IT
+					if( !Array.isArray(compared[i]) ){
 
-				// Awe shiet, we have an array
-				let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
-				// Check how many of each entry we have
-				for( let c of compared[i] ){
-					c = getId(c);
-					
-					if( !adds.get(c) )
-						adds.set(c, 0);
+						if( typeof compared[i] === "object" && typeof base[i] === "object" )
+							compared[i] = handleComparedArrays(base[i], compared[i]);
 
-					adds.set(c, adds.get(c)+1);
-
-				}
-				// Check which ones have been removed
-				for( let c of base[i] ){
-					c = getId(c);
-
-					if( adds.get(c) ){
-
-						adds.set(c, adds.get(c)-1);
-
-						if( !currents.get(c) )
-							currents.set(c, 0);
-						currents.set(c, currents.get(c)+1);
 						continue;
+					}
+
+					// Awe shiet, we have an array
+					let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
+					// Check how many of each entry we have
+					for( let c of compared[i] ){
+						c = getId(c);
+						
+						if( !adds.get(c) )
+							adds.set(c, 0);
+
+						adds.set(c, adds.get(c)+1);
+
+					}
+					// Check which ones have been removed
+					for( let c of base[i] ){
+						c = getId(c);
+
+						if( adds.get(c) ){
+
+							adds.set(c, adds.get(c)-1);
+
+							if( !currents.get(c) )
+								currents.set(c, 0);
+							currents.set(c, currents.get(c)+1);
+							continue;
+
+						}
+
+						removes.push(c);
+
+					}
+					// Check which ones are newly added
+					for( let cur of compared[i] ){
+						const c = getId(cur);
+						
+						if( currents.get(c) ){
+
+							currents.set(c, currents.get(c)-1);
+							continue;
+
+						}
+						build.push(cur);
 
 					}
 
-					removes.push(c);
+					console.log(removes, build, adds, currents);
+
+
+					compared[i] = removes.map(el => {
+						return {'__DEL__' : el};
+					}).concat(build);
 
 				}
-				// Check which ones are newly added
-				for( let cur of compared[i] ){
-					const c = getId(cur);
-					
-					if( currents.get(c) ){
-
-						currents.set(c, currents.get(c)-1);
-						continue;
-
-					}
-					build.push(cur);
-
-				}
-
-				console.log(removes, build, adds, currents);
-
-
-				compared[i] = removes.map(el => {
-					return {'__DEL__' : el};
-				}).concat(build);
 
 			}
 
-		}
-
-		// Run comparer on items changed by mod
-		for( let i in out ){
-
-			if( !Array.isArray(out[i]) )
-				continue;
 			
-			// We're going to make changes to this list, so shallow-clone the array
-			out[i] = out[i].slice();
-			const arr = out[i];
-			
-			for( let entry in arr ){
+			// Run comparer on items changed by mod
+			for( let i in out ){
 
-				const clone = {};
-				for( let i in arr[entry] ){
+				if( !Array.isArray(out[i]) )
+					continue;
+				
+				// We're going to make changes to this list, so shallow-clone the array
+				out[i] = out[i].slice();
+				const arr = out[i];
+				
+				for( let entry in arr ){
 
-					if( i !== '_ext' )
-						clone[i] = arr[entry][i];
+					const clone = {};
+					for( let i in arr[entry] ){
+
+						if( i !== '_ext' )
+							clone[i] = arr[entry][i];
+
+					}
+					arr[entry] = clone;
+
+					const extension = arr[entry];
+					if( !extension._e )
+						continue;
+
+					// Remove unchanged data
+					const base = window.mod.parentMod.getAssetById(i, extension._e, false);
+					if( !base )
+						continue;	// Todo: error?
+
+					// Array comparator
+					const comparison = comparer.compare(base, extension);
+					delete comparison.__MOD;
+					handleComparedArrays(base, comparison);
+
+					removeDel(comparison);
+					// mParent is allowed to be the same on both
+					if( extension._mParent )
+						comparison._mParent = extension._mParent;
+
+					arr[entry] = comparison;
 
 				}
-				arr[entry] = clone;
-
-				const extension = arr[entry];
-				if( !extension._e )
-					continue;
-
-				// Remove unchanged data
-				const base = window.mod.parentMod.getAssetById(i, extension._e, false);
-				if( !base )
-					continue;	// Todo: error?
-
-				// Array comparator
-				const comparison = comparer.compare(base, extension);
-				delete comparison.__MOD;
-				handleComparedArrays(base, comparison);
-
-				removeDel(comparison);
-				// mParent is allowed to be the same on both
-				if( extension._mParent )
-					comparison._mParent = extension._mParent;
-
-				arr[entry] = comparison;
 
 			}
 

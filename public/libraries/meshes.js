@@ -1393,6 +1393,22 @@ function build(){
 					],
 					tags : [],
 				}),
+				KitchenBench : new LibMesh({
+					url : 'furniture/kitchen_bench.JD',
+					materials : [
+						libMat.Wood.Floor,
+						libMat.Wood.Crate,
+					],
+					tags : [stdTag.mBench],
+				}),
+				KitchenIsle : new LibMesh({
+					url : 'furniture/kitchen_isle.JD',
+					materials : [
+						libMat.Wood.Floor,
+						libMat.Wood.Crate,
+					],
+					tags : [stdTag.mBench],
+				}),
 			},
 			Room : {
 				R8x6 : new LibMesh({
@@ -1492,6 +1508,72 @@ function build(){
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
 				}),
+
+				FarmhouseA : new LibMesh({
+					isRoom : true,
+					url : 'rooms/p_attic.JD',
+					materials : [
+						libMat.Wood.Floor,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				FarmhouseB : new LibMesh({
+					isRoom : true,
+					url : 'rooms/p_bedrooms.JD',
+					materials : [
+						libMat.Wood.Floor,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				FarmhouseC : new LibMesh({
+					isRoom : true,
+					url : 'rooms/p_kitchen.JD',
+					materials : [
+						libMat.Wood.Logs,
+						libMat.Wood.Floor,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				FarmhouseD : new LibMesh({
+					isRoom : true,
+					url : 'rooms/p_sideroom.JD',
+					materials : [
+						libMat.Wood.Floor,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				FarmhouseE : new LibMesh({
+					isRoom : true,
+					url : 'rooms/p_upper_hallway.JD',
+					materials : [
+						libMat.Wood.Logs,
+						libMat.Wood.Floor,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				FarmhouseF : new LibMesh({
+					isRoom : true,
+					url : 'rooms/p_entrance.JD',
+					materials : [
+						libMat.Wood.Floor,
+						libMat.Wood.Logs,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+				FarmhouseG : new LibMesh({
+					isRoom : true,
+					url : 'rooms/p_study.JD',
+					materials : [
+						libMat.Wood.Logs,
+						libMat.Wood.Floor,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorWood],
+				}),
+
+
 			},
 			Doodads : {
 				RopeSpool : new LibMesh({
@@ -1559,6 +1641,44 @@ function build(){
 					],
 
 
+					want_actions : [gameActionDoors],
+					tags : [stdTag.mStair],
+					onFlatten : function(mesh){
+						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
+						lamp.intensity = 0;
+						lamp.position.y = 500;
+						lamp.position.z = -50;
+						lamp.castShadow = true;
+						mesh.add(lamp);
+						lamp.target = mesh;
+						// Setting a tween like this allows the room to turn it off when the room changes
+						mesh.userData.tweens = {
+							interact : new TWEEN.Tween(lamp)
+								.to({angle:0.25, intensity:1},500)
+								.easing(TWEEN.Easing.Sinusoidal.Out)
+						};
+					},
+					// Reset the lamp when placed
+					onStagePlaced : function( asset, mesh ){
+
+						let lamp = mesh.children[0];
+						lamp.intensity = 0;
+						lamp.angle = 0.001;
+
+					},
+					onInteract : function(mesh, room, asset){
+
+						mesh.userData.tweens.interact.start();
+						LibMesh.playSound( mesh, asset, 'media/audio/ladder.ogg', 0.5);
+					
+					}
+				}),
+				StairsL : new LibMesh({
+					door : LibMesh.DoorTypes.DOOR_UP,
+					url : 'furniture/corner_stair.JD',
+					materials : [
+						libMat.Wood.Floor,
+					],
 					want_actions : [gameActionDoors],
 					tags : [stdTag.mStair],
 					onFlatten : function(mesh){
@@ -2479,6 +2599,15 @@ function build(){
 				}),
 				Spyglass : new LibMesh({
 					url : 'doodads/spyglass.JD',
+					tags : [],
+					materials : [
+						libMat.Metal.Copper,
+						libMat.Glass.Green,
+						libMat.Wood.Crate,
+					],
+				}),
+				SpaceValidator : new LibMesh({
+					url : 'doodads/space_validator.JD',
 					tags : [],
 					materials : [
 						libMat.Metal.Copper,
@@ -3856,6 +3985,18 @@ function build(){
 				],
 			}),
 
+			Farmhouse : new LibMesh({
+				url : 'structure/farmhouse.JD',
+				materials : [
+					libMat.Wood.Crate,
+					libMat.Wood.Logs,
+					libMat.Wood.Floor2,
+					libMat.StoneTile.RoofShingles,
+					libMat.Brick.Small,
+					libMat.Glass.BrownHighRes,
+				],
+			}),
+
 			Gym : new LibMesh({
 				url : 'structure/gym.JD',
 				materials : [
@@ -4197,6 +4338,7 @@ function build(){
 					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 				}),
 			},
+
 
 		},
 
