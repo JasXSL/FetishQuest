@@ -70,7 +70,7 @@ class Action extends Generic{
 		this.hide_if_no_targets = false;		// hide this from the action picker if there's no viable targets
 		this.disable_override = 0;				// Level of disable override.
 		this.alias = [];						// Aliases to use for texts. Useful when you want multiple actions with the same texts
-		
+		this.ignore_wrapper_conds = false;		// Ignores wrapper conditions and allows it to cast without any valid wrapper conditions
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge.
@@ -126,6 +126,7 @@ class Action extends Generic{
 			min_ap : this.min_ap,
 			allow_self : this.allow_self,
 			_slot : this._slot,
+			ignore_wrapper_conds : this.ignore_wrapper_conds,
 		};
 
 		// Everything but mod
@@ -485,15 +486,18 @@ class Action extends Generic{
 				(p !== parent || allowSelfCast) && 
 				p.checkActionFilter(parent, this) && 
 				!this.getDisabledEffectsAgainst(p).length &&
-				this.getViableWrappersAgainst(p, isChargeFinish, debug).length 
+				(this.ignore_wrapper_conds || this.getViableWrappersAgainst(p, isChargeFinish, debug).length) 
 			)targets.push(p);
+
 			else if( debug ){
+
 				console.debug("Pass FAILED: ",
 					(p !== parent || allowSelfCast),
 					p.checkActionFilter(parent, this),
 					!this.getDisabledEffectsAgainst(p).length,
 					this.getViableWrappersAgainst(p, isChargeFinish, debug).length
 				);
+
 			}
 
 		}

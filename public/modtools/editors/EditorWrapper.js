@@ -24,7 +24,8 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Editor Description: <input type="text" name="editor_desc" class="saveable" value="'+esc(dummy.editor_desc)+'" /></label>';
 		html += '<label title="Duration effects only">Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label title="Name of an icon from game-icons.net">Icon: <input type="text" name="icon" class="saveable" value="'+esc(dummy.icon)+'" /></label>';
@@ -60,7 +61,6 @@ export function asset(){
 	html += '<div class="add_conditions"></div>';
 	html += '<span title="Conditions needed to be met for the wrapper to persist">Stay conditions: </span><br />';
 	html += '<div class="stay_conditions"></div>';
-
 
 
 	this.setDom(html);

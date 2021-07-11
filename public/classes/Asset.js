@@ -262,13 +262,16 @@ export default class Asset extends Generic{
 	}
 
 	equippable(){
-		let verifyConds = Condition.all(this.equip_conditions, new Event({
+
+		let verifyConds = Condition.all(this.equip_conditions, new GameEvent({
 			type : GameEvent.Types.none,
 			sender : this.parent,
 			target : this.parent,
 			asset : this,
+			dungeon : game.dungeon,
 		}));
 		return this.slots.length && verifyConds;
+
 	}
 
 	// Checks only if this is a consumable item

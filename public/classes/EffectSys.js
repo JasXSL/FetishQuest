@@ -46,7 +46,8 @@ class Wrapper extends Generic{
 		this.detrimental = true;
 		this.trigger_immediate = false;			// Trigger immediate if it's a duration effect
 		this.ext = false;						// Makes the timer count use in game time intead of combat arounds, and makes it persist outside of combat. Duration becomes time in seconds.
-		
+
+
 		this.tick_on_turn_start = true;			// Tick on turn start
 		this.tick_on_turn_end = false;			// Tick on turn end
 

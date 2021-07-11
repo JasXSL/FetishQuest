@@ -160,6 +160,11 @@ export default class Condition extends Generic{
 	// Tests the condition
 	test( event, debug ){
 
+		if( !(event instanceof GameEvent) ){
+			console.error("This was", this, "event was", event);
+			throw 'Invalid event';
+		}
+
 		if( !debug )
 			debug = this.debug;
 

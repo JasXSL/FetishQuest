@@ -77,6 +77,7 @@ export function asset(){
 		html += '<label>No Interrupt: <input name="no_interrupt" '+(dummy.no_interrupt ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Reset cooldown if interrupted">Reset Interrupt: <input name="reset_interrupt" '+(dummy.reset_interrupt ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Punishments use this">Hide if no viable targets: <input name="hide_if_no_targets" '+(dummy.hide_if_no_targets ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
+		html += '<label title="Lets you still use the ability if no targets pass wrapper filters">Cast if no viable wrapper: <input name="ignore_wrapper_conds" '+(dummy.ignore_wrapper_conds ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		
 		html += '<label title="Max wrappers to apply, wrappers applied from top to bottom, 0 = no limit">Max wrappers: <input name="max_wrappers" value="'+esc(dummy.max_wrappers)+'" type="number" step=1 min=0 class="saveable" /></label>';
 

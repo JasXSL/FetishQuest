@@ -314,9 +314,12 @@ export function asset(){
 
 				html += '<label><select name="data::objective" class="saveable">';
 				for( let objective of a.objectives ){
-					if( objective && typeof objective === "object" )
-						objective = objective.label;
-					html += '<option value="'+esc(objective)+'" '+(objective === asset.data.objective ? 'selected' : '')+'>'+esc(objective)+'</option>';
+
+					let obj = HelperAsset.getAssetById('questObjectives', objective) || objective;
+					if( obj && typeof obj === "object" )
+						obj = obj.name;
+					html += '<option value="'+esc(objective)+'" '+(objective === asset.data.objective ? 'selected' : '')+'>'+esc(obj)+'</option>';
+
 				}
 				html += '</select></label>';
 

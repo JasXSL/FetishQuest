@@ -357,7 +357,7 @@ export default{
 
 		// Stores a created asset in this asset's key
 		// a is the new asset
-		const storeAsset = a => {
+		const storeAsset = (a, pa) => {
 
 			let template = new constructor();
 			let text = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID().substr(0,4)
@@ -395,9 +395,9 @@ export default{
 
 			}
 
-			if( parented ){
+			if( pa ){
 
-				if( parented === 2 )
+				if( pa === 2 )
 					a._h = 1;
 				else{
 					a._mParent = {
@@ -431,7 +431,7 @@ export default{
 
 					let a = new constructor();
 					a = constructor.saveThis(a, "mod");
-					storeAsset(a);
+					storeAsset(a, true);
 
 					// Insert handles other window refreshers
 					this.insertAsset(targetLibrary, a, win, undefined, windowData);
@@ -508,7 +508,7 @@ export default{
 					const inserted = this.insertCloneAsset(targetLibrary, a, constructor, win);
 
 					// Add it to the list
-					storeAsset(inserted);
+					storeAsset(inserted, parented);
 					this.rebuildAssetLists(targetLibrary);
 					this.propagateChange(win);
 					win.rebuild();
