@@ -790,7 +790,11 @@ class Effect extends Generic{
 			this.data.conditions = Condition.loadThese(this.data.conditions, this);
 
 		if( this.type === Effect.Types.gameAction && this.data.action ){
-			this.data.action = GameAction.loadThis(this.data.action);
+
+			if( !Array.isArray(this.data.action) )
+				this.data.action = toArray(this.data.action);
+
+			this.data.action = GameAction.loadThese(this.data.action);
 		}
 
 		// Unpack is required since it has nested objects
@@ -1727,8 +1731,8 @@ class Effect extends Generic{
 			
 			else if( this.type === Effect.Types.gameAction ){
 
-				const ga = GameAction.loadThis(this.data.action);
-				ga.trigger(t);
+				for( let action of this.data.action )
+					action.trigger(t);
 
 			}
 
@@ -2195,7 +2199,7 @@ Effect.TypeDescs = {
 	[Effect.Types.critTakenMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects the caster critting on the target. ADDITIVE. 0.25 = +25% etc',
 
 	
-	[Effect.Types.gameAction] : '{action:(obj)gameAction} - Lets you run a game action',
+	[Effect.Types.gameAction] : '{action:(obj/arr)gameAction} - Lets you run one or many game actions',
 	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
 
 	[Effect.Types.physicalProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the damage armor chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',

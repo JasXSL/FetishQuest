@@ -514,6 +514,14 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side:THREE.DoubleSide
 		}),
+		HandprintsGreen : new LibMaterial({
+			map : 'decals/handprints_green.png',
+			metalness : 0.3,
+			roughness : 0.7,
+			transparent : true,
+			alphaTest : 0.5,
+			side:THREE.DoubleSide
+		}),
 		BloodDepth : new LibMaterial({
 			map : 'decals/bloodsplat.png',
 			transparent : true,

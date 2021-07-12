@@ -3020,6 +3020,26 @@ function build(){
 
 				},
 			}),
+			HandprintsGreen : new LibMesh({
+				auto_bounding_box : true,
+				url : function(){
+					let group = new THREE.Group();
+					let plane = new THREE.Mesh(
+						new THREE.PlaneGeometry(100,100,1,1),
+						new THREE.MeshBasicMaterial()
+					);
+					plane.rotation.set(Math.PI/2, 0, 0);
+					plane.material = libMat.Splat.HandprintsGreen.flatten();
+					plane.material.emissive.set(0x33933);
+					//plane.customDepthMaterial = libMat.Splat.BloodDepth.flatten();
+					plane.receiveShadow = true;
+					plane.position.y = 5;
+					
+					group.add(plane);
+					return group;
+				},
+				tags : [],
+			}),
 		},
 		// Outdoors
 		Land : {

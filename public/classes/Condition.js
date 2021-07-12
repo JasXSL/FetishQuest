@@ -347,6 +347,14 @@ export default class Condition extends Generic{
 				success = room && room.outdoors;
 
 			}
+			else if( this.type === T.location ){
+
+				success = (
+					window.game.dungeon.label === this.data.dungeon &&
+					(parseInt(this.data.room) === -1 || window.game.dungeon.active_room === parseInt(this.data.room))
+				);
+
+			}
 
 			else if( this.type === T.roomZ ){
 				
@@ -1285,6 +1293,7 @@ Condition.Types = {
 	// Dungeon room conditions
 	roomIsOutdoors : 'roomIsOutdoors',
 	roomZ : 'roomZ',
+	location : 'location',
 	fetish : 'fetish',
 };
 
@@ -1372,6 +1381,7 @@ Condition.descriptions = {
 	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level.  Amount can be a math var.',
 	[Condition.Types.targetedSenderLastRound] : 'void - Target has successfully used a non-aoe action against sender since their last turn',
 	[Condition.Types.hourRange] : '{min:(number)min, max:(number)max} - Requires game.getHoursOfday() to be between min and max (24h format). Max can be greater than min for an example if you want something to happen at night: {min:21,max:6}',
+	[Condition.Types.location] : '{dungeon:(str)dungeon_label, room:(opt, int)index=-1} - The players in the current game are at this location. -1 is any room',
 	[Condition.Types.roomZ] : '{min:(number)min, max:(number)max=min} - The attached dungeon room (or game.dungeon active room if not in event) must have a z level between min and max. Use "inf" for infinity (max)/negative infinity(min).',
 	[Condition.Types.roomIsOutdoors] : 'void - Checks if the attached dungeon room(or game.dungeon active room if unspecified) is outdoors',
 	[Condition.Types.isGenderEnabled] : '{genders:(int)genders} - Checks if any of the specified genders are enabled in game gender preferences',

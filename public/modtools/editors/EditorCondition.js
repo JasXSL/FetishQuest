@@ -403,6 +403,46 @@ export function asset(){
 		};
 
 	}
+	else if( type === types.location ){
+
+		setDefaultData({dungeon:'', room:-1});
+
+		// Start by adding a dungeon picker
+		html += 'Dungeon: <div class="dungeon"></div>';
+		
+		// Then generate a dropdown from that
+		let dungeon = mod.getAssetById('dungeons', asset.data.dungeon);
+		if( dungeon ){
+
+			html += '<div class="labelFlex">';
+
+				html += '<label>Room: <select name="data::room" class="saveable">';
+					html += '<option value="-1">- ANY -</option>';
+				for( let r of dungeon.rooms ){
+
+					const room = mod.getAssetById('dungeonRooms', r);
+					if( !room )
+						continue;
+					html += '<option value="'+esc(room.index)+'" '+(parseInt(asset.data.room) === parseInt(room.index) ? 'selected' : '')+'>'+esc(room.name)+'</option>';
+
+				}
+				html += '</select></label>';
+			html += '</div>';
+
+		}
+		else if( !dungeon ){
+
+			html += '<p>Room picker shows after you select a dungeon</p>';
+
+		}
+
+		fnBind = () => {
+
+			this.dom.querySelector("div.dungeon").appendChild(EditorDungeon.assetTable(this, asset, "data::dungeon", true));
+
+		};
+
+	}
 	//else if( type === types.dungeonVarMath ){}	// Too complicated to do an editor. Use JSON
 	else if( type === types.effectLabel ){
 		setDefaultData({
