@@ -422,7 +422,7 @@ export default{
 			tr.classList.add("noselect");
 
 			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'">'+
-				'<input type="button" class="small addNew library" value="Library" />'+
+				(window.mod.hasDB(targetLibrary) ? '<input type="button" class="small addNew library" value="Library" />' : '')+
 				'<input type="button" class="small addNew" value="Unique" />'+
 			'</td>';
 
@@ -461,6 +461,8 @@ export default{
 			const id = event.currentTarget.dataset.id;
 
 
+			let asset = this.getAssetById(targetLibrary, id);
+
 			// Ctrl deletes
 			if( event.ctrlKey || event.metaKey ){
 
@@ -470,6 +472,8 @@ export default{
 				}
 				// Remove the actual thing
 				else{
+
+					
 				
 					// Don't need to store this param in the mod anymore
 					if( single )
@@ -480,7 +484,7 @@ export default{
 
 					// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
 					// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
-					if( parented && mod.mod[targetLibrary] )
+					if( asset._h || asset._mParent )
 						MOD.deleteAsset(targetLibrary, entry, true);
 
 				}
@@ -494,15 +498,9 @@ export default{
 			}
 			else{
 
-				let asset = entry;
-
 				// Fetch from library
-				if( typeof asset === "string" ){
-
-					asset = this.getAssetById(targetLibrary, id);
-					if( !asset ){
-						throw 'Linked asset not found, '+id+" in "+targetLibrary;
-					}
+				if( !asset ){
+					throw 'Linked asset not found, '+id+" in "+targetLibrary;
 				}
 
 				if( typeof asset !== "object" )

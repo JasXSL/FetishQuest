@@ -329,6 +329,11 @@ export default class Modtools{
 					}, false);
 					
 				}
+				else if( button.dataset.id === "cheatSheet" ){
+
+					this.drawCheatSheet();
+
+				}
 
 				else if( button.dataset.id === "online" ){
 					
@@ -1012,7 +1017,7 @@ export default class Modtools{
 	*/
 	buildAssetLinker( parentWindow, baseAsset, baseKey, targetType, single ){
 
-		if( !DB_MAP[targetType] || !DB_MAP[targetType].listing )
+		if( !this.hasDB(targetType) )
 			throw 'Asset linker not found for type '+targetType+", add it to DB_MAP in Modtools2.js";
 
 		return Window.create(
@@ -1025,6 +1030,11 @@ export default class Modtools{
 			parentWindow
 		);
 
+	}
+
+	// Library name has a listing handler
+	hasDB( targetType ){
+		return ( DB_MAP[targetType] && DB_MAP[targetType].listing );
 	}
 
 
@@ -1452,7 +1462,32 @@ export default class Modtools{
 
 	}
 
-	
+	// Draws the cheat sheet
+	drawCheatSheet(){
+
+		const self = this;
+		return Window.create("Cheat Sheet", "Cheat Sheet", "", "cursed-star", async function(){
+
+			let html = '<h2>Basics</h2>';
+			html += '<p><strong>Primer</strong>: FQ mods consist of multiple assets that are linked together. All directly editable assets types are in the left menu, which will display their library tables. They are linked together using IDs and Labels.</p>'+
+			'<p><strong style="color:#FAA">Only change a label when creating a new asset, changing a label afterwards will not update it in linked assets and will show up as missing.</strong></p>';
+			html += '<p>Some assets will link to other assets, these show up as a linked table with <strong>Library</strong> and <strong>Unique</strong> buttons. Clicking the Library button will open an asset linker from that asset\'s public table. Pressing Unique will create a unique asset linked only to the parent. Use Unique when creating assets that will only be used once, such as door game actions in a dungeon. Pick Library for anything else.</p>';
+			
+			html += '<h2>Modifier Keys</h2>';
+			html += '<p>Use <strong>Control</strong> on an asset to remove it. When used in a database it removes the asset entirely from the database. Note that it doesn\'t remove it from any linked assets. When used in a linked table, it removes the asset only from that linked table, but it stays in the library (unless unique).</p>';
+			html += '<p>Use <strong>Alt</strong> in a library table to clone an asset.</p>';
+			
+			html += '<h2>Extending the Base Game</h2>';
+			html += '<p>Grey assets in library/linked tables are part of the main game. Clicking one of these assets will create an extension (experimental) which allows you to modify the base game. Extended assets have blue text. Control clicking one of these will delete the extension. The linked tables will show MAIN or THIS where MAIN means the asset is part of the main mod, and THIS is part of your active mod.</p>';
+
+
+			this.setDom(html);
+
+			self.saveWindowStates();
+		});
+
+
+	}	
 
 	
 

@@ -32,13 +32,15 @@ const DB = 'conditions',
 
 // Single asset editor
 export function asset(){
-
 	const 
 		modtools = window.mod,
 		id = this.id,
-		asset = this.asset.asset || modtools.mod.getAssetById(DB, id),
-		dummy = Condition.loadThis(asset)
-	;
+		asset = this.asset.asset || modtools.mod.getAssetById(DB, id);
+		
+	if( !asset.type )
+		asset.type = Condition.Types.actionLabel;
+
+	const dummy = Condition.loadThis(asset);
 
 	if( !asset )
 		return this.close();
