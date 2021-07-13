@@ -38,7 +38,8 @@ export function asset(){
 
 
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Description: <textarea name="description" class="saveable">'+esc(dummy.description, true)+'</textarea></label>';
 	html += '</div>';
 

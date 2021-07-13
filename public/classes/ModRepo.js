@@ -32,7 +32,6 @@ export default class ModRepo{
 		const att = await this.modReq('ValidateLoginToken', {token : localStorage.jasx_session});
 		if( !att )
 			this.logOut();
-
 		return att;
 
 	}
@@ -112,6 +111,7 @@ export default class ModRepo{
 
 			const out = await req.json();
 			
+			console.log("out", out);
 			if( out.success )
 				return out.data;
 			

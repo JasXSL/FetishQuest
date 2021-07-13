@@ -20,7 +20,8 @@ export function asset(){
 
 
 	let html = '';
-	html += 'Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /><br />';
+	if( !asset._h && !asset._mParent )
+		html += 'Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /><br />';
 	html += '<label>Follow parts <input type="checkbox" class="saveable" name="follow_parts" '+(dummy.follow_parts ? 'checked' : '')+' /></label><br />';
 
 	html += 'An array of sound objects, ex [{s:{volume:(float)vol, loop:(bool)looping, path:(str)url, position:{x,y,z}}, t:(int)predelay_ms, se:(bool)from_caster}...]<br />';

@@ -40,7 +40,8 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
 		html += '<label>Type: <select name="type" class="saveable">';
 		for( let i in GameAction.types )
@@ -637,7 +638,15 @@ export function asset(){
 		
 	}
 	else if( type === Types.sleep ){
-		asset.data = {};
+		if( !asset.data )
+			asset.data = {actions:[]};
+
+		html += 'Game actions: <div class="actions"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.actions").appendChild(assetTable(this, asset, "data::actions", false));
+		};
+
 	}
 	else if( type === Types.resetRoleplay ){
 		if( !asset.data || typeof asset.data !== "object" )

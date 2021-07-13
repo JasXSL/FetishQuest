@@ -841,33 +841,56 @@ export default class Game extends Generic{
 
 		if( !player.isLeader() )
 			return false;
+		
 		if( !dungeonAsset || !dungeonAsset.interactions.length )
 			return false;
+
 		const sleepInteractions = dungeonAsset.interactions.filter(e => e.type === GameAction.types.sleep);
 		if( !sleepInteractions.length ){
+
 			console.error("Sleep interaction not found");
 			return false;
+
 		}
+
 		duration = parseInt(duration);
 		if( isNaN(duration) || duration < 1 )
 			return false;
 
 		if( !this.is_host ){
+
 			this.net.playerSleep(player, dungeonAsset, duration);
 			return false;
+
 		}
 		
 		this.net.dmBlackScreen();
 		this.ui.toggleBlackScreen(() => {
+
 			this.addHours(duration);
 			const pl = game.getTeamPlayers();
 			for( let p of pl ){
+
 				p.addHP(20*duration);
 				p.addArousal(-5*duration);
 				p.addMP(5*duration);
 				this.save();
 				this.ui.draw();
+
 			}
+			for( let interaction of sleepInteractions ){
+
+				let actions = interaction.data.actions;
+				if( Array.isArray(actions) ){
+					
+					actions = GameAction.loadThese(actions);
+					for( let action of actions )
+						action.trigger(player, dungeonAsset);
+
+				}
+
+			}
+
 		});
 		this.ui.addText("You rest for "+duration+" hour"+(duration !== 1 ? 's' : '')+".", "sleep", player.id, player.id, 'sleep');
 		

@@ -23,7 +23,8 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label>Exp multiplier: <input type="number" min=0 step=0.01 name="exp_multiplier" class="saveable" value="'+esc(dummy.exp_multiplier)+'" /></label>';
 		html += '<label>Hide Rewards: <input type="checkbox" class="saveable" name="hide_rewards" '+(dummy.hide_rewards ? 'checked' : '')+' /></label>';

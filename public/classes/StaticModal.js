@@ -372,8 +372,10 @@ export default class StaticModal{
 				range.on('input', updateButton);
 				updateButton();
 				sleepButton.on('click', () => {
+
 					game.sleep( game.getMyActivePlayer(), mesh.userData.dungeonAsset, +range.val() );
 					this.close();
+					
 				});
 				this.cancel.on('click', () => this.close());
 

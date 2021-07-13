@@ -28,7 +28,8 @@ export function asset(){
 	html += 'Item: <div class="asset"></div>';
 
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label title="Cost">Cost: <input type="number" min=1 step=1 name="amount" class="saveable" value="'+esc(dummy.amount)+'" /></label>';
 	html += '</div>';
 

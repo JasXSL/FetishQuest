@@ -26,7 +26,8 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Type: <select name="type" class="saveable">';
 		for( let i in QuestReward.Types )
 			html += '<option value="'+esc(QuestReward.Types[i])+'" '+(QuestReward.Types[i] === dummy.type ? 'selected' : '')+'>'+esc(i)+'</option>';

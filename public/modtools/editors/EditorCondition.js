@@ -46,7 +46,8 @@ export function asset(){
 
 	let html = '';
 
-	html += 'Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /><br />';
+	if( !asset._h && !asset._mParent )
+		html += 'Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /><br />';
 	html += 'Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /><br />';
 	html += 'Type: <select class="saveable" name="type">';
 	let typeNames = Object.keys(Condition.Types);

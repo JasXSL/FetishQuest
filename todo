@@ -9,6 +9,9 @@
 	Haunted house quest:
 		Todo:
 			- Add boss fight
+				- Boss gains +1 agi each turn
+				- You have 4 charges of smudge stick, these charges are shared between players
+				- Boss will "hunt" all players, can be taunted or interrupted.
 			- Add locked chest in the study
 			- Add quest completion on interacting with the chest
 			- Add custom haunted ambiance

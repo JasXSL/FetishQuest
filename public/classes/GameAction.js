@@ -732,8 +732,10 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.sleep ){
+
 			if( player.isLeader() )
 				StaticModal.set('sleepSelect', player, mesh);
+				
 		}
 
 		else if( this.type === types.addPlayer ){
@@ -997,7 +999,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.addPlayerTemplate] : '{player:(obj/str)template, nextTurn:(bool)=false} - If nextTurn is true, it adds the player on next turn instead of before the current player',
 	[GameAction.types.rentRoom] : '{cost:(int)copper, text:(str)rp, success_text:(str)successfully_rented_text, player:(str)label} - Draws the rent a room icon on a target.',
 	[GameAction.types.execRentRoom] : '{cost:(int)copper, success_text:(str)successfully_rented_text, renter:(str)renter_merchant_label} - Execs a room rental in this dungeon. This is generated automatically by above.',
-	[GameAction.types.sleep] : '{} - Used on a mesh to attach a sleep picker to it.',
+	[GameAction.types.sleep] : '{actions:(arr)game_actions} -  Used on a mesh to attach a sleep picker to it.',
 	[GameAction.types.resetRoleplay] : '{roleplay:(str)label} - Resets a roleplay. If no roleplay is provided and the gameEvent can parent up to a roleplay, it resets that one',
 	[GameAction.types.setDungeon] : '{dungeon:(str)dungeon, room:(int)index} - Sets the dungeon. If you leave out dungeon, it targets your active dungeon',
 	[GameAction.types.addFaction] : '{faction:(str)label, amount:(int)amount} - Adds or removes reputation',

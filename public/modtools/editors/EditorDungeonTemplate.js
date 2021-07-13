@@ -22,7 +22,8 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Allow up: <input type="checkbox" name="allowUp" class="saveable" '+(dummy.allowUp ? 'checked' : '')+' /></label>';
 		html += '<label>Allow down: <input type="checkbox" name="allowDown" class="saveable" '+(dummy.allowDown ? 'checked' : '')+' /></label>';
 		html += '<label>Levers: <input type="checkbox" name="levers" class="saveable" '+(dummy.levers ? 'checked' : '')+' /></label>';

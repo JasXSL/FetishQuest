@@ -1321,10 +1321,18 @@ export default class Modtools{
 		const self = this;
 		return Window.create("My Mods", "My Mods", "", "wireframe-globe", async function(){
 
-			const mods = await self.modRepo.listMyMods();
-
 			let html = '<div class="center">'+
 				'<h1>My Mods</h1>';
+
+			let mods = await self.modRepo.listMyMods();
+			if( !mods ){
+
+				html += '<p>You have been logged out, try logging in again.</p>';
+				this.setDom(html+'</div>');
+				return;
+
+			}
+
 				html += '<p>Here you can upload or update your mods to the official mod repo.</p>';
 				
 				html += '<label>Upload new mod: <input type="file" class="modUpload" data-token="_NEW_" accept=".fqmod"  /></label>';

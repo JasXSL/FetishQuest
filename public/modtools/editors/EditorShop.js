@@ -27,7 +27,8 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label>Buys: <input type="checkbox" class="saveable" name="buys" '+(dummy.buys ? 'checked' : '')+' /></label><br />';
 		html += '<label>Nr random armors to generate: <input type="number" step=1 min=0 class="saveable" name="gen_nr" value="'+esc(dummy.gen_nr)+'" /></label><br />';

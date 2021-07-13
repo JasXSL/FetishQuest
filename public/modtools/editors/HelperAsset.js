@@ -420,14 +420,20 @@ export default{
 			const tr = document.createElement("tr");
 			table.appendChild(tr);
 			tr.classList.add("noselect");
-			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'"><input type="button" class="small addNew" value="'+(single && !parented ? 'Replace' : 'Add')+'" /></td>';
+
+			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'">'+
+				'<input type="button" class="small addNew library" value="Library" />'+
+				'<input type="button" class="small addNew" value="Unique" />'+
+			'</td>';
 
 			
-			table.querySelector("input.addNew").onclick = event => {
+			table.querySelectorAll("input.addNew").forEach(el => el.onclick = event => {
+
+				const fromLibrary = event.target.classList.contains('library');
 
 				// If parented, insert a new asset immediately, as there's no point in listing assets that are only viable for this parent
 				// Holding shift key for a non-parent by default creates a parented one
-				if( (parented && !event.shiftKey) || (!parented && event.shiftKey) ){
+				if( !fromLibrary ){
 
 					let a = new constructor();
 					a = constructor.saveThis(a, "mod");
@@ -445,7 +451,7 @@ export default{
 				else
 					window.mod.buildAssetLinker( win, asset, fullKey, targetLibrary, single );
 
-			};
+			});
 		}
 
 		const clickListener = event => {

@@ -29,7 +29,8 @@ export function asset(){
 	let html = '';
 
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input name="name" value="'+esc(dummy.name)+'" type="text" class="saveable" /></label>';
 		html += '<label title="a/an, use \'some\' for things like swimtrunks that are plural. Empty auto generates but fails at words like unicorn that start with a vowel but still use a.">Shortname Article: <input name="snpre" value="'+esc(dummy.snpre)+'" type="text" class="saveable" /></label>';
 		html += '<label>Shortname: <input name="shortname" value="'+esc(dummy.shortname)+'" type="text" class="saveable" /></label>';

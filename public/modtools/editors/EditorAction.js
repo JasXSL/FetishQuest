@@ -28,7 +28,8 @@ export function asset(){
 	let html = '';
 
 	html += '<div class="labelFlex">';
-		html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
+		if( !asset._h && !asset._mParent )
+			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input name="name" value="'+esc(dummy.name)+'" type="text" class="saveable" /></label>';
 		html += '<label>Icon: <input name="icon" value="'+esc(dummy.icon)+'" type="text" class="saveable" /></label>';
 		html += '<label>AP: <input name="ap" value="'+esc(dummy.ap)+'" type="number" step=1 class="saveable" /></label>';
