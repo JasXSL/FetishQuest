@@ -155,9 +155,11 @@ export default class Player extends Generic{
 		if( data && data.class === null )
 			data.class = '';
 
+		/*
+		Not sure if this will break something
 		if( window.game && game.is_host && data )
 			delete data._tmp_actions;
-
+		*/
 		this.g_autoload(data);
 
 	}
@@ -167,7 +169,7 @@ export default class Player extends Generic{
 		this.g_rebase();	// Super
 
 		// only load tmp actions in a netgame (for ID mostly)
-		if( game && game !== true && !game.is_host && game.net.isConnected() )
+		//if( game && game !== true && !game.is_host && game.net.isConnected() )
 			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
 		
 		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
@@ -240,7 +242,7 @@ export default class Player extends Generic{
 			out.experience = this.experience;
 
 		// Should only be sent while we're hosting a netgame
-		if( window.game && game.net.isHostingNetgame() && !full )
+		//if( window.game && game.net.isHostingNetgame() && !full )
 			out._tmp_actions = Action.saveThese(this._tmp_actions);
 
 		// Assets are only sent if equipped, PC, or full
@@ -317,6 +319,7 @@ export default class Player extends Generic{
 			wrapper.bindEvents();
 		});
 		this._bound_wrappers = w;
+		Wrapper.checkAllStayConditions();
 
 	}
 
@@ -1316,9 +1319,12 @@ export default class Player extends Generic{
 		return out;
 	}
 	equipAsset( id, byPlayer ){
+
 		let assets = this.getAssetsInventory();
 		for(let asset of assets){
+
 			if(asset.id === id){
+
 				if( !asset.equippable() ){
 					console.error("Item can not be equipped");
 					return false;
@@ -1338,9 +1344,12 @@ export default class Player extends Generic{
 					game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
 				this.rebindWrappers();
 				return true;
+
 			}
+
 		}
 		return false;
+
 	}
 	unequipAsset( id, byPlayer ){
 
@@ -2826,16 +2835,31 @@ export default class Player extends Generic{
 		if( game._caches && this._cache_wrappers && !force )
 			return this._cache_wrappers;
 
-		let out = this.wrappers.concat(this.passives, game.encounter.passives.map(el => { 
-			/*
-			el = el.clone();
-			el.caster = '';
-			el.victim = this.id;
-			*/
-			el.victim = this.id;
-			return el;
+		const evt = new GameEvent({
+			target : this,
+			sender: this,
+			dungeon : game.dungeon,
+		});
 
-		}));
+		let out = this.wrappers.concat(
+			this.passives, 
+			game.encounter.passives.filter(el => {
+
+				return Condition.all(el.add_conditions || [], evt);
+
+			})
+			.map(el => { 
+				/*
+				el = el.clone();
+				el.caster = '';
+				el.victim = this.id;
+				*/
+				el.caster = this.id;
+				el.victim = this.id;
+				return el;
+
+			}));
+
 		for( let asset of this.assets ){
 			if( asset.equipped && asset.durability > 0 )
 				out = out.concat(asset.wrappers);

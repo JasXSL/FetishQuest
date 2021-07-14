@@ -329,11 +329,10 @@ export default class Modtools{
 					}, false);
 					
 				}
-				else if( button.dataset.id === "cheatSheet" ){
-
+				else if( button.dataset.id === "cheatSheet" )
 					this.drawCheatSheet();
-
-				}
+				else if( button.dataset.id === "notepad" )
+					this.drawNotepad();
 
 				else if( button.dataset.id === "online" ){
 					
@@ -556,6 +555,8 @@ export default class Modtools{
 
 	onWindowClosed( win ){
 
+		if( win.id === 'Notepad' && !this.loading )
+			delete localStorage.editorNotepadOpen;
 		if( !this.loading ){
 
 			this.window_states.delete(win.uniqid());
@@ -852,7 +853,8 @@ export default class Modtools{
 		await this.loadWindowStates();
 		this.sideMenu.classList.toggle("hidden", false);
 
-		
+		if( localStorage.editorNotepadOpen )
+			this.drawNotepad();
 
 		this.loading = false;
 
@@ -1486,6 +1488,32 @@ export default class Modtools{
 			self.saveWindowStates();
 		});
 
+
+	}	
+
+	drawNotepad(){
+
+		localStorage.editorNotepadOpen = 1;
+		const self = this;
+		const w = Window.create("Notepad", "Notes", "", "notebook", async function(){
+
+			let text = localStorage.editorNotepad || 'This is a basic notepad. It\'s bound to your browser, not your mod. Click anywhere to edit.';
+	
+			let html = '<pre style="position:absolute; top:-2%; left:1%; right:1%; bottom:-2%; overflow:auto; white-space: normal;" class="notepad" contenteditable>'+
+				esc(text, false)+
+			'</pre>';
+
+			this.setDom(html);
+
+			const notepad = this.dom.querySelector('pre.notepad');
+			notepad.addEventListener('input', () => {
+				localStorage.editorNotepad = notepad.innerText;
+			});
+
+			self.saveWindowStates();
+		});
+
+		return w;
 
 	}	
 

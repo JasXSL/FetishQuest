@@ -64,6 +64,7 @@ class Action extends Generic{
 		this.cast_time = 0;						// Set to > 0 to make this a charged spell needing this many turns to complete
 		this.ct_taunt = false;					// Taunt can override the charge target
 		this.charges = 1;						// Max charges for the action. Ignored if cooldown is 0
+		this.charges_perm = false;				// Charges do not re-add after cooldown.
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
 		this.no_interrupt = false;				// Charged action is not interruptable unless override is set
 		this.reset_interrupt = false;			// Reset cooldown when interrupted
@@ -115,6 +116,7 @@ class Action extends Generic{
 			cast_time : this.cast_time,
 			ct_taunt : this.ct_taunt,
 			charges : this.charges,
+			charges_perm : this.charges_perm,
 			allow_when_charging : this.allow_when_charging,
 			no_interrupt : this.no_interrupt,
 			show_conditions : Condition.saveThese(this.show_conditions, full),
@@ -131,11 +133,13 @@ class Action extends Generic{
 
 		// Everything but mod
 		if( full !== "mod" ){
+
 			out.id = this.id;
 			out._cooldown = this._cooldown;
 			out._cast_time = this._cast_time;
 			out._charges = this._charges;
 			out._cast_targets = this._cast_targets;
+
 		}
 
 		if( full ){
@@ -152,12 +156,14 @@ class Action extends Generic{
 	}
 
 	load(data){
+
 		this.g_autoload(data);
 		if( !Action.typeExists(this.type) )
 			this.type = Action.Types.physical;
 
 		if( this.max_charges === -1 )
 			this.charges = -1;
+
 	}
 
 	// Automatically invoked after g_autoload
@@ -278,14 +284,11 @@ class Action extends Generic{
 
 	onTurnStart(){
 
-		
-
 		this._cache_cooldown = false;
 
 		// Handle cooldown
 		if( this._cooldown )
-			this.addCooldown(-1);
-
+			this.addCooldown(-1, true);
 
 		// Handle charged spells
 		if( this._cast_time ){
@@ -309,18 +312,25 @@ class Action extends Generic{
 	
 
 	onBattleEnd(){
+
 		this._cooldown = 0;
 		this._charges = this.charges;
 		this._cast_time = 0;
+
 	}
 
 	onBattleStart(){
+
 		this._cache_cooldown = false;
 		this.onBattleEnd();
+
 		if( this.init_cooldown ){
+
 			this._charges = 0;
 			this._cooldown = this.init_cooldown+1;
+
 		}
+
 	}
 
 
@@ -336,7 +346,6 @@ class Action extends Generic{
 
 	getCooldown(){
 		
-
 		if( !isNaN(this.cooldown) )
 			return +this.cooldown;
 
@@ -371,13 +380,13 @@ class Action extends Generic{
 	}
 
 	// Adds or subtracts from cooldown
-	addCooldown( amount = -1 ){
+	addCooldown( amount = -1, fromTurnStart = false ){
 
 		if( this.getCooldown() === -1 )
 			return;
 
 		this._cooldown += amount;
-		if( this._cooldown <= 0 && this._charges < this.charges )
+		if( this._cooldown <= 0 && this._charges < this.charges && (!fromTurnStart || !this.charges_perm) )
 			this.consumeCharges(-1);
 		else if( this._cooldown <= 0 )
 			this._cooldown = 0;
@@ -402,7 +411,7 @@ class Action extends Generic{
 	}
 
 	hasEnoughCharge(){
-		return this.getCooldown() <= 0 || this._charges > 0;
+		return (this.getCooldown() <= 0 || this._charges > 0) && (!this.charges_perm || this._cooldown <= 0);
 	}
 
 	// Ends a charged cast

@@ -144,6 +144,9 @@ class Dungeon extends Generic{
 		for( let v in this._state.vars )
 			this.vars[v] = this._state.vars[v];
 
+		for( let room of this.rooms )
+			room.loadState();
+
 	}
 
 	getState(){
@@ -677,7 +680,17 @@ class DungeonRoom extends Generic{
 	}
 
 	// Loads room and encounter state
-	loadState( state ){
+	loadState(){
+
+		// Load dungeon room state
+		// Note: This also loads asset states in addition to encounter, so if you change this to not load encounter for some reason, you probably want to still load DungeonAssets
+		const st = this.parent._state;
+		let state;
+		if( st )
+			state = st.rooms['index_'+this.index];
+			
+		if( !state )
+			return;
 
 		const respawn = ~state.encounter_started && game.time-state.encounter_started > state.encounter_respawn && state.encounter_respawn;
 
@@ -692,8 +705,10 @@ class DungeonRoom extends Generic{
 		}
 
 		if( !respawn && state.encounter_started !== -1 ){
+
 			let enc = toArray(this.encounters);
 			enc.map(e => e.time_started = state.encounter_started);
+
 		}
 
 		if( state.encounter_friendly !== -1 && this.encounters instanceof Encounter && !respawn )
@@ -724,6 +739,7 @@ class DungeonRoom extends Generic{
 				continue;	// Don't load, it has expired. Let it stay the way it originally was.
 
 			}
+
 
 			cur.load(asset);
 
@@ -1149,6 +1165,36 @@ class DungeonRoom extends Generic{
 	/* EVENTS */
 	onVisit( player ){
 
+		
+		// Start a dummy encounter just to set the proper NPCs
+		if( Array.isArray(this.encounters) && !this.encounters.length ){
+
+			this.encounters = new Encounter({
+				completed : true,
+				id : '_BLANK_'
+			}, this);
+
+		}
+
+		// Pick a random encounter
+		if( !(this.encounters instanceof Encounter) ){
+
+			let viable = Encounter.getRandomViable(this.encounters);
+			if( !viable )
+				viable = new Encounter({
+					completed : true,
+					id : '_BLANK_'
+				}, this);
+			this.encounters = viable;
+
+
+		}
+
+		// Load state here as well as on dungeon state load in case of passed time
+		this.loadState();
+
+		// Code to run after state load:
+
 		// First visit
 		if( !this.discovered ){
 
@@ -1167,39 +1213,6 @@ class DungeonRoom extends Generic{
 		for( let asset of this.assets )
 			asset.onRoomVisit();
 
-		// Start a dummy encounter just to set the proper NPCs
-		if( Array.isArray(this.encounters) && !this.encounters.length ){
-
-			this.encounters = new Encounter({
-				completed : true,
-				id : '_BLANK_'
-			}, this);
-
-		}
-
-		if( !(this.encounters instanceof Encounter) ){
-
-			let viable = Encounter.getRandomViable(this.encounters);
-			if( !viable )
-				viable = new Encounter({
-					completed : true,
-					id : '_BLANK_'
-				}, this);
-			this.encounters = viable;
-
-			const st = this.parent._state;
-			if( st ){
-
-				const idx = st.rooms['index_'+this.index];
-				if( idx ){
-					// Need to load state here since it depends on an encounter being present
-					this.loadState(idx);
-
-				}
-
-			}
-
-		}
 
 		// An encounter is already running
 		game.startEncounter(player, this.encounters);
@@ -1272,9 +1285,8 @@ class DungeonRoomSaveState extends Generic{
 	assetModified( asset ){
 
 		let existing = this.assets[asset.id];
-		if( !existing ){
+		if( !existing )
 			this.assets[asset.id] = new DungeonRoomAssetSaveState({}, this.assets);
-		}
 		this.assets[asset.id].load(asset);
 
 	}

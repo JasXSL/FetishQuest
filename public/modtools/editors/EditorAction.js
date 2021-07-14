@@ -76,6 +76,7 @@ export function asset(){
 		html += '<label title="Repair uses this.">Hide from action selector: <input name="no_action_selector" '+(dummy.no_action_selector ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label>Do not generate text: <input name="no_use_text" '+(dummy.no_use_text ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label>No Interrupt: <input name="no_interrupt" '+(dummy.no_interrupt ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
+		html += '<label title="Makes nr of charges finite">Permanent Charges: <input name="charges_perm" '+(dummy.charges_perm ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Reset cooldown if interrupted">Reset Interrupt: <input name="reset_interrupt" '+(dummy.reset_interrupt ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Punishments use this">Hide if no viable targets: <input name="hide_if_no_targets" '+(dummy.hide_if_no_targets ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Lets you still use the ability if no targets pass wrapper filters">Cast if no viable wrapper: <input name="ignore_wrapper_conds" '+(dummy.ignore_wrapper_conds ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';

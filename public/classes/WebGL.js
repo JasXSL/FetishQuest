@@ -1922,11 +1922,13 @@ class Stage{
 			tagAlwaysVisible = true;
 		}
 		else if( sprite && linkedRoom ){
+			
 			sprite.material.opacity = 0;
 			if( !linkedRoom.discovered ){
 				tagAlwaysVisible = true;
 				sprite.material.opacity = 1;
 			}
+			
 		}
 
 		if( sprite && locked )

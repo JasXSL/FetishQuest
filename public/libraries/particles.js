@@ -2057,6 +2057,22 @@ particles.hitfx_healing_pulse = {
 	opacity: [1,0,Proton.ease.easeInCirc],
 };
 
+
+particles.hitfx_smoke = {
+	texture : textures.smoke,
+	blending : THREE.NormalBlending,
+	rate : 0.025,
+	count : 3,
+	position : new Proton.BoxZone(0,0,0,20,40,20),
+	size : [5,40],
+	part_max_age : 1,
+	velocity : new Proton.Span(0, 10),
+	gravity: -1,
+	color : "#666666",	
+	opacity: [0,0.5, Proton.ease.easeFullBridge],
+	rotation : [0,new Proton.Span(0,Math.PI*2)],
+};
+
 particles.get = function(id, mesh, debug = false){
 
 	const p = this[id];
