@@ -314,7 +314,7 @@ export default class Player extends Generic{
 	rebindWrappers(){
 
 		this.unbindWrappers();
-		let w = this.getWrappers();
+		let w = this.getWrappers();	// Otherwise items not equipped might cause procs
 		w.map(wrapper => {
 			wrapper.bindEvents();
 		});
@@ -953,7 +953,7 @@ export default class Player extends Generic{
 	}
 	onTurnEnd(){
 
-		const wrappers = this.getWrappers();
+		const wrappers = this.getWrappers(undefined, true);
 		for(let wrapper of wrappers)
 			wrapper.onTurnEnd();
 
@@ -974,13 +974,13 @@ export default class Player extends Generic{
 		
 
 		// Wipe turnTags on start
-		this._turn_tags = [];
+		this.resetTurnTags();
 
 		if( this.bot )
 			this.bot.onTurnStart();
 
 		
-		const wrappers = this.getWrappers();
+		const wrappers = this.getWrappers(undefined, true);
 		for(let wrapper of wrappers)
 			wrapper.onTurnStart();
 
@@ -1054,7 +1054,7 @@ export default class Player extends Generic{
 		for( let asset of this.assets )
 			asset.onBattleEnd();
 
-		let wrappers = this.getWrappers();
+		let wrappers = this.getWrappers(undefined, true);
 		for(let wrapper of wrappers)
 			wrapper.onBattleEnd();
 			
@@ -1093,7 +1093,7 @@ export default class Player extends Generic{
 	onTimePassed( delta ){
 		
 		// May need getWrappers()? But it's important that wrappers attached to assets also tick
-		this.wrappers.map(wrapper => wrapper.onTimePassed());
+		this.getWrappers(undefined, true).map(wrapper => wrapper.onTimePassed());
 		this.getAssets().map(asset => asset.onTimePassed());
 
 		// Out of combat regen
@@ -1216,6 +1216,10 @@ export default class Player extends Generic{
 				return;
 			}
 		}
+	}
+
+	resetTurnTags(){
+		this._turn_tags = [];
 	}
 
 
@@ -2856,7 +2860,8 @@ export default class Player extends Generic{
 
 
 	/* Wrappers */
-	getWrappers( force = false ){
+	// Force lets you override cache, if unequipped is true, it also uses asset-attached wrappers that aren't equipped
+	getWrappers( force = false, unequipped = false ){
 
 		if( !window.game )
 			return [];
@@ -2872,7 +2877,7 @@ export default class Player extends Generic{
 
 		let out = this.wrappers
 			.filter(el => {
-				if( !el.asset )
+				if( !el.asset || unequipped )
 					return true;
 				const asset = this.getAssetById(el.asset); 
 				return asset && asset.equipped;
@@ -2954,6 +2959,7 @@ export default class Player extends Generic{
 			if( this.wrappers[i] === wrapper ){
 
 				this.wrappers.splice(i, 1);
+				this.rebindWrappers();
 				return true;
 
 			}
@@ -2969,6 +2975,7 @@ export default class Player extends Generic{
 		wrapper.parent = this;
 		this.wrappers.push(wrapper);
 		this.handleWrapperStun(wrapper);
+		this.rebindWrappers();
 
 	}
 

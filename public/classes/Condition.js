@@ -1017,6 +1017,9 @@ export default class Condition extends Generic{
 
 			else if( this.type === T.actionRanged ){
 				success = event.action && event.action.ranged === Action.Range.Ranged;
+				// Special case to not allow "none" type range
+				if( event.action && event.action.ranged === Action.Range.None )
+					success = this.inverse;
 			}
 			else if( this.type === T.rainGreaterThan ){
 				const rain = game.getRain(this.data.allowIndoor);

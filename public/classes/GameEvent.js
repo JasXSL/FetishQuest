@@ -58,16 +58,12 @@ export default class GameEvent extends Generic{
 	// Chainable
 	raise(){
 
-		// Run the event
-		for( let binding of GameEvent.bindings ){
-			
-			if( binding.type === this.type || binding.type === GameEvent.Types.all ){
-
+		GameEvent.bindings
+			.filter(binding => binding.type === this.type || binding.type === GameEvent.Types.all)
+			.map(binding => {
 				binding.fn(this);
+			});
 
-			}
-
-		}
 		return this;
 
 	}
@@ -154,7 +150,8 @@ GameEvent.Types = {
 	
 	rpStage : 'rpStage',	// Roleplay stage changed		
 	textTrigger : 'textTrigger',
-	explorationComplete : 'explorationComplete',			
+	explorationComplete : 'explorationComplete',	
+	sleep : 'sleep',		
 };
 
 GameEvent.TypeDescs = {
@@ -164,6 +161,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.damageTaken] : 'sender, target, action, wrapper',
 	[GameEvent.Types.healingDone] : '',
 	[GameEvent.Types.healingTaken] : '',
+	[GameEvent.Types.sleep] : 'custom: {duration:(int)hours}',
 	[GameEvent.Types.interrupt] : 'A charged action was interrupted',			// 
 	[GameEvent.Types.inventoryChanged] : 'Inventory has changed',			// 
 	[GameEvent.Types.actionCharged] : 'Used a charged action',	// 

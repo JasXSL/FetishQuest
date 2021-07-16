@@ -865,6 +865,7 @@ export default class Game extends Generic{
 		}
 		
 		this.net.dmBlackScreen();
+		// Has a callback for when the screen is fully black
 		this.ui.toggleBlackScreen(() => {
 
 			this.addHours(duration);
@@ -891,9 +892,24 @@ export default class Game extends Generic{
 
 			}
 
+			// Trigger event here
+			new GameEvent({
+				type:GameEvent.Types.sleep, 
+				sender:player, 
+				target:this.getEnabledPlayers(), 
+				custom:{duration:duration}
+			}).raise();
+
+			// Reset turn tags
+			for( let p of pl ){
+				p.resetTurnTags();
+			}
+
 		});
 		this.ui.addText("You rest for "+duration+" hour"+(duration !== 1 ? 's' : '')+".", "sleep", player.id, player.id, 'sleep');
 		
+		
+
 	}
 
 

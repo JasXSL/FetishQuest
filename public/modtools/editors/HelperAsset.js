@@ -484,7 +484,7 @@ export default{
 
 					// Assets in lists are always strings, only the official mod can use objects because it's hardcoded
 					// If this table has a parenting relationship (see Mod.js), gotta remove it from the DB too
-					if( asset._h || asset._mParent )
+					if( asset && (asset._h || asset._mParent) )
 						MOD.deleteAsset(targetLibrary, entry, true);
 
 				}
