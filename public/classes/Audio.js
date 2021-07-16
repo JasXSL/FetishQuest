@@ -36,18 +36,23 @@ class Audio{
 	}
 
 	async play( url, volume = 1.0, loop = false, x = 0, y = 0, z = -1 ){
-		let sound = await new AudioSound({
-			loop:loop,
-			path : url,
-			volume : volume,
-			position : {
-				x : x,
-				y : y,
-				z : z
-			}
-		}, this).load();
-		sound.play();
-
+		let sound;
+		try{
+			sound = await new AudioSound({
+				loop:loop,
+				path : url,
+				volume : volume,
+				position : {
+					x : x,
+					y : y,
+					z : z
+				}
+			}, this).load();
+			
+			sound.play();
+		}catch(err){
+			console.error("Unable to play", url);
+		}
 		return sound;
 	}
 
@@ -146,8 +151,12 @@ class AudioSound{
 
 		if( !this.loaded )
 			return console.error("Trying to play unloaded sound", this);
-		this.source.start(this.currentTime());
 
+		try{
+			this.source.start(this.currentTime());
+		}catch(err){
+			console.error("Failed to play audio", this);
+		}
 	}
 
 	load(){

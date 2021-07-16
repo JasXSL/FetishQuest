@@ -308,6 +308,27 @@ export function asset(){
 		};
 
 	}
+	else if( type === types.assetTag ){
+
+		setDefaultData({
+			tags : [],
+			all : false,
+		});
+
+
+
+		html += '<div name="tags">'+HelperTags.build(asset.data.tags)+'</div>';
+		html += '<div class="labelFlex">';
+			html += '<label>Require all: <input type="checkbox" name="data::all" class="saveable" '+(asset.data.all ? 'checked' : '')+'" /></label>';
+		html += '</div>';
+
+		fnBind = () => {
+			HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
+				HelperTags.autoHandleAsset('data::tags', tags, asset);
+			});
+		};
+
+	}
 	else if( type === types.actionType ){
 		
 		setDefaultData({

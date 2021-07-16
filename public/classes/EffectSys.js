@@ -853,6 +853,7 @@ class Effect extends Generic{
 	// WrapperReturn lets you put data into the wrapper trigger return object 
 	trigger( event, template, wrapperReturn, debug ){
 
+		debug = debug || this.debug;
 
 		const wrapper = this.parent;
 
@@ -916,7 +917,7 @@ class Effect extends Generic{
 			effect : this,
 		}).raise();
 
-		if( debug || this.debug )
+		if( debug )
 			console.debug("Allowed ", this, "to trigger", event);
 
 		for( let t of tout ){
@@ -1359,7 +1360,7 @@ class Effect extends Generic{
 				let assets = t.assets.filter(el => {
 
 					tmpEvt.asset = el;
-					return (el.equipped || !this.data.unequipped) && Condition.all(conds, tmpEvt);
+					return (el.equipped || this.data.unequipped) && Condition.all(conds, tmpEvt);
 
 				});
 
@@ -1376,6 +1377,9 @@ class Effect extends Generic{
 
 				}
 
+				if( debug )
+					console.debug("Attaching wrappers to asset >> Max", max, "viable assets", assets, ":");
+
 				// Attach the asset wrappers to the player
 				for( let asset of assets ){
 
@@ -1385,8 +1389,13 @@ class Effect extends Generic{
 						wr.asset = asset.id;
 						wr.label = wr.label+'_'+asset.id;
 						tmpEvt.asset = asset;
-						if( wr.testAgainst(tmpEvt, false, debug) )
+						if( wr.testAgainst(tmpEvt, false, debug) ){
 							wr.useAgainst(s, t, false);
+							if( debug )
+								console.debug("used", wr, "against asset", asset, "owned by", t);
+						}
+						else if( debug )
+							console.debug("Failed to validate conditions", tmpEvt.clone(), wr, "to", asset);
 
 					}
 
@@ -2165,6 +2174,7 @@ Effect.Types = {
 	disableActions : 'disableActions',
 
 	actionApCost : 'actionApCost',
+	actionCastTime : 'actionCastTime',
 
 	summonAsset : 'summonAsset',
 		
@@ -2217,6 +2227,7 @@ Effect.Passive = {
 	[Effect.Types.allowReceiveSpells] : true,
 	[Effect.Types.disableActions] : true,
 	[Effect.Types.actionApCost] : true,
+	[Effect.Types.actionCastTime] : true,
 	[Effect.Types.tieToRandomBondageDevice] : true,
 		
 
@@ -2317,6 +2328,7 @@ Effect.TypeDescs = {
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
 	[Effect.Types.actionApCost] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false} - Alters or sets the AP cost of one or more actions. Actions affected are checked by conditions.',
+	[Effect.Types.actionCastTime] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false, multiplier:(bool)is_multiplier=false} - Alters or sets the cast time of one or more actions. Actions affected are checked by conditions.',
 	
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
 	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',

@@ -148,6 +148,26 @@ export default class Condition extends Generic{
 
 	}
 
+	compareTags( searchFor, inArray, requireAll = false){
+
+		searchFor = toArray(searchFor);
+		if( !Array.isArray(inArray) )
+			return false;
+
+		for( let tag of searchFor ){
+
+			const has = inArray.includes(tag);
+			if( has && !requireAll )
+				return true;
+			if( !has && requireAll )
+				return false;
+
+		}
+
+		return Boolean(requireAll);
+
+	}
+
 	// Checks through argsObj and tests if the values are the same as tested's corresponding values
 	objIs( tested, argsObj ){
 		for( let i in argsObj ){
@@ -847,6 +867,12 @@ export default class Condition extends Generic{
 
 			}
 
+			else if( this.type === T.assetTag ){
+
+				success = event.asset && this.compareTags(this.data.tags, event.asset.getTags(), this.data.all);
+
+			}
+
 			else if( this.type === T.defeated ){
 				if( !t || !t.isDead )
 					console.error(t, "doesn't have an isDead function in event", event, "(condition)", this);
@@ -1236,6 +1262,7 @@ Condition.Types = {
 	assetStealable : 'assetStealable',
 	assetSlot : 'assetSlot',
 	assetEquipped : 'assetEquipped',
+	assetTag : 'assetTag',
 
 	hasFreeBondageDevice : 'hasFreeBondageDevice',
 
@@ -1374,6 +1401,7 @@ Condition.descriptions = {
 	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
 	[Condition.Types.assetSlot] : '{slots:(str/arr)slots} - Requires asset in event. Checks whether asset is equipped to at least one of these slots, from Asset.Slots',
+	[Condition.Types.assetTag] : '{tags:(str/arr)tags, all:(bool)false} - Requires asset in event. Checks if asset has one of these tags, or all if all is true.',
 	[Condition.Types.assetEquipped] : '{} - Requires asset in event. Checks if said asset is equipped.',
 	[Condition.Types.hasFreeBondageDevice] : '{} - Checks if there\'s at least one free bondage device in the dungeon. See mBondage in stdTag.js',
 	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/int/undefined=-1)} - Requires Text in event. If originalwrapper is unset or -1, it uses both. Checks if the text object has one or more meta tags. ORed unless ALL is set.',

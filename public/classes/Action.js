@@ -551,6 +551,7 @@ class Action extends Generic{
 	}
 
 	getApCost(){
+
 		const pl = this.getPlayerParent();
 		let out = this.ap;
 		const evt = new GameEvent({sender:pl, target:pl, action:this});
@@ -580,6 +581,46 @@ class Action extends Generic{
 			out = 1;
 			
 		out = Math.max(this.min_ap, out);
+		return Calculator.run(out, evt);
+
+	}
+
+	getCastTime(){
+		
+		const pl = this.getPlayerParent();
+		let out = this.cast_time;
+		const evt = new GameEvent({sender:pl, target:pl, action:this});
+		
+		// Hidden can't have cast time altered
+		if( pl && !this.hidden ){
+
+			const effects = pl.getActiveEffectsByType(Effect.Types.actionCastTime);
+			let add = 0, multi = 1;
+
+			for( let effect of effects ){
+
+				const conditions = toArray(effect.data.conditions);
+				if( Condition.all(conditions, evt) ){
+
+					const amt = Calculator.run(effect.data.amount, new GameEvent({sender:pl, target:pl, action:this}));
+					if( effect.data.set ) 
+						out = amt;
+					else if( effect.data.multiplier )
+						multi *= amt;
+					else
+						add += amt;
+
+				}
+
+			}
+
+			out = Math.round(out * multi + add);
+
+		}
+
+		if( isNaN(out) )
+			out = 0;
+			
 		return Calculator.run(out, evt);
 
 	}
@@ -678,9 +719,9 @@ class Action extends Generic{
 		}
 
 		// Charged actions
-		if( this.cast_time > 0 && !isChargeFinish ){
+		if( this.getCastTime() > 0 && !isChargeFinish ){
 
-			this._cast_time = this.cast_time;
+			this._cast_time = this.getCastTime();
 			this._cast_targets = targets.map(t => t.id);
 			// AP and charges are consumed immediately, but MP is consumed when it succeeds
 			sender.addAP(-this.getApCost());
@@ -785,7 +826,7 @@ class Action extends Generic{
 
 			}
 
-			if( this.cast_time )
+			if( this.getCastTime() )
 				sender.rebindWrappers();
 
 				
@@ -853,6 +894,8 @@ class Action extends Generic{
 		if( !isNaN(apOverride) )
 			ap = apOverride;
 
+		const ct = this.getCastTime();
+
 		html+= '<div class="stats">';
 			html += '<span style="color:'+Action.typeColor(this.type)+'">'+this.type+'</span>';
 			if( this.ranged !== Action.Range.None )
@@ -863,8 +906,8 @@ class Action extends Generic{
 				html += '<span style="color:#FFD">'+this.getCooldown()+' Round Cooldown</span>';
 			if( this.isAssetAction() )
 				html += '<span style="color:#FFF">'+this.parent.getWeightReadable()+'</span>';
-			if( this.cast_time )
-				html += '<span style="color:#FDD"><strong>Charged '+this.cast_time+' turn'+(this.cast_time !== 1 ? 's' : '')+'</strong></span>';
+			if( ct )
+				html += '<span style="color:#FDD"><strong>Charged '+ct+' turn'+(ct !== 1 ? 's' : '')+'</strong></span>';
 			if( ap )
 				html += '<span style="color:#DFD">'+ap+' AP</span>';
 			if( this.mp )
