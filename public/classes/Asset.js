@@ -35,6 +35,7 @@ export default class Asset extends Generic{
 			wrappers : Wrapper,
 			use_action : Action,
 			game_actions : GameAction,
+			actives : Wrapper,
 		};
 	}
 
@@ -56,6 +57,7 @@ export default class Asset extends Generic{
 		this.equip_conditions = [];		// Todo: Implement this?
 		this.tags = [];					// Prefixed with AS_, use getTags
 		this.wrappers = [];				// Passive effects
+		this.actives = [];				// Active wrappers with timers etc
 		this.level = 1;
 		this.durability_bonus = 0;
 		this.durability = this.getMaxDurability();
@@ -79,6 +81,7 @@ export default class Asset extends Generic{
 		this.basevalue = 0;				// Store value in copper. 0 = no sell
 		this.expires = 0;				// Lets an item expire, deleting it after time has passed in game.
 		this.rem_unequip = false;		// Remove this on unequip
+
 
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
@@ -136,6 +139,7 @@ export default class Asset extends Generic{
 			game_actions: GameAction.saveThese(this.game_actions, full),
 			fitted : this.fitted,
 			mastercrafted : this.mastercrafted,
+			actives : Wrapper.saveThese(this.actives, full),
 		};
 
 
@@ -156,6 +160,10 @@ export default class Asset extends Generic{
 		return out;
 
 	}
+
+	onBattleEnd(){
+	}
+
 
 	// Automatically invoked after g_autoload
 	rebase(){

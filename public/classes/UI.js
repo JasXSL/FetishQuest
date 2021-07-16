@@ -1444,12 +1444,20 @@ export default class UI{
 
 			}
 			
-			const tooltip = 
+			let tooltip = 
 				'<strong>'+esc(wrapper.name)+'</strong><br />'+
 				'<em>'+
 					durText+
-					(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' )+
-				'</em><br />'+
+					(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' );
+			if( wrapper.asset ){
+
+				const asset = p.getAssetById(wrapper.asset);
+				if( asset )
+					tooltip += ' | Attached to '+asset.name;
+
+			}
+
+			tooltip += '</em><br />'+
 				stylizeText(esc(wrapper.getDescription()));
 			if( elTooltip.html() !== tooltip )
 				elTooltip.html(tooltip);

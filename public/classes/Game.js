@@ -1930,7 +1930,17 @@ export default class Game extends Generic{
 		let text = fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName()+(!asset.stacking ? " their " : " "+amount+"x ")+asset.name+"!";
 		this.ui.addText( text, undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
 		
+		const assetWrappers = fromPlayer.getAssetWrappers(asset.id).map(el => {
+			el = el.clone();
+			// Prepare asset for move
+			el.victim = toPlayer.id;
+			el.parent = toPlayer;
+			return el;
+		});
 		toPlayer.addAsset(asset, amount, true);
+		for( let wrapper of assetWrappers )
+			toPlayer.addWrapper(wrapper);
+		
 		fromPlayer.destroyAsset(asset.id, amount);
 		if( this.battle_active )
 			fromPlayer.addAP(-3);	

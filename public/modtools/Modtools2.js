@@ -1499,15 +1499,31 @@ export default class Modtools{
 
 			let text = localStorage.editorNotepad || 'This is a basic notepad. It\'s bound to your browser, not your mod. Click anywhere to edit.';
 	
-			let html = '<pre style="position:absolute; top:-2%; left:1%; right:1%; bottom:-2%; overflow:auto; white-space: normal;" class="notepad" contenteditable>'+
+			let html = '<pre style="position:absolute; top:-2%; left:1%; right:1%; bottom:-2%; overflow:auto; tab-size:4" class="notepad" contenteditable>'+
 				esc(text, false)+
 			'</pre>';
 
 			this.setDom(html);
 
 			const notepad = this.dom.querySelector('pre.notepad');
-			notepad.addEventListener('input', () => {
+			notepad.addEventListener('input', e => {
 				localStorage.editorNotepad = notepad.innerText;
+			});
+
+			notepad.addEventListener('keydown', e => {
+				if( e.which === 9 ){
+					e.preventDefault();
+
+					const sel = window.getSelection();
+					if( sel && sel.getRangeAt && sel.rangeCount ){
+
+						const range = sel.getRangeAt(0);
+						range.deleteContents();
+						range.insertNode( document.createTextNode('\t') );
+						sel.modify("move", "right", "character");
+						
+					}
+				}
 			});
 
 			self.saveWindowStates();

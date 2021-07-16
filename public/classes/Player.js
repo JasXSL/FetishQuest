@@ -1049,7 +1049,10 @@ export default class Player extends Generic{
 			// Purge the wrapper
 			wrapper.unbindEvents();
 
-		});			
+		});
+
+		for( let asset of this.assets )
+			asset.onBattleEnd();
 
 		let wrappers = this.getWrappers();
 		for(let wrapper of wrappers)
@@ -1089,7 +1092,8 @@ export default class Player extends Generic{
 
 	onTimePassed( delta ){
 		
-		this.getWrappers().map(wrapper => wrapper.onTimePassed());
+		// May need getWrappers()? But it's important that wrappers attached to assets also tick
+		this.wrappers.map(wrapper => wrapper.onTimePassed());
 		this.getAssets().map(asset => asset.onTimePassed());
 
 		// Out of combat regen
@@ -1436,12 +1440,20 @@ export default class Player extends Generic{
 		}
 		return out;
 	}
-	destroyAsset(id, amount){
+
+	destroyAsset( id, amount ){
+
 		if( id instanceof Asset )
 			id = id.id;
+
+		
+		this.getAssetWrappers(id).map(el => el.remove());
+
 		for(let i in this.assets){
+
 			let asset = this.assets[i];
 			if(asset.id === id){
+
 				if( Math.floor(amount) && asset.stacking )
 					asset._stacks -= amount;
 				if( !amount || !this.assets[i].stacking || asset._stacks <= 0 )
@@ -1449,14 +1461,28 @@ export default class Player extends Generic{
 				this.raiseInvChange();
 				this.rebindWrappers();
 				return true;
+
 			}
+
 		}
+
 		return false;
+
+	}
+
+	// Gets wrappers attached to an asset we own by asset id
+	getAssetWrappers( id ){
+
+		return this.wrappers.filter(wr => wr.asset && wr.asset === id);
+
 	}
 
 	destroyAssetsByLabel( label, amount = 1 ){
+
 		for( let asset of this.assets ){
-			if( asset.label === label ){			
+
+			if( asset.label === label ){	
+
 				let nrToRemove = !asset.stacking ? 1 : asset._stacks;
 				if( nrToRemove > amount )
 					nrToRemove = amount;
@@ -1464,8 +1490,11 @@ export default class Player extends Generic{
 				amount -= nrToRemove;
 				if( amount < 1 )
 					return;
+
 			}
+
 		}
+
 	}
 
 	// Transfers an asset to a player. Player is a player object
@@ -2841,28 +2870,42 @@ export default class Player extends Generic{
 			dungeon : game.dungeon,
 		});
 
-		let out = this.wrappers.concat(
-			this.passives, 
-			game.encounter.passives.filter(el => {
-
-				return Condition.all(el.add_conditions || [], evt);
-
+		let out = this.wrappers
+			.filter(el => {
+				if( !el.asset )
+					return true;
+				const asset = this.getAssetById(el.asset); 
+				return asset && asset.equipped;
 			})
-			.map(el => { 
-				/*
-				el = el.clone();
-				el.caster = '';
-				el.victim = this.id;
-				*/
-				el.caster = this.id;
-				el.victim = this.id;
-				return el;
+			.concat(
+				this.passives, 
+				game.encounter.passives.filter(el => {
 
-			}));
+					return Condition.all(el.add_conditions || [], evt);
+
+				})
+				.map(el => { 
+					/*
+					el = el.clone();
+					el.caster = '';
+					el.victim = this.id;
+					*/
+					el.caster = this.id;
+					el.victim = this.id;
+					return el;
+
+				})
+			);
 
 		for( let asset of this.assets ){
-			if( asset.equipped && asset.durability > 0 )
-				out = out.concat(asset.wrappers);
+
+			if( asset.equipped ){
+
+				if( asset.durability > 0 )
+					out = out.concat(asset.wrappers);
+
+			}
+
 		}
 
 		// Note: temp actions can't have passives for recursion reasons
@@ -2925,11 +2968,15 @@ export default class Player extends Generic{
 
 		wrapper.parent = this;
 		this.wrappers.push(wrapper);
-		let isStun = wrapper.getEffects({ type:Effect.Types.stun });
-		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) ){
-			this._stun_diminishing_returns += wrapper._duration*2;
+		this.handleWrapperStun(wrapper);
 
-		}
+	}
+
+	handleWrapperStun( wrapper ){
+
+		let isStun = wrapper.getEffects({ type:Effect.Types.stun });
+		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) )
+			this._stun_diminishing_returns += wrapper._duration*2;
 		if( isStun.length )
 			this.interrupt( wrapper.getCaster(), true );
 

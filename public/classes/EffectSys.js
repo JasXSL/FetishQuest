@@ -46,7 +46,7 @@ class Wrapper extends Generic{
 		this.detrimental = true;
 		this.trigger_immediate = false;			// Trigger immediate if it's a duration effect
 		this.ext = false;						// Makes the timer count use in game time intead of combat arounds, and makes it persist outside of combat. Duration becomes time in seconds.
-
+		this.asset = '';						// Bound to this asset id
 
 		this.tick_on_turn_start = true;			// Tick on turn start
 		this.tick_on_turn_end = false;			// Tick on turn end
@@ -67,6 +67,7 @@ class Wrapper extends Generic{
 	}
 
 
+
 	// Data that should be saved to drive
 	save( full ){
 
@@ -85,6 +86,7 @@ class Wrapper extends Generic{
 				label : this.label,
 				duration : this.duration,
 				ext : this.ext,
+				
 			};
 			
 
@@ -106,6 +108,7 @@ class Wrapper extends Generic{
 
 			if( full !== "mod" ){
 				
+				out.asset = this.asset;
 				out.id = this.id;
 				out._duration = this._duration;
 				out.victim = this.victim;
@@ -188,6 +191,12 @@ class Wrapper extends Generic{
 
 	/*	Returns an object on success:
 		See out
+		caster_player = person who casted
+		player = victim
+		isTick = triggered through a turn tick
+		isChargeFinish = used for conditions
+		netPlayer = netgame owner, used for wrappers that require additional netgame input, such as repair
+		crit = was critical hit
 	*/
 	useAgainst( caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined, crit = false ){
 		
@@ -266,7 +275,6 @@ class Wrapper extends Generic{
 				continue;
 
 			}
-
 
 			// Add
 			if( obj.duration && !isTick ){
@@ -503,6 +511,7 @@ class Wrapper extends Generic{
 		%target = target name
 	*/
 	getDescription(){
+
 		let out = this.description;
 		let knockdown = 'stomach';
 		for( let effect of this.effects ){
@@ -781,7 +790,7 @@ class Effect extends Generic{
 		if( !Effect.Types[this.type] )
 			console.error("Unknown effect type", this.type, "in", this);
 
-		if( this.type === Effect.Types.runWrappers && Array.isArray(this.data.wrappers) ){
+		if( [Effect.Types.runWrappers, Effect.Types.assetWrappers].includes(this.type) && Array.isArray(this.data.wrappers) ){
 			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
 		}
 		
@@ -1332,6 +1341,58 @@ class Effect extends Generic{
 				}
 
 			}
+			else if( this.type === Effect.Types.assetWrappers ){
+				
+				
+				let wrappers = this.data.wrappers;
+				if( !Array.isArray(wrappers) ){
+
+					console.error("Effect data in wrapper ", wrapper, "tried to run wrappers, but wrappers are not defined in", this);
+					return false;
+
+				}
+
+				const conds = this.data.conditions || [];
+				const tmpEvt = new GameEvent({sender:s, target:t, dungeon:game.dungeon, room:game.dungeon.getActiveRoom()});
+
+				// Check for viable assets
+				let assets = t.assets.filter(el => {
+
+					tmpEvt.asset = el;
+					return (el.equipped || !this.data.unequipped) && Condition.all(conds, tmpEvt);
+
+				});
+
+				if( this.data.random )
+					shuffle(assets);
+
+				
+				let max = parseInt(this.data.max);
+				if( max > 0 || this.data.max === undefined ){
+
+					if( !max )
+						max = 1;
+					assets = assets.slice(0, max);
+
+				}
+
+				// Attach the asset wrappers to the player
+				for( let asset of assets ){
+
+					for( let w of this.data.wrappers ){
+
+						let wr = new Wrapper(w, wrapper.parent);
+						wr.asset = asset.id;
+						wr.label = wr.label+'_'+asset.id;
+						tmpEvt.asset = asset;
+						if( wr.testAgainst(tmpEvt, false, debug) )
+							wr.useAgainst(s, t, false);
+
+					}
+
+				}
+
+			}
 
 			else if( this.type === Effect.Types.disrobe ){
 
@@ -1864,9 +1925,13 @@ class Effect extends Generic{
 		if( !Effect.Passive[this.type] )
 			return false;
 		if(
+			// Auto target, checks if victim is id
 			(~this.targets.indexOf(Wrapper.Targets.auto) && this.parent.victim === player.id) ||
+			// Caster target, checks if caster is player id
 			(~this.targets.indexOf(Wrapper.Targets.caster) && this.parent.caster === player.id) ||
+			// AOE, affects everyone
 			~this.targets.indexOf(Wrapper.Targets.aoe) ||
+			// Bound to encounter
 			this.parent.parent instanceof Encounter
 		){
 			
@@ -2059,7 +2124,8 @@ Effect.Types = {
 
 	healAggroMultiplier : 'healAggroMultiplier',
 
-	runWrappers : "runWrappers",			
+	runWrappers : "runWrappers",		
+	assetWrappers : "assetWrappers",	
 
 	disrobe : "disrobe",
 	steal : "steal",
@@ -2230,6 +2296,7 @@ Effect.TypeDescs = {
 	[Effect.Types.bonCorruption] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 
 	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. ',
+	[Effect.Types.assetWrappers] : '{wrappers:(arr)wrappers, conditions:(arr)asset_conditions, max:(int)max_assets=1, random=true, unequipped=false} - Adds wrappers and attaches them to assets that pass conditions filters. Wrapper conditions are also checked before allowing them through. If unequipped is true, it also allows unequipped assets.',
 
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
 	[Effect.Types.steal] : '{conditions:(arr)conditions, num_items:(str/int)nr_items_to_steal=1} - Steals one or many random items from your target. Conditions are run against an event with asset, wrapper, effect, sender, target',
