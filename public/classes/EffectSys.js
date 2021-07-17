@@ -2115,6 +2115,7 @@ Effect.Types = {
 
 	carryModifier : "carryModifier",	
 
+	expMod : "expMod",
 
 	svPhysical : 'svPhysical',				
 	svElemental : 'svElemental',			
@@ -2199,6 +2200,7 @@ Effect.Passive = {
 	[Effect.Types.carryModifier] : true,
 	[Effect.Types.addTags] : true,
 	[Effect.Types.addRandomTags] : true,
+	[Effect.Types.expMod] : true,
 
 	[Effect.Types.svPhysical] : true,
 	[Effect.Types.svElemental] : true,
@@ -2257,6 +2259,7 @@ Effect.TypeDescs = {
 	[Effect.Types.setArousal] : "{amount:(str)(nr)amount} - Sets arousal value",				
 	[Effect.Types.setAP] : "{amount:(str)(nr)amount} - Sets AP value",							
 	
+	[Effect.Types.expMod] : "{amount:(nr)multiplier} - Multiplier against experience gain",							
 	
 	[Effect.Types.interrupt] : "{force:false} - Interrupts all charged actions. If force is true, it also interrupts non-interruptable spells (useful for boss abilities).",							
 	[Effect.Types.blockInterrupt] : "void - Prevents normal interrupt effects",							

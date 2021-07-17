@@ -1336,7 +1336,7 @@ function build(){
 						libMat.Cloth.Thick,
 						libMat.Cloth.Sheet,
 					],
-					tags : [stdTag.mTable],
+					tags : [],
 
 
 					

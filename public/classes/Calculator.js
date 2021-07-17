@@ -13,8 +13,8 @@ Calculator.debug = false;
 
 Calculator.run = function( formula, event, customMathVars ){
 
-	if( this.debug )
-		console.log("Formula", formula, isNaN(formula));
+	//if( this.debug )
+	//	console.debug("Formula", formula, isNaN(formula));
 
 	// This is already a number
 	if( !isNaN(formula) )
@@ -28,9 +28,11 @@ Calculator.run = function( formula, event, customMathVars ){
 	// Vars from game
 	let vars = game.getMathVars();
 
-	if( customMathVars && customMathVars.constructor === Object ){
+	if( customMathVars && typeof customMathVars === "object" ){
+
 		for( let i in customMathVars )
 			vars[i] = customMathVars[i];
+
 	}
 
 	if( event.target && !event.target.appendMathVars )

@@ -615,7 +615,7 @@ export default class Condition extends Generic{
 				success = t && this.compareValue(s, t, t.ap);
 			}
 			else if( this.type === T.mpValue )
-				success = t && this.compareValue(s, t, t.mp);
+				success = t && this.compareValue(s, t, t.mp, debug);
 
 			else if( this.type === T.hpValue ){
 				success = t && this.compareValue(s, t, t.hp);
@@ -623,27 +623,27 @@ export default class Condition extends Generic{
 			else if( this.type === T.copperValue )
 				success = t && this.compareValue(s, t, t.getMoney());
 			else if( this.type === T.sadism ){
-				success = t && this.compareValue(s, t, t.sadistic);
+				success = t && this.compareValue(s, t, t.sadistic, debug);
 			}
 			else if( this.type === T.dom ){
-				success = t && this.compareValue(s, t, t.dominant);
+				success = t && this.compareValue(s, t, t.dominant, debug);
 			}
 			else if( this.type === T.hetero ){
-				success = t && this.compareValue(s, t, t.hetero);
+				success = t && this.compareValue(s, t, t.hetero, debug);
 			}
 			else if( this.type === T.intelligence )
-				success = t && this.compareValue(s, t, t.intelligence);
+				success = t && this.compareValue(s, t, t.intelligence, debug);
 			else if( this.type === T.sizeValue )
-				success = t && this.compareValue(s, t, t.size);
+				success = t && this.compareValue(s, t, t.size, debug);
 			else if( this.type === T.targetLevel )
-				success = t && this.compareValue(s, t, t.level);
+				success = t && this.compareValue(s, t, t.level, debug);
 			else if( this.type === T.genitalSizeValue ){
 				let gen = this.data.genital;
 				if( !t || [stdTag.breasts, stdTag.butt, stdTag.penis].indexOf(gen) === -1 )
 					success = false;
 				else{
 					let size = t.getGenitalSizeValue(gen);
-					success = this.compareValue(s, t, size);
+					success = this.compareValue(s, t, size, debug);
 				}
 			}
 

@@ -1834,13 +1834,22 @@ export default class Player extends Generic{
 
 	// adds experience and returns levels gained
 	addExperience( points ){
-		points = Math.round(points);
-		if( isNaN(points) ){
+
+		points = points*this.getGenericAmountStatMultiplier(Effect.Types.expMod);
+
+		if( !points ){
+
 			console.error("Trying to add NaN experience");
 			return false;
+
 		}
 
+		if( Math.random() < points-Math.floor(points) )
+			++points;
+
+		points = Math.floor(points);
 		this.experience += Math.floor(points);
+		
 		if( this.level === Player.MAX_LEVEL )
 			this.experience = 0;
 		
@@ -2174,6 +2183,7 @@ export default class Player extends Generic{
 		
 	}
 
+	// Player is only used when checking caster only
 	getGenericAmountStatMultiplier( type, player ){
 		let w = this.getActiveEffectsByType(type),
 			out = 1
@@ -2183,6 +2193,7 @@ export default class Player extends Generic{
 		// Some effects are ALWAYS multiplicative, so they can be included here
 		const ALWAYS_MULTIPLY = [
 			Effect.Types.critDoneMod,
+			Effect.Types.expMod
 		];
 		
 		for( let effect of w ){

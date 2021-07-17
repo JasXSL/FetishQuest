@@ -900,10 +900,37 @@ export default class Game extends Generic{
 				custom:{duration:duration}
 			}).raise();
 
-			// Reset turn tags
+			// Handle rested bonus
+			const baseDur = duration*3600;
+			
+			
 			for( let p of pl ){
+
+				// Reset turn tags
 				p.resetTurnTags();
+
+				// Handle rested bonus
+				let existing = p.getWrapperByLabel('_RESTED_');
+				if( existing )
+					existing.remove();
+				
+				const lib = glib.get('_RESTED_', 'Wrapper').clone();
+				if( lib ){
+
+					lib.useAgainst(p, p, false);
+
+					console.log(existing, baseDur);
+					let time = Math.min(36000, baseDur + (existing ? existing._duration : 0));
+					existing = p.getWrapperByLabel('_RESTED_');
+					existing._duration = existing.duration = time;
+
+				}
+
 			}
+
+			this.ui.draw();
+
+			
 
 		});
 		this.ui.addText("You rest for "+duration+" hour"+(duration !== 1 ? 's' : '')+".", "sleep", player.id, player.id, 'sleep');
