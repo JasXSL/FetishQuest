@@ -123,9 +123,9 @@ function labelToName( label ){
 	return label.split(/[_\s]+/).map(el => ucFirst(el)).join(' ');
 }
 
-// Converts one or more vars into an array if it's not already
+// Converts one or more vars into an array if it's not already. Note: An undefined or null first arg will return an empty array
 function toArray(...args){
-	if( args[0] === undefined )
+	if( args[0] === undefined || args[0] === null )
 		return [];
 	if( !Array.isArray(args[0]) || args.length > 1 )
 		return [...args];
@@ -266,8 +266,8 @@ function fuzzyFileSize( size_in_bytes ){
 Base64 = {
 
     _Rixits :
-//   0       8       16      24      32      40      48      56     63
-//   v       v       v       v       v       v       v       v      v
+	//   0       8       16      24      32      40      48      56     63
+	//   v       v       v       v       v       v       v       v      v
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
     // You have the freedom, here, to choose the glyphs you want for 
     // representing your base-64 numbers. The ASCII encoding guys usually

@@ -24,6 +24,7 @@ import StaticModal from './StaticModal.js';
 import * as THREE from '../ext/THREE.js';
 import ModRepo from './ModRepo.js';
 import Book from './Book.js';
+import { Logger } from './Logger.js';
 
 export default class Game extends Generic{
 
@@ -2241,6 +2242,8 @@ export default class Game extends Generic{
 	// Turns battle on or off
 	toggleBattle( on ){
 
+		
+
 		let pre = this.battle_active;
 		if( on === undefined )
 			this.battle_active = !this.battle_active;
@@ -2250,12 +2253,17 @@ export default class Game extends Generic{
 		if( this.battle_active === pre )
 			return;
 
+		//const log = new Logger('Game.js -> toggleBattle');
+
 		if( this.battle_active ){
 
+			//log.log('Start A');
 			this.encounter.setCompleted(false);
 			this.ui.battleVis();
 			this.renderer.battleVis();
-			
+			//log.log('Start B');
+
+
 			// Battle just started, roll for initiative
 			let initiative = this.players.map(el => {
 
@@ -2283,14 +2291,20 @@ export default class Game extends Generic{
 			new GameEvent({
 				type : GameEvent.Types.battleStarted,
 			}).raise();
+
+
 			this.advanceTurn();
 
 		}
 		else{
 
+			//log.log('End A');
+
 			this.endTurnTimer();
 			for( let pl of this.players )
 				pl.onBattleEnd();
+
+			//log.log('End B');
 
 			new GameEvent({
 				type : GameEvent.Types.battleEnded
@@ -2300,9 +2314,17 @@ export default class Game extends Generic{
 
 		this._combat_changed = this.time;
 
+		//log.log('Tail A');
+
 		this.save();
 		this.ui.draw();
+
+		//log.log('Tail B');
+
 		this.renderer.onBattleStateChange();
+
+		//log.log('Tail C');
+
 
 	}
 

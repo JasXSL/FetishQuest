@@ -180,10 +180,12 @@ export default class Condition extends Generic{
 	// Tests the condition
 	test( event, debug ){
 
+		
 		if( !(event instanceof GameEvent) ){
 			console.error("This was", this, "event was", event);
 			throw 'Invalid event';
 		}
+		
 
 		if( !debug )
 			debug = this.debug;
@@ -232,14 +234,8 @@ export default class Condition extends Generic{
 		if( debug )
 			console.debug("Condition DEBUG :: Targs", targs);
 		
-
-
 		// Check against all targeted players
 		for( let t of targs ){
-
-			// Use a single target for each player
-			const evt = event.clone();
-			evt.target = t;
 
 			// Check the types
 			if( this.type === T.tag ){

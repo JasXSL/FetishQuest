@@ -412,9 +412,8 @@ class Text extends Generic{
 			
 		if( event.target ){
 
-			let t = event.target;
-			if( !Array.isArray(event.target) )
-				t = [t];
+			let t = toArray(event.target);
+			
 			for( let i = t.length-1; i>=0; --i ){
 
 				let prefix = 'T';
@@ -580,10 +579,14 @@ class Text extends Generic{
 			console.debug("Validating", this, "against", event, chatPlayer);
 
 		if( this._cache_action && !this.testAliases(event) ){
+
 			if( debug )
 				console.debug("FAIL because this._cache_action");
 			return false;
+
 		}
+
+		
 
 		if( this._cache_crit !== null ){
 			if( !event.action || event.action._crit !== this._cache_crit ){
@@ -603,6 +606,8 @@ class Text extends Generic{
 			return false;
 		}
 
+		
+
 		// Temporarily set. The proper set is after cloning in Text.getFromEvent
 		if( event.text )
 			event.text._chatPlayer = chatPlayer;	
@@ -614,6 +619,8 @@ class Text extends Generic{
 			return false;
 		}
 
+		
+
 		let targets = Array.isArray(event.target) ? event.target : [event.target];
 		if( targets.length < this.numTargets ){
 			if( debug )
@@ -621,23 +628,34 @@ class Text extends Generic{
 			return false;
 		}
 
+
+
 		// If this is a chat, we need to check who said it by validating chat player conditions
 		if( this.chat && this.chatPlayerConditions.length ){
-
-			const evt = event.clone();
-			evt.sender = evt.target = chatPlayer;
-			evt.text = this;
-			if( !Condition.all(this.chatPlayerConditions, evt, debug) )
+			
+			// Cloning an event is slow AF, so use caching instead
+			const 
+				preSender = event.sender,
+				preTarget = event.target,
+				preText = event.text
+			;
+			event.sender = event.target = chatPlayer;
+			event.text = this;
+			
+			const check = Condition.all(this.chatPlayerConditions, event, debug);
+			event.sender = preSender;
+			event.target = preTarget;
+			event.text = preText;
+			if( !check )
 				return false;
 
 		}
 
-		
-
+	
 		if( !debug )
 			debug = this.debug;
 
-		if(!Condition.all(this.conditions, event, debug ))
+		if( !Condition.all(this.conditions, event, debug ) )
 			return false;
 
 		return true;
@@ -653,7 +671,7 @@ Text.SYNONYMS = SYNONYMS;
 Text.getFromEvent = function( event, debug = false ){
 
 	let available = [];
-	let texts = glib.texts;
+	let texts = glib._texts;
 
 	let testAgainst = [false];	// This is only used on chats
 	if( event.type === GameEvent.Types.textTrigger )
@@ -661,12 +679,12 @@ Text.getFromEvent = function( event, debug = false ){
 
 	const chat = event.type === GameEvent.Types.textTrigger;
 
-	let maxnr = 1;
-	for( let i in texts ){
+	const doDebug = debug === true;
 
-		let text = texts[i];
-		const evt = event;
-		evt.text = text;				// Needed for validation
+	let maxnr = 1;
+	for( let text of texts ){
+
+		event.text = text;				// Needed for validation
 
 		for( let p of testAgainst ){
 
@@ -675,20 +693,22 @@ Text.getFromEvent = function( event, debug = false ){
 				continue;
 			if( Boolean(text.chat) !== chat )
 				continue;
-			if( Boolean(text.chat) !== Boolean(evt.type === GameEvent.Types.textTrigger))
+			if( Boolean(text.chat) !== Boolean(event.type === GameEvent.Types.textTrigger))
 				continue;
 
-			
-			if( text.chat && evt.sender && (!evt.sender.isNPC() ||evt.sender.hasUsedChat(text.id)) ){
+			if( text.chat && event.sender && (!event.sender.isNPC() ||event.sender.hasUsedChat(text.id)) ){
 				continue;
 			}
 
-			if( !text.validate(evt, debug === true, p) ){
+			if( !text.validate(event, doDebug, p) ){
+
 				if( chat && text.debug )
-					console.log("Validation failed on evt", evt.clone(), "for text", text);
+					console.log("Validation failed on evt", event.clone(), "for text", text);
 				continue;
-			}
 
+			}
+			
+			// Not sure why ID here is required, cloning is a bit slow
 			const id = text.id;
 			text = text.clone();
 			text.id = id;			// ID isn't saved on text (regenerated each load). So when cloning we have to re-apply it
@@ -771,13 +791,18 @@ Text.runFromLibrary = function( event, debug = false ){
 
 	game.lockPlayersAndRun(() => {
 		
-		let t = toArray(event.target).slice();
+		event = event.clone();
+		event.target = toArray(event.target);
+		// Each event needs a target
+		if( !event.target.length )
+			event.target = [game.players[0]];
+
+		let t = event.target.slice();
 
 		// Try to trigger a text on each player
 		while( t.length ){
 
 			let text = this.getFromEvent( event, debug );
-
 			// No text for this person
 			if( !text ){
 
@@ -792,6 +817,7 @@ Text.runFromLibrary = function( event, debug = false ){
 
 			}else{
 
+
 				text.run(event);
 				
 				let nt = text.numTargets;
@@ -805,12 +831,9 @@ Text.runFromLibrary = function( event, debug = false ){
 
 			}
 
-			event = event.clone();
-			event.target = t.slice();
-
+			
 		}
 
-		// Emulate chat events on all players for these types
 		if( this.CheckAllPlayerChatEvents.includes(event.type) || this.IndividualTargetsEvents.includes(event.type) ){
 			
 			const targetsOnly = this.IndividualTargetsEvents.includes(event.type);
@@ -824,13 +847,14 @@ Text.runFromLibrary = function( event, debug = false ){
 				evt.custom = {};
 			evt.custom.original = event.clone();
 			evt.custom.original.text = null;		// The code above will attach a text to this, we'll need to remove it
-			
+
 			for( let player of players ){
 
-				const e = evt.clone();
-				e.sender = player;
-				e.raise();
-
+				let preSender = evt.sender, preTarget = evt.target;
+				evt.sender = player;
+				evt.raise();
+				
+				
 				const pl = targets.slice();
 				shuffle(pl);
 				for( let t of pl ){
@@ -838,20 +862,25 @@ Text.runFromLibrary = function( event, debug = false ){
 					if( t === player )
 						continue;
 
-					e.target = t;
-					const text = this.getFromEvent(e);
+					evt.target = t;
+					const text = this.getFromEvent(evt);
 					if( text ){
 
-						text.run(e);
+						text.run(evt);
 						break;
 
 					}
 
 				}
 
+				// Restore original sender
+				evt.sender = preSender;
+				evt.target = preTarget;
+
 			}
 			
 		}
+
 
 	});
 
@@ -869,11 +898,13 @@ Text.Chat = {
 	optional : 1,
 	required : 2,
 };
+
 // Events that should check all players for chats
 Text.CheckAllPlayerChatEvents = [
 	GameEvent.Types.battleEnded,
 	GameEvent.Types.battleStarted,
 ];
+
 // Similar to above, but doesn't change the sender, only running with sender against each individual player until a working text is found
 Text.IndividualTargetsEvents = [
 	GameEvent.Types.playerFirstTurn

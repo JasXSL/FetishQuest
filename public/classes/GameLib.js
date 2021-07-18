@@ -105,6 +105,7 @@ export default class GameLib{
 		this.bookPages = {};
 		this._cache_assets = {};
 		this.texts = {};				// The texts array gets throw into an object for easier fetching
+		this._texts = [];				// Cache of objects only, and only enabled ones
 		this.gallery = {};				// Player gallery
 	}
 
@@ -261,6 +262,9 @@ export default class GameLib{
 			}
 
 		}
+
+		// Handle texts
+		this._texts = Object.values(this.texts).filter(el => el.en);
 
 		console.log(n, "assets prepared");
 		this._allow_clone = true;
