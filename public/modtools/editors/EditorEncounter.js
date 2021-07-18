@@ -48,7 +48,7 @@ export function asset(){
 	html += '<span title="Wrappers to apply when the encounter starts. auto target is the player who started the encounter, usually by entering a room or picking an RP option">Wrappers: </span><div class="wrappers"></div>';
 	html += '<span title="Passive effects to apply to all players">Passives: </span><div class="passives"></div>';
 	html += '<span>Conditions: </span><div class="conditions"></div>';
-	html += '<span title="Game actions to run when the encounter starts">Start Game Actions: </span><div class="game_actions"></div>';
+	html += '<span title="Game actions to run when the encounter starts">Start/Passive Game Actions: </span><div class="game_actions"></div>';
 	html += '<span title="Game actions to run when the encounter starts">Finish Game Actions: </span><div class="completion_actions"></div>';
 	
 	// Collections can contain sub arrays. Build one for each player

@@ -44,7 +44,7 @@ export function asset(){
 			html += '<option value="'+esc(Asset.Dummies[i])+'" '+(Asset.Dummies[i] === dummy.dummy ? 'selected' : '' )+'>'+esc(i)+'</option>';
 		}
 		html += '</select></label>';
-		html += '<label>Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=-1 step=1 class="saveable" /></label>';
+		html += '<label title="Use -1 to set it to average player level">Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>Durability Bonus: <input name="durability_bonus" value="'+esc(dummy.durability_bonus)+'" step=1 type="number" class="saveable" /></label>';
 		html += '<label>Stacking: <input name="stacking" class="saveable" type="checkbox" '+(dummy.stacking ? 'checked' : '')+' /></label>';
 		html += '<label title="Durability doubled">Mastercrafted: <input name="mastercrafted" class="saveable" type="checkbox" '+(dummy.mastercrafted ? 'checked' : '')+' /></label>';

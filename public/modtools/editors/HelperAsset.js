@@ -267,7 +267,6 @@ export default{
 	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false, windowData = '' ){
 
 		const fullKey = key;
-		// Todo: Need to handle non array type linked assets
 		let k = key.split('::');
 		let entries = asset;
 		while( k.length > 1 ){
@@ -281,7 +280,6 @@ export default{
 			allEntries.splice(0);
 
 		const EDITOR = window.mod, MOD = EDITOR.mod;
-
 
 		let table = document.createElement("table");
 		table.classList.add("linkedTable", "selectable");
@@ -596,12 +594,14 @@ export default{
 	// Constructor is the asset constructor (used for default values)
 	buildList( win, library, constr, fields, start ){
 
+		// Todo: When ctrl+clicking an extended object it should delete the extension if it's parented. Otherwise just remove it from the asset and not the
+
 		let fulldb = window.mod.mod[library].slice().reverse(),
 			isLinker = this.windowIsLinker(win)
 		;
+
 		// Parent mod assets
 		fulldb.push(...window.mod.parentMod[library].slice().reverse());
-
 		fulldb = fulldb.filter(el => !el._mParent && !el._e && !el._h);
 
 		const fieldIsEssential = field => field.startsWith('*');
@@ -633,9 +633,6 @@ export default{
 		win.custom._page = start;
 
 		
-		
-		
-
 		if( win._search ){
 
 			let searchTerms = {};	// Object where key * searches all fields, otherwise 'key' : 'search'
