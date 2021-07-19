@@ -53,6 +53,7 @@ Calculator.run = function( formula, event, customMathVars ){
 			out = math.eval(formula, vars);
 
 		}catch(err){
+
 			let message = err.message;
 			if( message.startsWith('Undefined symbol ') ){
 				let symbol = message.split(' ');
@@ -73,6 +74,7 @@ Calculator.run = function( formula, event, customMathVars ){
 			}
 			console.error("Failed to evaluate formula", formula, "vars", vars);
 			console.error(err);
+			
 		}
 		break;
 	}

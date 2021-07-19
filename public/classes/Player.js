@@ -125,7 +125,8 @@ export default class Player extends Generic{
 		// Same as above, but DONE by this player
 		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
-
+		this._riposted_since_last = {};			// playerID : num_times_this_player_riposted_use
+		this._riposting_since_last = {};		// playerID : num_times_we_riposted_them
 		// If an object should be netcoded, it needs to be a collection, otherwise it's passed by reference
 		this._targeted_by_since_last = new Collection();			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
 		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
@@ -269,6 +270,8 @@ export default class Player extends Generic{
 				out._d_damage_since_last = this._d_damage_since_last;
 				out._turns = this._turns;
 				out._turn_action_used = this._turn_action_used;
+				out._riposted_since_last = this._riposted_since_last;
+				out._riposting_since_last = this._riposting_since_last;
 			}
 
 		}
@@ -373,6 +376,7 @@ export default class Player extends Generic{
 		return out;
 	}
 	damagingDoneSinceLastToPlayer( player, type ){
+
 		if( player && player.constructor === Player )
 			player = player.id;
 		if( !this._d_damaging_since_last[player] )
@@ -383,6 +387,7 @@ export default class Player extends Generic{
 				out += this._d_damaging_since_last[player][i];
 		}
 		return out;
+
 	}
 	damageDoneSinceLastToPlayer( player, type ){
 		if( player && player.constructor === Player )
@@ -394,6 +399,26 @@ export default class Player extends Generic{
 			if( i === undefined || i === type )
 			out += this._d_damage_since_last[player][i];
 		return out;
+	}
+	// How many times this player has riposted me
+	ripostedSinceLastByPlayer( player ){
+
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._riposted_since_last[player] )
+			return 0;
+		return this._riposted_since_last[player][i];
+
+	}
+	// How many times we riposted that player
+	ripostingSinceLastByPlayer( player ){
+
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._riposting_since_last[player] )
+			return 0;
+		return this._riposting_since_last[player][i];
+
 	}
 	// Calculates a total number for any of the above, allowing you to filter by type 
 	// Use the object property as input, and it returns the sum
@@ -408,6 +433,15 @@ export default class Player extends Generic{
 		return out;
 	}
 
+	// Used for riposte that only has one level
+	datTotalShort( input ){
+
+		let out = 0;
+		for( let i in input )
+			out += input[i];
+		return out;
+
+	}
 	
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
@@ -458,6 +492,9 @@ export default class Player extends Generic{
 		vars[prefix+'damageReceivedSinceLast'] = this.datTotal( this._damage_since_last );
 		vars[prefix+'damagingDoneSinceLast'] = this.datTotal( this._d_damaging_since_last );
 		vars[prefix+'damageDoneSinceLast'] = this.datTotal( this._d_damage_since_last );
+		vars[prefix+'ripostedSinceLast'] = this.datTotalShort(this._riposted_since_last);
+		vars[prefix+'ripostingSinceLast'] = this.datTotalShort(this._riposting_since_last);
+
 		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last.save());
 		for( let i in Action.Types ){
 			let type = Action.Types[i];
@@ -469,8 +506,10 @@ export default class Player extends Generic{
 
 		// We're the recipient, if a sender exists we can add how much damage the sender has done to us
 		if( event && this === event.target && event.sender ){
+
 			vars.se_TaDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.sender);
 			vars.se_TaDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.sender);
+
 		}
 
 		for( let i in Asset.Slots ){
@@ -971,6 +1010,8 @@ export default class Player extends Generic{
 
 		this._d_damaging_since_last = {};
 		this._d_damage_since_last = {};
+		this._riposted_since_last = {};
+		this._riposting_since_last = {};
 		
 
 		// Wipe turnTags on start
@@ -1142,12 +1183,14 @@ export default class Player extends Generic{
 		++this._damaging_since_last[sender.id][type];
 	}
 	onDamagingAttackDone(target, type){
+
 		if(!this._d_damaging_since_last[target.id])
 			this._d_damaging_since_last[target.id] = {};
 		if(!this._d_damaging_since_last[target.id][type])
 			this._d_damaging_since_last[target.id][type] = 0;
 		
 		++this._d_damaging_since_last[target.id][type];
+
 	}
 	onDamageTaken( sender, type, amount = 0 ){
 		if( isNaN(amount) )
@@ -1175,6 +1218,17 @@ export default class Player extends Generic{
 		++amount;
 		this._targeted_by_since_last.set(sender.id, amount);
 	}
+	onRiposteDone( target ){
+		if( !this._riposting_since_last[target.id] )
+			this._riposting_since_last[target.id] = 0;
+		++this._riposting_since_last[target.id];
+	}
+	onRiposteReceived( target ){
+		if( !this._riposted_since_last[target.id] )
+			this._riposted_since_last[target.id] = 0;
+		++this._riposted_since_last[target.id];
+	}
+	
 
 	onDeath( attacker, effect ){
 		
@@ -1839,9 +1893,12 @@ export default class Player extends Generic{
 	// adds experience and returns levels gained
 	addExperience( points ){
 
+		if( !points )
+			console.error("Invalid points to addexperience: ", points);
+
 		points = points*this.getGenericAmountStatMultiplier(Effect.Types.expMod);
 
-		if( !points ){
+		if( isNaN(points) ){
 
 			console.error("Trying to add NaN experience");
 			return false;

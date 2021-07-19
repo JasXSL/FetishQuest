@@ -163,6 +163,7 @@ export default class Game extends Generic{
 		args[0].shift();
 		args[0] = args[0].join('Uncaught ');
 		this.ui.modal.addError(args[0]);
+		console.error("Uncaught", ...args);
 	}
 
 

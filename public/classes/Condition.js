@@ -1010,7 +1010,7 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.formula ){
-				success = Calculator.run(this.data.formula, evt);
+				success = Calculator.run(this.data.formula, event);
 			}
 
 			else if( this.type === T.numGamePlayersGreaterThan ){

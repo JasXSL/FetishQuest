@@ -508,6 +508,7 @@ class Action extends Generic{
 				(p !== parent || allowSelfCast) && 
 				p.checkActionFilter(parent, this) && 
 				!this.getDisabledEffectsAgainst(p).length &&
+				this.testGlobalConditions(p, isChargeFinish, debug) &&
 				(this.ignore_wrapper_conds || this.getViableWrappersAgainst(p, isChargeFinish, debug).length) 
 			)targets.push(p);
 
@@ -517,7 +518,9 @@ class Action extends Generic{
 					(p !== parent || allowSelfCast),
 					p.checkActionFilter(parent, this),
 					!this.getDisabledEffectsAgainst(p).length,
-					this.getViableWrappersAgainst(p, isChargeFinish, debug).length
+					this.testGlobalConditions(p, isChargeFinish, debug),
+					(this.ignore_wrapper_conds || this.testWrapperConditions(p, isChargeFinish, debug).length),
+					"player was", p
 				);
 
 			}
@@ -527,14 +530,8 @@ class Action extends Generic{
 
 	}
 
-	// Gets an array of wrappers that have their conditions met against Player player
-	getViableWrappersAgainst( player, isChargeFinish = false, debug = false ){
-
-		// Can't target invisible players unless it's yourself
-		if( player !== this.getPlayerParent() && player.isInvisible() )
-			return [];
-
-		let evt = new GameEvent({
+	getConditionEvent( player, isChargeFinish ){
+		return new GameEvent({
 			type : GameEvent.Types.actionUsed,
 			sender : this.getPlayerParent(),
 			target : player,
@@ -543,14 +540,24 @@ class Action extends Generic{
 				isChargeFinish : isChargeFinish
 			}
 		});
+	}
 
+	testGlobalConditions( player, isChargeFinish = false, debug = false ){
+
+		// Can't target invisible players unless it's yourself
+		if( player !== this.getPlayerParent() && player.isInvisible() )
+			return [];
+
+		const evt = this.getConditionEvent(player, isChargeFinish);
 		const conds = this.getConditions();
 		const check = Condition.all(conds, evt, debug);
-		// Global conditions
-		if( !check )
-			return [];
+		return check;
 		
+	}
 
+	testWrapperConditions( player, isChargeFinish = false, debug = false ){
+
+		const evt = this.getConditionEvent(player, isChargeFinish);
 		let viable = [];
 		for( let w of this.wrappers ){
 
@@ -560,6 +567,17 @@ class Action extends Generic{
 
 		}
 		return viable;
+
+	}
+
+	// Gets an array of wrappers that have their conditions met against Player player, and also checks action conditions
+	getViableWrappersAgainst( player, isChargeFinish = false, debug = false ){
+
+		// Global conditions
+		if( !this.testGlobalConditions(player, isChargeFinish, debug) )
+			return [];
+		
+		return this.testWrapperConditions(player, isChargeFinish, debug );
 
 	}
 
@@ -781,6 +799,9 @@ class Action extends Generic{
 
 						for( let r of this.riposte )
 							wrapperReturn.merge(r.useAgainst(target, sender, false));
+
+						target.onRiposteDone(sender);
+						sender.onRiposteReceived(target);
 						new GameEvent({
 							type : GameEvent.Types.actionRiposte,
 							sender : target,
