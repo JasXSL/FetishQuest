@@ -42,6 +42,8 @@ Calculator.run = function( formula, event, customMathVars ){
 		event.sender.appendMathVars('se_', vars, event);
 	if( event.target )
 		event.target.appendMathVars('ta_', vars, event);
+	if( event.action )
+		event.action.appendMathVars('ac_', vars, event);
 	
 		// Run the calculation
 	let out = 0;

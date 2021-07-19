@@ -68,6 +68,19 @@ export default class GameEvent extends Generic{
 
 	}
 
+	// Merges any unset values in this event to values of another
+	mergeUnset( event ){
+
+		for( let i in event ){
+
+			if( this[i] === null )
+				this[i] = event[i]
+
+		}
+		return this;
+
+	}
+
 }
 
 

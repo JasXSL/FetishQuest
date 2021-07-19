@@ -459,6 +459,11 @@ div.fxBuffBlue{
 div.fxBuffRed{
 	animation: buffRed 0.5s ease-in-out;
 }
+div.passiveUpsideDown > div.content > div.bg{
+	transform:rotate(180deg) scaleX(-1);
+	background-position:center 90% !important;
+}
+
 
 /* Game quickjoin */
 	#joinOnlineGame{

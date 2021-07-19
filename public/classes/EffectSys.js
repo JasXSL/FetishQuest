@@ -36,6 +36,7 @@ class Wrapper extends Generic{
 		this.stay_conditions = ["senderNotDead","targetNotDead"];			// Conditions needed to stay. These are checked at the end of turn end/start, and after an action is used
 		this.effects = [];
 		this.duration = 0;					// Use -1 for permanent
+		
 		this.tags = [];						// wr_ is prepended
 		this.stacks = 1;
 		this.max_stacks = 1;
@@ -166,6 +167,7 @@ class Wrapper extends Generic{
 	}
 
 	
+	
 	/* MAIN FUNCTIONALITY */
 	// Tests if the wrapper can be used against a single target
 	testAgainst( event, isTick, debug = false ){
@@ -213,19 +215,10 @@ class Wrapper extends Generic{
 			else if( this.target === Wrapper.TARGET_AOE )
 				pl = game.getEnabledPlayers();
 			else if( this.target === Wrapper.TARGET_SMART_HEAL ){
-				// Find the lowest HP party member of target
-				let party = game.getPartyMembers(caster_player);
-				party = party.filter(el => el.hp > 0);
-				party.sort((a,b) => {
-					const ahp = a.hp/a.getMaxHP(),
-						bhp = b.hp/b.getMaxHP();
-					if( ahp === bhp )
-						return 0;
-					return ahp < bhp ? -1 : 1;
-				});
-				if( !party.length )	// Fail because there's no viable target
-					return 0;
-				pl = [party[0]];
+				const smh = Wrapper.getSmartHealPlayer(caster_player);
+				if( !smh )
+					return false;	// No viable player
+				pl = [smh];
 			}
 			else if( this.target === Wrapper.TARGET_RP_TP ){
 
@@ -286,11 +279,44 @@ class Wrapper extends Generic{
 
 				// Remove any existing effects with the same label
 				for( let wrapper of p.wrappers ){
+
 					if( wrapper.label === obj.label && wrapper.caster === caster.id ){
+
 						add_stacks = wrapper.stacks;
 						wrapper.remove();
+
 					}
+
 				}
+
+				// Get the modified max duration
+				if( obj.duration > 0 ){
+
+					let durOffs = 0;
+					const extFX = p.getActiveEffectsByType(Effect.Types.addWrapperMaxDuration);
+					for( let el of extFX ){
+						
+						if( el.data.casterOnly && el.parent.getCaster() !== caster_player )
+							return;
+
+						if( Array.isArray(el.data.conditions) ){
+
+							const subEvt = new GameEvent({
+								sender : caster_player,
+								target : p,
+								wrapper : obj
+							});
+							if( Condition.all(el.data.conditions, subEvt) )
+								durOffs += el.data.amount;
+
+						}
+
+					}
+					if( durOffs !== 0 )
+						obj.duration = Math.max(1, obj.duration+durOffs);
+
+				}
+				
 
 				obj._duration = obj.duration;
 				const stunEffects = obj.getEffects({type : Effect.Types.stun}).filter(el => !el.data.ignoreDiminishing);
@@ -678,6 +704,25 @@ class Wrapper extends Generic{
 
 	}
 
+
+	static getSmartHealPlayer( caster ){
+
+		// Find the lowest HP party member of target
+		let party = game.getPartyMembers(caster);
+		party = party.filter(el => el.hp > 0);
+		party.sort((a,b) => {
+			const ahp = a.hp/a.getMaxHP(),
+				bhp = b.hp/b.getMaxHP();
+			if( ahp === bhp )
+				return 0;
+			return ahp < bhp ? -1 : 1;
+		});
+		if( !party.length )	// Fail because there's no viable target
+			return false;
+		return party[0];
+
+	}
+
 }
 
 Wrapper.debugStayConditions = false;
@@ -903,7 +948,11 @@ class Effect extends Generic{
 			}
 			else if( ta === Wrapper.TARGET_ORIGINAL )
 				tout.push(this.parent.getOriginalTarget());
-
+			else if( ta === Wrapper.TARGET_SMART_HEAL ){
+				const smh = Wrapper.getSmartHealPlayer(sender);
+				if( smh )
+					tout.push(smh);
+			}
 		}
 
 		if( this.data.dummy_sender )
@@ -1185,10 +1234,13 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addMP ){
+
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
-				}));
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this,
+					}).mergeUnset(event)
+				);
 				if( !this.no_stack_multi )
 					amt *= wrapper.stacks;
 
@@ -1214,8 +1266,10 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.addHP ){
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
-				}));
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				);
 				if( !this.no_stack_multi )
 					amt *= wrapper.stacks;
 				amt = Math.floor(amt);
@@ -1229,8 +1283,10 @@ class Effect extends Generic{
 
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
-				}));
+					new GameEvent({
+						sender:s, target:t, wrapper:this.parent, effect:this
+					}).mergeUnset(event)
+				);
 
 				if( amt > 0 )
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );				
@@ -1269,8 +1325,10 @@ class Effect extends Generic{
 				
 				let amt = Math.floor(Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
-				})));
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				));
 				if( !isNaN(amt) ){
 
 					if( this.type === Effect.Types.setHP ){
@@ -1298,8 +1356,10 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.addThreat ){
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
-				}));
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				);
 				if( !this.no_stack_multi )
 					amt *= wrapper.stacks;
 				t.addThreat(s.id, amt);
@@ -1337,6 +1397,33 @@ class Effect extends Generic{
 				for( let w of this.data.wrappers ){
 
 					let wr = new Wrapper(w, wrapper.parent);
+					let stacks = this.data.stacks;
+					if( stacks ){
+
+						stacks = Calculator.run(
+							stacks, 
+							new GameEvent({
+								sender:s, 
+								target:t, 
+								wrapper:wrapper, 
+								effect:this
+							}).mergeUnset(event)
+						);
+						if( Math.random() < stacks-Math.floor(stacks) )
+							++stacks;
+						stacks = Math.floor(stacks);
+
+						// Evaluated to 0, don't run this effect
+						if( stacks === 0 || isNaN(stacks) )
+							continue;	
+
+						// Negative uses parent
+						if( stacks < 0 )
+							stacks = this.parent.stacks;
+
+						wr.stacks = stacks;
+
+					}
 					wr.useAgainst(s, t, false);
 
 				}
@@ -1544,7 +1631,11 @@ class Effect extends Generic{
 					console.error("Invalid time in", this);
 					return false;
 				}
-				time = Calculator.run(time, new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this}));
+				time = Calculator.run(time, 
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				);
 
 				if( this.data.conditions ){
 					wrappers = [];
@@ -1577,8 +1668,10 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.addActionCharges ){
 				t.addActionCharges(this.data.actions, Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
-				})));
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				));
 			}
 
 			else if( this.type === Effect.Types.lowerCooldown ){
@@ -1607,8 +1700,10 @@ class Effect extends Generic{
 				// {amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL}
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this
-				}));
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				);
 				if( ! this.no_stack_multi )
 					amt *= wrapper.stacks;
 				if( !amt )
@@ -2078,7 +2173,7 @@ Effect.Types = {
 	trace : 'trace',
 	damage : "damage",
 	endTurn : "endTurn",
-	//visual : "visual",
+	css : "css",
 	hitfx : "hitfx",
 	damageArmor : "damageArmor",
 	addAP : "addAP",
@@ -2142,6 +2237,7 @@ Effect.Types = {
 
 	addStacks : 'addStacks',				
 	addWrapperTime : 'addWrapperTime',
+	addWrapperMaxDuration : 'addWrapperMaxDuration',
 
 	removeParentWrapper : 'removeParentWrapper',	
 	removeWrapperByLabel : 'removeWrapperByLabel',	
@@ -2231,7 +2327,8 @@ Effect.Passive = {
 	[Effect.Types.actionApCost] : true,
 	[Effect.Types.actionCastTime] : true,
 	[Effect.Types.tieToRandomBondageDevice] : true,
-		
+	[Effect.Types.addWrapperMaxDuration] : true,
+	[Effect.Types.css] : true,
 
 };
 
@@ -2245,7 +2342,7 @@ Effect.TypeDescs = {
 	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	[Effect.Types.trace] : '{message:(str)message} - Creates a stack trace here',
-	//[Effect.Types.visual] : "CSS Visual on target. {class:css_class}",
+	[Effect.Types.css] : "Applies CSS classes onto the target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
 	[Effect.Types.addAP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds AP",									
@@ -2309,7 +2406,7 @@ Effect.TypeDescs = {
 	[Effect.Types.bonHoly] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 	[Effect.Types.bonCorruption] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 
-	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. ',
+	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers, stacks:(int)=auto} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. Stacks lets you override the stacks of the wrapper to run. -1 will use the same nr of stacks as the parent of this effect.',
 	[Effect.Types.assetWrappers] : '{wrappers:(arr)wrappers, conditions:(arr)asset_conditions, max:(int)max_assets=1, random=true, unequipped=false} - Adds wrappers and attaches them to assets that pass conditions filters. Wrapper conditions are also checked before allowing them through. If unequipped is true, it also allows unequipped assets.',
 
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',
@@ -2321,6 +2418,7 @@ Effect.TypeDescs = {
 	[Effect.Types.removeWrapperByLabel] : '{ label:(arr)(str)label, casterOnly:(bool)=false)}',
 	[Effect.Types.removeWrapperByTag] : '{tag:(str/arr)tags}',
 	[Effect.Types.removeEffectWrapperByEffectTag] : '{tag:(str/arr)tags} - Searches for _effects_ currently affecting you. And removes their wrappers if the effect has at least one of these tags.',
+	[Effect.Types.addWrapperMaxDuration] : '{amount:(int)(str)time, conditions:(arr)conditions, casterOnly:(bool)=false} - Newly added wrappers that pass filter have their duration increased by this value (can be negative). This cannot be used to bring a duration below 0, and only works on effects with a duration of at least 1.',
 
 	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels, charges=1} - Consumes ability charges',
 	[Effect.Types.lowerCooldown] : '{actions:(str)(arr)actionLabels, amount:(int)amount=inf} - Lowers or resets cooldowns on the target by label. NOTE: This will not add more than 1 charge.',

@@ -196,6 +196,15 @@ class Action extends Generic{
 
 
 
+	appendMathVars( prefix, vars, event ){
+
+		vars[prefix+'MP'] = this.getMpCost();
+		vars[prefix+'AP'] = this.getApCost();
+		vars[prefix+'CT'] = this.getCastTime();
+		vars[prefix+'CD'] = this.getCooldown();
+
+	}
+
 	/* Conditions */
 	getConditions(){
 		return [...this.conditions,...this.show_conditions];
@@ -438,10 +447,14 @@ class Action extends Generic{
 		});
 		interruptEvent.raise();
 		
+		console.log("interrupt wrappers", this, this.interrupt_wrappers);
 		for( let wr of this.interrupt_wrappers ){
+
 			if( !(wr instanceof Wrapper) )
 				continue;
+			console.log("Using", wr, "from", sender, "to", pp);
 			wr.useAgainst(sender, pp);
+
 		}
 		
 		game.ui.addText( pp.getColoredName()+"'s "+this.name+" was interrupted!", undefined, sender ? sender.id : undefined, pp.id, 'statMessage' );
@@ -585,6 +598,10 @@ class Action extends Generic{
 
 	}
 
+	getMpCost(){
+		return this.mp;
+	}
+
 	getCastTime(){
 		
 		const pl = this.getPlayerParent();
@@ -643,7 +660,7 @@ class Action extends Generic{
 			return err("Not enough AP for action");
 
 		// MP is not consumed immediately on charged action start, but you still need to have it
-		if( this.mp > this.getPlayerParent().mp )
+		if( this.getMpCost() > this.getPlayerParent().mp )
 			return err("Not enough MP for action");
 
 		
@@ -870,7 +887,7 @@ class Action extends Generic{
 		if( this.isAssetAction() && !this.parent.no_auto_consume )
 			this.parent.consumeCharges();
 
-		this.getPlayerParent().addMP(-this.mp);
+		this.getPlayerParent().addMP(-this.getMpCost());
 		if( !isChargeFinish ){
 			this.getPlayerParent().addAP(-this.getApCost());
 			this.getPlayerParent()._turn_ap_spent += this.getApCost();
@@ -910,8 +927,8 @@ class Action extends Generic{
 				html += '<span style="color:#FDD"><strong>Charged '+ct+' turn'+(ct !== 1 ? 's' : '')+'</strong></span>';
 			if( ap )
 				html += '<span style="color:#DFD">'+ap+' AP</span>';
-			if( this.mp )
-				html += '<span style="color:#DEF">'+this.mp+' MP</span>';
+			if( this.getMpCost() )
+				html += '<span style="color:#DEF">'+this.getMpCost()+' MP</span>';
 			if( this.detrimental )
 				html += '<span style="color:#FFF">'+(this.hit_chance < 100 ? this.hit_chance+' Base Hit Chance' : 'Always hits')+'</span>';
 		html += '</div>';

@@ -35,6 +35,9 @@ export function asset(){
 		html += '<label>Shortname: <input name="shortname" value="'+esc(dummy.shortname)+'" type="text" class="saveable" /></label>';
 		html += '<label>Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label title="Size multiplier, 1 is about the size of a sweatshirt">Size: <input name="size" value="'+esc(dummy.size)+'" type="number" min=0 step=0.01 class="saveable" /></label>';
+		html += '<label title="Overrides the material color if set">Base color name: <input name="color_tag_base" value="'+esc(dummy.color_tag_base)+'" type="text" class="saveable" /></label>';
+		html += '<label title="Requires base color name to be set">Base color: <input name="color_base" value="'+esc(dummy.color_base)+'" type="color" class="saveable" /></label>';
+		
 		html += '<label title="Go to game icons.net and search for one such as https://game-icons.net/1x1/cathelineau/swordman.html and use that name (swordman)">'+
 			'Icon: <input name="icon" value="'+esc(dummy.icon)+'" type="text" class="saveable" />'+
 		'</label><br />';

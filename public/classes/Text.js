@@ -390,6 +390,10 @@ class Text extends Generic{
 	// Main entrypoint
 	run( event, returnResult = false ){
 
+		const preText = event.text;
+		const onReturn = () => {
+			event.text = preText;
+		};
 		event.text = this;
 		// if it's not a chat, tie this text to the event
 		
@@ -451,8 +455,10 @@ class Text extends Generic{
 		if( event.action )
 			text = this.textReplace([{ se: 'action', re: event.action.getName()}], text);
 
-		if( returnResult )
+		if( returnResult ){
+			onReturn();	// Restore modified event values
 			return text;
+		}
 
 		this.triggerVisuals(event);
 
@@ -482,19 +488,26 @@ class Text extends Generic{
 
 			
 			// Raise a text trigger event
-			const evt = event.clone();		// Create a clone for a custom text event
-			evt.type = GameEvent.Types.textTrigger;
-			evt.text = this;
-			if( !evt.custom )
-				evt.custom = {};
-			evt.custom.original = event.clone();		// Make sure to stash the original
+			const originalType = event.type,
+				originalText = event.text,
+				originalCustom = event.custom
+			;
 
-			evt.raise();
-
+			event.type = GameEvent.Types.textTrigger;
+			event.text = this;
+			if( !event.custom )
+				event.custom = {};
+			event.custom.original = event.clone();		// Make sure to stash the original
+			event.raise();
+			
+			event.type = originalType;
+			event.text = originalText;
+			event.custom = originalCustom;
 			
 					
 		}
 
+		onReturn();	// Restore modified event values
 
 		
 	}
@@ -672,6 +685,8 @@ Text.getFromEvent = function( event, debug = false ){
 
 	let available = [];
 	let texts = glib._texts;
+	const preText = event.text;		// Caching and restoring values is much faster than cloning
+
 
 	let testAgainst = [false];	// This is only used on chats
 	if( event.type === GameEvent.Types.textTrigger )
@@ -721,7 +736,11 @@ Text.getFromEvent = function( event, debug = false ){
 
 			
 		}
+
 	}
+
+	// Restore value
+	event.text = preText;
 
 	if( !available.length && chat )
 		return false ;
@@ -853,7 +872,6 @@ Text.runFromLibrary = function( event, debug = false ){
 				let preSender = evt.sender, preTarget = evt.target;
 				evt.sender = player;
 				evt.raise();
-				
 				
 				const pl = targets.slice();
 				shuffle(pl);

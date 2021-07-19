@@ -3863,11 +3863,18 @@ export default class StaticModal{
 
 				};
 
-				let lib = glib.getFull('Asset');
-				let divs = [];
-				for( let id in lib ){
+				let lib = Object.values(glib.getFull('Asset'));
+				lib.sort((a, b) => {
+					
+					if( a._custom !== b._custom )
+						return a._custom ? -1 : 1;
+					
+					return a.label < b.label ? -1 : 1;
 
-					let asset = lib[id];
+				});
+				let divs = [];
+				for( let asset of lib ){
+
 					const div = await StaticModal.getGenericAssetButton(asset);
 					div.dataset.id = asset.label;
 					if( asset._custom )

@@ -243,7 +243,7 @@ export default class Player extends Generic{
 
 		// Should only be sent while we're hosting a netgame
 		//if( window.game && game.net.isHostingNetgame() && !full )
-			out._tmp_actions = Action.saveThese(this._tmp_actions);
+		out._tmp_actions = Action.saveThese(this._tmp_actions, full);
 
 		// Assets are only sent if equipped, PC, or full
 		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC() || this.isDead()), full);
@@ -1029,6 +1029,8 @@ export default class Player extends Generic{
 		this._last_chat = -1;
 		this._turn_action_used = 0;
 
+		this.resetTempActions();
+
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleStart();
@@ -1065,6 +1067,8 @@ export default class Player extends Generic{
 		// Prevent PCs from ending a battle at max arousal
 		if( this.arousal >= this.getMaxArousal() && this.team === Player.TEAM_PLAYER )
 			this.arousal = this.getMaxArousal()-1;
+
+		this.resetTempActions();
 		
 	}
 	// only triggers on PC for now
@@ -2625,6 +2629,11 @@ export default class Player extends Generic{
 
 	}
 
+	// Rebuilds temp actions
+	resetTempActions(){
+		this._tmp_actions = [];
+		this.getTempActions();
+	}
 	// Gets temporary actions such as actions granted from effects
 	getTempActions(){
 		

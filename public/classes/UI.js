@@ -9,6 +9,7 @@ import { DungeonRoomAsset } from "./Dungeon.js";
 import StaticModal from "./StaticModal.js";
 import Modal from "./Modal.js";
 import Book from "./Book.js";
+import { Effect } from "./EffectSys.js";
 
 const NUM_ACTIONS = 18;	// Max nr actions the UI can draw
 
@@ -1136,8 +1137,6 @@ export default class UI{
 		el.toggleClass('incapacitated', p.isIncapacitated());
 		el.toggleClass("hidden", p.isInvisible());
 
-
-
 		// Map up needed sub divs
 		const contentEl = $("> div.content", el),
 			statsEl = $('> div.stats', contentEl),
@@ -1464,7 +1463,22 @@ export default class UI{
 			
 		}
 
-		
+
+		// Visuals
+		const visuals = p.getActiveEffectsByType(Effect.Types.css).map(el => el.data.class).filter(el => typeof el === "string" && el);
+		let classList = Array.from(el[0].classList).filter(el => el.startsWith('passive'));
+		// Find removed visuals
+		for( let c of classList ){
+
+			let sub = c.substr(7);
+			if( !visuals.includes(sub) )
+				el[0].classList.toggle(c, false);
+
+		}
+		// Find newly added
+		for( let c of visuals )
+			el[0].classList.toggle('passive'+c, true);
+
 	}
 
 	// Mouseup on a player

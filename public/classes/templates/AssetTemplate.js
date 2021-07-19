@@ -26,6 +26,8 @@ class AssetTemplate extends Generic{
 		this.icon = 'perspective-dice-six-faces-random';
 		this.hit_sound = '';
 		
+		this.color_tag_base = '';			// If set, overrides the material. Should be the name of the color.
+		this.color_base = '#FFFFFF';		// Requires tag base to be set
 
 		this.load(data);
 	}
@@ -34,7 +36,7 @@ class AssetTemplate extends Generic{
 		this.g_autoload(data);
 	}
 
-	save(full ){
+	save( full ){
 		return {
 			shortname : this.shortname,
 			label : this.label,
@@ -51,6 +53,8 @@ class AssetTemplate extends Generic{
 			wrappers : this.wrappers,
 			level : this.level,
 			hit_sound : this.hit_sound,
+			color_tag_base : this.color_tag_base,
+			color_base : this.color_base,
 		};
 	}
 
@@ -153,8 +157,8 @@ class AssetTemplate extends Generic{
 			icon : this.icon,
 			wrappers : this.wrappers, 		// Raw data
 			colorable : mat.colorable,
-			color_tag_base : mat.color_tag_base,
-			color_base : mat.color_base,
+			color_tag_base : this.color_tag_base || mat.color_tag_base,
+			color_base : this.color_tag_base ? this.color_base : mat.color_base,
 			hit_sound : hitSound,
 		});
 
