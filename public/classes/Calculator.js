@@ -7,6 +7,8 @@
 	You can also use the midvalue _Tag_ and _Wrapper_ ex: se_Tag_pl_penis, these will be either 1 or 0
 
 */
+import Player from './Player.js';
+
 class Calculator{}
 
 Calculator.debug = false;
@@ -37,11 +39,18 @@ Calculator.run = function( formula, event, customMathVars ){
 
 	if( event.target && !event.target.appendMathVars )
 		console.error("No mathVars in event target", event);
+
+	let targ = event.target;
+	if( Array.isArray(targ) )
+		targ = targ[0];
 	
 	if( event.sender )
 		event.sender.appendMathVars('se_', vars, event);
-	if( event.target )
-		event.target.appendMathVars('ta_', vars, event);
+	if( targ ){
+		if( !(targ instanceof Player) )
+			console.error("Invalid target supplied to mathvars", event.target);
+		targ.appendMathVars('ta_', vars, event);
+	}
 	if( event.action )
 		event.action.appendMathVars('ac_', vars, event);
 	

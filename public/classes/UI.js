@@ -1669,10 +1669,8 @@ export default class UI{
 			game.getMyActivePlayer()
 		);
 		
-
 		this.action_selected = null;
 		this.targets_selected = [];
-
 
 		this.draw();
 

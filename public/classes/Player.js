@@ -86,7 +86,7 @@ export default class Player extends Generic{
 		this.bonElemental = 0;
 		this.bonHoly = 0;
 		this.bonCorruption = 0;
-		this.bot = null;
+		this.bot = new Bot(this);
 		this.used_punish = false;				// We have punished a target since the last battle ended or we left the room
 
 		this.remOnDeath = false;				// Delete this player if it dies
@@ -1079,6 +1079,7 @@ export default class Player extends Generic{
 	}
 	onBattleEnd(){
 
+		this._last_chat = 0;	// Needed for out of combat chat
 		this.ap = 0;
 		let actions = this.getActions();
 		for(let action of actions)
@@ -1617,12 +1618,13 @@ export default class Player extends Generic{
 		return this.assets;
 	}
 
-	lootToPlayer( id, player ){
+	lootToPlayer( id, player, silent = false ){
 
 		let asset = this.getAssetById(id);
 		if( !asset ){
-			console.error("Asset not found", id, "in", this);
-			return;
+			if( !silent )
+				console.error("Asset not found", id, "in", this);
+			return false;
 		}
 		
 		if( game.is_host && asset.loot_sound )
@@ -2626,6 +2628,8 @@ export default class Player extends Generic{
 			for( let asset of this.assets ){
 
 				let action = asset.use_action;
+				if( !asset.isConsumable )
+					console.error("Invalid asset", asset, "in player inventory", this);
 				if( asset.isConsumable() && (asset.equipped || include_items !== 'e') )
 					out.push(action);
 
@@ -3161,7 +3165,11 @@ export default class Player extends Generic{
 	onChatUsed( id ){
 
 		this._used_chats[id] = true;
-		this._last_chat = this._turns || 1;	// Needed or they can use multiple ini texts
+
+		if( !game.battle_active )
+			this._last_chat = Date.now();
+		else
+			this._last_chat = this._turns || 1;	// Needed or they can use multiple ini texts
 
 	}
 
@@ -3170,6 +3178,9 @@ export default class Player extends Generic{
 	}
 	// Checks if this NPC has chatted too recently
 	canOptionalChat(){
+
+		if( !game.battle_active )
+			return ( Date.now()-this._last_chat > 3000 );	// Max 3 sec when out of combat
 
 		let turnsSinceLastSpoke = this._turns-this._last_chat;
 		return Math.random() < turnsSinceLastSpoke*this.talkative;
@@ -3182,20 +3193,16 @@ export default class Player extends Generic{
 
 		if( !this.isNPC() && !force )
 			return;
-		if( !this.bot ){
-			this.bot = new Bot(this);
-		}
-		
 		this.bot.play( force );
 
 	}
 
 	usePunishment( players, force ){
+		
 		if( !this.isNPC() && !force )
 			return;
-		if( !this.bot )
-			this.bot = new Bot(this);
 		this.bot.punish(players);
+
 	}
 	
 

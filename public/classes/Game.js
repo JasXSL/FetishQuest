@@ -147,6 +147,11 @@ export default class Game extends Generic{
 
 			VibHub.onEvent(event);
 
+			this.getEnabledPlayers().forEach(pl => {
+				if( pl.bot )
+					pl.bot.handleEvent(event);
+			});
+
 		});
 
 		// Things that needs ALL players initialized to run, since we might fetch non-rebased wrappers if we don't do it until all players have loaded
@@ -3644,9 +3649,10 @@ Game.joinNetGame = () => {
 };
 
 Game.delete = async id => {
+
 	await Game.db.games.delete(id);
-	if( game.id === id ){
+	if( game.id === id )
 		Game.load();
-	}
+
 };
 

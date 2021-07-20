@@ -180,7 +180,6 @@ export default class Condition extends Generic{
 	// Tests the condition
 	test( event, debug ){
 
-		
 		if( !(event instanceof GameEvent) ){
 			console.error("This was", this, "event was", event);
 			throw 'Invalid event';
@@ -212,6 +211,8 @@ export default class Condition extends Generic{
 			s = event.sender
 		;
 
+		
+
 		let eventWrapper = event.wrapper;
 		if( this.data.originalWrapper && event.originalWrapper )
 			eventWrapper = event.originalWrapper;
@@ -234,8 +235,13 @@ export default class Condition extends Generic{
 		if( debug )
 			console.debug("Condition DEBUG :: Targs", targs);
 		
+
+		const preTarg = event.target;
+
 		// Check against all targeted players
 		for( let t of targs ){
+
+			event.target = t;	// Override the target temporarily for correct math
 
 			// Check the types
 			if( this.type === T.tag ){
@@ -954,7 +960,7 @@ export default class Condition extends Generic{
 					dungeon = this.data.dungeon;
 
 				// Get default vars
-				let base = glib.get(dungeon, 'Dungeon');
+				let base = glib.getFull('Dungeon')[dungeon];
 				if( !base )
 					base = {};
 				else
@@ -1088,9 +1094,12 @@ export default class Condition extends Generic{
 
 			else{
 				game.ui.modal.addError("Unknown condition "+String(this.type));
+				event.target = preTarg; // Restore target
 				return false;
 			}
 			
+			event.target = preTarg; // Restore target
+
 			if( this.inverse )
 				success = !success;
 
@@ -1106,6 +1115,8 @@ export default class Condition extends Generic{
 			}
 
 		}
+
+		
 
 		if(debug)
 			console.debug("Condition DEBUG :: loop ended, success:", !this.anyPlayer, "anyPlayer", this.anyPlayer);

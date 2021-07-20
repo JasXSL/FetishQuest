@@ -1,4 +1,8 @@
 import stdTag from "../libraries/stdTag.js";
+import Asset from "./Asset.js";
+import { Effect } from "./EffectSys.js";
+import GameEvent from "./GameEvent.js";
+import Player from "./Player.js";
 
 class Bot{
 	constructor( player ){
@@ -6,6 +10,16 @@ class Bot{
 		this.player = player;
 		this.actions_used = 0;
 
+		this._battle_start_assets = [];
+
+		if( window.game && window.game.is_host )
+			this.useFlavor();	// Starts the timer
+
+	}
+
+	// Is an experimental follower AI
+	isAI(){
+		return !this.player.generated && this.player.isNPC() && this.player.team === Player.TEAM_PLAYER;
 	}
 
 	onTurnStart(){
@@ -241,6 +255,191 @@ class Bot{
 		}
 		// Send end of turn
 		game.useActionOnTarget( this.player.getActionByLabel('stdEndTurn'), this.player );
+
+	}
+
+	useFlavor(){
+
+		if( !game.players.includes(this.player) )
+			return;
+
+		const ret = !this._aiFlavorTimer;
+		clearTimeout(this._aiFlavorTimer);
+		this._aiFlavorTimer = setTimeout(() => this.useFlavor(), Math.random()*300000+30000);
+		if( ret )
+			return;
+
+		// Use flavor items if you can
+		if( game.battle_active || !this.isAI() )
+			return;
+		
+		const flavor = this.player.getActions().filter(el => el.hasTag(stdTag.acFlavor));
+		shuffle(flavor);
+		for( let f of flavor ){
+
+			const targets = f.getViableTargets();
+			if( !targets || targets.length < f.min_targets )
+				continue;
+			
+			shuffle(targets);
+
+			f.useOn(targets.slice(0, f.max_targets));
+			break;
+
+		}
+
+
+	}
+
+	async handleEvent( event ){
+		if( !this.isAI() )
+			return;
+		if( !(this.player instanceof Player) )
+			return;
+
+		const T = GameEvent.Types, t = event.type;
+
+		if( t === T.battleEnded ){
+
+			// Things it should do
+			// Re-equip worn assets
+
+			// We lost, wait longer
+			if( this.player.isDead() )
+				await delay(5000);
+			else
+				await delay(1000);
+			for( let asset of this._battle_start_assets ){
+
+				if( !asset.equipped && !this.player.getEquippedAssetsBySlots(asset.slots).length ){
+
+					game.equipPlayerItem(this.player, asset.id);
+					await delay(500);
+
+				}
+
+			}
+
+			// Loot if possible, but only consumables and gold
+			const lootable = game.getEnabledPlayers().filter(el => el.isLootableBy(this.player) && el.team !== this.player.team);
+			let viableLoot = [];
+			for( let pl of lootable )
+				viableLoot.push(...pl.getLootableAssets());
+			viableLoot = viableLoot.filter(asset => {
+				return (
+					['currency', 'food', 'consumable', 'junk'].includes(asset.category)					
+				);
+			});
+			shuffle(viableLoot);
+
+			viableLoot = viableLoot.slice(0, Math.ceil(Math.random()*viableLoot.length/game.getTeamPlayers().length));
+
+			for( let asset of viableLoot ){
+
+				asset.parent.lootToPlayer( asset.id, this.player, true );
+				await delay(500);
+
+			}
+
+			// Category can be HP or MP
+			const eatIfNecessary = (category = 'HP') => {
+
+				if( category !== 'HP' && category !== 'MP' )
+					return;
+
+				let fxtype = Effect.Types.damage;
+				if( category === 'MP' )
+					fxtype = Effect.Types.addMP;
+
+				const food = this.player.getAssets().map(el => {
+					if( 
+						el.category !== 'food' ||
+						!el?.use_action?.wrappers ||
+						!el.isUsable()
+					)return false;
+
+					let amount = 0;
+					for( let wrapper of el.use_action.wrappers ){
+
+						let effects = wrapper.getEffects({type:fxtype});
+						if( !effects.length )
+							continue;
+
+						for( let effect of effects ){
+
+							if( !isNaN(effect.data.amount) && (effect.data.amount < 0 && category === 'HP') || (effect.data.amount > 0 && category === 'MP') )
+								amount += Math.abs(effect.data.amount);
+
+						}
+
+					}
+
+					if( amount < 1 )
+						return false;
+
+					return {
+						amt : amount,
+						asset : el
+					};
+
+				}).filter(el => el);
+		
+				food.sort((a, b) => a.amt > b.amt ? -1 : 1);
+				
+				for( let piece of food ){
+					if( 
+						(category === 'HP' && (piece.amt + this.player.hp > this.player.getMaxHP() && this.player.hp > this.player.getMaxHP()/4)) ||
+						(category === 'MP' && (piece.amt + this.player.mp > this.player.getMaxMP() && this.player.mp > this.player.getMaxMP()/4))
+					)continue;
+
+					try{
+
+						if( game.useActionOnTarget(
+							piece.asset.use_action, 
+							this.player,
+							this.player
+						) )return true;
+						
+
+					}catch(err){
+
+					}
+
+				}
+				
+				return false;
+
+			};
+			// Use food for HP if necessary
+			let max = 5;
+			while( eatIfNecessary() && --max )
+				await delay(500);
+			// same for MP
+			max = 5;
+			while( eatIfNecessary('MP') && --max )
+				await delay(500);
+			
+
+			// Equip potions and swap out broken gear if possible
+			let freePotionSlots = this.player.getNrActionSlots() - this.player.getEquippedAssetsBySlots([Asset.Slots.action]).length;
+			const potions = this.player.getAssetsInventory().filter(el => el.slots.includes(Asset.Slots.action));
+			shuffle(potions);
+			for( let i = 0; i < freePotionSlots && potions.length; ++i )
+				game.equipPlayerItem(this.player, potions.shift().id);
+
+
+			// Todo: Make this random
+			await delay(3000+Math.random()*5000);
+			this.useFlavor();
+
+		}
+
+		if( t === T.battleStarted ){
+			
+			this._battle_start_assets = this.player.getEquippedAssetsBySlots([gAsset.Slots.lowerBody, gAsset.Slots.upperBody]);
+
+		}
+		
 
 	}
 

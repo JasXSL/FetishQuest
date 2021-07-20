@@ -625,11 +625,25 @@ class Text extends Generic{
 		if( event.text )
 			event.text._chatPlayer = chatPlayer;	
 
+		if( this.chat && !chatPlayer ){
+			if( debug )
+				console.debug("FAIL because chat player missing");
+			return false;
+		}
+
+		if( this.chat && !chatPlayer.canOptionalChat() ){
+			if( debug )
+				console.debug("FAIL because chatPlayer can't optional chat");
+			return false;
+		}
+
 		// Chat already used by this player
-		if( this.chat && chatPlayer && chatPlayer._used_chats[this.id] ){
+		if( this.chat && chatPlayer._used_chats[this.id] ){
+
 			if( debug )
 				console.debug("FAIL because chat already used by player");
 			return false;
+
 		}
 
 		
@@ -664,13 +678,11 @@ class Text extends Generic{
 
 		}
 
-	
-		if( !debug )
-			debug = this.debug;
-
 		if( !Condition.all(this.conditions, event, debug ) )
 			return false;
 
+		if( debug )
+			console.debug("SUCCESS: ", this, "evt", event.clone());
 		return true;
 
 	}
@@ -725,7 +737,7 @@ Text.getFromEvent = function( event, debug = false ){
 			
 			// Not sure why ID here is required, cloning is a bit slow
 			const id = text.id;
-			text = text.clone();
+			text = text.clone();	// Clone it so we can set chat player
 			text.id = id;			// ID isn't saved on text (regenerated each load). So when cloning we have to re-apply it
 			if( p )
 				text._chatPlayer = p;
@@ -751,17 +763,14 @@ Text.getFromEvent = function( event, debug = false ){
 	if( chat ){
 		
 		for( let text of available ){
+
 			if( text.chat === this.Chat.required )
 				required.push(text);
+
 		}
 
 		if( required.length )
 			available = required;
-
-		else if( !event.sender || !event.sender.canOptionalChat() ){		//  If there's no required chats available, make sure the player can chat already
-			available = [];
-		}
-
 
 	}else{
 
