@@ -369,7 +369,7 @@ class DungeonLayoutEditor{
 		div.style.left = (left*size)+'%';
 
 		let html = '';
-		html += '<span class="name">'+esc(roomAsset.name.substr(0, 8) || 'Unknown')+'</span>';
+		html += '<span class="name'+(room._e ? ' extendedAsset' : '')+'">'+esc(roomAsset.name.substr(0, 8) || 'Unknown')+'</span>';
 
 		const dir_offsets = {
 			'top' : {y:1,l:'N'}, 
@@ -468,24 +468,40 @@ class DungeonLayoutEditor{
 		// Bind click on the actual thing
 		div.onclick = event => {
 
-			if( (event.ctrlKey || event.metaKey) && confirm("Really delete this room and any children?") ){
+			if( event.ctrlKey || event.metaKey ){
 
-				let to_delete = [room];	// contains room objects to delete
-				for( let r of this.cache_rooms ){
+				if( room._e ){
 
-					if( this.roomHasAncestor(r, room.index) )
-						to_delete.push(r);
+					if( confirm('Really delete your extensions?') ){
+
+						window.mod.mod.deleteAsset('dungeonRooms', room.label);
+						this.setLevel(this.active_level);
+
+					}
+
+					return;
+
+				}else if( confirm("Really delete this room and any children?") ){
+
+					let to_delete = [room];	// contains room objects to delete
+					for( let r of this.cache_rooms ){
+
+						if( this.roomHasAncestor(r, room.index) )
+							to_delete.push(r);
+
+					}
+
+					console.log("room", to_delete);
+
+					for( let r of to_delete )
+						this.deleteRoom(r, false);
+
+					this.setLevel(this.active_level);
+
+					return;
 
 				}
 
-				console.log("room", to_delete);
-
-				for( let r of to_delete )
-					this.deleteRoom(r, false);
-
-				this.setLevel(this.active_level);
-
-				return;
 			}
 
 
@@ -495,10 +511,12 @@ class DungeonLayoutEditor{
 	}
 
 	setRoomEditor( label ){
+
 		// Bring up the room editor
 		Window.getByType('dungeonRooms').map(el => el.remove());
 		Window.getByType('dungeonAssets').map(el => el.remove());
 		window.mod.buildAssetEditor("dungeonRooms", label);
+
 	}
 
 

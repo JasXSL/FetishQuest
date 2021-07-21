@@ -365,7 +365,7 @@ class Editor{
 		this.renderDiv = renderDiv;
 		this.contentDiv = contentDiv;
 		this.room_raw = asset;
-		this.room = DungeonRoom.loadThis(mod.mod.getAssetById('dungeonRooms', asset.label));
+		this.room = DungeonRoom.loadThis(mod.getAssetById('dungeonRooms', asset.label));
 		this.rebase();
 
 		gl.renderer.domElement.tabIndex = 0;
@@ -874,6 +874,7 @@ class Editor{
 		if( this.gl.stage )
 			this.gl.stage.destructor();
 
+		console.log("Room", this.room);
 		let stage = new Stage(this.room, this.gl, true);
 		this.gl.resetStage( stage );
 		await stage.draw();

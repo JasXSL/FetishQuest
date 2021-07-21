@@ -257,7 +257,7 @@ table.selectable tr:not(.noselect):hover td{
 table.selectable tr[data-mod]{
 	color:#DDD;
 }
-table.selectable tr[data-ext]{
+table.selectable tr[data-ext], .extendedAsset{
 	color:#ABD;
 }
 table.allowMarking,
