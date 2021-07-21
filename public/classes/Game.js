@@ -3540,22 +3540,26 @@ Game.Genders = {
 	Other : 0x4
 };
 
-Game.load = async () => {
-	
-	StaticModal.ini();
+Game.init = function(){
 
-	if( game instanceof Game )
-		game.destructor();
+	window.addEventListener('hashchange', () => this.onHashChange());
 
-	game = new Game();
-	let hash = window.location.hash;
-	if( hash.charAt(0) === '#' )
-		hash = hash.substr(1);
-	hash = hash.split('/');
+};
+
+// returns true if netgame was detected
+Game.onHashChange = function(){
+
+	const hash = getHash();
 
 	const hashTask = hash.shift();
 	if( hashTask === 'net' ){
+
 		const gameID = hash.shift();
+		if( this._hashid === gameID )
+			return;
+
+		this._hashid = gameID;
+
 		let html = '<form id="joinOnlineGame">'+
 			'<h1>Join Online Game</h1>'+
 			'Nickname: <input type="text" value="'+esc(game.net.getStandardNick() || 'Anonymous #'+Math.floor(Math.random()*9999))+'">'+
@@ -3563,6 +3567,7 @@ Game.load = async () => {
 		'</form>';
 		game.ui.modal.set(html);
 		$("#joinOnlineGame").on('submit', event => {
+
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			const nick = $("#joinOnlineGame input[type=text]").val().trim();
@@ -3570,10 +3575,26 @@ Game.load = async () => {
 				return game.ui.modal.addError("Please enter a proper nickname");
 			game.net.joinGame(gameID, nick);
 			game.ui.modal.close();
+
 		});
 		game.ui.draw();
-		return;
+		return true;
+
 	}
+
+
+};
+
+Game.load = async function(){
+	
+	StaticModal.ini();
+
+	if( game instanceof Game )
+		game.destructor();
+
+	game = new Game();
+	if( this.onHashChange() )
+		return;
 
 	if(localStorage.game){
 		try{
@@ -3589,7 +3610,7 @@ Game.load = async () => {
 
 };
 
-Game.saveToDB = async data => {
+Game.saveToDB = async function( data ){
 	try{
 		await Game.db.games.put(data);
 	}catch(err){
@@ -3597,12 +3618,12 @@ Game.saveToDB = async data => {
 	}
 };
 
-Game.getDataByID = async id => {
+Game.getDataByID = async function( id ){
 	return Game.db.games.get(id);
 };
 
 // Get save files names
-Game.getNames = async () => {
+Game.getNames = async function(){
 
 	let names = {};	// id:name
 	await Game.db.games.each(g => {
@@ -3616,7 +3637,7 @@ Game.getNames = async () => {
 };
 
 // Create a new game
-Game.new = async (name, players) => {
+Game.new = async function(name, players){
 
 	if( game )
 		game.destructor();
@@ -3640,7 +3661,7 @@ Game.new = async (name, players) => {
 };
 
 // Converts the current game into a netgame
-Game.joinNetGame = () => {
+Game.joinNetGame = function(){
 	
 	game.is_host = false;
 	game.name = '_Netgame_';
@@ -3648,7 +3669,7 @@ Game.joinNetGame = () => {
 
 };
 
-Game.delete = async id => {
+Game.delete = async function( id ){
 
 	await Game.db.games.delete(id);
 	if( game.id === id )

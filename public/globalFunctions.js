@@ -27,6 +27,16 @@ function ucFirst(a, single = false){
 	return String(a).split(' ').map(el => el.substr(0,1).toUpperCase()+el.substr(1)).join(' ');
 }
 
+function getHash(){
+	
+	let hash = window.location.hash;
+	if( hash.charAt(0) === '#' )
+		hash = hash.substr(1);
+	hash = hash.split('/');
+	return hash;
+
+}
+
 // returns a random item by weight, input are objects to pick one from, and weightFunc is called on each object
 function weightedRand( input, weightFunc ){
 

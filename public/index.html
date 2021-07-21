@@ -98,7 +98,8 @@
 		}
 
 		glib.ini()
-		.then(Game.load)
+		.then(() => Game.init())
+		.then(() => Game.load())
 		.then(() => {
 			
 			const commonCommands = {
