@@ -45,7 +45,7 @@ import {BufferGeometryUtils} from '../ext/BufferGeometryUtils.js';
 import {GLTFLoader} from '../ext/GLTFLoader.js';
 import {SkeletonUtils} from '../ext/SkeletonUtils.js';
 import GameEvent from '../classes/GameEvent.js';
-
+import Game from '../classes/Game.js';
 
 class LibMesh{
 	constructor(data){
@@ -381,7 +381,7 @@ LibMesh.playSoundShared = function( mesh, asset, url, volume, loop, id ){
 	let stage = mesh.userData._stage;
 	stage.playSound(mesh, url, volume, loop, id);
 	// Interacts only happen on the host, so make sure stuff is sent to the netgame
-	game.net.dmPlaySoundOnMesh( asset.id, url, volume, loop, id );
+	Game.net.dmPlaySoundOnMesh( asset.id, url, volume, loop, id );
 };
 LibMesh.playSound = function( mesh, asset, url, volume, loop, id ){
 	let stage = mesh.userData._stage;

@@ -767,6 +767,12 @@ div.passiveUpsideDown > div.content > div.bg{
 		text-align:center;
 
 	}
+	#settings div.connected > .hideIfNotHost{
+		display:none;
+	}
+	#settings div.connected.host > .hideIfNotHost{
+		display:block;
+	}
 	
 
 

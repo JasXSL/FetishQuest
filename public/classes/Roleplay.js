@@ -653,7 +653,7 @@ export class RoleplayStageOption extends Generic{
 
 		// Do this first to set the waiting flag
 		game.ui.rpOptionSelected(this.id);
-		game.net.dmRpOptionSelected(this.id);
+		Game.net.dmRpOptionSelected(this.id);
 
 		const goto = this.getIndex( player );
 

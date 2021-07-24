@@ -10,22 +10,25 @@ import Asset from './Asset.js';
 import Quest from './Quest.js';
 import Book from './Book.js';
 
+
+// Game specific
 class NetworkManager{
 
-	// Parent is game
-	constructor(parent){
+	constructor(){
 		
 		this.debug = false;
-		this.parent = parent;
 		this.io = null;
-		this.id = null;
-		this.public_id = null;
+		this.id = null;				// our netplayer id
+		this.public_id = null;		// outward facing shareable id
 		this.players = [];			// {id:id, name:name}
 		this.afk = {};				// id:afk_status
 		this._last_push = null;
 		this._pre_push_time = 0;		// Time of last push
 		this.timer_reconnect = null;
 		this.comparer = new Comparer();
+
+		this.gf_players = [];
+		this.gf_connected = false;
 
 		this.load_status  = {DM : 0};	// Cells loaded
 		this.in_menu = {DM : false};	// Tracks if players are in a menu
@@ -34,14 +37,13 @@ class NetworkManager{
 
 		// This is for debugging purposes
 		setTimeout(() => {
-			this._last_push = parent.getSaveData();
+			this._last_push = game.getSaveData();
 		}, 100);
 
 	}
 
 	destructor(){
-		if( this.io )
-			this.io.disconnect();
+		this.leaveNetgame();
 	}
 
 	// Connect to the server
@@ -58,9 +60,6 @@ class NetworkManager{
 			console.debug("Server connection established");
 			clearTimeout(this.timer_reconnect);
 			game.onTurnTimerChanged();
-			window.onbeforeunload = function() {
-				return true;
-			};
 			this.handleEvent('connect');
 
 		});
@@ -158,7 +157,6 @@ class NetworkManager{
 
 			}
 
-			window.onbeforeunload = undefined;
 			this.disconnect();
 			
 		});
@@ -168,6 +166,12 @@ class NetworkManager{
 		this.io.on('playerTask', data => this.onPlayerTask(data));
 		this.io.on('gameUpdate', data => this.onGameUpdate(data));
 		this.io.on('dmTask', data => this.onDMTask(data));
+
+		// Group finder
+		this.io.on('gf_pla', data => this.onGroupFinderPlayers(data));
+		this.io.on('gf_pl', data => this.onGroupFinderPlayer(data));
+		this.io.on('gf_rem', data => this.onGroupFinderPlayerRemoved(data));
+		this.io.on('gf_msg', data => this.onGroupFinderMessage(data));
 		
 		// Received a netgame player ID
 		return new Promise(res => {
@@ -181,7 +185,7 @@ class NetworkManager{
 
 	// Are we connected?
 	isConnected(){
-		return !!this.io;
+		return Boolean(this.io);
 	}
 
 	// Disconnects entirely
@@ -211,23 +215,70 @@ class NetworkManager{
 
 	}
 
+	// Disconnect from a netgame
+	async leaveNetgame(){
+
+		if( !this.isInNetgame() )
+			return;
+
+		return new Promise((res, rej) => {
+
+			this.io.emit('leave', '', async () => {
+
+				this.players = [];			// {id:id, name:name}
+				this.afk = {};				// id:afk_status
+				this._pre_push_time = 0;		// Time of last push
+				
+				clearTimeout(this.timer_reconnect);
+				this.comparer = new Comparer();
+				this.load_status  = {DM : 0};
+				this.in_menu = {DM : false};
+				this._last_push = {};
+				this.public_id = null;
+				this.players = [];
+
+				if( !game.is_host ){
+			
+					await Game.load();
+					StaticModal.set('mainMenu');
+		
+				}
+				
+				res();
+
+			});
+
+			game.ui.draw();
+			game.onTurnTimerChanged();
+
+		});
+
+	}
+
 	// hosts your currently loaded game
 	async hostGame(){
 
-		if( !this.io )
+		if( !this.isConnected() )
 			await this.connect();
 
-		if( !this.parent.is_host ){
+		if( !game.is_host ){
+
 			game.ui.modal.addError('You are not the host of this game');
 			return false;
+
 		}
+
+		
 
 		return new Promise(res => {
 			this.io.emit('host', '', id => {
 				if( id ){
+
 					this.public_id = id;
 					this._last_push = game.getSaveData();
 					glib.autoloadMods();
+					this.updateWindowLeaveStatus();
+
 				}
 				else
 					game.ui.modal.addError("Attempt to host failed");
@@ -262,13 +313,18 @@ class NetworkManager{
 		return new Promise(res => {
 			this.io.emit('join', {room:id, name:name}, success => {
 				if( success ){
+
 					game.ui.modal.addNotice("You have joined the game");
 					this.attempts = 0;
 					Game.joinNetGame();
+					this.updateWindowLeaveStatus();
+
 				}
 				else{
+
 					game.ui.modal.addError("Failed to join a game");
 					this.disconnect();
+
 				}
 				res();
 			});
@@ -276,9 +332,31 @@ class NetworkManager{
 
 	}
 
+	updateWindowLeaveStatus(){
+
+		if( this.isInNetgame() ){
+			
+			window.onbeforeunload = function() {
+				return true;
+			};
+
+		}
+		else
+			window.onbeforeunload = undefined;
+
+	}
+
+	isInNetgame(){
+		return this.isConnected() && this.public_id;
+	}
+
+	isInNetgameNotHost(){
+		return this.isInNetgame() && !game.is_host;
+	}
+
 	// Checks if we're hosting a netgame
-	isHostingNetgame(){
-		return this.isConnected() && this.parent.is_host;
+	isInNetgameHost(){
+		return this.isInNetgame() && game.is_host;
 	}
 
 	// Debugging
@@ -333,6 +411,97 @@ class NetworkManager{
 	getDMLoadStatus(){
 		return this.load_status.DM;
 	}
+
+
+	/* Todo: Handle group finder */
+	async joinGroupFinder(){
+
+		const char = new GfPlayer();
+		char.loadFromLocalStorage();
+		char.id = this.id;
+
+		// Connect etc
+		if( !this.isConnected() )
+			await this.connect();
+
+		this.io.emit('setGroupFinder', char.save());
+		this.gf_connected = true;
+		this.gf_players = [];
+
+	}
+
+	leaveGroupFinder(){
+
+		this.io.emit('setGroupFinder');
+		this.gf_connected = false;
+
+	}
+
+	onGroupFinderMessage( data ){
+		
+		if( !data )
+			return;
+
+		const message = data.message,
+			sender = data.sender
+		;
+
+		console.log("Todo: Message received", message, sender);
+
+	}
+
+	// received ALL players currently in LFG
+	onGroupFinderPlayers( data ){
+
+		this.gf_players = data.map(el => new GfPlayer(el));
+		console.log("Got ALL players", this.gf_players);
+
+	}
+
+	getGroupFinderPlayerById( id ){
+
+		for( let player of this.gf_players ){
+			
+			if( id === player.id )
+				return player;
+
+		}
+
+	}
+
+	// Received a single changed player
+	onGroupFinderPlayer( data ){
+		
+		const id = data.id;
+		const player = this.getGroupFinderPlayerById(id);
+		if( player )
+			player.load(data);
+
+	}
+
+	onGroupFinderPlayerRemoved( id ){
+
+		for( let i = 0; i < this.gf_players.length; ++i ){
+
+			const pl = this.gf_players[i];
+			if( pl.id === id ){
+				this.gf_players.splice(i, 1);
+				break;
+			}
+
+		}
+
+	}
+
+	sendGroupFinderMessage( char, message ){
+
+		this.io.emit('gf_msg', {
+			message : message,
+			to : char.id,
+		});
+
+	}
+
 
 
 	/* STANDARD OUTPUT */
@@ -911,6 +1080,7 @@ class NetworkManager{
 
 	// DM -> PLAYER
 	onDMTask(data){
+
 		if( game.is_host || typeof data !== "object" || !data.task )
 			return;
 		if( this.debug )
@@ -1179,6 +1349,8 @@ class NetworkManager{
 
 		let gameCombatPre = game.battle_active;
 		let dungeonPreId = game.dungeon.id;
+
+		console.log("Loading", data, "onto", game);
 		// Load data in
 		game.loadFromNet(data);
 		game.ui.draw();		
@@ -1663,6 +1835,77 @@ class NetworkManager{
 		this.sendHostTask(NetworkManager.dmTasks.toggleUI, {on:on});
 
 	}
+
+}
+
+
+// Group finder player
+class GfPlayer{
+
+	constructor( data ){
+
+		if( typeof data === "object" )
+			this.load(data);
+
+	}
+
+	load( data ){
+
+		this.id = data.id || '';
+		this.name = data.name || 'Unknown Player';
+		this.species = data.species || 'Unknown Speices';
+		this.image = data.image || '';
+		this.sex = data.sex || 'Unknown Sex';
+		this.prefers_sex = data.prefers_sex || 'Any Sex';
+		this.rp_style = data.rp_style || 'No RP';
+		this.mods = data.mods || 'No preference';
+		this.prefers_roles = data.prefers_roles || 'Any Role';
+
+	}
+
+	loadFromLocalStorage(){
+
+	
+		this.name = localStorage.gfName || 'Unknown User';
+		this.species = localStorage.gfSpecies || 'Unspecified Species';
+		this.image = localStorage.gfImage || '';
+		this.sex = localStorage.gfSex || 'Genderless';
+		this.prefers_sex = localStorage.gfPrefersSex || 'Any Sex';
+		this.rp_style = localStorage.gfRpStyle || 'No RP';
+		this.mods = localStorage.gfMods || 'No Mods';
+		this.prefers_roles = localStorage.prefersRoles || 'Any Role';
+
+	}
+
+	saveToLocalStorage(){
+
+		localStorage.gfName = this.name;
+		localStorage.gfSpecies = this.species;
+		localStorage.gfImage = this.image;
+		localStorage.gfSex = this.sex;
+		localStorage.gfPrefersSex = this.prefers_sex;
+		localStorage.gfRpStyle = this.rp_style;
+		localStorage.mods = this.mods;
+		localStorage.prefers_roles = this.prefers_roles;
+
+	}
+
+	// Structure sent to the server
+	save(){
+
+		return {
+			name : this.name,
+			species : this.species,
+			image : this.image,
+			sex : this.sex,
+			prefer_sex : this.prefers_sex,
+			rp_style : this.rp_style,
+			mods : this.mods,
+			prefers_roles : this.prefers_roles,
+		};
+
+	}
+
 
 }
 

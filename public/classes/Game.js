@@ -44,7 +44,6 @@ export default class Game extends Generic{
 		this.initialized = false;			// might happen multiple times from the load function
 		this.full_initialized = false;		// Only happens once
 		this.chat_log = [];					// Chat log
-		this.net = new NetworkManager(this);
 		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new Encounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.roleplay = new Roleplay({completed:true}, this);
@@ -112,7 +111,7 @@ export default class Game extends Generic{
 
 		this.renderer.destructor();
 		this.ui.destructor();
-		this.net.destructor();
+		Game.net.destructor();
 		this.renderer.destructor();
 		this.setMusic();
 		this.setAmbient();
@@ -298,7 +297,7 @@ export default class Game extends Generic{
 
 		
 		if( !ignoreNetGame )
-			this.net.sendGameUpdate();
+			Game.net.sendGameUpdate();
 		this.ignore_netgame = true;
 
 		localStorage.game = this.id;
@@ -497,17 +496,17 @@ export default class Game extends Generic{
 	}
 
 	toggleAFK(){
-		// game.net.isPlayerAFK(this.netgame_owner)
-		if( !this.net.isConnected() )
+		// Game.net.isPlayerAFK(Game.netgame_owner)
+		if( !Game.net.isInNetgame() )
 			return false;
 		
-		this.net.playerToggleAFK();
+		Game.net.playerToggleAFK();
 
 	}
 
 
 	isHostLoaded(){
-		if( !this.net.isConnected() || game.host )
+		if( !Game.net.isInNetgame() || this.is_host )
 			return true;
 
 		return this.load_perc >= 1.0;
@@ -521,12 +520,12 @@ export default class Game extends Generic{
 		// These are needed because they cache the nr of loaded cells for when a player joins
 		if( this.is_host ){
 
-			this.net.dmCellsLoaded( rooms );
+			Game.net.dmCellsLoaded( rooms );
 			this.ui.updateLoadingBar();
 
 		}
 		else
-			this.net.playerCellsLoaded(rooms);
+			Game.net.playerCellsLoaded(rooms);
 
 
 	}
@@ -536,12 +535,12 @@ export default class Game extends Generic{
 
 		if( this.is_host ){
 
-			this.net.dmSetInMenu( menu );
+			Game.net.dmSetInMenu( menu );
 			this.ui.onMenuStatusChanged();
 
 		}
 		else
-			this.net.playerSetInMenu( menu );
+			Game.net.playerSetInMenu( menu );
 
 	}
 
@@ -664,8 +663,8 @@ export default class Game extends Generic{
 
 		this.playFxAudioKitById('questCompleted', undefined, undefined, undefined, true);
 		this.ui.questAcceptFlyout( 'Quest Completed:', quest.name );
-		if( this.is_host && this.net.id )
-			this.net.dmQuestAccepted( 'Quest Completed:', quest.name );
+		if( Game.net.isInNetgameHost() )
+			Game.net.dmQuestAccepted( 'Quest Completed:', quest.name );
 
 		const objectives = {
 			__time : this.time,
@@ -686,8 +685,8 @@ export default class Game extends Generic{
 		this.ui.questAcceptFlyout( 'Quest Started:', quest.name );
 		this.playFxAudioKitById('questPickup', undefined, undefined, undefined, true);
 		this.ui.gameIconPop('quest');
-		if( this.is_host && this.net )
-			this.net.dmQuestAccepted( 'Quest Started:', quest.name );
+		if( Game.net.isInNetgameHost() )
+			Game.net.dmQuestAccepted( 'Quest Started:', quest.name );
 
 	}
 	// Raised before a room changes
@@ -777,9 +776,9 @@ export default class Game extends Generic{
 		if( player === this.getMyActivePlayer() )
 			this.ui.gameIconPop('inventory');
 
-		if( this.net.isHostingNetgame() && player.netgame_owner !== 'DM' ){
+		if( Game.net.isInNetgameHost() && player.netgame_owner !== 'DM' ){
 			
-			this.net.dmInventoryAdd(player, asset);
+			Game.net.dmInventoryAdd(player, asset);
 
 		}
 		
@@ -866,12 +865,12 @@ export default class Game extends Generic{
 
 		if( !this.is_host ){
 
-			this.net.playerSleep(player, dungeonAsset, duration);
+			Game.net.playerSleep(player, dungeonAsset, duration);
 			return false;
 
 		}
 		
-		this.net.dmBlackScreen();
+		Game.net.dmBlackScreen();
 		// Has a callback for when the screen is fully black
 		this.ui.toggleBlackScreen(() => {
 
@@ -971,7 +970,7 @@ export default class Game extends Generic{
 			return false;
 		const tt = +localStorage.turnTimer,
 			tp = this.getTurnPlayer();
-		return ( tt && this.net.isConnected() && this.battle_active && tp && !tp.isNPC() );
+		return ( tt && Game.net.isInNetgameHost() && this.battle_active && tp && !tp.isNPC() );
 
 	}
 	
@@ -986,7 +985,7 @@ export default class Game extends Generic{
 			if( this.isMyTurn() )
 				game.ui.toggleRope(15);
 			
-			this.net.dmRope(this.getTurnPlayer(), 15);
+			Game.net.dmRope(this.getTurnPlayer(), 15);
 			
 			this._turn_timer = setTimeout(() => {
 				this.advanceTurn();
@@ -1082,7 +1081,7 @@ export default class Game extends Generic{
 			tid = target.id;
 
 		if( this.is_host && global )
-			this.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot, vol_multi);
+			Game.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot, vol_multi);
 
 		const out = await kit.play(this.audio_fx, sender, target, armor_slot, vol_multi);
 		return {kit:kit, instances:out};
@@ -1216,7 +1215,7 @@ export default class Game extends Generic{
 			throw "Player not yours";
 
 		if( !this.is_host )
-			return this.net.sendPlayerAction(NetworkManager.playerTasks.speak, {
+			return Game.net.sendPlayerAction(NetworkManager.playerTasks.speak, {
 				player : uuid,
 				text : text
 			});
@@ -1298,7 +1297,7 @@ export default class Game extends Generic{
 		this.updateAmbiance();
 		this.onDungeonEntered();
 		this.dungeon.onEntered();
-		this.net.purgeFromLastPush(["dungeon"],["encounter"]);
+		Game.net.purgeFromLastPush(["dungeon"],["encounter"]);
 		this.save();
 		this.renderer.loadActiveDungeon();
 
@@ -1417,8 +1416,8 @@ export default class Game extends Generic{
 		const name = labelToName(game.dungeon.label);
 		this.ui.questAcceptFlyout( 'Exploration Complete: ', name );
 
-		if( this.is_host && this.net.id )
-			this.net.dmQuestAccepted( 'Exploration Complete:', name );
+		if( this.is_host && Game.net.id )
+			Game.net.dmQuestAccepted( 'Exploration Complete:', name );
 
 		const players = this.getTeamPlayers(Player.TEAM_PLAYER);
 		const numRooms = this.dungeon.rooms.length;
@@ -1826,7 +1825,7 @@ export default class Game extends Generic{
 		if( this.is_host && !excludeDM )
 			return true;
 
-		return player.netgame_owner === this.net.id || (this.is_host && player.netgame_owner === 'DM');
+		return player.netgame_owner === Game.net.id || (this.is_host && player.netgame_owner === 'DM');
 
 	}
 
@@ -1911,7 +1910,7 @@ export default class Game extends Generic{
 			throw("Not your player");
 
 		if( !this.is_host ){
-			this.net.sendPlayerAction(NetworkManager.playerTasks.toggleGear, {
+			Game.net.sendPlayerAction(NetworkManager.playerTasks.toggleGear, {
 				player : player.id,
 				item : id
 			});
@@ -1970,7 +1969,7 @@ export default class Game extends Generic{
 		
 
 		if( !this.is_host ){
-			this.net.playerTradeAsset(fromPlayer, toPlayer, asset, amount);
+			Game.net.playerTradeAsset(fromPlayer, toPlayer, asset, amount);
 			return;
 		}
 
@@ -2015,7 +2014,7 @@ export default class Game extends Generic{
 			throw("Asset not found");
 
 		if( !this.is_host ){
-			this.net.playerDeleteAsset(player, asset, amount);
+			Game.net.playerDeleteAsset(player, asset, amount);
 			return;
 		}
 
@@ -2525,7 +2524,7 @@ export default class Game extends Generic{
 		targets = targets.filter(targ => !targ.isInvisible());
 
 		if( !this.is_host ){
-			this.net.playerUseAction(player, action, targets);
+			Game.net.playerUseAction(player, action, targets);
 			return true;
 		}else
 			this.ui.captureActionMessage = true;
@@ -2598,7 +2597,7 @@ export default class Game extends Generic{
 		}
 
 		if( !this.is_host ){
-			this.net.playerRoleplayOption(senderPlayer, option_id);
+			Game.net.playerRoleplayOption(senderPlayer, option_id);
 			return false;
 		}
 
@@ -2619,7 +2618,7 @@ export default class Game extends Generic{
 			return;
 
 		if( !this.is_host ){
-			game.net.playerRoleplay( game.getMyActivePlayer(), rp );
+			Game.net.playerRoleplay( game.getMyActivePlayer(), rp );
 			return;
 		}
 
@@ -2741,7 +2740,7 @@ export default class Game extends Generic{
 		}
 
 		const isMyPlayer = player === game.getMyActivePlayer();
-		if( !isMyPlayer && (!this.net.isHostingNetgame() || !player.netgame_owner) )
+		if( !isMyPlayer && (!Game.net.isInNetgameHost() || !player.netgame_owner) )
 			return;
 
 		if( isMyPlayer ){
@@ -2750,7 +2749,7 @@ export default class Game extends Generic{
 			return;
 		}
 
-		this.net.dmGetLargeAsset(player.netgame_owner, 'book', book.save());
+		Game.net.dmGetLargeAsset(player.netgame_owner, 'book', book.save());
 
 	}
 
@@ -2763,7 +2762,7 @@ export default class Game extends Generic{
 			throw("Not your player");
 
 		if( !this.is_host )
-			return this.net.playerUseRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID);
+			return Game.net.playerUseRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID);
 
 		let kitAsset = senderPlayer.getAssetById(repairKitID);
 		let targetAsset = targetPlayer.getAssetById(assetID);
@@ -2796,7 +2795,7 @@ export default class Game extends Generic{
 
 		if( !this.is_host ){
 
-			this.net.playerUseAssetGameAction(player, assetGameAction);
+			Game.net.playerUseAssetGameAction(player, assetGameAction);
 			return;
 
 		}	
@@ -3077,7 +3076,7 @@ export default class Game extends Generic{
 			throw 'Invalid transmog item';
 
 		if( !this.is_host ){
-			this.net.playerTransmogrify(transmogrifier, player, baseAsset, copyFrom);
+			Game.net.playerTransmogrify(transmogrifier, player, baseAsset, copyFrom);
 			return;
 		}
 
@@ -3123,7 +3122,7 @@ export default class Game extends Generic{
 			throw 'Action unavailable to active player';	
 
 		if( !this.is_host ){
-			this.net.playerRentRoom( renterPlayer, player );
+			Game.net.playerRentRoom( renterPlayer, player );
 			return;
 		}
 
@@ -3181,7 +3180,7 @@ export default class Game extends Generic{
 			return out("Insufficient funds");
 
 		if( !this.is_host ){
-			return this.net.playerRepairItemAtBlacksmith(smithPlayer, player, asset);
+			return Game.net.playerRepairItemAtBlacksmith(smithPlayer, player, asset);
 		}
 		// Ok finally we can do it
 		player.consumeMoney(cost);
@@ -3212,7 +3211,7 @@ export default class Game extends Generic{
 
 		// Netcode
 		if( !this.is_host ){
-			this.net.playerSellItem(shop, asset, amount, player);
+			Game.net.playerSellItem(shop, asset, amount, player);
 			return;
 		}
 
@@ -3271,7 +3270,7 @@ export default class Game extends Generic{
 
 		// netcode
 		if( !this.is_host ){
-			this.net.playerBuyItem(shop, asset, amount, player);
+			Game.net.playerBuyItem(shop, asset, amount, player);
 			return;
 		}
 		
@@ -3345,7 +3344,7 @@ export default class Game extends Generic{
 			throw "You have no player";
 		
 		if( !this.is_host ){
-			this.net.playerExchangeGold(myPlayer);
+			Game.net.playerExchangeGold(myPlayer);
 			return;
 		}
 		
@@ -3407,7 +3406,7 @@ export default class Game extends Generic{
 
 		// If netcode, send to host & return
 		if( !this.is_host ){
-			this.net.playerBuyAction(gymPlayer, player, learnable);
+			Game.net.playerBuyAction(gymPlayer, player, learnable);
 			return;
 		}
 
@@ -3432,7 +3431,7 @@ export default class Game extends Generic{
 			throw 'Invalid player';
 
 		if( !this.is_host ){
-			this.net.playerToggleAction(gymPlayer, player, actionID);
+			Game.net.playerToggleAction(gymPlayer, player, actionID);
 			return;
 		}
 
@@ -3543,6 +3542,7 @@ Game.Genders = {
 Game.init = function(){
 
 	window.addEventListener('hashchange', () => this.onHashChange());
+	Game.net = new NetworkManager();
 
 };
 
@@ -3562,7 +3562,7 @@ Game.onHashChange = function(){
 
 		let html = '<form id="joinOnlineGame">'+
 			'<h1>Join Online Game</h1>'+
-			'Nickname: <input type="text" value="'+esc(game.net.getStandardNick() || 'Anonymous #'+Math.floor(Math.random()*9999))+'">'+
+			'Nickname: <input type="text" value="'+esc(Game.net.getStandardNick() || 'Anonymous #'+Math.floor(Math.random()*9999))+'">'+
 			'<input type="submit" value="Join" />'+
 		'</form>';
 		game.ui.modal.set(html);
@@ -3573,7 +3573,7 @@ Game.onHashChange = function(){
 			const nick = $("#joinOnlineGame input[type=text]").val().trim();
 			if( !nick )
 				return game.ui.modal.addError("Please enter a proper nickname");
-			game.net.joinGame(gameID, nick);
+			Game.net.joinGame(gameID, nick);
 			game.ui.modal.close();
 
 		});

@@ -25,6 +25,7 @@ import stdTag from '../libraries/stdTag.js';
 import Player from './Player.js';
 import { DungeonRoomAsset, DungeonRoomMarker } from './Dungeon.js';
 import Stats from '../ext/stats.module.js';
+import Game from './Game.js';
 
 window.g_THREE = THREE;
 
@@ -1456,7 +1457,7 @@ class WebGL{
 			visObj.run(caster, recipient, armor_slot, mute, recipients.length);
 		
 		if( global && game.is_host ){
-			game.net.dmHitfx(caster, recipients, visObj, armor_slot);
+			Game.net.dmHitfx(caster, recipients, visObj, armor_slot);
 		}
 
 		

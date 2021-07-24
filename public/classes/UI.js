@@ -944,7 +944,7 @@ export default class UI{
 
 			options.push({id:'',name:'NPC'});
 			options.push({id:'DM',name:'YOU'});
-			for( let player of game.net.players ){
+			for( let player of Game.net.players ){
 				if( player.name !== 'DM' )
 					options.push(player);
 			}
@@ -956,7 +956,7 @@ export default class UI{
 				modal.closeSelectionBox();
 				const id = $(event.target).attr('data-id');
 				player.netgame_owner = id;
-				player.netgame_owner_name = game.net.getPlayerNameById(id);
+				player.netgame_owner_name = Game.net.getPlayerNameById(id);
 				th.draw();
 				game.save();
 			});
@@ -1160,7 +1160,7 @@ export default class UI{
 			netgameStatus = $('> div.netgameStatus', el)
 		;
 
-		netgameStatus.toggleClass('hidden', (!game.net.isConnected() || !p.netgame_owner));
+		netgameStatus.toggleClass('hidden', (!Game.net.isInNetgame() || !p.netgame_owner));
 		
 
 		index = +index;
@@ -1259,7 +1259,7 @@ export default class UI{
 		ownerEl.toggleClass('hidden', !game.is_host);
 		ownEl.toggleClass('hidden', Boolean(game.getMyPlayers().length < 2 || isMyActive || !isMine));
 		leaderEl.toggleClass('hidden', Boolean(
-			p.team !== 0 || !game.net.id ||
+			p.team !== 0 || !Game.net.id ||
 			(!p.leader && !game.is_host)
 		)).toggleClass('host', game.is_host).toggleClass("active", Boolean(p.leader));
 
@@ -1632,7 +1632,7 @@ export default class UI{
 			if( !player.netgame_owner )
 				continue;
 
-			$("div.player[data-id='"+esc(player.id)+"'] div.netgameStatus > div.inMenu", this.players).toggleClass('hidden', !game.net.in_menu[player.netgame_owner]);
+			$("div.player[data-id='"+esc(player.id)+"'] div.netgameStatus > div.inMenu", this.players).toggleClass('hidden', !Game.net.in_menu[player.netgame_owner]);
 
 		}
 
@@ -1940,7 +1940,7 @@ export default class UI{
 			acn = acn.split(' ');
 
 		if( acn.indexOf('dmInternal') === -1 )
-			game.net.sendHostTask(NetworkManager.dmTasks.sendText, {
+			Game.net.sendHostTask(NetworkManager.dmTasks.sendText, {
 				text : text,
 				evtType : evtType,
 				attackerID : attackerID,
@@ -2360,7 +2360,7 @@ export default class UI{
 		if(!player)
 			return;
 
-		game.net.sendHostTask(NetworkManager.dmTasks.sendVisual, {
+		Game.net.sendHostTask(NetworkManager.dmTasks.sendVisual, {
 			player : player.id,
 			fx : fx
 		});
@@ -2690,8 +2690,8 @@ export default class UI{
 
 		if( maxSteps > 0 ){
 
-			game.net.load_status[game.net.getMyLoadStatusID()] = 0;
-			game.net.load_status['DM'] = 0;
+			Game.net.load_status[Game.net.getMyLoadStatusID()] = 0;
+			Game.net.load_status['DM'] = 0;
 			this.loadingMaxSteps = +maxSteps;
 			this.updateLoadingBar();
 
@@ -2712,12 +2712,12 @@ export default class UI{
 		if( !this.loadingMaxSteps )
 			return;
 
-		let val = parseInt(game.net.getMyLoadStatus()) || 0;
+		let val = parseInt(Game.net.getMyLoadStatus()) || 0;
 		let perc = val/this.loadingMaxSteps;
 		this.myLoadingStatusText.html('('+val+'/'+this.loadingMaxSteps+')');
 		this.myLoadingBar.css({'width': perc*100+'%'});
 
-		let dmVal = parseInt(game.net.getDMLoadStatus()) || 0;
+		let dmVal = parseInt(Game.net.getDMLoadStatus()) || 0;
 		perc = dmVal/this.loadingMaxSteps;
 		this.hostLoadingStatusText.html('('+dmVal+'/'+this.loadingMaxSteps+')');
 		this.hostLoadingBar.css({'width': perc*100+'%'});
@@ -2731,7 +2731,7 @@ export default class UI{
 			if( !player.netgame_owner )
 				continue;
 
-			val = parseInt(game.net.load_status[player.netgame_owner]);
+			val = parseInt(Game.net.load_status[player.netgame_owner]);
 			if( isNaN(val) )
 				val = this.loadingMaxSteps;
 			perc = Math.round(val/this.loadingMaxSteps*100);
@@ -2767,8 +2767,8 @@ export default class UI{
 				type : type,
 				crit : crit
 			});
-			if( game.is_host && game.net.isConnected() )
-				game.net.dmFloatingCombatText(amount, player.id, type, crit);
+			if( Game.net.isInNetgameHost() )
+				Game.net.dmFloatingCombatText(amount, player.id, type, crit);
 
 		}
 		if( this.fctTimer || !this.fctQue.length )

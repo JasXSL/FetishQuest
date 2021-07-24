@@ -8,7 +8,7 @@ import Player from './Player.js';
 import Asset from './Asset.js';
 import GameAction from './GameAction.js';
 import Encounter from './Encounter.js';
-
+import Game from './Game.js';
 
 /*
 	A wrapper is a container for multiple effects
@@ -1751,7 +1751,7 @@ class Effect extends Generic{
 
 				let np = wrapper.netPlayer;
 				if( np )
-					game.net.dmDrawRepair(np, s, t, template.parent );
+					Game.net.dmDrawRepair(np, s, t, template.parent );
 				else
 					game.ui.drawRepair(s, t, template.parent );		// Supply the original effect since it has the proper parent. When cloned, parent always becomes the victim player
 					

@@ -1,7 +1,7 @@
 import Text from './Text.js';
 import Mod from './Mod.js';
 import Generic from './helpers/Generic.js';
-
+import Game from './Game.js';
 // Maps lib_types to caches used only in outputs
 const CACHE_MAP = {
 	'assets' : '_cache_assets'
@@ -283,7 +283,7 @@ export default class GameLib{
 		
 		let mods = await Mod.getModsOrdered();
 		mods = mods.filter(el => {
-			if( el.enabled && (el.netgame || !game.is_host || !game.net.isConnected()) ){
+			if( el.enabled && (el.netgame || !game.is_host || !Game.net.isInNetgame()) ){
 				if( el.id === "MAIN" )
 					hasMainOverride = true;
 

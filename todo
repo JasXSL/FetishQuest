@@ -10,6 +10,31 @@
 		Todo:
 
 
+	Online:
+		- Player listing
+		- Player alias
+		- Send direct messages to players currently on the listing. 
+		- An invite to game when hosting netgame button on the listing.
+
+	Server:
+		- Need to have a DB with clients and their user data
+		- Inputs: 
+			- Get all listings
+			- Set your listing
+			- Message a listing
+
+	Client:
+		- Button in main menu that lets you find other players
+		- Button in bottom right that takes you there directly
+		- Save joined status
+		- Save user setting status
+		- Save recent chat
+
+
+	In game:
+
+
+
 -- TEST --
 	Fun tensorflow generated words I can use:
 		- Moinather - An item of some sort

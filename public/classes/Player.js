@@ -38,7 +38,7 @@ export default class Player extends Generic{
 
 		this.label = '';					// Unique editor label
 		this.netgame_owner_name = '';		// This is a custom thing that should only be relied on when adding a new player
-		this.netgame_owner = '';			// ID corresponding to one from game.net.players
+		this.netgame_owner = '';			// ID corresponding to one from Game.net.players
 		this.afk = false;					// Treats this as a bot if true. Can be toggled by the netgame owner
 		this.name = "Adventurer";			// Name
 		this.species = "";
@@ -170,7 +170,7 @@ export default class Player extends Generic{
 		this.g_rebase();	// Super
 
 		// only load tmp actions in a netgame (for ID mostly)
-		//if( game && game !== true && !game.is_host && game.net.isConnected() )
+		//if( game && game !== true && !game.is_host && Game.net.isConnected() )
 			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
 		
 		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
@@ -243,7 +243,7 @@ export default class Player extends Generic{
 			out.experience = this.experience;
 
 		// Should only be sent while we're hosting a netgame
-		//if( window.game && game.net.isHostingNetgame() && !full )
+		//if( window.game && Game.net.isInNetgameHost() && !full )
 		out._tmp_actions = Action.saveThese(this._tmp_actions, full);
 
 		// Assets are only sent if equipped, PC, or full
@@ -553,7 +553,7 @@ export default class Player extends Generic{
 	}
 
 	isAFK(){
-		return game.net.isPlayerAFK(this.netgame_owner);
+		return Game.net.isPlayerAFK(this.netgame_owner);
 	}
 
 	isNPC(){
@@ -586,7 +586,7 @@ export default class Player extends Generic{
 		return this.hasTag(['pl_'+stdTag.gpSkipTurns, stdTag.gpSkipTurns]);
 	}
 	isLeader(){
-		return this.leader || !game.net.isConnected();
+		return this.leader || !Game.net.isConnected();
 	}
 
 	canRiposte(){
@@ -1631,7 +1631,7 @@ export default class Player extends Generic{
 			game.playFxAudioKitById(asset.loot_sound, player, player, undefined, true );
 		
 		if( !game.is_host ){
-			game.net.playerLootPlayer( player, this, asset );
+			Game.net.playerLootPlayer( player, this, asset );
 			return;
 		}
 
@@ -2699,7 +2699,7 @@ export default class Player extends Generic{
 	getTempActions(){
 		
 		// Nonhost gets this from the host
-		if( game && !game.is_host && game.net.isConnected() ){
+		if( game && !game.is_host && Game.net.isInNetgame() ){
 			return this._tmp_actions;	
 		}
 		

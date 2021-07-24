@@ -26,6 +26,7 @@ import GameAction from './GameAction.js';
 import Collection from './helpers/Collection.js';
 import Encounter from './Encounter.js';
 import Player from './Player.js';
+import Game from './Game.js';
 
 const interact_cooldowns = {};	// id:true etc
 
@@ -1758,7 +1759,7 @@ class DungeonRoomAsset extends Generic{
 		
 
 		if( !game.is_host ){
-			game.net.playerLoot( player, this, asset );
+			Game.net.playerLoot( player, this, asset );
 			return;
 		}
 		asset.equipped = false;		// Make sure it's not equipped
@@ -1854,7 +1855,7 @@ class DungeonRoomAsset extends Generic{
 				
 				mesh.userData.template.onInteract.call(mesh.userData.template, mesh, mesh.parent, asset);
 				if( game.is_host && shared )
-					game.net.dmRaiseInteractOnMesh( asset.id );
+					Game.net.dmRaiseInteractOnMesh( asset.id );
 
 			}
 
@@ -1870,7 +1871,7 @@ class DungeonRoomAsset extends Generic{
 		// Ask host unless this is only lootable
 		if( !game.is_host ){
 
-			game.net.playerInteractWithAsset( player, asset );
+			Game.net.playerInteractWithAsset( player, asset );
 			
 			if( !lootable && !isSleep )
 				return;

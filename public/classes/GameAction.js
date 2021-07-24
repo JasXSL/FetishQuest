@@ -19,6 +19,7 @@ import Encounter from './Encounter.js';
 import { Wrapper } from './EffectSys.js';
 import Collection from './helpers/Collection.js';
 import Action from './Action.js';
+import Game from './Game.js';
 
 export default class GameAction extends Generic{
 
@@ -359,7 +360,7 @@ export default class GameAction extends Generic{
 				if( t._stage_mesh.userData.playAnimation ){
 
 					t._stage_mesh.userData.playAnimation(anim);
-					game.net.dmAnimation( t, anim );
+					Game.net.dmAnimation( t, anim );
 					++succ;
 
 				}
@@ -618,11 +619,11 @@ export default class GameAction extends Generic{
 				throw 'Shop missing: '+this.data.shop;
 
 			// open a shop locally
-			if( player.netgame_owner === "DM" || !game.net.isHostingNetgame() ){
+			if( player.netgame_owner === "DM" || !Game.net.isInNetgameHost() ){
 				game.ui.openShopWindow(shop);
 			}
 			else
-				game.net.dmOpenShop(player, this.data.shop);
+				Game.net.dmOpenShop(player, this.data.shop);
 
 		}
 
@@ -877,7 +878,7 @@ export default class GameAction extends Generic{
 
 			game.ui.draw();
 			game.ui.toggle(true);
-			game.net.dmToggleUI(true);
+			Game.net.dmToggleUI(true);
 
 		}
 

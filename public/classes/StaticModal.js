@@ -776,13 +776,13 @@ export default class StaticModal{
 				
 				return `
 					<div class="connected center">
-						<p class="description">Share the invite code or direct invite URL to invite a player to your game:</p>
-						<div class="netgameLink a"></div>
-						<div class="netgameLink b"></div>
-						<input type="button" class="red disconnect" value="Disconnect" />
+						<p class="description hideIfNotHost">Share the invite code or direct invite URL to invite a player to your game:</p>
+						<div class="netgameLink a hideIfNotHost"></div>
+						<div class="netgameLink b hideIfNotHost"></div>
+						<input type="button" class="red disconnect" value="Leave Game" />
 						<div class="connectedPlayers"></div>
-						<label>Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" /></label><br />
-						<label>Mute spectators: <input type="checkbox" class="muteSpectators" /></label><br />
+						<label class="hideIfNotHost">Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" /></label><br />
+						<label class="hideIfNotHost">Mute spectators: <input type="checkbox" class="muteSpectators" /></label><br />
 					</div>
 					<div class="disconnected">
 						<p class="description">If you want, you can put this session online and invite your friends.</p>
@@ -1018,22 +1018,19 @@ export default class StaticModal{
 
 
 				// Netgame
-				const isConnected = game.net.isConnected();
-
-
-				// Not connected
+				const isConnected = Game.net.isInNetgame();
 				if( isConnected ){
 
 					const isHosting = game.initialized && game.is_host;
 					if( isHosting ){
 
-						this.netgame.netgameLinkA.innerText = game.net.public_id;
-						this.netgame.netgameLinkB.innerText = 'https://'+window.location.hostname+'/#net/'+game.net.public_id;
+						this.netgame.netgameLinkA.innerText = Game.net.public_id;
+						this.netgame.netgameLinkB.innerText = 'https://'+window.location.hostname+'/#net/'+Game.net.public_id;
 
 					}
 
 					let divs = [];
-					for( let player of game.net.players ){
+					for( let player of Game.net.players ){
 
 						const div = document.createElement('div');
 						div.classList.add('netgame', 'player');
@@ -1047,24 +1044,27 @@ export default class StaticModal{
 					this.netgame.enableTurnTimer.checked = Boolean(+localStorage.turnTimer);
 					this.netgame.muteSpectators.checked = Boolean(+localStorage.muteSpectators);
 
+					this.netgame.connected.classList.toggle('host', isHosting);
+
 				}
 
 				this.netgame.disconnected.classList.toggle('hidden', isConnected);
 				this.netgame.connected.classList.toggle('hidden', !isConnected);
+				
 
 				// First load
 				if( !this.drawn ){
 
 					this.netgame.hostButton.addEventListener('click', async event => {
 
-						await game.net.hostGame();
+						await Game.net.hostGame();
 						this.refresh();
 
 					});
 
-					this.netgame.disconnectButton.addEventListener('click', event => {
+					this.netgame.disconnectButton.addEventListener('click', async event => {
 						
-						game.net.disconnect();
+						await Game.net.leaveNetgame();
 						this.refresh();
 
 					});
@@ -1083,7 +1083,7 @@ export default class StaticModal{
 
 					});
 
-					game.net.bind('*', () => this.refresh());
+					Game.net.bind('*', () => this.refresh());
 
 				}
 
@@ -2416,7 +2416,7 @@ export default class StaticModal{
 
 					}
 
-					game.net.disconnect();
+					Game.net.leaveNetgame();
 					localStorage.game = id;
 					Game.load();
 					this.close(true);
@@ -2490,8 +2490,8 @@ export default class StaticModal{
 					Mod.saveLoadOrder(order);
 					glib.autoloadMods();
 
-					if( game.net.isHostingNetgame() )
-						game.net.dmSendFullGame();
+					if( Game.net.isInNetgameHost() )
+						Game.net.dmSendFullGame();
 		
 				};
 
@@ -2620,7 +2620,7 @@ export default class StaticModal{
 					this.joinGameForm.addEventListener('submit', event => {
 
 						event.stopImmediatePropagation();
-						game.net.joinGame(
+						Game.net.joinGame(
 							this.joinGameForm.querySelector("input[name=gameID]").value, 
 							this.joinGameForm.querySelector("input[name=nickname]").value
 						).then(() => this.refresh());
@@ -2672,7 +2672,7 @@ export default class StaticModal{
 								await Game.saveToDB(raw);
 								this.loadGameInput.value = "";
 							
-								game.net.disconnect();
+								Game.net.leaveNetgame();
 								localStorage.game = raw.id;
 								Game.load();
 								this.close(true);
@@ -3447,7 +3447,7 @@ export default class StaticModal{
 
 						if( !game.is_host ){
 
-							game.net.playerGetLargeAsset(player, 'book', key);
+							Game.net.playerGetLargeAsset(player, 'book', key);
 							return;
 
 						}

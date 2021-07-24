@@ -43,11 +43,13 @@ class Game{
 
 		// Timeout fixes a bug in socket.io
 		setTimeout(() => {
+
 			this.emit(Game.Tasks.playerJoined, {
 				id : socket.id,
 				name : socket._name,
 				players : this.getPlayerArray()
 			});
+
 		}, 10);
 		
 	}
@@ -94,21 +96,30 @@ Game.Tasks = {
 Game.io = null;	// Set by index
 Game.games = [];
 
-Game.onDisconnect = function(socket){
+// Not necessarily disconnected from websocket, but definitely disconnected from the game
+Game.onDisconnect = function( socket ){
 
 	// Need to search through games to splice the index
 	for( let i in Game.games ){
+
 		let game = Game.games[i];
 		let index = game.players.indexOf(socket);
 		if( ~index ){
+
+			socket.leave(game.getRoomId());
+
 			if( game.host === socket ){
+
 				// Shut down the game
 				game.onHostLeft();
 				Game.games.splice(i, 1);
 				return;
+
 			}
 			return game.onPlayerLeft(socket);
+
 		}
+
 	}
 	
 };

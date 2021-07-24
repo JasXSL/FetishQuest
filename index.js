@@ -12,6 +12,8 @@ const ImageProxy = require('./ImageProxy');
 const multer = require('multer');
 const upload = multer({dest : __dirname+'/temp/'});
 const fs = require('fs').promises;
+const gf = require('./GroupFinder').GroupFinder;
+const GroupFinder = new gf();
 
 const io = require('socket.io')(server);
 server.listen(port);
@@ -33,7 +35,12 @@ try{
 
 		if( !Repo.ini ){
 
-			res.json({success:false, data:{error:'__INITIALIZING__'}});
+			res.json({
+				success:false, 
+				data:{
+					error:'__INITIALIZING__'
+				}
+			});
 			return;
 
 		}
@@ -98,6 +105,7 @@ app.use(Express.static(__dirname+'/public'));
 
 
 Game.io = io;
+GroupFinder.io = io;
 
 io.on('connection', socket => {
 	
@@ -105,15 +113,15 @@ io.on('connection', socket => {
 
 	socket.on('host', (data, callback) => {
 
-		
 		if( typeof callback !== "function" )
 			return;
 		
-		socket.leaveAll();
-		
+		// Remove them from existing games
+		Game.onDisconnect(socket);
+			
 		if( socket._game )
 			socket._game.onPlayerLeft(socket.id);
-		
+
 		let game = Game.create(socket);
 		callback(game.id);
 		
@@ -123,16 +131,25 @@ io.on('connection', socket => {
 	// Join a game
 	// Data should be an object with {name:displayName, room:roomID}
 	socket.on('join', (data, callback) => {
+
 		if( typeof callback !== "function" )
 			return;
 
-		socket.leaveAll();				// Leave all rooms
 		Game.onDisconnect(socket);		// Remove me from all games
 		callback(Game.join(socket, data));
+
+	});
+
+	// Leave a game
+	socket.on('leave', (data, callback) => {
+		Game.onDisconnect(socket);
+		if( callback )
+			callback(true);
 	});
 
 	socket.on('disconnect', () => {
 		Game.onDisconnect(socket);
+		GroupFinder.onDisconnect(socket);
 	});
 
 	// Relays a player task to the host, data should be task:task, data:data
@@ -174,6 +191,18 @@ io.on('connection', socket => {
 			player.emit('dmTask', data);
 		}
 		
+	});
+
+	// Sets your listing in the groupfinder. If data is empty it removes instead.
+	socket.on('setGroupFinder', data => {
+
+		GroupFinder.set(socket, data);
+
+	});
+
+	// Expects data: {id:(str)recipient_id, message:(str)message}
+	socket.on('gf_msg', data => {
+		GroupFinder.message(socket, data);
 	});
 	
 	
