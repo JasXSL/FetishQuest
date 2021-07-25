@@ -8,6 +8,7 @@ import Shop from './Shop.js';
 import Mod from './Mod.js';
 import Game from './Game.js';
 import { Wrapper } from './EffectSys.js';
+import { GfPlayer } from './NetworkManager.js';
 
 export default class StaticModal{
 
@@ -2200,6 +2201,36 @@ export default class StaticModal{
 					</p>
 				`;
 			})
+			.addTab("Group Finder", () => {
+				return `
+					<h3>Group Finder</h3>
+					<div class="notJoined">
+						<form class="gfCharacterForm">
+							<label>
+								<input type="text" placeholder="Name" name="name" maxlength=64 required />
+							</label><br />
+							<label>
+								<input type="text" placeholder="Character Image" name="image" maxlength=128 />
+							</label><br />
+							<label>
+								Your description: What do you want to play as? Species? Gender? Roles?<br />
+								<textarea name="is"></textarea>
+							</label><br />
+							<label>
+								Who do you want to play with? Species, gender, any particular roles? Mods? Do you want to RP? Any fetish in particular you want to focus on? What content do you want to do?<br />
+								<textarea name="wants"></textarea>
+							</label><br/>
+							<label>
+								<input type="submit" value="Join Group Finder" />
+							</label>
+						</form>
+					</div>
+					<div class="joined hidden">
+						<div class="listing"></div>
+						<input type="button" value="Disconnect" />
+					</div>
+				`;
+			})
 			.addTab("Fetishes", () => {
 				return `
 					<table class="fetishes editor">
@@ -2213,6 +2244,7 @@ export default class StaticModal{
 					<p>Note that mod fetishes depend on the modder setting up Fetish Conditions properly. This isn't a catch-all.</p>
 				`;
 			})
+			/*
 			.addTab("Multiplayer", () => {
 				return `
 					<h3>Join Existing Online Game</h3>
@@ -2223,6 +2255,7 @@ export default class StaticModal{
 					</form>
 				`;
 			})
+			*/
 			.addTab("My Mods", () => {
 				return `
 					<table class="editor">
@@ -2340,9 +2373,10 @@ export default class StaticModal{
 				const 
 					mainMenu = this.getTabDom('Main Menu')[0],
 					mods = this.getTabDom('My Mods')[0],
-					online = this.getTabDom('Multiplayer')[0],
+					//online = this.getTabDom('Multiplayer')[0],
 					modDB = this.getTabDom('Mod DB')[0],
-					fetishes = this.getTabDom('Fetishes')[0]
+					fetishes = this.getTabDom('Fetishes')[0],
+					groupFinder = this.getTabDom('Group Finder')[0]
 				;
 
 				this.newGameButton = mainMenu.querySelector('input.newGameButton');
@@ -2351,11 +2385,28 @@ export default class StaticModal{
 				this.loadGameInput = mainMenu.querySelector('input.loadGame');
 				this.modsTable = mods.querySelector('table.editor');
 				this.loadMod = mods.querySelector('input.modFile');
-				this.joinGameForm = online.querySelector('form.joinGame');
+				//this.joinGameForm = online.querySelector('form.joinGame');
 				this.modSearchForm = modDB.querySelector('form.searchForm');
 				this.modSearchInput = this.modSearchForm.querySelector('input.search');
 				this.modSearchResults = modDB.querySelector('div.searchResults');
 				this.fetishes = fetishes.querySelector('table.fetishes');
+
+				this.groupFinder = {
+					joined : groupFinder.querySelector('div.joined'),
+					notJoined : groupFinder.querySelector('div.notJoined'),
+
+
+					characterForm : groupFinder.querySelector('form.gfCharacterForm'),
+					characterName : groupFinder.querySelector('form.gfCharacterForm input[name=name]'),
+					characterImage : groupFinder.querySelector('form.gfCharacterForm input[name=image]'),
+					characterIs : groupFinder.querySelector('form.gfCharacterForm textarea[name=is]'),
+					characterWants : groupFinder.querySelector('form.gfCharacterForm textarea[name=wants]'),
+
+					listing : groupFinder.querySelector('div.joined > div.listing'),
+					disconnect : groupFinder.querySelector('div.joined > input[type=button]'),
+				};
+
+
 			})
 			.setDraw(async function(){
 
@@ -2610,6 +2661,14 @@ export default class StaticModal{
 				}
 				this.fetishes.replaceChildren(...rows);
 
+
+				// Groupfinder any run
+				this.groupFinder.joined.classList.toggle('hidden', !Game.net.isInGroupFinder());
+				this.groupFinder.notJoined.classList.toggle('hidden', Game.net.isInGroupFinder());
+
+				// Todo: update groupfinder players
+
+
 				// First run
 				if( !this.drawn ){
 
@@ -2617,6 +2676,7 @@ export default class StaticModal{
 						StaticModal.set('newGame');
 					});
 
+					/*
 					this.joinGameForm.addEventListener('submit', event => {
 
 						event.stopImmediatePropagation();
@@ -2627,7 +2687,7 @@ export default class StaticModal{
 						return false;
 
 					});
-
+					*/
 					this.loadMod.addEventListener('change', async event => {
 						
 						const mod = await Mod.import(event);
@@ -2748,6 +2808,69 @@ export default class StaticModal{
 					});
 
 					searchMods();
+
+
+					// Groupfinder ONCE
+					const baseChar = new GfPlayer();
+					baseChar.loadFromLocalStorage();
+					this.groupFinder.characterName.value = baseChar.name;
+					this.groupFinder.characterImage.value = baseChar.image;
+					this.groupFinder.characterIs.value = baseChar.is;
+					this.groupFinder.characterWants.value = baseChar.wants;
+
+					this.groupFinder.characterForm.addEventListener('submit', async event => {
+						event.preventDefault();
+
+						let 
+							name = this.groupFinder.characterName.value.trim(),
+							image = this.groupFinder.characterImage.value.trim(),
+							is = this.groupFinder.characterIs.value.trim(),
+							wants = this.groupFinder.characterWants.value.trim()
+						;
+						if( !name ){
+
+							game.ui.addError('Please enter a name');
+							return;
+
+						}
+
+						if( image && !image.startsWith('https://') ){
+							
+						game.ui.addError('Image must be https or empty');
+							return;
+
+						}
+
+						const ch = new GfPlayer({
+							name : name,
+							image : image,
+							is : is,
+							wants : wants
+						});
+						ch.saveToLocalStorage();
+
+						try{
+
+							await Game.net.joinGroupFinder();
+							console.log("refreshing");
+							this.refresh(true);							
+
+						}catch(err){
+							console.error(err);
+						}
+
+
+
+					});
+
+					this.groupFinder.disconnect.addEventListener('click', async event => {
+
+						await Game.net.leaveGroupFinder();
+						this.refresh();
+
+					});
+
+					// Todo: Hook up groupfinder refresh events
 
 				}
 

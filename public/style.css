@@ -2033,10 +2033,11 @@ div.passiveUpsideDown > div.content > div.bg{
 	#gameIcons > div.highlight{
 		animation:gameIconsHighlight 1s alternate infinite ease-in-out;		
 	}
+	#groupFinder,
 	#gameIcons > div,
 	#ui > div.actionbar > div.actions > div{
 
-		transition:transform 0.5s ease-out;
+		transition:transform 0.1s ease-out;
 		width:4.25vh;
 		height:4.25vh;
 		background-size: cover;
@@ -3187,6 +3188,28 @@ div.passiveUpsideDown > div.content > div.bg{
 		pointer-events: none;
 		opacity: 0;
 	}
+/**/
+
+
+/* Chat hotkey */
+	#groupFinder{
+		position:fixed;
+		bottom:0.25vh;
+		right:0.25vh;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.notJoined{
+		display: inline-block;
+		max-width: 40vmax;
+	}
+
+	#mainMenu div[data-id="Group Finder"] form.gfCharacterForm input{
+		font-size:2vmax;
+	}
+	#mainMenu div[data-id="Group Finder"] form.gfCharacterForm textarea{
+		min-height:10vmax;
+	}
+
 /**/
 
 /* Floating combat text */

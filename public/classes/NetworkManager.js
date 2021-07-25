@@ -412,6 +412,9 @@ class NetworkManager{
 		return this.load_status.DM;
 	}
 
+	isInGroupFinder(){
+		return this.gf_connected && this.isConnected();
+	}
 
 	/* Todo: Handle group finder */
 	async joinGroupFinder(){
@@ -424,9 +427,17 @@ class NetworkManager{
 		if( !this.isConnected() )
 			await this.connect();
 
-		this.io.emit('setGroupFinder', char.save());
-		this.gf_connected = true;
-		this.gf_players = [];
+		return new Promise((res, rej) => {
+
+			this.gf_connected = true;
+			this.gf_players = [];
+			this.io.emit('setGroupFinder', char.save(), () => {
+				console.log("done!");
+				res();
+			});
+
+		});
+		
 
 	}
 
@@ -1847,46 +1858,50 @@ class GfPlayer{
 		if( typeof data === "object" )
 			this.load(data);
 
+		this.id = '';
+		this.name = '';
+		this.image = '';
+		this.is = '';
+		this.wants = '';
+		this.chat = [];
+
+	}
+
+	addChatLog( message ){
+
+		this.chat.push(new GfChat(message));
+		this.chat.sort((a, b) => {
+			a.time > b.time ? -1 : 1
+		});
+		this.chat = this.chat.slice(0, 100);
+
 	}
 
 	load( data ){
 
 		this.id = data.id || '';
 		this.name = data.name || 'Unknown Player';
-		this.species = data.species || 'Unknown Speices';
 		this.image = data.image || '';
-		this.sex = data.sex || 'Unknown Sex';
-		this.prefers_sex = data.prefers_sex || 'Any Sex';
-		this.rp_style = data.rp_style || 'No RP';
-		this.mods = data.mods || 'No preference';
-		this.prefers_roles = data.prefers_roles || 'Any Role';
+		this.is = data.is || 'Unknown Character Description';
+		this.wants = data.wants || 'Unknown preferences';
 
 	}
 
 	loadFromLocalStorage(){
 
-	
 		this.name = localStorage.gfName || 'Unknown User';
-		this.species = localStorage.gfSpecies || 'Unspecified Species';
 		this.image = localStorage.gfImage || '';
-		this.sex = localStorage.gfSex || 'Genderless';
-		this.prefers_sex = localStorage.gfPrefersSex || 'Any Sex';
-		this.rp_style = localStorage.gfRpStyle || 'No RP';
-		this.mods = localStorage.gfMods || 'No Mods';
-		this.prefers_roles = localStorage.prefersRoles || 'Any Role';
+		this.is = localStorage.gfIs || 'Unknown character';
+		this.wants = localStorage.gfWants || 'Unknown preferences';
 
 	}
 
 	saveToLocalStorage(){
 
 		localStorage.gfName = this.name;
-		localStorage.gfSpecies = this.species;
 		localStorage.gfImage = this.image;
-		localStorage.gfSex = this.sex;
-		localStorage.gfPrefersSex = this.prefers_sex;
-		localStorage.gfRpStyle = this.rp_style;
-		localStorage.mods = this.mods;
-		localStorage.prefers_roles = this.prefers_roles;
+		localStorage.gfIs = this.is;
+		localStorage.gfWants = this.wants;
 
 	}
 
@@ -1895,14 +1910,23 @@ class GfPlayer{
 
 		return {
 			name : this.name,
-			species : this.species,
 			image : this.image,
-			sex : this.sex,
-			prefer_sex : this.prefers_sex,
-			rp_style : this.rp_style,
-			mods : this.mods,
-			prefers_roles : this.prefers_roles,
+			is : this.is,
+			wants : this.wants,
 		};
+
+	}
+
+
+}
+
+
+class GfChat{
+
+	constructor( message ){
+
+		this.message = message;
+		this.time = Date.now();
 
 	}
 
@@ -1968,3 +1992,5 @@ NetworkManager.playerTasks = {
 };
 
 export default NetworkManager;
+export {GfPlayer};
+

@@ -143,7 +143,7 @@ io.on('connection', socket => {
 	// Leave a game
 	socket.on('leave', (data, callback) => {
 		Game.onDisconnect(socket);
-		if( callback )
+		if( typeof callback === 'function' )
 			callback(true);
 	});
 
@@ -194,9 +194,11 @@ io.on('connection', socket => {
 	});
 
 	// Sets your listing in the groupfinder. If data is empty it removes instead.
-	socket.on('setGroupFinder', data => {
+	socket.on('setGroupFinder', (data, callback) => {
 
-		GroupFinder.set(socket, data);
+		const att = GroupFinder.set(socket, data);
+		if( typeof callback === 'function' )
+			callback(att);
 
 	});
 

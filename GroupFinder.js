@@ -20,6 +20,7 @@ class GroupFinder{
 	onDisconnect( socket ){
 
 		this.removeListing(socket);
+		return true;
 
 	}
 
@@ -38,6 +39,7 @@ class GroupFinder{
 		socket.emit('gf_pla', this.getAll());
 
 		console.log("SET :: Players in group finder: ", Object.keys(this.listings).length);
+		return true;
 		
 	}
 
@@ -103,24 +105,18 @@ class Listing{
 		
 		this.socket = socket;
 		this.name = '';
-		this.species = '';
 		this.image = '';
-		this.sex = '';
-		this.prefers_sex = '';
-		this.rp_style = '';
-		this.mods = '';
-		this.prefers_roles = '';
+		this.is = '';
+		this.wants = '';
+		
 	}
 
 	set( data ){
 
-		this.name = String(data.name || '').substr(0, 128);
-		this.species = String(data.species || '').substr(0, 128);
+		this.name = String(data.name || '').substr(0, 64);
 		this.image = String(data.image || '').substr(0, 256);
-		this.sex = String(data.sex || '').substr(0, 64);
-		this.prefers_sex = String(data.prefers_sex || '').substr(0, 64);
-		this.rp_style = String(data.rp_style || '').substr(64);
-		this.mods = String(data.mods || '').substr(128);
+		this.is = String(data.is || '').substr(0, 512);
+		this.wants = String(data.prefers_sex || '').substr(0, 512);
 
 	}
 
@@ -129,14 +125,10 @@ class Listing{
 		return {
 			id : this.socket.id,
 			name : this.name,
-			species : this.species,
 			image : this.image,
-			sex : this.sex,
-			prefers_sex : this.prefers_sex,
-			rp_style : this.rp_style,
-			mods : this.mods,
-			prefers_roles : this.prefers_roles
-		}
+			is : this.is,
+			wants : this.wants,
+		};
 
 
 	}
