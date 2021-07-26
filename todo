@@ -5,6 +5,13 @@
 -- CURRENT --
 
 	Add a group finder?
+		- Don't show your own player
+		- Play noise when receiving a message
+		- Cap nr of messages to one every 1 sec or so
+		- Incorporate group finder button in bottom right
+		- Add invite to game if you have active game
+		- Close out on disconnect
+
 
 	Haunted house quest:
 		Todo:

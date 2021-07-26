@@ -65,13 +65,13 @@ class GroupFinder{
 
 		const 
 			from = this.listings[fromSocket.id],
-			to = this.listings[data.id]
+			to = this.listings[data.to]
 		;
 
 		if( !data.message )
 			return;
 
-		let message = String(data.message).substr(256).trim();
+		let message = String(data.message).substr(0, 256).trim();
 		if( !message )
 			return;
 
@@ -80,7 +80,7 @@ class GroupFinder{
 
 		to.socket.emit("gf_msg", {
 			message : message,
-			sender : fromSocket.io
+			sender : fromSocket.id
 		});
 
 	}
@@ -113,10 +113,13 @@ class Listing{
 
 	set( data ){
 
+		if( typeof data !== "object" )
+			return;
+
 		this.name = String(data.name || '').substr(0, 64);
 		this.image = String(data.image || '').substr(0, 256);
 		this.is = String(data.is || '').substr(0, 512);
-		this.wants = String(data.prefers_sex || '').substr(0, 512);
+		this.wants = String(data.wants || '').substr(0, 512);
 
 	}
 

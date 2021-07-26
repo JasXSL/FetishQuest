@@ -2203,13 +2203,14 @@ export default class StaticModal{
 			})
 			.addTab("Group Finder", () => {
 				return `
-					<h3>Group Finder</h3>
+					
 					<div class="notJoined">
 						<form class="gfCharacterForm">
 							<label>
 								<input type="text" placeholder="Name" name="name" maxlength=64 required />
 							</label><br />
 							<label>
+								Character image (supports imgur, e621, gyazo, reddit, discord, twitter): <br />
 								<input type="text" placeholder="Character Image" name="image" maxlength=128 />
 							</label><br />
 							<label>
@@ -2226,8 +2227,26 @@ export default class StaticModal{
 						</form>
 					</div>
 					<div class="joined hidden">
+						<div class="gfBG">
+							<div class="gfHeader">
+								<h2 class="myname">
+									<span>Charname</span><br />
+									<input type="button" value="Disconnect" />
+									<img class="icon" />
+								</h2>
+							</div>
+						</div><br />
 						<div class="listing"></div>
-						<input type="button" value="Disconnect" />
+					</div>
+					<div class="chat hidden">
+						<div class="header" style="background-image:url('/media/textures/tileable/church_floor_2.jpg')">
+							<div class="name">CharName Here</div>
+						</div>
+						<div class="bodywrap">
+							<div class="body"></div>
+						</div>
+						<div class="input" contenteditable></div>
+						<div class="close button">Close</div>
 					</div>
 				`;
 			})
@@ -2392,9 +2411,12 @@ export default class StaticModal{
 				this.fetishes = fetishes.querySelector('table.fetishes');
 
 				this.groupFinder = {
+					header : groupFinder.querySelector('div.gfHeader'),
+					gfBG : groupFinder.querySelector('div.gfBG'),
+					myName : groupFinder.querySelector('div.gfHeader .myname span'),
+					myIcon : groupFinder.querySelector('div.gfHeader img.icon'),
 					joined : groupFinder.querySelector('div.joined'),
 					notJoined : groupFinder.querySelector('div.notJoined'),
-
 
 					characterForm : groupFinder.querySelector('form.gfCharacterForm'),
 					characterName : groupFinder.querySelector('form.gfCharacterForm input[name=name]'),
@@ -2403,7 +2425,15 @@ export default class StaticModal{
 					characterWants : groupFinder.querySelector('form.gfCharacterForm textarea[name=wants]'),
 
 					listing : groupFinder.querySelector('div.joined > div.listing'),
-					disconnect : groupFinder.querySelector('div.joined > input[type=button]'),
+					disconnect : groupFinder.querySelector('div.joined div.gfHeader input[type=button]'),
+					
+					chat : groupFinder.querySelector('div.chat'),
+					chatHeader : groupFinder.querySelector('div.chat div.header'),
+					chatHeaderName : groupFinder.querySelector('div.chat div.header div.name'),
+					chatBody : groupFinder.querySelector('div.chat div.body'),
+					chatBodyWrap : groupFinder.querySelector('div.chat div.bodywrap'),
+					chatInput : groupFinder.querySelector('div.chat div.input'),
+					chatClose : groupFinder.querySelector('div.chat div.close'),
 				};
 
 
@@ -2662,11 +2692,152 @@ export default class StaticModal{
 				this.fetishes.replaceChildren(...rows);
 
 
-				// Groupfinder any run
-				this.groupFinder.joined.classList.toggle('hidden', !Game.net.isInGroupFinder());
-				this.groupFinder.notJoined.classList.toggle('hidden', Game.net.isInGroupFinder());
 
-				// Todo: update groupfinder players
+				// Event can also be an ID
+				const refreshChat = event => {
+
+					const id = typeof event === "string" ? event : event.currentTarget.dataset.id;
+					const targ = Game.net.getGroupFinderPlayerById(id);
+
+					
+
+					if( !targ )
+						return;		// Todo: close out the chat reply, make it say player has gone offline
+
+					if( typeof event !== "string" ){
+						setTimeout(() => {
+							this.groupFinder.chatInput.focus();
+						}, 10);
+					}
+					this.groupFinder.chat.classList.toggle('hidden', false);
+					this.groupFinder.chatHeader.style.backgroundImage = 'url(\''+esc(targ.getImage())+'\')';
+					this.groupFinder.chatHeaderName.innerText = targ.name;
+
+					this._gf_chat = id;
+
+					const body = this.groupFinder.chatBody;
+					let ch = targ.chat.slice();
+					ch.reverse();
+
+					let existing = [];
+					for( let c of ch ){
+						
+						existing.push(c.id);
+
+						// Message already added
+						if( body.querySelector('div.message[data-id=\''+c.id+'\']') )
+							continue;
+
+						let div = document.createElement('div');
+						div.classList.add('message');
+						if( !c.self )
+							div.classList.add('right');
+						const d = new Date();
+
+						let time = String(d.getHours()).padStart(2, '0')+':'+String(d.getMinutes()).padStart(2, '0');
+						div.dataset.id = c.id;
+						div.innerHTML = '<i class="time">'+time+'</i> <strong>'+esc(targ.name)+'</strong>: '+esc(c.message);
+						body.append(div);
+
+					}
+
+					// Remove nonexisting
+					const divs = Array.from(body.querySelectorAll('div.message'));
+					for( let div of divs ){
+
+						if( !existing.includes(div.dataset.id) )
+							div.remove();
+
+					}
+
+					targ.unread = 0;
+					const bodyWrap = this.groupFinder.chatBodyWrap;
+
+					bodyWrap.scrollTo(0, bodyWrap.scrollHeight);
+
+				};
+
+				if( this._gf_chat )
+					refreshChat(this._gf_chat);
+				
+				// Groupfinder any run
+				const isInGroupFinder = Game.net.isInGroupFinder();
+				this.groupFinder.joined.classList.toggle('hidden', !isInGroupFinder);
+				this.groupFinder.notJoined.classList.toggle('hidden', isInGroupFinder);
+
+				// Groupfinder connected
+				if( isInGroupFinder ){
+
+					const players = Game.net.gf_players;
+					const base = this.groupFinder.listing;
+					for( let player of players ){
+
+						const unreadMessages = player.unread;
+
+						let div = base.querySelector('div[data-id=\''+player.id+'\']');
+						if( !div ){
+
+							div = document.createElement('div');
+							div.dataset.id = player.id;
+							div.classList.add('player');
+							div.innerHTML = 
+								'<div class="bg"></div>'+
+								'<div class="name"></div>'
+							;
+							base.appendChild(div);
+
+							// Clicked the player
+							div.addEventListener('click', refreshChat);
+
+						}
+
+						// Update the divs
+						div.classList.toggle('highlighted', Boolean(unreadMessages));
+						div.querySelector('div.bg').style.backgroundImage = 'url('+esc(player.getImage())+')';
+						div.querySelector('div.name').innerText = player.name + (unreadMessages ? ' ['+unreadMessages+']' : '');
+
+					}
+
+					if( !players.length ){
+						base.innerHTML = 'No players online.';
+					}
+
+					// Sort the divs
+					let els = Array.from(base.querySelectorAll('div.player'));
+					els = els.map(el => {
+
+						let pl = Game.net.getGroupFinderPlayerById(el.dataset.id);
+						if( !pl ){
+							base.removeChild(el);
+							return false;
+						}
+						return {
+							pl : pl,
+							el : el
+						};
+
+					})
+					.filter(el => el)
+					.sort((a, b) => {
+
+						if( Boolean(a.pl.unread) !== Boolean(b.pl.unread) )
+							return a.pl.unread ? -1 : 1;
+						return 0;
+
+					})
+					.map(el => {
+						base.appendChild(el.el);
+						return el;
+					});
+
+					const myPlayer = Game.net._gfChar;
+					this.groupFinder.myName.innerText = myPlayer.name.trim();
+					this.groupFinder.gfBG.style.backgroundImage = myPlayer.image ? "url('"+myPlayer.image+"')" : '';
+					this.groupFinder.myIcon.src = myPlayer.image;
+					this.groupFinder.myIcon.classList.toggle('hidden', !myPlayer.image);
+					
+
+				}
 
 
 				// First run
@@ -2818,6 +2989,32 @@ export default class StaticModal{
 					this.groupFinder.characterIs.value = baseChar.is;
 					this.groupFinder.characterWants.value = baseChar.wants;
 
+					this.groupFinder.chatClose.addEventListener('click', event => {
+
+						this.groupFinder.chatBody.replaceChildren();
+						this._gf_chat = false;
+						this.groupFinder.chat.classList.toggle('hidden', true);
+
+					});
+
+					this.groupFinder.chatInput.addEventListener('input', event => {
+						
+						if( event.data === null ){
+
+							event.preventDefault();
+							const text = event.target.innerText.trim();
+							event.target.innerText = '';
+
+							const ch = Game.net.getGroupFinderPlayerById(this._gf_chat);
+							if( text && ch )
+								Game.net.sendGroupFinderMessage(ch, text);
+
+							return;
+
+						}
+
+					});
+
 					this.groupFinder.characterForm.addEventListener('submit', async event => {
 						event.preventDefault();
 
@@ -2829,14 +3026,14 @@ export default class StaticModal{
 						;
 						if( !name ){
 
-							game.ui.addError('Please enter a name');
+							game.ui.modal.addError('Please enter a name');
 							return;
 
 						}
 
 						if( image && !image.startsWith('https://') ){
 							
-						game.ui.addError('Image must be https or empty');
+							game.ui.modal.addError('Image must be https or empty');
 							return;
 
 						}
@@ -2852,7 +3049,6 @@ export default class StaticModal{
 						try{
 
 							await Game.net.joinGroupFinder();
-							console.log("refreshing");
 							this.refresh(true);							
 
 						}catch(err){
@@ -2870,7 +3066,7 @@ export default class StaticModal{
 
 					});
 
-					// Todo: Hook up groupfinder refresh events
+					Game.net.bind('gf', () => this.refresh());
 
 				}
 

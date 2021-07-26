@@ -3198,6 +3198,11 @@ div.passiveUpsideDown > div.content > div.bg{
 		right:0.25vh;
 	}
 
+	#mainMenu div.cmTabContent[data-id="Group Finder"]{
+		font-size:1.5vmax;
+		min-height:70vh;
+	}
+
 	#mainMenu div[data-id="Group Finder"] div.notJoined{
 		display: inline-block;
 		max-width: 40vmax;
@@ -3209,6 +3214,173 @@ div.passiveUpsideDown > div.content > div.bg{
 	#mainMenu div[data-id="Group Finder"] form.gfCharacterForm textarea{
 		min-height:10vmax;
 	}
+
+	#mainMenu div[data-id="Group Finder"] div.listing{
+		display:flex;
+		justify-content: space-between;
+		margin-top:9vmax;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.player{
+		width:19%;
+		padding-top:19%;
+		overflow: hidden;
+		box-shadow: 0.25vmax 0.25vmax 1vmax #000;
+		border: 0.2vmax solid #FFF;
+		cursor:pointer;
+		user-select: none;
+		margin:0.5%;
+	}
+	#mainMenu div[data-id="Group Finder"] div.player:hover{
+		box-shadow: 0 0 1vmax #FFF;
+	}
+	#mainMenu div[data-id="Group Finder"] div.player:active{
+		transform: scale(0.95, 0.95);
+	}
+	#mainMenu div[data-id="Group Finder"] div.player div.bg{
+		position: absolute;
+		height: 100%;
+		width: 100%;
+		top: 0; left:0;
+		background-size: cover;
+		background-position: top center;
+	}
+	#mainMenu div[data-id="Group Finder"] div.player div.name{
+		background:rgba(0,0,0,.5);
+		color:#FFF;
+		position: absolute;
+		top:50%;
+		left:0; right:0;
+		transform:translateY(-50%);
+		padding: 0.5vmax 0;
+
+	}
+	@keyframes playerChatNameUnread{
+		from{
+			background:rgba(0,0,0,.5);
+		}
+		to{
+			background:rgba(0,50,0,.75);
+		}
+	}
+	#mainMenu div[data-id="Group Finder"] div.player.highlighted div.name{
+		font-weight: bold;
+		color:#AFA;
+		animation: playerChatNameUnread 1s ease-in-out alternate infinite;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.chat{
+		height:80%;
+		width:80%;
+		position: absolute;
+		top:10%;
+		left:10%;
+		border-radius: 1vmax;
+		border:0.2vmax solid #FFF;
+		box-shadow: 0 0 3vmax #000, 0 0 3vmax #000;
+		overflow:visible;
+		text-align: left;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.chat div.header{
+		height:15%;
+		position: absolute;
+		top: 0;
+		left:0; right:0;
+		background-size: cover;
+		background-position: center;
+		border-top-left-radius: 1vmax;
+		border-top-right-radius: 1vmax;
+		overflow: hidden;
+		font-family: 'Germania One', cursive;
+		border-bottom: 1px dotted #FFF;
+		color:#FFF;
+	}
+	#mainMenu div[data-id="Group Finder"] div.chat div.header div.name{
+		font-weight: bold;
+		font-size: 3vmax;
+		background: linear-gradient(to right, rgba(0,0,0,0.8) 0%,rgba(0,0,0,0.8) 46%,rgba(0,0,0,0) 100%);
+		width:100%; height: 100%;
+		position: absolute;
+		overflow:hidden;
+		padding:3%;
+		text-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
+	}
+	#mainMenu div[data-id="Group Finder"] div.chat div.close{
+		position:absolute;
+		bottom:-3.5vmax;
+		width: 100%;
+		background-color:#333;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.chat div.bodywrap{
+		position:absolute;
+		bottom:3vmax;
+		top:15%;
+		overflow: auto;
+		left:0; right:0;
+		background:#333;
+		color: #FFF;
+	}
+	#mainMenu div[data-id="Group Finder"] div.chat div.input{
+		height: 3vmax;
+		position:absolute;
+		bottom: 0;
+		border-top: 1px dotted #FFF;
+		left:0; right:0;
+		background:#FFF;
+		border-bottom-left-radius: 1vmax;
+		border-bottom-right-radius: 1vmax;
+		overflow: hidden;
+		color: #000;
+		padding: 0.5% 1%;
+		text-align: bottom;
+		outline:0;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.chat div.body div.message{
+		font-size: 1.5vmax;
+		margin:0.2vmax;
+		padding:0.5vmax;
+		background: rgba(255,255, 255, .2);
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.chat div.body div.message.right{
+		text-align: right;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.gfBG{
+		background-size: cover;	
+		background-position: 15% center;
+		position: absolute;
+		height:15vmax;
+		left:-1vmax; right:-1vmax; top:-1vmax;
+		border-bottom:1px solid #000;
+	}
+	#mainMenu div[data-id="Group Finder"] div.gfHeader{
+		position: absolute;
+		left:0; right:0;
+		top:50%;
+		transform:translateY(-50%);
+		background: rgba(0,0,0,.75);
+		text-align: center;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.gfHeader h2{
+		display:inline-block;
+		font-size: 3vmax;
+	}
+	#mainMenu div[data-id="Group Finder"] div.gfHeader img.icon{
+		height:100%;
+		position: absolute;
+		left: -1vmax;
+		top: 50%;
+		transform: translate(-100%,-50%);
+		border-radius:0.5vmax;
+		
+	}
+	
+
 
 /**/
 

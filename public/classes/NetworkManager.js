@@ -422,7 +422,9 @@ class NetworkManager{
 		const char = new GfPlayer();
 		char.loadFromLocalStorage();
 		char.id = this.id;
+		this._gfChar = char;
 
+		console.log("Sending", char);
 		// Connect etc
 		if( !this.isConnected() )
 			await this.connect();
@@ -432,8 +434,9 @@ class NetworkManager{
 			this.gf_connected = true;
 			this.gf_players = [];
 			this.io.emit('setGroupFinder', char.save(), () => {
-				console.log("done!");
+				
 				res();
+				
 			});
 
 		});
@@ -443,21 +446,27 @@ class NetworkManager{
 
 	leaveGroupFinder(){
 
-		this.io.emit('setGroupFinder');
+		if( this.io )
+			this.io.emit('setGroupFinder');
 		this.gf_connected = false;
+		this.handleEvent('gf');
 
 	}
 
 	onGroupFinderMessage( data ){
-		
+
 		if( !data )
 			return;
 
 		const message = data.message,
-			sender = data.sender
+			sender = this.getGroupFinderPlayerById(data.sender)
 		;
+		if( !sender )
+			return;
 
-		console.log("Todo: Message received", message, sender);
+		sender.addChatLog(message);
+
+		this.handleEvent('gf');
 
 	}
 
@@ -466,6 +475,7 @@ class NetworkManager{
 
 		this.gf_players = data.map(el => new GfPlayer(el));
 		console.log("Got ALL players", this.gf_players);
+		this.handleEvent('gf');
 
 	}
 
@@ -485,8 +495,14 @@ class NetworkManager{
 		
 		const id = data.id;
 		const player = this.getGroupFinderPlayerById(id);
+		// Updated player
 		if( player )
 			player.load(data);
+		// New player
+		else
+			this.gf_players.push( new GfPlayer(data) );
+		this.handleEvent('gf');
+		console.log("Players are now", this.gf_players);
 
 	}
 
@@ -497,6 +513,7 @@ class NetworkManager{
 			const pl = this.gf_players[i];
 			if( pl.id === id ){
 				this.gf_players.splice(i, 1);
+				this.handleEvent('gf');
 				break;
 			}
 
@@ -506,6 +523,10 @@ class NetworkManager{
 
 	sendGroupFinderMessage( char, message ){
 
+		if( !String(message).substring(0, 256).trim() )
+			return;
+
+		char.addChatLog(message, true);
 		this.io.emit('gf_msg', {
 			message : message,
 			to : char.id,
@@ -1864,20 +1885,29 @@ class GfPlayer{
 		this.is = '';
 		this.wants = '';
 		this.chat = [];
+		this.unread = 0;
+		this.chatIndex = 0;
+
+		this.load(data);
 
 	}
 
-	addChatLog( message ){
+	addChatLog( message, self = false ){
 
-		this.chat.push(new GfChat(message));
+		this.chat.push(new GfChat(message, self, this));
 		this.chat.sort((a, b) => {
-			a.time > b.time ? -1 : 1
+			return a.time > b.time ? -1 : 1;
 		});
 		this.chat = this.chat.slice(0, 100);
+		if( !self )
+			++this.unread;
 
 	}
 
 	load( data ){
+
+		if( typeof data !== "object" )
+			return;
 
 		this.id = data.id || '';
 		this.name = data.name || 'Unknown Player';
@@ -1917,19 +1947,65 @@ class GfPlayer{
 
 	}
 
+	getImage(){
+
+		if( !this.imagePassesWhitelist() )
+			return '/media/textures/tileable/church_floor_2.jpg';
+		return this.image;
+
+	}
+
+	imagePassesWhitelist(){
+
+		const url = new URL(this.image);
+		if( url.protocol !== 'https:' )
+			return false;
+
+		let ext = url.pathname.split('.').pop().toLowerCase();
+		if( !['jpg', 'jpeg', 'gif', 'png'].includes(ext) )
+			return false;
+
+		const whitelist = [
+			'imgur.com',
+			'e621.net',
+			'furaffinity.net',
+			'metapix.net',
+			'gyazo.com',
+			'fetishquest.com',
+			'jasx.org',
+			'prntscr.com',
+			'redd.it',
+			'twimg.com',
+			'discordapp.com',
+		];
+
+		let last = url.host.split('.');
+		last = last[last.length-2]+'.'+last[last.length-1];
+		if( !whitelist.includes(last) )
+			return false;
+
+		return true;
+
+	}
+
 
 }
 
 
 class GfChat{
 
-	constructor( message ){
+	// Self means we sent to the player parent
+	constructor( message, self, parent ){
 
+		this.parent = parent;
 		this.message = message;
 		this.time = Date.now();
+		this.self = self;
+		this.id = String(++this.parent.chatIndex);
 
 	}
 
+	
 
 }
 
