@@ -2703,6 +2703,8 @@ export default class StaticModal{
 
 					if( !targ )
 						return;		// Todo: close out the chat reply, make it say player has gone offline
+					
+					targ.unread = 0;
 
 					if( typeof event !== "string" ){
 						setTimeout(() => {
@@ -2730,13 +2732,16 @@ export default class StaticModal{
 
 						let div = document.createElement('div');
 						div.classList.add('message');
-						if( !c.self )
+						let name = "YOU";
+						if( !c.self ){
 							div.classList.add('right');
+							name = targ.name;
+						}
 						const d = new Date();
 
 						let time = String(d.getHours()).padStart(2, '0')+':'+String(d.getMinutes()).padStart(2, '0');
 						div.dataset.id = c.id;
-						div.innerHTML = '<i class="time">'+time+'</i> <strong>'+esc(targ.name)+'</strong>: '+esc(c.message);
+						div.innerHTML = '<i class="time">'+time+'</i> <strong>'+esc(name)+'</strong>: '+esc(c.message);
 						body.append(div);
 
 					}
@@ -2750,25 +2755,16 @@ export default class StaticModal{
 
 					}
 
-					targ.unread = 0;
 					const bodyWrap = this.groupFinder.chatBodyWrap;
 
 					bodyWrap.scrollTo(0, bodyWrap.scrollHeight);
 
 				};
 
-				if( this._gf_chat )
-					refreshChat(this._gf_chat);
-				
-				// Groupfinder any run
-				const isInGroupFinder = Game.net.isInGroupFinder();
-				this.groupFinder.joined.classList.toggle('hidden', !isInGroupFinder);
-				this.groupFinder.notJoined.classList.toggle('hidden', isInGroupFinder);
 
-				// Groupfinder connected
-				if( isInGroupFinder ){
+				const refreshPlayers = () => {
 
-					const players = Game.net.gf_players;
+					const players = Game.net.getGroupFinderPlayers();
 					const base = this.groupFinder.listing;
 					for( let player of players ){
 
@@ -2787,7 +2783,10 @@ export default class StaticModal{
 							base.appendChild(div);
 
 							// Clicked the player
-							div.addEventListener('click', refreshChat);
+							div.addEventListener('click', event => {
+								refreshChat(event);
+								refreshPlayers();
+							});
 
 						}
 
@@ -2835,9 +2834,21 @@ export default class StaticModal{
 					this.groupFinder.gfBG.style.backgroundImage = myPlayer.image ? "url('"+myPlayer.image+"')" : '';
 					this.groupFinder.myIcon.src = myPlayer.image;
 					this.groupFinder.myIcon.classList.toggle('hidden', !myPlayer.image);
-					
 
-				}
+				};
+
+
+				if( this._gf_chat )
+					refreshChat(this._gf_chat);
+				
+				// Groupfinder any run
+				const isInGroupFinder = Game.net.isInGroupFinder();
+				this.groupFinder.joined.classList.toggle('hidden', !isInGroupFinder);
+				this.groupFinder.notJoined.classList.toggle('hidden', isInGroupFinder);
+
+				// Groupfinder connected
+				if( isInGroupFinder )
+					refreshPlayers();
 
 
 				// First run
@@ -2997,9 +3008,9 @@ export default class StaticModal{
 
 					});
 
-					this.groupFinder.chatInput.addEventListener('input', event => {
-						
-						if( event.data === null ){
+					this.groupFinder.chatInput.addEventListener('keydown', event => {
+
+						if( event.key === 'Enter' ){
 
 							event.preventDefault();
 							const text = event.target.innerText.trim();

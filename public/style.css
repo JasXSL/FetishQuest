@@ -3217,7 +3217,6 @@ div.passiveUpsideDown > div.content > div.bg{
 
 	#mainMenu div[data-id="Group Finder"] div.listing{
 		display:flex;
-		justify-content: space-between;
 		margin-top:9vmax;
 	}
 

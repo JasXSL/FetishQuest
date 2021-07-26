@@ -424,7 +424,6 @@ class NetworkManager{
 		char.id = this.id;
 		this._gfChar = char;
 
-		console.log("Sending", char);
 		// Connect etc
 		if( !this.isConnected() )
 			await this.connect();
@@ -531,7 +530,13 @@ class NetworkManager{
 			message : message,
 			to : char.id,
 		});
+		this.handleEvent('gf');
 
+	}
+
+	// Gets all except my players
+	getGroupFinderPlayers(){
+		return this.gf_players.filter(el => el.id !== this.id);
 	}
 
 
