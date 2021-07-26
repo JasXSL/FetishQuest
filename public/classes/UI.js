@@ -189,7 +189,7 @@ export default class UI{
 			}
 			else if( event.key === 'w' ){
 
-				game.uiClick();
+				game.uiClick(this.miniMapMinimize[0]);
 				this.toggleMiniMap();
 
 			}
@@ -297,13 +297,13 @@ export default class UI{
 
 		this.miniMapMinimize.off('click').on('click', () => {
 
-			game.uiClick();
+			game.uiClick(this.miniMapMinimize[0]);
 			this.toggleMiniMap();
 
 		});
 		this.miniMapNav.off('click').on('click', event => {
 			
-			game.uiClick();
+			game.uiClick(this.miniMapNav[0]);
 			this.changeMinimapLevel(
 				event.currentTarget.innerText === '+' ? 1 : -1
 			);
@@ -688,7 +688,7 @@ export default class UI{
 				th.closeTargetSelector();
 				th.action_selected = spell;
 				th.targets_selected = [];
-				game.uiClick();
+				game.uiClick(event.target);
 
 				if( targetable )
 					$(this).toggleClass('spellSelected', true);

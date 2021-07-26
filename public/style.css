@@ -85,6 +85,32 @@ div.netgame.player
 	border-bottom-color: #BBB;
 	border-right-color: #BBB;
 }
+@keyframes newItemsAnim{
+	from{ border-color: #FAA;}
+	to{ border-color:#F66; }
+}
+div.button.newItems{
+	border-color: #FAA;
+	animation: newItemsAnim ease-in-out alternate infinite 1s;
+	box-shadow:0 0 1vmax #F66;
+}
+div.button.grey{
+	border-color: #666;
+	filter:brightness(75%);
+}
+div.button > div.newItems{
+	display:none;
+}
+div.button.newItems > div.newItems{
+	display: block;
+	position: absolute;
+	width:100%; top:50%;
+	left:0;
+	transform:translateY(-50%);
+	color:#F66;
+	font-weight: bold;
+	background:rgba(0,0,0,.75);
+}
 input[type=button]:disabled{
 	color:#CAA;
 	border-color: #CAA;
@@ -2047,6 +2073,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		vertical-align: middle;
 
 	}
+	
 	#gameIcons > div.highlighted,
 	#mainMenuToggle > div.highlighted{
 		border-color: #ADF;
@@ -3321,7 +3348,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		background:#333;
 		color: #FFF;
 	}
-	#mainMenu div[data-id="Group Finder"] div.chat div.input{
+	#mainMenu div[data-id="Group Finder"] div.chat div.input,
+	#mainMenu div[data-id="Group Finder"] div.chat div.playerDisconnected{
 		height: 3vmax;
 		position:absolute;
 		bottom: 0;
@@ -3335,6 +3363,11 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding: 0.5% 1%;
 		text-align: bottom;
 		outline:0;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.chat div.playerDisconnected{
+		text-align: center;
+		background:#AAA;
 	}
 
 	#mainMenu div[data-id="Group Finder"] div.chat div.body div.message{

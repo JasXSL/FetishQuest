@@ -29,6 +29,7 @@ class NetworkManager{
 
 		this.gf_players = [];
 		this.gf_connected = false;
+		this.gf_last_msg = 0;			// Time we SENT the last message, used for filtering
 
 		this.load_status  = {DM : 0};	// Cells loaded
 		this.in_menu = {DM : false};	// Tracks if players are in a menu
@@ -156,7 +157,7 @@ class NetworkManager{
 				return;
 
 			}
-
+			
 			this.disconnect();
 			
 		});
@@ -188,21 +189,25 @@ class NetworkManager{
 		return Boolean(this.io);
 	}
 
+
 	// Disconnects entirely
 	async disconnect(){
 
+		console.log("Disconnect");
 		if( !this.io )
 			return;
 
 		clearTimeout(this.timer_reconnect);
 		glib.autoloadMods();
 		
-		
+		this.gf_connected = false;
 		this.public_id = null;
 		this.id = null;
 		this.players = [];
 		this.io.disconnect();
 		this.io = null;
+
+		this.handleEvent('disconnect');
 
 		if( !game.is_host ){
 			
@@ -212,6 +217,7 @@ class NetworkManager{
 		}
 		game.ui.draw();
 		game.onTurnTimerChanged();
+		
 
 	}
 
@@ -390,7 +396,7 @@ class NetworkManager{
 		run.push(...this.eventBindings['*']);
 		
 		for( let e of run )
-			e(data);
+			e(data, evt);
 
 	}
 
@@ -473,7 +479,6 @@ class NetworkManager{
 	onGroupFinderPlayers( data ){
 
 		this.gf_players = data.map(el => new GfPlayer(el));
-		console.log("Got ALL players", this.gf_players);
 		this.handleEvent('gf');
 
 	}
@@ -501,7 +506,6 @@ class NetworkManager{
 		else
 			this.gf_players.push( new GfPlayer(data) );
 		this.handleEvent('gf');
-		console.log("Players are now", this.gf_players);
 
 	}
 
@@ -522,9 +526,13 @@ class NetworkManager{
 
 	sendGroupFinderMessage( char, message ){
 
-		if( !String(message).substring(0, 256).trim() )
-			return;
+		if( !this.canGroupFinderMessage() )
+			return false;
 
+		if( !String(message).substring(0, 256).trim() )
+			return false;
+
+		this.gf_last_msg = Date.now();
 		char.addChatLog(message, true);
 		this.io.emit('gf_msg', {
 			message : message,
@@ -532,6 +540,11 @@ class NetworkManager{
 		});
 		this.handleEvent('gf');
 
+	}
+
+	// Checks cooldown
+	canGroupFinderMessage(){
+		return ( Date.now()-this.gf_last_msg > 1000 );
 	}
 
 	// Gets all except my players
@@ -1904,9 +1917,12 @@ class GfPlayer{
 			return a.time > b.time ? -1 : 1;
 		});
 		this.chat = this.chat.slice(0, 100);
-		if( !self )
+		if( !self ){
+			if( !this.unread ){
+				game.uiAudio( 'gf_notification', .3, document.getElementById('groupFinder'));
+			}
 			++this.unread;
-
+		}
 	}
 
 	load( data ){

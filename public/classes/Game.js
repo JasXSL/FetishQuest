@@ -72,7 +72,7 @@ export default class Game extends Generic{
 		this.audio_fx = new Audio("fx");
 		this.audio_ambient = new Audio('ambient', false);
 		this.audio_music = new Audio('music', false);
-		this.audio_ui = new Audio('ui', false);
+		this.audio_ui = new Audio('ui', true);
 
 		this.active_music_file = null;
 		this.active_ambient_file = null;
@@ -1089,8 +1089,17 @@ export default class Game extends Generic{
 	}
 
 	uiAudio( sound, volume = 0.5, element = null ){
-		// Todo: element location
-		this.audio_ui.play( 'media/audio/ui/'+sound+'.ogg', volume, false );
+
+		let x = 0, y = 0;
+		if( element ){
+
+			const rect = element.getBoundingClientRect();
+			x = ((rect.width/2+rect.left)/window.innerWidth)/2-.25;
+			y = ((rect.height/2+rect.top)/window.innerHeight)/2-.25;
+
+		}
+		
+		this.audio_ui.play( 'media/audio/ui/'+sound+'.ogg', volume, false, x, y );
 	}
 
 	uiClick( element ){

@@ -78,6 +78,11 @@ class GroupFinder{
 		if( !from || !to )
 			return false;
 
+		if( Date.now()-from.last_msg < 800 )
+			return false;
+
+		from.last_msg = Date.now();
+
 		to.socket.emit("gf_msg", {
 			message : message,
 			sender : fromSocket.id
@@ -108,6 +113,7 @@ class Listing{
 		this.image = '';
 		this.is = '';
 		this.wants = '';
+		this.last_msg = 0;
 		
 	}
 

@@ -116,8 +116,8 @@ export default class StaticModal{
 
 		this.tabContainer.toggleClass('hidden', Object.keys(this.tabs).length < 2 );
 
-		this.tabs[label].label.on('click', () => {
-			game.uiAudio( "tab_select" );
+		this.tabs[label].label.on('click', event => {
+			game.uiAudio( "tab_select", 0.5, event.target );
 			this.setActiveTab(label);
 		});
 
@@ -323,9 +323,10 @@ export default class StaticModal{
 			}
 		});
 
-
-
-		
+		$('#groupFinder').off('click').on('click', event => {
+			this.setWithTab('mainMenu', 'Group Finder');
+			game.uiAudio( "tab_select", 0.5, event.target );
+		});	
 
 
 		// Sleep select
@@ -1084,7 +1085,9 @@ export default class StaticModal{
 
 					});
 
-					Game.net.bind('*', () => this.refresh());
+					Game.net.bind('*', (data, evt) => {
+						this.refresh();
+					});
 
 				}
 
@@ -2089,7 +2092,7 @@ export default class StaticModal{
 					if( !asset )
 						return;
 
-					game.uiClick();
+					game.uiClick(event.target);
 					updateStage(1);
 
 					const handleTargetAssetClick = async event => {
@@ -2098,7 +2101,7 @@ export default class StaticModal{
 						if( !targ )
 							return;
 
-						game.uiClick();
+						game.uiClick(event.target);
 						updateStage(2);
 
 						for( let ch of this.transmogTarget.children )
@@ -2117,7 +2120,7 @@ export default class StaticModal{
 						this.finalButton.onclick = () => {
 							try{
 								game.transmogrify(transmogger, myPlayer, asset.id, targ.id);
-								game.uiClick();
+								game.uiClick(event.target);
 								this.close();
 							}catch(err){
 								game.ui.modal.addError(err);
@@ -2203,7 +2206,6 @@ export default class StaticModal{
 			})
 			.addTab("Group Finder", () => {
 				return `
-					
 					<div class="notJoined">
 						<form class="gfCharacterForm">
 							<label>
@@ -2246,6 +2248,7 @@ export default class StaticModal{
 							<div class="body"></div>
 						</div>
 						<div class="input" contenteditable></div>
+						<div class="playerDisconnected hidden">Player Disconnected</div>
 						<div class="close button">Close</div>
 					</div>
 				`;
@@ -2434,8 +2437,14 @@ export default class StaticModal{
 					chatBodyWrap : groupFinder.querySelector('div.chat div.bodywrap'),
 					chatInput : groupFinder.querySelector('div.chat div.input'),
 					chatClose : groupFinder.querySelector('div.chat div.close'),
+					chatPlayerDisconnected : groupFinder.querySelector('div.chat div.playerDisconnected'),
 				};
 
+				// Bottom right button
+				this.gfGlobalButton = {
+					button : document.getElementById('groupFinder'),
+					count : document.querySelector('#groupFinder > div.newItems'),
+				};
 
 			})
 			.setDraw(async function(){
@@ -2694,16 +2703,29 @@ export default class StaticModal{
 
 
 				// Event can also be an ID
+				const refreshMasterBadge = () => {
+					// Update the global button
+					let newNotes = 0;
+					const players = Game.net.getGroupFinderPlayers();
+					for( let player of players )
+						newNotes += player.unread;
+					this.gfGlobalButton.button.classList.toggle('grey', !isInGroupFinder);
+					this.gfGlobalButton.button.classList.toggle('newItems', Boolean(newNotes));
+					this.gfGlobalButton.count.innerText = newNotes;
+				};
+
 				const refreshChat = event => {
 
 					const id = typeof event === "string" ? event : event.currentTarget.dataset.id;
 					const targ = Game.net.getGroupFinderPlayerById(id);
 
-					
+					this.groupFinder.chatPlayerDisconnected.classList.toggle('hidden', Boolean(targ));
+					this.groupFinder.chatInput.classList.toggle('hidden', !targ);
 
-					if( !targ )
-						return;		// Todo: close out the chat reply, make it say player has gone offline
-					
+					if( !targ ){
+						return;
+					}
+
 					targ.unread = 0;
 
 					if( typeof event !== "string" ){
@@ -2766,6 +2788,14 @@ export default class StaticModal{
 
 					const players = Game.net.getGroupFinderPlayers();
 					const base = this.groupFinder.listing;
+
+					// Hide if no players
+					if( !players.length )
+						base.innerHTML = '<div class="npo">No players online.</div>';
+					else if( base.querySelector('div.npo') )
+						base.innerHTML = '';
+
+					
 					for( let player of players ){
 
 						const unreadMessages = player.unread;
@@ -2784,8 +2814,10 @@ export default class StaticModal{
 
 							// Clicked the player
 							div.addEventListener('click', event => {
+								game.uiClick(event.target);
 								refreshChat(event);
 								refreshPlayers();
+								refreshMasterBadge();
 							});
 
 						}
@@ -2795,10 +2827,6 @@ export default class StaticModal{
 						div.querySelector('div.bg').style.backgroundImage = 'url('+esc(player.getImage())+')';
 						div.querySelector('div.name').innerText = player.name + (unreadMessages ? ' ['+unreadMessages+']' : '');
 
-					}
-
-					if( !players.length ){
-						base.innerHTML = 'No players online.';
 					}
 
 					// Sort the divs
@@ -2835,6 +2863,7 @@ export default class StaticModal{
 					this.groupFinder.myIcon.src = myPlayer.image;
 					this.groupFinder.myIcon.classList.toggle('hidden', !myPlayer.image);
 
+
 				};
 
 
@@ -2850,6 +2879,10 @@ export default class StaticModal{
 				if( isInGroupFinder )
 					refreshPlayers();
 
+				refreshMasterBadge();
+
+
+				
 
 				// First run
 				if( !this.drawn ){
@@ -3002,6 +3035,7 @@ export default class StaticModal{
 
 					this.groupFinder.chatClose.addEventListener('click', event => {
 
+						game.uiClick(event.target);
 						this.groupFinder.chatBody.replaceChildren();
 						this._gf_chat = false;
 						this.groupFinder.chat.classList.toggle('hidden', true);
@@ -3013,13 +3047,16 @@ export default class StaticModal{
 						if( event.key === 'Enter' ){
 
 							event.preventDefault();
+
+							if( !Game.net.canGroupFinderMessage() )
+								return;
+
 							const text = event.target.innerText.trim();
 							event.target.innerText = '';
 
 							const ch = Game.net.getGroupFinderPlayerById(this._gf_chat);
 							if( text && ch )
 								Game.net.sendGroupFinderMessage(ch, text);
-
 							return;
 
 						}
@@ -3059,8 +3096,10 @@ export default class StaticModal{
 
 						try{
 
+							game.uiClick(event.target);
 							await Game.net.joinGroupFinder();
-							this.refresh(true);							
+							this.refresh(true);	
+											
 
 						}catch(err){
 							console.error(err);
@@ -3072,12 +3111,15 @@ export default class StaticModal{
 
 					this.groupFinder.disconnect.addEventListener('click', async event => {
 
+						game.uiClick(event.target);
 						await Game.net.leaveGroupFinder();
 						this.refresh();
 
 					});
 
-					Game.net.bind('gf', () => this.refresh());
+					const doRefresh = () => this.refresh();
+					Game.net.bind('gf', doRefresh);
+					Game.net.bind('disconnect', doRefresh);
 
 				}
 
