@@ -3338,6 +3338,16 @@ div.passiveUpsideDown > div.content > div.bg{
 		width: 100%;
 		background-color:#333;
 	}
+	#mainMenu div[data-id="Group Finder"] div.chat div.header div.gameInvite{
+		position: absolute;
+		top:50%;
+		transform:translateY(-50%);
+		right:1vmax;
+		
+	}
+	#mainMenu div[data-id="Group Finder"] div.chat div.header div.gameInvite:active{
+		transform:translateY(-50%) scale(.95,.95);
+	}
 
 	#mainMenu div[data-id="Group Finder"] div.chat div.bodywrap{
 		position:absolute;
@@ -3375,7 +3385,21 @@ div.passiveUpsideDown > div.content > div.bg{
 		margin:0.2vmax;
 		padding:0.5vmax;
 		background: rgba(255,255, 255, .2);
+		user-select: text;
 	}
+	#mainMenu div[data-id="Group Finder"] div.chat div.body div.message.gameInvite{
+		background:none;
+		text-align: center;
+	}
+
+	#mainMenu div[data-id="Group Finder"] div.chat div.body div.message div.gameInvite{
+		display:inline-block;
+		padding:1vmax;
+	}
+	#mainMenu div[data-id="Group Finder"] div.chat div.body div.message div.gameInvite i{
+		font-weight: normal;
+	}
+	
 
 	#mainMenu div[data-id="Group Finder"] div.chat div.body div.message.right{
 		text-align: right;

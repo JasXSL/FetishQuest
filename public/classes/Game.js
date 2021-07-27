@@ -3583,13 +3583,20 @@ Game.onHashChange = function(){
 			if( !nick )
 				return game.ui.modal.addError("Please enter a proper nickname");
 			Game.net.joinGame(gameID, nick);
+			game.ui.modal.onSelectionBoxClose();	// Prevent messing with the URL
 			game.ui.modal.close();
 
 		});
+		game.ui.modal.onSelectionBoxClose(() => {
+			window.location.hash = '';
+		});
+
 		game.ui.draw();
 		return true;
 
 	}
+	else
+		this._hashid = '';
 
 
 };

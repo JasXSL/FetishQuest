@@ -422,7 +422,6 @@ class NetworkManager{
 		return this.gf_connected && this.isConnected();
 	}
 
-	/* Todo: Handle group finder */
 	async joinGroupFinder(){
 
 		const char = new GfPlayer();

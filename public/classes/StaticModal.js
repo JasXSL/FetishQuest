@@ -778,8 +778,7 @@ export default class StaticModal{
 				
 				return `
 					<div class="connected center">
-						<p class="description hideIfNotHost">Share the invite code or direct invite URL to invite a player to your game:</p>
-						<div class="netgameLink a hideIfNotHost"></div>
+						<p class="description hideIfNotHost">Players can join  your game with the following URL:</p>
 						<div class="netgameLink b hideIfNotHost"></div>
 						<input type="button" class="red disconnect" value="Leave Game" />
 						<div class="connectedPlayers"></div>
@@ -830,7 +829,6 @@ export default class StaticModal{
 					disconnected : netgame.querySelector('div.disconnected'),
 					connectedDesc : netgame.querySelector('div.connected p.description'),
 					disconnectedDesc : netgame.querySelector('div.disconnected p.description'),
-					netgameLinkA : netgame.querySelector('div.connected div.netgameLink.a'),
 					netgameLinkB : netgame.querySelector('div.connected div.netgameLink.b'),
 					hostButton : netgame.querySelector('input.hostgame'),
 					disconnectButton : netgame.querySelector('input.disconnect'),
@@ -1026,7 +1024,6 @@ export default class StaticModal{
 					const isHosting = game.initialized && game.is_host;
 					if( isHosting ){
 
-						this.netgame.netgameLinkA.innerText = Game.net.public_id;
 						this.netgame.netgameLinkB.innerText = 'https://'+window.location.hostname+'/#net/'+Game.net.public_id;
 
 					}
@@ -1090,7 +1087,6 @@ export default class StaticModal{
 					});
 
 				}
-
 
 				this.toggleTab('DM', game.is_host);
 
@@ -2243,6 +2239,7 @@ export default class StaticModal{
 					<div class="chat hidden">
 						<div class="header" style="background-image:url('/media/textures/tileable/church_floor_2.jpg')">
 							<div class="name">CharName Here</div>
+							<div class="button gameInvite hidden">Invite to Game</div>
 						</div>
 						<div class="bodywrap">
 							<div class="body"></div>
@@ -2438,6 +2435,7 @@ export default class StaticModal{
 					chatInput : groupFinder.querySelector('div.chat div.input'),
 					chatClose : groupFinder.querySelector('div.chat div.close'),
 					chatPlayerDisconnected : groupFinder.querySelector('div.chat div.playerDisconnected'),
+					chatGameInvite : groupFinder.querySelector('div.chat div.gameInvite'),
 				};
 
 				// Bottom right button
@@ -2722,9 +2720,8 @@ export default class StaticModal{
 					this.groupFinder.chatPlayerDisconnected.classList.toggle('hidden', Boolean(targ));
 					this.groupFinder.chatInput.classList.toggle('hidden', !targ);
 
-					if( !targ ){
+					if( !targ )
 						return;
-					}
 
 					targ.unread = 0;
 
@@ -2736,6 +2733,7 @@ export default class StaticModal{
 					this.groupFinder.chat.classList.toggle('hidden', false);
 					this.groupFinder.chatHeader.style.backgroundImage = 'url(\''+esc(targ.getImage())+'\')';
 					this.groupFinder.chatHeaderName.innerText = targ.name;
+					this.groupFinder.chatGameInvite.classList.toggle('hidden', !Game.net.isInNetgameHost());
 
 					this._gf_chat = id;
 
@@ -2746,7 +2744,7 @@ export default class StaticModal{
 					let existing = [];
 					for( let c of ch ){
 						
-						existing.push(c.id);
+						existing.push(c.id);	// Make a cache of existing IDs so we can delete pruned messages
 
 						// Message already added
 						if( body.querySelector('div.message[data-id=\''+c.id+'\']') )
@@ -2754,16 +2752,44 @@ export default class StaticModal{
 
 						let div = document.createElement('div');
 						div.classList.add('message');
-						let name = "YOU";
-						if( !c.self ){
-							div.classList.add('right');
-							name = targ.name;
-						}
-						const d = new Date();
-
-						let time = String(d.getHours()).padStart(2, '0')+':'+String(d.getMinutes()).padStart(2, '0');
 						div.dataset.id = c.id;
-						div.innerHTML = '<i class="time">'+time+'</i> <strong>'+esc(name)+'</strong>: '+esc(c.message);
+
+						if( c.message.startsWith('!!GAMEINVITE!!') ){
+
+							let text = '<strong><i>You invited '+esc(targ.name)+' to your game!</i></strong>';
+							if( !c.self ){
+
+								let url = c.message.substr(14, 36);	// Note: Change this if you ever decide to stop using uuidv4
+								text = '<div class="gameInvite button bgMarble">'+
+									'<strong>'+esc(targ.name)+' has invited you to join their game!</strong><br />'+
+									'<i class="subtitle">Click to Join</i>'+
+								'</div>';
+								div.classList.add('gameInvite');
+
+								div.addEventListener('click', event => {
+									window.location.hash = '#net/'+url;								
+								});
+
+							}
+
+							
+							div.innerHTML = text;
+
+						}else{
+
+							let name = "YOU";
+							// They sent to us
+							if( !c.self ){
+
+								div.classList.add('right');
+								name = targ.name;
+
+							}
+							const d = new Date();
+							let time = String(d.getHours()).padStart(2, '0')+':'+String(d.getMinutes()).padStart(2, '0');
+							div.innerHTML = '<i class="time">'+time+'</i> <strong>'+esc(name)+'</strong>: '+esc(c.message);
+
+						}
 						body.append(div);
 
 					}
@@ -3114,6 +3140,17 @@ export default class StaticModal{
 						game.uiClick(event.target);
 						await Game.net.leaveGroupFinder();
 						this.refresh();
+
+					});
+
+					this.groupFinder.chatGameInvite.addEventListener('click', async event => {
+
+						if( !Game.net.canGroupFinderMessage() )
+							return;
+
+						const ch = Game.net.getGroupFinderPlayerById(this._gf_chat);
+						if( ch )
+							Game.net.sendGroupFinderMessage(ch, '!!GAMEINVITE!!'+Game.net.public_id);
 
 					});
 
