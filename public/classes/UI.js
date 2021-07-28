@@ -225,7 +225,16 @@ export default class UI{
 				$("#execMultiCast").click();
 
 			}
+			else if( event.key === 'c' ){
 
+				if( StaticModal.active && StaticModal.active.id === 'mainMenu' && StaticModal.active.activeTab === 'Group Finder' )
+					StaticModal.close();
+				else
+					StaticModal.setWithTab('mainMenu', 'Group Finder');
+
+				game.uiAudio( "tab_select", 0.5, event.target );
+
+			}
 
 		});
 
@@ -2316,7 +2325,7 @@ export default class UI{
 
 	}
 
-	onTooltipMouseover(event){
+	onTooltipMouseover( event ){
 		this.setTooltip(event.currentTarget);
 	}
 
@@ -2324,6 +2333,7 @@ export default class UI{
 		this.setTooltip();
 	}
 
+	// Add tooltipParent class to anything that should have a tooltip, and .tooltip directly under it with content. Call this function to rebind
 	bindTooltips(){
 
 		const mo = event => this.onTooltipMouseover(event),

@@ -190,7 +190,6 @@ export default class StaticModal{
 		obj.args = [...args];
 		const out = await this.refreshActive();
 
-		
 		return out;
 
 	}
@@ -305,7 +304,7 @@ export default class StaticModal{
 		
 	}
 
-	// Only gets called once when the DOM loads. Bulids all the modal bases
+	// Only gets called once when the DOM loads. Builds all the modal bases
 	static ini(){
 
 		if( this.built )
@@ -324,9 +323,40 @@ export default class StaticModal{
 		});
 
 		$('#groupFinder').off('click').on('click', event => {
+
 			this.setWithTab('mainMenu', 'Group Finder');
 			game.uiAudio( "tab_select", 0.5, event.target );
+
 		});	
+
+
+		// Handle group finder auto join
+		// This is set in StaticModal
+		if( localStorage.gfAutoJoin )
+			Game.net.joinGroupFinder();
+		
+		// Helper for the bottom right badge
+		const refreshMasterBadge = () => {
+
+			const isInGroupFinder = Game.net.isInGroupFinder();
+
+			// Update the global button
+			let newNotes = 0;
+			const players = Game.net.getGroupFinderPlayers();
+			for( let player of players )
+				newNotes += player.unread;
+
+			// Bottom right button
+
+			const button = document.getElementById('groupFinder');
+			const count = document.querySelector('#groupFinder > div.newItems');
+			button.classList.toggle('grey', !isInGroupFinder);
+			button.classList.toggle('newItems', Boolean(newNotes));
+			count.innerText = newNotes;
+
+		};
+		Game.net.bind('gf', refreshMasterBadge);
+		Game.net.bind('disconnect', refreshMasterBadge);
 
 
 		// Sleep select
@@ -2205,7 +2235,8 @@ export default class StaticModal{
 					<div class="notJoined">
 						<form class="gfCharacterForm">
 							<label>
-								<input type="text" placeholder="Name" name="name" maxlength=64 required />
+								Character Name:<br />
+								<input type="text" placeholder="Name" name="name" maxlength=64 style="font-size:3vmax" required />
 							</label><br />
 							<label>
 								Character image (supports imgur, e621, gyazo, reddit, discord, twitter): <br />
@@ -2219,6 +2250,9 @@ export default class StaticModal{
 								Who do you want to play with? Species, gender, any particular roles? Mods? Do you want to RP? Any fetish in particular you want to focus on? What content do you want to do?<br />
 								<textarea name="wants"></textarea>
 							</label><br/>
+							<label>
+								Auto-join group finder on load <input type="checkbox" name="autojoin" />
+							</label>
 							<label>
 								<input type="submit" value="Join Group Finder" />
 							</label>
@@ -2241,9 +2275,17 @@ export default class StaticModal{
 							<div class="name">CharName Here</div>
 							<div class="button gameInvite hidden">Invite to Game</div>
 						</div>
+
+						<div class="charDesc bgMarble">
+							<h3>About</h3>
+							<p class="about"></p>
+							<h3>Looking For</h3>
+							<p class="wants"></p>
+						</div>
 						<div class="bodywrap">
 							<div class="body"></div>
 						</div>
+						
 						<div class="input" contenteditable></div>
 						<div class="playerDisconnected hidden">Player Disconnected</div>
 						<div class="close button">Close</div>
@@ -2388,7 +2430,7 @@ export default class StaticModal{
 				`;
 			})
 			.setProperties(function(){
-				
+
 				const 
 					mainMenu = this.getTabDom('Main Menu')[0],
 					mods = this.getTabDom('My Mods')[0],
@@ -2423,6 +2465,7 @@ export default class StaticModal{
 					characterImage : groupFinder.querySelector('form.gfCharacterForm input[name=image]'),
 					characterIs : groupFinder.querySelector('form.gfCharacterForm textarea[name=is]'),
 					characterWants : groupFinder.querySelector('form.gfCharacterForm textarea[name=wants]'),
+					characterAutoJoin : groupFinder.querySelector('form.gfCharacterForm input[name=autojoin]'),
 
 					listing : groupFinder.querySelector('div.joined > div.listing'),
 					disconnect : groupFinder.querySelector('div.joined div.gfHeader input[type=button]'),
@@ -2432,22 +2475,16 @@ export default class StaticModal{
 					chatHeaderName : groupFinder.querySelector('div.chat div.header div.name'),
 					chatBody : groupFinder.querySelector('div.chat div.body'),
 					chatBodyWrap : groupFinder.querySelector('div.chat div.bodywrap'),
+					chatCharAbout : groupFinder.querySelector('div.chat p.about'),
+					chatCharWants : groupFinder.querySelector('div.chat p.wants'),
 					chatInput : groupFinder.querySelector('div.chat div.input'),
 					chatClose : groupFinder.querySelector('div.chat div.close'),
 					chatPlayerDisconnected : groupFinder.querySelector('div.chat div.playerDisconnected'),
 					chatGameInvite : groupFinder.querySelector('div.chat div.gameInvite'),
 				};
 
-				// Bottom right button
-				this.gfGlobalButton = {
-					button : document.getElementById('groupFinder'),
-					count : document.querySelector('#groupFinder > div.newItems'),
-				};
-
 			})
 			.setDraw(async function(){
-
-				
 				
 				// Show game saves
 				const handleGameClick = async event => {
@@ -2700,17 +2737,7 @@ export default class StaticModal{
 
 
 
-				// Event can also be an ID
-				const refreshMasterBadge = () => {
-					// Update the global button
-					let newNotes = 0;
-					const players = Game.net.getGroupFinderPlayers();
-					for( let player of players )
-						newNotes += player.unread;
-					this.gfGlobalButton.button.classList.toggle('grey', !isInGroupFinder);
-					this.gfGlobalButton.button.classList.toggle('newItems', Boolean(newNotes));
-					this.gfGlobalButton.count.innerText = newNotes;
-				};
+				
 
 				const refreshChat = event => {
 
@@ -2720,9 +2747,21 @@ export default class StaticModal{
 					this.groupFinder.chatPlayerDisconnected.classList.toggle('hidden', Boolean(targ));
 					this.groupFinder.chatInput.classList.toggle('hidden', !targ);
 
+					
+
 					if( !targ )
 						return;
 
+					// Player changed
+					if( this.groupFinder.chat.dataset.id !== id ){
+						
+						this.groupFinder.chatBody.replaceChildren();
+						this.groupFinder.chatCharAbout.innerText = targ.is;
+						this.groupFinder.chatCharWants.innerText = targ.wants;
+
+					}
+
+					
 					targ.unread = 0;
 
 					if( typeof event !== "string" ){
@@ -2787,7 +2826,7 @@ export default class StaticModal{
 							}
 							const d = new Date();
 							let time = String(d.getHours()).padStart(2, '0')+':'+String(d.getMinutes()).padStart(2, '0');
-							div.innerHTML = '<i class="time">'+time+'</i> <strong>'+esc(name)+'</strong>: '+esc(c.message);
+							div.innerHTML = '<div class="sub"><i class="time">'+time+'</i> <strong>'+esc(name)+'</strong>: '+esc(c.message)+'</div>';
 
 						}
 						body.append(div);
@@ -2804,8 +2843,8 @@ export default class StaticModal{
 					}
 
 					const bodyWrap = this.groupFinder.chatBodyWrap;
-
 					bodyWrap.scrollTo(0, bodyWrap.scrollHeight);
+
 
 				};
 
@@ -2831,10 +2870,16 @@ export default class StaticModal{
 
 							div = document.createElement('div');
 							div.dataset.id = player.id;
-							div.classList.add('player');
+							div.classList.add('player', 'tooltipParent');
 							div.innerHTML = 
 								'<div class="bg"></div>'+
-								'<div class="name"></div>'
+								'<div class="name"></div>'+
+								'<div class="tooltip">'+
+									'<h3 style="margin:0">About</h3>'+
+									'<p class="about" style="margin:0">About</p>'+
+									'<h3 style="margin:0">Looking For</h3>'+
+									'<p class="wants" style="margin:0">Wants</p>'+
+								'</div>'
 							;
 							base.appendChild(div);
 
@@ -2852,6 +2897,8 @@ export default class StaticModal{
 						div.classList.toggle('highlighted', Boolean(unreadMessages));
 						div.querySelector('div.bg').style.backgroundImage = 'url('+esc(player.getImage())+')';
 						div.querySelector('div.name').innerText = player.name + (unreadMessages ? ' ['+unreadMessages+']' : '');
+						div.querySelector('div.tooltip > p.about').innerText = player.is;
+						div.querySelector('div.tooltip > p.wants').innerText = player.wants;
 
 					}
 
@@ -2906,7 +2953,7 @@ export default class StaticModal{
 					refreshPlayers();
 
 				refreshMasterBadge();
-
+				
 
 				
 
@@ -3058,6 +3105,7 @@ export default class StaticModal{
 					this.groupFinder.characterImage.value = baseChar.image;
 					this.groupFinder.characterIs.value = baseChar.is;
 					this.groupFinder.characterWants.value = baseChar.wants;
+					this.groupFinder.characterAutoJoin.checked = Boolean(localStorage.gfAutoJoin);
 
 					this.groupFinder.chatClose.addEventListener('click', event => {
 
@@ -3119,6 +3167,8 @@ export default class StaticModal{
 							wants : wants
 						});
 						ch.saveToLocalStorage();
+
+						localStorage.gfAutoJoin = this.groupFinder.characterAutoJoin.checked ? '1' : ''; 
 
 						try{
 
@@ -4412,6 +4462,10 @@ export default class StaticModal{
 						<tr>
 							<td>w</td>
 							<td>Toggle mini map</td>
+						</tr>
+						<tr>
+							<td>C</td>
+							<td>Toggle group finder</td>
 						</tr>
 					</table>
 				`;

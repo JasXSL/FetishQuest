@@ -1977,7 +1977,12 @@ class GfPlayer{
 
 	imagePassesWhitelist(){
 
-		const url = new URL(this.image);
+		let url;
+		try{
+			url = new URL(this.image);
+		}catch(err){
+			return false;
+		}
 		if( url.protocol !== 'https:' )
 			return false;
 
