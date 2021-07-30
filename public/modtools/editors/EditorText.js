@@ -229,7 +229,7 @@ export function list(){
 	const out = document.createElement('template');
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, {
-		id : true,
+		['*id'] : true,
 		['*text'] : true,
 		['*chat'] : true,
 		['*en'] : true,

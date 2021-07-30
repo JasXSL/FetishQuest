@@ -1527,28 +1527,28 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 	#mainMenu div.searchResults div.mod{
-		width:48%;
-		
+		width:30%;
+		user-select: text;
 		background: linear-gradient(to bottom, #4c4c4c 0%,#131313 100%);
 		box-shadow:0.5vmax 0.5vmax 1vmax rgba(0,0,0,.5);
 		border: 0.2vmax solid #AAA;
 		border-radius: 1vmax;
-		padding:2vmax;
+		font-size:1vmax;
+		padding:1vmax;
 	}
 
 	#mainMenu div.searchResults div.mod h3{
 		margin:0;
+		font-size:1.5vmax;
 	}
 	#mainMenu div.searchResults div.mod p.subtitle{
-		font-size:1.2vmax;
 		padding:0;
-	}
-	#mainMenu div.searchResults div.mod p{
-		font-size:1.4vmax;
+		font-size:1vmax;
 	}
 	#mainMenu div.searchResults div.mod p.desc{
 		max-height:20vh;
 		overflow:hidden;
+		text-align: left;
 	}
 
 	#mainMenu img.portalLogo{

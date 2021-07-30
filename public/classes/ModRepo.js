@@ -70,7 +70,7 @@ export default class ModRepo{
 	}
 
 	async deleteMod( token ){
-		return modReq("DeleteMod", {token:token});
+		return this.modReq("DeleteMod", {token:token});
 	}
 
 	// Sends a request to the server

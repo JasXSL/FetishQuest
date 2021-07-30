@@ -11,9 +11,92 @@
 		- Save user setting status
 		- Save recent chat
 
+	On player party defeated gameaction override
 
 	In game:
+		Guild class spells:
+		Necro:
+			- Elementalist: Desecrating Surge: Deals 4 elemental damage to your target and 2 elemental damage at the start of their turn for 3 turns. Effect is increased by 30% if there's water nearby. 
+			- Tentaclemancer: Cursetacles: Squeezes your target with cursed tentacles, doing 3 corruption damage and lowering all their defenses by 3 for 1 turn.
+		Church:
+			- Warrior: Holy Grasp : Taunts a single target for 2 turns, and when they use an action against you, the party is healed.
+			- Cleric: Something that restores mana
+		Scrapper's Club:
+			- Monk: Massage: Restores health and increases physical proficiency and defense for 1 turn. But adds 1 arousal.
+			- Rogue: Bully: Deals physical damage. If the target is affected by a grapple, knockdown, or silence, critically hit.
+			- Generic: Dazing Blow: Knock your target on the head, dealing damage, interrupting and dazing them for 1 turn.
+			- Generic: Grapple Slam: Grab an enemy by the clothes and knock them down for 1 turn, doing 5 damage and has a 30% chance of stripping.
+		Replace monk meditate:
+			- Tranquil Fist: Deals damage, restores 1 mana immediately plus 1 per armor piece you're missing.
 
+	Utility passives:
+		- Exhibitionist: Able to take off clothes at 0 AP cost and you can put on clothes at half cost.
+		- Able to see enemy actions.
+		- Add an extra action slot.
+
+
+	Class passives:
+		- Monk: Takes no damage penalty from not wearing gear.
+		- Warrior: Each point of stamina grants 1 extra HP. Damage taken from crits reduced by 50%.
+		- Rogue: Crit damage increased by 50%. Gain a 20% discount in all stores.
+		- Cleric: Players gain +3 AP at the start of a fight. Out of combat regen increased by 100% for all players. Players regenerate 20% more HP at the end of a fight.
+		- Tentaclemancer: Each time any player reaches max arousal, restore 30% HP, MP, AP.
+		- Elementalist: Every 5th elemental ability used reduces the AP cost of your next action by 5.
+
+	Main quest:
+		Part 2:
+		1. Travel to borm and talk to people.
+		2. Kidnapped. After RP, clear the cave and find a scroll:
+		3. Take scroll to cartographers and get sent to find a cipher.
+		4. Do a dungeon to get the cipher.
+		5. Get the scroll translated, and it turns out to be a summoning of a giant borm tentacle.
+		6. Go back to Borm and fight the tentacle monster.
+		7. The tentacle drops some kind of magic item that you take back to the guards and finish the quest.
+
+
+		Part 3:
+		1. 	In the throne room you're met by the king's servant KS. He tells the player that matters of importance are to be discussed in the Prince's personal spa. 
+			And he won't allow just any riffraff to enter. The player is sent out to acquire royal swimwear. At the royal "armory".
+		2. 	Since the prince took over, the royal armory is now only producing bikini armor with the royal seal of approval. In order to gain this armor they player must show proficiency with it.
+			In order to gain this seal, the player must accomplish 2 tasks in the royal coliseum while wearing unsealed versions of the armor.
+			The armor is enchanted to allow royalty to arouse the wearer.
+		3.	Tasks:
+			- Mental test: Hooks players up to a machine that arouses them if they answer wrong. The players lose if they answer too many questions wrong.
+			- Physical Test: Arena fight. The prince will arouse the players through the swimwear.
+				- Note: Add a way to prevent any disrobing during a fight, including by players.
+				- Fight won't start until all players are wearing swimwear.
+		4.	Talk to the prince, and he dismisses the notions. But grants you permission and a small stipend to go hunt down these cultists myself.
+
+
+		Part 4:
+		1.	Hunting down the first cultist
+
+		Part 5:
+		1. 	Hunting down the second cultist
+
+		Part 6:
+		???	
+
+	Side quests:
+		- The borm straw tickle tentacles rise
+			- Clear out the fields of borm from tickle tentacles
+
+
+
+	Assets:
+		- Horny bat. Deals 3 damage and lowers arousal by 3.
+
+	Scrapper's Club:
+		- Guild all about martial prowess.
+		- Whether a player wants to fight dirty or not is up to them.
+		- All about skimpy armor
+		- First quest is maybe a gauntlet?
+
+	Enchants:
+		Fun enchants:
+			- Vibrational: Heavy armor only. Reduces damage taken but vibrates when player is hit by physical actions, arousing.
+			- Soulbound: Prevents the armor from being stolen
+			- 
 
 
 -- TEST --
