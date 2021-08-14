@@ -339,7 +339,7 @@ class Wrapper extends Generic{
 
 				}
 				
-				victim.addWrapper(obj);
+				victim.addWrapper(obj, true);
 
 				// Bind events
 				obj.bindEvents();
@@ -380,9 +380,13 @@ class Wrapper extends Generic{
 				
 
 			}
+
 			++successes;
 			
 		}
+
+		// Ready to check stay conditions now
+		Wrapper.checkAllStayConditions();
 		return !successes ? false : out;
 
 	}
@@ -513,8 +517,14 @@ class Wrapper extends Generic{
 
 		if( !Condition.all(this.stay_conditions, evt )){
 			
-			if( Wrapper.debugStayConditions )
+			if( Wrapper.debugStayConditions ){
+
+				console.log("CACHES", game._caches);
+				console.log("PLAYER TAGS: ", this.parent.getTags());
+				Condition.all(this.stay_conditions, evt, true );	// Outputs debug
 				console.log("Removed", this, "because stay conditions");
+
+			}
 			this.remove();
 
 		}

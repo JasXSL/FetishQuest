@@ -4871,7 +4871,9 @@ function build(){
 						libMat.Metal.Rust,
 						libMat.Solids.Rubber,
 					],
-					tags : [],
+					tags : [
+						stdTag.mDildoArm
+					],
 					onStagePlaced : function(asset, mesh){
 
 						if( mesh._ini )

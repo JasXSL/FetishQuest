@@ -1056,7 +1056,9 @@ export default{
 					const asset = DEV.getAssetById(type, elId);
 					if( !asset )
 						throw 'Asset not found', type, elId;
-					this.insertCloneAsset(type, asset, baseObject.constructor, win);
+
+					
+					this.insertCloneAsset(type, asset, baseObject.constructor, win, true);
 
 				}
 				// Unmodified non linker click opens
@@ -1181,9 +1183,15 @@ export default{
 	// Takes an asset and tries to clone it, returns the cloned object
 	// Type: table in the mod, such as dungeonTemplate
 	// Asset: Asset to clone such as a DungeonTemplate
-	insertCloneAsset( type, asset, constructor, parentWindow ){
+	insertCloneAsset( type, asset, constructor, parentWindow, fromListing = false ){
 
 		const out = mod.mod.deepCloneAsset(type, constructor, asset);
+		
+		// Cloning adds the whole object to our mod
+
+		delete out._e;
+		delete out._ext;
+
 		this.onInsertAsset(type, out, parentWindow, true);
 		return out;
 

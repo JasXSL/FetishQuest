@@ -309,12 +309,11 @@ export default class Player extends Generic{
 		this.addTagSynonyms();
 		
 		if( game.is_host ){
-			this.rebindWrappers();
-			
+			this.rebindWrappers(true);
 		}
 	}
 
-	rebindWrappers(){
+	rebindWrappers( ignoreStayCheck = false ){
 
 		this.unbindWrappers();
 		let w = this.getWrappers();	// Otherwise items not equipped might cause procs
@@ -322,7 +321,10 @@ export default class Player extends Generic{
 			wrapper.bindEvents();
 		});
 		this._bound_wrappers = w;
-		Wrapper.checkAllStayConditions();
+		
+		// Ignored when adding wrappers because wrappers may need to apply required tags before checking the conditions
+		if( !ignoreStayCheck )
+			Wrapper.checkAllStayConditions();
 
 	}
 
@@ -3051,12 +3053,13 @@ export default class Player extends Generic{
 	}
 
 	// Use Wrapper.useAgainst, not this
-	addWrapper( wrapper ){
+	// Also see rebindWrappers for ignoreStayCheck
+	addWrapper( wrapper, ignoreStayCheck = false ){
 
 		wrapper.parent = this;
 		this.wrappers.push(wrapper);
 		this.handleWrapperStun(wrapper);
-		this.rebindWrappers();
+		this.rebindWrappers(ignoreStayCheck);
 
 	}
 
