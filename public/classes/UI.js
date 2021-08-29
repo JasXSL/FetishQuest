@@ -821,6 +821,7 @@ export default class UI{
 						'</span>'+
 						'<br />'+
 						'<span class="resources">'+
+							'<span class="armor resource" title="Damage reduction from armor."></span>'+
 							'<span class="chest resource"></span>'+
 							'<span class="legs resource"></span>'+
 							'<span class="arousal resource" title="Arousal.\nStuns at 100%."></span>'+
@@ -1159,6 +1160,7 @@ export default class UI{
 					mpEl = $('> span.MP', resourcesEl),
 					apEl = $('> span.AP', resourcesEl),
 					hpEl = $('> span.HP', resourcesEl),
+					armorEl = $('> span.armor', resourcesEl),
 					chestEl = $('> span.chest', resourcesEl),
 					legsEl = $('> span.legs', resourcesEl),
 			bgEl = $('> div.bg', contentEl),
@@ -1235,24 +1237,24 @@ export default class UI{
 		// Armor
 		chestEl.add(legsEl).toggleClass('hidden', p.isTargetBeast());
 		if( !p.isTargetBeast() ){
-			const ubAsset = p.getEquippedAssetsBySlots(Asset.Slots.upperBody);
-			const lbAsset = p.getEquippedAssetsBySlots(Asset.Slots.lowerBody);
-			const ubDmg = ubAsset.length ? ubAsset[0].getDmgTakenAdd() : Asset.protVal;
-			const lbDmg = lbAsset.length ? lbAsset[0].getDmgTakenAdd() : Asset.protVal;
 
 			const uText = Math.ceil(ubDur*100)+'%';
 			const lText = Math.ceil(lbDur*100)+'%';
 
 			chestEl.toggleClass('broken', !ubDur)
-				.attr('title', 'Upper body armor durability.\n'+((Asset.protVal-ubDmg)*100)+'% Damage reduction');
+				.attr('title', 'Upper body armor durability');
 			legsEl.toggleClass('broken', !lbDur)
-				.attr('title', 'Lower body armor durability.\n'+((Asset.protVal-lbDmg)*100)+'% Damage reduction');
+				.attr('title', 'Lower body armor durability');
 
 			if( chestEl.text() !== uText )
 				chestEl.text(uText);
 			if( legsEl.text() !== lText )
 				legsEl.text(lText);
 		}
+
+		const armorValue = Math.round(100.0 - p.getArmorDamageMultiplier()*100);
+		armorEl.toggleClass('broken', armorValue <= 0).text(armorValue+"%");
+
 		
 		nameDisplayEl
 			.toggleClass('mine', isMine)

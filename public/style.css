@@ -1689,7 +1689,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		width:2.25vmax;
 		padding-top:0.5vmax;
 		text-align: center;
-		margin: 0 0.25vmax;
+		margin: 0 0.1vmax;
 		vertical-align: bottom;
 		pointer-events: all;
 	}
@@ -1750,11 +1750,14 @@ div.passiveUpsideDown > div.content > div.bg{
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(-90deg);
 	}
 
+
+	#ui > div.players div.player span.armor,
 	#ui > div.players div.player span.chest,
 	#ui > div.players div.player span.legs
 	{
 		color:#EFE;
 	}
+	#ui > div.players div.player span.resource.armor::after,
 	#ui > div.players div.player span.resource.chest::after,
 	#ui > div.players div.player span.resource.legs::after
 	{
@@ -1762,6 +1765,9 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui > div.players div.player span.resource.legs::after{
 		background-image:url(media/wrapper_icons/trousers.svg);
+	}
+	#ui > div.players div.player span.resource.armor::after{
+		background-image:url(media/wrapper_icons/shield-echoes.svg);
 	}
 	#ui > div.players div.player span.resource.broken{
 		color:#D66;

@@ -48,6 +48,7 @@ class PlayerTemplate extends Generic{
 		this.viable_consumables = [];			// Viable consumable assets this can spawn with
 		this.random_loot = [];					// {}
 		this.power = 1;
+		this.armor = 0;							// Whole number, percentage armor points (used for beasts mostly)
 		this.sadistic_min = 0;
 		this.sadistic_max = 1;
 		this.dominant_min = 0;					// Dominant vs submissive
@@ -106,6 +107,7 @@ class PlayerTemplate extends Generic{
 			intelligence_max : this.intelligence_max,
 			required_assets : this.required_assets,
 			power : this.power,
+			armor : this.armor,
 			no_equip : this.no_equip,
 			talkative_min : this.talkative_min,
 			talkative_max : this.talkative_max,
@@ -155,6 +157,7 @@ class PlayerTemplate extends Generic{
 		player.dominant = rand1(this.dominant_min, this.dominant_max);
 		player.hetero = rand1(this.hetero_min, this.hetero_max);
 		player.intelligence = rand1(this.intelligence_min, this.intelligence_max);
+		player.armor = this.armor;
 
 		player.size = Math.floor(Math.random()*(this.max_size+1-this.min_size))+this.min_size;
 		player.size = Math.min(Math.max(0, player.size), 10);

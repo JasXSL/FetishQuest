@@ -4,12 +4,23 @@
 
 -- CURRENT --
 
-	Client:
-		- Button in main menu that lets you find other players
-		- Button in bottom right that takes you there directly
-		- Save joined status
-		- Save user setting status
-		- Save recent chat
+	Test:
+		- Cave backdoor is showing up in a new game (test if enabled properly also)
+		- City teleport from forest takes you to wrong cell
+		- NPC teammates can use equippable actions such as divine rod without having it equipped
+		- Bondage device changes
+		
+
+	Bugs:
+		- Saving extensions still seem to brick the original objects for arrays?
+
+		x Add armor indicator to players
+		x Add armor stat to clothes, which reduces damage taken
+		x Add innate armor stat to players
+		- Add armor penetration stat to attack effects, and global
+
+		- Redesign Rogue to do more crit and armor penetration
+		- Redesign tentaclemancer to be primarily DoT/HoT based
 
 	On player party defeated gameaction override
 
@@ -160,6 +171,11 @@
 	Food for thought
 		- Fast travel system
 			- Expensive
+
+	Boss ideas:
+		- Limits the nr of actions you can use per turn
+		- 
+
 
 
 Mod improvements:

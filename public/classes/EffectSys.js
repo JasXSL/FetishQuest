@@ -1076,7 +1076,7 @@ class Effect extends Generic{
 						"of which", s.getBon(type), "-", t.getSV(type),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
-						"nudity multi", t.getNudityDamageMultiplier(),
+						"nudity multi", t.getArmorDamageMultiplier(),
 					);
 					*/
 										
@@ -1094,7 +1094,9 @@ class Effect extends Generic{
 					amt *= Player.getBonusDamageMultiplier( s,t,type,wrapper.detrimental ); // Negative because it's damage
 					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t );
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
-					amt *= t.getNudityDamageMultiplier();
+					amt *= t.getArmorDamageMultiplier();
+
+					// Todo: Add by armor penetration
 
 					//console.debug("amt", amt);
 					

@@ -622,6 +622,9 @@ export default class Condition extends Generic{
 			else if( this.type === T.hpValue ){
 				success = t && this.compareValue(s, t, t.hp);
 			}
+			else if( this.type === T.arousalValue ){
+				success = t && this.compareValue(s, t, t.arousal);
+			}
 			else if( this.type === T.copperValue )
 				success = t && this.compareValue(s, t, t.getMoney());
 			else if( this.type === T.sadism ){
@@ -1276,6 +1279,7 @@ Condition.Types = {
 	apValue : 'apValue', 			// 
 	mpValue : 'mpValue', 			// 
 	hpValue : 'hpValue', 			// 
+	arousalValue : 'arousalValue', 			// 
 	copperValue : 'copperValue',
 	sizeValue : 'sizeValue',		// 
 	genitalSizeValue : 'genitalSizeValue',		// 
@@ -1368,6 +1372,7 @@ Condition.descriptions = {
 	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
 	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
 	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
+	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
 	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
 	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic). Amount can be a math var.',
 	[Condition.Types.dom] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target dominant value, between 0 (sub) 0.5 (switch) and 1 (dom).  Amount can be a math var.',

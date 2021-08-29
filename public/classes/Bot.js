@@ -83,7 +83,7 @@ class Bot{
 	punish( players ){
 
 		let actions = {};
-		let all = this.player.getActions().filter(a => {
+		let all = this.player.getActions('e').filter(a => {
 			return a.label.startsWith("stdPunish");
 		});
 		for( let action of all )
@@ -117,7 +117,7 @@ class Bot{
 	// Checks if it has at least one castable important ability
 	hasCastableImportant(){
 		
-		const actions = this.player.getActions();
+		const actions = this.player.getActions('e');
 		for( let action of actions ){
 			if( action.hasTag([stdTag.acNpcImportant, stdTag.acNpcImportantLast]) && action.castable() )
 				return true;
@@ -131,7 +131,8 @@ class Bot{
 			return;
 
 		if( !this.player.isDead() ){
-			let abils = this.player.getActions().filter(el => {
+
+			let abils = this.player.getActions('e').filter(el => {
 				return !el.hidden && el.castable();
 			});
 			let highest_cost = 0;
@@ -306,9 +307,9 @@ class Bot{
 
 			// We lost, wait longer
 			if( this.player.isDead() )
-				await delay(5000);
+				await delay(10000);
 			else
-				await delay(1000);
+				await delay(4000);
 			for( let asset of this._battle_start_assets ){
 
 				if( !asset.equipped && !this.player.getEquippedAssetsBySlots(asset.slots).length ){

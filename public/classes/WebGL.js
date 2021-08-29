@@ -854,6 +854,7 @@ class WebGL{
 			this.execRender( true );
 			stage.toggle(false);
 			game.setRoomsLoaded(++i);
+			game.dungeon.onRoomLoaded(room);
 			if( this.load_after_load )
 				break;
 
@@ -878,6 +879,7 @@ class WebGL{
 	
 		this.pruneCache();	// Prune after a load
 
+		game.dungeon.onLoaded();
 
 	}
 

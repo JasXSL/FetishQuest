@@ -51,6 +51,7 @@ export function asset(){
 		html += '<label title="Left = tiny, mid = human, right = giant">Max Size: <span class="valueExact"></span><input name="max_size" value="'+esc(dummy.max_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
 		html += '<label title="1 = average, 2 = about the same as 2 monsters">Difficulty: <input name="difficulty" value="'+esc(dummy.difficulty)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
 		html += '<label title="Multiplies against all stats">Power: <input name="power" value="'+esc(dummy.power)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
+		html += '<label title="Percentage armor points. Used for armored beasts to allow for armor penetration.">Armor: <input name="armor" value="'+esc(dummy.armor)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label title="Prevents equipping the gear. Useful for things like mimics that carry gear but can\'t wear it.">No equip: <input type="checkbox" name="no_equip" '+(dummy.no_equip ? 'checked' : '')+' class="saveable"  /></label>';
 
 	html += '</div>';

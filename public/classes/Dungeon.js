@@ -132,6 +132,24 @@ class Dungeon extends Generic{
 		return new this.constructor(Dungeon.saveThis(this, true));
 	}
 
+	// Raised when the 3d editor has loaded this
+	onLoaded(){
+
+	}
+
+	onRoomLoaded( room ){
+
+		if( room === this.getActiveRoom() ){
+			
+			this.getActiveRoom().getBondageAssets(false, true);	// Force refresh the bondage cache now that they have stage meshes
+			if( window.game )
+				game.ui.draw();
+
+		}
+
+	}
+
+
 	loadState(){
 
 		if( typeof window.game !== "object" || !game.is_host )
@@ -1114,12 +1132,12 @@ class DungeonRoom extends Generic{
 	}
 
 	// returns assets tagged with bondage
-	getBondageAssets( freeOnly = false ){
+	getBondageAssets( freeOnly = false, forceRefresh = false ){
 		
 		let assets = this._bondage_assets;
-		if( !assets ){
+		if( !assets || forceRefresh )
 			this._bondage_assets = assets = this.assets.filter(el => el.hasTag(stdTag.mBondage));
-		}
+
 		return assets.filter(el => {
 			
 			if( !freeOnly )
@@ -1947,7 +1965,7 @@ class DungeonRoomAsset extends Generic{
 
 	getTags(){
 
-		let meshTags =this?._stage_mesh?.userData?.template?.tags;
+		let meshTags = this?._stage_mesh?.userData?.template?.tags;
 		if( !Array.isArray(meshTags) )
 			meshTags = [];
 

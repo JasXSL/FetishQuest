@@ -14,7 +14,7 @@ import Collection from './helpers/Collection.js';
 import Encounter from './Encounter.js';
 import Game from './Game.js';
 
-const BASE_HP = 40;
+const BASE_HP = 30;
 const BASE_MP = 10;
 const BASE_AP = 10;
 const BASE_AROUSAL = 10;
@@ -68,14 +68,15 @@ export default class Player extends Generic{
 		this.experience = 0;
 		this.mp = 10;				// Secondary stat used for spells. Mana points.
 		this.arousal = 0;
+		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
 		this.leveled = false;		// Level is an offset of the player average level
 		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 
 		// Primary stats
-		this.stamina = 0;			// Adds 2 HP per point
-		this.agility = 0;				// Adds 1 AP per point
-		this.intellect = 0;			// Adds 1 MP per point
+		this.stamina = 0;			// Adds HP and carry capacity
+		this.agility = 0;			// Adds AP and crit
+		this.intellect = 0;			// Adds MP
 
 		this.svPhysical = 0;
 		this.svElemental = 0;
@@ -236,7 +237,7 @@ export default class Player extends Generic{
 			him : this.him,
 			his : this.his,
 			generated : this.generated,	// Needed for playerMarkers in webgl
-
+			armor : this.armor,
 		};
 
 		if( full !== "mod" )
@@ -1045,7 +1046,13 @@ export default class Player extends Generic{
 		this._turn_action_used = 0;
 		this._turn_ap_spent = 0;
 		// Restore 3/10ths each turn
-		let ap = this.getMaxAP()*0.3; // base AP to add
+		const map = this.getMaxAP();
+		let ap = map*0.3; // base AP to add
+		// PCs generate less from going above 10
+		if( map > 10 )
+			ap = 3+(map-10)*(Math.max(this.power-1, 0)*0.2+0.1);	// Powered gets more AP
+		
+
 		// Shuffle the remainder
 		if( Math.random() < ap-Math.floor(ap) )
 			++ap;
@@ -1064,7 +1071,7 @@ export default class Player extends Generic{
 	onBattleStart(){
 		this._used_chats = {};
 		this._turn_tags = [];
-		this.ap = 0;
+		this.ap = Math.max(0, this.getMaxAP()-10);	// Start with your bonus agility as AP
 		this._threat = {};
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
@@ -2281,21 +2288,23 @@ export default class Player extends Generic{
 		return out;
 	}
 
-	// Returns a multiplier against damage based on slots missing
-	getNudityDamageMultiplier(){
+	// Returns a multiplier against damage based on armor
+	getArmorDamageMultiplier(){
 
-		// Beasts are never nude
+		let out = 1-this.armor/100;
+
+		// Beasts are never nude, use their armor stat
 		if( this.isTargetBeast() )
-			return 1;
+			return out;
 
-		let out = 1;
 		let slots = [Asset.Slots.lowerBody, Asset.Slots.upperBody];
+
 		for( let slot of slots ){
+
 			let gear = this.getEquippedAssetsBySlots(slot);
-			if( !gear.length )
-				out += Asset.protVal;
-			else
-				out += gear[0].getDmgTakenAdd();
+			if( gear.length )
+				out -= gear[0].getArmorReduction();
+
 		}
 		return out;
 
@@ -3278,8 +3287,6 @@ export default class Player extends Generic{
 			if( attacker.level < 3 )
 				add -= 0.25*(3-attacker.level);
 
-			
-
 		}
 
 		const out = (1+tot*0.1)*add;
@@ -3410,7 +3417,7 @@ export default class Player extends Generic{
 }
 
 Player.MAX_LEVEL = 14;
-Player.STAMINA_MULTI = 4;
+Player.STAMINA_MULTI = 3;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;

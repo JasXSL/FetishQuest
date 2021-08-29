@@ -384,29 +384,26 @@ export default class Asset extends Generic{
 		return false;
 	}
 
-	// returns a damage taken that can be added together with other armor. Goes up to Asset.protVal based on level/broken
-	getDmgTakenAdd(){
+	// returns a damage reduction value that can be added together with other armor. Goes up to Asset.protVal based on level/broken
+	getArmorReduction(){
 
 		// only upperBody and lowerBody have this feature
 		if( this.slots.indexOf(Asset.Slots.upperBody) === -1 && this.slots.indexOf(Asset.Slots.lowerBody) === -1 )
 			return 0;
 
-		// Item is broken, take 25% more damage
+		// Item is broken, provide no protection
 		if( this.durability <= 0 )
-			return Asset.protVal;
+			return 0;
 
-		// Item is not in someone's inventory, this shouldn't be triggered, but return 0
+		// Item is not in someone's inventory, this shouldn't happen triggered, but be a catch here regardless and return 0
 		if( !(this.parent instanceof Player) )
 			return 0;
 
 		const player = this.parent;
-		let levelDif = player.level-this.level;
-		// Item is greater than player level or within 2 levels of the player
-		if( levelDif <= 1 )
-			return 0;
-		
-		// 5% more damage taken per level above 2 of the piece
-		return Math.min(Asset.protVal, (levelDif-1)*0.05);
+		let levelDif = Math.max(0, player.level-1-this.level);
+
+		// Returns a value between Asset.protVal and 0
+		return Math.max(Asset.protVal-levelDif*0.05, 0);
 		
 	}
 
@@ -569,21 +566,18 @@ export default class Asset extends Generic{
 			return this.use_action.getTooltipText(0, this.rarity);
 
 		let apCost = this.equipped ? Game.UNEQUIP_COST : Game.EQUIP_COST;
-		let dmgTaken = this.getDmgTakenAdd();
+
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
-		if( dmgTaken && isBreakable ){
+		if( this.getArmorReduction() < Asset.protVal && isBreakable ){
 
 			if( this.getMaxDurability() )
-				html += '<em style="color:#FAA">'+Math.round((Asset.protVal-dmgTaken)*100)+'% damage reduction (low level)</em><br />';
+				html += '<em style="color:#FAA">Low level, armor reduced</em><br />';
 			else
 				html += '<em style="color:#FAA">Broken!</em><br />';
 
 		}
-		else{
-			html += '<em>'+Math.round(Asset.protVal*100)+'% damage reduction</em><br />';
-
-		}
+		
 		html += '<em class="sub">';
 		if( game.battle_active && this.parent )
 			html += '[<span style="color:'+(this.parent.ap >= apCost ? '#DFD' : '#FDD')+'">'+
