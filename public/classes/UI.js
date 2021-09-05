@@ -1252,8 +1252,9 @@ export default class UI{
 				legsEl.text(lText);
 		}
 
-		const armorValue = Math.round(100.0 - p.getArmorDamageMultiplier()*100);
-		armorEl.toggleClass('broken', armorValue <= 0).text(armorValue+"%");
+		const armorValueRaw = Math.round(p.getArmorPoints(false));
+		const armorValueModified = Math.round((1-p.getArmorDamageMultiplier(myActive))*100);
+		armorEl.toggleClass('broken', armorValueModified <= 0).text(armorValueModified+"%").attr('title', armorValueRaw+"% unmodified damage reduction");
 
 		
 		nameDisplayEl
@@ -1404,10 +1405,40 @@ export default class UI{
 
 		wrapperButtons.toggleClass('hidden', true);
 
+		wrappers.sort((a, b) => {
+
+			if( myActive ){
+
+				const ca = a.getCaster(), cb = b.getCaster();
+				let da, db;
+				
+				// Enemy effects are first since they're the most important
+				da = ca?.team !== myActive.team;
+				db = cb?.team !== myActive.team;
+				if( da !== db )
+					return da ? -1 : 1;
+
+				// My own effects are second
+				da = ca === myActive; 
+				db = cb === myActive;
+				if( da !== db )
+					return da ? -1 : 1;
+
+			}
+			// Finally sort by duration
+			return a._duration > b._duration ? -1 : 1;
+
+		});
+
+		if( p.team !== Player.TEAM_PLAYER )
+			wrappers.reverse();
+
 		for( let i =0; i<wrappers.length; ++i ){
 
 			let wrapper = wrappers[i],
-				el = wrapperButtons[i];
+				el = wrapperButtons[i],
+				caster = wrapper.getCaster()
+			;
 			
 			if( !el ){
 				el = wrapperTemplate.clone();
@@ -1417,6 +1448,7 @@ export default class UI{
 
 			el.toggleClass('detrimental beneficial hidden', false)
 				.toggleClass(wrapper.detrimental ? 'detrimental' : 'beneficial', true)
+				.toggleClass('small', myActive && caster && caster !== myActive && caster?.team === myActive.team )
 				.attr('data-id', wrapper.id);
 
 			const elIcon = $('> div.background', el),
@@ -1448,7 +1480,11 @@ export default class UI{
 			let durText = 'Permanent';
 			if( duration > 0 ){
 				
-				durText = duration+' Turn'+(duration > 1 ? 's' : '');
+				
+				durText = '';
+				if( caster )
+					durText += '<span style="color:'+esc(caster.color)+'">'+esc(caster.name)+'</span> | ';
+				durText += duration+' Turn'+(duration > 1 ? 's' : '');
 				if( wrapper.ext )
 					durText = fuzzyTimeShort(duration);
 

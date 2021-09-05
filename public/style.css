@@ -1114,6 +1114,9 @@ div.passiveUpsideDown > div.content > div.bg{
 		overflow: hidden;
 
 	}
+	div.inventory div.item.third{
+		width:32%;
+	}
 	div.inventory div.item > span{
 		display: inline-block;
 		transform: translateY(-50%);
@@ -1821,6 +1824,12 @@ div.passiveUpsideDown > div.content > div.bg{
 		width: 3vmax;
 		height:3vmax;
 		border:0.3vmax solid #DFD;
+	}
+	#ui > div.players div > div.wrapper.small{
+		width: 2.5vmax;
+		height: 2.5vmax;
+		border-width: 0.2vmax;
+		vertical-align: top;
 	}
 	#ui > div.players div > div.wrapper > div.stacks,
 	#ui > div.players div > div.wrapper > div.duration,

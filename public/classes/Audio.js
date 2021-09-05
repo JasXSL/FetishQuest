@@ -15,7 +15,7 @@ function setMasterVolume( volume = 1 ){
 if( !isNaN(localStorage.masterVolume) )
 	setMasterVolume(+localStorage.masterVolume);
 else
-	setMasterVolume(0);
+	setMasterVolume(0.3);
 
 
 

@@ -1067,7 +1067,6 @@ class Effect extends Generic{
 				// Damage
 				else{
 					
-					
 					/*
 					console.debug(
 						s.name, "vs", t.name,
@@ -1076,12 +1075,10 @@ class Effect extends Generic{
 						"of which", s.getBon(type), "-", t.getSV(type),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
-						"nudity multi", t.getArmorDamageMultiplier(),
+						"nudity multi", t.getArmorDamageMultiplier(s, this)
 					);
 					*/
-										
 					
-
 					// Get target global damage point taken modifier
 
 					// Amt is negative
@@ -1094,7 +1091,7 @@ class Effect extends Generic{
 					amt *= Player.getBonusDamageMultiplier( s,t,type,wrapper.detrimental ); // Negative because it's damage
 					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t );
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
-					amt *= t.getArmorDamageMultiplier();
+					amt *= t.getArmorDamageMultiplier( s, this );
 
 					// Todo: Add by armor penetration
 
@@ -2286,7 +2283,8 @@ Effect.Types = {
 	actionCastTime : 'actionCastTime',
 
 	summonAsset : 'summonAsset',
-		
+	globalArmorMod : 'globalArmorMod',
+	globalArmorPen : 'globalArmorPen',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2298,6 +2296,8 @@ Effect.Passive = {
 	[Effect.Types.globalDamageTakenMod] : true,
 	[Effect.Types.globalDamageDoneMod] : true,
 	[Effect.Types.globalHealingDoneMod] : true,
+	[Effect.Types.globalArmorPen] : true,
+	[Effect.Types.globalArmorMod] : true,
 	[Effect.Types.critDoneMod] : true,
 	[Effect.Types.critTakenMod] : true,
 	[Effect.Types.globalHealingTakenMod] : true,
@@ -2351,7 +2351,7 @@ Effect.KnockdownTypes = {
 
 
 Effect.TypeDescs = {
-	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro",
+	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5, armor_pen:(int)perc=0} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro. Armor pen is a whole number.",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	[Effect.Types.trace] : '{message:(str)message} - Creates a stack trace here',
 	[Effect.Types.css] : "Applies CSS classes onto the target. {class:css_class}",
@@ -2377,6 +2377,8 @@ Effect.TypeDescs = {
 	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
 	[Effect.Types.globalArousalTakenMod] : '{amount:(int)(float)(string)multiplier, casterOnly:(bool)limit_to_caster=false} - Only works on ADDing arousal. If casterOnly is set, it only affects arousal dealt from the caster', 
 	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
+	[Effect.Types.globalArmorMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false} - Adds, subtracts, or multiplies protection value from armor',
+	[Effect.Types.globalArmorPen] : '{amount:(int)points, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects armor pen on the target by the caster.',
 	
 	[Effect.Types.globalHealingDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
 	[Effect.Types.globalHealingTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
@@ -2384,8 +2386,8 @@ Effect.TypeDescs = {
 	[Effect.Types.carryModifier] : '{amount:(nr)(string)amount, multiplier:(bool)isMultiplier=false} - Adds or multiplies target carrying capacity. Nonmultiplier is in grams',
 
 	// These add or subtract critical hit chance
-	[Effect.Types.critDoneMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects crit chance for the cast. Note that this is ADDITIVE, so 0.25 = 25%',
-	[Effect.Types.critTakenMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects the caster critting on the target. ADDITIVE. 0.25 = +25% etc',
+	[Effect.Types.critDoneMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - Increases chances of doing a critical hit. If casterOnly is set, it only affects crit chance for the cast. Note that this is ADDITIVE, so 0.25 = 25%',
+	[Effect.Types.critTakenMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - Increases chance of taking a critical hit. If casterOnly is set, it only affects the caster critting on the target. ADDITIVE. 0.25 = +25% etc',
 
 	
 	[Effect.Types.gameAction] : '{action:(obj/arr)gameAction} - Lets you run one or many game actions',

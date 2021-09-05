@@ -384,8 +384,8 @@ export default class Asset extends Generic{
 		return false;
 	}
 
-	// returns a damage reduction value that can be added together with other armor. Goes up to Asset.protVal based on level/broken
-	getArmorReduction(){
+	// Returns points of armor based on Asset.defaultArmorPoints
+	getArmorPoints(){
 
 		// only upperBody and lowerBody have this feature
 		if( this.slots.indexOf(Asset.Slots.upperBody) === -1 && this.slots.indexOf(Asset.Slots.lowerBody) === -1 )
@@ -402,8 +402,8 @@ export default class Asset extends Generic{
 		const player = this.parent;
 		let levelDif = Math.max(0, player.level-1-this.level);
 
-		// Returns a value between Asset.protVal and 0
-		return Math.max(Asset.protVal-levelDif*0.05, 0);
+		// Returns a value between Asset.defaultArmorPoints and 0
+		return Math.max(Asset.defaultArmorPoints-levelDif*5, 0);
 		
 	}
 
@@ -569,7 +569,7 @@ export default class Asset extends Generic{
 
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
-		if( this.getArmorReduction() < Asset.protVal && isBreakable ){
+		if( this.getArmorPoints() < Asset.defaultArmorPoints && isBreakable ){
 
 			if( this.getMaxDurability() )
 				html += '<em style="color:#FAA">Low level, armor reduced</em><br />';
@@ -664,7 +664,7 @@ export default class Asset extends Generic{
 	
 }
 
-Asset.protVal = 0.20;	// Max damage taken increase for not having this item equipped (lower/upperBody only)
+Asset.defaultArmorPoints = 15;	// This is the default armor value of assets
 
 Asset.imageCache = {};	// icon : svg data
 

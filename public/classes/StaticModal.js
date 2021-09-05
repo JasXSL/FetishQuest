@@ -1293,17 +1293,19 @@ export default class StaticModal{
 				this.edit.drawPlayerActionSelector = (player, callback) => {
 								
 					let html = '';
-					let libActions = glib.getFull('Action'); 
+					let libActions = Object.values(glib.getFull('Action')); 
+
+					libActions.sort();
 
 					html+= '<div class="inventory tooltipShrink">';
 						html += '<h3>Learn Action for '+esc(player.name)+'</h3>';
-					for( let id in libActions ){
+					for( let asset of libActions ){
 
-						let asset = libActions[id];
+						let id = asset.id;
 						if( player.getActionByLabel(asset.label) )
 							continue;
 						
-						html += '<div class="list item tooltipParent" data-id="'+esc(id)+'">';
+						html += '<div class="list item tooltipParent third" data-id="'+esc(id)+'">';
 							html += esc(asset.name);
 							html += '<div class="tooltip actionTooltip">';
 								html += asset.getTooltipText();
@@ -1546,39 +1548,9 @@ export default class StaticModal{
 					dDivs.actions.html(html);
 
 
-					// Events
-					// Add action
-					dDivs.addAction.off('click').on('click', () => {
-						this.edit.drawPlayerActionSelector(player, id => {
+					// Puts form data to the player
+					const savePlayer = () =>{
 
-							if( player.addActionFromLibrary(id) ){
-
-								game.save();
-								this.refresh();
-
-							}
-
-						});
-					});
-					// Delete action
-					$("> div.action:not(.noDelete)", dDivs.actions).off('click').on('click', event => {
-
-						// Todo: change confirm
-						if( confirm('Really unlearn?') && game.deletePlayerAction( player, $(event.currentTarget).attr('data-id')) ){
-							this.refresh();
-							game.ui.draw();
-						}
-
-					});
-					// Icon changed
-					dDivs.formDressed.off('change').on('change', () => {
-						dDivs.image.css('background-image', 'url(\''+esc(dDivs.formDressed.val().trim())+'\')');
-					});
-					dDivs.form.off('submit').on('submit', event => {
-			
-						event.stopImmediatePropagation();
-						event.preventDefault();
-						
 						player.name = dDivs.formName.val().trim();
 						player.species = dDivs.formSpecies.val().trim().toLowerCase();
 						player.spre = dDivs.formSpre.val().trim().toLowerCase();
@@ -1661,6 +1633,48 @@ export default class StaticModal{
 			
 						game.save();
 						game.ui.draw();
+
+					};
+
+
+
+					// Events
+					// Add action
+					dDivs.addAction.off('click').on('click', () => {
+						
+						this.edit.drawPlayerActionSelector(player, id => {
+
+							if( player.addActionFromLibrary(id) ){
+
+								savePlayer();
+								game.save();
+								this.refresh();
+
+							}
+
+						});
+					});
+					// Delete action
+					$("> div.action:not(.noDelete)", dDivs.actions).off('click').on('click', event => {
+
+						// Todo: change confirm
+						if( confirm('Really unlearn?') && game.deletePlayerAction( player, $(event.currentTarget).attr('data-id')) ){
+							this.refresh();
+							game.ui.draw();
+						}
+
+					});
+					// Icon changed
+					dDivs.formDressed.off('change').on('change', () => {
+						dDivs.image.css('background-image', 'url(\''+esc(dDivs.formDressed.val().trim())+'\')');
+					});
+
+					
+					dDivs.form.off('submit').on('submit', event => {
+			
+						event.stopImmediatePropagation();
+						event.preventDefault();
+						savePlayer();
 						this.close();
 			
 						return false;
@@ -3925,10 +3939,8 @@ export default class StaticModal{
 			.addTab("Library", () => {
 				return `
 					<div class="inventory tooltipShrink">
-						<h3 class="title"></h3>
-						<div class="listing"></div>
 						<input type="button" class="create green" value="Create" />
-						<input type="button" class="back red" value="Back" />
+						<div class="listing"></div>
 					</div>
 				`;
 			})
@@ -3998,10 +4010,8 @@ export default class StaticModal{
 				const editor = this.getTabDom('Editor')[0];
 
 				this.library = {
-					title : library.querySelector('h3.title'),
 					listing : library.querySelector('div.listing'),
 					create : library.querySelector('input.create'),
-					back : library.querySelector('input.back'),
 				};
 				this.editor = {
 					form : editor.querySelector('form.saveAsset'),
@@ -4048,9 +4058,6 @@ export default class StaticModal{
 				this._asset = null;
 
 				// Static events
-				this.library.back.addEventListener('click', () => {
-					StaticModal.set('player', this._player);
-				});
 				this.library.create.addEventListener('click', () => {
 
 					this._asset = null;
@@ -4328,7 +4335,7 @@ export default class StaticModal{
 					if( a._custom !== b._custom )
 						return a._custom ? -1 : 1;
 					
-					return a.label < b.label ? -1 : 1;
+					return a.name < b.name ? -1 : 1;
 
 				});
 				let divs = [];
@@ -4336,6 +4343,7 @@ export default class StaticModal{
 
 					const div = await StaticModal.getGenericAssetButton(asset);
 					div.dataset.id = asset.label;
+					div.classList.add('third');
 					if( asset._custom )
 						div.classList.add('custom');
 					divs.push(div);

@@ -449,7 +449,7 @@ export default class Player extends Generic{
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
 	// prefix is usually se_ or ta_
-	appendMathVars(prefix, vars, event){
+	appendMathVars( prefix, vars, event ){
 
 		let isRoot = this._ignore_effects === null;
 		if( isRoot )
@@ -507,9 +507,12 @@ export default class Player extends Generic{
 			vars[prefix+'damageDoneSinceLast'+type] = this.datTotal( this._d_damage_since_last, type );
 		}
 
-		// We're the recipient, if a sender exists we can add how much damage the sender has done to us
-		if( event && this === event.target && event.sender ){
+		// The mathvars event has a sender and target, and this player is the victim
+		const weAreVictim = ( event && this === event.target && event.sender );
+		// If we're the target of the event, append these
+		if( weAreVictim ){
 
+			// Add how much damage the sender has done to us
 			vars.se_TaDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.sender);
 			vars.se_TaDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.sender);
 
@@ -522,8 +525,16 @@ export default class Player extends Generic{
 
 		let wrappers = this.getWrappers();
 		for(let wrapper of wrappers){
-			if( wrapper.label )
-				vars[prefix+'Wrapper_'+wrapper.label] = wrapper.stacks;
+
+			if( !wrapper.label )
+				continue;
+
+			vars[prefix+'Wrapper_'+wrapper.label] = wrapper.stacks;
+			// This wrapper was added by the sender. Then we add it again and append _se to indicate the wrapper was added by the sender of the event.
+			// Used in damage effects where you want to do something with the nr of stacks the caster has put on a target
+			if( weAreVictim && wrapper.getCaster() === event.sender )
+				vars[prefix+'Wrapper_'+wrapper.label+'_se'] = wrapper.stacks;
+
 		}
 		
 
@@ -2288,25 +2299,58 @@ export default class Player extends Generic{
 		return out;
 	}
 
-	// Returns a multiplier against damage based on armor
-	getArmorDamageMultiplier(){
+	getArmorPoints( modified = true ){
 
-		let out = 1-this.armor/100;
-
-		// Beasts are never nude, use their armor stat
-		if( this.isTargetBeast() )
-			return out;
-
-		let slots = [Asset.Slots.lowerBody, Asset.Slots.upperBody];
+		let out = this.armor;
+		const slots = [Asset.Slots.lowerBody, Asset.Slots.upperBody];
 
 		for( let slot of slots ){
 
 			let gear = this.getEquippedAssetsBySlots(slot);
 			if( gear.length )
-				out -= gear[0].getArmorReduction();
+				out += gear[0].getArmorPoints();
 
 		}
-		return out;
+
+		if( modified ){
+
+			out += this.getGenericAmountStatPoints(Effect.Types.globalArmorMod);
+			out *= this.getGenericAmountStatMultiplier(Effect.Types.globalArmorMod);
+
+		}
+
+		return Math.min(100, Math.max(0, out));
+
+	}
+
+	// Returns a multiplier against damage based on armor, utilizes sender armor penetration if sender is set
+	getArmorDamageMultiplier( sender, effect ){
+
+		let reduction = this.getArmorPoints();
+
+		// If sender is present, lower by the sender's armor penetration
+		if( sender ){
+
+			// Get armor penetration percentage
+			let armorPen = sender.getGenericAmountStatPoints(Effect.Types.globalArmorPen, this)/100;
+			// Reduce damage reduction by armor pen
+			reduction *= (1-armorPen);
+			
+		}
+
+		// If effect is present, see if it has the armor_pen value
+		if( effect && effect?.data?.armor_pen ){
+
+			// Armor penetration from effects is separate to other effects and multiplied against those, rather than additive which the base effect is
+			let armorPen = 1.0-effect.data.armor_pen;
+			if( isNaN(armorPen) )
+				armorPen = 1.0;
+
+			reduction *= armorPen;
+
+		}
+
+		return 1-reduction/100;
 
 	}
 	
@@ -3289,6 +3333,7 @@ export default class Player extends Generic{
 
 		}
 
+		// Each point of advantage adds 10% damage
 		const out = (1+tot*0.1)*add;
 		return out;
 

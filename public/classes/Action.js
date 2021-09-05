@@ -73,6 +73,8 @@ class Action extends Generic{
 		this.alias = [];						// Aliases to use for texts. Useful when you want multiple actions with the same texts
 		this.ignore_wrapper_conds = false;		// Ignores wrapper conditions and allows it to cast without any valid wrapper conditions
 
+		this.can_crit = false;					// This ability can critically hit
+
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge.
 		this._cast_time = 0;		// Turns remaining to cast this if cast_time > 0
@@ -129,6 +131,7 @@ class Action extends Generic{
 			allow_self : this.allow_self,
 			_slot : this._slot,
 			ignore_wrapper_conds : this.ignore_wrapper_conds,
+			can_crit : this.can_crit,
 		};
 
 		// Everything but mod
@@ -275,11 +278,8 @@ class Action extends Generic{
 		return names[label];
 	}
 
-	// Only stdAttack and stdArouse can crit
 	canCrit(){
-
-		return this.testLabel('stdAttack') || this.testLabel('stdArouse');
-
+		return this.can_crit;
 	}
 
 
