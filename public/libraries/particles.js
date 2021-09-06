@@ -641,6 +641,21 @@ particles.hitfx_burst_green_large_drops = {
 	opacity: 1,
 	gravity:2,
 };
+particles.hitfx_burst_purple_large_drops = {
+	
+	texture : textures.glowSphere,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,5),
+	size : 4,
+	size_tween : [1,0.001],
+	part_max_age : 0.5,
+	velocity : new Proton.Span(200,300),
+	color : ["#6600FF","#CCAAFF"],	
+	opacity: 1,
+	gravity:2,
+};
 particles.hitfx_burst_green_large = {
 	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
@@ -652,6 +667,21 @@ particles.hitfx_burst_green_large = {
 	part_max_age : .5,
 	velocity : new Proton.Span(80,120),
 	color : ["#66FF66","#003300"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI)
+};
+particles.hitfx_burst_purple_large = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 10,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : 30,
+	size_tween : [0.5,1],
+	part_max_age : .5,
+	velocity : new Proton.Span(80,120),
+	color : ["#6600FF","#110033"],	
 	opacity: [0,1],
 	gravity:2,
 	rotation : new Proton.Span(0,Math.PI)

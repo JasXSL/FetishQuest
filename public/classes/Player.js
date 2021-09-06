@@ -508,7 +508,8 @@ export default class Player extends Generic{
 		}
 
 		// The mathvars event has a sender and target, and this player is the victim
-		const weAreVictim = ( event && this === event.target && event.sender );
+		const weAreVictim = ( event && this === event.target && event.sender instanceof Player );
+		const weAreSender = ( event && this === event.sender && event.target instanceof Player );
 		// If we're the target of the event, append these
 		if( weAreVictim ){
 
@@ -532,10 +533,17 @@ export default class Player extends Generic{
 			vars[prefix+'Wrapper_'+wrapper.label] = wrapper.stacks;
 			// This wrapper was added by the sender. Then we add it again and append _se to indicate the wrapper was added by the sender of the event.
 			// Used in damage effects where you want to do something with the nr of stacks the caster has put on a target
+			// ex ta_Wrapper_corruptingOoze_se
 			if( weAreVictim && wrapper.getCaster() === event.sender )
 				vars[prefix+'Wrapper_'+wrapper.label+'_se'] = wrapper.stacks;
 
+			// Gets effects the target has put on the sender
+			// ex se_Wrapper_corruptingOoze_ta
+			if( weAreSender && wrapper.getCaster() === event.target )
+				vars[prefix+'Wrapper_'+wrapper.label+'_ta'] = wrapper.stacks;
+
 		}
+
 		
 
 		if( isRoot )

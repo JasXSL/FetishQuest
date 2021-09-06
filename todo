@@ -30,12 +30,12 @@
 		Guild class spells:
 		Necro:
 			- Elementalist: Desecrating Surge: Deals 4 elemental damage to your target and 2 elemental damage at the start of their turn for 3 turns. Effect is increased by 30% if there's water nearby. 
-			- Tentaclemancer: Cursetacles: Squeezes your target with cursed tentacles, doing 3 corruption damage and lowering all their defenses by 3 for 1 turn.
+			- Tentaclemancer: ???
 		Church:
-			- Warrior: Holy Grasp : Taunts a single target for 2 turns, and when they use an action against you, the party is healed.
+			- Warrior: Holy Grasp : Taunts a single target for 2 turns, and when they target you with an action, the party is healed.
 			- Cleric: Something that restores mana
 		Scrapper's Club:
-			- Monk: Massage: Restores health and increases physical proficiency and defense for 1 turn. But adds 1 arousal.
+			- Monk: Massage: Restores health and increases physical proficiency and defense to a target for 1 turn. But adds 1 arousal.
 			- Rogue: Expose: Reduces your target's armor rating by 100% for 2 turns.
 			- Generic: Bully: Deals physical damage. If the target is affected by a grapple, knockdown, or silence, critically hit.
 			- Generic: Grapple Slam: Grab an enemy and knock them down for 1 turn, doing 5 damage and has a 30% chance of stripping.
@@ -43,10 +43,11 @@
 		Class replacements:
 		Monk:
 			Meditate -> Tranquil Fist: Deals damage, restores 1 mana immediately plus 1 per armor piece you're missing.
-		Rogue:
-			x CorruptingVial -> Now increases target's crit taken chance instead of lowering corruption resist
-			x Sneak Attack -> Can now crit.
 		Tentaclemancer:
+			[T] Tentacle Whip -> Now a cleave ability with a 50% chance of adding corrupting ooze.
+			[T] Corrupting ooze -> Oozplosion - Charged 1 turn: Deals 3 damage to all enemies and adds 1 stack of corrupting ooze.
+			[T] Infusion -> - Consumes all stacks of corrupting ooze on the target, doing 2 damage plus 2 per stack.
+			[T] SiphonCorruption -> Consumes all stacks of corrupting ooze on the target, healing the caster for 3 HP plus 3 HP per stack. 2 charges.
 			
 
 	New armor secondary stats:

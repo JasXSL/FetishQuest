@@ -1293,17 +1293,21 @@ export default class StaticModal{
 				this.edit.drawPlayerActionSelector = (player, callback) => {
 								
 					let html = '';
-					let libActions = Object.values(glib.getFull('Action')); 
+					let libActions = Object.values(glib.getFull('Action'))
+						.filter(el => el.name !== '%P%'); 
 
-					libActions.sort();
+					libActions.sort((a, b) => {
+						return a.name < b.name ? -1 : 1;
+					});
 
 					html+= '<div class="inventory tooltipShrink">';
 						html += '<h3>Learn Action for '+esc(player.name)+'</h3>';
 					for( let asset of libActions ){
 
-						let id = asset.id;
+						let id = asset.label;
 						if( player.getActionByLabel(asset.label) )
 							continue;
+						
 						
 						html += '<div class="list item tooltipParent third" data-id="'+esc(id)+'">';
 							html += esc(asset.name);
