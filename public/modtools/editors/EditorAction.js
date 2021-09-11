@@ -97,12 +97,21 @@ export function asset(){
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	html += '<span title="Aliases to use for texts. Useful when you want multiple actions with the same texts">Aliases: </span><br /><div name="alias">'+HelperTags.build(dummy.alias, "actions")+'</div>';
 
+	html += '<div class="critFormula">Alternate crit formula: <br /><textarea name="crit_formula" class="saveable">'+
+		esc(dummy.crit_formula)+
+	'</textarea></div>';
+
+
 	html += 'Conditions: <br /><div class="conditions"></div>';
 	html += '<span title="Conditions needed to be met for this to show in the ability bar">Show Conditions: </span><br /><div class="show_conditions"></div>';
 
 
 	this.setDom(html);
 
+	const critInput = this.dom.querySelector('input[name=can_crit]');
+	const refreshCritFormula = () => this.dom.querySelector('div.critFormula').classList.toggle('hidden', !critInput.checked);
+	refreshCritFormula();
+	critInput.addEventListener('change', refreshCritFormula);
 
 	// Bind stuff
 

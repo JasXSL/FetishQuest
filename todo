@@ -30,19 +30,33 @@
 		Guild class spells:
 		Necro:
 			- Elementalist: Desecrating Surge: Deals 4 elemental damage to your target and 2 elemental damage at the start of their turn for 3 turns. Effect is increased by 30% if there's water nearby. 
-			- Tentaclemancer: ???
+				[T] Green/blue version of the normal visual, but with bubbles
+				- Todo
+			- Tentaclemancer: Slimy Gag: Does corruption damage and silences.
+				[T] Big tentacle wrap particle
+				- Todo
 		Church:
 			- Warrior: Holy Grasp : Taunts a single target for 2 turns, and when they target you with an action, the party is healed.
-			- Cleric: Something that restores mana
+				[T] Some kind of holy fist particle visual
+				- Add text
+			- Cleric: Penitent Ward : Wards a player for 2 turns. When targeted by a detrimental corruption effect, the effect is consume and the attacker takes 6 holy damage and the original caster gains 2 MP. 
+				[T] Visual
+				- Add apply text
+				- Add trigger text
 		Scrapper's Club:
 			- Monk: Massage: Restores health and increases physical proficiency and defense to a target for 1 turn. But adds 1 arousal.
+				[T] Need some kind of mist visual
+				- Need texts
 			- Rogue: Expose: Reduces your target's armor rating by 100% for 2 turns.
-			- Generic: Bully: Deals physical damage. If the target is affected by a grapple, knockdown, or silence, critically hit.
-			- Generic: Grapple Slam: Grab an enemy and knock them down for 1 turn, doing 5 damage and has a 30% chance of stripping.
+				[T] Add crosshair visual
+				- Need texts
+			[T] Generic: Bully: Deals physical damage. If the target is affected by a grapple, knockdown, or silence, critically hit.
+			[T] Generic: Bounding Blow: 2 AP, 3 damage, can be riposted. If riposted, restore 1 MP.
+
 		
 		Class replacements:
 		Monk:
-			Meditate -> Tranquil Fist: Deals damage, restores 1 mana immediately plus 1 per armor piece you're missing.
+			[T] Meditate -> Tranquil Fist: Deals damage, restores 1 mana immediately plus 1 per armor piece you're missing.
 		Tentaclemancer:
 			[T] Tentacle Whip -> Now a cleave ability with a 50% chance of adding corrupting ooze.
 			[T] Corrupting ooze -> Oozplosion - Charged 1 turn: Deals 3 damage to all enemies and adds 1 stack of corrupting ooze.
@@ -126,6 +140,8 @@
 			- Soulbound: Prevents the armor from being stolen
 			- 
 
+	Action ideas:
+		- Lustful Wind: Doubles your arousal and grants 2 AP per original point of arousal.
 
 -- TEST --
 	Fun tensorflow generated words I can use:
@@ -147,6 +163,8 @@
 		- Stront
 		
 		- Fennecite - Metal material
+
+
 
 -- LATER UPDATE --
 

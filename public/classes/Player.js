@@ -486,6 +486,8 @@ export default class Player extends Generic{
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
 
+		
+
 		let tags = this.getTags();
 		for( let tag of tags )
 			vars[prefix+'Tag_'+tag] = 1;
@@ -516,6 +518,17 @@ export default class Player extends Generic{
 			// Add how much damage the sender has done to us
 			vars.se_TaDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.sender);
 			vars.se_TaDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.sender);
+
+			// Target's crit chance on sender ta_Crit_se
+			vars[prefix+'Crit_se'] = this.getCritDoneChance(event.sender);
+
+		}
+
+	
+		if( weAreSender ){
+
+			// Sender's crit chance on target se_Crit_ta
+			vars[prefix+'Crit_ta'] = this.getCritDoneChance();
 
 		}
 

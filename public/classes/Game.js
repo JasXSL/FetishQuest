@@ -3537,7 +3537,7 @@ Game.db.version(1).stores({
 Game.VibHub = VibHub;		// Set by VibHub.js
 
 Game.EQUIP_COST = 4;
-Game.UNEQUIP_COST = 2;
+Game.UNEQUIP_COST = 1;
 Game.LOG_SIZE = parseInt(localStorage.log_size) || 800;
 Game.ROOM_RENTAL_DURATION = 3600*24;
 Game.MAX_SLEEP_DURATION = 24;			// Hours

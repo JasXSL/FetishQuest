@@ -313,6 +313,15 @@ export default class Condition extends Generic{
 			else if( this.type === T.targetIsChatPlayerTeam ){
 				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.team === t.team );
 			}
+			else if( this.type === T.targetIsWrapperSenderTeam ){
+
+				if( !event.wrapper )
+					console.error("Trying to run targetIsWrapperSenderTeam without wrapper in event", event);
+
+				const caster = wrapper.getCaster();
+				success = (wrapper && caster?.team === t.team);
+
+			}
 			else if( this.type === T.wrapperTag ){
 
 				// Searches any attached wrapper for a tag
@@ -1420,6 +1429,7 @@ Condition.descriptions = {
 	[Condition.Types.textTurnTag] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/int/undefined=-1)} - Requires Text in event. If originalwrapper is unset or -1, it uses both. Checks if the text object has one or more turn tags. ORed unless ALL is set.',
 	[Condition.Types.targetIsChatPlayer] : 'void - Requires Text in event. Checks if text._chatPlayer id is the same as target',
 	[Condition.Types.targetIsChatPlayerTeam] : 'void - Requires Text in event. Checks if text._chatPlayer team is the same as target',
+	[Condition.Types.targetIsWrapperSenderTeam] : 'void - Requires Wrapper in event. Checks if the person who applied said wrapper is on the same team as the sender.',
 	[Condition.Types.rainGreaterThan] : '{val:(float)=0, allowIndoor:(bool)=false} - Checks if game.rain > val. If allowIndoor is set, it checks if it\'s raining outside as well',
 	[Condition.Types.targetLevel] : '{amount:(int)=0, operation:(str = > <)="="} - Checks target player level.  Amount can be a math var.',
 	[Condition.Types.targetedSenderLastRound] : 'void - Target has successfully used a non-aoe action against sender since their last turn',

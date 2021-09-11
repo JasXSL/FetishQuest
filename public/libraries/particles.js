@@ -40,6 +40,10 @@ const textures = {
 	stingingInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/stinging_insect.png')})),
 	coin : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/coin_particle.png')})),
 	bone_shards : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/bone_shards.png')})),
+	tentacles : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/tentacles.png')})),
+	chains : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/chains.png')})),
+	grab : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/grab.png')})),
+	crosshair : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/crosshair.png')})),
 
 };
 for( let i in textures )
@@ -360,6 +364,22 @@ textures.smoke.material.depthWrite = true;
 		wiggle : 25,
 		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
 	};
+	particles.bubblesGreen = {
+		texture : textures.bubble,
+		blending : THREE.NormalBlending,
+		rate : 0.05,
+		count : 2,
+		position : new Proton.SphereZone(0,0,0, 10),
+		size : 2,
+		size_tween : [1,1],
+		part_max_age : 1.5,
+		velocity : 7,
+		gravity : -.25,
+		color : ["#33AA33"],	
+		opacity: 1,
+		wiggle : 25,
+		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
+	};
 
 //
 
@@ -528,6 +548,22 @@ particles.hitfx_holy_runes = {
 	velocity_type : 0,
 	gravity : 0,
 	color : ["#FFFFAA","#FFFFFF"],	
+	opacity: [1,0],
+};
+
+// Multiple small crosshairs
+particles.hitfx_crosshairs_red = {
+	texture : textures.crosshair,
+	blending : THREE.AdditiveBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.BoxZone(0,0,0, 30,30,30),
+	size : new Proton.Span(8,10),
+	part_max_age : new Proton.Span(3,5),
+	velocity : 0,
+	velocity_type : 0,
+	gravity : 0,
+	color : ["#FFAAAA","#FF9999"],	
 	opacity: [1,0],
 };
 
@@ -824,6 +860,19 @@ particles.hitfx_shield = {
 	color : ["#AADDFF","#DDEEFF"],	
 	opacity: [0,1,Proton.ease.easeFullBridge],
 };
+particles.hitfx_grab = {
+	texture : textures.grab,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#FFFFAA","#FFFFEE"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
+};
 
 
 
@@ -1028,6 +1077,22 @@ particles.hitfx_splat_green = {
 	rotation : new Proton.Span(0,Math.PI*2)
 };
 
+particles.hitfx_splat_purple = {
+	texture : textures.splat,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 6,
+	position : new Proton.SphereZone(0,0,0,20),
+	size : 20,
+	size_tween : [.5,0.001],
+	part_max_age : 0.6,
+	velocity : new Proton.Span(20,50),
+	color : ["#DDAAFF","#330066"],	
+	opacity: [0,1],
+	gravity:2,
+	rotation : new Proton.Span(0,Math.PI*2)
+};
+
 particles.hitfx_splat_sparks = {
 	texture : textures.splat,
 	blending : THREE.NormalBlending,
@@ -1149,6 +1214,23 @@ particles.hitfx_splat_sparks_red = {
 	wiggle : [0,10],
 	rotation : new Proton.Span(0,Math.PI),
 };
+particles.hitfx_splat_sparks_dark_green = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 4,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 10,
+	size_tween : [1,0.001],
+	part_max_age : 0.4,
+	velocity : new Proton.Span(50,100),
+	gravity : 2,
+	color : ['#336633', '#003300'],	
+	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
+};
 
 
 particles.hitfx_healing = {
@@ -1185,6 +1267,23 @@ particles.hitfx_healing_yellow = {
 	opacity: 1,
 };
 
+particles.hitfx_healing_green = {
+	texture : textures.plus,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 2,
+	position : new Proton.BoxZone(0,0,0, 25,25,25),
+	size : new Proton.Span(3,6),
+	size_tween : [0.001,1,Proton.ease.easeFullSine],
+	part_max_age : new Proton.Span(1,1.5),
+	velocity : 3,
+	velocity_dir : [new Proton.Span(-1,1),new Proton.Span(-1,1),new Proton.Span(-1,1)],
+	//velocity_type : 0,
+	//gravity : -0.1,
+	color : ["#99FF99","#DDFFDD"],	
+	opacity: 1,
+};
+
 
 particles.hitfx_healing_yellow_pillar = {
 	texture : textures.sparkle,
@@ -1216,6 +1315,23 @@ particles.hitfx_healingSurge = {
 	velocity : new Proton.Span(30,50),
 	gravity : 2,
 	color : '#AADDFF',	
+	opacity: [1,0],
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : new Proton.Span(0,Math.PI),
+};
+particles.hitfx_healingSurge_dark = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 40,
+	size_tween : [0.001,1],
+	part_max_age : 0.4,
+	velocity : new Proton.Span(30,50),
+	gravity : 2,
+	color : '#003300',
 	opacity: [1,0],
 	rotation : [new Proton.Span(-0.5,0.5), 1,1],
 	wiggle : [0,10],
@@ -1291,6 +1407,38 @@ particles.hitfx_mist = {
 	velocity_type : 0,
 	gravity : -0.1,
 	color : "#FFFFFF",	
+	opacity: [0,.5,Proton.ease.easeFullSine],
+	rotation : [0,Math.PI],
+};
+particles.hitfx_mist_blue = {
+	texture : textures.glowSphere,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 2,
+	position : new Proton.BoxZone(0,0,0, 20,20,20),
+	size : new Proton.Span(50,100),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,2),
+	velocity : new Proton.Span(0,0.75),
+	velocity_type : 0,
+	gravity : -0.1,
+	color : "#AAEEFF",	
+	opacity: [0,.5,Proton.ease.easeFullSine],
+	rotation : [0,Math.PI],
+};
+particles.hitfx_mist_green = {
+	texture : textures.glowSphere,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 2,
+	position : new Proton.BoxZone(0,0,0, 20,20,20),
+	size : new Proton.Span(50,100),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,3),
+	velocity : new Proton.Span(0,0.75),
+	velocity_type : 0,
+	gravity : -0.1,
+	color : ["#99FF99", "#AAFFAA"],	
 	opacity: [0,.5,Proton.ease.easeFullSine],
 	rotation : [0,Math.PI],
 };
@@ -1456,6 +1604,42 @@ particles.hitfx_roots = {
 	//velocity : new Proton.Span(0,0.1),
 	gravity : 0,
 	color : ['#FFFFFF', '#FFFFFF'],	
+	opacity: [1,0, Proton.ease.easeInCirc],
+	rotation : new Proton.Span(0,Math.PI),
+};
+
+
+particles.hitfx_tentacle_coat = {
+	texture : textures.tentacles,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 1,
+	position : new Proton.BoxZone(0,0,0,20,20,0),
+	size : new Proton.Span(5,15),
+	size_tween : [1,1.1],
+	part_max_age : 3,
+	//velocity : new Proton.Span(0,0.1),
+	gravity : 0,
+	color : ['#221133', '#110022'],	
+	opacity: [.5,0, Proton.ease.easeInCirc],
+	rotation : new Proton.Span(0,Math.PI),
+};
+
+
+
+
+particles.hitfx_chains = {
+	texture : textures.chains,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.BoxZone(0,0,0,20,20,0),
+	size : new Proton.Span(5,15),
+	size_tween : [1,1.1],
+	part_max_age : 1.5,
+	//velocity : new Proton.Span(0,0.1),
+	gravity : 0,
+	color : ['#FFFFAA', '#FFFFEE'],	
 	opacity: [1,0, Proton.ease.easeInCirc],
 	rotation : new Proton.Span(0,Math.PI),
 };

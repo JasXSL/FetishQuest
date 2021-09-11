@@ -74,6 +74,7 @@ class Action extends Generic{
 		this.ignore_wrapper_conds = false;		// Ignores wrapper conditions and allows it to cast without any valid wrapper conditions
 
 		this.can_crit = false;					// This ability can critically hit
+		this.crit_formula = '';					// Overrides the default agility based formula. Requires can_crit to be set
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge.
@@ -152,6 +153,7 @@ class Action extends Generic{
 			out.no_use_text = this.no_use_text;	
 			out.init_cooldown = this.init_cooldown;
 			out.max_wrappers = this.max_wrappers;
+			out.crit_formula = this.crit_formula;
 		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
@@ -282,6 +284,18 @@ class Action extends Generic{
 		return this.can_crit;
 	}
 
+	getCritChance( target ){
+
+		if( !this.canCrit() )
+			return 0;
+
+		const sender = this.getPlayerParent();
+		if( this.crit_formula )
+			return Calculator.run(this.crit_formula, new GameEvent({sender:sender, target:target}));
+
+		return sender.getCritDoneChance(target);
+
+	}
 
 
 
@@ -779,8 +793,7 @@ class Action extends Generic{
 
 			// Needs to be cached for texts
 			// note that since this only affects the base attack, you should be safe to assume there's only one target
-			this._crit = this.canCrit() && Math.random() < sender.getCritDoneChance(target);
-			
+			this._crit = Math.random() < this.getCritChance( target );
 
 			// Check if it hit
 			if( this.isDetrimentalTo(target) ){
@@ -889,7 +902,7 @@ class Action extends Generic{
 
 					setTimeout(() => {
 						game.playFxAudioKitById(
-							this.testLabel('stdAttack') ? 'crit_attack' : 'crit_arouse', 
+							this.type === Action.Types.corruption ? 'crit_arouse' : 'crit_attack', 
 							pp, 
 							hits[n], 
 							undefined, 
