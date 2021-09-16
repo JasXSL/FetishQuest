@@ -1840,7 +1840,9 @@ class Effect extends Generic{
 					conds = ['targetButtUnblockedAndNotHard','targetMouthUnblockedAndNotHard','targetVaginaUnblockedAndNotHard'];
 				else if( this.data.relax === "all" )
 					conds = [false, false, false];
-				conds = Condition.loadThese(conds);
+
+				if( this.data.relax !== "all" )
+					conds = Condition.loadThese(conds);
 				const tags = [stdTag.wrBlockButt, stdTag.wrBlockMouth, stdTag.wrBlockGroin];
 				for( let i =0; i<conds.length; ++i ){
 					if( !conds[i] || conds[i].test(tEvent) )

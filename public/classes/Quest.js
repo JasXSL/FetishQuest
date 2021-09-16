@@ -481,7 +481,7 @@ class QuestObjective extends Generic{
 		};
 
 		if( full )
-			out.events = QuestObjectiveEvent.loadThese(this.events, full);
+			out.events = QuestObjectiveEvent.saveThese(this.events, full);
 
 		if( full !== "mod" ){
 			

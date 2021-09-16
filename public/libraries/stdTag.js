@@ -177,7 +177,8 @@ export default {
 	wrBlockGroin : 'wr_block_groin',			// Used to signify that something is blocking this part of the body. Usually a monster doing something to it.
 	wrBlockButt : 'wr_block_butt',
 	wrBlockMouth : 'wr_block_mouth',
-	
+	wrDefensive : 'wr_defensive',				// Put on defensive effects
+
 	// Custom wrapper tags that can be added to wrappers
 	wrSoaked : 'wr_soaked',				// Player is soaked
 	wrLegsSpread : 'wr_legs_spread',

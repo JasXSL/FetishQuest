@@ -1086,6 +1086,15 @@ div.passiveUpsideDown > div.content > div.bg{
 		width:150%;
 	}
 
+	#inventory div.inventory{
+		line-height:0%;
+	}
+	
+	#inventory div.inventory h3{
+		margin-top:2vmax;
+		margin-bottom:0.75vmax;
+	}
+
 	div.inventory.characterSheet{
 		padding:0;
 		text-align: center;
@@ -1153,11 +1162,12 @@ div.passiveUpsideDown > div.content > div.bg{
 		margin-right:3vmax;
 	}
 	div.inventory > div.left > div.progressBar{
-		width:93%;
+		width:93.5%;
+		line-height: 100%;
 	}
 	div.inventory div.item.equipmentSlot{
-		width:6.5vmax;
-		height:6.5vmax;
+		width:7vmax;
+		height:7vmax;
 		display:inline-block;
 		padding:0;
 	}

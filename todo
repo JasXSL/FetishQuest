@@ -30,45 +30,67 @@
 		Guild class spells:
 		Necro:
 			- Elementalist: Desecrating Surge: Deals 4 elemental damage to your target and 2 elemental damage at the start of their turn for 3 turns. Effect is increased by 30% if there's water nearby. 
-				[T] Green/blue version of the normal visual, but with bubbles
-				- Todo
 			- Tentaclemancer: Slimy Gag: Does corruption damage and silences.
-				[T] Big tentacle wrap particle
-				- Todo
 		Church:
 			- Warrior: Holy Grasp : Taunts a single target for 2 turns, and when they target you with an action, the party is healed.
-				[T] Some kind of holy fist particle visual
-				- Add text
 			- Cleric: Penitent Ward : Wards a player for 2 turns. When targeted by a detrimental corruption effect, the effect is consume and the attacker takes 6 holy damage and the original caster gains 2 MP. 
-				[T] Visual
-				- Add apply text
-				- Add trigger text
-		Scrapper's Club:
+		Penal Gang:
 			- Monk: Massage: Restores health and increases physical proficiency and defense to a target for 1 turn. But adds 1 arousal.
-				[T] Need some kind of mist visual
-				- Need texts
 			- Rogue: Expose: Reduces your target's armor rating by 100% for 2 turns.
-				[T] Add crosshair visual
-				- Need texts
-			[T] Generic: Bully: Deals physical damage. If the target is affected by a grapple, knockdown, or silence, critically hit.
-			[T] Generic: Bounding Blow: 2 AP, 3 damage, can be riposted. If riposted, restore 1 MP.
-
-		
-		Class replacements:
-		Monk:
-			[T] Meditate -> Tranquil Fist: Deals damage, restores 1 mana immediately plus 1 per armor piece you're missing.
-		Tentaclemancer:
-			[T] Tentacle Whip -> Now a cleave ability with a 50% chance of adding corrupting ooze.
-			[T] Corrupting ooze -> Oozplosion - Charged 1 turn: Deals 3 damage to all enemies and adds 1 stack of corrupting ooze.
-			[T] Infusion -> - Consumes all stacks of corrupting ooze on the target, doing 2 damage plus 2 per stack.
-			[T] SiphonCorruption -> Consumes all stacks of corrupting ooze on the target, healing the caster for 3 HP plus 3 HP per stack. 2 charges.
-			
 
 	New armor secondary stats:
 		Impenetrable: Add an extra 5% damage reduction
 		Flexible: Add armor penetration
 
+
+
+	Penal Gang:
+		- Guild of "assassins" that can be hired to take someone down a peg. Doesn't kill, only humiliates. And records it on a recording crystal.
+		- Guild vendor sells increasingly skimpy armor
 		
+		Quest 1:
+			- Sneak into a male fox's home at night and beat him up, then gag him. He can go to a locksmith to remove the gag, but will have to go through town.
+		Quest 2:
+			- A special request has been received. A client wants their target (female fox) tied up in the gym locker room with vibrating nipple clamps.
+			- The guildmaster doesn't have any of those, so he tasks the player to acquire some first.
+			- There's a tunnel in the sewers to a tinkerer who might have some available for use.
+			- In order to get there, the player will have to fight their way through rattani.
+		Quest 3:
+			- Sneak into the hotel at night to punish the female cat there. However, she's set a trap, and the players wake up at the bottom of a well.
+			- After fighting their way out through various beasts, return to the guild. They have tracked down that she's hiding in a cabin north west of the city.
+			- Go there, fight her goons, and spank her.
+		
+		Rewards:
+			1. Leather briefs (green)
+			2. Stretch-hide Bodysuit (blue)
+			3. Stretch-hide Thong Bodysuit (purple)
+
+		Areas:
+			x Tibbu's house
+			- Well prison
+			- Tinkerer dungeon
+			- Extension to yuug gates forest
+			- Veroniquette Estate
+
+		Players:
+			- Tibbu (Male fox)
+			- Veroniquette
+			- Veroniquette house guard
+			- Veroniquette boss
+			- Guildmaster
+			- Quartermaster
+			- Gang member
+			- Rattani mechmancer
+			- Friendly tinkerer NPC
+			- Female wolf
+
+		
+			
+
+
+
+		Generic: Bully: Deals physical damage. If the target is affected by a grapple, knockdown, or silence, critically hit.
+		Generic: Bounding Blow: 2 AP, 3 damage, can be riposted. If riposted, restore 1 MP.
 
 
 	Utility passives:
@@ -128,11 +150,6 @@
 	Assets:
 		- Horny bat. Deals 3 damage and lowers arousal by 3.
 
-	Scrapper's Club:
-		- Guild all about martial prowess.
-		- Whether a player wants to fight dirty or not is up to them.
-		- All about skimpy armor
-		- First quest is maybe a gauntlet?
 
 	Enchants:
 		Fun enchants:

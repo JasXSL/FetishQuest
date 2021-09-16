@@ -1195,6 +1195,7 @@ export default class StaticModal{
 								<div>Agility<br /><input type="number" name="agility" step=1 /></div>
 								<div>Intellect<br /><input type="number" name="intellect" step=1 /></div>
 							</div>
+							<p><em>Note: When creating a player character you should leave these stats at 0, stats are derived from the class.</em></p>
 							<h3>Avoidance:</h3>
 							<div class="flexFourColumns secondaryStat sv">
 								<div class="physical">Physical <input type="number" step=1 /></div>
@@ -1477,7 +1478,7 @@ export default class StaticModal{
 					dDivs.formNude.val(player.icon_nude);
 					dDivs.formUpperBody.val(player.icon_upperBody);
 					dDivs.formLowerBody.val(player.icon_lowerBody);
-					dDivs.formHP.val(parseInt(player.hp) || 10);
+					dDivs.formHP.val(parseInt(player.hp) || 0);
 					dDivs.formAP.val(parseInt(player.ap) || 0);
 					dDivs.formMP.val(parseInt(player.mp) || 0);
 					dDivs.formArousal.val(parseInt(player.arousal) || 0);
@@ -1524,7 +1525,7 @@ export default class StaticModal{
 					
 
 					// Draw the randomizer
-					html = '<option value="_RANDOM_">-RANDOM-</option>';
+					html = '<option value="_RANDOM_">-RANDOM NPC-</option>';
 					const libtemplates = Object.values(glib.getFull('PlayerTemplate'));
 					libtemplates.sort((a,b) => a.name < b.name ? -1 : 1);
 					for( let t of libtemplates )
@@ -1555,6 +1556,7 @@ export default class StaticModal{
 					// Puts form data to the player
 					const savePlayer = () =>{
 
+						player.generated = false;		// Make sure the player remains when leaving the cell
 						player.name = dDivs.formName.val().trim();
 						player.species = dDivs.formSpecies.val().trim().toLowerCase();
 						player.spre = dDivs.formSpre.val().trim().toLowerCase();
@@ -2533,7 +2535,8 @@ export default class StaticModal{
 
 						game.ui.modal.addNotice('Exporting...');
 						const zip = new JSZip();
-						zip.file('save.json', JSON.stringify(await Game.db.games.get(id)));
+						
+						zip.file('save.json', JSON.stringify(await Game.getDataByID(id)));
 						const content = await zip.generateAsync({
 							type:"blob",
 							compression : "DEFLATE",
