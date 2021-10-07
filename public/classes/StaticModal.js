@@ -2438,46 +2438,56 @@ export default class StaticModal{
 					<a href="http://www.furaffinity.net/gallery/gothwolf" target="_blank">GothWolf</a><br />
 					<a href="http://www.furaffinity.net/gallery/maddworld" target="_blank">Maddworld</a><br />
 					<p>Audio:</p>
-					https://freesound.org/people/3bagbrew<br /> 
 					https://freesound.org/people/Abolla<br /> 
 					https://freesound.org/people/Adam_N<br /> 
 					https://freesound.org/people/Andy_Gardner<br /> 
 					https://freesound.org/people/Anthousai<br /> 
 					https://freesound.org/people/Atkom<br /> 
 					https://freesound.org/people/Benboncan<br /> 
+					https://freesound.org/people/Bertsz<br />
 					https://freesound.org/people/BiancaBothaPure<br /> 
 					https://freesound.org/people/BlueDelta<br /> 
 					https://freesound.org/people/Cheddababy<br /> 
+					https://freesound.org/people/CosmicEmbers<br />
 					https://freesound.org/people/Dave%20Welsh<br /> 
 					https://freesound.org/people/EdgardEdition<br /> 
+					https://freesound.org/people/EminYILDIRIM<br />
 					https://freesound.org/people/Fasolt<br /> 
 					https://freesound.org/people/Faulkin<br /> 
 					https://freesound.org/people/FoolBoyMedia<br /> 
 					https://freesound.org/people/Fugeni<br /> 
+					https://freesound.org/people/GaelanW<br />
 					https://freesound.org/people/GameDevC<br /> 
 					https://freesound.org/people/GoodListener<br /> 
 					https://freesound.org/people/Halleck<br /> 
 					https://freesound.org/people/INNORECORDS<br /> 
 					https://freesound.org/people/InspectorJ<br /> 
+					https://freesound.org/people/Iridiuss<br />
+					https://freesound.org/people/JustInvoke<br />
 					https://freesound.org/people/LG<br /> 
-					https://freesound.org/people/LittleRobotSoundFactory<br /> 
+					https://freesound.org/people/LittleRobotSoundFactory<br />
 					https://freesound.org/people/MarcMatthewsMusic<br /> 
 					https://freesound.org/people/Meepalicious<br /> 
 					https://freesound.org/people/Millavsb<br /> 
+					https://freesound.org/people/Nakhas<br />
 					https://freesound.org/people/Nightwatcher98<br /> 
 					https://freesound.org/people/Pfannkuchn<br /> 
 					https://freesound.org/people/PhilSavlem<br /> 
+					https://freesound.org/people/Rob_Marion<br />
 					https://freesound.org/people/Rocktopus<br /> 
 					https://freesound.org/people/Schoggimousse<br /> 
 					https://freesound.org/people/Snapper4298<br /> 
 					https://freesound.org/people/Syna-Max<br /> 
 					https://freesound.org/people/Timbre<br /> 
+					https://freesound.org/people/Timmeh515<br />
 					https://freesound.org/people/VKProduktion<br /> 
+					https://freesound.org/people/Zuzek06<br />
 					https://freesound.org/people/adamgryu<br /> 
 					https://freesound.org/people/adcbicycle<br /> 
 					https://freesound.org/people/akemov/sounds<br /> 
 					https://freesound.org/people/alebrujo<br /> 
 					https://freesound.org/people/altfuture<br /> 
+					https://freesound.org/people/andersmmg<br />
 					https://freesound.org/people/arpeggio1980<br /> 
 					https://freesound.org/people/bajko<br /> 
 					https://freesound.org/people/conleec<br /> 
@@ -2486,24 +2496,37 @@ export default class StaticModal{
 					https://freesound.org/people/duckduckpony<br /> 
 					https://freesound.org/people/dynamique<br /> 
 					https://freesound.org/people/ejfortin<br /> 
+					https://freesound.org/people/florianreichelt<br />
+					https://freesound.org/people/gsb1039<br />
 					https://freesound.org/people/hantorio<br /> 
 					https://freesound.org/people/hinzebeat<br /> 
 					https://freesound.org/people/humanoide9000<br /> 
 					https://freesound.org/people/ivolipa<br /> 
+					https://freesound.org/people/jorickhoofd<br />
 					https://freesound.org/people/kwahmah_02<br /> 
 					https://freesound.org/people/kyles<br /> 
 					https://freesound.org/people/lawnjelly<br /> 
 					https://freesound.org/people/lefthandwinnie<br /> 
+					https://freesound.org/people/lmr9<br />
 					https://freesound.org/people/lostphosphene<br /> 
 					https://freesound.org/people/natemarler<br /> 
+					https://freesound.org/people/newlocknew<br />
+					https://freesound.org/people/olver<br />
+					https://freesound.org/people/opticaillusions<br />
 					https://freesound.org/people/potentjello<br /> 
 					https://freesound.org/people/priesjensen<br /> 
 					https://freesound.org/people/qubodup<br /> 
+					https://freesound.org/people/sergeeo/<br />
 					https://freesound.org/people/susiq12<br /> 
 					https://freesound.org/people/suspensiondigital<br /> 
+					https://freesound.org/people/univ_lyon3<br />
 					https://freesound.org/people/vacuumfan7072<br /> 
 					https://freesound.org/people/volivieri<br />
+					https://freesound.org/people/vr/<br />
+					https://freesound.org/people/3bagbrew<br /> 
 					<p>Textures</p>
+					https://www.deviantart.com/gurumedit/<br />
+					https://www.videvo.net/profile/videvo/<br />
 					https://www.flickr.com/photos/lenabem-anna<br />
 					<p>Made with <a href="https://threejs.org/" target="_blank">THREE.js</a></p>
 				</div>
