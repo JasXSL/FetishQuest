@@ -88,11 +88,22 @@ class Dungeon extends Generic{
 	}
 
 	save( full ){
-		
+
 		const vars = {};
 		for( let i in this.vars )
 			vars[i] = this.vars[i];
 
+		// Override to create a cache when sending a full game
+		if( full === 'netgame_libcache' ){
+
+			return {
+				id : this.id,
+				label : this.label,
+				vars : vars
+			};
+
+		}
+		
 		let out = {
 			name : this.name,
 			tags : this.tags,
@@ -1592,8 +1603,8 @@ class DungeonRoomAsset extends Generic{
 		if( !window.game )
 			return false;
 			
-		if( this.hide_no_interact )
-			return !this.isInteractive();
+		if( this.hide_no_interact && !this.isInteractive() )
+			return true;
 
 		if( this.isMarker() )
 			return true;

@@ -816,6 +816,24 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}, 'MeshDepthMaterial'),
+		Hedge : new LibMaterial({
+			map : 'tileable/hedge.jpg',
+			metalness : 0.3,
+			roughness : 0.6
+		}),
+		HedgeAutumn : new LibMaterial({
+			map : 'tileable/hedge_autumn.jpg',
+			metalness : 0.3,
+			roughness : 0.6
+		}),
+		HedgeBranch : new LibMaterial({
+			map : 'decals/hedge_branch.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
 
 		BushThicc : new LibMaterial({
 			map : 'decals/bush_thicc.png',
@@ -1024,6 +1042,8 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side : THREE.DoubleSide,
 		}),
+
+		
 
 	},
 

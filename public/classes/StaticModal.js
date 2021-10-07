@@ -7,7 +7,7 @@ import { QuestReward } from './Quest.js';
 import Shop from './Shop.js';
 import Mod from './Mod.js';
 import Game from './Game.js';
-import { Wrapper } from './EffectSys.js';
+import { Effect, Wrapper } from './EffectSys.js';
 import { GfPlayer } from './NetworkManager.js';
 
 export default class StaticModal{
@@ -679,7 +679,8 @@ export default class StaticModal{
 					}
 					
 					
-					html += '<div class="assets inventory"></div>';
+					html += '<div class="assets inventory inv"></div>';
+					html += '<div class="assets inventory actions"></div>';
 
 
 					if( selectedQuest.rewards_exp )
@@ -692,15 +693,28 @@ export default class StaticModal{
 
 				if( selectedQuest && !selectedQuest.hide_rewards ){
 
-					const inv = this.right[0].querySelector('div.assets.inventory');
+					const inv = this.right[0].querySelector('div.assets.inv');
+					const act = this.right[0].querySelector('div.assets.actions');
 					const rewards = selectedQuest.getRewards();
-					const assets = rewards.filter(el => el.type === QuestReward.Types.Asset || el.type === QuestReward.Types.Action);
+					let assets = rewards.filter(el => el.type === QuestReward.Types.Asset && (!me || el.testPlayer(me)));
+					let actions = rewards.filter(el => el.type === QuestReward.Types.Action && (!me || el.testPlayer(me)));
 					for( let reward of assets ){
 
 						const asset = reward.data;
-						const viableToMe = me && reward.testPlayer(me);
-						inv.appendChild(await StaticModal.getGenericAssetButton(asset, 0, !viableToMe ? 'disabled' : ''));
-						
+						inv.appendChild(await StaticModal.getGenericAssetButton(asset, 0));
+
+					}
+
+					for( let reward of actions ){
+
+						let asset = reward.data;
+						const tmp = document.createElement('template');
+						tmp.innerHTML = UI.Templates.actionButton;
+						let div = tmp.content.firstChild;
+						div.classList.toggle('action', true);
+						act.appendChild(div);
+						UI.setActionButtonContent(div, asset, me || game.players[0]);
+
 					}
 
 				}
@@ -1347,14 +1361,14 @@ export default class StaticModal{
 					if( !game.ui.showDMTools() && this.activeTab === 'Edit' )
 						this.setActiveTab('Character');
 
-					
-
 					if( !(player instanceof Player) )
 						player = game.getPlayerById(player);
 
 					if( !player )
 						return false;
 
+
+					const hasClairvoyance = player.getActiveEffectsByType(Effect.Types.clairvoyance).length > 0;
 					this.character.exportPlayer.toggleClass('hidden', player.isNPC());
 					
 					// Character panel
@@ -1365,14 +1379,60 @@ export default class StaticModal{
 					this.character.expBarBar[0].style = 'width:'+Math.max(0, Math.min(100, player.experience/player.getExperienceUntilNextLevel()*100))+'%';
 					this.character.expBarText[0].innerText = player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP';
 
-					cDivs.description.html(
-						'<strong>About:</strong><br />'+
-						esc(player.description || 'No description')+'<br />'+
-						(player.class ?
-							'<br /><strong>'+esc(player.class.name)+'</strong><br />'+
-							esc(player.class.description)
-							: '')
-					);
+					let desc = '<strong>About:</strong><br />';
+					desc += esc(player.description || 'No description')+'<br />';
+					if( player.class )
+						desc += '<br /><strong>'+esc(player.class.name)+'</strong><br />'+esc(player.class.description);
+
+					desc += '<div class="clairvoyance hidden"><hr /><div class="actions"></div></div>';
+
+					cDivs.description.html(desc);
+
+					
+					// Should draw some extra information about this player
+					const clairActions = player.getClairvoyanceActions();
+					const clairvoyance = cDivs.description[0].querySelector('div.clairvoyance');
+					if( hasClairvoyance ){
+
+						const adiv = clairvoyance.querySelector('div.actions');
+						for( let action of clairActions ){
+
+							const tmp = document.createElement('template');
+							tmp.innerHTML = UI.Templates.actionButton;
+							let div = tmp.content.firstChild;
+							div.classList.toggle('action', true);
+							adiv.appendChild(div);
+							UI.setActionButtonContent(div, action, player);
+
+						}
+
+						let additional = document.createElement('template');
+						let html = '<br />';
+
+						const getLowHighLabel = (input, labels) => {
+							if( !labels )
+								labels = ['None', 'Minor', 'Lesser', 'Average', 'Greater', 'Major', 'Completely'];
+							
+							return labels[Math.floor(input*6)];								
+						};
+						html += 'Sadism: <strong>'+getLowHighLabel(player.sadistic)+'</strong><br />';
+						if( !player.isBeast() ){
+
+							html += 'Dominant: <strong>'+getLowHighLabel(player.dominant)+'</strong><br />';
+							html += 'Hetero: <strong>'+getLowHighLabel(player.hetero)+'</strong><br />';
+							html += 'Tactics: <strong>'+getLowHighLabel(player.intelligence)+'</strong><br />';
+
+						}
+						additional.innerHTML = html;
+						clairvoyance.append(additional.content);
+
+					}
+					clairvoyance.classList.toggle('hidden', !hasClairvoyance);
+
+
+
+					
+
 					
 					cDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
 
@@ -2374,9 +2434,9 @@ export default class StaticModal{
 					<p>Additional Models:</p>
 					Kitaro "Huskebutt" Kun<br />
 					<p>Art:</p>
-					<a href="http://www.furaffinity.net/gallery/gothwolf">GothWolf</a><br />
-					<a href="http://www.furaffinity.net/gallery/maddworld">Maddworld</a><br />
-					<a href="https://www.furaffinity.net/user/carduelis/">Carduelis</a><br />
+					<a href="https://www.furaffinity.net/user/carduelis/" target="_blank">Carduelis</a><br />
+					<a href="http://www.furaffinity.net/gallery/gothwolf" target="_blank">GothWolf</a><br />
+					<a href="http://www.furaffinity.net/gallery/maddworld" target="_blank">Maddworld</a><br />
 					<p>Audio:</p>
 					https://freesound.org/people/3bagbrew<br /> 
 					https://freesound.org/people/Abolla<br /> 

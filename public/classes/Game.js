@@ -103,7 +103,6 @@ export default class Game extends Generic{
 		this._caches = 0;								// Level of depth of cache requests we're at
 
 		this._looted_players = {};						// local only, contains id : true for players looted in this room
-		
 
 	}
 

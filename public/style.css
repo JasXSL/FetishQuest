@@ -915,7 +915,22 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:1vmax;
 	}
 
-	#player div.actions div.action{
+	#player div[data-id=Character] div.clairvoyance{
+		color:#BDF;
+	}
+
+	#player div[data-id=Character] div.actions{
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
+	#player div[data-id=Character] div.actions div.action{
+		width:5vmax; height:5vmax;
+		max-width: none;
+		max-height: none;
+	}
+
+	#player div[data-id=Edit] div.actions div.action{
 		display:inline-block;
 		width:auto;
 		height:auto;
@@ -1109,8 +1124,16 @@ div.passiveUpsideDown > div.content > div.bg{
 	div.inventory div.item em.sub{
 		font-size:0.75vmax;
 	}
+	/* Used in quest log */
+	div.inventory.actions div.action{
+		width: 4.25vmax;
+		height: 4.25vmax;
+		padding:0;
+	}
+	div.inventory div.action,
 	div.inventory div.item{
 		
+		max-width:none;
 		font-weight:normal;
 		font-size:1vmax;
 		border-width: 1px;

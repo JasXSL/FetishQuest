@@ -295,6 +295,7 @@ export default {
 	mWallWood : 'm_wall_wood',
 	mSeaweed : 'm_seaweed',
 	mTentacles : 'm_tentacles',
+	mHedge : 'm_hedge',
 	mDildoArm : 'm_dildo_arm',		// Used for the dildo arm trap
 	// Bondage tags are a bit special in that they're used by conditions
 	// A bondage device should be marked by mBondage. It's then added to a pool of viable bondage devices in the dungeon

@@ -432,9 +432,14 @@ class Wrapper extends Generic{
 
 	remove( expired = false ){
 		
+		// Ugly way of preventing recursion
+		if( this._expiring )
+			return;
+		this._expiring = true;
+
 		let target = game.getPlayerById(this.victim);
 
-
+		
 
 		const evt = new GameEvent({
 			type : GameEvent.Types.wrapperExpired,
@@ -2287,6 +2292,7 @@ Effect.Types = {
 	summonAsset : 'summonAsset',
 	globalArmorMod : 'globalArmorMod',
 	globalArmorPen : 'globalArmorPen',
+	clairvoyance : 'clairvoyance',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2343,6 +2349,7 @@ Effect.Passive = {
 	[Effect.Types.tieToRandomBondageDevice] : true,
 	[Effect.Types.addWrapperMaxDuration] : true,
 	[Effect.Types.css] : true,
+	[Effect.Types.clairvoyance] : true,
 
 };
 
@@ -2364,6 +2371,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier} - Adds arousal points",	
 	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
 				
+	[Effect.Types.clairvoyance] : "void - Gives players more information about the victim when inspecting them",
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
 	[Effect.Types.setMP] : "{amount:(str)(nr)amount} - Sets MP value",							

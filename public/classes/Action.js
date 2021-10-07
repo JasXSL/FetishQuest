@@ -19,6 +19,7 @@ class Action extends Generic{
 			show_conditions : Condition,
 			cpassives : Wrapper,
 			interrupt_wrappers : Wrapper,
+			std_conds : Condition
 		};
 	}
 	
@@ -58,6 +59,7 @@ class Action extends Generic{
 		this.show_conditions = [];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
 												// This is checked against all enabled players, and at least one check has to be viable
 												// You generally want this to be "inCombat"
+		this.std_conds = [];					// Only checked if standard, conditions to be checked before adding a standard action to a player. Saves on data.
 		this.allow_self = false;				// If detrimental and "target" cast, this has to be set to allow self cast
 		this.no_use_text = false;				// Disable use texts.
 		this.no_action_selector = false;		// Hide from combat action selector
@@ -75,6 +77,7 @@ class Action extends Generic{
 
 		this.can_crit = false;					// This ability can critically hit
 		this.crit_formula = '';					// Overrides the default agility based formula. Requires can_crit to be set
+		this.no_clairvoyance = false;			// This shouldn't be inspectable with clarivoyance
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge.
@@ -85,6 +88,7 @@ class Action extends Generic{
 		this._crit = false;
 		this._slot = -1;						// Action slot. -1 if deactivated. If autolearn is enabled on the player, this is ignored.
 
+		
 		// Auto generated if loaded from a player library
 		this._custom = false;
 		
@@ -133,6 +137,7 @@ class Action extends Generic{
 			_slot : this._slot,
 			ignore_wrapper_conds : this.ignore_wrapper_conds,
 			can_crit : this.can_crit,
+			no_clairvoyance : this.no_clairvoyance
 		};
 
 		// Everything but mod
@@ -147,6 +152,7 @@ class Action extends Generic{
 		}
 
 		if( full ){
+
 			out.alias = this.alias;
 			out.riposte = Wrapper.saveThese(this.riposte, full);
 			out.interrupt_wrappers = Wrapper.saveThese(this.interrupt_wrappers, full);
@@ -154,6 +160,8 @@ class Action extends Generic{
 			out.init_cooldown = this.init_cooldown;
 			out.max_wrappers = this.max_wrappers;
 			out.crit_formula = this.crit_formula;
+			out.std_conds = Condition.saveThese(this.std_conds, full);
+
 		}
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);
@@ -815,6 +823,14 @@ class Action extends Generic{
 
 						target.onRiposteDone(sender);
 						sender.onRiposteReceived(target);
+
+						// Handle damaging attack stats inverse
+						if( this.hasTag(stdTag.acDamage) ){
+
+							sender.onDamagingAttackReceived(target, this.type);
+							target.onDamagingAttackDone(sender, this.type);
+
+						}
 						new GameEvent({
 							type : GameEvent.Types.actionRiposte,
 							sender : target,

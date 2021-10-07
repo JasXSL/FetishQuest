@@ -81,6 +81,7 @@ export function asset(){
 		html += '<label title="Punishments use this">Hide if no viable targets: <input name="hide_if_no_targets" '+(dummy.hide_if_no_targets ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Lets you still use the ability if no targets pass wrapper filters">Cast if no viable wrapper: <input name="ignore_wrapper_conds" '+(dummy.ignore_wrapper_conds ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Allows this ability to critically hit">Can crit: <input name="can_crit" '+(dummy.can_crit ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
+		html += '<label title="Hides this ability from clairvoyance">No clairvoyance: <input name="no_clairvoyance" '+(dummy.no_clairvoyance ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		
 		html += '<label title="Max wrappers to apply, wrappers applied from top to bottom, 0 = no limit">Max wrappers: <input name="max_wrappers" value="'+esc(dummy.max_wrappers)+'" type="number" step=1 min=0 class="saveable" /></label>';
 
@@ -104,6 +105,7 @@ export function asset(){
 
 	html += 'Conditions: <br /><div class="conditions"></div>';
 	html += '<span title="Conditions needed to be met for this to show in the ability bar">Show Conditions: </span><br /><div class="show_conditions"></div>';
+	html += '<div class="stdConditions '+(dummy.std ? '' : 'hidden')+'"><span title="Conditions to add this to a player">STD Conditions: </span><br /><div class="std_conds"></div></div>';
 
 
 	this.setDom(html);
@@ -126,6 +128,7 @@ export function asset(){
 	// conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
 	this.dom.querySelector("div.show_conditions").appendChild(EditorCondition.assetTable(this, asset, "show_conditions"));
+	this.dom.querySelector("div.std_conds").appendChild(EditorCondition.assetTable(this, asset, "std_conds"));
 	
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
@@ -133,6 +136,11 @@ export function asset(){
 	});
 	HelperTags.bind(this.dom.querySelector("div[name=alias]"), tags => {
 		HelperTags.autoHandleAsset('alias', tags, asset);
+	});
+
+	const stdCheck = this.dom.querySelector('input[name=std]');
+	stdCheck.addEventListener('change', () => {
+		this.dom.querySelector("div.stdConditions").classList.toggle('hidden', !stdCheck.checked);
 	});
 
 	HelperAsset.autoBind( this, asset, DB);

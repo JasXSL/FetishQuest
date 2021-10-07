@@ -585,6 +585,8 @@ class Text extends Generic{
 	// chatPlayer is a Player object that's used in AI speech bubbles
 	validate( event, debug, chatPlayer ){
 
+		//console.trace(this);
+		//debugger;
 		if( !debug )
 			debug = this.debug;
 

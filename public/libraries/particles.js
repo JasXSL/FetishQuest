@@ -22,6 +22,7 @@ const textures = {
 	poison : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/poison.png')})),
 
 	lock : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/lock.png')})),
+	eye : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/eye.png')})),
 	explosion : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/explosion.png')})),
 	splat : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/splatpart_white.png')})),
 	plus : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/plus.png')})),
@@ -871,6 +872,20 @@ particles.hitfx_grab = {
 	part_max_age : 0.75,
 	velocity : 0,
 	color : ["#FFFFAA","#FFFFEE"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
+};
+
+particles.hitfx_eye = {
+	texture : textures.eye,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#AADDFF","#DDEEFF"],	
 	opacity: [0,1,Proton.ease.easeFullBridge],
 };
 

@@ -143,6 +143,9 @@ export default class UI{
 
 		$(document).off('keydown').on('keydown', event => {
 
+			if( event.shiftKey || event.ctrlKey )
+				return;
+
 			if( event.target !== document.body )
 				return;
 			if( event.key === ' '){

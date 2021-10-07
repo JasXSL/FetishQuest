@@ -233,6 +233,10 @@ export default class Player extends Generic{
 			icon_upperBody : this.icon_upperBody,
 			power : this.power,
 			passives : Wrapper.saveThese(this.passives, full),
+			sadistic : this.sadistic,					// Normal vs Sadistic
+			dominant : this.dominant,					// Dominant vs submissive
+			hetero : this.hetero,						// 0 = gay, 0.5 = bi, 1 = straight
+			intelligence : this.intelligence,
 			he : this.he,
 			him : this.him,
 			his : this.his,
@@ -256,10 +260,6 @@ export default class Player extends Generic{
 			out.leveled = this.leveled;
 			out.inventory = this.inventory;
 			out.talkative = this.talkative;
-			out.sadistic = this.sadistic;					// Normal vs Sadistic
-			out.dominant = this.dominant;					// Dominant vs submissive
-			out.hetero = this.hetero;						// 0 = gay, 0.5 = bi, 1 = straight
-			out.intelligence = this.intelligence;
 			if( full !== "mod" ){
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
 				out._difficulty = this._difficulty;
@@ -2421,7 +2421,8 @@ export default class Player extends Generic{
 		if( !window.game )
 			return;
 
-		let lib = Object.values(glib.getFull('Action')).filter(el => el.std);
+		const evt = new GameEvent({sender:this, target:this});
+		let lib = Object.values(glib.getFull('Action')).filter(el => el.std && Condition.all(el.std_conds, evt));
 		for( let action of lib ){
 
 			if(!this.getActionByLabel(action.label))
@@ -2614,6 +2615,14 @@ export default class Player extends Generic{
 
 	}
 
+	// Gets actions that can be seen with clairvoyance
+	getClairvoyanceActions(){
+
+		return this.getActions().filter(action =>
+			!action.hidden && !action.no_clairvoyance
+		);
+
+	}
 
 	// Checks effects whether an action is enabled.
 	isActionEnabled( action ){

@@ -9,6 +9,7 @@ import StaticModal from './StaticModal.js';
 import Asset from './Asset.js';
 import Quest from './Quest.js';
 import Book from './Book.js';
+import Dungeon from './Dungeon.js';
 
 
 // Game specific
@@ -1148,8 +1149,15 @@ class NetworkManager{
 
 			// Load in custom libraries that are needed
 			glib.actionLearnable = {};
-			ActionLearnable.loadThese(args.lib_actionLearnable).map(a => glib.actionLearnable[a.label] = a);
-
+			ActionLearnable
+				.loadThese(args.lib_actionLearnable)
+				.map(a => glib.actionLearnable[a.label] = a)
+			;
+			glib.dungeons = {};
+			Dungeon
+				.loadThese(args.lib_dungeons)
+				.map(a => glib.dungeons[a.label] = a)
+			;
 
 			game.ui.updateMute();
 		}
@@ -1724,8 +1732,12 @@ class NetworkManager{
 		if( this.debug )
 			console.debug("JSON encoding", JSON.stringify(fullGame).length);
 		// Appends stuff that should only be sent with the full game on init
-		fullGame.chat_log = game.chat_log;
+		// Chat log
+		fullGame.chat_log = game.chat_log;	
+		// Action learnable
 		fullGame.lib_actionLearnable = ActionLearnable.saveThese(Object.values(glib.getFull("ActionLearnable")), "mod");
+		fullGame.lib_dungeons = Dungeon.saveThese(Object.values(glib.getFull('Dungeon')), 'netgame_libcache');
+
 		this.sendHostTaskTo( target, NetworkManager.dmTasks.sendFullGame, fullGame);
 		
 	}

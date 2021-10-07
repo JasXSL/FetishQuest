@@ -3627,6 +3627,24 @@ function build(){
 						}
 					},
 				}),
+				MetalFenceDoor : new LibMesh({
+					url : 'structure/fencegate.glb',
+					materials : [libMat.Metal.DarkGeneric],
+					tags : [stdTag.mFence],
+					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
+					want_actions : [gameActionDoors],
+					animations : {
+						"open" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce
+						}
+					},
+				}),
+				MetalFence : new LibMesh({
+					url : 'structure/metalfence.glb',
+					materials : [libMat.Metal.DarkGeneric],
+					tags : [stdTag.mFence],
+				}),
 			},
 			City : {
 				X : new LibMesh({
@@ -4739,7 +4757,19 @@ function build(){
 						}
 					},
 				}),
-				
+
+				Hedge : new LibMesh({
+					url : 'nature/hedge.glb',
+					tags : [stdTag.mHedge],
+					materials : [libMat.Nature.Hedge, libMat.Nature.HedgeBranch],
+					animations : {
+						idle : {
+							timeScale : 1
+						}
+					},
+				}),
+			
+
 			},
 			Containers : {
 				RazzyBerries : new LibMesh({

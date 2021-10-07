@@ -21,8 +21,7 @@ export function asset(){
 
 	let html = '';
 	html += '<div class="labelFlex">';
-		if( !asset._h && !asset._mParent )
-			html += '<label>Text: <br /><textarea name="text" class="saveable">'+esc(dummy.text, true)+'</textarea></label>';
+		html += '<label>Text: <br /><textarea name="text" class="saveable">'+esc(dummy.text, true)+'</textarea></label>';
 	html += '</div>';
 
 	this.setDom(html);

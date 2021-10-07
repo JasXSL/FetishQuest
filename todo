@@ -14,15 +14,6 @@
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?
 
-		x Add armor indicator to players
-		x Add armor stat to clothes, which reduces damage taken
-		x Add innate armor stat to players
-		x Add armor penetration stat to damage attack effect, and global
-
-		- Add crit texts for sneak attack
-
-		- Redesign Rogue to do more crit and armor penetration
-		- Redesign tentaclemancer to be primarily DoT/HoT based
 
 	On player party defeated gameaction override
 
