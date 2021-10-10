@@ -148,6 +148,8 @@ export default class Player extends Generic{
 
 		this._tmp_actions = [];					// Actions from effects and such bound to a battle
 
+		this._debug_chat = false;				// Only stored in the session, can be used to test player chat while they're controlled by a player. Since PC controlled characters can't auto speak.
+
 		this.load(data);
 		
 	}
@@ -356,27 +358,41 @@ export default class Player extends Generic{
 	// For these functions, type is an Action.Types value, if undefined, it counts ALL types
 	// Returns how many damaging actions a player has used since this one's last turn
 	damagingSinceLastByPlayer( player, type ){
+
 		if( player && player.constructor === Player )
 			player = player.id;
+
 		if( !this._damaging_since_last[player] )
 			return 0;
+
 		let out = 0;
 		for( let i in this._damaging_since_last[player] ){
+
 			if( i === type || type === undefined )
 				out += this._damaging_since_last[player][i];
+
 		}
+
 		return out;
 	}
+	// Damge taken since last turn from player to this
 	damageSinceLastByPlayer( player, type ){
+
 		if( player && player.constructor === Player )
 			player = player.id;
 		if( !this._damage_since_last[player] )
 			return 0;
+
 		let out = 0;
-		for( let i in this._damage_since_last[player] )
-			if( i === undefined || i === type )
-			out += this._damage_since_last[player][i];
+		for( let i in this._damage_since_last[player] ){
+
+			if( type === undefined || i === type )
+				out += this._damage_since_last[player][i];
+
+		}
+
 		return out;
+
 	}
 	damagingDoneSinceLastToPlayer( player, type ){
 
@@ -392,15 +408,22 @@ export default class Player extends Generic{
 		return out;
 
 	}
+	// Damage this has done to player since last round
 	damageDoneSinceLastToPlayer( player, type ){
+
 		if( player && player.constructor === Player )
 			player = player.id;
+
 		if( !this._d_damage_since_last[player] )
 			return 0;
+
 		let out = 0;
-		for( let i in this._d_damage_since_last[player] )
-			if( i === undefined || i === type )
-			out += this._d_damage_since_last[player][i];
+		for( let i in this._d_damage_since_last[player] ){
+
+			if( type === undefined || i === type )
+				out += this._d_damage_since_last[player][i];
+
+		}
 		return out;
 	}
 	// How many times this player has riposted me
@@ -523,12 +546,14 @@ export default class Player extends Generic{
 			vars[prefix+'Crit_se'] = this.getCritDoneChance(event.sender);
 
 		}
-
 	
 		if( weAreSender ){
 
 			// Sender's crit chance on target se_Crit_ta
 			vars[prefix+'Crit_ta'] = this.getCritDoneChance();
+
+			vars.ta_SeDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.target);
+			vars.ta_SeDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.target);
 
 		}
 

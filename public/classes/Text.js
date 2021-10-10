@@ -725,7 +725,7 @@ Text.getFromEvent = function( event, debug = false ){
 			if( Boolean(text.chat) !== Boolean(event.type === GameEvent.Types.textTrigger))
 				continue;
 
-			if( text.chat && event.sender && (!event.sender.isNPC() ||event.sender.hasUsedChat(text.id)) ){
+			if( text.chat && event.sender && ((!event.sender._debug_chat && !event.sender.isNPC()) || event.sender.hasUsedChat(text.id)) ){
 				continue;
 			}
 
