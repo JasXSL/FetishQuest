@@ -39,7 +39,7 @@ export function asset(){
 			let val = GameEvent.Types[i];
 			html += '<option value="'+esc(val)+'" '+(dummy.eventType === val ? 'selected' : '')+'>'+esc(i)+'</option>';
 		}
-		html += '</label></label><br />';
+		html += '</select></label><br />';
 		html += '<label title="Max times this event can trigger, -1 = inf">Max Triggers: <input type="number" name="maxTriggers" step=1 min=-1 class="saveable" value="'+esc(dummy.maxTriggers)+'" /></label>';
 		html += '<label title="Max actions that can trigger (from top to bottom), -1 = inf">Max Actions: <input type="number" name="maxActions" step=1 min=-1 class="saveable" value="'+esc(dummy.maxActions)+'" /></label>';
 	html += '</div>';

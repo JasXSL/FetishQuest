@@ -597,6 +597,7 @@ export default class Game extends Generic{
 
 		this.encounter.setCompleted(false);
 
+
 		// allow enemies to punish
 		await delay(2000);
 		let winners = shuffle(this.getAlivePlayersInTeam(winningTeam));
@@ -622,12 +623,7 @@ export default class Game extends Generic{
 		}
 		await delay(2000);
 
-		for( let player of this.players ){
-			if( player.team === 0 || !player.isDead() ){
-				player.fullRegen();
-				player.arousal = 0;
-			}
-		}
+		this.restorePlayerTeam();
 		
 		// Return to the dungeon entrance
 		this.ui.draw();
@@ -636,6 +632,18 @@ export default class Game extends Generic{
 		this.dungeon.goToRoom(losers[0], 0);
 		
 			
+	}
+
+	// Removes arousal and fully regens the player team
+	restorePlayerTeam(){
+
+		for( let player of this.players ){
+			if( player.team === Player.TEAM_PLAYER || !player.isDead() ){
+				player.fullRegen();
+				player.arousal = 0;
+			}
+		}
+
 	}
 
 	// Raised after each save, both on host and client

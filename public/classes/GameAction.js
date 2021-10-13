@@ -888,6 +888,9 @@ export default class GameAction extends Generic{
 			game.readBook(player, this.data.label);
 		}
 
+		else if( this.type === types.restorePlayerTeam )
+			game.restorePlayerTeam();
+
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
 			return false;
@@ -987,6 +990,7 @@ GameAction.types = {
 	refreshMeshes : 'refreshMeshes',
 	book : 'book',
 	transmog : 'transmog',
+	restorePlayerTeam : 'restorePlayerTeam',	// Shortcut to fully regen and wipe arousal from the player team
 };
 
 GameAction.TypeDescs = {
@@ -1033,6 +1037,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
 	[GameAction.types.trap] : '{action:(str)action_label, game_actions:(arr)labels, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, elemental etc), and name specified in the action. Game actions are always triggered when the trap is triggered regardless of if it hit or not. They are ran with the sender and target being the person who triggered the trap.',
+	[GameAction.types.restorePlayerTeam] : '{} - Shortcut that fully restores HP and clears arousal from Player.TEAM_PLAYERS.',
 };
 
 // These are types where data should be sent to netgame players
