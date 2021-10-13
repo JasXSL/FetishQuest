@@ -38,6 +38,7 @@ const load_order = [
 
 	'gameActions',
 	'actionLearnable',
+	'encounterEvents',
 	'encounters',
 
 	'dungeonSubTemplates',
@@ -91,6 +92,7 @@ export default class GameLib{
 		this.effects = {};
 		this.fetishes = {};
 		this.wrappers = {};
+		this.encounterEvents = {};
 		this.encounters = {};
 		this.players = {};
 		this.hitFX = {};

@@ -127,12 +127,14 @@ export default class Game extends Generic{
 		this.full_initialized = true;
 		// Bind events
 		GameEvent.on(GameEvent.Types.playerDefeated, event => {
-			this.checkBattleEnded();
+
+			this.checkBattleEnded(event.sender);
 			// Check if event player is in the current encounter
 			if( ~this.encounter.players.indexOf(event.target) ){
 				event.encounter = this.encounter;
 				event.dungeon = this.encounter.getDungeon();
 			}
+
 		});
 		// ALL event capture. Must be below the playerDefeated binding above
 		GameEvent.on(GameEvent.Types.all, event => {
@@ -2364,7 +2366,8 @@ export default class Game extends Generic{
 	}
 
 	// Checks if battle has ended
-	checkBattleEnded(){
+	// Sender may not always be present, but is usually the person who caused the playerDefeated event
+	checkBattleEnded( sender ){
 
 		if( !this.battle_active )
 			return true;
@@ -2374,21 +2377,6 @@ export default class Game extends Generic{
 		if( standing.length > 1 )
 			return false;
 
-		if( !this.encounter.completed ){
-
-			let evt = GameEvent.Types.encounterLost;
-			if( standing[0] !== undefined && standing[0] === 0 ){
-
-				this.onEncounterDefeated();
-				evt = GameEvent.Types.encounterDefeated;
-
-			}
-			else 
-				this.onEncounterLost(standing[0]);
-
-			new GameEvent({type:evt, encounter:this.encounter, dungeon:this.encounter.getDungeon(), target:game.players}).raise();
-
-		}
 
 		// Players won
 		if( standing[0] !== undefined && standing[0] === 0 ){
@@ -2400,6 +2388,24 @@ export default class Game extends Generic{
 
 		// Battle ended
 		this.toggleBattle( false );	// Saves if there's a change
+
+		// Needs to go after battle ended due to gameActions that restart the battle immediately
+		if( !this.encounter.completed ){
+
+			let evt = GameEvent.Types.encounterLost;
+			if( standing[0] !== undefined && standing[0] === 0 ){
+
+				this.onEncounterDefeated();
+				evt = GameEvent.Types.encounterDefeated;
+
+			}
+			else if( !this.encounter.wipe_override )
+				this.onEncounterLost(standing[0]);
+
+			new GameEvent({type:evt, encounter:this.encounter, dungeon:this.encounter.getDungeon(), target:game.players, sender:sender}).raise();
+
+		}
+
 		return true;
 		
 	}

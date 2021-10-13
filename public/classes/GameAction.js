@@ -337,6 +337,8 @@ export default class GameAction extends Generic{
 		const asset = this.parent;
 		const types = GameAction.types;
 
+		if( !player )
+			player = game.getMyActivePlayer();
 
 		// Helper function for playing animation on this asset. Returns the animation played if any
 		function playAnim( anim, targ ){

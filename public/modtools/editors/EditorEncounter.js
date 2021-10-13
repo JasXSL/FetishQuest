@@ -4,6 +4,7 @@ import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import GameEvent from '../../classes/GameEvent.js';
 import Encounter from '../../classes/Encounter.js';
 import * as EditorCondition from './EditorCondition.js';
+import * as EditorEncounterEvent from './EditorEncounterEvent.js';
 import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorWrapper from './EditorWrapper.js';
 import * as EditorPlayer from './EditorPlayer.js';
@@ -27,16 +28,13 @@ export function asset(){
 	if( !asset )
 		return this.close();
 
-
-
-		
-		
 	let html = '';
 	html += '<div class="labelFlex">';
 		if( !asset._h && !asset._mParent )
 			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
 		html += '<label>Friendly <input type="checkbox" class="saveable" name="friendly" '+(dummy.friendly ? 'checked' : '')+' /></label><br />';
+		html += '<label title="Overrides the default game over effects. Make sure to combine this with an encounterLost event">Override game over <input type="checkbox" class="saveable" name="wipe_override" '+(dummy.wipe_override ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Text to output when the encounter starts (string, not an asset)">Start text: <input type="text" name="startText" class="saveable" value="'+esc(dummy.startText)+'" /></label>';
 		html += '<label title="In seconds, 0 = no respawn">Respawn time: <input type="number" step=1 min=0 name="respawn" class="saveable" value="'+esc(dummy.respawn)+'" /></label>';
 		html += '<label title="Lets you increase or decrease difficulty, 1 = 100% more difficult">Difficulty Adjust: <input type="number" step=0.01 min=-0.95 name="difficulty_adjust" class="saveable" value="'+esc(dummy.difficulty_adjust)+'" /></label>';
@@ -49,7 +47,8 @@ export function asset(){
 	html += '<span title="Passive effects to apply to all players">Passives: </span><div class="passives"></div>';
 	html += '<span>Conditions: </span><div class="conditions"></div>';
 	html += '<span title="Game actions to run when the encounter starts">Start/Passive Game Actions: </span><div class="game_actions"></div>';
-	html += '<span title="Game actions to run when the encounter starts">Finish Game Actions: </span><div class="completion_actions"></div>';
+	html += '<span title="Lets you easily bind game actions to events">Event Bindings: </span><div class="events"></div>';
+	html += '<span title="Game actions to run when the encounter ends">Finish Game Actions: </span><div class="completion_actions"></div>';
 	
 	// Collections can contain sub arrays. Build one for each player
 	html += '<span title="Conditions for each player in order for it to show up">Player Conditions: </span><div class="player_conditions">';
@@ -59,12 +58,11 @@ export function asset(){
 			html += esc(player)+': <div data-label="'+esc(player)+'"></div>';	
 	html += '</div>';
 
-	
-
 	this.setDom(html);
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
+	this.dom.querySelector("div.events").appendChild(EditorEncounterEvent.assetTable(this, asset, "events"));
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions"));
 	this.dom.querySelector("div.completion_actions").appendChild(EditorGameAction.assetTable(this, asset, "completion_actions"));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));

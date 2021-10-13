@@ -24,9 +24,11 @@ export default class Encounter extends Generic{
 			wrappers : Wrapper,
 			passives : Wrapper,
 			player_templates : PlayerTemplate,
-			game_actions : GameAction,
 			player_conditions : Collection,
+			game_actions : GameAction,
 			completion_actions : GameAction,
+			events : EncounterEvent,
+
 		};
 	}
 
@@ -38,6 +40,7 @@ export default class Encounter extends Generic{
 		this.desc = '';
 		this.friendly = false;		// Don't start a battle when starting this encounter
 		this.started = false;			// Encounter has started (only set on Game clone of this)
+		this.wipe_override = false;		// Prevents the default actions from happening if the players lose. Make sure to combine this with an event that captures player loss.
 		this.completed = 0;			// Encounter completed (only set on Game clone of this)
 		this.players = [];			// Players that MUST be in this event. On encounter start, this may be filled with player_templates to satisfy difficulty
 		this.player_templates = [];		// 
@@ -46,8 +49,11 @@ export default class Encounter extends Generic{
 		this.passives = [];			// Use add_conditions to filter out the player(s) the passive should affect
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
-		this.game_actions = [];		// Game actions to run when the encounter starts
+		
+		this.game_actions = [];			// Game actions to run when the encounter starts / passive things like RP
 		this.completion_actions = [];	// Game actions to run when the encounter completes
+		this.events = [];				// EncounterEvent, lets you bind encounters to events
+
 		this.respawn = 0;			// Time to respawn
 		this.difficulty_adjust = 0;	// Offsets from difficulty. Can be useful when adding a friendly NPC
 
@@ -216,10 +222,12 @@ export default class Encounter extends Generic{
 	onPlacedInWorld( just_started = true ){
 
 		
-
 		// Bind passives
 		for( let wrapper of this.passives )
 			wrapper.bindEvents();
+
+		for( let evt of this.events )
+			evt.bind();
 
 		// Don't reset HP and such if it was already started
 		if( !just_started )
@@ -232,12 +240,16 @@ export default class Encounter extends Generic{
 			player.onPlacedInWorld();
 
 		}
+
+		
 		
 	}
 
 	onRemoved(){
 		for( let wrapper of this.passives )
 			wrapper.unbindEvents();
+		for( let evt of this.events )
+			evt.unbind();
 	}
 
 	load(data){
@@ -267,6 +279,8 @@ export default class Encounter extends Generic{
 			out.conditions = Condition.saveThese(this.conditions, full);
 			out.respawn = this.respawn;
 			out.difficulty_adjust = this.difficulty_adjust;
+			out.wipe_override = this.wipe_override;
+			out.events = EncounterEvent.saveThese(this.events, full);
 
 		}
 		out.friendly = this.friendly;
@@ -513,6 +527,113 @@ export default class Encounter extends Generic{
 
 }
 
+
+export class EncounterEvent extends Generic{
+
+	static getRelations(){ 
+		return {
+			actions: GameAction
+		};
+	}
+
+	constructor(data, parent){
+		super(data);
+
+		this.parent = parent;		// Parent varies, but usually trickles up to a quest or game
+		this.label = '';
+		this.desc = '';
+		this.eventType = GameEvent.Types.none;
+		this.actions = [];							// GameActions to run
+		this.maxTriggers = -1;						// Max times this event can trigger. -1 = inf
+		this.maxActions = -1;						// Max actions that can be triggered in the actions array
+
+		this._triggers = 0;
+		this._binding = null;
+
+		this.load(data);
+	}
+
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.g_rebase();	// Super
+	}
+
+	save( full ){
+
+		const out = {
+			label : this.label
+		};
+		if( full ){
+			
+			out.eventType = this.eventType;
+			out.actions = GameAction.saveThese(this.actions, full);
+			out.maxTriggers = this.maxTriggers;
+			out.maxActions = this.maxActions;
+
+		}
+
+
+		if( full !== "mod" ){
+			
+			out.id = this.id;
+			if( full )
+				out._triggers = this._triggers;
+			
+		}
+		else{
+			out.desc = this.desc;
+			this.g_sanitizeDefaults(out);
+		}
+		// Not really gonna need a full because these are never output to webplayers
+		return out;
+
+	}
+
+	onTrigger(event){
+
+		if( this.maxTriggers > -1 && this._triggers >= this.maxTriggers )
+			return;
+
+		let trigs = 0;
+		for( let action of this.actions ){
+
+			if( !action.validate(event) )
+				continue;
+
+			action.trigger(event.sender, event);
+
+			if( ++trigs >= this.maxTriggers && this.maxTriggers > -1 )
+				break;
+
+		}
+
+		++this._triggers;
+		if( this._triggers >= this.maxTriggers )
+			this.unbind();
+
+	}
+	
+	bind(){
+
+		this.unbind();
+		this._binding = GameEvent.on(this.eventType, event => this.onTrigger(event));
+
+	}
+
+	unbind(){
+
+		if( !this._binding )
+			return;
+		GameEvent.off(this._binding);
+		this._binding = null;
+
+	}
+
+}
 
 
 

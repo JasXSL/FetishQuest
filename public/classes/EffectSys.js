@@ -1234,6 +1234,12 @@ class Effect extends Generic{
 					}).raise();
 			}
 
+			else if( this.type === Effect.Types.fullRegen ){
+
+				t.fullRegen();
+
+			}
+
 			else if( this.type === Effect.Types.addAP ){
 
 				let amt = Calculator.run(
@@ -2212,7 +2218,9 @@ Effect.Types = {
 	addAP : "addAP",
 	addMP : "addMP",
 	addHP : "addHP",
-		
+	
+	fullRegen : 'fullRegen',
+
 	setHP : 'setHP',
 	setMP : 'setMP',
 	setArousal : 'setArousal',
@@ -2379,6 +2387,7 @@ Effect.KnockdownTypes = {
 Effect.TypeDescs = {
 	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5, armor_pen:(int)perc=0} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro. Armor pen is a whole number.",
 	[Effect.Types.endTurn] : "void - Ends turn",
+	[Effect.Types.fullRegen] : "void - Fully restores a player",
 	[Effect.Types.trace] : '{message:(str)message} - Creates a stack trace here',
 	[Effect.Types.css] : "Applies CSS classes onto the target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",

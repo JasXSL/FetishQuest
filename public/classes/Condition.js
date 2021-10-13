@@ -319,7 +319,7 @@ export default class Condition extends Generic{
 					console.error("Trying to run targetIsWrapperSenderTeam without wrapper in event", event);
 
 				const caster = wrapper.getCaster();
-				success = (wrapper && caster?.team === t.team);
+				success = (wrapper && parseInt(caster?.team) === parseInt(t.team));
 
 			}
 			else if( this.type === T.wrapperTag ){
@@ -684,9 +684,12 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.team ){
+
 				let teams = this.data.team;
 				if( !Array.isArray(teams) )
 					teams = [teams];
+				teams = teams.map(el => parseInt(el));
+
 				success = teams.indexOf(t.team) !== -1; 
 			}
 

@@ -39,6 +39,7 @@ import * as EditorQuestReward from './editors/EditorQuestReward.js';
 import * as EditorQuestObjective from './editors/EditorQuestObjective.js';
 import * as EditorQuestObjectiveEvent from './editors/EditorQuestObjectiveEvent.js';
 import * as EditorEncounter from './editors/EditorEncounter.js';
+import * as EditorEncounterEvent from './editors/EditorEncounterEvent.js';
 import * as EditorDungeon from './editors/EditorDungeon.js';
 import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
 import * as EditorDungeonTemplate from './editors/EditorDungeonTemplate.js';
@@ -91,6 +92,7 @@ const DB_MAP = {
 	"questObjectives" : { listing : EditorQuestObjective.list, asset : EditorQuestObjective.asset, icon : 'direction-sign', help : EditorQuestObjective.help },
 	"questObjectiveEvents" : { listing : EditorQuestObjectiveEvent.list, asset : EditorQuestObjectiveEvent.asset, icon : 'annexation', help : EditorQuestObjectiveEvent.help },
 	"encounters" : { listing : EditorEncounter.list, asset : EditorEncounter.asset, icon : 'kraken-tentacle', help : EditorEncounter.help },
+	"encounterEvents" : { listing : EditorEncounterEvent.list, asset : EditorEncounterEvent.asset, icon : 'boxing-ring', help : EditorEncounterEvent.help },
 	"dungeons" : { listing : EditorDungeon.list, asset : EditorDungeon.asset, icon : 'castle', help : EditorDungeon.help },
 	"dungeonRooms" : { listing : EditorDungeonRoom.list, asset : EditorDungeonRoom.asset, icon : 'doorway', help : EditorDungeonRoom.help },
 	"dungeonTemplates" : { listing : EditorDungeonTemplate.list, asset : EditorDungeonTemplate.asset, icon : 'tower-fall', help : EditorDungeonTemplate.help },

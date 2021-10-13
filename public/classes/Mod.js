@@ -18,7 +18,7 @@ import Roleplay, { RoleplayStage, RoleplayStageOption, RoleplayStageOptionGoto }
 import Shop, { ShopAsset, ShopAssetToken } from './Shop.js';
 import ActionLearnable from './ActionLearnable.js';
 import Faction from './Faction.js';
-import Encounter from './Encounter.js';
+import Encounter, { EncounterEvent } from './Encounter.js';
 import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
 import Condition from './Condition.js';
 import Book, { BookPage } from './Book.js';
@@ -77,6 +77,7 @@ export default class Mod extends Generic{
 		this.effects = [];
 		this.wrappers = [];
 		this.encounters = [];
+		this.encounterEvents = [];
 		this.hitFX = [];
 		this.roleplay = [];
 		this.roleplayStage = [];
@@ -105,8 +106,10 @@ export default class Mod extends Generic{
 	load( data ){
 		
 		// Legacy reasons, can remove in the future
+		/*
 		if( data && data.dungeonEncounters )
 			data.encounters = data.dungeonEncounters;
+		*/
 		this.g_autoload(data);
 
 		
@@ -152,6 +155,7 @@ export default class Mod extends Generic{
 			dungeonTemplates: this.dungeonTemplates,
 			effects : this.effects,
 			wrappers : this.wrappers,
+			encounterEvents : this.encounterEvents,
 			encounters : this.encounters,
 			players : this.players,
 			hitFX : this.hitFX,
@@ -1618,6 +1622,7 @@ Mod.LIB_TYPES = {
 	'dungeonSubTemplates' : DungeonTemplateSub,
 
 	'encounters' : Encounter,
+	'encounterEvents' : EncounterEvent,
 	'roleplay' : Roleplay,
 	'roleplayStage' : RoleplayStage,
 	'roleplayStageOption' : RoleplayStageOption,
