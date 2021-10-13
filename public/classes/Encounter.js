@@ -105,9 +105,10 @@ export default class Encounter extends Generic{
 
 			const level = game.getAveragePlayerLevel();
 			
+
 			for( let p of genderViable ){
 
-				if( p.min_level <= level && p.max_level >= level  )
+				if( p.min_level <= level && p.getMaxLevel() >= level  )
 					viableMonsters.push(p);
 
 			}
@@ -127,7 +128,7 @@ export default class Encounter extends Generic{
 
 					// Generate a player to push
 					const pl = mTemplate.generate(
-						Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
+						Math.min(mTemplate.getMaxLevel(), Math.max(level, mTemplate.min_level))
 					);
 					pl.generated = true;	// Set generated so it can be removed when leaving the area, regardless of allegiance
 					let power = pl.power;
@@ -187,12 +188,14 @@ export default class Encounter extends Generic{
 			}
 
 			if( !this.players.length ){
+
 				const mTemplate = viableMonsters[0];
 				const pl = mTemplate.generate(
-					Math.min(mTemplate.max_level, Math.max(level, mTemplate.min_level))
+					Math.min(mTemplate.getMaxLevel(), Math.max(level, mTemplate.min_level))
 				);
 				pl.generated = true;
 				this.players.push(pl);
+
 			}
 
 
@@ -470,8 +473,9 @@ export default class Encounter extends Generic{
 
 			for( let pt of el.player_templates ){
 
-				if( pt.min_level <= level && pt.max_level >= level )
+				if( pt.min_level <= level && (pt.max_level < 0 || pt.max_level >= level) )
 					return true;
+
 			}
 
 		});

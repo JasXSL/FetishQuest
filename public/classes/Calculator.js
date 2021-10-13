@@ -20,7 +20,7 @@ Calculator.run = function( formula, event, customMathVars ){
 
 	// This is already a number
 	if( !isNaN(formula) )
-		return formula;
+		return +formula;
 
 	if( typeof formula !== "string" ){
 		console.error("This is not a formula (str/nr expected) ", formula, "Event", event);

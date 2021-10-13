@@ -38,7 +38,7 @@ class Wrapper extends Generic{
 		this.duration = 0;					// Use -1 for permanent
 		
 		this.tags = [];						// wr_ is prepended
-		this.stacks = 1;
+		this.stacks = "1";					// Either a number or formula
 		this.max_stacks = 1;
 		this.name = "";
 		this.icon = "";
@@ -141,6 +141,9 @@ class Wrapper extends Generic{
 	rebase(){
 		this.g_rebase();	// Super
 
+		if( !isNaN(this.stacks) )
+			this.stacks = parseInt(this.stacks);
+
 		//console.error("Add conditions", this.add_conditions);
 		this.tags = this.tags.map(tag => tag.toLowerCase());
 	}
@@ -166,7 +169,18 @@ class Wrapper extends Generic{
 
 	}
 
+	getStacks( sender, targ ){
+
+		if( !sender )
+			sender = this.getCaster();
+		if( !targ )
+			targ = this.getPlayerParent();
+
+		return parseInt(Calculator.run(this.stacks, new GameEvent({sender:sender, target:targ, wrapper:this}))) || 1;
+
+	}
 	
+
 	
 	/* MAIN FUNCTIONALITY */
 	// Tests if the wrapper can be used against a single target
@@ -205,7 +219,6 @@ class Wrapper extends Generic{
 		const out = new WrapperReturn();
 
 		let pl = [game.getPlayerById(this.victim)];
-
 
 		// If this effect isn't yet applied, we need to apply it against multiple players if target is an override
 		if( !isTick ){
@@ -252,6 +265,7 @@ class Wrapper extends Generic{
 				obj.original_target = player.id;
 				obj.action = this.parent instanceof Action ? this.parent.id : '';
 				obj._crit = crit;
+				obj.stacks = this.getStacks(caster_player, player);	// If stacks is a formula, it's converted here and stored as an int
 
 				if( this.ext )
 					obj._added = game.time;
@@ -282,7 +296,7 @@ class Wrapper extends Generic{
 
 					if( wrapper.label === obj.label && wrapper.caster === caster.id ){
 
-						add_stacks = wrapper.stacks;
+						add_stacks = wrapper.getStacks();
 						wrapper.remove();
 
 					}
@@ -394,6 +408,9 @@ class Wrapper extends Generic{
 	addStacks( amount, refreshTime ){
 		if( isNaN(amount) )
 			return;
+
+		amount = +amount;
+		this.stacks = parseInt(this.stacks) || 0;
 		this.stacks += amount;
 
 		if( refreshTime )
@@ -1012,7 +1029,7 @@ class Effect extends Generic{
 				);
 
 				if( !this.no_stack_multi )
-					amt *= wrapper.stacks;
+					amt *= wrapper.getStacks();
 
 
 				if( s.isHealInverted() )
@@ -1224,7 +1241,7 @@ class Effect extends Generic{
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
 				if( !this.no_stack_multi )
-					amt *= this.parent.stacks;
+					amt *= this.parent.getStacks();
 
 				
 				let pre = t.ap;
@@ -1256,7 +1273,7 @@ class Effect extends Generic{
 					}).mergeUnset(event)
 				);
 				if( !this.no_stack_multi )
-					amt *= wrapper.stacks;
+					amt *= wrapper.getStacks();
 
 				let pre = t.mp;
 				t.addMP(amt, true);
@@ -1285,7 +1302,7 @@ class Effect extends Generic{
 					}).mergeUnset(event)
 				);
 				if( !this.no_stack_multi )
-					amt *= wrapper.stacks;
+					amt *= wrapper.getStacks();
 				amt = Math.floor(amt);
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
 				t.addHP(amt, s, this, true);
@@ -1306,7 +1323,7 @@ class Effect extends Generic{
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );				
 
 				if( !this.no_stack_multi )
-					amt *= this.parent.stacks;
+					amt *= this.parent.getStacks();
 
 
 				let pre = t.arousal;
@@ -1375,7 +1392,7 @@ class Effect extends Generic{
 					}).mergeUnset(event)
 				);
 				if( !this.no_stack_multi )
-					amt *= wrapper.stacks;
+					amt *= wrapper.getStacks();
 				t.addThreat(s.id, amt);
 			}
 
@@ -1433,7 +1450,7 @@ class Effect extends Generic{
 
 						// Negative uses parent
 						if( stacks < 0 )
-							stacks = this.parent.stacks;
+							stacks = this.parent.getStacks();
 
 						wr.stacks = stacks;
 
@@ -1719,7 +1736,7 @@ class Effect extends Generic{
 					}).mergeUnset(event)
 				);
 				if( ! this.no_stack_multi )
-					amt *= wrapper.stacks;
+					amt *= wrapper.getStacks();
 				if( !amt )
 					continue;
 
@@ -2030,7 +2047,7 @@ class Effect extends Generic{
 		if( amt < this.data.min )
 			amt = this.data.min;
 		if( !this.no_stack_multi )
-			amt *= this.parent.stacks;
+			amt *= this.parent.getStacks();
 		return Math.ceil(amt);
 
 	}
@@ -2383,7 +2400,7 @@ Effect.TypeDescs = {
 	[Effect.Types.interrupt] : "{force:false} - Interrupts all charged actions. If force is true, it also interrupts non-interruptable spells (useful for boss abilities).",							
 	[Effect.Types.blockInterrupt] : "void - Prevents normal interrupt effects",							
 	[Effect.Types.healInversion] : "void - Makes healing effects do damage instead",			
-	[Effect.Types.globalHitChanceMod] : '{amount:(int)(float)(string)amount Modifies your hit chance with ALL types by percentage, multiplier:(bool)isMultiplier=false }',
+	[Effect.Types.globalHitChanceMod] : '{amount:(int)(float)(string)amount Modifies your hit chance with ALL types by percentage, multiplier:(bool)isMultiplier=false, casterOnly(bool)limit_to_caster=false } - If casterOnly is true, it only affects hit chance against the caster of the wrapper.',
 	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
 	[Effect.Types.globalArousalTakenMod] : '{amount:(int)(float)(string)multiplier, casterOnly:(bool)limit_to_caster=false} - Only works on ADDing arousal. If casterOnly is set, it only affects arousal dealt from the caster', 
 	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',

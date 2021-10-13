@@ -35,7 +35,7 @@ export function asset(){
 		html += '</select></label>';
 
 		html += '<label>Duration: <input type="number" name="duration" class="saveable" value="'+esc(dummy.duration)+'" /></label>';
-		html += '<label>Stacks: <input type="number" name="stacks" class="saveable" value="'+esc(dummy.stacks)+'" /></label>';
+		html += '<label title="can be a formula">Stacks: <input type="text" name="stacks" class="saveable" value="'+esc(dummy.stacks)+'" /></label>';
 		html += '<label>Max Stacks: <input type="number" name="max_stacks" class="saveable" value="'+esc(dummy.max_stacks)+'" /></label>';
 
 		html += '<label>Detrimental <input type="checkbox" class="saveable" name="detrimental" '+(dummy.detrimental ? 'checked' : '')+' /></label><br />';

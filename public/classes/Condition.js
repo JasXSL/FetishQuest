@@ -482,7 +482,7 @@ export default class Condition extends Generic{
 				if( !Array.isArray(c) )
 					c = [c];
 				c = c.map(el => el.toLowerCase() );
-				success = c.includes(t.class.label.toLowerCase());
+				success = t.class && c.includes(t.class.label.toLowerCase());
 
 			}
 			

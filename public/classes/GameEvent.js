@@ -9,6 +9,8 @@ import Generic from './helpers/Generic.js';
 
 export default class GameEvent extends Generic{
 
+	static debugAll = false;
+
 	constructor(data){
 		super(data);		
 		this.type = null;
@@ -57,6 +59,9 @@ export default class GameEvent extends Generic{
 
 	// Chainable
 	raise(){
+
+		if( this.constructor.debugAll )
+			console.log("EVT: ", this);
 
 		GameEvent.bindings
 			.filter(binding => binding.type === this.type || binding.type === GameEvent.Types.all)

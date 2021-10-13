@@ -44,6 +44,7 @@ const textures = {
 	tentacles : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/tentacles.png')})),
 	chains : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/chains.png')})),
 	grab : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/grab.png')})),
+	shoe : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/shoe.png')})),
 	crosshair : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/crosshair.png')})),
 
 };
@@ -933,6 +934,21 @@ particles.hitfx_throw_rock_impact_sparks = {
 	color : ["#555555","#221100"],	
 	opacity: 1,
 	gravity:3,
+};
+
+particles.hitfx_throw_shoe_center = {
+	texture : textures.shoe,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 15,
+	size_tween : [1,0],
+	part_max_age : 0.25,
+	velocity : new Proton.Span(0,1),
+	color : ["#FFAAFF","#FFAAFF"],	
+	opacity: 1,
+	gravity:0.5,
 };
 
 

@@ -120,6 +120,14 @@ class PlayerTemplate extends Generic{
 		this.g_rebase();	// Super
 	}
 
+	getMaxLevel(){
+
+		if( this.max_level < 0 )
+			return Player.MAX_LEVEL;
+		return this.max_level;
+
+	}
+
 	// Generates a new player from this template
 	generate( level ){
 
@@ -149,7 +157,8 @@ class PlayerTemplate extends Generic{
 		player.tags = this.tags.map(el => {
 			return el.split('_').slice(1).join('_')
 		});
-		player.level = Math.min(Math.max(level, this.min_level), this.max_level);
+
+		player.level = Math.min(Math.max(level, this.min_level), this.getMaxLevel());
 
 		player.talkative = this.talkative_min+(this.talkative_max-this.talkative_min)*Math.random();
 
@@ -438,8 +447,10 @@ PlayerTemplate.generate = function( level, labels ){
 
 	let viable = [];
 	for( let t of lib ){
-		if( t.min_level <= level && t.max_level >= level && (!Array.isArray(labels) || ~labels.indexOf(t.label)) )
+
+		if( t.min_level <= level && t.getMaxLevel() >= level && (!Array.isArray(labels) || ~labels.indexOf(t.label)) )
 			viable.push(t);
+
 	}
 
 	if( !viable.length )

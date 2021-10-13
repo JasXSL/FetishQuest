@@ -4,12 +4,10 @@
 
 -- CURRENT --
 
+
 	Test:
-		- Cave backdoor is showing up in a new game (test if enabled properly also)
-		- City teleport from forest takes you to wrong cell
 		- NPC teammates can use equippable actions such as divine rod without having it equipped
-		- Bondage device changes
-		
+
 
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?
@@ -41,6 +39,7 @@
 		
 		Quest 2:
 			- Finish the rattani tunnels
+				- Add boss: Pro diver. Can dive under water and gain 90% dodge chance buff. Players gain an ability to yank her out. Her dodge chance is reduced by 10% whenever she attacks. Elementalists can spend 1 MP to immediately yank her out.
 			
 
 		Quest 3:
@@ -62,6 +61,11 @@
 				- Waking up in well
 				- Back at the inn
 				- Boss encounter
+					- Veroniquette throws shoes and can't be attacked until brutus switches sides
+					- Brutus switches sides after dying, and everyone fully regenerates
+					- Brutus:
+						- Bull charge: Charged attack, deals heavy damage and knocks down. Can be riposted or interrupted.
+						- Gore: Deals damage to lowerbody clothes. If wearing a thong or butt exposed, does more damage.
 
 		Rewards:
 			1. Leather briefs (green)
