@@ -21,6 +21,7 @@ import Generic from '../../classes/helpers/Generic.js';
 
 import GameAction from '../../classes/GameAction.js';
 import Dungeon, { DungeonRoom } from '../../classes/Dungeon.js';
+import Player from '../../classes/Player.js';
 
 const DB = 'gameActions',
 	CONSTRUCTOR = GameAction;
@@ -619,6 +620,7 @@ export function asset(){
 		};
 	}
 	else if( type === Types.execRentRoom ){
+
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				renter:'',
@@ -826,6 +828,38 @@ export function asset(){
 
 	}
 	else if( type === Types.refreshPlayerVisibility || type === Types.refreshMeshes ){}	// No data
+
+	else if( type == Types.restorePlayerTeam ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				team : Player.TEAM_PLAYER
+			};
+
+		html += '<div class="labelFlex">'+
+			'<label title="Team, 0 = player, 1 = enemy, usually">Team: <input name="data::name" type="number" step=1 value="'+esc(asset.data.team || 0)+'" class="saveable" /></label>'+
+		'</div>';
+
+	}
+
+	else if( type == Types.setPlayerTeam ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				playerConds : [],
+				team : Player.TEAM_PLAYER
+			};
+
+		html += '<div class="labelFlex">'+
+			'<label title="Team, 0 = player, 1 = enemy, usually. Can be a formula.">Team: <input name="data::name" value="'+esc(asset.data.team || 0)+'" class="saveable" /></label>'+
+		'</div>';
+		html += 'Player conditions: <br /><div class="playerConds"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.playerConds").appendChild(EditorCondition.assetTable(this, asset, "data::playerConds", false));
+		};
+
+	}
 
 	else{
 

@@ -888,8 +888,47 @@ export default class GameAction extends Generic{
 			game.readBook(player, this.data.label);
 		}
 
-		else if( this.type === types.restorePlayerTeam )
-			game.restorePlayerTeam();
+		else if( this.type === types.restorePlayerTeam ){
+			
+			let team = parseInt(this.data.team) || Player.TEAM_PLAYER;
+			game.restorePlayerTeam(team);
+
+		}
+		else if( this.type === types.setPlayerTeam ){
+
+			let targs = [player];
+			const evt = new GameEvent({});
+
+			if( Array.isArray(this.data.playerConds) && this.data.playerConds.length ){
+
+				targs = [];
+				let conds = Condition.loadThese(this.data.playerConds, this);
+				for( let pl of game.players ){
+
+					evt.target = evt.sender = pl;
+					if( Condition.all(conds, evt) )
+						targs.push(pl);
+
+				}
+
+			}
+
+			for( let pl of targs ){
+
+				evt.sender = evt.target = pl;
+				const team = Calculator.run(this.data.team || 0, evt) || Player.TEAM_PLAYER;
+				pl.team = team;
+
+			}
+				
+			if( targs.length ){
+
+				game.save();
+				game.ui.draw();
+
+			}
+
+		}
 
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
@@ -908,16 +947,27 @@ export default class GameAction extends Generic{
 		}
 	}
 
+	// Player can either be a single player validated against itself
+	// Or it can be an event in which case it uses the event directly
+	// Player is used in most cases
 	validate(player, roomAsset, debug){
 
-		if( !Condition.all(this.conditions, new GameEvent({
-			target: player,
-			sender: player,
-			dungeon : game.dungeon,
-			room : game.dungeon.getActiveRoom(),
-			dungeonRoomAsset : roomAsset,
-			debug : this
-		}), debug) )return false;
+		let evt = player;
+		if( !(player instanceof GameEvent) ){
+
+			evt = new GameEvent({
+				target: player,
+				sender: player,
+				dungeon : game.dungeon,
+				room : game.dungeon.getActiveRoom(),
+				dungeonRoomAsset : roomAsset,
+				debug : this
+			});
+
+		}
+
+		if( !Condition.all(this.conditions, evt, debug) )
+			return false;
 		
 		return true;
 	}
@@ -991,6 +1041,7 @@ GameAction.types = {
 	book : 'book',
 	transmog : 'transmog',
 	restorePlayerTeam : 'restorePlayerTeam',	// Shortcut to fully regen and wipe arousal from the player team
+	setPlayerTeam : 'setPlayerTeam',
 };
 
 GameAction.TypeDescs = {
@@ -1037,7 +1088,8 @@ GameAction.TypeDescs = {
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
 	[GameAction.types.trap] : '{action:(str)action_label, game_actions:(arr)labels, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, elemental etc), and name specified in the action. Game actions are always triggered when the trap is triggered regardless of if it hit or not. They are ran with the sender and target being the person who triggered the trap.',
-	[GameAction.types.restorePlayerTeam] : '{} - Shortcut that fully restores HP and clears arousal from Player.TEAM_PLAYERS.',
+	[GameAction.types.restorePlayerTeam] : '{team:(int)team=Player.TEAM_PLAYER} - Shortcut that fully restores HP and clears arousal from Player.TEAM_PLAYERS.',
+	[GameAction.types.setPlayerTeam] : '{playerConds:(arr)player_conds=GameActionPlayer, team=Player.TEAM_PLAYER} - Changes one or more players teams',
 };
 
 // These are types where data should be sent to netgame players

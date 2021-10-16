@@ -623,7 +623,8 @@ export default class Game extends Generic{
 		}
 		await delay(2000);
 
-		this.restorePlayerTeam();
+		this.restoreNonDeadPlayers();
+		this.restorePlayerTeam( Player.TEAM_PLAYER );
 		
 		// Return to the dungeon entrance
 		this.ui.draw();
@@ -634,14 +635,35 @@ export default class Game extends Generic{
 			
 	}
 
-	// Removes arousal and fully regens the player team
-	restorePlayerTeam(){
+	restoreNonDeadPlayers(){
 
 		for( let player of this.players ){
-			if( player.team === Player.TEAM_PLAYER || !player.isDead() ){
+		
+			if( restoreNonDead && !player.isDead() ){
+
 				player.fullRegen();
 				player.arousal = 0;
+
 			}
+
+		}
+
+	}
+
+	// Removes arousal and fully regens the player team
+	restorePlayerTeam( team ){
+
+		team = parseInt(team) || Player.TEAM_PLAYER;
+
+		for( let player of this.players ){
+			
+			if( player.team === team ){
+
+				player.fullRegen();
+				player.arousal = 0;
+
+			}
+
 		}
 
 	}
@@ -2211,11 +2233,14 @@ export default class Game extends Generic{
 
 			}
 
-			for( let wrapper of encounter.wrappers ){
-				
-				let wr = wrapper.clone();
-				wr.useAgainst( encounter.players[0], player );
+			for( let pl of this.players ){
+				for( let wrapper of encounter.wrappers ){
+					
+					let wr = wrapper.clone();
+					console.log("Using wrapper against", wrapper, pl);
+					wr.useAgainst( player, pl );
 
+				}
 			}
 
 		}

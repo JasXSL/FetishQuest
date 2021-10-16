@@ -221,7 +221,7 @@ export default class Encounter extends Generic{
 	// If just_started is true, it means the encounter just started
 	onPlacedInWorld( just_started = true ){
 
-		
+
 		// Bind passives
 		for( let wrapper of this.passives )
 			wrapper.bindEvents();
@@ -612,7 +612,7 @@ export class EncounterEvent extends Generic{
 		}
 
 		++this._triggers;
-		if( this._triggers >= this.maxTriggers )
+		if( this._triggers >= this.maxTriggers && this.maxTriggers > -1 )
 			this.unbind();
 
 	}
@@ -628,6 +628,7 @@ export class EncounterEvent extends Generic{
 
 		if( !this._binding )
 			return;
+
 		GameEvent.off(this._binding);
 		this._binding = null;
 

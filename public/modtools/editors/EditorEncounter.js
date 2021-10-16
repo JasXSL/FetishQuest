@@ -43,7 +43,11 @@ export function asset(){
 
 	html += '<span title="Players that MUST be in this event. If difficulty is not satisfied on start, it can add additional players from player_templates below">Players: </span><div class="players"></div>';
 	html += '<span>Player Templates: </span><div class="player_templates"></div>';
-	html += '<span title="Wrappers to apply when the encounter starts. auto target is the player who started the encounter, usually by entering a room or picking an RP option">Wrappers: </span><div class="wrappers"></div>';
+	html += '<span>'+
+		'Wrappers: '+
+		'</span>'+
+		'<div class="wrappers"></div>'
+	;
 	html += '<span title="Passive effects to apply to all players">Passives: </span><div class="passives"></div>';
 	html += '<span>Conditions: </span><div class="conditions"></div>';
 	html += '<span title="Game actions to run when the encounter starts">Start/Passive Game Actions: </span><div class="game_actions"></div>';
@@ -89,6 +93,90 @@ export function assetTable( win, modAsset, name, single ){
 	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'description'], single);
 }
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Roleplay:</h3>'+
+		'<p>Roleplay is the dialog popup with multiple options you may encounter. In order to trigger a roleplay, you need to tie it to a game action.</p>';
+
+	out += '<h3>Tying a roleplay to an NPC in a cell</h3>';
+	out += '<p>In order to attach a roleplay to a player in a cell, you need to first create an encounter for that cell, and add the player. Then create a game action in that encounter of the Roleplay type, and select your roleplay.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Only visited in the mod tools, helpful note for editing</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Friendly</td>'+
+			'<td>Makes the encounter not automatically trigger combat upon starting it.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Override game over</td>'+
+			'<td>On game over, players are not regenerated or taken to the dungeon entrance. Use with Event Binding with the encounterLost event type. Note that you need to regenerate player HP or they might become softlocked.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Start text</td>'+
+			'<td>Outputs RP text into chat when the encounter starts.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Respawn time</td>'+
+			'<td>Time before this encounter respawns. 0 = never respawn.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Difficulty Adjust</td>'+
+			'<td>Increase or decrease difficulty. 0.5 = half difficulty, 1.0 = double, 0 = normal.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Players</td>'+
+			'<td>Players that should be in the encounter. These are always added.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player Templates</td>'+
+			'<td>Generated players that should be in the encounter. These are auto generated. May not show up if Players total power exceeds what would automatically be generated.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Wrappers</td>'+
+			'<td>Wrappers to apply to all players when the encounter starts. Sender is the player that triggered the encounter.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Passives</td>'+
+			'<td>Passive wrappers that are counted for all players that match conditions.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Conditions</td>'+
+			'<td>Conditions required to be met for the encounter to start.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Start/Passive Game Actions</td>'+
+			'<td>Game actions that are run when the encounter starts. Put shops and intro roleplays here.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Event Bindings</td>'+
+			'<td>Lets you bind game actions to happen when specific events are raised.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Finish game actions</td>'+
+			'<td>Game actions that are run when the players defeat the encounter. This could be done through Event Bindings too, but it\'s here for legacy and quality of life reasons.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player Conditions</td>'+
+			'<td>Conditions needed to be met for the different Players in the encounter to show up. No conditions always allows the player.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
 
 // Listing
 export function list(){
