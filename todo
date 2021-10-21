@@ -11,6 +11,8 @@
 
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?
+		- Sometimes using repair kits fails?
+		- Add a way to limit nr of a monster type in encounters
 
 
 	On player party defeated gameaction override

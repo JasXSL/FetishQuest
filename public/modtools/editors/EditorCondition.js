@@ -315,8 +315,6 @@ export function asset(){
 			all : false,
 		});
 
-
-
 		html += '<div name="tags">'+HelperTags.build(asset.data.tags)+'</div>';
 		html += '<div class="labelFlex">';
 			html += '<label>Require all: <input type="checkbox" name="data::all" class="saveable" '+(asset.data.all ? 'checked' : '')+'" /></label>';
@@ -329,6 +327,20 @@ export function asset(){
 		};
 
 	}
+	else if( type === types.assetLabel ){
+
+		setDefaultData({
+			label : [],
+		});
+
+		html += 'Assets: <div class="label"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.label").appendChild(EditorAsset.assetTable(this, asset, "data::label", false));
+		};
+
+	}
+
 	else if( type === types.actionType ){
 		
 		setDefaultData({

@@ -407,6 +407,15 @@ export default class Asset extends Generic{
 		
 	}
 
+	isLowLevel(){
+
+		let player = game.getMyActivePlayer();
+		if( !player )
+			return false;
+		return player.level-1-this.level > 0;
+
+	}
+
 	// Use whenever you're fetching an item from the library
 	restore(){
 		this.resetCharges();
@@ -569,9 +578,9 @@ export default class Asset extends Generic{
 
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
-		if( this.getArmorPoints() < Asset.defaultArmorPoints && isBreakable ){
+		if( this.isLowLevel() && isBreakable ){
 
-			if( this.getMaxDurability() )
+			if( this.durability )
 				html += '<em style="color:#FAA">Low level, armor reduced</em><br />';
 			else
 				html += '<em style="color:#FAA">Broken!</em><br />';

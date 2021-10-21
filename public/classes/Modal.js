@@ -267,6 +267,7 @@ export default class Modal{
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			if( callback ){
+				
 				th.closeSelectionBox();
 				callback.call(this, event);
 				

@@ -155,8 +155,11 @@ export default class GameAction extends Generic{
 
 		if( this.type === this.constructor.types.loot && !Array.isArray(this.data.genLoot) ){
 
-			let min = isNaN(this.data.min) || this.data.min < 0 ? Infinity : +this.data.min,
-				max = isNaN(this.data.max) || this.data.min < 0 ? Infinity : +this.data.max,
+			this.data.min = parseInt(this.data.min) || 1;
+			this.data.max = parseInt(this.data.max) || Infinity;
+
+			let min = this.data.min < 0 ? Infinity : +this.data.min,
+				max = this.data.max < 0 ? Infinity : +this.data.max,
 				loot = this.data.loot
 			;
 			if( this.data.max < this.data.min )
@@ -168,12 +171,10 @@ export default class GameAction extends Generic{
 				max = loot.length;			
 
 
-			let numItems = Math.floor(Math.random()*(max+1-min))+min;
-
-
+			let numItems = Math.floor(Math.random()*(max-min))+min;
 			const out = [];
-			for( let i =0; i<numItems && loot.length; ++i )
-			{
+			for( let i =0; i < numItems && loot.length; ++i ){
+
 				let n = Math.floor(Math.random()*loot.length);
 				const asset = Asset.convertDummy(loot.splice(n, 1).shift(), this);
 				asset.g_resetID();

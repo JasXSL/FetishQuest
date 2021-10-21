@@ -179,7 +179,7 @@ class Quest extends Generic{
 
 
 	getExperience(){
-		return Math.ceil(game.getAveragePlayerLevel()*this.exp_multiplier);
+		return Math.ceil(game.getAveragePlayerLevel()*2*this.exp_multiplier);
 	}
 
 	// Returns what players can receive a reward

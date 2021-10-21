@@ -9,6 +9,8 @@ import Mod from './Mod.js';
 import Game from './Game.js';
 import { Effect, Wrapper } from './EffectSys.js';
 import { GfPlayer } from './NetworkManager.js';
+import GameEvent from './GameEvent.js';
+import Condition from './Condition.js';
 
 export default class StaticModal{
 
@@ -1902,6 +1904,8 @@ export default class StaticModal{
 					);
 
 				};
+
+				const testEvt = new GameEvent({sender:myPlayer, target:myPlayer});
 				let newDivs = [];
 				let availableAssets = 0;
 				const items = this.shop.getItems();
@@ -1916,6 +1920,9 @@ export default class StaticModal{
 					if( remaining === 0 )
 						continue;
 					
+					if( !Condition.all(item.conditions, testEvt) )
+						continue;
+
 					asset.name = (remaining !== -1 ? '['+remaining+']' : '&infin;')+" "+asset.name;
 					asset.id = item.id;
 
@@ -1971,20 +1978,32 @@ export default class StaticModal{
 
 					if( !asset )
 						return;
-
+					
 					const maxQuant = asset.stacking ? asset._stacks : 1;
-					game.ui.modal.makeSelectionBoxForm(
-						'Amount to SELL: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
-						function(){
+					const sell = function( evt ){
 
-							const amount = Math.floor($("input:first", this).val());
+						let amount = maxQuant;
+						if( evt ){
+
+							amount = Math.floor($("input:first", this).val());
 							if( !amount )
 								return;
-							game.sellAsset(th.shop.label, asset.id, amount, myPlayer.id);
 
-						},
-						false
-					);
+						}
+						game.sellAsset(th.shop.label, asset.id, amount, myPlayer.id);
+
+					};
+
+					// Quick sell whole stack
+					if( event.shiftKey )
+						sell();
+					else{
+						game.ui.modal.makeSelectionBoxForm(
+							'Amount to SELL: <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
+							sell,
+							false
+						);
+					}
 
 				};
 				newDivs = [];

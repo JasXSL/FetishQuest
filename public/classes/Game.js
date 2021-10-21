@@ -639,7 +639,7 @@ export default class Game extends Generic{
 
 		for( let player of this.players ){
 		
-			if( restoreNonDead && !player.isDead() ){
+			if( !player.isDead() ){
 
 				player.fullRegen();
 				player.arousal = 0;
@@ -2899,9 +2899,13 @@ export default class Game extends Generic{
 
 			if( shopAction.data.player === player.label ){
 
-				if( filter && (!shopAction.validate(mp) || !this.shopAvailableTo(shop, mp)) )
+				// looks kinda funny, but shopAvailableTo throws an error if it fails to validate
+				try{
+					if( filter && (!shopAction.validate(mp) || !this.shopAvailableTo(shop, mp)) )
+						throw '';
+				}catch(err){
 					continue;
-
+				}
 				out.push(shop);
 
 			}

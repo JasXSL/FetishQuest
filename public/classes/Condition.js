@@ -82,9 +82,7 @@ export default class Condition extends Generic{
 		if( data && !this.conditions.length && !Condition.Types[this.type] )
 			console.error("Invalid condition type loaded: ", String(this.type), "in", this, " data received was ", data, "and parent was", this.parent);
 
-		if( Array.isArray(this.data.conditions) ){
-			this.data.conditions = Condition.loadThese(this.data.conditions);
-		}
+		
 
 	}
 
@@ -102,7 +100,7 @@ export default class Condition extends Generic{
 		if( this.max > this.conditions.length )
 			this.max = this.conditions.length;
 
-		if( this.type === Condition.Types.hasActiveConditionalPlayer )
+		if( Array.isArray(this.data.conditions) )
 			this.data.conditions = Condition.loadThese(this.data.conditions);
 
 	}
@@ -762,7 +760,7 @@ export default class Condition extends Generic{
 				for( let asset of assets ){
 
 					evt.asset = asset;
-					if( Condition.all(conds, evt) ){
+					if( Condition.all(conds, evt, debug) ){
 						n += evt._stacks || 1;
 					}
 					if( n >= min ){
@@ -887,6 +885,12 @@ export default class Condition extends Generic{
 			else if( this.type === T.assetTag ){
 
 				success = event.asset && this.compareTags(this.data.tags, event.asset.getTags(), this.data.all);
+
+			}
+			else if( this.type === T.assetLabel ){
+
+				let labels = toArray(this.data.label);
+				success = event.asset && labels.includes(event.asset.label);
 
 			}
 
@@ -1120,7 +1124,7 @@ export default class Condition extends Generic{
 
 			if( !success && !this.anyPlayer ){
 				if( debug )
-					console.debug("Condition DEBUG :: FAIL to validate ALL players on type", this.type, this, "with evt", event);
+					console.debug("Condition DEBUG :: FAIL to validate ALL players on type", this.type, this, "with evt", event.clone());
 				return false;
 			}
 			else if( success && this.anyPlayer ){
@@ -1285,7 +1289,7 @@ Condition.Types = {
 	assetSlot : 'assetSlot',
 	assetEquipped : 'assetEquipped',
 	assetTag : 'assetTag',
-
+	assetLabel : 'assetLabel',
 	hasFreeBondageDevice : 'hasFreeBondageDevice',
 
 	apValue : 'apValue', 			// 
@@ -1426,6 +1430,7 @@ Condition.descriptions = {
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
 	[Condition.Types.assetSlot] : '{slots:(str/arr)slots} - Requires asset in event. Checks whether asset is equipped to at least one of these slots, from Asset.Slots',
 	[Condition.Types.assetTag] : '{tags:(str/arr)tags, all:(bool)false} - Requires asset in event. Checks if asset has one of these tags, or all if all is true.',
+	[Condition.Types.assetLabel] : '{label:(str/arr)labels} - Requires asset in event. Checks if asset has at least one of these labels.',
 	[Condition.Types.assetEquipped] : '{} - Requires asset in event. Checks if said asset is equipped.',
 	[Condition.Types.hasFreeBondageDevice] : '{} - Checks if there\'s at least one free bondage device in the dungeon. See mBondage in stdTag.js',
 	[Condition.Types.textMeta] : '{tags:(str/arr)tags, all:(bool)=false, originalWrapper:(bool/int/undefined=-1)} - Requires Text in event. If originalwrapper is unset or -1, it uses both. Checks if the text object has one or more meta tags. ORed unless ALL is set.',
