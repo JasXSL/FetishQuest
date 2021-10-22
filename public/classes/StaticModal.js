@@ -306,6 +306,7 @@ export default class StaticModal{
 		
 	}
 
+	// This is where everything is built
 	// Only gets called once when the DOM loads. Builds all the modal bases
 	static ini(){
 
@@ -2309,23 +2310,30 @@ export default class StaticModal{
 		this.add(new this("mainMenu", "FetishQuest"))
 			.addTab("Main Menu", () => {
 				return `
-					<p style="text-align:center">
-						<input type="button" class="green newGameButton" name="newGame" value="New Game" />
+					<p class="centered" style="font-size:1.5vmax">
+						This game contains adult content.<br />
+						<span style="font-weight:bold; color:#FAA;">Browser 3D acceleration enabled is required.</span>
 					</p>
-					<p class="centered">This game contains adult content... obviously.</p>
-					<hr />
 					<div class="loadGame">
-						<p>
-							<strong>LOAD</strong>
+						<p style="text-align:center">
+							<input type="button" class="green newGameButton" name="newGame" value="New Game" />
 						</p>
 						<div class="gameSaves"></div><br />
-						<p class="subtitle">Ctrl+click to Delete<br />Shift+Click to Export</p>
+						<p class="subtitle" style="font-size:1.25vmax">Ctrl+click to Delete a save, Shift+Click to Export</p>
 						<input type="file" class="loadGame" accept=".fqsav" />
 					</div>
+					<hr />
 					<p class="centered">
+						Support Development<br />
 						<a href="https://github.com/JasXSL/FetishQuest" target="_blank"><img class="portalLogo" src="/media/ui/GitHub-Mark-Light-120px-plus.png" /></a>
 						<a href="https://discord.jasx.org" target="_blank"><img class="portalLogo" src="/media/ui/discord.png" /></a>
 						<a href="https://www.patreon.com/jasx_games" target="_blank"><img class="portalLogo" src="/media/ui/patreon.png" /></a>
+						<br />
+						<a class="crypto button" href="dogecoin:DMJvmu94hcskwBz11aqqzmXnKQErKQjxgo" style="background:#855">Dogecoin</a>
+						<a class="crypto button" href="bitcoin:bc1qlkml7q7lzlfd28hsdfp89dm2p7sazv56649zwk" style="background:#F7931A">Bitcoin</a>
+						<a class="crypto button" href="algorand://VZMKLLC5PJ6F456YFA2VAB6UVCPRMLLE6NPFMIQ5TOWG3PROKIHNL6F7DE" style="background:#3EDBD2">Algo</a>
+						<a class="crypto button" href="etherum:0x58d235B218a872b31A806DbdE6a1fCeC708d5C45" style="background:#333">Algo</a>
+						
 					</p>
 				`;
 			})

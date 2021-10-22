@@ -1105,14 +1105,18 @@ export default class Player extends Generic{
 		// Restore 3/10ths each turn
 		const map = this.getMaxAP();
 		let ap = map*0.3; // base AP to add
-		// PCs generate less from going above 10
+		// 
 		if( map > 10 )
-			ap = 3+(map-10)*(Math.max(this.power-1, 0)*0.2+0.1);	// Powered gets more AP
+			ap = 3+(map-10)*0.1;	// 10% chance of bonus per ap
+		ap *= this.getPowerMultiplier();
 		
 
 		// Shuffle the remainder
 		if( Math.random() < ap-Math.floor(ap) )
 			++ap;
+
+		if( ap < 2 )
+			ap = 2;
 		this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
 		
 		// Gain 1 MP every 2 turns

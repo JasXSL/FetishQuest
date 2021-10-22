@@ -61,7 +61,7 @@ export default class GameEvent extends Generic{
 	raise(){
 
 		if( this.constructor.debugAll )
-			console.log("EVT: ", this);
+			console.log("EVT: ", this.clone());
 
 		GameEvent.bindings
 			.filter(binding => binding.type === this.type || binding.type === GameEvent.Types.all)

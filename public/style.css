@@ -61,9 +61,18 @@ div.modalMain{
 	overflow-x: hidden;
 }
 
+a.crypto{
+	text-decoration: none;
+	display:inline-block;
+	margin:0.5vmax;
+	font-size:1.5vmax;
+	
+}
+
 #gameIcons > div > div.rollout.visible,
 div.gameListing,
 div.actionbar > div.actions > div.action,
+a.button,
 input[type=button], input[type=submit], div.button, label.button,
 div.inventory div.item,
 #modal div.modalQuests div.right div.item,

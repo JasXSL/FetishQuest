@@ -21,10 +21,13 @@ import HitFX from './HitFX.js';
 		%T - Player name
 		%Tpsize, %Tbsize, %Trsize - Grants a size tag for penis, breasts, rear in that order. Must be preceded by a space, which gets removed if the size is average.
 		%Tgenitals - Automatically pick a genital synonym. Herms get picked at random, so only use this if it doesn't matter which part was targeted.
+		
 		%TclothUpper - UpperBody armor name
 		%TclothLower - LowerBody armor name
 		%Thead - Headgear name
 		%Tgear - Mainhand name
+		using an a after T ex TaGear will be replaced with a/an <outfit>
+
 		%Trace - Species name of player
 		%The, %Thim, %This - Player pronouns
 		
@@ -493,11 +496,14 @@ class Text extends Generic{
 				originalCustom = event.custom
 			;
 
+			// Make sure to stash the original first
+			event.custom.original = event.clone();
+
 			event.type = GameEvent.Types.textTrigger;
 			event.text = this;
 			if( !event.custom )
 				event.custom = {};
-			event.custom.original = event.clone();		// Make sure to stash the original
+
 			event.raise();
 			
 			event.type = originalType;
@@ -617,7 +623,7 @@ class Text extends Generic{
 			(!original || !this._cache_event[original.type])
 		){
 			if( debug )
-				console.debug("FAIL because this._cache_event:", this._cache_event);
+				console.debug("FAIL because this._cache_event:", this._cache_event, "tried finding", event.type, "original", original && original.type);
 			return false;
 		}
 
@@ -714,19 +720,29 @@ Text.getFromEvent = function( event, debug = false ){
 	for( let text of texts ){
 
 		event.text = text;				// Needed for validation
+		const debug = text.debug;
 
 		for( let p of testAgainst ){
 
 			// Text disabled (should live here because RP can run text.validate on disabled texts)
-			if( !text.en )
+			if( !text.en ){
+				if( debug )
+					console.debug("Ignored ", text, "because disabled");
 				continue;
-			if( Boolean(text.chat) !== chat )
+			}
+			if( Boolean(text.chat) !== chat ){
+				if( debug )
+					console.debug("Ignored ", text, "because not valid chat", Boolean(text.chat), chat);
 				continue;
-			if( Boolean(text.chat) !== Boolean(event.type === GameEvent.Types.textTrigger))
+			}
+
+			// p is the chat player we're testing
+			if( chat && p && ((!p._debug_chat && !p.isNPC()) || p.hasUsedChat(text.id)) ){
+
+				if( debug )
+					console.debug("Ignored ", text, "because player", p, "is nonexistant, a PC or has used that chat");
 				continue;
 
-			if( text.chat && event.sender && ((!event.sender._debug_chat && !event.sender.isNPC()) || event.sender.hasUsedChat(text.id)) ){
-				continue;
 			}
 
 			if( !text.validate(event, doDebug, p) ){
@@ -756,14 +772,16 @@ Text.getFromEvent = function( event, debug = false ){
 	// Restore value
 	event.text = preText;
 
-	if( !available.length && chat )
-		return false ;
+	if( !available.length && chat ){
+		return false;
+	}
 
 	const required = [], normal = [], zeroes = [];
 
 	available = available.filter(el => el.numTargets === maxnr || el.numTargets === -1);
+
 	if( chat ){
-		
+
 		for( let text of available ){
 
 			if( text.chat === this.Chat.required )
