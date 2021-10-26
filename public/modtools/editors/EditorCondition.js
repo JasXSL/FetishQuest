@@ -387,6 +387,7 @@ export function asset(){
 		html += buildDefaultValueFields();
 	}
 	else if( type === types.defeated ){}
+	else if( type === types.isControlled ){}
 	//else if( type === types.dungeonIs ){} Uses JSON to compare two direct objects
 	else if( type === types.dungeonVar ){
 

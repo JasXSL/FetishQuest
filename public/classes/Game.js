@@ -2531,6 +2531,7 @@ export default class Game extends Generic{
 
 	// Checks if end_turn_after_action is set and advances turn if it is
 	checkEndTurn(){
+
 		if( this.end_turn_after_action )
 			this.advanceTurn();
 		
@@ -2571,8 +2572,10 @@ export default class Game extends Generic{
 		targets = targets.filter(targ => !targ.isInvisible());
 
 		if( !this.is_host ){
+
 			Game.net.playerUseAction(player, action, targets);
 			return true;
+
 		}else
 			this.ui.captureActionMessage = true;
 		

@@ -3354,8 +3354,8 @@ export default class StaticModal{
 						<input type="text" class="gameName" value="Unnamed Adventure" /><br />
 						<div class="flexTwoColumns">
 							<div class="left">
-								<input type="text" class="autoSave" name="name" placeholder="Character Name" required /><br />
-								<input type="text" class="autoSave" name="species" placeholder="Species" required /><br />
+								<input type="text" class="autoSave" style="font-size:2vmax" name="name" placeholder="Character Name" required /><br />
+								Species: <br /><input type="text" class="autoSave" style="width:auto" name="species" placeholder="Species" required /><br />
 								Class: <div class="class"><!-- Class listing goes here --></div>
 								Size: <br />
 								<div class="center">Tiny <input type="range" style="width:60%" class="autoSave" name="size" min=0 max=10 /> Giant</div>

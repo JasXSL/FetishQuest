@@ -1406,8 +1406,11 @@ class Effect extends Generic{
 				t.used_punish = true;
 
 			// End turn
-			else if( this.type === Effect.Types.endTurn )
+			else if( this.type === Effect.Types.endTurn ){
+
 				game.end_turn_after_action = true;
+				
+			}
 
 
 			else if( this.type === Effect.Types.hitfx ){

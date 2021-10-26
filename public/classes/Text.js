@@ -430,9 +430,11 @@ class Text extends Generic{
 
 				// Add any previous turntag senders
 				for( let tag of t[i]._turn_tags ){
+
 					let tText = tag.tag;
 					let tSender = tag.s;
 					text = this.targetTextConversion(text, "R"+tText, tSender, event);
+
 				}
 
 				t[i]._turn_tags = [];
@@ -839,34 +841,35 @@ Text.runFromLibrary = function( event, debug = false ){
 
 	game.lockPlayersAndRun(() => {
 		
-		event = event.clone();
-		event.target = toArray(event.target);
-		// Each event needs a target
-		if( !event.target.length )
-			event.target = [game.players[0]];
+		// Note: shallow clone
+		const evt = event.clone();
+		evt.target = toArray(evt.target);
 
-		let t = event.target.slice();
+		// Each event needs a target. This is a fallback.
+		if( !evt.target.length )
+			evt.target = [game.players[0]];
 
+		evt.target = evt.target.slice();
+		let t = evt.target;
 		// Try to trigger a text on each player
 		while( t.length ){
 
-			let text = this.getFromEvent( event, debug );
+			let text = this.getFromEvent( evt, debug );
 			// No text for this person
 			if( !text ){
 
 				// Action used needs to have a text, we'll create a template one
-				if( event.type === GameEvent.Types.actionUsed && event.action && !event.action.hidden ){
+				if( evt.type === GameEvent.Types.actionUsed && evt.action && !evt.action.hidden ){
 					Text.actionFallbackText.run(event);
-					console.error("Had to use a fallback for ", event);
+					console.error("Had to use a fallback for ", evt);
 				}
-				if( event.type === GameEvent.Types.actionCharged && event.action && !event.action.hidden )
-					Text.actionChargeFallbackText.run(event);
+				if( evt.type === GameEvent.Types.actionCharged && evt.action && !evt.action.hidden )
+					Text.actionChargeFallbackText.run(evt);
 				t.shift();
 
 			}else{
 
-
-				text.run(event);
+				text.run(evt);
 				
 				let nt = text.numTargets;
 				if( nt === -1 )
@@ -879,7 +882,6 @@ Text.runFromLibrary = function( event, debug = false ){
 
 			}
 
-			
 		}
 
 		if( this.CheckAllPlayerChatEvents.includes(event.type) || this.IndividualTargetsEvents.includes(event.type) ){

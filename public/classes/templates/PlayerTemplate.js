@@ -63,6 +63,7 @@ class PlayerTemplate extends Generic{
 		this.required_actions = [];				// labels of actions that MUST be on this character
 		this.passives = [];						// Passive wrappers that need to be applied to this. Labels only.
 		this.no_equip = false;					// Prevents equip of the gear. Useful for things like mimics.
+		this.max = -1;							// Max nr of these generated into any encounter
 		this.load(...args);
 	}
 
@@ -113,6 +114,7 @@ class PlayerTemplate extends Generic{
 			talkative_max : this.talkative_max,
 			passives : this.passives,
 			random_loot : PlayerTemplateLoot.saveThese(this.random_loot, full),
+			max: this.max
 		};
 	}
 

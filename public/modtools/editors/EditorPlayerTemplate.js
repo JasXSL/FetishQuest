@@ -44,6 +44,7 @@ export function asset(){
 		html += '<label title="Max actions this can have, -1 = infinite">Max Actions: <input name="max_actions" value="'+esc(dummy.max_actions)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>Min Level: <input name="min_level" value="'+esc(dummy.min_level)+'" type="number" min=1 step=1 class="saveable" /></label>';
 		html += '<label>Max Level: <input name="max_level" value="'+esc(dummy.max_level)+'" type="number" min=1 step=1 class="saveable" /></label>';
+		html += '<label title="Max nr of these that can be added per encounter. Less than one is infinite.">Max nr: <input name="max" value="'+esc(dummy.max)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label title="Varies +-50%">Carried copper: <input name="monetary_wealth" value="'+esc(dummy.monetary_wealth)+'" type="number" min=0 step=1 class="saveable" /></label>';
 		html += '<label>Gear Quality <span class="valueExact"></span><br />Common <input name="gear_quality" value="'+esc(dummy.gear_quality)+'" type="range" min=0 step=0.01 max=1 class="saveable" /> Legendary</label>';
 		html += '<label>Gear Chance: <span class="valueExact"></span><input name="gear_chance" value="'+esc(dummy.gear_chance)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';

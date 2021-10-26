@@ -52,9 +52,10 @@ export default class GameEvent extends Generic{
 		}
 
 	}
-
+	// note: this is only a shallow clone
 	clone(){
-		return new this.constructor(this);
+		let out = new this.constructor(this);
+		return out;
 	}
 
 	// Chainable

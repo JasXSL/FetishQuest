@@ -354,6 +354,9 @@ export default class Condition extends Generic{
 			else if( this.type === T.isGenderEnabled ){
 				success = game.isGenderEnabled(this.data.genders);
 			}
+			else if( this.type === T.isControlled ){
+				success = !t.isNPC();
+			}
 			else if( this.type === T.targetGenderEnabled ){
 
 				success = t && game.isGenderEnabled(t.getGameGender());
@@ -1351,7 +1354,9 @@ Condition.Types = {
 	roomIsOutdoors : 'roomIsOutdoors',
 	roomZ : 'roomZ',
 	location : 'location',
+	
 	fetish : 'fetish',
+	isControlled : 'isControlled',
 };
 
 
@@ -1448,6 +1453,7 @@ Condition.descriptions = {
 	[Condition.Types.isGenderEnabled] : '{genders:(int)genders} - Checks if any of the specified genders are enabled in game gender preferences',
 	[Condition.Types.targetGenderEnabled] : 'void - Checks if the target\'s gender is enabled in game gender preferences',
 	[Condition.Types.fetish] : '{label:(str/arr)label} - Requires a fetish to be enabled, by label',
+	[Condition.Types.isControlled] : 'void - Checks if target is controlled by a human (not NPC)',
 };
 
 
