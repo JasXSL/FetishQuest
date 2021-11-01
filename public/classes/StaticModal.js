@@ -331,6 +331,7 @@ export default class StaticModal{
 			game.uiAudio( "tab_select", 0.5, event.target );
 
 		});	
+		
 
 
 		// Handle group finder auto join
@@ -353,9 +354,37 @@ export default class StaticModal{
 
 			const button = document.getElementById('groupFinder');
 			const count = document.querySelector('#groupFinder > div.newItems');
+			const bubble = document.getElementById('lastMessage');
+			const bubbleText = document.querySelector('#lastMessage > div.content');
 			button.classList.toggle('grey', !isInGroupFinder);
 			button.classList.toggle('newItems', Boolean(newNotes));
-			count.innerText = newNotes;
+			count.classList.toggle('hidden', (!newNotes && !players.length));
+			count.innerText = newNotes || players.length;
+			
+			// Gets last message
+			let lastMessage = Game.net.getGroupFinderLastMessage();
+			const fadeTime = 100000;	// How long to show the message bubble
+			const fadesIn = lastMessage ? fadeTime-(Date.now()-lastMessage.time) : -1;
+			const showMessage = lastMessage && lastMessage.parent.unread && fadesIn > 0;
+			bubble.classList.toggle('hidden', !showMessage);
+			
+			clearTimeout(bubble._timeout);
+			if( showMessage ){
+
+				bubble.classList.toggle('instant', false);
+				bubbleText.textContent = lastMessage.parent.name.substr(0, 12)+": "+lastMessage.message.substr(0,32)+"...";
+				bubble._timeout = setTimeout(() => bubble.classList.toggle('hidden', true), fadesIn);
+				$(bubble).off('click').on('click', event => {
+					event.stopImmediatePropagation();
+					clearTimeout(bubble._timeout);
+					bubble.classList.toggle('hidden', true);
+					bubble.classList.toggle('instant', true);
+				});	
+
+			}
+
+			document.title = (newNotes ? '('+newNotes+') ' : '')+'FetishQuest';
+
 
 		};
 		Game.net.bind('gf', refreshMasterBadge);
@@ -2314,10 +2343,10 @@ export default class StaticModal{
 						This game contains adult content.<br />
 						<span style="font-weight:bold; color:#FAA;">Browser 3D acceleration enabled is required.</span>
 					</p>
-					<div class="loadGame">
-						<p style="text-align:center">
+					<p style="text-align:center">
 							<input type="button" class="green newGameButton" name="newGame" value="New Game" />
-						</p>
+					</p>
+					<div class="loadGame">
 						<div class="gameSaves"></div><br />
 						<p class="subtitle" style="font-size:1.25vmax">Ctrl+click to Delete a save, Shift+Click to Export</p>
 						<input type="file" class="loadGame" accept=".fqsav" />
@@ -2614,7 +2643,7 @@ export default class StaticModal{
 				};
 
 			})
-			.setDraw(async function(){
+			.setDraw(async function( arg0 ){
 				
 				// Show game saves
 				const handleGameClick = async event => {
@@ -2865,10 +2894,6 @@ export default class StaticModal{
 					
 				}
 				this.fetishes.replaceChildren(...rows);
-
-
-
-				
 
 				const refreshChat = event => {
 

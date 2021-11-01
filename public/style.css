@@ -103,22 +103,26 @@ div.button.newItems{
 	animation: newItemsAnim ease-in-out alternate infinite 1s;
 	box-shadow:0 0 1vmax #F66;
 }
+
 div.button.grey{
 	border-color: #666;
 	filter:brightness(75%);
 }
-div.button > div.newItems{
-	display:none;
-}
-div.button.newItems > div.newItems{
+
+#groupFinder > div.newItems{
 	display: block;
 	position: absolute;
 	width:100%; top:50%;
 	left:0;
 	transform:translateY(-50%);
+	background:rgba(0,0,0,.75);
+}
+#groupFinder.newItems > div.newItems{
 	color:#F66;
 	font-weight: bold;
-	background:rgba(0,0,0,.75);
+}
+div.button.newItems.grey > div.newItems{
+	color:#999;
 }
 input[type=button]:disabled{
 	color:#CAA;
@@ -1911,10 +1915,14 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 	/* Texts */
-	#ui > div.players div.player div.speechBubble{
+	#ui > div.players div.player div.speechBubble,
+	#lastMessage
+	{
 		display:none;
 	}
-	#ui.bubbles > div.players div.player div.speechBubble{
+	#ui.bubbles > div.players div.player div.speechBubble,
+	#lastMessage.speechBubble
+	{
 		position: absolute;
 		display: block;
 		left:1vmax;
@@ -1938,7 +1946,9 @@ div.passiveUpsideDown > div.content > div.bg{
 		transform:translate(100%, -50%);
 	}
 	
-	#ui.bubbles > div.players div.player div.speechBubble div.arrow{
+	#ui.bubbles > div.players div.player div.speechBubble div.arrow,
+	#lastMessage.speechBubble div.arrow
+	{
 		position: absolute;
 		right:0;
 		top:50%;
@@ -1949,9 +1959,6 @@ div.passiveUpsideDown > div.content > div.bg{
 		height: 1vmax;
 		border-left:none;
 		border-bottom: none;
-	}
-
-	#ui.bubbles > div.players div.player div.speechBubble div.arrow{
 		max-width:30vmax;
 	}
 
@@ -1969,6 +1976,49 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui.bubbles > div.players > div.left div.player div.speechBubble.hidden.immediate{
 		transition:none;
+	}
+
+	@keyframes speechBubbleLastMessage{
+		from{
+			box-shadow: 0 0 0.5vmax #FFF;
+		}
+		to{
+			box-shadow: 0 0 2vmax #FFF;
+		}
+	}
+	#lastMessage.speechBubble div.arrow{
+		bottom: 0;
+		right: 1vmax;
+		top: auto;
+		transform: translateY(60%) rotate(135deg);
+		background:#933;
+		border-color:#FFF;
+	}
+
+	#lastMessage.speechBubble{
+		top: auto;
+		left: auto;
+		right: 0;
+		transform: none;
+		bottom: 3vmax;
+		font-weight: normal;
+		background:#933;
+		color:#FFF;
+		border-color:#FFF;
+		box-shadow: 0 0 1vmax #FFF;
+		animation: speechBubbleLastMessage infinite alternate 1s ease-in-out;
+		width:20vw;
+		max-height:10vh;
+		overflow:visible;
+	}
+	#lastMessage.speechBubble.hidden{
+		display: block !important;
+		opacity:0;
+		transition: opacity .25s ease-in-out;
+		pointer-events: none;
+	}
+	#lastMessage.speechBubble.hidden.instant{
+		transition: none;
 	}
 	
 /**/

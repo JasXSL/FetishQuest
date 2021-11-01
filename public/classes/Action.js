@@ -558,6 +558,8 @@ class Action extends Generic{
 			sender : this.getPlayerParent(),
 			target : player,
 			action : this,
+			dungeon : game.dungeon,
+			dungeonRoom : game.dungeon.getActiveRoom(),
 			custom : {
 				isChargeFinish : isChargeFinish
 			}

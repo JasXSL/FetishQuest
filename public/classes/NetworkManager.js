@@ -551,7 +551,22 @@ class NetworkManager{
 	getGroupFinderPlayers(){
 		return this.gf_players.filter(el => el.id !== this.id);
 	}
+	
+	getGroupFinderLastMessage(){
 
+		let msg = false;
+		for( let player of this.gf_players ){
+			if( !player.chat.length )
+				continue;
+			const last = player.chat[0];
+			if( !msg || last.time < msg.time )
+				msg = last;
+
+		}
+
+		return msg;
+
+	}
 
 
 	/* STANDARD OUTPUT */
@@ -1929,11 +1944,14 @@ class GfPlayer{
 		});
 		this.chat = this.chat.slice(0, 100);
 		if( !self ){
+
 			if( !this.unread ){
 				game.uiAudio( 'gf_notification', .3, document.getElementById('groupFinder'));
 			}
 			++this.unread;
+
 		}
+		
 	}
 
 	load( data ){
