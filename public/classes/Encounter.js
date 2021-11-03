@@ -585,7 +585,8 @@ export class EncounterEvent extends Generic{
 		this.actions = [];							// GameActions to run
 		this.maxTriggers = -1;						// Max times this event can trigger. -1 = inf
 		this.maxActions = -1;						// Max actions that can be triggered in the actions array
-
+		this.onSender = true;						// Trigger on sender
+		this.debug = false;
 		this._triggers = 0;
 		this._binding = null;
 
@@ -612,6 +613,8 @@ export class EncounterEvent extends Generic{
 			out.actions = GameAction.saveThese(this.actions, full);
 			out.maxTriggers = this.maxTriggers;
 			out.maxActions = this.maxActions;
+			out.onSender = this.onSender;
+			out.debug = this.debug;
 
 		}
 
@@ -640,10 +643,17 @@ export class EncounterEvent extends Generic{
 		let trigs = 0;
 		for( let action of this.actions ){
 
-			if( !action.validate(event) )
+			if( !action.validate(event, this.debug) )
 				continue;
 
-			action.trigger(event.sender, event);
+			let targs = toArray(event.sender);
+			if( !this.onSender )
+				targs = toArray(event.target);
+			
+			if( this.debug )
+				console.log("Running encounterTrigger ", this, " on ", targs);
+			for( let t of targs )
+				action.trigger(t, event, this.debug);
 
 			if( ++trigs >= this.maxTriggers && this.maxTriggers > -1 )
 				break;

@@ -776,6 +776,25 @@ export default class Condition extends Generic{
 				}
 
 			}
+			else if( this.type === T.firstOnTeam ){
+
+				const players = game.getTeamPlayers(t.team);
+				const conds = toArray(this.data.conditions);
+				const evt = new GameEvent({sender:s, target:t});
+				for( let player of players ){
+
+					evt.target = player;
+					if( !Condition.all(conds, evt, debug) )
+						continue;
+
+					if( player === t )
+						success = true;
+					break;
+
+				}
+
+
+			}
 
 			else if( this.type === T.assetStealable ){
 
@@ -1354,7 +1373,7 @@ Condition.Types = {
 	roomIsOutdoors : 'roomIsOutdoors',
 	roomZ : 'roomZ',
 	location : 'location',
-	
+	firstOnTeam : 'firstOnTeam',
 	fetish : 'fetish',
 	isControlled : 'isControlled',
 };
@@ -1454,6 +1473,7 @@ Condition.descriptions = {
 	[Condition.Types.targetGenderEnabled] : 'void - Checks if the target\'s gender is enabled in game gender preferences',
 	[Condition.Types.fetish] : '{label:(str/arr)label} - Requires a fetish to be enabled, by label',
 	[Condition.Types.isControlled] : 'void - Checks if target is controlled by a human (not NPC)',
+	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
 };
 
 

@@ -531,7 +531,8 @@ class Action extends Generic{
 				p.checkActionFilter(parent, this) && 
 				!this.getDisabledEffectsAgainst(p).length &&
 				this.testGlobalConditions(p, isChargeFinish, debug) &&
-				(this.ignore_wrapper_conds || this.getViableWrappersAgainst(p, isChargeFinish, debug).length) 
+				(this.ignore_wrapper_conds || this.getViableWrappersAgainst(p, isChargeFinish, debug).length) && 
+				p.hasTargetableForAction(this)
 			)targets.push(p);
 
 			else if( debug ){

@@ -383,6 +383,17 @@ export function asset(){
 		};
 
 	}
+	else if( type === types.firstOnTeam ){
+		setDefaultData({
+			conditions : [],
+		});
+
+		html += 'Target Conditions: <div class="conditions"></div>';
+		fnBind = () => {
+			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "data::conditions", false));
+		};
+
+	}
 	else if( type === types.copperValue ){
 		html += buildDefaultValueFields();
 	}

@@ -42,6 +42,8 @@ export function asset(){
 		html += '</select></label><br />';
 		html += '<label title="Max times this event can trigger, -1 = inf">Max Triggers: <input type="number" name="maxTriggers" step=1 min=-1 class="saveable" value="'+esc(dummy.maxTriggers)+'" /></label>';
 		html += '<label title="Max actions that can trigger (from top to bottom), -1 = inf">Max Actions: <input type="number" name="maxActions" step=1 min=-1 class="saveable" value="'+esc(dummy.maxActions)+'" /></label>';
+		html += '<label title="Targets event sender, otherwise triggers on all targets">Target event sender: <input type="checkbox" name="onSender" class="saveable" '+(dummy.onSender ? 'checked' : '')+' /></label>';
+		html += '<label>Debug: <input type="checkbox" name="debug" class="saveable" '+(dummy.debug ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
 
@@ -59,7 +61,7 @@ export function asset(){
 
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name, single ){
-	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'description'], single);
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'desc'], single);
 }
 
 
@@ -73,7 +75,7 @@ export function list(){
 		maxTriggers:true, 
 		maxActions:true,
 		'*actions':true,
-
+		'*debug' : true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

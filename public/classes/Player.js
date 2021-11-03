@@ -3053,6 +3053,43 @@ export default class Player extends Generic{
 		return true;
 	}
 
+	// Checks if this doesn't have the untargetable effect against an action
+	hasTargetableForAction( action ){
+
+		if( !(action instanceof Action) )
+			throw 'Trying to check untargetable against non action';
+
+		// Self cast always allowed
+		if( action.parent === this )
+			return true;
+
+		let effects = this.getActiveEffectsByType( Effect.Types.untargetable );
+		// No effects
+		if( !effects.length )
+			return true;
+
+		let disallowFriendly = effects.filter(el => !el?.data?.beneficial).length;
+		// Allow friendly actions through if all effects have allow friendly
+		if( !disallowFriendly && !action.detrimental )
+			return true;
+		
+		// Check if at least one has the action label
+		for( let effect of effects ){
+			
+			let arr = effect?.data?.exceptions;
+			if( !arr )
+				continue;
+			arr = toArray(arr);
+			if( arr.includes(action.label) )
+				return true;
+
+		}
+
+
+		return false;
+
+	}
+
 
 	/* Wrappers */
 	// Force lets you override cache, if unequipped is true, it also uses asset-attached wrappers that aren't equipped

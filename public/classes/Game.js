@@ -1746,7 +1746,7 @@ export default class Game extends Generic{
 		}
 	}
 
-	// Gets all players on a team
+	// Gets all enabled players on a team
 	getTeamPlayers( team = 0 ){
 
 		return this.getEnabledPlayers().filter(pl => pl.team === team);
@@ -2237,7 +2237,6 @@ export default class Game extends Generic{
 				for( let wrapper of encounter.wrappers ){
 					
 					let wr = wrapper.clone();
-					console.log("Using wrapper against", wrapper, pl);
 					wr.useAgainst( player, pl );
 
 				}

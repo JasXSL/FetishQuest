@@ -333,7 +333,7 @@ export default class GameAction extends Generic{
 	}
 
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
-	async trigger( player, mesh ){
+	async trigger( player, mesh, debug ){
 		
 		const asset = this.parent;
 		const types = GameAction.types;
@@ -802,10 +802,16 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.wrappers ){
 
+			if( debug )
+				console.log("Running wrapper GA", this, "player is", player);
 			const wrappers = Wrapper.loadThese(this.data.wrappers);
-			for( let wrapper of wrappers )
+			for( let wrapper of wrappers ){
+
+				if( debug )
+					console.log("--> Using", wrapper, "against", player);
 				wrapper.useAgainst( player, player );
 
+			}
 		}
 
 		else if( this.type === types.proceduralDungeon ){

@@ -2321,6 +2321,7 @@ Effect.Types = {
 	globalArmorMod : 'globalArmorMod',
 	globalArmorPen : 'globalArmorPen',
 	clairvoyance : 'clairvoyance',
+	untargetable : 'untargetable',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2378,6 +2379,7 @@ Effect.Passive = {
 	[Effect.Types.addWrapperMaxDuration] : true,
 	[Effect.Types.css] : true,
 	[Effect.Types.clairvoyance] : true,
+	[Effect.Types.untargetable] : true,
 
 };
 
@@ -2500,6 +2502,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addTags] : '{tags:(arr/str)tags} - Adds tags to the effect itself.',
 	[Effect.Types.addRandomTags] : '{tags:(arr)tag_objs, amount:(int)amount=1} - Adds a random set of tags from tag_objs. Tag objects consist of {tags:(arr/str)tags, conds:(arr)conditions}',
 	[Effect.Types.summonAsset] : '{asset:(str)assetLabel, equip:(bool)autoEquip=true} - Creates an asset and puts it in the target inventory. If equip is set, it equips as well.',
+	[Effect.Types.untargetable] : '{exceptions:(arr)actionLabels, beneficial:(bool)allowBeneficial=false} - Makes you untargetable by other players actions. If allowBeneficial ',
 };
 
 

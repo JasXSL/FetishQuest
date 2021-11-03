@@ -4,12 +4,15 @@
 
 -- CURRENT --
 
-	- Broken fireplace
+	Tentacle Wrestling:
+		- Small arena where you can fight tentacles.
+		- Requires at least 2 players.
+		- Players gain 1 point of exhaustion each turn, increasing damage taken by 10%.
+		- After 3 turns, players can tap in another player.
+		- If tapped out, you lose 1 exhaustion each turn.
+		- If one player goes down. The whole team loses.
+
 	- Add scroll to inspect
-
-	Test:
-		- NPC teammates can use equippable actions such as divine rod without having it equipped
-
 
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?
@@ -18,89 +21,10 @@
 
 	On player party defeated gameaction override
 
-	In game:
-		Guild class spells:
-		Necro:
-			- Elementalist: Desecrating Surge: Deals 4 elemental damage to your target and 2 elemental damage at the start of their turn for 3 turns. Effect is increased by 30% if there's water nearby. 
-			- Tentaclemancer: Slimy Gag: Does corruption damage and silences.
-		Church:
-			- Warrior: Holy Grasp : Taunts a single target for 2 turns, and when they target you with an action, the party is healed.
-			- Cleric: Penitent Ward : Wards a player for 2 turns. When targeted by a detrimental corruption effect, the effect is consume and the attacker takes 6 holy damage and the original caster gains 2 MP. 
-		Penal Gang:
-			- Monk: Massage: Restores health and increases physical proficiency and defense to a target for 1 turn. But adds 1 arousal.
-			- Rogue: Expose: Reduces your target's armor rating by 100% for 2 turns.
 
 	New armor secondary stats:
 		Impenetrable: Add an extra 5% damage reduction
 		Flexible: Add armor penetration
-
-
-
-	Penal Gang:
-		- Guild of "assassins" that can be hired to take someone down a peg. Doesn't kill, only humiliates. And records it on a recording crystal.
-		- Guild vendor sells increasingly skimpy armor
-		
-		Quest 2:
-			- Finish the rattani tunnels
-				- Add boss: Pro diver. Can dive under water and gain 90% dodge chance buff. Players gain an ability to yank her out. Her dodge chance is reduced by 10% whenever she attacks. Elementalists can spend 1 MP to immediately yank her out.
-			
-
-		Quest 3:
-			- Sneak into the hotel to punish the female cat there. However, her bodyguard Brutus is there, and the players wake up at the bottom of a well.
-			- After fighting their way out through various beasts, return to the guild. They have tracked down that she's hiding in a cabin north west of the city.
-			- Go there, fight her goons. After defeating Brutus, he joins your team. Defeat Veroniquette.
-			- Return to the guild for a reward.
-			
-		Todo:
-			RP:
-				- Players caught in trap
-				- Waking up in well
-				- Book in hotel
-				- Talking in the mansion
-				- Intermission talk
-				- Outro
-			Encounters:
-				- Inn encounter
-				- Waking up in well
-				- Back at the inn
-				- Boss encounter
-					- Veroniquette throws shoes and can't be attacked until brutus switches sides
-					- Brutus switches sides after dying, and everyone fully regenerates
-					- Brutus:
-						- Bull charge: Charged attack, deals heavy damage and knocks down. Can be riposted or interrupted.
-						- Gore: Deals damage to lowerbody clothes. If wearing a thong or butt exposed, does more damage.
-
-		Rewards:
-			1. Leather briefs (green)
-			2. Stretch-hide Bodysuit (blue)
-			3. Stretch-hide Thong Bodysuit (purple)
-
-		Areas:
-			x Tibbu's house
-			- Well prison
-			- Tinkerer dungeon
-			- Extension to yuug gates forest
-			- Veroniquette Estate
-
-		Players:
-			- Tibbu (Male fox)
-			- Veroniquette
-			- Veroniquette house guard
-			- Veroniquette boss
-			- Guildmaster
-			- Quartermaster
-			- Gang member
-			- Rattani mechmancer
-			- Friendly tinkerer NPC
-			- Female wolf
-
-		
-			
-
-
-
-		Generic: Bully: Deals physical damage. If the target is affected by a grapple, knockdown, or silence, critically hit.
-		Generic: Bounding Blow: 2 AP, 3 damage, can be riposted. If riposted, restore 1 MP.
 
 
 	Utility passives:
@@ -111,11 +35,11 @@
 
 	Class passives:
 		- Monk: Takes no damage penalty from not wearing gear.
-		- Warrior: Each point of stamina grants 1 extra HP. Damage taken from crits reduced by 50%.
-		- Rogue: Crit damage increased by 50%. Gain a 20% discount in all stores.
-		- Cleric: Players gain +3 AP at the start of a fight. Out of combat regen increased by 100% for all players. Players regenerate 20% more HP at the end of a fight.
-		- Tentaclemancer: Each time any player reaches max arousal, restore 30% HP, MP, AP.
-		- Elementalist: Every 5th elemental ability used reduces the AP cost of your next action by 5.
+		- Warrior: Damage taken from crits reduced by 50%. When reaching 0 HP. Prevent dying for 1 round.
+		- Rogue: Crit damage increased by 50%. The first item bought in a store each day is half off.
+		- Cleric: 
+		- Tentaclemancer: Each time any player reaches max arousal, restore 30% MP
+		- Elementalist: Elemental AP damage has a 30% chance of granting the caster 1 AP.
 
 	Main quest:
 		Part 2:
