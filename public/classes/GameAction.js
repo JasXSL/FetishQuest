@@ -205,18 +205,27 @@ export default class GameAction extends Generic{
 			// weight of 0.5 adds loot
 			if( value >= 0.5 ){
 
-				// Generate a random piece of loot
-				const loot = Asset.generate( 
-					undefined, 	// Slot
-					game.getAveragePlayerLevel(), 
-					undefined, 	// Viable template
-					undefined, 	// Viable materials
-					undefined, // enforced rarity
-					Math.floor((value-0.5)*2*Asset.Rarity.LEGENDARY), // Min rarity
-				);
-				if( loot )
-					this.data.genLoot.push(loot);
+				const players = game.getTeamPlayers();
+				let nrLoot = 1+Math.floor(Math.random()*players.length);
+				for( let i = 0; i < nrLoot; ++i ){
+
+					let val = (value-0.5)*2;		// From 0 -> 1
+					val = Math.max(0, val-0.2*i); 	// Subsequent loot rolls 20% lower
+					val *= Asset.Rarity.LEGENDARY;
+					// Generate a random piece of loot
+					const loot = Asset.generate( 
+						undefined, 	// Slot
+						game.getAveragePlayerLevel(), 
+						undefined, 	// Viable template
+						undefined, 	// Viable materials
+						undefined, // enforced rarity
+						Math.floor(val), // Min rarity
+					);
+					if( loot )
+						this.data.genLoot.push(loot);
 					
+				}
+
 			}
 
 			// 0-2 consumables, or 1-3 if no gear

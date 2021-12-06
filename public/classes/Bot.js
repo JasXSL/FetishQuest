@@ -429,7 +429,6 @@ class Bot{
 				game.equipPlayerItem(this.player, potions.shift().id);
 
 
-			// Todo: Make this random
 			await delay(3000+Math.random()*5000);
 			this.useFlavor();
 

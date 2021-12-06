@@ -5,18 +5,16 @@
 -- CURRENT --
 
 	Tentacle Wrestling:
-		- Small arena where you can fight tentacles.
-		- Requires at least 2 players.
-		- Players gain 1 point of exhaustion each turn, increasing damage taken by 10%.
-		- After 3 turns, players can tap in another player.
-		- If tapped out, you lose 1 exhaustion each turn.
-		- If one player goes down. The whole team loses.
+		- Figure out contenders
 
 	- Add scroll to inspect
 
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?
 		- Sometimes using repair kits fails?
+
+	Items:
+		- Sundial to tell the time outside
 
 
 	On player party defeated gameaction override

@@ -334,3 +334,13 @@ Base64 = {
         return result;
     }
 }
+
+
+async function copyTextToClipboard( text ) {
+
+	if( !navigator.clipboard )
+		throw 'Browser too old.';
+
+	return navigator.clipboard.writeText(text);
+
+}

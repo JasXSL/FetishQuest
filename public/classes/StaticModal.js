@@ -2360,9 +2360,8 @@ export default class StaticModal{
 						<br />
 						<a class="crypto button" href="dogecoin:DMJvmu94hcskwBz11aqqzmXnKQErKQjxgo" style="background:#855">Dogecoin</a>
 						<a class="crypto button" href="bitcoin:bc1qlkml7q7lzlfd28hsdfp89dm2p7sazv56649zwk" style="background:#F7931A">Bitcoin</a>
-						<a class="crypto button" href="algorand://VZMKLLC5PJ6F456YFA2VAB6UVCPRMLLE6NPFMIQ5TOWG3PROKIHNL6F7DE" style="background:#3EDBD2">Algo</a>
-						<a class="crypto button" href="etherum:0x58d235B218a872b31A806DbdE6a1fCeC708d5C45" style="background:#333">Algo</a>
-						
+						<a class="crypto button" href="algorand://VZMKLLC5PJ6F456YFA2VAB6UVCPRMLLE6NPFMIQ5TOWG3PROKIHNL6F7DE" style="background:#3EDBD2">Algorand</a>
+						<a class="crypto button" data-href="0x58d235B218a872b31A806DbdE6a1fCeC708d5C45" style="background:#ff4724">BAT</a>
 					</p>
 				`;
 			})
@@ -2598,6 +2597,22 @@ export default class StaticModal{
 					fetishes = this.getTabDom('Fetishes')[0],
 					groupFinder = this.getTabDom('Group Finder')[0]
 				;
+
+				const copies = mainMenu.querySelectorAll('a.crypto[data-href]');
+				copies.forEach(el => {
+					el.onclick = () => {
+						
+						copyTextToClipboard(el.dataset.href);
+						if( !el.preVal )
+							el.preVal = el.innerText;
+						clearTimeout(el.timeout);
+						el.innerText = 'Copied!';
+						el.timeout = setTimeout(() => {
+							el.innerText = el.preVal;
+						}, 2000);
+
+					};
+				});
 
 				this.newGameButton = mainMenu.querySelector('input.newGameButton');
 				this.gameSaves = mainMenu.querySelector('div.gameSaves');
@@ -4419,7 +4434,7 @@ export default class StaticModal{
 
 				asset = this._asset;
 
-				// Update library
+				// Clicked an asset
 				const handleAssetClick = event => {
 
 					let id = event.currentTarget.dataset.id,
@@ -4459,7 +4474,7 @@ export default class StaticModal{
 
 					}
 
-					else if(player.addLibraryAsset(id)){
+					else if( player.addLibraryAsset(id) ){
 
 						
 						game.save();

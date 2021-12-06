@@ -2370,7 +2370,7 @@ function build(){
 				Lightacles : new LibMesh({
 					url : 'nature/lightacles.glb',
 					materials : [
-						libMat.Bakes.Lightacles
+						libMat.Bakes.TentacleRing
 					],
 					tags : [stdTag.mEmitter, stdTag.mTentacle],
 
@@ -4232,6 +4232,18 @@ function build(){
 			}),
 			Stage : new LibMesh({
 				url : 'structure/stage.JD',
+				materials : [
+					libMat.Wood.Crate,
+				],
+			}),
+			BoxingRing : new LibMesh({
+				url : 'structure/boxingring.glb',
+				materials : [
+					libMat.Bakes.TentacleRing,
+				],
+			}),
+			AudienceBench : new LibMesh({
+				url : 'structure/audience_bench.glb',
 				materials : [
 					libMat.Wood.Crate,
 				],

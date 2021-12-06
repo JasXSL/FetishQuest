@@ -1062,7 +1062,22 @@ LibMaterial.library = {
 		}),
 	},
 
+	Misc : {
+		Bone : new LibMaterial({
+			map : 'tileable/bone_seamless.jpg',
+			metalness : 0.3,
+			roughness : 0.6,
+		}),
+	},
+
 	Bakes : {
+		TentacleRing : new LibMaterial({
+			map : 'bakes/tentacle_ring_d.jpg',
+			roughnessMap : 'bakes/tentacle_ring_s.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
+			metalness : 0,
+			roughness : 0.8,
+		}),
 		Lightacles : new LibMaterial({
 			map : 'bakes/lightacle_d.jpg',
 			emissiveMap : 'bakes/lightacle_glow.jpg',
@@ -1071,14 +1086,6 @@ LibMaterial.library = {
 			roughness : 0.6,
 		}),
 	},
-
-	Misc : {
-		Bone : new LibMaterial({
-			map : 'tileable/bone_seamless.jpg',
-			metalness : 0.3,
-			roughness : 0.6,
-		}),
-	}
 };
 
 

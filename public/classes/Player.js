@@ -1408,7 +1408,7 @@ export default class Player extends Generic{
 	}
 	addLibraryAsset( label, amount = 1 ){
 
-		let asset = glib.getFull('Asset')[label];
+		let asset = glib.get(label, 'Asset');
 		if( !asset ){
 			console.error("Invalid library asset", label);
 			return false;
