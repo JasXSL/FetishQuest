@@ -1726,25 +1726,52 @@ export default class Player extends Generic{
 		let assets = [];
 		// Pick a slot at random
 		if( slots === 'RANDOM' ){
+
 			let viableAssets = this.getEquippedAssetsBySlots([Asset.Slots.lowerBody, Asset.Slots.upperBody]);
 			if( !viableAssets.length )
 				return;
 			assets = [viableAssets[Math.floor(Math.random()*viableAssets.length)]];
+
 		}
 		else{
-			if( !Array.isArray(slots) )
+
+			if( !slots )
 				slots = [Asset.Slots.lowerBody, Asset.Slots.upperBody];
+			slots = toArray(slots);
 			assets = this.getEquippedAssetsBySlots(slots);
+
 		}
+
+		let asc = assets.slice();	// Prevents adding to the one we're looping over
+		for( let asset of asc ){
+			
+			let slots = asset.slots;
+			if( Math.random() < 0.5 && slots.includes(Asset.Slots.lowerBody) )
+				assets.push(...this.getEquippedAssetsBySlots([Asset.Slots.lowerBodyCosmetic]));
+			if( Math.random() < 0.5 && slots.includes(Asset.Slots.upperBody) )
+				assets.push(...this.getEquippedAssetsBySlots([Asset.Slots.upperBodyCosmetic]));
+			
+		}
+
+		// 10% chance for jewellery
+		if( Math.random() < 0.1 )
+			assets.push(...this.getEquippedAssetsBySlots([Asset.Slots.jewelleryCosmetic]));
+		
 		
 		amount = Math.round(amount);
 		for( let asset of assets ){
+
 			let destroyed = asset.damageDurability( sender, effect, amount, fText );
-			for( let slot of asset.slots ){
-				out.armor_damage[slot] = amount;
-				if( destroyed )
-					out.armor_strips[slot] = asset;
+			if( destroyed !== false ){
+				for( let slot of asset.slots ){
+
+					out.armor_damage[slot] = amount;
+					if( destroyed )
+						out.armor_strips[slot] = asset;
+
+				}
 			}
+
 		}
 		this.rebindWrappers();
 

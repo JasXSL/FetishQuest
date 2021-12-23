@@ -1472,8 +1472,12 @@ export default class StaticModal{
 					const slots = [
 						Asset.Slots.lowerBody,
 						Asset.Slots.upperBody,
-						Asset.Slots.action,
-						Asset.Slots.hands
+						Asset.Slots.hands,
+						Asset.Slots.lowerBodyCosmetic,
+						Asset.Slots.upperBodyCosmetic,
+						Asset.Slots.jewelleryCosmetic,
+						//Asset.Slots.action,
+						
 					];
 					
 					const existing_assets = {};	// id:true
@@ -2437,7 +2441,7 @@ export default class StaticModal{
 						</tr>
 					</table>
 					<br />
-					<p>Note that mod fetishes depend on the modder setting up Fetish Conditions properly. This isn't a catch-all.</p>
+					<p>Note that mod fetishes depend on the modder setting up Fetish Conditions properly. This isn't a catch-all. Also just because a fetish exists in this list doesn't mean it's in the official game.</p>
 				`;
 			})
 			/*
@@ -3699,6 +3703,10 @@ export default class StaticModal{
 							
 							<h3>Toolbelt</h3>
 							<div class="toolbelt"><!-- Toolbelt assets here --></div>
+
+							<h3>Cosmetic</h3>
+							<div class="cosmetic"><!-- Cosmetic assets here --></div>
+
 							<br />
 							<div class="progressBar weight">
 								<div class="bar" style="width:0%;"><!-- Set width here base on percentage --></div>
@@ -3732,6 +3740,7 @@ export default class StaticModal{
 				this.main = {
 					equipment : main.querySelector('div.equipment'),
 					toolbelt : main.querySelector('div.toolbelt'),
+					cosmetic : main.querySelector('div.cosmetic'),
 					weight : main.querySelector('div.weight'),
 					weightBar : main.querySelector('div.weight div.bar'),
 					weightContent : main.querySelector('div.weight span.content'),
@@ -3958,7 +3967,7 @@ export default class StaticModal{
 
 
 				// Create equipment slots
-				const slots = [
+				let slots = [
 					{slot:Asset.Slots.upperBody, icon:'breastplate'},
 					{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
 					{slot:Asset.Slots.hands, icon:'crossed-swords'}
@@ -4015,6 +4024,15 @@ export default class StaticModal{
 					divs.push(await createEquipSlot(Asset.Slots.action, 'media/wrapper_icons/potion-ball.svg', i));
 				this.main.toolbelt.replaceChildren(...divs);
 
+				slots = [
+					{slot:Asset.Slots.upperBodyCosmetic, icon:'gauntlet'},
+					{slot:Asset.Slots.lowerBodyCosmetic, icon:'leg-armor'},
+					{slot:Asset.Slots.jewelleryCosmetic, icon:'big-diamond-ring'}
+				];
+				divs = [];
+				for( let slot of slots )
+					divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
+				this.main.cosmetic.replaceChildren(...divs);
 
 				// Create listing
 				let inv = [];
@@ -4261,7 +4279,7 @@ export default class StaticModal{
 					});
 					
 					a.description = getEl("textarea[name=description]").value.trim();
-					a.tags = getEl("textarea[name=tags]").value.trim().split(' ').filter(el => el !== "").map(el => 'as_'+el.toLowerCase());
+					a.tags = getEl("textarea[name=tags]").value.trim().split(' ').filter(el => el !== "").map(el => 'as_'+el);
 					
 					try{
 						const wrappers = JSON.parse(getEl("textarea[name=wrappers]").value.trim());

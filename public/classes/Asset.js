@@ -81,7 +81,7 @@ export default class Asset extends Generic{
 		this.basevalue = 0;				// Store value in copper. 0 = no sell
 		this.expires = 0;				// Lets an item expire, deleting it after time has passed in game.
 		this.rem_unequip = false;		// Remove this on unequip
-
+		this.indestructible = false;	// This item is indestructible
 
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
@@ -140,13 +140,13 @@ export default class Asset extends Generic{
 			fitted : this.fitted,
 			mastercrafted : this.mastercrafted,
 			actives : Wrapper.saveThese(this.actives, full),
+			indestructible : this.indestructible
 		};
 
 
 		if( full ){
 			out.dummy = this.dummy;
 			out.no_auto_consume = this.no_auto_consume;
-			
 		}
 
 		if( full !== "mod" ){
@@ -292,7 +292,25 @@ export default class Asset extends Generic{
 	}
 
 	isDamageable(){
-		return ~this.slots.indexOf(Asset.Slots.upperBody) || ~this.slots.indexOf(Asset.Slots.lowerBody);
+
+		if( this.indestructible )
+			return false;
+
+		const dmgSlots = [
+			Asset.Slots.upperBody,
+			Asset.Slots.upperBodyCosmetic,
+			Asset.Slots.lowerBody,
+			Asset.Slots.lowerBodyCosmetic,
+			Asset.Slots.jewelleryCosmetic,
+		];
+		for( let slot of dmgSlots ){
+
+			if( this.slots.includes(slot) )
+				return true;
+
+		}
+		return false;
+
 	}
 
 	isSellable(){
@@ -339,14 +357,16 @@ export default class Asset extends Generic{
 
 	}
 
-	// Returns true if the asset was destroyed
+	// Returns true if the asset was destroyed. false if no damage was given, undefined if damaged but not destroyed
 	damageDurability( sender, effect, amount, fText = false ){
 
 		if( !this.isDamageable() )
-			return;
+			return false;
+
 		amount = parseInt(amount);
 		if( isNaN(amount) )
 			return false;
+
 		let pre = this.durability;
 		this.durability -= Math.floor(amount);
 		if( this.durability <= 0 )
@@ -367,6 +387,7 @@ export default class Asset extends Generic{
 		game.ui.addText( this.parent.getColoredName()+"'s "+this.name+" "+txt+" "+Math.abs(change)+" durability.", undefined, this.parent.id, this.parent.id, 'statMessage cloth'+cls );
 
 		if(pre > 0 && this.durability === 0 ){
+
 			new GameEvent({
 				type : GameEvent.Types.armorBroken,
 				sender : sender,
@@ -380,15 +401,16 @@ export default class Asset extends Generic{
 			game.playFxAudioKitById('armorBreak', sender, this.parent, undefined, true );
 			game.ui.addText( this.parent.getColoredName()+"'s "+this.name+" broke!", undefined, this.parent.id, this.parent.id, 'statMessage important' );
 			return true;
+
 		}
-		return false;
+		
 	}
 
 	// Returns points of armor based on Asset.defaultArmorPoints
 	getArmorPoints(){
 
-		// only upperBody and lowerBody have this feature
-		if( this.slots.indexOf(Asset.Slots.upperBody) === -1 && this.slots.indexOf(Asset.Slots.lowerBody) === -1 )
+		// Non-damageable shouldn't draw
+		if( !this.isDamageable() )
 			return 0;
 
 		// Item is broken, provide no protection
@@ -578,7 +600,11 @@ export default class Asset extends Generic{
 
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
-		if( this.isLowLevel() && isBreakable ){
+		// Low level indicator (only affects upper/lowerbody since they're the only ones that give protection
+		if( 
+			this.isLowLevel() && 
+			(this.slots.includes(Asset.Slots.upperBody) || this.slots.includes(Asset.Slots.lowerBody)) 
+		){
 
 			if( this.durability )
 				html += '<em style="color:#FAA">Low level, armor reduced</em><br />';
@@ -598,7 +624,11 @@ export default class Asset extends Generic{
 			let lv = parseInt(this.level) || 0;
 			if( lv < 0 )
 				lv = game.getAveragePlayerLevel()+Math.abs(lv)-1;
-			html += 'Lv '+lv+' | '+(+this.durability)+'/'+this.getMaxDurability()+' Durability | ';
+			
+			html += 'Lv '+lv+' | ';
+			
+			if( this.isDamageable() )
+				html += (+this.durability)+'/'+this.getMaxDurability()+' Durability | ';
 
 		}
 		html += this.getWeightReadable()+' ';
@@ -886,6 +916,10 @@ Asset.Slots = {
 	lowerBody : "lowerBody",
 	hands : "hands",
 	action : "action",			// Toolbelt
+	// These two are primarily cosmetic, but can have durability. Should not cover genitals. Can be things like a belt or gloves.
+	upperBodyCosmetic : "upperBodyCosmetic",	
+	lowerBodyCosmetic : "lowerBodyCosmetic",
+	jewelleryCosmetic : "jewelleryCosmetic",
 };
 Asset.SlotsTransmoggable = [Asset.Slots.upperBody, Asset.Slots.lowerBody];
 Asset.Rarity = {

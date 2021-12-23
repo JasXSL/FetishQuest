@@ -160,10 +160,10 @@ class Wrapper extends Generic{
 
 	}
 
-	getCaster(){
+	getCaster( allowParent = true ){
 
 		const out = game.getPlayerById(this.caster);
-		if( out )
+		if( out || !allowParent )
 			return out;
 		return this.parent;	// Used in traps since they don't add the "trap player" to the game
 
@@ -531,7 +531,7 @@ class Wrapper extends Generic{
 			return;
 
 		const evt = new GameEvent({
-			sender : this.getCaster(),
+			sender : this.getCaster(false),
 			target : this.parent,
 			wrapper : this,
 			action : this.parent.constructor === Action ? this.parent : null,

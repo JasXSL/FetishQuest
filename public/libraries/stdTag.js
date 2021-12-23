@@ -137,6 +137,10 @@ export default {
 	asExposedLowerBack : 'as_exposed_lower_back',		// Majority of your lower back is exposed
 	asExposedStomach : 'as_exposed_stomach',		// The majority of your stomach is exposed
 	asHighRiding : 'as_high_riding',		// High riding things like the bodysuits or hip hugging bikini bottoms
+	asGloves : 'as_gloves',
+	asBoots : 'as_boots',
+	asStockings : 'as_stockings',
+	asBelt : 'as_belt',
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',
