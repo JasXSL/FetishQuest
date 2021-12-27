@@ -139,7 +139,9 @@ export default class Modtools{
 
 
 		this.essentialOnly = parseInt(localStorage.editor_essentialOnly);	// In DB lists, only show essential information
+		this.showParented = parseInt(localStorage.editor_showParented);
 		this.toggleEssentialOnly(this.essentialOnly);
+		this.toggleParented(this.showParented);
 
 		this.webgl = new WebGL({
 			fullControls : true,
@@ -328,6 +330,9 @@ export default class Modtools{
 					
 					Window.addMenuOption("essential", "DB List only essential (Alt+E) "+(this.essentialOnly ? '&#9745;' : '	&#9744;'), () => {
 						this.toggleEssentialOnly();
+					}, false);
+					Window.addMenuOption("essential", "DB List parented objects (Advanced) "+(this.showParented ? '&#9745;' : '	&#9744;'), () => {
+						this.toggleParented();
 					}, false);
 					
 				}
@@ -1067,10 +1072,21 @@ export default class Modtools{
 		if( on === undefined )
 			this.essentialOnly = this.essentialOnly ? 0 : 1;
 		else 
-			on = parseInt(on);
+			this.essentialOnly = parseInt(on);
 
 		localStorage.editor_essentialOnly = this.essentialOnly;
 		this.content.classList.toggle('essentialOnly', Boolean(this.essentialOnly));
+
+	}
+
+	toggleParented( on ){
+		if( on === undefined )
+			this.showParented = this.showParented ? 0 : 1;
+		else
+			this.showParented = parseInt(on);
+		
+		localStorage.editor_showParented = this.showParented;
+		this.content.classList.toggle('showParented', Boolean(this.showParented));
 
 	}
 

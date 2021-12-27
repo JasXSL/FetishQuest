@@ -4415,8 +4415,9 @@ export default class StaticModal{
 				const handleAssetClick = event => {
 
 					let id = event.currentTarget.dataset.id,
-						assetObj = lib[id]
+						assetObj = glib.get(id, 'Asset')
 					;
+					console.log(id, assetObj);
 					if( event.ctrlKey || event.metaKey ){
 
 						if( !event.currentTarget.classList.contains('custom') ){

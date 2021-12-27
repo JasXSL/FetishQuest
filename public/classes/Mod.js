@@ -814,8 +814,8 @@ export default class Mod extends Generic{
 	}
 
 
-	// Un-nests legacy nested assets
-	runLegacyConversion(){
+	// Un-nests legacy nested assets. HandleMissingLinks 1 = search for missing links, 2 = remove missing links. 
+	runLegacyConversion( handleMissingLinks = 0 ){
 
 		// Note: this only works on assets that have labels
 		const parentCast = (parentLibrary, parent, field, subLibrary) => {
@@ -1003,19 +1003,51 @@ export default class Mod extends Generic{
 
 		};
 
+		// Gets the table we're unrolling
 		for( let table in unroll ){
 
+			// Extract the asset from this table
 			let updates = {};
 			for( let asset of this[table] ){
 
-				// Unroll direct fields
+				// Loop over linked fields in the unrolled table
 				for( let field in unroll[table] ){
 
-					let subLibrary = unroll[table][field];
-					let changes = parentCast(table, asset, field, subLibrary);
+					let subLibrary = unroll[table][field];							// Library we want to unroll the asset too
+					let changes = parentCast(table, asset, field, subLibrary);		// Auto unroll
+					// Log it
 					if( !updates[subLibrary] )
 						updates[subLibrary] = 0;
 					updates[subLibrary] += changes; 
+
+					// Find missing assets
+					if( handleMissingLinks ){
+
+						let assets = asset[field];		// The array containing the linked assets
+						if( Array.isArray(assets) ){	// Might not be present to save storage space
+
+							for( let sub of assets ){
+
+								let find = this.getAssetById(subLibrary, sub);
+								if( find )
+									continue;
+								
+								console.log(
+									"MISSING LINK", "["+table+"]["+(asset.label || asset.id)+"]["+field+"]", ">>"+sub+"<< not found in "+subLibrary,
+									(asset._mParent || "No parent")
+								);
+								
+								if( handleMissingLinks === 2 ){
+									// Todo: Remove missing links
+								}
+
+							}
+
+						}
+
+					}
+
+					
 
 				}
 
@@ -1146,7 +1178,8 @@ export default class Mod extends Generic{
 
 		if( fixedTexts )
 			console.log("Fixed ", fixedTexts, "improper texts");
-		
+		if( handleMissingLinks )
+			console.log("missing link search complete");
 
 	}
 

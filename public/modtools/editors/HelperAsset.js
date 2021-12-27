@@ -602,7 +602,10 @@ export default{
 
 		// Parent mod assets
 		fulldb.push(...window.mod.parentMod[library].slice().reverse());
-		fulldb = fulldb.filter(el => !el._mParent && !el._e && !el._h);
+		fulldb = fulldb.filter(el => 
+			(!el._mParent && !el._e && !el._h) || 
+			window.mod.showParented
+		);
 
 		const fieldIsEssential = field => field.startsWith('*');
 		const getFieldName = field => { 
