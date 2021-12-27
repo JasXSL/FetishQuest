@@ -9,6 +9,44 @@ Overhaul:
 	Make special stats such as crit.
 	Lock potion belt during combat
 	Max AP should be based purely on power
+	Replace armor steal on wipe with a money steal.
+	Add a bank.
+	Can't change armor in combat, but you can re-equip a stripped piece.
+	Scale the bon/sv importance based on level, so it's more important in the late game
+	Improve enemy power distribution
+	Allow players to mark groin/mouth/chest on players to set areas particles originate from.
+	Lower max arousal to 6
+	Ability swap out of combat
+	Enable beneficial spells out of combat
+	Max arousal removes all AP and cuts AP regen in half for 2 turns.
+	Enemies that counter the niches (Should be given to certain types, to make less random of appearing). ex:
+		- Counterattack a taunting player
+		- Attack that can only be used on a player that was healed or did healing last turn
+		- Attack that can only be used while knocked down/dazed.
+		- Enemy becomes stronger when you remove its shell (affected by armor reduction). Or attack that does more damage while naked.
+	Make the attack/arouse into one default attack ability, but allow players to spend 1 AP to switch it between the 3 damage types at any time.
+
+	Combat stats:
+	- Phys : The same
+	- Corr : The same, but orgasm reworked
+	- Arcane : Ignores 50% of enemy armor
+
+
+	Niches:
+	- Taunt. Also forces the target to use up all their AP if possible.
+	- Arousal management.
+	- Cast prevention (interrupt/silence/knockdown)
+	- Armor removal.
+	- Combo. Gain 1 combo point per 5 AP spent, max 6. Being hit by a detrimental action has a 10% chance per point to break the combo. Combo increases hit chance by 2% per point, and can be spent on actions.
+	- Crowd control. Actions that stun for multiple rounds, but breaks on damage.
+	
+
+	Warrior (Phys) - Taunt
+	Cleric (Arcane) - Arousal removal
+	Elementlist (Arcane) - Cast prevention
+	Rogue (Corr) - Armor removal
+	Monk (Phys) - Combo/breaking
+	Tentaclemancer (Corr) - Crowd control. 
 
 -- CURRENT --
 
