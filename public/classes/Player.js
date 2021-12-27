@@ -73,11 +73,6 @@ export default class Player extends Generic{
 		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 
-		// Primary stats
-		this.stamina = 0;			// Adds HP and carry capacity
-		this.agility = 0;			// Adds AP and crit
-		this.intellect = 0;			// Adds MP
-
 		this.svPhysical = 0;
 		this.svElemental = 0;
 		this.svHoly = 0;
@@ -144,7 +139,6 @@ export default class Player extends Generic{
 		this._cache_tags = null;					// Holds all active tags in a cache for quicker validation
 		this._cache_effects = null;					// Holds all active effects in a cache for quicker validation
 		this._cache_wrappers = null;				// == || ==
-		this._cache_stamina = false;
 
 		this._tmp_actions = [];					// Actions from effects and such bound to a battle
 
@@ -215,9 +209,6 @@ export default class Player extends Generic{
 			size : this.size,
 			level : this.level,
 			class : this.class instanceof PlayerClass ? PlayerClass.saveThis(this.class, full) : this.class,
-			stamina : this.stamina,
-			agility : this.agility,
-			intellect : this.intellect,
 			svPhysical : this.svPhysical,
 			svElemental : this.svElemental,
 			svHoly : this.svHoly,
@@ -1132,7 +1123,7 @@ export default class Player extends Generic{
 	onBattleStart(){
 		this._used_chats = {};
 		this._turn_tags = [];
-		this.ap = Math.max(0, this.getMaxAP()-10);	// Start with your bonus agility as AP
+		this.ap = 0;			// Start with 0 AP
 		this._threat = {};
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
@@ -1189,9 +1180,8 @@ export default class Player extends Generic{
 		if( this.generated )
 			return;
 
-		const primary = this.getPrimaryStats();
-		this.addHP(6+Math.ceil(Math.max(0,primary.stamina*Player.STAMINA_MULTI/2)));	// Each player gets 6 HP back plus half of whatever additional HP they gain from their stamina
-		this.addMP(3+Math.max(0,primary.intellect));									// Gain more back at the end
+		this.addHP(Math.ceil(this.getMaxHP()*0.3));		// Regen 30% of your HP
+		this.addMP(Math.round(this.getMaxMP()*0.3));	// Regen 30% of MP
 		this.addArousal(-Math.ceil(this.getMaxArousal()*0.15), undefined, true);
 
 	}
@@ -1791,12 +1781,11 @@ export default class Player extends Generic{
 
 	}
 
-	// Encumbrance
+	// Gets max carry capacity in grams
 	getCarryingCapacity(){
 
 		let flat = 
 			35000+
-			this.getPrimaryStats()[Player.primaryStats.stamina]*3000+
 			this.getGenericAmountStatPoints(Effect.Types.carryModifier)
 		;
 
@@ -2184,39 +2173,18 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
-
-		const calculateHP = stamina => {
-			return Math.max(Math.ceil((BASE_HP+stamina*Player.STAMINA_MULTI)*this.getPowerMultiplier()), 1);
-		}
-
-		const stamina = this.statPointsToNumber(Player.primaryStats.stamina);
-		let c_stamina = this._cache_stamina;
-		this._cache_stamina = stamina;
-
-		let out = calculateHP(stamina);
-
-		// Stamina has changed, recalculate HP based on percentage
-		if( window.game && game.is_host && c_stamina !== false && c_stamina !== stamina ){
-
-			const was_perc = this.hp / calculateHP(c_stamina);
-			this.hp = Math.floor(out*was_perc);
-
-		}
-
-		return out;
-
+		return Math.max(Math.ceil(BASE_HP*this.getPowerMultiplier()), 1);
 	}
 	getMaxAP(){
 		return Math.round(
 			Math.max(
-				(BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))+
-				(this.getPowerMultiplier()*2-2)
+				BASE_AP*this.getPowerMultiplier()
 				, 1
 			)
 		);
 	}
 	getMaxMP(){
-		return Math.max((BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect)), 1);
+		return Math.ceil(BASE_MP*this.getPowerMultiplier());
 	}
 	getMaxArousal(){
 		return BASE_AROUSAL;
@@ -2224,9 +2192,9 @@ export default class Player extends Generic{
 	// returns a random chance between 0 and 1
 	getCritDoneChance( targ ){
 
-		// 2% per agility plus 10% baseline. Only affects std attack and arouse
+		// 10% baseline chance. Only affects actions with the crit flag set
 		// critDoneMod and critTakenMod are ADDITIVE
-		let out = 0.1+this.statPointsToNumber(Player.primaryStats.agility)*0.02+this.getGenericAmountStatPoints(Effect.Types.critDoneMod, targ);
+		let out = 0.1+this.getGenericAmountStatPoints(Effect.Types.critDoneMod, targ);
 		if( targ instanceof Player )
 			out += targ.getGenericAmountStatPoints(Effect.Types.critTakenMod, this);
 		return out;
@@ -2236,29 +2204,6 @@ export default class Player extends Generic{
 
 
 	/* STATS */
-	getPrimaryStats(){
-
-		if( !this.class )
-			this.class = new PlayerClass();
-
-		return {
-			stamina : Math.floor(
-				(this.getGenericAmountStatPoints(Effect.Types.staminaModifier)+this.stamina+this.class[Player.primaryStats.stamina])*
-				this.getGenericAmountStatMultiplier(Effect.Types.staminaModifier)),
-			agility : Math.floor(
-				(this.getGenericAmountStatPoints(Effect.Types.agilityModifier)+this.agility)+this.class[Player.primaryStats.agility]*
-				this.getGenericAmountStatMultiplier(Effect.Types.agilityModifier)),
-			intellect : Math.floor(
-				(this.getGenericAmountStatPoints(Effect.Types.intellectModifier)+this.intellect)+this.class[Player.primaryStats.intellect]*
-				this.getGenericAmountStatMultiplier(Effect.Types.intellectModifier)),
-		};
-	}
-
-	// Takes a Player.primaryStats value and converts it to a number to add to HP/MP etc for this character
-	statPointsToNumber( stat ){
-		return this.getPrimaryStats()[stat];
-	}
-
 	getPowerMultiplier(){
 		if( this.power < 0 )
 			return game.dungeon.getDifficulty();
@@ -3584,24 +3529,11 @@ export default class Player extends Generic{
 }
 
 Player.MAX_LEVEL = 14;
-Player.STAMINA_MULTI = 3;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
 
 Player.MAX_ACTION_SLOTS = 6;
-
-Player.primaryStats = {
-	intellect : 'intellect',
-	stamina : 'stamina',
-	agility : 'agility'
-};
-
-Player.primaryStatsNames = {
-	[Player.primaryStats.intellect] : 'magic',
-	[Player.primaryStats.stamina] : 'stamina',
-	[Player.primaryStats.agility] : 'agility',
-};
 
 Player.currencyWeights = [
 	'platinum',

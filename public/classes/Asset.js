@@ -736,7 +736,6 @@ Asset.generateStatWrapper = function( numSlots, bonusStats, rarity = 0 ){
 
 	effects.push(Effect.createStatBonus('sv'+Action.Types[randElem(Object.keys(Action.Types))], points));
 	effects.push(Effect.createStatBonus('bon'+Action.Types[randElem(Object.keys(Action.Types))], points));
-	effects.push(Effect.createStatBonus(randElem(Object.keys(Player.primaryStats))+'Modifier', points));
 	
 	shuffle(effects);
 
@@ -825,9 +824,6 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		addEffectToWrapper(wrapper, i, template.bonStats[i]);
 	for( let i in template.svStats )
 		addEffectToWrapper(wrapper, i, template.svStats[i]);
-	for( let i in template.primaryStats )
-		addEffectToWrapper(wrapper, i+'Modifier', template.primaryStats[i]);
-
 
 	// Generate the description
 	wrapper.effects.sort((a, b) => {
@@ -867,15 +863,13 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 
 };
 
-// Stringifies a stat like svElemental etc into a more readable format. Also supports primary stats such as staminaModifier
+// Stringifies a stat like svElemental etc into a more readable format.
 Asset.stringifyStat = function( stat ){
 
 	if( stat.substr(0,2) === 'sv' )
 		return 'Res.'+stat.substr(2);
 	if( stat.substr(0,3) === 'bon' )
 		return 'Pro.'+stat.substr(3);
-	if( stat.endsWith('Modifier') )
-		return ucFirst(stat.substr(0,3));
 	
 	return stat;
 

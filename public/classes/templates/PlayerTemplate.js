@@ -35,7 +35,6 @@ class PlayerTemplate extends Generic{
 		this.max_level = 20;
 		this.monetary_wealth = 0;				// Copper. Varies by 50%
 		this.gear_quality = 0.2;				// Quality of gear generated
-		this.primary_stats = {};
 		this.sv = {};
 		this.bon = {};
 		this.viable_asset_materials = [];		// materials from AssetTemplate
@@ -87,7 +86,6 @@ class PlayerTemplate extends Generic{
 			tags : this.tags,
 			min_level : this.min_level,
 			max_level : this.max_level,
-			primary_stats : this.primary_stats,
 			sv : this.sv,
 			bon : this.bon,
 			viable_asset_materials : this.viable_asset_materials,
@@ -362,11 +360,6 @@ class PlayerTemplate extends Generic{
 		for( let action of viableActions )
 			player.addAction(action, true);
 
-		
-		// Primary stats
-		for( let i in this.primary_stats ){
-			player[i] = this.primary_stats[i] || 0;
-		}
 
 		const penalty = Math.min(level-4, 0);
 
@@ -375,9 +368,6 @@ class PlayerTemplate extends Generic{
 		for( let i in this.bon )
 			player['bon'+i] = this.bon[i]+penalty;
 
-		// Lower level monsters have a primary stat penalty up to level 3
-		for( let i in Player.primaryStats )
-			player[i] += penalty;
 
 		player.fullRegen();
 

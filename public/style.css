@@ -864,7 +864,6 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:0;
 	}
 
-	#player div.cmTabContent div.right > div.primaryStats,
 	#player div.cmTabContent div.right > div.secondaryStats
 	{
 		left:0; right:0;
@@ -898,10 +897,6 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#player div.cmTabContent div.right div.secondaryStats > div.tag{
 		width:25%;
-	}
-
-	#player div.cmTabContent div.right > div.primaryStats{
-		bottom:6%;
 	}
 
 	#player div.cmTabContent div.right > div.expBar{

@@ -45,8 +45,6 @@ export function asset(){
 		html += '<label>SV '+esc(i)+': <input name="svBons::'+esc(Action.Types[i])+'" value="'+esc(dummy.svBons[Action.Types[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
 	for( let i in Action.Types )
 		html += '<label>BON '+esc(i)+': <input name="bonBons::'+esc(Action.Types[i])+'" value="'+esc(dummy.svBons[Action.Types[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
-	for( let i in Player.primaryStats )
-		html += '<label>'+esc(i)+': <input name="primaryStats::'+esc(Player.primaryStats[i])+'" value="'+esc(dummy.primaryStats[Player.primaryStats[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
 	html += '</div>';
 	
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
@@ -83,7 +81,6 @@ export function list(){
 		tags : true,
 		svBons : true,
 		bonBons: true,
-		primaryStats : true,
 		tags: true,
 		
 	}));

@@ -1191,7 +1191,6 @@ export default class StaticModal{
 							</div>
 						</div>
 						<div class="equipment inventory"></div>
-						<div class="primaryStats flexThreeColumns"></div>
 						<div class="secondaryStats flexAuto"></div>
 					</div>
 					<div class="export">
@@ -1236,11 +1235,6 @@ export default class StaticModal{
 							</div>
 							Tags<br /><textarea name="tags"></textarea>
 							Description<br /><textarea name="description"></textarea>
-							<div class="flexThreeColumns">
-								<div>Stamina<br /><input type="number" name="stamina" step=1 /></div>
-								<div>Agility<br /><input type="number" name="agility" step=1 /></div>
-								<div>Intellect<br /><input type="number" name="intellect" step=1 /></div>
-							</div>
 							<p><em>Note: When creating a player character you should leave these stats at 0, stats are derived from the class.</em></p>
 							<h3>Avoidance:</h3>
 							<div class="flexFourColumns secondaryStat sv">
@@ -1290,7 +1284,6 @@ export default class StaticModal{
 					expBarBar : $("> div.right > div.expBar > div.progressBar div.bar", cDom),
 					expBarText : $("> div.right > div.expBar > div.progressBar span.content", cDom),
 					equipment : $("> div.right > div.equipment", cDom),
-					primaryStats : $("> div.right > div.primaryStats", cDom),
 					secondaryStats : $("> div.right > div.secondaryStats", cDom),
 
 					exportPlayer : $('input.exportPlayer', cDom),
@@ -1321,9 +1314,6 @@ export default class StaticModal{
 					formTeam : $('#playerEditor input[name=team]', dDom),
 					formTags : $('#playerEditor textarea[name=tags]', dDom),
 					formDescription : $('#playerEditor textarea[name=description]', dDom),
-					formStamina : $('#playerEditor input[name=stamina]', dDom),
-					formAgility : $('#playerEditor input[name=agility]', dDom),
-					formIntellect : $('#playerEditor input[name=intellect]', dDom),
 					formSadistic : $('#playerEditor input[name=sadistic]', dDom),
 					formDominant : $('#playerEditor input[name=dominant]', dDom),
 					formHetero : $('#playerEditor input[name=hetero]', dDom),
@@ -1514,27 +1504,6 @@ export default class StaticModal{
 
 
 					let html = '';
-					let stats = player.getPrimaryStats();
-					for( let stat in stats ){
-
-						let title = 'HP';
-						let amount = player.statPointsToNumber(stat);
-						if( stat === Player.primaryStats.agility )
-							title = 'AP';
-						else if( stat === Player.primaryStats.intellect )
-							title = 'MP';
-						else
-							amount *= Player.STAMINA_MULTI;
-						html += '<div class="tag tooltipParent" title="Increases '+title+' by '+amount+'.">'+
-								'<span>'+(stats[stat] > 0 ? '+' : '')+stats[stat]+' '+ucFirst(stat.substr(0,3))+'</span>'+
-								'<div class="tooltip">'+title+' '+(amount >= 0 ? 'increased' : 'decreased')+' by '+amount+'</div>'+
-							'</div>';
-
-					}
-					cDivs.primaryStats.html(html);
-
-
-					html = '';
 					const s = Object.values(Action.Types).map(el => ucFirst(el)).sort();
 					const myPlayer = game.getMyActivePlayer() || new Player();
 					for( let stat of s ){
@@ -1581,9 +1550,6 @@ export default class StaticModal{
 					dDivs.formTeam.val(parseInt(player.team) || 0);
 					dDivs.formTags.val(player.tags.map(tag => tag.startsWith('pl_') ? tag.substr(3) : tag ).join(' '));
 					dDivs.formDescription.val(player.description);
-					dDivs.formStamina.val(parseInt(player.stamina) || 0);
-					dDivs.formAgility.val(parseInt(player.agility) || 0);
-					dDivs.formIntellect.val(parseInt(player.intellect) || 0);
 					dDivs.formSadistic.val(+player.sadistic || 0);
 					dDivs.formDominant.val(+player.dominant || 0);
 					dDivs.formHetero.val(+player.hetero || 0);
@@ -1668,10 +1634,6 @@ export default class StaticModal{
 						player.ap = parseInt(dDivs.formAP.val())||0;
 						player.mp = parseInt(dDivs.formMP.val())||0;
 						player.arousal = parseInt(dDivs.formArousal.val())||0;
-			
-						player.stamina = parseInt(dDivs.formStamina.val())||0;
-						player.agility = parseInt(dDivs.formAgility.val())||0;
-						player.intellect = parseInt(dDivs.formIntellect.val())||0;
 
 						player.sadistic = Math.max(0, Math.min(1, +dDivs.formSadistic.val())) || 0;
 						player.dominant = Math.max(0, Math.min(1, +dDivs.formDominant.val())) || 0;
@@ -4338,10 +4300,7 @@ export default class StaticModal{
 							stats['sv'+Action.Types[i]] = 0;
 							stats['bon'+Action.Types[i]] = 0;
 						}
-		
-						for( let i in Player.primaryStats )
-							stats[i+'Modifier'] = 0;
-		
+
 						for( let wrapper of wrappers ){
 		
 							for( let effect of wrapper.effects ){

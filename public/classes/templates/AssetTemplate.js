@@ -17,7 +17,6 @@ class AssetTemplate extends Generic{
 		this.materials = ['cotton'];	// Available material labels
 		this.svStats = {};
 		this.bonStats = {};
-		this.primaryStats = {};
 		this.description = "";
 		this.tags = [];
 		this.wrappers = [];
@@ -45,7 +44,6 @@ class AssetTemplate extends Generic{
 			materials : this.materials,
 			svStats : this.svStats,
 			bonStats : this.bonStats,
-			primaryStats : this.primaryStats,
 			description : this.description,
 			tags : this.tags,
 			size : this.size,
@@ -148,7 +146,6 @@ class AssetTemplate extends Generic{
 			slots : this.slots,
 			svStats : mergeStats('sv',this.svStats, mat.svBons),
 			bonStats : mergeStats('bon',this.bonStats, mat.bonBons),
-			primaryStats : mergeStats('', this.primaryStats, mat.primaryStats),
 			description : this.description,
 			tags : this.tags.concat(mat.tags.map(el => el)),
 			durability_bonus : mat.durability_bonus,
@@ -176,7 +173,6 @@ class AssetOutput extends Generic{
 		this.shortname = ""; 
 		this.svStats = {};
 		this.bonStats = {};
-		this.primaryStats = {};
 		this.description = "";
 		this.tags = [];
 		this.durability_bonus = 0;
@@ -251,7 +247,6 @@ class MaterialTemplate extends Generic{
 		this.durability_bonus = 1;		// Multiplier. Actual durability is based on level.
 		this.svBons = {};	// type : bon 
 		this.bonBons = {}; // == || ==
-		this.primaryStats = {};
 		this.stat_bonus = 0;		// Adds additional stat points to generator
 		this.colorable = true;
 		this.color_tag_base = 'white';
@@ -276,7 +271,6 @@ class MaterialTemplate extends Generic{
 			svBons : this.svBons,
 			bonBons : this.bonBons,
 			stat_bonus : this.stat_bonus,
-			primaryStats : this.primaryStats,
 			colorable : this.colorable,
 			color_tag_base : this.color_tag_base,
 			color_base : this.color_base,

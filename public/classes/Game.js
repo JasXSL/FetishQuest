@@ -2319,7 +2319,7 @@ export default class Game extends Generic{
 				el.onBattleStart();
 				return {
 					p : el,
-					i : Math.random()+el.getPrimaryStats().agility*0.1
+					i : Math.random()	// You can weight this higher if you want to add an initiative modifier later
 				};
 
 			});

@@ -2245,13 +2245,6 @@ Effect.Types = {
 	gameAction : 'gameAction',
 	addActionCharges : 'addActionCharges',		
 
-	// Stamina
-	staminaModifier : "staminaModifier",		
-	// Agility
-	agilityModifier : "agilityModifier",		
-	// Intellect
-	intellectModifier : "intellectModifier",	
-
 	carryModifier : "carryModifier",	
 
 	expMod : "expMod",
@@ -2339,9 +2332,6 @@ Effect.Passive = {
 	[Effect.Types.critTakenMod] : true,
 	[Effect.Types.globalHealingTakenMod] : true,
 	[Effect.Types.globalArousalTakenMod] : true,
-	[Effect.Types.staminaModifier] : true,
-	[Effect.Types.agilityModifier] : true,
-	[Effect.Types.intellectModifier] : true,
 	[Effect.Types.carryModifier] : true,
 	[Effect.Types.addTags] : true,
 	[Effect.Types.addRandomTags] : true,
@@ -2443,14 +2433,6 @@ Effect.TypeDescs = {
 	
 
 	[Effect.Types.allowReceiveSpells] : '{conditions:(arr)conditions} - Filters what spells may target the affected player. Checked in Player',
-	// Stamina
-	[Effect.Types.staminaModifier] : '{amount:(int)amount}',
-	// Agility
-	[Effect.Types.agilityModifier] : '{amount:(int)amount}',
-	// Intellect
-	[Effect.Types.intellectModifier] : '{amount:(int)amount}',
-
-
 	[Effect.Types.svPhysical] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 	[Effect.Types.svElemental] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 	[Effect.Types.svHoly] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',

@@ -76,7 +76,7 @@ class Action extends Generic{
 		this.ignore_wrapper_conds = false;		// Ignores wrapper conditions and allows it to cast without any valid wrapper conditions
 
 		this.can_crit = false;					// This ability can critically hit
-		this.crit_formula = '';					// Overrides the default agility based formula. Requires can_crit to be set
+		this.crit_formula = '';					// Custom crit chance. Requires can_crit to be set
 		this.no_clairvoyance = false;			// This shouldn't be inspectable with clarivoyance
 
 		// User stuff

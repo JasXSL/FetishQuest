@@ -58,8 +58,6 @@ export function asset(){
 		html += '<label>SV '+esc(i)+': <input name="svStats::'+esc(Action.Types[i])+'" value="'+esc(dummy.svStats[Action.Types[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
 	for( let i in Action.Types )
 		html += '<label>BON '+esc(i)+': <input name="bonStats::'+esc(Action.Types[i])+'" value="'+esc(dummy.bonStats[Action.Types[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
-	for( let i in Player.primaryStats )
-		html += '<label>'+esc(i)+': <input name="primaryStats::'+esc(Player.primaryStats[i])+'" value="'+esc(dummy.primaryStats[Player.primaryStats[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
 	html += '</div>';
 	
 
@@ -113,7 +111,6 @@ export function list(){
 		['*materials'] : true,
 		svStats : true,
 		bonStats : true,
-		primaryStats : true,
 		description : true,
 		tags : true,
 		wrappers : true,

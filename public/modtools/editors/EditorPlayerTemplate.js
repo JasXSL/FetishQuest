@@ -83,10 +83,7 @@ export function asset(){
 			const t = Action.Types[i];
 			html += '<label>bon '+esc(i)+': <input name="'+esc('bon::'+t)+'" value="'+esc(dummy.bon[t] || 0)+'" class="saveable" type="number" step=1 /></label>';
 		}
-		for( let i in Player.primaryStats ){
-			const t = Player.primaryStats[i];
-			html += '<label>'+esc(i)+': <input name="'+esc('primary_stats::'+t)+'" value="'+esc(dummy.primary_stats[t] || 0)+'" class="saveable" type="number" step=1 /></label>';
-		}
+
 		
 	html += '</div>';
 
@@ -154,7 +151,6 @@ export function list(){
 		max_level : true,
 		monetary_wealth : true,
 		gear_quality : true,
-		primary_stats : true,
 		sv : true,
 		bon : true,
 		viable_asset_materials : true,

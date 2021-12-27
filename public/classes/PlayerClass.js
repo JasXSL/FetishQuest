@@ -23,11 +23,6 @@ export default class PlayerClass extends Generic{
 		this.bonElemental = 0;
 		this.bonHoly = 0;
 		this.bonCorruption = 0;
-
-		this.stamina = 0;
-		this.intellect = 0;
-		this.agility = 0;
-
 		this.load(...args);
 	}
 
@@ -49,9 +44,6 @@ export default class PlayerClass extends Generic{
 			bonHoly : this.bonHoly,
 			bonCorruption : this.bonCorruption,
 			description : this.description,
-			stamina : this.stamina,
-			intellect : this.intellect,
-			agility : this.agility,
 			name_type : this.name_type
 		};
 		if( full ){
