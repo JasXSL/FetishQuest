@@ -863,7 +863,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 
 };
 
-// Stringifies a stat like svElemental etc into a more readable format.
+// Stringifies a stat like svPhys etc into a more readable format.
 Asset.stringifyStat = function( stat ){
 
 	if( stat.substr(0,2) === 'sv' )

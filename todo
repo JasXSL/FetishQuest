@@ -5,7 +5,7 @@
 	Restat ping armor
 	shorok-thong
 	seashell sling bikini
-	
+
 
 Overhaul:
 	Remove the primary stats
@@ -175,7 +175,8 @@ Overhaul:
 	Sets a min damage for attacks
 	When you play x attacks in a turn, something happens
 	Gain AP every x actions used in a battle
-
+	Sorted effects like also deals x damage to the enemy with highest HP
+	Bonus damage when conditions are met, such as highest HP enemy
 
 
 -- LATER UPDATE --

@@ -101,6 +101,13 @@ export default {
 	acDrink : 'ac_drink',
 	acNpcIgnoreAggro : 'ac_npc_ignore_aggro',
 	acFlavor : 'ac_flavor',						// These are flavor actions the AI can use at random
+	acIce : 'ac_ice',
+	acHoly : 'ac_holy',
+	acFire : 'ac_fire',
+	acAir : 'ac_air',
+	acWet : 'ac_wet',
+	acEarth : 'ac_earth',
+	acElectric : 'ac_electric',
 
 	// Common asset tags. These are appended with _<slot> ex as_tight_upperBody
 	asUpperBody : 'as_upperBody',	// slots like these are automatically added while you're wearing items in those slots

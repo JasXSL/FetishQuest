@@ -1240,15 +1240,13 @@ export default class StaticModal{
 							<div class="flexFourColumns secondaryStat sv">
 								<div class="physical">Physical <input type="number" step=1 /></div>
 								<div class="corruption">Corruption <input type="number" step=1 /></div>
-								<div class="elemental">Elemental <input type="number" step=1 /></div>
-								<div class="holy">Holy <input type="number" step=1 /></div>
+								<div class="arcane">Arcane <input type="number" step=1 /></div>
 							</div>
 							<h3>Proficiency:</h3>
 							<div class="flexFourColumns secondaryStat bon">
 								<div class="physical">Physical <input type="number" step=1 /></div>
 								<div class="corruption">Corruption <input type="number" step=1 /></div>
-								<div class="elemental">Elemental <input type="number" step=1 /></div>
-								<div class="holy">Holy <input type="number" step=1 /></div>
+								<div class="arcane">Arcane <input type="number" step=1 /></div>
 							</div>
 							<div class="center">Non-sadistic <input type="range" name="sadistic" min=0 max=1 step=0.1 style="width:40%" /> Sadistic</div>
 							<div class="center">Sub <input type="range" name="dominant" min=0 max=1 step=0.1 style="width:40%" /> Dom</div>

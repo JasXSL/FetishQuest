@@ -15,13 +15,11 @@ export default class PlayerClass extends Generic{
 
 		// 10 points total, these are floats, and add 10% per point from leveling, rounded up
 		this.svPhysical = 0;
-		this.svElemental = 0;
-		this.svHoly = 0;
+		this.svArcane = 0;
 		this.svCorruption = 0;
 
 		this.bonPhysical = 0;
-		this.bonElemental = 0;
-		this.bonHoly = 0;
+		this.bonArcane = 0;
 		this.bonCorruption = 0;
 		this.load(...args);
 	}
@@ -36,12 +34,10 @@ export default class PlayerClass extends Generic{
 			label : this.label,	// Needed for class conditions
 			name : this.name,
 			svPhysical : this.svPhysical,
-			svElemental : this.svElemental,
-			svHoly : this.svHoly,
+			svArcane : this.svArcane,
 			svCorruption : this.svCorruption,
 			bonPhysical : this.bonPhysical,
-			bonElemental : this.bonElemental,
-			bonHoly : this.bonHoly,
+			bonArcane : this.bonArcane,
 			bonCorruption : this.bonCorruption,
 			description : this.description,
 			name_type : this.name_type

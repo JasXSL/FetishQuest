@@ -1082,24 +1082,21 @@ Action.TargetTypes = {
 
 // SV/BON types
 Action.Types = {
-	physical : "Physical",
-	elemental : "Elemental",
-	holy : "Holy",
-	corruption : "Corruption",
+	physical : "Physical",			// Primary used body to hurt effects
+	corruption : "Corruption",		// Primary sexy effects
+	arcane : "Arcane",				// Anything that doesn't fit in the top two categories
 };
 
 Action.TypeDescriptions = {
 	[Action.Types.physical] : 'Physical attacks have a chance of damaging armor durability.',
-	[Action.Types.elemental] : 'Elemental attacks have a chance of damaging enemy AP.',
-	[Action.Types.holy] : 'Holy healing has a chance to consume the target\'s arousal, increasing the healing effect.',
+	[Action.Types.arcane] : 'Arcane effects have a chance to restore MP next turn.',
 	[Action.Types.corruption] : 'Corruption effects have a chance to arouse the target, increasing their corruption damage taken.',
 };
 
 Action.typeColor = function(type){
 	let colors = {
 		[Action.Types.physical] : '#FDD',
-		[Action.Types.elemental] : '#DFF',
-		[Action.Types.holy] : '#FFD',
+		[Action.Types.arcane] : '#DFF',
 		[Action.Types.corruption] : '#FDF',
 	};
 	if( colors[type] )

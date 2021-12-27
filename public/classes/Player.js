@@ -74,13 +74,11 @@ export default class Player extends Generic{
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 
 		this.svPhysical = 0;
-		this.svElemental = 0;
-		this.svHoly = 0;
+		this.svArcane = 0;
 		this.svCorruption = 0;
 
 		this.bonPhysical = 0;
-		this.bonElemental = 0;
-		this.bonHoly = 0;
+		this.bonArcane = 0;
 		this.bonCorruption = 0;
 		this.bot = new Bot(this);
 		this.used_punish = false;				// We have punished a target since the last battle ended or we left the room
@@ -210,12 +208,10 @@ export default class Player extends Generic{
 			level : this.level,
 			class : this.class instanceof PlayerClass ? PlayerClass.saveThis(this.class, full) : this.class,
 			svPhysical : this.svPhysical,
-			svElemental : this.svElemental,
-			svHoly : this.svHoly,
+			svArcane : this.svArcane,
 			svCorruption : this.svCorruption,
 			bonPhysical : this.bonPhysical,
-			bonElemental : this.bonElemental,
-			bonHoly : this.bonHoly,
+			bonArcane : this.bonArcane,
 			bonCorruption : this.bonCorruption,
 			used_punish : this.used_punish,
 			leader : this.leader,
@@ -473,13 +469,11 @@ export default class Player extends Generic{
 			this._ignore_effects.push(event.effect);
 		// Theres a recursion here when math is used in SV/Bon and to get SV/Bon you need math
 		vars[prefix+'SvPhysical'] = this.getSV(Action.Types.physical);
-		vars[prefix+'SvElemental'] = this.getSV(Action.Types.elemental);
-		vars[prefix+'SvHoly'] = this.getSV(Action.Types.holy);
+		vars[prefix+'SvArcane'] = this.getSV(Action.Types.arcane);
 		vars[prefix+'SvCorruption'] = this.getSV(Action.Types.corruption);
 		
 		vars[prefix+'BonPhysical'] = this.getBon(Action.Types.physical);
-		vars[prefix+'BonElemental'] = this.getBon(Action.Types.elemental);
-		vars[prefix+'BonHoly'] = this.getBon(Action.Types.holy);
+		vars[prefix+'BonArcane'] = this.getBon(Action.Types.arcane);
 		vars[prefix+'BonCorruption'] = this.getBon(Action.Types.corruption);
 		vars[prefix+'Lv'] = this.level;
 		vars[prefix+'HP'] = this.hp;

@@ -1053,26 +1053,6 @@ class Effect extends Generic{
 					e2 = GameEvent.Types.healingTaken;
 					
 					
-					
-					// Holy arousal purging
-					if( type === Action.Types.holy ){
-
-						let procChance = 15*s.getStatProcMultiplier(Action.Types.holy, false)*t.getStatProcMultiplier(Action.Types.holy, true);
-						// 15% chance per point of healing
-						let ch = Math.abs(amt*procChance);
-						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
-						if( tot > t.arousal )
-							tot = t.arousal;
-						if( t.isOrgasming() )
-							tot = 0;
-						if( tot && t.arousal ){
-							t.addArousal(-tot, true);
-							game.ui.addText( t.getColoredName()+" lost "+Math.abs(tot)+" arousal from holy healing.", undefined, s.id, t.id, 'statMessage arousal' );
-							amt += tot*2;	// Holy healing converts arousal into HP
-						}
-
-					}
-
 					let heal_aggro = 0.2;
 					if( this.data.heal_aggro ){
 						heal_aggro = Calculator.run(this.data.heal_aggro, calcEvt);
@@ -1136,28 +1116,11 @@ class Effect extends Generic{
 						
 					}
 
-					// AP Damage
-					if( type === Action.Types.elemental && t.ap ){
-						
-						// 10% chance per point of damage, max 1
-						let procChance = 10*s.getStatProcMultiplier(Action.Types.elemental, false)*t.getStatProcMultiplier(Action.Types.elemental, true);
-						let ch = Math.abs(amt*procChance);
-						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
-						if( tot > t.ap )
-							tot = t.ap;
-						if( tot ){
-							tot = Math.min(1, tot);
-							t.addAP(-tot, true);
-							game.ui.addText( t.getColoredName()+" lost "+Math.abs(tot)+" AP from elemental damage.", undefined, s.id, t.id, 'statMessage AP' );
-						}
-
-					}
-
 
 
 				}
 
-				
+				// Todo: Arcane effect
 
 				// Calculate arousal (allowed for both healing and damaging)
 				if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
@@ -2250,18 +2213,15 @@ Effect.Types = {
 	expMod : "expMod",
 
 	svPhysical : 'svPhysical',				
-	svElemental : 'svElemental',			
-	svHoly : 'svHoly',						
+	svArcane : 'svArcane',				
 	svCorruption : 'svCorruption',			
 
 	bonPhysical : 'bonPhysical',			
-	bonElemental : 'bonElemental',			
-	bonHoly : 'bonHoly',					
+	bonArcane : 'bonArcane',	
 	bonCorruption : 'bonCorruption',		
 
 	physicalProcMultiplier : 'physicalProcMultiplier',
-	elementalProcMultiplier : 'elementalProcMultiplier',
-	holyProcMultiplier : 'holyProcMultiplier',
+	arcaneProcMultiplier : 'arcaneProcMultiplier',
 	corruptionProcMultiplier : 'corruptionProcMultiplier',
 
 	healAggroMultiplier : 'healAggroMultiplier',
@@ -2338,18 +2298,15 @@ Effect.Passive = {
 	[Effect.Types.expMod] : true,
 
 	[Effect.Types.svPhysical] : true,
-	[Effect.Types.svElemental] : true,
-	[Effect.Types.svHoly] : true,
+	[Effect.Types.svArcane] : true,
 	[Effect.Types.svCorruption] : true,
 
 	[Effect.Types.bonPhysical] : true,
-	[Effect.Types.bonElemental] : true,
-	[Effect.Types.bonHoly] : true,
+	[Effect.Types.bonArcane] : true,
 	[Effect.Types.bonCorruption] : true,
 
 	[Effect.Types.physicalProcMultiplier] : true,
-	[Effect.Types.elementalProcMultiplier] : true,
-	[Effect.Types.holyProcMultiplier] : true,
+	[Effect.Types.arcaneProcMultiplier] : true,
 	[Effect.Types.corruptionProcMultiplier] : true,
 	[Effect.Types.healAggroMultiplier] : true,
 	[Effect.Types.knockdown] : true,
@@ -2426,21 +2383,18 @@ Effect.TypeDescs = {
 
 	[Effect.Types.physicalProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the damage armor chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
 	[Effect.Types.corruptionProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the arousal proc chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
-	[Effect.Types.elementalProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the AP damage chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
-	[Effect.Types.holyProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the arousal wiping chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
+	[Effect.Types.arcaneProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the AP damage chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
 	
 	[Effect.Types.healAggroMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the heal aggro against this value. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
 	
 
 	[Effect.Types.allowReceiveSpells] : '{conditions:(arr)conditions} - Filters what spells may target the affected player. Checked in Player',
 	[Effect.Types.svPhysical] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
-	[Effect.Types.svElemental] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
-	[Effect.Types.svHoly] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+	[Effect.Types.svArcane] :  '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 	[Effect.Types.svCorruption] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 
 	[Effect.Types.bonPhysical] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
-	[Effect.Types.bonElemental] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
-	[Effect.Types.bonHoly] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
+	[Effect.Types.bonArcane] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 	[Effect.Types.bonCorruption] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 
 	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers, stacks:(int)=auto} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. Stacks lets you override the stacks of the wrapper to run. -1 will use the same nr of stacks as the parent of this effect.',
