@@ -2,6 +2,14 @@
 	- Keep redesigning errors to a try/catch system
 	- Add more automatic asset unrolling as you discover rolled up assets
 
+Overhaul:
+	Remove the primary stats
+	Make AP regen a fixed 4 AP per turn.
+	Keep MP regen as is.
+	Make special stats such as crit.
+	Lock potion belt during combat
+	Max AP should be based purely on power
+
 -- CURRENT --
 
 	Tentacle Wrestling:
@@ -12,6 +20,7 @@
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?
 		- Sometimes using repair kits fails?
+		- Sync the difficulty slider the level offsets fail
 
 	Items:
 		- Sundial to tell the time outside
@@ -112,6 +121,17 @@
 		- Stront
 		
 		- Fennecite - Metal material
+
+
+-- Totally not stolen ideas --
+	During boss and elite combats, gain 1 energy start of turn
+	Increased loot
+	AoE when playing multiple skills
+	Chance to make a random ability cost no AP
+	Give stats when debuffed
+	Sets a min damage for attacks
+	When you play x attacks in a turn, something happens
+	Gain AP every x actions used in a battle
 
 
 

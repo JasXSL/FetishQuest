@@ -3348,7 +3348,7 @@ export default class Player extends Generic{
 		if( !game.battle_active )
 			this._last_chat = Date.now();
 		else
-			this._last_chat = this._turns || 1;	// Needed or they can use multiple ini texts
+			this._last_chat = game.totTurns;
 
 	}
 
@@ -3361,8 +3361,8 @@ export default class Player extends Generic{
 		if( !game.battle_active )
 			return ( Date.now()-this._last_chat > 3000 );	// Max 3 sec when out of combat
 
-		let turnsSinceLastSpoke = this._turns-this._last_chat;
-		return Math.random() < turnsSinceLastSpoke*this.talkative;
+		let turnsSinceLastSpoke = game.totTurns-this._last_chat;
+		return Math.random() < turnsSinceLastSpoke*Math.pow(this.talkative, 2);
 
 	}
 

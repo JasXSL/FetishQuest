@@ -24,12 +24,15 @@
 		import WM from './modtools/WindowManager.js';
 		import Generic from './classes/helpers/Generic.js';
 		import Tags from './libraries/stdTag.js';
+		import {LibMesh} from './libraries/meshes.js';
 		window.glib = new GameLib();
 		window.mat = Materials;
 		window.mod = new Modtools();
 		window.Generic = Generic;
 		window.Window = WM;
 		window.stdTag = Tags;
+		console.log(LibMesh);
+		window.libMesh = LibMesh.getFlatObjects();
 	</script>
 
 	<div id="wrap">

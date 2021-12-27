@@ -63,7 +63,7 @@ export default class Game extends Generic{
 		this.difficulty = 0;							// Scale between -3 and 3. Alters enemy level 
 		this.genders = 0;								// Prefer these genders when generating template NPCs. See Game.Genders
 		this.factions = [];
-
+		this.totTurns = 0;								// Total turns performed since battle started
 		this.modRepo = new ModRepo();
 
 		// Library of custom items
@@ -207,7 +207,7 @@ export default class Game extends Generic{
 			out.procedural = Dungeon.saveThese(this.procedural, full);
 			out.state_dungeons = this.state_dungeons.save(full);
 			out.state_roleplays = this.state_roleplays.save();
-
+			out.totTurns = this.totTurns;
 			Object.values(this.libAsset).map(el => out.libAsset[el.label] = el.save(full));
 			out.name = this.name;
 			out.id = this.id;
@@ -2304,6 +2304,8 @@ export default class Game extends Generic{
 
 		if( this.battle_active ){
 
+			this.totTurns = 0;
+
 			//log.log('Start A');
 			this.encounter.setCompleted(false);
 			this.ui.battleVis();
@@ -2473,6 +2475,7 @@ export default class Game extends Generic{
 				pl.onTurnEnd();
 
 			++this.turn;
+			++this.totTurns;
 			if( this.turn >= this.initiative.length )
 				this.turn = 0;
 

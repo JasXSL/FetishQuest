@@ -405,6 +405,25 @@ LibMesh.getFlatLib = function( base, label = '' ){
 
 };
 
+LibMesh.getFlatObjects = function( base ){
+
+	if( !base )
+		base = build();
+	let out = [];
+	for( let i in base ){
+
+		const obj = base[i];
+		if( obj instanceof this )
+			out.push(obj);
+		else
+			out = out.concat(this.getFlatObjects(obj));
+			
+	}
+	out.sort();
+	return out;
+
+}
+
 // Supply a function with arguments (model, path)
 LibMesh.iterate = function( fn ){
 	let th = this;
@@ -581,7 +600,9 @@ function build(){
 				}),
 				WallChain : new LibMesh({
 					url : 'doodads/hanging_chains_1x1.JD',
-					tags : [],
+					tags : [
+						stdTag.mWallChain
+					],
 					materials : [
 						libMat.Metal.Chain,
 					],
