@@ -321,7 +321,7 @@ div.scroll{
 	position: fixed;
 	left:0; right:0;
 	bottom:5.1vh; top:0;
-	background:rgba(0,50,100,.5);
+	background:rgba(0,50,100,.1);
 	transition: transform 0.1s ease-out;
 }
 #ui.hidden{
@@ -1713,9 +1713,13 @@ div.passiveUpsideDown > div.content > div.bg{
 
 	#ui > div.players > div.left{
 		left:0;
+		top:4vh;
+		bottom:4vh;
 	}
 	#ui > div.players > div.right{
 		right:0;
+		top:4vh;
+		bottom:4vh;
 	}
 	#ui > div.players div.player{
 		margin-left:0;
@@ -1725,17 +1729,36 @@ div.passiveUpsideDown > div.content > div.bg{
 		pointer-events: none;
 	}
 	#ui > div.players div.player div.stats{
-		text-shadow:0.1vmax 0.1vmax 0.1vmax #000;
+		text-shadow: 1px 1px #FFF, 1px -1px #FFF, -1px 1px #FFF, -1px -1px #FFF;
 		vertical-align: bottom;
 	}
 	#ui > div.players div.player span.resource{
 		display:inline-block;
-		width:2.25vmax;
-		padding-top:0.5vmax;
 		text-align: center;
-		margin: 0 0.1vmax;
+		margin: 0 0.05vmax;
 		vertical-align: bottom;
 		pointer-events: all;
+		border-radius: 0.5vmax;
+		padding:0.3vmax 0.25vmax;
+		overflow: hidden;
+		background: rgba(0,0,0,.5);
+		backdrop-filter: blur(5px);
+		font-size:1.15vmax;
+		border-bottom-left-radius: 0;
+    	border-bottom-right-radius: 0;
+		font-weight: bold;
+	}
+	#ui > div.players div.player span.resource div.bg{
+		position: absolute;
+		top: 10%; left:10%; bottom:10%; right:10%;
+		background-size: contain;
+		background-position: center center;
+		background-repeat: no-repeat;
+		opacity:0.75;
+	}
+	#ui > div.players div.player span.resource span.small{
+		font-size:1vmax;
+		font-weight: normal;
 	}
 	#ui > div.players div.player div.stats span.name div.leader:not(.host){
 		background:none;
@@ -1749,48 +1772,37 @@ div.passiveUpsideDown > div.content > div.bg{
 		vertical-align: middle;
 	}
 	#ui > div.players div.player span.resource.large{
-		width:2.75vmax;
-		padding-top:0.5vmax;
-		font-size:1vmax;
-	}
-	#ui > div.players div.player span.resource::after{
-		background:url(media/wrapper_icons/glass-heart.svg) no-repeat center;
-		background-size: 80% 80%;
-		content : "";
-		width:100%;
-		height:100%;
-		top:-60%;
-		left:0;
-		position: absolute;
-		opacity: 0.75;
+		font-size:1.5vmax;
+		font-weight: bold;
 	}
 	#ui > div.players div.player span.HP{
-		color:#FDD;
+		color:#FFF;
+		text-shadow: 1px 1px #900, 1px -1px #900, -1px 1px #900, -1px -1px #900;
 	}
-	#ui > div.players div.player span.resource.HP::after{
+	#ui > div.players div.player span.resource.HP div.bg{
 		filter:brightness(60%) sepia(1) saturate(400%) hue-rotate(-50deg);
-		opacity:1;
 	}
 	#ui > div.players div.player span.MP{
-		color:#DEF;
+		color:#FFF;
+		text-shadow: 1px 1px #059, 1px -1px #059, -1px 1px #059, -1px -1px #059;
+
 	}
-	#ui > div.players div.player span.resource.MP::after{
-		background-image:url(media/wrapper_icons/round-bottom-flask.svg);
+	#ui > div.players div.player span.resource.MP div.bg{
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(150deg);
 	}
 	#ui > div.players div.player span.AP{
-		color:#DFD;
+		color: #FFF;
+		text-shadow: 1px 1px #090, 1px -1px #090, -1px 1px #090, -1px -1px #090;
 	}
-	#ui > div.players div.player span.resource.AP::after{
-		background-image:url(media/wrapper_icons/jump-across.svg);
+	#ui > div.players div.player span.resource.AP div.bg{
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(90deg);
 	}
 
 	#ui > div.players div.player span.arousal{
-		color:#EAF;
+		color:#FFF;
+		text-shadow: 1px 1px #909, 1px -1px #909, -1px 1px #909, -1px -1px #909;
 	}
-	#ui > div.players div.player span.resource.arousal::after{
-		background-image:url(media/wrapper_icons/pierced-heart.svg);
+	#ui > div.players div.player span.resource.arousal div.bg{
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(-90deg);
 	}
 
@@ -1799,25 +1811,16 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.players div.player span.chest,
 	#ui > div.players div.player span.legs
 	{
-		color:#EFE;
+		color:#FFF;
+		text-shadow: 1px 1px #666, 1px -1px #666, -1px 1px #666, -1px -1px #666;
 	}
-	#ui > div.players div.player span.resource.armor::after,
-	#ui > div.players div.player span.resource.chest::after,
-	#ui > div.players div.player span.resource.legs::after
-	{
-		background-image:url(media/wrapper_icons/shirt.svg);
-	}
-	#ui > div.players div.player span.resource.legs::after{
-		background-image:url(media/wrapper_icons/trousers.svg);
-	}
-	#ui > div.players div.player span.resource.armor::after{
-		background-image:url(media/wrapper_icons/shield-echoes.svg);
-	}
+
 	#ui > div.players div.player span.resource.broken{
-		color:#D66;
+		color:#FFF;
+		text-shadow: 1px 1px #966, 1px -1px #966, -1px 1px #966, -1px -1px #966;
 	}
-	#ui > div.players div.player span.resource.broken::after{
-		filter:brightness(40%) sepia(1) saturate(300%) hue-rotate(-40deg);
+	#ui > div.players div.player span.resource.broken div.bg{
+		filter:brightness(40%) sepia(1) saturate(100%) hue-rotate(-40deg);
 	}
 
 	#ui > div.players div.topRight{
@@ -2210,8 +2213,8 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.middle{
 		bottom:7vh;
 		background:rgba(0,0,0,.5);
-		left:26vw;
-		right:26vw;
+		left:24vw;
+		right:24vw;
 		position:absolute;
 		top:0;
 		display:flex;
@@ -2224,6 +2227,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		max-height:100%;
 		left:0;
 		right:0;
+		padding: 0 2.5vw;
 	}
 	#ui.mute > div.middle > div.chat{
 		pointer-events: none;
@@ -2235,7 +2239,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.middle > div.chat{
 		min-height:1.5vmax;
 		background:rgba(0,0,0,.25);
-		padding:0.5vmax;
+		padding:0.5vmax 2.5vw;
 		font-size:1.5vmax;
 		border-top:1px dotted #FFF;
 		outline:none;
@@ -2416,15 +2420,23 @@ div.passiveUpsideDown > div.content > div.bg{
 
 
 	#ui > div.players div.player{
+
 		width:25.5vw;
-		margin-bottom:0;
-		margin-top:0.25vmax;
+		margin:0.5vmax;
 		user-select: none;
-		-moz-user-select: none;
 		cursor:pointer;
 		flex-grow: 1;
 		max-height:40vh;
+		transform:translateX(-1%);
+		transition:transform 0.1s ease-out;
 	}
+	#ui > div.players div.right div.player{
+		transform:translateX(1%);
+	}
+	#ui > div.players div.player:hover,
+	#ui > div.players div.right div.player:hover{
+		transform:translateX(0);
+	} 
 	@keyframes kfTargetSelector{
 		from{box-shadow:0 0 1vmax #FFA;}
 		to{box-shadow:0 0 2vmax #FFA;}
@@ -2446,17 +2458,30 @@ div.passiveUpsideDown > div.content > div.bg{
 		display:none;
 	}
 	div.players div.player > div.content{
-		overflow:hidden;
+
+		overflow:visible;
 		border-radius:0.5vmax;
-		box-shadow:0.5vmax 0.5vmax 1vmax rgba(0,0,0,.25);
+		box-shadow:0.5vmax 0.5vmax 1vmax rgba(0,0,0,.75);
 		background:#222;
-		border:0.2vmax solid #666;
+		border:0.2vmax solid transparent;
 		height:100%;
+
+		background: linear-gradient(#FFF, #FFF) padding-box, linear-gradient(
+			45deg, #888888 0%,#adadad 48%,#797979 51%,#838383 100%) border-box;
+
 	}
 	div.players div.player span.name{
-		font-size:1.5vmax;
-		margin-bottom:1vmax;
+		font-size: 1.5vmax;
+		margin-bottom: 1vmax;
 		display: inline-block;
+		background: rgba(0,0,0,.15);
+		backdrop-filter: blur(2px);
+		padding: 0.5vmax;
+		position: absolute;
+		bottom: 1vh;
+		left: 0;
+		right: 0;
+		text-shadow: 1px 1px #000, -1px 1px #000, 1px -1px #000, -1px -1px #000;
 	}
 
 	div.players div.player span.name span.nameTag.mine,
@@ -2614,24 +2639,38 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	
 
-	#ui > div.players > div.right > div.player > div.content > div.stats{
-		text-align: left;
-	}
 	#ui > div.players div.player > div.content > div.stats{
 		position:absolute;
 		right:0;
 		bottom:0;
-		padding:0.5vmax;
-		background:rgba(0,0,0,.5);
+		left:0;
 		text-align: right;
 		border-top-left-radius: 1vmax;
-		backdrop-filter: blur(2px);
+		/*backdrop-filter: blur(2px);*/
 	}
 	#ui > div.players div.right div.player > div.content > div.stats{
-		left:0; right:auto;
+		left:0; right:0; top:0; bottom:0;
 		border-radius:0;
 		border-top-right-radius: 1vmax;
+		text-align: left;
 	}
+	#ui > div.players div.player > div.content > div.stats span.resources{
+		position:absolute;
+		left:0;
+		bottom:0;
+		right:-.1vw;
+	}
+	#ui > div.players div.right div.player > div.content > div.stats span.resources{
+		right:0;
+		left:-.1vw;
+	}
+
+	
+
+
+
+
+
 
 	/* DM Tools */
 	div.dm_tools > label.option{
@@ -2667,7 +2706,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.players div.player > div.interactions > div {
 		width:4vmax;
 		height:4vmax;
-		background:rgba(0,0,0,.85);
+		background:url(media/ui/marble.jpg) repeat;
 		overflow:hidden;
 		border-radius:0.25vmax;
 		border: 2px solid #999;
@@ -2695,8 +2734,77 @@ div.passiveUpsideDown > div.content > div.bg{
 		width:100%;
 		pointer-events:none;
 	}
-	
 
+	/* Shields */
+
+	#ui > div.players div.player > div.shields{
+		position:absolute;
+		top:50%; right:0;
+		transform:translate(50%, -50%);
+	}
+	#ui > div.players > div.right > div.player > div.shields {
+		right:auto;
+		left:0;
+		transform:translate(-50%, -50%);
+	}
+	#ui > div.players div.player > div.shields > div.shield {
+		width:4vmax;
+		height:4vmax;
+		overflow:hidden;
+		pointer-events:all;
+		margin:0.2vmax;
+		transform:scale(0%);
+		transition:transform 0.1s cubic-bezier(0.64, 0.57, 0.67, 1.53);
+	}
+	#ui > div.players div.player > div.shields > div.shield.spawn{
+		transform:scale(1.0);
+	}
+	@keyframes shieldDeath{
+		0%{transform: rotate(0) scale(1);}
+		50%{transform: translate(25%, -100%) rotatex(120deg) scale(1.25);}
+		100%{transform: translate(30%, 500%) rotatex(180deg) scale(0);}
+	}
+	#ui > div.players div.player > div.shields > div.shield.die{
+		animation:shieldDeath forwards 0.3s ease-in !important;
+	}
+	#ui > div.players div.player > div.shields > div.shield > span{
+		color:#FFF;
+		font-size:2.5vmax;
+		font-weight: bold;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		text-shadow: 1px 1px #FFF, -1px 1px #FFF, 1px -1px #FFF, -1px -1px #FFF;
+		font-family: 'Germania One', cursive;
+	}
+	#ui > div.players div.player > div.shields > div.shield.corruption > span{
+		color:#909;
+	}
+	#ui > div.players div.player > div.shields > div.shield.physical > span{
+		color:#900;
+	}
+	#ui > div.players div.player > div.shields > div.shield.arcane > span{
+		color:#069;
+	}
+	#ui > div.players div.player > div.shields > div.shield.corruption div.bg {
+		filter: drop-shadow(0.25vmax 0.25vmax #000);
+		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(252deg);
+	}
+	#ui > div.players div.player > div.shields > div.shield.physical div.bg {
+		filter: drop-shadow(0.25vmax 0.25vmax #000);
+		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(-50deg);
+	}
+	#ui > div.players div.player > div.shields > div.shield.arcane div.bg {
+		filter: drop-shadow(0.25vmax 0.25vmax #000);
+		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(130deg);
+	}
+	
+	#ui > div.players div.player > div.shields > div.shield > div.bg{
+		position: absolute;
+		top:0; left:0; right:0; bottom:0;
+		background-size:contain;
+	}
 
 /* Action bar */
 	#ui > div.actionbar{
@@ -2733,6 +2841,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui > div.actionbar > div.resources > div.stat.mp > div.point.filled{
 		background:rgba(200,230,255,.75);
+		background: linear-gradient(to bottom, #b8eef6 0%,#66e0f0 50%,#56d7e8 51%,#70e6f6 100%);
 	}
 	#ui > div.actionbar > div.resources > div.stat.mp > div.point.highlighted{
 		box-shadow:0 0 1vh rgb(200,230,255);
@@ -2744,6 +2853,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui > div.actionbar > div.resources > div.stat.ap > div.point.filled{
 		background:rgba(200,255,200,.75);
+		background: linear-gradient(to bottom, #b8f6bf 0%,#66f074 50%,#56e865 51%,#70f67e 100%);
 	}
 	#ui > div.actionbar > div.resources > div.stat.ap > div.point.highlighted{
 		box-shadow:0 0 1vh rgb(200,255,200);
@@ -2791,6 +2901,18 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:0.5vh;
 		font-size:1.5vh;
 	}
+	div.action.corr > img{
+		filter: sepia(100%) saturate(250) hue-rotate(251deg);
+	}
+	div.action.phys > img{
+		filter: sepia(100%) saturate(250) hue-rotate(294deg);
+	}
+	div.action.arc > img{
+		filter: sepia(100%) saturate(250) hue-rotate(97deg);
+		
+	}
+
+
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
 		width:auto;
 		padding-top:1.75vh;
@@ -2827,28 +2949,32 @@ div.passiveUpsideDown > div.content > div.bg{
 		left:0; top:0;
 	}
 	div.action > div.uses,
-	#ui > div.actionbar > div.actions > div.action > div.uses,
-	#ui > div.actionbar > div.actions > div > div.cd{
+	#ui > div.actionbar > div.actions > div.action > div.uses{
 		position: absolute;
-		right:0; bottom:0;
-		padding:0.2vmax;
-		background:rgba(0,0,0,.5);
-		border-radius:0.2vmax;
-		font-size:1.25vmax;
+		top:-15%; right:-10%;
+		font-size:1.5vmax;
+		color:#EFE;
+		text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 	}
 	div.action > div.cd,
 	#ui > div.actionbar > div.actions > div > div.cd{
-		padding:0.5vmax;
-		right:auto; bottom:auto;
-		top:50%; left:50%;
+		
+		bottom: -5%;
+		right: -15%;
+		height:40%;
 		font-size:1.5vmax;
 		font-weight:bold;
-		transform:translate(-50%,-50%);
+		text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 		color:#FFF;
-		background:rgba(0,0,0,.75);
-		border-radius: 0.5vmax;
-		box-shadow:0.25vmax 0.25vmax 1vmax rgba(0,0,0,.5);
-		border:0.2vmax solid rgba(255,255,255,.5);
+		position: absolute;
+		color:#FEE;
+
+	}
+	#ui > div.actionbar > div.actions > div > div.cd > img {
+		height: 100%;
+		vertical-align: middle;
+		filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
+		transform: translateY(-10%);
 	}
 
 	div.players div.topLeft,
@@ -3597,7 +3723,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		100%{transform:translateY(-500%); opacity:0;}
 	}
 	#fct > div.text:not(.hidden){
-		font-size:3.5vmax;
+		font-size:3vmax;
 		position: absolute;
 		animation: fct 2s ease-in forwards;
 		text-shadow:0.1vmax 0.1vmax 0.1vmax #000; 

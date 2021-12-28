@@ -8,22 +8,25 @@
 
 
 Overhaul:
-	Remove the primary stats
-	Make AP regen a fixed 4 AP per turn.
-	Keep MP regen as is.
+	Primary stats
+		- Reblance assets
+		- Maybe need to update the asset generator
+	
+	
 	Make special stats such as crit.
+		- Adds 6%+rarity*2 crit chance
+		- Adds 6 HP +rarity*2
+		- Increase max AP by rarity
+		- Increase max MP by rarity
+
 	Lock potion belt during combat
-	Max AP should be based purely on power
 	Replace armor steal on wipe with a money steal.
 	Add a bank.
 	Can't change armor in combat, but you can re-equip a stripped piece.
-	Scale the bon/sv importance based on level, so it's more important in the late game
+	(Maybe) Scale the bon/sv importance based on level, so it's more important in the late game. 
 	Improve enemy power distribution
 	Allow players to mark groin/mouth/chest on players to set areas particles originate from.
-	Lower max arousal to 6
 	Ability swap out of combat
-	Enable beneficial spells out of combat
-	Max arousal removes all AP and cuts AP regen in half for 2 turns.
 	Enemies that counter the niches (Should be given to certain types, to make less random of appearing). ex:
 		- Counterattack a taunting player
 		- Attack that can only be used on a player that was healed or did healing last turn

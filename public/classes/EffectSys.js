@@ -204,6 +204,14 @@ class Wrapper extends Generic{
 
 	}
 
+	getAction(){
+		if( !this.parent )
+			return false;
+
+		return this.parent.getActionById(this.action);
+
+	}
+
 
 	/*	Returns an object on success:
 		See out
@@ -939,6 +947,8 @@ class Effect extends Generic{
 		evt.originalWrapper = evt.wrapper;
 		evt.wrapper = wrapper;
 
+		let ignoreBlock = false;
+
 		if( !(wrapperReturn instanceof WrapperReturn) )
 			wrapperReturn = new WrapperReturn();
 
@@ -998,6 +1008,13 @@ class Effect extends Generic{
 			effect : this,
 		}).raise();
 
+		let attackType = this.data.type;
+		let action = wrapper.getAction();
+		if( !attackType && action )
+			attackType = action.type;
+		if( !attackType )
+			attackType = Action.Types.physical;
+
 		if( debug )
 			console.debug("Allowed ", this, "to trigger", event);
 
@@ -1014,11 +1031,7 @@ class Effect extends Generic{
 			// Do damage or heal
 			if( this.type === Effect.Types.damage ){
 
-				let type = this.data.type;
-				if( !type && wrapper.parent.constructor === Action )
-					type = wrapper.parent.type;
-				if( !type )
-					type = Action.Types.physical;
+				let type = attackType;
 
 				let e = GameEvent.Types.damageDone, e2 = GameEvent.Types.damageTaken;
 				const calcEvt = new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this});
@@ -1095,7 +1108,6 @@ class Effect extends Generic{
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
 					amt *= t.getArmorDamageMultiplier( s, this );
 
-					// Todo: Add by armor penetration
 
 					//console.debug("amt", amt);
 					
@@ -1120,7 +1132,9 @@ class Effect extends Generic{
 
 				}
 
-				// Todo: Arcane effect
+				// 25% to ignore or copy block
+				if( type === Action.Types.arcane && Math.random() < 0.25 )
+					ignoreBlock = true;
 
 				// Calculate arousal (allowed for both healing and damaging)
 				if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
@@ -1145,28 +1159,34 @@ class Effect extends Generic{
 
 				}
 
-				const preHP = t.hp;
 				if( isNaN(amt) )
 					console.error("NaN damage amount found in", this);
-				let died = t.addHP(amt, s, this, true);
-				const change = t.hp - preHP;
+				let exec = t.addHP(amt, s, this, type, ignoreBlock, true);
+				let died = exec.died;
+
+				const changehp = exec.hp;
+				const changeblk = exec.blk;
+				amt = changehp+changeblk;
 
 				if( amt < 0 ){
 
-					t.onDamageTaken(s, type, Math.abs(change));
-					s.onDamageDone(t, type, Math.abs(change));
-					let threat = change * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
-					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(change*this.data.leech)) : 0;
+					t.onDamageTaken(s, type, Math.abs(amt));
+					s.onDamageDone(t, type, Math.abs(amt));
+
+					let threat = amt * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
+					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(amt*this.data.leech)) : 0;
 					t.addThreat( s.id, -threat );
-					if( change )
-						game.ui.addText( t.getColoredName()+" took "+Math.abs(change)+" "+type+" damage"+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' :'')+".", undefined, s.id, t.id, 'statMessage damage'+(crit ? ' crit':'') );
+
+					if( amt )
+						game.ui.addText( t.getColoredName()+" took "+Math.abs(changehp)+(changeblk ? ' ['+Math.abs(changeblk)+']' : '')+" "+type+" damage"+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' :'')+".", undefined, s.id, t.id, 'statMessage damage'+(crit ? ' crit':'') );
+					
 					if( leech ){
-						s.addHP(leech, s, this, true);
+						s.addHP(leech, s, this, type, ignoreBlock, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
 					}
 
-				}else if(change){
-					game.ui.addText( t.getColoredName()+" gained "+change+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' : '')+".", undefined, s.id, t.id, 'statMessage healing' );
+				}else if(amt){
+					game.ui.addText( t.getColoredName()+" gained "+changehp+" HP"+(changeblk ? ' +'+changeblk+' block' : '')+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' : '')+".", undefined, s.id, t.id, 'statMessage healing' );
 				}
 
 
@@ -1274,7 +1294,27 @@ class Effect extends Generic{
 					amt *= wrapper.getStacks();
 				amt = Math.floor(amt);
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
-				t.addHP(amt, s, this, true);
+				t.addHP(amt, s, this, attackType, false, true);
+			}
+			else if( this.type === Effect.Types.addBlock ){
+
+				let amt = Calculator.run(
+					this.data.amount, 
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				);
+				if( !this.no_stack_multi )
+					amt *= wrapper.getStacks();
+
+				let aa = Math.abs(amt);
+				if( Math.random() < aa-Math.floor(aa) )
+					amt += amt < 0 ? -1 : 1;
+				
+				amt = parseInt(amt);
+				//game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
+				t.addBlock(amt, attackType);
+
 			}
 
 			
@@ -2184,6 +2224,8 @@ Effect.Types = {
 	addAP : "addAP",
 	addMP : "addMP",
 	addHP : "addHP",
+	addBlock : "addBlock",
+	regenAP : "regenAP",
 	
 	fullRegen : 'fullRegen',
 
@@ -2296,6 +2338,7 @@ Effect.Passive = {
 	[Effect.Types.addTags] : true,
 	[Effect.Types.addRandomTags] : true,
 	[Effect.Types.expMod] : true,
+	[Effect.Types.regenAP] : true,
 
 	[Effect.Types.svPhysical] : true,
 	[Effect.Types.svArcane] : true,
@@ -2348,7 +2391,11 @@ Effect.TypeDescs = {
 	[Effect.Types.addMP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds MP",									
 	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier} - Adds arousal points",	
 	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
-				
+
+	[Effect.Types.addBlock] : "{amount:(str)formula, type:(str)Action.Types.x} - If type is left out, it will try to be auto supplied the same way the damage effect does.", 
+
+	[Effect.Types.regenAP] : "{amount:(float)multiplier} - Multiplies against AP regen at the start of your turn.",
+
 	[Effect.Types.clairvoyance] : "void - Gives players more information about the victim when inspecting them",
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							

@@ -478,18 +478,33 @@ export default class UI{
 	}
 
 	// Helper functions for below
-	updateResourceDots( root, currentPoints, maxPoints ){
+	updateResourceDots( root, currentPoints, maxPoints, reverse ){
 
-		const dots = $("> div.point", root);
-		for( let i = 0; i<dots.length || i<maxPoints; ++i ){
+		let dots = $("> div.point", root);
+
+		let ln = dots.length;	// Needs to be here since we're modifying it
+		// Add more dots if need be
+		for( let i = 0; i < maxPoints-ln; ++i ){
+
+			let div = document.createElement('div');
+			div.className = 'point';
+			root.append(div);
+			dots = dots.add(div);
+
+		}
+
+		// Hide unused
+		for( let i = 0; i < dots.length; ++i )
+			dots[i].classList.toggle("hidden", i >= maxPoints);
+		
+		// Fill in
+		for( let i = 0; i < maxPoints; ++i ){
 			
-			let div = dots[i];
-			if( !div ){
-				div = document.createElement('div');
-				div.className = 'point';
-				root.append(div);
-			}
-			$(div).toggleClass('filled', i < currentPoints).toggleClass("hidden", i >= maxPoints);
+			let n = i;
+			if( reverse )
+				n = maxPoints-1-i;
+
+			dots[n].classList.toggle('filled', i < currentPoints);
 
 		}
 
@@ -552,7 +567,7 @@ export default class UI{
 		
 		// Update resources
 		this.updateResourceDots(this.ap_bar, player.ap, player.getMaxAP());
-		this.updateResourceDots(this.mp_bar, player.mp, player.getMaxMP());
+		this.updateResourceDots(this.mp_bar, player.mp, player.getMaxMP(), true);
 		
 
 		// Build end turn button and toggle visibility
@@ -787,9 +802,13 @@ export default class UI{
 				$("div.stat.ap div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
 		}
 		if( mpCost ){
+
 			let start = Math.max(mpCost, mp);
-			for( let i = start-mpCost; i<start; ++i )
-				$("div.stat.mp div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
+			let end = $("div.stat.mp div.point:not(.hidden)", this.action_selector).length;
+			for( let i = start-mpCost; i<start; ++i ){
+				$("div.stat.mp div.point", this.action_selector).eq(end-1-i).toggleClass('highlighted', true);
+			}
+
 		}
 
 	}
@@ -824,13 +843,27 @@ export default class UI{
 						'</span>'+
 						'<br />'+
 						'<span class="resources">'+
-							'<span class="armor resource" title="Damage reduction from armor."></span>'+
-							'<span class="chest resource"></span>'+
-							'<span class="legs resource"></span>'+
-							'<span class="arousal resource" title="Arousal.\nStuns at 100%."></span>'+
-							'<span class="MP resource large" title="Mana Points"></span>'+
-							'<span class="AP resource large" title="Action Points"></span>'+
-							'<span class="HP resource large" title="Hit Points"></span>'+
+							'<span class="armor resource" title="Damage reduction from armor." >'+
+								'<div class="bg" style="background-image:url(media/wrapper_icons/shield-echoes.svg)"></div><span></span>'+
+							'</span>'+
+							'<span class="chest resource">'+
+								'<div class="bg" style="background-image:url(media/wrapper_icons/shirt.svg)"></div><span></span>'+
+							'</span>'+
+							'<span class="legs resource">'+
+								'<div class="bg" style="background-image:url(media/wrapper_icons/trousers.svg)"></div><span></span>'+
+							'</span>'+
+							'<span class="arousal resource" title="Arousal">'+
+								'<div class="bg" style="background-image:url(media/wrapper_icons/pierced-heart.svg)"></div><span></span>'+
+							'</span>'+
+							'<span class="MP resource" title="Mana Points">'+
+								'<div class="bg" style="background-image:url(media/wrapper_icons/round-bottom-flask.svg)"></div><span></span>'+
+							'</span>'+
+							'<span class="AP resource" title="Action Points">'+
+								'<div class="bg" style="background-image:url(media/wrapper_icons/jump-across.svg)"></div><span></span>'+
+							'</span>'+
+							'<span class="HP resource large" title="Hit Points" >'+
+								'<div class="bg" style="background-image:url(media/wrapper_icons/glass-heart.svg)"></div><span></span>'+
+							'</span>'+
 						'</span>'+
 					'</div>'+
 				'</div>'+
@@ -853,7 +886,23 @@ export default class UI{
 					'</div>'+
 				'</div>'+
 
+				'<div class="shields">'+
+					'<div class="shield physical" title="Blocking physical damage">'+
+						'<div class="bg" style="background-image:url(media/wrapper_icons/bordered-shield.svg)"></div>'+
+						'<span class="val">10</span>'+
+					'</div>'+
+					'<div class="shield corruption" title="Blocking corruption damage">'+
+						'<div class="bg" style="background-image:url(media/wrapper_icons/trident-shield.svg)"></div>'+
+						'<span class="val">3</span>'+
+					'</div>'+
+					'<div class="shield arcane" title="Blocking arcane damage">'+
+						'<div class="bg" style="background-image:url(media/wrapper_icons/vibrating-shield.svg)"></div>'+
+						'<span class="val">5</span>'+
+					'</div>'+
+				'</div>'+
+
 				'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
+
 				'<div class="interactions">'+
 					'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
 					'<div class="interaction hidden" data-type="gym"><img src="media/wrapper_icons/weight-lifting-up.svg" /></div>'+
@@ -1160,13 +1209,25 @@ export default class UI{
 					nameDisplayEl = $('span.nameTag', nameEl),
 				resourcesEl = $('> span.resources', statsEl),
 					arousalEl = $('> span.arousal', resourcesEl),
+					arousalElSpan = $('> span', arousalEl),
 					mpEl = $('> span.MP', resourcesEl),
+					mpElSpan = $('> span', mpEl),
 					apEl = $('> span.AP', resourcesEl),
+					apElSpan = $('> span', apEl),
 					hpEl = $('> span.HP', resourcesEl),
+					hpElSpan = $('> span', hpEl),
 					armorEl = $('> span.armor', resourcesEl),
+					armorElSpan = $('> span', armorEl),
 					chestEl = $('> span.chest', resourcesEl),
+					chestElSpan = $('> span', chestEl),
 					legsEl = $('> span.legs', resourcesEl),
+					legsElSpan = $('> span', legsEl),
 			bgEl = $('> div.bg', contentEl),
+			shieldsEl = $('> div.shields', el),
+				physShieldEl = $('> div.physical', shieldsEl),
+				corrShieldEl = $('> div.corruption', shieldsEl),
+				arcaShieldEl = $('> div.arcane', shieldsEl),
+			
 			topRightEl = $('> div.topRight', el),
 				wrappersEl = $('> div.wrappers', topRightEl),
 				chargingEl = $('> div.charging', topRightEl),
@@ -1218,24 +1279,24 @@ export default class UI{
 			mpDisabled = p.isMPDisabled(),
 			apDisabled = p.isAPDisabled(),
 			hpDisabled = p.isHPDisabled(),
-			arousalText = p.arousal+"/"+p.getMaxArousal(),
-			apText = p.ap+"/"+p.getMaxAP(),
-			mpText = p.mp+"/"+p.getMaxMP(),
-			hpText = p.hp+"/"+p.getMaxHP()
+			arousalText = p.arousal+"/<span class=\"small\">"+p.getMaxArousal()+"</span>",
+			apText = p.ap+"/<span class=\"small\">"+p.getMaxAP()+"</span>",
+			mpText = p.mp+"/<span class=\"small\">"+p.getMaxMP()+"</span>",
+			hpText = p.hp+"/<span class=\"small\">"+p.getMaxHP()+"</span>"
 		;
 		arousalEl.toggleClass('hidden', arousalDisabled);
 		mpEl.toggleClass('hidden', mpDisabled);
 		hpEl.toggleClass('hidden', hpDisabled);
 		apEl.toggleClass('hidden', apDisabled);
 		
-		if( !arousalDisabled && arousalEl.text() !== arousalText )
-			arousalEl.text(arousalText);
-		if( !apDisabled && apEl.text() !== apText )
-			apEl.text(apText);
-		if( !hpDisabled && hpEl.text() !== hpText )
-			hpEl.text(hpText);
-		if( !mpDisabled && mpEl.text() !== mpText )
-			mpEl.text(mpText);
+		if( !arousalDisabled && arousalElSpan.text() !== arousalText )
+			arousalElSpan.html(arousalText);
+		if( !apDisabled && apElSpan.text() !== apText )
+			apElSpan.html(apText);
+		if( !hpDisabled && hpElSpan.text() !== hpText )
+			hpElSpan.html(hpText);
+		if( !mpDisabled && mpElSpan.text() !== mpText )
+			mpElSpan.html(mpText);
 
 		// Armor
 		chestEl.add(legsEl).toggleClass('hidden', p.isTargetBeast());
@@ -1244,21 +1305,21 @@ export default class UI{
 			const uText = Math.ceil(ubDur*100)+'%';
 			const lText = Math.ceil(lbDur*100)+'%';
 
-			chestEl.toggleClass('broken', !ubDur)
+			chestEl.toggleClass('hidden', !ubDur)
 				.attr('title', 'Upper body armor durability');
-			legsEl.toggleClass('broken', !lbDur)
+			legsEl.toggleClass('hidden', !lbDur)
 				.attr('title', 'Lower body armor durability');
 
-			if( chestEl.text() !== uText )
-				chestEl.text(uText);
-			if( legsEl.text() !== lText )
-				legsEl.text(lText);
+			if( chestElSpan.text() !== uText )
+				chestElSpan.text(uText);
+			if( legsElSpan.text() !== lText )
+				legsElSpan.text(lText);
 		}
 
 		const armorValueRaw = Math.round(p.getArmorPoints(false));
 		const armorValueModified = Math.round((1-p.getArmorDamageMultiplier(myActive))*100);
-		armorEl.toggleClass('broken', armorValueModified <= 0).text(armorValueModified+"%").attr('title', armorValueRaw+"% unmodified damage reduction");
-
+		armorEl.toggleClass('broken', armorValueModified <= 0).attr('title', armorValueRaw+"% unmodified damage reduction");
+		armorElSpan.text(armorValueModified+"%");
 		
 		nameDisplayEl
 			.toggleClass('mine', isMine)
@@ -1328,6 +1389,32 @@ export default class UI{
 		}
 
 
+		// Shields. Looks kinda weird, but is needed for the animations to work
+		if( !p.blPhysical && physShieldEl.hasClass("spawn") )
+			physShieldEl.toggleClass('die', true);
+		if( !p.blArcane && arcaShieldEl.hasClass("spawn") )
+			arcaShieldEl.toggleClass('die', true);
+		if( !p.blCorruption && corrShieldEl.hasClass("spawn") )
+			corrShieldEl.toggleClass('die', true);
+
+		if( p.blPhysical )
+			physShieldEl.toggleClass('die', false);
+		if( p.blArcane )
+			arcaShieldEl.toggleClass('die', false);
+		if( p.blCorruption )
+			corrShieldEl.toggleClass('die', false);
+
+		$("> span", physShieldEl).text(p.blPhysical);
+		$("> span", corrShieldEl).text(p.blCorruption);
+		$("> span", arcaShieldEl).text(p.blArcane);
+
+		setTimeout(() => {
+			physShieldEl.toggleClass('spawn', Boolean(p.blPhysical));
+			arcaShieldEl.toggleClass('spawn', Boolean(p.blArcane));
+			corrShieldEl.toggleClass('spawn', Boolean(p.blCorruption));
+		}, 10)
+		
+		
 
 		// Interactions
 		const interactions = this.getViableInteractionsOnPlayer(p);
@@ -2325,6 +2412,10 @@ export default class UI{
 
 			left = pos.left+pe.outerWidth()/2;
 			top = pos.top;
+
+			let y = +pe.attr('data-tty');
+			if( y )
+				top -= y*pe.outerHeight();
 			
 		}
 		this.setTooltipAtPoint(text, left, top);
@@ -2875,9 +2966,18 @@ export default class UI{
 	// Sets the content of the button based on an action
 	static setActionButtonContent( buttonElement, action, player, hotkey ){
 
+		let aType = '';
+		if( action.type === Action.Types.physical )
+			aType = 'phys ';
+		else if( action.type === Action.Types.arcane )
+			aType = 'arc ';
+		else if( action.type === Action.Types.corruption )
+			aType = 'corr ';
+		
+
 		const button = $(buttonElement);
 		button[0].className = 
-			'action button tooltipParent tooltipAbove '+
+			'action button tooltipParent tooltipAbove '+aType+
 			(action.detrimental ? 'detrimental' : 'beneficial')+' '+
 			(action.isAssetAction() ? ' item '+Asset.RarityNames[action.parent.rarity] : '')
 		;
@@ -2886,7 +2986,7 @@ export default class UI{
 		button.attr('data-id', action.id);
 			
 		// Update icon
-		const img = $('img', button),
+		const img = $('> img', button),
 			imgSrc = 'media/wrapper_icons/'+esc(action.getIcon())+'.svg';
 		if( img.attr('src') !== imgSrc )
 			img.attr('src', imgSrc);
@@ -2902,7 +3002,7 @@ export default class UI{
 		const usesEl = $('> div.uses', button);
 		usesEl.toggleClass('hidden', !uses)
 		if( +usesEl.text() !== uses )
-			usesEl.text(uses);
+			usesEl.text("x"+uses);
 
 		// Cooldown
 		const cdEl = $('> div.cd > span', button);
@@ -2929,11 +3029,11 @@ export default class UI{
 
 
 UI.Templates = {
-	actionButton : '<div class="action">'+
+	actionButton : '<div class="action" data-tty=0.5>'+
 			'<img>'+
 			'<div class="hotkey"></div>'+
 			'<div class="uses"></div>'+
-			'<div class="cd"><span></span></div>'+
+			'<div class="cd"><span></span><img src="media/wrapper_icons/hourglass.svg" /></div>'+
 			'<div class="tooltip actionTooltip"></div>'+
 		'</div>',
 	

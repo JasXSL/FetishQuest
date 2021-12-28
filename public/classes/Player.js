@@ -17,7 +17,7 @@ import Game from './Game.js';
 const BASE_HP = 30;
 const BASE_MP = 10;
 const BASE_AP = 10;
-const BASE_AROUSAL = 10;
+const BASE_AROUSAL = 6;
 
 
 export default class Player extends Generic{
@@ -62,6 +62,8 @@ export default class Player extends Generic{
 		this.passives = [];			// Passive wrappers that should not be cleared when a battle starts or ends
 		this.hp = BASE_HP;				// 
 		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
+		this.pMP = 0;				// Pending MP that will be added at the start of your turn.
+		this.pAP = 0;				// Pending AP that will be added at the start of your turn. Can be negative and locks those slots in regen.
 		this.team = 0;				// 0 = player
 		this.size = 5;				// 0-10
 		this.level = 1;				// 
@@ -72,6 +74,10 @@ export default class Player extends Generic{
 		this.leveled = false;		// Level is an offset of the player average level
 		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
+
+		this.blPhysical = 0;		// Blocking points of physical damage this turn
+		this.blCorruption = 0;		// Blocking points of corruption damage this turn
+		this.blArcane = 0;			// Blocking points of arcane this turn
 
 		this.svPhysical = 0;
 		this.svArcane = 0;
@@ -274,6 +280,11 @@ export default class Player extends Generic{
 			out.ap = this.ap;
 			out.hp = this.hp;
 			out.mp = this.mp;
+			out.pAP = this.pAP;
+			out.pMP = this.pMP;
+			out.blArcane = this.blArcane;
+			out.blCorruption = this.blCorruption;
+			out.blPhysical = this.blPhysical;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
 			out.netgame_owner = this.netgame_owner;
 			out.netgame_owner_name = this.netgame_owner_name;
@@ -1051,6 +1062,8 @@ export default class Player extends Generic{
 		++this._turns;
 
 	}
+
+	// Raised after effects
 	onTurnStart(){
 
 		this._d_damaging_since_last = {};
@@ -1058,6 +1071,7 @@ export default class Player extends Generic{
 		this._riposted_since_last = {};
 		this._riposting_since_last = {};
 		
+		this.blPhysical = this.blArcane = this.blCorruption = 0; // Goes before wrappers so arcane HOTS can cause its secondary trait
 
 		// Wipe turnTags on start
 		this.resetTurnTags();
@@ -1089,30 +1103,31 @@ export default class Player extends Generic{
 		this._turn_ap_spent = 0;
 		// Restore 3/10ths each turn
 		const map = this.getMaxAP();
-		let ap = map*0.3; // base AP to add
-		// 
-		if( map > 10 )
-			ap = 3+(map-10)*0.1;	// 10% chance of bonus per ap
-		ap *= this.getPowerMultiplier();
+		let ap = map*0.4*this.getGenericAmountStatMultiplier(Effect.Types.regenAP); // base AP to add
+
+		// Add pending AP
+		if( this.pAP < 0 )
+			ap += this.pAP;
+		if( ap < 0 )
+			ap = 0;
 		
 
-		// Shuffle the remainder
+		// Shuffle the fractions
 		if( Math.random() < ap-Math.floor(ap) )
 			++ap;
 
-		if( ap < 2 )
-			ap = 2;
 		this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
 		
-		// Gain 1 MP every 2 turns
-		/*
-		let mp = this.getMaxMP()*0.1;
-		if( Math.random() < mp-Math.floor(mp) )
-			++mp;
-		*/
+		// Gain 1 MP every 3 turns
+		let mp = Math.max(this.pMP, 0);
 		if( this.mp < this.getMaxMP() && !(this._turns%3) )
+			++mp;
+		if( mp )
 			this.addMP(1);
+
+		this.pMP = this.pAP = 0;	// Reset the initial thing
 		
+
 	}
 	onBattleStart(){
 		this._used_chats = {};
@@ -1124,6 +1139,7 @@ export default class Player extends Generic{
 		this._damage_since_last = {};
 		this._last_chat = -1;
 		this._turn_action_used = 0;
+		this.blCorruption = this.blPhysical = this.blArcane = 0;
 
 		this.resetTempActions();
 
@@ -2093,8 +2109,33 @@ export default class Player extends Generic{
 		return thr;
 	}
 
-	// Returns true if the player died
-	addHP( amount, sender, effect, fText = false ){
+	// Adds block. Returns the amount added/subtracted
+	addBlock( amount, type ){
+
+		let pre;
+		let cur = pre = parseInt(this['bl'+type]);
+		if( isNaN(cur) )
+			throw 'Invalid type passed to block: '+type;
+
+		let amt = parseInt(amount);
+		if( isNaN(amt) )
+			throw 'Invalid value passed to block: '+amt;
+
+		cur += amount;
+		if( Math.random() < cur-Math.floor(cur) )
+			++cur;
+
+		cur = Math.max(0, Math.floor(cur));
+
+		this['bl'+type] = cur;
+
+		return cur-pre;
+
+	}
+
+	// Returns an object with {died:(bool)died, hp:(int)hp_damage, blk:(int)amount_blocked/defended}.
+	// IgnoreBlock attacks HP directly if damage. Or copies healing into block if beneficial.
+	addHP( amount, sender, effect, dmgtype, ignoreBlock, fText = false ){
 
 		if( this.isHPDisabled() )
 			return false;
@@ -2106,28 +2147,65 @@ export default class Player extends Generic{
 
 		}
 
-		const pre = this.hp;
+		let out = {died:false, hp:0, blk:0};
+
+		let pre = this.hp;
+		let prehp = this.hp;
 		let wasDead = this.hasTag(stdTag.dead);
+
+		// Taking damage
+		if( dmgtype ){
+			
+			let shield = this['bl'+dmgtype];
+			pre += shield;
+			if( amount < 0 && !ignoreBlock ){
+
+				out.blk = this.addBlock(amount, dmgtype);	// Add the full amount to shield first. addBlock caps to 0
+
+				amount += shield;	// Amount is negative, so add the shield
+				amount = Math.min(0, amount);		// Min because neg
+
+				
+			}
+			else if( amount > 0 && ignoreBlock ){
+
+				this.addBlock(amount, Action.Types.arcane);
+				this.addBlock(amount, Action.Types.physical);
+				this.addBlock(amount, Action.Types.corruption);
+				out.blk = amount;
+
+			}
+
+		}
+
 		this.hp += amount;
 		this.hp = Math.floor( Math.max(0, Math.min(this.getMaxHP(), this.hp)) );
 
+		let post = this.hp;
+		if( dmgtype )
+			post += this['bl'+dmgtype];
+
 		// Out of combat HP damage can occur, but players can't go under 1. Use SET HP instead if you want to kill someone through an RP.
-		if( !game.battle_active && amount < 0 && this.hp <= 0 )
+		if( !game.battle_active && this.hp <= 0 )
 			this.hp = 1;
 
-		if( fText && this.hp-pre !== 0 )
-			game.ui.floatingCombatText(this.hp-pre, this, "hp");
+		out.hp = this.hp-prehp;
 
+		if( fText && post-pre !== 0 )
+			game.ui.floatingCombatText(Math.abs(out.hp) + (out.blk ? '('+Math.abs(out.blk)+')' : ''), this, "hp");
+
+		
+		
 		if( this.hp === 0 && !wasDead ){
 
 			this.onDeath( sender, effect );
 
 			if( this.hp === 0 )
-				return true;
+				out.died = true;
 
 		}
 
-		return false;
+		return out;
 
 	}
 
@@ -2282,7 +2360,7 @@ export default class Player extends Generic{
 		
 	}
 
-	// Player is only used when checking caster only
+	// Player is only used when checking caster_only
 	getGenericAmountStatMultiplier( type, player ){
 		let w = this.getActiveEffectsByType(type),
 			out = 1
@@ -2292,7 +2370,8 @@ export default class Player extends Generic{
 		// Some effects are ALWAYS multiplicative, so they can be included here
 		const ALWAYS_MULTIPLY = [
 			Effect.Types.critDoneMod,
-			Effect.Types.expMod
+			Effect.Types.expMod,
+			Effect.Types.regenAP,
 		];
 		
 		for( let effect of w ){
