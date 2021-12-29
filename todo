@@ -19,6 +19,8 @@ Overhaul:
 		- Increase max AP by rarity
 		- Increase max MP by rarity
 
+	
+
 	Lock potion belt during combat
 	Replace armor steal on wipe with a money steal.
 	Add a bank.
@@ -37,7 +39,7 @@ Overhaul:
 	Combat stats:
 	- Phys : The same
 	- Corr : The same, but orgasm reworked
-	- Arcane : Ignores 50% of enemy armor
+	- Arcane : Chance to remove block of all types
 
 
 	Niches:

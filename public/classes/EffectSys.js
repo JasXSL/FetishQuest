@@ -947,8 +947,6 @@ class Effect extends Generic{
 		evt.originalWrapper = evt.wrapper;
 		evt.wrapper = wrapper;
 
-		let ignoreBlock = false;
-
 		if( !(wrapperReturn instanceof WrapperReturn) )
 			wrapperReturn = new WrapperReturn();
 
@@ -1128,13 +1126,36 @@ class Effect extends Generic{
 						
 					}
 
+					// 30% chance per point of damage to remove 1 block of all types 
+					if( type === Action.Types.arcane ){
+
+						let chance = 30*s.getStatProcMultiplier(Action.Types.physical, false)*t.getStatProcMultiplier(Action.Types.physical, true)
+						let ch = amt*chance;
+						ch = Math.abs(ch);
+						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
+						if( tot ){
+
+							// Returns negative, which is why it's min
+							let max = Math.min(
+								t.addBlock( -tot, Action.Types.physical ),
+								t.addBlock( -tot, Action.Types.corruption ),
+								t.addBlock( -tot, Action.Types.arcane )
+							);
+							if( max )
+								game.ui.addText( t.getColoredName()+" lost "+Math.abs(max)+" block from arcane damage.", undefined, s.id, t.id, 'statMessage elemental' );
+
+						}
+							
+
+
+					}
+
 
 
 				}
 
-				// 25% to ignore or copy block
-				if( type === Action.Types.arcane && Math.random() < 0.25 )
-					ignoreBlock = true;
+				
+					
 
 				// Calculate arousal (allowed for both healing and damaging)
 				if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
@@ -1161,7 +1182,7 @@ class Effect extends Generic{
 
 				if( isNaN(amt) )
 					console.error("NaN damage amount found in", this);
-				let exec = t.addHP(amt, s, this, type, ignoreBlock, true);
+				let exec = t.addHP(amt, s, this, type, false, true);
 				let died = exec.died;
 
 				const changehp = exec.hp;
@@ -1181,7 +1202,7 @@ class Effect extends Generic{
 						game.ui.addText( t.getColoredName()+" took "+Math.abs(changehp)+(changeblk ? ' ['+Math.abs(changeblk)+']' : '')+" "+type+" damage"+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' :'')+".", undefined, s.id, t.id, 'statMessage damage'+(crit ? ' crit':'') );
 					
 					if( leech ){
-						s.addHP(leech, s, this, type, ignoreBlock, true);
+						s.addHP(leech, s, this, type, false, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
 					}
 

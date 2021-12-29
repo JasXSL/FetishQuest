@@ -1089,9 +1089,9 @@ Action.Types = {
 };
 
 Action.TypeDescriptions = {
-	[Action.Types.physical] : 'Physical attacks have a chance of damaging armor durability.',
-	[Action.Types.arcane] : 'Arcane effects have a chance to restore MP next turn.',
-	[Action.Types.corruption] : 'Corruption effects have a chance to arouse the target, increasing their corruption damage taken.',
+	[Action.Types.physical] : 'Physical damage has a chance of damaging armor durability.',
+	[Action.Types.arcane] : 'Arcane damage has a chance to remove extra blocking before dealing damage.',
+	[Action.Types.corruption] : 'Corruption damage has a chance to arouse the target.',
 };
 
 Action.typeColor = function(type){
