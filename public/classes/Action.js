@@ -78,6 +78,7 @@ class Action extends Generic{
 		this.can_crit = false;					// This ability can critically hit
 		this.crit_formula = '';					// Custom crit chance. Requires can_crit to be set
 		this.no_clairvoyance = false;			// This shouldn't be inspectable with clarivoyance
+		this.group = '';						// Group this action on the action bar with others
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge.
@@ -87,7 +88,6 @@ class Action extends Generic{
 		this._cache_cooldown = false;		// Since this.cooldown can be a math formula, this lets you cache the cooldown to prevent lag. Wiped on turn start.
 		this._crit = false;
 		this._slot = -1;						// Action slot. -1 if deactivated. If autolearn is enabled on the player, this is ignored.
-
 		
 		// Auto generated if loaded from a player library
 		this._custom = false;
@@ -137,7 +137,8 @@ class Action extends Generic{
 			_slot : this._slot,
 			ignore_wrapper_conds : this.ignore_wrapper_conds,
 			can_crit : this.can_crit,
-			no_clairvoyance : this.no_clairvoyance
+			no_clairvoyance : this.no_clairvoyance,
+			group : this.group
 		};
 
 		// Everything but mod

@@ -315,6 +315,9 @@ div.scroll{
 	left:0; right:0;
 	top:0; bottom:0;
 }
+#content.casting{
+	user-select: none !important;
+}
 
 /* UI Layer */
 #ui{
@@ -2166,7 +2169,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#groupFinder,
 	#gameIcons > div,
-	#ui > div.actionbar > div.actions > div{
+	#ui > div.actionbar > div.actions > div.actionGroup > div{
 
 		transition:transform 0.1s ease-out;
 		width:4.25vh;
@@ -2174,10 +2177,53 @@ div.passiveUpsideDown > div.content > div.bg{
 		background-size: cover;
 		overflow:visible;
 		display:inline-block;
-		margin:0 0.25vh 0 0.25vh;
 		vertical-align: middle;
-
 	}
+
+	#ui > div.actionbar > div.actions > div.actionGroup{
+		width:5.75vh;
+		height:5.75vh;
+		overflow: visible;
+		display:flex;
+		margin:0 0.15vh 0 0.15vh;
+		flex-direction: column-reverse;
+	}
+
+	div.action,
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action{
+		display:block;
+		width:5.5vh;
+		height:5.5vh;
+		border-color:#CFE;
+		border-width: 0.2vh;
+		padding:0.5vh;
+		font-size:1.5vh;
+		margin:0;
+		flex-shrink:0;
+		background: linear-gradient(to bottom, #686868 0%,#636363 39%,#4c4c4c 50%,#282828 51%,#383838 100%);
+	}
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action:not(:first-child){
+		display: none;
+	}
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action:not(:first-child) div.hotkey{
+		display:none;
+	}
+	#ui > div.actionbar > div.actions > div.actionGroup:hover > div.action,
+	#ui > div.actionbar > div.actions > div.actionGroup.popout > div.action
+	{
+		display: block;
+	}
+	div.action.corr > img{
+		filter: sepia(100%) saturate(250) hue-rotate(251deg);
+	}
+	div.action.phys > img{
+		filter: sepia(100%) saturate(250) hue-rotate(294deg);
+	}
+	div.action.arc > img{
+		filter: sepia(100%) saturate(250) hue-rotate(97deg);
+		
+	}
+
 	
 	#gameIcons > div.highlighted,
 	#mainMenuToggle > div.highlighted{
@@ -2884,44 +2930,35 @@ div.passiveUpsideDown > div.content > div.bg{
 		position: absolute;
 		display: flex;
 		justify-content: center;
-		left:0; right:0; bottom:0; top:0.25vh;
+		left:0; right:0; bottom:0; top:0;
 		text-align: center;
 		-moz-user-select: none;
 		user-select: none;
 	}
 
-	div.action,
-	#ui > div.actionbar > div.actions > div.action{
-		display:block;
-		max-width:5.5vh;
-		width:5%;
-		height:5.5vh;
-		border-color:#CFE;
-		border-width: 0.2vh;
-		padding:0.5vh;
-		font-size:1.5vh;
-	}
-	div.action.corr > img{
-		filter: sepia(100%) saturate(250) hue-rotate(251deg);
-	}
-	div.action.phys > img{
-		filter: sepia(100%) saturate(250) hue-rotate(294deg);
-	}
-	div.action.arc > img{
-		filter: sepia(100%) saturate(250) hue-rotate(97deg);
-		
-	}
-
-
+	
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
-		width:auto;
-		padding-top:1.75vh;
-		background-color:#474;
-		max-width:9vh;
-	}
-	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
-		color:#DFD;
+		width: auto;
+		padding-top: 1.5vh;
+		color: #DFD;
 		border-color: #DFD;
+		text-shadow: 1px 1px #000, -1px 1px #000, 1px -1px #000, -1px -1px #000;
+		margin: 0.3vh 0 0 0;
+		height: 5.5vh;
+		background: linear-gradient(to bottom, #686868 0%,#636363 39%,#4c4c4c 50%,#282828 51%,#383838 100%);
+	}
+	#ui > div.actionbar > div.actions > div.action[data-id=end-turn] div.bg{
+		background:url(media/wrapper_icons/upgrade.svg);
+		background-size:contain;
+		background-position: right center;
+		background-repeat: no-repeat;
+		position: absolute;
+		transform:translateY(-50%) rotate(90deg);
+		right:0;
+		top:50%;
+		height:5vh;
+		width:5vh;
+		opacity: 50%;
 	}
 	@keyframes endTurnPulse{
 		from{transform: scale(1.05,1.05);}
@@ -2930,8 +2967,9 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn].highlighted{
 		color:#DFD;
 		border-color:#DFD;
-		animation: endTurnPulse 1s ease-in-out alternate infinite;
+		animation: endTurnPulse 0.5s ease-in-out alternate infinite;
 		box-shadow: 0 0 1vmax #AFA;
+		background: linear-gradient(to bottom, #51a159 0%,#4e9c56 39%,#418147 50%,#2c5630 51%,#35693a 100%);
 	}
 
 	div.action > *,
@@ -2989,7 +3027,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		font-weight: normal;
 
 	}
-	#ui > div.actionbar > div.actions > div.action.enabled:hover{
+	#ui > div.actionbar > div.actions div.action.enabled:hover{
 		border-color:#FFF !important;
 	}
 	#ui > div.actionbar > div.actions > div.action.empty > *,
@@ -3216,6 +3254,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		text-align: left;
 		font-weight:normal;
 		z-index:1000;
+		user-select: none;
 	}
 
 	div.tooltip{display:none;}

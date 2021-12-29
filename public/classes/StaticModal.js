@@ -4608,6 +4608,10 @@ export default class StaticModal{
 							<td>C</td>
 							<td>Toggle group finder</td>
 						</tr>
+						<tr>
+							<td>TAB</td>
+							<td>Switch between grouped actions while one of its actions are selected. Such as Attack/Arouse/Shock.</td>
+						</tr>
 					</table>
 				`;
 			})

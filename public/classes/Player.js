@@ -109,6 +109,8 @@ export default class Player extends Generic{
 		this.he = '';
 		this.him = '';
 		this.his = '';
+
+		this.actionGroups = [];					// Contains PlayerActionGroup objects. Built on the fly
 		
 		
 		this.class = null;
@@ -175,6 +177,7 @@ export default class Player extends Generic{
 			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
 		
 		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
+		this.actionGroups = PlayerActionGroup.loadThese(this.actionGroups);
 
 		if( window.game ){
 			
@@ -237,6 +240,7 @@ export default class Player extends Generic{
 			his : this.his,
 			generated : this.generated,	// Needed for playerMarkers in webgl
 			armor : this.armor,
+			actionGroups : PlayerActionGroup.saveThese(this.actionGroups)
 		};
 
 		if( full !== "mod" )
@@ -466,7 +470,77 @@ export default class Player extends Generic{
 		return out;
 
 	}
+
+	// Returns an array of enabled actions belonging to a group
+	getActionGroup( group ){
+
+		let out = [];
+		const actions = this.getActions();
+		for( let action of actions ){
+			if( action.group === group )
+				out.push(action);
+		}
+		return out;
+
+	}
+	// Finds the group position in the game.actions by action label. Used when setting group index 
+	getActualGroupPos( group, label ){
+
+		const actions = this.getActionGroup(group);
+		for( let i = 0; i < actions.length; ++i ){
+
+			let action = actions[i];
+			if( action.label === label )
+				return i;
+
+		}
+		return 0;
+
+	}
+
+	// Action groups
+	getActiveActionGroupIndex( group ){
+
+		for( let g of this.actionGroups ){
+
+			if( g.id === group )
+				return g.active;
+
+		}
+
+		return 0;
+
+	}
 	
+	setActiveActionGroupIndex( group, index, additive = false ){
+
+		for( let g of this.actionGroups ){
+
+			if( g.id === group ){
+
+				if( additive ){
+
+					g.active += parseInt(index) || 1;
+					const length = this.getActionGroup(group).length;
+					if( g.active >= length )
+						g.active = 0;
+					else if( g.active < 0 )
+						g.active = length-1;
+
+				}
+				else
+					g.active = parseInt(index) || 0;
+				return;
+
+			}
+
+		}
+		this.actionGroups.push(new PlayerActionGroup({
+			id : group,
+			index : index
+		}));
+
+	}
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
 	// prefix is usually se_ or ta_
@@ -3620,5 +3694,39 @@ Player.currencyColors = [
 	'#AAA',
 	'#FA8'
 ];
+
+// Saves the last used action in a grouped action
+class PlayerActionGroup extends Generic{
+	
+	constructor(data){
+		super(data);
+
+		this.id = '';		// group name
+		this.active = 0;	// Index of active action
+
+		this.load(data);
+	}
+
+	save(){
+
+		const out = {
+			id : this.id,
+			active : this.active
+		};
+		return out;
+
+	}
+
+
+	load( data ){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.g_rebase();	// Super
+	}
+
+
+}
 
 

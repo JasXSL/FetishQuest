@@ -12,7 +12,7 @@ import Book from "./Book.js";
 import { Effect } from "./EffectSys.js";
 
 const NUM_ACTIONS = 18;	// Max nr actions the UI can draw
-
+const NUM_SUBS = 5;		// Max actions per group
 
 
 export default class UI{
@@ -26,6 +26,7 @@ export default class UI{
 		this.initialized = false;
 
 		this.board = $("#ui");
+		this.content = $("#content");
 		this.players = $("#ui > div.players");
 		this.friendly = $("#ui > div.players > div.left");
 		this.hostile = $("#ui > div.players > div.right");
@@ -148,6 +149,7 @@ export default class UI{
 
 			if( event.target !== document.body )
 				return;
+
 			if( event.key === ' '){
 				game.uiAudio( 'map_toggle' );
 				this.toggle();
@@ -197,6 +199,25 @@ export default class UI{
 
 			}
 
+			// TAB
+			else if( event.keyCode === 9 && this.action_selected ){
+
+				event.preventDefault();
+				const player = game.getMyActivePlayer();
+				if( !player )
+					return;
+
+				player.setActiveActionGroupIndex( this.action_selected.group, 1, true);
+				this.drawActionSelector();
+				// Timeout is needed due to the click+drag direct system
+
+				const pre = this.getActiveActionButton();
+				const first = $("> div.action:not(.hidden):first", pre.parent());
+				first.mousedown().click();
+				this.bindTooltips();
+
+			}
+
 			// Hotbar
 			else if( +event.key && +event.key < 10 ){
 
@@ -207,9 +228,13 @@ export default class UI{
 				}
 				else{
 
-					const button = this.actionbar_actions[0].children[event.key-1];
-					if( button )
+					const button = this.actionbar_actions[0].children[event.key-1].children[0];
+					if( button ){
+						
 						$(button).mousedown().mouseup();
+						button.parentNode.classList.toggle('popout', true);
+
+					}
 
 				}
 
@@ -341,8 +366,9 @@ export default class UI{
 		// Build the action bar
 		let html = '';
 		for( let i=0; i<NUM_ACTIONS; ++i )
-			html += UI.Templates.actionButton;
-		html += '<div data-id="end-turn" class="action button autoWidth">End Turn</div><span class="hidden">Spectating</span>';
+			html += UI.Templates.getActionButtonGroup();
+		
+		html += '<div data-id="end-turn" class="action button autoWidth"><div class="bg"></div><span>END TURN</span></div><span class="hidden">Spectating</span>';
 		this.actionbar_actions.html(html);
 		this.endTurnButton = $('> div[data-id="end-turn"]',this.actionbar_actions);
 		this.spectatingText = $('> span', this.actionbar_actions);
@@ -529,6 +555,11 @@ export default class UI{
 
 	}
 
+	// Returns a jquery object of the action button bound to this.action_selected
+	getActiveActionButton(){
+		return $("> div.actionGroup > div[data-id='"+esc(this.action_selected.id)+"']:not(.hidden)", this.actionbar_actions);
+	}
+
 	// Draws action selector for a player
 	drawActionSelector( player ){
 
@@ -538,8 +569,7 @@ export default class UI{
 			player = game.getMyActivePlayer();
 
 		// Hide the action buttons from start
-		const buttons = $('> div.action:not([data-id="end-turn"])', this.actionbar_actions);
-		buttons.toggleClass("hidden", true);
+		const buttons = $("> div.actionGroup", this.actionbar_actions); // Get the groups
 		this.spectatingText.toggleClass('hidden', Boolean(player));
 
 		if( !(player instanceof Player) ){
@@ -591,24 +621,71 @@ export default class UI{
 		});
 		// console.log("Init2: ", Date.now()-time); 
 
+		// cast actions into arrays with grouped actions ex [[stdatt,stdarr,stdshock],[action2],[action3]]
+		let actionsGrouped = [];
+		// Returns an index to add an action to, or boolean false if you should add new
+		const getGroupIndex = ac => {
+			
+			if( ac.group === "" )
+				return false;
+
+			for( let i = 0; i < actionsGrouped.length; ++i ){
+
+				if( actionsGrouped[i][0].group === ac.group )
+					return i;
+
+			}
+			return false;
+
+		}
+
+		for( let action of actions ){
+
+			let idx = getGroupIndex(action);
+			if( idx === false )
+				actionsGrouped.push([action]);
+			else
+				actionsGrouped[idx].push(action);
+
+		}
+
 		time = Date.now();
 		let castableActions = 0;
 		for( let i=0; i < NUM_ACTIONS; ++i ){
 
-			const button = $(buttons[i]);
-			let action = actions[i];
-			if( !action )
-				continue;
+			const group = buttons[i];
+			let sActions = actionsGrouped[i];	// sub actions
+			const subs = $('> div.action', group);
 
-			let castable = action.castable() && myTurn;
-			castableActions += Boolean(castable);
+			group.classList.toggle("hidden", !sActions);
+			if( !sActions )
+				continue;		// No actions here
+			
+			let idxActive = player.getActiveActionGroupIndex(sActions[0].group);
 
-			// Update class name
-			this.constructor.setActionButtonContent(button, action, player, (i < 10 ? i+1 : false));
+			for( let s = 0; s < NUM_SUBS; ++s ){
 
-			// Custom stuff
-			const castableClass = (castable ? 'enabled' : 'disabled');
-			button.toggleClass(castableClass, true);
+				const button = $(subs[s]);
+				let action = sActions[s];
+				button.toggleClass("hidden", !action);
+				if( !action )
+					continue;
+
+				let castable = action.castable() && myTurn;
+				castableActions += Boolean(castable);
+
+				// Update class name
+				this.constructor.setActionButtonContent(button, action, player, (i < 10 ? i+1 : false));
+
+				// Custom stuff
+				
+				const castableClass = (castable ? 'enabled' : 'disabled');
+				button.toggleClass(castableClass, true);
+
+				if( s < idxActive )
+					group.appendChild(button[0]);
+				
+			}
 
 
 		}
@@ -639,130 +716,171 @@ export default class UI{
 
 		// Bind events
 		time = Date.now();
-		$("> div.action.button", this.actionbar_actions)
-			.off('mousedown mouseover mouseout click touchstart touchmove')
-			.on('mousedown mouseover mouseout click touchstart touchmove', function(event){
 
-			let id = $(this).attr("data-id");
-			let spell = player.getActionById(id);
-			const enabled = $(this).is('.enabled');
+		$("> div.actionGroup > div.action.button:first-child, > div.action.button", this.actionbar_actions)
+			.off('mousedown click touchstart touchmove')
+			.on('mousedown click touchstart touchmove', function(event){
 
-
-			const targetable = spell && spell.targetable();
-
-			if( event.type === 'touchstart' || event.type === 'touchmove' ){
-				const type = event.type;
-				event = event.touches[0];
-				event.type = type;
-			}
+				let id = $(this).attr("data-id");
+				let spell = player.getActionById(id);
+				const enabled = $(this).is('.enabled');
 
 
-			// Drag mouseover
-			if( event.type === 'touchmove' && th.action_selected && targetable ){
+				const targetable = spell && spell.targetable();
 
-				let pre = th.touch_update.clone();
-				th.touch_update.x = event.screenX;
-				th.touch_update.y = event.screenY;
-				const oDist = th.touch_start.distanceTo(pre);
-				const nDist = th.touch_start.distanceTo(th.touch_update);
-				if( oDist > 45 !== nDist > 45 ){
-					if( nDist > 45 ){
-						th.dragStart( this, true );
-					}else{
-						th.drawSpellCosts(spell);
+				if( event.type === 'touchstart' || event.type === 'touchmove' ){
+					const type = event.type;
+					event = event.touches[0];
+					event.type = type;
+				}
+
+
+				// Drag
+				if( event.type === 'touchmove' && th.action_selected && targetable ){
+
+					let pre = th.touch_update.clone();
+					th.touch_update.x = event.screenX;
+					th.touch_update.y = event.screenY;
+					const oDist = th.touch_start.distanceTo(pre);
+					const nDist = th.touch_start.distanceTo(th.touch_update);
+					if( oDist > 45 !== nDist > 45 ){
+						if( nDist > 45 ){
+							th.dragStart( this, true );
+						}else{
+							th.drawSpellCosts(spell);
+						}
 					}
-				}
 
-				// Scan player elements
-				$("div.player.castTarget", th.players).each((id, el) => {
+					// Scan player elements
+					$("div.player.castTarget", th.players).each((id, el) => {
 
-					const pos = $(el).offset();
-					const size = {x:$(el).outerWidth(), y:$(el).outerHeight()};
-					const highlighted = (
-						th.touch_update.x > pos.left && th.touch_update.x < pos.left+size.x &&
-						th.touch_update.y > pos.top && th.touch_update.y < pos.top+size.y
-					);
-					$(el).toggleClass('highlighted', highlighted);
+						const pos = $(el).offset();
+						const size = {x:$(el).outerWidth(), y:$(el).outerHeight()};
+						const highlighted = (
+							th.touch_update.x > pos.left && th.touch_update.x < pos.left+size.x &&
+							th.touch_update.y > pos.top && th.touch_update.y < pos.top+size.y
+						);
+						$(el).toggleClass('highlighted', highlighted);
 
-				});
-
-			}
-
-			if( th.action_selected && th.action_selected.id === spell.id && (event.type === 'mousedown' || event.type === 'touchstart') )
-				return;
-
-			if( th.action_selected && th.action_selected.id !== spell.id && (event.type === 'mouseover' || event.type === 'mouseout') )
-				return;
-
-			
-
-			// End turn override
-			if( id === "end-turn" ){
-
-				if( event.type === 'click'){
-
-					th.action_selected = game.getTurnPlayer().getActionByLabel('stdEndTurn');
-					th.targets_selected = [game.getTurnPlayer()];
-					th.performSelectedAction();
+					});
 
 				}
-				return;
 
-			}
-			
-			if( (event.type === 'mousedown' || event.type === 'touchstart') && enabled ){
+				if( th.action_selected && th.action_selected.id === spell.id && (event.type === 'mousedown' || event.type === 'touchstart') )
+					return;
 
-				th.closeTargetSelector();
-				th.action_selected = spell;
-				th.targets_selected = [];
-				game.uiClick(event.target);
+				// End turn override
+				if( id === "end-turn" ){
 
-				if( targetable )
-					$(this).toggleClass('spellSelected', true);
+					if( event.type === 'click'){
 
-				if( spell.max_targets > 1 && targetable ){
-					th.updateMultiCast();
+						th.action_selected = game.getTurnPlayer().getActionByLabel('stdEndTurn');
+						th.targets_selected = [game.getTurnPlayer()];
+						game.uiAudio("endturn_down", 0.5, this);
+						th.performSelectedAction();
+
+					}
+					else if( event.type === 'mousedown' || event.type === 'touchstart' )
+						game.uiAudio("endturn_up", 0.5, this);
+					return;
+
 				}
-
-				if( event.type === 'touchstart' ){
-					th.touch_start.x = event.screenX;
-					th.touch_start.y = event.screenY;
-					th.touch_update.copy(th.touch_start);
-				}
-
-				th.drawTargetSelector();
-
-			}
-
-			// Single clicked the element
-			else if( event.type === 'click' && !th._hold_actionbar ){
 				
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				// Non directed targets are handled by mousedown
-				if( !th._action_used && spell.castable(true) ){
+				if( (event.type === 'mousedown' || event.type === 'touchstart') && enabled ){
 
+					//th.closeTargetSelector();
+					th.action_selected = spell;
 					th.targets_selected = [];
+					game.uiClick(event.target);
+
+					if( targetable )
+						$(this).toggleClass('spellSelected', true);
+
+					if( spell.max_targets > 1 && targetable ){
+						th.updateMultiCast();
+					}
+
+					if( event.type === 'touchstart' ){
+						th.touch_start.x = event.screenX;
+						th.touch_start.y = event.screenY;
+						th.touch_update.copy(th.touch_start);
+					}
+
 					th.drawTargetSelector();
 
 				}
 
-			}
+				// Single clicked the element
+				else if( event.type === 'click' && !th._hold_actionbar ){
+					
+					event.preventDefault();
+					event.stopImmediatePropagation();
+					// Non directed targets are handled by mousedown
+					if( !th._action_used && spell.castable(true) ){
 
-			else if( event.type === 'mouseover' && enabled )
-				th.drawSpellCosts(spell);
+						th.targets_selected = [];
+						th.drawTargetSelector();
 
-			else if( event.type === 'mouseout' && enabled ){
+					}
 
-				if( th.action_selected && targetable ){
-					th.dragStart( this, th.mouseDown );
 				}
-				th.drawSpellCosts();
-				
 
-			}
+			});
 
-		});
+		// Handle clicking on grouped off-actions
+		$("> div.actionGroup > div.action.button:not(:first-child)", this.actionbar_actions)
+			.off('mousedown click touchstart touchmove')
+			.on('mousedown touchstart', function(event){
+
+				if( !th.__no_move ){
+					
+					let id = $(this).attr("data-id");
+					let spell = player.getActionById(id);
+					
+					// Get the index of the spell
+					player.setActiveActionGroupIndex(
+						spell.group, 
+						player.getActualGroupPos(spell.group, spell.label)
+					);
+					th.drawActionSelector(player);
+					th.bindTooltips();
+					th.__no_move = true;	// Prevents multiple clicks from happening since we're binding many events
+					game.save();
+
+					// Wait for all events to finish firing
+					setTimeout(() => {
+						th.__no_move = false;
+						this.parentNode.children[0].dispatchEvent(new MouseEvent(event.type));
+						this.parentNode.children[0].dispatchEvent(new MouseEvent("mouseout"));
+					}, 1);
+
+				}
+
+			});
+
+		// hover actions last or they won't work
+		$("div.action.button", this.actionbar_actions)
+			.off('mouseover mouseout')
+			.on('mouseover mouseout', function(event){
+
+				let id = $(this).attr("data-id");
+				let spell = player.getActionById(id);
+
+				if( th.action_selected && th.action_selected.id !== spell.id )
+					return;
+
+				if( event.type === 'mouseover' )
+					th.drawSpellCosts(spell);
+
+				else if( event.type === 'mouseout' ){
+
+					if( th.action_selected && spell && spell.targetable() )
+						th.dragStart( this, th.mouseDown );
+					th.drawSpellCosts();
+
+				}
+
+			});
 		//console.log("Binding the events", Date.now()-time);
 
 	}
@@ -1828,7 +1946,6 @@ export default class UI{
 			this.toggle(true);
 
 		this.updateMultiCast();
-		
 		$("div.player", this.players).toggleClass("castTarget targetSelected", false);
 		const viableTargets = action.getViableTargets();
 
@@ -1852,6 +1969,9 @@ export default class UI{
 				return true;
 			return false;
 		}
+
+		this.content.toggleClass('casting', true);
+		this.setTooltip( this.getActiveActionButton(), true );
 			
 		for( let t of viableTargets ){
 
@@ -1881,6 +2001,9 @@ export default class UI{
 
 	closeTargetSelector( clearAction = true ){
 
+		this.content.toggleClass('casting', false);
+		this.setTooltip( undefined, true );
+		$('> div', this.actionbar_actions).toggleClass('popout', false);
 		$("div.action", this.action_selector).toggleClass('spellSelected', false);
 		game.renderer.toggleArrow();
 		this.arrowHeld = false; 
@@ -2392,7 +2515,10 @@ export default class UI{
 
 
 	/* Tooltip */
-	setTooltip( parentElement ){
+	setTooltip( parentElement, force = false ){
+
+		if( this.__tt_force && !force )
+			return;
 
 		let text = $("> .tooltip", parentElement)[0];
 
@@ -2419,6 +2545,7 @@ export default class UI{
 			
 		}
 		this.setTooltipAtPoint(text, left, top);
+		this.__tt_force = force && Boolean(parentElement);
 
 	}
 
@@ -2464,6 +2591,7 @@ export default class UI{
 	onTooltipMouseout(){
 		this.setTooltip();
 	}
+
 
 	// Add tooltipParent class to anything that should have a tooltip, and .tooltip directly under it with content. Call this function to rebind
 	bindTooltips(){
@@ -3036,5 +3164,14 @@ UI.Templates = {
 			'<div class="cd"><span></span><img src="media/wrapper_icons/hourglass.svg" /></div>'+
 			'<div class="tooltip actionTooltip"></div>'+
 		'</div>',
+	getActionButtonGroup : function(){
+
+		let out = '<div class="actionGroup">';
+		for( let i = 0; i < NUM_SUBS; ++i )
+			out += UI.Templates.actionButton;
+		out += '</div>';
+		return out;
+
+	}
 	
 };
