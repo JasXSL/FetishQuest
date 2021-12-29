@@ -214,8 +214,6 @@ class Bot{
 					return 0;
 				});
 
-				console.log("Abils", abils);
-
 				for( let abil of abils ){
 
 					let targs = abil.getViableTargets().filter(el => {

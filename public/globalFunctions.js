@@ -122,9 +122,12 @@ function valsToKeys( input = [] ){
 
 // Takes a float and floors it, if there's a remainder, it might be add 1 to the floored value based on the remainder as percentage
 function randRound( val = 0 ){
-	let base = Math.floor(val);
-	if( val-base > Math.random() )
-		++base;
+	let base = parseInt(val);
+	let fract = val-base;
+	if( fract < 0 )
+		fract = 1.0-fract;	// Negative goes the other way
+	if( fract > Math.random() )
+		base += base > 0 ? 1 : -1;
 	return base;
 }
 

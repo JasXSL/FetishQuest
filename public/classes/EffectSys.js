@@ -1079,7 +1079,6 @@ class Effect extends Generic{
 				}
 				// Damage
 				else{
-					
 					/*
 					console.debug(
 						s.name, "vs", t.name,
@@ -1091,7 +1090,6 @@ class Effect extends Generic{
 						"nudity multi", t.getArmorDamageMultiplier(s, this)
 					);
 					*/
-					
 					// Get target global damage point taken modifier
 
 					// Amt is negative
@@ -1106,12 +1104,12 @@ class Effect extends Generic{
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
 					amt *= t.getArmorDamageMultiplier( s, this );
 
-
-					//console.debug("amt", amt);
 					
 					amt = randRound(amt);
 					if( amt > 0 )
 						amt = 0;
+
+					//console.debug("amt", amt);
 
 					// Calculate durability damage				
 					if( type === Action.Types.physical ){
@@ -1182,6 +1180,7 @@ class Effect extends Generic{
 
 				if( isNaN(amt) )
 					console.error("NaN damage amount found in", this);
+
 				let exec = t.addHP(amt, s, this, type, noBlock, true);
 				let died = exec.died;
 
@@ -2413,7 +2412,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier} - Adds arousal points",	
 	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
 
-	[Effect.Types.addBlock] : "{amount:(str)formula, type:(str)Action.Types.x} - If type is left out, it will try to be auto supplied the same way the damage effect does.", 
+	[Effect.Types.addBlock] : "{amount:(str)formula, type:(str)Action.Types.x} - If type is left out, it will try to be auto supplied the same way the damage effect does. Otherwise it should be one of 'Arcane', 'Physcial', 'Corruption'", 
 
 	[Effect.Types.regenAP] : "{amount:(float)multiplier} - Multiplies against AP regen at the start of your turn.",
 

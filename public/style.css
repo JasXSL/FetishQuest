@@ -2973,21 +2973,20 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 	div.action > *,
-	#ui > div.actionbar > div.actions > div.action *{
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action *{
 		pointer-events: none;
 	}
-	#ui > div.actionbar > div.actions > div.action.spellSelected{
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action.spellSelected{
 		transform: translateY(-15%) scale(1.2,1.2);
 	}
 	div.action > img,
-	#ui > div.actionbar > div.actions > div.action > img{
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action > img{
 		width:100%;
 		height:100%;
 		position: absolute;
 		left:0; top:0;
 	}
-	div.action > div.uses,
-	#ui > div.actionbar > div.actions > div.action > div.uses{
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action > div.uses{
 		position: absolute;
 		top:-15%; right:-10%;
 		font-size:1.5vmax;
@@ -2995,7 +2994,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 	}
 	div.action > div.cd,
-	#ui > div.actionbar > div.actions > div > div.cd{
+	#ui > div.actionbar > div.actions > div.actionGroup > div > div.cd{
 		
 		bottom: -5%;
 		right: -15%;
@@ -3008,7 +3007,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		color:#FEE;
 
 	}
-	#ui > div.actionbar > div.actions > div > div.cd > img {
+	#ui > div.actionbar > div.actions div.cd > img {
 		height: 100%;
 		vertical-align: middle;
 		filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
@@ -3060,7 +3059,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		border-color:#FDC;
 	}
 	div.action.disabled,
-	#ui > div.actionbar > div.actions > div.action.disabled,
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action.disabled,
+	#ui > div.actionbar > div.actions > div.disabled,
 	div.item.disabled,
 	div.inventory div.item.disabled{
 		color:#FDD !important;

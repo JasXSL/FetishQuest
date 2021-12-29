@@ -1507,29 +1507,34 @@ export default class UI{
 		}
 
 
-		// Shields. Looks kinda weird, but is needed for the animations to work
-		if( !p.blPhysical && physShieldEl.hasClass("spawn") )
+		// Blocking. Looks kinda weird, but is needed for the animations to work
+		const bPhys = p.getBlock(Action.Types.physical);
+		const bCorr = p.getBlock(Action.Types.corruption);
+		const bArca = p.getBlock(Action.Types.arcane);
+
+		if( !bPhys && physShieldEl.hasClass("spawn") )
 			physShieldEl.toggleClass('die', true);
-		if( !p.blArcane && arcaShieldEl.hasClass("spawn") )
+		if( !bArca && arcaShieldEl.hasClass("spawn") )
 			arcaShieldEl.toggleClass('die', true);
-		if( !p.blCorruption && corrShieldEl.hasClass("spawn") )
+		if( !bCorr && corrShieldEl.hasClass("spawn") )
 			corrShieldEl.toggleClass('die', true);
 
-		if( p.blPhysical )
+		if( bPhys )
 			physShieldEl.toggleClass('die', false);
-		if( p.blArcane )
+		if( bArca )
 			arcaShieldEl.toggleClass('die', false);
-		if( p.blCorruption )
+		if( bCorr )
 			corrShieldEl.toggleClass('die', false);
 
-		$("> span", physShieldEl).text(p.blPhysical);
-		$("> span", corrShieldEl).text(p.blCorruption);
-		$("> span", arcaShieldEl).text(p.blArcane);
+		
+		$("> span", physShieldEl).text(bPhys);
+		$("> span", corrShieldEl).text(bCorr);
+		$("> span", arcaShieldEl).text(bArca);
 
 		setTimeout(() => {
-			physShieldEl.toggleClass('spawn', Boolean(p.blPhysical));
-			arcaShieldEl.toggleClass('spawn', Boolean(p.blArcane));
-			corrShieldEl.toggleClass('spawn', Boolean(p.blCorruption));
+			physShieldEl.toggleClass('spawn', Boolean(bPhys));
+			arcaShieldEl.toggleClass('spawn', Boolean(bArca));
+			corrShieldEl.toggleClass('spawn', Boolean(bCorr));
 		}, 10)
 		
 		

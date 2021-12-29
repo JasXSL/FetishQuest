@@ -75,9 +75,13 @@ export default class Player extends Generic{
 		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 
+		// Use getBlock(type)
 		this.blPhysical = 0;		// Blocking points of physical damage this turn
 		this.blCorruption = 0;		// Blocking points of corruption damage this turn
 		this.blArcane = 0;			// Blocking points of arcane this turn
+		this.iblPhysical = 0;		// Block applied while it wasn't my turn
+		this.iblCorruption = 0;		
+		this.iblArcane = 0;			
 
 		this.svPhysical = 0;
 		this.svArcane = 0;
@@ -289,6 +293,9 @@ export default class Player extends Generic{
 			out.blArcane = this.blArcane;
 			out.blCorruption = this.blCorruption;
 			out.blPhysical = this.blPhysical;
+			out.iblArcane = this.iblArcane;
+			out.iblCorruption = this.iblCorruption;
+			out.iblPhysical = this.iblPhysical;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
 			out.netgame_owner = this.netgame_owner;
 			out.netgame_owner_name = this.netgame_owner_name;
@@ -1145,7 +1152,12 @@ export default class Player extends Generic{
 		this._riposted_since_last = {};
 		this._riposting_since_last = {};
 		
-		this.blPhysical = this.blArcane = this.blCorruption = 0; // Goes before wrappers so arcane HOTS can cause its secondary trait
+		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn
+		this.blPhysical = this.iblPhysical;
+		this.blArcane = this.iblArcane;
+		this.blCorruption = this.iblCorruption;
+		this.iblArcane = this.iblCorruption = this.iblPhysical = 0;
+		
 
 		// Wipe turnTags on start
 		this.resetTurnTags();
@@ -1213,7 +1225,7 @@ export default class Player extends Generic{
 		this._damage_since_last = {};
 		this._last_chat = -1;
 		this._turn_action_used = 0;
-		this.blCorruption = this.blPhysical = this.blArcane = 0;
+		this.blCorruption = this.blPhysical = this.blArcane = this.iblPhysical = this.iblArcane = this.iblCorruption = 0;
 
 		this.resetTempActions();
 
@@ -1224,6 +1236,7 @@ export default class Player extends Generic{
 	}
 	onBattleEnd(){
 
+		this.blCorruption = this.blPhysical = this.blArcane = this.iblPhysical = this.iblArcane = this.iblCorruption = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
 		this.ap = 0;
 		let actions = this.getActions();
@@ -2186,25 +2199,41 @@ export default class Player extends Generic{
 	// Adds block. Returns the amount added/subtracted
 	addBlock( amount, type ){
 
-		let pre;
-		let cur = pre = parseInt(this['bl'+type]);
-		if( isNaN(cur) )
+		let pre = this.getBlock(type);
+		if( isNaN(pre) )
 			throw 'Invalid type passed to block: '+type;
 
-		let amt = parseInt(amount);
-		if( isNaN(amt) )
+		amount = parseInt(amount);
+		if( isNaN(amount) )
 			throw 'Invalid value passed to block: '+amt;
 
-		cur += amount;
-		if( Math.random() < cur-Math.floor(cur) )
-			++cur;
+		// Damage
+		if( amount < 0 ){
 
-		cur = Math.max(0, Math.floor(cur));
+			let n = this['bl'+type]+amount;
+			if( n < 0 ){	// We went below 0, and have to remove from incoming block too
+				this['bl'+type] = 0;
+				this['ibl'+type] = Math.max(0, this['ibl'+type]+n);
+			}
+			this['bl'+type] = n;
 
-		this['bl'+type] = cur;
+		}
+		// ADD
+		else{
 
-		return cur-pre;
+			if( game.getTurnPlayer() === this )
+				this['bl'+type] += amount;
+			else
+				this['ibl'+type] += amount;
 
+		}
+		
+		return this.getBlock(type)-pre;
+
+	}
+
+	getBlock( type ){
+		return this['bl'+type] + this['ibl'+type];
 	}
 
 	// Returns an object with {died:(bool)died, hp:(int)hp_damage, blk:(int)amount_blocked/defended}.
@@ -2230,12 +2259,11 @@ export default class Player extends Generic{
 		// Taking damage
 		if( dmgtype ){
 			
-			let shield = this['bl'+dmgtype];
+			let shield = this.getBlock(dmgtype);
 			pre += shield;
 			if( amount < 0 && !ignoreBlock ){
 
 				out.blk = this.addBlock(amount, dmgtype);	// Add the full amount to shield first. addBlock caps to 0
-
 				amount += shield;	// Amount is negative, so add the shield
 				amount = Math.min(0, amount);		// Min because neg
 
@@ -2257,7 +2285,7 @@ export default class Player extends Generic{
 
 		let post = this.hp;
 		if( dmgtype )
-			post += this['bl'+dmgtype];
+			post += this.getBlock(dmgtype);
 
 		// Out of combat HP damage can occur, but players can't go under 1. Use SET HP instead if you want to kill someone through an RP.
 		if( !game.battle_active && this.hp <= 0 )
