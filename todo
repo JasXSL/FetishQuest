@@ -9,13 +9,11 @@
 
 Overhaul:
 	Primary stats
-		- Reblance assets
+		- Rebalance assets
 		- Maybe need to update the asset generator
 		- Rebalance boss trash by lowering their power
 		- Give bosses without adds a higher power stat
 		- Give tanky bosses extra HP through an effect
-
-	Make it so block put onto the player before their turn lasts until the next turn
 
 	Write texts for wild magic
 	
@@ -31,7 +29,6 @@ Overhaul:
 	Can't change armor in combat, but you can re-equip a stripped piece.
 	Replace armor steal on wipe with a money steal.
 	Add a bank.
-	Improve enemy power distribution
 	Ability swap out of combat
 	
 	Enemies that counter the niches (Should be given to certain types, to make less random of appearing). ex:

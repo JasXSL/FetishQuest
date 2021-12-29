@@ -2379,13 +2379,18 @@ export default class Player extends Generic{
 
 	/* STATS */
 	getPowerMultiplier(){
+
+		let out = this.power;
 		if( this.power < 0 )
-			return game.dungeon.getDifficulty();
-		if( this.power === 0 )
-			return 1;
-		if( this.power < 0.1 )
-			return 0.1;
+			out = game.dungeon.getDifficulty()*(Math.abs(this.power));
+		
+		// 0 power becomes 1 for legacy reasons
+		if( out === 0 )
+			out = 1;
+		if( out < .1 )
+			return .1;
 		return this.power;
+
 	}
 
 	// Effect in these methods are only included to prevent recursion

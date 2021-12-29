@@ -63,6 +63,7 @@ export default class Encounter extends Generic{
 	}
 
 	// Converts the template into a fixed encounter, generating players etc
+	// Chainable
 	prepare(){
 
 		const dungeon = this.getDungeon();
@@ -71,43 +72,48 @@ export default class Encounter extends Generic{
 			difficulty = dungeon.getDifficulty();
 		else
 			difficulty = game.getTeamPlayers().length;
-
-
 		difficulty += this.difficulty_adjust;
-
 		if( difficulty < 0.1 )
 			difficulty = 0.1;
+			
+		difficulty = difficulty+Math.random()*0.25;		// Difficulty may vary by 25%
 
 		if( this.started )
 			return;
 
+
 		this.time_started = game.time;
 
-		// Run before an encounter is launched. If we're using templates, we should generate the NPCs here
-		difficulty = difficulty+Math.random()*0.5;
-
-		// Checks if we actually 
+		// Checks if we actually have any templates to add
 		let hasTemplates = Boolean(this.player_templates[0]);	
-		
 		if( hasTemplates ){
 		
 			let usedMonsters = {};	// label : nrUses
 			const level = game.getAveragePlayerLevel();
 
+			let maxSlots = game.getTeamPlayers().length + (Math.random() < 0.75);	// Team size is min players, plus one extra most of the time
+			if( maxSlots > 5 )
+				maxSlots = 5;		// Don't generate more than 5 enemies
+
 			// Gets viable monsters we can put in
 			const getViableMonsters = () => {
 
 				let out = this.player_templates;
-
 				// Filter by gender settings
 				const gameGenders = window.game && game.genders || 0;
 				if( gameGenders ){
 
 					// First off, let's try to filter by gender. Beasts are always allowed.
-					out = this.player_templates.filter(pl => (
-						(gameGenders&pl.getGameGender()) || 
-						pl.isBeast()
-					));
+					out = this.player_templates.filter(pl => {
+						return (
+							(
+								gameGenders&pl.getGameGender() || pl.isBeast()				// Check gender
+							) &&
+							(
+								this.players.length || Math.max(1, pl.slots) <= maxSlots	// Check slots
+							)
+						)
+					});
 
 				}
 
@@ -116,7 +122,6 @@ export default class Encounter extends Generic{
 					out = this.player_templates;
 
 				// Filter by level
-				
 				out = out.filter(p => 
 					p.min_level <= level && p.getMaxLevel() >= level
 				);
@@ -134,99 +139,22 @@ export default class Encounter extends Generic{
 
 			};
 
-
-			
-
-			// This could be provided at runtime instead
-			let dif = 0;
-			const maxPlayers = Math.min(difficulty+1, 4);
-			while( dif < difficulty && this.players.length < maxPlayers ){
+			while( maxSlots > 0 ){
 
 				let viableMonsters = getViableMonsters();
-				shuffle(viableMonsters);
+				let mTemplate = randElem(viableMonsters);
 
 				// Might happen if you have a limit to nr of player types
-				if( !viableMonsters.length ){
-
-					// Spread the last points evenly across the players
-					if( this.players.length ){
-
-						let power = (difficulty-dif)/this.players.length;
-						this.players.map(pl => {
-							pl.power += power;
-						});
-
-					}
-
+				if( !viableMonsters.length )
 					break;
-				}
 
-				let success = false;
-				// Find a monster to add
-				for( let mTemplate of viableMonsters ){
-
-					// Generate a player to push
-					const pl = mTemplate.generate(
-						Math.min(mTemplate.getMaxLevel(), Math.max(level, mTemplate.min_level))
-					);
-					pl.generated = true;	// Set generated so it can be removed when leaving the area, regardless of allegiance
-					let power = pl.power;
-					// Consume whatever power is left
-					if( power < 0 )
-						power = difficulty-dif;
-					// We can increase or lower the difficulty of this monster if it's not the last monster and isn't custom powered
-					else if( power >= 1  ){
-
-						// Halve the power, allowing us to have more monsters
-						if( this.players.length+1 < Math.floor(maxPlayers) ){
-
-							if( Math.random() < 0.5 )
-								power /= 2;
-							pl.power = power;
-
-						}
-						// Last player should match the remainder
-						else{
-
-							power = difficulty-dif;
-
-							// Not enough power left to create a new player, append the remainder to an existing one
-							if( power < 0.25 ){
-
-								randElem(this.players).power += power;
-								dif = difficulty;
-								
-								break;
-							}
-							// Can add a player
-							else{
-								
-								pl.power = Math.max(power, 0.25);
-							}
-						}
-
-					}
-					
-
-					// This one is viable
-					if( mTemplate.difficulty*power+dif <= difficulty ){
-
-						this.players.push(pl);
-						const amt = mTemplate.difficulty*power*(mTemplate.power === -1 ? game.getTeamPlayers().length : 1);
-						dif += amt;
-						success = true;
-						usedMonsters[mTemplate.label] = usedMonsters[mTemplate.label]+1 || 1;
-						break;
-
-					}else
-						console.log("Skipped because", mTemplate.difficulty, "*", power, "+", dif + ">"+difficulty);
-
-				}
-				
-				if( !success ){
-					// Couldn't find an enemy. Give up.
-					break;
-				}
+				// Generate a player to push
+				const pl = mTemplate.generate(level);
+				pl.generated = true;	// Set generated so it can be removed when leaving the area, regardless of allegiance
+				pl._slots = Math.max(1, Math.min(mTemplate.slots, maxSlots));
+				this.players.push(pl);
+				maxSlots -= pl._slots;
+				usedMonsters[mTemplate.label] = usedMonsters[mTemplate.label]+1 || 1;
 
 			}
 
@@ -235,22 +163,26 @@ export default class Encounter extends Generic{
 
 				console.error("Didn't find a viable template for encounter. Had to fallback.");
 				const mTemplate = this.player_templates[0];
-				const pl = mTemplate.generate(
-					Math.min(mTemplate.getMaxLevel(), Math.max(level, mTemplate.min_level))
-				);
+				const pl = mTemplate.generate(level);
 				pl.generated = true;
 				this.players.push(pl);
 
 			}
 		
-
 		}
 
-
-		for( let player of this.players )
+		let totalSlots = 0;
+		for( let player of this.players ){
 			player.g_resetID();
+			totalSlots += player._slots || 1;
+		}
+
+		let average = difficulty/totalSlots;
+		for( let player of this.players )
+			player.power *= average*(player._slots||1);
 
 		this.onModified();
+		return this;
 
 	}
 

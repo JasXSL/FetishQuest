@@ -50,8 +50,8 @@ export function asset(){
 		html += '<label>Gear Chance: <span class="valueExact"></span><input name="gear_chance" value="'+esc(dummy.gear_chance)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
 		html += '<label title="Left = tiny, mid = human, right = giant">Min Size: <span class="valueExact"></span><input name="min_size" value="'+esc(dummy.min_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
 		html += '<label title="Left = tiny, mid = human, right = giant">Max Size: <span class="valueExact"></span><input name="max_size" value="'+esc(dummy.max_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
-		html += '<label title="1 = average, 2 = about the same as 2 monsters">Difficulty: <input name="difficulty" value="'+esc(dummy.difficulty)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
-		html += '<label title="Multiplies against all stats">Power: <input name="power" value="'+esc(dummy.power)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
+		html += '<label title="How many slots this fills up in the generator, and multiplies power against this.">Slots: <input name="slots" value="'+esc(dummy.slots)+'" type="number" min=1 step=1 class="saveable" /></label>';
+		html += '<label title="Multiplies against all player stats. Primarily for toning players down with dangerous abilities">Power: <input name="power" value="'+esc(dummy.power)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
 		html += '<label title="Percentage armor points. Used for armored beasts to allow for armor penetration.">Armor: <input name="armor" value="'+esc(dummy.armor)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label title="Prevents equipping the gear. Useful for things like mimics that carry gear but can\'t wear it.">No equip: <input type="checkbox" name="no_equip" '+(dummy.no_equip ? 'checked' : '')+' class="saveable"  /></label>';
 
@@ -159,7 +159,7 @@ export function list(){
 		gear_chance : true,
 		min_size : true,
 		max_size : true,
-		'*difficulty' : true,
+		'*slots' : true,
 		viable_consumables : true,
 		'*power' : true,
 		sadistic_min : true,
