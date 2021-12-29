@@ -11,7 +11,10 @@ Overhaul:
 	Primary stats
 		- Reblance assets
 		- Maybe need to update the asset generator
-	
+		- Rebalance boss trash by lowering their power
+		- Give bosses without adds a higher power stat
+		- Give tanky bosses extra HP through an effect
+
 	Write texts for wild magic
 	
 	Make special stats such as crit.
@@ -20,7 +23,7 @@ Overhaul:
 		- Increase max AP by rarity
 		- Increase max MP by rarity
 
-	Add blocking to actions
+	Test changed actions
 
 	Lock potion belt during combat
 	Can't change armor in combat, but you can re-equip a stripped piece.

@@ -1176,9 +1176,13 @@ class Effect extends Generic{
 
 				}
 
+				let noBlock;
+				if( amt < 0 && this.data.no_block )
+					noBlock = true;
+
 				if( isNaN(amt) )
 					console.error("NaN damage amount found in", this);
-				let exec = t.addHP(amt, s, this, type, false, true);
+				let exec = t.addHP(amt, s, this, type, noBlock, true);
 				let died = exec.died;
 
 				const changehp = exec.hp;
@@ -2397,7 +2401,7 @@ Effect.KnockdownTypes = {
 
 
 Effect.TypeDescs = {
-	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5, armor_pen:(int)perc=0} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro. Armor pen is a whole number.",
+	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5, armor_pen:(int)perc=0, no_block:(bool)=false} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro. Armor pen is a whole number. no_block ignores block",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	[Effect.Types.fullRegen] : "void - Fully restores a player",
 	[Effect.Types.trace] : '{message:(str)message} - Creates a stack trace here',
