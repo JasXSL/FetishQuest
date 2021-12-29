@@ -63,6 +63,7 @@ class PlayerTemplate extends Generic{
 		this.passives = [];						// Passive wrappers that need to be applied to this. Labels only.
 		this.no_equip = false;					// Prevents equip of the gear. Useful for things like mimics.
 		this.max = -1;							// Max nr of these generated into any encounter
+		this.hpMulti = 1.0;						// Multiplier against HP
 		this.load(...args);
 	}
 
@@ -109,6 +110,7 @@ class PlayerTemplate extends Generic{
 			power : this.power,
 			armor : this.armor,
 			no_equip : this.no_equip,
+			hpMulti : this.hpMulti,
 			talkative_min : this.talkative_min,
 			talkative_max : this.talkative_max,
 			passives : this.passives,
@@ -173,6 +175,7 @@ class PlayerTemplate extends Generic{
 		player.size = Math.min(Math.max(0, player.size), 10);
 		player.team = 1;
 		player.power = this.power;
+		player.hpMulti = this.hpMulti;
 		shuffle(this.classes);
 
 		if( this.viable_asset_materials[0] === '*' )

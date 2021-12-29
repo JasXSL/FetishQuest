@@ -73,6 +73,7 @@ export default class Player extends Generic{
 		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
 		this.leveled = false;		// Level is an offset of the player average level
 		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
+		this.hpMulti = 1;			// Quick way to build NPCs with different HP instead of having to add a bunch of wrappers.
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 
 		// Use getBlock(type)
@@ -113,6 +114,7 @@ export default class Player extends Generic{
 		this.he = '';
 		this.him = '';
 		this.his = '';
+
 
 		this.actionGroups = [];					// Contains PlayerActionGroup objects. Built on the fly
 		
@@ -234,6 +236,7 @@ export default class Player extends Generic{
 			icon_nude : this.icon_nude,
 			icon_upperBody : this.icon_upperBody,
 			power : this.power,
+			hpMulti : this.hpMulti,
 			passives : Wrapper.saveThese(this.passives, full),
 			sadistic : this.sadistic,					// Normal vs Sadistic
 			dominant : this.dominant,					// Dominant vs submissive
@@ -2347,7 +2350,7 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
-		return Math.max(Math.ceil(BASE_HP*this.getPowerMultiplier()), 1);
+		return Math.max(Math.ceil(BASE_HP*this.getPowerMultiplier()*this.hpMulti), 1);
 	}
 	getMaxAP(){
 		return Math.round(

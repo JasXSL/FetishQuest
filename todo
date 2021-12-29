@@ -8,22 +8,20 @@
 
 
 Overhaul:
+	Test the boss fights
+	Test changed actions
+
 	Primary stats
 		- Rebalance assets
-		- Maybe need to update the asset generator
-		- Rebalance boss trash by lowering their power
-		- Give bosses without adds a higher power stat
-		- Give tanky bosses extra HP through an effect
+		- Update the asset generator
 
 	Write texts for wild magic
 	
-	Make special stats such as crit.
+	Make special stats such as crit. Shows up on armor at blue rarity. Then a second at yellow.
 		- Adds 6%+rarity*2 crit chance
 		- Adds 6 HP +rarity*2
-		- Increase max AP by rarity
-		- Increase max MP by rarity
-
-	Test changed actions
+		- Increase max AP by rarity-1
+		- Increase max MP by rarity-1
 
 	Lock potion belt during combat
 	Can't change armor in combat, but you can re-equip a stripped piece.
@@ -31,17 +29,13 @@ Overhaul:
 	Add a bank.
 	Ability swap out of combat
 	
+
 	Enemies that counter the niches (Should be given to certain types, to make less random of appearing). ex:
 		- Counterattack a taunting player
 		- Attack that can only be used on a player that was healed or did healing last turn
 		- Attack that can only be used while knocked down/dazed.
 		- Enemy becomes stronger when you remove its shell (affected by armor reduction). Or attack that does more damage while naked.
 	(Maybe) Scale the bon/sv importance based on level, so it's more important in the late game. 
-
-	Combat stats:
-	- Phys : The same
-	- Corr : The same, but orgasm reworked
-	- Arcane : Chance to remove block of all types
 
 
 	Niches:

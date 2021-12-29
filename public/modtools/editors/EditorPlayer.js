@@ -45,6 +45,8 @@ export function asset(){
 		html += '<label>Level: <input type="number" step=1 name="level" class="saveable" value="'+esc(dummy.level)+'" /></label>';
 		html += '<label title="If checked, Level is instead the offset from party average level">Level is offset from party: <input type="checkbox" name="leveled" '+(dummy.leveled ? 'checked' : '')+' class="saveable"  /></label>';
 		html += '<label title="Used for NPCs. Difficulty multiplier, higher increases stats. -1 means automatic">Power: <input type="number" step=0.01 min=-1 name="power" class="saveable" value="'+esc(dummy.power)+'" /></label>';
+		html += '<label title="Lets you increase or decrease max HP without having to apply passives">HP Multiplier: <input type="number" step=0.01 min=0.01 name="hpMulti" class="saveable" value="'+esc(dummy.hpMulti)+'" /></label>';
+		
 		html += '<label title="Used primarily for beast NPCs. Adds &quot;armor&quot; percentage, whole number">Armor: <input type="number" step=1 name="armor" class="saveable" value="'+esc(dummy.armor)+'" /></label>';
 		
 		html += '<label title="Used for NPCs. Chance of speaking in combat.">Talkative: <input type="number" step=0.01 min=0 max=1 name="talkative" class="saveable" value="'+esc(dummy.talkative)+'" /></label>';
@@ -211,6 +213,7 @@ export function list(){
 		inventory : true,
 		tags : true,
 		passives : true,
+		hpMulti : true,
 
 	};
 
