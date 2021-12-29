@@ -1146,11 +1146,7 @@ class Effect extends Generic{
 
 						}
 							
-
-
 					}
-
-
 
 				}
 

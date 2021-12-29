@@ -88,8 +88,11 @@ export default {
 	acDamage : 'ac_damage',
 	acPainful : 'ac_painful',
 	acArousing : 'ac_arousing',
-	acNpcImportant : 'ac_npc_important',		// NPCs will prioritize these over other spells
-	acNpcImportantLast : 'ac_npc_important_last',		// NPCs will try to cast this at the end of their turn if possible
+
+	acNpcImportant : 'ac_npc_important',			// NPCs will ALWAYS attack if an important action is available.
+	acNpcFirst : 'ac_npc_first',					// NPCs will always this this first, but only when they'd normally attack. acNpcImportant goes first
+	acNpcImportantLast : 'ac_npc_important_last',	// NPCs will try to cast this at the end of their turn if possible
+
 	acNpcNoAttack : 'ac_npc_no_attack',					// Pass your turn if this is set
 	acInterrupt : 'ac_interrupt',
 	acItem : 'ac_item',							// Used an inventory item
