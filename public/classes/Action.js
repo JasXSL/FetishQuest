@@ -40,7 +40,8 @@ class Action extends Generic{
 		this.cpassives = [];			// Wrappers that are added passively while casting this action
 		this.interrupt_wrappers = [];	// Wrappers that are added when this is interrupted
 		this.max_wrappers = 0;		// Max nr of wrappers to apply, 0 = undefined
-		this.riposte = [];			// Wrappers that are triggered when an ability misses. Riposte is sent from the target to attacker
+		this.ripostable = false;	// Use isRipostable. This action can be riposted.
+		this.riposte = [];			// Replaces wrappers to be run on riposte with these. Otherwise uses same as wrappers. Requires ripostable. Riposte is sent from the target to attacker
 		this.ap = 1;
 		this.min_ap = 0;			// When reduced by effects, this is the minimum AP we can go to 
 		this.mp = 0;
@@ -118,6 +119,7 @@ class Action extends Generic{
 			target_type : this.target_type,
 			tags : this.tags,
 			ranged : this.ranged,
+			ripostable : this.ripostable,
 			conditions : Condition.saveThese(this.conditions, full),
 			no_action_selector : this.no_action_selector,
 			cast_time : this.cast_time,
@@ -622,8 +624,8 @@ class Action extends Generic{
 				const conditions = toArray(effect.data.conditions);
 				if( Condition.all(conditions, evt) ){
 
-					const amt = Calculator.run(effect.data.amount, new GameEvent({sender:pl, target:pl, action:this}));
-					if( effect.data.set ) 
+					const amt = Calculator.run(effect.data.amount || 1, new GameEvent({sender:pl, target:pl, action:this}));
+					if( effect.data.set )
 						out = amt;
 					else
 						out += amt;
@@ -644,6 +646,42 @@ class Action extends Generic{
 
 	getMpCost(){
 		return this.mp;
+	}
+
+	isRipostable(){
+		
+		const pl = this.getPlayerParent();
+		const evt = new GameEvent({sender:pl, target:pl, action:this});
+		const effects = pl.getActiveEffectsByType(Effect.Types.actionRiposte).filter(effect => {
+			const conditions = toArray(effect.data.conditions);
+			const success = Condition.all(conditions, evt);
+			if( !success )
+				console.log(conditions, "failed with", evt);
+			return success;
+		});
+		if( !effects.length )
+			return this.ripostable;
+
+		
+		effects.sort((a, b) => {
+			
+			let aPri = a.data.priority || 0;
+			let bPri = b.data.priority || 0;
+			if( aPri === bPri )
+				return 0;
+			return aPri > bPri ? -1 : 1;
+
+		});
+		return Boolean(effects[0].data.set);
+
+	}
+
+	getRiposteWrappers(){
+		
+		if( this.riposte.length )
+			return this.riposte;
+		return this.wrappers;
+
 	}
 
 	getCastTime(){
@@ -820,9 +858,10 @@ class Action extends Generic{
 					// Riposte
 					chance = Math.random()*100;
 					hit = Player.getHitChance(target, sender, this);
-					if( chance <= hit && this.riposte.length && target.canRiposte() ){
+					if( chance <= hit && this.isRipostable() && target.canRiposte() ){
 
-						for( let r of this.riposte )
+						let riposte = this.getRiposteWrappers();
+						for( let r of riposte )
 							wrapperReturn.merge(r.useAgainst(target, sender, false));
 
 						target.onRiposteDone(sender);

@@ -511,6 +511,9 @@ export default class Condition extends Generic{
 			else if( this.type === T.actionHidden ){
 				success = event.action && event.action.hidden;
 			}
+			else if( this.type === T.actionGroup ){
+				success = event.action && event.action.group === this.data.group;
+			}
 
 			else if( this.type === T.isWrapperParent ){
 				
@@ -808,11 +811,27 @@ export default class Condition extends Generic{
 			else if( this.type === T.assetSlot ){
 
 				const slots = toArray(this.data.slots);
-				for( let slot of slots ){
-					if( event.asset && event.asset.slots.includes(slot) ){
+				if( !event.asset )
+					success = false;
+				else{
+
+					if( this.data.all )
 						success = true;
-						break;
+
+					for( let slot of slots ){
+
+						const hasSlot = event.asset.slots.includes(slot);
+						if( hasSlot && !this.data.all ){
+							success = true;
+							break;
+						}
+						else if( !hasSlot && this.data.all ){
+							success = false;
+							break;
+						}
+
 					}
+
 				}
 				
 			}
@@ -1297,6 +1316,7 @@ Condition.Types = {
 	actionLabel : "actionLabel",	// 
 	actionType : "actionType",	// 
 	actionDetrimental : "actionDetrimental",	// 
+	actionGroup : "actionGroup",	// 
 	actionResisted : "actionResisted",			// 
 	rng : "rng",								// 
 	isWrapperParent : 'isWrapperParent',		// 
@@ -1407,6 +1427,7 @@ Condition.descriptions = {
 	[Condition.Types.isRoleplayPlayer] : '{} - Target is the player stored in the RP. Useful when an NPC does something to a specific player in an RP.',
 	[Condition.Types.isActionParent] : 'void - If event event.wrapper.action is the same as event.action.id',
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
+	[Condition.Types.actionGroup] : '{group:(str)group} - Action belongs to this group',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false} - Checks if the wrapper tied to the event has a label',
 	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false, label:wrapperLabel=_EVT_WRAPPER_} - Operation is = by default. Leave label undefined to use the event wrapper. Amount can be a math var.',
@@ -1456,7 +1477,7 @@ Condition.descriptions = {
 	[Condition.Types.actionCrit] : '{} - Needs a supplied action which critically hit',
 	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
-	[Condition.Types.assetSlot] : '{slots:(str/arr)slots} - Requires asset in event. Checks whether asset is equipped to at least one of these slots, from Asset.Slots',
+	[Condition.Types.assetSlot] : '{slots:(str/arr)slots, all:(bool)false} - Requires asset in event. Checks whether asset is equipped to at least one of these slots, from Asset.Slots. If all is true, it requires all slots.',
 	[Condition.Types.assetTag] : '{tags:(str/arr)tags, all:(bool)false} - Requires asset in event. Checks if asset has one of these tags, or all if all is true.',
 	[Condition.Types.assetLabel] : '{label:(str/arr)labels} - Requires asset in event. Checks if asset has at least one of these labels.',
 	[Condition.Types.assetEquipped] : '{} - Requires asset in event. Checks if said asset is equipped.',

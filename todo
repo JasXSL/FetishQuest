@@ -15,24 +15,38 @@ Overhaul:
 		- Rebalance assets
 		- Update the asset generator
 
-	Write texts for wild magic
+	Texts needed:
+		- Wild magic : Crit, Riposte
+		- Arouse : Riposte
 	
 	Make special stats such as crit. Some are locked to rarities. There are nRarity slots on the armor for stats. So there could be 2x +2 stats and 1 special trait on epic for an example, or 3 traits etc 
 	There are also curses. One curse can be applied per item, and adds an additional enchant.
 
 	Curse ideas:
+	- Incentivized: Gain 3 arousal when a friendly player orgasms
+	- I wish that was me: Gain 2 arousal whenever another player is put into a bondage device
 
 	Enchant ideas:
-	- Gain MP when successfully interrupting a player.
-	- Upperbody: Hard only: Chance to gain 1 AP when hit by another player's physical attack. If breasted, gain 2 AP but 1 arousal.
-	- Gain armor after being riposted
-	- Gain HP whenever an enemy is defeated
-	- Gain 2 AP whenever enemy armor is broken.
-	- Gain 2 arousal whenever enemy armor is broken.
-	- Gain 3 arousal when a friendly player orgasms
-	- Gain 2 MP whenever an enemy orgasms
-	- 
+	- Rude: Gain MP when successfully interrupting a player.
+	- Rush: Gain 10 HP whenever an enemy is defeated
+	- Excited: Gain 2 AP whenever enemy armor is broken.
+	- Inspired: Gain 2 MP whenever an enemy orgasms
+	- Balanced: Gain more carry capacity
+	- Enraged: Deal 50% more damage while taunted
+	- Bulwark: Reduces critical damage taken by 50%
+	- Mind Reader: All players now permanently have clairvoyance
+	- Demon(s)layer: Gain 1 extra AP at the start of your turn if an undefeated player has 
+	- Tentacle(s)layer: +25% damage vs tentacles
 
+	Jewellery cosmetics tied to texts:
+	- Adamantium nipple piercings : Chance to give the wearer 1 HP when nipples are twisted. If player has breasts, gain 3 HP and 1 arousal.
+	- Tentagram locket : Chance to give the wearer 1 MP when penetrated by a tentacle
+	- Adamantium ring gag : Chance to give the wearer 4 HP and 2 arousal when penetrated in the mouth.
+	- Tight collar : Chance to break and give the wearer 3 MP when penetrated in the mouth.
+	- Adamantium cock ring : Small chance to gain 1 MP when punched in the groin. Requires penis.
+	- Collar of punishment: Gain 5 HP when punishing a defeated player.
+	- Rogue talisman: Gain 1 HP when looting an item
+	- 
 
 	Lock potion belt during combat
 	Can't change armor in combat, but you can re-equip a stripped piece.
@@ -95,6 +109,7 @@ Overhaul:
 		- Add an extra action slot.
 
 
+
 	Class passives:
 		- Monk: Takes no damage penalty from not wearing gear.
 		- Warrior: Damage taken from crits reduced by 50%. When reaching 0 HP. Prevent dying for 1 round.
@@ -155,6 +170,7 @@ Overhaul:
 
 	Action ideas:
 		- Lustful Wind: Doubles your arousal and grants 2 AP per original point of arousal.
+		- Sacrifice : Destroys a random piece of worn armor and restores 20 HP.
 
 -- TEST --
 	Fun tensorflow generated words I can use:

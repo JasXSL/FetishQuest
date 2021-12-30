@@ -376,7 +376,7 @@ class Wrapper extends Generic{
 						target: victim,
 						wrapper : obj,
 						action : this.getAction()
-					});
+					}).raise();
 
 				}
 				
@@ -2052,9 +2052,11 @@ class Effect extends Generic{
 		if( !debug )
 			debug = this.debug;
 		if( this.events.length && this.events.indexOf(event.type) === -1 ){
+
 			if( debug )
 				console.debug("Prevented ", this, "because", event.type, "not in", this.events, "event was", event);
 			return false;
+
 		}
 
 		if( !Condition.all(this.conditions, event, debug) )
@@ -2360,6 +2362,7 @@ Effect.Types = {
 	disableActions : 'disableActions',
 
 	actionApCost : 'actionApCost',
+	actionRiposte : 'actionRiposte',
 	actionCastTime : 'actionCastTime',
 
 	summonAsset : 'summonAsset',
@@ -2393,7 +2396,7 @@ Effect.Passive = {
 	[Effect.Types.svPhysical] : true,
 	[Effect.Types.svArcane] : true,
 	[Effect.Types.svCorruption] : true,
-
+	[Effect.Types.blockInterrupt] : true,
 	[Effect.Types.maxHP] : true,
 	[Effect.Types.maxMP] : true,
 	[Effect.Types.maxAP] : true,
@@ -2427,6 +2430,7 @@ Effect.Passive = {
 	[Effect.Types.css] : true,
 	[Effect.Types.clairvoyance] : true,
 	[Effect.Types.untargetable] : true,
+	[Effect.Types.actionRiposte] : true,
 
 };
 
@@ -2531,6 +2535,7 @@ Effect.TypeDescs = {
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
 	[Effect.Types.actionApCost] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false} - Alters or sets the AP cost of one or more actions. Actions affected are checked by conditions.',
 	[Effect.Types.actionCastTime] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false, multiplier:(bool)is_multiplier=false} - Alters or sets the cast time of one or more actions. Actions affected are checked by conditions.',
+	[Effect.Types.actionRiposte] : '{conditions:(arr)conditions, set:(bool)val=false, priority=0} - Overrides the default riposte-able flag on the action. Sorted by priority, then by time added. The effect target is both sender and target when validating the conditions.',
 	
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
 	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',

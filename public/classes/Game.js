@@ -1931,7 +1931,7 @@ export default class Game extends Generic{
 			this.assignNewPlayerColor(pl);
 	}
 
-	// Equips an item to a player from inventory by Player, Asset.id
+	// Toggles equip on an item to a player from inventory by Player, Asset.id
 	equipPlayerItem( player, id ){
 
 		let apCost = player.isAssetEquipped(id) ? Game.UNEQUIP_COST : Game.EQUIP_COST;

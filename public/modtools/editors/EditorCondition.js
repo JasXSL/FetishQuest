@@ -180,7 +180,7 @@ export function asset(){
 			out.onchange = storeMultiSelect;
 			this.dom.querySelector(groupEl).append(out);
 
-			storeMultiSelect();
+			//storeMultiSelect(); -- Probably not needed since it sets dirty?
 
 		};
 
@@ -272,6 +272,17 @@ export function asset(){
 		};
 
 	}
+	else if( type === types.actionGroup ){
+
+		setDefaultData({
+			group:""
+		});
+		
+		html += '<div class="labelFlex">';
+			html += '<label title="">Group: <input type="text" value="'+esc(asset.data.group)+'" name="data::group" class="saveable" /></label>';
+		html += '</div>';
+
+	}
 	else if( type === types.actionOnCooldown ){
 
 		setDefaultData({
@@ -317,7 +328,7 @@ export function asset(){
 
 		html += '<div name="tags">'+HelperTags.build(asset.data.tags)+'</div>';
 		html += '<div class="labelFlex">';
-			html += '<label>Require all: <input type="checkbox" name="data::all" class="saveable" '+(asset.data.all ? 'checked' : '')+'" /></label>';
+			html += '<label>Require all: <input type="checkbox" name="data::all" class="saveable" '+(asset.data.all ? 'checked' : '')+' /></label>';
 		html += '</div>';
 
 		fnBind = () => {
@@ -347,7 +358,7 @@ export function asset(){
 			type : '',
 		});
 		html += buildActionTypeSelect('data::type', asset.data.type, true);
-
+		
 	}
 	else if( type === types.apValue ){
 		html += buildDefaultValueFields();
@@ -357,16 +368,20 @@ export function asset(){
 
 		setDefaultData({
 			slot : [],
+			all : false
 		});
 
 		html += '<div class="labelFlex">'+
 				'<span class="slots"></span>'+
 				'<input type="button" value="Add Viable Slot" class="addSlot" />'+
 		'</div>';
+		html += '<div class="labelFlex">';
+			html += '<label>Require all: <input type="checkbox" name="data::all" class="saveable" '+(asset.data.all ? 'checked' : '')+' /></label>';
+		html += '</div>';
 
-		fnBind = () => {
+		fnBind = () => { 
 
-			createMultiSelect('slot', Asset.Slots, 'span.slots', 'input.addSlot');
+			createMultiSelect('slots', Asset.Slots, 'span.slots', 'input.addSlot');
 
 		};
 
@@ -682,7 +697,7 @@ export function asset(){
 		});
 
 		html += '<div class="labelFlex">';
-			html += '<label>Use original wrapper: <input type="checkbox" name="data::originalWrapper" class="saveable" '+(asset.data.originalWrapper ? 'checked' : '')+'" /></label>';
+			html += '<label title="When checking effect conditions, the event wrapper is always the effect\'s parent. If the event has a wrapper already, it gets put as original wrapper.">Use original wrapper: <input type="checkbox" name="data::originalWrapper" class="saveable" '+(asset.data.originalWrapper ? 'checked' : '')+'" /></label>';
 		html += '</div>';
 
 	}

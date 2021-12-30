@@ -54,6 +54,7 @@ export function asset(){
 
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 
+	html += 'Note: Wrapper conditions here will target the wrapper this effect is bound to. Use the originalWrapper checkbox in wrapper conditions if you want to target any wrapper tied to the event that triggered.<br />';
 	html += 'Conditions: <div class="conditions"></div>';
 
 

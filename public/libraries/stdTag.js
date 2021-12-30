@@ -377,7 +377,10 @@ export default {
 	metaSlotBalls : 'me_slot_balls',
 	metaSlotFoot : 'me_slot_foot',
 	metaSlotArmpit : 'me_slot_armpit',
-
+	metaSlotClothes : 'me_slot_clothes',
+	metaSlotFace : 'me_slot_face',
+	metaSlotTaint : 'me_slot_taint',
+	
 	metaUsedTongue : 'me_used_tongue',
 	metaUsedStrapon : 'me_used_strapon',
 	metaUsedClaw : 'me_used_claw',
@@ -389,9 +392,7 @@ export default {
 	metaUsedInsect : 'me_used_insect',
 	metaUsedRack : 'me_used_rack',
 
-	metaSlotClothes : 'me_slot_clothes',
-	metaSlotFace : 'me_slot_face',
-	metaSlotTaint : 'me_slot_taint',
+	
 	metaKick : 'me_kick',
 	metaCold : 'me_cold',
 	metaWet : 'me_wet',

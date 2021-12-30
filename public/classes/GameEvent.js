@@ -130,7 +130,7 @@ GameEvent.Types = {
 	healingDone : 'healingDone',		
 	healingTaken : 'healingTaken',		
 	interrupt : 'interrupt',			
-	actionCharged : 'actionCharged',	
+	actionCharged : 'actionCharged',
 	actionUsed : 'actionUsed',
 	actionRiposte : 'actionRiposte',
 	wrapperAdded : 'wrapperAdded',

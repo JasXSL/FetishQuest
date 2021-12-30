@@ -1233,6 +1233,8 @@ export default class Player extends Generic{
 		this._last_chat = -1;
 		this._turn_action_used = 0;
 		this.blCorruption = this.blPhysical = this.blArcane = this.iblPhysical = this.iblArcane = this.iblCorruption = 0;
+		if( this.arousal >= this.getMaxArousal() )
+			this.arousal = this.getMaxArousal()-1;
 
 		this.resetTempActions();
 
