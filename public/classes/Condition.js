@@ -723,7 +723,9 @@ export default class Condition extends Generic{
 					const s = event.wrapperReturn.armor_slots[t.id],
 						slot = this.data.slot
 					;
-					success = !slot || s[slot];
+					success = Boolean(!slot || s[slot] || (
+						slot === 'ARM' && (s['upperBody'] || s['lowerBody'])
+					));
 				}
 			}
 			else if( this.type === T.slotStripped ){
@@ -737,7 +739,9 @@ export default class Condition extends Generic{
 					const s = event.wrapperReturn.armor_strips[t.id],
 						slot = this.data.slot
 					;
-					success = Boolean(!slot || s[slot]);
+					success = Boolean(!slot || s[slot] || (
+						slot === 'ARM' && (s['upperBody'] || s['lowerBody'])
+					));
 				}
 			}
 			else if( this.type === T.itemStolen ){
@@ -1446,8 +1450,8 @@ Condition.descriptions = {
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any, controlled:(bool)pc_controlled=false} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies. If controlled is true it ignores NPCs.',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
-	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',
-	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY can be used on things like stdattack',
+	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY = any slot is viable, ARM = non-cosmetic are viable',
+	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY = any slot is viable, ARM = non-cosmetic are viable',
 	[Condition.Types.itemStolen] : '{} - Requires wrapperReturn in event. Checks if at least one item steal is present',
 	[Condition.Types.actionCrit] : '{} - Needs a supplied action which critically hit',
 	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',

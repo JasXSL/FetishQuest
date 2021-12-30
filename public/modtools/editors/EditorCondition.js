@@ -901,7 +901,8 @@ export function asset(){
 		});
 
 		let sl = {
-			'any' : ''
+			'any' : '',
+			'Armor' : 'ARM'
 		};
 		for( let i in Asset.Slots ){
 			if( i !== 'none' )

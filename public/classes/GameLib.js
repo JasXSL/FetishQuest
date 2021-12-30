@@ -30,6 +30,7 @@ const load_order = [
 	'factions',
 	'bookPages',
 	'books',
+	'armorEnchants',
 	
 	'roleplayStageOptionGoto',
 	'roleplayStageOption',
@@ -105,6 +106,7 @@ export default class GameLib{
 		this.factions = {};
 		this.books = {};
 		this.bookPages = {};
+		this.armorEnchants  = {};
 		this._cache_assets = {};
 		this.texts = {};				// The texts array gets throw into an object for easier fetching
 		this._texts = [];				// Cache of objects only, and only enabled ones

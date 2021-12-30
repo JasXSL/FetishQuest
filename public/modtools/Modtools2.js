@@ -48,6 +48,7 @@ import * as EditorGallery from './editors/EditorGallery.js';
 import * as EditorBook from './editors/EditorBook.js';
 import * as EditorBookPage from './editors/EditorBookPage.js';
 import * as EditorFetish from './editors/EditorFetish.js';
+import * as EditorArmorEnchant from './editors/EditorArmorEnchant.js';
 import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
 
@@ -68,6 +69,7 @@ const DB_MAP = {
 	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker', help : EditorAudioKit.help },
 	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion', help : EditorHitFX.help },
 	"assets" : { listing : EditorAsset.list, asset : EditorAsset.asset, icon : 'underwear', help : EditorAsset.help },
+	"armorEnchants" : { listing : EditorArmorEnchant.list, asset : EditorArmorEnchant.asset, icon : 'chain-mail', help : EditorArmorEnchant.help },
 	"wrappers" : { listing : EditorWrapper.list, asset : EditorWrapper.asset, icon : 'jigsaw-box', help : EditorWrapper.help },
 	"effects" : { listing : EditorEffect.list, asset : EditorEffect.asset, icon : 'fairy-wand', help : EditorEffect.help },
 	"actions" : { listing : EditorAction.list, asset : EditorAction.asset, icon : 'juggler', help : EditorAction.help },

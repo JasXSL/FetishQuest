@@ -89,7 +89,7 @@ Calculator.run = function( formula, event, customMathVars ){
 	}
 
 	if( this.debug )
-		console.log("Calculated", formula, event, customMathVars, '>>>>>', out);
+		console.log("Calculated", formula, event, customMathVars, vars, '>>>>>', out);
 
 	return out;
 };

@@ -23,6 +23,7 @@ import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
 import Condition from './Condition.js';
 import Book, { BookPage } from './Book.js';
 import Fetish from './Fetish.js';
+import ArmorEnchant from './ArmorEnchant.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -95,6 +96,7 @@ export default class Mod extends Generic{
 		this.gallery = [];
 		this.books = [];
 		this.bookPages = [];
+		this.armorEnchants = [];
 
 		this.load(data);
 	}
@@ -173,6 +175,7 @@ export default class Mod extends Generic{
 			gallery : this.gallery,
 			bookPages : this.bookPages,
 			books : this.books,
+			armorEnchants : this.armorEnchants,
 		};
 
 		// When saved from the modtools, trim out any extended asset values that are equal to the same values in MAIN
@@ -1653,6 +1656,7 @@ Mod.LIB_TYPES = {
 	'hitFX' : HitFX,
 	'dungeonTemplates' : DungeonTemplate,
 	'dungeonSubTemplates' : DungeonTemplateSub,
+	'armorEnchants' : ArmorEnchant,
 
 	'encounters' : Encounter,
 	'encounterEvents' : EncounterEvent,

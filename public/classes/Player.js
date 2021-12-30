@@ -83,6 +83,7 @@ export default class Player extends Generic{
 		this.iblPhysical = 0;		// Block applied while it wasn't my turn
 		this.iblCorruption = 0;		
 		this.iblArcane = 0;			
+		this._untappedBlock = 0;		// Set on turn start and contains the value of any block wasted. Not saved.
 
 		this.svPhysical = 0;
 		this.svArcane = 0;
@@ -589,7 +590,7 @@ export default class Player extends Generic{
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
 
-		
+		vars[prefix+'UntappedBlock'] = this._untappedBlock;
 
 		let tags = this.getTags();
 		for( let tag of tags )
@@ -1156,11 +1157,14 @@ export default class Player extends Generic{
 		this._riposting_since_last = {};
 		
 		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn
+		this._untappedBlock = this.blPhysical+this.blArcane+this.blCorruption;
 		this.blPhysical = this.iblPhysical;
 		this.blArcane = this.iblArcane;
 		this.blCorruption = this.iblCorruption;
 		this.iblArcane = this.iblCorruption = this.iblPhysical = 0;
 		
+		if( this._untappedBlock )
+			new GameEvent({sender:this, target:this, type:GameEvent.Types.blockExpired}).raise();
 
 		// Wipe turnTags on start
 		this.resetTurnTags();
@@ -2218,7 +2222,8 @@ export default class Player extends Generic{
 				this['bl'+type] = 0;
 				this['ibl'+type] = Math.max(0, this['ibl'+type]+n);
 			}
-			this['bl'+type] = n;
+			else
+				this['bl'+type] = n;
 
 		}
 		// ADD
@@ -2350,21 +2355,37 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
-		return Math.max(Math.ceil(BASE_HP*this.getPowerMultiplier()*this.hpMulti), 1);
+		return Math.max(Math.ceil(
+			(BASE_HP+this.getGenericAmountStatPoints(Effect.Types.maxHP))
+			*this.getPowerMultiplier()
+			*this.hpMulti
+			*this.getGenericAmountStatMultiplier(Effect.Types.maxHP)
+		), 1);
 	}
 	getMaxAP(){
 		return Math.round(
 			Math.max(
-				BASE_AP*this.getPowerMultiplier()
+				(BASE_AP+this.getGenericAmountStatPoints(Effect.Types.maxAP))
+				*this.getPowerMultiplier()
+				*this.getGenericAmountStatMultiplier(Effect.Types.maxAP)
 				, 1
 			)
 		);
 	}
 	getMaxMP(){
-		return Math.ceil(BASE_MP*this.getPowerMultiplier());
+		return Math.ceil(
+			Math.max(
+				(BASE_MP+this.getGenericAmountStatPoints(Effect.Types.maxMP))
+				*this.getPowerMultiplier()
+				*this.getGenericAmountStatMultiplier(Effect.Types.maxMP)
+			, 1)
+		);
 	}
 	getMaxArousal(){
-		return BASE_AROUSAL;
+		return Math.ceil(Math.max(3, 
+			(BASE_AROUSAL+this.getGenericAmountStatPoints(Effect.Types.maxArousal))
+			*this.getGenericAmountStatMultiplier(Effect.Types.maxArousal)
+		));
 	}
 	// returns a random chance between 0 and 1
 	getCritDoneChance( targ ){
@@ -3356,6 +3377,26 @@ export default class Player extends Generic{
 
 	}
 
+	// Wrappers that shouldn't be added. Returns an array.
+	getBlockedWrappers(){
+		
+		let effects = this.getActiveEffectsByType(Effect.Types.preventWrappers);
+		let blocked = {};
+		for( let effect of effects ){
+
+			if( effect.data.labels ){
+
+				let labels = toArray(effect.data.labels);
+				for( let label of labels )
+					blocked[label] = true;
+
+			}
+
+		}
+		return Object.keys(blocked);
+
+	}
+
 	// Use Wrapper.useAgainst, not this
 	// Also see rebindWrappers for ignoreStayCheck
 	addWrapper( wrapper, ignoreStayCheck = false ){
@@ -3370,8 +3411,12 @@ export default class Player extends Generic{
 	handleWrapperStun( wrapper ){
 
 		let isStun = wrapper.getEffects({ type:Effect.Types.stun });
-		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) )
-			this._stun_diminishing_returns += wrapper._duration*2;
+		if( 
+			isStun.length && 
+			wrapper.duration > 0 && 
+			(!isStun[0].data || !isStun[0].data.ignoreDiminishing) 
+		)this._stun_diminishing_returns += wrapper._duration*2;
+		
 		if( isStun.length )
 			this.interrupt( wrapper.getCaster(), true );
 

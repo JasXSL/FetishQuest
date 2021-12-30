@@ -205,10 +205,12 @@ class Wrapper extends Generic{
 	}
 
 	getAction(){
-		if( !this.parent )
+
+		let target = this.getVictim();
+		if( !target )
 			return false;
 
-		return this.parent.getActionById(this.action);
+		return target.getActionById(this.action);
 
 	}
 
@@ -258,9 +260,17 @@ class Wrapper extends Generic{
 		let successes = 0;
 		for( let p of pl ){	
 
+			// Ignore wrapper effect
+			let blocked = p.getBlockedWrappers();
+			if( blocked.includes(this.label) )
+				continue;
+
 			let obj = this;
 			if( !obj.label )
 				obj.label = this.parent.label;
+
+			
+	
 
 			// This was just added, and not a tick
 			if( !isTick ){
@@ -353,11 +363,20 @@ class Wrapper extends Generic{
 							sender : caster,
 							target : victim,
 							wrapper : obj,
-							action : this.parent && this.parent.constructor === Action ? this.parent : null,
+							action : this.getAction(),
 						}).raise();
 						continue;
 
 					}
+					
+					// Successfully applied a stun
+					new GameEvent({
+						type : GameEvent.Types.stun,
+						sender : caster,
+						target: victim,
+						wrapper : obj,
+						action : this.getAction()
+					});
 
 				}
 				
@@ -450,8 +469,12 @@ class Wrapper extends Generic{
 			this.remove( true );
 	}
 
+	getVictim(){
+		return game.getPlayerById(this.victim);
+	}
+
 	tick(){
-		let a = game.getPlayerById(this.caster), t = game.getPlayerById(this.victim);
+		let a = game.getPlayerById(this.caster), t = this.getVictim();
 		this.useAgainst( a, t, true );
 	}
 
@@ -2246,6 +2269,11 @@ Effect.Types = {
 	addHP : "addHP",
 	addBlock : "addBlock",
 	regenAP : "regenAP",
+
+	maxAP : 'maxAP',
+	maxMP : 'maxMP',
+	maxHP : 'maxHP',
+	maxArousal : 'maxArousal',
 	
 	fullRegen : 'fullRegen',
 
@@ -2302,6 +2330,8 @@ Effect.Types = {
 	removeWrapperByLabel : 'removeWrapperByLabel',	
 	removeWrapperByTag : 'removeWrapperByTag',
 	removeEffectWrapperByEffectTag : 'removeEffectWrapperByEffectTag',
+
+	preventWrappers : 'preventWrappers',
 
 	activateCooldown : 'activateCooldown',			
 	lowerCooldown : 'lowerCooldown',			
@@ -2364,6 +2394,13 @@ Effect.Passive = {
 	[Effect.Types.svArcane] : true,
 	[Effect.Types.svCorruption] : true,
 
+	[Effect.Types.maxHP] : true,
+	[Effect.Types.maxMP] : true,
+	[Effect.Types.maxAP] : true,
+	[Effect.Types.maxArousal] : true,
+
+	[Effect.Types.preventWrappers] : true,
+
 	[Effect.Types.bonPhysical] : true,
 	[Effect.Types.bonArcane] : true,
 	[Effect.Types.bonCorruption] : true,
@@ -2411,6 +2448,12 @@ Effect.TypeDescs = {
 	[Effect.Types.addMP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds MP",									
 	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier} - Adds arousal points",	
 	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
+	
+	[Effect.Types.maxHP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max HP",								
+	[Effect.Types.maxMP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max MP",								
+	[Effect.Types.maxAP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max AP",								
+	[Effect.Types.maxArousal] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max arousal",								
+	[Effect.Types.preventWrappers] : "{labels:(str/arr)wrapperLabels} - Wrappers with these labels will not be ADDED. Does not affect passives.",								
 
 	[Effect.Types.addBlock] : "{amount:(str)formula, type:(str)Action.Types.x} - If type is left out, it will try to be auto supplied the same way the damage effect does. Otherwise it should be one of 'Arcane', 'Physcial', 'Corruption'", 
 

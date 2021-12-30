@@ -17,11 +17,22 @@ Overhaul:
 
 	Write texts for wild magic
 	
-	Make special stats such as crit. Shows up on armor at blue rarity. Then a second at yellow.
-		- Adds 6%+rarity*2 crit chance
-		- Adds 6 HP +rarity*2
-		- Increase max AP by rarity-1
-		- Increase max MP by rarity-1
+	Make special stats such as crit. Some are locked to rarities. There are nRarity slots on the armor for stats. So there could be 2x +2 stats and 1 special trait on epic for an example, or 3 traits etc 
+	There are also curses. One curse can be applied per item, and adds an additional enchant.
+
+	Curse ideas:
+
+	Enchant ideas:
+	- Gain MP when successfully interrupting a player.
+	- Upperbody: Hard only: Chance to gain 1 AP when hit by another player's physical attack. If breasted, gain 2 AP but 1 arousal.
+	- Gain armor after being riposted
+	- Gain HP whenever an enemy is defeated
+	- Gain 2 AP whenever enemy armor is broken.
+	- Gain 2 arousal whenever enemy armor is broken.
+	- Gain 3 arousal when a friendly player orgasms
+	- Gain 2 MP whenever an enemy orgasms
+	- 
+
 
 	Lock potion belt during combat
 	Can't change armor in combat, but you can re-equip a stripped piece.
