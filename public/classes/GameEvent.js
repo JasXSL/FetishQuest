@@ -143,6 +143,8 @@ GameEvent.Types = {
 	diminishingResist : 'diminishingResist',
 	effectTrigger : 'effectTrigger',		
 	armorBroken : 'armorBroken',		
+	armorEquipped : 'armorEquipped',		
+	armorUnequipped : 'armorUnequipped',		
 
 	// These are only raised internally within a wrapper/effect
 	internalWrapperAdded : 'internalWrapperAdded',
@@ -197,6 +199,8 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.diminishingResist] : 'target resisted sender\'s wrapper due to diminishing returns',		// 
 	[GameEvent.Types.effectTrigger] : 'Raised when an effect has been triggered',				// 
 	[GameEvent.Types.armorBroken] : 'An armor piece has been broken. Sender is the player that triggered the break, Target is the player who wears it',		// 
+	[GameEvent.Types.armorUnequipped] : 'An armor piece has been unequipped. Sender is the player that triggered the unequip, Target is the player who wore it',		// 
+	[GameEvent.Types.armorEquipped] : 'An armor piece has been equipped. Sender is the player that triggered the equip, Target is the player who wore it',		// 
 
 	// These are only raised internally within a wrapper/effect
 	[GameEvent.Types.internalWrapperAdded] : 'Duration effects only, sender, target, action, wrapper. Custom: {isChargeFinish:(bool)isChargeFinish}',		// 

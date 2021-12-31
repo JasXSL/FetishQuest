@@ -610,7 +610,7 @@ export default class Condition extends Generic{
 
 					const type = toArray(this.data.type);
 
-					let effects = t.getEffects();
+					let effects = t.getEffects(false);
 					if( this.data.byCaster )
 						effects = effects.filter( el => el.parent.caster === event.sender.id );
 
@@ -624,6 +624,7 @@ export default class Condition extends Generic{
 						console.debug("Checking ", this.data, " against ", t, success, "sender id", event.sender.id);
 
 				}
+				
 			}
 
 			else if( this.type === T.apValue ){

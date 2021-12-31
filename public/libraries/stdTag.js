@@ -185,6 +185,8 @@ export default {
 	wrGrapple : 'wr_grapple',
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
 	wrHogtied : 'wr_hogtied',
+
+	wrKink : 'wr_kink',					// This is set on wrappers that should be treated as a kink
 	
 	// Used for long term wrappers 
 	wrTentacleRide : 'wr_tentacle_ride',

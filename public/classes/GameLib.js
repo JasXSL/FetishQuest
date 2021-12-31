@@ -374,6 +374,10 @@ export default class GameLib{
 			return Object.keys(all);
 	}
 
+	getAllValues( cName ){
+		return Object.values(this.getFull(cName));
+	}
+
 	getFull( cName ){
 
 		for( let i in Mod.LIB_TYPES ){

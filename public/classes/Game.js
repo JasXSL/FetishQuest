@@ -611,7 +611,7 @@ export default class Game extends Generic{
 					let gear = l.getEquippedAssetsBySlots([Asset.Slots.lowerBody, Asset.Slots.upperBody], true);
 					let item = shuffle(gear).shift();
 					if( item && Math.random() < 0.5 && !item.soulbound ){
-						l.transferAsset(item.id, winner);
+						l.transferAsset(item.id, winner, winner);
 						game.ui.addText( winner.getColoredName()+" STOLE "+l.getColoredName()+"'s "+item.name+"!", undefined, winner.id, l.id, 'statMessage important' );
 					}
 
@@ -1958,11 +1958,11 @@ export default class Game extends Generic{
 		}
 
 		if( !player.isAssetEquipped(id) ){
-			if( !player.equipAsset(id, true) )
+			if( !player.equipAsset(id, player) )
 				return false;
 		}
 		else{
-			if( !player.unequipAsset(id, true) )
+			if( !player.unequipAsset(id, player) )
 				return false;
 		}
 

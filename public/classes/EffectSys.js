@@ -1073,7 +1073,7 @@ class Effect extends Generic{
 				// Only affects damage/healing
 				const crit = wrapper._crit;
 				if( crit )
-					amt *= 2;
+					amt *= t.getCritTakenMod(s)*s.getCritDoneMod(t);
 
 				// Healing
 				if( amt > 0 ){
@@ -1599,7 +1599,7 @@ class Effect extends Generic{
 
 				const stripData = {};	// data for wrapperReturn.addArmorStrips. Needs to correlate with player.damageDurability(...).armor_strips
 				for( let asset of remove ){
-					if(t.unequipAsset(asset.id)){
+					if(t.unequipAsset(asset.id, s)){
 						if( asset.loot_sound )
 							game.playFxAudioKitById(asset.loot_sound, s, t, undefined, true );
 						game.ui.addText( t.getColoredName()+"'s "+asset.name+" was unequipped"+(wrapper.name ? ' by '+s.getColoredName() : '')+".", undefined, t.id, t.id, 'statMessage important' );
@@ -1633,7 +1633,8 @@ class Effect extends Generic{
 					const item = viable.splice(Math.floor(Math.random()*viable.length), 1)[0];
 					s.addAsset(item, item._stacks, true);
 					wrapperReturn.addSteal(t, item);
-					t.destroyAsset(item.id);
+					t.rem_unequip = true;	// Destroys it when unequipped
+					t.unequipAsset(item.id, s, true);
 
 				}
 
@@ -1997,7 +1998,7 @@ class Effect extends Generic{
 
 				const assets = t.addLibraryAsset(label);
 				if( assets && autoEquip )
-					assets.map(asset => t.equipAsset(asset.id));
+					assets.map(asset => t.equipAsset(asset.id, s));
 
 			}
 
@@ -2112,12 +2113,17 @@ class Effect extends Generic{
 	// Checks if target is affecting a specific player
 	affectingPlayer( player, debug ){
 
+		// Ignore to prevent recursion
+		if( player._ignore_check_effect.get(this) )
+			return false;
+
 		if( debug )
 			console.debug("Target", this.targets, "parent", this.parent, player.id, this.parent.victim);
 		
 		// This makes it so that procs can work, otherwise there'd be an infinite loop. Passives should not use conditions that might generate cyclic checks, such as player tags.
 		if( !Effect.Passive[this.type] )
 			return false;
+
 		if(
 			// Auto target, checks if victim is id
 			(~this.targets.indexOf(Wrapper.Targets.auto) && this.parent.victim === player.id) ||
@@ -2128,20 +2134,20 @@ class Effect extends Generic{
 			// Bound to encounter
 			this.parent.parent instanceof Encounter
 		){
-			
+			player._ignore_check_effect.set(this, true);
 			// Check conditions
-			return Condition.all(this.conditions, new GameEvent({
+			const out = Condition.all(this.conditions, new GameEvent({
 				sender : this.parent.parent,		// Sender in this case is the person who has the wrapper
 				target : player,					// Target in this case is the target of the effect
 				wrapper : this.parent,
 				effect : this
 			}));
-
+			player._ignore_check_effect.set(this, false);
+			return out;
 		}
 		return false;
 	}
 	
-
 }
 
 
@@ -2295,6 +2301,8 @@ Effect.Types = {
 
 	critDoneMod : 'critDoneMod',
 	critTakenMod : 'critTakenMod',
+	critDmgDoneMod : 'critDmgDoneMod',
+	critDmgTakenMod : 'critDmgTakenMod',
 
 	globalArousalTakenMod : 'globalArousalTakenMod',
 	gameAction : 'gameAction',
@@ -2385,6 +2393,9 @@ Effect.Passive = {
 	[Effect.Types.globalArmorMod] : true,
 	[Effect.Types.critDoneMod] : true,
 	[Effect.Types.critTakenMod] : true,
+	[Effect.Types.critDmgDoneMod] : true,
+	[Effect.Types.critDmgTakenMod] : true,
+	
 	[Effect.Types.globalHealingTakenMod] : true,
 	[Effect.Types.globalArousalTakenMod] : true,
 	[Effect.Types.carryModifier] : true,
@@ -2475,21 +2486,23 @@ Effect.TypeDescs = {
 	[Effect.Types.interrupt] : "{force:false} - Interrupts all charged actions. If force is true, it also interrupts non-interruptable spells (useful for boss abilities).",							
 	[Effect.Types.blockInterrupt] : "void - Prevents normal interrupt effects",							
 	[Effect.Types.healInversion] : "void - Makes healing effects do damage instead",			
-	[Effect.Types.globalHitChanceMod] : '{amount:(int)(float)(string)amount Modifies your hit chance with ALL types by percentage, multiplier:(bool)isMultiplier=false, casterOnly(bool)limit_to_caster=false } - If casterOnly is true, it only affects hit chance against the caster of the wrapper.',
-	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage dealt from the caster', 
-	[Effect.Types.globalArousalTakenMod] : '{amount:(int)(float)(string)multiplier, casterOnly:(bool)limit_to_caster=false} - Only works on ADDing arousal. If casterOnly is set, it only affects arousal dealt from the caster', 
-	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
+	[Effect.Types.globalHitChanceMod] : '{amount:(int)(float)(string)amount Modifies your hit chance with ALL types by percentage, multiplier:(bool)isMultiplier=false, casterOnly(bool)limit_to_caster=false, conditions:(arr)conditions} - If casterOnly is true, it only affects hit chance against the caster of the wrapper.',
+	[Effect.Types.globalDamageTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false, conditions:(arr)conditions} - If casterOnly is set, it only affects damage dealt from the caster of the parent wrapper', 
+	[Effect.Types.globalArousalTakenMod] : '{amount:(int)(float)(string)multiplier, casterOnly:(bool)limit_to_caster=false, conditions:(arr)conditions} - Only works on ADDing arousal. If casterOnly is set, it only affects arousal dealt from the caster of the parent wrapper', 
+	[Effect.Types.globalDamageDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false, conditions:(arr)conditions=[]} - If casterOnly is set, it only affects damage done to the caster of the parent wrapper. Conditions are checked with attacker vs target',
 	[Effect.Types.globalArmorMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false} - Adds, subtracts, or multiplies protection value from armor',
-	[Effect.Types.globalArmorPen] : '{amount:(int)points, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects armor pen on the target by the caster.',
+	[Effect.Types.globalArmorPen] : '{amount:(int)points, casterOnly:(bool)limit_to_caster=false, conditions:(arr)conditions} - If casterOnly is set, it only affects armor pen on the target by the caster.',
 	
-	[Effect.Types.globalHealingDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
-	[Effect.Types.globalHealingTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false} - If casterOnly is set, it only affects damage done to the caster',
+	[Effect.Types.globalHealingDoneMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false, conditions:(arr)conditions} - If casterOnly is set, it only affects damage done to the caster',
+	[Effect.Types.globalHealingTakenMod] : '{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false, casterOnly:(bool)limit_to_caster=false, conditions:(arr)conditions} - If casterOnly is set, it only affects damage done to the caster',
 	
 	[Effect.Types.carryModifier] : '{amount:(nr)(string)amount, multiplier:(bool)isMultiplier=false} - Adds or multiplies target carrying capacity. Nonmultiplier is in grams',
 
 	// These add or subtract critical hit chance
 	[Effect.Types.critDoneMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - Increases chances of doing a critical hit. If casterOnly is set, it only affects crit chance for the cast. Note that this is ADDITIVE, so 0.25 = 25%',
 	[Effect.Types.critTakenMod] : '{amount:(float)(string)amount, casterOnly:(bool)limit_to_caster=false} - Increases chance of taking a critical hit. If casterOnly is set, it only affects the caster critting on the target. ADDITIVE. 0.25 = +25% etc',
+	[Effect.Types.critDmgDoneMod] : '{amount:(float)(string)multiplier, casterOnly:(bool)limit_to_caster=false} - Multiplies crit damage and healing done. If casterOnly is set, it only affects crits by the caster.',
+	[Effect.Types.critDmgTakenMod] : '{amount:(float)(string)multiplier, casterOnly:(bool)limit_to_caster=false} - Multiplies crit damage and healing received. If casterOnly is set, it only affects crits by the caster.',
 
 	
 	[Effect.Types.gameAction] : '{action:(obj/arr)gameAction} - Lets you run one or many game actions',

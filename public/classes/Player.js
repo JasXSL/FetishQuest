@@ -17,7 +17,8 @@ import Game from './Game.js';
 const BASE_HP = 30;
 const BASE_MP = 10;
 const BASE_AP = 10;
-const BASE_AROUSAL = 6;
+const BASE_AROUSAL = 8;
+const MAX_KINKS = 2;
 
 
 export default class Player extends Generic{
@@ -153,8 +154,9 @@ export default class Player extends Generic{
 		this._cache_effects = null;					// Holds all active effects in a cache for quicker validation
 		this._cache_wrappers = null;				// == || ==
 
+		this._ignore_check_effect = new Map();	// effect : true - Another recursion preventor
 		this._tmp_actions = [];					// Actions from effects and such bound to a battle
-
+		
 		this._debug_chat = false;				// Only stored in the session, can be used to test player chat while they're controlled by a player. Since PC controlled characters can't auto speak.
 
 		this.load(data);
@@ -1196,7 +1198,7 @@ export default class Player extends Generic{
 		this._turn_ap_spent = 0;
 		// Restore 3/10ths each turn
 		const map = this.getMaxAP();
-		let ap = map*0.4*this.getGenericAmountStatMultiplier(Effect.Types.regenAP); // base AP to add
+		let ap = map*0.4*this.getGenericAmountStatMultiplier(Effect.Types.regenAP, this); // base AP to add
 
 		// Add pending AP
 		if( this.pAP < 0 )
@@ -1415,6 +1417,31 @@ export default class Player extends Generic{
 		this.getAssetsEquipped().map(el => el.onEquip());
 	}
 
+	/* Kinks */
+	getKinks(){
+
+		return this.passives.filter(el => el.hasTag(stdTag.wrKink));
+
+	}
+
+	shuffleKinks(){
+
+		// Scan the wrapper DB
+		const evt = new GameEvent({
+			sender:this,
+			target:this
+		});
+		const kinks = glib.getAllValues("Wrapper").filter(wrapper => {
+			return wrapper.hasTag(stdTag.wrKink) && wrapper.testAgainst( evt, false );
+		});
+		shuffle(kinks);
+
+		this.getKinks().map(this.removePassive, this);
+		
+		for( let i = 0; i < MAX_KINKS; ++i )
+			this.addPassive(kinks[i]);
+
+	}
 
 
 	/* TurnTags */
@@ -1480,14 +1507,14 @@ export default class Player extends Generic{
 			if( a.category === Asset.Categories.consumable ){
 				
 				if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 ){
-					this.equipAsset(a.id);
+					this.equipAsset(a.id, this);
 				}
 
 			}
 			else if( this.isNPC() ){
 
 				if( !no_equip && !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
-					this.equipAsset(a.id);
+					this.equipAsset(a.id, this);
 
 			}
 
@@ -1510,6 +1537,7 @@ export default class Player extends Generic{
 			return false;
 		}
 		asset.g_resetID();
+		asset.label = asset.id;
 		asset.repair();
 		asset.resetCharges();
 		return this.addAsset(asset, amount);
@@ -1551,6 +1579,7 @@ export default class Player extends Generic{
 		}
 		return out;
 	}
+	// byPlayer is the player who initiated the equip. If it's not a player, no event is raised.
 	equipAsset( id, byPlayer ){
 
 		let assets = this.getAssetsInventory();
@@ -1567,7 +1596,7 @@ export default class Player extends Generic{
 				const isActionAsset = ~asset.slots.indexOf(Asset.Slots.action);
 				if( isActionAsset && !this.unequipActionAssetIfFull() )
 					return false;
-				if( !isActionAsset && !this.unequipAssetsBySlots(asset.slots) )
+				if( !isActionAsset && !this.unequipAssetsBySlots(asset.slots, byPlayer) )
 					return false;
 
 				asset.equipped = true;
@@ -1576,6 +1605,16 @@ export default class Player extends Generic{
 				if( game.battle_active && byPlayer )
 					game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
 				this.rebindWrappers();
+
+				if( byPlayer ){
+					new GameEvent({
+						type : GameEvent.Types.armorEquipped,
+						sender : byPlayer,
+						target : this,
+						asset : asset
+					}).raise();
+				}
+
 				return true;
 
 			}
@@ -1584,7 +1623,9 @@ export default class Player extends Generic{
 		return false;
 
 	}
-	unequipAsset( id, byPlayer ){
+
+	// byPlayer is the player who initiated it. If it's not a player object, no event is raised
+	unequipAsset( id, byPlayer, noText ){
 
 		let assets = this.getAssetsEquipped(true);
 		for(let asset of assets){
@@ -1596,9 +1637,18 @@ export default class Player extends Generic{
 
 				asset.equipped = false;
 				this.onItemChange();
-				if( game.battle_active && byPlayer )
+				if( game.battle_active && byPlayer && !noText )
 					game.ui.addText( this.getColoredName()+" unequips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
 				this.rebindWrappers();
+
+				if( byPlayer ){
+					new GameEvent({
+						type : GameEvent.Types.armorUnequipped,
+						sender : byPlayer,
+						target : this,
+						asset : asset
+					}).raise();
+				}
 				return asset;
 
 			}
@@ -1607,15 +1657,17 @@ export default class Player extends Generic{
 		return true;
 
 	}
-	unequipAssetsBySlots( slots ){
+	unequipAssetsBySlots( slots, byPlayer ){
+
 		let equipped = this.getEquippedAssetsBySlots(slots, true);
 		if(!equipped.length)
 			return true;
 		for( let e of equipped ){
-			if(!this.unequipAsset(e.id))
+			if(!this.unequipAsset(e.id, byPlayer))
 				return false;
 		}
 		return true;
+
 	}
 
 	// returns nr of assets of label, including stacks
@@ -1652,10 +1704,12 @@ export default class Player extends Generic{
 
 	// Unequips the leftmost one if toolbelt is full
 	unequipActionAssetIfFull(){
+
 		let assets = this.getEquippedAssetsBySlots(Asset.Slots.action, true);
 		if( assets.length < 3 )
 			return true;
-		return this.unequipAsset(assets[0].id);
+		return this.unequipAsset(assets[0].id, this);
+
 	}
 
 	// Returns equipped assets
@@ -1727,16 +1781,16 @@ export default class Player extends Generic{
 	}
 
 	// Transfers an asset to a player. Player is a player object
-	transferAsset( id, player ){
+	transferAsset( id, player, byPlayer ){
+
 		let asset = this.getAssetById(id);
 		if( !asset )
 			return false;
-		this.unequipAsset(id);
+		this.unequipAsset(id, byPlayer || this);
 		player.addAsset(asset);
 		this.destroyAsset(id);
-		if( Math.random() < 0.25 && asset.durability )
-			player.equipAsset(id);
 		return true;
+
 	}
 
 	// Returns a list of assets that have their durability damaged
@@ -1895,7 +1949,7 @@ export default class Player extends Generic{
 			this.getGenericAmountStatPoints(Effect.Types.carryModifier)
 		;
 
-		return flat*this.getGenericAmountStatMultiplier(Effect.Types.carryModifier);
+		return flat*this.getGenericAmountStatMultiplier(Effect.Types.carryModifier, this);
 
 	}
 	getCarriedWeight(){
@@ -2090,7 +2144,7 @@ export default class Player extends Generic{
 		if( !points )
 			console.error("Invalid points to addexperience: ", points);
 
-		points = points*this.getGenericAmountStatMultiplier(Effect.Types.expMod);
+		points = points*this.getGenericAmountStatMultiplier(Effect.Types.expMod, this);
 
 		if( isNaN(points) ){
 
@@ -2361,7 +2415,7 @@ export default class Player extends Generic{
 			(BASE_HP+this.getGenericAmountStatPoints(Effect.Types.maxHP))
 			*this.getPowerMultiplier()
 			*this.hpMulti
-			*this.getGenericAmountStatMultiplier(Effect.Types.maxHP)
+			*this.getGenericAmountStatMultiplier(Effect.Types.maxHP, this)
 		), 1);
 	}
 	getMaxAP(){
@@ -2369,7 +2423,7 @@ export default class Player extends Generic{
 			Math.max(
 				(BASE_AP+this.getGenericAmountStatPoints(Effect.Types.maxAP))
 				*this.getPowerMultiplier()
-				*this.getGenericAmountStatMultiplier(Effect.Types.maxAP)
+				*this.getGenericAmountStatMultiplier(Effect.Types.maxAP, this)
 				, 1
 			)
 		);
@@ -2379,14 +2433,14 @@ export default class Player extends Generic{
 			Math.max(
 				(BASE_MP+this.getGenericAmountStatPoints(Effect.Types.maxMP))
 				*this.getPowerMultiplier()
-				*this.getGenericAmountStatMultiplier(Effect.Types.maxMP)
+				*this.getGenericAmountStatMultiplier(Effect.Types.maxMP, this)
 			, 1)
 		);
 	}
 	getMaxArousal(){
 		return Math.ceil(Math.max(3, 
 			(BASE_AROUSAL+this.getGenericAmountStatPoints(Effect.Types.maxArousal))
-			*this.getGenericAmountStatMultiplier(Effect.Types.maxArousal)
+			*this.getGenericAmountStatMultiplier(Effect.Types.maxArousal, this)
 		));
 	}
 	// returns a random chance between 0 and 1
@@ -2399,6 +2453,15 @@ export default class Player extends Generic{
 			out += targ.getGenericAmountStatPoints(Effect.Types.critTakenMod, this);
 		return out;
 
+	}
+
+	// Gets damage multiplier
+	getCritDoneMod( target ){
+		return this.getGenericAmountStatMultiplier(Effect.Types.critDmgDoneMod, target);
+	}
+
+	getCritTakenMod( sender ){
+		return this.getGenericAmountStatMultiplier(Effect.Types.critDmgDoneMod, sender);
 	}
 
 
@@ -2434,7 +2497,7 @@ export default class Player extends Generic{
 				(this.class ? this.class['sv'+type] : 0)+
 				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)+
 				grappled
-			)*this.getGenericAmountStatMultiplier('sv'+type)
+			)*this.getGenericAmountStatMultiplier('sv'+type, this)
 		);
 	}
 
@@ -2452,7 +2515,7 @@ export default class Player extends Generic{
 				(this.class ? this.class['bon'+type] : 0)+
 				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)+
 				grappled
-			)*this.getGenericAmountStatMultiplier('bon'+type)
+			)*this.getGenericAmountStatMultiplier('bon'+type, this)
 		);
 
 	}
@@ -2493,7 +2556,8 @@ export default class Player extends Generic{
 		
 	}
 
-	// Player is only used when checking caster_only
+	// Player is only used when checking caster_only, and should be the target
+	// Auto checks effects with a conditions property
 	getGenericAmountStatMultiplier( type, player ){
 		let w = this.getActiveEffectsByType(type),
 			out = 1
@@ -2507,13 +2571,31 @@ export default class Player extends Generic{
 			Effect.Types.regenAP,
 		];
 		
+		const evt = new GameEvent({
+			sender : this,
+			target : player,
+		});
 		for( let effect of w ){
 
 			if( !effect.data.multiplier && !ALWAYS_MULTIPLY.includes(type) )
 				continue;
 
-			if( player && effect.data.casterOnly && player.id !== effect.parent.caster )
-				continue;
+			if( player ){
+
+				if( effect.data.casterOnly && player.id !== effect.parent.caster )
+					continue;
+
+				if( Array.isArray(effect.data.conditions) ){
+
+					evt.effect = effect;
+					evt.wrapper = effect.parent;
+					if( !Condition.all(effect.data.conditions, evt) )
+						continue;
+
+				}
+
+			}
+
 
 			let n = Calculator.run(
 				effect.data.amount, 
@@ -3447,8 +3529,33 @@ export default class Player extends Generic{
 
 			passive.caster = passive.victim = this.id;
 			passive.parent = this;
+			passive.bindEvents();
 
 		}
+
+	}
+
+	removePassive( wrapper ){
+
+		wrapper.unbindEvents();
+		let pos = this.passives.indexOf(wrapper);
+		if( pos > -1 )
+			this.passives.splice(pos, 1);
+
+	}
+
+	addPassive( wrapper ){
+
+		if( typeof wrapper === 'string' )
+			wrapper = glib.get(wrapper, 'Wrapper');
+
+		if( !(wrapper instanceof Wrapper) ){
+			console.error("Invalid passive", wrapper);
+			throw 'Trying to add non-wrapper';
+		}
+
+		this.passives.push(wrapper.clone());
+		this.updatePassives();
 
 	}
 
@@ -3462,6 +3569,8 @@ export default class Player extends Generic{
 
 		if( game._caches && this._cache_effects && !force )
 			return this._cache_effects;
+
+		
 
 		let out = new Map();
 		for( let player of game.getEnabledPlayers() ){
@@ -3481,6 +3590,7 @@ export default class Player extends Generic{
 		out = Array.from(out.keys());
 		if( game._caches )
 			this._cache_effects = out;
+
 		return out;
 
 	}	

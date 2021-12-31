@@ -4415,7 +4415,6 @@ export default class StaticModal{
 					let id = event.currentTarget.dataset.id,
 						assetObj = glib.get(id, 'Asset')
 					;
-					console.log(id, assetObj);
 					if( event.ctrlKey || event.metaKey ){
 
 						if( !event.currentTarget.classList.contains('custom') ){
@@ -4443,6 +4442,7 @@ export default class StaticModal{
 							obj.g_resetID();
 							obj.label = obj.id;
 
+
 						}
 							
 						StaticModal.setWithTab('assetLibrary', 'Editor', player, obj);						
@@ -4452,7 +4452,6 @@ export default class StaticModal{
 
 					else if( player.addLibraryAsset(id) ){
 
-						
 						game.save();
 						StaticModal.set('inventory');
 						game.ui.draw();

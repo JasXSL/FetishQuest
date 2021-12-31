@@ -939,6 +939,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		width:5vmax; height:5vmax;
 		max-width: none;
 		max-height: none;
+		margin:0.5vmax;
 	}
 
 	#player div[data-id=Edit] div.actions div.action{
@@ -2973,20 +2974,21 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 	div.action > *,
-	#ui > div.actionbar > div.actions > div.actionGroup > div.action *{
+	#ui > div.actionbar > div.actions div.action *{
 		pointer-events: none;
 	}
-	#ui > div.actionbar > div.actions > div.actionGroup > div.action.spellSelected{
+	#ui > div.actionbar > div.actions div.action.spellSelected{
 		transform: translateY(-15%) scale(1.2,1.2);
 	}
 	div.action > img,
-	#ui > div.actionbar > div.actions > div.actionGroup > div.action > img{
+	#ui > div.actionbar > div.actions div.action > img{
 		width:100%;
 		height:100%;
 		position: absolute;
 		left:0; top:0;
 	}
-	#ui > div.actionbar > div.actions > div.actionGroup > div.action > div.uses{
+	div.actions div.action > div.uses,
+	#ui > div.actionbar > div.actions div.action > div.uses{
 		position: absolute;
 		top:-15%; right:-10%;
 		font-size:1.5vmax;
@@ -2994,7 +2996,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 	}
 	div.action > div.cd,
-	#ui > div.actionbar > div.actions > div.actionGroup > div > div.cd{
+	#ui > div.actionbar > div.actions div.action > div.cd{
 		
 		bottom: -5%;
 		right: -15%;
@@ -3007,6 +3009,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		color:#FEE;
 
 	}
+	div.actions div.action div.cd > img,
 	#ui > div.actionbar > div.actions div.cd > img {
 		height: 100%;
 		vertical-align: middle;
