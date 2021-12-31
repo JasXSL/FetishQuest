@@ -1739,14 +1739,11 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.players div.player span.resource{
 		display:inline-block;
 		text-align: center;
-		margin: 0 0.05vmax;
+		margin: 0 0.2vmax;
 		vertical-align: bottom;
 		pointer-events: all;
 		border-radius: 0.5vmax;
-		padding:0.3vmax 0.25vmax;
-		overflow: hidden;
-		background: rgba(0,0,0,.5);
-		backdrop-filter: blur(5px);
+		padding:0;
 		font-size:1.15vmax;
 		border-bottom-left-radius: 0;
     	border-bottom-right-radius: 0;
@@ -1754,11 +1751,12 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui > div.players div.player span.resource div.bg{
 		position: absolute;
-		top: 10%; left:10%; bottom:10%; right:10%;
+		top: 0; left:50%;
+		width:1vmax; height:1vmax;
 		background-size: contain;
+		transform:translate(-50%, -85%);
 		background-position: center center;
 		background-repeat: no-repeat;
-		opacity:0.75;
 	}
 	#ui > div.players div.player span.resource span.small{
 		font-size:1vmax;
@@ -1778,6 +1776,12 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.players div.player span.resource.large{
 		font-size:1.5vmax;
 		font-weight: bold;
+	}
+	#ui > div.players div.player span.resource.thin{
+		font-weight: normal;
+	}
+	#ui > div.players div.player span.resource.warn{
+		color:#FAA;
 	}
 	#ui > div.players div.player span.HP{
 		color:#FFF;
@@ -2469,7 +2473,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.players div.player{
 
 		width:25.5vw;
-		margin:0.5vmax;
+		margin:0.15vmax;
 		user-select: none;
 		cursor:pointer;
 		flex-grow: 1;
@@ -2519,15 +2523,13 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	div.players div.player span.name{
 		font-size: 1.5vmax;
-		margin-bottom: 1vmax;
-		display: inline-block;
-		background: rgba(0,0,0,.15);
-		backdrop-filter: blur(2px);
-		padding: 0.5vmax;
+		padding: 0.25vmax;
 		position: absolute;
-		bottom: 1vh;
+		bottom: 0;
 		left: 0;
 		right: 0;
+		height:4.5vmax;
+		background:rgba(0,0,0,.2);
 		text-shadow: 1px 1px #000, -1px 1px #000, 1px -1px #000, -1px -1px #000;
 	}
 
@@ -2587,13 +2589,15 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	
 	
-
+	#ui > div.players div.player:hover span.name > div.button{
+		display:inline-block;
+	}
 	#ui > div.players div.player span.name > div.button{
 		width:2vmax; height:2vmax;
 		padding:0;
-		display:inline-block;
 		vertical-align: middle;
-		margin:0 0.2vmax;
+		margin:0 0.1vmax;
+		display:none;
 		pointer-events: all;
 	}
 	#ui > div.players div.player span.name > div.button.selected{
@@ -2705,13 +2709,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		position:absolute;
 		left:0;
 		bottom:0;
-		right:-.1vw;
-	}
-	#ui > div.players div.right div.player > div.content > div.stats span.resources{
 		right:0;
-		left:-.1vw;
 	}
-
 	
 
 
@@ -2795,8 +2794,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		transform:translate(-50%, -50%);
 	}
 	#ui > div.players div.player > div.shields > div.shield {
-		width:4vmax;
-		height:4vmax;
+		width:3vmax;
+		height:3vmax;
 		overflow:hidden;
 		pointer-events:all;
 		margin:0.2vmax;

@@ -961,13 +961,13 @@ export default class UI{
 						'</span>'+
 						'<br />'+
 						'<span class="resources">'+
-							'<span class="armor resource" title="Damage reduction from armor." >'+
+							'<span class="armor resource thin" title="Damage reduction from armor." >'+
 								'<div class="bg" style="background-image:url(media/wrapper_icons/shield-echoes.svg)"></div><span></span>'+
 							'</span>'+
-							'<span class="chest resource">'+
+							'<span class="chest resource thin">'+
 								'<div class="bg" style="background-image:url(media/wrapper_icons/shirt.svg)"></div><span></span>'+
 							'</span>'+
-							'<span class="legs resource">'+
+							'<span class="legs resource thin">'+
 								'<div class="bg" style="background-image:url(media/wrapper_icons/trousers.svg)"></div><span></span>'+
 							'</span>'+
 							'<span class="arousal resource" title="Arousal">'+
@@ -1397,10 +1397,10 @@ export default class UI{
 			mpDisabled = p.isMPDisabled(),
 			apDisabled = p.isAPDisabled(),
 			hpDisabled = p.isHPDisabled(),
-			arousalText = p.arousal+"/<span class=\"small\">"+p.getMaxArousal()+"</span>",
-			apText = p.ap+"/<span class=\"small\">"+p.getMaxAP()+"</span>",
-			mpText = p.mp+"/<span class=\"small\">"+p.getMaxMP()+"</span>",
-			hpText = p.hp+"/<span class=\"small\">"+p.getMaxHP()+"</span>"
+			arousalText = p.arousal+"<span class=\"small\">/"+p.getMaxArousal()+"</span>",
+			apText = p.ap+"<span class=\"small\">/"+p.getMaxAP()+"</span>",
+			mpText = p.mp+"<span class=\"small\">/"+p.getMaxMP()+"</span>",
+			hpText = p.hp+"<span class=\"small\">/"+p.getMaxHP()+"</span>"
 		;
 		arousalEl.toggleClass('hidden', arousalDisabled);
 		mpEl.toggleClass('hidden', mpDisabled);

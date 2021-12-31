@@ -1128,6 +1128,9 @@ export default class Player extends Generic{
 		this.addHP(Infinity);
 		this.addMP(Infinity);
 		this.arousal = 0;
+
+		if( !this.getKinks().length && !this.hasTag([stdTag.plBeast, stdTag.plTargetBeast]) )
+			this.shuffleKinks();
 		
 	}
 	onRemoved(){
