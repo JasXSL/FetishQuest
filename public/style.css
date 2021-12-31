@@ -2169,8 +2169,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		animation:gameIconsHighlight 1s alternate infinite ease-in-out;		
 	}
 	#groupFinder,
-	#gameIcons > div,
-	#ui > div.actionbar > div.actions > div.actionGroup > div{
+	#gameIcons > div
+	{
 
 		transition:transform 0.1s ease-out;
 		width:4.25vh;
@@ -2191,7 +2191,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 	div.action,
-	#ui > div.actionbar > div.actions > div.actionGroup > div.action{
+	#ui > div.actionbar > div.actions div.action{
 		display:block;
 		width:5.5vh;
 		height:5.5vh;
@@ -3058,7 +3058,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	*/
 	div.action.detrimental,
-	#ui > div.actionbar > div.actions > div.action.detrimental{
+	#ui > div.actionbar > div.actions div.action.detrimental{
 		border-color:#FDC;
 	}
 	div.action.disabled,

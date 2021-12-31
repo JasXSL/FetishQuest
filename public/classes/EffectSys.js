@@ -1073,7 +1073,7 @@ class Effect extends Generic{
 				// Only affects damage/healing
 				const crit = wrapper._crit;
 				if( crit )
-					amt *= t.getCritTakenMod(s)*s.getCritDoneMod(t);
+					amt *= 2*t.getCritTakenMod(s)*s.getCritDoneMod(t);
 
 				// Healing
 				if( amt > 0 ){
