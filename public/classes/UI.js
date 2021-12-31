@@ -980,7 +980,7 @@ export default class UI{
 								'<div class="bg" style="background-image:url(media/wrapper_icons/jump-across.svg)"></div><span></span>'+
 							'</span>'+
 							'<span class="HP resource large" title="Hit Points" >'+
-								'<div class="bg" style="background-image:url(media/wrapper_icons/glass-heart.svg)"></div><span></span>'+
+								'<span></span>'+
 							'</span>'+
 						'</span>'+
 					'</div>'+
@@ -1415,6 +1415,8 @@ export default class UI{
 			hpElSpan.html(hpText);
 		if( !mpDisabled && mpElSpan.text() !== mpText )
 			mpElSpan.html(mpText);
+
+		hpEl.toggleClass('warn', p.hp <= p.getMaxHP()*0.3);
 
 		// Armor
 		chestEl.add(legsEl).toggleClass('hidden', p.isTargetBeast());

@@ -1744,7 +1744,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		pointer-events: all;
 		border-radius: 0.5vmax;
 		padding:0;
-		font-size:1.15vmax;
+		font-size:1vmax;
 		border-bottom-left-radius: 0;
     	border-bottom-right-radius: 0;
 		font-weight: bold;
@@ -1774,8 +1774,9 @@ div.passiveUpsideDown > div.content > div.bg{
 		vertical-align: middle;
 	}
 	#ui > div.players div.player span.resource.large{
-		font-size:1.5vmax;
+		font-size:2vmax;
 		font-weight: bold;
+		margin-bottom:-0.2vmax;
 	}
 	#ui > div.players div.player span.resource.thin{
 		font-weight: normal;
@@ -2522,13 +2523,13 @@ div.passiveUpsideDown > div.content > div.bg{
 
 	}
 	div.players div.player span.name{
-		font-size: 1.5vmax;
+		font-size: 1.4vmax;
 		padding: 0.25vmax;
 		position: absolute;
 		bottom: 0;
 		left: 0;
 		right: 0;
-		height:4.5vmax;
+		height:3.8vmax;
 		background:rgba(0,0,0,.2);
 		text-shadow: 1px 1px #000, -1px 1px #000, 1px -1px #000, -1px -1px #000;
 	}
@@ -2593,7 +2594,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		display:inline-block;
 	}
 	#ui > div.players div.player span.name > div.button{
-		width:2vmax; height:2vmax;
+		width:1.6vmax; height:1.6vmax;
 		padding:0;
 		vertical-align: middle;
 		margin:0 0.1vmax;
