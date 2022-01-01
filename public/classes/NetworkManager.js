@@ -1007,6 +1007,21 @@ class NetworkManager{
 				game.repairBySmith(blacksmith, player, args.asset);
 
 			}
+			else if( task === PT.useAltar ){
+
+				// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
+				if( !args.player || !args.altarPlayer ){
+					console.error("Net: Missing args in call", task, "got", args);
+					return;
+				}
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				const altar = game.getPlayerById(args.altarPlayer);
+				shuffleKinksByAltar(altar, player);
+
+			}
 
 			else if( task === PT.exchangeGold ){
 				let player = validatePlayer();
@@ -1598,6 +1613,16 @@ class NetworkManager{
 			player : player,
 		});
 	}
+	playerUseAltar(altarPlayer, player){
+		if( typeof altarPlayer === "object" )
+			altarPlayer = altarPlayer.id;
+		if( typeof player === "object" )
+			player = player.id;
+		this.sendPlayerAction(NetworkManager.playerTasks.useAltar, {
+			asset : asset,
+			altarPlayer : altarPlayer,
+		});
+	}
 
 	playerTransmogrify(mogger, player, baseAsset, targetAsset){
 		if( mogger instanceof Player )
@@ -2110,6 +2135,7 @@ NetworkManager.playerTasks = {
 	sellItem : 'sellItem',				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
 	exchangeGold : 'exchangeGold',		// {player:(str)sender_id}
 	repairItemAtBlacksmith : 'repairItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id}
+	useAltar : 'useAltar',				// {player:(str)sender_id, altarPlayer:(str)altar}
 	sleep : 'sleep',									// {player:(str)sender_id, asset:(str)dungeon_asset_id, hours:(int)hours}
 	rentRoom : 'rentRoom',							// {renter:(str)rental_merchant_player_id, player:(str)player_id}
 	buyAction : 'buyAction',			// {player:(st)sender_id, gym:(str)gym_player_id, actionLearnable:(str)action_learnable_id}

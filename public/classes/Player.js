@@ -17,7 +17,7 @@ import Game from './Game.js';
 const BASE_HP = 30;
 const BASE_MP = 10;
 const BASE_AP = 10;
-const BASE_AROUSAL = 8;
+const BASE_AROUSAL = 7;
 const MAX_KINKS = 2;
 
 
@@ -181,6 +181,7 @@ export default class Player extends Generic{
 	rebase(){
 		this.g_rebase();	// Super
 
+		this._ignore_check_effect = new Map();	// Needed when cloning since clone brings all things along
 		// only load tmp actions in a netgame (for ID mostly)
 		//if( game && game !== true && !game.is_host && Game.net.isConnected() )
 			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
@@ -1427,6 +1428,24 @@ export default class Player extends Generic{
 
 	}
 
+	hasKink( label ){
+
+		let all = this.getKinks();
+		for( let kink of all ){
+
+			if( kink.label === label )
+				return true;
+
+		}
+
+		return false;
+
+	}
+
+	removeKinks(){
+		this.getKinks().map(this.removePassive, this);
+	}
+
 	shuffleKinks(){
 
 		// Scan the wrapper DB
@@ -1434,13 +1453,10 @@ export default class Player extends Generic{
 			sender:this,
 			target:this
 		});
-		const kinks = glib.getAllValues("Wrapper").filter(wrapper => {
-			return wrapper.hasTag(stdTag.wrKink) && wrapper.testAgainst( evt, false );
-		});
+		const kinks = Wrapper.getKinks().filter(wrapper => wrapper.testAgainst( evt, false ));
 		shuffle(kinks);
 
-		this.getKinks().map(this.removePassive, this);
-		
+		this.removeKinks();
 		for( let i = 0; i < MAX_KINKS; ++i )
 			this.addPassive(kinks[i]);
 
@@ -1540,7 +1556,6 @@ export default class Player extends Generic{
 			return false;
 		}
 		asset.g_resetID();
-		asset.label = asset.id;
 		asset.repair();
 		asset.resetCharges();
 		return this.addAsset(asset, amount);

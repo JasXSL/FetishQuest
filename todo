@@ -12,27 +12,11 @@ Overhaul:
 	Test changed actions
 
 	ASSET OVERHAUL
-		- Each asset has 1 slot based on its rarity, so green = 1, yellow = 4
-		- Slot has a 1/2 chance to be a bon/sv stat
-		- Otherwise it's picked from a list of viable enchants
-		- Enchants have min rarity requirements
-		- 1/4 chance that the armor has a curse. Curse adds a random curse and an extra slot above.
-		- Curse should be red in the item description 
-		- Enchants should have a rarity color in the item description
-	
+		- Add rarity to enchant wrappers
 		- Hard coded assets need to have stats readded
 		- Material templates need to have stats redone
 		- Asset templates need to have stats redone
 
-	UI CHANGES
-		- Make HP red when low health
-		- Put players closer together
-
-	KINKS
-		- Each player has 2 kinks. These can be edited by the DM or rerolled at an altar for money.
-		- The main purpose of a kink is to add a bit of flavor.
-		- Kinks need to show up according to the same rules as clairvoyance.
-		- Need to add an altar to reset your kinks in the church.
 		
 	Jewellery cosmetics that could add additional texts:
 		- Nipple piercings

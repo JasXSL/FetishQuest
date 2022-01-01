@@ -659,7 +659,7 @@ export default class GameAction extends Generic{
 
 		}
 
-		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.rentRoom || this.type === types.gym || this.type === types.transmog )
+		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.altar || this.type === types.rentRoom || this.type === types.gym || this.type === types.transmog )
 			return;
 
 		else if( this.type === types.playerAction ){
@@ -1036,6 +1036,7 @@ GameAction.types = {
 	gym : "gym",							// 
 	playerAction : "playerAction",			// 
 	repairShop : "repairShop",				// 
+	altar : "altar",				// 
 	text : "text",							// 
 	hitfx : "hitfx",						// 
 	addPlayer : "addPlayer",				// 
@@ -1083,6 +1084,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.gym] : '{player:(str)player_offering} - Passive. Player is the player that should have the gym icon attached to them. ',
 	[GameAction.types.playerAction] : '{player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it\'s the supplied triggering player that becomes the caster',
 	[GameAction.types.repairShop] : '{player:(str)label} - Marks a player as offering repairs',
+	[GameAction.types.altar] : '{player:(str)label} - Marks a player as offering kink resets',
 	[GameAction.types.text] : '{text:(str/obj)text} - Triggers a Text',
 	[GameAction.types.hitfx] : '{hitfx:(obj/str/arr)hitfx, caster_conds:(arr)caster_conditions, target_conds:(arr)target_conds, max_triggers:(int)=all} - Triggers a hitfx',
 	[GameAction.types.addPlayer] : '{player:(obj/str)monster, turn:(int)turn_offset=-1}',
@@ -1118,6 +1120,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.tooltip] : true,
 	[GameAction.types.shop] : true,
 	[GameAction.types.repairShop] : true,
+	[GameAction.types.altar] : true,
 	[GameAction.types.rentRoom] : true,
 	[GameAction.types.gym] : true,
 	[GameAction.types.transmog] : true,

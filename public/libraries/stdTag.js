@@ -187,7 +187,8 @@ export default {
 	wrHogtied : 'wr_hogtied',
 
 	wrKink : 'wr_kink',					// This is set on wrappers that should be treated as a kink
-	
+	wrEnchant : 'wr_enchant',			// Set on asset wrappers that should be considered as enchants
+
 	// Used for long term wrappers 
 	wrTentacleRide : 'wr_tentacle_ride',
 	wrBlockGroin : 'wr_block_groin',			// Used to signify that something is blocking this part of the body. Usually a monster doing something to it.

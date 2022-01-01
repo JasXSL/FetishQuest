@@ -1235,6 +1235,17 @@ export default class StaticModal{
 							</div>
 							Tags<br /><textarea name="tags"></textarea>
 							Description<br /><textarea name="description"></textarea>
+							
+							<div class="center">Non-sadistic <input type="range" name="sadistic" min=0 max=1 step=0.1 style="width:40%" /> Sadistic</div>
+							<div class="center">Sub <input type="range" name="dominant" min=0 max=1 step=0.1 style="width:40%" /> Dom</div>
+							<div class="center">Gay <input type="range" name="hetero" min=0 max=1 step=0.1 style="width:40%" /> Hetero</div>
+
+							Kinks:
+							<div class="kinks center">
+								<select class="kinks" name="kinks"></select>
+								<select class="kinks" name="kinks"></select>
+							</div>
+
 							<p><em>Note: When creating a player character you should leave these stats at 0, stats are derived from the class.</em></p>
 							<h3>Avoidance:</h3>
 							<div class="flexFourColumns secondaryStat sv">
@@ -1248,9 +1259,7 @@ export default class StaticModal{
 								<div class="corruption">Corruption <input type="number" step=1 /></div>
 								<div class="arcane">Arcane <input type="number" step=1 /></div>
 							</div>
-							<div class="center">Non-sadistic <input type="range" name="sadistic" min=0 max=1 step=0.1 style="width:40%" /> Sadistic</div>
-							<div class="center">Sub <input type="range" name="dominant" min=0 max=1 step=0.1 style="width:40%" /> Dom</div>
-							<div class="center">Gay <input type="range" name="hetero" min=0 max=1 step=0.1 style="width:40%" /> Hetero</div>
+
 							<input type="submit" value="Save" />
 							<input type="button" value="Delete Player" class="red deletePlayer" />
 						</form>
@@ -1321,7 +1330,7 @@ export default class StaticModal{
 					randomizer : $('div.randomizer',  dDom),
 					randomizerSelect : $('div.randomizer > select', dDom),
 					randomizerButton : $('div.randomizer > input', dDom),
-
+					kinksSelects : $('select.kinks', dDom),
 				};
 
 				// Draws an action selector. Returns the ID clicked on (if you do)
@@ -1374,6 +1383,7 @@ export default class StaticModal{
 			.setDraw(async function( player ){
 
 				
+				
 				// Character tab
 					// Toggle the whole bottom bar
 					// If you add a second tab that non-DM can see, you'll want to only toggle the label itself
@@ -1387,9 +1397,9 @@ export default class StaticModal{
 					if( !player )
 						return false;
 
-
-					const hasClairvoyance = player.getActiveEffectsByType(Effect.Types.clairvoyance).length > 0;
-					this.character.exportPlayer.toggleClass('hidden', player.isNPC());
+					const isMyPlayer = game.getMyPlayers().includes(player);
+					const hasClairvoyance = isMyPlayer || player.getActiveEffectsByType(Effect.Types.clairvoyance).length > 0;
+					this.character.exportPlayer.toggleClass('hidden', Boolean(player.isNPC()));
 					
 					// Character panel
 					const cDivs = this.character;
@@ -1404,7 +1414,11 @@ export default class StaticModal{
 					if( player.class )
 						desc += '<br /><strong>'+esc(player.class.name)+'</strong><br />'+esc(player.class.description);
 
-					desc += '<div class="clairvoyance hidden"><hr /><div class="actions"></div></div>';
+					desc += '<div class="clairvoyance hidden">'+
+						'<hr />'+
+						'<div class="actions"></div>'+
+						'<div class="kinks"></div>'+
+					'</div>';
 
 					cDivs.description.html(desc);
 
@@ -1426,8 +1440,21 @@ export default class StaticModal{
 
 						}
 
+						const cdiv = clairvoyance.querySelector("div.kinks");
+						let kinks = player.getKinks();
+						for( let kink of kinks ){
+							
+							let div = $(UI.Templates.wrapper)[0];
+							UI.setWrapperIconContent(div, kink, player, player);
+							cdiv.appendChild(div);
+
+						}
+
+
 						let additional = document.createElement('template');
-						let html = '<br />';
+						let html = '';
+
+						
 
 						const getLowHighLabel = (input, labels) => {
 							if( !labels )
@@ -1443,6 +1470,8 @@ export default class StaticModal{
 							html += 'Tactics: <strong>'+getLowHighLabel(player.intelligence)+'</strong><br />';
 
 						}
+
+
 						additional.innerHTML = html;
 						clairvoyance.append(additional.content);
 
@@ -1613,6 +1642,39 @@ export default class StaticModal{
 					dDivs.actions.html(html);
 
 
+					// Draw kink selects
+					const active = player.getKinks();
+					let allKinks = Wrapper.getKinks();
+					for( let i = 0; i < 2; ++i ){
+
+						let blankKink = document.createElement("option");
+						blankKink.innerText = '- NONE -';
+						blankKink.value = '';
+						let kinks = [
+							blankKink
+						];
+						
+						let cur = active[i];
+						for( let kink of allKinks ){
+
+							let el = document.createElement("option");
+							el.value = kink.label;
+							el.innerText = kink.name;
+							el.title = kink.description;
+
+							if( cur?.label === kink.label ){
+								el.selected = true;
+							}
+							kinks.push(el);
+
+						}
+						
+						this.edit.kinksSelects[i].replaceChildren(...kinks);
+
+					}
+
+
+
 					// Puts form data to the player
 					const savePlayer = () =>{
 
@@ -1640,6 +1702,13 @@ export default class StaticModal{
 						player.level = parseInt(dDivs.formLevel.val())||1;
 						player.size = parseInt(dDivs.formSize.val())||0;
 						player.team = parseInt(dDivs.formTeam.val())||0;
+
+						player.removeKinks();
+						if( this.edit.kinksSelects[0].value )
+							player.addPassive(this.edit.kinksSelects[0].value);
+						if( this.edit.kinksSelects[1].value )
+							player.addPassive(this.edit.kinksSelects[1].value);
+						
 			
 						const preClass = player.class;
 
@@ -1672,6 +1741,9 @@ export default class StaticModal{
 							player.mp = player.getMaxMP();
 						
 						
+						// Todo: Save kinks
+						
+
 						// INSERT player
 						if( !game.playerExists(player) ){
 
@@ -2118,6 +2190,100 @@ export default class StaticModal{
 					
 				}
 				this.assets.replaceChildren(...divs);
+
+			});
+
+		// Altar
+		this.add(new this("altar", "Altar"))
+			.setCloseOnCellMove(true)
+			.addRefreshOn(["players"])
+			.addTab("Altar", () => {
+				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+						</div>
+					</div>
+					<h3 class="center">In exchange for a donation, the gods may randomize your kinks!</h3>
+					<div class="center"><input type="button" name="shuffle" value="Shuffle Kinks (5 gold)" /></div>
+					<p class="center">Your current kinks</p>
+					<div class="center kinks"></div>
+				`;
+			})
+			.setProperties(function(){
+				
+				const altar = this.getTabDom('Altar')[0];
+				this.money = altar.querySelector('div.myMoney');
+				this.button = altar.querySelector('input[name=shuffle]');
+				this.kinks = altar.querySelector('div.kinks');
+
+			})
+			.setDraw(async function( altarPlayer ){
+
+				const myPlayer = game.getMyActivePlayer();
+				if( !myPlayer )
+					throw 'You have no active player';
+
+				// Update coins
+				const currencyDiv = this.money.querySelector('span.coins');
+				for( let i in Player.currencyWeights ){
+
+					const currency = Player.currencyWeights[i];
+
+					let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
+					if( !sub ){
+
+						sub = document.createElement('span');
+						sub.dataset.currency = currency;
+						sub.style = 'color:'+Player.currencyColors[i];
+						currencyDiv.append(sub);
+						currencyDiv.append(document.createTextNode(' '));
+
+					}
+
+					sub.classList.toggle('hidden', true);
+
+					const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
+					if( !asset )
+						continue;
+
+					const amt = parseInt(asset._stacks);
+					if( !amt )
+						continue;
+
+					sub.classList.toggle('hidden', false);
+					sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
+
+				}
+
+
+				await StaticModal.updateWallet(this.money);
+	
+				const money = myPlayer.getMoney();
+
+				this.button.onclick = () => {
+					
+					if( money < 500 ){
+						game.ui.modal.addError("Insufficient funds");
+						return false;
+					}
+					
+					game.shuffleKinksByAltar(altarPlayer, myPlayer);
+
+				};
+				
+				let kinks = myPlayer.getKinks();
+				let divs = [];
+				for( let kink of kinks ){
+					
+					let div = $(UI.Templates.wrapper)[0];
+					UI.setWrapperIconContent(div, kink, myPlayer, player);
+					divs.push(div);
+
+				}
+				this.kinks.replaceChildren(...divs);
+				
 
 			});
 
@@ -4130,7 +4296,6 @@ export default class StaticModal{
 						Tags: <br />
 						<textarea name="tags"></textarea><br />
 						<br />
-						Effects JSON - <input type="button" class="autogen yellow" value="Auto Generate Stats for Level" /><br />
 						Quick Stats: <span class="quickStats"></span>
 						<textarea name="wrappers" style="width:100%; height:20vh;"><!-- Wrapper editor here --></textarea><br />
 
@@ -4322,19 +4487,7 @@ export default class StaticModal{
 					}
 				};
 
-				// Auto stats generator button
-				getEl("input.autogen").addEventListener('click', () => {
 
-					let slots = [];
-					this.editor.form.querySelectorAll("input[name=slots]:checked").forEach(el => slots.push(el.value));
-
-					let rarity = parseInt(getEl("input[name=rarity]").value) || 0;
-		
-					let wrapper = Asset.generateStatWrapper(slots.length, 0, rarity);
-					getEl("textarea[name=wrappers]").value = JSON.stringify([wrapper.save("mod")], null, 4);
-					this.updateEffectStats();
-		
-				});
 
 				// Wrapper JSON validator
 				getEl("textarea[name=wrappers]").addEventListener('change', event => {
@@ -4754,21 +4907,24 @@ export default class StaticModal{
 		const myPlayer = game.getMyActivePlayer();
 		// Exchange button
 		const exchangeButton = baseElement.querySelector('input[name=exchange]');
-		exchangeButton.classList.toggle('hidden', !myPlayer.canExchange());
-		if( !exchangeButton._bound ){
+		if( exchangeButton ){
+			exchangeButton.classList.toggle('hidden', !myPlayer.canExchange());
+			if( !exchangeButton._bound ){
 
-			exchangeButton.addEventListener('click', event => {
-				game.exchangePlayerMoney(myPlayer);
-				if( win )
-					win.refresh();
-			});
-			exchangeButton._bound = true;
+				exchangeButton.addEventListener('click', event => {
+					game.exchangePlayerMoney(myPlayer);
+					if( win )
+						win.refresh();
+				});
+				exchangeButton._bound = true;
 
+			}
 		}
 
 
 		// Update coins
 		const currencyDiv = baseElement.querySelector('span.coins');
+
 		for( let i in Player.currencyWeights ){
 
 			const currency = Player.currencyWeights[i];

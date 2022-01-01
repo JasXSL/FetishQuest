@@ -1027,6 +1027,7 @@ export default class UI{
 					'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
 					'<div class="interaction hidden" data-type="transmog"><img src="media/wrapper_icons/gold-nuggets.svg" /></div>'+
 					'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
+					'<div class="interaction hidden" data-type="altar"><img src="media/wrapper_icons/sword-altar.svg" /></div>'+
 					'<div class="interaction hidden" data-type="rent"><img src="media/wrapper_icons/bed.svg" /></div>'+
 					'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
 				'</div>'+
@@ -1226,6 +1227,7 @@ export default class UI{
 			shop : myActive && game.getShopsByPlayer(p, true).length,
 			transmog : myActive && game.transmogAvailableTo(p, myActive),
 			repair : myActive && game.smithAvailableTo(p, myActive),
+			altar : myActive && game.altarAvailableTo(p, myActive),
 			gym : myActive && game.gymAvailableTo(p, myActive),
 			rent : myActive && rr,
 		};
@@ -1260,6 +1262,12 @@ export default class UI{
 
 			StaticModal.set('smith', p);
 			game.uiAudio( "smith_entered" );
+			
+		}
+		else if( type === 'altar' ){
+
+			StaticModal.set('altar', p);
+			game.uiAudio( "altar" );
 			
 		}
 		else if( type === 'transmog' ){
@@ -1581,6 +1589,13 @@ export default class UI{
 			this.onPlayerInteractionUsed( "repair", p );
 		});
 
+		const showAltar = interactions.altar;
+		$("div.interaction[data-type=altar]", el).toggleClass("hidden", !showAltar).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.onPlayerInteractionUsed( "altar", p );
+		});
+
+
 		const showTransmog = interactions.transmog;
 		$("div.interaction[data-type=transmog]", el).toggleClass("hidden", !showTransmog).off('click').on('click', event => {
 			event.stopImmediatePropagation();
@@ -1606,17 +1621,10 @@ export default class UI{
 		
 
 		// Effect wrappers
-		const wrappers = p.getWrappers().filter(el => el.name.length && el.icon && el.parent instanceof Player),
+		const wrappers = p.getWrappers().filter(el => !el.hidden && el.name.length && el.icon && el.parent instanceof Player),
 			wrapperButtons = $('> div', wrappersEl);
 		
-		const wrapperTemplate = $(
-			'<div class="wrapper tooltipParent">'+
-				'<div class="background"></div>'+
-				'<div class="stacks"></div>'+
-				'<div class="duration"></div>'+
-				'<div class="tooltip"></div>'+
-			'</div>'
-		);
+		
 
 		wrapperButtons.toggleClass('hidden', true);
 
@@ -1656,72 +1664,10 @@ export default class UI{
 			;
 			
 			if( !el ){
-				el = wrapperTemplate.clone();
+				el = $(UI.Templates.wrapper);
 				wrappersEl.append(el);
 			}
-			el = $(el);
-
-			el.toggleClass('detrimental beneficial hidden', false)
-				.toggleClass(wrapper.detrimental ? 'detrimental' : 'beneficial', true)
-				.toggleClass('small', myActive && caster && caster !== myActive && caster?.team === myActive.team )
-				.attr('data-id', wrapper.id);
-
-			const elIcon = $('> div.background', el),
-				elStacks = $('> div.stacks', el),
-				elDuration = $('> div.duration', el),
-				elTooltip = $('> div.tooltip', el)
-			;
-
-			elIcon.toggleClass('hidden', !wrapper.icon);
-			if( wrapper.icon && wrapper.icon !== elIcon.attr('data-icon') )
-				elIcon.attr('style', 'background-image:url('+wrapper.getIconPath()+')').attr('data-icon', wrapper.icon);
-
-			elStacks.toggleClass('hidden', wrapper.stacks < 2);
-			if( wrapper.stacks > 1 && +elStacks.attr('data-stacks') !== +wrapper.stacks )
-				elStacks.text('x'+wrapper.stacks).attr('data-stacks', wrapper.stacks);
-
-			let duration = wrapper._duration;
-			if( wrapper.ext )
-				duration = wrapper._added+wrapper.duration-game.time;
-			elDuration.toggleClass('hidden', duration < 1);
-			if( duration > 0 && +elDuration.text() !== duration ){
-
-				let time = duration;
-				if( wrapper.ext )
-					time = fuzzyTimeShort(duration);
-				elDuration.text(time);
-			}
-
-			let durText = 'Permanent';
-			if( duration > 0 ){
-				
-				
-				durText = '';
-				if( caster )
-					durText += '<span style="color:'+esc(caster.color)+'">'+esc(caster.name)+'</span> | ';
-				durText += duration+' Turn'+(duration > 1 ? 's' : '');
-				if( wrapper.ext )
-					durText = fuzzyTimeShort(duration);
-
-			}
-			
-			let tooltip = 
-				'<strong>'+esc(wrapper.name)+'</strong><br />'+
-				'<em>'+
-					durText+
-					(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' );
-			if( wrapper.asset ){
-
-				const asset = p.getAssetById(wrapper.asset);
-				if( asset )
-					tooltip += ' | Attached to '+asset.name;
-
-			}
-
-			tooltip += '</em><br />'+
-				stylizeText(esc(wrapper.getDescription()));
-			if( elTooltip.html() !== tooltip )
-				elTooltip.html(tooltip);
+			UI.setWrapperIconContent(el, wrapper, p, caster);
 			
 		}
 
@@ -2099,7 +2045,7 @@ export default class UI{
 			if( asset )
 				game.useRepairAsset(sender, target, asset.id, id);
 			else
-				this.addError("Todo: add non-asset armor repairs");
+				this.modal.addError("Todo: add non-asset armor repairs");
 
 			this.modal.closeSelectionBox();
 			
@@ -3159,6 +3105,74 @@ export default class UI{
 
 	}
 
+	static setWrapperIconContent( wrapperElement, wrapper, target, caster ){
+
+		let el = $(wrapperElement);
+		const myActive = game.getMyActivePlayer();
+		el.toggleClass('detrimental beneficial hidden', false)
+			.toggleClass(wrapper.detrimental ? 'detrimental' : 'beneficial', true)
+			.toggleClass('small', myActive && caster && caster !== myActive && caster?.team === myActive.team )
+			.attr('data-id', wrapper.id);
+
+		const elIcon = $('> div.background', el),
+			elStacks = $('> div.stacks', el),
+			elDuration = $('> div.duration', el),
+			elTooltip = $('> div.tooltip', el)
+		;
+
+		elIcon.toggleClass('hidden', !wrapper.icon);
+		if( wrapper.icon && wrapper.icon !== elIcon.attr('data-icon') )
+			elIcon.attr('style', 'background-image:url('+wrapper.getIconPath()+')').attr('data-icon', wrapper.icon);
+
+		elStacks.toggleClass('hidden', wrapper.stacks < 2);
+		if( wrapper.stacks > 1 && +elStacks.attr('data-stacks') !== +wrapper.stacks )
+			elStacks.text('x'+wrapper.stacks).attr('data-stacks', wrapper.stacks);
+
+		let duration = wrapper._duration;
+		if( wrapper.ext )
+			duration = wrapper._added+wrapper.duration-game.time;
+		elDuration.toggleClass('hidden', duration < 1);
+		if( duration > 0 && +elDuration.text() !== duration ){
+
+			let time = duration;
+			if( wrapper.ext )
+				time = fuzzyTimeShort(duration);
+			elDuration.text(time);
+		}
+
+		let durText = 'Permanent';
+		if( duration > 0 ){
+			
+			
+			durText = '';
+			if( caster )
+				durText += '<span style="color:'+esc(caster.color)+'">'+esc(caster.name)+'</span> | ';
+			durText += duration+' Turn'+(duration > 1 ? 's' : '');
+			if( wrapper.ext )
+				durText = fuzzyTimeShort(duration);
+
+		}
+		
+		let tooltip = 
+			'<strong>'+esc(wrapper.name)+'</strong><br />'+
+			'<em>'+
+				durText+
+				(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' );
+		if( wrapper.asset ){
+
+			const asset = target.getAssetById(wrapper.asset);
+			if( asset )
+				tooltip += ' | Attached to '+asset.name;
+
+		}
+
+		tooltip += '</em><br />'+
+			stylizeText(esc(wrapper.getDescription()));
+		if( elTooltip.html() !== tooltip )
+			elTooltip.html(tooltip);
+
+
+	}
 
 };
 
@@ -3179,6 +3193,13 @@ UI.Templates = {
 		out += '</div>';
 		return out;
 
-	}
+	},
+	wrapper : 
+		'<div class="wrapper tooltipParent">'+
+			'<div class="background"></div>'+
+			'<div class="stacks"></div>'+
+			'<div class="duration"></div>'+
+			'<div class="tooltip"></div>'+
+		'</div>'
 	
 };

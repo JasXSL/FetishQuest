@@ -2934,6 +2934,19 @@ export default class Game extends Generic{
 		return out;
 	}
 
+	getAltarByPlayer( player ){
+		const encounter = this.encounter;
+		const altars = encounter.getAltars(player);
+		if( !player )
+			return;
+		const out = [];
+		for( let altar of altars ){
+			if( altar.data.player === player.label )
+				out.push(altar);
+		}
+		return out;
+	}
+
 	// Returns game actions
 	getGymsByPlayer( player, target ){
 		const encounter = this.encounter;
@@ -3074,6 +3087,26 @@ export default class Game extends Generic{
 		return false;
 	}
 
+	// Checks if an altar object is available to a player
+	altarAvailableTo( altarPlayer, player ){
+
+		if( this.battle_active )
+			return false;
+
+		if( !(altarPlayer instanceof Player) )
+			throw "Altar invalid type";
+			
+		if( !(player instanceof Player) )
+			throw "Player is not a player";
+
+		const altars = this.getAltarByPlayer(altarPlayer);
+		for( let altar of altars ){
+			if( altar.validate(player) )
+				return true;
+		}
+		return false;
+	}
+
 	// Checks if a transmog object is available to a player
 	transmogAvailableTo( transmogPlayer, player ){
 
@@ -3146,7 +3179,7 @@ export default class Game extends Generic{
 
 	}
 
-	// Checks if a smith object is available to a player
+	// Checks if a room renter is available to a player
 	roomRentalAvailableTo( renterPlayer, player ){
 
 		if( this.battle_active )
@@ -3248,6 +3281,39 @@ export default class Game extends Generic{
 		this.ui.addText(player.getColoredName()+" gets an item repaired.", "repair", player.id, player.id, 'repair');
 
 	}
+
+
+	shuffleKinksByAltar( altarPlayer, player, allowError = true ){
+		const out = text => {
+			if( allowError )
+				throw text;
+		};
+		if( !(altarPlayer instanceof Player ) )
+			return out("Altar player invalid type");
+		if( !(player instanceof Player) )
+			return out("Player invalid type");
+		if( !this.altarAvailableTo(altarPlayer, player) )
+			return out("Altar not available to you");
+		
+		if( player.getMoney() < Game.ALTAR_COST )
+			return out("Insufficient funds");
+
+		if( !this.is_host ){
+			return Game.net.playerUseAltar(altarPlayer, player);
+		}
+
+		// Ok finally we can do it
+		player.consumeMoney(Game.ALTAR_COST);
+		player.shuffleKinks();
+
+		this.playFxAudioKitById("buy_item", player, player, undefined, true);
+		this.playFxAudioKitById("holyGeneric", player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+" is blessed with random kinks!", "altar", player.id, player.id, 'altar');
+		this.save();
+
+	}
+
+
 
 	sellAsset(shop, asset, amount, player){
 
@@ -3588,6 +3654,7 @@ Game.UNEQUIP_COST = 1;
 Game.LOG_SIZE = parseInt(localStorage.log_size) || 800;
 Game.ROOM_RENTAL_DURATION = 3600*24;
 Game.MAX_SLEEP_DURATION = 24;			// Hours
+Game.ALTAR_COST = 500;	// 500 copper
 
 Game.Genders = {
 	Male : 0x1,

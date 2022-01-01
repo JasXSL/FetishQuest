@@ -101,7 +101,8 @@ export default class Shop extends Generic{
 				this.gen_assets, 
 				this.gen_mats, 
 				undefined, 
-				this.gen_rarity_min
+				this.gen_rarity_min,
+				randElem(game.getTeamPlayers())
 			);
 
 			console.trace("Gen", asset);

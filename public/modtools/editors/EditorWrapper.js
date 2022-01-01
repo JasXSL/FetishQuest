@@ -39,6 +39,7 @@ export function asset(){
 		html += '<label>Max Stacks: <input type="number" name="max_stacks" class="saveable" value="'+esc(dummy.max_stacks)+'" /></label>';
 
 		html += '<label>Detrimental <input type="checkbox" class="saveable" name="detrimental" '+(dummy.detrimental ? 'checked' : '')+' /></label><br />';
+		html += '<label>Hidden <input type="checkbox" class="saveable" name="hidden" '+(dummy.hidden ? 'checked' : '')+' /></label><br />';
 		html += '<label>Trigger Immediate <input type="checkbox" class="saveable" name="trigger_immediate" '+(dummy.trigger_immediate ? 'checked' : '')+' /></label><br />';
 		html += '<label>Tick on turn start <input type="checkbox" class="saveable" name="tick_on_turn_start" '+(dummy.tick_on_turn_start ? 'checked' : '')+' /></label><br />';
 		html += '<label>Tick on turn end <input type="checkbox" class="saveable" name="tick_on_turn_end" '+(dummy.tick_on_turn_end ? 'checked' : '')+' /></label><br />';

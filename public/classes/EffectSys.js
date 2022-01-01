@@ -36,7 +36,7 @@ class Wrapper extends Generic{
 		this.stay_conditions = ["senderNotDead","targetNotDead"];			// Conditions needed to stay. These are checked at the end of turn end/start, and after an action is used
 		this.effects = [];
 		this.duration = 0;					// Use -1 for permanent
-		
+		this.rarity = 0;					// Used to colorize it when attached to armor. 0 = white, -1 = red, the rest use rarity colors from Asset
 		this.tags = [];						// wr_ is prepended
 		this.stacks = "1";					// Either a number or formula
 		this.max_stacks = 1;
@@ -48,7 +48,7 @@ class Wrapper extends Generic{
 		this.trigger_immediate = false;			// Trigger immediate if it's a duration effect
 		this.ext = false;						// Makes the timer count use in game time intead of combat arounds, and makes it persist outside of combat. Duration becomes time in seconds.
 		this.asset = '';						// Bound to this asset id
-
+		this.hidden = false;					// Hide effect from player box
 		this.tick_on_turn_start = true;			// Tick on turn start
 		this.tick_on_turn_end = false;			// Tick on turn end
 
@@ -85,9 +85,10 @@ class Wrapper extends Generic{
 				effects : Effect.saveThese(this.effects, full),
 				tags : this.tags,
 				label : this.label,
+				hidden : this.hidden,
 				duration : this.duration,
 				ext : this.ext,
-				
+				rarity : this.rarity,
 			};
 			
 
@@ -768,6 +769,8 @@ class Wrapper extends Generic{
 	}
 
 
+
+
 	static getSmartHealPlayer( caster ){
 
 		// Find the lowest HP party member of target
@@ -785,6 +788,12 @@ class Wrapper extends Generic{
 		return party[0];
 
 	}
+
+	// Get wrappers labeled as kinks
+	static getKinks(){
+		return glib.getAllValues("Wrapper").filter(wrapper => wrapper.hasTag(stdTag.wrKink));
+	}
+
 
 }
 
@@ -2113,6 +2122,18 @@ class Effect extends Generic{
 	// Checks if target is affecting a specific player
 	affectingPlayer( player, debug ){
 
+		if( !player )
+			return false;
+
+		if( !(player instanceof Player) ){
+			console.error(player);
+			throw 'Above is not a player';
+		}
+
+		if( !(player._ignore_check_effect instanceof Map) ){
+			console.log(player);
+		}
+
 		// Ignore to prevent recursion
 		if( player._ignore_check_effect.get(this) )
 			return false;
@@ -2259,7 +2280,8 @@ class WrapperReturn extends Generic{
 Effect.createStatBonus = function( type, bonus ){
 	return new Effect({
 		type : type,
-		data : {amount:bonus}
+		data : {amount:bonus},
+		events : [],
 	});
 };
 

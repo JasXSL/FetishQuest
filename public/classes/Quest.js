@@ -291,55 +291,6 @@ class Quest extends Generic{
 
 }
 
-// These are only used for the procedural generator
-// Todo
-Quest.Types = {
-	DungeonClear : 0,			// Wipe out an entire dungeon
-	//DungeonReagents : 1,		// Find all assets in a dungeon
-	//DungeonBoss : 2,			// Kill a boss
-};
-
-Quest.generate = function( type, dungeon, difficultyMultiplier = 1 ){
-
-	if( !type ){
-		const types = Object.values(Quest.Types);
-		type = types[Math.floor(Math.random()*types.length)];
-	}
-	
-	const quest = new Quest();
-	let expBasis = 0;			// Bonus experience basis
-
-	const encounters = dungeon.getNumEncounters();
-	if( !encounters )
-		return game.ui.modal.addError("Unable to generate viable encounters for quest");
-		
-	if( type === Quest.Types.DungeonClear ){
-
-		quest.name = 'Dungeoneering';
-		quest.description = 'Clear the dungeon from monsters.';
-
-		// Add monsterKill objective
-		quest.addObjective(QuestObjective.buildEncounterCompletedObjective(quest, dungeon, encounters));
-
-		expBasis = encounters/2;	// Exp multiplier is a multiplayer against average player level. This makes it level*encounters/2
-
-	}
-
-	quest.exp_multiplier = expBasis;
-	// Pick a proper reward. For now, just do gear.
-	let rarity = Asset.rollRarity(1);
-	quest.addGearReward(Asset.generate(undefined, undefined, undefined, undefined, rarity));
-
-	// Add dungeon exit ending objective
-	quest.addObjective(QuestObjective.buildDungeonExitObjective(quest, dungeon), true);
-
-	return quest;
-
-};
-
-
-
-
 
 class QuestReward extends Generic{
 

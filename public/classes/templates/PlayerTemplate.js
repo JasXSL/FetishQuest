@@ -275,7 +275,7 @@ class PlayerTemplate extends Generic{
 
 			for( let template of this.viable_asset_templates ){
 
-				let asset = Asset.generate(undefined, level+gearLevelOffset, template, this.viable_asset_materials, undefined, minRarity);
+				let asset = Asset.generate(undefined, level+gearLevelOffset, template, this.viable_asset_materials, undefined, minRarity, player);
 				
 				if( !asset )
 					continue;

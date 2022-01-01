@@ -377,6 +377,12 @@ export default class Encounter extends Generic{
 		return actions.filter(action => action.type === GameAction.types.repairShop);
 	}
 
+	// Gets kink reset altars
+	getAltars( targetPlayer ){
+		const actions = this.getViableActions( targetPlayer );
+		return actions.filter(action => action.type === GameAction.types.altar);
+	}
+
 	// Get transmog actions
 	getTransmogs( targetPlayer ){
 		const actions = this.getViableActions( targetPlayer );
