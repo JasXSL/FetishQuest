@@ -24,6 +24,24 @@ export function asset(){
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
 
+	// Make sure asset has a thingy
+	for( let i in dummy ){
+
+		if( !asset.hasOwnProperty(i) ){
+
+			if( Array.isArray(dummy[i]) )
+				asset[i] = [];
+			else if( typeof dummy[i] === "object" )
+				asset[i] = {};
+			else
+				asset[i] = dummy[i];
+
+		}
+
+	}
+
+	delete asset.primaryStats;	// Remove legacy
+
 	if( !asset )
 		return this.close();
 

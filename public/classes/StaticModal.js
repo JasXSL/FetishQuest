@@ -2504,7 +2504,8 @@ export default class StaticModal{
 								<input type="text" placeholder="Name" name="name" maxlength=64 style="font-size:3vmax" required />
 							</label><br />
 							<label>
-								Character image (supports imgur, e621, gyazo, reddit, discord, twitter): <br />
+								Character image: <br />
+								<em>Supports shitpost.to (recommended), lensdump, e621, gyazo, reddit, discord, twitter, etc. Join the <a href="https://discord.jasx.org" target="_blank">discord</a> if you need more.</em><br />
 								<input type="text" placeholder="Character Image" name="image" maxlength=128 />
 							</label><br />
 							<label>
@@ -3931,7 +3932,7 @@ export default class StaticModal{
 
 						if( isHotbar )
 							modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
-						else if( asset.equippable() )
+						else if( player.canEquip(asset) )
 							modal.addSelectionBoxItem( 'Equip', '', 'equip' );
 
 						if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
@@ -3949,7 +3950,7 @@ export default class StaticModal{
 
 						if( 
 							game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
-							(!game.battle_active || game.getTurnPlayer().id === player.id) &&
+							!game.battle_active &&
 							!asset.soulbound
 						)
 							modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );

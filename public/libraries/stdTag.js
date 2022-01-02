@@ -111,6 +111,8 @@ export default {
 	acWet : 'ac_wet',
 	acEarth : 'ac_earth',
 	acElectric : 'ac_electric',
+	acPotion : 'ac_potion',
+	
 
 	// Common asset tags. These are appended with _<slot> ex as_tight_upperBody
 	asUpperBody : 'as_upperBody',	// slots like these are automatically added while you're wearing items in those slots
@@ -151,6 +153,12 @@ export default {
 	asBoots : 'as_boots',
 	asStockings : 'as_stockings',
 	asBelt : 'as_belt',
+	asNipplePiercings : 'as_nipple_piercings',
+	asRingGag : 'as_ring_gag',
+	asCollar : 'as_collar',
+	asCockRing : 'as_cock_ring',
+	asStrapon : 'as_strapon',
+	asStealable : 'as_stealable',			// Can be stolen on wipe
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',
@@ -166,6 +174,7 @@ export default {
 	asCopper : 'as_copper',
 	asMithril : 'as_mithril',
 	asSoftsilver : 'as_softsilver',
+
 	
 	// Props
 	asWhip : 'as_whip',

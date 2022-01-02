@@ -11,7 +11,6 @@ import Quest from './Quest.js';
 import Book from './Book.js';
 import Dungeon from './Dungeon.js';
 
-
 // Game specific
 class NetworkManager{
 
@@ -2045,23 +2044,10 @@ class GfPlayer{
 		if( !['jpg', 'jpeg', 'gif', 'png'].includes(ext) )
 			return false;
 
-		const whitelist = [
-			'imgur.com',
-			'e621.net',
-			'furaffinity.net',
-			'metapix.net',
-			'gyazo.com',
-			'fetishquest.com',
-			'jasx.org',
-			'prntscr.com',
-			'redd.it',
-			'twimg.com',
-			'discordapp.com',
-		];
-
+		
 		let last = url.host.split('.');
 		last = last[last.length-2]+'.'+last[last.length-1];
-		if( !whitelist.includes(last) )
+		if( !NetworkManager.whitelist.includes(last) )
 			return false;
 
 		return true;
@@ -2070,6 +2056,24 @@ class GfPlayer{
 
 
 }
+
+NetworkManager.whitelist = [
+	'imgur.com',
+	'lensdump.com',
+	'e621.net',
+	'furaffinity.net',
+	'metapix.net',
+	'gyazo.com',
+	'fetishquest.com',
+	'jasx.org',
+	'prntscr.com',
+	'redd.it',
+	'twimg.com',
+	'discordapp.com',
+	'catbox.moe',
+	'imgchest.com',
+	'shitpost.to'
+];
 
 
 class GfChat{
@@ -2088,6 +2092,8 @@ class GfChat{
 	
 
 }
+
+
 
 // Send tasks from DM to player
 NetworkManager.dmTasks = {

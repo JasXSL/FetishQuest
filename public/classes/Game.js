@@ -606,13 +606,16 @@ export default class Game extends Generic{
 
 				let l = armorSteal.shift();
 				// Allow steal
-				if( l && !winner.isBeast() ){
+				if( l && !winner.isBeast() && Math.random() < 0.5 ){
 
-					let gear = l.getEquippedAssetsBySlots([Asset.Slots.lowerBody, Asset.Slots.upperBody], true);
-					let item = shuffle(gear).shift();
-					if( item && Math.random() < 0.5 && !item.soulbound ){
+					let stealable = l.getStealableAssets();
+					
+					let item = shuffle(stealable).shift();
+					if( item ){
+						
 						l.transferAsset(item.id, winner, winner);
-						game.ui.addText( winner.getColoredName()+" STOLE "+l.getColoredName()+"'s "+item.name+"!", undefined, winner.id, l.id, 'statMessage important' );
+						game.ui.addText( winner.getColoredName()+" STOLE "+item._stacks+"x "+item.name+" from "+l.getColoredName()+"!", undefined, winner.id, l.id, 'statMessage important' );
+
 					}
 
 				}
@@ -1937,7 +1940,6 @@ export default class Game extends Generic{
 		let apCost = player.isAssetEquipped(id) ? Game.UNEQUIP_COST : Game.EQUIP_COST;
 		if( game.battle_active ){
 			
-
 			if( player !== game.getTurnPlayer() )
 				throw("Not your turn");
 
@@ -1945,6 +1947,9 @@ export default class Game extends Generic{
 				throw("Not enough AP");
 			
 		}
+
+		if( !player.canEquip(id) )
+			throw "Can't equip that right now";
 
 		if(!game.playerIsMe(player))
 			throw("Not your player");
@@ -1990,10 +1995,8 @@ export default class Game extends Generic{
 			throw("Invalid target");
 		if( fromPlayer.id === toPlayer.id )
 			throw("Can't trade with yourself");
-		if( this.battle_active && this.getTurnPlayer().id !== fromPlayer.id && !force )
-			throw("Not your turn");
-		if( this.battle_active && fromPlayer.ap < 3 && !force )
-			throw("Not enough AP");
+		if( this.battle_active && !force )
+			throw("Can't trade in combat");
 
 		const asset = fromPlayer.getAssetById(id);
 		if( !asset )

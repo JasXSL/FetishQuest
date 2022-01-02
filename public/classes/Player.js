@@ -146,6 +146,8 @@ export default class Player extends Generic{
 		
 		this.color = '';						// Assigned by the game
 
+		this.start_equip = [];					// Set on combat start. These are items you wore, that you can re-equip. Other items can't.
+
 		// Prevents recursion for encumbrance
 		this._ignore_effects = null;			// Internal helper that prevents recursion
 		this._difficulty = 1;					// Added from monster template, used in determining exp rewards
@@ -249,6 +251,7 @@ export default class Player extends Generic{
 			he : this.he,
 			him : this.him,
 			his : this.his,
+			start_equip : this.start_equip,
 			generated : this.generated,	// Needed for playerMarkers in webgl
 			armor : this.armor,
 			actionGroups : PlayerActionGroup.saveThese(this.actionGroups)
@@ -1229,6 +1232,7 @@ export default class Player extends Generic{
 
 	}
 	onBattleStart(){
+
 		this._used_chats = {};
 		this._turn_tags = [];
 		this.ap = 0;			// Start with 0 AP
@@ -1242,15 +1246,20 @@ export default class Player extends Generic{
 		if( this.arousal >= this.getMaxArousal() )
 			this.arousal = this.getMaxArousal()-1;
 
+		this.start_equip = this.getAssetsEquipped(true).map(el => el.id);
+		
+
 		this.resetTempActions();
 
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleStart();
+			
 
 	}
 	onBattleEnd(){
 
+		this.start_equip = [];
 		this.blCorruption = this.blPhysical = this.blArcane = this.iblPhysical = this.iblArcane = this.iblCorruption = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
 		this.ap = 0;
@@ -1597,48 +1606,64 @@ export default class Player extends Generic{
 		}
 		return out;
 	}
+
+	getStealableAssets(){
+		return this.assets.filter(el => {
+			return !el.soulbound && el.hasTag(stdTag.asStealable);
+		});
+	}
+
+	// Accepts an asset or an id
+	canEquip( asset ){
+
+		if( typeof asset === "string" )
+			asset = this.getAssetById(asset);
+
+		return (
+			asset.equippable() &&
+			(
+				!game.battle_active || this.start_equip.includes(asset.id)
+			)
+		);
+
+	}
+
 	// byPlayer is the player who initiated the equip. If it's not a player, no event is raised.
 	equipAsset( id, byPlayer ){
 
-		let assets = this.getAssetsInventory();
-		for(let asset of assets){
+		const asset = this.getAssetById(id);
+		if( !asset )
+			return false;
 
-			if(asset.id === id){
-
-				if( !asset.equippable() ){
-					console.error("Item can not be equipped");
-					return false;
-				}
-
-				// Special case for action slot
-				const isActionAsset = ~asset.slots.indexOf(Asset.Slots.action);
-				if( isActionAsset && !this.unequipActionAssetIfFull() )
-					return false;
-				if( !isActionAsset && !this.unequipAssetsBySlots(asset.slots, byPlayer) )
-					return false;
-
-				asset.equipped = true;
-				asset.onEquip();
-				this.onItemChange();
-				if( game.battle_active && byPlayer )
-					game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
-				this.rebindWrappers();
-
-				if( byPlayer ){
-					new GameEvent({
-						type : GameEvent.Types.armorEquipped,
-						sender : byPlayer,
-						target : this,
-						asset : asset
-					}).raise();
-				}
-
-				return true;
-
-			}
-
+		if( !this.canEquip(asset) ){
+			console.error("Item can not be equipped");
+			return false;
 		}
-		return false;
+
+		// Special case for action slot
+		const isActionAsset = ~asset.slots.indexOf(Asset.Slots.action);
+		if( isActionAsset && !this.unequipActionAssetIfFull() )
+			return false;
+		if( !isActionAsset && !this.unequipAssetsBySlots(asset.slots, byPlayer) )
+			return false;
+
+		asset.equipped = true;
+		asset.onEquip();
+		this.onItemChange();
+		if( game.battle_active && byPlayer )
+			game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
+		this.rebindWrappers();
+
+		if( byPlayer ){
+			new GameEvent({
+				type : GameEvent.Types.armorEquipped,
+				sender : byPlayer,
+				target : this,
+				asset : asset
+			}).raise();
+		}
+
+		return true;
 
 	}
 
@@ -1655,7 +1680,7 @@ export default class Player extends Generic{
 
 				asset.equipped = false;
 				this.onItemChange();
-				if( game.battle_active && byPlayer && !noText )
+				if( game.battle_active && byPlayer === this && !noText )
 					game.ui.addText( this.getColoredName()+" unequips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
 				this.rebindWrappers();
 

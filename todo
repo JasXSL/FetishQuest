@@ -11,28 +11,7 @@ Overhaul:
 	Test the boss fights
 	Test changed actions
 
-	ASSET OVERHAUL
-		- Add rarity to enchant wrappers
-		- Hard coded assets need to have stats readded
-		- Material templates need to have stats redone
-		- Asset templates need to have stats redone
-
-		
-	Jewellery cosmetics that could add additional texts:
-		- Nipple piercings
-		- Ring Gag
-		- Tight Leather Collar : Chance to break when penetrated in the mouth.
-		- Studded collar
-		- Cock Ring
-		- Strap-on. Attached to your hip, and adds additional flavor texts.
-
-
-	In combat armor changes:
-		- Lock potion belt
-		- Can't change armor in combat, but you can re-equip a stripped piece.
-		
 	Other
-		Replace armor steal on wipe with a money steal.
 		Add a bank.
 		
 	GYM CHANGES
@@ -47,15 +26,14 @@ Overhaul:
 		- Attack that can only be used while knocked down/dazed.
 		- Attack that can only be used while naked.
 		- Attack that deals less damage the more armor you have.
-		- Something to do with block
 		- Something that happens when interrupted.
 		- 
 	
 	Warrior (Phys) - Taunt
 	Cleric (Arcane) - Block
-	Elementlist (Arcane) - Cast prevention
+	Elementlist (Arcane) - 
 	Rogue (Corr) - Armor removal
-	Monk (Phys) - 
+	Monk (Phys) - Cast prevention
 	Tentaclemancer (Corr) - Arousal management 
 
 

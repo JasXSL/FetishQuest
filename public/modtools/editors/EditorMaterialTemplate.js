@@ -19,10 +19,26 @@ export function asset(){
 		dummy = CONSTRUCTOR.loadThis(asset)
 	;
 
+	// Make sure asset has a thingy
+	for( let i in dummy ){
+
+		if( !asset.hasOwnProperty(i) ){
+
+			if( Array.isArray(dummy[i]) )
+				asset[i] = [];
+			else if( typeof dummy[i] === "object" )
+				asset[i] = {};
+			else
+				asset[i] = dummy[i];
+
+		}
+
+	}
+
+	delete asset.primaryStats;	// Remove legacy
+
 	if( !asset )
 		return this.close();
-
-
 
 	let html = '';
 	html += '<div class="labelFlex">';
@@ -44,7 +60,7 @@ export function asset(){
 	for( let i in Action.Types )
 		html += '<label>SV '+esc(i)+': <input name="svBons::'+esc(Action.Types[i])+'" value="'+esc(dummy.svBons[Action.Types[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
 	for( let i in Action.Types )
-		html += '<label>BON '+esc(i)+': <input name="bonBons::'+esc(Action.Types[i])+'" value="'+esc(dummy.svBons[Action.Types[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
+		html += '<label>BON '+esc(i)+': <input name="bonBons::'+esc(Action.Types[i])+'" value="'+esc(dummy.bonBons[Action.Types[i]] || 0)+'" step=1 type="number" class="saveable" /></label>';
 	html += '</div>';
 	
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';

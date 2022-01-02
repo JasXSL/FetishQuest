@@ -5,6 +5,7 @@ import Generic from '../../classes/helpers/Generic.js';
 
 import * as EditorEffect from './EditorEffect.js';
 import * as EditorCondition from './EditorCondition.js';
+import Asset from '../../classes/Asset.js';
 
 const DB = 'wrappers',
 	CONSTRUCTOR = Wrapper;
@@ -37,6 +38,12 @@ export function asset(){
 		html += '<label>Duration: <input type="number" name="duration" class="saveable" value="'+esc(dummy.duration)+'" /></label>';
 		html += '<label title="can be a formula">Stacks: <input type="text" name="stacks" class="saveable" value="'+esc(dummy.stacks)+'" /></label>';
 		html += '<label>Max Stacks: <input type="number" name="max_stacks" class="saveable" value="'+esc(dummy.max_stacks)+'" /></label>';
+		html += '<label title="Only needed for enchants">';
+		html += 'Rarity: <select name="rarity" class="saveable">';
+		for( let cat in Asset.Rarity )
+			html += '<option value="'+esc(Asset.Rarity[cat])+'" '+(dummy.rarity === Asset.Rarity[cat] ? 'selected' :'')+'>'+esc(cat)+'</option>';
+		html += '</select><br />';
+		html += '</label>';
 
 		html += '<label>Detrimental <input type="checkbox" class="saveable" name="detrimental" '+(dummy.detrimental ? 'checked' : '')+' /></label><br />';
 		html += '<label>Hidden <input type="checkbox" class="saveable" name="hidden" '+(dummy.hidden ? 'checked' : '')+' /></label><br />';
