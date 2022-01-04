@@ -383,6 +383,12 @@ export default class Encounter extends Generic{
 		return actions.filter(action => action.type === GameAction.types.altar);
 	}
 
+	// Gets kink reset altars
+	getBanks( targetPlayer ){
+		const actions = this.getViableActions( targetPlayer );
+		return actions.filter(action => action.type === GameAction.types.bank);
+	}
+
 	// Get transmog actions
 	getTransmogs( targetPlayer ){
 		const actions = this.getViableActions( targetPlayer );

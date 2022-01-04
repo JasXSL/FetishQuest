@@ -25,6 +25,7 @@ import * as THREE from '../ext/THREE.js';
 import ModRepo from './ModRepo.js';
 import Book from './Book.js';
 import { Logger } from './Logger.js';
+import Bank from './Bank.js';
 
 export default class Game extends Generic{
 
@@ -1715,6 +1716,7 @@ export default class Game extends Generic{
 
 		}
 
+
 		return false;
 	}
 
@@ -2950,6 +2952,19 @@ export default class Game extends Generic{
 		return out;
 	}
 
+	getBankByPlayer( player ){
+		const encounter = this.encounter;
+		const banks = encounter.getBanks(player);
+		if( !player )
+			return;
+		const out = [];
+		for( let bank of banks ){
+			if( bank.data.player === player.label )
+				out.push(bank);
+		}
+		return out;
+	}
+
 	// Returns game actions
 	getGymsByPlayer( player, target ){
 		const encounter = this.encounter;
@@ -3105,6 +3120,26 @@ export default class Game extends Generic{
 		const altars = this.getAltarByPlayer(altarPlayer);
 		for( let altar of altars ){
 			if( altar.validate(player) )
+				return true;
+		}
+		return false;
+	}
+
+	// Checks if a bank is available to a player
+	bankAvailableTo( bankPlayer, player ){
+
+		if( this.battle_active )
+			return false;
+
+		if( !(bankPlayer instanceof Player) )
+			throw "Bank invalid type";
+			
+		if( !(player instanceof Player) )
+			throw "Player is not a player";
+
+		const banks = this.getBankByPlayer(bankPlayer);
+		for( let bank of banks ){
+			if( bank.validate(player) )
 				return true;
 		}
 		return false;
@@ -3285,6 +3320,60 @@ export default class Game extends Generic{
 
 	}
 
+	toggleAssetBanked( bankPlayer, asset, amount, player, deposit ){
+		
+		if( typeof player !== "object" )
+			player = this.getPlayerById(player);
+
+		if( typeof player !== "object" )
+			player = this.getPlayerById(player);
+
+		if( !player )
+			throw "Player missing";
+
+		if( this.battle_active )
+			throw "Battle in progress";
+
+		// Netcode
+		if( !this.is_host ){
+			Game.net.playerBankItem(bankPlayer, asset, amount, player, deposit);
+			return;
+		}
+
+		if( !(bankPlayer instanceof Player) )
+			throw "Bank not found";
+
+		if( typeof asset === "object" )
+			asset = asset.id;
+
+		asset = player.getAssetById(asset, !deposit);				// Try in inventory
+
+		if( !asset )
+			throw 'Asset not found';
+
+		amount = parseInt(amount);
+		const maxAmount = asset && asset.stacking ? asset._stacks : 1;
+
+		if( amount > maxAmount )
+			throw "Asset not found on player";
+		
+		if( isNaN(amount) || amount < 1 )
+			throw "Invalid amount";
+
+		if( !this.bankAvailableTo(bankPlayer, player) )
+			throw "Bank is not available";
+		
+		// All done
+		if( deposit )
+			player.moveAssetToBank(asset, amount);
+		else
+			player.moveAssetFromBank(asset, amount);
+
+		this.save();
+		//this.playFxAudioKitById("sell_item", player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+" made a "+(deposit ? 'deposit' : 'withdrawal'), "purchase", player.id, player.id, 'purchase');
+
+	}
 
 	shuffleKinksByAltar( altarPlayer, player, allowError = true ){
 		const out = text => {
@@ -3461,7 +3550,7 @@ export default class Game extends Generic{
 		
 	}
 
-	exchangePlayerMoney(myPlayer){
+	exchangePlayerMoney( myPlayer, bank ){
 
 		if( !(myPlayer instanceof Player) )
 			myPlayer = this.getPlayerById(myPlayer);
@@ -3469,13 +3558,13 @@ export default class Game extends Generic{
 			throw "You have no player";
 		
 		if( !this.is_host ){
-			Game.net.playerExchangeGold(myPlayer);
+			Game.net.playerExchangeGold(myPlayer, bank);
 			return;
 		}
 		
 		this.ui.addText(myPlayer.getColoredName()+" exchanged their coins.", "purchase", myPlayer.id, myPlayer.id, 'purchase');
 		this.playFxAudioKitById("exchange", myPlayer, myPlayer, undefined, true);
-		myPlayer.exchangeMoney();
+		myPlayer.exchangeMoney( bank );
 		this.save();
 	}
 

@@ -538,6 +538,17 @@ export function asset(){
 			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
 		};
 	}
+	else if( type === Types.bank ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				player : '',
+			};
+			
+		html += 'Player: <div class="player"></div>';
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
+	}
 	else if( type === Types.text ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {

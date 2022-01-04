@@ -679,6 +679,10 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 
+	/* BANK */
+	#bank > div.modalMain{
+		min-width:50vw;
+	}
 
 	/* Gym */
 	#gym{

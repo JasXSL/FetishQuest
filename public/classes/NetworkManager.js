@@ -978,6 +978,22 @@ class NetworkManager{
 
 			}
 
+			else if( task === PT.playerBankItem ){
+
+				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
+				if( !args.player || !args.bankPlayer || !args.asset || !args.amount || isNaN(args.amount) ){
+					console.error("Net: Missing args in call", task, "got", args);
+					return;
+				}
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				game.toggleAssetBanked( args.bankPlayer, args.asset, args.amount, player, args.deposit );
+
+			}
+
+
 			else if( task === PT.transmogrify ){
 
 				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
@@ -1023,12 +1039,13 @@ class NetworkManager{
 			}
 
 			else if( task === PT.exchangeGold ){
+
 				let player = validatePlayer();
 				if( !player )
 					return;
 				
 				// Todo: Later, add shop to this to make sure there's one available
-				game.exchangePlayerMoney(player);
+				game.exchangePlayerMoney(player, args.bank);
 
 			}
 
@@ -1133,7 +1150,8 @@ class NetworkManager{
 
 				const action = args.action;
 
-				for( let asset of player.assets ){
+				const assets = player.getAssets();
+				for( let asset of assets ){
 
 					const ua = asset.getUseActionById(action);
 					if( ua ){
@@ -1641,10 +1659,29 @@ class NetworkManager{
 		});
 	}
 	
-	playerExchangeGold(player){
+	playerExchangeGold( player, bank ){
 		this.sendPlayerAction(NetworkManager.playerTasks.exchangeGold, {
 			player : player.id,
+			bank : Boolean(bank)
 		});
+	}
+
+	playerBankItem(bankPlayer, asset, amount, player, deposit){
+
+		if( typeof bankPlayer === "object" )
+			bankPlayer = bankPlayer.id;
+		if( typeof asset === "object" )
+			asset = asset.id;
+		if( typeof player === "object" )
+			player = player.id;
+		this.sendPlayerAction(NetworkManager.playerTasks.sellItem, {
+			asset : asset,
+			bankPlayer : bankPlayer,
+			amount : amount,
+			player : player,
+			deposit : Boolean(deposit)
+		});
+
 	}
 
 	playerSleep( player, dungeonAsset, hours ){
@@ -2139,7 +2176,8 @@ NetworkManager.playerTasks = {
 	roleplay : 'roleplay',				// {player:(str)sender_id, roleplay:(str)roleplay_id}
 	buyItem : 'buyItem',				// {player:(str)sender_id, shop:(str)shop_id, item:(str)shopitem_id, amount:(int)amount}
 	sellItem : 'sellItem',				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
-	exchangeGold : 'exchangeGold',		// {player:(str)sender_id}
+	bankItem : 'bankItem',				// {player:(str)sender_id, bankPlayer:(str)bankPlayerId, asset:(str)asset_id, amount:(int)amount, deposit:(bool)deposit/withdraw}
+	exchangeGold : 'exchangeGold',		// {player:(str)sender_id, bank:(bool)exchangeInBank}
 	repairItemAtBlacksmith : 'repairItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id}
 	useAltar : 'useAltar',				// {player:(str)sender_id, altarPlayer:(str)altar}
 	sleep : 'sleep',									// {player:(str)sender_id, asset:(str)dungeon_asset_id, hours:(int)hours}

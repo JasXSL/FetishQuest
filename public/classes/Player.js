@@ -23,6 +23,8 @@ const MAX_KINKS = 2;
 
 export default class Player extends Generic{
 
+	static BANK_SLOTS = 64;
+
 	static getRelations(){ 
 		return {
 			actions : Action,
@@ -116,7 +118,6 @@ export default class Player extends Generic{
 		this.he = '';
 		this.him = '';
 		this.his = '';
-
 
 		this.actionGroups = [];					// Contains PlayerActionGroup objects. Built on the fly
 		
@@ -265,7 +266,17 @@ export default class Player extends Generic{
 		out._tmp_actions = Action.saveThese(this._tmp_actions, full);
 
 		// Assets are only sent if equipped, PC, or full
-		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC() || this.isDead()), full);
+		out.assets = Asset.saveThese(this.assets.filter(el => 
+			full || 
+			(
+				!el.inBank && 
+				(
+					el.equipped || 
+					!this.isNPC() || 
+					this.isDead()
+				)
+			)
+		), full);
 
 		if( full ){
 
@@ -1277,7 +1288,8 @@ export default class Player extends Generic{
 
 		});
 
-		for( let asset of this.assets )
+		const assets = this.getAssets(false);
+		for( let asset of assets )
 			asset.onBattleEnd();
 
 		let wrappers = this.getWrappers(undefined, true);
@@ -1506,7 +1518,7 @@ export default class Player extends Generic{
 	/* Assets */
 	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
 	// returns false on fail, or an array of all added assets on success
-	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = false ){
+	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = false, toBank = false ){
 		if( !(asset instanceof Asset) ){
 			console.error("Trying to add non-asset. Did you mean to use addLibraryAsset?");
 			return false;
@@ -1522,7 +1534,11 @@ export default class Player extends Generic{
 			if( resetid )
 				a.g_resetID();	// Buying stacks will bork everything otherwise
 
-			const exists = this.getAssetByLabel(a.label);
+			const exists = this.getAssetByLabel(a.label, toBank);
+
+			if( toBank && (!exists || !a.stacking) && this.getAssets(true).length >= Player.BANK_SLOTS )
+				throw 'Bank is full';
+
 			let n = a._stacks;
 			if( fromStacks )
 				n = amount;
@@ -1532,25 +1548,33 @@ export default class Player extends Generic{
 				a._stacks = n;
 				this.assets.push(a);
 			}
-			if( a.category === Asset.Categories.consumable ){
-				
-				if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 ){
-					this.equipAsset(a.id, this);
+			if( !toBank ){
+
+				if( a.category === Asset.Categories.consumable ){
+					
+					if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 ){
+						this.equipAsset(a.id, this);
+					}
+
+				}
+				else if( this.isNPC() ){
+
+					if( !no_equip && !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
+						this.equipAsset(a.id, this);
+
 				}
 
 			}
-			else if( this.isNPC() ){
-
-				if( !no_equip && !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
-					this.equipAsset(a.id, this);
-
-			}
+			
+			a.inBank = Boolean(toBank);
+			
 
 			out[a.id] = a;
 
 		}
 		this.raiseInvChange();
-		game.onInventoryAdd( this, asset );
+		if( !toBank )
+			game.onInventoryAdd( this, asset );
 		return Object.values(out);
 
 	}
@@ -1570,20 +1594,30 @@ export default class Player extends Generic{
 		return this.addAsset(asset, amount);
 
 	}
-	getAssetById(id){
-		for(let asset of this.assets){
-			if(asset.id === id)
+	getAssetById( id, inBank ){
+
+		let assets = this.getAssets(inBank);
+		for( let asset of assets ){
+
+			if( asset.id === id )
 				return asset;
+
 		}
 		return false;
+
 	}
 	// useful for stackable items like currency
-	getAssetByLabel( label ){
-		for(let asset of this.assets){
+	getAssetByLabel( label, inBank ){
+
+		let assets = this.getAssets(inBank);
+		for(let asset of assets){
+
 			if( asset.label === label )
 				return asset;
+
 		}
 		return false;
+
 	}
 	isAssetEquipped(id){
 		let asset = this.getAssetById(id);
@@ -1608,9 +1642,12 @@ export default class Player extends Generic{
 	}
 
 	getStealableAssets(){
-		return this.assets.filter(el => {
+
+		const assets = this.getAssets(false);
+		return assets.filter(el => {
 			return !el.soulbound && el.hasTag(stdTag.asStealable);
 		});
+
 	}
 
 	// Accepts an asset or an id
@@ -1714,24 +1751,30 @@ export default class Player extends Generic{
 	}
 
 	// returns nr of assets of label, including stacks
-	numAssets( label ){
+	numAssets( label, inBank ){
+
 		let out = 0;
-		for(let asset of this.assets){
-			if( asset.label === label ){
+		const assets = this.getAssets(inBank);
+		for( let asset of assets ){
+
+			if( asset.label === label )
 				out += asset.stacking ? asset._stacks : 1;
-			}
+
 		}
+
 		return out;
+
 	}
 
 	// Returns nr of assets by label, including stacks and charges
 	numAssetUses( label, equipped_only = false ){
 
-		let assets = this.assets;
+		let assets = this.getAssets(false);
 		if( equipped_only )
 			assets = this.getAssetsEquipped();
 		let out = 0;
 		for(let asset of assets){
+
 			if( asset.label === label ){
 				let n = asset.stacking ? asset._stacks : 1;
 				if( asset.charges > 1 ){
@@ -1741,6 +1784,7 @@ export default class Player extends Generic{
 					return -1;
 				out += n;
 			}
+
 		}
 		return out;
 	}
@@ -1767,7 +1811,7 @@ export default class Player extends Generic{
 		return out;
 	}
 
-	destroyAsset( id, amount ){
+	destroyAsset( id, amount, inBank ){
 
 		if( id instanceof Asset )
 			id = id.id;
@@ -1775,10 +1819,10 @@ export default class Player extends Generic{
 		
 		this.getAssetWrappers(id).map(el => el.remove());
 
-		for(let i in this.assets){
+		for( let i in this.assets ){
 
 			let asset = this.assets[i];
-			if(asset.id === id){
+			if( asset.id === id && Boolean(asset.inBank) === Boolean(inBank) ){
 
 				if( Math.floor(amount) && asset.stacking )
 					asset._stacks -= amount;
@@ -1803,9 +1847,10 @@ export default class Player extends Generic{
 
 	}
 
-	destroyAssetsByLabel( label, amount = 1 ){
+	destroyAssetsByLabel( label, amount = 1, inBank = false ){
 
-		for( let asset of this.assets ){
+		let assets = this.getAssets(inBank);
+		for( let asset of assets ){
 
 			if( asset.label === label ){	
 
@@ -1838,13 +1883,18 @@ export default class Player extends Generic{
 
 	// Returns a list of assets that have their durability damaged
 	getRepairableAssets(){
-		return this.assets.filter(asset => {
+
+		const assets = this.getAssets();
+		return assets.filter(asset => {
 			return asset.durability < asset.getMaxDurability() && asset.isDamageable();
 		});
+
 	}
 
-	getAssets(){
-		return this.assets;
+	getAssets( banked ){
+
+		return this.assets.filter(el => Boolean(el.inBank) === Boolean(banked));
+
 	}
 
 	// Returns non-equipped assets
@@ -1878,7 +1928,7 @@ export default class Player extends Generic{
 	}
 
 	getLootableAssets(){
-		return this.assets;
+		return this.getAssets();
 	}
 
 	lootToPlayer( id, player, silent = false ){
@@ -1996,12 +2046,17 @@ export default class Player extends Generic{
 
 	}
 	getCarriedWeight(){
+
 		let out = 0;
-		for(let asset of this.assets){
+		const assets = this.getAssets();
+		for( let asset of assets ){
+
 			let weight = asset.getWeight();
 			out+= weight;
+
 		}
 		return out;
+
 	}
 	isEncumbered(){
 		return !this.isBeast() && this.getCarriedWeight() > this.getCarryingCapacity();
@@ -2009,9 +2064,11 @@ export default class Player extends Generic{
 
 	// Currency
 	// Returns currency value in copper
-	getMoney(){
+	getMoney( bank ){
+
 		let out = 0;
-		for( let asset of this.assets ){
+		const assets = this.getAssets(bank);
+		for( let asset of assets ){
 			if( asset.label === 'platinum' )
 				out += asset._stacks*1000;
 			else if( asset.label === 'gold' )
@@ -2022,11 +2079,12 @@ export default class Player extends Generic{
 				out += asset._stacks;
 		}
 		return out;
+
 	}
 
-	consumeMoney( copper = 0 ){
+	consumeMoney( copper = 0, bank = false ){
 
-		let total = this.getMoney();
+		let total = this.getMoney(bank);
 		if( total < copper )
 			return false;
 
@@ -2036,9 +2094,9 @@ export default class Player extends Generic{
 			consumeGold = 0,			// Gold assets we need to remove
 			consumePlatinum = 0			// Plat assets we need to remove
 		;
-		let copperAsset = this.getAssetByLabel('copper'),
-			silverAsset = this.getAssetByLabel('silver'),
-			goldAsset = this.getAssetByLabel('gold')
+		let copperAsset = this.getAssetByLabel('copper', bank),
+			silverAsset = this.getAssetByLabel('silver', bank),
+			goldAsset = this.getAssetByLabel('gold', bank)
 		;
 		// First see if we can handle it with just copper
 		if( copperAsset && copperAsset._stacks >= copper ){
@@ -2080,34 +2138,34 @@ export default class Player extends Generic{
 		if( consumeCopper < 0 ){
 			const asset = glib.get('copper', 'Asset');
 			asset._stacks = Math.abs(consumeCopper);
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
 		}
 		else if( consumeCopper > 0 )
-			this.destroyAsset(copperAsset.id, consumeCopper);
+			this.destroyAsset(copperAsset.id, consumeCopper, bank);
 
 		if( consumeSilver < 0 ){
 			const asset = glib.get('silver', 'Asset');
 			asset._stacks = Math.abs(consumeSilver);
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
 		}
 		else if( consumeSilver > 0 )
-			this.destroyAsset(silverAsset.id, consumeSilver);
+			this.destroyAsset(silverAsset.id, consumeSilver, bank);
 		
 		if( consumeGold < 0 ){
 			const asset = glib.get('gold', 'Asset');
 			asset._stacks = Math.abs(consumeGold);
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
 		}
 		else if( consumeGold > 0 )
-			this.destroyAsset(goldAsset.id, consumeGold);
+			this.destroyAsset(goldAsset.id, consumeGold, bank);
 
 		if( consumePlatinum < 0 ){
 			const asset = glib.get('platinum', 'Asset');
 			asset._stacks = Math.abs(consumePlatinum);
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
 		}
 		else if( consumePlatinum > 0 ){
-			this.destroyAsset(this.getAssetByLabel('platinum').id, consumePlatinum);
+			this.destroyAsset(this.getAssetByLabel('platinum').id, consumePlatinum, bank);
 		}
 		return true;
 
@@ -2119,52 +2177,87 @@ export default class Player extends Generic{
 	}
 
 	// Auto exchanges money assets to the fewest amounts of coins
-	exchangeMoney(){
-		const copper = this.getMoney();
+	exchangeMoney( bank ){
+		const copper = this.getMoney(bank);
 		let asset;
-		if( asset = this.getAssetByLabel('platinum') )
-			this.destroyAsset(asset);
-		if( asset = this.getAssetByLabel('gold') )
-			this.destroyAsset(asset);
-		if( asset = this.getAssetByLabel('silver') )
-			this.destroyAsset(asset);
-		if( asset = this.getAssetByLabel('copper') )
-			this.destroyAsset(asset);
+		if( asset = this.getAssetByLabel('platinum', bank) )
+			this.destroyAsset(asset, undefined, bank);
+		if( asset = this.getAssetByLabel('gold', bank) )
+			this.destroyAsset(asset, undefined, bank);
+		if( asset = this.getAssetByLabel('silver', bank) )
+			this.destroyAsset(asset, undefined, bank);
+		if( asset = this.getAssetByLabel('copper', bank) )
+			this.destroyAsset(asset, undefined, bank);
 		
 		let assets = Player.copperToAssets(copper);
 		for( let a of assets )
-			this.addAsset(a);
+			this.addAsset(a, undefined, undefined, undefined, undefined, bank);
 		
 		return true;
 		
 	}
 
 	// Exchanges a copper amount into plat, gold etc and adds
-	addCopperAsMoney( copper = 0 ){
+	addCopperAsMoney( copper = 0, bank = false ){
+
 		copper = parseInt(copper);
 		if( copper < 1 )
 			return;
 
 		const exch = Player.calculateMoneyExhange(copper);
 		for( let i in exch ){
+
 			if( !exch[i] )
 				continue;
 			const asset = glib.get(Player.currencyWeights[i], 'Asset');
 			asset._stacks = exch[i];
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
+			
 		}
 
 	}
 
-	canExchange(){
+	canExchange( bank ){
 
 		const labels = Player.currencyWeights.slice(1);
-		for( let asset of this.assets ){
+		const assets = this.getAssets( bank );
+		for( let asset of assets ){
 			if( ~labels.indexOf(asset.label) && asset._stacks >= 10 )
 				return true;
 		}
 
 	}
+
+
+
+	// BANK
+
+	// Move an asset to bank. Supports either the asset itself or its ID.
+	moveAssetToBank( asset, amount ){
+
+		if( typeof asset === 'string' )
+			asset = this.getAssetById(asset, false);
+		if( !(asset instanceof Asset) )
+			throw 'Asset not found';
+
+		this.unequipAsset(asset, this, true);
+		this.addAsset(asset, amount || 1, true, true, true, true);
+		this.destroyAsset(asset.id, amount, false);
+
+	}
+
+	moveAssetFromBank( asset, amount ){
+
+		if( typeof asset === 'string' )
+			asset = this.getAssetById(asset, true);
+		if( !(asset instanceof Asset) )
+			throw 'Banked asset not found';
+
+		this.addAsset(asset, amount || 1, true, true, true, false);
+		this.destroyAsset(asset.id, amount, true);
+		
+	}
+
 
 
 
@@ -2395,7 +2488,7 @@ export default class Player extends Generic{
 			post += this.getBlock(dmgtype);
 
 		// Out of combat HP damage can occur, but players can't go under 1. Use SET HP instead if you want to kill someone through an RP.
-		if( !game.battle_active && this.hp <= 0 )
+		if( !game.battle_active && this.hp <= 0 && this.team === Player.TEAM_PLAYER )
 			this.hp = 1;
 
 		out.hp = this.hp-prehp;
@@ -3042,7 +3135,8 @@ export default class Player extends Generic{
 		
 		if( include_items ){
 
-			for( let asset of this.assets ){
+			const assets = this.getAssets();
+			for( let asset of assets ){
 
 				let action = asset.use_action;
 				if( !asset.isConsumable )
@@ -3437,16 +3531,9 @@ export default class Player extends Generic{
 				})
 			);
 
-		for( let asset of this.assets ){
-
-			if( asset.equipped ){
-
-				if( asset.durability > 0 )
-					out = out.concat(asset.wrappers);
-
-			}
-
-		}
+		const assets = this.getAssetsEquipped(false);
+		for( let asset of assets )
+			out = out.concat(asset.wrappers);
 
 		// Note: temp actions can't have passives for recursion reasons
 		const actions = this.getActions(true, false, false, false);

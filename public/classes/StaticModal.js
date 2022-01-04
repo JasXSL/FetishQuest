@@ -2074,12 +2074,12 @@ export default class StaticModal{
 				};
 				newDivs = [];
 				availableAssets = 0;
-				for( let asset of myPlayer.assets ){
+				const assets = myPlayer.getAssets();
+				for( let asset of assets ){
 
 					if( !asset.isSellable() )
 						continue;
 
-						
 					const a = asset.clone();
 					a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
 
@@ -2095,7 +2095,145 @@ export default class StaticModal{
 				this.sellInventory.classList.toggle('hidden', !availableAssets);
 
 
-			});
+			})
+		;
+		// Bank
+		this.add(new this("bank", "Bank"))
+			.setCloseOnCellMove(true)
+			.addRefreshOn(["players"])
+			.addTab("Deposit", () => {
+				return `
+					<div class="center"><input type="button" name="exchange" value="Exchange Coins" /></div>
+					<div class="bank inventory"></div>
+					
+					<div class="empty hidden" style="min-width:25vmax">Inventory empty.</div>
+
+				`;
+			})
+			.addTab("Withdraw", () => {
+				return `
+					<h3 class="quant center" style="margin:0">Holding <span></span>/`+Player.BANK_SLOTS+`</h3>
+					<div class="center"><input type="button" class="bank" name="exchange" value="Exchange Coins" /></div>
+					<div class="bank inventory"></div>
+					<div class="empty hidden" style="min-width:25vmax">No banked items.</div>
+				`;
+			})
+			.setProperties(function(){
+				const depositPage = this.getTabDom('Deposit')[0],
+					withdrawPage = this.getTabDom('Withdraw')[0]
+				;
+
+				this.depositInventory = depositPage.querySelector("div.bank.inventory");
+				this.depositEmpty = depositPage.querySelector("div.empty");
+				this.withdrawInventory = withdrawPage.querySelector("div.bank.inventory");
+				this.withdrawEmpty = withdrawPage.querySelector("div.empty");
+				this.withdrawHolding = withdrawPage.querySelector("h3.quant > span");
+				this.exchangeBank = withdrawPage.querySelector("input[name=exchange]");
+				this.exchangeInv = depositPage.querySelector("input[name=exchange]");
+				
+				
+			})
+			.setDraw(async function( bankPlayer ){
+
+				const 
+					myPlayer = game.getMyActivePlayer(),
+					th = this
+				;
+				if( !myPlayer )
+					throw 'Player not found';
+
+				// Handles both deposit and withdraw
+				const handleAssetClick = event => {
+
+					const targ = event.currentTarget,
+						id = targ.dataset.id,
+						deposit = targ.classList.contains("deposit"),
+						asset = myPlayer.getAssetById(id, !deposit)
+					;
+
+					if( !asset )
+						return;
+					
+					const maxQuant = asset.stacking ? asset._stacks : 1;
+					const swap = function( evt ){
+
+						let amount = maxQuant;
+						if( evt ){
+
+							amount = Math.floor($("input:first", this).val());
+							if( !amount )
+								return;
+
+						}
+						
+						game.toggleAssetBanked( bankPlayer, asset, amount, myPlayer, deposit );
+						
+					};
+
+					// Quick bank whole stack
+					if( event.shiftKey )
+						swap();
+					else{
+						game.ui.modal.makeSelectionBoxForm(
+							'Amount to '+(deposit ? 'deposit' : 'withdraw')+': <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
+							swap,
+							false
+						);
+					}
+
+				};
+				
+				let newDivs = [];
+				let num = 0;
+				let assets = myPlayer.getAssets();
+				for( let asset of assets ){
+
+					const div = await StaticModal.getGenericAssetButton(asset, undefined, 'deposit');
+					newDivs.push(div);
+					div.addEventListener('click', handleAssetClick);
+					++num;
+
+				}
+				this.depositInventory.replaceChildren(...newDivs);
+				this.depositEmpty.classList.toggle("hidden", Boolean(num));
+
+				// Draw withdraw
+				newDivs = [];
+				num = 0;
+				assets = myPlayer.getAssets(true);
+				for( let asset of assets ){
+
+					const a = asset.clone();
+					a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
+
+					const div = await StaticModal.getGenericAssetButton(a, undefined, 'withdraw');
+					newDivs.push(div);
+					div.addEventListener('click', handleAssetClick);
+					++num;
+
+				}
+				this.withdrawInventory.replaceChildren(...newDivs);
+				this.withdrawEmpty.classList.toggle("hidden", Boolean(num));
+				this.withdrawHolding.innerText = num;
+
+
+				const handleExchange = event => {
+
+					const targ = event.target,
+						bank = event.target.classList.contains("bank")
+					;
+					game.exchangePlayerMoney(myPlayer, bank);
+
+				};
+
+				this.exchangeBank.classList.toggle('hidden', !myPlayer.canExchange(true));
+				this.exchangeBank.onclick = handleExchange;
+				this.exchangeInv.classList.toggle('hidden', !myPlayer.canExchange());
+				this.exchangeInv.onclick = handleExchange;
+
+
+			})
+		;
 		// Smith
 		this.add(new this("smith", "Smith"))
 			.setCloseOnCellMove(true)
@@ -2419,7 +2557,7 @@ export default class StaticModal{
 					for( let ch of this.assets.children )
 						ch.classList.toggle('selected', ch.dataset.id === asset.id );
 						
-					let viableTargets = myPlayer.assets.filter(el => el.checkTransmogViability(asset));
+					let viableTargets = myPlayer.getAssets().filter(el => el.checkTransmogViability(asset));
 
 					this.noTargetAssets.classList.toggle('hidden', Boolean(viableTargets.length));
 					this.targetViable.classList.toggle('hidden', !viableTargets.length);
@@ -4163,7 +4301,8 @@ export default class StaticModal{
 
 				// Create listing
 				let inv = [];
-				for(let asset of player.assets)
+				const assets = player.getAssets();
+				for(let asset of assets)
 					inv.push(asset);
 
 				// Sort by category
@@ -4769,13 +4908,10 @@ export default class StaticModal{
 				`;
 			})
 			.setProperties(function(){
-				
-
 			})
 			.setDraw(async function(){
-
-				
 			});
+		
 
 	}
 

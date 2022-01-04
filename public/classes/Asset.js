@@ -82,6 +82,7 @@ export default class Asset extends Generic{
 		this.expires = 0;				// Lets an item expire, deleting it after time has passed in game.
 		this.rem_unequip = false;		// Remove this on unequip
 		this.indestructible = false;	// This item is indestructible
+		this.inBank = false;			// This item is in the bank
 
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
@@ -140,7 +141,8 @@ export default class Asset extends Generic{
 			fitted : this.fitted,
 			mastercrafted : this.mastercrafted,
 			actives : Wrapper.saveThese(this.actives, full),
-			indestructible : this.indestructible
+			indestructible : this.indestructible,
+			inBank : this.inBank
 		};
 
 

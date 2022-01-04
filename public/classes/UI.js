@@ -1028,6 +1028,7 @@ export default class UI{
 					'<div class="interaction hidden" data-type="transmog"><img src="media/wrapper_icons/gold-nuggets.svg" /></div>'+
 					'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
 					'<div class="interaction hidden" data-type="altar"><img src="media/wrapper_icons/sword-altar.svg" /></div>'+
+					'<div class="interaction hidden" data-type="bank"><img src="media/wrapper_icons/bank.svg" /></div>'+
 					'<div class="interaction hidden" data-type="rent"><img src="media/wrapper_icons/bed.svg" /></div>'+
 					'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
 				'</div>'+
@@ -1228,6 +1229,7 @@ export default class UI{
 			transmog : myActive && game.transmogAvailableTo(p, myActive),
 			repair : myActive && game.smithAvailableTo(p, myActive),
 			altar : myActive && game.altarAvailableTo(p, myActive),
+			bank : myActive && game.bankAvailableTo(p, myActive),
 			gym : myActive && game.gymAvailableTo(p, myActive),
 			rent : myActive && rr,
 		};
@@ -1257,6 +1259,12 @@ export default class UI{
 			const shops = game.getShopsByPlayer(p).filter(sh => game.shopAvailableTo(sh, myActive));
 			this.openShopWindow(shops[0]);
 
+		}
+		else if( type === 'bank' ){
+
+			StaticModal.set('bank', p);
+			game.uiAudio( "shop_entered" );
+			
 		}
 		else if( type === 'repair' ){
 
@@ -1595,6 +1603,11 @@ export default class UI{
 			this.onPlayerInteractionUsed( "altar", p );
 		});
 
+		const showBank = interactions.bank;
+		$("div.interaction[data-type=bank]", el).toggleClass("hidden", !showBank).off('click').on('click', event => {
+			event.stopImmediatePropagation();
+			this.onPlayerInteractionUsed( "bank", p );
+		});
 
 		const showTransmog = interactions.transmog;
 		$("div.interaction[data-type=transmog]", el).toggleClass("hidden", !showTransmog).off('click').on('click', event => {
