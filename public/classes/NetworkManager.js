@@ -1085,10 +1085,10 @@ class NetworkManager{
 			else if( task === PT.toggleAction ){
 
 				let player = validatePlayer();
-				if( !args.gym || !args.action )
+				if( !args.action )
 					throw 'Invalid request';
 
-				game.toggleAction(game.getPlayerById(args.gym), player, args.action);
+				game.toggleAction(player, args.action);
 
 			}
 			else if( task === PT.toggleAFK )
@@ -1707,10 +1707,9 @@ class NetworkManager{
 		});
 	}
 
-	playerToggleAction( gymPlayer, player, actionID ){
+	playerToggleAction( player, actionID ){
 		this.sendPlayerAction(NetworkManager.playerTasks.toggleAction, {
 			player : player.id,
-			gym : gymPlayer.id,
 			action : actionID,
 		});
 	}
@@ -2183,7 +2182,7 @@ NetworkManager.playerTasks = {
 	sleep : 'sleep',									// {player:(str)sender_id, asset:(str)dungeon_asset_id, hours:(int)hours}
 	rentRoom : 'rentRoom',							// {renter:(str)rental_merchant_player_id, player:(str)player_id}
 	buyAction : 'buyAction',			// {player:(st)sender_id, gym:(str)gym_player_id, actionLearnable:(str)action_learnable_id}
-	toggleAction : 'toggleAction',		// {player:(st)sender_id, gym:(str)gym_player_id, action:(str)action_id}
+	toggleAction : 'toggleAction',		// {player:(st)sender_id, action:(str)action_id}
 	toggleAFK : 'toggleAFK',			// {afk:(bool)afk}
 	loadedCells : 'loadedCells',					// {cells:(int)cells_loaded}
 	inMenu : 'inMenu',					// {in:(int)menu}

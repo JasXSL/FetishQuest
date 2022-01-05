@@ -710,21 +710,16 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:2vmax;
 	}
 
-	#gym div.slots,
-	#gym div.right,
-	#gym div.left{
-		padding: 0.5vmax;
+	#inventory div[data-id="Actions"] div.titleSpan{
+		text-align: center;
+		padding: 2vmax;
 		border: 1px #666 solid;
 		background:rgba(0,0,0,.75);
 		margin:0.25vmax;
 		border-radius: 0.5vmax;
 	}
 
-	#gym div.slots{
-		text-align: center;
-		padding: 2vmax;
-	}
-
+	#inventory div[data-id="Actions"] div.titleSpan > span,
 	#gym div.titleSpan > span{
 		position: absolute;
 		font-size: 1.25vmax;
@@ -752,6 +747,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		height: 5.5vh;
 		vertical-align: middle;
 		border: 1px solid #AAA;
+		font-size:1.5vmax;
 	}
 	#gym div.right > div.purchasable > div.learnable.disabled{
 		background: rgba(100,0,0,.5);
@@ -778,7 +774,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		top:0;
 	}
 
-	#gym div.action{
+	#gym div.action,
+	#inventory div[data-id="Actions"] div.action{
 		background-size: cover;
 		overflow: visible;
 		display: inline-block;
@@ -792,10 +789,11 @@ div.passiveUpsideDown > div.content > div.bg{
 		display:none;
 	}
 	*/
-	#gym div.action > div.hotkey{
+	#inventory div[data-id="Actions"] div.action > div.hotkey{
 		display:block;
 	}
-	#gym div.action > div.uses{
+	#gym div.action > div.uses,
+	#inventory div[data-id="Actions"] div.action > div.uses{
 		display:block;
 		position:absolute;
 		color:#FAA;
@@ -1460,6 +1458,10 @@ div.passiveUpsideDown > div.content > div.bg{
 	#inventory div.cmTabContent{
 		min-width:80vw;
 		padding:1vmax 5vmax;
+	}
+	#inventory div.cmTabContent[data-id="Actions"]{
+		width:50vw;
+		min-width:0;
 	}
 
 	#inventory h3{

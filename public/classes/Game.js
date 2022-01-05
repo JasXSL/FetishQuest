@@ -3636,16 +3636,16 @@ export default class Game extends Generic{
 	}
 
 	// Activates or deactivates an action
-	toggleAction( gymPlayer, player, actionID ){
+	toggleAction( player, actionID ){
 
-		if( !this.gymAvailableTo(gymPlayer, player) )
-			throw 'Gym not available';
+		if( this.battle_active )
+			throw 'Battle active'
 
 		if( !(player instanceof Player) )
 			throw 'Invalid player';
 
 		if( !this.is_host ){
-			Game.net.playerToggleAction(gymPlayer, player, actionID);
+			Game.net.playerToggleAction(player, actionID);
 			return;
 		}
 

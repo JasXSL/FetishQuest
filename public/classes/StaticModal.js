@@ -452,17 +452,13 @@ export default class StaticModal{
 			.addRefreshOn(["players"])
 			.addTab("Actions", () => {
 				return `
-					<div class="slots titleSpan">
-						<span>Active</span>
-						<div class="slotsWrapper"></div>
-					</div>
 					<div style="display:flex; width:100%; justify-content:space-between">
 						<div class="left titleSpan">
-							<span>Available</span>
+							<span>Learned</span>
 							<div class="available"></div>
 						</div>
 						<div class="right titleSpan">
-							<span>Learnable</span>
+							<span>Not Learned</span>
 							<div class="purchasable"></div>
 						</div>
 					</div>`;
@@ -479,9 +475,6 @@ export default class StaticModal{
 					html += UI.Templates.actionButton;
 				$("div.slots > div.slotsWrapper", actives).html(html);
 
-
-
-				this.activeButtons = $("div.slots > div.slotsWrapper > div.action", actives);
 				this.purchasable = $("div.right > div.purchasable", actives);
 				this.available = $("div.left > div.available", actives);
 
@@ -492,42 +485,10 @@ export default class StaticModal{
 				if( !player )
 					return;
 
-				this.activeButtons.toggleClass("detrimental disabled", false);
-				
-				// Active actions
-				const numSlots = player.getNrActionSlots();
-				for( let i = 0; i<Player.MAX_ACTION_SLOTS; ++i ){
-
-					const el = $(this.activeButtons[i]);
-					el.toggleClass('button', true);
-
-					let action = player.getActionAtSlot(i);
-
-					// We have an action in this slot
-					if( action )
-						UI.setActionButtonContent(el, action, player, i+3);
-					else{
-
-						const slotUnlocked = i < numSlots;
-						el.toggleClass("tooltipParent", false).toggleClass('disabled', !slotUnlocked);
-						let content = '';
-						if( !slotUnlocked ){
-
-							const lv = Player.getLevelForActionSlot(i);
-							content = 'Lv. '+lv;
-
-						}
-						// Use the uses div to show when the slot is locked
-						$('div.uses', el).html(content);
-
-						
-					}
-					el.toggleClass('empty', !action);
-
-				}
-
 				// Inactive learned actions
-				const inactive = player.getInactiveActions(),
+				const inactive = player.actions.filter(action => {
+					return !action.std && !action.hidden && !action.semi_hidden;
+				}),
 					learnable = player.getUnlockableActions();
 
 				let inactiveEls = $("> div.action", this.available),
@@ -590,29 +551,6 @@ export default class StaticModal{
 					$("> span", el).html('No unlearned actions. Check back later!');
 					$("> div.action", el).toggleClass("hidden", true);
 				}
-				
-
-				// Bind stuff
-				this.activeButtons.off('click').on('click', event => {
-					
-					const el = $(event.currentTarget),
-						id = el.attr('data-id');
-					if( el.is('.empty') )
-						return;
-
-					game.toggleAction(gymPlayer, player, id);
-					game.uiAudio( "spell_disable" );
-
-				});
-
-				inactiveEls.off('click').on('click', event => {
-					const el = $(event.currentTarget),
-						id = el.attr('data-id');
-
-					game.toggleAction(gymPlayer, player, id);
-					game.uiAudio( "spell_enable" );
-
-				});
 
 				$("> div.learnable:not(.disabled)", this.purchasable).off('click').on('click', event => {
 					
@@ -1173,7 +1111,6 @@ export default class StaticModal{
 		// Player display
 		this.add(new this("player", "Player"))
 			.addRefreshOn(['players'])
-
 			.addTab("Character", () => {
 				return `
 
@@ -1199,6 +1136,7 @@ export default class StaticModal{
 				`;
 
 			})
+			
 			// Stats & Stats
 			.addTab("Edit", () => {
 
@@ -1276,6 +1214,7 @@ export default class StaticModal{
 			.setProperties(function(){
 
 				const cDom = this.getTabDom('Character');
+				
 
 				this.randomizerOption = null;	// Last picked option in the randomizer
 
@@ -1381,7 +1320,6 @@ export default class StaticModal{
 
 			})
 			.setDraw(async function( player ){
-
 				
 				
 				// Character tab
@@ -1547,6 +1485,10 @@ export default class StaticModal{
 
 					}
 					cDivs.secondaryStats.html(html);
+				//
+
+
+
 
 
 				// DM Tab
@@ -3989,6 +3931,18 @@ export default class StaticModal{
 					</div>
 				`;
 			})
+			.addTab("Actions", () => {
+				return `
+					<div class="slots titleSpan">
+						<span>Active</span>
+						<div class="slotsWrapper"></div>
+					</div>
+					<div class="titleSpan">
+						<span>Available</span>
+						<div class="available"></div>
+					</div>`;
+			})
+			
 			.addTab("Library", () => {
 				return `
 					<p>This is your party's shared recollection of stories.</p>
@@ -4001,6 +3955,18 @@ export default class StaticModal{
 			.setProperties(function(){
 				
 				const main = this.getTabDom('Inventory')[0];
+
+				const actives = this.actives = this.getTabDom('Actions');
+
+				let html = '';
+				for( let i=0; i < Player.MAX_ACTION_SLOTS; ++i )
+					html += UI.Templates.actionButton;
+				$("div.slots > div.slotsWrapper", actives).html(html);
+
+				this.actions = {
+					activeButtons : $("div.slots > div.slotsWrapper > div.action", actives),
+					available : $("div.titleSpan > div.available", actives),
+				};
 
 				this.main = {
 					equipment : main.querySelector('div.equipment'),
@@ -4033,318 +3999,400 @@ export default class StaticModal{
 				if( !player )
 					return;
 
-
-				this.main.weightBar.style = 'width:'+Math.max(0, Math.min(100, player.getCarriedWeight()/player.getCarryingCapacity()*100))+'%';
-				this.main.weightContent.innerText = (Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg';
-				const encumbered = player.getCarriedWeight() > player.getCarryingCapacity();
-				this.main.weight.classList.toggle('red', encumbered);
-				this.main.weight.classList.toggle('yellow', !encumbered);
-
-
-				// Handle inventory asset click
-				const onAssetClick = event => {
-
-					const 
-						element = event.currentTarget, 
-						ui = game.ui,
-						th = this
-					;
-					let id = element.dataset.id;
-					let asset = player.getAssetById(id);
+				// Actions
+					this.toggleTab('Actions', player === game.getMyActivePlayer());
+					this.actions.activeButtons.toggleClass("detrimental disabled", false);
 					
+					// Active actions
+					const numSlots = player.getNrActionSlots();
+					for( let i = 0; i<Player.MAX_ACTION_SLOTS; ++i ){
 
-					if( event.shiftKey  && game.is_host ){
+						const el = $(this.actions.activeButtons[i]);
+						el.toggleClass('button', true);
 
-						if( asset )
-							StaticModal.setWithTab( 'assetLibrary', 'Editor', player, asset );
+						let action = player.getActionAtSlot(i);
 
-					}
-					// Toggle equip / use
-					else if( asset ){
+						// We have an action in this slot
+						if( action )
+							UI.setActionButtonContent(el, action, player, i+2);
+						else{
 
-						const isHotbar = element.classList.contains('equipmentSlot');
+							const slotUnlocked = i < numSlots;
+							el.toggleClass("tooltipParent", false).toggleClass('disabled', !slotUnlocked);
+							let content = '';
+							if( !slotUnlocked ){
 
-						const modal = game.ui.modal;
-						modal.prepareSelectionBox();
-						
-
-						if( isHotbar )
-							modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
-						else if( player.canEquip(asset) )
-							modal.addSelectionBoxItem( 'Equip', '', 'equip' );
-
-						if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
-							modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
-						}
-
-						const game_actions = asset.game_actions.filter(el => el.validate(player));
-						for( let i in game_actions ){
-
-							const a = game_actions[i];
-							modal.addSelectionBoxItem(a.desc, false, 'GA:'+a.id);
-
-						}
-						
-
-						if( 
-							game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
-							!game.battle_active &&
-							!asset.soulbound
-						)
-							modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
-
-						modal.addSelectionBoxItem( 'Link', false, 'link' );
-
-						if( !game.battle_active )
-							modal.addSelectionBoxItem( 'Destroy', false, 'destroy' );
-						
-
-
-						modal.onSelectionBox(function(){
-
-							ui.onTooltipMouseout();
-							let element = this;
-							const task = element.dataset.id;
-
-							if( (task === 'unequip' || task === 'equip') && asset.equippable() && game.equipPlayerItem(player, id) ){
-								
-								if( asset.loot_sound )
-									game.playFxAudioKitById(asset.loot_sound, player, player );
-								th.refresh();
-								ui.draw();
-								
-							}
-							else if( task === 'link' ){
-								game.ui.sendChat( "/me highlights $ITM"+asset.id+"$" );
-							}
-							else if( task === 'use' ){
-
-								let action = asset.use_action;
-								let targets = action.getViableTargets();
-								if( !targets.length )
-									return;
-
-								ui.action_selected = action;
-								ui.targets_selected = [];
-
-								if( action.castable(true) ){
-									ui.targets_selected = [];
-									ui.drawTargetSelector();
-								}
-
-								if( action.targetable() )
-									th.close();
-								else
-									th.refresh();
-								
-							}
-							else if( task == 'trade' ){
-
-								if( game.battle_active ){
-
-									if( player.ap < 3 ){
-
-										modal.addError("Not enough AP");
-										modal.closeSelectionBox();
-										return;
-
-									}
-									else if( game.getTurnPlayer().id !== player.id ){
-
-										modal.closeSelectionBox();
-										modal.addError("Not your turn");
-										return;
-
-									}
-
-								}
-
-								if( asset.stacking && asset._stacks > 1 ){
-
-									modal.makeSelectionBoxForm(
-										'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
-										function(){
-
-											const amount = Math.floor( this.querySelector('input').value );
-											if( !amount )
-												return;
-											ui.drawAssetTradeTarget(asset, amount);
-
-										}
-									);
-									return;
-
-								}
-								ui.drawAssetTradeTarget(asset);
-								return;
+								const lv = Player.getLevelForActionSlot(i);
+								content = 'Lv. '+lv;
 
 							}
-							else if( task === 'destroy' ){
+							// Use the uses div to show when the slot is locked
+							$('div.uses', el).html(content);
 
-								modal.prepareSelectionBox( true );
-								// Delete from stack
-								if( asset.stacking && asset._stacks >1 ){
-
-									modal.makeSelectionBoxForm(
-										'Amount to destroy: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
-										function(){
-
-											const amount = Math.floor( this.querySelector('input').value );
-											if( amount > 0 ){
-												if(game.deletePlayerItem( player, id, parseInt(amount))){
-													th.refresh();
-													ui.draw();
-												}
-											}
-
-										}
-									);
-
-								}
-								// Delete single
-								else{
-
-									modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
-									modal.onSelectionBox(function(){
-
-										const pid = this.dataset.id;
-										if( pid === 'delete' && game.deletePlayerItem( player, id) ){
-											th.refresh();
-											ui.draw();
-										}
-										modal.closeSelectionBox();
-
-									});
-
-								}
 							
-								return;
-							}
-							else if( task.startsWith('GA:') ){
-								game.useAssetGameAction( asset.getUseActionById(task.substring(3)));
-							}
+						}
+						el.toggleClass('empty', !action);
 
-							modal.closeSelectionBox();
-
-
-						});
-						
 					}
 
-					ui.onTooltipMouseout();
+					// Inactive learned actions
+					const inactive = player.getInactiveActions();
 
-				};
-
-
-				// Create equipment slots
-				let slots = [
-					{slot:Asset.Slots.upperBody, icon:'breastplate'},
-					{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
-					{slot:Asset.Slots.hands, icon:'crossed-swords'}
-				];
-				const createEquipSlot = async (slot, fallback, index = 0) => {
-
-					const asset = player.getEquippedAssetsBySlots(slot, true)[index];
-
-					const div = document.createElement('div');
-					div.classList.add('equipmentSlot', 'item', 'tooltipParent');
-					if( asset )
-						div.classList.add(Asset.RarityNames[asset.rarity]);
-					if(asset && asset.durability <= 0 )
-						div.classList.add('broken');
-
-					div.dataset.slot = slot;
+					let inactiveEls = $("> div.action", this.actions.available);
 					
+					// Append icons if need be
+					for( let i=inactiveEls.length; i<inactive.length; ++i ){
+						this.actions.available.append(UI.Templates.actionButton);
+					}
+					inactiveEls = $("> div.action", this.actions.available);
+					inactiveEls.toggleClass("hidden", true);
 
-					if( asset ){
+					for( let i =0; i<inactive.length; ++i ){
 
-						div.dataset.id = asset.id || '';
-
-						const img = await asset.getImgElement();
-						div.append(img);
-
-						const tooltip = document.createElement('div');
-						div.append(tooltip);
-						tooltip.classList.add('tooltip');
-						tooltip.innerHTML = asset.getTooltipText();
+						const el = inactiveEls[i],
+							abil = inactive[i];
+						UI.setActionButtonContent(el, abil, player);
 
 					}
-					else{
+
+					// Bind stuff
+					this.actions.activeButtons.off('click').on('click', event => {
 						
-						const img = document.createElement('img');
-						div.append(img);
-						img.classList.add('bg', 'template');
-						img.src = fallback;
+						const el = $(event.currentTarget),
+							id = el.attr('data-id');
+						if( el.is('.empty') )
+							return;
 
-					}
+						game.toggleAction(player, id);
+						game.uiAudio( "spell_disable" );
 
-					div.addEventListener('click', onAssetClick);
+					});
 
-					return div;
+					inactiveEls.off('click').on('click', event => {
+						const el = $(event.currentTarget),
+							id = el.attr('data-id');
 
+						game.toggleAction(player, id);
+						game.uiAudio( "spell_enable" );
 
-				};
-				let divs = [];
-				for( let slot of slots )
-					divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
-				this.main.equipment.replaceChildren(...divs);
+					});
 
-				divs = [];
-				for( let i =0; i<3; ++i )
-					divs.push(await createEquipSlot(Asset.Slots.action, 'media/wrapper_icons/potion-ball.svg', i));
-				this.main.toolbelt.replaceChildren(...divs);
-
-				slots = [
-					{slot:Asset.Slots.upperBodyCosmetic, icon:'gauntlet'},
-					{slot:Asset.Slots.lowerBodyCosmetic, icon:'leg-armor'},
-					{slot:Asset.Slots.jewelleryCosmetic, icon:'big-diamond-ring'}
-				];
-				divs = [];
-				for( let slot of slots )
-					divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
-				this.main.cosmetic.replaceChildren(...divs);
-
-				// Create listing
-				let inv = [];
-				const assets = player.getAssets();
-				for(let asset of assets)
-					inv.push(asset);
-
-				// Sort by category
-				inv = inv.filter(el => !el.equipped).sort((a,b) => {
-					if( a.category !== b.category ){
-						return a.category < b.category ? -1 : 1;
-					}
-					if(a.name === b.name)
-						return 0;
-					return a.name < b.name ? -1 : 1;
-				});
-
-				divs = [];
-				const mainInv = this.main.mainInventory;
-				let cat;
-				for( let item of inv ){
-
-					if( !cat || item.category !== cat ){
-
-						cat = item.category;
-						const title = document.createElement('h3');
-						divs.push(title);
-						title.classList.add('category');
-						title.innerText = Asset.CategoriesNames[cat];
-						
-					}
-
-					const div = await StaticModal.getGenericAssetButton(item);
-					divs.push(div);
-					
-				}
-				mainInv.replaceChildren(...divs);
-
+				//
 				
-				mainInv.querySelectorAll('div.item[data-id]').forEach(el => el.addEventListener('click', onAssetClick));
+				
+				// Inventory
+
+					this.main.weightBar.style = 'width:'+Math.max(0, Math.min(100, player.getCarriedWeight()/player.getCarryingCapacity()*100))+'%';
+					this.main.weightContent.innerText = (Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg';
+					const encumbered = player.getCarriedWeight() > player.getCarryingCapacity();
+					this.main.weight.classList.toggle('red', encumbered);
+					this.main.weight.classList.toggle('yellow', !encumbered);
 
 
+					// Handle inventory asset click
+					const onAssetClick = event => {
+
+						const 
+							element = event.currentTarget, 
+							ui = game.ui,
+							th = this
+						;
+						let id = element.dataset.id;
+						let asset = player.getAssetById(id);
+						
+
+						if( event.shiftKey  && game.is_host ){
+
+							if( asset )
+								StaticModal.setWithTab( 'assetLibrary', 'Editor', player, asset );
+
+						}
+						// Toggle equip / use
+						else if( asset ){
+
+							const isHotbar = element.classList.contains('equipmentSlot');
+
+							const modal = game.ui.modal;
+							modal.prepareSelectionBox();
+							
+
+							if( isHotbar )
+								modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
+							else if( player.canEquip(asset) )
+								modal.addSelectionBoxItem( 'Equip', '', 'equip' );
+
+							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
+								modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
+							}
+
+							const game_actions = asset.game_actions.filter(el => el.validate(player));
+							for( let i in game_actions ){
+
+								const a = game_actions[i];
+								modal.addSelectionBoxItem(a.desc, false, 'GA:'+a.id);
+
+							}
+							
+
+							if( 
+								game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
+								!game.battle_active &&
+								!asset.soulbound
+							)
+								modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
+
+							modal.addSelectionBoxItem( 'Link', false, 'link' );
+
+							if( !game.battle_active )
+								modal.addSelectionBoxItem( 'Destroy', false, 'destroy' );
+							
+
+
+							modal.onSelectionBox(function(){
+
+								ui.onTooltipMouseout();
+								let element = this;
+								const task = element.dataset.id;
+
+								if( (task === 'unequip' || task === 'equip') && asset.equippable() && game.equipPlayerItem(player, id) ){
+									
+									if( asset.loot_sound )
+										game.playFxAudioKitById(asset.loot_sound, player, player );
+									th.refresh();
+									ui.draw();
+									
+								}
+								else if( task === 'link' ){
+									game.ui.sendChat( "/me highlights $ITM"+asset.id+"$" );
+								}
+								else if( task === 'use' ){
+
+									let action = asset.use_action;
+									let targets = action.getViableTargets();
+									if( !targets.length )
+										return;
+
+									ui.action_selected = action;
+									ui.targets_selected = [];
+
+									if( action.castable(true) ){
+										ui.targets_selected = [];
+										ui.drawTargetSelector();
+									}
+
+									if( action.targetable() )
+										th.close();
+									else
+										th.refresh();
+									
+								}
+								else if( task == 'trade' ){
+
+									if( game.battle_active ){
+
+										if( player.ap < 3 ){
+
+											modal.addError("Not enough AP");
+											modal.closeSelectionBox();
+											return;
+
+										}
+										else if( game.getTurnPlayer().id !== player.id ){
+
+											modal.closeSelectionBox();
+											modal.addError("Not your turn");
+											return;
+
+										}
+
+									}
+
+									if( asset.stacking && asset._stacks > 1 ){
+
+										modal.makeSelectionBoxForm(
+											'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
+											function(){
+
+												const amount = Math.floor( this.querySelector('input').value );
+												if( !amount )
+													return;
+												ui.drawAssetTradeTarget(asset, amount);
+
+											}
+										);
+										return;
+
+									}
+									ui.drawAssetTradeTarget(asset);
+									return;
+
+								}
+								else if( task === 'destroy' ){
+
+									modal.prepareSelectionBox( true );
+									// Delete from stack
+									if( asset.stacking && asset._stacks >1 ){
+
+										modal.makeSelectionBoxForm(
+											'Amount to destroy: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
+											function(){
+
+												const amount = Math.floor( this.querySelector('input').value );
+												if( amount > 0 ){
+													if(game.deletePlayerItem( player, id, parseInt(amount))){
+														th.refresh();
+														ui.draw();
+													}
+												}
+
+											}
+										);
+
+									}
+									// Delete single
+									else{
+
+										modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
+										modal.onSelectionBox(function(){
+
+											const pid = this.dataset.id;
+											if( pid === 'delete' && game.deletePlayerItem( player, id) ){
+												th.refresh();
+												ui.draw();
+											}
+											modal.closeSelectionBox();
+
+										});
+
+									}
+								
+									return;
+								}
+								else if( task.startsWith('GA:') ){
+									game.useAssetGameAction( asset.getUseActionById(task.substring(3)));
+								}
+
+								modal.closeSelectionBox();
+
+
+							});
+							
+						}
+
+						ui.onTooltipMouseout();
+
+					};
+
+
+					// Create equipment slots
+					let slots = [
+						{slot:Asset.Slots.upperBody, icon:'breastplate'},
+						{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
+						{slot:Asset.Slots.hands, icon:'crossed-swords'}
+					];
+					const createEquipSlot = async (slot, fallback, index = 0) => {
+
+						const asset = player.getEquippedAssetsBySlots(slot, true)[index];
+
+						const div = document.createElement('div');
+						div.classList.add('equipmentSlot', 'item', 'tooltipParent');
+						if( asset )
+							div.classList.add(Asset.RarityNames[asset.rarity]);
+						if(asset && asset.durability <= 0 )
+							div.classList.add('broken');
+
+						div.dataset.slot = slot;
+						
+
+						if( asset ){
+
+							div.dataset.id = asset.id || '';
+
+							const img = await asset.getImgElement();
+							div.append(img);
+
+							const tooltip = document.createElement('div');
+							div.append(tooltip);
+							tooltip.classList.add('tooltip');
+							tooltip.innerHTML = asset.getTooltipText();
+
+						}
+						else{
+							
+							const img = document.createElement('img');
+							div.append(img);
+							img.classList.add('bg', 'template');
+							img.src = fallback;
+
+						}
+
+						div.addEventListener('click', onAssetClick);
+
+						return div;
+
+
+					};
+					let divs = [];
+					for( let slot of slots )
+						divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
+					this.main.equipment.replaceChildren(...divs);
+
+					divs = [];
+					for( let i =0; i<3; ++i )
+						divs.push(await createEquipSlot(Asset.Slots.action, 'media/wrapper_icons/potion-ball.svg', i));
+					this.main.toolbelt.replaceChildren(...divs);
+
+					slots = [
+						{slot:Asset.Slots.upperBodyCosmetic, icon:'gauntlet'},
+						{slot:Asset.Slots.lowerBodyCosmetic, icon:'leg-armor'},
+						{slot:Asset.Slots.jewelleryCosmetic, icon:'big-diamond-ring'}
+					];
+					divs = [];
+					for( let slot of slots )
+						divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
+					this.main.cosmetic.replaceChildren(...divs);
+
+					// Create listing
+					let inv = [];
+					const assets = player.getAssets();
+					for(let asset of assets)
+						inv.push(asset);
+
+					// Sort by category
+					inv = inv.filter(el => !el.equipped).sort((a,b) => {
+						if( a.category !== b.category ){
+							return a.category < b.category ? -1 : 1;
+						}
+						if(a.name === b.name)
+							return 0;
+						return a.name < b.name ? -1 : 1;
+					});
+
+					divs = [];
+					const mainInv = this.main.mainInventory;
+					let cat;
+					for( let item of inv ){
+
+						if( !cat || item.category !== cat ){
+
+							cat = item.category;
+							const title = document.createElement('h3');
+							divs.push(title);
+							title.classList.add('category');
+							title.innerText = Asset.CategoriesNames[cat];
+							
+						}
+
+						const div = await StaticModal.getGenericAssetButton(item);
+						divs.push(div);
+						
+					}
+					mainInv.replaceChildren(...divs);
+
+					
+					mainInv.querySelectorAll('div.item[data-id]').forEach(el => el.addEventListener('click', onAssetClick));
+
+				// 
 
 				// Library
 				const booksRead = game.books_read.keys();
