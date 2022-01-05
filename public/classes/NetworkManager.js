@@ -1674,7 +1674,7 @@ class NetworkManager{
 			asset = asset.id;
 		if( typeof player === "object" )
 			player = player.id;
-		this.sendPlayerAction(NetworkManager.playerTasks.sellItem, {
+		this.sendPlayerAction(NetworkManager.playerTasks.bankItem, {
 			asset : asset,
 			bankPlayer : bankPlayer,
 			amount : amount,

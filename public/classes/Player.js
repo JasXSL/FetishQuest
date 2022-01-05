@@ -1594,9 +1594,16 @@ export default class Player extends Generic{
 		return this.addAsset(asset, amount);
 
 	}
+	// Use -1 to get from either
 	getAssetById( id, inBank ){
 
-		let assets = this.getAssets(inBank);
+		let assets;
+		if( inBank === -1 )
+			assets = this.getAssets(true).concat(this.getAssets(false));
+		else
+			assets = this.getAssets(inBank);
+
+
 		for( let asset of assets ){
 
 			if( asset.id === id )

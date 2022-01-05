@@ -3370,7 +3370,7 @@ export default class Game extends Generic{
 			player.moveAssetFromBank(asset, amount);
 
 		this.save();
-		//this.playFxAudioKitById("sell_item", player, player, undefined, true);
+		this.playFxAudioKitById(asset.loot_sound, player, player, undefined, true);
 		this.ui.addText(player.getColoredName()+" made a "+(deposit ? 'deposit' : 'withdrawal'), "purchase", player.id, player.id, 'purchase');
 
 	}
@@ -3654,6 +3654,18 @@ export default class Game extends Generic{
 
 	}
 
+	// Tries to search all players for an item by id
+	getPlayerAsset( id ){
+		
+		for( let player of this.players ){
+
+			const asset = player.getAssetById(id, -1);
+			if( asset )
+				return asset;
+
+		}
+
+	}
 
 
 	/* GAME-LIBRARY MANAGEMENT 

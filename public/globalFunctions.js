@@ -173,6 +173,19 @@ function stylizeText( txt ){
 		out+=a;
 	}
 	out = out.split('\\|').join('|');
+
+	let text = out.split("$ITM");
+	out = text.shift();
+	for( let t of text ){
+
+		let a = t.split('$');
+		let url = a.shift();
+		a = '<span data-il="'+esc(url)+'" class="ilToUpdate tooltipParent itemLink"><span>ITEM</span><div class="tooltip"></div></span>';
+		out+=a;
+
+	}
+	// $ITM9dk9BMUgxe$
+
 	return out;
 
 }

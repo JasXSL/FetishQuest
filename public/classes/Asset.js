@@ -647,6 +647,7 @@ export default class Asset extends Generic{
 
 		html += '<div class="assetWrappers">';
 		for( let wrapper of this.wrappers ){
+
 			if( wrapper.description ){
 				
 				let color = '#FAA';
@@ -757,7 +758,7 @@ export default class Asset extends Generic{
 				name : 'statsAutoGen',
 				detrimental : false,
 				effects : [],
-				rarity : 1
+				rarity : 1,
 			});
 			this.wrappers.unshift(names);
 		}
@@ -924,6 +925,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		name : 'statsAutoGen',
 		detrimental : false,
 		effects : [],
+		rarity : 1
 		// tags : [stdTag.wrEnchant], - This is technically not an enchant
 	});
 	for( let i in template.bonStats )

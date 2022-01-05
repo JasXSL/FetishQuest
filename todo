@@ -11,11 +11,6 @@ Overhaul:
 	Test the boss fights
 	Test changed actions
 
-	BANK
-		- Add sound effects
-		- Test netcode
-		- Add bank to Yuug city
-		
 	GYM CHANGES
 		- Unlock actions at a gym
 		- Select unlocked actions from a new tab in your character panel

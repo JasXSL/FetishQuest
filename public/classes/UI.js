@@ -1263,7 +1263,7 @@ export default class UI{
 		else if( type === 'bank' ){
 
 			StaticModal.set('bank', p);
-			game.uiAudio( "shop_entered" );
+			game.uiAudio( "bank" );
 			
 		}
 		else if( type === 'repair' ){
@@ -2147,6 +2147,28 @@ export default class UI{
 
 	}
 
+	handleItemLinks( parentElement ){
+		
+		parentElement.querySelectorAll("span.ilToUpdate").forEach(el => {
+
+			let id = el.dataset.il;
+			el.classList.toggle("ilToUpdate", false);
+			const asset = game.getPlayerAsset(id);
+			if( asset ){
+				console.log("Found", asset);
+				let sub = el.querySelector('span');
+				sub.innerText = asset.name;
+				sub.style.color = Asset.RarityColors[asset.rarity];
+				el.querySelector('div.tooltip').innerHTML = asset.getTooltipText();
+
+			}
+			else
+				el.innerText = 'Unknown item';
+
+		});
+
+	}
+
 	// Prints a message
 	// audioObj can be an object with {id:(str)soundKitId, slot:(str)armorSlot}
 	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture ){
@@ -2173,8 +2195,6 @@ export default class UI{
 				targetID : targetID,
 				acn : additionalClassName,
 			});
-
-		
 
 		let target = this.parent.getPlayerById(targetID),
 			sender = this.parent.getPlayerById(attackerID);
@@ -2203,6 +2223,8 @@ export default class UI{
 			acn.push('turnChange');
 
 		let txt = stylizeText(text);
+
+
 		if( ~acn.indexOf('sided') )
 			txt = '<div class="sub">'+txt+'</div>';
 
@@ -2218,7 +2240,8 @@ export default class UI{
 
 
 			let l = $(line);
-			this.mapChat.prepend(l);
+			this.handleItemLinks(l[0]);
+			this.mapChat.prepend(l[0]);
 			setTimeout(() => {
 				l.toggleClass("fade", true);
 				setTimeout(() => {
@@ -2228,10 +2251,14 @@ export default class UI{
 
 		}
 		
-		this.text.append(line);
+		let div = $(line)[0];
+		this.text.append(div);
+		this.handleItemLinks(div);
 		while($("> div", this.text).length > Game.LOG_SIZE)
 			$("> div:first", this.text).remove();
 		this.text.scrollTop(this.text.prop("scrollHeight"));
+		this.bindTooltips();
+
 		
 	}
 	

@@ -16,6 +16,10 @@ body, html{
 	box-sizing: border-box;
 }
 
+.bold{
+	font-weight: bold;
+}
+
 .hidden{
 	display: none !important;
 }
@@ -107,6 +111,14 @@ div.button.newItems{
 div.button.grey{
 	border-color: #666;
 	filter:brightness(75%);
+}
+
+span.itemLink{
+	font-weight: bold;
+	cursor: pointer;
+}
+span.itemLink:hover{
+	color:#FFF !important;
 }
 
 #groupFinder > div.newItems{

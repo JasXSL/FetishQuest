@@ -4093,6 +4093,8 @@ export default class StaticModal{
 						)
 							modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
 
+						modal.addSelectionBoxItem( 'Link', false, 'link' );
+
 						if( !game.battle_active )
 							modal.addSelectionBoxItem( 'Destroy', false, 'destroy' );
 						
@@ -4111,6 +4113,9 @@ export default class StaticModal{
 								th.refresh();
 								ui.draw();
 								
+							}
+							else if( task === 'link' ){
+								game.ui.sendChat( "/me highlights $ITM"+asset.id+"$" );
 							}
 							else if( task === 'use' ){
 
