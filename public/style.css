@@ -948,6 +948,11 @@ div.passiveUpsideDown > div.content > div.bg{
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
+		flex-wrap: wrap;
+	}
+	#player div[data-id=Character] > div.content{
+		max-height:60vh;
+		overflow:auto;
 	}
 	#player div[data-id=Character] div.actions div.action{
 		width:5vmax; height:5vmax;

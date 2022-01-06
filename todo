@@ -58,19 +58,14 @@ Overhaul:
 
 
 	Utility passives:
-		- Exhibitionist: Able to take off clothes at 0 AP cost and you can put on clothes at half cost.
-		- Able to see enemy actions.
+		- Exhibitionist: Taking on/off clothes in combat costs no AP.
+		- Prone: 50% increased crit
+		- Thrash: When dazed, get a cheap AoE
+		- Takes no damage penalty from not wearing gear.
 		- Add an extra action slot.
+		-
+		- 
 
-
-
-	Class passives:
-		- Monk: Takes no damage penalty from not wearing gear.
-		- Warrior: Damage taken from crits reduced by 50%. When reaching 0 HP. Prevent dying for 1 round.
-		- Rogue: Crit damage increased by 50%. The first item bought in a store each day is half off.
-		- Cleric: 
-		- Tentaclemancer: Each time any player reaches max arousal, restore 30% MP
-		- Elementalist: Elemental AP damage has a 30% chance of granting the caster 1 AP.
 
 	Main quest:
 		Part 2:

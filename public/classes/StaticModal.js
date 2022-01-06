@@ -1113,12 +1113,15 @@ export default class StaticModal{
 			.addRefreshOn(['players'])
 			.addTab("Character", () => {
 				return `
-
 					<h2 class="name"></h2>
 					<em class="subName"></em>
 					
-					<p class="description"></p>
-
+					<div class="content">
+						<p class="description"></p>
+						<div class="export">
+							<input type="button" value="Export" class="exportPlayer" />
+						</div>
+					</div>
 					<div class="right cmContentBlock bgMarble">
 						<div class="image"></div>
 						<div class="expBar">
@@ -1130,9 +1133,7 @@ export default class StaticModal{
 						<div class="equipment inventory"></div>
 						<div class="secondaryStats flexAuto"></div>
 					</div>
-					<div class="export">
-						<input type="button" value="Export" class="exportPlayer" />
-					</div>
+					
 				`;
 
 			})
@@ -1221,7 +1222,7 @@ export default class StaticModal{
 				this.character = {
 					name : $("> h2.name", cDom),
 					subName : $("> em.subName", cDom),
-					description : $("> p.description", cDom),
+					description : $("> div.content > p.description", cDom),
 					devtool : $("> div.devtool", cDom),
 
 					right : $("> div.right", cDom),

@@ -1238,7 +1238,11 @@ class Effect extends Generic{
 					}
 
 				}else if(amt){
+
+					t.onHealingTaken(s, type, Math.abs(amt));
+					s.onHealingDone(t, type, Math.abs(amt));
 					game.ui.addText( t.getColoredName()+" gained "+changehp+" HP"+(changeblk ? ' +'+changeblk+' block' : '')+(wrapper.name ? ' from '+wrapper.name : '')+(crit ? ' (CRITICAL)' : '')+".", undefined, s.id, t.id, 'statMessage healing' );
+
 				}
 
 

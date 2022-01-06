@@ -134,10 +134,17 @@ export default class Player extends Generic{
 		this._damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
 		// Same as above, but DONE by this player
-		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
-		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
+		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions used by this player since last turn. Not the actual damage.
+		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points this player did since last turn.
 		this._riposted_since_last = {};			// playerID : num_times_this_player_riposted_use
 		this._riposting_since_last = {};		// playerID : num_times_we_riposted_them
+		// Healing received
+		this._healing_a_since_last = {};			// playerID : {(str)damageType:(int)nrHealingAttacks} - nr healing actions received since last turn. Not the actual damage.
+		this._healing_p_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total HP player received by heals last turn
+		// Healing done
+		this._d_healing_a_since_last = {};			// playerID : {(str)damageType:(int)nrHealingAttacks} - nr healing actions done since last turn.
+		this._d_healing_p_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total healing points player did since last turn.
+		
 		// If an object should be netcoded, it needs to be a collection, otherwise it's passed by reference
 		this._targeted_by_since_last = new Collection();			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
 		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
@@ -297,6 +304,10 @@ export default class Player extends Generic{
 				out._turn_action_used = this._turn_action_used;
 				out._riposted_since_last = this._riposted_since_last;
 				out._riposting_since_last = this._riposting_since_last;
+				out._healing_a_since_last = this._healing_a_since_last;
+				out._healing_p_since_last = this._healing_p_since_last;
+				out._d_healing_a_since_last = this._d_healing_a_since_last;
+				out._d_healing_p_since_last = this._d_healing_p_since_last;
 			}
 
 		}
@@ -385,77 +396,64 @@ export default class Player extends Generic{
 
 	/* Metadata */
 
+	// Helper method for below to summarize
+	summarizeSinceLast( obj, player, type ){
+
+		if( player && player.constructor === Player )
+			player = player.id;
+
+		let block = obj[player];
+		if( !block )
+			return 0;
+
+		let out = 0;
+		for( let i in block ){
+
+			if( i === type || type === undefined )
+				out += block[i];
+
+		}
+
+		return out;
+
+	}
+
 	// For these functions, type is an Action.Types value, if undefined, it counts ALL types
 	// Returns how many damaging actions a player has used since this one's last turn
 	damagingSinceLastByPlayer( player, type ){
-
-		if( player && player.constructor === Player )
-			player = player.id;
-
-		if( !this._damaging_since_last[player] )
-			return 0;
-
-		let out = 0;
-		for( let i in this._damaging_since_last[player] ){
-
-			if( i === type || type === undefined )
-				out += this._damaging_since_last[player][i];
-
-		}
-
-		return out;
+		return this.summarizeSinceLast(this._damaging_since_last, player, type);
 	}
-	// Damge taken since last turn from player to this
+	// Returns how many healing player has used on us since last round
+	healingActionsTakenSinceLastByPlayer( player, type ){
+		return this.summarizeSinceLast(this._healing_a_since_last, player, type);
+	}
+
+	// Total damage taken taken since last turn from player to this
 	damageSinceLastByPlayer( player, type ){
-
-		if( player && player.constructor === Player )
-			player = player.id;
-		if( !this._damage_since_last[player] )
-			return 0;
-
-		let out = 0;
-		for( let i in this._damage_since_last[player] ){
-
-			if( type === undefined || i === type )
-				out += this._damage_since_last[player][i];
-
-		}
-
-		return out;
-
+		return this.summarizeSinceLast(this._damage_since_last, player, type);
 	}
+	// Total healing points taken since last turn from player to this one
+	healingPointsTakenSinceLastByPlayer( player, type ){
+		return this.summarizeSinceLast(this._healing_p_since_last, player, type);
+	}
+
+	// Total damaging actions we've used against player
 	damagingDoneSinceLastToPlayer( player, type ){
-
-		if( player && player.constructor === Player )
-			player = player.id;
-		if( !this._d_damaging_since_last[player] )
-			return 0;
-		let out = 0;
-		for( let i in this._d_damaging_since_last[player] ){
-			if( i === type || type === undefined )
-				out += this._d_damaging_since_last[player][i];
-		}
-		return out;
-
+		return this.summarizeSinceLast(this._d_damaging_since_last, player, type);
 	}
-	// Damage this has done to player since last round
+	// Total healing actions we've used against player
+	healingActionsDoneSinceLastToPlayer( player, type ){
+		return this.summarizeSinceLast(this._d_healing_a_since_last, player, type);
+	}
+	// Damage points this has done to player since last round
 	damageDoneSinceLastToPlayer( player, type ){
-
-		if( player && player.constructor === Player )
-			player = player.id;
-
-		if( !this._d_damage_since_last[player] )
-			return 0;
-
-		let out = 0;
-		for( let i in this._d_damage_since_last[player] ){
-
-			if( type === undefined || i === type )
-				out += this._d_damage_since_last[player][i];
-
-		}
-		return out;
+		return this.summarizeSinceLast(this._d_damage_since_last, player, type);
 	}
+	// Healing points this has done to player since last round
+	healingPointsDoneSinceLastToPlayer( player, type ){
+		return this.summarizeSinceLast(this._d_healing_p_since_last, player, type);
+	}
+
 	// How many times this player has riposted me
 	ripostedSinceLastByPlayer( player ){
 
@@ -618,16 +616,22 @@ export default class Player extends Generic{
 		vars[prefix+'damageReceivedSinceLast'] = this.datTotal( this._damage_since_last );
 		vars[prefix+'damagingDoneSinceLast'] = this.datTotal( this._d_damaging_since_last );
 		vars[prefix+'damageDoneSinceLast'] = this.datTotal( this._d_damage_since_last );
+		vars[prefix+'healingActionsDoneSinceLast'] = this.datTotal( this._d_healing_a_since_last );
+		vars[prefix+'healingPointsDoneSinceLast'] = this.datTotal( this._d_healing_p_since_last );
+		vars[prefix+'healingActionsReceivedSinceLast'] = this.datTotal( this._healing_a_since_last );
+		vars[prefix+'healingPointsReceivedSinceLast'] = this.datTotal( this._healing_p_since_last );
 		vars[prefix+'ripostedSinceLast'] = this.datTotalShort(this._riposted_since_last);
 		vars[prefix+'ripostingSinceLast'] = this.datTotalShort(this._riposting_since_last);
 
 		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last.save());
 		for( let i in Action.Types ){
+
 			let type = Action.Types[i];
 			vars[prefix+'damagingReceivedSinceLast'+type] = this.datTotal( this._damage_since_last, type );
 			vars[prefix+'damageReceivedSinceLast'+type] = this.datTotal( this._damage_since_last, type );
 			vars[prefix+'damagingDoneSinceLast'+type] = this.datTotal( this._d_damaging_since_last, type );
 			vars[prefix+'damageDoneSinceLast'+type] = this.datTotal( this._d_damage_since_last, type );
+			
 		}
 
 		// The mathvars event has a sender and target, and this player is the victim
@@ -639,6 +643,9 @@ export default class Player extends Generic{
 			// Add how much damage the sender has done to us
 			vars.se_TaDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.sender);
 			vars.se_TaDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.sender);
+			// How much healing sender has done to target (us)
+			vars.se_TaHealingActionsReceivedSinceLast = this.healingActionsTakenSinceLastByPlayer(event.sender);
+			vars.se_TaHealingPointsReceivedSinceLast = this.healingPointsTakenSinceLastByPlayer(event.sender);
 
 			// Target's crit chance on sender ta_Crit_se
 			vars[prefix+'Crit_se'] = this.getCritDoneChance(event.sender);
@@ -652,6 +659,9 @@ export default class Player extends Generic{
 
 			vars.ta_SeDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.target);
 			vars.ta_SeDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.target);
+
+			vars.ta_SeHealingActionsReceivedSinceLast = this.healingActionsTakenSinceLastByPlayer(event.target);
+			vars.ta_SeHealingPointsReceivedSinceLast = this.healingPointsTakenSinceLastByPlayer(event.target);
 
 		}
 
@@ -1175,6 +1185,10 @@ export default class Player extends Generic{
 		this._d_damage_since_last = {};
 		this._riposted_since_last = {};
 		this._riposting_since_last = {};
+		this._healing_a_since_last = {};
+		this._healing_p_since_last = {};
+		this._d_healing_a_since_last = {};
+		this._d_healing_p_since_last = {};
 		
 		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn
 		this._untappedBlock = this.blPhysical+this.blArcane+this.blCorruption;
@@ -1376,6 +1390,14 @@ export default class Player extends Generic{
 		
 		++this._damaging_since_last[sender.id][type];
 	}
+	onHealingAttackReceived( sender, type ){
+		if(!this._healing_a_since_last[sender.id])
+			this._healing_a_since_last[sender.id] = {};
+		if(!this._healing_a_since_last[sender.id][type])
+			this._healing_a_since_last[sender.id][type] = 0;
+		
+		++this._healing_a_since_last[sender.id][type];
+	}
 	onDamagingAttackDone(target, type){
 
 		if(!this._d_damaging_since_last[target.id])
@@ -1386,6 +1408,16 @@ export default class Player extends Generic{
 		++this._d_damaging_since_last[target.id][type];
 
 	}
+	onHealingAttackDone( target, type ){
+		if(!this._d_healing_a_since_last[target.id])
+			this._d_healing_a_since_last[target.id] = {};
+
+		if( !this._d_healing_a_since_last[target.id][type] )
+			this._d_healing_a_since_last[target.id][type] = 0;
+		
+		++this._d_healing_a_since_last[target.id][type];
+	}
+
 	onDamageTaken( sender, type, amount = 0 ){
 		if( isNaN(amount) )
 			return;
@@ -1396,6 +1428,17 @@ export default class Player extends Generic{
 		
 		this._damage_since_last[sender.id][type] += amount;
 	}
+	onHealingTaken( sender, type, amount = 0 ){
+		if( isNaN(amount) )
+			return;
+		if(!this._healing_p_since_last[sender.id])
+			this._healing_p_since_last[sender.id] = {};
+		if(!this._healing_p_since_last[sender.id][type])
+			this._healing_p_since_last[sender.id][type] = 0;
+		
+		this._healing_p_since_last[sender.id][type] += amount;
+	}
+
 	onDamageDone( target, type, amount = 0 ){
 		if( isNaN(amount) )
 			return;
@@ -1405,6 +1448,17 @@ export default class Player extends Generic{
 			this._d_damage_since_last[target.id][type] = 0;
 		this._d_damage_since_last[target.id][type] += amount;
 	}
+	onHealingDone( target, type, amount = 0 ){
+		if( isNaN(amount) )
+			return;
+		if(!this._d_healing_p_since_last[target.id])
+			this._d_healing_p_since_last[target.id] = {};
+		if(!this._d_healing_p_since_last[target.id][type])
+			this._d_healing_p_since_last[target.id][type] = 0;
+		this._d_healing_p_since_last[target.id][type] += amount;
+	}
+
+
 	onTargetedActionUsed( target ){
 	}
 	onTargetedActionReceived( sender ){

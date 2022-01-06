@@ -874,6 +874,13 @@ class Action extends Generic{
 							target.onDamagingAttackDone(sender, this.type);
 
 						}
+						if( this.hasTag(stdTag.acHeal) ){
+
+							sender.onHealingAttackReceived(target, this.type);
+							target.onHealingAttackDone(sender, this.type);
+
+						}
+
 						new GameEvent({
 							type : GameEvent.Types.actionRiposte,
 							sender : target,
@@ -928,6 +935,14 @@ class Action extends Generic{
 				sender.onDamagingAttackDone(target, this.type);
 
 			}
+
+			if( this.hasTag(stdTag.acHeal) && successes ){
+
+				target.onHealingAttackReceived(sender, this.type);
+				sender.onHealingAttackDone(target, this.type);
+
+			}
+
 
 			if( successes && this.target_type === Action.TargetTypes.target ){
 
