@@ -767,31 +767,6 @@ export default class Player extends Generic{
 		return stun.length > 0 || this.isSkipAllTurns();
 	}
 
-	// Returns taunting players unless there's a grappling player, in which case that's returned instead
-	getTauntedOrGrappledBy( actionRange, returnAllIfNone = true, debug ){
-		
-		let players = this.getGrappledBy();
-		if( debug )
-			console.debug("Grappled by ", players);
-		if( players.length )
-			return players;
-		return this.getTauntedBy(actionRange, returnAllIfNone, debug);
-
-	}
-
-	getGrappledBy(){
-
-		let grapples = this.getActiveEffectsByType(Effect.Types.grapple);
-		let out = [];
-		for( let effect of grapples ){
-			let sender = effect.parent.getCaster();
-			if( sender && out.indexOf(sender) === -1 )
-				out.push(sender);
-		}
-		return out;
-
-	}
-
 	// ActionRange is from Action.Range
 	getTauntedBy( actionRange, returnAllIfNone = true, debug ){
 
@@ -993,7 +968,7 @@ export default class Player extends Generic{
 		fx = this.getEffects();
 		for( let f of fx ){
 
-			f.getTags().map(addTag);
+			f.getTags(this).map(addTag);
 			// Bondage device mapping
 			if( f.type === Effect.Types.tieToRandomBondageDevice && f.data._device ){
 
@@ -2497,9 +2472,26 @@ export default class Player extends Generic{
 		return this['bl'+type] + this['ibl'+type];
 	}
 
+	isBlockDisabled( type ){
+
+		return this.getActiveEffectsByType(Effect.Types.preventBlock).some(fx => {
+			
+			let ty = fx.data.type;
+			if( !ty )
+				return true;
+			ty = toArray(ty);
+			return ty.includes(type);
+
+		});
+		
+	}
+
 	// Returns an object with {died:(bool)died, hp:(int)hp_damage, blk:(int)amount_blocked/defended}.
 	// IgnoreBlock attacks HP directly if damage. Or copies healing into block if beneficial.
 	addHP( amount, sender, effect, dmgtype, ignoreBlock, fText = false ){
+
+		if( !ignoreBlock )
+			ignoreBlock = this.isBlockDisabled(dmgtype);
 
 		if( this.isHPDisabled() )
 			return false;
@@ -2683,17 +2675,12 @@ export default class Player extends Generic{
 	// SV Types
 	getSV( type ){
 
-		let grappled = 0;
-		if( type === Action.Types.physical )
-			grappled = this.getGrappledBy().length ? -4 : 0;
-
 		return Math.floor(
 			(
 				this.getGenericAmountStatPoints('sv'+type)+
 				this.getLevel()+
 				(this.class ? this.class['sv'+type] : 0)+
-				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)+
-				grappled
+				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)
 			)*this.getGenericAmountStatMultiplier('sv'+type, this)
 		);
 	}
@@ -2701,17 +2688,12 @@ export default class Player extends Generic{
 	// Bon types
 	getBon( type ){
 
-		let grappled = 0;
-		if( type === Action.Types.physical )
-			grappled = this.getGrappledBy().length ? -4 : 0;
-
 		return Math.floor(
 			(
 				this.getGenericAmountStatPoints('bon'+type)+
 				this.getLevel()+
 				(this.class ? this.class['bon'+type] : 0)+
-				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)+
-				grappled
+				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)
 			)*this.getGenericAmountStatMultiplier('bon'+type, this)
 		);
 

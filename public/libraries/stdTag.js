@@ -140,7 +140,7 @@ export default {
 	asReagent : 'as_reagent',
 	asCurrency : 'as_currency',
 	asCanPullDown : 'as_can_pull_down',		// Can pull the garment down. Such as a strapless top or a thong 
-	asCanPullUp : 'as_can_pull_up',			// Can pull the garment up. Such as a tube top or bra. 
+	asCanPullUp : 'as_can_pull_up',			// Can pull the garment up. Such as a tube top, bra, skirt, or loincloth. 
 	asWraps : 'as_wraps',					// Made by wrapping a long strip of the material around the area 
 	asCleavage : 'as_cleavage',				// Pushes breasts together in a way where at least the top of the breasts are exposed
 	asUnderboob : 'as_underboob',			// Bottom of breasts (if applicable) exposed
@@ -192,6 +192,7 @@ export default {
 	wrKnockdownBack : 'wr_knocked_down_back',
 	wrKnockdownFront : 'wr_knocked_down_front',
 	wrGrapple : 'wr_grapple',
+	wrGrappling : 'wr_grappling',
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
 	wrHogtied : 'wr_hogtied',
 
@@ -211,6 +212,7 @@ export default {
 	wrTentacleRestrained : 'wr_tentacle_restrained',		// Restrained and lifted by tentacles
 	wrBound : 'wr_bound',
 	wrNoRiposte : 'wr_no_riposte',							// Prevents riposte
+	wrBlockGrapple : 'wr_block_grapple',					// This wrapper overrides grapple
 
 	// Effects
 	fxLatching : 'fx_latching',			// Put on a player latched onto another

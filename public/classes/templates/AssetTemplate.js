@@ -198,7 +198,7 @@ class AssetOutput extends Generic{
 }
 
 // Creates an assetoutput
-AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, viable_asset_materials ){
+AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, viable_asset_materials, allowCosmetic = false ){
 
 	let lib = Object.values(glib.getFull( "AssetTemplate" ));
 	level = Math.max(1,level);
@@ -206,11 +206,20 @@ AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, vi
 	if( typeof viable_asset_templates === "string" )
 		viable_asset_templates = [viable_asset_templates];
 
+	const baseSlots = [
+		Asset.Slots.upperBody,
+		Asset.Slots.lowerBody,
+		Asset.Slots.hands,
+	];
 	let candidates = [];
 	for( let asset of lib ){
 
 		// Check if slot was preset
-		if( (slot && asset.slots.indexOf(slot) === -1) || !asset.testLevel(level) )
+		if( 
+			(slot && asset.slots.includes(slot)) || 
+			!asset.testLevel(level) ||
+			(!allowCosmetic && !asset.slots.some(el => baseSlots.includes(el)))
+		)
 			continue;
 		
 		// If viabl_asset_templates is an array, make sure it's in there

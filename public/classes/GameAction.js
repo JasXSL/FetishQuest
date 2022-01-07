@@ -191,6 +191,7 @@ export default class GameAction extends Generic{
 		else if( this.type === this.constructor.types.autoLoot ){
 
 			const value = isNaN(this.data.val) ? 0.5 : +this.data.val;
+			const allowCosmetic = this.data.cosmetic;
 
 			const dungeon = this.getDungeon();
 
@@ -220,6 +221,8 @@ export default class GameAction extends Generic{
 						undefined, 	// Viable materials
 						undefined, // enforced rarity
 						Math.floor(val), // Min rarity
+						undefined,
+						allowCosmetic
 					);
 					if( loot )
 						this.data.genLoot.push(loot);
@@ -1067,7 +1070,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.resetEncounter] : "{encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one",
 	[GameAction.types.wrappers] : "{wrappers:(arr)wrappers} - Triggers all viable wrappers",
 	[GameAction.types.loot] : "{loot:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: {genLoot:[asset, asset, asset...]} - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
-	[GameAction.types.autoLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
+	[GameAction.types.autoLoot] : "{val:(float)modifier, cosmetic:(bool)allowCosmetic} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items. allowCosmetic also allows cosmetic items to be rolled in.",
 	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
 	[GameAction.types.exit] : "{dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}",
 	[GameAction.types.proceduralDungeon] : "{label:(str)label, templates:(arr)viable_templates}",

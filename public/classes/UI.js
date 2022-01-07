@@ -1530,6 +1530,14 @@ export default class UI{
 		const bCorr = p.getBlock(Action.Types.corruption);
 		const bArca = p.getBlock(Action.Types.arcane);
 
+		const bPhysDisabled = p.isBlockDisabled(Action.Types.physical);
+		const bCorrDisabled = p.isBlockDisabled(Action.Types.corruption);
+		const bArcaDisabled = p.isBlockDisabled(Action.Types.arcane);
+
+		physShieldEl.toggleClass('disabled', bPhysDisabled);
+		corrShieldEl.toggleClass('disabled', bCorrDisabled);
+		arcaShieldEl.toggleClass('disabled', bArcaDisabled);
+
 		if( !bPhys && physShieldEl.hasClass("spawn") )
 			physShieldEl.toggleClass('die', true);
 		if( !bArca && arcaShieldEl.hasClass("spawn") )

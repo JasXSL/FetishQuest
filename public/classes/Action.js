@@ -505,9 +505,9 @@ class Action extends Generic{
 		let pl = game.getEnabledPlayers();
 		if( this.detrimental && !isChargeFinish && this.target_type !== Action.TargetTypes.aoe ){
 
-			pl = this.getPlayerParent().getTauntedOrGrappledBy(this.ranged, true, debug);
+			pl = this.getPlayerParent().getTauntedBy(this.ranged, true, debug);
 			if( debug )
-				console.debug("Getting taunted or grappled by:", pl);
+				console.debug("Getting taunted by:", pl);
 
 		}
 
@@ -1072,7 +1072,7 @@ class Action extends Generic{
 		if( this.ct_taunt ){
 
 			let overrides = [];
-			let taunts = this.getPlayerParent().getTauntedOrGrappledBy(this.ranged, false);
+			let taunts = this.getPlayerParent().getTauntedBy(this.ranged, false);
 
 			// If the original target is taunting, add that
 			for( let pl of taunts ){

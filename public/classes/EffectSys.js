@@ -651,8 +651,7 @@ class Wrapper extends Generic{
 			}
 			else if( effect.type === Effect.Types.daze )
 				tags.push(stdTag.wrDazed);
-			else if( effect.type === Effect.Types.grapple )
-				tags.push(stdTag.wrGrapple);
+
 			
 			tags.push(...effect.tags);
 			
@@ -956,9 +955,7 @@ class Effect extends Generic{
 		}
 		else if( this.type === Effect.Types.daze )
 			tags.push(stdTag.wrDazed);
-		else if( this.type === Effect.Types.grapple )
-			tags.push(stdTag.wrGrapple);
-		
+		// Grapple needs to be manually added		
 		return tags;
 
 
@@ -1867,10 +1864,12 @@ class Effect extends Generic{
 				
 				let effects = t.getEffects();
 				for( let effect of effects ){
+
 					if( effect.hasTag(this.data.tag) ){
 						effect.parent.remove();
 						effects = t.getEffects();
 					}
+
 				}
 
 			}
@@ -2398,7 +2397,7 @@ Effect.Types = {
 	actionApCost : 'actionApCost',
 	actionRiposte : 'actionRiposte',
 	actionCastTime : 'actionCastTime',
-
+	preventBlock : 'preventBlock',
 	summonAsset : 'summonAsset',
 	globalArmorMod : 'globalArmorMod',
 	globalArmorPen : 'globalArmorPen',
@@ -2421,6 +2420,7 @@ Effect.Passive = {
 	[Effect.Types.critTakenMod] : true,
 	[Effect.Types.critDmgDoneMod] : true,
 	[Effect.Types.critDmgTakenMod] : true,
+	[Effect.Types.preventBlock] : true,
 	
 	[Effect.Types.globalHealingTakenMod] : true,
 	[Effect.Types.globalArousalTakenMod] : true,
@@ -2501,6 +2501,7 @@ Effect.TypeDescs = {
 	[Effect.Types.regenAP] : "{amount:(float)multiplier} - Multiplies against AP regen at the start of your turn.",
 
 	[Effect.Types.clairvoyance] : "void - Gives players more information about the victim when inspecting them",
+	[Effect.Types.preventBlock] : "{type:(arr)types=all} - Ignores block",
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
 	[Effect.Types.setMP] : "{amount:(str)(nr)amount} - Sets MP value",							
@@ -2568,7 +2569,7 @@ Effect.TypeDescs = {
 	[Effect.Types.lowerCooldown] : '{actions:(str)(arr)actionLabels, amount:(int)amount=inf} - Lowers or resets cooldowns on the target by label. NOTE: This will not add more than 1 charge.',
 
 	[Effect.Types.knockdown] : '{type:(int)type} - Prevents melee abilities. Use Effect.KnockdownTypes. If not an int it becomes boolean backwards of forwards.',
-	[Effect.Types.grapple] : '{}',
+	[Effect.Types.grapple] : '{} - All this does is trigger the x was grappled by y text',
 	[Effect.Types.daze] : 'void - Prevents the use of ranged abilities.',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',

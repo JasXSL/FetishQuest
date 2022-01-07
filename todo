@@ -13,6 +13,14 @@ Overhaul:
 
 	GYM CHANGES
 		- Class passives?
+
+	Grappling
+		Effect.Types.preventBlock
+			- Implement
+			- Make shields grey when prevented
+		- Remove old grapples
+		- Move old grapple combos to the new grapple system
+
 	
 	NEW ACTIONS:
 		- Need to add more charged actions to mid/high level normal mobs

@@ -854,7 +854,7 @@ Asset.getRandomEnchant = function( asset, curse, player ){
 };
 
 // Generates a custom item based on a slot
-Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity, minRarity, player ){
+Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity, minRarity, player, allowCosmetic = false ){
 
 	minRarity = minRarity || 0;
 
@@ -874,7 +874,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		rarity = Asset.rollRarity(minRarity);
 
 	// Pick a random template
-	let template = AssetTemplate.generateOutput( slot, level, viable_asset_templates, viable_asset_materials);
+	let template = AssetTemplate.generateOutput( slot, level, viable_asset_templates, viable_asset_materials, allowCosmetic );
 	if( !template ){
 		//console.error("Unable to generate a viable template from", viable_asset_templates, viable_asset_materials);
 		return false;
