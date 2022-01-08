@@ -650,6 +650,8 @@ export default class Player extends Generic{
 			// Target's crit chance on sender ta_Crit_se
 			vars[prefix+'Crit_se'] = this.getCritDoneChance(event.sender);
 
+			vars[prefix+'GrappledByS'] = +this.hasTagBy([stdTag.wrGrapple], event.sender) || 0;
+
 		}
 	
 		if( weAreSender ){
@@ -662,6 +664,8 @@ export default class Player extends Generic{
 
 			vars.ta_SeHealingActionsReceivedSinceLast = this.healingActionsTakenSinceLastByPlayer(event.target);
 			vars.ta_SeHealingPointsReceivedSinceLast = this.healingPointsTakenSinceLastByPlayer(event.target);
+
+			vars[prefix+'GrappledByT'] = +this.hasTagBy([stdTag.wrGrapple], event.target) || 0;
 
 		}
 

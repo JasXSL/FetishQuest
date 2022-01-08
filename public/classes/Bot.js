@@ -133,7 +133,13 @@ class Bot{
 		if( !this.player.isDead() ){
 
 			let abils = this.player.getActions('e').filter(el => {
-				return !el.hidden && el.castable();
+				return !el.hidden && 
+					el.castable() && 
+					(
+						el.label !== 'grapple' ||
+						!this.player.hasTag(stdTag.gpAlwaysGrapple)
+					)
+				;
 			});
 			let highest_cost = 0;
 			for( let abil of abils ){
@@ -190,6 +196,15 @@ class Bot{
 					// Prioritize acNpcFirst
 					if( a.hasTag(stdTag.acNpcFirst) !== b.hasTag(stdTag.acNpcFirst) )
 						return a.hasTag(stdTag.acNpcFirst) ? -1 : 1;
+
+					// Check always grapple
+					if( this.player.hasTag(stdTag.gpAlwaysGrapple) ){
+
+						const aGrapple = a.label === 'grapple', bGrapple = b.label === 'grapple';
+						if( aGrapple !== bGrapple )
+							return aGrapple ? -1 : 1;
+
+					}
 
 					// Put standard attacks last on the first action
 					if( aIsSTD && !bIsSTD && !this.actions_used )

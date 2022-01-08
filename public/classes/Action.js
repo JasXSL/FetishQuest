@@ -506,6 +506,9 @@ class Action extends Generic{
 		if( this.detrimental && !isChargeFinish && this.target_type !== Action.TargetTypes.aoe ){
 
 			pl = this.getPlayerParent().getTauntedBy(this.ranged, true, debug);
+			if( !pl.includes(this.getPlayerParent()) )	// Self should always be included
+				pl.push(this.getPlayerParent());
+
 			if( debug )
 				console.debug("Getting taunted by:", pl);
 

@@ -51,7 +51,7 @@ export default {
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',
 	plRattani : 'pl_rattani',
-	plIgnoreAggro : 'pl_ignore_aggro',		// make a player only attack randomly 
+	
 
 	plFeline : 'pl_feline',					// Cats
 	plCanine : 'pl_canine',					// Wolves too for ease of use
@@ -66,6 +66,11 @@ export default {
 	plRodent : 'pl_rodent',					// Guinea pigs, hamsters etc go here too
 	
 
+	// NPC behavior
+	plIgnoreAggro : 'pl_ignore_aggro',		// make a player only attack randomly 
+	plNoGrapple : 'pl_no_grapple',				// Doesn't use grapple
+	plAlwaysGrapple : 'pl_always_grapple',		// Always grappled when possible
+
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal
@@ -77,6 +82,8 @@ export default {
 	gpSkipTurns : 'gp_skip_turns',				// Automatically skip turns
 	gpNoBondageTarget : 'gp_no_bondage_targ',	// Can't be targeted by bondage device
 	
+	
+
 	// Player behavior tags
 	plDishonorable : "pl_dishonorable",
 
@@ -195,6 +202,7 @@ export default {
 	wrGrappling : 'wr_grappling',
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
 	wrHogtied : 'wr_hogtied',
+	wrPinned : 'wr_pinned',
 
 	wrKink : 'wr_kink',					// This is set on wrappers that should be treated as a kink
 	wrEnchant : 'wr_enchant',			// Set on asset wrappers that should be considered as enchants

@@ -14,13 +14,6 @@ Overhaul:
 	GYM CHANGES
 		- Class passives?
 
-	Grappling
-		Effect.Types.preventBlock
-			- Implement
-			- Make shields grey when prevented
-		- Remove old grapples
-		- Move old grapple combos to the new grapple system
-
 	
 	NEW ACTIONS:
 		- Need to add more charged actions to mid/high level normal mobs
@@ -33,10 +26,13 @@ Overhaul:
 		- 
 	
 	Warrior (Phys) - Taunt
+		Good already
 	Cleric (Arcane) - Block
-	Elementlist (Arcane) - 
+	- Need 1 interesting block ability
+	Elementlist (Arcane) - Interrupts
+	- Wind Lash: Deals damage and interrupts. Always crits on interrupt.
 	Rogue (Corr) - Armor removal
-	Monk (Phys) - Cast prevention
+	Monk (Phys) - Grapples
 	Tentaclemancer (Corr) - Arousal management 
 
 
@@ -61,8 +57,9 @@ Overhaul:
 
 
 	New armor secondary stats:
-		Impenetrable: Add an extra 5% damage reduction
-		Flexible: Add armor penetration
+		Accurate: Add armor penetration
+		Refreshing: Gain AP at the start of your next turn when you crit
+
 
 
 	Utility passives:
@@ -71,8 +68,7 @@ Overhaul:
 		- Thrash: When dazed, get a cheap AoE
 		- Takes no damage penalty from not wearing gear.
 		- Add an extra action slot.
-		-
-		- 
+
 
 
 	Main quest:
