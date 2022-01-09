@@ -2,17 +2,13 @@
 	- Keep redesigning errors to a try/catch system
 	- Add more automatic asset unrolling as you discover rolled up assets
 
-	Restat ping armor
-	shorok-thong
-	seashell sling bikini
-
 Overhaul:
 	Test the boss fights
 	Test changed actions
+	Write more texts
 
 	Warrior (Phys) - Taunt
 	Cleric (Arcane) - Block
-	- Makes block stick for a while
 	Elementlist (Arcane) - Interrupts
 	Rogue (Corr) - Armor removal
 	Monk (Phys) - Grapples

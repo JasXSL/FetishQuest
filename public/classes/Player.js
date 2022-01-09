@@ -1169,11 +1169,20 @@ export default class Player extends Generic{
 		this._d_healing_a_since_last = {};
 		this._d_healing_p_since_last = {};
 		
+		// Prevent block from fading
+		if( this.blockFadeLocked(Action.Types.arcane) )
+			this.iblArcane += this.blArcane;
+		if( this.blockFadeLocked(Action.Types.physical) )
+			this.iblPhysical += this.blPhysical;
+		if( this.blockFadeLocked(Action.Types.corruption) )
+			this.iblCorruption += this.blCorruption;
+		
 		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn
 		this._untappedBlock = this.blPhysical+this.blArcane+this.blCorruption;
 		this.blPhysical = this.iblPhysical;
 		this.blArcane = this.iblArcane;
 		this.blCorruption = this.iblCorruption;
+
 		this.iblArcane = this.iblCorruption = this.iblPhysical = 0;
 		
 		if( this._untappedBlock )
@@ -2488,6 +2497,21 @@ export default class Player extends Generic{
 
 		});
 		
+	}
+
+	// Returns if block of a type shouldn't fade on turn start
+	blockFadeLocked( type ){
+
+		return this.getActiveEffectsByType(Effect.Types.preventBlockAutoFade).some(fx => {
+			
+			let ty = fx.data.type;
+			if( !ty )
+				return true;
+			ty = toArray(ty);
+			return ty.includes(type);
+
+		});
+
 	}
 
 	// Returns an object with {died:(bool)died, hp:(int)hp_damage, blk:(int)amount_blocked/defended}.

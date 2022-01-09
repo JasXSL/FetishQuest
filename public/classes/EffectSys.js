@@ -2304,6 +2304,7 @@ Effect.Types = {
 	addMP : "addMP",
 	addHP : "addHP",
 	addBlock : "addBlock",
+	preventBlockAutoFade : "preventBlockAutoFade",
 	regenAP : "regenAP",
 
 	maxAP : 'maxAP',
@@ -2424,6 +2425,8 @@ Effect.Passive = {
 	[Effect.Types.critDmgDoneMod] : true,
 	[Effect.Types.critDmgTakenMod] : true,
 	[Effect.Types.preventBlock] : true,
+	[Effect.Types.preventBlockAutoFade] : true,
+	
 	
 	[Effect.Types.globalHealingTakenMod] : true,
 	[Effect.Types.globalArousalTakenMod] : true,
@@ -2505,6 +2508,7 @@ Effect.TypeDescs = {
 
 	[Effect.Types.clairvoyance] : "void - Gives players more information about the victim when inspecting them",
 	[Effect.Types.preventBlock] : "{type:(arr)types=all} - Ignores block",
+	[Effect.Types.preventBlockAutoFade] : "{type:(arr)types=all} - Prevents block from fading at the start of your turn",
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
 	[Effect.Types.setMP] : "{amount:(str)(nr)amount} - Sets MP value",							
