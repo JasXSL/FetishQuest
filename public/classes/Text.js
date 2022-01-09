@@ -44,7 +44,7 @@ const SYNONYMS = [
 	['quickly', 'rapidly', 'speedily', 'hastily'],
 	['rapid', 'quick', 'hasty', 'swift'],
 	['breast', 'boob', 'tit', 'breast'],
-	['penis', 'dong', 'cock', 'member'],
+	['penis', 'dong', 'cock'],
 	['vagina', 'pussy', 'cunt'],
 	['butt', 'rear', 'behind'],
 	['groin', 'crotch'],

@@ -2013,7 +2013,7 @@ class Effect extends Generic{
 
 				const assets = t.addLibraryAsset(label);
 				if( assets && autoEquip )
-					assets.map(asset => t.equipAsset(asset.id, s));
+					assets.map(asset => t.equipAsset(asset.id, s, true));
 
 			}
 
@@ -2049,12 +2049,13 @@ class Effect extends Generic{
 				this._bound_events.push(binding);
 
 			}
+
 		}
 
 	}
 	unbindEvents(){
-
-		for(let evt of this._bound_events)
+		const evts = this._bound_events.slice();
+		for(let evt of evts)
 			GameEvent.off(evt);
 		this._bound_events = [];
 

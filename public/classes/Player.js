@@ -200,7 +200,6 @@ export default class Player extends Generic{
 
 		if( window.game ){
 			
-			this.updatePassives();
 			if( !game.is_host )
 				this.auto_wrappers = Wrapper.loadThese(this.auto_wrappers, this);
 
@@ -354,6 +353,9 @@ export default class Player extends Generic{
 		if( game.is_host ){
 			this.rebindWrappers(true);
 		}
+
+		this.updatePassives();
+
 	}
 
 	rebindWrappers( ignoreStayCheck = false ){
@@ -1102,10 +1104,10 @@ export default class Player extends Generic{
 
 
 	/* Events */
-	// happens to NPCs the first time they're placed in world from an encounter
+	// happens to players the first time they're placed in world from an encounter
 	onPlacedInWorld(){
 
-		this.netgame_owner = '';
+		//this.netgame_owner = '';
 		if( this.leveled ){
 			
 			this.level += game.getHighestLevelPlayer();
@@ -1118,7 +1120,7 @@ export default class Player extends Generic{
 		this.assets = this.assets.map(el => Asset.convertDummy(el, this));
 		for( let index of this.inventory ){
 			if( this.assets[index] && this.assets[index].equippable() ){
-				this.equipAsset(this.assets[index].id);
+				this.equipAsset(this.assets[index].id, undefined, true);
 			}
 		}
 		this.inventory = [];
@@ -1315,7 +1317,7 @@ export default class Player extends Generic{
 		if( this.generated )
 			return;
 
-		this.addHP(Math.ceil(this.getMaxHP()*0.3));		// Regen 30% of your HP
+		this.addHP(Math.ceil(this.getMaxHP()*0.1));		// Regen 30% of your HP
 		this.addMP(Math.round(this.getMaxMP()*0.3));	// Regen 30% of MP
 		this.addArousal(-Math.ceil(this.getMaxArousal()*0.15), undefined, true);
 
@@ -1700,7 +1702,7 @@ export default class Player extends Generic{
 	}
 
 	// Accepts an asset or an id
-	canEquip( asset ){
+	canEquip( asset, ignoreBattleState ){
 
 		if( typeof asset === "string" )
 			asset = this.getAssetById(asset);
@@ -1708,20 +1710,20 @@ export default class Player extends Generic{
 		return (
 			asset.equippable() &&
 			(
-				!game.battle_active || this.start_equip.includes(asset.id)
+				ignoreBattleState || !game.battle_active || this.start_equip.includes(asset.id)
 			)
 		);
 
 	}
 
 	// byPlayer is the player who initiated the equip. If it's not a player, no event is raised.
-	equipAsset( id, byPlayer ){
+	equipAsset( id, byPlayer, ignoreBattleState ){
 
 		const asset = this.getAssetById(id);
 		if( !asset )
 			return false;
 
-		if( !this.canEquip(asset) ){
+		if( !this.canEquip(asset, ignoreBattleState) ){
 			console.error("Item can not be equipped");
 			return false;
 		}
@@ -2447,6 +2449,8 @@ export default class Player extends Generic{
 	// Adds block. Returns the amount added/subtracted
 	addBlock( amount, type ){
 
+		type = ucFirst(type);
+
 		let pre = this.getBlock(type);
 		if( isNaN(pre) )
 			throw 'Invalid type passed to block: '+type;
@@ -2566,7 +2570,7 @@ export default class Player extends Generic{
 		out.hp = this.hp-prehp;
 
 		if( fText && post-pre !== 0 )
-			game.ui.floatingCombatText(Math.abs(out.hp) + (out.blk ? '('+Math.abs(out.blk)+')' : ''), this, "hp");
+			game.ui.floatingCombatText(out.hp + (out.blk ? '('+Math.abs(out.blk)+')' : ''), this, "hp");
 
 		
 		
@@ -2619,8 +2623,11 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
+
+		const add = Math.max(0, 15-game.getTeamPlayers().length*5);
+
 		return Math.max(Math.ceil(
-			(BASE_HP+this.getGenericAmountStatPoints(Effect.Types.maxHP))
+			(BASE_HP+add+this.getGenericAmountStatPoints(Effect.Types.maxHP))
 			*this.getPowerMultiplier()
 			*this.hpMulti
 			*this.getGenericAmountStatMultiplier(Effect.Types.maxHP, this)
@@ -2632,7 +2639,7 @@ export default class Player extends Generic{
 				(BASE_AP+this.getGenericAmountStatPoints(Effect.Types.maxAP))
 				*this.getPowerMultiplier()
 				*this.getGenericAmountStatMultiplier(Effect.Types.maxAP, this)
-				, 1
+				, 3
 			)
 		);
 	}
@@ -2679,14 +2686,14 @@ export default class Player extends Generic{
 
 		let out = this.power;
 		if( this.power < 0 )
-			out = game.dungeon.getDifficulty()*(Math.abs(this.power));
+			out = game.dungeon.getDifficulty()*Math.abs(this.power);
 		
 		// 0 power becomes 1 for legacy reasons
 		if( out === 0 )
 			out = 1;
 		if( out < .1 )
 			return .1;
-		return this.power;
+		return out;
 
 	}
 

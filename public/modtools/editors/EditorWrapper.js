@@ -38,8 +38,9 @@ export function asset(){
 		html += '<label>Duration: <input type="number" name="duration" class="saveable" value="'+esc(dummy.duration)+'" /></label>';
 		html += '<label title="can be a formula">Stacks: <input type="text" name="stacks" class="saveable" value="'+esc(dummy.stacks)+'" /></label>';
 		html += '<label>Max Stacks: <input type="number" name="max_stacks" class="saveable" value="'+esc(dummy.max_stacks)+'" /></label>';
-		html += '<label title="Only needed for enchants">';
+		html += '<label title="Only used for armor enchants, sets the color of the enchant. Enchants added through Armor Enchant assets have this auto assigned.">';
 		html += 'Rarity: <select name="rarity" class="saveable">';
+			html += '<option value="-1">Curse</option>';
 		for( let cat in Asset.Rarity )
 			html += '<option value="'+esc(Asset.Rarity[cat])+'" '+(dummy.rarity === Asset.Rarity[cat] ? 'selected' :'')+'>'+esc(cat)+'</option>';
 		html += '</select><br />';

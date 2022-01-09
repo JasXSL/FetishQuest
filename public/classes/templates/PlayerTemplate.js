@@ -294,7 +294,7 @@ class PlayerTemplate extends Generic{
 				asset.randomizeDurability();
 				player.addAsset(asset, undefined, undefined, true);
 				if( !this.no_equip ){
-					player.equipAsset(asset.id);
+					player.equipAsset(asset.id, undefined, true);
 				}
 				++numAdded;
 				if( 
@@ -319,7 +319,7 @@ class PlayerTemplate extends Generic{
 					asset.restore();
 					player.addAsset(asset, undefined, undefined, true);
 					if( !this.no_equip )
-						player.equipAsset(asset.id);
+						player.equipAsset(asset.id, undefined, true);
 					break;
 
 				}

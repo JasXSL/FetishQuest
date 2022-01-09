@@ -24,7 +24,6 @@ Overhaul:
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?
 		- Sometimes using repair kits fails?
-		- Sync the difficulty slider the level offsets fail
 
 	Items:
 		- Sundial to tell the time outside

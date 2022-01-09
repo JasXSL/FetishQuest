@@ -4015,7 +4015,7 @@ export default class StaticModal{
 
 						// We have an action in this slot
 						if( action )
-							UI.setActionButtonContent(el, action, player, i+2);
+							UI.setActionButtonContent(el, action, player, i+2, true);
 						else{
 
 							const slotUnlocked = i < numSlots;

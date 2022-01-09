@@ -3092,7 +3092,8 @@ export default class UI{
 
 	// TEMPLATES
 	// Sets the content of the button based on an action
-	static setActionButtonContent( buttonElement, action, player, hotkey ){
+	// ignoreStats will hide cd/charges 
+	static setActionButtonContent( buttonElement, action, player, hotkey, ignoreStats ){
 
 		let aType = '';
 		if( action.type === Action.Types.physical )
@@ -3128,13 +3129,13 @@ export default class UI{
 			uses = action._charges;
 
 		const usesEl = $('> div.uses', button);
-		usesEl.toggleClass('hidden', !uses)
+		usesEl.toggleClass('hidden', !uses || Boolean(ignoreStats))
 		if( +usesEl.text() !== uses )
 			usesEl.text("x"+uses);
 
 		// Cooldown
 		const cdEl = $('> div.cd > span', button);
-		$('> div.cd', button).toggleClass('hidden', !action._cooldown);
+		$('> div.cd', button).toggleClass('hidden', !action._cooldown || Boolean(ignoreStats));
 		if( +cdEl.text !== +action._cooldown )
 			cdEl.text(action._cooldown);
 
