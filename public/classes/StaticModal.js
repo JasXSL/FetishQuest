@@ -306,6 +306,7 @@ export default class StaticModal{
 		
 	}
 
+
 	// This is where everything is built
 	// Only gets called once when the DOM loads. Builds all the modal bases
 	static ini(){
@@ -331,7 +332,8 @@ export default class StaticModal{
 			game.uiAudio( "tab_select", 0.5, event.target );
 
 		});	
-		
+	
+		const self = this;
 
 
 		// Handle group finder auto join
@@ -452,6 +454,12 @@ export default class StaticModal{
 			.addRefreshOn(["players"])
 			.addTab("Actions", () => {
 				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+						</div>
+					</div>
 					<div style="display:flex; width:100%; justify-content:space-between">
 						<div class="left titleSpan">
 							<span>Learned</span>
@@ -475,6 +483,7 @@ export default class StaticModal{
 					html += UI.Templates.actionButton;
 				$("div.slots > div.slotsWrapper", actives).html(html);
 
+				this.money = $('div.myMoney', actives)[0];
 				this.purchasable = $("div.right > div.purchasable", actives);
 				this.available = $("div.left > div.available", actives);
 
@@ -484,6 +493,8 @@ export default class StaticModal{
 				const player = game.getMyActivePlayer();
 				if( !player )
 					return;
+
+				self.generateWallet(this.money);
 
 				// Inactive learned actions
 				const inactive = player.actions.filter(action => {
@@ -510,7 +521,7 @@ export default class StaticModal{
 
 					const el = inactiveEls[i],
 						abil = inactive[i];
-					UI.setActionButtonContent(el, abil, player);
+					UI.setActionButtonContent(el, abil, player, undefined, true);
 					
 
 				}
@@ -521,7 +532,7 @@ export default class StaticModal{
 						abil = learnable[i].getAction(),
 						parent = $(el).parent();
 						
-					UI.setActionButtonContent(el, abil, player);
+					UI.setActionButtonContent(el, abil, player, undefined, true);
 
 					let html = esc(abil.getName());
 					const coins = Player.calculateMoneyExhange(learnable[i].getCost());
@@ -2212,38 +2223,7 @@ export default class StaticModal{
 				if( !smith )
 					throw 'Invalid smith';
 
-				// Update coins
-				const currencyDiv = this.money.querySelector('span.coins');
-				for( let i in Player.currencyWeights ){
-
-					const currency = Player.currencyWeights[i];
-
-					let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
-					if( !sub ){
-
-						sub = document.createElement('span');
-						sub.dataset.currency = currency;
-						sub.style = 'color:'+Player.currencyColors[i];
-						currencyDiv.append(sub);
-						currencyDiv.append(document.createTextNode(' '));
-
-					}
-
-					sub.classList.toggle('hidden', true);
-
-					const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
-					if( !asset )
-						continue;
-
-					const amt = parseInt(asset._stacks);
-					if( !amt )
-						continue;
-
-					sub.classList.toggle('hidden', false);
-					sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
-
-				}
-
+				self.generateWallet(this.money);
 
 				await StaticModal.updateWallet(this.money);
 	
@@ -2306,37 +2286,7 @@ export default class StaticModal{
 				if( !myPlayer )
 					throw 'You have no active player';
 
-				// Update coins
-				const currencyDiv = this.money.querySelector('span.coins');
-				for( let i in Player.currencyWeights ){
-
-					const currency = Player.currencyWeights[i];
-
-					let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
-					if( !sub ){
-
-						sub = document.createElement('span');
-						sub.dataset.currency = currency;
-						sub.style = 'color:'+Player.currencyColors[i];
-						currencyDiv.append(sub);
-						currencyDiv.append(document.createTextNode(' '));
-
-					}
-
-					sub.classList.toggle('hidden', true);
-
-					const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
-					if( !asset )
-						continue;
-
-					const amt = parseInt(asset._stacks);
-					if( !amt )
-						continue;
-
-					sub.classList.toggle('hidden', false);
-					sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
-
-				}
+				self.generateWallet(this.money);
 
 
 				await StaticModal.updateWallet(this.money);

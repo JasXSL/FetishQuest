@@ -2555,8 +2555,9 @@ class Stage{
 		else if( text === '_LOCKED_' )
 			map = LibMaterial.library.Sprites.LockedBadge.fetch().map;
 
-		let material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true, alphaTest:0.5 } );
+		let material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true, alphaTest:0.5, depthTest:false } );
 		let sprite = new THREE.Sprite( material );
+		sprite.renderOrder = 1;
 		sprite.name = text;
 
 		

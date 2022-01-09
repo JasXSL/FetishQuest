@@ -726,26 +726,27 @@ export default class Asset extends Generic{
 		};
 		let stats = {};	// Type:val
 		let names;	// wrapper containing the description
+		let negs;	// Same as above but negative stats
 		for( let wrapper of this.wrappers ){
 
 			if( wrapper.name === 'statsAutoGen' )
 				names = wrapper;
 
-			if( wrapper.name === 'statsEnchant' ){
-				
-				for( let effect of wrapper.effects ){
+			if( wrapper.name === 'statsAutoGenNeg' )
+				negs = wrapper;
 
-					if( hasStat(effect.type) ){
+			for( let effect of wrapper.effects ){
 
-						if( !stats[effect.type] )
-							stats[effect.type] = 0;
-						stats[effect.type] += parseInt(effect.data.amount);
+				if( hasStat(effect.type) ){
 
-					}
+					if( !stats[effect.type] )
+						stats[effect.type] = 0;
+					stats[effect.type] += parseInt(effect.data.amount);
 
 				}
 
 			}
+
 
 		}
 
@@ -755,6 +756,7 @@ export default class Asset extends Generic{
 		if( !names ){
 			// Create a wrapper to store the unified stat texts
 			names = new Wrapper({
+				label : 'statsAutoGen',
 				name : 'statsAutoGen',
 				detrimental : false,
 				effects : [],
@@ -763,7 +765,7 @@ export default class Asset extends Generic{
 			this.wrappers.unshift(names);
 		}
 
-		let rows = [];
+		let rows = []; let negRows = [];
 		for( let type in stats ){
 			
 			let val = parseInt(stats[type]);
@@ -773,10 +775,24 @@ export default class Asset extends Generic{
 			let pre = ' Pro.'+type.substring(3);
 			if( type.startsWith("sv") )
 				pre = ' Res.'+type.substring(2);
-			rows.push((stats[type] > 0 ? '+'+val : val)+pre);
+
+			if( val < 0 )
+				negRows.push(val+pre);
+			else
+				rows.push('+'+val+pre);
 			
 		}
 		names.description = rows.join("\n");
+
+		if( negRows.length ){
+
+			if( !negs ){
+				negs = new Wrapper({label:'statsAutoGenNeg', name:'statsAutoGenNeg', detrimental : true, effects : [], rarity : -1});
+				this.wrappers.splice(1, 0, negs);
+			}
+			negs.description = negRows.join('\n');
+
+		}
 			
 
 	}

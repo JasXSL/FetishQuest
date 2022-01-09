@@ -262,6 +262,8 @@ class Wrapper extends Generic{
 		for( let p of pl ){	
 
 			// Ignore wrapper effect
+			if( !(p instanceof Player) )
+				console.error("Trying to use an action against non player", p, "wrapper", this);
 			let blocked = p.getBlockedWrappers();
 			if( blocked.includes(this.label) )
 				continue;
@@ -1643,8 +1645,8 @@ class Effect extends Generic{
 					const item = viable.splice(Math.floor(Math.random()*viable.length), 1)[0];
 					s.addAsset(item, item._stacks, true);
 					wrapperReturn.addSteal(t, item);
-					t.rem_unequip = true;	// Destroys it when unequipped
 					t.unequipAsset(item.id, s, true);
+					t.destroyAsset(item.id);
 
 				}
 
