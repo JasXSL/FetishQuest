@@ -212,11 +212,11 @@ class WebGL{
 		this.renderer.domElement.addEventListener('mouseup', event => touchEnd(event));
 		this.renderer.domElement.addEventListener('touchend', event => touchEnd(event));
 
-		
-		this.bind(document, 'mousemove', event => this.onMouseMove(event));
-		this.bind(document, 'touchmove', event => this.onMouseMove(event));
-		this.bind(document, 'touchstart', event => this.onMouseMove(event));
-		this.bind(document, 'touchend', event => this.onMouseMove(event));
+		const mouseMove = event => this.onMouseMove(event);
+		this.bind(document, 'mousemove', mouseMove);
+		this.bind(document, 'touchmove', mouseMove);
+		this.bind(document, 'touchstart', mouseMove);
+		this.bind(document, 'touchend', mouseMove);
 		
 		
 		// outdoor skybox
@@ -324,7 +324,7 @@ class WebGL{
 		this.assetCache = new THREE.Group();	// Stores assets here as they load 
 		this.assetCache.name = 'CACHE';
 		this.assetCache.visible = false;
-		this.scene.add(this.assetCache);		// 
+		//this.scene.add(this.assetCache);		// 
 		this.currentCache = [];					// Stores the cached assets we're currently using in the active dungeon
 
 		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) in the last cell. 
@@ -1370,6 +1370,12 @@ class WebGL{
 
 	/* EVENTS */
 	onMouseMove( event, debug ){
+
+		const now = Date.now();
+		if( this.__lastMove && now - this.__lastMove < 33 )
+			return;
+
+		this.__lastMove = now;
 
 		const offset = $(this.renderer.domElement).offset();
 		if( event.type === 'touchstart' || event.type === 'touchend' || event.type === 'touchmove' )

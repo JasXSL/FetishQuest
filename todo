@@ -27,6 +27,7 @@ Overhaul:
 		- Penal guild fight
 		- Penal guild cougar
 		- Jailor boss
+		- Haunted house boss
 		
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?

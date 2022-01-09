@@ -3425,7 +3425,7 @@ export default class Player extends Generic{
 				effects : [
 					new Effect({
 						type : Effect.Types.globalHitChanceMod,
-						data : {amount : -0.5}
+						data : {amount : 0.5, multiplier:true}
 					})
 				]
 			}, this));

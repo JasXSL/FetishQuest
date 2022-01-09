@@ -23,6 +23,8 @@ var OrbitControls = function ( object, domElement ) {
 	this.object = object;
 	this.domElement = domElement;
 
+	this.__mm = 0;
+
 	// Set to false to disable this control
 	this.enabled = true;
 
@@ -936,6 +938,7 @@ var OrbitControls = function ( object, domElement ) {
 	function onMouseMove( event ) {
 
 		if ( scope.enabled === false ) return;
+
 
 		event.preventDefault();
 

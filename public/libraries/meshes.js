@@ -2391,7 +2391,7 @@ function build(){
 				Lightacles : new LibMesh({
 					url : 'nature/lightacles.glb',
 					materials : [
-						libMat.Bakes.TentacleRing
+						libMat.Bakes.Lightacles
 					],
 					tags : [stdTag.mEmitter, stdTag.mTentacle],
 
