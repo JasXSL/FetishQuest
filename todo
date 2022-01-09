@@ -6,31 +6,14 @@
 	shorok-thong
 	seashell sling bikini
 
-
 Overhaul:
 	Test the boss fights
 	Test changed actions
 
-	GYM CHANGES
-		- Class passives?
-
-	
-	NEW ACTIONS:
-		- Need to add more charged actions to mid/high level normal mobs
-		- Need counterattack for enemies that are taunted
-		- Attack that can only be used on a player that was healed or did healing last turn
-		- Attack that can only be used while knocked down/dazed.
-		- Attack that can only be used while naked.
-		- Attack that deals less damage the more armor you have.
-		- Something that happens when interrupted.
-		- 
-	
 	Warrior (Phys) - Taunt
-		Good already
 	Cleric (Arcane) - Block
-	- Need 1 interesting block ability
+	- Makes block stick for a while
 	Elementlist (Arcane) - Interrupts
-	- Wind Lash: Deals damage and interrupts. Always crits on interrupt.
 	Rogue (Corr) - Armor removal
 	Monk (Phys) - Grapples
 	Tentaclemancer (Corr) - Arousal management 
@@ -42,8 +25,6 @@ Overhaul:
 	Tentacle Wrestling:
 		- Figure out contenders
 
-	- Add scroll to inspect
-
 	Bugs:
 		- Saving extensions still seem to brick the original objects for arrays?
 		- Sometimes using repair kits fails?
@@ -51,15 +32,6 @@ Overhaul:
 
 	Items:
 		- Sundial to tell the time outside
-
-
-	On player party defeated gameaction override
-
-
-	New armor secondary stats:
-		Accurate: Add armor penetration
-		Refreshing: Gain AP at the start of your next turn when you crit
-
 
 
 	Utility passives:
@@ -121,8 +93,8 @@ Overhaul:
 			- Soulbound: Prevents the armor from being stolen
 			- 
 
-	Action ideas:
-		- Lustful Wind: Doubles your arousal and grants 2 AP per original point of arousal.
+	Item ideas:
+		- Motivation: Doubles your arousal and grants 2 AP per original point of arousal.
 		- Sacrifice : Destroys a random piece of worn armor and restores 20 HP.
 
 -- TEST --

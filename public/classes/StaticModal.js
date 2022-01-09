@@ -809,7 +809,6 @@ export default class StaticModal{
 			.setProperties(function(){
 				
 				const ui = game.ui;
-
 				const gameplay = this.getTabDom('Gameplay');
 				this.gameplay = {
 					difficulty : $("input[name=difficulty]", gameplay),
@@ -857,6 +856,7 @@ export default class StaticModal{
 				// Gameplay
 				this.gameplay.difficulty.on('input', event => {
 					game.difficulty = +$(event.currentTarget).val();
+					game.save();
 				});
 
 				// DM
@@ -1028,9 +1028,9 @@ export default class StaticModal{
 				}
 				$("input[name=masterSoundVolume]", audio).val(Math.round(game.getMasterVolume()*100));
 
-
-
-
+				
+				this.gameplay.difficulty.prop('disabled', !game.is_host);
+				this.gameplay.genderInputs.map(el => el.disabled = !game.is_host);
 				// Netgame
 				const isConnected = Game.net.isInNetgame();
 				if( isConnected ){

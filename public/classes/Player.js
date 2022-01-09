@@ -166,7 +166,6 @@ export default class Player extends Generic{
 
 		this._ignore_check_effect = new Map();	// effect : true - Another recursion preventor
 		this._tmp_actions = [];					// Actions from effects and such bound to a battle
-		
 		this._debug_chat = false;				// Only stored in the session, can be used to test player chat while they're controlled by a player. Since PC controlled characters can't auto speak.
 
 		this.load(data);
@@ -569,7 +568,6 @@ export default class Player extends Generic{
 	}
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
-	// prefix is usually se_ or ta_
 	appendMathVars( prefix, vars, event ){
 
 		let isRoot = this._ignore_effects === null;
@@ -604,6 +602,8 @@ export default class Player extends Generic{
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
+
+		vars[prefix+'Casting'] = +Boolean(this.isCasting()) || 0;
 
 		vars[prefix+'UntappedBlock'] = this._untappedBlock;
 
@@ -2491,7 +2491,7 @@ export default class Player extends Generic{
 	}
 
 	// Returns an object with {died:(bool)died, hp:(int)hp_damage, blk:(int)amount_blocked/defended}.
-	// IgnoreBlock attacks HP directly if damage. Or copies healing into block if beneficial.
+	// IgnoreBlock attacks HP directly.
 	addHP( amount, sender, effect, dmgtype, ignoreBlock, fText = false ){
 
 		if( !ignoreBlock )
@@ -2523,15 +2523,6 @@ export default class Player extends Generic{
 				out.blk = this.addBlock(amount, dmgtype);	// Add the full amount to shield first. addBlock caps to 0
 				amount += shield;	// Amount is negative, so add the shield
 				amount = Math.min(0, amount);		// Min because neg
-
-				
-			}
-			else if( amount > 0 && ignoreBlock ){
-
-				this.addBlock(amount, Action.Types.arcane);
-				this.addBlock(amount, Action.Types.physical);
-				this.addBlock(amount, Action.Types.corruption);
-				out.blk = amount;
 
 			}
 
@@ -3090,7 +3081,7 @@ export default class Player extends Generic{
 	// Gets actions that can be seen with clairvoyance
 	getClairvoyanceActions(){
 
-		return this.getActions().filter(action =>
+		return this.getActions('e', false, true, true).filter(action =>
 			!action.hidden && !action.no_clairvoyance
 		);
 
@@ -3227,16 +3218,11 @@ export default class Player extends Generic{
 				if( (a._slot >= 0) !== (b._slot >= 0) )
 					return a._slot >= 0 ? -1 : 1;
 
-
-				const acd = a.getCooldown(), bcd = b.getCooldown();
-
 				// Then sort on spell slot
 				if( a._slot !== b._slot )
 					return a._slot < b._slot ? -1 : 1;
 
-				// Lower cooldown second
-				if( acd !== bcd )
-					return acd < bcd ? -1 : 1;
+
 				// Finally name
 				return aName < bName ? -1 : 1;
 
@@ -3454,7 +3440,7 @@ export default class Player extends Generic{
 	isCasting( actions ){
 
 		if( !actions )
-			actions = this.getActions();
+			actions = this.getActions(true, false, true, false);
 
 		let spells = [];
 		for( let action of actions ){

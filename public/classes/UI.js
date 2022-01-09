@@ -1945,7 +1945,7 @@ export default class UI{
 		}
 
 		this.content.toggleClass('casting', true);
-		this.setTooltip( this.getActiveActionButton(), true );
+		this.setTooltip( this.getActiveActionButton()[0], true );
 			
 		for( let t of viableTargets ){
 
@@ -2536,7 +2536,6 @@ export default class UI{
 			
 			const pe = $(parentElement);
 			const pos = pe.offset();
-
 			left = pos.left+pe.outerWidth()/2;
 			top = pos.top;
 

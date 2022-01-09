@@ -194,6 +194,8 @@ export default class Game extends Generic{
 			factions : Faction.saveThese(this.factions, full),
 			proceduralDiscovery : this.proceduralDiscovery.save(full),
 			books_read : this.books_read.save(full),
+			difficulty : this.difficulty,
+			genders : this.genders,
 		};
 	
 		if( full ){
@@ -203,8 +205,7 @@ export default class Game extends Generic{
 			out.rain_next_refresh = this.rain_next_refresh;
 			out.rain_start_val = this.rain_start_val;
 			out.rain_started = this.rain_started;
-			out.difficulty = this.difficulty;
-			out.genders = this.genders;
+			
 			out.procedural = Dungeon.saveThese(this.procedural, full);
 			out.state_dungeons = this.state_dungeons.save(full);
 			out.state_roleplays = this.state_roleplays.save();
@@ -3883,6 +3884,7 @@ Game.new = async function(name, players){
 
 			player.g_resetID();
 			game.addPlayer(player);
+			player.onPlacedInWorld();
 
 		}
 

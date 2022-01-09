@@ -2147,6 +2147,20 @@ particles.hitfx_sludge_bolt_impact_green = {
 	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
 };
 
+particles.hitfx_wind = {
+	texture : textures.smoke,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,15),
+	size : [30,0],
+	part_max_age : .25,
+	velocity : new Proton.Span(0, 100),
+	gravity: new Proton.Span(-1,2),
+	color : "#FFFFFF",	
+	opacity: [0,0.5, Proton.ease.easeFullBridge],
+	rotation : [0,Math.PI*2],
+};
 
 particles.hitfx_hex_armor = {
 	texture : textures.smoke,
