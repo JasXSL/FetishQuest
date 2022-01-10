@@ -188,6 +188,10 @@ export default class Player extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+
+		if( !this.class )
+			this.class = new PlayerClass({}, this);
+
 		this.g_rebase();	// Super
 
 		this._ignore_check_effect = new Map();	// Needed when cloning since clone brings all things along
@@ -205,12 +209,7 @@ export default class Player extends Generic{
 
 		}
 		
-		if( this.class === null )
-			this.class = new PlayerClass({}, this);
-		
-
 		this.tags = this.tags.map(tag => tag.toLowerCase());
-
 
 	}
 
@@ -1135,7 +1134,7 @@ export default class Player extends Generic{
 		this.addMP(Infinity);
 		this.arousal = 0;
 
-		if( !this.getKinks().length && !this.hasTag([stdTag.plBeast, stdTag.plTargetBeast]) )
+		if( !this.getKinks().length && !this.hasTag([stdTag.plBeast, stdTag.plTargetBeast, stdTag.plNoFetish]) )
 			this.shuffleKinks();
 		
 	}
@@ -1204,17 +1203,14 @@ export default class Player extends Generic{
 		const actions = this.getActions();
 		for(let action of actions)
 			action.onTurnStart();
-		
+
+		/*
 		if( this.arousal > 0 && this._turns%2 === 0 ){
-			/*
-			let sub = -this.getMaxArousal()/10;	// You lose 10% every 3 turns
-			let rem = Math.floor(sub);
-			if( Math.random() < sub-rem )
-				--rem;
-			*/
+
 			this.addArousal(-1);	// Lose 1 every 2 turns
 			
 		}
+		*/
 
 		this._turn_action_used = 0;
 		this._turn_ap_spent = 0;
@@ -2637,7 +2633,7 @@ export default class Player extends Generic{
 		return Math.round(
 			Math.max(
 				(BASE_AP+this.getGenericAmountStatPoints(Effect.Types.maxAP))
-				*this.getPowerMultiplier()
+				*(1+(this.getPowerMultiplier()-1)*.7)	// Power has a smaller impact on AP
 				*this.getGenericAmountStatMultiplier(Effect.Types.maxAP, this)
 				, 3
 			)

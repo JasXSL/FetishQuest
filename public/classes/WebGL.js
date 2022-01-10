@@ -190,6 +190,7 @@ class WebGL{
 
 		this.mouseDownPos = {x:0,y:0};
 		const touchStart = event => {
+			
 			this.onMouseMove(event);
 			this.mouseDownPos.x = event.offsetX;
 			this.mouseDownPos.y = event.offsetY;
@@ -214,10 +215,10 @@ class WebGL{
 		
 		console.log("Binding mousemove in WebGL");
 		const mouseMove = event => this.onMouseMove(event);
-		this.bind(document, 'mousemove', mouseMove);
-		this.bind(document, 'touchmove', mouseMove);
-		this.bind(document, 'touchstart', mouseMove);
-		this.bind(document, 'touchend', mouseMove);
+		this.bind(document.body, 'mousemove', mouseMove);
+		this.bind(document.body, 'touchmove', mouseMove);
+		this.bind(document.body, 'touchstart', mouseMove);
+		this.bind(document.body, 'touchend', mouseMove);
 		
 		
 		// outdoor skybox
@@ -358,12 +359,13 @@ class WebGL{
 
 	bind( target, evt, func ){
 
-		target.addEventListener(evt, func);
+		target.addEventListener(evt, func, {passive:true});
 		this.events.push({
 			targ : target,
 			evt : evt,
 			func : func
 		});
+
 	}
 
 	setSize( width, height ){

@@ -173,11 +173,15 @@ export default class Encounter extends Generic{
 
 		let totalSlots = 0;
 		for( let player of this.players ){
+			
 			player.g_resetID();
 			totalSlots += player._slots || 1;
+
 		}
 
+		
 		let average = difficulty/totalSlots;
+		
 		for( let player of this.players )
 			player.power *= average*(player._slots||1);
 

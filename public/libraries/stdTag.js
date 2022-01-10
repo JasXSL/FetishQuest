@@ -70,6 +70,7 @@ export default {
 	plIgnoreAggro : 'pl_ignore_aggro',		// make a player only attack randomly 
 	plNoGrapple : 'pl_no_grapple',				// Doesn't use grapple
 	plAlwaysGrapple : 'pl_always_grapple',		// Always grappled when possible
+	plNoFetish : 'pl_no_fetish',				// Don't generate fetishes on this player
 
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles

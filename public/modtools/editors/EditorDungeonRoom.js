@@ -248,7 +248,6 @@ class Editor{
 		// Add transform controls
 		const control = modtools.transformControls;
 		this.control = control;
-		
 		control.detach();
 
 		// Handle dragging the tool
@@ -372,7 +371,6 @@ class Editor{
 		gl.renderer.domElement.onkeydown = event => {
 
 			event.preventDefault();
-
 			if( event.key === 'Shift' ){
 				this.shift_held = true;	
 			}		
@@ -442,9 +440,10 @@ class Editor{
 		modtools.webgl.renderer.domElement.onclick = event => {
 			event.preventDefault();
 		};
+		/*
 		modtools.webgl.renderer.domElement.onmousedown = event => {
 			event.preventDefault();
-		};
+		};*/
 
 		const baseAssetSelect = win.dom.querySelector('select.roomBaseAsset');
 		const roomAsset = this.room.getRoomAsset();

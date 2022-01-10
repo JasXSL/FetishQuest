@@ -180,8 +180,11 @@ class PlayerTemplate extends Generic{
 
 		if( this.viable_asset_materials[0] === '*' )
 			this.viable_asset_materials = glib.getAllKeys('MaterialTemplate');
+		// Only the primary slots are allowed for templates
 		if( this.viable_asset_templates[0] === '*' )
-			this.viable_asset_templates = glib.getAllKeys('AssetTemplate');
+			this.viable_asset_templates = glib.getFull('AssetTemplate').filter(el => 
+				el.slots.some(sub => [Asset.Slots.upperBody, Asset.Slots.lowerBody].includes(sub))
+			).map(el => el.label);
 
 		shuffle(this.viable_asset_materials);
 		shuffle(this.viable_asset_templates);

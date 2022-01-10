@@ -354,10 +354,13 @@ export default class GameAction extends Generic{
 			player = game.getMyActivePlayer();
 
 		// Helper function for playing animation on this asset. Returns the animation played if any
-		function playAnim( anim, targ ){
+		const playAnim = ( anim, targ ) => {
 
-			if( !targ )
+			if( !targ ){
+				if( !mesh )
+					console.error("Trying to call playAnim, but GameAction contained no mesh in game action", this);
 				targ = mesh.userData.dungeonAsset;
+			}
 			else
 				targ = game.dungeon.getActiveRoom().assets.filter(el => el.name === targ);
 
