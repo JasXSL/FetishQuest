@@ -211,7 +211,8 @@ class WebGL{
 		this.renderer.domElement.addEventListener('touchstart', event => touchStart(event));
 		this.renderer.domElement.addEventListener('mouseup', event => touchEnd(event));
 		this.renderer.domElement.addEventListener('touchend', event => touchEnd(event));
-
+		
+		console.log("Binding mousemove in WebGL");
 		const mouseMove = event => this.onMouseMove(event);
 		this.bind(document, 'mousemove', mouseMove);
 		this.bind(document, 'touchmove', mouseMove);

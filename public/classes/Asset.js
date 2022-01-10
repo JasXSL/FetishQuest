@@ -857,7 +857,7 @@ Asset.getRandomEnchant = function( asset, curse, player ){
 		duration : -1,
 		name : 'statsEnchant',
 		detrimental : false,
-		effects : [Effect.createStatBonus(stat, 3)],
+		effects : [Effect.createStatBonus(stat, 2)],
 		tags : [stdTag.wrEnchant],
 		rarity : 1,
 	});
