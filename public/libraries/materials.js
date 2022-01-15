@@ -652,6 +652,28 @@ LibMaterial.library = {
 			metalness : 0.1,roughness : 0.8,
 		}),
 
+
+		FarmpathNoPath : new LibMaterial({
+			map : 'land/farmpath_no_path.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		FarmpathStraight : new LibMaterial({
+			map : 'land/farmpath_straight.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		FarmpathStraightField : new LibMaterial({
+			map : 'land/farmpath_straight_field.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		FarmpathT : new LibMaterial({
+			map : 'land/farmpath_t.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		FarmpathX : new LibMaterial({
+			map : 'land/farmpath_x.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+
 		RiverBridge : new LibMaterial({
 			map : 'land/river_bridge_d.jpg',
 			metalness : 0.1,roughness : 0.8,
@@ -834,7 +856,14 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}, "MeshDepthMaterial"),
-
+		BormStraw : new LibMaterial({
+			map : 'decals/bormStraw.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
 		BushThicc : new LibMaterial({
 			map : 'decals/bush_thicc.png',
 			metalness : 0.3,

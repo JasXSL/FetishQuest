@@ -270,9 +270,13 @@ class Editor{
 			entry.rotX = Math.round(mesh.rotation.x*100)/100;
 			entry.rotY = Math.round(mesh.rotation.y*100)/100;
 			entry.rotZ = Math.round(mesh.rotation.z*100)/100;
-			entry.scaleX = Math.round(mesh.scale.x*100)/100;
-			entry.scaleY = Math.round(mesh.scale.y*100)/100;
-			entry.scaleZ = Math.round(mesh.scale.z*100)/100;
+
+			let sMulti = 1.0;
+			if( mesh.userData.meshScale )
+				sMulti = mesh.userData.meshScale;
+			entry.scaleX = Math.round(mesh.scale.x*100/sMulti)/100;
+			entry.scaleY = Math.round(mesh.scale.y*100/sMulti)/100;
+			entry.scaleZ = Math.round(mesh.scale.z*100/sMulti)/100;
 
 			this.save();
 			this.addHistory(entry);

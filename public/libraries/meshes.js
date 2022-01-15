@@ -62,7 +62,7 @@ class LibMesh{
 		this.tags = Array.isArray(data.tags) ? data.tags : [];								// Game tags. These get merged over to dungeonAsset for netcode reasons
 		this.static = data.static;					// If true this mesh can be cached after flattening
 													// If unset, the code tries to figure it out automatically based on the events set, if it's animated etc
-
+		this.scale = parseInt(data.scale) || 1;
 		// Metadata for dungeon generator
 		this.lockable = data.lockable || false;								// Use the door lock system
 		this.attachments = Array.isArray(data.attachments) ? data.attachments : [];	// use LibMeshAttachment
@@ -220,8 +220,6 @@ class LibMesh{
 
 		await this.beforeFlatten( mesh );
 
-		
-
 		let ud = mesh.userData;
 		mesh.traverse(el => {
 			
@@ -311,6 +309,10 @@ class LibMesh{
 		mesh.userData.soundLoops = this.soundLoops;
 		
 		ud.template = this;
+
+		
+		mesh.userData.meshScale = this.scale;
+
 
 		for( let m of submeshes )
 			mesh.add(m);
@@ -2811,6 +2813,15 @@ function build(){
 					],
 					tags : [],
 				}),
+				AxeTest : new LibMesh({
+					url : 'tests/AxeTest.glb',
+					materials : [
+						libMat.Wood.Crate,
+						libMat.Wood.Crate,
+						libMat.Wood.Crate,
+					],
+					tags : [],
+				}),
 				WiggleTestJD : new LibMesh({
 					url : 'special/wiggletest.JD',
 					materials : [
@@ -3547,6 +3558,49 @@ function build(){
 					}),
 					
 					
+				},
+
+				Borm : {
+					farmpathNoPath : new LibMesh({
+						url : 'land/yuug/farmpath_nopath.glb',
+						materials : [
+							libMat.Land.FarmpathNoPath
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+					farmpathStraightField : new LibMesh({
+						url : 'land/yuug/farmpath_straight_field.glb',
+						materials : [
+							libMat.Land.FarmpathStraightField
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+					farmpathX : new LibMesh({
+						url : 'land/yuug/farmpath_x.glb',
+						materials : [
+							libMat.Land.FarmpathX
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+					farmpathStraight : new LibMesh({
+						url : 'land/yuug/farmpath_straight.glb',
+						materials : [
+							libMat.Land.FarmpathStraight
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+					farmpathT : new LibMesh({
+						url : 'land/yuug/farmpath_t.glb',
+						materials : [
+							libMat.Land.FarmpathT
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
 				},
 
 				Port : {
@@ -4801,6 +4855,17 @@ function build(){
 						}
 					},
 				}),
+				BormStraw : new LibMesh({
+					url : 'nature/borm_straw.glb',
+					tags : [stdTag.mBormStraw],
+					materials : [libMat.Nature.BormStraw],
+					scale : 100,
+					animations : {
+						idle : {
+							timeScale : 1
+						}
+					},
+				}),
 			
 
 			},
@@ -4922,6 +4987,7 @@ function build(){
 					}
 				}),
 			},
+			
 		},
 		
 		Mech : {

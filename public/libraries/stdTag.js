@@ -333,6 +333,7 @@ export default {
 	mSeaweed : 'm_seaweed',
 	mTentacles : 'm_tentacles',
 	mHedge : 'm_hedge',
+	mBormStraw : 'm_borm_straw',
 	mWallChain : 'm_wall_chain',
 	mDildoArm : 'm_dildo_arm',		// Used for the dildo arm trap
 	// Bondage tags are a bit special in that they're used by conditions
@@ -349,6 +350,7 @@ export default {
 	mBondageSeat : 'm_bondage_seat',
 	mBondageCollarSeat : 'm_bondage_collar_seat',
 	mBondageSybian : "m_bondage_sybian",
+	
 
 
 	mCoffin : 'm_coffin',

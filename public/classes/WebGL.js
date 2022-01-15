@@ -2128,9 +2128,14 @@ class Stage{
 
 	}
 
+	// Updates a mesh transforms by the dungeon asset
 	updatePositionByAsset( asset ){
 		
 		const c = asset._stage_mesh;
+
+		let sMulti = 1.0;
+		if( c.userData.meshScale )
+			sMulti = c.userData.meshScale;
 
 		// Position it
 		c.position.x = asset.x;
@@ -2139,9 +2144,9 @@ class Stage{
 		c.rotation.x = asset.rotX;
 		c.rotation.y = asset.rotY;
 		c.rotation.z = asset.rotZ;
-		c.scale.x = asset.scaleX;
-		c.scale.y = asset.scaleY;
-		c.scale.z = asset.scaleZ;
+		c.scale.x = asset.scaleX*sMulti;
+		c.scale.y = asset.scaleY*sMulti;
+		c.scale.z = asset.scaleZ*sMulti;
 	
 	}
 
