@@ -608,6 +608,10 @@ export default class Player extends Generic{
 
 		vars[prefix+'UntappedBlock'] = this._untappedBlock;
 
+		vars[prefix+'BlockArcane'] = this.getBlock(Action.Types.arcane);
+		vars[prefix+'BlockPhysical'] = this.getBlock(Action.Types.physical);
+		vars[prefix+'BlockCorruption'] = this.getBlock(Action.Types.corruption);
+
 		let tags = this.getTags();
 		for( let tag of tags )
 			vars[prefix+'Tag_'+tag] = 1;
@@ -1007,12 +1011,14 @@ export default class Player extends Generic{
 	// overrides generic class
 	hasTagBy( tags, sender ){
 
-		if( !Array.isArray(tags) )
-			tags = [tags];
+		tags = toArray(tags);
+		sender = toArray(sender);
+		let sids = sender.map(el => el.id);
+
 
 		// Start by checking turn tags
 		for( let tt of this._turn_tags ){
-			if( sender.id === tt.s.id && ~tags.indexOf(tt.tag) )
+			if( sids.includes(tt.s.id) && tags.includes(tt.tag) )
 				return true;
 		}
 
@@ -1020,7 +1026,7 @@ export default class Player extends Generic{
 		// Check wrapper tags
 		const wrappers = this.getWrappers();
 		for( let wrapper of wrappers ){
-			if( wrapper.caster === sender.id && wrapper.hasTag(tags) )
+			if( sids.includes(wrapper.caster) && wrapper.hasTag(tags) )
 				return true;
 		}
 		
@@ -1028,7 +1034,7 @@ export default class Player extends Generic{
 		// Next check the effects
 		const effects = this.getEffects();
 		for( let effect of effects ){
-			if( effect.parent.caster === sender.id && (effect.hasTag(tags)) )
+			if( sids.includes(effect.parent.caster) && effect.hasTag(tags) )
 				return true;
 		}
 

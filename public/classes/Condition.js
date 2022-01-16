@@ -203,27 +203,25 @@ export default class Condition extends Generic{
 
 		}
 
-		let targs = event.target,
+		let targs = toArray(event.target),
 			success = false,
 			T = Condition.Types,
 			s = event.sender
 		;
 
-		
+		const originalTargets = targs.slice();
 
 		let eventWrapper = event.wrapper;
 		if( this.data.originalWrapper && event.originalWrapper )
 			eventWrapper = event.originalWrapper;
 
-		if( !Array.isArray(targs) )
-			targs = [targs];
 		if( this.caster )
 			targs = [event.sender];
 
 		if( ~this.targnr )
 			targs = [targs[this.targnr]];
 		
-		// Trying to target a nonexistend target
+		// Trying to target a nonexistent target
 		if( targs[0] === undefined ){
 			if( debug )
 				console.debug("Condition DEBUG :: Targs is undefined, check targnr", event.target, this.caster, this.targnr);
@@ -260,10 +258,14 @@ export default class Condition extends Generic{
 					// Only tags applied by sender
 					if( this.data.caster ){
 
+						let tagSender = s;
 						let tagTarg = t;
-						if( this.caster )
+						if( this.caster ){
+							// t is both caster and sender at this point
 							tagTarg = s;
-						found = tagTarg && tagTarg.hasTagBy([tag], this.caster ? t : s);
+							tagSender = originalTargets;
+						}
+						found = tagTarg && tagTarg.hasTagBy([tag], tagSender);
 
 					}
 					// Any tag applied by anyone
