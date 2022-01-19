@@ -182,9 +182,10 @@ export default class Encounter extends Generic{
 		
 		let average = difficulty/totalSlots;
 		
-		for( let player of this.players )
-			player.power *= average*(player._slots||1);
-
+		for( let player of this.players ){
+			if( player.power > 0 )
+				player.power *= average*(player._slots||1);
+		}
 		this.onModified();
 		return this;
 

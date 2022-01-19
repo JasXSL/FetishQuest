@@ -277,6 +277,7 @@ class Editor{
 			entry.scaleX = Math.round(mesh.scale.x*100/sMulti)/100;
 			entry.scaleY = Math.round(mesh.scale.y*100/sMulti)/100;
 			entry.scaleZ = Math.round(mesh.scale.z*100/sMulti)/100;
+			entry.__modified = true;	// mark it as modified so it can be saved on change
 
 			this.save();
 			this.addHistory(entry);
@@ -762,7 +763,6 @@ class Editor{
 
 		
 
-		
 		// This creates new objects and wipes parenting information
 		// Mark parents
 		for( let asset of this.room.assets ){
@@ -791,13 +791,13 @@ class Editor{
 
 		}
 
-		
 
 	}
 
 	// Tries to save the room dummy onto room_raw
 	save(){
 
+		console.log(this.room.assets);
 		let ids = this.room.assets.map(el => {
 
 			let data = DungeonRoomAsset.saveThis(el, 'mod');
@@ -814,7 +814,7 @@ class Editor{
 			else{
 
 				// This object was from the root mod in an extension
-				if( el.__isParent ){
+				if( el.__isParent && el.__modified ){
 
 					let originalId = el.id;
 					mod.mod.insert('dungeonRoomAssets', data);
@@ -1044,6 +1044,7 @@ class Editor{
 				return;
 			}
 
+			asset.__modified = true;	// mark it as modified so it can be saved on change
 			this.asset.asset = asset;	// Needs to be set because dungeonAsset doesn't have a library
 			let html = '';
 			html += '<div class="labelFlex">';

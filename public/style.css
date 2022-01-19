@@ -2870,13 +2870,13 @@ div.passiveUpsideDown > div.content > div.bg{
 		color:#069;
 	}
 	#ui > div.players div.player > div.shields > div.shield.disabled > span{
-		color:#333;
+		color:#333 !important;
 	}
 	#ui > div.players div.player > div.shields > div.shield.corruption div.bg {
 		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(252deg);
 	}
 	#ui > div.players div.player > div.shields > div.shield.disabled div.bg {
-		filter: brightness(0.7);
+		filter: brightness(0.7) !important;
 	}
 	
 	#ui > div.players div.player > div.shields > div.shield.physical div.bg {

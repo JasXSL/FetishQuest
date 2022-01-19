@@ -100,6 +100,7 @@ function randElem( input ){
 }
 
 // Generic function that clones an object. Useful in loops so you don't need to define multiple functions
+// relies on obj having a clone method
 function clone( obj, parent ){
 	if( !Array.isArray(obj) )
 		return obj.clone(parent);
@@ -108,6 +109,42 @@ function clone( obj, parent ){
 	
 }
 
+// Attempts to deep clone an object. Note that this won't clone arrays in arrays. But can clone objects in arrays and objects in objects
+function deepClone( obj ){
+
+	if( typeof obj !== 'object' ){
+		console.error("Attempted to clone", obj);
+		throw 'Invalid obj passed to deepClone';
+	}
+
+	let out = {};
+	for( let i in obj ){
+
+		const item = obj[i];
+		if( Array.isArray(item) ){
+
+			let arr = [];
+			for( let asset of item ){
+
+				if( typeof asset === 'object' )
+					arr.push(deepClone(asset));
+				else
+					arr.push(asset);
+
+			}
+			out[i] = arr;
+
+		}
+		else if( typeof item === 'object' )
+			out[i] = deepClone(item);
+		else
+			out[i] = item;
+			
+
+	}
+	return out;
+
+}
 
 // Takes array values and builds an object of {val:true...}
 function valsToKeys( input = [] ){

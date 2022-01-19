@@ -216,7 +216,7 @@ AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, vi
 
 		// Check if slot was preset
 		if( 
-			(slot && asset.slots.includes(slot)) || 
+			(slot && !asset.slots.includes(slot)) || 
 			!asset.testLevel(level) ||
 			(!allowCosmetic && !asset.slots.some(el => baseSlots.includes(el)))
 		)

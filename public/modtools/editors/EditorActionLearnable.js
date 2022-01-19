@@ -67,7 +67,7 @@ export function list(){
 		['*action'] : true,
 		auto_learn : true,
 		cost : true,
-		conditions : true,
+		['*conditions'] : true,
 		['*gen_only'] : true,
 	}));
 

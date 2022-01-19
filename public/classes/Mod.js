@@ -124,7 +124,6 @@ export default class Mod extends Generic{
 			this.category = Mod.Category.Unsorted;
 	}
 
-
 	getSaveData(){
 		
 		const comparer = new Comparer();
@@ -202,6 +201,8 @@ export default class Mod extends Generic{
 
 			const handleComparedArrays = (base, compared) => {
 
+				//console.log("Comparing", base, compared);
+
 				const getId = c => {
 					if( typeof c === "object" )
 						return c.label || c.id;
@@ -221,24 +222,28 @@ export default class Mod extends Generic{
 
 					// Awe shiet, we have an array
 					let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
-					// Check how many of each entry we have
+					// Check how many of each entry we have in the compared output. An array may contain the same item multiple times.
+					// Which is why we here calculate how many times it occurs
 					for( let c of compared[i] ){
 						c = getId(c);
 						
-						if( !adds.get(c) )
+						if( !adds.get(c) )	// Store the ID in adds
 							adds.set(c, 0);
 
 						adds.set(c, adds.get(c)+1);
 
 					}
-					// Check which ones have been removed
+
+					// Next we check how many times it occurs in the parent asset
 					for( let c of base[i] ){
 						c = getId(c);
 
+						// This one exists both in the base (nonextended object), and in the output
 						if( adds.get(c) ){
 
-							adds.set(c, adds.get(c)-1);
+							adds.set(c, adds.get(c)-1);		// Remove it from newly added items
 
+							// This item exists in both, so we mark it as such instead.
 							if( !currents.get(c) )
 								currents.set(c, 0);
 							currents.set(c, currents.get(c)+1);
@@ -246,24 +251,31 @@ export default class Mod extends Generic{
 
 						}
 
+						// Otherwise if we don't have enough of this item in adds, it's a deletion
 						removes.push(c);
 
 					}
+
 					// Check which ones are newly added
 					for( let cur of compared[i] ){
+
 						const c = getId(cur);
 						
+						// This item exists in both, so we decrease the currents counter and continue
 						if( currents.get(c) ){
 
 							currents.set(c, currents.get(c)-1);
 							continue;
 
 						}
+
+						// This item only exists in the compared output, so we mark it as a newly added item
 						build.push(cur);
 
 					}
 
-					console.log(removes, build, adds, currents);
+					// removes now contains the deleted items, and build the newly added ones
+					//console.log(removes, build, adds, currents);
 
 
 					compared[i] = removes.map(el => {
@@ -285,16 +297,10 @@ export default class Mod extends Generic{
 				out[i] = out[i].slice();
 				const arr = out[i];
 				
+				//console.log(i, arr.length);
 				for( let entry in arr ){
 
-					const clone = {};
-					for( let i in arr[entry] ){
-
-						if( i !== '_ext' )
-							clone[i] = arr[entry][i];
-
-					}
-					arr[entry] = clone;
+					arr[entry] = deepClone(arr[entry]);	// make sure we're working on a clone
 
 					const extension = arr[entry];
 					if( !extension._e )
@@ -308,13 +314,22 @@ export default class Mod extends Generic{
 					// Array comparator
 					const comparison = comparer.compare(base, extension);
 					delete comparison.__MOD;
-					handleComparedArrays(base, comparison);
 
+					// Do array compares of extended objects only. The rest we can accept as is.
+					// This is because extension object arrays only contain {__DEL__} objects for deletions, and any newly added objects.
+					if( extension._ext )
+						handleComparedArrays(base, comparison);
+
+					delete comparison._ext;
 					removeDel(comparison);
 					// mParent is allowed to be the same on both
 					if( extension._mParent )
 						comparison._mParent = extension._mParent;
 
+					/*
+					if( i === "dungeonRoomAssets" )
+						console.log("base", base, "extension", extension,  "comparison", comparison);
+					*/
 					arr[entry] = comparison;
 
 				}
@@ -465,8 +480,7 @@ export default class Mod extends Generic{
 				if( onlyIfParented && !asset._h && !asset._mParent )
 					continue;
 				
-				//console.log("Found it!", type, asset);
-				this.deleteChildrenOf( type, id );	// Delete any child objects recursively. getAssetById is needed to delete extensions
+				this.deleteChildrenOf( type, asset.id || asset.label );	// Delete any child objects recursively. getAssetById is needed to delete extensions
 				
 				// We deleted an extension, so we gotta delete whatever we were extending as well since they can have either the parent id or extending id
 				if( asset._e )
@@ -1300,14 +1314,14 @@ export default class Mod extends Generic{
 				continue;
 
 			
-			const defaults = new Mod.LIB_TYPES[lib]();
-			const keys = Object.keys(defaults).concat(specialSaveFields);
+			const defaults = new Mod.LIB_TYPES[lib]();							// Create a new object of the library asset type. Ex dungeonRooms -> DungeonRoom
+			const keys = Object.keys(defaults).concat(specialSaveFields);		// Filter out keys that shouldn't be saved
 			data[lib] = data[lib].map(asset => {
 
 				if( typeof asset !== "object" )
 					return asset;
 
-				let aKeys = Object.keys(asset);
+				let aKeys = Object.keys(asset);		// Find keys in the db asset
 
 				// Remove defaults
 				for( let i of keys ){
@@ -1386,7 +1400,6 @@ export default class Mod extends Generic{
 		data._map = map;
 		console.log(map, data);
 		
-
 		const zip = new JSZip();
 		zip.file('mod.json', JSON.stringify(data));
 		const content = await zip.generateAsync({

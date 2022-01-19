@@ -26,6 +26,7 @@ export default {
 	plBeast : 'pl_beast',			// non-humanoid
 	plTargetBeast : 'pl_target_beast',	// Only considered beast as a target, not sender. Use plBeast alongside this one.
 	plTentacles : 'pl_tentacles',
+	plTendrils : 'pl_tendrils',		// These are significantly smaller than tentacles. A single tendril generally won't be able to knock someone down, and is more tickly than thrusty.
 	plCocktacle : 'pl_cocktacle',	// Player has at least 1 cock tipped tentacle
 	plHorns : 'pl_horns',
 	plHorn : 'pl_horn',
