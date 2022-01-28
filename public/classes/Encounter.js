@@ -283,11 +283,11 @@ export default class Encounter extends Generic{
 
 	}
 	
-	validate( event ){
+	validate( event, debug ){
 
 		if( !event )
 			event = new GameEvent({});
-		return Condition.all(this.conditions, event);
+		return Condition.all(this.conditions, event, debug);
 
 	}
 
@@ -482,7 +482,6 @@ export default class Encounter extends Generic{
 
 		});
 		// None in level range. Allow all D:
-
 		if( !valid.length ){
 
 			valid = arr;
@@ -492,7 +491,7 @@ export default class Encounter extends Generic{
 
 		for( let enc of valid ){
 			
-			if( enc.validate(event) ){
+			if( enc.validate(event, true) ){
 
 				enc.g_resetID();
 				return enc.clone(enc.parent);
@@ -504,9 +503,11 @@ export default class Encounter extends Generic{
 
 	}
 	static getRandomViable( arr, event ){
+
 		const entries = arr.slice();
 		shuffle(entries);
 		return this.getFirstViable(entries, event);
+
 	};
 
 

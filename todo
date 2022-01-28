@@ -25,7 +25,6 @@ Overhaul:
 		- Figure out contenders
 		
 	Bugs:
-		- Saving extensions still seem to brick the original objects for arrays?
 		- Sometimes using repair kits fails?
 
 	Items:

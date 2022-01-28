@@ -1195,6 +1195,10 @@ class DungeonRoom extends Generic{
 	/* EVENTS */
 	onVisit( player ){
 
+		if( !player )
+			player = game.getMyActivePlayer();
+		if( !player )
+			player = game.players[0];
 		
 		// Start a dummy encounter just to set the proper NPCs
 		if( Array.isArray(this.encounters) && !this.encounters.length ){
@@ -1209,7 +1213,13 @@ class DungeonRoom extends Generic{
 		// Pick a random encounter
 		if( !(this.encounters instanceof Encounter) ){
 
-			let viable = Encounter.getRandomViable(this.encounters);
+			let viable = Encounter.getRandomViable(
+				this.encounters,
+				new GameEvent({
+					sender : player,
+					target : player
+				})
+			);
 			if( !viable )
 				viable = new Encounter({
 					completed : true,

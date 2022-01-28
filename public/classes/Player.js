@@ -509,14 +509,16 @@ export default class Player extends Generic{
 		return out;
 
 	}
-	// Finds the group position in the game.actions by action label. Used when setting group index 
-	getActualGroupPos( group, label ){
 
-		const actions = this.getActionGroup(group);
+	// Returns a numeric index of where the current label of an action group is in its array of viable actions
+	// Returns 0 if the group isn't found, or the action isn't found
+	getActiveActionGroupIndex( group ){
+
+		let actions = this.getActionGroup(group);
+		let label = this.getActiveActionGroupLabel(group);
 		for( let i = 0; i < actions.length; ++i ){
 
-			let action = actions[i];
-			if( action.label === label )
+			if( actions[i].label === label )
 				return i;
 
 		}
@@ -525,45 +527,68 @@ export default class Player extends Generic{
 	}
 
 	// Action groups
-	getActiveActionGroupIndex( group ){
+	// Returns the selected action in a group
+	getActiveActionGroupLabel( group ){
 
+		const actions = this.getActionGroup(group);
+		if( !actions.length )
+			return false;
+		// Search for the group
 		for( let g of this.actionGroups ){
 
-			if( g.id === group )
-				return g.active;
+			// Found group
+			if( g.id === group ){
+
+				// Make sure the active action exists
+				for( let action of actions ){
+
+					if( action.label === g.active )
+						return action.label;
+
+				}	
+				// Didn't exist, fail
+				return false;
+
+			}
 
 		}
 
-		return 0;
+		return false;
 
 	}
 	
-	setActiveActionGroupIndex( group, index, additive = false ){
+	// Sets
+	// Was: setActiveActionGroupIndex
+	// Label can be 1 or -1 to offset instead of setting. And adds or subtracts based on where the current label is
+	setActiveActionGroupLabel( group, label ){
 
 		for( let g of this.actionGroups ){
 
 			if( g.id === group ){
 
-				if( additive ){
+				if( label === 1 || label === -1 ){
 
-					g.active += parseInt(index) || 1;
-					const length = this.getActionGroup(group).length;
-					if( g.active >= length )
-						g.active = 0;
-					else if( g.active < 0 )
-						g.active = length-1;
+					let actions = this.getActionGroup(group);
+					const length = actions.length;
+					let current = this.getActiveActionGroupIndex()+label;
+					if( current >= length )
+						current = 0;
+					else if( current < 0 )
+						current = length-1;
+					g.active = actions[current].label;
 
 				}
 				else
-					g.active = parseInt(index) || 0;
+					g.active = label;
 				return;
 
 			}
 
 		}
+		// Not found
 		this.actionGroups.push(new PlayerActionGroup({
 			id : group,
-			index : index
+			index : label
 		}));
 
 	}
@@ -2693,6 +2718,15 @@ export default class Player extends Generic{
 		// 0 power becomes 1 for legacy reasons
 		if( out === 0 )
 			out = 1;
+		
+		if( this.isNPC() ){
+			if( this.level < 2 )
+				out *= 0.5;
+			else if( this.level < 4)
+				out *= 0.75;
+		}
+		
+
 		if( out < .1 )
 			return .1;
 		return out;
@@ -4091,7 +4125,7 @@ class PlayerActionGroup extends Generic{
 		super(data);
 
 		this.id = '';		// group name
-		this.active = 0;	// Index of active action
+		this.active = '';	// id of active action
 
 		this.load(data);
 	}

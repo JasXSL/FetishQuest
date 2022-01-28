@@ -406,11 +406,12 @@ class Editor{
 
 				const meshes = [];
 				control.object.parent.traverse(el => {
-					if( el.isMesh )
+					if( el.isMesh ){
 						meshes.push(el);
+					}
 				});
 
-				const intersects = raycaster.intersectObjects(meshes);
+				const intersects = raycaster.intersectObjects(meshes, false);	// Recursive breaks on sprites
 				for( let i of intersects ){
 
 					if( i.object === control.object )

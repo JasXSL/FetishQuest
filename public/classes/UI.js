@@ -207,7 +207,7 @@ export default class UI{
 				if( !player )
 					return;
 
-				player.setActiveActionGroupIndex( this.action_selected.group, 1, true);
+				player.setActiveActionGroupLabel( this.action_selected.group, 1);	// Setting to 1 adds one
 				this.drawActionSelector();
 				// Timeout is needed due to the click+drag direct system
 
@@ -661,7 +661,9 @@ export default class UI{
 			if( !sActions )
 				continue;		// No actions here
 			
-			let idxActive = player.getActiveActionGroupIndex(sActions[0].group);
+			let labelActive = player.getActiveActionGroupLabel(sActions[0].group);
+			if( !labelActive )
+				labelActive = sActions[0].label;
 
 			for( let s = 0; s < NUM_SUBS; ++s ){
 
@@ -671,7 +673,7 @@ export default class UI{
 				if( !action )
 					continue;
 
-				let castable = action.castable() && myTurn;
+				let castable = action.castable() && myTurn && action.label !== 'stdClairvoyance';
 				castableActions += Boolean(castable);
 
 				// Update class name
@@ -682,8 +684,9 @@ export default class UI{
 				const castableClass = (castable ? 'enabled' : 'disabled');
 				button.toggleClass(castableClass, true);
 
-				if( s < idxActive )
-					group.appendChild(button[0]);
+				if( action.label === labelActive ){
+					group.prepend(button[0]);
+				}
 				
 			}
 
@@ -698,15 +701,19 @@ export default class UI{
 
 			let etcolor = 'disabled';
 			if( myTurn ){
+
 				etcolor = 'enabled';
 				// Any moves left?
 				if( !castableActions )
 					etcolor = 'highlighted';
 				if( this._has_moves !== Boolean(castableActions) ){
+
 					this._has_moves = Boolean(castableActions);
 					if( !castableActions )
 						game.uiAudio( 'no_moves' );
+
 				}
+
 			}
 			this.endTurnButton.toggleClass('disabled enabled highlighted', false).toggleClass(etcolor, true);
 
@@ -717,6 +724,7 @@ export default class UI{
 		// Bind events
 		time = Date.now();
 
+		// Clicking the active button
 		$("> div.actionGroup > div.action.button:first-child, > div.action.button", this.actionbar_actions)
 			.off('mousedown click touchstart touchmove')
 			.on('mousedown click touchstart touchmove', function(event){
@@ -724,8 +732,6 @@ export default class UI{
 				let id = $(this).attr("data-id");
 				let spell = player.getActionById(id);
 				const enabled = $(this).is('.enabled');
-
-
 				const targetable = spell && spell.targetable();
 
 				if( event.type === 'touchstart' || event.type === 'touchmove' ){
@@ -790,6 +796,7 @@ export default class UI{
 
 					//th.closeTargetSelector();
 					th.action_selected = spell;
+
 					th.targets_selected = [];
 					game.uiClick(event.target);
 
@@ -806,6 +813,7 @@ export default class UI{
 						th.touch_update.copy(th.touch_start);
 					}
 
+					
 					th.drawTargetSelector();
 
 				}
@@ -838,16 +846,19 @@ export default class UI{
 					let spell = player.getActionById(id);
 					
 					// Get the index of the spell
-					player.setActiveActionGroupIndex(
+					player.setActiveActionGroupLabel(
 						spell.group, 
-						player.getActualGroupPos(spell.group, spell.label)
+						spell.label
 					);
+
+					// Run this again to redraw with the correct order
 					th.drawActionSelector(player);
 					th.bindTooltips();
-					th.__no_move = true;	// Prevents multiple clicks from happening since we're binding many events
+
+					th.__no_move = true;	// Without this, this will cause a click to fire immediately since we're swapping position
 					game.save();
 
-					// Wait for all events to finish firing
+					// Let the draw happen first, then clone this event onto the new main
 					setTimeout(() => {
 						th.__no_move = false;
 						this.parentNode.children[0].dispatchEvent(new MouseEvent(event.type));
@@ -1892,6 +1903,8 @@ export default class UI{
 
 		this._hold_actionbar = true;
 		this._action_used = true;
+		
+		
 		game.useActionOnTarget(
 			this.action_selected, 
 			this.targets_selected,

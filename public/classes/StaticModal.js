@@ -4602,27 +4602,13 @@ export default class StaticModal{
 
 
 						let wrappers = JSON.parse(getEl("textarea[name=wrappers]").value.trim()).map(el => new Wrapper(el));
-						let stats = {};
-						for( let i in Action.Types ){
-							stats['sv'+Action.Types[i]] = 0;
-							stats['bon'+Action.Types[i]] = 0;
-						}
 
+						let out = '';
 						for( let wrapper of wrappers ){
 		
-							for( let effect of wrapper.effects ){
-		
-								if( stats.hasOwnProperty(effect.type) && effect.data && !isNaN(effect.data.amount) )
-									stats[effect.type] += effect.data.amount;
-		
-							}
-		
-						}
-	
-						let out = '';
-						for(let i in stats ){
-							if( stats[i] )
-								out += '<div class="quickStat">'+stats[i]+' '+Asset.stringifyStat(i)+'</div>';
+							if( wrapper.description )
+								out += '<div class="quickStat">'+esc(wrapper.description)+'</div>';
+								
 						}
 						getEl("span.quickStats").innerHTML = out;
 

@@ -182,7 +182,7 @@ class PlayerTemplate extends Generic{
 			this.viable_asset_materials = glib.getAllKeys('MaterialTemplate');
 		// Only the primary slots are allowed for templates
 		if( this.viable_asset_templates[0] === '*' )
-			this.viable_asset_templates = glib.getFull('AssetTemplate').filter(el => 
+			this.viable_asset_templates = glib.getAllValues('AssetTemplate').filter(el => 
 				el.slots.some(sub => [Asset.Slots.upperBody, Asset.Slots.lowerBody].includes(sub))
 			).map(el => el.label);
 
