@@ -1196,7 +1196,7 @@ class Effect extends Generic{
 
 					if( start < t.getMaxArousal() ){
 
-						t.addArousal(tot, true);
+						t.addArousal(tot, true, undefined, s);
 						tot = t.arousal-start;
 						if( t.arousal !== start )
 							game.ui.addText( t.getColoredName()+" gained "+Math.abs(tot)+" arousal from corruption.", undefined, s.id, t.id, 'statMessage arousal' );
@@ -1391,7 +1391,7 @@ class Effect extends Generic{
 
 
 				let pre = t.arousal;
-				t.addArousal(amt, true);
+				t.addArousal(amt, true, undefined, s);
 				let change = t.arousal-pre;
 				
 				if( change )
@@ -1401,7 +1401,7 @@ class Effect extends Generic{
 				if( +this.data.leech ){
 
 					pre = s.arousal;
-					s.addArousal(-amt, true);
+					s.addArousal(-amt, true, undefined, s);
 					let change = s.arousal-pre;
 					if( change )
 						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" arousal"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, t.id, s.id, 'statMessage arousal' );

@@ -44,7 +44,7 @@ const SYNONYMS = [
 	['quickly', 'rapidly', 'speedily', 'hastily'],
 	['rapid', 'quick', 'hasty', 'swift'],
 	['breast', 'boob', 'tit', 'breast'],
-	['penis', 'dong', 'cock'],
+	['penis', 'dong', 'cock', '!member'],
 	['vagina', 'pussy', 'cunt'],
 	['butt', 'rear', 'behind'],
 	['groin', 'crotch'],
@@ -353,11 +353,16 @@ class Text extends Generic{
 	// Only useful for direct synonyms. Not usable when the tag is not the synonym, like %leftright
 	_replaceArray(text, synonyms){
 
+		let acceptable = synonyms.filter(s => s.charAt(0) !== '!');
+
 		const repl = (synonym, uc) => {
 
 			let pre = '%';
 			if( uc )
 				pre = '%!';
+
+			if( synonym.charAt(0) === '!' )
+				synonym = synonym.substring(1);
 
 			let esc = (pre+synonym).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 			let spl = text.split(new RegExp('('+esc+')', 'g'));
@@ -367,9 +372,9 @@ class Text extends Generic{
 				if( t.startsWith(pre) ){
 
 					t = t.substring(pre.length);
-					if( synonyms.includes(t) ){
+					if( acceptable.includes(t) ){
 
-						let synonym = randElem(synonyms);
+						let synonym = randElem(acceptable);
 						if( uc )
 							synonym = ucFirst(synonym, true);
 						spl[i] = synonym;

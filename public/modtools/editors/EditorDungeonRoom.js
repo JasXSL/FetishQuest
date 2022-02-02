@@ -590,6 +590,7 @@ class Editor{
 		}, this.room);
 		delete asset.id;
 
+		asset.__modified = true;
 		asset.__history = [];
 		asset.__historyMarker = 0;
 		this.addHistory(asset);
@@ -798,33 +799,41 @@ class Editor{
 	// Tries to save the room dummy onto room_raw
 	save(){
 
-		console.log(this.room.assets);
+		console.log("Saving", this.room.assets);
 		let ids = this.room.assets.map(el => {
 
 			let data = DungeonRoomAsset.saveThis(el, 'mod');
+			
+			// Preserve extend status when saving over an extend
+			// Needed for array compares to work correctly
+			data._ext = el._ext;
+			data._e = el._e;
 			data._h = 1;	// Marks as unique. Needed for cloning parents.
 
+
 			// Insert new
-			if( !el.id ){
+			if( el.__modified ){
 
-				let newID = mod.mod.insert('dungeonRoomAssets', data);
-				el.id = newID;
-				//console.log("Inserted", el, data);
+				if( !el.id ){
 
-			}
-			else{
+					let newID = mod.mod.insert('dungeonRoomAssets', data);
+					el.id = newID;
+					//console.log("Inserted", el, data);
 
+				}
 				// This object was from the root mod in an extension
-				if( el.__isParent && el.__modified ){
+				else if( el.__isParent ){
 
 					let originalId = el.id;
-					mod.mod.insert('dungeonRoomAssets', data);
-					data._e = el._e = originalId;
-					mod._ext = true;	// Needed for optimization to work. Auto set when you fetch from mod with extend true
 					
+					data._e = el._e = originalId;
+					data._ext = el._ext = true;	// Needed for optimization to work. Auto set when you fetch from mod with extend true
+					mod.mod.insert('dungeonRoomAssets', data);
+
 					el.id = data.id;	// Update the work asset
 					delete el.__isParent;
-					//console.log("Extended", el, data);
+
+					console.trace("Extended", el, data);
 
 				}
 				// Update db entry
@@ -832,6 +841,7 @@ class Editor{
 					mod.mod.setAssetById('dungeonRoomAssets', data);
 					//console.log("Updated", el, data);
 				}
+
 
 			}
 
@@ -845,7 +855,6 @@ class Editor{
 
 		window.mod.setDirty(true);
 		this.updateWants();
-
 	}
 
 	bindMeshes(){
@@ -1045,6 +1054,13 @@ class Editor{
 				return;
 			}
 
+			this.onChange = () => {
+			
+				asset.__modified = true;
+				th.save();
+	
+			};
+
 			asset.__modified = true;	// mark it as modified so it can be saved on change
 			this.asset.asset = asset;	// Needs to be set because dungeonAsset doesn't have a library
 			let html = '';
@@ -1086,7 +1102,7 @@ class Editor{
 				th.save();
 			});
 
-			const table = this.dom.querySelector('div.interactions table');
+			//const table = this.dom.querySelector('div.interactions table');
 
 
 
@@ -1106,13 +1122,6 @@ class Editor{
 
 		
 		this.assetWindow = Window.create('REPLACE_ID', 'dungeonAssets', '', 'crafting', build, {}, this.win);
-		this.assetWindow.onChange = () => {
-			
-			this.save();
-			// Might not be needed now?
-			// build.call(this.assetWindow);
-
-		};
 		this.assetWindow.setHelp(() => {
 
 			let out = '';

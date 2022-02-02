@@ -180,6 +180,11 @@ export default class Generic{
 
 	// Removes default values from save data
 	g_sanitizeDefaults( saveData ){
+
+		// Special case for the editor, extended ones are sanitized when saved instead
+		if( this._ext )
+			return;
+
 		const template = new this.constructor();
 		for( let i in saveData ){
 			let stored = template[i];
@@ -193,6 +198,7 @@ export default class Generic{
 			if( JSON.stringify(stored) === JSON.stringify(saveData[i]) )
 				delete saveData[i];
 		}
+
 	}
 
 	// Generic tag fetch. This can be overridden

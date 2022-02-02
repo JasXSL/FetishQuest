@@ -2614,7 +2614,7 @@ export default class Player extends Generic{
 
 	}
 
-	addArousal( amount, fText = false, force = false ){
+	addArousal( amount, fText = false, force = false, sender ){
 
 		if( this.isArousalDisabled() && !force )
 			return false;
@@ -2622,6 +2622,9 @@ export default class Player extends Generic{
 			return;
 		if( isNaN(amount) )
 			return console.error("Invalid amount of arousal", amount);
+
+		if( !(sender instanceof Player) )
+			sender = this;
 			
 		const pre = this.arousal, max = this.getMaxArousal();
 		this.arousal += amount;
@@ -2633,7 +2636,7 @@ export default class Player extends Generic{
 
 		if( this.arousal >= max && pre < max ){
 
-			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(this, this, false);
+			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(sender, this, false);
 			game.save();
 			game.ui.draw();
 

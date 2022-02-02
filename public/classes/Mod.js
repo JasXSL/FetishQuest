@@ -222,6 +222,11 @@ export default class Mod extends Generic{
 
 					// Awe shiet, we have an array
 					let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
+
+					let baseI = base[i];
+					if( !baseI )
+						baseI = [];
+
 					// Check how many of each entry we have in the compared output. An array may contain the same item multiple times.
 					// Which is why we here calculate how many times it occurs
 					for( let c of compared[i] ){
@@ -235,7 +240,7 @@ export default class Mod extends Generic{
 					}
 
 					// Next we check how many times it occurs in the parent asset
-					for( let c of base[i] ){
+					for( let c of baseI ){
 						c = getId(c);
 
 						// This one exists both in the base (nonextended object), and in the output
@@ -275,7 +280,7 @@ export default class Mod extends Generic{
 					}
 
 					// removes now contains the deleted items, and build the newly added ones
-					//console.log(removes, build, adds, currents);
+					//console.log("removes (__DEL__)", removes, "builds (out)", build, "adds", adds, "currents", currents);
 
 
 					compared[i] = removes.map(el => {
@@ -320,6 +325,7 @@ export default class Mod extends Generic{
 					if( extension._ext )
 						handleComparedArrays(base, comparison);
 
+					console.log("Deleting ext");
 					delete comparison._ext;
 					removeDel(comparison);
 					// mParent is allowed to be the same on both
@@ -625,6 +631,7 @@ export default class Mod extends Generic{
 
 		}
 
+		console.log("inserted asset", asset);
 		this[table].push(asset);
 
 	}
