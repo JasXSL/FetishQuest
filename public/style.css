@@ -2968,6 +2968,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 
+	/* End turn button */
 	#ui > div.actionbar > div.actions{
 		position: absolute;
 		display: flex;
@@ -2978,6 +2979,17 @@ div.passiveUpsideDown > div.content > div.bg{
 		user-select: none;
 	}
 
+	#ui > div.actionbar.spectating > div.actions > div{
+		display:none;
+	}
+
+	#ui > div.actionbar.spectating > div.actions > span.spectating{
+		display:inline-block;
+	}
+	#ui > div.actionbar > div.actions > span.spectating{
+		display:none;
+	}
+		
 	
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
 		width: auto;

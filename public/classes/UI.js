@@ -368,7 +368,7 @@ export default class UI{
 		for( let i=0; i<NUM_ACTIONS; ++i )
 			html += UI.Templates.getActionButtonGroup();
 		
-		html += '<div data-id="end-turn" class="action button autoWidth"><div class="bg"></div><span>END TURN</span></div><span class="hidden">Spectating</span>';
+		html += '<div data-id="end-turn" class="action button autoWidth"><div class="bg"></div><span>END TURN</span></div><span class="spectating">Spectating</span>';
 		this.actionbar_actions.html(html);
 		this.endTurnButton = $('> div[data-id="end-turn"]',this.actionbar_actions);
 		this.spectatingText = $('> span', this.actionbar_actions);
@@ -570,7 +570,7 @@ export default class UI{
 
 		// Hide the action buttons from start
 		const buttons = $("> div.actionGroup", this.actionbar_actions); // Get the groups
-		this.spectatingText.toggleClass('hidden', Boolean(player));
+		this.action_selector.toggleClass('spectating', !player);
 
 		if( !(player instanceof Player) ){
 
