@@ -456,7 +456,9 @@ class Editor{
 		if( roomAsset )
 			baseAssetSelect.value = roomAsset.model;
 		baseAssetSelect.onchange = () => {
-			this.room.getRoomAsset().model = baseAssetSelect.value;
+			const base = this.room.getRoomAsset();
+			base.model = baseAssetSelect.value;
+			base.__modified = true;
 			this.save();
 			this.draw();
 		};

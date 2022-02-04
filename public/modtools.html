@@ -25,12 +25,14 @@
 		import Generic from './classes/helpers/Generic.js';
 		import Tags from './libraries/stdTag.js';
 		import {LibMesh} from './libraries/meshes.js';
+		import { OBJExporter } from './ext/OBJExporter.js';
 		window.glib = new GameLib();
 		window.mat = Materials;
 		window.mod = new Modtools();
 		window.Generic = Generic;
 		window.Window = WM;
 		window.stdTag = Tags;
+		window.objExporter = OBJExporter;
 		console.log(LibMesh);
 		window.libMesh = LibMesh.getFlatObjects();
 	</script>

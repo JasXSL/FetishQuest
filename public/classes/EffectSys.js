@@ -1682,7 +1682,7 @@ class Effect extends Generic{
 				let wrappers = t.wrappers.slice();		// Use temporary wrappers only
 				for( let wr of wrappers ){
 					if(
-						label.hasTag(tags) &&
+						wr.hasTag(tags) &&
 						(!this.data.casterOnly || wr.caster === s.id)
 					)wr.remove();					
 				}

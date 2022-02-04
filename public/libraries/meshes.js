@@ -3626,6 +3626,44 @@ function build(){
 				
 
 			},
+			Snow : {
+				gen000 : new LibMesh({
+					url : 'land/yuug/GrassGen_000.JD',
+					materials : [libMat.Land.SnowGen_000],
+					tags : [stdTag.mGrass],
+					isRoom: true,
+				}),
+				gen001 : new LibMesh({
+					url : 'land/yuug/GrassGen_001.JD',
+					materials : [libMat.Land.SnowGen_001],
+					tags : [stdTag.mGrass],
+					isRoom: true,
+				}),
+				gen002 : new LibMesh({
+					url : 'land/yuug/GrassGen_002.JD',
+					materials : [libMat.Land.SnowGen_002],
+					tags : [stdTag.mGrass],
+					isRoom: true,
+				}),
+				gen003 : new LibMesh({
+					url : 'land/yuug/GrassGen_003.JD',
+					materials : [libMat.Land.SnowGen_003],
+					tags : [stdTag.mGrass],
+					isRoom: true,
+				}),
+				gen004 : new LibMesh({
+					url : 'land/yuug/GrassGen_004.JD',
+					materials : [libMat.Land.SnowGen_004],
+					tags : [stdTag.mGrass],
+					isRoom: true,
+				}),
+				gen005 : new LibMesh({
+					url : 'land/yuug/GrassGen_005.JD',
+					materials : [libMat.Land.SnowGen_005],
+					tags : [stdTag.mGrass],
+					isRoom: true,
+				}),
+			},
 			Beach : {
 				SmallJetty : new LibMesh({
 					url : 'structure/small_jetty.JD',
@@ -4618,6 +4656,40 @@ function build(){
 					url : 'nature/bogtree.JD',
 					materials : [libMat.Wood.BarkMoss, libMat.Nature.TreeVines, libMat.Nature.Bogtree],
 				}),
+				Winter : new LibMesh({
+					tags : [stdTag.mTree],
+					url : 'nature/leafytree.JD',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.TreeWinter,
+					],
+				}),
+				WinterFrost : new LibMesh({
+					tags : [stdTag.mTree],
+					url : 'nature/leafytree.JD',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.TreeWinterFrost,
+					],
+				}),
+				Spruce : new LibMesh({
+					scale : 100,
+					tags : [stdTag.mTree],
+					url : 'nature/spruce.glb',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.Spruce,
+					],
+				}),
+				SpruceSnow : new LibMesh({
+					scale : 100,
+					tags : [stdTag.mTree],
+					url : 'nature/spruce.glb',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.SpruceSnow,
+					],
+				}),
 			},
 			Clutter : {
 				Stones : new LibMesh({
@@ -4655,6 +4727,34 @@ function build(){
 					tags : [stdTag.mBoulder],
 					materials : [
 						libMat.Rock.Moss
+					],
+				}),
+				WinterA : new LibMesh({
+					tags : [stdTag.mBoulder],
+					url : 'nature/moss_rock_a.JD',
+					materials : [
+						libMat.Rock.Snow
+					],
+				}),
+				WinterB : new LibMesh({
+					tags : [stdTag.mBoulder],
+					url : 'nature/moss_rock_b.JD',
+					materials : [
+						libMat.Rock.Snow
+					],
+				}),
+				WinterC : new LibMesh({
+					tags : [stdTag.mBoulder],
+					url : 'nature/moss_rock_c.JD',
+					materials : [
+						libMat.Rock.Snow
+					],
+				}),
+				WinterD : new LibMesh({
+					tags : [stdTag.mBoulder],
+					url : 'nature/moss_rock_d.JD',
+					materials : [
+						libMat.Rock.Snow
 					],
 				}),
 			},
@@ -4782,6 +4882,17 @@ function build(){
 					url : 'nature/grass_wide_single.JD',
 					tags : [stdTag.mGrassLong],
 					materials : [libMat.Nature.BushThicc],
+				}),
+
+				BushWinter : new LibMesh({
+					url : 'nature/grass_wide_group.glb',
+					tags : [stdTag.mBush],
+					materials : [libMat.Nature.TreeWinter],
+				}),
+				BushFrost : new LibMesh({
+					url : 'nature/grass_wide_group.glb',
+					tags : [stdTag.mBush],
+					materials : [libMat.Nature.TreeWinterFrost],
 				}),
 
 				GrassBushGroup : new LibMesh({

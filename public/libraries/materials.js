@@ -288,6 +288,11 @@ LibMaterial.library = {
 			metalness : 0.4,
 			roughness : 0.7,
 		}),
+		Snow : new LibMaterial({
+			map : 'tileable/snow_rock.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+		}),
 		Quartz : new LibMaterial({
 			map : 'tileable/quartz.jpg',
 			metalness : 0.3,
@@ -651,6 +656,30 @@ LibMaterial.library = {
 			map : 'land/grassgen_005.jpg',
 			metalness : 0.1,roughness : 0.8,
 		}),
+		SnowGen_000 : new LibMaterial({
+			map : 'land/frostground_000.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_001 : new LibMaterial({
+			map : 'land/frostground_001.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_002 : new LibMaterial({
+			map : 'land/frostground_002.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_003 : new LibMaterial({
+			map : 'land/frostground_003.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_004 : new LibMaterial({
+			map : 'land/frostground_004.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_005 : new LibMaterial({
+			map : 'land/frostground_005.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
 
 
 		FarmpathNoPath : new LibMaterial({
@@ -966,7 +995,26 @@ LibMaterial.library = {
 			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}, "MeshDepthMaterial"),
-
+		TreeWinter : new LibMaterial({
+			map : 'decals/shed_tree.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		TreeWinterFrost : new LibMaterial({
+			map : 'decals/frost_tree.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		Spruce : new LibMaterial({
+			map : 'decals/sprucebranches.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		SpruceSnow : new LibMaterial({
+			map : 'decals/sprucebranches_snow.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
 		Mist : new LibMaterial({
 			map : 'particles/smokeparticle.png',
 			opacity : 0.1,
