@@ -1856,6 +1856,42 @@ particles.hitfx_snow_sparks_impact = {
 	wiggle : new Proton.Span(0,10),
 };
 
+
+particles.hitfx_snow_sparks_small = {
+			
+	texture : textures.snowflakes,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 10,
+	position : new Proton.SphereZone(0,0,0,2.5),
+	size : 7.5,
+	size_tween : [1,0.05],
+	part_max_age : 0.75,
+	velocity : 5,
+	gravity : 1,
+	color : ['#FFFFFF', '#AAAAFF'],	
+	opacity: [1,0],
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,5],
+};
+
+particles.hitfx_snow_sparks_impact_small = {
+	texture : textures.snowflakes,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 10,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 10,
+	size_tween : [1,0.05],
+	part_max_age : 0.5,
+	velocity : new Proton.Span(25,50),
+	gravity : 1,
+	color : ['#FFFFFF', '#AAAAFF'],	
+	opacity: [1,0],
+	rotation : [new Proton.Span(-1,1), 1,1],
+	wiggle : new Proton.Span(0,5),
+};
+
 particles.hitfx_sludge_siphon = {
 	texture : textures.splat,
 	blending : THREE.AdditiveBlending,

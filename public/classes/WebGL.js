@@ -1463,7 +1463,7 @@ class WebGL{
 
 		if( !Array.isArray(recipients) )
 			recipients = [recipients];
-		
+
 		for( let recipient of recipients )
 			visObj.run(caster, recipient, armor_slot, mute, recipients.length);
 		

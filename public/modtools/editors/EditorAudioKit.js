@@ -24,13 +24,14 @@ export function asset(){
 		html += 'Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /><br />';
 	html += '<label>Follow parts <input type="checkbox" class="saveable" name="follow_parts" '+(dummy.follow_parts ? 'checked' : '')+' /></label><br />';
 
-	html += 'An array of sound objects, ex [{s:{volume:(float)vol, loop:(bool)looping, path:(str)url, position:{x,y,z}}, t:(int)predelay_ms, se:(bool)from_caster}...]<br />';
+	html += 'An array of sound objects, ex [{s:{volume:(float)vol, loop:(bool)looping, path:(str)url, position:{x,y,z}, hit:(bool)armor_hit_sound=false}, t:(int)predelay_ms, se:(bool)from_caster}...]<br />';
 	html += '<ul>'+
 			'<li>s : is an object detailing the sound: <ul>'+
 				'<li>volume is between 0-1</li>'+
 				'<li>loop details if the sound should loop</li>'+
 				'<li>path is the URL of the sound</li>'+
 				'<li>position is the position in 3d space, with xy being 0 being top left and 1 being bottom right. z -1 is away from the listener whereas 1 is behind. For spell particle visuals this value is set automatically and can be ignored.</li>'+
+				'<li>hit, if true, will play the armor hit sound. Usually used for punches or other physical impacts against armor.</li>'+
 			'</ul></li>'+
 			'<li>t : adds a delay before playing the sound, in milliseconds</li>'+
 			'<li>se : if true and the sound is tied to a spell, it\'s played from the caster</li>'+

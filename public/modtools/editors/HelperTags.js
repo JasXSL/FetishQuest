@@ -3,26 +3,43 @@ import Tags from '../../libraries/stdTag.js';
 // Creates a tag editor. Put this inside a div with a name of the asset property you want to assign the tags to
 export default {
 	
+	rebuildDataList( force ){
+
+		let datalist = document.getElementById("datalist_tags");
+		if( !datalist ){
+			datalist = document.createElement("datalist");
+			datalist.id = 'datalist_tags';
+			document.getElementById("datalists").appendChild(datalist);
+		}
+		else if( !force )
+			return;
+
+		let all = {};
+		Object.values(Tags).map(el => all[el] = true);
+		window.mod.mod.getAllTags().map(el => all[el] = true);
+		if( window.mod.parentMod )
+			window.mod.parentMod.getAllTags().map(el => all[el] = true);
+
+		all = Object.keys(all);
+		let children = [];
+		for( let tag of all ){
+			
+			const node = document.createElement("option");
+			node.value = tag;
+			children.push(node);
+
+		}
+
+		datalist.replaceChildren(...children);
+
+	},
+
 	build( tags, customDataList ){
 		tags = toArray(tags);
 
 		// Build datalist if not already built
 		if( !customDataList ){
-			let datalist = document.getElementById("datalist_tags");
-			if( !datalist ){
-				datalist = document.createElement("datalist");
-				datalist.id = 'datalist_tags';
-				document.getElementById("datalists").appendChild(datalist);
-
-				for( let tag of Object.values(Tags) ){
-					
-					const node = document.createElement("option");
-					node.value = tag;
-					datalist.appendChild(node);
-
-				}
-
-			}
+			this.rebuildDataList();
 		}
 
 		let out = '<div class="tagEditor">';

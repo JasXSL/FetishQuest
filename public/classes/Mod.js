@@ -1260,6 +1260,31 @@ export default class Mod extends Generic{
 		
 	}
 
+	getAllTags(){
+
+		const out = {};
+
+		for( let i in this ){
+
+			const block = this[i];
+			if( !Array.isArray(block) )
+				continue;
+		
+			for( let obj of block ){
+
+				if( Array.isArray(obj?.tags) )
+					obj.tags.map(tag => {
+						out[tag] = true;
+					});
+
+			}
+		
+		}
+
+		return Object.keys(out);
+
+	}
+
 
 	// mod save goes to databse
 	async save( force ){
