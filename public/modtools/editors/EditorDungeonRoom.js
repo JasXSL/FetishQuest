@@ -348,6 +348,7 @@ class Editor{
 				obj.__historyMarker = 0;
 				this.addHistory(obj);
 				this.room.addAsset(obj);
+				obj.__modified = true;
 				this.gl.stage.addDungeonAsset(obj).then(() => {
 
 					this.save();
@@ -470,6 +471,7 @@ class Editor{
 		baseAssetRotInput.onchange = event => {
 			roomAsset.rotY = Math.round((parseInt(baseAssetRotInput.value)/57.2958 || 0)*100)/100;
 			roomAsset._stage_mesh.rotation.y = parseInt(baseAssetRotInput.value)/57.2958 || 0;
+			roomAsset.__modified = true;
 			this.save();
 		};
 

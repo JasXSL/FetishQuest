@@ -264,7 +264,7 @@ export default{
 		ignoreAsset doesn't put the asset into the list. Used by EditorQuestReward where you have multiple fields mapping the same key to different types of objects
 		windowData is passed to the new window
 	*/
-	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false, windowData = '' ){
+	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false, windowData = '', ignoreLibrary = false ){
 
 		const fullKey = key;
 		let k = key.split('::');
@@ -419,8 +419,9 @@ export default{
 			table.appendChild(tr);
 			tr.classList.add("noselect");
 
+			console.log("targetLibrary", targetLibrary, "ignore", ignoreLibrary);
 			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'">'+
-				(window.mod.hasDB(targetLibrary) ? '<input type="button" class="small addNew library" value="Library" />' : '')+
+				(window.mod.hasDB(targetLibrary) && !ignoreLibrary ? '<input type="button" class="small addNew library" value="Library" />' : '')+
 				'<input type="button" class="small addNew" value="Unique" />'+
 			'</td>';
 

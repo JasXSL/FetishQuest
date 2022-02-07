@@ -948,10 +948,6 @@ export function list(){
 		label : 'gameAction_'+Generic.generateUUID(),
 		desc : 'Teleports the users back to Yuug port',
 		type : GameAction.types.setDungeon,
-		data : {
-			dungeon : 'yuug_port',
-			room : 0
-		}
 	}));
 
 };

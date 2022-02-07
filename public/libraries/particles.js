@@ -298,6 +298,24 @@ textures.smoke.material.depthWrite = true;
 		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
 	};
 
+	particles.steam = {
+		
+		texture : textures.smoke,
+		blending : THREE.NormalBlending,
+		rate : 0.2,
+		count : 1,
+		position : new Proton.BoxZone(0,0,0,500, 100, 500),
+		size : 300,
+		size_tween : [0,1, Proton.ease.easeFullSine],
+		part_max_age : 10,
+		velocity : 10,
+		gravity : 0.0,
+		color : "#FFFFFF",	
+		opacity: 0.1,
+		wiggle : 3,
+		rotation : [new Proton.Span(-0.01,0.01), 1, 1],
+	};
+
 	particles.questSparkles = {
 		
 		texture : textures.sparkle,

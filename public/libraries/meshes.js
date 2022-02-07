@@ -2912,6 +2912,33 @@ function build(){
 						mesh.children[0].visible = false;
 				}
 			}),
+			Steam : new LibMesh({
+				tags : [stdTag.mSteam],
+				url : function(){
+
+					const mesh = new THREE.Mesh(new THREE.BoxGeometry(20,20,20), new THREE.MeshStandardMaterial(0xFFFFFF));
+					mesh.rotation.x = -Math.PI/2;
+					mesh.name = 'HITBOX';
+
+					const group = new THREE.Group();
+					group.add(mesh);
+					
+					return group;
+
+				},
+				onStagePlaced : function(asset, mesh){
+
+					if( Array.isArray(mesh.userData.particles) )
+						return;
+
+					let particles = libParticles.get('steam', mesh, true);
+					mesh.userData.particles = [particles];
+
+					if( window.game )
+						mesh.children[0].visible = false;
+
+				}
+			}),
 		},
 		
 		Faction : {
@@ -3630,37 +3657,37 @@ function build(){
 				gen000 : new LibMesh({
 					url : 'land/yuug/GrassGen_000.JD',
 					materials : [libMat.Land.SnowGen_000],
-					tags : [stdTag.mGrass],
+					tags : [stdTag.mSnow],
 					isRoom: true,
 				}),
 				gen001 : new LibMesh({
 					url : 'land/yuug/GrassGen_001.JD',
 					materials : [libMat.Land.SnowGen_001],
-					tags : [stdTag.mGrass],
+					tags : [stdTag.mSnow],
 					isRoom: true,
 				}),
 				gen002 : new LibMesh({
 					url : 'land/yuug/GrassGen_002.JD',
 					materials : [libMat.Land.SnowGen_002],
-					tags : [stdTag.mGrass],
+					tags : [stdTag.mSnow],
 					isRoom: true,
 				}),
 				gen003 : new LibMesh({
 					url : 'land/yuug/GrassGen_003.JD',
 					materials : [libMat.Land.SnowGen_003],
-					tags : [stdTag.mGrass],
+					tags : [stdTag.mSnow],
 					isRoom: true,
 				}),
 				gen004 : new LibMesh({
 					url : 'land/yuug/GrassGen_004.JD',
 					materials : [libMat.Land.SnowGen_004],
-					tags : [stdTag.mGrass],
+					tags : [stdTag.mSnow],
 					isRoom: true,
 				}),
 				gen005 : new LibMesh({
 					url : 'land/yuug/GrassGen_005.JD',
 					materials : [libMat.Land.SnowGen_005],
-					tags : [stdTag.mGrass],
+					tags : [stdTag.mSnow],
 					isRoom: true,
 				}),
 			},
