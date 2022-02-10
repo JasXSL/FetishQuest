@@ -3,20 +3,10 @@
 	- Add more automatic asset unrolling as you discover rolled up assets
 
 Overhaul:
-	Test the boss fights
-	Test changed actions
-	Write more texts
-
-	Warrior (Phys) - Taunt
-	Cleric (Arcane) - Block
-	Elementlist (Arcane) - Interrupts
-	Rogue (Corr) - Armor removal
-	Monk (Phys) - Grapples
-	Tentaclemancer (Corr) - Arousal management 
-
-	Ideas:
-	- Enemy ability that does damage but removes arousal.
-	- Enemy ability that can counter rogue armor removal somehow.
+	
+	Bugs:
+		- NPCs can charge multiple actions at a time
+		
 
 
 -- CURRENT --
@@ -104,7 +94,6 @@ Overhaul:
 		- procedo
 		- treather
 		- slimy rough sogle
-		- demalline
 		- tipten 
 		- therrage 
 		- Tworef 

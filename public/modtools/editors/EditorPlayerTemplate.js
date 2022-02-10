@@ -89,7 +89,7 @@ export function asset(){
 	html += '</div>';
 
 // Keep
-	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description)+'</textarea><br />';
+	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description, true)+'</textarea><br />';
 
 	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	

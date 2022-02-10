@@ -2654,6 +2654,13 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 				}),
+				DemallineCrystal : new LibMesh({
+					url : 'doodads/demalline_crystal.JD',
+					tags : [stdTag.mRecordingCrystal],
+					materials : [
+						libMat.Glass.DemallineCrystal
+					],
+				}),
 				
 			},
 			Furniture : {

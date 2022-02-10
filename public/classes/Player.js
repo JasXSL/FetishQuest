@@ -2722,7 +2722,7 @@ export default class Player extends Generic{
 		if( out === 0 )
 			out = 1;
 		
-		if( this.isNPC() ){
+		if( this.isNPC() && this.team !== Player.TEAM_PLAYER ){
 			if( this.level < 2 )
 				out *= 0.5;
 			else if( this.level < 4)

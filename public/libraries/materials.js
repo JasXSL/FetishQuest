@@ -208,6 +208,14 @@ LibMaterial.library = {
 			normalMap : 'tileable/glass_plane_n.jpg',
 			envMap : LibMaterial.cubeMaps.bridge,
 		}),
+		DemallineCrystal : new LibMaterial({
+			color:new THREE.Color(0xFFAAFF), 
+			metalness:0.6,roughness:0.2,
+			emissive : new THREE.Color(0.3,0,0.3),
+			roughnessMap : 'tileable/glass_plane_r.jpg',
+			normalMap : 'tileable/glass_plane_n.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
+		}),
 		BrownHighRes : new LibMaterial({
 			color:new THREE.Color(0x332200), metalness:0.3,
 			roughnessMap : 'tileable/glass_plane_r.jpg',

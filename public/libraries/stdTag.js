@@ -338,6 +338,7 @@ export default {
 	mSteam : 'm_steam',
 	mSnow : 'm_snow',
 	mWallChain : 'm_wall_chain',
+	mRecordingCrystal : 'm_recording_crystal',
 	mDildoArm : 'm_dildo_arm',		// Used for the dildo arm trap
 	// Bondage tags are a bit special in that they're used by conditions
 	// A bondage device should be marked by mBondage. It's then added to a pool of viable bondage devices in the dungeon
