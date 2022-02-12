@@ -89,8 +89,7 @@ export default class AudioTrigger extends Generic{
 			if( now-last < 500 )
 				continue;
 
-			let chance = trigger.chance*t.emotive/100.0;
-			console.log("Chance", chance);
+			let chance = trigger.freq*t.emotive/100.0;
 			if( Math.random() > chance )
 				continue;
 

@@ -2517,13 +2517,6 @@ div.passiveUpsideDown > div.content > div.bg{
 		transform:translateX(-1%);
 		transition:transform 0.1s ease-out;
 	}
-	#ui > div.players div.right div.player{
-		transform:translateX(1%);
-	}
-	#ui > div.players div.player:hover,
-	#ui > div.players div.right div.player:hover{
-		transform:translateX(0);
-	} 
 	@keyframes kfTargetSelector{
 		from{box-shadow:0 0 1vmax #FFA;}
 		to{box-shadow:0 0 2vmax #FFA;}
