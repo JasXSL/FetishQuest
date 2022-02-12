@@ -1154,6 +1154,13 @@ export default class Condition extends Generic{
 
 			}
 
+			else if( this.type === T.voice ){
+
+				const labels = toArray(this.data.label);
+				success = labels.includes(t.voice);
+
+			}
+
 			else if( this.type === T.targetedSenderLastRound )
 				success = Boolean(s._targeted_by_since_last.get(t.id));
 
@@ -1332,6 +1339,7 @@ Condition.Types = {
 	hasWrapper : 'hasWrapper',		// 
 	hasEffect : 'hasEffect',		// 
 	hasEffectType : 'hasEffectType',
+	voice : 'voice',
 
 	hasAsset : 'hasAsset',
 	assetStealable : 'assetStealable',
@@ -1501,6 +1509,8 @@ Condition.descriptions = {
 	[Condition.Types.targetGenderEnabled] : 'void - Checks if the target\'s gender is enabled in game gender preferences',
 	[Condition.Types.fetish] : '{label:(str/arr)label} - Requires a fetish to be enabled, by label',
 	[Condition.Types.isControlled] : 'void - Checks if target is controlled by a human (not NPC)',
+	[Condition.Types.voice] : '{label:(str/arr)label} - Player voice field is set to this.',
+	
 	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
 };
 

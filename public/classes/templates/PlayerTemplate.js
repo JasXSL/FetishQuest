@@ -58,6 +58,7 @@ class PlayerTemplate extends Generic{
 		this.intelligence_max = 0.6;
 		this.talkative_min = 0;
 		this.talkative_max = 1;
+		this.voice = '';
 		this.required_assets = [];				// labels of assets that MUST be on this character
 		this.required_actions = [];				// labels of actions that MUST be on this character
 		this.passives = [];						// Passive wrappers that need to be applied to this. Labels only.
@@ -115,7 +116,8 @@ class PlayerTemplate extends Generic{
 			talkative_max : this.talkative_max,
 			passives : this.passives,
 			random_loot : PlayerTemplateLoot.saveThese(this.random_loot, full),
-			max: this.max
+			max: this.max,
+			voice : this.voice,
 		};
 	}
 
@@ -157,12 +159,9 @@ class PlayerTemplate extends Generic{
 		player.generated = true;	// Also set in dungeon encounter, but it's needed here for learnable actions to work
 		player.description = this.description;
 		player.species = this.species;
-		player.tags = this.tags.map(el => {
-			return el.split('_').slice(1).join('_')
-		});
-
+		player.tags = this.tags;
 		player.level = Math.min(Math.max(level, this.min_level), this.getMaxLevel());
-
+		player.voice = this.voice;
 		player.talkative = this.talkative_min+(this.talkative_max-this.talkative_min)*Math.random();
 
 		player.sadistic = rand1(this.sadistic_min, this.sadistic_max);

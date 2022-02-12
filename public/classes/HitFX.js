@@ -20,6 +20,7 @@ export default class HitFX extends Generic{
 		this.once = false;			// Used when triggering from a text to only play this effect on the first target
 		this.desc = '';				// Description
 		this.stagger = 0;			// When this effect is played in sequence, delay this effect by this nr of ms
+		this.hit = 0;				// Used to set when the effect "hits" a player. Such as a frostbolt making impact. Used for AudioTrigger. 0 = use default. When using multiple hitfx, the first nonzero one goes.
 		this._shared_start = null;	// Stores where the last stage with origin_rand was started
 		this._shared_end = null;		// Stores where the last stage with dest_rand was started 
 
@@ -38,6 +39,7 @@ export default class HitFX extends Generic{
 			stages : Stage.saveThese(this.stages, full),
 			once : this.once,
 			stagger : this.stagger,
+			hit : this.hit,
 		};
 		if( full )
 			out.desc = this.desc;
@@ -128,7 +130,6 @@ class Stage extends Generic{
 		this.emit_duration = 100;			// Duration before stopping emitting
 		this.fade_duration = 2000;			// Time before removing the particle system from the stage after emit_duration ends
 		this.hold = 0;						// Wait this amount of MS before doing the next step
-		
 		this.tween = true;
 		this.origin = 'victim';
 		this.origin_rand = null;				// percentage of portrait box. An undefined value will use any previously generated value in the visual. Use "preEnd" to copy the previously set end position. Useful for bolt impacts.

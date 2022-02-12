@@ -760,6 +760,20 @@ export function asset(){
 		};
 
 	}
+	else if( type === types.voice ){
+
+		setDefaultData({
+			label : []
+		});
+
+		html += '<div name="voice">'+HelperTags.build(asset.data.label, 'audioTriggers')+'</div>';
+		fnBind = () => {
+			HelperTags.bind(this.dom.querySelector("div[name=voice]"), tags => {
+				HelperTags.autoHandleAsset('data::label', tags, asset);
+			});
+		};
+
+	}
 	else if( type === types.punishNotUsed ){}
 	else if( type === types.questAccepted ){
 

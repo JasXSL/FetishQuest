@@ -25,6 +25,7 @@ export function asset(){
 	html += 'Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /><br />';
 	html += '<label title="When this FX is played in sequence, wait this nr of ms between them">Stagger: <input type="number" step=1 min=0 name="stagger" class="saveable" value="'+(parseInt(dummy.stagger) || 0)+'" /></label><br />';
 	html += '<label title="When triggered from a text (spell), only play audio for the first target. Useful for AoE.">Once <input type="checkbox" class="saveable" name="once" '+(dummy.once ? 'checked' : '')+' /></label><br />';
+	html += '<label title="Time in milliseconds before it counts as a hit for audio triggers.">Hit time <input type="number" class="saveable" name="hit" value="'+(parseInt(dummy.hit))+'" /></label><br />';
 
 	html += 'An array of stage objects that tracks various effects of each stage:<br />';
 	html += '<pre>'+

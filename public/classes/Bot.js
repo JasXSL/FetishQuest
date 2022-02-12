@@ -134,6 +134,7 @@ class Bot{
 
 			let abils = this.player.getActions('e').filter(el => {
 				return !el.hidden && 
+					!this.player.isCasting() &&
 					el.castable() && 
 					(
 						el.label !== 'grapple' ||

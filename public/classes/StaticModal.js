@@ -11,6 +11,7 @@ import { Effect, Wrapper } from './EffectSys.js';
 import { GfPlayer } from './NetworkManager.js';
 import GameEvent from './GameEvent.js';
 import Condition from './Condition.js';
+import AudioTrigger from './AudioTrigger.js';
 
 export default class StaticModal{
 
@@ -794,6 +795,7 @@ export default class StaticModal{
 				return `
 					<strong>Main Volume:</strong> <input type="range" min=0 max=100 step=1 name="masterSoundVolume" /><br />
 					Ambient: <input type="range" min=0 max=100 step=1 name="ambientSoundVolume" />
+					Voice: <input type="range" min=0 max=100 step=1 name="voiceSoundVolume" />
 					Music: <input type="range" min=0 max=100 step=1 name="musicSoundVolume" /><br />
 					FX: <input type="range" min=0 max=100 step=1 name="fxSoundVolume" />
 					UI: <input type="range" min=0 max=100 step=1 name="uiSoundVolume" /><br />
@@ -1032,7 +1034,7 @@ export default class StaticModal{
 
 				this.gameplay.difficulty.val(Math.round(game.difficulty) || 0);
 
-				const knobs = ['ambient','fx','music','ui'];
+				const knobs = ['ambient','fx','music','ui','voice'];
 				const audio = this.getTabDom("Audio");
 				for( let knob of knobs ){
 					$("input[name="+knob+"SoundVolume]", audio).val(Math.round(game['audio_'+knob].volume*100));
@@ -1165,9 +1167,10 @@ export default class StaticModal{
 							<input type="text" name="name" placeholder="Player Name" style="font-size:2vmax" /><br />
 							<input type="text" name="spre" placeholder="Article a/an/some" style="width:18%" />
 							<input type="text" name="species" placeholder="Species" style="width:80%" /><br />
-							<input type="text" name="he" placeholder="He pronoun" style="width:30%" />
-							<input type="text" name="him" placeholder="Him pronoun" style="width:30%" />
-							<input type="text" name="his" placeholder="His pronoun" style="width:30%" /><br />
+							<input type="text" name="voice" placeholder="Voice" list="voices" style="width:33%" />
+							<input type="text" name="he" placeholder="He pronoun" style="width:20%" />
+							<input type="text" name="him" placeholder="Him pronoun" style="width:20%" />
+							<input type="text" name="his" placeholder="His pronoun" style="width:20%" /><br />
 							<select name="class"></select><br />
 							Level:<br /><input type="number" name="level" min=1 step=1 /><br />
 							<div>Size:<br /><input type="range" name="size" min=0 max=10 step=1 /></div>
@@ -1183,7 +1186,9 @@ export default class StaticModal{
 								<div>Arousal<br /><input type="number" name="arousal" placeholder="Arousal" min=0 step=1 /></div>
 								<div>Team<br /><input type="number" name="team" placeholder="Team" min=0 step=1 /></div>
 							</div>
-							Tags<br /><textarea name="tags"></textarea>
+							Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />
+							<div class="tags flexFourColumns"></div>
+
 							Description<br /><textarea name="description"></textarea>
 							
 							<div class="center">Non-sadistic <input type="range" name="sadistic" min=0 max=1 step=0.1 style="width:40%" /> Sadistic</div>
@@ -1221,6 +1226,7 @@ export default class StaticModal{
 					<div class="right cmContentBlock bgMarble">
 						<div class="image"></div>
 					</div>
+					<div class="hidden datalists"></div>
 				`;
 			})
 			.setProperties(function(){
@@ -1253,6 +1259,7 @@ export default class StaticModal{
 					addAction : $('input.addAction', dDom),
 					form : $('#playerEditor', dDom),
 					formName : $('#playerEditor input[name=name]', dDom),
+					formVoice : $('#playerEditor input[name=voice]', dDom),
 					formSpre : $('#playerEditor input[name=spre]', dDom),
 					formHe : $('#playerEditor input[name=he]', dDom),
 					formHim : $('#playerEditor input[name=him]', dDom),
@@ -1270,7 +1277,6 @@ export default class StaticModal{
 					formMP : $('#playerEditor input[name=mp]', dDom),
 					formArousal : $('#playerEditor input[name=arousal]', dDom),
 					formTeam : $('#playerEditor input[name=team]', dDom),
-					formTags : $('#playerEditor textarea[name=tags]', dDom),
 					formDescription : $('#playerEditor textarea[name=description]', dDom),
 					formSadistic : $('#playerEditor input[name=sadistic]', dDom),
 					formDominant : $('#playerEditor input[name=dominant]', dDom),
@@ -1282,6 +1288,8 @@ export default class StaticModal{
 					randomizerSelect : $('div.randomizer > select', dDom),
 					randomizerButton : $('div.randomizer > input', dDom),
 					kinksSelects : $('select.kinks', dDom),
+					tags : $('div.tags', dDom),
+					tagList : $('div.datalists', dDom),
 				};
 
 				// Draws an action selector. Returns the ID clicked on (if you do)
@@ -1329,6 +1337,36 @@ export default class StaticModal{
 					game.ui.bindTooltips();
 
 				};
+
+
+				this.onTagClick = event => {
+
+					if( !event.ctrlKey && !event.metaKey )
+						return;
+					event.currentTarget.parentNode.remove();
+					
+				};
+				this.addTag = tag => {
+						
+					if( typeof tag !== "string" )
+						tag = '';
+
+					tag = tag.split('_');
+					tag.shift();
+					tag = tag.join('_');
+					const div = document.createElement("div");
+					const input = document.createElement('input');
+					input.type = 'text';
+					input.value = tag;
+					input.name = 'tag';
+					input.classList.add('tag');
+					input.setAttribute('list', 'newGameTags');
+					input.addEventListener('click', this.onTagClick);
+					div.append(input);
+					this.edit.tags[0].append(div);
+					
+				};
+				dDom[0].querySelector("input.addTag").addEventListener('click', this.addTag);
 
 			})
 			.setDraw(async function( player ){
@@ -1510,9 +1548,14 @@ export default class StaticModal{
 					dDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
 					dDivs.formDeletePlayer.toggleClass('hidden', !game.getPlayerById(player.id));
 					
+					dDivs.tagList.html(
+						this.constructor.getTagDatalistHtml()+
+						this.constructor.getVoiceDatalistHtml()
+					);
 
 					// Form
 					dDivs.formName.val(player.name);
+					dDivs.formVoice.val(player.voice);
 					dDivs.formSpecies.val(player.species);
 					dDivs.formSpre.val(player.spre);
 					dDivs.formHe.val(player.he);
@@ -1529,7 +1572,6 @@ export default class StaticModal{
 					dDivs.formMP.val(parseInt(player.mp) || 0);
 					dDivs.formArousal.val(parseInt(player.arousal) || 0);
 					dDivs.formTeam.val(parseInt(player.team) || 0);
-					dDivs.formTags.val(player.tags.map(tag => tag.startsWith('pl_') ? tag.substr(3) : tag ).join(' '));
 					dDivs.formDescription.val(player.description);
 					dDivs.formSadistic.val(+player.sadistic || 0);
 					dDivs.formDominant.val(+player.dominant || 0);
@@ -1553,7 +1595,9 @@ export default class StaticModal{
 					dDivs.formClass.html(html);
 					dDivs.formClass.val(player.class.label);
 
-					
+					dDivs.tags[0].replaceChildren();
+					for( let tag of player.tags )
+						this.addTag(tag);
 
 					// Draw the secondary stat form
 					const secondary = dDivs.formSecondaryStat;
@@ -1634,6 +1678,7 @@ export default class StaticModal{
 
 						player.generated = false;		// Make sure the player remains when leaving the cell
 						player.name = dDivs.formName.val().trim();
+						player.voice = dDivs.formVoice.val().trim();
 						player.species = dDivs.formSpecies.val().trim().toLowerCase();
 						player.spre = dDivs.formSpre.val().trim().toLowerCase();
 						player.he = dDivs.formHe.val().trim().toLowerCase();
@@ -1652,6 +1697,15 @@ export default class StaticModal{
 						player.sadistic = Math.max(0, Math.min(1, +dDivs.formSadistic.val())) || 0;
 						player.dominant = Math.max(0, Math.min(1, +dDivs.formDominant.val())) || 0;
 						player.hetero = Math.max(0, Math.min(1, +dDivs.formHetero.val())) || 0;
+
+						player.tags = [];
+						for( let tagDom of dDivs.tags[0].children ){
+
+							const tag = tagDom.children[0].value.trim().toLowerCase();
+							if( tag )
+								player.tags.push('pl_'+tag);
+
+						}
 						
 						player.level = parseInt(dDivs.formLevel.val())||1;
 						player.size = parseInt(dDivs.formSize.val())||0;
@@ -1669,15 +1723,6 @@ export default class StaticModal{
 						let cName = dDivs.formClass.val().trim();
 						let cl = glib.get(cName, 'PlayerClass');
 						
-						player.tags = dDivs.formTags.val().split(' ').filter(el => {
-							if(!el.trim())
-								return false;
-							return true;
-						}).map(el => {
-							if( !el.toLowerCase().startsWith('pl_') )
-								el = 'pl_'+el.toLowerCase();
-							return el;	
-						});
 						
 						for(let i in Action.Types){
 
@@ -3585,9 +3630,7 @@ export default class StaticModal{
 						<input type="submit" value="Start Game" />
 
 					</form></div>
-					<div class="hidden datalists">
-						<datalist id="newGameTags"><select><!-- Tag options here --></select></datalist>
-					</div>
+					<div class="hidden datalists"></div>
 				`;
 			})
 			.setProperties(function(){
@@ -3613,7 +3656,7 @@ export default class StaticModal{
 					gameName : dom.querySelector('input.gameName')
 				};
 				this.gallery = dom.querySelector('div.gallery');
-				this.tagList = document.getElementById('newGameTags');
+				this.tagList = dom.querySelector('div.datalists');
 
 				// Set up static things that should be set by the game
 				const classes = glib.getFull('PlayerClass');
@@ -3640,26 +3683,14 @@ export default class StaticModal{
 				this.cData.classLabels = this.cData.class.querySelectorAll('label');
 				this.cData.classInputs = this.cData.class.querySelectorAll('input');
 
-				for( let tag in stdTag ){
-
-					const spl = stdTag[tag].split('_');
-					if( spl[0] === 'pl' ){
-
-						spl.shift();
-						const option = document.createElement('option');
-						option.value = spl.join('_');
-						this.tagList.append(option);
-
-					}
-
-				}
+				
 
 			})
 			.setDraw(async function(){
 
 				this.player = new Player();
 
-
+				this.tagList.innerHTML = this.constructor.getTagDatalistHtml();
 				
 
 				// Updates the class labels
@@ -5107,6 +5138,39 @@ export default class StaticModal{
 
 	};
 
+	// startsWith is the type of tag, or set it to false if you want to allow all tags
+	// shorten will remove the "type_" part
+	static getTagDatalistHtml( startsWith = 'pl', shorten = true ){
+		let out = '<datalist id="newGameTags"><select>';
+
+		let viable = glib.getAllTags();
+		
+		for( let tag of viable ){
+
+			const spl = tag.split('_');
+			if( !startsWith || spl[0] === startsWith ){
+
+				if( shorten )
+					spl.shift();
+				out+= '<option value="'+esc(spl.join('_'))+'"></option>';
+
+			}
+
+		}
+		out += '</select></datalist>';
+		return out;
+	}
+
+	static getVoiceDatalistHtml(){
+		let out = '<datalist id="voices"><select>';
+
+		let viable = AudioTrigger.getAllLabels();
+		for( let v of viable )
+			out+= '<option value="'+esc(v)+'"></option>';
+		out += '</select></datalist>';
+		return out;
+	}
+	
 
 }
 

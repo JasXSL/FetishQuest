@@ -24,6 +24,7 @@ import Condition from './Condition.js';
 import Book, { BookPage } from './Book.js';
 import Fetish from './Fetish.js';
 import ArmorEnchant from './ArmorEnchant.js';
+import AudioTrigger from './AudioTrigger.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -65,6 +66,7 @@ export default class Mod extends Generic{
 		this.actions = [];		//x mod actions
 		this.assets = [];		//x equipment prefabs
 		this.audioKits = [];	//x AudioKit
+		this.audioTriggers = [];
 		this.playerClasses = [];	//x Custom player classes
 		this.conditions = [];			//x Condition library
 		this.fetishes = [];
@@ -146,6 +148,7 @@ export default class Mod extends Generic{
 			actions : this.actions,
 			assets : this.assets,
 			audioKits : this.audioKits,
+			audioTriggers : this.audioTriggers,
 			playerClasses : this.playerClasses,
 			conditions : this.conditions,
 			fetishes : this.fetishes,
@@ -1698,6 +1701,7 @@ Mod.LIB_TYPES = {
 	'books' : Book,
 	'bookPages' : BookPage,
 	'audioKits' : AudioKit,
+	'audioTriggers' : AudioTrigger,
 	'hitFX' : HitFX,
 	'dungeonTemplates' : DungeonTemplate,
 	'dungeonSubTemplates' : DungeonTemplateSub,

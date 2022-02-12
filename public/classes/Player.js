@@ -78,6 +78,7 @@ export default class Player extends Generic{
 		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
 		this.hpMulti = 1;			// Quick way to build NPCs with different HP instead of having to add a bunch of wrappers.
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
+		this.voice = '';			// Voice kit label for pain/pleasure sounds etc
 
 		// Use getBlock(type)
 		this.blPhysical = 0;		// Blocking points of physical damage this turn
@@ -105,6 +106,7 @@ export default class Player extends Generic{
 		this.sadistic = 0.5;					// Normal vs Sadistic.
 		this.dominant = 0.8;					// Dominant vs submissive
 		this.hetero = 0.5;						// 0 = gay, 0.5 = bi, 1 = straight
+		this.emotive = 0.5;						// Only used for the host. Determines the chance of triggering a combat pain sound.
 		this.intelligence = 0.6;				// 0 = No intelligence, .1 = Mollusk, .2 = Animal, .4 = Child, .6 = Average human, .9 = Mastermind, 1 = Godlike
 												/* Notes on intelligence:
 													<= 0 = It has no intelligence and always attacks a random player, even friendly players
@@ -259,7 +261,8 @@ export default class Player extends Generic{
 			start_equip : this.start_equip,
 			generated : this.generated,	// Needed for playerMarkers in webgl
 			armor : this.armor,
-			actionGroups : PlayerActionGroup.saveThese(this.actionGroups)
+			actionGroups : PlayerActionGroup.saveThese(this.actionGroups),
+			voice : this.voice,
 		};
 
 		if( full !== "mod" )
@@ -284,6 +287,8 @@ export default class Player extends Generic{
 
 		if( full ){
 
+			
+			out.emotive = this.emotive;
 			out.remOnDeath = this.remOnDeath;
 			out.leveled = this.leveled;
 			out.inventory = this.inventory;

@@ -37,6 +37,7 @@ export function asset(){
 			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label>Species: <input type="text" name="species" class="saveable" value="'+esc(dummy.species)+'" /></label>';
+		html += '<label>Voice: <input type="text" name="voice" class="saveable" value="'+esc(dummy.voice)+'" list="datalist_voices" /></label>';
 		html += '<label>Image: <input name="icon" value="'+esc(dummy.icon)+'" type="text" class="saveable" /></label>';
 		html += '<label>Image Upper Body: <input name="icon_upperBody" value="'+esc(dummy.icon_upperBody)+'" type="text" class="saveable" /></label>';
 		html += '<label>Image Lower Body: <input name="icon_lowerBody" value="'+esc(dummy.icon_lowerBody)+'" type="text" class="saveable" /></label>';

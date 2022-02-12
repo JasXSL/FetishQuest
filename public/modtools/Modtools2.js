@@ -13,6 +13,7 @@ import {TransformControls} from '../ext/TransformControls.js';
 import * as EditorText from './editors/EditorText.js';
 import * as EditorCondition from './editors/EditorCondition.js';
 import * as EditorAudioKit from './editors/EditorAudioKit.js';
+import * as EditorAudioTrigger from './editors/EditorAudioTrigger.js';
 import * as EditorHitFX from './editors/EditorHitFX.js';
 import * as EditorAsset from './editors/EditorAsset.js';
 import * as EditorAssetTemplate from './editors/EditorAssetTemplate.js';
@@ -51,6 +52,7 @@ import * as EditorFetish from './editors/EditorFetish.js';
 import * as EditorArmorEnchant from './editors/EditorArmorEnchant.js';
 import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
+import Condition from '../classes/Condition.js';
 
 
 // Window types that should be tracked
@@ -67,6 +69,7 @@ const DB_MAP = {
 	"texts" : { listing : EditorText.list, asset : EditorText.asset, help : EditorText.help, icon : '' },
 	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark', help : EditorCondition.help },
 	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker', help : EditorAudioKit.help },
+	"audioTriggers" : { listing : EditorAudioTrigger.list, asset : EditorAudioTrigger.asset, icon : 'screaming', help : EditorAudioTrigger.help },
 	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion', help : EditorHitFX.help },
 	"assets" : { listing : EditorAsset.list, asset : EditorAsset.asset, icon : 'underwear', help : EditorAsset.help },
 	"armorEnchants" : { listing : EditorArmorEnchant.list, asset : EditorArmorEnchant.asset, icon : 'chain-mail', help : EditorArmorEnchant.help },
@@ -898,17 +901,43 @@ export default class Modtools{
 	// Builds the autocomplete datalists
 	buildDataLists(){
 		
-		const lists = ['actions'];
+		const lists = [
+			'actions',
+			// Find voice conditions, take out the voices
+			{	
+				label : 'voices',
+				fn : () => {
+					const compile = {};
+					this.mod.conditions.concat(this.parentMod.conditions).forEach(el => {
+
+						if( el.type === Condition.Types.voice && el.data.label ){
+							toArray(el.data.label).forEach(voice => {
+								compile[voice] = true;
+							});
+						}
+					});
+					return compile;
+				}
+			}
+		];
 		for( let db of lists ){
 
-			const compile = {};
-			this.mod[db].concat(this.parentMod[db]).forEach(el => compile[el.label] = true);
-			const existing = this.datalists.querySelector("datalist_"+db);
+			let compile = {};
+			let label = db;
+			if( typeof db === 'object' ){
+				compile = db.fn();
+				label = db.label;
+			}
+			else
+				this.mod[db].concat(this.parentMod[db]).forEach(el => compile[el.label] = true);
+
+			let set = 'datalist_'+label;
+			const existing = this.datalists.querySelector(set);
 			if( existing )
 				existing.remove();
 
 			const datalist = document.createElement("datalist");
-			datalist.id = 'datalist_'+db;
+			datalist.id = set;
 			this.datalists.appendChild(datalist);
 	
 			for( let tag in compile ){

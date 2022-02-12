@@ -32,6 +32,7 @@ export function asset(){
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label title="Sets a/an. Leave empty to auto generate. Only needed for words like unicorn because the u sounds like a consonant">Species article: <input type="text" name="spre" class="saveable" value="'+esc(dummy.spre)+'" /></label>';
 		html += '<label>Species: <input type="text" name="species" class="saveable" value="'+esc(dummy.species)+'" /></label>';
+		html += '<label>Voice: <input type="text" name="voice" class="saveable" value="'+esc(dummy.voice)+'" list="datalist_voices" /></label>';
 		html += '<label title="Leave empty to autogenerate">Pronoun he: <input name="he" value="'+esc(dummy.he)+'" type="text" class="saveable" style="width:3em" /></label>';
 		html += '<label title="Leave empty to autogenerate">Pronoun him: <input name="him" value="'+esc(dummy.him)+'" type="text" class="saveable" style="width:3em" /></label>';
 		html += '<label title="Leave empty to autogenerate">Pronoun his: <input name="his" value="'+esc(dummy.his)+'" type="text" class="saveable" style="width:3em" /></label>';
@@ -53,6 +54,7 @@ export function asset(){
 		html += '<label title="Used for NPCs and affects punishments and using arouse vs attack">Sadistic: <input name="sadistic" value="'+esc(dummy.sadistic)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
 		html += '<label title="Used for NPCs and affects punishments">Dominant: <input name="dominant" value="'+esc(dummy.dominant)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
 		html += '<label title="Used for NPCs and affects punishments & to some degree who it will attack. 0.5 = no preference">Hetero: <input name="hetero" value="'+esc(dummy.hetero)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
+		html += '<label title="Chance to use AudioTriggers">Emotive: <input name="emotive" value="'+esc(dummy.emotive)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
 		html += '<label title="Will be used for AI later. 0.6 = human, 0.3 animal, 1 = mastermind">Intelligence: <span class="value"></span><input name="intelligence" value="'+esc(dummy.intelligence)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
 
 		html += '<label title="Player have ALL actions activated. NPCs use this.">Ignore spell slots: <input type="checkbox" name="auto_learn" '+(dummy.auto_learn ? 'checked' : '')+' class="saveable"  /></label>';

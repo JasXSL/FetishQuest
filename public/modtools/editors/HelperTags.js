@@ -19,8 +19,8 @@ export default {
 		window.mod.mod.getAllTags().map(el => all[el] = true);
 		if( window.mod.parentMod )
 			window.mod.parentMod.getAllTags().map(el => all[el] = true);
-
 		all = Object.keys(all);
+		
 		let children = [];
 		for( let tag of all ){
 			

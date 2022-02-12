@@ -26,6 +26,7 @@ import ModRepo from './ModRepo.js';
 import Book from './Book.js';
 import { Logger } from './Logger.js';
 import Bank from './Bank.js';
+import AudioTrigger from './AudioTrigger.js';
 
 export default class Game extends Generic{
 
@@ -74,6 +75,7 @@ export default class Game extends Generic{
 		this.audio_ambient = new Audio('ambient', false);
 		this.audio_music = new Audio('music', false);
 		this.audio_ui = new Audio('ui', true);
+		this.audio_voice = new Audio('voice', true);
 
 		this.active_music_file = null;
 		this.active_ambient_file = null;
@@ -145,6 +147,8 @@ export default class Game extends Generic{
 
 			if( event.type !== GameEvent.Types.actionUsed || !event.action.no_use_text )
 				Text.runFromLibrary(event.clone());
+
+			AudioTrigger.handleEvent(event);
 
 			VibHub.onEvent(event);
 
@@ -1120,6 +1124,27 @@ export default class Game extends Generic{
 			Game.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot, vol_multi);
 
 		const out = await kit.play(this.audio_fx, sender, target, armor_slot, vol_multi);
+		return {kit:kit, instances:out};
+
+	}
+	async playVoiceAudioKit(kit, sender, target, armor_slot, global = false, vol_multi = 1.0 ){
+		
+		if( typeof kit === "string" )
+			kit = glib.audioKits[kit];
+
+		if( !kit )
+			throw 'Audio kit missing';
+
+		let sid, tid;
+		if( sender )
+			sid = sender.id;
+		if( target )
+			tid = target.id;
+
+		if( this.is_host && global )
+			Game.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot, vol_multi, 'voice');
+
+		const out = await kit.play(this.audio_voice, sender, target, armor_slot, vol_multi);
 		return {kit:kit, instances:out};
 
 	}
