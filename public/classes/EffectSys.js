@@ -723,9 +723,11 @@ class Wrapper extends Generic{
 
 	onTurnStart(){
 
+		/*
+		Not sure why ticking shouldn't work on real timer effects. Removing this to see if it breaks something.
 		if( this.ext )
 			return;
-
+		*/
 		if( this.tick_on_turn_start ){
 			this.tick();
 		}

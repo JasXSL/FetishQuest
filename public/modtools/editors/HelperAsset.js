@@ -419,7 +419,7 @@ export default{
 			table.appendChild(tr);
 			tr.classList.add("noselect");
 
-			console.log("targetLibrary", targetLibrary, "ignore", ignoreLibrary);
+			//console.log("targetLibrary", targetLibrary, "ignore", ignoreLibrary);
 			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'">'+
 				(window.mod.hasDB(targetLibrary) && !ignoreLibrary ? '<input type="button" class="small addNew library" value="Library" />' : '')+
 				'<input type="button" class="small addNew" value="Unique" />'+
@@ -436,7 +436,7 @@ export default{
 
 					let a = new constructor();
 					a = constructor.saveThis(a, "mod");
-					storeAsset(a, true);
+					storeAsset(a, parented || true);	// Must be either 2 or true when clicking the unique button, default to mParent
 
 					// Insert handles other window refreshers
 					this.insertAsset(targetLibrary, a, win, undefined, windowData);
@@ -509,7 +509,7 @@ export default{
 
 					const a = new constructor(asset);
 					const inserted = this.insertCloneAsset(targetLibrary, a, constructor, win);
-
+					
 					// Add it to the list
 					storeAsset(inserted, parented);
 					this.rebuildAssetLists(targetLibrary);
@@ -1190,7 +1190,6 @@ export default{
 	insertCloneAsset( type, asset, constructor, parentWindow, fromListing = false ){
 
 		const out = mod.mod.deepCloneAsset(type, constructor, asset);
-		
 		// Cloning adds the whole object to our mod
 
 		delete out._e;
@@ -1223,7 +1222,6 @@ export default{
 		mod.setDirty(true);
 		if( openEditor )
 			mod.buildAssetEditor(type, asset.label || asset.id, undefined, win, windowData);
-
 		this.rebuildAssetLists(type);
 
 	},

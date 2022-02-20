@@ -2298,6 +2298,10 @@ export default class Game extends Generic{
 
 		this.updateShops();
 
+		// Always set proc evt encounters to completed to prevent repeats
+		if( encounter.isEvt )
+			this.encounter.setCompleted(true);
+
 		// Purge is needed after each overwrite
 		this.save();
 		this.ui.draw();

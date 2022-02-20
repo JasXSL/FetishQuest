@@ -634,7 +634,7 @@ export default class Mod extends Generic{
 
 		}
 
-		console.log("inserted asset", asset);
+		console.log("inserted asset", asset, asset._h);
 		this[table].push(asset);
 
 	}
@@ -776,7 +776,15 @@ export default class Mod extends Generic{
 		else
 			delete out.id;
 
-		
+		if( asset._mParent )
+			out._mParent = {
+				type : asset._mParent.type,
+				label : asset._mParent.label
+			};
+			
+		if( asset._h )
+			out._h = true;
+
 		if( constructor.getRelations ){
 
 			const rel = constructor.getRelations();
@@ -822,6 +830,8 @@ export default class Mod extends Generic{
 								type: table,
 								label: tag
 							};
+						if( sub._h )
+							created._h = true;
 
 						arr[index] = created.label || created.id;
 
@@ -832,8 +842,8 @@ export default class Mod extends Generic{
 			}
 
 		}
-
-		console.log("Created", out, "In", table);
+		
+		console.trace("Created", out, out._h, "In", table, "from", asset);
 		this.mergeAsset(table, out);
 		return out;
 
@@ -1152,6 +1162,9 @@ export default class Mod extends Generic{
 								console.error("Goto ", el, " not found in", rp, stage, opt);
 
 						}
+
+						if( !goto )
+							return '';
 
 						if( goto.index === undefined || isNaN(goto.index) || goto.index === "" )
 							return goto.id;

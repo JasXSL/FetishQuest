@@ -113,7 +113,8 @@ export function asset(){
 		
 			
 		html += 'Encounters: <div class="encounters"></div>';
-
+		html += '<label>Replace current encounter: <input type="checkbox" name="data::replace" class="saveable" '+( asset.data.replace ? 'checked' : '' )+' /></label>';
+		html += '<br />';
 		fnBind = () => {
 			this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "data::encounter", false));
 		};
@@ -820,6 +821,19 @@ export function asset(){
 
 		fnBind = () => {
 			this.dom.querySelector("div.book").appendChild(EditorBook.assetTable(this, asset, "data::label", true, false));
+		};
+
+	}
+	else if( type === Types.removePlayer ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				player : ''
+			};
+
+		html += 'Player: <br /><div class="player"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
 		};
 
 	}

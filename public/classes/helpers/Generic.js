@@ -39,6 +39,18 @@ export default class Generic{
 			}
 		}
 
+		// Editor specific load. Accept parenting/hidden metadata
+		if( !window.game ){
+			if( data._mParent )
+				this._mParent = {
+					type : data._mParent.type,
+					label : data._mParent.label
+				};
+			if( data._h ){
+				this._h = true;
+			}
+		}
+
 		if( typeof this.rebase === "function" && Generic.auto_rebase )
 			this.rebase();
 

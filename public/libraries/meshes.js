@@ -1311,7 +1311,7 @@ function build(){
 
 				}),
 				BarShelf : new LibMesh({
-					tags : [stdTag.mShelf],
+					tags : [stdTag.mShelf, stdTag.mBarShelf],
 					url : 'furniture/bar_shelf.JD',
 					materials : [
 						libMat.Wood.Crate
@@ -1320,7 +1320,7 @@ function build(){
 
 				}),
 				BarTable : new LibMesh({
-					tags : [stdTag.mTable],
+					tags : [stdTag.mTable, stdTag.mBarTable],
 					url : 'furniture/bar_table.JD',
 					materials : [
 						libMat.Wood.Crate
@@ -1359,7 +1359,7 @@ function build(){
 						libMat.Cloth.Thick,
 						libMat.Cloth.Sheet,
 					],
-					tags : [],
+					tags : [stdTag.mBed],
 
 
 					

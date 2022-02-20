@@ -76,7 +76,7 @@ export default class Player extends Generic{
 		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
 		this.leveled = false;		// Level is an offset of the player average level
 		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
-		this.hpMulti = 1;			// Quick way to build NPCs with different HP instead of having to add a bunch of wrappers.
+		this.hpMulti = 1;			// Quick way to build NPCs with different HP instead of having to add a bunch of wrappers. Negative value will SET max HP to a specific value. Used for illium who loses 1 HP each turn
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 		this.voice = '';			// Voice kit label for pain/pleasure sounds etc
 
@@ -2658,6 +2658,9 @@ export default class Player extends Generic{
 	}
 
 	getMaxHP(){
+
+		if( this.hpMulti < 0 )
+			return Math.ceil(Math.abs(this.hpMulti));
 
 		const add = Math.max(0, 15-game.getTeamPlayers().length*5);
 

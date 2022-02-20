@@ -304,7 +304,7 @@ export function asset(){
 		html += buildActionTypeSelect('data::type', asset.data.type, true);
 
 	}
-	else if( type === types.actionTag ){
+	else if( type === types.actionTag || type === types.roomTag ){
 
 		setDefaultData({
 			tags : [],
@@ -1100,6 +1100,18 @@ export function asset(){
 			HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
 				HelperTags.autoHandleAsset('data::tags', tags, asset);
 			});
+		};
+
+	}
+	else if( type === types.dungeonTemplateRoomHasEncounter ){
+
+		setDefaultData({
+			label : [],
+		});
+		html += 'Encounters: <div class="encounters"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "data::label", false));
 		};
 
 	}

@@ -122,6 +122,8 @@ export function list(){
 export function help(){
 	let out = '<h3>RoleplayStageOptionGoto</h3>';
 	out += '<p>Lets you select a stage in the roleplay to go to, and set conditions for that option to trigger.</p>';
+	out += '<p>In conditions, target is the player who selected the response, and sender is the RP player of the current stage. If no sender is present, it uses the same as target.</p>';
+	
 
 	return out;
 }

@@ -101,6 +101,10 @@ export default class GameAction extends Generic{
 		if( !this.id )
 			this.g_resetID();
 
+		if( this.data.constructor === Object || this.data.constructor === Array )
+			this.data = deepClone(this.data);
+		
+
 		if( window.game ){
 			
 			// Loot is needed in netcode
@@ -393,9 +397,11 @@ export default class GameAction extends Generic{
 		if( this.type === types.encounters ){
 
 			const encounter = Encounter.getRandomViable(Encounter.loadThese(this.data.encounter));
-			game.mergeEncounter(player, encounter, mesh);
+
+			game.startEncounter(player, encounter, !this.data.replace, mesh);
 			this.remove();	// Prevent it from restarting
-			asset.updateInteractivity();	// After removing the action, update interactivity
+			if( asset )
+				asset.updateInteractivity();	// After removing the action, update interactivity
 
 		}
 		else if( this.type === types.resetEncounter ){
@@ -418,6 +424,15 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.refreshMeshes ){
 			game.renderer.stage.onRefresh();			
+		}
+		else if( this.type === types.removePlayer ){
+
+			let playersToRemove = game.players.filter(el => el.label === this.data.player);
+			if( !this.data.player )
+				return false;
+			for( let pr of playersToRemove )
+				game.removePlayer(pr.id);
+			
 		}
 			
 		else if( this.type === types.door ){
@@ -1066,10 +1081,11 @@ GameAction.types = {
 	transmog : 'transmog',
 	restorePlayerTeam : 'restorePlayerTeam',	// Shortcut to fully regen and wipe arousal from the player team
 	setPlayerTeam : 'setPlayerTeam',
+	removePlayer : 'removePlayer',
 };
 
 GameAction.TypeDescs = {
-	[GameAction.types.encounters] : "{encounter:(arr)encounters} - Picks a random encounter to start",
+	[GameAction.types.encounters] : "{encounter:(arr)encounters, replace:(bool)replaceEncounter=false} - Picks a random encounter to start. If replace is true, it replaces the encounter. Otherwise it merges it.",
 	[GameAction.types.resetEncounter] : "{encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one",
 	[GameAction.types.wrappers] : "{wrappers:(arr)wrappers} - Triggers all viable wrappers",
 	[GameAction.types.loot] : "{loot:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: {genLoot:[asset, asset, asset...]} - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
@@ -1114,6 +1130,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
 	[GameAction.types.trap] : '{action:(str)action_label, game_actions:(arr)labels, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, corr, etc), and name specified in the action. Game actions are always triggered when the trap is triggered regardless of if it hit or not. They are ran with the sender and target being the person who triggered the trap.',
+	[GameAction.types.removePlayer] : '{player:(str)playerLabel} - Removes a player from the game.',
 	[GameAction.types.restorePlayerTeam] : '{team:(int)team=Player.TEAM_PLAYER} - Shortcut that fully restores HP and clears arousal from Player.TEAM_PLAYERS.',
 	[GameAction.types.setPlayerTeam] : '{playerConds:(arr)player_conds=GameActionPlayer, team=Player.TEAM_PLAYER} - Changes one or more players teams',
 };

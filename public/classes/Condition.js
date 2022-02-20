@@ -332,6 +332,11 @@ export default class Condition extends Generic{
 				// Searches any attached action for a tag
 				success = event.action && event.action.hasTag(this.data.tags);
 			}
+			else if( this.type === T.roomTag ){
+				// Searches any attached action for a tag
+				success = event.room?.hasTag(this.data.tags);
+			}
+
 			else if( this.type === T.actionCrit ){
 				success = event.action && event.action._crit;
 			}
@@ -502,7 +507,8 @@ export default class Condition extends Generic{
 			
 			else if( this.type === T.actionDetrimental )
 				success = event.action && event.action.detrimental;
-
+			else if( this.type === T.encounterCompleted )
+				success = event.encounter && event.encounter.completed;
 			else if( this.type === T.rng ){
 
 				let rng = Math.floor(Math.random()*100),
@@ -780,6 +786,24 @@ export default class Condition extends Generic{
 
 						success = true;
 						break;
+
+					}
+
+				}
+
+			}
+			else if( this.type == T.dungeonTemplateRoomHasEncounter ){
+
+				let labels = toArray(this.data.label);
+				let viable = event.custom.viableEncounters;
+				if( Array.isArray(viable) ){
+
+					for( let enc of viable ){
+
+						if( labels.includes(enc.asset) ){
+							success = true;
+							break;
+						}
 
 					}
 
@@ -1404,6 +1428,8 @@ Condition.Types = {
 	isGenderEnabled : 'isGenderEnabled',
 	targetGenderEnabled : 'targetGenderEnabled',
 
+	encounterCompleted : 'encounterCompleted',
+
 	// Dungeon room conditions
 	roomIsOutdoors : 'roomIsOutdoors',
 	roomZ : 'roomZ',
@@ -1411,6 +1437,8 @@ Condition.Types = {
 	firstOnTeam : 'firstOnTeam',
 	fetish : 'fetish',
 	isControlled : 'isControlled',
+	dungeonTemplateRoomHasEncounter : 'dungeonTemplateRoomHasEncounter',
+	roomTag : 'roomTag',
 };
 
 
@@ -1428,10 +1456,12 @@ Condition.descriptions = {
 	[Condition.Types.charging] : '{(arr)conditions:[]} Checks if the target is charging an action. You can limit the actions to check for by conditions. Empty array checks if ANY action is charged.',
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag, originalWrapper:(bool)=false} one or more tags searched in any attached wrapper.',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
+	[Condition.Types.roomTag] : '{tags:(arr)(str)tag} If no room is in event, the current dungeon room is used. Searches for a tag in the room. Use this instead of normal tag for furniture, even though both works. Since this one works in the procedural generator.',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
 	[Condition.Types.actionLabel] : '{label:(arr)(str)label, ignore_alias:(bool)=false} Attached action label is in this array. If ignore_alias is true, it ignores alias checking',
 	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',
 	[Condition.Types.actionDetrimental] : 'Data is void',
+	[Condition.Types.encounterCompleted] : 'void - The event encounter is completed',
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
 	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100 where 100 = always and 0 = never',
 	[Condition.Types.isWrapperParent] : '{originalWrapper:(bool)false} - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
@@ -1510,7 +1540,7 @@ Condition.descriptions = {
 	[Condition.Types.fetish] : '{label:(str/arr)label} - Requires a fetish to be enabled, by label',
 	[Condition.Types.isControlled] : 'void - Checks if target is controlled by a human (not NPC)',
 	[Condition.Types.voice] : '{label:(str/arr)label} - Player voice field is set to this.',
-	
+	[Condition.Types.dungeonTemplateRoomHasEncounter] : '{label:(str/arr)label} - Requires custom.viableEncounters. Used only in the procedural dungeon generator, checks if the encounter pool has at least one viable encounter by label.',
 	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
 };
 

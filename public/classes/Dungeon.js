@@ -1217,7 +1217,9 @@ class DungeonRoom extends Generic{
 				this.encounters,
 				new GameEvent({
 					sender : player,
-					target : player
+					target : player,
+					dungeon : this.parent,
+					room : this,
 				})
 			);
 			if( !viable )
@@ -2154,8 +2156,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		out.depth = -maxFloors;
 		
 
-	console.log("Using kit", kit);
-
 	// Generate the map by creating rooms with no assets
 
 	console.log("Generating", numRooms);
@@ -2349,28 +2349,92 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	let encounterTemplate = randElem(viableEncounters);
 	let roomsPopulated = 0;
+
+	let nrEvents = 0;
+	const procEvtEncounters = Encounter.getAllProcEvtEncounters();
 	for( let room of viableEncounterRooms ){
 
-		// Random encounters checks viable for room
+		let template = encounterTemplate;
+
+		// First find a valid template and put it in the template var
+		// If no viable template is found, it's false
+		// This is needed regardless of if we're done with rooms or not, as it's used in the event randomizer
+
+		// Random encounters can be any viable encounter from the DungeonTemplate
 		if( kit.randomEncounters ){
 
+			template = false;	// Start off with no template
 			viableEncounters = kit.encounters.filter(enc => isEncounterViableForRoom(enc, room));
-			if( !viableEncounters.length )
-				continue;
-
-			encounterTemplate = randElem(viableEncounters);
+			if( viableEncounters.length )
+				template = randElem(viableEncounters);	// Set template if if exists
 
 		}
-		// Must be the one encounter for this dungeon
-		else if( !isEncounterViableForRoom(encounterTemplate, room) )
-			continue;
+		// If not random, it uses one encounter type for the whole dungeon
+		else if( !isEncounterViableForRoom(encounterTemplate, room) ){
+			template = false;	// The ONE template isn't viable for this room, disregard
+		}
+		
+		
+		if( roomsPopulated < numEncounters && template ){
 
-		room.encounters = [encounterTemplate.getAsEncounter().clone()];
+			room.encounters = [template.getAsEncounter().clone()];
+			++roomsPopulated;
 
-		++roomsPopulated;
-		if( roomsPopulated >= numEncounters )
-			break;
+		}
 
+		// Add a 1/5 chance of an event
+		if( Math.random() < 0.4-nrEvents*0.05 ){
+
+			
+			let viable = viableEncounters;
+			if( !kit.randomEncounters ){
+				
+				// ONE encounter dungeon. No encounter passed filter here. Skip.
+				if( !template )
+					viable = [];
+				else
+					viable = [template];
+
+			}
+
+			// Ok, there ARE viable encounters. Now we can scan procedural encounters.
+			if( viable.length ){
+
+				shuffle(procEvtEncounters);	// All events in the game. First viable one will be the one
+				const evt = new GameEvent({
+					sender:game.players[0],	// Don't rely on players, players will likely change by the time they reach the room
+					target:game.players[0],	// 
+					dungeon : out,
+					room : room,
+					custom : {
+						viableEncounters : viable
+					}
+				});
+				
+				for( let pEnc of procEvtEncounters ){
+
+					if( !Condition.all(pEnc.conditions, evt) ){
+						//console.log(pEnc, "invalid for", room, viable);
+						continue;
+					}
+
+					console.log("Added an event encounter", pEnc.label);
+					procEvtEncounters.splice(procEvtEncounters.indexOf(pEnc), 1);
+					++nrEvents;
+					const cl = pEnc.clone();	// remove the template room encounter conditions here, since they'll be validated later otherwise
+					cl.conditions = cl.conditions.filter(el => el.type !== Condition.Types.dungeonTemplateRoomHasEncounter);
+					room.encounters = [cl];
+					break;
+
+				}
+				
+
+			}
+
+			
+
+		}
+			
 
 	}
 

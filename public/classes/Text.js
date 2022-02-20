@@ -167,6 +167,7 @@ class Text extends Generic{
 
 		}
 
+		
 		for( let condition of this.conditions ){
 			
 			if( condition.type === Condition.Types.event ){
@@ -175,11 +176,13 @@ class Text extends Generic{
 				for( let n of evts)
 					this._cache_event[n] = true;
 			}
-			else if( condition.type === Condition.Types.actionLabel ){
+			else if( condition.type === Condition.Types.actionLabel && !condition.conditions.length ){
+
 				this._cache_action = {};
 				let actions = toArray(condition.data.label);
 				for( let n of actions )
 					this._cache_action[n] = true;
+
 			}
 			else if( condition.type === Condition.Types.actionCrit ){
 				this._cache_crit = !condition.inverse;
@@ -477,7 +480,7 @@ class Text extends Generic{
 		if( Array.isArray(event.target) )
 			targ = event.target[0];
 		
-		if( this.chat && this._chatPlayer ){
+		if( this.chat && this._chatPlayer && game.battle_active ){	// only allow NPC chats in combat. Otherwise RP might cause weird results.
 
 			if( !this.chat_reuse )
 				this._chatPlayer.onChatUsed(this.id);
@@ -498,31 +501,35 @@ class Text extends Generic{
 
 			
 			// Raise a text trigger event
-			const originalType = event.type,
-				originalText = event.text,
-				originalCustom = event.custom
-			;
+			this.raiseTextTriggerEvent(event);	
 
-			// Make sure to stash the original first
-			event.custom.original = event.clone();
-
-			event.type = GameEvent.Types.textTrigger;
-			event.text = this;
-			if( !event.custom )
-				event.custom = {};
-
-			event.raise();
-			
-			event.type = originalType;
-			event.text = originalText;
-			event.custom = originalCustom;
-			
-					
 		}
 
 		onReturn();	// Restore modified event values
 
 		
+	}
+
+	raiseTextTriggerEvent( originalEvent ){
+
+		const originalType = originalEvent.type,
+			originalText = originalEvent.text,
+			originalCustom = originalEvent.custom
+		;
+		// Make sure to stash the original first
+		originalEvent.custom.original = originalEvent.clone();
+
+		originalEvent.type = GameEvent.Types.textTrigger;
+		originalEvent.text = this;
+		if( !originalEvent.custom )
+			originalEvent.custom = {};
+
+		originalEvent.raise();
+		
+		originalEvent.type = originalType;
+		originalEvent.text = originalText;
+		originalEvent.custom = originalCustom;
+
 	}
 
 	// triggers FX and audio kits

@@ -168,6 +168,7 @@ export default class Roleplay extends Generic{
 		}
 		else{
 			
+			// This is where it's actually triggering
 			let fn = () => {
 
 				this.stage = index;
@@ -295,12 +296,13 @@ export class RoleplayStage extends Generic{
 		this.chat = RoleplayStageOption.ChatType.default;
 		this.store_pl = false;		// Store player as parent._targetPlayer for use in conditions and texts
 		this.shuffle_texts = RoleplayStage.Shuffle.NONE;	// Shuffles the text order
+		this.game_actions = [];			// GameActions to apply when encountering this stage
 
+		// local
 		this._iniPlayer = '';		// ID of player that triggered this stage
 		this._textEvent = null;	// Caches the active text event so the text doesn't change randomly.
 									// Not persistent between refreshes, but what can ya do.
-		this.game_actions = [];			// GameActions to apply when encountering this stage
-
+		
 		this.load(data);
 
 	}
@@ -422,7 +424,8 @@ export class RoleplayStage extends Generic{
 
 		const tevt = this.getTextEvent();
 		tevt.text.triggerVisuals(tevt);
-		
+		tevt.text.raiseTextTriggerEvent(tevt);
+
 	}
 
 	isDefaultStage(){

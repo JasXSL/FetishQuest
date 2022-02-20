@@ -198,6 +198,7 @@ export function list(){
 		tags : true,
 		conditions : true,
 		show_conditions : true,		
+		can_crit : true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

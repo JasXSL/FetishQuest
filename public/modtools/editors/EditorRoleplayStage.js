@@ -169,7 +169,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Texts</td>'+
-			'<td>Texts that should be output by the NPC. You can use multiple ones and attach conditions to the texts. Unless shuffle is set, it will trigger the first viable. Make sure to have a fallback without conditions last. In an RP, the target %T is the person who brought you to that stage of the RP, %S is the NPC you are talking to, if any. When using store target, you can use %P to target the stored player.</td>'+
+			'<td>Texts that should be output by the NPC. You can use multiple ones and attach conditions to the texts. Unless shuffle is set, it will trigger the first viable. Make sure to have a fallback without conditions last. In an RP, the target %T is the person who brought you to that stage of the RP, %S is the NPC you are talking to, if any. When using store target, you can use %P to target the stored player. %T is the NPC responding, and %S the player who picked the option.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Game Actions</td>'+
