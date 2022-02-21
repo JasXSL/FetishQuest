@@ -64,7 +64,7 @@ export default class Roleplay extends Generic{
 			stages : RoleplayStage.saveThese(this.stages, full),
 			persistent : this.persistent,
 			player : this.player,
-			conditions : Condition.saveThese(this.conditions),
+			conditions : Condition.saveThese(this.conditions, full),
 			once : this.once,
 			portrait : this.portrait,
 			_targetPlayer : this._targetPlayer
