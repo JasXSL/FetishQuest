@@ -38,7 +38,7 @@ function getHash(){
 }
 
 // returns a random item by weight, input are objects to pick one from, and weightFunc is called on each object
-function weightedRand( input, weightFunc ){
+function weightedRand( input, weightFunc, returnIndex = false ){
 
 	let totalWeight = 0, items = [];
 	for( let a of input ){
@@ -50,11 +50,17 @@ function weightedRand( input, weightFunc ){
 	}
 
 	let random = Math.random() * totalWeight;
-	for( let i of items ) {
+	for( let i = 0; i < items.length; ++i ) {
 
-		if( random < i.w )
-			return i.i;
-		random -= i.w;
+		let item = items[i];
+		if( random < item.w ){
+
+			if( returnIndex )
+				return i;
+			return item.i;
+			
+		}
+		random -= item.w;
 		
 	}
 	return false;

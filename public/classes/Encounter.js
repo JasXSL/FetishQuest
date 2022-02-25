@@ -50,7 +50,8 @@ export default class Encounter extends Generic{
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
 		this.isEvt = false;			// This encounter is a random event. Currently only used in the procedural dungeon generator.
-		
+		this.evtWeight = 1.0;		// Weight number. Higher will appear more frequently.
+
 		this.game_actions = [];			// Game actions to run when the encounter starts / passive things like RP
 		this.completion_actions = [];	// Game actions to run when the encounter completes
 		this.events = [];				// EncounterEvent, lets you bind encounters to events
@@ -259,6 +260,7 @@ export default class Encounter extends Generic{
 			out.wipe_override = this.wipe_override;
 			out.events = EncounterEvent.saveThese(this.events, full);
 			out.isEvt = this.isEvt;
+			out.evtWeight = this.evtWeight;
 
 		}
 		out.friendly = this.friendly;

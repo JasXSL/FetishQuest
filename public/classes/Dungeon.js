@@ -2115,6 +2115,8 @@ DungeonRoomAsset.Dir = {
 
 /* STATIC CONTENT */
 
+Dungeon.EVENT_CHANCE = 0.4;
+Dungeon.REPEAT_ENCOUNTERS = false;
 
 // Procedural dungeon generator
 // In a SemiLinear one, the room number is multiplied by 1.5, 50% being the side rooms
@@ -2347,11 +2349,28 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	});
 
 
+	const procEvtEncounters = Encounter.getAllProcEvtEncounters();
+	const weightFunc = encounter => encounter.evtWeight;
+	const shuffleProcEvtEncounters = () => {
+		
+		let enc = procEvtEncounters.slice();
+		let out = [];
+		while( enc.length ){
+
+			let idx = weightedRand(enc, weightFunc, true);
+			out.push(enc[idx]);
+			enc.splice(idx, 1);
+
+		}
+		return out;
+
+	};
+
 	let encounterTemplate = randElem(viableEncounters);
 	let roomsPopulated = 0;
 
 	let nrEvents = 0;
-	const procEvtEncounters = Encounter.getAllProcEvtEncounters();
+	
 	for( let room of viableEncounterRooms ){
 
 		let template = encounterTemplate;
@@ -2383,7 +2402,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		}
 
 		// Add a 1/5 chance of an event
-		if( Math.random() < 0.4-nrEvents*0.05 ){
+		if( Math.random() < this.EVENT_CHANCE-nrEvents*0.05 ){
 
 			
 			let viable = viableEncounters;
@@ -2400,7 +2419,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 			// Ok, there ARE viable encounters. Now we can scan procedural encounters.
 			if( viable.length ){
 
-				shuffle(procEvtEncounters);	// All events in the game. First viable one will be the one
+				let encounters = shuffleProcEvtEncounters();
 				const evt = new GameEvent({
 					sender:game.players[0],	// Don't rely on players, players will likely change by the time they reach the room
 					target:game.players[0],	// 
@@ -2411,7 +2430,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					}
 				});
 				
-				for( let pEnc of procEvtEncounters ){
+				for( let pEnc of encounters ){
 
 					if( !Condition.all(pEnc.conditions, evt) ){
 						//console.log(pEnc, "invalid for", room, viable);
@@ -2419,7 +2438,8 @@ Dungeon.generate = function( numRooms, kit, settings ){
 					}
 
 					console.log("Added an event encounter", pEnc.label);
-					procEvtEncounters.splice(procEvtEncounters.indexOf(pEnc), 1);
+					if( !this.REPEAT_ENCOUNTERS )
+						procEvtEncounters.splice(procEvtEncounters.indexOf(pEnc), 1);
 					++nrEvents;
 					const cl = pEnc.clone();	// remove the template room encounter conditions here, since they'll be validated later otherwise
 					cl.conditions = cl.conditions.filter(el => el.type !== Condition.Types.dungeonTemplateRoomHasEncounter);
