@@ -766,6 +766,12 @@ export default{
 			elSub.type = 'button';
 			elSub.value = 'Delete Selected';
 
+			elSub = document.createElement('input');
+			el.appendChild(elSub);
+			elSub.classList.add('exportSelected');
+			elSub.type = 'button';
+			elSub.value = 'Export Selected';
+
 		const table = document.createElement('table');
 		container.appendChild(table);
 		table.classList.add('dblist', 'selectable', 'autosize');
@@ -1002,6 +1008,22 @@ export default{
 					this.rebuildAssetLists(type);
 
 				}
+				
+			};
+			batchDiv.querySelector('input.exportSelected').onclick = event => {
+				
+				const checkedLabels = [];
+				const markers = win.dom.querySelectorAll("input.marker:checked").values();
+				for( let marker of markers )
+					checkedLabels.push(marker.parentElement.parentElement.dataset.id);
+				
+				if( !checkedLabels.length )
+					return;
+
+				let data = MOD.getExportData(baseObject.constructor, type, checkedLabels);
+				Window.create('export'+Generic.generateUUID(), 'jsonExport', 'Export Data - '+type, 'files', function(){
+					this.setDom('<textarea style="width:100%; height:100%; min-height:10vh">'+esc(JSON.stringify(data, undefined, 2), true)+'</textarea>');
+				}, undefined, undefined, data);
 				
 			};
 

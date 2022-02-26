@@ -7,7 +7,7 @@ import Asset from './Asset.js';
 import GameEvent from './GameEvent.js';
 import Dungeon, { DungeonRoomAsset } from './Dungeon.js';
 import Calculator from './Calculator.js';
-import Quest from './Quest.js';
+import Quest, { QuestObjective } from './Quest.js';
 import Roleplay, { RoleplayStageOption } from './Roleplay.js';
 import Shop from './Shop.js';
 import Player from './Player.js';
@@ -20,6 +20,8 @@ import { Wrapper } from './EffectSys.js';
 import Collection from './helpers/Collection.js';
 import Action from './Action.js';
 import Game from './Game.js';
+import Faction from './Faction.js';
+import Book from './Book.js';
 
 export default class GameAction extends Generic{
 
@@ -28,6 +30,17 @@ export default class GameAction extends Generic{
 			conditions : Condition,
 			data : Collection
 		};
+	}
+
+	// Helper function since we're using collections
+	getCollectionRelations( field ){
+
+		if( field === 'data' ){
+			if( !GameAction.TypeRelations[this.type] )
+				console.log("Note: Trying to get GameAction collection relations from type", this.type, "It may work, but if export data is missing, you know why");
+			return GameAction.TypeRelations[this.type] || {};
+		}
+
 	}
 
 	constructor(data, parent){
@@ -1133,6 +1146,46 @@ GameAction.TypeDescs = {
 	[GameAction.types.removePlayer] : '{player:(str)playerLabel} - Removes a player from the game.',
 	[GameAction.types.restorePlayerTeam] : '{team:(int)team=Player.TEAM_PLAYER} - Shortcut that fully restores HP and clears arousal from Player.TEAM_PLAYERS.',
 	[GameAction.types.setPlayerTeam] : '{playerConds:(arr)player_conds=GameActionPlayer, team=Player.TEAM_PLAYER} - Changes one or more players teams',
+};
+
+// type : {[fieldName]:constructor}
+GameAction.TypeRelations = {
+	[GameAction.types.encounters] : {encounter:Encounter},
+	[GameAction.types.resetEncounter] : {encounter:Encounter},
+	[GameAction.types.wrappers] : {wrappers:Wrapper},
+	[GameAction.types.loot] : {loot:Asset},
+	[GameAction.types.exit] : {dungeon:Dungeon},
+	[GameAction.types.quest] : {quest:Quest},
+	[GameAction.types.questObjective] : {quest:Quest, objective:QuestObjective},
+	[GameAction.types.addInventory] : {player:Player, asset:Asset},
+	[GameAction.types.roleplay] : {rp:Roleplay},
+	[GameAction.types.finishQuest] : {quest:Quest},
+	[GameAction.types.tooltip] : {text:Text},
+	[GameAction.types.shop] : {shop:Shop, player:Player},
+	[GameAction.types.openShop] : {shop:Shop},
+	[GameAction.types.gym] : {player:Player},
+	[GameAction.types.playerAction] : {player:Player, action:Action},
+	[GameAction.types.repairShop] : {player:Player},
+	[GameAction.types.altar] : {player:Player},
+	[GameAction.types.bank] : {player:Player},
+	[GameAction.types.text] : {text:Text},
+	[GameAction.types.hitfx] : {hitfx:HitFX, caster_conds:Condition, target_conds:Condition},
+	[GameAction.types.addPlayer] : {player:Player},
+	[GameAction.types.addPlayerTemplate] : {player:PlayerTemplate},
+	[GameAction.types.rentRoom] :  {player:Player},
+	[GameAction.types.execRentRoom] : {renter:Player},
+	[GameAction.types.sleep] : {actions:GameAction},
+	[GameAction.types.resetRoleplay] : {roleplay:Roleplay},
+	[GameAction.types.setDungeon] : {dungeon:Dungeon},
+	[GameAction.types.addFaction] : {faction:Faction},
+	[GameAction.types.trade] : {asset:Asset, from:Player, to:Player},
+	[GameAction.types.learnAction] : {conditions:Condition, action:Action},
+	[GameAction.types.addCopper] : {player:Player},
+	[GameAction.types.book] : {label:Book},
+	[GameAction.types.transmog] : {player:Player},
+	[GameAction.types.trap] : {action:Action, game_actions:GameAction},
+	[GameAction.types.removePlayer] : {player:Player},
+	[GameAction.types.setPlayerTeam] :  {playerConds:Condition},
 };
 
 // These are types where data should be sent to netgame players

@@ -25,6 +25,7 @@ import Book, { BookPage } from './Book.js';
 import Fetish from './Fetish.js';
 import ArmorEnchant from './ArmorEnchant.js';
 import AudioTrigger from './AudioTrigger.js';
+import Collection from './helpers/Collection.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -1301,6 +1302,116 @@ export default class Mod extends Generic{
 
 	}
 
+	// Gets data for the JSON exporter, including assets recursively
+	// This doesn't handle recursion well. May wanna figure out a way to do that later.
+	getExportData( constructor, table, labels = [] ){
+
+		let out = {
+			[table] : []
+		};
+
+		// Merge an out into this from a recursive call
+		const mergeRecursive = inputOut => {
+
+			// Merge it
+			for( let subTable in inputOut ){
+
+				if( !inputOut[subTable].length )
+					continue;
+
+				if( !out[subTable] )
+					out[subTable] = [];
+				
+				// make sure an asset doesn't exist before adding it
+				for( let asset of inputOut[subTable] ){
+					
+					if( !out[subTable].includes(asset) )
+						out[subTable].push(asset);
+
+				}
+
+			}
+
+		};
+
+		for( let label of labels ){
+
+			let asset = this.getAssetById(table, label);
+			if( !asset )
+				continue;
+
+			out[table].push(asset);
+
+			// Find subs
+			if( constructor.getRelations ){
+				
+				const relations = constructor.getRelations();
+				for( let i in relations ){
+
+					// This item field is empty
+					const relationField = asset[i];
+					if( !relationField || (Array.isArray(relationField) && !relationField.length) )
+						continue;
+
+					const subTable = Mod.getTableNameByConstructor(relations[i]);
+
+					// Collections need a getCollectionRelations method on the target classes
+					if( relations[i] === Collection ){
+
+						let tmpAsset = new constructor(asset);
+						if( !tmpAsset.getCollectionRelations ){
+							console.error("Unable to export", asset, constructor.name, "getCollectionRelations method missing from field ", i, ". See GameAction for an example.");
+							continue;
+						}
+						const subs = tmpAsset.getCollectionRelations(i);
+						if( typeof subs !== "object" ){
+							// The getCollectionRelations method returned a non-object. It will, in many cases tho.
+							console.log("Collection relations found for", constructor.name, "field", i, "This may be fine, but if you encounter missing data, look into it.");
+							continue;
+						}
+
+
+						let collections = toArray(asset[i]);
+
+						//console.log("Collections", collections, "subs", subs);
+						// Cycle the collections
+						for( let collection of collections ){
+
+							// Iterate over the collection fields
+							for( let subField in subs ){
+
+								// Collection field not set
+								if( !collection[subField] || (Array.isArray(collection[subField]) && !collection[subField].length) )
+									continue;
+
+								const collectionFieldConstructor = subs[subField];
+								const expData = this.getExportData(
+									collectionFieldConstructor, // Constructor
+									Mod.getTableNameByConstructor(collectionFieldConstructor),
+									toArray(collection[subField])
+								);
+								//console.log("expdata for", subs[subField], Mod.getTableNameByConstructor(collectionFieldConstructor), collection[subField], expData);
+								mergeRecursive(expData);
+
+							}
+
+						}
+						
+					}
+					// Get linked data for the related field array/object
+					else
+						mergeRecursive(this.getExportData(relations[i], subTable, toArray(asset[i])));
+
+					
+
+				}
+
+			}
+
+		}
+
+		return out;
+	}
 
 	// mod save goes to databse
 	async save( force ){

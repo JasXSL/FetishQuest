@@ -32,6 +32,21 @@ export default class Encounter extends Generic{
 		};
 	}
 
+	// Helper function since we're using collections
+	getCollectionRelations( field ){
+
+		if( field === 'player_conditions' ){
+			
+			let out = {};
+			for( let i in this.player_conditions )
+				out[i] = Condition;
+
+			return out;
+			
+		}
+
+	}
+
 	constructor(data, parent){
 		super(data);
 

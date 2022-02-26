@@ -224,7 +224,7 @@ export default class Modtools{
 
 					Window.addMenuOption("open", "Open (Ctrl+O)", () => { self.loadWindow(); });
 
-					Window.addMenuOption("import", "Import", () => { 
+					Window.addMenuOption("import", "Import File", () => { 
 						
 						this.dummyUploader.setAttribute("accept", ".fqmod");
 						this.dummyUploader.onchange = async event => {
@@ -239,6 +239,12 @@ export default class Modtools{
 						};
 
 						this.dummyUploader.click();
+					});
+
+					Window.addMenuOption("import", "Import JSON", () => { 
+						
+						this.drawJsonImporter();
+						
 					});
 
 					// Mod exists
@@ -1537,6 +1543,115 @@ export default class Modtools{
 			self.saveWindowStates();
 		});
 
+
+	}	
+
+	drawJsonImporter(){
+
+		const self = this;
+		return Window.create("JSON Import", "JSON Importer", "", "convergence-target", async function(){
+
+			let html = '<h2>JSON Importer</h2>';
+			html += '<div class="error red bold"></div>';
+			html += '<div class="notices green"></div>';
+			html += '<p>This tool is used to MERGE a small amount of assets from one mod to another by checking them in their database listing and hitting export, then pasting into the text box below. Note that this tool is fairly experimental, and you may need manual editing after importing. Save a backup of your mod before doing this, and don\'t paste code from people you don\'t trust.</p>';
+			html += '<form class="jsonImport">';
+				html += '<label>Allow overwrite <input type="checkbox" class="allowOverwrite" /></label>';
+				html += '<br /><input type="submit" class="merge" />';
+				html += '<br />JSON Data:<br />';
+				html += '<textarea class="json" style="width:100%; min-height:20vh;">{}</textarea>';
+			html += '</form>';
+
+			this.setDom(html);
+
+			const err = this.dom.querySelector("div.error");
+			const note = this.dom.querySelector("div.notices");
+			this.dom.querySelector("form.jsonImport").addEventListener('submit', event => {
+				event.preventDefault();
+
+				err.innerHTML = note.innerHTML = '';
+
+				let errors = [];
+				try{
+
+					const allowOverwrite = this.dom.querySelector("input.allowOverwrite").checked;
+					const data = JSON.parse(this.dom.querySelector('textarea.json').value);
+
+
+					const mod = self.mod;
+					
+					let inserts = {};
+					let overwrites = {};
+					
+					for( let modField in data ){
+
+						if( !Array.isArray(mod[modField]) ){
+							errors.push("Unknown database: "+modField);
+							continue;
+						}
+
+						let dbArray = data[modField];
+						if( !Array.isArray(dbArray) ){
+							errors.push("Invalid field, must be array: "+modField);
+							continue;
+						}
+
+						
+						for( let asset of dbArray ){
+
+							if( typeof asset !== 'object' ){
+								errors.push("Asset ignored. Not an object: "+esc(JSON.stringify(asset), true));
+								continue;
+							}
+
+							let id = asset.label || asset.id;
+
+							let existing = mod.getAssetById(modField, asset.label || asset.id, false);
+							if( existing && !allowOverwrite ){
+
+								errors.push("Asset ignored. Already exists in mod: "+esc(asset.label || asset.id, true)+' ('+esc(modField)+')');
+								continue;
+
+							}
+
+							const overwritten = mod.mergeAsset( modField, asset );
+
+							// Remove from existing
+							if( overwritten ){
+
+								if( !overwrites[modField] )
+									overwrites[modField] = 0;
+								++overwrites[modField];
+
+							}
+							if( !inserts[modField] )
+								inserts[modField] = 0;
+							++inserts[modField];
+
+						}
+
+					}
+
+					let out = '';
+					for( let i in inserts ){
+						out += inserts[i]+' '+i+' inserted '+(overwrites[i] ? '['+overwrites[i]+' REPLACED]' : '')+'<br />';
+					}
+					if( Object.keys(inserts).length )
+						self.setDirty(true);
+
+					note.innerHTML = out;
+
+				}catch(error){
+					console.error(error);
+					errors.push(error.message || error);
+				}
+
+				err.innerHTML = errors.join('<br />');
+
+			});
+
+			self.saveWindowStates();
+		});
 
 	}	
 
