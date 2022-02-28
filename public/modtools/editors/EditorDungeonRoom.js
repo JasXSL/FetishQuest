@@ -1037,13 +1037,22 @@ class Editor{
 	// Build the asset editor co-screen
 	buildAssetEditor(){
 
+		const th = this;
+		const asset = th.control.object.userData.dungeonAsset;
 		// Asset window already exists, rebuild it
 		if( this.assetWindow && !this.assetWindow.dead ){
-			this.assetWindow.rebuild.call(this.assetWindow);
-			return;
+
+			if( this.assetWindow.id === asset.id ){
+				this.assetWindow.rebuild.call(this.assetWindow);
+				return;
+			}
+			else
+				this.assetWindow.close();
+			
 		}
 
-		const th = this;
+		
+		
 
 		const build = function(){
 
@@ -1051,8 +1060,6 @@ class Editor{
 				this.close();
 				return;
 			}
-
-			const asset = th.control.object.userData.dungeonAsset;
 			if( !asset ){
 				this.close();
 				return;
@@ -1125,7 +1132,7 @@ class Editor{
 		};
 
 		
-		this.assetWindow = Window.create('REPLACE_ID', 'dungeonAssets', '', 'crafting', build, {}, this.win);
+		this.assetWindow = Window.create(asset.id, 'dungeonRoomAssets', '', 'crafting', build, {}, this.win);
 		this.assetWindow.setHelp(() => {
 
 			let out = '';

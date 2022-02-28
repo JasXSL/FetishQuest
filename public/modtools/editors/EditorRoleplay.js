@@ -34,6 +34,7 @@ export function asset(){
 		html += '<label title="Preserves stage when reopened">Persistent <input type="checkbox" class="saveable" name="persistent" '+(dummy.persistent ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Can only be opened once">Once <input type="checkbox" class="saveable" name="once" '+(dummy.once ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Autoplay">Auto Play <input type="checkbox" class="saveable" name="autoplay" '+(dummy.autoplay ? 'checked' : '')+' /></label><br />';
+		html += '<label title="When checked, conditions are checked against all players (players are shuffled), the first viable one becomes the instigator">Random Instigator <input type="checkbox" class="saveable" name="randTargs" '+(dummy.randTargs ? 'checked' : '')+' /></label><br />';
 	html += '</div>';
 
 	html += '<label title="Player in encounter to tie it to">Player: </label><div class="player"></div>';

@@ -2176,6 +2176,11 @@ export default class Game extends Generic{
 		if( !encounter )
 			return;
 
+		if( typeof encounter === 'string' )
+			encounter = glib.get(encounter, 'Encounter');
+		if( !(encounter instanceof Encounter) )
+			throw 'Attempting to start missing encounter';
+
 		if( this.encounter )
 			this.encounter.onRemoved();
 		

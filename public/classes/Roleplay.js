@@ -29,7 +29,10 @@ export default class Roleplay extends Generic{
 		
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
-		this.autoplay = true;
+		this.autoplay = true;		// Auto start when tied to an encounter gameAction
+		this.randTargs = false;		// When true, it checks conditions against ALL players (in a shuffled manor) and sets the first viable one as the instigator.
+
+
 
 		this._waiting = false;		// Waiting to change stage
 		this._targetPlayer = '';	// Can be set on roleplay stage to store the target, for use with texts and conditions
@@ -67,12 +70,13 @@ export default class Roleplay extends Generic{
 			conditions : Condition.saveThese(this.conditions, full),
 			once : this.once,
 			portrait : this.portrait,
-			_targetPlayer : this._targetPlayer
+			_targetPlayer : this._targetPlayer,
 		};
 
 		if( full ){
 			out.autoplay = this.autoplay;
 			out.desc = this.desc;
+			out.randTargs = this.randTargs;
 		}
 		if( full !== "mod" ){
 			out.completed = this.completed;
@@ -211,14 +215,27 @@ export default class Roleplay extends Generic{
 
 	}
 
+	// On success, returns the target player
 	validate( player, debug ){
 
-		const evt = new GameEvent({
-			sender : player,
-			target : player,
-			roleplay : this
-		});
-		return Condition.all(this.conditions, evt, debug);
+		let targs = [player];
+		if( this.randTargs )
+			targs = shuffle(game.getEnabledPlayers());
+
+		for( let targ of targs ){
+
+			const sender = this.getPlayer();
+			const evt = new GameEvent({
+				sender : sender,
+				target : targ,
+				roleplay : this,
+				dungeon : game.dungeon,
+				room : game.dungeon.getActiveRoom(),
+			});
+			if( Condition.all(this.conditions, evt, debug) )
+				return targ;
+
+		}
 
 	}
 

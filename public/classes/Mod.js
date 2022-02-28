@@ -1302,6 +1302,145 @@ export default class Mod extends Generic{
 
 	}
 
+	// Returns assets with mParent with missing parent assets
+	findMissingParents(){
+
+		for( let table in this ){
+
+			if( !Array.isArray(this[table]) )
+				continue;
+
+			for( let asset of this[table] ){
+
+				if( !asset._mParent )
+					continue;
+
+				if( !Array.isArray(this[asset._mParent.type]) ){
+					console.log("["+table+"] Table ", asset._mParent.type," not found for parent in", asset);
+					continue;
+				}
+
+
+				const ex = this.getAssetById(asset._mParent.type, asset._mParent.label);
+				if( !ex )
+					console.log(table, ">>", asset);
+
+
+			}
+
+		}
+
+	}
+
+	
+	// Since I suck at coding, this will go through and fix bugs I've found
+	fixIssues(){
+
+		// The dungeon editor was incorrectly parenting unique gameActions tied to assets
+		let fixedParents = mod.mod.dungeonRoomAssets.filter(el => {
+			let ga = el.interactions;
+			if( !ga || !ga.length )
+				return false;
+		
+			let actions = ga.filter(a => {
+				const asset = mod.getAssetById('gameActions', a, false);
+				if( !asset )
+					console.log("Missing asset", a, "in", el);
+				else if( !asset._mParent )
+					return false;
+				else if( asset._mParent.label === 'REPLACE_ID' ){
+					asset._mParent.type = 'dungeonRoomAssets';
+					asset._mParent.label = el.id;
+					return true;
+				}
+			});
+			return actions.length;
+		});
+		if( fixedParents.length )
+			console.log("Fixed ", fixedParents.length, "incorrectly parented dungeonRoomAsset gameActions");
+
+		// Same thing with roleplayStageOption
+		fixedParents = mod.mod.roleplayStageOption.filter(el => {
+			let ga = el.game_actions;
+			if( !ga || !ga.length )
+				return false;
+		
+			let actions = ga.filter(a => {
+				const asset = mod.getAssetById('gameActions', a, false);
+				if( !asset ){
+					console.log("Missing asset", a, "in", el, "(in roleplayStageOption)");
+					return false;
+				}
+				if( !asset._mParent )
+					return false;
+				let label = el.label || el.id;
+				if( asset._mParent.label !== label ){
+					asset._mParent.type = 'roleplayStageOption';
+					asset._mParent.label = label;
+					return true;
+				}
+			});
+			return actions.length;
+		});
+		if( fixedParents.length )
+			console.log("Fixed ", fixedParents.length, "incorrectly parented roleplayStageOption gameActions");
+		
+
+		// Same thing with text conditions
+		fixedParents = mod.mod.texts.filter(el => {
+			let ga = el.conditions;
+			if( !ga || !ga.length )
+				return false;
+		
+			let actions = ga.filter(a => {
+				const asset = mod.getAssetById('conditions', a, false);
+				if( !asset ){
+					console.log("Missing asset", a, "in", el);
+					return false;
+				}
+				if( !asset._mParent )
+					return false;
+				let label = el.id;
+				if( asset._mParent.label !== label ){
+					asset._mParent.type = 'texts';
+					asset._mParent.label = label;
+					return true;
+				}
+			});
+			return actions.length;
+		});
+		if( fixedParents.length )
+			console.log("Fixed ", fixedParents.length, "incorrectly parented texts conditions");
+				
+		// Same thing with roleplayStageOption conditions
+		fixedParents = mod.mod.roleplayStageOption.filter(el => {
+			let ga = el.conditions;
+			if( !ga || !ga.length )
+				return false;
+
+			let actions = ga.filter(a => {
+				const asset = mod.getAssetById('conditions', a, false);
+				if( !asset )
+					console.log("Missing asset", a, "in", el);
+				else if( !asset._mParent )
+					return false;
+				else{
+					let label = el.label || el.id;
+					if( asset._mParent.label !== label ){
+						asset._mParent.type = 'roleplayStageOption';
+						asset._mParent.label = label;
+						return true;
+					}
+				}
+			});
+			return actions.length;
+		});
+		if( fixedParents.length )
+			console.log("Fixed ", fixedParents.length, "incorrectly parented roleplayStageOption conditions");
+
+
+	}
+
 	// Gets data for the JSON exporter, including assets recursively
 	// This doesn't handle recursion well. May wanna figure out a way to do that later.
 	getExportData( constructor, table, labels = [] ){
