@@ -6,7 +6,7 @@ Overhaul:
 	
 	Bugs:
 		- NPCs can charge multiple actions at a time
-		
+		- Completed persistent RP should wipe its status when restarted
 
 	- Random events
 		- In procedural dungeons

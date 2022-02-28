@@ -292,8 +292,8 @@ export default class Condition extends Generic{
 				}
 
 			}
-			else if( this.type === T.targetIsRpPlayer ){
-				success = (t && game.roleplay && t.id === game.roleplay._targetPlayer);		
+			else if( this.type === T.targetIsRpPlayer || this.type === T.isRoleplayPlayer ){
+				success = (t && game?.roleplay?._targetPlayers.includes(t.id));		
 			}
 			else if( this.type === T.targetIsSender ){
 				if(t && s && t.id === s.id)
@@ -528,12 +528,6 @@ export default class Condition extends Generic{
 				success = eventWrapper && t && eventWrapper.victim === t.id;
 
 			}
-			else if( this.type === T.isRoleplayPlayer ){
-
-				success = t && game.rp && t.id == game.rp._targetPlayer;
-
-			}
-
 			else if( this.type === T.isActionParent ){
 
 				success = event.action && event.wrapper && event.wrapper.action && event.wrapper.action === event.action.id;
@@ -646,6 +640,9 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.arousalValue ){
 				success = t && this.compareValue(s, t, t.arousal);
+			}
+			else if( this.type === T.numRpTargets ){
+				success = game.roleplay && t && this.compareValue(s, t, game.roleplay.getTargetPlayers().length, debug);
 			}
 			else if( this.type === T.copperValue )
 				success = t && this.compareValue(s, t, t.getMoney());
@@ -1439,6 +1436,7 @@ Condition.Types = {
 	isControlled : 'isControlled',
 	dungeonTemplateRoomHasEncounter : 'dungeonTemplateRoomHasEncounter',
 	roomTag : 'roomTag',
+	numRpTargets : 'numRpTargets',
 };
 
 
@@ -1508,7 +1506,8 @@ Condition.descriptions = {
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',
-	[Condition.Types.targetIsRpPlayer] : '{} - Checks if target is roleplay _targetPlayer, which can be set by RP stages to lock an rp target',
+	[Condition.Types.targetIsRpPlayer] : '{} - Checks if target is contained in roleplay _targetPlayers, which stores an RP target (auto set on start, can be overriden by stages)',
+	[Condition.Types.numRpTargets] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Checks how many _targetPlayers there are in the active roleplay.',
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any, controlled:(bool)pc_controlled=false} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies. If controlled is true it ignores NPCs.',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',

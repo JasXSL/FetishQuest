@@ -34,7 +34,6 @@ export function asset(){
 		html += '<label title="Preserves stage when reopened">Persistent <input type="checkbox" class="saveable" name="persistent" '+(dummy.persistent ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Can only be opened once">Once <input type="checkbox" class="saveable" name="once" '+(dummy.once ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Autoplay">Auto Play <input type="checkbox" class="saveable" name="autoplay" '+(dummy.autoplay ? 'checked' : '')+' /></label><br />';
-		html += '<label title="When checked, conditions are checked against all players (players are shuffled), the first viable one becomes the instigator">Random Instigator <input type="checkbox" class="saveable" name="randTargs" '+(dummy.randTargs ? 'checked' : '')+' /></label><br />';
 	html += '</div>';
 
 	html += '<label title="Player in encounter to tie it to">Player: </label><div class="player"></div>';
@@ -45,12 +44,18 @@ export function asset(){
 	// Conditions
 	html += 'Conditions: <div class="conditions"></div>';
 
+	html += '<p>Advanced</p>';
+	html += 'Player conditions: <div class="playerConds"></div>';
+	html += '<label title="Min players that need to pass player conditions">Min Players: <input type="number" step=1 min=0 name="minPlayers" class="saveable" value="'+(parseInt(dummy.minPlayers) || 0)+'" /></label>';
+	html += '<label title="Max players that will be stored as rpTargets. -1 = infinit">Max Players: <input type="number" step=1 min=-1 name="maxPlayers" class="saveable" value="'+(parseInt(dummy.maxPlayers) || 0)+'" /></label>';
+
 
 
 	this.setDom(html);
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
+	this.dom.querySelector("div.playerConds").appendChild(EditorCondition.assetTable(this, asset, "playerConds", false, false));
 	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, 2));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 
@@ -136,8 +141,21 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Conditions</td>'+
-			'<td>Conditions needed for the RP to start. You can also put conditions in the GameAction that triggers it.</td>'+
+			'<td>Conditions needed for the RP to start. You can also put conditions in the GameAction that triggers it. Sender is any player set in the player field. Target is the player who instigated the RP.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player conditions</td>'+
+			'<td>When set, the game will check these conditions against a shuffled list of all enabled players. With target being said player. Including NPCs, so use the targetOnPlayerTeam condition if you only want to check the party. These players will be tied to the %P %P2... text labels instead of the player instigating the RP.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Min Players</td>'+
+			'<td>Minimum players that need to pass player conditions.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max Players</td>'+
+			'<td>Max players to save as rp targets. -1 is infinite. Should be equal or greater to minPlayers otherwise.</td>'+
 		'</tr>'
+		
 	;
 		
 

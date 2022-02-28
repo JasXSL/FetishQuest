@@ -9,6 +9,7 @@ export default class Roleplay extends Generic{
 	static getRelations(){ 
 		return {
 			conditions : Condition,
+			playerConds : Condition,
 			stages : RoleplayStage,
 		};
 	}
@@ -30,12 +31,13 @@ export default class Roleplay extends Generic{
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
 		this.autoplay = true;		// Auto start when tied to an encounter gameAction
-		this.randTargs = false;		// When true, it checks conditions against ALL players (in a shuffled manor) and sets the first viable one as the instigator.
-
-
+		this.playerConds = [];		// When not empty, all enabled players will be shuffled and these conditions are checked against all.
+		this.minPlayers = 1;		// With playerConds set: Minimum players that must be validated
+		this.maxPlayers = -1;		// -1 = infinite.
 
 		this._waiting = false;		// Waiting to change stage
-		this._targetPlayer = '';	// Can be set on roleplay stage to store the target, for use with texts and conditions
+		this._targetPlayers = [];	// Set automatically when the roleplay starts, containing the instigators. 
+									// Can also be set on roleplay stage to store the target, for use with texts and conditions
 
 		this.load(data);
 
@@ -68,15 +70,17 @@ export default class Roleplay extends Generic{
 			persistent : this.persistent,
 			player : this.player,
 			conditions : Condition.saveThese(this.conditions, full),
+			playerConds : Condition.saveThese(this.playerConds, full),
 			once : this.once,
 			portrait : this.portrait,
-			_targetPlayer : this._targetPlayer,
+			_targetPlayers : this._targetPlayers,
 		};
 
 		if( full ){
 			out.autoplay = this.autoplay;
 			out.desc = this.desc;
-			out.randTargs = this.randTargs;
+			out.minPlayers = this.minPlayers;
+			out.maxPlayers = this.maxPlayers;
 		}
 		if( full !== "mod" ){
 			out.completed = this.completed;
@@ -146,6 +150,11 @@ export default class Roleplay extends Generic{
 
 	}
 
+	// Returns an array of Player objects of this._targetPlayers found in the game player list
+	getTargetPlayers(){
+		return this._targetPlayers.map(el => game.getPlayerById(el)).filter(el => el);
+	}
+
 
 	getNextIndex(){
 
@@ -206,36 +215,57 @@ export default class Roleplay extends Generic{
 		return game.getPlayerByLabel(this.player);
 	}
 
-	onStart( player ){
+	onStart( players ){
 
-		this._targetPlayer = '';
+		this._targetPlayers = [];
+		if( Array.isArray(players) )
+			this._targetPlayers = players.map(el => {
+				if( typeof el === 'string' )
+					return el;
+				return el.id;
+			});
 		const stage = this.getActiveStage();
 		if( stage )
-			stage.onStart( player );
+			stage.onStart( players );
 
 	}
 
-	// On success, returns the target player
+	// On success, returns an array of target players. Otherwise, returns false.
 	validate( player, debug ){
 
+		const sender = this.getPlayer();
+		const evt = new GameEvent({
+			sender : sender,
+			target : player,
+			roleplay : this,
+			dungeon : game.dungeon,
+			room : game.dungeon.getActiveRoom(),
+		});
+		if( !Condition.all(this.conditions, evt, debug) )
+			return false;
+
 		let targs = [player];
-		if( this.randTargs )
+		if( this.playerConds.length && this.minPlayers > 0 )
 			targs = shuffle(game.getEnabledPlayers());
 
+		let maxPlayers = this.maxPlayers;
+
+		let out = [];
 		for( let targ of targs ){
 
-			const sender = this.getPlayer();
-			const evt = new GameEvent({
-				sender : sender,
-				target : targ,
-				roleplay : this,
-				dungeon : game.dungeon,
-				room : game.dungeon.getActiveRoom(),
-			});
-			if( Condition.all(this.conditions, evt, debug) )
-				return targ;
+			evt.target = targ;
+			if( Condition.all(this.playerConds, evt, debug) )
+				out.push(targ);
+
+			if( maxPlayers > -1 && out.length >= maxPlayers )
+				break;
 
 		}
+
+		if( out.length < this.minPlayers )
+			return false;
+
+		return out;
 
 	}
 
@@ -311,12 +341,12 @@ export class RoleplayStage extends Generic{
 		this.options = [];
 		this.player = '';			// Player label of the one who is speaking
 		this.chat = RoleplayStageOption.ChatType.default;
-		this.store_pl = false;		// Store player as parent._targetPlayer for use in conditions and texts
+		this.store_pl = false;		// Store player as parent._targetPlayers for use in conditions and texts
 		this.shuffle_texts = RoleplayStage.Shuffle.NONE;	// Shuffles the text order
 		this.game_actions = [];			// GameActions to apply when encountering this stage
 
 		// local
-		this._iniPlayer = '';		// ID of player that triggered this stage
+		this._iniPlayer = '';		// ID of player that triggered this stage. If there are multiple players, the first one is picked.
 		this._textEvent = null;	// Caches the active text event so the text doesn't change randomly.
 									// Not persistent between refreshes, but what can ya do.
 		
@@ -396,7 +426,6 @@ export class RoleplayStage extends Generic{
 		let pl = game.getPlayerByLabel(this.player);
 		if( pl )
 			return pl;
-
 		return this.parent.getPlayer();
 
 	}
@@ -417,17 +446,19 @@ export class RoleplayStage extends Generic{
 	}
 
 	// When the stage is initially presented
-	async onStart( player ){
+	async onStart( players ){
+
+		players = toArray(players);
 
 		this._textEvent = false;
-		if( !player )
-			player = game.getMyActivePlayer();
+		if( !players )
+			players = [game.getMyActivePlayer()];
 
-		if( player ){
+		if( players.length ){
 			
-			this._iniPlayer = player.id;
+			this._iniPlayer = players[0].id;
 			if( this.store_pl )
-				this.parent._targetPlayer = player.id;
+				this.parent._targetPlayers = [players[0].id];
 
 		}
 
@@ -436,7 +467,7 @@ export class RoleplayStage extends Generic{
 			RoleplayChatQueue.output(pl, this);
 
 		for( let act of this.game_actions ){
-			await act.trigger(player, pl);
+			await act.trigger(players[0], pl);
 		}
 
 		const tevt = this.getTextEvent();

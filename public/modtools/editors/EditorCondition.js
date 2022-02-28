@@ -705,6 +705,9 @@ export function asset(){
 	else if( type === types.mpValue ){
 		html += buildDefaultValueFields();
 	}
+	else if( type === types.numRpTargets ){
+		html += buildDefaultValueFields();
+	}
 	else if( type === types.notInCombat ){}
 	else if( type === types.numGamePlayersGreaterThan ){
 

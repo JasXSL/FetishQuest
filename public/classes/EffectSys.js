@@ -245,12 +245,7 @@ class Wrapper extends Generic{
 				pl = [smh];
 			}
 			else if( this.target === Wrapper.TARGET_RP_TP ){
-
-				pl = [];
-				const targ = game.getPlayerById(game.roleplay._targetPlayer);
-				if( targ )
-					pl = [targ];
-
+				pl = game.roleplay.getTargetPlayers();
 			}
 			else
 				pl = [player]; 
@@ -819,7 +814,7 @@ Wrapper.TARGET_SMART_HEAL = "SMART_HEAL";	// Targets the lowest HP viable player
 Wrapper.TARGET_EVENT_RAISER = "EVENT_RAISER";	// Used only for Effect.Types.runWrappers, targets the player that raised the event that triggered the effect
 Wrapper.TARGET_EVENT_TARGETS = "EVENT_TARGETS";	// Used only for Effect.Types.runWrappers, targets the player(s) that were the targets of the event that triggered the effect
 Wrapper.TARGET_ORIGINAL = "ORIGINAL";		// Specifies the target of the action that triggered this. Same as AUTO except in SMART_HEAL. Can also be used in effect events to target the owner of the wrapper containing the event that triggered the effect. Also used in Used only in Effect.Types.hitfx currently to trigger on the targeted victim of a smart heal action.
-
+Wrapper.TARGET_RP_TP = "RP_TP";				// RP Target players
 
 Wrapper.Targets = {
 	none : 'none',	// used in the editor to delete a target  
@@ -1015,9 +1010,7 @@ class Effect extends Generic{
 				tout = tout.concat(game.getEnabledPlayers());
 			}
 			else if( ta === Wrapper.TARGET_RP_TP ){
-				const p = game.getPlayerById(game.roleplay._targetPlayer);
-				if( p )
-					tout.push(p);
+				tout.push(...game.roleplay.getTargetPlayers());
 			}
 			else if( ta === Wrapper.TARGET_ORIGINAL )
 				tout.push(this.parent.getOriginalTarget());
