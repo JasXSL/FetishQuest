@@ -595,14 +595,13 @@ export default{
 	// Constructor is the asset constructor (used for default values)
 	buildList( win, library, constr, fields, start ){
 
-		// Todo: When ctrl+clicking an extended object it should delete the extension if it's parented. Otherwise just remove it from the asset and not the
-
 		let fulldb = window.mod.mod[library].slice().reverse(),
 			isLinker = this.windowIsLinker(win)
 		;
 
 		// Parent mod assets
 		fulldb.push(...window.mod.parentMod[library].slice().reverse());
+		// Filter out parented and extensions
 		fulldb = fulldb.filter(el => 
 			(!el._mParent && !el._e && !el._h) || 
 			window.mod.showParented
@@ -733,6 +732,8 @@ export default{
 
 		let db = fulldb.slice(win.custom._page, win.custom._page+this.PAGINATION_LENGTH);
 
+		
+
 		// Create the element to return
 		const container = document.createElement('template');
 
@@ -826,7 +827,7 @@ export default{
 				
 			}
 
-			ext = window.mod.parentMod.getAssetById(library, asset.id || asset.label, true) || a;
+			ext = window.mod.parentMod.getAssetById(library, asset.label || asset.id, true) || a;
 			if( (ext.id && ext.id !== a.id) || (ext.label && ext.label !== a.label) )	// This is an extension on the base mod
 				tr.dataset.ext = ext.id || ext.label;
 			

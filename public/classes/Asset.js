@@ -373,6 +373,8 @@ export default class Asset extends Generic{
 		this.durability -= Math.floor(amount);
 		if( this.durability <= 0 )
 			this.durability = 0;
+		if( this.durability > this.getMaxDurability() )
+			this.durability = this.getMaxDurability();
 
 		let change = this.durability-pre;
 		if( !change )

@@ -293,7 +293,11 @@ export default class Condition extends Generic{
 
 			}
 			else if( this.type === T.targetIsRpPlayer || this.type === T.isRoleplayPlayer ){
-				success = (t && game?.roleplay?._targetPlayers.includes(t.id));		
+				
+				let index = game?.roleplay?._targetPlayers?.indexOf(t?.id);
+				if( ~index )
+					success = isNaN(this.data.index) || this.data.index < 0 || index.toFixed() === this.data.index.toFixed();
+
 			}
 			else if( this.type === T.targetIsSender ){
 				if(t && s && t.id === s.id)
@@ -1463,7 +1467,7 @@ Condition.descriptions = {
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
 	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100 where 100 = always and 0 = never',
 	[Condition.Types.isWrapperParent] : '{originalWrapper:(bool)false} - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
-	[Condition.Types.isRoleplayPlayer] : '{} - Target is the player stored in the RP. Useful when an NPC does something to a specific player in an RP.',
+	[Condition.Types.isRoleplayPlayer] : '{index:(int)index=-1} - Target is an RP player. Useful to track who an RP is doing something to. Index can be set to force check if it\'s the first, second player etc. Starting from 0. -1 allows any index',
 	[Condition.Types.isActionParent] : 'void - If event event.wrapper.action is the same as event.action.id',
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
 	[Condition.Types.actionGroup] : '{group:(str)group} - Action belongs to this group',
@@ -1506,7 +1510,7 @@ Condition.descriptions = {
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',
-	[Condition.Types.targetIsRpPlayer] : '{} - Checks if target is contained in roleplay _targetPlayers, which stores an RP target (auto set on start, can be overriden by stages)',
+	[Condition.Types.targetIsRpPlayer] : 'Synonym for isRoleplayPlayer, use that one instead',
 	[Condition.Types.numRpTargets] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Checks how many _targetPlayers there are in the active roleplay.',
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any, controlled:(bool)pc_controlled=false} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies. If controlled is true it ignores NPCs.',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',

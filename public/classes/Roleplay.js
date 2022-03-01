@@ -341,7 +341,7 @@ export class RoleplayStage extends Generic{
 		this.options = [];
 		this.player = '';			// Player label of the one who is speaking
 		this.chat = RoleplayStageOption.ChatType.default;
-		this.store_pl = false;		// Store player as parent._targetPlayers for use in conditions and texts
+		this.store_pl = RoleplayStage.StoreType.IGNORE;		// Alter the parent._targetPlayers for use in conditions and texts
 		this.shuffle_texts = RoleplayStage.Shuffle.NONE;	// Shuffles the text order
 		this.game_actions = [];			// GameActions to apply when encountering this stage
 
@@ -457,8 +457,32 @@ export class RoleplayStage extends Generic{
 		if( players.length ){
 			
 			this._iniPlayer = players[0].id;
-			if( this.store_pl )
-				this.parent._targetPlayers = [players[0].id];
+			const spl = this.store_pl;
+			const st = RoleplayStage.StoreType;
+			if( spl ){	// Any non-true value is accepted
+
+				if( spl === st.SET )
+					this.parent._targetPlayers = [players[0].id];
+				else if( spl === st.ADD || spl == st.REM ){
+
+					let pos = this.parent._targetPlayers.indexOf(players[0].id);
+					if( ~pos && st.REM )
+						this.parent._targetPlayers.splice(pos, 1);
+					else if( pos === -1 && st.ADD )
+						this.parent._targetPlayers.push(players[0].id);
+
+				}
+				else if( spl === st.PURGE )
+					this.parent._targetPlayers = [];
+				else if( spl === st.SHIFT )
+					this.parent._targetPlayers.shift();
+				else if( spl === st.SHUFFLE ){
+
+					shuffle(this.parent._targetPlayers);
+
+				}
+
+			}
 
 		}
 
@@ -591,6 +615,15 @@ RoleplayStage.Shuffle = {
 	NONE : 0,
 	ALL : 1,
 	ALL_BUT_LAST : 2,
+};
+
+RoleplayStage.StoreType = {
+	IGNORE : 0,
+	SET : 1,
+	SHUFFLE : 2,
+	ADD : 3,
+	REM : 4,
+	PURGE : 5,
 };
 
 

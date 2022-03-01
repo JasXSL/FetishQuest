@@ -153,7 +153,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Max Players</td>'+
-			'<td>Max players to save as rp targets. -1 is infinite. Should be equal or greater to minPlayers otherwise.</td>'+
+			'<td>Max players to save as rp targets. -1 is infinite. Should be equal or greater to minPlayers otherwise. Note that maxPlayers doesn\'t prevent the RP from starting if the nr of valid players is greater. It just limits how many players are included in the RP as targets.</td>'+
 		'</tr>'
 		
 	;

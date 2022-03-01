@@ -908,6 +908,9 @@ export function asset(){
 	html += 'Conditions: <br />';
 	html += '<div class="conditions"></div>';
 
+	html += '<label title="Overrides the default target and runs the gameAction on any player that matches these conditions">Player conditions [advanced]</label><br />';
+	html += '<div class="playerConds"></div>';
+
 
 	this.setDom(html);
 
@@ -928,6 +931,7 @@ export function asset(){
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
+	this.dom.querySelector("div.playerConds").appendChild(EditorCondition.assetTable(this, asset, "playerConds"));
 
 	HelperAsset.autoBind( this, asset, DB);
 

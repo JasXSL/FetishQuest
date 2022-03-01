@@ -28,7 +28,8 @@ export default class GameAction extends Generic{
 	static getRelations(){ 
 		return {
 			conditions : Condition,
-			data : Collection
+			data : Collection,
+			playerConds : Condition
 		};
 	}
 
@@ -53,6 +54,8 @@ export default class GameAction extends Generic{
 		this.data = new Collection({}, this);
 		this.conditions = [];
 
+		this.playerConds = [];	// Can be used to override the target. Picks all enabled players that match these conditions.
+
 		this.load(data);
 	}
 
@@ -62,6 +65,7 @@ export default class GameAction extends Generic{
 			id : this.id,
 			type : this.type,
 			conditions : Condition.saveThese(this.conditions, full),
+			playerConds : Condition.saveThese(this.playerConds, full),
 			desc : this.desc,	// Needed for asset interactions
 		};
 
@@ -361,14 +365,10 @@ export default class GameAction extends Generic{
 	
 	}
 
-	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
-	async trigger( player, mesh, debug ){
-		
+	async exec( player, mesh, debug ){
+
 		const asset = this.parent;
 		const types = GameAction.types;
-
-		if( !player )
-			player = game.getMyActivePlayer();
 
 		// Helper function for playing animation on this asset. Returns the animation played if any
 		const playAnim = ( anim, targ ) => {
@@ -985,7 +985,46 @@ export default class GameAction extends Generic{
 			console.error("Game action triggered with unhandle type", this.type, this);
 			return false;
 		}
+
+	}
+
+	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
+	async trigger( player, mesh, debug ){
 		
+		if( !player )
+			player = game.getMyActivePlayer();
+
+		let targets = [player];
+		// Override target
+		if( this.playerConds.length ){
+
+			const evt = new GameEvent({
+				sender : player,
+				target : player,
+				dungeon : game.dungeon,
+				dungeonRoom : game.dungeon.getActiveRoom(),
+			});
+			let enabled = game.getEnabledPlayers();
+			targets = enabled.filter(target => {
+				
+				evt.target = target;
+				return Condition.all(this.playerConds, evt, debug);
+
+			});
+
+		}
+
+		let successes = 0;
+		for( let target of targets ){
+			try{
+				const att = await this.exec(target, mesh, debug);
+				if( att !== false )
+					++successes;
+			}catch(err){
+				console.error(err);
+			}
+		}
+		return successes;
 
 	}
 
