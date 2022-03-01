@@ -23,6 +23,9 @@ import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
 import Condition from './Condition.js';
 import Book, { BookPage } from './Book.js';
 import Fetish from './Fetish.js';
+import ArmorEnchant from './ArmorEnchant.js';
+import AudioTrigger from './AudioTrigger.js';
+import Collection from './helpers/Collection.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -64,6 +67,7 @@ export default class Mod extends Generic{
 		this.actions = [];		//x mod actions
 		this.assets = [];		//x equipment prefabs
 		this.audioKits = [];	//x AudioKit
+		this.audioTriggers = [];
 		this.playerClasses = [];	//x Custom player classes
 		this.conditions = [];			//x Condition library
 		this.fetishes = [];
@@ -95,6 +99,7 @@ export default class Mod extends Generic{
 		this.gallery = [];
 		this.books = [];
 		this.bookPages = [];
+		this.armorEnchants = [];
 
 		this.load(data);
 	}
@@ -122,7 +127,6 @@ export default class Mod extends Generic{
 			this.category = Mod.Category.Unsorted;
 	}
 
-
 	getSaveData(){
 		
 		const comparer = new Comparer();
@@ -145,6 +149,7 @@ export default class Mod extends Generic{
 			actions : this.actions,
 			assets : this.assets,
 			audioKits : this.audioKits,
+			audioTriggers : this.audioTriggers,
 			playerClasses : this.playerClasses,
 			conditions : this.conditions,
 			fetishes : this.fetishes,
@@ -173,6 +178,7 @@ export default class Mod extends Generic{
 			gallery : this.gallery,
 			bookPages : this.bookPages,
 			books : this.books,
+			armorEnchants : this.armorEnchants,
 		};
 
 		// When saved from the modtools, trim out any extended asset values that are equal to the same values in MAIN
@@ -199,6 +205,8 @@ export default class Mod extends Generic{
 
 			const handleComparedArrays = (base, compared) => {
 
+				//console.log("Comparing", base, compared);
+
 				const getId = c => {
 					if( typeof c === "object" )
 						return c.label || c.id;
@@ -218,24 +226,33 @@ export default class Mod extends Generic{
 
 					// Awe shiet, we have an array
 					let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
-					// Check how many of each entry we have
+
+					let baseI = base[i];
+					if( !baseI )
+						baseI = [];
+
+					// Check how many of each entry we have in the compared output. An array may contain the same item multiple times.
+					// Which is why we here calculate how many times it occurs
 					for( let c of compared[i] ){
 						c = getId(c);
 						
-						if( !adds.get(c) )
+						if( !adds.get(c) )	// Store the ID in adds
 							adds.set(c, 0);
 
 						adds.set(c, adds.get(c)+1);
 
 					}
-					// Check which ones have been removed
-					for( let c of base[i] ){
+
+					// Next we check how many times it occurs in the parent asset
+					for( let c of baseI ){
 						c = getId(c);
 
+						// This one exists both in the base (nonextended object), and in the output
 						if( adds.get(c) ){
 
-							adds.set(c, adds.get(c)-1);
+							adds.set(c, adds.get(c)-1);		// Remove it from newly added items
 
+							// This item exists in both, so we mark it as such instead.
 							if( !currents.get(c) )
 								currents.set(c, 0);
 							currents.set(c, currents.get(c)+1);
@@ -243,24 +260,31 @@ export default class Mod extends Generic{
 
 						}
 
+						// Otherwise if we don't have enough of this item in adds, it's a deletion
 						removes.push(c);
 
 					}
+
 					// Check which ones are newly added
 					for( let cur of compared[i] ){
+
 						const c = getId(cur);
 						
+						// This item exists in both, so we decrease the currents counter and continue
 						if( currents.get(c) ){
 
 							currents.set(c, currents.get(c)-1);
 							continue;
 
 						}
+
+						// This item only exists in the compared output, so we mark it as a newly added item
 						build.push(cur);
 
 					}
 
-					console.log(removes, build, adds, currents);
+					// removes now contains the deleted items, and build the newly added ones
+					//console.log("removes (__DEL__)", removes, "builds (out)", build, "adds", adds, "currents", currents);
 
 
 					compared[i] = removes.map(el => {
@@ -282,16 +306,10 @@ export default class Mod extends Generic{
 				out[i] = out[i].slice();
 				const arr = out[i];
 				
+				//console.log(i, arr.length);
 				for( let entry in arr ){
 
-					const clone = {};
-					for( let i in arr[entry] ){
-
-						if( i !== '_ext' )
-							clone[i] = arr[entry][i];
-
-					}
-					arr[entry] = clone;
+					arr[entry] = deepClone(arr[entry]);	// make sure we're working on a clone
 
 					const extension = arr[entry];
 					if( !extension._e )
@@ -305,13 +323,23 @@ export default class Mod extends Generic{
 					// Array comparator
 					const comparison = comparer.compare(base, extension);
 					delete comparison.__MOD;
-					handleComparedArrays(base, comparison);
 
+					// Do array compares of extended objects only. The rest we can accept as is.
+					// This is because extension object arrays only contain {__DEL__} objects for deletions, and any newly added objects.
+					if( extension._ext )
+						handleComparedArrays(base, comparison);
+
+					console.log("Deleting ext");
+					delete comparison._ext;
 					removeDel(comparison);
 					// mParent is allowed to be the same on both
 					if( extension._mParent )
 						comparison._mParent = extension._mParent;
 
+					/*
+					if( i === "dungeonRoomAssets" )
+						console.log("base", base, "extension", extension,  "comparison", comparison);
+					*/
 					arr[entry] = comparison;
 
 				}
@@ -462,8 +490,7 @@ export default class Mod extends Generic{
 				if( onlyIfParented && !asset._h && !asset._mParent )
 					continue;
 				
-				//console.log("Found it!", type, asset);
-				this.deleteChildrenOf( type, id );	// Delete any child objects recursively. getAssetById is needed to delete extensions
+				this.deleteChildrenOf( type, asset.id || asset.label );	// Delete any child objects recursively. getAssetById is needed to delete extensions
 				
 				// We deleted an extension, so we gotta delete whatever we were extending as well since they can have either the parent id or extending id
 				if( asset._e )
@@ -608,6 +635,7 @@ export default class Mod extends Generic{
 
 		}
 
+		console.log("inserted asset", asset, asset._h);
 		this[table].push(asset);
 
 	}
@@ -749,7 +777,15 @@ export default class Mod extends Generic{
 		else
 			delete out.id;
 
-		
+		if( asset._mParent )
+			out._mParent = {
+				type : asset._mParent.type,
+				label : asset._mParent.label
+			};
+			
+		if( asset._h )
+			out._h = true;
+
 		if( constructor.getRelations ){
 
 			const rel = constructor.getRelations();
@@ -795,6 +831,8 @@ export default class Mod extends Generic{
 								type: table,
 								label: tag
 							};
+						if( sub._h )
+							created._h = true;
 
 						arr[index] = created.label || created.id;
 
@@ -805,8 +843,8 @@ export default class Mod extends Generic{
 			}
 
 		}
-
-		console.log("Created", out, "In", table);
+		
+		console.trace("Created", out, out._h, "In", table, "from", asset);
 		this.mergeAsset(table, out);
 		return out;
 
@@ -814,8 +852,8 @@ export default class Mod extends Generic{
 	}
 
 
-	// Un-nests legacy nested assets
-	runLegacyConversion(){
+	// Un-nests legacy nested assets. HandleMissingLinks 1 = search for missing links, 2 = remove missing links. 
+	runLegacyConversion( handleMissingLinks = 0 ){
 
 		// Note: this only works on assets that have labels
 		const parentCast = (parentLibrary, parent, field, subLibrary) => {
@@ -1003,19 +1041,51 @@ export default class Mod extends Generic{
 
 		};
 
+		// Gets the table we're unrolling
 		for( let table in unroll ){
 
+			// Extract the asset from this table
 			let updates = {};
 			for( let asset of this[table] ){
 
-				// Unroll direct fields
+				// Loop over linked fields in the unrolled table
 				for( let field in unroll[table] ){
 
-					let subLibrary = unroll[table][field];
-					let changes = parentCast(table, asset, field, subLibrary);
+					let subLibrary = unroll[table][field];							// Library we want to unroll the asset too
+					let changes = parentCast(table, asset, field, subLibrary);		// Auto unroll
+					// Log it
 					if( !updates[subLibrary] )
 						updates[subLibrary] = 0;
 					updates[subLibrary] += changes; 
+
+					// Find missing assets
+					if( handleMissingLinks ){
+
+						let assets = asset[field];		// The array containing the linked assets
+						if( Array.isArray(assets) ){	// Might not be present to save storage space
+
+							for( let sub of assets ){
+
+								let find = this.getAssetById(subLibrary, sub);
+								if( find )
+									continue;
+								
+								console.log(
+									"MISSING LINK", "["+table+"]["+(asset.label || asset.id)+"]["+field+"]", ">>"+sub+"<< not found in "+subLibrary,
+									(asset._mParent || "No parent")
+								);
+								
+								if( handleMissingLinks === 2 ){
+									// Todo: Remove missing links
+								}
+
+							}
+
+						}
+
+					}
+
+					
 
 				}
 
@@ -1094,6 +1164,9 @@ export default class Mod extends Generic{
 
 						}
 
+						if( !goto )
+							return '';
+
 						if( goto.index === undefined || isNaN(goto.index) || goto.index === "" )
 							return goto.id;
 
@@ -1146,7 +1219,8 @@ export default class Mod extends Generic{
 
 		if( fixedTexts )
 			console.log("Fixed ", fixedTexts, "improper texts");
-		
+		if( handleMissingLinks )
+			console.log("missing link search complete");
 
 	}
 
@@ -1203,6 +1277,280 @@ export default class Mod extends Generic{
 		
 	}
 
+	getAllTags(){
+
+		const out = {};
+
+		for( let i in this ){
+
+			const block = this[i];
+			if( !Array.isArray(block) )
+				continue;
+		
+			for( let obj of block ){
+
+				if( Array.isArray(obj?.tags) )
+					obj.tags.map(tag => {
+						out[tag] = true;
+					});
+
+			}
+		
+		}
+
+		return Object.keys(out);
+
+	}
+
+	// Returns assets with mParent with missing parent assets
+	findMissingParents(){
+
+		for( let table in this ){
+
+			if( !Array.isArray(this[table]) )
+				continue;
+
+			for( let asset of this[table] ){
+
+				if( !asset._mParent )
+					continue;
+
+				if( !Array.isArray(this[asset._mParent.type]) ){
+					console.log("["+table+"] Table ", asset._mParent.type," not found for parent in", asset);
+					continue;
+				}
+
+
+				const ex = this.getAssetById(asset._mParent.type, asset._mParent.label);
+				if( !ex )
+					console.log(table, ">>", asset);
+
+
+			}
+
+		}
+
+	}
+
+	
+	// Since I suck at coding, this will go through and fix bugs I've found
+	fixIssues(){
+
+		// The dungeon editor was incorrectly parenting unique gameActions tied to assets
+		let fixedParents = mod.mod.dungeonRoomAssets.filter(el => {
+			let ga = el.interactions;
+			if( !ga || !ga.length )
+				return false;
+		
+			let actions = ga.filter(a => {
+				const asset = mod.getAssetById('gameActions', a, false);
+				if( !asset )
+					console.log("Missing asset", a, "in", el);
+				else if( !asset._mParent )
+					return false;
+				else if( asset._mParent.label === 'REPLACE_ID' ){
+					asset._mParent.type = 'dungeonRoomAssets';
+					asset._mParent.label = el.id;
+					return true;
+				}
+			});
+			return actions.length;
+		});
+		if( fixedParents.length )
+			console.log("Fixed ", fixedParents.length, "incorrectly parented dungeonRoomAsset gameActions");
+
+		// Same thing with roleplayStageOption
+		fixedParents = mod.mod.roleplayStageOption.filter(el => {
+			let ga = el.game_actions;
+			if( !ga || !ga.length )
+				return false;
+		
+			let actions = ga.filter(a => {
+				const asset = mod.getAssetById('gameActions', a, false);
+				if( !asset ){
+					console.log("Missing asset", a, "in", el, "(in roleplayStageOption)");
+					return false;
+				}
+				if( !asset._mParent )
+					return false;
+				let label = el.label || el.id;
+				if( asset._mParent.label !== label ){
+					asset._mParent.type = 'roleplayStageOption';
+					asset._mParent.label = label;
+					return true;
+				}
+			});
+			return actions.length;
+		});
+		if( fixedParents.length )
+			console.log("Fixed ", fixedParents.length, "incorrectly parented roleplayStageOption gameActions");
+		
+
+		// Same thing with text conditions
+		fixedParents = mod.mod.texts.filter(el => {
+			let ga = el.conditions;
+			if( !ga || !ga.length )
+				return false;
+		
+			let actions = ga.filter(a => {
+				const asset = mod.getAssetById('conditions', a, false);
+				if( !asset ){
+					console.log("Missing asset", a, "in", el);
+					return false;
+				}
+				if( !asset._mParent )
+					return false;
+				let label = el.id;
+				if( asset._mParent.label !== label ){
+					asset._mParent.type = 'texts';
+					asset._mParent.label = label;
+					return true;
+				}
+			});
+			return actions.length;
+		});
+		if( fixedParents.length )
+			console.log("Fixed ", fixedParents.length, "incorrectly parented texts conditions");
+				
+		// Same thing with roleplayStageOption conditions
+		fixedParents = mod.mod.roleplayStageOption.filter(el => {
+			let ga = el.conditions;
+			if( !ga || !ga.length )
+				return false;
+
+			let actions = ga.filter(a => {
+				const asset = mod.getAssetById('conditions', a, false);
+				if( !asset )
+					console.log("Missing asset", a, "in", el);
+				else if( !asset._mParent )
+					return false;
+				else{
+					let label = el.label || el.id;
+					if( asset._mParent.label !== label ){
+						asset._mParent.type = 'roleplayStageOption';
+						asset._mParent.label = label;
+						return true;
+					}
+				}
+			});
+			return actions.length;
+		});
+		if( fixedParents.length )
+			console.log("Fixed ", fixedParents.length, "incorrectly parented roleplayStageOption conditions");
+
+
+	}
+
+	// Gets data for the JSON exporter, including assets recursively
+	// This doesn't handle recursion well. May wanna figure out a way to do that later.
+	getExportData( constructor, table, labels = [] ){
+
+		let out = {
+			[table] : []
+		};
+
+		// Merge an out into this from a recursive call
+		const mergeRecursive = inputOut => {
+
+			// Merge it
+			for( let subTable in inputOut ){
+
+				if( !inputOut[subTable].length )
+					continue;
+
+				if( !out[subTable] )
+					out[subTable] = [];
+				
+				// make sure an asset doesn't exist before adding it
+				for( let asset of inputOut[subTable] ){
+					
+					if( !out[subTable].includes(asset) )
+						out[subTable].push(asset);
+
+				}
+
+			}
+
+		};
+
+		for( let label of labels ){
+
+			let asset = this.getAssetById(table, label);
+			if( !asset )
+				continue;
+
+			out[table].push(asset);
+
+			// Find subs
+			if( constructor.getRelations ){
+				
+				const relations = constructor.getRelations();
+				for( let i in relations ){
+
+					// This item field is empty
+					const relationField = asset[i];
+					if( !relationField || (Array.isArray(relationField) && !relationField.length) )
+						continue;
+
+					const subTable = Mod.getTableNameByConstructor(relations[i]);
+
+					// Collections need a getCollectionRelations method on the target classes
+					if( relations[i] === Collection ){
+
+						let tmpAsset = new constructor(asset);
+						if( !tmpAsset.getCollectionRelations ){
+							console.error("Unable to export", asset, constructor.name, "getCollectionRelations method missing from field ", i, ". See GameAction for an example.");
+							continue;
+						}
+						const subs = tmpAsset.getCollectionRelations(i);
+						if( typeof subs !== "object" ){
+							// The getCollectionRelations method returned a non-object. It will, in many cases tho.
+							console.log("Collection relations found for", constructor.name, "field", i, "This may be fine, but if you encounter missing data, look into it.");
+							continue;
+						}
+
+
+						let collections = toArray(asset[i]);
+
+						//console.log("Collections", collections, "subs", subs);
+						// Cycle the collections
+						for( let collection of collections ){
+
+							// Iterate over the collection fields
+							for( let subField in subs ){
+
+								// Collection field not set
+								if( !collection[subField] || (Array.isArray(collection[subField]) && !collection[subField].length) )
+									continue;
+
+								const collectionFieldConstructor = subs[subField];
+								const expData = this.getExportData(
+									collectionFieldConstructor, // Constructor
+									Mod.getTableNameByConstructor(collectionFieldConstructor),
+									toArray(collection[subField])
+								);
+								//console.log("expdata for", subs[subField], Mod.getTableNameByConstructor(collectionFieldConstructor), collection[subField], expData);
+								mergeRecursive(expData);
+
+							}
+
+						}
+						
+					}
+					// Get linked data for the related field array/object
+					else
+						mergeRecursive(this.getExportData(relations[i], subTable, toArray(asset[i])));
+
+					
+
+				}
+
+			}
+
+		}
+
+		return out;
+	}
 
 	// mod save goes to databse
 	async save( force ){
@@ -1264,14 +1612,14 @@ export default class Mod extends Generic{
 				continue;
 
 			
-			const defaults = new Mod.LIB_TYPES[lib]();
-			const keys = Object.keys(defaults).concat(specialSaveFields);
+			const defaults = new Mod.LIB_TYPES[lib]();							// Create a new object of the library asset type. Ex dungeonRooms -> DungeonRoom
+			const keys = Object.keys(defaults).concat(specialSaveFields);		// Filter out keys that shouldn't be saved
 			data[lib] = data[lib].map(asset => {
 
 				if( typeof asset !== "object" )
 					return asset;
 
-				let aKeys = Object.keys(asset);
+				let aKeys = Object.keys(asset);		// Find keys in the db asset
 
 				// Remove defaults
 				for( let i of keys ){
@@ -1350,7 +1698,6 @@ export default class Mod extends Generic{
 		data._map = map;
 		console.log(map, data);
 		
-
 		const zip = new JSZip();
 		zip.file('mod.json', JSON.stringify(data));
 		const content = await zip.generateAsync({
@@ -1617,9 +1964,11 @@ Mod.LIB_TYPES = {
 	'books' : Book,
 	'bookPages' : BookPage,
 	'audioKits' : AudioKit,
+	'audioTriggers' : AudioTrigger,
 	'hitFX' : HitFX,
 	'dungeonTemplates' : DungeonTemplate,
 	'dungeonSubTemplates' : DungeonTemplateSub,
+	'armorEnchants' : ArmorEnchant,
 
 	'encounters' : Encounter,
 	'encounterEvents' : EncounterEvent,

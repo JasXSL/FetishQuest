@@ -41,11 +41,6 @@ export function asset(){
 			const label = "bon"+Action.Types[i];
 			html += '<label>'+esc(label)+': <input name="'+esc(label)+'" value="'+esc(dummy[label])+'" class="saveable" type="number" step=1 /></label>';
 		}
-		for( let i in Player.primaryStats ){
-			const label = Player.primaryStats[i];
-			html += '<label>'+esc(label)+': <input name="'+esc(label)+'" value="'+esc(dummy[label])+'" class="saveable" type="number" step=1 /></label>';
-		}
-		
 
 	html += '</div>';
 
@@ -78,8 +73,7 @@ export function list(){
 	};
 	for( let i in Action.Types )
 		fields["sv"+Action.Types[i]] = true;
-	for( let i in Player.primaryStats )
-		fields[Player.primaryStats[i]] = true;
+		
 		
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, fields));

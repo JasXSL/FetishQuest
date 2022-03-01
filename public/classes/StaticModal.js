@@ -11,6 +11,7 @@ import { Effect, Wrapper } from './EffectSys.js';
 import { GfPlayer } from './NetworkManager.js';
 import GameEvent from './GameEvent.js';
 import Condition from './Condition.js';
+import AudioTrigger from './AudioTrigger.js';
 
 export default class StaticModal{
 
@@ -306,6 +307,7 @@ export default class StaticModal{
 		
 	}
 
+
 	// This is where everything is built
 	// Only gets called once when the DOM loads. Builds all the modal bases
 	static ini(){
@@ -331,7 +333,8 @@ export default class StaticModal{
 			game.uiAudio( "tab_select", 0.5, event.target );
 
 		});	
-		
+	
+		const self = this;
 
 
 		// Handle group finder auto join
@@ -452,17 +455,19 @@ export default class StaticModal{
 			.addRefreshOn(["players"])
 			.addTab("Actions", () => {
 				return `
-					<div class="slots titleSpan">
-						<span>Active</span>
-						<div class="slotsWrapper"></div>
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+						</div>
 					</div>
 					<div style="display:flex; width:100%; justify-content:space-between">
 						<div class="left titleSpan">
-							<span>Available</span>
+							<span>Learned</span>
 							<div class="available"></div>
 						</div>
 						<div class="right titleSpan">
-							<span>Learnable</span>
+							<span>Not Learned</span>
 							<div class="purchasable"></div>
 						</div>
 					</div>`;
@@ -479,9 +484,7 @@ export default class StaticModal{
 					html += UI.Templates.actionButton;
 				$("div.slots > div.slotsWrapper", actives).html(html);
 
-
-
-				this.activeButtons = $("div.slots > div.slotsWrapper > div.action", actives);
+				this.money = $('div.myMoney', actives)[0];
 				this.purchasable = $("div.right > div.purchasable", actives);
 				this.available = $("div.left > div.available", actives);
 
@@ -492,42 +495,12 @@ export default class StaticModal{
 				if( !player )
 					return;
 
-				this.activeButtons.toggleClass("detrimental disabled", false);
-				
-				// Active actions
-				const numSlots = player.getNrActionSlots();
-				for( let i = 0; i<Player.MAX_ACTION_SLOTS; ++i ){
-
-					const el = $(this.activeButtons[i]);
-					el.toggleClass('button', true);
-
-					let action = player.getActionAtSlot(i);
-
-					// We have an action in this slot
-					if( action )
-						UI.setActionButtonContent(el, action, player, i+3);
-					else{
-
-						const slotUnlocked = i < numSlots;
-						el.toggleClass("tooltipParent", false).toggleClass('disabled', !slotUnlocked);
-						let content = '';
-						if( !slotUnlocked ){
-
-							const lv = Player.getLevelForActionSlot(i);
-							content = 'Lv. '+lv;
-
-						}
-						// Use the uses div to show when the slot is locked
-						$('div.uses', el).html(content);
-
-						
-					}
-					el.toggleClass('empty', !action);
-
-				}
+				self.generateWallet(this.money);
 
 				// Inactive learned actions
-				const inactive = player.getInactiveActions(),
+				const inactive = player.actions.filter(action => {
+					return !action.std && !action.hidden && !action.semi_hidden;
+				}),
 					learnable = player.getUnlockableActions();
 
 				let inactiveEls = $("> div.action", this.available),
@@ -549,7 +522,7 @@ export default class StaticModal{
 
 					const el = inactiveEls[i],
 						abil = inactive[i];
-					UI.setActionButtonContent(el, abil, player);
+					UI.setActionButtonContent(el, abil, player, undefined, true);
 					
 
 				}
@@ -560,7 +533,7 @@ export default class StaticModal{
 						abil = learnable[i].getAction(),
 						parent = $(el).parent();
 						
-					UI.setActionButtonContent(el, abil, player);
+					UI.setActionButtonContent(el, abil, player, undefined, true);
 
 					let html = esc(abil.getName());
 					const coins = Player.calculateMoneyExhange(learnable[i].getCost());
@@ -590,29 +563,6 @@ export default class StaticModal{
 					$("> span", el).html('No unlearned actions. Check back later!');
 					$("> div.action", el).toggleClass("hidden", true);
 				}
-				
-
-				// Bind stuff
-				this.activeButtons.off('click').on('click', event => {
-					
-					const el = $(event.currentTarget),
-						id = el.attr('data-id');
-					if( el.is('.empty') )
-						return;
-
-					game.toggleAction(gymPlayer, player, id);
-					game.uiAudio( "spell_disable" );
-
-				});
-
-				inactiveEls.off('click').on('click', event => {
-					const el = $(event.currentTarget),
-						id = el.attr('data-id');
-
-					game.toggleAction(gymPlayer, player, id);
-					game.uiAudio( "spell_enable" );
-
-				});
 
 				$("> div.learnable:not(.disabled)", this.purchasable).off('click').on('click', event => {
 					
@@ -845,6 +795,7 @@ export default class StaticModal{
 				return `
 					<strong>Main Volume:</strong> <input type="range" min=0 max=100 step=1 name="masterSoundVolume" /><br />
 					Ambient: <input type="range" min=0 max=100 step=1 name="ambientSoundVolume" />
+					Voice: <input type="range" min=0 max=100 step=1 name="voiceSoundVolume" />
 					Music: <input type="range" min=0 max=100 step=1 name="musicSoundVolume" /><br />
 					FX: <input type="range" min=0 max=100 step=1 name="fxSoundVolume" />
 					UI: <input type="range" min=0 max=100 step=1 name="uiSoundVolume" /><br />
@@ -871,7 +822,6 @@ export default class StaticModal{
 			.setProperties(function(){
 				
 				const ui = game.ui;
-
 				const gameplay = this.getTabDom('Gameplay');
 				this.gameplay = {
 					difficulty : $("input[name=difficulty]", gameplay),
@@ -919,6 +869,7 @@ export default class StaticModal{
 				// Gameplay
 				this.gameplay.difficulty.on('input', event => {
 					game.difficulty = +$(event.currentTarget).val();
+					game.save();
 				});
 
 				// DM
@@ -1083,16 +1034,16 @@ export default class StaticModal{
 
 				this.gameplay.difficulty.val(Math.round(game.difficulty) || 0);
 
-				const knobs = ['ambient','fx','music','ui'];
+				const knobs = ['ambient','fx','music','ui','voice'];
 				const audio = this.getTabDom("Audio");
 				for( let knob of knobs ){
 					$("input[name="+knob+"SoundVolume]", audio).val(Math.round(game['audio_'+knob].volume*100));
 				}
 				$("input[name=masterSoundVolume]", audio).val(Math.round(game.getMasterVolume()*100));
 
-
-
-
+				
+				this.gameplay.difficulty.prop('disabled', !game.is_host);
+				this.gameplay.genderInputs.map(el => el.disabled = !game.is_host);
 				// Netgame
 				const isConnected = Game.net.isInNetgame();
 				if( isConnected ){
@@ -1173,15 +1124,17 @@ export default class StaticModal{
 		// Player display
 		this.add(new this("player", "Player"))
 			.addRefreshOn(['players'])
-
 			.addTab("Character", () => {
 				return `
-
 					<h2 class="name"></h2>
 					<em class="subName"></em>
 					
-					<p class="description"></p>
-
+					<div class="content">
+						<p class="description"></p>
+						<div class="export">
+							<input type="button" value="Export" class="exportPlayer" />
+						</div>
+					</div>
 					<div class="right cmContentBlock bgMarble">
 						<div class="image"></div>
 						<div class="expBar">
@@ -1191,15 +1144,13 @@ export default class StaticModal{
 							</div>
 						</div>
 						<div class="equipment inventory"></div>
-						<div class="primaryStats flexThreeColumns"></div>
 						<div class="secondaryStats flexAuto"></div>
 					</div>
-					<div class="export">
-						<input type="button" value="Export" class="exportPlayer" />
-					</div>
+					
 				`;
 
 			})
+			
 			// Stats & Stats
 			.addTab("Edit", () => {
 
@@ -1216,9 +1167,10 @@ export default class StaticModal{
 							<input type="text" name="name" placeholder="Player Name" style="font-size:2vmax" /><br />
 							<input type="text" name="spre" placeholder="Article a/an/some" style="width:18%" />
 							<input type="text" name="species" placeholder="Species" style="width:80%" /><br />
-							<input type="text" name="he" placeholder="He pronoun" style="width:30%" />
-							<input type="text" name="him" placeholder="Him pronoun" style="width:30%" />
-							<input type="text" name="his" placeholder="His pronoun" style="width:30%" /><br />
+							<input type="text" name="voice" placeholder="Voice" list="voices" style="width:33%" />
+							<input type="text" name="he" placeholder="He pronoun" style="width:20%" />
+							<input type="text" name="him" placeholder="Him pronoun" style="width:20%" />
+							<input type="text" name="his" placeholder="His pronoun" style="width:20%" /><br />
 							<select name="class"></select><br />
 							Level:<br /><input type="number" name="level" min=1 step=1 /><br />
 							<div>Size:<br /><input type="range" name="size" min=0 max=10 step=1 /></div>
@@ -1234,31 +1186,35 @@ export default class StaticModal{
 								<div>Arousal<br /><input type="number" name="arousal" placeholder="Arousal" min=0 step=1 /></div>
 								<div>Team<br /><input type="number" name="team" placeholder="Team" min=0 step=1 /></div>
 							</div>
-							Tags<br /><textarea name="tags"></textarea>
+							Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />
+							<div class="tags flexFourColumns"></div>
+
 							Description<br /><textarea name="description"></textarea>
-							<div class="flexThreeColumns">
-								<div>Stamina<br /><input type="number" name="stamina" step=1 /></div>
-								<div>Agility<br /><input type="number" name="agility" step=1 /></div>
-								<div>Intellect<br /><input type="number" name="intellect" step=1 /></div>
+							
+							<div class="center">Non-sadistic <input type="range" name="sadistic" min=0 max=1 step=0.1 style="width:40%" /> Sadistic</div>
+							<div class="center">Sub <input type="range" name="dominant" min=0 max=1 step=0.1 style="width:40%" /> Dom</div>
+							<div class="center">Gay <input type="range" name="hetero" min=0 max=1 step=0.1 style="width:40%" /> Hetero</div>
+
+							Kinks:
+							<div class="kinks center">
+								<select class="kinks" name="kinks"></select>
+								<select class="kinks" name="kinks"></select>
 							</div>
+
 							<p><em>Note: When creating a player character you should leave these stats at 0, stats are derived from the class.</em></p>
 							<h3>Avoidance:</h3>
 							<div class="flexFourColumns secondaryStat sv">
 								<div class="physical">Physical <input type="number" step=1 /></div>
 								<div class="corruption">Corruption <input type="number" step=1 /></div>
-								<div class="elemental">Elemental <input type="number" step=1 /></div>
-								<div class="holy">Holy <input type="number" step=1 /></div>
+								<div class="arcane">Arcane <input type="number" step=1 /></div>
 							</div>
 							<h3>Proficiency:</h3>
 							<div class="flexFourColumns secondaryStat bon">
 								<div class="physical">Physical <input type="number" step=1 /></div>
 								<div class="corruption">Corruption <input type="number" step=1 /></div>
-								<div class="elemental">Elemental <input type="number" step=1 /></div>
-								<div class="holy">Holy <input type="number" step=1 /></div>
+								<div class="arcane">Arcane <input type="number" step=1 /></div>
 							</div>
-							<div class="center">Non-sadistic <input type="range" name="sadistic" min=0 max=1 step=0.1 style="width:40%" /> Sadistic</div>
-							<div class="center">Sub <input type="range" name="dominant" min=0 max=1 step=0.1 style="width:40%" /> Dom</div>
-							<div class="center">Gay <input type="range" name="hetero" min=0 max=1 step=0.1 style="width:40%" /> Hetero</div>
+
 							<input type="submit" value="Save" />
 							<input type="button" value="Delete Player" class="red deletePlayer" />
 						</form>
@@ -1270,18 +1226,20 @@ export default class StaticModal{
 					<div class="right cmContentBlock bgMarble">
 						<div class="image"></div>
 					</div>
+					<div class="hidden datalists"></div>
 				`;
 			})
 			.setProperties(function(){
 
 				const cDom = this.getTabDom('Character');
+				
 
 				this.randomizerOption = null;	// Last picked option in the randomizer
 
 				this.character = {
 					name : $("> h2.name", cDom),
 					subName : $("> em.subName", cDom),
-					description : $("> p.description", cDom),
+					description : $("> div.content > p.description", cDom),
 					devtool : $("> div.devtool", cDom),
 
 					right : $("> div.right", cDom),
@@ -1290,7 +1248,6 @@ export default class StaticModal{
 					expBarBar : $("> div.right > div.expBar > div.progressBar div.bar", cDom),
 					expBarText : $("> div.right > div.expBar > div.progressBar span.content", cDom),
 					equipment : $("> div.right > div.equipment", cDom),
-					primaryStats : $("> div.right > div.primaryStats", cDom),
 					secondaryStats : $("> div.right > div.secondaryStats", cDom),
 
 					exportPlayer : $('input.exportPlayer', cDom),
@@ -1302,6 +1259,7 @@ export default class StaticModal{
 					addAction : $('input.addAction', dDom),
 					form : $('#playerEditor', dDom),
 					formName : $('#playerEditor input[name=name]', dDom),
+					formVoice : $('#playerEditor input[name=voice]', dDom),
 					formSpre : $('#playerEditor input[name=spre]', dDom),
 					formHe : $('#playerEditor input[name=he]', dDom),
 					formHim : $('#playerEditor input[name=him]', dDom),
@@ -1319,11 +1277,7 @@ export default class StaticModal{
 					formMP : $('#playerEditor input[name=mp]', dDom),
 					formArousal : $('#playerEditor input[name=arousal]', dDom),
 					formTeam : $('#playerEditor input[name=team]', dDom),
-					formTags : $('#playerEditor textarea[name=tags]', dDom),
 					formDescription : $('#playerEditor textarea[name=description]', dDom),
-					formStamina : $('#playerEditor input[name=stamina]', dDom),
-					formAgility : $('#playerEditor input[name=agility]', dDom),
-					formIntellect : $('#playerEditor input[name=intellect]', dDom),
 					formSadistic : $('#playerEditor input[name=sadistic]', dDom),
 					formDominant : $('#playerEditor input[name=dominant]', dDom),
 					formHetero : $('#playerEditor input[name=hetero]', dDom),
@@ -1333,7 +1287,9 @@ export default class StaticModal{
 					randomizer : $('div.randomizer',  dDom),
 					randomizerSelect : $('div.randomizer > select', dDom),
 					randomizerButton : $('div.randomizer > input', dDom),
-
+					kinksSelects : $('select.kinks', dDom),
+					tags : $('div.tags', dDom),
+					tagList : $('div.datalists', dDom),
 				};
 
 				// Draws an action selector. Returns the ID clicked on (if you do)
@@ -1382,9 +1338,39 @@ export default class StaticModal{
 
 				};
 
+
+				this.onTagClick = event => {
+
+					if( !event.ctrlKey && !event.metaKey )
+						return;
+					event.currentTarget.parentNode.remove();
+					
+				};
+				this.addTag = tag => {
+						
+					if( typeof tag !== "string" )
+						tag = '';
+
+					tag = tag.split('_');
+					tag.shift();
+					tag = tag.join('_');
+					const div = document.createElement("div");
+					const input = document.createElement('input');
+					input.type = 'text';
+					input.value = tag;
+					input.name = 'tag';
+					input.classList.add('tag');
+					input.setAttribute('list', 'newGameTags');
+					input.addEventListener('click', this.onTagClick);
+					div.append(input);
+					this.edit.tags[0].append(div);
+					
+				};
+				dDom[0].querySelector("input.addTag").addEventListener('click', this.addTag);
+
 			})
 			.setDraw(async function( player ){
-
+				
 				
 				// Character tab
 					// Toggle the whole bottom bar
@@ -1399,9 +1385,9 @@ export default class StaticModal{
 					if( !player )
 						return false;
 
-
-					const hasClairvoyance = player.getActiveEffectsByType(Effect.Types.clairvoyance).length > 0;
-					this.character.exportPlayer.toggleClass('hidden', player.isNPC());
+					const isMyPlayer = game.getMyPlayers().includes(player);
+					const hasClairvoyance = isMyPlayer || player.getActiveEffectsByType(Effect.Types.clairvoyance).length > 0;
+					this.character.exportPlayer.toggleClass('hidden', Boolean(player.isNPC()));
 					
 					// Character panel
 					const cDivs = this.character;
@@ -1416,7 +1402,11 @@ export default class StaticModal{
 					if( player.class )
 						desc += '<br /><strong>'+esc(player.class.name)+'</strong><br />'+esc(player.class.description);
 
-					desc += '<div class="clairvoyance hidden"><hr /><div class="actions"></div></div>';
+					desc += '<div class="clairvoyance hidden">'+
+						'<hr />'+
+						'<div class="actions"></div>'+
+						'<div class="kinks"></div>'+
+					'</div>';
 
 					cDivs.description.html(desc);
 
@@ -1438,8 +1428,21 @@ export default class StaticModal{
 
 						}
 
+						const cdiv = clairvoyance.querySelector("div.kinks");
+						let kinks = player.getKinks();
+						for( let kink of kinks ){
+							
+							let div = $(UI.Templates.wrapper)[0];
+							UI.setWrapperIconContent(div, kink, player, player);
+							cdiv.appendChild(div);
+
+						}
+
+
 						let additional = document.createElement('template');
-						let html = '<br />';
+						let html = '';
+
+						
 
 						const getLowHighLabel = (input, labels) => {
 							if( !labels )
@@ -1455,6 +1458,8 @@ export default class StaticModal{
 							html += 'Tactics: <strong>'+getLowHighLabel(player.intelligence)+'</strong><br />';
 
 						}
+
+
 						additional.innerHTML = html;
 						clairvoyance.append(additional.content);
 
@@ -1514,27 +1519,6 @@ export default class StaticModal{
 
 
 					let html = '';
-					let stats = player.getPrimaryStats();
-					for( let stat in stats ){
-
-						let title = 'HP';
-						let amount = player.statPointsToNumber(stat);
-						if( stat === Player.primaryStats.agility )
-							title = 'AP';
-						else if( stat === Player.primaryStats.intellect )
-							title = 'MP';
-						else
-							amount *= Player.STAMINA_MULTI;
-						html += '<div class="tag tooltipParent" title="Increases '+title+' by '+amount+'.">'+
-								'<span>'+(stats[stat] > 0 ? '+' : '')+stats[stat]+' '+ucFirst(stat.substr(0,3))+'</span>'+
-								'<div class="tooltip">'+title+' '+(amount >= 0 ? 'increased' : 'decreased')+' by '+amount+'</div>'+
-							'</div>';
-
-					}
-					cDivs.primaryStats.html(html);
-
-
-					html = '';
 					const s = Object.values(Action.Types).map(el => ucFirst(el)).sort();
 					const myPlayer = game.getMyActivePlayer() || new Player();
 					for( let stat of s ){
@@ -1551,6 +1535,10 @@ export default class StaticModal{
 
 					}
 					cDivs.secondaryStats.html(html);
+				//
+
+
+
 
 
 				// DM Tab
@@ -1560,9 +1548,14 @@ export default class StaticModal{
 					dDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
 					dDivs.formDeletePlayer.toggleClass('hidden', !game.getPlayerById(player.id));
 					
+					dDivs.tagList.html(
+						this.constructor.getTagDatalistHtml()+
+						this.constructor.getVoiceDatalistHtml()
+					);
 
 					// Form
 					dDivs.formName.val(player.name);
+					dDivs.formVoice.val(player.voice);
 					dDivs.formSpecies.val(player.species);
 					dDivs.formSpre.val(player.spre);
 					dDivs.formHe.val(player.he);
@@ -1579,11 +1572,7 @@ export default class StaticModal{
 					dDivs.formMP.val(parseInt(player.mp) || 0);
 					dDivs.formArousal.val(parseInt(player.arousal) || 0);
 					dDivs.formTeam.val(parseInt(player.team) || 0);
-					dDivs.formTags.val(player.tags.map(tag => tag.startsWith('pl_') ? tag.substr(3) : tag ).join(' '));
 					dDivs.formDescription.val(player.description);
-					dDivs.formStamina.val(parseInt(player.stamina) || 0);
-					dDivs.formAgility.val(parseInt(player.agility) || 0);
-					dDivs.formIntellect.val(parseInt(player.intellect) || 0);
 					dDivs.formSadistic.val(+player.sadistic || 0);
 					dDivs.formDominant.val(+player.dominant || 0);
 					dDivs.formHetero.val(+player.hetero || 0);
@@ -1606,7 +1595,9 @@ export default class StaticModal{
 					dDivs.formClass.html(html);
 					dDivs.formClass.val(player.class.label);
 
-					
+					dDivs.tags[0].replaceChildren();
+					for( let tag of player.tags )
+						this.addTag(tag);
 
 					// Draw the secondary stat form
 					const secondary = dDivs.formSecondaryStat;
@@ -1649,11 +1640,45 @@ export default class StaticModal{
 					dDivs.actions.html(html);
 
 
+					// Draw kink selects
+					const active = player.getKinks();
+					let allKinks = Wrapper.getKinks();
+					for( let i = 0; i < 2; ++i ){
+
+						let blankKink = document.createElement("option");
+						blankKink.innerText = '- NONE -';
+						blankKink.value = '';
+						let kinks = [
+							blankKink
+						];
+						
+						let cur = active[i];
+						for( let kink of allKinks ){
+
+							let el = document.createElement("option");
+							el.value = kink.label;
+							el.innerText = kink.name;
+							el.title = kink.description;
+
+							if( cur?.label === kink.label ){
+								el.selected = true;
+							}
+							kinks.push(el);
+
+						}
+						
+						this.edit.kinksSelects[i].replaceChildren(...kinks);
+
+					}
+
+
+
 					// Puts form data to the player
 					const savePlayer = () =>{
 
 						player.generated = false;		// Make sure the player remains when leaving the cell
 						player.name = dDivs.formName.val().trim();
+						player.voice = dDivs.formVoice.val().trim();
 						player.species = dDivs.formSpecies.val().trim().toLowerCase();
 						player.spre = dDivs.formSpre.val().trim().toLowerCase();
 						player.he = dDivs.formHe.val().trim().toLowerCase();
@@ -1668,33 +1693,36 @@ export default class StaticModal{
 						player.ap = parseInt(dDivs.formAP.val())||0;
 						player.mp = parseInt(dDivs.formMP.val())||0;
 						player.arousal = parseInt(dDivs.formArousal.val())||0;
-			
-						player.stamina = parseInt(dDivs.formStamina.val())||0;
-						player.agility = parseInt(dDivs.formAgility.val())||0;
-						player.intellect = parseInt(dDivs.formIntellect.val())||0;
 
 						player.sadistic = Math.max(0, Math.min(1, +dDivs.formSadistic.val())) || 0;
 						player.dominant = Math.max(0, Math.min(1, +dDivs.formDominant.val())) || 0;
 						player.hetero = Math.max(0, Math.min(1, +dDivs.formHetero.val())) || 0;
+
+						player.tags = [];
+						for( let tagDom of dDivs.tags[0].children ){
+
+							const tag = tagDom.children[0].value.trim().toLowerCase();
+							if( tag )
+								player.tags.push('pl_'+tag);
+
+						}
 						
 						player.level = parseInt(dDivs.formLevel.val())||1;
 						player.size = parseInt(dDivs.formSize.val())||0;
 						player.team = parseInt(dDivs.formTeam.val())||0;
+
+						player.removeKinks();
+						if( this.edit.kinksSelects[0].value )
+							player.addPassive(this.edit.kinksSelects[0].value);
+						if( this.edit.kinksSelects[1].value )
+							player.addPassive(this.edit.kinksSelects[1].value);
+						
 			
 						const preClass = player.class;
 
 						let cName = dDivs.formClass.val().trim();
 						let cl = glib.get(cName, 'PlayerClass');
 						
-						player.tags = dDivs.formTags.val().split(' ').filter(el => {
-							if(!el.trim())
-								return false;
-							return true;
-						}).map(el => {
-							if( !el.toLowerCase().startsWith('pl_') )
-								el = 'pl_'+el.toLowerCase();
-							return el;	
-						});
 						
 						for(let i in Action.Types){
 
@@ -1712,6 +1740,9 @@ export default class StaticModal{
 							player.mp = player.getMaxMP();
 						
 						
+						// Todo: Save kinks
+						
+
 						// INSERT player
 						if( !game.playerExists(player) ){
 
@@ -2042,12 +2073,12 @@ export default class StaticModal{
 				};
 				newDivs = [];
 				availableAssets = 0;
-				for( let asset of myPlayer.assets ){
+				const assets = myPlayer.getAssets();
+				for( let asset of assets ){
 
 					if( !asset.isSellable() )
 						continue;
 
-						
 					const a = asset.clone();
 					a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
 
@@ -2063,7 +2094,145 @@ export default class StaticModal{
 				this.sellInventory.classList.toggle('hidden', !availableAssets);
 
 
-			});
+			})
+		;
+		// Bank
+		this.add(new this("bank", "Bank"))
+			.setCloseOnCellMove(true)
+			.addRefreshOn(["players"])
+			.addTab("Deposit", () => {
+				return `
+					<div class="center"><input type="button" name="exchange" value="Exchange Coins" /></div>
+					<div class="bank inventory"></div>
+					
+					<div class="empty hidden" style="min-width:25vmax">Inventory empty.</div>
+
+				`;
+			})
+			.addTab("Withdraw", () => {
+				return `
+					<h3 class="quant center" style="margin:0">Holding <span></span>/`+Player.BANK_SLOTS+`</h3>
+					<div class="center"><input type="button" class="bank" name="exchange" value="Exchange Coins" /></div>
+					<div class="bank inventory"></div>
+					<div class="empty hidden" style="min-width:25vmax">No banked items.</div>
+				`;
+			})
+			.setProperties(function(){
+				const depositPage = this.getTabDom('Deposit')[0],
+					withdrawPage = this.getTabDom('Withdraw')[0]
+				;
+
+				this.depositInventory = depositPage.querySelector("div.bank.inventory");
+				this.depositEmpty = depositPage.querySelector("div.empty");
+				this.withdrawInventory = withdrawPage.querySelector("div.bank.inventory");
+				this.withdrawEmpty = withdrawPage.querySelector("div.empty");
+				this.withdrawHolding = withdrawPage.querySelector("h3.quant > span");
+				this.exchangeBank = withdrawPage.querySelector("input[name=exchange]");
+				this.exchangeInv = depositPage.querySelector("input[name=exchange]");
+				
+				
+			})
+			.setDraw(async function( bankPlayer ){
+
+				const 
+					myPlayer = game.getMyActivePlayer(),
+					th = this
+				;
+				if( !myPlayer )
+					throw 'Player not found';
+
+				// Handles both deposit and withdraw
+				const handleAssetClick = event => {
+
+					const targ = event.currentTarget,
+						id = targ.dataset.id,
+						deposit = targ.classList.contains("deposit"),
+						asset = myPlayer.getAssetById(id, !deposit)
+					;
+
+					if( !asset )
+						return;
+					
+					const maxQuant = asset.stacking ? asset._stacks : 1;
+					const swap = function( evt ){
+
+						let amount = maxQuant;
+						if( evt ){
+
+							amount = Math.floor($("input:first", this).val());
+							if( !amount )
+								return;
+
+						}
+						
+						game.toggleAssetBanked( bankPlayer, asset, amount, myPlayer, deposit );
+						
+					};
+
+					// Quick bank whole stack
+					if( event.shiftKey )
+						swap();
+					else{
+						game.ui.modal.makeSelectionBoxForm(
+							'Amount to '+(deposit ? 'deposit' : 'withdraw')+': <input type="number" style="width:4vmax" min=1 max='+(maxQuant)+' step=1 value='+maxQuant+' /><input type="submit" value="Ok" />',
+							swap,
+							false
+						);
+					}
+
+				};
+				
+				let newDivs = [];
+				let num = 0;
+				let assets = myPlayer.getAssets();
+				for( let asset of assets ){
+
+					const div = await StaticModal.getGenericAssetButton(asset, undefined, 'deposit');
+					newDivs.push(div);
+					div.addEventListener('click', handleAssetClick);
+					++num;
+
+				}
+				this.depositInventory.replaceChildren(...newDivs);
+				this.depositEmpty.classList.toggle("hidden", Boolean(num));
+
+				// Draw withdraw
+				newDivs = [];
+				num = 0;
+				assets = myPlayer.getAssets(true);
+				for( let asset of assets ){
+
+					const a = asset.clone();
+					a.name = (asset.stacking ? '['+asset._stacks+'] ' : '[1] ')+' '+a.name;
+
+					const div = await StaticModal.getGenericAssetButton(a, undefined, 'withdraw');
+					newDivs.push(div);
+					div.addEventListener('click', handleAssetClick);
+					++num;
+
+				}
+				this.withdrawInventory.replaceChildren(...newDivs);
+				this.withdrawEmpty.classList.toggle("hidden", Boolean(num));
+				this.withdrawHolding.innerText = num;
+
+
+				const handleExchange = event => {
+
+					const targ = event.target,
+						bank = event.target.classList.contains("bank")
+					;
+					game.exchangePlayerMoney(myPlayer, bank);
+
+				};
+
+				this.exchangeBank.classList.toggle('hidden', !myPlayer.canExchange(true));
+				this.exchangeBank.onclick = handleExchange;
+				this.exchangeInv.classList.toggle('hidden', !myPlayer.canExchange());
+				this.exchangeInv.onclick = handleExchange;
+
+
+			})
+		;
 		// Smith
 		this.add(new this("smith", "Smith"))
 			.setCloseOnCellMove(true)
@@ -2099,38 +2268,7 @@ export default class StaticModal{
 				if( !smith )
 					throw 'Invalid smith';
 
-				// Update coins
-				const currencyDiv = this.money.querySelector('span.coins');
-				for( let i in Player.currencyWeights ){
-
-					const currency = Player.currencyWeights[i];
-
-					let sub = currencyDiv.querySelector('span[data-currency=\''+currency+'\']');
-					if( !sub ){
-
-						sub = document.createElement('span');
-						sub.dataset.currency = currency;
-						sub.style = 'color:'+Player.currencyColors[i];
-						currencyDiv.append(sub);
-						currencyDiv.append(document.createTextNode(' '));
-
-					}
-
-					sub.classList.toggle('hidden', true);
-
-					const asset = myPlayer.getAssetByLabel(Player.currencyWeights[i]);
-					if( !asset )
-						continue;
-
-					const amt = parseInt(asset._stacks);
-					if( !amt )
-						continue;
-
-					sub.classList.toggle('hidden', false);
-					sub.innerHTML = '<b>'+amt+'</b> '+Player.currencyWeights[i];
-
-				}
-
+				self.generateWallet(this.money);
 
 				await StaticModal.updateWallet(this.money);
 	
@@ -2158,6 +2296,70 @@ export default class StaticModal{
 					
 				}
 				this.assets.replaceChildren(...divs);
+
+			});
+
+		// Altar
+		this.add(new this("altar", "Altar"))
+			.setCloseOnCellMove(true)
+			.addRefreshOn(["players"])
+			.addTab("Altar", () => {
+				return `
+					<div class="myMoney">
+						<div>
+							<span class="title">My Money:</span>
+							<span class="coins"></span>
+						</div>
+					</div>
+					<h3 class="center">In exchange for a donation, the gods may randomize your kinks!</h3>
+					<div class="center"><input type="button" name="shuffle" value="Shuffle Kinks (5 gold)" /></div>
+					<p class="center">Your current kinks</p>
+					<div class="center kinks"></div>
+				`;
+			})
+			.setProperties(function(){
+				
+				const altar = this.getTabDom('Altar')[0];
+				this.money = altar.querySelector('div.myMoney');
+				this.button = altar.querySelector('input[name=shuffle]');
+				this.kinks = altar.querySelector('div.kinks');
+
+			})
+			.setDraw(async function( altarPlayer ){
+
+				const myPlayer = game.getMyActivePlayer();
+				if( !myPlayer )
+					throw 'You have no active player';
+
+				self.generateWallet(this.money);
+
+
+				await StaticModal.updateWallet(this.money);
+	
+				const money = myPlayer.getMoney();
+
+				this.button.onclick = () => {
+					
+					if( money < 500 ){
+						game.ui.modal.addError("Insufficient funds");
+						return false;
+					}
+					
+					game.shuffleKinksByAltar(altarPlayer, myPlayer);
+
+				};
+				
+				let kinks = myPlayer.getKinks();
+				let divs = [];
+				for( let kink of kinks ){
+					
+					let div = $(UI.Templates.wrapper)[0];
+					UI.setWrapperIconContent(div, kink, myPlayer, player);
+					divs.push(div);
+
+				}
+				this.kinks.replaceChildren(...divs);
+				
 
 			});
 
@@ -2293,7 +2495,7 @@ export default class StaticModal{
 					for( let ch of this.assets.children )
 						ch.classList.toggle('selected', ch.dataset.id === asset.id );
 						
-					let viableTargets = myPlayer.assets.filter(el => el.checkTransmogViability(asset));
+					let viableTargets = myPlayer.getAssets().filter(el => el.checkTransmogViability(asset));
 
 					this.noTargetAssets.classList.toggle('hidden', Boolean(viableTargets.length));
 					this.targetViable.classList.toggle('hidden', !viableTargets.length);
@@ -2378,7 +2580,8 @@ export default class StaticModal{
 								<input type="text" placeholder="Name" name="name" maxlength=64 style="font-size:3vmax" required />
 							</label><br />
 							<label>
-								Character image (supports imgur, e621, gyazo, reddit, discord, twitter): <br />
+								Character image: <br />
+								<em>Supports shitpost.to (recommended), lensdump, e621, gyazo, reddit, discord, twitter, etc. Join the <a href="https://discord.jasx.org" target="_blank">discord</a> if you need more.</em><br />
 								<input type="text" placeholder="Character Image" name="image" maxlength=128 />
 							</label><br />
 							<label>
@@ -3427,9 +3630,7 @@ export default class StaticModal{
 						<input type="submit" value="Start Game" />
 
 					</form></div>
-					<div class="hidden datalists">
-						<datalist id="newGameTags"><select><!-- Tag options here --></select></datalist>
-					</div>
+					<div class="hidden datalists"></div>
 				`;
 			})
 			.setProperties(function(){
@@ -3455,7 +3656,7 @@ export default class StaticModal{
 					gameName : dom.querySelector('input.gameName')
 				};
 				this.gallery = dom.querySelector('div.gallery');
-				this.tagList = document.getElementById('newGameTags');
+				this.tagList = dom.querySelector('div.datalists');
 
 				// Set up static things that should be set by the game
 				const classes = glib.getFull('PlayerClass');
@@ -3482,26 +3683,14 @@ export default class StaticModal{
 				this.cData.classLabels = this.cData.class.querySelectorAll('label');
 				this.cData.classInputs = this.cData.class.querySelectorAll('input');
 
-				for( let tag in stdTag ){
-
-					const spl = stdTag[tag].split('_');
-					if( spl[0] === 'pl' ){
-
-						spl.shift();
-						const option = document.createElement('option');
-						option.value = spl.join('_');
-						this.tagList.append(option);
-
-					}
-
-				}
+				
 
 			})
 			.setDraw(async function(){
 
 				this.player = new Player();
 
-
+				this.tagList.innerHTML = this.constructor.getTagDatalistHtml();
 				
 
 				// Updates the class labels
@@ -3724,6 +3913,18 @@ export default class StaticModal{
 					</div>
 				`;
 			})
+			.addTab("Actions", () => {
+				return `
+					<div class="slots titleSpan">
+						<span>Active</span>
+						<div class="slotsWrapper"></div>
+					</div>
+					<div class="titleSpan">
+						<span>Available</span>
+						<div class="available"></div>
+					</div>`;
+			})
+			
 			.addTab("Library", () => {
 				return `
 					<p>This is your party's shared recollection of stories.</p>
@@ -3736,6 +3937,18 @@ export default class StaticModal{
 			.setProperties(function(){
 				
 				const main = this.getTabDom('Inventory')[0];
+
+				const actives = this.actives = this.getTabDom('Actions');
+
+				let html = '';
+				for( let i=0; i < Player.MAX_ACTION_SLOTS; ++i )
+					html += UI.Templates.actionButton;
+				$("div.slots > div.slotsWrapper", actives).html(html);
+
+				this.actions = {
+					activeButtons : $("div.slots > div.slotsWrapper > div.action", actives),
+					available : $("div.titleSpan > div.available", actives),
+				};
 
 				this.main = {
 					equipment : main.querySelector('div.equipment'),
@@ -3768,312 +3981,400 @@ export default class StaticModal{
 				if( !player )
 					return;
 
-
-				this.main.weightBar.style = 'width:'+Math.max(0, Math.min(100, player.getCarriedWeight()/player.getCarryingCapacity()*100))+'%';
-				this.main.weightContent.innerText = (Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg';
-				const encumbered = player.getCarriedWeight() > player.getCarryingCapacity();
-				this.main.weight.classList.toggle('red', encumbered);
-				this.main.weight.classList.toggle('yellow', !encumbered);
-
-
-				// Handle inventory asset click
-				const onAssetClick = event => {
-
-					const 
-						element = event.currentTarget, 
-						ui = game.ui,
-						th = this
-					;
-					let id = element.dataset.id;
-					let asset = player.getAssetById(id);
+				// Actions
+					this.toggleTab('Actions', player === game.getMyActivePlayer());
+					this.actions.activeButtons.toggleClass("detrimental disabled", false);
 					
+					// Active actions
+					const numSlots = player.getNrActionSlots();
+					for( let i = 0; i<Player.MAX_ACTION_SLOTS; ++i ){
 
-					if( event.shiftKey  && game.is_host ){
+						const el = $(this.actions.activeButtons[i]);
+						el.toggleClass('button', true);
 
-						if( asset )
-							StaticModal.setWithTab( 'assetLibrary', 'Editor', player, asset );
+						let action = player.getActionAtSlot(i);
 
-					}
-					// Toggle equip / use
-					else if( asset ){
+						// We have an action in this slot
+						if( action )
+							UI.setActionButtonContent(el, action, player, i+2, true);
+						else{
 
-						const isHotbar = element.classList.contains('equipmentSlot');
+							const slotUnlocked = i < numSlots;
+							el.toggleClass("tooltipParent", false).toggleClass('disabled', !slotUnlocked);
+							let content = '';
+							if( !slotUnlocked ){
 
-						const modal = game.ui.modal;
-						modal.prepareSelectionBox();
-						
-
-						if( isHotbar )
-							modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
-						else if( asset.equippable() )
-							modal.addSelectionBoxItem( 'Equip', '', 'equip' );
-
-						if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
-							modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
-						}
-
-						const game_actions = asset.game_actions.filter(el => el.validate(player));
-						for( let i in game_actions ){
-
-							const a = game_actions[i];
-							modal.addSelectionBoxItem(a.desc, false, 'GA:'+a.id);
-
-						}
-						
-
-						if( 
-							game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
-							(!game.battle_active || game.getTurnPlayer().id === player.id) &&
-							!asset.soulbound
-						)
-							modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
-
-						if( !game.battle_active )
-							modal.addSelectionBoxItem( 'Destroy', false, 'destroy' );
-						
-
-
-						modal.onSelectionBox(function(){
-
-							ui.onTooltipMouseout();
-							let element = this;
-							const task = element.dataset.id;
-
-							if( (task === 'unequip' || task === 'equip') && asset.equippable() && game.equipPlayerItem(player, id) ){
-								
-								if( asset.loot_sound )
-									game.playFxAudioKitById(asset.loot_sound, player, player );
-								th.refresh();
-								ui.draw();
-								
-							}
-							else if( task === 'use' ){
-
-								let action = asset.use_action;
-								let targets = action.getViableTargets();
-								if( !targets.length )
-									return;
-
-								ui.action_selected = action;
-								ui.targets_selected = [];
-
-								if( action.castable(true) ){
-									ui.targets_selected = [];
-									ui.drawTargetSelector();
-								}
-
-								if( action.targetable() )
-									th.close();
-								else
-									th.refresh();
-								
-							}
-							else if( task == 'trade' ){
-
-								if( game.battle_active ){
-
-									if( player.ap < 3 ){
-
-										modal.addError("Not enough AP");
-										modal.closeSelectionBox();
-										return;
-
-									}
-									else if( game.getTurnPlayer().id !== player.id ){
-
-										modal.closeSelectionBox();
-										modal.addError("Not your turn");
-										return;
-
-									}
-
-								}
-
-								if( asset.stacking && asset._stacks > 1 ){
-
-									modal.makeSelectionBoxForm(
-										'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
-										function(){
-
-											const amount = Math.floor( this.querySelector('input').value );
-											if( !amount )
-												return;
-											ui.drawAssetTradeTarget(asset, amount);
-
-										}
-									);
-									return;
-
-								}
-								ui.drawAssetTradeTarget(asset);
-								return;
+								const lv = Player.getLevelForActionSlot(i);
+								content = 'Lv. '+lv;
 
 							}
-							else if( task === 'destroy' ){
+							// Use the uses div to show when the slot is locked
+							$('div.uses', el).html(content);
 
-								modal.prepareSelectionBox( true );
-								// Delete from stack
-								if( asset.stacking && asset._stacks >1 ){
-
-									modal.makeSelectionBoxForm(
-										'Amount to destroy: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
-										function(){
-
-											const amount = Math.floor( this.querySelector('input').value );
-											if( amount > 0 ){
-												if(game.deletePlayerItem( player, id, parseInt(amount))){
-													th.refresh();
-													ui.draw();
-												}
-											}
-
-										}
-									);
-
-								}
-								// Delete single
-								else{
-
-									modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
-									modal.onSelectionBox(function(){
-
-										const pid = this.dataset.id;
-										if( pid === 'delete' && game.deletePlayerItem( player, id) ){
-											th.refresh();
-											ui.draw();
-										}
-										modal.closeSelectionBox();
-
-									});
-
-								}
 							
-								return;
-							}
-							else if( task.startsWith('GA:') ){
-								game.useAssetGameAction( asset.getUseActionById(task.substring(3)));
-							}
+						}
+						el.toggleClass('empty', !action);
 
-							modal.closeSelectionBox();
-
-
-						});
-						
 					}
 
-					ui.onTooltipMouseout();
+					// Inactive learned actions
+					const inactive = player.getInactiveActions();
 
-				};
-
-
-				// Create equipment slots
-				let slots = [
-					{slot:Asset.Slots.upperBody, icon:'breastplate'},
-					{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
-					{slot:Asset.Slots.hands, icon:'crossed-swords'}
-				];
-				const createEquipSlot = async (slot, fallback, index = 0) => {
-
-					const asset = player.getEquippedAssetsBySlots(slot, true)[index];
-
-					const div = document.createElement('div');
-					div.classList.add('equipmentSlot', 'item', 'tooltipParent');
-					if( asset )
-						div.classList.add(Asset.RarityNames[asset.rarity]);
-					if(asset && asset.durability <= 0 )
-						div.classList.add('broken');
-
-					div.dataset.slot = slot;
+					let inactiveEls = $("> div.action", this.actions.available);
 					
+					// Append icons if need be
+					for( let i=inactiveEls.length; i<inactive.length; ++i ){
+						this.actions.available.append(UI.Templates.actionButton);
+					}
+					inactiveEls = $("> div.action", this.actions.available);
+					inactiveEls.toggleClass("hidden", true);
 
-					if( asset ){
+					for( let i =0; i<inactive.length; ++i ){
 
-						div.dataset.id = asset.id || '';
-
-						const img = await asset.getImgElement();
-						div.append(img);
-
-						const tooltip = document.createElement('div');
-						div.append(tooltip);
-						tooltip.classList.add('tooltip');
-						tooltip.innerHTML = asset.getTooltipText();
+						const el = inactiveEls[i],
+							abil = inactive[i];
+						UI.setActionButtonContent(el, abil, player);
 
 					}
-					else{
+
+					// Bind stuff
+					this.actions.activeButtons.off('click').on('click', event => {
 						
-						const img = document.createElement('img');
-						div.append(img);
-						img.classList.add('bg', 'template');
-						img.src = fallback;
+						const el = $(event.currentTarget),
+							id = el.attr('data-id');
+						if( el.is('.empty') )
+							return;
 
-					}
+						game.toggleAction(player, id);
+						game.uiAudio( "spell_disable" );
 
-					div.addEventListener('click', onAssetClick);
+					});
 
-					return div;
+					inactiveEls.off('click').on('click', event => {
+						const el = $(event.currentTarget),
+							id = el.attr('data-id');
 
+						game.toggleAction(player, id);
+						game.uiAudio( "spell_enable" );
 
-				};
-				let divs = [];
-				for( let slot of slots )
-					divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
-				this.main.equipment.replaceChildren(...divs);
+					});
 
-				divs = [];
-				for( let i =0; i<3; ++i )
-					divs.push(await createEquipSlot(Asset.Slots.action, 'media/wrapper_icons/potion-ball.svg', i));
-				this.main.toolbelt.replaceChildren(...divs);
-
-				slots = [
-					{slot:Asset.Slots.upperBodyCosmetic, icon:'gauntlet'},
-					{slot:Asset.Slots.lowerBodyCosmetic, icon:'leg-armor'},
-					{slot:Asset.Slots.jewelleryCosmetic, icon:'big-diamond-ring'}
-				];
-				divs = [];
-				for( let slot of slots )
-					divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
-				this.main.cosmetic.replaceChildren(...divs);
-
-				// Create listing
-				let inv = [];
-				for(let asset of player.assets)
-					inv.push(asset);
-
-				// Sort by category
-				inv = inv.filter(el => !el.equipped).sort((a,b) => {
-					if( a.category !== b.category ){
-						return a.category < b.category ? -1 : 1;
-					}
-					if(a.name === b.name)
-						return 0;
-					return a.name < b.name ? -1 : 1;
-				});
-
-				divs = [];
-				const mainInv = this.main.mainInventory;
-				let cat;
-				for( let item of inv ){
-
-					if( !cat || item.category !== cat ){
-
-						cat = item.category;
-						const title = document.createElement('h3');
-						divs.push(title);
-						title.classList.add('category');
-						title.innerText = Asset.CategoriesNames[cat];
-						
-					}
-
-					const div = await StaticModal.getGenericAssetButton(item);
-					divs.push(div);
-					
-				}
-				mainInv.replaceChildren(...divs);
-
+				//
 				
-				mainInv.querySelectorAll('div.item[data-id]').forEach(el => el.addEventListener('click', onAssetClick));
+				
+				// Inventory
+
+					this.main.weightBar.style = 'width:'+Math.max(0, Math.min(100, player.getCarriedWeight()/player.getCarryingCapacity()*100))+'%';
+					this.main.weightContent.innerText = (Math.floor(player.getCarriedWeight()/100)/10)+'/'+Math.floor(player.getCarryingCapacity()/1000)+'kg';
+					const encumbered = player.getCarriedWeight() > player.getCarryingCapacity();
+					this.main.weight.classList.toggle('red', encumbered);
+					this.main.weight.classList.toggle('yellow', !encumbered);
 
 
+					// Handle inventory asset click
+					const onAssetClick = event => {
+
+						const 
+							element = event.currentTarget, 
+							ui = game.ui,
+							th = this
+						;
+						let id = element.dataset.id;
+						let asset = player.getAssetById(id);
+						
+
+						if( event.shiftKey  && game.is_host ){
+
+							if( asset )
+								StaticModal.setWithTab( 'assetLibrary', 'Editor', player, asset );
+
+						}
+						// Toggle equip / use
+						else if( asset ){
+
+							const isHotbar = element.classList.contains('equipmentSlot');
+
+							const modal = game.ui.modal;
+							modal.prepareSelectionBox();
+							
+
+							if( isHotbar )
+								modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
+							else if( player.canEquip(asset) )
+								modal.addSelectionBoxItem( 'Equip', '', 'equip' );
+
+							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
+								modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
+							}
+
+							const game_actions = asset.game_actions.filter(el => el.validate(player));
+							for( let i in game_actions ){
+
+								const a = game_actions[i];
+								modal.addSelectionBoxItem(a.desc, false, 'GA:'+a.id);
+
+							}
+							
+
+							if( 
+								game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
+								!game.battle_active &&
+								!asset.soulbound
+							)
+								modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
+
+							modal.addSelectionBoxItem( 'Link', false, 'link' );
+
+							if( !game.battle_active )
+								modal.addSelectionBoxItem( 'Destroy', false, 'destroy' );
+							
+
+
+							modal.onSelectionBox(function(){
+
+								ui.onTooltipMouseout();
+								let element = this;
+								const task = element.dataset.id;
+
+								if( (task === 'unequip' || task === 'equip') && asset.equippable() && game.equipPlayerItem(player, id) ){
+									
+									if( asset.loot_sound )
+										game.playFxAudioKitById(asset.loot_sound, player, player );
+									th.refresh();
+									ui.draw();
+									
+								}
+								else if( task === 'link' ){
+									game.ui.sendChat( "/me highlights $ITM"+asset.id+"$" );
+								}
+								else if( task === 'use' ){
+
+									let action = asset.use_action;
+									let targets = action.getViableTargets();
+									if( !targets.length )
+										return;
+
+									ui.action_selected = action;
+									ui.targets_selected = [];
+
+									if( action.castable(true) ){
+										ui.targets_selected = [];
+										ui.drawTargetSelector();
+									}
+
+									if( action.targetable() )
+										th.close();
+									else
+										th.refresh();
+									
+								}
+								else if( task == 'trade' ){
+
+									if( game.battle_active ){
+
+										if( player.ap < 3 ){
+
+											modal.addError("Not enough AP");
+											modal.closeSelectionBox();
+											return;
+
+										}
+										else if( game.getTurnPlayer().id !== player.id ){
+
+											modal.closeSelectionBox();
+											modal.addError("Not your turn");
+											return;
+
+										}
+
+									}
+
+									if( asset.stacking && asset._stacks > 1 ){
+
+										modal.makeSelectionBoxForm(
+											'Amount to trade: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
+											function(){
+
+												const amount = Math.floor( this.querySelector('input').value );
+												if( !amount )
+													return;
+												ui.drawAssetTradeTarget(asset, amount);
+
+											}
+										);
+										return;
+
+									}
+									ui.drawAssetTradeTarget(asset);
+									return;
+
+								}
+								else if( task === 'destroy' ){
+
+									modal.prepareSelectionBox( true );
+									// Delete from stack
+									if( asset.stacking && asset._stacks >1 ){
+
+										modal.makeSelectionBoxForm(
+											'Amount to destroy: <input type="number" style="width:4vmax" min=1 max='+(asset._stacks)+' step=1 value='+(parseInt(asset._stacks) || 1)+' /><input type="submit" value="Ok" />',
+											function(){
+
+												const amount = Math.floor( this.querySelector('input').value );
+												if( amount > 0 ){
+													if(game.deletePlayerItem( player, id, parseInt(amount))){
+														th.refresh();
+														ui.draw();
+													}
+												}
+
+											}
+										);
+
+									}
+									// Delete single
+									else{
+
+										modal.addSelectionBoxItem( "Are you sure?", '', 'delete' );
+										modal.onSelectionBox(function(){
+
+											const pid = this.dataset.id;
+											if( pid === 'delete' && game.deletePlayerItem( player, id) ){
+												th.refresh();
+												ui.draw();
+											}
+											modal.closeSelectionBox();
+
+										});
+
+									}
+								
+									return;
+								}
+								else if( task.startsWith('GA:') ){
+									game.useAssetGameAction( asset.getUseActionById(task.substring(3)));
+								}
+
+								modal.closeSelectionBox();
+
+
+							});
+							
+						}
+
+						ui.onTooltipMouseout();
+
+					};
+
+
+					// Create equipment slots
+					let slots = [
+						{slot:Asset.Slots.upperBody, icon:'breastplate'},
+						{slot:Asset.Slots.lowerBody, icon:'armored-pants'},
+						{slot:Asset.Slots.hands, icon:'crossed-swords'}
+					];
+					const createEquipSlot = async (slot, fallback, index = 0) => {
+
+						const asset = player.getEquippedAssetsBySlots(slot, true)[index];
+
+						const div = document.createElement('div');
+						div.classList.add('equipmentSlot', 'item', 'tooltipParent');
+						if( asset )
+							div.classList.add(Asset.RarityNames[asset.rarity]);
+						if(asset && asset.durability <= 0 )
+							div.classList.add('broken');
+
+						div.dataset.slot = slot;
+						
+
+						if( asset ){
+
+							div.dataset.id = asset.id || '';
+
+							const img = await asset.getImgElement();
+							div.append(img);
+
+							const tooltip = document.createElement('div');
+							div.append(tooltip);
+							tooltip.classList.add('tooltip');
+							tooltip.innerHTML = asset.getTooltipText();
+
+						}
+						else{
+							
+							const img = document.createElement('img');
+							div.append(img);
+							img.classList.add('bg', 'template');
+							img.src = fallback;
+
+						}
+
+						div.addEventListener('click', onAssetClick);
+
+						return div;
+
+
+					};
+					let divs = [];
+					for( let slot of slots )
+						divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
+					this.main.equipment.replaceChildren(...divs);
+
+					divs = [];
+					for( let i =0; i<3; ++i )
+						divs.push(await createEquipSlot(Asset.Slots.action, 'media/wrapper_icons/potion-ball.svg', i));
+					this.main.toolbelt.replaceChildren(...divs);
+
+					slots = [
+						{slot:Asset.Slots.upperBodyCosmetic, icon:'gauntlet'},
+						{slot:Asset.Slots.lowerBodyCosmetic, icon:'leg-armor'},
+						{slot:Asset.Slots.jewelleryCosmetic, icon:'big-diamond-ring'}
+					];
+					divs = [];
+					for( let slot of slots )
+						divs.push(await createEquipSlot(slot.slot, 'media/wrapper_icons/'+slot.icon+'.svg'));
+					this.main.cosmetic.replaceChildren(...divs);
+
+					// Create listing
+					let inv = [];
+					const assets = player.getAssets();
+					for(let asset of assets)
+						inv.push(asset);
+
+					// Sort by category
+					inv = inv.filter(el => !el.equipped).sort((a,b) => {
+						if( a.category !== b.category ){
+							return a.category < b.category ? -1 : 1;
+						}
+						if(a.name === b.name)
+							return 0;
+						return a.name < b.name ? -1 : 1;
+					});
+
+					divs = [];
+					const mainInv = this.main.mainInventory;
+					let cat;
+					for( let item of inv ){
+
+						if( !cat || item.category !== cat ){
+
+							cat = item.category;
+							const title = document.createElement('h3');
+							divs.push(title);
+							title.classList.add('category');
+							title.innerText = Asset.CategoriesNames[cat];
+							
+						}
+
+						const div = await StaticModal.getGenericAssetButton(item);
+						divs.push(div);
+						
+					}
+					mainInv.replaceChildren(...divs);
+
+					
+					mainInv.querySelectorAll('div.item[data-id]').forEach(el => el.addEventListener('click', onAssetClick));
+
+				// 
 
 				// Library
 				const booksRead = game.books_read.keys();
@@ -4170,7 +4471,6 @@ export default class StaticModal{
 						Tags: <br />
 						<textarea name="tags"></textarea><br />
 						<br />
-						Effects JSON - <input type="button" class="autogen yellow" value="Auto Generate Stats for Level" /><br />
 						Quick Stats: <span class="quickStats"></span>
 						<textarea name="wrappers" style="width:100%; height:20vh;"><!-- Wrapper editor here --></textarea><br />
 
@@ -4333,30 +4633,13 @@ export default class StaticModal{
 
 
 						let wrappers = JSON.parse(getEl("textarea[name=wrappers]").value.trim()).map(el => new Wrapper(el));
-						let stats = {};
-						for( let i in Action.Types ){
-							stats['sv'+Action.Types[i]] = 0;
-							stats['bon'+Action.Types[i]] = 0;
-						}
-		
-						for( let i in Player.primaryStats )
-							stats[i+'Modifier'] = 0;
-		
+
+						let out = '';
 						for( let wrapper of wrappers ){
 		
-							for( let effect of wrapper.effects ){
-		
-								if( stats.hasOwnProperty(effect.type) && effect.data && !isNaN(effect.data.amount) )
-									stats[effect.type] += effect.data.amount;
-		
-							}
-		
-						}
-	
-						let out = '';
-						for(let i in stats ){
-							if( stats[i] )
-								out += '<div class="quickStat">'+stats[i]+' '+Asset.stringifyStat(i)+'</div>';
+							if( wrapper.description )
+								out += '<div class="quickStat">'+esc(wrapper.description)+'</div>';
+								
 						}
 						getEl("span.quickStats").innerHTML = out;
 
@@ -4365,19 +4648,7 @@ export default class StaticModal{
 					}
 				};
 
-				// Auto stats generator button
-				getEl("input.autogen").addEventListener('click', () => {
 
-					let slots = [];
-					this.editor.form.querySelectorAll("input[name=slots]:checked").forEach(el => slots.push(el.value));
-
-					let rarity = parseInt(getEl("input[name=rarity]").value) || 0;
-		
-					let wrapper = Asset.generateStatWrapper(slots.length, 0, rarity);
-					getEl("textarea[name=wrappers]").value = JSON.stringify([wrapper.save("mod")], null, 4);
-					this.updateEffectStats();
-		
-				});
 
 				// Wrapper JSON validator
 				getEl("textarea[name=wrappers]").addEventListener('change', event => {
@@ -4456,7 +4727,7 @@ export default class StaticModal{
 				const handleAssetClick = event => {
 
 					let id = event.currentTarget.dataset.id,
-						assetObj = lib[id]
+						assetObj = glib.get(id, 'Asset')
 					;
 					if( event.ctrlKey || event.metaKey ){
 
@@ -4485,6 +4756,7 @@ export default class StaticModal{
 							obj.g_resetID();
 							obj.label = obj.id;
 
+
 						}
 							
 						StaticModal.setWithTab('assetLibrary', 'Editor', player, obj);						
@@ -4494,7 +4766,6 @@ export default class StaticModal{
 
 					else if( player.addLibraryAsset(id) ){
 
-						
 						game.save();
 						StaticModal.set('inventory');
 						game.ui.draw();
@@ -4650,17 +4921,18 @@ export default class StaticModal{
 							<td>C</td>
 							<td>Toggle group finder</td>
 						</tr>
+						<tr>
+							<td>TAB</td>
+							<td>Switch between grouped actions while one of its actions are selected. Such as Attack/Arouse/Shock.</td>
+						</tr>
 					</table>
 				`;
 			})
 			.setProperties(function(){
-				
-
 			})
 			.setDraw(async function(){
-
-				
 			});
+		
 
 	}
 
@@ -4793,21 +5065,24 @@ export default class StaticModal{
 		const myPlayer = game.getMyActivePlayer();
 		// Exchange button
 		const exchangeButton = baseElement.querySelector('input[name=exchange]');
-		exchangeButton.classList.toggle('hidden', !myPlayer.canExchange());
-		if( !exchangeButton._bound ){
+		if( exchangeButton ){
+			exchangeButton.classList.toggle('hidden', !myPlayer.canExchange());
+			if( !exchangeButton._bound ){
 
-			exchangeButton.addEventListener('click', event => {
-				game.exchangePlayerMoney(myPlayer);
-				if( win )
-					win.refresh();
-			});
-			exchangeButton._bound = true;
+				exchangeButton.addEventListener('click', event => {
+					game.exchangePlayerMoney(myPlayer);
+					if( win )
+						win.refresh();
+				});
+				exchangeButton._bound = true;
 
+			}
 		}
 
 
 		// Update coins
 		const currencyDiv = baseElement.querySelector('span.coins');
+
 		for( let i in Player.currencyWeights ){
 
 			const currency = Player.currencyWeights[i];
@@ -4863,6 +5138,39 @@ export default class StaticModal{
 
 	};
 
+	// startsWith is the type of tag, or set it to false if you want to allow all tags
+	// shorten will remove the "type_" part
+	static getTagDatalistHtml( startsWith = 'pl', shorten = true ){
+		let out = '<datalist id="newGameTags"><select>';
+
+		let viable = glib.getAllTags();
+		
+		for( let tag of viable ){
+
+			const spl = tag.split('_');
+			if( !startsWith || spl[0] === startsWith ){
+
+				if( shorten )
+					spl.shift();
+				out+= '<option value="'+esc(spl.join('_'))+'"></option>';
+
+			}
+
+		}
+		out += '</select></datalist>';
+		return out;
+	}
+
+	static getVoiceDatalistHtml(){
+		let out = '<datalist id="voices"><select>';
+
+		let viable = AudioTrigger.getAllLabels();
+		for( let v of viable )
+			out+= '<option value="'+esc(v)+'"></option>';
+		out += '</select></datalist>';
+		return out;
+	}
+	
 
 }
 

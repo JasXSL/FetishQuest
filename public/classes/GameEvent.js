@@ -130,10 +130,10 @@ GameEvent.Types = {
 	healingDone : 'healingDone',		
 	healingTaken : 'healingTaken',		
 	interrupt : 'interrupt',			
-	actionCharged : 'actionCharged',	
-	actionUsed : 'actionUsed',			
-	actionRiposte : 'actionRiposte',	
-	wrapperAdded : 'wrapperAdded',		
+	actionCharged : 'actionCharged',
+	actionUsed : 'actionUsed',
+	actionRiposte : 'actionRiposte',
+	wrapperAdded : 'wrapperAdded',
 	wrapperRemoved : 'wrapperRemoved',	
 	wrapperTick : 'wrapperTick',		
 	wrapperExpired : 'wrapperExpired',		
@@ -143,6 +143,8 @@ GameEvent.Types = {
 	diminishingResist : 'diminishingResist',
 	effectTrigger : 'effectTrigger',		
 	armorBroken : 'armorBroken',		
+	armorEquipped : 'armorEquipped',		
+	armorUnequipped : 'armorUnequipped',		
 
 	// These are only raised internally within a wrapper/effect
 	internalWrapperAdded : 'internalWrapperAdded',
@@ -163,7 +165,7 @@ GameEvent.Types = {
 	encounterEnemyDefeated : 'encounterEnemyDefeated',		
 
 	encounterStarted : 'encounterStarted',	
-	
+	blockExpired : 'blockExpired',
 	dungeonExited : 'dungeonExited',		
 	dungeonEntered : 'dungeonEntered',		
 	
@@ -171,6 +173,7 @@ GameEvent.Types = {
 	textTrigger : 'textTrigger',
 	explorationComplete : 'explorationComplete',	
 	sleep : 'sleep',		
+	stun : 'stun',
 };
 
 GameEvent.TypeDescs = {
@@ -196,6 +199,8 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.diminishingResist] : 'target resisted sender\'s wrapper due to diminishing returns',		// 
 	[GameEvent.Types.effectTrigger] : 'Raised when an effect has been triggered',				// 
 	[GameEvent.Types.armorBroken] : 'An armor piece has been broken. Sender is the player that triggered the break, Target is the player who wears it',		// 
+	[GameEvent.Types.armorUnequipped] : 'An armor piece has been unequipped. Sender is the player that triggered the unequip, Target is the player who wore it',		// 
+	[GameEvent.Types.armorEquipped] : 'An armor piece has been equipped. Sender is the player that triggered the equip, Target is the player who wore it',		// 
 
 	// These are only raised internally within a wrapper/effect
 	[GameEvent.Types.internalWrapperAdded] : 'Duration effects only, sender, target, action, wrapper. Custom: {isChargeFinish:(bool)isChargeFinish}',		// 
@@ -214,12 +219,15 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.encounterLost] : 'encounter, Same as encounterDefeated but players lost',					// 
 	[GameEvent.Types.assetUsed] : 'Asset used',							// 
 
+	[GameEvent.Types.stun] : 'Target was stunned by sender',							// 
+
 	[GameEvent.Types.encounterStarted] : 'encounter, Currently only used for the encounter start text',				// 
 	
 	[GameEvent.Types.dungeonExited] : 'Raised with the dungeon being the dungeon you just left',					// 
 	[GameEvent.Types.dungeonEntered] : 'Raised with the dungeon being the dungeon you just entered',					// 
 	[GameEvent.Types.textTrigger] : 'Raised when a text is triggered.',			
 	[GameEvent.Types.explorationComplete] : 'Raised when a procedural dungeon is fully explored.',			
+	[GameEvent.Types.blockExpired] : 'Raised when block expires.',			
 
 };
 

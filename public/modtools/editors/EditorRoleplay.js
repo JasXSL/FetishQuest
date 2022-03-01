@@ -44,12 +44,18 @@ export function asset(){
 	// Conditions
 	html += 'Conditions: <div class="conditions"></div>';
 
+	html += '<p>Advanced</p>';
+	html += 'Player conditions: <div class="playerConds"></div>';
+	html += '<label title="Min players that need to pass player conditions">Min Players: <input type="number" step=1 min=0 name="minPlayers" class="saveable" value="'+(parseInt(dummy.minPlayers) || 0)+'" /></label>';
+	html += '<label title="Max players that will be stored as rpTargets. -1 = infinit">Max Players: <input type="number" step=1 min=-1 name="maxPlayers" class="saveable" value="'+(parseInt(dummy.maxPlayers) || 0)+'" /></label>';
+
 
 
 	this.setDom(html);
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
+	this.dom.querySelector("div.playerConds").appendChild(EditorCondition.assetTable(this, asset, "playerConds", false, false));
 	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, 2));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 
@@ -135,8 +141,21 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Conditions</td>'+
-			'<td>Conditions needed for the RP to start. You can also put conditions in the GameAction that triggers it.</td>'+
+			'<td>Conditions needed for the RP to start. You can also put conditions in the GameAction that triggers it. Sender is any player set in the player field. Target is the player who instigated the RP.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player conditions</td>'+
+			'<td>When set, the game will check these conditions against a shuffled list of all enabled players. With target being said player. Including NPCs, so use the targetOnPlayerTeam condition if you only want to check the party. These players will be tied to the %P %P2... text labels instead of the player instigating the RP.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Min Players</td>'+
+			'<td>Minimum players that need to pass player conditions.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max Players</td>'+
+			'<td>Max players to save as rp targets. -1 is infinite. Should be equal or greater to minPlayers otherwise. Note that maxPlayers doesn\'t prevent the RP from starting if the nr of valid players is greater. It just limits how many players are included in the RP as targets.</td>'+
 		'</tr>'
+		
 	;
 		
 

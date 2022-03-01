@@ -40,7 +40,8 @@ class Action extends Generic{
 		this.cpassives = [];			// Wrappers that are added passively while casting this action
 		this.interrupt_wrappers = [];	// Wrappers that are added when this is interrupted
 		this.max_wrappers = 0;		// Max nr of wrappers to apply, 0 = undefined
-		this.riposte = [];			// Wrappers that are triggered when an ability misses. Riposte is sent from the target to attacker
+		this.ripostable = false;	// Use isRipostable. This action can be riposted.
+		this.riposte = [];			// Replaces wrappers to be run on riposte with these. Otherwise uses same as wrappers. Requires ripostable. Riposte is sent from the target to attacker
 		this.ap = 1;
 		this.min_ap = 0;			// When reduced by effects, this is the minimum AP we can go to 
 		this.mp = 0;
@@ -76,8 +77,9 @@ class Action extends Generic{
 		this.ignore_wrapper_conds = false;		// Ignores wrapper conditions and allows it to cast without any valid wrapper conditions
 
 		this.can_crit = false;					// This ability can critically hit
-		this.crit_formula = '';					// Overrides the default agility based formula. Requires can_crit to be set
+		this.crit_formula = '';					// Custom crit chance. Requires can_crit to be set
 		this.no_clairvoyance = false;			// This shouldn't be inspectable with clarivoyance
+		this.group = '';						// Group this action on the action bar with others
 
 		// User stuff
 		this._cooldown = 0;			// Turns remaining to add a charge.
@@ -87,7 +89,6 @@ class Action extends Generic{
 		this._cache_cooldown = false;		// Since this.cooldown can be a math formula, this lets you cache the cooldown to prevent lag. Wiped on turn start.
 		this._crit = false;
 		this._slot = -1;						// Action slot. -1 if deactivated. If autolearn is enabled on the player, this is ignored.
-
 		
 		// Auto generated if loaded from a player library
 		this._custom = false;
@@ -118,6 +119,7 @@ class Action extends Generic{
 			target_type : this.target_type,
 			tags : this.tags,
 			ranged : this.ranged,
+			ripostable : this.ripostable,
 			conditions : Condition.saveThese(this.conditions, full),
 			no_action_selector : this.no_action_selector,
 			cast_time : this.cast_time,
@@ -137,7 +139,8 @@ class Action extends Generic{
 			_slot : this._slot,
 			ignore_wrapper_conds : this.ignore_wrapper_conds,
 			can_crit : this.can_crit,
-			no_clairvoyance : this.no_clairvoyance
+			no_clairvoyance : this.no_clairvoyance,
+			group : this.group
 		};
 
 		// Everything but mod
@@ -502,9 +505,12 @@ class Action extends Generic{
 		let pl = game.getEnabledPlayers();
 		if( this.detrimental && !isChargeFinish && this.target_type !== Action.TargetTypes.aoe ){
 
-			pl = this.getPlayerParent().getTauntedOrGrappledBy(this.ranged, true, debug);
+			pl = this.getPlayerParent().getTauntedBy(this.ranged, true, debug);
+			if( !pl.includes(this.getPlayerParent()) )	// Self should always be included
+				pl.push(this.getPlayerParent());
+
 			if( debug )
-				console.debug("Getting taunted or grappled by:", pl);
+				console.debug("Getting taunted by:", pl);
 
 		}
 
@@ -621,8 +627,8 @@ class Action extends Generic{
 				const conditions = toArray(effect.data.conditions);
 				if( Condition.all(conditions, evt) ){
 
-					const amt = Calculator.run(effect.data.amount, new GameEvent({sender:pl, target:pl, action:this}));
-					if( effect.data.set ) 
+					const amt = Calculator.run(effect.data.amount || 1, new GameEvent({sender:pl, target:pl, action:this}));
+					if( effect.data.set )
 						out = amt;
 					else
 						out += amt;
@@ -643,6 +649,42 @@ class Action extends Generic{
 
 	getMpCost(){
 		return this.mp;
+	}
+
+	isRipostable(){
+		
+		const pl = this.getPlayerParent();
+		const evt = new GameEvent({sender:pl, target:pl, action:this});
+		const effects = pl.getActiveEffectsByType(Effect.Types.actionRiposte).filter(effect => {
+			const conditions = toArray(effect.data.conditions);
+			const success = Condition.all(conditions, evt);
+			if( !success )
+				console.log(conditions, "failed with", evt);
+			return success;
+		});
+		if( !effects.length )
+			return this.ripostable;
+
+		
+		effects.sort((a, b) => {
+			
+			let aPri = a.data.priority || 0;
+			let bPri = b.data.priority || 0;
+			if( aPri === bPri )
+				return 0;
+			return aPri > bPri ? -1 : 1;
+
+		});
+		return Boolean(effects[0].data.set);
+
+	}
+
+	getRiposteWrappers(){
+		
+		if( this.riposte.length )
+			return this.riposte;
+		return this.wrappers;
+
 	}
 
 	getCastTime(){
@@ -819,9 +861,10 @@ class Action extends Generic{
 					// Riposte
 					chance = Math.random()*100;
 					hit = Player.getHitChance(target, sender, this);
-					if( chance <= hit && this.riposte.length && target.canRiposte() ){
+					if( chance <= hit && this.isRipostable() && target.canRiposte() ){
 
-						for( let r of this.riposte )
+						let riposte = this.getRiposteWrappers();
+						for( let r of riposte )
 							wrapperReturn.merge(r.useAgainst(target, sender, false));
 
 						target.onRiposteDone(sender);
@@ -834,6 +877,13 @@ class Action extends Generic{
 							target.onDamagingAttackDone(sender, this.type);
 
 						}
+						if( this.hasTag(stdTag.acHeal) ){
+
+							sender.onHealingAttackReceived(target, this.type);
+							target.onHealingAttackDone(sender, this.type);
+
+						}
+
 						new GameEvent({
 							type : GameEvent.Types.actionRiposte,
 							sender : target,
@@ -888,6 +938,14 @@ class Action extends Generic{
 				sender.onDamagingAttackDone(target, this.type);
 
 			}
+
+			if( this.hasTag(stdTag.acHeal) && successes ){
+
+				target.onHealingAttackReceived(sender, this.type);
+				sender.onHealingAttackDone(target, this.type);
+
+			}
+
 
 			if( successes && this.target_type === Action.TargetTypes.target ){
 
@@ -1017,7 +1075,7 @@ class Action extends Generic{
 		if( this.ct_taunt ){
 
 			let overrides = [];
-			let taunts = this.getPlayerParent().getTauntedOrGrappledBy(this.ranged, false);
+			let taunts = this.getPlayerParent().getTauntedBy(this.ranged, false);
 
 			// If the original target is taunting, add that
 			for( let pl of taunts ){
@@ -1082,24 +1140,21 @@ Action.TargetTypes = {
 
 // SV/BON types
 Action.Types = {
-	physical : "Physical",
-	elemental : "Elemental",
-	holy : "Holy",
-	corruption : "Corruption",
+	physical : "Physical",			// Primary used body to hurt effects
+	corruption : "Corruption",		// Primary sexy effects
+	arcane : "Arcane",				// Anything that doesn't fit in the top two categories
 };
 
 Action.TypeDescriptions = {
-	[Action.Types.physical] : 'Physical attacks have a chance of damaging armor durability.',
-	[Action.Types.elemental] : 'Elemental attacks have a chance of damaging enemy AP.',
-	[Action.Types.holy] : 'Holy healing has a chance to consume the target\'s arousal, increasing the healing effect.',
-	[Action.Types.corruption] : 'Corruption effects have a chance to arouse the target, increasing their corruption damage taken.',
+	[Action.Types.physical] : 'Physical damage has a chance of damaging armor durability.',
+	[Action.Types.arcane] : 'Arcane damage has a chance to remove extra blocking before dealing damage.',
+	[Action.Types.corruption] : 'Corruption damage has a chance to arouse the target.',
 };
 
 Action.typeColor = function(type){
 	let colors = {
 		[Action.Types.physical] : '#FDD',
-		[Action.Types.elemental] : '#DFF',
-		[Action.Types.holy] : '#FFD',
+		[Action.Types.arcane] : '#DFF',
 		[Action.Types.corruption] : '#FDF',
 	};
 	if( colors[type] )

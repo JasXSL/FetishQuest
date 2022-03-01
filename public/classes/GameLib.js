@@ -2,6 +2,7 @@ import Text from './Text.js';
 import Mod from './Mod.js';
 import Generic from './helpers/Generic.js';
 import Game from './Game.js';
+import stdTag from '../libraries/stdTag.js';
 // Maps lib_types to caches used only in outputs
 const CACHE_MAP = {
 	'assets' : '_cache_assets'
@@ -14,6 +15,7 @@ const load_order = [
 	'wrappers',
 	'playerClasses',
 	'audioKits',
+	'audioTriggers',
 	'hitFX',
 	'actions',
 	'assets',
@@ -30,6 +32,7 @@ const load_order = [
 	'factions',
 	'bookPages',
 	'books',
+	'armorEnchants',
 	
 	'roleplayStageOptionGoto',
 	'roleplayStageOption',
@@ -64,6 +67,7 @@ export default class GameLib{
 		this._main_mod;
 		this._custom_assets = {};
 		this._allow_clone = false;	// used to allow cyclic linkage. Set to true after mods have loaded
+		this._cache_tags = [];		// Cache of all tags used
 		this.reset();
 	}
 
@@ -86,6 +90,7 @@ export default class GameLib{
 		this.playerTemplateLoot = {};
 		this.assetTemplates = {};
 		this.audioKits = {};
+		this.audioTriggers = {};
 		this.materialTemplates = {};	// AssetTemplate Material
 		this.dungeonSubTemplates = {};
 		this.dungeonTemplates = {};
@@ -105,6 +110,7 @@ export default class GameLib{
 		this.factions = {};
 		this.books = {};
 		this.bookPages = {};
+		this.armorEnchants  = {};
 		this._cache_assets = {};
 		this.texts = {};				// The texts array gets throw into an object for easier fetching
 		this._texts = [];				// Cache of objects only, and only enabled ones
@@ -189,10 +195,16 @@ export default class GameLib{
 		this.loading = true;
 		// prevent auto rebasing while loading
 		Generic.auto_rebase = false;
+
+		const tagCache = {};
+		Object.values(stdTag).map(el => tagCache[el] = true);
+
 		console.log("Loading in ", mods.length, "mods");
 
 		for( let mod of mods ){
 			
+			mod.getAllTags().map(el => tagCache[el] = true);
+
 			for( let k of load_order ){
 				
 				if( Array.isArray(mod[k]) ){
@@ -241,6 +253,8 @@ export default class GameLib{
 			}
 
 		}
+
+		this._cache_tags = Object.keys(tagCache);
 
 		// Allow auto rebasing now that mods have loaded
 		Generic.auto_rebase = true;
@@ -372,6 +386,10 @@ export default class GameLib{
 			return Object.keys(all);
 	}
 
+	getAllValues( cName ){
+		return Object.values(this.getFull(cName));
+	}
+
 	getFull( cName ){
 
 		for( let i in Mod.LIB_TYPES ){
@@ -390,6 +408,14 @@ export default class GameLib{
 
 	}
 
+
+
+	// Library helpers
+	getAllTags(){
+
+		return this._cache_tags;
+
+	}
 	
 
 }

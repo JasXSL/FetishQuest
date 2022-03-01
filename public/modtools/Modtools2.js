@@ -13,6 +13,7 @@ import {TransformControls} from '../ext/TransformControls.js';
 import * as EditorText from './editors/EditorText.js';
 import * as EditorCondition from './editors/EditorCondition.js';
 import * as EditorAudioKit from './editors/EditorAudioKit.js';
+import * as EditorAudioTrigger from './editors/EditorAudioTrigger.js';
 import * as EditorHitFX from './editors/EditorHitFX.js';
 import * as EditorAsset from './editors/EditorAsset.js';
 import * as EditorAssetTemplate from './editors/EditorAssetTemplate.js';
@@ -48,8 +49,10 @@ import * as EditorGallery from './editors/EditorGallery.js';
 import * as EditorBook from './editors/EditorBook.js';
 import * as EditorBookPage from './editors/EditorBookPage.js';
 import * as EditorFetish from './editors/EditorFetish.js';
+import * as EditorArmorEnchant from './editors/EditorArmorEnchant.js';
 import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
+import Condition from '../classes/Condition.js';
 
 
 // Window types that should be tracked
@@ -66,8 +69,10 @@ const DB_MAP = {
 	"texts" : { listing : EditorText.list, asset : EditorText.asset, help : EditorText.help, icon : '' },
 	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark', help : EditorCondition.help },
 	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker', help : EditorAudioKit.help },
+	"audioTriggers" : { listing : EditorAudioTrigger.list, asset : EditorAudioTrigger.asset, icon : 'screaming', help : EditorAudioTrigger.help },
 	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion', help : EditorHitFX.help },
 	"assets" : { listing : EditorAsset.list, asset : EditorAsset.asset, icon : 'underwear', help : EditorAsset.help },
+	"armorEnchants" : { listing : EditorArmorEnchant.list, asset : EditorArmorEnchant.asset, icon : 'chain-mail', help : EditorArmorEnchant.help },
 	"wrappers" : { listing : EditorWrapper.list, asset : EditorWrapper.asset, icon : 'jigsaw-box', help : EditorWrapper.help },
 	"effects" : { listing : EditorEffect.list, asset : EditorEffect.asset, icon : 'fairy-wand', help : EditorEffect.help },
 	"actions" : { listing : EditorAction.list, asset : EditorAction.asset, icon : 'juggler', help : EditorAction.help },
@@ -139,7 +144,9 @@ export default class Modtools{
 
 
 		this.essentialOnly = parseInt(localStorage.editor_essentialOnly);	// In DB lists, only show essential information
+		this.showParented = parseInt(localStorage.editor_showParented);
 		this.toggleEssentialOnly(this.essentialOnly);
+		this.toggleParented(this.showParented);
 
 		this.webgl = new WebGL({
 			fullControls : true,
@@ -217,7 +224,7 @@ export default class Modtools{
 
 					Window.addMenuOption("open", "Open (Ctrl+O)", () => { self.loadWindow(); });
 
-					Window.addMenuOption("import", "Import", () => { 
+					Window.addMenuOption("import", "Import File", () => { 
 						
 						this.dummyUploader.setAttribute("accept", ".fqmod");
 						this.dummyUploader.onchange = async event => {
@@ -232,6 +239,12 @@ export default class Modtools{
 						};
 
 						this.dummyUploader.click();
+					});
+
+					Window.addMenuOption("import", "Import JSON", () => { 
+						
+						this.drawJsonImporter();
+						
 					});
 
 					// Mod exists
@@ -328,6 +341,9 @@ export default class Modtools{
 					
 					Window.addMenuOption("essential", "DB List only essential (Alt+E) "+(this.essentialOnly ? '&#9745;' : '	&#9744;'), () => {
 						this.toggleEssentialOnly();
+					}, false);
+					Window.addMenuOption("essential", "DB List parented objects (Advanced) "+(this.showParented ? '&#9745;' : '	&#9744;'), () => {
+						this.toggleParented();
 					}, false);
 					
 				}
@@ -891,17 +907,43 @@ export default class Modtools{
 	// Builds the autocomplete datalists
 	buildDataLists(){
 		
-		const lists = ['actions'];
+		const lists = [
+			'actions',
+			// Find voice conditions, take out the voices
+			{	
+				label : 'voices',
+				fn : () => {
+					const compile = {};
+					this.mod.conditions.concat(this.parentMod.conditions).forEach(el => {
+
+						if( el.type === Condition.Types.voice && el.data.label ){
+							toArray(el.data.label).forEach(voice => {
+								compile[voice] = true;
+							});
+						}
+					});
+					return compile;
+				}
+			}
+		];
 		for( let db of lists ){
 
-			const compile = {};
-			this.mod[db].concat(this.parentMod[db]).forEach(el => compile[el.label] = true);
-			const existing = this.datalists.querySelector("datalist_"+db);
+			let compile = {};
+			let label = db;
+			if( typeof db === 'object' ){
+				compile = db.fn();
+				label = db.label;
+			}
+			else
+				this.mod[db].concat(this.parentMod[db]).forEach(el => compile[el.label] = true);
+
+			let set = 'datalist_'+label;
+			const existing = this.datalists.querySelector(set);
 			if( existing )
 				existing.remove();
 
 			const datalist = document.createElement("datalist");
-			datalist.id = 'datalist_'+db;
+			datalist.id = set;
 			this.datalists.appendChild(datalist);
 	
 			for( let tag in compile ){
@@ -1067,10 +1109,21 @@ export default class Modtools{
 		if( on === undefined )
 			this.essentialOnly = this.essentialOnly ? 0 : 1;
 		else 
-			on = parseInt(on);
+			this.essentialOnly = parseInt(on);
 
 		localStorage.editor_essentialOnly = this.essentialOnly;
 		this.content.classList.toggle('essentialOnly', Boolean(this.essentialOnly));
+
+	}
+
+	toggleParented( on ){
+		if( on === undefined )
+			this.showParented = this.showParented ? 0 : 1;
+		else
+			this.showParented = parseInt(on);
+		
+		localStorage.editor_showParented = this.showParented;
+		this.content.classList.toggle('showParented', Boolean(this.showParented));
 
 	}
 
@@ -1490,6 +1543,115 @@ export default class Modtools{
 			self.saveWindowStates();
 		});
 
+
+	}	
+
+	drawJsonImporter(){
+
+		const self = this;
+		return Window.create("JSON Import", "JSON Importer", "", "convergence-target", async function(){
+
+			let html = '<h2>JSON Importer</h2>';
+			html += '<div class="error red bold"></div>';
+			html += '<div class="notices green"></div>';
+			html += '<p>This tool is used to MERGE a small amount of assets from one mod to another by checking them in their database listing and hitting export, then pasting into the text box below. Note that this tool is fairly experimental, and you may need manual editing after importing. Save a backup of your mod before doing this, and don\'t paste code from people you don\'t trust.</p>';
+			html += '<form class="jsonImport">';
+				html += '<label>Allow overwrite <input type="checkbox" class="allowOverwrite" /></label>';
+				html += '<br /><input type="submit" class="merge" />';
+				html += '<br />JSON Data:<br />';
+				html += '<textarea class="json" style="width:100%; min-height:20vh;">{}</textarea>';
+			html += '</form>';
+
+			this.setDom(html);
+
+			const err = this.dom.querySelector("div.error");
+			const note = this.dom.querySelector("div.notices");
+			this.dom.querySelector("form.jsonImport").addEventListener('submit', event => {
+				event.preventDefault();
+
+				err.innerHTML = note.innerHTML = '';
+
+				let errors = [];
+				try{
+
+					const allowOverwrite = this.dom.querySelector("input.allowOverwrite").checked;
+					const data = JSON.parse(this.dom.querySelector('textarea.json').value);
+
+
+					const mod = self.mod;
+					
+					let inserts = {};
+					let overwrites = {};
+					
+					for( let modField in data ){
+
+						if( !Array.isArray(mod[modField]) ){
+							errors.push("Unknown database: "+modField);
+							continue;
+						}
+
+						let dbArray = data[modField];
+						if( !Array.isArray(dbArray) ){
+							errors.push("Invalid field, must be array: "+modField);
+							continue;
+						}
+
+						
+						for( let asset of dbArray ){
+
+							if( typeof asset !== 'object' ){
+								errors.push("Asset ignored. Not an object: "+esc(JSON.stringify(asset), true));
+								continue;
+							}
+
+							let id = asset.label || asset.id;
+
+							let existing = mod.getAssetById(modField, asset.label || asset.id, false);
+							if( existing && !allowOverwrite ){
+
+								errors.push("Asset ignored. Already exists in mod: "+esc(asset.label || asset.id, true)+' ('+esc(modField)+')');
+								continue;
+
+							}
+
+							const overwritten = mod.mergeAsset( modField, asset );
+
+							// Remove from existing
+							if( overwritten ){
+
+								if( !overwrites[modField] )
+									overwrites[modField] = 0;
+								++overwrites[modField];
+
+							}
+							if( !inserts[modField] )
+								inserts[modField] = 0;
+							++inserts[modField];
+
+						}
+
+					}
+
+					let out = '';
+					for( let i in inserts ){
+						out += inserts[i]+' '+i+' inserted '+(overwrites[i] ? '['+overwrites[i]+' REPLACED]' : '')+'<br />';
+					}
+					if( Object.keys(inserts).length )
+						self.setDirty(true);
+
+					note.innerHTML = out;
+
+				}catch(error){
+					console.error(error);
+					errors.push(error.message || error);
+				}
+
+				err.innerHTML = errors.join('<br />');
+
+			});
+
+			self.saveWindowStates();
+		});
 
 	}	
 

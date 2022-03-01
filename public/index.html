@@ -22,7 +22,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.1.1/math.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="globalFunctions.js"></script>
 	<script>
@@ -49,6 +49,7 @@
 		import Tags from './libraries/stdTag.js';
 		import StaticModal from './classes/StaticModal.js';
 		import Action from './classes/Action.js';
+		import AudioTrigger from './classes/AudioTrigger.js';
 		import Particles from './libraries/particles.js';
 		import {Wrapper, Effect} from './classes/EffectSys.js';
 
@@ -75,7 +76,8 @@
 			gAction : Action,
 			gWrapper : Wrapper,
 			gEffect: Effect,
-			gParticles : Particles
+			gParticles : Particles,
+			gAudioTrigger : AudioTrigger
 		};
 		
 		for( let i in globals )

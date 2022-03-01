@@ -42,6 +42,8 @@ export function asset(){
 		html += '<label>Cast time: <input name="cast_time" value="'+esc(dummy.cast_time)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Allow while charging: <input name="allow_when_charging" '+(dummy.allow_when_charging ? 'checked' : '')+' class="saveable" type="checkbox" /></label>';
 		html += '<label title="If checked, taunts can override the charge target">Taunt override charge: <input name="ct_taunt" '+(dummy.ct_taunt ? 'checked' : '')+' class="saveable" type="checkbox" /></label>';
+		html += '<label title="Allows this action to be riposted. Uses wrappers if the riposte table is empty">Ripostable: <input name="ripostable" '+(dummy.ripostable ? 'checked' : '')+' class="saveable" type="checkbox" /></label>';
+		html += '<label title="Lets you group multiple actions together. Mostly used for standard. Max 5">Group: <input name="group" value="'+esc(dummy.group)+'" type="text" class="saveable" /></label>';
 		
 		html += '<label>Charges: <input name="charges" value="'+esc(dummy.charges)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Min targets: <input name="min_targets" value="'+esc(dummy.min_targets)+'" type="number" step=1 class="saveable" /></label>';
@@ -196,6 +198,7 @@ export function list(){
 		tags : true,
 		conditions : true,
 		show_conditions : true,		
+		can_crit : true,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

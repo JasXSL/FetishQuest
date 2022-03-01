@@ -38,7 +38,7 @@ function getHash(){
 }
 
 // returns a random item by weight, input are objects to pick one from, and weightFunc is called on each object
-function weightedRand( input, weightFunc ){
+function weightedRand( input, weightFunc, returnIndex = false ){
 
 	let totalWeight = 0, items = [];
 	for( let a of input ){
@@ -50,11 +50,17 @@ function weightedRand( input, weightFunc ){
 	}
 
 	let random = Math.random() * totalWeight;
-	for( let i of items ) {
+	for( let i = 0; i < items.length; ++i ) {
 
-		if( random < i.w )
-			return i.i;
-		random -= i.w;
+		let item = items[i];
+		if( random < item.w ){
+
+			if( returnIndex )
+				return i;
+			return item.i;
+			
+		}
+		random -= item.w;
 		
 	}
 	return false;
@@ -100,6 +106,7 @@ function randElem( input ){
 }
 
 // Generic function that clones an object. Useful in loops so you don't need to define multiple functions
+// relies on obj having a clone method
 function clone( obj, parent ){
 	if( !Array.isArray(obj) )
 		return obj.clone(parent);
@@ -108,6 +115,42 @@ function clone( obj, parent ){
 	
 }
 
+// Attempts to deep clone an object. Note that this won't clone arrays in arrays. But can clone objects in arrays and objects in objects
+function deepClone( obj ){
+
+	if( typeof obj !== 'object' ){
+		console.error("Attempted to clone", obj);
+		throw 'Invalid obj passed to deepClone';
+	}
+
+	let out = {};
+	for( let i in obj ){
+
+		const item = obj[i];
+		if( Array.isArray(item) ){
+
+			let arr = [];
+			for( let asset of item ){
+
+				if( typeof asset === 'object' )
+					arr.push(deepClone(asset));
+				else
+					arr.push(asset);
+
+			}
+			out[i] = arr;
+
+		}
+		else if( typeof item === 'object' )
+			out[i] = deepClone(item);
+		else
+			out[i] = item;
+			
+
+	}
+	return out;
+
+}
 
 // Takes array values and builds an object of {val:true...}
 function valsToKeys( input = [] ){
@@ -122,9 +165,12 @@ function valsToKeys( input = [] ){
 
 // Takes a float and floors it, if there's a remainder, it might be add 1 to the floored value based on the remainder as percentage
 function randRound( val = 0 ){
-	let base = Math.floor(val);
-	if( val-base > Math.random() )
-		++base;
+	let base = parseInt(val);
+	let fract = val-base;
+	if( fract < 0 )
+		fract = 1.0-fract;	// Negative goes the other way
+	if( fract > Math.random() )
+		base += base > 0 ? 1 : -1;
 	return base;
 }
 
@@ -170,6 +216,19 @@ function stylizeText( txt ){
 		out+=a;
 	}
 	out = out.split('\\|').join('|');
+
+	let text = out.split("$ITM");
+	out = text.shift();
+	for( let t of text ){
+
+		let a = t.split('$');
+		let url = a.shift();
+		a = '<span data-il="'+esc(url)+'" class="ilToUpdate tooltipParent itemLink"><span>ITEM</span><div class="tooltip"></div></span>';
+		out+=a;
+
+	}
+	// $ITM9dk9BMUgxe$
+
 	return out;
 
 }

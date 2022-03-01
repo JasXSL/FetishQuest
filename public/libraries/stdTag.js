@@ -26,6 +26,7 @@ export default {
 	plBeast : 'pl_beast',			// non-humanoid
 	plTargetBeast : 'pl_target_beast',	// Only considered beast as a target, not sender. Use plBeast alongside this one.
 	plTentacles : 'pl_tentacles',
+	plTendrils : 'pl_tendrils',		// These are significantly smaller than tentacles. A single tendril generally won't be able to knock someone down, and is more tickly than thrusty.
 	plCocktacle : 'pl_cocktacle',	// Player has at least 1 cock tipped tentacle
 	plHorns : 'pl_horns',
 	plHorn : 'pl_horn',
@@ -51,7 +52,7 @@ export default {
 	plDemon : 'pl_demon',
 	plUndead : 'pl_undead',
 	plRattani : 'pl_rattani',
-	plIgnoreAggro : 'pl_ignore_aggro',		// make a player only attack randomly 
+	
 
 	plFeline : 'pl_feline',					// Cats
 	plCanine : 'pl_canine',					// Wolves too for ease of use
@@ -66,6 +67,12 @@ export default {
 	plRodent : 'pl_rodent',					// Guinea pigs, hamsters etc go here too
 	
 
+	// NPC behavior
+	plIgnoreAggro : 'pl_ignore_aggro',		// make a player only attack randomly 
+	plNoGrapple : 'pl_no_grapple',				// Doesn't use grapple
+	plAlwaysGrapple : 'pl_always_grapple',		// Always grappled when possible
+	plNoFetish : 'pl_no_fetish',				// Don't generate fetishes on this player
+
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal
@@ -77,6 +84,8 @@ export default {
 	gpSkipTurns : 'gp_skip_turns',				// Automatically skip turns
 	gpNoBondageTarget : 'gp_no_bondage_targ',	// Can't be targeted by bondage device
 	
+	
+
 	// Player behavior tags
 	plDishonorable : "pl_dishonorable",
 
@@ -88,8 +97,11 @@ export default {
 	acDamage : 'ac_damage',
 	acPainful : 'ac_painful',
 	acArousing : 'ac_arousing',
-	acNpcImportant : 'ac_npc_important',		// NPCs will prioritize these over other spells
-	acNpcImportantLast : 'ac_npc_important_last',		// NPCs will try to cast this at the end of their turn if possible
+
+	acNpcImportant : 'ac_npc_important',			// NPCs will ALWAYS attack if an important action is available.
+	acNpcFirst : 'ac_npc_first',					// NPCs will always this this first, but only when they'd normally attack. acNpcImportant goes first
+	acNpcImportantLast : 'ac_npc_important_last',	// NPCs will try to cast this at the end of their turn if possible
+
 	acNpcNoAttack : 'ac_npc_no_attack',					// Pass your turn if this is set
 	acInterrupt : 'ac_interrupt',
 	acItem : 'ac_item',							// Used an inventory item
@@ -101,6 +113,15 @@ export default {
 	acDrink : 'ac_drink',
 	acNpcIgnoreAggro : 'ac_npc_ignore_aggro',
 	acFlavor : 'ac_flavor',						// These are flavor actions the AI can use at random
+	acIce : 'ac_ice',
+	acHoly : 'ac_holy',
+	acFire : 'ac_fire',
+	acAir : 'ac_air',
+	acWet : 'ac_wet',
+	acEarth : 'ac_earth',
+	acElectric : 'ac_electric',
+	acPotion : 'ac_potion',
+	
 
 	// Common asset tags. These are appended with _<slot> ex as_tight_upperBody
 	asUpperBody : 'as_upperBody',	// slots like these are automatically added while you're wearing items in those slots
@@ -128,7 +149,7 @@ export default {
 	asReagent : 'as_reagent',
 	asCurrency : 'as_currency',
 	asCanPullDown : 'as_can_pull_down',		// Can pull the garment down. Such as a strapless top or a thong 
-	asCanPullUp : 'as_can_pull_up',			// Can pull the garment up. Such as a tube top or bra. 
+	asCanPullUp : 'as_can_pull_up',			// Can pull the garment up. Such as a tube top, bra, skirt, or loincloth. 
 	asWraps : 'as_wraps',					// Made by wrapping a long strip of the material around the area 
 	asCleavage : 'as_cleavage',				// Pushes breasts together in a way where at least the top of the breasts are exposed
 	asUnderboob : 'as_underboob',			// Bottom of breasts (if applicable) exposed
@@ -141,6 +162,12 @@ export default {
 	asBoots : 'as_boots',
 	asStockings : 'as_stockings',
 	asBelt : 'as_belt',
+	asNipplePiercings : 'as_nipple_piercings',
+	asRingGag : 'as_ring_gag',
+	asCollar : 'as_collar',
+	asCockRing : 'as_cock_ring',
+	asStrapon : 'as_strapon',
+	asStealable : 'as_stealable',			// Can be stolen on wipe
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',
@@ -156,6 +183,7 @@ export default {
 	asCopper : 'as_copper',
 	asMithril : 'as_mithril',
 	asSoftsilver : 'as_softsilver',
+
 	
 	// Props
 	asWhip : 'as_whip',
@@ -173,9 +201,14 @@ export default {
 	wrKnockdownBack : 'wr_knocked_down_back',
 	wrKnockdownFront : 'wr_knocked_down_front',
 	wrGrapple : 'wr_grapple',
+	wrGrappling : 'wr_grappling',
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
 	wrHogtied : 'wr_hogtied',
-	
+	wrPinned : 'wr_pinned',
+
+	wrKink : 'wr_kink',					// This is set on wrappers that should be treated as a kink
+	wrEnchant : 'wr_enchant',			// Set on asset wrappers that should be considered as enchants
+
 	// Used for long term wrappers 
 	wrTentacleRide : 'wr_tentacle_ride',
 	wrBlockGroin : 'wr_block_groin',			// Used to signify that something is blocking this part of the body. Usually a monster doing something to it.
@@ -189,6 +222,7 @@ export default {
 	wrTentacleRestrained : 'wr_tentacle_restrained',		// Restrained and lifted by tentacles
 	wrBound : 'wr_bound',
 	wrNoRiposte : 'wr_no_riposte',							// Prevents riposte
+	wrBlockGrapple : 'wr_block_grapple',					// This wrapper overrides grapple
 
 	// Effects
 	fxLatching : 'fx_latching',			// Put on a player latched onto another
@@ -232,10 +266,13 @@ export default {
 	mStool : 'm_stool',
 	mChairBackless : 'm_chair_backless',
 	mBench : 'm_bench',
+	mBed : 'm_bed',
 	mTable : 'm_table',
 	mChair : 'm_chair',
 	mShelf : 'm_shelf',
 	mRug : 'm_rug',
+	mBarTable : 'm_bar_table',
+	mBarShelf : 'm_bar_shelf',
 	mBarrel : 'm_barrel',
 	mCrate : 'm_crate',
 	mChest  : 'm_chest',
@@ -274,6 +311,7 @@ export default {
 	mBoulder : 'm_boulder',
 	mTent : 'm_tent',
 	mBush : 'm_bush',
+
 	mGrassLong : 'm_grass_long',
 	mTree : 'm_tree',
 	mFlower : 'm_flower',
@@ -300,7 +338,11 @@ export default {
 	mSeaweed : 'm_seaweed',
 	mTentacles : 'm_tentacles',
 	mHedge : 'm_hedge',
+	mBormStraw : 'm_borm_straw',
+	mSteam : 'm_steam',
+	mSnow : 'm_snow',
 	mWallChain : 'm_wall_chain',
+	mRecordingCrystal : 'm_recording_crystal',
 	mDildoArm : 'm_dildo_arm',		// Used for the dildo arm trap
 	// Bondage tags are a bit special in that they're used by conditions
 	// A bondage device should be marked by mBondage. It's then added to a pool of viable bondage devices in the dungeon
@@ -316,6 +358,7 @@ export default {
 	mBondageSeat : 'm_bondage_seat',
 	mBondageCollarSeat : 'm_bondage_collar_seat',
 	mBondageSybian : "m_bondage_sybian",
+	
 
 
 	mCoffin : 'm_coffin',
@@ -367,7 +410,10 @@ export default {
 	metaSlotBalls : 'me_slot_balls',
 	metaSlotFoot : 'me_slot_foot',
 	metaSlotArmpit : 'me_slot_armpit',
-
+	metaSlotClothes : 'me_slot_clothes',
+	metaSlotFace : 'me_slot_face',
+	metaSlotTaint : 'me_slot_taint',
+	
 	metaUsedTongue : 'me_used_tongue',
 	metaUsedStrapon : 'me_used_strapon',
 	metaUsedClaw : 'me_used_claw',
@@ -379,9 +425,7 @@ export default {
 	metaUsedInsect : 'me_used_insect',
 	metaUsedRack : 'me_used_rack',
 
-	metaSlotClothes : 'me_slot_clothes',
-	metaSlotFace : 'me_slot_face',
-	metaSlotTaint : 'me_slot_taint',
+	
 	metaKick : 'me_kick',
 	metaCold : 'me_cold',
 	metaWet : 'me_wet',

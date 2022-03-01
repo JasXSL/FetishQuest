@@ -19,9 +19,10 @@ export default class HitFX extends Generic{
 		this.stages = [];
 		this.once = false;			// Used when triggering from a text to only play this effect on the first target
 		this.desc = '';				// Description
-
-		this._t_rand_offset = null;	// THREE.Vector2 Cache for randomizing
-		this._s_rand_offset = null;	// THREE.Vector2 Cache for randomizing
+		this.stagger = 0;			// When this effect is played in sequence, delay this effect by this nr of ms
+		this.hit = 0;				// Used to set when the effect "hits" a player. Such as a frostbolt making impact. Used for AudioTrigger. 0 = use default. When using multiple hitfx, the first nonzero one goes.
+		this._shared_start = null;	// Stores where the last stage with origin_rand was started
+		this._shared_end = null;		// Stores where the last stage with dest_rand was started 
 
 		this.load(data);
 
@@ -36,7 +37,9 @@ export default class HitFX extends Generic{
 		let out = {
 			label : this.label,
 			stages : Stage.saveThese(this.stages, full),
-			once : this.once
+			once : this.once,
+			stagger : this.stagger,
+			hit : this.hit,
 		};
 		if( full )
 			out.desc = this.desc;
@@ -49,19 +52,70 @@ export default class HitFX extends Generic{
 	}
 
 	// See Stage.run for args
+	// Handles stagger
 	async run( ...args ){
 
+		if( this.stagger )
+			this.addStagger(...args);
+		else
+			return this.exec(...args);
 
+	}
+
+	// Executes the run
+	async exec(...args){
+
+		this._shared_start = this._shared_end = null;
 		for( let stage of this.stages ){
+
 			await stage.run( ...args );
-			if( stage.hold ){
-				this._s_rand_offset = null;
-				this._t_rand_offset = null;
-			}
+
 		}
 
 	}
 
+	// Adds or runs the next stagger
+	addStagger( ...args ){
+
+		const self = this.constructor;
+		let len = self.queue[this.label]?.length || 0;
+		const arr = [...args];
+		if( arr.length ){
+
+			if( !self.queue[this.label] )
+				self.queue[this.label] = [];
+			self.queue[this.label].push(arr);
+			// Already playing
+			if( len )
+				return;
+
+		}
+
+		// Play the next one
+		
+		const que = self.queue[this.label];
+		let next = que[0];
+		if( !next )
+			return;
+
+		this.exec(...next);
+		
+		if( que.length ){
+
+			setTimeout(() => {
+				que.shift();
+				this.clone(this.parent).addStagger();	// Needed because only the first object handles timers
+			}, this.stagger);
+
+		}
+			
+
+	}
+
+
+	static queue = {};		// hitfx_id : [(arr)args_for_call...]
+
+	
 }
 
 class Stage extends Generic{
@@ -76,12 +130,11 @@ class Stage extends Generic{
 		this.emit_duration = 100;			// Duration before stopping emitting
 		this.fade_duration = 2000;			// Time before removing the particle system from the stage after emit_duration ends
 		this.hold = 0;						// Wait this amount of MS before doing the next step
-		
 		this.tween = true;
 		this.origin = 'victim';
-		this.origin_rand = 0;				// percentage of portrait box
+		this.origin_rand = null;				// percentage of portrait box. An undefined value will use any previously generated value in the visual. Use "preEnd" to copy the previously set end position. Useful for bolt impacts.
 		this.destination = 'victim';
-		this.dest_rand = 0;					// percentage of portrait box
+		this.dest_rand = null;					// percentage of portrait box. An undefined value will use the same as origin_rand
 
 		this.start_offs = new THREE.Vector3();
 		this.end_offs = new THREE.Vector3();
@@ -128,7 +181,7 @@ class Stage extends Generic{
 	}
 
 	// Attacker and victim can also be DOM elements
-	async run( attacker, victim, armor_slot, mute = false, num_players = 1 ){
+	async run( attacker, victim, armor_slot, mute = false, num_players = 1, ignoreStagger = false ){
 
 		const webgl = game.renderer;
 
@@ -178,34 +231,51 @@ class Stage extends Generic{
 
 			if( attackerPos && victimPos ){
 
-				this._start_pos.x = attackerPos.left+attackerWidth/2;
-				this._start_pos.y = attackerPos.top+attackerHeight/2;
-				this._end_pos.x = victimPos.left+victimWidth/2;
-				this._end_pos.y = victimPos.top+victimHeight/2;
+				
+				
 
-				if( !this.parent._t_rand_offset && this.dest_rand ){
-					// Generate a new random position
-					this.parent._t_rand_offset = new THREE.Vector2(
-						Math.random()*victimWidth-victimWidth/2,
-						Math.random()*victimHeight-victimHeight/2,
-					);
-				}
-				if( !this.parent._s_rand_offset && this.origin_rand ){
-					this.parent._s_rand_offset = new THREE.Vector2(
-						Math.random()*attackerWidth-attackerWidth/2,
-						Math.random()*attackerHeight-attackerHeight/2,
-					);
+				const hasDestRand = (!isNaN(this.dest_rand) && this.dest_rand !== null) || this.parent._shared_end === null;	// JS why is null a number?
+				const hasOriginRand = (!isNaN(this.origin_rand) && this.origin_rand !== null) || this.parent._shared_start === null;	// JS why is null a number?
+				
+				// Use the previous one's end pos
+				if( this.origin_rand === 'preEnd' ){
+					this.parent._shared_start.copy(this.parent._shared_end);
 				}
 
-				if( this.origin_rand > 0 ){
-					this._start_pos.x += this.parent._s_rand_offset.x*this.origin_rand;
-					this._start_pos.y += this.parent._s_rand_offset.y*this.origin_rand;
+
+				// This stage wants to generate a new end pos
+				if( hasDestRand ){
+					// These are null at start. We always have to generate a position for the first stage
+					if( this.parent._shared_end === null )
+						this.parent._shared_end = new THREE.Vector2();
+
+					// Reset start pos
+					this.parent._shared_end.x = victimPos.left+victimWidth/2+(Math.random()*victimWidth-victimWidth/2)*(+this.dest_rand || 0);
+					this.parent._shared_end.y = victimPos.top+victimHeight/2+(Math.random()*victimHeight-victimHeight/2)*(+this.dest_rand || 0);
 				}
-				if( this.dest_rand > 0 ){
-					this._end_pos.x += this.parent._t_rand_offset.x*this.dest_rand;
-					this._end_pos.y += this.parent._t_rand_offset.y*this.dest_rand;
+				// This stage wants to generate a new start pos
+				if( hasOriginRand ){
+
+					if( this.parent._shared_start === null )
+						this.parent._shared_start = new THREE.Vector2();
+
+					this.parent._shared_start.x = attackerPos.left+attackerWidth/2+(Math.random()*attackerWidth-attackerWidth/2)*(+this.origin_rand||0);
+					this.parent._shared_start.y = attackerPos.top+attackerHeight/2+(Math.random()*attackerHeight-attackerHeight/2)*(+this.origin_rand||0);
+
 				}
 
+				// Copy from parent to this
+				this._end_pos.x = this.parent._shared_end.x;
+				this._end_pos.y = this.parent._shared_end.y;
+				this._start_pos.x = this.parent._shared_start.x;
+				this._start_pos.y = this.parent._shared_start.y;
+				
+				// Store the new start and end positions if needed
+				if( hasOriginRand )
+					this.parent._shared_start.set(this._start_pos.x, this._start_pos.y);
+				if( hasDestRand )
+					this.parent._shared_end.set(this._end_pos.x, this._end_pos.y);
+				
 				if( !this.tween )
 					this._start_pos = this._end_pos.clone();
 

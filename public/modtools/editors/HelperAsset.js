@@ -264,7 +264,7 @@ export default{
 		ignoreAsset doesn't put the asset into the list. Used by EditorQuestReward where you have multiple fields mapping the same key to different types of objects
 		windowData is passed to the new window
 	*/
-	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false, windowData = '' ){
+	linkedTable( win, asset, key, constructor = Condition, targetLibrary = 'conditions', columns = ['id', 'label', 'desc'], single = false, parented = false, ignoreAsset = false, windowData = '', ignoreLibrary = false ){
 
 		const fullKey = key;
 		let k = key.split('::');
@@ -419,8 +419,9 @@ export default{
 			table.appendChild(tr);
 			tr.classList.add("noselect");
 
+			//console.log("targetLibrary", targetLibrary, "ignore", ignoreLibrary);
 			tr.innerHTML = '<td class="center" colspan="'+(columns.length+1+(!single))+'">'+
-				(window.mod.hasDB(targetLibrary) ? '<input type="button" class="small addNew library" value="Library" />' : '')+
+				(window.mod.hasDB(targetLibrary) && !ignoreLibrary ? '<input type="button" class="small addNew library" value="Library" />' : '')+
 				'<input type="button" class="small addNew" value="Unique" />'+
 			'</td>';
 
@@ -435,7 +436,7 @@ export default{
 
 					let a = new constructor();
 					a = constructor.saveThis(a, "mod");
-					storeAsset(a, true);
+					storeAsset(a, parented || true);	// Must be either 2 or true when clicking the unique button, default to mParent
 
 					// Insert handles other window refreshers
 					this.insertAsset(targetLibrary, a, win, undefined, windowData);
@@ -508,7 +509,7 @@ export default{
 
 					const a = new constructor(asset);
 					const inserted = this.insertCloneAsset(targetLibrary, a, constructor, win);
-
+					
 					// Add it to the list
 					storeAsset(inserted, parented);
 					this.rebuildAssetLists(targetLibrary);
@@ -594,15 +595,17 @@ export default{
 	// Constructor is the asset constructor (used for default values)
 	buildList( win, library, constr, fields, start ){
 
-		// Todo: When ctrl+clicking an extended object it should delete the extension if it's parented. Otherwise just remove it from the asset and not the
-
 		let fulldb = window.mod.mod[library].slice().reverse(),
 			isLinker = this.windowIsLinker(win)
 		;
 
 		// Parent mod assets
 		fulldb.push(...window.mod.parentMod[library].slice().reverse());
-		fulldb = fulldb.filter(el => !el._mParent && !el._e && !el._h);
+		// Filter out parented and extensions
+		fulldb = fulldb.filter(el => 
+			(!el._mParent && !el._e && !el._h) || 
+			window.mod.showParented
+		);
 
 		const fieldIsEssential = field => field.startsWith('*');
 		const getFieldName = field => { 
@@ -729,6 +732,8 @@ export default{
 
 		let db = fulldb.slice(win.custom._page, win.custom._page+this.PAGINATION_LENGTH);
 
+		
+
 		// Create the element to return
 		const container = document.createElement('template');
 
@@ -761,6 +766,12 @@ export default{
 			elSub.classList.add('deleteSelected');
 			elSub.type = 'button';
 			elSub.value = 'Delete Selected';
+
+			elSub = document.createElement('input');
+			el.appendChild(elSub);
+			elSub.classList.add('exportSelected');
+			elSub.type = 'button';
+			elSub.value = 'Export Selected';
 
 		const table = document.createElement('table');
 		container.appendChild(table);
@@ -816,7 +827,7 @@ export default{
 				
 			}
 
-			ext = window.mod.parentMod.getAssetById(library, asset.id || asset.label, true) || a;
+			ext = window.mod.parentMod.getAssetById(library, asset.label || asset.id, true) || a;
 			if( (ext.id && ext.id !== a.id) || (ext.label && ext.label !== a.label) )	// This is an extension on the base mod
 				tr.dataset.ext = ext.id || ext.label;
 			
@@ -998,6 +1009,22 @@ export default{
 					this.rebuildAssetLists(type);
 
 				}
+				
+			};
+			batchDiv.querySelector('input.exportSelected').onclick = event => {
+				
+				const checkedLabels = [];
+				const markers = win.dom.querySelectorAll("input.marker:checked").values();
+				for( let marker of markers )
+					checkedLabels.push(marker.parentElement.parentElement.dataset.id);
+				
+				if( !checkedLabels.length )
+					return;
+
+				let data = MOD.getExportData(baseObject.constructor, type, checkedLabels);
+				Window.create('export'+Generic.generateUUID(), 'jsonExport', 'Export Data - '+type, 'files', function(){
+					this.setDom('<textarea style="width:100%; height:100%; min-height:10vh">'+esc(JSON.stringify(data, undefined, 2), true)+'</textarea>');
+				}, undefined, undefined, data);
 				
 			};
 
@@ -1186,7 +1213,6 @@ export default{
 	insertCloneAsset( type, asset, constructor, parentWindow, fromListing = false ){
 
 		const out = mod.mod.deepCloneAsset(type, constructor, asset);
-		
 		// Cloning adds the whole object to our mod
 
 		delete out._e;
@@ -1219,7 +1245,6 @@ export default{
 		mod.setDirty(true);
 		if( openEditor )
 			mod.buildAssetEditor(type, asset.label || asset.id, undefined, win, windowData);
-
 		this.rebuildAssetLists(type);
 
 	},

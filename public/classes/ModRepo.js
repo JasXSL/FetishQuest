@@ -111,13 +111,11 @@ export default class ModRepo{
 
 			const out = await req.json();
 			
-			console.log("out", out);
 			if( out.success )
 				return out.data;
 			
-			console.log("out", out);
 			if( out.data.error )
-				console.error("Task error:", out.data.error);
+				console.error("Task error:", out.data.error, "in mod fetch", req);
 
 		}catch(err){
 			console.error("Online error:", err);

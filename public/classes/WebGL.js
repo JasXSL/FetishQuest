@@ -190,6 +190,7 @@ class WebGL{
 
 		this.mouseDownPos = {x:0,y:0};
 		const touchStart = event => {
+			
 			this.onMouseMove(event);
 			this.mouseDownPos.x = event.offsetX;
 			this.mouseDownPos.y = event.offsetY;
@@ -211,12 +212,13 @@ class WebGL{
 		this.renderer.domElement.addEventListener('touchstart', event => touchStart(event));
 		this.renderer.domElement.addEventListener('mouseup', event => touchEnd(event));
 		this.renderer.domElement.addEventListener('touchend', event => touchEnd(event));
-
 		
-		this.bind(document, 'mousemove', event => this.onMouseMove(event));
-		this.bind(document, 'touchmove', event => this.onMouseMove(event));
-		this.bind(document, 'touchstart', event => this.onMouseMove(event));
-		this.bind(document, 'touchend', event => this.onMouseMove(event));
+		console.log("Binding mousemove in WebGL");
+		const mouseMove = event => this.onMouseMove(event);
+		this.bind(document.body, 'mousemove', mouseMove);
+		this.bind(document.body, 'touchmove', mouseMove);
+		this.bind(document.body, 'touchstart', mouseMove);
+		this.bind(document.body, 'touchend', mouseMove);
 		
 		
 		// outdoor skybox
@@ -324,7 +326,7 @@ class WebGL{
 		this.assetCache = new THREE.Group();	// Stores assets here as they load 
 		this.assetCache.name = 'CACHE';
 		this.assetCache.visible = false;
-		this.scene.add(this.assetCache);		// 
+		//this.scene.add(this.assetCache);		// 
 		this.currentCache = [];					// Stores the cached assets we're currently using in the active dungeon
 
 		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) in the last cell. 
@@ -357,12 +359,13 @@ class WebGL{
 
 	bind( target, evt, func ){
 
-		target.addEventListener(evt, func);
+		target.addEventListener(evt, func, {passive:true});
 		this.events.push({
 			targ : target,
 			evt : evt,
 			func : func
 		});
+
 	}
 
 	setSize( width, height ){
@@ -1371,6 +1374,12 @@ class WebGL{
 	/* EVENTS */
 	onMouseMove( event, debug ){
 
+		const now = Date.now();
+		if( this.__lastMove && now - this.__lastMove < 33 )
+			return;
+
+		this.__lastMove = now;
+
 		const offset = $(this.renderer.domElement).offset();
 		if( event.type === 'touchstart' || event.type === 'touchend' || event.type === 'touchmove' )
 			event = event.changedTouches[0];
@@ -1454,7 +1463,7 @@ class WebGL{
 
 		if( !Array.isArray(recipients) )
 			recipients = [recipients];
-		
+
 		for( let recipient of recipients )
 			visObj.run(caster, recipient, armor_slot, mute, recipients.length);
 		
@@ -2119,9 +2128,14 @@ class Stage{
 
 	}
 
+	// Updates a mesh transforms by the dungeon asset
 	updatePositionByAsset( asset ){
 		
 		const c = asset._stage_mesh;
+
+		let sMulti = 1.0;
+		if( c.userData.meshScale )
+			sMulti = c.userData.meshScale;
 
 		// Position it
 		c.position.x = asset.x;
@@ -2130,9 +2144,9 @@ class Stage{
 		c.rotation.x = asset.rotX;
 		c.rotation.y = asset.rotY;
 		c.rotation.z = asset.rotZ;
-		c.scale.x = asset.scaleX;
-		c.scale.y = asset.scaleY;
-		c.scale.z = asset.scaleZ;
+		c.scale.x = asset.scaleX*sMulti;
+		c.scale.y = asset.scaleY*sMulti;
+		c.scale.z = asset.scaleZ*sMulti;
 	
 	}
 
@@ -2555,8 +2569,9 @@ class Stage{
 		else if( text === '_LOCKED_' )
 			map = LibMaterial.library.Sprites.LockedBadge.fetch().map;
 
-		let material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true, alphaTest:0.5 } );
+		let material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true, alphaTest:0.5, depthTest:false } );
 		let sprite = new THREE.Sprite( material );
+		sprite.renderOrder = 1;
 		sprite.name = text;
 
 		

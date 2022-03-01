@@ -3,88 +3,79 @@
 	- Add more automatic asset unrolling as you discover rolled up assets
 
 Overhaul:
-	Remove the primary stats
-	Make AP regen a fixed 4 AP per turn.
-	Keep MP regen as is.
-	Make special stats such as crit.
-	Lock potion belt during combat
-	Max AP should be based purely on power
-	Replace armor steal on wipe with a money steal.
-	Add a bank.
-	Can't change armor in combat, but you can re-equip a stripped piece.
-	Scale the bon/sv importance based on level, so it's more important in the late game
-	Improve enemy power distribution
-	Allow players to mark groin/mouth/chest on players to set areas particles originate from.
-	Lower max arousal to 6
-	Ability swap out of combat
-	Enable beneficial spells out of combat
-	Max arousal removes all AP and cuts AP regen in half for 2 turns.
-	Enemies that counter the niches (Should be given to certain types, to make less random of appearing). ex:
-		- Counterattack a taunting player
-		- Attack that can only be used on a player that was healed or did healing last turn
-		- Attack that can only be used while knocked down/dazed.
-		- Enemy becomes stronger when you remove its shell (affected by armor reduction). Or attack that does more damage while naked.
-	Make the attack/arouse into one default attack ability, but allow players to spend 1 AP to switch it between the 3 damage types at any time.
-
-	Combat stats:
-	- Phys : The same
-	- Corr : The same, but orgasm reworked
-	- Arcane : Ignores 50% of enemy armor
-
-
-	Niches:
-	- Taunt. Also forces the target to use up all their AP if possible.
-	- Arousal management.
-	- Cast prevention (interrupt/silence/knockdown)
-	- Armor removal.
-	- Combo. Gain 1 combo point per 5 AP spent, max 6. Being hit by a detrimental action has a 10% chance per point to break the combo. Combo increases hit chance by 2% per point, and can be spent on actions.
-	- Crowd control. Actions that stun for multiple rounds, but breaks on damage.
 	
+	Bugs:
+		- NPCs can charge multiple actions at a time
+		- Completed persistent RP should wipe its status when restarted
 
-	Warrior (Phys) - Taunt
-	Cleric (Arcane) - Arousal removal
-	Elementlist (Arcane) - Cast prevention
-	Rogue (Corr) - Armor removal
-	Monk (Phys) - Combo/breaking
-	Tentaclemancer (Corr) - Crowd control. 
+	- Random events
+		- Ideas:
+
+			- Bandit encounter in viable:
+				- 30% Find a potion on the ground, pick it up, random outlaw encounter starts and player starts off tied up 2 turns.
+				- Find a potion on the ground
+			- Groper encounter:
+				- 30% Start a random groper encounter with the player hanging upside down
+				- Find a potion in a tree, climb it
+			- Groper encounter:
+				- 30% While bent over, groper whips your butt for 6 damage and starts a random groper encounter
+				- Find a lost satchel, gain 1 small repair kit
+			- Tentacle fiend encounter:
+				- Tentacle fiend squirts slime at the player, increasing arousal gain by 25% for 30 min.
+				- Find an old backpack, gain 1 small repair kit
+			- Tentacle fiend & bed encounter:
+				- Take a quick nap, regenerating 30% of your HP.
+				- 30% chance that a tentacle fiend sneaks in under the covers and rubs your groin, doing 5 arousal.
+			- Imp & Stocks:
+				- Imp says he is the judge and wants to punish you with a spanking.
+				- Accept: Get spanked, take damage.
+				- Reject: Fight
+			- Sporeling encounter:
+				- 
+			- Skeletal:
+				- 
+				- 
+			- Generic: Find food set out
+				- Eat food, get HP
+				- Eat food, too spicy, lose clothes
+			- 
+			- Leech encounter:
+				- Find a massive sleeping leech.
+					- Sneak attack: 30% fail, land on the leech, have it carry you around and gain 5 arousal. Else reduce its max HP by 50%.
+					- Attack: Starts combat
+					- Leave it alone: Do nothing
+			- Cocktopus:
+
+			- Anemone:
+			
+			- Lamprey:
+				- Find an item bobbing in the water.
+				- 30% chance of the item being surrounded by lampreys, latching to the player.
+				- Get the item.
+				- Skip the item
+			- 
+
 
 -- CURRENT --
 
 	Tentacle Wrestling:
 		- Figure out contenders
-
-	- Add scroll to inspect
-
+		
 	Bugs:
-		- Saving extensions still seem to brick the original objects for arrays?
 		- Sometimes using repair kits fails?
-		- Sync the difficulty slider the level offsets fail
 
 	Items:
 		- Sundial to tell the time outside
 
 
-	On player party defeated gameaction override
-
-
-	New armor secondary stats:
-		Impenetrable: Add an extra 5% damage reduction
-		Flexible: Add armor penetration
-
-
 	Utility passives:
-		- Exhibitionist: Able to take off clothes at 0 AP cost and you can put on clothes at half cost.
-		- Able to see enemy actions.
+		- Exhibitionist: Taking on/off clothes in combat costs no AP.
+		- Prone: 50% increased crit
+		- Thrash: When dazed, get a cheap AoE
+		- Takes no damage penalty from not wearing gear.
 		- Add an extra action slot.
 
 
-	Class passives:
-		- Monk: Takes no damage penalty from not wearing gear.
-		- Warrior: Damage taken from crits reduced by 50%. When reaching 0 HP. Prevent dying for 1 round.
-		- Rogue: Crit damage increased by 50%. The first item bought in a store each day is half off.
-		- Cleric: 
-		- Tentaclemancer: Each time any player reaches max arousal, restore 30% MP
-		- Elementalist: Elemental AP damage has a 30% chance of granting the caster 1 AP.
 
 	Main quest:
 		Part 2:
@@ -136,8 +127,9 @@ Overhaul:
 			- Soulbound: Prevents the armor from being stolen
 			- 
 
-	Action ideas:
-		- Lustful Wind: Doubles your arousal and grants 2 AP per original point of arousal.
+	Item ideas:
+		- Motivation: Doubles your arousal and grants 2 AP per original point of arousal.
+		- Sacrifice : Destroys a random piece of worn armor and restores 20 HP.
 
 -- TEST --
 	Fun tensorflow generated words I can use:
@@ -149,7 +141,6 @@ Overhaul:
 		- procedo
 		- treather
 		- slimy rough sogle
-		- demalline
 		- tipten 
 		- therrage 
 		- Tworef 
@@ -170,7 +161,8 @@ Overhaul:
 	Sets a min damage for attacks
 	When you play x attacks in a turn, something happens
 	Gain AP every x actions used in a battle
-
+	Sorted effects like also deals x damage to the enemy with highest HP
+	Bonus damage when conditions are met, such as highest HP enemy
 
 
 -- LATER UPDATE --

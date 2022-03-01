@@ -16,6 +16,10 @@ body, html{
 	box-sizing: border-box;
 }
 
+.bold{
+	font-weight: bold;
+}
+
 .hidden{
 	display: none !important;
 }
@@ -107,6 +111,14 @@ div.button.newItems{
 div.button.grey{
 	border-color: #666;
 	filter:brightness(75%);
+}
+
+span.itemLink{
+	font-weight: bold;
+	cursor: pointer;
+}
+span.itemLink:hover{
+	color:#FFF !important;
 }
 
 #groupFinder > div.newItems{
@@ -315,13 +327,16 @@ div.scroll{
 	left:0; right:0;
 	top:0; bottom:0;
 }
+#content.casting{
+	user-select: none !important;
+}
 
 /* UI Layer */
 #ui{
 	position: fixed;
 	left:0; right:0;
 	bottom:5.1vh; top:0;
-	background:rgba(0,50,100,.5);
+	background:rgba(0,50,100,.1);
 	transition: transform 0.1s ease-out;
 }
 #ui.hidden{
@@ -676,6 +691,10 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 
+	/* BANK */
+	#bank > div.modalMain{
+		min-width:50vw;
+	}
 
 	/* Gym */
 	#gym{
@@ -691,21 +710,16 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:2vmax;
 	}
 
-	#gym div.slots,
-	#gym div.right,
-	#gym div.left{
-		padding: 0.5vmax;
+	#inventory div[data-id="Actions"] div.titleSpan{
+		text-align: center;
+		padding: 2vmax;
 		border: 1px #666 solid;
 		background:rgba(0,0,0,.75);
 		margin:0.25vmax;
 		border-radius: 0.5vmax;
 	}
 
-	#gym div.slots{
-		text-align: center;
-		padding: 2vmax;
-	}
-
+	#inventory div[data-id="Actions"] div.titleSpan > span,
 	#gym div.titleSpan > span{
 		position: absolute;
 		font-size: 1.25vmax;
@@ -733,6 +747,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		height: 5.5vh;
 		vertical-align: middle;
 		border: 1px solid #AAA;
+		font-size:1.5vmax;
 	}
 	#gym div.right > div.purchasable > div.learnable.disabled{
 		background: rgba(100,0,0,.5);
@@ -759,7 +774,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		top:0;
 	}
 
-	#gym div.action{
+	#gym div.action,
+	#inventory div[data-id="Actions"] div.action{
 		background-size: cover;
 		overflow: visible;
 		display: inline-block;
@@ -773,10 +789,11 @@ div.passiveUpsideDown > div.content > div.bg{
 		display:none;
 	}
 	*/
-	#gym div.action > div.hotkey{
+	#inventory div[data-id="Actions"] div.action > div.hotkey{
 		display:block;
 	}
-	#gym div.action > div.uses{
+	#gym div.action > div.uses,
+	#inventory div[data-id="Actions"] div.action > div.uses{
 		display:block;
 		position:absolute;
 		color:#FAA;
@@ -864,7 +881,6 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:0;
 	}
 
-	#player div.cmTabContent div.right > div.primaryStats,
 	#player div.cmTabContent div.right > div.secondaryStats
 	{
 		left:0; right:0;
@@ -900,10 +916,6 @@ div.passiveUpsideDown > div.content > div.bg{
 		width:25%;
 	}
 
-	#player div.cmTabContent div.right > div.primaryStats{
-		bottom:6%;
-	}
-
 	#player div.cmTabContent div.right > div.expBar{
 		position: absolute;
 		top: 0;
@@ -936,11 +948,17 @@ div.passiveUpsideDown > div.content > div.bg{
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
+		flex-wrap: wrap;
+	}
+	#player div[data-id=Character] > div.content{
+		max-height:60vh;
+		overflow:auto;
 	}
 	#player div[data-id=Character] div.actions div.action{
 		width:5vmax; height:5vmax;
 		max-width: none;
 		max-height: none;
+		margin:0.5vmax;
 	}
 
 	#player div[data-id=Edit] div.actions div.action{
@@ -1446,6 +1464,10 @@ div.passiveUpsideDown > div.content > div.bg{
 		min-width:80vw;
 		padding:1vmax 5vmax;
 	}
+	#inventory div.cmTabContent[data-id="Actions"]{
+		width:50vw;
+		min-width:0;
+	}
 
 	#inventory h3{
 		margin:0.25vmax 0;
@@ -1718,9 +1740,13 @@ div.passiveUpsideDown > div.content > div.bg{
 
 	#ui > div.players > div.left{
 		left:0;
+		top:4vh;
+		bottom:4vh;
 	}
 	#ui > div.players > div.right{
 		right:0;
+		top:4vh;
+		bottom:4vh;
 	}
 	#ui > div.players div.player{
 		margin-left:0;
@@ -1730,17 +1756,34 @@ div.passiveUpsideDown > div.content > div.bg{
 		pointer-events: none;
 	}
 	#ui > div.players div.player div.stats{
-		text-shadow:0.1vmax 0.1vmax 0.1vmax #000;
+		text-shadow: 1px 1px #FFF, 1px -1px #FFF, -1px 1px #FFF, -1px -1px #FFF;
 		vertical-align: bottom;
 	}
 	#ui > div.players div.player span.resource{
 		display:inline-block;
-		width:2.25vmax;
-		padding-top:0.5vmax;
 		text-align: center;
-		margin: 0 0.1vmax;
+		margin: 0 0.2vmax;
 		vertical-align: bottom;
 		pointer-events: all;
+		border-radius: 0.5vmax;
+		padding:0;
+		font-size:1vmax;
+		border-bottom-left-radius: 0;
+    	border-bottom-right-radius: 0;
+		font-weight: bold;
+	}
+	#ui > div.players div.player span.resource div.bg{
+		position: absolute;
+		top: 0; left:50%;
+		width:1vmax; height:1vmax;
+		background-size: contain;
+		transform:translate(-50%, -85%);
+		background-position: center center;
+		background-repeat: no-repeat;
+	}
+	#ui > div.players div.player span.resource span.small{
+		font-size:1vmax;
+		font-weight: normal;
 	}
 	#ui > div.players div.player div.stats span.name div.leader:not(.host){
 		background:none;
@@ -1754,48 +1797,44 @@ div.passiveUpsideDown > div.content > div.bg{
 		vertical-align: middle;
 	}
 	#ui > div.players div.player span.resource.large{
-		width:2.75vmax;
-		padding-top:0.5vmax;
-		font-size:1vmax;
+		font-size:2vmax;
+		font-weight: bold;
+		margin-bottom:-0.2vmax;
 	}
-	#ui > div.players div.player span.resource::after{
-		background:url(media/wrapper_icons/glass-heart.svg) no-repeat center;
-		background-size: 80% 80%;
-		content : "";
-		width:100%;
-		height:100%;
-		top:-60%;
-		left:0;
-		position: absolute;
-		opacity: 0.75;
+	#ui > div.players div.player span.resource.thin{
+		font-weight: normal;
+	}
+	#ui > div.players div.player span.resource.warn{
+		color:#FAA;
 	}
 	#ui > div.players div.player span.HP{
-		color:#FDD;
+		color:#FFF;
+		text-shadow: 1px 1px #900, 1px -1px #900, -1px 1px #900, -1px -1px #900;
 	}
-	#ui > div.players div.player span.resource.HP::after{
+	#ui > div.players div.player span.resource.HP div.bg{
 		filter:brightness(60%) sepia(1) saturate(400%) hue-rotate(-50deg);
-		opacity:1;
 	}
 	#ui > div.players div.player span.MP{
-		color:#DEF;
+		color:#FFF;
+		text-shadow: 1px 1px #059, 1px -1px #059, -1px 1px #059, -1px -1px #059;
+
 	}
-	#ui > div.players div.player span.resource.MP::after{
-		background-image:url(media/wrapper_icons/round-bottom-flask.svg);
+	#ui > div.players div.player span.resource.MP div.bg{
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(150deg);
 	}
 	#ui > div.players div.player span.AP{
-		color:#DFD;
+		color: #FFF;
+		text-shadow: 1px 1px #090, 1px -1px #090, -1px 1px #090, -1px -1px #090;
 	}
-	#ui > div.players div.player span.resource.AP::after{
-		background-image:url(media/wrapper_icons/jump-across.svg);
+	#ui > div.players div.player span.resource.AP div.bg{
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(90deg);
 	}
 
 	#ui > div.players div.player span.arousal{
-		color:#EAF;
+		color:#FFF;
+		text-shadow: 1px 1px #909, 1px -1px #909, -1px 1px #909, -1px -1px #909;
 	}
-	#ui > div.players div.player span.resource.arousal::after{
-		background-image:url(media/wrapper_icons/pierced-heart.svg);
+	#ui > div.players div.player span.resource.arousal div.bg{
 		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(-90deg);
 	}
 
@@ -1804,25 +1843,16 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.players div.player span.chest,
 	#ui > div.players div.player span.legs
 	{
-		color:#EFE;
+		color:#FFF;
+		text-shadow: 1px 1px #666, 1px -1px #666, -1px 1px #666, -1px -1px #666;
 	}
-	#ui > div.players div.player span.resource.armor::after,
-	#ui > div.players div.player span.resource.chest::after,
-	#ui > div.players div.player span.resource.legs::after
-	{
-		background-image:url(media/wrapper_icons/shirt.svg);
-	}
-	#ui > div.players div.player span.resource.legs::after{
-		background-image:url(media/wrapper_icons/trousers.svg);
-	}
-	#ui > div.players div.player span.resource.armor::after{
-		background-image:url(media/wrapper_icons/shield-echoes.svg);
-	}
+
 	#ui > div.players div.player span.resource.broken{
-		color:#D66;
+		color:#FFF;
+		text-shadow: 1px 1px #966, 1px -1px #966, -1px 1px #966, -1px -1px #966;
 	}
-	#ui > div.players div.player span.resource.broken::after{
-		filter:brightness(40%) sepia(1) saturate(300%) hue-rotate(-40deg);
+	#ui > div.players div.player span.resource.broken div.bg{
+		filter:brightness(40%) sepia(1) saturate(100%) hue-rotate(-40deg);
 	}
 
 	#ui > div.players div.topRight{
@@ -1848,6 +1878,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 	#ui > div.players div.topRight > div.charging > div.chAction,
+	div.kinks > div.wrapper,
 	#ui > div.players div > div.wrapper{
 		display:inline-block;
 		padding:0.5vmax;
@@ -1857,6 +1888,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		box-shadow:0.2vmax 0.2vmax 1vmax rgba(0,0,0,.25);
 		
 	}
+	div.kinks > div.wrapper > div.background,
 	#ui > div.players div > div.wrapper > div.background{
 		width:100%; height:100%;
 		position: absolute;
@@ -1866,6 +1898,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		text-align: left;
 		left:0; right: 3vmax;
 	}
+	div.kinks > div.wrapper,
 	#ui > div.players div > div.wrapper{
 		width: 3vmax;
 		height:3vmax;
@@ -1877,6 +1910,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		border-width: 0.2vmax;
 		vertical-align: top;
 	}
+	div.kinks > div.wrapper > div.stacks,
 	#ui > div.players div > div.wrapper > div.stacks,
 	#ui > div.players div > div.wrapper > div.duration,
 	#ui > div.players div.charging > div.chAction > div.duration
@@ -1892,6 +1926,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		font-size:1.15vmax;
 		transform:translate(-50%,50%);
 	}
+	div.kinks > div.wrapper > div.stacks,
 	#ui > div.players div > div.wrapper > div.stacks{
 		top:auto;
 		left:auto;
@@ -1904,14 +1939,21 @@ div.passiveUpsideDown > div.content > div.bg{
 		min-width: auto;
 		font-style:italic;
 	}
-
+	div.kinks > div.wrapper div.tooltip,
 	#ui > div.players > div.right div > div.wrapper div.tooltip{
 		right:0;
 		left:auto;
 		transform:translateX(50%);
 	}
+	div.kinks > div.wrapper.detrimental,
 	#ui > div.players div > div.wrapper.detrimental{
 		border-color:#FDD;
+	}
+	div.kinks{
+		text-align: center;
+	}
+	div.kinks > div.wrapper{
+		width:4vmax; height:4vmax;
 	}
 
 	/* Texts */
@@ -2167,8 +2209,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		animation:gameIconsHighlight 1s alternate infinite ease-in-out;		
 	}
 	#groupFinder,
-	#gameIcons > div,
-	#ui > div.actionbar > div.actions > div{
+	#gameIcons > div
+	{
 
 		transition:transform 0.1s ease-out;
 		width:4.25vh;
@@ -2176,10 +2218,53 @@ div.passiveUpsideDown > div.content > div.bg{
 		background-size: cover;
 		overflow:visible;
 		display:inline-block;
-		margin:0 0.25vh 0 0.25vh;
 		vertical-align: middle;
-
 	}
+
+	#ui > div.actionbar > div.actions > div.actionGroup{
+		width:5.75vh;
+		height:5.75vh;
+		overflow: visible;
+		display:flex;
+		margin:0 0.15vh 0 0.15vh;
+		flex-direction: column-reverse;
+	}
+
+	div.action,
+	#ui > div.actionbar > div.actions div.action{
+		display:block;
+		width:5.5vh;
+		height:5.5vh;
+		border-color:#CFE;
+		border-width: 0.2vh;
+		padding:0.5vh;
+		font-size:1.5vh;
+		margin:0;
+		flex-shrink:0;
+		background: linear-gradient(to bottom, #686868 0%,#636363 39%,#4c4c4c 50%,#282828 51%,#383838 100%);
+	}
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action:not(:first-child){
+		display: none;
+	}
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action:not(:first-child) div.hotkey{
+		display:none;
+	}
+	#ui > div.actionbar > div.actions > div.actionGroup:hover > div.action,
+	#ui > div.actionbar > div.actions > div.actionGroup.popout > div.action
+	{
+		display: block;
+	}
+	div.action.corr > img{
+		filter: sepia(100%) saturate(250) hue-rotate(251deg);
+	}
+	div.action.phys > img{
+		filter: sepia(100%) saturate(250) hue-rotate(294deg);
+	}
+	div.action.arc > img{
+		filter: sepia(100%) saturate(250) hue-rotate(97deg);
+		
+	}
+
 	
 	#gameIcons > div.highlighted,
 	#mainMenuToggle > div.highlighted{
@@ -2215,8 +2300,8 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.middle{
 		bottom:7vh;
 		background:rgba(0,0,0,.5);
-		left:26vw;
-		right:26vw;
+		left:24vw;
+		right:24vw;
 		position:absolute;
 		top:0;
 		display:flex;
@@ -2229,6 +2314,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		max-height:100%;
 		left:0;
 		right:0;
+		padding: 0 2.5vw;
 	}
 	#ui.mute > div.middle > div.chat{
 		pointer-events: none;
@@ -2240,7 +2326,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.middle > div.chat{
 		min-height:1.5vmax;
 		background:rgba(0,0,0,.25);
-		padding:0.5vmax;
+		padding:0.5vmax 2.5vw;
 		font-size:1.5vmax;
 		border-top:1px dotted #FFF;
 		outline:none;
@@ -2421,14 +2507,15 @@ div.passiveUpsideDown > div.content > div.bg{
 
 
 	#ui > div.players div.player{
+
 		width:25.5vw;
-		margin-bottom:0;
-		margin-top:0.25vmax;
+		margin:0.15vmax;
 		user-select: none;
-		-moz-user-select: none;
 		cursor:pointer;
 		flex-grow: 1;
 		max-height:40vh;
+		transform:translateX(-1%);
+		transition:transform 0.1s ease-out;
 	}
 	@keyframes kfTargetSelector{
 		from{box-shadow:0 0 1vmax #FFA;}
@@ -2451,17 +2538,28 @@ div.passiveUpsideDown > div.content > div.bg{
 		display:none;
 	}
 	div.players div.player > div.content{
-		overflow:hidden;
+
+		overflow:visible;
 		border-radius:0.5vmax;
-		box-shadow:0.5vmax 0.5vmax 1vmax rgba(0,0,0,.25);
+		box-shadow:0.5vmax 0.5vmax 1vmax rgba(0,0,0,.75);
 		background:#222;
-		border:0.2vmax solid #666;
+		border:0.2vmax solid transparent;
 		height:100%;
+
+		background: linear-gradient(#FFF, #FFF) padding-box, linear-gradient(
+			45deg, #888888 0%,#adadad 48%,#797979 51%,#838383 100%) border-box;
+
 	}
 	div.players div.player span.name{
-		font-size:1.5vmax;
-		margin-bottom:1vmax;
-		display: inline-block;
+		font-size: 1.4vmax;
+		padding: 0.25vmax;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height:3.8vmax;
+		background:rgba(0,0,0,.2);
+		text-shadow: 1px 1px #000, -1px 1px #000, 1px -1px #000, -1px -1px #000;
 	}
 
 	div.players div.player span.name span.nameTag.mine,
@@ -2520,13 +2618,15 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	
 	
-
-	#ui > div.players div.player span.name > div.button{
-		width:2vmax; height:2vmax;
-		padding:0;
+	#ui > div.players div.player:hover span.name > div.button{
 		display:inline-block;
+	}
+	#ui > div.players div.player span.name > div.button{
+		width:1.6vmax; height:1.6vmax;
+		padding:0;
 		vertical-align: middle;
-		margin:0 0.2vmax;
+		margin:0 0.1vmax;
+		display:none;
 		pointer-events: all;
 	}
 	#ui > div.players div.player span.name > div.button.selected{
@@ -2619,24 +2719,33 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	
 
-	#ui > div.players > div.right > div.player > div.content > div.stats{
-		text-align: left;
-	}
 	#ui > div.players div.player > div.content > div.stats{
 		position:absolute;
 		right:0;
 		bottom:0;
-		padding:0.5vmax;
-		background:rgba(0,0,0,.5);
+		left:0;
 		text-align: right;
 		border-top-left-radius: 1vmax;
-		backdrop-filter: blur(2px);
+		/*backdrop-filter: blur(2px);*/
 	}
 	#ui > div.players div.right div.player > div.content > div.stats{
-		left:0; right:auto;
+		left:0; right:0; top:0; bottom:0;
 		border-radius:0;
 		border-top-right-radius: 1vmax;
+		text-align: left;
 	}
+	#ui > div.players div.player > div.content > div.stats span.resources{
+		position:absolute;
+		left:0;
+		bottom:0;
+		right:0;
+	}
+	
+
+
+
+
+
 
 	/* DM Tools */
 	div.dm_tools > label.option{
@@ -2672,7 +2781,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.players div.player > div.interactions > div {
 		width:4vmax;
 		height:4vmax;
-		background:rgba(0,0,0,.85);
+		background:url(media/ui/marble.jpg) repeat;
 		overflow:hidden;
 		border-radius:0.25vmax;
 		border: 2px solid #999;
@@ -2700,8 +2809,83 @@ div.passiveUpsideDown > div.content > div.bg{
 		width:100%;
 		pointer-events:none;
 	}
-	
 
+	/* Shields */
+
+	#ui > div.players div.player > div.shields{
+		position:absolute;
+		top:50%; right:0;
+		transform:translate(50%, -50%);
+	}
+	#ui > div.players > div.right > div.player > div.shields {
+		right:auto;
+		left:0;
+		transform:translate(-50%, -50%);
+	}
+	#ui > div.players div.player > div.shields > div.shield {
+		width:3vmax;
+		height:3vmax;
+		overflow:hidden;
+		pointer-events:all;
+		margin:0.2vmax;
+		transform:scale(0%);
+		transition:transform 0.1s cubic-bezier(0.64, 0.57, 0.67, 1.53);
+	}
+	#ui > div.players div.player > div.shields > div.shield.spawn{
+		transform:scale(1.0);
+	}
+	@keyframes shieldDeath{
+		0%{transform: rotate(0) scale(1);}
+		50%{transform: translate(25%, -100%) rotatex(120deg) scale(1.25);}
+		100%{transform: translate(30%, 500%) rotatex(180deg) scale(0);}
+	}
+	#ui > div.players div.player > div.shields > div.shield.die{
+		animation:shieldDeath forwards 0.3s ease-in !important;
+	}
+	#ui > div.players div.player > div.shields > div.shield > span{
+		color:#FFF;
+		font-size:2.5vmax;
+		font-weight: bold;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		text-shadow: 1px 1px #FFF, -1px 1px #FFF, 1px -1px #FFF, -1px -1px #FFF;
+		font-family: 'Germania One', cursive;
+	}
+	#ui > div.players div.player > div.shields > div.shield.corruption > span{
+		color:#909;
+	}
+	#ui > div.players div.player > div.shields > div.shield.physical > span{
+		color:#900;
+	}
+	#ui > div.players div.player > div.shields > div.shield.arcane > span{
+		color:#069;
+	}
+	#ui > div.players div.player > div.shields > div.shield.disabled > span{
+		color:#333 !important;
+	}
+	#ui > div.players div.player > div.shields > div.shield.corruption div.bg {
+		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(252deg);
+	}
+	#ui > div.players div.player > div.shields > div.shield.disabled div.bg {
+		filter: brightness(0.7) !important;
+	}
+	
+	#ui > div.players div.player > div.shields > div.shield.physical div.bg {
+		filter: drop-shadow(0.25vmax 0.25vmax #000);
+		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(-50deg);
+	}
+	#ui > div.players div.player > div.shields > div.shield.arcane div.bg {
+		filter: drop-shadow(0.25vmax 0.25vmax #000);
+		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(130deg);
+	}
+	
+	#ui > div.players div.player > div.shields > div.shield > div.bg{
+		position: absolute;
+		top:0; left:0; right:0; bottom:0;
+		background-size:contain;
+	}
 
 /* Action bar */
 	#ui > div.actionbar{
@@ -2738,6 +2922,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui > div.actionbar > div.resources > div.stat.mp > div.point.filled{
 		background:rgba(200,230,255,.75);
+		background: linear-gradient(to bottom, #b8eef6 0%,#66e0f0 50%,#56d7e8 51%,#70e6f6 100%);
 	}
 	#ui > div.actionbar > div.resources > div.stat.mp > div.point.highlighted{
 		box-shadow:0 0 1vh rgb(200,230,255);
@@ -2749,6 +2934,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui > div.actionbar > div.resources > div.stat.ap > div.point.filled{
 		background:rgba(200,255,200,.75);
+		background: linear-gradient(to bottom, #b8f6bf 0%,#66f074 50%,#56e865 51%,#70f67e 100%);
 	}
 	#ui > div.actionbar > div.resources > div.stat.ap > div.point.highlighted{
 		box-shadow:0 0 1vh rgb(200,255,200);
@@ -2775,36 +2961,51 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 
+	/* End turn button */
 	#ui > div.actionbar > div.actions{
 		position: absolute;
 		display: flex;
 		justify-content: center;
-		left:0; right:0; bottom:0; top:0.25vh;
+		left:0; right:0; bottom:0; top:0;
 		text-align: center;
 		-moz-user-select: none;
 		user-select: none;
 	}
 
-	div.action,
-	#ui > div.actionbar > div.actions > div.action{
-		display:block;
-		max-width:5.5vh;
-		width:5%;
-		height:5.5vh;
-		border-color:#CFE;
-		border-width: 0.2vh;
-		padding:0.5vh;
-		font-size:1.5vh;
+	#ui > div.actionbar.spectating > div.actions > div{
+		display:none;
 	}
-	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
-		width:auto;
-		padding-top:1.75vh;
-		background-color:#474;
-		max-width:9vh;
+
+	#ui > div.actionbar.spectating > div.actions > span.spectating{
+		display:inline-block;
 	}
+	#ui > div.actionbar > div.actions > span.spectating{
+		display:none;
+	}
+		
+	
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
-		color:#DFD;
+		width: auto;
+		padding-top: 1.5vh;
+		color: #DFD;
 		border-color: #DFD;
+		text-shadow: 1px 1px #000, -1px 1px #000, 1px -1px #000, -1px -1px #000;
+		margin: 0.3vh 0 0 0;
+		height: 5.5vh;
+		background: linear-gradient(to bottom, #686868 0%,#636363 39%,#4c4c4c 50%,#282828 51%,#383838 100%);
+	}
+	#ui > div.actionbar > div.actions > div.action[data-id=end-turn] div.bg{
+		background:url(media/wrapper_icons/upgrade.svg);
+		background-size:contain;
+		background-position: right center;
+		background-repeat: no-repeat;
+		position: absolute;
+		transform:translateY(-50%) rotate(90deg);
+		right:0;
+		top:50%;
+		height:5vh;
+		width:5vh;
+		opacity: 50%;
 	}
 	@keyframes endTurnPulse{
 		from{transform: scale(1.05,1.05);}
@@ -2813,47 +3014,53 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn].highlighted{
 		color:#DFD;
 		border-color:#DFD;
-		animation: endTurnPulse 1s ease-in-out alternate infinite;
+		animation: endTurnPulse 0.5s ease-in-out alternate infinite;
 		box-shadow: 0 0 1vmax #AFA;
+		background: linear-gradient(to bottom, #51a159 0%,#4e9c56 39%,#418147 50%,#2c5630 51%,#35693a 100%);
 	}
 
 	div.action > *,
-	#ui > div.actionbar > div.actions > div.action *{
+	#ui > div.actionbar > div.actions div.action *{
 		pointer-events: none;
 	}
-	#ui > div.actionbar > div.actions > div.action.spellSelected{
+	#ui > div.actionbar > div.actions div.action.spellSelected{
 		transform: translateY(-15%) scale(1.2,1.2);
 	}
 	div.action > img,
-	#ui > div.actionbar > div.actions > div.action > img{
+	#ui > div.actionbar > div.actions div.action > img{
 		width:100%;
 		height:100%;
 		position: absolute;
 		left:0; top:0;
 	}
-	div.action > div.uses,
-	#ui > div.actionbar > div.actions > div.action > div.uses,
-	#ui > div.actionbar > div.actions > div > div.cd{
+	div.actions div.action > div.uses,
+	#ui > div.actionbar > div.actions div.action > div.uses{
 		position: absolute;
-		right:0; bottom:0;
-		padding:0.2vmax;
-		background:rgba(0,0,0,.5);
-		border-radius:0.2vmax;
-		font-size:1.25vmax;
+		top:-15%; right:-10%;
+		font-size:1.5vmax;
+		color:#EFE;
+		text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 	}
 	div.action > div.cd,
-	#ui > div.actionbar > div.actions > div > div.cd{
-		padding:0.5vmax;
-		right:auto; bottom:auto;
-		top:50%; left:50%;
+	#ui > div.actionbar > div.actions div.action > div.cd{
+		
+		bottom: -5%;
+		right: -15%;
+		height:40%;
 		font-size:1.5vmax;
 		font-weight:bold;
-		transform:translate(-50%,-50%);
+		text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 		color:#FFF;
-		background:rgba(0,0,0,.75);
-		border-radius: 0.5vmax;
-		box-shadow:0.25vmax 0.25vmax 1vmax rgba(0,0,0,.5);
-		border:0.2vmax solid rgba(255,255,255,.5);
+		position: absolute;
+		color:#FEE;
+
+	}
+	div.actions div.action div.cd > img,
+	#ui > div.actionbar > div.actions div.cd > img {
+		height: 100%;
+		vertical-align: middle;
+		filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
+		transform: translateY(-10%);
 	}
 
 	div.players div.topLeft,
@@ -2868,7 +3075,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		font-weight: normal;
 
 	}
-	#ui > div.actionbar > div.actions > div.action.enabled:hover{
+	#ui > div.actionbar > div.actions div.action.enabled:hover{
 		border-color:#FFF !important;
 	}
 	#ui > div.actionbar > div.actions > div.action.empty > *,
@@ -2897,11 +3104,12 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	*/
 	div.action.detrimental,
-	#ui > div.actionbar > div.actions > div.action.detrimental{
+	#ui > div.actionbar > div.actions div.action.detrimental{
 		border-color:#FDC;
 	}
 	div.action.disabled,
-	#ui > div.actionbar > div.actions > div.action.disabled,
+	#ui > div.actionbar > div.actions > div.actionGroup > div.action.disabled,
+	#ui > div.actionbar > div.actions > div.disabled,
 	div.item.disabled,
 	div.inventory div.item.disabled{
 		color:#FDD !important;
@@ -3095,6 +3303,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		text-align: left;
 		font-weight:normal;
 		z-index:1000;
+		user-select: none;
 	}
 
 	div.tooltip{display:none;}
@@ -3602,7 +3811,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		100%{transform:translateY(-500%); opacity:0;}
 	}
 	#fct > div.text:not(.hidden){
-		font-size:3.5vmax;
+		font-size:3vmax;
 		position: absolute;
 		animation: fct 2s ease-in forwards;
 		text-shadow:0.1vmax 0.1vmax 0.1vmax #000; 

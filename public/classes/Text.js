@@ -16,7 +16,7 @@ import HitFX from './HitFX.js';
 			%T : Target 
 			%T2... : Additional targets
 			%S for sender
-			%P for RP player (if it exists, _targetPlayer)
+			%P for RP player (if it exists, _targetPlayers). Use %P2 %P3 etc for additional RP players
 			%RtagName for turntag sender, ex %Rspanked - Targets the player that applied the "spanked" turntag. Make sure to use the proper TT conditions for these to work
 		%T - Player name
 		%Tpsize, %Tbsize, %Trsize - Grants a size tag for penis, breasts, rear in that order. Must be preceded by a space, which gets removed if the size is average.
@@ -44,7 +44,7 @@ const SYNONYMS = [
 	['quickly', 'rapidly', 'speedily', 'hastily'],
 	['rapid', 'quick', 'hasty', 'swift'],
 	['breast', 'boob', 'tit', 'breast'],
-	['penis', 'dong', 'cock', 'member'],
+	['penis', 'dong', 'cock', '!member'],
 	['vagina', 'pussy', 'cunt'],
 	['butt', 'rear', 'behind'],
 	['groin', 'crotch'],
@@ -167,6 +167,7 @@ class Text extends Generic{
 
 		}
 
+		
 		for( let condition of this.conditions ){
 			
 			if( condition.type === Condition.Types.event ){
@@ -175,11 +176,13 @@ class Text extends Generic{
 				for( let n of evts)
 					this._cache_event[n] = true;
 			}
-			else if( condition.type === Condition.Types.actionLabel ){
+			else if( condition.type === Condition.Types.actionLabel && !condition.conditions.length ){
+
 				this._cache_action = {};
 				let actions = toArray(condition.data.label);
 				for( let n of actions )
 					this._cache_action[n] = true;
+
 			}
 			else if( condition.type === Condition.Types.actionCrit ){
 				this._cache_crit = !condition.inverse;
@@ -353,11 +356,16 @@ class Text extends Generic{
 	// Only useful for direct synonyms. Not usable when the tag is not the synonym, like %leftright
 	_replaceArray(text, synonyms){
 
+		let acceptable = synonyms.filter(s => s.charAt(0) !== '!');
+
 		const repl = (synonym, uc) => {
 
 			let pre = '%';
 			if( uc )
 				pre = '%!';
+
+			if( synonym.charAt(0) === '!' )
+				synonym = synonym.substring(1);
 
 			let esc = (pre+synonym).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 			let spl = text.split(new RegExp('('+esc+')', 'g'));
@@ -367,9 +375,9 @@ class Text extends Generic{
 				if( t.startsWith(pre) ){
 
 					t = t.substring(pre.length);
-					if( synonyms.includes(t) ){
+					if( acceptable.includes(t) ){
 
-						let synonym = randElem(synonyms);
+						let synonym = randElem(acceptable);
 						if( uc )
 							synonym = ucFirst(synonym, true);
 						spl[i] = synonym;
@@ -446,11 +454,16 @@ class Text extends Generic{
 		if( event.sender )
 			text = this.targetTextConversion(text, 'S', event.sender, event);
 
-		if( window.game && game.roleplay && game.roleplay._targetPlayer ){
+		if( window.game?.roleplay?._targetPlayers?.length ){
 			
-			const rpPlayer = game.getPlayerById(game.roleplay._targetPlayer);
-			if( rpPlayer )
-				text = this.targetTextConversion(text, 'P', rpPlayer, event);
+			const rpPlayers = game.roleplay.getTargetPlayers();
+			// Needs to go in reverse order due to greater first
+			for( let i = rpPlayers.length-1; i >= 0; --i ){
+				let label = 'P';
+				if( i )
+					label += (i+1);
+				text = this.targetTextConversion(text, label, rpPlayers[i], event);
+			}
 
 		}
 
@@ -472,7 +485,7 @@ class Text extends Generic{
 		if( Array.isArray(event.target) )
 			targ = event.target[0];
 		
-		if( this.chat && this._chatPlayer ){
+		if( this.chat && this._chatPlayer && game.battle_active ){	// only allow NPC chats in combat. Otherwise RP might cause weird results.
 
 			if( !this.chat_reuse )
 				this._chatPlayer.onChatUsed(this.id);
@@ -493,31 +506,35 @@ class Text extends Generic{
 
 			
 			// Raise a text trigger event
-			const originalType = event.type,
-				originalText = event.text,
-				originalCustom = event.custom
-			;
+			this.raiseTextTriggerEvent(event);	
 
-			// Make sure to stash the original first
-			event.custom.original = event.clone();
-
-			event.type = GameEvent.Types.textTrigger;
-			event.text = this;
-			if( !event.custom )
-				event.custom = {};
-
-			event.raise();
-			
-			event.type = originalType;
-			event.text = originalText;
-			event.custom = originalCustom;
-			
-					
 		}
 
 		onReturn();	// Restore modified event values
 
 		
+	}
+
+	raiseTextTriggerEvent( originalEvent ){
+
+		const originalType = originalEvent.type,
+			originalText = originalEvent.text,
+			originalCustom = originalEvent.custom
+		;
+		// Make sure to stash the original first
+		originalEvent.custom.original = originalEvent.clone();
+
+		originalEvent.type = GameEvent.Types.textTrigger;
+		originalEvent.text = this;
+		if( !originalEvent.custom )
+			originalEvent.custom = {};
+
+		originalEvent.raise();
+		
+		originalEvent.type = originalType;
+		originalEvent.text = originalText;
+		originalEvent.custom = originalCustom;
+
 	}
 
 	// triggers FX and audio kits

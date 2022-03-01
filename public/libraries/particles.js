@@ -298,6 +298,24 @@ textures.smoke.material.depthWrite = true;
 		rotation : [new Proton.Span(-0.1,0.1), 1, 1],
 	};
 
+	particles.steam = {
+		
+		texture : textures.smoke,
+		blending : THREE.NormalBlending,
+		rate : 0.2,
+		count : 1,
+		position : new Proton.BoxZone(0,0,0,500, 100, 500),
+		size : 300,
+		size_tween : [0,1, Proton.ease.easeFullSine],
+		part_max_age : 10,
+		velocity : 10,
+		gravity : 0.0,
+		color : "#FFFFFF",	
+		opacity: 0.1,
+		wiggle : 3,
+		rotation : [new Proton.Span(-0.01,0.01), 1, 1],
+	};
+
 	particles.questSparkles = {
 		
 		texture : textures.sparkle,
@@ -1838,6 +1856,42 @@ particles.hitfx_snow_sparks_impact = {
 	wiggle : new Proton.Span(0,10),
 };
 
+
+particles.hitfx_snow_sparks_small = {
+			
+	texture : textures.snowflakes,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 10,
+	position : new Proton.SphereZone(0,0,0,2.5),
+	size : 7.5,
+	size_tween : [1,0.05],
+	part_max_age : 0.75,
+	velocity : 5,
+	gravity : 1,
+	color : ['#FFFFFF', '#AAAAFF'],	
+	opacity: [1,0],
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,5],
+};
+
+particles.hitfx_snow_sparks_impact_small = {
+	texture : textures.snowflakes,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 10,
+	position : new Proton.SphereZone(0,0,0,1),
+	size : 10,
+	size_tween : [1,0.05],
+	part_max_age : 0.5,
+	velocity : new Proton.Span(25,50),
+	gravity : 1,
+	color : ['#FFFFFF', '#AAAAFF'],	
+	opacity: [1,0],
+	rotation : [new Proton.Span(-1,1), 1,1],
+	wiggle : new Proton.Span(0,5),
+};
+
 particles.hitfx_sludge_siphon = {
 	texture : textures.splat,
 	blending : THREE.AdditiveBlending,
@@ -2147,6 +2201,20 @@ particles.hitfx_sludge_bolt_impact_green = {
 	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
 };
 
+particles.hitfx_wind = {
+	texture : textures.smoke,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,15),
+	size : [30,0],
+	part_max_age : .25,
+	velocity : new Proton.Span(0, 100),
+	gravity: new Proton.Span(-1,2),
+	color : "#FFFFFF",	
+	opacity: [0,0.5, Proton.ease.easeFullBridge],
+	rotation : [0,Math.PI*2],
+};
 
 particles.hitfx_hex_armor = {
 	texture : textures.smoke,

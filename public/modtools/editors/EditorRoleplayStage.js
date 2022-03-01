@@ -26,17 +26,31 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		html += '<label title="Lets you override the name of the speaking player">Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" autocomplete="chrome-off" /></label>';
 		html += '<label title="A small headshot of the player, overrides RP parent">Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
+		
 		html += '<label>Chat type: <select name="chat" class="saveable" name="chat">';
 		for( let i in RoleplayStageOption.ChatType )
 			html += '<option value="'+esc(RoleplayStageOption.ChatType[i])+'" '+(dummy.chat === RoleplayStageOption.ChatType[i] ? 'selected' : '')+'>'+esc(i)+'</option>';
 		html += '</select></label>';
-		html += '<label title="Stores target for rpTarget conditions and %P in texts">Store target: <input type="checkbox" name="store_pl" class="saveable" '+(dummy.store_pl ? 'checked' : '')+' /></label>';
+
+		html += '<label title="Stores target for rpTarget conditions and %P in texts">'+
+			'Store target: '+
+			'<select name="store_pl" class="saveable">'
+		;
+		for( let i in RoleplayStage.StoreType ){
+			let n = RoleplayStage.StoreType[i];
+			html += '<option value="'+n+'" '+(parseInt(n) === parseInt(dummy.store_pl) ? 'selected' : '')+'>'+
+				esc(i)+
+			'</option>';
+		}
+		html += '</select></label>';
+
 		html += '<label title="Shuffles the text order">Shuffle type: <select name="shuffle_texts" class="saveable">';
 		for( let stype in RoleplayStage.Shuffle ){
 			const n = RoleplayStage.Shuffle[stype];
 			html += '<option value="'+n+'" '+(parseInt(n) === parseInt(asset.shuffle_texts) ? 'selected' : '')+'>'+stype+'</option>';
 		}
 		html += '</select></label>';
+
 	html += '</div>';
 
 
@@ -157,7 +171,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Store target</td>'+
-			'<td>Lets you store the person who brought you to this stage in the roleplay, and use that target for use in a %P text in future stages.</td>'+
+			'<td>Each RP has an array of players considered targets of the RP. This option lets you alter this list. IGNORE does nothing. SET overwrites it with the player who brought you to this stage. ADD adds the player who brought you to this stage. REM removes the player who brought you to this stage. SHUFFLE shuffles the existing list.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Shuffle type</td>'+
@@ -169,7 +183,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Texts</td>'+
-			'<td>Texts that should be output by the NPC. You can use multiple ones and attach conditions to the texts. Unless shuffle is set, it will trigger the first viable. Make sure to have a fallback without conditions last. In an RP, the target %T is the person who brought you to that stage of the RP, %S is the NPC you are talking to, if any. When using store target, you can use %P to target the stored player.</td>'+
+			'<td>Texts that should be output by the NPC. You can use multiple ones and attach conditions to the texts. Unless shuffle is set, it will trigger the first viable. Make sure to have a fallback without conditions last. In an RP, the target %T is the person who brought you to that stage of the RP, %S is the NPC you are talking to, if any. When using store target, you can use %P to target the stored player. %T is the NPC responding, and %S the player who picked the option.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Game Actions</td>'+

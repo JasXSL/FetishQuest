@@ -11,7 +11,6 @@ import Quest from './Quest.js';
 import Book from './Book.js';
 import Dungeon from './Dungeon.js';
 
-
 // Game specific
 class NetworkManager{
 
@@ -979,6 +978,22 @@ class NetworkManager{
 
 			}
 
+			else if( task === PT.playerBankItem ){
+
+				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
+				if( !args.player || !args.bankPlayer || !args.asset || !args.amount || isNaN(args.amount) ){
+					console.error("Net: Missing args in call", task, "got", args);
+					return;
+				}
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				game.toggleAssetBanked( args.bankPlayer, args.asset, args.amount, player, args.deposit );
+
+			}
+
+
 			else if( task === PT.transmogrify ){
 
 				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
@@ -1007,14 +1022,30 @@ class NetworkManager{
 				game.repairBySmith(blacksmith, player, args.asset);
 
 			}
+			else if( task === PT.useAltar ){
+
+				// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
+				if( !args.player || !args.altarPlayer ){
+					console.error("Net: Missing args in call", task, "got", args);
+					return;
+				}
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				const altar = game.getPlayerById(args.altarPlayer);
+				shuffleKinksByAltar(altar, player);
+
+			}
 
 			else if( task === PT.exchangeGold ){
+
 				let player = validatePlayer();
 				if( !player )
 					return;
 				
 				// Todo: Later, add shop to this to make sure there's one available
-				game.exchangePlayerMoney(player);
+				game.exchangePlayerMoney(player, args.bank);
 
 			}
 
@@ -1054,10 +1085,10 @@ class NetworkManager{
 			else if( task === PT.toggleAction ){
 
 				let player = validatePlayer();
-				if( !args.gym || !args.action )
+				if( !args.action )
 					throw 'Invalid request';
 
-				game.toggleAction(game.getPlayerById(args.gym), player, args.action);
+				game.toggleAction(player, args.action);
 
 			}
 			else if( task === PT.toggleAFK )
@@ -1119,7 +1150,8 @@ class NetworkManager{
 
 				const action = args.action;
 
-				for( let asset of player.assets ){
+				const assets = player.getAssets();
+				for( let asset of assets ){
 
 					const ua = asset.getUseActionById(action);
 					if( ua ){
@@ -1252,14 +1284,22 @@ class NetworkManager{
 		
 		else if( task === NetworkManager.dmTasks.playSoundOnPlayer ){
 
-			if( typeof args === "object" )
-				game.playFxAudioKit(
+			if( typeof args === "object" ){
+
+				let fn = 'playFxAudioKit';
+				if( args.type === 'voice' )
+					fn = 'playVoiceAudioKit';
+
+				game[fn](
 					new AudioKit(args.kit),
 					game.getPlayerById(args.sender), 
 					game.getPlayerById(args.target), 
 					args.armor_slot,
 					args.volume_multiplier
 				);
+
+			}
+
 		}
 		else if( task === NetworkManager.dmTasks.playSoundOnMesh ){
 
@@ -1598,6 +1638,16 @@ class NetworkManager{
 			player : player,
 		});
 	}
+	playerUseAltar(altarPlayer, player){
+		if( typeof altarPlayer === "object" )
+			altarPlayer = altarPlayer.id;
+		if( typeof player === "object" )
+			player = player.id;
+		this.sendPlayerAction(NetworkManager.playerTasks.useAltar, {
+			asset : asset,
+			altarPlayer : altarPlayer,
+		});
+	}
 
 	playerTransmogrify(mogger, player, baseAsset, targetAsset){
 		if( mogger instanceof Player )
@@ -1617,10 +1667,29 @@ class NetworkManager{
 		});
 	}
 	
-	playerExchangeGold(player){
+	playerExchangeGold( player, bank ){
 		this.sendPlayerAction(NetworkManager.playerTasks.exchangeGold, {
 			player : player.id,
+			bank : Boolean(bank)
 		});
+	}
+
+	playerBankItem(bankPlayer, asset, amount, player, deposit){
+
+		if( typeof bankPlayer === "object" )
+			bankPlayer = bankPlayer.id;
+		if( typeof asset === "object" )
+			asset = asset.id;
+		if( typeof player === "object" )
+			player = player.id;
+		this.sendPlayerAction(NetworkManager.playerTasks.bankItem, {
+			asset : asset,
+			bankPlayer : bankPlayer,
+			amount : amount,
+			player : player,
+			deposit : Boolean(deposit)
+		});
+
 	}
 
 	playerSleep( player, dungeonAsset, hours ){
@@ -1646,10 +1715,9 @@ class NetworkManager{
 		});
 	}
 
-	playerToggleAction( gymPlayer, player, actionID ){
+	playerToggleAction( player, actionID ){
 		this.sendPlayerAction(NetworkManager.playerTasks.toggleAction, {
 			player : player.id,
-			gym : gymPlayer.id,
 			action : actionID,
 		});
 	}
@@ -1767,13 +1835,14 @@ class NetworkManager{
 	}
 
 	// All the args are strings
-	dmPlaySoundOnPlayer(sender, target, kit, armor_slot, volume_multiplier = 1.0){
+	dmPlaySoundOnPlayer(sender, target, kit, armor_slot, volume_multiplier = 1.0, type = 'fx'){
 		this.sendHostTask(NetworkManager.dmTasks.playSoundOnPlayer, {
 			kit : kit,
 			sender : sender,
 			target : target,
 			armor_slot : armor_slot,
-			volume_multiplier : volume_multiplier
+			volume_multiplier : volume_multiplier,
+			type : type,
 		}); 
 	}
 
@@ -2020,23 +2089,10 @@ class GfPlayer{
 		if( !['jpg', 'jpeg', 'gif', 'png'].includes(ext) )
 			return false;
 
-		const whitelist = [
-			'imgur.com',
-			'e621.net',
-			'furaffinity.net',
-			'metapix.net',
-			'gyazo.com',
-			'fetishquest.com',
-			'jasx.org',
-			'prntscr.com',
-			'redd.it',
-			'twimg.com',
-			'discordapp.com',
-		];
-
+		
 		let last = url.host.split('.');
 		last = last[last.length-2]+'.'+last[last.length-1];
-		if( !whitelist.includes(last) )
+		if( !NetworkManager.whitelist.includes(last) )
 			return false;
 
 		return true;
@@ -2045,6 +2101,24 @@ class GfPlayer{
 
 
 }
+
+NetworkManager.whitelist = [
+	'imgur.com',
+	'lensdump.com',
+	'e621.net',
+	'furaffinity.net',
+	'metapix.net',
+	'gyazo.com',
+	'fetishquest.com',
+	'jasx.org',
+	'prntscr.com',
+	'redd.it',
+	'twimg.com',
+	'discordapp.com',
+	'catbox.moe',
+	'imgchest.com',
+	'shitpost.to'
+];
 
 
 class GfChat{
@@ -2064,6 +2138,8 @@ class GfChat{
 
 }
 
+
+
 // Send tasks from DM to player
 NetworkManager.dmTasks = {
 	sendFullGame : 'fullGame',		// Data is a snapshot of the whole current game
@@ -2072,7 +2148,7 @@ NetworkManager.dmTasks = {
 	error : 'error',				// {text:(string)errorText, notice:(bool)isNotice}
 	animation : 'animation',		// {dungeonAsset:dungeonAssetUUID, anim:animation}
 	drawRepair : 'drawRepair',		// {player:(str)casterID, target:(str)targetID, action:(str)actionID}
-	playSoundOnPlayer : 'playSoundOnPlayer',		// {kit:(str)soundkitID, sender:senderUUID, target:targetUUID, armor_slot:(str)armorSlotHit, volume_multiplier:(float)=1} - 
+	playSoundOnPlayer : 'playSoundOnPlayer',		// {kit:(str)soundkitID, sender:senderUUID, target:targetUUID, armor_slot:(str)armorSlotHit, volume_multiplier:(float)=1, type:(str)channel="fx"} - 
 	playSoundOnMesh : 'playSoundOnMesh',			// {dungeonAsset:(str)dungeonAssetuuid, url:(str)sound_url, volume:(float)volume, loop:(bool)loop[, id:(str)optional_id]}
 	stopSoundOnMesh : 'stopSoundOnMesh',			// {dungeonAsset:(str)dungeonAsset_uuid, id:(str)url/id, fade:(int)fade_ms}
 	raiseInteractOnMesh : 'raiseInteractOnMesh',	// {dungeonAsset:(str)dungeonAsset_uuid} - Triggers the mesh template onInteract function on a dungeon asset
@@ -2108,12 +2184,14 @@ NetworkManager.playerTasks = {
 	roleplay : 'roleplay',				// {player:(str)sender_id, roleplay:(str)roleplay_id}
 	buyItem : 'buyItem',				// {player:(str)sender_id, shop:(str)shop_id, item:(str)shopitem_id, amount:(int)amount}
 	sellItem : 'sellItem',				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
-	exchangeGold : 'exchangeGold',		// {player:(str)sender_id}
+	bankItem : 'bankItem',				// {player:(str)sender_id, bankPlayer:(str)bankPlayerId, asset:(str)asset_id, amount:(int)amount, deposit:(bool)deposit/withdraw}
+	exchangeGold : 'exchangeGold',		// {player:(str)sender_id, bank:(bool)exchangeInBank}
 	repairItemAtBlacksmith : 'repairItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id}
+	useAltar : 'useAltar',				// {player:(str)sender_id, altarPlayer:(str)altar}
 	sleep : 'sleep',									// {player:(str)sender_id, asset:(str)dungeon_asset_id, hours:(int)hours}
 	rentRoom : 'rentRoom',							// {renter:(str)rental_merchant_player_id, player:(str)player_id}
 	buyAction : 'buyAction',			// {player:(st)sender_id, gym:(str)gym_player_id, actionLearnable:(str)action_learnable_id}
-	toggleAction : 'toggleAction',		// {player:(st)sender_id, gym:(str)gym_player_id, action:(str)action_id}
+	toggleAction : 'toggleAction',		// {player:(st)sender_id, action:(str)action_id}
 	toggleAFK : 'toggleAFK',			// {afk:(bool)afk}
 	loadedCells : 'loadedCells',					// {cells:(int)cells_loaded}
 	inMenu : 'inMenu',					// {in:(int)menu}

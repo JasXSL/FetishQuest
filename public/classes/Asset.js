@@ -82,6 +82,7 @@ export default class Asset extends Generic{
 		this.expires = 0;				// Lets an item expire, deleting it after time has passed in game.
 		this.rem_unequip = false;		// Remove this on unequip
 		this.indestructible = false;	// This item is indestructible
+		this.inBank = false;			// This item is in the bank
 
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
@@ -140,7 +141,8 @@ export default class Asset extends Generic{
 			fitted : this.fitted,
 			mastercrafted : this.mastercrafted,
 			actives : Wrapper.saveThese(this.actives, full),
-			indestructible : this.indestructible
+			indestructible : this.indestructible,
+			inBank : this.inBank
 		};
 
 
@@ -371,6 +373,8 @@ export default class Asset extends Generic{
 		this.durability -= Math.floor(amount);
 		if( this.durability <= 0 )
 			this.durability = 0;
+		if( this.durability > this.getMaxDurability() )
+			this.durability = this.getMaxDurability();
 
 		let change = this.durability-pre;
 		if( !change )
@@ -643,10 +647,18 @@ export default class Asset extends Generic{
 
 		html += esc(this.description);
 
-		html += '<div class="green stats">';
+		html += '<div class="assetWrappers">';
 		for( let wrapper of this.wrappers ){
-			if( wrapper.description )
-				html += '<br />'+esc(wrapper.description);
+
+			if( wrapper.description ){
+				
+				let color = '#FAA';
+				if( wrapper.rarity > 0 )
+					color = Asset.RarityColors[wrapper.rarity];
+
+				html += '<br /><span style="color:'+color+'">'+esc(wrapper.description)+'</span>';
+
+			}
 		}
 		html += '</div>';
 
@@ -700,6 +712,92 @@ export default class Asset extends Generic{
 		return true;
 
 	}
+
+	getEnchants(){
+		return this.wrappers.filter(wr => wr.hasTag(stdTag.wrEnchant));
+	}
+
+	updateStatsAutoGen(){
+		
+		const statNames = Object.values(Action.Types);
+		const hasStat = type => {
+			for( let n of statNames ){
+				if( type === 'sv'+n || type === 'bon'+n )
+					return true;
+			}
+		};
+		let stats = {};	// Type:val
+		let names;	// wrapper containing the description
+		let negs;	// Same as above but negative stats
+		for( let wrapper of this.wrappers ){
+
+			if( wrapper.name === 'statsAutoGen' )
+				names = wrapper;
+
+			if( wrapper.name === 'statsAutoGenNeg' )
+				negs = wrapper;
+
+			for( let effect of wrapper.effects ){
+
+				if( hasStat(effect.type) ){
+
+					if( !stats[effect.type] )
+						stats[effect.type] = 0;
+					stats[effect.type] += parseInt(effect.data.amount);
+
+				}
+
+			}
+
+
+		}
+
+		if( !Object.keys(stats).length )
+			return;
+
+		if( !names ){
+			// Create a wrapper to store the unified stat texts
+			names = new Wrapper({
+				label : 'statsAutoGen',
+				name : 'statsAutoGen',
+				detrimental : false,
+				effects : [],
+				rarity : 1,
+			});
+			this.wrappers.unshift(names);
+		}
+
+		let rows = []; let negRows = [];
+		for( let type in stats ){
+			
+			let val = parseInt(stats[type]);
+			if( !val )
+				continue;
+
+			let pre = ' Pro.'+type.substring(3);
+			if( type.startsWith("sv") )
+				pre = ' Res.'+type.substring(2);
+
+			if( val < 0 )
+				negRows.push(val+pre);
+			else
+				rows.push('+'+val+pre);
+			
+		}
+		names.description = rows.join("\n");
+
+		if( negRows.length ){
+
+			if( !negs ){
+				negs = new Wrapper({label:'statsAutoGenNeg', name:'statsAutoGenNeg', detrimental : true, effects : [], rarity : -1});
+				this.wrappers.splice(1, 0, negs);
+			}
+			negs.description = negRows.join('\n');
+
+		}
+			
+
+	}
 	
 }
 
@@ -711,43 +809,61 @@ Asset.imageCache = {};	// icon : svg data
 
 // Automatically creates a stat wrapper
 // Level is the level of the item, numSlots is how many item slots it covers
-Asset.generateStatWrapper = function( numSlots, bonusStats, rarity = 0 ){
+Asset.getRandomEnchant = function( asset, curse, player ){
 
-	const rarityPoints = [
-		0,	// Nada
-		2, 	// 2 to one stat
-		2, 	// 2 to two stats
-		2, 	// 2 to three stats
-		3, 	// 3 to three stats
-	];
-	let points = rarityPoints[rarity];
-	points += parseInt(bonusStats) || 0;
-	points *= numSlots;
-	
-	let effects = [];
-	if( points <= 0 || isNaN(points) || rarity < 1 ){
-		return new Wrapper({
-			name : 'statsAutoGen',
-			detrimental : false,
-			effects : []
+	const isStat = Math.random() < 0.6;	// Stat is 60%
+
+	if( curse || !isStat ){
+
+		const existing = asset.getEnchants().map(el => el.label);
+
+		const evt = new GameEvent({
+			sender : player || game.players[0],
+			target : player || game.players[0],
+			asset : asset
 		});
+		const allEnchants = glib.getAllValues('ArmorEnchant').filter(enc => {
+			return (
+				enc.rarity <= asset.rarity &&	// Rarity requirement 
+				Boolean(enc.curse) === Boolean(curse) && // Match curse status
+				Condition.all(enc.conditions, evt) && // Check conditions
+				!existing.includes(enc.label)	// Avoid duplicates
+			);
+		});
+
+		if( allEnchants.length ){
+			
+			let enchant = randElem(allEnchants);
+			let wrapper = enchant.wrapper.clone().g_resetID();
+			wrapper.rarity = enchant.rarity || 1;
+			if( curse )
+				wrapper.rarity = -1;
+			if( !wrapper.hasTag(stdTag.wrEnchant) )
+				wrapper.tags.push(stdTag.wrEnchant);
+
+			return wrapper;
+
+		}
 	}
 
-
-	effects.push(Effect.createStatBonus('sv'+Action.Types[randElem(Object.keys(Action.Types))], points));
-	effects.push(Effect.createStatBonus('bon'+Action.Types[randElem(Object.keys(Action.Types))], points));
-	effects.push(Effect.createStatBonus(randElem(Object.keys(Player.primaryStats))+'Modifier', points));
+	// If not stat, or no enchant is found, pick a random stat
 	
-	shuffle(effects);
-
-	effects = effects.slice(0, rarity);
+	// Adds 2 to a random stat
+	let stat = randElem(Object.values(Action.Types));
+	if( Math.random() < 0.5 )
+		stat = 'sv'+stat;
+	else
+		stat = 'bon'+stat;
 
 	const out = new Wrapper({
 		duration : -1,
-		name : 'statsAutoGen',
+		name : 'statsEnchant',
 		detrimental : false,
-		effects : effects,
+		effects : [Effect.createStatBonus(stat, 2)],
+		tags : [stdTag.wrEnchant],
+		rarity : 1,
 	});
+
 
 	out.add_conditions = [];
 	out.stay_conditions = [];
@@ -756,7 +872,9 @@ Asset.generateStatWrapper = function( numSlots, bonusStats, rarity = 0 ){
 };
 
 // Generates a custom item based on a slot
-Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity, minRarity = 0 ){
+Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity, minRarity, player, allowCosmetic = false ){
+
+	minRarity = minRarity || 0;
 
 	if( level === undefined )
 		level = game.getAveragePlayerLevel();
@@ -774,7 +892,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		rarity = Asset.rollRarity(minRarity);
 
 	// Pick a random template
-	let template = AssetTemplate.generateOutput( slot, level, viable_asset_templates, viable_asset_materials );
+	let template = AssetTemplate.generateOutput( slot, level, viable_asset_templates, viable_asset_materials, allowCosmetic );
 	if( !template ){
 		//console.error("Unable to generate a viable template from", viable_asset_templates, viable_asset_materials);
 		return false;
@@ -810,6 +928,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		hit_sound : template.hit_sound
 	});
 
+	// Add stats from template
 	let addEffectToWrapper = function( wr, stype, snr ){
 		for( let effect of wr.effects ){
 			if( effect.type === stype ){
@@ -820,34 +939,34 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		// Not found
 		wr.effects.push(Effect.createStatBonus(stype, snr));
 	};
-	let wrapper = Asset.generateStatWrapper( template.slots.length, template.stat_bonus, rarity );
+	let wrapper = new Wrapper({
+		name : 'statsAutoGen',
+		detrimental : false,
+		effects : [],
+		rarity : 1
+		// tags : [stdTag.wrEnchant], - This is technically not an enchant
+	});
 	for( let i in template.bonStats )
 		addEffectToWrapper(wrapper, i, template.bonStats[i]);
 	for( let i in template.svStats )
 		addEffectToWrapper(wrapper, i, template.svStats[i]);
-	for( let i in template.primaryStats )
-		addEffectToWrapper(wrapper, i+'Modifier', template.primaryStats[i]);
-
-
-	// Generate the description
-	wrapper.effects.sort((a, b) => {
-		let an = this.stringifyStat(a.type),
-			bn = this.stringifyStat(b.type)
-		;
-		if( an.substr(3,1) === '.' && bn.substr(3,1) !== '.' )
-			return 1;
-		if( an.substr(3,1) !== '.' && bn.substr(3,1) === '.' )
-			return -1;
-		return an < bn ? -1 : 1 ;
-	});
-	let allStats = [];
-	for( let effect of wrapper.effects )
-		allStats.push((effect.data.amount > 0 ? "+" : '')+effect.data.amount+" "+this.stringifyStat(effect.type));
-		
-	wrapper.description += allStats.join(', ');
 
 	out.wrappers = [wrapper]
-		.concat(Wrapper.loadThese(template.wrappers, out));
+		.concat(Wrapper.loadThese(template.wrappers, out))
+	;
+
+	let existingEnchants = out.wrappers.filter(el => el.hasTag(stdTag.wrEnchant)).length;
+	let cursed = Math.random() < 0.25;
+	for( let i = existingEnchants; i < out.rarity+cursed; ++i ){
+		const enchant = this.getRandomEnchant(out, false, player);
+		if( enchant )
+			out.wrappers.push(enchant);
+	}
+	if( cursed ){
+		const enchant = this.getRandomEnchant(out, true, player);
+		if( enchant )
+			out.wrappers.push(enchant);
+	}
 
 	out.loot_sound = 'lootCloth';
 	if( out.hasTag(stdTag.asPlate) )
@@ -862,20 +981,20 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		wrapper.stay_conditions = [];
 	}
 
+	out.updateStatsAutoGen();
+
 	out.repair();
 	return out;
 
 };
 
-// Stringifies a stat like svElemental etc into a more readable format. Also supports primary stats such as staminaModifier
+// Stringifies a stat like svPhys etc into a more readable format.
 Asset.stringifyStat = function( stat ){
 
 	if( stat.substr(0,2) === 'sv' )
 		return 'Res.'+stat.substr(2);
 	if( stat.substr(0,3) === 'bon' )
 		return 'Pro.'+stat.substr(3);
-	if( stat.endsWith('Modifier') )
-		return ucFirst(stat.substr(0,3));
 	
 	return stat;
 

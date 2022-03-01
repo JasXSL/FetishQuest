@@ -133,7 +133,14 @@ class Bot{
 		if( !this.player.isDead() ){
 
 			let abils = this.player.getActions('e').filter(el => {
-				return !el.hidden && el.castable();
+				return !el.hidden && 
+					!this.player.isCasting() &&
+					el.castable() && 
+					(
+						el.label !== 'grapple' ||
+						!this.player.hasTag(stdTag.gpAlwaysGrapple)
+					)
+				;
 			});
 			let highest_cost = 0;
 			for( let abil of abils ){
@@ -144,12 +151,20 @@ class Bot{
 			const AP = this.player.ap;
 
 			// Adds some randomness to abilities
+			let chance = Math.random();
 			if(
-				!this.player.hasTag(stdTag.acNpcNoAttack) &&
+				!this.player.hasTag(stdTag.acNpcNoAttack) &&	// This player can't use an action due to a tag
 				(
-					this.hasCastableImportant() ||
-					(AP >= highest_cost && (Math.random() < AP/this.player.getMaxAP() || (this.actions_used && Math.random()<0.75))) ||
-					Math.random() < 0.2 || AP > this.player.getMaxAP()/2
+					this.hasCastableImportant() ||		// We have an important spell we MUST cast
+					// Chance to stop an ongoing attack
+					(
+						AP >= highest_cost && 	// We have more AP than our highest costing ability
+						this.actions_used && 	// and We have already used an action
+						Math.random() < 0.8		// and 20% chance to stop mid attack
+					) ||
+					chance < 0.1 || 		// 10% chance to go yolo and attack
+					AP >= this.player.getMaxAP()*0.6 ||	// If greater or equal to 60%, always attack. Since they'll be full. 
+					this.player.getTauntedBy(undefined, false).length
 				)
 			){
 
@@ -164,8 +179,8 @@ class Bot{
 					// NPC important are run first
 					let atag = a.hasTag(stdTag.acNpcImportant) || aLast,
 						btag = b.hasTag(stdTag.acNpcImportant) || bLast,
-						aIsSTD = a.label === 'stdAttack' || a.label === 'stdArouse',
-						bIsSTD = b.label === 'stdAttack' || b.label === 'stdArouse'
+						aIsSTD = a.group === 'stdatt',
+						bIsSTD = b.group === 'stdatt'
 					;
 
 					// Deprioritize important_last
@@ -174,12 +189,23 @@ class Bot{
 					if( !bLast && b.hasTag(stdTag.acNpcImportantLast) )
 						return -1;
 					
-									
-					
 					if( atag && !btag )
 						return -1;
 					if( btag && !atag )
 						return 1;
+
+					// Prioritize acNpcFirst
+					if( a.hasTag(stdTag.acNpcFirst) !== b.hasTag(stdTag.acNpcFirst) )
+						return a.hasTag(stdTag.acNpcFirst) ? -1 : 1;
+
+					// Check always grapple
+					if( this.player.hasTag(stdTag.gpAlwaysGrapple) ){
+
+						const aGrapple = a.label === 'grapple', bGrapple = b.label === 'grapple';
+						if( aGrapple !== bGrapple )
+							return aGrapple ? -1 : 1;
+
+					}
 
 					// Put standard attacks last on the first action
 					if( aIsSTD && !bIsSTD && !this.actions_used )
@@ -187,12 +213,18 @@ class Bot{
 					if( bIsSTD && !aIsSTD && !this.actions_used )
 						return -1;
 					
-					// Handle sadism
+					// The standard attack chances are based on the player proficiency
 					if( aIsSTD && bIsSTD ){
-						const favorAttack = Math.random() < this.player.sadistic;	// Favor attack if rolling below sadism 
-						if( a.label === 'stdAttack' )
-							return favorAttack ? -1 : 1;	// A was attack, return -1 if sadism roll
+
+						let aSkill = this.player.getBon(a.type), bSkill = this.player.getBon(b.type);
+						let chance = 1.0/(2+Math.abs(aSkill-bSkill)/2);	// Absolute means we roll for the one with lowest chance
+
+						let favorAttack = Math.random() > chance;	// Favor attack if rolling below sadism
+						if( bSkill > aSkill )	// If b is greater than a, we invert the roll, because we rolled for b
+							favorAttack = !favorAttack;
+						
 						return favorAttack ? 1 : -1;		// A was arouse, return 1 if sadism roll
+
 					}
 
 					return 0;

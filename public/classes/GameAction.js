@@ -7,7 +7,7 @@ import Asset from './Asset.js';
 import GameEvent from './GameEvent.js';
 import Dungeon, { DungeonRoomAsset } from './Dungeon.js';
 import Calculator from './Calculator.js';
-import Quest from './Quest.js';
+import Quest, { QuestObjective } from './Quest.js';
 import Roleplay, { RoleplayStageOption } from './Roleplay.js';
 import Shop from './Shop.js';
 import Player from './Player.js';
@@ -20,14 +20,28 @@ import { Wrapper } from './EffectSys.js';
 import Collection from './helpers/Collection.js';
 import Action from './Action.js';
 import Game from './Game.js';
+import Faction from './Faction.js';
+import Book from './Book.js';
 
 export default class GameAction extends Generic{
 
 	static getRelations(){ 
 		return {
 			conditions : Condition,
-			data : Collection
+			data : Collection,
+			playerConds : Condition
 		};
+	}
+
+	// Helper function since we're using collections
+	getCollectionRelations( field ){
+
+		if( field === 'data' ){
+			if( !GameAction.TypeRelations[this.type] )
+				console.log("Note: Trying to get GameAction collection relations from type", this.type, "It may work, but if export data is missing, you know why");
+			return GameAction.TypeRelations[this.type] || {};
+		}
+
 	}
 
 	constructor(data, parent){
@@ -40,6 +54,8 @@ export default class GameAction extends Generic{
 		this.data = new Collection({}, this);
 		this.conditions = [];
 
+		this.playerConds = [];	// Can be used to override the target. Picks all enabled players that match these conditions.
+
 		this.load(data);
 	}
 
@@ -49,6 +65,7 @@ export default class GameAction extends Generic{
 			id : this.id,
 			type : this.type,
 			conditions : Condition.saveThese(this.conditions, full),
+			playerConds : Condition.saveThese(this.playerConds, full),
 			desc : this.desc,	// Needed for asset interactions
 		};
 
@@ -100,6 +117,10 @@ export default class GameAction extends Generic{
 		
 		if( !this.id )
 			this.g_resetID();
+
+		if( this.data.constructor === Object || this.data.constructor === Array )
+			this.data = deepClone(this.data);
+		
 
 		if( window.game ){
 			
@@ -191,6 +212,7 @@ export default class GameAction extends Generic{
 		else if( this.type === this.constructor.types.autoLoot ){
 
 			const value = isNaN(this.data.val) ? 0.5 : +this.data.val;
+			const allowCosmetic = this.data.cosmetic;
 
 			const dungeon = this.getDungeon();
 
@@ -220,6 +242,8 @@ export default class GameAction extends Generic{
 						undefined, 	// Viable materials
 						undefined, // enforced rarity
 						Math.floor(val), // Min rarity
+						undefined,
+						allowCosmetic
 					);
 					if( loot )
 						this.data.genLoot.push(loot);
@@ -341,20 +365,19 @@ export default class GameAction extends Generic{
 	
 	}
 
-	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
-	async trigger( player, mesh, debug ){
-		
+	async exec( player, mesh, debug ){
+
 		const asset = this.parent;
 		const types = GameAction.types;
 
-		if( !player )
-			player = game.getMyActivePlayer();
-
 		// Helper function for playing animation on this asset. Returns the animation played if any
-		function playAnim( anim, targ ){
+		const playAnim = ( anim, targ ) => {
 
-			if( !targ )
+			if( !targ ){
+				if( !mesh )
+					console.error("Trying to call playAnim, but GameAction contained no mesh in game action", this);
 				targ = mesh.userData.dungeonAsset;
+			}
 			else
 				targ = game.dungeon.getActiveRoom().assets.filter(el => el.name === targ);
 
@@ -387,9 +410,11 @@ export default class GameAction extends Generic{
 		if( this.type === types.encounters ){
 
 			const encounter = Encounter.getRandomViable(Encounter.loadThese(this.data.encounter));
-			game.mergeEncounter(player, encounter, mesh);
+
+			game.startEncounter(player, encounter, !this.data.replace, mesh);
 			this.remove();	// Prevent it from restarting
-			asset.updateInteractivity();	// After removing the action, update interactivity
+			if( asset )
+				asset.updateInteractivity();	// After removing the action, update interactivity
 
 		}
 		else if( this.type === types.resetEncounter ){
@@ -412,6 +437,15 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.refreshMeshes ){
 			game.renderer.stage.onRefresh();			
+		}
+		else if( this.type === types.removePlayer ){
+
+			let playersToRemove = game.players.filter(el => el.label === this.data.player);
+			if( !this.data.player )
+				return false;
+			for( let pr of playersToRemove )
+				game.removePlayer(pr.id);
+			
 		}
 			
 		else if( this.type === types.door ){
@@ -519,8 +553,9 @@ export default class GameAction extends Generic{
 				return false;
 
 			rp.completed = false;
-			if( rp.validate(player) ){
-				game.setRoleplay(rp, false, player);
+			const pl = rp.validate(player);
+			if( pl ){
+				game.setRoleplay(rp, false, pl);
 			}
 
 		}
@@ -659,7 +694,7 @@ export default class GameAction extends Generic{
 
 		}
 
-		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.rentRoom || this.type === types.gym || this.type === types.transmog )
+		else if( this.type === types.shop || this.type === types.repairShop || this.type === types.altar || this.type === types.bank || this.type === types.rentRoom || this.type === types.gym || this.type === types.transmog )
 			return;
 
 		else if( this.type === types.playerAction ){
@@ -950,7 +985,46 @@ export default class GameAction extends Generic{
 			console.error("Game action triggered with unhandle type", this.type, this);
 			return false;
 		}
+
+	}
+
+	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
+	async trigger( player, mesh, debug ){
 		
+		if( !player )
+			player = game.getMyActivePlayer();
+
+		let targets = [player];
+		// Override target
+		if( this.playerConds.length ){
+
+			const evt = new GameEvent({
+				sender : player,
+				target : player,
+				dungeon : game.dungeon,
+				dungeonRoom : game.dungeon.getActiveRoom(),
+			});
+			let enabled = game.getEnabledPlayers();
+			targets = enabled.filter(target => {
+				
+				evt.target = target;
+				return Condition.all(this.playerConds, evt, debug);
+
+			});
+
+		}
+
+		let successes = 0;
+		for( let target of targets ){
+			try{
+				const att = await this.exec(target, mesh, debug);
+				if( att !== false )
+					++successes;
+			}catch(err){
+				console.error(err);
+			}
+		}
+		return successes;
 
 	}
 
@@ -1036,6 +1110,8 @@ GameAction.types = {
 	gym : "gym",							// 
 	playerAction : "playerAction",			// 
 	repairShop : "repairShop",				// 
+	altar : "altar",				// 
+	bank  : "bank",
 	text : "text",							// 
 	hitfx : "hitfx",						// 
 	addPlayer : "addPlayer",				// 
@@ -1058,14 +1134,15 @@ GameAction.types = {
 	transmog : 'transmog',
 	restorePlayerTeam : 'restorePlayerTeam',	// Shortcut to fully regen and wipe arousal from the player team
 	setPlayerTeam : 'setPlayerTeam',
+	removePlayer : 'removePlayer',
 };
 
 GameAction.TypeDescs = {
-	[GameAction.types.encounters] : "{encounter:(arr)encounters} - Picks a random encounter to start",
+	[GameAction.types.encounters] : "{encounter:(arr)encounters, replace:(bool)replaceEncounter=false} - Picks a random encounter to start. If replace is true, it replaces the encounter. Otherwise it merges it.",
 	[GameAction.types.resetEncounter] : "{encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one",
 	[GameAction.types.wrappers] : "{wrappers:(arr)wrappers} - Triggers all viable wrappers",
 	[GameAction.types.loot] : "{loot:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: {genLoot:[asset, asset, asset...]} - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
-	[GameAction.types.autoLoot] : "{val:(float)modifier} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items.",
+	[GameAction.types.autoLoot] : "{val:(float)modifier, cosmetic:(bool)allowCosmetic} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items. allowCosmetic also allows cosmetic items to be rolled in.",
 	[GameAction.types.door] : "{index:(int)room_index, badge:(int)badge_type} - Door will automatically trigger \"open\" animation when successfully used. badge can be a value between 0 and 2 and sets the icon above the door. 0 = normal badge, 1 = hide badge, 2 = normal but with direction instead of exit",
 	[GameAction.types.exit] : "{dungeon:(str)dungeon_label, index:(int)landing_room=0, time:(int)travel_time_seconds=60}",
 	[GameAction.types.proceduralDungeon] : "{label:(str)label, templates:(arr)viable_templates}",
@@ -1083,6 +1160,8 @@ GameAction.TypeDescs = {
 	[GameAction.types.gym] : '{player:(str)player_offering} - Passive. Player is the player that should have the gym icon attached to them. ',
 	[GameAction.types.playerAction] : '{player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it\'s the supplied triggering player that becomes the caster',
 	[GameAction.types.repairShop] : '{player:(str)label} - Marks a player as offering repairs',
+	[GameAction.types.altar] : '{player:(str)label} - Marks a player as offering kink resets',
+	[GameAction.types.bank] : '{player:(str)label} - Marks a player as offering bank services',
 	[GameAction.types.text] : '{text:(str/obj)text} - Triggers a Text',
 	[GameAction.types.hitfx] : '{hitfx:(obj/str/arr)hitfx, caster_conds:(arr)caster_conditions, target_conds:(arr)target_conds, max_triggers:(int)=all} - Triggers a hitfx',
 	[GameAction.types.addPlayer] : '{player:(obj/str)monster, turn:(int)turn_offset=-1}',
@@ -1103,9 +1182,50 @@ GameAction.TypeDescs = {
 	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
-	[GameAction.types.trap] : '{action:(str)action_label, game_actions:(arr)labels, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, elemental etc), and name specified in the action. Game actions are always triggered when the trap is triggered regardless of if it hit or not. They are ran with the sender and target being the person who triggered the trap.',
+	[GameAction.types.trap] : '{action:(str)action_label, game_actions:(arr)labels, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, corr, etc), and name specified in the action. Game actions are always triggered when the trap is triggered regardless of if it hit or not. They are ran with the sender and target being the person who triggered the trap.',
+	[GameAction.types.removePlayer] : '{player:(str)playerLabel} - Removes a player from the game.',
 	[GameAction.types.restorePlayerTeam] : '{team:(int)team=Player.TEAM_PLAYER} - Shortcut that fully restores HP and clears arousal from Player.TEAM_PLAYERS.',
 	[GameAction.types.setPlayerTeam] : '{playerConds:(arr)player_conds=GameActionPlayer, team=Player.TEAM_PLAYER} - Changes one or more players teams',
+};
+
+// type : {[fieldName]:constructor}
+GameAction.TypeRelations = {
+	[GameAction.types.encounters] : {encounter:Encounter},
+	[GameAction.types.resetEncounter] : {encounter:Encounter},
+	[GameAction.types.wrappers] : {wrappers:Wrapper},
+	[GameAction.types.loot] : {loot:Asset},
+	[GameAction.types.exit] : {dungeon:Dungeon},
+	[GameAction.types.quest] : {quest:Quest},
+	[GameAction.types.questObjective] : {quest:Quest, objective:QuestObjective},
+	[GameAction.types.addInventory] : {player:Player, asset:Asset},
+	[GameAction.types.roleplay] : {rp:Roleplay},
+	[GameAction.types.finishQuest] : {quest:Quest},
+	[GameAction.types.tooltip] : {text:Text},
+	[GameAction.types.shop] : {shop:Shop, player:Player},
+	[GameAction.types.openShop] : {shop:Shop},
+	[GameAction.types.gym] : {player:Player},
+	[GameAction.types.playerAction] : {player:Player, action:Action},
+	[GameAction.types.repairShop] : {player:Player},
+	[GameAction.types.altar] : {player:Player},
+	[GameAction.types.bank] : {player:Player},
+	[GameAction.types.text] : {text:Text},
+	[GameAction.types.hitfx] : {hitfx:HitFX, caster_conds:Condition, target_conds:Condition},
+	[GameAction.types.addPlayer] : {player:Player},
+	[GameAction.types.addPlayerTemplate] : {player:PlayerTemplate},
+	[GameAction.types.rentRoom] :  {player:Player},
+	[GameAction.types.execRentRoom] : {renter:Player},
+	[GameAction.types.sleep] : {actions:GameAction},
+	[GameAction.types.resetRoleplay] : {roleplay:Roleplay},
+	[GameAction.types.setDungeon] : {dungeon:Dungeon},
+	[GameAction.types.addFaction] : {faction:Faction},
+	[GameAction.types.trade] : {asset:Asset, from:Player, to:Player},
+	[GameAction.types.learnAction] : {conditions:Condition, action:Action},
+	[GameAction.types.addCopper] : {player:Player},
+	[GameAction.types.book] : {label:Book},
+	[GameAction.types.transmog] : {player:Player},
+	[GameAction.types.trap] : {action:Action, game_actions:GameAction},
+	[GameAction.types.removePlayer] : {player:Player},
+	[GameAction.types.setPlayerTeam] :  {playerConds:Condition},
 };
 
 // These are types where data should be sent to netgame players
@@ -1118,6 +1238,8 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.tooltip] : true,
 	[GameAction.types.shop] : true,
 	[GameAction.types.repairShop] : true,
+	[GameAction.types.altar] : true,
+	[GameAction.types.bank] : true,
 	[GameAction.types.rentRoom] : true,
 	[GameAction.types.gym] : true,
 	[GameAction.types.transmog] : true,

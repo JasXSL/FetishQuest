@@ -203,27 +203,25 @@ export default class Condition extends Generic{
 
 		}
 
-		let targs = event.target,
+		let targs = toArray(event.target),
 			success = false,
 			T = Condition.Types,
 			s = event.sender
 		;
 
-		
+		const originalTargets = targs.slice();
 
 		let eventWrapper = event.wrapper;
 		if( this.data.originalWrapper && event.originalWrapper )
 			eventWrapper = event.originalWrapper;
 
-		if( !Array.isArray(targs) )
-			targs = [targs];
 		if( this.caster )
 			targs = [event.sender];
 
 		if( ~this.targnr )
 			targs = [targs[this.targnr]];
 		
-		// Trying to target a nonexistend target
+		// Trying to target a nonexistent target
 		if( targs[0] === undefined ){
 			if( debug )
 				console.debug("Condition DEBUG :: Targs is undefined, check targnr", event.target, this.caster, this.targnr);
@@ -260,10 +258,14 @@ export default class Condition extends Generic{
 					// Only tags applied by sender
 					if( this.data.caster ){
 
+						let tagSender = s;
 						let tagTarg = t;
-						if( this.caster )
+						if( this.caster ){
+							// t is both caster and sender at this point
 							tagTarg = s;
-						found = tagTarg && tagTarg.hasTagBy([tag], this.caster ? t : s);
+							tagSender = originalTargets;
+						}
+						found = tagTarg && tagTarg.hasTagBy([tag], tagSender);
 
 					}
 					// Any tag applied by anyone
@@ -290,8 +292,12 @@ export default class Condition extends Generic{
 				}
 
 			}
-			else if( this.type === T.targetIsRpPlayer ){
-				success = (t && game.roleplay && t.id === game.roleplay._targetPlayer);		
+			else if( this.type === T.targetIsRpPlayer || this.type === T.isRoleplayPlayer ){
+				
+				let index = game?.roleplay?._targetPlayers?.indexOf(t?.id);
+				if( ~index )
+					success = isNaN(this.data.index) || this.data.index < 0 || index.toFixed() === this.data.index.toFixed();
+
 			}
 			else if( this.type === T.targetIsSender ){
 				if(t && s && t.id === s.id)
@@ -330,6 +336,11 @@ export default class Condition extends Generic{
 				// Searches any attached action for a tag
 				success = event.action && event.action.hasTag(this.data.tags);
 			}
+			else if( this.type === T.roomTag ){
+				// Searches any attached action for a tag
+				success = event.room?.hasTag(this.data.tags);
+			}
+
 			else if( this.type === T.actionCrit ){
 				success = event.action && event.action._crit;
 			}
@@ -500,7 +511,8 @@ export default class Condition extends Generic{
 			
 			else if( this.type === T.actionDetrimental )
 				success = event.action && event.action.detrimental;
-
+			else if( this.type === T.encounterCompleted )
+				success = event.encounter && event.encounter.completed;
 			else if( this.type === T.rng ){
 
 				let rng = Math.floor(Math.random()*100),
@@ -511,18 +523,15 @@ export default class Condition extends Generic{
 			else if( this.type === T.actionHidden ){
 				success = event.action && event.action.hidden;
 			}
+			else if( this.type === T.actionGroup ){
+				success = event.action && event.action.group === this.data.group;
+			}
 
 			else if( this.type === T.isWrapperParent ){
 				
 				success = eventWrapper && t && eventWrapper.victim === t.id;
 
 			}
-			else if( this.type === T.isRoleplayPlayer ){
-
-				success = t && game.rp && t.id == game.rp._targetPlayer;
-
-			}
-
 			else if( this.type === T.isActionParent ){
 
 				success = event.action && event.wrapper && event.wrapper.action && event.wrapper.action === event.action.id;
@@ -607,7 +616,7 @@ export default class Condition extends Generic{
 
 					const type = toArray(this.data.type);
 
-					let effects = t.getEffects();
+					let effects = t.getEffects(false);
 					if( this.data.byCaster )
 						effects = effects.filter( el => el.parent.caster === event.sender.id );
 
@@ -621,6 +630,7 @@ export default class Condition extends Generic{
 						console.debug("Checking ", this.data, " against ", t, success, "sender id", event.sender.id);
 
 				}
+				
 			}
 
 			else if( this.type === T.apValue ){
@@ -634,6 +644,9 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.arousalValue ){
 				success = t && this.compareValue(s, t, t.arousal);
+			}
+			else if( this.type === T.numRpTargets ){
+				success = game.roleplay && t && this.compareValue(s, t, game.roleplay.getTargetPlayers().length, debug);
 			}
 			else if( this.type === T.copperValue )
 				success = t && this.compareValue(s, t, t.getMoney());
@@ -723,7 +736,9 @@ export default class Condition extends Generic{
 					const s = event.wrapperReturn.armor_slots[t.id],
 						slot = this.data.slot
 					;
-					success = !slot || s[slot];
+					success = Boolean(!slot || s[slot] || (
+						slot === 'ARM' && (s['upperBody'] || s['lowerBody'])
+					));
 				}
 			}
 			else if( this.type === T.slotStripped ){
@@ -737,7 +752,9 @@ export default class Condition extends Generic{
 					const s = event.wrapperReturn.armor_strips[t.id],
 						slot = this.data.slot
 					;
-					success = Boolean(!slot || s[slot]);
+					success = Boolean(!slot || s[slot] || (
+						slot === 'ARM' && (s['upperBody'] || s['lowerBody'])
+					));
 				}
 			}
 			else if( this.type === T.itemStolen ){
@@ -776,6 +793,24 @@ export default class Condition extends Generic{
 				}
 
 			}
+			else if( this.type == T.dungeonTemplateRoomHasEncounter ){
+
+				let labels = toArray(this.data.label);
+				let viable = event.custom.viableEncounters;
+				if( Array.isArray(viable) ){
+
+					for( let enc of viable ){
+
+						if( labels.includes(enc.asset) ){
+							success = true;
+							break;
+						}
+
+					}
+
+				}
+
+			}
 			else if( this.type === T.firstOnTeam ){
 
 				const players = game.getTeamPlayers(t.team);
@@ -804,11 +839,27 @@ export default class Condition extends Generic{
 			else if( this.type === T.assetSlot ){
 
 				const slots = toArray(this.data.slots);
-				for( let slot of slots ){
-					if( event.asset && event.asset.slots.includes(slot) ){
+				if( !event.asset )
+					success = false;
+				else{
+
+					if( this.data.all )
 						success = true;
-						break;
+
+					for( let slot of slots ){
+
+						const hasSlot = event.asset.slots.includes(slot);
+						if( hasSlot && !this.data.all ){
+							success = true;
+							break;
+						}
+						else if( !hasSlot && this.data.all ){
+							success = false;
+							break;
+						}
+
 					}
+
 				}
 				
 			}
@@ -1128,6 +1179,13 @@ export default class Condition extends Generic{
 
 			}
 
+			else if( this.type === T.voice ){
+
+				const labels = toArray(this.data.label);
+				success = labels.includes(t.voice);
+
+			}
+
 			else if( this.type === T.targetedSenderLastRound )
 				success = Boolean(s._targeted_by_since_last.get(t.id));
 
@@ -1293,6 +1351,7 @@ Condition.Types = {
 	actionLabel : "actionLabel",	// 
 	actionType : "actionType",	// 
 	actionDetrimental : "actionDetrimental",	// 
+	actionGroup : "actionGroup",	// 
 	actionResisted : "actionResisted",			// 
 	rng : "rng",								// 
 	isWrapperParent : 'isWrapperParent',		// 
@@ -1305,6 +1364,7 @@ Condition.Types = {
 	hasWrapper : 'hasWrapper',		// 
 	hasEffect : 'hasEffect',		// 
 	hasEffectType : 'hasEffectType',
+	voice : 'voice',
 
 	hasAsset : 'hasAsset',
 	assetStealable : 'assetStealable',
@@ -1369,6 +1429,8 @@ Condition.Types = {
 	isGenderEnabled : 'isGenderEnabled',
 	targetGenderEnabled : 'targetGenderEnabled',
 
+	encounterCompleted : 'encounterCompleted',
+
 	// Dungeon room conditions
 	roomIsOutdoors : 'roomIsOutdoors',
 	roomZ : 'roomZ',
@@ -1376,6 +1438,9 @@ Condition.Types = {
 	firstOnTeam : 'firstOnTeam',
 	fetish : 'fetish',
 	isControlled : 'isControlled',
+	dungeonTemplateRoomHasEncounter : 'dungeonTemplateRoomHasEncounter',
+	roomTag : 'roomTag',
+	numRpTargets : 'numRpTargets',
 };
 
 
@@ -1393,16 +1458,19 @@ Condition.descriptions = {
 	[Condition.Types.charging] : '{(arr)conditions:[]} Checks if the target is charging an action. You can limit the actions to check for by conditions. Empty array checks if ANY action is charged.',
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag, originalWrapper:(bool)=false} one or more tags searched in any attached wrapper.',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
+	[Condition.Types.roomTag] : '{tags:(arr)(str)tag} If no room is in event, the current dungeon room is used. Searches for a tag in the room. Use this instead of normal tag for furniture, even though both works. Since this one works in the procedural generator.',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
 	[Condition.Types.actionLabel] : '{label:(arr)(str)label, ignore_alias:(bool)=false} Attached action label is in this array. If ignore_alias is true, it ignores alias checking',
 	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',
 	[Condition.Types.actionDetrimental] : 'Data is void',
+	[Condition.Types.encounterCompleted] : 'void - The event encounter is completed',
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
 	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100 where 100 = always and 0 = never',
 	[Condition.Types.isWrapperParent] : '{originalWrapper:(bool)false} - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
-	[Condition.Types.isRoleplayPlayer] : '{} - Target is the player stored in the RP. Useful when an NPC does something to a specific player in an RP.',
+	[Condition.Types.isRoleplayPlayer] : '{index:(int)index=-1} - Target is an RP player. Useful to track who an RP is doing something to. Index can be set to force check if it\'s the first, second player etc. Starting from 0. -1 allows any index',
 	[Condition.Types.isActionParent] : 'void - If event event.wrapper.action is the same as event.action.id',
 	[Condition.Types.actionHidden] : 'void - Action exists and is hidden',
+	[Condition.Types.actionGroup] : '{group:(str)group} - Action belongs to this group',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false} - Checks if the wrapper tied to the event has a label',
 	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false, label:wrapperLabel=_EVT_WRAPPER_} - Operation is = by default. Leave label undefined to use the event wrapper. Amount can be a math var.',
@@ -1442,17 +1510,18 @@ Condition.descriptions = {
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',
-	[Condition.Types.targetIsRpPlayer] : '{} - Checks if target is roleplay _targetPlayer, which can be set by RP stages to lock an rp target',
+	[Condition.Types.targetIsRpPlayer] : 'Synonym for isRoleplayPlayer, use that one instead',
+	[Condition.Types.numRpTargets] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Checks how many _targetPlayers there are in the active roleplay.',
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any, controlled:(bool)pc_controlled=false} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies. If controlled is true it ignores NPCs.',
 	[Condition.Types.actionOnCooldown] : '{label:(str)label} - Checks if an action is on cooldown for the target.',
 	[Condition.Types.formula] : '{formula:(str)formula} - Runs a math formula with event being the event attached to the condition and returns the result',
-	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY can be used on things like stdattack',
-	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY can be used on things like stdattack',
+	[Condition.Types.slotDamaged] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was damaged by slot. ANY = any slot is viable, ARM = non-cosmetic are viable',
+	[Condition.Types.slotStripped] : '{slot:(str)Asset.Slots.*=any} - Requires wrapperReturn in event. Indicates an armor piece was removed by slot. ANY = any slot is viable, ARM = non-cosmetic are viable',
 	[Condition.Types.itemStolen] : '{} - Requires wrapperReturn in event. Checks if at least one item steal is present',
 	[Condition.Types.actionCrit] : '{} - Needs a supplied action which critically hit',
 	[Condition.Types.hasAsset] : '{conditions:[], min:int=1} - Checks if the target has an asset filtered by conditions',
 	[Condition.Types.assetStealable] : '{} - Requires asset in event. Checks whether asset can be stolen or not.',
-	[Condition.Types.assetSlot] : '{slots:(str/arr)slots} - Requires asset in event. Checks whether asset is equipped to at least one of these slots, from Asset.Slots',
+	[Condition.Types.assetSlot] : '{slots:(str/arr)slots, all:(bool)false} - Requires asset in event. Checks whether asset is equipped to at least one of these slots, from Asset.Slots. If all is true, it requires all slots.',
 	[Condition.Types.assetTag] : '{tags:(str/arr)tags, all:(bool)false} - Requires asset in event. Checks if asset has one of these tags, or all if all is true.',
 	[Condition.Types.assetLabel] : '{label:(str/arr)labels} - Requires asset in event. Checks if asset has at least one of these labels.',
 	[Condition.Types.assetEquipped] : '{} - Requires asset in event. Checks if said asset is equipped.',
@@ -1473,6 +1542,8 @@ Condition.descriptions = {
 	[Condition.Types.targetGenderEnabled] : 'void - Checks if the target\'s gender is enabled in game gender preferences',
 	[Condition.Types.fetish] : '{label:(str/arr)label} - Requires a fetish to be enabled, by label',
 	[Condition.Types.isControlled] : 'void - Checks if target is controlled by a human (not NPC)',
+	[Condition.Types.voice] : '{label:(str/arr)label} - Player voice field is set to this.',
+	[Condition.Types.dungeonTemplateRoomHasEncounter] : '{label:(str/arr)label} - Requires custom.viableEncounters. Used only in the procedural dungeon generator, checks if the encounter pool has at least one viable encounter by label.',
 	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
 };
 

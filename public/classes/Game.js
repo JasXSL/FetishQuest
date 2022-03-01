@@ -25,6 +25,8 @@ import * as THREE from '../ext/THREE.js';
 import ModRepo from './ModRepo.js';
 import Book from './Book.js';
 import { Logger } from './Logger.js';
+import Bank from './Bank.js';
+import AudioTrigger from './AudioTrigger.js';
 
 export default class Game extends Generic{
 
@@ -73,6 +75,7 @@ export default class Game extends Generic{
 		this.audio_ambient = new Audio('ambient', false);
 		this.audio_music = new Audio('music', false);
 		this.audio_ui = new Audio('ui', true);
+		this.audio_voice = new Audio('voice', true);
 
 		this.active_music_file = null;
 		this.active_ambient_file = null;
@@ -145,6 +148,8 @@ export default class Game extends Generic{
 			if( event.type !== GameEvent.Types.actionUsed || !event.action.no_use_text )
 				Text.runFromLibrary(event.clone());
 
+			AudioTrigger.handleEvent(event);
+
 			VibHub.onEvent(event);
 
 			this.getEnabledPlayers().forEach(pl => {
@@ -193,6 +198,8 @@ export default class Game extends Generic{
 			factions : Faction.saveThese(this.factions, full),
 			proceduralDiscovery : this.proceduralDiscovery.save(full),
 			books_read : this.books_read.save(full),
+			difficulty : this.difficulty,
+			genders : this.genders,
 		};
 	
 		if( full ){
@@ -202,8 +209,7 @@ export default class Game extends Generic{
 			out.rain_next_refresh = this.rain_next_refresh;
 			out.rain_start_val = this.rain_start_val;
 			out.rain_started = this.rain_started;
-			out.difficulty = this.difficulty;
-			out.genders = this.genders;
+			
 			out.procedural = Dungeon.saveThese(this.procedural, full);
 			out.state_dungeons = this.state_dungeons.save(full);
 			out.state_roleplays = this.state_roleplays.save();
@@ -606,13 +612,16 @@ export default class Game extends Generic{
 
 				let l = armorSteal.shift();
 				// Allow steal
-				if( l && !winner.isBeast() ){
+				if( l && !winner.isBeast() && Math.random() < 0.5 ){
 
-					let gear = l.getEquippedAssetsBySlots([Asset.Slots.lowerBody, Asset.Slots.upperBody], true);
-					let item = shuffle(gear).shift();
-					if( item && Math.random() < 0.5 && !item.soulbound ){
-						l.transferAsset(item.id, winner);
-						game.ui.addText( winner.getColoredName()+" STOLE "+l.getColoredName()+"'s "+item.name+"!", undefined, winner.id, l.id, 'statMessage important' );
+					let stealable = l.getStealableAssets();
+					
+					let item = shuffle(stealable).shift();
+					if( item ){
+						
+						l.transferAsset(item.id, winner, winner);
+						game.ui.addText( winner.getColoredName()+" STOLE "+item._stacks+"x "+item.name+" from "+l.getColoredName()+"!", undefined, winner.id, l.id, 'statMessage important' );
+
 					}
 
 				}
@@ -1115,6 +1124,27 @@ export default class Game extends Generic{
 			Game.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot, vol_multi);
 
 		const out = await kit.play(this.audio_fx, sender, target, armor_slot, vol_multi);
+		return {kit:kit, instances:out};
+
+	}
+	async playVoiceAudioKit(kit, sender, target, armor_slot, global = false, vol_multi = 1.0 ){
+		
+		if( typeof kit === "string" )
+			kit = glib.audioKits[kit];
+
+		if( !kit )
+			throw 'Audio kit missing';
+
+		let sid, tid;
+		if( sender )
+			sid = sender.id;
+		if( target )
+			tid = target.id;
+
+		if( this.is_host && global )
+			Game.net.dmPlaySoundOnPlayer(sid, tid, kit.save(), armor_slot, vol_multi, 'voice');
+
+		const out = await kit.play(this.audio_voice, sender, target, armor_slot, vol_multi);
 		return {kit:kit, instances:out};
 
 	}
@@ -1712,6 +1742,7 @@ export default class Game extends Generic{
 
 		}
 
+
 		return false;
 	}
 
@@ -1931,13 +1962,12 @@ export default class Game extends Generic{
 			this.assignNewPlayerColor(pl);
 	}
 
-	// Equips an item to a player from inventory by Player, Asset.id
+	// Toggles equip on an item to a player from inventory by Player, Asset.id
 	equipPlayerItem( player, id ){
 
 		let apCost = player.isAssetEquipped(id) ? Game.UNEQUIP_COST : Game.EQUIP_COST;
 		if( game.battle_active ){
 			
-
 			if( player !== game.getTurnPlayer() )
 				throw("Not your turn");
 
@@ -1945,6 +1975,9 @@ export default class Game extends Generic{
 				throw("Not enough AP");
 			
 		}
+
+		if( !player.canEquip(id) )
+			throw "Can't equip that right now";
 
 		if(!game.playerIsMe(player))
 			throw("Not your player");
@@ -1958,11 +1991,11 @@ export default class Game extends Generic{
 		}
 
 		if( !player.isAssetEquipped(id) ){
-			if( !player.equipAsset(id, true) )
+			if( !player.equipAsset(id, player) )
 				return false;
 		}
 		else{
-			if( !player.unequipAsset(id, true) )
+			if( !player.unequipAsset(id, player) )
 				return false;
 		}
 
@@ -1990,10 +2023,8 @@ export default class Game extends Generic{
 			throw("Invalid target");
 		if( fromPlayer.id === toPlayer.id )
 			throw("Can't trade with yourself");
-		if( this.battle_active && this.getTurnPlayer().id !== fromPlayer.id && !force )
-			throw("Not your turn");
-		if( this.battle_active && fromPlayer.ap < 3 && !force )
-			throw("Not enough AP");
+		if( this.battle_active && !force )
+			throw("Can't trade in combat");
 
 		const asset = fromPlayer.getAssetById(id);
 		if( !asset )
@@ -2145,6 +2176,11 @@ export default class Game extends Generic{
 		if( !encounter )
 			return;
 
+		if( typeof encounter === 'string' )
+			encounter = glib.get(encounter, 'Encounter');
+		if( !(encounter instanceof Encounter) )
+			throw 'Attempting to start missing encounter';
+
 		if( this.encounter )
 			this.encounter.onRemoved();
 		
@@ -2267,6 +2303,10 @@ export default class Game extends Generic{
 
 		this.updateShops();
 
+		// Always set proc evt encounters to completed to prevent repeats
+		if( encounter.isEvt )
+			this.encounter.setCompleted(true);
+
 		// Purge is needed after each overwrite
 		this.save();
 		this.ui.draw();
@@ -2319,7 +2359,7 @@ export default class Game extends Generic{
 				el.onBattleStart();
 				return {
 					p : el,
-					i : Math.random()+el.getPrimaryStats().agility*0.1
+					i : Math.random()	// You can weight this higher if you want to add an initiative modifier later
 				};
 
 			});
@@ -2934,6 +2974,32 @@ export default class Game extends Generic{
 		return out;
 	}
 
+	getAltarByPlayer( player ){
+		const encounter = this.encounter;
+		const altars = encounter.getAltars(player);
+		if( !player )
+			return;
+		const out = [];
+		for( let altar of altars ){
+			if( altar.data.player === player.label )
+				out.push(altar);
+		}
+		return out;
+	}
+
+	getBankByPlayer( player ){
+		const encounter = this.encounter;
+		const banks = encounter.getBanks(player);
+		if( !player )
+			return;
+		const out = [];
+		for( let bank of banks ){
+			if( bank.data.player === player.label )
+				out.push(bank);
+		}
+		return out;
+	}
+
 	// Returns game actions
 	getGymsByPlayer( player, target ){
 		const encounter = this.encounter;
@@ -3074,6 +3140,46 @@ export default class Game extends Generic{
 		return false;
 	}
 
+	// Checks if an altar object is available to a player
+	altarAvailableTo( altarPlayer, player ){
+
+		if( this.battle_active )
+			return false;
+
+		if( !(altarPlayer instanceof Player) )
+			throw "Altar invalid type";
+			
+		if( !(player instanceof Player) )
+			throw "Player is not a player";
+
+		const altars = this.getAltarByPlayer(altarPlayer);
+		for( let altar of altars ){
+			if( altar.validate(player) )
+				return true;
+		}
+		return false;
+	}
+
+	// Checks if a bank is available to a player
+	bankAvailableTo( bankPlayer, player ){
+
+		if( this.battle_active )
+			return false;
+
+		if( !(bankPlayer instanceof Player) )
+			throw "Bank invalid type";
+			
+		if( !(player instanceof Player) )
+			throw "Player is not a player";
+
+		const banks = this.getBankByPlayer(bankPlayer);
+		for( let bank of banks ){
+			if( bank.validate(player) )
+				return true;
+		}
+		return false;
+	}
+
 	// Checks if a transmog object is available to a player
 	transmogAvailableTo( transmogPlayer, player ){
 
@@ -3146,7 +3252,7 @@ export default class Game extends Generic{
 
 	}
 
-	// Checks if a smith object is available to a player
+	// Checks if a room renter is available to a player
 	roomRentalAvailableTo( renterPlayer, player ){
 
 		if( this.battle_active )
@@ -3248,6 +3354,93 @@ export default class Game extends Generic{
 		this.ui.addText(player.getColoredName()+" gets an item repaired.", "repair", player.id, player.id, 'repair');
 
 	}
+
+	toggleAssetBanked( bankPlayer, asset, amount, player, deposit ){
+		
+		if( typeof player !== "object" )
+			player = this.getPlayerById(player);
+
+		if( typeof player !== "object" )
+			player = this.getPlayerById(player);
+
+		if( !player )
+			throw "Player missing";
+
+		if( this.battle_active )
+			throw "Battle in progress";
+
+		// Netcode
+		if( !this.is_host ){
+			Game.net.playerBankItem(bankPlayer, asset, amount, player, deposit);
+			return;
+		}
+
+		if( !(bankPlayer instanceof Player) )
+			throw "Bank not found";
+
+		if( typeof asset === "object" )
+			asset = asset.id;
+
+		asset = player.getAssetById(asset, !deposit);				// Try in inventory
+
+		if( !asset )
+			throw 'Asset not found';
+
+		amount = parseInt(amount);
+		const maxAmount = asset && asset.stacking ? asset._stacks : 1;
+
+		if( amount > maxAmount )
+			throw "Asset not found on player";
+		
+		if( isNaN(amount) || amount < 1 )
+			throw "Invalid amount";
+
+		if( !this.bankAvailableTo(bankPlayer, player) )
+			throw "Bank is not available";
+		
+		// All done
+		if( deposit )
+			player.moveAssetToBank(asset, amount);
+		else
+			player.moveAssetFromBank(asset, amount);
+
+		this.save();
+		this.playFxAudioKitById(asset.loot_sound, player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+" made a "+(deposit ? 'deposit' : 'withdrawal'), "purchase", player.id, player.id, 'purchase');
+
+	}
+
+	shuffleKinksByAltar( altarPlayer, player, allowError = true ){
+		const out = text => {
+			if( allowError )
+				throw text;
+		};
+		if( !(altarPlayer instanceof Player ) )
+			return out("Altar player invalid type");
+		if( !(player instanceof Player) )
+			return out("Player invalid type");
+		if( !this.altarAvailableTo(altarPlayer, player) )
+			return out("Altar not available to you");
+		
+		if( player.getMoney() < Game.ALTAR_COST )
+			return out("Insufficient funds");
+
+		if( !this.is_host ){
+			return Game.net.playerUseAltar(altarPlayer, player);
+		}
+
+		// Ok finally we can do it
+		player.consumeMoney(Game.ALTAR_COST);
+		player.shuffleKinks();
+
+		this.playFxAudioKitById("buy_item", player, player, undefined, true);
+		this.playFxAudioKitById("holyGeneric", player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+" is blessed with random kinks!", "altar", player.id, player.id, 'altar');
+		this.save();
+
+	}
+
+
 
 	sellAsset(shop, asset, amount, player){
 
@@ -3392,7 +3585,7 @@ export default class Game extends Generic{
 		
 	}
 
-	exchangePlayerMoney(myPlayer){
+	exchangePlayerMoney( myPlayer, bank ){
 
 		if( !(myPlayer instanceof Player) )
 			myPlayer = this.getPlayerById(myPlayer);
@@ -3400,13 +3593,13 @@ export default class Game extends Generic{
 			throw "You have no player";
 		
 		if( !this.is_host ){
-			Game.net.playerExchangeGold(myPlayer);
+			Game.net.playerExchangeGold(myPlayer, bank);
 			return;
 		}
 		
 		this.ui.addText(myPlayer.getColoredName()+" exchanged their coins.", "purchase", myPlayer.id, myPlayer.id, 'purchase');
 		this.playFxAudioKitById("exchange", myPlayer, myPlayer, undefined, true);
-		myPlayer.exchangeMoney();
+		myPlayer.exchangeMoney( bank );
 		this.save();
 	}
 
@@ -3478,16 +3671,16 @@ export default class Game extends Generic{
 	}
 
 	// Activates or deactivates an action
-	toggleAction( gymPlayer, player, actionID ){
+	toggleAction( player, actionID ){
 
-		if( !this.gymAvailableTo(gymPlayer, player) )
-			throw 'Gym not available';
+		if( this.battle_active )
+			throw 'Battle active'
 
 		if( !(player instanceof Player) )
 			throw 'Invalid player';
 
 		if( !this.is_host ){
-			Game.net.playerToggleAction(gymPlayer, player, actionID);
+			Game.net.playerToggleAction(player, actionID);
 			return;
 		}
 
@@ -3496,6 +3689,18 @@ export default class Game extends Generic{
 
 	}
 
+	// Tries to search all players for an item by id
+	getPlayerAsset( id ){
+		
+		for( let player of this.players ){
+
+			const asset = player.getAssetById(id, -1);
+			if( asset )
+				return asset;
+
+		}
+
+	}
 
 
 	/* GAME-LIBRARY MANAGEMENT 
@@ -3588,6 +3793,7 @@ Game.UNEQUIP_COST = 1;
 Game.LOG_SIZE = parseInt(localStorage.log_size) || 800;
 Game.ROOM_RENTAL_DURATION = 3600*24;
 Game.MAX_SLEEP_DURATION = 24;			// Hours
+Game.ALTAR_COST = 500;	// 500 copper
 
 Game.Genders = {
 	Male : 0x1,
@@ -3712,6 +3918,7 @@ Game.new = async function(name, players){
 
 			player.g_resetID();
 			game.addPlayer(player);
+			player.onPlacedInWorld();
 
 		}
 

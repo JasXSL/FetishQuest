@@ -62,7 +62,7 @@ class LibMesh{
 		this.tags = Array.isArray(data.tags) ? data.tags : [];								// Game tags. These get merged over to dungeonAsset for netcode reasons
 		this.static = data.static;					// If true this mesh can be cached after flattening
 													// If unset, the code tries to figure it out automatically based on the events set, if it's animated etc
-
+		this.scale = parseInt(data.scale) || 1;
 		// Metadata for dungeon generator
 		this.lockable = data.lockable || false;								// Use the door lock system
 		this.attachments = Array.isArray(data.attachments) ? data.attachments : [];	// use LibMeshAttachment
@@ -220,8 +220,6 @@ class LibMesh{
 
 		await this.beforeFlatten( mesh );
 
-		
-
 		let ud = mesh.userData;
 		mesh.traverse(el => {
 			
@@ -311,6 +309,10 @@ class LibMesh{
 		mesh.userData.soundLoops = this.soundLoops;
 		
 		ud.template = this;
+
+		
+		mesh.userData.meshScale = this.scale;
+
 
 		for( let m of submeshes )
 			mesh.add(m);
@@ -1309,7 +1311,7 @@ function build(){
 
 				}),
 				BarShelf : new LibMesh({
-					tags : [stdTag.mShelf],
+					tags : [stdTag.mShelf, stdTag.mBarShelf],
 					url : 'furniture/bar_shelf.JD',
 					materials : [
 						libMat.Wood.Crate
@@ -1318,7 +1320,7 @@ function build(){
 
 				}),
 				BarTable : new LibMesh({
-					tags : [stdTag.mTable],
+					tags : [stdTag.mTable, stdTag.mBarTable],
 					url : 'furniture/bar_table.JD',
 					materials : [
 						libMat.Wood.Crate
@@ -1357,7 +1359,7 @@ function build(){
 						libMat.Cloth.Thick,
 						libMat.Cloth.Sheet,
 					],
-					tags : [],
+					tags : [stdTag.mBed],
 
 
 					
@@ -2391,7 +2393,7 @@ function build(){
 				Lightacles : new LibMesh({
 					url : 'nature/lightacles.glb',
 					materials : [
-						libMat.Bakes.TentacleRing
+						libMat.Bakes.Lightacles
 					],
 					tags : [stdTag.mEmitter, stdTag.mTentacle],
 
@@ -2652,6 +2654,13 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 				}),
+				DemallineCrystal : new LibMesh({
+					url : 'doodads/demalline_crystal.JD',
+					tags : [stdTag.mRecordingCrystal],
+					materials : [
+						libMat.Glass.DemallineCrystal
+					],
+				}),
 				
 			},
 			Furniture : {
@@ -2811,6 +2820,15 @@ function build(){
 					],
 					tags : [],
 				}),
+				AxeTest : new LibMesh({
+					url : 'tests/AxeTest.glb',
+					materials : [
+						libMat.Wood.Crate,
+						libMat.Wood.Crate,
+						libMat.Wood.Crate,
+					],
+					tags : [],
+				}),
 				WiggleTestJD : new LibMesh({
 					url : 'special/wiggletest.JD',
 					materials : [
@@ -2899,6 +2917,33 @@ function build(){
 
 					if( window.game )
 						mesh.children[0].visible = false;
+				}
+			}),
+			Steam : new LibMesh({
+				tags : [stdTag.mSteam],
+				url : function(){
+
+					const mesh = new THREE.Mesh(new THREE.BoxGeometry(20,20,20), new THREE.MeshStandardMaterial(0xFFFFFF));
+					mesh.rotation.x = -Math.PI/2;
+					mesh.name = 'HITBOX';
+
+					const group = new THREE.Group();
+					group.add(mesh);
+					
+					return group;
+
+				},
+				onStagePlaced : function(asset, mesh){
+
+					if( Array.isArray(mesh.userData.particles) )
+						return;
+
+					let particles = libParticles.get('steam', mesh, true);
+					mesh.userData.particles = [particles];
+
+					if( window.game )
+						mesh.children[0].visible = false;
+
 				}
 			}),
 		},
@@ -3549,6 +3594,49 @@ function build(){
 					
 				},
 
+				Borm : {
+					farmpathNoPath : new LibMesh({
+						url : 'land/yuug/farmpath_nopath.glb',
+						materials : [
+							libMat.Land.FarmpathNoPath
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+					farmpathStraightField : new LibMesh({
+						url : 'land/yuug/farmpath_straight_field.glb',
+						materials : [
+							libMat.Land.FarmpathStraightField
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+					farmpathX : new LibMesh({
+						url : 'land/yuug/farmpath_x.glb',
+						materials : [
+							libMat.Land.FarmpathX
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+					farmpathStraight : new LibMesh({
+						url : 'land/yuug/farmpath_straight.glb',
+						materials : [
+							libMat.Land.FarmpathStraight
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+					farmpathT : new LibMesh({
+						url : 'land/yuug/farmpath_t.glb',
+						materials : [
+							libMat.Land.FarmpathT
+						],
+						isRoom : true,
+						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					}),
+				},
+
 				Port : {
 					LandMid : new LibMesh({
 						url : 'land/yuug/yuug_port_mid_land.JD',
@@ -3571,6 +3659,44 @@ function build(){
 				},
 				
 
+			},
+			Snow : {
+				gen000 : new LibMesh({
+					url : 'land/yuug/GrassGen_000.JD',
+					materials : [libMat.Land.SnowGen_000],
+					tags : [stdTag.mSnow],
+					isRoom: true,
+				}),
+				gen001 : new LibMesh({
+					url : 'land/yuug/GrassGen_001.JD',
+					materials : [libMat.Land.SnowGen_001],
+					tags : [stdTag.mSnow],
+					isRoom: true,
+				}),
+				gen002 : new LibMesh({
+					url : 'land/yuug/GrassGen_002.JD',
+					materials : [libMat.Land.SnowGen_002],
+					tags : [stdTag.mSnow],
+					isRoom: true,
+				}),
+				gen003 : new LibMesh({
+					url : 'land/yuug/GrassGen_003.JD',
+					materials : [libMat.Land.SnowGen_003],
+					tags : [stdTag.mSnow],
+					isRoom: true,
+				}),
+				gen004 : new LibMesh({
+					url : 'land/yuug/GrassGen_004.JD',
+					materials : [libMat.Land.SnowGen_004],
+					tags : [stdTag.mSnow],
+					isRoom: true,
+				}),
+				gen005 : new LibMesh({
+					url : 'land/yuug/GrassGen_005.JD',
+					materials : [libMat.Land.SnowGen_005],
+					tags : [stdTag.mSnow],
+					isRoom: true,
+				}),
 			},
 			Beach : {
 				SmallJetty : new LibMesh({
@@ -4564,6 +4690,40 @@ function build(){
 					url : 'nature/bogtree.JD',
 					materials : [libMat.Wood.BarkMoss, libMat.Nature.TreeVines, libMat.Nature.Bogtree],
 				}),
+				Winter : new LibMesh({
+					tags : [stdTag.mTree],
+					url : 'nature/leafytree.JD',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.TreeWinter,
+					],
+				}),
+				WinterFrost : new LibMesh({
+					tags : [stdTag.mTree],
+					url : 'nature/leafytree.JD',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.TreeWinterFrost,
+					],
+				}),
+				Spruce : new LibMesh({
+					scale : 100,
+					tags : [stdTag.mTree],
+					url : 'nature/spruce.glb',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.Spruce,
+					],
+				}),
+				SpruceSnow : new LibMesh({
+					scale : 100,
+					tags : [stdTag.mTree],
+					url : 'nature/spruce.glb',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.SpruceSnow,
+					],
+				}),
 			},
 			Clutter : {
 				Stones : new LibMesh({
@@ -4601,6 +4761,34 @@ function build(){
 					tags : [stdTag.mBoulder],
 					materials : [
 						libMat.Rock.Moss
+					],
+				}),
+				WinterA : new LibMesh({
+					tags : [stdTag.mBoulder],
+					url : 'nature/moss_rock_a.JD',
+					materials : [
+						libMat.Rock.Snow
+					],
+				}),
+				WinterB : new LibMesh({
+					tags : [stdTag.mBoulder],
+					url : 'nature/moss_rock_b.JD',
+					materials : [
+						libMat.Rock.Snow
+					],
+				}),
+				WinterC : new LibMesh({
+					tags : [stdTag.mBoulder],
+					url : 'nature/moss_rock_c.JD',
+					materials : [
+						libMat.Rock.Snow
+					],
+				}),
+				WinterD : new LibMesh({
+					tags : [stdTag.mBoulder],
+					url : 'nature/moss_rock_d.JD',
+					materials : [
+						libMat.Rock.Snow
 					],
 				}),
 			},
@@ -4730,6 +4918,17 @@ function build(){
 					materials : [libMat.Nature.BushThicc],
 				}),
 
+				BushWinter : new LibMesh({
+					url : 'nature/grass_wide_group.glb',
+					tags : [stdTag.mBush],
+					materials : [libMat.Nature.TreeWinter],
+				}),
+				BushFrost : new LibMesh({
+					url : 'nature/grass_wide_group.glb',
+					tags : [stdTag.mBush],
+					materials : [libMat.Nature.TreeWinterFrost],
+				}),
+
 				GrassBushGroup : new LibMesh({
 					url : 'nature/grass_wide_group.glb',
 					tags : [stdTag.mBush],
@@ -4795,6 +4994,17 @@ function build(){
 					url : 'nature/hedge.glb',
 					tags : [stdTag.mHedge],
 					materials : [libMat.Nature.Hedge, libMat.Nature.HedgeBranch],
+					animations : {
+						idle : {
+							timeScale : 1
+						}
+					},
+				}),
+				BormStraw : new LibMesh({
+					url : 'nature/borm_straw.glb',
+					tags : [stdTag.mBormStraw],
+					materials : [libMat.Nature.BormStraw],
+					scale : 100,
 					animations : {
 						idle : {
 							timeScale : 1
@@ -4922,6 +5132,7 @@ function build(){
 					}
 				}),
 			},
+			
 		},
 		
 		Mech : {

@@ -248,7 +248,6 @@ class Editor{
 		// Add transform controls
 		const control = modtools.transformControls;
 		this.control = control;
-		
 		control.detach();
 
 		// Handle dragging the tool
@@ -271,9 +270,14 @@ class Editor{
 			entry.rotX = Math.round(mesh.rotation.x*100)/100;
 			entry.rotY = Math.round(mesh.rotation.y*100)/100;
 			entry.rotZ = Math.round(mesh.rotation.z*100)/100;
-			entry.scaleX = Math.round(mesh.scale.x*100)/100;
-			entry.scaleY = Math.round(mesh.scale.y*100)/100;
-			entry.scaleZ = Math.round(mesh.scale.z*100)/100;
+
+			let sMulti = 1.0;
+			if( mesh.userData.meshScale )
+				sMulti = mesh.userData.meshScale;
+			entry.scaleX = Math.round(mesh.scale.x*100/sMulti)/100;
+			entry.scaleY = Math.round(mesh.scale.y*100/sMulti)/100;
+			entry.scaleZ = Math.round(mesh.scale.z*100/sMulti)/100;
+			entry.__modified = true;	// mark it as modified so it can be saved on change
 
 			this.save();
 			this.addHistory(entry);
@@ -344,6 +348,7 @@ class Editor{
 				obj.__historyMarker = 0;
 				this.addHistory(obj);
 				this.room.addAsset(obj);
+				obj.__modified = true;
 				this.gl.stage.addDungeonAsset(obj).then(() => {
 
 					this.save();
@@ -372,7 +377,6 @@ class Editor{
 		gl.renderer.domElement.onkeydown = event => {
 
 			event.preventDefault();
-
 			if( event.key === 'Shift' ){
 				this.shift_held = true;	
 			}		
@@ -403,11 +407,12 @@ class Editor{
 
 				const meshes = [];
 				control.object.parent.traverse(el => {
-					if( el.isMesh )
+					if( el.isMesh ){
 						meshes.push(el);
+					}
 				});
 
-				const intersects = raycaster.intersectObjects(meshes);
+				const intersects = raycaster.intersectObjects(meshes, false);	// Recursive breaks on sprites
 				for( let i of intersects ){
 
 					if( i.object === control.object )
@@ -442,16 +447,19 @@ class Editor{
 		modtools.webgl.renderer.domElement.onclick = event => {
 			event.preventDefault();
 		};
+		/*
 		modtools.webgl.renderer.domElement.onmousedown = event => {
 			event.preventDefault();
-		};
+		};*/
 
 		const baseAssetSelect = win.dom.querySelector('select.roomBaseAsset');
 		const roomAsset = this.room.getRoomAsset();
 		if( roomAsset )
 			baseAssetSelect.value = roomAsset.model;
 		baseAssetSelect.onchange = () => {
-			this.room.getRoomAsset().model = baseAssetSelect.value;
+			const base = this.room.getRoomAsset();
+			base.model = baseAssetSelect.value;
+			base.__modified = true;
 			this.save();
 			this.draw();
 		};
@@ -463,6 +471,7 @@ class Editor{
 		baseAssetRotInput.onchange = event => {
 			roomAsset.rotY = Math.round((parseInt(baseAssetRotInput.value)/57.2958 || 0)*100)/100;
 			roomAsset._stage_mesh.rotation.y = parseInt(baseAssetRotInput.value)/57.2958 || 0;
+			roomAsset.__modified = true;
 			this.save();
 		};
 
@@ -585,6 +594,7 @@ class Editor{
 		}, this.room);
 		delete asset.id;
 
+		asset.__modified = true;
 		asset.__history = [];
 		asset.__historyMarker = 0;
 		this.addHistory(asset);
@@ -759,7 +769,6 @@ class Editor{
 
 		
 
-		
 		// This creates new objects and wipes parenting information
 		// Mark parents
 		for( let asset of this.room.assets ){
@@ -788,39 +797,47 @@ class Editor{
 
 		}
 
-		
 
 	}
 
 	// Tries to save the room dummy onto room_raw
 	save(){
 
+		console.log("Saving", this.room.assets);
 		let ids = this.room.assets.map(el => {
 
 			let data = DungeonRoomAsset.saveThis(el, 'mod');
+			
+			// Preserve extend status when saving over an extend
+			// Needed for array compares to work correctly
+			data._ext = el._ext;
+			data._e = el._e;
 			data._h = 1;	// Marks as unique. Needed for cloning parents.
 
+
 			// Insert new
-			if( !el.id ){
+			if( el.__modified ){
 
-				let newID = mod.mod.insert('dungeonRoomAssets', data);
-				el.id = newID;
-				//console.log("Inserted", el, data);
+				if( !el.id ){
 
-			}
-			else{
+					let newID = mod.mod.insert('dungeonRoomAssets', data);
+					el.id = newID;
+					//console.log("Inserted", el, data);
 
+				}
 				// This object was from the root mod in an extension
-				if( el.__isParent ){
+				else if( el.__isParent ){
 
 					let originalId = el.id;
-					mod.mod.insert('dungeonRoomAssets', data);
-					data._e = el._e = originalId;
-					mod._ext = true;	// Needed for optimization to work. Auto set when you fetch from mod with extend true
 					
+					data._e = el._e = originalId;
+					data._ext = el._ext = true;	// Needed for optimization to work. Auto set when you fetch from mod with extend true
+					mod.mod.insert('dungeonRoomAssets', data);
+
 					el.id = data.id;	// Update the work asset
 					delete el.__isParent;
-					//console.log("Extended", el, data);
+
+					console.trace("Extended", el, data);
 
 				}
 				// Update db entry
@@ -828,6 +845,7 @@ class Editor{
 					mod.mod.setAssetById('dungeonRoomAssets', data);
 					//console.log("Updated", el, data);
 				}
+
 
 			}
 
@@ -841,7 +859,6 @@ class Editor{
 
 		window.mod.setDirty(true);
 		this.updateWants();
-
 	}
 
 	bindMeshes(){
@@ -1020,13 +1037,22 @@ class Editor{
 	// Build the asset editor co-screen
 	buildAssetEditor(){
 
+		const th = this;
+		const asset = th.control.object.userData.dungeonAsset;
 		// Asset window already exists, rebuild it
 		if( this.assetWindow && !this.assetWindow.dead ){
-			this.assetWindow.rebuild.call(this.assetWindow);
-			return;
+
+			if( this.assetWindow.id === asset.id ){
+				this.assetWindow.rebuild.call(this.assetWindow);
+				return;
+			}
+			else
+				this.assetWindow.close();
+			
 		}
 
-		const th = this;
+		
+		
 
 		const build = function(){
 
@@ -1034,13 +1060,19 @@ class Editor{
 				this.close();
 				return;
 			}
-
-			const asset = th.control.object.userData.dungeonAsset;
 			if( !asset ){
 				this.close();
 				return;
 			}
 
+			this.onChange = () => {
+			
+				asset.__modified = true;
+				th.save();
+	
+			};
+
+			asset.__modified = true;	// mark it as modified so it can be saved on change
 			this.asset.asset = asset;	// Needs to be set because dungeonAsset doesn't have a library
 			let html = '';
 			html += '<div class="labelFlex">';
@@ -1081,7 +1113,7 @@ class Editor{
 				th.save();
 			});
 
-			const table = this.dom.querySelector('div.interactions table');
+			//const table = this.dom.querySelector('div.interactions table');
 
 
 
@@ -1100,14 +1132,7 @@ class Editor{
 		};
 
 		
-		this.assetWindow = Window.create('REPLACE_ID', 'dungeonAssets', '', 'crafting', build, {}, this.win);
-		this.assetWindow.onChange = () => {
-			
-			this.save();
-			// Might not be needed now?
-			// build.call(this.assetWindow);
-
-		};
+		this.assetWindow = Window.create(asset.id, 'dungeonRoomAssets', '', 'crafting', build, {}, this.win);
 		this.assetWindow.setHelp(() => {
 
 			let out = '';

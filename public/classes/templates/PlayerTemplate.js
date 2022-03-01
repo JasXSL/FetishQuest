@@ -35,7 +35,6 @@ class PlayerTemplate extends Generic{
 		this.max_level = 20;
 		this.monetary_wealth = 0;				// Copper. Varies by 50%
 		this.gear_quality = 0.2;				// Quality of gear generated
-		this.primary_stats = {};
 		this.sv = {};
 		this.bon = {};
 		this.viable_asset_materials = [];		// materials from AssetTemplate
@@ -44,7 +43,7 @@ class PlayerTemplate extends Generic{
 		this.gear_chance = 0.5;					// Chance of having gear
 		this.min_size = 1;
 		this.max_size = 3;
-		this.difficulty = 1;
+		this.slots = 1;							// Nr slots this takes up when generated. Allows you to create monsters that are n times more powerful than the rest. Note that 3+ will be more rare in single player as they can only be added if rolled first. 
 		this.viable_consumables = [];			// Viable consumable assets this can spawn with
 		this.random_loot = [];					// {}
 		this.power = 1;
@@ -59,11 +58,13 @@ class PlayerTemplate extends Generic{
 		this.intelligence_max = 0.6;
 		this.talkative_min = 0;
 		this.talkative_max = 1;
+		this.voice = '';
 		this.required_assets = [];				// labels of assets that MUST be on this character
 		this.required_actions = [];				// labels of actions that MUST be on this character
 		this.passives = [];						// Passive wrappers that need to be applied to this. Labels only.
 		this.no_equip = false;					// Prevents equip of the gear. Useful for things like mimics.
 		this.max = -1;							// Max nr of these generated into any encounter
+		this.hpMulti = 1.0;						// Multiplier against HP
 		this.load(...args);
 	}
 
@@ -96,7 +97,7 @@ class PlayerTemplate extends Generic{
 			gear_chance : this.gear_chance,
 			min_size : this.min_size,
 			max_size : this.max_size,
-			difficulty : this.difficulty,
+			slots : this.slots,
 			viable_consumables : this.viable_consumables,
 			monetary_wealth : this.monetary_wealth,
 			gear_quality : this.gear_quality,
@@ -110,11 +111,13 @@ class PlayerTemplate extends Generic{
 			power : this.power,
 			armor : this.armor,
 			no_equip : this.no_equip,
+			hpMulti : this.hpMulti,
 			talkative_min : this.talkative_min,
 			talkative_max : this.talkative_max,
 			passives : this.passives,
 			random_loot : PlayerTemplateLoot.saveThese(this.random_loot, full),
-			max: this.max
+			max: this.max,
+			voice : this.voice,
 		};
 	}
 
@@ -156,12 +159,9 @@ class PlayerTemplate extends Generic{
 		player.generated = true;	// Also set in dungeon encounter, but it's needed here for learnable actions to work
 		player.description = this.description;
 		player.species = this.species;
-		player.tags = this.tags.map(el => {
-			return el.split('_').slice(1).join('_')
-		});
-
+		player.tags = this.tags;
 		player.level = Math.min(Math.max(level, this.min_level), this.getMaxLevel());
-
+		player.voice = this.voice;
 		player.talkative = this.talkative_min+(this.talkative_max-this.talkative_min)*Math.random();
 
 		player.sadistic = rand1(this.sadistic_min, this.sadistic_max);
@@ -174,12 +174,16 @@ class PlayerTemplate extends Generic{
 		player.size = Math.min(Math.max(0, player.size), 10);
 		player.team = 1;
 		player.power = this.power;
+		player.hpMulti = this.hpMulti;
 		shuffle(this.classes);
 
 		if( this.viable_asset_materials[0] === '*' )
 			this.viable_asset_materials = glib.getAllKeys('MaterialTemplate');
+		// Only the primary slots are allowed for templates
 		if( this.viable_asset_templates[0] === '*' )
-			this.viable_asset_templates = glib.getAllKeys('AssetTemplate');
+			this.viable_asset_templates = glib.getAllValues('AssetTemplate').filter(el => 
+				el.slots.some(sub => [Asset.Slots.upperBody, Asset.Slots.lowerBody].includes(sub))
+			).map(el => el.label);
 
 		shuffle(this.viable_asset_materials);
 		shuffle(this.viable_asset_templates);
@@ -273,7 +277,16 @@ class PlayerTemplate extends Generic{
 
 			for( let template of this.viable_asset_templates ){
 
-				let asset = Asset.generate(undefined, level+gearLevelOffset, template, this.viable_asset_materials, undefined, minRarity);
+				let asset = Asset.generate(
+					undefined, 
+					level+gearLevelOffset, 
+					template, 
+					this.viable_asset_materials, 
+					undefined, 
+					minRarity, 
+					player,
+					true
+				);
 				
 				if( !asset )
 					continue;
@@ -283,11 +296,13 @@ class PlayerTemplate extends Generic{
 				asset.randomizeDurability();
 				player.addAsset(asset, undefined, undefined, true);
 				if( !this.no_equip ){
-					player.equipAsset(asset.id);
+					player.equipAsset(asset.id, undefined, true);
 				}
 				++numAdded;
-				if( Math.random() < 0.25 || numAdded > 1 )
-					break;
+				if( 
+					(Math.random() < 0.25 || numAdded > 1) && 
+					(asset.slots.includes(Asset.Slots.lowerBody) || asset.slots.includes(Asset.Slots.upperBody)) 
+				)break;
 
 			}
 
@@ -306,7 +321,7 @@ class PlayerTemplate extends Generic{
 					asset.restore();
 					player.addAsset(asset, undefined, undefined, true);
 					if( !this.no_equip )
-						player.equipAsset(asset.id);
+						player.equipAsset(asset.id, undefined, true);
 					break;
 
 				}
@@ -362,11 +377,6 @@ class PlayerTemplate extends Generic{
 		for( let action of viableActions )
 			player.addAction(action, true);
 
-		
-		// Primary stats
-		for( let i in this.primary_stats ){
-			player[i] = this.primary_stats[i] || 0;
-		}
 
 		const penalty = Math.min(level-4, 0);
 
@@ -375,9 +385,6 @@ class PlayerTemplate extends Generic{
 		for( let i in this.bon )
 			player['bon'+i] = this.bon[i]+penalty;
 
-		// Lower level monsters have a primary stat penalty up to level 3
-		for( let i in Player.primaryStats )
-			player[i] += penalty;
 
 		player.fullRegen();
 

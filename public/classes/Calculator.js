@@ -13,6 +13,17 @@ class Calculator{}
 
 Calculator.debug = false;
 
+// Custom function to set default
+math.import({
+	def : function( value, defaultValue ){
+		return isNaN(value) ? defaultValue : value;
+	}
+});
+// Undefined symbols will be replaced with undefined. Can be combined with def
+math.SymbolNode.onUndefinedSymbol = function(name){
+    return undefined;
+};
+
 Calculator.run = function( formula, event, customMathVars ){
 
 	//if( this.debug )
@@ -59,7 +70,7 @@ Calculator.run = function( formula, event, customMathVars ){
 	while(true){
 		try{
 
-			out = math.eval(formula, vars);
+			out = math.evaluate(formula, vars);
 
 		}catch(err){
 
@@ -89,7 +100,7 @@ Calculator.run = function( formula, event, customMathVars ){
 	}
 
 	if( this.debug )
-		console.log("Calculated", formula, event, customMathVars, '>>>>>', out);
+		console.log("Calculated", formula, event, customMathVars, vars, '>>>>>', out);
 
 	return out;
 };

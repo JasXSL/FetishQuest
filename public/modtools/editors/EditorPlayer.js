@@ -32,6 +32,7 @@ export function asset(){
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label title="Sets a/an. Leave empty to auto generate. Only needed for words like unicorn because the u sounds like a consonant">Species article: <input type="text" name="spre" class="saveable" value="'+esc(dummy.spre)+'" /></label>';
 		html += '<label>Species: <input type="text" name="species" class="saveable" value="'+esc(dummy.species)+'" /></label>';
+		html += '<label>Voice: <input type="text" name="voice" class="saveable" value="'+esc(dummy.voice)+'" list="datalist_voices" /></label>';
 		html += '<label title="Leave empty to autogenerate">Pronoun he: <input name="he" value="'+esc(dummy.he)+'" type="text" class="saveable" style="width:3em" /></label>';
 		html += '<label title="Leave empty to autogenerate">Pronoun him: <input name="him" value="'+esc(dummy.him)+'" type="text" class="saveable" style="width:3em" /></label>';
 		html += '<label title="Leave empty to autogenerate">Pronoun his: <input name="his" value="'+esc(dummy.his)+'" type="text" class="saveable" style="width:3em" /></label>';
@@ -45,12 +46,15 @@ export function asset(){
 		html += '<label>Level: <input type="number" step=1 name="level" class="saveable" value="'+esc(dummy.level)+'" /></label>';
 		html += '<label title="If checked, Level is instead the offset from party average level">Level is offset from party: <input type="checkbox" name="leveled" '+(dummy.leveled ? 'checked' : '')+' class="saveable"  /></label>';
 		html += '<label title="Used for NPCs. Difficulty multiplier, higher increases stats. -1 means automatic">Power: <input type="number" step=0.01 min=-1 name="power" class="saveable" value="'+esc(dummy.power)+'" /></label>';
+		html += '<label title="Lets you increase or decrease max HP without having to apply passives. Negative value sets a FIXED value">HP Multiplier: <input type="number" step=0.01 min=0.01 name="hpMulti" class="saveable" value="'+esc(dummy.hpMulti)+'" /></label>';
+		
 		html += '<label title="Used primarily for beast NPCs. Adds &quot;armor&quot; percentage, whole number">Armor: <input type="number" step=1 name="armor" class="saveable" value="'+esc(dummy.armor)+'" /></label>';
 		
 		html += '<label title="Used for NPCs. Chance of speaking in combat.">Talkative: <input type="number" step=0.01 min=0 max=1 name="talkative" class="saveable" value="'+esc(dummy.talkative)+'" /></label>';
 		html += '<label title="Used for NPCs and affects punishments and using arouse vs attack">Sadistic: <input name="sadistic" value="'+esc(dummy.sadistic)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
 		html += '<label title="Used for NPCs and affects punishments">Dominant: <input name="dominant" value="'+esc(dummy.dominant)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
 		html += '<label title="Used for NPCs and affects punishments & to some degree who it will attack. 0.5 = no preference">Hetero: <input name="hetero" value="'+esc(dummy.hetero)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
+		html += '<label title="Chance to use AudioTriggers">Emotive: <input name="emotive" value="'+esc(dummy.emotive)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
 		html += '<label title="Will be used for AI later. 0.6 = human, 0.3 animal, 1 = mastermind">Intelligence: <span class="value"></span><input name="intelligence" value="'+esc(dummy.intelligence)+'" type="number" step=0.01 min=0 max=1 class="saveable" /></label>';
 
 		html += '<label title="Player have ALL actions activated. NPCs use this.">Ignore spell slots: <input type="checkbox" name="auto_learn" '+(dummy.auto_learn ? 'checked' : '')+' class="saveable"  /></label>';
@@ -70,11 +74,6 @@ export function asset(){
 			const label = "bon"+Action.Types[i];
 			html += '<label>'+esc(label)+': <input name="'+esc(label)+'" value="'+esc(dummy[label])+'" class="saveable" type="number" step=1 /></label>';
 		}
-		for( let i in Player.primaryStats ){
-			const label = Player.primaryStats[i];
-			html += '<label>'+esc(label)+': <input name="'+esc(label)+'" value="'+esc(dummy[label])+'" class="saveable" type="number" step=1 /></label>';
-		}
-		
 
 	html += '</div>';
 
@@ -216,13 +215,12 @@ export function list(){
 		inventory : true,
 		tags : true,
 		passives : true,
+		hpMulti : true,
 
 	};
 
 	for( let i in Action.Types )
 		fields["sv"+Action.Types[i]] = true;
-	for( let i in Player.primaryStats )
-		fields[Player.primaryStats[i]] = true;
 		
 
 	this.setDom(HelperAsset.buildList(this, DB, CONSTRUCTOR, fields));

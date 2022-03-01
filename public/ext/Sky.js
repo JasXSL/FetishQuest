@@ -21,24 +21,27 @@ import {
  * Three.js integration by zz85 http://twitter.com/blurspline
 */
 
-var Sky = function () {
+class Sky extends Mesh {
 
-	var shader = Sky.SkyShader;
+	constructor(){
 
-	var material = new ShaderMaterial( {
-		name: 'SkyShader',
-		fragmentShader: shader.fragmentShader,
-		vertexShader: shader.vertexShader,
-		uniforms: UniformsUtils.clone( shader.uniforms ),
-		side: BackSide,
-		depthWrite: false
-	} );
+		var shader = Sky.SkyShader;
 
-	Mesh.call( this, new BoxGeometry( 1, 1, 1 ), material );
+		var material = new ShaderMaterial( {
+			name: 'SkyShader',
+			fragmentShader: shader.fragmentShader,
+			vertexShader: shader.vertexShader,
+			uniforms: UniformsUtils.clone( shader.uniforms ),
+			side: BackSide,
+			depthWrite: false
+		} );
+
+		super(new BoxGeometry( 1, 1, 1 ), material);
+	}
 
 };
 
-Sky.prototype = Object.create( Mesh.prototype );
+//Sky.prototype = Object.create( Mesh.prototype );
 
 Sky.SkyShader = {
 

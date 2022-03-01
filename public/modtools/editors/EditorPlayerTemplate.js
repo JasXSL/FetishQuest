@@ -37,6 +37,7 @@ export function asset(){
 			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label>Species: <input type="text" name="species" class="saveable" value="'+esc(dummy.species)+'" /></label>';
+		html += '<label>Voice: <input type="text" name="voice" class="saveable" value="'+esc(dummy.voice)+'" list="datalist_voices" /></label>';
 		html += '<label>Image: <input name="icon" value="'+esc(dummy.icon)+'" type="text" class="saveable" /></label>';
 		html += '<label>Image Upper Body: <input name="icon_upperBody" value="'+esc(dummy.icon_upperBody)+'" type="text" class="saveable" /></label>';
 		html += '<label>Image Lower Body: <input name="icon_lowerBody" value="'+esc(dummy.icon_lowerBody)+'" type="text" class="saveable" /></label>';
@@ -50,8 +51,9 @@ export function asset(){
 		html += '<label>Gear Chance: <span class="valueExact"></span><input name="gear_chance" value="'+esc(dummy.gear_chance)+'" type="range" min=0 step=0.01 max=1 class="saveable" /></label>';
 		html += '<label title="Left = tiny, mid = human, right = giant">Min Size: <span class="valueExact"></span><input name="min_size" value="'+esc(dummy.min_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
 		html += '<label title="Left = tiny, mid = human, right = giant">Max Size: <span class="valueExact"></span><input name="max_size" value="'+esc(dummy.max_size)+'" type="range" min=0 step=1 max=10 class="saveable" /></label>';
-		html += '<label title="1 = average, 2 = about the same as 2 monsters">Difficulty: <input name="difficulty" value="'+esc(dummy.difficulty)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
-		html += '<label title="Multiplies against all stats">Power: <input name="power" value="'+esc(dummy.power)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
+		html += '<label title="How many slots this fills up in the generator, and multiplies power against this.">Slots: <input name="slots" value="'+esc(dummy.slots)+'" type="number" min=1 step=1 class="saveable" /></label>';
+		html += '<label title="Multiplies against all player stats. Primarily for toning players down with dangerous abilities">Power: <input name="power" value="'+esc(dummy.power)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
+		html += '<label title="Lets you adjust monster max HP">HP Multiplier: <input name="hpMulti" value="'+esc(dummy.hpMulti)+'" type="number" min=0.1 step=0.1 class="saveable" /></label>';
 		html += '<label title="Percentage armor points. Used for armored beasts to allow for armor penetration.">Armor: <input name="armor" value="'+esc(dummy.armor)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label title="Prevents equipping the gear. Useful for things like mimics that carry gear but can\'t wear it.">No equip: <input type="checkbox" name="no_equip" '+(dummy.no_equip ? 'checked' : '')+' class="saveable"  /></label>';
 
@@ -83,15 +85,12 @@ export function asset(){
 			const t = Action.Types[i];
 			html += '<label>bon '+esc(i)+': <input name="'+esc('bon::'+t)+'" value="'+esc(dummy.bon[t] || 0)+'" class="saveable" type="number" step=1 /></label>';
 		}
-		for( let i in Player.primaryStats ){
-			const t = Player.primaryStats[i];
-			html += '<label>'+esc(i)+': <input name="'+esc('primary_stats::'+t)+'" value="'+esc(dummy.primary_stats[t] || 0)+'" class="saveable" type="number" step=1 /></label>';
-		}
+
 		
 	html += '</div>';
 
 // Keep
-	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description)+'</textarea><br />';
+	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description, true)+'</textarea><br />';
 
 	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	
@@ -154,7 +153,6 @@ export function list(){
 		max_level : true,
 		monetary_wealth : true,
 		gear_quality : true,
-		primary_stats : true,
 		sv : true,
 		bon : true,
 		viable_asset_materials : true,
@@ -163,7 +161,7 @@ export function list(){
 		gear_chance : true,
 		min_size : true,
 		max_size : true,
-		'*difficulty' : true,
+		'*slots' : true,
 		viable_consumables : true,
 		'*power' : true,
 		sadistic_min : true,
@@ -178,6 +176,7 @@ export function list(){
 		talkative_max : true,
 		required_assets : true,
 		required_actions : true,
+		'*hpMulti' : true,
 		no_equip : true,
 	};
 

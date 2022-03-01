@@ -17,6 +17,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.2.0/Tween.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.1.1/math.js"></script>
 	<script type="module">
 		import Modtools from './modtools/Modtools2.js';
 		import GameLib from './classes/GameLib.js';
@@ -25,12 +26,14 @@
 		import Generic from './classes/helpers/Generic.js';
 		import Tags from './libraries/stdTag.js';
 		import {LibMesh} from './libraries/meshes.js';
+		import { OBJExporter } from './ext/OBJExporter.js';
 		window.glib = new GameLib();
 		window.mat = Materials;
 		window.mod = new Modtools();
 		window.Generic = Generic;
 		window.Window = WM;
 		window.stdTag = Tags;
+		window.objExporter = OBJExporter;
 		console.log(LibMesh);
 		window.libMesh = LibMesh.getFlatObjects();
 	</script>
@@ -66,6 +69,7 @@
 				<div data-category="playerClasses">Player Class</div>
 				<div data-category="actionLearnable">Player Action</div>
 				<div data-category="gallery">Gallery</div>
+				<div data-category="audioTriggers">Audio Trigger</div>
 
 				<hr />
 
@@ -83,6 +87,7 @@
 				<div data-category="assets">Asset</div>
 				<div data-category="assetTemplates">Asset Template</div>
 				<div data-category="materialTemplates">Material Template</div>
+				<div data-category="armorEnchants">Armor Enchant</div>
 				<div data-category="books">Book</div>
 
 				<hr />

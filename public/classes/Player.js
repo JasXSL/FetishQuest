@@ -17,10 +17,13 @@ import Game from './Game.js';
 const BASE_HP = 30;
 const BASE_MP = 10;
 const BASE_AP = 10;
-const BASE_AROUSAL = 10;
+const BASE_AROUSAL = 7;
+const MAX_KINKS = 2;
 
 
 export default class Player extends Generic{
+
+	static BANK_SLOTS = 64;
 
 	static getRelations(){ 
 		return {
@@ -62,6 +65,8 @@ export default class Player extends Generic{
 		this.passives = [];			// Passive wrappers that should not be cleared when a battle starts or ends
 		this.hp = BASE_HP;				// 
 		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
+		this.pMP = 0;				// Pending MP that will be added at the start of your turn.
+		this.pAP = 0;				// Pending AP that will be added at the start of your turn. Can be negative and locks those slots in regen.
 		this.team = 0;				// 0 = player
 		this.size = 5;				// 0-10
 		this.level = 1;				// 
@@ -71,21 +76,25 @@ export default class Player extends Generic{
 		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
 		this.leveled = false;		// Level is an offset of the player average level
 		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
+		this.hpMulti = 1;			// Quick way to build NPCs with different HP instead of having to add a bunch of wrappers. Negative value will SET max HP to a specific value. Used for illium who loses 1 HP each turn
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
+		this.voice = '';			// Voice kit label for pain/pleasure sounds etc
 
-		// Primary stats
-		this.stamina = 0;			// Adds HP and carry capacity
-		this.agility = 0;			// Adds AP and crit
-		this.intellect = 0;			// Adds MP
+		// Use getBlock(type)
+		this.blPhysical = 0;		// Blocking points of physical damage this turn
+		this.blCorruption = 0;		// Blocking points of corruption damage this turn
+		this.blArcane = 0;			// Blocking points of arcane this turn
+		this.iblPhysical = 0;		// Block applied while it wasn't my turn
+		this.iblCorruption = 0;		
+		this.iblArcane = 0;			
+		this._untappedBlock = 0;		// Set on turn start and contains the value of any block wasted. Not saved.
 
 		this.svPhysical = 0;
-		this.svElemental = 0;
-		this.svHoly = 0;
+		this.svArcane = 0;
 		this.svCorruption = 0;
 
 		this.bonPhysical = 0;
-		this.bonElemental = 0;
-		this.bonHoly = 0;
+		this.bonArcane = 0;
 		this.bonCorruption = 0;
 		this.bot = new Bot(this);
 		this.used_punish = false;				// We have punished a target since the last battle ended or we left the room
@@ -94,9 +103,10 @@ export default class Player extends Generic{
 
 		// Personality types
 		this.talkative = 0.3;					// How often they output combat chats. Multiplied by nr turns. So after 1 turn, 0.5 = 50% chance, 2 turns = 100% etc. Setting this to one overrides the limit of one chat per turn.
-		this.sadistic = 0.5;					// Normal vs Sadistic
+		this.sadistic = 0.5;					// Normal vs Sadistic.
 		this.dominant = 0.8;					// Dominant vs submissive
 		this.hetero = 0.5;						// 0 = gay, 0.5 = bi, 1 = straight
+		this.emotive = 0.5;						// Only used for the host. Determines the chance of triggering a combat pain sound.
 		this.intelligence = 0.6;				// 0 = No intelligence, .1 = Mollusk, .2 = Animal, .4 = Child, .6 = Average human, .9 = Mastermind, 1 = Godlike
 												/* Notes on intelligence:
 													<= 0 = It has no intelligence and always attacks a random player, even friendly players
@@ -110,6 +120,8 @@ export default class Player extends Generic{
 		this.he = '';
 		this.him = '';
 		this.his = '';
+
+		this.actionGroups = [];					// Contains PlayerActionGroup objects. Built on the fly
 		
 		
 		this.class = null;
@@ -124,10 +136,17 @@ export default class Player extends Generic{
 		this._damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
 		// Same as above, but DONE by this player
-		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
-		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
+		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions used by this player since last turn. Not the actual damage.
+		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points this player did since last turn.
 		this._riposted_since_last = {};			// playerID : num_times_this_player_riposted_use
 		this._riposting_since_last = {};		// playerID : num_times_we_riposted_them
+		// Healing received
+		this._healing_a_since_last = {};			// playerID : {(str)damageType:(int)nrHealingAttacks} - nr healing actions received since last turn. Not the actual damage.
+		this._healing_p_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total HP player received by heals last turn
+		// Healing done
+		this._d_healing_a_since_last = {};			// playerID : {(str)damageType:(int)nrHealingAttacks} - nr healing actions done since last turn.
+		this._d_healing_p_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total healing points player did since last turn.
+		
 		// If an object should be netcoded, it needs to be a collection, otherwise it's passed by reference
 		this._targeted_by_since_last = new Collection();			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
 		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
@@ -137,6 +156,8 @@ export default class Player extends Generic{
 		
 		this.color = '';						// Assigned by the game
 
+		this.start_equip = [];					// Set on combat start. These are items you wore, that you can re-equip. Other items can't.
+
 		// Prevents recursion for encumbrance
 		this._ignore_effects = null;			// Internal helper that prevents recursion
 		this._difficulty = 1;					// Added from monster template, used in determining exp rewards
@@ -144,10 +165,9 @@ export default class Player extends Generic{
 		this._cache_tags = null;					// Holds all active tags in a cache for quicker validation
 		this._cache_effects = null;					// Holds all active effects in a cache for quicker validation
 		this._cache_wrappers = null;				// == || ==
-		this._cache_stamina = false;
 
+		this._ignore_check_effect = new Map();	// effect : true - Another recursion preventor
 		this._tmp_actions = [];					// Actions from effects and such bound to a battle
-
 		this._debug_chat = false;				// Only stored in the session, can be used to test player chat while they're controlled by a player. Since PC controlled characters can't auto speak.
 
 		this.load(data);
@@ -170,28 +190,28 @@ export default class Player extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+
+		if( !this.class )
+			this.class = new PlayerClass({}, this);
+
 		this.g_rebase();	// Super
 
+		this._ignore_check_effect = new Map();	// Needed when cloning since clone brings all things along
 		// only load tmp actions in a netgame (for ID mostly)
 		//if( game && game !== true && !game.is_host && Game.net.isConnected() )
 			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
 		
 		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
+		this.actionGroups = PlayerActionGroup.loadThese(this.actionGroups);
 
 		if( window.game ){
 			
-			this.updatePassives();
 			if( !game.is_host )
 				this.auto_wrappers = Wrapper.loadThese(this.auto_wrappers, this);
 
 		}
 		
-		if( this.class === null )
-			this.class = new PlayerClass({}, this);
-		
-
 		this.tags = this.tags.map(tag => tag.toLowerCase());
-
 
 	}
 
@@ -215,16 +235,11 @@ export default class Player extends Generic{
 			size : this.size,
 			level : this.level,
 			class : this.class instanceof PlayerClass ? PlayerClass.saveThis(this.class, full) : this.class,
-			stamina : this.stamina,
-			agility : this.agility,
-			intellect : this.intellect,
 			svPhysical : this.svPhysical,
-			svElemental : this.svElemental,
-			svHoly : this.svHoly,
+			svArcane : this.svArcane,
 			svCorruption : this.svCorruption,
 			bonPhysical : this.bonPhysical,
-			bonElemental : this.bonElemental,
-			bonHoly : this.bonHoly,
+			bonArcane : this.bonArcane,
 			bonCorruption : this.bonCorruption,
 			used_punish : this.used_punish,
 			leader : this.leader,
@@ -234,6 +249,7 @@ export default class Player extends Generic{
 			icon_nude : this.icon_nude,
 			icon_upperBody : this.icon_upperBody,
 			power : this.power,
+			hpMulti : this.hpMulti,
 			passives : Wrapper.saveThese(this.passives, full),
 			sadistic : this.sadistic,					// Normal vs Sadistic
 			dominant : this.dominant,					// Dominant vs submissive
@@ -242,8 +258,11 @@ export default class Player extends Generic{
 			he : this.he,
 			him : this.him,
 			his : this.his,
+			start_equip : this.start_equip,
 			generated : this.generated,	// Needed for playerMarkers in webgl
 			armor : this.armor,
+			actionGroups : PlayerActionGroup.saveThese(this.actionGroups),
+			voice : this.voice,
 		};
 
 		if( full !== "mod" )
@@ -254,10 +273,22 @@ export default class Player extends Generic{
 		out._tmp_actions = Action.saveThese(this._tmp_actions, full);
 
 		// Assets are only sent if equipped, PC, or full
-		out.assets = Asset.saveThese(this.assets.filter(el => full || el.equipped || !this.isNPC() || this.isDead()), full);
+		out.assets = Asset.saveThese(this.assets.filter(el => 
+			full || 
+			(
+				!el.inBank && 
+				(
+					el.equipped || 
+					!this.isNPC() || 
+					this.isDead()
+				)
+			)
+		), full);
 
 		if( full ){
 
+			
+			out.emotive = this.emotive;
 			out.remOnDeath = this.remOnDeath;
 			out.leveled = this.leveled;
 			out.inventory = this.inventory;
@@ -275,6 +306,10 @@ export default class Player extends Generic{
 				out._turn_action_used = this._turn_action_used;
 				out._riposted_since_last = this._riposted_since_last;
 				out._riposting_since_last = this._riposting_since_last;
+				out._healing_a_since_last = this._healing_a_since_last;
+				out._healing_p_since_last = this._healing_p_since_last;
+				out._d_healing_a_since_last = this._d_healing_a_since_last;
+				out._d_healing_p_since_last = this._d_healing_p_since_last;
 			}
 
 		}
@@ -287,6 +322,14 @@ export default class Player extends Generic{
 			out.ap = this.ap;
 			out.hp = this.hp;
 			out.mp = this.mp;
+			out.pAP = this.pAP;
+			out.pMP = this.pMP;
+			out.blArcane = this.blArcane;
+			out.blCorruption = this.blCorruption;
+			out.blPhysical = this.blPhysical;
+			out.iblArcane = this.iblArcane;
+			out.iblCorruption = this.iblCorruption;
+			out.iblPhysical = this.iblPhysical;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
 			out.netgame_owner = this.netgame_owner;
 			out.netgame_owner_name = this.netgame_owner_name;
@@ -314,6 +357,9 @@ export default class Player extends Generic{
 		if( game.is_host ){
 			this.rebindWrappers(true);
 		}
+
+		this.updatePassives();
+
 	}
 
 	rebindWrappers( ignoreStayCheck = false ){
@@ -355,77 +401,64 @@ export default class Player extends Generic{
 
 	/* Metadata */
 
+	// Helper method for below to summarize
+	summarizeSinceLast( obj, player, type ){
+
+		if( player && player.constructor === Player )
+			player = player.id;
+
+		let block = obj[player];
+		if( !block )
+			return 0;
+
+		let out = 0;
+		for( let i in block ){
+
+			if( i === type || type === undefined )
+				out += block[i];
+
+		}
+
+		return out;
+
+	}
+
 	// For these functions, type is an Action.Types value, if undefined, it counts ALL types
 	// Returns how many damaging actions a player has used since this one's last turn
 	damagingSinceLastByPlayer( player, type ){
-
-		if( player && player.constructor === Player )
-			player = player.id;
-
-		if( !this._damaging_since_last[player] )
-			return 0;
-
-		let out = 0;
-		for( let i in this._damaging_since_last[player] ){
-
-			if( i === type || type === undefined )
-				out += this._damaging_since_last[player][i];
-
-		}
-
-		return out;
+		return this.summarizeSinceLast(this._damaging_since_last, player, type);
 	}
-	// Damge taken since last turn from player to this
+	// Returns how many healing player has used on us since last round
+	healingActionsTakenSinceLastByPlayer( player, type ){
+		return this.summarizeSinceLast(this._healing_a_since_last, player, type);
+	}
+
+	// Total damage taken taken since last turn from player to this
 	damageSinceLastByPlayer( player, type ){
-
-		if( player && player.constructor === Player )
-			player = player.id;
-		if( !this._damage_since_last[player] )
-			return 0;
-
-		let out = 0;
-		for( let i in this._damage_since_last[player] ){
-
-			if( type === undefined || i === type )
-				out += this._damage_since_last[player][i];
-
-		}
-
-		return out;
-
+		return this.summarizeSinceLast(this._damage_since_last, player, type);
 	}
+	// Total healing points taken since last turn from player to this one
+	healingPointsTakenSinceLastByPlayer( player, type ){
+		return this.summarizeSinceLast(this._healing_p_since_last, player, type);
+	}
+
+	// Total damaging actions we've used against player
 	damagingDoneSinceLastToPlayer( player, type ){
-
-		if( player && player.constructor === Player )
-			player = player.id;
-		if( !this._d_damaging_since_last[player] )
-			return 0;
-		let out = 0;
-		for( let i in this._d_damaging_since_last[player] ){
-			if( i === type || type === undefined )
-				out += this._d_damaging_since_last[player][i];
-		}
-		return out;
-
+		return this.summarizeSinceLast(this._d_damaging_since_last, player, type);
 	}
-	// Damage this has done to player since last round
+	// Total healing actions we've used against player
+	healingActionsDoneSinceLastToPlayer( player, type ){
+		return this.summarizeSinceLast(this._d_healing_a_since_last, player, type);
+	}
+	// Damage points this has done to player since last round
 	damageDoneSinceLastToPlayer( player, type ){
-
-		if( player && player.constructor === Player )
-			player = player.id;
-
-		if( !this._d_damage_since_last[player] )
-			return 0;
-
-		let out = 0;
-		for( let i in this._d_damage_since_last[player] ){
-
-			if( type === undefined || i === type )
-				out += this._d_damage_since_last[player][i];
-
-		}
-		return out;
+		return this.summarizeSinceLast(this._d_damage_since_last, player, type);
 	}
+	// Healing points this has done to player since last round
+	healingPointsDoneSinceLastToPlayer( player, type ){
+		return this.summarizeSinceLast(this._d_healing_p_since_last, player, type);
+	}
+
 	// How many times this player has riposted me
 	ripostedSinceLastByPlayer( player ){
 
@@ -468,10 +501,104 @@ export default class Player extends Generic{
 		return out;
 
 	}
+
+	// Returns an array of enabled actions belonging to a group
+	getActionGroup( group ){
+
+		let out = [];
+		const actions = this.getActions();
+		for( let action of actions ){
+			if( action.group === group )
+				out.push(action);
+		}
+		return out;
+
+	}
+
+	// Returns a numeric index of where the current label of an action group is in its array of viable actions
+	// Returns 0 if the group isn't found, or the action isn't found
+	getActiveActionGroupIndex( group ){
+
+		let actions = this.getActionGroup(group);
+		let label = this.getActiveActionGroupLabel(group);
+		for( let i = 0; i < actions.length; ++i ){
+
+			if( actions[i].label === label )
+				return i;
+
+		}
+		return 0;
+
+	}
+
+	// Action groups
+	// Returns the selected action in a group
+	getActiveActionGroupLabel( group ){
+
+		const actions = this.getActionGroup(group);
+		if( !actions.length )
+			return false;
+		// Search for the group
+		for( let g of this.actionGroups ){
+
+			// Found group
+			if( g.id === group ){
+
+				// Make sure the active action exists
+				for( let action of actions ){
+
+					if( action.label === g.active )
+						return action.label;
+
+				}	
+				// Didn't exist, fail
+				return false;
+
+			}
+
+		}
+
+		return false;
+
+	}
 	
+	// Sets
+	// Was: setActiveActionGroupIndex
+	// Label can be 1 or -1 to offset instead of setting. And adds or subtracts based on where the current label is
+	setActiveActionGroupLabel( group, label ){
+
+		for( let g of this.actionGroups ){
+
+			if( g.id === group ){
+
+				if( label === 1 || label === -1 ){
+
+					let actions = this.getActionGroup(group);
+					const length = actions.length;
+					let current = this.getActiveActionGroupIndex()+label;
+					if( current >= length )
+						current = 0;
+					else if( current < 0 )
+						current = length-1;
+					g.active = actions[current].label;
+
+				}
+				else
+					g.active = label;
+				return;
+
+			}
+
+		}
+		// Not found
+		this.actionGroups.push(new PlayerActionGroup({
+			id : group,
+			index : label
+		}));
+
+	}
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
-	// prefix is usually se_ or ta_
 	appendMathVars( prefix, vars, event ){
 
 		let isRoot = this._ignore_effects === null;
@@ -482,13 +609,11 @@ export default class Player extends Generic{
 			this._ignore_effects.push(event.effect);
 		// Theres a recursion here when math is used in SV/Bon and to get SV/Bon you need math
 		vars[prefix+'SvPhysical'] = this.getSV(Action.Types.physical);
-		vars[prefix+'SvElemental'] = this.getSV(Action.Types.elemental);
-		vars[prefix+'SvHoly'] = this.getSV(Action.Types.holy);
+		vars[prefix+'SvArcane'] = this.getSV(Action.Types.arcane);
 		vars[prefix+'SvCorruption'] = this.getSV(Action.Types.corruption);
 		
 		vars[prefix+'BonPhysical'] = this.getBon(Action.Types.physical);
-		vars[prefix+'BonElemental'] = this.getBon(Action.Types.elemental);
-		vars[prefix+'BonHoly'] = this.getBon(Action.Types.holy);
+		vars[prefix+'BonArcane'] = this.getBon(Action.Types.arcane);
 		vars[prefix+'BonCorruption'] = this.getBon(Action.Types.corruption);
 		vars[prefix+'Lv'] = this.level;
 		vars[prefix+'HP'] = this.hp;
@@ -509,7 +634,13 @@ export default class Player extends Generic{
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
 
-		
+		vars[prefix+'Casting'] = +Boolean(this.isCasting()) || 0;
+
+		vars[prefix+'UntappedBlock'] = this._untappedBlock;
+
+		vars[prefix+'BlockArcane'] = this.getBlock(Action.Types.arcane);
+		vars[prefix+'BlockPhysical'] = this.getBlock(Action.Types.physical);
+		vars[prefix+'BlockCorruption'] = this.getBlock(Action.Types.corruption);
 
 		let tags = this.getTags();
 		for( let tag of tags )
@@ -520,16 +651,22 @@ export default class Player extends Generic{
 		vars[prefix+'damageReceivedSinceLast'] = this.datTotal( this._damage_since_last );
 		vars[prefix+'damagingDoneSinceLast'] = this.datTotal( this._d_damaging_since_last );
 		vars[prefix+'damageDoneSinceLast'] = this.datTotal( this._d_damage_since_last );
+		vars[prefix+'healingActionsDoneSinceLast'] = this.datTotal( this._d_healing_a_since_last );
+		vars[prefix+'healingPointsDoneSinceLast'] = this.datTotal( this._d_healing_p_since_last );
+		vars[prefix+'healingActionsReceivedSinceLast'] = this.datTotal( this._healing_a_since_last );
+		vars[prefix+'healingPointsReceivedSinceLast'] = this.datTotal( this._healing_p_since_last );
 		vars[prefix+'ripostedSinceLast'] = this.datTotalShort(this._riposted_since_last);
 		vars[prefix+'ripostingSinceLast'] = this.datTotalShort(this._riposting_since_last);
 
 		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last.save());
 		for( let i in Action.Types ){
+
 			let type = Action.Types[i];
 			vars[prefix+'damagingReceivedSinceLast'+type] = this.datTotal( this._damage_since_last, type );
 			vars[prefix+'damageReceivedSinceLast'+type] = this.datTotal( this._damage_since_last, type );
 			vars[prefix+'damagingDoneSinceLast'+type] = this.datTotal( this._d_damaging_since_last, type );
 			vars[prefix+'damageDoneSinceLast'+type] = this.datTotal( this._d_damage_since_last, type );
+			
 		}
 
 		// The mathvars event has a sender and target, and this player is the victim
@@ -541,9 +678,14 @@ export default class Player extends Generic{
 			// Add how much damage the sender has done to us
 			vars.se_TaDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.sender);
 			vars.se_TaDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.sender);
+			// How much healing sender has done to target (us)
+			vars.se_TaHealingActionsReceivedSinceLast = this.healingActionsTakenSinceLastByPlayer(event.sender);
+			vars.se_TaHealingPointsReceivedSinceLast = this.healingPointsTakenSinceLastByPlayer(event.sender);
 
 			// Target's crit chance on sender ta_Crit_se
 			vars[prefix+'Crit_se'] = this.getCritDoneChance(event.sender);
+
+			vars[prefix+'GrappledByS'] = +this.hasTagBy([stdTag.wrGrapple], event.sender) || 0;
 
 		}
 	
@@ -554,6 +696,11 @@ export default class Player extends Generic{
 
 			vars.ta_SeDamagingReceivedSinceLast = this.damagingSinceLastByPlayer(event.target);
 			vars.ta_SeDamageReceivedSinceLast = this.damageSinceLastByPlayer(event.target);
+
+			vars.ta_SeHealingActionsReceivedSinceLast = this.healingActionsTakenSinceLastByPlayer(event.target);
+			vars.ta_SeHealingPointsReceivedSinceLast = this.healingPointsTakenSinceLastByPlayer(event.target);
+
+			vars[prefix+'GrappledByT'] = +this.hasTagBy([stdTag.wrGrapple], event.target) || 0;
 
 		}
 
@@ -659,31 +806,6 @@ export default class Player extends Generic{
 		return stun.length > 0 || this.isSkipAllTurns();
 	}
 
-	// Returns taunting players unless there's a grappling player, in which case that's returned instead
-	getTauntedOrGrappledBy( actionRange, returnAllIfNone = true, debug ){
-		
-		let players = this.getGrappledBy();
-		if( debug )
-			console.debug("Grappled by ", players);
-		if( players.length )
-			return players;
-		return this.getTauntedBy(actionRange, returnAllIfNone, debug);
-
-	}
-
-	getGrappledBy(){
-
-		let grapples = this.getActiveEffectsByType(Effect.Types.grapple);
-		let out = [];
-		for( let effect of grapples ){
-			let sender = effect.parent.getCaster();
-			if( sender && out.indexOf(sender) === -1 )
-				out.push(sender);
-		}
-		return out;
-
-	}
-
 	// ActionRange is from Action.Range
 	getTauntedBy( actionRange, returnAllIfNone = true, debug ){
 
@@ -693,7 +815,7 @@ export default class Player extends Generic{
 		tauntEffects = tauntEffects.filter(effect => {
 
 			// Either works
-			if( effect.data.melee === undefined )
+			if( effect.data.melee === undefined || actionRange === undefined )
 				return true;
 
 			if( effect.data.melee && actionRange !== Action.Range.Melee )
@@ -885,7 +1007,7 @@ export default class Player extends Generic{
 		fx = this.getEffects();
 		for( let f of fx ){
 
-			f.getTags().map(addTag);
+			f.getTags(this).map(addTag);
 			// Bondage device mapping
 			if( f.type === Effect.Types.tieToRandomBondageDevice && f.data._device ){
 
@@ -919,12 +1041,14 @@ export default class Player extends Generic{
 	// overrides generic class
 	hasTagBy( tags, sender ){
 
-		if( !Array.isArray(tags) )
-			tags = [tags];
+		tags = toArray(tags);
+		sender = toArray(sender);
+		let sids = sender.map(el => el.id);
+
 
 		// Start by checking turn tags
 		for( let tt of this._turn_tags ){
-			if( sender.id === tt.s.id && ~tags.indexOf(tt.tag) )
+			if( sids.includes(tt.s.id) && tags.includes(tt.tag) )
 				return true;
 		}
 
@@ -932,7 +1056,7 @@ export default class Player extends Generic{
 		// Check wrapper tags
 		const wrappers = this.getWrappers();
 		for( let wrapper of wrappers ){
-			if( wrapper.caster === sender.id && wrapper.hasTag(tags) )
+			if( sids.includes(wrapper.caster) && wrapper.hasTag(tags) )
 				return true;
 		}
 		
@@ -940,7 +1064,7 @@ export default class Player extends Generic{
 		// Next check the effects
 		const effects = this.getEffects();
 		for( let effect of effects ){
-			if( effect.parent.caster === sender.id && (effect.hasTag(tags)) )
+			if( sids.includes(effect.parent.caster) && effect.hasTag(tags) )
 				return true;
 		}
 
@@ -1015,10 +1139,10 @@ export default class Player extends Generic{
 
 
 	/* Events */
-	// happens to NPCs the first time they're placed in world from an encounter
+	// happens to players the first time they're placed in world from an encounter
 	onPlacedInWorld(){
 
-		this.netgame_owner = '';
+		//this.netgame_owner = '';
 		if( this.leveled ){
 			
 			this.level += game.getHighestLevelPlayer();
@@ -1031,7 +1155,7 @@ export default class Player extends Generic{
 		this.assets = this.assets.map(el => Asset.convertDummy(el, this));
 		for( let index of this.inventory ){
 			if( this.assets[index] && this.assets[index].equippable() ){
-				this.equipAsset(this.assets[index].id);
+				this.equipAsset(this.assets[index].id, undefined, true);
 			}
 		}
 		this.inventory = [];
@@ -1045,6 +1169,9 @@ export default class Player extends Generic{
 		this.addHP(Infinity);
 		this.addMP(Infinity);
 		this.arousal = 0;
+
+		if( !this.getKinks().length && !this.hasTag([stdTag.plBeast, stdTag.plTargetBeast, stdTag.plNoFetish]) )
+			this.shuffleKinks();
 		
 	}
 	onRemoved(){
@@ -1066,13 +1193,37 @@ export default class Player extends Generic{
 		++this._turns;
 
 	}
+
+	// Raised after effects
 	onTurnStart(){
 
 		this._d_damaging_since_last = {};
 		this._d_damage_since_last = {};
 		this._riposted_since_last = {};
 		this._riposting_since_last = {};
+		this._healing_a_since_last = {};
+		this._healing_p_since_last = {};
+		this._d_healing_a_since_last = {};
+		this._d_healing_p_since_last = {};
 		
+		// Prevent block from fading
+		if( this.blockFadeLocked(Action.Types.arcane) )
+			this.iblArcane += this.blArcane;
+		if( this.blockFadeLocked(Action.Types.physical) )
+			this.iblPhysical += this.blPhysical;
+		if( this.blockFadeLocked(Action.Types.corruption) )
+			this.iblCorruption += this.blCorruption;
+		
+		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn
+		this._untappedBlock = this.blPhysical+this.blArcane+this.blCorruption;
+		this.blPhysical = this.iblPhysical;
+		this.blArcane = this.iblArcane;
+		this.blCorruption = this.iblCorruption;
+
+		this.iblArcane = this.iblCorruption = this.iblPhysical = 0;
+		
+		if( this._untappedBlock )
+			new GameEvent({sender:this, target:this, type:GameEvent.Types.blockExpired}).raise();
 
 		// Wipe turnTags on start
 		this.resetTurnTags();
@@ -1088,67 +1239,75 @@ export default class Player extends Generic{
 		const actions = this.getActions();
 		for(let action of actions)
 			action.onTurnStart();
-		
+
+		/*
 		if( this.arousal > 0 && this._turns%2 === 0 ){
-			/*
-			let sub = -this.getMaxArousal()/10;	// You lose 10% every 3 turns
-			let rem = Math.floor(sub);
-			if( Math.random() < sub-rem )
-				--rem;
-			*/
+
 			this.addArousal(-1);	// Lose 1 every 2 turns
 			
 		}
+		*/
 
 		this._turn_action_used = 0;
 		this._turn_ap_spent = 0;
 		// Restore 3/10ths each turn
 		const map = this.getMaxAP();
-		let ap = map*0.3; // base AP to add
-		// 
-		if( map > 10 )
-			ap = 3+(map-10)*0.1;	// 10% chance of bonus per ap
-		ap *= this.getPowerMultiplier();
+		let ap = map*0.4*this.getGenericAmountStatMultiplier(Effect.Types.regenAP, this); // base AP to add
+
+		// Add pending AP
+		if( this.pAP < 0 )
+			ap += this.pAP;
+		if( ap < 0 )
+			ap = 0;
 		
 
-		// Shuffle the remainder
+		// Shuffle the fractions
 		if( Math.random() < ap-Math.floor(ap) )
 			++ap;
 
-		if( ap < 2 )
-			ap = 2;
 		this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
 		
-		// Gain 1 MP every 2 turns
-		/*
-		let mp = this.getMaxMP()*0.1;
-		if( Math.random() < mp-Math.floor(mp) )
-			++mp;
-		*/
+		// Gain 1 MP every 3 turns
+		let mp = Math.max(this.pMP, 0);
 		if( this.mp < this.getMaxMP() && !(this._turns%3) )
+			++mp;
+		if( mp )
 			this.addMP(1);
+
+		this.pMP = this.pAP = 0;	// Reset the initial thing
 		
+
 	}
 	onBattleStart(){
+
 		this._used_chats = {};
 		this._turn_tags = [];
-		this.ap = Math.max(0, this.getMaxAP()-10);	// Start with your bonus agility as AP
+		this.ap = 0;			// Start with 0 AP
 		this._threat = {};
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
 		this._last_chat = -1;
 		this._turn_action_used = 0;
+		this.blCorruption = this.blPhysical = this.blArcane = this.iblPhysical = this.iblArcane = this.iblCorruption = 0;
+		if( this.arousal >= this.getMaxArousal() )
+			this.arousal = this.getMaxArousal()-1;
+
+		this.start_equip = this.getAssetsEquipped(true).map(el => el.id);
+		
 
 		this.resetTempActions();
 
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleStart();
+			
 
 	}
 	onBattleEnd(){
 
+		this.start_equip = [];
+		this.blCorruption = this.blPhysical = this.blArcane = this.iblPhysical = this.iblArcane = this.iblCorruption = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
 		this.ap = 0;
 		let actions = this.getActions();
@@ -1165,7 +1324,8 @@ export default class Player extends Generic{
 
 		});
 
-		for( let asset of this.assets )
+		const assets = this.getAssets(false);
+		for( let asset of assets )
 			asset.onBattleEnd();
 
 		let wrappers = this.getWrappers(undefined, true);
@@ -1189,9 +1349,8 @@ export default class Player extends Generic{
 		if( this.generated )
 			return;
 
-		const primary = this.getPrimaryStats();
-		this.addHP(6+Math.ceil(Math.max(0,primary.stamina*Player.STAMINA_MULTI/2)));	// Each player gets 6 HP back plus half of whatever additional HP they gain from their stamina
-		this.addMP(3+Math.max(0,primary.intellect));									// Gain more back at the end
+		this.addHP(Math.ceil(this.getMaxHP()*0.1));		// Regen 30% of your HP
+		this.addMP(Math.round(this.getMaxMP()*0.3));	// Regen 30% of MP
 		this.addArousal(-Math.ceil(this.getMaxArousal()*0.15), undefined, true);
 
 	}
@@ -1253,6 +1412,14 @@ export default class Player extends Generic{
 		
 		++this._damaging_since_last[sender.id][type];
 	}
+	onHealingAttackReceived( sender, type ){
+		if(!this._healing_a_since_last[sender.id])
+			this._healing_a_since_last[sender.id] = {};
+		if(!this._healing_a_since_last[sender.id][type])
+			this._healing_a_since_last[sender.id][type] = 0;
+		
+		++this._healing_a_since_last[sender.id][type];
+	}
 	onDamagingAttackDone(target, type){
 
 		if(!this._d_damaging_since_last[target.id])
@@ -1263,6 +1430,16 @@ export default class Player extends Generic{
 		++this._d_damaging_since_last[target.id][type];
 
 	}
+	onHealingAttackDone( target, type ){
+		if(!this._d_healing_a_since_last[target.id])
+			this._d_healing_a_since_last[target.id] = {};
+
+		if( !this._d_healing_a_since_last[target.id][type] )
+			this._d_healing_a_since_last[target.id][type] = 0;
+		
+		++this._d_healing_a_since_last[target.id][type];
+	}
+
 	onDamageTaken( sender, type, amount = 0 ){
 		if( isNaN(amount) )
 			return;
@@ -1273,6 +1450,17 @@ export default class Player extends Generic{
 		
 		this._damage_since_last[sender.id][type] += amount;
 	}
+	onHealingTaken( sender, type, amount = 0 ){
+		if( isNaN(amount) )
+			return;
+		if(!this._healing_p_since_last[sender.id])
+			this._healing_p_since_last[sender.id] = {};
+		if(!this._healing_p_since_last[sender.id][type])
+			this._healing_p_since_last[sender.id][type] = 0;
+		
+		this._healing_p_since_last[sender.id][type] += amount;
+	}
+
 	onDamageDone( target, type, amount = 0 ){
 		if( isNaN(amount) )
 			return;
@@ -1282,6 +1470,17 @@ export default class Player extends Generic{
 			this._d_damage_since_last[target.id][type] = 0;
 		this._d_damage_since_last[target.id][type] += amount;
 	}
+	onHealingDone( target, type, amount = 0 ){
+		if( isNaN(amount) )
+			return;
+		if(!this._d_healing_p_since_last[target.id])
+			this._d_healing_p_since_last[target.id] = {};
+		if(!this._d_healing_p_since_last[target.id][type])
+			this._d_healing_p_since_last[target.id][type] = 0;
+		this._d_healing_p_since_last[target.id][type] += amount;
+	}
+
+
 	onTargetedActionUsed( target ){
 	}
 	onTargetedActionReceived( sender ){
@@ -1319,6 +1518,46 @@ export default class Player extends Generic{
 		this.getAssetsEquipped().map(el => el.onEquip());
 	}
 
+	/* Kinks */
+	getKinks(){
+
+		return this.passives.filter(el => el.hasTag(stdTag.wrKink));
+
+	}
+
+	hasKink( label ){
+
+		let all = this.getKinks();
+		for( let kink of all ){
+
+			if( kink.label === label )
+				return true;
+
+		}
+
+		return false;
+
+	}
+
+	removeKinks(){
+		this.getKinks().map(this.removePassive, this);
+	}
+
+	shuffleKinks(){
+
+		// Scan the wrapper DB
+		const evt = new GameEvent({
+			sender:this,
+			target:this
+		});
+		const kinks = Wrapper.getKinks().filter(wrapper => wrapper.testAgainst( evt, false ));
+		shuffle(kinks);
+
+		this.removeKinks();
+		for( let i = 0; i < MAX_KINKS; ++i )
+			this.addPassive(kinks[i]);
+
+	}
 
 
 	/* TurnTags */
@@ -1355,7 +1594,7 @@ export default class Player extends Generic{
 	/* Assets */
 	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
 	// returns false on fail, or an array of all added assets on success
-	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = false ){
+	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = false, toBank = false ){
 		if( !(asset instanceof Asset) ){
 			console.error("Trying to add non-asset. Did you mean to use addLibraryAsset?");
 			return false;
@@ -1371,7 +1610,11 @@ export default class Player extends Generic{
 			if( resetid )
 				a.g_resetID();	// Buying stacks will bork everything otherwise
 
-			const exists = this.getAssetByLabel(a.label);
+			const exists = this.getAssetByLabel(a.label, toBank);
+
+			if( toBank && (!exists || !a.stacking) && this.getAssets(true).length >= Player.BANK_SLOTS )
+				throw 'Bank is full';
+
 			let n = a._stacks;
 			if( fromStacks )
 				n = amount;
@@ -1381,25 +1624,33 @@ export default class Player extends Generic{
 				a._stacks = n;
 				this.assets.push(a);
 			}
-			if( a.category === Asset.Categories.consumable ){
-				
-				if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 ){
-					this.equipAsset(a.id);
+			if( !toBank ){
+
+				if( a.category === Asset.Categories.consumable ){
+					
+					if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 ){
+						this.equipAsset(a.id, this);
+					}
+
+				}
+				else if( this.isNPC() ){
+
+					if( !no_equip && !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
+						this.equipAsset(a.id, this);
+
 				}
 
 			}
-			else if( this.isNPC() ){
-
-				if( !no_equip && !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
-					this.equipAsset(a.id);
-
-			}
+			
+			a.inBank = Boolean(toBank);
+			
 
 			out[a.id] = a;
 
 		}
 		this.raiseInvChange();
-		game.onInventoryAdd( this, asset );
+		if( !toBank )
+			game.onInventoryAdd( this, asset );
 		return Object.values(out);
 
 	}
@@ -1419,20 +1670,37 @@ export default class Player extends Generic{
 		return this.addAsset(asset, amount);
 
 	}
-	getAssetById(id){
-		for(let asset of this.assets){
-			if(asset.id === id)
+	// Use -1 to get from either
+	getAssetById( id, inBank ){
+
+		let assets;
+		if( inBank === -1 )
+			assets = this.getAssets(true).concat(this.getAssets(false));
+		else
+			assets = this.getAssets(inBank);
+
+
+		for( let asset of assets ){
+
+			if( asset.id === id )
 				return asset;
+
 		}
 		return false;
+
 	}
 	// useful for stackable items like currency
-	getAssetByLabel( label ){
-		for(let asset of this.assets){
+	getAssetByLabel( label, inBank ){
+
+		let assets = this.getAssets(inBank);
+		for(let asset of assets){
+
 			if( asset.label === label )
 				return asset;
+
 		}
 		return false;
+
 	}
 	isAssetEquipped(id){
 		let asset = this.getAssetById(id);
@@ -1455,40 +1723,72 @@ export default class Player extends Generic{
 		}
 		return out;
 	}
-	equipAsset( id, byPlayer ){
 
-		let assets = this.getAssetsInventory();
-		for(let asset of assets){
+	getStealableAssets(){
 
-			if(asset.id === id){
-
-				if( !asset.equippable() ){
-					console.error("Item can not be equipped");
-					return false;
-				}
-
-				// Special case for action slot
-				const isActionAsset = ~asset.slots.indexOf(Asset.Slots.action);
-				if( isActionAsset && !this.unequipActionAssetIfFull() )
-					return false;
-				if( !isActionAsset && !this.unequipAssetsBySlots(asset.slots) )
-					return false;
-
-				asset.equipped = true;
-				asset.onEquip();
-				this.onItemChange();
-				if( game.battle_active && byPlayer )
-					game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
-				this.rebindWrappers();
-				return true;
-
-			}
-
-		}
-		return false;
+		const assets = this.getAssets(false);
+		return assets.filter(el => {
+			return !el.soulbound && el.hasTag(stdTag.asStealable);
+		});
 
 	}
-	unequipAsset( id, byPlayer ){
+
+	// Accepts an asset or an id
+	canEquip( asset, ignoreBattleState ){
+
+		if( typeof asset === "string" )
+			asset = this.getAssetById(asset);
+
+		return (
+			asset.equippable() &&
+			(
+				ignoreBattleState || !game.battle_active || this.start_equip.includes(asset.id)
+			)
+		);
+
+	}
+
+	// byPlayer is the player who initiated the equip. If it's not a player, no event is raised.
+	equipAsset( id, byPlayer, ignoreBattleState ){
+
+		const asset = this.getAssetById(id);
+		if( !asset )
+			return false;
+
+		if( !this.canEquip(asset, ignoreBattleState) ){
+			console.error("Item can not be equipped");
+			return false;
+		}
+
+		// Special case for action slot
+		const isActionAsset = ~asset.slots.indexOf(Asset.Slots.action);
+		if( isActionAsset && !this.unequipActionAssetIfFull() )
+			return false;
+		if( !isActionAsset && !this.unequipAssetsBySlots(asset.slots, byPlayer) )
+			return false;
+
+		asset.equipped = true;
+		asset.onEquip();
+		this.onItemChange();
+		if( game.battle_active && byPlayer )
+			game.ui.addText( this.getColoredName()+" equips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
+		this.rebindWrappers();
+
+		if( byPlayer ){
+			new GameEvent({
+				type : GameEvent.Types.armorEquipped,
+				sender : byPlayer,
+				target : this,
+				asset : asset
+			}).raise();
+		}
+
+		return true;
+
+	}
+
+	// byPlayer is the player who initiated it. If it's not a player object, no event is raised
+	unequipAsset( id, byPlayer, noText ){
 
 		let assets = this.getAssetsEquipped(true);
 		for(let asset of assets){
@@ -1500,9 +1800,18 @@ export default class Player extends Generic{
 
 				asset.equipped = false;
 				this.onItemChange();
-				if( game.battle_active && byPlayer )
+				if( game.battle_active && byPlayer === this && !noText )
 					game.ui.addText( this.getColoredName()+" unequips "+asset.name+".", undefined, this.id, this.id, 'statMessage important' );
 				this.rebindWrappers();
+
+				if( byPlayer ){
+					new GameEvent({
+						type : GameEvent.Types.armorUnequipped,
+						sender : byPlayer,
+						target : this,
+						asset : asset
+					}).raise();
+				}
 				return asset;
 
 			}
@@ -1511,36 +1820,44 @@ export default class Player extends Generic{
 		return true;
 
 	}
-	unequipAssetsBySlots( slots ){
+	unequipAssetsBySlots( slots, byPlayer ){
+
 		let equipped = this.getEquippedAssetsBySlots(slots, true);
 		if(!equipped.length)
 			return true;
 		for( let e of equipped ){
-			if(!this.unequipAsset(e.id))
+			if(!this.unequipAsset(e.id, byPlayer))
 				return false;
 		}
 		return true;
+
 	}
 
 	// returns nr of assets of label, including stacks
-	numAssets( label ){
+	numAssets( label, inBank ){
+
 		let out = 0;
-		for(let asset of this.assets){
-			if( asset.label === label ){
+		const assets = this.getAssets(inBank);
+		for( let asset of assets ){
+
+			if( asset.label === label )
 				out += asset.stacking ? asset._stacks : 1;
-			}
+
 		}
+
 		return out;
+
 	}
 
 	// Returns nr of assets by label, including stacks and charges
 	numAssetUses( label, equipped_only = false ){
 
-		let assets = this.assets;
+		let assets = this.getAssets(false);
 		if( equipped_only )
 			assets = this.getAssetsEquipped();
 		let out = 0;
 		for(let asset of assets){
+
 			if( asset.label === label ){
 				let n = asset.stacking ? asset._stacks : 1;
 				if( asset.charges > 1 ){
@@ -1550,16 +1867,19 @@ export default class Player extends Generic{
 					return -1;
 				out += n;
 			}
+
 		}
 		return out;
 	}
 
 	// Unequips the leftmost one if toolbelt is full
 	unequipActionAssetIfFull(){
+
 		let assets = this.getEquippedAssetsBySlots(Asset.Slots.action, true);
 		if( assets.length < 3 )
 			return true;
-		return this.unequipAsset(assets[0].id);
+		return this.unequipAsset(assets[0].id, this);
+
 	}
 
 	// Returns equipped assets
@@ -1574,7 +1894,7 @@ export default class Player extends Generic{
 		return out;
 	}
 
-	destroyAsset( id, amount ){
+	destroyAsset( id, amount, inBank ){
 
 		if( id instanceof Asset )
 			id = id.id;
@@ -1582,10 +1902,10 @@ export default class Player extends Generic{
 		
 		this.getAssetWrappers(id).map(el => el.remove());
 
-		for(let i in this.assets){
+		for( let i in this.assets ){
 
 			let asset = this.assets[i];
-			if(asset.id === id){
+			if( asset.id === id && Boolean(asset.inBank) === Boolean(inBank) ){
 
 				if( Math.floor(amount) && asset.stacking )
 					asset._stacks -= amount;
@@ -1610,9 +1930,10 @@ export default class Player extends Generic{
 
 	}
 
-	destroyAssetsByLabel( label, amount = 1 ){
+	destroyAssetsByLabel( label, amount = 1, inBank = false ){
 
-		for( let asset of this.assets ){
+		let assets = this.getAssets(inBank);
+		for( let asset of assets ){
 
 			if( asset.label === label ){	
 
@@ -1631,27 +1952,32 @@ export default class Player extends Generic{
 	}
 
 	// Transfers an asset to a player. Player is a player object
-	transferAsset( id, player ){
+	transferAsset( id, player, byPlayer ){
+
 		let asset = this.getAssetById(id);
 		if( !asset )
 			return false;
-		this.unequipAsset(id);
+		this.unequipAsset(id, byPlayer || this);
 		player.addAsset(asset);
 		this.destroyAsset(id);
-		if( Math.random() < 0.25 && asset.durability )
-			player.equipAsset(id);
 		return true;
+
 	}
 
 	// Returns a list of assets that have their durability damaged
 	getRepairableAssets(){
-		return this.assets.filter(asset => {
+
+		const assets = this.getAssets();
+		return assets.filter(asset => {
 			return asset.durability < asset.getMaxDurability() && asset.isDamageable();
 		});
+
 	}
 
-	getAssets(){
-		return this.assets;
+	getAssets( banked ){
+
+		return this.assets.filter(el => Boolean(el.inBank) === Boolean(banked));
+
 	}
 
 	// Returns non-equipped assets
@@ -1685,7 +2011,7 @@ export default class Player extends Generic{
 	}
 
 	getLootableAssets(){
-		return this.assets;
+		return this.getAssets();
 	}
 
 	lootToPlayer( id, player, silent = false ){
@@ -1791,25 +2117,29 @@ export default class Player extends Generic{
 
 	}
 
-	// Encumbrance
+	// Gets max carry capacity in grams
 	getCarryingCapacity(){
 
 		let flat = 
 			35000+
-			this.getPrimaryStats()[Player.primaryStats.stamina]*3000+
 			this.getGenericAmountStatPoints(Effect.Types.carryModifier)
 		;
 
-		return flat*this.getGenericAmountStatMultiplier(Effect.Types.carryModifier);
+		return flat*this.getGenericAmountStatMultiplier(Effect.Types.carryModifier, this);
 
 	}
 	getCarriedWeight(){
+
 		let out = 0;
-		for(let asset of this.assets){
+		const assets = this.getAssets();
+		for( let asset of assets ){
+
 			let weight = asset.getWeight();
 			out+= weight;
+
 		}
 		return out;
+
 	}
 	isEncumbered(){
 		return !this.isBeast() && this.getCarriedWeight() > this.getCarryingCapacity();
@@ -1817,9 +2147,11 @@ export default class Player extends Generic{
 
 	// Currency
 	// Returns currency value in copper
-	getMoney(){
+	getMoney( bank ){
+
 		let out = 0;
-		for( let asset of this.assets ){
+		const assets = this.getAssets(bank);
+		for( let asset of assets ){
 			if( asset.label === 'platinum' )
 				out += asset._stacks*1000;
 			else if( asset.label === 'gold' )
@@ -1830,11 +2162,12 @@ export default class Player extends Generic{
 				out += asset._stacks;
 		}
 		return out;
+
 	}
 
-	consumeMoney( copper = 0 ){
+	consumeMoney( copper = 0, bank = false ){
 
-		let total = this.getMoney();
+		let total = this.getMoney(bank);
 		if( total < copper )
 			return false;
 
@@ -1844,9 +2177,9 @@ export default class Player extends Generic{
 			consumeGold = 0,			// Gold assets we need to remove
 			consumePlatinum = 0			// Plat assets we need to remove
 		;
-		let copperAsset = this.getAssetByLabel('copper'),
-			silverAsset = this.getAssetByLabel('silver'),
-			goldAsset = this.getAssetByLabel('gold')
+		let copperAsset = this.getAssetByLabel('copper', bank),
+			silverAsset = this.getAssetByLabel('silver', bank),
+			goldAsset = this.getAssetByLabel('gold', bank)
 		;
 		// First see if we can handle it with just copper
 		if( copperAsset && copperAsset._stacks >= copper ){
@@ -1888,34 +2221,34 @@ export default class Player extends Generic{
 		if( consumeCopper < 0 ){
 			const asset = glib.get('copper', 'Asset');
 			asset._stacks = Math.abs(consumeCopper);
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
 		}
 		else if( consumeCopper > 0 )
-			this.destroyAsset(copperAsset.id, consumeCopper);
+			this.destroyAsset(copperAsset.id, consumeCopper, bank);
 
 		if( consumeSilver < 0 ){
 			const asset = glib.get('silver', 'Asset');
 			asset._stacks = Math.abs(consumeSilver);
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
 		}
 		else if( consumeSilver > 0 )
-			this.destroyAsset(silverAsset.id, consumeSilver);
+			this.destroyAsset(silverAsset.id, consumeSilver, bank);
 		
 		if( consumeGold < 0 ){
 			const asset = glib.get('gold', 'Asset');
 			asset._stacks = Math.abs(consumeGold);
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
 		}
 		else if( consumeGold > 0 )
-			this.destroyAsset(goldAsset.id, consumeGold);
+			this.destroyAsset(goldAsset.id, consumeGold, bank);
 
 		if( consumePlatinum < 0 ){
 			const asset = glib.get('platinum', 'Asset');
 			asset._stacks = Math.abs(consumePlatinum);
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
 		}
 		else if( consumePlatinum > 0 ){
-			this.destroyAsset(this.getAssetByLabel('platinum').id, consumePlatinum);
+			this.destroyAsset(this.getAssetByLabel('platinum').id, consumePlatinum, bank);
 		}
 		return true;
 
@@ -1927,52 +2260,87 @@ export default class Player extends Generic{
 	}
 
 	// Auto exchanges money assets to the fewest amounts of coins
-	exchangeMoney(){
-		const copper = this.getMoney();
+	exchangeMoney( bank ){
+		const copper = this.getMoney(bank);
 		let asset;
-		if( asset = this.getAssetByLabel('platinum') )
-			this.destroyAsset(asset);
-		if( asset = this.getAssetByLabel('gold') )
-			this.destroyAsset(asset);
-		if( asset = this.getAssetByLabel('silver') )
-			this.destroyAsset(asset);
-		if( asset = this.getAssetByLabel('copper') )
-			this.destroyAsset(asset);
+		if( asset = this.getAssetByLabel('platinum', bank) )
+			this.destroyAsset(asset, undefined, bank);
+		if( asset = this.getAssetByLabel('gold', bank) )
+			this.destroyAsset(asset, undefined, bank);
+		if( asset = this.getAssetByLabel('silver', bank) )
+			this.destroyAsset(asset, undefined, bank);
+		if( asset = this.getAssetByLabel('copper', bank) )
+			this.destroyAsset(asset, undefined, bank);
 		
 		let assets = Player.copperToAssets(copper);
 		for( let a of assets )
-			this.addAsset(a);
+			this.addAsset(a, undefined, undefined, undefined, undefined, bank);
 		
 		return true;
 		
 	}
 
 	// Exchanges a copper amount into plat, gold etc and adds
-	addCopperAsMoney( copper = 0 ){
+	addCopperAsMoney( copper = 0, bank = false ){
+
 		copper = parseInt(copper);
 		if( copper < 1 )
 			return;
 
 		const exch = Player.calculateMoneyExhange(copper);
 		for( let i in exch ){
+
 			if( !exch[i] )
 				continue;
 			const asset = glib.get(Player.currencyWeights[i], 'Asset');
 			asset._stacks = exch[i];
-			this.addAsset(asset);
+			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
+			
 		}
 
 	}
 
-	canExchange(){
+	canExchange( bank ){
 
 		const labels = Player.currencyWeights.slice(1);
-		for( let asset of this.assets ){
+		const assets = this.getAssets( bank );
+		for( let asset of assets ){
 			if( ~labels.indexOf(asset.label) && asset._stacks >= 10 )
 				return true;
 		}
 
 	}
+
+
+
+	// BANK
+
+	// Move an asset to bank. Supports either the asset itself or its ID.
+	moveAssetToBank( asset, amount ){
+
+		if( typeof asset === 'string' )
+			asset = this.getAssetById(asset, false);
+		if( !(asset instanceof Asset) )
+			throw 'Asset not found';
+
+		this.unequipAsset(asset, this, true);
+		this.addAsset(asset, amount || 1, true, true, true, true);
+		this.destroyAsset(asset.id, amount, false);
+
+	}
+
+	moveAssetFromBank( asset, amount ){
+
+		if( typeof asset === 'string' )
+			asset = this.getAssetById(asset, true);
+		if( !(asset instanceof Asset) )
+			throw 'Banked asset not found';
+
+		this.addAsset(asset, amount || 1, true, true, true, false);
+		this.destroyAsset(asset.id, amount, true);
+		
+	}
+
 
 
 
@@ -1995,7 +2363,7 @@ export default class Player extends Generic{
 		if( !points )
 			console.error("Invalid points to addexperience: ", points);
 
-		points = points*this.getGenericAmountStatMultiplier(Effect.Types.expMod);
+		points = points*this.getGenericAmountStatMultiplier(Effect.Types.expMod, this);
 
 		if( isNaN(points) ){
 
@@ -2110,8 +2478,84 @@ export default class Player extends Generic{
 		return thr;
 	}
 
-	// Returns true if the player died
-	addHP( amount, sender, effect, fText = false ){
+	// Adds block. Returns the amount added/subtracted
+	addBlock( amount, type ){
+
+		type = ucFirst(type);
+
+		let pre = this.getBlock(type);
+		if( isNaN(pre) )
+			throw 'Invalid type passed to block: '+type;
+
+		amount = parseInt(amount);
+		if( isNaN(amount) )
+			throw 'Invalid value passed to block: '+amt;
+
+		// Damage
+		if( amount < 0 ){
+
+			let n = this['bl'+type]+amount;
+			if( n < 0 ){	// We went below 0, and have to remove from incoming block too
+				this['bl'+type] = 0;
+				this['ibl'+type] = Math.max(0, this['ibl'+type]+n);
+			}
+			else
+				this['bl'+type] = n;
+
+		}
+		// ADD
+		else{
+
+			if( game.getTurnPlayer() === this )
+				this['bl'+type] += amount;
+			else
+				this['ibl'+type] += amount;
+
+		}
+		
+		return this.getBlock(type)-pre;
+
+	}
+
+	getBlock( type ){
+		return this['bl'+type] + this['ibl'+type];
+	}
+
+	isBlockDisabled( type ){
+
+		return this.getActiveEffectsByType(Effect.Types.preventBlock).some(fx => {
+			
+			let ty = fx.data.type;
+			if( !ty )
+				return true;
+			ty = toArray(ty);
+			return ty.includes(type);
+
+		});
+		
+	}
+
+	// Returns if block of a type shouldn't fade on turn start
+	blockFadeLocked( type ){
+
+		return this.getActiveEffectsByType(Effect.Types.preventBlockAutoFade).some(fx => {
+			
+			let ty = fx.data.type;
+			if( !ty )
+				return true;
+			ty = toArray(ty);
+			return ty.includes(type);
+
+		});
+
+	}
+
+	// Returns an object with {died:(bool)died, hp:(int)hp_damage, blk:(int)amount_blocked/defended}.
+	// IgnoreBlock attacks HP directly.
+	addHP( amount, sender, effect, dmgtype, ignoreBlock, fText = false ){
+
+		if( !ignoreBlock )
+			ignoreBlock = this.isBlockDisabled(dmgtype);
 
 		if( this.isHPDisabled() )
 			return false;
@@ -2123,32 +2567,59 @@ export default class Player extends Generic{
 
 		}
 
-		const pre = this.hp;
+		let out = {died:false, hp:0, blk:0};
+
+		let pre = this.hp;
+		let prehp = this.hp;
 		let wasDead = this.hasTag(stdTag.dead);
+
+		// Taking damage
+		if( dmgtype ){
+			
+			let shield = this.getBlock(dmgtype);
+			pre += shield;
+			if( amount < 0 && !ignoreBlock ){
+
+				out.blk = this.addBlock(amount, dmgtype);	// Add the full amount to shield first. addBlock caps to 0
+				amount += shield;	// Amount is negative, so add the shield
+				amount = Math.min(0, amount);		// Min because neg
+
+			}
+
+		}
+
 		this.hp += amount;
 		this.hp = Math.floor( Math.max(0, Math.min(this.getMaxHP(), this.hp)) );
 
+		let post = this.hp;
+		if( dmgtype )
+			post += this.getBlock(dmgtype);
+
 		// Out of combat HP damage can occur, but players can't go under 1. Use SET HP instead if you want to kill someone through an RP.
-		if( !game.battle_active && amount < 0 && this.hp <= 0 )
+		if( !game.battle_active && this.hp <= 0 && this.team === Player.TEAM_PLAYER )
 			this.hp = 1;
 
-		if( fText && this.hp-pre !== 0 )
-			game.ui.floatingCombatText(this.hp-pre, this, "hp");
+		out.hp = this.hp-prehp;
 
+		if( fText && post-pre !== 0 )
+			game.ui.floatingCombatText(out.hp + (out.blk ? '('+Math.abs(out.blk)+')' : ''), this, "hp");
+
+		
+		
 		if( this.hp === 0 && !wasDead ){
 
 			this.onDeath( sender, effect );
 
 			if( this.hp === 0 )
-				return true;
+				out.died = true;
 
 		}
 
-		return false;
+		return out;
 
 	}
 
-	addArousal( amount, fText = false, force = false ){
+	addArousal( amount, fText = false, force = false, sender ){
 
 		if( this.isArousalDisabled() && !force )
 			return false;
@@ -2156,6 +2627,9 @@ export default class Player extends Generic{
 			return;
 		if( isNaN(amount) )
 			return console.error("Invalid amount of arousal", amount);
+
+		if( !(sender instanceof Player) )
+			sender = this;
 			
 		const pre = this.arousal, max = this.getMaxArousal();
 		this.arousal += amount;
@@ -2167,7 +2641,7 @@ export default class Player extends Generic{
 
 		if( this.arousal >= max && pre < max ){
 
-			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(this, this, false);
+			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(sender, this, false);
 			game.save();
 			game.ui.draw();
 
@@ -2185,124 +2659,115 @@ export default class Player extends Generic{
 
 	getMaxHP(){
 
-		const calculateHP = stamina => {
-			return Math.max(Math.ceil((BASE_HP+stamina*Player.STAMINA_MULTI)*this.getPowerMultiplier()), 1);
-		}
+		if( this.hpMulti < 0 )
+			return Math.ceil(Math.abs(this.hpMulti));
 
-		const stamina = this.statPointsToNumber(Player.primaryStats.stamina);
-		let c_stamina = this._cache_stamina;
-		this._cache_stamina = stamina;
+		const add = Math.max(0, 15-game.getTeamPlayers().length*5);
 
-		let out = calculateHP(stamina);
-
-		// Stamina has changed, recalculate HP based on percentage
-		if( window.game && game.is_host && c_stamina !== false && c_stamina !== stamina ){
-
-			const was_perc = this.hp / calculateHP(c_stamina);
-			this.hp = Math.floor(out*was_perc);
-
-		}
-
-		return out;
-
+		return Math.max(Math.ceil(
+			(BASE_HP+add+this.getGenericAmountStatPoints(Effect.Types.maxHP))
+			*this.getPowerMultiplier()
+			*this.hpMulti
+			*this.getGenericAmountStatMultiplier(Effect.Types.maxHP, this)
+		), 1);
 	}
 	getMaxAP(){
 		return Math.round(
 			Math.max(
-				(BASE_AP+this.statPointsToNumber(Player.primaryStats.agility))+
-				(this.getPowerMultiplier()*2-2)
-				, 1
+				(BASE_AP+this.getGenericAmountStatPoints(Effect.Types.maxAP))
+				*(1+(this.getPowerMultiplier()-1)*.7)	// Power has a smaller impact on AP
+				*this.getGenericAmountStatMultiplier(Effect.Types.maxAP, this)
+				, 3
 			)
 		);
 	}
 	getMaxMP(){
-		return Math.max((BASE_MP+this.statPointsToNumber(Player.primaryStats.intellect)), 1);
+		return Math.ceil(
+			Math.max(
+				(BASE_MP+this.getGenericAmountStatPoints(Effect.Types.maxMP))
+				*this.getPowerMultiplier()
+				*this.getGenericAmountStatMultiplier(Effect.Types.maxMP, this)
+			, 1)
+		);
 	}
 	getMaxArousal(){
-		return BASE_AROUSAL;
+		return Math.ceil(Math.max(3, 
+			(BASE_AROUSAL+this.getGenericAmountStatPoints(Effect.Types.maxArousal))
+			*this.getGenericAmountStatMultiplier(Effect.Types.maxArousal, this)
+		));
 	}
 	// returns a random chance between 0 and 1
 	getCritDoneChance( targ ){
 
-		// 2% per agility plus 10% baseline. Only affects std attack and arouse
+		// 10% baseline chance. Only affects actions with the crit flag set
 		// critDoneMod and critTakenMod are ADDITIVE
-		let out = 0.1+this.statPointsToNumber(Player.primaryStats.agility)*0.02+this.getGenericAmountStatPoints(Effect.Types.critDoneMod, targ);
+		let out = 0.1+this.getGenericAmountStatPoints(Effect.Types.critDoneMod, targ);
 		if( targ instanceof Player )
 			out += targ.getGenericAmountStatPoints(Effect.Types.critTakenMod, this);
 		return out;
 
 	}
 
+	// Gets damage multiplier
+	getCritDoneMod( target ){
+		return this.getGenericAmountStatMultiplier(Effect.Types.critDmgDoneMod, target);
+	}
+
+	getCritTakenMod( sender ){
+		return this.getGenericAmountStatMultiplier(Effect.Types.critDmgDoneMod, sender);
+	}
+
 
 
 	/* STATS */
-	getPrimaryStats(){
-
-		if( !this.class )
-			this.class = new PlayerClass();
-
-		return {
-			stamina : Math.floor(
-				(this.getGenericAmountStatPoints(Effect.Types.staminaModifier)+this.stamina+this.class[Player.primaryStats.stamina])*
-				this.getGenericAmountStatMultiplier(Effect.Types.staminaModifier)),
-			agility : Math.floor(
-				(this.getGenericAmountStatPoints(Effect.Types.agilityModifier)+this.agility)+this.class[Player.primaryStats.agility]*
-				this.getGenericAmountStatMultiplier(Effect.Types.agilityModifier)),
-			intellect : Math.floor(
-				(this.getGenericAmountStatPoints(Effect.Types.intellectModifier)+this.intellect)+this.class[Player.primaryStats.intellect]*
-				this.getGenericAmountStatMultiplier(Effect.Types.intellectModifier)),
-		};
-	}
-
-	// Takes a Player.primaryStats value and converts it to a number to add to HP/MP etc for this character
-	statPointsToNumber( stat ){
-		return this.getPrimaryStats()[stat];
-	}
-
 	getPowerMultiplier(){
+
+		let out = this.power;
 		if( this.power < 0 )
-			return game.dungeon.getDifficulty();
-		if( this.power === 0 )
-			return 1;
-		if( this.power < 0.1 )
-			return 0.1;
-		return this.power;
+			out = game.dungeon.getDifficulty()*Math.abs(this.power);
+		
+		// 0 power becomes 1 for legacy reasons
+		if( out === 0 )
+			out = 1;
+		
+		if( this.isNPC() && this.team !== Player.TEAM_PLAYER ){
+			if( this.level < 2 )
+				out *= 0.5;
+			else if( this.level < 4)
+				out *= 0.75;
+		}
+		
+
+		if( out < .1 )
+			return .1;
+		return out;
+
 	}
 
 	// Effect in these methods are only included to prevent recursion
 	// SV Types
 	getSV( type ){
 
-		let grappled = 0;
-		if( type === Action.Types.physical )
-			grappled = this.getGrappledBy().length ? -4 : 0;
-
 		return Math.floor(
 			(
 				this.getGenericAmountStatPoints('sv'+type)+
 				this.getLevel()+
 				(this.class ? this.class['sv'+type] : 0)+
-				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)+
-				grappled
-			)*this.getGenericAmountStatMultiplier('sv'+type)
+				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)
+			)*this.getGenericAmountStatMultiplier('sv'+type, this)
 		);
 	}
 
 	// Bon types
 	getBon( type ){
 
-		let grappled = 0;
-		if( type === Action.Types.physical )
-			grappled = this.getGrappledBy().length ? -4 : 0;
-
 		return Math.floor(
 			(
 				this.getGenericAmountStatPoints('bon'+type)+
 				this.getLevel()+
 				(this.class ? this.class['bon'+type] : 0)+
-				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)+
-				grappled
-			)*this.getGenericAmountStatMultiplier('bon'+type)
+				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)
+			)*this.getGenericAmountStatMultiplier('bon'+type, this)
 		);
 
 	}
@@ -2343,7 +2808,8 @@ export default class Player extends Generic{
 		
 	}
 
-	// Player is only used when checking caster only
+	// Player is only used when checking caster_only, and should be the target
+	// Auto checks effects with a conditions property
 	getGenericAmountStatMultiplier( type, player ){
 		let w = this.getActiveEffectsByType(type),
 			out = 1
@@ -2353,16 +2819,35 @@ export default class Player extends Generic{
 		// Some effects are ALWAYS multiplicative, so they can be included here
 		const ALWAYS_MULTIPLY = [
 			Effect.Types.critDoneMod,
-			Effect.Types.expMod
+			Effect.Types.expMod,
+			Effect.Types.regenAP,
 		];
 		
+		const evt = new GameEvent({
+			sender : this,
+			target : player,
+		});
 		for( let effect of w ){
 
 			if( !effect.data.multiplier && !ALWAYS_MULTIPLY.includes(type) )
 				continue;
 
-			if( player && effect.data.casterOnly && player.id !== effect.parent.caster )
-				continue;
+			if( player ){
+
+				if( effect.data.casterOnly && player.id !== effect.parent.caster )
+					continue;
+
+				if( Array.isArray(effect.data.conditions) ){
+
+					evt.effect = effect;
+					evt.wrapper = effect.parent;
+					if( !Condition.all(effect.data.conditions, evt) )
+						continue;
+
+				}
+
+			}
+
 
 			let n = Calculator.run(
 				effect.data.amount, 
@@ -2674,7 +3159,7 @@ export default class Player extends Generic{
 	// Gets actions that can be seen with clairvoyance
 	getClairvoyanceActions(){
 
-		return this.getActions().filter(action =>
+		return this.getActions('e', false, true, true).filter(action =>
 			!action.hidden && !action.no_clairvoyance
 		);
 
@@ -2766,7 +3251,8 @@ export default class Player extends Generic{
 		
 		if( include_items ){
 
-			for( let asset of this.assets ){
+			const assets = this.getAssets();
+			for( let asset of assets ){
 
 				let action = asset.use_action;
 				if( !asset.isConsumable )
@@ -2810,16 +3296,11 @@ export default class Player extends Generic{
 				if( (a._slot >= 0) !== (b._slot >= 0) )
 					return a._slot >= 0 ? -1 : 1;
 
-
-				const acd = a.getCooldown(), bcd = b.getCooldown();
-
 				// Then sort on spell slot
 				if( a._slot !== b._slot )
 					return a._slot < b._slot ? -1 : 1;
 
-				// Lower cooldown second
-				if( acd !== bcd )
-					return acd < bcd ? -1 : 1;
+
 				// Finally name
 				return aName < bName ? -1 : 1;
 
@@ -2991,7 +3472,7 @@ export default class Player extends Generic{
 				effects : [
 					new Effect({
 						type : Effect.Types.globalHitChanceMod,
-						data : {amount : -0.5}
+						data : {amount : 0.5, multiplier:true}
 					})
 				]
 			}, this));
@@ -3037,7 +3518,7 @@ export default class Player extends Generic{
 	isCasting( actions ){
 
 		if( !actions )
-			actions = this.getActions();
+			actions = this.getActions(true, false, true, false);
 
 		let spells = [];
 		for( let action of actions ){
@@ -3161,16 +3642,9 @@ export default class Player extends Generic{
 				})
 			);
 
-		for( let asset of this.assets ){
-
-			if( asset.equipped ){
-
-				if( asset.durability > 0 )
-					out = out.concat(asset.wrappers);
-
-			}
-
-		}
+		const assets = this.getAssetsEquipped(false);
+		for( let asset of assets )
+			out = out.concat(asset.wrappers);
 
 		// Note: temp actions can't have passives for recursion reasons
 		const actions = this.getActions(true, false, false, false);
@@ -3228,6 +3702,26 @@ export default class Player extends Generic{
 
 	}
 
+	// Wrappers that shouldn't be added. Returns an array.
+	getBlockedWrappers(){
+		
+		let effects = this.getActiveEffectsByType(Effect.Types.preventWrappers);
+		let blocked = {};
+		for( let effect of effects ){
+
+			if( effect.data.labels ){
+
+				let labels = toArray(effect.data.labels);
+				for( let label of labels )
+					blocked[label] = true;
+
+			}
+
+		}
+		return Object.keys(blocked);
+
+	}
+
 	// Use Wrapper.useAgainst, not this
 	// Also see rebindWrappers for ignoreStayCheck
 	addWrapper( wrapper, ignoreStayCheck = false ){
@@ -3242,8 +3736,12 @@ export default class Player extends Generic{
 	handleWrapperStun( wrapper ){
 
 		let isStun = wrapper.getEffects({ type:Effect.Types.stun });
-		if( isStun.length && wrapper.duration > 0 && (!isStun[0].data || !isStun[0].data.ignoreDiminishing) )
-			this._stun_diminishing_returns += wrapper._duration*2;
+		if( 
+			isStun.length && 
+			wrapper.duration > 0 && 
+			(!isStun[0].data || !isStun[0].data.ignoreDiminishing) 
+		)this._stun_diminishing_returns += wrapper._duration*2;
+		
 		if( isStun.length )
 			this.interrupt( wrapper.getCaster(), true );
 
@@ -3272,8 +3770,33 @@ export default class Player extends Generic{
 
 			passive.caster = passive.victim = this.id;
 			passive.parent = this;
+			passive.bindEvents();
 
 		}
+
+	}
+
+	removePassive( wrapper ){
+
+		wrapper.unbindEvents();
+		let pos = this.passives.indexOf(wrapper);
+		if( pos > -1 )
+			this.passives.splice(pos, 1);
+
+	}
+
+	addPassive( wrapper ){
+
+		if( typeof wrapper === 'string' )
+			wrapper = glib.get(wrapper, 'Wrapper');
+
+		if( !(wrapper instanceof Wrapper) ){
+			console.error("Invalid passive", wrapper);
+			throw 'Trying to add non-wrapper';
+		}
+
+		this.passives.push(wrapper.clone());
+		this.updatePassives();
 
 	}
 
@@ -3287,6 +3810,8 @@ export default class Player extends Generic{
 
 		if( game._caches && this._cache_effects && !force )
 			return this._cache_effects;
+
+		
 
 		let out = new Map();
 		for( let player of game.getEnabledPlayers() ){
@@ -3306,6 +3831,7 @@ export default class Player extends Generic{
 		out = Array.from(out.keys());
 		if( game._caches )
 			this._cache_effects = out;
+
 		return out;
 
 	}	
@@ -3584,24 +4110,11 @@ export default class Player extends Generic{
 }
 
 Player.MAX_LEVEL = 14;
-Player.STAMINA_MULTI = 3;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
 
 Player.MAX_ACTION_SLOTS = 6;
-
-Player.primaryStats = {
-	intellect : 'intellect',
-	stamina : 'stamina',
-	agility : 'agility'
-};
-
-Player.primaryStatsNames = {
-	[Player.primaryStats.intellect] : 'magic',
-	[Player.primaryStats.stamina] : 'stamina',
-	[Player.primaryStats.agility] : 'agility',
-};
 
 Player.currencyWeights = [
 	'platinum',
@@ -3615,5 +4128,39 @@ Player.currencyColors = [
 	'#AAA',
 	'#FA8'
 ];
+
+// Saves the last used action in a grouped action
+class PlayerActionGroup extends Generic{
+	
+	constructor(data){
+		super(data);
+
+		this.id = '';		// group name
+		this.active = '';	// id of active action
+
+		this.load(data);
+	}
+
+	save(){
+
+		const out = {
+			id : this.id,
+			active : this.active
+		};
+		return out;
+
+	}
+
+
+	load( data ){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.g_rebase();	// Super
+	}
+
+
+}
 
 

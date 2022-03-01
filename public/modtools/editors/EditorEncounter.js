@@ -34,6 +34,8 @@ export function asset(){
 			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
 		html += '<label>Friendly <input type="checkbox" class="saveable" name="friendly" '+(dummy.friendly ? 'checked' : '')+' /></label><br />';
+		html += '<label>Proc Event <input type="checkbox" class="saveable" name="isEvt" '+(dummy.isEvt ? 'checked' : '')+' /></label><br />';
+		html += '<label>Evt Weight <input type="number" min=0.5 step=0.1 class="saveable" name="evtWeight" value="'+esc(dummy.evtWeight)+'" /></label><br />';
 		html += '<label title="Overrides the default game over effects. Make sure to combine this with an encounterLost event">Override game over <input type="checkbox" class="saveable" name="wipe_override" '+(dummy.wipe_override ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Text to output when the encounter starts (string, not an asset)">Start text: <input type="text" name="startText" class="saveable" value="'+esc(dummy.startText)+'" /></label>';
 		html += '<label title="In seconds, 0 = no respawn">Respawn time: <input type="number" step=1 min=0 name="respawn" class="saveable" value="'+esc(dummy.respawn)+'" /></label>';
@@ -114,6 +116,14 @@ export function help(){
 		'<tr>'+
 			'<td>Friendly</td>'+
 			'<td>Makes the encounter not automatically trigger combat upon starting it.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Proc Event</td>'+
+			'<td>This encounter will be auto shuffled into exploration dungeon encounters as an event.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Proc Event</td>'+
+			'<td>Requires proc event true, higher value = more frequent.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Override game over</td>'+

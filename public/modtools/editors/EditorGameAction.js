@@ -113,7 +113,8 @@ export function asset(){
 		
 			
 		html += 'Encounters: <div class="encounters"></div>';
-
+		html += '<label>Replace current encounter: <input type="checkbox" name="data::replace" class="saveable" '+( asset.data.replace ? 'checked' : '' )+' /></label>';
+		html += '<br />';
 		fnBind = () => {
 			this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "data::encounter", false));
 		};
@@ -527,6 +528,28 @@ export function asset(){
 			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
 		};
 	}
+	else if( type === Types.altar ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				player : '',
+			};
+			
+		html += 'Player: <div class="player"></div>';
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
+	}
+	else if( type === Types.bank ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				player : '',
+			};
+			
+		html += 'Player: <div class="player"></div>';
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
+	}
 	else if( type === Types.text ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
@@ -801,6 +824,19 @@ export function asset(){
 		};
 
 	}
+	else if( type === Types.removePlayer ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				player : ''
+			};
+
+		html += 'Player: <br /><div class="player"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
+
+	}
 	else if( type === Types.trap ){
 
 		if( !asset.data || typeof asset.data !== "object" )
@@ -872,6 +908,9 @@ export function asset(){
 	html += 'Conditions: <br />';
 	html += '<div class="conditions"></div>';
 
+	html += '<label title="Overrides the default target and runs the gameAction on any player that matches these conditions">Player conditions [advanced]</label><br />';
+	html += '<div class="playerConds"></div>';
+
 
 	this.setDom(html);
 
@@ -892,6 +931,7 @@ export function asset(){
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
+	this.dom.querySelector("div.playerConds").appendChild(EditorCondition.assetTable(this, asset, "playerConds"));
 
 	HelperAsset.autoBind( this, asset, DB);
 
@@ -926,10 +966,6 @@ export function list(){
 		label : 'gameAction_'+Generic.generateUUID(),
 		desc : 'Teleports the users back to Yuug port',
 		type : GameAction.types.setDungeon,
-		data : {
-			dungeon : 'yuug_port',
-			room : 0
-		}
 	}));
 
 };

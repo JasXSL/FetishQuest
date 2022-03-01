@@ -208,6 +208,14 @@ LibMaterial.library = {
 			normalMap : 'tileable/glass_plane_n.jpg',
 			envMap : LibMaterial.cubeMaps.bridge,
 		}),
+		DemallineCrystal : new LibMaterial({
+			color:new THREE.Color(0xFFAAFF), 
+			metalness:0.6,roughness:0.2,
+			emissive : new THREE.Color(0.3,0,0.3),
+			roughnessMap : 'tileable/glass_plane_r.jpg',
+			normalMap : 'tileable/glass_plane_n.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
+		}),
 		BrownHighRes : new LibMaterial({
 			color:new THREE.Color(0x332200), metalness:0.3,
 			roughnessMap : 'tileable/glass_plane_r.jpg',
@@ -285,6 +293,11 @@ LibMaterial.library = {
 		}),
 		Moss : new LibMaterial({
 			map : 'tileable/moss_rock_better.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+		}),
+		Snow : new LibMaterial({
+			map : 'tileable/snow_rock.jpg',
 			metalness : 0.4,
 			roughness : 0.7,
 		}),
@@ -651,6 +664,52 @@ LibMaterial.library = {
 			map : 'land/grassgen_005.jpg',
 			metalness : 0.1,roughness : 0.8,
 		}),
+		SnowGen_000 : new LibMaterial({
+			map : 'land/frostground_000.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_001 : new LibMaterial({
+			map : 'land/frostground_001.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_002 : new LibMaterial({
+			map : 'land/frostground_002.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_003 : new LibMaterial({
+			map : 'land/frostground_003.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_004 : new LibMaterial({
+			map : 'land/frostground_004.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		SnowGen_005 : new LibMaterial({
+			map : 'land/frostground_005.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+
+
+		FarmpathNoPath : new LibMaterial({
+			map : 'land/farmpath_no_path.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		FarmpathStraight : new LibMaterial({
+			map : 'land/farmpath_straight.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		FarmpathStraightField : new LibMaterial({
+			map : 'land/farmpath_straight_field.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		FarmpathT : new LibMaterial({
+			map : 'land/farmpath_t.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
+		FarmpathX : new LibMaterial({
+			map : 'land/farmpath_x.jpg',
+			metalness : 0.1,roughness : 0.8,
+		}),
 
 		RiverBridge : new LibMaterial({
 			map : 'land/river_bridge_d.jpg',
@@ -834,7 +893,14 @@ LibMaterial.library = {
 			alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}, "MeshDepthMaterial"),
-
+		BormStraw : new LibMaterial({
+			map : 'decals/bormStraw.png',
+			metalness : 0.3,
+			roughness : 0.6,
+			transparent : true,
+			alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, 'MeshDepthMaterial'),
 		BushThicc : new LibMaterial({
 			map : 'decals/bush_thicc.png',
 			metalness : 0.3,
@@ -937,7 +1003,26 @@ LibMaterial.library = {
 			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
 			side : THREE.DoubleSide
 		}, "MeshDepthMaterial"),
-
+		TreeWinter : new LibMaterial({
+			map : 'decals/shed_tree.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		TreeWinterFrost : new LibMaterial({
+			map : 'decals/frost_tree.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		Spruce : new LibMaterial({
+			map : 'decals/sprucebranches.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
+		SpruceSnow : new LibMaterial({
+			map : 'decals/sprucebranches_snow.png',
+			metalness : 0.3,roughness : 0.6,transparent : true,alphaTest : 0.5,
+			side : THREE.DoubleSide
+		}, "MeshDepthMaterial"),
 		Mist : new LibMaterial({
 			map : 'particles/smokeparticle.png',
 			opacity : 0.1,

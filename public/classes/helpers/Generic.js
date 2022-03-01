@@ -39,6 +39,18 @@ export default class Generic{
 			}
 		}
 
+		// Editor specific load. Accept parenting/hidden metadata
+		if( !window.game ){
+			if( data._mParent )
+				this._mParent = {
+					type : data._mParent.type,
+					label : data._mParent.label
+				};
+			if( data._h ){
+				this._h = true;
+			}
+		}
+
 		if( typeof this.rebase === "function" && Generic.auto_rebase )
 			this.rebase();
 
@@ -180,6 +192,11 @@ export default class Generic{
 
 	// Removes default values from save data
 	g_sanitizeDefaults( saveData ){
+
+		// Special case for the editor, extended ones are sanitized when saved instead
+		if( this._ext )
+			return;
+
 		const template = new this.constructor();
 		for( let i in saveData ){
 			let stored = template[i];
@@ -193,6 +210,7 @@ export default class Generic{
 			if( JSON.stringify(stored) === JSON.stringify(saveData[i]) )
 				delete saveData[i];
 		}
+
 	}
 
 	// Generic tag fetch. This can be overridden
