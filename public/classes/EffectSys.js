@@ -2600,7 +2600,7 @@ Effect.TypeDescs = {
 	[Effect.Types.punishmentUsed] : 'void - Sets the punishment used flag on the target to prevent them from using further punishments',
 
 	[Effect.Types.stun] : '{ignoreDiminishing:(bool)=false}',
-	[Effect.Types.taunt] : '{victim:(bool)=false, melee:(bool)=undefined} - If victim is true, it makes the caster taunted by the victim instead. Useful for when a player gets "marked", like in the cocktopus spell. If melee is true it only taunts melee spells, if false it only taunts ranged, if undefined it taunts both.',
+	[Effect.Types.taunt] : '{victim:(bool)=false, melee:(bool)=undefined, grapple:(bool=false} - Grapple lets you mark it as a "fake" taunt not counting in isTaunted condition. If victim is true, it makes the caster taunted by the victim instead. Useful for when a player gets "marked", like in the cocktopus spell. If melee is true it only taunts melee spells, if false it only taunts ranged, if undefined it taunts both. NoTag can be used on taunts that don\'t count as taunts, like grapples.',
 
 	[Effect.Types.addActions] : '{actions:(str/arr)actions} - Unlocks specified actions while you\'re under the effect of this',
 	[Effect.Types.none] : 'Void. You probably only want to use this if you want an effect that adds tags but nothing else',

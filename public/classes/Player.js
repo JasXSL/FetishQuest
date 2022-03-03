@@ -807,12 +807,15 @@ export default class Player extends Generic{
 	}
 
 	// ActionRange is from Action.Range
-	getTauntedBy( actionRange, returnAllIfNone = true, debug ){
+	getTauntedBy( actionRange, returnAllIfNone = true, debug = false, ignoreGrapple = false ){
 
 		let tauntEffects = this.getActiveEffectsByType(Effect.Types.taunt);
 
 		// Filter by range
 		tauntEffects = tauntEffects.filter(effect => {
+
+			if( ignoreGrapple && effect.data.grapple )
+				return false;
 
 			// Either works
 			if( effect.data.melee === undefined || actionRange === undefined )

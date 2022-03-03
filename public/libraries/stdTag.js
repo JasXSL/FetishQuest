@@ -229,7 +229,7 @@ export default {
 	fxLatched : 'fx_latched',			// Put on a player that another is latching onto
 	fxPouncing : 'fx_pouncing',			// Put on a player pouncing another
 	fxPounced : 'fx_pounced',			// Put on a player that another is pounced onto
-
+	
 	// Turn tags
 	ttButtExposed : 'tt_butt_exposed',
 	ttGroinExposed : 'tt_groin_exposed',

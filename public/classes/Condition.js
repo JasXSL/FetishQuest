@@ -632,6 +632,17 @@ export default class Condition extends Generic{
 				}
 				
 			}
+			else if( this.type === T.isTaunted ){
+
+				// Need a player in event
+				if( t && (!this.data.byCaster || event.sender) ){
+
+					let targs = t.getTauntedBy( undefined, false, false, true ).map(el => el.id);
+					success = targs.length && (!this.data.byCaster || targs.includes(event.sender.id));
+
+				}
+
+			}
 
 			else if( this.type === T.apValue ){
 				success = t && this.compareValue(s, t, t.ap);
@@ -1365,6 +1376,7 @@ Condition.Types = {
 	hasEffect : 'hasEffect',		// 
 	hasEffectType : 'hasEffectType',
 	voice : 'voice',
+	isTaunted : 'isTaunted',
 
 	hasAsset : 'hasAsset',
 	assetStealable : 'assetStealable',
@@ -1545,6 +1557,7 @@ Condition.descriptions = {
 	[Condition.Types.voice] : '{label:(str/arr)label} - Player voice field is set to this.',
 	[Condition.Types.dungeonTemplateRoomHasEncounter] : '{label:(str/arr)label} - Requires custom.viableEncounters. Used only in the procedural dungeon generator, checks if the encounter pool has at least one viable encounter by label.',
 	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
+	[Condition.Types.isTaunted] : '{byCaster:(bool)=false} Checks if the target is taunted.',
 };
 
 
