@@ -257,7 +257,7 @@ export default class GameAction extends Generic{
 			let numConsumables = numBonus+!(value >= 0.5);
 			let consumablesAdded = 0;
 			for( let i=0; i<numConsumables; ++i ){
-				let consumable = Asset.getRandomByRarity(dungeon.consumables);
+				let consumable = Asset.getRandomByRarity(dungeon.getConsumables());
 				if( !consumable )
 					break;
 				consumable.g_resetID();

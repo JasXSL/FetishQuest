@@ -34,10 +34,14 @@ export function asset(){
 		html += '<label>Name: <input name="name" value="'+esc(dummy.name)+'" type="text" class="saveable" /></label>';
 		html += '<label title="a/an, use \'some\' for things like swimtrunks that are plural. Empty auto generates but fails at words like unicorn that start with a vowel but still use a.">Shortname Article: <input name="snpre" value="'+esc(dummy.snpre)+'" type="text" class="saveable" /></label>';
 		html += '<label>Shortname: <input name="shortname" value="'+esc(dummy.shortname)+'" type="text" class="saveable" /></label>';
+		html += '<label title="Include in chests and loot bags">Autoloot: <input name="genLoot" class="saveable" type="checkbox" '+(dummy.genLoot ? 'checked' : '')+' /></label>';
+		
 		html += '<label title="Name of dyed color (optional).">Dye name: <input name="color_tag" value="'+esc(dummy.color_tag)+'" type="text" class="saveable" /></label>';
 		html += '<label title="Color of dye (optional). Only used if name exists.">Dye color: <input name="color" value="'+esc(dummy.color)+'" type="color" class="saveable" /></label>';
 		html += '<label title="Base name of base color">Base Color name: <input name="color_tag_base" value="'+esc(dummy.color_tag_base)+'" type="text" class="saveable" /></label>';
 		html += '<label title="Base color of item">Base color: <input name="color_base" value="'+esc(dummy.color_base)+'" type="color" class="saveable" /></label>';
+		
+		
 
 		html += '<label title="When using label, set the name of the object to an object you want to polymorph this into. This is used to create stacks of another asset, such as gold.">Dummy Type: <select name="dummy" class="saveable">';
 		for( let i in Asset.Dummies ){

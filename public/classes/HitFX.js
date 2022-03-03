@@ -126,7 +126,8 @@ class Stage extends Generic{
 
 		this.css_fx = '';
 		this.css_fx_targ = 'victim';		// CSS effect target
-		this.particles = '';				// Particle system name
+		this.particles = null;				// Particle system name or an object with {id:particleSystemName...}. Accepted optional params:
+											// color : see particles.js color for data
 		this.emit_duration = 100;			// Duration before stopping emitting
 		this.fade_duration = 2000;			// Time before removing the particle system from the stage after emit_duration ends
 		this.hold = 0;						// Wait this amount of MS before doing the next step
@@ -194,11 +195,15 @@ class Stage extends Generic{
 				
 		if( this.particles ){
 
-			const particles = libParticles.get(this.particles, undefined, true);
+			let pid = this.particles;
+			if( typeof pid === 'object' )
+				pid = pid.id;
+
+			const particles = libParticles.get(pid, undefined, this.particles);
 			this._system = particles;
 
 			if( !particles ){
-				console.error("Particles not found", this.particles);
+				console.error("Particles not found", pid);
 				return;
 			}
 

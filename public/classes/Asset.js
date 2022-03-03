@@ -83,7 +83,7 @@ export default class Asset extends Generic{
 		this.rem_unequip = false;		// Remove this on unequip
 		this.indestructible = false;	// This item is indestructible
 		this.inBank = false;			// This item is in the bank
-
+		this.genLoot = false;			// Can be found as generated loot in chests and such
 		this.weight = 100;				// Weight in grams
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
@@ -149,6 +149,7 @@ export default class Asset extends Generic{
 		if( full ){
 			out.dummy = this.dummy;
 			out.no_auto_consume = this.no_auto_consume;
+			out.genLoot = this.genLoot;
 		}
 
 		if( full !== "mod" ){
@@ -796,6 +797,13 @@ export default class Asset extends Generic{
 
 		}
 			
+
+	}
+
+	// Loot that can be autogen
+	static getGeneratable(){
+
+		return glib.getAllValues(this.name).filter(el => el.genLoot);
 
 	}
 	

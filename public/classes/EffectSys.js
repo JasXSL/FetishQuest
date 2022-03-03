@@ -1032,6 +1032,7 @@ class Effect extends Generic{
 			effect : this,
 		}).raise();
 
+		// Automatically get type from this.data.type first
 		let attackType = this.data.type;
 		let action = wrapper.getAction();
 		if( !attackType && action )
@@ -1358,12 +1359,17 @@ class Effect extends Generic{
 					amt *= wrapper.getStacks();
 
 				let aa = Math.abs(amt);
-				if( Math.random() < aa-Math.floor(aa) )
+				if( Math.random() < aa-Math.trunc(aa) )
 					amt += amt < 0 ? -1 : 1;
 				
 				amt = parseInt(amt);
 				//game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
-				t.addBlock(amt, attackType);
+				let types = toArray(attackType);
+				if( this.data.type === 'ALL' ){
+					types = Object.values(Action.Types);
+				}
+				for( let type of types )
+					t.addBlock(amt, type);
 
 			}
 
@@ -1837,7 +1843,7 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.flee ){
-				game.attemptFleeFromCombat( s );
+				game.attemptFleeFromCombat( s, this.data.force );
 			}
 
 			// Unlike the above one, this will present the caster with an asset picker of damaged gear on the target
@@ -2506,7 +2512,7 @@ Effect.TypeDescs = {
 	[Effect.Types.maxArousal] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max arousal",								
 	[Effect.Types.preventWrappers] : "{labels:(str/arr)wrapperLabels} - Wrappers with these labels will not be ADDED. Does not affect passives.",								
 
-	[Effect.Types.addBlock] : "{amount:(str)formula, type:(str)Action.Types.x} - If type is left out, it will try to be auto supplied the same way the damage effect does. Otherwise it should be one of 'Arcane', 'Physcial', 'Corruption'", 
+	[Effect.Types.addBlock] : "{amount:(str)formula, type:(str)Action.Types.x} - If type is left out, it will try to be auto supplied the same way the damage effect does. Otherwise it should be one of 'Arcane', 'Physcial', 'Corruption', or 'ALL'", 
 
 	[Effect.Types.regenAP] : "{amount:(float)multiplier} - Multiplies against AP regen at the start of your turn.",
 
@@ -2589,7 +2595,7 @@ Effect.TypeDescs = {
 	[Effect.Types.actionRiposte] : '{conditions:(arr)conditions, set:(bool)val=false, priority=0} - Overrides the default riposte-able flag on the action. Sorted by priority, then by time added. The effect target is both sender and target when validating the conditions.',
 	
 	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
-	[Effect.Types.flee] : 'void - Custom action sent to server to flee combat',
+	[Effect.Types.flee] : '{force:(bool)ignore_checks=false} - Custom action sent to server to flee combat',
 	[Effect.Types.addThreat] : '{amount:(str/nr)amount} - Generates threat on the target',
 	[Effect.Types.punishmentUsed] : 'void - Sets the punishment used flag on the target to prevent them from using further punishments',
 

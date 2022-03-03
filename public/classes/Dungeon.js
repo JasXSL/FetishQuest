@@ -61,11 +61,7 @@ class Dungeon extends Generic{
 		this.dirLight = '';			// If a room doesn't have dirLight, it can use the dungeon one
 		this.fog = 0;				// If a room doesn't have fog, it can use from the dungeon instead
 
-		this.consumables = [
-			'manaPotion', 'majorManaPotion',
-			'minorHealingPotion', 'healingPotion', 'majorHealingPotion',
-			'minorRepairKit', 'repairKit', 'majorRepairKit',
-		];		// Copied over from template
+		this.consumables = [];		// Additional items you can find in this dungeon, that aren't marked as generic found items.
 
 		// Runtime vars
 		this.transporting = false;	// Awaiting a room move
@@ -378,6 +374,9 @@ class Dungeon extends Generic{
 		return false;
 	}
 
+	getConsumables(){
+		return this.consumables.concat(Asset.getGeneratable());	// Todo: Pull from asset table
+	}
 
 
 	/* Encounters */

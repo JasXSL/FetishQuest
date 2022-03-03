@@ -2636,25 +2636,33 @@ export default class Game extends Generic{
 	}
 
 
-	attemptFleeFromCombat( player ){
+	attemptFleeFromCombat( player, force ){
 
 		if( !this.battle_active )
 			return;
 
 		const players = this.getEnabledPlayers();
 		let chance = 50;
-		// Each AP benefit the party has over their opponents grant 2% bonus chance, starting at 50%
-		for( let p of players ){
-			let add = p.ap;
-			if( p.isDead() )
-				add = 0;
-			if( p.team !== player.team )
-				add = -add;
-			chance += add*2;
+
+		if( force )
+			chance = 100;
+		else{
+
+			// Each AP benefit the party has over their opponents grant 2% bonus chance, starting at 50%
+			for( let p of players ){
+				let add = p.ap;
+				if( p.isDead() )
+					add = 0;
+				if( p.team !== player.team )
+					add = -add;
+				chance += add*2;
+			}
+
 		}
 
 		if( Math.random()*100 < chance )
 			return this.execFleeFromCombat( player );
+
 		player.addAP(-2);
 		this.ui.addText( player.getColoredName()+" calls for a retreat, but the party fails to escape!", undefined, player.id, player.id );
 

@@ -774,6 +774,22 @@ particles.hitfx_burst_arcane_runes = {
 	gravity:2
 };
 
+particles.hitfx_burst_fire = {
+	texture : textures.flame,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : [30,10],
+	size_tween : [1,0.05],
+	part_max_age : .5,
+	velocity : new Proton.Span(0,150),
+	color : ["#FFFF66","#FFFFFF"],	
+	rotation : [0, Math.PI*2],
+	opacity: 1,
+	gravity:2
+};
+
 
 
 
@@ -1973,6 +1989,23 @@ particles.hitfx_sludge_bolt_impact_residue = {
 	rotation : [new Proton.Span(0,Math.PI)],
 };
 
+particles.hitfx_flame_bolt = {
+	texture : textures.flame,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,4),
+	size : [5,15],
+	size_tween : [1,0.05],
+	part_max_age : 0.5,
+	velocity : 5,
+	gravity : -2,
+	color : ['#FFFF99', '#FFFFFF'],	
+	opacity: [1,0],
+	rotation : [new Proton.Span(0,Math.PI), new Proton.Span(-Math.PI, Math.PI)],
+	wiggle : [0,10],
+};
+
 
 particles.hitfx_spit = {
 	texture : textures.splat,
@@ -2386,128 +2419,135 @@ particles.hitfx_smoke = {
 	rotation : [0,new Proton.Span(0,Math.PI*2)],
 };
 
-particles.get = function(id, mesh, debug = false){
+// Accepts an overrides object with params that should override the base
+particles.get = function(id, mesh, overrides){
 
-	const p = this[id];
-	if( p ){
+	if( !this[id] )
+		return false;
 
-		if( p._emitters ){
-			console.error("Missing conversion for", id);
-			return new Proton.Emitter(undefined, mesh);
+	let p = {};
+	// Make a shallow clone first
+	for( let i in this[id] )
+		p[i] = this[id][i];
+
+	if( typeof overrides === 'object' ){
+
+		let allowedOverrides = [
+			'color', 'size', 'rotation', 'opacity', 'blending', 'gravity', 'velocity'
+		];
+		for( let override of allowedOverrides ){
+
+			const data = overrides[override];
+			if( data )
+				p[override] =  data;
+			// Note: Can't do spans right now. Might wanna figure out how to do them.
+
 		}
-		const emitter = new Proton.Emitter(undefined, mesh);
-		emitter.rate = new Proton.Rate(parseInt(p.count) || 1, +p.rate || 0.1);
-		emitter.addInitialize(new Proton.Mass(1));
-
-		if( p.part_max_age ){
-			emitter.addInitialize(new Proton.Life(p.part_max_age));
-		}
-
-		
-		if( p.texture ){
-			let texture = p.texture;
-			if( p.blending ){
-
-				const label = 'blend_'+p.blending;
-				if( !texture.userData[label] ){
-					
-					texture.userData[label] = texture.clone();
-					texture.userData[label].material = texture.userData[label].material.clone();
-					texture.material.blending = p.blending;
-
-				}
-
-				texture = texture.userData[label];
-
-			}
-			emitter.addInitialize(new Proton.Body(texture));
-		}
-		
-		if( p.position ){
-			emitter.addInitialize(new Proton.Position(p.position));
-		}
-		
-		if( p.size ){
-			if( !Array.isArray(p.size) )
-				p.size = [p.size];
-			emitter.addInitialize(new Proton.Radius(p.size[0], p.size[1], p.size[2]));
-		}
-		
-		if( p.velocity ){
-			let dir = p.velocity_dir || new Proton.Vector3D(0,1,0);
-			if( Array.isArray(dir) )
-				dir = new Proton.Vector3D(dir[0], dir[1], dir[2]);
-			emitter.addInitialize(new Proton.V(p.velocity, dir, p.velocity_type || 360));
-		}
-
-		if( p.force ){
-			let forces = p.force;
-			if( !Array.isArray(forces[0]) )
-				forces = [forces];
-			for( let force of forces ){
-				const f = new Proton.Force(force[0], force[1], force[2], undefined, force[3]);
-				emitter.addBehaviour(f);
-			}
-		}
-		
-		if( p.gravity ){
-			emitter.addBehaviour(new Proton.Gravity(p.gravity));
-		}
-		
-
-		if( p.color ){
-			const behavior = new Proton.Color(p.color);
-			emitter.addBehaviour(behavior);
-		}
-		
-		//addBehaviour
-		if( p.opacity ){
-			if( !Array.isArray(p.opacity) )
-				p.opacity = [p.opacity];
-			emitter.addBehaviour(new Proton.Alpha(p.opacity[0], p.opacity[1], undefined, p.opacity[2]));
-		}
-		
-		if( p.size_tween ){
-			emitter.addBehaviour(new Proton.Scale(p.size_tween[0], p.size_tween[1], undefined, p.size_tween[2]));
-		}
-
-		if( p.rotation ){
-			if( !Array.isArray(p.rotation) )
-				p.rotation = [p.rotation];
-			// 1 value = SET
-			// 2 values = Tween from A to B
-			// 3 values = additive on A. The other 2 can be whatever, just not undefined
-			emitter.addBehaviour(new Proton.Rotate(p.rotation[0], p.rotation[1], p.rotation[2]));	//
-		}
-
-		if( p.tick )
-			emitter._tick = p.tick;
-		
-
-		/* Wiggle causes the particles to self destruct early some times, need to look into it
-		if( p.wiggle )
-			emitter.addBehaviour(new Proton.RandomDrift(p.wiggle, p.wiggle, p.wiggle, 0.05));
-		*/
-
-		emitter.emit();
-		return emitter;
-
 
 	}
 
-	/*
-	let p = this[id];
-	if( p ){
-		const out = new SPE.Group(p);
-		if( p._emitters ){
-			for( let e of p._emitters )
-				out.addEmitter(new SPE.Emitter(e));
-		}
-		return out;
+
+	if( p._emitters ){
+		console.error("Missing conversion for", id);
+		return new Proton.Emitter(undefined, mesh);
 	}
-	*/
+	const emitter = new Proton.Emitter(undefined, mesh);
+	emitter.rate = new Proton.Rate(parseInt(p.count) || 1, +p.rate || 0.1);
+	emitter.addInitialize(new Proton.Mass(1));
+
+	if( p.part_max_age ){
+		emitter.addInitialize(new Proton.Life(p.part_max_age));
+	}
+
+	if( p.texture ){
+		let texture = p.texture;
+		if( p.blending ){
+
+			const label = 'blend_'+p.blending;
+			if( !texture.userData[label] ){
+				
+				texture.userData[label] = texture.clone();
+				texture.userData[label].material = texture.userData[label].material.clone();
+				texture.material.blending = p.blending;
+
+			}
+
+			texture = texture.userData[label];
+
+		}
+		emitter.addInitialize(new Proton.Body(texture));
+	}
 	
-	return false;
+	if( p.position ){
+		emitter.addInitialize(new Proton.Position(p.position));
+	}
+	
+	if( p.size ){
+		if( !Array.isArray(p.size) )
+			p.size = [p.size];
+		emitter.addInitialize(new Proton.Radius(p.size[0], p.size[1], p.size[2]));
+	}
+	
+	if( p.velocity ){
+		let dir = p.velocity_dir || new Proton.Vector3D(0,1,0);
+		if( Array.isArray(dir) )
+			dir = new Proton.Vector3D(dir[0], dir[1], dir[2]);
+		emitter.addInitialize(new Proton.V(p.velocity, dir, p.velocity_type || 360));
+	}
+
+	if( p.force ){
+		let forces = p.force;
+		if( !Array.isArray(forces[0]) )
+			forces = [forces];
+		for( let force of forces ){
+			const f = new Proton.Force(force[0], force[1], force[2], undefined, force[3]);
+			emitter.addBehaviour(f);
+		}
+	}
+	
+	if( p.gravity ){
+		emitter.addBehaviour(new Proton.Gravity(p.gravity));
+	}
+	
+
+	if( p.color ){
+		const behavior = new Proton.Color(p.color);
+		emitter.addBehaviour(behavior);
+	}
+	
+	//addBehaviour
+	if( p.opacity ){
+		if( !Array.isArray(p.opacity) )
+			p.opacity = [p.opacity];
+		emitter.addBehaviour(new Proton.Alpha(p.opacity[0], p.opacity[1], undefined, p.opacity[2]));
+	}
+	
+	if( p.size_tween ){
+		emitter.addBehaviour(new Proton.Scale(p.size_tween[0], p.size_tween[1], undefined, p.size_tween[2]));
+	}
+
+	if( p.rotation ){
+		if( !Array.isArray(p.rotation) )
+			p.rotation = [p.rotation];
+		// 1 value = SET
+		// 2 values = Tween from A to B
+		// 3 values = additive on A. The other 2 can be whatever, just not undefined
+		emitter.addBehaviour(new Proton.Rotate(p.rotation[0], p.rotation[1], p.rotation[2]));	//
+	}
+
+	if( p.tick )
+		emitter._tick = p.tick;
+	
+
+	/* Wiggle causes the particles to self destruct early some times, need to look into it
+	if( p.wiggle )
+		emitter.addBehaviour(new Proton.RandomDrift(p.wiggle, p.wiggle, p.wiggle, 0.05));
+	*/
+
+	emitter.emit();
+	return emitter;
+
+
 
 };
 

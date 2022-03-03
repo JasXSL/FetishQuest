@@ -40,7 +40,7 @@ export function asset(){
 	// Keep
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 
-	html += '<span title="Consumables you can find in chests here">Default consumables:</span> <div class="consumables"></div>';
+	html += '<span title="Consumables you can find in chests here, other than assets marked as randomLoot">Unique consumables:</span> <div class="consumables"></div>';
 
 	html += 'Rooms: <div class="rooms"></div>';
 
@@ -91,11 +91,7 @@ export function list(){
 		label : 'dungeon_'+Generic.generateUUID(),
 		name : 'New Dungeon',
 		rooms : [],
-		consumables : [
-			'manaPotion', 'majorManaPotion',
-			'minorHealingPotion', 'healingPotion',
-			'minorRepairKit', 'repairKit'
-		]
+		consumables : []
 	}));
 
 };

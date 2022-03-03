@@ -5,9 +5,8 @@
 Overhaul:
 	
 	Bugs:
-		- NPCs can charge multiple actions at a time
 		- Completed persistent RP should wipe its status when restarted
-
+	
 	- Random events
 		- Ideas:
 
@@ -130,6 +129,9 @@ Overhaul:
 	Item ideas:
 		- Motivation: Doubles your arousal and grants 2 AP per original point of arousal.
 		- Sacrifice : Destroys a random piece of worn armor and restores 20 HP.
+		- Prevents block from falling off this turn.
+		- Grappling hook: Unequips target hand slot.
+		- Enchant: Gain 10% of your HP back upon end of combat.
 
 -- TEST --
 	Fun tensorflow generated words I can use:
@@ -163,7 +165,7 @@ Overhaul:
 	Gain AP every x actions used in a battle
 	Sorted effects like also deals x damage to the enemy with highest HP
 	Bonus damage when conditions are met, such as highest HP enemy
-
+	Boss that limits nr of actions you can use per turn
 
 -- LATER UPDATE --
 
@@ -209,7 +211,7 @@ Overhaul:
 	Boss ideas:
 		- Limits the nr of actions you can use per turn
 		- 
-
+	
 
 
 Mod improvements:
