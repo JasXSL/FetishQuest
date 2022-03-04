@@ -649,6 +649,7 @@ export class RoleplayStageOption extends Generic{
 		this.chat = RoleplayStageOption.ChatType.default;			// Chat type
 		this.conditions = [];
 		this.game_actions = [];
+		this.shuffle = false;				// Shuffles goto options
 
 		this.load(data);
 
@@ -682,6 +683,7 @@ export class RoleplayStageOption extends Generic{
 			out.index = RoleplayStageOptionGoto.saveThese(this.index, full);
 			out.chat = this.chat;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
+			out.shuffle = this.shuffle;
 		}
 		
 		if( full !== "mod" ){}
@@ -755,7 +757,11 @@ export class RoleplayStageOption extends Generic{
 	// Where do we go to after pushing the button?
 	getIndex( target ){
 
-		for( let opt of this.index ){
+		let index = this.index.slice();
+		if( this.shuffle )
+			shuffle(index);
+
+		for( let opt of index ){
 
 			if( opt.validate(target) )
 				return opt;
