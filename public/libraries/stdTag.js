@@ -340,6 +340,7 @@ export default {
 	mHedge : 'm_hedge',
 	mBormStraw : 'm_borm_straw',
 	mSteam : 'm_steam',
+	mDrawer : 'm_drawer',
 	mSnow : 'm_snow',
 	mWallChain : 'm_wall_chain',
 	mRecordingCrystal : 'm_recording_crystal',

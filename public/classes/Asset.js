@@ -906,6 +906,13 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		return false;
 	}
 
+	
+	const statSlots = [
+		this.Slots.upperBody,
+		this.Slots.lowerBody
+	];
+	const isPrimarySlot = template.slots.filter(slot => statSlots.includes(slot)).length > 0;
+
 	const fitted = Math.random() < 0.2;
 	const mastercrafted = Math.random() < 0.2;
 	
@@ -936,44 +943,50 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		hit_sound : template.hit_sound
 	});
 
-	// Add stats from template
-	let addEffectToWrapper = function( wr, stype, snr ){
-		for( let effect of wr.effects ){
-			if( effect.type === stype ){
-				effect.data.amount += snr;
-				return;
+	
+	// only add stats to upper/lower body
+	if( isPrimarySlot ){
+
+		// Add stats from template
+		let addEffectToWrapper = function( wr, stype, snr ){
+			for( let effect of wr.effects ){
+				if( effect.type === stype ){
+					effect.data.amount += snr;
+					return;
+				}
 			}
+			// Not found
+			wr.effects.push(Effect.createStatBonus(stype, snr));
+		};
+		let wrapper = new Wrapper({
+			name : 'statsAutoGen',
+			detrimental : false,
+			effects : [],
+			rarity : 1
+			// tags : [stdTag.wrEnchant], - This is technically not an enchant
+		});
+		for( let i in template.bonStats )
+			addEffectToWrapper(wrapper, i, template.bonStats[i]);
+		for( let i in template.svStats )
+			addEffectToWrapper(wrapper, i, template.svStats[i]);
+
+		out.wrappers = [wrapper]
+			.concat(Wrapper.loadThese(template.wrappers, out))
+		;
+
+		let existingEnchants = out.wrappers.filter(el => el.hasTag(stdTag.wrEnchant)).length;
+		let cursed = Math.random() < 0.25;
+		for( let i = existingEnchants; i < out.rarity+cursed; ++i ){
+			const enchant = this.getRandomEnchant(out, false, player);
+			if( enchant )
+				out.wrappers.push(enchant);
 		}
-		// Not found
-		wr.effects.push(Effect.createStatBonus(stype, snr));
-	};
-	let wrapper = new Wrapper({
-		name : 'statsAutoGen',
-		detrimental : false,
-		effects : [],
-		rarity : 1
-		// tags : [stdTag.wrEnchant], - This is technically not an enchant
-	});
-	for( let i in template.bonStats )
-		addEffectToWrapper(wrapper, i, template.bonStats[i]);
-	for( let i in template.svStats )
-		addEffectToWrapper(wrapper, i, template.svStats[i]);
+		if( cursed ){
+			const enchant = this.getRandomEnchant(out, true, player);
+			if( enchant )
+				out.wrappers.push(enchant);
+		}
 
-	out.wrappers = [wrapper]
-		.concat(Wrapper.loadThese(template.wrappers, out))
-	;
-
-	let existingEnchants = out.wrappers.filter(el => el.hasTag(stdTag.wrEnchant)).length;
-	let cursed = Math.random() < 0.25;
-	for( let i = existingEnchants; i < out.rarity+cursed; ++i ){
-		const enchant = this.getRandomEnchant(out, false, player);
-		if( enchant )
-			out.wrappers.push(enchant);
-	}
-	if( cursed ){
-		const enchant = this.getRandomEnchant(out, true, player);
-		if( enchant )
-			out.wrappers.push(enchant);
 	}
 
 	out.loot_sound = 'lootCloth';

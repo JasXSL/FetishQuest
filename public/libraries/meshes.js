@@ -1370,10 +1370,7 @@ function build(){
 						libMat.Wood.Crate,
 						libMat.Metal.DarkGeneric,
 					],
-					tags : [stdTag.mTable],
-
-
-					
+					tags : [stdTag.mTable, stdTag.mDrawer],
 				}),
 				Nightstand : new LibMesh({
 					url : 'furniture/nightstand_1x1.JD',

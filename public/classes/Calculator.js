@@ -14,14 +14,16 @@ class Calculator{}
 Calculator.debug = false;
 
 // Custom function to set default
+/*
 math.import({
 	def : function( value, defaultValue ){
 		return isNaN(value) ? defaultValue : value;
 	}
 });
-// Undefined symbols will be replaced with undefined. Can be combined with def
+*/
+// Undefined symbols will be replaced with 0
 math.SymbolNode.onUndefinedSymbol = function(name){
-    return undefined;
+    return 0;
 };
 
 Calculator.run = function( formula, event, customMathVars ){
@@ -67,36 +69,13 @@ Calculator.run = function( formula, event, customMathVars ){
 	
 		// Run the calculation
 	let out = 0;
-	while(true){
-		try{
+	try{
 
-			out = math.evaluate(formula, vars);
-
-		}catch(err){
-
-			let message = err.message;
-			if( message.startsWith('Undefined symbol ') ){
-				let symbol = message.split(' ');
-				symbol.splice(0,2);
-				if( symbol.length ){
-					symbol = symbol.join(' ');
-					// Tags are set to 0 if not found
-					if( symbol.substr(2,5) === '_Tag_' ){
-						vars[symbol] = 0;
-						continue;
-					}
-					// Effect stacks are set to 0 if not found
-					if( symbol.substr(2,9) === '_Wrapper_' ){
-						vars[symbol] = 0;
-						continue;
-					}
-				}
-			}
-			console.error("Failed to evaluate formula", formula, "vars", vars);
-			console.error(err);
-			
-		}
-		break;
+		out = math.evaluate(formula, vars);
+	}
+	catch(err){
+		console.error(err);
+		out = 0;
 	}
 
 	if( this.debug )
