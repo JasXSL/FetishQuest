@@ -68,7 +68,7 @@ class Dungeon extends Generic{
 
 		// Custom cache which contains changes made to the dungeon. Host only
 		this._state = null;	// Use getState()
-
+		this._completedExpEvts = [];	// Stored only locally, prevents repeats of exploration dungeon events
 		
 
 		this.load(data);
@@ -120,6 +120,7 @@ class Dungeon extends Generic{
 			out.height = this.height;
 			out.shape = this.shape;
 			out.consumables = Asset.saveThese(this.consumables, full);
+			out._completedExpEvts = this._completedExpEvts;
 		}
 
 		// Everything except mod
@@ -607,6 +608,7 @@ class DungeonRoom extends Generic{
 		};
 	}
 
+
 	constructor(data, parent){
 		super(data);
 
@@ -627,6 +629,8 @@ class DungeonRoom extends Generic{
 		this.assets = [];			// First asset is always the room. These are DungeonRoomAssets
 		this.tags = [];
 
+		this.expEvt = false;		// If true, use an expevt. viableEcnounters is pulled from the encounters list
+
 		this.ambiance = 'media/audio/ambiance/dungeon.ogg';
 		this.ambiance_volume = 0.2;
 
@@ -645,6 +649,7 @@ class DungeonRoom extends Generic{
 	save( full ){
 
 		let enc = [];
+
 		if( Array.isArray(this.encounters) ) 
 			enc = Encounter.saveThese(this.encounters, full);
 		else if( this.encounters )
@@ -671,12 +676,16 @@ class DungeonRoom extends Generic{
 			playerMarkers : DungeonRoomMarker.saveThese(this.playerMarkers, full),
 		};
 
+		if( full )
+			out.expEvt = this.expEvt;
+
 
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.discovered = this.discovered;
 		}
 		else{
+			out.expEvt = this.expEvt;
 			out.label = this.label;
 			this.g_sanitizeDefaults(out);
 		}
@@ -724,7 +733,7 @@ class DungeonRoom extends Generic{
 		const respawn = ~state.encounter_started && game.time-state.encounter_started > state.encounter_respawn && state.encounter_respawn;
 
 		// If encounter is complete, set it to completed
-		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
+		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn && !this.expEvt ){	// expEvt always remains
 			
 			// Prevents overwriting encounter data when returning to a dungeon after you've left it (the encounter reverts to array)
 			//if( Array.isArray(this.encounters) )
@@ -1198,6 +1207,59 @@ class DungeonRoom extends Generic{
 			player = game.getMyActivePlayer();
 		if( !player )
 			player = game.players[0];
+
+		// The encounters are only used for checking conditions here. We need to pick an encounter if possible
+		if( this.expEvt && Array.isArray(this.encounters) ){
+
+			const dungeon = this.getDungeon();
+			const viable = this.encounters.slice();
+			this.encounters = [];
+
+			const procEvtEncounters = Encounter.getAllProcEvtEncounters().filter(el => !dungeon._completedExpEvts.includes(el.label) );
+			const weightFunc = encounter => encounter.evtWeight;
+			// not a graceful solution, but it works well enough for these small arrays
+			const shuffleProcEvtEncounters = () => {
+				
+				let enc = procEvtEncounters.slice();
+				let out = [];
+				while( enc.length ){
+					let idx = weightedRand(enc, weightFunc, true);
+					out.push(enc[idx]);
+					enc.splice(idx, 1);
+				}
+				return out;
+			};
+
+			let encounters = shuffleProcEvtEncounters();
+			const evt = new GameEvent({
+				sender:player,					// Sender is the player who entered the room
+				target:game.getTeamPlayers(), 	// Target includes all players on the player team
+				dungeon : dungeon,
+				room : this,
+				custom : {
+					viableEncounters : viable
+				}
+			});
+
+			for( let pEnc of encounters ){
+
+				if( !Condition.all(pEnc.conditions, evt) ){
+					//console.log(pEnc, "invalid for", this);
+					continue;
+				}
+				console.log("Added an event encounter", pEnc.label);
+				if( !Dungeon.REPEAT_ENCOUNTERS )
+					procEvtEncounters.splice(procEvtEncounters.indexOf(pEnc), 1);
+				const cl = pEnc.clone();	// remove the template room encounter conditions here, since they'll be validated later otherwise
+				this.encounters = cl;
+				cl.respawn = 3600*24*7;		// All encounters in proc dungeon should respawn weekly. For now, set all expEvts to do so.
+				dungeon._completedExpEvts.push(pEnc.label);	// prevent repeats
+				break;
+
+			}
+			
+
+		}
 		
 		// Start a dummy encounter just to set the proper NPCs
 		if( Array.isArray(this.encounters) && !this.encounters.length ){
@@ -1221,11 +1283,12 @@ class DungeonRoom extends Generic{
 					room : this,
 				})
 			);
-			if( !viable )
+			if( !viable ){
 				viable = new Encounter({
 					completed : true,
 					id : '_BLANK_'
 				}, this);
+			}
 			this.encounters = viable;
 
 
@@ -2115,7 +2178,6 @@ DungeonRoomAsset.Dir = {
 /* STATIC CONTENT */
 
 Dungeon.EVENT_CHANCE = 0.4;
-Dungeon.REPEAT_ENCOUNTERS = false;
 
 // Procedural dungeon generator
 // In a SemiLinear one, the room number is multiplied by 1.5, 50% being the side rooms
@@ -2348,23 +2410,6 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	});
 
 
-	const procEvtEncounters = Encounter.getAllProcEvtEncounters();
-	const weightFunc = encounter => encounter.evtWeight;
-	const shuffleProcEvtEncounters = () => {
-		
-		let enc = procEvtEncounters.slice();
-		let out = [];
-		while( enc.length ){
-
-			let idx = weightedRand(enc, weightFunc, true);
-			out.push(enc[idx]);
-			enc.splice(idx, 1);
-
-		}
-		return out;
-
-	};
-
 	let encounterTemplate = randElem(viableEncounters);
 	let roomsPopulated = 0;
 
@@ -2403,54 +2448,21 @@ Dungeon.generate = function( numRooms, kit, settings ){
 		// Add a 1/5 chance of an event
 		if( Math.random() < this.EVENT_CHANCE-nrEvents*0.05 ){
 
-			
+			++nrEvents;
+			room.expEvt = true;		// Make it randomize an exp evt
+
 			let viable = viableEncounters;
+			// If we're only using one encounter type
 			if( !kit.randomEncounters ){
-				
-				// ONE encounter dungeon. No encounter passed filter here. Skip.
-				if( !template )
-					viable = [];
-				else
+				viable = [];
+				if( template )
 					viable = [template];
-
 			}
-
-			// Ok, there ARE viable encounters. Now we can scan procedural encounters.
-			if( viable.length ){
-
-				let encounters = shuffleProcEvtEncounters();
-				const evt = new GameEvent({
-					sender:game.players[0],	// Don't rely on players, players will likely change by the time they reach the room
-					target:game.players[0],	// 
-					dungeon : out,
-					room : room,
-					custom : {
-						viableEncounters : viable
-					}
-				});
-				
-				for( let pEnc of encounters ){
-
-					if( !Condition.all(pEnc.conditions, evt) ){
-						//console.log(pEnc, "invalid for", room, viable);
-						continue;
-					}
-
-					console.log("Added an event encounter", pEnc.label);
-					if( !this.REPEAT_ENCOUNTERS )
-						procEvtEncounters.splice(procEvtEncounters.indexOf(pEnc), 1);
-					++nrEvents;
-					const cl = pEnc.clone();	// remove the template room encounter conditions here, since they'll be validated later otherwise
-					cl.conditions = cl.conditions.filter(el => el.type !== Condition.Types.dungeonTemplateRoomHasEncounter);
-					room.encounters = [cl];
-					break;
-
-				}
-				
-
-			}
-
-			
+			// Remove some memory use by only saving the needed information
+			room.encounters = viable.map(el => new Encounter({
+				label:el._asset.label, 
+				evtWeight:el._asset.evtWeight
+			}));
 
 		}
 			

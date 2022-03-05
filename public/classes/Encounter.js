@@ -535,9 +535,6 @@ export default class Encounter extends Generic{
 		return glib.getAllValues('Encounter').filter(el => el.isEvt);
 
 	}
-
-
-
 }
 
 

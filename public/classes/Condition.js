@@ -812,7 +812,7 @@ export default class Condition extends Generic{
 
 					for( let enc of viable ){
 
-						if( labels.includes(enc.asset) ){
+						if( labels.includes(enc.label) ){
 							success = true;
 							break;
 						}

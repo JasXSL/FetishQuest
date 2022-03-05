@@ -627,8 +627,6 @@ function build(){
 				RugTorn : new LibMesh({
 					url : 'furniture/rug_3x2.JD',
 					materials : [libMat.Cloth.Rug.Torn],
-
-
 					tags : [stdTag.mRug],
 				}),
 				Altar : new LibMesh({
@@ -641,15 +639,11 @@ function build(){
 				MetalFence : new LibMesh({
 					url : 'structure/metal_fence_2x1.JD',
 					materials : [libMat.Metal.DarkGeneric],
-
-
 					tags : [stdTag.mFence],
 				}),
 				MetalFenceRust : new LibMesh({
 					url : 'structure/metal_fence_2x1.JD',
 					materials : [libMat.Metal.Rust],
-
-
 					tags : [stdTag.mFence],
 				}),
 				Brazier : new LibMesh({
@@ -662,15 +656,11 @@ function build(){
 				Podium : new LibMesh({
 					url : 'furniture/podium_1x1.JD',
 					materials : [libMat.StoneTile.DungeonFloor,libMat.Brick.DungeonBlack],
-
-
 					tags : ["m_podium"],
 				}),
 				Pew : new LibMesh({
 					url : 'furniture/pew.JD',
 					materials : [libMat.Wood.Crate,libMat.Metal.DarkGeneric,libMat.Wood.Floor2],
-
-
 					tags : [stdTag.mPew, stdTag.mBench],
 				}),
 
@@ -1152,9 +1142,6 @@ function build(){
 					materials : [
 						libMat.Wood.Crate
 					],
-
-
-					
 					tags : [stdTag.mChair, stdTag.mChairBackless],
 				}),
 				Bench : new LibMesh({
@@ -1164,15 +1151,10 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 					tags : [stdTag.mBench],
-
-
-					
 				}),
 				TableOneChair : new LibMesh({
 					url : 'furniture/table_2x1.JD',
 					materials : [libMat.Wood.Crate],
-
-
 					tags : [stdTag.mTable],
 					attachments : [
 						new LibMeshAttachment({path:"Generic.Doodads.Tankard",position:new THREE.Vector3(30.27,75,33.55),rotation:new THREE.Vector3(0,-0.5029,0),scale:new THREE.Vector3(0.87,0.87,0.87),is_key_item:false}),
@@ -1213,9 +1195,6 @@ function build(){
 						libMat.Wood.Board
 					],
 					tags : [stdTag.mShelf],
-
-
-					
 				}),
 				WallShelf : new LibMesh({
 					url : 'furniture/shelf.JD',
@@ -1378,10 +1357,7 @@ function build(){
 						libMat.Wood.Crate,
 						libMat.Metal.DarkGeneric,
 					],
-					tags : [stdTag.mTable],
-
-
-					
+					tags : [stdTag.mTable, stdTag.mDrawer],
 				}),
 				WoodSteps : new LibMesh({
 					url : 'furniture/wood_steps.JD',
