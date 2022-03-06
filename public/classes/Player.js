@@ -1597,7 +1597,7 @@ export default class Player extends Generic{
 	/* Assets */
 	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
 	// returns false on fail, or an array of all added assets on success
-	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = false, toBank = false ){
+	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = true, toBank = false ){
 		if( !(asset instanceof Asset) ){
 			console.error("Trying to add non-asset. Did you mean to use addLibraryAsset?");
 			return false;
@@ -1667,10 +1667,12 @@ export default class Player extends Generic{
 			console.error("Invalid library asset", label);
 			return false;
 		}
-		asset.g_resetID();
-		asset.repair();
-		asset.resetCharges();
-		return this.addAsset(asset, amount);
+		const newAsset = this.addAsset(asset, amount)[0];	// Resets ID
+		if( newAsset ){
+			newAsset.repair();
+			newAsset.resetCharges();
+		}
+		return newAsset;
 
 	}
 	// Use -1 to get from either
@@ -1961,7 +1963,7 @@ export default class Player extends Generic{
 		if( !asset )
 			return false;
 		this.unequipAsset(id, byPlayer || this);
-		player.addAsset(asset);
+		player.addAsset(asset);	// Resets the ID too
 		this.destroyAsset(id);
 		return true;
 

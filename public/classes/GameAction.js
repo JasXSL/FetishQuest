@@ -653,7 +653,7 @@ export default class GameAction extends Generic{
 				game.ui.addText( player.getColoredName()+" received "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
 				
 			if( amount > 0 )
-				pl.addAsset( asset, amount );
+				pl.addAsset( asset, amount );	// note that this resets id
 			else if( amount < 0 )
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
 

@@ -35,6 +35,7 @@ class NetworkManager{
 		this.in_menu = {DM : false};	// Tracks if players are in a menu
 
 		this.eventBindings = {'*':[]};		// EventLabel : [fn1, fn2...]
+		this.host = undefined;				// Lets you override
 
 		// This is for debugging purposes
 		setTimeout(() => {
@@ -53,7 +54,7 @@ class NetworkManager{
 		if( this.io )
 			return true;
 		
-		this.io = io();
+		this.io = io(this.host);
 
 		// Connection event
 		this.io.on('connect', () => {

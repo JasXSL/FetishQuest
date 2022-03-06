@@ -2057,7 +2057,7 @@ export default class Game extends Generic{
 			el.parent = toPlayer;
 			return el;
 		});
-		toPlayer.addAsset(asset, amount, true);
+		const inserts = toPlayer.addAsset(asset, amount, true);	// Note that this will reset ID
 		for( let wrapper of assetWrappers )
 			toPlayer.addWrapper(wrapper);
 		
@@ -3580,7 +3580,7 @@ export default class Game extends Generic{
 		for( let token of asset.tokens )
 			player.destroyAssetsByLabel(token.asset.label, token.amount*amount);
 
-		player.addAsset(a, amount, undefined, undefined, true);
+		player.addAsset(a, amount, undefined, undefined, true);	// Note that this resets ID and returns the new object
 		asset.onPurchase(amount);
 		this.saveShopState(shop);
 		this.save();

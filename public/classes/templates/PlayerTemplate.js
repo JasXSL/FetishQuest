@@ -294,10 +294,12 @@ class PlayerTemplate extends Generic{
 					continue;
 				asset.restore();
 				asset.randomizeDurability();
-				player.addAsset(asset, undefined, undefined, true);
+				const assets = player.addAsset(asset, undefined, undefined, this.no_equip);	// Note that this resets ID
+				/*
 				if( !this.no_equip ){
 					player.equipAsset(asset.id, undefined, true);
 				}
+				*/
 				++numAdded;
 				if( 
 					(Math.random() < 0.25 || numAdded > 1) && 
@@ -319,9 +321,11 @@ class PlayerTemplate extends Generic{
 
 					let asset = libAssets[template];
 					asset.restore();
-					player.addAsset(asset, undefined, undefined, true);
+					const assets = player.addAsset(asset, undefined, undefined, this.no_equip); // Note that this resets ID
+					/*
 					if( !this.no_equip )
 						player.equipAsset(asset.id, undefined, true);
+					*/
 					break;
 
 				}

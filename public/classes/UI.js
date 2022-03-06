@@ -673,8 +673,8 @@ export default class UI{
 				if( !action )
 					continue;
 
-				let castable = action.castable() && myTurn && action.label !== 'stdClairvoyance';
-				castableActions += Boolean(castable);
+				let castable = action.castable() && myTurn;/* && */;
+				castableActions += Boolean(castable && action.label !== 'stdClairvoyance');
 
 				// Update class name
 				this.constructor.setActionButtonContent(button, action, player, (i < 10 ? i+1 : false));

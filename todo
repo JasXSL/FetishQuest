@@ -6,26 +6,29 @@ Overhaul:
 	
 	Bugs:
 		- Completed persistent RP should wipe its status when restarted
-	
+		- First click on ability doesn't work right
+		- Equipment created from asset editor doesn't parent right?
+
 	- Random events
 		- Ideas:
 			- Sporeling encounter:
-				- 
 			- Skeletal:
-				- 
 			- Generic: Find food set out
 				- Eat food, get HP
 				- Eat food, something happens
 			- Cocktopus:
-
 			- Anemone:
-			
 			- Lamprey:
-				- 
-			- 
 
-			Fence+indoor: Fire flask hanging from the ceiling. Climb fence to take it down. Chance to slip.
-			 
+			- Something with sofa?
+			- Something with haybale?
+			- Pitchfork
+			- Shovel/grass, dig for something?
+			- Barrel
+			- Crate
+			- Tankard
+			- 
+			
 
 
 -- CURRENT --
