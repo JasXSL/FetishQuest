@@ -1700,12 +1700,14 @@ export default class Game extends Generic{
 	}
 
 	// Remove a player by id
-	removePlayer( id ){
+	// If fromEncounter is true, it also removes it from the current encounter
+	removePlayer( id, fromEncounter = true ){
 
 		if( id instanceof Player )
 			id = id.id;
 
 		const isTurn = id === this.getTurnPlayer().id;
+		let removes = 0;
 
 		for(let i in this.players){
 
@@ -1737,13 +1739,32 @@ export default class Game extends Generic{
 				this.save();
 
 				this.ui.draw();
-				return true;
+				
+				++removes;
+				break;
+
 			}
 
 		}
 
+		if( fromEncounter ){
 
-		return false;
+			for( let i in this.encounter.players ){
+
+				if( this.encounter.players[i].id === id ){
+
+					this.encounter.players.splice(i, 1);
+					++removes;
+					break;
+
+				}
+
+			}
+			
+		}
+
+
+		return removes;
 	}
 
 	// Removes all generated players

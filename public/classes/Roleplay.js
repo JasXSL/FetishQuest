@@ -176,6 +176,7 @@ export default class Roleplay extends Generic{
 
 			if( this.once && index !== '_EXIT_' )
 				this.completed = true;
+			this.stage = '';
 			game.clearRoleplay(true);
 			
 		}

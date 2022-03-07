@@ -71,7 +71,10 @@ export default class GameAction extends Generic{
 
 		if( full || GameAction.typesToSendOnline[this.type] ){
 			
-			out.data = full === 'mod' ? this.data : this.data.save(full);
+			out.data = full === 'mod' ? 
+				deepClone(this.data) : 
+				this.data.save(full)
+			;
 
 		}
 

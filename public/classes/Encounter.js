@@ -109,8 +109,8 @@ export default class Encounter extends Generic{
 			const level = game.getAveragePlayerLevel();
 
 			let maxSlots = game.getTeamPlayers().length + (Math.random() < 0.75);	// Team size is min players, plus one extra most of the time
-			if( maxSlots > 5 )
-				maxSlots = 5;		// Don't generate more than 5 enemies
+			if( maxSlots > 4 )
+				maxSlots = 4;		// Don't generate more than 5 enemies
 
 			// Gets viable monsters we can put in
 			const getViableMonsters = () => {
@@ -169,6 +169,8 @@ export default class Encounter extends Generic{
 				const pl = mTemplate.generate(level);
 				pl.generated = true;	// Set generated so it can be removed when leaving the area, regardless of allegiance
 				pl._slots = Math.max(1, Math.min(mTemplate.slots, maxSlots));
+				if( mTemplate.slots === -1 )
+					pl._slots = maxSlots;
 				this.players.push(pl);
 				maxSlots -= pl._slots;
 				usedMonsters[mTemplate.label] = usedMonsters[mTemplate.label]+1 || 1;

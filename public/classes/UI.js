@@ -662,9 +662,6 @@ export default class UI{
 				continue;		// No actions here
 			
 			let labelActive = player.getActiveActionGroupLabel(sActions[0].group);
-			if( !labelActive )
-				labelActive = sActions[0].label;
-
 			for( let s = 0; s < NUM_SUBS; ++s ){
 
 				const button = $(subs[s]);

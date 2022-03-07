@@ -43,7 +43,7 @@ class PlayerTemplate extends Generic{
 		this.gear_chance = 0.5;					// Chance of having gear
 		this.min_size = 1;
 		this.max_size = 3;
-		this.slots = 1;							// Nr slots this takes up when generated. Allows you to create monsters that are n times more powerful than the rest. Note that 3+ will be more rare in single player as they can only be added if rolled first. 
+		this.slots = 1;							// Nr slots this takes up when generated. Allows you to create monsters that are n times more powerful than the rest. Note that 3+ will be more rare in single player as they can only be added if rolled first. Use -1 to fill up any unfilled slots. 
 		this.viable_consumables = [];			// Viable consumable assets this can spawn with
 		this.random_loot = [];					// {}
 		this.power = 1;

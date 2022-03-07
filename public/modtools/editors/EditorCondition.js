@@ -578,9 +578,13 @@ export function asset(){
 	else if( type === types.hasActiveConditionalPlayer ){
 
 		setDefaultData({
-			conditions : []
+			conditions : [],
+			min : 1
 		});
 		html += 'Conditions: <div class="conditions"></div>';
+		html += '<div class="labelFlex">';
+			html += '<label>Min nr matching players: <input type="number" name="data::min" step=1 min=1 class="saveable" value="'+(parseInt(asset.data.min) || 1)+'" /></label>';
+		html += '</div>';
 		fnBind = () => {
 			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "data::conditions", false));
 		};
@@ -690,9 +694,11 @@ export function asset(){
 	}
 	else if( type === types.isActionParent ){}
 	else if( type === types.isRoleplayPlayer ){
+
 		html += '<div class="labelFlex">';
 			html += '<label title="Use -1 for any index">Index: <input type="number" name="data::index" step=1 min=-1 class="saveable" value="'+(parseInt(asset.data.index) || -1)+'" /></label>';
 		html += '</div>';
+
 	}
 	else if( type === types.isWrapperParent ){
 

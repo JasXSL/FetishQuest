@@ -1160,14 +1160,20 @@ export default class Condition extends Generic{
 
 			else if( this.type === T.hasActiveConditionalPlayer ){
 
+				let min = this.data.min || 1;
+				let tot = 0;
 				const players = game.getEnabledPlayers();
 				const evt = new GameEvent({});
 				for( let player of players ){
 
 					evt.sender = evt.target = player;
 					if( Condition.all(this.data.conditions, evt) ){
-						success = true;
-						break;
+						
+						++tot;
+						success = tot >= min;
+						if( success )
+							break;
+						
 					}
 
 				}
@@ -1521,7 +1527,7 @@ Condition.descriptions = {
 	[Condition.Types.questCanHandIn] : '{quest:(str/arr)quest} - Checks if a quest is ready to be handed in',
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
-	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...]} - Checks if the game has at least one player that matches conditions',
+	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...], min:nr=1} - Checks if the game has at least min nr player that matches conditions',
 	[Condition.Types.targetIsRpPlayer] : 'Synonym for isRoleplayPlayer, use that one instead',
 	[Condition.Types.numRpTargets] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Checks how many _targetPlayers there are in the active roleplay.',
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any, controlled:(bool)pc_controlled=false} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies. If controlled is true it ignores NPCs.',

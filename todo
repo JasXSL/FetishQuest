@@ -4,11 +4,8 @@
 
 Overhaul:
 	
-	Bugs:
-		- Completed persistent RP should wipe its status when restarted
-		- First click on ability doesn't work right
-		- Equipment created from asset editor doesn't parent right?
-
+	- Add a way to see who is grappling who
+	- Misdirect consumable. Taunts every enemy onto your target. Expensive.
 	- Random events
 		- Ideas:
 			- Sporeling encounter:

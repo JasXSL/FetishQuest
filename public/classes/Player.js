@@ -47,6 +47,7 @@ export default class Player extends Generic{
 		this.species = "";
 		this.spre = "";						// A/AN for species
 		this.description = "";
+		this.ior = "";						// Local override
 		this.icon = "";						// URL - Has to be HTTPS
 		this.icon_upperBody = "";			// == || ==
 		this.icon_lowerBody = "";			// == || ==
@@ -536,6 +537,7 @@ export default class Player extends Generic{
 	getActiveActionGroupLabel( group ){
 
 		const actions = this.getActionGroup(group);
+		// We don't have a single action of this group. Shouldn't happen, but might as well put this here
 		if( !actions.length )
 			return false;
 		// Search for the group
@@ -551,14 +553,17 @@ export default class Player extends Generic{
 						return action.label;
 
 				}	
-				// Didn't exist, fail
-				return false;
+				
+				break;	// Can only have one entry per group, so stop trying
 
 			}
 
 		}
 
-		return false;
+		// Didn't find a group yet (probably because we haven't used an action from this group yet).
+		// Return the first action in the group
+		// Otherwise the UI cocks up
+		return actions[0].label;
 
 	}
 	
@@ -591,10 +596,11 @@ export default class Player extends Generic{
 
 		}
 		// Not found
-		this.actionGroups.push(new PlayerActionGroup({
+		const add = new PlayerActionGroup({
 			id : group,
-			index : label
-		}));
+			active : label
+		});
+		this.actionGroups.push(add);
 
 	}
 
@@ -867,6 +873,9 @@ export default class Player extends Generic{
 	// ICONS
 	getActiveIcon(){
 		
+		if( this.ior )
+			return this.ior;
+
 		const ub = this.hasTag(stdTag.asUpperBody),
 			lb = this.hasTag(stdTag.asLowerBody)
 		;
