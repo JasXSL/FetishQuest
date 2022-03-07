@@ -332,7 +332,7 @@ class WebGL{
 		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) in the last cell. 
 											// If this has changed on cell entry, redraw rain.
 
-		$(window).off('resize').on('resize', () => {
+		$(window).on('resize', () => {
 			this.updateSize();
 		});
 		this.updateSize();
@@ -353,6 +353,7 @@ class WebGL{
 
 	destructor(){
 
+		$(window).off('resize');
 		this.renderer.dispose();
 
 	}

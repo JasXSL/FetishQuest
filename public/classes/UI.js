@@ -52,6 +52,9 @@ export default class UI{
 		this.hostLoadingBar = $("div.loadingBar > div.slider", this.hostLoadingWrapper);
 		this.hostLoadingStatusText = $("p > span", this.hostLoadingWrapper);
 
+		this.grappleWrapper = $("> div.grapples", this.board);
+		this.grappleLines = $();
+
 		this.loadingMaxSteps = 0;	// Steps to load
 		this.yourTurn = $("#ui > div.yourTurnBadge");
 		this.yourTurnBorder = $("#yourTurnBorder");
@@ -382,7 +385,9 @@ export default class UI{
 		this.initialized = true;
 		this.draw();
 
-		
+		$(window).on('resize', () => {
+			this.drawGrapples();
+		});		
 
 
 	}
@@ -419,6 +424,7 @@ export default class UI{
 
 	destructor(){
 
+		$(window).off('resize');
 		this.clear();
 		this.modal.destructor();
 		this.toggleAll(false);
@@ -486,7 +492,6 @@ export default class UI{
 			this.drawRoleplay();
 			times.push(Date.now()-t);
 			t = Date.now();
-
 			this.bindTooltips();
 			times.push(Date.now()-t);
 
@@ -495,6 +500,8 @@ export default class UI{
 			this.drawProceduralTooltip();
 			
 			this.updateMiniMap();
+
+			this.drawGrapples();
 
 			//console.log("execDraw took", Date.now()-time, times);
 
@@ -945,7 +952,6 @@ export default class UI{
 
 		const th = this, players = game.getEnabledPlayers();
 
-
 		const playerTemplate = $(
 			'<div class="player">'+
 				'<div class="content">'+
@@ -1088,8 +1094,6 @@ export default class UI{
 			if( ids.indexOf($(this).attr('data-id')) === -1 )
 				$(this).remove();
 		});
-
-		
 
 		let nr_friendly = 0,
 			nr_hostile = 0
@@ -1308,6 +1312,103 @@ export default class UI{
 				game.setRoleplay(rp);
 
 		}
+
+	}
+
+	drawGrapples(){
+
+		let preR = this.grappleLines.filter('.r');
+		this.grappleLines.toggleClass('r', false);	// Turns off reserved
+		const players = game.getEnabledPlayers();
+
+		let n = 0;
+		for( let p of players ){
+
+			const el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
+				grapples = p.getActiveEffectsByType(Effect.Types.grapple),		// We are the victim
+				taunts = p.getActiveEffectsByType(Effect.Types.taunt).filter(fx => !fx.data.grapple)
+			;
+			grapples.push(...taunts);
+			// prevents duplicates
+			let senders = {
+				taunts : {},
+				grapples : {}
+			};
+
+			for( let i = 0; i < grapples.length; ++i ){
+
+				const effect = grapples[i];
+				const isTaunt = effect.type === Effect.Types.taunt;
+
+				let sender = effect.parent.getCaster();
+				if( !sender || sender.id === p.id )
+					continue;
+
+				let field = isTaunt ? 'taunts' : 'grapples';
+				if( senders[field][sender.id] )
+					continue;
+
+				let startDiv = el;
+				let endDiv = $("div.player[data-id='"+esc(sender.id)+"']", this.players);
+				if( !endDiv.length )
+					continue;
+	
+				senders[field][sender.id] = true;
+
+				let div = this.grappleLines[n];
+				++n;
+
+				if( !div ){
+
+					div = document.createElement('div');		// Create a new grapple line
+					div.classList.toggle('grapple', true);
+					this.grappleLines = this.grappleLines.add(div);
+					this.grappleWrapper.append(div);
+					console.log("Created div", div);
+					
+				}
+
+	
+				div.classList.toggle('taunt', isTaunt);
+				div.classList.toggle('r', true);	// Reserve the div
+				div.classList.toggle('hidden', false);	// Reserve the div
+				const rectA = startDiv[0].getBoundingClientRect();
+				const rectB = endDiv[0].getBoundingClientRect();
+				
+				const start = new THREE.Vector2(
+					p.team === Player.TEAM_PLAYER ? rectA.right : rectA.left, 
+					rectA.top+rectA.height/2
+				);
+				const end = new THREE.Vector2(
+					sender.team === Player.TEAM_PLAYER ? rectB.right : rectB.left, 
+					rectB.top+rectB.height/2
+				);
+				
+				const dist = start.distanceTo(end);
+				const angle = Math.atan2((start.y-end.y),(start.x-end.x))*(180/Math.PI);
+	
+				div.style.width = dist+'px';
+				div.style.left = ((end.x+start.x)/2 - dist/2)+'px';
+				div.style.top = ((end.y-start.y)/2+start.y)+'px';
+				div.style.transform = 'rotate('+(angle)+'deg)';
+				
+			}
+
+		}
+
+		this.grappleLines.not('.r').each((idx, el) => {
+
+			if( preR.has(el) ){
+				el.classList.toggle('r', true);
+				el.classList.toggle('fade', true);
+				setTimeout(() => {
+					el.classList.toggle('hidden', true);
+					el.classList.toggle('r', false);
+					el.classList.toggle('fade', false);
+				}, 250);
+			}
+
+		});
 
 	}
 

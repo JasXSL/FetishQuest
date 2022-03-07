@@ -2485,6 +2485,27 @@ div.passiveUpsideDown > div.content > div.bg{
 /**/
 
 
+/* Grapple arrows */
+	#ui > div.grapples > div{
+		position: fixed;
+		height:1vmax;
+		background: linear-gradient(to left, rgba(100,100,255,0.5) 0%,rgba(100,100,255,0.1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+		transition:opacity 0.25s ease-out;
+	}
+	#ui > div.grapples > div.taunt{
+		height:0.25vmax;
+		background: linear-gradient(to right, rgba(255,50,50,0.4) 0%,rgba(255,50,50,0.1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	}
+	@keyframes grappleFadeOut{
+		0%{opacity: 1.0; }
+		100%{opacity:0;}
+	}
+	#ui > div.grapples > div.fade{
+		opacity: 0;
+	}
+/**/
+
+
 
 /* Portraits based on player size */
 	#ui > div.players div.p2 div.player{
