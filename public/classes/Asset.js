@@ -272,6 +272,10 @@ export default class Asset extends Generic{
 		return Math.ceil(10+this.durability_bonus) * (this.mastercrafted ? 2 : 1);
 	}
 
+	isDamaged(){
+		return this.durability < this.getMaxDurability();
+	}
+
 	equippable(){
 
 		let verifyConds = Condition.all(this.equip_conditions, new GameEvent({

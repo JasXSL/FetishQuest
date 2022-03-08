@@ -1008,6 +1008,20 @@ class NetworkManager{
 
 			}
 
+			else if( task === PT.dyeItemAtBlacksmith ){
+				if( !args.player || !args.blacksmithPlayer || !args.asset || !args.color ){
+					console.error("Net: Missing args in call", task, "got", args);
+					return;
+				}
+				let player = validatePlayer();
+				if( !player )
+					return;
+
+				const blacksmith = game.getPlayerById(args.blacksmithPlayer);
+				game.dyeBySmith(blacksmith, player, args.asset, args.color);
+
+			}
+
 			else if( task === PT.repairItemAtBlacksmith ){
 
 				// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
@@ -1639,6 +1653,22 @@ class NetworkManager{
 			player : player,
 		});
 	}
+
+	playerDyeItemAtBlacksmith(blacksmithPlayer, player, asset, color){
+		if( typeof blacksmithPlayer === "object" )
+			blacksmithPlayer = blacksmithPlayer.id;
+		if( typeof asset === "object" )
+			asset = asset.id;
+		if( typeof player === "object" )
+			player = player.id;
+		this.sendPlayerAction(NetworkManager.playerTasks.dyeItemAtBlacksmith, {
+			asset : asset,
+			blacksmithPlayer : blacksmithPlayer,
+			player : player,
+			color : color
+		});
+	}
+
 	playerUseAltar(altarPlayer, player){
 		if( typeof altarPlayer === "object" )
 			altarPlayer = altarPlayer.id;
@@ -2188,6 +2218,7 @@ NetworkManager.playerTasks = {
 	bankItem : 'bankItem',				// {player:(str)sender_id, bankPlayer:(str)bankPlayerId, asset:(str)asset_id, amount:(int)amount, deposit:(bool)deposit/withdraw}
 	exchangeGold : 'exchangeGold',		// {player:(str)sender_id, bank:(bool)exchangeInBank}
 	repairItemAtBlacksmith : 'repairItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id}
+	dyeItemAtBlacksmith : 'dyeItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id, color:(str)hex_with_hash}
 	useAltar : 'useAltar',				// {player:(str)sender_id, altarPlayer:(str)altar}
 	sleep : 'sleep',									// {player:(str)sender_id, asset:(str)dungeon_asset_id, hours:(int)hours}
 	rentRoom : 'rentRoom',							// {renter:(str)rental_merchant_player_id, player:(str)player_id}

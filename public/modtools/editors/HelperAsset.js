@@ -630,9 +630,10 @@ export default{
 
 		};
 
-		if( !start ){
+		if( !start )
 			start = parseInt(win.custom._page) || 0;
-		}
+		if( start === -1 )
+			start = fulldb.length;
 		win.custom._page = start;
 
 		
@@ -729,6 +730,15 @@ export default{
 			}
 
 		}
+
+		let lastPageStarts = Math.floor(fulldb.length/this.PAGINATION_LENGTH);
+		if( fulldb.length%this.PAGINATION_LENGTH === 0 && fulldb.length )
+			lastPageStarts -= 1;
+
+		lastPageStarts *= this.PAGINATION_LENGTH;
+
+		if( win.custom._page > lastPageStarts )
+			win.custom._page = lastPageStarts;
 
 		let db = fulldb.slice(win.custom._page, win.custom._page+this.PAGINATION_LENGTH);
 
@@ -895,11 +905,16 @@ export default{
 
 		if( fulldb.length > win.custom._page+this.PAGINATION_LENGTH ){
 
-			const next = document.createElement('input');
+			let next = document.createElement('input');
 			next.type = 'button';
 			next.className = 'next';
 			next.value = '>>';
-			
+			container.append(next);
+
+			next = document.createElement('input');
+			next.type = 'button';
+			next.className = 'last';
+			next.value = '>>>>';
 			container.append(next);
 			
 		}
@@ -918,16 +933,19 @@ export default{
 				batchDiv = win.dom.querySelector('span.batch'),
 				rows = win.dom.querySelectorAll('tr[data-id]'),			// TRs in the table
 				nextButton = win.dom.querySelector('input.next'),
+				lastButton = win.dom.querySelector('input.last'),
 				backButton = win.dom.querySelector('input.back'),
 				backFullButton = win.dom.querySelector('input.backFull')
 		;
 
-		if( nextButton )
-			nextButton.addEventListener('click', () => {
-
-				win.custom._page += this.PAGINATION_LENGTH;
-				win.rebuild();
-			});
+		nextButton?.addEventListener('click', () => {
+			win.custom._page += this.PAGINATION_LENGTH;
+			win.rebuild();
+		});
+		lastButton?.addEventListener('click', () => {
+			win.custom._page = -1;
+			win.rebuild();
+		});
 
 		if( backButton )
 			backButton.addEventListener('click', () => {

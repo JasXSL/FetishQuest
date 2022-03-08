@@ -152,6 +152,7 @@ function deepClone( obj ){
 
 }
 
+
 // Takes array values and builds an object of {val:true...}
 function valsToKeys( input = [] ){
 	if( !Array.isArray(input) )
@@ -393,6 +394,7 @@ Base64 = {
         return result;
     }
 }
+
 
 
 async function copyTextToClipboard( text ) {

@@ -240,12 +240,12 @@ export default class Modal{
 
 		let html = '';
 		html += '<div data-id="'+esc(id)+'" class="item '+(tooltip ? ' tooltipParent ' : '')+classes.join(' ')+'">';
-			if( escape )
-				item = esc(item);
-			html += item;
+		if( escape )
+			item = esc(item);
+		html += item;
 
-			if( tooltip )
-				html += '<div class="tooltip">'+tooltip+'</div>';
+		if( tooltip )
+			html += '<div class="tooltip">'+tooltip+'</div>';
 		html += '</div>';
 		this.selectionbox.append(html);
 

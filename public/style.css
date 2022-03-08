@@ -1713,10 +1713,38 @@ div.passiveUpsideDown > div.content > div.bg{
 
 /**/
 
+/* Smith */
+	#smith > div.modalMain > div.cmTabContent{
+		min-height:50vh;
+	}
+
+	#smith > div.modalMain > div.cmTabContent input[type=color]{
+		width: 100%;
+		height: 5vh;
+		border: 0.1vmax groove;
+	}
+
+	#smith > div.modalMain > div.cmTabContent > div.dyeOverlay{
+		position: absolute;
+		background:rgba(0,0,0,.8);
+		padding:5vmax;
+		left:50%;
+		top:50%;
+		transform:translate(-50%, -50%);
+		width:80%;
+	}
+
+	#smith div.inventory > div.item.damaged{
+		border-style:groove;
+		box-shadow: 0 0 1vmax #FFAAAA inset;
+	}
+/**/
+
 /* Transmog */
 #transmog div.inventory div.item.selected{
 	border-color:#FFF;
 	border-width: 0.3vmax;
+	
 }
 
 /* Players */

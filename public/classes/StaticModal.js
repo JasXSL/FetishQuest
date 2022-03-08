@@ -2250,6 +2250,16 @@ export default class StaticModal{
 					<div class="assets repair shop inventory empty">
 						<h3>No broken items.</h3>
 					</div>
+					<div class="dyeOverlay cmContentBlock center hidden">
+						<div class="inventory"></div>
+						<form class="saveDye">
+							<label class="colorName"></label><br />
+							<input type="color" class="colorPicker" /><br />
+							<input type="submit" class="save" value="Dye Armor [1 Gold]" /><br />
+							<input type="button" class="remove hidden" value="Remove Dye" />
+							<input type="button" class="cancel" value="Cancel" />
+						</form>
+					</div>
 				`;
 			})
 			.setProperties(function(){
@@ -2258,7 +2268,22 @@ export default class StaticModal{
 				this.money = smith.querySelector('div.myMoney');
 				this.assets = smith.querySelector('div.repair.container');
 				this.empty = smith.querySelector('div.repair.empty');
+				this.selectedAsset = null;
 
+				this.dyeOverlay = smith.querySelector('div.dyeOverlay');
+				this.dyeForm = smith.querySelector('div.dyeOverlay form.saveDye');
+				this.dyeAssetWrapper = smith.querySelector('div.dyeOverlay > div.inventory');
+				this.dyesColorPicker = smith.querySelector('div.dyeOverlay > form.saveDye > input.colorPicker');
+				this.dyesSaveButton = smith.querySelector('div.dyeOverlay > form.saveDye > input.save');
+				this.dyesRemoveButton = smith.querySelector('div.dyeOverlay > form.saveDye > input.remove');
+				this.dyesCancelButton = smith.querySelector('div.dyeOverlay > form.saveDye > input.cancel');
+				this.dyesColorName = smith.querySelector('div.dyeOverlay > form.saveDye > label.colorName');
+				
+				this.dyesCancelButton.addEventListener('click', () => {
+					this.dyeOverlay.classList.toggle('hidden', true);
+				});
+				
+				
 			})
 			.setDraw(async function( smith ){
 
@@ -2268,7 +2293,7 @@ export default class StaticModal{
 				if( !smith )
 					throw 'Invalid smith';
 
-				self.generateWallet(this.money);
+				self.generateWallet(this.money.querySelector('span.coins'));
 
 				await StaticModal.updateWallet(this.money);
 	
@@ -2276,21 +2301,106 @@ export default class StaticModal{
 				// Output repairable
 				const handleRepairableClick = event => {
 					
-					const id = event.currentTarget.dataset.id;
-					game.repairBySmith(smith, myPlayer, id);
+					const assetId = event.currentTarget.dataset.id;
+					const asset = myPlayer.getAssetById(assetId);
+					if( !asset )
+						return;
+
+					game.uiClick(event.currentTarget);
+
+					const modal = game.ui.modal;
+					modal.prepareSelectionBox();
+					if( asset.isDamaged() ){
+
+						modal.addSelectionBoxItem( 
+							'Repair', 
+							'Repair this item', 
+							'repairItem',
+							[],// classes?
+							false
+						);
+
+					}
+
+					if( asset.colorable ){
+
+						modal.addSelectionBoxItem( 
+							'Dye', 
+							'Dye this item', 
+							'dyeItem',
+							[],// classes?
+							false
+						);
+
+					}
+
+					modal.onSelectionBox(async event => {
+			
+						let element = event.currentTarget,
+							id = $(element).attr('data-id')
+						;
+						game.uiClick(element);
+						if( id === 'repairItem' )
+							game.repairBySmith(smith, myPlayer, assetId);
+						else if( id === 'dyeItem' ){
+
+							const dummyAsset = asset.clone();
+							const div = await StaticModal.getGenericAssetButton(dummyAsset, 100);	// 100 is the cost of dye
+							this.dyeAssetWrapper.replaceChildren(div);
+							this.dyeOverlay.classList.toggle("hidden", false);
+							this.dyesRemoveButton.classList.toggle("hidden", !asset.color_tag);
+							this.dyesColorPicker.value = dummyAsset.getColor();
+							this.dyesColorName.innerText = dummyAsset.getColorTag();
+							this.dyesColorPicker.onchange = async () => {
+								dummyAsset.color = this.dyesColorPicker.value;
+								dummyAsset.color_tag = ntc.name(dummyAsset.color)[1];
+								this.dyesColorName.innerText = dummyAsset.getColorTag(); 
+								this.dyeAssetWrapper.replaceChildren(await StaticModal.getGenericAssetButton(dummyAsset, 100));
+								game.uiSelectUp(div);
+							};
+
+							this.dyesRemoveButton.onclick = () => {
+								game.dyeBySmith(smith, myPlayer, assetId, '');
+								this.dyeOverlay.classList.toggle('hidden', true);
+							};
+
+							this.dyeForm.onsubmit = event => {
+								event.preventDefault();
+								game.dyeBySmith(smith, myPlayer, assetId, dummyAsset.color);
+								this.dyeOverlay.classList.toggle('hidden', true);
+							};
+
+						}
+
+						modal.closeSelectionBox();
+						
+					});
+
+					/*
+					
+					*/
+
 
 				};
 
-				const repairable = myPlayer.getRepairableAssets();
+				const repairable = myPlayer.getAssets().filter(el => (el.isDamaged() && el.isDamageable()) || el.colorable);
 				this.empty.classList.toggle("hidden", Boolean(repairable.length));
 				this.assets.classList.toggle("hidden", !repairable.length);
 
-				const money = myPlayer.getMoney();
+				//const money = myPlayer.getMoney();
 				const divs = [];				
 				for( let asset of repairable ){
 
 					const cost = asset.getRepairCost(smith);
-					const div = await StaticModal.getGenericAssetButton(asset, cost, cost > money ? 'disabled' : '');
+					let classes = [];
+					if( asset.isDamaged() )
+						classes.push("damaged");
+
+					const div = await StaticModal.getGenericAssetButton(
+						asset, 
+						asset.isDamaged() ? cost : undefined, 
+						classes.join(' ')
+					);
 					divs.push(div);
 					div.addEventListener('click', handleRepairableClick);
 					

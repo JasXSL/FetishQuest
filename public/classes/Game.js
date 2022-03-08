@@ -1167,6 +1167,13 @@ export default class Game extends Generic{
 		this.uiAudio('click', 0.5, element );
 	}
 
+	uiSelect( element ){
+		this.uiAudio('endturn_down', 0.25, element );
+	}
+	uiSelectUp( element ){
+		this.uiAudio('endturn_up', 0.25, element );
+	}
+
 	setMasterVolume( volume = 1.0 ){
 		setMasterVolume(volume);
 	}
@@ -3381,6 +3388,61 @@ export default class Game extends Generic{
 		this.playFxAudioKitById("buy_item", player, player, undefined, true);
 		this.playFxAudioKitById("shopRepair", player, player, undefined, true);
 		this.ui.addText(player.getColoredName()+" gets an item repaired.", "repair", player.id, player.id, 'repair');
+
+	}
+
+	// hexColor is a color including #, or use an empty string if you want to remove the dye
+	dyeBySmith( smithPlayer, player, assetID, hexColor, allowError = true ){
+		const out = text => {
+			if( allowError )
+				throw text;
+		};
+		if( !(smithPlayer instanceof Player ) )
+			return out("smithPlayer is not a player");
+		if( !(player instanceof Player) )
+			return out("player is not a player");
+		if( !this.smithAvailableTo(smithPlayer, player) )
+			return out("Smith not available to you");
+		if( typeof hexColor !== 'string' || (hexColor && !/^#[0-9A-F]{6}$/i.test(hexColor)) )
+			return out("Invalid color picked");
+		
+		const asset = player.getAssetById(assetID);
+		if( !asset )
+			return out("Asset not found");
+		if( !asset.colorable )
+			return out("Invalid asset");
+		if( !hexColor && !asset.color_tag )
+			return out("Asset not dyed");
+		
+		const cost = 100;
+		if( player.getMoney() < cost )
+			return out("Insufficient funds");
+
+		if( !this.is_host ){
+			return Game.net.playerDyeItemAtBlacksmith(smithPlayer, player, asset, hexColor);
+		}
+
+		let text = " gets an item dyed.";
+		if( hexColor ){
+
+			// Ok finally we can do it
+			player.consumeMoney(cost);
+			asset.color = hexColor;
+			asset.color_tag = ntc.name(asset.color)[1];
+			this.playFxAudioKitById("buy_item", player, player, undefined, true);
+
+		}
+		// Remove dye
+		else{
+			asset.color = '';
+			asset.color_tag = '';
+			text = ' removes the dye from an item.';
+		}
+
+		game.save();
+
+		this.playFxAudioKitById("armorDye", player, player, undefined, true);
+		this.ui.addText(player.getColoredName()+text, "dye", player.id, player.id, 'dye');
 
 	}
 
