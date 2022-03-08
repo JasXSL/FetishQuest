@@ -1009,7 +1009,7 @@ class NetworkManager{
 			}
 
 			else if( task === PT.dyeItemAtBlacksmith ){
-				if( !args.player || !args.blacksmithPlayer || !args.asset || !args.color ){
+				if( !args.player || !args.blacksmithPlayer || !args.asset || typeof args.color !== 'string' ){
 					console.error("Net: Missing args in call", task, "got", args);
 					return;
 				}

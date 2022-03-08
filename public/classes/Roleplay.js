@@ -26,7 +26,7 @@ export default class Roleplay extends Generic{
 		this.label = '';
 		this.stages = [];			// Roleplay stages
 		this.player = '';
-		this.portrait = '';
+		this.portrait = '';			// Supports gameicon
 		
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
@@ -432,9 +432,15 @@ export class RoleplayStage extends Generic{
 	}
 
 	getPortrait(){
+
+		let portrait = this.parent.portrait;
 		if( this.portrait )
-			return this.portrait;
-		return this.parent.portrait;
+			portrait = this.portrait;
+		
+		if( !portrait.includes('/') )
+			portrait = '/media/wrapper_icons/'+portrait+'.svg';
+		return portrait;
+
 	}
 
 	getName(){

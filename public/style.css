@@ -2178,12 +2178,17 @@ div.passiveUpsideDown > div.content > div.bg{
 		-moz-user-select: none;
 	}
 
-	#roleplay div.portrait.bg{
+	#roleplay div.portrait{
 		position: absolute;
 		left:0;
 		width:10vmax; height:10vmax;
 		padding:0;
+	}
+	#roleplay div.portrait div.bg{
+		position: absolute;
+		top:0; left:0; right:0; bottom:0;
 		background-size:cover;
+		box-shadow:none;
 	}
 	#roleplay div.text{
 		font-weight: normal;

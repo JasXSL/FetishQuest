@@ -2528,7 +2528,7 @@ export default class UI{
 				
 				const portrait = stage.getPortrait();
 
-				$("div.portrait", div)
+				$("div.portrait > div.bg", div)
 					.css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none');
 				$('> div.left', div)
 					.toggleClass('hidden', !portrait);
