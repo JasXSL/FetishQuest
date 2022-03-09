@@ -55,6 +55,7 @@ const load_order = [
 	'questRewards',
 	'quests',
 	'gallery',
+	'loadingTip',
 	
 ];
 
@@ -115,6 +116,7 @@ export default class GameLib{
 		this.texts = {};				// The texts array gets throw into an object for easier fetching
 		this._texts = [];				// Cache of objects only, and only enabled ones
 		this.gallery = {};				// Player gallery
+		this.loadingTip = {};
 	}
 
 	async loadMainMod(){

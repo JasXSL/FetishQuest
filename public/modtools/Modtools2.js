@@ -46,6 +46,7 @@ import * as EditorDungeonRoom from './editors/EditorDungeonRoom.js';
 import * as EditorDungeonTemplate from './editors/EditorDungeonTemplate.js';
 import * as EditorDungeonSubTemplate from './editors/EditorDungeonSubTemplate.js';
 import * as EditorGallery from './editors/EditorGallery.js';
+import * as EditorLoadingTip from './editors/EditorLoadingTip.js';
 import * as EditorBook from './editors/EditorBook.js';
 import * as EditorBookPage from './editors/EditorBookPage.js';
 import * as EditorFetish from './editors/EditorFetish.js';
@@ -103,6 +104,7 @@ const DB_MAP = {
 	"dungeonTemplates" : { listing : EditorDungeonTemplate.list, asset : EditorDungeonTemplate.asset, icon : 'tower-fall', help : EditorDungeonTemplate.help },
 	"dungeonSubTemplates" : { listing : EditorDungeonSubTemplate.list, asset : EditorDungeonSubTemplate.asset, icon : 'tower-fall', help : EditorDungeonSubTemplate.help },
 	"gallery" : { listing : EditorGallery.list, asset : EditorGallery.asset, icon : 'mona-lisa', help : EditorGallery.help },
+	"loadingTip" : { listing : EditorLoadingTip.list, asset : EditorLoadingTip.asset, icon : 'evil-book', help : EditorLoadingTip.help },
 	"books" : { listing : EditorBook.list, asset : EditorBook.asset, icon : 'archive-register', help : EditorBook.help },
 	"bookPages" : { listing : EditorBookPage.list, asset : EditorBookPage.asset, icon : 'folded-paper', help : EditorBookPage.help },
 	"fetishes" : { listing : EditorFetish.list, asset : EditorFetish.asset, icon : 'love-mystery', help : EditorFetish.help },

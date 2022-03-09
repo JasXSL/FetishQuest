@@ -51,6 +51,7 @@ export default class UI{
 		this.hostLoadingWrapper = $("div.host", this.loadingScreen);
 		this.hostLoadingBar = $("div.loadingBar > div.slider", this.hostLoadingWrapper);
 		this.hostLoadingStatusText = $("p > span", this.hostLoadingWrapper);
+		this.loadingTip = $("div.tip", this.loadingScreen);
 
 		this.grappleWrapper = $("> div.grapples", this.board);
 		this.grappleLines = $();
@@ -3077,6 +3078,24 @@ export default class UI{
 			this.updateLoadingBar();
 
 			this.hostLoadingWrapper.toggleClass( 'hidden', Boolean(game.is_host) );
+
+			let tips = shuffle(glib.getAllValues('LoadingTip'));
+			const evt = new GameEvent({
+				sender:game.getMyActivePlayer(), 
+				target:game.getTeamPlayers(), 
+				dungeon:game.dungeon, 
+				room: game.dungeon.getActiveRoom()
+			});
+			for( let tip of tips ){
+				
+				if( tip.validate(evt) ){
+
+					this.loadingTip.innerText = tip.text;
+					break;
+
+				}
+
+			}
 
 		}
 		else{

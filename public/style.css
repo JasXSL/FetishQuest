@@ -3431,6 +3431,10 @@ div.passiveUpsideDown > div.content > div.bg{
 		pointer-events: none;
 		margin-bottom:2vmax;
 	}
+	#loading_screen div.tip{
+		text-align: center;
+		font-style: italic;
+	}
 	#loading_screen div.slider{
 		height:100%;
 		position: absolute;

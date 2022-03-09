@@ -26,6 +26,7 @@ import Fetish from './Fetish.js';
 import ArmorEnchant from './ArmorEnchant.js';
 import AudioTrigger from './AudioTrigger.js';
 import Collection from './helpers/Collection.js';
+import LoadingTip from './LoadingTip.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -97,6 +98,7 @@ export default class Mod extends Generic{
 		this.questObjectives = [];
 		this.questObjectiveEvents = [];
 		this.gallery = [];
+		this.loadingTip = [];
 		this.books = [];
 		this.bookPages = [];
 		this.armorEnchants = [];
@@ -176,6 +178,7 @@ export default class Mod extends Generic{
 			factions : this.factions,
 			dungeonSubTemplates : this.dungeonSubTemplates,
 			gallery : this.gallery,
+			loadingTip : this.loadingTip,
 			bookPages : this.bookPages,
 			books : this.books,
 			armorEnchants : this.armorEnchants,
@@ -1979,6 +1982,7 @@ Mod.LIB_TYPES = {
 	'gameActions' : GameAction,
 	'texts' : Text,
 	'gallery' : PlayerGalleryTemplate,
+	'loadingTip' : LoadingTip,
 };
 
 
@@ -2015,6 +2019,7 @@ Mod.UseID = [
 	'roleplayStageOption',
 	'roleplayStageOptionGoto',
 	'bookPages',
+	'loadingTip'
 ];
 
 Mod.getNames = async function( force ){
