@@ -113,6 +113,7 @@ export function asset(){
 		if( isTemplate )	// Editing a template for procedural dungeon
 			html += '<label>Label: <input name="label" value="'+esc(asset.label)+'" type="text" class="saveable" autocomplete="chrome-off" /></label>';
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" autocomplete="chrome-off" /></label>';
+		html += '<label>Random Event <input type="checkbox" class="saveable" name="expEvt" '+(dummy.expEvt ? 'checked' : '')+' /></label><br />';
 		
 		html += '<label>Outdoors <input type="checkbox" class="saveable" name="outdoors" '+(dummy.outdoors ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Lets you change the loading zoom, 0 for auto">Zoom: <input type="number" min=0 step=1 name="zoom" class="saveable" value="'+esc(dummy.zoom)+'" /></label>';
@@ -209,6 +210,9 @@ export function help(){
 	const url = 'https://'+window.location.hostname+'/media/audio/ambiance/';
 	out += '<h3>Ambiance:</h3>'+
 		'<p>URL to an ambiance you want to use, preferably ogg. You can find built in ones at <a href="'+url+'">'+url+'</a></p>';
+
+	out += '<h3>Random Event:</h3>'+
+		'<p>Uses a random encounter from random encounters marked as Proc Event. These are the same random roleplays you get in exploration dungeons. Encounters set in this room will contribute to the events you get.</p>';
 
 	out += '<h3>Room mesh:</h3>'+
 		'<p>This is the base mesh for the room to use.</p>';

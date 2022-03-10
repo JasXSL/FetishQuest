@@ -2204,6 +2204,8 @@ Dungeon.generate = function( numRooms, kit, settings ){
 	else
 		kit = objectRandElem(dungeonTemplateLib); // Pick one at random
 
+	kit.rebase();	// Kit isn't auto rebased, do it now
+
 	if( !kit )
 		throw 'Kit not found';
 

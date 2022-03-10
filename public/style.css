@@ -2149,7 +2149,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		left:50%;
 		transform:translate(-50%,-50%);
 		color:#FFF;
-		font-size:2vmax;
+		font-size:1.6vmax;
 		cursor:default;
 		min-width:50%;
 		max-width:70%;
@@ -2201,7 +2201,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	
 	#roleplay div.responses > div.option{
 		width:90%;
-		font-size:1.5vmax;
+		font-size:1.25vmax;
 		font-style: italic;
 		background: rgba(100,100,100,.9);
 		cursor:pointer;

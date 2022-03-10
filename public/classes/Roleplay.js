@@ -45,6 +45,9 @@ export default class Roleplay extends Generic{
 
 	getActiveStage(){
 
+		if( this.stage === '0' )	// Netcode will convert to string. This is a legacy fix.
+			this.stage = 0;
+
 		if( !this.stage )
 			return this.stages[0];
 
@@ -437,7 +440,7 @@ export class RoleplayStage extends Generic{
 		if( this.portrait )
 			portrait = this.portrait;
 		
-		if( !portrait.includes('/') )
+		if( !portrait.includes('/') && portrait )
 			portrait = '/media/wrapper_icons/'+portrait+'.svg';
 		return portrait;
 

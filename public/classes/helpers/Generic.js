@@ -254,6 +254,16 @@ export default class Generic{
 
 	}
 
+	rebaseIfNeeded(){
+		
+		if( !this._rebased ){
+			this.rebase();
+			this._rebased = true;
+		}
+		return this;
+		
+	}
+
 	// Returns a library tied to this asset type if possible
 	getLib(){
 		return this.constructor.getLib();

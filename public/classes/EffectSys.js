@@ -789,7 +789,9 @@ class Wrapper extends Generic{
 
 	// Get wrappers labeled as kinks
 	static getKinks(){
-		return glib.getAllValues("Wrapper").filter(wrapper => wrapper.hasTag(stdTag.wrKink));
+		return glib.getAllValues("Wrapper").filter(wrapper => wrapper.hasTag(stdTag.wrKink)).map(el => {
+			return el.rebaseIfNeeded();
+		});
 	}
 
 

@@ -8,6 +8,24 @@ const CACHE_MAP = {
 	'assets' : '_cache_assets'
 };
 
+// Rebases on fetch rather than automatically
+const NO_REBASE = [
+	'dungeonSubTemplates',
+	'dungeonTemplates',
+	'dungeonRoomAssets',
+	'dungeonRooms',
+	'dungeons',
+	'gameActions',
+	'roleplay',
+	'roleplayStage',
+	'roleplayStageOption',
+	'roleplayStageOptionGoto',
+	'conditions',
+	'effects',
+	'wrappers',
+	'encounters'
+];
+
 const load_order = [
 	'fetishes',
 	'conditions',
@@ -265,21 +283,31 @@ export default class GameLib{
 		this.rebase();
 
 		console.log("Connecting links");
+		const t = Date.now();
 
 		let n =  0;
 		const all = load_order.slice();
 		all.push('texts');
 		for( let i of all ){
 
+			//let begin = n;
+			if( NO_REBASE.includes(i) )
+				continue;
+
 			let lib = this[i];
+
 			for( let iter in lib ){
 				if( lib[iter].rebase && !lib[iter]._rebased ){
 					lib[iter].rebase();
 					++n;
 				}
 			}
+			//console.log(n-begin, "x", i);
 
 		}
+
+		console.log("Connecting links took", Date.now()-t, "ms");
+
 
 		// Handle texts
 		this._texts = Object.values(this.texts).filter(el => el.en);

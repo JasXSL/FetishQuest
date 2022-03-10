@@ -3090,7 +3090,7 @@ export default class UI{
 				
 				if( tip.validate(evt) ){
 
-					this.loadingTip.innerText = tip.text;
+					this.loadingTip.text(tip.text);
 					break;
 
 				}

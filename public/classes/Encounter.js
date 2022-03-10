@@ -534,7 +534,7 @@ export default class Encounter extends Generic{
 	// returns all library encounters tagged as procedural event
 	static getAllProcEvtEncounters(){
 
-		return glib.getAllValues('Encounter').filter(el => el.isEvt);
+		return glib.getAllValues('Encounter').filter(el => el.isEvt).map(el => el.rebaseIfNeeded());
 
 	}
 }
