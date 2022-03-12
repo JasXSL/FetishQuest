@@ -338,7 +338,11 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.roomTag ){
 				// Searches any attached action for a tag
-				success = event.room?.hasTag(this.data.tags);
+				let room = event.room;
+				if( !room )
+					room = game.dungeon.getActiveRoom();
+				success = room?.hasTag(this.data.tags);
+
 			}
 
 			else if( this.type === T.actionCrit ){

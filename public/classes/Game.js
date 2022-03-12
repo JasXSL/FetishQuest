@@ -873,6 +873,41 @@ export default class Game extends Generic{
 		this.addSeconds(days*3600*24);
 	}
 	
+	// Returns a string like afternoon etc
+	// Hours defaults to current time
+	getApproxTimeOfDay( hours ){
+
+		let times = [
+			{start:2, val:"night"},
+			{start:5, val:"early morning"},
+			{start:8, val:"morning"},
+			{start:11, val:"noon"},
+			{start:14, val:"afternoon"},
+			{start:17, val:"late afternoon"},
+			{start:20, val:"evening"},
+			{start:23, val:"midnight"},
+		];
+
+		let block = times[times.length-1];
+		
+		if( hours === undefined )
+			hours = this.getHoursOfDay();
+		
+		for( let i = 0; i < times.length; ++i ){
+
+			let slot = times[i];
+			if( hours < slot.start ){
+
+				if( i )
+					block = times[i-1];
+				break;
+
+			}
+
+		}
+		return block.val;
+
+	}
 
 	// returns a value between 0 and 1 from midnight to midnight
 	getDayPercentage(){

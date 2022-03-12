@@ -389,7 +389,7 @@ class PlayerTemplate extends Generic{
 		for( let i in this.bon )
 			player['bon'+i] = this.bon[i]+penalty;
 
-
+		player.rebase();
 		player.fullRegen();
 
 		return player;

@@ -650,7 +650,16 @@ export default class Asset extends Generic{
 		}
 		html += '</em><br />';
 
-		html += esc(this.description);
+		
+		// Special tags:
+		/*
+			%TOD - Approximate time of day
+		*/
+		let aDesc = this.description
+			.split('%TOD').join(game.getApproxTimeOfDay())
+		;
+		
+		html += esc(aDesc);
 
 		html += '<div class="assetWrappers">';
 		for( let wrapper of this.wrappers ){
@@ -660,8 +669,9 @@ export default class Asset extends Generic{
 				let color = '#FAA';
 				if( wrapper.rarity > 0 )
 					color = Asset.RarityColors[wrapper.rarity];
+				let desc = wrapper.description;
 
-				html += '<br /><span style="color:'+color+'">'+esc(wrapper.description)+'</span>';
+				html += '<br /><span style="color:'+color+'">'+esc(desc)+'</span>';
 
 			}
 		}

@@ -1392,7 +1392,7 @@ export default class StaticModal{
 					// Character panel
 					const cDivs = this.character;
 					cDivs.name.text(player.name);
-					cDivs.subName.html('Lv '+Math.max(0, player.getLevel())+' '+esc(player.species)+' '+esc(player.class.name));
+					cDivs.subName.html('Lv '+Math.max(0, player.getLevel())+' '+esc(player.species)+' '+esc(player?.class?.name));
 					this.character.expBar[0].classList.toggle('hidden', player.team !== Player.TEAM_PLAYER);
 					this.character.expBarBar[0].style = 'width:'+Math.max(0, Math.min(100, player.experience/player.getExperienceUntilNextLevel()*100))+'%';
 					this.character.expBarText[0].innerText = player.experience+'/'+player.getExperienceUntilNextLevel()+' EXP';

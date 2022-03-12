@@ -419,6 +419,7 @@ class Text extends Generic{
 			// These are picked each time it's used in text
 			{se: 'rleftright', re: ['left', 'right']},
 			{se: 'rfrontback', re: ['front', 'back']},
+			{se: 'TOD', re:window.game?.getApproxTimeOfDay() || 'morning'},
 		], text);
 		
 
