@@ -1,6 +1,6 @@
 if( self.location.hostname.split('.')[0].toLowerCase() === 'fetishquest' ){
 
-	const CACHE_VERSION = 'v3';
+	const CACHE_VERSION = 'v4';
 	const urlsToCache = [
 		'/media/ui/logo_64.png',
 		'/media/ui/logo_128.png',

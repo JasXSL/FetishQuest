@@ -1175,8 +1175,8 @@ export default class StaticModal{
 							Level:<br /><input type="number" name="level" min=1 step=1 /><br />
 							<div>Size:<br /><input type="range" name="size" min=0 max=10 step=1 /></div>
 							Image Dressed:<br /><input type="text" name="icon" placeholder="Image URL" /><br />
-							Image UpperBody:<br /><input type="text" name="icon_upperBody" placeholder="Image URL" /><br />
-							Image LowerBody:<br /><input type="text" name="icon_lowerBody" placeholder="Image URL" /><br />
+							Image Bottomless:<br /><input type="text" name="icon_upperBody" placeholder="Image URL" /><br />
+							Image Topless:<br /><input type="text" name="icon_lowerBody" placeholder="Image URL" /><br />
 							Image Naked:<br /><input type="text" name="icon_nude" placeholder="Image URL" /><br />
 
 							<div class="flexThreeColumns">
@@ -3720,8 +3720,8 @@ export default class StaticModal{
 								<div class="tags"></div>
 								<textarea name="description" class="autoSave"></textarea>
 								Dressed: <input type="text" class="small reloadIcon autoSave" name="icon" placeholder="Dressed Art" /><br />
-								UpperBody: <input type="text" class="small reloadIcon autoSave" name="icon_upperBody" placeholder="UpperBody Art" /><br />
-								LowerBody: <input type="text" class="small reloadIcon autoSave" name="icon_lowerBody" placeholder="LowerBody Art" /><br />
+								Bottomless: <input type="text" class="small reloadIcon autoSave" name="icon_upperBody" placeholder="UpperBody Art" /><br />
+								Topless: <input type="text" class="small reloadIcon autoSave" name="icon_lowerBody" placeholder="LowerBody Art" /><br />
 								Nude: <input type="text" class="small reloadIcon autoSave" name="icon_nude" placeholder="Nude Art" /><br />
 								<div class="center">Sub <input type="range" style="width:60%" class="autoSave" name="dominant" min=0 max=1 step=0.1 /> Dom</div>
 								<div class="center">Gay <input type="range" style="width:60%" class="autoSave" name="hetero" min=0 max=1 step=0.1 /> Het</div>
