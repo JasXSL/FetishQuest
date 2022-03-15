@@ -2278,6 +2278,8 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 			for( let i in adjacent ){
 
+				if( !template.pGetDoorByBearing )
+					console.error("Invalid template object", template, "subTemplate was", subTemplate);
 				if( !template.pGetDoorByBearing(parseInt(i)) )
 					return false;
 

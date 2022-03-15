@@ -72,7 +72,7 @@ export class DungeonTemplateSub extends Generic{
 		this.asset = '';
 		this.conditions = [];
 
-		this._asset = false;
+		this._asset = null;
 
 		this.load(...args);
 	}
