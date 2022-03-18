@@ -741,6 +741,8 @@ export default class Modtools{
 
 			}
 			html += '</table>';
+
+			html += '<input type="button" class="cloneMainMod" value="Clone Main Mod" title="Make a copy of the main mod, useful to mess around with the main game without extending it" />';
 			
 			this.setDom(html);
 
@@ -767,6 +769,16 @@ export default class Modtools{
 				}
 
 			});
+
+			this.dom.querySelector("input.cloneMainMod").onclick = async () => {
+				console.log("Todo, copy main mod");
+				
+				await glib.loadMainMod();
+				const mod = glib._main_mod.clone();
+				mod.g_resetID();
+				mod.save();
+				self.load(mod);
+			};
 
 
 		});
