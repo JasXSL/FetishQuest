@@ -21,7 +21,7 @@ class VibHub extends VH{
 			console.log("VibHub connected");
 			if( this.device_id )
 				this.setDevice(this.device_id);
-
+		
 		}).catch(err => console.error(err));
 
 	}

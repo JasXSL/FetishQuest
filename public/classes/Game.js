@@ -17,7 +17,7 @@ import Collection from './helpers/Collection.js';
 import Shop, { ShopSaveState } from './Shop.js';
 import PlayerTemplate from './templates/PlayerTemplate.js';
 import Condition from './Condition.js';
-import VibHub from './VibHub.js';
+
 import Faction from './Faction.js';
 import Encounter from './Encounter.js';
 import StaticModal from './StaticModal.js';
@@ -27,6 +27,13 @@ import Book from './Book.js';
 import { Logger } from './Logger.js';
 import Bank from './Bank.js';
 import AudioTrigger from './AudioTrigger.js';
+
+let VibHub = false;
+import('./VibHub.js').then(v => {
+	VibHub = v;
+	Game.VibHub = VibHub;		// Set by VibHub.js
+	console.log("Got VibHub");
+}).catch(err => {});
 
 export default class Game extends Generic{
 
@@ -150,7 +157,8 @@ export default class Game extends Generic{
 
 			AudioTrigger.handleEvent(event);
 
-			VibHub.onEvent(event);
+			if(	VibHub )
+				VibHub.onEvent(event);
 
 			this.getEnabledPlayers().forEach(pl => {
 				if( pl.bot )
@@ -3912,7 +3920,6 @@ Game.db = new Dexie("game");
 Game.db.version(1).stores({
 	games: 'id'
 });
-Game.VibHub = VibHub;		// Set by VibHub.js
 
 Game.EQUIP_COST = 4;
 Game.UNEQUIP_COST = 1;
