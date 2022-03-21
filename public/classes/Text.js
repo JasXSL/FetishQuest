@@ -356,7 +356,8 @@ class Text extends Generic{
 	// Only useful for direct synonyms. Not usable when the tag is not the synonym, like %leftright
 	_replaceArray(text, synonyms){
 
-		let acceptable = synonyms.filter(s => s.charAt(0) !== '!');
+		const acceptable = synonyms.map(s => s.charAt(0) === '!' ? s.substring(1) : s);
+		const outputs = synonyms.filter(s => s.charAt(0) !== '!');
 
 		const repl = (synonym, uc) => {
 
@@ -377,7 +378,7 @@ class Text extends Generic{
 					t = t.substring(pre.length);
 					if( acceptable.includes(t) ){
 
-						let synonym = randElem(acceptable);
+						let synonym = randElem(outputs);
 						if( uc )
 							synonym = ucFirst(synonym, true);
 						spl[i] = synonym;
