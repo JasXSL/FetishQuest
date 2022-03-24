@@ -157,7 +157,7 @@ export default class Game extends Generic{
 
 			AudioTrigger.handleEvent(event);
 
-			if(	VibHub )
+			if(	VibHub?.onEvent )
 				VibHub.onEvent(event);
 
 			this.getEnabledPlayers().forEach(pl => {

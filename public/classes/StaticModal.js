@@ -4979,9 +4979,10 @@ export default class StaticModal{
 		// Help
 		this.add(new this("help", "Help"))
 			.addRefreshOn(["players"])
-			.addTab("Inventory", () => {
+			.addTab("Gameplay", () => {
 				return `
 					<h3>Map Controls</h3>
+					<p>Click the map icon or hit space to view the map.</p>
 					<table>
 						<tr>
 							<td>Click+drag</td>
@@ -4996,6 +4997,18 @@ export default class StaticModal{
 							<td>Zoom</td>
 						</tr>
 					</table>
+
+					<h3>Combat</h3>
+					<ul>
+						<li>Click and drag an action from the bottom bar onto the character you want to target.</li>
+						<li>You can also click once on the action and then again on the target.</li>
+						<li>Some actions may be grouped, such as arouse/attack/wild magic.</li>
+						<li>When picking a target, you'll see a percent chance to hit, and an advantage. The more advantage, the more damage you do. The hit chance is based on your proficiency in a damage type vs enemy avoidance to that type.</li>
+						<li>The green dots above your action bar are stamina.</li>
+						<li>The blue dots above your action bar are mana.</li>
+						<li>You can use as many actions as you want in a turn as long as you have enough resources, and the action isn't on cooldown.</li>
+						<li>See the stats tab for more in-depth.</li>
+					</ul>
 
 					<h3>Hotkeys</h3>
 					<table>
@@ -5036,6 +5049,116 @@ export default class StaticModal{
 							<td>Switch between grouped actions while one of its actions are selected. Such as Attack/Arouse/Shock.</td>
 						</tr>
 					</table>
+				`;
+			})
+			.addTab("Online Game", () => {
+				return `
+					<h3>Setup</h3>
+					<ol>
+						<li>Load the game you want to put online.</li>
+						<li>Enter the settings menu (cog), and select the Online tab.</li>
+						<li>Click "Put this session online", and wait a few seconds while your game is put online.</li>
+						<li>Send the provided link to the person you want to invite.</li>
+					</ol>
+					<h3>Creating a Player</h3>
+					<p>Note: When playing with someone you know, they can create their own character and export it as an fqchar file by clicking their character portrait and scrolling to the bottom of their inspect window. They can then send you that fqchar file and the DM can pick the settings menu Import Player option to import it.</p>
+					<ol>
+						<li>Go to the DM tab of the settings menu.</li>
+						<li>Click "+ Add Player"</li>
+						<li>Enter their name in the "unknown player" field. Do not hit Generate, as this generates a random enemy.</li>
+						<li>Article can be left empty as it's auto generated. Some species where the rule of vowel = "an", consonant = "a" doesn't make sens, such as "a unicorn" (starts with a vowel but uses a) will need you to manually enter "a" as the article.</li>
+						<li>Species should be the exact species, such as "snow leopard".</li>
+						<li>Voice is a work in progress, ignore it for now.</li>
+						<li>Pronouns are optional, but can be changed if the auto pronouns don't match your preferred ones.</li>
+						<li>For class, pick one not starting with [M], classes starting with [M] are monster classes.</li>
+						<li>Level is your player level, can usually be left as is.</li>
+						<li>Size is the player size. Middle is average humanoid, all the way left is something like a football, and all the way to the right something like a dragon. I suggest leaving it centered with one tick left or right if you want to be shorter or taller than average.</li>
+						<li>Image dressed = Character art when the player is dressed.</li>
+						<li>Image bottomless [optional] = Character art where the player has no lower body armor</li>
+						<li>Image topless [optional] = Character art where the player has no upper body armor</li>
+						<li>Image naked [optional] = Character art where the player is naked</li>
+						<li>Leave HP/AP/MP/Arousal as they are. They can be used by the DM once the character is created to change resources on the fly.</li>
+						<li>Leave team at 0 for the character to be on the player team. Use 1 or higher to make them an enemy.</li>
+						<li>Tags: Hit add tag and add any tags from the list that match your character. The species tag is more generic than the species manually marked. So if your character species is "husky", you may want to add the "canine" tag.</li>
+						<li>Description: Write anything you want about the character.</li>
+						<li>Sadistic/Dom/Het sliders: Primarily used by NPCs to change their behavior. But feel free to set these for player as a reminder whenever roleplaying.</li>
+						<li>Kinks: Leave as none to auto generate. Each humanoid always has two kinks. Or you can manually set them if you prefer.</li>
+						<li>Leave avoidance/proficiency at 0, as the player stats are derived from their class. But a DM has the option to tweak proficiencies and avoidancies here if they really want that level of character customization.</li>
+						<li>Click save to add your new character. Actions are added automatically.</li>
+						<li>Wait for a coop player to join.</li>
+						<li>Close the menu and hover over the player, click the small ID card button and select the name of the player who should control it.</li>
+						<li>If a player controls multiple character, a video game controller shows up when they hover over it, and allows them to select their active character.</li>
+						<li>Click the crown icon to grant that player permissions to interact with doors.</li>
+					</ol>
+				`;
+			})
+			.addTab("Stats", () => {
+				return `
+					<h3>Resources</h3>
+					<table>
+						<tr>
+							<td>Hit points</td>
+							<td>The large numnber on your character bar. When it reaches 0, you are defeated.</td>
+						</tr>
+						<tr>
+							<td>Stamina</td>
+							<td>The green dots on your action bar. You gain 40% back at the start of your turn.</td>
+						</tr>
+						<tr>
+							<td>Mana</td>
+							<td>The blue dots on your action bar. You gain 1 mana every 3 turns.</td>
+						</tr>
+						<tr>
+							<td>Arousal</td>
+							<td>The pink number on your character portrait. At max arousal you orgasm, losing all AP and gaining reduced AP regen and hit chance for 2 turns.</td>
+						</tr>
+						<tr>
+							<td>Armor Durability</td>
+							<td>You have two armor slots that affect damage taken, upp and lower body. Their durability is shown as the pants/shirt icons on your character. Broken armor does not give any benefits to the wearer.</td>
+						</tr>
+						<tr>
+							<td>Armor</td>
+							<td>Shown as a small shield icon on the character. Reduces all damage taken by that percent. Humanoids gain armor by wearing clothes, beasts have innate armor.</td>
+						</tr>						
+					</table>
+
+					<h3>Damage Types</h3>
+					<p>Each action has a type, either Physical, Corruption, or Arcane. Damage taken is based on the attacker's proficiency in the attack type, and the victim's avoidance of said type. In addition, each type has a secondary effect:</p>
+					<table>
+						<tr>
+							<td>Physical</td>
+							<td>Has a chance to damage armor.</td>
+						</tr>
+						<tr>
+							<td>Corruption</td>
+							<td>Has a chance to arouse.</td>
+						</tr>
+						<tr>
+							<td>Arcane</td>
+							<td>Has a chance to remove 1 block of all types.</td>
+						</tr>
+					</table>
+
+					<h3>Damage Range</h3>
+					<p>Each ability can either be no range, melee, or ranged.</p>
+					<table>
+						<tr>
+							<td>No Range</td>
+							<td>Usually tied to abilities targeting the caster.</td>
+						</tr>
+						<tr>
+							<td>Melee</td>
+							<td>Can be used whenever not knocked down.</td>
+						</tr>
+						<tr>
+							<td>Ranged</td>
+							<td>Can be used whenever not dazed.</td>
+						</tr>
+					</table>
+
+					<h3>Block</h3>
+					<p>Some actions may grant block, attaching a shield to the character portrait based on the type. The player will block said amount of damage when receiving it. Block falls off at the start of your next turn. If you apply block to another player, they gain block until their second turn starts.</p>
+
 				`;
 			})
 			.setProperties(function(){
