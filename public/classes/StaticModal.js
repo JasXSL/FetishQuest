@@ -2672,12 +2672,13 @@ export default class StaticModal{
 						Support Development<br />
 						<a href="https://github.com/JasXSL/FetishQuest" target="_blank"><img class="portalLogo" src="/media/ui/GitHub-Mark-Light-120px-plus.png" /></a>
 						<a href="https://discord.jasx.org" target="_blank"><img class="portalLogo" src="/media/ui/discord.png" /></a>
-						<a href="https://www.patreon.com/jasx_games" target="_blank"><img class="portalLogo" src="/media/ui/patreon.png" /></a>
 						<br />
+						<a class="crypto button" href="algorand://VZMKLLC5PJ6F456YFA2VAB6UVCPRMLLE6NPFMIQ5TOWG3PROKIHNL6F7DE" style="background:#3EDBD2">Algorand</a>
 						<a class="crypto button" href="dogecoin:DMJvmu94hcskwBz11aqqzmXnKQErKQjxgo" style="background:#855">Dogecoin</a>
 						<a class="crypto button" href="bitcoin:bc1qlkml7q7lzlfd28hsdfp89dm2p7sazv56649zwk" style="background:#F7931A">Bitcoin</a>
-						<a class="crypto button" href="algorand://VZMKLLC5PJ6F456YFA2VAB6UVCPRMLLE6NPFMIQ5TOWG3PROKIHNL6F7DE" style="background:#3EDBD2">Algorand</a>
 						<a class="crypto button" data-href="0x58d235B218a872b31A806DbdE6a1fCeC708d5C45" style="background:#ff4724">BAT</a>
+						<a class="crypto button" href="https://www.patreon.com/jasx_games" target="_blank">Patreon</a>
+						
 					</p>
 				`;
 			})
