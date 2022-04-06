@@ -2296,11 +2296,17 @@ class WrapperReturn extends Generic{
 }
 
 Effect.createStatBonus = function( type, bonus ){
+
+	if( !this.Types[type] ){
+		console.log("Type", type, "not found");
+		return false;
+	}
 	return new Effect({
 		type : type,
 		data : {amount:bonus},
 		events : [],
 	});
+
 };
 
 // These are the actual effect types that the game runs off of

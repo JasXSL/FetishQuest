@@ -1066,6 +1066,9 @@ export default class Condition extends Generic{
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 
+				if( !dungeon )
+					dungeon = game.dungeon.label;
+
 				// Get default vars
 				let base = glib.getFull('Dungeon')[dungeon];
 				if( !base )
@@ -1103,6 +1106,9 @@ export default class Condition extends Generic{
 				let dungeon = event.dungeon && event.dungeon.label;
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
+
+				if( !dungeon )
+					dungeon = game.dungeon.label;
 
 				let vars = this.data.vars,
 					formula = this.data.formula

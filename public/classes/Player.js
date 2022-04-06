@@ -3600,15 +3600,16 @@ export default class Player extends Generic{
 			
 			let arr = effect?.data?.exceptions;
 			if( !arr )
-				continue;
+				return false;		// No exceptions!
+
 			arr = toArray(arr);
-			if( arr.includes(action.label) )
-				return true;
+			if( !arr.includes(action.label) )
+				return false;
 
 		}
 
 
-		return false;
+		return true;
 
 	}
 

@@ -410,6 +410,13 @@ export class RoleplayStage extends Generic{
 	}
 
 	getOptions( player ){
+
+		if( !this.options.length )
+			this.options.push(new RoleplayStageOption({
+				text : '[Done]',
+				chat : RoleplayStageOption.ChatType.none,
+			}, this));
+
 		return this.options.filter(opt => opt.validate(player));
 	}
 

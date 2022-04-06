@@ -2545,13 +2545,12 @@ export default class UI{
 
 			html = '';
 			let sel = false;
-			for( let response of stage.options ){
+			const options = stage.getOptions(game.getMyActivePlayer());
+			for( let response of options ){
 				let s = response.id === this.selected_rp;
 				if( s )
 					sel = true;
-				if( response.validate(game.getMyActivePlayer()) ){
-					html += '<div class="option bg'+(s ? ' selected' : '')+'" data-id="'+esc(response.id)+'">'+stylizeText(response.getText())+'</div>';
-				}
+				html += '<div class="option bg'+(s ? ' selected' : '')+'" data-id="'+esc(response.id)+'">'+stylizeText(response.getText())+'</div>';
 			}
 			
 			$("div.responses", div).html(html);

@@ -963,14 +963,19 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 
 		// Add stats from template
 		let addEffectToWrapper = function( wr, stype, snr ){
+
+
 			for( let effect of wr.effects ){
 				if( effect.type === stype ){
 					effect.data.amount += snr;
 					return;
 				}
 			}
-			// Not found
-			wr.effects.push(Effect.createStatBonus(stype, snr));
+
+			// Didn't find an existing one
+			let stat = Effect.createStatBonus(stype, snr);
+			if( stat )
+				wr.effects.push(stat);
 		};
 		let wrapper = new Wrapper({
 			name : 'statsAutoGen',
