@@ -12,6 +12,7 @@ import { GfPlayer } from './NetworkManager.js';
 import GameEvent from './GameEvent.js';
 import Condition from './Condition.js';
 import AudioTrigger from './AudioTrigger.js';
+import stdTag from '../libraries/stdTag.js';
 
 export default class StaticModal{
 
@@ -1174,10 +1175,10 @@ export default class StaticModal{
 							<select name="class"></select><br />
 							Level:<br /><input type="number" name="level" min=1 step=1 /><br />
 							<div>Size:<br /><input type="range" name="size" min=0 max=10 step=1 /></div>
-							Image Dressed:<br /><input type="text" name="icon" placeholder="Image URL" /><br />
-							Image Bottomless:<br /><input type="text" name="icon_upperBody" placeholder="Image URL" /><br />
-							Image Topless:<br /><input type="text" name="icon_lowerBody" placeholder="Image URL" /><br />
-							Image Naked:<br /><input type="text" name="icon_nude" placeholder="Image URL" /><br />
+							Image Dressed:<br /><input type="text" class="playerIcon" name="icon" placeholder="Image URL" /><br />
+							Image Bottomless:<br /><input type="text" class="playerIcon" name="icon_upperBody" placeholder="Image URL" /><br />
+							Image Topless:<br /><input type="text" class="playerIcon" name="icon_lowerBody" placeholder="Image URL" /><br />
+							Image Naked:<br /><input type="text" class="playerIcon" name="icon_nude" placeholder="Image URL" /><br />
 
 							<div class="flexThreeColumns">
 								<div>HP<br /><input type="number" name="hp" placeholder="HP" min=0 step=1 /></div>
@@ -1225,6 +1226,7 @@ export default class StaticModal{
 					</div>
 					<div class="right cmContentBlock bgMarble">
 						<div class="image"></div>
+						`+this.generatePlayerLayerPreviewButtons()+`
 					</div>
 					<div class="hidden datalists"></div>
 				`;
@@ -1249,7 +1251,6 @@ export default class StaticModal{
 					expBarText : $("> div.right > div.expBar > div.progressBar span.content", cDom),
 					equipment : $("> div.right > div.equipment", cDom),
 					secondaryStats : $("> div.right > div.secondaryStats", cDom),
-
 					exportPlayer : $('input.exportPlayer', cDom),
 				};
 
@@ -1268,6 +1269,7 @@ export default class StaticModal{
 					formClass : $('#playerEditor select[name=class]', dDom),
 					formLevel : $('#playerEditor input[name=level]', dDom),
 					formSize : $('#playerEditor input[name=size]', dDom),
+					formIcons : $("#playerEditor input.playerIcon", dDom),
 					formDressed : $('#playerEditor input[name=icon]', dDom),
 					formNude : $('#playerEditor input[name=icon_nude]', dDom),
 					formUpperBody : $('#playerEditor input[name=icon_upperBody]', dDom),
@@ -1290,6 +1292,7 @@ export default class StaticModal{
 					kinksSelects : $('select.kinks', dDom),
 					tags : $('div.tags', dDom),
 					tagList : $('div.datalists', dDom),
+					layersDiv : $('> div.right > div.layers',dDom)
 				};
 
 				// Draws an action selector. Returns the ID clicked on (if you do)
@@ -1376,7 +1379,8 @@ export default class StaticModal{
 					// Toggle the whole bottom bar
 					// If you add a second tab that non-DM can see, you'll want to only toggle the label itself
 					this.getTabLabelDom('Edit').parent().toggleClass('hidden', !game.ui.showDMTools());
-					if( !game.ui.showDMTools() && this.activeTab === 'Edit' )
+					const isEditor = this.activeTab === 'Edit';
+					if( !game.ui.showDMTools() && isEditor )
 						this.setActiveTab('Character');
 
 					if( !(player instanceof Player) )
@@ -1466,11 +1470,6 @@ export default class StaticModal{
 					}
 					clairvoyance.classList.toggle('hidden', !hasClairvoyance);
 
-
-
-					
-
-					
 					cDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
 
 					// Equipment
@@ -1543,9 +1542,19 @@ export default class StaticModal{
 
 				// DM Tab
 					const dDivs = this.edit;
+					let tmpPlayer = new Player({
+						icon : player.icon,
+						icon_lowerBody : player.icon_lowerBody,
+						icon_upperBody : player.icon_upperBody,
+						icon_nude : player.icon_nude,
+					});
 					html = '';
 
-					dDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
+					// Handles the preview layers in the editor
+					self.bindPlayerLayerPreviewButtons(dDivs.image, dDivs.layersDiv, tmpPlayer);
+
+					
+
 					dDivs.formDeletePlayer.toggleClass('hidden', !game.getPlayerById(player.id));
 					
 					dDivs.tagList.html(
@@ -1798,8 +1807,12 @@ export default class StaticModal{
 
 					});
 					// Icon changed
-					dDivs.formDressed.off('change').on('change', () => {
-						dDivs.image.css('background-image', 'url(\''+esc(dDivs.formDressed.val().trim())+'\')');
+					dDivs.formIcons.off('change').on('change', event => {
+
+						let name = event.currentTarget.name;
+						tmpPlayer[name] = event.currentTarget.value;
+						self.updatePlayerLayerPreview(dDivs.image, dDivs.layersDiv, tmpPlayer);
+
 					});
 
 					
@@ -3735,8 +3748,9 @@ export default class StaticModal{
 								<div class="center">Gay <input type="range" style="width:60%" class="autoSave" name="hetero" min=0 max=1 step=0.1 /> Het</div>
 							</div>
 							<div class="right">
-								<div style="text-align:center">
-									<div class="portrait"></div>
+								<div class="portrait">
+									<div class="image"></div>
+									`+this.generatePlayerLayerPreviewButtons()+`
 								</div>
 								<h3>Templates</h3>
 								<div class="gallery"><!-- Gallery entries here --></div>
@@ -3757,7 +3771,7 @@ export default class StaticModal{
 
 				this.cData = {
 					form : dom.querySelector('form.newGameForm'),
-					portrait : dom.querySelector('div.portrait'),
+					image : dom.querySelector('div.image'),
 					name : dom.querySelector('input[name=name]'),
 					species : dom.querySelector('input[name=species]'),
 					size : dom.querySelector('input[name=size]'),
@@ -3771,7 +3785,8 @@ export default class StaticModal{
 					nude : dom.querySelector('input[name=icon_nude]'),
 					upperBody : dom.querySelector('input[name=icon_upperBody]'),
 					lowerBody : dom.querySelector('input[name=icon_lowerBody]'),
-					gameName : dom.querySelector('input.gameName')
+					gameName : dom.querySelector('input.gameName'),
+					layersDiv : dom.querySelector('div.right div.layers'),
 				};
 				this.gallery = dom.querySelector('div.gallery');
 				this.tagList = dom.querySelector('div.datalists');
@@ -3810,6 +3825,7 @@ export default class StaticModal{
 
 				this.tagList.innerHTML = this.constructor.getTagDatalistHtml();
 				
+				const cdImage = this.cData.image, cdLayers = this.cData.layersDiv;
 
 				// Updates the class labels
 				const updateClass = () => {
@@ -3823,15 +3839,17 @@ export default class StaticModal{
 					});
 
 				};
+
+
 				
 				const reloadIcon = () => {
-					this.cData.portrait.style = 'background-image:url('+esc(this.player.icon)+')';
+					self.updatePlayerLayerPreview(cdImage, cdLayers, this.player);
 				};
+
 
 				// Updates fields from player
 				const updateFields = () => {
 
-					reloadIcon();
 					this.cData.name.value = this.player.name;
 					this.cData.species.value = this.player.species;
 					this.cData.size.value = this.player.size;
@@ -3850,6 +3868,7 @@ export default class StaticModal{
 					for( let tag of this.player.tags )
 						this.addTag(tag);
 
+					
 
 				};
 
@@ -3885,6 +3904,7 @@ export default class StaticModal{
 					const template = glib.get(label, 'PlayerGalleryTemplate');
 					this.player.load(template.player);
 					this.player.g_resetID();
+					reloadIcon();
 
 				};
 
@@ -3987,12 +4007,13 @@ export default class StaticModal{
 					});
 
 				}
-				
-
 
 				// Load a default template and update fields
 				loadTemplate(this.gallery.children[0].dataset.label);
 				updateFields();
+
+				self.bindPlayerLayerPreviewButtons(cdImage, cdLayers, this.player);
+
 
 			});
 
@@ -4483,7 +4504,11 @@ export default class StaticModal{
 							
 						}
 
-						const div = await StaticModal.getGenericAssetButton(item);
+						let cNames = [];	// Additional classNames
+						if( game.battle_active && player.canEquip(item) )
+							cNames.push('reequip');
+
+						const div = await StaticModal.getGenericAssetButton(item, undefined, cNames.join(' '));
 						divs.push(div);
 						
 					}
@@ -5378,6 +5403,63 @@ export default class StaticModal{
 		}
 
 	};
+
+	// Creates buttons to be put into the player preview window. Used in the player editor, and on a new game.
+	static generatePlayerLayerPreviewButtons(){
+
+		return `
+		<div class="layers artLayers">
+			<div class="button selected" data-layer="dressed">Dressed</div>
+			<div class="button" data-layer="upperBody">Bottomless</div>
+			<div class="button" data-layer="lowerBody">Topless</div>
+			<div class="button" data-layer="nude">Nude</div>
+		</div>`;
+
+	}
+
+	static updatePlayerLayerPreview( imageDiv, layersDiv, player ){
+
+		let slot = $('> div.button', layersDiv).filter('.selected');
+		if( !slot.length )
+			slot = 'dressed';
+		else
+			slot = slot.attr('data-layer');
+		
+		const tags = {
+			'dressed' : [stdTag.asUpperBody, stdTag.asLowerBody],
+			'upperBody' : [stdTag.asUpperBody],
+			'lowerBody' : [stdTag.asLowerBody],
+			'nude' : [],
+		};
+
+		// Create a temporary player to get the actual art
+		let tmpChar = new Player({
+			icon : player.icon,
+			icon_upperBody : player.icon_upperBody,
+			icon_lowerBody : player.icon_lowerBody,
+			icon_nude : player.icon_nude,
+		});
+		tmpChar._cache_tags = tags[slot];	// Uses the cache or pl_ will be auto added
+		$(imageDiv).css('background-image', 'url(\''+esc(tmpChar.getActiveIcon(true))+'\')');
+
+	}
+
+	// Binds updates for when clicking the player preview player buttons, and draws the image immediately
+	static bindPlayerLayerPreviewButtons( imageDiv, layersDiv, player ){
+
+		$('> div.button', layersDiv).off('click').on('click', event => {
+
+			let btn = event.currentTarget;
+			$("> div.button", layersDiv).toggleClass('selected', false);
+			btn.classList.toggle('selected', true);
+			this.updatePlayerLayerPreview(imageDiv, layersDiv, player);
+
+		});
+		this.updatePlayerLayerPreview(imageDiv, layersDiv, player);
+
+	}
+
+	// Creates player preview
 
 	// startsWith is the type of tag, or set it to false if you want to allow all tags
 	// shorten will remove the "type_" part

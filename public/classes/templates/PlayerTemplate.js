@@ -206,6 +206,7 @@ class PlayerTemplate extends Generic{
 		}
 
 		
+		// Hard coded assets the character MUST wear
 		let libAssets = glib.getFull('Asset');
 		for( let asset of this.required_assets ){
 
@@ -271,7 +272,7 @@ class PlayerTemplate extends Generic{
 		else if( this.gear_quality >= 0.5 )
 			minRarity = 1;
 
-		// pick assets
+		// Auto generated armor
 		let numAdded = 0;
 		if( this.viable_asset_templates.length ){
 
@@ -294,12 +295,10 @@ class PlayerTemplate extends Generic{
 					continue;
 				asset.restore();
 				asset.randomizeDurability();
-				const assets = player.addAsset(asset, undefined, undefined, this.no_equip);	// Note that this resets ID
-				/*
-				if( !this.no_equip ){
-					player.equipAsset(asset.id, undefined, true);
-				}
-				*/
+				const assets = player.addAsset(asset);	// Note that this resets ID
+				if( !this.no_equip )
+					assets.map(asset => player.equipAsset(asset.id, undefined, true));	// Force equip it, even in combat
+
 				++numAdded;
 				if( 
 					(Math.random() < 0.25 || numAdded > 1) && 
@@ -310,7 +309,7 @@ class PlayerTemplate extends Generic{
 
 		}
 
-		// Add a random prop
+		// Add a random prop (crops, whips etc)
 		if( !player.getEquippedAssetsBySlots([Asset.Slots.hands]).length && Math.random() < this.gear_chance ){
 
 			const gear = this.viable_gear;
@@ -321,11 +320,10 @@ class PlayerTemplate extends Generic{
 
 					let asset = libAssets[template];
 					asset.restore();
-					const assets = player.addAsset(asset, undefined, undefined, this.no_equip); // Note that this resets ID
-					/*
-					if( !this.no_equip )
-						player.equipAsset(asset.id, undefined, true);
-					*/
+					const assets = player.addAsset(asset); // Note that this resets ID
+					if( !this.no_equip ){
+						assets.map(asset => player.equipAsset(asset.id, undefined, true));
+					}
 					break;
 
 				}
@@ -333,7 +331,7 @@ class PlayerTemplate extends Generic{
 			}
 		}
 
-		// Might have up to 3 items, 10% chance of each
+		// Might have up to 3 items, 10% chance of each (consumables)
 		let items = this.viable_consumables.map(el => libAssets[el]).filter(el => !!el);
 		for( let i =0; i<3; ++i ){
 			if( Math.random()>0.1 )
@@ -344,7 +342,7 @@ class PlayerTemplate extends Generic{
 				item.restore();
 				player.addAsset(item);
 				if( !this.no_equip )
-					player.equipAsset(item.id);
+					player.equipAsset(item.id, undefined, true);
 			}
 		}
 

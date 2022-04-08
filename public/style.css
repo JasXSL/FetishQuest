@@ -112,6 +112,10 @@ div.button.grey{
 	border-color: #666;
 	filter:brightness(75%);
 }
+div.button.selected{
+	border-color:#FFF;
+	background:rgba(100,150,100,.75);
+}
 
 span.itemLink{
 	font-weight: bold;
@@ -519,6 +523,18 @@ div.passiveUpsideDown > div.content > div.bg{
 }
 
 
+/* Shared */
+	/* Used by player art layer preview */
+	div.layers.artLayers{
+		position: absolute;
+		bottom:0;
+		width:100%;
+	}
+	div.layers.artLayers > div{
+		display:inline-block;
+	}
+
+
 /* Game quickjoin */
 	#joinOnlineGame{
 		padding:30%;
@@ -869,6 +885,8 @@ div.passiveUpsideDown > div.content > div.bg{
 		background-size: cover;
 		background-position: center;
 	}
+
+
 	#player div.cmTabContent div.right > div.inventory{
 		padding: 0;
 		position: absolute;
@@ -1235,7 +1253,11 @@ div.passiveUpsideDown > div.content > div.bg{
 		position: absolute;
 		top:0; left:0;
 	}
-	
+	/* Items that can be equipped in combat */
+	div.inventory div.item.reequip{
+		box-shadow:0 0 1vmax #FFF;
+		border-color:#FFF;
+	}
 	div.inventory div.item.broken{
 		background-color:#655;
 	}
@@ -1513,10 +1535,14 @@ div.passiveUpsideDown > div.content > div.bg{
 	#newGame div.portrait{
 		border: 0.2vmax solid #FFF;
 		border-radius:0.5vmax;
-		width:20vmax;
-		height:25vmax;
+		width:80%;
+		height:35vmax;
 		display:inline-block;
 		margin-bottom:1vmax;
+	}
+	#newGame div.portrait > div.image{
+		position: absolute;
+		inset:0;
 		background-size:cover;
 		background-position: center;
 	}
@@ -1744,7 +1770,6 @@ div.passiveUpsideDown > div.content > div.bg{
 #transmog div.inventory div.item.selected{
 	border-color:#FFF;
 	border-width: 0.3vmax;
-	
 }
 
 /* Players */
@@ -2769,6 +2794,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		background-size:cover;
 		background-position: center 10%;
 		overflow:hidden;
+		background-color:#000;
 	}
 	
 

@@ -1050,7 +1050,8 @@ export default{
 			checkAll.onchange = event => {
 				
 				for( let el of markers ){
-					el.checked = !el.parentElement.parentElement.classList.contains("hidden") && checkAll.checked;
+					if( !el.parentNode.parentNode.dataset.mod )
+						el.checked = !el.parentElement.parentElement.classList.contains("hidden") && checkAll.checked;
 				}
 				checkBatchSelections();
 

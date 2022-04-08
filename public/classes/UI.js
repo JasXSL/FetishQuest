@@ -1505,7 +1505,7 @@ export default class UI{
 			const image = new Image();
 			image.onload = () => {
 				if( p.getActiveIcon() === icon ){
-					bgEl.css('background-image', 'url('+esc(icon)+')');
+					bgEl.css('background-image', 'url('+esc(image.src)+')');
 					bgEl.attr('data-image', icon);
 				}
 			};

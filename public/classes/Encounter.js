@@ -115,38 +115,45 @@ export default class Encounter extends Generic{
 			// Gets viable monsters we can put in
 			const getViableMonsters = () => {
 
-				let out = this.player_templates;
-				// Filter by gender settings
+				let out = this.player_templates, 
+					filter
+				;
+
+				// PRIORITY 1: Gender
 				const gameGenders = window.game && game.genders || 0;
 				if( gameGenders ){
 
 					// First off, let's try to filter by gender. Beasts are always allowed.
 					out = this.player_templates.filter(pl => {
 						return (
-							(
-								gameGenders&pl.getGameGender() || pl.isBeast()				// Check gender
-							) &&
-							(
-								this.players.length || Math.max(1, pl.slots) <= maxSlots	// Check slots
-							)
+							gameGenders&pl.getGameGender() || pl.isBeast()				// Check gender
 						)
 					});
 
 				}
-
 				// None passed filter, allow all through
 				if( !out.length )
 					out = this.player_templates;
 
-				// Filter by level
-				out = out.filter(p => 
+
+				// PRIORITY 2: Level
+				filter = out.filter(p => 
 					p.min_level <= level && p.getMaxLevel() >= level
 				);
-				// None matched filters, allow all through. Not graceful, but it's on the modder to make sure the encounter has monsters for a full level range
-				if( !out.length )
-					out = this.player_templates;
+				// At least one monster fit level. Otherwise revert to the previous filter, as level isn't hugely important.
+				if( filter.length )
+					out = filter;
 
-				// Filter by max uses. This allows you to return a [] in which case you'll want to buff up the last monster
+				// PRIORITY 3: SLOTS - This isn't hugely important. It may result in weaker strong monsters, but that's fine.
+				// Filter by slots
+				filter = out.filter(pl => this.players.length || Math.max(1, pl.slots) <= maxSlots);
+				// Only override out with this filter if at least one passed. 
+				if( filter.length )
+					out = filter;
+
+				
+				// FINAL: Max uses - If nothing above passed filter, we can return an empty array
+				// In the case of an empty array, the existing monsters get buffed
 				out = out.filter(p => {
 					let nr = parseInt(usedMonsters[p.label]) || 0;
 					return p.max < 1 || nr < p.max;
@@ -155,6 +162,7 @@ export default class Encounter extends Generic{
 				return out;
 
 			};
+
 
 			while( maxSlots > 0 ){
 

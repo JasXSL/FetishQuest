@@ -871,13 +871,19 @@ export default class Player extends Generic{
 
 
 	// ICONS
-	getActiveIcon(){
+	// useCache will use _cache_tags instead of tags. Useful if you're testing against a dummy player.
+	getActiveIcon( useCache = false ){
 		
 		if( this.ior )
 			return this.ior;
 
-		const ub = this.hasTag(stdTag.asUpperBody),
-			lb = this.hasTag(stdTag.asLowerBody)
+		if( useCache )
+			useCache = -1;
+		else
+			useCache = true;	// This should always skip cache unless enforced
+
+		let ub = this.hasTag(stdTag.asUpperBody, undefined, useCache),
+			lb = this.hasTag(stdTag.asLowerBody, undefined, useCache)
 		;
 		if( !ub && !lb && this.icon_nude )
 			return this.icon_nude;
@@ -887,7 +893,7 @@ export default class Player extends Generic{
 			return this.icon_lowerBody;
 
 		if( !this.icon )
-			return 'media/characters/missing_art.jpg';
+			return this.constructor.MISSING_ART;
 		return this.icon;
 
 	}
@@ -973,8 +979,13 @@ export default class Player extends Generic{
 		return 0;
 	}
 
-	// Overrides the generic definition for this
+	// Overrides the generic definition for the parent class
+	// wrapperReturn can be used to add temporary armor strips
+	// force will force ignore the cache. If force is -1, it always returns cache
 	getTags( wrapperReturn, force = false ){
+
+		if( force === -1 )
+			return this._cache_tags;
 
 		if( window.game && game._caches && this._cache_tags && !force )
 			return this._cache_tags;
@@ -1636,19 +1647,19 @@ export default class Player extends Generic{
 				a._stacks = n;
 				this.assets.push(a);
 			}
-			if( !toBank ){
+			if( !toBank && a.equippable() && !game.battle_active && !no_equip ){
 
-				if( a.category === Asset.Categories.consumable ){
-					
-					if( this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3 ){
-						this.equipAsset(a.id, this);
-					}
-
+				// Potions auto equip out of combat
+				if( 
+					a.category === Asset.Categories.consumable && 
+					this.getEquippedAssetsBySlots(Asset.Slots.action).length < 3
+				){
+					this.equipAsset(a.id, this);
 				}
-				else if( this.isNPC() ){
+				// NPCs equip items handed to them unless they're already wearing one
+				else if( this.isNPC() && !this.getEquippedAssetsBySlots(a.slots).length ){
 
-					if( !no_equip && !game.battle_active && !this.getEquippedAssetsBySlots(a.slots).length && a.equippable() )
-						this.equipAsset(a.id, this);
+					this.equipAsset(a.id, this);
 
 				}
 
@@ -1770,7 +1781,7 @@ export default class Player extends Generic{
 			return false;
 
 		if( !this.canEquip(asset, ignoreBattleState) ){
-			console.error("Item can not be equipped");
+			console.error("Item can not be equipped", asset, "ignore battle state:", ignoreBattleState);
 			return false;
 		}
 
@@ -4130,6 +4141,7 @@ Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
 
 Player.MAX_ACTION_SLOTS = 6;
+Player.MISSING_ART = 'media/characters/missing_art.jpg';
 
 Player.currencyWeights = [
 	'platinum',
