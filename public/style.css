@@ -2225,7 +2225,6 @@ div.passiveUpsideDown > div.content > div.bg{
 		height:5vh;
 		background:rgba(0,0,0,.85);
 		bottom:0;
-		padding:0.25vh;
 		text-align: center;
 		border-top:0.2vh groove rgba(255,255,255,.5);
 	}
@@ -2244,7 +2243,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	#groupFinder,
 	#gameIcons > div
 	{
-
+		margin-top: 0.15vmax;
 		transition:transform 0.1s ease-out;
 		width:4.25vh;
 		height:4.25vh;
@@ -3031,7 +3030,9 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 	#ui > div.actionbar.spectating > div.actions > span.spectating{
-		display:inline-block;
+		display: block;
+		font-size: 2vmax;
+		margin-top: 0.75vmax;
 	}
 	#ui > div.actionbar > div.actions > span.spectating{
 		display:none;
@@ -3595,7 +3596,7 @@ div.passiveUpsideDown > div.content > div.bg{
 /* Chat hotkey */
 	#groupFinder{
 		position:fixed;
-		bottom:0.25vh;
+		bottom:0;
 		right:0.25vh;
 	}
 

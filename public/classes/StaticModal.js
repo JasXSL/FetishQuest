@@ -1916,8 +1916,15 @@ export default class StaticModal{
 				if( !(this.shop instanceof Shop) || !myPlayer )
 					throw 'Invalid shop or player';
 
-				if( !game.shopAvailableTo(this.shop, myPlayer) )
+				try{
+					game.shopAvailableTo(this.shop, myPlayer);
+				}catch(err){
+					
+					this.close();
+					//console.error(err);
 					return;
+
+				}
 
 				// Titles
 				this.setTitle(this.shop.name);
