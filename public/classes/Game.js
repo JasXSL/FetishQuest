@@ -699,7 +699,12 @@ export default class Game extends Generic{
 	onDungeonEntered(){
 
 		this._looted_players = {};	// Reset looted players
-		new GameEvent({type:GameEvent.Types.dungeonEntered, dungeon:this.dungeon}).raise();
+		new GameEvent({
+			type:GameEvent.Types.dungeonEntered, 
+			dungeon:this.dungeon,
+			sender : game.getMyActivePlayer(),		// Don't rely on players in this event
+			target :game.getMyActivePlayer(),
+		}).raise();
 		this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);
 
 	}
@@ -1561,7 +1566,11 @@ export default class Game extends Generic{
 
 		}
 		this.save();
-		new GameEvent({type:GameEvent.Types.explorationComplete}).raise();
+		new GameEvent({
+			type:GameEvent.Types.explorationComplete,
+			sender: game.players[0],
+			target:players
+		}).raise();
 
 	}
 
@@ -2450,6 +2459,8 @@ export default class Game extends Generic{
 
 			new GameEvent({
 				type : GameEvent.Types.battleStarted,
+				sender : game.players[0],
+				target : game.players[0]
 			}).raise();
 
 
@@ -2467,7 +2478,9 @@ export default class Game extends Generic{
 			//log.log('End B');
 
 			new GameEvent({
-				type : GameEvent.Types.battleEnded
+				type : GameEvent.Types.battleEnded,
+				sender : game.players[0],
+				target : game.players[0]
 			}).raise();
 
 		}
@@ -2547,7 +2560,13 @@ export default class Game extends Generic{
 			else if( !this.encounter.wipe_override )
 				this.onEncounterLost(standing[0]);
 
-			new GameEvent({type:evt, encounter:this.encounter, dungeon:this.encounter.getDungeon(), target:game.players, sender:sender}).raise();
+			new GameEvent({
+				type:evt, 
+				encounter:this.encounter, 
+				dungeon:this.encounter.getDungeon(), 
+				target:game.players, 
+				sender:sender
+			}).raise();
 
 		}
 

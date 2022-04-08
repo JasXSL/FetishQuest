@@ -561,6 +561,7 @@ class QuestObjectiveEvent extends Generic{
 	}
 
 	trigger( event ){
+
 		let quest = this.getQuest();
 		// Quest finished, ignore this
 		if( quest.completed )
