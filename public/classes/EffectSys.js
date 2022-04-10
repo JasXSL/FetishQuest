@@ -874,10 +874,10 @@ class Effect extends Generic{
 			targets : this.targets,
 			label : this.label,
 			no_stack_multi : this.no_stack_multi,
+			conditions : Condition.saveThese(this.conditions, full),	// Needed for things like taunt etc
 		};
 
 		if( full ){
-			out.conditions = Condition.saveThese(this.conditions, full);
 			out.events = this.events;
 			out.debug = this.debug;
 			out.desc = this.desc;
