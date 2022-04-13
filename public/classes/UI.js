@@ -973,6 +973,9 @@ export default class UI{
 								'<span class="nameTag"></span>'+
 								'<span class="turnArrow"> &#9664;</span>'+
 							'</span>'+
+							'<div class="playersBefore" title="Players before your turn">'+
+								'<span>3</span>'+
+							'</div>'+
 						'</span>'+
 						'<br />'+
 						'<span class="resources">'+
@@ -1005,7 +1008,6 @@ export default class UI{
 					'<div class="charging"></div>'+
 				'</div>'+
 				'<div class="topLeft hidden"></div>'+
-				
 				'<div class="targetingStats"></div>'+
 
 				'<div class="netgameStatus hidden">'+
@@ -1439,7 +1441,7 @@ export default class UI{
 		el.toggleClass('mine', isMine);
 		el.toggleClass('myActive', isMyActive);
 		
-		el.toggleClass('dead', p.hp <= 0);
+		el.toggleClass('dead', p.isDead());
 		el.toggleClass('incapacitated', p.isIncapacitated());
 		el.toggleClass("hidden", p.isInvisible());
 
@@ -1451,6 +1453,8 @@ export default class UI{
 					ownEl = $('> div.own', nameEl),
 					leaderEl = $('> div.leader', nameEl),
 					nameDisplayEl = $('span.nameTag', nameEl),
+					playersBeforeEl = $('div.playersBefore', nameEl),
+					playersBeforeNumberSpanEl = $('span', playersBeforeEl),
 				resourcesEl = $('> span.resources', statsEl),
 					arousalEl = $('> span.arousal', resourcesEl),
 					arousalElSpan = $('> span', arousalEl),
@@ -1573,6 +1577,24 @@ export default class UI{
 			.attr('style', 'color:'+esc(p.color))
 		;
 		nameEl.toggleClass('active', isMyActive);
+
+		playersBeforeEl.toggleClass('hidden', (!game.battle_active || p.isDead()));
+		if( game.battle_active && !p.isDead() ){
+
+			let numBefore = game.getNumPlayersBefore(p);
+			const colors = [
+				'009900',
+				'336600',
+				'555500',
+				'663300',
+				'990000'
+			];
+			playersBeforeNumberSpanEl
+				.text(numBefore)
+				.css({color:'#'+colors[Math.min(colors.length-1, numBefore)]})
+			;
+
+		}
 
 		const name = p.getName()+(p.isAFK() ? ' [AFK]' : '');
 		if( nameDisplayEl.text() !== name )

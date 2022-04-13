@@ -2510,6 +2510,30 @@ export default class Game extends Generic{
 
 	}
 
+	// Gets nr of players before player in initiative
+	getNumPlayersBefore( player ){
+
+		let first = this.getTurnPlayer();
+		if( first === player )
+			return 0;	// Your turn
+
+		let init = this.initiative;
+		let out = 0;
+		for( let i = 0; i < init.length; ++i ){
+			
+			let pl = this.getPlayerById(init[(i+this.turn)%this.initiative.length]);
+			if( pl.isDead() )
+				continue;
+			if( pl === player )
+				return out;
+			++out; 
+
+		}
+		return -1;
+
+	}
+
+
 	// Returns an array of team numbers standing
 	teamsStanding(){
 		let standing = [];
