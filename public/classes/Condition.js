@@ -337,11 +337,15 @@ export default class Condition extends Generic{
 				success = event.action && event.action.hasTag(this.data.tags);
 			}
 			else if( this.type === T.roomTag ){
+
 				// Searches any attached action for a tag
 				let room = event.room;
+				let dungeon = event.dungeon;
 				if( !room )
 					room = game.dungeon.getActiveRoom();
-				success = room?.hasTag(this.data.tags);
+				if( !dungeon )
+					dungeon = game.dungeon;
+				success = room?.hasTag(this.data.tags) || dungeon?.hasTag(this.data.tags);
 
 			}
 
@@ -1486,7 +1490,7 @@ Condition.descriptions = {
 	[Condition.Types.charging] : '{(arr)conditions:[]} Checks if the target is charging an action. You can limit the actions to check for by conditions. Empty array checks if ANY action is charged.',
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag, originalWrapper:(bool)=false} one or more tags searched in any attached wrapper.',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
-	[Condition.Types.roomTag] : '{tags:(arr)(str)tag} If no room is in event, the current dungeon room is used. Searches for a tag in the room. Use this instead of normal tag for furniture, even though both works. Since this one works in the procedural generator.',
+	[Condition.Types.roomTag] : '{tags:(arr)(str)tag} If no room is in event, the current dungeon room is used. Searches for a tag in the room. Use this instead of normal tag for furniture, even though both works. Since this one works in the procedural generator. Also use this for dungeon tags.',
 	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
 	[Condition.Types.actionLabel] : '{label:(arr)(str)label, ignore_alias:(bool)=false} Attached action label is in this array. If ignore_alias is true, it ignores alias checking',
 	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',

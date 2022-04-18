@@ -159,7 +159,7 @@ export function asset(){
 	const textEditor = this.dom.querySelector("textarea[name=text]");
 	const updateTextDisplay = () => {
 
-		const attacker = new Player({
+		const pSettings = {
 			name : 'Attacker',
 			species : 'dog',
 			color : '#FAA',
@@ -169,28 +169,30 @@ export function asset(){
 				new Asset({name:'Ornate Crotchplate', slots:[Asset.Slots.lowerBody], equipped:true}),
 				new Asset({name:'Whip', slots:[Asset.Slots.hands], equipped:true}),
 			]
-		});
-		const victim = new Player({
-			name : 'Victim',
-			species : 'otter',
-			spre : 'an',
-			color : '#AFA',
-			he: 'he',
-			him: 'him',
-			his: 'his',
-			tags : [stdTag.penis, stdTag.vagina, stdTag.breasts, stdTag.plBigPenis, stdTag.plBigButt, stdTag.plBigBreasts],
-			assets : [
-				new Asset({name:'Leather Shirt', slots:[Asset.Slots.upperBody], equipped:true}),
-				new Asset({name:'Swimtrunks', snpre:'some', slots:[Asset.Slots.lowerBody], equipped:true}),
-				new Asset({name:'Whip', slots:[Asset.Slots.hands], equipped:true}),
-			]
-		});
+		};
+		const attacker = new Player(pSettings);
 
+		pSettings.name = 'Victim';
+		pSettings.species = 'otter';
+		pSettings.color = '#AFA';
+
+		const victim = new Player(pSettings);
+
+		pSettings.name = 'RP Victim';
+		const rp = new Player(pSettings);
+		pSettings.name = 'RP Second Victim';
+		const rp2 = new Player(pSettings);
+
+		
+		
 		const converted = new Text(asset);
 		converted.text = textEditor.value.trim();
 		const out = converted.run( new GameEvent({
 			sender : attacker,
-			target : [victim]
+			target : [victim],
+			custom : {
+				rpTargets : [rp, rp2]
+			}
 		}), true );
 		
 		this.dom.querySelector("span.textPreview").innerHTML = stylizeText(out);

@@ -1019,9 +1019,11 @@ export default class Player extends Generic{
 
 		}
 
-		for( let asset of assets )
+		for( let asset of assets ){
+			if( !asset.getTags )
+				console.error("Invalid asset", asset, "in", this);
 			asset.getTags().map(addTag);
-
+		}
 		let fx = this.getWrappers();
 		for( let f of fx ){
 			f.getTags().map(addTag);

@@ -10,7 +10,6 @@ if( self.location.hostname.split('.')[0].toLowerCase() === 'fetishquest' ){
 		'/index.html',
 		'/style.css',
 		'/globalFunctions.js',
-
 	];
 	const alwaysCache = [
 		'jpg', 'jpeg', 'png', 'jd', 'js', 'css', 'html', 'ogg', 'glb'

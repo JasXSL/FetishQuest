@@ -456,9 +456,9 @@ class Text extends Generic{
 		if( event.sender )
 			text = this.targetTextConversion(text, 'S', event.sender, event);
 
-		if( window.game?.roleplay?._targetPlayers?.length ){
+		const rpPlayers = window.game?.roleplay?.getTargetPlayers() || event.custom.rpTargets;
+		if( rpPlayers?.length ){
 			
-			const rpPlayers = game.roleplay.getTargetPlayers();
 			// Needs to go in reverse order due to greater first
 			for( let i = rpPlayers.length-1; i >= 0; --i ){
 				let label = 'P';

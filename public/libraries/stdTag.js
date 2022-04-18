@@ -250,7 +250,8 @@ export default {
 	duOutdoor : 'du_outdoor',					// Dark dungeon set
 	duCorridor : 'du_corridor',			// Room is a corridor
 	duRoom : 'du_room',					// Room is a room (not corridor)
-
+	duTown : 'du_town',					// You're in a town/settlement
+	duFriendly : 'du_friendly',			// The dungeon is mostly friendly
 
 
 	// Mesh tags
