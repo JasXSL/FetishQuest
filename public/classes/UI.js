@@ -1022,17 +1022,9 @@ export default class UI{
 				'</div>'+
 
 				'<div class="shields">'+
-					'<div class="shield physical" title="Blocking physical damage">'+
+					'<div class="shield" title="Blocking incoming damage">'+
 						'<div class="bg" style="background-image:url(media/wrapper_icons/bordered-shield.svg)"></div>'+
 						'<span class="val">10</span>'+
-					'</div>'+
-					'<div class="shield corruption" title="Blocking corruption damage">'+
-						'<div class="bg" style="background-image:url(media/wrapper_icons/trident-shield.svg)"></div>'+
-						'<span class="val">3</span>'+
-					'</div>'+
-					'<div class="shield arcane" title="Blocking arcane damage">'+
-						'<div class="bg" style="background-image:url(media/wrapper_icons/vibrating-shield.svg)"></div>'+
-						'<span class="val">5</span>'+
 					'</div>'+
 				'</div>'+
 
@@ -1472,9 +1464,7 @@ export default class UI{
 					legsElSpan = $('> span', legsEl),
 			bgEl = $('> div.bg', contentEl),
 			shieldsEl = $('> div.shields', el),
-				physShieldEl = $('> div.physical', shieldsEl),
-				corrShieldEl = $('> div.corruption', shieldsEl),
-				arcaShieldEl = $('> div.arcane', shieldsEl),
+				shieldEl = $('> div.shield', shieldsEl),
 			
 			topRightEl = $('> div.topRight', el),
 				wrappersEl = $('> div.wrappers', topRightEl),
@@ -1658,41 +1648,21 @@ export default class UI{
 
 
 		// Blocking. Looks kinda weird, but is needed for the animations to work
-		const bPhys = p.getBlock(Action.Types.physical);
-		const bCorr = p.getBlock(Action.Types.corruption);
-		const bArca = p.getBlock(Action.Types.arcane);
+		const blocking = p.getBlock();
+		const blockDisabled = p.isBlockDisabled();
 
-		const bPhysDisabled = p.isBlockDisabled(Action.Types.physical);
-		const bCorrDisabled = p.isBlockDisabled(Action.Types.corruption);
-		const bArcaDisabled = p.isBlockDisabled(Action.Types.arcane);
+		shieldEl.toggleClass('disabled', blockDisabled);
 
-		physShieldEl.toggleClass('disabled', bPhysDisabled);
-		corrShieldEl.toggleClass('disabled', bCorrDisabled);
-		arcaShieldEl.toggleClass('disabled', bArcaDisabled);
-
-		if( !bPhys && physShieldEl.hasClass("spawn") )
-			physShieldEl.toggleClass('die', true);
-		if( !bArca && arcaShieldEl.hasClass("spawn") )
-			arcaShieldEl.toggleClass('die', true);
-		if( !bCorr && corrShieldEl.hasClass("spawn") )
-			corrShieldEl.toggleClass('die', true);
-
-		if( bPhys )
-			physShieldEl.toggleClass('die', false);
-		if( bArca )
-			arcaShieldEl.toggleClass('die', false);
-		if( bCorr )
-			corrShieldEl.toggleClass('die', false);
-
+		if( !blocking && shieldEl.hasClass("spawn") )
+			shieldEl.toggleClass('die', true);
 		
-		$("> span", physShieldEl).text(bPhys);
-		$("> span", corrShieldEl).text(bCorr);
-		$("> span", arcaShieldEl).text(bArca);
+		if( blocking )
+			shieldEl.toggleClass('die', false);
+			
+		$("> span", shieldEl).text(blocking);
 
 		setTimeout(() => {
-			physShieldEl.toggleClass('spawn', Boolean(bPhys));
-			arcaShieldEl.toggleClass('spawn', Boolean(bArca));
-			corrShieldEl.toggleClass('spawn', Boolean(bCorr));
+			shieldEl.toggleClass('spawn', Boolean(blocking));;
 		}, 10)
 		
 		

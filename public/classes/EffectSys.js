@@ -1164,9 +1164,7 @@ class Effect extends Generic{
 
 							// Returns negative, which is why it's min
 							let max = Math.min(
-								t.addBlock( -tot, Action.Types.physical ),
-								t.addBlock( -tot, Action.Types.corruption ),
-								t.addBlock( -tot, Action.Types.arcane )
+								t.addBlock( -tot )
 							);
 							if( max )
 								game.ui.addText( t.getColoredName()+" lost "+Math.abs(max)+" block from arcane damage.", undefined, s.id, t.id, 'statMessage elemental' );
@@ -1366,12 +1364,7 @@ class Effect extends Generic{
 				
 				amt = parseInt(amt);
 				//game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
-				let types = toArray(attackType);
-				if( this.data.type === 'ALL' ){
-					types = Object.values(Action.Types);
-				}
-				for( let type of types )
-					t.addBlock(amt, type);
+				t.addBlock(amt);
 
 			}
 
@@ -2520,13 +2513,13 @@ Effect.TypeDescs = {
 	[Effect.Types.maxArousal] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max arousal",								
 	[Effect.Types.preventWrappers] : "{labels:(str/arr)wrapperLabels} - Wrappers with these labels will not be ADDED. Does not affect passives.",								
 
-	[Effect.Types.addBlock] : "{amount:(str)formula, type:(str)Action.Types.x} - If type is left out, it will try to be auto supplied the same way the damage effect does. Otherwise it should be one of 'Arcane', 'Physcial', 'Corruption', or 'ALL'", 
+	[Effect.Types.addBlock] : "{amount:(str)formula} - Adds or subtracts block", 
 
 	[Effect.Types.regenAP] : "{amount:(float)multiplier} - Multiplies against AP regen at the start of your turn.",
 
 	[Effect.Types.clairvoyance] : "void - Gives players more information about the victim when inspecting them",
-	[Effect.Types.preventBlock] : "{type:(arr)types=all} - Ignores block",
-	[Effect.Types.preventBlockAutoFade] : "{type:(arr)types=all} - Prevents block from fading at the start of your turn",
+	[Effect.Types.preventBlock] : "{} - Ignores block",
+	[Effect.Types.preventBlockAutoFade] : "{} - Prevents block from fading at the start of your turn",
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
 	[Effect.Types.setMP] : "{amount:(str)(nr)amount} - Sets MP value",							

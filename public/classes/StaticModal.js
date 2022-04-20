@@ -5190,7 +5190,7 @@ export default class StaticModal{
 					</table>
 
 					<h3>Block</h3>
-					<p>Some actions may grant block, attaching a shield to the character portrait based on the type. The player will block said amount of damage when receiving it. Block falls off at the start of your next turn. If you apply block to another player, they gain block until their second turn starts.</p>
+					<p>Some actions may grant block, attaching a shield to the character portrait. The player will block said amount of damage when receiving it. Block falls off at the start of your next turn. If you apply block to another player, they gain block until their second turn starts.</p>
 
 				`;
 			})

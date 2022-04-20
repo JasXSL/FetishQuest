@@ -82,12 +82,8 @@ export default class Player extends Generic{
 		this.voice = '';			// Voice kit label for pain/pleasure sounds etc
 
 		// Use getBlock(type)
-		this.blPhysical = 0;		// Blocking points of physical damage this turn
-		this.blCorruption = 0;		// Blocking points of corruption damage this turn
-		this.blArcane = 0;			// Blocking points of arcane this turn
-		this.iblPhysical = 0;		// Block applied while it wasn't my turn
-		this.iblCorruption = 0;		
-		this.iblArcane = 0;			
+		this.block = 0;				// Blocking points of damage
+		this.iBlock = 0;			// Block applied while it wasn't my turn
 		this._untappedBlock = 0;		// Set on turn start and contains the value of any block wasted. Not saved.
 
 		this.svPhysical = 0;
@@ -325,12 +321,8 @@ export default class Player extends Generic{
 			out.mp = this.mp;
 			out.pAP = this.pAP;
 			out.pMP = this.pMP;
-			out.blArcane = this.blArcane;
-			out.blCorruption = this.blCorruption;
-			out.blPhysical = this.blPhysical;
-			out.iblArcane = this.iblArcane;
-			out.iblCorruption = this.iblCorruption;
-			out.iblPhysical = this.iblPhysical;
+			out.block = this.block;
+			out.iBlock = this.iBlock;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
 			out.netgame_owner = this.netgame_owner;
 			out.netgame_owner_name = this.netgame_owner_name;
@@ -644,10 +636,8 @@ export default class Player extends Generic{
 
 		vars[prefix+'UntappedBlock'] = this._untappedBlock;
 
-		vars[prefix+'BlockArcane'] = this.getBlock(Action.Types.arcane);
-		vars[prefix+'BlockPhysical'] = this.getBlock(Action.Types.physical);
-		vars[prefix+'BlockCorruption'] = this.getBlock(Action.Types.corruption);
-
+		vars[prefix+'Block'] = this.getBlock();
+		
 		let tags = this.getTags();
 		for( let tag of tags )
 			vars[prefix+'Tag_'+tag] = 1;
@@ -1232,20 +1222,13 @@ export default class Player extends Generic{
 		this._d_healing_p_since_last = {};
 		
 		// Prevent block from fading
-		if( this.blockFadeLocked(Action.Types.arcane) )
-			this.iblArcane += this.blArcane;
-		if( this.blockFadeLocked(Action.Types.physical) )
-			this.iblPhysical += this.blPhysical;
-		if( this.blockFadeLocked(Action.Types.corruption) )
-			this.iblCorruption += this.blCorruption;
-		
-		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn
-		this._untappedBlock = this.blPhysical+this.blArcane+this.blCorruption;
-		this.blPhysical = this.iblPhysical;
-		this.blArcane = this.iblArcane;
-		this.blCorruption = this.iblCorruption;
+		if( this.blockFadeLocked() )
+			this.iBlock += this.block;
 
-		this.iblArcane = this.iblCorruption = this.iblPhysical = 0;
+		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn
+		this._untappedBlock = this.block;
+		this.block = this.iBlock;
+		this.iBlock = 0;
 		
 		if( this._untappedBlock )
 			new GameEvent({sender:this, target:this, type:GameEvent.Types.blockExpired}).raise();
@@ -1314,7 +1297,7 @@ export default class Player extends Generic{
 		this._damage_since_last = {};
 		this._last_chat = -1;
 		this._turn_action_used = 0;
-		this.blCorruption = this.blPhysical = this.blArcane = this.iblPhysical = this.iblArcane = this.iblCorruption = 0;
+		this.block = this.iBlock = 0;
 		if( this.arousal >= this.getMaxArousal() )
 			this.arousal = this.getMaxArousal()-1;
 
@@ -1332,7 +1315,7 @@ export default class Player extends Generic{
 	onBattleEnd(){
 
 		this.start_equip = [];
-		this.blCorruption = this.blPhysical = this.blArcane = this.iblPhysical = this.iblArcane = this.iblCorruption = 0;
+		this.blCorruption = this.block = this.iBlock = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
 		this.ap = 0;
 		let actions = this.getActions();
@@ -2506,14 +2489,10 @@ export default class Player extends Generic{
 	}
 
 	// Adds block. Returns the amount added/subtracted
-	addBlock( amount, type ){
-
-		type = ucFirst(type);
-
-		let pre = this.getBlock(type);
-		if( isNaN(pre) )
-			throw 'Invalid type passed to block: '+type;
-
+	addBlock( amount ){
+		
+		let pre = this.getBlock();
+		
 		amount = parseInt(amount);
 		if( isNaN(amount) )
 			throw 'Invalid value passed to block: '+amt;
@@ -2521,60 +2500,40 @@ export default class Player extends Generic{
 		// Damage
 		if( amount < 0 ){
 
-			let n = this['bl'+type]+amount;
+			let n = this.block+amount;
 			if( n < 0 ){	// We went below 0, and have to remove from incoming block too
-				this['bl'+type] = 0;
-				this['ibl'+type] = Math.max(0, this['ibl'+type]+n);
+				this.block = 0;
+				this.iBlock = Math.max(0, this.iBlock+n);
 			}
 			else
-				this['bl'+type] = n;
+				this.block = n;
 
 		}
 		// ADD
 		else{
 
 			if( game.getTurnPlayer() === this )
-				this['bl'+type] += amount;
+				this.block += amount;
 			else
-				this['ibl'+type] += amount;
+				this.iBlock += amount;
 
 		}
 		
-		return this.getBlock(type)-pre;
+		return this.getBlock()-pre;
 
 	}
 
-	getBlock( type ){
-		return this['bl'+type] + this['ibl'+type];
+	getBlock(){
+		return this.block + this.iBlock;
 	}
 
-	isBlockDisabled( type ){
-
-		return this.getActiveEffectsByType(Effect.Types.preventBlock).some(fx => {
-			
-			let ty = fx.data.type;
-			if( !ty )
-				return true;
-			ty = toArray(ty);
-			return ty.includes(type);
-
-		});
-		
+	isBlockDisabled(){
+		return this.getActiveEffectsByType(Effect.Types.preventBlock).length > 0;
 	}
 
 	// Returns if block of a type shouldn't fade on turn start
-	blockFadeLocked( type ){
-
-		return this.getActiveEffectsByType(Effect.Types.preventBlockAutoFade).some(fx => {
-			
-			let ty = fx.data.type;
-			if( !ty )
-				return true;
-			ty = toArray(ty);
-			return ty.includes(type);
-
-		});
-
+	blockFadeLocked(){
+		return this.getActiveEffectsByType(Effect.Types.preventBlockAutoFade).length > 0;
 	}
 
 	// Returns an object with {died:(bool)died, hp:(int)hp_damage, blk:(int)amount_blocked/defended}.
@@ -2582,7 +2541,7 @@ export default class Player extends Generic{
 	addHP( amount, sender, effect, dmgtype, ignoreBlock, fText = false ){
 
 		if( !ignoreBlock )
-			ignoreBlock = this.isBlockDisabled(dmgtype);
+			ignoreBlock = this.isBlockDisabled();
 
 		if( this.isHPDisabled() )
 			return false;
@@ -2603,11 +2562,11 @@ export default class Player extends Generic{
 		// Taking damage
 		if( dmgtype ){
 			
-			let shield = this.getBlock(dmgtype);
+			let shield = this.getBlock();
 			pre += shield;
 			if( amount < 0 && !ignoreBlock ){
 
-				out.blk = this.addBlock(amount, dmgtype);	// Add the full amount to shield first. addBlock caps to 0
+				out.blk = this.addBlock(amount);	// Add the full amount to shield first. addBlock caps to 0
 				amount += shield;	// Amount is negative, so add the shield
 				amount = Math.min(0, amount);		// Min because neg
 
@@ -2620,7 +2579,7 @@ export default class Player extends Generic{
 
 		let post = this.hp;
 		if( dmgtype )
-			post += this.getBlock(dmgtype);
+			post += this.getBlock();
 
 		// Out of combat HP damage can occur, but players can't go under 1. Use SET HP instead if you want to kill someone through an RP.
 		if( !game.battle_active && this.hp <= 0 && this.team === Player.TEAM_PLAYER )
