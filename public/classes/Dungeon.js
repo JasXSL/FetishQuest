@@ -732,8 +732,10 @@ class DungeonRoom extends Generic{
 
 		const respawn = ~state.encounter_started && game.time-state.encounter_started > state.encounter_respawn && state.encounter_respawn;
 
+		//console.log(this.index, "Respawn?", respawn, "state", state.encounter_started !== -1, "time", game.time-state.encounter_started > state.encounter_respawn, "can respawn", state.encounter_respawn);
+
 		// If encounter is complete, set it to completed
-		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn && !this.expEvt ){	// expEvt always remains
+		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
 			
 			// Prevents overwriting encounter data when returning to a dungeon after you've left it (the encounter reverts to array)
 			//if( Array.isArray(this.encounters) )
@@ -1294,11 +1296,7 @@ class DungeonRoom extends Generic{
 
 		}
 
-		// Load state here as well as on dungeon state load in case of passed time
-		this.loadState();
-
-		// Code to run after state load:
-
+		
 		// First visit
 		if( !this.discovered ){
 
@@ -2449,7 +2447,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 		}
 
-		// Add a 1/5 chance of an event
+		// Add a 1/5 chance of a procedural event
 		if( Math.random() < this.EVENT_CHANCE-nrEvents*0.05 ){
 
 			++nrEvents;

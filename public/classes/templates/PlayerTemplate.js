@@ -295,7 +295,7 @@ class PlayerTemplate extends Generic{
 					continue;
 				asset.restore();
 				asset.randomizeDurability();
-				const assets = player.addAsset(asset);	// Note that this resets ID
+				const assets = player.addAsset(asset, undefined, undefined, true);	// Note that this resets ID
 				if( !this.no_equip )
 					assets.map(asset => player.equipAsset(asset.id, undefined, true));	// Force equip it, even in combat
 

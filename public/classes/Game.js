@@ -391,7 +391,7 @@ export default class Game extends Generic{
 		if( this.dungeon.label ){
 
 			console.log("Setting up renderer");
-			this.dungeon.loadState();
+			//this.dungeon.loadState(); -- Shouldn't be done here. Since it'll wipe the completed events.
 			this.renderer.loadActiveDungeon();
 			this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);
 			
@@ -416,7 +416,9 @@ export default class Game extends Generic{
 		let nt = this.getTurnPlayer();
 		if( turn.id !== nt.id )
 			this.onTurnChanged();
-		this.dungeon.loadState();
+			
+		this.dungeon.loadState();	// Technically there shouldn't be state here, since state will already be loaded on the host dungeon.
+		// Not sure if this is needed
 
 		// Handle mute state change
 		if( mute_pre !== (this.mute_spectators && this.getMyActivePlayer()) )
