@@ -2608,6 +2608,21 @@ export default class Game extends Generic{
 		}
 	}
 
+	isMyPlayer( player ){
+
+		if( typeof player === 'string' )
+			player = this.getPlayerById(player);
+		return this.getMyPlayers().includes(player);
+		
+	}
+
+	// Sets your active player
+	setMyPlayer( id ){
+		this.my_player = id;
+		localStorage.my_player = id;
+		this.ui.draw();
+	}
+
 	// Advances turn
 	advanceTurn(){
 
@@ -2671,9 +2686,7 @@ export default class Game extends Generic{
 			prepAutoPlay(npl);
 			
 			if( this.playerIsMe(npl, true) && npl.id !== this.my_player ){
-				this.my_player = npl.id;
-				localStorage.my_player = npl.id;
-				this.ui.draw();
+				this.setMyPlayer(npl.id);
 			}
 				
 			this.onTurnChanged();
@@ -2955,11 +2968,11 @@ export default class Game extends Generic{
 
 		}
 
-		const isMyPlayer = player === game.getMyActivePlayer();
-		if( !isMyPlayer && (!Game.net.isInNetgameHost() || !player.netgame_owner) )
+		const isMyActivePlayer = player === game.getMyActivePlayer();
+		if( !isMyActivePlayer && (!Game.net.isInNetgameHost() || !player.netgame_owner) )
 			return;
 
-		if( isMyPlayer ){
+		if( isMyActivePlayer ){
 
 			this.ui.openBook(book);
 			return;
@@ -3045,9 +3058,12 @@ export default class Game extends Generic{
 
 	// Returns Shop objects attached to an NPC
 	// Doesn't do any filtering, so remember to check shopAvailableTo
-	getShopsByPlayer( player, filter = false ){
+	// Encounter can be used to check a different encounter than the active one
+	getShopsByPlayer( player, filter = false, encounter = false ){
 
-		const encounter = this.encounter;
+		if( !encounter )
+			encounter = this.encounter;
+
 		const shops = encounter.getShops();
 		if( !player )
 			return;
@@ -3070,7 +3086,7 @@ export default class Game extends Generic{
 
 				// looks kinda funny, but shopAvailableTo throws an error if it fails to validate
 				try{
-					if( filter && (!shopAction.validate(mp) || !this.shopAvailableTo(shop, mp)) )
+					if( filter && (!shopAction.validate(mp) || !this.shopAvailableTo(shop, mp, encounter)) )
 						throw '';
 				}catch(err){
 					continue;
@@ -3085,8 +3101,9 @@ export default class Game extends Generic{
 	}
 
 	// Returns game actions
-	getRepairShopByPlayer( player ){
-		const encounter = this.encounter;
+	getRepairShopByPlayer( player, encounter = false ){
+		if( !encounter )
+			encounter = this.encounter;
 		const smiths = encounter.getSmiths(player);
 		if( !player )
 			return;
@@ -3098,8 +3115,9 @@ export default class Game extends Generic{
 		return out;
 	}
 
-	getAltarByPlayer( player ){
-		const encounter = this.encounter;
+	getAltarByPlayer( player, encounter = false ){
+		if( !encounter )
+			encounter = this.encounter;
 		const altars = encounter.getAltars(player);
 		if( !player )
 			return;
@@ -3111,8 +3129,9 @@ export default class Game extends Generic{
 		return out;
 	}
 
-	getBankByPlayer( player ){
-		const encounter = this.encounter;
+	getBankByPlayer( player, encounter = false ){
+		if( !encounter )
+			encounter = this.encounter;
 		const banks = encounter.getBanks(player);
 		if( !player )
 			return;
@@ -3125,8 +3144,9 @@ export default class Game extends Generic{
 	}
 
 	// Returns game actions
-	getGymsByPlayer( player, target ){
-		const encounter = this.encounter;
+	getGymsByPlayer( player, target, encounter = false ){
+		if( !encounter )
+			encounter = this.encounter;
 		const gyms = encounter.getGyms(target);
 		if( !player )
 			return;
@@ -3139,8 +3159,9 @@ export default class Game extends Generic{
 	}
 
 	// Returns game actions
-	getTransmogByPlayer( player ){
-		const encounter = this.encounter;
+	getTransmogByPlayer( player, encounter = false ){
+		if( !encounter )
+			encounter = this.encounter;
 		const ga = encounter.getTransmogs(player);
 		if( !player )
 			return;
@@ -3156,9 +3177,10 @@ export default class Game extends Generic{
 
 
 	// Returns game actions
-	getRoomRentalByPlayer( player ){
+	getRoomRentalByPlayer( player, encounter = false ){
 
-		const encounter = this.encounter;
+		if( !encounter )
+			encounter = this.encounter;
 		const renters = encounter.getRenters();
 		if( !player )
 			return;
@@ -3181,12 +3203,15 @@ export default class Game extends Generic{
 	}
 
 	// Checks each players and returns it if one of them has a shop by label
-	getShopHere( label ){
+	getShopHere( label, encounter = false ){
 		
-		const players = this.getEnabledPlayers();
+		let players = this.getEnabledPlayers();
+		if( encounter )
+			players = encounter.players;
+
 		for( let player of players ){
 
-			let shops = this.getShopsByPlayer(player);
+			let shops = this.getShopsByPlayer(player, undefined, encounter);
 			for( let shop of shops ){
 				if( shop.label === label )
 					return shop;
@@ -3196,12 +3221,15 @@ export default class Game extends Generic{
 
 	}
 
-	getAllShopsHere(){
+	getAllShopsHere( encounter = false ){
+
+		let players = this.getEnabledPlayers();
+		if( encounter )
+			players = encounter.players;
 		
 		let out = [];
-		const players = this.getEnabledPlayers();
 		for( let player of players )
-			out.push(...this.getShopsByPlayer(player));
+			out.push(...this.getShopsByPlayer(player, undefined, encounter));
 
 		return out;
 
@@ -3218,7 +3246,7 @@ export default class Game extends Generic{
 	}
 
 	// Checks if a shop object is available to a player
-	shopAvailableTo( shop, player ){
+	shopAvailableTo( shop, player, encounter = false ){
 		
 		if( this.battle_active ){
 			console.error("Battle in progress");
@@ -3237,7 +3265,7 @@ export default class Game extends Generic{
 			throw "Shop is not available to your active player";
 
 		// Checks if vendor is here
-		if( !this.getShopHere(shop.label) ){
+		if( !this.getShopHere(shop.label, encounter) ){
 			throw 'Vendor not found in current area';
 		}
 		return true;
@@ -3245,7 +3273,7 @@ export default class Game extends Generic{
 	}
 
 	// Checks if a smith object is available to a player
-	smithAvailableTo( smithPlayer, player ){
+	smithAvailableTo( smithPlayer, player, encounter = false ){
 
 		if( this.battle_active )
 			return false;
@@ -3256,7 +3284,7 @@ export default class Game extends Generic{
 		if( !(player instanceof Player) )
 			throw "Player is not a player";
 
-		const smiths = this.getRepairShopByPlayer(smithPlayer);
+		const smiths = this.getRepairShopByPlayer(smithPlayer, encounter);
 		for( let smith of smiths ){
 			if( smith.validate(player) )
 				return true;
@@ -3265,7 +3293,7 @@ export default class Game extends Generic{
 	}
 
 	// Checks if an altar object is available to a player
-	altarAvailableTo( altarPlayer, player ){
+	altarAvailableTo( altarPlayer, player, encounter = false ){
 
 		if( this.battle_active )
 			return false;
@@ -3276,7 +3304,7 @@ export default class Game extends Generic{
 		if( !(player instanceof Player) )
 			throw "Player is not a player";
 
-		const altars = this.getAltarByPlayer(altarPlayer);
+		const altars = this.getAltarByPlayer(altarPlayer, encounter);
 		for( let altar of altars ){
 			if( altar.validate(player) )
 				return true;
@@ -3285,7 +3313,7 @@ export default class Game extends Generic{
 	}
 
 	// Checks if a bank is available to a player
-	bankAvailableTo( bankPlayer, player ){
+	bankAvailableTo( bankPlayer, player, encounter = false ){
 
 		if( this.battle_active )
 			return false;
@@ -3296,7 +3324,7 @@ export default class Game extends Generic{
 		if( !(player instanceof Player) )
 			throw "Player is not a player";
 
-		const banks = this.getBankByPlayer(bankPlayer);
+		const banks = this.getBankByPlayer(bankPlayer, encounter);
 		for( let bank of banks ){
 			if( bank.validate(player) )
 				return true;
@@ -3305,7 +3333,7 @@ export default class Game extends Generic{
 	}
 
 	// Checks if a transmog object is available to a player
-	transmogAvailableTo( transmogPlayer, player ){
+	transmogAvailableTo( transmogPlayer, player, encounter = false ){
 
 		if( this.battle_active )
 			return false;
@@ -3316,7 +3344,7 @@ export default class Game extends Generic{
 		if( !(player instanceof Player) )
 			throw "Player is not a player";
 
-		const out = this.getTransmogByPlayer(transmogPlayer);
+		const out = this.getTransmogByPlayer(transmogPlayer, encounter);
 		for( let a of out ){
 			if( a.validate(player) )
 				return true;
@@ -3377,7 +3405,7 @@ export default class Game extends Generic{
 	}
 
 	// Checks if a room renter is available to a player
-	roomRentalAvailableTo( renterPlayer, player ){
+	roomRentalAvailableTo( renterPlayer, player, encounter = false ){
 
 		if( this.battle_active )
 			throw 'Battle in progress';
@@ -3391,7 +3419,7 @@ export default class Game extends Generic{
 		if( !player.isLeader() )
 			throw 'Player is not a party leader';
 
-		const renters = this.getRoomRentalByPlayer(renterPlayer);
+		const renters = this.getRoomRentalByPlayer(renterPlayer, encounter);
 		for( let renter of renters ){
 			if( renter.validate(player) )
 				return true;
@@ -3790,7 +3818,7 @@ export default class Game extends Generic{
 	
 
 	// Check if a player is offering a gym to the target
-	gymAvailableTo( gymPlayer, player ){
+	gymAvailableTo( gymPlayer, player, encounter = false ){
 
 		if( this.battle_active )
 			return false;
@@ -3801,7 +3829,7 @@ export default class Game extends Generic{
 		if( !(player instanceof Player) )
 			throw "Player is not a player";
 
-		const gyms = this.getGymsByPlayer(gymPlayer, player);
+		const gyms = this.getGymsByPlayer(gymPlayer, player, encounter);
 		for( let gym of gyms ){
 			if( gym.validate(player) )
 				return true;

@@ -2,10 +2,55 @@
 	- Keep redesigning errors to a try/catch system
 	- Add more automatic asset unrolling as you discover rolled up assets
 
-Overhaul:
 	Bugs:
 		- Sometimes using repair kits fails?
 		- Groin twist event shows up in female
+
+	- Add to minimap:
+		- Shops
+		- Exits
+	- Long press on a character you own to take control of them
+
+	- More enchant ideas:
+		- Revitalizing : Restore 10 HP on orgasm.
+		- Warding: Overheal turns into block
+		- Zeal: Overhealing a player increases their crit chance by 20% for 2 turns.
+		- Buffer: Grants 10 block when riposted
+		- Vulnerable (curse): Increases arousal gain by 300% while casting.
+		- Magic Touch: Gain one MP whenever you are grappled.
+
+	- Item ideas:
+		- Potion that prevents block from falling off for a few turns
+		- Block Potion
+		- Increase your max AP for a few turns.
+		- Cooldown clearing potions
+		- Your next action costs no AP
+		- Makes you untargetable for 1 turn.
+
+	- Wrapper ideas
+		- Reduce max MP/AP
+		- Reduce max arousal
+		- More damage taken from crit.
+		- Proc multipliers
+		- Heal aggro multipliers
+		- Generic stat modifiers
+		- Reduce block efficiency
+		- Summon a custom outfit onto a player that they can't remove until it expires
+
+	- Action ideas:
+		- Deals damage, deals extra damage if target has clairvoyance.
+		- Turns all target healing done into damage.
+		- Prevents healing done for one turn
+		- Reduces target healing received
+		- Healing NPC
+		- Lowers max carry capacity for a few turns.
+		- 
+
+	- Events:
+		- Find a drawer, it opens to a cursed sling bikini that you can't unequip for 1 hour
+		- Pick up a coin, gain a curse that makes you cum immediately when penetrated
+		- In town: If wearing plate, get aroused by someone sneakily making it vibrate
+		- 
 
 	- Random events
 		- Ideas:
@@ -122,6 +167,8 @@ Overhaul:
 	Sorted effects like also deals x damage to the enemy with highest HP
 	Bonus damage when conditions are met, such as highest HP enemy
 	Boss that limits nr of actions you can use per turn
+	Boss that does an effect based on nr of potions in inventory/equipped
+	Cooldown activated on a random ability at the start of each turn
 
 -- LATER UPDATE --
 

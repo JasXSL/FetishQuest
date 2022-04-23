@@ -3586,6 +3586,15 @@ div.passiveUpsideDown > div.content > div.bg{
 		background:rgba(255,255,255,.5);
 		border:1px solid rgba(0,0,0,.5);
 		border-radius: 1vmax;
+		display:flex;
+		overflow:hidden;
+		justify-content: center;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	#miniMap > div.content > div.cell > img{
+		width:45%; height:45%;
+		filter:brightness(0%);
 	}
 	#miniMap > div.content > div.cell.current{
 		background: rgba(100, 255, 100, 0.5);

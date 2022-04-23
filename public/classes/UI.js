@@ -10,6 +10,7 @@ import StaticModal from "./StaticModal.js";
 import Modal from "./Modal.js";
 import Book from "./Book.js";
 import { Effect } from "./EffectSys.js";
+import Encounter from "./Encounter.js";
 
 const NUM_ACTIONS = 18;	// Max nr actions the UI can draw
 const NUM_SUBS = 5;		// Max actions per group
@@ -1072,6 +1073,7 @@ export default class UI{
 					}, 1);
 				});
 
+
 			}
 			// Team has changed
 			else if( p.team === 0 !== el.parent().hasClass('left') )
@@ -1156,10 +1158,11 @@ export default class UI{
 
 			event.preventDefault();
 			event.stopImmediatePropagation();
-			game.my_player = $(event.target).closest('div.player').attr('data-id');
-			localStorage.my_player = game.my_player;
+			const id = $(event.target).closest('div.player').attr('data-id');
+			game.setMyPlayer(id);
 			this.draw();
 			game.save();
+
 		});
 
 		$("div.player span.name div.leader", this.players).on('click', event => {
@@ -1202,26 +1205,60 @@ export default class UI{
 
 		});
 
+
 		// click
 		// PLAYER PORTRAIT CLICK
 		$('div.player', this.players).off('click').on('click', async function( event ){
 
-			if( !th.action_selected && !th.block_inspect ){
+			if( !th.action_selected && !th.block_inspect && event.currentTarget._longpressTimer !== true ){
 
 				await StaticModal.set('player', $(this).attr('data-id'));
 
 			}
+
 		});
+
+		// Handle long press on player
+		$('div.player', this.players)
+			.off('mousedown').on('mousedown', event => {
+
+				const el = event.currentTarget;
+				clearTimeout(el._longpressTimer);
+				el._longpressTimer = setTimeout(() => {
+					
+					const id = el.dataset.id;
+					if( game.isMyPlayer(id) )
+						game.setMyPlayer(id);
+					el._longpressTimer = true;
+
+				}, 1000);
+			}).off('mouseup').on('mouseup', event => {
+
+				const el = event.currentTarget;
+
+				// Successful switch
+				if( this._longpressTimer === true ){
+					setTimeout(() => el._longpressTimer = false, 10);
+					return;
+				}
+
+				// Failed switch
+				clearTimeout(el._longpressTimer);
+
+			});
+
+		
 
 	}
 
 	// Returns interaction types
-	getViableInteractionsOnPlayer( p ){
+	// Encounter can be used to check a specific encounter instead of the current one
+	getViableInteractionsOnPlayer( p, encounter = false ){
 
 		const myActive = game.getMyActivePlayer();
 		let rr = false;
 		try{
-			rr = game.roomRentalAvailableTo(p, myActive, true);
+			rr = game.roomRentalAvailableTo(p, myActive, encounter);
 		}catch(err){}
 
 		let rps = game.getRoleplaysForPlayer( p );
@@ -1232,12 +1269,12 @@ export default class UI{
 			talk : rps.length,
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
-			shop : myActive && game.getShopsByPlayer(p, true).length,
-			transmog : myActive && game.transmogAvailableTo(p, myActive),
-			repair : myActive && game.smithAvailableTo(p, myActive),
-			altar : myActive && game.altarAvailableTo(p, myActive),
-			bank : myActive && game.bankAvailableTo(p, myActive),
-			gym : myActive && game.gymAvailableTo(p, myActive),
+			shop : myActive && game.getShopsByPlayer(p, true, encounter).length,
+			transmog : myActive && game.transmogAvailableTo(p, myActive, encounter),
+			repair : myActive && game.smithAvailableTo(p, myActive, encounter),
+			altar : myActive && game.altarAvailableTo(p, myActive, encounter),
+			bank : myActive && game.bankAvailableTo(p, myActive, encounter),
+			gym : myActive && game.gymAvailableTo(p, myActive, encounter),
 			rent : myActive && rr,
 		};
 
@@ -1425,7 +1462,7 @@ export default class UI{
 		if( myTurn )
 			el.toggleClass("active", true);
 
-		const isMine = Boolean(~game.getMyPlayers().indexOf(p)),
+		const isMine = game.isMyPlayer(p),
 			isMyActive = p === myActive,
 			isNPC = !p.netgame_owner
 		;
@@ -1663,7 +1700,7 @@ export default class UI{
 
 		setTimeout(() => {
 			shieldEl.toggleClass('spawn', Boolean(blocking));;
-		}, 10)
+		}, 10);
 		
 		
 
@@ -2954,6 +2991,18 @@ export default class UI{
 				const size = 1.0/scale*98;
 				div.style = 'width:'+size+'%; height:'+size+'%';
 
+				let exitMarker = document.createElement('img');
+				exitMarker.src = '/media/wrapper_icons/exit-door.svg';
+				div.append(exitMarker);
+
+				let shopMarker = document.createElement('img');
+				shopMarker.src = '/media/wrapper_icons/hanging-sign.svg';
+				div.append(shopMarker);
+
+				let talkMarker = document.createElement('img');
+				talkMarker.src = '/media/wrapper_icons/conversation.svg';
+				div.append(talkMarker);
+
 				if( !room ){
 					div.classList.add('empty');
 					continue;
@@ -2961,6 +3010,25 @@ export default class UI{
 				if( room.id === game.dungeon.getActiveRoom().id )
 					div.classList.add('current');
 
+				let services = {};
+				// Populate services with services that exist in this room
+				if( room.encounters instanceof Encounter ){
+
+					for( let pl of room.encounters.players ){
+						
+						let sub = this.getViableInteractionsOnPlayer(pl, room.encounters);
+						for( let i in sub ){
+							if( sub[i] )
+								services[i] = true;
+						}
+
+					}
+
+				}
+
+				exitMarker.classList.toggle('hidden', !room.getExitDoor());
+				shopMarker.classList.toggle('hidden', !( services.shop || services.repair || services.gym || services.altar || services.rent || services.talk ));
+				talkMarker.classList.toggle('hidden', !(services.talk));
 			}
 
 		}
