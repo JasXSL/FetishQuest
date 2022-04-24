@@ -405,6 +405,105 @@ export function asset(){
 			html += '<label title="Seconds to add">Seconds: <input type="number" step=1 name="data::seconds" class="saveable" value="'+esc(asset.data.seconds || 0)+'" /></label>';
 		html += '</div>';	
 	}
+	else if( type == Types.sliceRpTargets ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				start : 0,
+				numPlayers : -1
+			};
+
+		html += '<div class="labelFlex">';
+			html += '<label title="Player to start with">Start: <input type="number" step=1 name="data::start" class="saveable" value="'+esc(asset.data.start || 0)+'" /></label>';
+			html += '<label title="0 clears the list, -1 goes the end">Players to keep: <input type="number" step=1 name="data::numPlayers" class="saveable" value="'+esc(asset.data.numPlayers || 0)+'" /></label>';
+		html += '</div>';	
+	}
+	else if( type == Types.sortRpTargets ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				mathvars : []
+			};
+		if( !Array.isArray(asset.data.mathvars) )
+			asset.data.mathvars = [];
+
+		html += '<label title="Only global and t_ mathvars are supported">Sort on mathvars:</label>';
+		html += '<div class="mathvars"></div>';	
+		html += '<input type="button" value="Add Var" class="addVar" />';
+		html += '<br />';
+
+		fnBind = () => {
+
+			const saveFields = () => {
+				console.log("Saving");
+				const rows = [...this.dom.querySelectorAll('div.mathvars > div.mathvar')];
+				let out = [];
+				for( let row of rows ){
+					
+					const v = row.querySelector('input[name=var]').value.trim(),
+						desc = row.querySelector('input[name=desc]').checked
+					;
+
+					if( !v )
+						continue;
+
+					out.push({var:v, desc});
+					
+				}
+
+				console.log("Compiled:", out);
+				asset.data.mathvars = out;
+				window.mod.setDirty();
+
+			};
+
+			const addField = (mathvar = '', desc = false) => {
+
+				if( typeof mathvar !== "string" )
+					mathvar = "";
+					
+				const field = this.dom.querySelector('div.mathvars');
+				const sub = document.createElement('div');
+				sub.classList.add('labelFlex', 'mathvar');
+				field.append(sub);
+				
+				let label = document.createElement('label');
+				label.title = 'Name of the mathvar to use. Try game.players[0].appendMathVars("ta_", {}) in a game console for a list.';
+				let input = document.createElement('input');
+				input.placeholder = 'Mathvar';
+				input.name = 'var';
+				input.value = mathvar;
+				input.onchange = saveFields;
+				label.append(input);
+				sub.append(label);
+
+				label = document.createElement('label');
+				label.innerHTML = '<span>Descending</span>';
+				input = document.createElement('input');
+				input.type = 'checkbox';
+				input.checked = desc;
+				input.name = 'desc';
+				input.onchange = saveFields;
+				label.append(input);
+				sub.append(label);
+				sub.onclick = event => {
+					if( !event.ctrlKey )
+						return;
+					sub.remove();
+					saveFields();
+				};
+
+			};
+			
+			for( let v of asset.data.mathvars ){
+				addField(v.var, v.desc);
+			}
+
+			this.dom.querySelector('input.addVar').onclick = addField;
+
+		};
+
+	}
+
 	// No data, just set it to empty
 	else if( type === Types.visitDungeon ){
 		asset.data = {};

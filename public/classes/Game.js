@@ -2853,10 +2853,16 @@ export default class Game extends Generic{
 
 		if( typeof rp === "string" )
 			rp = glib.get(rp, 'Roleplay');
-		
+
+		const pl = rp.validate(player);
+		if( !pl && !force ){
+			console.error("No players passed filters for rp", rp, "using player", player);
+			return;
+		}
+
 		this.roleplay = rp.clone(this);
 		this.roleplay.stage = '';
-		this.roleplay.onStart( player );
+		this.roleplay.onStart( pl );
 
 		this.ui.draw();
 		if( this.roleplay.stages.length )

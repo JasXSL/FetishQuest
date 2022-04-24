@@ -632,6 +632,13 @@ export default class Player extends Generic{
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
 
+		vars[prefix+'Talkative'] = this.talkative;
+		vars[prefix+'Sadistic'] = this.sadistic;
+		vars[prefix+'Dominant'] = this.dominant;
+		vars[prefix+'Hetero'] = this.hetero;
+		vars[prefix+'Emotive'] = this.emotive;
+		vars[prefix+'Intelligence'] = this.intelligence;
+		
 		vars[prefix+'Casting'] = +Boolean(this.isCasting()) || 0;
 
 		vars[prefix+'UntappedBlock'] = this._untappedBlock;

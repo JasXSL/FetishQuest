@@ -1341,7 +1341,7 @@ export default class UI{
 
 			const rp = game.getRoleplaysForPlayer(p).shift();
 			if( rp )
-				game.setRoleplay(rp);
+				game.setRoleplay(rp, false, myActive);
 
 		}
 

@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorPlayer from './EditorPlayer.js';
+import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorRoleplayStage from './EditorRoleplayStage.js';
 import Roleplay from '../../classes/Roleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
@@ -49,6 +50,10 @@ export function asset(){
 	html += '<label title="Min players that need to pass player conditions">Min Players: <input type="number" step=1 min=0 name="minPlayers" class="saveable" value="'+(parseInt(dummy.minPlayers) || 0)+'" /></label>';
 	html += '<label title="Max players that will be stored as rpTargets. -1 = infinit">Max Players: <input type="number" step=1 min=-1 name="maxPlayers" class="saveable" value="'+(parseInt(dummy.maxPlayers) || 0)+'" /></label>';
 
+	html += '<br /><label title="These are run on the player that triggered the RP. Generally you only want to use these to sort the RpTargets list. Use GameActions in a stage otherwise">'+
+		'Game Actions: '+
+	'</label>'+
+	'<div class="gameActions"></div>';
 
 
 	this.setDom(html);
@@ -58,6 +63,7 @@ export function asset(){
 	this.dom.querySelector("div.playerConds").appendChild(EditorCondition.assetTable(this, asset, "playerConds", false, false));
 	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, 2));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
+	this.dom.querySelector("div.gameActions").appendChild(EditorGameAction.assetTable(this, asset, "gameActions", true));
 
 	HelperAsset.autoBind( this, asset, DB);
 

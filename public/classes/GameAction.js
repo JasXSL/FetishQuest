@@ -368,6 +368,7 @@ export default class GameAction extends Generic{
 	
 	}
 
+	// Runs the game action
 	async exec( player, mesh, debug ){
 
 		const asset = this.parent;
@@ -556,10 +557,7 @@ export default class GameAction extends Generic{
 				return false;
 
 			rp.completed = false;
-			const pl = rp.validate(player);
-			if( pl ){
-				game.setRoleplay(rp, false, pl);
-			}
+			game.setRoleplay(rp, false, player);
 
 		}
 		else if( this.type === types.resetRoleplay ){
@@ -984,6 +982,60 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.sliceRpTargets ){
+
+			let start = parseInt(this.data.start) || 0;
+			let end;
+			let nrPlayers = parseInt(nrPlayers);
+			if( !isNaN(nrPlayers) && nrPlayers > -1 )
+				end = start+parseInt(nrPlayers);
+			game.roleplay._targetPlayers = game.roleplay._targetPlayers.slice(start, end);
+
+		}
+		else if( this.type === types.sortRpTargets ){
+
+			let iters = this.data.mathvars;
+			if( !Array.isArray(iters) ){
+				console.error("Iters is not an array in GameAction", this);
+				return false;
+			}
+
+			let players = game.roleplay.getTargetPlayers().map(pl => {
+				return {
+					p : pl,
+					vars : pl.appendMathVars(
+						'ta_',
+						{},
+					)
+				};
+			});
+			
+
+			players = players.sort((a,b) => {
+
+				// Go through sortable objects
+				// {var : (str)mathVar, desc:(bool)descending}
+				for( let iter of iters ){
+
+					let field = iter.var;
+					let desc = iter.desc;
+					if( a.vars[field] === b.vars[field] )
+						continue;
+
+					let aLesser = a.vars[field] < b.vars[field];
+					if( desc )
+						return aLesser ? 1 : -1;
+					return aLesser ? -1 : 1;
+
+				}
+				return 0;
+				
+			});
+
+			game.roleplay.setTargetPlayers(players.map(pl => pl.p));
+
+		}
+
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
 			return false;
@@ -1138,6 +1190,8 @@ GameAction.types = {
 	restorePlayerTeam : 'restorePlayerTeam',	// Shortcut to fully regen and wipe arousal from the player team
 	setPlayerTeam : 'setPlayerTeam',
 	removePlayer : 'removePlayer',
+	sortRpTargets : 'sortRpTargets',
+	sliceRpTargets : 'sliceRpTargets',
 };
 
 GameAction.TypeDescs = {
@@ -1189,6 +1243,8 @@ GameAction.TypeDescs = {
 	[GameAction.types.removePlayer] : '{player:(str)playerLabel} - Removes a player from the game.',
 	[GameAction.types.restorePlayerTeam] : '{team:(int)team=Player.TEAM_PLAYER} - Shortcut that fully restores HP and clears arousal from Player.TEAM_PLAYERS.',
 	[GameAction.types.setPlayerTeam] : '{playerConds:(arr)player_conds=GameActionPlayer, team=Player.TEAM_PLAYER} - Changes one or more players teams',
+	[GameAction.types.sortRpTargets] : '{mathvars:[{var:(str)label, desc:(bool)desc=false}...]} - Sorts rpTargets based on mathvars. Only mathvars for ta_ are set',
+	[GameAction.types.sliceRpTargets] : '{start:(int)=0, nrPlayers:(int)=-1} - Converts rpTargets to a subset of targets',
 };
 
 // type : {[fieldName]:constructor}

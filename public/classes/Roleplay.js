@@ -11,6 +11,7 @@ export default class Roleplay extends Generic{
 			conditions : Condition,
 			playerConds : Condition,
 			stages : RoleplayStage,
+			gameActions : GameAction,
 		};
 	}
 
@@ -34,6 +35,7 @@ export default class Roleplay extends Generic{
 		this.playerConds = [];		// When not empty, all enabled players will be shuffled and these conditions are checked against all.
 		this.minPlayers = 1;		// With playerConds set: Minimum players that must be validated
 		this.maxPlayers = -1;		// -1 = infinite.
+		this.gameActions = [];		// Ran after building the targetPlayers list. The main purpose of having this here is to allow sorting players BEFORE starting the RP.
 
 		this._waiting = false;		// Waiting to change stage
 		this._targetPlayers = [];	// Set automatically when the roleplay starts, containing the instigators. 
@@ -84,6 +86,7 @@ export default class Roleplay extends Generic{
 			out.desc = this.desc;
 			out.minPlayers = this.minPlayers;
 			out.maxPlayers = this.maxPlayers;
+			out.gameActions = GameAction.saveThese(this.gameActions);
 		}
 		if( full !== "mod" ){
 			out.completed = this.completed;
@@ -158,6 +161,17 @@ export default class Roleplay extends Generic{
 		return this._targetPlayers.map(el => game.getPlayerById(el)).filter(el => el);
 	}
 
+	// Accepts an array of player objects or ids
+	setTargetPlayers( players ){
+
+		this._targetPlayers = players.map(el => {
+			if( typeof el === 'string' )
+				return el;
+			return el.id;
+		});
+
+	}
+
 
 	getNextIndex(){
 
@@ -228,6 +242,11 @@ export default class Roleplay extends Generic{
 					return el;
 				return el.id;
 			});
+
+		// Run gameActions
+		for( let action of this.gameActions )
+			action.trigger(players);
+		
 		const stage = this.getActiveStage();
 		if( stage )
 			stage.onStart( players );
@@ -248,7 +267,9 @@ export default class Roleplay extends Generic{
 		if( !Condition.all(this.conditions, evt, debug) )
 			return false;
 
-		let targs = [player];
+		let targs = [];
+		if( player )
+			targs.push(player);
 		if( this.playerConds.length && this.minPlayers > 0 )
 			targs = shuffle(game.getEnabledPlayers());
 
