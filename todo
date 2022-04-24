@@ -5,18 +5,7 @@
 	Bugs:
 		- Sometimes using repair kits fails?
 		- Groin twist event shows up in female
-
-	- RP targets sorting game action
-
-	- More enchant ideas:
-		x Revitalizing : Restore 10 HP on orgasm.
-		- Warding: Overheal turns into block
-			- Needs events in mathvars
-		- Zeal: Overhealing a player increases their crit chance by 20% for 2 turns.
-		- Buffer: Grants 10 block when riposted
-		- Vulnerable (curse): Increases arousal gain by 300% while casting.
-		- Magic Touch: Gain one MP whenever you are grappled.
-
+		
 	- Item ideas:
 		- Potion that prevents block from falling off for a few turns
 		- Block Potion
@@ -117,12 +106,6 @@
 			- Rig a fight?
 			- 
 
-	Assets:
-		
-
-	Enchants:
-		- Gain 10% of your HP back upon end of combat.
-		- 
 
 	Item ideas:
 		- Motivation: Doubles your arousal and grants 2 AP per original point of arousal.

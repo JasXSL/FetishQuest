@@ -2828,12 +2828,14 @@ export default class Player extends Generic{
 			Effect.Types.critDoneMod,
 			Effect.Types.expMod,
 			Effect.Types.regenAP,
+			Effect.Types.globalArousalTakenMod
 		];
 		
 		const evt = new GameEvent({
 			sender : this,
 			target : player,
 		});
+
 		for( let effect of w ){
 
 			if( !effect.data.multiplier && !ALWAYS_MULTIPLY.includes(type) )
