@@ -6,14 +6,10 @@
 		- Sometimes using repair kits fails?
 		- Groin twist event shows up in female
 
-	- Add to minimap:
-		- Shops
-		- Exits
-	- Long press on a character you own to take control of them
-
 	- More enchant ideas:
-		- Revitalizing : Restore 10 HP on orgasm.
+		x Revitalizing : Restore 10 HP on orgasm.
 		- Warding: Overheal turns into block
+			- Needs events in mathvars
 		- Zeal: Overhealing a player increases their crit chance by 20% for 2 turns.
 		- Buffer: Grants 10 block when riposted
 		- Vulnerable (curse): Increases arousal gain by 300% while casting.

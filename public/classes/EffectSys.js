@@ -166,10 +166,9 @@ class Wrapper extends Generic{
 		const out = game.getPlayerById(this.caster);
 		if( out || !allowParent )
 			return out;
-		return this.parent;	// Used in traps since they don't add the "trap player" to the game
+		return this.getPlayerParent();	// Used in traps since they don't add the "trap player" to the game
 
 	}
-
 	getStacks( sender, targ ){
 
 		if( !sender )
@@ -198,7 +197,6 @@ class Wrapper extends Generic{
 
 		if( this.target === Wrapper.TARGET_CASTER && event.target !== event.sender )
 			return false;
-
 
 		event.type = !isTick ? GameEvent.Types.internalWrapperAdded : GameEvent.Types.internalWrapperTick;
 		return Condition.all(conditions, event, debug);
@@ -267,9 +265,6 @@ class Wrapper extends Generic{
 			if( !obj.label )
 				obj.label = this.parent.label;
 
-			
-	
-
 			// This was just added, and not a tick
 			if( !isTick ){
 
@@ -291,7 +286,12 @@ class Wrapper extends Generic{
 			let caster = obj.getCaster(),
 				victim = game.getPlayerById(obj.victim)
 			;
-			if( !obj.testAgainst(new GameEvent({sender:caster, target:victim, custom:{isChargeFinish:isChargeFinish}}), isTick) || !caster || !victim ){
+			const testEvt = new GameEvent({
+				sender:caster, 
+				target:victim, 
+				custom:{isChargeFinish}
+			});
+			if( !obj.testAgainst(testEvt, isTick) || !caster || !victim ){
 
 				if( isTick )
 					this.rebase();
@@ -1067,6 +1067,8 @@ class Effect extends Generic{
 					this.data.amount, 
 					calcEvt
 				);
+				// Actual damage/healing, overkill/healing
+				let actualAmount, overAmount;
 
 				if( !this.no_stack_multi )
 					amt *= wrapper.getStacks();
@@ -1211,9 +1213,14 @@ class Effect extends Generic{
 				let exec = t.addHP(amt, s, this, type, noBlock, true);
 				let died = exec.died;
 
+				overAmount = amt;
+				
 				const changehp = exec.hp;
 				const changeblk = exec.blk;
 				amt = changehp+changeblk;
+				actualAmount = amt;
+				overAmount = Math.abs(overAmount-actualAmount);
+				actualAmount = Math.abs(actualAmount);
 
 				if( amt < 0 ){
 
@@ -1241,23 +1248,33 @@ class Effect extends Generic{
 				}
 
 
-
-				new GameEvent({
+				// Damage/healing done
+				let doneEvt = new GameEvent({
 					type : e,
 					sender : s,
 					target : t,
 					wrapper : wrapper,
 					effect : this,
-				}).raise();
+					custom : {
+						amount : actualAmount,
+						overAmount : overAmount
+					}
+				});
+				doneEvt.raise();
 				
-
+				// damage/healing taken
 				new GameEvent({
 					type : e2,
 					sender : s,
 					target : t,
 					wrapper : wrapper,
 					effect : this,
+					custom : {
+						amount : actualAmount,
+						overAmount : overAmount
+					}
 				}).raise();
+
 				if( died )
 					new GameEvent({
 						type : GameEvent.Types.playerDefeated,
@@ -2044,7 +2061,7 @@ class Effect extends Generic{
 		this.unbindEvents();
 		for(let evt of this.events){
 			
-			if( evt.substr(0,8) !== "internal" ){
+			if( evt.substring(0,8) !== "internal" ){
 
 				const binding = GameEvent.on(evt, event => {
 					this.trigger(event);

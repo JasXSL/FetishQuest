@@ -348,6 +348,7 @@ export class RoleplayStage extends Generic{
 		this.store_pl = RoleplayStage.StoreType.IGNORE;		// Alter the parent._targetPlayers for use in conditions and texts
 		this.shuffle_texts = RoleplayStage.Shuffle.NONE;	// Shuffles the text order
 		this.game_actions = [];			// GameActions to apply when encountering this stage
+		this.target = RoleplayStage.Target.auto;			// Selects who is considered the "target" when reaching this stage
 
 		// local
 		this._iniPlayer = '';		// ID of player that triggered this stage. If there are multiple players, the first one is picked.
@@ -385,7 +386,7 @@ export class RoleplayStage extends Generic{
 		};
 
 		if( full ){
-			
+			out.target = this.target;
 			out.store_pl = this.store_pl;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
@@ -427,9 +428,13 @@ export class RoleplayStage extends Generic{
 		}
 	}
 
-	// Player who triggered this stage
+	// Player or players who triggered this stage
 	getInitiatingPlayer(){
+
+		if( this.target === RoleplayStage.Target.rpTargets )
+			return this.parent.getTargetPlayers();
 		return game.getPlayerById(this._iniPlayer);
+
 	}
 
 	getPlayer(){
@@ -471,6 +476,7 @@ export class RoleplayStage extends Generic{
 		if( !players )
 			players = [game.getMyActivePlayer()];
 
+		// Actions that act on event target
 		if( players.length ){
 			
 			this._iniPlayer = players[0].id;
@@ -503,12 +509,17 @@ export class RoleplayStage extends Generic{
 
 		}
 
+		// Actions to run on the NPC who is speaking
 		const pl = this.getPlayer();
 		if( pl && this.chat !== RoleplayStageOption.ChatType.none )
 			RoleplayChatQueue.output(pl, this);
 
-		for( let act of this.game_actions ){
-			await act.trigger(players[0], pl);
+		// Actions that act on target specified by this.target
+		const iniPlayers = toArray(this.getInitiatingPlayer());
+		for( let p of iniPlayers ){
+			for( let act of this.game_actions ){
+				await act.trigger(p, pl);
+			}
 		}
 
 		const tevt = this.getTextEvent();
@@ -641,6 +652,12 @@ RoleplayStage.StoreType = {
 	ADD : 3,
 	REM : 4,
 	PURGE : 5,
+};
+
+// Who should be considered the target for texts and game actions
+RoleplayStage.Target = {
+	auto : 'auto',				// Use auto target (the player who brought you to the stage)
+	rpTargets : 'rpTargets',	// Use RP targets
 };
 
 

@@ -51,6 +51,13 @@ export function asset(){
 		}
 		html += '</select></label>';
 
+		html += '<label title="Sets target for texts/game actions">Text/GA Target: <select name="target" class="saveable">';
+		for( let type in RoleplayStage.Target ){
+			const n = RoleplayStage.Target[type];
+			html += '<option value="'+n+'" '+(n === asset.target ? 'selected' : '')+'>'+type+'</option>';
+		}
+		html += '</select></label>';
+
 	html += '</div>';
 
 
@@ -176,6 +183,10 @@ export function help(){
 		'<tr>'+
 			'<td>Shuffle type</td>'+
 			'<td>When using multiple texts you can use this to shuffle their order. ALL_BUT_LAST allows you to set a default response if no above responses pass filter. An example is the scruffy bar patron who shuffles a rumor text when you ask him for rumors, and has a fallback if he has no viable ones.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Text/GA Target</td>'+
+			'<td>Who should be considered target of the RP text and game actions? Auto = player who took you to this stage in the roleplay.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Player</td>'+

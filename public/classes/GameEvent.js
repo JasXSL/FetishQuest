@@ -74,13 +74,38 @@ export default class GameEvent extends Generic{
 
 	}
 
+	// Starts with evt_ and tries to add mutable characteristics from custom
+	appendMathVars(input){
+		
+		for( let i in this.custom ){
+
+			let val = this.custom[i];
+			let type = typeof val;
+			if( ['string', 'number', 'boolean'].includes(type) )
+				input['evt_'+i] = val;
+
+		}
+
+	}
+
 	// Merges any unset values in this event to values of another
 	mergeUnset( event ){
 
 		for( let i in event ){
 
 			if( this[i] === null )
-				this[i] = event[i]
+				this[i] = event[i];
+			// Special case for custom since it's never null
+			else if( i === "custom" ){
+
+				for( let c in event[i] ){
+
+					if( !this.custom.hasOwnProperty(c) )
+						this.custom[c] = event[i][c];
+
+				}
+
+			}
 
 		}
 		return this;
@@ -166,6 +191,8 @@ GameEvent.Types = {
 
 	encounterStarted : 'encounterStarted',	
 	blockExpired : 'blockExpired',
+	blockAdded : 'blockAdded',
+	blockSubtracted : 'blockSubtracted',
 	dungeonExited : 'dungeonExited',		
 	dungeonEntered : 'dungeonEntered',		
 	
@@ -174,16 +201,18 @@ GameEvent.Types = {
 	explorationComplete : 'explorationComplete',	
 	sleep : 'sleep',		
 	stun : 'stun',
+	
 };
 
+// {customParams} description
 GameEvent.TypeDescs = {
 	[GameEvent.Types.none] : 'Can be used internally',	
 	[GameEvent.Types.all] : 'Varied, raised on every event',
-	[GameEvent.Types.damageDone] : 'sender, target, action, wrapper',			//* 
-	[GameEvent.Types.damageTaken] : 'sender, target, action, wrapper',
-	[GameEvent.Types.healingDone] : '',
-	[GameEvent.Types.healingTaken] : '',
-	[GameEvent.Types.sleep] : 'custom: {duration:(int)hours}',
+	[GameEvent.Types.damageDone] : '{evt_amount:(int)amount, evt_overAmount:(int)overKill} sender, target, action, wrapper',			//* 
+	[GameEvent.Types.damageTaken] : '{evt_amount:(int)amount, evt_overAmount:(int)overKill} sender, target, action, wrapper',
+	[GameEvent.Types.healingDone] : '{evt_amount:(int)amount, evt_overAmount:(int)overHeal}',
+	[GameEvent.Types.healingTaken] : '{evt_amount:(int)amount, evt_overAmount:(int)overHeal}',
+	[GameEvent.Types.sleep] : '{duration:(int)hours}',
 	[GameEvent.Types.interrupt] : 'A charged action was interrupted',			// 
 	[GameEvent.Types.inventoryChanged] : 'Inventory has changed',			// 
 	[GameEvent.Types.actionCharged] : 'Used a charged action',	// 
@@ -227,7 +256,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.dungeonEntered] : 'Raised with the dungeon being the dungeon you just entered',					// 
 	[GameEvent.Types.textTrigger] : 'Raised when a text is triggered.',			
 	[GameEvent.Types.explorationComplete] : 'Raised when a procedural dungeon is fully explored.',			
-	[GameEvent.Types.blockExpired] : 'Raised when block expires.',			
+	[GameEvent.Types.blockExpired] : '{evt_amount:(int)amount} Raised when block expires.',			
 
 };
 

@@ -3965,6 +3965,17 @@ export default class Game extends Generic{
 
 
 
+	/* Utility shortcuts */
+	// Quickly adds a wrapper by a library label to player. If sender isn't specified, it uses target
+	utilAddWrapper( target, wrapper, sender, crit = false ){
+
+		if( !sender )
+			sender = target;
+
+		glib.get(wrapper, 'Wrapper').useAgainst(sender, target, false, false, undefined, crit);
+
+	}
+
 
 	/* WEATHER */
 	getRain( allowIndoor ){

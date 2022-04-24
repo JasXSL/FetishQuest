@@ -43,6 +43,8 @@ Calculator.run = function( formula, event, customMathVars ){
 	// Vars from game
 	let vars = game.getMathVars();
 
+	event.appendMathVars(vars);
+
 	if( customMathVars && typeof customMathVars === "object" ){
 
 		for( let i in customMathVars )

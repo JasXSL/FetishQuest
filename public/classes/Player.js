@@ -1231,7 +1231,9 @@ export default class Player extends Generic{
 		this.iBlock = 0;
 		
 		if( this._untappedBlock )
-			new GameEvent({sender:this, target:this, type:GameEvent.Types.blockExpired}).raise();
+			new GameEvent({sender:this, target:this, type:GameEvent.Types.blockExpired, custom:{
+				amount: this._untappedBlock
+			}}).raise();
 
 		// Wipe turnTags on start
 		this.resetTurnTags();
@@ -2489,7 +2491,7 @@ export default class Player extends Generic{
 	}
 
 	// Adds block. Returns the amount added/subtracted
-	addBlock( amount ){
+	addBlock( amount, byPlayer ){
 		
 		let pre = this.getBlock();
 		
@@ -2518,8 +2520,20 @@ export default class Player extends Generic{
 				this.iBlock += amount;
 
 		}
+
+		let added = this.getBlock()-pre;
+
+		const evt = new GameEvent({
+			sender : byPlayer,
+			target : this,
+			custom : {
+				amount : Math.abs(added)
+			}
+		});
+		evt.type = added > 0 ? GameEvent.Types.blockAdded : GameEvent.Types.blockSubtracted;
+		evt.raise();
 		
-		return this.getBlock()-pre;
+		return added;
 
 	}
 
@@ -3712,6 +3726,11 @@ export default class Player extends Generic{
 	// Use Wrapper.useAgainst, not this
 	// Also see rebindWrappers for ignoreStayCheck
 	addWrapper( wrapper, ignoreStayCheck = false ){
+
+		if( typeof wrapper === "string" ){
+			console.error("Attempting to use addWrapper with a string. You probably wanted game.utilAddWrapper(target, '"+wrapper+"', sender=target)", );
+			return;
+		}
 
 		wrapper.parent = this;
 		this.wrappers.push(wrapper);
