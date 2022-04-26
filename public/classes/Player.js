@@ -3002,7 +3002,8 @@ export default class Player extends Generic{
 			return false;
 		}
 		if( this.getLearnedActionByLabel(action.label) ){
-			console.error("Action already learned");
+			if( !silent )
+				console.error("Action already learned");
 			return false;
 		}
 

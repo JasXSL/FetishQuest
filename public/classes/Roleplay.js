@@ -322,7 +322,7 @@ export default class Roleplay extends Generic{
 				return false;
 
 		}
-		else
+		else if( player )	// Clear throws an issue without this if, since player is undefined on rp clear
 			out = [player];
 
 		return out;

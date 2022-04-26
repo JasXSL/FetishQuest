@@ -417,9 +417,7 @@ export default class GameAction extends Generic{
 
 			game.startEncounter(player, encounter, !this.data.replace, mesh);
 			this.remove();	// Prevent it from restarting
-			if( asset )
-				asset.updateInteractivity();	// After removing the action, update interactivity
-
+			asset?.updateInteractivity?.();	// After removing the action, update interactivity
 		}
 		else if( this.type === types.resetEncounter ){
 
