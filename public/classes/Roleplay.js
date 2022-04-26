@@ -322,6 +322,8 @@ export default class Roleplay extends Generic{
 				return false;
 
 		}
+		else
+			out = [player];
 
 		return out;
 
@@ -527,6 +529,7 @@ export class RoleplayStage extends Generic{
 		players = toArray(players);
 
 		this._textEvent = false;
+		// Ugly workaround
 		if( !players )
 			players = [game.getMyActivePlayer()];
 
