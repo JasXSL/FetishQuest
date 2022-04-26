@@ -1784,8 +1784,6 @@ export default class UI{
 		const wrappers = p.getWrappers().filter(el => !el.hidden && el.name.length && el.icon && el.parent instanceof Player),
 			wrapperButtons = $('> div', wrappersEl);
 		
-		
-
 		wrapperButtons.toggleClass('hidden', true);
 
 		wrappers.sort((a, b) => {
@@ -3404,7 +3402,7 @@ export default class UI{
 		}
 
 		tooltip += '</em><br />'+
-			stylizeText(esc(wrapper.getDescription()));
+			stylizeText(wrapper.getDescription());	// Stylize escapes
 		if( elTooltip.html() !== tooltip )
 			elTooltip.html(tooltip);
 

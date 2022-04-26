@@ -4,6 +4,7 @@ import GameEvent from './GameEvent.js';
 import GameAction from './GameAction.js';
 import Game from './Game.js';
 import Text from './Text.js';
+import Collection from './helpers/Collection.js';
 export default class Roleplay extends Generic{
 
 	static getRelations(){ 
@@ -37,10 +38,11 @@ export default class Roleplay extends Generic{
 		this.maxPlayers = -1;		// -1 = infinite.
 		this.gameActions = [];		// Ran after building the targetPlayers list. The main purpose of having this here is to allow sorting players BEFORE starting the RP.
 
+		this.vars = new Collection({}, this);	// Like dungeonvars, but tied to an RP. Loaded onto by state. 
+
 		this._waiting = false;		// Waiting to change stage
 		this._targetPlayers = [];	// Set automatically when the roleplay starts, containing the instigators. 
 									// Can also be set on roleplay stage to store the target, for use with texts and conditions
-
 		this.load(data);
 
 	}
@@ -79,6 +81,7 @@ export default class Roleplay extends Generic{
 			once : this.once,
 			portrait : this.portrait,
 			_targetPlayers : this._targetPlayers,
+			vars : this.vars.save(full)
 		};
 
 		if( full ){
@@ -106,6 +109,8 @@ export default class Roleplay extends Generic{
 		
 		if( this.once && !this.label )
 			console.error("ONCE roleplay doesn't have a label", this);
+
+		this.vars = Collection.loadThis(this.vars, this);
 
 		if( this.hasGameParent() ){
 			this.loadState();
@@ -136,6 +141,11 @@ export default class Roleplay extends Generic{
 					completed : false
 				};
 
+			if( state.hasOwnProperty('vars') ){
+				for( let i in state.vars )
+					this.vars[i] = state.vars[i];
+			}
+
 			if( this.persistent && state.hasOwnProperty("stage") && state.stage !== -1 )
 				this.stage = state.stage;
 
@@ -152,6 +162,23 @@ export default class Roleplay extends Generic{
 	clone(parent){
 
 		let out = new this.constructor(Roleplay.saveThis(this, true), parent);
+		return out;
+
+	}
+
+
+	getMathVars(){
+
+		let v = this.vars.save();
+		let out = {};
+		for( let i in v ){
+
+			let val = v[i];
+			let ty = typeof val;
+			if( ["string","boolean","number"].includes(ty) )
+				out[i] = val;
+
+		}
 		return out;
 
 	}
@@ -270,25 +297,31 @@ export default class Roleplay extends Generic{
 		let targs = [];
 		if( player )
 			targs.push(player);
-		if( this.playerConds.length && this.minPlayers > 0 )
-			targs = shuffle(game.getEnabledPlayers());
-
-		let maxPlayers = this.maxPlayers;
 
 		let out = [];
-		for( let targ of targs ){
+		// PlayerConditions set. We'll need to pick targets, otherwise just return player
+		if( this.playerConds.length && this.minPlayers > 0 ){
 
-			evt.target = targ;
-			if( Condition.all(this.playerConds, evt, debug) )
-				out.push(targ);
+			targs = shuffle(game.getEnabledPlayers());
 
-			if( maxPlayers > -1 && out.length >= maxPlayers )
-				break;
+			let maxPlayers = this.maxPlayers;
+
+			
+			for( let targ of targs ){
+
+				evt.target = targ;
+				if( Condition.all(this.playerConds, evt, debug) )
+					out.push(targ);
+
+				if( maxPlayers > -1 && out.length >= maxPlayers )
+					break;
+
+			}
+
+			if( out.length < this.minPlayers )
+				return false;
 
 		}
-
-		if( out.length < this.minPlayers )
-			return false;
 
 		return out;
 
@@ -457,7 +490,7 @@ export class RoleplayStage extends Generic{
 		return game.getPlayerById(this._iniPlayer);
 
 	}
-
+	
 	getPlayer(){
 		
 		let pl = game.getPlayerByLabel(this.player);

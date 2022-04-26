@@ -2,10 +2,11 @@
 	- Keep redesigning errors to a try/catch system
 	- Add more automatic asset unrolling as you discover rolled up assets
 
+
 	Bugs:
 		- Sometimes using repair kits fails?
 		- Groin twist event shows up in female
-		
+
 	- Item ideas:
 		- Potion that prevents block from falling off for a few turns
 		- Block Potion
@@ -22,6 +23,7 @@
 		- Heal aggro multipliers
 		- Generic stat modifiers
 		- Reduce block efficiency
+			- New effect type needed
 		- Summon a custom outfit onto a player that they can't remove until it expires
 
 	- Action ideas:

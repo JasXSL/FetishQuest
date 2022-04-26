@@ -1121,6 +1121,10 @@ export default class Game extends Generic{
 		for( let f of this.factions )
 			out['fac_'+f.label] = f.standing;
 
+		const rp = this.roleplay.getMathVars();
+		for( let i in rp )
+			out['rp_'+i] = rp[i];
+
 		return out;
 	}
 
@@ -2922,6 +2926,7 @@ export default class Game extends Generic{
 			console.error("Unable to save roleplay with out label", roleplay);
 			return;
 		}
+
 		if( !this.state_roleplays[roleplay.label] )
 			this.state_roleplays[roleplay.label] = new Collection({}, this);
 		const cache = this.state_roleplays[roleplay.label];
@@ -2929,6 +2934,8 @@ export default class Game extends Generic{
 			cache.stage = roleplay.stage;
 		if( roleplay.once )
 			cache.completed = roleplay.completed;
+		cache.vars = roleplay.vars.save(true);
+
 	}
 
 	wipeRPState( label ){

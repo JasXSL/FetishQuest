@@ -55,6 +55,10 @@ export function asset(){
 	'</label>'+
 	'<div class="gameActions"></div>';
 
+	html += 'Vars (this is a key/value object that can be acted upon by game actions). These can only be acted upon and found in mathVars while this roleplay is active. When used in mathvars they get prefixed with rp_<br />';
+	html += '<textarea class="json" name="vars">'+esc(JSON.stringify(dummy.vars))+'</textarea><br />';
+
+
 
 	this.setDom(html);
 

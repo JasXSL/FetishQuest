@@ -880,7 +880,7 @@ export function asset(){
 			this.dom.querySelector("div.action_edit").appendChild(EditorAction.assetTable(this, asset, "data::action", true));
 		};
 	}
-	else if( type === Types.dungeonVar ){
+	else if( type === Types.dungeonVar || type === Types.setRpVar ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				id : '',
@@ -889,8 +889,17 @@ export function asset(){
 
 		html += '<div class="labelFlex">';
 			html += '<label title="ID of the var to set">ID: <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';
-			html += '<label>Value: Can be a formula<br />';
-			html += '<input type="text" name="data::val" class="saveable" data-type="smart" value="'+esc(dummy.data.val)+'" /></label>';
+			html += '<label>Value: Can be a formula. Don\'t forget to prefix rp_ if accessing rp vars here.<br />';
+			html += '<input type="text" name="data::val" class="saveable" data-type="smart" value="'+esc(dummy.data.val || '')+'" /></label>';
+		html += '</div>';
+	}
+	else if( type === Types.resetRpVar ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				var : ''
+			};
+		html += '<div class="labelFlex">';
+			html += '<label title="Empty resets all">Var to reset: <input type="text" name="data::var" class="saveable" value="'+esc(asset.data.var || '')+'" /></label>';
 		html += '</div>';
 	}
 	else if( type === Types.playerMarker ){

@@ -56,7 +56,7 @@ export function asset(){
 
 	html += '</div>';
 
-	html += '<textarea class="saveable" name="description">'+esc(dummy.description)+'</textarea>';
+	html += '<textarea class="saveable" name="description">'+esc(dummy.description, true)+'</textarea>';
 
 	// Tags
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';

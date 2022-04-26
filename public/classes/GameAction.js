@@ -513,6 +513,49 @@ export default class GameAction extends Generic{
 			dungeon.setVar(this.data.id, val);
 			
 		}
+		else if( this.type === types.setRpVar ){
+
+			let rp = game.roleplay;
+			if( rp.label === '' )	// Not in an RP
+				return;
+			let id = String(this.data.id).trim();
+			let val = String(this.data.val).trim();
+			if( !id || typeof val !== "string" )
+				return;
+
+			const evt = new GameEvent({
+				sender:rp.getActiveStage().getPlayer() || player,
+				target:player,
+			});
+			rp.vars.set(id, Calculator.run(val, evt, {}));
+
+		}
+		else if( this.type === types.resetRpVar ){
+
+			const rp = game.roleplay;
+			let vars = [this.data.var];
+			if( !rp )
+				return;
+
+			let base = glib.get(game.roleplay.label, 'Roleplay');
+			if( !base )
+				return;
+
+			if( String(this.data.var).trim() === '' )
+				vars = rp.vars.keys();
+
+			for( let k of vars ){
+
+				if( base.vars.hasOwnProperty(k) )
+					rp.vars[k] = base.vars[k];
+				else
+					rp.vars.unset(k);
+
+			}
+			game.saveRPState(rp);
+
+		}
+
 		else if( this.type === types.anim ){
 
 			playAnim(this.data.anim, this.data.targ);
@@ -1192,6 +1235,8 @@ GameAction.types = {
 	removePlayer : 'removePlayer',
 	sortRpTargets : 'sortRpTargets',
 	sliceRpTargets : 'sliceRpTargets',
+	resetRpVar : 'resetRpVar',					// Tries to reset RP vars of the current roleplay
+	setRpVar : 'setRpVar',						// 
 };
 
 GameAction.TypeDescs = {
@@ -1245,6 +1290,9 @@ GameAction.TypeDescs = {
 	[GameAction.types.setPlayerTeam] : '{playerConds:(arr)player_conds=GameActionPlayer, team=Player.TEAM_PLAYER} - Changes one or more players teams',
 	[GameAction.types.sortRpTargets] : '{mathvars:[{var:(str)label, desc:(bool)desc=false}...]} - Sorts rpTargets based on mathvars. Only mathvars for ta_ are set',
 	[GameAction.types.sliceRpTargets] : '{start:(int)=0, nrPlayers:(int)=-1} - Converts rpTargets to a subset of targets',
+	[GameAction.types.resetRpVar] : '{var:(str)var=ALL} - Tries to reset a var in the active RP. If vars is empty, it resets all',
+	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula} - Sets an RP var',
+	
 };
 
 // type : {[fieldName]:constructor}
