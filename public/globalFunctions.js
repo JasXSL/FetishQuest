@@ -166,13 +166,10 @@ function valsToKeys( input = [] ){
 
 // Takes a float and floors it, if there's a remainder, it might be add 1 to the floored value based on the remainder as percentage
 function randRound( val = 0 ){
-	let base = parseInt(val);
-	let fract = val-base;
-	if( fract < 0 )
-		fract = 1.0-fract;	// Negative goes the other way
+	let fract = Math.abs(val)-Math.abs(Math.trunc(val));
 	if( fract > Math.random() )
-		base += base > 0 ? 1 : -1;
-	return base;
+		val += val >= 0 ? 1 : -1;
+	return Math.round(val);
 }
 
 // Turns a label like yuug_deep_forest into a name like Yuug Deep Forest

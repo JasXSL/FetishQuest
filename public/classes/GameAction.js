@@ -531,7 +531,7 @@ export default class GameAction extends Generic{
 		else if( this.type === types.resetRpVar ){
 
 			const rp = game.roleplay;
-			let vars = [this.data.var];
+			let vars = [];
 			if( !rp )
 				return;
 
@@ -539,7 +539,7 @@ export default class GameAction extends Generic{
 			if( !base )
 				return;
 
-			if( String(this.data.var).trim() === '' )
+			if( this.data.var === undefined || String(this.data.var).trim() === '' )
 				vars = rp.vars.keys();
 
 			for( let k of vars ){

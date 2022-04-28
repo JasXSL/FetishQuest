@@ -487,8 +487,11 @@ export class RoleplayStage extends Generic{
 	// Player or players who triggered this stage
 	getInitiatingPlayer(){
 
+		let ptp = this.parent.getTargetPlayers();
+		if( this.target === RoleplayStage.Target.firstRpTarget )
+			return ptp[0];
 		if( this.target === RoleplayStage.Target.rpTargets )
-			return this.parent.getTargetPlayers();
+			return ptp;
 		return game.getPlayerById(this._iniPlayer);
 
 	}
@@ -713,8 +716,9 @@ RoleplayStage.StoreType = {
 
 // Who should be considered the target for texts and game actions
 RoleplayStage.Target = {
-	auto : 'auto',				// Use auto target (the player who brought you to the stage)
-	rpTargets : 'rpTargets',	// Use RP targets
+	auto : 'auto',					// Use auto target (the player who brought you to the stage)
+	rpTargets : 'rpTargets',		// Use RP targets
+	firstRpTarget: 'firstRpTarget',	// Use the first RP target
 };
 
 

@@ -67,7 +67,7 @@ export function asset(){
 	this.dom.querySelector("div.playerConds").appendChild(EditorCondition.assetTable(this, asset, "playerConds", false, false));
 	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, 2));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
-	this.dom.querySelector("div.gameActions").appendChild(EditorGameAction.assetTable(this, asset, "gameActions", true));
+	this.dom.querySelector("div.gameActions").appendChild(EditorGameAction.assetTable(this, asset, "gameActions", false));
 
 	HelperAsset.autoBind( this, asset, DB);
 

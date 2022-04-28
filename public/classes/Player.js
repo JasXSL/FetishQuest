@@ -2639,6 +2639,7 @@ export default class Player extends Generic{
 			sender = this;
 			
 		const pre = this.arousal, max = this.getMaxArousal();
+		amount = randRound(amount);
 		this.arousal += amount;
 		this.arousal = Math.floor( Math.min(max, Math.max(0, this.arousal)) );
 
