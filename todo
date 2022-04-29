@@ -1,11 +1,17 @@
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system
 	- Add more automatic asset unrolling as you discover rolled up assets
-
+	- Sometimes using repair kits fails?
+	- Groin twist event shows up in female. Need to check all game actions in event?
 
 	Bugs:
-		- Sometimes using repair kits fails?
-		- Groin twist event shows up in female
+
+	Editor:
+		GameAction:
+			- RemoveFromDungeonVar
+			- RemoveFromRpVar
+		
+		
 
 	- Item ideas:
 		- Potion that prevents block from falling off for a few turns

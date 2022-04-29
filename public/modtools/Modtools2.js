@@ -54,6 +54,7 @@ import * as EditorArmorEnchant from './editors/EditorArmorEnchant.js';
 import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
 import Condition from '../classes/Condition.js';
+import Calculator from '../classes/Calculator.js';
 
 
 // Window types that should be tracked
@@ -937,6 +938,12 @@ export default class Modtools{
 						}
 					});
 					return compile;
+				}
+			},
+			{
+				label : 'mathTargs',
+				fn : () => {
+					return Calculator.Targets;
 				}
 			}
 		];

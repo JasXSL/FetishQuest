@@ -1125,6 +1125,24 @@ export default class Game extends Generic{
 		for( let i in rp )
 			out['rp_'+i] = rp[i];
 
+		// Dungeon vars
+		const dungeons = glib.getFull('Dungeon');
+		
+		// First add the default vars
+		for( let st in dungeons ){
+			const d = dungeons[st];
+			let v = d.vars;
+			for( let i in v )
+				out['d_'+d.label+'_'+i] = v[i];
+		} 
+		let states = this.state_dungeons;
+		for( let st in states ){
+			let d = states[st];
+			let v = d.vars;
+			for( let i in v )
+				out['d_'+st+'_'+i] = v[i];
+		}
+
 		return out;
 	}
 

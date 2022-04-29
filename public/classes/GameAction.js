@@ -369,7 +369,8 @@ export default class GameAction extends Generic{
 	}
 
 	// Runs the game action
-	async exec( player, mesh, debug ){
+	// Player is the target, sender is optional
+	async exec( player, mesh, debug, sender ){
 
 		const asset = this.parent;
 		const types = GameAction.types;
@@ -553,6 +554,49 @@ export default class GameAction extends Generic{
 			game.saveRPState(rp);
 
 		}
+
+		else if( this.type === types.removeFromDungeonVar || this.type === types.removeFromRpVar){
+
+			let ids = toArray(this.data.ids);
+			if( !Array.isArray(this.data.players) )
+				return false;
+
+			let playersToRemove = Calculator.targetsToKeys(this.data.players, new GameEvent({sender, target:player}));	// returns IDs
+			if( !playersToRemove.length )
+				return;
+
+			if( this.type === types.removeFromDungeonVar && typeof this.data.dungeon !== "string" )
+				return;
+
+			let dvars = game.roleplay.vars;
+			if( this.type === types.removeFromDungeonVar )
+				dvars = game.state_dungeons[this.data.dungeon]?.vars;
+
+			// No dvars set
+			if( !dvars )
+				return false;
+
+			for( let id of ids ){
+				
+				let v = dvars.get(id);
+				// this dvar doesn't exist or isn't an array yet
+				if( !Array.isArray(v) )
+					continue;
+
+				// Remove the players
+				for( let pl of playersToRemove ){
+
+					let index = v.indexOf(pl);
+					if( index !== -1 )
+						v.splice(index, 1);
+
+				}
+
+			}
+			game.save();
+
+		}
+
 
 		else if( this.type === types.anim ){
 
@@ -1085,7 +1129,7 @@ export default class GameAction extends Generic{
 	}
 
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
-	async trigger( player, mesh, debug ){
+	async trigger( player, mesh, debug, sender ){
 		
 		if( !player )
 			player = game.getMyActivePlayer();
@@ -1113,7 +1157,7 @@ export default class GameAction extends Generic{
 		let successes = 0;
 		for( let target of targets ){
 			try{
-				const att = await this.exec(target, mesh, debug);
+				const att = await this.exec(target, mesh, debug, sender);
 				if( att !== false )
 					++successes;
 			}catch(err){
@@ -1187,6 +1231,7 @@ GameAction.types = {
 	resetEncounter : "resetEnc",
 	wrappers : "wra",
 	dungeonVar : "dvar",
+	removeFromDungeonVar : "removeFromDungeonVar",
 	loot : "loot",
 	autoLoot : "aLoot",				// 
 	door : "door",					// 
@@ -1235,6 +1280,7 @@ GameAction.types = {
 	sliceRpTargets : 'sliceRpTargets',
 	resetRpVar : 'resetRpVar',					// Tries to reset RP vars of the current roleplay
 	setRpVar : 'setRpVar',						// 
+	removeFromRpVar : 'removeFromRpVar',						// 
 };
 
 GameAction.TypeDescs = {
@@ -1277,6 +1323,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
 	[GameAction.types.addTime] : '{seconds:(int)seconds}',
 	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula} - Sets a variable in the currently active dungeon',
+	[GameAction.types.removeFromDungeonVar] : '{ids:(arr)ids, dungeon:(str)label, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more dvars',
 	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',
 	[GameAction.types.refreshPlayerVisibility] : 'void - Forces the game to refresh visibility of players.',
 	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
@@ -1290,6 +1337,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.sliceRpTargets] : '{start:(int)=0, nrPlayers:(int)=-1} - Converts rpTargets to a subset of targets',
 	[GameAction.types.resetRpVar] : '{var:(str)var=ALL} - Tries to reset a var in the active RP. If vars is empty, it resets all',
 	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula} - Sets an RP var',
+	[GameAction.types.removeFromRpVar] : '{ids:(arr)ids, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more rpvars',
 	
 };
 

@@ -1217,6 +1217,33 @@ export default class Condition extends Generic{
 
 			}
 
+			else if( this.type === T.targetIsMathVar || this.type === T.rpTargetIsMathVar ){
+
+				let vars = game.getMathVars();
+				let v = vars[this.data.mathvar];
+				if( Array.isArray(v) ){
+
+					let check = toArray(t);
+					if( this.type === T.rpTargetIsMathVar ){
+						check = game.roleplay.getTargetPlayers();
+						let idx = parseInt(this.data.index);
+						if( idx !== NaN && idx > -1 )
+							check = [check[idx]];
+					}
+					success = true;
+					for( let pl of check ){
+
+						if( !v.includes(pl.id) ){
+							success = false;
+							break;
+						}
+
+					}
+
+				}
+
+			}
+
 			else if( this.type === T.targetedSenderLastRound )
 				success = Boolean(s._targeted_by_since_last.get(t.id));
 
@@ -1473,6 +1500,8 @@ Condition.Types = {
 	dungeonTemplateRoomHasEncounter : 'dungeonTemplateRoomHasEncounter',
 	roomTag : 'roomTag',
 	numRpTargets : 'numRpTargets',
+	targetIsMathVar : 'targetIsMathVar',
+	rpTargetIsMathVar : 'rpTargetIsMathVar',
 };
 
 
@@ -1578,6 +1607,9 @@ Condition.descriptions = {
 	[Condition.Types.dungeonTemplateRoomHasEncounter] : '{label:(str/arr)label} - Requires custom.viableEncounters. Used only in the procedural dungeon generator, checks if the encounter pool has at least one viable encounter by label.',
 	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
 	[Condition.Types.isTaunted] : '{byCaster:(bool)=false} Checks if the target is taunted.',
+	[Condition.Types.targetIsMathVar] : '{mathvar:(str)mathvar} - Checks if player is the value of a mathvar. Relies on mathvars set by supplying a JSON array of target/event constants when setting dvars or rpvars.',
+	[Condition.Types.rpTargetIsMathVar] : '{mathvar:(str)mathvar, index:(int)playerIndex=-1} - Checks if rpTarget is the value of a mathvar. Relies on mathvars set by supplying a JSON array of target/event constants when setting dvars or rpvars.',
+	
 };
 
 

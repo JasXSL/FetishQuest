@@ -171,14 +171,9 @@ export default class Roleplay extends Generic{
 
 		let v = this.vars.save();
 		let out = {};
-		for( let i in v ){
-
-			let val = v[i];
-			let ty = typeof val;
-			if( ["string","boolean","number"].includes(ty) )
-				out[i] = val;
-
-		}
+		// Don't do type filtering, because we need arrays for storing players in dvars
+		for( let i in v )
+			out[i] = v[i];
 		return out;
 
 	}
@@ -272,7 +267,12 @@ export default class Roleplay extends Generic{
 
 		// Run gameActions
 		for( let action of this.gameActions )
-			action.trigger(players);
+			action.trigger(
+				players, 
+				undefined, 			// mesh
+				false, 				// Debug
+				this.getPlayer()	// Sender
+			);
 		
 		const stage = this.getActiveStage();
 		if( stage )
@@ -578,7 +578,7 @@ export class RoleplayStage extends Generic{
 		const iniPlayers = toArray(this.getInitiatingPlayer());
 		for( let p of iniPlayers ){
 			for( let act of this.game_actions ){
-				await act.trigger(p, pl);
+				await act.trigger(p, undefined, false, pl);
 			}
 		}
 
@@ -842,7 +842,7 @@ export class RoleplayStageOption extends Generic{
 		
 		// Do these last as they might force a UI draw, which might draw the wrong RP option
 		for( let act of this.game_actions ){
-			await act.trigger(player, pl);
+			await act.trigger(player, undefined, false, pl);
 		}
 
 		return true;

@@ -22,9 +22,32 @@ import Generic from '../../classes/helpers/Generic.js';
 import GameAction from '../../classes/GameAction.js';
 import Dungeon, { DungeonRoom } from '../../classes/Dungeon.js';
 import Player from '../../classes/Player.js';
+import Calculator from '../../classes/Calculator.js';
 
 const DB = 'gameActions',
 	CONSTRUCTOR = GameAction;
+
+const calcVarDesc =`
+dVars and rpVars can be arrays of players. When working with them, you'll use Calculator target constants. These viable ones are:
+<ul>
+	<li>Targets: Adds all event targets</li>
+	<li>Sender: Adds event sender</li>
+	<li>TargetN: Adds a specific target from the event, such as Target0, Target1...</li>
+	<li>RpTargets: Adds all RP targets</li>
+	<li>RpTargetN: Adds a single RP target by index such as RpTarget0, RpTarget1...</li>
+</ul>
+You can then check if a player is tied to the var by using the targetIsMathVar/rpTargetIsMathVar conditions.
+You can alter the list by using gameactions
+<br /><br />
+`;
+Calculator.Targets = {
+	Targets : 'Targets',	// Appends all targets from event
+	Sender : 'Sender',		// Appends sender from event
+	Target : 'Target',		// Followed by a number, such as Target0, Target1, to specify specific targets. If a target doesn't exist, it's ignored.
+	RpTarget : 'RpTarget',		// Followed by a number, such as RpTarget0, RpTarget1, to specify specific rp targets. If a target doesn't exist, it's ignored.
+	RpTargets : 'RpTargets',		// Appends all rp targets.
+};
+
 
 // Single asset editor
 export function asset(){
@@ -45,7 +68,8 @@ export function asset(){
 			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Description: <input type="text" name="desc" class="saveable" value="'+esc(dummy.desc)+'" /></label>';
 		html += '<label>Type: <select name="type" class="saveable">';
-		for( let i in GameAction.types )
+		let types = Object.keys(GameAction.types).sort();
+		for( let i of types )
 			html += '<option value="'+esc(GameAction.types[i])+'" '+(GameAction.types[i] === dummy.type ? 'selected' : '')+'>'+esc(i)+'</option>';
 		html += '</select></label>';
 	html += '</div>';
@@ -503,6 +527,119 @@ export function asset(){
 		};
 
 	}
+	else if( type == Types.removeFromDungeonVar || type === Types.removeFromRpVar ){
+
+		if( !asset.data || typeof asset.data !== "object" ){
+			asset.data = {
+				ids : [],
+				players : [],
+			};
+			if( type === Types.removeFromDungeonVar )
+				asset.data.dungeon = '';
+		}
+		if( !Array.isArray(asset.data.ids) )
+			asset.data.ids = [];
+		if( !Array.isArray(asset.data.players) )
+			asset.data.players = [];
+
+		
+		
+		if( type === Types.removeFromDungeonVar )
+			html += 'Dungeon: <div class="dungeon"></div>';
+		
+		html += '<br />Vars to remove the player from:<br />';
+		html += '<div class="vars"></div>';	
+		html += '<input type="button" value="Add Var to Reset" class="addVar" />';
+		html += '<br />';
+
+		html += '<br />Players to remove:<br />';
+		html += '<div class="targPlayers"></div>';	
+		html += '<input type="button" value="Add Target" class="addTarget" />';
+		html += '<br />';
+
+		html += calcVarDesc;
+
+		fnBind = () => {
+
+			if( type === Types.removeFromDungeonVar )
+				this.dom.querySelector("div.dungeon").appendChild(EditorDungeon.assetTable(this, asset, "data::dungeon", true));
+
+			const saveTargetFields = () => {
+				
+				const rows = [...this.dom.querySelectorAll('div.targPlayers > input.player')];
+				let out = [];
+				for( let row of rows ){
+					
+					const v = row.value.trim();
+					if( !v )
+						continue;
+					out.push(v);
+					
+				}
+
+				asset.data.players = out;
+				window.mod.setDirty();
+
+			};
+			const saveVarFields = () => {
+				
+				const rows = [...this.dom.querySelectorAll('div.vars > input.var')];
+				let out = [];
+				for( let row of rows ){
+					
+					const v = row.value.trim();
+					if( !v )
+						continue;
+					out.push(v);
+					
+				}
+
+				asset.data.ids = out;
+				window.mod.setDirty();
+
+			};
+
+			const addTargetField = (pl) => {
+
+				if( typeof pl !== "string" )
+					pl = '';
+
+				const field = this.dom.querySelector('div.targPlayers');
+				const sub = document.createElement('input');
+				sub.value = pl;
+				sub.setAttribute('list', 'datalist_mathTargs');
+
+				sub.classList.add('player');
+				field.append(sub);
+				sub.onchange = saveTargetFields;
+
+			};
+			const addVarField = (v) => {
+
+				if( typeof v !== "string" )
+					v = '';
+
+				const field = this.dom.querySelector('div.vars');
+				const sub = document.createElement('input');
+				sub.value = v;
+				sub.classList.add('var');
+				field.append(sub);
+				sub.onchange = saveVarFields;
+
+			};
+			
+			for( let p of asset.data.players ){
+				addTargetField(p);
+			}
+			for( let v of asset.data.ids )
+				addVarField(v);
+
+			this.dom.querySelector('input.addTarget').onclick = addTargetField;
+			this.dom.querySelector('input.addVar').onclick = addVarField;
+
+		};
+
+	}
 
 	// No data, just set it to empty
 	else if( type === Types.visitDungeon ){
@@ -887,11 +1024,14 @@ export function asset(){
 				val : ''
 			};
 
+		html += 'This game action allows you to set vars to player arrays (see below). Simply set the value to a JSON array specifying the players you want to set on the var, ex ["Targets"].';
 		html += '<div class="labelFlex">';
 			html += '<label title="ID of the var to set">ID: <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';
 			html += '<label>Value: Can be a formula. Don\'t forget to prefix rp_ if accessing rp vars here.<br />';
 			html += '<input type="text" name="data::val" class="saveable" data-type="smart" value="'+esc(dummy.data.val || '')+'" /></label>';
 		html += '</div>';
+		
+		html += calcVarDesc;
 	}
 	else if( type === Types.resetRpVar ){
 		if( !asset.data || typeof asset.data !== "object" )

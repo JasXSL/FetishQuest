@@ -487,12 +487,13 @@ class Text extends Generic{
 		if( Array.isArray(event.target) )
 			targ = event.target[0];
 		
-		if( this.chat && this._chatPlayer && game.battle_active ){	// only allow NPC chats in combat. Otherwise RP might cause weird results.
+		if( this.chat ){	// only allow NPC chats in combat. Otherwise RP might cause weird results.
 
-			if( !this.chat_reuse )
-				this._chatPlayer.onChatUsed(this.id);
-			game.speakAs( this._chatPlayer.id, text, false );
-
+			if( this._chatPlayer && game.battle_active ){
+				if( !this.chat_reuse )
+					this._chatPlayer.onChatUsed(this.id);
+				game.speakAs( this._chatPlayer.id, text, false );
+			}
 
 		}
 		else{

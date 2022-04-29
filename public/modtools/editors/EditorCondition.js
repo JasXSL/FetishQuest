@@ -547,6 +547,21 @@ export function asset(){
 		html += 'Formula (not JSON): <textarea class="saveable" name="data::formula">'+esc(asset.data.formula)+'</textarea>';
 
 	}
+	else if( type === types.targetIsMathVar ){
+
+		setDefaultData({mathvar:''});
+		html += 'Mathvar label: <input type="text" class="saveable" name="data::mathvar" value="'+esc(asset.data.mathvar)+'" />';
+
+	}
+	else if( type === types.rpTargetIsMathVar ){
+
+		setDefaultData({mathvar:'', index:-1});
+		html += '<label>Mathvar label: <input type="text" class="saveable" name="data::mathvar" value="'+esc(asset.data.mathvar)+'" /></label>';
+		html += '<label title="Index of player in rpTargets array to check. -1 checks that ALL players are present">'+
+			'Player index: <input type="number" step=1 min=-1 class="saveable" name="data::index" value="'+esc(asset.data.index)+'" />'+
+		'</label>';
+
+	}
 	else if( type === types.genitalSizeValue ){
 
 		// stdTag.breasts/stdTag.penis/stdTag.butt
