@@ -194,7 +194,8 @@ GameEvent.Types = {
 	blockAdded : 'blockAdded',
 	blockSubtracted : 'blockSubtracted',
 	dungeonExited : 'dungeonExited',		
-	dungeonEntered : 'dungeonEntered',		
+	dungeonEntered : 'dungeonEntered',
+	roomChanged : 'roomChanged',			// Whenever you change room
 	
 	rpStage : 'rpStage',	// Roleplay stage changed		
 	textTrigger : 'textTrigger',

@@ -760,6 +760,15 @@ export default class Game extends Generic{
 	}
 	onAfterRoomChange(){
 
+		const evt = new GameEvent({
+			type : GameEvent.Types.roomChanged,
+			dungeon : this.dungeon,
+			room : this.dungeon.getActiveRoom(),
+			sender : this.getMyActivePlayer(),
+			target : this.getTeamPlayers()
+		});
+		evt.raise();
+
 		// Update exploration
 		if( this.dungeon.procedural ){
 
