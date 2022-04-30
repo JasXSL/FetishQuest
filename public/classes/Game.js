@@ -1121,27 +1121,16 @@ export default class Game extends Generic{
 		for( let f of this.factions )
 			out['fac_'+f.label] = f.standing;
 
-		const rp = this.roleplay.getMathVars();
-		for( let i in rp )
-			out['rp_'+i] = rp[i];
-
+		const rps = Roleplay.getPersistent();
+		rps.push(this.roleplay);
+		for( let rp of rps )
+			rp.appendMathVars(out);
+		
 		// Dungeon vars
 		const dungeons = glib.getFull('Dungeon');
+		for( let d in dungeons )
+			dungeons[d].appendMathVars(out);
 		
-		// First add the default vars
-		for( let st in dungeons ){
-			const d = dungeons[st];
-			let v = d.vars;
-			for( let i in v )
-				out['d_'+d.label+'_'+i] = v[i];
-		} 
-		let states = this.state_dungeons;
-		for( let st in states ){
-			let d = states[st];
-			let v = d.vars;
-			for( let i in v )
-				out['d_'+st+'_'+i] = v[i];
-		}
 
 		return out;
 	}
@@ -2940,6 +2929,7 @@ export default class Game extends Generic{
 	saveRPState( roleplay ){
 		if( !roleplay.persistent && !roleplay.once )
 			return;
+		
 		if( !roleplay.label ){
 			console.error("Unable to save roleplay with out label", roleplay);
 			return;
@@ -2947,12 +2937,15 @@ export default class Game extends Generic{
 
 		if( !this.state_roleplays[roleplay.label] )
 			this.state_roleplays[roleplay.label] = new Collection({}, this);
+
 		const cache = this.state_roleplays[roleplay.label];
 		if( roleplay.persistent )
 			cache.stage = roleplay.stage;
 		if( roleplay.once )
 			cache.completed = roleplay.completed;
-		cache.vars = roleplay.vars.save(true);
+
+		if( roleplay.vars_persistent )
+			cache.vars = roleplay.vars.save(true);
 
 	}
 

@@ -35,6 +35,10 @@ Calculator.Targets = {
 };
 
 Calculator.targetsToKeys = function(targArray, event){
+
+	if( !event )
+		console.error("You forgot to supply an event to Calculate.targetToKeys, numbnuts!");
+
 	// Try/catch is needed or debugging will be a pain
 	try{
 		let targs = event.target ? toArray(event.target) : [];
@@ -63,16 +67,80 @@ Calculator.targetsToKeys = function(targArray, event){
 					out.push(game.roleplay._targetPlayers[nr]);
 
 			}
-			else if( vars.hasOwnProperty(itm) )
-				out.push(itm);
 		}
 
-		return out;
+		// Makes unique
+		let build = {};
+		for( let pl of out )
+			build[pl] = 1;
+		return Object.keys(build);
 	}catch(err){
 		console.error(err);
 		return [];
 	}
 
+
+};
+
+// Handles custom mathvar types
+Calculator.appendMathVar = function( key, val, input ){
+
+	// Player specific subkeys
+	if( typeof val === 'object' ){
+
+		for( let i in val )
+			input[key+'_'+i] = val[i];
+
+	}
+	// Simple insert
+	else{
+		input[key] = val;
+	}
+
+}
+
+// Takes a string and returns the first character that isn't alphanumeric or _
+Calculator.allowedChars = '_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+Calculator.getFirstNonVarChar = function( input ){
+	
+	for( let i = 0; i < input.length; ++i ){
+		if( !this.allowedChars.includes(input[i]) )
+			return i;
+	}
+	return -1;
+
+}
+
+// Gets an @@evt_myEvt_myVar_PlayerConst etc tag and returns an array of values from mathvars
+// If tag does not start with @@, it returns mathVarList[tag]
+// Otherwise returns an object of {playerId:value}
+// If returnUndefined is true, it allows keys to be set to undefined
+Calculator.getValuesByAtVar = function( tag, event, mathVarList, returnUndefined = false ){
+
+	tag = String(tag);
+	if( !tag.startsWith('@@') )
+		return mathVarList[tag];
+	
+	tag = tag.substring(2);
+	let out = {};
+	// Split the player var by _
+	let replace = tag.split('_');
+	// The last entry is the Calculator target const
+	let last = replace.pop();
+	// Merge the rest back to a string
+	replace = replace.join('_');
+
+	// Find the targets
+	let players = this.targetsToKeys([last], event);
+	// Iterate over the targets and combine the values from the mathvars
+	for( let pl of players ){
+		
+		let vTag = replace + '_' + pl;
+		if( returnUndefined || mathVarList.hasOwnProperty(vTag) )
+			out[pl] = mathVarList[vTag];
+
+	}
+	return out;
 
 };
 
@@ -104,24 +172,14 @@ Calculator.run = function( formula, event, customMathVars ){
 	}
 	
 
-	// Next, checks if it's an array of JSON constants
-	try{
-		let json = JSON.parse(formula);
-		if( Array.isArray(json) ){
-			return this.targetsToKeys(json, event);
-		}
-	}catch(err){
-	}
-
+	let targ = event.target;
+	if( Array.isArray(targ) )		// we can only get vars from target 0
+		targ = targ[0];
 
 	// Player mathvars aren't available in JSON constants since they're only setup to handle one target
-	if( event.target && !event.target.appendMathVars )
+	if( targ && !targ.appendMathVars )
 		console.error("No mathVars in event target", event);
-
-	let targ = event.target;
-	if( Array.isArray(targ) )
-		targ = targ[0];
-	
+		
 	if( event.sender )
 		event.sender.appendMathVars('se_', vars, event);
 	if( targ ){
@@ -131,6 +189,36 @@ Calculator.run = function( formula, event, customMathVars ){
 	}
 	if( event.action )
 		event.action.appendMathVars('ac_', vars, event);
+
+
+	// Let's take a look at the formula
+	// We use @@ to get a player var
+	let spl = formula.split("@@");
+	let converted = [spl.shift()];
+	for( let c of spl ){
+
+		// Find the end of the player var
+		let pos = this.getFirstNonVarChar(c);
+		let replace = c;
+		if( ~pos ){
+		 	replace = c.substring(0, pos-1);
+			c = c.substring(pos);
+		}
+		else
+			c = '';
+
+		let objs = this.getValuesByAtVar('@@'+replace, event, vars);
+		console.log("Getting", replace, objs);
+		let nrOut = 0;
+		for( let i in objs ){
+			if( !isNaN(objs[i]) )
+				nrOut += objs[i];
+		}
+		c = nrOut + c;
+		converted.push(c);
+
+	}
+	formula = converted.join('');
 
 
 		// Run the calculation

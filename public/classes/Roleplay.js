@@ -5,6 +5,7 @@ import GameAction from './GameAction.js';
 import Game from './Game.js';
 import Text from './Text.js';
 import Collection from './helpers/Collection.js';
+import Calculator from './Calculator.js';
 export default class Roleplay extends Generic{
 
 	static getRelations(){ 
@@ -33,6 +34,7 @@ export default class Roleplay extends Generic{
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
 		this.autoplay = true;		// Auto start when tied to an encounter gameAction
+		this.vars_persistent = false;	// Makes rpVars persistent and show up in global mathvars
 		this.playerConds = [];		// When not empty, all enabled players will be shuffled and these conditions are checked against all.
 		this.minPlayers = 1;		// With playerConds set: Minimum players that must be validated
 		this.maxPlayers = -1;		// -1 = infinite.
@@ -81,7 +83,8 @@ export default class Roleplay extends Generic{
 			once : this.once,
 			portrait : this.portrait,
 			_targetPlayers : this._targetPlayers,
-			vars : this.vars.save(full)
+			vars : this.vars.save(full),
+			vars_persistent : this.vars_persistent,
 		};
 
 		if( full ){
@@ -141,7 +144,7 @@ export default class Roleplay extends Generic{
 					completed : false
 				};
 
-			if( state.hasOwnProperty('vars') ){
+			if( this.vars_persistent && state.hasOwnProperty('vars') ){
 				for( let i in state.vars )
 					this.vars[i] = state.vars[i];
 			}
@@ -167,15 +170,12 @@ export default class Roleplay extends Generic{
 	}
 
 
-	getMathVars(){
+	appendMathVars( input ){
 
-		let v = this.vars.save();
-		let out = {};
-		// Don't do type filtering, because we need arrays for storing players in dvars
+		let v = this.vars;
 		for( let i in v )
-			out[i] = v[i];
-		return out;
-
+			Calculator.appendMathVar('rp_'+this.label+'_'+i, v[i], input);
+		
 	}
 
 	// Returns an array of Player objects of this._targetPlayers found in the game player list
@@ -325,6 +325,31 @@ export default class Roleplay extends Generic{
 		else if( player )	// Clear throws an issue without this if, since player is undefined on rp clear
 			out = [player];
 
+		return out;
+
+	}
+
+	// Returns an array of var_persistent RPs
+	static getPersistent(){
+
+		let out = [];
+		let all = this.getLib();
+		for( let i in all ){
+			let rp = all[i];
+			if( rp.vars_persistent ){
+				// If not already loaded
+				if( !rp.hasGameParent() ){
+					console.log(rp);
+					// Create a mini clone just for vars
+					rp = new Roleplay({
+						label : rp.label,
+						vars : rp.vars
+					});	
+					rp.loadState();
+				}
+				out.push(rp);
+			}
+		}
 		return out;
 
 	}

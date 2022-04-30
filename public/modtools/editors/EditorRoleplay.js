@@ -33,8 +33,9 @@ export function asset(){
 		html += '<label title="A small headshot of the player">Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
 
 		html += '<label title="Preserves stage when reopened">Persistent <input type="checkbox" class="saveable" name="persistent" '+(dummy.persistent ? 'checked' : '')+' /></label><br />';
-		html += '<label title="Can only be opened once">Once <input type="checkbox" class="saveable" name="once" '+(dummy.once ? 'checked' : '')+' /></label><br />';
-		html += '<label title="Autoplay">Auto Play <input type="checkbox" class="saveable" name="autoplay" '+(dummy.autoplay ? 'checked' : '')+' /></label><br />';
+		html += '<label title="Can only be opened once">Once <input type="checkbox" class="saveable" name="once" '+(dummy.once ? 'checked' : '')+' /></label>';
+		html += '<label title="Autoplay">Auto Play <input type="checkbox" class="saveable" name="autoplay" '+(dummy.autoplay ? 'checked' : '')+' /></label>';
+		html += '<label title="Makes RP vars save when you exit the RP, and they can be used in formulas. See cheat sheet.">rpVars persistent <input type="checkbox" class="saveable" name="vars_persistent" '+(dummy.vars_persistent ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
 	html += '<label title="Player in encounter to tie it to">Player: </label><div class="player"></div>';

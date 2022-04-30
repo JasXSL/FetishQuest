@@ -1135,6 +1135,27 @@ export default class Condition extends Generic{
 			else if( this.type === T.formula ){
 				success = Calculator.run(this.data.formula, event);
 			}
+			else if( this.type === T.mathVarCompare ){
+
+				let objs = Calculator.getValuesByAtVar(this.data.label, event, game.getMathVars(), true);
+				let test = this.data.val;
+				// If the label we're testing isn't a player @@ tag, it will be a string or number
+				// In that case we just convert it
+				if( typeof objs !== "object" )
+					objs = {objs};
+
+				// Iterate the list and find any values that's not test
+				success = true;
+				for( let i in objs ){
+
+					if( objs[i] != test ){
+						success = false;
+						break;
+					}
+					
+				}
+
+			}
 
 			else if( this.type === T.numGamePlayersGreaterThan ){
 
@@ -1214,33 +1235,6 @@ export default class Condition extends Generic{
 
 				const labels = toArray(this.data.label);
 				success = labels.includes(t.voice);
-
-			}
-
-			else if( this.type === T.targetIsMathVar || this.type === T.rpTargetIsMathVar ){
-
-				let vars = game.getMathVars();
-				let v = vars[this.data.mathvar];
-				if( Array.isArray(v) ){
-
-					let check = toArray(t);
-					if( this.type === T.rpTargetIsMathVar ){
-						check = game.roleplay.getTargetPlayers();
-						let idx = parseInt(this.data.index);
-						if( idx !== NaN && idx > -1 )
-							check = [check[idx]];
-					}
-					success = true;
-					for( let pl of check ){
-
-						if( !v.includes(pl.id) ){
-							success = false;
-							break;
-						}
-
-					}
-
-				}
 
 			}
 
@@ -1500,8 +1494,7 @@ Condition.Types = {
 	dungeonTemplateRoomHasEncounter : 'dungeonTemplateRoomHasEncounter',
 	roomTag : 'roomTag',
 	numRpTargets : 'numRpTargets',
-	targetIsMathVar : 'targetIsMathVar',
-	rpTargetIsMathVar : 'rpTargetIsMathVar',
+	mathVarCompare : 'mathVarCompare',
 };
 
 
@@ -1607,9 +1600,7 @@ Condition.descriptions = {
 	[Condition.Types.dungeonTemplateRoomHasEncounter] : '{label:(str/arr)label} - Requires custom.viableEncounters. Used only in the procedural dungeon generator, checks if the encounter pool has at least one viable encounter by label.',
 	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
 	[Condition.Types.isTaunted] : '{byCaster:(bool)=false} Checks if the target is taunted.',
-	[Condition.Types.targetIsMathVar] : '{mathvar:(str)mathvar} - Checks if player is the value of a mathvar. Relies on mathvars set by supplying a JSON array of target/event constants when setting dvars or rpvars.',
-	[Condition.Types.rpTargetIsMathVar] : '{mathvar:(str)mathvar, index:(int)playerIndex=-1} - Checks if rpTarget is the value of a mathvar. Relies on mathvars set by supplying a JSON array of target/event constants when setting dvars or rpvars.',
-	
+	[Condition.Types.mathVarCompare] : '{label:(str)mathVar, val:(var)testval} - Checks if a mathvar is val. mathVar accepts Calculator target consts. Use this if you want to compare strings. Otherwise use the formula condition. You can check multiple targets by using target consts, so generally you want to only check this against target 0 for speed.',
 };
 
 

@@ -1557,6 +1557,19 @@ export default class Modtools{
 			
 			html += '<h2>Extending the Base Game</h2>';
 			html += '<p>Grey assets in library/linked tables are part of the main game. Clicking one of these assets will create an extension (experimental) which allows you to modify the base game. Extended assets have blue text. Control clicking one of these will delete the extension. The linked tables will show MAIN or THIS where MAIN means the asset is part of the main mod, and THIS is part of your active mod.</p>';
+			
+			html += '<h2>MathVars/Formulas</h2>';
+			html += '<p>Some fields will specify that you can use a formula. This means you can use mathvars. These are variables you can get with game.getMathVars() in the browser console in a game. Dungeon/rp vars (dVars/rpVars) can have player specific variables set. These are set by using a GameAction of dungeonVar or setRpVar and supplying at least one target constant. To use a player specific var, prefix the var with @@ and end with _TargetConst. Ex "@@rp_rpLabel_rpVar_Target0".</p>';
+			html += '<p>The following is a list of target constants you can use.</p>';
+			html += `<ul>
+				<li>Targets: SET: Sets value on all event targets. GET: Sums the values of all event targets.</li>
+				<li>Sender: SET: Sets value on event sender. GET: Gets value of event sender.</li>
+				<li>TargetN: SET: Set value on a specific target from the event by index, such as Target0, Target1. GET: Same, but gets.</li>
+				<li>RpTargets: SET: Sets value on all RP targets. GET: Gets the sum of all RP target values.</li>
+				<li>RpTargetN: SET: Sets value on a single RP target by index such as RpTarget0, RpTarget1. GET: Gets the value for a specific RP target.</li>
+			</ul>`;
+			html += 'You can also set an rpVar to a string by starting with @@. Note that trying to use a string var in a formula will throw an error. Use mathVarCompare conditions to compare string vars.';
+			html += 'To access a player specific mathvar, the syntax is @@path_to_mathvar_Target, ex @@rp_myEvent_myVar_Player0 to get the mathvar myVar from the roleplay myEvent, for the first player of the event.';
 
 
 			this.setDom(html);

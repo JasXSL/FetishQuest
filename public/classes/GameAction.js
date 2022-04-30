@@ -500,7 +500,27 @@ export default class GameAction extends Generic{
 			
 			let val = !dungeon.vars[this.data.id];
 			if( this.type === types.dungeonVar ){
-				val = Calculator.run(this.data.val, new GameEvent({sender:player,target:player,dungeon:dungeon}), dungeon.vars);
+
+				const evt = new GameEvent({sender,target:player,dungeon:dungeon});
+
+				// Vals starting with @@ are treated as string literals
+				if( String(this.data.val).startsWith('@@') )
+					val = String(this.data.val).substring(2);
+				// Otherwise it's treated as a formula
+				else
+					val = Calculator.run(this.data.val, evt, dungeon.vars);
+				// Handles setting on targets
+				if( Array.isArray(this.data.targets) && this.data.targets.length ){
+					
+					let pre = dungeon.getVar(this.data.id);
+					if( !pre || typeof pre !== "object" )
+						pre = {};
+					let targs = Calculator.targetsToKeys(this.data.targets, evt);
+					for( let t of targs )
+						pre[t] = val;
+					val = pre;
+
+				}
 			}
 			else{
 				if( val )
@@ -526,7 +546,27 @@ export default class GameAction extends Generic{
 				sender:rp.getActiveStage().getPlayer() || player,
 				target:player,
 			});
-			rp.vars.set(id, Calculator.run(val, evt, {}));
+
+			// Use @@ for string literal values
+			if( val.startsWith('@@') )
+				val = val.substring(2);
+			// Anything else gets treated as a formula
+			else
+				val = Calculator.run(val, evt, {});
+
+			if( Array.isArray(this.data.targets) && this.data.targets.length ){
+
+				let targs = Calculator.targetsToKeys(this.data.targets, evt);
+				let pre = rp.vars.get(id);
+				if( typeof pre !== "object" || !pre )
+					pre = {};
+				for( let t of targs )
+					pre[t] = val;
+				val = pre;
+
+			}
+			rp.vars.set(id, val);
+			
 
 		}
 		else if( this.type === types.resetRpVar ){
@@ -545,8 +585,11 @@ export default class GameAction extends Generic{
 
 			for( let k of vars ){
 
-				if( base.vars.hasOwnProperty(k) )
+				if( base.vars.hasOwnProperty(k) ){
 					rp.vars[k] = base.vars[k];
+					if( typeof base.vars[k] === "object" )	// Object is ONLY used to store player : var pairs, so should be reset to a new object
+						rp.vars[k] = {};
+				}
 				else
 					rp.vars.unset(k);
 
@@ -554,7 +597,7 @@ export default class GameAction extends Generic{
 			game.saveRPState(rp);
 
 		}
-
+		/*
 		else if( this.type === types.removeFromDungeonVar || this.type === types.removeFromRpVar){
 
 			let ids = toArray(this.data.ids);
@@ -596,7 +639,7 @@ export default class GameAction extends Generic{
 			game.save();
 
 		}
-
+		*/
 
 		else if( this.type === types.anim ){
 
@@ -1231,7 +1274,6 @@ GameAction.types = {
 	resetEncounter : "resetEnc",
 	wrappers : "wra",
 	dungeonVar : "dvar",
-	removeFromDungeonVar : "removeFromDungeonVar",
 	loot : "loot",
 	autoLoot : "aLoot",				// 
 	door : "door",					// 
@@ -1280,7 +1322,7 @@ GameAction.types = {
 	sliceRpTargets : 'sliceRpTargets',
 	resetRpVar : 'resetRpVar',					// Tries to reset RP vars of the current roleplay
 	setRpVar : 'setRpVar',						// 
-	removeFromRpVar : 'removeFromRpVar',						// 
+	
 };
 
 GameAction.TypeDescs = {
@@ -1322,8 +1364,8 @@ GameAction.TypeDescs = {
 	[GameAction.types.learnAction] : '{conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0 with sender being the GameAction player and target being each player. Use conditions to filter. Use targetIsSender condition for only the person who triggered it. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.',
 	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
 	[GameAction.types.addTime] : '{seconds:(int)seconds}',
-	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula} - Sets a variable in the currently active dungeon',
-	[GameAction.types.removeFromDungeonVar] : '{ids:(arr)ids, dungeon:(str)label, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more dvars',
+	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula, targets:[]} - Sets a variable in the currently active dungeon. Formulas starting with @@ will be treated as a string (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly.',
+	//[GameAction.types.removeFromDungeonVar] : '{ids:(arr)ids, dungeon:(str)label, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more dvars',
 	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',
 	[GameAction.types.refreshPlayerVisibility] : 'void - Forces the game to refresh visibility of players.',
 	[GameAction.types.refreshMeshes] : 'void - Calls the onRefresh method on all meshes in the active room',
@@ -1336,8 +1378,8 @@ GameAction.TypeDescs = {
 	[GameAction.types.sortRpTargets] : '{mathvars:[{var:(str)label, desc:(bool)desc=false}...]} - Sorts rpTargets based on mathvars. Only mathvars for ta_ are set',
 	[GameAction.types.sliceRpTargets] : '{start:(int)=0, nrPlayers:(int)=-1} - Converts rpTargets to a subset of targets',
 	[GameAction.types.resetRpVar] : '{var:(str)var=ALL} - Tries to reset a var in the active RP. If vars is empty, it resets all',
-	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula} - Sets an RP var',
-	[GameAction.types.removeFromRpVar] : '{ids:(arr)ids, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more rpvars',
+	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula, targets:[]} - Sets an RP var. Formulas starting with @@ will be treated as strings (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly.',
+	//[GameAction.types.removeFromRpVar] : '{ids:(arr)ids, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more rpvars',
 	
 };
 

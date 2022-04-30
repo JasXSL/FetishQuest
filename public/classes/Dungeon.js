@@ -27,6 +27,7 @@ import Collection from './helpers/Collection.js';
 import Encounter from './Encounter.js';
 import Player from './Player.js';
 import Game from './Game.js';
+import Calculator from './Calculator.js';
 
 const interact_cooldowns = {};	// id:true etc
 
@@ -202,6 +203,9 @@ class Dungeon extends Generic{
 
 	}
 
+	getVar( key ){
+		return this.vars.get(key);
+	}
 
 	getDifficulty(){
 		
@@ -411,6 +415,22 @@ class Dungeon extends Generic{
 	resetRoleplays(){
 		for( let room of this.rooms )
 			room.resetRoleplays();
+	}
+
+
+	// Appends our dvars to input
+	appendMathVars( input ){
+
+		for( let i in this.vars )
+			Calculator.appendMathVar('d_'+this.label+'_'+i, this.vars[i], input);
+
+		let d = game.state_dungeons[this.label];
+		if( d ){
+			let v = d.vars;
+			for( let i in v )
+				Calculator.appendMathVar('d_'+this.label+'_'+i, v[i], input);
+		}
+
 	}
 
 

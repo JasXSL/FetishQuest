@@ -6,11 +6,7 @@
 
 	Bugs:
 
-	Editor:
-		GameAction:
-			- RemoveFromDungeonVar
-			- RemoveFromRpVar
-		
+	- Make it so you can include mathvar strings in texts	
 		
 
 	- Item ideas:
