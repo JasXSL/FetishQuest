@@ -329,6 +329,38 @@ function fuzzyFileSize( size_in_bytes ){
 
 }
 
+
+// handles up to 100
+function numberToText( nr = 0 ){
+
+	nr = Math.floor(Math.abs(nr));
+	if( !nr )
+		return 'zero';
+
+	if( nr >= 100 )
+		return String(nr);
+
+	// Handle the 10s since they have different words
+	if( nr >= 10 && nr <= 19 )
+		return ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"][nr-10];
+
+	let out = '';
+	let tens = Math.floor(nr/10);
+	if( tens > 1 ){
+		 out += [
+			 "twenty", "thirty", "fourty", "fifty", "sixty", "seventy", "eighty", "ninety"
+		][tens-2] + " ";		
+	}
+	let base = nr%10;
+	if( base ){
+		out += ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"][base-1];
+	}
+
+	return out;
+
+
+}
+
 // Gracefully copy pasted from stack overflow
 Base64 = {
 

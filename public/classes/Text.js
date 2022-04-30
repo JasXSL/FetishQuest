@@ -5,6 +5,7 @@ import Player from './Player.js';
 import Asset from './Asset.js';
 import stdTag from '../libraries/stdTag.js';
 import HitFX from './HitFX.js';
+import Calculator from './Calculator.js';
 
 /*
 	List of tags you can use:
@@ -409,10 +410,115 @@ class Text extends Generic{
 		event.text = this;
 		// if it's not a chat, tie this text to the event
 		
+		const gMathVars = window.game?.getMathVars() || {};
+		
+		// Conversions
+		let text = this.text;
+
+		// Handle vars
+		// First off player specific vars, ex: @@rp_label_var_Target0[separator]
+		// If you want a sum of all players (provided the mathvars are numeric) use TargetsSum or RpTargetsSum
+		// If you want a nr of players players set (with a non empty value) use TargetsNum or RpTargetsNum etc
+		let tmp = text.split('@@');
+		text = [tmp.shift()];
+		for( let c of tmp ){
+
+			// Find the end of the player var
+			let separator = ' and ';
+			let token = Calculator.tokenizeAtVar(c);
+			let trail = token[1];
+			token = token[0];
+			const sum = token.endsWith("Sum");
+			const num = token.endsWith("Num");
+			if( sum || num )
+				token = token.substring(0, token.length-3);
+
+			// Gets the separator in [] from trail
+			let sep = Text.getAtTokenSeparator(trail);
+			if( sep[0] )
+				separator = sep[0];
+			trail = sep[1];
+			let objs = Calculator.getValuesByAtVar('@@'+token, event, gMathVars);
+			let compiled = [];
+			for( let i in objs )
+				compiled.push(objs[i]);
+			if( num )
+				compiled = [compiled.length];
+			else if( sum )
+				compiled = [numberToText(compiled.reduce((pre, cur) => {
+					if( !isNaN(cur) )
+						return pre+cur;
+				}, 0))];
+			text.push(compiled.join(separator)+trail);
+
+		}
+		text = text.join('');
+
+		// Next handle vars where we get a PLAYER from a mathvar
+		// ex: @rp_label_var - Gets a specific var
+		// ex: @rp_label_var_0_Trace[Separator] - Gets race of the first player set on an rp var. Provided they're in the active area. The VALUE tied to the player must not be empty.
+		tmp = text.split('@');
+		text = [tmp.shift()];
+		for( let c of tmp ){
+			
+			let separator = ' and ';
+			let token = Calculator.tokenizeAtVar(c);
+			let trail = token[1];
+			token = token[0];
+			// Gets the separator in [] from trail
+			let sep = Text.getAtTokenSeparator(trail);
+			if( sep[0] )
+				separator = sep[0];
+			trail = sep[1];
+
+			token = token.split("_");
+			let index = token[token.length-2];
+			if( isNaN(index) && index !== "A" ){
+
+				// Access a var directly
+				let v = gMathVars[token.join('_')];
+				if( !isNaN(v) )
+					v = numberToText(v);
+				text.push(v + trail);
+
+			}
+			else{
+				
+				let vType = '%'+token.pop();
+				token.pop();	// Remove the index
+				token = token.join('_');
+
+				// Now we have the mathvar we want to get
+				let data = gMathVars[token];
+				if( typeof data !== "object" )
+					continue;
+
+				let targs = [];
+				for( let i in data ){
+					if( data[i] )
+						targs.push(i);
+				}
+				if( !isNaN(index) )
+					targs = [targs[index]];
+				// There's no viable target
+				if( !targs[0] )
+					continue;
+				
+				// We can now convert it
+				let conversions = [];
+				for( let t of targs )
+					conversions.push(this.targetTextConversion(vType, 'T', window.game?.getPlayerById(t), event));
+				text.push(conversions.join(separator)+trail);
+
+			}
+
+
+		}
+		text = text.join("");
 		
 
-		// Helper functions
-		let text = this.text;
+
+
 		text = this.textReplace([
 			// These two are picked ONCE per text
 			{se: 'leftright', re: (Math.random()<0.5 ? 'left' : 'right')},
@@ -714,6 +820,19 @@ class Text extends Generic{
 		if( debug )
 			console.debug("SUCCESS: ", this, "evt", event.clone());
 		return true;
+
+	}
+
+
+	// Tries to get a bracket enclosed separator from a trail when using @/@@ vars. Returns an array with the separator, and the rest of the trail
+	static getAtTokenSeparator( trail ){
+
+		if( trail.charAt(0) !== '[' )
+			return [undefined, trail];
+		let end = trail.indexOf(']');
+		if( end === -1 || end === trail.length-1 )
+			return [trail.substring(1, end), ''];
+		return [trail.substring(1, end), trail.substring(end+1)];
 
 	}
 

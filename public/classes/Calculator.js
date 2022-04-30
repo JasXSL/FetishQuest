@@ -32,9 +32,10 @@ Calculator.Targets = {
 	Target : 'Target',		// Followed by a number, such as Target0, Target1, to specify specific targets. If a target doesn't exist, it's ignored.
 	RpTarget : 'RpTarget',		// Followed by a number, such as RpTarget0, RpTarget1, to specify specific rp targets. If a target doesn't exist, it's ignored.
 	RpTargets : 'RpTargets',		// Appends all rp targets.
+	Set : 'Set',					// Appends all targets already on the mathvar
 };
 
-Calculator.targetsToKeys = function(targArray, event){
+Calculator.targetsToKeys = function(targArray, event, mathVar){
 
 	if( !event )
 		console.error("You forgot to supply an event to Calculate.targetToKeys, numbnuts!");
@@ -48,6 +49,17 @@ Calculator.targetsToKeys = function(targArray, event){
 
 			if( itm === Calculator.Targets.Targets ){
 				out.push(...targs.map(el => el.id));
+			}
+			else if( itm === Calculator.Targets.Set ){
+
+				let targs = game.getMathVars()[mathVar];
+				if( targs && typeof targs === "object" ){
+					for( let i in targs ){
+						if( targs[i] !== undefined && targs[i] !== '')
+							out.push(i);
+					}
+				}
+
 			}
 			else if( itm === Calculator.Targets.RpTargets )
 				out.push(...game.roleplay._targetPlayers);
@@ -82,6 +94,21 @@ Calculator.targetsToKeys = function(targArray, event){
 
 };
 
+// Takes a token like "rp_label_var_Target is your species" returns an array where the first entry is the var rp_label_var_Target and the rest everything after [@var, trail]
+Calculator.tokenizeAtVar = function( input ){
+
+	let pos = this.getFirstNonVarChar(input);
+	let replace = input;
+	if( ~pos ){
+		replace = input.substring(0, pos);
+		input = input.substring(pos);
+	}
+	else
+		input = '';
+	return [replace, input];
+
+};
+
 // Handles custom mathvar types
 Calculator.appendMathVar = function( key, val, input ){
 
@@ -92,10 +119,9 @@ Calculator.appendMathVar = function( key, val, input ){
 			input[key+'_'+i] = val[i];
 
 	}
-	// Simple insert
-	else{
-		input[key] = val;
-	}
+	// Always include the full value. Since some code counts on there being a publicly accessible object
+	input[key] = val;
+
 
 }
 
@@ -114,7 +140,7 @@ Calculator.getFirstNonVarChar = function( input ){
 // Gets an @@evt_myEvt_myVar_PlayerConst etc tag and returns an array of values from mathvars
 // If tag does not start with @@, it returns mathVarList[tag]
 // Otherwise returns an object of {playerId:value}
-// If returnUndefined is true, it allows keys to be set to undefined
+// If returnUndefined is true, it allows keys that aren't present
 Calculator.getValuesByAtVar = function( tag, event, mathVarList, returnUndefined = false ){
 
 	tag = String(tag);
@@ -130,14 +156,18 @@ Calculator.getValuesByAtVar = function( tag, event, mathVarList, returnUndefined
 	// Merge the rest back to a string
 	replace = replace.join('_');
 
-	// Find the targets
-	let players = this.targetsToKeys([last], event);
+	let players = this.targetsToKeys([last], event, replace);
+	
 	// Iterate over the targets and combine the values from the mathvars
 	for( let pl of players ){
 		
 		let vTag = replace + '_' + pl;
-		if( returnUndefined || mathVarList.hasOwnProperty(vTag) )
-			out[pl] = mathVarList[vTag];
+		if( returnUndefined || mathVarList.hasOwnProperty(vTag) ){
+			let val = mathVarList[vTag];
+			if( val === undefined )
+				val = '';
+			out[pl] = val;
+		}
 
 	}
 	return out;
@@ -198,24 +228,18 @@ Calculator.run = function( formula, event, customMathVars ){
 	for( let c of spl ){
 
 		// Find the end of the player var
-		let pos = this.getFirstNonVarChar(c);
-		let replace = c;
-		if( ~pos ){
-		 	replace = c.substring(0, pos-1);
-			c = c.substring(pos);
-		}
-		else
-			c = '';
+		let token = this.tokenizeAtVar(c);
+		let trail = replace[1];
+		token = token[0];
 
 		let objs = this.getValuesByAtVar('@@'+replace, event, vars);
-		console.log("Getting", replace, objs);
 		let nrOut = 0;
 		for( let i in objs ){
 			if( !isNaN(objs[i]) )
 				nrOut += objs[i];
 		}
-		c = nrOut + c;
-		converted.push(c);
+		trail = nrOut + trail;
+		converted.push(trail);
 
 	}
 	formula = converted.join('');

@@ -515,7 +515,7 @@ export default class GameAction extends Generic{
 					let pre = dungeon.getVar(this.data.id);
 					if( !pre || typeof pre !== "object" )
 						pre = {};
-					let targs = Calculator.targetsToKeys(this.data.targets, evt);
+					let targs = Calculator.targetsToKeys(this.data.targets, evt, this.data.id);
 					for( let t of targs )
 						pre[t] = val;
 					val = pre;
@@ -556,7 +556,7 @@ export default class GameAction extends Generic{
 
 			if( Array.isArray(this.data.targets) && this.data.targets.length ){
 
-				let targs = Calculator.targetsToKeys(this.data.targets, evt);
+				let targs = Calculator.targetsToKeys(this.data.targets, evt, id);
 				let pre = rp.vars.get(id);
 				if( typeof pre !== "object" || !pre )
 					pre = {};
@@ -597,50 +597,7 @@ export default class GameAction extends Generic{
 			game.saveRPState(rp);
 
 		}
-		/*
-		else if( this.type === types.removeFromDungeonVar || this.type === types.removeFromRpVar){
-
-			let ids = toArray(this.data.ids);
-			if( !Array.isArray(this.data.players) )
-				return false;
-
-			let playersToRemove = Calculator.targetsToKeys(this.data.players, new GameEvent({sender, target:player}));	// returns IDs
-			if( !playersToRemove.length )
-				return;
-
-			if( this.type === types.removeFromDungeonVar && typeof this.data.dungeon !== "string" )
-				return;
-
-			let dvars = game.roleplay.vars;
-			if( this.type === types.removeFromDungeonVar )
-				dvars = game.state_dungeons[this.data.dungeon]?.vars;
-
-			// No dvars set
-			if( !dvars )
-				return false;
-
-			for( let id of ids ){
-				
-				let v = dvars.get(id);
-				// this dvar doesn't exist or isn't an array yet
-				if( !Array.isArray(v) )
-					continue;
-
-				// Remove the players
-				for( let pl of playersToRemove ){
-
-					let index = v.indexOf(pl);
-					if( index !== -1 )
-						v.splice(index, 1);
-
-				}
-
-			}
-			game.save();
-
-		}
-		*/
-
+		
 		else if( this.type === types.anim ){
 
 			playAnim(this.data.anim, this.data.targ);

@@ -262,6 +262,7 @@ export function help(){
 	let out = '';
 
 	out += '<h3>Text:</h3>'+
+		'<p>Reserved modifiers, do not use the following two characters as part of your text: <strong>% @</strong></p>'+
 		'<p>This is the text to output into the main combat log. You can use % tags to be replaced by things from the game. Here is a list:'+
 			'<ul>'+
 				'<li>%T - Replaced with the name of the target of the event. Also used as a prefix for other tags. If more than 1 target exists, %T selects the first one, use %T1, %T2 etc for target 2 and 3.</li>'+
@@ -309,6 +310,54 @@ export function help(){
 			'<td>Adds the prefix defined with a species or asset followed by the asset name. Note that "some" will be removed entirely.</td>'+
 		'</tr>'+
 	'</table>';
+
+	out += '<h3>Mathvars</h3>';
+	out += 'You can also add mathvars to your text, using the following syntaxes:';
+	out += '<table>'+
+		'<tr>'+
+			'<th>Syntax</th>'+
+			'<th>Examples</th>'+
+			'<th>Explanation</th>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>@@mathvar_TargetConst[separator]</td>'+
+			'<td>'+
+				'@@rp_favoriteColorLocal_favoriteColor_Target0<br />'+
+				'@@rp_favoriteColorLocal_favoriteColor_Set[ and ]<br />'+
+				'@@rp_favoriteColorLocal_timesTickled_SetSum<br />'+
+				'@@rp_favoriteColorLocal_timesTickled_SetNum<br />'+
+			'</td>'+
+			'<td>'+
+				'The first example will look in the roleplay labeled "favoriteLocalColor" for the rpVar "favoriteColor". If found, it returns the value set on the event target.<br />'+
+				'The second example will look in the same roleplay for ALL players that are set on the "favoriteColor" rpVar. It returns all values separated by " and ".<br />'+
+				'The third example appends the word Sum to the Calculator target const. It goes through the "timesTickled" rpVar and returns a sum for all players.<br />'+
+				'The fourth example appends the word Num to the Calculator target const. It goes through the "timesTickled" rpVar and returns the nr of players that have a value that isn\'t empty "".<br />'+
+			'</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>@mathvar</td>'+
+			'<td>'+
+				'@rp_favoriteColorLocal_test<br />'+
+			'</td>'+
+			'<td>'+
+				'Returns the value for the rp_favoriteColorLocal_test mathvar.<br />'+
+			'</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>@mathvar_index_Tag[separator]</td>'+
+			'<td>'+
+				'@rp_favoriteColorLocal_favoriteColor_0_T<br />'+
+				'@rp_favoriteColorLocal_favoriteColor_A_Trace[ or ]<br />'+
+			'</td>'+
+			'<td>'+
+				'The first example will look in the roleplay labeled "favoriteLocalColor" for the rpVar "favoriteColor". If found, and if at least one player is set (has a non-empty value), returns their name, similar to %T for target.<br />'+
+				'The second example will look in the same roleplay var for ALL players, returning their species separated by " or ".<br />'+
+			'</td>'+
+		'</tr>'+
+		
+	'</table>';
+	out += '<p>Note: You can target any mathVar with these, not just roleplay. Open up a console in game and run game.getMathVars() for a list of vars. See the cheat sheet for more information about Calculator target constants you can use.</p>';
+
 
 	out += '<h3>Enabled:</h3>'+
 		'<p>Unchecking makes this text not trigger.</p>';

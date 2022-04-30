@@ -1139,16 +1139,18 @@ export default class Condition extends Generic{
 
 				let objs = Calculator.getValuesByAtVar(this.data.label, event, game.getMathVars(), true);
 				let test = this.data.val;
+ 
 				// If the label we're testing isn't a player @@ tag, it will be a string or number
 				// In that case we just convert it
 				if( typeof objs !== "object" )
 					objs = {objs};
 
 				// Iterate the list and find any values that's not test
-				success = true;
+				success = Object.keys(objs).length > 0;
 				for( let i in objs ){
 
-					if( objs[i] != test ){
+					let v = objs[i];
+					if( v != test ){
 						success = false;
 						break;
 					}

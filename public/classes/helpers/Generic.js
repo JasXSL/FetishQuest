@@ -393,7 +393,6 @@ export default class Generic{
 	}
 
 
-
 }
 
 // Flag set after library has loaded. This will allow cyclic dependencies for library assets
