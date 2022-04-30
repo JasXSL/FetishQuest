@@ -1568,9 +1568,9 @@ export default class Modtools{
 				<li>RpTargets: SET: Sets value on all RP targets. GET: Gets the sum of all RP target values.</li>
 				<li>RpTargetN: SET: Sets value on a single RP target by index such as RpTarget0, RpTarget1. GET: Gets the value for a specific RP target.</li>
 			</ul>`;
-			html += 'You can also set an rpVar to a string by starting with @@. Note that trying to use a string var in a formula will throw an error. Use mathVarCompare conditions to compare string vars.';
-			html += 'To access a player specific mathvar, the syntax is @@path_to_mathvar_Target, ex @@rp_myEvent_myVar_Player0 to get the mathvar myVar from the roleplay myEvent, for the first player of the event.';
-
+			html += '<p>You can also set an rpVar to a string by starting with @@. Note that trying to use a string var in a formula will throw an error. Use mathVarCompare conditions to compare string vars.</p>';
+			html += '<p>To access a player specific mathvar, the syntax is @@path_to_mathvar_Target, ex @@rp_myEvent_myVar_Player0 to get the mathvar myVar from the roleplay myEvent, for the first player of the event.</p>';
+			html += '<p>As a shortcut you can use %rp in a mathvar to target the currently active RP. Useful if you want use a set of conds/gameActions in multiple RPs. Ex if you have an active rp labeled "clickCounter" and var "numClicks", %rp_numClicks is the same as typing rp_clickCounter_numClicks</p>';
 
 			this.setDom(html);
 

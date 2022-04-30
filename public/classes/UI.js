@@ -11,6 +11,7 @@ import Modal from "./Modal.js";
 import Book from "./Book.js";
 import { Effect } from "./EffectSys.js";
 import Encounter from "./Encounter.js";
+import Bot from "./Bot.js";
 
 const NUM_ACTIONS = 18;	// Max nr actions the UI can draw
 const NUM_SUBS = 5;		// Max actions per group
@@ -124,7 +125,7 @@ export default class UI{
 
 		this.csl.off('keydown').on('keydown', event => {
 			event.stopImmediatePropagation();
-			if( event.altKey ){
+			if( event.altKey || event.ctrlKey ){
 
 				if( event.key === "ArrowUp" ){
 					if( this.consolePointer === 0 )
@@ -2906,6 +2907,10 @@ export default class UI{
 			
 			else if( task === "me" ){
 				this.sendChat('/'+message);
+			}
+			// Have a random player you control (including friendly NPCs if you're the DM) pick a random RP option
+			else if( task === "rp" ){
+				Bot.randRP();
 			}
 			else
 				this.addText("Unknown command", undefined, undefined, undefined, "dmInternal");

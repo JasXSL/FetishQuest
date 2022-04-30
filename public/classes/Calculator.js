@@ -187,7 +187,7 @@ Calculator.run = function( formula, event, customMathVars ){
 		return +formula;
 
 	if( typeof formula !== "string" ){
-		console.error("This is not a formula (str/nr expected) ", formula, "Event", event);
+		console.error("This is not a formula (string expected) ", formula, "Event", event);
 		return false;
 	}
 
@@ -220,6 +220,8 @@ Calculator.run = function( formula, event, customMathVars ){
 	if( event.action )
 		event.action.appendMathVars('ac_', vars, event);
 
+	// Let's replace keys
+	formula = formula.split('%rp').join('rp_'+game.roleplay.label);
 
 	// Let's take a look at the formula
 	// We use @@ to get a player var

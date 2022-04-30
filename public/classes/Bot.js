@@ -475,6 +475,40 @@ class Bot{
 
 	}
 
+	static getPlayersWeCanControl(){
+
+		return game.getTeamPlayers().filter(el => {
+			const owner = el.netgame_owner;
+			if( owner === game.constructor.net.id )
+				return true;
+			if( game.is_host && (owner === '' || owner === 'DM') )
+				return true;
+		});
+
+	}
+
+	// Picks a random player to perform an RP
+	static randRP(){
+
+		let players = this.getPlayersWeCanControl();
+		let stage = game.roleplay.getActiveStage();
+		if( !stage )
+			return;
+
+		// First only allow options that don't end an RP
+		let viableOptions = stage.options.filter(st => st.index.length);
+		// If that don't work, allow it
+		if( !viableOptions.length )
+			viableOptions = stage.options;
+		
+		let player = randElem(players);
+		let opt = randElem(viableOptions);
+
+		game.useRoleplayOption(player, opt.id);
+
+
+	}
+
 }
 
 export default Bot;

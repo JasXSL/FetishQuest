@@ -909,12 +909,12 @@ export function asset(){
 		html += 'This game action allows you to set vars to player arrays (see below). Simply set the value to a JSON array specifying the players you want to set on the var, ex ["Targets"].';
 		html += '<div class="labelFlex">';
 			html += '<label title="ID of the var to set">ID (should ONLY contain alphanumeric characters and _): <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';
-			html += '<label>Value: Can be a formula. Don\'t forget to prefix rp_ if accessing rp vars here.<br />';
+			html += '<label>Value: Can be a formula. Don\'t forget the prefix such as rp_ or %rp_<br />';
 			html += '<input type="text" name="data::val" class="saveable" data-type="smart" value="'+esc(dummy.data.val || '')+'" /></label>';
 		html += '</div>';
 
 		html += '<h3>Targets:</h3>';
-		html += '<p>If you want to set the var on a specific player, you can do so here using Calculator target constants. See Cheat Sheet in the top menu for more info about target specific mathvars.</p>';
+		html += '<p>If you want to set the var on a specific player, you can do so here using Calculator target constants. See Cheat Sheet in the top menu for more info about target specific mathvars, or using rp_ vs %rp_.</p>';
 	
 		html += '<div class="targPlayers"></div>';	
 		html += '<input type="button" value="Add Target" class="addTarget" />';
