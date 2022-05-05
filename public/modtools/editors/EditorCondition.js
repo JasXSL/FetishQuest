@@ -1112,7 +1112,7 @@ export function asset(){
 
 		html += 'Wrappers: <div class="wrappers"></div>';
 		html += '<div class="labelFlex">';
-			html += '<label title="">Value: <input type="number" name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
+			html += '<label title="">Value (Can be formula): <input type="text" name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
 			html += '<label>'+buildMathOperators('data::operation', asset.data.operation)+'</label>';
 			html += '<label>Use original wrapper: <input type="checkbox" name="data::originalWrapper" class="saveable" '+(asset.data.originalWrapper ? 'checked' : '')+'" /></label>';
 		html += '</div>';

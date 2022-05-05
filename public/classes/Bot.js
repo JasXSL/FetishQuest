@@ -233,6 +233,9 @@ class Bot{
 				for( let abil of abils ){
 
 					let targs = abil.getViableTargets().filter(el => {
+
+						if( el.isInvisible() )
+							return false;
 						// Don't use a detrimental spell on a friend
 						// Don't use a beneficial spell on an enemy
 						if( abil.isDetrimentalTo(el) === (el.team === this.player.team) )
@@ -495,16 +498,26 @@ class Bot{
 		if( !stage )
 			return;
 
-		// First only allow options that don't end an RP
-		let viableOptions = stage.options.filter(st => st.index.length);
-		// If that don't work, allow it
-		if( !viableOptions.length )
-			viableOptions = stage.options;
 		
-		let player = randElem(players);
-		let opt = randElem(viableOptions);
+		
+		shuffle(players);
+		for( let p of players ){
 
-		game.useRoleplayOption(player, opt.id);
+			// First only allow options that don't end an RP
+			let options = stage.getOptions(p);
+			let viableOptions = options.filter(st => st.index.length);
+			// If that don't work, allow it
+			if( !viableOptions.length )
+				viableOptions = options;
+			
+			let opt = randElem(viableOptions);
+			if( opt ){
+				game.useRoleplayOption(p, opt.id);
+				break;
+			}
+		}
+
+		
 
 
 	}

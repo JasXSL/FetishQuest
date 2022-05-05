@@ -1071,7 +1071,7 @@ export default class GameAction extends Generic{
 
 			let start = parseInt(this.data.start) || 0;
 			let end;
-			let nrPlayers = parseInt(nrPlayers);
+			let nrPlayers = parseInt(this.data.nrPlayers);
 			if( !isNaN(nrPlayers) && nrPlayers > -1 )
 				end = start+parseInt(nrPlayers);
 			game.roleplay._targetPlayers = game.roleplay._targetPlayers.slice(start, end);

@@ -1529,7 +1529,7 @@ Condition.descriptions = {
 	[Condition.Types.actionGroup] : '{group:(str)group} - Action belongs to this group',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false} - Checks if the wrapper tied to the event has a label',
-	[Condition.Types.wrapperStacks] : '{amount:(int)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false, label:wrapperLabel=_EVT_WRAPPER_} - Operation is = by default. Leave label undefined to use the event wrapper. Amount can be a math var.',
+	[Condition.Types.wrapperStacks] : '{amount:(int)(str)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false, label:wrapperLabel=_EVT_WRAPPER_} - Operation is = by default. Leave label undefined to use the event wrapper. Amount can be a math var.',
 	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false} - Checks if the player has a wrapper with this label',
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',

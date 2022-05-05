@@ -3490,15 +3490,15 @@ export default class Player extends Generic{
 
 	}
 
-	// Activates cooldowns by labels
-	consumeActionCharges( labels, charges = 1 ){
+	// Consumes action charges. ForceCooldown can be used to force reset the cooldown
+	consumeActionCharges( labels, charges = 1, forceCooldown = false ){
 		if( !Array.isArray(labels) )
 			labels = [labels];
 
 		for( let label of labels ){
 			let action = this.getActionByLabel(label);
 			if( action ){
-				action.consumeCharges(charges);
+				action.consumeCharges(charges, forceCooldown);
 			}
 		}
 	}

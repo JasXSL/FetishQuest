@@ -124,7 +124,6 @@ export default class UI{
 		this.pgi = {};	// "popped" game icons
 
 		this.csl.off('keydown').on('keydown', event => {
-			event.stopImmediatePropagation();
 			if( event.altKey || event.ctrlKey ){
 
 				if( event.key === "ArrowUp" ){
@@ -135,7 +134,7 @@ export default class UI{
 				else if( event.key === "ArrowDown" )
 					--this.consolePointer;
 				else
-					return false;
+					return true;	// Allow default ctrl behavior
 
 				this.consolePointer = Math.max(0, Math.min(this.previousConsoleCommands.length-1, this.consolePointer));
 				this.csl.text(this.previousConsoleCommands[this.consolePointer]);

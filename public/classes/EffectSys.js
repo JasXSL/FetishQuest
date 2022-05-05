@@ -1774,7 +1774,7 @@ class Effect extends Generic{
 			
 
 			else if( this.type === Effect.Types.activateCooldown ){
-				t.consumeActionCharges(this.data.actions, this.data.charges);
+				t.consumeActionCharges(this.data.actions, this.data.charges, this.data.cd);
 			}
 
 			else if( this.type === Effect.Types.addActionCharges ){
@@ -2600,7 +2600,7 @@ Effect.TypeDescs = {
 	[Effect.Types.removeEffectWrapperByEffectTag] : '{tag:(str/arr)tags} - Searches for _effects_ currently affecting you. And removes their wrappers if the effect has at least one of these tags.',
 	[Effect.Types.addWrapperMaxDuration] : '{amount:(int)(str)time, conditions:(arr)conditions, casterOnly:(bool)=false} - Newly added wrappers that pass filter have their duration increased by this value (can be negative). This cannot be used to bring a duration below 0, and only works on effects with a duration of at least 1.',
 
-	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels, charges=1} - Consumes ability charges',
+	[Effect.Types.activateCooldown] : '{actions:(str)(arr)actionLabels, charges=1, cd=false} - Consumes ability charges. If cd is true, it forces a cooldown activation even if the action doesn\'t have any charges',
 	[Effect.Types.lowerCooldown] : '{actions:(str)(arr)actionLabels, amount:(int)amount=inf} - Lowers or resets cooldowns on the target by label. NOTE: This will not add more than 1 charge.',
 
 	[Effect.Types.knockdown] : '{type:(int)type} - Prevents melee abilities. Use Effect.KnockdownTypes. If not an int it becomes boolean backwards of forwards.',

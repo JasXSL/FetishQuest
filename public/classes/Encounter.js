@@ -276,7 +276,6 @@ export default class Encounter extends Generic{
 			
 			out.startText = this.startText;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
-			out.players = Player.saveThese(this.players, full);
 			out.label = this.label;
 			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
 			out.conditions = Condition.saveThese(this.conditions, full);
@@ -288,6 +287,11 @@ export default class Encounter extends Generic{
 			out.evtWeight = this.evtWeight;
 
 		}
+
+		// Players are needed in the current encounter for services to work
+		if( full || this === window.game?.encounter )
+			out.players = Player.saveThese(this.players, full);
+
 		out.friendly = this.friendly;
 		out.game_actions = GameAction.saveThese(this.game_actions, full);
 		out.completion_actions = GameAction.saveThese(this.completion_actions, full);

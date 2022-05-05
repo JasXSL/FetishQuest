@@ -431,8 +431,7 @@ class Action extends Generic{
 	}
 
 	// consumes charges and updates the cooldown if needed
-	consumeCharges( charges = 1 ){
-
+	consumeCharges( charges = 1, forceCooldown = false ){
 
 		// If there's no cooldown at all, the charge system is ignored
 		if( this.getCooldown() <= 0 && charges > 0 )
@@ -440,7 +439,7 @@ class Action extends Generic{
 
 		// Subtract a charge
 		this._charges = Math.min(Math.max(0, this._charges-charges), this.charges);
-		this.setCooldown();
+		this.setCooldown(forceCooldown);
 
 	}
 

@@ -2429,13 +2429,11 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui > div.middle > div.content > div.line.playerChat{
 		font-size:1vmax;
-		
 	}
 	#ui > div.middle > div.content > div.line.playerChat > div.sub{
 		background:rgba(255,255,255,.25);
 		padding:0.5vmax;
 		border-radius:0.5vmax;
-		margin:0.5vmax;
 		width:auto;
 		box-shadow: 0.2vmax 0.2vmax 0.2vmax #000;
 		overflow:hidden;

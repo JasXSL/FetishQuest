@@ -2291,6 +2291,9 @@ export default class Game extends Generic{
 
 			this.encounter.setCompleted(false);
 			this.encounter.started = false;
+			// For now, merge removes previous game actions, to prevent one time things to trigger again
+			// In the future, there should probably be a gameAction setting like "saveOnMerge"
+			this.encounter.game_actions = encounter.game_actions.slice();
 
 		}else{
 			// override the encounter
@@ -3097,6 +3100,7 @@ export default class Game extends Generic{
 		if( !encounter )
 			encounter = this.encounter;
 
+		// Get GameActions
 		const shops = encounter.getShops();
 		if( !player )
 			return;
@@ -3282,7 +3286,7 @@ export default class Game extends Generic{
 	shopAvailableTo( shop, player, encounter = false ){
 		
 		if( this.battle_active ){
-			console.error("Battle in progress");
+			//console.error("Battle in progress");
 			return false;
 			
 		}

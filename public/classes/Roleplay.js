@@ -36,8 +36,8 @@ export default class Roleplay extends Generic{
 		this.autoplay = true;		// Auto start when tied to an encounter gameAction
 		this.vars_persistent = false;	// Makes rpVars persistent and show up in global mathvars
 		this.playerConds = [];		// When not empty, all enabled players will be shuffled and these conditions are checked against all.
-		this.minPlayers = 1;		// With playerConds set: Minimum players that must be validated
-		this.maxPlayers = -1;		// -1 = infinite.
+		this.minPlayers = 1;		// With playerConds set: Minimum players that must be validated. Use -1 for ALL players on the player team.
+		this.maxPlayers = -1;		// -1 = infinite
 		this.gameActions = [];		// Ran after building the targetPlayers list. The main purpose of having this here is to allow sorting players BEFORE starting the RP.
 
 		this.vars = new Collection({}, this);	// Like dungeonvars, but tied to an RP. Loaded onto by state. 
@@ -300,26 +300,36 @@ export default class Roleplay extends Generic{
 
 		let out = [];
 		// PlayerConditions set. We'll need to pick targets, otherwise just return player
-		if( this.playerConds.length && this.minPlayers > 0 ){
+		if( this.playerConds.length && (this.minPlayers !== 0 && !isNaN(this.minPlayers)) ){
 
-			targs = shuffle(game.getEnabledPlayers());
+			if( this.minPlayers < 0 )
+				targs = game.getTeamPlayers();
+			else 
+				targs = game.getEnabledPlayers();
+			targs = shuffle(targs);
+			
 
 			let maxPlayers = this.maxPlayers;
 
-			
 			for( let targ of targs ){
 
 				evt.target = targ;
 				if( Condition.all(this.playerConds, evt, debug) )
 					out.push(targ);
 
-				if( maxPlayers > -1 && out.length >= maxPlayers )
+				// Can end early if we have enough players.
+				// But if minPlayers are set, we need to check EVERY player
+				if( maxPlayers > -1 && out.length >= maxPlayers && this.minPlayers >= 0 )
 					break;
 
 			}
 
-			if( out.length < this.minPlayers )
+			if( this.minPlayers >= 0 && out.length < this.minPlayers )
 				return false;
+			
+			if( this.minPlayers < 0 && out.length < targs.length )
+				return false;
+
 
 		}
 		else if( player )	// Clear throws an issue without this if, since player is undefined on rp clear
@@ -737,6 +747,7 @@ RoleplayStage.StoreType = {
 	ADD : 3,
 	REM : 4,
 	PURGE : 5,
+	SHIFT : 6,
 };
 
 // Who should be considered the target for texts and game actions

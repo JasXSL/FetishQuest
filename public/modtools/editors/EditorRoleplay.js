@@ -48,7 +48,7 @@ export function asset(){
 
 	html += '<p>Advanced</p>';
 	html += 'Player conditions: <div class="playerConds"></div>';
-	html += '<label title="Min players that need to pass player conditions">Min Players: <input type="number" step=1 min=0 name="minPlayers" class="saveable" value="'+(parseInt(dummy.minPlayers) || 0)+'" /></label>';
+	html += '<label title="Min players that need to pass player conditions. -1 = all players on the player team must match">Min Players: <input type="number" step=1 min=-1 name="minPlayers" class="saveable" value="'+(parseInt(dummy.minPlayers) || 0)+'" /></label>';
 	html += '<label title="Max players that will be stored as rpTargets. -1 = infinit">Max Players: <input type="number" step=1 min=-1 name="maxPlayers" class="saveable" value="'+(parseInt(dummy.maxPlayers) || 0)+'" /></label>';
 
 	html += '<br /><label title="These are run on the player that triggered the RP. Generally you only want to use these to sort the RpTargets list. Use GameActions in a stage otherwise">'+
