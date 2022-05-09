@@ -804,7 +804,7 @@ export default class Asset extends Generic{
 		if( negRows.length ){
 
 			if( !negs ){
-				negs = new Wrapper({label:'statsAutoGenNeg', name:'statsAutoGenNeg', detrimental : true, effects : [], rarity : -1});
+				negs = new Wrapper({label:'statsAutoGenNeg', name:'statsAutoGenNeg', detrimental : true, effects : [], rarity : -1, add_conditions:[], stay_conditions:[]});
 				this.wrappers.splice(1, 0, negs);
 			}
 			negs.description = negRows.join('\n');

@@ -4,13 +4,10 @@
 	- Sometimes using repair kits fails?
 	- Groin twist event shows up in female. Need to check all game actions in event?
 
-	Bugs:
-	- Sharktopus immediately dives back again
+
+	- Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
 	- Item ideas:
-		- Potion that prevents block from falling off for a few turns
-		- Block Potion
-		- Increase your max AP for a few turns.
 		- Cooldown clearing potions
 		- Your next action costs no AP
 		- Makes you untargetable for 1 turn.

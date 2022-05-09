@@ -46,6 +46,9 @@ export function asset(){
 		html += '</select><br />';
 		html += '</label>';
 
+		html += '<label title="Only one of these effects can be active. Existing ones from any sender will be removed and stacks taken from it upon application.">'+
+			'Unique <input type="checkbox" class="saveable" name="unique" '+(dummy.unique ? 'checked' : '')+' />'+
+		'</label><br />';
 		html += '<label>Detrimental <input type="checkbox" class="saveable" name="detrimental" '+(dummy.detrimental ? 'checked' : '')+' /></label><br />';
 		html += '<label>Hidden <input type="checkbox" class="saveable" name="hidden" '+(dummy.hidden ? 'checked' : '')+' /></label><br />';
 		html += '<label>Trigger Immediate <input type="checkbox" class="saveable" name="trigger_immediate" '+(dummy.trigger_immediate ? 'checked' : '')+' /></label><br />';

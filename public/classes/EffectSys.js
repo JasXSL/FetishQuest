@@ -45,6 +45,7 @@ class Wrapper extends Generic{
 		this.description = "";
 		this.editor_desc = '';					// Short description for the editor
 		this.detrimental = true;
+		this.unique = false;					// When set, removes any existing effects with the same label from any other players, and adds their stacks
 		this.trigger_immediate = false;			// Trigger immediate if it's a duration effect
 		this.ext = false;						// Makes the timer count use in game time intead of combat arounds, and makes it persist outside of combat. Duration becomes time in seconds.
 		this.asset = '';						// Bound to this asset id
@@ -72,64 +73,60 @@ class Wrapper extends Generic{
 	// Data that should be saved to drive
 	save( full ){
 
+	
+		const out = {
+			name : this.name,
+			description : this.description,
+			icon : this.icon,
+			detrimental : this.detrimental,
+			target : this.target,
+			add_conditions : Condition.saveThese(this.add_conditions, full),
+			stay_conditions : Condition.saveThese(this.stay_conditions, full),
+			effects : Effect.saveThese(this.effects, full),
+			tags : this.tags,
+			label : this.label,
+			hidden : this.hidden,
+			duration : this.duration,
+			ext : this.ext,
+			rarity : this.rarity,
+			unique : this.unique
+		};
 		
-		try{
-			const out = {
-				name : this.name,
-				description : this.description,
-				icon : this.icon,
-				detrimental : this.detrimental,
-				target : this.target,
-				add_conditions : Condition.saveThese(this.add_conditions, full),
-				stay_conditions : Condition.saveThese(this.stay_conditions, full),
-				effects : Effect.saveThese(this.effects, full),
-				tags : this.tags,
-				label : this.label,
-				hidden : this.hidden,
-				duration : this.duration,
-				ext : this.ext,
-				rarity : this.rarity,
-			};
-			
 
-			if( full ){
-				out.tick_on_turn_end = this.tick_on_turn_end;
-				out.tick_on_turn_start = this.tick_on_turn_start;
-				out.max_stacks = this.max_stacks;
-				out.trigger_immediate = this.trigger_immediate;
-				out.editor_desc = this.editor_desc;
-
-				if( full !== "mod" ){
-
-					out._self_cast = this._self_cast;
-					out.netPlayer = this.netPlayer;
-
-				}
-
-			}
+		if( full ){
+			out.tick_on_turn_end = this.tick_on_turn_end;
+			out.tick_on_turn_start = this.tick_on_turn_start;
+			out.max_stacks = this.max_stacks;
+			out.trigger_immediate = this.trigger_immediate;
+			out.editor_desc = this.editor_desc;
 
 			if( full !== "mod" ){
-				
-				out.asset = this.asset;
-				out.id = this.id;
-				out._duration = this._duration;
-				out.victim = this.victim;
-				out.caster = this.caster;
-				out.stacks = this.stacks;
-				out.action = this.action;
-				if( this.ext )
-					out._added = this._added;
+
+				out._self_cast = this._self_cast;
+				out.netPlayer = this.netPlayer;
 
 			}
-			else
-				this.g_sanitizeDefaults(out);
 
-			return out;
-
-		}catch(err){
-			console.error("Save error occurred in ", this);
-			throw err;
 		}
+
+		if( full !== "mod" ){
+			
+			out.asset = this.asset;
+			out.id = this.id;
+			out._duration = this._duration;
+			out.victim = this.victim;
+			out.caster = this.caster;
+			out.stacks = this.stacks;
+			out.action = this.action;
+			if( this.ext )
+				out._added = this._added;
+
+		}
+		else
+			this.g_sanitizeDefaults(out);
+
+		return out;
+
 
 		
 	}
@@ -308,16 +305,21 @@ class Wrapper extends Generic{
 				let add_stacks = 0;
 
 				// Remove any existing effects with the same label
+				let toRemove = [];
 				for( let wrapper of p.wrappers ){
+					
+					if( wrapper.label !== obj.label )
+						continue;
+					const byCaster = wrapper.caster !== caster.id;
+					if( !byCaster && !this.unique )
+						continue;
 
-					if( wrapper.label === obj.label && wrapper.caster === caster.id ){
-
-						add_stacks = wrapper.getStacks();
-						wrapper.remove();
-
-					}
+					add_stacks += wrapper.getStacks();
+					toRemove.push(wrapper);	// Store in an array so we don't remove from the array we're iterating
 
 				}
+				for( let wrapper of toRemove )
+					wrapper.remove();
 
 				// Get the modified max duration
 				if( obj.duration > 0 ){
