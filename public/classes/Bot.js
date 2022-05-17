@@ -125,6 +125,14 @@ class Bot{
 
 	}
 
+	hasHealable(){
+		const pl = game.getTeamPlayers(this.player.team);
+		for( let p of pl ){
+			if( p.hp < p.getMaxHP()*0.7 )
+				return true;
+		}
+	}
+
 	play( force = false ){
 		
 		if( (!this.player.isNPC() && !force) || !game.battle_active || game.getTurnPlayer() !== this.player )
@@ -150,6 +158,9 @@ class Bot{
 
 			const AP = this.player.ap;
 
+			let maxAp = Math.min(10, this.player.getMaxAP());
+
+
 			// Adds some randomness to abilities
 			let chance = Math.random();
 			if(
@@ -163,11 +174,12 @@ class Bot{
 						Math.random() < 0.8		// and 20% chance to stop mid attack
 					) ||
 					chance < 0.1 || 		// 10% chance to go yolo and attack
-					AP >= this.player.getMaxAP()*0.6 ||	// If greater or equal to 60%, always attack. Since they'll be full. 
+					AP > maxAp*0.6 ||	// If greater or equal to 60% (or 10 AP if you have more than 10 total), always attack.
 					this.player.getTauntedBy(undefined, false).length
 				)
 			){
 
+				const hasHealable = this.hasHealable();
 				shuffle(abils);
 				abils.sort((a,b) => {
 
@@ -213,17 +225,38 @@ class Bot{
 					if( bIsSTD && !aIsSTD && !this.actions_used )
 						return -1;
 					
+					if( hasHealable ){
+						
+						// Healing should have priority
+						const aIsHeal = a.hasTag(stdTag.acHeal),
+							bIsHeal = b.hasTag(stdTag.acHeal)
+						;
+						if( aIsHeal !== bIsHeal )
+							return aIsHeal ? -1 : 1;
+
+					}
+
 					// The standard attack chances are based on the player proficiency
 					if( aIsSTD && bIsSTD ){
 
-						let aSkill = this.player.getBon(a.type), bSkill = this.player.getBon(b.type);
-						let chance = 1.0/(2+Math.abs(aSkill-bSkill)/2);	// Absolute means we roll for the one with lowest chance
+						let aSkill = this.player.getBon(a.type)-this.player.level, 
+							bSkill = this.player.getBon(b.type)-this.player.level
+						;
+						// Normalize
+						if( aSkill < bSkill ){
+							bSkill -= aSkill;
+							aSkill = 0;
+						}
+						else{
+							bSkill -= aSkill;
+							bSkill = 0;
+						}
+						// Add a bit of randomness
+						aSkill += 2;
+						bSkill += 2;
 
-						let favorAttack = Math.random() > chance;	// Favor attack if rolling below sadism
-						if( bSkill > aSkill )	// If b is greater than a, we invert the roll, because we rolled for b
-							favorAttack = !favorAttack;
-						
-						return favorAttack ? 1 : -1;		// A was arouse, return 1 if sadism roll
+						let rand = Math.random()*(aSkill+bSkill);
+						return rand > aSkill ? 1 : -1;
 
 					}
 
@@ -240,9 +273,9 @@ class Bot{
 						// Don't use a beneficial spell on an enemy
 						if( abil.isDetrimentalTo(el) === (el.team === this.player.team) )
 							return false;
-						if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.5 )
+						if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.7 )
 							return false;
-						if( abil.hasTag(stdTag.acManaHeal) && el.mp/el.getMaxMP() > 0.5 )
+						if( abil.hasTag(stdTag.acManaHeal) && el.mp/el.getMaxMP() > 0.7 )
 							return false;
 						return true;
 					});

@@ -4,6 +4,8 @@
 	- Sometimes using repair kits fails?
 	- Groin twist event shows up in female. Need to check all game actions in event?
 
+	- Using same ability on enemy doesn't group by player anymore
+	- Slime gag CD not working on multiplayer
 
 	- Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
@@ -60,8 +62,44 @@
 -- CURRENT --
 
 	Tentacle Wrestling:
-		- Enemy abilities
-		
+		- Players tag team into the ring, only one player can be in at a time
+		- Each turn, player gets 1 stack of exhausted
+		- Exhausted fades after 3 turns out of the ring
+		- One boss at a time, always stays in the ring
+		- Can't tag out while grappled or knocked down
+		- Boss ideas:
+			Weak to: -5 sv
+			Defensive to: 3 sv
+			Strong against: +3, all other are -3
+			No boss can use default grapples
+			- Armored Tentacle:
+				- Gets a lot of block
+				- Weak to: arcane
+				- Defensive to: phys
+				- Strong against: Phys
+				Abilities:
+				x Harden (3 turn CD) - Adds 5 block
+				x Wrap: 4 turns, charged : Wraps tentacle around your target, grappling them
+				x Slam: 1 turn : Slam a grappled player, doing physical damage.
+				x Armored lash: 2 turns : Deals physical damage, crits if target isn't blocking or wearing full heavy armor. Always cast first.
+			- Slimy tentacle
+				- Weak to: Physical
+				- Strong against: corruption
+				- Defensive to: corruption
+				Abilities:
+				- Sticky: Prevents target from tapping out, and reduces all attack stats.
+				- Slime coat: 1 turn: Applies 1 stack of slime coat, doing corruption damage at the start of your turn and grants a shake off ability.
+					- Shake off: 3 AP: All stacks but adds 2 exhaustion. Generally you'll want to do this before tapping out.
+				- Charged ability that: 
+			- Void tentacle
+				- Weak to: Corruption
+				- Strong against: arcane
+				- Defensive to: arcane
+				Abilities:
+				- Void lightning: 2 CD. Deals arcane damage, always crits against heavy armor.
+				- Void restrict: Reverse an active grapple.
+				- Void Eye: 4 CD: Spawn a void tentacle that deals damage based on exhaustion. Invulnerable 1 turn when it spawns.
+				- Charged ability that: 
 
 	
 	Main quest:

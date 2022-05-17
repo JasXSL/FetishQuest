@@ -307,13 +307,11 @@ class Wrapper extends Generic{
 				// Remove any existing effects with the same label
 				let toRemove = [];
 				for( let wrapper of p.wrappers ){
-					
 					if( wrapper.label !== obj.label )
 						continue;
-					const byCaster = wrapper.caster !== caster.id;
+					const byCaster = wrapper.caster === caster.id;
 					if( !byCaster && !this.unique )
 						continue;
-
 					add_stacks += wrapper.getStacks();
 					toRemove.push(wrapper);	// Store in an array so we don't remove from the array we're iterating
 
