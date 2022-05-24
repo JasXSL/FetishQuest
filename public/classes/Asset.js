@@ -894,7 +894,7 @@ Asset.getRandomEnchant = function( asset, curse, player ){
 };
 
 // Generates a custom item based on a slot
-Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity, minRarity, player, allowCosmetic = false ){
+Asset.generate = function( slot, level, viable_asset_templates, viable_asset_materials, rarity, minRarity, player, allowCosmetic = false, forceCurse = false ){
 
 	minRarity = minRarity || 0;
 
@@ -994,7 +994,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		;
 
 		let existingEnchants = out.wrappers.filter(el => el.hasTag(stdTag.wrEnchant)).length;
-		let cursed = Math.random() < 0.25;
+		let cursed = Math.random() < 0.25 || forceCurse;
 		for( let i = existingEnchants; i < out.rarity+cursed; ++i ){
 			const enchant = this.getRandomEnchant(out, false, player);
 			if( enchant )

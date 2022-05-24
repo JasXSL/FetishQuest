@@ -109,6 +109,7 @@ class Text extends Generic{
 			conditions : Condition,
 			chatPlayerConditions : Condition,
 			hitfx : HitFX,
+			extraSenderConditions : Condition,
 		};
 	}
 
@@ -133,10 +134,16 @@ class Text extends Generic{
 										// Both target and sender are the same player. You generally want at least "targetIsX" in here when using a text.
 		this.en = true;					// enabled for use in event based text triggers
 
+		// Extra senders can be used to store additional senders in %A, %A2... All players matching these conditions (if at least one condition is set) are put into a list and shuffled.
+		// Conditions are run with the sender being the sender of the text event, and target being the player. Iterats over all players.
+		this.extraSenderConditions = [];		// If used, you probably want targetNotSender and 
+		this.minExtraSender = 1;				// Minimum extra senders needed to allow this text
+		
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
 		this._cache_event = null;		// Cache of event type supplied in conditions. Should speed things up.
 		this._cache_action = null;		// Cache of the action involved, since most texts are tied to an action.
 		this._cache_crit = null;		// Set to true if it requires crit, false if it should not be a crit. remains null for either or
+
 
 		this.load(...args);
 	}
@@ -220,6 +227,8 @@ class Text extends Generic{
 			out.metaTags = this.metaTags;
 			out.en = this.en;
 			out.chat_reuse = this.chat_reuse;
+			out.minExtraSender = this.minExtraSender;
+			out.extraSenderConditions = this.extraSenderConditions;
 
 		}
 		if( full === "mod" )
@@ -562,6 +571,22 @@ class Text extends Generic{
 		if( event.sender )
 			text = this.targetTextConversion(text, 'S', event.sender, event);
 
+		// Used in actionUsed event, %A, %A2 %A3 etc
+		if( this.extraSenderConditions.length ){
+
+			const ex = this.getExtraSenders(event.sender);
+			shuffle(ex);
+			// Needs to go in reverse order due to greater first
+			for( let i = ex.length-1; i >= 0; --i ){
+				let label = 'A';
+				if( i )
+					label += (i+1);
+				text = this.targetTextConversion(text, label, ex[i], event);
+			}
+
+		}
+
+		// RP players use %P %P2 %P3 etc
 		const rpPlayers = window.game?.roleplay?.getTargetPlayers() || event.custom.rpTargets;
 		if( rpPlayers?.length ){
 			
@@ -713,6 +738,19 @@ class Text extends Generic{
 
 	}
 
+	// Gets an un-shuffled list of extra senders, using sender as the original sender
+	getExtraSenders( sender ){
+		if( !window.game || !this.extraSenderConditions.length )
+			return [];
+		const evt = new GameEvent({
+			sender
+		});
+		return game.getEnabledPlayers().filter(pl => {
+			evt.target = pl;
+			return Condition.all(this.extraSenderConditions, evt);
+		});
+	}
+
 	// Validate conditions
 	// event is the event that should get tested
 	// debug enables debug output
@@ -816,6 +854,15 @@ class Text extends Generic{
 
 		if( !Condition.all(this.conditions, event, debug ) )
 			return false;
+
+		// Check extra senders last, because it can be quite heavy
+		if( this.extraSenderConditions.length && this.minExtraSender > 0 ){
+
+			let sLen = this.getExtraSenders(event.sender).length;
+			if( sLen < this.minExtraSender )
+				return false;
+
+		}
 
 		if( debug )
 			console.debug("SUCCESS: ", this, "evt", event.clone());

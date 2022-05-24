@@ -4,9 +4,6 @@
 	- Sometimes using repair kits fails?
 	- Groin twist event shows up in female. Need to check all game actions in event?
 
-	- Using same ability on enemy doesn't group by player anymore
-	- Slime gag CD not working on multiplayer
-
 	- Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
 	- Item ideas:
@@ -47,6 +44,7 @@
 			- Cocktopus:
 			- Anemone:
 			- Lamprey:
+			- Ogre:
 
 			- Something with sofa?
 			- Something with haybale?
@@ -55,8 +53,9 @@
 			- Barrel
 			- Crate
 			- Tankard
-			- 
-			
+			- Hole in wall
+			- Something for 2 players
+			- Climbing something
 
 
 -- CURRENT --
@@ -151,7 +150,7 @@
 		- Grappling hook: Unequips target hand slot.
 		- Horny bat: Deals 3 damage and lowers arousal by 3.
 		
-		
+
 	
 
 	Fun tensorflow generated words I can use:
@@ -171,6 +170,7 @@
 		- Fortiott Candifstem
 		- Stront
 		- Fennecite - Metal material
+		- Hazewall Inn - Spa near the wall
 
 
 -- Totally not stolen ideas --

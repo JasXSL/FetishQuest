@@ -108,8 +108,8 @@ export function asset(){
 	html += 'Conditions: <br /><div class="conditions"></div>';
 	html += '<span title="Conditions needed to be met for this to show in the ability bar">Show Conditions: </span><br /><div class="show_conditions"></div>';
 	html += '<div class="stdConditions '+(dummy.std ? '' : 'hidden')+'"><span title="Conditions to add this to a player">STD Conditions: </span><br /><div class="std_conds"></div></div>';
-
-
+	
+	
 	this.setDom(html);
 
 	const critInput = this.dom.querySelector('input[name=can_crit]');

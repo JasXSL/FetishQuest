@@ -4592,6 +4592,7 @@ export default class StaticModal{
 							<div>Type:<br /><select name="category"><!-- Category listing here --></select></div>
 									
 							<label><input type="checkbox" name="colorable" value="1" /> Tintable</label><br />
+							<label><input type="checkbox" name="cursed" value="1" /> Force curse</label><br />
 				
 						</div>
 
@@ -4827,7 +4828,11 @@ export default class StaticModal{
 						parseInt(getEl("input[name=level]").value) || 0, 
 						undefined, 
 						undefined, 
-						parseInt(getEl("input[name=rarity]").value) || 0
+						parseInt(getEl("input[name=rarity]").value) || 0,
+						undefined,
+						undefined,
+						undefined,
+						getEl("input[name=cursed]").checked
 					);
 
 					if(!ass)

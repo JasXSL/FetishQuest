@@ -86,6 +86,15 @@ export function asset(){
 	html += '<label>Debug: <input type="checkbox" class="saveable" name="debug" value="1" '+(dummy.debug ? 'checked' : '')+' /></label><br />';
 	
 
+	html += '<p>Advanced, extra senders:</p>';
+	html += 'Extra sender conditions: <br /><div class="extraSenderConditions"></div>';
+	html += '<div class="labelFlex">';
+		html += '<label>Min extra senders: <input name="minExtraSender" value="'+esc(dummy.minExtraSender)+'" type="number" min=0 step=1 class="saveable" /></label>';
+		html += '<label><input type="button" value="Add Defaults" class="addDefaultExtraConds" /></label>';
+	html += '</div>';
+	
+
+
 	this.setDom(html);
 
 	// Templating
@@ -133,11 +142,39 @@ export function asset(){
 		this.rebuild();
 
 	});
+	this.dom.querySelector("input.addDefaultExtraConds").onclick = event => {
+
+		// All template conds, pressing a template removes all these and adds only the ones for that template
+		const tags = [
+			'targetStanding',
+			'targetSameTeam',
+			'targetNotSender',
+			'targetNotBeast',
+			'targetNotPlayerCharacter'
+		];
+		// remove all tags
+		if( Array.isArray(asset.extraSenderConditions) ){
+			asset.extraSenderConditions = asset.extraSenderConditions.filter(cond => {
+				if( tags.includes(cond) )
+					return false;
+				return true;
+			});
+		}
+		else
+			asset.extraSenderConditions = [];
+		
+		// add new
+		asset.extraSenderConditions.push(...tags);
+		window.mod.setDirty(true);
+		this.rebuild();
+
+	};
 
 	// SUBTABLES
 	// condition
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
 	this.dom.querySelector("div.chatPlayerConditions").appendChild(EditorCondition.assetTable(this, asset, "chatPlayerConditions"));
+	this.dom.querySelector("div.extraSenderConditions").appendChild(EditorCondition.assetTable(this, asset, "extraSenderConditions"));
 
 	// audiokits
 	this.dom.querySelector("div.audiokits").appendChild(EditorAudioKit.assetTable(this, asset, "audiokits"));
@@ -404,8 +441,8 @@ export function help(){
 	out += '<h3>Debug:</h3>'+
 		'<p>Leave this off unless you want to slow down the gameplay. This will cause the console to start outputting debug whenever an event is raised saying why your text didn\'t trigger.</p>';
 
-	
-	
+	out += '<h3>Extra senders:</h3>'+
+		'<p>Extra senders lets you add "team" texts. This is purly cosmetic, and no procs or similar will be triggered on extra senders. When using extra senders with action texts, you can use %A, %A2 etc. To use, you need at least one extra sender condition. These players are put into a list and shuffled. If using this feature, you probably want to use targetNotSender, targetSameTeam, targetStanding. Sender in these conditions is the sender in the text event, target is run against each enabled player.</p>';
 	
 	
 	
