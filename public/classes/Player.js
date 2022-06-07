@@ -3594,11 +3594,14 @@ export default class Player extends Generic{
 		
 		// Check if at least one has the action label
 		for( let effect of effects ){
-			
+			// AoE is allowed, skip this
+			if( action.target_type === Action.TargetTypes.aoe && effect?.data?.allow_aoe )
+				continue;
+			// No exceptions, just return
 			let arr = effect?.data?.exceptions;
 			if( !arr )
 				return false;		// No exceptions!
-
+			// Check if it's in exceptions
 			arr = toArray(arr);
 			if( !arr.includes(action.label) )
 				return false;

@@ -72,7 +72,6 @@
 			Strong against: +3, all other are -3
 			No boss can use default grapples
 			- Armored Tentacle:
-				- Gets a lot of block
 				- Weak to: arcane
 				- Defensive to: phys
 				- Strong against: Phys
@@ -86,19 +85,19 @@
 				- Strong against: corruption
 				- Defensive to: corruption
 				Abilities:
-				- Sticky: Prevents target from tapping out, and reduces all attack stats.
-				- Slime coat: 1 turn: Applies 1 stack of slime coat, doing corruption damage at the start of your turn and grants a shake off ability.
+				x Slime coat: 1 turn: Applies 1 stack of slime coat, doing corruption damage at the start of your turn and grants a shake off ability.
 					- Shake off: 3 AP: All stacks but adds 2 exhaustion. Generally you'll want to do this before tapping out.
-				- Charged ability that: 
+				x Sticky (charged): Prevents target from tapping out for 1 turn, and adds a 20% chance on action used to strip a random piece.
+				x Inject: Inject target not wearing lower body armor with goo, doing corruption damage each turn.
 			- Void tentacle
 				- Weak to: Corruption
 				- Strong against: arcane
 				- Defensive to: arcane
 				Abilities:
-				- Void lightning: 2 CD. Deals arcane damage, always crits against heavy armor.
-				- Void restrict: Reverse an active grapple.
-				- Void Eye: 4 CD: Spawn a void tentacle that deals damage based on exhaustion. Invulnerable 1 turn when it spawns.
-				- Charged ability that: 
+				t Void lightning: 2 CD. Deals arcane damage, always crits against heavy armor.
+				t Void constrict: Ungrapples and removes AP.
+				t Void Eye: 4 CD: Deals damage based on exhaustion.
+				t Charged ability that damages all players. Must be interrupted.
 
 	
 	Main quest:

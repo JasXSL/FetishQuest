@@ -557,7 +557,7 @@ export default class GameAction extends Generic{
 			if( Array.isArray(this.data.targets) && this.data.targets.length ){
 
 				let targs = Calculator.targetsToKeys(this.data.targets, evt, id);
-				let pre = rp.vars.get(id);
+				let pre = rp._vars.get(id);
 				if( typeof pre !== "object" || !pre )
 					pre = {};
 				for( let t of targs )
@@ -565,7 +565,9 @@ export default class GameAction extends Generic{
 				val = pre;
 
 			}
-			rp.vars.set(id, val);
+			if( debug )
+				console.log("Setting RP var", id, "to", val);
+			rp._vars.set(id, val);
 			
 
 		}
@@ -581,17 +583,17 @@ export default class GameAction extends Generic{
 				return;
 
 			if( this.data.var === undefined || String(this.data.var).trim() === '' )
-				vars = rp.vars.keys();
+				vars = rp._vars.keys();
 
 			for( let k of vars ){
 
-				if( base.vars.hasOwnProperty(k) ){
-					rp.vars[k] = base.vars[k];
-					if( typeof base.vars[k] === "object" )	// Object is ONLY used to store player : var pairs, so should be reset to a new object
-						rp.vars[k] = {};
+				if( base._vars.hasOwnProperty(k) ){
+					rp._vars[k] = base._vars[k];
+					if( typeof base._vars[k] === "object" )	// Object is ONLY used to store player : var pairs, so should be reset to a new object
+						rp._vars[k] = {};
 				}
 				else
-					rp.vars.unset(k);
+					rp._vars.unset(k);
 
 			}
 			game.saveRPState(rp);

@@ -171,17 +171,22 @@ export default class Game extends Generic{
 		this.players.map(pl => {
 			pl.addDefaultActions();
 		});
-
-		window.onerror = (...args) => this.onError(...args);
-
+		/*
+		Todo: Uncomment when chrome unfucks their console
+		window.onerror = error => {
+			this.onError(error);
+		};
+		*/
 	}
 
-	onError(...args){
-		args[0] = args[0].split('Uncaught ');
-		args[0].shift();
-		args[0] = args[0].join('Uncaught ');
-		this.ui.modal.addError(args[0]);
-		console.error("Uncaught", ...args);
+	onError(error){
+
+		error = error.split('Uncaught ');
+		error.shift();
+		error = error.join('Uncaught ');
+		this.ui.modal.addError(error);
+		console.error("Uncaught", error);
+
 	}
 
 
@@ -2939,7 +2944,7 @@ export default class Game extends Generic{
 	}
 
 	saveRPState( roleplay ){
-		if( !roleplay.persistent && !roleplay.once )
+		if( !roleplay.canSaveState() )
 			return;
 		
 		if( !roleplay.label ){
@@ -2957,7 +2962,7 @@ export default class Game extends Generic{
 			cache.completed = roleplay.completed;
 
 		if( roleplay.vars_persistent )
-			cache.vars = roleplay.vars.save(true);
+			cache.vars = roleplay._vars.save(true);
 
 	}
 

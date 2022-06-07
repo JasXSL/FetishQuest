@@ -41,6 +41,7 @@ export default class Roleplay extends Generic{
 		this.gameActions = [];		// Ran after building the targetPlayers list. The main purpose of having this here is to allow sorting players BEFORE starting the RP.
 
 		this.vars = new Collection({}, this);	// Like dungeonvars, but tied to an RP. Loaded onto by state. 
+		this._vars = null;	// Vars we're working on
 
 		this._waiting = false;		// Waiting to change stage
 		this._targetPlayers = [];	// Set automatically when the roleplay starts, containing the instigators. 
@@ -83,11 +84,12 @@ export default class Roleplay extends Generic{
 			once : this.once,
 			portrait : this.portrait,
 			_targetPlayers : this._targetPlayers,
-			vars : this.vars.save(full),
+			_vars : this._vars ? this._vars.save(full) : {},
 			vars_persistent : this.vars_persistent,
 		};
 
 		if( full ){
+			out.vars = this.vars.save(full);
 			out.autoplay = this.autoplay;
 			out.desc = this.desc;
 			out.minPlayers = this.minPlayers;
@@ -114,6 +116,10 @@ export default class Roleplay extends Generic{
 			console.error("ONCE roleplay doesn't have a label", this);
 
 		this.vars = Collection.loadThis(this.vars, this);
+		if( !this._vars )
+			this._vars = this.vars.clone();
+		else
+			this._vars = Collection.loadThis(this.vars, this);
 
 		if( this.hasGameParent() ){
 			this.loadState();
@@ -146,7 +152,7 @@ export default class Roleplay extends Generic{
 
 			if( this.vars_persistent && state.hasOwnProperty('vars') ){
 				for( let i in state.vars )
-					this.vars[i] = state.vars[i];
+					this._vars[i] = state.vars[i];
 			}
 
 			if( this.persistent && state.hasOwnProperty("stage") && state.stage !== -1 )
@@ -172,7 +178,7 @@ export default class Roleplay extends Generic{
 
 	appendMathVars( input ){
 
-		let v = this.vars;
+		let v = this._vars;
 		for( let i in v )
 			Calculator.appendMathVar('rp_'+this.label+'_'+i, v[i], input);
 		
@@ -245,10 +251,13 @@ export default class Roleplay extends Generic{
 				fn();
 		}
 
-		if( this.persistent || this.once ){
-			game.saveRPState(this);
-		}
+		game.saveRPState(this);
 		
+	}
+
+	// 
+	canSaveState(){
+		return this.persistent || this.once || this.vars_persistent;
 	}
 
 	getPlayer(){
@@ -349,11 +358,10 @@ export default class Roleplay extends Generic{
 			if( rp.vars_persistent ){
 				// If not already loaded
 				if( !rp.hasGameParent() ){
-					console.log(rp);
 					// Create a mini clone just for vars
 					rp = new Roleplay({
 						label : rp.label,
-						vars : rp.vars
+						vars : rp._vars
 					});	
 					rp.loadState();
 				}
