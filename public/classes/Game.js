@@ -1100,7 +1100,7 @@ export default class Game extends Generic{
 	}
 
 	// Returns math vars for the game
-	getMathVars(){
+	getMathVars( event ){
 		const out = {
 			'g_rain' : game.getRain(),			// Current rain (float)
 			'g_sod' : game.time%(3600*24),		// Seconds of day (int)
@@ -1138,12 +1138,12 @@ export default class Game extends Generic{
 		const rps = Roleplay.getPersistent();
 		rps.push(this.roleplay);
 		for( let rp of rps )
-			rp.appendMathVars(out);
+			rp.appendMathVars(out, event);
 		
 		// Dungeon vars
 		const dungeons = glib.getFull('Dungeon');
 		for( let d in dungeons )
-			dungeons[d].appendMathVars(out);
+			dungeons[d].appendMathVars(out, event);
 		
 
 		return out;

@@ -81,7 +81,7 @@ export function assetTable( win, modAsset, name, single, parented ){
 
 								let text = mod.getAssetById('texts', stage.text[0]);
 								if( text )
-									idx = text.text.substr(0, 32)+'...';
+									idx = String(text.text).substr(0, 32)+'...';
 
 							}
 

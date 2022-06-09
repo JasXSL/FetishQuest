@@ -372,7 +372,7 @@ export function help(){
 			'</td>'+
 		'</tr>'+
 		'<tr>'+
-			'<td>@mathvar</td>'+
+			'<td>@mathvar (note: single @)</td>'+
 			'<td>'+
 				'@rp_favoriteColorLocal_test<br />'+
 			'</td>'+
@@ -381,14 +381,16 @@ export function help(){
 			'</td>'+
 		'</tr>'+
 		'<tr>'+
-			'<td>@mathvar_index_Tag[separator]</td>'+
+			'<td>@mathvar_index_Tag[separator] (note: single @)</td>'+
 			'<td>'+
 				'@rp_favoriteColorLocal_favoriteColor_0_T<br />'+
 				'@rp_favoriteColorLocal_favoriteColor_A_Trace[ or ]<br />'+
+				'@rp_favoriteColorLocal_favoriteColor_V_Trace[ and ][ has ]<br />'+
 			'</td>'+
 			'<td>'+
-				'The first example will look in the roleplay labeled "favoriteLocalColor" for the rpVar "favoriteColor". If found, and if at least one player is set (has a non-empty value), returns their name, similar to %T for target.<br />'+
-				'The second example will look in the same roleplay var for ALL players, returning their species separated by " or ".<br />'+
+				'The first example will look in the roleplay labeled "favoriteLocalColor" for the rpVar "favoriteColor". If found, and if at least one player is set (has a non-empty value), returns their name, similar to %T for target. Note that this uses the index of when the rpvar was set, not the index of player in the event. So it may have limited use.<br />'+
+				'The second example will look in the same roleplay var for ALL players, returning their species separated by " or ". Separator defaults to " and "<br />'+
+				'The third example is the same as the second, except the VALUES are appended too, separated by ": ". Ex: "Player1 has one and Player2 has five". Separators default to ", " and ": "<br />'+
 			'</td>'+
 		'</tr>'+
 		

@@ -32,7 +32,8 @@ Calculator.Targets = {
 	Target : 'Target',		// Followed by a number, such as Target0, Target1, to specify specific targets. If a target doesn't exist, it's ignored.
 	RpTarget : 'RpTarget',		// Followed by a number, such as RpTarget0, RpTarget1, to specify specific rp targets. If a target doesn't exist, it's ignored.
 	RpTargets : 'RpTargets',		// Appends all rp targets.
-	Set : 'Set',					// Appends all targets already on the mathvar
+	Set : 'Set',					// Appends all targets already on the mathvar with a non false value
+	Team : 'Team',			// Followed by a number, such as Team0, Team1 etc, to specify all enabled players on a team
 };
 
 Calculator.targetsToKeys = function(targArray, event, mathVar){
@@ -52,10 +53,10 @@ Calculator.targetsToKeys = function(targArray, event, mathVar){
 			}
 			else if( itm === Calculator.Targets.Set ){
 
-				let targs = game.getMathVars()[mathVar];
+				let targs = game.getMathVars(event)[mathVar];
 				if( targs && typeof targs === "object" ){
 					for( let i in targs ){
-						if( targs[i] !== undefined && targs[i] !== '')
+						if( targs[i])
 							out.push(i);
 					}
 				}
@@ -65,6 +66,18 @@ Calculator.targetsToKeys = function(targArray, event, mathVar){
 				out.push(...game.roleplay._targetPlayers);
 			else if( itm === Calculator.Targets.Sender && event.sender )
 				out.push(event.sender.id);
+			else if( itm.startsWith(Calculator.Targets.Team) && event.target ){
+				
+				let team = parseInt(itm.substring(Calculator.Targets.Team.length));
+				const all = game.getEnabledPlayers();
+				for( let pl of all ){
+					
+					if( pl.team === team )
+						out.push(pl.id);
+
+				}
+
+			}
 			else if( itm.startsWith(Calculator.Targets.Target) && event.target ){
 
 				let nr = parseInt(itm.substring(Calculator.Targets.Target.length));
@@ -110,13 +123,16 @@ Calculator.tokenizeAtVar = function( input ){
 };
 
 // Handles custom mathvar types
-Calculator.appendMathVar = function( key, val, input ){
+Calculator.appendMathVar = function( key, val, input, event ){
 
 	// Player specific subkeys
 	if( typeof val === 'object' ){
 
-		for( let i in val )
+		for( let i in val ){
+
 			input[key+'_'+i] = val[i];
+		}
+
 
 	}
 	// Always include the full value. Since some code counts on there being a publicly accessible object
@@ -137,9 +153,9 @@ Calculator.getFirstNonVarChar = function( input ){
 
 }
 
-// Gets an @@evt_myEvt_myVar_PlayerConst etc tag and returns an array of values from mathvars
+// Gets an @@evt_myEvt_myVar_PlayerConst etc tag and returns an object
 // If tag does not start with @@, it returns mathVarList[tag]
-// Otherwise returns an object of {playerId:value}
+// Otherwise returns an object of {playerId:value...}
 // If returnUndefined is true, it allows keys that aren't present
 Calculator.getValuesByAtVar = function( tag, event, mathVarList, returnUndefined = false ){
 
@@ -163,10 +179,12 @@ Calculator.getValuesByAtVar = function( tag, event, mathVarList, returnUndefined
 		
 		let vTag = replace + '_' + pl;
 		if( returnUndefined || mathVarList.hasOwnProperty(vTag) ){
+			
 			let val = mathVarList[vTag];
 			if( val === undefined )
 				val = '';
 			out[pl] = val;
+
 		}
 
 	}
@@ -179,12 +197,13 @@ Calculator.getValuesByAtVar = function( tag, event, mathVarList, returnUndefined
 Calculator.run = function( formula, event, customMathVars ){
 
 	if( this.debug )
-		console.debug("Formula", formula, isNaN(formula));
+		console.debug("Formula", formula, "event", event, "mathvars", customMathVars);
 
 	
 	// This is already a number
-	if( !isNaN(formula) )
+	if( !isNaN(formula) ){
 		return +formula;
+	}
 
 	if( typeof formula !== "string" ){
 		console.error("This is not a formula (string expected) ", formula, "Event", event);
@@ -194,7 +213,7 @@ Calculator.run = function( formula, event, customMathVars ){
 
 	// First off, compile mathvars
 	// Vars from game
-	let vars = game.getMathVars();
+	let vars = game.getMathVars(event);
 	event.appendMathVars(vars);
 	if( customMathVars && typeof customMathVars === "object" ){
 		for( let i in customMathVars )
@@ -231,10 +250,13 @@ Calculator.run = function( formula, event, customMathVars ){
 
 		// Find the end of the player var
 		let token = this.tokenizeAtVar(c);
-		let trail = replace[1];
+		let trail = token[1];
 		token = token[0];
 
-		let objs = this.getValuesByAtVar('@@'+replace, event, vars);
+		// Fetches an object of {playerID:val...} for all players matching the token
+		// Token being from Calculator.Targets
+		// Then replaces said @@var with the sum of all object values
+		let objs = this.getValuesByAtVar('@@'+token, event, vars);
 		let nrOut = 0;
 		for( let i in objs ){
 			if( !isNaN(objs[i]) )
@@ -250,7 +272,6 @@ Calculator.run = function( formula, event, customMathVars ){
 		// Run the calculation
 	let out = 0;
 	try{
-
 		out = math.evaluate(formula, vars);
 	}
 	catch(err){
@@ -259,7 +280,7 @@ Calculator.run = function( formula, event, customMathVars ){
 	}
 
 	if( this.debug )
-		console.log("Calculated", formula, event, customMathVars, vars, '>>>>>', out);
+		console.debug("Calculated", formula, event, customMathVars, vars, '>>>>>', out);
 
 	return out;
 };

@@ -28,15 +28,6 @@ const DB = 'gameActions',
 	CONSTRUCTOR = GameAction;
 
 
-Calculator.Targets = {
-	Targets : 'Targets',	// Appends all targets from event
-	Sender : 'Sender',		// Appends sender from event
-	Target : 'Target',		// Followed by a number, such as Target0, Target1, to specify specific targets. If a target doesn't exist, it's ignored.
-	RpTarget : 'RpTarget',		// Followed by a number, such as RpTarget0, RpTarget1, to specify specific rp targets. If a target doesn't exist, it's ignored.
-	RpTargets : 'RpTargets',		// Appends all rp targets.
-};
-
-
 // Single asset editor
 export function asset(){
 
@@ -901,16 +892,22 @@ export function asset(){
 				id : '',
 				val : '',
 				targets : [],
+				operation : 'SET'
 			};
 		if( !Array.isArray(asset.data.targets) )
 			asset.data.targets = [];
 
+		const viableOps = ['SET','ADD','MUL'];
 			
 		html += 'This game action allows you to set vars to player arrays (see below). Simply set the value to a JSON array specifying the players you want to set on the var, ex ["Targets"].';
 		html += '<div class="labelFlex">';
 			html += '<label title="ID of the var to set">ID (should ONLY contain alphanumeric characters and _): <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';
 			html += '<label>Value: Can be a formula. Don\'t forget the prefix such as rp_ or %rp_<br />';
 			html += '<input type="text" name="data::val" class="saveable" data-type="smart" value="'+esc(dummy.data.val || '')+'" /></label>';
+			html += '<label>Operation: <select name="data::operation" class="saveable">';
+			for( let op of viableOps )
+				html += '<option value="'+op+'" '+(op === dummy.data.operation ? 'selected' : '')+'>'+op+'</option>';
+			html += '</select></label>';
 		html += '</div>';
 
 		html += '<h3>Targets:</h3>';

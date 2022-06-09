@@ -176,11 +176,11 @@ export default class Roleplay extends Generic{
 	}
 
 
-	appendMathVars( input ){
+	appendMathVars( input, event ){
 
 		let v = this._vars;
 		for( let i in v )
-			Calculator.appendMathVar('rp_'+this.label+'_'+i, v[i], input);
+			Calculator.appendMathVar('rp_'+this.label+'_'+i, v[i], input, event);
 		
 	}
 

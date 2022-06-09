@@ -419,10 +419,14 @@ class Text extends Generic{
 		event.text = this;
 		// if it's not a chat, tie this text to the event
 		
-		const gMathVars = window.game?.getMathVars() || {};
+		const gMathVars = window.game?.getMathVars(event) || {};
 		
 		// Conversions
 		let text = this.text;
+
+		// First handle %rp and replace it with the current rp
+		if( window.game?.roleplay )
+			text = text.split('%rp').join('rp_'+game.roleplay.label);
 
 		// Handle vars
 		// First off player specific vars, ex: @@rp_label_var_Target0[separator]
@@ -448,6 +452,7 @@ class Text extends Generic{
 				separator = sep[0];
 			trail = sep[1];
 			let objs = Calculator.getValuesByAtVar('@@'+token, event, gMathVars);
+
 			let compiled = [];
 			for( let i in objs )
 				compiled.push(objs[i]);
@@ -464,8 +469,11 @@ class Text extends Generic{
 		text = text.join('');
 
 		// Next handle vars where we get a PLAYER from a mathvar
-		// ex: @rp_label_var - Gets a specific var
-		// ex: @rp_label_var_0_Trace[Separator] - Gets race of the first player set on an rp var. Provided they're in the active area. The VALUE tied to the player must not be empty.
+		// ex: @rp_<label>_<var> - Gets a specific var
+		// ex: @rp_<label>_<var>_<index>_Trace[Separator] - Gets race of the first player set on an rp var. Provided they're in the active area. The VALUE tied to the player must not be empty. Separator defaults to " and "
+		// You can use "A" instead of a numeric target index to include all players, joined by a separator
+		// You can use "V" instead of a numeric target to include all players and their values, joined by TWO separators
+		// ex: @rp_<label>_<var>_V_T[, ][: ] will separate player name and var by ": " and players by ", ". Default to [, ][: ] if not specified.
 		tmp = text.split('@');
 		text = [tmp.shift()];
 		for( let c of tmp ){
@@ -479,10 +487,19 @@ class Text extends Generic{
 			if( sep[0] )
 				separator = sep[0];
 			trail = sep[1];
+			// V index can use a second separator. Better shift it off here, to prevent it from sticking around in the text if the conversion fails
+			let sep2 = Text.getAtTokenSeparator(trail);
+			if( sep2[0] )
+				sep2 = sep2[0];
+			else
+				sep2 = ': ';
+			trail = sep2[1];
 
 			token = token.split("_");
 			let index = token[token.length-2];
-			if( isNaN(index) && index !== "A" ){
+			// If the index is non-numeric, we fetch a math var that ISN'T tied to a player
+			// A and V are special cases as they're used to target multiple players
+			if( isNaN(index) && index !== "A" && index !== "V" ){
 
 				// Access a var directly
 				let v = gMathVars[token.join('_')];
@@ -491,21 +508,31 @@ class Text extends Generic{
 				text.push(v + trail);
 
 			}
+			// Otherwise we fetch player specific ones
 			else{
 				
 				let vType = '%'+token.pop();
 				token.pop();	// Remove the index
 				token = token.join('_');
 
+
 				// Now we have the mathvar we want to get
-				let data = gMathVars[token];
+				let data = gMathVars[token];	// Contains the object of player vars in the format {playerid:var...}
 				if( typeof data !== "object" )
 					continue;
 
-				let targs = [];
+				
+				let targs = []; 		// Get all the player ids with a non-false value
+				let vals = [];			// Get all the player var values with a non-false value
 				for( let i in data ){
-					if( data[i] )
+
+					if( data[i] ){
+
 						targs.push(i);
+						vals.push(data[i]);
+
+					}
+
 				}
 				if( !isNaN(index) )
 					targs = [targs[index]];
@@ -515,8 +542,18 @@ class Text extends Generic{
 				
 				// We can now convert it
 				let conversions = [];
-				for( let t of targs )
+				for( let t of targs ){
 					conversions.push(this.targetTextConversion(vType, 'T', window.game?.getPlayerById(t), event));
+				}
+
+				// Finally if type is V, we need to append the values
+				if( index === "V" ){
+
+					for( let i = 0; i < conversions.length; ++i )
+						conversions[i] += sep2 + numberToText(vals[i]);
+
+				}
+
 				text.push(conversions.join(separator)+trail);
 
 			}

@@ -503,25 +503,30 @@ export default class GameAction extends Generic{
 
 				const evt = new GameEvent({sender,target:player,dungeon:dungeon});
 
-				// Vals starting with @@ are treated as string literals
-				if( String(this.data.val).startsWith('@@') )
+				// Vals starting with $$ are treated as string literals
+				if( String(this.data.val).startsWith('$$') )
 					val = String(this.data.val).substring(2);
 				// Otherwise it's treated as a formula
 				else
 					val = Calculator.run(this.data.val, evt, dungeon.vars);
+
 				// Handles setting on targets
 				if( Array.isArray(this.data.targets) && this.data.targets.length ){
 					
 					let pre = dungeon.getVar(this.data.id);
 					if( !pre || typeof pre !== "object" )
 						pre = {};
+
 					let targs = Calculator.targetsToKeys(this.data.targets, evt, this.data.id);
-					for( let t of targs )
-						pre[t] = val;
+					for( let t of targs ){
+						pre[t] = this.getOperationVal(pre[t], val);
+					}
 					val = pre;
 
 				}
+
 			}
+			// Lever does animation automatically
 			else{
 				if( val )
 					playAnim("open");
@@ -547,8 +552,8 @@ export default class GameAction extends Generic{
 				target:player,
 			});
 
-			// Use @@ for string literal values
-			if( val.startsWith('@@') )
+			// Use $$ for string literal values
+			if( val.startsWith('$$') )
 				val = val.substring(2);
 			// Anything else gets treated as a formula
 			else
@@ -560,8 +565,11 @@ export default class GameAction extends Generic{
 				let pre = rp._vars.get(id);
 				if( typeof pre !== "object" || !pre )
 					pre = {};
-				for( let t of targs )
-					pre[t] = val;
+				for( let t of targs ){
+
+					pre[t] = this.getOperationVal(pre[t], val);
+
+				}
 				val = pre;
 
 			}
@@ -1130,6 +1138,23 @@ export default class GameAction extends Generic{
 
 	}
 
+	// Shared between dungeonVar and setRpVar to handle the viable math operations
+	// Pre is the existing value, and val is the incoming value
+	getOperationVal( pre, val ){
+
+		let raw = val;	// Needed in case of a string val
+		pre = +pre || 0;
+		val = +val || 0;
+		// Multiply by val (divide by using fractions)
+		if( this.data.operation === "MUL" )
+			return pre*val;
+		// Add to val (subtract by using a negative number)
+		if( this.data.operation === "ADD" )
+			return pre+val;
+		return raw;
+
+	}
+
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
 	async trigger( player, mesh, debug, sender ){
 		
@@ -1213,6 +1238,7 @@ export default class GameAction extends Generic{
 		return actions.filter(el => el.type === type );
 
 	}
+
 	
 	static getViable( actions = [], player = undefined, debug = false, validate = true, roomAsset = undefined ){
 		let out = [];
@@ -1323,7 +1349,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.learnAction] : '{conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0 with sender being the GameAction player and target being each player. Use conditions to filter. Use targetIsSender condition for only the person who triggered it. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.',
 	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
 	[GameAction.types.addTime] : '{seconds:(int)seconds}',
-	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula, targets:[]} - Sets a variable in the currently active dungeon. Formulas starting with @@ will be treated as a string (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly.',
+	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET} - Sets a variable in the currently active dungeon. Formulas starting with @@ will be treated as a string (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
 	//[GameAction.types.removeFromDungeonVar] : '{ids:(arr)ids, dungeon:(str)label, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more dvars',
 	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',
 	[GameAction.types.refreshPlayerVisibility] : 'void - Forces the game to refresh visibility of players.',
@@ -1337,7 +1363,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.sortRpTargets] : '{mathvars:[{var:(str)label, desc:(bool)desc=false}...]} - Sorts rpTargets based on mathvars. Only mathvars for ta_ are set',
 	[GameAction.types.sliceRpTargets] : '{start:(int)=0, nrPlayers:(int)=-1} - Converts rpTargets to a subset of targets',
 	[GameAction.types.resetRpVar] : '{var:(str)var=ALL} - Tries to reset a var in the active RP. If vars is empty, it resets all',
-	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula, targets:[]} - Sets an RP var. Formulas starting with @@ will be treated as strings (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly.',
+	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET} - Sets an RP var. Formulas starting with @@ will be treated as strings (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
 	//[GameAction.types.removeFromRpVar] : '{ids:(arr)ids, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more rpvars',
 	
 };

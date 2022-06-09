@@ -386,6 +386,9 @@ export function asset(){
 	else if( type === types.apValue ){
 		html += buildDefaultValueFields();
 	}
+	else if( type === types.blockValue ){
+		html += buildDefaultValueFields();
+	}
 	else if( type === types.assetEquipped ){}
 	else if( type === types.assetSlot ){
 

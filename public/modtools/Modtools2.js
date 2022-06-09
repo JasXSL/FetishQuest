@@ -1560,17 +1560,57 @@ export default class Modtools{
 			
 			html += '<h2>MathVars/Formulas</h2>';
 			html += '<p>Some fields will specify that you can use a formula. This means you can use mathvars. These are variables you can get with game.getMathVars() in the browser console in a game. Dungeon/rp vars (dVars/rpVars) can have player specific variables set. These are set by using a GameAction of dungeonVar or setRpVar and supplying at least one target constant. To use a player specific var, prefix the var with @@ and end with _TargetConst. Ex "@@rp_rpLabel_rpVar_Target0".</p>';
-			html += '<p>The following is a list of target constants you can use.</p>';
+			html += '<p>The following is a list of target constants you can use in texts and mathvar fields.</p>';
 			html += `<ul>
 				<li>Targets: SET: Sets value on all event targets. GET: Sums the values of all event targets.</li>
 				<li>Sender: SET: Sets value on event sender. GET: Gets value of event sender.</li>
 				<li>TargetN: SET: Set value on a specific target from the event by index, such as Target0, Target1. GET: Same, but gets.</li>
 				<li>RpTargets: SET: Sets value on all RP targets. GET: Gets the sum of all RP target values.</li>
 				<li>RpTargetN: SET: Sets value on a single RP target by index such as RpTarget0, RpTarget1. GET: Gets the value for a specific RP target.</li>
+				<li>Set: SET: Sets value on all players with an existing truthy value. GET: Returns the nr of players with an existing truthy value.</li>
+				<li>TeamN: SET: Sets value on all players belonging to a team, such as Team0 for the player team. GET: Sums the value of all players on said team.</li>
 			</ul>`;
-			html += '<p>You can also set an rpVar to a string by starting with @@. Note that trying to use a string var in a formula will throw an error. Use mathVarCompare conditions to compare string vars.</p>';
-			html += '<p>To access a player specific mathvar, the syntax is @@path_to_mathvar_Target, ex @@rp_myEvent_myVar_Player0 to get the mathvar myVar from the roleplay myEvent, for the first player of the event.</p>';
+			html += '<p>You can also set an rpVar to a string by starting the value with $$. Note that trying to use a string var in a formula will throw an error, as formulas only work on numbers. Use mathVarCompare conditions to compare string vars instead.</p>';
+			html += '<p>To access a player specific mathvar, the syntax is @@path_to_mathvar_Target, ex @@rp_myEvent_myVar_Target0 to get the mathvar myVar from the roleplay myEvent, for the first player of the event.</p>';
 			html += '<p>As a shortcut you can use %rp in a mathvar to target the currently active RP. Useful if you want use a set of conds/gameActions in multiple RPs. Ex if you have an active rp labeled "clickCounter" and var "numClicks", %rp_numClicks is the same as typing rp_clickCounter_numClicks</p>';
+			html += '<p>You can combine @@ and %rp to target the currently active RP, ex @@%rp_Target0 instead of rp_myEvent_myVar_Target0.</p>';
+			html += '<p>The following examples assumes a game with 3 players (pl0, pl1, pl2) and an RP/Dungeon with the var "i" set to {"pl0":1,"pl1":0,"pl2":5}</p>';
+			html += '<table>';
+				html += '<tr><th>Asset Type</th><th>Formula</th><th>Result</th><th>Explanation</th></tr>';
+				html += '<tr>'+
+					'<td>Formula Condition</td>'+
+					'<td>@@%rp_i_Set==g_team_0</td>'+
+					'<td>false</td>'+
+					'<td>@@%rp_i_Set gets the nr of players with non-false data set on the i rpVar of the active roleplay, in this case 2, because pl1 is set to 0. Then compares that to nr of players on team 0 (player team). Can be useful in making RPs where every player gets to do something once.</td>'+
+				'</tr>';
+				html += '<tr>'+
+					'<td>Formula Condition</td>'+
+					'<td>@@%rp_i_Target0==0</td>'+
+					'<td>false</td>'+
+					'<td>Checks if the first target included in the event has the i rpVar set to 0 or isn\'t set yet.</td>'+
+				'</tr>';
+				html += '<tr>'+
+					'<td>setRpVar gameAction</td>'+
+					'<td>id: i, value:@@%rp_i_Target0+1, targets: Target0</td>'+
+					'<td>n/a</td>'+
+					'<td>Adds 1 to the current value of the first player of the event.</td>'+
+				'</tr>';
+				html += '<tr>'+
+					'<td></td>'+
+					'<td></td>'+
+					'<td></td>'+
+					'<td></td>'+
+				'</tr>';
+				html += '<tr>'+
+					'<td></td>'+
+					'<td></td>'+
+					'<td></td>'+
+					'<td></td>'+
+				'</tr>';
+				
+				
+
+			html += '</table>';
 
 			this.setDom(html);
 

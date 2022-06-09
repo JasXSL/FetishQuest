@@ -655,6 +655,8 @@ export default class Condition extends Generic{
 			else if( this.type === T.apValue ){
 				success = t && this.compareValue(s, t, t.ap);
 			}
+			else if( this.type === T.blockValue )
+				success = t && this.compareValue(s, t, t.getBlock());
 			else if( this.type === T.mpValue )
 				success = t && this.compareValue(s, t, t.mp, debug);
 
@@ -1137,7 +1139,7 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.mathVarCompare ){
 
-				let objs = Calculator.getValuesByAtVar(this.data.label, event, game.getMathVars(), true);
+				let objs = Calculator.getValuesByAtVar(this.data.label, event, game.getMathVars(event), true);
 				let test = this.data.val;
  
 				// If the label we're testing isn't a player @@ tag, it will be a string or number
@@ -1497,6 +1499,7 @@ Condition.Types = {
 	roomTag : 'roomTag',
 	numRpTargets : 'numRpTargets',
 	mathVarCompare : 'mathVarCompare',
+	blockValue : 'blockValue',
 };
 
 
@@ -1533,11 +1536,12 @@ Condition.descriptions = {
 	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false} - Checks if the player has a wrapper with this label',
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',
-	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
-	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
-	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
-	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
-	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default >  Amount can be a math var.',
+	[Condition.Types.blockValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
+	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
+	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
+	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
+	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
+	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
 	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic). Amount can be a math var.',
 	[Condition.Types.dom] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target dominant value, between 0 (sub) 0.5 (switch) and 1 (dom).  Amount can be a math var.',
 	[Condition.Types.hetero] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target hetero value, between 0 (not gay), 0.5 (gay) 1 (completely straight).  Amount can be a math var.',

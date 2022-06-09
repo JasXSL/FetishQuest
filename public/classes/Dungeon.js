@@ -419,16 +419,16 @@ class Dungeon extends Generic{
 
 
 	// Appends our dvars to input
-	appendMathVars( input ){
+	appendMathVars( input, event ){
 
 		for( let i in this.vars )
-			Calculator.appendMathVar('d_'+this.label+'_'+i, this.vars[i], input);
+			Calculator.appendMathVar('d_'+this.label+'_'+i, this.vars[i], input, event);
 
 		let d = game.state_dungeons[this.label];
 		if( d ){
 			let v = d.vars;
 			for( let i in v )
-				Calculator.appendMathVar('d_'+this.label+'_'+i, v[i], input);
+				Calculator.appendMathVar('d_'+this.label+'_'+i, v[i], input, event);
 		}
 
 	}
