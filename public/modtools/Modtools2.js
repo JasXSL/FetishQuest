@@ -1559,7 +1559,7 @@ export default class Modtools{
 			html += '<p>Grey assets in library/linked tables are part of the main game. Clicking one of these assets will create an extension (experimental) which allows you to modify the base game. Extended assets have blue text. Control clicking one of these will delete the extension. The linked tables will show MAIN or THIS where MAIN means the asset is part of the main mod, and THIS is part of your active mod.</p>';
 			
 			html += '<h2>MathVars/Formulas</h2>';
-			html += '<p>Some fields will specify that you can use a formula. This means you can use mathvars. These are variables you can get with game.getMathVars() in the browser console in a game. Dungeon/rp vars (dVars/rpVars) can have player specific variables set. These are set by using a GameAction of dungeonVar or setRpVar and supplying at least one target constant. To use a player specific var, prefix the var with @@ and end with _TargetConst. Ex "@@rp_rpLabel_rpVar_Target0".</p>';
+			html += '<p>Some fields will specify that you can use a formula. This means you can use mathvars. These are variables you can get with game.getMathVars() in the browser console in a game. Dungeon/rp vars (dVars/rpVars) can have player specific variables set. These are set by using a GameAction of dungeonVar or setRpVar and supplying at least one target constant. To use a player specific var, prefix the var with @@ and end with _TargetConst. Ex "@@rp_rpLabel_rpVar_Target0" or "@@d_dungeonLabel_dvar_Target0".</p>';
 			html += '<p>The following is a list of target constants you can use in texts and mathvar fields.</p>';
 			html += `<ul>
 				<li>Targets: SET: Sets value on all event targets. GET: Sums the values of all event targets.</li>
@@ -1573,7 +1573,8 @@ export default class Modtools{
 			html += '<p>You can also set an rpVar to a string by starting the value with $$. Note that trying to use a string var in a formula will throw an error, as formulas only work on numbers. Use mathVarCompare conditions to compare string vars instead.</p>';
 			html += '<p>To access a player specific mathvar, the syntax is @@path_to_mathvar_Target, ex @@rp_myEvent_myVar_Target0 to get the mathvar myVar from the roleplay myEvent, for the first player of the event.</p>';
 			html += '<p>As a shortcut you can use %rp in a mathvar to target the currently active RP. Useful if you want use a set of conds/gameActions in multiple RPs. Ex if you have an active rp labeled "clickCounter" and var "numClicks", %rp_numClicks is the same as typing rp_clickCounter_numClicks</p>';
-			html += '<p>You can combine @@ and %rp to target the currently active RP, ex @@%rp_Target0 instead of rp_myEvent_myVar_Target0.</p>';
+			html += '<p>You can use %d the same way for dungeon vars.</p>';
+			html += '<p>You can combine @@ and %rp/%d to target the currently active RP, ex @@%rp_Target0 instead of rp_myEvent_myVar_Target0.</p>';
 			html += '<p>The following examples assumes a game with 3 players (pl0, pl1, pl2) and an RP/Dungeon with the var "i" set to {"pl0":1,"pl1":0,"pl2":5}</p>';
 			html += '<table>';
 				html += '<tr><th>Asset Type</th><th>Formula</th><th>Result</th><th>Explanation</th></tr>';
@@ -1594,12 +1595,6 @@ export default class Modtools{
 					'<td>id: i, value:@@%rp_i_Target0+1, targets: Target0</td>'+
 					'<td>n/a</td>'+
 					'<td>Adds 1 to the current value of the first player of the event.</td>'+
-				'</tr>';
-				html += '<tr>'+
-					'<td></td>'+
-					'<td></td>'+
-					'<td></td>'+
-					'<td></td>'+
 				'</tr>';
 				html += '<tr>'+
 					'<td></td>'+

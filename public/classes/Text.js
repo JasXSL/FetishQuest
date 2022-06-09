@@ -427,6 +427,9 @@ class Text extends Generic{
 		// First handle %rp and replace it with the current rp
 		if( window.game?.roleplay )
 			text = text.split('%rp').join('rp_'+game.roleplay.label);
+		if( window.game?.dungeon)
+			text = text.split('%d').join('d_'+game.roleplay.label);
+
 
 		// Handle vars
 		// First off player specific vars, ex: @@rp_label_var_Target0[separator]
@@ -488,11 +491,10 @@ class Text extends Generic{
 				separator = sep[0];
 			trail = sep[1];
 			// V index can use a second separator. Better shift it off here, to prevent it from sticking around in the text if the conversion fails
+			let separator2 = ': ';
 			let sep2 = Text.getAtTokenSeparator(trail);
 			if( sep2[0] )
-				sep2 = sep2[0];
-			else
-				sep2 = ': ';
+				separator2 = sep2[0];
 			trail = sep2[1];
 
 			token = token.split("_");
@@ -550,7 +552,7 @@ class Text extends Generic{
 				if( index === "V" ){
 
 					for( let i = 0; i < conversions.length; ++i )
-						conversions[i] += sep2 + numberToText(vals[i]);
+						conversions[i] += separator2 + numberToText(vals[i]);
 
 				}
 
@@ -914,9 +916,10 @@ class Text extends Generic{
 		if( trail.charAt(0) !== '[' )
 			return [undefined, trail];
 		let end = trail.indexOf(']');
-		if( end === -1 || end === trail.length-1 )
-			return [trail.substring(1, end), ''];
-		return [trail.substring(1, end), trail.substring(end+1)];
+		let out = trail.substring(1, end);
+		trail = trail.substring(end+1);
+		//console.log("out", JSON.stringify(out), "trail", JSON.stringify(trail));
+		return [out, trail];
 
 	}
 

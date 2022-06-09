@@ -241,6 +241,7 @@ Calculator.run = function( formula, event, customMathVars ){
 
 	// Let's replace keys
 	formula = formula.split('%rp').join('rp_'+game.roleplay.label);
+	formula = formula.split('%d').join('d_'+game.dungeon.label);
 
 	// Let's take a look at the formula
 	// We use @@ to get a player var
