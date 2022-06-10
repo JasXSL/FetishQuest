@@ -496,8 +496,11 @@ export default class GameAction extends Generic{
 
 		else if( this.type === types.dungeonVar || this.type === types.lever ){
 
-			const dungeon = game.dungeon;
-			
+			let dungeon = game.dungeon;
+			if( this.data.dungeon ){
+				dungeon = glib.get(this.data.dungeon, 'Dungeon').clone();
+				dungeon.loadState();
+			}
 			let val = !dungeon.vars[this.data.id];
 			if( this.type === types.dungeonVar ){
 
@@ -509,11 +512,11 @@ export default class GameAction extends Generic{
 				// Otherwise it's treated as a formula
 				else
 					val = Calculator.run(this.data.val, evt, dungeon.vars);
-
+				
+				let pre = dungeon.getVar(this.data.id);	
 				// Handles setting on targets
 				if( Array.isArray(this.data.targets) && this.data.targets.length ){
 					
-					let pre = dungeon.getVar(this.data.id);
 					if( !pre || typeof pre !== "object" )
 						pre = {};
 
@@ -523,6 +526,10 @@ export default class GameAction extends Generic{
 					}
 					val = pre;
 
+				}
+				// Setting directly on var
+				else{
+					val = this.getOperationVal(pre, val);
 				}
 
 			}
@@ -559,10 +566,11 @@ export default class GameAction extends Generic{
 			else
 				val = Calculator.run(val, evt, {});
 
+			let pre = rp._vars.get(id);
+			// If this.data.targets is set, then we need to treat it as individual vars per player
 			if( Array.isArray(this.data.targets) && this.data.targets.length ){
 
 				let targs = Calculator.targetsToKeys(this.data.targets, evt, id);
-				let pre = rp._vars.get(id);
 				if( typeof pre !== "object" || !pre )
 					pre = {};
 				for( let t of targs ){
@@ -573,6 +581,11 @@ export default class GameAction extends Generic{
 				val = pre;
 
 			}
+			// Otherwise we need to set val based on the operation
+			else{
+				val = this.getOperationVal(pre, val);
+			}
+
 			if( debug )
 				console.log("Setting RP var", id, "to", val);
 			rp._vars.set(id, val);
@@ -1349,7 +1362,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.learnAction] : '{conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0 with sender being the GameAction player and target being each player. Use conditions to filter. Use targetIsSender condition for only the person who triggered it. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.',
 	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
 	[GameAction.types.addTime] : '{seconds:(int)seconds}',
-	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET} - Sets a variable in the currently active dungeon. Formulas starting with @@ will be treated as a string (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
+	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET, dungeon:(str)label=CURRENT_DUNGEON} - Sets a variable in the currently active dungeon. Formulas starting with @@ will be treated as a string (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
 	//[GameAction.types.removeFromDungeonVar] : '{ids:(arr)ids, dungeon:(str)label, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more dvars',
 	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',
 	[GameAction.types.refreshPlayerVisibility] : 'void - Forces the game to refresh visibility of players.',

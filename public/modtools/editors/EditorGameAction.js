@@ -900,6 +900,10 @@ export function asset(){
 		const viableOps = ['SET','ADD','MUL'];
 			
 		html += 'This game action allows you to set vars to player arrays (see below). Simply set the value to a JSON array specifying the players you want to set on the var, ex ["Targets"].';
+		if( type === Types.dungeonVar ){
+			html += '<p>Dungeon (leave empty to use the active game dungeon)</p>';
+			html += '<div class="dungeon"></div>';				
+		}
 		html += '<div class="labelFlex">';
 			html += '<label title="ID of the var to set">ID (should ONLY contain alphanumeric characters and _): <input type="text" name="data::id" class="saveable" value="'+esc(asset.data.id || '')+'" /></label>';
 			html += '<label>Value: Can be a formula. Don\'t forget the prefix such as rp_ or %rp_ or %d_<br />';
@@ -916,6 +920,8 @@ export function asset(){
 		html += '<div class="targPlayers"></div>';	
 		html += '<input type="button" value="Add Target" class="addTarget" />';
 		html += '<br />';
+
+		
 		
 		fnBind = () => {
 
@@ -956,6 +962,9 @@ export function asset(){
 			for( let p of asset.data.targets )
 				addTargetField(p);
 			
+			if( type === Types.dungeonVar ){
+				this.dom.querySelector("div.dungeon").appendChild(EditorDungeon.assetTable(this, asset, "data::dungeon", true));
+			}
 
 			this.dom.querySelector('input.addTarget').onclick = addTargetField;
 
