@@ -54,6 +54,7 @@ export function asset(){
 		html += '<label>Trigger Immediate <input type="checkbox" class="saveable" name="trigger_immediate" '+(dummy.trigger_immediate ? 'checked' : '')+' /></label><br />';
 		html += '<label>Tick on turn start <input type="checkbox" class="saveable" name="tick_on_turn_start" '+(dummy.tick_on_turn_start ? 'checked' : '')+' /></label><br />';
 		html += '<label>Tick on turn end <input type="checkbox" class="saveable" name="tick_on_turn_end" '+(dummy.tick_on_turn_end ? 'checked' : '')+' /></label><br />';
+		html += '<label title="Added to all players as passive when placed in world, if conditions match">Global <input type="checkbox" class="saveable" name="global" '+(dummy.global ? 'checked' : '')+' /></label><br />';
 
 		html += '<label title="If using game timer, the effect persists outside combat, and time becomes time as in game seconds">Use game timer <input type="checkbox" class="saveable" name="ext" '+(dummy.ext ? 'checked' : '')+' /></label><br />';
 

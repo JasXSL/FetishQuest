@@ -53,6 +53,8 @@ class Wrapper extends Generic{
 		this.tick_on_turn_start = true;			// Tick on turn start
 		this.tick_on_turn_end = false;			// Tick on turn end
 
+		this.global = false;				// Host only: Applied to all players as passives whenever they're added to the game, provided conditions are matched
+
 		this.netPlayer = "";					// This should only be relied upon from instant effects
 
 		// Stuff set when applied
@@ -99,6 +101,7 @@ class Wrapper extends Generic{
 			out.max_stacks = this.max_stacks;
 			out.trigger_immediate = this.trigger_immediate;
 			out.editor_desc = this.editor_desc;
+			out.global = this.global;
 
 			if( full !== "mod" ){
 
@@ -794,6 +797,11 @@ class Wrapper extends Generic{
 		});
 	}
 
+	static getGlobalWrappers(){
+		return glib.getAllValues("Wrapper").filter(wrapper => wrapper.global).map(el => {
+			return el.rebaseIfNeeded();
+		});
+	}
 
 }
 

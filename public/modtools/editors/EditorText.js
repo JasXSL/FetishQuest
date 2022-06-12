@@ -150,7 +150,8 @@ export function asset(){
 			'targetSameTeam',
 			'targetNotSender',
 			'targetNotBeast',
-			'targetNotPlayerCharacter'
+			'targetNotPlayerCharacter',
+			'targetNotDead'
 		];
 		// remove all tags
 		if( Array.isArray(asset.extraSenderConditions) ){

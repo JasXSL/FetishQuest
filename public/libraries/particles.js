@@ -35,6 +35,8 @@ const textures = {
 	glowRing : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/glow_ring.png')})),
 	holyRune : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/holy_rune.png')})),
 	rock : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/rock.png')})),
+	kiss : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/kiss.png')})),
+	heart : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/heart.png')})),
 	worms : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/worms.png')})),
 	roots : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/roots.png')})),
 	skitteringInsect : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/skittering_insect.png')})),
@@ -571,6 +573,24 @@ particles.hitfx_holy_runes = {
 	opacity: [1,0],
 };
 
+
+particles.hitfx_hearts = {
+	texture : textures.heart,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 8,
+	position : new Proton.BoxZone(0,0,0, 30,30,30),
+	size : new Proton.Span(2,4),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,1.5),
+	velocity : 0,
+	velocity_type : 0,
+	gravity : -1,
+	rotation : [0,Math.PI*2],
+	color : ["#FFAAAA","#FFEEEE"],	
+	opacity: [1],
+};
+
 // Multiple small crosshairs
 particles.hitfx_crosshairs_red = {
 	texture : textures.crosshair,
@@ -1045,6 +1065,20 @@ particles.hitfx_lock_yellow = {
 	part_max_age : 0.75,
 	velocity : 0,
 	color : ["#FFFFAA","#FFFFEE"],	
+	opacity: [0,1,Proton.ease.easeFullBridge],
+};
+
+particles.hitfx_kiss = {
+	texture : textures.kiss,
+	blending : THREE.AdditiveBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.PointZone(),
+	size : 100,
+	size_tween : [1,0, Proton.ease.easeFullStairStep],
+	part_max_age : 0.75,
+	velocity : 0,
+	color : ["#FF6666","#FFEEEE"],	
 	opacity: [0,1,Proton.ease.easeFullBridge],
 };
 

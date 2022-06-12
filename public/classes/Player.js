@@ -1173,6 +1173,7 @@ export default class Player extends Generic{
 		}
 
 		this.addDefaultActions();
+		this.addGlobalPassives();
 
 		this.assets = this.assets.map(el => Asset.convertDummy(el, this));
 		for( let index of this.inventory ){
@@ -3737,6 +3738,7 @@ export default class Player extends Generic{
 
 	}
 
+
 	// Use Wrapper.useAgainst, not this
 	// Also see rebindWrappers for ignoreStayCheck
 	addWrapper( wrapper, ignoreStayCheck = false ){
@@ -3817,6 +3819,27 @@ export default class Player extends Generic{
 
 		this.passives.push(wrapper.clone());
 		this.updatePassives();
+
+	}
+
+	// Gets all library wrappers marked as global and adds all matching conditions
+	// If refresh is true, global passives are removed and new ones added
+	addGlobalPassives( refresh = false ){
+
+		if( refresh )
+			this.passives
+				.filter(el => el.global)
+				.map(el => this.removePassive(el))
+			;
+
+		const all = Wrapper.getGlobalWrappers();
+		const evt = new GameEvent({sender:this, target:this});
+		for( let wrapper of all ){
+
+			if( wrapper.testAgainst(evt) )
+				this.addPassive(wrapper);
+
+		}
 
 	}
 
