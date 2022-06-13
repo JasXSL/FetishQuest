@@ -178,6 +178,8 @@ export default class Roleplay extends Generic{
 
 	appendMathVars( input, event ){
 
+		input['rp_targs'] = this._targetPlayers.length;
+
 		let v = this._vars;
 		for( let i in v )
 			Calculator.appendMathVar('rp_'+this.label+'_'+i, v[i], input, event);
@@ -274,14 +276,17 @@ export default class Roleplay extends Generic{
 				return el.id;
 			});
 
+		const evt = new GameEvent({sender:this.getPlayer(), target:players, roleplay:this});
 		// Run gameActions
-		for( let action of this.gameActions )
+		for( let action of this.gameActions ){
 			action.trigger(
 				players, 
 				undefined, 			// mesh
 				false, 				// Debug
-				this.getPlayer()	// Sender
+				this.getPlayer(),	// Sender
+				evt					// Forces a conditions check
 			);
+		}
 		
 		const stage = this.getActiveStage();
 		if( stage )
@@ -620,9 +625,11 @@ export class RoleplayStage extends Generic{
 		// Actions that act on target specified by this.target
 		const iniPlayers = toArray(this.getInitiatingPlayer());
 		for( let p of iniPlayers ){
-			for( let act of this.game_actions ){
-				await act.trigger(p, undefined, false, pl);
-			}
+
+			const evt = new GameEvent({sender:pl, target:p, roleplay:this});
+			for( let act of this.game_actions )
+				await act.trigger(p, undefined, false, pl, evt);
+
 		}
 
 		const tevt = this.getTextEvent();

@@ -186,6 +186,8 @@
 	Boss that limits nr of actions you can use per turn
 	Boss that does an effect based on nr of potions in inventory/equipped
 	Cooldown activated on a random ability at the start of each turn
+	Sentient rod weapon
+	
 
 -- LATER UPDATE --
 

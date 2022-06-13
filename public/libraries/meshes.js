@@ -2643,7 +2643,7 @@ function build(){
 						materials : [
 							libMat.Wood.Crate
 						],
-						tags : [stdTag.mShelf],
+						tags : [stdTag.mShelf, stdTag.mBookshelf],
 					}),
 					BookshelfBooksBottom : new LibMesh({
 						url : 'furniture/bookshelf_books_bottom.glb',
@@ -2651,7 +2651,7 @@ function build(){
 							libMat.Wood.Crate,
 							libMat.Book.Full,
 						],
-						tags : [stdTag.mShelf, stdTag.mBook],
+						tags : [stdTag.mShelf, stdTag.mBook, stdTag.mBookshelf],
 					}),
 					BookshelfFull : new LibMesh({
 						url : 'furniture/bookshelf_stacked.JD',
@@ -2659,7 +2659,7 @@ function build(){
 							libMat.Wood.Crate,
 							libMat.Book.Full,
 						],
-						tags : [stdTag.mShelf, stdTag.mBook],
+						tags : [stdTag.mShelf, stdTag.mBook, stdTag.mBookshelf],
 					}),
 				},
 				Marble : {

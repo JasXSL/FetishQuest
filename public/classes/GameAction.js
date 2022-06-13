@@ -761,10 +761,14 @@ export default class GameAction extends Generic{
 			if( this.data.alert )
 				game.ui.addText( player.getColoredName()+" received "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
 				
+			let addedAssets;
 			if( amount > 0 )
-				pl.addAsset( asset, amount );	// note that this resets id
+				addedAssets = pl.addAsset( asset, amount );	// note that this resets id
 			else if( amount < 0 )
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
+
+			if( addedAssets && this.data.equip )
+				addedAssets.map(el => pl.equipAsset(el.id, pl, true));
 
 		}
 
@@ -1169,7 +1173,8 @@ export default class GameAction extends Generic{
 	}
 
 	// note: mesh should be the mesh you interacted with, or the player you interacted with (such as the player mapped to a roleplay text)
-	async trigger( player, mesh, debug, sender ){
+	// if checkConditionsEvt is passed, conditions will be checked with that event
+	async trigger( player, mesh, debug, sender, checkConditionsEvt ){
 		
 		if( !player )
 			player = game.getMyActivePlayer();
@@ -1193,6 +1198,9 @@ export default class GameAction extends Generic{
 			});
 
 		}
+
+		if( checkConditionsEvt && !Condition.all(this.conditions, checkConditionsEvt) )
+			return 0;
 
 		let successes = 0;
 		for( let target of targets ){
@@ -1336,7 +1344,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.lever] : '{id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations',
 	[GameAction.types.quest] : '{quest:(str/Quest)q} - Starts a quest',
 	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1} - Adds or subtracts from an objective',
-	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1, "alert":(bool)notify=false} - Adds or removes inventory from a player',
+	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1, "alert":(bool)notify=false, "equip":""} - Adds or removes inventory from a player. Equip can be empty (no equip) or "yes" to equip it.',
 	[GameAction.types.toggleCombat] : '{on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.',
 	[GameAction.types.roleplay] : '{rp:(str/obj)roleplay} - A label or roleplay object',
 	[GameAction.types.finishQuest] : '{quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.',

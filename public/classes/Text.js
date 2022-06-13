@@ -67,6 +67,7 @@ const SYNONYMS = [
 	["wiggling", "squirming", "wriggling"],
 	["bulge","package"],
 	["stomach", "belly", "tummy"],
+	["twitch","spasm","jerk","throb"],
 ];
 /*
 const A_EXCEPTIONS = {

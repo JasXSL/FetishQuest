@@ -719,7 +719,7 @@ export function asset(){
 		html += buildDefaultValueFields();
 	}
 	else if( type === types.isActionParent ){}
-	else if( type === types.isRoleplayPlayer ){
+	else if( type === types.isRoleplayPlayer ){ 
 
 		html += '<div class="labelFlex">';
 			html += '<label title="Use -1 for any index">Index: <input type="number" name="data::index" step=1 min=-1 class="saveable" value="'+(parseInt(asset.data.index) || -1)+'" /></label>';
@@ -1022,7 +1022,7 @@ export function asset(){
 	else if( type === types.targetIsChatPlayer ){}
 	else if( type === types.targetIsChatPlayerTeam ){}
 	else if( type === types.targetIsRpPlayer ){
-		html += 'Deprecated. Use isRoleplayPlayer instead';
+		html += '<h3>Deprecated. Use isRoleplayPlayer instead</h3>';
 	}
 	else if( type === types.targetIsSender ){}
 	else if( type === types.targetIsWrapperSender ){

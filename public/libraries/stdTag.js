@@ -290,6 +290,7 @@ export default {
 	mFire : 'm_fire',
 	mBottle : 'm_bottle',
 	mBook : 'm_book',
+	mBookshelf : 'm_bookshelf',
 	mCandle : 'm_candle',
 	mPaper : 'm_paper',
 	mBowl : 'm_bowl',

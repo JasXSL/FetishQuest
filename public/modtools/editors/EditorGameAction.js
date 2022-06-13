@@ -359,6 +359,7 @@ export function asset(){
 				asset : '',
 				amount : 1,
 				alert : false,
+				equip : '',
 			};
 
 		html += 'Asset: <div class="asset"></div>';
@@ -366,6 +367,10 @@ export function asset(){
 			html += '<label title="If unset, tied to the event target">Target player label: <input type="text" name="data::player" class="saveable" value="'+esc(asset.data.player || '')+'" /></label>';
 			html += '<label title="Nr copies of the asset to give">Amount: <input type="number" min=1 step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 0)+'" /></label>';
 			html += '<label title="Outputs a chat message">Notify chat: <input type="checkbox" name="data::alert" class="saveable" '+( asset.data.alert ? 'checked' : '' )+' /></label>';
+			html += '<label title="Should it auto equip?">Equip: <select name="data::equip" class="saveable">'+
+				'<option value="">No</option>'+
+				'<option value="yes"'+(asset.data.equip === 'yes' ? ' checked' : '')+'>YES</option>'+
+			'</select></label>';
 		html += '</div>';
 
 		fnBind = () => {
