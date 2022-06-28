@@ -6,6 +6,7 @@ import * as EditorPlayerClass from './EditorPlayerClass.js';
 import * as EditorWrapper from './EditorWrapper.js';
 import * as EditorAsset from './EditorAsset.js';
 import * as EditorAction from './EditorAction.js';
+import * as EditorRoleplay from './EditorRoleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
 
 const DB = 'players',
@@ -84,6 +85,7 @@ export function asset(){
 	html += 'Actions: <div class="actions"></div>';
 	html += 'Assets (press shift to equip): <div class="assets"></div>';
 	html += 'Passives: <div class="passives"></div>';
+	html += 'Follower RP: <div title="If this is a follower, set their roleplay here" class="follower"></div>';
 	
 
 	this.setDom(html);
@@ -94,6 +96,7 @@ export function asset(){
 	this.dom.querySelector("div.actions").appendChild(EditorAction.assetTable(this, asset, "actions"));
 	this.dom.querySelector("div.assets").appendChild(EditorAsset.assetTable(this, asset, "assets", false));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
+	this.dom.querySelector("div.follower").appendChild(EditorRoleplay.assetTable(this, asset, "follower", true));
 	
 
 	// Tags

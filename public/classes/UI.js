@@ -1266,7 +1266,7 @@ export default class UI{
 			rps = [];
 
 		return {
-			talk : rps.length,
+			talk : rps.length || p.isFollower(),
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p, true, encounter).length,
@@ -1339,7 +1339,10 @@ export default class UI{
 			StaticModal.set("player", p);
 		else if( type === 'talk' ){
 
-			const rp = game.getRoleplaysForPlayer(p).shift();
+			let rp = game.getRoleplaysForPlayer(p).shift();
+			if( !rp && p.isFollower() )
+				rp = p.follower;
+
 			if( rp )
 				game.setRoleplay(rp, false, myActive);
 

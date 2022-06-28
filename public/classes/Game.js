@@ -25,7 +25,6 @@ import * as THREE from '../ext/THREE.js';
 import ModRepo from './ModRepo.js';
 import Book from './Book.js';
 import { Logger } from './Logger.js';
-import Bank from './Bank.js';
 import AudioTrigger from './AudioTrigger.js';
 
 let VibHub = false;
@@ -71,9 +70,10 @@ export default class Game extends Generic{
 		this.books_read = new Collection();				// label : {}
 		this.difficulty = 0;							// Scale between -3 and 3. Alters enemy level 
 		this.genders = 0;								// Prefer these genders when generating template NPCs. See Game.Genders
-		this.factions = [];
+		this.factions = [];								// Faction objects
 		this.totTurns = 0;								// Total turns performed since battle started
 		this.modRepo = new ModRepo();
+		this.followers = [];							// Player objects. Followers in stasis.
 
 		// Library of custom items
 		this.libAsset = {};
@@ -222,6 +222,7 @@ export default class Game extends Generic{
 			out.rain_next_refresh = this.rain_next_refresh;
 			out.rain_start_val = this.rain_start_val;
 			out.rain_started = this.rain_started;
+			out.followers = Player.saveThese(this.followers, full);
 			
 			out.procedural = Dungeon.saveThese(this.procedural, full);
 			out.state_dungeons = this.state_dungeons.save(full);
@@ -236,6 +237,10 @@ export default class Game extends Generic{
 		}
 		else{
 			
+			// Send a dummy version of followers for condition reasons
+			out.followers = this.followers.map(el => {
+				return {id:el.id, label : el.label};
+			});
 			out.mute_spectators = this.mute_spectators;
 
 			// Send a lighter version of state dungeons with only the thing netgame players need
@@ -461,7 +466,7 @@ export default class Game extends Generic{
 		this.players = Player.loadThese(this.players, this);
 		this.completed_quests = Collection.loadThis(this.completed_quests);
 		this.factions = Faction.loadThese(this.factions);
-		
+		this.followers = Player.loadThese(this.followers);
 		
 		
 
@@ -880,6 +885,11 @@ export default class Game extends Generic{
 
 
 
+
+
+
+
+
 	/* TIME */
 	addSeconds(seconds){
 
@@ -1048,6 +1058,12 @@ export default class Game extends Generic{
 		
 
 	}
+
+
+
+
+
+
 
 
 	/* Turn timer */
@@ -1611,20 +1627,6 @@ export default class Game extends Generic{
 		return true;
 
 	}
-
-	/*
-	generateProceduralDungeon(){
-
-		const existing = this.getQuestByLabel('_procedural_');
-		if( existing )
-			this.removeQuest(existing.id);
-		this.removeProceduralDungeonState();
-		this.removeQuestCompletion('_procedural_');
-
-		//this.addRandomQuest(); Todo: re-enable when done
-
-	}
-	*/
 
 	makeEncounterHostile(){
 		this.encounter.friendly = false;
@@ -2270,6 +2272,70 @@ export default class Game extends Generic{
 
 	}
 
+
+
+
+	/* Followers */
+	// unlocks a new follower
+	addFollower( player, addImmediate = true ){
+
+		if( typeof player === "string" )
+			player = glib.get(player, 'Player');
+
+		if( !(player instanceof Player) )
+			throw 'Trying to add non player follower';
+
+		if( !player.isFollower() )
+			throw 'Player is not a follower';
+
+		const stashed = this.getStashedFollower(player.label);
+		if( stashed ){
+			player = stashed;
+			this.removeStashedFollower(stashed);
+		}
+		// add to game players
+		this.addPlayer(player);
+		player.onPlacedInWorld();
+
+		// Stash it immediately
+		if( !addImmediate )
+			this.stashFollower(player.id);
+		this.ui.draw();
+
+	}
+
+	stashFollower( label ){
+
+		let player = this.getPlayerByLabel(label);
+		if( !player )
+			return false;
+
+		this.followers.push(player);
+		this.removePlayer(player.id);
+
+	}
+
+	getStashedFollower( label ){
+
+		for( let f of this.followers ){
+
+			if( f.label === label )
+				return f;
+
+		}
+
+	}
+
+	removeStashedFollower( player ){
+
+		if( !(player instanceof Player) )
+			throw 'Need to supply a Player object to removeStashedFollower';
+
+		let pos = this.followers.indexOf(player);
+		if( ~pos )
+			this.followers.splice(pos, 1);
+
+	}
 
 
 

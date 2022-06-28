@@ -900,6 +900,13 @@ export default class GameAction extends Generic{
 				
 		}
 
+		else if( this.type === types.addFollower ){
+			game.addFollower(this.data.player);
+		}
+		else if( this.type === types.remFollower ){
+			game.stashFollower(this.data.player);
+		}
+
 		else if( this.type === types.addPlayer ){
 			const player = this.getDataAsPlayer().clone().g_resetID();
 			player.onPlacedInWorld();
@@ -1328,6 +1335,8 @@ GameAction.types = {
 	sliceRpTargets : 'sliceRpTargets',
 	resetRpVar : 'resetRpVar',					// Tries to reset RP vars of the current roleplay
 	setRpVar : 'setRpVar',						// 
+	addFollower : 'addFollower',
+	remFollower : 'remFollower',
 	
 };
 
@@ -1385,6 +1394,8 @@ GameAction.TypeDescs = {
 	[GameAction.types.sliceRpTargets] : '{start:(int)=0, nrPlayers:(int)=-1} - Converts rpTargets to a subset of targets',
 	[GameAction.types.resetRpVar] : '{var:(str)var=ALL} - Tries to reset a var in the active RP. If vars is empty, it resets all',
 	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET} - Sets an RP var. Formulas starting with @@ will be treated as strings (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
+	[GameAction.types.addFollower] : '{player:(str)playerLabel} - Immediately adds a follower to your party by label.',
+	[GameAction.types.remFollower] : '{player:(str)playerLabel} - Immediately removes a follower from your party by label.',
 	//[GameAction.types.removeFromRpVar] : '{ids:(arr)ids, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more rpvars',
 	
 };

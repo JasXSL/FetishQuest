@@ -1028,6 +1028,19 @@ export function asset(){
 		};
 
 	}
+	else if( type === Types.addFollower || type === Types.remFollower ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				player : ''
+			};
+
+		html += 'Player: <br /><div class="player"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+		};
+
+	}
 	else if( type === Types.trap ){
 
 		if( !asset.data || typeof asset.data !== "object" )
