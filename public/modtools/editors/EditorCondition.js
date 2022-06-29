@@ -610,6 +610,9 @@ export function asset(){
 		html += 'Conditions: <div class="conditions"></div>';
 		html += '<div class="labelFlex">';
 			html += '<label>Min nr matching players: <input type="number" name="data::min" step=1 min=1 class="saveable" value="'+(parseInt(asset.data.min) || 1)+'" /></label>';
+			html += '<label title="Includes followers that have been unlocked but are not active. For multiplayer, this only works on labels.">'+
+				'Include stashed followers: <input type="checkbox" name="data::stashedFollowers" value=1 class="saveable" '+(asset.data.stashedFollowers ? 'checked' : '')+' />'+
+			'</label>';
 		html += '</div>';
 		fnBind = () => {
 			this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "data::conditions", false));

@@ -206,10 +206,12 @@ export default class Mod extends Generic{
 
 			};
 
-			const handleComparedArrays = (base, compared) => {
+			const handleComparedArrays = (base, compared, debug) => {
 
-				//console.log("Comparing", base, compared);
-
+				if( debug ){
+					console.log("Comparing", base, compared);
+					debugger;
+				}
 				const getId = c => {
 					if( typeof c === "object" )
 						return c.label || c.id;
@@ -222,10 +224,13 @@ export default class Mod extends Generic{
 					if( !Array.isArray(compared[i]) ){
 
 						if( typeof compared[i] === "object" && typeof base[i] === "object" )
-							compared[i] = handleComparedArrays(base[i], compared[i]);
+							compared[i] = handleComparedArrays(base[i], compared[i], debug);
 
 						continue;
 					}
+					// If the base isn't a valid type, or is empty, accept compared as is
+					if( !Array.isArray(base?.[i]) || !base[i].length )
+						return compared;
 
 					// Awe shiet, we have an array
 					let removes = [], build = [], adds = new Map(), currents = new Map();	// Label : amount
@@ -287,19 +292,25 @@ export default class Mod extends Generic{
 					}
 
 					// removes now contains the deleted items, and build the newly added ones
-					//console.log("removes (__DEL__)", removes, "builds (out)", build, "adds", adds, "currents", currents);
+					if( debug )
+						console.log("removes (__DEL__)", removes, "builds (out)", build, "adds", adds, "currents", currents);
 
 
+					if(debug)
+						console.log("Pre: ", compared[i].slice());
 					compared[i] = removes.map(el => {
 						return {'__DEL__' : el};
 					}).concat(build);
 
+					if( debug ){
+						console.log("post", compared[i]);
+					}
 				}
 
 			}
 
-			
-			// Run comparer on items changed by mod
+			// Run comparer on base items changed by mod
+			// Iterate over each table in the mod
 			for( let i in out ){
 
 				if( !Array.isArray(out[i]) )
@@ -310,11 +321,15 @@ export default class Mod extends Generic{
 				const arr = out[i];
 				
 				//console.log(i, arr.length);
+				// Iterate over each asset in the table
 				for( let entry in arr ){
 
+					const debug = /*i === 'encounters' && entry == 33*/ false;
+					
 					arr[entry] = deepClone(arr[entry]);	// make sure we're working on a clone
 
 					const extension = arr[entry];
+					// Only viable on extensions
 					if( !extension._e )
 						continue;
 
@@ -324,15 +339,22 @@ export default class Mod extends Generic{
 						continue;	// Todo: error?
 
 					// Array comparator
-					const comparison = comparer.compare(base, extension);
+					const comparison = comparer.compare(base, extension, undefined, undefined, undefined/*, debug*/);
 					delete comparison.__MOD;
 
 					// Do array compares of extended objects only. The rest we can accept as is.
 					// This is because extension object arrays only contain {__DEL__} objects for deletions, and any newly added objects.
-					if( extension._ext )
-						handleComparedArrays(base, comparison);
+					if( extension._ext ){
 
-					console.log("Deleting ext");
+						handleComparedArrays(base, comparison, debug);
+
+						if( debug ){
+							console.log("Comparison after handleComparedArrays", comparison);
+							debugger;
+						}
+					}
+
+
 					delete comparison._ext;
 					removeDel(comparison);
 					// mParent is allowed to be the same on both

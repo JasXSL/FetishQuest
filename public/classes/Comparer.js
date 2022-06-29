@@ -3,7 +3,7 @@ export default class Comparer{
 	constructor(){}
 
 
-	compare( a, b, isArrayChange, parent, path = '' ){
+	compare( a, b, isArrayChange, parent, path = '', debug = false ){
 
 		const aType = typeof a,
 			bType = typeof b;
@@ -83,7 +83,7 @@ export default class Comparer{
 				// Object is an array
 				if( Array.isArray( a[i] ) || Array.isArray( b[i] ) ){
 					
-					let changes = this.compare(a[i], b[i], false, b, path+'.'+i);
+					let changes = this.compare(a[i], b[i], false, b, path+'.'+i, debug);
 
 					if( changes )
 						out[i] = changes;
@@ -92,7 +92,10 @@ export default class Comparer{
 				// Object is an object
 				else{
 
-					const o = this.compare(a[i], b[i], false, b, path+'.'+i);
+					const o = this.compare(a[i], b[i], false, b, path+'.'+i, debug);
+					if( debug )
+						console.log("Debugging on", a[i], b[i], "output", o);
+					
 					// This property has been deleted. This is generally not good form, so don't design things around that
 					// But this catch is needed for debugging, like when you wipe save progress
 					if( o === undefined ){
@@ -132,6 +135,9 @@ export default class Comparer{
 				console.error("Every object put in an array sent to netcode MUST have an ID. Missing from", b, "previous asset here was", a, "parent", parent, path);
 
 		}
+
+		if( debug )
+			console.log("on compare of", a, b, "output", JSON.parse(JSON.stringify(out)));
 
 		return out;
 

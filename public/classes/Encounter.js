@@ -298,8 +298,9 @@ export default class Encounter extends Generic{
 		out.passives = Wrapper.saveThese(this.passives, full);
 
 		out.player_conditions = this.player_conditions;
-		if( this.player_conditions && this.player_conditions.save )
+		if( this.player_conditions && this.player_conditions.save ){
 			out.player_conditions = this.player_conditions.save(full);
+		}
 		
 		if( full !== "mod" ){
 			out.id = this.id;
