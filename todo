@@ -1,3 +1,5 @@
+- Make wrappers with wr_foodbuff auto remove other wrappers on apply
+
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system
 	- Add more automatic asset unrolling as you discover rolled up assets
@@ -61,12 +63,13 @@
 -- CURRENT --
 
 	Tentacle Wrestling:
-		- Players tag team into the ring, only one player can be in at a time
-		- Each turn, player gets 1 stack of exhausted
-		- Exhausted fades after 3 turns out of the ring
-		- One boss at a time, always stays in the ring
-		- Can't tag out while grappled or knocked down
-		- Boss ideas:
+		- Need rep reward vendor
+		x Players tag team into the ring, only one player can be in at a time
+		x Each turn, player gets 1 stack of exhausted
+		x Exhausted fades after 3 turns out of the ring
+		x One boss at a time, always stays in the ring
+		x Can't tag out while grappled or knocked down
+		x Boss ideas:
 			Weak to: -5 sv
 			Defensive to: 3 sv
 			Strong against: +3, all other are -3

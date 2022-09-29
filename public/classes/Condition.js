@@ -1087,20 +1087,22 @@ export default class Condition extends Generic{
 				for( let i in base )
 					sd[i] = base[i];
 
+				// This shouldn't be needed. The dungeon only stores vars as a template, actual vars are stashed in save state
+				/*
+				if( game.dungeon.label === dungeon ){
+					
+					for( let i in game.dungeon.vars )
+						sd[i] = game.dungeon.vars[i];
+
+				}
+				*/
+
 				// Next fetch from game save state
 				base = game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars;
 				if( base ){
 
 					for( let i in base )
 						sd[i] = base[i];
-
-				}
-
-				// If it's the current dungeon, override by that
-				if( game.dungeon.label === dungeon ){
-					
-					for( let i in game.dungeon.vars )
-						sd[i] = game.dungeon.vars[i];
 
 				}
 

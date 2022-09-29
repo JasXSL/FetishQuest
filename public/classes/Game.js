@@ -1115,6 +1115,13 @@ export default class Game extends Generic{
 
 	}
 
+	// Useful for console debugging, returns current dungeon vars
+	getActiveDungeonVars(){
+		let out = {};
+		this.dungeon.appendMathVars(out, new GameEvent());
+		return out;
+	}
+
 	// Returns math vars for the game
 	getMathVars( event ){
 		const out = {
@@ -2382,7 +2389,7 @@ export default class Game extends Generic{
 		// Check before prepare since prepare sets the time
 		const time_started = this.encounter.time_started;
 
-		// Always prepare, never just go
+		// Always prepare, never just go. This needs to be run AFTER this.encounter due to getPlayersEnabled being needed for scaling
 		encounter.prepare();
 
 		

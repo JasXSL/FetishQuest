@@ -156,7 +156,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Player conditions</td>'+
-			'<td>When set, the game will check these conditions against a shuffled list of all enabled players. With target being said player. Including NPCs, so use the targetOnPlayerTeam condition if you only want to check the party. These players will be tied to the %P %P2... text labels instead of the player instigating the RP.</td>'+
+			'<td>When set, the game will check these conditions against a shuffled list of all enabled players. With event target being said player. Including NPCs, so use the targetOnPlayerTeam condition if you only want to check the party. These players will be tied to the %P %P2... text labels instead of the player instigating the RP. The order of this list is random.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Min Players</td>'+

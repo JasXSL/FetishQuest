@@ -168,6 +168,7 @@ export default {
 	asCockRing : 'as_cock_ring',
 	asStrapon : 'as_strapon',
 	asStealable : 'as_stealable',			// Can be stolen on wipe
+	
 
 	asLeather : 'as_leather',
 	asCloth : 'as_cloth',
@@ -223,6 +224,7 @@ export default {
 	wrBound : 'wr_bound',
 	wrNoRiposte : 'wr_no_riposte',							// Prevents riposte
 	wrBlockGrapple : 'wr_block_grapple',					// This wrapper overrides grapple
+	wrFoodBuff : 'wr_foodbuff',								// Removes other wrappers with this tag on apply
 
 	// Effects
 	fxLatching : 'fx_latching',			// Put on a player latched onto another
@@ -230,6 +232,8 @@ export default {
 	fxPouncing : 'fx_pouncing',			// Put on a player pouncing another
 	fxPounced : 'fx_pounced',			// Put on a player that another is pounced onto
 	
+	
+
 	// Turn tags
 	ttButtExposed : 'tt_butt_exposed',
 	ttGroinExposed : 'tt_groin_exposed',
@@ -399,6 +403,27 @@ export default {
 	metaVibration : 'me_vibration',
 	metaSting : 'me_sting',
 	metaSpit : 'me_spit',
+
+	// Slot specific tags can be used if you need to have pleasure/pain etc on different points in a text
+	metaPainfulButt : 'me_painful_butt',
+	metaPainfulGroin : 'me_painful_groin',
+	metaPainfulBreasts : 'me_painful_breasts',
+	metaVeryPainfulButt : 'me_very_painful_butt',
+	metaVeryPainfulGroin : 'me_very_painful_groin',
+	metaVeryPainfulBreasts : 'me_very_painful_breasts',
+	
+	metaArousingfulButt : 'me_arousing_butt',
+	metaArousingfulGroin : 'me_arousing_groin',
+	metaArousingfulBreasts : 'me_arousing_breasts',
+	metaVeryArousingButt : 'me_very_arousing_butt',
+	metaVeryArousingGroin : 'me_very_arousing_groin',
+	metaVeryArousingBreasts : 'me_very_arousing_breasts',
+	
+	metaPenetrationGroin : 'me_penetration_groin',
+	metaPenetrationButt : 'me_penetration_butt',
+	metaPenetrationMouth : 'me_penetration_mouth',
+
+
 
 	metaSlotButt : 'me_slot_butt',
 	metaSlotBreasts : 'me_slot_breasts',
