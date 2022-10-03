@@ -306,9 +306,10 @@ export function help(){
 				'<li>%T - Replaced with the name of the target of the event. Also used as a prefix for other tags. If more than 1 target exists, %T selects the first one, use %T1, %T2 etc for target 2 and 3.</li>'+
 				'<li>%S - Replaced with the name of the sender of the event. Also used as a prefix for other tags.</li>'+
 				'<li>%P - Used only in roleplays. RP player. See roleplay help for more info.</li>'+
-				'<li>%She/%The - Pronoun of sender/target: he, she, it etc</li>'+
-				'<li>%Shim/%Thim - Pronoun: him, her, it, etc</li>'+
-				'<li>%Shis/%This - Pronoun: his, her, its, etc</li>'+
+				'<li>%A, %A2... - Used with extra sender conditions. Targets the extra players.</li>'+
+				'<li>%She/%The... - Pronoun of sender/target: he, she, it etc</li>'+
+				'<li>%Shim/%Thim... - Pronoun: him, her, it, etc</li>'+
+				'<li>%Shis/%This... - Pronoun: his, her, its, etc</li>'+
 				'<li>%RturnTag - Name of the player who applied a turnTag to the first target of the event. Such as %Rspanked.</li>'+
 				'<li>%Tpsize, %Tbsize, %Trsize (%S also) - Gets the size of player penis, breasts, or butt respectively.</li>'+
 				'<li>%Tgenitals (also %S) - Gets the name of a genital the player has. Such as vagina or penis.</li>'+
