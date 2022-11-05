@@ -780,6 +780,7 @@ export default class StaticModal{
 			})
 			.addTab("Video", () => {
 				return `
+					<div class="option button" data-action="enableAI"><input type="checkbox" title="Toggle AI generated NPC art." /><span> AI Art</span></div>
 					<div class="option button" data-action="enableBubbles"><input type="checkbox" /><span> Bubble Chat</span></div>
 					<div class="option button" data-action="enableShadows"><input type="checkbox" /><span> Shadows (Experimental, requires refresh)</span></div>
 					<div class="option button" data-action="enableAA"><input type="checkbox" /><span> Antialiasing</span></div>
@@ -848,6 +849,7 @@ export default class StaticModal{
 					logLevel : $("div.logLevel input", this.getTabDom("Video")),
 					cacheLevelSpan : $("div.cacheLevel span", this.getTabDom("Video")),
 					logLevelSpan : $("div.logLevel span", this.getTabDom("Video")),
+					enableAI : $("div[data-action=enableAI]", this.getTabDom("Video"))
 				};
 
 				const netgame = this.getTabDom("Online")[0];
@@ -903,6 +905,17 @@ export default class StaticModal{
 					localStorage.hide_bubbles = +hide;
 					$("input", event.currentTarget).prop("checked", !hide);
 					ui.board.toggleClass("bubbles", !hide);
+
+				});
+				this.video.enableAI.on('click', event => {
+
+					const hide = Boolean(!+localStorage.disable_ai);
+					localStorage.disable_ai = +hide;
+
+					console.log($("input", event.currentTarget));
+					$("input", event.currentTarget).prop("checked", !hide);
+					Player.checkEnableAI();
+					game.ui.draw();
 
 				});
 				this.video.enableAA.on('click', event => {
@@ -1019,6 +1032,7 @@ export default class StaticModal{
 
 				
 				$("input", this.video.enableBubbles).prop('checked', !+localStorage.hide_bubbles);
+				$("input", this.video.enableAI).prop('checked', !+localStorage.disable_ai);
 				$("input", this.video.enableShadows).prop('checked', Boolean(+localStorage.shadows));
 				$("input", this.video.enableAA).prop('checked', Boolean(+localStorage.aa));
 				$("input", this.video.enableFpsMeter).prop('checked', Boolean(+localStorage.fps));

@@ -26,6 +26,8 @@ class PlayerTemplate extends Generic{
 		this.icon_upperBody = "";			// == || ==
 		this.icon_lowerBody = "";			// == || ==
 		this.icon_nude = "";				// == || ==
+		this.icon_ai = false;
+
 		this.species = "";
 		this.description = "";
 		this.classes = []; 		// One of these
@@ -156,6 +158,7 @@ class PlayerTemplate extends Generic{
 		player.icon_upperBody = this.icon_upperBody;			// == || ==
 		player.icon_lowerBody = this.icon_lowerBody;			// == || ==
 		player.icon_nude = this.icon_nude;				// == || ==
+		player.icon_ai = this.icon_ai;
 		player.generated = true;	// Also set in dungeon encounter, but it's needed here for learnable actions to work
 		player.description = this.description;
 		player.species = this.species;
