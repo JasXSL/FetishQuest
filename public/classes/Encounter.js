@@ -81,7 +81,7 @@ export default class Encounter extends Generic{
 
 	// Converts the template into a fixed encounter, generating players etc
 	// Chainable
-	prepare(){
+	prepare( force ){
 
 		const dungeon = this.getDungeon();
 		let difficulty = 1;
@@ -95,22 +95,24 @@ export default class Encounter extends Generic{
 			
 		difficulty = difficulty+Math.random()*0.25;		// Difficulty may vary by 25%
 
-		if( this.started )
+		if( this.started && !force )
 			return;
 
 
 		this.time_started = game.time;
-
 		// Checks if we actually have any templates to add
 		let hasTemplates = Boolean(this.player_templates[0]);	
+		let totalSlots = game.getTeamPlayers().length-0.25 + Math.random();
+		if( totalSlots > 4 )
+		totalSlots = 4;		// Don't generate more than 5 enemies
+
 		if( hasTemplates ){
 		
 			let usedMonsters = {};	// label : nrUses
 			const level = game.getAveragePlayerLevel();
 
-			let maxSlots = game.getTeamPlayers().length-0.25 + Math.random();	// Team size is min players, plus one extra most of the time
-			if( maxSlots > 4 )
-				maxSlots = 4;		// Don't generate more than 5 enemies
+			let maxSlots = totalSlots;	// Team size is min players, plus one extra most of the time
+			
 			
 			// Gets viable monsters we can put in
 			const getViableMonsters = () => {
@@ -162,8 +164,6 @@ export default class Encounter extends Generic{
 				return out;
 
 			};
-
-
 			while( maxSlots > 0 ){
 
 				let viableMonsters = getViableMonsters();
@@ -179,6 +179,7 @@ export default class Encounter extends Generic{
 				pl._slots = mTemplate.slots;
 				if( mTemplate.slots === -1 )
 					pl._slots = maxSlots;
+				pl.power *= pl._slots;
 				this.players.push(pl);
 				maxSlots -= pl._slots;
 				usedMonsters[mTemplate.label] = usedMonsters[mTemplate.label]+1 || 1;
@@ -204,13 +205,17 @@ export default class Encounter extends Generic{
 
 		}
 
-		let totalSlots = game.getEnabledPlayers().length-game.getTeamPlayers().length || 1;
-		let average = difficulty/totalSlots;
+		// Average by the ratio of NPCs vs PCs. Then multiply their power by that.
+		let sumSlots = 0;
+		for( let pl of this.players )
+			sumSlots += pl._slots || pl.power || 1;
+		let average = difficulty/sumSlots;	// Modifier if we go above difficulty
 		
 		for( let player of this.players ){
 			if( player.power > 0 )
-				player.power *= average*(player._slots||1);
+				player.power *= average;
 		}
+
 		this.onModified();
 		return this;
 

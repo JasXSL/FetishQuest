@@ -1,5 +1,7 @@
 - Make wrappers with wr_foodbuff auto remove other wrappers on apply
 
+
+
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system
 	- Add more automatic asset unrolling as you discover rolled up assets
