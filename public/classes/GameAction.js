@@ -420,17 +420,30 @@ export default class GameAction extends Generic{
 			this.remove();	// Prevent it from restarting
 			asset?.updateInteractivity?.();	// After removing the action, update interactivity
 		}
-		else if( this.type === types.resetEncounter ){
+		else if( this.type === types.resetRoomEncounter ){
 
-			let enc = this.data.encounter;
-			if( !enc )
-				enc = this.getParentEncounter();
-			if( !enc )
-				return false;
+			let dungeon = this.data.dungeon;
+			if( !dungeon )
+				dungeon = game.dungeon.label;
 
-			if( enc.label )
-				enc = enc.label;
+			let room = this.data.room;
+			if( !room )
+				room = game.dungeon.active_room;
 
+			// first off, remove it from game state
+			let ds = game.state_dungeons.get(dungeon);
+			if( !ds ){
+				console.debug("Note: Dungeon ", dungeon, "has no save state yet");
+				return true;
+			}
+			ds.rooms.unset('index_'+room);
+			
+			// This is the current dungeon, we'll have to track down said room and reset the state too
+			if( dungeon === game.dungeon.label ){
+				let lr = game.dungeon.getRoomByIndex(room);
+				if( lr )
+					lr.resetEncounter();
+			}
 			
 
 		}
@@ -1284,7 +1297,7 @@ export default class GameAction extends Generic{
 }
 GameAction.types = {
 	encounters : "enc",				
-	resetEncounter : "resetEnc",
+	resetRoomEncounter : "resetRoomEncounter",
 	wrappers : "wra",
 	dungeonVar : "dvar",
 	loot : "loot",
@@ -1342,7 +1355,7 @@ GameAction.types = {
 
 GameAction.TypeDescs = {
 	[GameAction.types.encounters] : "{encounter:(arr)encounters, replace:(bool)replaceEncounter=false} - Picks a random encounter to start. If replace is true, it replaces the encounter. Otherwise it merges it.",
-	[GameAction.types.resetEncounter] : "{encounter:(str)label} - If encounter is not defined, it tries to find the closest encounter parent and reset that one",
+	[GameAction.types.resetRoomEncounter] : "{dungeon:(str)dungeon=CURRENT_DUNGEON, room:(int)index=CURRENT_ROOM} - Resets a room's encounter. A new one will be generated the next time you visit.",
 	[GameAction.types.wrappers] : "{wrappers:(arr)wrappers} - Triggers all viable wrappers",
 	[GameAction.types.loot] : "{loot:(arr)assets, min:(int)min_assets=0, max:(int)max_assets=-1}, Live: {genLoot:[asset, asset, asset...]} - Loot will automatically trigger \"open\" and \"open_idle\" animations when used on a dungeon room asset. When first opened, it gets converted to an array.",
 	[GameAction.types.autoLoot] : "{val:(float)modifier, cosmetic:(bool)allowCosmetic} - This is replaced with \"loot\" when opened, and auto generated. Val can be used to determine the value of the chest. Lower granting fewer items. allowCosmetic also allows cosmetic items to be rolled in.",
@@ -1403,7 +1416,7 @@ GameAction.TypeDescs = {
 // type : {[fieldName]:constructor}
 GameAction.TypeRelations = {
 	[GameAction.types.encounters] : {encounter:Encounter},
-	[GameAction.types.resetEncounter] : {encounter:Encounter},
+	[GameAction.types.resetRoomEncounter] : {},
 	[GameAction.types.wrappers] : {wrappers:Wrapper},
 	[GameAction.types.loot] : {loot:Asset},
 	[GameAction.types.exit] : {dungeon:Dungeon},

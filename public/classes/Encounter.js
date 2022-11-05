@@ -79,9 +79,7 @@ export default class Encounter extends Generic{
 		this.load(data);
 	}
 
-	// Converts the template into a fixed encounter, generating players etc
-	// Chainable
-	prepare( force ){
+	getDifficulty(){
 
 		const dungeon = this.getDungeon();
 		let difficulty = 1;
@@ -94,6 +92,14 @@ export default class Encounter extends Generic{
 			difficulty = 0.1;
 			
 		difficulty = difficulty+Math.random()*0.25;		// Difficulty may vary by 25%
+		return difficulty;
+
+	}
+
+	// Converts the template into a fixed encounter, generating players etc
+	// Player power is handled in onPlacedInWorld
+	// Chainable
+	prepare( force ){
 
 		if( this.started && !force )
 			return;
@@ -199,22 +205,8 @@ export default class Encounter extends Generic{
 		
 		}
 
-		for( let player of this.players ){
-			
+		for( let player of this.players )
 			player.g_resetID();
-
-		}
-
-		// Average by the ratio of NPCs vs PCs. Then multiply their power by that.
-		let sumSlots = 0;
-		for( let pl of this.players )
-			sumSlots += pl._slots || pl.power || 1;
-		let average = difficulty/sumSlots;	// Modifier if we go above difficulty
-		
-		for( let player of this.players ){
-			if( player.power > 0 )
-				player.power *= average;
-		}
 
 		this.onModified();
 		return this;
@@ -227,7 +219,6 @@ export default class Encounter extends Generic{
 	// If just_started is true, it means the encounter just started
 	onPlacedInWorld( just_started = true ){
 
-
 		// Bind passives
 		for( let wrapper of this.passives )
 			wrapper.bindEvents();
@@ -239,7 +230,7 @@ export default class Encounter extends Generic{
 		if( !just_started )
 			return;
 
-		// Run world placement event on all players
+		// Run world placement event on all players to get them to max hp etc
 		for( let player of this.players ){
 
 			player.generated = true;
@@ -247,8 +238,32 @@ export default class Encounter extends Generic{
 
 		}
 
+	}
+
+	rebalance(){
+
+		// Difficulty adjust
+		// Average by the ratio of NPCs vs PCs. Then multiply their power by that.
+		let sumSlots = 0;
+		// Only enabled players should affect the power calculations
+		const myPlayers = this.players.map(el => el.id);
+		const en = game.getEnabledPlayers().filter(el => myPlayers.includes(el.id));
+		for( let pl of en ){
+			console.log(pl.label, pl.power);
+			sumSlots += pl._slots || pl.power || 1;
+		}
+		if( sumSlots <= 0 )
+			sumSlots = 1;
+
+		const difficulty = this.getDifficulty();
+		let average = difficulty/sumSlots;	// Modifier if we go above difficulty
 		
-		
+		for( let player of en ){
+			if( player.power > 0 )
+				player.power *= average;
+			player.onRebalanced();
+		}
+
 	}
 
 	onRemoved(){
@@ -462,7 +477,6 @@ export default class Encounter extends Generic{
 		if( Boolean(this.completed) === Boolean(completed) )
 			return;
 
-
 		if( !this.completed && completed ){
 
 			for( let action of this.completion_actions )
@@ -554,6 +568,11 @@ export default class Encounter extends Generic{
 
 	}
 }
+
+// Dummy encounter. Used if no encounters passed filter, or if an encounter is complete when leaving and returning to a dungeon.
+Encounter.ENCOUNTER_NONE = '_BLANK_';
+// Default encounter. Used to indicate that the encounter hasn't been generated yet.
+Encounter.ENCOUNTER_UNDEFINED = '_UNDEFINED_';
 
 
 export class EncounterEvent extends Generic{

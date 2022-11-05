@@ -473,10 +473,15 @@ class Dungeon extends Generic{
 
 	// Tries to get a started encounter by id
 	getStartedEncounterById(id){
+		// Ignore blank encounters
+		if( id === Encounter.ENCOUNTER_NONE )
+			return false;
+
 		for( let room of this.rooms ){
-			if( room.encounters.id === id )
-				return room.encounters;
+			if( room.encounter.id === id )
+				return room.encounter;
 		}
+
 	}
 
 	/* Parents */
@@ -586,12 +591,12 @@ class DungeonSaveState extends Generic{
 		const sr = this.getOrCreateRoom(room);
 		sr.discovered = room.discovered;
 
-		if( room.encounters instanceof Encounter && room.encounters.id !== "_BLANK_" ){
+		if( room.encounter.id !== Encounter.ENCOUNTER_NONE ){
 
-			sr.encounter_started = room.encounters.time_started;
-			sr.encounter_complete = room.encounters.completed;
-			sr.encounter_friendly = room.encounters.friendly;
-			sr.encounter_respawn = room.encounters.respawn;
+			sr.encounter_started = room.encounter.time_started;
+			sr.encounter_complete = room.encounter.completed;
+			sr.encounter_friendly = room.encounter.friendly;
+			sr.encounter_respawn = room.encounter.respawn;
 
 		}
 
@@ -624,7 +629,8 @@ class DungeonRoom extends Generic{
 		return {
 			assets : DungeonRoomAsset,
 			encounters : Encounter,
-			playerMarkers : DungeonRoomMarker
+			playerMarkers : DungeonRoomMarker,
+			encounter : Encounter,
 		};
 	}
 
@@ -644,8 +650,9 @@ class DungeonRoom extends Generic{
 
 		this.outdoors = false;
 		this.zoom = 0;				// Lets you manually set the zoom value
-		this.encounters = null;		// This is either an array of encounters ready to begin or a single encounter tha has begun. Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
-									// Or a single encounter that has started.
+		this.encounters = [];		// This is an array of encounters ready to begin. Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
+		this.encounter;
+		this.resetEncounter();
 		this.assets = [];			// First asset is always the room. These are DungeonRoomAssets
 		this.tags = [];
 
@@ -667,13 +674,7 @@ class DungeonRoom extends Generic{
 	}
 
 	save( full ){
-
-		let enc = [];
-
-		if( Array.isArray(this.encounters) ) 
-			enc = Encounter.saveThese(this.encounters, full);
-		else if( this.encounters )
-			enc = Encounter.saveThis(this.encounters, full);
+	
 
 		// shared
 		const out = {
@@ -689,16 +690,17 @@ class DungeonRoom extends Generic{
 			zoom : this.zoom,
 			outdoors : this.outdoors,
 			ambiance : this.ambiance,
-			encounters : enc,
 			id : this.id,	// needed for modtools to work
 			fog : this.fog,
 			dirLight : this.dirLight,
+			encounter : Encounter.saveThis(this.encounter),
 			playerMarkers : DungeonRoomMarker.saveThese(this.playerMarkers, full),
 		};
 
-		if( full )
+		if( full ){
 			out.expEvt = this.expEvt;
-
+			out.encounters = Encounter.saveThese(this.encounters, full);
+		}
 
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
@@ -717,8 +719,14 @@ class DungeonRoom extends Generic{
 
 	load(data){
 
-		if( data && !data.encounters )
+		// Legacy fix. Can likely be removed mid/late 2023
+		if( data && !Array.isArray(data.encounters) ){
+			if( typeof data.encounters === "object" ){
+				data.encounter = data.encounters;
+			}
 			data.encounters = [];
+		}
+
 		this.g_autoload(data);
 
 	}
@@ -756,23 +764,22 @@ class DungeonRoom extends Generic{
 
 		// If encounter is complete, set it to completed
 		if( state.encounter_complete !== -1 && state.encounter_complete && !respawn ){
-			
-			// Prevents overwriting encounter data when returning to a dungeon after you've left it (the encounter reverts to array)
-			//if( Array.isArray(this.encounters) )
-			this.encounters = new Encounter({"id":"_BLANK_"}, this);
-			this.encounters.completed = true;
+
+			this.encounter = new Encounter({"id":Encounter.ENCOUNTER_NONE, label:'completed', completed: true}, this);
 
 		}
 
+		// I'm not sure why I'm setting time started on all the entries of this.encounters?
 		if( !respawn && state.encounter_started !== -1 ){
 
 			let enc = toArray(this.encounters);
 			enc.map(e => e.time_started = state.encounter_started);
+			this.encounter.time_started = state.encounter_started;
 
 		}
 
-		if( state.encounter_friendly !== -1 && this.encounters instanceof Encounter && !respawn )
-			this.encounters.friendly = state.encounter_friendly;
+		if( state.encounter_friendly !== -1 && !respawn )
+			this.encounter.friendly = state.encounter_friendly;
 
 		if( state.discovered )
 			this.discovered = true;
@@ -817,37 +824,47 @@ class DungeonRoom extends Generic{
 	}
 
 	resetRoleplays(){
-		let encounters = this.encounters;
-		if( !Array.isArray(encounters) )
-			encounters = [encounters];
+
+		let encounters = this.encounters.slice();
+		encounters.push(this.encounter);
 		for( let encounter of encounters ){
 			encounter.resetRoleplays();
 		}
 		for( let asset of this.assets ){
 			asset.resetRoleplays();
 		}
+
 	}
 
 	isEntrance(){
 		return this === this.parent.rooms[0];
 	}
-
+	// Sets encounter back to a list
+	resetEncounter(){
+		this.encounter = new Encounter({
+			id : Encounter.ENCOUNTER_UNDEFINED,
+			label : 'undefined',
+			desc : 'template'
+		}, this)
+	}
 
 	// Limits to 1 per room and 1 per asset
 	getNumEncounters(){
+
 		let out = Encounter.getFirstViable(this.encounters) ? 1 : 0;
 		for( let asset of this.assets ){
 			out += Encounter.getFirstViable(asset.getEncounters()) ? 1 : 0;
 		}
 		return out;
+
 	}
 
 	makeEncounterHostile( hostile = true ){
-		if( this.encounters instanceof Encounter ){
-			this.encounters.friendly = !hostile;
-			this.onModified();
-			game.save();
-		}
+
+		this.encounter.friendly = !hostile;
+		this.onModified();
+		game.save();
+
 	}
 
 	/* ROOM CONNECTIONS */
@@ -1230,89 +1247,101 @@ class DungeonRoom extends Generic{
 		if( !player )
 			player = game.players[0];
 
+		// Exploration event GENERATION
 		// The encounters are only used for checking conditions here. We need to pick an encounter if possible
-		if( this.expEvt && Array.isArray(this.encounters) ){
+		if( this.expEvt ){
 
-			const dungeon = this.getDungeon();
-			const viable = this.encounters.slice();
-			this.encounters = [];
+			if( !this.encounter.completed ){
 
-			const procEvtEncounters = Encounter.getAllProcEvtEncounters().filter(el => !dungeon._completedExpEvts.includes(el.label) );
-			const weightFunc = encounter => encounter.evtWeight;
-			// not a graceful solution, but it works well enough for these small arrays
-			const shuffleProcEvtEncounters = () => {
-				
-				let enc = procEvtEncounters.slice();
-				let out = [];
-				while( enc.length ){
-					let idx = weightedRand(enc, weightFunc, true);
-					out.push(enc[idx]);
-					enc.splice(idx, 1);
-				}
-				return out;
-			};
+				const dungeon = this.getDungeon();
+				const viable = this.encounters.slice();
+				// Shoulnd't be needed now that encounter is the current encounter? this.encounters = [];
 
-			let encounters = shuffleProcEvtEncounters();
-			const evt = new GameEvent({
-				sender:player,					// Sender is the player who entered the room
-				target:game.getTeamPlayers(), 	// Target includes all players on the player team
-				dungeon : dungeon,
-				room : this,
-				custom : {
-					viableEncounters : viable
-				}
-			});
+				const procEvtEncounters = Encounter.getAllProcEvtEncounters().filter(el => !dungeon._completedExpEvts.includes(el.label) );
+				const weightFunc = encounter => encounter.evtWeight;
+				// not a graceful solution, but it works well enough for these small arrays
+				const shuffleProcEvtEncounters = () => {
+					
+					let enc = procEvtEncounters.slice();
+					let out = [];
+					while( enc.length ){
+						let idx = weightedRand(enc, weightFunc, true);
+						out.push(enc[idx]);
+						enc.splice(idx, 1);
+					}
+					return out;
+				};
 
-			for( let pEnc of encounters ){
-
-				if( !Condition.all(pEnc.conditions, evt) ){
-					//console.log(pEnc, "invalid for", this);
-					continue;
-				}
-				console.log("Added an event encounter", pEnc.label);
-				if( !Dungeon.REPEAT_ENCOUNTERS )
-					procEvtEncounters.splice(procEvtEncounters.indexOf(pEnc), 1);
-				const cl = pEnc.clone();	// remove the template room encounter conditions here, since they'll be validated later otherwise
-				this.encounters = cl;
-				cl.respawn = 3600*24*7;		// All encounters in proc dungeon should respawn weekly. For now, set all expEvts to do so.
-				dungeon._completedExpEvts.push(pEnc.label);	// prevent repeats
-				break;
-
-			}
-			
-
-		}
-		
-		// Start a dummy encounter just to set the proper NPCs
-		if( Array.isArray(this.encounters) && !this.encounters.length ){
-
-			this.encounters = new Encounter({
-				completed : true,
-				id : '_BLANK_'
-			}, this);
-
-		}
-
-		// Pick a random encounter
-		if( !(this.encounters instanceof Encounter) ){
-
-			let viable = Encounter.getRandomViable(
-				this.encounters,
-				new GameEvent({
-					sender : player,
-					target : player,
-					dungeon : this.parent,
+				let encounters = shuffleProcEvtEncounters();
+				const evt = new GameEvent({
+					sender:player,					// Sender is the player who entered the room
+					target:game.getTeamPlayers(), 	// Target includes all players on the player team
+					dungeon : dungeon,
 					room : this,
-				})
-			);
-			if( !viable ){
-				viable = new Encounter({
-					completed : true,
-					id : '_BLANK_'
-				}, this);
-			}
-			this.encounters = viable;
+					custom : {
+						viableEncounters : viable
+					}
+				});
 
+				for( let pEnc of encounters ){
+
+					if( !Condition.all(pEnc.conditions, evt) ){
+						//console.log(pEnc, "invalid for", this);
+						continue;
+					}
+					console.log("Added an event encounter", pEnc.label);
+					if( !Dungeon.REPEAT_ENCOUNTERS )
+						procEvtEncounters.splice(procEvtEncounters.indexOf(pEnc), 1);
+					const cl = pEnc.clone();	// remove the template room encounter conditions here, since they'll be validated later otherwise
+					this.encounter = cl;
+					cl.respawn = 3600*24*7;		// All encounters in proc dungeon should respawn weekly. For now, set all expEvts to do so.
+					dungeon._completedExpEvts.push(pEnc.label);	// prevent repeats
+					break;
+
+				}
+				
+			}
+
+		}
+		else{
+			// Start a dummy encounter if this room has no encounters defined
+			if( !this.encounters.length ){
+
+				this.encounter = new Encounter({
+					completed : true,
+					id : Encounter.ENCOUNTER_NONE,
+					label : 'empty'
+				}, this);
+
+			}
+
+			// Pick a random encounter
+			// Encounter undefined is only set before the encounter generates the first time, or if the respawn timer has expired
+			else if( this.encounter.id === Encounter.ENCOUNTER_UNDEFINED ){
+
+				let viable = Encounter.getRandomViable(
+					this.encounters,
+					new GameEvent({
+						sender : player,
+						target : player,
+						dungeon : this.parent,
+						room : this,
+					})
+				);
+				if( !viable ){
+
+					viable = new Encounter({
+						completed : true,
+						id : Encounter.ENCOUNTER_NONE,
+						label : 'no_viable',
+					}, this);
+
+				}
+				else
+					viable = viable.clone();
+				this.encounter = viable;
+
+			}
 
 		}
 
@@ -1336,8 +1365,8 @@ class DungeonRoom extends Generic{
 			asset.onRoomVisit();
 
 
-		// An encounter is already running
-		game.startEncounter(player, this.encounters);
+		// Set the game encounter
+		game.startEncounter(player, this.encounter);
 		
 		this.discovered = true;	// Set last because encounters may require this to be false
 
@@ -1353,6 +1382,8 @@ class DungeonRoom extends Generic{
 	
 
 }
+
+
 
 class DungeonRoomSaveState extends Generic{
 	constructor(data, parent){

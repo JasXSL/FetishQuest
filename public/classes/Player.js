@@ -1212,13 +1212,14 @@ export default class Player extends Generic{
 		for( let passive of this.passives )
 			passive.g_resetID();
 		
-		this.addHP(Infinity);
-		this.addMP(Infinity);
-		this.arousal = 0;
-
 		if( !this.getKinks().length && !this.hasTag([stdTag.plBeast, stdTag.plTargetBeast, stdTag.plNoFetish]) )
 			this.shuffleKinks();
 		
+	}
+	onRebalanced(){
+		this.addHP(Infinity);
+		this.addMP(Infinity);
+		this.arousal = 0;
 	}
 	onRemoved(){
 		this.unbindWrappers();
@@ -2907,6 +2908,7 @@ export default class Player extends Generic{
 				out += gear[0].getArmorPoints();
 
 		}
+
 
 		if( modified ){
 

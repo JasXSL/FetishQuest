@@ -2469,6 +2469,8 @@ export default class Game extends Generic{
 
 		this.refreshPlayerVisibility();
 
+		encounter.rebalance();
+
 		if( !encounter.friendly && !completed )
 			this.toggleBattle(true);
 

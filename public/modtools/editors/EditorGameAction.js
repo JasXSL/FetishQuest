@@ -28,6 +28,38 @@ const DB = 'gameActions',
 	CONSTRUCTOR = GameAction;
 
 
+// Returns HTML with a room index picker for a specified dungeon by label and optional roomIndex
+function roomIndexPicker( dungeonLabel, roomIndex = 0, label = 'data::index' ){
+	
+	let html = '';
+	// HelperAsset because other mods are allowed here
+	let dungeonAsset = HelperAsset.getAssetById('dungeons', dungeonLabel);
+	if( dungeonAsset ){
+
+		const cache_rooms = [];
+		for( let room of dungeonAsset.rooms ){
+			// room might be an object due to the main mod
+			const r = typeof room === "object" ? room : HelperAsset.getAssetById('dungeonRooms', room);
+			if( r )
+				cache_rooms.push(r);
+			
+		}
+
+		html += '<label>Room: <select class="saveable"  data-type="int" name="'+label+'">';
+		for( let r of cache_rooms )
+			html += '<option value="'+esc(r.index || 0)+'" '+(r.index === roomIndex ? 'selected' : '')+'>'+
+				'['+esc(r.index || 0)+'] '+esc(r.name || 'Unknown Room')+
+			'</option>';
+		html += '</select></label>';
+
+	}
+	return html;
+
+}
+
+
+
+
 // Single asset editor
 export function asset(){
 
@@ -123,17 +155,23 @@ export function asset(){
 		};
 
 	}
-	else if( type === Types.resetEncounter ){
+	else if( type === Types.resetRoomEncounter ){
 
 		if( !asset.data )
 			asset.data = {
-				encounter : ''
+				dungeon : '',
+				room : 0,
 			};
 			
-		html += 'Encounter: <div class="encounter"></div>';
+		html += 'Dungeon: <div class="dungeon"></div>';
+		html += '<div class="labelFlex">';
+
+			html += roomIndexPicker(asset.data.dungeon, asset.data.room, 'data::room');
+		html += '</div>';
+
 
 		fnBind = () => {
-			this.dom.querySelector("div.encounter").appendChild(EditorEncounter.assetTable(this, asset, "data::encounter", true));
+			this.dom.querySelector("div.dungeon").appendChild(EditorDungeon.assetTable(this, asset, "data::dungeon", true));
 		};
 
 	}
@@ -197,30 +235,7 @@ export function asset(){
 
 		html += '<div class="labelFlex">';
 
-		// HelperAsset because other mods are allowed here
-		let dungeonAsset = asset.data.dungeon && HelperAsset.getAssetById('dungeons', asset.data.dungeon);
-		if( dungeonAsset ){
-
-			const cache_rooms = [];
-			let indexExists = false;
-			for( let room of dungeonAsset.rooms ){
-				// room might be an object due to the main mod
-				const r = typeof room === "object" ? room : HelperAsset.getAssetById('dungeonRooms', room);
-				if( r ){
-					cache_rooms.push(r);
-					if( r.index === asset.data.index )
-						indexExists = true;
-				}
-			}
-			if( !indexExists )
-				asset.data.index = 0;
-
-			html += '<label>Room: <select class="saveable"  data-type="int" name="data::index">';
-			for( let r of cache_rooms )
-				html += '<option value="'+esc(r.index || 0)+'" '+(r.index === asset.data.index ? 'selected' : '')+'>['+esc(r.index || 0)+'] '+esc(r.name || 'Unknown Room')+'</option>';
-			html += '</select></label>';
-
-		}
+			html += roomIndexPicker(asset.data.dungeon, asset.data.index);
 		
 		
 			html += '<label>Travel time in seconds: <input type="number" min=0 step=1 value="'+esc(asset.data.time)+'" name="data::time" class="saveable" /></label>';
