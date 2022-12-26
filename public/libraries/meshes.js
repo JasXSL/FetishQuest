@@ -713,6 +713,17 @@ function build(){
 
 					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageSybian],
 				}),
+				BondageTree : new LibMesh({
+					url : 'furniture/bondagetree.glb',
+					materials : [libMat.Wood.Crate, libMat.Metal.Chain,libMat.Metal.DarkGeneric,libMat.Solids.Rubber],
+					tags : [stdTag.mTorture, stdTag.mBondage, stdTag.mBondageTree],
+					animations : {
+						"idle" : {
+							timeScale : 0.1
+						}
+					},
+					scale : 100
+				}),
 
 				Coffin : new LibMesh({
 					url : 'furniture/coffin.JD',

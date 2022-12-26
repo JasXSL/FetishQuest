@@ -365,6 +365,7 @@ export default {
 	mBondageSeat : 'm_bondage_seat',
 	mBondageCollarSeat : 'm_bondage_collar_seat',
 	mBondageSybian : "m_bondage_sybian",
+	mBondageTree : "m_bondage_tree",
 	
 
 
