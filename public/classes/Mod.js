@@ -739,7 +739,7 @@ export default class Mod extends Generic{
 			)return this.getAssetById(parentTable, obj.id || obj.label);
 
 		}
-
+		console.log("Not found", parentTable, parentField, id, "in", this[parentTable]);
 	}
 
 	// Tries to get the parent asset using _mParent. Only works on assets that use _mParent 

@@ -911,11 +911,13 @@ export default class Modtools{
 	}
 
 	getListObjectParent(...args){
-		let out = this.mod.getListObjectParent(...args);
-		if( out )
-			return out;
 
-		return this.parentMod.getListObjectParent(...args);
+		console.log("Searching ", args);
+		let out = this.mod.getListObjectParent(...args);
+		if( !out )
+			out = this.parentMod.getListObjectParent(...args);
+		console.log("Out", out);
+		return out;
 
 	}
 
@@ -1036,7 +1038,7 @@ export default class Modtools{
 			asset = newAsset;
 			this.setDirty(true);
 			
-			console.log("Created asset", newAsset);
+			console.trace("Created asset", newAsset, "from", id, data, parent);
 
 			Window.rebuildWindowsByTypeAndId('Database', type);
 			

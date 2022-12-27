@@ -25,9 +25,12 @@ export function asset(){
 	if( !stageOption )
 		console.error("Unable to find parent of roleplayStageOptionGoto", asset);
 
+	console.log("Parent stageOption ", stageOption);
 	let stage = mod.getListObjectParent('roleplayStage', 'options', stageOption.id);
+	if( !stage && stageOption._e )
+		stage = mod.getListObjectParent('roleplayStage', 'options', stageOption._e);
 	if( !stage )
-		console.error("Unable to find stage of roleplayStageOptionGoto", dummy);
+		console.error("Unable to find stage of roleplayStageOptionGoto", dummy, "id", stageOption.id);
 
 	let rp = mod.getListObjectParent('roleplay', 'stages', stage.id);
 	if( !rp && stage._e )
@@ -79,10 +82,12 @@ export function assetTable( win, modAsset, name, single, parented ){
 			if( stage ){
 				idx = 's_'+stage.id;
 
+				console.log("Stage ", stage);
 				if( Array.isArray(stage.text) ){
 
 					let text = mod.getAssetById('texts', stage.text[0]);
-					if( text )
+					console.log("Text: ", text);
+					if( text?.text )
 						idx = text.text.substr(0, 128)+'...';
 
 				}

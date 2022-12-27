@@ -357,6 +357,7 @@ export default{
 		// a is the new asset
 		const storeAsset = (a, pa) => {
 
+			console.log("Storing asset", a, pa);
 			let template = new constructor();
 			let text = (asset.label||asset.id)+'>>'+targetLibrary.substr(0, 3)+'_'+Generic.generateUUID().substr(0,4)
 			if( template.hasOwnProperty("label") )
@@ -1061,6 +1062,7 @@ export default{
 		
 		rows.forEach(el => {
 
+			// Library view
 			if( !isLinker ){
 				
 				const base = el.querySelector("input[type=checkbox].marker");
@@ -1074,6 +1076,7 @@ export default{
 
 			}
 
+			// Linker view
 			// Bind click on row
 			el.addEventListener('click', event => {
 
@@ -1081,7 +1084,7 @@ export default{
 					mod = event.currentTarget.dataset.mod,
 					ext = event.currentTarget.dataset.ext	// This is an extend of another asset
 				;
-				
+
 
 				// Ctrl deletes unless it's a linker
 				if( (!mod || ext) && !isLinker && (event.ctrlKey || event.metaKey) && confirm("Really delete?") ){
