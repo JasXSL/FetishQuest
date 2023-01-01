@@ -693,7 +693,6 @@ class DungeonRoom extends Generic{
 			id : this.id,	// needed for modtools to work
 			fog : this.fog,
 			dirLight : this.dirLight,
-			encounter : Encounter.saveThis(this.encounter),
 			playerMarkers : DungeonRoomMarker.saveThese(this.playerMarkers, full),
 		};
 
@@ -705,6 +704,7 @@ class DungeonRoom extends Generic{
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.discovered = this.discovered;
+			out.encounter = Encounter.saveThis(this.encounter);
 		}
 		else{
 			out.expEvt = this.expEvt;

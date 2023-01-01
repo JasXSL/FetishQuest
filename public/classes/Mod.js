@@ -881,7 +881,7 @@ export default class Mod extends Generic{
 	runLegacyConversion( handleMissingLinks = 0 ){
 
 		// Note: this only works on assets that have labels
-		const parentCast = (parentLibrary, parent, field, subLibrary) => {
+		const parentCast = (parentLibrary, parent, field, subLibrary, debug) => {
 
 			if( !this[parentLibrary] )
 				throw 'Library not found: '+parentLibrary;
@@ -899,8 +899,19 @@ export default class Mod extends Generic{
 
 			}
 
+			if( debug )
+				console.log(parentLibrary, field, parent);
+			// Initially, text was just a string. Later it was changed to an array.
+			if( parentLibrary === 'roleplayStage' && field === 'text' && !Array.isArray(parent[field]) ){
+				parent[field] = [{text:parent[field]}]; // Convert it into an object and let the code below deal with it
+				console.log("Converted a text");
+			}
+			
+
 			if( !Array.isArray(parent[field]) )
 				return 0;
+
+			
 
 			let out = 0;
 			parent[field] = parent[field].map(el => {
@@ -1077,7 +1088,7 @@ export default class Mod extends Generic{
 				for( let field in unroll[table] ){
 
 					let subLibrary = unroll[table][field];							// Library we want to unroll the asset too
-					let changes = parentCast(table, asset, field, subLibrary);		// Auto unroll
+					let changes = parentCast(table, asset, field, subLibrary/*, asset.id === "vqcRQgQDtI"*/);		// Auto unroll
 					// Log it
 					if( !updates[subLibrary] )
 						updates[subLibrary] = 0;
@@ -1348,7 +1359,7 @@ export default class Mod extends Generic{
 
 				const ex = this.getAssetById(asset._mParent.type, asset._mParent.label);
 				if( !ex )
-					console.log(table, ">>", asset);
+					console.log(table, ">>", asset, "Is missing a parent");
 
 
 			}
@@ -1357,6 +1368,57 @@ export default class Mod extends Generic{
 
 	}
 
+	// Todo: May need to also check parent mod
+	findMissingChildren(){
+
+		for( let lib in this ){
+			const data = this[lib];
+			if( !Array.isArray(data) )
+				continue;
+
+			// Table constructor
+			const type = Mod.LIB_TYPES[lib];
+			// No relations
+			if( !type.getRelations )
+				continue;
+			let found = 0;
+			// Go through each table row
+			for( let row of data ){
+				
+				const rels = type.getRelations();
+				for( let field in rels ){
+					// Collections don't have DB
+					if( rels[field] === Collection )
+						continue;
+
+					let toCheck = row[field];
+					// Undefined uses default, so no need for that for now
+					if( toCheck === undefined )
+						continue;
+					toCheck = toArray(toCheck);
+					const linkTable = Mod.getTableNameByConstructor(rels[field]);		// Constructor
+					if( !linkTable ){
+						console.error("Link table not found for", rels[field].name, "in type", type.name);
+						continue;
+					}
+					for( let child of toCheck ){
+
+						if( !this.getAssetById(linkTable, child) ){
+							console.log("Child asset ", child, "of field", field, "of asset",row," ("+lib+") not found in library", linkTable);
+							++found;
+						}
+					}
+
+				}
+
+			}
+
+			if( found )
+				console.log(found + " Missing children in "+lib);
+			
+		}
+
+	}
 	
 	// Since I suck at coding, this will go through and fix bugs I've found
 	fixIssues(){
@@ -1462,6 +1524,21 @@ export default class Mod extends Generic{
 		});
 		if( fixedParents.length )
 			console.log("Fixed ", fixedParents.length, "incorrectly parented roleplayStageOption conditions");
+
+
+	}
+
+	// Tries to find issues that have to be manually fixed
+	findIssues(){
+
+		this.findMissingParents();
+		this.findMissingChildren();
+
+		for( let effect of this.effects ){
+			if( !Effect.Types[effect.type] ){
+				console.error("Effect type not found: ", effect.type, "in", effect);
+			}
+		}
 
 
 	}

@@ -1299,7 +1299,7 @@ class Effect extends Generic{
 
 			}
 
-			else if( this.type === Effect.Types.addAP ){
+			else if( this.type === Effect.Types.addMomentum ){
 
 				let amt = Calculator.run(
 					this.data.amount, 
@@ -1308,54 +1308,36 @@ class Effect extends Generic{
 				if( !this.no_stack_multi )
 					amt *= this.parent.getStacks();
 
-				
-				let pre = t.ap;
-				t.addAP(amt, true);
-				let change = t.ap-pre;
+				let type = Player.getValidMomentum(this.data.type);
+				let pre = t.getMomentum(type);
+
+				const changed = t.addMomentum(type, amt, true);	// array of [nrOff, nrDef, nrUti]
+
+				let change = t.getMomentum(type)-pre;
 				if( change )
-					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage AP' );
+					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" momentum"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage AP' );
 					
-				if( +this.data.leech ){
+				if( +this.data.leech && change < 0 ){
 
-					pre = s.ap;
-					s.addAP(-amt, true);
-					change = s.ap-pre;
+					change = 0;
+					for( let i = 0; i < changed.length; ++i ){
+						
+						let nr = randRound(Math.abs(changed[nr])*this.data.leech);
+						if( nr ){
+
+							s.addMomentum(type, nr, true);
+							change += nr;
+
+						}
+
+					}
+					
 					if( change )
-						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, t.id, s.id, 'statMessage AP' );
+						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" Momentum"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, t.id, s.id, 'statMessage AP' );
 
 				}
 
 				
-
-			}
-
-			else if( this.type === Effect.Types.addMP ){
-
-				let amt = Calculator.run(
-					this.data.amount, 
-					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this,
-					}).mergeUnset(event)
-				);
-				if( !this.no_stack_multi )
-					amt *= wrapper.getStacks();
-
-				let pre = t.mp;
-				t.addMP(amt, true);
-				let change = t.mp-pre;
-				if( change )
-					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" MP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage MP' );
-
-
-				if( +this.data.leech ){
-
-					pre = s.mp;
-					s.addMP(-amt, true);
-					let change = s.mp-pre;
-					if( change )
-						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" MP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, t.id, s.id, 'statMessage MP' );
-
-				}
 
 			}
 
@@ -1434,8 +1416,7 @@ class Effect extends Generic{
 
 			else if( 
 				this.type === Effect.Types.setHP || 
-				this.type === Effect.Types.setAP || 
-				this.type === Effect.Types.setMP || 
+				//this.type === Effect.Types.setAP || 
 				this.type === Effect.Types.setArousal
 			){
 				
@@ -1451,17 +1432,15 @@ class Effect extends Generic{
 						t.hp = amt;
 						t.addHP(0);
 					}
+					/*
 					else if( this.type === Effect.Types.setAP ){
 						t.ap = amt;
 						t.addAP(0);
 					}
+					*/
 					else if( this.type === Effect.Types.setArousal ){
 						t.arousal = amt;
 						t.addArousal(0);
-					}
-					else if( this.type === Effect.Types.setMP ){
-						t.mp = amt;
-						t.addMP(0);
 					}
 
 				}
@@ -2336,24 +2315,20 @@ Effect.Types = {
 	css : "css",
 	hitfx : "hitfx",
 	damageArmor : "damageArmor",
-	addAP : "addAP",
-	addMP : "addMP",
+	addMomentum : "addMomentum",
 	addHP : "addHP",
 	addBlock : "addBlock",
 	preventBlockAutoFade : "preventBlockAutoFade",
-	regenAP : "regenAP",
-
-	maxAP : 'maxAP',
-	maxMP : 'maxMP',
+	momentumRegen : "momentumRegen",
+	
 	maxHP : 'maxHP',
 	maxArousal : 'maxArousal',
 	
 	fullRegen : 'fullRegen',
 
 	setHP : 'setHP',
-	setMP : 'setMP',
 	setArousal : 'setArousal',
-	setAP : 'setAP',
+	//setAP : 'setAP', // Todo: Need revamp
 	
 	addArousal : "addArousal",	
 	interrupt : "interrupt",		
@@ -2434,7 +2409,6 @@ Effect.Types = {
 	allowReceiveSpells : 'allowReceiveSpells',
 	disableActions : 'disableActions',
 
-	actionApCost : 'actionApCost',
 	actionRiposte : 'actionRiposte',
 	actionCastTime : 'actionCastTime',
 	preventBlock : 'preventBlock',
@@ -2462,7 +2436,7 @@ Effect.Passive = {
 	[Effect.Types.critDmgTakenMod] : true,
 	[Effect.Types.preventBlock] : true,
 	[Effect.Types.preventBlockAutoFade] : true,
-	
+	[Effect.Types.momentumRegen] : true,
 	
 	[Effect.Types.globalHealingTakenMod] : true,
 	[Effect.Types.globalArousalTakenMod] : true,
@@ -2470,14 +2444,12 @@ Effect.Passive = {
 	[Effect.Types.addTags] : true,
 	[Effect.Types.addRandomTags] : true,
 	[Effect.Types.expMod] : true,
-	[Effect.Types.regenAP] : true,
 
 	[Effect.Types.svPhysical] : true,
 	[Effect.Types.svArcane] : true,
 	[Effect.Types.svCorruption] : true,
 	[Effect.Types.blockInterrupt] : true,
 	[Effect.Types.maxHP] : true,
-	[Effect.Types.maxMP] : true,
 	[Effect.Types.maxAP] : true,
 	[Effect.Types.maxArousal] : true,
 
@@ -2502,7 +2474,6 @@ Effect.Passive = {
 	[Effect.Types.addActions] : true,
 	[Effect.Types.allowReceiveSpells] : true,
 	[Effect.Types.disableActions] : true,
-	[Effect.Types.actionApCost] : true,
 	[Effect.Types.actionCastTime] : true,
 	[Effect.Types.tieToRandomBondageDevice] : true,
 	[Effect.Types.addWrapperMaxDuration] : true,
@@ -2527,29 +2498,22 @@ Effect.TypeDescs = {
 	[Effect.Types.css] : "Applies CSS classes onto the target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
-	[Effect.Types.addAP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds AP",									
-	[Effect.Types.addMP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds MP",									
-	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier} - Adds arousal points",	
+	[Effect.Types.addMomentum] : "{amount:(str)(nr)amount, leech:(float)leech_multiplier, type:(int)type=random/all}, Adds or subtracts AP. Leech only works on subtract. If type isn't a valid identifier (0-2) then on subtract it returns your oldest momentum, and on add it adds random momentum.",						
+	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech:(float)leech_multiplier} - Adds arousal points",	
 	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
-	
+	[Effect.Types.momentumRegen] : '{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases or decreases the amount of random momentum you gain each turn (not counting class momentum)',
 	[Effect.Types.maxHP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max HP",								
-	[Effect.Types.maxMP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max MP",								
-	[Effect.Types.maxAP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max AP",								
 	[Effect.Types.maxArousal] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max arousal",								
 	[Effect.Types.preventWrappers] : "{labels:(str/arr)wrapperLabels} - Wrappers with these labels will not be ADDED. Does not affect passives.",								
 
 	[Effect.Types.addBlock] : "{amount:(str)formula} - Adds or subtracts block", 
-
-	[Effect.Types.regenAP] : "{amount:(float)multiplier} - Multiplies against AP regen at the start of your turn.",
-
 	[Effect.Types.clairvoyance] : "void - Gives players more information about the victim when inspecting them",
 	[Effect.Types.preventBlock] : "{} - Ignores block",
 	[Effect.Types.preventBlockAutoFade] : "{} - Prevents block from fading at the start of your turn",
 	
-	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
-	[Effect.Types.setMP] : "{amount:(str)(nr)amount} - Sets MP value",							
+	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",						
 	[Effect.Types.setArousal] : "{amount:(str)(nr)amount} - Sets arousal value",				
-	[Effect.Types.setAP] : "{amount:(str)(nr)amount} - Sets AP value",							
+	//[Effect.Types.setAP] : "{amount:(str)(nr)amount} - Sets AP value",							
 	
 	[Effect.Types.expMod] : "{amount:(nr)multiplier} - Multiplier against experience gain",							
 	
@@ -2616,7 +2580,6 @@ Effect.TypeDescs = {
 	[Effect.Types.daze] : 'void - Prevents the use of ranged abilities.',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
-	[Effect.Types.actionApCost] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false} - Alters or sets the AP cost of one or more actions. Actions affected are checked by conditions.',
 	[Effect.Types.actionCastTime] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false, multiplier:(bool)is_multiplier=false} - Alters or sets the cast time of one or more actions. Actions affected are checked by conditions.',
 	[Effect.Types.actionRiposte] : '{conditions:(arr)conditions, set:(bool)val=false, priority=0} - Overrides the default riposte-able flag on the action. Sorted by priority, then by time added. The effect target is both sender and target when validating the conditions.',
 	

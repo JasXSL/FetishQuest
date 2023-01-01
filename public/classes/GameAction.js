@@ -227,7 +227,7 @@ export default class GameAction extends Generic{
 			if( Math.random()/2 < value )
 				money = Math.floor(Math.random()*Math.pow(value, 3)*1000);
 			
-			// weight of 0.5 adds loot
+			// weight of 0.5 adds equipment loot
 			if( value >= 0.5 ){
 
 				const players = game.getTeamPlayers();

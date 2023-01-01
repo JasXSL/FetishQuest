@@ -603,7 +603,7 @@ export default class Asset extends Generic{
 		let html = '';
 		// Usable items shows the action tooltip instead
 		if( isConsumable )
-			return this.use_action.getTooltipText(0, this.rarity);
+			return this.use_action.getTooltipText(true, this.rarity);
 
 		let apCost = this.equipped ? Game.UNEQUIP_COST : Game.EQUIP_COST;
 

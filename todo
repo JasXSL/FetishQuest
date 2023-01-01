@@ -1,6 +1,22 @@
 - Make wrappers with wr_foodbuff auto remove other wrappers on apply
 
 
+Changes:
+- Make attacks parallel
+- Remove AP / Mana
+- Replace with momentum
+	- Offensive
+	- Defensive
+	- Utility
+- Add class momentum
+- At the start of each turn, gain 2 momentum based on your class and 3 random
+- Add an effect that lets you mulligan one or more momentum
+- You can hold up to 10 momentum, and as you gain more, the oldest gets phased out
+
+
+
+
+
 
 -- Permanent to keep an eye for --
 	- Keep redesigning errors to a try/catch system

@@ -76,7 +76,7 @@ export default {
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal
-	gpDisableAP : 'gp_no_ap',					// Prevents the use of actions that cost more than 0 AP
+	gpDisableMomentum : 'gp_no_ap',				// Prevents you from getting momentum
 	gpDisableMP : 'gp_no_mp',					// Prevents the use of actions that cost more than 0 MP
 	gpDisableHP : 'gp_no_hp',					// Prevents taking damage and drawing HP
 	gpDisableVictoryCondition : 'gp_no_victory_condition',		// Disregards this one's death status when it comes to calculating if a battle is over

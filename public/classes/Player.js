@@ -69,14 +69,15 @@ export default class Player extends Generic{
 		this.auto_wrappers = [];	// Automatic wrappers such as encumbered
 		this.passives = [];			// Passive wrappers that should not be cleared when a battle starts or ends
 		this.hp = BASE_HP;				// 
-		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
-		this.pMP = 0;				// Pending MP that will be added at the start of your turn.
-		this.pAP = 0;				// Pending AP that will be added at the start of your turn. Can be negative and locks those slots in regen.
+		
+		// Stores newest to oldest by type from left to right
+		this.momentum = [];
+		
 		this.team = 0;				// 0 = player
 		this.size = 5;				// 0-10
 		this.level = 1;				// 
 		this.experience = 0;
-		this.mp = 10;				// Secondary stat used for spells. Mana points.
+		
 		this.arousal = 0;
 		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
 		this.leveled = false;		// Level is an offset of the player average level
@@ -184,12 +185,9 @@ export default class Player extends Generic{
 		if( data && data.class === null )
 			data.class = '';
 
-		/*
-		Not sure if this will break something
-		if( window.game && game.is_host && data )
-			delete data._tmp_actions;
-		*/
 		this.g_autoload(data);
+		if( data?._momentum )
+			this.unpackMomentum(data._momentum);
 
 	}
 
@@ -328,11 +326,8 @@ export default class Player extends Generic{
 		if( full !== "mod" ){
 			
 			out.id = this.id;
-			out.ap = this.ap;
+			out._momentum = this.packMomentum();
 			out.hp = this.hp;
-			out.mp = this.mp;
-			out.pAP = this.pAP;
-			out.pMP = this.pMP;
 			out.block = this.block;
 			out.iBlock = this.iBlock;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
@@ -627,14 +622,15 @@ export default class Player extends Generic{
 		vars[prefix+'BonCorruption'] = this.getBon(Action.Types.corruption);
 		vars[prefix+'Lv'] = this.level;
 		vars[prefix+'HP'] = this.hp;
-		vars[prefix+'AP'] = this.ap;
+		vars[prefix+'Off'] = this.getMomentum(Player.MOMENTUM.Off);
+		vars[prefix+'Def'] = this.getMomentum(Player.MOMENTUM.Def);
+		vars[prefix+'Uti'] = this.getMomentum(Player.MOMENTUM.Uti);
+		vars[prefix+'Mom'] = this.getMomentum();
 		vars[prefix+'Arousal'] = this.arousal;
 		vars[prefix+'Team'] = this.team;
 		vars[prefix+'Size'] = this.size;
 		vars[prefix+'TeamPlayers'] = game.getTeamPlayers(this.team).length;
 		vars[prefix+'MaxHP'] = this.getMaxHP();
-		vars[prefix+'MaxAP'] = this.getMaxAP();
-		vars[prefix+'MaxMP'] = this.getMaxMP();
 		vars[prefix+'MaxArousal'] = this.getMaxArousal();
 		vars[prefix+'Money'] = this.getMoney();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
@@ -789,12 +785,10 @@ export default class Player extends Generic{
 	isArousalDisabled(){
 		return this.hasTag('pl_'+stdTag.gpDisableArousal);
 	}
-	isAPDisabled(){
-		return this.hasTag('pl_'+stdTag.gpDisableAP);
+	isMomentumDisabled(){
+		return this.hasTag('pl_'+stdTag.gpDisableMomentum);
 	}
-	isMPDisabled(){
-		return this.hasTag('pl_'+stdTag.gpDisableMP);
-	}
+	
 	isNonRequiredForVictory(){
 		return this.hasTag('pl_'+stdTag.gpDisableVictoryCondition);
 	}
@@ -1291,40 +1285,18 @@ export default class Player extends Generic{
 		*/
 
 		this._turn_action_used = 0;
-		this._turn_ap_spent = 0;
-		// Restore 3/10ths each turn
-		const map = this.getMaxAP();
-		let ap = map*0.4*this.getGenericAmountStatMultiplier(Effect.Types.regenAP, this); // base AP to add
-
-		// Add pending AP
-		if( this.pAP < 0 )
-			ap += this.pAP;
-		if( ap < 0 )
-			ap = 0;
+		this._turn_ap_spent = 0;		// Todo: probably want this by type later
 		
-
-		// Shuffle the fractions
-		if( Math.random() < ap-Math.floor(ap) )
-			++ap;
-
-		this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
-		
-		// Gain 1 MP every 3 turns
-		let mp = Math.max(this.pMP, 0);
-		if( this.mp < this.getMaxMP() && !(this._turns%3) )
-			++mp;
-		if( mp )
-			this.addMP(1);
-
-		this.pMP = this.pAP = 0;	// Reset the initial thing
-		
+		// Todo: Add AP and handle it visually
+		// Todo: Effect.Types.momentumRegen - Need to check both additive and multi
+		//this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
 
 	}
 	onBattleStart(){
 
 		this._used_chats = {};
 		this._turn_tags = [];
-		this.ap = 0;			// Start with 0 AP
+		this.momentum = [];
 		this._threat = {};
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
@@ -1351,7 +1323,7 @@ export default class Player extends Generic{
 		this.start_equip = [];
 		this.blCorruption = this.block = this.iBlock = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
-		this.ap = 0;
+		this.momentum = [];
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleEnd();
@@ -1392,7 +1364,6 @@ export default class Player extends Generic{
 			return;
 
 		this.addHP(Math.ceil(this.getMaxHP()*0.1));		// Regen 30% of your HP
-		this.addMP(Math.round(this.getMaxMP()*0.3));	// Regen 30% of MP
 		this.addArousal(-Math.ceil(this.getMaxArousal()*0.15), undefined, true);
 
 	}
@@ -2463,46 +2434,96 @@ export default class Player extends Generic{
 
 
 	/* RESOURCES */
-	addAP( amount, fText = false ){
+	// If type validates to momentum All:
+	// Add: Adds random
+	// Subtract: Shifts out from the right
+	// Returns an array with the momentum types added/subtracted
+	addMomentum( type, amount, fText = false ){
 
-		if( this.isAPDisabled() )
-			return false;
+		let out = [0,0,0];
 
-		if( isNaN(amount) ){
+		if( amount === 0 )
+			return out;
 
-			console.error("AP amount is NaN", amount);
-			return false;
+		// This player doesn't support momentum (such as the sharktopus gong)
+		if( this.isMomentumDisabled() )
+			return out;
 
-		}
-
-		const pre = this.ap;
-		this.ap += amount;
-		this.ap = Math.floor(Math.max(0, Math.min(this.getMaxAP(), this.ap)));
-		if( fText && this.ap-pre !== 0 )
-			game.ui.floatingCombatText(this.ap-pre, this, "ap");
+		type = Player.getValidMomentum(type);
+		amount = Math.trunc(amount);
 		
-	}
+		let pre = this.getMomentum(type);
+		
+		// Handle subtract
+		if( amount < 0 ){
+			
+			for( let i = 0; i < this.momentum.length && amount < 0 && this.momentum.length; ++i ){
 
-	addMP( amount, fText = false ){
+				if( type === Player.MOMENTUM.All || this.momentum[i] === type ){
+					const ty = this.momentum.splice(i, 1);
+					--i;
+					++amount;
+					--out[ty];
+				}
 
-		if( this.isMPDisabled() )
-			return false;
-
-		if( isNaN(amount) ){
-
-			console.error("MP amount is NaN", amount);
-			return false;
+			}
 
 		}
+		// Handle add
+		else{
 
-		const pre = this.mp;
-		this.mp += amount;
-		this.mp = Math.floor( Math.max(0, Math.min(this.getMaxMP(), this.mp)) );
+			// Shift in from the right
+			for( let i = 0; i < amount; ++i ){
+				
+				let t = type;
+				if( type == Player.MOMENTUM.All )
+					t = Math.floor(Math.random()*3);
+				this.momentum.unshift(t);
+				++out[t];
 
-		if( fText && this.mp-pre !== 0 )
-			game.ui.floatingCombatText(this.mp-pre, this, "mp");
+			}
+			this.momentum = this.momentum.slice(0, Player.MAX_MOMENTUM);
+			
+		}
+
+		let ch = this.getMomentum(type)-pre;
+		if( fText && ch !== 0 )
+			game.ui.floatingCombatText(ch, this, "ap ap"+type);
+
+		return out;
 
 	}
+	getMomentum( type ){
+
+		let out = 0;
+		type = Player.getValidMomentum(type);
+		for( let m of this.momentum ){
+			if( type === m )
+				++out;
+		}
+		return out;
+
+	}
+
+	// Packs momentum into a 20 bit number, making it easier to transport to other players
+	packMomentum(){
+		let out = 0;
+		for( let i = 0; i < Player.MAX_MOMENTUM && i < this.momentum.length; ++i ){
+			let v = this.momentum[i]+1;
+			out = out|(v<<(2*i));
+		}
+		return out;
+	}
+	// Unpacks momentum from a 20bit (2 bit per momentum) to an array
+	unpackMomentum( nr ){
+		this.momentum = [];
+		for( let i = 0; i < Player.MAX_MOMENTUM; ++i ){
+			let n = nr & (3<<(i*2));
+			if( n )
+				this.momentum.push(n-1);
+		}
+	}
+
 
 	addThreat( playerID, amount ){
 		if( typeof playerID !== "string" ){
@@ -2704,25 +2725,6 @@ export default class Player extends Generic{
 			*this.getGenericAmountStatMultiplier(Effect.Types.maxHP, this)
 		), 1);
 	}
-	getMaxAP(){
-		return Math.round(
-			Math.max(
-				(BASE_AP+this.getGenericAmountStatPoints(Effect.Types.maxAP))
-				*(1+(this.getPowerMultiplier()-1)*.7)	// Power has a smaller impact on AP
-				*this.getGenericAmountStatMultiplier(Effect.Types.maxAP, this)
-				, 3
-			)
-		);
-	}
-	getMaxMP(){
-		return Math.ceil(
-			Math.max(
-				(BASE_MP+this.getGenericAmountStatPoints(Effect.Types.maxMP))
-				*this.getPowerMultiplier()
-				*this.getGenericAmountStatMultiplier(Effect.Types.maxMP, this)
-			, 1)
-		);
-	}
 	getMaxArousal(){
 		return Math.ceil(Math.max(3, 
 			(BASE_AROUSAL+this.getGenericAmountStatPoints(Effect.Types.maxArousal))
@@ -2853,7 +2855,6 @@ export default class Player extends Generic{
 		const ALWAYS_MULTIPLY = [
 			Effect.Types.critDoneMod,
 			Effect.Types.expMod,
-			Effect.Types.regenAP,
 			Effect.Types.globalArousalTakenMod
 		];
 		
@@ -4178,7 +4179,13 @@ export default class Player extends Generic{
 		this.AI_ENABLED = !+localStorage.disable_ai;
 	};
 
-
+	// returns an int between 0 and 2 if momentum is valid, or -1 if invalid
+	static getValidMomentum(type){
+		type = Math.trunc(type);
+		if( type > -2 && type < 3 )
+			return type;
+		return -1;
+	}
 
 }
 
@@ -4189,8 +4196,23 @@ Player.MAX_LEVEL = 14;
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
 
+Player.MAX_MOMENTUM = 10;	// Hardcoded limit
+
 Player.MAX_ACTION_SLOTS = 6;
 Player.MISSING_ART = 'media/characters/missing_art.jpg';
+
+// Momentum types
+Player.MOMENTUM = {
+	All : -1,
+	Off : 0,
+	Def : 1,
+	Uti : 2
+};
+// Array that can be used to iterate through the types
+Player.MOMENTUM_TYPES = [Player.MOMENTUM.Off,Player.MOMENTUM.Def,Player.MOMENTUM.Uti];
+Player.MOMENTUM_COLORS = ['#FDD','#DDF','#FDF'];
+Player.MOMENTUM_NAMES = ['Offensive', 'Defensive', 'Utility'];
+Player.MOMENTUM_NAMES_SHORT = ['Off', 'Def', 'Uti'];
 
 Player.currencyWeights = [
 	'platinum',

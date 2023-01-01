@@ -169,7 +169,7 @@ function randRound( val = 0 ){
 	let fract = Math.abs(val)-Math.abs(Math.trunc(val));
 	if( fract > Math.random() )
 		val += val >= 0 ? 1 : -1;
-	return Math.round(val);
+	return Math.floor(val);
 }
 
 // Turns a label like yuug_deep_forest into a name like Yuug Deep Forest

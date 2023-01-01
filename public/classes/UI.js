@@ -925,9 +925,9 @@ export default class UI{
 			return;
 		}
 
-		let mpCost = spell.mp, apCost = spell.getApCost(),
-			mp = player.mp, ap = player.ap
-		;
+		/*
+		Todo: Redraw teh AP stuff
+		let apCost = spell.getApCost(), ap = player.ap;
 		if( !game.battle_active )
 			apCost = 0;
 		
@@ -936,15 +936,7 @@ export default class UI{
 			for( let i = start-apCost; i<start; ++i )
 				$("div.stat.ap div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
 		}
-		if( mpCost ){
-
-			let start = Math.max(mpCost, mp);
-			let end = $("div.stat.mp div.point:not(.hidden)", this.action_selector).length;
-			for( let i = start-mpCost; i<start; ++i ){
-				$("div.stat.mp div.point", this.action_selector).eq(end-1-i).toggleClass('highlighted', true);
-			}
-
-		}
+		*/
 
 	}
 
