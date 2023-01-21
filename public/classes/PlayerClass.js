@@ -1,4 +1,5 @@
 import Generic from "./helpers/Generic.js";
+import Player from "./Player.js";
 
 
 export default class PlayerClass extends Generic{
@@ -17,6 +18,8 @@ export default class PlayerClass extends Generic{
 		this.svPhysical = 0;
 		this.svArcane = 0;
 		this.svCorruption = 0;
+		
+		this.momType = Player.MOMENTUM.Off;				// Gain 1 extra momentum of this type at the start of your turn. Can be -1 to turn off.
 
 		this.bonPhysical = 0;
 		this.bonArcane = 0;

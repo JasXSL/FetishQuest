@@ -16,8 +16,6 @@ import Game from './Game.js';
 import Roleplay from './Roleplay.js';
 
 const BASE_HP = 30;
-const BASE_MP = 10;
-const BASE_AP = 10;
 const BASE_AROUSAL = 7;
 const MAX_KINKS = 2;
 
@@ -72,6 +70,7 @@ export default class Player extends Generic{
 		
 		// Stores newest to oldest by type from left to right
 		this.momentum = [];
+		this.incMom = [];			// Incoming momentum, max 10. Items can be added to this, including -1 for random while it's not your turn.
 		
 		this.team = 0;				// 0 = player
 		this.size = 5;				// 0-10
@@ -188,6 +187,8 @@ export default class Player extends Generic{
 		this.g_autoload(data);
 		if( data?._momentum )
 			this.unpackMomentum(data._momentum);
+		if( data?._incMom )
+			this.unpackMomentum(data._incMom, true);
 
 	}
 
@@ -327,7 +328,9 @@ export default class Player extends Generic{
 			
 			out.id = this.id;
 			out._momentum = this.packMomentum();
+			out._incMom = this.packMomentum(true);
 			out.hp = this.hp;
+			out.momBon = this.momBon;
 			out.block = this.block;
 			out.iBlock = this.iBlock;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
@@ -349,8 +352,7 @@ export default class Player extends Generic{
 
 		// Apply constraints
 		this.addHP(0);
-		this.addMP(0);
-		this.addAP(0);
+		this.addMomentum(Player.MOMENTUM.All, 0); // add 0 momentum
 		this.updateAutoWrappers();
 		this.addTagSynonyms();
 		
@@ -1212,7 +1214,7 @@ export default class Player extends Generic{
 	}
 	onRebalanced(){
 		this.addHP(Infinity);
-		this.addMP(Infinity);
+		//this.addMP(Infinity);
 		this.arousal = 0;
 	}
 	onRemoved(){
@@ -1284,19 +1286,42 @@ export default class Player extends Generic{
 		}
 		*/
 
+		let toAdd = this.incMom.slice(); // Add any stored up momentum back last
+		this.incMom = [];	// Stores incoming momentum
+		
+		// Start with the regen bonus
+		let total = 4+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
+		total *= this.getGenericAmountStatMultiplier(Effect.Types.momentumRegen);
+		total = randRound(total);
+		if( total < 0 )
+			total = 0;
+		for( let i = 0 ; i < total; ++i )
+			this.incMom.push(Player.getRandomMomentum());
+
+		// Next add the stored up momentup from last
+		for( let t of toAdd ){
+			t = Player.getValidMomentum(t);
+			if( t === -1 )
+				t = Player.getRandomMomentum();
+			this.incMom.unshift(t);
+		}
+
+		// Add the class bon last. It's guaranteed.
+		if( this.class.momType > -1 && this.class.momType < 3 )
+			this.incMom.unshift(this.class.momType);
+
+		this.incMom = this.incMom.slice(0, Player.MAX_MOMENTUM);
+
 		this._turn_action_used = 0;
 		this._turn_ap_spent = 0;		// Todo: probably want this by type later
 		
-		// Todo: Add AP and handle it visually
-		// Todo: Effect.Types.momentumRegen - Need to check both additive and multi
-		//this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
-
 	}
 	onBattleStart(){
 
 		this._used_chats = {};
 		this._turn_tags = [];
 		this.momentum = [];
+		this.incMom = [];
 		this._threat = {};
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
@@ -1324,6 +1349,7 @@ export default class Player extends Generic{
 		this.blCorruption = this.block = this.iBlock = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
 		this.momentum = [];
+		this.incMom = [];
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleEnd();
@@ -1371,7 +1397,7 @@ export default class Player extends Generic{
 	// Item broken, repaired, equipped, or removed
 	onItemChange(){
 		this.addHP(0);
-		this.addAP(0);
+		this.addMomentum(Player.MOMENTUM.All, 0);
 	}
 
 	onCellChange(){
@@ -1400,10 +1426,10 @@ export default class Player extends Generic{
 			// Newly added minutes
 			if( postMinutes > preMinutes ){
 
-				this.addMP(postMinutes-preMinutes);
+				//this.addMP(postMinutes-preMinutes);
 				this.addHP(postMinutes-preMinutes);
 				this.addArousal(-(postMinutes-preMinutes));
-				this.addAP((postMinutes-preMinutes)*3);	// 3 AP per minute
+				this.addMomentum(Player.MOMENTUM.All, (postMinutes-preMinutes)*3);	// 3 AP per minute
 				
 				const actions = this.getActions(true, false, true, false);
 				for( let action of actions )	// Subtract 1 cooldown per minute
@@ -2435,15 +2461,12 @@ export default class Player extends Generic{
 
 	/* RESOURCES */
 	// If type validates to momentum All:
-	// Add: Adds random
-	// Subtract: Shifts out from the right
+	// Add: Adds random from the left
+	// Subtract: Shifts out to the right
 	// Returns an array with the momentum types added/subtracted
-	addMomentum( type, amount, fText = false ){
+	addMomentum( type, amount = 0, fText = false ){
 
 		let out = [0,0,0];
-
-		if( amount === 0 )
-			return out;
 
 		// This player doesn't support momentum (such as the sharktopus gong)
 		if( this.isMomentumDisabled() )
@@ -2479,12 +2502,13 @@ export default class Player extends Generic{
 				if( type == Player.MOMENTUM.All )
 					t = Math.floor(Math.random()*3);
 				this.momentum.unshift(t);
-				++out[t];
+				out[t] = out[t]+1;
 
 			}
-			this.momentum = this.momentum.slice(0, Player.MAX_MOMENTUM);
 			
 		}
+		// make sure we don't get more momentum than we can have 
+		this.momentum = this.momentum.slice(0, Player.MAX_MOMENTUM);
 
 		let ch = this.getMomentum(type)-pre;
 		if( fText && ch !== 0 )
@@ -2498,30 +2522,56 @@ export default class Player extends Generic{
 		let out = 0;
 		type = Player.getValidMomentum(type);
 		for( let m of this.momentum ){
-			if( type === m )
+			if( type === m || type === -1 )
 				++out;
 		}
 		return out;
 
 	}
 
-	// Packs momentum into a 20 bit number, making it easier to transport to other players
-	packMomentum(){
+	// Todo: allow subtract
+	addIncomingMomentum( type, amount ){
+
+		type = Player.getValidMomentum(type);
+		amount = randRound(amount);
+		if( amount < 1 )
+			return;
+		
+		for( let i = 0; i < amount; ++i )
+			this.incMom.unshift(type);
+
+		this.incMom = this.incMom.slice(0, Player.MAX_MOMENTUM);
+
+	}
+	
+	// Packs momentum or incoming momentum into a 20 bit number, making it easier to transport to other players
+	packMomentum( inc = false ){
+
+		let table = this.momentum;
+		if( inc )
+			table = this.incMom;
+
 		let out = 0;
-		for( let i = 0; i < Player.MAX_MOMENTUM && i < this.momentum.length; ++i ){
-			let v = this.momentum[i]+1;
+		for( let i = 0; i < Player.MAX_MOMENTUM && i < table.length; ++i ){
+			let v = table[i]+1;
 			out = out|(v<<(2*i));
 		}
 		return out;
 	}
 	// Unpacks momentum from a 20bit (2 bit per momentum) to an array
-	unpackMomentum( nr ){
-		this.momentum = [];
+	unpackMomentum( nr, inc = false ){
+
+		let table = 'momentum';
+		if( inc )
+			table = 'incMom';
+		let t = [];
+		this[table] = t;
 		for( let i = 0; i < Player.MAX_MOMENTUM; ++i ){
-			let n = nr & (3<<(i*2));
+			let n = (nr>>(i*2)) & 3;
 			if( n )
-				this.momentum.push(n-1);
+				t.push(n-1);
 		}
+
 	}
 
 
@@ -4187,6 +4237,10 @@ export default class Player extends Generic{
 		return -1;
 	}
 
+	static getRandomMomentum(){
+		return Math.floor(Math.random()*3);
+	}
+
 }
 
 Player.AI_ENABLED = true;	// AI art enabled or not
@@ -4195,8 +4249,9 @@ Player.MAX_LEVEL = 14;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
+Player.MAX_MOMENTUM = 12;	// Hardcoded limit. Technically can go up to 26 without violating Number.MAX_SAFE_INTEGER
+							// The reason for this is that the array is packed into a single int made up of 2-bit values when transferred
 
-Player.MAX_MOMENTUM = 10;	// Hardcoded limit
 
 Player.MAX_ACTION_SLOTS = 6;
 Player.MISSING_ART = 'media/characters/missing_art.jpg';

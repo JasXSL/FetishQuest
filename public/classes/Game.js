@@ -994,7 +994,7 @@ export default class Game extends Generic{
 
 				p.addHP(20*duration);
 				p.addArousal(-5*duration);
-				p.addMP(5*duration);
+				//p.addMP(5*duration);
 				this.save();
 				this.ui.draw();
 
@@ -2087,7 +2087,7 @@ export default class Game extends Generic{
 			if( player !== game.getTurnPlayer() )
 				throw("Not your turn");
 
-			if( player.ap < apCost )
+			if( player.getMomentum(Player.MOMENTUM.Uti) < apCost )
 				throw("Not enough AP");
 			
 		}
@@ -2116,7 +2116,7 @@ export default class Game extends Generic{
 		}
 
 		if( game.battle_active )
-			player.addAP(-apCost);
+			player.addMomentum(Player.MOMENTUM.Uti, -apCost);
 
 		this.save();
 		return true;
@@ -2868,35 +2868,22 @@ export default class Game extends Generic{
 
 	}
 
-
 	attemptFleeFromCombat( player, force ){
 
 		if( !this.battle_active )
 			return;
 
-		const players = this.getEnabledPlayers();
 		let chance = 50;
 
 		if( force )
 			chance = 100;
-		else{
-
-			// Each AP benefit the party has over their opponents grant 2% bonus chance, starting at 50%
-			for( let p of players ){
-				let add = p.ap;
-				if( p.isDead() )
-					add = 0;
-				if( p.team !== player.team )
-					add = -add;
-				chance += add*2;
-			}
-
-		}
+		else
+			chance += 5*player.getMomentum(Player.MOMENTUM.Def);
 
 		if( Math.random()*100 < chance )
 			return this.execFleeFromCombat( player );
 
-		player.addAP(-2);
+		player.addMomentum(Player.MOMENTUM.Def, -2);
 		this.ui.addText( player.getColoredName()+" calls for a retreat, but the party fails to escape!", undefined, player.id, player.id );
 
 	}
@@ -2908,7 +2895,6 @@ export default class Game extends Generic{
 		this.dungeon.goToRoom( player, this.dungeon.previous_room );	// Saves
 
 	}
-
 
 
 

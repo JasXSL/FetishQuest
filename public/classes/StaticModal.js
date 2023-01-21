@@ -1591,8 +1591,6 @@ export default class StaticModal{
 					dDivs.formUpperBody.val(player.icon_upperBody);
 					dDivs.formLowerBody.val(player.icon_lowerBody);
 					dDivs.formHP.val(parseInt(player.hp) || 0);
-					dDivs.formAP.val(parseInt(player.ap) || 0);
-					dDivs.formMP.val(parseInt(player.mp) || 0);
 					dDivs.formArousal.val(parseInt(player.arousal) || 0);
 					dDivs.formTeam.val(parseInt(player.team) || 0);
 					dDivs.formDescription.val(player.description);
@@ -1713,8 +1711,6 @@ export default class StaticModal{
 						player.icon_lowerBody = dDivs.formLowerBody.val().trim();
 						player.icon_nude = dDivs.formNude.val().trim();
 						player.hp = parseInt(dDivs.formHP.val())||1;
-						player.ap = parseInt(dDivs.formAP.val())||0;
-						player.mp = parseInt(dDivs.formMP.val())||0;
 						player.arousal = parseInt(dDivs.formArousal.val())||0;
 
 						player.sadistic = Math.max(0, Math.min(1, +dDivs.formSadistic.val())) || 0;
@@ -1757,10 +1753,6 @@ export default class StaticModal{
 			
 						if( player.hp > player.getMaxHP() )
 							player.hp = player.getMaxHP();
-						if( player.ap > player.getMaxAP() )
-							player.ap = player.getMaxAP();
-						if( player.mp > player.getMaxMP() )
-							player.mp = player.getMaxMP();
 						
 						
 						// Todo: Save kinks
@@ -4325,9 +4317,9 @@ export default class StaticModal{
 
 									if( game.battle_active ){
 
-										if( player.ap < 3 ){
+										if( player.getMomentum(Player.MOMENTUM.Uti) < 3 ){
 
-											modal.addError("Not enough AP");
+											modal.addError("Not enough utility momentum");
 											modal.closeSelectionBox();
 											return;
 

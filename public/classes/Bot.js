@@ -156,10 +156,7 @@ class Bot{
 					highest_cost = abil.ap;
 			}
 
-			const AP = this.player.ap;
-
-			let maxAp = Math.min(10, this.player.getMaxAP());
-
+			const AP = this.player.getMomentum();	// Get all momentum
 
 			// Adds some randomness to abilities
 			let chance = Math.random();
@@ -174,7 +171,7 @@ class Bot{
 						Math.random() < 0.8		// and 20% chance to stop mid attack
 					) ||
 					chance < 0.1 || 		// 10% chance to go yolo and attack
-					AP > maxAp*0.6 ||	// If greater or equal to 60% (or 10 AP if you have more than 10 total), always attack.
+					AP > Player.MAX_MOMENTUM*0.6 ||	// If greater or equal to 60%, always attack.
 					this.player.getTauntedBy(undefined, false).length
 				)
 			){
@@ -411,6 +408,8 @@ class Bot{
 			}
 
 			// Category can be HP or MP
+			/*
+			Todo: Food
 			const eatIfNecessary = (category = 'HP') => {
 
 				if( category !== 'HP' && category !== 'MP' )
@@ -479,6 +478,7 @@ class Bot{
 				return false;
 
 			};
+			
 			// Use food for HP if necessary
 			let max = 5;
 			while( eatIfNecessary() && --max )
@@ -487,7 +487,7 @@ class Bot{
 			max = 5;
 			while( eatIfNecessary('MP') && --max )
 				await delay(500);
-			
+			*/
 
 			// Equip potions and swap out broken gear if possible
 			let freePotionSlots = this.player.getNrActionSlots() - this.player.getEquippedAssetsBySlots([Asset.Slots.action]).length;

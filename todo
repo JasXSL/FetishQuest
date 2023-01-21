@@ -2,15 +2,38 @@
 
 
 Changes:
+Ability costs are basically:
+Offence: Deal damage, increase damage taken, increase damage done, add/increase arousal/gen.
+Defense: Block, reduce damage taken, reduce damage done, interrupt, decrease arousal/gen. 
+Utility: Healing, reduce spell cost, reduce cooldown, silence, remove arousal.
+
+
+Effect types on enemies (these don't stack, the longest duration is kept):
+- Aggression - Increases damage done (offensive)
+- Defending - Decreases damage taken (defensive)
+- Vulnerable - Increases damage taken (offensive)
+- Weaken - Decreases damage done (defensive)
+- Sensitive - Increases arousal generated (offensive)
+- Focused - Decreases arousal generated (defensive)
+- Defile - Decreases healing taken (utility)
+- Blessed - Increases healing done (utility)
+- Combo - Increases momentum generation by 1 (utility)
+- Lifesteal - Grants 1 HP to players attacking the target (utility)
+- Infused - Restore 1 HP each time you use an action (utility)
+
+
+- Add an instant effect that gives more momentum at the start of your next turn
 - Make attacks parallel
+	1. All players Pick momentum
+	2. All players use their actions and hit end turn
+	3. Switch team
 - Remove AP / Mana
 - Replace with momentum
 	- Offensive
 	- Defensive
 	- Utility
 - Add class momentum
-- At the start of each turn, gain 2 momentum based on your class and 3 random
-- Add an effect that lets you mulligan one or more momentum
+- At the start of each turn, gain 1 momentum based on your class and 4 random. Players can discard any of these momentum before accepting them.
 - You can hold up to 10 momentum, and as you gain more, the oldest gets phased out
 
 

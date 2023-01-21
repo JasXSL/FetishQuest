@@ -1299,6 +1299,18 @@ class Effect extends Generic{
 
 			}
 
+			else if( this.type === Effect.Types.momentumNextTurn ){
+				let amt = Calculator.run(
+					this.data.amount, 
+					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+				}));
+				if( !this.no_stack_multi )
+					amt *= this.parent.getStacks();
+
+				t.addIncomingMomentum(amt, this.data.type);
+				
+			}
+
 			else if( this.type === Effect.Types.addMomentum ){
 
 				let amt = Calculator.run(
@@ -2320,6 +2332,7 @@ Effect.Types = {
 	addBlock : "addBlock",
 	preventBlockAutoFade : "preventBlockAutoFade",
 	momentumRegen : "momentumRegen",
+	momentumNextTurn : "momentumNextTurn",
 	
 	maxHP : 'maxHP',
 	maxArousal : 'maxArousal',
@@ -2502,6 +2515,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech:(float)leech_multiplier} - Adds arousal points",	
 	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
 	[Effect.Types.momentumRegen] : '{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases or decreases the amount of random momentum you gain each turn (not counting class momentum)',
+	[Effect.Types.momentumNextTurn] : '{amount:(str)(nr)amount, type:(int)type=random} - Adds additional momentum to the momentum picker next turn',
 	[Effect.Types.maxHP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max HP",								
 	[Effect.Types.maxArousal] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max arousal",								
 	[Effect.Types.preventWrappers] : "{labels:(str/arr)wrapperLabels} - Wrappers with these labels will not be ADDED. Does not affect passives.",								

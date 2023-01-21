@@ -32,9 +32,9 @@ export function asset(){
 			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 		html += '<label>Name: <input name="name" value="'+esc(dummy.name)+'" type="text" class="saveable" /></label>';
 		html += '<label>Icon: <input name="icon" value="'+esc(dummy.icon)+'" type="text" class="saveable" /></label>';
-		html += '<label>AP: <input name="ap" value="'+esc(dummy.ap)+'" type="number" step=1 class="saveable" /></label>';
-		html += '<label title="If AP cost is reduced by spells, this can set a min limit">AP min: <input name="min_ap" value="'+esc(dummy.min_ap)+'" type="number" step=1 class="saveable" /></label>';
-		html += '<label>MP: <input name="mp" value="'+esc(dummy.mp)+'" type="number" step=1 class="saveable" /></label>';
+		html += '<label>M.Off: <input name="mom0" value="'+esc(dummy.mom0)+'" type="number" step=1 class="saveable" /></label>';
+		html += '<label>M.Def: <input name="mom1" value="'+esc(dummy.mom1)+'" type="number" step=1 class="saveable" /></label>';
+		html += '<label>M.Uti: <input name="mom2" value="'+esc(dummy.mom2)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label title="Can also be a formula">Cooldown: <input name="cooldown" value="'+esc(dummy.cooldown === null ? 1 : dummy.cooldown)+'" type="text" class="saveable" /></label>';
 		html += '<label title="Cooldown to be set when battle starts">Init Cooldown: <input name="init_cooldown" value="'+esc(dummy.init_cooldown)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Hit Chance: <input name="hit_chance" value="'+esc(dummy.hit_chance)+'" type="number" step=1 class="saveable" /></label>';
