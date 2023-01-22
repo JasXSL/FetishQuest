@@ -42,7 +42,6 @@ export default class Player extends Generic{
 		this.label = '';					// Unique editor label
 		this.netgame_owner_name = '';		// This is a custom thing that should only be relied on when adding a new player
 		this.netgame_owner = '';			// ID corresponding to one from Game.net.players
-		this.afk = false;					// Treats this as a bot if true. Can be toggled by the netgame owner
 		this.name = "Adventurer";			// Name
 		this.species = "";
 		this.spre = "";						// A/AN for species
@@ -70,13 +69,16 @@ export default class Player extends Generic{
 		
 		// Stores newest to oldest by type from left to right
 		this.momentum = [];
-		this.incMom = [];			// Incoming momentum, max 10. Items can be added to this, including -1 for random while it's not your turn.
+		this.incMom = [];			// Incoming momentum added next turn, max 12. Items can be added to this, including -1 for random while it's not your turn.
 		
 		this.team = 0;				// 0 = player
 		this.size = 5;				// 0-10
 		this.level = 1;				// 
 		this.experience = 0;
 		
+		this.endedTurn = false;
+		this.reroll = 0;
+
 		this.arousal = 0;
 		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
 		this.leveled = false;		// Level is an offset of the player average level
@@ -273,9 +275,11 @@ export default class Player extends Generic{
 			voice : this.voice,
 		};
 
-		if( full !== "mod" )
+		if( full !== "mod" ){
 			out.experience = this.experience;
-
+			out.endedTurn = this.endedTurn;
+			out.reroll = this.reroll;
+		}
 		// Should only be sent while we're hosting a netgame
 		//if( window.game && Game.net.isInNetgameHost() && !full )
 		out._tmp_actions = Action.saveThese(this._tmp_actions, full);
@@ -772,12 +776,9 @@ export default class Player extends Generic{
 		return this.hp <= 0;
 	}
 
-	isAFK(){
-		return Game.net.isPlayerAFK(this.netgame_owner);
-	}
 
 	isNPC(){
-		return !this.netgame_owner || this.isAFK();
+		return !this.netgame_owner;
 	}
 
 	isLootableBy( player ){
@@ -1240,6 +1241,8 @@ export default class Player extends Generic{
 	// Raised after effects
 	onTurnStart(){
 
+		this.reroll = 2;	// Todo: implement
+		this.endedTurn = false;
 		this._d_damaging_since_last = {};
 		this._d_damage_since_last = {};
 		this._riposted_since_last = {};
@@ -1286,32 +1289,23 @@ export default class Player extends Generic{
 		}
 		*/
 
-		let toAdd = this.incMom.slice(); // Add any stored up momentum back last
+		// Stored up momentum gets added first
+		for( let m of this.incMom )
+			this.addMomentum(m, 1, false);
 		this.incMom = [];	// Stores incoming momentum
 		
-		// Start with the regen bonus
-		let total = 4+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
+		// Then class momentum
+		this.addMomentum(Player.getValidMomentum(this.class.momType), 1, false);
+		
+		// Finally random momentum
+		let total = 3+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
 		total *= this.getGenericAmountStatMultiplier(Effect.Types.momentumRegen);
 		total = randRound(total);
 		if( total < 0 )
 			total = 0;
 		for( let i = 0 ; i < total; ++i )
-			this.incMom.push(Player.getRandomMomentum());
-
-		// Next add the stored up momentup from last
-		for( let t of toAdd ){
-			t = Player.getValidMomentum(t);
-			if( t === -1 )
-				t = Player.getRandomMomentum();
-			this.incMom.unshift(t);
-		}
-
-		// Add the class bon last. It's guaranteed.
-		if( this.class.momType > -1 && this.class.momType < 3 )
-			this.incMom.unshift(this.class.momType);
-
-		this.incMom = this.incMom.slice(0, Player.MAX_MOMENTUM);
-
+			this.addMomentum(Player.MOMENTUM.All, 1);	// random momentum
+		
 		this._turn_action_used = 0;
 		this._turn_ap_spent = 0;		// Todo: probably want this by type later
 		
@@ -2617,7 +2611,7 @@ export default class Player extends Generic{
 		// ADD
 		else{
 
-			if( game.getTurnPlayer() === this )
+			if( game.isTurnPlayer(this) )
 				this.block += amount;
 			else
 				this.iBlock += amount;

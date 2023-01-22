@@ -1022,26 +1022,13 @@ div.passiveUpsideDown > div.content > div.bg{
 		text-shadow: 0.1vmax 0.1vmax 0.2vmax #000;
 		pointer-events: none;
 	}
-	#ui > div.yourTurnBadge.rope{
-		background:rgba(255,150,150,.75);
-	}
-	@keyframes yourTurnBorderRope{
-		from{ 
-			box-shadow: 0 0 1vmax #FAA inset;
-		}
-		to{
-			box-shadow: 0 0 2vmax #FAA inset;
-		}
-	}
 	#yourTurnBorder{
 		position: fixed;
 		left:0; right:0; bottom:0; top:0;
 		box-shadow: 0 0 1vmax #EFE inset;
 		pointer-events: none;
 	}
-	#yourTurnBorder.rope{
-		animation: yourTurnBorderRope 0.5s ease-in-out alternate infinite;
-	}
+
 
 /**/
 
@@ -2646,42 +2633,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	div.players div.right div.player span.name > span{
 		margin-right:0.5vmax;
 	}
-	#ui > div.players div.left div.player div.stats > span.name > div.playersBefore{
-		left:0.5vmax;
-		right:auto;
-	}
-	#ui > div.players div.player div.stats > span.name > div.playersBefore::before{
-		content:'';
-		position: absolute;
-		top: 0; 
-		left: 0;
-		width: 100%; 
-		height: 100%;  
-		opacity:0.5;
-		background:url('/media/wrapper_icons/duration.svg') 100% 100%;
-	}
-	#ui > div.players div.player div.stats > span.name > div.playersBefore{
-		right:0.5vmax;
-		top:50%;
-		font-size:2.25vmax;
-		width:2.5vmax;
-		height:2.5vmax;
-		transform:translateY(-50%);
-		color:#000;
-		position: absolute;
-		pointer-events: all;
-		cursor:help;
-		text-align: center;
-		text-shadow: 1px 1px #fff, -1px 1px #fff, 1px -1px #fff, -1px -1px #fff;
-		font-family: 'Germania One', cursive;
 
-	}
-	#ui > div.players div.player div.stats > span.name > div.playersBefore > span{
-		position: absolute;
-		top:50%; left:50%;
-		transform:translate(-50%,-50%);
-		padding-top:0.2vmax;
-	}
 
 	div.players div.player div.netgameStatus{
 		position: absolute;

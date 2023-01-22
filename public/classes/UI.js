@@ -36,9 +36,6 @@ const playerTemplate = $(
 						'<span class="nameTag"></span>'+
 						'<span class="turnArrow"> &#9664;</span>'+
 					'</span>'+
-					'<div class="playersBefore" title="Players before your turn">'+
-						'<span>3</span>'+
-					'</div>'+
 				'</span>'+
 				'<br />'+
 				'<span class="resources">'+
@@ -153,9 +150,6 @@ export default class UI{
 		this.loadingMaxSteps = 0;	// Steps to load
 		this.yourTurn = $("#ui > div.yourTurnBadge");
 		this.yourTurnBorder = $("#yourTurnBorder");
-		this.yourTurnTimer = false;
-		this.yourTurnTimeLeft = 0;
-		this.yourTurnSoundLoop = false;
 		this.mapChat = $("#mapChat");
 		this.fct = $("#fct");
 		this.fctQue = [];
@@ -645,7 +639,6 @@ export default class UI{
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
 			this.endTurnButton.toggleClass('hidden', true);
-			this.toggleRope(false);
 			return;
 
 		}
@@ -655,12 +648,9 @@ export default class UI{
 			th = this
 		;
 
-		const myTurn = game.getTurnPlayer().id === game.getMyActivePlayer().id || !game.battle_active;
+		const myTurn = game.isMyTurn() || !game.battle_active;
 		this.yourTurn.toggleClass('hidden', !myTurn || !game.battle_active);
 		this.yourTurnBorder.toggleClass('hidden', !myTurn || !game.battle_active);
-
-		if( !myTurn )
-			this.toggleRope(false);
 
 		
 
@@ -877,8 +867,8 @@ export default class UI{
 
 					if( event.type === 'click'){
 
-						th.action_selected = game.getTurnPlayer().getActionByLabel('stdEndTurn');
-						th.targets_selected = [game.getTurnPlayer()];
+						th.action_selected = player.getActionByLabel('stdEndTurn');
+						th.targets_selected = [player];
 						game.uiAudio("endturn_down", 0.5, this);
 						th.performSelectedAction();
 
@@ -1441,8 +1431,7 @@ export default class UI{
 
 	drawPlayer( p, index ){
 
-		const tp = game.getTurnPlayer(),
-			myTurn = tp && tp.id === p.id,
+		const myTurn = game.isTurnPlayer(p),
 			el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
 			myActive = game.getMyActivePlayer(),
 			friendly = p.team === 0
@@ -1477,8 +1466,6 @@ export default class UI{
 					ownEl = $('> div.own', nameEl),
 					leaderEl = $('> div.leader', nameEl),
 					nameDisplayEl = $('span.nameTag', nameEl),
-					playersBeforeEl = $('div.playersBefore', nameEl),
-					playersBeforeNumberSpanEl = $('span', playersBeforeEl),
 				resourcesEl = $('> span.resources', statsEl),
 					arousalEl = $('> span.arousal', resourcesEl),
 					arousalElSpan = $('> span', arousalEl),
@@ -1601,25 +1588,8 @@ export default class UI{
 		;
 		nameEl.toggleClass('active', isMyActive);
 
-		playersBeforeEl.toggleClass('hidden', (!game.battle_active || p.isDead()));
-		if( game.battle_active && !p.isDead() ){
 
-			let numBefore = game.getNumPlayersBefore(p);
-			const colors = [
-				'009900',
-				'336600',
-				'555500',
-				'663300',
-				'990000'
-			];
-			playersBeforeNumberSpanEl
-				.text(numBefore)
-				.css({color:'#'+colors[Math.min(colors.length-1, numBefore)]})
-			;
-
-		}
-
-		const name = p.getName()+(p.isAFK() ? ' [AFK]' : '');
+		const name = p.getName();
 		if( nameDisplayEl.text() !== name )
 			nameDisplayEl.text(name);
 		
@@ -2219,47 +2189,6 @@ export default class UI{
 		if( this.previousConsoleCommands.length > 100 )
 			this.previousConsoleCommands.pop();
 		localStorage.previousConsoleCommands = JSON.stringify(this.previousConsoleCommands);
-	}
-
-
-
-
-	/* Turn timer */
-	async toggleRope( seconds ){
-
-		this.yourTurnBorder.toggleClass("rope", Boolean(seconds));
-		this.yourTurn.toggleClass("rope", Boolean(seconds));
-		clearTimeout(this.yourTurnTimer);
-
-		if( this.yourTurnSoundLoop ){
-
-			this.yourTurnSoundLoop.stop(100);
-			this.yourTurnSoundLoop = false;
-
-		}
-
-		if( +seconds ){
-			
-			this.yourTurn.toggleClass("rope", Boolean(seconds));
-			this.yourTurnTimeLeft = seconds;
-			const tick = () => {
-				$("span.timeLeft", this.yourTurn).html(' ['+this.yourTurnTimeLeft+']');
-				--this.yourTurnTimeLeft;
-				if( this.yourTurnTimeLeft < 0 )
-					clearInterval(this.yourTurnTimer);
-			};
-			tick();
-			this.yourTurnTimer = setInterval(tick, 1000);
-
-			// Play alert and start loop
-			game.uiAudio( 'time_running_out', 0.5 );
-			this.yourTurnSoundLoop = await game.audio_ui.play( 'media/audio/ui/clock.ogg', 0.25, true );
-
-		}else{
-			
-			$("span.timeLeft", this.yourTurn).html('');
-
-		}
 	}
 
 
@@ -2878,7 +2807,8 @@ export default class UI{
 			}
 			
 			else if( task == "auto" ){
-				game.getTurnPlayer().autoPlay(true);
+				// Todo: Need to run the game play as bots command
+				//game.getTurnPlayer().autoPlay(true);
 				return;
 			}
 
@@ -2894,10 +2824,6 @@ export default class UI{
 			}
 			else if( task == "notice" ){
 				return this.addNotice(spl.join(' '));
-			}
-
-			else if( task === 'afk' ){
-				return game.toggleAFK();
 			}
 			
 			else if( task === "me" ){

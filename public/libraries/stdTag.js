@@ -206,6 +206,7 @@ export default {
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
 	wrHogtied : 'wr_hogtied',
 	wrPinned : 'wr_pinned',
+	wrStd : 'wr_std',					// Standar effect. Such as exposed, mending, vulnerable etc.
 
 	wrKink : 'wr_kink',					// This is set on wrappers that should be treated as a kink
 	wrEnchant : 'wr_enchant',			// Set on asset wrappers that should be considered as enchants

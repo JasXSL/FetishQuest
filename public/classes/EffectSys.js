@@ -730,7 +730,7 @@ class Wrapper extends Generic{
 			this.tick();
 		}
 
-		if(this.duration < 1)
+		if( this.duration < 1 )
 			return;
 
 		if( this._self_cast )
@@ -1478,6 +1478,7 @@ class Effect extends Generic{
 			// End turn
 			else if( this.type === Effect.Types.endTurn ){
 
+				t.endedTurn = true;
 				game.end_turn_after_action = true;
 				
 			}

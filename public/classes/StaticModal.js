@@ -811,7 +811,6 @@ export default class StaticModal{
 						<div class="netgameLink b hideIfNotHost"></div>
 						<input type="button" class="red disconnect" value="Leave Game" />
 						<div class="connectedPlayers"></div>
-						<label class="hideIfNotHost">Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" /></label><br />
 						<label class="hideIfNotHost">Mute spectators: <input type="checkbox" class="muteSpectators" /></label><br />
 					</div>
 					<div class="disconnected">
@@ -862,7 +861,6 @@ export default class StaticModal{
 					hostButton : netgame.querySelector('input.hostgame'),
 					disconnectButton : netgame.querySelector('input.disconnect'),
 					connectedPlayers : netgame.querySelector('div.connectedPlayers'),
-					enableTurnTimer : netgame.querySelector('input.enableTurnTimer'),
 					muteSpectators : netgame.querySelector('input.muteSpectators'),
 				};
 				
@@ -1082,7 +1080,6 @@ export default class StaticModal{
 					this.netgame.connectedPlayers.replaceChildren(...divs);
 
 					// LocalStorage stores strings, so we can't store true/false
-					this.netgame.enableTurnTimer.checked = Boolean(+localStorage.turnTimer);
 					this.netgame.muteSpectators.checked = Boolean(+localStorage.muteSpectators);
 
 					this.netgame.connected.classList.toggle('host', isHosting);
@@ -1107,13 +1104,6 @@ export default class StaticModal{
 						
 						await Game.net.leaveNetgame();
 						this.refresh();
-
-					});
-
-					this.netgame.enableTurnTimer.addEventListener('change', event => {
-						
-						localStorage.turnTimer = +event.currentTarget.checked;
-						game.onTurnTimerChanged();
 
 					});
 					this.netgame.muteSpectators.addEventListener('click', event => {
@@ -4248,7 +4238,7 @@ export default class StaticModal{
 							else if( player.canEquip(asset) )
 								modal.addSelectionBoxItem( 'Equip', '', 'equip' );
 
-							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
+							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (game.isTurnPlayer(player) && isHotbar)) ){
 								modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
 							}
 
@@ -4324,7 +4314,7 @@ export default class StaticModal{
 											return;
 
 										}
-										else if( game.getTurnPlayer().id !== player.id ){
+										else if( game.isTurnPlayer(player) ){
 
 											modal.closeSelectionBox();
 											modal.addError("Not your turn");

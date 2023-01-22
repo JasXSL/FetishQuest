@@ -32,7 +32,7 @@ export function asset(){
 		html += '</select></label>';
 		html += '<label title="Not selectable on character creation screen">Monster class: <input type="checkbox" name="monster_only" '+(dummy.monster_only ? 'checked' : '')+' class="saveable"  /></label>';
 		
-		html += '<label title="One of these momentum are guaranteed on turn start.">Momentum type: <select name="momType" class="saveable">';
+		html += '<label title="One of these momentum are guaranteed on turn start.">Momentum type: <select name="momType" data-type="int" class="saveable">';
 		for( let i in Player.MOMENTUM )
 			html += '<option value="'+esc(Player.MOMENTUM[i])+'" '+(Player.MOMENTUM[i] === dummy.momType ? 'selected' : '')+'>'+esc(i)+'</option>';
 		html += '</select></label>';

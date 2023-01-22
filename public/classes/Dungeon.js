@@ -2039,11 +2039,11 @@ class DungeonRoomAsset extends Generic{
 			
 			if( asset.isDoor() && asset.getDoorTarget() === dungeon.previous_room ){
 				
-				if( !game.turnPlayerIsMe() ){
+				if( !game.isMyTurn() ){
 					console.error("not your turn error", player, mesh);
 					return game.ui.modal.addError("Not your turn");
 				}
-				let player = game.getTurnPlayer();
+				let player = game.getMyActivePlayer();
 				game.ui.modal.close();
 				game.useActionOnTarget( player.getActionByLabel('stdEscape'), [player], player );
 				return;
