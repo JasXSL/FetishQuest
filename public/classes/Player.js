@@ -67,8 +67,9 @@ export default class Player extends Generic{
 		this.passives = [];			// Passive wrappers that should not be cleared when a battle starts or ends
 		this.hp = BASE_HP;				// 
 		
-		// Stores newest to oldest by type from left to right
-		this.momentum = [];
+		this.momOff = 0;			// Offensive momentum
+		this.momDef = 0;			// Defensive momentum
+		this.momUti = 0;			// Utility momentum
 		this.incMom = [];			// Incoming momentum added next turn, max 12. Items can be added to this, including -1 for random while it's not your turn.
 		
 		this.team = 0;				// 0 = player
@@ -187,10 +188,8 @@ export default class Player extends Generic{
 			data.class = '';
 
 		this.g_autoload(data);
-		if( data?._momentum )
-			this.unpackMomentum(data._momentum);
 		if( data?._incMom )
-			this.unpackMomentum(data._incMom, true);
+			this.unpackIncomingMomentum(data._incMom, true);
 
 	}
 
@@ -273,6 +272,9 @@ export default class Player extends Generic{
 			armor : this.armor,
 			actionGroups : PlayerActionGroup.saveThese(this.actionGroups),
 			voice : this.voice,
+			momOff : this.momOff,
+			momDef : this.momDef,
+			momUti : this.momUti,
 		};
 
 		if( full !== "mod" ){
@@ -331,8 +333,7 @@ export default class Player extends Generic{
 		if( full !== "mod" ){
 			
 			out.id = this.id;
-			out._momentum = this.packMomentum();
-			out._incMom = this.packMomentum(true);
+			out._incMom = this.packIncomingMomentum(true);
 			out.hp = this.hp;
 			out.momBon = this.momBon;
 			out.block = this.block;
@@ -1315,7 +1316,7 @@ export default class Player extends Generic{
 
 		this._used_chats = {};
 		this._turn_tags = [];
-		this.momentum = [];
+		this.resetMomentum();
 		this.incMom = [];
 		this._threat = {};
 		this._stun_diminishing_returns = 0;
@@ -1343,7 +1344,7 @@ export default class Player extends Generic{
 		this.start_equip = [];
 		this.blCorruption = this.block = this.iBlock = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
-		this.momentum = [];
+		this.resetMomentum();
 		this.incMom = [];
 		let actions = this.getActions();
 		for(let action of actions)
@@ -2455,10 +2456,9 @@ export default class Player extends Generic{
 
 
 	/* RESOURCES */
-	// If type validates to momentum All:
-	// Add: Adds random from the left
-	// Subtract: Shifts out to the right
-	// Returns an array with the momentum types added/subtracted
+	// Adds or subtracts momentum by type
+	// If add is -1 it adds to random types
+	// If remove is -1 it removes from random types
 	addMomentum( type, amount = 0, fText = false ){
 
 		let out = [0,0,0];
@@ -2471,57 +2471,60 @@ export default class Player extends Generic{
 		amount = Math.trunc(amount);
 		
 		let pre = this.getMomentum(type);
+
+		const all = this.getMomentum();
+		// If we go over max momentum, add the rest as rerolls
+		if( amount+all > this.getMaxMomentum() ){
+
+			const offs = amount+all-this.getMaxMomentum();
+			this.reroll += offs;
+			amount -= offs;
+
+		}
+		// Nothing to change. Also prevents division by 0.
+		if( !amount )
+			return;
+
+		let amts = [
+			type === Player.MOMENTUM.Off && amount || 0,
+			type === Player.MOMENTUM.Def && amount || 0,
+			type === Player.MOMENTUM.Uti && amount || 0
+		];
+		if( type === Player.MOMENTUM.All ){
+
+			const n = amount/Math.abs(amount);	// Convert it to +1 or -1
+			for( let i = 0; i < Math.abs(amount); ++i )
+				amts[Math.floor(Math.random()*3)] += n;
+			
+		}
 		
-		// Handle subtract
-		if( amount < 0 ){
-			
-			for( let i = 0; i < this.momentum.length && amount < 0 && this.momentum.length; ++i ){
-
-				if( type === Player.MOMENTUM.All || this.momentum[i] === type ){
-					const ty = this.momentum.splice(i, 1);
-					--i;
-					++amount;
-					--out[ty];
-				}
-
-			}
-
-		}
-		// Handle add
-		else{
-
-			// Shift in from the right
-			for( let i = 0; i < amount; ++i ){
-				
-				let t = type;
-				if( type == Player.MOMENTUM.All )
-					t = Math.floor(Math.random()*3);
-				this.momentum.unshift(t);
-				out[t] = out[t]+1;
-
-			}
-			
-		}
-		// make sure we don't get more momentum than we can have 
-		this.momentum = this.momentum.slice(0, Player.MAX_MOMENTUM);
+		this.momOff = Math.max(0, this.momOff+amts[0]);
+		this.momDef = Math.max(0, this.momDef+amts[1]);
+		this.momUti = Math.max(0, this.momUti+amts[2]);
 
 		let ch = this.getMomentum(type)-pre;
 		if( fText && ch !== 0 )
 			game.ui.floatingCombatText(ch, this, "ap ap"+type);
 
-		return out;
+		return amts;
 
 	}
-	// Returns nr of momentum of a type
-	getMomentum( type ){
 
-		let out = 0;
-		type = Player.getValidMomentum(type);
-		for( let m of this.momentum ){
-			if( type === m || type === -1 )
-				++out;
-		}
-		return out;
+	// Can be used later for effects that alter momentum
+	getMaxMomentum(){
+		return Player.MAX_MOMENTUM;
+	}
+
+	// Returns nr of momentum of a type
+	getMomentum( type = -1 ){
+
+		if( type == Player.MOMENTUM.Off )
+			return this.momOff;
+		if( type == Player.MOMENTUM.Def )
+			return this.momDef;
+		if( type == Player.MOMENTUM.Uti )
+			return this.momUti;
+		return this.momOff+this.momDef+this.momUti;
 
 	}
 
@@ -2533,17 +2536,41 @@ export default class Player extends Generic{
 			this.reroll = 0;
 	}
 
-	rerollMomentum( idx ){
+	// Reroll a point of momentum from one type to another
+	rerollMomentum( type ){
 		
-		if( this.momentum[idx] === undefined )
-			return false;
+		type = Player.getValidMomentum(type);
+		if( type === Player.MOMENTUM.All ){
+			let viable = [];
+			
+			if( this.momOff )
+				viable.push(Player.MOMENTUM.Off);
+			if( this.momDef )
+				viable.push(Player.MOMENTUM.Def);
+			if( this.momUti )
+				viable.push(Player.MOMENTUM.Uti);
+			
+			if( !viable.length )
+				return false;
+			type = randElem(viable);
+			
+		}
 
-		let cur = this.momentum[idx];
-		cur += Math.ceil(Math.random()*2);
-		cur = cur % 3;
-		this.momentum[idx] = cur;
+		let cur = this.getMomentum(type);
+		// Not enough to reroll
+		if( !cur )
+			return false;
+		
+		let targ = type+Math.ceil(Math.random()*2);
+		targ = targ%3;
+		this.addMomentum(type, -1);
+		this.addMomentum(targ, 1);
 		return true;
 
+	}
+
+	resetMomentum(){
+		this.momOff = this.momDef = this.momUti = 0;
 	}
 
 	// Todo: allow subtract
@@ -2557,17 +2584,14 @@ export default class Player extends Generic{
 		for( let i = 0; i < amount; ++i )
 			this.incMom.unshift(type);
 
-		this.incMom = this.incMom.slice(0, Player.MAX_MOMENTUM);
+		this.incMom = this.incMom.slice(0, Player.MAX_MOMENTUM); // max 12 for stacking reasons
 
 	}
 	
 	// Packs momentum or incoming momentum into a 20 bit number, making it easier to transport to other players
-	packMomentum( inc = false ){
+	packIncomingMomentum(){
 
-		let table = this.momentum;
-		if( inc )
-			table = this.incMom;
-
+		const table = this.incMom;
 		let out = 0;
 		for( let i = 0; i < Player.MAX_MOMENTUM && i < table.length; ++i ){
 			let v = table[i]+1;
@@ -2576,17 +2600,13 @@ export default class Player extends Generic{
 		return out;
 	}
 	// Unpacks momentum from a 20bit (2 bit per momentum) to an array
-	unpackMomentum( nr, inc = false ){
+	unpackIncomingMomentum( nr ){
 
-		let table = 'momentum';
-		if( inc )
-			table = 'incMom';
-		let t = [];
-		this[table] = t;
+		this.incMom = [];
 		for( let i = 0; i < Player.MAX_MOMENTUM; ++i ){
 			let n = (nr>>(i*2)) & 3;
 			if( n )
-				t.push(n-1);
+				this.incMom.push(n-1);
 		}
 
 	}

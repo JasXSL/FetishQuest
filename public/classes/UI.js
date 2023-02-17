@@ -681,17 +681,16 @@ export default class UI{
 		this.resourceBar[0].classList.toggle("re", player.reroll > 0);
 		let dots = $("> div.point", this.resourceBar);
 		let ln = dots.length;
-		const maxPoints = Player.MAX_MOMENTUM;
+		const maxPoints = player.getMaxMomentum();
 		const currentPoints = player.getMomentum();
-		const momTypes = ['off','def','uti'];
-		const points = player.momentum.slice().reverse();
-		const pointsLen = points.length;
+		
 
 		// Add more dots if need be
 		for( let i = 0; i < maxPoints-ln; ++i ){
 
 			let div = document.createElement('div');
 			div.className = 'point';
+			div.dataset.i = -1;
 			this.resourceBar.append(div);
 			dots = dots.add(div);
 
@@ -701,28 +700,41 @@ export default class UI{
 		for( let i = 0; i < dots.length; ++i )
 			dots[i].classList.toggle("hidden", i >= maxPoints);
 		
+		const 
+			off = player.getMomentum(Player.MOMENTUM.Off),
+			def = player.getMomentum(Player.MOMENTUM.Def),
+			uti = player.getMomentum(Player.MOMENTUM.Uti)
+		;
+
+		const momTypes = ['off','def','uti'];
 		// Fill in
 		let n = 0;
 		for( let i = 0; i < maxPoints; ++i ){
 
-			let idx = pointsLen-i-1;
-			let pre = dots[i].dataset.i === undefined ? -1 : player.momentum[Math.trunc(dots[i].dataset.i)];
+			let type = Player.MOMENTUM.Off;
+			if( i >= off )
+				type = Player.MOMENTUM.Def;
+			if( i >= off+def )
+				type = Player.MOMENTUM.Uti;
+			if( i >= off+def+uti )
+				type = -1;
+
+			let pre = Math.trunc(dots[i].dataset.i);
+
 			const cList = dots[i].classList;
-
 			cList.remove(...momTypes);
-			dots[i].dataset.i = idx;
-			if( i < currentPoints ){
-				const type = points[i];
-				if( type !== pre ){
-					++n;
-					cList.toggle('ch', false);
-					setTimeout(() => {
-						cList.toggle('ch', true);
-					}, n*25);
-				}
-				dots[i].classList.add(momTypes[type]);
+			dots[i].dataset.i = type;
 
+			// Animate a sweep
+			if( pre !== type && ~type ){
+				++n;
+				cList.toggle('ch', false);
+				setTimeout(() => {
+					cList.toggle('ch', true);
+				}, n*25);
 			}
+			dots[i].classList.add(momTypes[type]);
+
 
 		}
 
@@ -1052,10 +1064,10 @@ export default class UI{
 			costs = [0,0,0];
 		
 			
-		const maxPoints = Player.MAX_MOMENTUM;
+		const maxPoints = player.getMaxMomentum();
 		for( let i = 0; i < maxPoints; ++i ){
 			
-			const currentType = dots[i].dataset.i === undefined ? -1 : player.momentum[Math.trunc(dots[i].dataset.i)];
+			const currentType = Math.trunc(dots[i].dataset.i);
 			const cost = costs[currentType];
 			const highlighted = cost > 0;
 			if( highlighted )
@@ -1583,7 +1595,7 @@ export default class UI{
 			apDisabled = p.isMomentumDisabled(),
 			hpDisabled = p.isHPDisabled(),
 			arousalText = p.arousal+"<span class=\"small\">/"+p.getMaxArousal()+"</span>",
-			apText = p.getMomentum()+"<span class=\"small\">/"+Player.MAX_MOMENTUM+"</span>",
+			apText = p.getMomentum()+"<span class=\"small\">/"+p.getMaxMomentum()+"</span>",
 			hpText = p.hp+"<span class=\"small\">/"+p.getMaxHP()+"</span>"
 		;
 		arousalEl.toggleClass('hidden', arousalDisabled);

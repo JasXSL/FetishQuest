@@ -165,7 +165,7 @@ class Bot{
 						Math.random() < 0.8		// and 20% chance to stop mid attack
 					) ||
 					chance < 0.1 || 		// 10% chance to go yolo and attack
-					AP > Player.MAX_MOMENTUM*0.6 ||	// If greater or equal to 60%, always attack.
+					AP > this.player.getMaxMomentum()*0.6 ||	// If greater or equal to 60%, always attack.
 					this.player.getTauntedBy(undefined, false).length
 				)
 			){

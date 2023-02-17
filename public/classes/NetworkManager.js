@@ -1062,7 +1062,7 @@ class NetworkManager{
 			}
 			else if( task == PT.rerollMomentum ){
 				let player = validatePlayer();
-				game.rerollMomentum(player, args.idx);
+				game.rerollMomentum(player, args.type);
 			}
 			else if( task === PT.loadedCells ){
 
@@ -1681,10 +1681,10 @@ class NetworkManager{
 		});
 	}
 
-	playerRerollMomentum( player, idx ){
+	playerRerollMomentum( player, type ){
 		this.sendPlayerAction(NetworkManager.playerTasks.rerollMomentum, {
 			player : player.id,
-			idx : idx,
+			type : type,
 		});
 	}
 
@@ -2152,7 +2152,7 @@ NetworkManager.playerTasks = {
 	getLargeAsset : 'getLargeAsset',		// {player:(str)player_uuid, type:(str)type, label:(str)label} - Fetches a large DB asset from the host. Currently used for books, because they're a bit too heavy to send along to all players constantly. On success, sends DM->Player getLargeAsset
 	useAssetGameAction : 'useAssetGameAction',	// {player:(str)player_uuid, label:(str)label} - Tries to use a game action from Asset.game_actions by label
 	transmogrify : 'transmogrify',		// {mogger : player_offering_transmogs, player : player_transmogging, baseAsset : asset to transmogrify onto, targetAsset : asset to use for the looks}
-	rerollMomentum : 'rerollMomentum',	// {player:(str)sender_id, idx:(int)momentum_index}
+	rerollMomentum : 'rerollMomentum',	// {player:(str)sender_id, type:(int)momentum_type}
 };
 
 export default NetworkManager;

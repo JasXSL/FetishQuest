@@ -7,8 +7,18 @@ Offence: Deal damage, increase damage taken, increase damage done, add/increase 
 Defense: Block, reduce damage taken, reduce damage done, interrupt, decrease arousal/gen. 
 Utility: Healing, reduce spell cost, reduce cooldown, silence, remove arousal.
 
-- Update the turn switcher to work with NPCs
-- Update the NPCs to play in a random sequence
+
+- Show what momentum types you got on turn start 
+	- Maybe glowing icons that show up and then go down and hit the momentum bar?
+	- Icons:
+		- Offensive: Sword.
+		- Defensive: Shield.
+		- Utility: Plus
+- Show what momentum types you're missing for a spell when hovering over it (maybe in tooltip?)
+- Show momentum costs on the spell.
+	- If less than 4 momentum cost, show one gem per momentum
+	- Else show each momentum with a number on it
+
 
 Effect types on enemies (these don't stack, and only lasts until end of turn if used on enemy, and next turn if used on self):
 - Aggression - Increases damage done by 20% (offensive)
