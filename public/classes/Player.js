@@ -1241,7 +1241,7 @@ export default class Player extends Generic{
 	// Raised after effects
 	onTurnStart(){
 
-		this.reroll = 2;	// Todo: implement
+		this.reroll = 2;
 		this.endedTurn = false;
 		this._d_damaging_since_last = {};
 		this._d_damage_since_last = {};
@@ -2511,6 +2511,7 @@ export default class Player extends Generic{
 		return out;
 
 	}
+	// Returns nr of momentum of a type
 	getMomentum( type ){
 
 		let out = 0;
@@ -2520,6 +2521,27 @@ export default class Player extends Generic{
 				++out;
 		}
 		return out;
+
+	}
+
+	consumeReroll( amount = 1 ){
+		if( isNaN(amount) )
+			return;
+		this.reroll -= Math.trunc(amount);
+		if( this.reroll < 0 )
+			this.reroll = 0;
+	}
+
+	rerollMomentum( idx ){
+		
+		if( this.momentum[idx] === undefined )
+			return false;
+
+		let cur = this.momentum[idx];
+		cur += Math.ceil(Math.random()*2);
+		cur = cur % 3;
+		this.momentum[idx] = cur;
+		return true;
 
 	}
 

@@ -2792,6 +2792,28 @@ export default class Game extends Generic{
 
 	}
 
+	rerollMomentum( player, idx ){
+		
+		if( !this.playerIsMe(player) )
+			throw("Not your player");
+
+		if( isNaN(idx) )
+			throw 'Invalid idx';
+
+		if( player.reroll < 1 )
+			throw 'Out of rerolls';
+
+		if( !this.is_host )
+			return Game.net.playerRerollMomentum(player, idx);
+
+		// Todo: play sound
+		console.log("Rerolling ", idx, "on", player);
+		player.rerollMomentum(idx);
+		player.consumeReroll();
+		this.save();
+		this.ui.draw();
+		
+	}
 
 
 

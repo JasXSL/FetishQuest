@@ -754,7 +754,7 @@ class Action extends Generic{
 		if( pl.isCasting() && !this.allow_when_charging )
 			return err("You are charging an action");
 
-		if( game.isTurnPlayer(pl) && game.battle_active )
+		if( !game.isTurnPlayer(pl) && game.battle_active )
 			return err("Not your turn");
 
 		// Stuff that should not affect hidden actions

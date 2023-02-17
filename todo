@@ -9,6 +9,7 @@ Utility: Healing, reduce spell cost, reduce cooldown, silence, remove arousal.
 
 
 Reroll momentum (player.reroll)
+	- Finish rerollMomentum function in Game.js
 Update the ability code to check for momentum instead of ap
 Update the UI to highlight based on momentum, from left to right
 

@@ -125,6 +125,8 @@ export default class UI{
 		this.action_selector = $("#ui > div.actionbar");
 		this.resourceBar = $("div.resources", this.action_selector);
 		this.actionbar_actions = $("> div.actions", this.action_selector);
+		this.rerolls = $("> div.reroll", this.action_selector);
+			this.rerollsSpan = $("> span", this.rerolls);
 
 		this.blackScreen = $("#blackScreen");
 
@@ -175,6 +177,7 @@ export default class UI{
 		this.miniMapContent = $("> div.content", this.miniMap);
 		this.minimap_current_z = 0;
 		
+
 
 		this.endTurnButton = null;
 
@@ -438,6 +441,21 @@ export default class UI{
 
 		});
 
+		this.resourceBar.off('click').on('click', event => {
+
+			if( !event.target.classList.contains("point") )
+				return;
+			const ap = game.getMyActivePlayer();
+			if( !ap )
+				return;
+			let idx = Math.trunc(event.target.dataset.i);
+			if( idx >= ap.getMomentum() || ap.reroll < 1 )
+				return;
+			
+			game.rerollMomentum(ap, idx); 
+
+		});
+
 		this.toggleMiniMap(Boolean(localStorage.mini_map));
 
 	}
@@ -654,15 +672,20 @@ export default class UI{
 
 		
 
-
+		// Update resource bar
+		this.rerolls[0].classList.toggle("hidden", player.reroll < 1);
+		this.rerollsSpan[0].innerText = player.reroll;
+		
 
 		// Update momentum bar
+		this.resourceBar[0].classList.toggle("re", player.reroll > 0);
 		let dots = $("> div.point", this.resourceBar);
 		let ln = dots.length;
 		const maxPoints = Player.MAX_MOMENTUM;
 		const currentPoints = player.getMomentum();
 		const momTypes = ['off','def','uti'];
 		const points = player.momentum.slice().reverse();
+		const pointsLen = points.length;
 
 		// Add more dots if need be
 		for( let i = 0; i < maxPoints-ln; ++i ){
@@ -679,11 +702,33 @@ export default class UI{
 			dots[i].classList.toggle("hidden", i >= maxPoints);
 		
 		// Fill in
+		let n = 0;
 		for( let i = 0; i < maxPoints; ++i ){
 
-			dots[i].classList.remove(...momTypes);
-			if( i < currentPoints )
-				dots[i].classList.add(momTypes[points[i]]);
+			let idx = pointsLen-i-1;
+			let pre = -1;
+			const cList = dots[i].classList;
+			if( cList.contains(momTypes[0]) )
+				pre = 0;
+			else if( cList.contains(momTypes[1]) )
+				pre = 1;
+			else if( cList.contains(momTypes[2]) )
+				pre = 2;
+		
+			cList.remove(...momTypes);
+			dots[i].dataset.i = idx;
+			if( i < currentPoints ){
+				const type = points[i];
+				if( type !== pre ){
+					++n;
+					cList.toggle('ch', false);
+					setTimeout(() => {
+						cList.toggle('ch', true);
+					}, n*25);
+				}
+				dots[i].classList.add(momTypes[type]);
+
+			}
 
 		}
 
@@ -982,7 +1027,6 @@ export default class UI{
 		//console.log("Binding the events", Date.now()-time);
 
 	}
-
 
 	// Started dragging a spell
 	dragStart( element, mousedown ){
