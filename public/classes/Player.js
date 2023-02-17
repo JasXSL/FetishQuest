@@ -1234,6 +1234,7 @@ export default class Player extends Generic{
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
 		this._targeted_by_since_last = new Collection();
+		this.endedTurn = false;
 		++this._turns;
 
 	}
@@ -4029,11 +4030,11 @@ export default class Player extends Generic{
 
 
 	// Bot
-	autoPlay( force ){
+	async autoPlay( force ){
 
 		if( !this.isNPC() && !force )
 			return;
-		this.bot.play( force );
+		return await this.bot.play( force );
 
 	}
 

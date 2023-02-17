@@ -110,10 +110,9 @@ export default class Game extends Generic{
 
 		this.hotkeys = [1,2,3,4,5,6,7,8,9,0];
 
-		this._turn_timer = false;						// Timeout handling end of turn
+		this._bot_timer = false;						// Timeout handling bot play
 		this._db_save_timer = null;						// Timer to store on HDD		
 		this._caches = 0;								// Level of depth of cache requests we're at
-
 		this._looted_players = {};						// local only, contains id : true for players looted in this room
 
 	}
@@ -2625,15 +2624,28 @@ export default class Game extends Generic{
 		return this.getTeamPlayers(this.initiative[this.turn])
 	}
 
+	async autoPlay(){
+
+		let players = this.getTurnPlayers().filter(pl => {
+			return pl.isNPC() && !pl.endedTurn;
+		});
+		shuffle(players);
+
+		if( players.length ){
+
+			const time = await players[0].autoPlay();
+			clearTimeout(this._bot_timer);
+			let timer = 1000;
+			if( time > 0 )
+				timer = time;
+			this._bot_timer = setTimeout(this.autoPlay.bind(this), timer);
+
+		}
+
+	}
+
 	// Advances turn
 	advanceTurn(){
-
-		const prepAutoPlay = npl => {
-			setTimeout(() => {
-				if( this.isTurnPlayer(npl) )
-					npl.autoPlay();
-			}, 1000);
-		};
 
 		let turnPlayers = this.getTurnPlayers();
 		for( let pl of turnPlayers ){
@@ -2642,6 +2654,7 @@ export default class Game extends Generic{
 				pl.onTurnEnd();
 
 		}
+
 		for( let i = 0; i < this.initiative.length; ++i ){
 
 			this.end_turn_after_action = false;
@@ -2687,11 +2700,34 @@ export default class Game extends Generic{
 			// Todo: pl.isSkipAllTurns needs to be handled in AI
 			// Todo: Handle AI with prepAutoPlay(npl);
 
+			break;
 		}
 
+		clearTimeout(this._bot_timer);
+		this._bot_timer = setTimeout(this.autoPlay.bind(this), 1000);
+		this.autoUpdateSelectedPlayer();
 		this.save();
 		this.ui.draw();
 		
+	}
+
+	// Tries to change control to a viable turn player
+	// Todo: Needs to be run on netcode too
+	autoUpdateSelectedPlayer(){
+
+		if( !this.battle_active )
+			return;
+		const active = game.getMyActivePlayer();
+		if( this.isTurnPlayer(active) )
+			return;
+		const players = this.getTurnPlayers();
+		for( let pl of players ){
+			if( this.isMyPlayer(pl) && this.isTurnPlayer(pl) ){
+				this.setMyPlayer(pl.id);
+				break;
+			}
+		}
+
 	}
 
 	// Checks if end_turn_after_action is set and advances turn if it is
@@ -2702,7 +2738,6 @@ export default class Game extends Generic{
 			if( !player.endedTurn )
 				return false;
 		}
-
 		this.advanceTurn();
 		return true;
 
@@ -2807,7 +2842,6 @@ export default class Game extends Generic{
 			return Game.net.playerRerollMomentum(player, idx);
 
 		// Todo: play sound
-		console.log("Rerolling ", idx, "on", player);
 		player.rerollMomentum(idx);
 		player.consumeReroll();
 		this.save();

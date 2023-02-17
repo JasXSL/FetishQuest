@@ -133,7 +133,7 @@ class Bot{
 		}
 	}
 
-	play( force = false ){
+	async play( force = false ){
 		
 		if( (!this.player.isNPC() && !force) || !game.battle_active || !game.isTurnPlayer(this.player) )
 			return;
@@ -150,11 +150,6 @@ class Bot{
 					)
 				;
 			});
-			let highest_cost = 0;
-			for( let abil of abils ){
-				if( highest_cost < abil.ap && abil._cooldown === 0 )
-					highest_cost = abil.ap;
-			}
 
 			const AP = this.player.getMomentum();	// Get all momentum
 
@@ -166,7 +161,6 @@ class Bot{
 					this.hasCastableImportant() ||		// We have an important spell we MUST cast
 					// Chance to stop an ongoing attack
 					(
-						AP >= highest_cost && 	// We have more AP than our highest costing ability
 						this.actions_used && 	// and We have already used an action
 						Math.random() < 0.8		// and 20% chance to stop mid attack
 					) ||
@@ -293,34 +287,21 @@ class Bot{
 					}
 
 					// Game
-					setTimeout(() => {
+					let success = game.useActionOnTarget( abil, t, this.player );
+					let time = 2000+Math.random()*1000;
+					if( this.player.team === 0 )
+						time = Math.floor(time*0.5);
+					if( !success )
+						time = 400;
+					++this.actions_used;
+					return time;
 
-						let success = game.useActionOnTarget( abil, t );
-						let time = 2000+Math.random()*1000;
-						if( this.player.team === 0 )
-							time = Math.floor(time*0.5);
-						if( !success )
-							time = 400;
-						++this.actions_used;
-
-						setTimeout(() => {
-							this.play();	
-						}, time);
-
-					}, 100);
-					
-					
-
-
-					
-					
-					return;
 				}
 
 			}
 		}
 		// Send end of turn
-		game.useActionOnTarget( this.player.getActionByLabel('stdEndTurn'), this.player );
+		game.useActionOnTarget( this.player.getActionByLabel('stdEndTurn'), this.player, this.player );
 
 	}
 
