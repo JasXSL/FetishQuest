@@ -629,6 +629,15 @@ class Action extends Generic{
 
 	}
 
+	// returns an array where each element corresponds to its Player.MOMENTUM index
+	getMomentumCostArray(){
+		return [
+			this.getMomentumCost(Player.MOMENTUM.Off),
+			this.getMomentumCost(Player.MOMENTUM.Def),
+			this.getMomentumCost(Player.MOMENTUM.Uti),
+		];
+	}
+
 	// Returns the combined amount of AP
 	getTotalMomentumCost(){
 		return this.mom0+this.mom1+this.mom2;

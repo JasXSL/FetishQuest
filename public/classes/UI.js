@@ -706,15 +706,9 @@ export default class UI{
 		for( let i = 0; i < maxPoints; ++i ){
 
 			let idx = pointsLen-i-1;
-			let pre = -1;
+			let pre = dots[i].dataset.i === undefined ? -1 : player.momentum[Math.trunc(dots[i].dataset.i)];
 			const cList = dots[i].classList;
-			if( cList.contains(momTypes[0]) )
-				pre = 0;
-			else if( cList.contains(momTypes[1]) )
-				pre = 1;
-			else if( cList.contains(momTypes[2]) )
-				pre = 2;
-		
+
 			cList.remove(...momTypes);
 			dots[i].dataset.i = idx;
 			if( i < currentPoints ){
@@ -1044,24 +1038,31 @@ export default class UI{
 		
 		if( !spell )
 			spell = this.action_selected;
-
+		
+		const dots = $("> div.point", this.resourceBar);
+		
 		if( !spell ){
-			$("div.stat div.point", this.action_selector).toggleClass('highlighted', false);
+			dots.toggleClass('highlighted', false);
 			return;
 		}
 
-		/*
-		Todo: Redraw teh AP stuff
-		let apCost = spell.getApCost(), ap = player.ap;
+		// Generates an array. We'll subtract from this one as we go
+		let costs = spell.getMomentumCostArray();
 		if( !game.battle_active )
-			apCost = 0;
+			costs = [0,0,0];
 		
-		if( apCost ){
-			let start = Math.max(apCost, ap);
-			for( let i = start-apCost; i<start; ++i )
-				$("div.stat.ap div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
+			
+		const maxPoints = Player.MAX_MOMENTUM;
+		for( let i = 0; i < maxPoints; ++i ){
+			
+			const currentType = dots[i].dataset.i === undefined ? -1 : player.momentum[Math.trunc(dots[i].dataset.i)];
+			const cost = costs[currentType];
+			const highlighted = cost > 0;
+			if( highlighted )
+				--costs[currentType];
+			dots[i].classList.toggle('highlighted', highlighted);
+
 		}
-		*/
 
 	}
 

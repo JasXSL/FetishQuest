@@ -3017,14 +3017,8 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 
 	#ui > div.actionbar > div.resources > div.point.highlighted{
-		box-shadow:0 0 1vh rgb(255,255,255);
+		box-shadow:0 0 0.25vh 0.5vh rgb(255,255,255) !important;
 		border:1px solid rgb(255,255,255);
-	}
-
-	#ui > div.actionbar > div.resources > div.point.highlighted:not(.filled){
-		background:rgba(255,100,100,0.5);
-		box-shadow:0 0 1vh rgb(255,200,200);
-		border:1px solid rgb(255,200,200);
 	}
 	
 	#ui > div.actionbar > div.resources > div{

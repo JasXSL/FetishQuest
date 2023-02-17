@@ -7,12 +7,8 @@ Offence: Deal damage, increase damage taken, increase damage done, add/increase 
 Defense: Block, reduce damage taken, reduce damage done, interrupt, decrease arousal/gen. 
 Utility: Healing, reduce spell cost, reduce cooldown, silence, remove arousal.
 
-
-Reroll momentum (player.reroll)
-	- Finish rerollMomentum function in Game.js
-Update the ability code to check for momentum instead of ap
-Update the UI to highlight based on momentum, from left to right
-
+- Update the turn switcher to work with NPCs
+- Update the NPCs to play in a random sequence
 
 Effect types on enemies (these don't stack, and only lasts until end of turn if used on enemy, and next turn if used on self):
 - Aggression - Increases damage done by 20% (offensive)
