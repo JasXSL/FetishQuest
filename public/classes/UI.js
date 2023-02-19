@@ -130,8 +130,10 @@ export default class UI{
 
 		this.blackScreen = $("#blackScreen");
 
-		this.text = $("#ui > div.middle > div.content");
-		this.csl = $("#ui > div.middle > div.chat");
+		this.momentumGain = $("#ui > div.momentumGain");
+		this.middle = $("#ui > div.middle");
+		this.text = $("> div.content", this.middle);
+		this.csl = $("> div.chat", this.middle);
 		this.gameIcons = $("#gameIcons");
 		this.multiCastPicker = $("#multiCastPicker");
 		this.roleplay = $("#roleplay");
@@ -177,7 +179,7 @@ export default class UI{
 		this.miniMapContent = $("> div.content", this.miniMap);
 		this.minimap_current_z = 0;
 		
-
+		this.momentum_gain = [];	// Cache of momentum icons
 
 		this.endTurnButton = null;
 
@@ -2036,6 +2038,58 @@ export default class UI{
 
 	}
 
+	// Draws momentum gained icons that spawn in the middle of the screen and then go down.
+	// Helper function
+	_animateMomentumGain( idx, type ){
+
+		const icon = this.momentum_gain[idx];
+		icon.classList.toggle('on', true);
+		const files = ["off","def","uti"];
+		game.uiAudio('momentum_'+files[type], 0.2, icon);
+
+	}
+	drawMomentumGain( numOff = 0, numDef = 0, numUti = 0 ){
+
+		let i; const incNum = numOff+numDef+numUti;
+		if( !incNum )
+			return;
+
+		// Create some new icons
+		for( i = 0; i < incNum; ++i ){
+
+			const icon = document.createElement('div');
+			icon.classList.add('momentumIcon');
+			this.momentumGain[0].append(icon);
+			this.momentum_gain.push(icon);
+
+		}
+
+		const momTypes = Player.MOMENTUM_NAMES_SHORT;
+		
+		let start = Math.floor(incNum/2);
+		if( !(incNum%2) )
+			start -= 0.5;
+		const leftStart = -10*start;
+		for( i = 0; i < incNum; ++i ){
+
+			let n = Player.MOMENTUM.Off;
+			if( i >= numDef+numOff )
+				n = Player.MOMENTUM.Uti;
+			else if( i >= numOff )
+				n = Player.MOMENTUM.Def;
+
+			const icon = this.momentum_gain[i];
+			icon.classList.toggle('on', false);
+			icon.classList.remove(...momTypes);
+			icon.classList.add(momTypes[n]);
+			icon.style.marginLeft = (leftStart+10*i)+'vmax';
+			setTimeout(this._animateMomentumGain.bind(this), 100*(i+1), i, n);
+
+		} 
+
+
+	}
+
 
 	/* Events */
 	onNewGame(){
@@ -2864,8 +2918,7 @@ export default class UI{
 			}
 			
 			else if( task == "auto" ){
-				// Todo: Need to run the game play as bots command
-				//game.getTurnPlayer().autoPlay(true);
+				game.autoPlay();
 				return;
 			}
 
@@ -3315,6 +3368,34 @@ export default class UI{
 		if( hotkeyEl.text !== hotkey )
 			hotkeyEl.text(hotkey);
 
+		// missing momentum
+		const 
+			missingOff = Math.max(0, action.getMomentumCost(Player.MOMENTUM.Off)-player.getMomentum(Player.MOMENTUM.Off)),
+			missingDef = Math.max(0, action.getMomentumCost(Player.MOMENTUM.Def)-player.getMomentum(Player.MOMENTUM.Def)),
+			missingUti = Math.max(0, action.getMomentumCost(Player.MOMENTUM.Uti)-player.getMomentum(Player.MOMENTUM.Uti)),
+			missingAll = missingOff+missingDef+missingUti
+		;
+		
+		let missingDivs = [];
+		for( let i = 0; i < missingAll; ++i ){
+
+			let ty = Player.MOMENTUM.Off;
+			if( i >= missingOff+missingDef )
+				ty = Player.MOMENTUM.Uti;
+			else if( i >= missingOff )
+				ty = Player.MOMENTUM.Def;
+
+			const div = document.createElement('div');
+			missingDivs.push(div);
+			const bg = document.createElement('div');
+			bg.classList.add('bg');
+			div.append(bg);
+			div.classList.add(Player.MOMENTUM_NAMES_SHORT[ty]);
+
+		}
+		button[0].querySelector('div.missingMom').replaceChildren(...missingDivs);
+		
+
 		// Tooltip
 		const ttEl = $('> div.tooltip', button);
 		ttEl.toggleClass('enabled disabled', false); // .toggleClass(castableClass, true);
@@ -3402,6 +3483,7 @@ UI.Templates = {
 			'<div class="uses"></div>'+
 			'<div class="cd"><span></span><img src="media/wrapper_icons/hourglass.svg" /></div>'+
 			'<div class="tooltip actionTooltip"></div>'+
+			'<div class="missingMom"></div>'+	// Missing momentum
 		'</div>',
 	getActionButtonGroup : function(){
 

@@ -1,7 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap'); /* Header */
 @import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap'); /* Good for books */
 @import url('https://fonts.googleapis.com/css2?family=Redressed&display=swap'); /* Fancy books */
-
+:root{
+	--iconOff : url(media/ui/fq_mom_atk.png);
+	--iconDef : url(media/ui/fq_mom_def.png);
+	--iconUti : url(media/ui/fq_mom_uti.png);
+}
 
 body, html{
 	margin:0;
@@ -361,167 +365,167 @@ div.scroll{
 
 
 /* FX */
-@keyframes takeDamage{
-	0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	10%{transform:translateX(5%);}
-	20%{transform:translateX(-4%);}
-	30%{transform:translateX(4%);}
-	40%{transform:translateX(-3%);}
-	50%{transform:translateX(3%); filter:none; }
-	60%{transform:translateX(-2%);}
-	70%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageCorruption{
-	0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(290deg) saturate(400%);}
-	10%{transform:translateX(5%);}
-	20%{transform:translateX(-4%);}
-	30%{transform:translateX(4%);}
-	40%{transform:translateX(-3%);}
-	50%{transform:translateX(3%); filter:none; }
-	60%{transform:translateX(-2%);}
-	70%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageElemental{
-	0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(220deg) saturate(400%);}
-	10%{transform:translateX(5%);}
-	20%{transform:translateX(-4%);}
-	30%{transform:translateX(4%);}
-	40%{transform:translateX(-3%);}
-	50%{transform:translateX(3%); filter:none; }
-	60%{transform:translateX(-2%);}
-	70%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageHoly{
-	0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(15deg) saturate(400%);}
-	10%{transform:translateX(5%);}
-	20%{transform:translateX(-4%);}
-	30%{transform:translateX(4%);}
-	40%{transform:translateX(-3%);}
-	50%{transform:translateX(3%); filter:none; }
-	60%{transform:translateX(-2%);}
-	70%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageStretchPC{
-	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	50%{transform:translateX(20%);}
-	60%{transform:translateX(25%); filter:none; }
-	70%{transform:translateX(-2%);}
-	75%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	85%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageStretchNPC{
-	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	50%{transform:translateX(-20%);}
-	60%{transform:translateX(-25%); filter:none; }
-	70%{transform:translateX(-2%);}
-	75%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	85%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageSqueeze{
-	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	50%{transform:scale(0.9, 0.9);}
-	60%{transform:scale(0.88, 0.88); filter:none; }
-	70%{transform:scale(1.03);}
-	80%{transform:scale(0.98);}
-	90%{transform:scale(1.01);}
-	100%{transform:none; }
-}
-@keyframes hitfxShake{
-	0%{transform:none;}
-	10%{transform:translateX(10%);}
-	20%{transform:translateX(-10%);}
-	30%{transform:translateX(5%);}
-	40%{transform:translateX(-5%);}
-	50%{transform:translateX(2.5%);}
-	60%{transform:translateX(-2.5%);}
-	70%{transform:translateX(1%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(0.5%);}
-	100%{transform:none;}
-}
-@keyframes buffBlue{
-	0%{transform:none; filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
-	60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
-	70%{transform:scale(1.03);}
-	80%{transform:scale(0.98);}
-	90%{transform:scale(1.01);}
-	100%{transform:none; }
-}
-@keyframes buffRed{
-	0%{transform:none; filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	70%{transform:scale(1.03);}
-	80%{transform:scale(0.98);}
-	90%{transform:scale(1.01);}
-	100%{transform:none; }
-}
+	@keyframes takeDamage{
+		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		10%{transform:translateX(5%);}
+		20%{transform:translateX(-4%);}
+		30%{transform:translateX(4%);}
+		40%{transform:translateX(-3%);}
+		50%{transform:translateX(3%); filter:none; }
+		60%{transform:translateX(-2%);}
+		70%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageCorruption{
+		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(290deg) saturate(400%);}
+		10%{transform:translateX(5%);}
+		20%{transform:translateX(-4%);}
+		30%{transform:translateX(4%);}
+		40%{transform:translateX(-3%);}
+		50%{transform:translateX(3%); filter:none; }
+		60%{transform:translateX(-2%);}
+		70%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageElemental{
+		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(220deg) saturate(400%);}
+		10%{transform:translateX(5%);}
+		20%{transform:translateX(-4%);}
+		30%{transform:translateX(4%);}
+		40%{transform:translateX(-3%);}
+		50%{transform:translateX(3%); filter:none; }
+		60%{transform:translateX(-2%);}
+		70%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageHoly{
+		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(15deg) saturate(400%);}
+		10%{transform:translateX(5%);}
+		20%{transform:translateX(-4%);}
+		30%{transform:translateX(4%);}
+		40%{transform:translateX(-3%);}
+		50%{transform:translateX(3%); filter:none; }
+		60%{transform:translateX(-2%);}
+		70%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageStretchPC{
+		0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		50%{transform:translateX(20%);}
+		60%{transform:translateX(25%); filter:none; }
+		70%{transform:translateX(-2%);}
+		75%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		85%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageStretchNPC{
+		0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		50%{transform:translateX(-20%);}
+		60%{transform:translateX(-25%); filter:none; }
+		70%{transform:translateX(-2%);}
+		75%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		85%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageSqueeze{
+		0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		50%{transform:scale(0.9, 0.9);}
+		60%{transform:scale(0.88, 0.88); filter:none; }
+		70%{transform:scale(1.03);}
+		80%{transform:scale(0.98);}
+		90%{transform:scale(1.01);}
+		100%{transform:none; }
+	}
+	@keyframes hitfxShake{
+		0%{transform:none;}
+		10%{transform:translateX(10%);}
+		20%{transform:translateX(-10%);}
+		30%{transform:translateX(5%);}
+		40%{transform:translateX(-5%);}
+		50%{transform:translateX(2.5%);}
+		60%{transform:translateX(-2.5%);}
+		70%{transform:translateX(1%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(0.5%);}
+		100%{transform:none;}
+	}
+	@keyframes buffBlue{
+		0%{transform:none; filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
+		60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
+		70%{transform:scale(1.03);}
+		80%{transform:scale(0.98);}
+		90%{transform:scale(1.01);}
+		100%{transform:none; }
+	}
+	@keyframes buffRed{
+		0%{transform:none; filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		70%{transform:scale(1.03);}
+		80%{transform:scale(0.98);}
+		90%{transform:scale(1.01);}
+		100%{transform:none; }
+	}
 
-@keyframes heal{
-	0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(40deg) saturate(200%);}
-	30%{transform:scale(1.05);}
-	75%{transform:scale(0.99);}
-}
-@keyframes arcaneCharge{
-	0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(285deg) saturate(200%);}
-	95%{transform:scale(1.05);}
-}
-div.fxTakeDamage{
-	animation: takeDamage 0.5s ease-in-out;
-}
-div.fxTakeDamageCorruption{
-	animation: takeDamageCorruption 0.5s ease-in-out;
-}
-div.fxTakeDamageElemental{
-	animation: takeDamageElemental 0.5s ease-in-out;
-}
-div.fxTakeDamageHoly{
-	animation: takeDamageHoly 0.5s ease-in-out;
-}
-div.fxHeal{
-	animation: heal 0.5s ease-in-out;
-}
-div.fxArcaneCharge{
-	animation: arcaneCharge 1s;
-}
-div.fxStretch{
-	animation: takeDamageStretchPC 0.75s ease-in-out;
-}
-div.fxShake{
-	animation: hitfxShake 0.75s ease-in-out;
-}
-div.right div.fxStretch{
-	animation: takeDamageStretchNPC 0.75s ease-in-out;
-}
-div.fxSqueeze{
-	animation: takeDamageSqueeze 0.5s ease-in-out;
-}
-div.fxBuffBlue{
-	animation: buffBlue 0.5s ease-in-out;
-}
-div.fxBuffRed{
-	animation: buffRed 0.5s ease-in-out;
-}
-div.passiveUpsideDown > div.content > div.bg{
-	transform:rotate(180deg) scaleX(-1);
-	background-position:center 90% !important;
-}
-
+	@keyframes heal{
+		0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(40deg) saturate(200%);}
+		30%{transform:scale(1.05);}
+		75%{transform:scale(0.99);}
+	}
+	@keyframes arcaneCharge{
+		0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(285deg) saturate(200%);}
+		95%{transform:scale(1.05);}
+	}
+	div.fxTakeDamage{
+		animation: takeDamage 0.5s ease-in-out;
+	}
+	div.fxTakeDamageCorruption{
+		animation: takeDamageCorruption 0.5s ease-in-out;
+	}
+	div.fxTakeDamageElemental{
+		animation: takeDamageElemental 0.5s ease-in-out;
+	}
+	div.fxTakeDamageHoly{
+		animation: takeDamageHoly 0.5s ease-in-out;
+	}
+	div.fxHeal{
+		animation: heal 0.5s ease-in-out;
+	}
+	div.fxArcaneCharge{
+		animation: arcaneCharge 1s;
+	}
+	div.fxStretch{
+		animation: takeDamageStretchPC 0.75s ease-in-out;
+	}
+	div.fxShake{
+		animation: hitfxShake 0.75s ease-in-out;
+	}
+	div.right div.fxStretch{
+		animation: takeDamageStretchNPC 0.75s ease-in-out;
+	}
+	div.fxSqueeze{
+		animation: takeDamageSqueeze 0.5s ease-in-out;
+	}
+	div.fxBuffBlue{
+		animation: buffBlue 0.5s ease-in-out;
+	}
+	div.fxBuffRed{
+		animation: buffRed 0.5s ease-in-out;
+	}
+	div.passiveUpsideDown > div.content > div.bg{
+		transform:rotate(180deg) scaleX(-1);
+		background-position:center 90% !important;
+	}
+/**/
 
 /* Shared */
 	/* Used by player art layer preview */
@@ -1033,7 +1037,7 @@ div.passiveUpsideDown > div.content > div.bg{
 /**/
 
 
-/* YOUR TURN*/
+/* Exploration Dungeon progress */
 	#dungeonProgress{
 
 		position: fixed;
@@ -1373,100 +1377,101 @@ div.passiveUpsideDown > div.content > div.bg{
 /**/
 
 /* Book overlay */
-#book{
-	position: fixed;
-	top:0; left:0; bottom:0; right:0;
-	background:rgba(0,0,0,.25);
-	backdrop-filter: blur(5px);
-	font-size:2vmax;
-	user-select: none;
-	font-family: 'Redressed', cursive;
-}
-#book.handwriting{
-	font-family: 'Rock Salt', cursive;
-}
-#book > div.mid{
-	position: absolute;
-	left:50%; top:50%;
-	transform:translate(-50%, -50%);
-	height:45vmax;
-	width:70vmax;
-	max-width:80%;
-	max-height: 80%;
-	background:#000;
-	background:url(media/ui/book.png);
-	background-size:100% 100%;
-	color:#000;
-}
-#book div.page{
-	/* Todo: custom font */
-	position: absolute;
-    top: 10%;
-    left: 15%;
-	width:30%;
-	overflow:hidden;
-}
-#book div.page.B{
-	left:auto;
-	right:15%;
-}
-#book div.pageNr{
-	position: absolute;
-	left:30%;
-	bottom:10%;
-	transform:translateX(-50%);
-}
-#book div.pageNr.B{
-	left:auto;
-	right:30%;
-}
-#book div.nav{
-	width:15%;
-	left:0;
-	font-size: 4vmax;
-	top:0;
-	bottom:0;
-	position:absolute;
-	cursor:pointer;
-}
-#book div.nav:hover div.icon{
-	color:#FFF;
-	text-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
-	
-}
-#book div.nav div.icon{
-	top: 50%;
-	right:0;
-	transform: translateY(-50%);
-	position:absolute;
-}
-#book div.nav.B{
-	right:0;
-	left:auto;
-}
-#book div.nav.B div.icon{
-	left:0; right:auto;
-}
-#book div.close{
-	position: absolute;
-    color: #FFF;
-    border: 3px double #AAA;
-    padding: 1vmax 3vmax;
-    bottom: -10%;
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 0.5vmax 0.5vmax 1vmax #000;
-    font-size: 3vmax;
-    user-select: none;
-    border-radius: 1vmax;
-	cursor: pointer;
-}
-#book div.close:hover{
-	filter:brightness(2);
-}
-#book div.close:active{
-	transform:translateX(-50%) scale(0.95, 0.95);
-}
+	#book{
+		position: fixed;
+		top:0; left:0; bottom:0; right:0;
+		background:rgba(0,0,0,.25);
+		backdrop-filter: blur(5px);
+		font-size:2vmax;
+		user-select: none;
+		font-family: 'Redressed', cursive;
+	}
+	#book.handwriting{
+		font-family: 'Rock Salt', cursive;
+	}
+	#book > div.mid{
+		position: absolute;
+		left:50%; top:50%;
+		transform:translate(-50%, -50%);
+		height:45vmax;
+		width:70vmax;
+		max-width:80%;
+		max-height: 80%;
+		background:#000;
+		background:url(media/ui/book.png);
+		background-size:100% 100%;
+		color:#000;
+	}
+	#book div.page{
+		/* Todo: custom font */
+		position: absolute;
+		top: 10%;
+		left: 15%;
+		width:30%;
+		overflow:hidden;
+	}
+	#book div.page.B{
+		left:auto;
+		right:15%;
+	}
+	#book div.pageNr{
+		position: absolute;
+		left:30%;
+		bottom:10%;
+		transform:translateX(-50%);
+	}
+	#book div.pageNr.B{
+		left:auto;
+		right:30%;
+	}
+	#book div.nav{
+		width:15%;
+		left:0;
+		font-size: 4vmax;
+		top:0;
+		bottom:0;
+		position:absolute;
+		cursor:pointer;
+	}
+	#book div.nav:hover div.icon{
+		color:#FFF;
+		text-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
+		
+	}
+	#book div.nav div.icon{
+		top: 50%;
+		right:0;
+		transform: translateY(-50%);
+		position:absolute;
+	}
+	#book div.nav.B{
+		right:0;
+		left:auto;
+	}
+	#book div.nav.B div.icon{
+		left:0; right:auto;
+	}
+	#book div.close{
+		position: absolute;
+		color: #FFF;
+		border: 3px double #AAA;
+		padding: 1vmax 3vmax;
+		bottom: -10%;
+		left: 50%;
+		transform: translateX(-50%);
+		box-shadow: 0.5vmax 0.5vmax 1vmax #000;
+		font-size: 3vmax;
+		user-select: none;
+		border-radius: 1vmax;
+		cursor: pointer;
+	}
+	#book div.close:hover{
+		filter:brightness(2);
+	}
+	#book div.close:active{
+		transform:translateX(-50%) scale(0.95, 0.95);
+	}
+/**/
 
 /* Inventory */
 	#inventory div.cmTabContent{
@@ -1712,16 +1717,16 @@ div.passiveUpsideDown > div.content > div.bg{
 /**/
 
 /* help */
-#help div.modalMain{
-	max-height:70vh;
-	min-width:50vw;
-	overflow: auto;
-	padding: 1vmax 5vmax;
-	font-size: 1.5vmax;
-}
-#help div.modalMain table{
-	width:100%;
-}
+	#help div.modalMain{
+		max-height:70vh;
+		min-width:50vw;
+		overflow: auto;
+		padding: 1vmax 5vmax;
+		font-size: 1.5vmax;
+	}
+	#help div.modalMain table{
+		width:100%;
+	}
 
 
 /**/
@@ -1754,10 +1759,11 @@ div.passiveUpsideDown > div.content > div.bg{
 /**/
 
 /* Transmog */
-#transmog div.inventory div.item.selected{
-	border-color:#FFF;
-	border-width: 0.3vmax;
-}
+	#transmog div.inventory div.item.selected{
+		border-color:#FFF;
+		border-width: 0.3vmax;
+	}
+/**/
 
 /* Players */
 	#ui > div.players{
@@ -2491,7 +2497,59 @@ div.passiveUpsideDown > div.content > div.bg{
 		font-style: italic;
 	}
 
+
 /**/
+
+/*	MOMENTUM GAIN ICONS */
+	#ui > div.momentumGain{
+		pointer-events: none;
+		position: absolute;
+		top:0; left:0; right:0; bottom: 0;
+	}
+	#ui > div.momentumGain > div.momentumIcon{
+		width: 10vmax;
+		height: 10vmax;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform:translate(-50%,-50%);
+		background:var(--iconOff);
+		background-size: contain;
+		display:none;
+	}
+	#ui > div.momentumGain > div.momentumIcon.Def{
+		background-image:var(--iconDef);
+	}
+	#ui > div.momentumGain > div.momentumIcon.Uti{
+		background-image:var(--iconUti);
+	}
+	@keyframes momentumIconIn{
+		from{
+			transform:translate(-50%, -50%) scale(0.01);
+		}
+		to{ 
+			transform:translate(-50%, -50%) scale(1.0);
+		}
+	}
+	@keyframes momentumIconOut{
+		from{
+			top:50%;
+			transform:translate(-50%, -50%) scale(1.0);
+		}
+		to{
+			top:110%;
+			transform:translate(-50%, -50%) scale(.1);
+		}
+	}
+	
+	#ui > div.momentumGain > div.momentumIcon.on{
+		display:block;
+		animation: momentumIconIn 200ms ease-out, momentumIconOut cubic-bezier(0.975, 0.005, 0.990, 0.980) 250ms forwards;
+		animation-delay: 0ms, 1000ms;
+	}
+
+/**/
+
 
 /* Mini chat */
 	#mapChat{
@@ -2922,6 +2980,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		background-size:contain;
 		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(130deg);
 	}
+/**/
 
 /* Action bar */
 	#ui > div.actionbar{
@@ -3131,6 +3190,40 @@ div.passiveUpsideDown > div.content > div.bg{
 		color:#FEE;
 
 	}
+
+	div.action > div.missingMom{
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+	div.action > div.missingMom > div{
+		background: rgba(0,0,0,0.75);
+		margin: 1px;
+		border-radius: 1vmax;
+	}
+	div.action > div.missingMom > div > div.bg{
+		width:1.5vmax;
+		height: 1.5vmax;
+		background-size: contain;
+	}
+	div.action > div.missingMom div.Off{ border:2px solid #FAA; }
+	div.action > div.missingMom div.Def{ border:2px solid #AAF; }
+	div.action > div.missingMom div.Uti{ border:2px solid #FAF; }
+
+	div.action > div.missingMom div.Off > div.bg{
+		background-image:var(--iconOff);
+	}
+	div.action > div.missingMom > div.Def > div.bg{
+		background-image:var(--iconDef);
+	}
+	div.action > div.missingMom > div.Uti > div.bg{
+		background-image:var(--iconUti);
+	}
+	
+	
 	div.actions div.action div.cd > img,
 	#ui > div.actionbar > div.actions div.cd > img {
 		height: 100%;
@@ -3914,16 +4007,18 @@ div.passiveUpsideDown > div.content > div.bg{
 	#fct > div.text.ap{ color:#8F8; }
 	#fct > div.text.armor{ color:#888; }
 	#fct > div.text.arousal{ color:#F8F; }
+/**/
+
 
 /* Color constants */
 	*.colorOffensive{ color:#F88; }
 	*.colorDefensive{ color:#88F; }
 	*.colorUtility{ color:#F8F; }
 	
-
+/*/
 
 /* HIDE IF NOT MOBILE */
-#mainMenuToggle{
-	display:none;
-}
-
+	#mainMenuToggle{
+		display:none;
+	}
+/*/

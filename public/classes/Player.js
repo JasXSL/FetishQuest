@@ -1297,17 +1297,25 @@ export default class Player extends Generic{
 		this.incMom = [];	// Stores incoming momentum
 		
 		// Then class momentum
-		this.addMomentum(Player.getValidMomentum(this.class.momType), 1, false);
+		let addedMomentum = this.addMomentum(Player.getValidMomentum(this.class.momType), 1, false);
 		
+
 		// Finally random momentum
-		let total = 3+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
+		let total = 2+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
 		total *= this.getGenericAmountStatMultiplier(Effect.Types.momentumRegen);
 		total = randRound(total);
-		if( total < 0 )
-			total = 0;
-		for( let i = 0 ; i < total; ++i )
-			this.addMomentum(Player.MOMENTUM.All, 1);	// random momentum
+		if( total > 0 ){
+			const add = this.addMomentum(Player.MOMENTUM.All, total);	// random momentum
+			addedMomentum[0] += add[0];
+			addedMomentum[1] += add[1];
+			addedMomentum[2] += add[2];
+		}
 		
+		if( Game.net.isInNetgameHost() )
+			Game.net.dmDrawMomentumGain(this, addedMomentum);
+		if( game.is_host && this === game.getMyActivePlayer() )
+			game.ui.drawMomentumGain(...addedMomentum);
+
 		this._turn_action_used = 0;
 		this._turn_ap_spent = 0;		// Todo: probably want this by type later
 		
@@ -2483,7 +2491,7 @@ export default class Player extends Generic{
 		}
 		// Nothing to change. Also prevents division by 0.
 		if( !amount )
-			return;
+			return out;
 
 		let amts = [
 			type === Player.MOMENTUM.Off && amount || 0,
@@ -2536,7 +2544,7 @@ export default class Player extends Generic{
 			this.reroll = 0;
 	}
 
-	// Reroll a point of momentum from one type to another
+	// Reroll a point of momentum from one type to another. Returns the type it was rolled into or boolean false on fail
 	rerollMomentum( type ){
 		
 		type = Player.getValidMomentum(type);
@@ -2565,7 +2573,7 @@ export default class Player extends Generic{
 		targ = targ%3;
 		this.addMomentum(type, -1);
 		this.addMomentum(targ, 1);
-		return true;
+		return targ;
 
 	}
 
@@ -4286,7 +4294,7 @@ Player.MAX_LEVEL = 14;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
-Player.MAX_MOMENTUM = 12;	// Hardcoded limit. Technically can go up to 26 without violating Number.MAX_SAFE_INTEGER
+Player.MAX_MOMENTUM = 9;	// Hardcoded limit. Technically can go up to 26 without violating Number.MAX_SAFE_INTEGER
 							// The reason for this is that the array is packed into a single int made up of 2-bit values when transferred
 
 

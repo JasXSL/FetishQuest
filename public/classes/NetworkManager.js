@@ -633,13 +633,15 @@ class NetworkManager{
 	
 	// Lets DMs send custom tasks to players
 	sendHostTaskTo( id, task, data ){
-		if( !this.isConnected() || !game.is_host )
+
+		if( !this.isConnected() || !game.is_host || !id )
 			return;
 		this.io.emit('dmTask', {
 			player : id,
 			task : task,
 			data : data
 		});
+
 	}
 
 	// Sends a task from host to everyone
@@ -1374,6 +1376,11 @@ class NetworkManager{
 			game.ui.toggle(args.on);
 
 		}
+		else if( task === NetworkManager.dmTasks.drawMomentumGain ){
+			
+			game.ui.drawMomentumGain(...args.mom);
+
+		}
 
 	}
 
@@ -1932,8 +1939,14 @@ class NetworkManager{
 	}
 
 	dmToggleUI( on ){
-
 		this.sendHostTask(NetworkManager.dmTasks.toggleUI, {on:on});
+	}
+
+	dmDrawMomentumGain( player, types = [] ){
+
+		this.sendHostTaskTo(player.netgame_owner, NetworkManager.dmTasks.drawMomentumGain, {
+			mom : types
+		});
 
 	}
 
@@ -2119,6 +2132,7 @@ NetworkManager.dmTasks = {
 	inMenu : 'inMenu',								// {in:{netgame_id:(int)menu}}
 	getLargeAsset : 'getLargeAsset',				// {type:(str)type, asset:(obj)asset_data} - Counterpart to playerTasks getLargeAsset
 	toggleUI : 'toggleUI',							// {on:(bool)on} - Forces the UI to open or close
+	drawMomentumGain : 'drawMomentumGain',			// {mom:(arr)types} - Draws momentum gain at start of turn. Type is an array with nr for each type ex [5,1,0] -> 5 off, 1 def, 0 uti
 };
 
 // Player -> DM

@@ -920,7 +920,7 @@ class Action extends Generic{
 
 			}
 
-			let maxWrappers = this.max_wrappers;
+			const maxWrappers = this.max_wrappers;
 			let successes = 0;
 			for( let wrapper of this.wrappers ){
 

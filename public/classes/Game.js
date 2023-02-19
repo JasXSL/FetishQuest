@@ -2674,9 +2674,12 @@ export default class Game extends Generic{
 			}).raise();
 			const others = this.getPlayersNotOnTeam(this.initiative[this.turn]);	// Not sure why player first turn is raised with everyone not on the team as a target. Maybe one day I'll find out.
 
+			this.autoUpdateSelectedPlayer(); // Needs to go here because onTurnStart relies on it
+
 			for( let pl of turnPlayers ){
 				
 				this.ui.captureActionMessage = true;
+				
 				pl.onTurnStart();
 				// pl._turns are added on turn end
 				if( !pl._turns ){
@@ -2705,7 +2708,6 @@ export default class Game extends Generic{
 
 		clearTimeout(this._bot_timer);
 		this._bot_timer = setTimeout(this.autoPlay.bind(this), 1000);
-		this.autoUpdateSelectedPlayer();
 		this.save();
 		this.ui.draw();
 		
@@ -2841,9 +2843,17 @@ export default class Game extends Generic{
 		if( !this.is_host )
 			return Game.net.playerRerollMomentum(player, type);
 
-		// Todo: play sound
-		if( !player.rerollMomentum(type) )
+		
+		const rolledTo = player.rerollMomentum(type);
+		if( rolledTo === false ) // Note: May be 0, type check is a must
 			throw 'Invalid momentum';
+
+		let added = [0,0,0];
+		added[rolledTo] = 1;
+
+		if( Game.net.isInNetgameHost() )
+			Game.net.dmDrawMomentumGain(player, added);
+		this.ui.drawMomentumGain(...added);
 
 		player.consumeReroll();
 		this.save();
