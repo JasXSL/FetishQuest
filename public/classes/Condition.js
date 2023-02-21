@@ -348,6 +348,17 @@ export default class Condition extends Generic{
 				success = room?.hasTag(this.data.tags) || dungeon?.hasTag(this.data.tags);
 
 			}
+			else if( this.type === T.gameActionDataTags ){
+
+				const tags = toArray(this.data.tags);
+				// Searches any attached action for a tag
+				success = event.gameAction?.data?.tags?.some(e => {
+					return tags.includes(e);
+				});
+
+			}
+
+			
 
 			else if( this.type === T.actionCrit ){
 				success = event.action && event.action._crit;
@@ -1504,6 +1515,8 @@ Condition.Types = {
 	numRpTargets : 'numRpTargets',
 	mathVarCompare : 'mathVarCompare',
 	blockValue : 'blockValue',
+
+	gameActionDataTags : 'gameActionDataTags',
 };
 
 
@@ -1611,6 +1624,7 @@ Condition.descriptions = {
 	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
 	[Condition.Types.isTaunted] : '{byCaster:(bool)=false} Checks if the target is taunted.',
 	[Condition.Types.mathVarCompare] : '{label:(str)mathVar, val:(var)testval} - Checks if a mathvar is val. mathVar accepts Calculator target consts. Use this if you want to compare strings. Otherwise use the formula condition. You can check multiple targets by using target consts, so generally you want to only check this against target 0 for speed.',
+	[Condition.Types.gameActionDataTags] : '{tags:(arr/str)tag} - Requires gameAction in event, and gameAction.data.tags must be an array. Primarily used to validate waht skills you can learn at a gym.', 
 };
 
 

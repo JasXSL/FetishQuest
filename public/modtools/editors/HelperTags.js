@@ -127,7 +127,7 @@ export default {
 
 			targ = targ[f.shift()];
 			if( typeof targ !== "object" ){
-				console.error("UNable to set ", field, "on", asset, "path not found");
+				console.error("Unable to set ", field, "on", asset, "path not found");
 				return false;
 			}
 

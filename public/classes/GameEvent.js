@@ -27,6 +27,7 @@ export default class GameEvent extends Generic{
 		this.encounter = null;			
 		this.dungeon = null;
 		this.room = null;			
+		this.gameAction = null;
 		this.dungeonRoomAsset = null;
 		this.wrapperReturn = null;		// See WrapperReturn @ EffectSys.js
 		this.text = null;				// Text object

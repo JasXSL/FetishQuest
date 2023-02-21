@@ -1062,6 +1062,8 @@ class Effect extends Generic{
 				s = target;
 			}
 
+			const sMajor = s.getMajorEffects();
+			const tMajor = t.getMajorEffects();
 			
 			// Do damage or heal
 			if( this.type === Effect.Types.damage ){
@@ -1097,6 +1099,15 @@ class Effect extends Generic{
 					amt = randRound(amt);
 					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalHealingDoneMod, t );
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalHealingTakenMod, s );
+					// Major mending = +50% for sender
+					if( sMajor & Effect.Major.Mending )
+						amt *= 1.5;
+					// Major blessing = +50% for target
+					if( tMajor & Effect.Major.Blessing )
+						amt *= 1.5;
+					// Major defile = -50% for target
+					if( tMajor & Effect.Major.Defile )
+						amt *= 0.5;
 
 					// Set event types
 					e = GameEvent.Types.healingDone;
@@ -1140,9 +1151,23 @@ class Effect extends Generic{
 					// Multipliers last
 					amt *= Player.getBonusDamageMultiplier( s,t,type,wrapper.detrimental ); // Negative because it's damage
 					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t );
+
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
 					amt *= t.getArmorDamageMultiplier( s, this );
 
+					// Major aggression: +30% for sender
+					if( sMajor & Effect.Major.Aggression )
+						amt *= 1.3;
+					// Major weakness: -30% for sender
+					if( sMajor & Effect.Major.Weakness )
+						amt *= 0.7;
+					// Major defense: -30% for target 
+					if( tMajor & Effect.Major.Defense )
+						amt *= 0.7;
+					// Major vulnerability: +30% for target 
+					if( tMajor & Effect.Major.Vulnerability )
+						amt *= 1.3;
+					
 					
 					amt = randRound(amt);
 					if( amt > 0 )
@@ -1196,6 +1221,15 @@ class Effect extends Generic{
 					let ch = Math.abs(amt*procChance);
 
 					ch *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
+					// Major sensitivity: +100% for target
+					if( tMajor & Effect.Major.Sensitivity )
+						ch *= 2;
+					// Major focus: -50% for target
+					if( tMajor & Effect.Major.Focus )
+						ch *= 0.5;
+					// Major touch: +50% for sender
+					if( sMajor & Effect.Major.Touch )
+						ch *= 1.5;
 					
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 					const start = t.arousal;
@@ -1398,9 +1432,20 @@ class Effect extends Generic{
 					}).mergeUnset(event)
 				);
 
-				if( amt > 0 )
-					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );				
+				if( amt > 0 ){
 
+					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
+					// Major sensitivity: +100% for target
+					if( tMajor & Effect.Major.Sensitivity )
+						ch *= 2;
+					// Major focus: -50% for target
+					if( tMajor & Effect.Major.Focus )
+						ch *= 0.5;
+					// Major touch: +50% for sender
+					if( sMajor & Effect.Major.Touch )
+						ch *= 1.5;
+
+				}
 				if( !this.no_stack_multi )
 					amt *= this.parent.getStacks();
 
@@ -2319,6 +2364,34 @@ Effect.createStatBonus = function( type, bonus ){
 
 };
 
+// These are major hard-coded effects. They don't stack, but can be reused in many places. 
+// They use bitwise to make it easier to have multiple wrappers active that apply the same effect, and with varying durations
+// The primary purpose to doing it like this is to simplify buffs and debuffs for developers.
+Effect.Major = {
+	Aggression : 0x1,		// +30% damage done
+	Defense : 0x2,			// -30% Damage taken
+	Vulnerability : 0x4,	// +30% Damage taken
+	Weakness : 0x8,			// -30% Damage done
+	Sensitivity : 0x10,		// +100% arousal taken
+	Focus : 0x20,			// -50% arousal taken
+	Defile : 0x40,			// -50% healing received
+	Blessing : 0x80,		// +50% healing received
+	Mending : 0x100,		// +50% healing done
+	Momentum : 0x200,		// +1 momentum regen
+	Lifesteal : 0x400,		// +2 HP to any player attacking the target
+	Accuracy : 0x800,		// +30% hit chance
+	Touch : 0x1000,			// +50% arousal generated
+	Laze : 0x2000,			// -1 momentum regen
+	Brawn : 0x4000, 		// +5 physical proficiency
+	Corruption : 0x8000,	// +5 corruption proficiency
+	Arcana : 0x10000,		// +5 arcane proficiency
+	Atrophy : 0x20000,		// -5 Physical proficiency
+	Purification : 0x40000,	// -5 corruption proficiency
+	Dull : 0x80000,			// -5 Arcane proficiency
+	Clumsy : 0x100000,		// -30% hit chance
+	Penetration : 0x200000,	// +50% armor penetration
+};
+
 // These are the actual effect types that the game runs off of
 Effect.Types = {
 	none : 'none',
@@ -2431,6 +2504,7 @@ Effect.Types = {
 	globalArmorPen : 'globalArmorPen',
 	clairvoyance : 'clairvoyance',
 	untargetable : 'untargetable',
+	majorEffect : 'majorEffect',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2495,6 +2569,7 @@ Effect.Passive = {
 	[Effect.Types.clairvoyance] : true,
 	[Effect.Types.untargetable] : true,
 	[Effect.Types.actionRiposte] : true,
+	[Effect.Types.majorEffect] : true,
 
 };
 
@@ -2615,6 +2690,8 @@ Effect.TypeDescs = {
 	[Effect.Types.addRandomTags] : '{tags:(arr)tag_objs, amount:(int)amount=1} - Adds a random set of tags from tag_objs. Tag objects consist of {tags:(arr/str)tags, conds:(arr)conditions}',
 	[Effect.Types.summonAsset] : '{asset:(str)assetLabel, equip:(bool)autoEquip=true} - Creates an asset and puts it in the target inventory. If equip is set, it equips as well.',
 	[Effect.Types.untargetable] : '{exceptions:(arr)actionLabels, beneficial:(bool)allowBeneficial=false, allow_aoe:(bool)=false} - Makes you untargetable by other players actions. If allowBeneficial is true, it allows you to be targeted by beneficial abilities. If allow AOE it allows you to be targeted by AoE.',
+	[Effect.Types.majorEffect] : '{effect:(int)bitwise} - Sets a major effect. These are hard-coded effects that are made to simplify .',
+
 };
 
 

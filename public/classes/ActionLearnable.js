@@ -25,8 +25,6 @@ export default class ActionLearnable extends Generic{
 		this.load(data);
 	}
 
-	
-
 	load(data){
 		this.g_autoload(data);
 	}
@@ -53,11 +51,11 @@ export default class ActionLearnable extends Generic{
 
 	}
 
-	validate( player, debug ){
+	validate( player, gymGameAction, debug ){
 
 		if( player.generated !== this.gen_only )
 			return false; 
-		const evt = new GameEvent({sender:player, target:player});
+		const evt = new GameEvent({sender:player, target:player, gameAction:gymGameAction});
 		try{
 			return Condition.all(this.conditions, evt, debug);
 		}catch(err){

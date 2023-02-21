@@ -490,19 +490,24 @@ export default class StaticModal{
 				this.available = $("div.left > div.available", actives);
 
 			})
+			// gymPlayer is the player who offers the gym. gym is the gym tied to him
 			.setDraw(function( gymPlayer ){
 
 				const player = game.getMyActivePlayer();
 				if( !player )
+					return;
+				const gym = game.getGymsByPlayer(gymPlayer, player)[0];
+				if( !gym )
 					return;
 
 				self.generateWallet(this.money);
 
 				// Inactive learned actions
 				const inactive = player.actions.filter(action => {
-					return !action.std && !action.hidden && !action.semi_hidden;
-				}),
-					learnable = player.getUnlockableActions();
+						return !action.std && !action.hidden && !action.semi_hidden;
+					}),
+					learnable = player.getUnlockableActions(gym)
+				;
 
 				let inactiveEls = $("> div.action", this.available),
 					learnableEls = $("> div.learnable", this.purchasable);

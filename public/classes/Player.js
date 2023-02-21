@@ -1298,11 +1298,19 @@ export default class Player extends Generic{
 		
 		// Then class momentum
 		let addedMomentum = this.addMomentum(Player.getValidMomentum(this.class.momType), 1, false);
+	
 		
+		const major = this.getMajorEffects();
 
 		// Finally random momentum
 		let total = 2+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
 		total *= this.getGenericAmountStatMultiplier(Effect.Types.momentumRegen);
+		// Major momentum: Add 1 extra momentum at the start of turn
+		if( major & Effect.Major.Momentum )
+			++total;
+		// Major laze: remove 1 momentum at the start of turn
+		if( major & Effect.Major.Laze )
+			--total;
 		total = randRound(total);
 		if( total > 0 ){
 			const add = this.addMomentum(Player.MOMENTUM.All, total);	// random momentum
@@ -1469,8 +1477,11 @@ export default class Player extends Generic{
 			this._d_damaging_since_last[target.id] = {};
 		if(!this._d_damaging_since_last[target.id][type])
 			this._d_damaging_since_last[target.id][type] = 0;
-		
 		++this._d_damaging_since_last[target.id][type];
+
+		// Major Lifesteal: Gain 2 HP when attacking target
+		if( !this.isDead() && this.getMajorEffects() & Effect.Major.Lifesteal )
+			this.addHP(2, this, undefined, undefined, undefined, true);
 
 	}
 	onHealingAttackDone( target, type ){
@@ -2878,14 +2889,37 @@ export default class Player extends Generic{
 	// SV Types
 	getSV( type ){
 
-		return Math.floor(
-			(
-				this.getGenericAmountStatPoints('sv'+type)+
-				this.getLevel()+
-				(this.class ? this.class['sv'+type] : 0)+
-				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)
-			)*this.getGenericAmountStatMultiplier('sv'+type, this)
-		);
+		let out = 
+			this.getGenericAmountStatPoints('sv'+type)+
+			this.getLevel()+
+			(this.class ? this.class['sv'+type] : 0)+
+			(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)
+		;
+		const major = this.getMajorEffects();
+		// Major Brawn, Major Atrophy
+		if( type === Action.Types.physical ){
+			if( major & Effect.Major.Brawn )
+				out += 5;
+			if( major & Effect.Major.Atrophy )
+				out -= 5;
+		}
+		// Major Corruption, Major Purification
+		else if( type === Action.Types.corruption ){
+			if( major & Effect.Major.Corruption )
+				out += 5;
+			if( major & Effect.Major.Purification )
+				out -= 5;
+		}
+		// Major Arcana, Major Dull
+		else if( type === Action.Types.arcane ){
+			if( major & Effect.Major.Arcana )
+				out += 5;
+			if( major & Effect.Major.Dull )
+				out -= 5;
+		}
+		
+		return Math.trunc(out*this.getGenericAmountStatMultiplier('sv'+type, this));
+
 	}
 
 	// Bon types
@@ -2992,6 +3026,19 @@ export default class Player extends Generic{
 		return out;
 	}
 
+	// Returns the major effect flags
+	getMajorEffects(){
+
+		let out = 0;
+		const effects = this.getActiveEffectsByType(Effect.Types.majorEffect);
+		for( let effect of effects ){
+			const n = Math.trunc(effect.effect) || 0;
+			out = out | n;
+		}
+		return out;
+
+	}
+
 	getArmorPoints( modified = true ){
 
 		let out = this.armor;
@@ -3021,14 +3068,19 @@ export default class Player extends Generic{
 	getArmorDamageMultiplier( sender, effect ){
 
 		let reduction = this.getArmorPoints();
-
+		
 		// If sender is present, lower by the sender's armor penetration
 		if( sender ){
 
 			// Get armor penetration percentage
 			let armorPen = sender.getGenericAmountStatPoints(Effect.Types.globalArmorPen, this)/100;
+			const major = this.getMajorEffects();
+			// Major penetration: Add an extra 50% flat penetration
+			if( major & Effect.Major.Penetration )
+				armorPen += 0.5;
+			
 			// Reduce damage reduction by armor pen
-			reduction *= (1-armorPen);
+			reduction *= Math.max(0, 1-armorPen);
 			
 		}
 
@@ -3044,7 +3096,7 @@ export default class Player extends Generic{
 
 		}
 
-		return 1-reduction/100;
+		return Math.max(0, 1-reduction/100);
 
 	}
 	
@@ -3555,7 +3607,7 @@ export default class Player extends Generic{
 	}
 
 	// Returns ActionLearnable objects that can be unlocked by this player
-	getUnlockableActions(){
+	getUnlockableActions( gymGameAction ){
 
 		let out = [];
 		let lib = Object.values(glib.getFull("ActionLearnable"));
@@ -3563,7 +3615,7 @@ export default class Player extends Generic{
 
 			if( a.auto_learn || this.getLearnedActionByLabel(a.action) )
 				continue;
-			if( a.validate(this) )
+			if( a.validate(this, ) )
 				out.push(a);
 
 		}
@@ -4104,6 +4156,14 @@ export default class Player extends Generic{
 		let modifier = (1+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05))
 			*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod, victim)
 		;
+		// Major accuracy: 30% increased chance from attacker
+		if( attacker.getMajorEffects() & Effect.Major.Accuracy )
+			modifier *= 1.3;
+		// Major clumsy: -30% increased chance from attacker
+		if( attacker.getMajorEffects() & Effect.Major.Clumsy )
+			modifier *= 0.7;
+		
+
 		if( modifier < 0.1 )
 			modifier = 0.1;
 

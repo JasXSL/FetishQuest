@@ -304,7 +304,7 @@ export function asset(){
 		html += buildActionTypeSelect('data::type', asset.data.type, true);
 
 	}
-	else if( type === types.actionTag || type === types.roomTag ){
+	else if( type === types.actionTag || type === types.roomTag || type === types.gameActionDataTags ){
 
 		setDefaultData({
 			tags : [],
