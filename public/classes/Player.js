@@ -2896,26 +2896,17 @@ export default class Player extends Generic{
 			(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)
 		;
 		const major = this.getMajorEffects();
-		// Major Brawn, Major Atrophy
-		if( type === Action.Types.physical ){
-			if( major & Effect.Major.Brawn )
-				out += 5;
-			if( major & Effect.Major.Atrophy )
-				out -= 5;
+		// Major Stagger
+		if( type === Action.Types.physical && major & Effect.Major.Stagger ){
+			out -= 5;
 		}
-		// Major Corruption, Major Purification
-		else if( type === Action.Types.corruption ){
-			if( major & Effect.Major.Corruption )
-				out += 5;
-			if( major & Effect.Major.Purification )
-				out -= 5;
+		// Major Purification
+		else if( type === Action.Types.corruption && major & Effect.Major.Sensitivity ){
+			out -= 5;
 		}
-		// Major Arcana, Major Dull
-		else if( type === Action.Types.arcane ){
-			if( major & Effect.Major.Arcana )
-				out += 5;
-			if( major & Effect.Major.Dull )
-				out -= 5;
+		// Major Conduit
+		else if( type === Action.Types.arcane && major & Effect.Major.Conduit ){
+			out -= 5;
 		}
 		
 		return Math.trunc(out*this.getGenericAmountStatMultiplier('sv'+type, this));
@@ -2925,15 +2916,26 @@ export default class Player extends Generic{
 	// Bon types
 	getBon( type ){
 
-		return Math.floor(
-			(
-				this.getGenericAmountStatPoints('bon'+type)+
+		let out = this.getGenericAmountStatPoints('bon'+type)+
 				this.getLevel()+
 				(this.class ? this.class['bon'+type] : 0)+
 				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)
-			)*this.getGenericAmountStatMultiplier('bon'+type, this)
-		);
+		;
+		// Major Brawn
+		if( type === Action.Types.physical && major & Effect.Major.Brawn ){
+			out += 5;
+		}
+		// Major Corruption
+		else if( type === Action.Types.corruption && major & Effect.Major.Corruption ){
+			out += 5;
+		}
+		// Major Arcana
+		else if( type === Action.Types.arcane && major & Effect.Major.Arcana ){
+			out += 5;
+		}
 
+		return Math.trunc(out*this.getGenericAmountStatMultiplier('bon'+type, this));
+		
 	}
 
 	// Returns the sum of effect.data.amount of an effect with type, and that aren't multiplicative

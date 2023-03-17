@@ -1221,9 +1221,6 @@ class Effect extends Generic{
 					let ch = Math.abs(amt*procChance);
 
 					ch *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
-					// Major sensitivity: +100% for target
-					if( tMajor & Effect.Major.Sensitivity )
-						ch *= 2;
 					// Major focus: -50% for target
 					if( tMajor & Effect.Major.Focus )
 						ch *= 0.5;
@@ -1435,9 +1432,6 @@ class Effect extends Generic{
 				if( amt > 0 ){
 
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
-					// Major sensitivity: +100% for target
-					if( tMajor & Effect.Major.Sensitivity )
-						ch *= 2;
 					// Major focus: -50% for target
 					if( tMajor & Effect.Major.Focus )
 						ch *= 0.5;
@@ -2372,7 +2366,7 @@ Effect.Major = {
 	Defense : 0x2,			// -30% Damage taken
 	Vulnerability : 0x4,	// +30% Damage taken
 	Weakness : 0x8,			// -30% Damage done
-	Sensitivity : 0x10,		// +100% arousal taken
+	//Sensitivity : 0x10,		// +100% arousal taken
 	Focus : 0x20,			// -50% arousal taken
 	Defile : 0x40,			// -50% healing received
 	Blessing : 0x80,		// +50% healing received
@@ -2385,9 +2379,9 @@ Effect.Major = {
 	Brawn : 0x4000, 		// +5 physical proficiency
 	Corruption : 0x8000,	// +5 corruption proficiency
 	Arcana : 0x10000,		// +5 arcane proficiency
-	Atrophy : 0x20000,		// -5 Physical proficiency
-	Purification : 0x40000,	// -5 corruption proficiency
-	Dull : 0x80000,			// -5 Arcane proficiency
+	Stagger : 0x20000,		// -5 Physical avoidance.
+	Sensitivity : 0x40000,	// -5 corruption avoidance.
+	Conduit : 0x80000,		// -5 Arcane avoidance.
 	Clumsy : 0x100000,		// -30% hit chance
 	Penetration : 0x200000,	// +50% armor penetration
 };
