@@ -911,6 +911,8 @@ class Action extends Generic{
 								resist : true
 							}
 						}).raise();
+						sender.onMissDone(target);
+						target.onMissReceived(sender);
 
 					}
 

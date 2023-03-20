@@ -1,3 +1,5 @@
+
+
 Overhaul food:
 - Make food buffs unique
 
@@ -6,63 +8,75 @@ Issues:
 - Make the action adder show icons
 
 New actions:
+Todo:
+	- Go over tank abilities, make sure they generate extra threat
+	- Go over all abilities and set ac_damage / ac_heal appropriately
+	- Go over all abilities and check if detrimental is checked properly
+	- Go over all abilities and check if wrappers have detrimental checked properly
+	- Finish monk/elementalist/necro
+	- Finish visuals and texts for the previous ones
+	- Add to gyms
+	- Test
+	
+
 x = done
 v = need visuals
 t = need texts
 
-Warrior: Tank. Reduces incoming damage. Lots of blocking.
+  x Warrior: Tank. Reduces incoming damage. Lots of blocking.
 x Bolster (auto): Grant 8 block and removes 1 arousal. Being hit by a damaging action grants the caster 1 defensive momentum.
 x Vice Grip (auto): Deals damage and taunts 2 enemies.
 x Masochism (auto): Same as today
-vt Harden: Prevents block from falling off this turn, and grants your party major defense for 1 turn.
+x Harden: Prevents block from falling off this turn, and grants your party major defense for 1 turn.
 
-Rogue: DPS. Deals damage and crits.
+(test)  - Rogue: DPS. Deals damage and crits.
 x Sneak Attack: Same as today.
 x Exploit: Same as today.
 x Combo Breaker: Deal 4 corruption damage and interrupts. Always critically hits if your target is charging an action.
-t Advantage: Deal 4 corruption damage. Has a 10% crit chance per point of arousal your target has. 
+x Advantage: Deal 4 corruption damage. Has a 10% crit chance per point of arousal your target has. 
 
-Cleric: Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive.
-1. Heal. Same as today, minus the preventing block from falling off. Heal 4 HP plus another 10 multiplied by target's missing HP percentage.
-2. Radiant heal: Puts a healing over time spell on all players that also grants Major Blessing, increasing healing taken by 30%.
-3. Reserection. Fully heals a player. Can only be used once per combat. Free and instant cast. Can be used on defeated players.
-4. Penance: Makes your healing abilities do damage this turn.
 
-Tentaclemancer-  Tank (utility): Tanks by weakening enemies.
-1. Restrain: Major Weaken up to 2 targets for 1 turn, reducing their damage done by 30%. 
-2. Constrict: Taunt up to 2 targets and prevent them from gaining offensive momentum for 1 turn.
-3. Gag: Interrupts your target and prevents them from using ranged abilities for 1 turn. Adds 2 arousal.
-4. Siphon: Heal yourself for an amount equal to your target's arousal.
+(test)  - Cleric: Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive.
+x Heal. Same as today, minus the preventing block from falling off. Heal 4 HP plus another 10 multiplied by target's missing HP percentage.
+x Radiant heal: Puts a healing over time spell on all players that also grants Major Blessing, increasing healing taken by 30%.
+x Penance: Makes your healing abilities do damage this turn.
+x Reserection. Fully heals a player. Can only be used once per combat. Free and instant cast. Can be used on defeated players.
 
-Monk: Healer - Heals by attacking
-1. Uplifting Strike - Same as now. Add an extra charge.
-2. Round Kick - Deals damage and heals a party member. Can be riposted.
-3. Healing Touch - Deals 4 damage to your target and grants you Major Mending for 2 turns.
-4. Gambling Strike - Deals 4 damage and grants the party 2 additional reroll. Can be riposted.
+(test)  - Tentaclemancer-  Tank (utility): Tanks by weakening enemies.
+x Constrict: Deal 2 damage, taunt and add 1 arousal to up to 2 targets.
+x Siphon: Heal yourself for an amount equal to 2x your target's arousal.
+x Gag: Interrupts your target and prevents them from using ranged abilities for 1 turn. Adds 2 arousal.
+x Restrain: Deal 2 damage and apply Major Weaken to up to 2 targets for 1 turn, reducing their damage done by 30%. 
 
-Elementalist - DPS: Deal damage when enemies attack
-1. Backlash: Deal damage based on the nr of attacks used by an enemy last turn.
-2. Earth Spikes: Deals damage whenever your opponent uses an action for 2 turns.
-3. Slam: Deal damage to a random enemy equal to your target's block Max 12.
-4. Riposte: Deals heavy damage to an enemy that missed an attack last turn, and grants you 2 random momentum. 2 charges
+(test)  - Monk: Healer - Heals by attacking
+x Uplifting Strike - Same as now. Add an extra charge.
+x(smartheal) Round Kick - Deals damage and heals a party member. Can be riposted.
+x Chi Touch - Deals 4 damage to your target and grants you Major Mending for 2 turns.
+x Gambling Strike - Deals 2 damage and grants the party 2 additional reroll. Can be riposted.
 
-Necromancer - Tank (offense) by doing damage and stealing health
-1. Siphon : Deals damage and heals you for the amount.
-2. Unholy Grasp: Taunt up to 2 targets for 1 turn. Each time they use an action, you gain 1 HP and 1 random momentum.
-3. Leech: Add 2 arousal and put Major Lifesteal on your target for 1 turn, giving any player attacking them 1 HP. 
-4. Corrupt: All enemies take damage equal to their arousal, and heal you for the amount. Can be used twice per battle.
+  - Elementalist - DPS: Deal damage when enemies attack
+vt Backlash: Deal damage based on the nr of attacks used by an enemy last turn.
+vt Static Cling: Deals damage whenever your opponent uses an action for 2 turns.
+vt Kinetic Charge: Give an opponent Major Clumsy for 2 turns. When they miss, gain 3 offensive momentum.
+vt Divert: Deals heavy damage to an enemy that missed an attack last turn, and grants you 2 random momentum. 2 charges
+
+  - Necromancer - Tank (offense) by doing damage and stealing health
+vt Siphon : Deals damage and heals you for the amount.
+vt Unholy Grasp: Taunt up to 2 targets for 1 turn. Each time they use an action, you gain 1 HP and 1 random momentum.
+vt Leech: Deal 4 corruption damage and put Major Lifesteal on your target for 1 turn, giving any player attacking them 2 HP. 
+vt Corrupt: All enemies take damage equal to their arousal, and heal you for the amount. Can be used twice per battle.
 
 Arcanist - Healer (proactive)
-1. Ward: Give a player 8 block. Unlimited charges.
-2. Shield: What earth shield does today.
-3. Barrier: Grants your party Major Defense for 1 turn, decreasing damage taken by 30%.
-4. Embrace: Heals all players in your party for an amount equal to their block.
+vt Ward: Give a player 6 block. Unlimited charges.
+x Shield: What earth shield does today.
+vt Barrier: Grants your party 4 block and Major Defense for 1 turn, decreasing damage taken by 30%.
+vt Embrace: Heals all players in your party for an amount equal to their block.
 
 Bard? Utility - AoE buff / debuffs
-1. Song Strike: Deals 2 damage, increased by 2 for every major effect on your target and yourself.
-2. Piercing Tune: Makes enemies Major Vulnerability one turn, increasing damage taken by 30%.
-3. Warsong: Grants party Major Aggression one turn, increasing damage done by 20%.
-4. Song of Haste: Grants party Major Momentum for two turns, increasing momentum generation by 1 at start of turn.
+vt Singing Strike: Deals 2 phys damage, increased by 2 for every major effect on your target and yourself.
+vt Piercing Tune: Makes enemies Major Vulnerability one turn, increasing damage taken by 30%.
+vt Warsong: Grants party Major Aggression one turn, increasing damage done by 20%.
+vt Windsong: Grants party Major Momentum for two turns, increasing momentum generation by 1 at start of turn.
 
 
 

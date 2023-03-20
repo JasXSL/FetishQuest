@@ -43,7 +43,8 @@ export default class PlayerClass extends Generic{
 			bonArcane : this.bonArcane,
 			bonCorruption : this.bonCorruption,
 			description : this.description,
-			name_type : this.name_type
+			name_type : this.name_type,
+			momType : this.momType,
 		};
 		if( full ){
 			out.monster_only = this.monster_only;

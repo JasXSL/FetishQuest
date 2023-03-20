@@ -142,8 +142,10 @@ export default class Player extends Generic{
 		// Same as above, but DONE by this player
 		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions used by this player since last turn. Not the actual damage.
 		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points this player did since last turn.
-		this._riposted_since_last = {};			// playerID : num_times_this_player_riposted_use
+		this._riposted_since_last = {};			// playerID : num_times_this_player_riposted_us
 		this._riposting_since_last = {};		// playerID : num_times_we_riposted_them
+		this._missed_since_last = {};			// playerID : num_times_this_player_missed_us
+		this._missing_since_last = {};			// playerID : num_times_we_missed_them
 		// Healing received
 		this._healing_a_since_last = {};			// playerID : {(str)damageType:(int)nrHealingAttacks} - nr healing actions received since last turn. Not the actual damage.
 		this._healing_p_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total HP player received by heals last turn
@@ -324,6 +326,8 @@ export default class Player extends Generic{
 				out._healing_p_since_last = this._healing_p_since_last;
 				out._d_healing_a_since_last = this._d_healing_a_since_last;
 				out._d_healing_p_since_last = this._d_healing_p_since_last;
+				out._missed_since_last = this._missed_since_last;
+				out._missing_since_last = this._missing_since_last;
 			}
 
 		}
@@ -486,6 +490,28 @@ export default class Player extends Generic{
 		return this._riposting_since_last[player][i];
 
 	}
+
+	// How many times this player has missed me
+	missedSinceLastByPlayer( player ){
+
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._missed_since_last[player] )
+			return 0;
+		return this._missed_since_last[player][i];
+
+	}
+	// How many times we riposted that player
+	missingSinceLastByPlayer( player ){
+
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._missing_since_last[player] )
+			return 0;
+		return this._missing_since_last[player][i];
+
+	}
+
 	// Calculates a total number for any of the above, allowing you to filter by type 
 	// Use the object property as input, and it returns the sum
 	datTotal( input, type ){
@@ -675,6 +701,12 @@ export default class Player extends Generic{
 		vars[prefix+'healingPointsReceivedSinceLast'] = this.datTotal( this._healing_p_since_last );
 		vars[prefix+'ripostedSinceLast'] = this.datTotalShort(this._riposted_since_last);
 		vars[prefix+'ripostingSinceLast'] = this.datTotalShort(this._riposting_since_last);
+		vars[prefix+'missedSinceLast'] = this.datTotalShort(this._missed_since_last);
+		vars[prefix+'missingSinceLast'] = this.datTotalShort(this._missing_since_last);
+		
+		vars[prefix+'NumMajor'] = this.getNumMajorEffects();
+		vars[prefix+'Major'] = this.getMajorEffects();
+		
 
 		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last.save());
 		for( let i in Action.Types ){
@@ -1253,6 +1285,8 @@ export default class Player extends Generic{
 		this._healing_p_since_last = {};
 		this._d_healing_a_since_last = {};
 		this._d_healing_p_since_last = {};
+		this._missed_since_last = {};
+		this._missing_since_last = {};
 		
 		// Prevent block from fading
 		if( this.blockFadeLocked() )
@@ -1298,12 +1332,11 @@ export default class Player extends Generic{
 		
 		// Then class momentum
 		let addedMomentum = this.addMomentum(Player.getValidMomentum(this.class.momType), 1, false);
-	
 		
 		const major = this.getMajorEffects();
 
 		// Finally random momentum
-		let total = 2+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
+		let total = 3+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
 		total *= this.getGenericAmountStatMultiplier(Effect.Types.momentumRegen);
 		// Major momentum: Add 1 extra momentum at the start of turn
 		if( major & Effect.Major.Momentum )
@@ -1552,7 +1585,16 @@ export default class Player extends Generic{
 			this._riposted_since_last[target.id] = 0;
 		++this._riposted_since_last[target.id];
 	}
-	
+	onMissDone( target ){
+		if( !this._missing_since_last[target.id] )
+			this._missing_since_last[target.id] = 0;
+		++this._missing_since_last[target.id];
+	}
+	onMissReceived( target ){
+		if( !this._missed_since_last[target.id] )
+			this._missed_since_last[target.id] = 0;
+		++this._missed_since_last[target.id];
+	}
 
 	onDeath( attacker, effect ){
 		
@@ -2921,6 +2963,7 @@ export default class Player extends Generic{
 				(this.class ? this.class['bon'+type] : 0)+
 				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)
 		;
+		const major = this.getMajorEffects();
 		// Major Brawn
 		if( type === Action.Types.physical && major & Effect.Major.Brawn ){
 			out += 5;
@@ -3036,6 +3079,20 @@ export default class Player extends Generic{
 		for( let effect of effects ){
 			const n = Math.trunc(effect.effect) || 0;
 			out = out | n;
+		}
+		return out;
+
+	}
+
+	getNumMajorEffects(){
+
+		const effects = this.getMajorEffects();
+		let out = 0;
+		for( let i = 0; i < 31; ++i ){
+
+			if( effects & (1<<i) )
+				++out;
+
 		}
 		return out;
 

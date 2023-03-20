@@ -48,6 +48,7 @@ const textures = {
 	grab : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/grab.png')})),
 	shoe : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/shoe.png')})),
 	crosshair : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/crosshair.png')})),
+	dice : new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, color:0xFFFFFF, map:loader.load('/media/textures/particles/dice.png')})),
 
 };
 for( let i in textures )
@@ -505,6 +506,21 @@ particles.hitfx_punch_bones = {
 	part_max_age : .5,
 	velocity : new Proton.Span(15,20),
 	color : ["#DDDDDD","#FFFFFF"],	
+	opacity: 1,
+	gravity:1,
+	rotation : [0, Math.PI],
+};
+particles.hitfx_punch_dice = {
+	texture : textures.dice,
+	blending : THREE.NormalBlending,
+	rate : 0.05,
+	count : 3,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 5,
+	size_tween : [0.001,1,Proton.ease.easeFullBridge],
+	part_max_age : .3,
+	velocity : new Proton.Span(30,50),
+	color : ["#FFAAFF","#FFFFFF"],	
 	opacity: 1,
 	gravity:1,
 	rotation : [0, Math.PI],

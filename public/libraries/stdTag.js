@@ -233,7 +233,16 @@ export default {
 	fxPouncing : 'fx_pouncing',			// Put on a player pouncing another
 	fxPounced : 'fx_pounced',			// Put on a player that another is pounced onto
 	
-	
+	// Game action
+	gaWarrior : 'ga_warrior',
+	gaCleric : 'ga_cleric',
+	gaRogue : 'ga_rogue',
+	gaTentaclemancer : 'ga_tentaclemancer',
+	gaMonk : 'ga_monk',
+	gaElementalist : 'ga_elementalist',
+	gaNecromancer : 'ga_necromancer',
+	gaArcanist : 'ga_arcanist',
+	gaBard : 'ga_bard',
 
 	// Turn tags
 	ttButtExposed : 'tt_butt_exposed',

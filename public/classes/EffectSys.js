@@ -1639,7 +1639,17 @@ class Effect extends Generic{
 				}
 
 			}
-
+			else if( this.type === Effect.Types.addReroll ){
+				
+				const amt = Calculator.run(
+					this.data.amount,
+					new GameEvent({
+						sender:s, target:t, wrapper:this.parent, effect:this
+					})
+				);
+				t.consumeReroll( -amt );
+				
+			}
 			else if( this.type === Effect.Types.disrobe ){
 
 				let slots = this.data.slots;
@@ -2367,22 +2377,22 @@ Effect.Major = {
 	Vulnerability : 0x4,	// +30% Damage taken
 	Weakness : 0x8,			// -30% Damage done
 	//Sensitivity : 0x10,		// +100% arousal taken
-	Focus : 0x20,			// -50% arousal taken
-	Defile : 0x40,			// -50% healing received
-	Blessing : 0x80,		// +50% healing received
-	Mending : 0x100,		// +50% healing done
-	Momentum : 0x200,		// +1 momentum regen
-	Lifesteal : 0x400,		// +2 HP to any player attacking the target
-	Accuracy : 0x800,		// +30% hit chance
-	Touch : 0x1000,			// +50% arousal generated
-	Laze : 0x2000,			// -1 momentum regen
+	Focus : 0x20,			// 32 | -50% arousal taken
+	Defile : 0x40,			// 64 | -50% healing received
+	Blessing : 0x80,		// 128 | +50% healing received
+	Mending : 0x100,		// 256 | +50% healing done
+	Momentum : 0x200,		// 512 | +1 momentum regen
+	Lifesteal : 0x400,		// 1024 | +2 HP to any player attacking the target
+	Accuracy : 0x800,		// 2048 | +30% hit chance
+	Touch : 0x1000,			// 8192 | +50% arousal generated
+	Laze : 0x2000,			// 81 -1 momentum regen
 	Brawn : 0x4000, 		// +5 physical proficiency
 	Corruption : 0x8000,	// +5 corruption proficiency
 	Arcana : 0x10000,		// +5 arcane proficiency
 	Stagger : 0x20000,		// -5 Physical avoidance.
 	Sensitivity : 0x40000,	// -5 corruption avoidance.
-	Conduit : 0x80000,		// -5 Arcane avoidance.
-	Clumsy : 0x100000,		// -30% hit chance
+	Conduit : 0x80000,		// 524288 | -5 Arcane avoidance.
+	Clumsy : 0x100000,		// 1048576 | -30% hit chance
 	Penetration : 0x200000,	// +50% armor penetration
 };
 
@@ -2499,6 +2509,7 @@ Effect.Types = {
 	clairvoyance : 'clairvoyance',
 	untargetable : 'untargetable',
 	majorEffect : 'majorEffect',
+	addReroll : 'addReroll',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2564,7 +2575,6 @@ Effect.Passive = {
 	[Effect.Types.untargetable] : true,
 	[Effect.Types.actionRiposte] : true,
 	[Effect.Types.majorEffect] : true,
-
 };
 
 Effect.KnockdownTypes = {
@@ -2685,7 +2695,7 @@ Effect.TypeDescs = {
 	[Effect.Types.summonAsset] : '{asset:(str)assetLabel, equip:(bool)autoEquip=true} - Creates an asset and puts it in the target inventory. If equip is set, it equips as well.',
 	[Effect.Types.untargetable] : '{exceptions:(arr)actionLabels, beneficial:(bool)allowBeneficial=false, allow_aoe:(bool)=false} - Makes you untargetable by other players actions. If allowBeneficial is true, it allows you to be targeted by beneficial abilities. If allow AOE it allows you to be targeted by AoE.',
 	[Effect.Types.majorEffect] : '{effect:(int)bitwise} - Sets a major effect. These are hard-coded effects that are made to simplify .',
-
+	[Effect.Types.addReroll] : '{amount:(int)(str)amount} - Adds or subtracts reroll for this turn.',
 };
 
 
