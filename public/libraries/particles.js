@@ -687,6 +687,55 @@ particles.hitfx_zap = {
 	rotation : new Proton.Span(0,Math.PI)
 };
 
+particles.hitfx_zap_line = {
+	texture : textures.electricSpark,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 5,
+	position : new Proton.LineZone(0,0,0,50,0,0),
+	size : new Proton.Span(5,10),
+	size_tween : [1,0],
+	part_max_age : 1,
+	velocity : new Proton.Span(0,5),
+	color : ["#FFFFFF","#AAFFFF"],	
+	opacity: 1,
+	gravity:0,
+	rotation : new Proton.Span(0,Math.PI),
+};
+
+
+particles.hitfx_zap_cling = {
+	texture : textures.electricSpark,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.LineZone(-10,-20,-10,10,20,10),
+	size : new Proton.Span(5,10),
+	size_tween : [1,0],
+	part_max_age : 1,
+	velocity : new Proton.Span(0,5),
+	color : ["#FFFFFF","#AAFFFF"],	
+	opacity: 1,
+	gravity:0,
+	rotation : new Proton.Span(0,Math.PI),
+};
+
+particles.hitfx_zap_spread = {
+	texture : textures.electricSpark,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 5,
+	position : new Proton.SphereZone(0,0,0,25),
+	size : new Proton.Span(3,5),
+	size_tween : [1,0],
+	part_max_age : 0.3,
+	velocity : new Proton.Span(0,5),
+	color : ["#FFFFFF","#AAFFFF"],	
+	opacity: 1,
+	gravity:1,
+	rotation : new Proton.Span(0,Math.PI),
+};
+
 particles.hitfx_sparks_zap_large = {
 	
 	texture : textures.glowSphere,

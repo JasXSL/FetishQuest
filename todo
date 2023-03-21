@@ -54,11 +54,11 @@ x(smartheal) Round Kick - Deals damage and heals a party member. Can be riposted
 x Chi Touch - Deals 4 damage to your target and grants you Major Mending for 2 turns.
 x Gambling Strike - Deals 2 damage and grants the party 2 additional reroll. Can be riposted.
 
-  - Elementalist - DPS: Deal damage when enemies attack
-vt Backlash: Deal damage based on the nr of attacks used by an enemy last turn.
-vt Static Cling: Deals damage whenever your opponent uses an action for 2 turns.
-vt Kinetic Charge: Give an opponent Major Clumsy for 2 turns. When they miss, gain 3 offensive momentum.
-vt Divert: Deals heavy damage to an enemy that missed an attack last turn, and grants you 2 random momentum. 2 charges
+(test)  - Elementalist - DPS: Deal damage when enemies attack
+x Backlash: Deal damage based on the nr of attacks used by an enemy last turn.
+x Static Cling: Deals damage whenever your opponent uses an action for 2 turns.
+x Kinetic Charge: Give an opponent Major Clumsy for 2 turns. When they miss, gain 3 offensive momentum.
+x Divert: Deals heavy damage to an enemy that missed an attack last turn, and grants you 2 random momentum. 2 charges
 
   - Necromancer - Tank (offense) by doing damage and stealing health
 vt Siphon : Deals damage and heals you for the amount.
