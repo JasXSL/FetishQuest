@@ -33,7 +33,7 @@ export function asset(){
 	css_fx : (str)effect='',			// optional - CSS effect to play. You can pick from :
 										// fxTakeDamage, fxTakeDamageCorruption, fxTakeDamageElemental, fxTakeDamageHoly, fxHeal, fxStretch, fxShake, fxSqueeze, fxBuffBlue, fxBuffRed
 	css_fx_targ : (str)='victim',		// CSS effect target. Either 'victim' or 'sender'
-	particles : (str)='',				// Particle system name. See /libraries/particles.js
+	particles : (str)='',				// Particle system name, or {"id":(str)id, "color":(str)color} See /libraries/particles.js
 	emit_duration : (int)=200,			// Duration before stopping emitting in milliseconds
 	fade_duration : (int)=2000,			// Time before removing the particle system from the stage after emit_duration ends. Should be greater than the particle max life.
 	hold : (int)=0,						// Wait this amount of MS before doing the next step

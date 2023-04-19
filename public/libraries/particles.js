@@ -589,6 +589,22 @@ particles.hitfx_holy_runes = {
 	opacity: [1,0],
 };
 
+particles.hitfx_sparkles_static_orb = {
+	texture : textures.swirlOrb,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 5,
+	position : new Proton.BoxZone(0,0,0, 25,25,25),
+	size : new Proton.Span(1,5),
+	size_tween : [1,0.001],
+	part_max_age : new Proton.Span(1,2),
+	velocity : new Proton.Span(0,0.5),
+	velocity_type : 0,
+	gravity : -0.2,
+	color : ["#FFFFEE","#FFFFFF"],	
+	opacity: 1,
+};
+
 
 particles.hitfx_hearts = {
 	texture : textures.heart,
@@ -1310,6 +1326,23 @@ particles.hitfx_debris = {
 	wiggle : [0,10],
 	rotation : [0,new Proton.Span(0,Math.PI)],
 };
+particles.hitfx_debris_radius = {
+	texture : textures.splat,
+	blending : THREE.NormalBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,20),
+	size : new Proton.Span(3,5),
+	size_tween : [1,0.1],
+	part_max_age : 1,
+	velocity : new Proton.Span(50,100),
+	gravity : 1,
+	color : '#553300',	
+	opacity: 1,
+	rotation : [new Proton.Span(-0.5,0.5), 1,1],
+	wiggle : [0,10],
+	rotation : [0,new Proton.Span(0,Math.PI)],
+};
 
 particles.hitfx_coins = {
 	texture : textures.coin,
@@ -1870,7 +1903,21 @@ particles.hitfx_bone_shards = {
 	opacity: 1,
 	rotation : [5,0,0],
 };
-
+particles.hitfx_bone_shards_drop = {
+	texture : textures.bone_shards,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 2,
+	position : new Proton.SphereZone(0,0,0,30),
+	size : new Proton.Span(10,20),
+	size_tween : [1,.01, Proton.ease.easeOutCirc],
+	part_max_age : 2,
+	velocity : 0,
+	gravity : 2,
+	color : ['#DDDDDD', '#FFFFFF'],	
+	opacity: 1,
+	rotation : [5,0,0],
+};
 particles.hitfx_bone_shards_big = {
 	texture : textures.bone_shards,
 	blending : THREE.AdditiveBlending,
@@ -2362,6 +2409,20 @@ particles.hitfx_hex_armor = {
 	opacity: [0,0.5, Proton.ease.easeFullBridge],
 	rotation : [0,new Proton.Span(0,Math.PI*2)],
 };
+particles.hitfx_hex_armor_beam = {
+	texture : textures.smoke,
+	blending : THREE.AdditiveBlending,
+	rate : 0.025,
+	count : 3,
+	position : new Proton.BoxZone(0,0,0,10,10,10),
+	size : [5,20],
+	part_max_age : 1,
+	velocity : new Proton.Span(0, 1),
+	gravity: new Proton.Span(0,1),
+	color : "#551188",	
+	opacity: [0,0.5, Proton.ease.easeFullBridge],
+	rotation : [0,new Proton.Span(0,Math.PI*2)],
+};
 
 particles.hitfx_glowing_ooze = {
 	texture : textures.splat,
@@ -2409,6 +2470,45 @@ particles.hitfx_darkOrb = {
 	velocity_type : 0,
 	color : ['#220044', '#000000'],	
 	opacity: 0.5,
+	rotation_start : new Proton.Span(0,Math.PI),
+	rotation_speed : new Proton.Span(0,Math.PI),
+
+};
+
+particles.hitfx_bubbleShield = {
+			
+	texture : textures.swirlOrb,
+	blending : THREE.AdditiveBlending,
+	rate : 0.1,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,0),
+	size : 40,
+	size_tween : [1,1.05],
+	part_max_age : .5,
+	velocity : 0,
+	velocity_dir : new Proton.Vector3D(0, -1, 0),
+	velocity_type : 0,
+	color : ['#33FFFF', '#DDEEFF'],	
+	opacity: [1,0],
+	rotation_start : new Proton.Span(0,Math.PI),
+	rotation_speed : new Proton.Span(0,Math.PI),
+
+};
+particles.hitfx_bubbleShieldMassive = {
+			
+	texture : textures.swirlOrb,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 4,
+	position : new Proton.LineZone(0,-200,0,0,200,0),
+	size : 40,
+	size_tween : [1,1.05],
+	part_max_age : .5,
+	velocity : 0,
+	velocity_dir : new Proton.Vector3D(0, -1, 0),
+	velocity_type : 0,
+	color : ['#33FFFF', '#DDEEFF'],	
+	opacity: [0.25,0],
 	rotation_start : new Proton.Span(0,Math.PI),
 	rotation_speed : new Proton.Span(0,Math.PI),
 

@@ -7,6 +7,24 @@ Issues:
 - Don't show missing momentum on gym icons
 - Make the action adder show icons
 
+Roleplay:
+	- Add a checkbox for auto [Leave] option
+Dungeon room asset:
+	T Add a quick dropdown for travel to room
+
+Passives. 3 picks each tier.
+	-: Brawn: Gain 3 physical offense. | Charisma: Gain 3 corruption offense. | Guile: Gain 3 arcane offense.
+	-: Offender: Gain 1 to each proficiency. | Defender: Gain 2 to each avoidance. | Edging: Gain +5 max arousal.
+	-: Rerolling momentum other than your archetype one becomes your archetype one | Gain 1 more reroll on turn start.
+	-: 
+
+Side quests:
+	- A rat in the borm tavern wants you to put tickle tentacle eggs in a fighter's bodysuit.
+	- Players have the option to give it to the tentaclemancer instead.
+	- If the players do it right, they get reward A from the rat.
+	- Otherwise they'll get ambushed near the borm exit and can collect a bounty for reward B.
+
+
 New actions:
 Todo:
 	- Go over tank abilities, make sure they generate extra threat
@@ -24,53 +42,81 @@ v = need visuals
 t = need texts
 
   x Warrior: Tank. Reduces incoming damage. Lots of blocking.
-x Bolster (auto): Grant 8 block and removes 1 arousal. Being hit by a damaging action grants the caster 1 defensive momentum.
-x Vice Grip (auto): Deals damage and taunts 2 enemies.
-x Masochism (auto): Same as today
-x Harden: Prevents block from falling off this turn, and grants your party major defense for 1 turn.
+Trainer: Chad's Gym
+	Armor: Breastplate, crotchplate, plate sling. Effects: ??? Something to do with tanking 
+	Quest: 
+		A: 
+		B: 
 
 (test)  - Rogue: DPS. Deals damage and crits.
-x Sneak Attack: Same as today.
-x Exploit: Same as today.
-x Combo Breaker: Deal 4 corruption damage and interrupts. Always critically hits if your target is charging an action.
-x Advantage: Deal 4 corruption damage. Has a 10% crit chance per point of arousal your target has. 
-
+Trainer: Penal gang
+	Armor: Bodysuit, Thong bodysuit. Effects: ??? Something to do with crit?
+	Quest: DONE
 
 (test)  - Cleric: Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive.
-x Heal. Same as today, minus the preventing block from falling off. Heal 4 HP plus another 10 multiplied by target's missing HP percentage.
-x Radiant heal: Puts a healing over time spell on all players that also grants Major Blessing, increasing healing taken by 30%.
-x Penance: Makes your healing abilities do damage this turn.
-x Reserection. Fully heals a player. Can only be used once per combat. Free and instant cast. Can be used on defeated players.
+Trainer: church
+	- Armor: Plate bikini / cloth bikini. Effect: ??? Something to do with healing.
+	- Quest: DONE
 
-(test)  - Tentaclemancer-  Tank (utility): Tanks by weakening enemies.
-x Constrict: Deal 2 damage, taunt and add 1 arousal to up to 2 targets.
-x Siphon: Heal yourself for an amount equal to 2x your target's arousal.
-x Gag: Interrupts your target and prevents them from using ranged abilities for 1 turn. Adds 2 arousal.
-x Restrain: Deal 2 damage and apply Major Weaken to up to 2 targets for 1 turn, reducing their damage done by 30%. 
+(test)  - Tentaclemancer-  Tank (utility): Tanks by weakening enemies. [Train in Borm.]
+Trainer: Borm
+	- Armor: Living bodysuit? Effect: ??? Something to do with arousal. 
+	- Quest: 
+		A: Tickle tentacle spawning season is upon us. The tentaclemancer wants you to collect eggs from borm.
+			- On the way back, a rattani asks you to part with 1 egg. Doing so move him to the inn and allows you to do the side quest listed above.
+			- Hand in the eggs to finish quest A.
+		B: TM trainer asks you to see a farmer about a grown tickle tentacle.
+			- Players can ask TM trainer about it, and find out that unless the tickle tentacles are captured, they may grown larger and unruly.
+			- Talk to farmer in <???>, he says it was bigger than normal, almost like one of the arena bosses. He locked it in his shed.
+			- Go to shed and fight a miniboss, loot corrupted tentacle and bring it back to TM trainer.
+		C: The tentacle has been infused with corrupting magic. He tells you to ask around in town if someone has seen something sus.
+			- One of the farmers will say he's heard strange noises from the derelict mine in the north east fields.
+			- Go through the cave and kill a cultist trying to raise tentacle monsters.
+			- Take out the cultists and bring back evidence to TM trainer.
+			- Players unlock the armor set.
 
 (test)  - Monk: Healer - Heals by attacking
-x Uplifting Strike - Same as now. Add an extra charge.
-x(smartheal) Round Kick - Deals damage and heals a party member. Can be riposted.
-x Chi Touch - Deals 4 damage to your target and grants you Major Mending for 2 turns.
-x Gambling Strike - Deals 2 damage and grants the party 2 additional reroll. Can be riposted.
+Trainer: Portswood glade.
+	- Armor: Bodysuit / sling bikini hand/legwraps. Something related to energy/combos probably.
+	- Quest: Learning the ways of the monk:
+		A: Inner focus:
+			- Enter a glade area behind her house to find silkfiend nests.
+				- Silkfiend: A new monster. A mobile pitcher plant (think pokemon) with vine legs and arms.
+			- Bring the gong back and hand it in to start a test of tranquility. Basically just a challenge where you have to do splits while maintaining focus.
+			- <monk> will do stuff to you while you maintain focus.
+			- Once you complete the RP, you can hand in the quest.
+		B: You are tasked to track down the whereabouts of Rotti, a dirty rattani fighter.
+			- There's an underground fighting ring below the borm tavern.
+			- Go there and talk to the boss, he'll tell you he'll give you Rotti's whereabouts if you defeat his champion.
+			- Go into the ring and fight <miniboss>.
+			- Once you win, talk to the boss. He'll give you an encoded letter and ask you to see <npc> in the sewers.
+			- <npc> will translate it based on your gender and clothes:
+				- breasts: put a recording crystal in your upper body armor while he transcribes it
+				- penis: put a recording crystal in your lower body armor while he transcribes it
+				- any: Pay 1 plat.
+			- once translated, head back to <monk> for your reward
+		C: You are sent to fight Rotti (female rattani) in a new dungeon. When you defeat her, she says <monk> and her spar every Tuesday. 
+			And have this exchange going where Rotti gets to record each fight. <monk> always wins but seems to enjoy the dirty fighting.
+			She says the gesture to prove that you were succesfful is to twist <monk>'s nipples.
+			Go do that to finish the quest and unlock the armor.
 
-(test)  - Elementalist - DPS: Deal damage when enemies attack
-x Backlash: Deal damage based on the nr of attacks used by an enemy last turn.
-x Static Cling: Deals damage whenever your opponent uses an action for 2 turns.
-x Kinetic Charge: Give an opponent Major Clumsy for 2 turns. When they miss, gain 3 offensive momentum.
-x Divert: Deals heavy damage to an enemy that missed an attack last turn, and grants you 2 random momentum. 2 charges
+(test)  - Elementalist - DPS: Deal damage when enemies attack [Todo: Train at ???]
+Trainer: Otter in lake (moves to inn after quest complete)
+	- Armor: Tribal loincloth/top. Effect: ???
+	- Quest: DONE
+	
 
-  - Necromancer - Tank (offense) by doing damage and stealing health
-vt Siphon : Deals damage and heals you for the amount.
-vt Unholy Grasp: Taunt up to 2 targets for 1 turn. Each time they use an action, you gain 1 HP and 1 random momentum.
-vt Leech: Deal 4 corruption damage and put Major Lifesteal on your target for 1 turn, giving any player attacking them 2 HP. 
-vt Corrupt: All enemies take damage equal to their arousal, and heal you for the amount. Can be used twice per battle.
+(test)  - Necromancer - Tank (offense) by doing damage and stealing health [TRAIN AT NECRO LAIR]
+Trainer: Necromancer
+	- Armor: Bone armor. Effect: ???
+	- Quest: DONE
 
-Arcanist - Healer (proactive)
-vt Ward: Give a player 6 block. Unlimited charges.
-x Shield: What earth shield does today.
-vt Barrier: Grants your party 4 block and Major Defense for 1 turn, decreasing damage taken by 30%.
-vt Embrace: Heals all players in your party for an amount equal to their block.
+(test)		- Arcanist - Healer (proactive) [TRAIN AT SHARKANISTS]
+Trainer: Sharkanists
+	- Armor: Silk thong/top. Effect: ??? Something to do with block
+	- Quest: DONE
+
+
 
 Bard? Utility - AoE buff / debuffs
 vt Singing Strike: Deals 2 phys damage, increased by 2 for every major effect on your target and yourself.

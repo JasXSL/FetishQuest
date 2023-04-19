@@ -449,12 +449,12 @@ class Editor{
 			}
 		};
 		modtools.webgl.renderer.domElement.onclick = event => {
-			event.preventDefault();
+			//event.preventDefault();
 		};
-		/*
 		modtools.webgl.renderer.domElement.onmousedown = event => {
 			event.preventDefault();
-		};*/
+			event.currentTarget.focus(); // Workaround since webgl blocks default select, and double click select shouldn't select text
+		};
 
 		const baseAssetSelect = win.dom.querySelector('select.roomBaseAsset');
 		const roomAsset = this.room.getRoomAsset();
@@ -974,6 +974,10 @@ class Editor{
 		}
 
 		const assetHasInteraction = (asset, interaction) => {
+
+			if( interaction === GameAction.types.door && asset.door > -1 )
+				return true;
+
 			if( !Array.isArray(asset.interactions) )
 				return;
 
@@ -1056,6 +1060,7 @@ class Editor{
 		}
 
 		
+		const dungeon = this.room.parent;
 		
 
 		const build = function(){
@@ -1068,6 +1073,8 @@ class Editor{
 				this.close();
 				return;
 			}
+
+
 
 			this.onChange = () => {
 			
@@ -1083,8 +1090,19 @@ class Editor{
 				html += '<label>Name: <input name="name" value="'+esc(asset.name)+'" type="text" class="saveable" autocomplete="chrome-off" /></label>';
 				html += '<label title="Time in seconds, 0 = no respawn">Respawn: <input name="respawn" value="'+esc(asset.respawn)+'" type="text" class="saveable" /></label>';
 				html += '<label>Hide if non-interactive: <input name="hide_no_interact" '+(asset.hide_no_interact ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
+				html += '<label>Quick door: <select name="door" class="saveable" data-type="int">';
+					html += '<option value="-1">NOT A DOOR</option>';
+					for( let label of dungeon.rooms ){
+						let r = window.mod.getAssetById('dungeonRooms', label);
+						if( !r )
+							continue;
+						const index = Math.trunc(r.index) || 0;
+						html += '<option value="'+index+'" '+(index === asset.door ? 'selected' : '')+'>'+esc(r.name)+'</option>';
+					}
+				html += '</select></label>';
 			html += '</div>';
 
+			
 			html += 'Tags: <div class="tags">'+HelperTags.build(asset.tags)+'</div>';
 			html += 'Game Actions: <div class="interactions"></div>';
 			html += 'Conditions: <div class="conditions"></div>';

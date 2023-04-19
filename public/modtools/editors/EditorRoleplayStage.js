@@ -26,6 +26,7 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		html += '<label title="Lets you override the name of the speaking player">Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" autocomplete="chrome-off" /></label>';
 		html += '<label title="A small headshot of the player, overrides RP parent">Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
+		html += '<label title="Auto add a [Leave] option">Leave: <input type="checkbox" name="leave" class="saveable" '+(dummy.leave ? 'checked' : '')+' /></label>';
 		
 		html += '<label>Chat type: <select name="chat" class="saveable" name="chat">';
 		for( let i in RoleplayStageOption.ChatType )
@@ -127,7 +128,8 @@ export function assetTable( win, modAsset, name, single, parented ){
 			}
 			return '!! NONE !!';
 		},
-		asset => asset.options && asset.options.length ? asset.options.length+' Responses' : 'MISSING RESPONSES'
+		asset => asset.leave ? 'LEAVE' : '',
+		asset => asset.options?.length ? asset.options.length+' Responses' : 'MISSING RESPONSES'
 	], single, parented);
 }
 

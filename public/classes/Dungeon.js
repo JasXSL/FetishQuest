@@ -641,8 +641,8 @@ class DungeonRoom extends Generic{
 		this.label = '';
 		this.name = '';
 		this.parent = parent;
-		this.index = 0;
-		this.parent_index = 0;
+		this.index = 0;				// Unique for each room
+		this.parent_index = 0;		// Rooms all grow out from one room, this is the room this one was created adjacent to
 		this.discovered = false;
 		this.x = 0;
 		this.y = 0;
@@ -1538,7 +1538,8 @@ class DungeonRoomAsset extends Generic{
 		this.deleted = false;			// Deleted
 		this._interactive = null;		// Cache of if this object is interactive
 		this.conditions = [];			// show conditions
-		
+		this.door = -1;					// Can be used instead of a GameEvent to quickly mark a mesh as a door
+
 		this.respawn = 0;					// Time in seconds before it respawns
 		this._killed = 0;
 
@@ -1580,6 +1581,7 @@ class DungeonRoomAsset extends Generic{
 			hide_no_interact: this.hide_no_interact,
 			id : this.id,
 			conditions : Condition.saveThese(this.conditions, full),
+			door : this.door
 		};
 		if( full !== 'mod' ){
 			if( full )
@@ -1599,11 +1601,23 @@ class DungeonRoomAsset extends Generic{
 
 	// returns the first door interaction
 	getDoorInteraction( ignoreConditions = false ){
+
+		// Create a dummy if we're using the quick door setting
+		if( this.door > -1 ){
+			return new GameAction({
+				type : GameAction.types.door,
+				data : {
+					index : this.door
+				}
+			}, this);
+		}
+
 		const viable = window.game && !ignoreConditions ? this.getViableInteractions() : this.interactions;
 		for( let i of viable ){
 			if( i.type === GameAction.types.door )
 				return i;
 		}
+
 	}
 
 	getTooltipInteraction(){
@@ -2055,6 +2069,13 @@ class DungeonRoomAsset extends Generic{
 		}
 
 		const interactions = this.interactions.slice();	// Needed because interactions may remove themselves
+		// Create a dummy game action for quick door
+		if( this.door > -1 ){
+			
+			this.interactions.push(this.getDoorInteraction(false));
+
+		}
+
 		// Trigger interactions in order
 		for( let i of interactions ){
 
@@ -2074,6 +2095,8 @@ class DungeonRoomAsset extends Generic{
 				i.trigger( player, mesh );
 			
 		}
+
+		
 
 		if( this.interact_cooldown )
 			this.setInteractCooldown(this.interact_cooldown);

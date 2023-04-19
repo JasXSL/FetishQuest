@@ -190,6 +190,7 @@ class WebGL{
 
 		this.mouseDownPos = {x:0,y:0};
 		const touchStart = event => {
+			event.preventDefault();
 			
 			this.onMouseMove(event);
 			this.mouseDownPos.x = event.offsetX;
@@ -1395,7 +1396,7 @@ class WebGL{
 	}
 
 	onDblClick(event){
-
+		event.preventDefault();
 		for( let obj of this.intersecting ){
 			
 			if( obj.userData && typeof obj.userData.dblclick === "function" ){
@@ -1410,7 +1411,7 @@ class WebGL{
 	}
 
 	onMouseClick( event ){
-
+		event.preventDefault();
 		for( let obj of this.intersecting ){
 			
 			if( obj.userData && typeof obj.userData.click === "function" ){
