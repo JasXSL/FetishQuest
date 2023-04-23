@@ -925,8 +925,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		this.Slots.upperBody,
 		this.Slots.lowerBody
 	];
-	const isPrimarySlot = template.slots.filter(slot => statSlots.includes(slot)).length > 0;
-
+	const numPrimarySlots = template.slots.filter(slot => statSlots.includes(slot)).length;
 	const fitted = Math.random() < 0.2;
 	const mastercrafted = Math.random() < 0.2;
 	
@@ -940,7 +939,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		tags : template.tags,
 		slots : template.slots,
 		weight : template.weight,
-		durability_bonus : template.durability_bonus*template.slots.length,
+		durability_bonus : template.durability_bonus*numPrimarySlots,
 		description : template.description,
 		fitted : fitted,
 		mastercrafted : mastercrafted,
@@ -959,7 +958,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 
 	
 	// only add stats to upper/lower body
-	if( isPrimarySlot ){
+	if( numPrimarySlots ){
 
 		// Add stats from template
 		let addEffectToWrapper = function( wr, stype, snr ){
@@ -995,7 +994,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 
 		let existingEnchants = out.wrappers.filter(el => el.hasTag(stdTag.wrEnchant)).length;
 		let cursed = Math.random() < 0.25 || forceCurse;
-		for( let i = existingEnchants; i < out.rarity+cursed; ++i ){
+		for( let i = existingEnchants; i < out.rarity*numPrimarySlots+cursed; ++i ){
 			const enchant = this.getRandomEnchant(out, false, player);
 			if( enchant )
 				out.wrappers.push(enchant);

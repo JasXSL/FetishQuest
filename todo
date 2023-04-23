@@ -37,30 +37,60 @@ Todo:
 	- Test
 	
 
-x = done
+x = done 4813
 v = need visuals
 t = need texts
 
+NOTE: These armors have 2 stats per slot because they're purchased epics. But have epic effects.
+
   x Warrior: Tank. Reduces incoming damage. Lots of blocking.
 Trainer: Chad's Gym
-	Armor: Breastplate, crotchplate, plate sling. Effects: ??? Something to do with tanking 
+	Armor: 
+		Warrior's Gear (Breastplate + Crotchplate): 
+			- Rerolling non-defensive momentum now always rolls into defensive momentum.
+			- 
+			- 
+		Sturdy Leather Gear (leather thong + leather chestwraps):
+			- Painful hits to the groin increase the damage of your next standard attack by 1. Resets on turn end.
 	Quest: 
 		A: 
 		B: 
 
 (test)  - Rogue: DPS. Deals damage and crits.
 Trainer: Penal gang
-	Armor: Bodysuit, Thong bodysuit. Effects: ??? Something to do with crit?
+	Armor: 
+		Bodysuit:
+		- Using a reroll grants you 1 proficiency of each type this turn.
+		Thong bodysuit: 
+		- Using two standard attacks in a row grants you major mending and major aggression this turn.
 	Quest: DONE
 
-(test)  - Cleric: Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive.
+(test)  - Cleric: Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive.
 Trainer: church
-	- Armor: Plate bikini / cloth bikini. Effect: ??? Something to do with healing.
+	- Armor: 
+		- Plate Bikini (2 slots): 
+			- Restores 2 HP to the party whenever you are hit by an enemy that you are taunting. (Not great, no thinking goes into this)
+			- Healslut
+			- Regeneration
+			- +2 sv phys
+			- +2 sv corruption
+		- Cloth Bikini (2 slots): 
+			- Healing a target under 50% HP grants major mending for 2 turns.
+			- +2 bon arcane
+			- Demonslaying
+			- +2 reroll
 	- Quest: DONE
+
 
 (test)  - Tentaclemancer-  Tank (utility): Tanks by weakening enemies. [Train in Borm.]
 Trainer: Borm
-	- Armor: Living bodysuit? Effect: ??? Something to do with arousal. 
+	- Armor: 
+		Living bodysuit:
+			- Orgasm no longer resets your momentum.
+			- Gain major aggression and defense for 2 turns on orgasm.
+		Living bikini:
+			- 30% chance when taunting an opponent to add 2 arousal and detach the bikini.
+			- On equipping the bikini in combat, gain 4 HP.
 	- Quest: 
 		A: Tickle tentacle spawning season is upon us. The tentaclemancer wants you to collect eggs from borm.
 			- On the way back, a rattani asks you to part with 1 egg. Doing so move him to the inn and allows you to do the side quest listed above.
@@ -77,7 +107,14 @@ Trainer: Borm
 
 (test)  - Monk: Healer - Heals by attacking
 Trainer: Portswood glade.
-	- Armor: Bodysuit / sling bikini hand/legwraps. Something related to energy/combos probably.
+	- Armor: 
+		Ultralight Bodysuit:
+			- Using 4 different actions in the same turn grants you 3 extra momentum next turn.
+			- ??? Something with healing
+		Ultralight Sling Bikini:
+			- Gain 30% more damage and healing, reduced by your percent of carry weight.
+			- ??? Something with healing
+
 	- Quest: Learning the ways of the monk:
 		A: Inner focus:
 			- Enter a glade area behind her house to find silkfiend nests.
@@ -100,20 +137,41 @@ Trainer: Portswood glade.
 			She says the gesture to prove that you were succesfful is to twist <monk>'s nipples.
 			Go do that to finish the quest and unlock the armor.
 
-(test)  - Elementalist - DPS: Deal damage when enemies attack [Todo: Train at ???]
+(test)  - Elementalist - Defensive DPS: Deal damage when enemies attack [Todo: Train at ???]
 Trainer: Otter in lake (moves to inn after quest complete)
-	- Armor: Tribal loincloth/top. Effect: ???
+	- Armor: 
+		Tribal Leathers (leather thong plus chest)
+			- Gain 1 arcane proficiency each turn, up to 5 stacks. Being hit in the groin removes 3 stacks.
+			- ??? Something to do with defensive momentum
+		Stimulating Sling Bikini
+			- Divert can be used on any target, but adds 3 arousal to the caster.
+			- 
+
 	- Quest: DONE
 	
 
 (test)  - Necromancer - Tank (offense) by doing damage and stealing health [TRAIN AT NECRO LAIR]
 Trainer: Necromancer
-	- Armor: Bone armor. Effect: ???
+	Bone Armor (heavy), bone breastplate and thong: 
+		- On orgasm, gain an extra charge of corrupt.
+		- 
+	Dark Robes
+		- Life steals have a chance equal to your opponent's HP percentage to restore +2 HP to your party.
+	
+	
+	
 	- Quest: DONE
+
 
 (test)		- Arcanist - Healer (proactive) [TRAIN AT SHARKANISTS]
 Trainer: Sharkanists
-	- Armor: Silk thong/top. Effect: ??? Something to do with block
+	- Armor: 
+		Arcane Silk Bikini: 
+		- Damaging a target with block restores 5 HP to an injured party member.
+		- 
+		Arcane Bodysuit:
+		- When a friendly player's block is broken on their turn, they gain Major Blessing and Major Penetration until the end of the turn.
+		- 
 	- Quest: DONE
 
 
@@ -140,21 +198,45 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 
 	- Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
+	- Enchant ideas:
+		- <When you X> you apply <Y> which is triggered by <Z>
+		- Taunting an enemy causes <x>
+		- When block fades at the start of your turn, gain 1 momentum.
+		- Gain 10% increased damage done for each unique monster you attack in a turn.
+		- Each attack received in a turn reduces further damage taken that turn by 5%. Up to 95%.
+		- Each defensive momentum spent in a turn grants you 1 block.
+		- Finishing a spell with a cast time grants you 1 momentum per turn it was charged.
+		- Getting interrupted reduces all charge times by 1 for 1 turn.
+		- Increases the damage of one of your 3 standard attacks by 1.
+		- Critical hits grant you 1 momentum.
+		- Each turn you don't use an ability you gain ???
+		- Gain X if you didn't lose HP last turn.
+		- Using a multi-target action on a single target does <x>
+		- Using a healing potion grants <x>
+		- Mana potions grants <x>
+		- Gain major defense while charging a spell
+		- Overhealing a player grants them 1 reroll
+		- Using a standard attack makes your next non-standard attack grant you 1 extra momentum next turn 
+		- Using a standard attack grants you an extra reroll
+		- Increases damage done while at full HP
+		- Gain 3 momentum next turn after being riposted
+		- Attacking an enemy twice in a row puts major <something> on them
+		- When your block fully absorbs an attack, do <x>
+		- When you do <damage type> do something
+		- Using a melee attack and ranged attack in the same turn does <x>
+		- When you deal all 3 damage types to a target this turn, do <x>
+		- Casting a heal on a player grants a buff. If the player is above 90% HP at the end of the turn, do <x>
+		- Using taunt while under 50% HP grants 4 block.
+		- Gain a boost to a random offensive stat each turn.
+		- Ending a turn with no momentum left gives <x>
+		- For each N reroll used, gain X
+		- 
+
 	- Item ideas:
 		- Cooldown clearing potions
 		- Your next action costs no AP
 		- Makes you untargetable for 1 turn.
-
-	- Wrapper ideas
-		- Reduce max MP/AP
-		- Reduce max arousal
-		- More damage taken from crit.
-		- Proc multipliers
-		- Heal aggro multipliers
-		- Generic stat modifiers
-		- Reduce block efficiency
-			- New effect type needed
-		- Summon a custom outfit onto a player that they can't remove until it expires
+		
 
 	- Action ideas:
 		- Deals damage, deals extra damage if target has clairvoyance.
@@ -193,81 +275,8 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 
 
 -- CURRENT --
-
-	Tentacle Wrestling:
-		- Need rep reward vendor
-		x Players tag team into the ring, only one player can be in at a time
-		x Each turn, player gets 1 stack of exhausted
-		x Exhausted fades after 3 turns out of the ring
-		x One boss at a time, always stays in the ring
-		x Can't tag out while grappled or knocked down
-		x Boss ideas:
-			Weak to: -5 sv
-			Defensive to: 3 sv
-			Strong against: +3, all other are -3
-			No boss can use default grapples
-			- Armored Tentacle:
-				- Weak to: arcane
-				- Defensive to: phys
-				- Strong against: Phys
-				Abilities:
-				x Harden (3 turn CD) - Adds 5 block
-				x Wrap: 4 turns, charged : Wraps tentacle around your target, grappling them
-				x Slam: 1 turn : Slam a grappled player, doing physical damage.
-				x Armored lash: 2 turns : Deals physical damage, crits if target isn't blocking or wearing full heavy armor. Always cast first.
-			- Slimy tentacle
-				- Weak to: Physical
-				- Strong against: corruption
-				- Defensive to: corruption
-				Abilities:
-				x Slime coat: 1 turn: Applies 1 stack of slime coat, doing corruption damage at the start of your turn and grants a shake off ability.
-					- Shake off: 3 AP: All stacks but adds 2 exhaustion. Generally you'll want to do this before tapping out.
-				x Sticky (charged): Prevents target from tapping out for 1 turn, and adds a 20% chance on action used to strip a random piece.
-				x Inject: Inject target not wearing lower body armor with goo, doing corruption damage each turn.
-			- Void tentacle
-				- Weak to: Corruption
-				- Strong against: arcane
-				- Defensive to: arcane
-				Abilities:
-				t Void lightning: 2 CD. Deals arcane damage, always crits against heavy armor.
-				t Void constrict: Ungrapples and removes AP.
-				t Void Eye: 4 CD: Deals damage based on exhaustion.
-				t Charged ability that damages all players. Must be interrupted.
-
 	
 	Main quest:
-		Part 2:
-		1. Travel to borm and talk to people.
-		2. Kidnapped. After RP, clear the cave and find a scroll:
-		3. Take scroll to cartographers and get sent to find a cipher.
-		4. Do a dungeon to get the cipher.
-		5. Get the scroll translated, and it turns out to be a summoning of a giant borm tentacle.
-		6. Go back to Borm and fight the tentacle monster.
-		7. The tentacle drops some kind of magic item that you take back to the guards and finish the quest.
-
-
-		Part 3:
-		1. 	In the throne room you're met by the king's servant KS. He tells the player that matters of importance are to be discussed in the Prince's personal spa. 
-			And he won't allow just any riffraff to enter. The player is sent out to acquire royal swimwear. At the royal "armory".
-		2. 	Since the prince took over, the royal armory is now only producing bikini armor with the royal seal of approval. In order to gain this armor they player must show proficiency with it.
-			In order to gain this seal, the player must accomplish 2 tasks in the royal coliseum while wearing unsealed versions of the armor.
-			The armor is enchanted to allow royalty to arouse the wearer.
-		3.	Tasks:
-			- Mental test: Hooks players up to a machine that arouses them if they answer wrong. The players lose if they answer too many questions wrong.
-			- Physical Test: Arena fight. The prince will arouse the players through the swimwear.
-				- Note: Add a way to prevent any disrobing during a fight, including by players.
-				- Fight won't start until all players are wearing swimwear.
-		4.	Talk to the prince, and he dismisses the notions. But grants you permission and a small stipend to go hunt down these cultists myself.
-
-
-		Part 4:
-		1.	Hunting down the first cultist
-
-		Part 5:
-		1. 	Hunting down the second cultist
-
-		Part 6:
-		???	
 
 	Side quests:
 		- The borm straw tickle tentacles rise
