@@ -120,17 +120,22 @@ export function asset(){
 	};
 
 	// For any thing that uses {amount:(int)amount, operation:(str)operation}. You can use this
-	const buildDefaultValueFields = () => {
+	const buildDefaultValueFields = withPerc => {
 
-		setDefaultData({
+		const dd = {
 			amount : 0, 
 			operation: '>'
-		});
+		};
+		if( withPerc )
+			dd.perc = false;
+		setDefaultData(dd);
+		
 
 		let html = '';
 		html += '<div class="labelFlex">';
 			html += '<label title="">Value: <input type="text" name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
 			html += '<label>'+buildMathOperators('data::operation', asset.data.operation)+'</label>';
+			html += '<label>Percentage <input type="checkbox" name="data::perc" class="saveable" '+(asset.data.perc ? 'checked' : '')+' /></label>';
 		html += '</div>';
 		return html;
 
@@ -384,6 +389,9 @@ export function asset(){
 		
 	}
 	else if( type === types.apValue ){
+		html += buildDefaultValueFields(true);
+	}
+	else if( type === types.eventCustomAmount ){
 		html += buildDefaultValueFields();
 	}
 	else if( type === types.blockValue ){
@@ -719,7 +727,10 @@ export function asset(){
 
 	}
 	else if( type === types.hpValue ){
-		html += buildDefaultValueFields();
+		html += buildDefaultValueFields(true);
+	}
+	else if( type === types.arousalValue ){
+		html += buildDefaultValueFields(true);
 	}
 	else if( type === types.isActionParent ){}
 	else if( type === types.isRoleplayPlayer ){ 
@@ -741,9 +752,6 @@ export function asset(){
 
 	}
 	else if( type === types.itemStolen ){}
-	else if( type === types.mpValue ){
-		html += buildDefaultValueFields();
-	}
 	else if( type === types.numRpTargets ){
 		html += buildDefaultValueFields();
 	}

@@ -664,18 +664,28 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.apValue ){
-				success = t && this.compareValue(s, t, t.ap);
+				let v = t.ap;
+				if( this.data.perc )
+					v /= T.getMaxAP();
+				success = t && this.compareValue(s, t, v);
 			}
+			else if( this.type === T.eventCustomAmount ){
+				success = event.custom.hasOwnProperty("amount") && this.compareValue(s, t, event.custom.amount);
+			}
+			
 			else if( this.type === T.blockValue )
 				success = t && this.compareValue(s, t, t.getBlock());
-			else if( this.type === T.mpValue )
-				success = t && this.compareValue(s, t, t.mp, debug);
-
 			else if( this.type === T.hpValue ){
-				success = t && this.compareValue(s, t, t.hp);
+				let v = t.hp;
+				if( this.data.perc )
+					v /= T.getMaxHP();
+				success = t && this.compareValue(s, t, v);
 			}
 			else if( this.type === T.arousalValue ){
-				success = t && this.compareValue(s, t, t.arousal);
+				let v = t.arousal;
+				if( this.data.perc )
+					v /= T.getMaxArousal();
+				success = t && this.compareValue(s, t, v);
 			}
 			else if( this.type === T.numRpTargets ){
 				success = game.roleplay && t && this.compareValue(s, t, game.roleplay.getTargetPlayers().length, debug);
@@ -1447,8 +1457,8 @@ Condition.Types = {
 	hasFreeBondageDevice : 'hasFreeBondageDevice',
 
 	apValue : 'apValue', 			// 
-	mpValue : 'mpValue', 			// 
 	hpValue : 'hpValue', 			// 
+	eventCustomAmount : 'eventCustomAmount',
 	arousalValue : 'arousalValue', 			// 
 	copperValue : 'copperValue',
 	sizeValue : 'sizeValue',		// 
@@ -1554,10 +1564,10 @@ Condition.descriptions = {
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',
 	[Condition.Types.blockValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
+	[Condition.Types.apValue] : '{amount:(number)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
+	[Condition.Types.hpValue] : '{amount:(number)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
+	[Condition.Types.eventCustomAmount] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Requires an amount field in event.custom',
+	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var.',
 	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
 	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic). Amount can be a math var.',
 	[Condition.Types.dom] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target dominant value, between 0 (sub) 0.5 (switch) and 1 (dom).  Amount can be a math var.',

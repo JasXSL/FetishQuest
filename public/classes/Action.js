@@ -1015,6 +1015,9 @@ class Action extends Generic{
 
 		}
 
+		// Always raise this on parent
+		this.parent.onActionUsed(this, hits);
+
 		return hits.length;
 
 	}

@@ -46,13 +46,12 @@ NOTE: These armors have 2 stats per slot because they're purchased epics. But ha
   x Warrior: Tank. Reduces incoming damage. Lots of blocking.
 Trainer: Chad's Gym
 	Armor: 
-		Warrior's Gear (Breastplate + Crotchplate): 
-			- Rerolling non-defensive momentum now always rolls into defensive momentum.
-			- 
-			- 
-		Sturdy Leather Gear (leather thong + leather chestwraps):
-			- Painful hits to the groin increase the damage of your next standard attack by 1. Resets on turn end.
-	Quest: 
+		t Warrior's Gear (Breastplate + Crotchplate): 
+			- Attack grants you 1 block per enemy you are taunting.
+		t Sturdy Leather Gear (leather thong + leather chestwraps):
+			- Painful hits to the groin increase the damage of your next standard attack by 2. Resets on turn end.
+
+	Quest: Slate decides
 		A: 
 		B: 
 
@@ -60,25 +59,16 @@ Trainer: Chad's Gym
 Trainer: Penal gang
 	Armor: 
 		Bodysuit:
-		- Using a reroll grants you 1 proficiency of each type this turn.
+		t Using a reroll grants you 2 proficiency of each type this turn.
 		Thong bodysuit: 
-		- Using two standard attacks in a row grants you major mending and major aggression this turn.
+		t Using two standard attacks in a row grants you major Accuracy and major aggression this turn.
 	Quest: DONE
 
 (test)  - Cleric: Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive.
 Trainer: church
 	- Armor: 
-		- Plate Bikini (2 slots): 
-			- Restores 2 HP to the party whenever you are hit by an enemy that you are taunting. (Not great, no thinking goes into this)
-			- Healslut
-			- Regeneration
-			- +2 sv phys
-			- +2 sv corruption
-		- Cloth Bikini (2 slots): 
-			- Healing a target under 50% HP grants major mending for 2 turns.
-			- +2 bon arcane
-			- Demonslaying
-			- +2 reroll
+		t Plate Bikini (2 slots): Restores 2 HP to the party whenever you are hit by an enemy that you are taunting.
+		t Cloth Bikini (2 slots): Healing a target under 50% HP grants major mending for 2 turns.
 	- Quest: DONE
 
 
@@ -230,12 +220,13 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 		- Gain a boost to a random offensive stat each turn.
 		- Ending a turn with no momentum left gives <x>
 		- For each N reroll used, gain X
-		- 
+		- An item that costs money to use
 
 	- Item ideas:
 		- Cooldown clearing potions
 		- Your next action costs no AP
 		- Makes you untargetable for 1 turn.
+		- Rerolling non-defensive momentum now always rolls into defensive momentum.
 		
 
 	- Action ideas:

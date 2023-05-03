@@ -134,6 +134,7 @@ export default class Player extends Generic{
 		this._turns = 0;						// Total turns played in combat
 		this._turn_ap_spent = 0;				// AP spent on actions this turn
 		this._turn_action_used = 0;				// Actions used this turn
+		this._turn_std_combo = 0;				// How many times we've used a standard attack in a row
 		this._threat = {};						// playerID : threatAmount
 
 		// These are incoming damage
@@ -320,6 +321,7 @@ export default class Player extends Generic{
 				out._d_damage_since_last = this._d_damage_since_last;
 				out._turns = this._turns;
 				out._turn_action_used = this._turn_action_used;
+				out._turn_std_combo = this._turn_std_combo;
 				out._riposted_since_last = this._riposted_since_last;
 				out._riposting_since_last = this._riposting_since_last;
 				out._healing_a_since_last = this._healing_a_since_last;
@@ -637,6 +639,7 @@ export default class Player extends Generic{
 	}
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
+	// prefix is usually se_ or ta_
 	appendMathVars( prefix, vars, event ){
 
 		let isRoot = this._ignore_effects === null;
@@ -668,7 +671,7 @@ export default class Player extends Generic{
 		vars[prefix+'Money'] = this.getMoney();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
 		vars[prefix+'actionsUsedThisTurn'] = this._turn_action_used;
-
+		vars[prefix+'stdCombo'] = this._turn_std_combo;
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
@@ -707,6 +710,7 @@ export default class Player extends Generic{
 		vars[prefix+'NumMajor'] = this.getNumMajorEffects();
 		vars[prefix+'Major'] = this.getMajorEffects();
 		
+		vars[prefix+"NumTaunts"] = this.getTaunting().length;		// nr players we're taunting
 
 		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last.save());
 		for( let i in Action.Types ){
@@ -900,6 +904,14 @@ export default class Player extends Generic{
 
 		}
 		return out;
+
+	}
+
+	getTaunting(){
+
+		return game.getEnabledPlayers().filter(el => {
+			return el.getTauntedBy(undefined, undefined, undefined, true).includes(this);
+		});
 
 	}
 
@@ -1358,6 +1370,7 @@ export default class Player extends Generic{
 			game.ui.drawMomentumGain(...addedMomentum);
 
 		this._turn_action_used = 0;
+		this._turn_std_combo = 0;
 		this._turn_ap_spent = 0;		// Todo: probably want this by type later
 		
 	}
@@ -1373,6 +1386,7 @@ export default class Player extends Generic{
 		this._damage_since_last = {};
 		this._last_chat = -1;
 		this._turn_action_used = 0;
+		this._turn_std_combo = 0;
 		this.block = this.iBlock = 0;
 		if( this.arousal >= this.getMaxArousal() )
 			this.arousal = this.getMaxArousal()-1;
@@ -1567,6 +1581,23 @@ export default class Player extends Generic{
 		this._d_healing_p_since_last[target.id][type] += amount;
 	}
 
+	onActionUsed( action, successfulHits = [] ){
+
+		if( action.group === "stdatt" ){
+			++this._turn_std_combo;
+			new GameEvent({
+				type : GameEvent.Types.stdAttCombo,
+				sender : this,
+				target : successfulHits,
+				custom : {
+					amount : this._turn_std_combo
+				}
+			});
+		}
+		else
+			this._turn_std_combo = 0;
+
+	}
 
 	onTargetedActionUsed( target ){
 	}
@@ -2626,6 +2657,10 @@ export default class Player extends Generic{
 		targ = targ%3;
 		this.addMomentum(type, -1);
 		this.addMomentum(targ, 1);
+		new GameEvent({
+			type : GameEvent.Types.reroll,
+			target : this,
+		});
 		return targ;
 
 	}
@@ -2981,6 +3016,25 @@ export default class Player extends Generic{
 		
 	}
 
+	// event sender is always this, and event target is always the player sent to getGenericAmountStat,
+	// 
+	testEffectConditions( effect, player ){
+
+		if( !Array.isArray(effect.data.conditions) )
+			return true;
+
+		const evt = new GameEvent({
+			sender : this,
+			target : player,
+		});
+		evt.effect = effect;
+		evt.wrapper = effect.parent;
+		evt.action = evt.wrapper?.getAction();
+
+		return Condition.all(effect.data.conditions, evt);
+
+	}
+
 	// Returns the sum of effect.data.amount of an effect with type, and that aren't multiplicative
 	getGenericAmountStatPoints( type, player ){
 
@@ -2988,12 +3042,17 @@ export default class Player extends Generic{
 			out = 0
 		;
 
+		
+
 		for(let effect of w){
 
 			if( effect.data.multiplier )
 				continue;
 
 			if( player && effect.data.casterOnly && player.id !== effect.parent.caster )
+				continue;
+
+			if( !this.testEffectConditions(effect, player) )
 				continue;
 
 			let n = Calculator.run(
@@ -3032,11 +3091,6 @@ export default class Player extends Generic{
 			Effect.Types.globalArousalTakenMod
 		];
 		
-		const evt = new GameEvent({
-			sender : this,
-			target : player,
-		});
-
 		for( let effect of w ){
 
 			if( !effect.data.multiplier && !ALWAYS_MULTIPLY.includes(type) )
@@ -3047,17 +3101,10 @@ export default class Player extends Generic{
 				if( effect.data.casterOnly && player.id !== effect.parent.caster )
 					continue;
 
-				if( Array.isArray(effect.data.conditions) ){
-
-					evt.effect = effect;
-					evt.wrapper = effect.parent;
-					if( !Condition.all(effect.data.conditions, evt) )
-						continue;
-
-				}
-
 			}
 
+			if( !this.testEffectConditions(effect, player) )
+				continue;
 
 			let n = Calculator.run(
 				effect.data.amount, 

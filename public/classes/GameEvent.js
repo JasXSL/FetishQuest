@@ -159,6 +159,7 @@ GameEvent.Types = {
 	actionCharged : 'actionCharged',
 	actionUsed : 'actionUsed',
 	actionRiposte : 'actionRiposte',
+	reroll : 'reroll',
 	wrapperAdded : 'wrapperAdded',
 	wrapperRemoved : 'wrapperRemoved',	
 	wrapperTick : 'wrapperTick',		
@@ -171,6 +172,8 @@ GameEvent.Types = {
 	armorBroken : 'armorBroken',		
 	armorEquipped : 'armorEquipped',		
 	armorUnequipped : 'armorUnequipped',		
+
+	stdAttCombo : 'stdAttCombo',
 
 	// These are only raised internally within a wrapper/effect
 	internalWrapperAdded : 'internalWrapperAdded',
@@ -220,6 +223,10 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.actionCharged] : 'Used a charged action',	// 
 	[GameEvent.Types.actionUsed] : 'target(is an array of targets here) {resist:true(on resist)}. Note that when this is used in an event check, a wrapper and effect is added by the checker',			//* 
 	[GameEvent.Types.actionRiposte] : 'target is the player that cast the original spell, sender is the original victim',
+	[GameEvent.Types.reroll] : 'target is the player who rerolled',
+
+	[GameEvent.Types.stdAttCombo] : 'Raised when any of the standard 3 attacks (attack, arouse, shock) has been used, custom.amount = nr times in a row any of the 3 has been used. Sender is the player who pulled off the combo. Target is an array of any targets hit. Raised even if you miss.',
+
 	[GameEvent.Types.wrapperAdded] : 'Duration effects only, sender, target, action, wrapper',		//* , 
 	[GameEvent.Types.wrapperRemoved] : 'Duration effects only. sender, target, action, wrapper',	//* 
 	[GameEvent.Types.wrapperExpired] : 'Duration effects only. sender, target, action, wrapper',	//* 
