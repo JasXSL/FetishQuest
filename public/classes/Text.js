@@ -1067,7 +1067,7 @@ Text.actionChargeFallbackText = new Text({
 Text.runFromLibrary = function( event, debug = false ){
 
 	game.lockPlayersAndRun(() => {
-		
+
 		// Note: shallow clone
 		const evt = event.clone();
 		evt.target = toArray(evt.target);
@@ -1130,7 +1130,7 @@ Text.runFromLibrary = function( event, debug = false ){
 				let preSender = evt.sender, preTarget = evt.target;
 				evt.sender = player;
 				evt.raise();
-				
+								
 				const pl = targets.slice();
 				shuffle(pl);
 				for( let t of pl ){

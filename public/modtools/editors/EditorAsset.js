@@ -66,6 +66,7 @@ export function asset(){
 		html += '<label title="In copper. 0 = no sell">Monetary Value: <input name="basevalue" value="'+esc(dummy.basevalue)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label>Weight (grams): <input name="weight" value="'+esc(dummy.weight)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label title="Plate/mail tags are handled automatically, this can be used to override">Hit sound: <input name="hit_sound" value="'+esc(dummy.hit_sound)+'" type="text" class="saveable" /></label>';
+		html += '<label title="Use the asset tooltip even if a use action is set">Force this desc: <input name="iuad" class="saveable" type="checkbox" '+(dummy.iuad ? 'checked' : '')+' /></label>';
 		
 	html += '</div>';
 

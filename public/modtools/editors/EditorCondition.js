@@ -135,7 +135,8 @@ export function asset(){
 		html += '<div class="labelFlex">';
 			html += '<label title="">Value: <input type="text" name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
 			html += '<label>'+buildMathOperators('data::operation', asset.data.operation)+'</label>';
-			html += '<label>Percentage <input type="checkbox" name="data::perc" class="saveable" '+(asset.data.perc ? 'checked' : '')+' /></label>';
+			if( withPerc )
+				html += '<label>Percentage <input type="checkbox" name="data::perc" class="saveable" '+(asset.data.perc ? 'checked' : '')+' /></label>';
 		html += '</div>';
 		return html;
 
@@ -392,7 +393,8 @@ export function asset(){
 		html += buildDefaultValueFields(true);
 	}
 	else if( type === types.eventCustomAmount ){
-		html += buildDefaultValueFields();
+		html += buildDefaultValueFields(); 
+		html += '<label>Event custom field: <input name="data::field" value="'+esc(asset.data.field || '')+'" class="saveable" placeholder="amount" /></label>';
 	}
 	else if( type === types.blockValue ){
 		html += buildDefaultValueFields();
@@ -1036,6 +1038,7 @@ export function asset(){
 		html += '<h3>Deprecated. Use isRoleplayPlayer instead</h3>';
 	}
 	else if( type === types.targetIsSender ){}
+	else if( type === types.targetIsTurnPlayer ){}
 	else if( type === types.targetIsWrapperSender ){
 		setDefaultData({
 			originalWrapper : false

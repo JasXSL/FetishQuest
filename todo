@@ -39,16 +39,17 @@ Todo:
 
 x = done 4813
 v = need visuals
-t = need texts
+w = need texts
+t = need testing
 
 NOTE: These armors have 2 stats per slot because they're purchased epics. But have epic effects.
 
   x Warrior: Tank. Reduces incoming damage. Lots of blocking.
 Trainer: Chad's Gym
 	Armor: 
-		t Warrior's Gear (Breastplate + Crotchplate): 
+		x Warrior's Gear (Breastplate + Crotchplate): YOU GAIN TOO MUCH BLOCK?
 			- Attack grants you 1 block per enemy you are taunting.
-		t Sturdy Leather Gear (leather thong + leather chestwraps):
+		x Sturdy Leather Gear (leather thong + leather chestwraps):
 			- Painful hits to the groin increase the damage of your next standard attack by 2. Resets on turn end.
 
 	Quest: Slate decides
@@ -59,28 +60,26 @@ Trainer: Chad's Gym
 Trainer: Penal gang
 	Armor: 
 		Bodysuit:
-		t Using a reroll grants you 2 proficiency of each type this turn.
+		x Using a reroll grants you 1 proficiency of each type this turn.
 		Thong bodysuit: 
-		t Using two standard attacks in a row grants you major Accuracy and major aggression this turn.
+		x Using two standard attacks in a row grants you major Accuracy and major aggression this turn.
 	Quest: DONE
 
 (test)  - Cleric: Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive.
 Trainer: church
 	- Armor: 
-		t Plate Bikini (2 slots): Restores 2 HP to the party whenever you are hit by an enemy that you are taunting.
-		t Cloth Bikini (2 slots): Healing a target under 50% HP grants major mending for 2 turns.
+		x Plate Bikini (2 slots): Restores 2 HP to the party whenever you are hit by an enemy that you are taunting.
+		x Cloth Bikini (2 slots): Healing a target under 50% HP grants major mending for 2 turns.
 	- Quest: DONE
 
 
 (test)  - Tentaclemancer-  Tank (utility): Tanks by weakening enemies. [Train in Borm.]
 Trainer: Borm
 	- Armor: 
-		Living bodysuit:
+		x Living bodysuit:
 			- Orgasm no longer resets your momentum.
 			- Gain major aggression and defense for 2 turns on orgasm.
-		Living bikini:
-			- 30% chance when taunting an opponent to add 2 arousal and detach the bikini.
-			- On equipping the bikini in combat, gain 4 HP.
+!		w Living bikini: Use: Deal 4 corruption damage to your target, healing for the amount. Cooldown is reset on orgasm.
 	- Quest: 
 		A: Tickle tentacle spawning season is upon us. The tentaclemancer wants you to collect eggs from borm.
 			- On the way back, a rattani asks you to part with 1 egg. Doing so move him to the inn and allows you to do the side quest listed above.
@@ -98,12 +97,8 @@ Trainer: Borm
 (test)  - Monk: Healer - Heals by attacking
 Trainer: Portswood glade.
 	- Armor: 
-		Ultralight Bodysuit:
-			- Using 4 different actions in the same turn grants you 3 extra momentum next turn.
-			- ??? Something with healing
-		Ultralight Sling Bikini:
-			- Gain 30% more damage and healing, reduced by your percent of carry weight.
-			- ??? Something with healing
+		t Ultralight Bodysuit: Using attack against a grappled target restores 3 HP to a random friendly player.  
+		t Ultralight Sling Bikini: Getting riposted grants you major mending and momentum for 3 turns.
 
 	- Quest: Learning the ways of the monk:
 		A: Inner focus:
@@ -130,25 +125,18 @@ Trainer: Portswood glade.
 (test)  - Elementalist - Defensive DPS: Deal damage when enemies attack [Todo: Train at ???]
 Trainer: Otter in lake (moves to inn after quest complete)
 	- Armor: 
-		Tribal Leathers (leather thong plus chest)
-			- Gain 1 arcane proficiency each turn, up to 5 stacks. Being hit in the groin removes 3 stacks.
-			- ??? Something to do with defensive momentum
-		Stimulating Sling Bikini
-			- Divert can be used on any target, but adds 3 arousal to the caster.
-			- 
+		t Tribal Leathers (leather thong plus chest): Grants 5 random momentum when you interrupt a player.
+		t Stimulating Sling Bikini: Divert can be used on any target, but adds 3 arousal to the caster.
+
 
 	- Quest: DONE
 	
 
+
 (test)  - Necromancer - Tank (offense) by doing damage and stealing health [TRAIN AT NECRO LAIR]
 Trainer: Necromancer
-	Bone Armor (heavy), bone breastplate and thong: 
-		- On orgasm, gain an extra charge of corrupt.
-		- 
-	Dark Robes
-		- Life steals have a chance equal to your opponent's HP percentage to restore +2 HP to your party.
-	
-	
+	t Bone Armor (heavy), bone breastplate and thong:  On orgasm, gain an extra charge of corrupt.
+	t Dark Robes: Life steals have a chance equal to your opponent's HP percentage to restore +2 HP to your party.
 	
 	- Quest: DONE
 
@@ -156,12 +144,8 @@ Trainer: Necromancer
 (test)		- Arcanist - Healer (proactive) [TRAIN AT SHARKANISTS]
 Trainer: Sharkanists
 	- Armor: 
-		Arcane Silk Bikini: 
-		- Damaging a target with block restores 5 HP to an injured party member.
-		- 
-		Arcane Bodysuit:
-		- When a friendly player's block is broken on their turn, they gain Major Blessing and Major Penetration until the end of the turn.
-		- 
+		t Arcane Silk Bikini: Gain 1 arcane proficiency each turn, up to 5 stacks. This effect is reset when you take HP damage.
+		- Arcane Bodysuit: When a friendly player's block is broken on their turn, they gain Major Blessing and Major Penetration until the end of the turn.
 	- Quest: DONE
 
 

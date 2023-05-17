@@ -825,6 +825,8 @@ Wrapper.TARGET_EVENT_RAISER = "EVENT_RAISER";	// Used only for Effect.Types.runW
 Wrapper.TARGET_EVENT_TARGETS = "EVENT_TARGETS";	// Used only for Effect.Types.runWrappers, targets the player(s) that were the targets of the event that triggered the effect
 Wrapper.TARGET_ORIGINAL = "ORIGINAL";		// Specifies the target of the action that triggered this. Same as AUTO except in SMART_HEAL. Can also be used in effect events to target the owner of the wrapper containing the event that triggered the effect. Also used in Used only in Effect.Types.hitfx currently to trigger on the targeted victim of a smart heal action.
 Wrapper.TARGET_RP_TP = "RP_TP";				// RP Target players
+Wrapper.TARGET_AOE_WPTEAM = "S_TEAM";		// AoE on paret wrapper parent's team. Useful in procs so you don't have to tunnel wrappers. The wrapper is the effect parent.
+Wrapper.TARGET_AOE_NOT_WPTEAM = "O_TEAM";	// Inverse of above.
 
 Wrapper.Targets = {
 	none : 'none',	// used in the editor to delete a target  
@@ -836,6 +838,8 @@ Wrapper.Targets = {
 	event_targets : Wrapper.TARGET_EVENT_TARGETS,
 	original_target : Wrapper.TARGET_ORIGINAL,
 	rp_targplayer : Wrapper.TARGET_RP_TP,
+	aoe_wp_team : Wrapper.TARGET_AOE_WPTEAM,
+	aoe_not_wp_team : Wrapper.TARGET_AOE_NOT_WPTEAM,
 };
 
 
@@ -915,8 +919,8 @@ class Effect extends Generic{
 		if( !Effect.Types[this.type] )
 			console.error("Unknown effect type", this.type, "in", this);
 
-		if( [Effect.Types.runWrappers, Effect.Types.assetWrappers].includes(this.type) && Array.isArray(this.data.wrappers) ){
-			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
+		if( [Effect.Types.runWrappers, Effect.Types.assetWrappers].includes(this.type) && this.data.wrappers ){
+			this.data.wrappers = Wrapper.loadThese(toArray(this.data.wrappers), this);
 		}
 		
 		// If an effect has a conditions data field, it's 
@@ -1137,22 +1141,23 @@ class Effect extends Generic{
 						"of which", s.getBon(type), "-", t.getSV(type),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
-						"nudity multi", t.getArmorDamageMultiplier(s, this)
+						"nudity multi", t.getArmorDamageMultiplier(s, this),
+						"sMajor", sMajor, "tMajor", tMajor
 					);
 					*/
 					// Get target global damage point taken modifier
 
 					// Amt is negative
-					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s );
+					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s, action );
 					
 					// amt is negative when attacking, that's why we use - here
-					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t );
+					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t, action );
 					
 					// Multipliers last
 					amt *= Player.getBonusDamageMultiplier( s,t,type,wrapper.detrimental ); // Negative because it's damage
-					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t );
+					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t, action );
 
-					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
+					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s, action );
 					amt *= t.getArmorDamageMultiplier( s, this );
 
 					// Major aggression: +30% for sender
@@ -1167,7 +1172,6 @@ class Effect extends Generic{
 					// Major vulnerability: +30% for target 
 					if( tMajor & Effect.Major.Vulnerability )
 						amt *= 1.3;
-					
 					
 					amt = randRound(amt);
 					if( amt > 0 )
@@ -1249,6 +1253,7 @@ class Effect extends Generic{
 				if( isNaN(amt) )
 					console.error("NaN damage amount found in", this);
 
+				let preHP = t.hp/t.getMaxHP();
 				let exec = t.addHP(amt, s, this, type, noBlock, true);
 				let died = exec.died;
 
@@ -1268,6 +1273,8 @@ class Effect extends Generic{
 
 					let threat = amt * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
 					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(amt*this.data.leech)) : 0;
+					
+
 					t.addThreat( s.id, -threat );
 
 					if( amt )
@@ -1276,6 +1283,16 @@ class Effect extends Generic{
 					if( leech ){
 						s.addHP(leech, s, this, type, false, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
+						new GameEvent({
+							type : GameEvent.Types.lifeSteal,
+							sender : s,
+							target : t,
+							wrapper : wrapper,
+							effect : this,
+							custom : {
+								amount : leech
+							}
+						});
 					}
 
 				}else if(amt){
@@ -1296,13 +1313,14 @@ class Effect extends Generic{
 					effect : this,
 					custom : {
 						amount : actualAmount,
-						overAmount : overAmount
+						overAmount : overAmount,
+						hpPre : preHP
 					}
 				});
 				doneEvt.raise();
 				
 				// damage/healing taken
-				new GameEvent({
+				const takenEvt = new GameEvent({
 					type : e2,
 					sender : s,
 					target : t,
@@ -1310,9 +1328,17 @@ class Effect extends Generic{
 					effect : this,
 					custom : {
 						amount : actualAmount,
-						overAmount : overAmount
+						overAmount : overAmount,
+						hpPre : preHP
 					}
 				}).raise();
+
+				// Re-raise as hpDamageTaken taken
+				if( amt < 0 && changehp ){
+					takenEvt.type = GameEvent.Types.hpDamageTaken;
+					takenEvt.raise();
+				}
+
 
 				if( died )
 					new GameEvent({
@@ -1539,12 +1565,14 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.runWrappers ){
 				
 				let wrappers = this.data.wrappers;
+
 				if( !Array.isArray(wrappers) ){
 					console.error("Effect data in wrapper ", wrapper, "tried to run wrappers, but wrappers are not defined in", this);
 					return false;
 				}
-				
-				for( let w of this.data.wrappers ){
+
+
+				for( let w of wrappers ){
 
 					let wr = new Wrapper(w, wrapper.parent);
 					let stacks = this.data.stacks;
@@ -1620,7 +1648,7 @@ class Effect extends Generic{
 				// Attach the asset wrappers to the player
 				for( let asset of assets ){
 
-					for( let w of this.data.wrappers ){
+					for( let w of wrappers ){
 
 						let wr = new Wrapper(w, wrapper.parent);
 						wr.asset = asset.id;
@@ -2159,8 +2187,13 @@ class Effect extends Generic{
 	// Attempts to get a target by wrapper.target type
 	getTargetsByType( type, event ){
 
+		const ot = game.getPlayerById(this.parent.original_target);
 		if( type === Wrapper.Targets.aoe )
 			return game.getEnabledPlayers();
+		if( type === Wrapper.Targets.target_aoe_not_wp_team )
+			return game.getEnabledPlayers().filter(el => ot && el.team !== ot.team);
+		if( type == Wrapper.Targets.target_aoe_not_wp_team )
+			return ot ? game.getTeamPlayers(ot?.team) : [];
 		if( type === Wrapper.Targets.caster )
 			return [game.getPlayerById(this.parent.caster)];
 		if( type === Wrapper.Targets.event_raiser )
@@ -2634,7 +2667,7 @@ Effect.TypeDescs = {
 
 	
 	[Effect.Types.gameAction] : '{action:(obj/arr)gameAction} - Lets you run one or many game actions',
-	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
+	[Effect.Types.addActionCharges] : '{actions:(arr)actionLabels, amount:(nr/str)amount}',
 
 	[Effect.Types.physicalProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the damage armor chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
 	[Effect.Types.corruptionProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the arousal proc chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',

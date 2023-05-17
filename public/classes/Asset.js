@@ -85,6 +85,7 @@ export default class Asset extends Generic{
 		this.inBank = false;			// This item is in the bank
 		this.genLoot = false;			// Can be found as generated loot in chests and such
 		this.weight = 100;				// Weight in grams
+		this.iuad = false;				// Ignore use action description. Even if a use action is set, use this one's description.
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
 		this._charges = -1;				// How many charges remain. Setting to -1 will automatically set it to this.charges on load
@@ -116,6 +117,7 @@ export default class Asset extends Generic{
 			durability_bonus : this.durability_bonus,
 			durability : this.durability,
 			weight : this.weight,
+			iuad : this.iuad,
 			charges : this.charges,
 			use_action : ua,
 			rarity : this.rarity,
@@ -602,7 +604,7 @@ export default class Asset extends Generic{
 		;
 		let html = '';
 		// Usable items shows the action tooltip instead
-		if( isConsumable )
+		if( isConsumable && !this.iuad )
 			return this.use_action.getTooltipText(true, this.rarity);
 
 		let apCost = this.equipped ? Game.UNEQUIP_COST : Game.EQUIP_COST;

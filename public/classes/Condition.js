@@ -182,6 +182,7 @@ export default class Condition extends Generic{
 			console.error("This was", this, "event was", event);
 			throw 'Invalid event';
 		}
+
 		
 
 		if( !debug )
@@ -203,20 +204,18 @@ export default class Condition extends Generic{
 
 		}
 
-		let targs = toArray(event.target),
+		let targs = toArray(event.target).slice(),
 			success = false,
 			T = Condition.Types,
-			s = event.sender
+			sender = event.sender
 		;
+
 
 		const originalTargets = targs.slice();
 
 		let eventWrapper = event.wrapper;
 		if( this.data.originalWrapper && event.originalWrapper )
 			eventWrapper = event.originalWrapper;
-
-		if( this.caster )
-			targs = [event.sender];
 
 		if( ~this.targnr )
 			targs = [targs[this.targnr]];
@@ -236,6 +235,12 @@ export default class Condition extends Generic{
 
 		// Check against all targeted players
 		for( let t of targs ){
+
+			let s = sender;
+			if( this.caster ){
+				s = t;
+				t = sender;
+			}
 
 			event.target = t;	// Override the target temporarily for correct math
 
@@ -302,6 +307,11 @@ export default class Condition extends Generic{
 			else if( this.type === T.targetIsSender ){
 				if(t && s && t.id === s.id)
 					success = true;
+			}
+			else if( this.type === T.targetIsTurnPlayer ){
+				
+				success = t && game.isTurnPlayer(t);
+
 			}
 			// s might not always be the original sender of a wrapper (procs/AoE effects etc)
 			// Use this to make it clear that you want the included wrapper's sender
@@ -500,12 +510,17 @@ export default class Condition extends Generic{
 			else if( this.type === T.species ){
 
 				if( t ){
+
 					let species = toArr(this.data.species);
 					species = species.map(el => el.toLowerCase() );
+					if( !t.species )
+						console.error("Target has no species", t, "targs", targs);
 					success = species.indexOf(t.species.toLowerCase()) > -1;
 					if( debug )
 						console.debug("TESTING SPECIES:: ", "data:", species, "target", t.species.toLowerCase());
+
 				}
+
 			}
 			else if( this.type === T.playerClass ){
 
@@ -654,10 +669,10 @@ export default class Condition extends Generic{
 			else if( this.type === T.isTaunted ){
 
 				// Need a player in event
-				if( t && (!this.data.byCaster || event.sender) ){
+				if( t && (!this.data.byCaster || s) ){
 
-					let targs = t.getTauntedBy( undefined, false, false, true ).map(el => el.id);
-					success = targs.length && (!this.data.byCaster || targs.includes(event.sender.id));
+					let taTargs = t.getTauntedBy( undefined, false, false, true ).map(el => el.id);
+					success = taTargs.length && (!this.data.byCaster || taTargs.includes(s.id));
 
 				}
 
@@ -670,16 +685,24 @@ export default class Condition extends Generic{
 				success = t && this.compareValue(s, t, v);
 			}
 			else if( this.type === T.eventCustomAmount ){
-				success = event.custom.hasOwnProperty("amount") && this.compareValue(s, t, event.custom.amount);
+				
+				let field = "amount";
+				if( this.data.field )
+					field = this.data.field;
+
+				success = event.custom.hasOwnProperty(field) && this.compareValue(s, t, event.custom[field]);
+
 			}
 			
 			else if( this.type === T.blockValue )
 				success = t && this.compareValue(s, t, t.getBlock());
 			else if( this.type === T.hpValue ){
+
 				let v = t.hp;
 				if( this.data.perc )
-					v /= T.getMaxHP();
+					v /= t.getMaxHP();
 				success = t && this.compareValue(s, t, v);
+
 			}
 			else if( this.type === T.arousalValue ){
 				let v = t.arousal;
@@ -1146,13 +1169,13 @@ export default class Condition extends Generic{
 					vars = [vars];
 
 				if( Array.isArray(vars) && window.game ){
-					const t = {};
+					const _t = {};
 					for( let v of vars ){
-						t[v] = 0;
+						_t[v] = 0;
 						if( game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars.hasOwnProperty(v) )
-							t[v] = game.state_dungeons[dungeon].vars[v];
+						_t[v] = game.state_dungeons[dungeon].vars[v];
 					}
-					success = Calculator.run(formula, event, t);
+					success = Calculator.run(formula, event, _t);
 				}
 
 			}
@@ -1507,11 +1530,12 @@ Condition.Types = {
 	hasActiveConditionalPlayer : 'hasActiveConditionalPlayer',
 	actionCrit : 'actionCrit',
 	targetIsRpPlayer : 'targetIsRpPlayer',
-
+	targetIsTurnPlayer : 'targetIsTurnPlayer',
 	isGenderEnabled : 'isGenderEnabled',
 	targetGenderEnabled : 'targetGenderEnabled',
 
 	encounterCompleted : 'encounterCompleted',
+
 
 	// Dungeon room conditions
 	roomIsOutdoors : 'roomIsOutdoors',
@@ -1566,7 +1590,7 @@ Condition.descriptions = {
 	[Condition.Types.blockValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
 	[Condition.Types.apValue] : '{amount:(number)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
 	[Condition.Types.hpValue] : '{amount:(number)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
-	[Condition.Types.eventCustomAmount] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Requires an amount field in event.custom',
+	[Condition.Types.eventCustomAmount] : '{amount:(int)amount, operation:(str)<>=, field:(str)"amount"} - Default > Amount can be a math var. By default checks for an amount field in event.custom, but field can be used to check other fields in event.custom',
 	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var.',
 	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
 	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic). Amount can be a math var.',
@@ -1587,6 +1611,7 @@ Condition.descriptions = {
 	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data with EXACT',	
 	[Condition.Types.dungeonVarMath] : '{vars:(str/arr)var_ids, formula:(str)formula, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data via a math formula. vars have to contain all dVars included in the formula. If one is not set, it becomes 0.',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
+	[Condition.Types.targetIsTurnPlayer] : 'void - Checks if it\'s the event target\'s turn in combat',
 	[Condition.Types.targetIsWrapperSender] : '{ originalWrapper:(bool)=false} - Sender might not always be the caster of a wrapper (ex checking effect targets). This specifies that you want the sender of the included wrapper in specific.',	
 	[Condition.Types.species] : '{species:(str/arr)species} - Checks if target is one of the selected species. Case insensitive',	
 	[Condition.Types.encounterLabel] : '{label:(str/arr)encounter_label} - Checks if the encounter label exists in data label array',	

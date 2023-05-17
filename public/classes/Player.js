@@ -910,7 +910,7 @@ export default class Player extends Generic{
 	getTaunting(){
 
 		return game.getEnabledPlayers().filter(el => {
-			return el.getTauntedBy(undefined, undefined, undefined, true).includes(this);
+			return el !== this && el.getTauntedBy(undefined, false, undefined, true).includes(this);
 		});
 
 	}
@@ -1287,7 +1287,7 @@ export default class Player extends Generic{
 	// Raised after effects
 	onTurnStart(){
 
-		this.reroll = 2;
+		this.reroll = 4;
 		this.endedTurn = false;
 		this._d_damaging_since_last = {};
 		this._d_damage_since_last = {};
@@ -1584,6 +1584,7 @@ export default class Player extends Generic{
 	onActionUsed( action, successfulHits = [] ){
 
 		if( action.group === "stdatt" ){
+
 			++this._turn_std_combo;
 			new GameEvent({
 				type : GameEvent.Types.stdAttCombo,
@@ -1592,7 +1593,8 @@ export default class Player extends Generic{
 				custom : {
 					amount : this._turn_std_combo
 				}
-			});
+			}).raise();
+			
 		}
 		else
 			this._turn_std_combo = 0;
@@ -2660,7 +2662,7 @@ export default class Player extends Generic{
 		new GameEvent({
 			type : GameEvent.Types.reroll,
 			target : this,
-		});
+		}).raise();
 		return targ;
 
 	}
@@ -2768,6 +2770,14 @@ export default class Player extends Generic{
 		});
 		evt.type = added > 0 ? GameEvent.Types.blockAdded : GameEvent.Types.blockSubtracted;
 		evt.raise();
+
+		if( added < 0 && !this.block )
+			new GameEvent({
+				type : GameEvent.Types.blockBroken,
+				sender : byPlayer,
+				target : this,
+			}).raise();
+
 		
 		return added;
 
@@ -2899,10 +2909,8 @@ export default class Player extends Generic{
 		if( this.hpMulti < 0 )
 			return Math.ceil(Math.abs(this.hpMulti));
 
-		const add = Math.max(0, 15-game.getTeamPlayers().length*5);
-
 		return Math.max(Math.ceil(
-			(BASE_HP+add+this.getGenericAmountStatPoints(Effect.Types.maxHP))
+			(BASE_HP+this.getGenericAmountStatPoints(Effect.Types.maxHP))
 			*this.getPowerMultiplier()
 			*this.hpMulti
 			*this.getGenericAmountStatMultiplier(Effect.Types.maxHP, this)
@@ -3018,7 +3026,7 @@ export default class Player extends Generic{
 
 	// event sender is always this, and event target is always the player sent to getGenericAmountStat,
 	// 
-	testEffectConditions( effect, player ){
+	testEffectConditions( effect, player, action ){
 
 		if( !Array.isArray(effect.data.conditions) )
 			return true;
@@ -3029,14 +3037,14 @@ export default class Player extends Generic{
 		});
 		evt.effect = effect;
 		evt.wrapper = effect.parent;
-		evt.action = evt.wrapper?.getAction();
+		evt.action = action || evt.wrapper?.getAction();
 
 		return Condition.all(effect.data.conditions, evt);
 
 	}
 
 	// Returns the sum of effect.data.amount of an effect with type, and that aren't multiplicative
-	getGenericAmountStatPoints( type, player ){
+	getGenericAmountStatPoints( type, player, action ){
 
 		let w = this.getActiveEffectsByType(type),
 			out = 0
@@ -3052,7 +3060,7 @@ export default class Player extends Generic{
 			if( player && effect.data.casterOnly && player.id !== effect.parent.caster )
 				continue;
 
-			if( !this.testEffectConditions(effect, player) )
+			if( !this.testEffectConditions(effect, player, action) )
 				continue;
 
 			let n = Calculator.run(
@@ -3078,7 +3086,7 @@ export default class Player extends Generic{
 
 	// Player is only used when checking caster_only, and should be the target
 	// Auto checks effects with a conditions property
-	getGenericAmountStatMultiplier( type, player ){
+	getGenericAmountStatMultiplier( type, player, action ){
 		let w = this.getActiveEffectsByType(type),
 			out = 1
 		;
@@ -3103,7 +3111,7 @@ export default class Player extends Generic{
 
 			}
 
-			if( !this.testEffectConditions(effect, player) )
+			if( !this.testEffectConditions(effect, player, action) )
 				continue;
 
 			let n = Calculator.run(
@@ -3124,7 +3132,7 @@ export default class Player extends Generic{
 		let out = 0;
 		const effects = this.getActiveEffectsByType(Effect.Types.majorEffect);
 		for( let effect of effects ){
-			const n = Math.trunc(effect.effect) || 0;
+			const n = Math.trunc(effect.data.effect) || 0;
 			out = out | n;
 		}
 		return out;
@@ -4460,7 +4468,7 @@ Player.MAX_LEVEL = 14;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
-Player.MAX_MOMENTUM = 9;	// Hardcoded limit. Technically can go up to 26 without violating Number.MAX_SAFE_INTEGER
+Player.MAX_MOMENTUM = 12;	// Hardcoded limit. Technically can go up to 26 without violating Number.MAX_SAFE_INTEGER
 							// The reason for this is that the array is packed into a single int made up of 2-bit values when transferred
 
 

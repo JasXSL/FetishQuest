@@ -2478,6 +2478,7 @@ export default class Game extends Generic{
 			for( let player of this.players ){
 				if( !this.initiative.includes(player.team) )
 					this.initiative.push(player.team);
+				player.onBattleStart();
 			}
 			shuffle(this.initiative);
 			new GameEvent({
@@ -2669,7 +2670,7 @@ export default class Game extends Generic{
 			turnPlayers = this.getTurnPlayers();
 			new GameEvent({
 				type : GameEvent.Types.turnChanged,
-				sender : turnPlayers,
+				sender : turnPlayers[0], // Don't rely on this. Sender can't be an array tho, so we're putting this here as a dummy.
 				target : turnPlayers
 			}).raise();
 			const others = this.getPlayersNotOnTeam(this.initiative[this.turn]);	// Not sure why player first turn is raised with everyone not on the team as a target. Maybe one day I'll find out.

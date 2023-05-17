@@ -802,7 +802,8 @@ class Action extends Generic{
 
 	// Uses this action on array targets. 
 	useOn( targets, isChargeFinish = false, netPlayer ){
-
+		const pp = this.getPlayerParent();
+		
 		if( !this.castable(true, isChargeFinish) )
 			return;
 
@@ -1003,6 +1004,7 @@ class Action extends Generic{
 
 		}
 
+		// If this is an asset:
 		// Always consume charges, even on fail
 		if( this.isAssetAction() && !this.parent.no_auto_consume )
 			this.parent.consumeCharges();
@@ -1015,8 +1017,10 @@ class Action extends Generic{
 
 		}
 
-		// Always raise this on parent
-		this.parent.onActionUsed(this, hits);
+		// Always raise this on the player parent
+		if( !pp.onActionUsed )
+			console.trace("Action", this, "has no valid parent");
+		pp.onActionUsed(this, hits);
 
 		return hits.length;
 
