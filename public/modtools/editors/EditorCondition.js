@@ -747,9 +747,10 @@ export function asset(){
 		setDefaultData({
 			originalWrapper : false
 		});
-
 		html += '<div class="labelFlex">';
-			html += '<label title="When checking effect conditions, the event wrapper is always the effect\'s parent. If the event has a wrapper already, it gets put as original wrapper.">Use original wrapper: <input type="checkbox" name="data::originalWrapper" class="saveable" '+(asset.data.originalWrapper ? 'checked' : '')+'" /></label>';
+			html += '<label title="When checking effect conditions, the event wrapper is always the effect\'s parent. If the event has a wrapper already, it gets put as original wrapper.">'+
+				'Use original wrapper: <input type="checkbox" name="data::originalWrapper" class="saveable" '+(asset.data.originalWrapper ? 'checked' : '')+' />'+
+			'</label>';
 		html += '</div>';
 
 	}

@@ -4130,7 +4130,7 @@ export default class StaticModal{
 					for( let i = 0; i<Player.MAX_ACTION_SLOTS; ++i ){
 
 						const el = $(this.actions.activeButtons[i]);
-						el.toggleClass('button', true);
+						
 
 						let action = player.getActionAtSlot(i);
 
@@ -4138,6 +4138,8 @@ export default class StaticModal{
 						if( action )
 							UI.setActionButtonContent(el, action, player, i+2, true);
 						else{
+							
+							$("> div", el).html("");
 
 							const slotUnlocked = i < numSlots;
 							el.toggleClass("tooltipParent", false).toggleClass('disabled', !slotUnlocked);
@@ -4153,6 +4155,7 @@ export default class StaticModal{
 
 							
 						}
+						el.toggleClass('button', true);
 						el.toggleClass('empty', !action);
 
 					}

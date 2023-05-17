@@ -986,6 +986,7 @@ class Effect extends Generic{
 
 		let evt = event.clone();
 		evt.effect = this;
+		// Automatically handles originalWrapper and sets event wrapper to the effect parent
 		evt.originalWrapper = evt.wrapper;
 		evt.wrapper = wrapper;
 
@@ -1023,6 +1024,13 @@ class Effect extends Generic{
 			else if( ta === Wrapper.TARGET_AOE ){
 				tout = tout.concat(game.getEnabledPlayers());
 			}
+			else if( ta === Wrapper.TARGET_AOE_WPTEAM && wrapper.getPlayerParent() ){
+				tout = tout.concat(game.getTeamPlayers(wrapper.getPlayerParent()?.team) );
+			}
+			else if( ta === Wrapper.TARGET_AOE_NOT_WPTEAM && wrapper.getPlayerParent() ){
+				tout = tout.concat(game.getPlayersNotOnTeam(wrapper.getPlayerParent()?.team) );
+			}
+			
 			else if( ta === Wrapper.TARGET_RP_TP ){
 				tout.push(...game.roleplay.getTargetPlayers());
 			}
@@ -1055,7 +1063,7 @@ class Effect extends Generic{
 			attackType = Action.Types.physical;
 
 		if( debug )
-			console.debug("Allowed ", this, "to trigger", event);
+			console.debug("Allowed ", this, "to trigger", event, "against", tout);
 
 		for( let t of tout ){
 
@@ -1357,14 +1365,14 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.momentumNextTurn ){
+
 				let amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
 				}));
 				if( !this.no_stack_multi )
 					amt *= this.parent.getStacks();
-
-				t.addIncomingMomentum(amt, this.data.type);
+				t.addIncomingMomentum(this.data.type, amt);
 				
 			}
 

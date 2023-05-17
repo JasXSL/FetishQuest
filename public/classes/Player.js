@@ -1527,7 +1527,7 @@ export default class Player extends Generic{
 		++this._d_damaging_since_last[target.id][type];
 
 		// Major Lifesteal: Gain 2 HP when attacking target
-		if( !this.isDead() && this.getMajorEffects() & Effect.Major.Lifesteal )
+		if( !this.isDead() && target.getMajorEffects() & Effect.Major.Lifesteal )
 			this.addHP(2, this, undefined, undefined, undefined, true);
 
 	}

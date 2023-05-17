@@ -97,8 +97,8 @@ Trainer: Borm
 (test)  - Monk: Healer - Heals by attacking
 Trainer: Portswood glade.
 	- Armor: 
-		t Ultralight Bodysuit: Using attack against a grappled target restores 3 HP to a random friendly player.  
-		t Ultralight Sling Bikini: Getting riposted grants you major mending and momentum for 3 turns.
+		x Ultralight Bodysuit: Using attack against a grappled target restores 3 HP to a random friendly player.  
+		x Ultralight Sling Bikini: Getting riposted grants you major mending and momentum for 3 turns.
 
 	- Quest: Learning the ways of the monk:
 		A: Inner focus:
@@ -125,8 +125,8 @@ Trainer: Portswood glade.
 (test)  - Elementalist - Defensive DPS: Deal damage when enemies attack [Todo: Train at ???]
 Trainer: Otter in lake (moves to inn after quest complete)
 	- Armor: 
-		t Tribal Leathers (leather thong plus chest): Grants 5 random momentum when you interrupt a player.
-		t Stimulating Sling Bikini: Divert can be used on any target, but adds 3 arousal to the caster.
+		x Tribal Leathers (leather thong plus chest): Grants 5 random momentum when you interrupt a player.
+		x Stimulating Sling Bikini: Divert can be used on any target, but adds 3 arousal to the caster.
 
 
 	- Quest: DONE

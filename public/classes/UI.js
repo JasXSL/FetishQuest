@@ -451,7 +451,7 @@ export default class UI{
 			if( !ap )
 				return;
 			let idx = Math.trunc(event.target.dataset.i);
-			if( idx >= ap.getMomentum() || ap.reroll < 1 )
+			if( idx > ap.getMomentum() || ap.reroll < 1 )
 				return;
 			
 			game.rerollMomentum(ap, idx); 

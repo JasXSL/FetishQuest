@@ -121,6 +121,7 @@ export default {
 	acEarth : 'ac_earth',
 	acElectric : 'ac_electric',
 	acPotion : 'ac_potion',
+	acLifesteal  : 'ac_lifesteal',
 	
 
 	// Common asset tags. These are appended with _<slot> ex as_tight_upperBody
