@@ -1667,6 +1667,12 @@ export default class Game extends Generic{
 		return this.players.filter(el => !el.disabled);
 	}
 
+	onEndTurn( t ){
+
+		this.autoUpdateSelectedPlayer();
+		
+	}
+
 	// Add a player by data
 	// If data is a Player object, it uses that directly
 	addPlayer(data, nextTurn = false ){
@@ -2619,6 +2625,7 @@ export default class Game extends Generic{
 		this.my_player = id;
 		localStorage.my_player = id;
 		this.ui.draw();
+		this.save();
 	}
 
 	getTurnPlayers(){
@@ -2720,9 +2727,11 @@ export default class Game extends Generic{
 
 		if( !this.battle_active )
 			return;
+
 		const active = game.getMyActivePlayer();
 		if( this.isTurnPlayer(active) )
 			return;
+
 		const players = this.getTurnPlayers();
 		for( let pl of players ){
 			if( this.isMyPlayer(pl) && this.isTurnPlayer(pl) ){

@@ -533,7 +533,7 @@ export default class StaticModal{
 
 				}
 
-				for( let i =0; i<learnable.length; ++i ){
+				for( let i =0; i < learnable.length; ++i ){
 
 					const el = learnableEls[i],
 						abil = learnable[i].getAction(),

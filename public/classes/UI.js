@@ -1201,8 +1201,6 @@ export default class UI{
 			event.stopImmediatePropagation();
 			const id = $(event.target).closest('div.player').attr('data-id');
 			game.setMyPlayer(id);
-			this.draw();
-			game.save();
 
 		});
 
@@ -1272,7 +1270,7 @@ export default class UI{
 						game.setMyPlayer(id);
 					el._longpressTimer = true;
 
-				}, 1000);
+				}, 500);
 			}).off('mouseup').on('mouseup', event => {
 
 				const el = event.currentTarget;

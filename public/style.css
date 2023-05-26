@@ -2619,7 +2619,7 @@ div.scroll{
 	#ui > div.players div.player{
 
 		width:25.5vw;
-		margin:0.15vmax;
+		margin:0.3vmax;
 		user-select: none;
 		cursor:pointer;
 		flex-grow: 1;
@@ -2647,6 +2647,9 @@ div.scroll{
 		padding:0.5vmax;
 		display:none;
 	}
+	div.players div.player.myActive > div.content{
+		outline: 0.4vmax solid #FFF;
+	}
 	div.players div.player > div.content{
 
 		overflow:visible;
@@ -2655,7 +2658,6 @@ div.scroll{
 		background:#222;
 		border:0.2vmax solid transparent;
 		height:100%;
-
 		background: linear-gradient(#FFF, #FFF) padding-box, linear-gradient(
 			45deg, #888888 0%,#adadad 48%,#797979 51%,#838383 100%) border-box;
 
@@ -2753,9 +2755,13 @@ div.scroll{
 		opacity:0.75;
 	}
 
+	#ui > div.players div.player.mine.active > div.content{
+		border-color:#AFA;
+		box-shadow:0 0 .5vmax .25vmax rgb(200,255,200);
+	}
 	#ui > div.players div.player.active > div.content{
-		border-color:#DFD;
-		box-shadow:0 0 1vmax rgba(200,255,200, 0.8);
+		border-color:#FFA;
+		box-shadow:0 0 .5vmax .25vmax rgb(255,255,200);
 	}
 
 	#ui > div.players div.player.castTarget > div.content{
@@ -3128,6 +3134,9 @@ div.scroll{
 		margin: 0.3vh 0 0 0;
 		height: 5.5vh;
 		background: linear-gradient(to bottom, #686868 0%,#636363 39%,#4c4c4c 50%,#282828 51%,#383838 100%);
+	}
+	#ui > div.actionbar > div.actions > div.action.disabled[data-id=end-turn]{
+		display:none;
 	}
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn] div.bg{
 		background:url(media/wrapper_icons/upgrade.svg);

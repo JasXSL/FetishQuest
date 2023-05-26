@@ -3729,7 +3729,7 @@ export default class Player extends Generic{
 
 			if( a.auto_learn || this.getLearnedActionByLabel(a.action) )
 				continue;
-			if( a.validate(this, ) )
+			if( a.validate(this, gymGameAction) )
 				out.push(a);
 
 		}

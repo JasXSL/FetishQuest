@@ -1043,6 +1043,9 @@ class Effect extends Generic{
 			}
 		}
 
+		if( debug )
+			console.log("Targets ", this.targets, "tout", tout);
+
 		if( this.data.dummy_sender )
 			sender = new Player({level:game.getAveragePlayerLevel()});
 
@@ -1231,8 +1234,8 @@ class Effect extends Generic{
 					// 30% chance per point of damage
 					let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
 					let ch = Math.abs(amt*procChance);
-
 					ch *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
+					console.log("Ch2", ch);
 					// Major focus: -50% for target
 					if( tMajor & Effect.Major.Focus )
 						ch *= 0.5;
@@ -1240,6 +1243,7 @@ class Effect extends Generic{
 					if( sMajor & Effect.Major.Touch )
 						ch *= 1.5;
 					
+					console.log("CH", ch);
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 					const start = t.arousal;
 
@@ -1553,6 +1557,7 @@ class Effect extends Generic{
 
 				t.endedTurn = true;
 				game.end_turn_after_action = true;
+				game.onEndTurn(t);
 				
 			}
 

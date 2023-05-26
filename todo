@@ -7,6 +7,7 @@ Issues:
 - Don't show missing momentum on gym icons
 - Make the action adder show icons
 
+
 Roleplay:
 	- Add a checkbox for auto [Leave] option
 Dungeon room asset:
@@ -23,6 +24,7 @@ Side quests:
 	- Players have the option to give it to the tentaclemancer instead.
 	- If the players do it right, they get reward A from the rat.
 	- Otherwise they'll get ambushed near the borm exit and can collect a bounty for reward B.
+
 
 
 New actions:
