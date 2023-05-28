@@ -138,6 +138,7 @@ export default class Player extends Generic{
 		this._threat = {};						// playerID : threatAmount
 
 		// These are incoming damage
+		this._aware = {};						// playerID : true - Using a targeted action against or being hit by a targeted action by a player makes you "aware". Attacks against unaware players have a +10% hit chance.
 		this._damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
 		// Same as above, but DONE by this player
@@ -316,6 +317,7 @@ export default class Player extends Generic{
 				out._threat = this._threat;
 				out._turn_ap_spent = this._turn_ap_spent;
 				out._damaging_since_last = this._damaging_since_last;
+				out._aware = this._aware;
 				out._damage_since_last = this._damage_since_last;
 				out._d_damaging_since_last = this._d_damaging_since_last;
 				out._d_damage_since_last = this._d_damage_since_last;
@@ -862,6 +864,11 @@ export default class Player extends Generic{
 		return stun.length > 0 || this.isSkipAllTurns();
 	}
 
+	// Checks if we are aware of player
+	isAware( player ){
+		return this._aware[player.id];
+	}
+
 	// ActionRange is from Action.Range
 	getTauntedBy( actionRange, returnAllIfNone = true, debug = false, ignoreGrapple = false ){
 
@@ -1287,8 +1294,9 @@ export default class Player extends Generic{
 	// Raised after effects
 	onTurnStart(){
 
-		this.reroll = 4;
+		this.reroll = 2;
 		this.endedTurn = false;
+		this._aware = {};
 		this._d_damaging_since_last = {};
 		this._d_damage_since_last = {};
 		this._riposted_since_last = {};
@@ -1349,6 +1357,7 @@ export default class Player extends Generic{
 
 		// Finally random momentum
 		let total = 3+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
+		total *= this.power;
 		total *= this.getGenericAmountStatMultiplier(Effect.Types.momentumRegen);
 		// Major momentum: Add 1 extra momentum at the start of turn
 		if( major & Effect.Major.Momentum )
@@ -1356,7 +1365,9 @@ export default class Player extends Generic{
 		// Major laze: remove 1 momentum at the start of turn
 		if( major & Effect.Major.Laze )
 			--total;
+		
 		total = randRound(total);
+
 		if( total > 0 ){
 			const add = this.addMomentum(Player.MOMENTUM.All, total);	// random momentum
 			addedMomentum[0] += add[0];
@@ -1383,6 +1394,7 @@ export default class Player extends Generic{
 		this._threat = {};
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
+		this._aware = {};
 		this._damage_since_last = {};
 		this._last_chat = -1;
 		this._turn_action_used = 0;
@@ -1501,13 +1513,17 @@ export default class Player extends Generic{
 	}
 
 	
+	onAware( player ){
+
+		this._aware[player.id] = true;
+
+	}
 
 	onDamagingAttackReceived( sender, type ){
 		if(!this._damaging_since_last[sender.id])
 			this._damaging_since_last[sender.id] = {};
 		if(!this._damaging_since_last[sender.id][type])
 			this._damaging_since_last[sender.id][type] = 0;
-		
 		++this._damaging_since_last[sender.id][type];
 	}
 	onHealingAttackReceived( sender, type ){
@@ -2606,7 +2622,7 @@ export default class Player extends Generic{
 
 	// Can be used later for effects that alter momentum
 	getMaxMomentum(){
-		return Player.MAX_MOMENTUM;
+		return Math.max(6,Math.ceil(Player.MAX_MOMENTUM*this.power));
 	}
 
 	// Returns nr of momentum of a type
@@ -2631,9 +2647,14 @@ export default class Player extends Generic{
 	}
 
 	// Reroll a point of momentum from one type to another. Returns the type it was rolled into or boolean false on fail
-	rerollMomentum( type ){
+	rerollMomentum( type, to ){
 		
 		type = Player.getValidMomentum(type);
+		to = Player.getValidMomentum(to);
+		if( to === Player.MOMENTUM.All )
+			return false;
+
+		// Reroll a random momentum
 		if( type === Player.MOMENTUM.All ){
 			let viable = [];
 			
@@ -2655,15 +2676,14 @@ export default class Player extends Generic{
 		if( !cur )
 			return false;
 		
-		let targ = type+Math.ceil(Math.random()*2);
-		targ = targ%3;
+		console.log("Removing", type, "and adding", to);
 		this.addMomentum(type, -1);
-		this.addMomentum(targ, 1);
+		this.addMomentum(to, 1);
 		new GameEvent({
 			type : GameEvent.Types.reroll,
 			target : this,
 		}).raise();
-		return targ;
+		return to;
 
 	}
 

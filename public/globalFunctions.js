@@ -166,10 +166,13 @@ function valsToKeys( input = [] ){
 
 // Takes a float and floors it, if there's a remainder, it might be add 1 to the floored value based on the remainder as percentage
 function randRound( val = 0 ){
+	
 	let fract = Math.abs(val)-Math.abs(Math.trunc(val));
+	val = Math.trunc(val);
 	if( fract > Math.random() )
 		val += val >= 0 ? 1 : -1;
 	return Math.floor(val);
+
 }
 
 // Turns a label like yuug_deep_forest into a name like Yuug Deep Forest

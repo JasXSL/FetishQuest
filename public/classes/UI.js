@@ -443,18 +443,22 @@ export default class UI{
 
 		});
 
+		
 		this.resourceBar.off('click').on('click', event => {
 
-			if( !event.target.classList.contains("point") )
+			if( !event.target.classList.contains("swap") )
 				return;
+
 			const ap = game.getMyActivePlayer();
 			if( !ap )
 				return;
-			let idx = Math.trunc(event.target.dataset.i);
+			
+			let idx = Math.trunc(event.target.parentElement.dataset.i);
 			if( idx > ap.getMomentum() || ap.reroll < 1 )
 				return;
 			
-			game.rerollMomentum(ap, idx); 
+			const to = Math.trunc(event.target.dataset.i);
+			game.rerollMomentum(ap, idx, to); 
 
 		});
 
@@ -694,6 +698,14 @@ export default class UI{
 			div.className = 'point';
 			div.dataset.i = -1;
 			this.resourceBar.append(div);
+
+			let sub = document.createElement('div');
+			sub.classList.add("swap", "point");
+			div.append(sub);
+			sub = document.createElement('div');
+			sub.classList.add("swap", "point");
+			div.append(sub);
+
 			dots = dots.add(div);
 
 		}
@@ -734,8 +746,20 @@ export default class UI{
 				setTimeout(() => {
 					cList.toggle('ch', true);
 				}, n*25);
+				// Update subselector
+				const ch = dots[i].children;
+				ch[0].classList.remove(...momTypes)
+				ch[1].classList.remove(...momTypes);
+				ch[0].classList.add(momTypes[(type+1)%3]);
+				ch[0].dataset.i = (type+1)%3;
+				ch[1].classList.add(momTypes[(type+2)%3]);
+				ch[1].dataset.i = (type+2)%3;
+				
+
 			}
 			dots[i].classList.add(momTypes[type]);
+
+			
 
 
 		}
@@ -3367,28 +3391,30 @@ export default class UI{
 			hotkeyEl.text(hotkey);
 
 		// missing momentum
-		const 
-			missingOff = Math.max(0, action.getMomentumCost(Player.MOMENTUM.Off)-player.getMomentum(Player.MOMENTUM.Off)),
-			missingDef = Math.max(0, action.getMomentumCost(Player.MOMENTUM.Def)-player.getMomentum(Player.MOMENTUM.Def)),
-			missingUti = Math.max(0, action.getMomentumCost(Player.MOMENTUM.Uti)-player.getMomentum(Player.MOMENTUM.Uti)),
-			missingAll = missingOff+missingDef+missingUti
-		;
-		
+		const types = [
+			Player.MOMENTUM.Off,
+			Player.MOMENTUM.Def,
+			Player.MOMENTUM.Uti,
+		];
+
 		let missingDivs = [];
-		for( let i = 0; i < missingAll; ++i ){
+		for( let type of types ){
 
-			let ty = Player.MOMENTUM.Off;
-			if( i >= missingOff+missingDef )
-				ty = Player.MOMENTUM.Uti;
-			else if( i >= missingOff )
-				ty = Player.MOMENTUM.Def;
+			const cost = action.getMomentumCost(type);
+			const held = player.getMomentum(type);
 
-			const div = document.createElement('div');
-			missingDivs.push(div);
-			const bg = document.createElement('div');
-			bg.classList.add('bg');
-			div.append(bg);
-			div.classList.add(Player.MOMENTUM_NAMES_SHORT[ty]);
+			for( let i = 0; i < cost; ++i ){
+
+				const div = document.createElement('div');
+				if( i < held )
+					div.classList.add('fill');
+				missingDivs.push(div);
+				const bg = document.createElement('div');
+				bg.classList.add('bg');
+				div.append(bg);
+				div.classList.add(Player.MOMENTUM_NAMES_SHORT[type]);
+				
+			}
 
 		}
 		button[0].querySelector('div.missingMom').replaceChildren(...missingDivs);

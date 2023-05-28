@@ -677,6 +677,11 @@ export default class Condition extends Generic{
 				}
 
 			}
+			else if( this.type === T.isAwareOfSender ){
+
+				success = t && s && t.isAware(s);
+
+			}
 
 			else if( this.type === T.apValue ){
 				let v = t.ap;
@@ -1470,7 +1475,7 @@ Condition.Types = {
 	hasEffectType : 'hasEffectType',
 	voice : 'voice',
 	isTaunted : 'isTaunted',
-
+	isAwareOfSender : 'isAwareOfSender',
 	hasAsset : 'hasAsset',
 	assetStealable : 'assetStealable',
 	assetSlot : 'assetSlot',
@@ -1660,6 +1665,7 @@ Condition.descriptions = {
 	[Condition.Types.isTaunted] : '{byCaster:(bool)=false} Checks if the target is taunted.',
 	[Condition.Types.mathVarCompare] : '{label:(str)mathVar, val:(var)testval} - Checks if a mathvar is val. mathVar accepts Calculator target consts. Use this if you want to compare strings. Otherwise use the formula condition. You can check multiple targets by using target consts, so generally you want to only check this against target 0 for speed.',
 	[Condition.Types.gameActionDataTags] : '{tags:(arr/str)tag} - Requires gameAction in event, and gameAction.data.tags must be an array. Primarily used to validate waht skills you can learn at a gym.', 
+	[Condition.Types.isAwareOfSender] : '{} - Checks if target is aware of sender',
 };
 
 

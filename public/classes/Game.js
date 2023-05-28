@@ -2839,7 +2839,7 @@ export default class Game extends Generic{
 
 	}
 
-	rerollMomentum( player, type ){
+	rerollMomentum( player, type, to ){
 		
 		if( !this.playerIsMe(player) )
 			throw("Not your player");
@@ -2851,10 +2851,10 @@ export default class Game extends Generic{
 			throw 'Out of rerolls';
 
 		if( !this.is_host )
-			return Game.net.playerRerollMomentum(player, type);
+			return Game.net.playerRerollMomentum(player, type, to);
 
 		
-		const rolledTo = player.rerollMomentum(type);
+		const rolledTo = player.rerollMomentum(type, to);
 		if( rolledTo === false ) // Note: May be 0, type check is a must
 			throw 'Invalid momentum';
 

@@ -857,6 +857,12 @@ class Action extends Generic{
 			// note that since this only affects the base attack, you should be safe to assume there's only one target
 			this._crit = Math.random() < this.getCritChance( target );
 
+			if( this.target_type === Action.TargetTypes.target ){
+				target.onAware(pp);
+				pp.onAware(target);
+			}
+				
+
 			// Check if it hit
 			if( this.isDetrimentalTo(target) ){
 
