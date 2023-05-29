@@ -849,6 +849,8 @@ class Action extends Generic{
 
 		}
 
+		if( !this.hidden )
+			game.renderer.playFX(pp, pp, glib.get('actionUsed', 'HitFX'), undefined, true);
 
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){

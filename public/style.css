@@ -378,6 +378,11 @@ div.scroll{
 		90%{transform:translateX(1%);}
 		100%{transform:none; }
 	}
+	@keyframes actionUsed{
+		0%{transform:translateX(3%);}
+		20%{transform:translateX(3%);}
+		100%{transform:none; } 
+	}
 	@keyframes takeDamageCorruption{
 		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(290deg) saturate(400%);}
 		10%{transform:translateX(5%);}
@@ -484,6 +489,9 @@ div.scroll{
 	@keyframes arcaneCharge{
 		0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(285deg) saturate(200%);}
 		95%{transform:scale(1.05);}
+	}
+	div.fxActionUsed{
+		animation: actionUsed 0.25s ease-in-out
 	}
 	div.fxTakeDamage{
 		animation: takeDamage 0.5s ease-in-out;
@@ -1479,7 +1487,7 @@ div.scroll{
 		padding:1vmax 5vmax;
 	}
 	#inventory div.cmTabContent[data-id="Actions"]{
-		width:50vw;
+		width:55vw;
 		min-width:0;
 	}
 
@@ -2836,6 +2844,20 @@ div.scroll{
 		background-color:#000;
 	}
 	
+	#ui > div.players div.player > div.content > div.stats > span.name > div.focus{
+		width:3vmax;
+		height:3vmax;
+		opacity: 0.75;
+		position: absolute;
+		background:fixed url(media/wrapper_icons/eye-target.svg) center;
+		left:1vw;
+		top:50%;
+		transform:translateY(-50%);
+	}
+	#ui > div.players > div.right > div.player > div.content > div.stats > span.name > div.focus{
+		right:1vw;
+		left:auto;
+	}
 
 	#ui > div.players div.player > div.content > div.stats{
 		position:absolute;
@@ -3076,7 +3098,7 @@ div.scroll{
 	#ui > div.actionbar > div.resources > div.point > div:hover{
 		border-color:#FFF;
 	}
-	#ui > div.actionbar > div.resources > div.point:not(.undefined):hover > div:nth-child(2){
+	#ui > div.actionbar > div.resources > div.point.on:hover > div:nth-child(2){
 		transform: translateY(-200%);
 	}
 	#ui > div.actionbar > div.resources > div.point.off:hover,

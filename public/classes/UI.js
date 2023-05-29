@@ -22,6 +22,9 @@ const playerTemplate = $(
 			'<div class="bg"></div>'+
 			'<div class="stats">'+
 				'<span class="name" style="color:#DFD">'+
+					'<div class="focus tooltipParent">'+
+						'<div class="tooltip center">Unaware of your active player. Awareness is added when you use a directed action against a target, or they use one on you.</div>'+
+					'</div>'+
 					'<div class="button owner devtool" title="Set character owner">'+
 						'<img src="media/wrapper_icons/id-card.svg" />'+
 					'</div>'+
@@ -736,28 +739,36 @@ export default class UI{
 			let pre = Math.trunc(dots[i].dataset.i);
 
 			const cList = dots[i].classList;
-			cList.remove(...momTypes);
 			dots[i].dataset.i = type;
 
 			// Animate a sweep
-			if( pre !== type && ~type ){
-				++n;
-				cList.toggle('ch', false);
-				setTimeout(() => {
-					cList.toggle('ch', true);
-				}, n*25);
-				// Update subselector
-				const ch = dots[i].children;
-				ch[0].classList.remove(...momTypes)
-				ch[1].classList.remove(...momTypes);
-				ch[0].classList.add(momTypes[(type+1)%3]);
-				ch[0].dataset.i = (type+1)%3;
-				ch[1].classList.add(momTypes[(type+2)%3]);
-				ch[1].dataset.i = (type+2)%3;
-				
+			if( pre !== type ){
+
+				cList.remove(...momTypes);
+				dots[i].classList.toggle('on', type !== -1);
+				if( ~type ){
+
+					++n;
+
+					cList.toggle('ch', false);
+					setTimeout(() => {
+						cList.toggle('ch', true);
+					}, n*25);
+					// Update subselector
+					const ch = dots[i].children;
+					ch[0].classList.remove(...momTypes)
+					ch[1].classList.remove(...momTypes);
+					ch[0].classList.add(momTypes[(type+1)%3]);
+					ch[0].dataset.i = (type+1)%3;
+					ch[1].classList.add(momTypes[(type+2)%3]);
+					ch[1].dataset.i = (type+2)%3;
+
+					dots[i].classList.add(momTypes[type]);
+
+				}
 
 			}
-			dots[i].classList.add(momTypes[type]);
+			
 
 			
 
@@ -1547,6 +1558,7 @@ export default class UI{
 					ownEl = $('> div.own', nameEl),
 					leaderEl = $('> div.leader', nameEl),
 					nameDisplayEl = $('span.nameTag', nameEl),
+					focusEl = $('div.focus', nameEl),
 				resourcesEl = $('> span.resources', statsEl),
 					arousalEl = $('> span.arousal', resourcesEl),
 					arousalElSpan = $('> span', arousalEl),
@@ -1638,6 +1650,9 @@ export default class UI{
 		
 
 		hpEl.toggleClass('warn', p.hp <= p.getMaxHP()*0.3);
+
+		// Awareness
+		focusEl[0].classList.toggle('hidden', Boolean(p.isAware(myActive)));
 
 		// Armor
 		chestEl.add(legsEl).toggleClass('hidden', p.isTargetBeast());

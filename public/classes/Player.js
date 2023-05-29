@@ -866,6 +866,9 @@ export default class Player extends Generic{
 
 	// Checks if we are aware of player
 	isAware( player ){
+		// We're always self aware
+		if( player.id === this.id )
+			return true;
 		return this._aware[player.id];
 	}
 
@@ -2676,7 +2679,6 @@ export default class Player extends Generic{
 		if( !cur )
 			return false;
 		
-		console.log("Removing", type, "and adding", to);
 		this.addMomentum(type, -1);
 		this.addMomentum(to, 1);
 		new GameEvent({
@@ -3761,8 +3763,8 @@ export default class Player extends Generic{
 	getNrActionSlots(){
 
 		if( this.level < 3 )
-			return this.level;
-		return Player.getActionSlotsForLevel(this.level);	// 3 unlocked by default, then at 4, 7, 10
+			return 3;
+		return Player.getActionSlotsForLevel(this.level);	// 3 unlocked by default, then at 4, 6, 8, 10
 
 	}
 
@@ -4264,15 +4266,17 @@ export default class Player extends Generic{
 
 	// Static
 	static getActionSlotsForLevel( level ){
-		return Math.min(this.MAX_ACTION_SLOTS, Math.floor((level-4)/3)+4);
+		let out = level;
+		if( level > 4 )
+			out = 4+Math.floor((level-4)/2);
+		return Math.min(this.MAX_ACTION_SLOTS, out);
 	}
 	static getLevelForActionSlot( index ){
 
-		// First 3 slots are unlocked immediately
 		if( index < 3 )
 			return 1;
-		
-		return 4+Math.floor((index-3)*3);
+			
+		return 2+Math.max(0, index*2-4);
 
 	}
 
@@ -4289,6 +4293,7 @@ export default class Player extends Generic{
 		let out = action.hit_chance;
 		let modifier = (1+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05))
 			*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod, victim)
+			*(victim.isAware(attacker) ? 1 : 1.1)
 		;
 		// Major accuracy: 30% increased chance from attacker
 		if( attacker.getMajorEffects() & Effect.Major.Accuracy )
@@ -4492,7 +4497,7 @@ Player.MAX_MOMENTUM = 12;	// Hardcoded limit. Technically can go up to 26 withou
 							// The reason for this is that the array is packed into a single int made up of 2-bit values when transferred
 
 
-Player.MAX_ACTION_SLOTS = 6;
+Player.MAX_ACTION_SLOTS = 8;
 Player.MISSING_ART = 'media/characters/missing_art.jpg';
 
 // Momentum types
