@@ -195,8 +195,15 @@ class Wrapper extends Generic{
 		if( isTick )
 			conditions = this.stay_conditions;
 
-		if( this.target === Wrapper.TARGET_CASTER && event.target !== event.sender )
+		// Why is this here?
+		// Gonna remove it and see if something breaks. It does fuck up deepthroat.
+		/*
+		if( this.target === Wrapper.TARGET_CASTER && event.target !== event.sender ){
+			if( debug )
+				console.log("Failed on target type", this.target, Wrapper.TARGET_CASTER, event.target, event.sender);
 			return false;
+		}
+		*/
 
 		event.type = !isTick ? GameEvent.Types.internalWrapperAdded : GameEvent.Types.internalWrapperTick;
 		return Condition.all(conditions, event, debug);
@@ -1712,7 +1719,7 @@ class Effect extends Generic{
 
 				const stripData = {};	// data for wrapperReturn.addArmorStrips. Needs to correlate with player.damageDurability(...).armor_strips
 				for( let asset of remove ){
-					if(t.unequipAsset(asset.id, s)){
+					if(t.unequipAsset(asset.id, s, undefined, true)){
 						if( asset.loot_sound )
 							game.playFxAudioKitById(asset.loot_sound, s, t, undefined, true );
 						game.ui.addText( t.getColoredName()+"'s "+asset.name+" was unequipped"+(wrapper.name ? ' by '+s.getColoredName() : '')+".", undefined, t.id, t.id, 'statMessage important' );
@@ -1746,7 +1753,7 @@ class Effect extends Generic{
 					const item = viable.splice(Math.floor(Math.random()*viable.length), 1)[0];
 					s.addAsset(item, item._stacks, true);
 					wrapperReturn.addSteal(t, item);
-					t.unequipAsset(item.id, s, true);
+					t.unequipAsset(item.id, s, true, true);
 					t.destroyAsset(item.id);
 
 				}

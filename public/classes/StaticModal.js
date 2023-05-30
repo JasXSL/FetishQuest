@@ -4240,10 +4240,9 @@ export default class StaticModal{
 							const modal = game.ui.modal;
 							modal.prepareSelectionBox();
 							
-
-							if( isHotbar )
+							if( isHotbar && !asset.no_unequip )
 								modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
-							else if( player.canEquip(asset) )
+							else if( player.canEquip(asset) && !isHotbar )
 								modal.addSelectionBoxItem( 'Equip', '', 'equip' );
 
 							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (game.isTurnPlayer(player) && isHotbar)) ){

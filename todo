@@ -157,7 +157,7 @@ vt Singing Strike: Deals 2 phys damage, increased by 2 for every major effect on
 vt Piercing Tune: Makes enemies Major Vulnerability one turn, increasing damage taken by 30%.
 vt Warsong: Grants party Major Aggression one turn, increasing damage done by 20%.
 vt Windsong: Grants party Major Momentum for two turns, increasing momentum generation by 1 at start of turn.
-
+- Memory Blur: Makes all enemies unaware of everyone.
 
 
 
@@ -213,16 +213,19 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 		- Your next action costs no AP
 		- Makes you untargetable for 1 turn.
 		- Rerolling non-defensive momentum now always rolls into defensive momentum.
-		
+		- Smoke bomb : Resets all awareness
+		- Cursed Collar
+			- 
 
 	- Action ideas:
 		- Deals damage, deals extra damage if target has clairvoyance.
-		- Turns all target healing done into damage.
 		- Prevents healing done for one turn
 		- Reduces target healing received
 		- Healing NPC
 		- Lowers max carry capacity for a few turns.
 		- 
+		- Summon a cursed collar (humanoid only)
+		
 
 	- Events:
 		- Find a drawer, it opens to a cursed sling bikini that you can't unequip for 1 hour

@@ -236,6 +236,7 @@ export default {
 	fxPounced : 'fx_pounced',			// Put on a player that another is pounced onto
 	
 	// Game action
+	// These are tags used on game actions to mark trainers
 	gaWarrior : 'ga_warrior',
 	gaCleric : 'ga_cleric',
 	gaRogue : 'ga_rogue',

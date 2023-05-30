@@ -2019,7 +2019,7 @@ export default class Game extends Generic{
 	}
 
 	// Toggles equip on an item to a player from inventory by Player, Asset.id
-	equipPlayerItem( player, id ){
+	equipPlayerItem( player, id, force = false ){
 
 		let apCost = player.isAssetEquipped(id) ? Game.UNEQUIP_COST : Game.EQUIP_COST;
 		if( game.battle_active ){
@@ -2046,12 +2046,14 @@ export default class Game extends Generic{
 			return true;
 		}
 
+		// Equip
 		if( !player.isAssetEquipped(id) ){
 			if( !player.equipAsset(id, player) )
 				return false;
 		}
+		// Unequip
 		else{
-			if( !player.unequipAsset(id, player) )
+			if( !player.unequipAsset(id, player, undefined, force) )
 				return false;
 		}
 
@@ -2686,6 +2688,9 @@ export default class Game extends Generic{
 
 			for( let pl of turnPlayers ){
 				
+				if( pl.isDead() || pl.disabled )
+					continue;
+
 				this.ui.captureActionMessage = true;
 				
 				pl.onTurnStart();

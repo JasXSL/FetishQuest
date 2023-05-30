@@ -79,6 +79,7 @@ export default class Player extends Generic{
 		
 		this.endedTurn = false;
 		this.reroll = 0;
+		this.tReroll = 0;			// Rerolls used this turn
 
 		this.arousal = 0;
 		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
@@ -279,6 +280,7 @@ export default class Player extends Generic{
 			momOff : this.momOff,
 			momDef : this.momDef,
 			momUti : this.momUti,
+			tReroll : this.tReroll,
 		};
 
 		if( full !== "mod" ){
@@ -663,6 +665,7 @@ export default class Player extends Generic{
 		vars[prefix+'Off'] = this.getMomentum(Player.MOMENTUM.Off);
 		vars[prefix+'Def'] = this.getMomentum(Player.MOMENTUM.Def);
 		vars[prefix+'Uti'] = this.getMomentum(Player.MOMENTUM.Uti);
+		vars[prefix+'tReroll'] = this.tReroll;
 		vars[prefix+'Mom'] = this.getMomentum();
 		vars[prefix+'Arousal'] = this.arousal;
 		vars[prefix+'Team'] = this.team;
@@ -677,7 +680,7 @@ export default class Player extends Generic{
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
-
+		
 		vars[prefix+'Talkative'] = this.talkative;
 		vars[prefix+'Sadistic'] = this.sadistic;
 		vars[prefix+'Dominant'] = this.dominant;
@@ -1298,6 +1301,7 @@ export default class Player extends Generic{
 	onTurnStart(){
 
 		this.reroll = 2;
+		this.tReroll = 0;
 		this.endedTurn = false;
 		this._aware = {};
 		this._d_damaging_since_last = {};
@@ -1938,12 +1942,18 @@ export default class Player extends Generic{
 	}
 
 	// byPlayer is the player who initiated it. If it's not a player object, no event is raised
-	unequipAsset( id, byPlayer, noText ){
+	unequipAsset( id, byPlayer, noText, force ){
 
 		let assets = this.getAssetsEquipped(true);
 		for(let asset of assets){
 
 			if( asset.id === id ){
+
+				
+				if( !force && asset.no_unequip ){
+					game.ui.modal.addNotice('Cannot unequip this item.');
+					return false;
+				}
 
 				if( asset.rem_unequip )
 					this.destroyAsset(asset.id);
@@ -2642,9 +2652,11 @@ export default class Player extends Generic{
 	}
 
 	consumeReroll( amount = 1 ){
+		amount = Math.trunc(amount);
 		if( isNaN(amount) )
 			return;
-		this.reroll -= Math.trunc(amount);
+		this.reroll -= amount;
+		this.tReroll += amount;
 		if( this.reroll < 0 )
 			this.reroll = 0;
 	}
@@ -3323,7 +3335,6 @@ export default class Player extends Generic{
 		if( !ac.hidden && !silent )
 			game.ui.addText( this.getColoredName()+" learned "+ac.name+"!", undefined, this.id, this.id, 'actionLearned' );
 		
-
 		if( !this.actionSlotsFull() && !action.std ){
 			this.activateAction(ac.id);
 		}
@@ -3396,7 +3407,9 @@ export default class Player extends Generic{
 		if( slot < 0 || isNaN(slot) )
 			throw "Out of bounds error on action activation: "+slot;
 
-
+		for( let a of action.passives )
+			a.victim = this.id;
+			
 		action._slot = slot;
 		
 		this.rebindWrappers();
@@ -3975,7 +3988,7 @@ export default class Player extends Generic{
 		const actions = this.getActions(true, false, false, false);
 		for( let action of actions )
 			out = out.concat(action.passives);
-
+			
 		let casting = this.isCasting( actions );
 		if( casting ){
 

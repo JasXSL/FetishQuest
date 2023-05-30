@@ -86,6 +86,7 @@ export default class Asset extends Generic{
 		this.genLoot = false;			// Can be found as generated loot in chests and such
 		this.weight = 100;				// Weight in grams
 		this.iuad = false;				// Ignore use action description. Even if a use action is set, use this one's description.
+		this.no_unequip = false;		// Cannot be unequipped manually. Effects can unequip it.
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
 		this._charges = -1;				// How many charges remain. Setting to -1 will automatically set it to this.charges on load
@@ -132,6 +133,7 @@ export default class Asset extends Generic{
 			shortname : this.shortname,
 			expires : this.expires,
 			rem_unequip : this.rem_unequip,
+			no_unequip : this.no_unequip,
 			colorable : this.colorable,
 			color : this.color,
 			color_base : this.color_base,
