@@ -2085,14 +2085,16 @@ export default class UI{
 		game.uiAudio('momentum_'+files[type], 0.2, icon);
 
 	}
+
 	drawMomentumGain( numOff = 0, numDef = 0, numUti = 0 ){
 
 		let i; const incNum = numOff+numDef+numUti;
 		if( !incNum )
 			return;
 
+		const needed = incNum-this.momentum_gain.length;
 		// Create some new icons
-		for( i = 0; i < incNum; ++i ){
+		for( i = 0; i < needed; ++i ){
 
 			const icon = document.createElement('div');
 			icon.classList.add('momentumIcon');

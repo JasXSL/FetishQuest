@@ -94,7 +94,7 @@ export default class Roleplay extends Generic{
 			out.desc = this.desc;
 			out.minPlayers = this.minPlayers;
 			out.maxPlayers = this.maxPlayers;
-			out.gameActions = GameAction.saveThese(this.gameActions);
+			out.gameActions = GameAction.saveThese(this.gameActions, full);
 		}
 		if( full !== "mod" ){
 			out.completed = this.completed;

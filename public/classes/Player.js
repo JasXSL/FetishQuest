@@ -275,7 +275,7 @@ export default class Player extends Generic{
 			start_equip : this.start_equip,
 			generated : this.generated,	// Needed for playerMarkers in webgl
 			armor : this.armor,
-			actionGroups : PlayerActionGroup.saveThese(this.actionGroups),
+			actionGroups : PlayerActionGroup.saveThese(this.actionGroups, full),
 			voice : this.voice,
 			momOff : this.momOff,
 			momDef : this.momDef,
@@ -1364,7 +1364,8 @@ export default class Player extends Generic{
 
 		// Finally random momentum
 		let total = 3+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
-		total *= this.power;
+		total *= this.getPowerMultiplier();
+
 		total *= this.getGenericAmountStatMultiplier(Effect.Types.momentumRegen);
 		// Major momentum: Add 1 extra momentum at the start of turn
 		if( major & Effect.Major.Momentum )
@@ -1374,6 +1375,7 @@ export default class Player extends Generic{
 			--total;
 		
 		total = randRound(total);
+		
 
 		if( total > 0 ){
 			const add = this.addMomentum(Player.MOMENTUM.All, total);	// random momentum
@@ -1809,6 +1811,7 @@ export default class Player extends Generic{
 	raiseInvChange(){
 		new GameEvent({type:GameEvent.Types.inventoryChanged, sender:this, target:this}).raise();
 	}
+	// Adds items from library by label, returns the asset
 	addLibraryAsset( label, amount = 1 ){
 
 		let asset = glib.get(label, 'Asset');
@@ -2635,7 +2638,7 @@ export default class Player extends Generic{
 
 	// Can be used later for effects that alter momentum
 	getMaxMomentum(){
-		return Math.max(6,Math.ceil(Player.MAX_MOMENTUM*this.power));
+		return Math.max(6,Math.ceil(Player.MAX_MOMENTUM*this.getPowerMultiplier()));
 	}
 
 	// Returns nr of momentum of a type
@@ -3885,6 +3888,9 @@ export default class Player extends Generic{
 			console.error("Action", action, "is not an action");
 			return false;
 		}
+		// Hidden actions must always be enabled for gameplay purposes
+		if( action.hidden )
+			return true;
 		const effects = this.getActiveEffectsByType(Effect.Types.allowReceiveSpells);
 		const evt = new GameEvent({action:action, sender:sender, target:this});
 		for( let effect of effects ){

@@ -746,7 +746,7 @@ class Action extends Generic{
 		)return err("Not enough momentum for action");
 
 		if( this.getViableTargets(isChargeFinish, debug).length < this.min_targets )
-			return err("No viable targets");
+			return err("No viable targets for "+this.name);
 
 		if( pl && !pl.isActionEnabled(this) )
 			return err("Can't use this action right now");

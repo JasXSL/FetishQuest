@@ -704,7 +704,7 @@ class DungeonRoom extends Generic{
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.discovered = this.discovered;
-			out.encounter = Encounter.saveThis(this.encounter);
+			out.encounter = Encounter.saveThis(this.encounter, full);
 		}
 		else{
 			out.expEvt = this.expEvt;

@@ -303,7 +303,7 @@ export default class Game extends Generic{
 		return this.constructor.saveToDB(data);
 	}
 
-	async execSave( allowInsert, ignoreNetGame ){
+	async execSave( allowInsert, ignoreNetGame, debug ){
 
 		let time = Date.now();
 		if( !this.initialized && !allowInsert ){
@@ -328,9 +328,10 @@ export default class Game extends Generic{
 
 		localStorage.game = this.id;
 
+		const sd = this.getSaveData(true);
 		// First insert
 		if( allowInsert ){
-			await this.saveToDB(this.getSaveData(true));
+			await this.saveToDB(sd);
 			this.initialize();
 			this.load();
 		}
@@ -339,7 +340,7 @@ export default class Game extends Generic{
 			clearTimeout(this._db_save_timer);
 			this._db_save_timer = setTimeout(() => {
 				this.lockPlayersAndRun(() => {
-					this.saveToDB(this.getSaveData(true));
+					this.saveToDB(sd);
 				});
 			}, 3000);
 		}
@@ -2688,8 +2689,10 @@ export default class Game extends Generic{
 
 			for( let pl of turnPlayers ){
 				
-				if( pl.isDead() || pl.disabled )
+				if( pl.isDead() || pl.disabled ){
+					pl.endedTurn = true;
 					continue;
+				}
 
 				this.ui.captureActionMessage = true;
 				
@@ -2925,7 +2928,7 @@ export default class Game extends Generic{
 
 		const pl = rp.validate(player);
 		if( !pl && !force ){
-			console.error("No players passed filters for rp", rp, "using player", player);
+			//console.error("No players passed filters for rp", rp, "using player", player);
 			return;
 		}
 
@@ -3937,7 +3940,7 @@ export default class Game extends Generic{
 		if( player.getLearnedActionByLabel(action.action) ) 
 			throw "Action alreday unlocked";
 
-		if( !action.validate(player) )
+		if( !action.validate(player, this.getGymsByPlayer(gymPlayer)[0]) )
 			throw "That action can't be learned by you";
 
 		if( player.getMoney() < action.getCost() )

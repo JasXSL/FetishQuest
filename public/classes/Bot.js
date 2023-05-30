@@ -260,13 +260,18 @@ class Bot{
 
 						if( el.isInvisible() )
 							return false;
+
+						if( !(el instanceof Player) ){
+							console.error("Non player viable target found for abil", abil, el);
+							return false;
+						}
 						// Don't use a detrimental spell on a friend
 						// Don't use a beneficial spell on an enemy
 						if( abil.isDetrimentalTo(el) === (el.team === this.player.team) )
 							return false;
 						if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.7 )
 							return false;
-						if( abil.hasTag(stdTag.acManaHeal) && el.mp/el.getMaxMP() > 0.7 )
+						if( abil.hasTag(stdTag.acManaHeal) && el.getMomentum()/el.getMaxMomentum() > 0.7 )
 							return false;
 						return true;
 					});

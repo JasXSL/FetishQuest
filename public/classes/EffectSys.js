@@ -886,6 +886,9 @@ class Effect extends Generic{
 	}
 
 	save( full ){
+
+		
+
 		const out = {
 			type : this.type,
 			data : this.saveData(),
@@ -907,7 +910,7 @@ class Effect extends Generic{
 		}
 		else
 			this.g_sanitizeDefaults(out);
-
+		
 		return out;
 	}
 
@@ -2127,9 +2130,9 @@ class Effect extends Generic{
 					autoEquip = this.data.equip === undefined || this.data.equip
 				;
 
-				const assets = t.addLibraryAsset(label);
-				if( assets && autoEquip )
-					assets.map(asset => t.equipAsset(asset.id, s, true));
+				const asset = t.addLibraryAsset(label);
+				if( asset && autoEquip )
+					t.equipAsset(asset.id, s, true);
 
 			}
 

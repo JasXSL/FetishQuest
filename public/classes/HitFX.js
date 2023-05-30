@@ -230,7 +230,12 @@ class Stage extends Generic{
 			const attackerHeight = attackerEl.outerHeight();
 			const attackerWidth = attackerEl.outerWidth();
 			
-			const victimPos = victimEl.offset();
+			let victimPos;
+			try{
+				victimPos = victimEl.offset();
+			}catch(err){
+				return false; // May happen if we're triggering a visual that triggers a player to go invis
+			}
 			const victimHeight = victimEl.outerHeight();
 			const victimWidth = victimEl.outerWidth();
 

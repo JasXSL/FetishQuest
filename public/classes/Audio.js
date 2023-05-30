@@ -241,10 +241,7 @@ class AudioKit extends Generic{
 		let offset = game.ui.getPlayerAudioOffset(target);
 		audioSound.setPosition(offset.x, offset.y, offset.z);
 		audioSound.play();
-		if( armor_slot && audioSound.hit ){
-
-			if( !target.getEquippedAssetsBySlots )
-				console.log("Target received: ", target);
+		if( armor_slot && audioSound.hit && target ){
 
 			let slots = target.getEquippedAssetsBySlots(armor_slot);
 			if( !slots.length )

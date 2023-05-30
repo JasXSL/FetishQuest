@@ -427,7 +427,7 @@ class QuestObjective extends Generic{
 			name : this.name,
 			amount : this.amount,
 			label : this.label,			// Needed for conditions
-			visibility_conditions : Condition.saveThese(this.visibility_conditions),
+			visibility_conditions : Condition.saveThese(this.visibility_conditions, full),
 			completion_desc : this.completion_desc,
 		};
 

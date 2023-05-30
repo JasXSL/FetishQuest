@@ -33,8 +33,8 @@ class DungeonTemplate extends Generic{
 		const out = {
 			id : this.id,
 			label : this.label,
-			rooms : DungeonTemplateSub.saveThese(this.rooms),
-			encounters : DungeonTemplateSub.saveThese(this.encounters),
+			rooms : DungeonTemplateSub.saveThese(this.rooms, full),
+			encounters : DungeonTemplateSub.saveThese(this.encounters, full),
 			randomEncounters : this.randomEncounters,
 		};
 
