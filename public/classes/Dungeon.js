@@ -1547,13 +1547,26 @@ class DungeonRoomAsset extends Generic{
 
 	}
 
-	getViableInteractions( player, debug = false ){
+	getViableInteractions( player, ignoreCheck, debug = false ){
 
 		if( !player && window.game )
 			player = game.getMyActivePlayer();
 		if( !player && window.game )
 			player = game.players[0];
-		return GameAction.getViable(this.interactions, player, debug, true, this);
+
+		const check = this.interactions.slice();
+		if( this.door > -1 )
+			check.push(new GameAction({
+				type : GameAction.types.door,
+				data : {
+					index : this.door
+				}
+			}, this));
+		
+		if( ignoreCheck )
+			return check;
+
+		return GameAction.getViable(check, player, debug, true, this);
 
 	}
 
@@ -1602,17 +1615,7 @@ class DungeonRoomAsset extends Generic{
 	// returns the first door interaction
 	getDoorInteraction( ignoreConditions = false ){
 
-		// Create a dummy if we're using the quick door setting
-		if( this.door > -1 ){
-			return new GameAction({
-				type : GameAction.types.door,
-				data : {
-					index : this.door
-				}
-			}, this);
-		}
-
-		const viable = window.game && !ignoreConditions ? this.getViableInteractions() : this.interactions;
+		const viable = this.getViableInteractions(undefined, (ignoreConditions || !window.game));
 		for( let i of viable ){
 			if( i.type === GameAction.types.door )
 				return i;
@@ -1621,7 +1624,7 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	getTooltipInteraction(){
-		const viable = window.game ? this.getViableInteractions() : this.interactions;
+		const viable = this.getViableInteractions(Boolean(window.game));
 		for( let action of viable ){
 			if( action.type === GameAction.types.tooltip )
 				return action;
@@ -1713,18 +1716,8 @@ class DungeonRoomAsset extends Generic{
 		if( !window.game )
 			return false;
 
-		for( let i of this.interactions ){
-
-			if( !(i instanceof GameAction) ){
-				console.error("Found invalid interaction", i, "in", this);
-				continue;
-			}
-
-			if( i.validate(game.getMyActivePlayer() || game.players[0], this) )
-				return true;
-
-		}
-		return false;
+		const viable = this.getViableInteractions();
+		return viable.length > 0;
 	}
 
 	isDoorLinkingTo( index ){
@@ -2068,13 +2061,8 @@ class DungeonRoomAsset extends Generic{
 
 		}
 
-		const interactions = this.interactions.slice();	// Needed because interactions may remove themselves
-		// Create a dummy game action for quick door
-		if( this.door > -1 ){
-			
-			this.interactions.push(this.getDoorInteraction(false));
+		const interactions = this.getViableInteractions(player, true);	// Includes temp interactions such as doors
 
-		}
 
 		// Trigger interactions in order
 		for( let i of interactions ){

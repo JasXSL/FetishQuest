@@ -449,15 +449,16 @@ export default class UI{
 		
 		this.resourceBar.off('click').on('click', event => {
 
-			if( !event.target.classList.contains("swap") )
+			if( !event.target.classList.contains("swap") || !event.target.parentElement.classList.contains("on")  )
 				return;
 
 			const ap = game.getMyActivePlayer();
 			if( !ap )
 				return;
 			
+			// Type of momentum we're rerolling
 			let idx = Math.trunc(event.target.parentElement.dataset.i);
-			if( idx > ap.getMomentum() || ap.reroll < 1 )
+			if( ap.reroll < 1 )
 				return;
 			
 			const to = Math.trunc(event.target.dataset.i);
@@ -700,6 +701,7 @@ export default class UI{
 			let div = document.createElement('div');
 			div.className = 'point';
 			div.dataset.i = -1;
+			div.dataset.idx = i+ln;
 			this.resourceBar.append(div);
 
 			let sub = document.createElement('div');
@@ -740,6 +742,7 @@ export default class UI{
 
 			const cList = dots[i].classList;
 			dots[i].dataset.i = type;
+
 
 			// Animate a sweep
 			if( pre !== type ){

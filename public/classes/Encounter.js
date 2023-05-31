@@ -110,7 +110,7 @@ export default class Encounter extends Generic{
 		let hasTemplates = Boolean(this.player_templates[0]);	
 		let totalSlots = game.getTeamPlayers().length-0.25 + Math.random();
 		if( totalSlots > 4 )
-		totalSlots = 4;		// Don't generate more than 5 enemies
+			totalSlots = 4;		// Don't generate more than 5 enemies
 
 		if( hasTemplates ){
 		

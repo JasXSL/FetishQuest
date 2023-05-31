@@ -15,7 +15,7 @@ import Encounter from './Encounter.js';
 import Game from './Game.js';
 import Roleplay from './Roleplay.js';
 
-const BASE_HP = 30;
+const BASE_HP = 40;
 const BASE_AROUSAL = 7;
 const MAX_KINKS = 2;
 
