@@ -2035,7 +2035,8 @@ class Stage{
 
 		if( obj.userData.template )
 			obj.userData.template.onRefresh( dungeonAsset, obj );
-		
+	
+		obj.visible = !dungeonAsset.isHidden();
 	
 
 	}

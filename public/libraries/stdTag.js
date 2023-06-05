@@ -330,6 +330,9 @@ export default {
 	mBoulder : 'm_boulder',
 	mTent : 'm_tent',
 	mBush : 'm_bush',
+	mCards : 'm_cards',
+	mKnife : 'm_knife',
+	mFork : 'm_fork',
 
 	mGrassLong : 'm_grass_long',
 	mTree : 'm_tree',

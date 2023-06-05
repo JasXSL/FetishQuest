@@ -1419,6 +1419,7 @@ export default class StaticModal{
 						'<hr />'+
 						'<div class="actions"></div>'+
 						'<div class="kinks"></div>'+
+						'<p class="secret italic"></p>'+
 					'</div>';
 
 					cDivs.description.html(desc);
@@ -1440,6 +1441,9 @@ export default class StaticModal{
 							UI.setActionButtonContent(div, action, player);
 
 						}
+
+						const secret = clairvoyance.querySelector("p.secret");
+						secret.innerText = player.secret;
 
 						const cdiv = clairvoyance.querySelector("div.kinks");
 						let kinks = player.getKinks();

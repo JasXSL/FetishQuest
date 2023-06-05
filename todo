@@ -1,3 +1,87 @@
+Things that need full art layers:
+	:: GEN
+	a Male Fox outlaw
+	a Male Horse outlaw
+	a Male Huskeguard
+	a Male rattani
+	a Male rattani diver
+	a Female rattani diver
+	a Female Rattani
+	a Female Huskeguard
+	a Female Fennec outlaw
+	a Female horse outlaw
+	
+	:: Named
+	a sharkanist_boss : A large muscular great white shark-man with gems studded to his tail.
+	a penal_targ_fox : A feminine male fox with long dark hair
+	a dirty sailor : Ratman, riya's husband
+	a greasy_backdoor_zebra : Muscular zebra
+	a penal_brutus : A large muscular bull man with two long horns. He has shaggy hair tied up in a braid reaching down to his shoulders.
+	a SQ_sharktopus_camp_cultist : Male ferret. Need to regenerate with nude.
+	a bandit_riya : A short rat-lady of average proportions.
+	a necro_fox : A fox lady with ragged dirty fur. (wearing white panties and necro robe)
+	a wrestler_carlita : A muscular female cougar with large breasts and black hair tied up in a braid.
+	a yuug_tailor_ming : A red panda except with blue fur. She's sporting larger than average breasts and long flowing light blue hair.
+	a veroniquette : Need to remake with layers
+	a huskeguard hakko : A fluffy, feminine male husky with long hair tied into braids.
+	a rattani_dive_miniboss: A white rat woman with red eyes and smaller than average breasts, sporting webbed toes and fingers. She's got long black hair tied up in a braid.
+	
+	
+Friendly NPCs:
+	:: Gen
+	- Male necro jackal
+	- Male necro crow
+	- Female necro jackal
+	- Female Sharkanist
+	- Male Sharkanist
+	
+
+	:: Named
+	a Foyash : Regenerate
+	a virgil : regenerate
+	a chad : regenerate
+	a collie farmer : regenerate
+	a yuug_port_blacksmith : horse blacksmithing
+	a yuug_tailor_ping : A red panda with larger than average breasts and long flowing blonde hair. Wearing an intricate knee long dress with pockets filled with various tailoring equipment.
+	a barkeep : shiba inu barkeep (regenerate)
+	a Female tentacle fight Quartermaster Fennec (Sam's sister)
+	a Male Tentacle fight announcer cat (dressed sharply) (jackson)
+	a Small scruffy rat (fan used in upskirting event)
+	a Outlaw Poacher (use same as gnoll bandit)
+	a rattani_engineer : A short rat-man wearing goggles with a multitude of lenses, sitting near a table full of various mechanical bits and bobs. He seems oblivious to his surrounds.
+	a scruffy_tavern_dweller : A scruffy mutt of a dog-man. Sitting in a corner and sipping on an ale. A common sight around taverns, and might be able to share a rumor or two.
+	a ybazaar_fensam : (Sam) A female fennec wearing brown shorts and a tight white top. She's standing behind a tent surrounded by various good smelling foods!
+	x razpan : A red panda lady in a knee-length yellow dress sitting on a barrel, surrounded by buckets of razzyberries.
+	x jackman_greyson : A male snow leopard wearing all black except for a brown leather coat. (jackson)
+	- Male slug, tentaclemancer trainer
+	- Sharkanist trainer (cboy)
+	- Tentacle fight picker (female cat)
+	- Tavernkeeper mayah, female arctic Fox
+	- Borm innkeeper: A cheerful otter lady wearing a white apron with pink flowers on it.
+	- Yuug bank thomas: A round raccoon man wearing a fancy suit.
+	- repair_smith_matilda : A muscular mule wearing an apron and wielding a big hammer.
+	- penal_quartermaster : A large fat dog man wearing just an apron and a thong.
+	- penal_guildmaster : A female ferret wearing a tight leather one-piece suit with pockets strapped to her thigh and arm.
+	- vadgination_felidia : A white-furred female cat. A bit pudgy, but that might just be her fluffy fur.
+	- portswood_west_repair : An armadillo lady wearing leather armor with lots of bits and bobs attached to it. There are various tools and crates scattered around her camp.
+	- bubbling_stream_innkeeper : A shorter than average freckled pink cat-lady with long hair tied up into a ponytail, wearing a matted dress.
+	- sharkanist_vendor : A large-busted shark-woman wearing a flowing silk-like dress.
+	- sharkanist_smith : A large shark-man wielding a large blacksmithing hammer.
+	- sharkanist_maki : A long slender shark lady, radiating some kind of arcane aura.
+	- yuug_leatherworker : A male ferret wearing a leather apron and a pair of fancy leather boots.
+	- ybazaar_smith : A large burly bear man wearing a leather thong and an apron.
+	- ybazaar_russle : A racoon man wearing oddly shaped glasses sitting by the fire. There seems to be various pieces of armor and equipment scattered around him.
+	- ybazaar_brutus : A big burly bear. Standing in a stall surrounded by various bottles and tankards.
+	- yuug_explorer_student_a : A scrawny ferret man.
+	- yuug_church_cleric_a : A skinny wolf in a long flowing red robe.
+	- necro_construct_slave : A large-breasted cow lady, she's strapped to some kind of milking device.
+	- necro_trainer : A toned hyena.
+	- necro_bouncer : A large muscular male pitbull, guarding the entrance to the deep catacombs below the Yuug necromancers guild.
+	- necro_bar : A larger than average dalmatian, standing at average height with a big butt and ample bosom. Runs the Underbar in the Yuug necromancers guild.
+	- necro_entrance : A crow covered in bone charms, charged with guarding the entrance of the Yuug necromancers guid.
+	- yuug_city_greasy_backdoor_tavern : A large brawny bear man wearing a dirty apron.
+	- yuug_city_greasy_backdoor_receptionist : A well fed brown bear lady wearing a flowery dress.
+	- portmaster : shark
 
 
 Overhaul food:
@@ -224,13 +308,35 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 		- Healing NPC
 		- Lowers max carry capacity for a few turns.
 		- 
-		- Summon a cursed collar (humanoid only)
-		
+
+		:: Do X, but if Y is true, also do Z. Y ideas:
+		- Be at 5 arousal or greater, but not orgasm.
+		- Have only one type of momentum
+		- Have no defensive momentum
+		- Have no momentum at all
+		- Holy Pose: Heals. Can be used in bondage. When used on a bondaged player, grant them 2 defensive momentum. Multiple charges.
+		- Action is followed by a melee action
+		- Action is followed by a ranged action
+		- You have used one action of each type this turn
+		- You have 5 or fewer abilities slotted
+		- You have 5 or more block
+		- You wasted n amount of block
+		- You have post nut clarity
+		- You have played N turns this battle
+		- You have missed this turn.
+		- You have been hit while naked
+		- You have N other actions on cooldown
+		- Opponent has orgasm
+		- You have less than X gold
+		- It's nighttime
+		- You're outdoors
+		- Gain a stack every time an enemy misses, increasing ability damage by 1
+		- Gain a stack whenever you use a ranged attack, increasing damage done.
 
 	- Events:
-		- Find a drawer, it opens to a cursed sling bikini that you can't unequip for 1 hour
 		- Pick up a coin, gain a curse that makes you cum immediately when penetrated
 		- In town: If wearing plate, get aroused by someone sneakily making it vibrate
+		- Find a meadow and sit to rest. Chance for a worm trap to spawn underneath you. You can choose to let the worm trap finish you off, giving you lots of arousal but also a buff.
 		- 
 
 	- Random events

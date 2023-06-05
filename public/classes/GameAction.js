@@ -1282,6 +1282,8 @@ export default class GameAction extends Generic{
 
 	
 	static getViable( actions = [], player = undefined, debug = false, validate = true, roomAsset = undefined ){
+		if( !window.game )
+			return actions;
 		let out = [];
 		for( let action of actions ){
 	

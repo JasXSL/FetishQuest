@@ -46,6 +46,7 @@ export default class Player extends Generic{
 		this.species = "";
 		this.spre = "";						// A/AN for species
 		this.description = "";
+		this.secret = "";					// Secret description only visible when using clairvoyance
 		this.ior = "";						// Local override
 		this.icon = "";						// URL - Has to be HTTPS
 		this.icon_upperBody = "";			// == || ==
@@ -84,7 +85,7 @@ export default class Player extends Generic{
 		this.arousal = 0;
 		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
 		this.leveled = false;		// Level is an offset of the player average level
-		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
+		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players. -2 = twice as many etc
 		this.hpMulti = 1;			// Quick way to build NPCs with different HP instead of having to add a bunch of wrappers. Negative value will SET max HP to a specific value. Used for illium who loses 1 HP each turn
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 		this.voice = '';			// Voice kit label for pain/pleasure sounds etc
@@ -246,6 +247,7 @@ export default class Player extends Generic{
 			species : this.species,
 			spre : this.spre,
 			description : this.description,
+			secret : this.secret,
 			size : this.size,
 			level : this.level,
 			class : this.class instanceof PlayerClass ? PlayerClass.saveThis(this.class, full) : this.class,
@@ -2655,6 +2657,7 @@ export default class Player extends Generic{
 	}
 
 	consumeReroll( amount = 1 ){
+
 		amount = Math.trunc(amount);
 		if( isNaN(amount) )
 			return;
@@ -2662,6 +2665,10 @@ export default class Player extends Generic{
 		this.tReroll += amount;
 		if( this.reroll < 0 )
 			this.reroll = 0;
+		const max = this.getMaxMomentum();
+		if( this.reroll > max )
+			this.reroll = max;
+
 	}
 
 	// Reroll a point of momentum from one type to another. Returns the type it was rolled into or boolean false on fail

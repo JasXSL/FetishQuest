@@ -80,6 +80,7 @@ export function asset(){
 	html += '</div>';
 
 	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description, true)+'</textarea><br />';
+	html += 'Secret information: <br /><textarea class="saveable" style="min-height:1vmax" name="secret">'+esc(dummy.secret, true)+'</textarea><br />';
 
 	html += 'PlayerClass: <div class="class"></div>';
 	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
