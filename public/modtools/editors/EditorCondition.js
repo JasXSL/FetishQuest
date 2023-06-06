@@ -26,6 +26,7 @@ import GameEvent from '../../classes/GameEvent.js';
 import stdTag from '../../libraries/stdTag.js';
 import { Effect } from '../../classes/EffectSys.js';
 import Game from '../../classes/Game.js';
+import Player from '../../classes/Player.js';
 
 const DB = 'conditions',
 	CONSTRUCTOR = Condition;
@@ -78,6 +79,16 @@ export function asset(){
 			out += '<option value="">- ANY -</option>';
 		for( let i in Action.Types )
 			out += '<option value="'+Action.Types[i]+'" '+(current === Action.Types[i] ? 'selected' : '')+'>'+i+'</option>';
+		out += '</select>';
+		return out;
+
+	};
+
+	const buildActionRangeSelect = (name, current) => {
+
+		let out = '<select name="'+name+'" class="saveable">';
+		for( let i in Action.Range )
+			out += '<option value="'+Action.Range[i]+'" '+(current === Action.Range[i] ? 'selected' : '')+'>'+i+'</option>';
 		out += '</select>';
 		return out;
 
@@ -301,10 +312,18 @@ export function asset(){
 
 	}
 	else if( type === types.actionRanged ){}
+	else if( type === types.lastActionRange ){
+
+		setDefaultData({
+			range : Action.Range.Melee,
+		});
+		html += buildActionRangeSelect('data::range', asset.data.range);
+
+	}
 	else if( type === types.actionResisted ){
 
 		setDefaultData({
-			type : '',
+			type : Action.Types.arcane,
 		});
 		
 		html += buildActionTypeSelect('data::type', asset.data.type, true);
@@ -381,7 +400,7 @@ export function asset(){
 
 	}
 
-	else if( type === types.actionType ){
+	else if( type === types.actionType || type === types.lastActionType ){
 		
 		setDefaultData({
 			type : '',
@@ -389,8 +408,19 @@ export function asset(){
 		html += buildActionTypeSelect('data::type', asset.data.type, true);
 		
 	}
-	else if( type === types.apValue ){
+	else if( type === types.momentumValue ){
+
+		setDefaultData({
+			amount : 0,
+			type : Player.MOMENTUM.All,
+		});
 		html += buildDefaultValueFields(true);
+
+		html += '<select data-type="int" class="saveable" name="data::type">';
+		for( let i in Player.MOMENTUM )
+			html += '<option value="'+Player.MOMENTUM[i]+'" '+(asset.data.type === Player.MOMENTUM[i] ? 'selected' : '')+'>'+i+'</option>';
+		html += '</select>';
+
 	}
 	else if( type === types.eventCustomAmount ){
 		html += buildDefaultValueFields(); 

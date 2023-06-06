@@ -1445,11 +1445,12 @@ class Effect extends Generic{
 			}
 			else if( this.type === Effect.Types.addBlock ){
 
+				const merged = new GameEvent({
+					sender:s, target:t, wrapper:wrapper, effect:this
+				}).mergeUnset(event);
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
-					}).mergeUnset(event)
+					merged
 				);
 				if( !this.no_stack_multi )
 					amt *= wrapper.getStacks();
@@ -2447,7 +2448,7 @@ Effect.Major = {
 	Sensitivity : 0x40000,	// -5 corruption avoidance.
 	Conduit : 0x80000,		// 524288 | -5 Arcane avoidance.
 	Clumsy : 0x100000,		// 1048576 | -30% hit chance
-	Penetration : 0x200000,	// +50% armor penetration
+	Penetration : 0x200000,	// +100% armor penetration
 };
 
 // These are the actual effect types that the game runs off of

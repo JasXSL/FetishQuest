@@ -3390,13 +3390,13 @@ export default class UI{
 		// This action is tied to an asset
 		if( action.isAssetAction() && action.parent.charges !== -1 )
 			uses = player.numAssetUses(action.parent.label, game.battle_active);	
-		else if( action._charges > 1 )
+		else if( action._charges !== 1 )
 			uses = action._charges;
 
 		const usesEl = $('> div.uses', button);
-		usesEl.toggleClass('hidden', !uses || Boolean(ignoreStats))
-		if( +usesEl.text() !== uses )
-			usesEl.text("x"+uses);
+		usesEl.toggleClass('hidden', uses === false || Boolean(ignoreStats));
+		usesEl.toggleClass('red', uses < 1);
+		usesEl.text("x"+uses);
 
 		// Cooldown
 		const cdEl = $('> div.cd > span', button);

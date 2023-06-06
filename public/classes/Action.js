@@ -72,6 +72,7 @@ class Action extends Generic{
 		this.cast_time = 0;						// Set to > 0 to make this a charged spell needing this many turns to complete
 		this.ct_taunt = false;					// Taunt can override the charge target
 		this.charges = 1;						// Max charges for the action. Ignored if cooldown is 0
+		this.charges_start = -1;				// Start charges. -1 = this.charges
 		this.charges_perm = false;				// Charges do not re-add after cooldown.
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
 		this.no_interrupt = false;				// Charged action is not interruptable unless override is set
@@ -169,6 +170,7 @@ class Action extends Generic{
 			out.max_wrappers = this.max_wrappers;
 			out.crit_formula = this.crit_formula;
 			out.std_conds = Condition.saveThese(this.std_conds, full);
+			out.charges_start = this.charges_start;
 
 		}
 		if( full === "mod" )
@@ -356,7 +358,7 @@ class Action extends Generic{
 	onBattleEnd(){
 
 		this._cooldown = 0;
-		this._charges = this.charges;
+		this.resetCharges();
 		this._cast_time = 0;
 
 	}
@@ -368,7 +370,7 @@ class Action extends Generic{
 
 		if( this.init_cooldown ){
 
-			this._charges = 0;
+			this.resetCharges();
 			this._cooldown = this.init_cooldown+1;
 
 		}
@@ -451,8 +453,16 @@ class Action extends Generic{
 
 	}
 
+	resetCharges(){
+		
+		this._charges = this.charges_start;
+		if( this._charges === -1 )
+			this._charges = this.charges;
+
+	}
+
 	hasEnoughCharge(){
-		return (this.getCooldown() <= 0 || this._charges > 0) && (!this.charges_perm || this._cooldown <= 0);
+		return this._charges > 0;
 	}
 
 	// Ends a charged cast
@@ -731,6 +741,8 @@ class Action extends Generic{
 
 		const pl = this.getPlayerParent(); 
 		if( !pl ){
+			if( debug )
+				console.log("Fail: No player parent");
 			return false;
 		}
 
@@ -1169,12 +1181,20 @@ Action.TargetTypes = {
 	self : "self",			// Autocast self
 };
 
+
 // SV/BON types
 Action.Types = {
 	physical : "Physical",			// Primary used body to hurt effects
 	corruption : "Corruption",		// Primary sexy effects
 	arcane : "Arcane",				// Anything that doesn't fit in the top two categories
 };
+
+// used by Player
+Action.TypeFlags = {
+	[Action.Types.physical] : 0x1,
+	[Action.Types.corruption] : 0x2,
+	[Action.Types.arcane] : 0x4,
+}
 
 Action.TypeDescriptions = {
 	[Action.Types.physical] : 'Physical damage has a chance of damaging armor durability.',

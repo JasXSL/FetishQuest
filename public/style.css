@@ -811,7 +811,7 @@ div.scroll{
 		background-size: cover;
 		overflow: visible;
 		display: inline-block;
-		margin: 0 0.25vh 0 0.25vh;
+		margin: 0 0.25vh 0.25vh 0.25vh;
 		vertical-align: middle;
 		width: 5.5vh;
     	height: 5.5vh;
@@ -3234,10 +3234,15 @@ div.scroll{
 		color:#EFE;
 		text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 	}
+	#ui > div.actionbar > div.actions div.action > div.uses.red{
+		color:#FEE;
+		font-size:1vmax;
+	}
 	div.action > div.cd,
 	#ui > div.actionbar > div.actions div.action > div.cd{
 		
-		bottom: -5%;
+		top: 50%;
+		transform: translateY(-50%);
 		right: -15%;
 		height:40%;
 		font-size:1.5vmax;

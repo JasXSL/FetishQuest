@@ -137,6 +137,7 @@ export default class Player extends Generic{
 		this._turn_ap_spent = 0;				// AP spent on actions this turn
 		this._turn_action_used = 0;				// Actions used this turn
 		this._turn_std_combo = 0;				// How many times we've used a standard attack in a row
+		this._turn_atypes = 0;					// Action types used this turn. Maps to Action.Typeflags
 		this._threat = {};						// playerID : threatAmount
 
 		// These are incoming damage
@@ -161,6 +162,8 @@ export default class Player extends Generic{
 		this._targeted_by_since_last = new Collection();			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
 		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
 		this._last_chat = 0;					// Turn we last spoke on. 
+		this._last_arange = Action.Range.None;	// Last action used range
+		this._last_atype = '';					// Last action used type
 
 		this._turn_tags = [];					// {tag:(str)tag, s:(Player)sender}... These are wiped whenever an action text is used
 		
@@ -289,6 +292,8 @@ export default class Player extends Generic{
 			out.experience = this.experience;
 			out.endedTurn = this.endedTurn;
 			out.reroll = this.reroll;
+			out._last_arange = this._last_arange;
+			out._last_atype = this._last_atype;
 		}
 		// Should only be sent while we're hosting a netgame
 		//if( window.game && Game.net.isInNetgameHost() && !full )
@@ -319,23 +324,6 @@ export default class Player extends Generic{
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
 				out._difficulty = this._difficulty;
 				out._threat = this._threat;
-				out._turn_ap_spent = this._turn_ap_spent;
-				out._damaging_since_last = this._damaging_since_last;
-				out._aware = this._aware;
-				out._damage_since_last = this._damage_since_last;
-				out._d_damaging_since_last = this._d_damaging_since_last;
-				out._d_damage_since_last = this._d_damage_since_last;
-				out._turns = this._turns;
-				out._turn_action_used = this._turn_action_used;
-				out._turn_std_combo = this._turn_std_combo;
-				out._riposted_since_last = this._riposted_since_last;
-				out._riposting_since_last = this._riposting_since_last;
-				out._healing_a_since_last = this._healing_a_since_last;
-				out._healing_p_since_last = this._healing_p_since_last;
-				out._d_healing_a_since_last = this._d_healing_a_since_last;
-				out._d_healing_p_since_last = this._d_healing_p_since_last;
-				out._missed_since_last = this._missed_since_last;
-				out._missing_since_last = this._missing_since_last;
 			}
 
 		}
@@ -356,6 +344,24 @@ export default class Player extends Generic{
 			out.color = this.color;
 			out.arousal = this.arousal;
 			out._targeted_by_since_last = this._targeted_by_since_last.save(full);		// Needed by netcode
+			out._turn_ap_spent = this._turn_ap_spent;
+			out._damaging_since_last = this._damaging_since_last;
+			out._aware = this._aware;
+			out._damage_since_last = this._damage_since_last;
+			out._d_damaging_since_last = this._d_damaging_since_last;
+			out._d_damage_since_last = this._d_damage_since_last;
+			out._turns = this._turns;
+			out._turn_action_used = this._turn_action_used;
+			out._turn_std_combo = this._turn_std_combo;
+			out._turn_atypes = this._turn_atypes;
+			out._riposted_since_last = this._riposted_since_last;
+			out._riposting_since_last = this._riposting_since_last;
+			out._healing_a_since_last = this._healing_a_since_last;
+			out._healing_p_since_last = this._healing_p_since_last;
+			out._d_healing_a_since_last = this._d_healing_a_since_last;
+			out._d_healing_p_since_last = this._d_healing_p_since_last;
+			out._missed_since_last = this._missed_since_last;
+			out._missing_since_last = this._missing_since_last;
 
 		}
 		else
@@ -679,9 +685,11 @@ export default class Player extends Generic{
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
 		vars[prefix+'actionsUsedThisTurn'] = this._turn_action_used;
 		vars[prefix+'stdCombo'] = this._turn_std_combo;
+		vars[prefix+'aTypes'] = this._turn_atypes;
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
+		vars[prefix+'Turns'] = this._turns;
 		
 		vars[prefix+'Talkative'] = this.talkative;
 		vars[prefix+'Sadistic'] = this.sadistic;
@@ -716,6 +724,8 @@ export default class Player extends Generic{
 		
 		vars[prefix+'NumMajor'] = this.getNumMajorEffects();
 		vars[prefix+'Major'] = this.getMajorEffects();
+		vars[prefix+'LARange'] = this._last_arange;
+		vars[prefix+'LAType'] = this._last_atype;
 		
 		vars[prefix+"NumTaunts"] = this.getTaunting().length;		// nr players we're taunting
 
@@ -729,6 +739,22 @@ export default class Player extends Generic{
 			vars[prefix+'damageDoneSinceLast'+type] = this.datTotal( this._d_damage_since_last, type );
 			
 		}
+
+		
+		const actions = this.getActions("e");
+		let onCD = 0;
+		for( let action of actions ){
+			
+			if( action.hidden )
+				continue;
+
+			vars[prefix+'Action_'+action.label] = 1;
+			if( !action._charges )
+				++onCD;
+
+		}
+		vars[prefix+'CDActions'] = onCD;
+
 
 		// The mathvars event has a sender and target, and this player is the victim
 		const weAreVictim = ( event && this === event.target && event.sender instanceof Player );
@@ -747,6 +773,8 @@ export default class Player extends Generic{
 			vars[prefix+'Crit_se'] = this.getCritDoneChance(event.sender);
 
 			vars[prefix+'GrappledByS'] = +this.hasTagBy([stdTag.wrGrapple], event.sender) || 0;
+
+			vars[prefix+'AwareOfS'] = +event.sender.isAware(this);
 
 		}
 	
@@ -1302,6 +1330,8 @@ export default class Player extends Generic{
 	// Raised after effects
 	onTurnStart(){
 
+		this._last_arange = Action.Range.None;
+		this._last_atype = '';
 		this.reroll = 2;
 		this.tReroll = 0;
 		this.endedTurn = false;
@@ -1393,6 +1423,7 @@ export default class Player extends Generic{
 
 		this._turn_action_used = 0;
 		this._turn_std_combo = 0;
+		this._turn_atypes = 0;
 		this._turn_ap_spent = 0;		// Todo: probably want this by type later
 		
 	}
@@ -1410,6 +1441,7 @@ export default class Player extends Generic{
 		this._last_chat = -1;
 		this._turn_action_used = 0;
 		this._turn_std_combo = 0;
+		this._turn_atypes = 0;
 		this.block = this.iBlock = 0;
 		if( this.arousal >= this.getMaxArousal() )
 			this.arousal = this.getMaxArousal()-1;
@@ -1609,6 +1641,13 @@ export default class Player extends Generic{
 	}
 
 	onActionUsed( action, successfulHits = [] ){
+
+		this._last_arange = action.ranged;
+		this._last_atype = action.type;
+
+		const ty = Action.TypeFlags[action.type];
+		if( !isNaN(ty) )
+			this._turn_atypes = this._turn_atypes | ty;
 
 		if( action.group === "stdatt" ){
 
@@ -3232,10 +3271,10 @@ export default class Player extends Generic{
 
 			// Get armor penetration percentage
 			let armorPen = sender.getGenericAmountStatPoints(Effect.Types.globalArmorPen, this)/100;
-			const major = this.getMajorEffects();
-			// Major penetration: Add an extra 50% flat penetration
+			const major = sender.getMajorEffects();
+			// Major penetration: Add an extra 100% flat penetration
 			if( major & Effect.Major.Penetration )
-				armorPen += 0.5;
+				armorPen += 1;
 			
 			// Reduce damage reduction by armor pen
 			reduction *= Math.max(0, 1-armorPen);
@@ -3254,7 +3293,8 @@ export default class Player extends Generic{
 
 		}
 
-		return Math.max(0, 1-reduction/100);
+		const out = Math.min(1, Math.max(0, 1-reduction/100));
+		return out;
 
 	}
 	

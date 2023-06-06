@@ -130,7 +130,7 @@ t = need testing
 
 NOTE: These armors have 2 stats per slot because they're purchased epics. But have epic effects.
 
-  x Warrior: Tank. Reduces incoming damage. Lots of blocking.
+  x Warrior: Tank [Phys]. Reduces incoming damage. Self block and counter attacks.
 Trainer: Chad's Gym
 	Armor: 
 		x Warrior's Gear (Breastplate + Crotchplate): YOU GAIN TOO MUCH BLOCK?
@@ -142,7 +142,7 @@ Trainer: Chad's Gym
 		A: 
 		B: 
 
-(test)  - Rogue: DPS. Deals damage and crits.
+(test)  - Rogue: [Corruption/Phys] DPS. Direct damage. Rerolls & crits.
 Trainer: Penal gang
 	Armor: 
 		Bodysuit:
@@ -151,7 +151,7 @@ Trainer: Penal gang
 		x Using two standard attacks in a row grants you major Accuracy and major aggression this turn.
 	Quest: DONE
 
-(test)  - Cleric: Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive.
+(test) 	- Cleric [Arcane/Phys] Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive. Demon/undead bane.
 Trainer: church
 	- Armor: 
 		x Plate Bikini (2 slots): Restores 2 HP to the party whenever you are hit by an enemy that you are taunting.
@@ -159,7 +159,7 @@ Trainer: church
 	- Quest: DONE
 
 
-(test)  - Tentaclemancer-  Tank (utility): Tanks by weakening enemies. [Train in Borm.]
+(test)  - Tentaclemancer [Corruption]  Tank (utility): Tanks by weakening enemies. Also self arousal. 
 Trainer: Borm
 	- Armor: 
 		x Living bodysuit:
@@ -180,7 +180,7 @@ Trainer: Borm
 			- Take out the cultists and bring back evidence to TM trainer.
 			- Players unlock the armor set.
 
-(test)  - Monk: Healer - Heals by attacking
+(test)  - Monk: [Physical] Healer - Heals by attacking. Also riposte and combos.
 Trainer: Portswood glade.
 	- Armor: 
 		x Ultralight Bodysuit: Using attack against a grappled target restores 3 HP to a random friendly player.  
@@ -208,7 +208,7 @@ Trainer: Portswood glade.
 			She says the gesture to prove that you were succesfful is to twist <monk>'s nipples.
 			Go do that to finish the quest and unlock the armor.
 
-(test)  - Elementalist - Defensive DPS: Deal damage when enemies attack [Todo: Train at ???]
+(test)  - Elementalist [Arcane] - Defensive DPS: Deal damage when enemies attack. Also wild random effects.
 Trainer: Otter in lake (moves to inn after quest complete)
 	- Armor: 
 		x Tribal Leathers (leather thong plus chest): Grants 5 random momentum when you interrupt a player.
@@ -219,7 +219,7 @@ Trainer: Otter in lake (moves to inn after quest complete)
 	
 
 
-(test)  - Necromancer - Tank (offense) by doing damage and stealing health [TRAIN AT NECRO LAIR]
+(test)  - Necromancer [Corruption] - Tank (offense) by doing damage and stealing health.
 Trainer: Necromancer
 	t Bone Armor (heavy), bone breastplate and thong:  On orgasm, gain an extra charge of corrupt.
 	t Dark Robes: Life steals have a chance equal to your opponent's HP percentage to restore +2 HP to your party.
@@ -227,7 +227,7 @@ Trainer: Necromancer
 	- Quest: DONE
 
 
-(test)		- Arcanist - Healer (proactive) [TRAIN AT SHARKANISTS]
+(test)		- Arcanist [Arcane] - Healer (proactive). Block effects and damage reduction.
 Trainer: Sharkanists
 	- Armor: 
 		t Arcane Silk Bikini: Gain 1 arcane proficiency each turn, up to 5 stacks. This effect is reset when you take HP damage.
@@ -236,7 +236,7 @@ Trainer: Sharkanists
 
 
 
-Bard? Utility - AoE buff / debuffs
+Bard? Utility [Phys/Arcane/Corruption] - Short term powerful Buffs and debuffs.
 vt Singing Strike: Deals 2 phys damage, increased by 2 for every major effect on your target and yourself.
 vt Piercing Tune: Makes enemies Major Vulnerability one turn, increasing damage taken by 30%.
 vt Warsong: Grants party Major Aggression one turn, increasing damage done by 20%.
@@ -300,6 +300,18 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 		- Smoke bomb : Resets all awareness
 		- Cursed Collar
 			- 
+		- Do X if you have 5 or fewer abilities slotted.
+		- You wasted n amount of block
+		- Grant a random party member 1 block when you use an arcane action.
+		- Gain 2 proficiency of all types for the remainder of your turn when riposted.
+		- It's nighttime
+		- You're outdoors
+		- You have been hit while naked
+		- You have played N turns this battle
+		- You have post nut clarity
+		- Gain block whenever you miss an attack.
+		- You have less than X gold
+		- Grant 3 random momentum if you have at least 4 actions on cooldown.
 
 	- Action ideas:
 		- Deals damage, deals extra damage if target has clairvoyance.
@@ -310,28 +322,21 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 		- 
 
 		:: Do X, but if Y is true, also do Z. Y ideas:
-		- Be at 5 arousal or greater, but not orgasm.
-		- Have only one type of momentum
-		- Have no defensive momentum
-		- Have no momentum at all
-		- Holy Pose: Heals. Can be used in bondage. When used on a bondaged player, grant them 2 defensive momentum. Multiple charges.
-		- Action is followed by a melee action
 		- Action is followed by a ranged action
-		- You have used one action of each type this turn
-		- You have 5 or fewer abilities slotted
-		- You have 5 or more block
-		- You wasted n amount of block
-		- You have post nut clarity
-		- You have played N turns this battle
-		- You have missed this turn.
-		- You have been hit while naked
-		- You have N other actions on cooldown
-		- Opponent has orgasm
-		- You have less than X gold
-		- It's nighttime
-		- You're outdoors
-		- Gain a stack every time an enemy misses, increasing ability damage by 1
-		- Gain a stack whenever you use a ranged attack, increasing damage done.
+		- 
+		
+		New spells:
+		v [Monk] Adrenaline Rush : Grants 3 random momentum. Can only be used if you have no momentum.
+		x [Rogue] Assault : Deals 3 phys damage. Grants you major penetration for 3 turns if you have no uti/def momentum.
+		v [Cleric] Holy Pose: Restores 5 HP. Can be used while in bondage. When used on a bondaged player, grant them 2 defensive momentum. 3 charges.
+		v [Elementalist] Elemental Bolt : Deal 3 damage. If you've used all 3 action types this turn, also grant all enemies Major Clumsy for 3 turns.
+		v [Arcanist] Rock Skin: Restore 5 HP. If your target has at least 5 block, grant them Major Blessing for 2 turns.
+		v [Elementalist] Wild Blast : Deal a random amount of arcane damage between 1 and the number of turns you've played this battle. Max 10.
+		x [Rogue] Cheap Shot: Deals 2 physical damage. Free. Permanent charges. Gain a charge when you crit.
+		v [Elementalist] Capacitive Discharge : Gain a capacitive charge each time an enemy misses an attack. Using the action consumes all charges dealing 1 damage increased by 2 per charge consumed.
+		v [Cleric] Panic Heal: Restores 4 HP. Critically hits if you have at least 3 actions on cooldown.
+		t [Arcanist] Piercing Beam: Ranged actions grant you a stack of focus, up to 5. Using this action deals 1 damage per stack consumed. This damage ignores block.
+		
 
 	- Events:
 		- Pick up a coin, gain a curse that makes you cum immediately when penetrated

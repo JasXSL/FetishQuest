@@ -46,6 +46,7 @@ export function asset(){
 		html += '<label title="Lets you group multiple actions together. Mostly used for standard. Max 5">Group: <input name="group" value="'+esc(dummy.group)+'" type="text" class="saveable" /></label>';
 		
 		html += '<label>Charges: <input name="charges" value="'+esc(dummy.charges)+'" type="number" step=1 class="saveable" /></label>';
+		html += '<label title="-1 = full">Start Charges: <input name="charges_start" value="'+esc(dummy.charges_start)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Min targets: <input name="min_targets" value="'+esc(dummy.min_targets)+'" type="number" step=1 class="saveable" /></label>';
 		html += '<label>Max targets: <input name="max_targets" value="'+esc(dummy.max_targets)+'" type="number" step=1 class="saveable" /></label>';
 

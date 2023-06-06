@@ -4166,17 +4166,17 @@ export default class StaticModal{
 
 					// Inactive learned actions
 					const inactive = player.getInactiveActions();
-
+					
 					let inactiveEls = $("> div.action", this.actions.available);
 					
 					// Append icons if need be
-					for( let i=inactiveEls.length; i<inactive.length; ++i ){
+					for( let i = inactiveEls.length; i < inactive.length; ++i ){
 						this.actions.available.append(UI.Templates.actionButton);
 					}
 					inactiveEls = $("> div.action", this.actions.available);
 					inactiveEls.toggleClass("hidden", true);
 
-					for( let i =0; i<inactive.length; ++i ){
+					for( let i = 0; i < inactive.length; ++i ){
 
 						const el = inactiveEls[i],
 							abil = inactive[i];

@@ -560,6 +560,17 @@ export default class Condition extends Generic{
 			else if( this.type === T.actionGroup ){
 				success = event.action && event.action.group === this.data.group;
 			}
+			else if( this.type === T.lastActionRange ){
+
+				success = t._last_arange === this.data.range;
+
+			}
+			else if( this.type === T.lastActionType ){
+
+				success = t._last_atype === this.data.type;
+
+			}
+			
 
 			else if( this.type === T.isWrapperParent ){
 				
@@ -683,11 +694,13 @@ export default class Condition extends Generic{
 
 			}
 
-			else if( this.type === T.apValue ){
-				let v = t.ap;
+			else if( this.type === T.momentumValue ){
+
+				let v = t.getMomentum(this.data.type);
 				if( this.data.perc )
-					v /= T.getMaxAP();
+					v /= t.getMaxMomentum();
 				success = t && this.compareValue(s, t, v);
+
 			}
 			else if( this.type === T.eventCustomAmount ){
 				
@@ -1483,8 +1496,8 @@ Condition.Types = {
 	assetTag : 'assetTag',
 	assetLabel : 'assetLabel',
 	hasFreeBondageDevice : 'hasFreeBondageDevice',
-
-	apValue : 'apValue', 			// 
+	
+	momentumValue : 'momentumValue', 			// 
 	hpValue : 'hpValue', 			// 
 	eventCustomAmount : 'eventCustomAmount',
 	arousalValue : 'arousalValue', 			// 
@@ -1554,8 +1567,10 @@ Condition.Types = {
 	numRpTargets : 'numRpTargets',
 	mathVarCompare : 'mathVarCompare',
 	blockValue : 'blockValue',
-
 	gameActionDataTags : 'gameActionDataTags',
+	lastActionRange : 'lastActionRange',
+	lastActionType : 'lastActionType',
+
 };
 
 
@@ -1593,7 +1608,7 @@ Condition.descriptions = {
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',
 	[Condition.Types.blockValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.apValue] : '{amount:(number)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
+	[Condition.Types.momentumValue] : '{amount:(number)momentumAmount, operation:(str)<>=, perc:(bool)percentage, type:(str)momentumType=ANY} - Compares against target momentum. Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
 	[Condition.Types.hpValue] : '{amount:(number)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
 	[Condition.Types.eventCustomAmount] : '{amount:(int)amount, operation:(str)<>=, field:(str)"amount"} - Default > Amount can be a math var. By default checks for an amount field in event.custom, but field can be used to check other fields in event.custom',
 	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var.',
@@ -1666,6 +1681,9 @@ Condition.descriptions = {
 	[Condition.Types.mathVarCompare] : '{label:(str)mathVar, val:(var)testval} - Checks if a mathvar is val. mathVar accepts Calculator target consts. Use this if you want to compare strings. Otherwise use the formula condition. You can check multiple targets by using target consts, so generally you want to only check this against target 0 for speed.',
 	[Condition.Types.gameActionDataTags] : '{tags:(arr/str)tag} - Requires gameAction in event, and gameAction.data.tags must be an array. Primarily used to validate waht skills you can learn at a gym.', 
 	[Condition.Types.isAwareOfSender] : '{} - Checks if target is aware of sender',
+	[Condition.Types.lastActionRange] : '{range:(int)Action.Range.*} - Matches against range of last action used this turn',
+	[Condition.Types.lastActionType] : '{type:(str)Action.Types.*} - Matches against type of last action used this turn',
+	
 };
 
 
