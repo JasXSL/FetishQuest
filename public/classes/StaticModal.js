@@ -490,19 +490,24 @@ export default class StaticModal{
 				this.available = $("div.left > div.available", actives);
 
 			})
+			// gymPlayer is the player who offers the gym. gym is the gym tied to him
 			.setDraw(function( gymPlayer ){
 
 				const player = game.getMyActivePlayer();
 				if( !player )
+					return;
+				const gym = game.getGymsByPlayer(gymPlayer, player)[0];
+				if( !gym )
 					return;
 
 				self.generateWallet(this.money);
 
 				// Inactive learned actions
 				const inactive = player.actions.filter(action => {
-					return !action.std && !action.hidden && !action.semi_hidden;
-				}),
-					learnable = player.getUnlockableActions();
+						return !action.std && !action.hidden && !action.semi_hidden;
+					}),
+					learnable = player.getUnlockableActions(gym)
+				;
 
 				let inactiveEls = $("> div.action", this.available),
 					learnableEls = $("> div.learnable", this.purchasable);
@@ -528,7 +533,7 @@ export default class StaticModal{
 
 				}
 
-				for( let i =0; i<learnable.length; ++i ){
+				for( let i =0; i < learnable.length; ++i ){
 
 					const el = learnableEls[i],
 						abil = learnable[i].getAction(),
@@ -811,7 +816,6 @@ export default class StaticModal{
 						<div class="netgameLink b hideIfNotHost"></div>
 						<input type="button" class="red disconnect" value="Leave Game" />
 						<div class="connectedPlayers"></div>
-						<label class="hideIfNotHost">Enable 75 sec turn time limit: <input type="checkbox" class="enableTurnTimer" /></label><br />
 						<label class="hideIfNotHost">Mute spectators: <input type="checkbox" class="muteSpectators" /></label><br />
 					</div>
 					<div class="disconnected">
@@ -862,7 +866,6 @@ export default class StaticModal{
 					hostButton : netgame.querySelector('input.hostgame'),
 					disconnectButton : netgame.querySelector('input.disconnect'),
 					connectedPlayers : netgame.querySelector('div.connectedPlayers'),
-					enableTurnTimer : netgame.querySelector('input.enableTurnTimer'),
 					muteSpectators : netgame.querySelector('input.muteSpectators'),
 				};
 				
@@ -1082,7 +1085,6 @@ export default class StaticModal{
 					this.netgame.connectedPlayers.replaceChildren(...divs);
 
 					// LocalStorage stores strings, so we can't store true/false
-					this.netgame.enableTurnTimer.checked = Boolean(+localStorage.turnTimer);
 					this.netgame.muteSpectators.checked = Boolean(+localStorage.muteSpectators);
 
 					this.netgame.connected.classList.toggle('host', isHosting);
@@ -1107,13 +1109,6 @@ export default class StaticModal{
 						
 						await Game.net.leaveNetgame();
 						this.refresh();
-
-					});
-
-					this.netgame.enableTurnTimer.addEventListener('change', event => {
-						
-						localStorage.turnTimer = +event.currentTarget.checked;
-						game.onTurnTimerChanged();
 
 					});
 					this.netgame.muteSpectators.addEventListener('click', event => {
@@ -1424,6 +1419,7 @@ export default class StaticModal{
 						'<hr />'+
 						'<div class="actions"></div>'+
 						'<div class="kinks"></div>'+
+						'<p class="secret italic"></p>'+
 					'</div>';
 
 					cDivs.description.html(desc);
@@ -1445,6 +1441,9 @@ export default class StaticModal{
 							UI.setActionButtonContent(div, action, player);
 
 						}
+
+						const secret = clairvoyance.querySelector("p.secret");
+						secret.innerText = player.secret;
 
 						const cdiv = clairvoyance.querySelector("div.kinks");
 						let kinks = player.getKinks();
@@ -1591,8 +1590,6 @@ export default class StaticModal{
 					dDivs.formUpperBody.val(player.icon_upperBody);
 					dDivs.formLowerBody.val(player.icon_lowerBody);
 					dDivs.formHP.val(parseInt(player.hp) || 0);
-					dDivs.formAP.val(parseInt(player.ap) || 0);
-					dDivs.formMP.val(parseInt(player.mp) || 0);
 					dDivs.formArousal.val(parseInt(player.arousal) || 0);
 					dDivs.formTeam.val(parseInt(player.team) || 0);
 					dDivs.formDescription.val(player.description);
@@ -1713,8 +1710,6 @@ export default class StaticModal{
 						player.icon_lowerBody = dDivs.formLowerBody.val().trim();
 						player.icon_nude = dDivs.formNude.val().trim();
 						player.hp = parseInt(dDivs.formHP.val())||1;
-						player.ap = parseInt(dDivs.formAP.val())||0;
-						player.mp = parseInt(dDivs.formMP.val())||0;
 						player.arousal = parseInt(dDivs.formArousal.val())||0;
 
 						player.sadistic = Math.max(0, Math.min(1, +dDivs.formSadistic.val())) || 0;
@@ -1757,10 +1752,6 @@ export default class StaticModal{
 			
 						if( player.hp > player.getMaxHP() )
 							player.hp = player.getMaxHP();
-						if( player.ap > player.getMaxAP() )
-							player.ap = player.getMaxAP();
-						if( player.mp > player.getMaxMP() )
-							player.mp = player.getMaxMP();
 						
 						
 						// Todo: Save kinks
@@ -4143,7 +4134,7 @@ export default class StaticModal{
 					for( let i = 0; i<Player.MAX_ACTION_SLOTS; ++i ){
 
 						const el = $(this.actions.activeButtons[i]);
-						el.toggleClass('button', true);
+						
 
 						let action = player.getActionAtSlot(i);
 
@@ -4151,6 +4142,8 @@ export default class StaticModal{
 						if( action )
 							UI.setActionButtonContent(el, action, player, i+2, true);
 						else{
+							
+							$("> div", el).html("");
 
 							const slotUnlocked = i < numSlots;
 							el.toggleClass("tooltipParent", false).toggleClass('disabled', !slotUnlocked);
@@ -4166,23 +4159,24 @@ export default class StaticModal{
 
 							
 						}
+						el.toggleClass('button', true);
 						el.toggleClass('empty', !action);
 
 					}
 
 					// Inactive learned actions
 					const inactive = player.getInactiveActions();
-
+					
 					let inactiveEls = $("> div.action", this.actions.available);
 					
 					// Append icons if need be
-					for( let i=inactiveEls.length; i<inactive.length; ++i ){
+					for( let i = inactiveEls.length; i < inactive.length; ++i ){
 						this.actions.available.append(UI.Templates.actionButton);
 					}
 					inactiveEls = $("> div.action", this.actions.available);
 					inactiveEls.toggleClass("hidden", true);
 
-					for( let i =0; i<inactive.length; ++i ){
+					for( let i = 0; i < inactive.length; ++i ){
 
 						const el = inactiveEls[i],
 							abil = inactive[i];
@@ -4250,13 +4244,12 @@ export default class StaticModal{
 							const modal = game.ui.modal;
 							modal.prepareSelectionBox();
 							
-
-							if( isHotbar )
+							if( isHotbar && !asset.no_unequip )
 								modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
-							else if( player.canEquip(asset) )
+							else if( player.canEquip(asset) && !isHotbar )
 								modal.addSelectionBoxItem( 'Equip', '', 'equip' );
 
-							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (player === game.getTurnPlayer() && isHotbar)) ){
+							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (game.isTurnPlayer(player) && isHotbar)) ){
 								modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
 							}
 
@@ -4325,14 +4318,14 @@ export default class StaticModal{
 
 									if( game.battle_active ){
 
-										if( player.ap < 3 ){
+										if( player.getMomentum(Player.MOMENTUM.Uti) < 3 ){
 
-											modal.addError("Not enough AP");
+											modal.addError("Not enough utility momentum");
 											modal.closeSelectionBox();
 											return;
 
 										}
-										else if( game.getTurnPlayer().id !== player.id ){
+										else if( game.isTurnPlayer(player) ){
 
 											modal.closeSelectionBox();
 											modal.addError("Not your turn");

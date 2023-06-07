@@ -9,7 +9,7 @@ import {default as Dungeon, DungeonSaveState} from './Dungeon.js';
 import WebGL from './WebGL.js';
 import Text from './Text.js';
 import Quest from './Quest.js';
-import {default as Audio, setMasterVolume}  from './Audio.js';
+import {default as Audio, AudioKit, setMasterVolume}  from './Audio.js';
 import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
 import GameAction from './GameAction.js';
@@ -45,10 +45,12 @@ export default class Game extends Generic{
 		this.players = [];
 		this.renderer = new WebGL();
 		this.ui = new UI(this);
+
 		this.turn = 0;
+		this.initiative = [];				// Turn order. Contains TEAMS
+
 		this.is_host = true;
 		this.battle_active = false;
-		this.initiative = [];				// Turn order
 		this.initialized = false;			// might happen multiple times from the load function
 		this.full_initialized = false;		// Only happens once
 		this.chat_log = [];					// Chat log
@@ -97,7 +99,7 @@ export default class Game extends Generic{
 		this.mute_spectators = +localStorage.muteSpectators || 0;	// Shouldn't be saved, but sent to net
 		this.my_player = localStorage.my_player;
 
-		this.end_turn_after_action = false;				// When set, ends turn after the current action completes
+		this.end_turn_after_action = false;				// When set, a player has marked to end their turn, and we need to check if everyone on their team has ended.
 
 		this.rain_next_refresh = 0;						// When to randomize rain status next time
 		this.rain_started = 0;							// Time when the rain started
@@ -108,10 +110,9 @@ export default class Game extends Generic{
 
 		this.hotkeys = [1,2,3,4,5,6,7,8,9,0];
 
-		this._turn_timer = false;						// Timeout handling end of turn
+		this._bot_timer = false;						// Timeout handling bot play
 		this._db_save_timer = null;						// Timer to store on HDD		
 		this._caches = 0;								// Level of depth of cache requests we're at
-
 		this._looted_players = {};						// local only, contains id : true for players looted in this room
 
 	}
@@ -302,7 +303,7 @@ export default class Game extends Generic{
 		return this.constructor.saveToDB(data);
 	}
 
-	async execSave( allowInsert, ignoreNetGame ){
+	async execSave( allowInsert, ignoreNetGame, debug ){
 
 		let time = Date.now();
 		if( !this.initialized && !allowInsert ){
@@ -327,9 +328,10 @@ export default class Game extends Generic{
 
 		localStorage.game = this.id;
 
+		const sd = this.getSaveData(true);
 		// First insert
 		if( allowInsert ){
-			await this.saveToDB(this.getSaveData(true));
+			await this.saveToDB(sd);
 			this.initialize();
 			this.load();
 		}
@@ -338,7 +340,7 @@ export default class Game extends Generic{
 			clearTimeout(this._db_save_timer);
 			this._db_save_timer = setTimeout(() => {
 				this.lockPlayersAndRun(() => {
-					this.saveToDB(this.getSaveData(true));
+					this.saveToDB(sd);
 				});
 			}, 3000);
 		}
@@ -419,12 +421,12 @@ export default class Game extends Generic{
 
 		const mute_pre = this.mute_spectators && !this.getMyActivePlayer();
 		const time_pre = this.time;
-		let turn = this.getTurnPlayer();
+		let turn = this.turn;
 		this.net_load = true;
 		this.g_autoload(data, true);
 		this.net_load = false;
-		let nt = this.getTurnPlayer();
-		if( turn.id !== nt.id )
+		let nt = this.turn;
+		if( turn !== nt )
 			this.onTurnChanged();
 			
 		this.dungeon.loadState();	// Technically there shouldn't be state here, since state will already be loaded on the host dungeon.
@@ -521,16 +523,6 @@ export default class Game extends Generic{
 	clearRoleplayHistory(){
 		this.state_roleplays = new Collection();
 	}
-
-	toggleAFK(){
-		// Game.net.isPlayerAFK(Game.netgame_owner)
-		if( !Game.net.isInNetgame() )
-			return false;
-		
-		Game.net.playerToggleAFK();
-
-	}
-
 
 	isHostLoaded(){
 		if( !Game.net.isInNetgame() || this.is_host )
@@ -801,13 +793,12 @@ export default class Game extends Generic{
 	// This one is raised both on host and client.
 	// It's only raised on coop after the turn is changed proper, if a player dies, they're likely skipped
 	onTurnChanged(){
-		const tp = this.getTurnPlayer();
-		if( this.playerIsMe(tp, true) )
+
+		const tp = this.isMyTurn();
+		if( tp )
 			this.uiAudio('your_turn', 1);
 		else
 			this.uiAudio('turn_changed');
-
-		this.setTurnTimer();
 
 	}
 	// force can be set to a float to force the rain value
@@ -994,7 +985,7 @@ export default class Game extends Generic{
 
 				p.addHP(20*duration);
 				p.addArousal(-5*duration);
-				p.addMP(5*duration);
+				//p.addMP(5*duration);
 				this.save();
 				this.ui.draw();
 
@@ -1064,56 +1055,6 @@ export default class Game extends Generic{
 
 
 
-
-
-	/* Turn timer */
-	onTurnTimerChanged(){
-
-		if( !this.turnTimerEnabled() )
-			this.endTurnTimer();
-		else if( !this._turn_timer )
-			this.setTurnTimer();
-
-	}
-
-	endTurnTimer(){
-
-		clearTimeout(this._turn_timer);
-		this._turn_timer = false;
-		game.ui.toggleRope();
-
-	}
-
-	turnTimerEnabled(){
-
-		if( !this.is_host )
-			return false;
-		const tt = +localStorage.turnTimer,
-			tp = this.getTurnPlayer();
-		return ( tt && Game.net.isInNetgameHost() && this.battle_active && tp && !tp.isNPC() );
-
-	}
-	
-	setTurnTimer(){
-
-		if( !this.turnTimerEnabled() )
-			return;
-
-		this.endTurnTimer();
-		this._turn_timer = setTimeout(() => {
-			
-			if( this.isMyTurn() )
-				game.ui.toggleRope(15);
-			
-			Game.net.dmRope(this.getTurnPlayer(), 15);
-			
-			this._turn_timer = setTimeout(() => {
-				this.advanceTurn();
-			}, 15000);
-
-		}, 60000);
-
-	}
 
 	// Useful for console debugging, returns current dungeon vars
 	getActiveDungeonVars(){
@@ -1202,8 +1143,10 @@ export default class Game extends Generic{
 	// Internal only lets you play the sound without sharing it with the other players (if DM)
 	async playFxAudioKitById(id, ...args ){
 
-		const glibAudio = glib.audioKits;
-		let kit = glibAudio[id];
+		let kit = glib.audioKits[id];
+		if( !window.game )
+			kit = AudioKit.loadThis(window.mod.getAssetById('audioKits', id, true));
+		
 		if( !kit )
 			return console.error("Audio kit missing", id);
 		
@@ -1727,6 +1670,12 @@ export default class Game extends Generic{
 		return this.players.filter(el => !el.disabled);
 	}
 
+	onEndTurn( t ){
+
+		this.autoUpdateSelectedPlayer();
+		
+	}
+
 	// Add a player by data
 	// If data is a Player object, it uses that directly
 	addPlayer(data, nextTurn = false ){
@@ -1756,18 +1705,19 @@ export default class Game extends Generic{
 
 		}
 
-		// Add before the current player
-		if( this.battle_active ){
-			
+		const team = p.team;
+		if( this.battle_active && !this.initiative.includes(team) ){
+
 			// Insert at next turn
 			if( nextTurn ){
-				this.initiative.splice(this.turn+1, 0, p.id);
+				this.initiative.splice(this.turn+1, 0, team);
 			}
-			// Insert at current turn and move turn marker ahead, meaning it goes before the active player
+			// Insert at current turn and move turn marker ahead, meaning it goes before the active team
 			else{
-				this.initiative.splice(this.turn, 0, p.id);
+				this.initiative.splice(this.turn, 0, team);
 				++this.turn;
 			}
+
 		}
 
 		this.assignAllColors();
@@ -1794,6 +1744,22 @@ export default class Game extends Generic{
 
 	}
 
+	// Checks if the combat is stuck because the active team has no alive players, and in that case advances turn
+	currentTeamHasPlayers(){
+
+		let team = this.initiative[this.turn];
+		if( team === undefined )
+			return true;
+		
+		let active = this.getEnabledPlayers();
+		for( let pl of active ){
+			if( pl.team === team && !pl.isDead() )
+				return true;
+		}
+		return false;
+
+	}
+
 	// Remove a player by id
 	// If fromEncounter is true, it also removes it from the current encounter
 	removePlayer( id, fromEncounter = true ){
@@ -1801,38 +1767,18 @@ export default class Game extends Generic{
 		if( id instanceof Player )
 			id = id.id;
 
-		const isTurn = id === this.getTurnPlayer().id;
 		let removes = 0;
 
 		for(let i in this.players){
 
 			if(this.players[i].id === id){
 
-
 				this.players[i].onRemoved();
 				this.players.splice(i,1);
-				if( this.battle_active ){
-
-					for( let t in this.initiative ){
-
-						if( this.initiative[t] === id ){
-
-							this.initiative.splice(t, 1);
-							if( t <= this.turn ){
-								--this.turn;
-							}
-							break;
-
-						}
-
-					}
-
-				}
 				this.verifyLeader();
-				if( isTurn && this.battle_active )
-					this.advanceTurn();
+				if( this.battle_active && !this.currentTeamHasPlayers() )
+					this.advanceTurn();	// Handles checking if battle is over etc
 				this.save();
-
 				this.ui.draw();
 				
 				++removes;
@@ -1983,7 +1929,7 @@ export default class Game extends Generic{
 		const ap = this.getMyActivePlayer();
 		if( !ap )
 			return false;
-		return this.getTurnPlayer().id === ap.id;
+		return this.initiative[this.turn] === ap.team && !ap.endedTurn;
 	}
 	
 	// Gets the index of a Player object in this.players
@@ -2016,9 +1962,6 @@ export default class Game extends Generic{
 
 	}
 
-	turnPlayerIsMe(){
-		return this.playerIsMe(this.getTurnPlayer());
-	}
 
 	// Gets my first player if I own one
 	getMyActivePlayer(){
@@ -2079,15 +2022,15 @@ export default class Game extends Generic{
 	}
 
 	// Toggles equip on an item to a player from inventory by Player, Asset.id
-	equipPlayerItem( player, id ){
+	equipPlayerItem( player, id, force = false ){
 
 		let apCost = player.isAssetEquipped(id) ? Game.UNEQUIP_COST : Game.EQUIP_COST;
 		if( game.battle_active ){
 			
-			if( player !== game.getTurnPlayer() )
+			if( player !== game.isTurnPlayer(player) )
 				throw("Not your turn");
 
-			if( player.ap < apCost )
+			if( player.getMomentum(Player.MOMENTUM.Uti) < apCost )
 				throw("Not enough AP");
 			
 		}
@@ -2106,17 +2049,19 @@ export default class Game extends Generic{
 			return true;
 		}
 
+		// Equip
 		if( !player.isAssetEquipped(id) ){
 			if( !player.equipAsset(id, player) )
 				return false;
 		}
+		// Unequip
 		else{
-			if( !player.unequipAsset(id, player) )
+			if( !player.unequipAsset(id, player, undefined, force) )
 				return false;
 		}
 
 		if( game.battle_active )
-			player.addAP(-apCost);
+			player.addMomentum(Player.MOMENTUM.Uti, -apCost);
 
 		this.save();
 		return true;
@@ -2539,30 +2484,14 @@ export default class Game extends Generic{
 			//log.log('Start B');
 
 
-			// Battle just started, roll for initiative
-			let initiative = this.players.map(el => {
-
-				el.onBattleStart();
-				return {
-					p : el,
-					i : Math.random()	// You can weight this higher if you want to add an initiative modifier later
-				};
-
-			});
-
-			initiative.sort((a,b) => {
-
-				if( a.i === b.i )
-					return 0;
-
-				return a.i > b.i ? -1 : 1;
-
-			});
-			this.turn = -1;
-			this.initiative = initiative.map(el => {
-				return el.p.id;
-			});
-
+			// Battle just started, randomize initiative
+			this.initiative = [];
+			for( let player of this.players ){
+				if( !this.initiative.includes(player.team) )
+					this.initiative.push(player.team);
+				player.onBattleStart();
+			}
+			shuffle(this.initiative);
 			new GameEvent({
 				type : GameEvent.Types.battleStarted,
 				sender : game.players[0],
@@ -2576,8 +2505,6 @@ export default class Game extends Generic{
 		else{
 
 			//log.log('End A');
-
-			this.endTurnTimer();
 			for( let pl of this.players )
 				pl.onBattleEnd();
 
@@ -2608,34 +2535,12 @@ export default class Game extends Generic{
 	}
 
 	// Gets current turn player
-	getTurnPlayer(){
+	isTurnPlayer( player ){
 		
 		if( !this.battle_active )
 			return false;
-		return this.getPlayerById(this.initiative[this.turn]);
 
-	}
-
-	// Gets nr of players before player in initiative
-	getNumPlayersBefore( player ){
-
-		let first = this.getTurnPlayer();
-		if( first === player )
-			return 0;	// Your turn
-
-		let init = this.initiative;
-		let out = 0;
-		for( let i = 0; i < init.length; ++i ){
-			
-			let pl = this.getPlayerById(init[(i+this.turn)%this.initiative.length]);
-			if( pl.isDead() )
-				continue;
-			if( pl === player )
-				return out;
-			++out; 
-
-		}
-		return -1;
+		return !player.endedTurn && player.team === this.initiative[this.turn];
 
 	}
 
@@ -2725,91 +2630,139 @@ export default class Game extends Generic{
 		this.my_player = id;
 		localStorage.my_player = id;
 		this.ui.draw();
+		this.save();
+	}
+
+	getTurnPlayers(){
+		return this.getTeamPlayers(this.initiative[this.turn])
+	}
+
+	async autoPlay(){
+
+		let players = this.getTurnPlayers().filter(pl => {
+			return pl.isNPC() && !pl.endedTurn;
+		});
+		shuffle(players);
+
+		if( players.length ){
+
+			const time = await players[0].autoPlay();
+			clearTimeout(this._bot_timer);
+			let timer = 1000;
+			if( time > 0 )
+				timer = time;
+			this._bot_timer = setTimeout(this.autoPlay.bind(this), timer);
+
+		}
+
 	}
 
 	// Advances turn
 	advanceTurn(){
 
-		this.endTurnTimer();
-
-		const th = this;
-		const prepAutoPlay = function( npl ){
-			setTimeout(() => {
-				if( npl === th.getTurnPlayer() )
-					npl.autoPlay();
-			}, 1000);
-		};
-
-
-		const players = this.players;
-		for( let i=0; i<players.length; ++i ){
-
-			this.end_turn_after_action = false;
-			let pl = this.getTurnPlayer();
-			if( pl && !pl.isDead() && !pl.disabled )
+		let turnPlayers = this.getTurnPlayers();
+		for( let pl of turnPlayers ){
+			
+			if( !pl.isDead() && !pl.disabled )
 				pl.onTurnEnd();
 
+		}
+
+		for( let i = 0; i < this.initiative.length; ++i ){
+
+			this.end_turn_after_action = false;
 			++this.turn;
 			++this.totTurns;
 			if( this.turn >= this.initiative.length )
 				this.turn = 0;
 
-			let npl = this.getTurnPlayer();
-			if( !npl || npl.disabled || npl.isDead() )
+			if( !this.currentTeamHasPlayers() )
 				continue;
-			
+
+			turnPlayers = this.getTurnPlayers();
 			new GameEvent({
 				type : GameEvent.Types.turnChanged,
-				sender : pl,
-				target : npl
+				sender : turnPlayers[0], // Don't rely on this. Sender can't be an array tho, so we're putting this here as a dummy.
+				target : turnPlayers
 			}).raise();
+			const others = this.getPlayersNotOnTeam(this.initiative[this.turn]);	// Not sure why player first turn is raised with everyone not on the team as a target. Maybe one day I'll find out.
 
-			this.ui.captureActionMessage = true;
-			npl.onTurnStart();
-			// Turns are added on turn end
-			if( !npl._turns ){
+			this.autoUpdateSelectedPlayer(); // Needs to go here because onTurnStart relies on it
 
-				let evt = new GameEvent({
-					type : GameEvent.Types.playerFirstTurn,
-					sender : npl,
-					target : this.getPlayersNotOnTeam(npl.team),
-				});
-				evt.raise();
+			for( let pl of turnPlayers ){
 				
+				if( pl.isDead() || pl.disabled ){
+					pl.endedTurn = true;
+					continue;
+				}
+
+				this.ui.captureActionMessage = true;
+				
+				pl.onTurnStart();
+				// pl._turns are added on turn end
+				if( !pl._turns ){
+
+					let evt = new GameEvent({
+						type : GameEvent.Types.playerFirstTurn,
+						sender : pl,
+						target : others,
+					});
+					evt.raise();
+					
+				}
+
 			}
-				
+
 			Wrapper.checkAllStayConditions();
 			this.ui.flushMessages();
-			
-			if( npl.isIncapacitated() || npl.isSkipAllTurns() )
-				continue;
-
-			if( this.end_turn_after_action )
-				continue;
-
-			prepAutoPlay(npl);
-			
-			if( this.playerIsMe(npl, true) && npl.id !== this.my_player ){
-				this.setMyPlayer(npl.id);
-			}
-				
 			this.onTurnChanged();
-			this.addSeconds(Math.round(30.0/players.length));
-			break;
+			this.addSeconds(30);
+			
+			// Todo: pl.isSkipAllTurns needs to be handled in AI
+			// Todo: Handle AI with prepAutoPlay(npl);
 
+			break;
 		}
 
+		clearTimeout(this._bot_timer);
+		this._bot_timer = setTimeout(this.autoPlay.bind(this), 1000);
 		this.save();
 		this.ui.draw();
 		
 	}
 
+	// Tries to change control to a viable turn player
+	// Todo: Needs to be run on netcode too
+	autoUpdateSelectedPlayer(){
+
+		if( !this.battle_active )
+			return;
+
+		const active = game.getMyActivePlayer();
+		if( this.isTurnPlayer(active) )
+			return;
+
+		const players = this.getTurnPlayers();
+		for( let pl of players ){
+			if( this.isMyPlayer(pl) && this.isTurnPlayer(pl) ){
+				this.setMyPlayer(pl.id);
+				break;
+			}
+		}
+
+	}
+
 	// Checks if end_turn_after_action is set and advances turn if it is
 	checkEndTurn(){
 
-		if( this.end_turn_after_action )
-			this.advanceTurn();
-		
+		let players = this.getTurnPlayers();
+		for( let player of players ){
+			if( !player.endedTurn )
+				return false;
+		}
+		this.advanceTurn();
+		return true;
+
 	}
 
 	// Fully regenerates HP of all players
@@ -2827,9 +2780,9 @@ export default class Game extends Generic{
 	useActionOnTarget( action, targets, player, netPlayer ){
 
 		if( !player )
-			player = this.getTurnPlayer();
+			throw 'Player not found';
 
-		if( this.battle_active && this.getTurnPlayer() !== player )
+		if( this.battle_active && !this.isTurnPlayer(player) )
 			throw "Not your turn";
 
 		if( !game.playerIsMe(player) )
@@ -2868,35 +2821,22 @@ export default class Game extends Generic{
 
 	}
 
-
 	attemptFleeFromCombat( player, force ){
 
 		if( !this.battle_active )
 			return;
 
-		const players = this.getEnabledPlayers();
 		let chance = 50;
 
 		if( force )
 			chance = 100;
-		else{
-
-			// Each AP benefit the party has over their opponents grant 2% bonus chance, starting at 50%
-			for( let p of players ){
-				let add = p.ap;
-				if( p.isDead() )
-					add = 0;
-				if( p.team !== player.team )
-					add = -add;
-				chance += add*2;
-			}
-
-		}
+		else
+			chance += 5*player.getMomentum(Player.MOMENTUM.Def);
 
 		if( Math.random()*100 < chance )
 			return this.execFleeFromCombat( player );
 
-		player.addAP(-2);
+		player.addMomentum(Player.MOMENTUM.Def, -2);
 		this.ui.addText( player.getColoredName()+" calls for a retreat, but the party fails to escape!", undefined, player.id, player.id );
 
 	}
@@ -2909,7 +2849,37 @@ export default class Game extends Generic{
 
 	}
 
+	rerollMomentum( player, type, to ){
+		
+		if( !this.playerIsMe(player) )
+			throw("Not your player");
 
+		if( isNaN(type) )
+			throw 'Invalid type';
+
+		if( player.reroll < 1 )
+			throw 'Out of rerolls';
+
+		if( !this.is_host )
+			return Game.net.playerRerollMomentum(player, type, to);
+
+		
+		const rolledTo = player.rerollMomentum(type, to);
+		if( rolledTo === false ) // Note: May be 0, type check is a must
+			throw 'Invalid momentum';
+
+		let added = [0,0,0];
+		added[rolledTo] = 1;
+
+		if( Game.net.isInNetgameHost() )
+			Game.net.dmDrawMomentumGain(player, added);
+		this.ui.drawMomentumGain(...added);
+
+		player.consumeReroll();
+		this.save();
+		this.ui.draw();
+		
+	}
 
 
 
@@ -2960,7 +2930,7 @@ export default class Game extends Generic{
 
 		const pl = rp.validate(player);
 		if( !pl && !force ){
-			console.error("No players passed filters for rp", rp, "using player", player);
+			//console.error("No players passed filters for rp", rp, "using player", player);
 			return;
 		}
 
@@ -3972,7 +3942,7 @@ export default class Game extends Generic{
 		if( player.getLearnedActionByLabel(action.action) ) 
 			throw "Action alreday unlocked";
 
-		if( !action.validate(player) )
+		if( !action.validate(player, this.getGymsByPlayer(gymPlayer)[0]) )
 			throw "That action can't be learned by you";
 
 		if( player.getMoney() < action.getCost() )
@@ -4122,6 +4092,7 @@ Game.db = new Dexie("game");
 Game.db.version(1).stores({
 	games: 'id'
 });
+
 
 Game.EQUIP_COST = 4;
 Game.UNEQUIP_COST = 1;

@@ -94,7 +94,7 @@ export default class Roleplay extends Generic{
 			out.desc = this.desc;
 			out.minPlayers = this.minPlayers;
 			out.maxPlayers = this.maxPlayers;
-			out.gameActions = GameAction.saveThese(this.gameActions);
+			out.gameActions = GameAction.saveThese(this.gameActions, full);
 		}
 		if( full !== "mod" ){
 			out.completed = this.completed;
@@ -453,6 +453,7 @@ export class RoleplayStage extends Generic{
 		this.shuffle_texts = RoleplayStage.Shuffle.NONE;	// Shuffles the text order
 		this.game_actions = [];			// GameActions to apply when encountering this stage
 		this.target = RoleplayStage.Target.auto;			// Selects who is considered the "target" when reaching this stage
+		this.leave = false;				// Automatically adds an option for [Leave]
 
 		// local
 		this._iniPlayer = '';		// ID of player that triggered this stage. If there are multiple players, the first one is picked.
@@ -487,11 +488,13 @@ export class RoleplayStage extends Generic{
 			_iniPlayer : this._iniPlayer,
 			text : Text.saveThese(this.text, full),	// Needed for netcode
 			shuffle_texts : this.shuffle_texts,
+			leave : this.leave,
 		};
 
 		if( full ){
 			out.target = this.target;
 			out.store_pl = this.store_pl;
+			out.leave = this.leave;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
 		}
 		if( full !== "mod" ){
@@ -516,12 +519,22 @@ export class RoleplayStage extends Generic{
 
 	getOptions( player ){
 
-		if( !this.options.length )
+		if( !this.options.length && window.game ){
 			this.options.push(new RoleplayStageOption({
 				text : '[Done]',
 				chat : RoleplayStageOption.ChatType.none,
 			}, this));
+		}
+		// Create leave option
+		if( this.leave && !this.getOptionById("leave") && window.game ){
 
+			this.options.push(new RoleplayStageOption({
+				id : 'leave',
+				text : '[Leave]',
+				chat : RoleplayStageOption.ChatType.none,
+			}, this));
+
+		}
 		return this.options.filter(opt => opt.validate(player));
 	}
 

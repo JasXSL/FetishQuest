@@ -2,6 +2,7 @@ import Generic from './helpers/Generic.js';
 import libParticles from '../libraries/particles.js';
 import * as THREE from '../ext/THREE.js'; 
 import Player from './Player.js';
+import Game from './Game.js';
 export default class HitFX extends Generic{
 
 	static getRelations(){ 
@@ -48,6 +49,7 @@ export default class HitFX extends Generic{
 
 	// Automatically invoked after g_autoload
 	rebase(){
+		this.stages = Stage.loadThese(this.stages, this);
 		this.g_rebase();	// Super
 	}
 
@@ -160,10 +162,14 @@ class Stage extends Generic{
 		this.sound_kits = this.sound_kits.slice();
 		this.start_offs = new THREE.Vector3(this.start_offs.x || 0,this.start_offs.y || 0 ,this.start_offs.z||0);
 		this.end_offs = new THREE.Vector3(this.end_offs.x||0,this.end_offs.y||0,this.end_offs.z||0);
+		this._start_pos = new THREE.Vector3(this._start_pos.x || 0,this._start_pos.y || 0 ,this._start_pos.z||0);
+		this._end_pos = new THREE.Vector3(this._end_pos.x||0,this._end_pos.y||0,this._end_pos.z||0);
+		
 	}
 
 	save(){
-		return {
+
+		const out = {
 			particles : this.particles,
 			emit_duration : this.emit_duration,
 			fade_duration : this.fade_duration,
@@ -179,12 +185,15 @@ class Stage extends Generic{
 			end_offs : {x:this.end_offs.x, y:this.end_offs.y, z:this.end_offs.z},
 			easing : this.easing,
 		};
+
+		return out;
 	}
 
 	// Attacker and victim can also be DOM elements
 	async run( attacker, victim, armor_slot, mute = false, num_players = 1, ignoreStagger = false ){
 
-		const webgl = game.renderer;
+		const webgl = window.game?.renderer || window.mod?.webgl;
+		const game = window.game || mod.dummyGame;
 
 		const is_el = !(attacker instanceof Player);
 
@@ -192,20 +201,16 @@ class Stage extends Generic{
 			v = this.destination === 'sender' || this.destination === 'attacker' ? attacker : victim
 		;
 		
+		// Editor messes up the vectors
+		if( !window.game )
+			this.rebase();
+		
 				
 		if( this.particles ){
 
 			let pid = this.particles;
 			if( typeof pid === 'object' )
 				pid = pid.id;
-
-			const particles = libParticles.get(pid, undefined, this.particles);
-			this._system = particles;
-
-			if( !particles ){
-				console.error("Particles not found", pid);
-				return;
-			}
 
 			let aEl, vEl;
 
@@ -222,22 +227,29 @@ class Stage extends Generic{
 				
 			}
 
-
 			const attackerEl = this.origin === 'sender' || this.origin === 'attacker' ? aEl : vEl;
 			const victimEl = this.destination === 'sender' || this.destination === 'attacker' ? aEl : vEl;
 
-			const attackerPos = attackerEl.offset();
+			let attackerPos = attackerEl.offset(); // Relative to document
+			if( !window.game )
+				attackerPos = attackerEl.position(); // Relative to parent
+			
 			const attackerHeight = attackerEl.outerHeight();
 			const attackerWidth = attackerEl.outerWidth();
 			
-			const victimPos = victimEl.offset();
+			let victimPos;
+			try{
+				if( window.game )
+					victimPos = victimEl.offset();
+				else
+					victimPos = victimEl.position();
+			}catch(err){
+				return false; // May happen if we're triggering a visual that triggers a player to go invis
+			}
 			const victimHeight = victimEl.outerHeight();
 			const victimWidth = victimEl.outerWidth();
 
 			if( attackerPos && victimPos ){
-
-				
-				
 
 				const hasDestRand = (!isNaN(this.dest_rand) && this.dest_rand !== null) || this.parent._shared_end === null;	// JS why is null a number?
 				const hasOriginRand = (!isNaN(this.origin_rand) && this.origin_rand !== null) || this.parent._shared_start === null;	// JS why is null a number?
@@ -281,7 +293,7 @@ class Stage extends Generic{
 				if( hasDestRand )
 					this.parent._shared_end.set(this._end_pos.x, this._end_pos.y);
 				
-				if( !this.tween )
+				if( this.origin === this.destination )
 					this._start_pos = this._end_pos.clone();
 
 				this._start_pos.add(this.start_offs);
@@ -289,13 +301,30 @@ class Stage extends Generic{
 
 
 				// raycast start and end
-				const origin = webgl.raycastScreenPosition( this._start_pos.x, this._start_pos.y );
-				const dest = webgl.raycastScreenPosition( this._end_pos.x, this._end_pos.y );
+				let w, h;
+				// Mod needs different width/height for offset
+				if( !window.game ){
+					
+					const rect = attackerEl.parent()[0].getBoundingClientRect();
+					w = rect.width; 
+					h = rect.height;
+
+				}
+				const origin = webgl.raycastScreenPosition( this._start_pos.x, this._start_pos.y, w, h );
+				const dest = webgl.raycastScreenPosition( this._end_pos.x, this._end_pos.y, w, h );
 				
 				this._start_pos = origin.point;
 				this._end_pos = dest.point;
 				this._start_pos.z = 5;
 				this._end_pos.z = 5;
+
+				const particles = libParticles.get(pid, undefined, this.particles, this._start_pos, this._end_pos);
+				this._system = particles;
+
+				if( !particles ){
+					console.error("Particles not found", pid);
+					return;
+				}
 
 				webgl.fx_proton.addEmitter(particles);
 				particles.p.x = this._start_pos.x;
@@ -310,7 +339,7 @@ class Stage extends Generic{
 
 		}
 
-		if( this.css_fx ){
+		if( this.css_fx && window.game ){
 
 			let targ = victim;
 			if( this.css_fx_targ !== 'victim' )
@@ -332,7 +361,9 @@ class Stage extends Generic{
 					if( kit.follow_parts )
 						attached_instances = attached_instances.concat(instances);
 				});
+
 			}
+
 		}
 		
 		// Handle tweening
@@ -344,8 +375,9 @@ class Stage extends Generic{
 
 		const start = new THREE.Vector3(this._start_pos.x, this._start_pos.y, this._start_pos.z);
 
+		let endPos = new THREE.Vector3().copy(this.tween ? this._end_pos : this._start_pos);
 
-		new TWEEN.Tween(start).to(this._end_pos, this.emit_duration).easing(easing)
+		new TWEEN.Tween(start).to(endPos, this.emit_duration).easing(easing)
 			.onUpdate(() => {
 
 				const particles = this._system;

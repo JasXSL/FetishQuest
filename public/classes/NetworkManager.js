@@ -21,7 +21,6 @@ class NetworkManager{
 		this.id = null;				// our netplayer id
 		this.public_id = null;		// outward facing shareable id
 		this.players = [];			// {id:id, name:name}
-		this.afk = {};				// id:afk_status
 		this._last_push = null;
 		this._pre_push_time = 0;		// Time of last push
 		this.timer_reconnect = null;
@@ -61,7 +60,6 @@ class NetworkManager{
 
 			console.debug("Server connection established");
 			clearTimeout(this.timer_reconnect);
-			game.onTurnTimerChanged();
 			this.handleEvent('connect');
 
 		});
@@ -83,7 +81,6 @@ class NetworkManager{
 
 					game.uiAudio( 'player_disconnect' );
 					game.ui.addText( this.players[i].name+" has left the game.", undefined, undefined, undefined, 'dmInternal' );
-					delete this.afk[data.id];
 					delete this.in_menu[data.id];
 					delete this.load_status[data.id];
 					this.players.splice(i, 1);
@@ -128,7 +125,6 @@ class NetworkManager{
 			if( data.id !== this.id && game.is_host ){
 
 				this.dmSendFullGame(data.id);			// Give them the full game
-				this.dmRefreshAFK();					// Refresh AFK status
 				this.dmCellsLoaded();					// Send cells loaded
 
 			}
@@ -216,9 +212,7 @@ class NetworkManager{
 			StaticModal.set('mainMenu');
 
 		}
-		game.ui.draw();
-		game.onTurnTimerChanged();
-		
+		game.ui.draw();		
 
 	}
 
@@ -233,7 +227,6 @@ class NetworkManager{
 			this.io.emit('leave', '', async () => {
 
 				this.players = [];			// {id:id, name:name}
-				this.afk = {};				// id:afk_status
 				this._pre_push_time = 0;		// Time of last push
 				
 				clearTimeout(this.timer_reconnect);
@@ -256,7 +249,6 @@ class NetworkManager{
 			});
 
 			game.ui.draw();
-			game.onTurnTimerChanged();
 
 		});
 
@@ -641,13 +633,15 @@ class NetworkManager{
 	
 	// Lets DMs send custom tasks to players
 	sendHostTaskTo( id, task, data ){
-		if( !this.isConnected() || !game.is_host )
+
+		if( !this.isConnected() || !game.is_host || !id )
 			return;
 		this.io.emit('dmTask', {
 			player : id,
 			task : task,
 			data : data
 		});
+
 	}
 
 	// Sends a task from host to everyone
@@ -677,40 +671,6 @@ class NetworkManager{
 			if( p.id === id )
 				return p;
 		}
-	}
-
-	// ID is the netgame player id
-	isPlayerAFK( id ){
-
-		if( id === this.id && game.is_host )
-			id = 'DM';
-
-		return this.afk[id];
-	}
-
-	setPlayerAFK( id, afk ){
-
-		if( id === this.id && game.is_host )
-			id = 'DM';
-		this.afk[id] = Boolean(afk);
-		this.dmRefreshAFK();
-		game.ui.drawPlayers();
-		// Todo: check if all players are afk before doing this
-		if( game.battle_active && game.getTurnPlayer().netgame_owner === id && !this.allPlayersAfk() ){
-			game.getTurnPlayer().autoPlay();
-		}
-
-	}
-
-	// Returns true if all players are afk
-	allPlayersAfk(){
-
-		for( let player of game.players ){
-			if( player.netgame_owner && !this.isPlayerAFK(player.netgame_owner) )
-				return false;
-		}
-		return true;
-
 	}
 
 	// Takes a netplayer ID and returns an array of players controlled by them
@@ -1102,9 +1062,10 @@ class NetworkManager{
 				game.toggleAction(player, args.action);
 
 			}
-			else if( task === PT.toggleAFK )
-				this.setPlayerAFK(netPlayer, args.afk);
-
+			else if( task == PT.rerollMomentum ){
+				let player = validatePlayer();
+				game.rerollMomentum(player, args.type, args.to);
+			}
 			else if( task === PT.loadedCells ){
 
 				const cells = parseInt(args.cells);
@@ -1218,11 +1179,6 @@ class NetworkManager{
 			;
 
 			game.ui.updateMute();
-		}
-
-		else if( task === NetworkManager.dmTasks.afk ){
-			this.afk = args;
-			game.ui.drawPlayers();
 		}
 
 		// Visual effect
@@ -1373,18 +1329,6 @@ class NetworkManager{
 		else if( task === NetworkManager.dmTasks.dmRpOptionSelected ){
 			game.ui.rpOptionSelected(args.id);
 		}
-
-		else if( task === NetworkManager.dmTasks.rope ){
-			const sec = parseInt(args.dur);
-			if( !sec )
-				return;
-			const pl = args.player;
-			if( !game.getMyActivePlayer() )
-				return;
-			if( game.getMyActivePlayer().id !== pl )
-				return;
-			game.ui.toggleRope(sec);
-		}
 		else if( task === NetworkManager.dmTasks.floatingCombatText ){
 			
 			const amt = parseInt(args.amount),
@@ -1430,6 +1374,11 @@ class NetworkManager{
 		else if( task === NetworkManager.dmTasks.toggleUI ){
 
 			game.ui.toggle(args.on);
+
+		}
+		else if( task === NetworkManager.dmTasks.drawMomentumGain ){
+			
+			game.ui.drawMomentumGain(...args.mom);
 
 		}
 
@@ -1520,16 +1469,6 @@ class NetworkManager{
 
 
 	/* OUTPUT TASKS PLAYER */
-	playerToggleAFK(){
-		const afk = !this.isPlayerAFK(this.id);
-		if( game.is_host ){
-			this.setPlayerAFK(this.id, afk);
-			return;
-		}
-		this.sendPlayerAction(NetworkManager.playerTasks.toggleAFK, {
-			afk:afk
-		});
-	}
 	// Player interacted with dungeon mesh
 	playerInteractWithAsset( player, dungeonAsset ){
 		this.sendPlayerAction(NetworkManager.playerTasks.interact, {
@@ -1749,6 +1688,14 @@ class NetworkManager{
 		});
 	}
 
+	playerRerollMomentum( player, type, to ){
+		this.sendPlayerAction(NetworkManager.playerTasks.rerollMomentum, {
+			player : player.id,
+			type : type,
+			to : to,
+		});
+	}
+
 	// Auto updates for all players
 	playerCellsLoaded( nrCells ){
 
@@ -1785,10 +1732,6 @@ class NetworkManager{
 
 
 	/* OUTPUT TASKS DM */
-	dmRefreshAFK(){
-		this.sendHostTask(NetworkManager.dmTasks.afk, this.afk);
-	}
-
 	dmAnimation( dungeonAsset, animation ){
 		if( !game.is_host )
 			return;
@@ -1952,12 +1895,6 @@ class NetworkManager{
 		}); 
 	}
 
-	dmRope( player, seconds ){
-		this.sendHostTask(NetworkManager.dmTasks.rope, {
-			player : player.id,
-			dur : seconds
-		}); 
-	}
 
 	// Triggers the black screen visual
 	dmBlackScreen(){
@@ -2003,8 +1940,14 @@ class NetworkManager{
 	}
 
 	dmToggleUI( on ){
-
 		this.sendHostTask(NetworkManager.dmTasks.toggleUI, {on:on});
+	}
+
+	dmDrawMomentumGain( player, types = [] ){
+
+		this.sendHostTaskTo(player.netgame_owner, NetworkManager.dmTasks.drawMomentumGain, {
+			mom : types
+		});
 
 	}
 
@@ -2182,9 +2125,7 @@ NetworkManager.dmTasks = {
 	hitfx : 'hitfx',								// {fx:hitfx, caster:(str)casterID, recipients:(arr)recipients, armor_slot:(str)armor_slot} - Triggers a hitfx
 	questAccepted : 'questAccepted',				// {head:(str)head_text, body:(str)body_text} - Draws the questStart info box. Also used for quest completed and other things
 	dmRpOptionSelected : 'rpOptionSelected', 		// {id:(str)id} - An RP option has been selected, send it
-	rope : 'rope',									// {player:(str)player_id, dur:(int)seconds} - Starts the turn timer rope for the player
 	blackScreen : 'blackScreen',					// void - Triggers a black screen visual
-	afk : 'afk',									// {id:(bool)afk...} - Sends AFK status to all players
 	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type, crit:(bool)crit}
 	inventoryAdd : 'inventoryAdd',					// {player:(str)player_uuid, asset:(str)asset_uuid} Raises the game.onInventoryAdd event
 	openShop : 'openShop',							// {shop:(str)shop_label} Asks the player to open the shop window for a shop in the cell
@@ -2192,6 +2133,7 @@ NetworkManager.dmTasks = {
 	inMenu : 'inMenu',								// {in:{netgame_id:(int)menu}}
 	getLargeAsset : 'getLargeAsset',				// {type:(str)type, asset:(obj)asset_data} - Counterpart to playerTasks getLargeAsset
 	toggleUI : 'toggleUI',							// {on:(bool)on} - Forces the UI to open or close
+	drawMomentumGain : 'drawMomentumGain',			// {mom:(arr)types} - Draws momentum gain at start of turn. Type is an array with nr for each type ex [5,1,0] -> 5 off, 1 def, 0 uti
 };
 
 // Player -> DM
@@ -2220,12 +2162,12 @@ NetworkManager.playerTasks = {
 	rentRoom : 'rentRoom',							// {renter:(str)rental_merchant_player_id, player:(str)player_id}
 	buyAction : 'buyAction',			// {player:(st)sender_id, gym:(str)gym_player_id, actionLearnable:(str)action_learnable_id}
 	toggleAction : 'toggleAction',		// {player:(st)sender_id, action:(str)action_id}
-	toggleAFK : 'toggleAFK',			// {afk:(bool)afk}
 	loadedCells : 'loadedCells',					// {cells:(int)cells_loaded}
 	inMenu : 'inMenu',					// {in:(int)menu}
 	getLargeAsset : 'getLargeAsset',		// {player:(str)player_uuid, type:(str)type, label:(str)label} - Fetches a large DB asset from the host. Currently used for books, because they're a bit too heavy to send along to all players constantly. On success, sends DM->Player getLargeAsset
 	useAssetGameAction : 'useAssetGameAction',	// {player:(str)player_uuid, label:(str)label} - Tries to use a game action from Asset.game_actions by label
 	transmogrify : 'transmogrify',		// {mogger : player_offering_transmogs, player : player_transmogging, baseAsset : asset to transmogrify onto, targetAsset : asset to use for the looks}
+	rerollMomentum : 'rerollMomentum',	// {player:(str)sender_id, type:(int)momentum_type_from, to:(int)momentum_type_to}
 };
 
 export default NetworkManager;

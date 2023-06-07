@@ -133,9 +133,9 @@ class Bot{
 		}
 	}
 
-	play( force = false ){
+	async play( force = false ){
 		
-		if( (!this.player.isNPC() && !force) || !game.battle_active || game.getTurnPlayer() !== this.player )
+		if( (!this.player.isNPC() && !force) || !game.battle_active || !game.isTurnPlayer(this.player) )
 			return;
 
 		if( !this.player.isDead() ){
@@ -150,16 +150,8 @@ class Bot{
 					)
 				;
 			});
-			let highest_cost = 0;
-			for( let abil of abils ){
-				if( highest_cost < abil.ap && abil._cooldown === 0 )
-					highest_cost = abil.ap;
-			}
 
-			const AP = this.player.ap;
-
-			let maxAp = Math.min(10, this.player.getMaxAP());
-
+			const AP = this.player.getMomentum();	// Get all momentum
 
 			// Adds some randomness to abilities
 			let chance = Math.random();
@@ -169,12 +161,11 @@ class Bot{
 					this.hasCastableImportant() ||		// We have an important spell we MUST cast
 					// Chance to stop an ongoing attack
 					(
-						AP >= highest_cost && 	// We have more AP than our highest costing ability
 						this.actions_used && 	// and We have already used an action
 						Math.random() < 0.8		// and 20% chance to stop mid attack
 					) ||
 					chance < 0.1 || 		// 10% chance to go yolo and attack
-					AP > maxAp*0.6 ||	// If greater or equal to 60% (or 10 AP if you have more than 10 total), always attack.
+					AP > this.player.getMaxMomentum()*0.6 ||	// If greater or equal to 60%, always attack.
 					this.player.getTauntedBy(undefined, false).length
 				)
 			){
@@ -269,13 +260,18 @@ class Bot{
 
 						if( el.isInvisible() )
 							return false;
+
+						if( !(el instanceof Player) ){
+							console.error("Non player viable target found for abil", abil, el);
+							return false;
+						}
 						// Don't use a detrimental spell on a friend
 						// Don't use a beneficial spell on an enemy
 						if( abil.isDetrimentalTo(el) === (el.team === this.player.team) )
 							return false;
 						if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.7 )
 							return false;
-						if( abil.hasTag(stdTag.acManaHeal) && el.mp/el.getMaxMP() > 0.7 )
+						if( abil.hasTag(stdTag.acManaHeal) && el.getMomentum()/el.getMaxMomentum() > 0.7 )
 							return false;
 						return true;
 					});
@@ -296,34 +292,21 @@ class Bot{
 					}
 
 					// Game
-					setTimeout(() => {
+					let success = game.useActionOnTarget( abil, t, this.player );
+					let time = 2000+Math.random()*1000;
+					if( this.player.team === 0 )
+						time = Math.floor(time*0.5);
+					if( !success )
+						time = 400;
+					++this.actions_used;
+					return time;
 
-						let success = game.useActionOnTarget( abil, t );
-						let time = 2000+Math.random()*1000;
-						if( this.player.team === 0 )
-							time = Math.floor(time*0.5);
-						if( !success )
-							time = 400;
-						++this.actions_used;
-
-						setTimeout(() => {
-							this.play();	
-						}, time);
-
-					}, 100);
-					
-					
-
-
-					
-					
-					return;
 				}
 
 			}
 		}
 		// Send end of turn
-		game.useActionOnTarget( this.player.getActionByLabel('stdEndTurn'), this.player );
+		game.useActionOnTarget( this.player.getActionByLabel('stdEndTurn'), this.player, this.player );
 
 	}
 
@@ -411,6 +394,8 @@ class Bot{
 			}
 
 			// Category can be HP or MP
+			/*
+			Todo: Food
 			const eatIfNecessary = (category = 'HP') => {
 
 				if( category !== 'HP' && category !== 'MP' )
@@ -479,6 +464,7 @@ class Bot{
 				return false;
 
 			};
+			
 			// Use food for HP if necessary
 			let max = 5;
 			while( eatIfNecessary() && --max )
@@ -487,7 +473,7 @@ class Bot{
 			max = 5;
 			while( eatIfNecessary('MP') && --max )
 				await delay(500);
-			
+			*/
 
 			// Equip potions and swap out broken gear if possible
 			let freePotionSlots = this.player.getNrActionSlots() - this.player.getEquippedAssetsBySlots([Asset.Slots.action]).length;

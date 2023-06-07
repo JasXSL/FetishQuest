@@ -85,6 +85,8 @@ export default class Asset extends Generic{
 		this.inBank = false;			// This item is in the bank
 		this.genLoot = false;			// Can be found as generated loot in chests and such
 		this.weight = 100;				// Weight in grams
+		this.iuad = false;				// Ignore use action description. Even if a use action is set, use this one's description.
+		this.no_unequip = false;		// Cannot be unequipped manually. Effects can unequip it.
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
 		this._charges = -1;				// How many charges remain. Setting to -1 will automatically set it to this.charges on load
@@ -116,6 +118,7 @@ export default class Asset extends Generic{
 			durability_bonus : this.durability_bonus,
 			durability : this.durability,
 			weight : this.weight,
+			iuad : this.iuad,
 			charges : this.charges,
 			use_action : ua,
 			rarity : this.rarity,
@@ -130,6 +133,7 @@ export default class Asset extends Generic{
 			shortname : this.shortname,
 			expires : this.expires,
 			rem_unequip : this.rem_unequip,
+			no_unequip : this.no_unequip,
 			colorable : this.colorable,
 			color : this.color,
 			color_base : this.color_base,
@@ -602,8 +606,8 @@ export default class Asset extends Generic{
 		;
 		let html = '';
 		// Usable items shows the action tooltip instead
-		if( isConsumable )
-			return this.use_action.getTooltipText(0, this.rarity);
+		if( isConsumable && !this.iuad )
+			return this.use_action.getTooltipText(true, this.rarity);
 
 		let apCost = this.equipped ? Game.UNEQUIP_COST : Game.EQUIP_COST;
 
@@ -925,8 +929,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		this.Slots.upperBody,
 		this.Slots.lowerBody
 	];
-	const isPrimarySlot = template.slots.filter(slot => statSlots.includes(slot)).length > 0;
-
+	const numPrimarySlots = template.slots.filter(slot => statSlots.includes(slot)).length;
 	const fitted = Math.random() < 0.2;
 	const mastercrafted = Math.random() < 0.2;
 	
@@ -940,7 +943,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		tags : template.tags,
 		slots : template.slots,
 		weight : template.weight,
-		durability_bonus : template.durability_bonus*template.slots.length,
+		durability_bonus : template.durability_bonus*numPrimarySlots,
 		description : template.description,
 		fitted : fitted,
 		mastercrafted : mastercrafted,
@@ -959,7 +962,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 
 	
 	// only add stats to upper/lower body
-	if( isPrimarySlot ){
+	if( numPrimarySlots ){
 
 		// Add stats from template
 		let addEffectToWrapper = function( wr, stype, snr ){
@@ -995,7 +998,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 
 		let existingEnchants = out.wrappers.filter(el => el.hasTag(stdTag.wrEnchant)).length;
 		let cursed = Math.random() < 0.25 || forceCurse;
-		for( let i = existingEnchants; i < out.rarity+cursed; ++i ){
+		for( let i = existingEnchants; i < out.rarity*numPrimarySlots+cursed; ++i ){
 			const enchant = this.getRandomEnchant(out, false, player);
 			if( enchant )
 				out.wrappers.push(enchant);

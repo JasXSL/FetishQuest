@@ -27,6 +27,7 @@ export default class GameEvent extends Generic{
 		this.encounter = null;			
 		this.dungeon = null;
 		this.room = null;			
+		this.gameAction = null;
 		this.dungeonRoomAsset = null;
 		this.wrapperReturn = null;		// See WrapperReturn @ EffectSys.js
 		this.text = null;				// Text object
@@ -152,12 +153,15 @@ GameEvent.Types = {
 	all : 'all',						
 	damageDone : 'damageDone',			
 	damageTaken : 'damageTaken',		
+	hpDamageTaken : 'hpDamageTaken',		
+	lifeSteal : 'lifeSteal',			
 	healingDone : 'healingDone',		
 	healingTaken : 'healingTaken',		
 	interrupt : 'interrupt',			
 	actionCharged : 'actionCharged',
 	actionUsed : 'actionUsed',
 	actionRiposte : 'actionRiposte',
+	reroll : 'reroll',
 	wrapperAdded : 'wrapperAdded',
 	wrapperRemoved : 'wrapperRemoved',	
 	wrapperTick : 'wrapperTick',		
@@ -170,6 +174,8 @@ GameEvent.Types = {
 	armorBroken : 'armorBroken',		
 	armorEquipped : 'armorEquipped',		
 	armorUnequipped : 'armorUnequipped',		
+
+	stdAttCombo : 'stdAttCombo',
 
 	// These are only raised internally within a wrapper/effect
 	internalWrapperAdded : 'internalWrapperAdded',
@@ -193,6 +199,7 @@ GameEvent.Types = {
 	blockExpired : 'blockExpired',
 	blockAdded : 'blockAdded',
 	blockSubtracted : 'blockSubtracted',
+	blockBroken : 'blockBroken',
 	dungeonExited : 'dungeonExited',		
 	dungeonEntered : 'dungeonEntered',
 	roomChanged : 'roomChanged',			// Whenever you change room
@@ -205,20 +212,26 @@ GameEvent.Types = {
 	
 };
 
-// {customParams} description
+// Event data fields can be read in math vars by using evt_<var>. Ex shielding enchant checks for healingDone and adds block equal to "evt_overAmount"
 GameEvent.TypeDescs = {
 	[GameEvent.Types.none] : 'Can be used internally',	
 	[GameEvent.Types.all] : 'Varied, raised on every event',
-	[GameEvent.Types.damageDone] : '{evt_amount:(int)amount, evt_overAmount:(int)overKill} sender, target, action, wrapper',			//* 
-	[GameEvent.Types.damageTaken] : '{evt_amount:(int)amount, evt_overAmount:(int)overKill} sender, target, action, wrapper',
-	[GameEvent.Types.healingDone] : '{evt_amount:(int)amount, evt_overAmount:(int)overHeal}',
-	[GameEvent.Types.healingTaken] : '{evt_amount:(int)amount, evt_overAmount:(int)overHeal}',
+	[GameEvent.Types.damageDone] : '{amount:(int)amount, overAmount:(int)overKill} sender, target, action, wrapper',			//* 
+	[GameEvent.Types.lifeSteal] : '{amount:(int)amount} sender, target, action, wrapper. Sender is the player who stole health. Target is the victim. Doesn\'t proc from major lifesteal.',			//* 
+	[GameEvent.Types.damageTaken] : '{amount:(int)amount, overAmount:(int)overKill} sender, target, action, wrapper. Includes block damage.',
+	[GameEvent.Types.hpDamageTaken] : '{amount:(int)amount, overAmount:(int)overKill, hpPre:(float)targ_hp_ratio_before_damage} sender, target, action, wrapper. Excludes block damage.',
+	[GameEvent.Types.healingDone] : '{amount:(int)amount, overAmount:(int)overHeal, hpPre:(float)targ_hp_ratio_before_heal}',
+	[GameEvent.Types.healingTaken] : '{amount:(int)amount, overAmount:(int)overHeal, hpPre:(float)targ_hp_ratio_before_heal}',
 	[GameEvent.Types.sleep] : '{duration:(int)hours}',
 	[GameEvent.Types.interrupt] : 'A charged action was interrupted',			// 
 	[GameEvent.Types.inventoryChanged] : 'Inventory has changed',			// 
 	[GameEvent.Types.actionCharged] : 'Used a charged action',	// 
 	[GameEvent.Types.actionUsed] : 'target(is an array of targets here) {resist:true(on resist)}. Note that when this is used in an event check, a wrapper and effect is added by the checker',			//* 
 	[GameEvent.Types.actionRiposte] : 'target is the player that cast the original spell, sender is the original victim',
+	[GameEvent.Types.reroll] : 'target is the player who rerolled',
+
+	[GameEvent.Types.stdAttCombo] : 'Raised when any of the standard 3 attacks (attack, arouse, shock) has been used, custom.amount = nr times in a row any of the 3 has been used. Sender is the player who pulled off the combo. Target is an array of any targets hit. Raised even if you miss.',
+
 	[GameEvent.Types.wrapperAdded] : 'Duration effects only, sender, target, action, wrapper',		//* , 
 	[GameEvent.Types.wrapperRemoved] : 'Duration effects only. sender, target, action, wrapper',	//* 
 	[GameEvent.Types.wrapperExpired] : 'Duration effects only. sender, target, action, wrapper',	//* 
@@ -258,6 +271,9 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.textTrigger] : 'Raised when a text is triggered.',			
 	[GameEvent.Types.explorationComplete] : 'Raised when a procedural dungeon is fully explored.',			
 	[GameEvent.Types.blockExpired] : '{evt_amount:(int)amount} Raised when block expires.',			
+	[GameEvent.Types.blockAdded] : '{evt_amount:(int)amount} Raised when block is added.',			
+	[GameEvent.Types.blockSubtracted] : '{evt_amount:(int)amount} Raised when block is subtracted.',			
+	[GameEvent.Types.blockBroken] : 'sender, target. Block has been broken (not expired).',			
 
 };
 

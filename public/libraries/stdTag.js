@@ -76,7 +76,7 @@ export default {
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal
-	gpDisableAP : 'gp_no_ap',					// Prevents the use of actions that cost more than 0 AP
+	gpDisableMomentum : 'gp_no_ap',				// Prevents you from getting momentum
 	gpDisableMP : 'gp_no_mp',					// Prevents the use of actions that cost more than 0 MP
 	gpDisableHP : 'gp_no_hp',					// Prevents taking damage and drawing HP
 	gpDisableVictoryCondition : 'gp_no_victory_condition',		// Disregards this one's death status when it comes to calculating if a battle is over
@@ -121,6 +121,7 @@ export default {
 	acEarth : 'ac_earth',
 	acElectric : 'ac_electric',
 	acPotion : 'ac_potion',
+	acLifesteal  : 'ac_lifesteal',
 	
 
 	// Common asset tags. These are appended with _<slot> ex as_tight_upperBody
@@ -206,6 +207,8 @@ export default {
 	wrEncumbered : 'wr_encumbered',		// Player encumbered
 	wrHogtied : 'wr_hogtied',
 	wrPinned : 'wr_pinned',
+	wrStd : 'wr_std',					// Standar effect. Such as exposed, mending, vulnerable etc.
+	wrNoOrgasmMomentumLoss : 'wr_no_orgasm_momentum_loss',	// prevents the overwhelming orgasm wrapper from removing momentum
 
 	wrKink : 'wr_kink',					// This is set on wrappers that should be treated as a kink
 	wrEnchant : 'wr_enchant',			// Set on asset wrappers that should be considered as enchants
@@ -232,7 +235,17 @@ export default {
 	fxPouncing : 'fx_pouncing',			// Put on a player pouncing another
 	fxPounced : 'fx_pounced',			// Put on a player that another is pounced onto
 	
-	
+	// Game action
+	// These are tags used on game actions to mark trainers
+	gaWarrior : 'ga_warrior',
+	gaCleric : 'ga_cleric',
+	gaRogue : 'ga_rogue',
+	gaTentaclemancer : 'ga_tentaclemancer',
+	gaMonk : 'ga_monk',
+	gaElementalist : 'ga_elementalist',
+	gaNecromancer : 'ga_necromancer',
+	gaArcanist : 'ga_arcanist',
+	gaBard : 'ga_bard',
 
 	// Turn tags
 	ttButtExposed : 'tt_butt_exposed',
@@ -317,6 +330,9 @@ export default {
 	mBoulder : 'm_boulder',
 	mTent : 'm_tent',
 	mBush : 'm_bush',
+	mCards : 'm_cards',
+	mKnife : 'm_knife',
+	mFork : 'm_fork',
 
 	mGrassLong : 'm_grass_long',
 	mTree : 'm_tree',

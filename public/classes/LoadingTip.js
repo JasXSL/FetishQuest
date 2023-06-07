@@ -27,7 +27,7 @@ export default class LoadingTip extends Generic{
 		const out = {
 			id : this.id,
 			text : this.text,
-			conditions : Condition.saveThese(this.conditions),
+			conditions : Condition.saveThese(this.conditions, full),
 		};
 
 		if( full ){

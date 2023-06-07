@@ -62,10 +62,12 @@ export function asset(){
 		html += '<label>Colorable: <input name="colorable" class="saveable" type="checkbox" '+(dummy.colorable ? 'checked' : '')+' /></label>';
 		html += '<label>Indestructible: <input name="indestructible" class="saveable" type="checkbox" '+(dummy.indestructible ? 'checked' : '')+' /></label>';
 		html += '<label title="Destroys the item when unequipped">Rem on unequip: <input name="rem_unequip" class="saveable" type="checkbox" '+(dummy.rem_unequip ? 'checked' : '')+' /></label>';
+		html += '<label title="Cannot be unequipped manually">No Unequip: <input name="no_unequip" class="saveable" type="checkbox" '+(dummy.no_unequip ? 'checked' : '')+' /></label>';
 		html += '<label title="Deleted after n seconds have passed in game, 0 disables">Expires: <input name="expires" value="'+esc(dummy.expires)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label title="In copper. 0 = no sell">Monetary Value: <input name="basevalue" value="'+esc(dummy.basevalue)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label>Weight (grams): <input name="weight" value="'+esc(dummy.weight)+'" step=1 min=0 type="number" class="saveable" /></label>';
 		html += '<label title="Plate/mail tags are handled automatically, this can be used to override">Hit sound: <input name="hit_sound" value="'+esc(dummy.hit_sound)+'" type="text" class="saveable" /></label>';
+		html += '<label title="Use the asset tooltip even if a use action is set">Force this desc: <input name="iuad" class="saveable" type="checkbox" '+(dummy.iuad ? 'checked' : '')+' /></label>';
 		
 	html += '</div>';
 

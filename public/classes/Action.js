@@ -42,9 +42,14 @@ class Action extends Generic{
 		this.max_wrappers = 0;		// Max nr of wrappers to apply, 0 = undefined
 		this.ripostable = false;	// Use isRipostable. This action can be riposted.
 		this.riposte = [];			// Replaces wrappers to be run on riposte with these. Otherwise uses same as wrappers. Requires ripostable. Riposte is sent from the target to attacker
-		this.ap = 1;
-		this.min_ap = 0;			// When reduced by effects, this is the minimum AP we can go to 
-		this.mp = 0;
+		
+		// The 0,1,2 maps to Player.MOMENTUM.* values
+		this.mom0 = 0;	// Offensive momentum
+		this.mom1 = 0;	// Defensive momentum
+		this.mom2 = 0;	// Utility momentum
+
+
+
 		this.cooldown = null;					// Turns needed to add a charge. Setting this to 0 will make charges infinite. Can be a math formula. Use getCooldown()
 		this.init_cooldown = 0;					// Cooldown to be set when a battle starts.
 		this.min_targets = 1;
@@ -67,6 +72,7 @@ class Action extends Generic{
 		this.cast_time = 0;						// Set to > 0 to make this a charged spell needing this many turns to complete
 		this.ct_taunt = false;					// Taunt can override the charge target
 		this.charges = 1;						// Max charges for the action. Ignored if cooldown is 0
+		this.charges_start = -1;				// Start charges. -1 = this.charges
 		this.charges_perm = false;				// Charges do not re-add after cooldown.
 		this.allow_when_charging = false;		// Allow this to be cast while using a charged action
 		this.no_interrupt = false;				// Charged action is not interruptable unless override is set
@@ -108,13 +114,14 @@ class Action extends Generic{
 			cpassives : Wrapper.saveThese(this.cpassives, full),
 			passives : Wrapper.saveThese(this.passives, full),
 			cooldown : this.cooldown,
-			ap : this.ap,
+			mom0 : this.mom0,
+			mom1 : this.mom1,
+			mom2 : this.mom2,
 			min_targets : this.min_targets,
 			max_targets : this.max_targets,
 			hit_chance : this.hit_chance,
 			detrimental : this.detrimental,
 			type : this.type,
-			mp : this.mp,
 			hidden : this.hidden,
 			target_type : this.target_type,
 			tags : this.tags,
@@ -134,7 +141,6 @@ class Action extends Generic{
 			icon : this.icon,
 			disable_override : this.disable_override,
 			reset_interrupt : this.reset_interrupt,
-			min_ap : this.min_ap,
 			allow_self : this.allow_self,
 			_slot : this._slot,
 			ignore_wrapper_conds : this.ignore_wrapper_conds,
@@ -164,6 +170,7 @@ class Action extends Generic{
 			out.max_wrappers = this.max_wrappers;
 			out.crit_formula = this.crit_formula;
 			out.std_conds = Condition.saveThese(this.std_conds, full);
+			out.charges_start = this.charges_start;
 
 		}
 		if( full === "mod" )
@@ -200,6 +207,7 @@ class Action extends Generic{
 			pa = pa.parent;
 		}
 		return pa;
+		
 	}
 
 	clone(parent){
@@ -214,8 +222,9 @@ class Action extends Generic{
 
 	appendMathVars( prefix, vars, event ){
 
-		vars[prefix+'MP'] = this.getMpCost();
-		vars[prefix+'AP'] = this.getApCost();
+		vars[prefix+'Off'] = this.getMomentumCost(Player.MOMENTUM.Off);
+		vars[prefix+'Def'] = this.getMomentumCost(Player.MOMENTUM.Def);
+		vars[prefix+'Uti'] = this.getMomentumCost(Player.MOMENTUM.Uti);
 		vars[prefix+'CT'] = this.getCastTime();
 		vars[prefix+'CD'] = this.getCooldown();
 
@@ -225,6 +234,7 @@ class Action extends Generic{
 	getConditions(){
 		return [...this.conditions,...this.show_conditions];
 	}
+
 	isVisible(){
 
 		if( this.hidden )
@@ -348,7 +358,7 @@ class Action extends Generic{
 	onBattleEnd(){
 
 		this._cooldown = 0;
-		this._charges = this.charges;
+		this.resetCharges();
 		this._cast_time = 0;
 
 	}
@@ -360,7 +370,7 @@ class Action extends Generic{
 
 		if( this.init_cooldown ){
 
-			this._charges = 0;
+			this.resetCharges();
 			this._cooldown = this.init_cooldown+1;
 
 		}
@@ -443,8 +453,16 @@ class Action extends Generic{
 
 	}
 
+	resetCharges(){
+		
+		this._charges = this.charges_start;
+		if( this._charges === -1 )
+			this._charges = this.charges;
+
+	}
+
 	hasEnoughCharge(){
-		return (this.getCooldown() <= 0 || this._charges > 0) && (!this.charges_perm || this._cooldown <= 0);
+		return this._charges > 0;
 	}
 
 	// Ends a charged cast
@@ -611,43 +629,28 @@ class Action extends Generic{
 
 	}
 
-	getApCost(){
+	// Returns AP cost by type
+	getMomentumCost( type ){
 
-		const pl = this.getPlayerParent();
-		let out = this.ap;
-		const evt = new GameEvent({sender:pl, target:pl, action:this});
-		
-		// Hidden can't have AP cost altered
-		if( pl && !this.hidden ){
-
-			const effects = pl.getActiveEffectsByType(Effect.Types.actionApCost);
-			for( let effect of effects ){
-
-				const conditions = toArray(effect.data.conditions);
-				if( Condition.all(conditions, evt) ){
-
-					const amt = Calculator.run(effect.data.amount || 1, new GameEvent({sender:pl, target:pl, action:this}));
-					if( effect.data.set )
-						out = amt;
-					else
-						out += amt;
-
-				}
-
-			}
-
-		}
-
-		if( isNaN(out) )
-			out = 1;
-			
-		out = Math.max(this.min_ap, out);
-		return Calculator.run(out, evt);
+		let field = 'mom'+String(type);
+		if( !this.hasOwnProperty(field) )
+			throw 'Invalid AP type '+String(type);
+		return this[field];
 
 	}
 
-	getMpCost(){
-		return this.mp;
+	// returns an array where each element corresponds to its Player.MOMENTUM index
+	getMomentumCostArray(){
+		return [
+			this.getMomentumCost(Player.MOMENTUM.Off),
+			this.getMomentumCost(Player.MOMENTUM.Def),
+			this.getMomentumCost(Player.MOMENTUM.Uti),
+		];
+	}
+
+	// Returns the combined amount of AP
+	getTotalMomentumCost(){
+		return this.mom0+this.mom1+this.mom2;
 	}
 
 	isRipostable(){
@@ -682,6 +685,7 @@ class Action extends Generic{
 		
 		if( this.riposte.length )
 			return this.riposte;
+			
 		return this.wrappers;
 
 	}
@@ -737,20 +741,24 @@ class Action extends Generic{
 
 		const pl = this.getPlayerParent(); 
 		if( !pl ){
+			if( debug )
+				console.log("Fail: No player parent");
 			return false;
 		}
-		// AP was consumed immediately
-		if( this.getApCost() > this.getPlayerParent().ap && game.battle_active && !isChargeFinish )
-			return err("Not enough AP for action");
 
-		// MP is not consumed immediately on charged action start, but you still need to have it
-		if( this.getMpCost() > this.getPlayerParent().mp )
-			return err("Not enough MP for action");
-
-		
+		// Check if we have enough AP
+		if( 
+			game.battle_active && 
+			!isChargeFinish && 
+			(
+				this.getMomentumCost(Player.MOMENTUM.Def) > pl.getMomentum(Player.MOMENTUM.Def) ||
+				this.getMomentumCost(Player.MOMENTUM.Off) > pl.getMomentum(Player.MOMENTUM.Off) ||
+				this.getMomentumCost(Player.MOMENTUM.Uti) > pl.getMomentum(Player.MOMENTUM.Uti)
+			)
+		)return err("Not enough momentum for action");
 
 		if( this.getViableTargets(isChargeFinish, debug).length < this.min_targets )
-			return err("No viable targets");
+			return err("No viable targets for "+this.name);
 
 		if( pl && !pl.isActionEnabled(this) )
 			return err("Can't use this action right now");
@@ -764,10 +772,10 @@ class Action extends Generic{
 			return err("Can't use that yet");
 		}
 
-		if( this.getPlayerParent().isCasting() && !this.allow_when_charging )
+		if( pl.isCasting() && !this.allow_when_charging )
 			return err("You are charging an action");
 
-		if( game.getTurnPlayer().id !== this.getPlayerParent().id && game.battle_active )
+		if( !game.isTurnPlayer(pl) && game.battle_active )
 			return err("Not your turn");
 
 		// Stuff that should not affect hidden actions
@@ -777,10 +785,10 @@ class Action extends Generic{
 				return err("Can't use that right now");
 
 			// Charge finish are unaffected by knockdowns or daze
-			if( this.ranged === Action.Range.Melee && this.getPlayerParent().hasTag(stdTag.wrKnockdown) && !isChargeFinish )
+			if( this.ranged === Action.Range.Melee && pl.hasTag(stdTag.wrKnockdown) && !isChargeFinish )
 				return err("Can't use while knocked down");
 
-			if( this.ranged === Action.Range.Ranged && this.getPlayerParent().hasTag(stdTag.wrDazed) && !isChargeFinish )
+			if( this.ranged === Action.Range.Ranged && pl.hasTag(stdTag.wrDazed) && !isChargeFinish )
 				return err("Can't use while dazed");
 
 			if( pl && pl.isIncapacitated() )
@@ -792,9 +800,22 @@ class Action extends Generic{
 
 	}
 
+	// Consumes our momentum cost from a player
+	applyMomentumCostTo(pl){
+		for( let type of Player.MOMENTUM_TYPES ){
+
+			const cost = this.getMomentumCost(type);
+			if( cost )
+				pl.addMomentum(type, -cost, false);
+
+		}
+	}
+
+
 	// Uses this action on array targets. 
 	useOn( targets, isChargeFinish = false, netPlayer ){
-
+		const pp = this.getPlayerParent();
+		
 		if( !this.castable(true, isChargeFinish) )
 			return;
 
@@ -824,9 +845,10 @@ class Action extends Generic{
 
 			this._cast_time = this.getCastTime();
 			this._cast_targets = targets.map(t => t.id);
-			// AP and charges are consumed immediately, but MP is consumed when it succeeds
-			sender.addAP(-this.getApCost());
-			sender._turn_ap_spent += this.getApCost();
+			
+			this.applyMomentumCostTo(sender);
+
+			sender._turn_ap_spent += this.getTotalMomentumCost();
 			this.consumeCharges();
 			new GameEvent({
 				type : GameEvent.Types.actionCharged,
@@ -839,6 +861,8 @@ class Action extends Generic{
 
 		}
 
+		if( !this.hidden )
+			game.renderer.playFX(pp, pp, glib.get('actionUsed', 'HitFX'), undefined, true);
 
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
@@ -846,6 +870,12 @@ class Action extends Generic{
 			// Needs to be cached for texts
 			// note that since this only affects the base attack, you should be safe to assume there's only one target
 			this._crit = Math.random() < this.getCritChance( target );
+
+			if( this.target_type === Action.TargetTypes.target ){
+				target.onAware(pp);
+				pp.onAware(target);
+			}
+				
 
 			// Check if it hit
 			if( this.isDetrimentalTo(target) ){
@@ -902,6 +932,8 @@ class Action extends Generic{
 								resist : true
 							}
 						}).raise();
+						sender.onMissDone(target);
+						target.onMissReceived(sender);
 
 					}
 
@@ -911,7 +943,7 @@ class Action extends Generic{
 
 			}
 
-			let maxWrappers = this.max_wrappers;
+			const maxWrappers = this.max_wrappers;
 			let successes = 0;
 			for( let wrapper of this.wrappers ){
 
@@ -961,10 +993,9 @@ class Action extends Generic{
 
 		if( hits.length ){
 			
-			const pp = this.getPlayerParent();
 			let evt = new GameEvent({
 				type : GameEvent.Types.actionUsed,
-				sender : pp,
+				sender : sender,
 				target : hits,
 				action : this,
 				wrapperReturn : wrapperReturn,
@@ -979,7 +1010,7 @@ class Action extends Generic{
 					setTimeout(() => {
 						game.playFxAudioKitById(
 							this.type === Action.Types.corruption ? 'crit_arouse' : 'crit_attack', 
-							pp, 
+							sender, 
 							hits[n], 
 							undefined, 
 							true, 
@@ -993,33 +1024,37 @@ class Action extends Generic{
 
 		}
 
+		// If this is an asset:
 		// Always consume charges, even on fail
 		if( this.isAssetAction() && !this.parent.no_auto_consume )
 			this.parent.consumeCharges();
 
-		this.getPlayerParent().addMP(-this.getMpCost());
 		if( !isChargeFinish ){
-			this.getPlayerParent().addAP(-this.getApCost());
-			this.getPlayerParent()._turn_ap_spent += this.getApCost();
+
+			this.applyMomentumCostTo(sender);
+			sender._turn_ap_spent += this.getTotalMomentumCost();
 			this.consumeCharges();
+
 		}
+
+		// Always raise this on the player parent
+		if( !pp.onActionUsed )
+			console.trace("Action", this, "has no valid parent");
+		pp.onActionUsed(this, hits);
 
 		return hits.length;
 
 	}
 
 	// Gets tooltip text for the UI
-	getTooltipText( apOverride, rarity=0 ){
+	// ignoreMomentum = Don't show momentum. Used mostly on potions.
+	getTooltipText( ignoreMomentum, rarity=0 ){
 
 		const name = this.getName(),
 			desc = this.getDesc()
 		;
 
 		let html = '<strong class="'+(Asset.RarityNames[rarity])+'">'+esc(name)+'</strong><br />';
-
-		let ap = this.getApCost();
-		if( !isNaN(apOverride) )
-			ap = apOverride;
 
 		const ct = this.getCastTime();
 
@@ -1035,10 +1070,19 @@ class Action extends Generic{
 				html += '<span style="color:#FFF">'+this.parent.getWeightReadable()+'</span>';
 			if( ct )
 				html += '<span style="color:#FDD"><strong>Charged '+ct+' turn'+(ct !== 1 ? 's' : '')+'</strong></span>';
-			if( ap )
-				html += '<span style="color:#DFD">'+ap+' AP</span>';
-			if( this.getMpCost() )
-				html += '<span style="color:#DEF">'+this.getMpCost()+' MP</span>';
+			if( !ignoreMomentum ){
+
+				for( let i = 0; i < Player.MOMENTUM_TYPES.length; ++i ){
+
+					const t = Player.MOMENTUM_TYPES[i];
+					const cost = this.getMomentumCost(t);
+					if( cost )
+						html += '<span style="color:'+Player.MOMENTUM_COLORS[i]+'">'+cost+' '+Player.MOMENTUM_NAMES_SHORT[i]+'</span>';
+
+				}
+
+			}
+			
 			if( this.detrimental )
 				html += '<span style="color:#FFF">'+(this.hit_chance < 100 ? this.hit_chance+' Base Hit Chance' : 'Always hits')+'</span>';
 		html += '</div>';
@@ -1137,12 +1181,20 @@ Action.TargetTypes = {
 	self : "self",			// Autocast self
 };
 
+
 // SV/BON types
 Action.Types = {
 	physical : "Physical",			// Primary used body to hurt effects
 	corruption : "Corruption",		// Primary sexy effects
 	arcane : "Arcane",				// Anything that doesn't fit in the top two categories
 };
+
+// used by Player
+Action.TypeFlags = {
+	[Action.Types.physical] : 0x1,
+	[Action.Types.corruption] : 0x2,
+	[Action.Types.arcane] : 0x4,
+}
 
 Action.TypeDescriptions = {
 	[Action.Types.physical] : 'Physical damage has a chance of damaging armor durability.',

@@ -420,6 +420,7 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.5,
 		}),
+		
 	},
 	Cloth : {
 		Banner : {
@@ -1152,6 +1153,11 @@ LibMaterial.library = {
 			map : 'tileable/bone_seamless.jpg',
 			metalness : 0.3,
 			roughness : 0.6,
+		}),
+		TarotDeck : new LibMaterial({
+			map : 'decals/tarotdeck.jpg',
+			metalness : 0.3,
+			roughness : 0.5,
 		}),
 	},
 

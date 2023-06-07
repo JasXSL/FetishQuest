@@ -195,8 +195,15 @@ class Wrapper extends Generic{
 		if( isTick )
 			conditions = this.stay_conditions;
 
-		if( this.target === Wrapper.TARGET_CASTER && event.target !== event.sender )
+		// Why is this here?
+		// Gonna remove it and see if something breaks. It does fuck up deepthroat.
+		/*
+		if( this.target === Wrapper.TARGET_CASTER && event.target !== event.sender ){
+			if( debug )
+				console.log("Failed on target type", this.target, Wrapper.TARGET_CASTER, event.target, event.sender);
 			return false;
+		}
+		*/
 
 		event.type = !isTick ? GameEvent.Types.internalWrapperAdded : GameEvent.Types.internalWrapperTick;
 		return Condition.all(conditions, event, debug);
@@ -730,7 +737,7 @@ class Wrapper extends Generic{
 			this.tick();
 		}
 
-		if(this.duration < 1)
+		if( this.duration < 1 )
 			return;
 
 		if( this._self_cast )
@@ -825,6 +832,8 @@ Wrapper.TARGET_EVENT_RAISER = "EVENT_RAISER";	// Used only for Effect.Types.runW
 Wrapper.TARGET_EVENT_TARGETS = "EVENT_TARGETS";	// Used only for Effect.Types.runWrappers, targets the player(s) that were the targets of the event that triggered the effect
 Wrapper.TARGET_ORIGINAL = "ORIGINAL";		// Specifies the target of the action that triggered this. Same as AUTO except in SMART_HEAL. Can also be used in effect events to target the owner of the wrapper containing the event that triggered the effect. Also used in Used only in Effect.Types.hitfx currently to trigger on the targeted victim of a smart heal action.
 Wrapper.TARGET_RP_TP = "RP_TP";				// RP Target players
+Wrapper.TARGET_AOE_WPTEAM = "S_TEAM";		// AoE on paret wrapper parent's team. Useful in procs so you don't have to tunnel wrappers. The wrapper is the effect parent.
+Wrapper.TARGET_AOE_NOT_WPTEAM = "O_TEAM";	// Inverse of above.
 
 Wrapper.Targets = {
 	none : 'none',	// used in the editor to delete a target  
@@ -836,6 +845,8 @@ Wrapper.Targets = {
 	event_targets : Wrapper.TARGET_EVENT_TARGETS,
 	original_target : Wrapper.TARGET_ORIGINAL,
 	rp_targplayer : Wrapper.TARGET_RP_TP,
+	aoe_wp_team : Wrapper.TARGET_AOE_WPTEAM,
+	aoe_not_wp_team : Wrapper.TARGET_AOE_NOT_WPTEAM,
 };
 
 
@@ -875,6 +886,9 @@ class Effect extends Generic{
 	}
 
 	save( full ){
+
+		
+
 		const out = {
 			type : this.type,
 			data : this.saveData(),
@@ -896,7 +910,7 @@ class Effect extends Generic{
 		}
 		else
 			this.g_sanitizeDefaults(out);
-
+		
 		return out;
 	}
 
@@ -915,8 +929,8 @@ class Effect extends Generic{
 		if( !Effect.Types[this.type] )
 			console.error("Unknown effect type", this.type, "in", this);
 
-		if( [Effect.Types.runWrappers, Effect.Types.assetWrappers].includes(this.type) && Array.isArray(this.data.wrappers) ){
-			this.data.wrappers = Wrapper.loadThese(this.data.wrappers, this);
+		if( [Effect.Types.runWrappers, Effect.Types.assetWrappers].includes(this.type) && this.data.wrappers ){
+			this.data.wrappers = Wrapper.loadThese(toArray(this.data.wrappers), this);
 		}
 		
 		// If an effect has a conditions data field, it's 
@@ -982,6 +996,7 @@ class Effect extends Generic{
 
 		let evt = event.clone();
 		evt.effect = this;
+		// Automatically handles originalWrapper and sets event wrapper to the effect parent
 		evt.originalWrapper = evt.wrapper;
 		evt.wrapper = wrapper;
 
@@ -1019,6 +1034,13 @@ class Effect extends Generic{
 			else if( ta === Wrapper.TARGET_AOE ){
 				tout = tout.concat(game.getEnabledPlayers());
 			}
+			else if( ta === Wrapper.TARGET_AOE_WPTEAM && wrapper.getPlayerParent() ){
+				tout = tout.concat(game.getTeamPlayers(wrapper.getPlayerParent()?.team) );
+			}
+			else if( ta === Wrapper.TARGET_AOE_NOT_WPTEAM && wrapper.getPlayerParent() ){
+				tout = tout.concat(game.getPlayersNotOnTeam(wrapper.getPlayerParent()?.team) );
+			}
+			
 			else if( ta === Wrapper.TARGET_RP_TP ){
 				tout.push(...game.roleplay.getTargetPlayers());
 			}
@@ -1030,6 +1052,9 @@ class Effect extends Generic{
 					tout.push(smh);
 			}
 		}
+
+		if( debug )
+			console.log("Targets ", this.targets, "tout", tout);
 
 		if( this.data.dummy_sender )
 			sender = new Player({level:game.getAveragePlayerLevel()});
@@ -1051,7 +1076,7 @@ class Effect extends Generic{
 			attackType = Action.Types.physical;
 
 		if( debug )
-			console.debug("Allowed ", this, "to trigger", event);
+			console.debug("Allowed ", this, "to trigger", event, "against", tout);
 
 		for( let t of tout ){
 
@@ -1062,6 +1087,8 @@ class Effect extends Generic{
 				s = target;
 			}
 
+			const sMajor = s.getMajorEffects();
+			const tMajor = t.getMajorEffects();
 			
 			// Do damage or heal
 			if( this.type === Effect.Types.damage ){
@@ -1097,6 +1124,15 @@ class Effect extends Generic{
 					amt = randRound(amt);
 					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalHealingDoneMod, t );
 					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalHealingTakenMod, s );
+					// Major mending = +50% for sender
+					if( sMajor & Effect.Major.Mending )
+						amt *= 1.5;
+					// Major blessing = +50% for target
+					if( tMajor & Effect.Major.Blessing )
+						amt *= 1.5;
+					// Major defile = -50% for target
+					if( tMajor & Effect.Major.Defile )
+						amt *= 0.5;
 
 					// Set event types
 					e = GameEvent.Types.healingDone;
@@ -1126,23 +1162,37 @@ class Effect extends Generic{
 						"of which", s.getBon(type), "-", t.getSV(type),
 						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
-						"nudity multi", t.getArmorDamageMultiplier(s, this)
+						"nudity multi", t.getArmorDamageMultiplier(s, this),
+						"sMajor", sMajor, "tMajor", tMajor
 					);
 					*/
 					// Get target global damage point taken modifier
 
 					// Amt is negative
-					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s );
+					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s, action );
 					
 					// amt is negative when attacking, that's why we use - here
-					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t );
+					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t, action );
 					
 					// Multipliers last
 					amt *= Player.getBonusDamageMultiplier( s,t,type,wrapper.detrimental ); // Negative because it's damage
-					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t );
-					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s );
+					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t, action );
+
+					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s, action );
 					amt *= t.getArmorDamageMultiplier( s, this );
 
+					// Major aggression: +30% for sender
+					if( sMajor & Effect.Major.Aggression )
+						amt *= 1.3;
+					// Major weakness: -30% for sender
+					if( sMajor & Effect.Major.Weakness )
+						amt *= 0.7;
+					// Major defense: -30% for target 
+					if( tMajor & Effect.Major.Defense )
+						amt *= 0.7;
+					// Major vulnerability: +30% for target 
+					if( tMajor & Effect.Major.Vulnerability )
+						amt *= 1.3;
 					
 					amt = randRound(amt);
 					if( amt > 0 )
@@ -1194,8 +1244,13 @@ class Effect extends Generic{
 					// 30% chance per point of damage
 					let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
 					let ch = Math.abs(amt*procChance);
-
 					ch *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
+					// Major focus: -50% for target
+					if( tMajor & Effect.Major.Focus )
+						ch *= 0.5;
+					// Major touch: +50% for sender
+					if( sMajor & Effect.Major.Touch )
+						ch *= 1.5;
 					
 					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 					const start = t.arousal;
@@ -1218,6 +1273,7 @@ class Effect extends Generic{
 				if( isNaN(amt) )
 					console.error("NaN damage amount found in", this);
 
+				let preHP = t.hp/t.getMaxHP();
 				let exec = t.addHP(amt, s, this, type, noBlock, true);
 				let died = exec.died;
 
@@ -1237,6 +1293,8 @@ class Effect extends Generic{
 
 					let threat = amt * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
 					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(amt*this.data.leech)) : 0;
+					
+
 					t.addThreat( s.id, -threat );
 
 					if( amt )
@@ -1245,6 +1303,16 @@ class Effect extends Generic{
 					if( leech ){
 						s.addHP(leech, s, this, type, false, true);
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
+						new GameEvent({
+							type : GameEvent.Types.lifeSteal,
+							sender : s,
+							target : t,
+							wrapper : wrapper,
+							effect : this,
+							custom : {
+								amount : leech
+							}
+						});
 					}
 
 				}else if(amt){
@@ -1265,13 +1333,14 @@ class Effect extends Generic{
 					effect : this,
 					custom : {
 						amount : actualAmount,
-						overAmount : overAmount
+						overAmount : overAmount,
+						hpPre : preHP
 					}
 				});
 				doneEvt.raise();
 				
 				// damage/healing taken
-				new GameEvent({
+				const takenEvt = new GameEvent({
 					type : e2,
 					sender : s,
 					target : t,
@@ -1279,9 +1348,17 @@ class Effect extends Generic{
 					effect : this,
 					custom : {
 						amount : actualAmount,
-						overAmount : overAmount
+						overAmount : overAmount,
+						hpPre : preHP
 					}
 				}).raise();
+
+				// Re-raise as hpDamageTaken taken
+				if( amt < 0 && changehp ){
+					takenEvt.type = GameEvent.Types.hpDamageTaken;
+					takenEvt.raise();
+				}
+
 
 				if( died )
 					new GameEvent({
@@ -1299,7 +1376,19 @@ class Effect extends Generic{
 
 			}
 
-			else if( this.type === Effect.Types.addAP ){
+			else if( this.type === Effect.Types.momentumNextTurn ){
+
+				let amt = Calculator.run(
+					this.data.amount, 
+					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
+				}));
+				if( !this.no_stack_multi )
+					amt *= this.parent.getStacks();
+				t.addIncomingMomentum(this.data.type, amt);
+				
+			}
+
+			else if( this.type === Effect.Types.addMomentum ){
 
 				let amt = Calculator.run(
 					this.data.amount, 
@@ -1308,54 +1397,36 @@ class Effect extends Generic{
 				if( !this.no_stack_multi )
 					amt *= this.parent.getStacks();
 
-				
-				let pre = t.ap;
-				t.addAP(amt, true);
-				let change = t.ap-pre;
+				let type = Player.getValidMomentum(this.data.type);
+				let pre = t.getMomentum(type);
+
+				const changed = t.addMomentum(type, amt, true);	// array of [nrOff, nrDef, nrUti]
+
+				let change = t.getMomentum(type)-pre;
 				if( change )
-					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage AP' );
+					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" momentum"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, s.id, t.id, 'statMessage AP' );
 					
-				if( +this.data.leech ){
+				if( +this.data.leech && change < 0 ){
 
-					pre = s.ap;
-					s.addAP(-amt, true);
-					change = s.ap-pre;
+					change = 0;
+					for( let i = 0; i < changed.length; ++i ){
+						
+						let nr = randRound(Math.abs(changed[nr])*this.data.leech);
+						if( nr ){
+
+							s.addMomentum(type, nr, true);
+							change += nr;
+
+						}
+
+					}
+					
 					if( change )
-						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" AP"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, t.id, s.id, 'statMessage AP' );
+						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" Momentum"+(this.parent.name ? ' from '+this.parent.name : '')+".", undefined, t.id, s.id, 'statMessage AP' );
 
 				}
 
 				
-
-			}
-
-			else if( this.type === Effect.Types.addMP ){
-
-				let amt = Calculator.run(
-					this.data.amount, 
-					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this,
-					}).mergeUnset(event)
-				);
-				if( !this.no_stack_multi )
-					amt *= wrapper.getStacks();
-
-				let pre = t.mp;
-				t.addMP(amt, true);
-				let change = t.mp-pre;
-				if( change )
-					game.ui.addText( t.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" MP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage MP' );
-
-
-				if( +this.data.leech ){
-
-					pre = s.mp;
-					s.addMP(-amt, true);
-					let change = s.mp-pre;
-					if( change )
-						game.ui.addText( s.getColoredName()+" "+(change > 0 ? 'gained' : 'lost')+" "+Math.abs(change)+" MP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, t.id, s.id, 'statMessage MP' );
-
-				}
 
 			}
 
@@ -1374,11 +1445,12 @@ class Effect extends Generic{
 			}
 			else if( this.type === Effect.Types.addBlock ){
 
+				const merged = new GameEvent({
+					sender:s, target:t, wrapper:wrapper, effect:this
+				}).mergeUnset(event);
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
-					}).mergeUnset(event)
+					merged
 				);
 				if( !this.no_stack_multi )
 					amt *= wrapper.getStacks();
@@ -1404,9 +1476,17 @@ class Effect extends Generic{
 					}).mergeUnset(event)
 				);
 
-				if( amt > 0 )
-					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );				
+				if( amt > 0 ){
 
+					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
+					// Major focus: -50% for target
+					if( tMajor & Effect.Major.Focus )
+						ch *= 0.5;
+					// Major touch: +50% for sender
+					if( sMajor & Effect.Major.Touch )
+						ch *= 1.5;
+
+				}
 				if( !this.no_stack_multi )
 					amt *= this.parent.getStacks();
 
@@ -1434,8 +1514,7 @@ class Effect extends Generic{
 
 			else if( 
 				this.type === Effect.Types.setHP || 
-				this.type === Effect.Types.setAP || 
-				this.type === Effect.Types.setMP || 
+				//this.type === Effect.Types.setAP || 
 				this.type === Effect.Types.setArousal
 			){
 				
@@ -1451,17 +1530,15 @@ class Effect extends Generic{
 						t.hp = amt;
 						t.addHP(0);
 					}
+					/*
 					else if( this.type === Effect.Types.setAP ){
 						t.ap = amt;
 						t.addAP(0);
 					}
+					*/
 					else if( this.type === Effect.Types.setArousal ){
 						t.arousal = amt;
 						t.addArousal(0);
-					}
-					else if( this.type === Effect.Types.setMP ){
-						t.mp = amt;
-						t.addMP(0);
 					}
 
 				}
@@ -1487,7 +1564,9 @@ class Effect extends Generic{
 			// End turn
 			else if( this.type === Effect.Types.endTurn ){
 
+				t.endedTurn = true;
 				game.end_turn_after_action = true;
+				game.onEndTurn(t);
 				
 			}
 
@@ -1508,12 +1587,14 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.runWrappers ){
 				
 				let wrappers = this.data.wrappers;
+
 				if( !Array.isArray(wrappers) ){
 					console.error("Effect data in wrapper ", wrapper, "tried to run wrappers, but wrappers are not defined in", this);
 					return false;
 				}
-				
-				for( let w of this.data.wrappers ){
+
+
+				for( let w of wrappers ){
 
 					let wr = new Wrapper(w, wrapper.parent);
 					let stacks = this.data.stacks;
@@ -1589,7 +1670,7 @@ class Effect extends Generic{
 				// Attach the asset wrappers to the player
 				for( let asset of assets ){
 
-					for( let w of this.data.wrappers ){
+					for( let w of wrappers ){
 
 						let wr = new Wrapper(w, wrapper.parent);
 						wr.asset = asset.id;
@@ -1608,7 +1689,17 @@ class Effect extends Generic{
 				}
 
 			}
-
+			else if( this.type === Effect.Types.addReroll ){
+				
+				const amt = Calculator.run(
+					this.data.amount,
+					new GameEvent({
+						sender:s, target:t, wrapper:this.parent, effect:this
+					})
+				);
+				t.consumeReroll( -amt );
+				
+			}
 			else if( this.type === Effect.Types.disrobe ){
 
 				let slots = this.data.slots;
@@ -1632,7 +1723,7 @@ class Effect extends Generic{
 
 				const stripData = {};	// data for wrapperReturn.addArmorStrips. Needs to correlate with player.damageDurability(...).armor_strips
 				for( let asset of remove ){
-					if(t.unequipAsset(asset.id, s)){
+					if(t.unequipAsset(asset.id, s, undefined, true)){
 						if( asset.loot_sound )
 							game.playFxAudioKitById(asset.loot_sound, s, t, undefined, true );
 						game.ui.addText( t.getColoredName()+"'s "+asset.name+" was unequipped"+(wrapper.name ? ' by '+s.getColoredName() : '')+".", undefined, t.id, t.id, 'statMessage important' );
@@ -1666,7 +1757,7 @@ class Effect extends Generic{
 					const item = viable.splice(Math.floor(Math.random()*viable.length), 1)[0];
 					s.addAsset(item, item._stacks, true);
 					wrapperReturn.addSteal(t, item);
-					t.unequipAsset(item.id, s, true);
+					t.unequipAsset(item.id, s, true, true);
 					t.destroyAsset(item.id);
 
 				}
@@ -2040,9 +2131,9 @@ class Effect extends Generic{
 					autoEquip = this.data.equip === undefined || this.data.equip
 				;
 
-				const assets = t.addLibraryAsset(label);
-				if( assets && autoEquip )
-					assets.map(asset => t.equipAsset(asset.id, s, true));
+				const asset = t.addLibraryAsset(label);
+				if( asset && autoEquip )
+					t.equipAsset(asset.id, s, true);
 
 			}
 
@@ -2118,8 +2209,13 @@ class Effect extends Generic{
 	// Attempts to get a target by wrapper.target type
 	getTargetsByType( type, event ){
 
+		const ot = game.getPlayerById(this.parent.original_target);
 		if( type === Wrapper.Targets.aoe )
 			return game.getEnabledPlayers();
+		if( type === Wrapper.Targets.target_aoe_not_wp_team )
+			return game.getEnabledPlayers().filter(el => ot && el.team !== ot.team);
+		if( type == Wrapper.Targets.target_aoe_not_wp_team )
+			return ot ? game.getTeamPlayers(ot?.team) : [];
 		if( type === Wrapper.Targets.caster )
 			return [game.getPlayerById(this.parent.caster)];
 		if( type === Wrapper.Targets.event_raiser )
@@ -2327,6 +2423,34 @@ Effect.createStatBonus = function( type, bonus ){
 
 };
 
+// These are major hard-coded effects. They don't stack, but can be reused in many places. 
+// They use bitwise to make it easier to have multiple wrappers active that apply the same effect, and with varying durations
+// The primary purpose to doing it like this is to simplify buffs and debuffs for developers.
+Effect.Major = {
+	Aggression : 0x1,		// +30% damage done
+	Defense : 0x2,			// -30% Damage taken
+	Vulnerability : 0x4,	// +30% Damage taken
+	Weakness : 0x8,			// -30% Damage done
+	//Sensitivity : 0x10,		// +100% arousal taken
+	Focus : 0x20,			// 32 | -50% arousal taken
+	Defile : 0x40,			// 64 | -50% healing received
+	Blessing : 0x80,		// 128 | +50% healing received
+	Mending : 0x100,		// 256 | +50% healing done
+	Momentum : 0x200,		// 512 | +1 momentum regen
+	Lifesteal : 0x400,		// 1024 | +2 HP to any player attacking the target
+	Accuracy : 0x800,		// 2048 | +30% hit chance
+	Touch : 0x1000,			// 8192 | +50% arousal generated
+	Laze : 0x2000,			// 81 -1 momentum regen
+	Brawn : 0x4000, 		// +5 physical proficiency
+	Corruption : 0x8000,	// +5 corruption proficiency
+	Arcana : 0x10000,		// +5 arcane proficiency
+	Stagger : 0x20000,		// -5 Physical avoidance.
+	Sensitivity : 0x40000,	// -5 corruption avoidance.
+	Conduit : 0x80000,		// 524288 | -5 Arcane avoidance.
+	Clumsy : 0x100000,		// 1048576 | -30% hit chance
+	Penetration : 0x200000,	// +100% armor penetration
+};
+
 // These are the actual effect types that the game runs off of
 Effect.Types = {
 	none : 'none',
@@ -2336,24 +2460,21 @@ Effect.Types = {
 	css : "css",
 	hitfx : "hitfx",
 	damageArmor : "damageArmor",
-	addAP : "addAP",
-	addMP : "addMP",
+	addMomentum : "addMomentum",
 	addHP : "addHP",
 	addBlock : "addBlock",
 	preventBlockAutoFade : "preventBlockAutoFade",
-	regenAP : "regenAP",
-
-	maxAP : 'maxAP',
-	maxMP : 'maxMP',
+	momentumRegen : "momentumRegen",
+	momentumNextTurn : "momentumNextTurn",
+	
 	maxHP : 'maxHP',
 	maxArousal : 'maxArousal',
 	
 	fullRegen : 'fullRegen',
 
 	setHP : 'setHP',
-	setMP : 'setMP',
 	setArousal : 'setArousal',
-	setAP : 'setAP',
+	//setAP : 'setAP', // Todo: Need revamp
 	
 	addArousal : "addArousal",	
 	interrupt : "interrupt",		
@@ -2434,7 +2555,6 @@ Effect.Types = {
 	allowReceiveSpells : 'allowReceiveSpells',
 	disableActions : 'disableActions',
 
-	actionApCost : 'actionApCost',
 	actionRiposte : 'actionRiposte',
 	actionCastTime : 'actionCastTime',
 	preventBlock : 'preventBlock',
@@ -2443,6 +2563,8 @@ Effect.Types = {
 	globalArmorPen : 'globalArmorPen',
 	clairvoyance : 'clairvoyance',
 	untargetable : 'untargetable',
+	majorEffect : 'majorEffect',
+	addReroll : 'addReroll',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2462,7 +2584,7 @@ Effect.Passive = {
 	[Effect.Types.critDmgTakenMod] : true,
 	[Effect.Types.preventBlock] : true,
 	[Effect.Types.preventBlockAutoFade] : true,
-	
+	[Effect.Types.momentumRegen] : true,
 	
 	[Effect.Types.globalHealingTakenMod] : true,
 	[Effect.Types.globalArousalTakenMod] : true,
@@ -2470,14 +2592,12 @@ Effect.Passive = {
 	[Effect.Types.addTags] : true,
 	[Effect.Types.addRandomTags] : true,
 	[Effect.Types.expMod] : true,
-	[Effect.Types.regenAP] : true,
 
 	[Effect.Types.svPhysical] : true,
 	[Effect.Types.svArcane] : true,
 	[Effect.Types.svCorruption] : true,
 	[Effect.Types.blockInterrupt] : true,
 	[Effect.Types.maxHP] : true,
-	[Effect.Types.maxMP] : true,
 	[Effect.Types.maxAP] : true,
 	[Effect.Types.maxArousal] : true,
 
@@ -2502,7 +2622,6 @@ Effect.Passive = {
 	[Effect.Types.addActions] : true,
 	[Effect.Types.allowReceiveSpells] : true,
 	[Effect.Types.disableActions] : true,
-	[Effect.Types.actionApCost] : true,
 	[Effect.Types.actionCastTime] : true,
 	[Effect.Types.tieToRandomBondageDevice] : true,
 	[Effect.Types.addWrapperMaxDuration] : true,
@@ -2510,7 +2629,7 @@ Effect.Passive = {
 	[Effect.Types.clairvoyance] : true,
 	[Effect.Types.untargetable] : true,
 	[Effect.Types.actionRiposte] : true,
-
+	[Effect.Types.majorEffect] : true,
 };
 
 Effect.KnockdownTypes = {
@@ -2527,29 +2646,23 @@ Effect.TypeDescs = {
 	[Effect.Types.css] : "Applies CSS classes onto the target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
 	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
-	[Effect.Types.addAP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds AP",									
-	[Effect.Types.addMP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds MP",									
-	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier} - Adds arousal points",	
+	[Effect.Types.addMomentum] : "{amount:(str)(nr)amount, leech:(float)leech_multiplier, type:(int)type=random/all}, Adds or subtracts AP. Leech only works on subtract. If type isn't a valid identifier (0-2) then on subtract it returns your oldest momentum, and on add it adds random momentum.",						
+	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech:(float)leech_multiplier} - Adds arousal points",	
 	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									
-	
+	[Effect.Types.momentumRegen] : '{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases or decreases the amount of random momentum you gain each turn (not counting class momentum)',
+	[Effect.Types.momentumNextTurn] : '{amount:(str)(nr)amount, type:(int)type=random} - Adds additional momentum to the momentum picker next turn',
 	[Effect.Types.maxHP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max HP",								
-	[Effect.Types.maxMP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max MP",								
-	[Effect.Types.maxAP] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max AP",								
 	[Effect.Types.maxArousal] : "{amount:(str)(nr)amount, multiplier:(bool)isMultiplier=false} - Increases max arousal",								
 	[Effect.Types.preventWrappers] : "{labels:(str/arr)wrapperLabels} - Wrappers with these labels will not be ADDED. Does not affect passives.",								
 
 	[Effect.Types.addBlock] : "{amount:(str)formula} - Adds or subtracts block", 
-
-	[Effect.Types.regenAP] : "{amount:(float)multiplier} - Multiplies against AP regen at the start of your turn.",
-
 	[Effect.Types.clairvoyance] : "void - Gives players more information about the victim when inspecting them",
 	[Effect.Types.preventBlock] : "{} - Ignores block",
 	[Effect.Types.preventBlockAutoFade] : "{} - Prevents block from fading at the start of your turn",
 	
-	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",							
-	[Effect.Types.setMP] : "{amount:(str)(nr)amount} - Sets MP value",							
+	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",						
 	[Effect.Types.setArousal] : "{amount:(str)(nr)amount} - Sets arousal value",				
-	[Effect.Types.setAP] : "{amount:(str)(nr)amount} - Sets AP value",							
+	//[Effect.Types.setAP] : "{amount:(str)(nr)amount} - Sets AP value",							
 	
 	[Effect.Types.expMod] : "{amount:(nr)multiplier} - Multiplier against experience gain",							
 	
@@ -2576,7 +2689,7 @@ Effect.TypeDescs = {
 
 	
 	[Effect.Types.gameAction] : '{action:(obj/arr)gameAction} - Lets you run one or many game actions',
-	[Effect.Types.addActionCharges] : 'addActionCharges',					// {amount:(nr/str)amount, }
+	[Effect.Types.addActionCharges] : '{actions:(arr)actionLabels, amount:(nr/str)amount}',
 
 	[Effect.Types.physicalProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the damage armor chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
 	[Effect.Types.corruptionProcMultiplier] : '{amount:(float/str)multiplier, receive:undefined} - Multiplies the arousal proc chance. If receive is TRUE it multiplies when you are the victim. FALSE multiplies when you are attacker. Anything else multiplies both times.',
@@ -2616,7 +2729,6 @@ Effect.TypeDescs = {
 	[Effect.Types.daze] : 'void - Prevents the use of ranged abilities.',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
-	[Effect.Types.actionApCost] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false} - Alters or sets the AP cost of one or more actions. Actions affected are checked by conditions.',
 	[Effect.Types.actionCastTime] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false, multiplier:(bool)is_multiplier=false} - Alters or sets the cast time of one or more actions. Actions affected are checked by conditions.',
 	[Effect.Types.actionRiposte] : '{conditions:(arr)conditions, set:(bool)val=false, priority=0} - Overrides the default riposte-able flag on the action. Sorted by priority, then by time added. The effect target is both sender and target when validating the conditions.',
 	
@@ -2637,6 +2749,8 @@ Effect.TypeDescs = {
 	[Effect.Types.addRandomTags] : '{tags:(arr)tag_objs, amount:(int)amount=1} - Adds a random set of tags from tag_objs. Tag objects consist of {tags:(arr/str)tags, conds:(arr)conditions}',
 	[Effect.Types.summonAsset] : '{asset:(str)assetLabel, equip:(bool)autoEquip=true} - Creates an asset and puts it in the target inventory. If equip is set, it equips as well.',
 	[Effect.Types.untargetable] : '{exceptions:(arr)actionLabels, beneficial:(bool)allowBeneficial=false, allow_aoe:(bool)=false} - Makes you untargetable by other players actions. If allowBeneficial is true, it allows you to be targeted by beneficial abilities. If allow AOE it allows you to be targeted by AoE.',
+	[Effect.Types.majorEffect] : '{effect:(int)bitwise} - Sets a major effect. These are hard-coded effects that are made to simplify .',
+	[Effect.Types.addReroll] : '{amount:(int)(str)amount} - Adds or subtracts reroll for this turn.',
 };
 
 

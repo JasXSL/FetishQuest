@@ -33,7 +33,7 @@ export function asset(){
 	css_fx : (str)effect='',			// optional - CSS effect to play. You can pick from :
 										// fxTakeDamage, fxTakeDamageCorruption, fxTakeDamageElemental, fxTakeDamageHoly, fxHeal, fxStretch, fxShake, fxSqueeze, fxBuffBlue, fxBuffRed
 	css_fx_targ : (str)='victim',		// CSS effect target. Either 'victim' or 'sender'
-	particles : (str)='',				// Particle system name. See /libraries/particles.js
+	particles : (str)='',				// Particle system name, or {"id":(str)id, "color":(str)color} See /libraries/particles.js
 	emit_duration : (int)=200,			// Duration before stopping emitting in milliseconds
 	fade_duration : (int)=2000,			// Time before removing the particle system from the stage after emit_duration ends. Should be greater than the particle max life.
 	hold : (int)=0,						// Wait this amount of MS before doing the next step
@@ -50,7 +50,45 @@ export function asset(){
 		'</pre>';
 	html += '<textarea class="json" name="stages">'+esc(JSON.stringify(asset.stages || []))+'</textarea><br />';
 
+	html += '<input type="button" class="previewHitfx" value="Preview" />';
+	html += '<div class="preview" style="width:30vmax; height:16.87vmax; background:#AAA; margin-bottom:5vmax;">'+
+		'<div class="attacker" style="width:3px; height:3px; position:absolute; left:10%; top:25%; background:#000;"></div>'+
+		'<div class="victim" style="width:3px; height:3px; position:absolute; right:10%; top:75%; background:#000;"></div>'+
+	'</div>';
+
 	this.setDom(html);
+
+	this.dom.querySelector('input.previewHitfx').onclick = event => {
+
+		const gl = modtools.webgl;
+		const viewer = this.dom.querySelector('div.preview');
+		viewer.append(gl.fxRenderer.domElement);
+		const fx = HitFX.loadThis(asset);
+		fx.rebase();
+		
+
+		modtools.webgl.playFX( this.dom.querySelector('div.attacker'), [this.dom.querySelector('div.victim')], fx, '', false, false );
+
+		const onResize = () => {
+
+			const rect = viewer.getBoundingClientRect();
+			const width = rect.width, height = rect.height;
+
+			gl.fxRenderer.setSize(width, height);
+			gl.fxCam.aspect = width/height;
+			gl.fxCam.updateProjectionMatrix();
+
+
+		};
+
+		// Attach the 3d editor
+		// The DOM will be inaccurate without the delay because HTML
+		setTimeout(onResize, 1);
+		
+		gl.updateSize = onResize;
+		this.onResize = onResize;
+
+	};
 
 	HelperAsset.autoBind( this, asset, DB);
 

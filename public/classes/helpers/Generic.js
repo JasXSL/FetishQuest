@@ -199,6 +199,7 @@ export default class Generic{
 
 		const template = new this.constructor();
 		for( let i in saveData ){
+			
 			let stored = template[i];
 			if( stored === undefined )
 				console.error(i, "was not in", template, "this property was added in save() but not the constructor! Did you remove a field from the constructor but forget to remove it in the save() function?");

@@ -227,7 +227,7 @@ export default class GameAction extends Generic{
 			if( Math.random()/2 < value )
 				money = Math.floor(Math.random()*Math.pow(value, 3)*1000);
 			
-			// weight of 0.5 adds loot
+			// weight of 0.5 adds equipment loot
 			if( value >= 0.5 ){
 
 				const players = game.getTeamPlayers();
@@ -1030,7 +1030,7 @@ export default class GameAction extends Generic{
 			const attacker = new Player();
 			attacker.name = this.data.name || 'Trap';
 			attacker.level = game.getAveragePlayerLevel();
-			attacker.ap = attacker.mp = 100;
+			//attacker.ap = attacker.mp = 100;
 			attacker['bon'+action.type] = this.data.stat || 0;
 			action.parent = attacker;
 			
@@ -1282,6 +1282,8 @@ export default class GameAction extends Generic{
 
 	
 	static getViable( actions = [], player = undefined, debug = false, validate = true, roomAsset = undefined ){
+		if( !window.game )
+			return actions;
 		let out = [];
 		for( let action of actions ){
 	
@@ -1373,7 +1375,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.tooltip] : '{text:(str)text} 3d asset only - Draws a tooltip when hovered over. HTML is not allowed, but you can use \n for rowbreak',
 	[GameAction.types.shop] : '{shop:(str)shop, player:(str)player_offering_shop} - Passive. Shop is tied to a player inside the shop object. Shop can NOT be an object due to multiplayer constraints.',
 	[GameAction.types.openShop] : '{shop:(str)shop} - Tries to open a shop on the player that triggered the event',
-	[GameAction.types.gym] : '{player:(str)player_offering} - Passive. Player is the player that should have the gym icon attached to them. ',
+	[GameAction.types.gym] : '{player:(str)player_offering, tags:(arr)tags} - Passive. Player is the player that should have the gym icon attached to them. Tags can be used to determine what skills should be trained there.',
 	[GameAction.types.playerAction] : '{player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it\'s the supplied triggering player that becomes the caster',
 	[GameAction.types.repairShop] : '{player:(str)label} - Marks a player as offering repairs & dyes',
 	[GameAction.types.altar] : '{player:(str)label} - Marks a player as offering kink resets',

@@ -15,9 +15,7 @@ import Encounter from './Encounter.js';
 import Game from './Game.js';
 import Roleplay from './Roleplay.js';
 
-const BASE_HP = 30;
-const BASE_MP = 10;
-const BASE_AP = 10;
+const BASE_HP = 40;
 const BASE_AROUSAL = 7;
 const MAX_KINKS = 2;
 
@@ -44,11 +42,11 @@ export default class Player extends Generic{
 		this.label = '';					// Unique editor label
 		this.netgame_owner_name = '';		// This is a custom thing that should only be relied on when adding a new player
 		this.netgame_owner = '';			// ID corresponding to one from Game.net.players
-		this.afk = false;					// Treats this as a bot if true. Can be toggled by the netgame owner
 		this.name = "Adventurer";			// Name
 		this.species = "";
 		this.spre = "";						// A/AN for species
 		this.description = "";
+		this.secret = "";					// Secret description only visible when using clairvoyance
 		this.ior = "";						// Local override
 		this.icon = "";						// URL - Has to be HTTPS
 		this.icon_upperBody = "";			// == || ==
@@ -69,18 +67,25 @@ export default class Player extends Generic{
 		this.auto_wrappers = [];	// Automatic wrappers such as encumbered
 		this.passives = [];			// Passive wrappers that should not be cleared when a battle starts or ends
 		this.hp = BASE_HP;				// 
-		this.ap = 0;				// Action points, stacking up to 10 max, 3 awarded each turn
-		this.pMP = 0;				// Pending MP that will be added at the start of your turn.
-		this.pAP = 0;				// Pending AP that will be added at the start of your turn. Can be negative and locks those slots in regen.
+		
+		this.momOff = 0;			// Offensive momentum
+		this.momDef = 0;			// Defensive momentum
+		this.momUti = 0;			// Utility momentum
+		this.incMom = [];			// Incoming momentum added next turn, max 12. Items can be added to this, including -1 for random while it's not your turn.
+		
 		this.team = 0;				// 0 = player
 		this.size = 5;				// 0-10
 		this.level = 1;				// 
 		this.experience = 0;
-		this.mp = 10;				// Secondary stat used for spells. Mana points.
+		
+		this.endedTurn = false;
+		this.reroll = 0;
+		this.tReroll = 0;			// Rerolls used this turn
+
 		this.arousal = 0;
 		this.armor = 0;				// 0-100. Given primarily to NPCs that can't wear armor.
 		this.leveled = false;		// Level is an offset of the player average level
-		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players
+		this.power = 1;				// This is used in NPCs when calculating how difficult they should be. 1 = power of 1 player, can be higher or lower. -1 will automatically set it to nr players. -2 = twice as many etc
 		this.hpMulti = 1;			// Quick way to build NPCs with different HP instead of having to add a bunch of wrappers. Negative value will SET max HP to a specific value. Used for illium who loses 1 HP each turn
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 		this.voice = '';			// Voice kit label for pain/pleasure sounds etc
@@ -131,16 +136,21 @@ export default class Player extends Generic{
 		this._turns = 0;						// Total turns played in combat
 		this._turn_ap_spent = 0;				// AP spent on actions this turn
 		this._turn_action_used = 0;				// Actions used this turn
+		this._turn_std_combo = 0;				// How many times we've used a standard attack in a row
+		this._turn_atypes = 0;					// Action types used this turn. Maps to Action.Typeflags
 		this._threat = {};						// playerID : threatAmount
 
 		// These are incoming damage
+		this._aware = {};						// playerID : true - Using a targeted action against or being hit by a targeted action by a player makes you "aware". Attacks against unaware players have a +10% hit chance.
 		this._damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions received since last turn. Not the actual damage.
 		this._damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points player received since last turn.
 		// Same as above, but DONE by this player
 		this._d_damaging_since_last = {};			// playerID : {(str)dmageType:(int)nrDamagingAttacks} - nr damaging actions used by this player since last turn. Not the actual damage.
 		this._d_damage_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total damage points this player did since last turn.
-		this._riposted_since_last = {};			// playerID : num_times_this_player_riposted_use
+		this._riposted_since_last = {};			// playerID : num_times_this_player_riposted_us
 		this._riposting_since_last = {};		// playerID : num_times_we_riposted_them
+		this._missed_since_last = {};			// playerID : num_times_this_player_missed_us
+		this._missing_since_last = {};			// playerID : num_times_we_missed_them
 		// Healing received
 		this._healing_a_since_last = {};			// playerID : {(str)damageType:(int)nrHealingAttacks} - nr healing actions received since last turn. Not the actual damage.
 		this._healing_p_since_last = {};			// playerID : {(str)damageType:(int)damage} - Total HP player received by heals last turn
@@ -152,6 +162,8 @@ export default class Player extends Generic{
 		this._targeted_by_since_last = new Collection();			// playerID : (int)num_actions - Total actions directly targeted at you since last turn. (AoE doesn't count)
 		this._used_chats = {};					// id : true - Chats used. Not saved or sent to netgame. Only exists in the local session to prevent NPCs from repeating themselves.
 		this._last_chat = 0;					// Turn we last spoke on. 
+		this._last_arange = Action.Range.None;	// Last action used range
+		this._last_atype = '';					// Last action used type
 
 		this._turn_tags = [];					// {tag:(str)tag, s:(Player)sender}... These are wiped whenever an action text is used
 		
@@ -184,12 +196,9 @@ export default class Player extends Generic{
 		if( data && data.class === null )
 			data.class = '';
 
-		/*
-		Not sure if this will break something
-		if( window.game && game.is_host && data )
-			delete data._tmp_actions;
-		*/
 		this.g_autoload(data);
+		if( data?._incMom )
+			this.unpackIncomingMomentum(data._incMom, true);
 
 	}
 
@@ -241,6 +250,7 @@ export default class Player extends Generic{
 			species : this.species,
 			spre : this.spre,
 			description : this.description,
+			secret : this.secret,
 			size : this.size,
 			level : this.level,
 			class : this.class instanceof PlayerClass ? PlayerClass.saveThis(this.class, full) : this.class,
@@ -270,13 +280,21 @@ export default class Player extends Generic{
 			start_equip : this.start_equip,
 			generated : this.generated,	// Needed for playerMarkers in webgl
 			armor : this.armor,
-			actionGroups : PlayerActionGroup.saveThese(this.actionGroups),
+			actionGroups : PlayerActionGroup.saveThese(this.actionGroups, full),
 			voice : this.voice,
+			momOff : this.momOff,
+			momDef : this.momDef,
+			momUti : this.momUti,
+			tReroll : this.tReroll,
 		};
 
-		if( full !== "mod" )
+		if( full !== "mod" ){
 			out.experience = this.experience;
-
+			out.endedTurn = this.endedTurn;
+			out.reroll = this.reroll;
+			out._last_arange = this._last_arange;
+			out._last_atype = this._last_atype;
+		}
 		// Should only be sent while we're hosting a netgame
 		//if( window.game && Game.net.isInNetgameHost() && !full )
 		out._tmp_actions = Action.saveThese(this._tmp_actions, full);
@@ -306,19 +324,6 @@ export default class Player extends Generic{
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
 				out._difficulty = this._difficulty;
 				out._threat = this._threat;
-				out._turn_ap_spent = this._turn_ap_spent;
-				out._damaging_since_last = this._damaging_since_last;
-				out._damage_since_last = this._damage_since_last;
-				out._d_damaging_since_last = this._d_damaging_since_last;
-				out._d_damage_since_last = this._d_damage_since_last;
-				out._turns = this._turns;
-				out._turn_action_used = this._turn_action_used;
-				out._riposted_since_last = this._riposted_since_last;
-				out._riposting_since_last = this._riposting_since_last;
-				out._healing_a_since_last = this._healing_a_since_last;
-				out._healing_p_since_last = this._healing_p_since_last;
-				out._d_healing_a_since_last = this._d_healing_a_since_last;
-				out._d_healing_p_since_last = this._d_healing_p_since_last;
 			}
 
 		}
@@ -328,11 +333,9 @@ export default class Player extends Generic{
 		if( full !== "mod" ){
 			
 			out.id = this.id;
-			out.ap = this.ap;
+			out._incMom = this.packIncomingMomentum(true);
 			out.hp = this.hp;
-			out.mp = this.mp;
-			out.pAP = this.pAP;
-			out.pMP = this.pMP;
+			out.momBon = this.momBon;
 			out.block = this.block;
 			out.iBlock = this.iBlock;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
@@ -341,6 +344,24 @@ export default class Player extends Generic{
 			out.color = this.color;
 			out.arousal = this.arousal;
 			out._targeted_by_since_last = this._targeted_by_since_last.save(full);		// Needed by netcode
+			out._turn_ap_spent = this._turn_ap_spent;
+			out._damaging_since_last = this._damaging_since_last;
+			out._aware = this._aware;
+			out._damage_since_last = this._damage_since_last;
+			out._d_damaging_since_last = this._d_damaging_since_last;
+			out._d_damage_since_last = this._d_damage_since_last;
+			out._turns = this._turns;
+			out._turn_action_used = this._turn_action_used;
+			out._turn_std_combo = this._turn_std_combo;
+			out._turn_atypes = this._turn_atypes;
+			out._riposted_since_last = this._riposted_since_last;
+			out._riposting_since_last = this._riposting_since_last;
+			out._healing_a_since_last = this._healing_a_since_last;
+			out._healing_p_since_last = this._healing_p_since_last;
+			out._d_healing_a_since_last = this._d_healing_a_since_last;
+			out._d_healing_p_since_last = this._d_healing_p_since_last;
+			out._missed_since_last = this._missed_since_last;
+			out._missing_since_last = this._missing_since_last;
 
 		}
 		else
@@ -354,8 +375,7 @@ export default class Player extends Generic{
 
 		// Apply constraints
 		this.addHP(0);
-		this.addMP(0);
-		this.addAP(0);
+		this.addMomentum(Player.MOMENTUM.All, 0); // add 0 momentum
 		this.updateAutoWrappers();
 		this.addTagSynonyms();
 		
@@ -484,6 +504,28 @@ export default class Player extends Generic{
 		return this._riposting_since_last[player][i];
 
 	}
+
+	// How many times this player has missed me
+	missedSinceLastByPlayer( player ){
+
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._missed_since_last[player] )
+			return 0;
+		return this._missed_since_last[player][i];
+
+	}
+	// How many times we riposted that player
+	missingSinceLastByPlayer( player ){
+
+		if( player && player.constructor === Player )
+			player = player.id;
+		if( !this._missing_since_last[player] )
+			return 0;
+		return this._missing_since_last[player][i];
+
+	}
+
 	// Calculates a total number for any of the above, allowing you to filter by type 
 	// Use the object property as input, and it returns the sum
 	datTotal( input, type ){
@@ -609,6 +651,7 @@ export default class Player extends Generic{
 	}
 
 	// When run from an effect, the effect needs to be present to prevent recursion 
+	// prefix is usually se_ or ta_
 	appendMathVars( prefix, vars, event ){
 
 		let isRoot = this._ignore_effects === null;
@@ -627,23 +670,27 @@ export default class Player extends Generic{
 		vars[prefix+'BonCorruption'] = this.getBon(Action.Types.corruption);
 		vars[prefix+'Lv'] = this.level;
 		vars[prefix+'HP'] = this.hp;
-		vars[prefix+'AP'] = this.ap;
+		vars[prefix+'Off'] = this.getMomentum(Player.MOMENTUM.Off);
+		vars[prefix+'Def'] = this.getMomentum(Player.MOMENTUM.Def);
+		vars[prefix+'Uti'] = this.getMomentum(Player.MOMENTUM.Uti);
+		vars[prefix+'tReroll'] = this.tReroll;
+		vars[prefix+'Mom'] = this.getMomentum();
 		vars[prefix+'Arousal'] = this.arousal;
 		vars[prefix+'Team'] = this.team;
 		vars[prefix+'Size'] = this.size;
 		vars[prefix+'TeamPlayers'] = game.getTeamPlayers(this.team).length;
 		vars[prefix+'MaxHP'] = this.getMaxHP();
-		vars[prefix+'MaxAP'] = this.getMaxAP();
-		vars[prefix+'MaxMP'] = this.getMaxMP();
 		vars[prefix+'MaxArousal'] = this.getMaxArousal();
 		vars[prefix+'Money'] = this.getMoney();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
 		vars[prefix+'actionsUsedThisTurn'] = this._turn_action_used;
-
+		vars[prefix+'stdCombo'] = this._turn_std_combo;
+		vars[prefix+'aTypes'] = this._turn_atypes;
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
-
+		vars[prefix+'Turns'] = this._turns;
+		
 		vars[prefix+'Talkative'] = this.talkative;
 		vars[prefix+'Sadistic'] = this.sadistic;
 		vars[prefix+'Dominant'] = this.dominant;
@@ -672,6 +719,15 @@ export default class Player extends Generic{
 		vars[prefix+'healingPointsReceivedSinceLast'] = this.datTotal( this._healing_p_since_last );
 		vars[prefix+'ripostedSinceLast'] = this.datTotalShort(this._riposted_since_last);
 		vars[prefix+'ripostingSinceLast'] = this.datTotalShort(this._riposting_since_last);
+		vars[prefix+'missedSinceLast'] = this.datTotalShort(this._missed_since_last);
+		vars[prefix+'missingSinceLast'] = this.datTotalShort(this._missing_since_last);
+		
+		vars[prefix+'NumMajor'] = this.getNumMajorEffects();
+		vars[prefix+'Major'] = this.getMajorEffects();
+		vars[prefix+'LARange'] = this._last_arange;
+		vars[prefix+'LAType'] = this._last_atype;
+		
+		vars[prefix+"NumTaunts"] = this.getTaunting().length;		// nr players we're taunting
 
 		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last.save());
 		for( let i in Action.Types ){
@@ -683,6 +739,22 @@ export default class Player extends Generic{
 			vars[prefix+'damageDoneSinceLast'+type] = this.datTotal( this._d_damage_since_last, type );
 			
 		}
+
+		
+		const actions = this.getActions("e");
+		let onCD = 0;
+		for( let action of actions ){
+			
+			if( action.hidden )
+				continue;
+
+			vars[prefix+'Action_'+action.label] = 1;
+			if( !action._charges )
+				++onCD;
+
+		}
+		vars[prefix+'CDActions'] = onCD;
+
 
 		// The mathvars event has a sender and target, and this player is the victim
 		const weAreVictim = ( event && this === event.target && event.sender instanceof Player );
@@ -701,6 +773,8 @@ export default class Player extends Generic{
 			vars[prefix+'Crit_se'] = this.getCritDoneChance(event.sender);
 
 			vars[prefix+'GrappledByS'] = +this.hasTagBy([stdTag.wrGrapple], event.sender) || 0;
+
+			vars[prefix+'AwareOfS'] = +event.sender.isAware(this);
 
 		}
 	
@@ -774,12 +848,9 @@ export default class Player extends Generic{
 		return this.hp <= 0;
 	}
 
-	isAFK(){
-		return Game.net.isPlayerAFK(this.netgame_owner);
-	}
 
 	isNPC(){
-		return !this.netgame_owner || this.isAFK();
+		return !this.netgame_owner;
 	}
 
 	isLootableBy( player ){
@@ -789,12 +860,10 @@ export default class Player extends Generic{
 	isArousalDisabled(){
 		return this.hasTag('pl_'+stdTag.gpDisableArousal);
 	}
-	isAPDisabled(){
-		return this.hasTag('pl_'+stdTag.gpDisableAP);
+	isMomentumDisabled(){
+		return this.hasTag('pl_'+stdTag.gpDisableMomentum);
 	}
-	isMPDisabled(){
-		return this.hasTag('pl_'+stdTag.gpDisableMP);
-	}
+	
 	isNonRequiredForVictory(){
 		return this.hasTag('pl_'+stdTag.gpDisableVictoryCondition);
 	}
@@ -826,6 +895,14 @@ export default class Player extends Generic{
 	isIncapacitated(){
 		let stun = this.getActiveEffectsByType(Effect.Types.stun);
 		return stun.length > 0 || this.isSkipAllTurns();
+	}
+
+	// Checks if we are aware of player
+	isAware( player ){
+		// We're always self aware
+		if( player.id === this.id )
+			return true;
+		return this._aware[player.id];
 	}
 
 	// ActionRange is from Action.Range
@@ -870,6 +947,14 @@ export default class Player extends Generic{
 
 		}
 		return out;
+
+	}
+
+	getTaunting(){
+
+		return game.getEnabledPlayers().filter(el => {
+			return el !== this && el.getTauntedBy(undefined, false, undefined, true).includes(this);
+		});
 
 	}
 
@@ -1218,7 +1303,7 @@ export default class Player extends Generic{
 	}
 	onRebalanced(){
 		this.addHP(Infinity);
-		this.addMP(Infinity);
+		//this.addMP(Infinity);
 		this.arousal = 0;
 	}
 	onRemoved(){
@@ -1237,6 +1322,7 @@ export default class Player extends Generic{
 		this._damaging_since_last = {};
 		this._damage_since_last = {};
 		this._targeted_by_since_last = new Collection();
+		this.endedTurn = false;
 		++this._turns;
 
 	}
@@ -1244,6 +1330,12 @@ export default class Player extends Generic{
 	// Raised after effects
 	onTurnStart(){
 
+		this._last_arange = Action.Range.None;
+		this._last_atype = '';
+		this.reroll = 2;
+		this.tReroll = 0;
+		this.endedTurn = false;
+		this._aware = {};
 		this._d_damaging_since_last = {};
 		this._d_damage_since_last = {};
 		this._riposted_since_last = {};
@@ -1252,6 +1344,8 @@ export default class Player extends Generic{
 		this._healing_p_since_last = {};
 		this._d_healing_a_since_last = {};
 		this._d_healing_p_since_last = {};
+		this._missed_since_last = {};
+		this._missing_since_last = {};
 		
 		// Prevent block from fading
 		if( this.blockFadeLocked() )
@@ -1290,47 +1384,64 @@ export default class Player extends Generic{
 		}
 		*/
 
+		// Stored up momentum gets added first
+		for( let m of this.incMom )
+			this.addMomentum(m, 1, false);
+		this.incMom = [];	// Stores incoming momentum
+		
+		// Then class momentum
+		let addedMomentum = this.addMomentum(Player.getValidMomentum(this.class.momType), 1, false);
+		
+		const major = this.getMajorEffects();
+
+		// Finally random momentum
+		let total = 3+this.getGenericAmountStatPoints(Effect.Types.momentumRegen);
+		total *= this.getPowerMultiplier();
+
+		total *= this.getGenericAmountStatMultiplier(Effect.Types.momentumRegen);
+		// Major momentum: Add 1 extra momentum at the start of turn
+		if( major & Effect.Major.Momentum )
+			++total;
+		// Major laze: remove 1 momentum at the start of turn
+		if( major & Effect.Major.Laze )
+			--total;
+		
+		total = randRound(total);
+		
+
+		if( total > 0 ){
+			const add = this.addMomentum(Player.MOMENTUM.All, total);	// random momentum
+			addedMomentum[0] += add[0];
+			addedMomentum[1] += add[1];
+			addedMomentum[2] += add[2];
+		}
+		
+		if( Game.net.isInNetgameHost() )
+			Game.net.dmDrawMomentumGain(this, addedMomentum);
+		if( game.is_host && this === game.getMyActivePlayer() )
+			game.ui.drawMomentumGain(...addedMomentum);
+
 		this._turn_action_used = 0;
-		this._turn_ap_spent = 0;
-		// Restore 3/10ths each turn
-		const map = this.getMaxAP();
-		let ap = map*0.4*this.getGenericAmountStatMultiplier(Effect.Types.regenAP, this); // base AP to add
-
-		// Add pending AP
-		if( this.pAP < 0 )
-			ap += this.pAP;
-		if( ap < 0 )
-			ap = 0;
+		this._turn_std_combo = 0;
+		this._turn_atypes = 0;
+		this._turn_ap_spent = 0;		// Todo: probably want this by type later
 		
-
-		// Shuffle the fractions
-		if( Math.random() < ap-Math.floor(ap) )
-			++ap;
-
-		this.addAP(Math.max(Math.floor(ap), 1));	// You have a guaranteed 1 AP
-		
-		// Gain 1 MP every 3 turns
-		let mp = Math.max(this.pMP, 0);
-		if( this.mp < this.getMaxMP() && !(this._turns%3) )
-			++mp;
-		if( mp )
-			this.addMP(1);
-
-		this.pMP = this.pAP = 0;	// Reset the initial thing
-		
-
 	}
 	onBattleStart(){
 
 		this._used_chats = {};
 		this._turn_tags = [];
-		this.ap = 0;			// Start with 0 AP
+		this.resetMomentum();
+		this.incMom = [];
 		this._threat = {};
 		this._stun_diminishing_returns = 0;
 		this._damaging_since_last = {};
+		this._aware = {};
 		this._damage_since_last = {};
 		this._last_chat = -1;
 		this._turn_action_used = 0;
+		this._turn_std_combo = 0;
+		this._turn_atypes = 0;
 		this.block = this.iBlock = 0;
 		if( this.arousal >= this.getMaxArousal() )
 			this.arousal = this.getMaxArousal()-1;
@@ -1351,7 +1462,8 @@ export default class Player extends Generic{
 		this.start_equip = [];
 		this.blCorruption = this.block = this.iBlock = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
-		this.ap = 0;
+		this.resetMomentum();
+		this.incMom = [];
 		let actions = this.getActions();
 		for(let action of actions)
 			action.onBattleEnd();
@@ -1392,7 +1504,6 @@ export default class Player extends Generic{
 			return;
 
 		this.addHP(Math.ceil(this.getMaxHP()*0.1));		// Regen 30% of your HP
-		this.addMP(Math.round(this.getMaxMP()*0.3));	// Regen 30% of MP
 		this.addArousal(-Math.ceil(this.getMaxArousal()*0.15), undefined, true);
 
 	}
@@ -1400,7 +1511,7 @@ export default class Player extends Generic{
 	// Item broken, repaired, equipped, or removed
 	onItemChange(){
 		this.addHP(0);
-		this.addAP(0);
+		this.addMomentum(Player.MOMENTUM.All, 0);
 	}
 
 	onCellChange(){
@@ -1429,10 +1540,10 @@ export default class Player extends Generic{
 			// Newly added minutes
 			if( postMinutes > preMinutes ){
 
-				this.addMP(postMinutes-preMinutes);
+				//this.addMP(postMinutes-preMinutes);
 				this.addHP(postMinutes-preMinutes);
 				this.addArousal(-(postMinutes-preMinutes));
-				this.addAP((postMinutes-preMinutes)*3);	// 3 AP per minute
+				this.addMomentum(Player.MOMENTUM.All, (postMinutes-preMinutes)*3);	// 3 AP per minute
 				
 				const actions = this.getActions(true, false, true, false);
 				for( let action of actions )	// Subtract 1 cooldown per minute
@@ -1445,13 +1556,17 @@ export default class Player extends Generic{
 	}
 
 	
+	onAware( player ){
+
+		this._aware[player.id] = true;
+
+	}
 
 	onDamagingAttackReceived( sender, type ){
 		if(!this._damaging_since_last[sender.id])
 			this._damaging_since_last[sender.id] = {};
 		if(!this._damaging_since_last[sender.id][type])
 			this._damaging_since_last[sender.id][type] = 0;
-		
 		++this._damaging_since_last[sender.id][type];
 	}
 	onHealingAttackReceived( sender, type ){
@@ -1468,8 +1583,11 @@ export default class Player extends Generic{
 			this._d_damaging_since_last[target.id] = {};
 		if(!this._d_damaging_since_last[target.id][type])
 			this._d_damaging_since_last[target.id][type] = 0;
-		
 		++this._d_damaging_since_last[target.id][type];
+
+		// Major Lifesteal: Gain 2 HP when attacking target
+		if( !this.isDead() && target.getMajorEffects() & Effect.Major.Lifesteal )
+			this.addHP(2, this, undefined, undefined, undefined, true);
 
 	}
 	onHealingAttackDone( target, type ){
@@ -1522,6 +1640,32 @@ export default class Player extends Generic{
 		this._d_healing_p_since_last[target.id][type] += amount;
 	}
 
+	onActionUsed( action, successfulHits = [] ){
+
+		this._last_arange = action.ranged;
+		this._last_atype = action.type;
+
+		const ty = Action.TypeFlags[action.type];
+		if( !isNaN(ty) )
+			this._turn_atypes = this._turn_atypes | ty;
+
+		if( action.group === "stdatt" ){
+
+			++this._turn_std_combo;
+			new GameEvent({
+				type : GameEvent.Types.stdAttCombo,
+				sender : this,
+				target : successfulHits,
+				custom : {
+					amount : this._turn_std_combo
+				}
+			}).raise();
+			
+		}
+		else
+			this._turn_std_combo = 0;
+
+	}
 
 	onTargetedActionUsed( target ){
 	}
@@ -1540,7 +1684,16 @@ export default class Player extends Generic{
 			this._riposted_since_last[target.id] = 0;
 		++this._riposted_since_last[target.id];
 	}
-	
+	onMissDone( target ){
+		if( !this._missing_since_last[target.id] )
+			this._missing_since_last[target.id] = 0;
+		++this._missing_since_last[target.id];
+	}
+	onMissReceived( target ){
+		if( !this._missed_since_last[target.id] )
+			this._missed_since_last[target.id] = 0;
+		++this._missed_since_last[target.id];
+	}
 
 	onDeath( attacker, effect ){
 		
@@ -1699,6 +1852,7 @@ export default class Player extends Generic{
 	raiseInvChange(){
 		new GameEvent({type:GameEvent.Types.inventoryChanged, sender:this, target:this}).raise();
 	}
+	// Adds items from library by label, returns the asset
 	addLibraryAsset( label, amount = 1 ){
 
 		let asset = glib.get(label, 'Asset');
@@ -1832,12 +1986,18 @@ export default class Player extends Generic{
 	}
 
 	// byPlayer is the player who initiated it. If it's not a player object, no event is raised
-	unequipAsset( id, byPlayer, noText ){
+	unequipAsset( id, byPlayer, noText, force ){
 
 		let assets = this.getAssetsEquipped(true);
 		for(let asset of assets){
 
 			if( asset.id === id ){
+
+				
+				if( !force && asset.no_unequip ){
+					game.ui.modal.addNotice('Cannot unequip this item.');
+					return false;
+				}
 
 				if( asset.rem_unequip )
 					this.destroyAsset(asset.id);
@@ -2463,46 +2623,175 @@ export default class Player extends Generic{
 
 
 	/* RESOURCES */
-	addAP( amount, fText = false ){
+	// Adds or subtracts momentum by type
+	// If add is -1 it adds to random types
+	// If remove is -1 it removes from random types
+	addMomentum( type, amount = 0, fText = false ){
 
-		if( this.isAPDisabled() )
-			return false;
+		let out = [0,0,0];
 
-		if( isNaN(amount) ){
+		// This player doesn't support momentum (such as the sharktopus gong)
+		if( this.isMomentumDisabled() )
+			return out;
 
-			console.error("AP amount is NaN", amount);
-			return false;
-
-		}
-
-		const pre = this.ap;
-		this.ap += amount;
-		this.ap = Math.floor(Math.max(0, Math.min(this.getMaxAP(), this.ap)));
-		if( fText && this.ap-pre !== 0 )
-			game.ui.floatingCombatText(this.ap-pre, this, "ap");
+		type = Player.getValidMomentum(type);
+		amount = Math.trunc(amount);
 		
-	}
+		let pre = this.getMomentum(type);
 
-	addMP( amount, fText = false ){
+		const all = this.getMomentum();
+		// If we go over max momentum, add the rest as rerolls
+		if( amount+all > this.getMaxMomentum() ){
 
-		if( this.isMPDisabled() )
-			return false;
-
-		if( isNaN(amount) ){
-
-			console.error("MP amount is NaN", amount);
-			return false;
+			const offs = amount+all-this.getMaxMomentum();
+			this.reroll += offs;
+			amount -= offs;
 
 		}
+		// Nothing to change. Also prevents division by 0.
+		if( !amount )
+			return out;
 
-		const pre = this.mp;
-		this.mp += amount;
-		this.mp = Math.floor( Math.max(0, Math.min(this.getMaxMP(), this.mp)) );
+		let amts = [
+			type === Player.MOMENTUM.Off && amount || 0,
+			type === Player.MOMENTUM.Def && amount || 0,
+			type === Player.MOMENTUM.Uti && amount || 0
+		];
+		if( type === Player.MOMENTUM.All ){
 
-		if( fText && this.mp-pre !== 0 )
-			game.ui.floatingCombatText(this.mp-pre, this, "mp");
+			const n = amount/Math.abs(amount);	// Convert it to +1 or -1
+			for( let i = 0; i < Math.abs(amount); ++i )
+				amts[Math.floor(Math.random()*3)] += n;
+			
+		}
+		
+		this.momOff = Math.max(0, this.momOff+amts[0]);
+		this.momDef = Math.max(0, this.momDef+amts[1]);
+		this.momUti = Math.max(0, this.momUti+amts[2]);
+
+		let ch = this.getMomentum(type)-pre;
+		if( fText && ch !== 0 )
+			game.ui.floatingCombatText(ch, this, "ap ap"+type);
+
+		return amts;
 
 	}
+
+	// Can be used later for effects that alter momentum
+	getMaxMomentum(){
+		return Math.max(6,Math.ceil(Player.MAX_MOMENTUM*this.getPowerMultiplier()));
+	}
+
+	// Returns nr of momentum of a type
+	getMomentum( type = -1 ){
+
+		if( type == Player.MOMENTUM.Off )
+			return this.momOff;
+		if( type == Player.MOMENTUM.Def )
+			return this.momDef;
+		if( type == Player.MOMENTUM.Uti )
+			return this.momUti;
+		return this.momOff+this.momDef+this.momUti;
+
+	}
+
+	consumeReroll( amount = 1 ){
+
+		amount = Math.trunc(amount);
+		if( isNaN(amount) )
+			return;
+		this.reroll -= amount;
+		this.tReroll += amount;
+		if( this.reroll < 0 )
+			this.reroll = 0;
+		const max = this.getMaxMomentum();
+		if( this.reroll > max )
+			this.reroll = max;
+
+	}
+
+	// Reroll a point of momentum from one type to another. Returns the type it was rolled into or boolean false on fail
+	rerollMomentum( type, to ){
+		
+		type = Player.getValidMomentum(type);
+		to = Player.getValidMomentum(to);
+		if( to === Player.MOMENTUM.All )
+			return false;
+
+		// Reroll a random momentum
+		if( type === Player.MOMENTUM.All ){
+			let viable = [];
+			
+			if( this.momOff )
+				viable.push(Player.MOMENTUM.Off);
+			if( this.momDef )
+				viable.push(Player.MOMENTUM.Def);
+			if( this.momUti )
+				viable.push(Player.MOMENTUM.Uti);
+			
+			if( !viable.length )
+				return false;
+			type = randElem(viable);
+			
+		}
+
+		let cur = this.getMomentum(type);
+		// Not enough to reroll
+		if( !cur )
+			return false;
+		
+		this.addMomentum(type, -1);
+		this.addMomentum(to, 1);
+		new GameEvent({
+			type : GameEvent.Types.reroll,
+			target : this,
+		}).raise();
+		return to;
+
+	}
+
+	resetMomentum(){
+		this.momOff = this.momDef = this.momUti = 0;
+	}
+
+	// Todo: allow subtract
+	addIncomingMomentum( type, amount ){
+
+		type = Player.getValidMomentum(type);
+		amount = randRound(amount);
+		if( amount < 1 )
+			return;
+		
+		for( let i = 0; i < amount; ++i )
+			this.incMom.unshift(type);
+
+		this.incMom = this.incMom.slice(0, Player.MAX_MOMENTUM); // max 12 for stacking reasons
+
+	}
+	
+	// Packs momentum or incoming momentum into a 20 bit number, making it easier to transport to other players
+	packIncomingMomentum(){
+
+		const table = this.incMom;
+		let out = 0;
+		for( let i = 0; i < Player.MAX_MOMENTUM && i < table.length; ++i ){
+			let v = table[i]+1;
+			out = out|(v<<(2*i));
+		}
+		return out;
+	}
+	// Unpacks momentum from a 20bit (2 bit per momentum) to an array
+	unpackIncomingMomentum( nr ){
+
+		this.incMom = [];
+		for( let i = 0; i < Player.MAX_MOMENTUM; ++i ){
+			let n = (nr>>(i*2)) & 3;
+			if( n )
+				this.incMom.push(n-1);
+		}
+
+	}
+
 
 	addThreat( playerID, amount ){
 		if( typeof playerID !== "string" ){
@@ -2546,7 +2835,7 @@ export default class Player extends Generic{
 		// ADD
 		else{
 
-			if( game.getTurnPlayer() === this )
+			if( game.isTurnPlayer(this) )
 				this.block += amount;
 			else
 				this.iBlock += amount;
@@ -2564,6 +2853,14 @@ export default class Player extends Generic{
 		});
 		evt.type = added > 0 ? GameEvent.Types.blockAdded : GameEvent.Types.blockSubtracted;
 		evt.raise();
+
+		if( added < 0 && !this.block )
+			new GameEvent({
+				type : GameEvent.Types.blockBroken,
+				sender : byPlayer,
+				target : this,
+			}).raise();
+
 		
 		return added;
 
@@ -2695,33 +2992,12 @@ export default class Player extends Generic{
 		if( this.hpMulti < 0 )
 			return Math.ceil(Math.abs(this.hpMulti));
 
-		const add = Math.max(0, 15-game.getTeamPlayers().length*5);
-
 		return Math.max(Math.ceil(
-			(BASE_HP+add+this.getGenericAmountStatPoints(Effect.Types.maxHP))
+			(BASE_HP+this.getGenericAmountStatPoints(Effect.Types.maxHP))
 			*this.getPowerMultiplier()
 			*this.hpMulti
 			*this.getGenericAmountStatMultiplier(Effect.Types.maxHP, this)
 		), 1);
-	}
-	getMaxAP(){
-		return Math.round(
-			Math.max(
-				(BASE_AP+this.getGenericAmountStatPoints(Effect.Types.maxAP))
-				*(1+(this.getPowerMultiplier()-1)*.7)	// Power has a smaller impact on AP
-				*this.getGenericAmountStatMultiplier(Effect.Types.maxAP, this)
-				, 3
-			)
-		);
-	}
-	getMaxMP(){
-		return Math.ceil(
-			Math.max(
-				(BASE_MP+this.getGenericAmountStatPoints(Effect.Types.maxMP))
-				*this.getPowerMultiplier()
-				*this.getGenericAmountStatMultiplier(Effect.Types.maxMP, this)
-			, 1)
-		);
 	}
 	getMaxArousal(){
 		return Math.ceil(Math.max(3, 
@@ -2781,36 +3057,83 @@ export default class Player extends Generic{
 	// SV Types
 	getSV( type ){
 
-		return Math.floor(
-			(
-				this.getGenericAmountStatPoints('sv'+type)+
-				this.getLevel()+
-				(this.class ? this.class['sv'+type] : 0)+
-				(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)
-			)*this.getGenericAmountStatMultiplier('sv'+type, this)
-		);
+		let out = 
+			this.getGenericAmountStatPoints('sv'+type)+
+			this.getLevel()+
+			(this.class ? this.class['sv'+type] : 0)+
+			(!isNaN(this['sv'+type]) ? this['sv'+type] : 0)
+		;
+		const major = this.getMajorEffects();
+		// Major Stagger
+		if( type === Action.Types.physical && major & Effect.Major.Stagger ){
+			out -= 5;
+		}
+		// Major Purification
+		else if( type === Action.Types.corruption && major & Effect.Major.Sensitivity ){
+			out -= 5;
+		}
+		// Major Conduit
+		else if( type === Action.Types.arcane && major & Effect.Major.Conduit ){
+			out -= 5;
+		}
+		
+		return Math.trunc(out*this.getGenericAmountStatMultiplier('sv'+type, this));
+
 	}
 
 	// Bon types
 	getBon( type ){
 
-		return Math.floor(
-			(
-				this.getGenericAmountStatPoints('bon'+type)+
+		let out = this.getGenericAmountStatPoints('bon'+type)+
 				this.getLevel()+
 				(this.class ? this.class['bon'+type] : 0)+
 				(!isNaN(this['bon'+type]) ? this['bon'+type] : 0)
-			)*this.getGenericAmountStatMultiplier('bon'+type, this)
-		);
+		;
+		const major = this.getMajorEffects();
+		// Major Brawn
+		if( type === Action.Types.physical && major & Effect.Major.Brawn ){
+			out += 5;
+		}
+		// Major Corruption
+		else if( type === Action.Types.corruption && major & Effect.Major.Corruption ){
+			out += 5;
+		}
+		// Major Arcana
+		else if( type === Action.Types.arcane && major & Effect.Major.Arcana ){
+			out += 5;
+		}
+
+		return Math.trunc(out*this.getGenericAmountStatMultiplier('bon'+type, this));
+		
+	}
+
+	// event sender is always this, and event target is always the player sent to getGenericAmountStat,
+	// 
+	testEffectConditions( effect, player, action ){
+
+		if( !Array.isArray(effect.data.conditions) )
+			return true;
+
+		const evt = new GameEvent({
+			sender : this,
+			target : player,
+		});
+		evt.effect = effect;
+		evt.wrapper = effect.parent;
+		evt.action = action || evt.wrapper?.getAction();
+
+		return Condition.all(effect.data.conditions, evt);
 
 	}
 
 	// Returns the sum of effect.data.amount of an effect with type, and that aren't multiplicative
-	getGenericAmountStatPoints( type, player ){
+	getGenericAmountStatPoints( type, player, action ){
 
 		let w = this.getActiveEffectsByType(type),
 			out = 0
 		;
+
+		
 
 		for(let effect of w){
 
@@ -2818,6 +3141,9 @@ export default class Player extends Generic{
 				continue;
 
 			if( player && effect.data.casterOnly && player.id !== effect.parent.caster )
+				continue;
+
+			if( !this.testEffectConditions(effect, player, action) )
 				continue;
 
 			let n = Calculator.run(
@@ -2843,7 +3169,7 @@ export default class Player extends Generic{
 
 	// Player is only used when checking caster_only, and should be the target
 	// Auto checks effects with a conditions property
-	getGenericAmountStatMultiplier( type, player ){
+	getGenericAmountStatMultiplier( type, player, action ){
 		let w = this.getActiveEffectsByType(type),
 			out = 1
 		;
@@ -2853,15 +3179,9 @@ export default class Player extends Generic{
 		const ALWAYS_MULTIPLY = [
 			Effect.Types.critDoneMod,
 			Effect.Types.expMod,
-			Effect.Types.regenAP,
 			Effect.Types.globalArousalTakenMod
 		];
 		
-		const evt = new GameEvent({
-			sender : this,
-			target : player,
-		});
-
 		for( let effect of w ){
 
 			if( !effect.data.multiplier && !ALWAYS_MULTIPLY.includes(type) )
@@ -2872,17 +3192,10 @@ export default class Player extends Generic{
 				if( effect.data.casterOnly && player.id !== effect.parent.caster )
 					continue;
 
-				if( Array.isArray(effect.data.conditions) ){
-
-					evt.effect = effect;
-					evt.wrapper = effect.parent;
-					if( !Condition.all(effect.data.conditions, evt) )
-						continue;
-
-				}
-
 			}
 
+			if( !this.testEffectConditions(effect, player, action) )
+				continue;
 
 			let n = Calculator.run(
 				effect.data.amount, 
@@ -2894,6 +3207,33 @@ export default class Player extends Generic{
 		}
 
 		return out;
+	}
+
+	// Returns the major effect flags
+	getMajorEffects(){
+
+		let out = 0;
+		const effects = this.getActiveEffectsByType(Effect.Types.majorEffect);
+		for( let effect of effects ){
+			const n = Math.trunc(effect.data.effect) || 0;
+			out = out | n;
+		}
+		return out;
+
+	}
+
+	getNumMajorEffects(){
+
+		const effects = this.getMajorEffects();
+		let out = 0;
+		for( let i = 0; i < 31; ++i ){
+
+			if( effects & (1<<i) )
+				++out;
+
+		}
+		return out;
+
 	}
 
 	getArmorPoints( modified = true ){
@@ -2925,14 +3265,19 @@ export default class Player extends Generic{
 	getArmorDamageMultiplier( sender, effect ){
 
 		let reduction = this.getArmorPoints();
-
+		
 		// If sender is present, lower by the sender's armor penetration
 		if( sender ){
 
 			// Get armor penetration percentage
 			let armorPen = sender.getGenericAmountStatPoints(Effect.Types.globalArmorPen, this)/100;
+			const major = sender.getMajorEffects();
+			// Major penetration: Add an extra 100% flat penetration
+			if( major & Effect.Major.Penetration )
+				armorPen += 1;
+			
 			// Reduce damage reduction by armor pen
-			reduction *= (1-armorPen);
+			reduction *= Math.max(0, 1-armorPen);
 			
 		}
 
@@ -2948,7 +3293,8 @@ export default class Player extends Generic{
 
 		}
 
-		return 1-reduction/100;
+		const out = Math.min(1, Math.max(0, 1-reduction/100));
+		return out;
 
 	}
 	
@@ -3039,7 +3385,6 @@ export default class Player extends Generic{
 		if( !ac.hidden && !silent )
 			game.ui.addText( this.getColoredName()+" learned "+ac.name+"!", undefined, this.id, this.id, 'actionLearned' );
 		
-
 		if( !this.actionSlotsFull() && !action.std ){
 			this.activateAction(ac.id);
 		}
@@ -3112,7 +3457,9 @@ export default class Player extends Generic{
 		if( slot < 0 || isNaN(slot) )
 			throw "Out of bounds error on action activation: "+slot;
 
-
+		for( let a of action.passives )
+			a.victim = this.id;
+			
 		action._slot = slot;
 		
 		this.rebindWrappers();
@@ -3459,7 +3806,7 @@ export default class Player extends Generic{
 	}
 
 	// Returns ActionLearnable objects that can be unlocked by this player
-	getUnlockableActions(){
+	getUnlockableActions( gymGameAction ){
 
 		let out = [];
 		let lib = Object.values(glib.getFull("ActionLearnable"));
@@ -3467,7 +3814,7 @@ export default class Player extends Generic{
 
 			if( a.auto_learn || this.getLearnedActionByLabel(a.action) )
 				continue;
-			if( a.validate(this) )
+			if( a.validate(this, gymGameAction) )
 				out.push(a);
 
 		}
@@ -3479,8 +3826,8 @@ export default class Player extends Generic{
 	getNrActionSlots(){
 
 		if( this.level < 3 )
-			return this.level;
-		return Player.getActionSlotsForLevel(this.level);	// 3 unlocked by default, then at 4, 7, 10
+			return 3;
+		return Player.getActionSlotsForLevel(this.level);	// 3 unlocked by default, then at 4, 6, 8, 10
 
 	}
 
@@ -3588,6 +3935,9 @@ export default class Player extends Generic{
 			console.error("Action", action, "is not an action");
 			return false;
 		}
+		// Hidden actions must always be enabled for gameplay purposes
+		if( action.hidden )
+			return true;
 		const effects = this.getActiveEffectsByType(Effect.Types.allowReceiveSpells);
 		const evt = new GameEvent({action:action, sender:sender, target:this});
 		for( let effect of effects ){
@@ -3691,7 +4041,7 @@ export default class Player extends Generic{
 		const actions = this.getActions(true, false, false, false);
 		for( let action of actions )
 			out = out.concat(action.passives);
-
+			
 		let casting = this.isCasting( actions );
 		if( casting ){
 
@@ -3962,11 +4312,11 @@ export default class Player extends Generic{
 
 
 	// Bot
-	autoPlay( force ){
+	async autoPlay( force ){
 
 		if( !this.isNPC() && !force )
 			return;
-		this.bot.play( force );
+		return await this.bot.play( force );
 
 	}
 
@@ -3982,15 +4332,17 @@ export default class Player extends Generic{
 
 	// Static
 	static getActionSlotsForLevel( level ){
-		return Math.min(this.MAX_ACTION_SLOTS, Math.floor((level-4)/3)+4);
+		let out = level;
+		if( level > 4 )
+			out = 4+Math.floor((level-4)/2);
+		return Math.min(this.MAX_ACTION_SLOTS, out);
 	}
 	static getLevelForActionSlot( index ){
 
-		// First 3 slots are unlocked immediately
 		if( index < 3 )
 			return 1;
-		
-		return 4+Math.floor((index-3)*3);
+			
+		return 2+Math.max(0, index*2-4);
 
 	}
 
@@ -4007,7 +4359,16 @@ export default class Player extends Generic{
 		let out = action.hit_chance;
 		let modifier = (1+((attacker.getBon(action.type)-victim.getSV(action.type))*0.05))
 			*attacker.getGenericAmountStatMultiplier(Effect.Types.globalHitChanceMod, victim)
+			*(victim.isAware(attacker) ? 1 : 1.1)
 		;
+		// Major accuracy: 30% increased chance from attacker
+		if( attacker.getMajorEffects() & Effect.Major.Accuracy )
+			modifier *= 1.3;
+		// Major clumsy: -30% increased chance from attacker
+		if( attacker.getMajorEffects() & Effect.Major.Clumsy )
+			modifier *= 0.7;
+		
+
 		if( modifier < 0.1 )
 			modifier = 0.1;
 
@@ -4178,7 +4539,17 @@ export default class Player extends Generic{
 		this.AI_ENABLED = !+localStorage.disable_ai;
 	};
 
+	// returns an int between 0 and 2 if momentum is valid, or -1 if invalid
+	static getValidMomentum(type){
+		type = Math.trunc(type);
+		if( type > -2 && type < 3 )
+			return type;
+		return -1;
+	}
 
+	static getRandomMomentum(){
+		return Math.floor(Math.random()*3);
+	}
 
 }
 
@@ -4188,9 +4559,25 @@ Player.MAX_LEVEL = 14;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;
+Player.MAX_MOMENTUM = 12;	// Hardcoded limit. Technically can go up to 26 without violating Number.MAX_SAFE_INTEGER
+							// The reason for this is that the array is packed into a single int made up of 2-bit values when transferred
 
-Player.MAX_ACTION_SLOTS = 6;
+
+Player.MAX_ACTION_SLOTS = 8;
 Player.MISSING_ART = 'media/characters/missing_art.jpg';
+
+// Momentum types
+Player.MOMENTUM = {
+	All : -1,
+	Off : 0,
+	Def : 1,
+	Uti : 2
+};
+// Array that can be used to iterate through the types
+Player.MOMENTUM_TYPES = [Player.MOMENTUM.Off,Player.MOMENTUM.Def,Player.MOMENTUM.Uti];
+Player.MOMENTUM_COLORS = ['#FDD','#DDF','#FDF'];
+Player.MOMENTUM_NAMES = ['Offensive', 'Defensive', 'Utility'];
+Player.MOMENTUM_NAMES_SHORT = ['Off', 'Def', 'Uti'];
 
 Player.currencyWeights = [
 	'platinum',

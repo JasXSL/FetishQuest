@@ -641,8 +641,8 @@ class DungeonRoom extends Generic{
 		this.label = '';
 		this.name = '';
 		this.parent = parent;
-		this.index = 0;
-		this.parent_index = 0;
+		this.index = 0;				// Unique for each room
+		this.parent_index = 0;		// Rooms all grow out from one room, this is the room this one was created adjacent to
 		this.discovered = false;
 		this.x = 0;
 		this.y = 0;
@@ -693,7 +693,6 @@ class DungeonRoom extends Generic{
 			id : this.id,	// needed for modtools to work
 			fog : this.fog,
 			dirLight : this.dirLight,
-			encounter : Encounter.saveThis(this.encounter),
 			playerMarkers : DungeonRoomMarker.saveThese(this.playerMarkers, full),
 		};
 
@@ -705,6 +704,7 @@ class DungeonRoom extends Generic{
 		// Stuff needed for everything except mod
 		if( full !== 'mod' ){
 			out.discovered = this.discovered;
+			out.encounter = Encounter.saveThis(this.encounter, full);
 		}
 		else{
 			out.expEvt = this.expEvt;
@@ -1538,7 +1538,8 @@ class DungeonRoomAsset extends Generic{
 		this.deleted = false;			// Deleted
 		this._interactive = null;		// Cache of if this object is interactive
 		this.conditions = [];			// show conditions
-		
+		this.door = -1;					// Can be used instead of a GameEvent to quickly mark a mesh as a door
+
 		this.respawn = 0;					// Time in seconds before it respawns
 		this._killed = 0;
 
@@ -1546,13 +1547,26 @@ class DungeonRoomAsset extends Generic{
 
 	}
 
-	getViableInteractions( player, debug = false ){
+	getViableInteractions( player, ignoreCheck, debug = false ){
 
 		if( !player && window.game )
 			player = game.getMyActivePlayer();
 		if( !player && window.game )
 			player = game.players[0];
-		return GameAction.getViable(this.interactions, player, debug, true, this);
+
+		const check = this.interactions.slice();
+		if( this.door > -1 )
+			check.push(new GameAction({
+				type : GameAction.types.door,
+				data : {
+					index : this.door
+				}
+			}, this));
+		
+		if( ignoreCheck )
+			return check;
+
+		return GameAction.getViable(check, player, debug, true, this);
 
 	}
 
@@ -1580,6 +1594,7 @@ class DungeonRoomAsset extends Generic{
 			hide_no_interact: this.hide_no_interact,
 			id : this.id,
 			conditions : Condition.saveThese(this.conditions, full),
+			door : this.door
 		};
 		if( full !== 'mod' ){
 			if( full )
@@ -1599,15 +1614,17 @@ class DungeonRoomAsset extends Generic{
 
 	// returns the first door interaction
 	getDoorInteraction( ignoreConditions = false ){
-		const viable = window.game && !ignoreConditions ? this.getViableInteractions() : this.interactions;
+
+		const viable = this.getViableInteractions(undefined, (ignoreConditions || !window.game));
 		for( let i of viable ){
 			if( i.type === GameAction.types.door )
 				return i;
 		}
+
 	}
 
 	getTooltipInteraction(){
-		const viable = window.game ? this.getViableInteractions() : this.interactions;
+		const viable = this.getViableInteractions(Boolean(window.game));
 		for( let action of viable ){
 			if( action.type === GameAction.types.tooltip )
 				return action;
@@ -1699,18 +1716,8 @@ class DungeonRoomAsset extends Generic{
 		if( !window.game )
 			return false;
 
-		for( let i of this.interactions ){
-
-			if( !(i instanceof GameAction) ){
-				console.error("Found invalid interaction", i, "in", this);
-				continue;
-			}
-
-			if( i.validate(game.getMyActivePlayer() || game.players[0], this) )
-				return true;
-
-		}
-		return false;
+		const viable = this.getViableInteractions();
+		return viable.length > 0;
 	}
 
 	isDoorLinkingTo( index ){
@@ -2039,11 +2046,11 @@ class DungeonRoomAsset extends Generic{
 			
 			if( asset.isDoor() && asset.getDoorTarget() === dungeon.previous_room ){
 				
-				if( !game.turnPlayerIsMe() ){
+				if( !game.isMyTurn() ){
 					console.error("not your turn error", player, mesh);
 					return game.ui.modal.addError("Not your turn");
 				}
-				let player = game.getTurnPlayer();
+				let player = game.getMyActivePlayer();
 				game.ui.modal.close();
 				game.useActionOnTarget( player.getActionByLabel('stdEscape'), [player], player );
 				return;
@@ -2054,7 +2061,9 @@ class DungeonRoomAsset extends Generic{
 
 		}
 
-		const interactions = this.interactions.slice();	// Needed because interactions may remove themselves
+		const interactions = this.getViableInteractions(player, true);	// Includes temp interactions such as doors
+
+
 		// Trigger interactions in order
 		for( let i of interactions ){
 
@@ -2074,6 +2083,8 @@ class DungeonRoomAsset extends Generic{
 				i.trigger( player, mesh );
 			
 		}
+
+		
 
 		if( this.interact_cooldown )
 			this.setInteractCooldown(this.interact_cooldown);

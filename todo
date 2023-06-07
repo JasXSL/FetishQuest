@@ -1,4 +1,252 @@
-- Make wrappers with wr_foodbuff auto remove other wrappers on apply
+Things that need full art layers:
+	:: GEN
+	a Male Fox outlaw
+	a Male Horse outlaw
+	a Male Huskeguard
+	a Male rattani
+	a Male rattani diver
+	a Female rattani diver
+	a Female Rattani
+	a Female Huskeguard
+	a Female Fennec outlaw
+	a Female horse outlaw
+	
+	:: Named
+	a sharkanist_boss : A large muscular great white shark-man with gems studded to his tail.
+	a penal_targ_fox : A feminine male fox with long dark hair
+	a dirty sailor : Ratman, riya's husband
+	a greasy_backdoor_zebra : Muscular zebra
+	a penal_brutus : A large muscular bull man with two long horns. He has shaggy hair tied up in a braid reaching down to his shoulders.
+	a SQ_sharktopus_camp_cultist : Male ferret. Need to regenerate with nude.
+	a bandit_riya : A short rat-lady of average proportions.
+	a necro_fox : A fox lady with ragged dirty fur. (wearing white panties and necro robe)
+	a wrestler_carlita : A muscular female cougar with large breasts and black hair tied up in a braid.
+	a yuug_tailor_ming : A red panda except with blue fur. She's sporting larger than average breasts and long flowing light blue hair.
+	a veroniquette : Need to remake with layers
+	a huskeguard hakko : A fluffy, feminine male husky with long hair tied into braids.
+	a rattani_dive_miniboss: A white rat woman with red eyes and smaller than average breasts, sporting webbed toes and fingers. She's got long black hair tied up in a braid.
+	
+	
+Friendly NPCs:
+	:: Gen
+	- Male necro jackal
+	- Male necro crow
+	- Female necro jackal
+	- Female Sharkanist
+	- Male Sharkanist
+	
+
+	:: Named
+	a Foyash : Regenerate
+	a virgil : regenerate
+	a chad : regenerate
+	a collie farmer : regenerate
+	a yuug_port_blacksmith : horse blacksmithing
+	a yuug_tailor_ping : A red panda with larger than average breasts and long flowing blonde hair. Wearing an intricate knee long dress with pockets filled with various tailoring equipment.
+	a barkeep : shiba inu barkeep (regenerate)
+	a Female tentacle fight Quartermaster Fennec (Sam's sister)
+	a Male Tentacle fight announcer cat (dressed sharply) (jackson)
+	a Small scruffy rat (fan used in upskirting event)
+	a Outlaw Poacher (use same as gnoll bandit)
+	a rattani_engineer : A short rat-man wearing goggles with a multitude of lenses, sitting near a table full of various mechanical bits and bobs. He seems oblivious to his surrounds.
+	a scruffy_tavern_dweller : A scruffy mutt of a dog-man. Sitting in a corner and sipping on an ale. A common sight around taverns, and might be able to share a rumor or two.
+	a ybazaar_fensam : (Sam) A female fennec wearing brown shorts and a tight white top. She's standing behind a tent surrounded by various good smelling foods!
+	x razpan : A red panda lady in a knee-length yellow dress sitting on a barrel, surrounded by buckets of razzyberries.
+	x jackman_greyson : A male snow leopard wearing all black except for a brown leather coat. (jackson)
+	- Male slug, tentaclemancer trainer
+	- Sharkanist trainer (cboy)
+	- Tentacle fight picker (female cat)
+	- Tavernkeeper mayah, female arctic Fox
+	- Borm innkeeper: A cheerful otter lady wearing a white apron with pink flowers on it.
+	- Yuug bank thomas: A round raccoon man wearing a fancy suit.
+	- repair_smith_matilda : A muscular mule wearing an apron and wielding a big hammer.
+	- penal_quartermaster : A large fat dog man wearing just an apron and a thong.
+	- penal_guildmaster : A female ferret wearing a tight leather one-piece suit with pockets strapped to her thigh and arm.
+	- vadgination_felidia : A white-furred female cat. A bit pudgy, but that might just be her fluffy fur.
+	- portswood_west_repair : An armadillo lady wearing leather armor with lots of bits and bobs attached to it. There are various tools and crates scattered around her camp.
+	- bubbling_stream_innkeeper : A shorter than average freckled pink cat-lady with long hair tied up into a ponytail, wearing a matted dress.
+	- sharkanist_vendor : A large-busted shark-woman wearing a flowing silk-like dress.
+	- sharkanist_smith : A large shark-man wielding a large blacksmithing hammer.
+	- sharkanist_maki : A long slender shark lady, radiating some kind of arcane aura.
+	- yuug_leatherworker : A male ferret wearing a leather apron and a pair of fancy leather boots.
+	- ybazaar_smith : A large burly bear man wearing a leather thong and an apron.
+	- ybazaar_russle : A racoon man wearing oddly shaped glasses sitting by the fire. There seems to be various pieces of armor and equipment scattered around him.
+	- ybazaar_brutus : A big burly bear. Standing in a stall surrounded by various bottles and tankards.
+	- yuug_explorer_student_a : A scrawny ferret man.
+	- yuug_church_cleric_a : A skinny wolf in a long flowing red robe.
+	- necro_construct_slave : A large-breasted cow lady, she's strapped to some kind of milking device.
+	- necro_trainer : A toned hyena.
+	- necro_bouncer : A large muscular male pitbull, guarding the entrance to the deep catacombs below the Yuug necromancers guild.
+	- necro_bar : A larger than average dalmatian, standing at average height with a big butt and ample bosom. Runs the Underbar in the Yuug necromancers guild.
+	- necro_entrance : A crow covered in bone charms, charged with guarding the entrance of the Yuug necromancers guid.
+	- yuug_city_greasy_backdoor_tavern : A large brawny bear man wearing a dirty apron.
+	- yuug_city_greasy_backdoor_receptionist : A well fed brown bear lady wearing a flowery dress.
+	- portmaster : shark
+
+
+Overhaul food:
+- Make food buffs unique
+
+Issues:
+- Don't show missing momentum on gym icons
+- Make the action adder show icons
+
+
+Roleplay:
+	- Add a checkbox for auto [Leave] option
+Dungeon room asset:
+	T Add a quick dropdown for travel to room
+
+Passives. 3 picks each tier.
+	-: Brawn: Gain 3 physical offense. | Charisma: Gain 3 corruption offense. | Guile: Gain 3 arcane offense.
+	-: Offender: Gain 1 to each proficiency. | Defender: Gain 2 to each avoidance. | Edging: Gain +5 max arousal.
+	-: Rerolling momentum other than your archetype one becomes your archetype one | Gain 1 more reroll on turn start.
+	-: 
+
+Side quests:
+	- A rat in the borm tavern wants you to put tickle tentacle eggs in a fighter's bodysuit.
+	- Players have the option to give it to the tentaclemancer instead.
+	- If the players do it right, they get reward A from the rat.
+	- Otherwise they'll get ambushed near the borm exit and can collect a bounty for reward B.
+
+
+
+New actions:
+Todo:
+	- Go over tank abilities, make sure they generate extra threat
+	- Go over all abilities and set ac_damage / ac_heal appropriately
+	- Go over all abilities and check if detrimental is checked properly
+	- Go over all abilities and check if wrappers have detrimental checked properly
+	- Finish monk/elementalist/necro
+	- Finish visuals and texts for the previous ones
+	- Add to gyms
+	- Test
+	
+
+x = done 4813
+v = need visuals
+w = need texts
+t = need testing
+
+NOTE: These armors have 2 stats per slot because they're purchased epics. But have epic effects.
+
+  x Warrior: Tank [Phys]. Reduces incoming damage. Self block and counter attacks.
+Trainer: Chad's Gym
+	Armor: 
+		x Warrior's Gear (Breastplate + Crotchplate): YOU GAIN TOO MUCH BLOCK?
+			- Attack grants you 1 block per enemy you are taunting.
+		x Sturdy Leather Gear (leather thong + leather chestwraps):
+			- Painful hits to the groin increase the damage of your next standard attack by 2. Resets on turn end.
+
+	Quest: Slate decides
+		A: 
+		B: 
+
+(test)  - Rogue: [Corruption/Phys] DPS. Direct damage. Rerolls & crits.
+Trainer: Penal gang
+	Armor: 
+		Bodysuit:
+		x Using a reroll grants you 1 proficiency of each type this turn.
+		Thong bodysuit: 
+		x Using two standard attacks in a row grants you major Accuracy and major aggression this turn.
+	Quest: DONE
+
+(test) 	- Cleric [Arcane/Phys] Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive. Demon/undead bane.
+Trainer: church
+	- Armor: 
+		x Plate Bikini (2 slots): Restores 2 HP to the party whenever you are hit by an enemy that you are taunting.
+		x Cloth Bikini (2 slots): Healing a target under 50% HP grants major mending for 2 turns.
+	- Quest: DONE
+
+
+(test)  - Tentaclemancer [Corruption]  Tank (utility): Tanks by weakening enemies. Also self arousal. 
+Trainer: Borm
+	- Armor: 
+		x Living bodysuit:
+			- Orgasm no longer resets your momentum.
+			- Gain major aggression and defense for 2 turns on orgasm.
+!		w Living bikini: Use: Deal 4 corruption damage to your target, healing for the amount. Cooldown is reset on orgasm.
+	- Quest: 
+		A: Tickle tentacle spawning season is upon us. The tentaclemancer wants you to collect eggs from borm.
+			- On the way back, a rattani asks you to part with 1 egg. Doing so move him to the inn and allows you to do the side quest listed above.
+			- Hand in the eggs to finish quest A.
+		B: TM trainer asks you to see a farmer about a grown tickle tentacle.
+			- Players can ask TM trainer about it, and find out that unless the tickle tentacles are captured, they may grown larger and unruly.
+			- Talk to farmer in <???>, he says it was bigger than normal, almost like one of the arena bosses. He locked it in his shed.
+			- Go to shed and fight a miniboss, loot corrupted tentacle and bring it back to TM trainer.
+		C: The tentacle has been infused with corrupting magic. He tells you to ask around in town if someone has seen something sus.
+			- One of the farmers will say he's heard strange noises from the derelict mine in the north east fields.
+			- Go through the cave and kill a cultist trying to raise tentacle monsters.
+			- Take out the cultists and bring back evidence to TM trainer.
+			- Players unlock the armor set.
+
+(test)  - Monk: [Physical] Healer - Heals by attacking. Also riposte and combos.
+Trainer: Portswood glade.
+	- Armor: 
+		x Ultralight Bodysuit: Using attack against a grappled target restores 3 HP to a random friendly player.  
+		x Ultralight Sling Bikini: Getting riposted grants you major mending and momentum for 3 turns.
+
+	- Quest: Learning the ways of the monk:
+		A: Inner focus:
+			- Enter a glade area behind her house to find silkfiend nests.
+				- Silkfiend: A new monster. A mobile pitcher plant (think pokemon) with vine legs and arms.
+			- Bring the gong back and hand it in to start a test of tranquility. Basically just a challenge where you have to do splits while maintaining focus.
+			- <monk> will do stuff to you while you maintain focus.
+			- Once you complete the RP, you can hand in the quest.
+		B: You are tasked to track down the whereabouts of Rotti, a dirty rattani fighter.
+			- There's an underground fighting ring below the borm tavern.
+			- Go there and talk to the boss, he'll tell you he'll give you Rotti's whereabouts if you defeat his champion.
+			- Go into the ring and fight <miniboss>.
+			- Once you win, talk to the boss. He'll give you an encoded letter and ask you to see <npc> in the sewers.
+			- <npc> will translate it based on your gender and clothes:
+				- breasts: put a recording crystal in your upper body armor while he transcribes it
+				- penis: put a recording crystal in your lower body armor while he transcribes it
+				- any: Pay 1 plat.
+			- once translated, head back to <monk> for your reward
+		C: You are sent to fight Rotti (female rattani) in a new dungeon. When you defeat her, she says <monk> and her spar every Tuesday. 
+			And have this exchange going where Rotti gets to record each fight. <monk> always wins but seems to enjoy the dirty fighting.
+			She says the gesture to prove that you were succesfful is to twist <monk>'s nipples.
+			Go do that to finish the quest and unlock the armor.
+
+(test)  - Elementalist [Arcane] - Defensive DPS: Deal damage when enemies attack. Also wild random effects.
+Trainer: Otter in lake (moves to inn after quest complete)
+	- Armor: 
+		x Tribal Leathers (leather thong plus chest): Grants 5 random momentum when you interrupt a player.
+		x Stimulating Sling Bikini: Divert can be used on any target, but adds 3 arousal to the caster.
+
+
+	- Quest: DONE
+	
+
+
+(test)  - Necromancer [Corruption] - Tank (offense) by doing damage and stealing health.
+Trainer: Necromancer
+	t Bone Armor (heavy), bone breastplate and thong:  On orgasm, gain an extra charge of corrupt.
+	t Dark Robes: Life steals have a chance equal to your opponent's HP percentage to restore +2 HP to your party.
+	
+	- Quest: DONE
+
+
+(test)		- Arcanist [Arcane] - Healer (proactive). Block effects and damage reduction.
+Trainer: Sharkanists
+	- Armor: 
+		t Arcane Silk Bikini: Gain 1 arcane proficiency each turn, up to 5 stacks. This effect is reset when you take HP damage.
+		- Arcane Bodysuit: When a friendly player's block is broken on their turn, they gain Major Blessing and Major Penetration until the end of the turn.
+	- Quest: DONE
+
+
+
+Bard? Utility [Phys/Arcane/Corruption] - Short term powerful Buffs and debuffs.
+vt Singing Strike: Deals 2 phys damage, increased by 2 for every major effect on your target and yourself.
+vt Piercing Tune: Makes enemies Major Vulnerability one turn, increasing damage taken by 30%.
+vt Warsong: Grants party Major Aggression one turn, increasing damage done by 20%.
+vt Windsong: Grants party Major Momentum for two turns, increasing momentum generation by 1 at start of turn.
+- Memory Blur: Makes all enemies unaware of everyone.
+
+
+
+
+
 
 
 
@@ -10,35 +258,90 @@
 
 	- Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
+	- Enchant ideas:
+		- <When you X> you apply <Y> which is triggered by <Z>
+		- Taunting an enemy causes <x>
+		- When block fades at the start of your turn, gain 1 momentum.
+		- Gain 10% increased damage done for each unique monster you attack in a turn.
+		- Each attack received in a turn reduces further damage taken that turn by 5%. Up to 95%.
+		- Each defensive momentum spent in a turn grants you 1 block.
+		- Finishing a spell with a cast time grants you 1 momentum per turn it was charged.
+		- Getting interrupted reduces all charge times by 1 for 1 turn.
+		- Increases the damage of one of your 3 standard attacks by 1.
+		- Critical hits grant you 1 momentum.
+		- Each turn you don't use an ability you gain ???
+		- Gain X if you didn't lose HP last turn.
+		- Using a multi-target action on a single target does <x>
+		- Using a healing potion grants <x>
+		- Mana potions grants <x>
+		- Gain major defense while charging a spell
+		- Overhealing a player grants them 1 reroll
+		- Using a standard attack makes your next non-standard attack grant you 1 extra momentum next turn 
+		- Using a standard attack grants you an extra reroll
+		- Increases damage done while at full HP
+		- Gain 3 momentum next turn after being riposted
+		- Attacking an enemy twice in a row puts major <something> on them
+		- When your block fully absorbs an attack, do <x>
+		- When you do <damage type> do something
+		- Using a melee attack and ranged attack in the same turn does <x>
+		- When you deal all 3 damage types to a target this turn, do <x>
+		- Casting a heal on a player grants a buff. If the player is above 90% HP at the end of the turn, do <x>
+		- Using taunt while under 50% HP grants 4 block.
+		- Gain a boost to a random offensive stat each turn.
+		- Ending a turn with no momentum left gives <x>
+		- For each N reroll used, gain X
+		- An item that costs money to use
+
 	- Item ideas:
 		- Cooldown clearing potions
 		- Your next action costs no AP
 		- Makes you untargetable for 1 turn.
-
-	- Wrapper ideas
-		- Reduce max MP/AP
-		- Reduce max arousal
-		- More damage taken from crit.
-		- Proc multipliers
-		- Heal aggro multipliers
-		- Generic stat modifiers
-		- Reduce block efficiency
-			- New effect type needed
-		- Summon a custom outfit onto a player that they can't remove until it expires
+		- Rerolling non-defensive momentum now always rolls into defensive momentum.
+		- Smoke bomb : Resets all awareness
+		- Cursed Collar
+			- 
+		- Do X if you have 5 or fewer abilities slotted.
+		- You wasted n amount of block
+		- Grant a random party member 1 block when you use an arcane action.
+		- Gain 2 proficiency of all types for the remainder of your turn when riposted.
+		- It's nighttime
+		- You're outdoors
+		- You have been hit while naked
+		- You have played N turns this battle
+		- You have post nut clarity
+		- Gain block whenever you miss an attack.
+		- You have less than X gold
+		- Grant 3 random momentum if you have at least 4 actions on cooldown.
 
 	- Action ideas:
 		- Deals damage, deals extra damage if target has clairvoyance.
-		- Turns all target healing done into damage.
 		- Prevents healing done for one turn
 		- Reduces target healing received
 		- Healing NPC
 		- Lowers max carry capacity for a few turns.
 		- 
 
+		:: Do X, but if Y is true, also do Z. Y ideas:
+		- Action is followed by a ranged action
+		- 
+		
+		New spells:
+		* [Rogue] Assault : Deals 3 phys damage. Grants you major penetration for 3 turns if you have no uti/def momentum.
+		* [Cleric] Holy Pose: Restores 5 HP. Can be used while in bondage. When used on a bondaged player, grant them 2 defensive momentum. 3 charges.
+		* [Cleric] Panic Heal: Restores 4 HP. Critically hits if you have at least 3 actions on cooldown.
+		* [Rogue] Cheap Shot: Deals 2 physical damage. Free. Permanent charges. Gain a charge when you crit.
+		* [Monk] Adrenaline Rush : Grants 3 random momentum. Can only be used if you have no momentum.
+		* [Elementalist] Elemental Bolt : Deal 3 damage. If you've used all 3 action types this turn, also grant all enemies Major Clumsy for 3 turns.
+		x [Arcanist] Magic Skin: Restore 5 HP. If your target has at least 5 block, grant them Major Blessing for 2 turns.
+		x [Elementalist] Wild Blast : Deal a random amount of arcane damage between 1 and the number of turns you've played this battle. Max 10.
+		x [Elementalist] Capacitive Discharge : Gain a capacitive charge each time an enemy misses an attack. Using the action consumes all charges dealing 1 damage increased by 2 per charge consumed.
+		t [Arcanist] Piercing Beam: Ranged actions grant you a stack of focus, up to 5. Using this action deals 1 damage per stack consumed. This damage ignores block.
+		
+
 	- Events:
-		- Find a drawer, it opens to a cursed sling bikini that you can't unequip for 1 hour
 		- Pick up a coin, gain a curse that makes you cum immediately when penetrated
 		- In town: If wearing plate, get aroused by someone sneakily making it vibrate
+		- Find a meadow and sit to rest. Chance for a worm trap to spawn underneath you. You can choose to let the worm trap finish you off, giving you lots of arousal but also a buff.
 		- 
 
 	- Random events
@@ -63,81 +366,8 @@
 
 
 -- CURRENT --
-
-	Tentacle Wrestling:
-		- Need rep reward vendor
-		x Players tag team into the ring, only one player can be in at a time
-		x Each turn, player gets 1 stack of exhausted
-		x Exhausted fades after 3 turns out of the ring
-		x One boss at a time, always stays in the ring
-		x Can't tag out while grappled or knocked down
-		x Boss ideas:
-			Weak to: -5 sv
-			Defensive to: 3 sv
-			Strong against: +3, all other are -3
-			No boss can use default grapples
-			- Armored Tentacle:
-				- Weak to: arcane
-				- Defensive to: phys
-				- Strong against: Phys
-				Abilities:
-				x Harden (3 turn CD) - Adds 5 block
-				x Wrap: 4 turns, charged : Wraps tentacle around your target, grappling them
-				x Slam: 1 turn : Slam a grappled player, doing physical damage.
-				x Armored lash: 2 turns : Deals physical damage, crits if target isn't blocking or wearing full heavy armor. Always cast first.
-			- Slimy tentacle
-				- Weak to: Physical
-				- Strong against: corruption
-				- Defensive to: corruption
-				Abilities:
-				x Slime coat: 1 turn: Applies 1 stack of slime coat, doing corruption damage at the start of your turn and grants a shake off ability.
-					- Shake off: 3 AP: All stacks but adds 2 exhaustion. Generally you'll want to do this before tapping out.
-				x Sticky (charged): Prevents target from tapping out for 1 turn, and adds a 20% chance on action used to strip a random piece.
-				x Inject: Inject target not wearing lower body armor with goo, doing corruption damage each turn.
-			- Void tentacle
-				- Weak to: Corruption
-				- Strong against: arcane
-				- Defensive to: arcane
-				Abilities:
-				t Void lightning: 2 CD. Deals arcane damage, always crits against heavy armor.
-				t Void constrict: Ungrapples and removes AP.
-				t Void Eye: 4 CD: Deals damage based on exhaustion.
-				t Charged ability that damages all players. Must be interrupted.
-
 	
 	Main quest:
-		Part 2:
-		1. Travel to borm and talk to people.
-		2. Kidnapped. After RP, clear the cave and find a scroll:
-		3. Take scroll to cartographers and get sent to find a cipher.
-		4. Do a dungeon to get the cipher.
-		5. Get the scroll translated, and it turns out to be a summoning of a giant borm tentacle.
-		6. Go back to Borm and fight the tentacle monster.
-		7. The tentacle drops some kind of magic item that you take back to the guards and finish the quest.
-
-
-		Part 3:
-		1. 	In the throne room you're met by the king's servant KS. He tells the player that matters of importance are to be discussed in the Prince's personal spa. 
-			And he won't allow just any riffraff to enter. The player is sent out to acquire royal swimwear. At the royal "armory".
-		2. 	Since the prince took over, the royal armory is now only producing bikini armor with the royal seal of approval. In order to gain this armor they player must show proficiency with it.
-			In order to gain this seal, the player must accomplish 2 tasks in the royal coliseum while wearing unsealed versions of the armor.
-			The armor is enchanted to allow royalty to arouse the wearer.
-		3.	Tasks:
-			- Mental test: Hooks players up to a machine that arouses them if they answer wrong. The players lose if they answer too many questions wrong.
-			- Physical Test: Arena fight. The prince will arouse the players through the swimwear.
-				- Note: Add a way to prevent any disrobing during a fight, including by players.
-				- Fight won't start until all players are wearing swimwear.
-		4.	Talk to the prince, and he dismisses the notions. But grants you permission and a small stipend to go hunt down these cultists myself.
-
-
-		Part 4:
-		1.	Hunting down the first cultist
-
-		Part 5:
-		1. 	Hunting down the second cultist
-
-		Part 6:
-		???	
 
 	Side quests:
 		- The borm straw tickle tentacles rise

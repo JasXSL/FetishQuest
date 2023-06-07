@@ -16,6 +16,99 @@ import Bot from "./Bot.js";
 const NUM_ACTIONS = 18;	// Max nr actions the UI can draw
 const NUM_SUBS = 5;		// Max actions per group
 
+const playerTemplate = $(
+	'<div class="player">'+
+		'<div class="content">'+
+			'<div class="bg"></div>'+
+			'<div class="stats">'+
+				'<span class="name" style="color:#DFD">'+
+					'<div class="focus tooltipParent">'+
+						'<div class="tooltip center">Unaware of your active player. Awareness is added when you use a directed action against a target, or they use one on you.</div>'+
+					'</div>'+
+					'<div class="button owner devtool" title="Set character owner">'+
+						'<img src="media/wrapper_icons/id-card.svg" />'+
+					'</div>'+
+					'<div class="button own" title="Control this character">'+
+						'<img src="media/wrapper_icons/gamepad.svg" />'+
+					'</div>'+
+					'<div class="button leader devtool">'+
+						'<img src="media/wrapper_icons/crown.svg" />'+
+					'</div>'+
+					'<span>'+
+						'<span class="turnArrow">&#9654; </span>'+
+						'<span class="nameTag"></span>'+
+						'<span class="turnArrow"> &#9664;</span>'+
+					'</span>'+
+				'</span>'+
+				'<br />'+
+				'<span class="resources">'+
+					'<span class="armor resource thin" title="Damage reduction from armor." >'+
+						'<div class="bg" style="background-image:url(media/wrapper_icons/shield-echoes.svg)"></div><span></span>'+
+					'</span>'+
+					'<span class="chest resource thin">'+
+						'<div class="bg" style="background-image:url(media/wrapper_icons/shirt.svg)"></div><span></span>'+
+					'</span>'+
+					'<span class="legs resource thin">'+
+						'<div class="bg" style="background-image:url(media/wrapper_icons/trousers.svg)"></div><span></span>'+
+					'</span>'+
+					'<span class="arousal resource" title="Arousal">'+
+						'<div class="bg" style="background-image:url(media/wrapper_icons/pierced-heart.svg)"></div><span></span>'+
+					'</span>'+
+					'<span class="AP resource tooltipParent" title="Action Points">'+
+						'<div class="bg" style="background-image:url(media/wrapper_icons/jump-across.svg)"></div><span></span>'+
+						'<div class="tooltip center">'+
+							'<span class="colorOffensive">0 Offensive</span> | '+
+							'<span class="colorDefensive">0 Defensive</span> | '+
+							'<span class="colorUtility">0 Utility</span>'+
+						'</div>'+
+					'</span>'+
+					'<span class="HP resource large" title="Hit Points" >'+
+						'<span></span>'+
+					'</span>'+
+				'</span>'+
+			'</div>'+
+		'</div>'+
+		'<div class="topRight">'+
+			'<div class="wrappers"></div>'+
+			'<div class="charging"></div>'+
+		'</div>'+
+		'<div class="topLeft hidden"></div>'+
+		'<div class="targetingStats"></div>'+
+
+		'<div class="netgameStatus hidden">'+
+			'<div class="loadingPerc hidden">'+
+				'<img src="media/wrapper_icons/empty-hourglass.svg" />'+
+				'<span>0%</span>'+
+			'</div>'+
+			'<div class="inMenu tooltipParent hidden">'+
+				'<img src="media/wrapper_icons/auto-repair.svg" />'+
+				'<div class="tooltip">Player is currently in a menu</div>'+
+			'</div>'+
+		'</div>'+
+
+		'<div class="shields">'+
+			'<div class="shield" title="Blocking incoming damage">'+
+				'<div class="bg" style="background-image:url(media/wrapper_icons/bordered-shield.svg)"></div>'+
+				'<span class="val">10</span>'+
+			'</div>'+
+		'</div>'+
+
+		'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
+
+		'<div class="interactions">'+
+			'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
+			'<div class="interaction hidden" data-type="gym"><img src="media/wrapper_icons/weight-lifting-up.svg" /></div>'+
+			'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
+			'<div class="interaction hidden" data-type="transmog"><img src="media/wrapper_icons/gold-nuggets.svg" /></div>'+
+			'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
+			'<div class="interaction hidden" data-type="altar"><img src="media/wrapper_icons/sword-altar.svg" /></div>'+
+			'<div class="interaction hidden" data-type="bank"><img src="media/wrapper_icons/bank.svg" /></div>'+
+			'<div class="interaction hidden" data-type="rent"><img src="media/wrapper_icons/bed.svg" /></div>'+
+			'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
+		'</div>'+
+	'</div>'
+);
+
 
 export default class UI{
 
@@ -33,14 +126,17 @@ export default class UI{
 		this.friendly = $("#ui > div.players > div.left");
 		this.hostile = $("#ui > div.players > div.right");
 		this.action_selector = $("#ui > div.actionbar");
-		this.ap_bar = $("div.stat.ap", this.action_selector);
-		this.mp_bar = $("div.stat.mp", this.action_selector);
+		this.resourceBar = $("div.resources", this.action_selector);
 		this.actionbar_actions = $("> div.actions", this.action_selector);
+		this.rerolls = $("> div.reroll", this.action_selector);
+			this.rerollsSpan = $("> span", this.rerolls);
 
 		this.blackScreen = $("#blackScreen");
 
-		this.text = $("#ui > div.middle > div.content");
-		this.csl = $("#ui > div.middle > div.chat");
+		this.momentumGain = $("#ui > div.momentumGain");
+		this.middle = $("#ui > div.middle");
+		this.text = $("> div.content", this.middle);
+		this.csl = $("> div.chat", this.middle);
 		this.gameIcons = $("#gameIcons");
 		this.multiCastPicker = $("#multiCastPicker");
 		this.roleplay = $("#roleplay");
@@ -61,9 +157,6 @@ export default class UI{
 		this.loadingMaxSteps = 0;	// Steps to load
 		this.yourTurn = $("#ui > div.yourTurnBadge");
 		this.yourTurnBorder = $("#yourTurnBorder");
-		this.yourTurnTimer = false;
-		this.yourTurnTimeLeft = 0;
-		this.yourTurnSoundLoop = false;
 		this.mapChat = $("#mapChat");
 		this.fct = $("#fct");
 		this.fctQue = [];
@@ -89,6 +182,7 @@ export default class UI{
 		this.miniMapContent = $("> div.content", this.miniMap);
 		this.minimap_current_z = 0;
 		
+		this.momentum_gain = [];	// Cache of momentum icons
 
 		this.endTurnButton = null;
 
@@ -352,6 +446,26 @@ export default class UI{
 
 		});
 
+		
+		this.resourceBar.off('click').on('click', event => {
+
+			if( !event.target.classList.contains("swap") || !event.target.parentElement.classList.contains("on")  )
+				return;
+
+			const ap = game.getMyActivePlayer();
+			if( !ap )
+				return;
+			
+			// Type of momentum we're rerolling
+			let idx = Math.trunc(event.target.parentElement.dataset.i);
+			if( ap.reroll < 1 )
+				return;
+			
+			const to = Math.trunc(event.target.dataset.i);
+			game.rerollMomentum(ap, idx, to); 
+
+		});
+
 		this.toggleMiniMap(Boolean(localStorage.mini_map));
 
 	}
@@ -417,7 +531,7 @@ export default class UI{
 	}
 
 	showDMTools(){
-		return !Boolean(+localStorage.hide_dm_tools) && game.is_host;
+		return !Boolean(+localStorage.hide_dm_tools) && window?.game?.is_host;
 	}
 
 	showBubbles(){
@@ -512,39 +626,6 @@ export default class UI{
 
 	}
 
-	// Helper functions for below
-	updateResourceDots( root, currentPoints, maxPoints, reverse ){
-
-		let dots = $("> div.point", root);
-
-		let ln = dots.length;	// Needs to be here since we're modifying it
-		// Add more dots if need be
-		for( let i = 0; i < maxPoints-ln; ++i ){
-
-			let div = document.createElement('div');
-			div.className = 'point';
-			root.append(div);
-			dots = dots.add(div);
-
-		}
-
-		// Hide unused
-		for( let i = 0; i < dots.length; ++i )
-			dots[i].classList.toggle("hidden", i >= maxPoints);
-		
-		// Fill in
-		for( let i = 0; i < maxPoints; ++i ){
-			
-			let n = i;
-			if( reverse )
-				n = maxPoints-1-i;
-
-			dots[n].classList.toggle('filled', i < currentPoints);
-
-		}
-
-	}
-
 	// Draws the procedural exploration percentage
 	drawProceduralTooltip(){
 
@@ -586,7 +667,6 @@ export default class UI{
 			this.yourTurn.toggleClass('hidden', true);
 			this.yourTurnBorder.toggleClass('hidden', true);
 			this.endTurnButton.toggleClass('hidden', true);
-			this.toggleRope(false);
 			return;
 
 		}
@@ -596,17 +676,109 @@ export default class UI{
 			th = this
 		;
 
-		const myTurn = game.getTurnPlayer().id === game.getMyActivePlayer().id || !game.battle_active;
+		const myTurn = game.isMyTurn() || !game.battle_active;
 		this.yourTurn.toggleClass('hidden', !myTurn || !game.battle_active);
 		this.yourTurnBorder.toggleClass('hidden', !myTurn || !game.battle_active);
 
-		if( !myTurn )
-			this.toggleRope(false);
-
 		
-		// Update resources
-		this.updateResourceDots(this.ap_bar, player.ap, player.getMaxAP());
-		this.updateResourceDots(this.mp_bar, player.mp, player.getMaxMP(), true);
+
+		// Update resource bar
+		this.rerolls[0].classList.toggle("hidden", player.reroll < 1);
+		this.rerollsSpan[0].innerText = player.reroll;
+		
+
+		// Update momentum bar
+		this.resourceBar[0].classList.toggle("re", player.reroll > 0);
+		let dots = $("> div.point", this.resourceBar);
+		let ln = dots.length;
+		const maxPoints = player.getMaxMomentum();
+		const currentPoints = player.getMomentum();
+		
+
+		// Add more dots if need be
+		for( let i = 0; i < maxPoints-ln; ++i ){
+
+			let div = document.createElement('div');
+			div.className = 'point';
+			div.dataset.i = -1;
+			div.dataset.idx = i+ln;
+			this.resourceBar.append(div);
+
+			let sub = document.createElement('div');
+			sub.classList.add("swap", "point");
+			div.append(sub);
+			sub = document.createElement('div');
+			sub.classList.add("swap", "point");
+			div.append(sub);
+
+			dots = dots.add(div);
+
+		}
+
+		// Hide unused (Can be used later when the amount of momentum isn't hardcoded)
+		for( let i = 0; i < dots.length; ++i )
+			dots[i].classList.toggle("hidden", i >= maxPoints);
+		
+		const 
+			off = player.getMomentum(Player.MOMENTUM.Off),
+			def = player.getMomentum(Player.MOMENTUM.Def),
+			uti = player.getMomentum(Player.MOMENTUM.Uti)
+		;
+
+		const momTypes = ['off','def','uti'];
+		// Fill in
+		let n = 0;
+		for( let i = 0; i < maxPoints; ++i ){
+
+			let type = Player.MOMENTUM.Off;
+			if( i >= off )
+				type = Player.MOMENTUM.Def;
+			if( i >= off+def )
+				type = Player.MOMENTUM.Uti;
+			if( i >= off+def+uti )
+				type = -1;
+
+			let pre = Math.trunc(dots[i].dataset.i);
+
+			const cList = dots[i].classList;
+			dots[i].dataset.i = type;
+
+
+			// Animate a sweep
+			if( pre !== type ){
+
+				cList.remove(...momTypes);
+				dots[i].classList.toggle('on', type !== -1);
+				if( ~type ){
+
+					++n;
+
+					cList.toggle('ch', false);
+					setTimeout(() => {
+						cList.toggle('ch', true);
+					}, n*25);
+					// Update subselector
+					const ch = dots[i].children;
+					ch[0].classList.remove(...momTypes)
+					ch[1].classList.remove(...momTypes);
+					ch[0].classList.add(momTypes[(type+1)%3]);
+					ch[0].dataset.i = (type+1)%3;
+					ch[1].classList.add(momTypes[(type+2)%3]);
+					ch[1].dataset.i = (type+2)%3;
+
+					dots[i].classList.add(momTypes[type]);
+
+				}
+
+			}
+			
+
+			
+
+
+		}
+
+
 		
 
 		// Build end turn button and toggle visibility
@@ -786,8 +958,8 @@ export default class UI{
 
 					if( event.type === 'click'){
 
-						th.action_selected = game.getTurnPlayer().getActionByLabel('stdEndTurn');
-						th.targets_selected = [game.getTurnPlayer()];
+						th.action_selected = player.getActionByLabel('stdEndTurn');
+						th.targets_selected = [player];
 						game.uiAudio("endturn_down", 0.5, this);
 						th.performSelectedAction();
 
@@ -902,7 +1074,6 @@ export default class UI{
 
 	}
 
-
 	// Started dragging a spell
 	dragStart( element, mousedown ){
 
@@ -919,30 +1090,29 @@ export default class UI{
 		
 		if( !spell )
 			spell = this.action_selected;
-
+		
+		const dots = $("> div.point", this.resourceBar);
+		
 		if( !spell ){
-			$("div.stat div.point", this.action_selector).toggleClass('highlighted', false);
+			dots.toggleClass('highlighted', false);
 			return;
 		}
 
-		let mpCost = spell.mp, apCost = spell.getApCost(),
-			mp = player.mp, ap = player.ap
-		;
+		// Generates an array. We'll subtract from this one as we go
+		let costs = spell.getMomentumCostArray();
 		if( !game.battle_active )
-			apCost = 0;
+			costs = [0,0,0];
 		
-		if( apCost ){
-			let start = Math.max(apCost, ap);
-			for( let i = start-apCost; i<start; ++i )
-				$("div.stat.ap div.point", this.action_selector).eq(i).toggleClass('highlighted', true);
-		}
-		if( mpCost ){
-
-			let start = Math.max(mpCost, mp);
-			let end = $("div.stat.mp div.point:not(.hidden)", this.action_selector).length;
-			for( let i = start-mpCost; i<start; ++i ){
-				$("div.stat.mp div.point", this.action_selector).eq(end-1-i).toggleClass('highlighted', true);
-			}
+			
+		const maxPoints = player.getMaxMomentum();
+		for( let i = 0; i < maxPoints; ++i ){
+			
+			const currentType = Math.trunc(dots[i].dataset.i);
+			const cost = costs[currentType];
+			const highlighted = cost > 0;
+			if( highlighted )
+				--costs[currentType];
+			dots[i].classList.toggle('highlighted', highlighted);
 
 		}
 
@@ -953,97 +1123,6 @@ export default class UI{
 	drawPlayers(){
 
 		const th = this, players = game.getEnabledPlayers();
-
-		const playerTemplate = $(
-			'<div class="player">'+
-				'<div class="content">'+
-					'<div class="bg"></div>'+
-					'<div class="stats">'+
-						'<span class="name" style="color:#DFD">'+
-							'<div class="button owner devtool" title="Set character owner">'+
-								'<img src="media/wrapper_icons/id-card.svg" />'+
-							'</div>'+
-							'<div class="button own" title="Control this character">'+
-								'<img src="media/wrapper_icons/gamepad.svg" />'+
-							'</div>'+
-							'<div class="button leader devtool">'+
-								'<img src="media/wrapper_icons/crown.svg" />'+
-							'</div>'+
-							'<span>'+
-								'<span class="turnArrow">&#9654; </span>'+
-								'<span class="nameTag"></span>'+
-								'<span class="turnArrow"> &#9664;</span>'+
-							'</span>'+
-							'<div class="playersBefore" title="Players before your turn">'+
-								'<span>3</span>'+
-							'</div>'+
-						'</span>'+
-						'<br />'+
-						'<span class="resources">'+
-							'<span class="armor resource thin" title="Damage reduction from armor." >'+
-								'<div class="bg" style="background-image:url(media/wrapper_icons/shield-echoes.svg)"></div><span></span>'+
-							'</span>'+
-							'<span class="chest resource thin">'+
-								'<div class="bg" style="background-image:url(media/wrapper_icons/shirt.svg)"></div><span></span>'+
-							'</span>'+
-							'<span class="legs resource thin">'+
-								'<div class="bg" style="background-image:url(media/wrapper_icons/trousers.svg)"></div><span></span>'+
-							'</span>'+
-							'<span class="arousal resource" title="Arousal">'+
-								'<div class="bg" style="background-image:url(media/wrapper_icons/pierced-heart.svg)"></div><span></span>'+
-							'</span>'+
-							'<span class="MP resource" title="Mana Points">'+
-								'<div class="bg" style="background-image:url(media/wrapper_icons/round-bottom-flask.svg)"></div><span></span>'+
-							'</span>'+
-							'<span class="AP resource" title="Action Points">'+
-								'<div class="bg" style="background-image:url(media/wrapper_icons/jump-across.svg)"></div><span></span>'+
-							'</span>'+
-							'<span class="HP resource large" title="Hit Points" >'+
-								'<span></span>'+
-							'</span>'+
-						'</span>'+
-					'</div>'+
-				'</div>'+
-				'<div class="topRight">'+
-					'<div class="wrappers"></div>'+
-					'<div class="charging"></div>'+
-				'</div>'+
-				'<div class="topLeft hidden"></div>'+
-				'<div class="targetingStats"></div>'+
-
-				'<div class="netgameStatus hidden">'+
-					'<div class="loadingPerc hidden">'+
-						'<img src="media/wrapper_icons/empty-hourglass.svg" />'+
-						'<span>0%</span>'+
-					'</div>'+
-					'<div class="inMenu tooltipParent hidden">'+
-						'<img src="media/wrapper_icons/auto-repair.svg" />'+
-						'<div class="tooltip">Player is currently in a menu</div>'+
-					'</div>'+
-				'</div>'+
-
-				'<div class="shields">'+
-					'<div class="shield" title="Blocking incoming damage">'+
-						'<div class="bg" style="background-image:url(media/wrapper_icons/bordered-shield.svg)"></div>'+
-						'<span class="val">10</span>'+
-					'</div>'+
-				'</div>'+
-
-				'<div class="speechBubble hidden"><div class="arrow"></div><div class="content">HELLO!</div></div>'+
-
-				'<div class="interactions">'+
-					'<div class="interaction hidden" data-type="chat"><img src="media/wrapper_icons/chat-bubble.svg" /></div>'+
-					'<div class="interaction hidden" data-type="gym"><img src="media/wrapper_icons/weight-lifting-up.svg" /></div>'+
-					'<div class="interaction hidden" data-type="shop"><img src="media/wrapper_icons/hanging-sign.svg" /></div>'+
-					'<div class="interaction hidden" data-type="transmog"><img src="media/wrapper_icons/gold-nuggets.svg" /></div>'+
-					'<div class="interaction hidden" data-type="repair"><img src="media/wrapper_icons/anvil-impact.svg" /></div>'+
-					'<div class="interaction hidden" data-type="altar"><img src="media/wrapper_icons/sword-altar.svg" /></div>'+
-					'<div class="interaction hidden" data-type="bank"><img src="media/wrapper_icons/bank.svg" /></div>'+
-					'<div class="interaction hidden" data-type="rent"><img src="media/wrapper_icons/bed.svg" /></div>'+
-					'<div class="interaction hidden" data-type="loot"><img src="media/wrapper_icons/bindle.svg" /></div>'+
-				'</div>'+
-			'</div>'
-		);
 
 		// Build skeleton if needed
 		let ids = [];
@@ -1160,8 +1239,6 @@ export default class UI{
 			event.stopImmediatePropagation();
 			const id = $(event.target).closest('div.player').attr('data-id');
 			game.setMyPlayer(id);
-			this.draw();
-			game.save();
 
 		});
 
@@ -1231,7 +1308,7 @@ export default class UI{
 						game.setMyPlayer(id);
 					el._longpressTimer = true;
 
-				}, 1000);
+				}, 500);
 			}).off('mouseup').on('mouseup', event => {
 
 				const el = event.currentTarget;
@@ -1449,8 +1526,7 @@ export default class UI{
 
 	drawPlayer( p, index ){
 
-		const tp = game.getTurnPlayer(),
-			myTurn = tp && tp.id === p.id,
+		const myTurn = game.isTurnPlayer(p),
 			el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
 			myActive = game.getMyActivePlayer(),
 			friendly = p.team === 0
@@ -1485,15 +1561,16 @@ export default class UI{
 					ownEl = $('> div.own', nameEl),
 					leaderEl = $('> div.leader', nameEl),
 					nameDisplayEl = $('span.nameTag', nameEl),
-					playersBeforeEl = $('div.playersBefore', nameEl),
-					playersBeforeNumberSpanEl = $('span', playersBeforeEl),
+					focusEl = $('div.focus', nameEl),
 				resourcesEl = $('> span.resources', statsEl),
 					arousalEl = $('> span.arousal', resourcesEl),
 					arousalElSpan = $('> span', arousalEl),
-					mpEl = $('> span.MP', resourcesEl),
-					mpElSpan = $('> span', mpEl),
 					apEl = $('> span.AP', resourcesEl),
 					apElSpan = $('> span', apEl),
+					apElTooltip = $('> div.tooltip', apEl),
+						apElTooltipOff = $('span.colorOffensive', apElTooltip),
+						apElTooltipDef = $('span.colorDefensive', apElTooltip),
+						apElTooltipUti = $('span.colorUtility', apElTooltip),
 					hpEl = $('> span.HP', resourcesEl),
 					hpElSpan = $('> span', hpEl),
 					armorEl = $('> span.armor', resourcesEl),
@@ -1554,16 +1631,13 @@ export default class UI{
 		
 		const 
 			arousalDisabled = p.isArousalDisabled(),
-			mpDisabled = p.isMPDisabled(),
-			apDisabled = p.isAPDisabled(),
+			apDisabled = p.isMomentumDisabled(),
 			hpDisabled = p.isHPDisabled(),
 			arousalText = p.arousal+"<span class=\"small\">/"+p.getMaxArousal()+"</span>",
-			apText = p.ap+"<span class=\"small\">/"+p.getMaxAP()+"</span>",
-			mpText = p.mp+"<span class=\"small\">/"+p.getMaxMP()+"</span>",
+			apText = p.getMomentum()+"<span class=\"small\">/"+p.getMaxMomentum()+"</span>",
 			hpText = p.hp+"<span class=\"small\">/"+p.getMaxHP()+"</span>"
 		;
 		arousalEl.toggleClass('hidden', arousalDisabled);
-		mpEl.toggleClass('hidden', mpDisabled);
 		hpEl.toggleClass('hidden', hpDisabled);
 		apEl.toggleClass('hidden', apDisabled);
 		
@@ -1573,10 +1647,15 @@ export default class UI{
 			apElSpan.html(apText);
 		if( !hpDisabled && hpElSpan.text() !== hpText )
 			hpElSpan.html(hpText);
-		if( !mpDisabled && mpElSpan.text() !== mpText )
-			mpElSpan.html(mpText);
+		apElTooltipOff[0].innerText = p.getMomentum(Player.MOMENTUM.Off)+" Offense";
+		apElTooltipDef[0].innerText = p.getMomentum(Player.MOMENTUM.Def)+" Defense";
+		apElTooltipUti[0].innerText = p.getMomentum(Player.MOMENTUM.Uti)+" Utility";
+		
 
 		hpEl.toggleClass('warn', p.hp <= p.getMaxHP()*0.3);
+
+		// Awareness
+		focusEl[0].classList.toggle('hidden', Boolean(p.isAware(myActive)));
 
 		// Armor
 		chestEl.add(legsEl).toggleClass('hidden', p.isTargetBeast());
@@ -1608,25 +1687,8 @@ export default class UI{
 		;
 		nameEl.toggleClass('active', isMyActive);
 
-		playersBeforeEl.toggleClass('hidden', (!game.battle_active || p.isDead()));
-		if( game.battle_active && !p.isDead() ){
 
-			let numBefore = game.getNumPlayersBefore(p);
-			const colors = [
-				'009900',
-				'336600',
-				'555500',
-				'663300',
-				'990000'
-			];
-			playersBeforeNumberSpanEl
-				.text(numBefore)
-				.css({color:'#'+colors[Math.min(colors.length-1, numBefore)]})
-			;
-
-		}
-
-		const name = p.getName()+(p.isAFK() ? ' [AFK]' : '');
+		const name = p.getName();
 		if( nameDisplayEl.text() !== name )
 			nameDisplayEl.text(name);
 		
@@ -2016,6 +2078,60 @@ export default class UI{
 
 	}
 
+	// Draws momentum gained icons that spawn in the middle of the screen and then go down.
+	// Helper function
+	_animateMomentumGain( idx, type ){
+
+		const icon = this.momentum_gain[idx];
+		icon.classList.toggle('on', true);
+		const files = ["off","def","uti"];
+		game.uiAudio('momentum_'+files[type], 0.2, icon);
+
+	}
+
+	drawMomentumGain( numOff = 0, numDef = 0, numUti = 0 ){
+
+		let i; const incNum = numOff+numDef+numUti;
+		if( !incNum )
+			return;
+
+		const needed = incNum-this.momentum_gain.length;
+		// Create some new icons
+		for( i = 0; i < needed; ++i ){
+
+			const icon = document.createElement('div');
+			icon.classList.add('momentumIcon');
+			this.momentumGain[0].append(icon);
+			this.momentum_gain.push(icon);
+
+		}
+
+		const momTypes = Player.MOMENTUM_NAMES_SHORT;
+		
+		let start = Math.floor(incNum/2);
+		if( !(incNum%2) )
+			start -= 0.5;
+		const leftStart = -10*start;
+		for( i = 0; i < incNum; ++i ){
+
+			let n = Player.MOMENTUM.Off;
+			if( i >= numDef+numOff )
+				n = Player.MOMENTUM.Uti;
+			else if( i >= numOff )
+				n = Player.MOMENTUM.Def;
+
+			const icon = this.momentum_gain[i];
+			icon.classList.toggle('on', false);
+			icon.classList.remove(...momTypes);
+			icon.classList.add(momTypes[n]);
+			icon.style.marginLeft = (leftStart+10*i)+'vmax';
+			setTimeout(this._animateMomentumGain.bind(this), 100*(i+1), i, n);
+
+		} 
+
+
+	}
+
 
 	/* Events */
 	onNewGame(){
@@ -2226,47 +2342,6 @@ export default class UI{
 		if( this.previousConsoleCommands.length > 100 )
 			this.previousConsoleCommands.pop();
 		localStorage.previousConsoleCommands = JSON.stringify(this.previousConsoleCommands);
-	}
-
-
-
-
-	/* Turn timer */
-	async toggleRope( seconds ){
-
-		this.yourTurnBorder.toggleClass("rope", Boolean(seconds));
-		this.yourTurn.toggleClass("rope", Boolean(seconds));
-		clearTimeout(this.yourTurnTimer);
-
-		if( this.yourTurnSoundLoop ){
-
-			this.yourTurnSoundLoop.stop(100);
-			this.yourTurnSoundLoop = false;
-
-		}
-
-		if( +seconds ){
-			
-			this.yourTurn.toggleClass("rope", Boolean(seconds));
-			this.yourTurnTimeLeft = seconds;
-			const tick = () => {
-				$("span.timeLeft", this.yourTurn).html(' ['+this.yourTurnTimeLeft+']');
-				--this.yourTurnTimeLeft;
-				if( this.yourTurnTimeLeft < 0 )
-					clearInterval(this.yourTurnTimer);
-			};
-			tick();
-			this.yourTurnTimer = setInterval(tick, 1000);
-
-			// Play alert and start loop
-			game.uiAudio( 'time_running_out', 0.5 );
-			this.yourTurnSoundLoop = await game.audio_ui.play( 'media/audio/ui/clock.ogg', 0.25, true );
-
-		}else{
-			
-			$("span.timeLeft", this.yourTurn).html('');
-
-		}
 	}
 
 
@@ -2885,7 +2960,7 @@ export default class UI{
 			}
 			
 			else if( task == "auto" ){
-				game.getTurnPlayer().autoPlay(true);
+				game.autoPlay();
 				return;
 			}
 
@@ -2901,10 +2976,6 @@ export default class UI{
 			}
 			else if( task == "notice" ){
 				return this.addNotice(spl.join(' '));
-			}
-
-			else if( task === 'afk' ){
-				return game.toggleAFK();
 			}
 			
 			else if( task === "me" ){
@@ -3319,13 +3390,13 @@ export default class UI{
 		// This action is tied to an asset
 		if( action.isAssetAction() && action.parent.charges !== -1 )
 			uses = player.numAssetUses(action.parent.label, game.battle_active);	
-		else if( action._charges > 1 )
+		else if( action._charges !== 1 )
 			uses = action._charges;
 
 		const usesEl = $('> div.uses', button);
-		usesEl.toggleClass('hidden', !uses || Boolean(ignoreStats))
-		if( +usesEl.text() !== uses )
-			usesEl.text("x"+uses);
+		usesEl.toggleClass('hidden', uses === false || Boolean(ignoreStats));
+		usesEl.toggleClass('red', uses < 1);
+		usesEl.text("x"+uses);
 
 		// Cooldown
 		const cdEl = $('> div.cd > span', button);
@@ -3338,6 +3409,36 @@ export default class UI{
 			hotkey = '';
 		if( hotkeyEl.text !== hotkey )
 			hotkeyEl.text(hotkey);
+
+		// missing momentum
+		const types = [
+			Player.MOMENTUM.Off,
+			Player.MOMENTUM.Def,
+			Player.MOMENTUM.Uti,
+		];
+
+		let missingDivs = [];
+		for( let type of types ){
+
+			const cost = action.getMomentumCost(type);
+			const held = player.getMomentum(type);
+
+			for( let i = 0; i < cost; ++i ){
+
+				const div = document.createElement('div');
+				if( i < held )
+					div.classList.add('fill');
+				missingDivs.push(div);
+				const bg = document.createElement('div');
+				bg.classList.add('bg');
+				div.append(bg);
+				div.classList.add(Player.MOMENTUM_NAMES_SHORT[type]);
+				
+			}
+
+		}
+		button[0].querySelector('div.missingMom').replaceChildren(...missingDivs);
+		
 
 		// Tooltip
 		const ttEl = $('> div.tooltip', button);
@@ -3426,6 +3527,7 @@ UI.Templates = {
 			'<div class="uses"></div>'+
 			'<div class="cd"><span></span><img src="media/wrapper_icons/hourglass.svg" /></div>'+
 			'<div class="tooltip actionTooltip"></div>'+
+			'<div class="missingMom"></div>'+	// Missing momentum
 		'</div>',
 	getActionButtonGroup : function(){
 

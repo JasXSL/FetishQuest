@@ -1,7 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap'); /* Header */
 @import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap'); /* Good for books */
 @import url('https://fonts.googleapis.com/css2?family=Redressed&display=swap'); /* Fancy books */
-
+:root{
+	--iconOff : url(media/ui/fq_mom_atk.png);
+	--iconDef : url(media/ui/fq_mom_def.png);
+	--iconUti : url(media/ui/fq_mom_uti.png);
+}
 
 body, html{
 	margin:0;
@@ -14,6 +18,10 @@ body, html{
 *{
 	position: relative;
 	box-sizing: border-box;
+}
+
+.italic{
+	font-style: italic;
 }
 
 .bold{
@@ -361,167 +369,175 @@ div.scroll{
 
 
 /* FX */
-@keyframes takeDamage{
-	0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	10%{transform:translateX(5%);}
-	20%{transform:translateX(-4%);}
-	30%{transform:translateX(4%);}
-	40%{transform:translateX(-3%);}
-	50%{transform:translateX(3%); filter:none; }
-	60%{transform:translateX(-2%);}
-	70%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageCorruption{
-	0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(290deg) saturate(400%);}
-	10%{transform:translateX(5%);}
-	20%{transform:translateX(-4%);}
-	30%{transform:translateX(4%);}
-	40%{transform:translateX(-3%);}
-	50%{transform:translateX(3%); filter:none; }
-	60%{transform:translateX(-2%);}
-	70%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageElemental{
-	0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(220deg) saturate(400%);}
-	10%{transform:translateX(5%);}
-	20%{transform:translateX(-4%);}
-	30%{transform:translateX(4%);}
-	40%{transform:translateX(-3%);}
-	50%{transform:translateX(3%); filter:none; }
-	60%{transform:translateX(-2%);}
-	70%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageHoly{
-	0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(15deg) saturate(400%);}
-	10%{transform:translateX(5%);}
-	20%{transform:translateX(-4%);}
-	30%{transform:translateX(4%);}
-	40%{transform:translateX(-3%);}
-	50%{transform:translateX(3%); filter:none; }
-	60%{transform:translateX(-2%);}
-	70%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageStretchPC{
-	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	50%{transform:translateX(20%);}
-	60%{transform:translateX(25%); filter:none; }
-	70%{transform:translateX(-2%);}
-	75%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	85%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageStretchNPC{
-	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	50%{transform:translateX(-20%);}
-	60%{transform:translateX(-25%); filter:none; }
-	70%{transform:translateX(-2%);}
-	75%{transform:translateX(2%);}
-	80%{transform:translateX(-1%);}
-	85%{transform:translateX(1%);}
-	100%{transform:none; }
-}
-@keyframes takeDamageSqueeze{
-	0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	50%{transform:scale(0.9, 0.9);}
-	60%{transform:scale(0.88, 0.88); filter:none; }
-	70%{transform:scale(1.03);}
-	80%{transform:scale(0.98);}
-	90%{transform:scale(1.01);}
-	100%{transform:none; }
-}
-@keyframes hitfxShake{
-	0%{transform:none;}
-	10%{transform:translateX(10%);}
-	20%{transform:translateX(-10%);}
-	30%{transform:translateX(5%);}
-	40%{transform:translateX(-5%);}
-	50%{transform:translateX(2.5%);}
-	60%{transform:translateX(-2.5%);}
-	70%{transform:translateX(1%);}
-	80%{transform:translateX(-1%);}
-	90%{transform:translateX(0.5%);}
-	100%{transform:none;}
-}
-@keyframes buffBlue{
-	0%{transform:none; filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
-	60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
-	70%{transform:scale(1.03);}
-	80%{transform:scale(0.98);}
-	90%{transform:scale(1.01);}
-	100%{transform:none; }
-}
-@keyframes buffRed{
-	0%{transform:none; filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
-	70%{transform:scale(1.03);}
-	80%{transform:scale(0.98);}
-	90%{transform:scale(1.01);}
-	100%{transform:none; }
-}
+	@keyframes takeDamage{
+		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		10%{transform:translateX(5%);}
+		20%{transform:translateX(-4%);}
+		30%{transform:translateX(4%);}
+		40%{transform:translateX(-3%);}
+		50%{transform:translateX(3%); filter:none; }
+		60%{transform:translateX(-2%);}
+		70%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes actionUsed{
+		0%{transform:translateX(3%);}
+		20%{transform:translateX(3%);}
+		100%{transform:none; } 
+	}
+	@keyframes takeDamageCorruption{
+		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(290deg) saturate(400%);}
+		10%{transform:translateX(5%);}
+		20%{transform:translateX(-4%);}
+		30%{transform:translateX(4%);}
+		40%{transform:translateX(-3%);}
+		50%{transform:translateX(3%); filter:none; }
+		60%{transform:translateX(-2%);}
+		70%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageElemental{
+		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(220deg) saturate(400%);}
+		10%{transform:translateX(5%);}
+		20%{transform:translateX(-4%);}
+		30%{transform:translateX(4%);}
+		40%{transform:translateX(-3%);}
+		50%{transform:translateX(3%); filter:none; }
+		60%{transform:translateX(-2%);}
+		70%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageHoly{
+		0%{transform:translateX(-5%); filter:blur(3px) sepia(100%) hue-rotate(15deg) saturate(400%);}
+		10%{transform:translateX(5%);}
+		20%{transform:translateX(-4%);}
+		30%{transform:translateX(4%);}
+		40%{transform:translateX(-3%);}
+		50%{transform:translateX(3%); filter:none; }
+		60%{transform:translateX(-2%);}
+		70%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageStretchPC{
+		0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		50%{transform:translateX(20%);}
+		60%{transform:translateX(25%); filter:none; }
+		70%{transform:translateX(-2%);}
+		75%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		85%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageStretchNPC{
+		0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		50%{transform:translateX(-20%);}
+		60%{transform:translateX(-25%); filter:none; }
+		70%{transform:translateX(-2%);}
+		75%{transform:translateX(2%);}
+		80%{transform:translateX(-1%);}
+		85%{transform:translateX(1%);}
+		100%{transform:none; }
+	}
+	@keyframes takeDamageSqueeze{
+		0%{transform:none; filter:blur(3px) sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		50%{transform:scale(0.9, 0.9);}
+		60%{transform:scale(0.88, 0.88); filter:none; }
+		70%{transform:scale(1.03);}
+		80%{transform:scale(0.98);}
+		90%{transform:scale(1.01);}
+		100%{transform:none; }
+	}
+	@keyframes hitfxShake{
+		0%{transform:none;}
+		10%{transform:translateX(10%);}
+		20%{transform:translateX(-10%);}
+		30%{transform:translateX(5%);}
+		40%{transform:translateX(-5%);}
+		50%{transform:translateX(2.5%);}
+		60%{transform:translateX(-2.5%);}
+		70%{transform:translateX(1%);}
+		80%{transform:translateX(-1%);}
+		90%{transform:translateX(0.5%);}
+		100%{transform:none;}
+	}
+	@keyframes buffBlue{
+		0%{transform:none; filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
+		60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-180deg) saturate(400%);}
+		70%{transform:scale(1.03);}
+		80%{transform:scale(0.98);}
+		90%{transform:scale(1.01);}
+		100%{transform:none; }
+	}
+	@keyframes buffRed{
+		0%{transform:none; filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		60%{transform:scale(0.98, 0.98); filter:sepia(100%) hue-rotate(-40deg) saturate(400%);}
+		70%{transform:scale(1.03);}
+		80%{transform:scale(0.98);}
+		90%{transform:scale(1.01);}
+		100%{transform:none; }
+	}
 
-@keyframes heal{
-	0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(40deg) saturate(200%);}
-	30%{transform:scale(1.05);}
-	75%{transform:scale(0.99);}
-}
-@keyframes arcaneCharge{
-	0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(285deg) saturate(200%);}
-	95%{transform:scale(1.05);}
-}
-div.fxTakeDamage{
-	animation: takeDamage 0.5s ease-in-out;
-}
-div.fxTakeDamageCorruption{
-	animation: takeDamageCorruption 0.5s ease-in-out;
-}
-div.fxTakeDamageElemental{
-	animation: takeDamageElemental 0.5s ease-in-out;
-}
-div.fxTakeDamageHoly{
-	animation: takeDamageHoly 0.5s ease-in-out;
-}
-div.fxHeal{
-	animation: heal 0.5s ease-in-out;
-}
-div.fxArcaneCharge{
-	animation: arcaneCharge 1s;
-}
-div.fxStretch{
-	animation: takeDamageStretchPC 0.75s ease-in-out;
-}
-div.fxShake{
-	animation: hitfxShake 0.75s ease-in-out;
-}
-div.right div.fxStretch{
-	animation: takeDamageStretchNPC 0.75s ease-in-out;
-}
-div.fxSqueeze{
-	animation: takeDamageSqueeze 0.5s ease-in-out;
-}
-div.fxBuffBlue{
-	animation: buffBlue 0.5s ease-in-out;
-}
-div.fxBuffRed{
-	animation: buffRed 0.5s ease-in-out;
-}
-div.passiveUpsideDown > div.content > div.bg{
-	transform:rotate(180deg) scaleX(-1);
-	background-position:center 90% !important;
-}
-
+	@keyframes heal{
+		0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(40deg) saturate(200%);}
+		30%{transform:scale(1.05);}
+		75%{transform:scale(0.99);}
+	}
+	@keyframes arcaneCharge{
+		0%{transform:scale(0.95); filter:sepia(100%) hue-rotate(285deg) saturate(200%);}
+		95%{transform:scale(1.05);}
+	}
+	div.fxActionUsed{
+		animation: actionUsed 0.25s ease-in-out
+	}
+	div.fxTakeDamage{
+		animation: takeDamage 0.5s ease-in-out;
+	}
+	div.fxTakeDamageCorruption{
+		animation: takeDamageCorruption 0.5s ease-in-out;
+	}
+	div.fxTakeDamageElemental{
+		animation: takeDamageElemental 0.5s ease-in-out;
+	}
+	div.fxTakeDamageHoly{
+		animation: takeDamageHoly 0.5s ease-in-out;
+	}
+	div.fxHeal{
+		animation: heal 0.5s ease-in-out;
+	}
+	div.fxArcaneCharge{
+		animation: arcaneCharge 1s;
+	}
+	div.fxStretch{
+		animation: takeDamageStretchPC 0.75s ease-in-out;
+	}
+	div.fxShake{
+		animation: hitfxShake 0.75s ease-in-out;
+	}
+	div.right div.fxStretch{
+		animation: takeDamageStretchNPC 0.75s ease-in-out;
+	}
+	div.fxSqueeze{
+		animation: takeDamageSqueeze 0.5s ease-in-out;
+	}
+	div.fxBuffBlue{
+		animation: buffBlue 0.5s ease-in-out;
+	}
+	div.fxBuffRed{
+		animation: buffRed 0.5s ease-in-out;
+	}
+	div.passiveUpsideDown > div.content > div.bg{
+		transform:rotate(180deg) scaleX(-1);
+		background-position:center 90% !important;
+	}
+/**/
 
 /* Shared */
 	/* Used by player art layer preview */
@@ -795,7 +811,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		background-size: cover;
 		overflow: visible;
 		display: inline-block;
-		margin: 0 0.25vh 0 0.25vh;
+		margin: 0 0.25vh 0.25vh 0.25vh;
 		vertical-align: middle;
 		width: 5.5vh;
     	height: 5.5vh;
@@ -1022,31 +1038,18 @@ div.passiveUpsideDown > div.content > div.bg{
 		text-shadow: 0.1vmax 0.1vmax 0.2vmax #000;
 		pointer-events: none;
 	}
-	#ui > div.yourTurnBadge.rope{
-		background:rgba(255,150,150,.75);
-	}
-	@keyframes yourTurnBorderRope{
-		from{ 
-			box-shadow: 0 0 1vmax #FAA inset;
-		}
-		to{
-			box-shadow: 0 0 2vmax #FAA inset;
-		}
-	}
 	#yourTurnBorder{
 		position: fixed;
 		left:0; right:0; bottom:0; top:0;
 		box-shadow: 0 0 1vmax #EFE inset;
 		pointer-events: none;
 	}
-	#yourTurnBorder.rope{
-		animation: yourTurnBorderRope 0.5s ease-in-out alternate infinite;
-	}
+
 
 /**/
 
 
-/* YOUR TURN*/
+/* Exploration Dungeon progress */
 	#dungeonProgress{
 
 		position: fixed;
@@ -1386,100 +1389,101 @@ div.passiveUpsideDown > div.content > div.bg{
 /**/
 
 /* Book overlay */
-#book{
-	position: fixed;
-	top:0; left:0; bottom:0; right:0;
-	background:rgba(0,0,0,.25);
-	backdrop-filter: blur(5px);
-	font-size:2vmax;
-	user-select: none;
-	font-family: 'Redressed', cursive;
-}
-#book.handwriting{
-	font-family: 'Rock Salt', cursive;
-}
-#book > div.mid{
-	position: absolute;
-	left:50%; top:50%;
-	transform:translate(-50%, -50%);
-	height:45vmax;
-	width:70vmax;
-	max-width:80%;
-	max-height: 80%;
-	background:#000;
-	background:url(media/ui/book.png);
-	background-size:100% 100%;
-	color:#000;
-}
-#book div.page{
-	/* Todo: custom font */
-	position: absolute;
-    top: 10%;
-    left: 15%;
-	width:30%;
-	overflow:hidden;
-}
-#book div.page.B{
-	left:auto;
-	right:15%;
-}
-#book div.pageNr{
-	position: absolute;
-	left:30%;
-	bottom:10%;
-	transform:translateX(-50%);
-}
-#book div.pageNr.B{
-	left:auto;
-	right:30%;
-}
-#book div.nav{
-	width:15%;
-	left:0;
-	font-size: 4vmax;
-	top:0;
-	bottom:0;
-	position:absolute;
-	cursor:pointer;
-}
-#book div.nav:hover div.icon{
-	color:#FFF;
-	text-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
-	
-}
-#book div.nav div.icon{
-	top: 50%;
-	right:0;
-	transform: translateY(-50%);
-	position:absolute;
-}
-#book div.nav.B{
-	right:0;
-	left:auto;
-}
-#book div.nav.B div.icon{
-	left:0; right:auto;
-}
-#book div.close{
-	position: absolute;
-    color: #FFF;
-    border: 3px double #AAA;
-    padding: 1vmax 3vmax;
-    bottom: -10%;
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 0.5vmax 0.5vmax 1vmax #000;
-    font-size: 3vmax;
-    user-select: none;
-    border-radius: 1vmax;
-	cursor: pointer;
-}
-#book div.close:hover{
-	filter:brightness(2);
-}
-#book div.close:active{
-	transform:translateX(-50%) scale(0.95, 0.95);
-}
+	#book{
+		position: fixed;
+		top:0; left:0; bottom:0; right:0;
+		background:rgba(0,0,0,.25);
+		backdrop-filter: blur(5px);
+		font-size:2vmax;
+		user-select: none;
+		font-family: 'Redressed', cursive;
+	}
+	#book.handwriting{
+		font-family: 'Rock Salt', cursive;
+	}
+	#book > div.mid{
+		position: absolute;
+		left:50%; top:50%;
+		transform:translate(-50%, -50%);
+		height:45vmax;
+		width:70vmax;
+		max-width:80%;
+		max-height: 80%;
+		background:#000;
+		background:url(media/ui/book.png);
+		background-size:100% 100%;
+		color:#000;
+	}
+	#book div.page{
+		/* Todo: custom font */
+		position: absolute;
+		top: 10%;
+		left: 15%;
+		width:30%;
+		overflow:hidden;
+	}
+	#book div.page.B{
+		left:auto;
+		right:15%;
+	}
+	#book div.pageNr{
+		position: absolute;
+		left:30%;
+		bottom:10%;
+		transform:translateX(-50%);
+	}
+	#book div.pageNr.B{
+		left:auto;
+		right:30%;
+	}
+	#book div.nav{
+		width:15%;
+		left:0;
+		font-size: 4vmax;
+		top:0;
+		bottom:0;
+		position:absolute;
+		cursor:pointer;
+	}
+	#book div.nav:hover div.icon{
+		color:#FFF;
+		text-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
+		
+	}
+	#book div.nav div.icon{
+		top: 50%;
+		right:0;
+		transform: translateY(-50%);
+		position:absolute;
+	}
+	#book div.nav.B{
+		right:0;
+		left:auto;
+	}
+	#book div.nav.B div.icon{
+		left:0; right:auto;
+	}
+	#book div.close{
+		position: absolute;
+		color: #FFF;
+		border: 3px double #AAA;
+		padding: 1vmax 3vmax;
+		bottom: -10%;
+		left: 50%;
+		transform: translateX(-50%);
+		box-shadow: 0.5vmax 0.5vmax 1vmax #000;
+		font-size: 3vmax;
+		user-select: none;
+		border-radius: 1vmax;
+		cursor: pointer;
+	}
+	#book div.close:hover{
+		filter:brightness(2);
+	}
+	#book div.close:active{
+		transform:translateX(-50%) scale(0.95, 0.95);
+	}
+/**/
 
 /* Inventory */
 	#inventory div.cmTabContent{
@@ -1487,7 +1491,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:1vmax 5vmax;
 	}
 	#inventory div.cmTabContent[data-id="Actions"]{
-		width:50vw;
+		width:55vw;
 		min-width:0;
 	}
 
@@ -1725,16 +1729,16 @@ div.passiveUpsideDown > div.content > div.bg{
 /**/
 
 /* help */
-#help div.modalMain{
-	max-height:70vh;
-	min-width:50vw;
-	overflow: auto;
-	padding: 1vmax 5vmax;
-	font-size: 1.5vmax;
-}
-#help div.modalMain table{
-	width:100%;
-}
+	#help div.modalMain{
+		max-height:70vh;
+		min-width:50vw;
+		overflow: auto;
+		padding: 1vmax 5vmax;
+		font-size: 1.5vmax;
+	}
+	#help div.modalMain table{
+		width:100%;
+	}
 
 
 /**/
@@ -1767,15 +1771,16 @@ div.passiveUpsideDown > div.content > div.bg{
 /**/
 
 /* Transmog */
-#transmog div.inventory div.item.selected{
-	border-color:#FFF;
-	border-width: 0.3vmax;
-}
+	#transmog div.inventory div.item.selected{
+		border-color:#FFF;
+		border-width: 0.3vmax;
+	}
+/**/
 
 /* Players */
 	#ui > div.players{
 		position: absolute;
-		top:0; left:0; right:0; bottom:7vh;
+		top:0; left:0; right:0; bottom:7.5vh;
 		pointer-events: none;
 	}
 
@@ -1866,14 +1871,6 @@ div.passiveUpsideDown > div.content > div.bg{
 	}
 	#ui > div.players div.player span.resource.HP div.bg{
 		filter:brightness(60%) sepia(1) saturate(400%) hue-rotate(-50deg);
-	}
-	#ui > div.players div.player span.MP{
-		color:#FFF;
-		text-shadow: 1px 1px #059, 1px -1px #059, -1px 1px #059, -1px -1px #059;
-
-	}
-	#ui > div.players div.player span.resource.MP div.bg{
-		filter:brightness(70%) sepia(1) saturate(300%) hue-rotate(150deg);
 	}
 	#ui > div.players div.player span.AP{
 		color: #FFF;
@@ -2355,7 +2352,7 @@ div.passiveUpsideDown > div.content > div.bg{
 
 /* Text */
 	#ui > div.middle{
-		bottom:7vh;
+		bottom:7.5vh;
 		background:rgba(0,0,0,.5);
 		left:24vw;
 		right:24vw;
@@ -2473,9 +2470,6 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:0.1vmax 0.5vmax;
 		font-style: italic;
 	}
-	#ui > div.middle > div.content > div.line.statMessage.MP{
-		color:#BCD;
-	}
 	#ui > div.middle > div.content > div.line.statMessage.arousal{
 		color:#DBD;
 	}
@@ -2515,7 +2509,63 @@ div.passiveUpsideDown > div.content > div.bg{
 		font-style: italic;
 	}
 
+
 /**/
+
+/*	MOMENTUM GAIN ICONS */
+	#ui > div.momentumGain{
+		pointer-events: none;
+		position: absolute;
+		top:0; left:0; right:0; bottom: 0;
+	}
+	#ui > div.momentumGain > div.momentumIcon{
+		width: 10vmax;
+		height: 10vmax;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform:translate(-50%,-50%);
+		background:var(--iconOff);
+		background-size: contain;
+		display:none;
+	}
+	#ui > div.momentumGain > div.momentumIcon.Def{
+		background-image:var(--iconDef);
+	}
+	#ui > div.momentumGain > div.momentumIcon.Uti{
+		background-image:var(--iconUti);
+	}
+	@keyframes momentumIconIn{
+		from{
+			transform:translate(-50%, -50%) scale(0.01);
+		}
+		to{ 
+			transform:translate(-50%, -50%) scale(1.0);
+		}
+	}
+	@keyframes momentumIconOut{
+		0%{
+			top:50%;
+			transform:translate(-50%, -50%) scale(1.0);
+		}
+		99%{
+			top:110%;
+			transform:translate(-50%, -50%) scale(.1);
+			opacity: 1.0;
+		}
+		100%{
+			opacity:0;
+		}
+	}
+	
+	#ui > div.momentumGain > div.momentumIcon.on{
+		display:block;
+		animation: momentumIconIn 200ms ease-out, momentumIconOut cubic-bezier(0.975, 0.005, 0.990, 0.980) 250ms forwards;
+		animation-delay: 0ms, 1000ms;
+	}
+
+/**/
+
 
 /* Mini chat */
 	#mapChat{
@@ -2585,7 +2635,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	#ui > div.players div.player{
 
 		width:25.5vw;
-		margin:0.15vmax;
+		margin:0.3vmax;
 		user-select: none;
 		cursor:pointer;
 		flex-grow: 1;
@@ -2613,6 +2663,9 @@ div.passiveUpsideDown > div.content > div.bg{
 		padding:0.5vmax;
 		display:none;
 	}
+	div.players div.player.myActive > div.content{
+		outline: 0.4vmax solid #FFF;
+	}
 	div.players div.player > div.content{
 
 		overflow:visible;
@@ -2621,7 +2674,6 @@ div.passiveUpsideDown > div.content > div.bg{
 		background:#222;
 		border:0.2vmax solid transparent;
 		height:100%;
-
 		background: linear-gradient(#FFF, #FFF) padding-box, linear-gradient(
 			45deg, #888888 0%,#adadad 48%,#797979 51%,#838383 100%) border-box;
 
@@ -2657,42 +2709,7 @@ div.passiveUpsideDown > div.content > div.bg{
 	div.players div.right div.player span.name > span{
 		margin-right:0.5vmax;
 	}
-	#ui > div.players div.left div.player div.stats > span.name > div.playersBefore{
-		left:0.5vmax;
-		right:auto;
-	}
-	#ui > div.players div.player div.stats > span.name > div.playersBefore::before{
-		content:'';
-		position: absolute;
-		top: 0; 
-		left: 0;
-		width: 100%; 
-		height: 100%;  
-		opacity:0.5;
-		background:url('/media/wrapper_icons/duration.svg') 100% 100%;
-	}
-	#ui > div.players div.player div.stats > span.name > div.playersBefore{
-		right:0.5vmax;
-		top:50%;
-		font-size:2.25vmax;
-		width:2.5vmax;
-		height:2.5vmax;
-		transform:translateY(-50%);
-		color:#000;
-		position: absolute;
-		pointer-events: all;
-		cursor:help;
-		text-align: center;
-		text-shadow: 1px 1px #fff, -1px 1px #fff, 1px -1px #fff, -1px -1px #fff;
-		font-family: 'Germania One', cursive;
 
-	}
-	#ui > div.players div.player div.stats > span.name > div.playersBefore > span{
-		position: absolute;
-		top:50%; left:50%;
-		transform:translate(-50%,-50%);
-		padding-top:0.2vmax;
-	}
 
 	div.players div.player div.netgameStatus{
 		position: absolute;
@@ -2754,9 +2771,13 @@ div.passiveUpsideDown > div.content > div.bg{
 		opacity:0.75;
 	}
 
+	#ui > div.players div.player.mine.active > div.content{
+		border-color:#AFA;
+		box-shadow:0 0 .5vmax .25vmax rgb(200,255,200);
+	}
 	#ui > div.players div.player.active > div.content{
-		border-color:#DFD;
-		box-shadow:0 0 1vmax rgba(200,255,200, 0.8);
+		border-color:#FFA;
+		box-shadow:0 0 .5vmax .25vmax rgb(255,255,200);
 	}
 
 	#ui > div.players div.player.castTarget > div.content{
@@ -2831,6 +2852,20 @@ div.passiveUpsideDown > div.content > div.bg{
 		background-color:#000;
 	}
 	
+	#ui > div.players div.player > div.content > div.stats > span.name > div.focus{
+		width:3vmax;
+		height:3vmax;
+		opacity: 0.75;
+		position: absolute;
+		background:fixed url(media/wrapper_icons/eye-target.svg) center;
+		left:1vw;
+		top:50%;
+		transform:translateY(-50%);
+	}
+	#ui > div.players > div.right > div.player > div.content > div.stats > span.name > div.focus{
+		right:1vw;
+		left:auto;
+	}
 
 	#ui > div.players div.player > div.content > div.stats{
 		position:absolute;
@@ -2981,6 +3016,7 @@ div.passiveUpsideDown > div.content > div.bg{
 		background-size:contain;
 		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(130deg);
 	}
+/**/
 
 /* Action bar */
 	#ui > div.actionbar{
@@ -2988,21 +3024,42 @@ div.passiveUpsideDown > div.content > div.bg{
 		border:none;
 		background:none;
 		background: url(./media/ui/marble.jpg) repeat;
-		border-top:1vh groove rgba(255,255,255,.25);
-		height:7vh;
+		border-top:1.5vh groove rgba(255,255,255,.25);
+		height:7.5vh;
+	}
+
+	#ui > div.actionbar > div.reroll{
+		position: absolute;
+		top: 0;
+		left:1vw;
+		transform: translateY(-75%);
+		font-weight: bold;
+		width: 3vh;
+		height: 3vh;
+		background: url(media/wrapper_icons/perspective-dice-six-faces-three.svg) no-repeat top left;
+		pointer-events: none;
+	}
+	#ui > div.actionbar > div.reroll > span{
+		display:block;
+		position: absolute;
+		left:100%;
+		top:50%;
+		transform:translateY(-50%);
+		font-size: 3vh;
+		text-shadow: 2px 2px 1px #000;
 	}
 
 	/* Stats */
 	#ui > div.actionbar > div.resources{
 		display:flex;
 		position: absolute;
-		top:0;
-		transform:translateY(-100%);
+		top:-1.5vh; /* SHould correspond to height of div.point below */
 		width:100%;
 		background:rgba(0,0,0,.25);
 		left:0;
 	}
-	#ui > div.actionbar > div.resources > div.stat{
+	/*
+	#ui > div.actionbar > div.resources {
 		border:none;
 		background:none;
 		box-shadow:none;
@@ -3012,45 +3069,81 @@ div.passiveUpsideDown > div.content > div.bg{
 		flex-direction:row;
 		margin:0 0.5vh;
 	}
-	#ui > div.actionbar > div.resources > div.stat.mp > div.point{
-		background:rgba(200,230,255,0.25);
+	*/
+	#ui > div.actionbar > div.resources > div.point{
+		background:rgba(200,200,200,0.25);
 	}
-	#ui > div.actionbar > div.resources > div.stat.mp > div.point.filled{
-		background:rgba(200,230,255,.75);
-		background: linear-gradient(to bottom, #b8eef6 0%,#66e0f0 50%,#56d7e8 51%,#70e6f6 100%);
+	@keyframes momChange{
+		from{
+			transform:scale(1.1);
+			box-shadow:0 0 2vh rgb(255,255,255);
+		}
+		to{
+			
+		}
 	}
-	#ui > div.actionbar > div.resources > div.stat.mp > div.point.highlighted{
-		box-shadow:0 0 1vh rgb(200,230,255);
-		border:1px solid rgb(200,230,255);
-		background:rgb(220,240,255);
+	#ui > div.actionbar > div.resources > div.point.ch{
+		animation: momChange 0.5s ease-in-out;
 	}
-	#ui > div.actionbar > div.resources > div.stat.ap > div.point{
-		background:rgba(200,255,200,0.25);
+	#ui > div.actionbar > div.resources > div.point.off,
+	#ui > div.actionbar > div.resources > div.point.def,
+	#ui > div.actionbar > div.resources > div.point.uti
+	{
+		cursor:pointer;
+		box-shadow:0 -0.25vh 1vh rgba(207,233,255,.75);
 	}
-	#ui > div.actionbar > div.resources > div.stat.ap > div.point.filled{
-		background:rgba(200,255,200,.75);
-		background: linear-gradient(to bottom, #b8f6bf 0%,#66f074 50%,#56e865 51%,#70f67e 100%);
+	#ui > div.actionbar > div.resources.re > div.point.on:hover > div{
+		width:100%;
+		position: absolute;
+		top:0; left:0;
+		transform:translateY(-100%);
+		height:3vh;
+		display:block;
 	}
-	#ui > div.actionbar > div.resources > div.stat.ap > div.point.highlighted{
-		box-shadow:0 0 1vh rgb(200,255,200);
-		border:1px solid rgb(200,255,200);
-		background:rgb(220,255,220);
+	#ui > div.actionbar > div.resources > div.point > div{
+		display:none;
 	}
-	#ui > div.actionbar > div.resources > div.stat > div.point.highlighted:not(.filled){
-		background:rgba(255,100,100,0.5);
-		box-shadow:0 0 1vh rgb(255,200,200);
-		border:1px solid rgb(255,200,200);
+	#ui > div.actionbar > div.resources > div.point > div:hover{
+		border-color:#FFF;
+	}
+	#ui > div.actionbar > div.resources > div.point.on:hover > div:nth-child(2){
+		transform: translateY(-200%);
+	}
+	#ui > div.actionbar > div.resources > div.point.off:hover,
+	#ui > div.actionbar > div.resources > div.point.def:hover,
+	#ui > div.actionbar > div.resources > div.point.uti:hover
+	{
+		transition:all ease-out 0.25s;
+		transform:scaleY(1.1);
+	}
+	#ui > div.actionbar > div.resources div.point.off{
+		background:rgba(255,200,200,.75);
+		background: linear-gradient(to bottom, #f6b9b8 0%,#f06666 50%,#e85656 51%,#f67070 100%);
+	}
+	#ui > div.actionbar > div.resources div.point.def{
+		background:rgba(200,200,255,.75);
+		background: linear-gradient(to bottom, #b8d0f6 0%,#669df0 50%,#5690e8 51%,#70a6f6 100%);
+	}
+	#ui > div.actionbar > div.resources div.point.uti{
+		background:rgba(255,200,255,.75);
+		background: linear-gradient(to bottom, #f6b8f5 0%,#f066f0 50%,#e856e8 51%,#f670f6 100%);
+	}
+
+	#ui > div.actionbar > div.resources div.point.highlighted{
+		box-shadow:0 0 0.25vh 0.5vh rgb(255,255,255) !important;
+		border:1px solid rgb(255,255,255);
 	}
 	
-	#ui > div.actionbar > div.resources > div.stat > div{
-		height:1vh;
+	#ui > div.actionbar > div.resources > div,
+	#ui > div.actionbar > div.resources > div > div{
+		height:1.5vh;
 		flex-grow:1;
 		border:1px solid rgba(0,0,0,0);
 		border-radius:0.25vmax;
-		transition:all ease-out 0.25s;
+		transition:none;
 		margin:0.1vh;
 	}
-	#ui > div.actionbar > div.resources > div.stat > div.highlighted{
+	#ui > div.actionbar > div.resources > div.highlighted{
 		transition:none;
 		transition:all ease-out 0.05s;
 	}
@@ -3090,6 +3183,9 @@ div.passiveUpsideDown > div.content > div.bg{
 		margin: 0.3vh 0 0 0;
 		height: 5.5vh;
 		background: linear-gradient(to bottom, #686868 0%,#636363 39%,#4c4c4c 50%,#282828 51%,#383838 100%);
+	}
+	#ui > div.actionbar > div.actions > div.action.disabled[data-id=end-turn]{
+		display:none;
 	}
 	#ui > div.actionbar > div.actions > div.action[data-id=end-turn] div.bg{
 		background:url(media/wrapper_icons/upgrade.svg);
@@ -3138,10 +3234,15 @@ div.passiveUpsideDown > div.content > div.bg{
 		color:#EFE;
 		text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 	}
+	#ui > div.actionbar > div.actions div.action > div.uses.red{
+		color:#FEE;
+		font-size:1vmax;
+	}
 	div.action > div.cd,
 	#ui > div.actionbar > div.actions div.action > div.cd{
 		
-		bottom: -5%;
+		top: 50%;
+		transform: translateY(-50%);
 		right: -15%;
 		height:40%;
 		font-size:1.5vmax;
@@ -3152,6 +3253,40 @@ div.passiveUpsideDown > div.content > div.bg{
 		color:#FEE;
 
 	}
+
+	div.action > div.missingMom{
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+	div.action > div.missingMom > div{
+		background: rgba(0,0,0,0.75);
+		border-radius:1vmax;
+	}
+	div.action > div.missingMom > div > div.bg{
+		width:.8vmax;
+		height: .8vmax;
+		border-radius:1vmax;
+		margin:1px;
+	}
+	div.action > div.missingMom div.Off{ border:2px solid #FAA; }
+	div.action > div.missingMom div.Def{ border:2px solid #AAF; }
+	div.action > div.missingMom div.Uti{ border:2px solid #FAF; }
+
+	div.action > div.missingMom > div.fill.Off > div.bg{
+		background:#FAA;
+	}
+	div.action > div.missingMom > div.fill.Def > div.bg{
+		background:#AAF;
+	}
+	div.action > div.missingMom > div.fill.Uti > div.bg{
+		background:#FAF;
+	}
+	
+	
 	div.actions div.action div.cd > img,
 	#ui > div.actionbar > div.actions div.cd > img {
 		height: 100%;
@@ -3932,13 +4067,21 @@ div.passiveUpsideDown > div.content > div.bg{
 		animation: fct_crit 2s ease-in forwards;
 	}
 	#fct > div.text.hp{ color:#F88; }
-	#fct > div.text.mp{ color:#8AF; }
 	#fct > div.text.ap{ color:#8F8; }
 	#fct > div.text.armor{ color:#888; }
 	#fct > div.text.arousal{ color:#F8F; }
+/**/
+
+
+/* Color constants */
+	*.colorOffensive{ color:#F88; }
+	*.colorDefensive{ color:#88F; }
+	*.colorUtility{ color:#F8F; }
+	
+/*/
 
 /* HIDE IF NOT MOBILE */
-#mainMenuToggle{
-	display:none;
-}
-
+	#mainMenuToggle{
+		display:none;
+	}
+/*/

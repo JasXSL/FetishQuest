@@ -55,6 +55,7 @@ import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
 import Condition from '../classes/Condition.js';
 import Calculator from '../classes/Calculator.js';
+import Game from '../classes/Game.js';
 
 
 // Window types that should be tracked
@@ -142,6 +143,7 @@ export default class Modtools{
 		this.modName = document.querySelector("#modName > span.name");
 		this.modDirty = document.querySelector("#modName > span.dirty");
 		this.datalists = document.getElementById("datalists");
+		this.dummyGame = new Game();
 
 		this.dummyUploader = document.getElementById("dummyUploader");	// file input
 

@@ -26,6 +26,7 @@ import GameEvent from '../../classes/GameEvent.js';
 import stdTag from '../../libraries/stdTag.js';
 import { Effect } from '../../classes/EffectSys.js';
 import Game from '../../classes/Game.js';
+import Player from '../../classes/Player.js';
 
 const DB = 'conditions',
 	CONSTRUCTOR = Condition;
@@ -83,6 +84,16 @@ export function asset(){
 
 	};
 
+	const buildActionRangeSelect = (name, current) => {
+
+		let out = '<select name="'+name+'" class="saveable">';
+		for( let i in Action.Range )
+			out += '<option value="'+Action.Range[i]+'" '+(current === Action.Range[i] ? 'selected' : '')+'>'+i+'</option>';
+		out += '</select>';
+		return out;
+
+	};
+
 	const buildMathOperators = (name, current) => {
 
 		let operators = ['>','<','='];
@@ -120,17 +131,23 @@ export function asset(){
 	};
 
 	// For any thing that uses {amount:(int)amount, operation:(str)operation}. You can use this
-	const buildDefaultValueFields = () => {
+	const buildDefaultValueFields = withPerc => {
 
-		setDefaultData({
+		const dd = {
 			amount : 0, 
 			operation: '>'
-		});
+		};
+		if( withPerc )
+			dd.perc = false;
+		setDefaultData(dd);
+		
 
 		let html = '';
 		html += '<div class="labelFlex">';
 			html += '<label title="">Value: <input type="text" name="data::amount" class="saveable" value="'+esc(asset.data.amount)+'" /></label>';
 			html += '<label>'+buildMathOperators('data::operation', asset.data.operation)+'</label>';
+			if( withPerc )
+				html += '<label>Percentage <input type="checkbox" name="data::perc" class="saveable" '+(asset.data.perc ? 'checked' : '')+' /></label>';
 		html += '</div>';
 		return html;
 
@@ -295,16 +312,24 @@ export function asset(){
 
 	}
 	else if( type === types.actionRanged ){}
+	else if( type === types.lastActionRange ){
+
+		setDefaultData({
+			range : Action.Range.Melee,
+		});
+		html += buildActionRangeSelect('data::range', asset.data.range);
+
+	}
 	else if( type === types.actionResisted ){
 
 		setDefaultData({
-			type : '',
+			type : Action.Types.arcane,
 		});
 		
 		html += buildActionTypeSelect('data::type', asset.data.type, true);
 
 	}
-	else if( type === types.actionTag || type === types.roomTag ){
+	else if( type === types.actionTag || type === types.roomTag || type === types.gameActionDataTags ){
 
 		setDefaultData({
 			tags : [],
@@ -375,7 +400,7 @@ export function asset(){
 
 	}
 
-	else if( type === types.actionType ){
+	else if( type === types.actionType || type === types.lastActionType ){
 		
 		setDefaultData({
 			type : '',
@@ -383,8 +408,23 @@ export function asset(){
 		html += buildActionTypeSelect('data::type', asset.data.type, true);
 		
 	}
-	else if( type === types.apValue ){
-		html += buildDefaultValueFields();
+	else if( type === types.momentumValue ){
+
+		setDefaultData({
+			amount : 0,
+			type : Player.MOMENTUM.All,
+		});
+		html += buildDefaultValueFields(true);
+
+		html += '<select data-type="int" class="saveable" name="data::type">';
+		for( let i in Player.MOMENTUM )
+			html += '<option value="'+Player.MOMENTUM[i]+'" '+(asset.data.type === Player.MOMENTUM[i] ? 'selected' : '')+'>'+i+'</option>';
+		html += '</select>';
+
+	}
+	else if( type === types.eventCustomAmount ){
+		html += buildDefaultValueFields(); 
+		html += '<label>Event custom field: <input name="data::field" value="'+esc(asset.data.field || '')+'" class="saveable" placeholder="amount" /></label>';
 	}
 	else if( type === types.blockValue ){
 		html += buildDefaultValueFields();
@@ -719,7 +759,10 @@ export function asset(){
 
 	}
 	else if( type === types.hpValue ){
-		html += buildDefaultValueFields();
+		html += buildDefaultValueFields(true);
+	}
+	else if( type === types.arousalValue ){
+		html += buildDefaultValueFields(true);
 	}
 	else if( type === types.isActionParent ){}
 	else if( type === types.isRoleplayPlayer ){ 
@@ -734,16 +777,14 @@ export function asset(){
 		setDefaultData({
 			originalWrapper : false
 		});
-
 		html += '<div class="labelFlex">';
-			html += '<label title="When checking effect conditions, the event wrapper is always the effect\'s parent. If the event has a wrapper already, it gets put as original wrapper.">Use original wrapper: <input type="checkbox" name="data::originalWrapper" class="saveable" '+(asset.data.originalWrapper ? 'checked' : '')+'" /></label>';
+			html += '<label title="When checking effect conditions, the event wrapper is always the effect\'s parent. If the event has a wrapper already, it gets put as original wrapper.">'+
+				'Use original wrapper: <input type="checkbox" name="data::originalWrapper" class="saveable" '+(asset.data.originalWrapper ? 'checked' : '')+' />'+
+			'</label>';
 		html += '</div>';
 
 	}
 	else if( type === types.itemStolen ){}
-	else if( type === types.mpValue ){
-		html += buildDefaultValueFields();
-	}
 	else if( type === types.numRpTargets ){
 		html += buildDefaultValueFields();
 	}
@@ -1028,6 +1069,7 @@ export function asset(){
 		html += '<h3>Deprecated. Use isRoleplayPlayer instead</h3>';
 	}
 	else if( type === types.targetIsSender ){}
+	else if( type === types.targetIsTurnPlayer ){}
 	else if( type === types.targetIsWrapperSender ){
 		setDefaultData({
 			originalWrapper : false

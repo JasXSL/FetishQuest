@@ -182,6 +182,7 @@ export default class Condition extends Generic{
 			console.error("This was", this, "event was", event);
 			throw 'Invalid event';
 		}
+
 		
 
 		if( !debug )
@@ -203,20 +204,18 @@ export default class Condition extends Generic{
 
 		}
 
-		let targs = toArray(event.target),
+		let targs = toArray(event.target).slice(),
 			success = false,
 			T = Condition.Types,
-			s = event.sender
+			sender = event.sender
 		;
+
 
 		const originalTargets = targs.slice();
 
 		let eventWrapper = event.wrapper;
 		if( this.data.originalWrapper && event.originalWrapper )
 			eventWrapper = event.originalWrapper;
-
-		if( this.caster )
-			targs = [event.sender];
 
 		if( ~this.targnr )
 			targs = [targs[this.targnr]];
@@ -236,6 +235,12 @@ export default class Condition extends Generic{
 
 		// Check against all targeted players
 		for( let t of targs ){
+
+			let s = sender;
+			if( this.caster ){
+				s = t;
+				t = sender;
+			}
 
 			event.target = t;	// Override the target temporarily for correct math
 
@@ -303,6 +308,11 @@ export default class Condition extends Generic{
 				if(t && s && t.id === s.id)
 					success = true;
 			}
+			else if( this.type === T.targetIsTurnPlayer ){
+				
+				success = t && game.isTurnPlayer(t);
+
+			}
 			// s might not always be the original sender of a wrapper (procs/AoE effects etc)
 			// Use this to make it clear that you want the included wrapper's sender
 			else if( this.type === T.targetIsWrapperSender ){
@@ -348,6 +358,17 @@ export default class Condition extends Generic{
 				success = room?.hasTag(this.data.tags) || dungeon?.hasTag(this.data.tags);
 
 			}
+			else if( this.type === T.gameActionDataTags ){
+
+				const tags = toArray(this.data.tags);
+				// Searches any attached action for a tag
+				success = event.gameAction?.data?.tags?.some(e => {
+					return tags.includes(e);
+				});
+
+			}
+
+			
 
 			else if( this.type === T.actionCrit ){
 				success = event.action && event.action._crit;
@@ -489,12 +510,17 @@ export default class Condition extends Generic{
 			else if( this.type === T.species ){
 
 				if( t ){
+
 					let species = toArr(this.data.species);
 					species = species.map(el => el.toLowerCase() );
+					if( !t.species )
+						console.error("Target has no species", t, "targs", targs);
 					success = species.indexOf(t.species.toLowerCase()) > -1;
 					if( debug )
 						console.debug("TESTING SPECIES:: ", "data:", species, "target", t.species.toLowerCase());
+
 				}
+
 			}
 			else if( this.type === T.playerClass ){
 
@@ -534,6 +560,17 @@ export default class Condition extends Generic{
 			else if( this.type === T.actionGroup ){
 				success = event.action && event.action.group === this.data.group;
 			}
+			else if( this.type === T.lastActionRange ){
+
+				success = t._last_arange === this.data.range;
+
+			}
+			else if( this.type === T.lastActionType ){
+
+				success = t._last_atype === this.data.type;
+
+			}
+			
 
 			else if( this.type === T.isWrapperParent ){
 				
@@ -643,28 +680,53 @@ export default class Condition extends Generic{
 			else if( this.type === T.isTaunted ){
 
 				// Need a player in event
-				if( t && (!this.data.byCaster || event.sender) ){
+				if( t && (!this.data.byCaster || s) ){
 
-					let targs = t.getTauntedBy( undefined, false, false, true ).map(el => el.id);
-					success = targs.length && (!this.data.byCaster || targs.includes(event.sender.id));
+					let taTargs = t.getTauntedBy( undefined, false, false, true ).map(el => el.id);
+					success = taTargs.length && (!this.data.byCaster || taTargs.includes(s.id));
 
 				}
 
 			}
+			else if( this.type === T.isAwareOfSender ){
 
-			else if( this.type === T.apValue ){
-				success = t && this.compareValue(s, t, t.ap);
+				success = t && s && t.isAware(s);
+
 			}
+
+			else if( this.type === T.momentumValue ){
+
+				let v = t.getMomentum(this.data.type);
+				if( this.data.perc )
+					v /= t.getMaxMomentum();
+				success = t && this.compareValue(s, t, v);
+
+			}
+			else if( this.type === T.eventCustomAmount ){
+				
+				let field = "amount";
+				if( this.data.field )
+					field = this.data.field;
+
+				success = event.custom.hasOwnProperty(field) && this.compareValue(s, t, event.custom[field]);
+
+			}
+			
 			else if( this.type === T.blockValue )
 				success = t && this.compareValue(s, t, t.getBlock());
-			else if( this.type === T.mpValue )
-				success = t && this.compareValue(s, t, t.mp, debug);
-
 			else if( this.type === T.hpValue ){
-				success = t && this.compareValue(s, t, t.hp);
+
+				let v = t.hp;
+				if( this.data.perc )
+					v /= t.getMaxHP();
+				success = t && this.compareValue(s, t, v);
+
 			}
 			else if( this.type === T.arousalValue ){
-				success = t && this.compareValue(s, t, t.arousal);
+				let v = t.arousal;
+				if( this.data.perc )
+					v /= T.getMaxArousal();
+				success = t && this.compareValue(s, t, v);
 			}
 			else if( this.type === T.numRpTargets ){
 				success = game.roleplay && t && this.compareValue(s, t, game.roleplay.getTargetPlayers().length, debug);
@@ -1125,13 +1187,13 @@ export default class Condition extends Generic{
 					vars = [vars];
 
 				if( Array.isArray(vars) && window.game ){
-					const t = {};
+					const _t = {};
 					for( let v of vars ){
-						t[v] = 0;
+						_t[v] = 0;
 						if( game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars.hasOwnProperty(v) )
-							t[v] = game.state_dungeons[dungeon].vars[v];
+						_t[v] = game.state_dungeons[dungeon].vars[v];
 					}
-					success = Calculator.run(formula, event, t);
+					success = Calculator.run(formula, event, _t);
 				}
 
 			}
@@ -1426,7 +1488,7 @@ Condition.Types = {
 	hasEffectType : 'hasEffectType',
 	voice : 'voice',
 	isTaunted : 'isTaunted',
-
+	isAwareOfSender : 'isAwareOfSender',
 	hasAsset : 'hasAsset',
 	assetStealable : 'assetStealable',
 	assetSlot : 'assetSlot',
@@ -1434,10 +1496,10 @@ Condition.Types = {
 	assetTag : 'assetTag',
 	assetLabel : 'assetLabel',
 	hasFreeBondageDevice : 'hasFreeBondageDevice',
-
-	apValue : 'apValue', 			// 
-	mpValue : 'mpValue', 			// 
+	
+	momentumValue : 'momentumValue', 			// 
 	hpValue : 'hpValue', 			// 
+	eventCustomAmount : 'eventCustomAmount',
 	arousalValue : 'arousalValue', 			// 
 	copperValue : 'copperValue',
 	sizeValue : 'sizeValue',		// 
@@ -1486,11 +1548,12 @@ Condition.Types = {
 	hasActiveConditionalPlayer : 'hasActiveConditionalPlayer',
 	actionCrit : 'actionCrit',
 	targetIsRpPlayer : 'targetIsRpPlayer',
-
+	targetIsTurnPlayer : 'targetIsTurnPlayer',
 	isGenderEnabled : 'isGenderEnabled',
 	targetGenderEnabled : 'targetGenderEnabled',
 
 	encounterCompleted : 'encounterCompleted',
+
 
 	// Dungeon room conditions
 	roomIsOutdoors : 'roomIsOutdoors',
@@ -1504,6 +1567,10 @@ Condition.Types = {
 	numRpTargets : 'numRpTargets',
 	mathVarCompare : 'mathVarCompare',
 	blockValue : 'blockValue',
+	gameActionDataTags : 'gameActionDataTags',
+	lastActionRange : 'lastActionRange',
+	lastActionType : 'lastActionType',
+
 };
 
 
@@ -1541,10 +1608,10 @@ Condition.descriptions = {
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',
 	[Condition.Types.blockValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.apValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.mpValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.hpValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
-	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
+	[Condition.Types.momentumValue] : '{amount:(number)momentumAmount, operation:(str)<>=, perc:(bool)percentage, type:(str)momentumType=ANY} - Compares against target momentum. Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
+	[Condition.Types.hpValue] : '{amount:(number)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
+	[Condition.Types.eventCustomAmount] : '{amount:(int)amount, operation:(str)<>=, field:(str)"amount"} - Default > Amount can be a math var. By default checks for an amount field in event.custom, but field can be used to check other fields in event.custom',
+	[Condition.Types.arousalValue] : '{amount:(int)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var.',
 	[Condition.Types.copperValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
 	[Condition.Types.sadism] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target sadism value, between 0 (not sadistic) and 1 (completely sadistic). Amount can be a math var.',
 	[Condition.Types.dom] : '{amount:(float)amount, operation:(str)<>=} - Default >. Checks target dominant value, between 0 (sub) 0.5 (switch) and 1 (dom).  Amount can be a math var.',
@@ -1564,6 +1631,7 @@ Condition.descriptions = {
 	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data with EXACT',	
 	[Condition.Types.dungeonVarMath] : '{vars:(str/arr)var_ids, formula:(str)formula, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data via a math formula. vars have to contain all dVars included in the formula. If one is not set, it becomes 0.',	
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
+	[Condition.Types.targetIsTurnPlayer] : 'void - Checks if it\'s the event target\'s turn in combat',
 	[Condition.Types.targetIsWrapperSender] : '{ originalWrapper:(bool)=false} - Sender might not always be the caster of a wrapper (ex checking effect targets). This specifies that you want the sender of the included wrapper in specific.',	
 	[Condition.Types.species] : '{species:(str/arr)species} - Checks if target is one of the selected species. Case insensitive',	
 	[Condition.Types.encounterLabel] : '{label:(str/arr)encounter_label} - Checks if the encounter label exists in data label array',	
@@ -1611,6 +1679,11 @@ Condition.descriptions = {
 	[Condition.Types.firstOnTeam] : '{(arr)conditions:[]} Checks if the target is the first target on their team which matches these conditions. It checks in the same order as their team from top to bottom.',
 	[Condition.Types.isTaunted] : '{byCaster:(bool)=false} Checks if the target is taunted.',
 	[Condition.Types.mathVarCompare] : '{label:(str)mathVar, val:(var)testval} - Checks if a mathvar is val. mathVar accepts Calculator target consts. Use this if you want to compare strings. Otherwise use the formula condition. You can check multiple targets by using target consts, so generally you want to only check this against target 0 for speed.',
+	[Condition.Types.gameActionDataTags] : '{tags:(arr/str)tag} - Requires gameAction in event, and gameAction.data.tags must be an array. Primarily used to validate waht skills you can learn at a gym.', 
+	[Condition.Types.isAwareOfSender] : '{} - Checks if target is aware of sender',
+	[Condition.Types.lastActionRange] : '{range:(int)Action.Range.*} - Matches against range of last action used this turn',
+	[Condition.Types.lastActionType] : '{type:(str)Action.Types.*} - Matches against type of last action used this turn',
+	
 };
 
 

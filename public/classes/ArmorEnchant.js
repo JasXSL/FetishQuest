@@ -35,7 +35,7 @@ export default class ArmorEnchant extends Generic{
 			label : this.label,
 			description : this.description,
 			conditions : Condition.saveThese(this.conditions, full),
-			wrapper : Wrapper.saveThis(this.wrapper),
+			wrapper : Wrapper.saveThis(this.wrapper, full),
 			rarity : this.rarity,
 			curse : this.curse,
 		};

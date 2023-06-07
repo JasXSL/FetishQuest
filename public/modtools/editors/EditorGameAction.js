@@ -23,6 +23,7 @@ import GameAction from '../../classes/GameAction.js';
 import Dungeon, { DungeonRoom } from '../../classes/Dungeon.js';
 import Player from '../../classes/Player.js';
 import Calculator from '../../classes/Calculator.js';
+import HelperTags from './HelperTags.js';
 
 const DB = 'gameActions',
 	CONSTRUCTOR = GameAction;
@@ -621,11 +622,17 @@ export function asset(){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
 				player : '',
+				tags : []
 			};
 			
 		html += 'Player: <div class="player"></div>';
+		html += 'Tags: <br /><div name="tags">'+HelperTags.build(asset.data.tags || [])+'</div>';
+
 		fnBind = () => {
 			this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "data::player", true));
+			HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
+				HelperTags.autoHandleAsset('tags', tags, asset.data);
+			});
 		};
 	}
 	else if( type === Types.playerAction ){

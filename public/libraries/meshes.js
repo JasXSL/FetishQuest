@@ -2415,6 +2415,20 @@ function build(){
 
 
 				}),
+				Fork : new LibMesh({
+					url : 'doodads/fork.glb',
+					materials : [
+						libMat.Metal.Silver
+					],
+					tags : [stdTag.mFork],
+				}),
+				Knife : new LibMesh({
+					url : 'doodads/knife.glb',
+					materials : [
+						libMat.Metal.Silver
+					],
+					tags : [stdTag.mFork],
+				}),
 				Bowl : new LibMesh({
 					url : 'doodads/bowl.JD',
 					tags : [stdTag.mBowl],
@@ -2645,7 +2659,13 @@ function build(){
 						libMat.Glass.DemallineCrystal
 					],
 				}),
-				
+				CardDeck : new LibMesh({
+					url : 'doodads/card_deck.glb',
+					tags : [stdTag.mCards],
+					materials : [
+						libMat.Misc.TarotDeck
+					],
+				}),
 			},
 			Furniture : {
 				Bookshelf : {
