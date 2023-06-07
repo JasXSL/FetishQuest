@@ -1455,13 +1455,18 @@ class WebGL{
 
 		let visObj = visual;
 		if( !(visual instanceof HitFX) ){
+			
 			visObj = glib.get(visual, 'HitFX');
 			if( !visObj || !visObj.save ){
 				console.error("Visual missing", visual);
 				return;
 			}
+
 		}
-		visObj = visObj.clone(this);
+
+		// No auto rebase in editor, so disable cloning
+		if( window.game )
+			visObj = visObj.clone(this);
 
 		if( !Array.isArray(recipients) )
 			recipients = [recipients];
@@ -1563,11 +1568,18 @@ class WebGL{
 
 	}
 
-	raycastScreenPosition( x, y ){
+	raycastScreenPosition( x, y, width, height ){
+		
+		if( !width )
+			width = window.innerWidth;
+		if( !height )
+			height = window.innerHeight;
 		const vec = new THREE.Vector2( x, y);
-		vec.x = ( x / window.innerWidth ) * 2 - 1;
-		vec.y = - ( y / window.innerHeight ) * 2 + 1;
-		return this.raycastArrow(vec);
+		vec.x = ( x / width ) * 2 - 1;
+		vec.y = - ( y / height ) * 2 + 1;
+		const out = this.raycastArrow(vec);
+		return out;
+
 	}
 
 	raycastArrow( coords ){

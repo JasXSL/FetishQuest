@@ -531,7 +531,7 @@ export default class UI{
 	}
 
 	showDMTools(){
-		return !Boolean(+localStorage.hide_dm_tools) && game.is_host;
+		return !Boolean(+localStorage.hide_dm_tools) && window?.game?.is_host;
 	}
 
 	showBubbles(){

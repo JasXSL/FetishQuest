@@ -50,7 +50,45 @@ export function asset(){
 		'</pre>';
 	html += '<textarea class="json" name="stages">'+esc(JSON.stringify(asset.stages || []))+'</textarea><br />';
 
+	html += '<input type="button" class="previewHitfx" value="Preview" />';
+	html += '<div class="preview" style="width:30vmax; height:16.87vmax; background:#AAA; margin-bottom:5vmax;">'+
+		'<div class="attacker" style="width:3px; height:3px; position:absolute; left:10%; top:25%; background:#000;"></div>'+
+		'<div class="victim" style="width:3px; height:3px; position:absolute; right:10%; top:75%; background:#000;"></div>'+
+	'</div>';
+
 	this.setDom(html);
+
+	this.dom.querySelector('input.previewHitfx').onclick = event => {
+
+		const gl = modtools.webgl;
+		const viewer = this.dom.querySelector('div.preview');
+		viewer.append(gl.fxRenderer.domElement);
+		const fx = HitFX.loadThis(asset);
+		fx.rebase();
+		
+
+		modtools.webgl.playFX( this.dom.querySelector('div.attacker'), [this.dom.querySelector('div.victim')], fx, '', false, false );
+
+		const onResize = () => {
+
+			const rect = viewer.getBoundingClientRect();
+			const width = rect.width, height = rect.height;
+
+			gl.fxRenderer.setSize(width, height);
+			gl.fxCam.aspect = width/height;
+			gl.fxCam.updateProjectionMatrix();
+
+
+		};
+
+		// Attach the 3d editor
+		// The DOM will be inaccurate without the delay because HTML
+		setTimeout(onResize, 1);
+		
+		gl.updateSize = onResize;
+		this.onResize = onResize;
+
+	};
 
 	HelperAsset.autoBind( this, asset, DB);
 

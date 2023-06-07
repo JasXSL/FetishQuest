@@ -9,7 +9,7 @@ import {default as Dungeon, DungeonSaveState} from './Dungeon.js';
 import WebGL from './WebGL.js';
 import Text from './Text.js';
 import Quest from './Quest.js';
-import {default as Audio, setMasterVolume}  from './Audio.js';
+import {default as Audio, AudioKit, setMasterVolume}  from './Audio.js';
 import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
 import GameAction from './GameAction.js';
@@ -1143,8 +1143,10 @@ export default class Game extends Generic{
 	// Internal only lets you play the sound without sharing it with the other players (if DM)
 	async playFxAudioKitById(id, ...args ){
 
-		const glibAudio = glib.audioKits;
-		let kit = glibAudio[id];
+		let kit = glib.audioKits[id];
+		if( !window.game )
+			kit = AudioKit.loadThis(window.mod.getAssetById('audioKits', id, true));
+		
 		if( !kit )
 			return console.error("Audio kit missing", id);
 		

@@ -369,7 +369,8 @@ class Editor{
 
 		const 
 			renderDiv = win.dom.querySelector('div.webglRenderer'),
-			contentDiv = win.dom.querySelector('div.webglRenderer > div.content');
+			contentDiv = win.dom.querySelector('div.webglRenderer > div.content')
+		;
 
 		this.renderDiv = renderDiv;
 		this.contentDiv = contentDiv;
@@ -517,10 +518,11 @@ class Editor{
 			gl.camera.aspect = width / height;
 			gl.camera.updateProjectionMatrix();
 
+			/*
 			gl.fxRenderer.setSize(width, height);
 			gl.fxCam.aspect = width/height;
 			gl.fxCam.updateProjectionMatrix();
-
+			*/
 
 		};
 

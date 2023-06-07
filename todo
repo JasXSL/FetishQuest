@@ -326,15 +326,15 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 		- 
 		
 		New spells:
-		v [Monk] Adrenaline Rush : Grants 3 random momentum. Can only be used if you have no momentum.
-		x [Rogue] Assault : Deals 3 phys damage. Grants you major penetration for 3 turns if you have no uti/def momentum.
-		v [Cleric] Holy Pose: Restores 5 HP. Can be used while in bondage. When used on a bondaged player, grant them 2 defensive momentum. 3 charges.
-		v [Elementalist] Elemental Bolt : Deal 3 damage. If you've used all 3 action types this turn, also grant all enemies Major Clumsy for 3 turns.
-		v [Arcanist] Rock Skin: Restore 5 HP. If your target has at least 5 block, grant them Major Blessing for 2 turns.
-		v [Elementalist] Wild Blast : Deal a random amount of arcane damage between 1 and the number of turns you've played this battle. Max 10.
-		x [Rogue] Cheap Shot: Deals 2 physical damage. Free. Permanent charges. Gain a charge when you crit.
-		v [Elementalist] Capacitive Discharge : Gain a capacitive charge each time an enemy misses an attack. Using the action consumes all charges dealing 1 damage increased by 2 per charge consumed.
-		v [Cleric] Panic Heal: Restores 4 HP. Critically hits if you have at least 3 actions on cooldown.
+		* [Rogue] Assault : Deals 3 phys damage. Grants you major penetration for 3 turns if you have no uti/def momentum.
+		* [Cleric] Holy Pose: Restores 5 HP. Can be used while in bondage. When used on a bondaged player, grant them 2 defensive momentum. 3 charges.
+		* [Cleric] Panic Heal: Restores 4 HP. Critically hits if you have at least 3 actions on cooldown.
+		* [Rogue] Cheap Shot: Deals 2 physical damage. Free. Permanent charges. Gain a charge when you crit.
+		* [Monk] Adrenaline Rush : Grants 3 random momentum. Can only be used if you have no momentum.
+		* [Elementalist] Elemental Bolt : Deal 3 damage. If you've used all 3 action types this turn, also grant all enemies Major Clumsy for 3 turns.
+		x [Arcanist] Magic Skin: Restore 5 HP. If your target has at least 5 block, grant them Major Blessing for 2 turns.
+		x [Elementalist] Wild Blast : Deal a random amount of arcane damage between 1 and the number of turns you've played this battle. Max 10.
+		x [Elementalist] Capacitive Discharge : Gain a capacitive charge each time an enemy misses an attack. Using the action consumes all charges dealing 1 damage increased by 2 per charge consumed.
 		t [Arcanist] Piercing Beam: Ranged actions grant you a stack of focus, up to 5. Using this action deals 1 damage per stack consumed. This damage ignores block.
 		
 

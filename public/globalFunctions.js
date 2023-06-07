@@ -124,6 +124,9 @@ function deepClone( obj ){
 	}
 
 	let out = {};
+	if( Array.isArray(obj) )
+		out = [];
+	
 	for( let i in obj ){
 
 		const item = obj[i];

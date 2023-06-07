@@ -405,7 +405,6 @@ textures.smoke.material.depthWrite = true;
 	};
 
 //
-
 particles.quest_stars = {
 	texture : textures.star,
 	blending : THREE.AdditiveBlending,
@@ -1590,7 +1589,40 @@ particles.hitfx_splat_sparks_blue = {
 	rotation : new Proton.Span(0,Math.PI),
 };
 
-
+particles.hitfx_spark_line = {
+	texture : textures.electricSpark,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 30,
+	position : new Proton.LineZone(0,0,0,0,0,0),
+	size : new Proton.Span(20,30),
+	size_tween : [1,0.1],
+	part_max_age : new Proton.Span(.5,1),
+	velocity : new Proton.Span(0,2),
+	velocity_type : 0,
+	gravity : 0,
+	color : ["#FF33FF", "#FFFFFF"],	
+	opacity: [0,1,Proton.ease.easeFullSine],
+	rotation : new Proton.Span(0,Math.PI),
+	lineTargeted : true,
+};
+particles.hitfx_mist_line = {
+	texture : textures.glowSphere,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 30,
+	position : new Proton.LineZone(0,0,0,0,0,0),
+	size : new Proton.Span(20,30),
+	size_tween : [1,0.1],
+	part_max_age : new Proton.Span(.5,1),
+	velocity : new Proton.Span(0,2),
+	velocity_type : 0,
+	gravity : 0,
+	color : ["#FF33FF", "#FFFFFF"],	
+	opacity: [0,1,Proton.ease.easeFullSine],
+	rotation : [0,Math.PI],
+	lineTargeted : true,
+};
 particles.hitfx_mist = {
 	texture : textures.glowSphere,
 	blending : THREE.AdditiveBlending,
@@ -2153,6 +2185,7 @@ particles.hitfx_flame_bolt = {
 };
 
 
+
 particles.hitfx_spit = {
 	texture : textures.splat,
 	blending : THREE.NormalBlending,
@@ -2619,7 +2652,7 @@ particles.hitfx_smoke = {
 };
 
 // Accepts an overrides object with params that should override the base
-particles.get = function(id, mesh, overrides){
+particles.get = function(id, mesh, overrides, startPos, endPos){
 
 	if( !this[id] )
 		return false;
@@ -2632,13 +2665,29 @@ particles.get = function(id, mesh, overrides){
 	if( typeof overrides === 'object' ){
 
 		let allowedOverrides = [
-			'color', 'size', 'rotation', 'opacity', 'blending', 'gravity', 'velocity'
+			'color', 'size', 'rotation', 'opacity', 'blending', 'gravity', 'velocity', 'size_tween', 'part_max_age'
 		];
 		for( let override of allowedOverrides ){
 
 			const data = overrides[override];
-			if( data )
-				p[override] =  data;
+			if( data ){
+				p[override] = data;
+			
+				if( override === 'size_tween'){
+					
+					const d = toArray(data).slice();
+					if( typeof d[2] === "string" ){
+						const fn = Proton.ease[d[2]];
+						if( typeof fn === "function" )
+							d[2] = fn;
+					}
+					p[override] = d;
+
+				}
+				else if( override === 'part_max_age' && Array.isArray(data) )
+					p[override] = new Proton.Span(...data);
+					
+			}
 			// Note: Can't do spans right now. Might wanna figure out how to do them.
 
 		}
@@ -2678,7 +2727,20 @@ particles.get = function(id, mesh, overrides){
 	}
 	
 	if( p.position ){
-		emitter.addInitialize(new Proton.Position(p.position));
+		
+		const pos = new Proton.Position(p.position);
+		if( p.lineTargeted ){
+			
+			const targ = new THREE.Vector3();
+			targ.copy(endPos);
+			targ.sub(startPos);
+			pos.zones[0].x2 = targ.x;
+			pos.zones[0].y2 = targ.y;
+			
+		}
+
+		emitter.addInitialize(pos);
+
 	}
 	
 	if( p.size ){
@@ -2710,15 +2772,18 @@ particles.get = function(id, mesh, overrides){
 	
 
 	if( p.color ){
-		const behavior = new Proton.Color(p.color);
+		
+		const color = toArray(p.color);
+		const behavior = new Proton.Color(color[0], color[1], undefined, color[2]);
 		emitter.addBehaviour(behavior);
 	}
 	
 	//addBehaviour
 	if( p.opacity ){
-		if( !Array.isArray(p.opacity) )
-			p.opacity = [p.opacity];
-		emitter.addBehaviour(new Proton.Alpha(p.opacity[0], p.opacity[1], undefined, p.opacity[2]));
+
+		const opacity = toArray(p.opacity);
+		emitter.addBehaviour(new Proton.Alpha(opacity[0], opacity[1], undefined, opacity[2]));
+
 	}
 	
 	if( p.size_tween ){
