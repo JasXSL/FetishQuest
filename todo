@@ -29,14 +29,21 @@ Things that need full art layers:
 	
 Friendly NPCs:
 	:: Gen
-	- Male necro jackal
-	- Male necro crow
-	- Female necro jackal
-	- Female Sharkanist
-	- Male Sharkanist
+	a Female necro jackal
+	a Female Sharkanist
+	a necro_construct_slave : A large-breasted cow lady, she's strapped to some kind of milking device.
+	a necro_bar : A larger than average dalmatian herm, standing at average height with a big butt and ample bosom. Runs the Underbar in the Yuug necromancers guild.
+	a Male Sharkanist
+	a necro_trainer : A toned hyena (male).
+	a Male necro jackal
+	a Male necro crow
+	a necro_bouncer : A large muscular male pitbull, guarding the entrance to the deep catacombs below the Yuug necromancers guild.
+	a necro_entrance : A male crow covered in bone charms, charged with guarding the entrance of the Yuug necromancers guid.
 	
 
 	:: Named
+	x razpan : A red panda lady in a knee-length yellow dress sitting on a barrel, surrounded by buckets of razzyberries.
+	x jackman_greyson : A male snow leopard wearing all black except for a brown leather coat. (jackson)
 	a Foyash : Regenerate
 	a virgil : regenerate
 	a chad : regenerate
@@ -51,37 +58,51 @@ Friendly NPCs:
 	a rattani_engineer : A short rat-man wearing goggles with a multitude of lenses, sitting near a table full of various mechanical bits and bobs. He seems oblivious to his surrounds.
 	a scruffy_tavern_dweller : A scruffy mutt of a dog-man. Sitting in a corner and sipping on an ale. A common sight around taverns, and might be able to share a rumor or two.
 	a ybazaar_fensam : (Sam) A female fennec wearing brown shorts and a tight white top. She's standing behind a tent surrounded by various good smelling foods!
-	x razpan : A red panda lady in a knee-length yellow dress sitting on a barrel, surrounded by buckets of razzyberries.
-	x jackman_greyson : A male snow leopard wearing all black except for a brown leather coat. (jackson)
-	- Male slug, tentaclemancer trainer
-	- Sharkanist trainer (cboy)
-	- Tentacle fight picker (female cat)
-	- Tavernkeeper mayah, female arctic Fox
-	- Borm innkeeper: A cheerful otter lady wearing a white apron with pink flowers on it.
-	- Yuug bank thomas: A round raccoon man wearing a fancy suit.
-	- repair_smith_matilda : A muscular mule wearing an apron and wielding a big hammer.
-	- penal_quartermaster : A large fat dog man wearing just an apron and a thong.
-	- penal_guildmaster : A female ferret wearing a tight leather one-piece suit with pockets strapped to her thigh and arm.
-	- vadgination_felidia : A white-furred female cat. A bit pudgy, but that might just be her fluffy fur.
-	- portswood_west_repair : An armadillo lady wearing leather armor with lots of bits and bobs attached to it. There are various tools and crates scattered around her camp.
-	- bubbling_stream_innkeeper : A shorter than average freckled pink cat-lady with long hair tied up into a ponytail, wearing a matted dress.
-	- sharkanist_vendor : A large-busted shark-woman wearing a flowing silk-like dress.
-	- sharkanist_smith : A large shark-man wielding a large blacksmithing hammer.
-	- sharkanist_maki : A long slender shark lady, radiating some kind of arcane aura.
-	- yuug_leatherworker : A male ferret wearing a leather apron and a pair of fancy leather boots.
-	- ybazaar_smith : A large burly bear man wearing a leather thong and an apron.
-	- ybazaar_russle : A racoon man wearing oddly shaped glasses sitting by the fire. There seems to be various pieces of armor and equipment scattered around him.
-	- ybazaar_brutus : A big burly bear. Standing in a stall surrounded by various bottles and tankards.
-	- yuug_explorer_student_a : A scrawny ferret man.
-	- yuug_church_cleric_a : A skinny wolf in a long flowing red robe.
-	- necro_construct_slave : A large-breasted cow lady, she's strapped to some kind of milking device.
-	- necro_trainer : A toned hyena.
-	- necro_bouncer : A large muscular male pitbull, guarding the entrance to the deep catacombs below the Yuug necromancers guild.
-	- necro_bar : A larger than average dalmatian, standing at average height with a big butt and ample bosom. Runs the Underbar in the Yuug necromancers guild.
-	- necro_entrance : A crow covered in bone charms, charged with guarding the entrance of the Yuug necromancers guid.
-	- yuug_city_greasy_backdoor_tavern : A large brawny bear man wearing a dirty apron.
-	- yuug_city_greasy_backdoor_receptionist : A well fed brown bear lady wearing a flowery dress.
-	- portmaster : shark
+	a Sharkanist trainer - Mesat (cboy)
+	a penal_guildmaster : A female ferret wearing a tight leather one-piece suit with pockets strapped to her thigh and arm.
+	a Tentacle fight picker (female cat)
+	a Tavernkeeper mayah, female arctic Fox
+	a Borm innkeeper: A cheerful otter lady wearing a white apron with pink flowers on it.
+	a bubbling_stream_innkeeper : A shorter than average freckled pink cat-lady with long hair tied up into a ponytail, wearing a matted dress.
+	a vadgination_felidia : A white-furred female cat. A bit pudgy, but that might just be her fluffy fur.
+	a sharkanist_vendor : A large-busted shark-woman wearing a flowing silk-like dress.
+	a sharkanist_smith : A large shark-man wielding a large blacksmithing hammer.
+	a sharkanist_maki : A long slender shark lady, radiating some kind of arcane aura.
+	a portmaster : shark
+	a yuug_church_cleric_a : A skinny wolf in a long flowing red robe. Gareus.
+	a yuug_church_cleric_b : Velmont
+	a yuug_church_cleric_topside : Ordan
+	a yuug_church_quartermaster : Female wolf
+
+	a portswood_west_repair : An armadillo lady wearing leather armor with lots of bits and bobs attached to it. There are various tools and crates scattered around her camp.
+	a repair_smith_matilda : A muscular mule wearing an apron and wielding a big hammer.
+	a yuug_city_greasy_backdoor_receptionist : A well fed brown bear lady wearing a flowery dress.
+
+	a penal_quartermaster : A large fat dog man wearing just an apron and a thong.
+	a ybazaar_smith : A large burly bear man wearing a leather thong and an apron.
+	a ybazaar_brutus : A big burly bear. Standing in a stall surrounded by various bottles and tankards.
+	a yuug_city_greasy_backdoor_tavern : A large brawny bear man wearing a dirty apron.
+	
+	a ybazaar_russle : A racoon man wearing oddly shaped glasses sitting by the fire. There seems to be various pieces of armor and equipment scattered around him.
+	a Yuug bank thomas : A round raccoon man wearing a fancy suit.
+
+	a yuug_leatherworker : A male ferret wearing a leather apron and a pair of fancy leather boots.
+	a yuug_explorer_student_a : A scrawny ferret man.
+	a yuug_church_marric : Feminine beagle
+	- yuug_church_malthereus : A demonic doberman with two horns and glowing red eyes. He is fairly muscular and has a large package.
+
+	- monk01_rodan : Fat rat in a suit and a hat
+	- monk01_pitFighter : ???
+	- monk_quartermaster: ???
+	- tm01_farmer : Male horse
+	- tm02_villager : ???
+	- tm02_tentacleCultist : ???
+	- war00_rulu : ???
+	- war01_virgil : Buff virgil
+	- war00_ruluChampion : ???
+	- war00_ruluQuartermaster : ???
+
+	- (Nibs) Male slug, tentaclemancer trainer
 
 
 Overhaul food:
@@ -137,10 +158,39 @@ Trainer: Chad's Gym
 			- Attack grants you 1 block per enemy you are taunting.
 		x Sturdy Leather Gear (leather thong + leather chestwraps):
 			- Painful hits to the groin increase the damage of your next standard attack by 2. Resets on turn end.
+	Gym Quest:
+		- Chad invites you to join him as a champion in the Yuug City Arena.
+		- After accepting, Rulu appears and tries to poach the player to fight for him instead, because he's got better equipment in his Borm gym.
+		IF player joins Rulu:
+		Note: Player should be able to buy the membership before the quest, which unlocks a warrior trainer in Borm.
+		Q1:
+		- Chad will no longer train you. But you open up a warrior trainer in the gym.
+		- Go to Rulu's Gym in Borm.
+		- Rulu offers you to train with his equipment, but you have to pay the membership fee of 1 plat if you haven't.
+		- Train with Rulu's equipment.
+		- Rulu asks you to hit the sauna.
+		- In the sauna, you get attacked by Rulu's former champion. Defeat him to continue.
+		- Talk to Rulu and he says you're ready. Note: At this point, Virgil no longer spawns in chad's gym.
+		Q2:
+		- Accept the quest to go to the Yuug City arena. Go there and defeat a buff version of Virgil.
+		- Note: Only one player should be able to fight. Set the others to bystanders.
+		- Go back to Chad's gym and hand in the quest.
+		
+		IF player stays with Chad:
+		Q1:
+		- Rulu's goons breaks all Chad's equipment.
+		- Chad tells you he's got other ways of training, and to see him in Yuug east forest along the walls.
+		- Go there and find Chad. He has you do squats while carrying a boulder, while tickling your groin.
+		- Next to yuug forest and find him again along the lakeshore. This time you need to swim. He gives you an undersized white speedo that goes transparent when wet.
+		- While wearing the speedo, you get the option to swim, taking you to a lake cell and starting an anemone mini boss fight.
+		- He admires the view after you finish and tells you to return to the gym.
+		- Go back to Chad's gym to hand in the quest.
+		Q2:
+		- Accept the quest to go to the Yuug City arena. Go there and defeat Rulu's Champion ???
+		- Note: Only one player should be able to fight. Set the others to bystanders.
+		- Go back to Chad's gym and hand in the quest.
+		
 
-	Quest: Slate decides
-		A: 
-		B: 
 
 (test)  - Rogue: [Corruption/Phys] DPS. Direct damage. Rerolls & crits.
 Trainer: Penal gang
@@ -171,13 +221,13 @@ Trainer: Borm
 			- On the way back, a rattani asks you to part with 1 egg. Doing so move him to the inn and allows you to do the side quest listed above.
 			- Hand in the eggs to finish quest A.
 		B: TM trainer asks you to see a farmer about a grown tickle tentacle.
-			- Players can ask TM trainer about it, and find out that unless the tickle tentacles are captured, they may grown larger and unruly.
+			- Players can ask TM trainer about it, and find out that unless the tickle tentacles are captured, they may grow larger and unruly.
 			- Talk to farmer in <???>, he says it was bigger than normal, almost like one of the arena bosses. He locked it in his shed.
 			- Go to shed and fight a miniboss, loot corrupted tentacle and bring it back to TM trainer.
 		C: The tentacle has been infused with corrupting magic. He tells you to ask around in town if someone has seen something sus.
 			- One of the farmers will say he's heard strange noises from the derelict mine in the north east fields.
-			- Go through the cave and kill a cultist trying to raise tentacle monsters.
-			- Take out the cultists and bring back evidence to TM trainer.
+			- Go through the cave and kill a cultist trying to raise tentacle monsters. Bring back a signet as proof.
+			- During the fight, there's a big tentacle monster and the cultist is invulnerable until you kill it.
 			- Players unlock the armor set.
 
 (test)  - Monk: [Physical] Healer - Heals by attacking. Also riposte and combos.
@@ -195,7 +245,7 @@ Trainer: Portswood glade.
 			- Once you complete the RP, you can hand in the quest.
 		B: You are tasked to track down the whereabouts of Rotti, a dirty rattani fighter.
 			- There's an underground fighting ring below the borm tavern.
-			- Go there and talk to the boss, he'll tell you he'll give you Rotti's whereabouts if you defeat his champion.
+			- Go there and talk to the boss (Rodan), he'll tell you he'll give you Rotti's whereabouts if you defeat his champion.
 			- Go into the ring and fight <miniboss>.
 			- Once you win, talk to the boss. He'll give you an encoded letter and ask you to see <npc> in the sewers.
 			- <npc> will translate it based on your gender and clothes:
@@ -213,8 +263,6 @@ Trainer: Otter in lake (moves to inn after quest complete)
 	- Armor: 
 		x Tribal Leathers (leather thong plus chest): Grants 5 random momentum when you interrupt a player.
 		x Stimulating Sling Bikini: Divert can be used on any target, but adds 3 arousal to the caster.
-
-
 	- Quest: DONE
 	
 
@@ -223,7 +271,6 @@ Trainer: Otter in lake (moves to inn after quest complete)
 Trainer: Necromancer
 	t Bone Armor (heavy), bone breastplate and thong:  On orgasm, gain an extra charge of corrupt.
 	t Dark Robes: Life steals have a chance equal to your opponent's HP percentage to restore +2 HP to your party.
-	
 	- Quest: DONE
 
 
@@ -324,19 +371,7 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 		:: Do X, but if Y is true, also do Z. Y ideas:
 		- Action is followed by a ranged action
 		- 
-		
-		New spells:
-		* [Rogue] Assault : Deals 3 phys damage. Grants you major penetration for 3 turns if you have no uti/def momentum.
-		* [Cleric] Holy Pose: Restores 5 HP. Can be used while in bondage. When used on a bondaged player, grant them 2 defensive momentum. 3 charges.
-		* [Cleric] Panic Heal: Restores 4 HP. Critically hits if you have at least 3 actions on cooldown.
-		* [Rogue] Cheap Shot: Deals 2 physical damage. Free. Permanent charges. Gain a charge when you crit.
-		* [Monk] Adrenaline Rush : Grants 3 random momentum. Can only be used if you have no momentum.
-		* [Elementalist] Elemental Bolt : Deal 3 damage. If you've used all 3 action types this turn, also grant all enemies Major Clumsy for 3 turns.
-		x [Arcanist] Magic Skin: Restore 5 HP. If your target has at least 5 block, grant them Major Blessing for 2 turns.
-		x [Elementalist] Wild Blast : Deal a random amount of arcane damage between 1 and the number of turns you've played this battle. Max 10.
-		x [Elementalist] Capacitive Discharge : Gain a capacitive charge each time an enemy misses an attack. Using the action consumes all charges dealing 1 damage increased by 2 per charge consumed.
-		t [Arcanist] Piercing Beam: Ranged actions grant you a stack of focus, up to 5. Using this action deals 1 damage per stack consumed. This damage ignores block.
-		
+
 
 	- Events:
 		- Pick up a coin, gain a curse that makes you cum immediately when penetrated

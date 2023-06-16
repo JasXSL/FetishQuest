@@ -23,7 +23,7 @@ const playerTemplate = $(
 			'<div class="stats">'+
 				'<span class="name" style="color:#DFD">'+
 					'<div class="focus tooltipParent">'+
-						'<div class="tooltip center">Unaware of your active player. Awareness is added when you use a directed action against a target, or they use one on you.</div>'+
+						'<div class="tooltip center">Unaware of your active player, hit chance increased. Awareness is added when you use a directed action against a target, or they use one on you.</div>'+
 					'</div>'+
 					'<div class="button owner devtool" title="Set character owner">'+
 						'<img src="media/wrapper_icons/id-card.svg" />'+

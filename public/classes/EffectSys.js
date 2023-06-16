@@ -2440,7 +2440,7 @@ Effect.Major = {
 	Lifesteal : 0x400,		// 1024 | +2 HP to any player attacking the target
 	Accuracy : 0x800,		// 2048 | +30% hit chance
 	Touch : 0x1000,			// 8192 | +50% arousal generated
-	Laze : 0x2000,			// 81 -1 momentum regen
+	Laze : 0x2000,			// 16384 | -1 momentum regen
 	Brawn : 0x4000, 		// +5 physical proficiency
 	Corruption : 0x8000,	// +5 corruption proficiency
 	Arcana : 0x10000,		// +5 arcane proficiency

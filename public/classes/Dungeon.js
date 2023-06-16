@@ -494,14 +494,18 @@ class Dungeon extends Generic{
 	}
 	
 	getTags(){
+
 		let t = valsToKeys(this.tags);
 		let room = this.getActiveRoom();
 		if( !room )
 			return [];
+		if( !(room instanceof DungeonRoom) )
+			console.error("Found invalid active room ", this.active_room, "in dungeon", this, ": ", room);
 		let tags = room.getTags();
 		for( let tag of tags )
 			t[tag] = true;
 		return Object.keys(t);
+
 	}
 
 	getDiscoveredRooms(){
@@ -1624,7 +1628,7 @@ class DungeonRoomAsset extends Generic{
 	}
 
 	getTooltipInteraction(){
-		const viable = this.getViableInteractions(Boolean(window.game));
+		const viable = this.getViableInteractions(undefined, Boolean(window.game));
 		for( let action of viable ){
 			if( action.type === GameAction.types.tooltip )
 				return action;

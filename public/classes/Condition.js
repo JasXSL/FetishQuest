@@ -276,6 +276,8 @@ export default class Condition extends Generic{
 					// Any tag applied by anyone
 					else{
 
+						if( t && !t.hasTag )
+							console.error("Target", t, "does not have a hasTag function in event", event, "bound to effect", this);
 						found = t && t.hasTag([tag], event.wrapperReturn);
 					
 					}
