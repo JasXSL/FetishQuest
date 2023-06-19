@@ -371,7 +371,8 @@ class Action extends Generic{
 		if( this.init_cooldown ){
 
 			this.resetCharges();
-			this._cooldown = this.init_cooldown+1;
+			this._cooldown = parseInt(this.init_cooldown+1) || 0;
+			this._charges = 0;
 
 		}
 
@@ -864,6 +865,7 @@ class Action extends Generic{
 		if( !this.hidden )
 			game.renderer.playFX(pp, pp, glib.get('actionUsed', 'HitFX'), undefined, true);
 
+		const awarePairs = new Map();
 		let hits = [], wrapperReturn = new WrapperReturn();
 		for( let target of targets ){
 
@@ -871,10 +873,7 @@ class Action extends Generic{
 			// note that since this only affects the base attack, you should be safe to assume there's only one target
 			this._crit = Math.random() < this.getCritChance( target );
 
-			if( this.target_type === Action.TargetTypes.target ){
-				target.onAware(pp);
-				pp.onAware(target);
-			}
+			
 				
 
 			// Check if it hit
@@ -988,6 +987,10 @@ class Action extends Generic{
 			if( this.getCastTime() )
 				sender.rebindWrappers();
 
+			// Awareness needs to be set last since some effects require it
+			if( this.target_type === Action.TargetTypes.target ){
+				awarePairs.set(pp, target);
+			}
 				
 		}
 
@@ -1041,6 +1044,13 @@ class Action extends Generic{
 		if( !pp.onActionUsed )
 			console.trace("Action", this, "has no valid parent");
 		pp.onActionUsed(this, hits);
+
+		if( hits.length ){
+			awarePairs.forEach((k,v) => {
+				k.onAware(v);
+				v.onAware(k);
+			});
+		}
 
 		return hits.length;
 

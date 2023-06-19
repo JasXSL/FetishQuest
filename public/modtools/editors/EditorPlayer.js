@@ -41,7 +41,8 @@ export function asset(){
 		html += '<label>Image Dressed: <input type="text" name="icon" class="saveable" value="'+esc(dummy.icon)+'" /></label>';
 		html += '<label>Image Upper Body Armor: <input type="text" name="icon_upperBody" class="saveable" value="'+esc(dummy.icon_upperBody)+'" /></label>';
 		html += '<label>Image Lower Body Armor: <input type="text" name="icon_lowerBody" class="saveable" value="'+esc(dummy.icon_lowerBody)+'" /></label>';
-		html += '<label>Image Nude: <input type="text" name="icon_nude" class="saveable" value="'+esc(dummy.icon_nude)+'" /></label>';
+		html += '<label>Image Nude: <input type="text" name="icon_nude" class="saveable" value="'+esc(dummy.icon_nude)+'" /></label>'; 
+		html += '<label>RP Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
 		html += '<label title="Check this if you used an AI to generate the art">Art is AI generated: <input type="checkbox" name="icon_ai" '+(dummy.icon_ai ? 'checked' : '')+' class="saveable"  /></label>';
 		html += '<label title="0 = player team">Team: <input type="number" step=1 min=0 name="team" class="saveable" value="'+esc(dummy.team)+'" /></label>';
 		html += '<label title="0-10 where 5 is average human and 10 giant">Size: <input type="number" step=1 min=0 max=10 name="size" class="saveable" value="'+esc(dummy.size)+'" /></label>';

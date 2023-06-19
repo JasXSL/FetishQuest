@@ -209,6 +209,7 @@ GameEvent.Types = {
 	explorationComplete : 'explorationComplete',	
 	sleep : 'sleep',		
 	stun : 'stun',
+	orgasm : 'orgasm', 	// Quicker way of checking wrapper added and wrapper overwhelming orgasm
 	
 };
 
@@ -274,6 +275,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.blockAdded] : '{evt_amount:(int)amount} Raised when block is added.',			
 	[GameEvent.Types.blockSubtracted] : '{evt_amount:(int)amount} Raised when block is subtracted.',			
 	[GameEvent.Types.blockBroken] : 'sender, target. Block has been broken (not expired).',			
+	[GameEvent.Types.orgasm] : 'sender, target. Target has orgasmed.',			
 
 };
 

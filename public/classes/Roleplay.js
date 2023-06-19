@@ -6,6 +6,7 @@ import Game from './Game.js';
 import Text from './Text.js';
 import Collection from './helpers/Collection.js';
 import Calculator from './Calculator.js';
+import Player from './Player.js';
 export default class Roleplay extends Generic{
 
 	static getRelations(){ 
@@ -29,7 +30,7 @@ export default class Roleplay extends Generic{
 		this.label = '';
 		this.stages = [];			// Roleplay stages
 		this.player = '';
-		this.portrait = '';			// Supports gameicon
+		this.portrait = '';			// Supports gameicon. If empty, it'll try fetching portrait from the player object
 		
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
@@ -568,9 +569,15 @@ export class RoleplayStage extends Generic{
 
 	getPortrait(){
 
+		const pl = this.getPlayer();
 		let portrait = this.parent.portrait;
+		if( pl instanceof Player && pl.portrait )
+			portrait = pl.portrait;
+
 		if( this.portrait )
 			portrait = this.portrait;
+		if( this.portrait === 'none' )
+			portrait = '';
 		
 		if( !portrait.includes('/') && portrait )
 			portrait = '/media/wrapper_icons/'+portrait+'.svg';

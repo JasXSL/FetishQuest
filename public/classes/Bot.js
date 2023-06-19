@@ -133,6 +133,20 @@ class Bot{
 		}
 	}
 
+	fetchAbils(){
+		let abils = this.player.getActions('e').filter(el => {
+			return !el.hidden && 
+				!this.player.isCasting() &&
+				el.castable() && 
+				(
+					el.label !== 'grapple' ||
+					!this.player.hasTag(stdTag.gpAlwaysGrapple)
+				)
+			;
+		});
+		return abils;
+	}
+
 	async play( force = false ){
 		
 		if( (!this.player.isNPC() && !force) || !game.battle_active || !game.isTurnPlayer(this.player) )
@@ -140,16 +154,12 @@ class Bot{
 
 		if( !this.player.isDead() ){
 
-			let abils = this.player.getActions('e').filter(el => {
-				return !el.hidden && 
-					!this.player.isCasting() &&
-					el.castable() && 
-					(
-						el.label !== 'grapple' ||
-						!this.player.hasTag(stdTag.gpAlwaysGrapple)
-					)
-				;
-			});
+			let abils = this.fetchAbils();
+			if( !abils.length ){
+				// Try to reroll the most abundant momentum
+				this.player.equalizeMomentum();
+				abils = this.fetchAbils();
+			}
 
 			const AP = this.player.getMomentum();	// Get all momentum
 

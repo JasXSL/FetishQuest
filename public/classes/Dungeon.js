@@ -1146,7 +1146,7 @@ class DungeonRoom extends Generic{
 
 		this.assets.push(dungeonRoomAsset);
 		let model = dungeonRoomAsset.getModel();
-		if( model )
+		if( model && !dungeonRoomAsset.ign_tags )
 			dungeonRoomAsset.addTags(model.getTags());
 		
 	}
@@ -1231,6 +1231,7 @@ class DungeonRoom extends Generic{
 
 	/* TAGS */
 	getTags(){
+
 		let t = valsToKeys(this.tags);
 		for( let asset of this.assets ){
 			let tags = asset.getTags();
@@ -1238,6 +1239,7 @@ class DungeonRoom extends Generic{
 				t[tag] = true;
 		}
 		return Object.keys(t);
+
 	}
 
 	
@@ -1532,6 +1534,8 @@ class DungeonRoomAsset extends Generic{
 		this.scaleY = 1.0;
 		this.scaleZ = 1.0;
 		this.interact_cooldown = 1000;	// ms between how often you can interact with this 
+		this.idle_anim = '';			// idle animation
+		this.ign_tags = false;
 		this._model = null;				// Generic mesh model
 		this._stage_mesh = null;		// Mesh tied to this object in the current scene
 
@@ -1598,7 +1602,9 @@ class DungeonRoomAsset extends Generic{
 			hide_no_interact: this.hide_no_interact,
 			id : this.id,
 			conditions : Condition.saveThese(this.conditions, full),
-			door : this.door
+			door : this.door,
+			idle_anim : this.idle_anim,
+			ign_tags : this.ign_tags,
 		};
 		if( full !== 'mod' ){
 			if( full )
@@ -2115,7 +2121,7 @@ class DungeonRoomAsset extends Generic{
 	getTags(){
 
 		let meshTags = this?._stage_mesh?.userData?.template?.tags;
-		if( !Array.isArray(meshTags) )
+		if( !Array.isArray(meshTags) || this.ign_tags )
 			meshTags = [];
 
 		return this.tags.concat(meshTags);

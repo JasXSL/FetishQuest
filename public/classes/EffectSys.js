@@ -1711,7 +1711,7 @@ class Effect extends Generic{
 				slots = wrapperReturn.getSlotPriorityByDamaged(t, slots);
 				
 				let max = this.data.numSlots;
-				let equipped = t.getEquippedAssetsBySlots( slots, false );
+				let equipped = t.getEquippedAssetsBySlots( slots, false ).filter(el => !el.no_unequip);
 				if( !equipped.length )
 					return false;
 
@@ -2565,6 +2565,7 @@ Effect.Types = {
 	untargetable : 'untargetable',
 	majorEffect : 'majorEffect',
 	addReroll : 'addReroll',
+	orgasmDuration : 'orgasmDuration',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2630,6 +2631,7 @@ Effect.Passive = {
 	[Effect.Types.untargetable] : true,
 	[Effect.Types.actionRiposte] : true,
 	[Effect.Types.majorEffect] : true,
+	[Effect.Types.orgasmDuration] : true,
 };
 
 Effect.KnockdownTypes = {
@@ -2751,6 +2753,7 @@ Effect.TypeDescs = {
 	[Effect.Types.untargetable] : '{exceptions:(arr)actionLabels, beneficial:(bool)allowBeneficial=false, allow_aoe:(bool)=false} - Makes you untargetable by other players actions. If allowBeneficial is true, it allows you to be targeted by beneficial abilities. If allow AOE it allows you to be targeted by AoE.',
 	[Effect.Types.majorEffect] : '{effect:(int)bitwise} - Sets a major effect. These are hard-coded effects that are made to simplify .',
 	[Effect.Types.addReroll] : '{amount:(int)(str)amount} - Adds or subtracts reroll for this turn.',
+	[Effect.Types.orgasmDuration] : '{amount:(int/str)amount} - Adds or subtracts to orgasm duration. Orgasm duration cannot be lower than 1.',
 };
 
 

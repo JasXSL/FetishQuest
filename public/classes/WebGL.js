@@ -2325,12 +2325,15 @@ class Stage{
 
 
 	/* Animation Mixers */
-	addMixersRecursive(obj){
+	addMixersRecursive( obj ){
 		
 		if( obj.userData.mixer ){
 
 			this.addMixer(obj.userData.mixer);
-			obj.userData.playAnimation('idle');
+			let idle = obj.userData?.dungeonAsset?.idle_anim;
+			if( !idle )
+				idle = 'idle';
+			obj.userData.playAnimation(idle);
 			//let skeleton = new THREE.SkeletonHelper( obj );
 			//this.add( skeleton );
 

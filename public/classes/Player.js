@@ -52,6 +52,7 @@ export default class Player extends Generic{
 		this.icon_upperBody = "";			// == || ==
 		this.icon_lowerBody = "";			// == || ==
 		this.icon_nude = "";				// == || ==
+		this.portrait = "";					// portrait for RP
 		this.icon_ai = false;				// Sets if this icon was AI generated or not. Note: Host only.
 		this.auto_learn = true;			// if true, this player always knows all their spells
 		this.leader = false;				// Party leader
@@ -267,6 +268,7 @@ export default class Player extends Generic{
 			icon_lowerBody : this.icon_lowerBody,
 			icon_nude : this.icon_nude,
 			icon_upperBody : this.icon_upperBody,
+			portrait : this.portrait,
 			power : this.power,
 			hpMulti : this.hpMulti,
 			passives : Wrapper.saveThese(this.passives, full),
@@ -2791,6 +2793,32 @@ export default class Player extends Generic{
 		}
 
 	}
+	// Rerolls the most abundant momentum
+	// Todo: Should check if we even have a spell that can use a type of momentum
+	equalizeMomentum(){
+
+		console.log("Reroll", this.reroll);
+		for( let i = 0; i < this.reroll; ++i ){
+			
+			let moms = [];
+			for( let i in Player.MOMENTUM ){
+				const v = Player.MOMENTUM[i];
+				if( v === Player.MOMENTUM.All )
+					continue;
+				moms.push({
+					type : v,
+					val : this.getMomentum(v)
+				});
+			}
+			moms.sort((a, b) => {
+				return a.val > b.val ? -1 : 1;
+			});
+			this.rerollMomentum(moms[0].type, this.class?.momType);
+			
+		}
+		//this.reroll = 0;
+
+	}
 
 
 	addThreat( playerID, amount ){
@@ -2971,9 +2999,16 @@ export default class Player extends Generic{
 
 		if( this.arousal >= max && pre < max ){
 
-			glib.get("overWhelmingOrgasm", "Wrapper").useAgainst(sender, this, false);
+			const fx = glib.get("overWhelmingOrgasm", "Wrapper").clone();
+			fx.duration = Math.max(1, fx.duration+this.getGenericAmountStatPoints(Effect.Types.orgasmDuration, sender, undefined));			
+			fx.useAgainst(sender, this, false);
 			game.save();
 			game.ui.draw();
+			new GameEvent({
+				type : GameEvent.Types.orgasm,
+				sender: sender,
+				target : this,
+			}).raise();
 
 		}
 

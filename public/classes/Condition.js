@@ -1286,6 +1286,11 @@ export default class Condition extends Generic{
 				}
 
 			}
+			else if( this.type === T.isFollower ){
+				
+				success === t?.isFollower();
+				
+			}
 
 			else if( this.type === T.fetish ){
 
@@ -1553,6 +1558,7 @@ Condition.Types = {
 	targetIsTurnPlayer : 'targetIsTurnPlayer',
 	isGenderEnabled : 'isGenderEnabled',
 	targetGenderEnabled : 'targetGenderEnabled',
+	isFollower : 'isFollower',
 
 	encounterCompleted : 'encounterCompleted',
 
@@ -1644,6 +1650,7 @@ Condition.descriptions = {
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...], min:nr=1, stashedFollowers:false} - Checks if the game has at least min nr player that matches conditions. If stashedFollowers is true, it also includes stashed followers in the search. NOTE: Stashed followers can only be filtered by labels in netgames.',
+	[Condition.Types.isFollower] : '{void} Checks if target is a follower',
 	[Condition.Types.targetIsRpPlayer] : 'Synonym for isRoleplayPlayer, use that one instead',
 	[Condition.Types.numRpTargets] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Checks how many _targetPlayers there are in the active roleplay.',
 	[Condition.Types.numGamePlayersGreaterThan] : '{amount:(int)amount, team:(int)team=any, controlled:(bool)pc_controlled=false} - Nr game players are greater than amount. If team is undefined or NaN (type any, it checks all players. Use -1 for enemies and -2 for friendlies. If controlled is true it ignores NPCs.',

@@ -1102,6 +1102,8 @@ class Editor{
 						html += '<option value="'+index+'" '+(index === asset.door ? 'selected' : '')+'>'+esc(r.name)+'</option>';
 					}
 				html += '</select></label>';
+				html += '<label title="The mesh objects themselves have hardcoded tags. This ignores them.">Ignore mesh tags <input type="checkbox" name="ign_tags" class="saveable" '+(asset.ign_tags ? 'checked' : '')+' /></label>';
+
 			html += '</div>';
 
 			
@@ -1112,9 +1114,9 @@ class Editor{
 			const animated = Boolean(th.control.object.userData.playAnimation);
 			if( animated ){
 				
-				html += '<br />Preview animation: <select class="animPreviewer">';
+				html += '<br />Default animation: <select class="animPreviewer saveable" name="idle_anim">';
 				for( let clip of th.control.object.userData.mixer._actions ){
-					html += '<option value="'+esc(clip._clip.name)+'">'+esc(clip._clip.name)+'</option>';
+					html += '<option value="'+esc(clip._clip.name)+'" '+(asset.idle_anim === clip._clip.name ? 'selected' : '')+'>'+esc(clip._clip.name)+'</option>';
 				}
 				html += '</select>';
 
