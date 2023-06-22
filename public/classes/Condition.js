@@ -505,8 +505,10 @@ export default class Condition extends Generic{
 
 			}
 			else if( this.type === T.playerLabel ){
+
 				let data = toArr(this.data.label);
-				success = t && data.indexOf(t.label) !== -1;
+				success = t && (data.indexOf(t.label) !== -1 || data.indexOf('fo_'+t.label) !== -1); // Both follower and non follower is valid
+
 			}
 			
 			else if( this.type === T.species ){
@@ -1274,6 +1276,7 @@ export default class Condition extends Generic{
 				for( let player of players ){
 
 					evt.sender = evt.target = player;
+					
 					if( Condition.all(this.data.conditions, evt) ){
 						
 						++tot;
@@ -1288,7 +1291,7 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.isFollower ){
 				
-				success === t?.isFollower();
+				success = Boolean(t?.isFollower());
 				
 			}
 

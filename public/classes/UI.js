@@ -2640,7 +2640,8 @@ export default class UI{
 					.toggleClass('hidden', !portrait);
 
 				const name = stage.getName();
-				if( name )
+
+				if( name && name !== "none" )
 					html += '<span class="name">'+stylizeText(name)+'</span><br />';
 				
 				$("div.text", div).html(html+stylizeText(stage.getText(true)));

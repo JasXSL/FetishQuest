@@ -576,7 +576,7 @@ export class RoleplayStage extends Generic{
 
 		if( this.portrait )
 			portrait = this.portrait;
-		if( this.portrait === 'none' )
+		if( this.portrait.toLowerCase() === 'none' )
 			portrait = '';
 		
 		if( !portrait.includes('/') && portrait )

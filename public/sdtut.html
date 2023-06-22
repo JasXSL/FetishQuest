@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<link href="style.css" rel="stylesheet" />
+	<style>
+		body{
+			padding: 2vmax;
+			color:#EEE;
+			line-height: 170%;;
+		}
+		code{
+			display: inline-block;
+			background:black;
+		}
+		p, h1, h2, h3{
+			color:#EEE;
+		}
+	</style>
+</head>
+<body>
+	<h1>Setting up and using Stable Diffusion</h1>
+	<p>Here's a tutorial on how to use stable diffusion to create an anthro character to use in FQ. Keep in mind that this is AI art, so if for some reason you have an aversion to that, you had better leave!</p>
+	
+	<h2>0. System Recommendations</h2>
+	<ul>
+		<li>A GPU with at least 8GB VRAM. 12GB+ is preferred.</li>
+		<li>[Install step] A windows PC. I don't use mac, and haven't tried this on linux. But if you're a linux user, you're likely smart enough to figure it out.</li>
+		<li>At least 20GB of free space.</li>
+		<li>An SSD harddrive. It'll work without, but it'll be sluggish as all hell. If you have RAM to spare, you can use a ramdrive to significantly speed up the saving step.</li>
+	</ul>
+
+	<h2>1. Installation</h2>
+
+	<h3>Stable Diffusion [Windows]</h3>
+		<p>First off, <a href="https://www.python.org/downloads/" target="_blank">install python 3</a>.</p>
+		<p>Next go and download the latest release of <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases" target="_blank">stable diffusion webui</a>. Unzip it somewhere. In this tutorial I'll unzip it directly under C:\</p>
+		<p>Open your stable diffusion folder and double click <code>webui-user.bat</code>. This step takes a while since it downloads all dependencies. If you get any errors here, you can google them. It usually comes down to having to install things like the VC redist (very common library). If you're still having issues let me know on discord and I'll put them in a common issues section.</p>
+		<p>When fully loaded, you'll see something like <img src="https://i.gyazo.com/8f6dfd76fd0ae2034967f65aed44552a.png" />. Open that URL in a browser. Welcome to stable diffusion!</p>
+
+	<h3>Models</h3>
+		<p>In order to generate decent furry art, you'll need a model trained on furry art! If you want to browse models, there's a bunch in the <a href="https://discord.gg/2J23nn3h" target="blank">Furry Diffusion</a> discord. But I personally have been using <a href="https://huggingface.co/lodestones/furryrock-model-safetensors/tree/main" target="_blank">Fluffyrock</a>.</p>
+		<p>Said page has a couple of different models. I've been using fluffyrock-1088-megares-offset-noise-3M. When you click that folder, you'll see a bunch of different 4.27GB files. These are just different versions. I'd suggest downloading the most recent one. Every now and then you may want to return there and update a model or try a new one. The models are named with an epoch number ex "fluffyrock-576-704-832-960-1088-lion-low-lr-<b>e53</b>", where e53 is the epoc. Higher epoch is often better.</p>
+		<p>Download the model you want, and put it in your stable diffusion folder ex: C:\stable-diffusion-webui\models\Stable-diffusion</p>
+		<p>Click the refresh button in the top left corner to refresh models, then pick your fluffyrock one. Loading it will take a couple of seconds. <br /><img src="https://i.gyazo.com/2aa5609bcca75815d37b7e23cc41fc3a.png" /></p>
+
+	<h3>Textual Inversions [Optional]</h3>
+		<p>These are optional things you can install to slightly improve your image quality. Put these under C:\stable-diffusion-webui\embeddings</p>
+		<ul>
+			<li><a href="https://huggingface.co/nick-x-hacker/bad-artist">bad-artist</a></li>
+			<li><a href="https://huggingface.co/yesyeahvh/bad-hands-5/tree/main">bad-hands-5</a></li>
+			<li><a href="https://huggingface.co/FoodDesert/boring_e621/tree/main">boring_e621</a></li>
+			<li><a href="https://civitai.com/models/7808/easynegative">easynegative</a></li>
+		</ul>
+		<p>When done, either restart stable diffusion or click this button <img src="https://i.gyazo.com/7ac9a4d448a880e87f4c2c537eb62dad.png" /> below the Generate button and then click refresh. If Everything checks out right, you should see your installed textual inversions.</p>
+
+	<h2>2. txt2img</h2>
+		<p>Go to the txt2img tab (default tab). You'll have a prompt and a negative prompt. The prompt describes what you want to see in your image, and negative describes what you don't want to see.</p>
+		<p>Making a good prompt is an art in itself. The <a href="https://discord.gg/2J23nn3h" target="blank">Furry Diffusion</a> discord has a channel where they list good prompts. I suggest copying one from there that looks kind of like what you want and tweaking it to your liking.</p>
+		<p>Let's look at the settings:</p>
+		<img src="https://i.gyazo.com/7d1b04862d69874ac1d55d3b4f0bf3ad.png" />
+		<ul>
+			<li>Sampling method - Will change the image style by using a different sampler. I usually stick to Euler a.</li>
+			<li>Sampling steps - May slightly improve image quality. I usually stick with 20-30.</li>
+			<li>Restore faces - Attempts to improve facial quality. I haven't had any luck using it with furry art, so I leave it off.</li>
+			<li>Tiling - Good if you're generating textures. But we're not generating textures, so leave it off.</li>
+			<li>Hires fix - May improve image quality, but increases rendering time by a lot. I usually leave it off because I inpaint all images anyhow.</li>
+			<li>Width/height - Depends on your GPU VRAM. On my RTX3070 8GB I used 768x768. On my RTX4090 I usually do 960x960.</li>
+			<li>Batch Size - How many images should you generate at a time? This depends on your VRAM. I usually do 2 at a time.</li>
+			<li>Batch Count - How many batches do you want to generate? You can set this to whatever you want. But keep in mind each generated image is stored on your HDD, so you may want to manually go and clear it out once and a while. You can change this in settings (see below).</li>
+			<li>CFG Scale - How closely the image should try to resemble your prompt. Note that if you go too high on this, your image quality may deteriorate. 7 is a good starting point, and then you can tweak it until you get decent results.</li>
+			<li>Seed - Sets the random seed. You can technically use it to generate the same image multiple times. But img2img is generally better at this. Just leave it at -1 to generate random images.</li>
+			<li>Scripts - Ignore this unless you know you need a script.</li>	
+		</ul>
+		<p>Finally it's time to generate. I'm going to use the following prompt: <code>by marblesoda,by foxovh, solo, anthro, (fennec:1.1), male, yellow fur, detailed background,  standing, long brown ponytail hair, high fantasy, forest, dirt road, rocks, tall grass, trees, bushes, day, wearing a white hooded robe, wearing a white loincloth, bulge, digitigrade legs, wearing sandals</code> and the following negative <code>by bad-artist, bad-hands-5, boring_e621, easynegative, blurry, (text, signature:1.2), watermark, out of frame
+		</code> with 960x960 and generate a bunch.</p>
+		<p>Here's one of the results. It doesn't match the description exactly, but we can inpaint it.</p>
+		<img src="media/ui/fennecm.png" />
+
+	<h2>3. img2img / inpaint</h2>
+		<p>Switch to the img2img tab. This is where you use the AI to alter an existing image. img2img has sub-tabs, the two we're interested in are:</p>
+		<ul>
+			<li>img2img - Takes an image and redraws something similar looking.</li>
+			<li>inpaint - Takes a part of an image and redraws only that part in full res (this is how you get better details)</li>
+		</ul>		
+
+	<h3>img2img</h3>
+	<p>I usually don't use this much unless I have a starting image such as a screenshot to reference for. But here's an example, using the same prompts as txt2img:</p>
+	<img src="media/ui/fennecm_grid.png" />
+	<p>Settings used:</p>
+	<ul>
+		<li>Width/height/batch/cfg scale - Same as in txt2img</li>
+		<li>Denoising strength - A higher value gives the AI more freedom in changing your image, whereas a lower value will make your image look very similar to the original. Play around with this! I used 0.75 for the grid above.</li>
+	</ul>
+
+	<h3>inpaint</h3>
+	<p>One of the most powerful tools SD has to offer. It lets you select a part of an image and redraw only that part, or better yet, redraw only that part <strong>in higher resolution</strong>!</p>
+	<p>Settings explained:</p>
+	<ul>
+		<li>On the image itself you'll have a few buttons <img src="https://i.gyazo.com/340145b27ac0bba6d8ba3ae9e3b96238.png" />. The goal here is to paint a black mask over the parts of the image you want to change. The more compact the selection, the higher the resolution. Use the pen tool to change the pen size, the circle to undo, the erasor to remove ALL the masking, and the X to remove your image should you want that for some reason.</li>
+		<li>Resize mode - Keep at Just Resize</li>
+		<li>Mask blur - Will smooth the edges of the masked area. 4 is generally a good value, but you'll have to experiment with it.</li>
+		<li>Mask mode - Sets if you want to pain the masked area or everything but the masked area.</li>
+		<li>Masked content - You almost always want this set to original.</li>
+		<li>Inpaint area - Use only masked when painting certain parts of the image. Whole picture is good if you want to smooth out transitions between character and background etc. But you lose out on resolution when using it.</li>
+		<li>Only masked padding - Gives the AI more context to work on by "zooming out" from the masked area. A too low value will cause it to start drawing limbs where there aren't supposed to be limbs, a too high value results in lower detail. You'll usually have to tweak this slider multiple times while inpainting. Eventually you get a feel for it.</li>
+		<li>Sampling method / steps / Resize to / batch count / batch size - Works the same as in the other modes.</li>
+		<li>CFG Scale - Same as the others. If you start getting weirdly colored spots, it's set too high.</li>
+		<li>Denoising Strength - Same as img2img. Adjusts how much the AI must respect the original image. I usually start a render, then cancel and modify denoising strength until I get a render that looks acceptable. This slider is likely the one with the biggest impact on the final result.</li>
+	</ul>
+
+	<img src="https://i.gyazo.com/943077006fe0a574e315f596eef01a41.png" /><br />
+	Here I've painted a mask over his face. I'll set inpaint area to "only masked". <br />
+	<img src="media/ui/faceinpaint.png" /><br />
+	I've regenerated just the head at 0.8 denoising strength, and also added "flower in hair" to the prompt.<br />
+	<p>You can go over your image with the impaint tool and do parts you want to improve bit by bit.</p>
+
+	<img src="media/ui/curse_0.png" /><br />
+	<p><strong>Common issue</strong>: If you start getting weird limbs or characters like above, then you should look into the following:</p>
+	<ul>
+		<li>Denoising strength is too high.</li>
+		<li>Not enough only masked padding.</li>
+		<li>Your prompt should only describe what's in the masked area. So if you only masked the face, then remove descriptions of bulge/feet etc.</li>
+	</ul>
+
+	<img src="https://i.gyazo.com/738448aa332945e4edcfcb2b065c4df6.png" /><br />
+	<p><strong>Common issue</strong>: If you're generating something like hands or feet that should be matched, you have to include both in the picture. Either by masking both or increasing padding.</p>
+	
+	
+	<h2>4. RAM Drive [Optional]</h2>
+		<p>When you're doing large images, you may lose a lot of time writing and reading from disk. You can save a fair amount of time by using a ram disk. Another issue is that stable diffusion stores ALL images on drive, filling up your HDD. Even if you disable "always save all generated images", it saves them in your tmp folder and still fills up your drive.</p>
+		<p>A solution to both issues is to use a ramdrive. It's basically a tool that allocates a piece of your RAM into a virtual harddrive. It's heaps faster, and all files inside are automatically cleared when your computer loses power (reboot etc).</p>
+		<p>I'm using <a href="https://sourceforge.net/projects/imdisk-toolkit/" target="_blank">ImDisk</a> and reserve 512MB of RAM for my disk, but you can use whatever you feel like. Just remember to empty the disk every 500 images or so.</p>
+
+	<hr />
+
+	<h1>Generating a strippable character for FQ</h1>
+	<h2>WARNING: DANGLY BITS AHEAD</h2>
+
+	<p>The FQ characters consist of 4 different art layers:</p>
+	<ul>
+		<li>Dressed</li>
+		<li>Bottomless (top armor only)</li>
+		<li>Topless (lower body armor only)</li>
+		<li>Naked</li>
+	</ul>
+	<p>The easiest way to do this in stable diffusion is to first generate a nude layer. Then draw an outfit sketch on top. Then inpaint the sketch.</p>
+	<p>Let's start from txt2img again. I'll use the same prompt as before with a few tweaks: 
+		<code>by marblesoda,by foxovh, solo, anthro, (fennec:1.1), male, yellow fur, detailed background,  standing, long brown ponytail hair, high fantasy, forest, dirt road, rocks, tall grass, trees, bushes, day,  digitigrade legs, fist fighting stance, facing viewer, (big balls:0.9), (big penis:0.7), foreskin</code> and negative
+		<code>by bad-artist, bad-hands-5, boring_e621, easynegative, blurry, watermark, out of frame, clothes</code>
+	</p>
+	<p>Note the (tag:val) style tags. These allow you to give more or less weight to a tag. For an instance (big-penis:1.1) would give way too big dicks for this picture.</p>
+	<p>I generated 30 images and settled for this one. In general, you'll be throwing out at least 90% of your generated pictures.</p>
+	<p>I also brought it into photohop and cropped it fairly tight. You don't need a lot of air around the character. Also note that the aspect ratio should be 1:1.</p>
+	<p>I saved the cropped image on my desktop. Whenever I'm happy with the progression of an image, I usually drag it to my desktop and then back into stable diffusion. This gives me restore points in case I realize later that I fucked something up in an earlier stage. I delete them after I'm happy with the image.</p>
+
+	<strong>Result:</strong><br />
+	<img src="media/ui/fenm_cropped_small.png" /><br />
+
+	<p>Next, I'll mask the head in inpaint. I've changed the prompt to the following: <code>by marblesoda,by foxovh, solo, anthro, (fennec:1.1), male, yellow fur, detailed background,  standing, long brown ponytail hair, high fantasy, forest,  trees, day,  facing viewer, flowers and leaves in hair, messy hair</code>. Note that the background and shoulder don't match well. But we'll clean that up later. Get the big important details done first.</p>
+	<p><strong>Note: </strong> At the time of writing, there's a bug in inpaint where it hides your masked area when you draw a new picture in, but the old masked are is still active! So click the erasor after changing the picture or you'll inpaint the wrong areas.</p>
+
+	<strong>Result:</strong><br />
+	<img src="https://i.gyazo.com/9e89c02f1f39077f95e3797adecbb231.png" /><br />
+
+	<strong>Issue:</strong> My tail is white!<br />
+	<p>I want him to have a black tipped tail. Stable diffusion is going to struggle since it takes contextual information from the picture. And drastically changing something's color is difficult for it to do.</p>
+	<img src="https://i.gyazo.com/b96b48f957f41a474387d81b02f1bdd5.png" /><br />
+
+	<p>At this point you want to load up photoshop or gimp and make some adjustments. They don't have to look good, they just have to vaguely resemble what you want.</p>
+	<strong>Photoshop:</strong> Rough tail color adjustment<br />
+	<img src="https://i.gyazo.com/71531b327a5e77bc2d94aafe766a78af.png" /><br />
+	<p><i>Protip: When working with multiple layers in photoshop, you can edit -&gt; copy merged. Then ctrl+v to paste it in stable diffusion.</i></p>
+	<strong>Result:</strong> Inpainted over my adjustment with 0.5 denoising and <code>fuzzy black tip fox tail</code> added to prompt<br />
+	<img src="https://i.gyazo.com/9c9fb3270816e63c9298a4bd0bd5cdd7.png" /><br />
+	
+	<strong>Character done:</strong> at this point I'm relatively happy with the character. But as you can see, there's a lot of weirdness around him. This is caused by doing the character parts in higher res, which also adds more detail to the background.<br />
+	<img src="media/ui/fenm_badbg.png" /><br />
+	
+
+	<strong>Masking the background:</strong> I usually select the background in chunks of about a quarter, then generate them at 0.5-0.75 denoising. An alternative is to mask the whole background, then use whole picture inpaint area, and rendering at a higher resolution and downscaling.<br />
+	<img src="https://i.gyazo.com/5d206cbb531249e570be6cf086e65867.png" /><br />
+	<strong>Right side done:</strong> It's a good idea to go wide around fingers, because it's going to mess them up. You can inpaint around only the fingers to clean it up after with more precision.<br />
+	<img src="https://i.gyazo.com/eca75952cc41788a84dbe182d17c2e8b.png" /><br />
+	
+	<strong>An hour of inpainting later:</strong> I'm happy enough with this. I'll make a backup of it and call it "fenm_n.png", N for nude. Let's bring it into photoshop.<br />
+	<img src="media/ui/fenm_n_small.png" /><br />
+	
+	<strong>Groin is too big!</strong> It's not gonna fit in a thong unless I shop out some parts. Here's a rough job with the clone stamp. It doesn't need to look good, just get a rough job done and stable diffusion will fix it up for us.<br />
+	<img src="https://i.gyazo.com/0ef9bf268c8bc5e33fe4ade1e9f4a2d3.png" /><br />
+	
+	<strong>Outline for some armor on a new layer!</strong> Tight clothes usually look better in SD if you give them a little transparency. It gives some context clues where genitals go etc. You'll definitely get a better result if you can actually draw.<br />
+	<img src="https://i.gyazo.com/01e2bfffcf29030e022d52a21aca6bbf.jpg" /><br />
+	<strong>Next, mask and generate the armor pieces bit by bit!</strong> Don't forget to update your prompt! In my case I've added leather chest strap, <code></code>fantasy full plate shiny steel shoulder plate</code>.<br />
+	<img src="https://i.gyazo.com/c1b06dee9d2ac4d5324e99cdbb8c82d3.png" /><br />
+	<strong>This is probably my favorite part of the piece!</strong> With a sufficiently high denoising value you can get some really fun interesting designs.<br />
+	<img src="https://i.gyazo.com/5baf055c4d6ef71fe63615ee4855174c.png" /><br />
+	
+
+	<strong>Another hour of inpainting.</strong> I'm now happy with his armor. Save it as fenm_d.png<br />
+	<img src="media/ui/fennecm_d_small.png" /><br />
+	
+	<p>At this point, the stable diffusion work is done. And we'll move on to photoshop.</p>
+	
+	<strong>Open the naked version in photoshop.</strong> Then open your dressed version and paste it as a new layer on top of the nude one. Select the top part of the character and press ctrl+shift+j to split it into a new layer.<br />
+	<i>Note: If this is a player character, flip the image to face right. All players on the left side of the screen should face right, and NPCs should face left.</i><br />
+	<img src="https://i.gyazo.com/f7ca59c47bcec6a52d701e950d9cc8a9.png" /><br />
+	<img src="https://i.gyazo.com/4baebc6d6fdc1e79171384071bb13d49.png" /><br />
+	
+	
+	<strong>Hide the top layer.</strong> Then use the eraser tool with a low hardness to smooth out any jagged transitions. Save that as fenm_lb.png<br />
+	<img src="https://i.gyazo.com/06e06476f3b09c83385b645cad58d159.jpg" /><br />
+
+	<strong>Show the top layer and hide the bottom layer.</strong> Then use the eraser tool with a low hardness to smooth out any jagged transitions. Save that as fenm_ub.png<br />
+	<img src="https://i.gyazo.com/573b4e46e4a33eb0ec960952c6c2c757.png" /><br />
+
+	<p>You should now have the following images:</p>
+	<ul>
+		<li>fenm_d.png - Fully armored</li>
+		<li>fenm_ub.png - Upper body armor only</li>
+		<li>fenm_lb.png - Lower body armor only</li>
+		<li>fenm_n.png - Naked</li>
+	</ul>
+
+	<p>If you only want to use this character for yourself, you can just upload them somewhere and put in the URLs when creating a new game. If you want to share your character and put them on the new game screen, you can read on to create a mod.</p>
+
+	<h2>Adding it to the New Game screen</h2>
+	
+	<ol>
+		<li>Click File -&gt; New mod. Enter a mod name and your author name. If you don't intend to share it publicly, you can just put whatever.</li>
+		<li>Click the Player button on the left menu. Then New to make a new character.</li>
+		<li>Give it a uniqe label such as "jas_fennec_pc_male". I added "jas" to make it a bit less likely that another modder comes and names a character "fennec_pc_male".</li>
+		<li>Give him a name. Imma name the fennec Focai.</li> 
+		<li>Species article can be ignored. It's only used if the name starts with a vowel but uses "a" instead of "an" such as "a unicorn", which disobeys the rule that if a word starts with a vowel, it should use "an".</li>
+		<li>Species is set to fennec.</li>
+		<li>Voice and pronouns can be ignored. Voices aren't fully implemented yet, and pronouns are auto generated based on genitals unless you want custom ones.</li>
+		<li>Set image dressed to the URL where you uploaded your dressed version.</li>
+		<li>Set image upper body, lower body and nude to those URLs.</li>
+		<li>Optional: If you want to, you can crop just your character's head, upload it somewhere, and set that as player portrait. PC portraits aren't used right now, but might in the future.</li>
+		<li>Check Art is AI generated. In the future, this'll add a disclaimer on the character that the art is AI.</li>
+		<li>Team should be set to 0, otherwise you'll be treated as hostile to other players.</li>
+		<li>Size should be set from 3 (gnome) to 7 (ogre). Higher and lower sizes are generally only used for monsters. Average humanoid is 5. I'll set the fennec to 4, because fenn.</li>
+		<li>Leave "Level is Offset...", power, HP multiplier, armor at default.</li>
+		<li>Talkative/sadistic/moninant/hetero/emotive/intelligence are mainly used for NPC behavior, and not really used for PC templates. You can leave them as default, or set what you think would match the character if someone adds it to the game as an NPC. Note that intelligence for humanoids generally ranges from 0.4 (dumb as a rock) to 0.8 (super ultra megamind telepath). Average human intelligence is around 0.55.</li>
+		<li>Uncheck "Ignore spell slots".</li>
+		<li>Leave remove on death and all stats as default.</li>
+		<li>Add a description to your character.</li>
+		<li>Secret information will be left up to the players in the future. It's information you can see when someone uses clairvoyance on the character.</li>
+		<li>Click "library" on player class and pick either "offense", "defense", or "support".</li>
+		<li>Add tags by pressing the add button a bunch of times. The tags you're looking for are the ones starting with "pl_". For the fennec, I pick the tags: 
+			<code>pl_penis, pl_big_penis, pl_butt, pl_furry, pl_vulpine, pl_teeth, pl_fangs, pl_claws, pl_mouth, pl_nose, pl_hair, pl_long_hair, pl_ears, pl_big_ears, pl_long_tail, pl_tail</code>
+		</li>
+		<li>Save by pressing ctrl+s or going to the file menu.</li>
+		<li>Click the gallery button on the left.</li>
+		<li>Create a new gallery entry. I'll label it the same as the character "jas_fennec_pc_male" then click library and pick jas_fennec_pc_male.</li>
+		<li>Save.</li>
+		<li>Load up fetishquest (or refresh if it's open) and create a new game. Your newly created character should show up in the list!</li>
+	</ol>
+	<p>If everything was set correctly, you should now have it on your player select! You can export and share your mod freely if you want others to use it!</p>
+	<img src="https://i.gyazo.com/7124b09b67ca970ed4475a659ec26a1d.png" />
+
+</body>
+</html>

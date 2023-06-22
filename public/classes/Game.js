@@ -413,6 +413,8 @@ export default class Game extends Generic{
 		
 
 		this.encounter.onPlacedInWorld( false );	// Sets up event bindings and such
+
+		this.refreshPlayerVisibility();
 		console.log("Game loaded");
 
 	}
@@ -1921,6 +1923,14 @@ export default class Game extends Generic{
 				return p;
 
 		}
+		// Able to get follower clones this way too
+		for( let p of this.players ){
+
+			if( p.label === 'fo_'+label )
+				return p;
+
+		}
+		
 		return false;
 
 	}
@@ -2221,6 +2231,7 @@ export default class Game extends Generic{
 			pl.disabled = !Condition.all(conds[i], new GameEvent({target:pl, sender:pl}));
 
 		}
+		this.ui.draw();
 
 	}
 
@@ -2237,9 +2248,9 @@ export default class Game extends Generic{
 		if( !(player instanceof Player) )
 			throw 'Trying to add non player follower';
 
-		if( !player.isFollower() )
+		if( !player.isFollower() ){
 			throw 'Player is not a follower';
-
+		}
 		const stashed = this.getStashedFollower(player.label);
 		if( stashed ){
 			player = stashed;
@@ -2248,6 +2259,8 @@ export default class Game extends Generic{
 		// add to game players
 		this.addPlayer(player);
 		player.onPlacedInWorld();
+		player.team = 0; // Join player team 
+		player.label = 'fo_'+player.label; // fo is prepended to label. Player label conditions will check both with fo_ and non fo_
 
 		// Stash it immediately
 		if( !addImmediate )
@@ -2256,9 +2269,9 @@ export default class Game extends Generic{
 
 	}
 
-	stashFollower( label ){
+	stashFollower( id ){
 
-		let player = this.getPlayerByLabel(label);
+		let player = this.getPlayerById(id);
 		if( !player )
 			return false;
 
