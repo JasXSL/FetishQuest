@@ -1,133 +1,47 @@
 Bugs:
-- nec Leech not working?
-- occasionally no orgasm?
+- occasionally no orgasm on max arousal?
+- Don't show missing momentum on gym icons
+- Make the action adder show icons
+
+Minor Features:
+- Add character portraits to shops
+- Rattani alchemist: Rats can bypass the locked door
+- Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
 
-Things that need full art layers:
-	:: GEN
-	a Male Fox outlaw
-	a Male Horse outlaw
-	a Male Huskeguard
-	a Male rattani
-	a Male rattani diver
-	a Female rattani diver
-	a Female Rattani
-	a Female Huskeguard
-	a Female Fennec outlaw
-	a Female horse outlaw
-	
-	:: Named
-	a sharkanist_boss : A large muscular great white shark-man with gems studded to his tail.
-	a penal_targ_fox : A feminine male fox with long dark hair
-	a dirty sailor : Ratman, riya's husband
-	a greasy_backdoor_zebra : Muscular zebra
-	a penal_brutus : A large muscular bull man with two long horns. He has shaggy hair tied up in a braid reaching down to his shoulders.
-	a SQ_sharktopus_camp_cultist : Male ferret. Need to regenerate with nude.
-	a bandit_riya : A short rat-lady of average proportions.
-	a necro_fox : A fox lady with ragged dirty fur. (wearing white panties and necro robe)
-	a wrestler_carlita : A muscular female cougar with large breasts and black hair tied up in a braid.
-	a yuug_tailor_ming : A red panda except with blue fur. She's sporting larger than average breasts and long flowing light blue hair.
-	a veroniquette : Need to remake with layers
-	a huskeguard hakko : A fluffy, feminine male husky with long hair tied into braids.
-	a rattani_dive_miniboss: A white rat woman with red eyes and smaller than average breasts, sporting webbed toes and fingers. She's got long black hair tied up in a braid.
-	
-	
-Friendly NPCs:
-	:: Gen
-	a Female necro jackal
-	a Female Sharkanist
-	a necro_construct_slave : A large-breasted cow lady, she's strapped to some kind of milking device.
-	a necro_bar : A larger than average dalmatian herm, standing at average height with a big butt and ample bosom. Runs the Underbar in the Yuug necromancers guild.
-	a Male Sharkanist
-	a necro_trainer : A toned hyena (male).
-	a Male necro jackal
-	a Male necro crow
-	a necro_bouncer : A large muscular male pitbull, guarding the entrance to the deep catacombs below the Yuug necromancers guild.
-	a necro_entrance : A male crow covered in bone charms, charged with guarding the entrance of the Yuug necromancers guid.
-	
-
-	:: Named
-	x razpan : A red panda lady in a knee-length yellow dress sitting on a barrel, surrounded by buckets of razzyberries.
-	x jackman_greyson : A male snow leopard wearing all black except for a brown leather coat. (jackson)
-	a Foyash : Regenerate
-	a virgil : regenerate
-	a chad : regenerate
-	a collie farmer : regenerate
-	a yuug_port_blacksmith : horse blacksmithing
-	a yuug_tailor_ping : A red panda with larger than average breasts and long flowing blonde hair. Wearing an intricate knee long dress with pockets filled with various tailoring equipment.
-	a barkeep : shiba inu barkeep (regenerate)
-	a Female tentacle fight Quartermaster Fennec (Sam's sister)
-	a Male Tentacle fight announcer cat (dressed sharply) (jackson)
-	a Small scruffy rat (fan used in upskirting event)
-	a Outlaw Poacher (use same as gnoll bandit)
-	a rattani_engineer : A short rat-man wearing goggles with a multitude of lenses, sitting near a table full of various mechanical bits and bobs. He seems oblivious to his surrounds.
-	a scruffy_tavern_dweller : A scruffy mutt of a dog-man. Sitting in a corner and sipping on an ale. A common sight around taverns, and might be able to share a rumor or two.
-	a ybazaar_fensam : (Sam) A female fennec wearing brown shorts and a tight white top. She's standing behind a tent surrounded by various good smelling foods!
-	a Sharkanist trainer - Mesat (cboy)
-	a penal_guildmaster : A female ferret wearing a tight leather one-piece suit with pockets strapped to her thigh and arm.
-	a Tentacle fight picker (female cat)
-	a Tavernkeeper mayah, female arctic Fox
-	a Borm innkeeper: A cheerful otter lady wearing a white apron with pink flowers on it.
-	a bubbling_stream_innkeeper : A shorter than average freckled pink cat-lady with long hair tied up into a ponytail, wearing a matted dress.
-	a vadgination_felidia : A white-furred female cat. A bit pudgy, but that might just be her fluffy fur.
-	a sharkanist_vendor : A large-busted shark-woman wearing a flowing silk-like dress.
-	a sharkanist_smith : A large shark-man wielding a large blacksmithing hammer.
-	a sharkanist_maki : A long slender shark lady, radiating some kind of arcane aura.
-	a portmaster : shark
-	a yuug_church_cleric_a : A skinny wolf in a long flowing red robe. Gareus.
-	a yuug_church_cleric_b : Velmont
-	a yuug_church_cleric_topside : Ordan
-	a yuug_church_quartermaster : Female wolf
-
-	a portswood_west_repair : An armadillo lady wearing leather armor with lots of bits and bobs attached to it. There are various tools and crates scattered around her camp.
-	a repair_smith_matilda : A muscular mule wearing an apron and wielding a big hammer.
-	a yuug_city_greasy_backdoor_receptionist : A well fed brown bear lady wearing a flowery dress.
-
-	a penal_quartermaster : A large fat dog man wearing just an apron and a thong.
-	a ybazaar_smith : A large burly bear man wearing a leather thong and an apron.
-	a ybazaar_brutus : A big burly bear. Standing in a stall surrounded by various bottles and tankards.
-	a yuug_city_greasy_backdoor_tavern : A large brawny bear man wearing a dirty apron.
-	
-	a ybazaar_russle : A racoon man wearing oddly shaped glasses sitting by the fire. There seems to be various pieces of armor and equipment scattered around him.
-	a Yuug bank thomas : A round raccoon man wearing a fancy suit.
-
-	a yuug_leatherworker : A male ferret wearing a leather apron and a pair of fancy leather boots.
-	a yuug_explorer_student_a : A scrawny ferret man.
-	a yuug_church_marric : Feminine beagle
-	- yuug_church_malthereus : A demonic doberman with two horns and glowing red eyes. He is fairly muscular and has a large package.
-
-	- monk01_rodan : Fat rat in a suit and a hat
-	- monk01_pitFighter : ???
-	- monk_quartermaster: ???
-	- tm01_farmer : Male horse
-	- tm02_villager : ???
-	- tm02_tentacleCultist : ???
-	- war00_rulu : ???
-	- war01_virgil : Buff virgil
-	- war00_ruluChampion : ???
-	- war00_ruluQuartermaster : ???
-
-	- (Nibs) Male slug, tentaclemancer trainer
-
+-- MAJOR FEATURE IDEAS --
 
 Overhaul food:
 - Make food buffs unique
 
-Issues:
-- Don't show missing momentum on gym icons
-- Make the action adder show icons
+
+Passives:
+- ??? HOW should they work?
 
 
-Roleplay:
-	- Add a checkbox for auto [Leave] option
-Dungeon room asset:
-	T Add a quick dropdown for travel to room
 
-Passives. 3 picks each tier.
-	-: Brawn: Gain 3 physical offense. | Charisma: Gain 3 corruption offense. | Guile: Gain 3 arcane offense.
-	-: Offender: Gain 1 to each proficiency. | Defender: Gain 2 to each avoidance. | Edging: Gain +5 max arousal.
-	-: Rerolling momentum other than your archetype one becomes your archetype one | Gain 1 more reroll on turn start.
-	-: 
+-- CHARACTERS NEED ART --
+
+Friendly NPCs:
+	- monk01_rodan : Fat rat in a suit and a hat
+	- tm01_farmer : Male horse
+	a monk01_pitFighter : Shemale Dragon
+	- monk_quartermaster: Female Koala
+	- tm02_villager : ???
+	- tm02_tentacleCultist : ???
+	- tm_quartermaster: ???
+
+	For slate to decide:
+	- war00_rulu : ???
+	- war01_virgil : Buff virgil
+	- war01_ruluChampion : ???
+	- warrior_chadQuartermaster: ???
+
+	- (Nibs) Male slug, tentaclemancer trainer
+
+
+
+-- QUESTS --
 
 Side quests:
 	- A rat in the borm tavern wants you to put tickle tentacle eggs in a fighter's bodysuit.
@@ -135,30 +49,11 @@ Side quests:
 	- If the players do it right, they get reward A from the rat.
 	- Otherwise they'll get ambushed near the borm exit and can collect a bounty for reward B.
 
-
-
-New actions:
-Todo:
-	- Go over tank abilities, make sure they generate extra threat
-	- Go over all abilities and set ac_damage / ac_heal appropriately
-	- Go over all abilities and check if detrimental is checked properly
-	- Go over all abilities and check if wrappers have detrimental checked properly
-	- Finish monk/elementalist/necro
-	- Finish visuals and texts for the previous ones
-	- Add to gyms
-	- Test
-	
-
-x = done 4813
-v = need visuals
-w = need texts
-t = need testing
-
-NOTE: These armors have 2 stats per slot because they're purchased epics. But have epic effects.
-
+-- CLASS QUESTS --
   x Warrior: Tank [Phys]. Reduces incoming damage. Self block and counter attacks.
 Trainer: Chad's Gym
-	Armor: 
+[Todo]	Armor  Add a vendor to both gyms alongside the quest.
+
 		x Warrior's Gear (Breastplate + Crotchplate): YOU GAIN TOO MUCH BLOCK?
 			- Attack grants you 1 block per enemy you are taunting.
 		x Sturdy Leather Gear (leather thong + leather chestwraps):
@@ -197,26 +92,12 @@ Trainer: Chad's Gym
 		
 
 
-(test)  - Rogue: [Corruption/Phys] DPS. Direct damage. Rerolls & crits.
-Trainer: Penal gang
-	Armor: 
-		Bodysuit:
-		x Using a reroll grants you 1 proficiency of each type this turn.
-		Thong bodysuit: 
-		x Using two standard attacks in a row grants you major Accuracy and major aggression this turn.
-	Quest: DONE
-
-(test) 	- Cleric [Arcane/Phys] Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive. Demon/undead bane.
-Trainer: church
-	- Armor: 
-		x Plate Bikini (2 slots): Restores 2 HP to the party whenever you are hit by an enemy that you are taunting.
-		x Cloth Bikini (2 slots): Healing a target under 50% HP grants major mending for 2 turns.
-	- Quest: DONE
-
+(DONE)  - Rogue: [Corruption/Phys] DPS. Direct damage. Rerolls & crits.
+(DONE) 	- Cleric [Arcane/Phys] Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive. Demon/undead bane.
 
 (test)  - Tentaclemancer [Corruption]  Tank (utility): Tanks by weakening enemies. Also self arousal. 
 Trainer: Borm
-	- Armor: 
+[Todo]	- Armor: Add a quartermaster alongside the quest
 		x Living bodysuit:
 			- Orgasm no longer resets your momentum.
 			- Gain major aggression and defense for 2 turns on orgasm.
@@ -237,7 +118,7 @@ Trainer: Borm
 
 (test)  - Monk: [Physical] Healer - Heals by attacking. Also riposte and combos.
 Trainer: Portswood glade.
-	- Armor: 
+[Todo]	- Armor: Add a quartermaster alongside the quest
 		x Ultralight Bodysuit: Using attack against a grappled target restores 3 HP to a random friendly player.  
 		x Ultralight Sling Bikini: Getting riposted grants you major mending and momentum for 3 turns.
 
@@ -263,28 +144,9 @@ Trainer: Portswood glade.
 			She says the gesture to prove that you were succesfful is to twist <monk>'s nipples.
 			Go do that to finish the quest and unlock the armor.
 
-(test)  - Elementalist [Arcane] - Defensive DPS: Deal damage when enemies attack. Also wild random effects.
-Trainer: Otter in lake (moves to inn after quest complete)
-	- Armor: 
-		x Tribal Leathers (leather thong plus chest): Grants 5 random momentum when you interrupt a player.
-		x Stimulating Sling Bikini: Divert can be used on any target, but adds 3 arousal to the caster.
-	- Quest: DONE
-	
-
-
-(test)  - Necromancer [Corruption] - Tank (offense) by doing damage and stealing health.
-Trainer: Necromancer
-	t Bone Armor (heavy), bone breastplate and thong:  On orgasm, gain an extra charge of corrupt.
-	t Dark Robes: Life steals have a chance equal to your opponent's HP percentage to restore +2 HP to your party.
-	- Quest: DONE
-
-
-(test)		- Arcanist [Arcane] - Healer (proactive). Block effects and damage reduction.
-Trainer: Sharkanists
-	- Armor: 
-		t Arcane Silk Bikini: Gain 1 arcane proficiency each turn, up to 5 stacks. This effect is reset when you take HP damage.
-		- Arcane Bodysuit: When a friendly player's block is broken on their turn, they gain Major Blessing and Major Penetration until the end of the turn.
-	- Quest: DONE
+(DONE)  - Elementalist [Arcane] - Defensive DPS: Deal damage when enemies attack. Also wild random effects.
+(DONE)  - Necromancer [Corruption] - Tank (offense) by doing damage and stealing health.
+(DONE)	- Arcanist [Arcane] - Healer (proactive). Block effects and damage reduction.
 
 
 
@@ -301,150 +163,124 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 
 
 
+-- IDEA BANK --
 
--- Permanent to keep an eye for --
-	- Keep redesigning errors to a try/catch system
-	- Add more automatic asset unrolling as you discover rolled up assets
-	- Sometimes using repair kits fails?
-	- Groin twist event shows up in female. Need to check all game actions in event?
+- Enchant ideas:
+	- <When you X> you apply <Y> which is triggered by <Z>
+	- Taunting an enemy causes <x>
+	- When block fades at the start of your turn, gain 1 momentum.
+	- Gain 10% increased damage done for each unique monster you attack in a turn.
+	- Each attack received in a turn reduces further damage taken that turn by 5%. Up to 95%.
+	- Each defensive momentum spent in a turn grants you 1 block.
+	- Finishing a spell with a cast time grants you 1 momentum per turn it was charged.
+	- Getting interrupted reduces all charge times by 1 for 1 turn.
+	- Increases the damage of one of your 3 standard attacks by 1.
+	- Critical hits grant you 1 momentum.
+	- Each turn you don't use an ability you gain ???
+	- Gain X if you didn't lose HP last turn.
+	- Using a multi-target action on a single target does <x>
+	- Using a healing potion grants <x>
+	- Mana potions grants <x>
+	- Gain major defense while charging a spell
+	- Overhealing a player grants them 1 reroll
+	- Using a standard attack makes your next non-standard attack grant you 1 extra momentum next turn 
+	- Using a standard attack grants you an extra reroll
+	- Increases damage done while at full HP
+	- Gain 3 momentum next turn after being riposted
+	- Attacking an enemy twice in a row puts major <something> on them
+	- When your block fully absorbs an attack, do <x>
+	- When you do <damage type> do something
+	- Using a melee attack and ranged attack in the same turn does <x>
+	- When you deal all 3 damage types to a target this turn, do <x>
+	- Casting a heal on a player grants a buff. If the player is above 90% HP at the end of the turn, do <x>
+	- Using taunt while under 50% HP grants 4 block.
+	- Gain a boost to a random offensive stat each turn.
+	- Ending a turn with no momentum left gives <x>
+	- For each N reroll used, gain X
+	- An item that costs money to use
 
-	- Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
+- Item ideas:
+	- Cooldown clearing potions
+	- Your next action costs no AP
+	- Makes you untargetable for 1 turn.
+	- Rerolling non-defensive momentum now always rolls into defensive momentum.
+	- Smoke bomb : Resets all awareness
+	- Do X if you have 5 or fewer abilities slotted.
+	- You wasted n amount of block
+	- Grant a random party member 1 block when you use an arcane action.
+	- Gain 2 proficiency of all types for the remainder of your turn when riposted.
+	- It's nighttime
+	- You're outdoors
+	- You have been hit while naked
+	- You have played N turns this battle
+	- You have post nut clarity
+	- Gain block whenever you miss an attack.
+	- You have less than X gold
+	- Grant 3 random momentum if you have at least 4 actions on cooldown.
+	- Motivation: Doubles your arousal and grants 2 momentum per original point of arousal.
+	- Sacrifice: Destroys a random piece of worn armor and restores 20 HP.
+	- Focus Gem: Prevents block from falling off this turn.
+	- Grappling hook: Unequips target hand slot.
+	- Horny bat: Deals 3 damage and lowers arousal by 3.
 
-	- Enchant ideas:
-		- <When you X> you apply <Y> which is triggered by <Z>
-		- Taunting an enemy causes <x>
-		- When block fades at the start of your turn, gain 1 momentum.
-		- Gain 10% increased damage done for each unique monster you attack in a turn.
-		- Each attack received in a turn reduces further damage taken that turn by 5%. Up to 95%.
-		- Each defensive momentum spent in a turn grants you 1 block.
-		- Finishing a spell with a cast time grants you 1 momentum per turn it was charged.
-		- Getting interrupted reduces all charge times by 1 for 1 turn.
-		- Increases the damage of one of your 3 standard attacks by 1.
-		- Critical hits grant you 1 momentum.
-		- Each turn you don't use an ability you gain ???
-		- Gain X if you didn't lose HP last turn.
-		- Using a multi-target action on a single target does <x>
-		- Using a healing potion grants <x>
-		- Mana potions grants <x>
-		- Gain major defense while charging a spell
-		- Overhealing a player grants them 1 reroll
-		- Using a standard attack makes your next non-standard attack grant you 1 extra momentum next turn 
-		- Using a standard attack grants you an extra reroll
-		- Increases damage done while at full HP
-		- Gain 3 momentum next turn after being riposted
-		- Attacking an enemy twice in a row puts major <something> on them
-		- When your block fully absorbs an attack, do <x>
-		- When you do <damage type> do something
-		- Using a melee attack and ranged attack in the same turn does <x>
-		- When you deal all 3 damage types to a target this turn, do <x>
-		- Casting a heal on a player grants a buff. If the player is above 90% HP at the end of the turn, do <x>
-		- Using taunt while under 50% HP grants 4 block.
-		- Gain a boost to a random offensive stat each turn.
-		- Ending a turn with no momentum left gives <x>
-		- For each N reroll used, gain X
-		- An item that costs money to use
+- Action ideas:
+	- Deals damage, deals extra damage if target has clairvoyance.
+	- Prevents healing done for one turn
+	- Reduces target healing received
+	- Healing NPC
+	- Lowers max carry capacity for a few turns.
+	- 
 
-	- Item ideas:
-		- Cooldown clearing potions
-		- Your next action costs no AP
-		- Makes you untargetable for 1 turn.
-		- Rerolling non-defensive momentum now always rolls into defensive momentum.
-		- Smoke bomb : Resets all awareness
-		- Cursed Collar
-			- 
-		- Do X if you have 5 or fewer abilities slotted.
-		- You wasted n amount of block
-		- Grant a random party member 1 block when you use an arcane action.
-		- Gain 2 proficiency of all types for the remainder of your turn when riposted.
-		- It's nighttime
-		- You're outdoors
-		- You have been hit while naked
-		- You have played N turns this battle
-		- You have post nut clarity
-		- Gain block whenever you miss an attack.
-		- You have less than X gold
-		- Grant 3 random momentum if you have at least 4 actions on cooldown.
-
-	- Action ideas:
-		- Deals damage, deals extra damage if target has clairvoyance.
-		- Prevents healing done for one turn
-		- Reduces target healing received
-		- Healing NPC
-		- Lowers max carry capacity for a few turns.
-		- 
-
-		:: Do X, but if Y is true, also do Z. Y ideas:
-		- Action is followed by a ranged action
-		- 
+	:: Do X, but if Y is true, also do Z. Y ideas:
+	- Action is followed by a ranged action
+	- 
 
 
-	- Events:
-		- Pick up a coin, gain a curse that makes you cum immediately when penetrated
-		- In town: If wearing plate, get aroused by someone sneakily making it vibrate
-		- Find a meadow and sit to rest. Chance for a worm trap to spawn underneath you. You can choose to let the worm trap finish you off, giving you lots of arousal but also a buff.
-		- 
+- Events:
+	- Pick up a coin, gain a curse that makes you cum immediately when penetrated
+	- In town: If wearing plate, get aroused by someone sneakily making it vibrate
+	- Find a meadow and sit to rest. Chance for a worm trap to spawn underneath you. You can choose to let the worm trap finish you off, giving you lots of arousal but also a buff.
+	- 
 
-	- Random events
-		- Ideas:
-			- Sporeling encounter:
-			- Skeletal:
-			- Cocktopus:
-			- Anemone:
-			- Lamprey:
-			- Ogre:
+- Random events
+	- NPCs:
+		- Sporeling encounter:
+		- Skeletal:
+		- Cocktopus:
+		- Anemone:
+		- Lamprey:
+		- Ogre:
 
-			- Something with sofa?
-			- Something with haybale?
-			- Pitchfork
-			- Shovel/grass, dig for something?
-			- Barrel
-			- Crate
-			- Tankard
-			- Hole in wall
-			- Something for 2 players
-			- Climbing something
-
-
--- CURRENT --
-	
-	Main quest:
-
-	Side quests:
-		- The borm straw tickle tentacles rise
-			- Collect tentacle spores from the fields
-			- Stick them into someone's underwear drawer
-			- Rig a fight?
-			- 
+	- Props:
+		- Something with sofa?
+		- Something with haybale?
+		- Pitchfork
+		- Shovel/grass, dig for something?
+		- Barrel
+		- Crate
+		- Tankard
+		- Something for 2 players
+		- Climbing something
 
 
-	Item ideas:
-		- Motivation: Doubles your arousal and grants 2 AP per original point of arousal.
-		- Sacrifice: Destroys a random piece of worn armor and restores 20 HP.
-		- Focus Gem: Prevents block from falling off this turn.
-		- Grappling hook: Unequips target hand slot.
-		- Horny bat: Deals 3 damage and lowers arousal by 3.
-		
-
-	
-
-	Fun tensorflow generated words I can use:
-		- Moinather - An item of some sort
-		- Fabmaren 
-		- Divantle
-		- rubor chair
-		- chaptence
-		- procedo
-		- treather
-		- slimy rough sogle
-		- tipten 
-		- therrage 
-		- Tworef 
-		- Yuglow earthen
-		- Scorbus
-		- Fortiott Candifstem
-		- Stront
-		- Fennecite - Metal material
-		- Hazewall Inn - Spa near the wall
+Fun tensorflow generated words I can use:
+	- Moinather - An item of some sort
+	- Fabmaren 
+	- Divantle
+	- rubor chair
+	- chaptence
+	- procedo
+	- treather
+	- slimy rough sogle
+	- tipten 
+	- therrage 
+	- Tworef 
+	- Yuglow earthen
+	- Scorbus
+	- Fortiott Candifstem
+	- Stront
+	- Fennecite - Metal material
+	- Hazewall Inn - Spa near the wall
 
 
 -- Totally not stolen ideas --
@@ -462,36 +298,27 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 	Boss that does an effect based on nr of potions in inventory/equipped
 	Cooldown activated on a random ability at the start of each turn
 	Sentient rod weapon
+	Boss limits nr of actions you can use in a turn
 	
 
--- LATER UPDATE --
+- Procedural dungeon affixes
 
-	- Procedural dungeon affixes
-	- Otter and broper beach party quest
 
-	Generic passives (later):
-		- Takes no damage penalty from not wearing gear.
-		- Exhibitionist: Taking on/off clothes in combat costs no AP.
-	
-	- Needed music
-		- Tavern
-		- Town
-		- Battle
-		- Forest
-		- Dungeon
 
-	- Custom cursors?
-		- Arrow
-		- Interact
-		- Inspect
-		- Buy
-		- Sell
-		- Repair
+- Needed music (slate)
+	- Tavern
+	- Town
+	- Battle
+	- Forest
+	- Dungeon
 
-	Boss ideas:
-		- Limits the nr of actions you can use per turn
-		- 
-	
+- Custom cursors?
+	- Arrow
+	- Interact
+	- Inspect
+	- Buy
+	- Sell
+	- Repair
 
 
 Mod improvements:

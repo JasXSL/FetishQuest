@@ -34,7 +34,11 @@
 	<h2>1. Installation</h2>
 
 	<h3>Stable Diffusion [Windows]</h3>
-		<p>First off, <a href="https://www.python.org/downloads/" target="_blank">install python 3</a>.</p>
+		<p>Start by installing the following:<br /></p>
+		<ul>
+			<li><a href="https://www.python.org/downloads/" target="_blank">Python 3</a>. <i>Note: Make sure you check the option to add to PATH.</i></li>
+			<li><a href="https://git-scm.com/download/win" target="_blank">Git for Windows</a>.</li>
+		</ul>
 		<p>Next go and download the latest release of <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases" target="_blank">stable diffusion webui</a>. Unzip it somewhere. In this tutorial I'll unzip it directly under C:\</p>
 		<p>Open your stable diffusion folder and double click <code>webui-user.bat</code>. This step takes a while since it downloads all dependencies. If you get any errors here, you can google them. It usually comes down to having to install things like the VC redist (very common library). If you're still having issues let me know on discord and I'll put them in a common issues section.</p>
 		<p>When fully loaded, you'll see something like <img src="https://i.gyazo.com/8f6dfd76fd0ae2034967f65aed44552a.png" />. Open that URL in a browser. Welcome to stable diffusion!</p>
@@ -86,7 +90,7 @@
 		</ul>		
 
 	<h3>img2img</h3>
-	<p>I usually don't use this much unless I have a starting image such as a screenshot to reference for. But here's an example, using the same prompts as txt2img:</p>
+	<p>I usually don't use this much unless I have a starting image such as a screenshot to reference. But here's an example, using the same prompts as txt2img:</p>
 	<img src="media/ui/fennecm_grid.png" />
 	<p>Settings used:</p>
 	<ul>
@@ -114,7 +118,7 @@
 	Here I've painted a mask over his face. I'll set inpaint area to "only masked". <br />
 	<img src="media/ui/faceinpaint.png" /><br />
 	I've regenerated just the head at 0.8 denoising strength, and also added "flower in hair" to the prompt.<br />
-	<p>You can go over your image with the impaint tool and do parts you want to improve bit by bit.</p>
+	<p>You can go over your image with the inpaint tool and redo the image bit by bit.</p>
 
 	<img src="media/ui/curse_0.png" /><br />
 	<p><strong>Common issue</strong>: If you start getting weird limbs or characters like above, then you should look into the following:</p>
@@ -129,7 +133,7 @@
 	
 	
 	<h2>4. RAM Drive [Optional]</h2>
-		<p>When you're doing large images, you may lose a lot of time writing and reading from disk. You can save a fair amount of time by using a ram disk. Another issue is that stable diffusion stores ALL images on drive, filling up your HDD. Even if you disable "always save all generated images", it saves them in your tmp folder and still fills up your drive.</p>
+		<p>When you're doing large images, you may lose a lot of time writing and reading from disk. You can save a fair amount of time by using a ram disk. Another issue is that stable diffusion stores ALL images on drive, filling up your HDD. Even if you disable "always save all generated images", it saves them in your tmp folder and fills up your drive.</p>
 		<p>A solution to both issues is to use a ramdrive. It's basically a tool that allocates a piece of your RAM into a virtual harddrive. It's heaps faster, and all files inside are automatically cleared when your computer loses power (reboot etc).</p>
 		<p>I'm using <a href="https://sourceforge.net/projects/imdisk-toolkit/" target="_blank">ImDisk</a> and reserve 512MB of RAM for my disk, but you can use whatever you feel like. Just remember to empty the disk every 500 images or so.</p>
 
@@ -158,7 +162,7 @@
 	<strong>Result:</strong><br />
 	<img src="media/ui/fenm_cropped_small.png" /><br />
 
-	<p>Next, I'll mask the head in inpaint. I've changed the prompt to the following: <code>by marblesoda,by foxovh, solo, anthro, (fennec:1.1), male, yellow fur, detailed background,  standing, long brown ponytail hair, high fantasy, forest,  trees, day,  facing viewer, flowers and leaves in hair, messy hair</code>. Note that the background and shoulder don't match well. But we'll clean that up later. Get the big important details done first.</p>
+	<p>Next, I'll mask the head in inpaint. I've changed the prompt to the following: <code>by marblesoda,by foxovh, solo, anthro, (fennec:1.1), male, yellow fur, detailed background,  standing, long brown ponytail hair, high fantasy, forest,  trees, day,  facing viewer, flowers and leaves in hair, messy hair</code> Note that the background and shoulder don't match well. But we'll clean that up later. Get the big important details done first.</p>
 	<p><strong>Note: </strong> At the time of writing, there's a bug in inpaint where it hides your masked area when you draw a new picture in, but the old masked are is still active! So click the erasor after changing the picture or you'll inpaint the wrong areas.</p>
 
 	<strong>Result:</strong><br />
@@ -190,7 +194,7 @@
 	<strong>Groin is too big!</strong> It's not gonna fit in a thong unless I shop out some parts. Here's a rough job with the clone stamp. It doesn't need to look good, just get a rough job done and stable diffusion will fix it up for us.<br />
 	<img src="https://i.gyazo.com/0ef9bf268c8bc5e33fe4ade1e9f4a2d3.png" /><br />
 	
-	<strong>Outline for some armor on a new layer!</strong> Tight clothes usually look better in SD if you give them a little transparency. It gives some context clues where genitals go etc. You'll definitely get a better result if you can actually draw.<br />
+	<strong>Outline for some armor on a new layer!</strong> Tight clothes usually look better in SD if you give them a little transparency. It gives some context clues where genitals go etc. If you're good at drawing, add more detail! The more detail you add, the more accurate your result in SD will be.<br />
 	<img src="https://i.gyazo.com/01e2bfffcf29030e022d52a21aca6bbf.jpg" /><br />
 	<strong>Next, mask and generate the armor pieces bit by bit!</strong> Don't forget to update your prompt! In my case I've added leather chest strap, <code></code>fantasy full plate shiny steel shoulder plate</code>.<br />
 	<img src="https://i.gyazo.com/c1b06dee9d2ac4d5324e99cdbb8c82d3.png" /><br />
@@ -222,43 +226,47 @@
 		<li>fenm_lb.png - Lower body armor only</li>
 		<li>fenm_n.png - Naked</li>
 	</ul>
-
-	<p>If you only want to use this character for yourself, you can just upload them somewhere and put in the URLs when creating a new game. If you want to share your character and put them on the new game screen, you can read on to create a mod.</p>
+	<p><strong>Note: </strong> Player characters in FQ should preferably be facing right. NPCs should preferably be facing left.</p>
+	<p><i>Note: The FQ art uses jpg to significantly save on load times. But if you don't care about that, you can use PNG for higher quality. Both are supported.</i></p>
+	<p>Find somewhere to upload your images that allows hotlinking. Write down the URLs.</p>
+	<p>If you only want to use this character for yourself, you just put in the URLs when creating a new game or editing your character with the DM tools. If you want to share your character and put them on the new game screen, you can read on.</p>
 
 	<h2>Adding it to the New Game screen</h2>
+
+	<p>Go to the modtools [DEV] <a href="https://dev.fetishquest.com/modtools.html">https://dev.fetishquest.com/modtools.html</a> [LIVE] <a href="https://dev.fetishquest.com/modtools.html">https://fetishquest.com/modtools.html</a></p>
 	
 	<ol>
 		<li>Click File -&gt; New mod. Enter a mod name and your author name. If you don't intend to share it publicly, you can just put whatever.</li>
 		<li>Click the Player button on the left menu. Then New to make a new character.</li>
 		<li>Give it a uniqe label such as "jas_fennec_pc_male". I added "jas" to make it a bit less likely that another modder comes and names a character "fennec_pc_male".</li>
 		<li>Give him a name. Imma name the fennec Focai.</li> 
-		<li>Species article can be ignored. It's only used if the name starts with a vowel but uses "a" instead of "an" such as "a unicorn", which disobeys the rule that if a word starts with a vowel, it should use "an".</li>
+		<li>Species article can be ignored UNLESS your species name starts with a vowel that sounds like a consonant. For an example, unicorn starts with a vowel but is pronounced "a unicorn" (not an unicorn).</li>
 		<li>Species is set to fennec.</li>
-		<li>Voice and pronouns can be ignored. Voices aren't fully implemented yet, and pronouns are auto generated based on genitals unless you want custom ones.</li>
+		<li>Voice and pronouns can be ignored. Voices aren't fully implemented yet, and pronouns are auto generated based on genitals. But if you want crazy custom pronouns you can put them here.</li>
 		<li>Set image dressed to the URL where you uploaded your dressed version.</li>
-		<li>Set image upper body, lower body and nude to those URLs.</li>
+		<li>Set image upper body, lower body and nude to the appropriate URLs.</li>
 		<li>Optional: If you want to, you can crop just your character's head, upload it somewhere, and set that as player portrait. PC portraits aren't used right now, but might in the future.</li>
-		<li>Check Art is AI generated. In the future, this'll add a disclaimer on the character that the art is AI.</li>
+		<li>Check "Art is AI generated". In the future, this'll add a disclaimer on the character that the art is AI generated.</li>
 		<li>Team should be set to 0, otherwise you'll be treated as hostile to other players.</li>
 		<li>Size should be set from 3 (gnome) to 7 (ogre). Higher and lower sizes are generally only used for monsters. Average humanoid is 5. I'll set the fennec to 4, because fenn.</li>
-		<li>Leave "Level is Offset...", power, HP multiplier, armor at default.</li>
-		<li>Talkative/sadistic/moninant/hetero/emotive/intelligence are mainly used for NPC behavior, and not really used for PC templates. You can leave them as default, or set what you think would match the character if someone adds it to the game as an NPC. Note that intelligence for humanoids generally ranges from 0.4 (dumb as a rock) to 0.8 (super ultra megamind telepath). Average human intelligence is around 0.55.</li>
-		<li>Uncheck "Ignore spell slots".</li>
-		<li>Leave remove on death and all stats as default.</li>
-		<li>Add a description to your character.</li>
-		<li>Secret information will be left up to the players in the future. It's information you can see when someone uses clairvoyance on the character.</li>
+		<li>Leave "Level is Offset...", power, HP multiplier, armor at their default values.</li>
+		<li>Talkative/sadistic/dominant/hetero/emotive/intelligence are mainly used for NPC behavior, and not really used for PC templates. You can leave them as default, or set what you think would match the character if someone adds it to the game as an NPC. Note that intelligence for humanoids generally ranges from 0.4 (dumb as a rock) to 0.8 (super ultra megamind telepath). Average human intelligence is around 0.55.</li>
+		<li>Uncheck "Ignore spell slots". That should only be used for NPCs.</li>
+		<li>Leave "remove on death" and all stats at their default values.</li>
+		<li>Add a description to your character. I usually go with a short section on where they're from, what their goal is, something they enjoy, and a character flaw. But only your imagination limits this field!</li>
+		<li>Secret information will be left up to the players in the future. It's information you can see when someone uses clairvoyance on the character, and is used for NPCs.</li>
 		<li>Click "library" on player class and pick either "offense", "defense", or "support".</li>
 		<li>Add tags by pressing the add button a bunch of times. The tags you're looking for are the ones starting with "pl_". For the fennec, I pick the tags: 
-			<code>pl_penis, pl_big_penis, pl_butt, pl_furry, pl_vulpine, pl_teeth, pl_fangs, pl_claws, pl_mouth, pl_nose, pl_hair, pl_long_hair, pl_ears, pl_big_ears, pl_long_tail, pl_tail</code>
+			<code>pl_penis, pl_big_penis, pl_butt, pl_furry, pl_vulpine, pl_teeth, pl_fangs, pl_claws, pl_mouth, pl_nose, pl_hair, pl_long_hair, pl_ears, pl_big_ears, pl_long_tail, pl_tail</code><br />
+			<i>Note: If you use a tag that includes size such as pl_big_butt, you'll have to add the pl_butt tag too. The editor saves exact tag, and won't add these for you unlike when you edit in the game.</i>
 		</li>
 		<li>Save by pressing ctrl+s or going to the file menu.</li>
-		<li>Click the gallery button on the left.</li>
+		<li>Click the gallery button on the left menu.</li>
 		<li>Create a new gallery entry. I'll label it the same as the character "jas_fennec_pc_male" then click library and pick jas_fennec_pc_male.</li>
 		<li>Save.</li>
-		<li>Load up fetishquest (or refresh if it's open) and create a new game. Your newly created character should show up in the list!</li>
 	</ol>
-	<p>If everything was set correctly, you should now have it on your player select! You can export and share your mod freely if you want others to use it!</p>
+	<p>If everything was set correctly, you should now have it on your player select when you create a new game! You can export and share your mod freely if you want others to use it!</p>
 	<img src="https://i.gyazo.com/7124b09b67ca970ed4475a659ec26a1d.png" />
-
+	<p>If you have a JasX account you can also log in by clicking the online menu up top. This allows you to share your mods in the online mod repo.</p>
 </body>
 </html>

@@ -1233,38 +1233,40 @@ class Effect extends Generic{
 							
 					}
 
+					// Calculate arousal (allowed for both healing and damaging)
+					if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
+
+						// 30% chance per point of damage
+						let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
+						let ch = Math.abs(amt*procChance);
+						ch *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
+						// Major focus: -50% for target
+						if( tMajor & Effect.Major.Focus )
+							ch *= 0.5;
+						// Major touch: +50% for sender
+						if( sMajor & Effect.Major.Touch )
+							ch *= 1.5;
+						
+						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
+						const start = t.arousal;
+
+						if( start < t.getMaxArousal() ){
+
+							t.addArousal(tot, true, undefined, s);
+							tot = t.arousal-start;
+							if( t.arousal !== start )
+								game.ui.addText( t.getColoredName()+" gained "+Math.abs(tot)+" arousal from corruption.", undefined, s.id, t.id, 'statMessage arousal' );
+
+						}
+
+					}
+
 				}
 
 				
 					
 
-				// Calculate arousal (allowed for both healing and damaging)
-				if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
-
-					// 30% chance per point of damage
-					let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
-					let ch = Math.abs(amt*procChance);
-					ch *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
-					// Major focus: -50% for target
-					if( tMajor & Effect.Major.Focus )
-						ch *= 0.5;
-					// Major touch: +50% for sender
-					if( sMajor & Effect.Major.Touch )
-						ch *= 1.5;
-					
-					let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
-					const start = t.arousal;
-
-					if( start < t.getMaxArousal() ){
-
-						t.addArousal(tot, true, undefined, s);
-						tot = t.arousal-start;
-						if( t.arousal !== start )
-							game.ui.addText( t.getColoredName()+" gained "+Math.abs(tot)+" arousal from corruption.", undefined, s.id, t.id, 'statMessage arousal' );
-
-					}
-
-				}
+				
 
 				let noBlock;
 				if( amt < 0 && this.data.no_block )
