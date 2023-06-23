@@ -3411,35 +3411,38 @@ export default class UI{
 		if( hotkeyEl.text !== hotkey )
 			hotkeyEl.text(hotkey);
 
-		// missing momentum
-		const types = [
-			Player.MOMENTUM.Off,
-			Player.MOMENTUM.Def,
-			Player.MOMENTUM.Uti,
-		];
+		const mm = button[0].querySelector('div.missingMom');
+		mm.classList.toggle("hidden", Boolean(ignoreStats));
+		if( !ignoreStats ){
+			// missing momentum
+			const types = [
+				Player.MOMENTUM.Off,
+				Player.MOMENTUM.Def,
+				Player.MOMENTUM.Uti,
+			];
 
-		let missingDivs = [];
-		for( let type of types ){
+			let missingDivs = [];
+			for( let type of types ){
 
-			const cost = action.getMomentumCost(type);
-			const held = player.getMomentum(type);
+				const cost = action.getMomentumCost(type);
+				const held = player.getMomentum(type);
 
-			for( let i = 0; i < cost; ++i ){
+				for( let i = 0; i < cost; ++i ){
 
-				const div = document.createElement('div');
-				if( i < held )
-					div.classList.add('fill');
-				missingDivs.push(div);
-				const bg = document.createElement('div');
-				bg.classList.add('bg');
-				div.append(bg);
-				div.classList.add(Player.MOMENTUM_NAMES_SHORT[type]);
-				
+					const div = document.createElement('div');
+					if( i < held )
+						div.classList.add('fill');
+					missingDivs.push(div);
+					const bg = document.createElement('div');
+					bg.classList.add('bg');
+					div.append(bg);
+					div.classList.add(Player.MOMENTUM_NAMES_SHORT[type]);
+					
+				}
+
 			}
-
+			mm.replaceChildren(...missingDivs);
 		}
-		button[0].querySelector('div.missingMom').replaceChildren(...missingDivs);
-		
 
 		// Tooltip
 		const ttEl = $('> div.tooltip', button);

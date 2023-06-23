@@ -23,6 +23,7 @@ export default class StaticModal{
 		this.dom = 
 			$('<div id=\"'+esc(this.id)+'\" class="hidden">'+
 				'<div class="header">'+
+					'<div class="portrait"></div>'+
 					'<h1>'+esc(title)+'</h1>'+
 					'<div class="close"><h1>X</h1></div>'+
 				'</div>'+
@@ -31,10 +32,12 @@ export default class StaticModal{
 			'</div>');
 		this.onDraw = () => {};
 
+		this.title = title;
 		this.headerContainer = $('> div.header', this.dom);
 		this.contentContainer = $('> div.modalMain', this.dom);
 		this.tabContainer = $('> div.cmTabs', this.dom);
 		this.closeButton = $('> div.header > div.close', this.dom);
+		this.playerPortrait = $('> div.header > div.portrait', this.dom);
 
 		this.drawn = false;			// Set to true after the first draw
 		this.drawing = false;		// Actively updating the dom
@@ -159,8 +162,14 @@ export default class StaticModal{
 
 	}
 
-	setTitle( text ){
+	setTitle( text, portrait ){
+
 		this.headerContainer[0].querySelector('h1').innerText = text;
+		this.playerPortrait
+			.toggleClass('hidden', !portrait)
+			.css('background-image', 'url('+portrait+')')
+		;
+
 	}
 
 	setCloseOnCellMove( close ){
@@ -190,9 +199,11 @@ export default class StaticModal{
 		
 		this.main.toggleClass("hidden", false);
 		this.active = obj;
-		
+		obj.setTitle(obj.title);
+
 		obj.args = [...args];
 		const out = await this.refreshActive();
+		
 
 		return out;
 
@@ -484,7 +495,6 @@ export default class StaticModal{
 				for( let i=0; i < Player.MAX_ACTION_SLOTS; ++i )
 					html += UI.Templates.actionButton;
 				$("div.slots > div.slotsWrapper", actives).html(html);
-
 				this.money = $('div.myMoney', actives)[0];
 				this.purchasable = $("div.right > div.purchasable", actives);
 				this.available = $("div.left > div.available", actives);
@@ -501,6 +511,8 @@ export default class StaticModal{
 					return;
 
 				self.generateWallet(this.money);
+				if( gymPlayer )
+					this.setTitle(gymPlayer.getName()+"'s Gym", gymPlayer.portrait);
 
 				// Inactive learned actions
 				const inactive = player.actions.filter(action => {
@@ -1383,7 +1395,14 @@ export default class StaticModal{
 			})
 			.setDraw(async function( player ){
 				
-				
+				if( !(player instanceof Player) )
+					player = game.getPlayerById(player);
+
+				if( !player )
+					return false;
+
+				this.setTitle(player.getName(), player.portrait);
+
 				// Character tab
 					// Toggle the whole bottom bar
 					// If you add a second tab that non-DM can see, you'll want to only toggle the label itself
@@ -1392,11 +1411,7 @@ export default class StaticModal{
 					if( !game.ui.showDMTools() && isEditor )
 						this.setActiveTab('Character');
 
-					if( !(player instanceof Player) )
-						player = game.getPlayerById(player);
-
-					if( !player )
-						return false;
+					
 
 					const isMyPlayer = game.getMyPlayers().includes(player);
 					const hasClairvoyance = isMyPlayer || player.getActiveEffectsByType(Effect.Types.clairvoyance).length > 0;
@@ -1933,6 +1948,9 @@ export default class StaticModal{
 
 				if( !(this.shop instanceof Shop) || !myPlayer )
 					throw 'Invalid shop or player';
+				
+				const shopPlayer = game.getPlayerByLabel(shop?.parent?.data?.player) || {};
+
 
 				try{
 					game.shopAvailableTo(this.shop, myPlayer);
@@ -1945,7 +1963,7 @@ export default class StaticModal{
 				}
 
 				// Titles
-				this.setTitle(this.shop.name);
+				this.setTitle(this.shop.name, shopPlayer?.portrait);
 				this.toggleTab('Sell', this.shop.buys);
 				if( this.activeTab === 'Sell' && !this.shop.buys )
 					this.setActiveTab('Buy');
@@ -2166,6 +2184,8 @@ export default class StaticModal{
 				if( !myPlayer )
 					throw 'Player not found';
 
+				this.setTitle('Bank', bankPlayer.portrait);
+
 				// Handles both deposit and withdraw
 				const handleAssetClick = event => {
 
@@ -2322,6 +2342,7 @@ export default class StaticModal{
 
 				await StaticModal.updateWallet(this.money);
 	
+				this.setTitle('Repair', smith.portrait);
 
 				// Output repairable
 				const handleRepairableClick = event => {
@@ -2548,6 +2569,8 @@ export default class StaticModal{
 					throw 'You have no active player';
 				if( !transmogger )
 					throw 'Invalid transmogger';
+
+				this.setTitle('Transmogrification', transmogger.portrait);
 
 				// Update coins
 				const currencyDiv = this.money.querySelector('span.coins');
@@ -4125,6 +4148,8 @@ export default class StaticModal{
 				if( !player )
 					return;
 
+				this.setTitle("Inventory", player.portrait);
+
 				// Actions
 					this.toggleTab('Actions', player === game.getMyActivePlayer());
 					this.actions.activeButtons.toggleClass("detrimental disabled", false);
@@ -4180,7 +4205,7 @@ export default class StaticModal{
 
 						const el = inactiveEls[i],
 							abil = inactive[i];
-						UI.setActionButtonContent(el, abil, player);
+						UI.setActionButtonContent(el, abil, player, undefined, true);
 
 					}
 
@@ -4856,9 +4881,7 @@ export default class StaticModal{
 
 			})
 			.setDraw(async function( player, asset ){
-
 				
-
 				if( player instanceof Player )
 					this._player = player;
 								

@@ -631,6 +631,7 @@ div.scroll{
 		white-space: nowrap;
 	}
 	#customModals > div > div.header,
+	#customModals > div > div.header > div.portrait,
 	#customModals > div > div.header > div.close{
 		border: 0.2vmax solid #DDD;
 		position: absolute;
@@ -644,6 +645,16 @@ div.scroll{
 		border-top-right-radius:0.5vmax;
 		min-width:25%;
 		background: url(./media/ui/marble.jpg) repeat;
+	}
+	#customModals > div > div.header > div.portrait{
+		top:0;
+		background-size:cover;
+		transform:translateX(-101%);
+		left:0;
+		min-width: 5vw;
+		cursor:pointer;
+		bottom:-0.2vmax;
+		top:-0.2vmax;
 	}
 
 	#customModals > div > div.header > div.close{

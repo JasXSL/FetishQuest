@@ -1,10 +1,8 @@
 Bugs:
 - occasionally no orgasm on max arousal?
-- Don't show missing momentum on gym icons
-- Make the action adder show icons
 
 Minor Features:
-- Add character portraits to shops
+- Make the action adder show icons
 - Rattani alchemist: Rats can bypass the locked door
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
@@ -13,7 +11,7 @@ Minor Features:
 
 Overhaul food:
 - Make food buffs unique
-
+- Add crafting
 
 Passives:
 - ??? HOW should they work?

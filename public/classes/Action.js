@@ -1082,14 +1082,17 @@ class Action extends Generic{
 				html += '<span style="color:#FDD"><strong>Charged '+ct+' turn'+(ct !== 1 ? 's' : '')+'</strong></span>';
 			if( !ignoreMomentum ){
 
+				const momTypes = [];
 				for( let i = 0; i < Player.MOMENTUM_TYPES.length; ++i ){
 
 					const t = Player.MOMENTUM_TYPES[i];
 					const cost = this.getMomentumCost(t);
 					if( cost )
-						html += '<span style="color:'+Player.MOMENTUM_COLORS[i]+'">'+cost+' '+Player.MOMENTUM_NAMES_SHORT[i]+'</span>';
+						momTypes.push('<span style="color:'+Player.MOMENTUM_COLORS[i]+'">'+cost+' '+Player.MOMENTUM_NAMES_SHORT[i]+'</span>');
 
 				}
+				if( momTypes.length )
+					html += '<span>'+momTypes.join(' ')+'</span>';
 
 			}
 			
