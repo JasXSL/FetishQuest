@@ -24,6 +24,7 @@ class AssetTemplate extends Generic{
 		this.size = 1.0;					// Size multiplier, used in weight calculations
 		this.icon = 'perspective-dice-six-faces-random';
 		this.hit_sound = '';
+		this.indestructible = false;
 		
 		this.color_tag_base = '';			// If set, overrides the material. Should be the name of the color.
 		this.color_base = '#FFFFFF';		// Requires tag base to be set
@@ -53,6 +54,7 @@ class AssetTemplate extends Generic{
 			hit_sound : this.hit_sound,
 			color_tag_base : this.color_tag_base,
 			color_base : this.color_base,
+			indestructible : this.indestructible
 		};
 	}
 
@@ -157,6 +159,7 @@ class AssetTemplate extends Generic{
 			color_tag_base : this.color_tag_base || mat.color_tag_base,
 			color_base : this.color_tag_base ? this.color_base : mat.color_base,
 			hit_sound : hitSound,
+			indestructible : this.indestructible
 		});
 
 	}
@@ -184,6 +187,7 @@ class AssetOutput extends Generic{
 		this.color_tag_base = 'white';
 		this.color_base = '#FFFFFF';
 		this.hit_sound = '';
+		this.indestructible = false;
 		this.load(data);
 	}
 

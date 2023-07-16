@@ -17,6 +17,7 @@ export default class Condition extends Generic{
 	static getRelations(){ 
 		return {
 			conditions : Condition,
+			targs : Condition
 		};
 	}
 	
@@ -29,6 +30,7 @@ export default class Condition extends Generic{
 		// It works this way because an array child of a Generic class needs to be only ONE class. Otherwise you'll confuse the netcode.
 		this.label = '';
 		this.conditions = [];		// Sub 
+		this.targs = [];			// Lets you override default targets. Instead, conditions are checked against all players matching targs conditions
 		this.min = 1;				// min conditions
 		this.max = -1;		// max conditions
 
@@ -62,6 +64,7 @@ export default class Condition extends Generic{
 			conditions : Condition.saveThese(this.conditions, full),
 			min : this.min,
 			max : this.max,
+			targs : Condition.saveThese(this.targs, full)
 		};
 
 		if( full ){
@@ -176,7 +179,7 @@ export default class Condition extends Generic{
 	}
 	
 	// Tests the condition
-	test( event, debug ){
+	test( event, debug, preventRecursion ){
 
 		if( !(event instanceof GameEvent) ){
 			console.error("This was", this, "event was", event);
@@ -209,6 +212,20 @@ export default class Condition extends Generic{
 			T = Condition.Types,
 			sender = event.sender
 		;
+
+		// Override targs with any players matching this.targs.
+		if( this.targs.length ){
+
+			if( preventRecursion )
+				throw "Using a condition that requires targs in a condition with targs is illegal";
+			
+			const cl = event.clone();
+			targs = game.getEnabledPlayers().filter(el => {
+				cl.target = el;
+				return Condition.all(this.targs, cl, debug, true);
+			});
+
+		}
 
 
 		const originalTargets = targs.slice();
@@ -1405,7 +1422,7 @@ Condition.saveThese = function( conditions, full ){
 };
 
 // Returns whether all conditions and condArrays validated
-Condition.all = function( conditions, event, debug ){
+Condition.all = function( conditions, event, debug, preventRecursion ){
 
 	if( !Array.isArray(conditions) )
 		conditions = [conditions];
@@ -1421,7 +1438,7 @@ Condition.all = function( conditions, event, debug ){
 			return false;
 		}
 
-		if( !cond.test(event, debug) )
+		if( !cond.test(event, debug, preventRecursion) )
 			return false;
 		
 	}

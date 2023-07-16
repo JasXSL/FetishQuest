@@ -1476,7 +1476,6 @@ export default class UI{
 					div.classList.toggle('grapple', true);
 					this.grappleLines = this.grappleLines.add(div);
 					this.grappleWrapper.append(div);
-					console.log("Created div", div);
 					
 				}
 
@@ -2643,7 +2642,7 @@ export default class UI{
 
 				if( name && name !== "none" )
 					html += '<span class="name">'+stylizeText(name)+'</span><br />';
-				
+
 				$("div.text", div).html(html+stylizeText(stage.getText(true)));
 				
 			}

@@ -1879,12 +1879,18 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.addActionCharges ){
-				t.addActionCharges(this.data.actions, Calculator.run(
+
+				const amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({
 						sender:s, target:t, wrapper:wrapper, effect:this
 					}).mergeUnset(event)
-				));
+				);
+				t.addActionCharges(
+					this.data.actions, 
+					amt
+				);
+
 			}
 
 			else if( this.type === Effect.Types.lowerCooldown ){
@@ -2446,7 +2452,7 @@ Effect.Major = {
 	Brawn : 0x4000, 		// +5 physical proficiency
 	Corruption : 0x8000,	// +5 corruption proficiency
 	Arcana : 0x10000,		// +5 arcane proficiency
-	Stagger : 0x20000,		// -5 Physical avoidance.
+	Stagger : 0x20000,		// 131072 | -5 Physical avoidance.
 	Sensitivity : 0x40000,	// -5 corruption avoidance.
 	Conduit : 0x80000,		// 524288 | -5 Arcane avoidance.
 	Clumsy : 0x100000,		// 1048576 | -30% hit chance
@@ -2730,7 +2736,7 @@ Effect.TypeDescs = {
 
 	[Effect.Types.knockdown] : '{type:(int)type} - Prevents melee abilities. Use Effect.KnockdownTypes. If not an int it becomes boolean backwards of forwards.',
 	[Effect.Types.grapple] : '{} - All this does is trigger the x was grappled by y text',
-	[Effect.Types.daze] : 'void - Prevents the use of ranged abilities.',
+	[Effect.Types.daze] : 'void - Prevents use of ranged actions',
 	[Effect.Types.disable] : '{level:(int)disable_level=1, hide:(bool)hide_disabled_spells=false} - Prevents all spells and actions unless they have disable_override equal or higher than disable_level',
 	[Effect.Types.disableActions] : '{conditions:(arr)conditions, hide:(bool)hide_disabled_spells=false} - Disables all spells that matches conditions',
 	[Effect.Types.actionCastTime] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false, multiplier:(bool)is_multiplier=false} - Alters or sets the cast time of one or more actions. Actions affected are checked by conditions.',

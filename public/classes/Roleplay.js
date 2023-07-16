@@ -264,7 +264,14 @@ export default class Roleplay extends Generic{
 	}
 
 	getPlayer(){
-		return game.getPlayerByLabel(this.player);
+
+		if( !this.player )
+			return false;
+		let att = game.getPlayerByLabel(this.player);
+		if( att )
+			return att;
+		return glib.get(this.player, 'Player');
+
 	}
 
 	onStart( players ){
@@ -417,7 +424,7 @@ RoleplayChatQueue.next = function(){
 		return;
 
 	const chat = this.queue.shift();
-	game.speakAs( chat.sender.id, chat.getText( chat.sender ) );
+	game.speakAs( chat.sender, chat.getText( chat.sender ) );
 	this.timer = setTimeout(() => {
 		
 		this.timer = false;
@@ -560,15 +567,23 @@ export class RoleplayStage extends Generic{
 	
 	getPlayer(){
 		
-		let pl = game.getPlayerByLabel(this.player);
-		if( pl )
-			return pl;
+		if( this.player ){
+			// Try from stage first
+			let pl = game.getPlayerByLabel(this.player);
+			if( pl )
+				return pl;
+			// If that doesn't work, try from library
+			pl = glib.get(this.player, 'Player');
+			if( pl )
+				return pl;
+		}
 		return this.parent.getPlayer();
 
 	}
 
 	getPortrait(){
 
+		const ini = this.getInitiatingPlayer();
 		const pl = this.getPlayer();
 		let portrait = this.parent.portrait;
 		if( pl instanceof Player && pl.portrait )
@@ -579,6 +594,14 @@ export class RoleplayStage extends Generic{
 		if( this.portrait.toLowerCase() === 'none' )
 			portrait = '';
 		
+		if( portrait === '%T' ){
+			
+			portrait = ini?.portrait;
+			if( !portrait )
+				portrait = ini?.icon || '';
+
+		}
+		
 		if( !portrait.includes('/') && portrait )
 			portrait = '/media/wrapper_icons/'+portrait+'.svg';
 		return portrait;
@@ -586,7 +609,10 @@ export class RoleplayStage extends Generic{
 	}
 
 	getName(){
-		if( this.name )
+		const ini = this.getInitiatingPlayer();
+		if( this.name === '%T' )
+			return ini?.getColoredName() || '';
+		else if( this.name )
 			return esc(this.name);
 		const pl = this.getPlayer();
 		if( pl )

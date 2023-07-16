@@ -477,7 +477,7 @@ class QuestObjective extends Generic{
 	}
 
 	isVisible(){
-		return Condition.all(this.visibility_conditions, new GameEvent({}));
+		return Condition.all(this.visibility_conditions, new GameEvent({target:game.players[0]}));
 	}
 
 }

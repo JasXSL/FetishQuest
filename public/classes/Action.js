@@ -197,6 +197,16 @@ class Action extends Generic{
 			this.cooldown = 0;
 		if( typeof this.cooldown !== "string" )
 			this.cooldown = parseInt(this.cooldown);
+		
+		// If we have a player parent, make sure the wrapper owners of passives are set correctly
+		if( this.parent instanceof Player ){
+
+			for( let passive of this.passives )
+				passive.caster = passive.victim = this.parent.id;
+			for( let passive of this.cpassives )
+				passive.caster = passive.victim = this.parent.id;
+
+		}
 
 	}
 

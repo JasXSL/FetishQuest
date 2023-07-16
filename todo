@@ -36,6 +36,26 @@ Friendly NPCs:
 	- warrior_chadQuartermaster: ???
 
 	- (Nibs) Male slug, tentaclemancer trainer
+	- (Nibs) Tentaclemancer quartermaster
+
+
+Boss designs:
+	- tm02_tentacleCultist
+		- Charged action that drains life from players that don't have block.
+		- Tentacle gag - Prevents ranged actions for a while
+		- Growing tickler - Summons a small tentacle tickler. The tickler gains power each turn.
+	x monk01_pitfighter 
+		x Heavy punch: Destroys defensive momentum and applies major stagger 1 turn
+	- monk Nemi
+		t Uses an action that removes afterglow from orgasm, and also gives a bit of HP.
+		- On orgasm, reset bondage timer.
+	- rulu champion
+		- Rage: Physical attacks have a 50% chance to enrage him, increasing damage done by 50%, stacking.
+		- Corruption damage has a 75% chance to inflict additional damage and remove 1 stack of rage.
+		- War stomp: Removes all enemy block. Used every second turn.
+	- virgil
+		- Butt deflect : Charged 2 turns. Damages and knocks all players down. While charging, gain phys resist but lose corruption resist. Interrupted on orgasm.
+		- Thigh Choke : Deals damage and destroys all momentum on a knocked down player
 
 
 
@@ -121,15 +141,13 @@ Trainer: Portswood glade.
 		x Ultralight Sling Bikini: Getting riposted grants you major mending and momentum for 3 turns.
 
 	- Quest: Learning the ways of the monk:
-		A: Inner focus:
-			- Enter a glade area behind her house to find silkfiend nests.
-				- Silkfiend: A new monster. A mobile pitcher plant (think pokemon) with vine legs and arms.
-			- Bring the gong back and hand it in to start a test of tranquility. Basically just a challenge where you have to do splits while maintaining focus.
-			- <monk> will do stuff to you while you maintain focus.
-			- Once you complete the RP, you can hand in the quest.
+		A: Inner focus: DONE
 		B: You are tasked to track down the whereabouts of Rotti, a dirty rattani fighter.
 			- There's an underground fighting ring below the borm tavern.
 			- Go there and talk to the boss (Rodan), he'll tell you he'll give you Rotti's whereabouts if you defeat his champion.
+			- To fight, all players need to get a custom sling bikini from him. If you don't wanna pay, he can spank you instead.
+			- Finish monk_01_rat_bartender RP. 
+				- Add a property to conditions with "test against all enabled players that match the following conditions"
 			- Go into the ring and fight <miniboss>.
 			- Once you win, talk to the boss. He'll give you an encoded letter and ask you to see <npc> in the sewers.
 			- <npc> will translate it based on your gender and clothes:

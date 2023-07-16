@@ -1212,6 +1212,10 @@ export function asset(){
 
 
 	html += '<hr />';
+	html += 'Targ override conditions: (Advanced)';
+	html += '<div class="targOverride">';
+		html += '<div class="targs"></div>';
+	html += '</div>';
 	html += 'Subconditions: (Advanced)';
 	html += '<div class="subConditions">'+
 		'<div class="conditions"></div>'+
@@ -1225,6 +1229,7 @@ export function asset(){
 
 	// Set asset tables
 	this.dom.querySelector("div.subConditions div.conditions").appendChild(assetTable(this, asset, "conditions"));
+	this.dom.querySelector("div.targOverride div.targs").appendChild(assetTable(this, asset, "targs"));
 
 	// Describe what the json editor data should look like
 	this.dom.querySelector("select[name=type]").addEventListener("change", event => {
@@ -1270,6 +1275,78 @@ export function list(){
 		type : Condition.Types.tag,
 		data : {tags:[]}
 	}));
+
+};
+
+
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Conditions:</h3>'+
+		'<p>Conditions are the cornerstone of the FQ system. The majority of assets interact with conditions somehow. The end goal of a condition is to validate to true or false. All conditions are validated against a GameEvent. See classes/GameEvent.js in the source code for a list.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label. If you\'re making a mod, I suggest appending a short handle to your mod to prevent overriding other mods. Ex if your mod is Spank Mod, then prepend sm_ to your label.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Optional description explaining your condition. This is only used in the editor.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Type</td>'+
+			'<td>Condition type.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Targ nr</td>'+
+			'<td>In events with multiple targets, the condition is only checked against the nth player. -1 requires ALL event players to pass the condition. I recommend using -1 for all conditions that involve players. 0 if target isn\'t important, such as when checking action label or quest progress.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Caster</td>'+
+			'<td>Check the condition against the event sender instead of target. Reverses target and caster. If multiple targets are present, the condition is checked against all target/caster pairs.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Inverse</td>'+
+			'<td>Flips the outcome, returning true if the condition is false and vice versa.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Any Player</td>'+
+			'<td>In events with multiple targets, the condition only has to validate against one target to return true.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Debug</td>'+
+			'<td>Outputs debug info in the console. This may lead to a lot of spam, so keep it off unless you\'re working on developing the source code.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Condition specific data</td>'+
+			'<td>Linkers and parameters will be added depending on the type of condition you picked. Note that changing type wipes this data.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Targ Override</td>'+
+			'<td>If at least one condition is set here, the condition will run against ALL enabled game players that match Targ Override conditions. Note that you can\'t include a condition with a targ condition of its own here to prevent recursion. Can be useful if you need to check a condition against predetermined players, such as non-enemies.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Subconditions</td>'+
+			'<td>If at least one condition is set here, the condition turns into a condition set. Any condition data set above is then disregarded, and it will check a package of conditions. This can be used to combine conditions such as wears a thong OR naked OR butt exposed.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Min/Max</td>'+
+			'<td>Used with subconditions to set the min or max amount of conditions that need to be validated for the condition set to be considered true. Use -1 for ALL.</td>'+
+		'</tr>'	
+		
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
 
 };
 

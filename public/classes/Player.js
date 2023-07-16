@@ -1113,7 +1113,7 @@ export default class Player extends Generic{
 		const addTag = tag => out[tag] = true;
 
 		let assets = this.getAssetsEquipped();
-		if( wrapperReturn && wrapperReturn.armor_strips[this.id] ){
+		if( wrapperReturn?.armor_strips[this.id] ){
 
 			for( let slot in wrapperReturn.armor_strips[this.id] ){
 
@@ -3913,6 +3913,7 @@ export default class Player extends Generic{
 
 	// Adds action charges by labels
 	addActionCharges( labels, charges = 1 ){
+
 		if( !Array.isArray(labels) )
 			labels = [labels];
 		for( let label of labels ){
@@ -3920,6 +3921,7 @@ export default class Player extends Generic{
 			if( action )
 				action.consumeCharges(-charges);
 		}
+
 	}
 
 	// Adds action cooldowns by labels

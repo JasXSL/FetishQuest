@@ -435,11 +435,19 @@ export default class Asset extends Generic{
 			return 0;
 
 		const player = this.parent;
-		let levelDif = Math.max(0, player.level-1-this.level);
+		let levelDif = Math.max(0, player.level-1-this.getLevel());
 
 		// Returns a value between Asset.defaultArmorPoints and 0
 		return Math.max(Asset.defaultArmorPoints-levelDif*5, 0);
 		
+	}
+
+	getLevel(){
+		
+		if( this.level === -2 && this.parent instanceof Player )
+			return this.parent.getLevel();
+		return this.level;
+
 	}
 
 	isLowLevel(){
@@ -447,7 +455,7 @@ export default class Asset extends Generic{
 		let player = game.getMyActivePlayer();
 		if( !player )
 			return false;
-		return player.level-1-this.level > 0;
+		return player.level-1-this.getLevel() > 0;
 
 	}
 
@@ -634,7 +642,7 @@ export default class Asset extends Generic{
 
 		if( this.equippable() ){
 
-			let lv = parseInt(this.level) || 0;
+			let lv = this.getLevel() || 0;
 			if( lv < 0 )
 				lv = game.getAveragePlayerLevel()+Math.abs(lv)-1;
 			
@@ -948,6 +956,7 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		fitted : fitted,
 		mastercrafted : mastercrafted,
 		rarity : rarity,
+		indestructible : template.indestructible,
 		basevalue : Math.round(
 			Math.pow(1.25, level)+
 			template.slots.length*10+

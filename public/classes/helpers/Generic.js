@@ -230,6 +230,7 @@ export default class Generic{
 	
 	// ...args is supplied as arguments to getTags, which can be overridden
 	hasTag( tags, ...args ){
+
 		if( !Array.isArray(this.tags) )
 			return false;
 
@@ -242,6 +243,7 @@ export default class Generic{
 				return true;
 		}
 		return false;
+		
 	}
 
 	clone( parent, full = true ){

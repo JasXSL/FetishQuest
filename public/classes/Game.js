@@ -1331,9 +1331,23 @@ export default class Game extends Generic{
 		if( uuid === 'ooc' )
 			isOOC = true;
 
-		if( uuid !== "DM" && !isOOC && ((!this.getPlayerById(uuid) && !game.is_host) || !this.playerIsMe(this.getPlayerById(uuid))) )
-			throw "Player not yours";
+		
+		let player;
+		if( uuid instanceof Player ){
+			player = uuid;
+			uuid = player.uuid;
+		}
+		else
+			player = this.getPlayerById(uuid);
 
+		if( 
+			uuid !== "DM" && 
+			!isOOC && 
+			!this.playerIsMe(player) &&
+			!this.is_host // Host always allowed
+		){
+			throw "Player not yours";
+		}
 		if( !this.is_host )
 			return Game.net.sendPlayerAction(NetworkManager.playerTasks.speak, {
 				player : uuid,
@@ -1349,14 +1363,13 @@ export default class Game extends Generic{
 		if( isOOC && uuid === 'ooc' )
 			uuid = 'DM';
 
-		const player = this.getPlayerById(uuid);
 		// We are host
 		let pl = "DM";
 		// This lets you  use the uuid as a name directly, useful for ooc
 		if( isOOC )
 			pl = uuid;
 		else if( uuid !== "DM" ){
-			pl = this.getPlayerById(uuid);
+			pl = player;
 			if(!pl)
 				throw("Player UUID not found");
 			pl = pl.getColoredName();
@@ -2044,6 +2057,9 @@ export default class Game extends Generic{
 				throw("Not enough AP");
 			
 		}
+
+		if( this.isInRoleplay() )
+			throw "Can't change equipment during a dialog.";
 
 		if( !player.canEquip(id) )
 			throw "Can't equip that right now";
@@ -2966,6 +2982,10 @@ export default class Game extends Generic{
 
 	isInPersistentRoleplay(){
 		return !this.roleplay.completed && this.roleplay.persistent;
+	}
+
+	isInRoleplay(){
+		return !this.roleplay.completed;
 	}
 
 	// Gets all available noncompleted roleplays for a player
