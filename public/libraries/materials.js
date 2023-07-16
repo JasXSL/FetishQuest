@@ -148,6 +148,7 @@ LibMaterial.library = {
 			map : 'tileable/metal_med.jpg',
 			metalness : 0.7,
 			roughness : 0.5,
+			name : 'DarkGeneric'
 		}),
 		Rust : new LibMaterial({
 			map : 'tileable/metal_rust.jpg',
@@ -166,6 +167,12 @@ LibMaterial.library = {
 			metalness : 0.65,
 			roughness : 0.6,
 			normalMap : 'tileable/glass_plane_n.jpg',
+			envMap : LibMaterial.cubeMaps.bridge,
+		}),
+		Steel : new LibMaterial({
+			color : new THREE.Color(0xAAAAAA),
+			metalness : 0.9,
+			roughness : 0.1,
 			envMap : LibMaterial.cubeMaps.bridge,
 		}),
 		Copper : new LibMaterial({

@@ -334,6 +334,11 @@ export function asset(){
 			const a = asset.data.quest && HelperAsset.getAssetById('quests', asset.data.quest);
 			if( a ){
 
+				if( !a.objectives.includes(asset.data.objective) ){
+					asset.data.objective = a.objectives[0];
+					mod.setDirty(true);
+				}
+
 				html += '<label><select name="data::objective" class="saveable">';
 				for( let objective of a.objectives ){
 

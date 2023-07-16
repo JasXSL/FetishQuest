@@ -322,7 +322,7 @@ class Action extends Generic{
 
 		const sender = this.getPlayerParent();
 		if( this.crit_formula )
-			return Calculator.run(this.crit_formula, new GameEvent({sender:sender, target:target}));
+			return Math.trunc(Calculator.run(this.crit_formula, new GameEvent({sender:sender, target:target})));
 
 		return sender.getCritDoneChance(target);
 
@@ -883,9 +883,7 @@ class Action extends Generic{
 			// note that since this only affects the base attack, you should be safe to assume there's only one target
 			this._crit = Math.random() < this.getCritChance( target );
 
-			
-				
-
+			let miss = false;
 			// Check if it hit
 			if( this.isDetrimentalTo(target) ){
 
@@ -946,56 +944,60 @@ class Action extends Generic{
 
 					}
 
-					continue;
+					miss = true;
 
 				}
 
 			}
 
-			const maxWrappers = this.max_wrappers;
-			let successes = 0;
-			for( let wrapper of this.wrappers ){
+			if( !miss ){
 
-				// caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined, crit = false
-				const data = wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer, this._crit);
-				wrapperReturn.merge(data);
-				if( data ){
-					++successes;
+				const maxWrappers = this.max_wrappers;
+				let successes = 0;
+				for( let wrapper of this.wrappers ){
 
-					if( successes >= maxWrappers && maxWrappers )
-						break;
+					// caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined, crit = false
+					const data = wrapper.useAgainst(sender, target, false, isChargeFinish, netPlayer, this._crit);
+					wrapperReturn.merge(data);
+					if( data ){
+						++successes;
+
+						if( successes >= maxWrappers && maxWrappers )
+							break;
+
+					}
+				}
+
+				if( successes )
+					hits.push(target);
+
+				// Add damaging since last
+				if( this.hasTag(stdTag.acDamage) && successes ){
+
+					target.onDamagingAttackReceived(sender, this.type);
+					sender.onDamagingAttackDone(target, this.type);
 
 				}
-			}
 
-			if( successes )
-				hits.push(target);
+				if( this.hasTag(stdTag.acHeal) && successes ){
 
-			// Add damaging since last
-			if( this.hasTag(stdTag.acDamage) && successes ){
+					target.onHealingAttackReceived(sender, this.type);
+					sender.onHealingAttackDone(target, this.type);
 
-				target.onDamagingAttackReceived(sender, this.type);
-				sender.onDamagingAttackDone(target, this.type);
-
-			}
-
-			if( this.hasTag(stdTag.acHeal) && successes ){
-
-				target.onHealingAttackReceived(sender, this.type);
-				sender.onHealingAttackDone(target, this.type);
-
-			}
+				}
 
 
-			if( successes && this.target_type === Action.TargetTypes.target ){
+				if( successes && this.target_type === Action.TargetTypes.target ){
 
-				sender.onTargetedActionUsed(target);
-				target.onTargetedActionReceived(sender);
+					sender.onTargetedActionUsed(target);
+					target.onTargetedActionReceived(sender);
+
+				}
+
+				if( this.getCastTime() )
+					sender.rebindWrappers();
 
 			}
-
-			if( this.getCastTime() )
-				sender.rebindWrappers();
 
 			// Awareness needs to be set last since some effects require it
 			if( this.target_type === Action.TargetTypes.target ){
@@ -1055,12 +1057,11 @@ class Action extends Generic{
 			console.trace("Action", this, "has no valid parent");
 		pp.onActionUsed(this, hits);
 
-		if( hits.length ){
-			awarePairs.forEach((k,v) => {
-				k.onAware(v);
-				v.onAware(k);
-			});
-		}
+		awarePairs.forEach((k,v) => {
+			k.onAware(v);
+			v.onAware(k);
+		});
+
 
 		return hits.length;
 

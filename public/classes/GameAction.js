@@ -745,7 +745,7 @@ export default class GameAction extends Generic{
 				return;
 			}
 
-			obj.addAmount(amount, type==="set");
+			obj.addAmount(amount, type === "set");
 			game.save();
 			game.ui.draw();
 			game.renderer.drawActiveRoom();

@@ -776,7 +776,7 @@ export default class Player extends Generic{
 
 			vars[prefix+'GrappledByS'] = +this.hasTagBy([stdTag.wrGrapple], event.sender) || 0;
 
-			vars[prefix+'AwareOfS'] = +event.sender.isAware(this);
+			vars[prefix+'AwareOfS'] = +this.isAware(event.sender);
 
 		}
 	

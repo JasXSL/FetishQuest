@@ -88,7 +88,6 @@ class LibMesh{
 	// Returns a promise that resolves with a mesh
 	async flatten( unique = false ){
 
-
 		// Attachmentindexes is an array of attachments that should be allowed
 		// Use ["ALL"] to enable all attachments
 		let submeshes = [];
@@ -184,7 +183,6 @@ class LibMesh{
 
 						if( !el.material )
 							return;
-
 						el.material = mats[n];
 						++n;
 						
@@ -2721,7 +2719,38 @@ function build(){
 				},
 				
 			},
-			
+			Gym : {
+				Barbell : new LibMesh({
+					url : 'doodads/barbell.glb',
+					materials : [libMat.Metal.DarkGeneric, libMat.Metal.Steel],
+					tags : [stdTag.mCart], 
+				}),
+				BarbellBig : new LibMesh({
+					url : 'doodads/barbell_big.glb',
+					materials : [libMat.Metal.DarkGeneric, libMat.Metal.Steel],
+					tags : [stdTag.mCart], 
+				}),
+				BarbellStand : new LibMesh({
+					url : 'doodads/barbell_stand.glb',
+					materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric, libMat.Metal.Steel, libMat.Metal.DarkGeneric],
+					tags : [stdTag.mCart], 
+				}),
+				BenchPress : new LibMesh({
+					url : 'doodads/benchpress.glb',
+					materials : [libMat.Wood.Crate, libMat.Metal.DarkGeneric],
+					tags : [stdTag.mCart], 
+				}),
+				Dumbell : new LibMesh({
+					url : 'doodads/dumbell.glb',
+					materials : [libMat.Metal.DarkGeneric, libMat.Metal.Steel],
+					tags : [stdTag.mCart], 
+				}),
+				KettleBell : new LibMesh({
+					url : 'doodads/kettle_bell.glb',
+					materials : [libMat.Metal.DarkGeneric],
+					tags : [stdTag.mCart], 
+				}),
+			},
 			Signs : {
 				Store : new LibMesh({
 					url : 'doodads/store_sign.JD',

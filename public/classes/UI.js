@@ -1339,7 +1339,7 @@ export default class UI{
 		}catch(err){}
 
 		let rps = game.getRoleplaysForPlayer( p );
-		if( game.isInPersistentRoleplay() )
+		if( game.isInPersistentRoleplay() || game.battle_active )
 			rps = [];
 
 		return {
