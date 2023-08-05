@@ -70,7 +70,6 @@ export default class Encounter extends Generic{
 		this.game_actions = [];			// Game actions to run when the encounter starts / passive things like RP
 		this.completion_actions = [];	// Game actions to run when the encounter completes
 		this.events = [];				// EncounterEvent, lets you bind encounters to events
-
 		this.respawn = 0;			// Time to respawn
 		this.difficulty_adjust = 0;	// Offsets from difficulty. Can be useful when adding a friendly NPC
 

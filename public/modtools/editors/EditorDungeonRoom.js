@@ -4,6 +4,7 @@ import HelperTags from './HelperTags.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorEncounter from './EditorEncounter.js';
+import * as EditorWrapper from './EditorWrapper.js';
 //import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../../classes/Dungeon.js';
 import {default as WebGL, Stage} from '../../classes/WebGL.js';
@@ -136,19 +137,19 @@ export function asset(){
 
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	html += '<span title="Picks the first viable one when you enter, stays with it until respawn is triggered">Encounters:</span> <div class="encounters"></div>';
+	html += '<span title="Passives to apply to viable players">Passives:</span> <div class="passives"></div>';
 	
-	
-
 	this.setDom(html);
+	
 	// Bind linked objects
 	this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "encounters"));	
+	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));	
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
 		HelperTags.autoHandleAsset('tags', tags, asset);
 	});
 
 	HelperAsset.autoBind( this, asset, DB);
-
 
 	new Editor(this, asset);
 

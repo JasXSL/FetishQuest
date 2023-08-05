@@ -4043,6 +4043,30 @@ export default class Player extends Generic{
 			dungeon : game.dungeon,
 		});
 
+		const sp = this._sp;
+		// Prevents recursion. Don't use passives that require tags from other passives
+		if( !this._sp ){
+
+			this._sp = 
+				game.encounter.passives
+				.concat(game.dungeon.getPassives())
+				.map(el => el.clone())
+			;
+			// Need to break it up here to prevent recursion
+			this._sp = this._sp.filter(el => {
+					let conds = el.add_conditions
+						.concat(el.stay_conditions)
+					;
+					return Condition.all(conds || [], evt);
+				})
+				.map(el => {
+					el.caster = el.victim = this.id;
+					return el;
+				});
+			
+		}
+
+
 		let out = this.wrappers
 			.filter(el => {
 				if( !el.asset || unequipped )
@@ -4052,22 +4076,7 @@ export default class Player extends Generic{
 			})
 			.concat(
 				this.passives, 
-				game.encounter.passives.filter(el => {
-
-					return Condition.all(el.add_conditions || [], evt);
-
-				})
-				.map(el => { 
-					/*
-					el = el.clone();
-					el.caster = '';
-					el.victim = this.id;
-					*/
-					el.caster = this.id;
-					el.victim = this.id;
-					return el;
-
-				})
+				this._sp
 			);
 
 		const assets = this.getAssetsEquipped(false);
@@ -4091,6 +4100,8 @@ export default class Player extends Generic{
 		if( game._caches )
 			this._cache_wrappers = ret;
 
+		if( !sp )
+			delete this._sp;
 		return ret;
 
 	}

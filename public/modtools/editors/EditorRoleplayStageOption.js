@@ -115,7 +115,7 @@ export function help(){
 	out += 
 		'<tr>'+
 			'<td>Text</td>'+
-			'<td>The text on the response button. You can use %S and %T here. Where %S is the player and %T the NPC.</td>'+
+			'<td>The text on the response button. You can use %S and %T here. Where %S is the player and %T the NPC. If you leave this empty, the game will set it to [Continue] and treat output as NONE.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Output</td>'+

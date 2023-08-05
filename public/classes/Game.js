@@ -2218,6 +2218,7 @@ export default class Game extends Generic{
 		}
 	}
 
+
 	// Temporarily enables caches on players to speed things up
 	lockPlayersAndRun( fn ){
 

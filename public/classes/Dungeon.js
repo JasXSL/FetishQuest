@@ -16,7 +16,7 @@ import * as THREE from '../ext/THREE.js';
 import Generic from './helpers/Generic.js';
 import {default as libMeshes, LibMesh} from '../libraries/meshes.js';
 import stdTag from '../libraries/stdTag.js';
-import {  Effect } from './EffectSys.js';
+import {  Effect, Wrapper } from './EffectSys.js';
 import Asset from './Asset.js';
 
 import Quest from './Quest.js';
@@ -37,7 +37,8 @@ class Dungeon extends Generic{
 		return {
 			rooms : DungeonRoom,
 			consumables : Asset,
-			vars : Collection
+			vars : Collection,
+			passives : Wrapper,
 		};
 	}
 
@@ -61,7 +62,7 @@ class Dungeon extends Generic{
 
 		this.dirLight = '';			// If a room doesn't have dirLight, it can use the dungeon one
 		this.fog = 0;				// If a room doesn't have fog, it can use from the dungeon instead
-
+		this.passives = [];
 		this.consumables = [];		// Additional items you can find in this dungeon, that aren't marked as generic found items.
 
 		// Runtime vars
@@ -113,6 +114,7 @@ class Dungeon extends Generic{
 			free_roam : this.free_roam,
 			dirLight : this.dirLight,
 			fog : this.fog,
+			passives : Wrapper.saveThese(this.passives, full),
 		};
 
 		// Full or mod
@@ -220,6 +222,13 @@ class Dungeon extends Generic{
 		this.getActiveRoom().onVisit();
 	}
 
+	/* Passives */
+	getPassives(){
+
+		const rp = this.getActiveRoom()?.passives.slice() || []; // Not pretty, but this would break on new game creation otherwise
+		return this.passives.slice().concat(rp);
+
+	}
 
 	/* ROOM */
 	getActiveRoom(){
@@ -635,6 +644,7 @@ class DungeonRoom extends Generic{
 			encounters : Encounter,
 			playerMarkers : DungeonRoomMarker,
 			encounter : Encounter,
+			passives : Wrapper,
 		};
 	}
 
@@ -659,6 +669,7 @@ class DungeonRoom extends Generic{
 		this.resetEncounter();
 		this.assets = [];			// First asset is always the room. These are DungeonRoomAssets
 		this.tags = [];
+		this.passives = [];			// Passive effects to apply to viable players. Similar to encounter passives.
 
 		this.expEvt = false;		// If true, use an expevt. viableEcnounters is pulled from the encounters list
 
@@ -698,6 +709,7 @@ class DungeonRoom extends Generic{
 			fog : this.fog,
 			dirLight : this.dirLight,
 			playerMarkers : DungeonRoomMarker.saveThese(this.playerMarkers, full),
+			passives : Wrapper.saveThese(this.passives, full),
 		};
 
 		if( full ){

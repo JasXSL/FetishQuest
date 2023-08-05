@@ -1086,7 +1086,6 @@ function build(){
 						.repeat(Infinity)
 						.onUpdate(onTweenUpdate)
 						.start();
-						
 						mesh.userData.tweens.tween_mid = a;
 
 						let light = new THREE.SpotLight(0xCC00FF, 1, 5000, .75, 0.5);
@@ -3942,6 +3941,32 @@ function build(){
 					},
 
 
+					tags : [stdTag.mWater],
+
+				}),
+				WaterFlowing : new LibMesh({
+					url : function(){
+						const loader = new THREE.TextureLoader();
+						const waterGeometry = new THREE.BoxBufferGeometry( 1000, 1000, 100 );
+						const water = new Water2( waterGeometry, {
+							color: 0x88AA88,
+							scale: 1,
+							flowDirection: new THREE.Vector2( 5, .1 ),
+							textureWidth: 1024,
+							textureHeight: 1024,
+							reflectivity : 0.01,
+							clipBias : 1,
+							normalMap0 : loader.load('media/textures/land/waternormals_small.jpg'),
+							normalMap1 : loader.load('media/textures/land/waternormals_small.jpg'),
+						}); 
+						water.rotation.x = -Math.PI/2;
+						water.position.y = 100;
+						const mat = new THREE.MeshBasicMaterial();
+						mat.visible = false;
+						const group = new THREE.Mesh(new THREE.BoxGeometry(1000,100,1000), mat);
+						group.add(water);
+						return group;
+					},					
 					tags : [stdTag.mWater],
 
 				}),

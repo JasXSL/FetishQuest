@@ -168,11 +168,11 @@ export function help(){
 	out += 
 		'<tr>'+
 			'<td>Name</td>'+
-			'<td>Optional. Lets you override the name of the player or NPC name specified in the parent roleplay.</td>'+
+			'<td>Optional. Lets you override the name of the player or NPC name specified in the parent roleplay. %T here will target the player who brought you to this RP stage. %P will target the first roleplay target.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Portrait</td>'+
-			'<td>Optional override image of the player or item you are talking to. Useful if you are talking to something like an item or adding narration. Overrides any portrait/player specified in the parent roleplay.</td>'+
+			'<td>Optional override image of the player or item you are talking to. Useful if you are talking to something like an item or adding narration. Overrides any portrait/player specified in the parent roleplay. %T will use the icon of the player who brought you to this stage. %P will target the first roleplay target.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Chat type</td>'+

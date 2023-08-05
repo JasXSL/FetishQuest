@@ -585,6 +585,9 @@ export class RoleplayStage extends Generic{
 
 		const ini = this.getInitiatingPlayer();
 		const pl = this.getPlayer();
+		const rpTarg = this.parent.getTargetPlayers()[0];
+
+
 		let portrait = this.parent.portrait;
 		if( pl instanceof Player && pl.portrait )
 			portrait = pl.portrait;
@@ -601,6 +604,13 @@ export class RoleplayStage extends Generic{
 				portrait = ini?.icon || '';
 
 		}
+		else if( portrait === '%P' ){
+			
+			portrait = rpTarg?.portrait;
+			if( !portrait )
+				portrait = rpTarg?.icon || '';
+
+		}
 		
 		if( !portrait.includes('/') && portrait )
 			portrait = '/media/wrapper_icons/'+portrait+'.svg';
@@ -609,15 +619,20 @@ export class RoleplayStage extends Generic{
 	}
 
 	getName(){
+
 		const ini = this.getInitiatingPlayer();
+		const rpTarg = this.parent.getTargetPlayers()[0];
 		if( this.name === '%T' )
 			return ini?.getColoredName() || '';
+		else if( this.name === '%P' )
+			return rpTarg?.getColoredName() || '';
 		else if( this.name )
 			return esc(this.name);
 		const pl = this.getPlayer();
 		if( pl )
 			return pl.getColoredName();
 		return '';
+		
 	}
 
 	// When the stage is initially presented
@@ -910,7 +925,10 @@ export class RoleplayStageOption extends Generic{
 		if( !player )
 			player = game.getMyActivePlayer();
 		
-		let text = new Text({text:this.text});
+
+		let text = new Text({
+			text : this.text || '[Continue]'
+		});
 		// this.parent.getInitiatingPlayer()
 		// Responses use your active player as sender, main text uses whoever got you to that stage
 		return text.run(new GameEvent({sender:player, target:this.parent.getPlayer()}), true);
@@ -926,7 +944,7 @@ export class RoleplayStageOption extends Generic{
 		const rp = this.getRoleplay();
 		const pl = this.parent.getPlayer();
 
-		if( player && this.chat !== RoleplayStageOption.ChatType.none )
+		if( player && this.chat !== RoleplayStageOption.ChatType.none && this.text )
 			RoleplayChatQueue.output( player, this );
 
 		// Do this first to set the waiting flag

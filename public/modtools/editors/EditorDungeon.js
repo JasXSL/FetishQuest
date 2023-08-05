@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
 import Window from '../WindowManager.js';
 import * as EditorAsset from './EditorAsset.js';
+import * as EditorWrapper from './EditorWrapper.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../../classes/Dungeon.js';
 import Generic from '../../classes/helpers/Generic.js';
@@ -41,6 +42,7 @@ export function asset(){
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 
 	html += '<span title="Consumables you can find in chests here, other than assets marked as randomLoot">Unique consumables:</span> <div class="consumables"></div>';
+	html += '<span title="">Passives:</span> <div class="passives"></div>';
 
 	html += 'Rooms: <div class="rooms"></div>';
 
@@ -52,6 +54,7 @@ export function asset(){
 
 	// Bind linked objects
 	this.dom.querySelector("div.consumables").appendChild(EditorAsset.assetTable(this, asset, "consumables"));
+	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
 
 	// Todo: Bind rooms
 
