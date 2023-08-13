@@ -1688,12 +1688,13 @@ class DungeonRoomAsset extends Generic{
 
 	// Need to save state if modified
 	onModified(){
+		
 		if( !this._killed )
 			this._killed = game.time;	// Set time of first modification for respawn
 		const dungeon = this.getDungeon();
-		if( dungeon ){
+		if( dungeon )
 			dungeon.assetModified(this);
-		}
+		
 	}
 
 	/* Type checking */

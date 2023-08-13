@@ -53,6 +53,7 @@ class LibMesh{
 		this.url = data.url;		// Relative to media/models/ - Can also be a function that returns a mesh
 		this.materials = data.materials || [];		// Should be Material objects from materials.js
 		
+		this.debug = Boolean(data.debug);
 		this.animations = data.animations;			// object of animation : (obj)properties
 													// https://threejs.org/docs/#api/en/animation/AnimationAction
 		this.receive_shadow = data.receive_shadow !== false;
@@ -82,6 +83,11 @@ class LibMesh{
 		this.onInteractivityChange = data.onInteractivityChange || function(dungeonAsset, interactive){};
 		this.onRefresh = data.onRefresh || function(dungeonAsset, mesh){};				// Raised by a game action
 
+	}
+
+	dbg( ...text ){
+		if( this.debug )
+			console.log("[MESH DBG] ", ...text);
 	}
 
 	// Note: Avoid parallelization to prevent the viewer from freezing
@@ -122,6 +128,7 @@ class LibMesh{
 			// The other one is retarded and needs mesh merging
 			else{
 				
+				this.dbg("Data scene", data.scene);
 				const scene = SkeletonUtils.clone(data.scene);
 				scene.animations = animations = data.animations.slice();
 				data = scene;
@@ -2663,6 +2670,19 @@ function build(){
 						libMat.Misc.TarotDeck
 					],
 				}),
+				Yarnballs : new LibMesh({
+					url : 'doodads/yarnballs.glb',
+					tags : [],
+					materials : [
+						libMat.Cloth.Yarn,
+						libMat.Cloth.Yarn,
+					],
+					onFlatten : function( mesh ){
+
+						mesh.children[0].children[0].children[0].material.color.set(0xFFAAAA);
+
+					}
+				}),
 			},
 			Furniture : {
 				Bookshelf : {
@@ -5134,6 +5154,35 @@ function build(){
 					tags : [stdTag.mSoil],
 					url : 'nature/farm_patch.JD',
 					materials : [libMat.Nature.Soil],
+				}),
+				TentacleEggs : new LibMesh({
+					scale : 1000,
+					tags : [],
+					url : 'nature/pile.glb',
+					materials : [libMat.Misc.TentacleNest],
+					// Animation settings
+					animations : {
+						"die" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce,
+						},
+						"static" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce,
+						}
+					},
+					onInteract : function( mesh, room, asset ){
+						// Opening and closing an item is local
+						let stage = mesh.userData._stage;
+						stage.playSound(mesh, 'media/audio/slimeward.ogg', 0.25);
+					},
+					afterStagePlaced : function( dungeonAsset, mesh ){
+						
+						if( !dungeonAsset.isInteractive() ){
+							mesh.userData.playAnimation("static");
+						}
+
+					},
 				}),
 			},
 			Weather : {

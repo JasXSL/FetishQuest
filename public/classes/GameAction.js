@@ -419,6 +419,7 @@ export default class GameAction extends Generic{
 			game.startEncounter(player, encounter, !this.data.replace, mesh);
 			this.remove();	// Prevent it from restarting
 			asset?.updateInteractivity?.();	// After removing the action, update interactivity
+
 		}
 		else if( this.type === types.resetRoomEncounter ){
 
@@ -744,6 +745,10 @@ export default class GameAction extends Generic{
 				console.error("Objective not found in quest", objective, active);
 				return;
 			}
+
+			// Remove if parent is a DungeonRoomAsset to prevent retrigger
+			if( this.killParentAsset && this.parent instanceof DungeonRoomAsset )
+				this.remove();
 
 			obj.addAmount(amount, type === "set");
 			game.save();
@@ -1367,7 +1372,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.anim] : '{anim:(str)animation, targ:(str)name=parentMesh} - If targs is unset and the GameAction has a mesh parent, that is used as a target',
 	[GameAction.types.lever] : '{id:(str)id} - Does the same as dungeonVar except it toggles the var (id) true/false and handles "open", "open_idle", "close" animations',
 	[GameAction.types.quest] : '{quest:(str/Quest)q} - Starts a quest',
-	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1} - Adds or subtracts from an objective',
+	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1, killParentAsset:(bool)kill=false} - Adds or subtracts from an objective. killParentAsset will kill a dungeon room asset when the game action is used on one.',
 	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1, "alert":(bool)notify=false, "equip":""} - Adds or removes inventory from a player. Equip can be empty (no equip) or "yes" to equip it.',
 	[GameAction.types.toggleCombat] : '{on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.',
 	[GameAction.types.roleplay] : '{rp:(str/obj)roleplay} - A label or roleplay object',

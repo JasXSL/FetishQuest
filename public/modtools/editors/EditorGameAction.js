@@ -364,6 +364,8 @@ export function asset(){
 				html += '<option value="set" '+(asset.data.type === 'set' ? 'selected' : '')+'>Set</option>';
 			html += '</select></label>';
 			html += '<label title="Amount to add">Amount: <input type="number" step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 1)+'" /></label>';
+			html += '<label title="When triggered from a dungeon room asset, it will remove the game action">Remove on trigger: '+
+				'<input type="checkbox" value=1 name="data::killParentAsset" class="saveable" '+(asset.data.killParentAsset ? 'checked' : '')+' /></label>';
 		html += '</div>';
 		
 

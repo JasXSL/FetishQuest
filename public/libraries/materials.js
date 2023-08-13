@@ -525,6 +525,11 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.7,
 		}),
+		Yarn : new LibMaterial({
+			map : 'tileable/yarn.jpg',
+			metalness : 0.3,
+			roughness : 0.7,
+		}),
 	},
 	Splat : {
 		Blood : new LibMaterial({
@@ -1166,6 +1171,17 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.5,
 		}),
+		TentacleNest : new LibMaterial({
+			map : 'tileable/tickle_tentacle_nest.jpg',
+			emissiveMap : 'tileable/tickle_tentacle_nest_e.jpg',
+			roughnessMap : 'tileable/tickle_tentacle_nest_r.jpg',
+			normalMap : 'tileable/tickle_tentacle_nest_n.jpg',
+			metalness : 0.0,
+			roughness : 0.75,
+			emissive : 0xFFFFFF
+		}),
+		
+		
 	},
 
 	Bakes : {

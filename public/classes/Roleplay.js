@@ -74,6 +74,10 @@ export default class Roleplay extends Generic{
 	// Data that should be saved to drive
 	save( full ){
 
+		let vars = this._vars;
+		if( !(vars instanceof Collection) )
+			vars = Collection.loadThis(vars);
+
 		let out = {
 			id : this.id,
 			label : this.label,
@@ -85,7 +89,7 @@ export default class Roleplay extends Generic{
 			once : this.once,
 			portrait : this.portrait,
 			_targetPlayers : this._targetPlayers,
-			_vars : this._vars ? this._vars.save(full) : {},
+			_vars : vars.save(full),
 			vars_persistent : this.vars_persistent,
 		};
 
