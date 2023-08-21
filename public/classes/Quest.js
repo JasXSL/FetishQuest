@@ -69,6 +69,7 @@ class Quest extends Generic{
 	}
 
 	addObjective( objective, isCompletionObjective = false ){
+
 		if( !(objective instanceof QuestObjective) )
 			return console.error(objective, "is not an objective");
 		let obj = objective.clone(this);
@@ -77,6 +78,7 @@ class Quest extends Generic{
 		else
 			this.objectives.push(obj);
 		return obj;
+
 	}
 
 
@@ -410,15 +412,20 @@ class QuestObjective extends Generic{
 	}
 
 	addAmount( amount = 1, set = false ){
+
 		if( isNaN(amount) )
 			return;
 		if( this._amount >= this.amount && !set )
 			return;
+
+		let pre = this._amount;
 		this._amount += amount;
 		if( set )
 			this._amount = amount;
 		this._amount = Math.max(0,Math.min(this.amount, this._amount));
-		game.renderer.drawActiveRoom();
+		if( this._amount !== pre )
+			game.onObjectiveChanged(this, this._amount);
+
 	}
 
 	

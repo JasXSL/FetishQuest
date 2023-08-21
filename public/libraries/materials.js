@@ -1173,12 +1173,10 @@ LibMaterial.library = {
 		}),
 		TentacleNest : new LibMaterial({
 			map : 'tileable/tickle_tentacle_nest.jpg',
-			emissiveMap : 'tileable/tickle_tentacle_nest_e.jpg',
 			roughnessMap : 'tileable/tickle_tentacle_nest_r.jpg',
 			normalMap : 'tileable/tickle_tentacle_nest_n.jpg',
 			metalness : 0.0,
 			roughness : 0.75,
-			emissive : 0xFFFFFF
 		}),
 		
 		

@@ -2890,6 +2890,25 @@ export default class UI{
 
 	}
 
+	// Takes a QuestObjective object
+	questObjectiveFlyout( objective, amt ){
+
+		let max = objective.amount;
+		if( amt > max )
+			amt = max;
+
+		let text = objective.name + ': '+amt+'/'+max;
+		let done = ( amt >= max );
+		const dom = document.getElementById('questObjective');
+		dom.innerText = text;
+		dom.classList.toggle('hidden', false);
+		dom.classList.toggle('completed', done);
+		clearTimeout(this._hide_quest_objective);
+		this._hide_quest_objective = setTimeout(() => {
+			dom.classList.toggle('hidden', true);
+		}, 4000);
+
+	}
 
 
 	/* EVENTS */

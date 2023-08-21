@@ -2574,6 +2574,8 @@ Effect.Types = {
 	majorEffect : 'majorEffect',
 	addReroll : 'addReroll',
 	orgasmDuration : 'orgasmDuration',
+	equipCost : 'equipCost',
+	unequipCost : 'unequipCost'
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2640,6 +2642,8 @@ Effect.Passive = {
 	[Effect.Types.actionRiposte] : true,
 	[Effect.Types.majorEffect] : true,
 	[Effect.Types.orgasmDuration] : true,
+	[Effect.Types.unequipCost] : true,
+	[Effect.Types.equipCost] : true,
 };
 
 Effect.KnockdownTypes = {
@@ -2762,6 +2766,10 @@ Effect.TypeDescs = {
 	[Effect.Types.majorEffect] : '{effect:(int)bitwise} - Sets a major effect. These are hard-coded effects that are made to simplify .',
 	[Effect.Types.addReroll] : '{amount:(int)(str)amount} - Adds or subtracts reroll for this turn.',
 	[Effect.Types.orgasmDuration] : '{amount:(int/str)amount} - Adds or subtracts to orgasm duration. Orgasm duration cannot be lower than 1.',
+
+	[Effect.Types.unequipCost] : '{amount:(int/str)amount} - Adds or subtracts from item unequip costs of the player.',
+	[Effect.Types.equipCost] : '{amount:(int/str)amount} - Adds or subtracts from item equip costs of the player.',
+
 };
 
 

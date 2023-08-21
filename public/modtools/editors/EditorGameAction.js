@@ -15,6 +15,7 @@ import * as EditorFaction from './EditorFaction.js';
 import * as EditorDungeon from './EditorDungeon.js';
 import * as EditorDungeonTemplate from './EditorDungeonTemplate.js';
 import * as EditorBook from './EditorBook.js';
+import * as EditorAudioKit from './EditorAudioKit.js';
 import Generic from '../../classes/helpers/Generic.js';
 
 
@@ -325,7 +326,7 @@ export function asset(){
 				amount : 1,
 			};
 		
-		html += '<div class="quest"></div>';
+		html += 'Quest: <div class="quest"></div>';
 		
 
 		html += '<div class="labelFlex">';
@@ -365,12 +366,15 @@ export function asset(){
 			html += '</select></label>';
 			html += '<label title="Amount to add">Amount: <input type="number" step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 1)+'" /></label>';
 			html += '<label title="When triggered from a dungeon room asset, it will remove the game action">Remove on trigger: '+
-				'<input type="checkbox" value=1 name="data::killParentAsset" class="saveable" '+(asset.data.killParentAsset ? 'checked' : '')+' /></label>';
+				'<input type="checkbox" value=1 name="data::killParentAsset" class="saveable" '+(asset.data.killParentAsset ? 'checked' : '')+' />'+
+			'</label>';
 		html += '</div>';
 		
+		html += 'Audio kit: <div class="audioKit"></div>';
 
 		fnBind = () => {
 			this.dom.querySelector("div.quest").appendChild(EditorQuest.assetTable(this, asset, "data::quest", true));
+			this.dom.querySelector("div.audioKit").appendChild(EditorAudioKit.assetTable(this, asset, "data::audioKit", true));
 		};
 
 	}

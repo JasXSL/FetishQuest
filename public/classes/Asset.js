@@ -87,6 +87,8 @@ export default class Asset extends Generic{
 		this.weight = 100;				// Weight in grams
 		this.iuad = false;				// Ignore use action description. Even if a use action is set, use this one's description.
 		this.no_unequip = false;		// Cannot be unequipped manually. Effects can unequip it.
+		this.unequip_cost = -1;			// Custom unequip cost for this asset. -1 = use default
+		this.equip_cost = -1;			// CUstom equip cost for this asset. -1 = use default
 		this._custom = false;			// Auto set when loaded from a custom library over a built in library
 		this._stacks = 1;				// how many items this stack contains, requires stacking true
 		this._charges = -1;				// How many charges remain. Setting to -1 will automatically set it to this.charges on load
@@ -146,7 +148,9 @@ export default class Asset extends Generic{
 			mastercrafted : this.mastercrafted,
 			actives : Wrapper.saveThese(this.actives, full),
 			indestructible : this.indestructible,
-			inBank : this.inBank
+			inBank : this.inBank,
+			unequip_cost : this.unequip_cost,
+			equip_cost : this.equip_cost,
 		};
 
 
@@ -346,6 +350,36 @@ export default class Asset extends Generic{
 		const missingPoints = this.getMaxDurability()-this.durability;
 		let cost = missingPoints*2*Math.pow(2, this.rarity);
 		return Math.ceil(cost);
+	}
+
+	getUnequipCost(){
+
+		let out = this.unequip_cost;
+		if( out < 0 )
+			out = Game.UNEQUIP_COST;
+		if( this.parent instanceof Player )
+			out += this.parent.getGenericAmountStatPoints(Effect.Types.unequipCost);
+
+		if( out < 0 )
+			out = 0;
+
+		return out;
+
+	}
+
+	getEquipCost(){
+
+		let out = this.equip_cost;
+		if( out < 0 )
+			out = Game.EQUIP_COST;
+		if( this.parent instanceof Player )
+			out += this.parent.getGenericAmountStatPoints(Effect.Types.equipCost);
+
+		if( out < 0 )
+			out = 0;
+
+		return out;
+
 	}
 
 	resetCharges(){
@@ -617,7 +651,7 @@ export default class Asset extends Generic{
 		if( isConsumable && !this.iuad )
 			return this.use_action.getTooltipText(true, this.rarity);
 
-		let apCost = this.equipped ? Game.UNEQUIP_COST : Game.EQUIP_COST;
+		
 
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
@@ -635,10 +669,14 @@ export default class Asset extends Generic{
 		}
 		
 		html += '<em class="sub">';
-		if( game.battle_active && this.parent )
+		if( game.battle_active && this.parent ){
+			
+			let apCost = this.equipped ? this.getUnequipCost() : this.getEquipCost();
 			html += '[<span style="color:'+(this.parent.ap >= apCost ? '#DFD' : '#FDD')+'">'+
-				apCost+' AP to '+(this.equipped ? 'take off' : 'equip')+
+				apCost+' Random momentum to '+(this.equipped ? 'take off' : 'equip')+
 			'</span>]<br />';
+
+		}
 
 		if( this.equippable() ){
 

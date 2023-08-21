@@ -8,7 +8,7 @@ import NetworkManager from './NetworkManager.js';
 import {default as Dungeon, DungeonSaveState} from './Dungeon.js';
 import WebGL from './WebGL.js';
 import Text from './Text.js';
-import Quest from './Quest.js';
+import Quest, { QuestObjective } from './Quest.js';
 import {default as Audio, AudioKit, setMasterVolume}  from './Audio.js';
 import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
@@ -746,6 +746,24 @@ export default class Game extends Generic{
 		this.ui.gameIconPop('quest');
 		if( Game.net.isInNetgameHost() )
 			Game.net.dmQuestAccepted( 'Quest Started:', quest.name );
+
+	}
+	// A quest objective value has changed. QuestObjective can be either a label or a QuestObjective object
+	onObjectiveChanged( questObjective, amount ){
+
+		if( !(questObjective instanceof QuestObjective) )
+			questObjective = this.getQuestObjectiveByLabel(questObjective);
+		
+		if( !questObjective )
+			return;
+
+		if( amount === undefined )
+			amount = questObjective._amount;
+
+		this.ui.questObjectiveFlyout(questObjective, amount);
+		this.renderer.drawActiveRoom(); // Update active room
+		if( this.is_host )
+			Game.net.dmQuestObjectiveChanged(questObjective.label, amount);
 
 	}
 	// Raised before a room changes
@@ -1633,6 +1651,17 @@ export default class Game extends Generic{
 		}
 		return false;
 	}
+	getQuestObjectiveByLabel( label ){
+
+		for( let quest of this.quests ){
+
+			let out = quest.getObjectiveByLabel();
+			if( out )
+				return out;
+
+		}
+
+	}
 	// Gets an active quest by label
 	getQuestByLabel( label ){
 		for( let quest of this.quests ){
@@ -2047,13 +2076,18 @@ export default class Game extends Generic{
 	// Toggles equip on an item to a player from inventory by Player, Asset.id
 	equipPlayerItem( player, id, force = false ){
 
-		let apCost = player.isAssetEquipped(id) ? Game.UNEQUIP_COST : Game.EQUIP_COST;
+		const asset = player.getAssetById(id);
+		if( !asset )
+			throw 'Asset not found';
+		
+		let apCost = player.isAssetEquipped(id) ? asset.getUnequipCost() : asset.getEquipCost();
 		if( game.battle_active ){
 			
-			if( player !== game.isTurnPlayer(player) )
+			if( !game.isTurnPlayer(player) )
 				throw("Not your turn");
 
-			if( player.getMomentum(Player.MOMENTUM.Uti) < apCost )
+			const plMom = player.getMomentum();
+			if( plMom < apCost )
 				throw("Not enough AP");
 			
 		}
@@ -2061,7 +2095,7 @@ export default class Game extends Generic{
 		if( this.isInRoleplay() )
 			throw "Can't change equipment during a dialog.";
 
-		if( !player.canEquip(id) )
+		if( !player.canEquip(id) && !asset.equipped )
 			throw "Can't equip that right now";
 
 		if(!game.playerIsMe(player))
@@ -2087,7 +2121,7 @@ export default class Game extends Generic{
 		}
 
 		if( game.battle_active )
-			player.addMomentum(Player.MOMENTUM.Uti, -apCost);
+			player.addMomentum(-1, -apCost); // remove random momentum
 
 		this.save();
 		return true;

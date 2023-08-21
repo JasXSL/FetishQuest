@@ -1381,6 +1381,11 @@ class NetworkManager{
 			game.ui.drawMomentumGain(...args.mom);
 
 		}
+		else if( task === NetworkManager.dmTasks.questObjectiveChanged ){
+
+			game.onObjectiveChanged(args.label, args.amount);
+
+		}
 
 	}
 
@@ -1951,6 +1956,15 @@ class NetworkManager{
 
 	}
 
+	dmQuestObjectiveChanged( objectiveLabel, amount ){
+
+		this.sendHostTask(NetworkManager.dmTasks.questObjectiveChanged, {
+			label : objectiveLabel,
+			amount
+		});
+
+	}
+
 }
 
 
@@ -2134,6 +2148,7 @@ NetworkManager.dmTasks = {
 	getLargeAsset : 'getLargeAsset',				// {type:(str)type, asset:(obj)asset_data} - Counterpart to playerTasks getLargeAsset
 	toggleUI : 'toggleUI',							// {on:(bool)on} - Forces the UI to open or close
 	drawMomentumGain : 'drawMomentumGain',			// {mom:(arr)types} - Draws momentum gain at start of turn. Type is an array with nr for each type ex [5,1,0] -> 5 off, 1 def, 0 uti
+	questObjectiveChanged : 'questObjectiveChanged', // {label:(str)objective_label, amount:(int)value}
 };
 
 // Player -> DM

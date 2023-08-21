@@ -3788,6 +3788,37 @@ div.scroll{
 		opacity: 0;
 	}
 /**/
+/* Quest objective */
+
+	#questObjective{
+		position: fixed;
+		top:25%;
+		left:50%;
+		transform:translate(-50%,-50%) scale(1,1);
+		text-align: center;
+		color: #DDF;
+		border:0.2vmax solid #DDF;
+		background:rgba(5,5,20,.75);
+		padding:1vmax;
+		border-radius:1vmax;
+		text-shadow:2px 2px 0.2vmax #000;
+		transition: all 0.3s ease-out;
+		pointer-events:none;
+		opacity:1;
+		font-size:1.7vmax;
+	}
+	#questObjective.completed{
+		color:#AFA;
+		border-color: #AFA;
+		font-weight: bold;
+	}
+	#questObjective.hidden{
+		display: block !important;
+		opacity:0;
+		transform:translate(-50%,-50%) scale(0.7,0.7);
+	}
+
+/**/
 
 
 /* Chat hotkey */

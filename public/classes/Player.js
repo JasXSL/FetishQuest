@@ -1987,6 +1987,7 @@ export default class Player extends Generic{
 
 	}
 
+
 	// byPlayer is the player who initiated it. If it's not a player object, no event is raised
 	unequipAsset( id, byPlayer, noText, force ){
 

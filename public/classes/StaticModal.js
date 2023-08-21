@@ -4270,9 +4270,9 @@ export default class StaticModal{
 							modal.prepareSelectionBox();
 							
 							if( isHotbar && !asset.no_unequip )
-								modal.addSelectionBoxItem( 'Unequip', '', 'unequip' );
+								modal.addSelectionBoxItem( 'Unequip'+(game.battle_active ? ' ['+asset.getUnequipCost()+' Momentum]' : ''), '', 'unequip' );
 							else if( player.canEquip(asset) && !isHotbar )
-								modal.addSelectionBoxItem( 'Equip', '', 'equip' );
+								modal.addSelectionBoxItem( 'Equip'+(game.battle_active ? '['+asset.getEquipCost()+' Momentum]' : ''), '', 'equip' );
 
 							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (game.isTurnPlayer(player) && isHotbar)) ){
 								modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );

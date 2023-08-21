@@ -733,7 +733,9 @@ export default class GameAction extends Generic{
 
 			const quest = this.data.quest, 
 				objective = this.data.objective, 
-				type = this.data.type || "add";
+				type = this.data.type || "add",
+				audioKit = this.data.audioKit	
+			;
 			let amount = parseInt(this.data.amount) || 1;
 			const active = game.getQuestByLabel(quest);
 			if( !active ){
@@ -747,8 +749,12 @@ export default class GameAction extends Generic{
 			}
 
 			// Remove if parent is a DungeonRoomAsset to prevent retrigger
-			if( this.killParentAsset && this.parent instanceof DungeonRoomAsset )
+			if( this.data?.killParentAsset && this.parent instanceof DungeonRoomAsset ){
 				this.remove();
+			}
+
+			if( audioKit )
+				game.playFxAudioKitById(audioKit, sender, player, undefined, true );
 
 			obj.addAmount(amount, type === "set");
 			game.save();

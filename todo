@@ -1,10 +1,8 @@
 Bugs:
 - occasionally no orgasm on max arousal?
 
-- Rework redressing in combat
 - Look over the momentum colors to not match phys/cor/arc
-- Quests objectives should pop up on the main screen when a quest objective value is modified
-- Add a soundkit link to questObjective game action. This should be played for all players.
+
 
 Minor Features:
 - Make the action adder show icons
@@ -12,6 +10,8 @@ Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
 -- MAJOR FEATURE IDEAS --
+
+Node graph editor for FQ
 
 Overhaul food:
 - Make food buffs unique
@@ -54,52 +54,15 @@ Friendly NPCs and RPs needed:
 
 
 
-Boss designs:
-	- tm02_tentacleCultist
-		- Charged action that drains life from players that don't have block.
-		- Tentacle gag - Prevents ranged actions for a while
-		- Growing tickler - Summons a small tentacle tickler. The tickler gains power each turn.
-	
-
--- QUESTS --
-
-Side quests:
-	- A rat in the borm tavern wants you to put tickle tentacle eggs in a fighter's bodysuit.
-	- Players have the option to give it to the tentaclemancer instead.
-	- If the players do it right, they get reward A from the rat.
-	- Otherwise they'll get ambushed near the borm exit and can collect a bounty for reward B.
-
 -- CLASS QUESTS --
 (DONE)  - Warrior: Tank [Phys]. Reduces incoming damage. Self block and counter attacks. Trainer: Chad's Gym
 (DONE)  - Rogue: [Corruption/Phys] DPS. Direct damage. Rerolls & crits.
 (DONE) 	- Cleric [Arcane/Phys] Support momentum. Primarily heals by direct healing / healing over time. Easy to play. All heals are reactive. Demon/undead bane.
-(test)  - Tentaclemancer [Corruption]  Tank (utility): Tanks by weakening enemies. Also self arousal. 
-Trainer: Borm
-[Todo]	- Armor: Add a quartermaster alongside the quest
-		x Living bodysuit:
-			- Orgasm no longer resets your momentum.
-			- Gain major aggression and defense for 2 turns on orgasm.
-!		w Living bikini: Use: Deal 4 corruption damage to your target, healing for the amount. Cooldown is reset on orgasm.
-	- Quest: 
-		A: Tickle tentacle spawning season is upon us. The tentaclemancer wants you to collect eggs from borm.
-			- On the way back, a rattani asks you to part with 1 egg. Doing so move her to the inn and allows you to do the side quest listed above.
-			- Hand in the eggs to finish quest A.
-		B: TM trainer asks you to see a farmer about a grown tickle tentacle.
-			- Players can ask TM trainer about it, and find out that unless the tickle tentacles are captured, they may grow larger and unruly.
-			- Talk to farmer in <???>, he says it was bigger than normal, almost like one of the arena bosses. He locked it in his shed.
-			- Go to shed and fight a miniboss, loot corrupted tentacle and bring it back to TM trainer.
-		C: The tentacle has been infused with corrupting magic. He tells you to ask around in town if someone has seen something sus.
-			- One of the farmers will say he's heard strange noises from the derelict mine in the north east fields.
-			- Go through the cave and kill a cultist trying to raise tentacle monsters. Bring back a signet as proof.
-			- During the fight, there's a big tentacle monster and the cultist is invulnerable until you kill it.
-			- Players unlock the armor set.
-
+(DONE)  - Tentaclemancer [Corruption]  Tank (utility): Tanks by weakening enemies. Also self arousal. Trainer: Borm
 (DONE)  - Monk: [Physical] Healer - Heals by attacking. Also riposte and combos. Trainer: Portswood glade.
 (DONE)  - Elementalist [Arcane] - Defensive DPS: Deal damage when enemies attack. Also wild random effects.
 (DONE)  - Necromancer [Corruption] - Tank (offense) by doing damage and stealing health.
 (DONE)	- Arcanist [Arcane] - Healer (proactive). Block effects and damage reduction.
-
-
 
 Bard? Utility [Phys/Arcane/Corruption] - Short term powerful Buffs and debuffs.
 vt Singing Strike: Deals 2 phys damage, increased by 2 for every major effect on your target and yourself.
@@ -107,10 +70,6 @@ vt Piercing Tune: Makes enemies Major Vulnerability one turn, increasing damage 
 vt Warsong: Grants party Major Aggression one turn, increasing damage done by 20%.
 vt Windsong: Grants party Major Momentum for two turns, increasing momentum generation by 1 at start of turn.
 - Memory Blur: Makes all enemies unaware of everyone.
-
-
-
-
 
 
 
