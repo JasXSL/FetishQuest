@@ -1319,7 +1319,6 @@ export default class StaticModal{
 				// Draws an action selector. Returns the ID clicked on (if you do)
 				this.edit.drawPlayerActionSelector = (player, callback) => {
 								
-					let html = '';
 					let libActions = Object.values(glib.getFull('Action'))
 						.filter(el => el.name !== '%P%'); 
 
@@ -1327,26 +1326,37 @@ export default class StaticModal{
 						return a.name < b.name ? -1 : 1;
 					});
 
-					html+= '<div class="inventory tooltipShrink">';
-						html += '<h3>Learn Action for '+esc(player.name)+'</h3>';
+					const out = document.createElement('div');
+					out.classList.add('inventory', 'tooltipShrink');
+					let sub = document.createElement('h3');
+					out.append(sub);
+					sub.innerText = 'Learn Action for '+player.name;
+					
+					
+
 					for( let asset of libActions ){
 
 						let id = asset.label;
 						if( player.getActionByLabel(asset.label) )
 							continue;
 						
-						
-						html += '<div class="list item tooltipParent third" data-id="'+esc(id)+'">';
-							html += esc(asset.name);
-							html += '<div class="tooltip actionTooltip">';
-								html += asset.getTooltipText();
-							html += '</div>';
-						html += '</div>';
+						const img = document.createElement('img'); 
+						img.src = 'media/wrapper_icons/'+asset.getIcon()+".svg";
+						const div = document.createElement('div');
+						out.append(div);
+						div.classList.add('list', 'item', 'tooltipParent', 'third', 'dmActionLearner', Action.TypesCSS[asset.type], asset.detrimental ? 'detrimental' : 'beneficial');
+						div.dataset.id = id;
+						div.append(img);
+						div.append(document.createTextNode(asset.name));
 
+						const sub = document.createElement('div');
+						div.append(sub);
+						sub.classList.add('tooltip', 'actionTooltip');
+						sub.innerHTML = asset.getTooltipText();
+							
 					}
-					html += '</div>';
 					
-					game.ui.modal.set(html);
+					game.ui.modal.set(out);
 
 					// Events
 					$("#modal div.list.item[data-id]").on('click', async function(){

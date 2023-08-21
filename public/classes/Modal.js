@@ -77,9 +77,11 @@ export default class Modal{
 		this.content.html('');
 		if( typeof html === 'string' )
 			this.content.html(html);
-		else{
+		else if( Array.isArray(html) ){
 			this.content[0].append(...html);
 		}
+		else
+			this.content[0].append(html);
 		this.bg.toggleClass("hidden", false).toggleClass('canvas', !!canvas);
 		this.open = true;
 

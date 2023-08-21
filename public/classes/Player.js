@@ -4624,9 +4624,10 @@ Player.MOMENTUM = {
 };
 // Array that can be used to iterate through the types
 Player.MOMENTUM_TYPES = [Player.MOMENTUM.Off,Player.MOMENTUM.Def,Player.MOMENTUM.Uti];
-Player.MOMENTUM_COLORS = ['#FDD','#DDF','#FDF'];
+Player.MOMENTUM_COLORS = ['#FFD','#DFF','#DFD'];
 Player.MOMENTUM_NAMES = ['Offensive', 'Defensive', 'Utility'];
 Player.MOMENTUM_NAMES_SHORT = ['Off', 'Def', 'Uti'];
+Player.MOMENTUM_CLASSES = ['OffColor', 'DefColor', 'UtiColor'];
 
 Player.currencyWeights = [
 	'platinum',

@@ -1,12 +1,7 @@
 Bugs:
 - occasionally no orgasm on max arousal?
 
-- Look over the momentum colors to not match phys/cor/arc
-
-
 Minor Features:
-- Make the action adder show icons
-- Rattani alchemist: Rats can bypass the locked door
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
 -- MAJOR FEATURE IDEAS --
@@ -23,35 +18,6 @@ Passives:
 
 
 -- CHARACTERS NEED ART --
-
-Friendly NPCs and RPs needed:
-	0. Add fights to borm fields
-	1. Add a "quest item" marking on assets. These assets don't go in inventory. Quest has to tie to the loot event.
-	2. Add abilities to miniboss
-	3. Add ability to boss
-	4. Add the rat side quest.
-	?. Test
-
-	- tm01_farmer : Male horse
-		x says he locked an abnormal tentacle in his shed, and in the process, his shed door got jammed. He gives you the keys to go through his cellar instead.
-	- tm02_villager : female pig
-		x Says she was out for a stroll when she saw a hooded figure rummaging about in the old mines at the eastern fields. She has a key and gives it to you.
-	- tm02_tentacleCultist : female dobermann
-		x Says she's going to show Borm the TRUE meaning of tentaclemancy. Then attacks the player.
-	- tm_quartermaster: whatever that thing nibs said
-	- borm_sq_rat : Lodana
-		x borm_sq_rat_intro -> meet Lodana at borm field
-		x borm_sq_rat_offer -> Lodana in borm tavern tries to convince you to sneak into the inn and plant the eggs in Berica's bed. Players need to ask for more info about berica since there will be 3 different rooms. She says berica is a feline, but doesn't know much else. (Later players will use yarnballs to detect the correct bed to plant the eggs in.
-		x borm_sq_rat_outro -> Lodana accosts players along the east exit. She has different dialogs depending on if you got the right bed or not.
-		x borm_sq_rat_defeated -> If you fail, you may defeat Lodana and take her money by force.
-	- (Nibs) Male slug, tentaclemancer trainer
-		- tentaclemancer_trainer
-			x offer tm00 -> go collect tentacle eggs
-			x hand in tm00 -> accept tentacle eggs
-			x offer tm01 -> A farmer saw him about some tentacle abomination while you were out. Can you go investigate?
-			x hand in tm01 -> He accepts the tentacle sample and tells you to wait a moment before continuing
-			x offer tm02 -> he says the tentacle has been corrupted somehow. And to ask around the town if anyone's seen anything.
-
 
 
 -- CLASS QUESTS --

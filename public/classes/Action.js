@@ -1080,6 +1080,7 @@ class Action extends Generic{
 		const ct = this.getCastTime();
 
 		html+= '<div class="stats">';
+
 			html += '<span style="color:'+Action.typeColor(this.type)+'">'+this.type+'</span>';
 			if( this.ranged !== Action.Range.None )
 				html += '<span style="color:'+(this.ranged ? '#AAD' : '#CCC')+';">'+(this.ranged ? 'Ranged' : 'Melee')+'</span>';
@@ -1099,7 +1100,7 @@ class Action extends Generic{
 					const t = Player.MOMENTUM_TYPES[i];
 					const cost = this.getMomentumCost(t);
 					if( cost )
-						momTypes.push('<span style="color:'+Player.MOMENTUM_COLORS[i]+'">'+cost+' '+Player.MOMENTUM_NAMES_SHORT[i]+'</span>');
+						momTypes.push('<span class="'+Player.MOMENTUM_CLASSES[i]+'">'+cost+' '+Player.MOMENTUM_NAMES_SHORT[i]+'</span>');
 
 				}
 				if( momTypes.length )
@@ -1110,8 +1111,11 @@ class Action extends Generic{
 			if( this.detrimental )
 				html += '<span style="color:#FFF">'+(this.hit_chance < 100 ? this.hit_chance+' Base Hit Chance' : 'Always hits')+'</span>';
 		html += '</div>';
+
 		html += esc(desc);
+
 		return html;
+
 	}
 
 	getName(){
@@ -1211,6 +1215,12 @@ Action.Types = {
 	physical : "Physical",			// Primary used body to hurt effects
 	corruption : "Corruption",		// Primary sexy effects
 	arcane : "Arcane",				// Anything that doesn't fit in the top two categories
+};
+
+Action.TypesCSS = {
+	[Action.Types.physical] : 'phys',
+	[Action.Types.arcane] : 'arc',
+	[Action.Types.corruption] : 'corr',
 };
 
 // used by Player

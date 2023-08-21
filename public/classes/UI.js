@@ -3379,14 +3379,7 @@ export default class UI{
 	// ignoreStats will hide cd/charges 
 	static setActionButtonContent( buttonElement, action, player, hotkey, ignoreStats ){
 
-		let aType = '';
-		if( action.type === Action.Types.physical )
-			aType = 'phys ';
-		else if( action.type === Action.Types.arcane )
-			aType = 'arc ';
-		else if( action.type === Action.Types.corruption )
-			aType = 'corr ';
-		
+		let aType = Action.TypesCSS[action.type]+' ';
 
 		const button = $(buttonElement);
 		button[0].className = 
