@@ -115,6 +115,7 @@ export function asset(){
 			html += '<label>Label: <input name="label" value="'+esc(asset.label)+'" type="text" class="saveable" autocomplete="chrome-off" /></label>';
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" autocomplete="chrome-off" /></label>';
 		html += '<label>Random Event <input type="checkbox" class="saveable" name="expEvt" '+(dummy.expEvt ? 'checked' : '')+' /></label><br />';
+		html += '<label>Always Recheck Encounter <input type="checkbox" class="saveable" name="enc_recheck" '+(dummy.enc_recheck ? 'checked' : '')+' /></label><br />';
 		
 		html += '<label>Outdoors <input type="checkbox" class="saveable" name="outdoors" '+(dummy.outdoors ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Lets you change the loading zoom, 0 for auto">Zoom: <input type="number" min=0 step=1 name="zoom" class="saveable" value="'+esc(dummy.zoom)+'" /></label>';
@@ -214,6 +215,9 @@ export function help(){
 
 	out += '<h3>Random Event:</h3>'+
 		'<p>Uses a random encounter from random encounters marked as Proc Event. These are the same random roleplays you get in exploration dungeons. Encounters set in this room will contribute to the events you get.</p>';
+	
+	out += '<h3>Always Recheck Encounter:</h3>'+
+		'<p>By default, encounters are only generated once when you visit a room. And they aren\'t updated until you exit and re-enter the dungeon. Checking this will re-check for the first viable encounter whenever you visit the room if the conditions for the current encounters are no longer met.</p>';
 
 	out += '<h3>Room mesh:</h3>'+
 		'<p>This is the base mesh for the room to use.</p>';

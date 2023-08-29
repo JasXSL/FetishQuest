@@ -51,6 +51,7 @@ import * as EditorBook from './editors/EditorBook.js';
 import * as EditorBookPage from './editors/EditorBookPage.js';
 import * as EditorFetish from './editors/EditorFetish.js';
 import * as EditorArmorEnchant from './editors/EditorArmorEnchant.js';
+import * as EditorGraph from './editors/EditorGraph.js';
 import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
 import Condition from '../classes/Condition.js';
@@ -61,7 +62,8 @@ import Game from '../classes/Game.js';
 // Window types that should be tracked
 const TRACKED_WINDOWS = {
 	"Database" : true,
-	"My Mods" : true
+	"My Mods" : true,
+	"Node Editor" : true,
 };
 
 
@@ -87,7 +89,7 @@ const DB_MAP = {
 	"players" : { listing : EditorPlayer.list, asset : EditorPlayer.asset, icon : 'mustache', help : EditorPlayer.help },
 	"playerTemplates" : { listing : EditorPlayerTemplate.list, asset : EditorPlayerTemplate.asset, icon : 'anatomy', help : EditorPlayerTemplate.help },
 	"playerTemplateLoot" : { listing : EditorPlayerTemplateLoot.list, asset : EditorPlayerTemplateLoot.asset, icon : 'open-treasure-chest', help : EditorPlayerTemplateLoot.help },
-	"roleplay" : { listing : EditorRoleplay.list, asset : EditorRoleplay.asset, icon : 'talk', help : EditorRoleplay.help },
+	"roleplay" : { listing : EditorRoleplay.list, asset : EditorRoleplay.asset, icon : 'talk', help : EditorRoleplay.help, },
 	"roleplayStage" : { listing : EditorRoleplayStage.list, asset : EditorRoleplayStage.asset, icon : 'conversation', help : EditorRoleplayStage.help },
 	"roleplayStageOption" : { listing : EditorRoleplayStageOption.list, asset : EditorRoleplayStageOption.asset, icon : 'click', help : EditorRoleplayStageOption.help },
 	"roleplayStageOptionGoto" : { listing : EditorRoleplayStageOptionGoto.list, asset : EditorRoleplayStageOptionGoto.asset, icon : 'click', help : EditorRoleplayStageOptionGoto.help },
@@ -111,6 +113,7 @@ const DB_MAP = {
 	"bookPages" : { listing : EditorBookPage.list, asset : EditorBookPage.asset, icon : 'folded-paper', help : EditorBookPage.help },
 	"fetishes" : { listing : EditorFetish.list, asset : EditorFetish.asset, icon : 'love-mystery', help : EditorFetish.help },
 };
+
 
 /*
 
@@ -532,6 +535,8 @@ export default class Modtools{
 		};
 		
 
+		EditorGraph.begin();
+
 
 
 	}
@@ -643,8 +648,10 @@ export default class Modtools{
 				}
 				else if( val.type === 'My Mods' )
 					win = await this.drawMyMods();
+				else if( val.type === "Node Editor" )
+					win = await this.buildNodeEditor(val.id, undefined, undefined, val.custom);
 				else{
-					console.error("Ignoring window state for", data, "because it's an unsupported type. Add it to TRACKED_WINDOWS (or DB_MAP if a mod asset)");
+					console.error("Ignoring window state for", data, "because it's an unsupported type. Add it to TRACKED_WINDOWS (or DB_MAP if a mod asset, or NODE_MAP if node editor)");
 					continue;
 				}
 			}catch(err){
@@ -703,7 +710,6 @@ export default class Modtools{
 
 				const data = Object.fromEntries(this.window_states);
 				data.mod = this.mod.id;
-
 				await this.db.window_states.put(data);
 				
 			}catch(err){
@@ -1060,10 +1066,12 @@ export default class Modtools{
 			id = asset.label || asset.id;
 
 		console.log("Creating window", id, type, asset, data, parent);
+
+
 		const w = Window.create(
 			id, 
 			type, 
-			asset.name || asset.label || asset.id, 
+			(asset.name || asset.label || asset.id), 
 			DB_MAP[type].icon || "pencil", 
 			DB_MAP[type].asset, 
 			data, 
@@ -1075,6 +1083,22 @@ export default class Modtools{
 			w.setHelp(DB_MAP[type].help);
 
 
+		return w;
+
+	}
+
+	buildNodeEditor( id, data, parent, custom ){
+
+		const w = Window.create(
+			id,  						// id
+			'Node Editor', 						// type
+			"Node Graph Editor",	// name
+			"pencil", 									// icon
+			EditorGraph.asset, 								// on spawn 
+			data || {}, 										// asset
+			parent,										// parent
+			custom 											// custom
+		);
 		return w;
 
 	}

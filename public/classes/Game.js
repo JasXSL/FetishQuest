@@ -114,7 +114,7 @@ export default class Game extends Generic{
 		this._db_save_timer = null;						// Timer to store on HDD		
 		this._caches = 0;								// Level of depth of cache requests we're at
 		this._looted_players = {};						// local only, contains id : true for players looted in this room
-
+		this._refreshMeshesOnGameData = false;			// Used in online games to refresh meshes when receiving game data from host
 	}
 
 	destructor(){
@@ -441,7 +441,13 @@ export default class Game extends Generic{
 		if( this.time !== time_pre )
 			this.onTimeChanged();
 
-		
+		if( this._refreshMeshesOnGameData ){
+			
+			this._refreshMeshesOnGameData = false;
+			this.renderer.stage.onRefresh();
+
+		}
+
 
 	}
 
@@ -1655,7 +1661,7 @@ export default class Game extends Generic{
 
 		for( let quest of this.quests ){
 
-			let out = quest.getObjectiveByLabel();
+			let out = quest.getObjectiveByLabel(label);
 			if( out )
 				return out;
 
@@ -1716,6 +1722,7 @@ export default class Game extends Generic{
 
 	onEndTurn( t ){
 
+		this.playFxAudioKitById('endTurn', t, t, undefined, true);
 		this.autoUpdateSelectedPlayer();
 		
 	}
@@ -1726,7 +1733,7 @@ export default class Game extends Generic{
 
 		let p = data;
 		
-		const fromLib = typeof data === "string";
+		const fromLib = typeof data === "string" || data === glib.players[data?.label];
 		if( fromLib )
 			p = glib.get(data, 'Player');
 
@@ -2447,16 +2454,24 @@ export default class Game extends Generic{
 			const viable = GameAction.getViable(this.encounter.game_actions, player);
 			for( let action of viable ){
 
+				let adata;
+				if( action.type === GameAction.types.roleplay )
+					adata = action.getDataAsRoleplay();
+
 				if( 
 					(	// Ignore RP if not autoplay
 						action.type === GameAction.types.roleplay && 
-						!action.getDataAsRoleplay().autoplay 
+						(
+							!adata.autoplay ||
+							(adata.apOnce && this.state_roleplays.get(adata.label))
+						) 
 					) ||
 					(	// Ignore trap if area already visited
 						action.type === GameAction.types.trap &&
 						time_started !== -1
 					)
 				)continue;
+
 				action.trigger(player);
 
 			}
@@ -2600,8 +2615,8 @@ export default class Game extends Generic{
 
 	// Gets current turn player
 	isTurnPlayer( player ){
-		
-		if( !this.battle_active )
+	
+		if( !this.battle_active || !player )
 			return false;
 
 		return !player.endedTurn && player.team === this.initiative[this.turn];
@@ -2916,7 +2931,7 @@ export default class Game extends Generic{
 	rerollMomentum( player, type, to ){
 		
 		if( !this.playerIsMe(player) )
-			throw("Not your player");
+			throw "Not your player";
 
 		if( isNaN(type) )
 			throw 'Invalid type';
@@ -2924,10 +2939,11 @@ export default class Game extends Generic{
 		if( player.reroll < 1 )
 			throw 'Out of rerolls';
 
+		// Not host
 		if( !this.is_host )
 			return Game.net.playerRerollMomentum(player, type, to);
 
-		
+		// Only host below this point
 		const rolledTo = player.rerollMomentum(type, to);
 		if( rolledTo === false ) // Note: May be 0, type check is a must
 			throw 'Invalid momentum';
@@ -2935,10 +2951,14 @@ export default class Game extends Generic{
 		let added = [0,0,0];
 		added[rolledTo] = 1;
 
-		if( Game.net.isInNetgameHost() )
+		const isMyActive = player === this.getMyActivePlayer();
+		// Not my player, send it to the player
+		if( !isMyActive )
 			Game.net.dmDrawMomentumGain(player, added);
-		this.ui.drawMomentumGain(...added);
-
+		// My player, draw the UI
+		else
+			this.ui.drawMomentumGain(...added);
+		
 		player.consumeReroll();
 		this.save();
 		this.ui.draw();
@@ -3058,6 +3078,7 @@ export default class Game extends Generic{
 	}
 
 	saveRPState( roleplay ){
+
 		if( !roleplay.canSaveState() )
 			return;
 		
@@ -3074,7 +3095,6 @@ export default class Game extends Generic{
 			cache.stage = roleplay.stage;
 		if( roleplay.once )
 			cache.completed = roleplay.completed;
-
 		if( roleplay.vars_persistent )
 			cache.vars = roleplay._vars.save(true);
 

@@ -9,6 +9,33 @@ import Roleplay, { RoleplayStage, RoleplayStageOption } from '../../classes/Role
 const DB = 'roleplayStage',
 	CONSTRUCTOR = RoleplayStage;
 
+	
+export function nodeBlock(){
+
+	this.title = 'Stage';
+	/*
+	this.properties = {
+		id : '',
+	};
+	*/
+
+	//this.label = this.addWidget('text', 'ID', "", {property:'id'});
+
+	this.addOutput("id", "RoleplayStage");
+
+	this.onExecute = function(){
+		this.setOutputData(this.properties.id);
+	};
+
+	this.onBuild = function( asset ){
+
+		this.setProperty("id", asset.id);
+
+	};
+
+}
+
+
 // Single asset editor
 export function asset(){
 

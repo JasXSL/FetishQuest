@@ -10,6 +10,31 @@ import Generic from '../../classes/helpers/Generic.js';
 const DB = 'roleplayStageOption',
 	CONSTRUCTOR = RoleplayStageOption;
 
+
+export function nodeBlock(){
+
+	this.title = 'RoleplayStageOption';
+	this.properties = {
+		id : '',
+	};
+
+	//this.label = this.addWidget('text', 'ID', "", {property:'id'});
+
+	this.addOutput("id", "RoleplayStageOption");
+
+	this.onExecute = function(){
+		this.setOutputData(this.properties.id);
+	};
+
+	this.onBuild = function( asset ){
+
+		this.setProperty("id", asset.id);
+
+	};
+
+}
+
+
 // Single asset editor
 export function asset(){
 

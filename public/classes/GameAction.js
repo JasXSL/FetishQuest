@@ -453,7 +453,10 @@ export default class GameAction extends Generic{
 			game.refreshPlayerVisibility();
 
 		else if( this.type === types.refreshMeshes ){
-			game.renderer.stage.onRefresh();			
+
+			game.renderer.stage.onRefresh();
+			Game.net.dmRefreshMeshes();
+			
 		}
 		else if( this.type === types.removePlayer ){
 
@@ -759,7 +762,9 @@ export default class GameAction extends Generic{
 			obj.addAmount(amount, type === "set");
 			game.save();
 			game.ui.draw();
-			game.renderer.drawActiveRoom();
+			
+			game.renderer.stage.onRefresh();
+			Game.net.dmRefreshMeshes();
 			
 		}
 

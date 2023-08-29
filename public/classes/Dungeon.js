@@ -662,8 +662,10 @@ class DungeonRoom extends Generic{
 		this.y = 0;
 		this.z = 0;
 
+
 		this.outdoors = false;
 		this.zoom = 0;				// Lets you manually set the zoom value
+		this.enc_recheck = false;	// Recheck for the first viable encounter on each room visit. Otherwise the encounter will stay the same until leaving and returning to the dungeon.
 		this.encounters = [];		// This is an array of encounters ready to begin. Picks the first viable encounter. Generally you just want one encounter that fits all. But this lets you do some crazy stuff with conditions.
 		this.encounter;
 		this.resetEncounter();
@@ -714,6 +716,7 @@ class DungeonRoom extends Generic{
 
 		if( full ){
 			out.expEvt = this.expEvt;
+			out.enc_recheck = this.enc_recheck;
 			out.encounters = Encounter.saveThese(this.encounters, full);
 		}
 
@@ -1265,6 +1268,19 @@ class DungeonRoom extends Generic{
 		if( !player )
 			player = game.players[0];
 
+		// Condition event
+		const evt = new GameEvent({
+			sender : player,
+			target : player,
+			dungeon : this.parent,
+			room : this,
+		});
+		const dummyNoEncounter = new Encounter({
+			completed : true,
+			id : Encounter.ENCOUNTER_NONE,
+			label : 'no_viable',
+		}, this);
+
 		// Exploration event GENERATION
 		// The encounters are only used for checking conditions here. We need to pick an encounter if possible
 		if( this.expEvt ){
@@ -1322,14 +1338,32 @@ class DungeonRoom extends Generic{
 
 		}
 		else{
+
 			// Start a dummy encounter if this room has no encounters defined
 			if( !this.encounters.length ){
 
-				this.encounter = new Encounter({
-					completed : true,
-					id : Encounter.ENCOUNTER_NONE,
-					label : 'empty'
-				}, this);
+				dummyNoEncounter.label = 'empty';
+				this.encounter = dummyNoEncounter;
+
+			}
+
+			else if( this.enc_recheck ){
+
+				if( 
+					this.encounter.id === Encounter.ENCOUNTER_NONE || 
+					this.encounter.id === Encounter.ENCOUNTER_UNDEFINED ||
+					!this.encounter?.validate(evt)
+				){
+					let viable = Encounter.getFirstViable(
+						this.encounters,
+						evt
+					);
+					if( viable )
+						this.encounter = viable;
+					else
+						this.encounter = dummyNoEncounter;
+
+				}
 
 			}
 
@@ -1339,22 +1373,10 @@ class DungeonRoom extends Generic{
 
 				let viable = Encounter.getRandomViable(
 					this.encounters,
-					new GameEvent({
-						sender : player,
-						target : player,
-						dungeon : this.parent,
-						room : this,
-					})
+					evt
 				);
-				if( !viable ){
-
-					viable = new Encounter({
-						completed : true,
-						id : Encounter.ENCOUNTER_NONE,
-						label : 'no_viable',
-					}, this);
-
-				}
+				if( !viable )
+					viable = dummyNoEncounter;
 				else
 					viable = viable.clone();
 				this.encounter = viable;

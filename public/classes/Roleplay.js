@@ -35,6 +35,7 @@ export default class Roleplay extends Generic{
 		this.conditions = [];
 		this.once = false;			// Roleplay doesn't retrigger after hitting a -1 option. Stored in the dungeon save.
 		this.autoplay = true;		// Auto start when tied to an encounter gameAction
+		this.apOnce = false;		// Use with autoplay to only make it autoplay once
 		this.vars_persistent = false;	// Makes rpVars persistent and show up in global mathvars
 		this.playerConds = [];		// When not empty, all enabled players will be shuffled and these conditions are checked against all.
 		this.minPlayers = 1;		// With playerConds set: Minimum players that must be validated. Use -1 for ALL players on the player team.
@@ -96,6 +97,7 @@ export default class Roleplay extends Generic{
 		if( full ){
 			out.vars = this.vars.save(full);
 			out.autoplay = this.autoplay;
+			out.apOnce = this.apOnce;
 			out.desc = this.desc;
 			out.minPlayers = this.minPlayers;
 			out.maxPlayers = this.maxPlayers;
@@ -264,7 +266,7 @@ export default class Roleplay extends Generic{
 
 	// 
 	canSaveState(){
-		return this.persistent || this.once || this.vars_persistent;
+		return this.persistent || this.once || this.vars_persistent || this.apOnce;
 	}
 
 	getPlayer(){
@@ -531,7 +533,7 @@ export class RoleplayStage extends Generic{
 
 	getOptions( player ){
 
-		if( !this.options.length && window.game ){
+		if( !this.options.length && window.game && !this.leave ){
 			this.options.push(new RoleplayStageOption({
 				text : '[Done]',
 				chat : RoleplayStageOption.ChatType.none,

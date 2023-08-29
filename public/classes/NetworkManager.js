@@ -1386,6 +1386,12 @@ class NetworkManager{
 			game.onObjectiveChanged(args.label, args.amount);
 
 		}
+		else if( task === NetworkManager.dmTasks.refreshMeshes ){
+
+			game.renderer.stage.onRefresh();
+			game._refreshMeshesOnGameData = true;
+
+		}
 
 	}
 
@@ -1965,6 +1971,12 @@ class NetworkManager{
 
 	}
 
+	dmRefreshMeshes(){
+		
+		this.sendHostTask(NetworkManager.dmTasks.refreshMeshes, {});
+
+	}
+
 }
 
 
@@ -2149,6 +2161,7 @@ NetworkManager.dmTasks = {
 	toggleUI : 'toggleUI',							// {on:(bool)on} - Forces the UI to open or close
 	drawMomentumGain : 'drawMomentumGain',			// {mom:(arr)types} - Draws momentum gain at start of turn. Type is an array with nr for each type ex [5,1,0] -> 5 off, 1 def, 0 uti
 	questObjectiveChanged : 'questObjectiveChanged', // {label:(str)objective_label, amount:(int)value}
+	refreshMeshes : 'refreshMeshes',				// void - Refresh all meshes in the active room
 };
 
 // Player -> DM

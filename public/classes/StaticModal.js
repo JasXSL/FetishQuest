@@ -5063,11 +5063,11 @@ export default class StaticModal{
 					<p>Click the map icon or hit space to view the map.</p>
 					<table>
 						<tr>
-							<td>Click+drag</td>
+							<td>Click + drag</td>
 							<td>Rotate map</td>
 						</tr>
 						<tr>
-							<td>RightClick+drag</td>
+							<td>RightClick + drag</td>
 							<td>Zoom</td>
 						</tr>
 						<tr>
@@ -5080,12 +5080,15 @@ export default class StaticModal{
 					<ul>
 						<li>Click and drag an action from the bottom bar onto the character you want to target.</li>
 						<li>You can also click once on the action and then again on the target.</li>
-						<li>Some actions may be grouped, such as arouse/attack/wild magic.</li>
+						<li>Some actions may be grouped, such as potions.</li>
 						<li>When picking a target, you'll see a percent chance to hit, and an advantage. The more advantage, the more damage you do. The hit chance is based on your proficiency in a damage type vs enemy avoidance to that type.</li>
-						<li>The green dots above your action bar are stamina.</li>
-						<li>The blue dots above your action bar are mana.</li>
-						<li>You can use as many actions as you want in a turn as long as you have enough resources, and the action isn't on cooldown.</li>
-						<li>See the stats tab for more in-depth.</li>
+						<li>Most actions cost "momentum" to use. Your momentum is shown as colorful gems above your actions.</li>
+						<li>There are 3 types of momentum: Offensive, Defensive, Utility.</li>
+						<li>By default, you gain 3 random momentum at the start of each turn, and 1 based on your archetype.</li>
+						<li>You can use as many actions as you want in a turn as long as you have enough momentum, and the actions aren't on cooldown.</li>
+						<li>By default you can swap 2 momentum gems each turn by hovering over them.</li>
+						<li>There are circles drawn on your actions indicating their momentum costs.</li>
+						<li>Should you be defeated, you will continue from the dungeon entrance.</li>
 					</ul>
 
 					<h3>Hotkeys</h3>
@@ -5179,16 +5182,12 @@ export default class StaticModal{
 							<td>The large numnber on your character bar. When it reaches 0, you are defeated.</td>
 						</tr>
 						<tr>
-							<td>Stamina</td>
-							<td>The green dots on your action bar. You gain 40% back at the start of your turn.</td>
-						</tr>
-						<tr>
-							<td>Mana</td>
-							<td>The blue dots on your action bar. You gain 1 mana every 3 turns.</td>
+							<td>Momentum</td>
+							<td>Momentum is used to perform actions. Yellow is offensive, Cyan is defensive, Green is utility. You gain momentum each turn.</td>
 						</tr>
 						<tr>
 							<td>Arousal</td>
-							<td>The pink number on your character portrait. At max arousal you orgasm, losing all AP and gaining reduced AP regen and hit chance for 2 turns.</td>
+							<td>The pink number on your character portrait. At max arousal you orgasm, losing all momentum and gaining reduced momentum regen for 2 turns.</td>
 						</tr>
 						<tr>
 							<td>Armor Durability</td>
@@ -5196,7 +5195,7 @@ export default class StaticModal{
 						</tr>
 						<tr>
 							<td>Armor</td>
-							<td>Shown as a small shield icon on the character. Reduces all damage taken by that percent. Humanoids gain armor by wearing clothes, beasts have innate armor.</td>
+							<td>Shown as a small shield icon on the character. Reduces all damage taken by that percent. Humanoids gain armor from their equipment, beasts have innate armor.</td>
 						</tr>						
 					</table>
 
@@ -5213,7 +5212,7 @@ export default class StaticModal{
 						</tr>
 						<tr>
 							<td>Arcane</td>
-							<td>Has a chance to remove 1 block of all types.</td>
+							<td>Has a chance to remove 1 block from the target.</td>
 						</tr>
 					</table>
 
@@ -5237,6 +5236,10 @@ export default class StaticModal{
 					<h3>Block</h3>
 					<p>Some actions may grant block, attaching a shield to the character portrait. The player will block said amount of damage when receiving it. Block falls off at the start of your next turn. If you apply block to another player, they gain block until their second turn starts.</p>
 
+					<h3>Awareness</h3>
+					<p>Using an action on a player makes them aware of you, and you aware of them. If a player is unaware of your active character, an eye icon will show on their portrait. Attacking an unaware target gives a small boost to hit chance.</p>
+
+					
 				`;
 			})
 			.setProperties(function(){

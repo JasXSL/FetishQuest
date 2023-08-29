@@ -222,6 +222,16 @@ export default class Player extends Generic{
 		this._targeted_by_since_last = new Collection(this._targeted_by_since_last);
 		this.actionGroups = PlayerActionGroup.loadThese(this.actionGroups);
 
+		Collection.sanitizeBasic(this._aware);
+		Collection.sanitizeBasic(this._d_damage_since_last);
+		Collection.sanitizeBasic(this._d_damaging_since_last);
+		Collection.sanitizeBasic(this._d_healing_a_since_last);
+		Collection.sanitizeBasic(this._d_healing_p_since_last);
+		Collection.sanitizeBasic(this._damage_since_last);
+		Collection.sanitizeBasic(this._damaging_since_last);
+		Collection.sanitizeBasic(this._healing_a_since_last);
+		Collection.sanitizeBasic(this._healing_p_since_last);
+
 		if( window.game ){
 			
 			if( !game.is_host )
@@ -325,7 +335,7 @@ export default class Player extends Generic{
 			if( full !== "mod" ){
 				out._stun_diminishing_returns = this._stun_diminishing_returns;
 				out._difficulty = this._difficulty;
-				out._threat = this._threat;
+				out._threat = Collection.flattenBasic(this._threat);
 			}
 
 		}
@@ -346,24 +356,24 @@ export default class Player extends Generic{
 			out.color = this.color;
 			out.arousal = this.arousal;
 			out._targeted_by_since_last = this._targeted_by_since_last.save(full);		// Needed by netcode
-			out._turn_ap_spent = this._turn_ap_spent;
-			out._damaging_since_last = this._damaging_since_last;
-			out._aware = this._aware;
-			out._damage_since_last = this._damage_since_last;
-			out._d_damaging_since_last = this._d_damaging_since_last;
-			out._d_damage_since_last = this._d_damage_since_last;
+			out._turn_ap_spent = Collection.flattenBasic(this._turn_ap_spent);
+			out._damaging_since_last = Collection.flattenBasic(this._damaging_since_last);
+			out._aware = Collection.flattenBasic(this._aware);
+			out._damage_since_last = Collection.flattenBasic(this._damage_since_last);
+			out._d_damaging_since_last = Collection.flattenBasic(this._d_damaging_since_last);
+			out._d_damage_since_last = Collection.flattenBasic(this._d_damage_since_last);
 			out._turns = this._turns;
 			out._turn_action_used = this._turn_action_used;
 			out._turn_std_combo = this._turn_std_combo;
 			out._turn_atypes = this._turn_atypes;
-			out._riposted_since_last = this._riposted_since_last;
-			out._riposting_since_last = this._riposting_since_last;
-			out._healing_a_since_last = this._healing_a_since_last;
-			out._healing_p_since_last = this._healing_p_since_last;
-			out._d_healing_a_since_last = this._d_healing_a_since_last;
-			out._d_healing_p_since_last = this._d_healing_p_since_last;
-			out._missed_since_last = this._missed_since_last;
-			out._missing_since_last = this._missing_since_last;
+			out._riposted_since_last = Collection.flattenBasic(this._riposted_since_last);
+			out._riposting_since_last = Collection.flattenBasic(this._riposting_since_last);
+			out._healing_a_since_last = Collection.flattenBasic(this._healing_a_since_last);
+			out._healing_p_since_last = Collection.flattenBasic(this._healing_p_since_last);
+			out._d_healing_a_since_last = Collection.flattenBasic(this._d_healing_a_since_last);
+			out._d_healing_p_since_last = Collection.flattenBasic(this._d_healing_p_since_last);
+			out._missed_since_last = Collection.flattenBasic(this._missed_since_last);
+			out._missing_since_last = Collection.flattenBasic(this._missing_since_last);
 
 		}
 		else
@@ -901,6 +911,10 @@ export default class Player extends Generic{
 
 	// Checks if we are aware of player
 	isAware( player ){
+		
+		if( !player || !window.game?.battle_active )
+			return true;
+
 		// We're always self aware
 		if( player.id === this.id )
 			return true;

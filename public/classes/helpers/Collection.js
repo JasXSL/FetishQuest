@@ -141,6 +141,48 @@ export default class Collection{
 		}
 	}
 
+	// Helper function that Sanitizes a basic object. Note that these can't contain arrays
+	static sanitizeBasic( obj ){
+
+		if( typeof obj !== "object" )
+			return {};
+
+		const keys = Object.keys(obj);
+		for( let key of keys ){
+
+			const data = obj[key];
+			if( typeof data === "object" )
+				obj[key] = this.sanitizeBasic(data);
+
+			if( data === '__DEL__' )
+				delete obj[key];
+
+		}
+		return obj;
+
+	}
+
+	// Helper function for basic objects. They support nested objects, but NOT arrays.
+	static flattenBasic( obj ){
+
+		if( typeof obj !== "object" )
+			return obj;
+
+		const out = {};
+		for( let i in obj ){
+			
+			const data = obj[i];
+			if( typeof data === "object" )
+				out[i] = this.flattenBasic(data);
+			else
+				out[i] = data;
+			
+		}
+
+		return out;
+
+	}
+
 }
 
 

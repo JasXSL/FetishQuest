@@ -11,6 +11,31 @@ import Generic from '../../classes/helpers/Generic.js';
 const DB = 'roleplay',
 	CONSTRUCTOR = Roleplay;
 
+
+export function nodeBlock(){
+
+	this.title = 'ROLEPLAY';
+	
+	this.properties = {
+		label : '',
+	};
+
+	this.label = this.addWidget('text', 'Label', "", {property:'label'});
+
+	this.addInput("Stages", 'RoleplayStage');
+
+	this.onExecute = function(){
+		this.setOutputData(this.properties.label);
+	};
+
+	this.onBuild = function( asset ){
+
+		this.setProperty("label", asset.label);
+
+	};
+
+}
+
 // Single asset editor
 export function asset(){
 
@@ -35,12 +60,15 @@ export function asset(){
 		html += '<label title="Preserves stage when reopened">Persistent <input type="checkbox" class="saveable" name="persistent" '+(dummy.persistent ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Can only be opened once">Once <input type="checkbox" class="saveable" name="once" '+(dummy.once ? 'checked' : '')+' /></label>';
 		html += '<label title="Autoplay">Auto Play <input type="checkbox" class="saveable" name="autoplay" '+(dummy.autoplay ? 'checked' : '')+' /></label>';
+		html += '<label title="">Auto Play Once (req auto play) <input type="checkbox" class="saveable" name="apOnce" '+(dummy.apOnce ? 'checked' : '')+' /></label>';
 		html += '<label title="Makes RP vars save when you exit the RP, and they can be used in formulas. See cheat sheet.">rpVars persistent <input type="checkbox" class="saveable" name="vars_persistent" '+(dummy.vars_persistent ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
 	html += '<label title="Player in encounter to tie it to">Player: </label><div class="player"></div>';
 
 	html += 'Stages: <div class="stages"></div>';
+
+	//html += '<input type="button" value="Node Editor (Experimental)" class="rpNodeEditor" /><br />';
 
 
 	// Conditions
@@ -69,10 +97,20 @@ export function asset(){
 	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, 2));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 	this.dom.querySelector("div.gameActions").appendChild(EditorGameAction.assetTable(this, asset, "gameActions", false));
-
+	this.dom.querySelector("input.rpNodeEditor").onclick = () => {
+		window.mod.buildNodeEditor(
+			this.id,
+			{}, 			// data
+			this, 
+			{type:'Roleplay'}				// Custom
+		);
+		
+	};
+	
 	HelperAsset.autoBind( this, asset, DB);
 
 };
+
 
 
 // Creates a table for this asset in another asset
