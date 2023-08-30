@@ -53,6 +53,8 @@
 		import AudioTrigger from './classes/AudioTrigger.js';
 		import Particles from './libraries/particles.js';
 		import {Wrapper, Effect} from './classes/EffectSys.js';
+		import Roleplay from './classes/Roleplay.js';
+		import RoleplayChatQueue from './classes/Roleplay.js';
 
 		console.debug("Modules imported, starting game");
 		
@@ -79,7 +81,9 @@
 			gEffect: Effect,
 			gParticles : Particles,
 			gAudioTrigger : AudioTrigger,
-			gGame : Game
+			gGame : Game,
+			gRoleplay : Roleplay,
+			gRoleplayChatQueue : RoleplayChatQueue,
 		};
 		
 		for( let i in globals )

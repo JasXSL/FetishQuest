@@ -1,6 +1,55 @@
 Bugs:
 - occasionally no orgasm on max arousal?
 
+- marric HP seems a tad excessive
+- Ale in malthereus dungeon doesn't vanish when looted
+- Offense, defense, uti is wrong color when hovering over player momentum on their bar
+- Harden not working if caster is full HP?
+- Kinks not unbound when leaving the area? Friendly NPCs in bazaar kinks seem to stick?
+- Abilities with permanent chargers should hide the cooldown icon
+- RP dialogs not generating speech bubbles
+- Church quest demon kept recursing the text from his defeat RP. Sasme with riya. Looks like there's multiple event bindings for some reason.
+- Change the turn start text to include all players
+- Breaking free from grapple has the wrong targets in text?
+- Fensam in coop tries to talk to a dom object?
+Condition.js:297 Target 
+ does not have a hasTag function in event 
+GameEvent {_rebased: false, id: 'YSYpFzUwUAGd', _e: '', type: null, sender: Player, …}
+ bound to effect 
+Condition {_rebased: false, id: 'YDaCQfPpDNNh', _e: '', parent: Condition, label: '9N19TVqjX0', …}
+test	@	Condition.js:297
+validateSubs	@	Condition.js:1380
+test	@	Condition.js:203
+validateSubs	@	Condition.js:1380
+test	@	Condition.js:203
+validateSubs	@	Condition.js:1380
+test	@	Condition.js:203
+Condition.all	@	Condition.js:1441
+validate	@	Roleplay.js:322
+getAvailableRoleplayForPlayerById	@	Game.js:3075
+onPlayerTask	@	NetworkManager.js:861
+(anonymous)	@	NetworkManager.js:164
+r.emit	@	index.js:83
+r.onevent	@	index.js:83
+r.onpacket	@	index.js:83
+(anonymous)	@	index.js:83
+r.emit	@	index.js:83
+r.ondecoded	@	index.js:83
+(anonymous)	@	index.js:83
+r.emit	@	index.js:83
+a.add	@	index.js:83
+r.ondata	@	index.js:83
+(anonymous)	@	index.js:83
+r.emit	@	index.js:83
+r.onPacket	@	index.js:83
+(anonymous)	@	index.js:83
+r.emit	@	index.js:83
+r.onPacket	@	index.js:83
+r.onData	@	index.js:83
+ws.onmessage	@	index.js:83
+
+
+
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 
