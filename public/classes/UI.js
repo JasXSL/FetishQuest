@@ -54,7 +54,7 @@ const playerTemplate = $(
 					'<span class="arousal resource" title="Arousal">'+
 						'<div class="bg" style="background-image:url(media/wrapper_icons/pierced-heart.svg)"></div><span></span>'+
 					'</span>'+
-					'<span class="AP resource tooltipParent" title="Action Points">'+
+					'<span class="AP resource tooltipParent" title="Momentum">'+
 						'<div class="bg" style="background-image:url(media/wrapper_icons/jump-across.svg)"></div><span></span>'+
 						'<div class="tooltip center">'+
 							'<span class="colorOffensive">0 Offensive</span> | '+
@@ -2457,9 +2457,11 @@ export default class UI{
 
 			game.uiAudio( 'chat_message' );
 			if( acn.indexOf('emote') === -1 ){
+
 				let bubble = text.split(':');
 				bubble.shift();
 				this.addSpeechBubble(sender, stylizeText(bubble.join(':').trim()));
+
 			}
 
 
@@ -3412,7 +3414,7 @@ export default class UI{
 
 		// Cooldown
 		const cdEl = $('> div.cd > span', button);
-		$('> div.cd', button).toggleClass('hidden', !action._cooldown || Boolean(ignoreStats));
+		$('> div.cd', button).toggleClass('hidden', !action._cooldown || Boolean(ignoreStats) || action.charges_perm);
 		if( +cdEl.text !== +action._cooldown )
 			cdEl.text(action._cooldown);
 

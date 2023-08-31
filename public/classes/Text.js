@@ -565,7 +565,8 @@ class Text extends Generic{
 		}
 		text = text.join("");
 		
-
+		if( event.target )
+			text = text.split('%PCSV').join(toArray(event.target).map(el => el.getColoredName()).join(', '));
 
 
 		text = this.textReplace([

@@ -175,7 +175,6 @@ export default class Player extends Generic{
 		// Prevents recursion for encumbrance
 		this._ignore_effects = null;			// Internal helper that prevents recursion
 		this._difficulty = 1;					// Added from monster template, used in determining exp rewards
-		this._bound_wrappers = [];
 		this._cache_tags = null;					// Holds all active tags in a cache for quicker validation
 		this._cache_effects = null;					// Holds all active effects in a cache for quicker validation
 		this._cache_wrappers = null;				// == || ==
@@ -184,6 +183,7 @@ export default class Player extends Generic{
 		this._tmp_actions = [];					// Actions from effects and such bound to a battle
 		this._debug_chat = false;				// Only stored in the session, can be used to test player chat while they're controlled by a player. Since PC controlled characters can't auto speak.
 		
+		this._tmp_passives = new Map();
 
 		this.load(data);
 		
@@ -215,6 +215,7 @@ export default class Player extends Generic{
 		this.g_rebase();	// Super
 
 		this._ignore_check_effect = new Map();	// Needed when cloning since clone brings all things along
+		this._tmp_passives = new Map();			// Always reset on rebase, it can be rebuilt easily
 		// only load tmp actions in a netgame (for ID mostly)
 		//if( game && game !== true && !game.is_host && Game.net.isConnected() )
 			this._tmp_actions = Action.loadThese(this._tmp_actions, this);
@@ -406,7 +407,6 @@ export default class Player extends Generic{
 		w.map(wrapper => {
 			wrapper.bindEvents();
 		});
-		this._bound_wrappers = w;
 		
 		// Ignored when adding wrappers because wrappers may need to apply required tags before checking the conditions
 		if( !ignoreStayCheck )
@@ -416,15 +416,8 @@ export default class Player extends Generic{
 
 	unbindWrappers(){
 
-		for( let wrapper of this._bound_wrappers ){
-
-			// These are bound on an encounter by encounter basis, and all players share these
-			if( wrapper.parent && wrapper.parent instanceof Encounter )
-				continue;
-				
-			wrapper.unbindEvents();
-
-		}
+		const w = this.getWrappers();
+		w.map(el => el.unbindEvents());
 
 	}
 
@@ -1323,7 +1316,9 @@ export default class Player extends Generic{
 		this.arousal = 0;
 	}
 	onRemoved(){
+
 		this.unbindWrappers();
+
 	}
 	onTurnEnd(){
 
@@ -4041,6 +4036,52 @@ export default class Player extends Generic{
 
 	}
 
+	// Attempts to smartly get passives bound to dungeon/encounter. Note: this doesn't check conditions
+	getTempPassives(){
+
+		const fetched = new Map(); // id -> wrapper
+		const check = game.encounter.passives.concat(game.dungeon.getPassives());
+		// Start by sanity checking
+		for( let wrapper of check ){
+
+			// Wrapper is invalid
+			if( !wrapper.id ){
+				console.error("Ignoring passive without ID", wrapper);
+				continue;
+			}
+			fetched.set(wrapper.id, wrapper);
+
+		}
+		// Then add new wrappers
+		fetched.forEach((wrapper, key) => {
+			// Passive already exists
+			if( this._tmp_passives.has(key) )
+				return;
+
+			// This was newly added
+			const wr = wrapper.clone();
+			wr.caster = wr.victim = this.id;
+			this._tmp_passives.set(key, wr);
+
+		});
+		
+		if( !(this._tmp_passives instanceof Map) )
+			console.error("invalid tmp passives in", this);
+		// Check through removed ones and unbind them
+		this._tmp_passives.forEach((wrapper, key) => {
+
+			if( !fetched.has(key) ){
+
+				wrapper.unbindEvents();
+				this._tmp_passives.delete(key);
+
+			}
+
+		});
+
+		return Array.from(this._tmp_passives.values());
+
+	}
 
 	/* Wrappers */
 	// Force lets you override cache, if unequipped is true, it also uses asset-attached wrappers that aren't equipped
@@ -4062,21 +4103,13 @@ export default class Player extends Generic{
 		// Prevents recursion. Don't use passives that require tags from other passives
 		if( !this._sp ){
 
-			this._sp = 
-				game.encounter.passives
-				.concat(game.dungeon.getPassives())
-				.map(el => el.clone())
-			;
+			this._sp = this.getTempPassives();
 			// Need to break it up here to prevent recursion
 			this._sp = this._sp.filter(el => {
 					let conds = el.add_conditions
 						.concat(el.stay_conditions)
 					;
 					return Condition.all(conds || [], evt);
-				})
-				.map(el => {
-					el.caster = el.victim = this.id;
-					return el;
 				});
 			
 		}

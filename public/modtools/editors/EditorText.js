@@ -317,6 +317,7 @@ export function help(){
 				'<li>%TclothLower (also %S) - Gets the name of the piece of clothing the player wears on their lower body.</li>'+
 				'<li>%Tgear (also %S) - Gets the name of what the player holds in their hands.</li>'+
 				'<li>%Trace (also %S) - Gets the species of the player.</li>'+
+				'<li>%PCSV - Outputs ALL event target names separated by commas.</li>'+
 			'</ul>'+
 		'</p>';
 

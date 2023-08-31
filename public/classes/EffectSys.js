@@ -2182,8 +2182,9 @@ class Effect extends Generic{
 
 	}
 	unbindEvents(){
+
 		const evts = this._bound_events.slice();
-		for(let evt of evts)
+		for( let evt of evts )
 			GameEvent.off(evt);
 		this._bound_events = [];
 

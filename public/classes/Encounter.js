@@ -248,7 +248,7 @@ export default class Encounter extends Generic{
 		const myPlayers = this.players.map(el => el.id);
 		const en = game.getEnabledPlayers().filter(el => myPlayers.includes(el.id));
 		for( let pl of en ){
-			console.log(pl.label, pl.power);
+			//console.log(pl.label, pl.power);
 			sumSlots += pl._slots || pl.power || 1;
 		}
 		if( sumSlots <= 0 )

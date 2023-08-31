@@ -858,6 +858,10 @@ class NetworkManager{
 
 			if( task === PT.roleplay ){
 
+				const player = validatePlayer();
+				if( !player )
+					return false;
+
 				let roleplay = game.getAvailableRoleplayForPlayerById(player, args.roleplay);
 				if( !roleplay )
 					return respondWithError("Roleplay not available");

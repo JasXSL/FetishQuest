@@ -10,6 +10,7 @@ import Generic from './helpers/Generic.js';
 export default class GameEvent extends Generic{
 
 	static debugAll = false;
+	static idx = 0;
 
 	constructor(data){
 		super(data);		
@@ -118,9 +119,12 @@ export default class GameEvent extends Generic{
 
 // Short wrapper class for binding global events
 class EventBinding{
-	constructor(type, fn){
+	constructor( type, fn, idx ){
+		
 		this.type = type;
 		this.fn = fn;
+		this.idx = idx;
+
 	}
 }
 
@@ -130,7 +134,7 @@ GameEvent.on = function(type, fn){
 	if( typeof fn !== "function" )
 		console.error("Trying to bind invalid event type");
 
-	let binding = new EventBinding(type, fn);
+	let binding = new EventBinding(type, fn, ++this.idx);
 	GameEvent.bindings.push(binding);
 
 	return binding;

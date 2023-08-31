@@ -420,7 +420,7 @@ export default class Game extends Generic{
 	}
 
 	loadFromNet( data ){
-
+		
 		const mute_pre = this.mute_spectators && !this.getMyActivePlayer();
 		const time_pre = this.time;
 		let turn = this.turn;
@@ -1359,7 +1359,7 @@ export default class Game extends Generic{
 		let player;
 		if( uuid instanceof Player ){
 			player = uuid;
-			uuid = player.uuid;
+			uuid = player.id;
 		}
 		else
 			player = this.getPlayerById(uuid);
@@ -1820,9 +1820,9 @@ export default class Game extends Generic{
 
 		let removes = 0;
 
-		for(let i in this.players){
+		for( let i in this.players ){
 
-			if(this.players[i].id === id){
+			if( this.players[i].id === id ){
 
 				this.players[i].onRemoved();
 				this.players.splice(i,1);
@@ -3067,14 +3067,21 @@ export default class Game extends Generic{
 
 	// Searches if a roleplay is present and available to a player
 	getAvailableRoleplayForPlayerById( player, id ){
+
+		if( player instanceof Player )
+			player = player.id;
+
 		const roleplays = this.encounter.getRoleplays(player);
 		for( let ga of roleplays ){
+
 			const rp = ga.getDataAsRoleplay();
 			if( !rp )
 				continue;
-			if( rp.id === id && !rp.completed && !rp.completed && rp.validate(player) )
+			if( rp.id === id && !rp.completed && !rp.completed && rp.validate(this.getPlayerById(player)) )
 				return rp;
+
 		}
+
 	}
 
 	saveRPState( roleplay ){
