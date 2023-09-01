@@ -83,25 +83,28 @@
 			const nodes = new RawNodes();
 			window.nodes = nodes;
 
-			nodes.addBlockType("Roleplay")
+			nodes.addBlockType("Roleplay", "#FAA")
 				.addInput('Stages', 'Stage')
 			;
 
-			nodes.addBlockType("Stage")
+			nodes.addBlockType("Stage", "#FFA")
 				.addInput('Replies', 'Reply')
 				.addInput('Texts', 'Text')
 			;
 
-			nodes.addBlockType("Reply")
+			nodes.addBlockType("Reply", "#AFA")
 				.addInput('Gotos', 'Goto')
 			;
 
-			nodes.addBlockType("Goto")
+			nodes.addBlockType("Goto", "#AFF")
 				.addInput('Stage', 'Stage', true)
 			;
 
+			nodes.addBlockType("Text", "#EEE");
+
 			const dist = 280;
 			const left = 1050/2+350/2;
+			/*
 			const assets = {
 				Roleplay : [
 					{
@@ -118,9 +121,10 @@
 						id : 'stage0',
 						x : dist-left,
 						y : 0,
-						data : 'Gmornin! Nice day for fishin, aint it?',
+						data : 'Opening stage.',
 						links : {
 							Replies : ['reply0','reply1'],
+							Texts : ['text0'],
 						}
 					},
 					{
@@ -134,19 +138,36 @@
 					},
 					{
 						id : 'stage2',
-						data : 'Rude!',
+						data : 'Attack success!',
 						x : dist*4-left,
 						y : 150,
 						links : {
 							Replies : [],
 						}
 					},
+					{
+						id : 'stage3',
+						data : 'Attack fail!',
+						x : dist*4-left,
+						y : 300,
+						links : {
+							Replies : ['reply2'],
+						}
+					},
+				],
+				Text : [
+					{
+						id : 'text0',
+						data : 'Gmornin! Nice day for fishin, aint it?',
+						x : dist*2-left,
+						y : 0,
+					},
 				],
 				Reply : [
 					{
 						id : 'reply0',
 						x : dist*2-left,
-						y : 0,
+						y : -300,
 						data : 'It sure is!',
 						links : {
 							Gotos : ['goto0'],
@@ -155,10 +176,19 @@
 					{
 						id : 'reply1',
 						x : dist*2-left,
-						y : 150,
-						data : 'Fuck off!',
+						y : -150,
+						data : '[Attack]',
 						links : {
-							Gotos : ['goto1'],
+							Gotos : ['goto1','goto2'],
+						}
+					},
+					{
+						id : 'reply2',
+						x : dist*2-left,
+						y : 150,
+						data : '[Attack Again]',
+						links : {
+							Gotos : ['goto1','goto2'],
 						}
 					}
 				],
@@ -176,12 +206,73 @@
 						x : dist*3-left,
 						y : 150,
 						id : 'goto1',
-						data : 'Goto is used to have different outcomes based on conditions.',
+						data : 'Advance to success if we pass an RNG check.',
 						links : {
 							Stage : 'stage2'
 						}
 					},
+					{
+						x : dist*3-left,
+						y : 300,
+						id : 'goto2',
+						data : 'Fallback if RNG failed.',
+						links : {
+							Stage : 'stage3'
+						}
+					},
 					
+				]
+
+			};
+			*/
+
+			const assets = {
+				Roleplay : [
+					{
+						x : -left,
+						id : 'test_rp',
+						data : 'Root of the RP',
+						links : {}
+					},
+				],
+				Stage : [
+					{
+						id : 'stage0',
+						x : dist-left,
+						y : 0,
+						data : 'Opening stage.',
+						links : {
+							
+						}
+					}
+				],
+				Text : [
+					{
+						id : 'text0',
+						data : 'Gmornin! Nice day for fishin, aint it?',
+						x : dist*2-left,
+						y : 0,
+					},
+				],
+				Reply : [
+					{
+						id : 'reply0',
+						x : dist*2-left,
+						y : -300,
+						data : 'It sure is!',
+						links : {
+							
+						}
+					},
+					{
+						id : 'reply1',
+						x : dist*2-left,
+						y : -150,
+						data : '[Attack]',
+						links : {
+							
+						}
+					}
 				]
 
 			};

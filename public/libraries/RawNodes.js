@@ -8,11 +8,14 @@
 		- border
 		- line
 		- node
+	- Size setting for block types
 	- Fix the exporter
 	- Zooming
 	- Adding blocks
 	- Deleting blocks
-	
+	- Events
+	- Mini map?
+	- Draw arrow lines for inputs with multiple nodes showing the order
 
 */
 const svgNS = 'http://www.w3.org/2000/svg';
@@ -151,7 +154,7 @@ export default class RawNodes{
 				// Add new lines
 				const line = document.createElementNS(svgNS,'path');
 				line.setAttribute("d", "M "+baseLeft+" "+baseTop+" C "+(baseLeft-30)+" "+baseTop+", "+(targLeft+30)+" "+targTop+", "+targLeft+" "+targTop);
-				line.setAttribute("stroke", "white");
+				line.setAttribute("stroke", block._btype.color);
 				line.setAttribute("stroke-width", "3");
 				line.setAttribute("fill", "transparent");
 
@@ -168,13 +171,13 @@ export default class RawNodes{
 		return this.div;
 	}
 
-	addBlockType( type ){
+	addBlockType( type, color ){
 
 		if( this.blockPrototypes.has(type) )
 			throw new Error("Block type already exists: "+type);
 
 		this.blocks.set(type, new Map());
-		const out = new BlockType( type );
+		const out = new BlockType( type, color, this );
 		this.blockPrototypes.set(type, out);
 		return out;
 
@@ -195,6 +198,10 @@ export default class RawNodes{
 		this.render();
 		return out;
 
+	}
+
+	getBlockType( type ){
+		return this.blockPrototypes.get(type);
 	}
 
 	removeBlock( type, id ){
@@ -274,6 +281,8 @@ export class Block{
 		this.div.classList.add('block');
 		this.div.dataset.type = this.type;
 		this.div.dataset.id = this.id;
+		this.div.style.borderColor = this._btype.color;
+		this.div.style.color = this._btype.color;
 
 		this.divHeader = document.createElement('div');
 		this.divHeader.classList.add('header');
@@ -290,6 +299,7 @@ export class Block{
 		this.inputNodes = new Map();
 
 		// Draw the nodes
+		let i = 0;
 		this._btype.inputs.forEach(input => {
 			
 			const div = document.createElement('div');
@@ -297,12 +307,18 @@ export class Block{
 			div.dataset.type = input.type;
 			div.dataset.id = this.id;
 			div.dataset.label = input.label;
+			div.style.top = (30+20*i)+'px';
+			const btype = this.parent.getBlockType(input.type);
+			if( !btype )
+				throw new Error("Invalid block type found: "+input.type);
+			div.style.borderColor = btype.color;
 			
 			if( !this.inputNodes.has(input.type) )
 				this.inputNodes.set(input.type, new Map());
 			this.inputNodes.get(input.type).set(input.label, div);
 
 			this.div.append(div);
+			++i;
 
 		});
 
@@ -312,6 +328,7 @@ export class Block{
 		div.classList.add('node', 'output');
 		div.dataset.type = this.type;
 		div.dataset.id = this.id;
+		div.style.borderColor = this._btype.color;
 		this.div.append(div);
 
 	}
@@ -418,10 +435,12 @@ export class BlockConnection{
 
 export class BlockType{
 
-	constructor( name ){
+	constructor( name, color, parent ){
 
 		this.name = name;
+		this.color = color || '#EEE';
 		this.inputs = new Map();		// label : Input
+		this.parent = parent;
 
 	}
 
