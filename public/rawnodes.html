@@ -1,114 +1,6 @@
 <html>
 	<head>
-		<style type="text/css">
-			#wrapper{
-				position: fixed;
-				top:0;
-				bottom:0;
-				left:0;
-				right:0;
-			}
-
-			div.rawNodesWrapper{
-				position:absolute;
-				left:0; top:0; bottom:0; right:0;
-				background:#333;
-				font-family: Arial, Helvetica, sans-serif;
-				color:#FFF;
-				font-size:14px;
-			}
-
-			div.rawNodesWrapper > div.blocks{
-				position:absolute;
-				left:0; top:0; bottom:0; right:0;
-				overflow:hidden;
-				pointer-events: none;
-			}
-			div.rawNodesWrapper > div.blocks > div.block{
-				position:absolute;
-				border: 3px solid #FFF;
-				border-radius:3px;
-				width:250px;
-				min-height:100px;
-				user-select: none;
-				background:rgba(50,50,50,0.75);
-				pointer-events: all;
-			}
-			div.rawNodesWrapper > div.blocks > div.block > div.header{
-				border-bottom: 1px dotted #666;
-				padding:5px;
-				background:#111;
-			}
-			div.rawNodesWrapper > div.blocks > div.block > div.content{
-				padding:15px;
-				font-size:12px;
-			}
-			div.rawNodesWrapper > div.blocks > div.block > div.node{
-				border-radius:10px;
-				width:10px; height:10px;
-				position: absolute;
-				border:2px solid #AAA;
-				background:#000;
-				top:30px;
-				right:-1px;
-				transform:translateX(50%);
-			}
-			div.rawNodesWrapper > div.blocks > div.block > div.node.disabled{
-				opacity: 0.25;
-			}
-			div.rawNodesWrapper > div.blocks > div.block > div.node:not(.disabled):hover{
-				border-color:#FFF !important;
-				cursor:pointer;
-			}
-
-			div.rawNodesWrapper > div.blocks > div.block > div.node.output{
-				right:auto;
-				left:-1px;
-				transform:translateX(-50%);
-			}
-
-			div.rawNodesWrapper > svg.lines{
-				position: absolute;
-				top:0; right:0; bottom:0; left:0;
-				pointer-events: none;
-			}
-			div.rawNodesWrapper > svg.lines > path:not(.drag){
-				pointer-events:all;
-				cursor:pointer;
-			}
-
-			div.rawNodesWrapper > svg.lines > path.drag,			
-			div.rawNodesWrapper > svg.lines > path:hover{
-				stroke-width: 8px;
-			}
-			div.rawNodesWrapper > svg.lines > path.sel{
-				stroke:#FFF;
-				stroke-width:10px;
-			}
-
-			div.rawNodesWrapper > div.rightClickMenu{
-				position: absolute;
-			}
-			div.rawNodesWrapper > div.rightClickMenu.hidden{
-				display:none;
-			}
-
-			div.rawNodesWrapper > div.rightClickMenu > div.opt{
-				max-width:200px;
-				background:rgba(0,0,0,.75);
-				border:1px solid #CCC;
-				border-radius:5px;
-				cursor:pointer;
-				padding:5px;
-				font-weight: bold;
-			}
-			div.rawNodesWrapper > div.rightClickMenu > div.opt:hover{
-				border-color:#FFF;
-				background:rgba(100,100,100,0.75);
-				
-			}
-			
-		</style>
+		<link href="libraries/RawNodes.css" rel="stylesheet">
 
 	</head>
 	<body>
@@ -121,7 +13,7 @@
 			const nodes = new RawNodes();
 			window.nodes = nodes;
 
-			nodes.addBlockType("Roleplay", {color:"#FAA", width:'150px', noAdd : true})
+			nodes.addBlockType("Roleplay", {color:"#FAA", width:'150px', noAdd : true, noOutput : true})
 				.addInput('Stages', 'Stage', {single:true})
 			;
 
@@ -129,7 +21,9 @@
 				.addInput('Replies', 'Reply')
 			;
 
-			nodes.addBlockType("Reply", {color:"#AFA", width:'200px', height:'50px'})
+			nodes.addBlockType("Reply", {color:"#AFA", width:'200px', height:'50px', onCreate : block => {
+					console.log("Created reply block", block);
+				}})
 				.addInput('Gotos', 'Goto')
 			;
 
@@ -359,9 +253,7 @@
 			}
 
 
-			document.getElementById('wrapper').append(nodes.getDiv());
-			
-			nodes.render();
+			nodes.connect(document.getElementById('wrapper'));
 
 
 		</script>

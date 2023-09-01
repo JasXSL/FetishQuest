@@ -1,9 +1,3 @@
-/*
-	Todo: 
-	
-	- Zooming
-
-*/
 const svgNS = 'http://www.w3.org/2000/svg';
 
 export default class RawNodes{
@@ -44,6 +38,8 @@ export default class RawNodes{
 
 		this.lastX = 0;	// Last coordinate for a mousedown/mousemove event
 		this.lastY = 0;
+
+		this.zoom = 1.0;
 
 		this.div.onmousedown = event => {
 			
@@ -147,8 +143,8 @@ export default class RawNodes{
 		this.div.onmousemove = event => {
 
 			const x = event.pageX, y = event.pageY;
-			let offsX = x-this.lastX;
-			let offsY = y-this.lastY;
+			let offsX = (x-this.lastX);
+			let offsY = (y-this.lastY);
 			this.lastX = x;
 			this.lastY = y;
 
@@ -164,7 +160,6 @@ export default class RawNodes{
 					this.x += offsX;
 					this.y += offsY;
 					this.render();
-					this.mouseChanged = true;
 
 				}
 				// Dragging a line
@@ -175,8 +170,8 @@ export default class RawNodes{
 				// Dragging a block
 				else if( this.selBlock ){
 
-					this.selBlock.x += offsX;
-					this.selBlock.y += offsY;
+					this.selBlock.x += offsX/this.zoom;
+					this.selBlock.y += offsY/this.zoom;
 					this.render();
 					this.mouseChanged = true;
 
@@ -186,27 +181,23 @@ export default class RawNodes{
 
 		};
 
+		this.div.onwheel = event => {
+
+			event.preventDefault();
+			if( event.deltaY < 0 )
+				this.zoom += 0.1;
+			else
+				this.zoom -= 0.1;
+			this.zoom = Math.min(1.5, Math.max(0.25, this.zoom));
+			this.render();
+
+		};
+
 		this.div.oncontextmenu = event => {
 			if( event.target !== this.div )
 				return;
 			this.drawContextMenu(event, this.div);
 		};
-
-		/*
-		this.div.onkeydown = event => {
-		
-			const ct = this.clickTarg;
-			if( event.key === 'Delete' && ct.classList.contains('con') ){
-
-				const origin = this.getBlock(ct.dataset.originType, ct.dataset.originId);
-				origin.detach(ct.dataset.targId, ct.dataset.targLabel);
-				this.clickTarg = null;
-				this.render();
-
-			}
-	
-		};
-		*/
 
 		this.ini = true;
 
@@ -252,11 +243,9 @@ export default class RawNodes{
 
 					opts.set('+ <span style="color:'+ty.color+'">' + ty.name + '</span>', () => {
 
-						const cbb = this.div.getBoundingClientRect();
-						
 						this.addBlock(ty.name, undefined, {
-							x : this.lastX-cbb.width/2-this.x,
-							y : this.lastY-cbb.height/2-this.y,
+							x : (this.lastX-this.x)/this.zoom,
+							y : (this.lastY-this.y)/this.zoom,
 						});
 
 					});
@@ -278,8 +267,6 @@ export default class RawNodes{
 
 		if( !opts.size )
 			return;
-
-		
 
 		const children = [];
 		opts.forEach((o, id) => {
@@ -316,18 +303,17 @@ export default class RawNodes{
 		this.divRightClickMenu.classList.add("hidden");
 	}
 
+
 	render(){
 		
 		const rect = this.div.getBoundingClientRect();
-		let midX = rect.width/2+this.x;
-		let midY = rect.height/2+this.y;
 
-		
 		const blocks = this.getBlocksArray();
 		for( let block of blocks ){
 
-			block.div.style.left = (midX+block.x)+'px';
-			block.div.style.top = (midY+block.y)+'px';
+			block.div.style.left = (this.x+block.x*this.zoom)+'px';
+			block.div.style.top = (this.y+block.y*this.zoom)+'px';
+			block.div.style.transform = 'scale('+this.zoom+')';
 
 		}
 
@@ -340,9 +326,12 @@ export default class RawNodes{
 		}
 
 		const left = this.div.offsetLeft, top = this.div.offsetTop;
-		const radius = 7;
+		const radius = 7*this.zoom;
 	
 		for( let block of blocks ){
+
+			if( block._btype.noOutput )
+				continue;
 
 			// start location relative to viewer
 			const baseRect = block.outputNode.getBoundingClientRect();
@@ -394,7 +383,7 @@ export default class RawNodes{
 
 			// Draw a line from node to cursor
 			const sb = this.selBlock;
-			let coords = sb.outputNode.getBoundingClientRect();
+			let coords = sb.outputNode?.getBoundingClientRect();
 			let flip = 1;
 			// Dragging from an input to an output
 			if( this.selNode !== true ){
@@ -424,8 +413,14 @@ export default class RawNodes{
 
 	}
 
-	getDiv(){
-		return this.div;
+	connect( parentElement ){
+
+		parentElement.append(this.div);
+		const size = this.div.getBoundingClientRect();
+		this.x = size.width/2;
+		this.y = size.height/2;
+		this.render();
+		
 	}
 
 	addBlockType( type, config ){
@@ -450,8 +445,11 @@ export default class RawNodes{
 
 		const out = new Block(type, id, config, typeDef, this);
 		this.blocks.get(type).set(id, out);
-		
 		this.divBlocks.append(out.div);
+
+		if( typeof typeDef.onCreate === 'function' )
+			typeDef.onCreate(out);
+
 		this.render();
 		return out;
 
@@ -473,6 +471,8 @@ export default class RawNodes{
 			)
 		);
 		cur.div.remove();
+		if( typeof cur._btype.onDelete === "function" )
+				cur._btype.onDelete(cur);
 
 		this.render();
 
@@ -654,14 +654,18 @@ export class Block{
 		});
 
 		// Output node
-		const div = document.createElement('div');
-		this.outputNode = div;
-		div.classList.add('node', 'output');
-		div.dataset.type = this.type;
-		div.dataset.id = this.id;
-		div.dataset.parentType = this.type;
-		div.style.borderColor = this._btype.color;
-		this.div.append(div);
+		if( !this._btype.noOutput ){
+
+			const div = document.createElement('div');
+			this.outputNode = div;
+			div.classList.add('node', 'output');
+			div.dataset.type = this.type;
+			div.dataset.id = this.id;
+			div.dataset.parentType = this.type;
+			div.style.borderColor = this._btype.color;
+			this.div.append(div);
+
+		}
 
 	}
 
@@ -792,6 +796,9 @@ export class BlockType{
 		this.width = config.width;
 		this.height = config.height;
 		this.noAdd = Boolean(config.noAdd);
+		this.noOutput = Boolean(config.noOutput);
+		this.onCreate = config.onCreate;
+		this.onDelete = config.onDelete;
 		this.inputs = new Map();		// label : Input
 		this.parent = parent;
 
