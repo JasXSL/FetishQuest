@@ -11,26 +11,14 @@ const DB = 'roleplayStageOption',
 	CONSTRUCTOR = RoleplayStageOption;
 
 
-export function nodeBlock(){
+export function nodeBlock( typePlugin ){
 
-	this.title = 'RoleplayStageOption';
-	this.properties = {
-		id : '',
-	};
-
-	//this.label = this.addWidget('text', 'ID', "", {property:'id'});
-
-	this.addOutput("id", "RoleplayStageOption");
-
-	this.onExecute = function(){
-		this.setOutputData(this.properties.id);
-	};
-
-	this.onBuild = function( asset ){
-
-		this.setProperty("id", asset.id);
-
-	};
+	typePlugin.addType("reply", "yellow");
+	return new BaklavaJS.Core.NodeBuilder("Reply")
+		.addInputInterface("Goto", undefined, null, { type: "goto" })
+		.addOutputInterface("id", { type: "reply" })
+		.build()
+	;
 
 }
 

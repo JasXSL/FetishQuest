@@ -359,7 +359,7 @@ export default class UI{
 				else
 					StaticModal.setWithTab('mainMenu', 'Group Finder');
 
-				game.uiAudio( "tab_select", 0.5, event.target );
+				game?.uiAudio( "tab_select", 0.5, event.target );
 
 			}
 

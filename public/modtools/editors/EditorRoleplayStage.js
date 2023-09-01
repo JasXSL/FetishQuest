@@ -10,28 +10,16 @@ const DB = 'roleplayStage',
 	CONSTRUCTOR = RoleplayStage;
 
 	
-export function nodeBlock(){
+export function nodeBlock( typePlugin ){
 
-	this.title = 'Stage';
-	/*
-	this.properties = {
-		id : '',
-	};
-	*/
+	typePlugin.addType("stage", "orange");
+	
+	return new BaklavaJS.Core.NodeBuilder("Stage")
+		.addInputInterface("Texts", undefined, null, { type: "text" })
+		.addInputInterface("Replies", undefined, null, { type: "reply" })
+		.addOutputInterface("id", { type: "stage" })
+		.build();
 
-	//this.label = this.addWidget('text', 'ID', "", {property:'id'});
-
-	this.addOutput("id", "RoleplayStage");
-
-	this.onExecute = function(){
-		this.setOutputData(this.properties.id);
-	};
-
-	this.onBuild = function( asset ){
-
-		this.setProperty("id", asset.id);
-
-	};
 
 }
 

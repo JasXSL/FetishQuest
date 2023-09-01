@@ -19,11 +19,9 @@ input[type=range]::-moz-range-track {
 }
 
 
-canvas.nodeEditor{
-	width: 100%; 
-	height: 100%;
+.node-editor *{
+	position: initial;
 }
-
 
 #topMenu{
 	position: absolute;

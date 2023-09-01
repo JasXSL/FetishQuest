@@ -12,27 +12,15 @@ const DB = 'roleplay',
 	CONSTRUCTOR = Roleplay;
 
 
-export function nodeBlock(){
+export function nodeBlock( typePlugin ){
 
-	this.title = 'ROLEPLAY';
+	typePlugin.addType("roleplay", "red");
 	
-	this.properties = {
-		label : '',
-	};
-
-	this.label = this.addWidget('text', 'Label', "", {property:'label'});
-
-	this.addInput("Stages", 'RoleplayStage');
-
-	this.onExecute = function(){
-		this.setOutputData(this.properties.label);
-	};
-
-	this.onBuild = function( asset ){
-
-		this.setProperty("label", asset.label);
-
-	};
+	return new BaklavaJS.Core.NodeBuilder("Roleplay")
+		.addInputInterface("Stages", undefined, null, { type: "stage" })
+		.addOption("label", "InputOption")
+		.addOption("Editor", "OpenEditorOption")
+		.build();
 
 }
 
@@ -68,7 +56,7 @@ export function asset(){
 
 	html += 'Stages: <div class="stages"></div>';
 
-	//html += '<input type="button" value="Node Editor (Experimental)" class="rpNodeEditor" /><br />';
+	html += '<input type="button" value="Node Editor (Experimental)" class="rpNodeEditor" /><br />';
 
 
 	// Conditions
