@@ -1,14 +1,7 @@
 /*
 	Todo: 
-	- Make sure inputs set to single will only accept one connection
-	- Multi inputs should show index based on the order
-	- Size setting for block types
+	
 	- Zooming
-	- Adding blocks
-	- Deleting blocks
-	- Events
-	- Mini map?
-	- Draw arrow lines for inputs with multiple nodes showing the order
 
 */
 const svgNS = 'http://www.w3.org/2000/svg';
@@ -17,6 +10,7 @@ export default class RawNodes{
 
 	constructor(){
 
+		this.ini = false;
 		this.blocks = new Map(); 				// type -> id -> Block
 		this.blockPrototypes = new Map();
 
@@ -33,7 +27,11 @@ export default class RawNodes{
 		this.divBlocks.classList.add('blocks');
 		this.div.append(this.divBlocks);
 
+		this.divRightClickMenu = document.createElement('div');
+		this.divRightClickMenu.classList.add('rightClickMenu');
+		this.div.append(this.divRightClickMenu);
 
+		this.mouseChanged = false;
 		this.mousedown = false;		// Tracks if mouse is held down
 		this.clickTarg = null;
 		this.selBlock = null;		// Aux handler to speed up dragging blocks
@@ -49,6 +47,7 @@ export default class RawNodes{
 
 		this.div.onmousedown = event => {
 			
+			this.closeContextMenu();
 			this.mousedown = true;
 			this.lastX = event.pageX;
 			this.lastY = event.pageY;
@@ -74,12 +73,20 @@ export default class RawNodes{
 				else
 					this.selNode = event.target.dataset.label;
 
+				// Starting to drag a single input. We need to detach any existing one.
+				const conDef = this.selBlock._btype.getInput(this.selNode);
+				if( !isOutput && conDef.single )
+					this.detachAllFromBlockNode(this.selBlock, this.selNode);
+
 				this.div.querySelectorAll("div.node").forEach(el => {
 					
 					if( 
 						el.dataset.type !== this.selNodeType ||
+						// output/input matching
 						(isOutput && el.classList.contains("output")) ||
-						(!isOutput && el.classList.contains("input"))
+						(!isOutput && el.classList.contains("input")) ||
+						// ignore inputs that are full
+						(isOutput && el.classList.contains("single") && this.getBlockInputs(el.dataset.id, el.dataset.label).length) // todo: cehck if full
 					)el.classList.add('disabled');
 
 				});
@@ -130,9 +137,20 @@ export default class RawNodes{
 			this.selNode = this.selNodeType = false;
 			this.render();
 
+			if( this.mouseChanged ){
+				this.mouseChanged = false;
+				this.onChange();
+			}
+
 		};
 
 		this.div.onmousemove = event => {
+
+			const x = event.pageX, y = event.pageY;
+			let offsX = x-this.lastX;
+			let offsY = y-this.lastY;
+			this.lastX = x;
+			this.lastY = y;
 
 			if( !this.mousedown )
 				return;
@@ -140,27 +158,19 @@ export default class RawNodes{
 			// Dragging something
 			if( this.clickTarg !== null ){
 
-				const x = event.pageX, y = event.pageY;
-				if( x === this.lastX && y === this.lastY ) // No change
-					return;
-
-				let offsX = x-this.lastX;
-				let offsY = y-this.lastY;
-				this.lastX = x;
-				this.lastY = y;
-				
 				// Moving the canvas
 				if( this.clickTarg === this.div ){
 					
 					this.x += offsX;
 					this.y += offsY;
 					this.render();
+					this.mouseChanged = true;
 
 				}
 				// Dragging a line
 				else if( this.selNode ){
 					this.render();
-					// Todo: highlight nodes we can drag it to
+					
 				}
 				// Dragging a block
 				else if( this.selBlock ){
@@ -168,6 +178,7 @@ export default class RawNodes{
 					this.selBlock.x += offsX;
 					this.selBlock.y += offsY;
 					this.render();
+					this.mouseChanged = true;
 
 				}
 
@@ -175,6 +186,13 @@ export default class RawNodes{
 
 		};
 
+		this.div.oncontextmenu = event => {
+			if( event.target !== this.div )
+				return;
+			this.drawContextMenu(event, this.div);
+		};
+
+		/*
 		this.div.onkeydown = event => {
 		
 			const ct = this.clickTarg;
@@ -188,7 +206,114 @@ export default class RawNodes{
 			}
 	
 		};
+		*/
 
+		this.ini = true;
+
+	}
+
+	// Right click menu
+	drawContextMenu(event, element){
+		event.preventDefault();
+
+		const cl = element.classList;
+		let opts = new Map(); // label -> function
+
+		// Line
+		if( cl.contains("con") ){
+			
+			opts.set("Delete", () => {
+
+				const origin = this.getBlock(element.dataset.originType, element.dataset.originId);
+				origin.detach(element.dataset.targId, element.dataset.targLabel);
+				this.clickTarg = null;
+				this.render();
+
+			});
+
+		}
+		// Block
+		else if( cl.contains("block") ){
+
+			const block = this.getBlock(element.dataset.type, element.dataset.id);
+			if( !block.noDelete )
+				opts.set("Delete", () => {
+					this.removeBlock(element.dataset.type, element.dataset.id);
+				});
+
+		}
+		// Background
+		else if( cl.contains("rawNodesWrapper") ){
+
+			// noAdd
+			this.blockPrototypes.forEach(ty => {
+				
+				if( !ty.noAdd ){
+
+					opts.set('+ <span style="color:'+ty.color+'">' + ty.name + '</span>', () => {
+
+						const cbb = this.div.getBoundingClientRect();
+						
+						this.addBlock(ty.name, undefined, {
+							x : this.lastX-cbb.width/2-this.x,
+							y : this.lastY-cbb.height/2-this.y,
+						});
+
+					});
+
+				}
+
+			});
+
+			opts.set("Pan To Root", () => {
+				this.panToFirst();
+			});
+			opts.set("Purge Positions", () => {
+				this.resetPositions();
+			});
+
+		}
+		else
+			return;
+
+		if( !opts.size )
+			return;
+
+		
+
+		const children = [];
+		opts.forEach((o, id) => {
+			
+			const div = document.createElement("div");
+			children.push(div);
+			div.classList.add("opt");
+			div.innerHTML = id;
+			div.onmousedown = () => {
+				o();
+			};
+
+		});
+
+		this.divRightClickMenu.replaceChildren(...children);
+		this.divRightClickMenu.classList.remove("hidden");
+
+		const cbb = this.div.getBoundingClientRect();
+		const bb = this.divRightClickMenu.getBoundingClientRect();
+		let left = this.lastX;
+		let top = this.lastY;
+
+		if( left+bb.width > cbb.width )
+			left = cbb.width-bb.width;
+		if( top+bb.height > cbb.height )
+			top = cbb.height-bb.height;
+
+		this.divRightClickMenu.style.left = left+'px';
+		this.divRightClickMenu.style.top = top+'px';
+
+	}
+
+	closeContextMenu(){
+		this.divRightClickMenu.classList.add("hidden");
 	}
 
 	render(){
@@ -256,6 +381,9 @@ export default class RawNodes{
 				line.setAttribute("stroke", block._btype.color);
 				line.setAttribute("stroke-width", "3");
 				line.setAttribute("fill", "transparent");
+				line.oncontextmenu = event => {
+					this.drawContextMenu(event, line);
+				};
 				this.svgLines.appendChild(line);
 
 			}
@@ -300,19 +428,19 @@ export default class RawNodes{
 		return this.div;
 	}
 
-	addBlockType( type, color ){
+	addBlockType( type, config ){
 
 		if( this.blockPrototypes.has(type) )
 			throw new Error("Block type already exists: "+type);
 
 		this.blocks.set(type, new Map());
-		const out = new BlockType( type, color, this );
+		const out = new BlockType( type, config, this );
 		this.blockPrototypes.set(type, out);
 		return out;
 
 	}
 
-	addBlock( type, id, x = 0, y = 0 ){
+	addBlock( type, id, config ){
 
 		const typeDef = this.blockPrototypes.get(type);
 		if( !typeDef )
@@ -320,7 +448,7 @@ export default class RawNodes{
 		if( !id )
 			id = this.constructor.generateUUID();
 
-		const out = new Block(type, id, x, y, typeDef, this);
+		const out = new Block(type, id, config, typeDef, this);
 		this.blocks.get(type).set(id, out);
 		
 		this.divBlocks.append(out.div);
@@ -350,6 +478,16 @@ export default class RawNodes{
 
 	}
 
+	// Detach all connections from a block node
+	detachAllFromBlockNode( block, nodeLabel ){
+		
+		const blocks = this.getBlocksArray();
+		for( let b of blocks ){
+			b.detach(block, nodeLabel);
+		}
+
+	}
+
 	getBlock( type, id ){
 
 		const ty = this.blocks.get(type);
@@ -359,7 +497,7 @@ export default class RawNodes{
 
 	}
 
-	// Gets blocks linked a blocks input by label
+	// Gets blocks linked to a blocks input by label
 	getBlockInputs( blockID, inputLabel ){
 
 		const blocks = this.getBlocksArray();
@@ -406,17 +544,54 @@ export default class RawNodes{
 
 	}
 
+	raiseChangedEvent(){
+		if( !this.ini )
+			return;
+		this.onChange();
+	}
+
+	// overwrite this with your custom logi
+	onChange(){}
+
+	resetPositions(){
+
+		const blocks = this.getBlocksArray();
+		for( let i = 0; i < blocks.length; ++i ){
+
+			let block = blocks[i];
+			block.x = block.y = 50*i;
+
+		}
+		this.render();
+		this.onChange();
+
+	}
+
+	panToFirst(){
+
+		const first = this.getBlocksArray()[0];
+		this.x = -first.x;
+		this.y = -first.y;
+		this.render();		
+
+	}
+
 }
 
 // Block connected to RawNodes.blocks
 export class Block{
 
-	constructor( type, id, x, y, btype, parent ){
+	constructor( type, id, config, btype, parent ){
+
+		if( !config || typeof config !== "object" )
+			config = {};
 
 		this.type = type;
 		this.id = id;
-		this.x = Math.trunc(x) || 0;
-		this.y = Math.trunc(y) || 0;
+		this.x = Math.trunc(config.x) || 0;
+		this.y = Math.trunc(config.y) || 0;
+		this.noDelete = Boolean(config.noDelete);
+
 		this.connections = [];			// Blocks we're outputting to: BlockConnection objects
 		
 		this._btype = btype;				// Cache of blocktype object
@@ -425,8 +600,17 @@ export class Block{
 		this.div.classList.add('block');
 		this.div.dataset.type = this.type;
 		this.div.dataset.id = this.id;
+
 		this.div.style.borderColor = this._btype.color;
 		this.div.style.color = this._btype.color;
+		if( btype.width )
+			this.div.style.width = btype.width;
+		if( btype.height )
+			this.div.style.minHeight = btype.height;
+
+		this.div.oncontextmenu = event => {
+			this.parent.drawContextMenu(event, this.div);
+		};
 
 		this.divHeader = document.createElement('div');
 		this.divHeader.classList.add('header');
@@ -457,7 +641,9 @@ export class Block{
 			if( !btype )
 				throw new Error("Invalid block type found: "+input.type);
 			div.style.borderColor = btype.color;
-			
+
+			if( input.single )
+				div.classList.add("single");
 			if( !this.inputNodes.has(input.type) )
 				this.inputNodes.set(input.type, new Map());
 			this.inputNodes.get(input.type).set(input.label, div);
@@ -492,7 +678,10 @@ export class Block{
 
 		this._btype.inputs.forEach(el => {
 
-			out[el.label] = this.parent.getBlockInputs(this.id, el.label).map(input => input.parent.id);
+			let linkedIds = this.parent.getBlockInputs(this.id, el.label).map(input => input.parent.id);
+			if( el.single )
+				linkedIds = linkedIds[0];
+			out[el.label] = linkedIds;
 
 		});
 
@@ -524,17 +713,25 @@ export class Block{
 		if( block instanceof this.constructor )
 			block = block.id;
 
+		let detached = 0;
 		let out = [];
 		// Filter out blocsk that match and create a new array
 		for( let con of this.connections ){
 
-			if( con.blockID === block && (label === undefined || con.label === label) )
+			if( con.blockID === block && (label === undefined || con.label === label) ){
+				++detached;
 				continue;
+			}
 			out.push(con);
 
 		}
+		if( !detached )
+			return;
+
 		this.connections = out;
 		this.parent.render();
+
+		this.parent.raiseChangedEvent();
 
 	}
 	
@@ -560,6 +757,8 @@ export class Block{
 
 		this.parent.render();
 
+		this.parent.raiseChangedEvent();
+
 		return this;
 
 	}
@@ -584,18 +783,23 @@ export class BlockConnection{
 
 export class BlockType{
 
-	constructor( name, color, parent ){
+	constructor( name, config ){
 
+		if( !config || typeof config !== "object" )
+			config = {};
 		this.name = name;
-		this.color = color || '#EEE';
+		this.color = config.color || '#EEE';
+		this.width = config.width;
+		this.height = config.height;
+		this.noAdd = Boolean(config.noAdd);
 		this.inputs = new Map();		// label : Input
 		this.parent = parent;
 
 	}
 
-	addInput( label, type, single ){
+	addInput( label, type, config ){
 
-		const out = new Input(label, type, single);
+		const out = new Input(label, type, config, this);
 		this.inputs.set(label, out);
 		out.parent = this;
 		return this;
@@ -612,12 +816,15 @@ export class BlockType{
 
 export class Input{
 
-	constructor( label, type, single = false ){
+	constructor( label, type, config, parent ){
+
+		if( !config || typeof config !== 'object' )
+			config = {};
 
 		this.label = label;
 		this.type = type;
-		this.single = Boolean(single);
-		parent = this.parent;
+		this.single = Boolean(config.single);
+		this.parent = parent;
 
 	}
 

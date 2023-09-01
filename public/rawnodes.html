@@ -85,6 +85,28 @@
 				stroke:#FFF;
 				stroke-width:10px;
 			}
+
+			div.rawNodesWrapper > div.rightClickMenu{
+				position: absolute;
+			}
+			div.rawNodesWrapper > div.rightClickMenu.hidden{
+				display:none;
+			}
+
+			div.rawNodesWrapper > div.rightClickMenu > div.opt{
+				max-width:200px;
+				background:rgba(0,0,0,.75);
+				border:1px solid #CCC;
+				border-radius:5px;
+				cursor:pointer;
+				padding:5px;
+				font-weight: bold;
+			}
+			div.rawNodesWrapper > div.rightClickMenu > div.opt:hover{
+				border-color:#FFF;
+				background:rgba(100,100,100,0.75);
+				
+			}
 			
 		</style>
 
@@ -99,24 +121,25 @@
 			const nodes = new RawNodes();
 			window.nodes = nodes;
 
-			nodes.addBlockType("Roleplay", "#FAA")
-				.addInput('Stages', 'Stage')
+			nodes.addBlockType("Roleplay", {color:"#FAA", width:'150px', noAdd : true})
+				.addInput('Stages', 'Stage', {single:true})
 			;
 
-			nodes.addBlockType("Stage", "#FFA")
+			nodes.addBlockType("Stage", {color:"#FFA", height:"50px"})
 				.addInput('Replies', 'Reply')
-				.addInput('Texts', 'Text')
 			;
 
-			nodes.addBlockType("Reply", "#AFA")
+			nodes.addBlockType("Reply", {color:"#AFA", width:'200px', height:'50px'})
 				.addInput('Gotos', 'Goto')
 			;
 
-			nodes.addBlockType("Goto", "#AFF")
-				.addInput('Stage', 'Stage', true)
+			nodes.addBlockType("Goto", {color:"#AFF", width:'100px'})
+				.addInput('Stage', 'Stage', {single:true})
 			;
 
-			nodes.addBlockType("Text", "#EEE");
+			nodes.onChange = () => {
+				console.log("Change detected");
+			};
 
 			const dist = 280;
 			const left = 1050/2+350/2;
@@ -248,6 +271,7 @@
 						x : -left,
 						id : 'test_rp',
 						data : 'Root of the RP',
+						noDelete : true,
 						links : {}
 					},
 				],
@@ -256,19 +280,11 @@
 						id : 'stage0',
 						x : dist-left,
 						y : 0,
-						data : 'Opening stage.',
+						data : 'Texts display here.',
 						links : {
 							
 						}
 					}
-				],
-				Text : [
-					{
-						id : 'text0',
-						data : 'Gmornin! Nice day for fishin, aint it?',
-						x : dist*2-left,
-						y : 0,
-					},
 				],
 				Reply : [
 					{
@@ -289,6 +305,15 @@
 							
 						}
 					}
+				],
+				Goto : [
+					{
+						x : dist*3-left,
+						y : 0,
+						id : 'goto0',
+						data : 'Goto is used to have different outcomes based on conditions.',
+						links : {}
+					}
 				]
 
 			};
@@ -298,7 +323,7 @@
 
 				for( let block of assets[atype] ){
 					
-					const db = nodes.addBlock(atype, block.id, block.x, block.y);
+					const db = nodes.addBlock(atype, block.id, {x:block.x, y:block.y, noDelete : block.noDelete});
 					db.setContent(block.data);
 
 				}
