@@ -1,15 +1,8 @@
 /*
 	Todo: 
+	- Make sure inputs set to single will only accept one connection
 	- Multi inputs should show index based on the order
-	- Drag and drop connections
-	- Labels for inputs
-	- Input/output should be filled in if populated
-	- Add a color for block types, affecting:
-		- border
-		- line
-		- node
 	- Size setting for block types
-	- Fix the exporter
 	- Zooming
 	- Adding blocks
 	- Deleting blocks
@@ -31,7 +24,7 @@ export default class RawNodes{
 
 		this.div = document.createElement('div');
 		this.div.classList.add('rawNodesWrapper');
-		
+		this.div.tabIndex = 0;
 		this.svgLines = document.createElementNS(svgNS, 'svg');
 		this.svgLines.classList.add('lines');
 		this.div.append(this.svgLines);
@@ -41,9 +34,11 @@ export default class RawNodes{
 		this.div.append(this.divBlocks);
 
 
-		
+		this.mousedown = false;		// Tracks if mouse is held down
 		this.clickTarg = null;
 		this.selBlock = null;		// Aux handler to speed up dragging blocks
+		this.selNode = false;		// Label of selected node when connecting or boolean true if dragging an output
+		this.selNodeType = false;	// Type of node we're dragging
 
 		// Where are we centering?
 		this.x = 0;
@@ -54,24 +49,93 @@ export default class RawNodes{
 
 		this.div.onmousedown = event => {
 			
+			this.mousedown = true;
 			this.lastX = event.pageX;
 			this.lastY = event.pageY;
 			this.clickTarg = event.target;
+			// Move a block
 			if( event.target.classList.contains('header') ){
 
 				const ds = event.target.parentNode.dataset;
 				this.selBlock = this.getBlock(ds.type, ds.id);
 
 			}
-			
+			// Click and drag a node
+			else if( event.target.classList.contains('node') ){
+				
+				const isOutput = event.target.classList.contains("output");
+				this.selBlock = this.getBlock(
+					event.target.dataset.parentType, 
+					event.target.dataset.id
+				);
+				this.selNodeType = event.target.dataset.type;
+				if( isOutput )
+					this.selNode = true;
+				else
+					this.selNode = event.target.dataset.label;
+
+				this.div.querySelectorAll("div.node").forEach(el => {
+					
+					if( 
+						el.dataset.type !== this.selNodeType ||
+						(isOutput && el.classList.contains("output")) ||
+						(!isOutput && el.classList.contains("input"))
+					)el.classList.add('disabled');
+
+				});
+
+			}
+			// Select a connection
+			else if( event.target.classList.contains('con') ){
+
+				this.render();
+
+			}
 
 		};
 
 		this.div.onmouseup = event => {
-			this.clickTarg = this.selBlock = null;
+
+			this.mousedown = false;
+			// We've dragged a connection
+			if( this.selNode && event.target.classList.contains('node') && !event.target.classList.contains('disabled') ){
+
+				// Assume we started with an output
+				let origin = this.selBlock;
+				let dest = this.getBlock(event.target.dataset.parentType, event.target.dataset.id);
+				let destNode = event.target.dataset.label;
+				// we started with an input
+				if( this.selNode !== true ){
+
+					let tmp = origin;
+					origin = dest;
+					dest = tmp;
+					destNode = this.selNode;
+
+				}
+
+				origin.attach( dest.type, dest.id, destNode);
+
+			}
+
+			// clicked a line. need to refocus for things to work
+			if( this.clickTarg.classList.contains('con') )
+				this.div.focus();
+
+			this.div.querySelectorAll("div.node").forEach(el =>
+				el.classList.remove('disabled')
+			);
+
+			this.selBlock = null;
+			this.selNode = this.selNodeType = false;
+			this.render();
+
 		};
 
 		this.div.onmousemove = event => {
+
+			if( !this.mousedown )
+				return;
 
 			// Dragging something
 			if( this.clickTarg !== null ){
@@ -85,6 +149,7 @@ export default class RawNodes{
 				this.lastX = x;
 				this.lastY = y;
 				
+				// Moving the canvas
 				if( this.clickTarg === this.div ){
 					
 					this.x += offsX;
@@ -92,6 +157,12 @@ export default class RawNodes{
 					this.render();
 
 				}
+				// Dragging a line
+				else if( this.selNode ){
+					this.render();
+					// Todo: highlight nodes we can drag it to
+				}
+				// Dragging a block
 				else if( this.selBlock ){
 
 					this.selBlock.x += offsX;
@@ -102,6 +173,20 @@ export default class RawNodes{
 
 			}
 
+		};
+
+		this.div.onkeydown = event => {
+		
+			const ct = this.clickTarg;
+			if( event.key === 'Delete' && ct.classList.contains('con') ){
+
+				const origin = this.getBlock(ct.dataset.originType, ct.dataset.originId);
+				origin.detach(ct.dataset.targId, ct.dataset.targLabel);
+				this.clickTarg = null;
+				this.render();
+
+			}
+	
 		};
 
 	}
@@ -130,7 +215,7 @@ export default class RawNodes{
 		}
 
 		const left = this.div.offsetLeft, top = this.div.offsetTop;
-		const radius = 5;
+		const radius = 7;
 	
 		for( let block of blocks ){
 
@@ -150,22 +235,66 @@ export default class RawNodes{
 					targTop = targRect.top-top+radius
 				;
 				
-
-				// Add new lines
 				const line = document.createElementNS(svgNS,'path');
+				line.dataset.originId = block.id;
+				line.dataset.targId = targ.id;
+				line.dataset.targLabel = con.label;
+				line.dataset.originType = block.type;
+				line.classList.add("con");
+
+				if( 
+					this.clickTarg &&
+					this.clickTarg.classList.contains('con') &&
+					line.dataset.originId === this.clickTarg.dataset.originId &&
+					line.dataset.originType === this.clickTarg.dataset.originType &&
+					line.dataset.targId === this.clickTarg.dataset.targId &&
+					line.dataset.targLabel === this.clickTarg.dataset.targLabel
+				){
+					line.classList.add('sel');
+				}
 				line.setAttribute("d", "M "+baseLeft+" "+baseTop+" C "+(baseLeft-30)+" "+baseTop+", "+(targLeft+30)+" "+targTop+", "+targLeft+" "+targTop);
 				line.setAttribute("stroke", block._btype.color);
 				line.setAttribute("stroke-width", "3");
 				line.setAttribute("fill", "transparent");
-
 				this.svgLines.appendChild(line);
 
 			}
 
 		}
 
-	}
+		if( this.selNode && this.mousedown ){
 
+			// Draw a line from node to cursor
+			const sb = this.selBlock;
+			let coords = sb.outputNode.getBoundingClientRect();
+			let flip = 1;
+			// Dragging from an input to an output
+			if( this.selNode !== true ){
+
+				flip = -flip;
+				coords = this.selBlock.inputNodes.get(this.selNodeType).get(this.selNode).getBoundingClientRect();
+
+			}
+			const offs = -30;
+			const startLeft = coords.left+radius;
+			const startTop = coords.top+radius;
+			const endLeft = this.lastX;
+			const endTop = this.lastY;
+			
+
+			// Draw the line
+			const line = document.createElementNS(svgNS,'path');
+			line.classList.add('drag');
+			line.setAttribute("d", "M "+startLeft+" "+startTop+" C "+(startLeft+offs*flip)+" "+startTop+", "+(endLeft-offs*flip)+" "+endTop+", "+endLeft+" "+endTop);
+			line.setAttribute("stroke", this.getBlockType(this.selNodeType).color);
+			line.setAttribute("stroke-width", "4");
+			line.setAttribute("fill", "transparent");
+			
+			this.svgLines.appendChild(line);
+
+		}
+
+	}
 
 	getDiv(){
 		return this.div;
@@ -233,14 +362,15 @@ export default class RawNodes{
 	// Gets blocks linked a blocks input by label
 	getBlockInputs( blockID, inputLabel ){
 
+		const blocks = this.getBlocksArray();
 		let out = [];
-		this.blocks.forEach(el => {
+		for( let el of blocks ){
 			
-			const link = el.getBlockInput(blockID, inputLabel);
+			const link = el.getBlockConnection(blockID, inputLabel);
 			if( link )
 				out.push(link);
 			
-		});
+		}
 		return out;
 
 	}
@@ -253,13 +383,27 @@ export default class RawNodes{
 
 	}
 
-	
 	static generateUUID(){
 		const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 		let array = new Uint8Array(12);
 		crypto.getRandomValues(array);
 		array = array.map(x => validChars.charCodeAt(x % validChars.length));
 		return String.fromCharCode.apply(null, array);
+	}
+
+	flatten(){
+
+		const out = {};
+		this.blocks.forEach((el, idx) => {
+			out[idx] = [];
+			el.forEach(el => {
+				out[idx].push(el.flatten());
+			});
+
+		});
+
+		return out;
+
 	}
 
 }
@@ -306,6 +450,7 @@ export class Block{
 			div.classList.add('node', 'input');
 			div.dataset.type = input.type;
 			div.dataset.id = this.id;
+			div.dataset.parentType = this.type;
 			div.dataset.label = input.label;
 			div.style.top = (30+20*i)+'px';
 			const btype = this.parent.getBlockType(input.type);
@@ -328,6 +473,7 @@ export class Block{
 		div.classList.add('node', 'output');
 		div.dataset.type = this.type;
 		div.dataset.id = this.id;
+		div.dataset.parentType = this.type;
 		div.style.borderColor = this._btype.color;
 		this.div.append(div);
 
@@ -346,7 +492,7 @@ export class Block{
 
 		this._btype.inputs.forEach(el => {
 
-			out[el.name] = this.parent.getBlockInputs(this.id, el.name);
+			out[el.label] = this.parent.getBlockInputs(this.id, el.label).map(input => input.parent.id);
 
 		});
 
@@ -355,7 +501,7 @@ export class Block{
 
 	}
 	 
-	getBlockInput( blockID, label ){
+	getBlockConnection( blockID, label ){
 
 		for( let con of this.connections ){
 			
@@ -372,15 +518,18 @@ export class Block{
 
 	}
 
-	// Detach from a block
-	detach( block ){
+	// Detach from a block and optionally a target label
+	detach( block, label ){
+
+		if( block instanceof this.constructor )
+			block = block.id;
 
 		let out = [];
+		// Filter out blocsk that match and create a new array
 		for( let con of this.connections ){
 
-			if( con.blockID === block.id )
+			if( con.blockID === block && (label === undefined || con.label === label) )
 				continue;
-
 			out.push(con);
 
 		}
@@ -403,7 +552,7 @@ export class Block{
 		if( input.type !== this.type )
 			throw new Error("Cannot connect to that type "+id);
 
-		if( targ.getBlockInput(this, label) )
+		if( this.getBlockConnection(targ.id, label) )
 			throw new Error("Already connected!");
 
 		const con = new BlockConnection(targType, id, label, this);

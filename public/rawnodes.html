@@ -53,14 +53,18 @@
 				right:-1px;
 				transform:translateX(50%);
 			}
-			div.rawNodesWrapper > div.blocks > div.block > div.node:hover{
-				border-color:#FFF;
+			div.rawNodesWrapper > div.blocks > div.block > div.node.disabled{
+				opacity: 0.25;
 			}
+			div.rawNodesWrapper > div.blocks > div.block > div.node:not(.disabled):hover{
+				border-color:#FFF !important;
+				cursor:pointer;
+			}
+
 			div.rawNodesWrapper > div.blocks > div.block > div.node.output{
 				right:auto;
 				left:-1px;
 				transform:translateX(-50%);
-				cursor:pointer;
 			}
 
 			div.rawNodesWrapper > svg.lines{
@@ -68,7 +72,19 @@
 				top:0; right:0; bottom:0; left:0;
 				pointer-events: none;
 			}
-			
+			div.rawNodesWrapper > svg.lines > path:not(.drag){
+				pointer-events:all;
+				cursor:pointer;
+			}
+
+			div.rawNodesWrapper > svg.lines > path.drag,			
+			div.rawNodesWrapper > svg.lines > path:hover{
+				stroke-width: 8px;
+			}
+			div.rawNodesWrapper > svg.lines > path.sel{
+				stroke:#FFF;
+				stroke-width:10px;
+			}
 			
 		</style>
 
