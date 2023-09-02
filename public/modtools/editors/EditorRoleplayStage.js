@@ -18,6 +18,7 @@ export function nodeBlock( nodes ){
 		height:"50px",
 		onCreate : block => EditorGraph.onBlockCreate(block, DB, nodeBlockUpdate),
 		onDelete : block => EditorGraph.onBlockDelete(block, DB, ['options']),
+		onClick : (block, event) => EditorGraph.onBlockClick(DB, block, nodes),
 	})
 		.addInput('Replies', 'Reply')
 	;

@@ -422,3 +422,29 @@ div.webglRenderer canvas:focus{
 	outline: #FFF solid 3px;
 	outline-style: inset;
 }
+
+
+
+/* RawNodes */
+div.rawNodesWrapper > div.blocks > div.block > div.content{
+	padding:5px;
+	cursor:pointer;
+}
+div.rawNodesWrapper > div.blocks > div.block > div.content div.text,
+div.rawNodesWrapper > div.blocks > div.block > div.content div.label{
+	margin-bottom:3px;
+	padding:5px;
+	color:#FFF;
+	background:rgba(0,0,0,.25);
+
+}
+div.rawNodesWrapper > div.blocks > div.block > div.content div.text:hover{
+	background:rgba(255,255,255,.25);
+}
+div.rawNodesWrapper > div.blocks > div.block > div.content input[type=button]{
+	font-size:12px;
+	padding:5px;
+}
+div.rawNodesWrapper > div.blocks > div.block > div.content:hover:not(:has(div.text:hover,input:hover)){
+	background:rgba(255,255,255,.25);
+}

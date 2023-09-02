@@ -13,6 +13,7 @@ import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorRoleplayStage from './EditorRoleplayStage.js';
 import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import * as EditorRoleplayStageOptionGoto from './EditorRoleplayStageOptionGoto.js';
+import * as EditorGraph from './EditorGraph.js';
 
 import Roleplay from '../../classes/Roleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
@@ -29,13 +30,13 @@ export function nodeBuild( asset, nodes ){
 		Goto : EditorRoleplayStageOptionGoto,
 	};
 
-
 	// Register the base roleplay type. Must be first.
 	nodes.addBlockType('Roleplay', {
 		color : "#FAA",
-		width : '150px',
+		width : '200px',
 		noAdd : true,
 		noOutput : true,
+		onClick : (block, event) => EditorGraph.onBlockClick(DB, block, nodes),
 	})
 	.addInput('FirstStage', 'Stage', {single:true});
 
@@ -45,7 +46,11 @@ export function nodeBuild( asset, nodes ){
 
 	
 
-	const rootBlock = nodes.addBlock('Roleplay', asset.id, {x:asset.x, y:asset.y, noDelete:true});
+	const rootBlock = nodes.addBlock('Roleplay', asset.id, {
+		x:asset._x, 
+		y:asset._y, 
+		noDelete:true
+	});
 	nodeBlockUpdate(asset, rootBlock);
 
 	nodes.onChange = () => nodeCompile(asset, nodes);

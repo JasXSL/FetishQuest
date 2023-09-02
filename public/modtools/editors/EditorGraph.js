@@ -25,17 +25,42 @@ export function asset(){
 	
 	this.nodes = window.nodes = new RawNodes();
 	
+	
 
 	if( type === 'Roleplay' )
 		EditorRoleplay.nodeBuild(asset, this.nodes);
 
 	const wrapper = document.createElement('div');
 	this.nodes.connect(wrapper);
+	this.nodes._window = this;
 	this.setDom(wrapper);
 
-	setTimeout(() => {
-		this.nodes.panToFirst();
-	}, 1);
+	// move after connecting
+	if( !isNaN(this.custom.x) )
+		this.nodes.x = this.custom.x;
+	if( !isNaN(this.custom.y) )
+		this.nodes.y = this.custom.y;
+	if( !isNaN(this.custom.z) )
+		this.nodes.zoom = this.custom.z;
+
+	// Zoom or pan has changed
+	this.nodes.onPan = () => {
+		this.custom.x = this.nodes.x;
+		this.custom.y = this.nodes.y;
+		this.custom.z = this.nodes.zoom;
+		window.mod.saveWindowStates();
+	};
+
+
+	if( !this.custom.x ){
+		setTimeout(() => {
+			this.nodes.panToFirst();
+		}, 1);
+	}
+	else
+		setTimeout(() => {
+			this.nodes.render();
+		}, 1);
 
 };
 
@@ -51,6 +76,11 @@ export function onBlockDelete( block, db, ignoreDelete = [] ){
 
 }
 
+export function onBlockClick( type, block, nodes ){
+
+	window.mod.buildAssetEditor(type, block.id);
+
+}
 
 // Creates blocks based on sub links of an asset, including any unconnected items with _h the same as rootAsset (can't only check _h due to legacy RPs)
 export function buildSubBlocks( nodes, fieldAssets, editor, rootAsset ){
@@ -84,6 +114,8 @@ export function autoConnect( nodes, outputEditor, outputType, outputIds, inputTy
 	for( let outputid of outputIds ){
 
 		const outputBlock = nodes.getBlock(outputType, outputid);
+		if( !outputBlock )
+			continue;
 		outputBlock.attach(inputType, inputId, inputNodeLabel);
 
 		const dbAsset = window.mod.mod.getAssetById(outputEditor.DB, outputid);

@@ -121,6 +121,9 @@ export default class RawNodes{
 
 			}
 
+			if( this.clickTarg === this.div )
+				this.onPan();
+
 			// clicked a line. need to refocus for things to work
 			if( this.clickTarg.classList.contains('con') )
 				this.div.focus();
@@ -189,7 +192,9 @@ export default class RawNodes{
 			else
 				this.zoom -= 0.1;
 			this.zoom = Math.min(1.5, Math.max(0.25, this.zoom));
+			this.onPan();
 			this.render();
+			
 
 		};
 
@@ -570,6 +575,9 @@ export default class RawNodes{
 	// overwrite this with your custom logi
 	onChange(){}
 
+	// overwrite this
+	onPan(){}
+
 	resetPositions(){
 
 		const blocks = this.getBlocksArray();
@@ -639,8 +647,10 @@ export class Block{
 		this.divContent = document.createElement('div');
 		this.divContent.classList.add('content');
 		this.div.append(this.divContent);
-
-
+		this.divContent.onclick = event => {
+			if( typeof btype.onClick === "function" )
+				btype.onClick(this, event);
+		};
 
 		// Input node divs
 		this.inputNodes = new Map();
@@ -820,6 +830,7 @@ export class BlockType{
 		this.noOutput = Boolean(config.noOutput);
 		this.onCreate = config.onCreate;
 		this.onDelete = config.onDelete;
+		this.onClick = config.onClick;
 		this.inputs = new Map();		// label : Input
 		this.parent = parent;
 

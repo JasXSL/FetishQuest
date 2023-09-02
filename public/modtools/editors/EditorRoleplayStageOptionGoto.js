@@ -17,6 +17,8 @@ export function nodeBlock( nodes ){
 		width:'200px',
 		onCreate : block => EditorGraph.onBlockCreate(block, DB, nodeBlockUpdate),
 		onDelete : block => EditorGraph.onBlockDelete(block, DB),
+		onClick : (block, event) => EditorGraph.onBlockClick(DB, block, nodes),
+
 	})
 		.addInput('Stage', 'Stage', {single:true})
 	;

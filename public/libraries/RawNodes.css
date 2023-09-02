@@ -31,6 +31,8 @@ div.rawNodesWrapper > div.blocks > div.block{
 	background:rgba(50,50,50,0.75);
 	pointer-events: all;
 	transform-origin: top left;
+	display:flex;
+	flex-flow:column;
 }
 div.rawNodesWrapper > div.blocks > div.block > div.header{
 	border-bottom: 1px dotted #666;
@@ -40,6 +42,8 @@ div.rawNodesWrapper > div.blocks > div.block > div.header{
 div.rawNodesWrapper > div.blocks > div.block > div.content{
 	padding:15px;
 	font-size:12px;
+	flex:1 1;
+	min-height: 100%;
 }
 div.rawNodesWrapper > div.blocks > div.block > div.node{
 	border-radius:15px;
