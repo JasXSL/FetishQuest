@@ -8,7 +8,7 @@ export default class RawNodes{
 		this.blocks = new Map(); 				// type -> id -> Block
 		this.blockPrototypes = new Map();
 
-		this.cIdx = 0;
+		this.cIdx = 0;							// Create block index. Used to auto align non-aligned blocks
 
 		this.div = document.createElement('div');
 		this.div.classList.add('rawNodesWrapper');
@@ -135,7 +135,7 @@ export default class RawNodes{
 
 			if( this.mouseChanged ){
 				this.mouseChanged = false;
-				this.onChange();
+				this.raiseChangedEvent();
 			}
 
 		};
@@ -199,7 +199,6 @@ export default class RawNodes{
 			this.drawContextMenu(event, this.div);
 		};
 
-		this.ini = true;
 
 	}
 
@@ -417,6 +416,7 @@ export default class RawNodes{
 
 	connect( parentElement ){
 
+		this.ini = true;
 		parentElement.append(this.div);
 		const size = this.div.getBoundingClientRect();
 		this.x = size.width/2;
@@ -429,6 +429,16 @@ export default class RawNodes{
 
 		if( this.blockPrototypes.has(type) )
 			throw new Error("Block type already exists: "+type);
+
+		if( !config || typeof config !== "object" )
+			config = {};
+
+		if( isNaN(config.x) || isNaN(config.y) )
+			++this.cIdx;
+		if( isNaN(config.x) )
+			config.x = this.cIdx*25;
+		if( isNaN(config.y) )
+			config.x = this.cIdx*25;
 
 		this.blocks.set(type, new Map());
 		const out = new BlockType( type, config, this );
@@ -449,11 +459,13 @@ export default class RawNodes{
 		this.blocks.get(type).set(id, out);
 		this.divBlocks.append(out.div);
 
+		this.render();
+		this.raiseChangedEvent();
+		// onCreate last
 		if( typeof typeDef.onCreate === 'function' )
 			typeDef.onCreate(out);
 
-		this.render();
-		this.onChange();
+		
 		return out;
 
 	}
@@ -475,8 +487,8 @@ export default class RawNodes{
 		);
 		cur.div.remove();
 		if( typeof cur._btype.onDelete === "function" )
-				cur._btype.onDelete(cur);
-
+			cur._btype.onDelete(cur);
+		this.raiseChangedEvent(); // Changed last
 		this.render();
 
 	}
@@ -548,9 +560,11 @@ export default class RawNodes{
 	}
 
 	raiseChangedEvent(){
+
 		if( !this.ini )
 			return;
 		this.onChange();
+
 	}
 
 	// overwrite this with your custom logi
@@ -566,7 +580,7 @@ export default class RawNodes{
 
 		}
 		this.render();
-		this.onChange();
+		this.raiseChangedEvent();
 
 	}
 

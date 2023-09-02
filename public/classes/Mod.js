@@ -35,7 +35,7 @@ import LoadingTip from './LoadingTip.js';
 
 	_e : Built into every Generic object
 	_ext : true -> Already extended (not saved)
-	_h : hidden from main list
+	_h : hidden from main list. RPs also use this as a string ID for unique assets tied to a roleplay (for the node graph editor)
 */
 
 // Ext is internal only
@@ -481,12 +481,35 @@ export default class Mod extends Generic{
 		}
 	}
 
+	// Special case for items that use the node graph editor. Then _h links to the root node, such as a roleplay.
+	// Note that legacy roleplays don't have the _h set, and load by recursion instead.
+	// This isn't very fast since it relies on getAssetById for extend
+	getAssetsByH( type, rootID, extend = true ){
+
+		let out = [];
+
+		if( !Array.isArray(this[type]) )
+			throw 'Trying to fetch an id from non array: '+type;
+
+		for( let asset of this[type] ){
+			
+			if( asset._h === rootID )
+				out.push(this.getAssetById(type, asset.id, extend));
+
+		}
+		return out;
+
+	}
 
 	// Deletes a single asset
 	// Note: allows both label and id and _e, allowing you to technically delete "root" extensions this way by root id
-	deleteAsset( type, id, onlyIfParented = false ){
+	// leaveChildFields lets you specify linked children that shouldn't be deleted, even if it creates orphans. The nodes editor relies on that. Note that this currently doesn't support children that use _mParent. You could probably add it in later if needed, but RP doesn't rely on it.
+	deleteAsset( type, id, onlyIfParented = false, leaveChildFields = [] ){
 
 		const yeetSubAssets = (subtype, asset, field ) => {
+
+			if( leaveChildFields.includes(field) )
+				return;
 
 			let removeThese = asset[field] ? asset[field].slice() : [];
 
@@ -809,7 +832,7 @@ export default class Mod extends Generic{
 			};
 			
 		if( asset._h )
-			out._h = true;
+			out._h = asset._h;
 
 		if( constructor.getRelations ){
 
@@ -857,7 +880,7 @@ export default class Mod extends Generic{
 								label: tag
 							};
 						if( sub._h )
-							created._h = true;
+							created._h = sub._h;
 
 						arr[index] = created.label || created.id;
 

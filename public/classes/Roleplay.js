@@ -24,9 +24,9 @@ export default class Roleplay extends Generic{
 		this.parent = parent;
 		this.desc = '';				// Editor description
 		
-		this.stage = '';
+		this.stage = '';			// Active stage (game only)
 		this.persistent = false;	// If set to true, the stage is saved and continued from there. Otherwise if you close and re-open, it resets to 0
-		this.completed = false;
+		this.completed = false;		// Completed or not (game only)
 		this.label = '';
 		this.stages = [];			// Roleplay stages
 		this.player = '';
@@ -822,6 +822,15 @@ RoleplayStage.Shuffle = {
 	ALL_BUT_LAST : 2,
 };
 
+RoleplayStage.getShuffleTypeLabel = function( shuffleType ){
+	for( let i in this.Shuffle ){
+
+		if( this.Shuffle[i] === shuffleType )
+			return i;
+
+	}
+}
+
 RoleplayStage.StoreType = {
 	IGNORE : 0,
 	SET : 1,
@@ -830,6 +839,13 @@ RoleplayStage.StoreType = {
 	REM : 4,
 	PURGE : 5,
 	SHIFT : 6,
+};
+
+RoleplayStage.getStoreTypeLabel = function( storeType ){
+	for( let i in this.StoreType ){
+		if( this.StoreType[i] === storeType )
+			return i;
+	}
 };
 
 // Who should be considered the target for texts and game actions
@@ -994,6 +1010,13 @@ export class RoleplayStageOption extends Generic{
 RoleplayStageOption.ChatType = {
 	default : 0,		// Output into chat. Use /me for emote
 	none : 2,			// Don't output chat
+};
+
+RoleplayStageOption.getChatTypeLabel = function(cType){
+	for( let i in this.ChatType ){
+		if( this.ChatType[i] === cType )
+			return i;
+	}
 };
 
 export class RoleplayStageOptionGoto extends Generic{

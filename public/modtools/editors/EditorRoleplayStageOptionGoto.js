@@ -2,20 +2,53 @@ import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
 
 import * as EditorCondition from './EditorCondition.js';
+import * as EditorRoleplayStage from './EditorRoleplayStage.js';
+import * as EditorGraph from './EditorGraph.js';
 import Roleplay, { RoleplayStageOptionGoto } from '../../classes/Roleplay.js';
 
-const DB = 'roleplayStageOptionGoto',
+export const DB = 'roleplayStageOptionGoto',
 	CONSTRUCTOR = RoleplayStageOptionGoto;
 
 
 export function nodeBlock( nodes ){
 
-	nodes.addBlockType("Goto", {color:"#AFF", width:'100px'})
+	nodes.addBlockType("Goto", {
+		color:"#AFF", 
+		width:'200px',
+		onCreate : block => EditorGraph.onBlockCreate(block, DB, nodeBlockUpdate),
+		onDelete : block => EditorGraph.onBlockDelete(block, DB),
+	})
 		.addInput('Stage', 'Stage', {single:true})
 	;
 
 }
 
+// Connect our linked objects to target outputs
+export function nodeConnect( asset, nodes ){
+
+	let idx = asset.index;
+	if( idx )
+		EditorGraph.autoConnect( nodes, EditorRoleplayStage, "Stage", [idx], "Goto", asset.id, "Stage", true );
+	
+}
+
+export function nodeBuild( asset, nodes ){
+
+	// Add the block
+	const block = nodes.addBlock('Goto', asset.id, {x:asset._x, y:asset._y});
+	nodeBlockUpdate(asset, block);
+
+}
+
+export function nodeBlockUpdate( asset, block ){
+
+	let out = '<i>Conditions:</i>';
+	out += '<div class="conditions">';
+		out += esc(Array.isArray(asset.conditions) ? asset.conditions.join(", ") : 'UNCONDITIONAL');
+	out += '</div>';
+	block.setContent(out);
+
+}
 
 // Single asset editor
 export function asset(){

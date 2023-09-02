@@ -335,6 +335,25 @@ function fuzzyFileSize( size_in_bytes ){
 
 }
 
+// Shallow compares 2 arrays. Returns true if they match.
+function compareArrays( a, b ){
+	
+	if( Array.isArray(a) !== Array.isArray(b) )
+		return false;
+
+	if( !Array.isArray(a) )
+		return true;
+
+	if( a.length !== b.length )
+		return false;
+
+	for( let i = 0; i < a.length; ++i ){
+		if( a[i] !== b[i] )
+			return false;
+	}
+	return true;
+
+}
 
 // handles up to 100
 function numberToText( nr = 0 ){

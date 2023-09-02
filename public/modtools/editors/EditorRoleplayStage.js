@@ -5,20 +5,102 @@ import * as EditorPlayer from './EditorPlayer.js';
 import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import Roleplay, { RoleplayStage, RoleplayStageOption } from '../../classes/Roleplay.js';
+import * as EditorGraph from './EditorGraph.js';
 
-const DB = 'roleplayStage',
+export const DB = 'roleplayStage',
 	CONSTRUCTOR = RoleplayStage;
 
 	
 export function nodeBlock( nodes ){
 
-	nodes.addBlockType("Stage", {color:"#FFA", height:"50px"})
+	nodes.addBlockType("Stage", {
+		color:"#FFA", 
+		height:"50px",
+		onCreate : block => EditorGraph.onBlockCreate(block, DB, nodeBlockUpdate),
+		onDelete : block => EditorGraph.onBlockDelete(block, DB, ['options']),
+	})
 		.addInput('Replies', 'Reply')
 	;
 
+}
+
+export function nodeBuild( asset, nodes, root ){
+
+	const blockType = 'Stage';
+
+	// Add the block
+	const block = nodes.addBlock(blockType, asset.id, {x:asset._x, y:asset._y});
+	nodeBlockUpdate(asset, block);
+	
+	// add the roleplay stage options
+	EditorGraph.buildSubBlocks( nodes, asset.options, EditorRoleplayStageOption, root );
+	
+	
+}
+
+// Connect our linked objects to target outputs
+export function nodeConnect( asset, nodes ){
+
+	EditorGraph.autoConnect( nodes, EditorRoleplayStageOption, "Reply", asset.options, "Stage", asset.id, "Replies" );
 
 }
 
+
+export function nodeBlockUpdate( asset, block ){
+
+	const texts = asset.text || [];
+
+	// Todo: these should open an editor, and there should be an add button
+	let out = '<div class="texts">';
+	for( let id of texts ){
+
+		const text = window.mod.mod.getAssetById('texts', id);
+		out += '<div class="text" data-id="'+esc(text.id)+'">';
+			out += '<b>'+esc(text.text)+'</b><br />';
+			out += '<i style="font-size:10px;color:#AAA">'+( Array.isArray(text.conditions) ? esc(text.conditions.join(', ')) : 'UNCONDITIONAL')+'</i>';
+		out += '</div>';
+
+	}
+	out += '</div>';
+
+
+	if( asset.portrait || asset.name || asset.player ){
+
+		out += '<div class="label">';
+		if( asset.portrait )
+			out += 'Portrait: "'+esc(asset.portrait)+'" ';
+		if( asset.name )
+			out += 'Name: "'+esc(asset.name)+'" ';
+		if( asset.player )
+			out += 'Player: "'+esc(window.mod.mod.getAssetById("players", asset.player)?.name)+'" ';
+		out += '</div>';
+
+	}
+
+	out += '<input type="button" class="addText" value="+ New Text" />';
+
+	if( asset.leave )
+		out += '<div class="label">[Leave]</div>';
+
+	if( asset.chat === RoleplayStageOption.ChatType.none )
+		out += '<div class="label">NO Chat</div>';
+
+	if( asset.store_pl )
+		out += '<div class="label">Store player: '+RoleplayStage.getStoreTypeLabel(asset.store_pl)+'</div>';
+
+	if( asset.shuffle_texts )
+		out += '<div class="label">Shuffle texts: '+RoleplayStage.getShuffleTypeLabel(asset.shuffle_texts)+'</div>';
+
+	if( Array.isArray(asset.game_actions) )
+		out += '<div class="label">Game actions: '+esc(asset.game_actions.join(', '))+'</div>';
+
+	if( asset.target && asset.target !== RoleplayStage.Target.auto )
+		out += '<div class="label">Target override: '+esc(asset.target)+'</div>';
+
+
+	block.setContent(out);
+
+}
 
 // Single asset editor
 export function asset(){

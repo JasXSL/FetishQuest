@@ -1,8 +1,9 @@
 /*
 	Todo:
 	- Add block data
-	- Link more types
-	- Handle asset deletions from DB
+		- Edit buttons
+		- CSS styles
+	- Auto refresh block data
 */
 import HelperAsset from './HelperAsset.js';
 
@@ -22,11 +23,12 @@ const DB = 'roleplay',
 
 export function nodeBuild( asset, nodes ){
 
-	const blockTypes = [
-		EditorRoleplayStage.nodeBlock,
-		EditorRoleplayStageOption.nodeBlock,
-		EditorRoleplayStageOptionGoto.nodeBlock,
-	];
+	const blockTypes = {
+		Stage : EditorRoleplayStage,
+		Reply : EditorRoleplayStageOption,
+		Goto : EditorRoleplayStageOptionGoto,
+	};
+
 
 	// Register the base roleplay type. Must be first.
 	nodes.addBlockType('Roleplay', {
@@ -38,54 +40,37 @@ export function nodeBuild( asset, nodes ){
 	.addInput('FirstStage', 'Stage', {single:true});
 
 	// Register the needed subtypes
-	for( let fn of blockTypes )
-		fn(nodes);
+	for( let i in blockTypes )
+		blockTypes[i].nodeBlock(nodes);
 
 	
 
 	const rootBlock = nodes.addBlock('Roleplay', asset.id, {x:asset.x, y:asset.y, noDelete:true});
+	nodeBlockUpdate(asset, rootBlock);
 
 	nodes.onChange = () => nodeCompile(asset, nodes);
 
-	// Add the blocks
-	let i = 0;
-	const addBlock = (type, id, x, y) => {
-		
-		if( !x || !y )
-			++i;
-		if( !x )
-			x = i*50;
-		if( !y )
-			y = i*50;
-
-		nodes.addBlock(type, id, {x, y});
-
-	};
-
-	const cache = new Map(); // Flat list of related objects by BlockType : dbAsset 
-	cache.set("Stage", []);
-	cache.set("Reply", []);
-	cache.set("Goto", []);
-
 	// Create the blocks
 	const stages = asset.stages || [];
+	const stageObjs = []; // cache
+	let firstStage;
 	for( let stage of stages ){
 		
-		const asset = mod.getAssetById('roleplayStage', stage);
-		// Add the block
-		addBlock('Stage', stage, asset._x, asset._y);
-		cache.get("Stage").push(asset);
+		const stageAsset = mod.getAssetById('roleplayStage', stage);
+		stageObjs.push(stageAsset);
+		EditorRoleplayStage.nodeBuild(stageAsset, nodes, asset); // recursive
+		if( !firstStage )
+			firstStage = stageAsset;
 
 	}
 
 
 	// link the RP to the first stage
-	const firstStage = cache.get("Stage")[0];
-	console.log(firstStage);
 	if( firstStage )
 		nodes.getBlock("Stage", firstStage.id).attach(rootBlock.type, rootBlock.id, "FirstStage");
 	
-
+	for( let stage of stageObjs )
+		EditorRoleplayStage.nodeConnect(stage, nodes);
 
 
 
@@ -97,30 +82,39 @@ export function nodeCompile( asset, nodes ){
 	let isDirty = false;
 	const buildMissingAsset = (db, id, x, y) => {
 
-		const asset = mod.getAssetById(db, id);
+		const saveAsset = mod.getAssetById(db, id);
 		
 		// update
-		if( asset && asset._x === x && asset._y === y )
-			return;
+		if( saveAsset && asset._x === x && asset._y === y )
+			return saveAsset;
 
 		isDirty = true;
 
 		// Already exists, but x/y has been changed
-		if( asset ){
+		if( saveAsset ){
 
-			asset._x = x;
-			asset._y = y;
+			saveAsset._x = x;
+			saveAsset._y = y;
 
-			return;
+			return saveAsset;
 		}
 
 		const obj = {
 			id,
-			_h : 1,
+			_h : asset.id,
 			_x : x,
 			_y : y,
 		};
 		mod.mergeAsset(db, obj);
+		return obj;
+
+	};
+	const setAssetLinks = (dbAsset, field, replace) => {
+
+		if( compareArrays(dbAsset[field], replace) )
+			return;
+		isDirty = true;
+		dbAsset[field] = replace;
 
 	};
 
@@ -143,23 +137,88 @@ export function nodeCompile( asset, nodes ){
 	// Make sure the stage connected to the RP goes first
 	if( fsid )
 		stages.unshift(fsid);
-	for( let stage of stages )
-		buildMissingAsset("roleplayStage", stage.id, stage.x, stage.y);
+	for( let stage of stages ){
+
+		const dbAsset = buildMissingAsset("roleplayStage", stage.id, stage.x, stage.y);
+		setAssetLinks(dbAsset, "options", stage.Replies);
+
+	}
 	asset.stages = stages.map(el => el.id);
 
-
 	// :: Reply -> roleplayStageOption
+	for( let re of flat.Reply ){
 
+		const dbAsset = buildMissingAsset("roleplayStageOption", re.id, re.x, re.y);
+		setAssetLinks(dbAsset, "index", re.Gotos);
 
+	}
 
 	// :: Goto -> roleplayStageOptionGoto
+	for( let goto of flat.Goto ){
+		
+		const dbAsset = buildMissingAsset("roleplayStageOptionGoto", goto.id, goto.x, goto.y);
+		if( dbAsset.index !== goto.Stage ){
 
-	
+			dbAsset.index = goto.Stage;
+			isDirty = true;
+
+		}
+		
+	}
+
 	if( isDirty )
 		window.mod.setDirty(true);
 	
 
 	
+}
+
+export function nodeBlockUpdate( asset, block ){
+
+	let out = '<div class="label">';
+		out += '<b>'+esc(asset.label)+'</b>';
+	out += '</div>';
+	if( asset.desc )
+		out += '<div class="label">'+esc(asset.desc)+'</div>';
+	let properties = [];
+	if( asset.persistent )
+		properties.push("PERSISTENT");
+	if( asset.once )
+		properties.push("ONCE");
+	if( asset.autoplay )
+		properties.push("AUTO PLAY" + (asset.apOnce ? ' ONCE' : ''));
+	if( asset.persistent )
+		properties.push("VARS PERSIST");
+	if( asset.portrait )
+		properties.push("Portrait: "+esc(asset.portrait));
+
+	out += '<div class="label">'+esc(properties.join(', '))+'</div>';
+	
+
+	if( asset.player )
+		out += '<div class="label">Player: '+esc(window.mod.mod.getAssetById("players", asset.player)?.label)+'</div>';
+
+	if( Array.isArray(asset.conditions) ){
+		out += '<i>Conditions:</i><br />';
+		out += '<div class="label">'+esc(asset.conditions.join(', '))+'</div>';
+	}
+	if( Array.isArray(asset.playerConds) ){
+		out += '<i>PlayerConds:</i><br />';
+		out += '<div class="label">'+esc(asset.playerConds.join(', '))+'</div>';
+		out += '<label>Min players: '+esc(asset.minPlayers)+', Max players: '+esc(asset.maxPlayers)+'</label>';
+
+	}
+	if( Array.isArray(asset.gameActions) ){
+		out += '<i>Game Actions:</i><br />';
+		out += '<div class="label">'+esc(asset.gameActions.join(', '))+'</div>';
+	}
+
+	if( typeof asset.vars === "object" && Object.keys(asset.vars).length )
+		out += '<div class="label">Vars: '+esc(JSON.stringify(asset.vars))+'</div>';
+
+
+	block.setContent(out);
+
 }
 
 // Single asset editor
