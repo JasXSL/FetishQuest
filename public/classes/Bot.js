@@ -176,6 +176,7 @@ class Bot{
 					) ||
 					chance < 0.1 || 		// 10% chance to go yolo and attack
 					AP > this.player.getMaxMomentum()*0.6 ||	// If greater or equal to 60%, always attack.
+					AP > 12 ||
 					this.player.getTauntedBy(undefined, false).length
 				)
 			){

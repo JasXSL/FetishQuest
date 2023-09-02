@@ -11,14 +11,16 @@ const DB = 'roleplayStageOption',
 	CONSTRUCTOR = RoleplayStageOption;
 
 
-export function nodeBlock( typePlugin ){
+export function nodeBlock( nodes ){
 
-	typePlugin.addType("reply", "yellow");
-	return new BaklavaJS.Core.NodeBuilder("Reply")
-		.addInputInterface("Goto", undefined, null, { type: "goto" })
-		.addOutputInterface("id", { type: "reply" })
-		.build()
-	;
+	nodes.addBlockType("Reply", {
+		color:"#AFA", 
+		width:'200px', 
+		height:'50px', 
+		onCreate : block => {
+			console.log("Created reply block", block);
+	}})
+	.addInput('Gotos', 'Goto');
 
 }
 

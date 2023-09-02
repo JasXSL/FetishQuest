@@ -7,6 +7,16 @@ import Roleplay, { RoleplayStageOptionGoto } from '../../classes/Roleplay.js';
 const DB = 'roleplayStageOptionGoto',
 	CONSTRUCTOR = RoleplayStageOptionGoto;
 
+
+export function nodeBlock( nodes ){
+
+	nodes.addBlockType("Goto", {color:"#AFF", width:'100px'})
+		.addInput('Stage', 'Stage', {single:true})
+	;
+
+}
+
+
 // Single asset editor
 export function asset(){
 

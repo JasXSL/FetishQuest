@@ -10,15 +10,11 @@ const DB = 'roleplayStage',
 	CONSTRUCTOR = RoleplayStage;
 
 	
-export function nodeBlock( typePlugin ){
+export function nodeBlock( nodes ){
 
-	typePlugin.addType("stage", "orange");
-	
-	return new BaklavaJS.Core.NodeBuilder("Stage")
-		.addInputInterface("Texts", undefined, null, { type: "text" })
-		.addInputInterface("Replies", undefined, null, { type: "reply" })
-		.addOutputInterface("id", { type: "stage" })
-		.build();
+	nodes.addBlockType("Stage", {color:"#FFA", height:"50px"})
+		.addInput('Replies', 'Reply')
+	;
 
 
 }

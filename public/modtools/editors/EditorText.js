@@ -13,17 +13,6 @@ const DB = 'texts',
 	CONSTRUCTOR = Text
 ;
 
-export function nodeBlock( typePlugin ){
-
-	typePlugin.addType("text", "white");
-	
-	return new BaklavaJS.Core.NodeBuilder("Text")
-		.addOutputInterface("id", { type: "text" })
-		.build();
-
-
-}
-
 // Asset editor
 export function asset(){
 

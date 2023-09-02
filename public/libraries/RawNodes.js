@@ -241,11 +241,12 @@ export default class RawNodes{
 				
 				if( !ty.noAdd ){
 
+					const cbb = this.div.getBoundingClientRect();
 					opts.set('+ <span style="color:'+ty.color+'">' + ty.name + '</span>', () => {
 
 						this.addBlock(ty.name, undefined, {
-							x : (this.lastX-this.x)/this.zoom,
-							y : (this.lastY-this.y)/this.zoom,
+							x : (this.lastX-this.x)/this.zoom-cbb.left,
+							y : (this.lastY-this.y)/this.zoom-cbb.top,
 						});
 
 					});
@@ -286,8 +287,8 @@ export default class RawNodes{
 
 		const cbb = this.div.getBoundingClientRect();
 		const bb = this.divRightClickMenu.getBoundingClientRect();
-		let left = this.lastX;
-		let top = this.lastY;
+		let left = this.lastX-cbb.left;
+		let top = this.lastY-cbb.top;
 
 		if( left+bb.width > cbb.width )
 			left = cbb.width-bb.width;
@@ -327,6 +328,7 @@ export default class RawNodes{
 
 		const left = this.div.offsetLeft, top = this.div.offsetTop;
 		const radius = 7*this.zoom;
+
 	
 		for( let block of blocks ){
 
@@ -335,8 +337,8 @@ export default class RawNodes{
 
 			// start location relative to viewer
 			const baseRect = block.outputNode.getBoundingClientRect();
-			let baseLeft = baseRect.left-left+radius,
-				baseTop = baseRect.top-top+radius
+			let baseLeft = baseRect.left-left+radius-rect.left,
+				baseTop = baseRect.top-top+radius-rect.top
 			;
 
 			for( let con of block.connections ){
@@ -345,8 +347,8 @@ export default class RawNodes{
 				let targDiv = targ.inputNodes.get(con.parent.type).get(con.label);
 				const targRect = targDiv.getBoundingClientRect();
 
-				let targLeft = targRect.left-left+radius,
-					targTop = targRect.top-top+radius
+				let targLeft = targRect.left-left+radius-rect.left,
+					targTop = targRect.top-top+radius-rect.top
 				;
 				
 				const line = document.createElementNS(svgNS,'path');
@@ -393,10 +395,10 @@ export default class RawNodes{
 
 			}
 			const offs = -30;
-			const startLeft = coords.left+radius;
-			const startTop = coords.top+radius;
-			const endLeft = this.lastX;
-			const endTop = this.lastY;
+			const startLeft = coords.left+radius-rect.left;
+			const startTop = coords.top+radius-rect.top;
+			const endLeft = this.lastX-rect.left;
+			const endTop = this.lastY-rect.top;
 			
 
 			// Draw the line
@@ -451,6 +453,7 @@ export default class RawNodes{
 			typeDef.onCreate(out);
 
 		this.render();
+		this.onChange();
 		return out;
 
 	}
@@ -570,8 +573,10 @@ export default class RawNodes{
 	panToFirst(){
 
 		const first = this.getBlocksArray()[0];
-		this.x = -first.x;
-		this.y = -first.y;
+		const bb = this.div.getBoundingClientRect();
+		const bw = first.div.getBoundingClientRect();
+		this.x = bb.width/2-first.x-bw.width/2;
+		this.y = bb.height/2-first.y-bw.height/2;
 		this.render();		
 
 	}
@@ -678,6 +683,8 @@ export class Block{
 		let out = {
 			id : this.id,
 			type : this.type,
+			x : this.x,
+			y : this.y,
 		};
 
 		this._btype.inputs.forEach(el => {

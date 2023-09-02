@@ -1,9 +1,18 @@
+/*
+	Todo:
+	- Add block data
+	- Link more types
+	- Handle asset deletions from DB
+*/
 import HelperAsset from './HelperAsset.js';
 
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorPlayer from './EditorPlayer.js';
 import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorRoleplayStage from './EditorRoleplayStage.js';
+import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
+import * as EditorRoleplayStageOptionGoto from './EditorRoleplayStageOptionGoto.js';
+
 import Roleplay from '../../classes/Roleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
 
@@ -11,17 +20,146 @@ import Generic from '../../classes/helpers/Generic.js';
 const DB = 'roleplay',
 	CONSTRUCTOR = Roleplay;
 
+export function nodeBuild( asset, nodes ){
 
-export function nodeBlock( typePlugin ){
+	const blockTypes = [
+		EditorRoleplayStage.nodeBlock,
+		EditorRoleplayStageOption.nodeBlock,
+		EditorRoleplayStageOptionGoto.nodeBlock,
+	];
 
-	typePlugin.addType("roleplay", "red");
+	// Register the base roleplay type. Must be first.
+	nodes.addBlockType('Roleplay', {
+		color : "#FAA",
+		width : '150px',
+		noAdd : true,
+		noOutput : true,
+	})
+	.addInput('FirstStage', 'Stage', {single:true});
+
+	// Register the needed subtypes
+	for( let fn of blockTypes )
+		fn(nodes);
+
 	
-	return new BaklavaJS.Core.NodeBuilder("Roleplay")
-		.addInputInterface("Stages", undefined, null, { type: "stage" })
-		.addOption("label", "InputOption")
-		.addOption("Editor", "OpenEditorOption")
-		.build();
 
+	const rootBlock = nodes.addBlock('Roleplay', asset.id, {x:asset.x, y:asset.y, noDelete:true});
+
+	nodes.onChange = () => nodeCompile(asset, nodes);
+
+	// Add the blocks
+	let i = 0;
+	const addBlock = (type, id, x, y) => {
+		
+		if( !x || !y )
+			++i;
+		if( !x )
+			x = i*50;
+		if( !y )
+			y = i*50;
+
+		nodes.addBlock(type, id, {x, y});
+
+	};
+
+	const cache = new Map(); // Flat list of related objects by BlockType : dbAsset 
+	cache.set("Stage", []);
+	cache.set("Reply", []);
+	cache.set("Goto", []);
+
+	// Create the blocks
+	const stages = asset.stages || [];
+	for( let stage of stages ){
+		
+		const asset = mod.getAssetById('roleplayStage', stage);
+		// Add the block
+		addBlock('Stage', stage, asset._x, asset._y);
+		cache.get("Stage").push(asset);
+
+	}
+
+
+	// link the RP to the first stage
+	const firstStage = cache.get("Stage")[0];
+	console.log(firstStage);
+	if( firstStage )
+		nodes.getBlock("Stage", firstStage.id).attach(rootBlock.type, rootBlock.id, "FirstStage");
+	
+
+
+
+
+}
+
+export function nodeCompile( asset, nodes ){
+
+	const mod = window.mod.mod;
+	let isDirty = false;
+	const buildMissingAsset = (db, id, x, y) => {
+
+		const asset = mod.getAssetById(db, id);
+		
+		// update
+		if( asset && asset._x === x && asset._y === y )
+			return;
+
+		isDirty = true;
+
+		// Already exists, but x/y has been changed
+		if( asset ){
+
+			asset._x = x;
+			asset._y = y;
+
+			return;
+		}
+
+		const obj = {
+			id,
+			_h : 1,
+			_x : x,
+			_y : y,
+		};
+		mod.mergeAsset(db, obj);
+
+	};
+
+	// node aliases for DB
+	const flat = nodes.flatten();
+
+	const rp = flat.Roleplay[0];
+	if( asset._x !== rp.x || asset._y !== rp.y ){
+
+		asset._x = rp.x;
+		asset._y = rp.y;
+		isDirty = true;
+
+	}
+
+	// :: Stage -> stages ::
+	// First compile the stages. Order matters here.
+	const fsid = flat.Roleplay.FirstStage;
+	let stages = flat.Stage.filter(el => el.id !== fsid);
+	// Make sure the stage connected to the RP goes first
+	if( fsid )
+		stages.unshift(fsid);
+	for( let stage of stages )
+		buildMissingAsset("roleplayStage", stage.id, stage.x, stage.y);
+	asset.stages = stages.map(el => el.id);
+
+
+	// :: Reply -> roleplayStageOption
+
+
+
+	// :: Goto -> roleplayStageOptionGoto
+
+	
+	if( isDirty )
+		window.mod.setDirty(true);
+	
+
+	
 }
 
 // Single asset editor
@@ -56,7 +194,7 @@ export function asset(){
 
 	html += 'Stages: <div class="stages"></div>';
 
-	html += '<input type="button" value="Node Editor (Experimental)" class="rpNodeEditor" /><br />';
+	html += '<input type="button" value="Outliner" class="rpNodeEditor" /><br />';
 
 
 	// Conditions
