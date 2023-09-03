@@ -842,9 +842,14 @@ RoleplayStage.StoreType = {
 };
 
 RoleplayStage.getStoreTypeLabel = function( storeType ){
+
+	storeType = parseInt(storeType);
+	if( !storeType )
+		storeType = RoleplayStage.StoreType.IGNORE;
 	for( let i in this.StoreType ){
-		if( this.StoreType[i] === storeType )
+		if( this.StoreType[i] === storeType ){
 			return i;
+		}
 	}
 };
 

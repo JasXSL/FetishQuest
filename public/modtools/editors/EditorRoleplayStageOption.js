@@ -8,13 +8,15 @@ import * as EditorGraph from './EditorGraph.js';
 import { RoleplayStageOption, RoleplayStageOptionGoto } from '../../classes/Roleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
 
-export const DB = 'roleplayStageOption';
-export const CONSTRUCTOR = RoleplayStageOption;
+export const DB = 'roleplayStageOption',
+	CONSTRUCTOR = RoleplayStageOption,
+	BLOCKTYPE = 'Reply'
+;
 
 
 export function nodeBlock( nodes ){
 
-	nodes.addBlockType("Reply", {
+	nodes.addBlockType(BLOCKTYPE, {
 		color:"#AFA", 
 		width:'200px', 
 		height:'50px', 
@@ -30,14 +32,14 @@ export function nodeBlock( nodes ){
 // Connect our linked objects to target outputs
 export function nodeConnect( asset, nodes ){
 
-	EditorGraph.autoConnect( nodes, EditorRoleplayStageOptionGoto, "Goto", asset.index, "Reply", asset.id, "Gotos" );
+	EditorGraph.autoConnect( nodes, EditorRoleplayStageOptionGoto, "Goto", asset.index, BLOCKTYPE, asset.id, "Gotos" );
 
 }
 
 export function nodeBuild( asset, nodes, root ){
 
 	// Add the block
-	const block = nodes.addBlock('Reply', asset.id, {x:asset._x, y:asset._y});
+	const block = nodes.addBlock(BLOCKTYPE, asset.id, {x:asset._x, y:asset._y});
 	nodeBlockUpdate(asset, block);
 
 	// Add goto options
@@ -47,25 +49,31 @@ export function nodeBuild( asset, nodes, root ){
 
 export function nodeBlockUpdate( asset, block ){
 
-	let out = '<i>Text:</i>';
-	out += '<div class="label">';
-		out += esc(asset.text) || '!!NO TEXT!!';
+	let out = '';
+	out += '<div class="label important">';
+		out += esc(asset.text || '[Continue]');
 	out += '</div>';
-	out += '<div class="label">';
-		out += (RoleplayStageOption.getChatTypeLabel(asset.getChatTypeLabel) || 'default') + ' chat';
-	out += '</div>';
-	out += '<div class="label">';
-		out += 'Shuffle '+(asset.shuffle ? 'ON' : 'OFF');
-	out += '</div>';
+
+	let properties = [];
+	if( asset.chat === RoleplayStageOption.ChatType.none )
+		properties.push("SILENT");
+	if( asset.shuffle )
+		properties.push("SHUFFLE");
+
+	if( properties.length ){
+		out += '<div class="label unimportant">';
+			out += esc(properties.join(", "));
+		out += '</div>';
+	}
 	
 	if( Array.isArray(asset.conditions) ){
-		out += '<div class="label">';
+		out += '<div class="label unimportant">';
 			out += 'Conditions: '+esc(asset.conditions.join(", "));
 		out += '</div>';
 	}
 
 	if( Array.isArray(asset.game_actions) ){
-		out += '<div class="label">';
+		out += '<div class="label unimportant">';
 			out += esc(asset.game_actions.join(", "));
 		out += '</div>';
 	}

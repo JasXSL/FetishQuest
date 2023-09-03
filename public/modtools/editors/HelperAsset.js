@@ -473,8 +473,6 @@ export default{
 				// Remove the actual thing
 				else{
 
-					
-				
 					// Don't need to store this param in the mod anymore
 					if( single )
 						delete entries[key];	
@@ -1261,7 +1259,7 @@ export default{
 
 	onInsertAsset( type, asset, win, openEditor = true, windowData = '' ){
 
-		if( win.editorOnCreate )
+		if( win?.editorOnCreate )
 			win.editorOnCreate(win, asset);
 
 		mod.setDirty(true);
@@ -1292,6 +1290,9 @@ export default{
 
 	// Checks for an onChildChange method on win and any parents, and calls it
 	propagateChange( win ){
+
+		Window.getByType('Node Editor').forEach(el => el.onDbAssetChange(win.type, win.id));
+		
 
 		let p = win;
 		while( true ){

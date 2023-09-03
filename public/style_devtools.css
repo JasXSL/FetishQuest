@@ -434,10 +434,21 @@ div.rawNodesWrapper > div.blocks > div.block > div.content div.text,
 div.rawNodesWrapper > div.blocks > div.block > div.content div.label{
 	margin-bottom:3px;
 	padding:5px;
-	color:#FFF;
+	color:#DDD;
 	background:rgba(0,0,0,.25);
 
 }
+div.rawNodesWrapper > div.blocks > div.block > div.content div.label.unimportant{
+	background:none;
+	color:#BBB;
+	font-style:italic;
+}
+div.rawNodesWrapper > div.blocks > div.block > div.content div.label.important{
+	font-size:14px;
+	font-weight: bold;
+	color:#FFF;
+}
+
 div.rawNodesWrapper > div.blocks > div.block > div.content div.text:hover{
 	background:rgba(255,255,255,.25);
 }

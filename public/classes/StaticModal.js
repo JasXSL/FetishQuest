@@ -221,7 +221,7 @@ export default class StaticModal{
 	// newID is to prevent recursion
 	static close( force, sendUpdate = true ){
 
-		if( !game.initialized && !force ){
+		if( !window?.game.initialized && !force ){
 
 			// Special case to let you go back to the main menu
 			if( this.active && this.active.id === 'newGame' ){

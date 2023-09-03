@@ -6,17 +6,29 @@ import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import Roleplay, { RoleplayStage, RoleplayStageOption } from '../../classes/Roleplay.js';
 import * as EditorGraph from './EditorGraph.js';
+import Text from '../../classes/Text.js';
 
 export const DB = 'roleplayStage',
-	CONSTRUCTOR = RoleplayStage;
+	CONSTRUCTOR = RoleplayStage,
+	BLOCKTYPE = 'Stage';
+;
 
 	
 export function nodeBlock( nodes ){
 
-	nodes.addBlockType("Stage", {
+	const checkHasSubAsset = (asset, type, id) => {
+		return type === 'texts' && asset.text?.includes(id);
+	};
+
+	nodes.addBlockType(BLOCKTYPE, {
 		color:"#FFA", 
+		width : '400px',
 		height:"50px",
-		onCreate : block => EditorGraph.onBlockCreate(block, DB, nodeBlockUpdate),
+		onCreate : block => {
+			// Special function to check for linked assets that should cause a redraw when modified
+			block._hasSubAsset = checkHasSubAsset;
+			EditorGraph.onBlockCreate(block, DB, nodeBlockUpdate);
+		},
 		onDelete : block => EditorGraph.onBlockDelete(block, DB, ['options']),
 		onClick : (block, event) => EditorGraph.onBlockClick(DB, block, nodes),
 	})
@@ -27,10 +39,8 @@ export function nodeBlock( nodes ){
 
 export function nodeBuild( asset, nodes, root ){
 
-	const blockType = 'Stage';
-
 	// Add the block
-	const block = nodes.addBlock(blockType, asset.id, {x:asset._x, y:asset._y});
+	const block = nodes.addBlock(BLOCKTYPE, asset.id, {x:asset._x, y:asset._y});
 	nodeBlockUpdate(asset, block);
 	
 	// add the roleplay stage options
@@ -56,9 +66,10 @@ export function nodeBlockUpdate( asset, block ){
 	for( let id of texts ){
 
 		const text = window.mod.mod.getAssetById('texts', id);
-		out += '<div class="text" data-id="'+esc(text.id)+'">';
-			out += '<b>'+esc(text.text)+'</b><br />';
-			out += '<i style="font-size:10px;color:#AAA">'+( Array.isArray(text.conditions) ? esc(text.conditions.join(', ')) : 'UNCONDITIONAL')+'</i>';
+		out += '<div class="text label important" style="font-weight:normal" data-id="'+esc(text.id)+'">';
+			out += esc(text.text);
+			if( Array.isArray(text.conditions) && text.conditions.length )
+				out += '<div class="label unimportant">'+esc(text.conditions.join(', '))+'</div>';
 		out += '</div>';
 
 	}
@@ -73,7 +84,7 @@ export function nodeBlockUpdate( asset, block ){
 		if( asset.name )
 			out += 'Name: "'+esc(asset.name)+'" ';
 		if( asset.player )
-			out += 'Player: "'+esc(window.mod.mod.getAssetById("players", asset.player)?.name)+'" ';
+			out += 'Player: "'+esc(window.mod.getAssetById("players", asset.player)?.name)+'" ';
 		out += '</div>';
 
 	}
@@ -98,8 +109,32 @@ export function nodeBlockUpdate( asset, block ){
 	if( asset.target && asset.target !== RoleplayStage.Target.auto )
 		out += '<div class="label">Target override: '+esc(asset.target)+'</div>';
 
-
 	block.setContent(out);
+
+	// Custom event bindings
+	block.divContent.querySelectorAll('div.texts div.text').forEach(el => el.onclick = event => {
+		event.stopImmediatePropagation();
+
+		const id = event.currentTarget.dataset.id;
+		window.mod.buildAssetEditor("texts", id);
+
+	});
+
+	block.divContent.querySelector('input.addText').onclick = event => {
+		event.stopImmediatePropagation();
+
+		let a = new Text();
+		a = Text.saveThis(a, "mod");
+		a._h = 1;
+
+		HelperAsset.insertAsset( 'texts', a, undefined, true, {} );
+		if( !asset.text )
+			asset.text = [];
+		asset.text.push(a.id);
+
+		nodeBlockUpdate(asset, block);
+
+	};
 
 }
 

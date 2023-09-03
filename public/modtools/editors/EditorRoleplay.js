@@ -1,10 +1,3 @@
-/*
-	Todo:
-	- Add block data
-		- Edit buttons
-		- CSS styles
-	- Auto refresh block data
-*/
 import HelperAsset from './HelperAsset.js';
 
 import * as EditorCondition from './EditorCondition.js';
@@ -19,8 +12,10 @@ import Roleplay from '../../classes/Roleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
 
 
-const DB = 'roleplay',
-	CONSTRUCTOR = Roleplay;
+export const DB = 'roleplay',
+	CONSTRUCTOR = Roleplay,
+	BLOCKTYPE = 'Roleplay'
+;
 
 export function nodeBuild( asset, nodes ){
 
@@ -31,9 +26,10 @@ export function nodeBuild( asset, nodes ){
 	};
 
 	// Register the base roleplay type. Must be first.
-	nodes.addBlockType('Roleplay', {
+	nodes.addBlockType(BLOCKTYPE, {
 		color : "#FAA",
-		width : '200px',
+		width : '300px',
+		height : '200px',
 		noAdd : true,
 		noOutput : true,
 		onClick : (block, event) => EditorGraph.onBlockClick(DB, block, nodes),
@@ -46,7 +42,7 @@ export function nodeBuild( asset, nodes ){
 
 	
 
-	const rootBlock = nodes.addBlock('Roleplay', asset.id, {
+	const rootBlock = nodes.addBlock(BLOCKTYPE, asset.id, {
 		x:asset._x, 
 		y:asset._y, 
 		noDelete:true
@@ -180,8 +176,8 @@ export function nodeCompile( asset, nodes ){
 
 export function nodeBlockUpdate( asset, block ){
 
-	let out = '<div class="label">';
-		out += '<b>'+esc(asset.label)+'</b>';
+	let out = '<div class="label important">';
+		out += esc(asset.label);
 	out += '</div>';
 	if( asset.desc )
 		out += '<div class="label">'+esc(asset.desc)+'</div>';
@@ -197,29 +193,29 @@ export function nodeBlockUpdate( asset, block ){
 	if( asset.portrait )
 		properties.push("Portrait: "+esc(asset.portrait));
 
-	out += '<div class="label">'+esc(properties.join(', '))+'</div>';
+	out += '<div class="label unimportant">'+esc(properties.join(', '))+'</div>';
 	
 
 	if( asset.player )
-		out += '<div class="label">Player: '+esc(window.mod.mod.getAssetById("players", asset.player)?.label)+'</div>';
+		out += '<div class="label unimportant">Player: '+esc(window.mod.getAssetById("players", asset.player)?.label)+'</div>';
 
 	if( Array.isArray(asset.conditions) ){
 		out += '<i>Conditions:</i><br />';
-		out += '<div class="label">'+esc(asset.conditions.join(', '))+'</div>';
+		out += '<div class="label unimportant">'+esc(asset.conditions.join(', '))+'</div>';
 	}
 	if( Array.isArray(asset.playerConds) ){
 		out += '<i>PlayerConds:</i><br />';
-		out += '<div class="label">'+esc(asset.playerConds.join(', '))+'</div>';
+		out += '<div class="label unimportant">'+esc(asset.playerConds.join(', '))+'</div>';
 		out += '<label>Min players: '+esc(asset.minPlayers)+', Max players: '+esc(asset.maxPlayers)+'</label>';
 
 	}
 	if( Array.isArray(asset.gameActions) ){
 		out += '<i>Game Actions:</i><br />';
-		out += '<div class="label">'+esc(asset.gameActions.join(', '))+'</div>';
+		out += '<div class="label unimportant">'+esc(asset.gameActions.join(', '))+'</div>';
 	}
 
 	if( typeof asset.vars === "object" && Object.keys(asset.vars).length )
-		out += '<div class="label">Vars: '+esc(JSON.stringify(asset.vars))+'</div>';
+		out += '<div class="label unimportant">Vars: '+esc(JSON.stringify(asset.vars))+'</div>';
 
 
 	block.setContent(out);
@@ -292,7 +288,7 @@ export function asset(){
 			this.id,
 			{}, 			// data
 			this, 
-			{type:'Roleplay'}				// Custom
+			{type:BLOCKTYPE}				// Custom
 		);
 		
 	};

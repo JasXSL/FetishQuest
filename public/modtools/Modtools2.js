@@ -1065,7 +1065,7 @@ export default class Modtools{
 		else
 			id = asset.label || asset.id;
 
-		console.log("Creating window", id, type, asset, data, parent);
+		//console.log("Creating window", id, type, asset, data, parent);
 
 
 		const w = Window.create(

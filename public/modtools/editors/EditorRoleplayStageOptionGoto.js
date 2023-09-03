@@ -7,12 +7,14 @@ import * as EditorGraph from './EditorGraph.js';
 import Roleplay, { RoleplayStageOptionGoto } from '../../classes/Roleplay.js';
 
 export const DB = 'roleplayStageOptionGoto',
-	CONSTRUCTOR = RoleplayStageOptionGoto;
+	CONSTRUCTOR = RoleplayStageOptionGoto,
+	BLOCKTYPE = 'Goto'
+;
 
 
 export function nodeBlock( nodes ){
 
-	nodes.addBlockType("Goto", {
+	nodes.addBlockType(BLOCKTYPE, {
 		color:"#AFF", 
 		width:'200px',
 		onCreate : block => EditorGraph.onBlockCreate(block, DB, nodeBlockUpdate),
@@ -30,23 +32,23 @@ export function nodeConnect( asset, nodes ){
 
 	let idx = asset.index;
 	if( idx )
-		EditorGraph.autoConnect( nodes, EditorRoleplayStage, "Stage", [idx], "Goto", asset.id, "Stage", true );
+		EditorGraph.autoConnect( nodes, EditorRoleplayStage, "Stage", [idx], BLOCKTYPE, asset.id, "Stage", true );
 	
 }
 
 export function nodeBuild( asset, nodes ){
 
 	// Add the block
-	const block = nodes.addBlock('Goto', asset.id, {x:asset._x, y:asset._y});
+	const block = nodes.addBlock(BLOCKTYPE, asset.id, {x:asset._x, y:asset._y});
 	nodeBlockUpdate(asset, block);
 
 }
 
 export function nodeBlockUpdate( asset, block ){
 
-	let out = '<i>Conditions:</i>';
-	out += '<div class="conditions">';
-		out += esc(Array.isArray(asset.conditions) ? asset.conditions.join(", ") : 'UNCONDITIONAL');
+	let out = '';
+	out += '<div class="conditions label important">';
+		out += esc(Array.isArray(asset.conditions) ? asset.conditions.join(", ") : 'No Conditions');
 	out += '</div>';
 	block.setContent(out);
 

@@ -9,6 +9,7 @@ export default class RawNodes{
 		this.blockPrototypes = new Map();
 
 		this.cIdx = 0;							// Create block index. Used to auto align non-aligned blocks
+		this.bIdx = 0;							// Tracks the index of which block connections were added
 
 		this.div = document.createElement('div');
 		this.div.classList.add('rawNodesWrapper');
@@ -82,7 +83,7 @@ export default class RawNodes{
 						(isOutput && el.classList.contains("output")) ||
 						(!isOutput && el.classList.contains("input")) ||
 						// ignore inputs that are full
-						(isOutput && el.classList.contains("single") && this.getBlockInputs(el.dataset.id, el.dataset.label).length) // todo: cehck if full
+						(isOutput && el.classList.contains("single") && this.getBlockInputs(el.dataset.type, el.dataset.id, el.dataset.label).length) // todo: cehck if full
 					)el.classList.add('disabled');
 
 				});
@@ -125,7 +126,7 @@ export default class RawNodes{
 				this.onPan();
 
 			// clicked a line. need to refocus for things to work
-			if( this.clickTarg.classList.contains('con') )
+			if( this.clickTarg?.classList.contains('con') )
 				this.div.focus();
 
 			this.div.querySelectorAll("div.node").forEach(el =>
@@ -187,11 +188,18 @@ export default class RawNodes{
 		this.div.onwheel = event => {
 
 			event.preventDefault();
+			let mag = 0.1;
+			if( this.zoom <= 0.3 )
+				mag = 0.05;
+			if( this.zoom < 0.2 )
+				mag = 0.025;
+
 			if( event.deltaY < 0 )
-				this.zoom += 0.1;
+				this.zoom += mag;
 			else
-				this.zoom -= 0.1;
-			this.zoom = Math.min(1.5, Math.max(0.25, this.zoom));
+				this.zoom -= mag;
+			
+			this.zoom = Math.min(1.5, Math.max(0.1, this.zoom));
 			this.onPan();
 			this.render();
 			
@@ -345,6 +353,7 @@ export default class RawNodes{
 				baseTop = baseRect.top-top+radius-rect.top
 			;
 
+			let n = {};
 			for( let con of block.connections ){
 
 				let targ = this.getBlock(con.targType, con.blockID);
@@ -380,6 +389,22 @@ export default class RawNodes{
 					this.drawContextMenu(event, line);
 				};
 				this.svgLines.appendChild(line);
+
+				const nr = document.createElementNS(svgNS, 'text');
+				nr.setAttribute("fill", "#000");
+				nr.setAttribute("font-size", 20*this.zoom);
+				nr.textContent = targ.getInputIndex(con.label, block.id, true);
+				nr.setAttribute('x', baseLeft+(targLeft-baseLeft)/2);
+				nr.setAttribute('y', baseTop+(targTop-baseTop)/2);
+				nr.setAttribute('text-anchor', 'middle');
+				nr.setAttribute('font-weight', 'bold');
+				nr.setAttribute('paint-order', 'stroke');
+				nr.setAttribute('stroke-width', (5*this.zoom)+'px');
+				nr.setAttribute('stroke', block._btype.color);
+				nr.setAttribute('alignment-baseline', 'middle');
+
+				this.svgLines.appendChild(nr);
+
 
 			}
 
@@ -518,16 +543,21 @@ export default class RawNodes{
 	}
 
 	// Gets blocks linked to a blocks input by label
-	getBlockInputs( blockID, inputLabel ){
+	getBlockInputs( type, blockID, inputLabel, sort = true ){
 
 		const blocks = this.getBlocksArray();
 		let out = [];
 		for( let el of blocks ){
 			
-			const link = el.getBlockConnection(blockID, inputLabel);
+			const link = el.getBlockConnection(type, blockID, inputLabel);
 			if( link )
 				out.push(link);
 			
+		}
+		if( sort ){
+			out.sort((a,b) => {
+				return a.idx < b.idx ? -1 : 1;
+			});
 		}
 		return out;
 
@@ -601,6 +631,10 @@ export default class RawNodes{
 		this.y = bb.height/2-first.y-bw.height/2;
 		this.render();		
 
+	}
+
+	getBidx(){
+		return ++this.bIdx;
 	}
 
 }
@@ -713,7 +747,7 @@ export class Block{
 
 		this._btype.inputs.forEach(el => {
 
-			let linkedIds = this.parent.getBlockInputs(this.id, el.label).map(input => input.parent.id);
+			let linkedIds = this.parent.getBlockInputs(this.type, this.id, el.label).map(input => input.parent.id);
 			if( el.single )
 				linkedIds = linkedIds[0];
 			out[el.label] = linkedIds;
@@ -725,11 +759,11 @@ export class Block{
 
 	}
 	 
-	getBlockConnection( blockID, label ){
+	getBlockConnection( type, blockID, label ){
 
 		for( let con of this.connections ){
 			
-			if( con.blockID === blockID && con.label === label )
+			if( con.targType === type && con.blockID === blockID && con.label === label )
 				return con;
 			
 		}
@@ -739,6 +773,23 @@ export class Block{
 	getInputType( label ){
 		
 		return this._btype.getInput(label).type;
+
+	}
+
+	getInputIndex( label, blockID, undefinedIfLessThanTwo = false ){
+
+		let connections = this.parent.getBlockInputs(this.type, this.id, label);
+		if( undefinedIfLessThanTwo && connections.length < 2 )
+			return;
+
+		let n = 0;
+		for( let con of connections ){
+			
+			if( con.parent.id === blockID )
+				return n;
+			++n;
+
+		}
 
 	}
 
@@ -787,7 +838,7 @@ export class Block{
 		if( this.getBlockConnection(targ.id, label) )
 			throw new Error("Already connected!");
 
-		const con = new BlockConnection(targType, id, label, this);
+		const con = new BlockConnection(targType, id, label, this, this.parent.getBidx());
 		this.connections.push(con);
 
 		this.parent.render();
@@ -802,12 +853,13 @@ export class Block{
 
 export class BlockConnection{
 
-	constructor( targType, blockID, label, parent ){
+	constructor( targType, blockID, label, parent, idx ){
 
 		this.targType = targType;
 		this.blockID = blockID;			// Target block ID
 		this.label = label;				// Target input label
 		this.parent = parent;
+		this.idx = idx;
 
 	}
 

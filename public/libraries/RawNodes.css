@@ -38,6 +38,7 @@ div.rawNodesWrapper > div.blocks > div.block > div.header{
 	border-bottom: 1px dotted #666;
 	padding:5px;
 	background:#111;
+	overflow:hidden;
 }
 div.rawNodesWrapper > div.blocks > div.block > div.content{
 	padding:15px;
