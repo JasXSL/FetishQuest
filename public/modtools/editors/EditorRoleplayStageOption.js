@@ -3,6 +3,7 @@ import HelperAsset from './HelperAsset.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorGameAction from './EditorGameAction.js';
 import * as EditorRoleplayStageOptionGoto from './EditorRoleplayStageOptionGoto.js';
+import * as EditorRoleplayStage from './EditorRoleplayStage.js';
 import * as EditorGraph from './EditorGraph.js';
 
 import { RoleplayStageOption, RoleplayStageOptionGoto } from '../../classes/Roleplay.js';
@@ -25,7 +26,8 @@ export function nodeBlock( nodes ){
 		onClick : (block, event) => EditorGraph.onBlockClick(DB, block, nodes),
 
 	})
-	.addInput('Gotos', 'Goto');
+	.addInput('Gotos', 'Goto')
+	.addInput('Direct', 'Stage');
 
 }
 
@@ -33,6 +35,7 @@ export function nodeBlock( nodes ){
 export function nodeConnect( asset, nodes ){
 
 	EditorGraph.autoConnect( nodes, EditorRoleplayStageOptionGoto, "Goto", asset.index, BLOCKTYPE, asset.id, "Gotos" );
+	EditorGraph.autoConnect( nodes, EditorRoleplayStage, "Stage", asset.direct, BLOCKTYPE, asset.id, "Direct" );
 
 }
 
@@ -44,6 +47,7 @@ export function nodeBuild( asset, nodes, root ){
 
 	// Add goto options
 	EditorGraph.buildSubBlocks( nodes, asset.index, EditorRoleplayStageOptionGoto, root );
+	// Note: direct is not needed because ALL stages are added in EditorRoleplay
 
 }
 
@@ -114,6 +118,7 @@ export function asset(){
 
 
 	html += 'Goto Options: <div class="index"></div>';
+	html += 'Goto Direct (Outliner only): <div class="direct"></div>';
 
 	html += 'Game Actions: <div class="game_actions"></div>';
 	html += 'Conditions: <div class="conditions"></div>';
@@ -124,7 +129,7 @@ export function asset(){
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions", false, false));
 	this.dom.querySelector("div.index").appendChild(EditorRoleplayStageOptionGoto.assetTable(this, asset, "index", false, 2));
-	
+	this.dom.querySelector("div.direct").appendChild(EditorRoleplayStage.assetTable(this, asset, "direct", -1));
 
 
 	HelperAsset.autoBind( this, asset, DB);
@@ -198,6 +203,10 @@ export function help(){
 		'<tr>'+
 			'<td>Goto Options</td>'+
 			'<td>Set a RoleplayStage target. The first viable one will be picked. This allows you to have a single response take the player to different Roleplay Stages based on conditions such as gender, stats, random chance etc.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Goto Direct</td>'+
+			'<td>To speed things up, you can use directs instead of goto options. These will work the same as goto options with no conditions, and added to the end of the goto options list. This means that you\'ll never want to use more than one Goto Direct unless you also have shuffle enabled. Note: Goto direct can only be added to via the RP outliner.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>GameActions</td>'+

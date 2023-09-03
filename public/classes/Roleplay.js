@@ -869,7 +869,7 @@ export class RoleplayStageOption extends Generic{
 		return {
 			conditions : Condition,
 			game_actions : GameAction,
-			index : RoleplayStageOptionGoto
+			index : RoleplayStageOptionGoto,
 		};
 	}
 
@@ -878,6 +878,7 @@ export class RoleplayStageOption extends Generic{
 		
 		this.parent = parent;
 		
+		this.direct = [];			// These connect to stages directly. They're appended at the end of the index array
 		this.index = [];			// Target index. An array of goto objects. Integers get converted to goto objects. The first valid one will be picked or an exit option will be created.
 		this.text = '';
 		this.chat = RoleplayStageOption.ChatType.default;			// Chat type
@@ -890,9 +891,11 @@ export class RoleplayStageOption extends Generic{
 	}
 
 	load(data){
+		// Legacy conversion
 		if( data && data.index !== undefined && !Array.isArray(data.index) )
 			data.index = toArray(data.index);
 		this.g_autoload(data);
+
 	}
 	// Automatically invoked after g_autoload
 	rebase(){
@@ -914,6 +917,7 @@ export class RoleplayStageOption extends Generic{
 		};
 
 		if( full ){
+			out.direct = this.direct.slice();
 			out.index = RoleplayStageOptionGoto.saveThese(this.index, full);
 			out.chat = this.chat;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
@@ -995,6 +999,12 @@ export class RoleplayStageOption extends Generic{
 	getIndex( target ){
 
 		let index = this.index.slice();
+		for( let id of this.direct ){
+			index.push(new RoleplayStageOptionGoto({
+				index : id
+			}, this));
+		}
+
 		if( this.shuffle )
 			shuffle(index);
 

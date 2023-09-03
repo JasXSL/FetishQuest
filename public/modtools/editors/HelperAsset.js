@@ -260,6 +260,7 @@ export default{
 		key is the key in the asset to modify
 		if parented, it sets the _mParent : {type:(str)type, label:(str)label} parameter on any new assets created, and only shows assets with the same _mParent set
 		if parented is === 2, it sets _h instead to hide it. Used only in sub assets of dungeon room assets to save memory
+		if single is === -1, then it hides all inputs
 		columns can also contain functions, they'll be run with the asset as an argument
 		ignoreAsset doesn't put the asset into the list. Used by EditorQuestReward where you have multiple fields mapping the same key to different types of objects
 		windowData is passed to the new window
@@ -276,7 +277,7 @@ export default{
 		
 		const allEntries = toArray(entries[key]);
 		// Needed because :: may need to set '' as a value in order to work
-		if( single && allEntries[0] === '' )
+		if( single && single !== -1 && allEntries[0] === '' )
 			allEntries.splice(0);
 
 		const EDITOR = window.mod, MOD = EDITOR.mod;
@@ -413,7 +414,7 @@ export default{
 
 
 		// Parented single asset can only add if one is missing. Otherwise they have to edit by clicking. This works because parented can only belong to the same mod.
-		const hasButton = !single || !parented || !entries[key];
+		const hasButton = (!single || !parented || !entries[key]) && single !== -1;
 		if( hasButton ){
 
 			const tr = document.createElement("tr");

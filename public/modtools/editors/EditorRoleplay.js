@@ -151,6 +151,7 @@ export function nodeCompile( asset, nodes ){
 
 		const dbAsset = buildMissingAsset("roleplayStageOption", re.id, re.x, re.y);
 		setAssetLinks(dbAsset, "index", re.Gotos);
+		setAssetLinks(dbAsset, "direct", re.Direct);
 
 	}
 
@@ -164,6 +165,7 @@ export function nodeCompile( asset, nodes ){
 			isDirty = true;
 
 		}
+
 		
 	}
 
