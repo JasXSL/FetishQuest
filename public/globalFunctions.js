@@ -204,6 +204,7 @@ function escapeStylizeText(text){
 	return text.split('|').join('\\|');
 }
 
+// Also escapes text
 function stylizeText( txt ){
 
 	txt = esc(txt);

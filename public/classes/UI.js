@@ -2652,12 +2652,36 @@ export default class UI{
 
 			html = '';
 			let sel = false;
-			const options = stage.getOptions(game.getMyActivePlayer());
+			const options = stage.getOptions(player);
 			for( let response of options ){
+
 				let s = response.id === this.selected_rp;
 				if( s )
 					sel = true;
-				html += '<div class="option bg'+(s ? ' selected' : '')+'" data-id="'+esc(response.id)+'">'+stylizeText(response.getText())+'</div>';
+				let dif = '';
+				if( response.dice > 0 ){
+					dif = 'easy';
+					if( response.dice >= 10 )
+						dif = 'med';
+					if( response.dice >= 15 )
+						dif = 'hard';
+				}
+
+				html += '<div class="option '+dif+' bg'+(s ? ' selected' : '')+(response.dice ? ' roll' : '')+'" data-id="'+esc(response.id)+'">'
+				// This response incurs a dice roll
+				if( response.dice ){
+
+					html += '<div class="diceRoll">';
+						html += '<div class="diceIcon"></div>';
+						html += '<span class="difficulty">'+response.dice+'</span>';
+						const mod = response.getDiceModifier(player);
+						if( mod )
+							html += ' <span class="modifier '+(mod > 0 ? 'pos' : 'neg')+'">'+(mod > 0 ? '+' : '')+mod+'</span>';
+					html += '</div>';
+				}
+					html += stylizeText(response.getText());
+				html += '</div>';
+
 			}
 			
 			$("div.responses", div).html(html);

@@ -2247,14 +2247,73 @@ div.scroll{
 		font-style: italic;
 		background: rgba(100,100,100,.9);
 		cursor:pointer;
+		border-color: rgba(200,200,200,0.5);
 	}
 	#roleplay div.responses > div.option.selected, #roleplay div.responses > div.option.selected:hover{
 		border-color:#FFF;
 		background: rgba(100,150,255,.9);
 	}
+	
+	#roleplay div.responses > div.option.roll{
+		padding-left:4vmax;
+	}
+	#roleplay div.responses > div.option > div.diceRoll{
+		padding:0.5vmax;
+		display:inline-block;
+		border-radius:0.5vmax;
+		position:absolute;
+		left:0.25vmax;
+		top:0.25vmax;
+		bottom:0.25vmax;
+	}
+	#roleplay div.responses > div.option > div.diceRoll > div.diceIcon{
+		position:absolute;
+		width:100%; height:100%;
+		background-size: contain;
+		background-position:center;
+		background-image: url(media/wrapper_icons/dice-twenty-faces-twenty.svg);
+		opacity:0.3;
+		top: 0;
+		left: 0;
+		background-repeat: no-repeat;
+	}
+	#roleplay div.responses > div.option > div.diceRoll > span.difficulty{
+		font-weight: bold;
+		font-style: normal;
+		font-size:1.75vmax;
+		text-shadow: 0.2vmax 0.2vmax 0.2vmax #000;
+	}
+	#roleplay div.responses > div.option.roll.hard{
+		color: #FAA;
+		background-color: rgba(125,100,100,0.9);
+	}
+	#roleplay div.responses > div.option.roll.med{
+		color: #FFA;
+		background-color: rgba(125,125,100,0.9);
+	}
+	#roleplay div.responses > div.option.roll.easy{
+		color: #AFA;
+		background-color: rgba(100,125,100,0.9);
+	}
+	#roleplay div.responses > div.option.roll:hover,
 	#roleplay div.responses > div.option:hover{
 		background: rgba(50,100,150,.9);
 	}
+	
+	#roleplay div.responses > div.option > div.diceRoll > span.modifier{
+		transform:scale(0.75);
+		position: absolute;
+		bottom:-0.2vmax;
+		right:-0.2vmax;
+	}
+	#roleplay div.responses > div.option > div.diceRoll > span.modifier.pos{
+		color: #AFA;
+	}
+	#roleplay div.responses > div.option > div.diceRoll > span.modifier.neg{
+		color: #FAA;
+	}
+	
+	
 /*/
 
 

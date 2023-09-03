@@ -35,7 +35,7 @@ export function nodeBlock( nodes ){
 export function nodeConnect( asset, nodes ){
 
 	EditorGraph.autoConnect( nodes, EditorRoleplayStageOptionGoto, "Goto", asset.index, BLOCKTYPE, asset.id, "Gotos" );
-	EditorGraph.autoConnect( nodes, EditorRoleplayStage, "Stage", asset.direct, BLOCKTYPE, asset.id, "Direct" );
+	EditorGraph.autoConnect( nodes, EditorRoleplayStage, "Stage", asset.direct, BLOCKTYPE, asset.id, "Direct", true );
 
 }
 
@@ -59,16 +59,27 @@ export function nodeBlockUpdate( asset, block ){
 	out += '</div>';
 
 	let properties = [];
-	if( asset.chat === RoleplayStageOption.ChatType.none )
+	if( +asset.chat === RoleplayStageOption.ChatType.none )
 		properties.push("SILENT");
 	if( asset.shuffle )
 		properties.push("SHUFFLE");
-
 	if( properties.length ){
 		out += '<div class="label unimportant">';
 			out += esc(properties.join(", "));
 		out += '</div>';
 	}
+
+	if( +asset.dice ){
+		out += '<div class="label">';
+			out += 'Roll '+Math.trunc(asset.dice);
+		if( asset.dice_mod )
+			out += '<br /><i>Mod: '+esc(asset.dice_mod)+'</i>';
+		out += '</div>';
+	}
+
+	
+
+	
 	
 	if( Array.isArray(asset.conditions) ){
 		out += '<div class="label unimportant">';
@@ -112,6 +123,9 @@ export function asset(){
 		}
 		html += '</select></label>';
 		html += '<label>Shuffle Options: <input type="checkbox" name="shuffle" class="saveable" '+(dummy.shuffle ? 'checked' : '')+' /></label>';
+		
+		html += '<label>Dice Roll: <input type="number" step=1 min=0 name="dice" class="saveable" value="'+(dummy.dice || 0)+'" /></label>';
+		html += '<label>Modifier: <input type="text" name="dice_mod" class="saveable" value="'+esc(dummy.dice_mod)+'" /></label>';
 
 	html += '</div>';
 
@@ -199,6 +213,14 @@ export function help(){
 		'<tr>'+
 			'<td>Output</td>'+
 			'<td>If set to default the player will output a chat bubble with the option text. Set it to none for options like [leave]</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Dice Roll</td>'+
+			'<td>If nonzero, this becomes a dice roll option, and the players have to roll a d20 of at this value for success. Use the diceRoll* conditions in your goto options when routing the outcome.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Modifier</td>'+
+			'<td>Mathematical formula that gives modifies the dice roll. Ex ta_BonPhysical-ta_Lv would give 1 to the player\'s dice roll per physical proficiency they have above their level. This value has its decimal places truncated.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Goto Options</td>'+

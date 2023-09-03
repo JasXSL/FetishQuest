@@ -442,6 +442,8 @@ div.rawNodesWrapper > div.blocks > div.block > div.content div.label.unimportant
 	background:none;
 	color:#BBB;
 	font-style:italic;
+	padding-top:0;
+	padding-bottom:0;
 }
 div.rawNodesWrapper > div.blocks > div.block > div.content div.label.important{
 	font-size:14px;

@@ -421,6 +421,10 @@ RoleplayChatQueue.output = function( sender, stage ){
 	this.next();
 
 };
+RoleplayChatQueue.dice = function( stageOption ){
+	console.log("Todo: add a chat queue for rolling", stageOption);
+
+};
 RoleplayChatQueue.next = function(){
 
 	if( this.timer )
@@ -885,6 +889,12 @@ export class RoleplayStageOption extends Generic{
 		this.conditions = [];
 		this.game_actions = [];
 		this.shuffle = false;				// Shuffles goto options
+		this.dice = 0;				// Turns this into a d20 roll option
+		this.dice_mod = '';			// Math formula for dice roll
+		
+		// Last roll stats
+		this._mod = 0;				// player modifier i
+		this._roll = 0;				// Value rolled
 
 		this.load(data);
 
@@ -906,6 +916,53 @@ export class RoleplayStageOption extends Generic{
 
 	}
 
+	lastRollSuccess(){
+
+		if( this._roll === 1 )
+			return false;
+
+		return this._roll+this._mod >= this.dice;
+
+	}
+
+	lastRollCritFail(){
+		return this._roll === 1;
+	}
+
+	lastRollCritSuccess(){
+		return this._roll === 20;
+	}
+
+	rollDice( player ){
+		
+		const roll = Math.ceil(Math.random()*20);
+		if( roll === 1 )
+			this._crit = -1;
+		else if( roll === 20 )
+			this._crit = 1;
+
+		this._roll = roll;
+		this._mod = this.getDiceModifier(player);
+
+		console.log("Rolled", roll, "modifier", this._mod);
+		
+	}
+
+	getDiceModifier( player ){
+
+		if( !this.dice_mod )
+			return 0;
+
+		return Math.trunc(Calculator.run(
+			this.dice_mod,
+			new GameEvent({
+				sender : player,
+				target : player
+			})
+		));
+
+	}
+	
 
 	// Data that should be saved to drive
 	save( full ){
@@ -913,7 +970,9 @@ export class RoleplayStageOption extends Generic{
 		let out = {
 			id : this.id,
 			text : this.text,
-			conditions : Condition.saveThese(this.conditions, full)
+			conditions : Condition.saveThese(this.conditions, full),
+			dice : this.dice,
+			dice_mod : this.dice_mod,
 		};
 
 		if( full ){
@@ -984,6 +1043,9 @@ export class RoleplayStageOption extends Generic{
 
 		const goto = this.getIndex( player );
 
+		if( this.dice )
+			RoleplayChatQueue.dice(this);
+
 		rp.setStage(goto.index, true, player);
 		
 		// Do these last as they might force a UI draw, which might draw the wrong RP option
@@ -998,6 +1060,9 @@ export class RoleplayStageOption extends Generic{
 	// Where do we go to after pushing the button?
 	getIndex( target ){
 
+		if( this.dice )
+			this.rollDice(target);
+
 		let index = this.index.slice();
 		for( let id of this.direct ){
 			index.push(new RoleplayStageOptionGoto({
@@ -1010,7 +1075,7 @@ export class RoleplayStageOption extends Generic{
 
 		for( let opt of index ){
 
-			if( opt.validate(target) )
+			if( opt.validate(target, this) )
 				return opt;
 
 		}
@@ -1085,7 +1150,7 @@ export class RoleplayStageOptionGoto extends Generic{
 
 	}
 	
-	validate( target ){
+	validate( target, stageOption ){
 
 		let sender = this.parent.parent.getPlayer();
 		if( !sender )
@@ -1093,7 +1158,8 @@ export class RoleplayStageOptionGoto extends Generic{
 
 		const evt = new GameEvent({
 			sender : sender,
-			target : target
+			target : target,
+			roleplayStageOption : stageOption,
 		});
 
 		return Condition.all(this.conditions, evt);

@@ -31,6 +31,7 @@ export default class GameEvent extends Generic{
 		this.gameAction = null;
 		this.dungeonRoomAsset = null;
 		this.wrapperReturn = null;		// See WrapperReturn @ EffectSys.js
+		this.roleplayStageOption = null;
 		this.text = null;				// Text object
 		this.custom = {};		// Custom data related to the event	
 		this.debug = null;		// Can be used for debugging

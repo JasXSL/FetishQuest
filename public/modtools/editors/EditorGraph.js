@@ -43,7 +43,10 @@ export function asset(){
 	};
 
 	const asset = this.asset.asset || modtools.mod.getAssetById(DBS[type], id);
-
+	if( !asset ){
+		this.close();
+		return;
+	}
 	
 	this.nodes = window.nodes = new RawNodes();
 	

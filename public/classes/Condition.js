@@ -387,6 +387,21 @@ export default class Condition extends Generic{
 
 			}
 
+			else if( this.type === T.diceRollSuccess ){
+
+				success = event.roleplayStageOption && event.roleplayStageOption.lastRollSuccess();
+
+			}
+			else if( this.type === T.diceRollCritFail ){
+
+				success = event.roleplayStageOption && event.roleplayStageOption.lastRollCritFail();
+
+			}
+			else if( this.type === T.diceRollCritSuccess ){
+
+				success = event.roleplayStageOption && event.roleplayStageOption.lastRollCritSuccess();
+
+			}
 			
 
 			else if( this.type === T.actionCrit ){
@@ -1599,6 +1614,11 @@ Condition.Types = {
 	lastActionRange : 'lastActionRange',
 	lastActionType : 'lastActionType',
 
+	// Requires roleplayStageOption in event
+	diceRollSuccess : 'diceRollSuccess',
+	diceRollCritSuccess : 'diceRollCritSuccess',
+	diceRollCritFail : 'diceRollCritFail',
+
 };
 
 
@@ -1712,7 +1732,9 @@ Condition.descriptions = {
 	[Condition.Types.isAwareOfSender] : '{} - Checks if target is aware of sender',
 	[Condition.Types.lastActionRange] : '{range:(int)Action.Range.*} - Matches against range of last action used this turn',
 	[Condition.Types.lastActionType] : '{type:(str)Action.Types.*} - Matches against type of last action used this turn',
-	
+	[Condition.Types.diceRollSuccess] : 'void - Requires roleplayStageOption in event. Checks if the RP stage option has done a successful roll',
+	[Condition.Types.diceRollCritSuccess] : 'void - Requires roleplayStageOption in event. Checks if the RP stage option has rolled a 20',
+	[Condition.Types.diceRollCritFail] : 'void - Requires roleplayStageOption in event. Checks if the RP stage option has rolled a 1',
 };
 
 
