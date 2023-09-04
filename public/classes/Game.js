@@ -391,7 +391,7 @@ export default class Game extends Generic{
 		this.initialized = true;
 
 		this.initialize();
-		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement);
+		this.ui.ini(this.renderer.renderer.domElement, this.renderer.fxRenderer.domElement, this.renderer.iconRenderer.domElement);
 		
 		
 
@@ -1227,7 +1227,8 @@ export default class Game extends Generic{
 
 		}
 		
-		this.audio_ui.play( 'media/audio/ui/'+sound+'.ogg', volume, false, x, y );
+		return this.audio_ui.play( 'media/audio/ui/'+sound+'.ogg', volume, false, x, y );
+
 	}
 
 	uiClick( element ){

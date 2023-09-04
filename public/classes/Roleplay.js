@@ -421,10 +421,7 @@ RoleplayChatQueue.output = function( sender, stage ){
 	this.next();
 
 };
-RoleplayChatQueue.dice = function( stageOption ){
-	console.log("Todo: add a chat queue for rolling", stageOption);
 
-};
 RoleplayChatQueue.next = function(){
 
 	if( this.timer )
@@ -1043,10 +1040,15 @@ export class RoleplayStageOption extends Generic{
 
 		const goto = this.getIndex( player );
 
-		if( this.dice )
-			RoleplayChatQueue.dice(this);
+		if( this.dice ){
+			
+			game.ui.drawRoleplay();
+			Game.net.dmDiceRoll(this.dice, this._roll, this._mod);
+			await game.ui.rollDice(this.dice, this._roll, this._mod);
+			
+		}
 
-		rp.setStage(goto.index, true, player);
+		rp.setStage(goto.index, !this.dice, player);
 		
 		// Do these last as they might force a UI draw, which might draw the wrong RP option
 		for( let act of this.game_actions ){

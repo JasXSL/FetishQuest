@@ -367,6 +367,103 @@ div.scroll{
 	pointer-events: none;
 }
 
+/* Icon renderer */
+#iconRenderer{
+	position: fixed;
+	left:50%;
+	top:0;
+	transform:translateX(-50%);
+	transition: 0.25s ease-out;
+	transition-property: transform, opacity;
+	display:block;
+}
+#iconRenderer.shrunk{
+	transform:translateX(-50%) scale(0.01,0.01);
+	opacity:0;
+}
+#iconRenderer > div.diceRoll{
+	pointer-events: none;
+	width:75vmin;
+	height:75vmin;
+}
+#iconRenderer > div.diceRoll > div.renderer{
+	width:100%; height:100%;
+	position: absolute;
+}
+#iconRenderer > div.diceRoll > div.renderer > canvas{
+	width:100%; height:100%;
+	position: absolute;
+}
+#iconRenderer > div.diceRoll > div.content{
+	position: absolute;
+	width:100%; height:100%;
+}
+#iconRenderer > div.diceRoll > div.content > div.result{
+	font-size: 8vmin;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    text-shadow: 0.2vmin 0.2vmin 0.2vmin #000;
+    transform: translate(-50%,-40%);
+	transition:all 0.2s ease-in-out;
+}
+@keyframes diceRollModAnim{
+	from{ transform: translate(-50%,-40%) scale(1.0); }
+	to{ transform: translate(-50%,-40%) scale(1.5,1.5); }
+}
+#iconRenderer > div.diceRoll > div.content > div.result.hidden{
+	opacity: 0;
+	display:block !important;
+}
+#iconRenderer > div.diceRoll > div.content > div.result.anim{
+	animation:diceRollModAnim alternate .15s 2 ease-in-out;
+}
+
+#iconRenderer > div.diceRoll > div.generic.rollFor{
+	left: 50%;
+    transform: translateX(-50%);
+    top: 20%;
+    font-size: 3vmin;
+    width: 35vmin;
+    height: 45vmin;
+    border: 1vmin double #AAA;
+    position: absolute;
+    box-shadow: 0 0 10vmin #3AF;
+}
+
+#iconRenderer > div.diceRoll div.generic{
+	font-size: 4vmin;
+    left: 50%;
+	text-shadow: 0.2vmin 0.2vmin 0.2vmin #000;
+	position: absolute;
+    padding: 1vmin 3vmin;
+    text-align: center;
+    border-radius: 2vmin;
+    background: url(./media/ui/marble.jpg) repeat;
+	border: 0.5vmin double #EEE;
+}
+#iconRenderer > div.diceRoll > div.content > div.modifier{
+	
+    top: 80%;
+    transform: translate(-50%,-50%);
+	transition:all 0.3s cubic-bezier(1,0,.93,1.44);
+	color:#AFA;
+	border-color:#AFA;
+    box-shadow: 0 0 3vmin #AFA;
+
+}
+#iconRenderer > div.diceRoll > div.content > div.modifier.sub{
+	color: #FAA;
+    box-shadow: 0 0 3vmin #FAA;
+	border-color: #FAA;
+}
+#iconRenderer > div.diceRoll > div.content > div.modifier.center{
+	top:50%;
+	opacity:0;
+	transform: translate(-50%,-50%) scale(1.3);
+}
+
+
 
 /* FX */
 	@keyframes takeDamage{
@@ -630,6 +727,7 @@ div.scroll{
 		margin:0;
 		white-space: nowrap;
 	}
+	
 	#customModals > div > div.header,
 	#customModals > div > div.header > div.portrait,
 	#customModals > div > div.header > div.close{
@@ -2245,13 +2343,21 @@ div.scroll{
 		width:90%;
 		font-size:1.25vmax;
 		font-style: italic;
-		background: rgba(100,100,100,.9);
+		background: rgba(100,100,100,.95);
 		cursor:pointer;
 		border-color: rgba(200,200,200,0.5);
 	}
-	#roleplay div.responses > div.option.selected, #roleplay div.responses > div.option.selected:hover{
+	#roleplay div.responses > div.option.roll.selected,
+	#roleplay div.responses > div.option.selected, 
+	#roleplay div.responses > div.option:not(.selected):hover{
 		border-color:#FFF;
-		background: rgba(100,150,255,.9);
+		background-color: rgba(100,150,255,1) !important;
+	}
+
+	#roleplay div.responses > div.option.roll.disabled,
+	#roleplay div.responses > div.option.disabled{
+		opacity:0.5;
+		background:rgba(50,50,50,0.95);
 	}
 	
 	#roleplay div.responses > div.option.roll{
@@ -2285,19 +2391,19 @@ div.scroll{
 	}
 	#roleplay div.responses > div.option.roll.hard{
 		color: #FAA;
-		background-color: rgba(125,100,100,0.9);
+		background-color: rgba(125,100,100,0.95);
 	}
 	#roleplay div.responses > div.option.roll.med{
 		color: #FFA;
-		background-color: rgba(125,125,100,0.9);
+		background-color: rgba(125,125,100,0.95);
 	}
 	#roleplay div.responses > div.option.roll.easy{
 		color: #AFA;
-		background-color: rgba(100,125,100,0.9);
+		background-color: rgba(100,125,100,0.95);
 	}
 	#roleplay div.responses > div.option.roll:hover,
 	#roleplay div.responses > div.option:hover{
-		background: rgba(50,100,150,.9);
+		background: rgba(50,100,150,1);
 	}
 	
 	#roleplay div.responses > div.option > div.diceRoll > span.modifier{

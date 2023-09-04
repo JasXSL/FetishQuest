@@ -2888,6 +2888,13 @@ function build(){
 					],
 					tags : [],
 				}),
+				UiD20 : new LibMesh({
+					url : 'ui/d20.glb',
+					materials : [
+						libMat.Bakes.D20Flat,
+						libMat.Bakes.D20Edge,
+					],
+				})
 			},
 			// This is an NPC marker. Note that these are dummies and only visible in the editor. WebGL.js handles the actual rendering of them
 			Marker : {
@@ -5285,7 +5292,6 @@ function build(){
 			}
 		},
 		
-
 
 	};
 

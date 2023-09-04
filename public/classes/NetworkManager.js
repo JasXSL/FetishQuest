@@ -1396,6 +1396,11 @@ class NetworkManager{
 			game._refreshMeshesOnGameData = true;
 
 		}
+		else if( task === NetworkManager.dmTasks.diceRoll ){
+
+			game.ui.rollDice(args.dice, args.roll, args.mod);
+
+		}
 
 	}
 
@@ -1981,6 +1986,14 @@ class NetworkManager{
 
 	}
 
+	dmDiceRoll( dice, roll, mod){
+
+		this.sendHostTask(NetworkManager.dmTasks.diceRoll, {
+			dice, roll, mod
+		});
+
+	}
+
 }
 
 
@@ -2166,6 +2179,7 @@ NetworkManager.dmTasks = {
 	drawMomentumGain : 'drawMomentumGain',			// {mom:(arr)types} - Draws momentum gain at start of turn. Type is an array with nr for each type ex [5,1,0] -> 5 off, 1 def, 0 uti
 	questObjectiveChanged : 'questObjectiveChanged', // {label:(str)objective_label, amount:(int)value}
 	refreshMeshes : 'refreshMeshes',				// void - Refresh all meshes in the active room
+	diceRoll : 'diceRoll',							// {dice:(int)req, roll:(int)rolled_nr, mod:(int)roll_modifier}
 };
 
 // Player -> DM

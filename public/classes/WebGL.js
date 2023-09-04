@@ -68,6 +68,22 @@ class WebGL{
 		this.camera = new THREE.PerspectiveCamera( viewAngle, width / height, nearClipping, farClipping );
 		this.cameraTween = new TWEEN.Tween();
 
+		// Icon renderer (such as dice roll)
+		this.iconScene = new THREE.Scene();
+		this.iconCam = new THREE.PerspectiveCamera( viewAngle, 1, nearClipping, farClipping);
+		this.iconCam.position.z = 100; // Top down view
+		this.iconCam.lookAt(new THREE.Vector3());
+		this.iconRenderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+		this.iconRenderer.setPixelRatio(1);
+		this.iconRenderer.setSize(813,813);
+		this.iconRenderer.domElement.style = '';
+		this.initIconRenderer();
+		
+
+		this.iconRendererTimer = false;
+		this.iconRendererActive = true;
+
+
 		// SPELL EFFECTS / ARROW
 		this.fxScene = new THREE.Scene();
 		this.fxCam = new THREE.PerspectiveCamera( viewAngle, width/height, nearClipping, farClipping);
@@ -214,7 +230,6 @@ class WebGL{
 		this.renderer.domElement.addEventListener('mouseup', event => touchEnd(event));
 		this.renderer.domElement.addEventListener('touchend', event => touchEnd(event));
 		
-		console.log("Binding mousemove in WebGL");
 		const mouseMove = event => this.onMouseMove(event);
 		this.bind(document.body, 'mousemove', mouseMove);
 		this.bind(document.body, 'touchmove', mouseMove);
@@ -800,6 +815,8 @@ class WebGL{
 
 		}
 		
+		if( this.iconRendererActive )
+			this.iconRenderer.render(this.iconScene, this.iconCam);
 
 		this.playerMarkerFrame();
 		
@@ -960,7 +977,140 @@ class WebGL{
 	}
 
 
+	/* Icon renderer */
+	async initIconRenderer(){
+		
+		const scene = this.iconScene;
+		this.iconLight = new THREE.DirectionalLight();
+		this.iconLight.name = 'pLight';
+		this.iconLight.position.z = 200;
+		this.iconLight.position.y = -50;
+		this.iconLight.position.x = -50;
+		this.iconLight.lookAt(new THREE.Vector3());
+		scene.add(this.iconLight);
 
+		const icons = {};
+		this.iconScene.userData.icons = icons;
+		
+		// Import stuff
+		const dice = await this.getAssetFromCache( new DungeonRoomAsset({
+			model : 'Generic.Shapes.UiD20',
+		}), true);
+		icons.d20 = dice;
+		dice.scale.set(200,200,200);
+		dice.rotation.set(-0.15,-Math.PI/10,0);
+		dice.userData.startRot = new THREE.Euler().copy(dice.rotation);
+		this.iconScene.add(dice);
+
+		dice.traverse(el => {
+			if( el.isMesh ){
+				el.userData.emissive = new THREE.Color().copy(el.material.emissive);
+			}
+		});
+
+		this.resetIconRenderer();
+
+	}
+
+	resizeIconRenderer( el ){
+
+		const size = el.getBoundingClientRect();
+		this.iconRenderer.setSize(size.width, size.width);
+
+	}
+
+	resetIconRenderer(){
+		
+		this.iconRendererActive = false;
+		for( let i in this.iconScene.userData.icons ){
+			this.iconScene.userData.icons[i].visible = false;
+		}
+
+	}
+
+	iconDiceRollStart(){
+
+		this.iconRendererActive = true; // start rendering
+		const dice = this.iconScene.userData.icons.d20;
+		dice.visible = true;
+		
+		dice.traverse(el => {
+			if( el.isMesh ){
+				el.material.emissive.set(el.userData.emissive);
+			}
+		});
+
+		let start = dice.rotation.toVector3();
+		let dir = new THREE.Vector3(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1);
+		dir['xyz'.charAt(Math.floor(Math.random()*3))] = 0;
+		dir = dir.normalize().multiplyScalar(Math.PI*2);
+		dir.add(start);
+		dice.userData?.rotationTween?.stop();
+		dice.userData?.returnTween?.stop();
+		dice.userData.rotationTween = new TWEEN.Tween(start)
+			.to(dir, 250)
+			.repeat(Infinity)
+			.onUpdate(() => {
+				dice.rotation.setFromVector3(start);
+			})
+			.start()
+		;
+	}
+	iconDiceRollStop(){
+		
+		const dice = this.iconScene.userData.icons.d20;
+		
+		dice.userData?.rotationTween?.stop();
+		dice.userData?.returnTween?.stop();
+		const start = dice.rotation.toVector3();
+		const end = dice.userData.startRot.toVector3();
+		dice.userData.returnTween = new TWEEN.Tween(start)
+			.to(end, 400)
+			.easing(TWEEN.Easing.Bounce.Out)
+			.onUpdate(() => {
+				dice.rotation.setFromVector3(start);
+			})
+			.start()
+		;
+
+	}
+	iconDiceRollTransform( color ){
+
+		const dice = this.iconScene.userData.icons.d20;
+
+		dice.userData?.scaleTween?.stop();
+		
+		const startSize = new THREE.Vector3(200,200,200);
+		const editing = startSize.clone();
+		const stopSize = new THREE.Vector3(1,1,1);
+
+		console.log(startSize, stopSize);
+		dice.userData.scaleTween = new TWEEN.Tween(editing)
+			.to(stopSize, 300)
+			.easing(TWEEN.Easing.Circular.In)
+			.onUpdate(() => {
+				dice.scale.copy(editing);
+			})
+			.chain(
+				new TWEEN.Tween(editing)
+				.onStart(() => {
+					dice.traverse(el => {
+						if( el.isMesh ){
+							el.material.emissive.set(color);
+						}
+					});
+				})
+				.to(startSize, 400)
+				.easing(TWEEN.Easing.Bounce.Out)
+				.onUpdate(() => {
+					dice.scale.copy(editing);
+				})
+			)
+			.start();
+
+		;
+
+	}
 
 
 	/* CACHE */

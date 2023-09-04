@@ -133,6 +133,8 @@ export default class UI{
 
 		this.blackScreen = $("#blackScreen");
 
+		this.iconRenderer = document.getElementById("iconRenderer");
+
 		this.momentumGain = $("#ui > div.momentumGain");
 		this.middle = $("#ui > div.middle");
 		this.text = $("> div.content", this.middle);
@@ -475,7 +477,7 @@ export default class UI{
 	}
  
 	// Takes the 3d canvases
-	ini( map, fx ){
+	ini( map, fx, icon ){
 
 		this.toggle(this.visible);
 
@@ -494,8 +496,10 @@ export default class UI{
 
 		this.map = map;
 		this.fx = fx;
+		this.icon = icon;
 		this.renderer.html(map);
-		$("#fx").html(fx);
+		document.getElementById('fx').replaceChildren(fx);
+		document.querySelector('#iconRenderer > div.diceRoll > div.renderer').replaceChildren(icon);
 		this.toggleAll(true);
 
 		this.initialized = true;
@@ -2138,7 +2142,89 @@ export default class UI{
 	}
 	
 
+	/* Dice roll */
+	async rollDice( needed, result, mod ){
 
+		needed = Math.trunc(needed);
+		result = Math.trunc(result);
+		mod = Math.trunc(mod);
+
+		// Step 1: Prepare everything
+		const ir = this.iconRenderer;
+		ir.classList.remove("hidden");
+		
+		Array.from(ir.children).forEach(el => el.classList.toggle("hidden", true));
+		const dr = ir.querySelector("div.diceRoll");
+		dr.classList.toggle("hidden", false);
+		dr.querySelector("div.renderer").replaceChildren(this.icon);
+		
+		const dResult = ir.querySelector("div.content > div.result");
+		const dRollFor = ir.querySelector("div.rollFor");
+		const dModifier = ir.querySelector("div.content > div.modifier");
+
+		dModifier.classList.add("center", "hidden");
+		if( mod ){
+			dModifier.classList.remove("hidden", "center");
+			dModifier.innerText = (mod > 0 ? '+'+mod : mod);
+		}
+
+		dResult.classList.toggle("hidden", true);
+		dResult.classList.toggle("anim", false);
+		dRollFor.innerText = 'Rolling for '+Math.trunc(needed)+"+";
+		
+		this.parent.renderer.iconDiceRollStart();
+
+		await delay(100);
+		ir.classList.remove("shrunk"); // CSS works in mysterious ways
+		let snd = game.uiAudio('dice_roll_loop', 0.5);
+		
+		await delay(1000);
+		this.parent.renderer.iconDiceRollStop();
+		await delay(200);
+		snd.then(el => el.stop());
+		game.uiAudio('dice_cast', 0.75);
+		
+		dResult.innerText = Math.trunc(result);
+		dResult.classList.toggle("hidden", false);
+		
+		await delay(1000);
+		if( mod ){
+			
+			// Todo: Add modifier sound good or bad
+			game.uiAudio(mod < 0 ? 'roll_detriment' : 'roll_advantage', 0.3);
+			dModifier.classList.toggle("center", true);
+			await delay(250);
+			dResult.classList.toggle("anim", true);
+			await delay(150);
+			dResult.innerText = (result+mod);
+			await delay(500);
+		}
+
+		let color = 0x009900, sound = 'dice_roll_success';
+		if( mod+result < needed ){
+			
+			sound = 'dice_roll_fail';
+			color = 0xCC0000;
+
+		}
+		this.parent.renderer.iconDiceRollTransform(color);
+		game.uiAudio(sound, 0.6);
+		await delay(1500);
+
+		ir.classList.add("shrunk");
+		
+		// We can stop blocking here
+		setTimeout(() => {
+			// Cleanup
+			dModifier.classList.add("center", "hidden");
+			dResult.classList.add("hidden");
+			dResult.classList.remove("anim");
+			ir.classList.add("hidden");
+		}, 300);
+		
+		
+
+	}
 
 
 	/* ACTION SELECTOR Helpers */
@@ -2646,12 +2732,14 @@ export default class UI{
 					html += '<span class="name">'+stylizeText(name)+'</span><br />';
 
 				$("div.text", div).html(html+stylizeText(stage.getText(true)));
+				this.selected_rp = '';
 				
 			}
 
 
 			html = '';
 			let sel = false;
+
 			const options = stage.getOptions(player);
 			for( let response of options ){
 
@@ -2666,8 +2754,13 @@ export default class UI{
 					if( response.dice >= 15 )
 						dif = 'hard';
 				}
+				let selClass = '';
+				if( s )
+					selClass = 'selected';
+				if( this.selected_rp && !s )
+					selClass = 'disabled';
 
-				html += '<div class="option '+dif+' bg'+(s ? ' selected' : '')+(response.dice ? ' roll' : '')+'" data-id="'+esc(response.id)+'">'
+				html += '<div class="option '+dif+' bg '+selClass+(response.dice ? ' roll' : '')+'" data-id="'+esc(response.id)+'">'
 				// This response incurs a dice roll
 				if( response.dice ){
 
@@ -2689,7 +2782,7 @@ export default class UI{
 
 				this.selected_rp = '';
 				$("div.responses div.option[data-id]").on('click', event => {
-					const el = $(event.target);
+					const el = $(event.currentTarget);
 					game.useRoleplayOption(game.getMyActivePlayer(), el.attr('data-id'));
 				});
 

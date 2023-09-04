@@ -1197,6 +1197,21 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.6,
 		}),
+		D20Flat : new LibMaterial({
+			//map : 'bakes/d20_d.jpg',
+			color : 0x33CCFF,
+			metalness : 0.8,
+			roughness : 0.1, 
+			envMap : LibMaterial.cubeMaps.bridge,
+			emissive : 0x222222,
+		}),
+		D20Edge : new LibMaterial({
+			map : 'bakes/d20_d.jpg',
+			metalness : 1,
+			roughness : 0.1,
+			emissive : 0x999999,
+			envMap : LibMaterial.cubeMaps.bridge,
+		}),
 	},
 };
 
