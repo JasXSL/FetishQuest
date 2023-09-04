@@ -67,21 +67,28 @@ export function asset(){
 	if( !asset )
 		return this.close();
 
-	// Find parent mod
-	let stageOption = mod.getListObjectParent('roleplayStageOption', 'index', id);
-	if( !stageOption )
-		console.error("Unable to find parent of roleplayStageOptionGoto", asset);
+	// _h will be linking to the root rp in our case
+	let rp;
+	if( typeof asset._h === "string" )
+		rp = mod.getAssetById("roleplay", asset._h);
+	if( !rp ){
+		
+		// Find parent mod
+		let stageOption = mod.getListObjectParent('roleplayStageOption', 'index', id);
+		if( !stageOption )
+			console.error("Unable to find parent of roleplayStageOptionGoto", asset);
+		let stage = mod.getListObjectParent('roleplayStage', 'options', stageOption.id);
+		if( !stage && stageOption._e )
+			stage = mod.getListObjectParent('roleplayStage', 'options', stageOption._e);
+		if( !stage )
+			console.error("Unable to find stage of roleplayStageOptionGoto", dummy, "id", stageOption.id);
 
-	console.log("Parent stageOption ", stageOption);
-	let stage = mod.getListObjectParent('roleplayStage', 'options', stageOption.id);
-	if( !stage && stageOption._e )
-		stage = mod.getListObjectParent('roleplayStage', 'options', stageOption._e);
-	if( !stage )
-		console.error("Unable to find stage of roleplayStageOptionGoto", dummy, "id", stageOption.id);
+		rp = mod.getListObjectParent('roleplay', 'stages', stage.id);
+		if( !rp && stage._e )
+			rp = mod.getListObjectParent('roleplay', 'stages', stage._e);
 
-	let rp = mod.getListObjectParent('roleplay', 'stages', stage.id);
-	if( !rp && stage._e )
-		rp = mod.getListObjectParent('roleplay', 'stages', stage._e);
+	}
+
 	if( !rp )
 		console.error("Unable to find parent of roleplayStage", stage);
 

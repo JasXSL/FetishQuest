@@ -74,7 +74,7 @@ export function nodeBlockUpdate( asset, block ){
 
 	}
 	out += '</div>';
-
+	out += '<input type="button" class="addText" value="+ New Text" />';
 
 	if( asset.portrait || asset.name || asset.player ){
 
@@ -89,7 +89,7 @@ export function nodeBlockUpdate( asset, block ){
 
 	}
 
-	out += '<input type="button" class="addText" value="+ New Text" />';
+	
 
 	if( asset.leave )
 		out += '<div class="label">[Leave]</div>';

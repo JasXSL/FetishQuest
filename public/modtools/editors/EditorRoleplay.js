@@ -190,7 +190,7 @@ export function nodeBlockUpdate( asset, block ){
 		properties.push("ONCE");
 	if( asset.autoplay )
 		properties.push("AUTO PLAY" + (asset.apOnce ? ' ONCE' : ''));
-	if( asset.persistent )
+	if( asset.vars_persistent )
 		properties.push("VARS PERSIST");
 	if( asset.portrait )
 		properties.push("Portrait: "+esc(asset.portrait));
