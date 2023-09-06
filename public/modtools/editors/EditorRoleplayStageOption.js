@@ -63,6 +63,8 @@ export function nodeBlockUpdate( asset, block ){
 		properties.push("SILENT");
 	if( asset.shuffle )
 		properties.push("SHUFFLE");
+	if( asset.target_override && asset.target_override !== RoleplayStageOption.Target.sender )
+		properties.push("Target: "+asset.target_override);
 	if( properties.length ){
 		out += '<div class="label unimportant">';
 			out += esc(properties.join(", "));
@@ -77,10 +79,6 @@ export function nodeBlockUpdate( asset, block ){
 		out += '</div>';
 	}
 
-	
-
-	
-	
 	if( Array.isArray(asset.conditions) ){
 		out += '<div class="label unimportant">';
 			out += 'Conditions: '+esc(asset.conditions.join(", "));
@@ -124,8 +122,28 @@ export function asset(){
 		html += '</select></label>';
 		html += '<label>Shuffle Options: <input type="checkbox" name="shuffle" class="saveable" '+(dummy.shuffle ? 'checked' : '')+' /></label>';
 		
+		html += '<label>Target override: <select name="target_override" class="saveable">';
+		for( let i in RoleplayStageOption.Target ){
+			html += '<option value="'+esc(i)+'" '+(dummy.target_override === RoleplayStageOption.Target[i] ? 'selected' : '' )+'>'+esc(i)+'</option>';
+		}
+		html += '</select></label>';
+		
 		html += '<label>Dice Roll: <input type="number" step=1 min=0 name="dice" class="saveable" value="'+(dummy.dice || 0)+'" /></label>';
-		html += '<label>Modifier: <input type="text" name="dice_mod" class="saveable" value="'+esc(dummy.dice_mod)+'" /></label>';
+		html += '<label>Modifier: '+
+			'<input type="text" name="dice_mod" class="saveable" value="'+esc(dummy.dice_mod)+'" />';
+			html += '<div class="presets">Preset formulas for offensive/defensive checks:<br />'
+			const presets = {
+				ProPhys : 'se_BonPhysical-se_Lv',
+				ProCorr : 'se_BonCorruption-se_Lv',
+				ProArcane : 'se_BonArcane-se_Lv',
+				DefPhys : 'se_SvPhysical-se_Lv',
+				DefCorr : 'se_SvCorruption-se_Lv',
+				DefArcane : 'se_SvArcane-se_Lv',
+			};
+			for( let label in presets )
+				html += '<input type="button" value="'+label+'" data-formula="'+esc(presets[label])+'" />';
+			html += '</div>';
+		html += '</label>';
 
 	html += '</div>';
 
@@ -138,6 +156,12 @@ export function asset(){
 	html += 'Conditions: <div class="conditions"></div>';
 
 	this.setDom(html);
+
+	const modField = this.dom.querySelector("input[name=dice_mod]");
+	this.dom.querySelectorAll("div.presets > input").forEach(el => el.onclick = event => {
+		modField.value = event.currentTarget.dataset.formula;
+		modField.dispatchEvent(new Event('change'));
+	});
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
@@ -215,12 +239,16 @@ export function help(){
 			'<td>If set to default the player will output a chat bubble with the option text. Set it to none for options like [leave]</td>'+
 		'</tr>'+
 		'<tr>'+
+			'<td>Target Override</td>'+
+			'<td>Lets you override who is considered the "target" for Conditions and dice roll modifier. By default, both target and sender are your active player.</td>'+
+		'</tr>'+
+		'<tr>'+
 			'<td>Dice Roll</td>'+
 			'<td>If nonzero, this becomes a dice roll option, and the players have to roll a d20 of at this value for success. Use the diceRoll* conditions in your goto options when routing the outcome.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Modifier</td>'+
-			'<td>Mathematical formula that gives modifies the dice roll. Ex ta_BonPhysical-ta_Lv would give 1 to the player\'s dice roll per physical proficiency they have above their level. This value has its decimal places truncated.</td>'+
+			'<td>Mathematical formula that gives modifies the dice roll. Ex se_BonPhysical-se_Lv would give 1 to the player\'s dice roll per physical proficiency they have above their level. This value has its decimal places truncated. ta_ and se_ are both your active player unless overridden by Target Override.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Goto Options</td>'+
@@ -236,7 +264,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Conditions</td>'+
-			'<td>Allows you to set a condition for showing this option. Such as requiring a certain level of physical proficiency to intimidate etc.</td>'+
+			'<td>Allows you to set a condition for showing this option. Such as requiring a certain level of physical proficiency to intimidate etc. Target and sender are your active player by default. Target can be overridden by Target Override.</td>'+
 		'</tr>'
 	;
 	out += '</table>';

@@ -824,6 +824,8 @@ RoleplayStage.Shuffle = {
 };
 
 RoleplayStage.getShuffleTypeLabel = function( shuffleType ){
+
+	shuffleType = Math.trunc(shuffleType);
 	for( let i in this.Shuffle ){
 
 		if( this.Shuffle[i] === shuffleType )
@@ -882,9 +884,10 @@ export class RoleplayStageOption extends Generic{
 		this.direct = [];			// These connect to stages directly. They're appended at the end of the index array
 		this.index = [];			// Target index. An array of goto objects. Integers get converted to goto objects. The first valid one will be picked or an exit option will be created.
 		this.text = '';
-		this.chat = RoleplayStageOption.ChatType.default;			// Chat type
+		this.chat = this.constructor.ChatType.none;			// Chat type
 		this.conditions = [];
 		this.game_actions = [];
+		this.target_override = this.constructor.Target.sender;
 		this.shuffle = false;				// Shuffles goto options
 		this.dice = 0;				// Turns this into a d20 roll option
 		this.dice_mod = '';			// Math formula for dice roll
@@ -892,12 +895,12 @@ export class RoleplayStageOption extends Generic{
 		// Last roll stats
 		this._mod = 0;				// player modifier i
 		this._roll = 0;				// Value rolled
-
 		this.load(data);
 
 	}
 
-	load(data){
+	load( data ){
+
 		// Legacy conversion
 		if( data && data.index !== undefined && !Array.isArray(data.index) )
 			data.index = toArray(data.index);
@@ -940,8 +943,6 @@ export class RoleplayStageOption extends Generic{
 
 		this._roll = roll;
 		this._mod = this.getDiceModifier(player);
-
-		console.log("Rolled", roll, "modifier", this._mod);
 		
 	}
 
@@ -954,7 +955,7 @@ export class RoleplayStageOption extends Generic{
 			this.dice_mod,
 			new GameEvent({
 				sender : player,
-				target : player
+				target : this.getTargets(player),
 			})
 		));
 
@@ -970,6 +971,7 @@ export class RoleplayStageOption extends Generic{
 			conditions : Condition.saveThese(this.conditions, full),
 			dice : this.dice,
 			dice_mod : this.dice_mod,
+			target_override : this.target_override,
 		};
 
 		if( full ){
@@ -999,11 +1001,31 @@ export class RoleplayStageOption extends Generic{
 
 		const evt = new GameEvent({
 			sender : player,
-			target : player,
+			target : this.getTargets(player),
 			dungeon : game.dungeon,
 			room : game.dungeon.getActiveRoom()
 		});
 		return Condition.all(this.conditions, evt);
+
+	}
+
+	// Get what should be considered targets for conditions and dice mod
+	getTargets( activePlayer ){
+
+		let out = [];
+		const tp = this.getRoleplay().getTargetPlayers();
+		if( this.target_override === RoleplayStageOption.Target.firstRpTarget && tp.length )
+			out = [tp[0]];
+		else if( this.target_override === RoleplayStageOption.Target.rpTargets )
+			out = tp;
+		else if( this.target_override === RoleplayStageOption.Target.rpPlayer )
+			out = [this.parent.getPlayer()];
+
+		// Default, use active player
+		if( !out.length )
+			out.push(activePlayer);
+
+		return out;
 
 	}
 
@@ -1041,7 +1063,7 @@ export class RoleplayStageOption extends Generic{
 		const goto = this.getIndex( player );
 
 		if( this.dice ){
-			
+
 			game.ui.drawRoleplay();
 			Game.net.dmDiceRoll(this.dice, this._roll, this._mod);
 			await game.ui.rollDice(this.dice, this._roll, this._mod);
@@ -1088,6 +1110,13 @@ export class RoleplayStageOption extends Generic{
 	}
 
 }
+
+RoleplayStageOption.Target = {
+	sender : 'sender', 					// Default. Target is same as sender in dice modifier and conditions
+	firstRpTarget : 'firstRpTarget',	// Use the first rp target
+	rpTargets : 'rpTargets',			// Use all RP targets in conditions. First RP target in dice modifier.
+	rpPlayer : 'rpPlayer',				// (NPC) of the current RP stage.
+};
 
 RoleplayStageOption.ChatType = {
 	default : 0,		// Output into chat. Use /me for emote

@@ -1084,7 +1084,6 @@ class WebGL{
 		const editing = startSize.clone();
 		const stopSize = new THREE.Vector3(1,1,1);
 
-		console.log(startSize, stopSize);
 		dice.userData.scaleTween = new TWEEN.Tween(editing)
 			.to(stopSize, 300)
 			.easing(TWEEN.Easing.Circular.In)

@@ -26,6 +26,7 @@ import ModRepo from './ModRepo.js';
 import Book from './Book.js';
 import { Logger } from './Logger.js';
 import AudioTrigger from './AudioTrigger.js';
+import Story from './Story.js';
 
 let VibHub = false;
 import('./VibHub.js').then(v => {
@@ -36,7 +37,7 @@ import('./VibHub.js').then(v => {
 
 export default class Game extends Generic{
 
-	constructor(name){
+	constructor( name, story ){
 		super(name);
 
 		this.name = name;
@@ -60,6 +61,8 @@ export default class Game extends Generic{
 		this.quests = [];								// Quest Objects of quests the party is on. 
 		this.net_load = false;							// Currently loading from network
 		this.time = 3600*10;							// Time in seconds. Game starts at 10 in the morning of the first day
+		
+		this.story = story || new Story();				// Should be a story object
 
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
@@ -214,6 +217,7 @@ export default class Game extends Generic{
 			books_read : this.books_read.save(full),
 			difficulty : this.difficulty,
 			genders : this.genders,
+			story : this.story.save(full),
 		};
 	
 		if( full ){
@@ -425,7 +429,7 @@ export default class Game extends Generic{
 		const time_pre = this.time;
 		let turn = this.turn;
 		this.net_load = true;
-		this.g_autoload(data, true);
+		this.g_autoload(data);
 		this.net_load = false;
 		let nt = this.turn;
 		if( turn !== nt )
@@ -477,7 +481,7 @@ export default class Game extends Generic{
 		this.completed_quests = Collection.loadThis(this.completed_quests);
 		this.factions = Faction.loadThese(this.factions);
 		this.followers = Player.loadThese(this.followers);
-		
+		this.story = Story.loadThis(this.story);
 		
 
 		this.state_roleplays = Collection.loadThis(this.state_roleplays);

@@ -2740,40 +2740,44 @@ export default class UI{
 			html = '';
 			let sel = false;
 
-			const options = stage.getOptions(player);
-			for( let response of options ){
+			if( player && player.team === 0 ){
 
-				let s = response.id === this.selected_rp;
-				if( s )
-					sel = true;
-				let dif = '';
-				if( response.dice > 0 ){
-					dif = 'easy';
-					if( response.dice >= 10 )
-						dif = 'med';
-					if( response.dice >= 15 )
-						dif = 'hard';
-				}
-				let selClass = '';
-				if( s )
-					selClass = 'selected';
-				if( this.selected_rp && !s )
-					selClass = 'disabled';
+				const options = stage.getOptions(player);
+				for( let response of options ){
 
-				html += '<div class="option '+dif+' bg '+selClass+(response.dice ? ' roll' : '')+'" data-id="'+esc(response.id)+'">'
-				// This response incurs a dice roll
-				if( response.dice ){
+					let s = response.id === this.selected_rp;
+					if( s )
+						sel = true;
+					let dif = '';
+					if( response.dice > 0 ){
+						dif = 'easy';
+						if( response.dice >= 10 )
+							dif = 'med';
+						if( response.dice >= 15 )
+							dif = 'hard';
+					}
+					let selClass = '';
+					if( s )
+						selClass = 'selected';
+					if( this.selected_rp && !s )
+						selClass = 'disabled';
 
-					html += '<div class="diceRoll">';
-						html += '<div class="diceIcon"></div>';
-						html += '<span class="difficulty">'+response.dice+'</span>';
-						const mod = response.getDiceModifier(player);
-						if( mod )
-							html += ' <span class="modifier '+(mod > 0 ? 'pos' : 'neg')+'">'+(mod > 0 ? '+' : '')+mod+'</span>';
+					html += '<div class="option '+dif+' bg '+selClass+(response.dice ? ' roll' : '')+'" data-id="'+esc(response.id)+'">'
+					// This response incurs a dice roll
+					if( response.dice ){
+
+						html += '<div class="diceRoll">';
+							html += '<div class="diceIcon"></div>';
+							html += '<span class="difficulty">'+response.dice+'</span>';
+							const mod = response.getDiceModifier(player);
+							if( mod )
+								html += ' <span class="modifier '+(mod > 0 ? 'pos' : 'neg')+'">'+(mod > 0 ? '+' : '')+mod+'</span>';
+						html += '</div>';
+					}
+						html += stylizeText(response.getText());
 					html += '</div>';
+
 				}
-					html += stylizeText(response.getText());
-				html += '</div>';
 
 			}
 			
@@ -2792,7 +2796,7 @@ export default class UI{
 		else
 			this.selected_rp = '';
 		
-		div.toggleClass('hidden', roleplay.completed || !player || player.team !== 0);
+		div.toggleClass('hidden', roleplay.completed);
 		
 	}
 	rpOptionSelected( id ){

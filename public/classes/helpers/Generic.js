@@ -13,15 +13,17 @@ export default class Generic{
 	// If accept_all_nulls is true, all target nulls are set to the supplied value and not typecast or cloned
 	g_autoload( data, debug = false ){
 
+		if( debug )
+			console.log("Autoload", data, !data);
 		if( !data )
 			return;
 
-		if(typeof data !== "object")
+		if( typeof data !== "object" )
 			data = {};
 
 		// Game can't use NULL types in the netcode, because creating a new game object does a whole heap of stuff you don't want
 		const n = this.constructor.name === "Game" ? this : new this.constructor();
-		for(let i in data){
+		for( let i in data ){
 
 			if( this.hasOwnProperty(i) && typeof n[i] !== "function" && i !== "parent" ){
 				// Special tag to delete an object property
@@ -32,7 +34,7 @@ export default class Generic{
 				}
 				else{
 
-					this[i] = this.g_typecast(data[i], n[i], i );
+					this[i] = this.g_typecast(data[i], n[i], i, data, n );
 					
 				}
 
@@ -97,7 +99,7 @@ export default class Generic{
 
 	}
 
-	g_typecast( from, to, ident ){
+	g_typecast( from, to, ident, parent, n ){
 
 		// Use null or undefined for wild card.
 		// If the current value is not the same type as the new value, just accept it
@@ -172,9 +174,12 @@ export default class Generic{
 		if( typeof to === "boolean" )
 			return Boolean(from);
 
-		
+		if( to === undefined ){
+			console.error("An asset was found with property "+ident+" set to undefined. You probably made a typo in the class property definition. Data loaded: ", parent, "prototype", n);
+			return from;
+		}
 
-		console.error("Trying to typecast unknown type: "+ident , "from", typeof from, "to", typeof to);
+		console.error("Trying to typecast unknown type: "+ident , "from", typeof from, "to", typeof to, "in", this);
 		return from;
 
 	}

@@ -48,6 +48,7 @@ const load_order = [
 	'assetTemplates',
 
 	'factions',
+	'story',
 	'bookPages',
 	'books',
 	'armorEnchants',
@@ -127,6 +128,7 @@ export default class GameLib{
 		this.gameActions = {};
 		this.actionLearnable = {};
 		this.factions = {};
+		this.story = {};
 		this.books = {};
 		this.bookPages = {};
 		this.armorEnchants  = {};

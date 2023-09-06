@@ -41,7 +41,7 @@ export default class GameEvent extends Generic{
 
 	load(data){
 		
-		this.g_autoload(data, true);
+		this.g_autoload(data);
 
 	}
 

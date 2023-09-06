@@ -11,7 +11,6 @@ import * as EditorGraph from './EditorGraph.js';
 import Roleplay from '../../classes/Roleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
 
-
 export const DB = 'roleplay',
 	CONSTRUCTOR = Roleplay,
 	BLOCKTYPE = 'Roleplay'
@@ -324,6 +323,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
+		id : Generic.generateUUID(),
 		label : 'RP_'+Generic.generateUUID(),
 		title : 'New Roleplay',
 		autoplay : true,

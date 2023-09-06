@@ -9,7 +9,7 @@ import * as THREE from '../ext/THREE.js';
 import {TransformControls} from '../ext/TransformControls.js';
 
 
-
+import * as EditorStory from './editors/EditorStory.js';
 import * as EditorText from './editors/EditorText.js';
 import * as EditorCondition from './editors/EditorCondition.js';
 import * as EditorAudioKit from './editors/EditorAudioKit.js';
@@ -97,6 +97,7 @@ const DB_MAP = {
 	"shopAssets" : { listing : EditorShopAsset.list, asset : EditorShopAsset.asset, icon : 'receive-money', help : EditorShopAsset.help },
 	"shopAssetTokens" : { listing : EditorShopAssetToken.list, asset : EditorShopAssetToken.asset, icon : 'token', help : EditorShopAssetToken.help },
 	"factions" : { listing : EditorFaction.list, asset : EditorFaction.asset, icon : 'tattered-banner', help : EditorFaction.help },
+	"story" : { listing : EditorStory.list, asset : EditorStory.asset, icon : 'enlightenment', help : EditorStory.help },
 	"quests" : { listing : EditorQuest.list, asset : EditorQuest.asset, icon : 'scroll-quill', help : EditorQuest.help },
 	"questRewards" : { listing : EditorQuestReward.list, asset : EditorQuestReward.asset, icon : 'open-treasure-chest', help : EditorQuestReward.help },
 	"questObjectives" : { listing : EditorQuestObjective.list, asset : EditorQuestObjective.asset, icon : 'direction-sign', help : EditorQuestObjective.help },

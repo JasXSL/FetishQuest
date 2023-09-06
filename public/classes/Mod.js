@@ -27,6 +27,7 @@ import ArmorEnchant from './ArmorEnchant.js';
 import AudioTrigger from './AudioTrigger.js';
 import Collection from './helpers/Collection.js';
 import LoadingTip from './LoadingTip.js';
+import Story from './Story.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -102,6 +103,7 @@ export default class Mod extends Generic{
 		this.books = [];
 		this.bookPages = [];
 		this.armorEnchants = [];
+		this.story = [];
 
 		this.load(data);
 	}
@@ -176,6 +178,7 @@ export default class Mod extends Generic{
 			shopAssetTokens : this.shopAssetTokens,
 			actionLearnable : this.actionLearnable,
 			factions : this.factions,
+			story : this.story,
 			dungeonSubTemplates : this.dungeonSubTemplates,
 			gallery : this.gallery,
 			loadingTip : this.loadingTip,
@@ -1183,6 +1186,9 @@ export default class Mod extends Generic{
 
 		for( let rp of this.roleplay ){
 
+			if( !rp.id )
+				rp.id = Generic.generateUUID();
+
 			if( !rp.stages )
 				continue;
 
@@ -2086,6 +2092,7 @@ Mod.LIB_TYPES = {
 	'assetTemplates' : AssetTemplate,
 	'actionLearnable' : ActionLearnable,
 	'factions' : Faction,
+	'story' : Story,
 	'books' : Book,
 	'bookPages' : BookPage,
 	'audioKits' : AudioKit,

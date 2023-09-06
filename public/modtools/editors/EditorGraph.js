@@ -110,7 +110,7 @@ export function onBlockClick( type, block, nodes ){
 // Creates blocks based on sub links of an asset, including any unconnected items with _h the same as rootAsset (can't only check _h due to legacy RPs)
 export function buildSubBlocks( nodes, fieldAssets, editor, rootAsset ){
 
-
+	
 	// Start by fetching from _h (new RPs will have this, old won't). This is so you can save unlinked blocks and still have them show in the editor.
 	const assets = window.mod.mod.getAssetsByH(editor.DB, rootAsset.id);
 	// Create a cache of IDs
