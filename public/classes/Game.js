@@ -4189,9 +4189,12 @@ export default class Game extends Generic{
 
 Game.active = [];
 Game.db = new Dexie("game");
-Game.db.version(1).stores({
-	games: 'id'
-});
+Game.db.version(1).stores({games:'id'});
+Game.db.version(2).stores({
+	games: 'id',
+	chars : 'id',
+}).upgrade(trans => {});
+
 
 
 Game.EQUIP_COST = 4;

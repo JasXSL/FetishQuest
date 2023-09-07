@@ -13,6 +13,8 @@ import GameEvent from './GameEvent.js';
 import Condition from './Condition.js';
 import AudioTrigger from './AudioTrigger.js';
 import stdTag from '../libraries/stdTag.js';
+import Generic from './helpers/Generic.js';
+import PlayerClass from './PlayerClass.js';
 
 export default class StaticModal{
 
@@ -927,7 +929,6 @@ export default class StaticModal{
 					const hide = Boolean(!+localStorage.disable_ai);
 					localStorage.disable_ai = +hide;
 
-					console.log($("input", event.currentTarget));
 					$("input", event.currentTarget).prop("checked", !hide);
 					Player.checkEnableAI();
 					game.ui.draw();
@@ -3832,36 +3833,36 @@ export default class StaticModal{
 			.addTab("Char Editor", () => {
 
 				return `
-				<form class="charEdit">
-					<div class="flexTwoColumns">
-						<div class="left">
-							<input type="text" class="autoSave" style="font-size:2vmax" name="name" placeholder="Character Name" required /><br />
-							Species: <br /><input type="text" class="autoSave" style="width:auto" name="species" placeholder="Species" required /><br />
-							Class: <div class="class"><!-- Class listing goes here --></div>
-							Size: <br />
-							<div class="center">Tiny <input type="range" style="width:60%" class="autoSave" name="size" min=0 max=10 /> Giant</div>
-							Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />
-							<div class="tags"></div>
-							<textarea name="description" class="autoSave"></textarea>
-							Dressed: <input type="text" class="small reloadIcon autoSave" name="icon" placeholder="Dressed Art" /><br />
-							Bottomless: <input type="text" class="small reloadIcon autoSave" name="icon_upperBody" placeholder="UpperBody Art" /><br />
-							Topless: <input type="text" class="small reloadIcon autoSave" name="icon_lowerBody" placeholder="LowerBody Art" /><br />
-							Nude: <input type="text" class="small reloadIcon autoSave" name="icon_nude" placeholder="Nude Art" /><br />
-							<div class="center">Sub <input type="range" style="width:60%" class="autoSave" name="dominant" min=0 max=1 step=0.1 /> Dom</div>
-							<div class="center">Gay <input type="range" style="width:60%" class="autoSave" name="hetero" min=0 max=1 step=0.1 /> Het</div>
-						</div>
-						<div class="right">
+				<div class="flexTwoColumns">
+					<div class="left">
+						<form class="charEdit">
 							<div class="portrait">
 								<div class="image"></div>
 								`+this.generatePlayerLayerPreviewButtons()+`
 							</div>
-							<h3>Templates</h3>
-							<div class="gallery"><!-- Gallery entries here --></div>
-						</div>
+							<input type="text" style="font-size:2vmax" name="name" placeholder="Character Name" required /><br />
+							Dressed: <input type="text" class="small reloadIcon" name="icon" placeholder="Dressed Art" /><br />
+							Bottomless: <input type="text" class="small reloadIcon" name="icon_upperBody" placeholder="UpperBody Art" /><br />
+							Topless: <input type="text" class="small reloadIcon" name="icon_lowerBody" placeholder="LowerBody Art" /><br />
+							Nude: <input type="text" class="small reloadIcon" name="icon_nude" placeholder="Nude Art" /><br />
+							Species: <br /><input type="text" style="width:auto" name="species" placeholder="Species" required /><br />
+							Class: <div class="class center"><!-- Class listing goes here --></div>
+							Size: <br />
+							<div class="center">Tiny <input type="range" style="width:60%" name="size" min=0 max=10 /> Giant</div>
+							Tags (control+click to remove): <input type="button" class="addTag" value="Add Tag" /><br />
+							<div class="tags center"></div>
+							<textarea name="description"></textarea>
+							<div class="center">Sub <input type="range" style="width:60%" name="dominant" min=0 max=1 step=0.1 /> Dom</div>
+							<div class="center">Gay <input type="range" style="width:60%" name="hetero" min=0 max=1 step=0.1 /> Het</div>
+							<div class="center"><input type="submit" value="Save Changes" /></div>
+						</form>
 					</div>
-					<hr />
-					<input type="submit" value="Save Changes" />
-				</form>
+
+					
+					<div class="right">
+						<div class="gallery"><!-- Gallery entries here --></div>
+					</div>
+				</div>
 				`;
 
 			})
@@ -3894,7 +3895,8 @@ export default class StaticModal{
 					nude : editor.querySelector('input[name=icon_nude]'),
 					upperBody : editor.querySelector('input[name=icon_upperBody]'),
 					lowerBody : editor.querySelector('input[name=icon_lowerBody]'),
-					layersDiv : editor.querySelector('div.right div.layers'),
+					layersDiv : editor.querySelector('div.layers'),
+					charSubmit : editor.querySelector('input[type=submit]'),
 				};
 
 				this.tagList = dom.querySelector('div.datalists');
@@ -3913,7 +3915,7 @@ export default class StaticModal{
 						const radio = document.createElement('input');
 						radio.type = 'radio';
 						radio.name = 'playerClass';
-						radio.classList.add('playerClass', 'hidden', 'autoSave');
+						radio.classList.add('playerClass', 'hidden');
 						radio.value = c;
 						label.append(radio);
 
@@ -3961,69 +3963,142 @@ export default class StaticModal{
 
 				};
 
-				// New game screen
-				let viablePlayers = Player.loadThese(story.player_options);
-				if( story.allow_gallery )
-					viablePlayers = viablePlayers.concat(galleryPlayers.map(el => el.player));
-
 				
+
 				let np = 'Select between '+minOpts+" and "+maxOpts+" characters:";
 				if( minOpts === maxOpts )
 					np = 'Select '+story.min_nr_player_options+' characters:';
 
 				this.cData.nrPlayers.innerText = np;
 
-				let vpDivs = [];
-				for( let pl of viablePlayers ){
-					
-					const d = document.createElement("div");
-					vpDivs.push(d);
-					d.classList.add("playerSelect", "galleryEntry", "button");
-					d.onclick = onTemplateCharacterClick;
-					d.dataset.id = pl.label;
-					
-					const bg = document.createElement('div');
-					bg.classList.add("bg", "image");
+				const refreshViablePlayers = async () => {
 
-					let style = "url('"+esc(pl.icon)+"')";
-					bg.style.backgroundImage = style;
-					
-					const bottom = document.createElement('div');
-					bottom.classList.add("bottom");
-					d.append(bg, bottom);
-
-					const name = document.createElement('h3');
-					name.classList.add("name");
-					name.innerText = pl.name;
-					const stats = document.createElement('p');
-					stats.classList.add("subtitle");
-					stats.innerText = pl.class.name+", "+pl.species;
-					const backstory = document.createElement('p');
-					backstory.classList.add("backstory");
-					backstory.innerText = pl.description;
-
-					bottom.append(name, stats, backstory);
+					// New game screen
+					let viablePlayers = [];
+					await Game.db.chars.each(ch => {
+						viablePlayers.push(new Player(ch));
+					});
+					viablePlayers = viablePlayers.concat(Player.loadThese(story.player_options));
+					if( story.allow_gallery )
+						viablePlayers = viablePlayers.concat(galleryPlayers.map(el => el.player));
 
 					
+
+					let vpDivs = [];
+					for( let pl of viablePlayers ){
+						
+						const d = document.createElement("div");
+						vpDivs.push(d);
+						d.classList.add("playerSelect", "galleryEntry", "button");
+						d.onclick = onTemplateCharacterClick;
+						d.dataset.id = pl.label;
+						
+						const bg = document.createElement('div');
+						bg.classList.add("bg", "image");
+
+						let style = "url('"+esc(pl.icon)+"')";
+						bg.style.backgroundImage = style;
+						
+						const bottom = document.createElement('div');
+						bottom.classList.add("bottom");
+						d.append(bg, bottom);
+
+						const name = document.createElement('h3');
+						name.classList.add("name");
+						name.innerText = pl.name;
+						const stats = document.createElement('p');
+						stats.classList.add("subtitle");
+						stats.innerText = pl.class.name+", "+pl.species;
+						const backstory = document.createElement('p');
+						backstory.classList.add("backstory");
+						backstory.innerText = pl.description;
+
+						bottom.append(name, stats, backstory);
+
+						
+
+					}
+					this.cData.playerSelect.replaceChildren(...vpDivs);
+
+					// Stories with a fixed set of players can auto select
+					for( let i = 0; i < minOpts && story.player_options.length === minOpts && !story.allow_gallery; ++i )
+						this.cData.playerSelect.childNodes[i].classList.add("selected");
 
 				}
-				this.cData.playerSelect.replaceChildren(...vpDivs);
-
-				// Stories with a fixed set of players can auto select
-				for( let i = 0; i < minOpts && story.player_options.length === minOpts && !story.allow_gallery; ++i )
-					this.cData.playerSelect.childNodes[i].classList.add("selected");
-
-
+				
+				await refreshViablePlayers();
 				onTemplateCharacterClick();
+				
 
 
+
+
+
+
+				// Character editor
+				let chars = {};
 
 				// Editor
 				this.player = new Player();
-
 				this.tagList.innerHTML = this.constructor.getTagDatalistHtml();
-				
-				const cdImage = this.cData.image, cdLayers = this.cData.layersDiv;
+				const cdImage = this.cData.image, 
+					cdLayers = this.cData.layersDiv
+				;
+
+				const drawCustomGallery = async () => {
+
+					chars = {};
+					await Game.db.chars.each(ch => {
+						chars[ch.label] = ch;
+					});
+
+					let divs = [];
+					let div = document.createElement('div');
+					div.classList.add("galleryEntry", "button", "new");
+					div.innerText = '+ New Character';
+					// Insert new player
+					div.onclick = async () => {
+						
+						this.player = new Player({
+							label : Generic.generateUUID(),
+							name : 'Unnamed Player',
+							tags : ['pl_penis', 'pl_teeth', 'pl_mouth', 'pl_nose', 'pl_ears'],
+							team : 0,
+							description : 'Describe your character...',
+							species : 'wolf',
+							class : glib.get('offense', 'PlayerClass')
+						});
+						this.player.id = this.player.label;	// Easier if both are the same
+						updateFields();
+						await savePlayer();
+						await drawCustomGallery();
+						reloadIcon();
+						this.cData.charEditForm.classList.toggle("hidden", false);
+
+					};
+					divs.push(div);
+					for( let i in chars ){
+
+						const item = chars[i],
+							div = document.createElement('div')
+						;
+						div.classList.add('galleryEntry', 'button');
+						div.dataset.label = i;
+						div.style = 'background-image:url('+esc(item.icon)+')';
+						div.onclick = onGalleryClick;
+						divs.push(div);
+
+						const name = document.createElement("div");
+						name.classList.add("name");
+						name.innerText = item.name || 'Unnamed Character';
+						div.append(name);
+
+
+					}
+					this.cData.gallery.replaceChildren(...divs);
+					updatePlayerSelected();
+
+				}
 
 				// Updates the class labels
 				const updateClass = () => {
@@ -4039,7 +4114,15 @@ export default class StaticModal{
 				};
 
 				const reloadIcon = () => {
-					self.updatePlayerLayerPreview(cdImage, cdLayers, this.player);
+
+					const pl = new Player({
+						icon : this.cData.dressed.value,
+						icon_nude : this.cData.nude.value,
+						icon_upperBody : this.cData.upperBody.value,
+						icon_lowerBody : this.cData.lowerBody.value,
+					});
+					self.bindPlayerLayerPreviewButtons(cdImage, cdLayers, pl);
+
 				};
 
 
@@ -4079,6 +4162,8 @@ export default class StaticModal{
 					this.player.size = +this.cData.size.value || 0;
 					this.player.species = this.cData.species.value.trim();
 					this.player.name = this.cData.name.value;
+					this.player.hetero = +this.cData.hetero.value;
+					this.player.dominant = +this.cData.dominant.value;
 
 					this.cData.classInputs.forEach(input => {
 						if( input.checked )
@@ -4093,42 +4178,102 @@ export default class StaticModal{
 							this.player.tags.push('pl_'+tag);
 
 					}
+
 				};
 
-				const loadTemplate = label => {
+				// Updates the border around the player we're editing
+				const updatePlayerSelected = () => {
 
-					const template = glib.get(label, 'PlayerGalleryTemplate');
-					this.player.load(template.player);
-					this.player.g_resetID();
+					const label = this.player.label;
+					this.cData.gallery.childNodes.forEach(el => el.classList.remove("selected"));
+					this.cData.gallery.querySelector("div.galleryEntry[data-label='"+label+"']")?.classList?.add("selected");
+
+				};
+
+				const loadChar = label => {
+
+					this.player = new Player(chars[label]);
+					updateFields();
 					reloadIcon();
+					updatePlayerSelected();
 
 				};
 
+				// Saves this.player to db
+				const savePlayer = async () => {
+
+					updatePlayer();
+					this.cData.charSubmit.value = 'Saving...';
+					const dta = this.player.save(true);
+					let out = {
+						id : dta.label, // simplifies things since they're stored by ID in idb
+						label : dta.label,
+						name : dta.name,
+						tags : dta.tags,
+						icon : dta.icon,
+						icon_lowerBody : dta.icon_lowerBody,
+						icon_upperBody : dta.icon_upperBody,
+						icon_nude : dta.icon_nude,
+						species : dta.species,
+						spre : dta.spre,
+						description : dta.description,
+						size : dta.size,
+						class : dta.class instanceof PlayerClass ? dta.class.label : dta.class,
+						portrait : dta.portrait,
+						sadistic : dta.sadistic,
+						dominant : dta.dominant,
+						hetero : dta.hetero,
+						intelligence : dta.intelligence,
+						he : dta.he,
+						him : dta.him,
+						his : dta.his,
+					};
+					try{
+
+						await Game.db.chars.put(out);
+						await drawCustomGallery();
+						chars[dta.label] = out;
+						clearTimeout(this._savingTimer);
+						this._savingTimer = setTimeout(() => this.cData.charSubmit.value="Save Changes", 500);
+						refreshViablePlayers(); // Refresh the main page since it may use our custom characters
+
+					}catch(err){
+						console.error("IDB Sucks", err);
+					}
+
+
+				}
 				
 				// Update default characters
 				// Template characters
-				const onGalleryClick = event => {
+				const onGalleryClick = async event => {
 					
-					loadTemplate(event.target.dataset.label);
+					const label = event.currentTarget.dataset.label;
+					if( event.ctrlKey ){
+
+						if( confirm("Really delete this character?") ){
+
+							if( this.player.label === label )
+								this.cData.charEditForm.classList.toggle("hidden", true);
+							
+							await Game.db.chars.delete(label);
+							await drawCustomGallery();
+							refreshViablePlayers();
+
+						}
+
+					}
+					else{
+						loadChar(label);
+						this.cData.charEditForm.classList.toggle("hidden", false);
+					}
 					updateFields();
 
 				};
-				const gallery = glib.getFull('PlayerGalleryTemplate');
-				let divs = [];
-				for( let i in gallery ){
+				
+				
 
-					const item = gallery[i],
-						div = document.createElement('div')
-					;
-					div.classList.add('galleryEntry', 'button');
-					div.dataset.label = i;
-					div.style = 'background-image:url('+esc(item.player.icon)+')';
-					div.addEventListener('click', onGalleryClick);
-					divs.push(div);
-
-				}
-				this.cData.gallery.replaceChildren(...divs);
-
+				await drawCustomGallery();
 
 
 				
@@ -4136,7 +4281,7 @@ export default class StaticModal{
 				if( !this.drawn ){
 
 					// Start the new game
-					this.cData.form.addEventListener('submit', event => {
+					this.cData.form.addEventListener('submit', async event => {
 						event.stopImmediatePropagation();
 						event.preventDefault();
 
@@ -4155,7 +4300,14 @@ export default class StaticModal{
 						const players = [];
 						for( let i = 0; i < sel.length; ++i ){
 
-							const pl = glib.get(sel[i].dataset.id, 'Player');
+							const id =sel[i].dataset.id;
+							// First try from custom characters
+							let pl = await Game.db.chars.get(id);
+							if( pl )
+								pl = new Player(pl);
+							else
+								pl = glib.get(id, 'Player');
+							
 							pl.auto_learn = false;
 							pl.netgame_owner_name = 'DM';
 							pl.netgame_owner = 'DM';
@@ -4180,15 +4332,6 @@ export default class StaticModal{
 
 
 					// Editor
-
-					// Autosave static forms
-					const onAutosaveChange = () => {
-						updatePlayer();
-						updateClass();	
-					};
-					this.cData.form.querySelectorAll(".autoSave").forEach(el => el.addEventListener('change', onAutosaveChange));
-
-					// Tag helpers
 					this.onTagClick = event => {
 
 						if( !event.ctrlKey && !event.metaKey )
@@ -4211,28 +4354,38 @@ export default class StaticModal{
 						input.name = 'tag';
 						input.classList.add('tag');
 						input.setAttribute('list', 'newGameTags');
-						input.addEventListener('change', onAutosaveChange);
 						input.addEventListener('click', this.onTagClick);
 						this.cData.tags.append(input);
 
 					};
 					this.cData.addTagButton.addEventListener('click', this.addTag);
 
-					this.cData.form.querySelectorAll('.reloadIcon').forEach(el => el.addEventListener('change', reloadIcon));
+					this.cData.charEditForm.querySelectorAll('.reloadIcon').forEach(el => el.addEventListener('change', reloadIcon));
+
+					this.cData.classInputs.forEach(el => el.onclick = event => {
+						this.player.class = glib.get(event.currentTarget.value, 'PlayerClass');
+						updateClass();
+					})
 
 					this.cData.charEditForm.addEventListener('submit', event => {
 						event.stopImmediatePropagation();
 						event.preventDefault();
-
-						console.log("Todo: Store player in local player DB");
+						savePlayer(player);
 						
 					});
 
 				}
 
 				// Load a default template and update fields
-				loadTemplate(this.cData.gallery.children[0].dataset.label);
-				updateFields();
+				const firstChar = Object.values(chars)[0];
+				if( firstChar ){
+					loadChar(firstChar.label);
+					updateFields();
+				}
+				this.cData.charEditForm.classList.toggle("hidden", !firstChar);
+				
+				
+				
 
 				self.bindPlayerLayerPreviewButtons(cdImage, cdLayers, this.player);
 

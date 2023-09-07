@@ -1649,16 +1649,23 @@ div.scroll{
 	}
 
 	#newGame div.galleryEntry{
-		width:10vmax; height:10vmax;
+		height:10vmax;
 		background-size: cover;
-		display:inline-block;
-		margin:0.5vmax;
+		margin:0.5vmax 0;
+		overflow: hidden;
+	}
+	#newGame div.galleryEntry.new{
+		height:auto;
+		padding:1vmax;
 	}
 	#newGame form.newGameForm div.galleryEntry{
 		width:15vmax; height:20vmax;
-		overflow:hidden;
+		display:inline-block;
+		margin:0.5vmax;
 	}
-	#newGame form.newGameForm div.galleryEntry.selected{
+	#newGame div.gallery div.galleryEntry.selected,
+	#newGame form.newGameForm div.galleryEntry.selected
+	{
 		outline: 0.4vmax solid #AFA;
 	}
 	#newGame form.newGameForm div.galleryEntry > div.bg{
@@ -1666,6 +1673,7 @@ div.scroll{
 		top:0; left:0; right:0; bottom:0;
 		background-size:cover;
 	}
+	#newGame div.galleryEntry div.name,
 	#newGame form.newGameForm div.galleryEntry > div.bottom{
 		text-transform: uppercase;
 		position: absolute;
@@ -1711,12 +1719,16 @@ div.scroll{
 		text-transform: none;
 	}
 
+	#newGame form.charEdit{
+		width:95%;
+		font-size:1.2vmax;
+	}
 
 	#newGame div.portrait{
 		border: 0.2vmax solid #FFF;
 		border-radius:0.5vmax;
-		width:80%;
-		height:35vmax;
+		width:100%;
+		height:25vmax;
 		display:inline-block;
 		margin-bottom:1vmax;
 	}
