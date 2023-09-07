@@ -22,7 +22,6 @@ export default class Story extends Generic{
 		this.max_nr_player_options = 0;		// use 0 for no max
 		this.min_nr_player_options = 1;		// NR options you can pick from
 		this.player_options = [];			// Player objects you can pick from
-		this.allow_custom = false;			// Allow custom player creation
 		this.allow_gallery = false;			// Allow players from the gallery table
 		this.npcs = [];						// Player objects that will be added as NPCs on your team
 		
@@ -43,7 +42,6 @@ export default class Story extends Generic{
 			player_options : Player.saveThese(this.player_options, full),
 			npcs : Player.saveThese(this.npcs, full),
 			start_dungeon : this.start_dungeon,
-			allow_custom : this.allow_custom,
 			allow_gallery : this.allow_gallery,
 		};
 

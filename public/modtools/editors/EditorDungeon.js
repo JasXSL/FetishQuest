@@ -72,7 +72,8 @@ export function asset(){
 
 // Creates a table for this asset in another asset
 export function assetTable( win, modAsset, name, single ){
-	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'name'], single);
+	// Dungeons are never unique. Because it's gonna be a pain for modders to use otherwise.
+	return HelperAsset.linkedTable( win, modAsset, name, CONSTRUCTOR, DB, ['label', 'name'], single, undefined, undefined, undefined, undefined, false);
 }
 
 

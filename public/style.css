@@ -1654,6 +1654,64 @@ div.scroll{
 		display:inline-block;
 		margin:0.5vmax;
 	}
+	#newGame form.newGameForm div.galleryEntry{
+		width:15vmax; height:20vmax;
+		overflow:hidden;
+	}
+	#newGame form.newGameForm div.galleryEntry.selected{
+		outline: 0.4vmax solid #AFA;
+	}
+	#newGame form.newGameForm div.galleryEntry > div.bg{
+		position:absolute;
+		top:0; left:0; right:0; bottom:0;
+		background-size:cover;
+	}
+	#newGame form.newGameForm div.galleryEntry > div.bottom{
+		text-transform: uppercase;
+		position: absolute;
+		bottom:0; left:0; right:0;
+		text-align: left;
+		background:rgba(0,0,0,.75);
+		padding:1vmax;
+	}
+	#newGame form.newGameForm div.galleryEntry > div.bottom > *{
+		margin:0;
+	}
+	#newGame form.newGameForm div.galleryEntry > div.bottom > h3{
+		font-size:1.6vmax;
+		text-transform: uppercase;
+	}
+	#newGame form.newGameForm div.galleryEntry > div.bottom > p{
+		font-weight: normal;
+		font-size:1vmax;
+		text-transform: capitalize;
+	}
+	@keyframes newGameStartSubmit{
+		from{box-shadow:0 0 2vmax 0.5vmax rgba(100,255,100, 1);}
+		to{box-shadow:0 0 1vmax 0.1vmax rgba(100,255,100, 1);}
+	}
+	#newGame form.newGameForm > input[type=submit]{
+		font-size:3vmax;
+		margin:2vmax;
+		background-color:#363;
+		animation: newGameStartSubmit 1s ease-in-out alternate infinite;
+	}
+	#newGame form.newGameForm > input[type=submit]:disabled{
+		background-color:#633;
+		animation:none;
+	}
+	#newGame form.newGameForm div.galleryEntry > div.bottom > p.backstory{
+		font-size:0.8vmax;
+		font-style: italic;
+		opacity:0.75;
+		display:none;
+	}
+	#newGame form.newGameForm div.galleryEntry.selected > div.bottom > p.backstory{
+		display:block;
+		text-transform: none;
+	}
+
+
 	#newGame div.portrait{
 		border: 0.2vmax solid #FFF;
 		border-radius:0.5vmax;
@@ -1669,6 +1727,8 @@ div.scroll{
 		background-position: center;
 	}
 
+	
+	
 	#newGame div.tags input{
 		width:auto;
 		display:inline-block;
@@ -1688,6 +1748,16 @@ div.scroll{
 	}
 	#newGame label:hover{
 		background:rgba(80, 80, 80, .8);
+	}
+
+	#newGame h2{
+		margin:0;
+	}
+	#newGame p.subtitle{
+		font-style: italic;
+		font-size:1.5vmax;
+		margin:0 0 1vmax 0;
+		padding:0;
 	}
 
 /**/
@@ -1714,7 +1784,7 @@ div.scroll{
 	}
 
 	#mainMenu div.gameListing{
-		margin:1vh 15vw;
+		margin:1vh;
 	}
 
 	#mainMenu table.editor td:nth-child(1){
@@ -1773,6 +1843,62 @@ div.scroll{
 	#mainMenu img.portalLogo{
 		height:5vmax;
 	}
+	#mainMenu div.mainMenuOptions{
+		flex-wrap: nowrap;
+	}
+	#mainMenu div.mainMenuOptions > div{
+		background-color: rgba(0,0,0,.5);
+		padding: 1vmax;
+		margin: 0.5vmax;
+		border: 0.3vmax #333 double;
+		border-radius: 1vmax;
+		box-shadow: 0.3vmax 0.3vmax 0.1vmax #000;
+	}
+
+	#mainMenu div.mainMenuOptions > div > h3{
+		margin:1vmin;
+		border-bottom:0.2vmax solid rgba(255,255,255,.25);
+		padding:0.5vmin;
+
+	}
+
+	#mainMenu div.mainMenuOptions div.story{
+		margin:0.5vh 0;
+		overflow:hidden;
+		padding:1vmin;
+		padding: 1vmin 6vmin;
+    	max-height: 15vh;
+	}
+
+	#mainMenu div.mainMenuOptions div.story.black{
+		background-color: #000;
+	}
+
+	#mainMenu div.mainMenuOptions div.story h3{
+		background:none;
+		font-size:2.5vmax;
+		font-weight: normal;
+		margin:0;
+	}
+	#mainMenu div.mainMenuOptions div.story p{
+		font-size:1.2vmax;
+		margin:0;
+		color:rgba(200,200,200,.8);
+	}
+	#mainMenu div.mainMenuOptions div.story p.subtitle{
+		font-style: italic;
+		font-size:1vmax;
+		color:#CCC;
+		margin:0 0 1vmin 0;
+		padding:0;
+	}
+	#mainMenu div.mainMenuOptions div.story div.bg{
+		position: absolute;
+		top:0; right:0; bottom:0; left:0;
+		background-size:cover;
+		opacity: 0.4;
+	}
+	
 	
 	
 

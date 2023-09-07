@@ -4312,11 +4312,11 @@ Game.getNames = async function(){
 };
 
 // Create a new game
-Game.new = async function(name, players){
+Game.new = async function( name, players, story ){
 
 	if( game )
 		game.destructor();
-	game = new Game(name);
+	game = new Game(name, story);
 
 	if( Array.isArray(players) ){
 
@@ -4331,7 +4331,10 @@ Game.new = async function(name, players){
 	}
 	
 	await game.execSave( true );
-	game.setDungeon( 'yuug_port', 1 );
+	let cell = 0;
+	if( story.start_dungeon === 'yuug_port' )	// Hardcoded because I'm retarted and started the game in a subcell
+		cell = 1;
+	game.setDungeon( story.start_dungeon, cell );
 	game.ui.onNewGame();
 
 };

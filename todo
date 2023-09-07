@@ -16,6 +16,7 @@ x Fensam in coop tries to talk to a dom object?
 
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
+- Add a wallpaper to main page
 
 -- MAJOR FEATURE IDEAS --
 

@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorPlayer from './EditorPlayer.js';
+import * as EditorDungeon from './EditorDungeon.js';
 import Faction from '../../classes/Faction.js';
 import Generic from '../../classes/helpers/Generic.js';
 import Story from '../../classes/Story.js';
@@ -32,14 +33,15 @@ export function asset(){
 		html += '<label>Icon: <input type="text" name="icon" class="saveable" value="'+esc(dummy.icon)+'" /></label>';
 		html += '<label>Max Nr Player Options: <input type="number" name="max_nr_player_options" min=0 step=1 class="saveable" value="'+esc(dummy.max_nr_player_options)+'" /></label>';
 		html += '<label>Min Nr Player Options: <input type="number" name="min_nr_player_options" min=1 step=1 class="saveable" value="'+esc(dummy.min_nr_player_options)+'" /></label>';
-		html += '<label>Gallery Characters: <input type="checkbox" name="allow_gallery" class="saveable" value=1 '+(dummy.allow_gallery ? 'checked' : '')+' /></label>';
-		html += '<label>Custom characters: <input type="checkbox" name="allow_custom" class="saveable" value=1 '+(dummy.allow_custom ? 'checked' : '')+' /></label>';
+		html += '<label>Allow Gallery: <input type="checkbox" name="allow_gallery" class="saveable" value=1 '+(dummy.allow_gallery ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
 	html += 'Description: <br /><textarea name="desc" class="saveable">'+esc(dummy.desc)+'</textarea>';
 
 	html += '<br />Selectable main characters: <div class="player_options"></div>';
 	html += '<br />NPCs to add on game start: <div class="npcs"></div>';
+
+	html += '<br />Starting area: <div class="start_dungeon"></div>';
 	
 	
 
@@ -47,6 +49,7 @@ export function asset(){
 
 	this.dom.querySelector("div.player_options").appendChild(EditorPlayer.assetTable(this, asset, "player_options"));
 	this.dom.querySelector("div.npcs").appendChild(EditorPlayer.assetTable(this, asset, "npcs"));
+	this.dom.querySelector("div.start_dungeon").appendChild(EditorDungeon.assetTable(this, asset, "start_dungeon", true));
 
 
 	HelperAsset.autoBind( this, asset, DB);
