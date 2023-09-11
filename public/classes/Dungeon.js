@@ -250,10 +250,23 @@ class Dungeon extends Generic{
 	}
 
 	getRoomById( id ){
+
 		for( let room of this.rooms ){
 			if( room.id === id )
 				return room;
 		}
+
+	}
+
+	getRoomByLabel( label ){
+
+		for( let room of this.rooms ){
+
+			if( room.label === label )
+				return room;
+
+		}
+
 	}
 
 	generateRoom( shape ){
@@ -712,6 +725,7 @@ class DungeonRoom extends Generic{
 			dirLight : this.dirLight,
 			playerMarkers : DungeonRoomMarker.saveThese(this.playerMarkers, full),
 			passives : Wrapper.saveThese(this.passives, full),
+			label : this.label,
 		};
 
 		if( full ){
@@ -727,7 +741,6 @@ class DungeonRoom extends Generic{
 		}
 		else{
 			out.expEvt = this.expEvt;
-			out.label = this.label;
 			this.g_sanitizeDefaults(out);
 		}
 		

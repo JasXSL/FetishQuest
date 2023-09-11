@@ -91,6 +91,9 @@ export default class Player extends Generic{
 		this.disabled = false;		// Disable a player, ignoring drawing it and ignoring it in game methods
 		this.voice = '';			// Voice kit label for pain/pleasure sounds etc
 
+		this._dp = 0;				// Downed protection. This value increases for each downed protection used this battle. Reset to 0 on battle start.
+		this._dpa = false;			// Downed protection active this turn. Resets on turn start.
+
 		// Use getBlock(type)
 		this.block = 0;				// Blocking points of damage
 		this.iBlock = 0;			// Block applied while it wasn't my turn
@@ -307,6 +310,8 @@ export default class Player extends Generic{
 			out.reroll = this.reroll;
 			out._last_arange = this._last_arange;
 			out._last_atype = this._last_atype;
+			out._dp = this._dp;
+			out._dpa = this._dpa;
 		}
 		// Should only be sent while we're hosting a netgame
 		//if( window.game && Game.net.isInNetgameHost() && !full )
@@ -695,6 +700,10 @@ export default class Player extends Generic{
 		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
 		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
 		vars[prefix+'Turns'] = this._turns;
+		vars[prefix+'SecondWindUsed'] = this._dp;
+		vars[prefix+'SecondWindActive'] = this.isDownedProtected();
+		vars[prefix+'SecondWindMax'] = this.getMaxDownedProtect();
+
 		
 		vars[prefix+'Talkative'] = this.talkative;
 		vars[prefix+'Sadistic'] = this.sadistic;
@@ -1013,7 +1022,18 @@ export default class Player extends Generic{
 	}
 
 
+	// Downed protection
+	canDownedProtect(){
+		return this.team === Player.TEAM_PLAYER;
+	}
 
+	isDownedProtected(){
+		return this._dpa;
+	}
+
+	getMaxDownedProtect(){
+		return 1 + this.getGenericAmountStatPoints(Effect.Types.downedProtection);
+	}
 
 	// RP Tags
 
@@ -1341,6 +1361,7 @@ export default class Player extends Generic{
 	// Raised after effects
 	onTurnStart(){
 
+		
 		this._last_arange = Action.Range.None;
 		this._last_atype = '';
 		this.reroll = 2;
@@ -1436,10 +1457,13 @@ export default class Player extends Generic{
 		this._turn_std_combo = 0;
 		this._turn_atypes = 0;
 		this._turn_ap_spent = 0;		// Todo: probably want this by type later
+
+		this._dpa = false; // Deactivate downed protection last
 		
 	}
 	onBattleStart(){
 
+		this._dp = 0;
 		this._used_chats = {};
 		this._turn_tags = [];
 		this.resetMomentum();
@@ -1470,6 +1494,8 @@ export default class Player extends Generic{
 	}
 	onBattleEnd(){
 
+		this._dp = 0;
+		this._dpa = false;
 		this.start_equip = [];
 		this.blCorruption = this.block = this.iBlock = 0;
 		this._last_chat = 0;	// Needed for out of combat chat
@@ -2957,6 +2983,22 @@ export default class Player extends Generic{
 
 		this.hp += amount;
 		this.hp = Math.floor( Math.max(0, Math.min(this.getMaxHP(), this.hp)) );
+
+		if( !wasDead && this.hp === 0 && !this.isDownedProtected() && this.canDownedProtect() && this._dp < this.getMaxDownedProtect() ){
+
+			this._dpa = true; // Activate downed protection
+			++this._dp;
+			const evt = new GameEvent({
+				sender,
+				target : this,
+				type : GameEvent.Types.downedProtection
+			});
+			evt.raise();
+
+		}
+
+		if( this.isDownedProtected() && this.hp < 1 )
+			this.hp = 1;
 
 		let post = this.hp;
 		if( dmgtype )

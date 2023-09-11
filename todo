@@ -1,22 +1,9 @@
 Bugs:
-- occasionally no orgasm on max arousal?
-
-x Harden not working if caster is full HP?
-x Change the turn start text to include all players
-x Give barker more info
-x RP dialogs not generating speech bubbles
-x marric HP seems a tad excessive
-x Ale in malthereus dungeon doesn't vanish when looted
-x Offense, defense, uti is wrong color when hovering over player momentum on their bar
-x Kinks not unbound when leaving the area? Friendly NPCs in bazaar kinks seem to stick?
-x Abilities with permanent chargers should hide the cooldown icon
-x Church quest demon kept recursing the text from his defeat RP. Sasme with riya. Looks like there's multiple event bindings for some reason.
-x Fensam in coop tries to talk to a dom object?
-
 
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 - Add a wallpaper to main page
+- Add a wiki
 
 -- MAJOR FEATURE IDEAS --
 
@@ -112,6 +99,8 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 	- Focus Gem: Prevents block from falling off this turn.
 	- Grappling hook: Unequips target hand slot.
 	- Horny bat: Deals 3 damage and lowers arousal by 3.
+	- Gain HP when rerolling
+	- 
 
 - Action ideas:
 	- Deals damage, deals extra damage if target has clairvoyance.
@@ -119,7 +108,7 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 	- Reduces target healing received
 	- Healing NPC
 	- Lowers max carry capacity for a few turns.
-	- 
+	- Gain a charge when hit by a crit
 
 	:: Do X, but if Y is true, also do Z. Y ideas:
 	- Action is followed by a ranged action

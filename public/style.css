@@ -2984,6 +2984,13 @@ div.scroll{
 	{
 		display:block;
 	}
+	@keyframes downedProtect{
+		from{filter:grayscale(1);}
+		to{filter:grayscale(0);}
+	}
+	#ui > div.players div.player.downedProtect > div.content > div.bg{
+		animation:downedProtect ease-out 0.5s infinite;
+	}
 	div.players div.player > div.targetingStats{
 		position:absolute;
 		top:50%;

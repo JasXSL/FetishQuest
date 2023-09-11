@@ -884,7 +884,7 @@ export class RoleplayStageOption extends Generic{
 		this.direct = [];			// These connect to stages directly. They're appended at the end of the index array
 		this.index = [];			// Target index. An array of goto objects. Integers get converted to goto objects. The first valid one will be picked or an exit option will be created.
 		this.text = '';
-		this.chat = this.constructor.ChatType.none;			// Chat type
+		this.chat = this.constructor.ChatType.default;			// Chat type
 		this.conditions = [];
 		this.game_actions = [];
 		this.target_override = this.constructor.Target.sender;

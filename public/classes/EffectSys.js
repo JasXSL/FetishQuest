@@ -1154,18 +1154,19 @@ class Effect extends Generic{
 				}
 				// Damage
 				else{
-					/*
-					console.debug(
-						s.name, "vs", t.name,
-						"input", amt, 
-						"bonus multiplier", Player.getBonusDamageMultiplier( s,t,type,this.parent.detrimental),
-						"of which", s.getBon(type), "-", t.getSV(type),
-						"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
-						"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
-						"nudity multi", t.getArmorDamageMultiplier(s, this),
-						"sMajor", sMajor, "tMajor", tMajor
-					);
-					*/
+					
+					if( Effect.debug )
+						console.log(
+							s.name, "vs", t.name,
+							"input", amt, 
+							"bonus multiplier", Player.getBonusDamageMultiplier( s,t,type,this.parent.detrimental),
+							"of which", s.getBon(type), "-", t.getSV(type),
+							"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
+							"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
+							"nudity multi", t.getArmorDamageMultiplier(s, this),
+							"sMajor", sMajor, "tMajor", tMajor
+						);
+					
 					// Get target global damage point taken modifier
 
 					// Amt is negative
@@ -1961,6 +1962,23 @@ class Effect extends Generic{
 				wrapperReturn.mergeFromPlayerDamageDurability(t, hit);
 			}
 
+			else if( this.type === Effect.Types.addDownedProtection ){
+				
+				let amt = Calculator.run(
+					this.data.amount || 1, 
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				);
+				if( !this.no_stack_multi )
+					amt *= wrapper.getStacks();
+				if( !amt )
+					continue;
+
+				t._dp += amt;
+
+			}
+
 			else if( this.type === Effect.Types.flee ){
 				game.attemptFleeFromCombat( s, this.data.force );
 			}
@@ -2576,7 +2594,9 @@ Effect.Types = {
 	addReroll : 'addReroll',
 	orgasmDuration : 'orgasmDuration',
 	equipCost : 'equipCost',
-	unequipCost : 'unequipCost'
+	unequipCost : 'unequipCost',
+	downedProtection : 'downedProtection',
+	addDownedProtection : 'addDownedProtection',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2645,6 +2665,7 @@ Effect.Passive = {
 	[Effect.Types.orgasmDuration] : true,
 	[Effect.Types.unequipCost] : true,
 	[Effect.Types.equipCost] : true,
+	[Effect.Types.downedProtection] : true,
 };
 
 Effect.KnockdownTypes = {
@@ -2679,8 +2700,11 @@ Effect.TypeDescs = {
 	[Effect.Types.setArousal] : "{amount:(str)(nr)amount} - Sets arousal value",				
 	//[Effect.Types.setAP] : "{amount:(str)(nr)amount} - Sets AP value",							
 	
-	[Effect.Types.expMod] : "{amount:(nr)multiplier} - Multiplier against experience gain",							
+	[Effect.Types.expMod] : "{amount:(nr)multiplier} - Multiplier against experience gain",			
 	
+	[Effect.Types.downedProtection] : "{amount:(int)add} - Adds or subtracts to how many downed protections you can use this battle",
+	[Effect.Types.addDownedProtection] : "{amount:(int)add=1} - Adds additional charges of downed protection this battle",
+
 	[Effect.Types.interrupt] : "{force:false} - Interrupts all charged actions. If force is true, it also interrupts non-interruptable spells (useful for boss abilities).",							
 	[Effect.Types.blockInterrupt] : "void - Prevents normal interrupt effects",							
 	[Effect.Types.healInversion] : "void - Makes healing effects do damage instead",			

@@ -89,8 +89,9 @@ export default class Encounter extends Generic{
 		difficulty += this.difficulty_adjust;
 		if( difficulty < 0.1 )
 			difficulty = 0.1;
-			
-		difficulty = difficulty+Math.random()*0.25;		// Difficulty may vary by 25%
+		
+		if( !this.players.length )
+			difficulty = difficulty+Math.random()*0.25;		// Difficulty may vary by 25% unless players are present. In which case it's defined by the mod.
 		return difficulty;
 
 	}
@@ -107,10 +108,14 @@ export default class Encounter extends Generic{
 		this.time_started = game.time;
 		// Checks if we actually have any templates to add
 		let hasTemplates = Boolean(this.player_templates[0]);	
-		let totalSlots = game.getTeamPlayers().length-0.25 + Math.random();
+		let totalSlots = game.getTeamPlayers().length;
+		// Only add randomness if it doesn't have preset players. Makes boss fights easier to make.
+		if( !this.players.length )
+			totalSlots += 0.25 + Math.random();
+			
 		if( totalSlots > 4 )
 			totalSlots = 4;		// Don't generate more than 5 enemies
-
+		
 		if( hasTemplates ){
 		
 			let usedMonsters = {};	// label : nrUses
@@ -169,6 +174,7 @@ export default class Encounter extends Generic{
 				return out;
 
 			};
+
 			while( maxSlots > 0 ){
 
 				let viableMonsters = getViableMonsters();
@@ -257,6 +263,7 @@ export default class Encounter extends Generic{
 		const difficulty = this.getDifficulty();
 		let average = difficulty/sumSlots;	// Modifier if we go above difficulty
 		
+
 		for( let player of en ){
 			if( player.power > 0 )
 				player.power *= average;

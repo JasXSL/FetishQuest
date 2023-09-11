@@ -94,7 +94,7 @@ export function nodeBlockUpdate( asset, block ){
 	if( asset.leave )
 		out += '<div class="label">[Leave]</div>';
 
-	if( asset.chat === RoleplayStageOption.ChatType.none )
+	if( parseInt(asset.chat) === RoleplayStageOption.ChatType.none )
 		out += '<div class="label">NO Chat</div>';
 
 	if( asset.store_pl )

@@ -179,6 +179,7 @@ GameEvent.Types = {
 	armorBroken : 'armorBroken',		
 	armorEquipped : 'armorEquipped',		
 	armorUnequipped : 'armorUnequipped',		
+	downedProtection : 'downedProtection',		
 
 	stdAttCombo : 'stdAttCombo',
 
@@ -237,6 +238,8 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.reroll] : 'target is the player who rerolled',
 
 	[GameEvent.Types.stdAttCombo] : 'Raised when any of the standard 3 attacks (attack, arouse, shock) has been used, custom.amount = nr times in a row any of the 3 has been used. Sender is the player who pulled off the combo. Target is an array of any targets hit. Raised even if you miss.',
+	
+	[GameEvent.Types.downedProtection] : 'Raised when a player enters downed protection (caps HP to 1 until next turn). Sender is the player who did damage, target is the player who received the protection.',
 
 	[GameEvent.Types.wrapperAdded] : 'Duration effects only, sender, target, action, wrapper',		//* , 
 	[GameEvent.Types.wrapperRemoved] : 'Duration effects only. sender, target, action, wrapper',	//* 

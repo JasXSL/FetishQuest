@@ -43,8 +43,19 @@ export function asset(){
 
 	html += '<br />Starting area: <div class="start_dungeon"></div>';
 	
-	
+	const dungeon = mod.getAssetById('dungeons', dummy.start_dungeon);
+	if( dungeon ){
 
+		html += '<label>Start Room: <select name="start_cell" class="saveable">';
+		for( let label of dungeon.rooms ){
+			
+			const room = mod.getAssetById('dungeonRooms', id);
+			html += '<option value="'+esc(label)+'" '+(label === dummy.start_cell ? 'selected'  : '')+'>'+esc(room.name)+'</option>';
+
+		}
+		html += '</label>';
+
+	}
 	this.setDom(html);
 
 	this.dom.querySelector("div.player_options").appendChild(EditorPlayer.assetTable(this, asset, "player_options"));

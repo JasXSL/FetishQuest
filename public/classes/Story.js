@@ -26,6 +26,7 @@ export default class Story extends Generic{
 		this.npcs = [];						// Player objects that will be added as NPCs on your team
 		
 		this.start_dungeon = '';			// label of dungeon to start in
+		this.start_cell = '';
 		
 		this.load(data);
 	}
@@ -43,6 +44,7 @@ export default class Story extends Generic{
 			npcs : Player.saveThese(this.npcs, full),
 			start_dungeon : this.start_dungeon,
 			allow_gallery : this.allow_gallery,
+			start_cell : this.start_cell,
 		};
 
 		if( full !== "mod" ){}

@@ -1433,6 +1433,7 @@ export default class Game extends Generic{
 
 
 	/* DUNGEON */
+	// room can be an ID ora n index
 	setDungeon( dungeon, room = 0, resetSaveState = false, difficulty = -1 ){
 
 		if( dungeon === this.dungeon )
@@ -1448,6 +1449,15 @@ export default class Game extends Generic{
 			this.onDungeonExit();
 		}
 		this.dungeon = dungeon;
+
+		let roomAsset = dungeon.getRoomByLabel(room);
+		if( !roomAsset )
+			roomAsset = dungeon.getRoomByIndex(room);
+		if( !roomAsset )
+			roomAsset = dungeon.rooms[0];
+		
+		room = roomAsset.index;
+
 		this.dungeon.previous_room = this.dungeon.active_room = room;
 		if( resetSaveState ){
 			this.dungeon.resetRoleplays();
@@ -4334,9 +4344,7 @@ Game.new = async function( name, players, story ){
 	}
 	
 	await game.execSave( true );
-	let cell = 0;
-	if( story.start_dungeon === 'yuug_port' )	// Hardcoded because I'm retarted and started the game in a subcell
-		cell = 1;
+	let cell = story.start_cell || 0;
 	game.setDungeon( story.start_dungeon, cell );
 	game.ui.onNewGame();
 

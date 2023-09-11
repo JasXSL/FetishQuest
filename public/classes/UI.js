@@ -9,7 +9,7 @@ import { DungeonRoomAsset } from "./Dungeon.js";
 import StaticModal from "./StaticModal.js";
 import Modal from "./Modal.js";
 import Book from "./Book.js";
-import { Effect } from "./EffectSys.js";
+import { Effect, Wrapper } from "./EffectSys.js";
 import Encounter from "./Encounter.js";
 import Bot from "./Bot.js";
 
@@ -1535,7 +1535,6 @@ export default class UI{
 			friendly = p.team === 0
 		;
 
-		
 		el.attr('data-index', index || -1);
 
 		if( isNaN(el.attr('data-team')) )
@@ -1543,6 +1542,7 @@ export default class UI{
 		
 		if( myTurn )
 			el.toggleClass("active", true);
+
 
 		const isMine = game.isMyPlayer(p),
 			isMyActive = p === myActive,
@@ -1555,6 +1555,7 @@ export default class UI{
 		el.toggleClass('dead', p.isDead());
 		el.toggleClass('incapacitated', p.isIncapacitated());
 		el.toggleClass("hidden", p.isInvisible());
+		el.toggleClass("downedProtect", p.isDownedProtected());
 
 		// Map up needed sub divs
 		const contentEl = $("> div.content", el),
@@ -1851,6 +1852,25 @@ export default class UI{
 		// Effect wrappers
 		const wrappers = p.getWrappers().filter(el => !el.hidden && el.name.length && el.icon && el.parent instanceof Player),
 			wrapperButtons = $('> div', wrappersEl);
+		
+			
+		const vic = p.id;
+		if( p.isDownedProtected() )
+			wrappers.push(new Wrapper({
+				victim : vic,
+				caster : vic,
+				name : 'Second Wind',
+				description : 'HP can\'t be reduced below 1 this turn.',
+				icon : 'slashed-shield',
+			}));
+		else if( p.canDownedProtect() && p._dp >= p.getMaxDownedProtect() )
+			wrappers.push(new Wrapper({
+				victim : vic,
+				caster : vic,
+				name : 'Exhausted',
+				description : 'Unable to benefit from second wind again this battle.',
+				icon : 'shield-disabled',
+			}));
 		
 		wrapperButtons.toggleClass('hidden', true);
 

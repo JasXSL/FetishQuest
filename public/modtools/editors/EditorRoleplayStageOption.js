@@ -79,7 +79,7 @@ export function nodeBlockUpdate( asset, block ){
 		out += '</div>';
 	}
 
-	if( Array.isArray(asset.conditions) ){
+	if( Array.isArray(asset.conditions) && asset.conditions.length ){
 		out += '<div class="label unimportant">';
 			out += 'Conditions: '+esc(asset.conditions.join(", "));
 		out += '</div>';
