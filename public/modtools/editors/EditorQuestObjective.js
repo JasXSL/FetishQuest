@@ -61,6 +61,53 @@ export function assetTable( win, modAsset, name, single, parented ){
 	], single, parented);
 }
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Quest Objectives:</h3>'+
+		'<p>Tied to quests. Quest objectives generally must be completed in order to finish a quest.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of the objective.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Amount Needed</td>'+
+			'<td>Can be used if you need to perform a task N times. Such as "kill 3 gropers". Otherwise leave at 1.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Amount to start with</td>'+
+			'<td>Can be used to set a default value. Such as if an NPC gives you an item and tells you to find other items just like that. You can start with 1 since you were given 1.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Completion Desc</td>'+
+			'<td>This text is appended to the quest description when this objective is completed.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Events</td>'+
+			'<td>I suggest using encounter completion game actions and RPs to progress quests. But if you absolutely want to create a generic quest such as "kill 5 gropers", you have to use an event. You\'d typically create an event, then add conditions such as "eventIsPlayerDefeated" and "targetIsGroper".</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Visibility Conditions</td>'+
+			'<td>Can be used to set when a condition should be shown in the quest log.</td>'+
+		'</tr>'
+		
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+
 
 // Listing
 /*

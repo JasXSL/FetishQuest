@@ -72,9 +72,44 @@ export function list(){
 export function help(){
 
 	let out = '';
-	out += '<h3>Here you can create dungeon templates for the procedural generator</h3>'+
-		'<p></p>';
+	out += '<h3>Proc. Dungeon:</h3>'+
+		'<p>This lets you create procedural dungeons (exploration dungeons). In order to link a procedural dungeon to the world, create a door in the dungeon room and double click it to add a game action of type "proceduralDungeon", set the label to a unique label for your dungeon, and then link this dungeon template to the game action.</p>';
 
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Allow up</td>'+
+			'<td>Allows ladders going up. Usually used for underground dungeons, to allow cells above the entry level.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Allow Down</td>'+
+			'<td>Allows the generator to create rooms below the entry floor.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Levers</td>'+
+			'<td>Allows the dungeon to add levers to unlock doors. Mostly used for underground dungeons.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Random Encounters</td>'+
+			'<td>Lets the generator create random encounters with dice rolls and such.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Room templates</td>'+
+			'<td>Room template objects to use as the rooms. You will be able to attach conditions to these, like roomGroundLevel to only spawn on the room entry level, and roomBelowGroundLevel for caves and such.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Encounters</td>'+
+			'<td>Encounters you may find in the dungeon. You are able to attach conditions to these, generally things like roomGroundLevel or roomBelowGroundLevel to decide which floors certain encounters can be in.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
 	return out;
 
 };

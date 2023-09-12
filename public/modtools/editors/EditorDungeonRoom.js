@@ -233,6 +233,9 @@ export function help(){
 	out += '<h3>Encounters:</h3>'+
 		'<p>These are encounters to play in this room, the first viable one will be the one used. '+HelperAsset.helpLinkedList+'</p>';
 
+	out += '<h2>If you are creating a procedural dungeon room</h2>';
+	out += '<p>You will want to add least one lever asset, chest, door facing in either direction (including up and down), and at least 4 player markers in each room. The editor will tell you if you\'re missing something.</p>';
+	out += '<p>Levers can be found in Dungeon/Door/WallLever. The editor automatically attemps to figure out the direction of a door based on its rotation.</p>';
 
 	return out;
 

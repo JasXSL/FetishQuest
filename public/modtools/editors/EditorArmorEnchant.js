@@ -82,3 +82,46 @@ export function list(){
 
 };
 
+export function help(){
+
+	let out = '';
+	out += '<h3>Armor Enchant:</h3>'+
+		'<p>This is a helper table to describe what wrappers may be used for generated armor, and rarity.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Internal description only visible in the editor. Helps you search for specific enchants.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Rarity</td>'+
+			'<td>Rarity of enchant. More rare are usually more powerful.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Is curse</td>'+
+			'<td>Check if this is a detrimental enchant.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Wrapper</td>'+
+			'<td>Passive to add to the player wearing the item the enchant is attached to.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Conditions</td>'+
+			'<td>Conditions that must be met to apply it. Asset is present in the condition event. asset_lowerBody / asset_upperBody is commonly used to limit certain effects from stacking on both upper and lower body armor.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+	return out;
+
+};
+
+
+

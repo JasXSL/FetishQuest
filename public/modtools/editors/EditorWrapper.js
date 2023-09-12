@@ -136,3 +136,111 @@ export function list(){
 
 };
 
+
+
+export function help(){
+
+	let out = '';
+	out += '<h3>Wrapper:</h3>'+
+		'<p>A wrapper is a collection of effects to run immediately, ticking, on events, or passively. Basically it\'s an instant effect or a buff/debuff.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Editor Description</td>'+
+			'<td>This is only visible in the mod, a short description of the effect that you can use in search.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of the wrapper. Only required if you want the ability to show a buff icon on the victim.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Icon</td>'+
+			'<td>Icon of the wrapper. Only required if you want the ability to show a buff icon on the victim. Can use a name from game-icons.net</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Target</td>'+
+			'<td>Target to apply it to. Most of the time you can use auto. But in actions that should hit a target but also the caster, caster is commonly used.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Duration</td>'+
+			'<td>Duration of the wrapper in rounds (from turn star to turn start). Use -1 for "until the battle ends".</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Stacks</td>'+
+			'<td>Stacks to apply. Many effect values multiply by wrapper stacks.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max stacks</td>'+
+			'<td>Max stacks of this wrapper the target can have from each caster.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Rarity</td>'+
+			'<td>Used only when building enchants. Decides the color of the toltip text when inspecting armor.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Unique</td>'+
+			'<td>By default you can have one wrapper by label per caster. This removes the "per caster" clause.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Detrimental</td>'+
+			'<td>Mark if this is a detrimental (negative) wrapper for the target.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Hidden</td>'+
+			'<td>Hides it from the player box. I\'m not sure why this is needed since you can leave name/icon blank to accomplish the same.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Trigger Immediate</td>'+
+			'<td>If the duration is 0, it will always trigger immediate. But duration effects such as DoTs will only trigger on turn start/end. This will cause the effects to trigger immediately when the wrapper is applied, in addition to on tick.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Tick on turn start</td>'+
+			'<td>Triggers the non passive effects on victim turn start</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Tick on turn end</td>'+
+			'<td>Triggers the non passive effects on victim turn end</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Global</td>'+
+			'<td>When a player is added to the world, they will be affected by this wrapper immediately if they pass conditions. Useful if you want to create custom rules for the whole game.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Use game timer</td>'+
+			'<td>Normally, duration is measured in rounds. If this is checked, the wrapper will persist based on the in game clock (any action passes the world time in FQ). The duration then becomes in whole in game seconds. This also allows the wrapper to persist beyond battle end.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Describe the wrapper</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Tags</td>'+
+			'<td>Adds tags to the victim while the wrapper is on them.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Effects</td>'+
+			'<td>Effects tied to the wrapper. These are what actually do things to the player.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Add conditions</td>'+
+			'<td>Conditions that have to be met for the wrapper to be applied to the victim.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Stay conditions</td>'+
+			'<td>Conditions that have to be met for the wrapper to stay on the victim.</td>'+
+		'</tr>'
+		
+
+	;
+		
+
+	out += '</table>';
+	return out;
+
+};

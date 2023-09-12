@@ -108,3 +108,70 @@ export function list(){
 
 };
 
+
+export function help(){
+
+	let out = '';
+	out += '<h3>Material Template:</h3>'+
+		'<p>Physical materials that can be applied to different types of equipment. These are always tied to an Asset Template.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of the material. Will be prepended to the asset name.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Base color name</td>'+
+			'<td>Name the color of the item.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Base color</td>'+
+			'<td>Select a the color.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Tintable</td>'+
+			'<td>Check if the material can be dyed at a blacksmith.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Weight</td>'+
+			'<td>Assume the material was attached to an item the size of a shirt. How much would it weigh in grams? For metal I suggest 5000-7000.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Level</td>'+
+			'<td>Minimum player level for this material to show up in world.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Durability Bonus Multiplier</td>'+
+			'<td>Multiplies against durability. Heavy armor in general can have a value of 2. But it\'s up to you.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Stat bonus</td>'+
+			'<td>Can be used to add bonus enchants. Leave at 0 for most materials.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Hit sound</td>'+
+			'<td>Leave empty. This is auto generated.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>SV/BON</td>'+
+			'<td>Avoidance/Proficiency adjust. I suggest keeping it small, and using negatives. Such as Steel granting 3 sv physical but -2 sv arcane.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Tags</td>'+
+			'<td>Add material tags starting with "as_", such as as_steel, as_metal, as_hard etc.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+	return out;
+
+};
+
+

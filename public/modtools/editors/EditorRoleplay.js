@@ -345,6 +345,9 @@ export function help(){
 	out += '<h3>Tying a roleplay to an NPC in a cell</h3>';
 	out += '<p>In order to attach a roleplay to a player in a cell, you need to first create an encounter for that cell, and add the player. Then create a game action in that encounter of the Roleplay type, and select your roleplay.</p>';
 
+	out += '<h3>The outliner</h3>';
+	out += '<p>Click the Outliner button to enter outliner mode. This is a vastly superior mode of designing your roleplays. Right click to add a node, and then simply drag and drop to connect them. You can also right click a node or path to delete it. Some features are only availabe in the outliner.</p>';
+
 	out += '<h3>Fields</h3>';
 	out += '<table>';
 	out += 

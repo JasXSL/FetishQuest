@@ -91,3 +91,53 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Player Class:</h3>'+
+		'<p>A player class is mainly used for the 3 starting archetypes for player, and for NPC templates to give them different actions visa the Player Action table. It also allows you to modify character stats.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of the class.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Name type</td>'+
+			'<td>Mainly used for NPCs, appends or prepends the class name to their character name.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Monster class</td>'+
+			'<td>Do not show up in the player class selector in the main menu character editor.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Momentum type</td>'+
+			'<td>Lets you set a guaranteed momentum type to gain every turn. Setting it to all picks one at random.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>sv (avoidance), bon (proficiency)</td>'+
+			'<td>Lets you tune the character stats.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Class description. Appended to the character description.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

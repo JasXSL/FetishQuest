@@ -79,3 +79,49 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Player Action:</h3>'+
+		'<p>This table is used to figure out which NPCs can use what abilities, and what trainers the players can learn new actions at, and actions auto learned by players.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Cost</td>'+
+			'<td>Lets you set a cost in copper to train this ability. Use -1 for automatic.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Auto Learn</td>'+
+			'<td>Can be used to auto learn the action whenever conditions are met. This is checked whenever a player levels up.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player templates only</td>'+
+			'<td>Makes this action only available to NPCs.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Action</td>'+
+			'<td>The action to learn.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Conditions</td>'+
+			'<td>Conditions needed to be met to learn it. For gyms, use one of the gameActionTag conditions. To mark a gym as a type, add a tag (such as ga_warrior) to the game action that links the NPC with the gym.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

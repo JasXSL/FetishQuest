@@ -97,3 +97,61 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Shop:</h3>'+
+		'<p>Shops are places where you can buy and sell items (herp derp). Shops can have preset items and/or procedurally generated items. To tie a shop to a player, use a GameAction inside an Encounter.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of the shop.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Buys</td>'+
+			'<td>If unchecked, this shop only sells item, and will not buy your items.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Nr random armors to generate</td>'+
+			'<td>How many random generated asset types to generate when met (and when stock expires).</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Min rarity</td>'+
+			'<td>Min rarity of generated assets.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Items</td>'+
+			'<td>ShopAsset items that should always be sold, provided they are in stock.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Conditions</td>'+
+			'<td>Conditions needed to be met in order to visit this shop. This is per player.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Generated Asset Types</td>'+
+			'<td>Asset Templates of items this merchant will sell.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Generated Asset Materials</td>'+
+			'<td>Asset materials that the generated asset types can be. For an instance if you make a smith you might only add metal materials here.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

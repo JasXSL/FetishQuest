@@ -83,3 +83,65 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Quest:</h3>'+
+		'<p>Quests are tasks for the players to do.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>It\'s the name of the quest! Think of something creative!</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Exp Multiplier</td>'+
+			'<td>Exp is based on nr of objectives completed. But this lets you multiply against that if you want to give more or less experience.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Hide Rewards</td>'+
+			'<td>Hides the quest rewards.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Multiply Money</td>'+
+			'<td>Multiplies the money reward by nr of players and distributes it among the players. Recommended on.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Multiply Reward</td>'+
+			'<td>When checked, any item rewards will be copied and given to all players instead of only the player that handed the quest in.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Describe the basic premise of the quest. You can add additional descriptions to the objectives.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Rewards</td>'+
+			'<td>Attach assets, actions, or reputation to give the players. Can have conditions.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Objectives</td>'+
+			'<td>The objectives that need to be done to complete the quest.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Completion Objectives</td>'+
+			'<td>Legacy. Do not use.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

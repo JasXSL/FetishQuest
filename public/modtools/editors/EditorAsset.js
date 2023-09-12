@@ -190,3 +190,161 @@ export function list(){
 
 };
 
+
+export function help(){
+
+	let out = '';
+	out += '<h3>Asset:</h3>'+
+		'<p>An asset is an inventory item.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of your asset.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Shortname Article</td>'+
+			'<td>Only needed if the shortname violates the rule of "if it starts with a vowel, use \'an\'". Such as "a unicorn" which starts with a vowel but uses "a".</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Shortname</td>'+
+			'<td>A short name. Such as if you make an asset called "thong of divinity", you could use "thong" as a shortname to shorten the sentences a bit when referred to in texts.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Autoloot</td>'+
+			'<td>This item can show up in autoloot game actions.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Dye name / Dye color</td>'+
+			'<td>Optional. If this item has been dyed from the start, enter the color name and color.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Base color name / Base color</td>'+
+			'<td>Name of the color and color of the object.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Dummy type</td>'+
+			'<td>Used to create stacks of items. When used, you set the name to the label of the object you want to polymorph it into. And then set stacks to add. For an instance if you want the item to represent 10 gold, set dummy type to label, name to "gold" and stacks to add to 10. Autoloot is currently not implemented.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Level</td>'+
+			'<td>Level of item. Setting it to -1 will have it set to the player average level when the item is found in game. Using -2 sets it to ALWAYS be the holder\'s level.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Durability Bonus</td>'+
+			'<td>Only used for items that can be damaged (clothes). Adds extra durability points to the item.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Stacking</td>'+
+			'<td>Item can stack. This should not be used for items that can be used or worn. Only in items that can safely stack, such as reagents or vendor trash.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Charges</td>'+
+			'<td>If the asset has a use action, this is how many times it can be used. Use -1 for infinite. If you make an item with a use action and it can\'t be used, it\'s probably because you left this at 0.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>No auto consume</td>'+
+			'<td>Normally charges are consumed even if the item action misses or fails. This prevents it from consuming charges if the action is a miss or fail.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Soulbound</td>'+
+			'<td>Prevents you from trading the asset to other players.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Colorable</td>'+
+			'<td>Allows players to dye the asset at a smith.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Indestructible</td>'+
+			'<td>Prevents the item from taking damage from physical damage and other sources of armor damage.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Rem on unqeuip</td>'+
+			'<td>Deletes the item when unequipped. Good for summoned armor and such.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>No Unequip</td>'+
+			'<td>Item cannot be unequipped by the player. Wrappers can still unequip it.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Unequip/Equip cost</td>'+
+			'<td>Sets the momentum cost of unequipping/equipping the item. -1 uses the default value.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Expires</td>'+
+			'<td>Time in in game seconds before the item will self destruct. 0 disables.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Monetary value</td>'+
+			'<td>Sell value in copper. Setting this to 0 disables selling.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Weight</td>'+
+			'<td>Item weight in grams. Make an estimate.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Hit sound</td>'+
+			'<td>Path to a sound file for a special hit sound to play when the item is hit (armor). Leave empty to auto generate based on material tags.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Force this desc</td>'+
+			'<td>By default, if you attach an action to the item, the item tooltip shows the action\'s tooltip. Checking force this desc uses the asset description instead.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Describe what the item looks like. You don\'t have to describe enchants as they are auto described based on the wrapper.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Icon</td>'+
+			'<td>Item icon, you can use a name of an icon from game-icons.net</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Item slots</td>'+
+			'<td>Where the item can equip to (if any).</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Rarity</td>'+
+			'<td>Item rarity.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Category</td>'+
+			'<td>What category in your inventory the item should show up in.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Equip conditions</td>'+
+			'<td>Conditions that need to be met by the wearer in order to equip the item in the first place.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Tags</td>'+
+			'<td>Use tags starting with as_</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Passives</td>'+
+			'<td>Passive wrappers to give the wearer while the item is worn.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Use Action</td>'+
+			'<td>An action to trigger when the asset is used.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Game Actions</td>'+
+			'<td>Game Actions to trigger when the asset is used from inventory. Note that this doesn\'t consume charges, only Use Action does.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Loot Sound</td>'+
+			'<td>Sound to play when looting the item</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+	return out;
+
+};
+

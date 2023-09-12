@@ -65,3 +65,41 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Faction:</h3>'+
+		'<p>Factions aren\'t used much nowadays since the guilds now all have quests to unlock their gear. But these may be used in the future for repeatable quests. Players can check faction standings via conditions. Factions affect the game, not individual players. Factions can be added or subtracted from via a GameAction.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of your faction.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Initial Standing</td>'+
+			'<td>What standing do player start the game with? -300 is considered hostile and 300 exalted.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Describe the faction.</td>'+
+		'</tr>'		
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

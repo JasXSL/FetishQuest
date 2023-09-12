@@ -49,7 +49,7 @@ export function asset(){
 		html += '<label>Start Room: <select name="start_cell" class="saveable">';
 		for( let label of dungeon.rooms ){
 			
-			const room = mod.getAssetById('dungeonRooms', id);
+			const room = mod.getAssetById('dungeonRooms', label);
 			html += '<option value="'+esc(label)+'" '+(label === dummy.start_cell ? 'selected'  : '')+'>'+esc(room.name)+'</option>';
 
 		}
@@ -92,3 +92,61 @@ export function list(){
 
 };
 
+
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Story:</h3>'+
+		'<p>Stories are entry points into the game. They get put on the main menu.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of your story.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Icon</td>'+
+			'<td>Link to an image file used as a background for the main menu entry. Recommended min size is 512x256.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max Nr Player Options</td>'+
+			'<td>Maximum nr of player characters for this story. Capped at 4.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Min Nr Player Options</td>'+
+			'<td>Min nr of player characters for this campaign.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Allow Gallery</td>'+
+			'<td>Allow gallery and custom characters to be picked. Otherwise, only players in selectable main characters are allowed.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Describe your story. Keep it short. One to two sentences works best.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Selectable Main Characters</td>'+
+			'<td>Player assets for characters you should be able to select. Makes the most sense with Allow Gallery disabled.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>NPCs to add on game start</td>'+
+			'<td>NPC "followers" to add to the player team on game start. Useful if you want an AI character to accompany you</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};

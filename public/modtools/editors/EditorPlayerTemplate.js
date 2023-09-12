@@ -215,3 +215,188 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Player Template:</h3>'+
+		'<p>A player template is a template for a character that gets randomly generated when you encounter them. Used in most random encounters. For boss encounters you\'ll want to use Player assets instead.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>Unique label for your template. WARNING: DO NOT CHANGE AFTER SETTING OR YOU MAY END UP WITH BROKEN LINKS.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Name of your template, such as Imp or Succubus.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Species</td>'+
+			'<td>Name of the species, such as tiger or demon.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Voice</td>'+
+			'<td>Not currently used by official content, but can be used to add combat grunts with Audio Triggers.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Image</td>'+
+			'<td>URL to character fully dressed. If your character can\'t be stripped, such as beasts, you only need this one.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Image Upper Body</td>'+
+			'<td>URL to character wearing only upper body armor.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Image Lower Body</td>'+
+			'<td>URL to character wearing only lower body armor.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Image Nude</td>'+
+			'<td>URL to character naked.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Art is AI generated</td>'+
+			'<td>Check if the art is AI generated.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max Actions</td>'+
+			'<td>Max actions this character should be able to have.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Min Level</td>'+
+			'<td>Min level for this character to start appearing. Note that min and max level may be disregarded if no other valid templates are present in the encounter.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max Level</td>'+
+			'<td>Max level for this character appearing.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max nr</td>'+
+			'<td>Can be used to limit how many of this template can be included in a single encounter. Use -1 for unlimited.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Carried copper</td>'+
+			'<td>Used to randomize money held. 1 plat = 1000 copper.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Gear Quality</td>'+
+			'<td>Average equipment quality, from common to legendary.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Gear chance</td>'+
+			'<td>Chance to generate gear. Note that this goes per slot.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Min size</td>'+
+			'<td>Min character size. 0 being something like a gnome, and 10 being a giant.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max size</td>'+
+			'<td>Max character size.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Slots</td>'+
+			'<td>Recommended way of making NPCs more or less powerful. The encounter generator allocates NPC slots based on nr of players, and a higher value will fill up more of these slots and gain power in the process. A lower value will make the monster weaker and spawn more monsters instead.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Power</td>'+
+			'<td>Can be used to make a monster more difficult without taking up more slots. Mainly used for fine tuning enemies with dangerous abilities. Can be left at 1 most of the time.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>HP Multiplier</td>'+
+			'<td>Increases or decreases max HP without affecting slots.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Armor</td>'+
+			'<td>Mainly used for beasts, granting them an armor value. Between 0 and 1 where the nr equals to damage reduction. So 0.4 (like tentacrab) takes 40% less damage. Humanoids get their armor from clothes.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>No equip</td>'+
+			'<td>NPC cannot equip items. Used by mimics since they generate gear but cannot equip it.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Sadistic min/max</td>'+
+			'<td>Mainly used for RP and punishments if the NPC defeats the players.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Dominant min/max</td>'+
+			'<td>Mainly used for RP and punishments if the NPC defeats the players.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Hetero min/max</td>'+
+			'<td>Plays a small role in which targets a humanoid prefers.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Intelligence</td>'+
+			'<td>Currently only used for RP. In the future it may be tied to NPC AI complexity. 0 = worm, 1 = hive mind. Average human intelligence ranges between 0.4 and 0.6.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Talkative min/max</td>'+
+			'<td>Chance of the NPC talking during combat (provided it has valid text lines).</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Stats</td>'+
+			'<td>Allows you to set some baseline avoidances (sv) and proficiences (bon). Keep in mind that classes are also able to tune these. Can be negative.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Describe the NPC</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Tags</td>'+
+			'<td>Tag your character. Use pl_beast for beasts, and pl_target_beast for things like skeletons that should attack like humanoids but be attacked like beasts.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Random unequipped loot</td>'+
+			'<td>Items the NPC can carry, but will never equip.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Viable gear</td>'+
+			'<td>Handheld items the NPC may equip.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Viable asset materials</td>'+
+			'<td>Materials the character\'s assets can be.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Viable asset templates</td>'+
+			'<td>Asset templates the character can generate and equip.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Viable consumables</td>'+
+			'<td>Consumable items the NPC can have and equip.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Required Assets</td>'+
+			'<td>Assets the character must have on them.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Required Actions</td>'+
+			'<td>Normally, actinos are dictated in the Player Action table. But this allows you to give the NPC action that it MUST always have.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Viable Classes</td>'+
+			'<td>Classes this NPC can be.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Passives</td>'+
+			'<td>Passive wrappers this character must always have.</td>'+
+		'</tr>'
+		
+		
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+
+

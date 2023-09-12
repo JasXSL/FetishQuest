@@ -127,3 +127,45 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>HitFX:</h3>'+
+		'<p>Collections of particles, CSS effects, and audio to play on the characters.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Describe the effect.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Stagger</td>'+
+			'<td>Force a time in milliseconds between triggers. Usually used for AoE to prevent the hit FX from playing at the same time on all targets.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Once</td>'+
+			'<td>Used in events with multiple targets (such as AoE) to only play the effect once. Especially effects that only play from the sender.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Hit time</td>'+
+			'<td>Can be used for audio triggers to play the combat hit grunts after this amount of milliseconds.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

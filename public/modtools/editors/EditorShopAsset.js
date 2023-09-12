@@ -80,3 +80,49 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Shop Asset:</h3>'+
+		'<p>This sets up an item that may be sold in a store.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Item</td>'+
+			'<td>The Asset to be sold.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Cost</td>'+
+			'<td>Cost of the asset in copper. Use -1 to auto generate.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Amount</td>'+
+			'<td>Max nr to sell before running out of stock.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Restock rate</td>'+
+			'<td>Time in in-game seconds before getting new stock in.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Alt currency</td>'+
+			'<td>Select Shop Tokens to accept instead/in addition to gold.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Conditions</td>'+
+			'<td>Conditions that need to be met before selling this item to a player. Checked against the player viewing the shop as a target for the condition event.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

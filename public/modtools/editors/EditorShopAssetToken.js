@@ -68,3 +68,36 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Shop Token:</h3>'+
+		'<p>Sets up a token template that a shop requires to sell an item. This is faster than specifying an item and the quant of said item for each asset sold.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Item</td>'+
+			'<td>Item to pay with.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Cost</td>'+
+			'<td>Nr of said item to pay with.</td>'+
+		'</tr>'
+	;
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
+

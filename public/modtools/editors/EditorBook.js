@@ -65,3 +65,38 @@ export function list(){
 
 };
 
+
+export function help(){
+
+	let out = '';
+	out += '<h3>Book:</h3>'+
+		'<p>A book that can be read on the HUD. You can attach these via Game Actions. Commonly used on world items and inventory items.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out += 
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Name</td>'+
+			'<td>Book title.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Pages</td>'+
+			'<td>Adds pages to the book.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Game Actions</td>'+
+			'<td>Game actions to perform when someone reads the book. Target is the player that read the book.</td>'+
+		'</tr>'
+	;
+		
+
+	out += '</table>';
+	return out;
+
+};
+
+

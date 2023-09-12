@@ -1207,3 +1207,49 @@ export function list(){
 
 };
 
+// Returns a help text
+export function help(){
+
+	let out = '';
+
+	out += '<h3>Game Action:</h3>'+
+		'<p>Game Actions are like wrappers that affect the game itself rather than players. Even though they could affect players too by applying wrappers. The most common use case is to connect services/RP to NPCs inside of encounters.</p>';
+
+	out += '<h3>Fields</h3>';
+	out += '<table>';
+	out +=
+		'<tr>'+
+			'<td>Label</td>'+
+			'<td>A unique label to access the asset by. WARNING: DO NOT CHANGE AFTER SETTING IT, OR RISK BROKEN LINKS!</td>'+
+		'</tr>'+ 
+		'<tr>'+
+			'<td>Description</td>'+
+			'<td>Describe the game action.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Type</td>'+
+			'<td>Type of game action. Changing this value will update the data text, telling you what it does.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>data</td>'+
+			'<td>This field varies based on the type of game action.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Conditions</td>'+
+			'<td>Conditions to trigger the GameAction.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player Conditions</td>'+
+			'<td>By default, game actions are triggered alongside an event, and will apply to the target(s) of said event. But you can use this player conditions to run the game action against all players that match the player conditions.</td>'+
+		'</tr>'
+		
+	;
+		
+
+	out += '</table>';
+
+	
+
+	return out;
+
+};
