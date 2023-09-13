@@ -3,11 +3,8 @@ Bugs:
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
 - Add a wallpaper to main page
-- Add a wiki
 
 -- MAJOR FEATURE IDEAS --
-
-Node graph editor for FQ
 
 Overhaul food:
 - Make food buffs unique

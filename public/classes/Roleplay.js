@@ -7,6 +7,7 @@ import Text from './Text.js';
 import Collection from './helpers/Collection.js';
 import Calculator from './Calculator.js';
 import Player from './Player.js';
+import { Effect } from './EffectSys.js';
 export default class Roleplay extends Generic{
 
 	static getRelations(){ 
@@ -948,6 +949,9 @@ export class RoleplayStageOption extends Generic{
 
 	getDiceModifier( player ){
 
+		if( !(player instanceof Player) )
+			return 0;
+
 		if( !this.dice_mod )
 			return 0;
 
@@ -957,7 +961,7 @@ export class RoleplayStageOption extends Generic{
 				sender : player,
 				target : this.getTargets(player),
 			})
-		));
+		)) + Math.floor(player.getGenericAmountStatPoints(Effect.Types.luck));
 
 	}
 	

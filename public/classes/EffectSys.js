@@ -2597,6 +2597,7 @@ Effect.Types = {
 	unequipCost : 'unequipCost',
 	downedProtection : 'downedProtection',
 	addDownedProtection : 'addDownedProtection',
+	luck : 'luck',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2666,6 +2667,7 @@ Effect.Passive = {
 	[Effect.Types.unequipCost] : true,
 	[Effect.Types.equipCost] : true,
 	[Effect.Types.downedProtection] : true,
+	[Effect.Types.luck] : true,
 };
 
 Effect.KnockdownTypes = {
@@ -2794,6 +2796,7 @@ Effect.TypeDescs = {
 
 	[Effect.Types.unequipCost] : '{amount:(int/str)amount} - Adds or subtracts from item unequip costs of the player.',
 	[Effect.Types.equipCost] : '{amount:(int/str)amount} - Adds or subtracts from item equip costs of the player.',
+	[Effect.Types.luck] : '{amount:(int/str)amount} - Adds or subtracts from chances at rolling the dice during RP.',
 
 };
 

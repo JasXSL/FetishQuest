@@ -356,7 +356,8 @@ div.scroll{
 	transform: translateY(-110%);
 }
 
-#ui:not(.dev) .devtool{
+#ui:not(.dev) .devtool,
+#customModals:not(.dev) .devtool{
 	display:none !important;
 }
 

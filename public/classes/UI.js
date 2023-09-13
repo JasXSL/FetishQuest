@@ -473,7 +473,10 @@ export default class UI{
 	}
 
 	updateDMTools(){
+		
 		this.board.toggleClass("dev", this.showDMTools());
+		document.getElementById("customModals").classList.toggle("dev", this.showDMTools());
+		
 	}
  
 	// Takes the 3d canvases

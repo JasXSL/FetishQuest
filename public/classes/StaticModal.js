@@ -894,9 +894,11 @@ export default class StaticModal{
 
 				// DM
 				this.dm.toggle.on('click', event => {
+
 					localStorage.hide_dm_tools = +game.ui.showDMTools();
 					game.ui.updateDMTools();
 					$("input", event.currentTarget).prop("checked", game.ui.showDMTools());
+
 				});
 				this.dm.addPlayer.on('click', event => {
 					
@@ -2473,7 +2475,7 @@ export default class StaticModal{
 			.addTab("Altar", () => {
 				return `
 					<div class="myMoney">
-						<div>
+						<div class="center">
 							<span class="title">My Money:</span>
 							<span class="coins"></span>
 						</div>
@@ -2488,6 +2490,7 @@ export default class StaticModal{
 				
 				const altar = this.getTabDom('Altar')[0];
 				this.money = altar.querySelector('div.myMoney');
+				this.coins = this.money.querySelector('span.coins');
 				this.button = altar.querySelector('input[name=shuffle]');
 				this.kinks = altar.querySelector('div.kinks');
 
@@ -2498,7 +2501,7 @@ export default class StaticModal{
 				if( !myPlayer )
 					throw 'You have no active player';
 
-				self.generateWallet(this.money);
+				self.generateWallet(this.coins);
 
 
 				await StaticModal.updateWallet(this.money);
