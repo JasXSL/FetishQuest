@@ -1126,10 +1126,10 @@ export function asset(){
 		html += '<div class="labelFlex">'+
 			'<label title="Team, 0 = player, 1 = enemy, usually. Can be a formula.">Team: <input name="data::name" value="'+esc(asset.data.team || 0)+'" class="saveable" /></label>'+
 		'</div>';
-		html += 'Player conditions: <br /><div class="playerConds"></div>';
+		//html += 'Player conditions: <br /><div class="pConds"></div>';
 
 		fnBind = () => {
-			this.dom.querySelector("div.playerConds").appendChild(EditorCondition.assetTable(this, asset, "data::playerConds", false));
+			//this.dom.querySelector("div.pConds").appendChild(EditorCondition.assetTable(this, asset, "data::playerConds", false));
 		};
 
 	}

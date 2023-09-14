@@ -65,7 +65,7 @@ export function nodeBlockUpdate( asset, block ){
 	let out = '<div class="texts">';
 	for( let id of texts ){
 
-		const text = window.mod.mod.getAssetById('texts', id);
+		const text = window.mod.getAssetById('texts', id);
 		out += '<div class="text label important" style="font-weight:normal" data-id="'+esc(text.id)+'">';
 			out += esc(text.text);
 			if( Array.isArray(text.conditions) && text.conditions.length )
@@ -100,7 +100,7 @@ export function nodeBlockUpdate( asset, block ){
 	if( asset.store_pl )
 		out += '<div class="label">Store player: '+RoleplayStage.getStoreTypeLabel(asset.store_pl)+'</div>';
 
-	if( asset.shuffle_texts )
+	if( asset.shuffle_texts && +asset.shuffle_texts !== RoleplayStage.Shuffle.NONE )
 		out += '<div class="label">Shuffle texts: '+RoleplayStage.getShuffleTypeLabel(asset.shuffle_texts)+'</div>';
 
 	if( Array.isArray(asset.game_actions) )

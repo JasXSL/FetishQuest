@@ -92,7 +92,6 @@ export default class Roleplay extends Generic{
 			portrait : this.portrait,
 			_targetPlayers : this._targetPlayers,
 			_vars : vars.save(full),
-			vars_persistent : this.vars_persistent,
 		};
 
 		if( full ){
@@ -103,6 +102,7 @@ export default class Roleplay extends Generic{
 			out.minPlayers = this.minPlayers;
 			out.maxPlayers = this.maxPlayers;
 			out.gameActions = GameAction.saveThese(this.gameActions, full);
+			out.vars_persistent = this.vars_persistent;
 		}
 		if( full !== "mod" ){
 			out.completed = this.completed;
@@ -146,18 +146,24 @@ export default class Roleplay extends Generic{
 
 	loadState(){
 		
+
 		// When loaded from a game, grab from state
 		if( window.game && window.game !== true && this.label && game.is_host && glib && !glib.loading ){
 
+			
 			let state = game.state_roleplays[this.label];
-
 			// Reset to default
 			if( !state )
-				state = {
+				state = new Collection({
 					stage : 0,
-					completed : false
-				};
+					completed : false,
+					stages : new Collection()
+				});
 
+			// Game hasn't loaded yet
+			if( !(state instanceof Collection) )
+				return;
+				
 			if( this.vars_persistent && state.hasOwnProperty('vars') ){
 				for( let i in state.vars )
 					this._vars[i] = state.vars[i];
@@ -169,6 +175,40 @@ export default class Roleplay extends Generic{
 			if( this.once && state.hasOwnProperty("completed") ){
 				this.completed = state.completed;
 			}
+
+			const cStages = state.get("stages");
+			if( cStages instanceof Collection ){
+
+				for( let stage of this.stages ){
+
+					const cStage = cStages.get(stage.id);
+					if( !cStage )
+						continue;
+
+					const cOpts = cStage.get("options");
+					if( cOpts instanceof Collection ){
+
+						for( let opt of stage.options ){
+
+							const cOpt = cOpts.get(opt.id);
+							if( !cOpt )
+								continue;
+
+							let v = cOpt.get('_roll');
+							if( v !== undefined )
+								opt._roll = v;
+							v = cOpt.get('_mod');
+							if( v !== undefined )
+								opt._mod = v;
+
+						}
+
+					}
+
+				}
+
+			}
+
 
 		}
 
@@ -267,7 +307,21 @@ export default class Roleplay extends Generic{
 
 	// 
 	canSaveState(){
-		return this.persistent || this.once || this.vars_persistent || this.apOnce;
+		if( this.persistent || this.once || this.vars_persistent || this.apOnce )
+			return true;
+
+		for( let stage of this.stages ){
+			
+			for( let opt of stage.options ){
+
+				if( opt.canSaveState() )
+					return true;
+
+			}
+			
+		}
+
+		return false;
 	}
 
 	getPlayer(){
@@ -409,7 +463,7 @@ class RoleplayChatQueue{
 
 		if( typeof this.stage === "string" )
 			return this.stage;
-		return this.stage.getText(player);
+		return this.stage.getText(player, true);
 
 	}
 
@@ -533,7 +587,8 @@ export class RoleplayStage extends Generic{
 		
 	}
 
-	getOptions( player ){
+	// Selected can be an ID of the selected option. We never hide the selected option since we need to show what a player successfully clicked
+	getOptions( player, selected ){
 
 		if( !this.options.length && window.game && !this.leave ){
 			this.options.push(new RoleplayStageOption({
@@ -551,7 +606,7 @@ export class RoleplayStage extends Generic{
 			}, this));
 
 		}
-		return this.options.filter(opt => opt.validate(player));
+		return this.options.filter(opt => opt.id === selected || opt.validate(player));
 	}
 
 	getOptionById( id ){
@@ -890,9 +945,11 @@ export class RoleplayStageOption extends Generic{
 		this.game_actions = [];
 		this.target_override = this.constructor.Target.sender;
 		this.shuffle = false;				// Shuffles goto options
+		this.fail_text = '';		// Can be used to replace the text if you fail a dice roll
 		this.dice = 0;				// Turns this into a d20 roll option
 		this.dice_mod = '';			// Math formula for dice roll
-		
+		this.reroll = RoleplayStageOption.Rerolls.visit;	// Can reroll every time the RP is opened, but only once per RP. 
+
 		// Last roll stats
 		this._mod = 0;				// player modifier i
 		this._roll = 0;				// Value rolled
@@ -934,6 +991,10 @@ export class RoleplayStageOption extends Generic{
 		return this._roll === 20;
 	}
 
+	isRolled(){
+		return this._roll > 0;
+	}
+
 	rollDice( player ){
 		
 		const roll = Math.ceil(Math.random()*20);
@@ -965,6 +1026,9 @@ export class RoleplayStageOption extends Generic{
 
 	}
 	
+	canSaveState(){
+		return (this.dice && this.reroll === RoleplayStageOption.Rerolls.never && this._roll);
+	}
 
 	// Data that should be saved to drive
 	save( full ){
@@ -976,6 +1040,7 @@ export class RoleplayStageOption extends Generic{
 			dice : this.dice,
 			dice_mod : this.dice_mod,
 			target_override : this.target_override,
+			reroll : this.reroll
 		};
 
 		if( full ){
@@ -984,9 +1049,13 @@ export class RoleplayStageOption extends Generic{
 			out.chat = this.chat;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
 			out.shuffle = this.shuffle;
+			out.fail_text = this.fail_text;
 		}
 		
-		if( full !== "mod" ){}
+		if( full !== "mod" ){
+			out._roll = this._roll;
+			out._mod = this._mod;
+		}
 		else
 			this.g_sanitizeDefaults(out);
 
@@ -1002,6 +1071,9 @@ export class RoleplayStageOption extends Generic{
 
 	
 	validate( player ){
+
+		if( this.reroll !== RoleplayStageOption.Rerolls.always && this._roll )
+			return false;
 
 		const evt = new GameEvent({
 			sender : player,
@@ -1033,14 +1105,17 @@ export class RoleplayStageOption extends Generic{
 
 	}
 
-	getText( player ){
+	getText( player, allowFailText = false ){
 
 		if( !player )
 			player = game.getMyActivePlayer();
 		
+		let tx = this.text;
+		if( this.fail_text && this.isRolled() && !this.lastRollSuccess() && allowFailText )
+			tx = this.fail_text;
 
 		let text = new Text({
-			text : this.text || '[Continue]'
+			text : tx || '[Continue]'
 		});
 		// this.parent.getInitiatingPlayer()
 		// Responses use your active player as sender, main text uses whoever got you to that stage
@@ -1057,7 +1132,8 @@ export class RoleplayStageOption extends Generic{
 		const rp = this.getRoleplay();
 		const pl = this.parent.getPlayer();
 
-		if( player && this.chat !== RoleplayStageOption.ChatType.none && this.text )
+		const canChat = player && this.chat !== RoleplayStageOption.ChatType.none && this.text;
+		if( canChat && !this.dice ) // Dice rolls need to wait until the roll is done to output the player response
 			RoleplayChatQueue.output( player, this );
 
 		// Do this first to set the waiting flag
@@ -1072,9 +1148,12 @@ export class RoleplayStageOption extends Generic{
 			Game.net.dmDiceRoll(this.dice, this._roll, this._mod);
 			await game.ui.rollDice(this.dice, this._roll, this._mod);
 			
+			if( canChat )
+				RoleplayChatQueue.output( player, this );
+
 		}
 
-		rp.setStage(goto.index, !this.dice, player);
+		rp.setStage(goto.index, true, player);
 		
 		// Do these last as they might force a UI draw, which might draw the wrong RP option
 		for( let act of this.game_actions ){
@@ -1114,6 +1193,12 @@ export class RoleplayStageOption extends Generic{
 	}
 
 }
+
+RoleplayStageOption.Rerolls = {
+	visit : 'visit',		// Cannot reroll until the RP is closed and opened again. Default behavior.
+	always : 'always',		// Can always reroll if failed
+	never : 'never',		// Can never reroll. Makes it persistent.
+};
 
 RoleplayStageOption.Target = {
 	sender : 'sender', 					// Default. Target is same as sender in dice modifier and conditions

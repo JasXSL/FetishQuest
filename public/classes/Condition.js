@@ -224,6 +224,8 @@ export default class Condition extends Generic{
 				cl.target = el;
 				return Condition.all(this.targs, cl, debug, true);
 			});
+			if( debug )
+				console.log("Overriding targs with", targs);
 
 		}
 

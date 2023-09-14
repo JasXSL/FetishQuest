@@ -58,6 +58,13 @@ export function nodeBlockUpdate( asset, block ){
 		out += esc(asset.text || '[Continue]');
 	out += '</div>';
 
+	if( asset.fail_text && +asset.chat !== RoleplayStageOption.ChatType.none && +asset.dice ){
+		out += '<div class="label important">';
+			out += "On Fail: "+esc(asset.fail_text);
+		out += '</div>';
+	
+	}
+
 	let properties = [];
 	if( +asset.chat === RoleplayStageOption.ChatType.none )
 		properties.push("SILENT");
@@ -65,6 +72,8 @@ export function nodeBlockUpdate( asset, block ){
 		properties.push("SHUFFLE");
 	if( asset.target_override && asset.target_override !== RoleplayStageOption.Target.sender )
 		properties.push("Target: "+asset.target_override);
+	if( asset.reroll && asset.reroll !== RoleplayStageOption.Rerolls.visit && +asset.dice )
+		properties.push("REROLL "+asset.reroll.toUpperCase());
 	if( properties.length ){
 		out += '<div class="label unimportant">';
 			out += esc(properties.join(", "));
@@ -129,7 +138,12 @@ export function asset(){
 		html += '</select></label>';
 		
 		html += '<label>Dice Roll: <input type="number" step=1 min=0 name="dice" class="saveable" value="'+(dummy.dice || 0)+'" /></label>';
-		html += '<label>Modifier: '+
+		html += '<label>Reroll: <select name="reroll" class="saveable">';
+		for( let i in RoleplayStageOption.Rerolls )
+			html += '<option value="'+i+'" '+(i === dummy.reroll ?  'selected' : '')+'>'+i+'</option>';
+		html += '</select></label>';
+		html += '<label>Fail Text: <input type="text" name="fail_text" class="saveable" value="'+esc(dummy.fail_text)+'" /></label>';
+		html += '<label style="flex: 0 0 100%">Modifier: '+
 			'<input type="text" name="dice_mod" class="saveable" value="'+esc(dummy.dice_mod)+'" />';
 			html += '<div class="presets">Preset formulas for offensive/defensive checks:<br />'
 			const presets = {
@@ -245,6 +259,18 @@ export function help(){
 		'<tr>'+
 			'<td>Dice Roll</td>'+
 			'<td>If nonzero, this becomes a dice roll option, and the players have to roll a d20 of at this value for success. Use the diceRoll* conditions in your goto options when routing the outcome.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Fail text</td>'+
+			'<td>Only works with output set to default and dice roll enabled. If you fail a dice roll, you can have the player say a different text.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Allow reroll</td>'+
+			'<td><ul>'+
+				'<li>visit : No reroll, but forgotten when RP is closed. Good for RP\'s that can\'t be reopened, such as random events.</li>'+
+				'<li>always : Can always reroll when the option is presented. Good for things like carnival game encounters where the player can retry.</li>'+
+				'<li>never : Makes the dice roll permanent. Good for NPCs that can be talked to whenever with the click of a button.</li>'+
+			'</ul></td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Modifier</td>'+

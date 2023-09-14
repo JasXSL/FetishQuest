@@ -475,7 +475,7 @@ export default class UI{
 	updateDMTools(){
 		
 		this.board.toggleClass("dev", this.showDMTools());
-		document.getElementById("customModals").classList.toggle("dev", this.showDMTools());
+		document.getElementById("customModals")?.classList?.toggle("dev", this.showDMTools());
 		
 	}
  
@@ -2172,6 +2172,8 @@ export default class UI{
 		result = Math.trunc(result);
 		mod = Math.trunc(mod);
 
+		this._rolling_dice = true;
+
 		// Step 1: Prepare everything
 		const ir = this.iconRenderer;
 		ir.classList.remove("hidden");
@@ -2235,6 +2237,8 @@ export default class UI{
 		await delay(1500);
 
 		ir.classList.add("shrunk");
+
+		this._rolling_dice = false;
 		
 		// We can stop blocking here
 		setTimeout(() => {
@@ -2765,7 +2769,7 @@ export default class UI{
 
 			if( player && player.team === 0 ){
 
-				const options = stage.getOptions(player);
+				const options = stage.getOptions(player, this.selected_rp);
 				for( let response of options ){
 
 					let s = response.id === this.selected_rp;

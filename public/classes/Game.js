@@ -486,8 +486,38 @@ export default class Game extends Generic{
 
 		this.state_roleplays = Collection.loadThis(this.state_roleplays);
 		for( let i in this.state_roleplays ){
-			if( typeof this.state_roleplays[i] !== 'function' )
+			if( typeof this.state_roleplays[i] !== 'function' ){
 				this.state_roleplays[i] = Collection.loadThis(this.state_roleplays[i], this);
+
+				// Try to load subs
+				let stages = this.state_roleplays[i].get('stages');
+				if( !stages )
+					continue;
+
+				stages = Collection.loadThis(stages, this.state_roleplays[i]);
+				this.state_roleplays[i].set('stages', stages);
+
+				const keys = stages.keys();
+				for( let id of keys ){
+					
+					const st = Collection.loadThis(stages.get(id), stages);
+					stages.set(id, st);
+
+					let opts = st.get("options");
+					if( !opts )
+						continue;
+
+					opts = Collection.loadThis(opts, st);
+					st.set("options", opts);
+					
+
+					const okeys = opts.keys();
+					for( let oid of okeys )
+						opts.set(oid, Collection.loadThis(opts.get(oid), opts));
+
+				}
+
+			}
 		}
 
 		this.procedural = Dungeon.loadThese(this.procedural);
@@ -1060,7 +1090,6 @@ export default class Game extends Generic{
 
 					lib.useAgainst(p, p, false);
 
-					console.log(existing, baseDur);
 					let time = Math.min(36000, baseDur + (existing ? existing._duration : 0));
 					existing = p.getWrapperByLabel('_RESTED_');
 					existing._duration = existing.duration = time;
@@ -3113,12 +3142,51 @@ export default class Game extends Generic{
 			this.state_roleplays[roleplay.label] = new Collection({}, this);
 
 		const cache = this.state_roleplays[roleplay.label];
+		if( !cache.get('stages') )
+			cache.set('stages', new Collection({}, cache));
+		const stages = cache.get('stages');
+
 		if( roleplay.persistent )
-			cache.stage = roleplay.stage;
+			cache.set('stage', roleplay.stage);
 		if( roleplay.once )
-			cache.completed = roleplay.completed;
+			cache.set('completed', roleplay.completed);
 		if( roleplay.vars_persistent )
-			cache.vars = roleplay._vars.save(true);
+			cache.set('vars', roleplay._vars.save(true));
+
+		for( let stage of roleplay.stages ){
+			
+			for( let opt of stage.options ){
+				
+				if( !opt.canSaveState() )
+					continue;
+
+				let st = stages.get(stage.id);
+				if( !st ){
+					st = new Collection({}, stages);
+					stages.set(stage.id, st);
+				}
+
+				let opts = st.get('options');
+				if( !opts ){
+					opts = new Collection({}, st);
+					st.set('options', opts);
+				}
+				
+				let option = opts.get(opt.id);
+				if( !option ){
+
+					option = new Collection({}, opts);
+					opts.set(opt.id, option);
+
+				}
+
+				option.set('_roll', opt._roll);
+				option.set('_mod', opt._mod);
+				
+			}
+			
+
+		}
 
 	}
 

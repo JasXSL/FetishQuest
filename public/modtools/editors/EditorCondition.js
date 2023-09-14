@@ -1328,7 +1328,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Targ Override</td>'+
-			'<td>If at least one condition is set here, the condition will run against ALL enabled game players that match Targ Override conditions. Note that you can\'t include a condition with a targ condition of its own here to prevent recursion. Can be useful if you need to check a condition against predetermined players, such as non-enemies.</td>'+
+			'<td>If at least one condition is set here, the condition will run against ALL enabled game players that match Targ Override conditions. Note that you can\'t include a condition with a targ condition of its own here to prevent recursion. Can be useful if you need to check a condition against predetermined players, such as non-enemies. NOTE: Cannot be used with Subconditions. Each subcondition must have its own target override.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Subconditions</td>'+
