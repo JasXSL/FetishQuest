@@ -16,6 +16,7 @@ export default class Roleplay extends Generic{
 			playerConds : Condition,
 			stages : RoleplayStage,
 			gameActions : GameAction,
+			closeActions : GameAction,
 		};
 	}
 
@@ -42,6 +43,7 @@ export default class Roleplay extends Generic{
 		this.minPlayers = 1;		// With playerConds set: Minimum players that must be validated. Use -1 for ALL players on the player team.
 		this.maxPlayers = -1;		// -1 = infinite
 		this.gameActions = [];		// Ran after building the targetPlayers list. The main purpose of having this here is to allow sorting players BEFORE starting the RP.
+		this.closeActions = [];		// Ran whenever the RP is closed. Can be useful to remove characters in expEvts.
 
 		this.vars = new Collection({}, this);	// Like dungeonvars, but tied to an RP. Loaded onto by state. 
 		this._vars = null;	// Vars we're working on
@@ -102,6 +104,7 @@ export default class Roleplay extends Generic{
 			out.minPlayers = this.minPlayers;
 			out.maxPlayers = this.maxPlayers;
 			out.gameActions = GameAction.saveThese(this.gameActions, full);
+			out.closeActions = GameAction.saveThese(this.closeActions, full);
 			out.vars_persistent = this.vars_persistent;
 		}
 		if( full !== "mod" ){
@@ -360,6 +363,25 @@ export default class Roleplay extends Generic{
 		const stage = this.getActiveStage();
 		if( stage )
 			stage.onStart( players );
+
+	}
+
+	onClose(){
+
+		const pl = this.getPlayer();
+		const evt = new GameEvent({sender:pl, target:pl, roleplay:this});
+		// Run gameActions
+		for( let action of this.closeActions ){
+			action.trigger(
+				pl, 
+				undefined, 			// mesh
+				false, 				// Debug
+				pl,					// Sender
+				evt					// Forces a conditions check
+			);
+		}
+
+
 
 	}
 

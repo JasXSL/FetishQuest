@@ -923,6 +923,7 @@ export default class Game extends Generic{
 
 		if( isNaN(val) )
 			return;
+		val = Math.min(1,Math.max(0, val));
 		// min 5 min between updates, max 2h
 		this.rain_next_refresh = game.time + Math.floor(300+Math.random()*3600*2);
 		this.rain_started = this.time;
@@ -3062,6 +3063,8 @@ export default class Game extends Generic{
 			return;
 		}
 
+		this.roleplay.onClose();
+
 		this.roleplay = rp.clone(this);
 		this.roleplay.stage = '';
 		this.roleplay.onStart( pl );
@@ -3075,8 +3078,11 @@ export default class Game extends Generic{
 	}
 
 	clearRoleplay( force = false ){
+
+		this.roleplay.onClose();
 		this.setRoleplay(new Roleplay({completed:true}, this), force);
 		this.ui.draw();
+
 	}
 
 	isInPersistentRoleplay(){

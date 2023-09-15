@@ -111,12 +111,28 @@ export function asset(){
 
 	html += 'Conditions: <div class="conditions"></div>';
 
+	html += '<input type="button" class="addCond" data-cond="diceRollSuccess" value="Add Roll Success" />';
+	html += '<input type="button" class="addCond" data-cond="diceRollFail" value="Add Roll Fail" />';
+
 	this.setDom(html);
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
 	
 	HelperAsset.autoBind( this, asset, DB);
+
+	this.dom.querySelectorAll("input.addCond").forEach(el => el.onclick = () => {
+
+		const cond = el.dataset.cond;
+		if( !Array.isArray(asset.conditions) )
+			asset.conditions = [];
+		if( asset.conditions.includes(cond) )
+			return;
+		asset.conditions.push(cond);
+		this.rebuild();
+		HelperAsset.propagateChange(this);
+
+	});
 
 };
 

@@ -440,6 +440,18 @@ export function asset(){
 			html += '<label title="Seconds to add">Seconds: <input type="number" step=1 name="data::seconds" class="saveable" value="'+esc(asset.data.seconds || 0)+'" /></label>';
 		html += '</div>';	
 	}
+	else if( type == Types.setRain ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				amount : 0
+			};
+
+		html += '<div class="labelFlex">';
+			html += '<label title="Amount of rain to set"><input type="range" step=0.01 min=0 max=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 0)+'" /></label>';
+		html += '</div>';
+
+	}
 	else if( type == Types.sliceRpTargets ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {

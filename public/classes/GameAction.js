@@ -1159,6 +1159,16 @@ export default class GameAction extends Generic{
 
 		}
 
+		else if( this.type === types.setRain ){
+			
+			const rain = Calculator.run(this.data.amount, new GameEvent({
+				sender : player,
+				target : player,
+			})) || 0;
+			game.setRain(rain);
+
+		}
+
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
 			return false;
@@ -1343,7 +1353,7 @@ GameAction.types = {
 	setRpVar : 'setRpVar',						// 
 	addFollower : 'addFollower',
 	remFollower : 'remFollower',
-	
+	setRain : 'setRain',
 };
 
 GameAction.TypeDescs = {
@@ -1402,6 +1412,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET} - Sets an RP var. Formulas starting with @@ will be treated as strings (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
 	[GameAction.types.addFollower] : '{player:(str)playerLabel} - Immediately adds a follower to your party by label.',
 	[GameAction.types.remFollower] : '{player:(str)playerLabel} - Immediately removes a follower from your party by label.',
+	[GameAction.types.setRain] : '{amount:(float)rain} - Sets rain between 0 (off) and 1 (pouring).',
 	//[GameAction.types.removeFromRpVar] : '{ids:(arr)ids, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more rpvars',
 	
 };

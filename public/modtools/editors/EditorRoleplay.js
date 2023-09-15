@@ -200,19 +200,23 @@ export function nodeBlockUpdate( asset, block ){
 	if( asset.player )
 		out += '<div class="label unimportant">Player: '+esc(window.mod.getAssetById("players", asset.player)?.label)+'</div>';
 
-	if( Array.isArray(asset.conditions) ){
+	if( Array.isArray(asset.conditions) && asset.conditions.length ){
 		out += '<i>Conditions:</i><br />';
 		out += '<div class="label unimportant">'+esc(asset.conditions.join(', '))+'</div>';
 	}
-	if( Array.isArray(asset.playerConds) ){
+	if( Array.isArray(asset.playerConds) && asset.playerConds.length ){
 		out += '<i>PlayerConds:</i><br />';
 		out += '<div class="label unimportant">'+esc(asset.playerConds.join(', '))+'</div>';
 		out += '<label>Min players: '+esc(asset.minPlayers)+', Max players: '+esc(asset.maxPlayers)+'</label>';
 
 	}
-	if( Array.isArray(asset.gameActions) ){
+	if( Array.isArray(asset.gameActions) && asset.gameActions.length ){
 		out += '<i>Game Actions:</i><br />';
 		out += '<div class="label unimportant">'+esc(asset.gameActions.join(', '))+'</div>';
+	}
+	if( Array.isArray(asset.closeActions) && asset.closeActions.length ){
+		out += '<i>Close Actions:</i><br />';
+		out += '<div class="label unimportant">'+esc(asset.closeActions.join(', '))+'</div>';
 	}
 
 	if( typeof asset.vars === "object" && Object.keys(asset.vars).length )
@@ -271,6 +275,11 @@ export function asset(){
 	'</label>'+
 	'<div class="gameActions"></div>';
 
+	html += '<br /><label title="Don\'t rely on target/sender.">'+
+		'Close Actions: '+
+	'</label>'+
+	'<div class="closeActions"></div>';
+
 	html += 'Vars (this is a key/value object that can be acted upon by game actions). These can only be acted upon and found in mathVars while this roleplay is active. When used in mathvars they get prefixed with rp_<br />';
 	html += '<textarea class="json" name="vars">'+esc(JSON.stringify(dummy.vars))+'</textarea><br />';
 
@@ -284,6 +293,7 @@ export function asset(){
 	this.dom.querySelector("div.stages").appendChild(EditorRoleplayStage.assetTable(this, asset, "stages", false, 2));
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 	this.dom.querySelector("div.gameActions").appendChild(EditorGameAction.assetTable(this, asset, "gameActions", false));
+	this.dom.querySelector("div.closeActions").appendChild(EditorGameAction.assetTable(this, asset, "closeActions", false));
 	this.dom.querySelector("input.rpNodeEditor").onclick = () => {
 		window.mod.buildNodeEditor(
 			this.id,
@@ -394,6 +404,14 @@ export function help(){
 		'<tr>'+
 			'<td>Max Players</td>'+
 			'<td>Max players to save as rp targets. -1 is infinite. Should be equal or greater to minPlayers otherwise. Note that maxPlayers doesn\'t prevent the RP from starting if the nr of valid players is greater. It just limits how many players are included in the RP as targets.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Game Actions</td>'+
+			'<td>Game actions to run when the RP starts.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Close Actions</td>'+
+			'<td>Game actions to run when the RP is ended in any way. Don\'t rely on target/sender in these game actions.</td>'+
 		'</tr>'
 		
 	;

@@ -194,12 +194,17 @@ export default class RawNodes{
 			if( this.zoom < 0.2 )
 				mag = 0.025;
 
-			if( event.deltaY < 0 )
-				this.zoom += mag;
-			else
-				this.zoom -= mag;
-			
+			if( event.deltaY > 0 )
+				mag = -mag;
+
+			const pre = this.zoom;
+			this.zoom += mag;
 			this.zoom = Math.min(1.5, Math.max(0.1, this.zoom));
+
+			const dif = this.zoom/pre;
+			this.x *= dif;
+			this.y *= dif; 
+
 			this.onPan();
 			this.render();
 			
@@ -239,10 +244,22 @@ export default class RawNodes{
 		else if( cl.contains("block") ){
 
 			const block = this.getBlock(element.dataset.type, element.dataset.id);
-			if( !block.noDelete )
+			
+			// Hotkey to auto align
+			if( event.shiftKey ){
+				this.alignInputs(block);
+				return;
+			}
+
+			
+			opts.set("Align Inputs (Shift+Rtclk)", () => this.alignInputs(block));
+
+			if( !block.noDelete ){
+				opts.set('---', () => {});
 				opts.set("Delete", () => {
 					this.removeBlock(element.dataset.type, element.dataset.id);
 				});
+			}
 
 		}
 		// Background
@@ -257,8 +274,8 @@ export default class RawNodes{
 					opts.set('+ <span style="color:'+ty.color+'">' + ty.name + '</span>', () => {
 
 						this.addBlock(ty.name, undefined, {
-							x : (this.lastX-this.x)/this.zoom-cbb.left,
-							y : (this.lastY-this.y)/this.zoom-cbb.top,
+							x : ((this.lastX-cbb.left-cbb.width/2)-this.x)/this.zoom,//(this.lastX-this.x)/this.zoom - cbb.left - cbb.width/2/this.zoom,
+							y : ((this.lastY-cbb.top-cbb.height/2)-this.y)/this.zoom,
 						});
 
 					});
@@ -312,6 +329,51 @@ export default class RawNodes{
 
 	}
 
+	// tries to auto align blocks outputting to block's input
+	alignInputs( block ){
+
+		const nodes = [];
+		const inputTypes = Array.from(block.inputNodes.keys());
+		for( let blockType of inputTypes ){
+
+			const inputLabels = Array.from(block.inputNodes.get(blockType).keys());
+			for( let inputLabel of inputLabels )
+				nodes.push(...this.getBlockInputs( block.type, block.id, inputLabel, true ));
+
+		}
+
+		let totalHeight = 0;
+		const margin = 10;
+		for( let node of nodes ){
+			
+			const bl = node.parent;
+			const dim = bl.div.getBoundingClientRect();
+			totalHeight += dim.height/this.zoom + margin;
+
+		}
+		totalHeight -= margin;
+
+		const bBox = block.div.getBoundingClientRect();
+		let top = block.y - totalHeight/2 + bBox.height/2/this.zoom;
+		// Measure the height
+		for( let i = 0; i < nodes.length; ++i ){
+
+			const node = nodes[i];
+			const bl = node.parent;
+
+			const nBox = bl.div.getBoundingClientRect();
+			bl.x = block.x + bBox.width/this.zoom + 50;
+			bl.y = top;
+			top += nBox.height/this.zoom+margin;
+
+		}
+		this.render();
+		
+		
+	
+
+	}
+
 	closeContextMenu(){
 		this.divRightClickMenu.classList.add("hidden");
 	}
@@ -324,9 +386,9 @@ export default class RawNodes{
 		const blocks = this.getBlocksArray();
 		for( let block of blocks ){
 
-			block.div.style.left = (this.x+block.x*this.zoom)+'px';
-			block.div.style.top = (this.y+block.y*this.zoom)+'px';
-			block.div.style.transform = 'scale('+this.zoom+')';
+			block.div.style.left = (this.x+(rect.width/2)+block.x*this.zoom)+'px'; 
+			block.div.style.top = (this.y+(rect.height/2)+block.y*this.zoom)+'px';
+			block.div.style.transform = 'scale('+this.zoom+')'; 
 
 		}
 
@@ -341,7 +403,7 @@ export default class RawNodes{
 		const left = this.div.offsetLeft, top = this.div.offsetTop;
 		const radius = 7*this.zoom;
 
-	
+		// Draw lines
 		for( let block of blocks ){
 
 			if( block._btype.noOutput )
@@ -448,9 +510,6 @@ export default class RawNodes{
 
 		this.ini = true;
 		parentElement.append(this.div);
-		const size = this.div.getBoundingClientRect();
-		this.x = size.width/2;
-		this.y = size.height/2;
 		this.render();
 		
 	}
@@ -625,10 +684,9 @@ export default class RawNodes{
 	panToFirst(){
 
 		const first = this.getBlocksArray()[0];
-		const bb = this.div.getBoundingClientRect();
-		const bw = first.div.getBoundingClientRect();
-		this.x = bb.width/2-first.x-bw.width/2;
-		this.y = bb.height/2-first.y-bw.height/2;
+		const wh = first.div.getBoundingClientRect();
+		this.x = first.x-(wh.width/2 || 100);
+		this.y = first.y-(wh.height/2 || 50);
 		this.render();		
 
 	}
@@ -876,7 +934,7 @@ export class BlockType{
 			config = {};
 		this.name = name;
 		this.color = config.color || '#EEE';
-		this.width = config.width;
+		this.width = config.width || '200px';
 		this.height = config.height;
 		this.noAdd = Boolean(config.noAdd);
 		this.noOutput = Boolean(config.noOutput);

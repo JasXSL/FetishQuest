@@ -25,7 +25,6 @@ div.rawNodesWrapper > div.blocks > div.block{
 	position:absolute;
 	border: 3px solid #FFF;
 	border-radius:3px;
-	width:250px;
 	min-height:100px;
 	user-select: none;
 	background:rgba(50,50,50,0.75);
