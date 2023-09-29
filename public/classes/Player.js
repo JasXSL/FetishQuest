@@ -2737,14 +2737,14 @@ export default class Player extends Generic{
 
 		amount = Math.trunc(amount);
 		if( isNaN(amount) )
-			return;
+			return false;
 		this.reroll -= amount;
-		this.tReroll += amount;
 		if( this.reroll < 0 )
 			this.reroll = 0;
 		const max = this.getMaxMomentum();
 		if( this.reroll > max )
 			this.reroll = max;
+		return true;
 
 	}
 

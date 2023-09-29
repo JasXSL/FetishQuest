@@ -3004,7 +3004,10 @@ export default class Game extends Generic{
 		else
 			this.ui.drawMomentumGain(...added);
 		
-		player.consumeReroll();
+
+		if( player.consumeReroll() )
+			++player.tReroll;
+		
 		this.save();
 		this.ui.draw();
 		

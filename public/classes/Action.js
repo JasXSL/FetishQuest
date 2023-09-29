@@ -322,7 +322,7 @@ class Action extends Generic{
 
 		const sender = this.getPlayerParent();
 		if( this.crit_formula )
-			return Math.trunc(Calculator.run(this.crit_formula, new GameEvent({sender:sender, target:target})));
+			return Calculator.run(this.crit_formula, new GameEvent({sender:sender, target:target}));
 
 		return sender.getCritDoneChance(target);
 
