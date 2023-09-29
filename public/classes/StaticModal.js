@@ -2481,7 +2481,7 @@ export default class StaticModal{
 						</div>
 					</div>
 					<h3 class="center">In exchange for a donation, the gods may randomize your kinks!</h3>
-					<div class="center"><input type="button" name="shuffle" value="Shuffle Kinks (5 gold)" /></div>
+					<div class="center"><input type="button" name="shuffle" value="Shuffle Kinks (1 gold)" /></div>
 					<p class="center">Your current kinks</p>
 					<div class="center kinks"></div>
 				`;
@@ -2510,7 +2510,7 @@ export default class StaticModal{
 
 				this.button.onclick = () => {
 					
-					if( money < 500 ){
+					if( money < Game.ALTAR_COST ){
 						game.ui.modal.addError("Insufficient funds");
 						return false;
 					}

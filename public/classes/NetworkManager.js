@@ -1009,7 +1009,7 @@ class NetworkManager{
 					return;
 
 				const altar = game.getPlayerById(args.altarPlayer);
-				shuffleKinksByAltar(altar, player);
+				game.shuffleKinksByAltar(altar, player);
 
 			}
 

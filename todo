@@ -1,4 +1,16 @@
+Incorrect hide condition assets:
+- First room in cave to monk
+- 
+
 Bugs:
+? Crabthalus shielding affects PCs
+? Reroll kinks not working in multiplayer
+x Reduce cost of reroll kinks
+x Advantage needs to be better
+x Lucky strike needs a buff
+x Finish quest trigger not working on looting chest. For some reason GA data is reset to an empty collection
+x Attack desync?
+
 
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
@@ -15,24 +27,23 @@ Passives:
 
 -- Random encounters --
 
-
-- Bandits surround you. You can try to convince them to pass, try to escape, pay, or attack.
 x A guard shakes you down and asks for a bribe
-- A shopkeeper can be convinced to sell a special item
-- A tavernkeeper could be convinced to reveal more information for a price
-- You come upon a place to take a bath, doing so may spawn an onlooker with a recording crystal
 x Find an expensive weather stone. Trying to pick it up may cause it to start raining, making it too slippery to pick up.
-- Challenge to ride an imp's cock until he cums. If you cum before him, you gain a stacking debuff and have the option to start over. You have infinite attempts. If you win, he gives you an item.
 x A blacksmith offers an introductory course. Players can try to forge an item, but it may come out crooked and crap.
 x You get pickpocketed. Roll to catch the crook in the act. If you succeed, you can take the money and optionally punish them, or let them go.
 x A tentacrab is hiding under a rock with something shiny behind it. Players can attempt to lure it out to gain a shiny thong.
-- Imps challenge the players to a card game, if they win, they get money, if they lose, they have to wear a cursed maid outfit for a day.
-- You agitate a nest of insects. You have two options to avoid it. If they fail, they get stung and gain extra arousal for 2 hours.
-- [Multiplayer] Figure it out: Someone one player gets a vibrator in their butt, and the other players get the remote.
-- Players encounter a truck bound up by a strange machine connected to a bunch of levers. Roll a dice to pull the correct lever, on fail a random player is zapped.
-- Something that squirts, an option is to activate safety squints
-- You set off a gas trap, all players roll corruption checks. On fail, get a debuff that lasts 24h or until you cum.
+x Imps challenge the players to a card game, if they win, they get money, if they lose, they have to wear a cursed thong for a day.
+x You agitate a nest of insects. You have two options to avoid it. If they fail, they get stung and gain extra arousal for 2 hours.
+x You set off a gas trap, all players roll corruption checks. On fail, get a debuff that lasts 24h or until you cum.
 
+- Bandits surround you. You can try to convince them to pass, try to escape, pay, or attack.
+- A shopkeeper can be convinced to sell a special item
+- [Multiplayer] Figure it out: one player gets a vibrator in their butt, and the other players get the remote.
+
+-- Fixed encounters --
+- You come upon a place to take a bath, doing so may spawn an onlooker with a recording crystal
+- Something that squirts, an option is to activate safety squints
+- A tavernkeeper could be convinced to reveal more information for a price
 
 -- Quest ideas --
 - 
@@ -66,6 +77,8 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 - Enchant ideas:
 	- <When you X> you apply <Y> which is triggered by <Z>
 	- Taunting an enemy causes <x>
+	- On miss, do X
+	- When riposted, do X
 	- When block fades at the start of your turn, gain 1 momentum.
 	- Gain 10% increased damage done for each unique monster you attack in a turn.
 	- Each attack received in a turn reduces further damage taken that turn by 5%. Up to 95%.
@@ -96,13 +109,13 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 	- Ending a turn with no momentum left gives <x>
 	- For each N reroll used, gain X
 	- An item that costs money to use
+	- Gain 2 extra rerolls, but reroll now always go into a specific type
 
 - Item ideas:
 	- Cooldown clearing potions
 	- Your next action costs no AP
 	- Makes you untargetable for 1 turn.
-	- Rerolling non-defensive momentum now always rolls into defensive momentum.
-	- Smoke bomb : Resets all awareness
+	- Bedazzle : Resets all awareness
 	- Do X if you have 5 or fewer abilities slotted.
 	- You wasted n amount of block
 	- Grant a random party member 1 block when you use an arcane action.
@@ -120,12 +133,10 @@ vt Windsong: Grants party Major Momentum for two turns, increasing momentum gene
 	- Focus Gem: Prevents block from falling off this turn.
 	- Grappling hook: Unequips target hand slot.
 	- Horny bat: Deals 3 damage and lowers arousal by 3.
-	- Gain HP when rerolling
-	- 
+	- Gain HP when rerolling 
 
 - Effect ideas
 	- Effect that blocks rerolling
-	- Major effect that restores HP when you reroll
 
 - Action ideas:
 	- Deals damage, deals extra damage if target has clairvoyance.

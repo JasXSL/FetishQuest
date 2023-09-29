@@ -818,7 +818,7 @@ class DungeonRoom extends Generic{
 
 		for( let id in state.assets ){
 
-			const asset = state.assets[id].save();
+			const asset = state.assets[id].save(true);
 			let cur = this.getAssetById(id);
 			
 			// This shouldn't happen. Saved an asset that didn't exist previously
@@ -838,7 +838,6 @@ class DungeonRoom extends Generic{
 				continue;	// Don't load, it has expired. Let it stay the way it originally was.
 
 			}
-
 
 			cur.load(asset);
 
@@ -1698,7 +1697,9 @@ class DungeonRoomAsset extends Generic{
 	}
 
 
-	load(data){
+	load(data, debug){
+		if( debug )
+			console.log("Loading", data, "onto", this);
 		this.g_autoload(data);
 	}
 
@@ -2121,7 +2122,6 @@ class DungeonRoomAsset extends Generic{
 
 		const interactions = this.getViableInteractions(player, true);	// Includes temp interactions such as doors
 
-
 		// Trigger interactions in order
 		for( let i of interactions ){
 
@@ -2137,9 +2137,9 @@ class DungeonRoomAsset extends Generic{
 			)continue;
 
 			let valid = i.validate(player, this);
-			if( valid )
+			if( valid ){
 				i.trigger( player, mesh );
-			
+			}
 		}
 
 		

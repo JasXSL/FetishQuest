@@ -964,7 +964,7 @@ export default class GameAction extends Generic{
 						text : this.data.success_text || 'Thank you, enjoy your stay!',
 						options : [{text:'[Done]',chat:RoleplayStageOption.ChatType.none}]
 					}
-				]	
+				]
 			});
 			game.setRoleplay(rp);
 			game.renderer.drawActiveRoom();

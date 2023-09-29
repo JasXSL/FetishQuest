@@ -1,4 +1,4 @@
-const TOOL_VERSION = 3;	// Version of the exporter
+const TOOL_VERSION = 4;	// Version of the exporter
 
 // Mod is needed first
 import Mod from '../classes/Mod.js';

@@ -741,7 +741,7 @@ class Action extends Generic{
 
 	}
 
-	// Checks if all conditions are met to cast this at anyone. If log is true, it'll output an error message on fail, explaining why it failed
+	// Checks generic things to see if this can be casted at all. Warning: Does not check that we have valid targets. If log is true, it'll output an error message on fail, explaining why it failed
 	castable( log, isChargeFinish = false, debug = false ){
 
 		let err = msg => {
@@ -848,6 +848,14 @@ class Action extends Generic{
 		if( this.target_type !== Action.TargetTypes.aoe && (targets.length > this.max_targets || targets.length < this.min_targets) ){
 			game.ui.modal.addError("Too few or too many targets selected");
 			console.error("Attempted to use", targets, "on action", this);
+			return false;
+		}
+
+		// Filter out invalid targets
+		const viable = this.getViableTargets(isChargeFinish);
+		targets = targets.filter(pl => viable.includes(pl));
+		if( !targets.length ){
+			game.ui.modal.addError("No valid targets for action");
 			return false;
 		}
 

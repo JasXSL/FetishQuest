@@ -4286,7 +4286,7 @@ Game.UNEQUIP_COST = 1;
 Game.LOG_SIZE = parseInt(localStorage.log_size) || 800;
 Game.ROOM_RENTAL_DURATION = 3600*24;
 Game.MAX_SLEEP_DURATION = 24;			// Hours
-Game.ALTAR_COST = 500;	// 500 copper
+Game.ALTAR_COST = 100;	// 1 gold
 
 Game.Genders = {
 	Male : 0x1,
