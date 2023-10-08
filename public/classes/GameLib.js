@@ -23,7 +23,8 @@ const NO_REBASE = [
 	'conditions',
 	'effects',
 	'wrappers',
-	'encounters'
+	'encounters',
+	'playerIconState',
 ];
 
 const load_order = [
@@ -40,6 +41,7 @@ const load_order = [
 	'shopAssetTokens',
 	'shopAssets',
 	'shops',
+	'playerIconStates',
 	'players',
 	'playerTemplateLoot',
 	'playerTemplates',
@@ -129,6 +131,7 @@ export default class GameLib{
 		this.actionLearnable = {};
 		this.factions = {};
 		this.story = {};
+		this.playerIconStates = {};
 		this.books = {};
 		this.bookPages = {};
 		this.armorEnchants  = {};

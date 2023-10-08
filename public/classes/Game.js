@@ -169,6 +169,21 @@ export default class Game extends Generic{
 					pl.bot.handleEvent(event);
 			});
 
+			// Route to a special player event for S/T. Used to trigger temporary PlayerIconStates like facial expressions
+			if( event.type === GameEvent.Types.textTrigger ){
+
+				const s = event.sender, t = event.target;
+				const triggerS = s !== t;
+				const active = this.getEnabledPlayers();
+				for( let player of active ){
+
+					if( player === t || (triggerS && player === s) )
+						player.onTextTrigger(event);
+
+				}
+
+			}
+
 		});
 
 		// Things that needs ALL players initialized to run, since we might fetch non-rebased wrappers if we don't do it until all players have loaded

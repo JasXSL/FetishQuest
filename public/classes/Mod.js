@@ -28,6 +28,7 @@ import AudioTrigger from './AudioTrigger.js';
 import Collection from './helpers/Collection.js';
 import LoadingTip from './LoadingTip.js';
 import Story from './Story.js';
+import PlayerIconState from './PlayerIconState.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -104,6 +105,7 @@ export default class Mod extends Generic{
 		this.bookPages = [];
 		this.armorEnchants = [];
 		this.story = [];
+		this.playerIconStates = [];
 
 		this.load(data);
 	}
@@ -179,6 +181,7 @@ export default class Mod extends Generic{
 			actionLearnable : this.actionLearnable,
 			factions : this.factions,
 			story : this.story,
+			playerIconStates : this.playerIconStates,
 			dungeonSubTemplates : this.dungeonSubTemplates,
 			gallery : this.gallery,
 			loadingTip : this.loadingTip,
@@ -2093,6 +2096,7 @@ Mod.LIB_TYPES = {
 	'actionLearnable' : ActionLearnable,
 	'factions' : Faction,
 	'story' : Story,
+	'playerIconStates' : PlayerIconState,
 	'books' : Book,
 	'bookPages' : BookPage,
 	'audioKits' : AudioKit,
@@ -2148,7 +2152,8 @@ Mod.UseID = [
 	'roleplayStageOption',
 	'roleplayStageOptionGoto',
 	'bookPages',
-	'loadingTip'
+	'loadingTip',
+	'playerIconStates'
 ];
 
 Mod.getNames = async function( force ){

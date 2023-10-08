@@ -1008,8 +1008,11 @@ div.scroll{
 		position: absolute;
 		width: 100%;
 		top: 0; left:0;
-		background-size: cover;
-		background-position: center;
+	}
+	#player div.cmTabContent div.right > div.image canvas{
+		object-fit: cover;
+		width: 100%;
+		height: 100%;
 	}
 
 
@@ -3190,6 +3193,11 @@ div.scroll{
 		background-position: center 10%;
 		overflow:hidden;
 		background-color:#000;
+	}
+	#ui > div.players div.player > div.content > div.bg > canvas{
+		object-fit: cover;
+		width: 100%;
+		height: 100%;
 	}
 	
 	#ui > div.players div.player > div.content > div.stats > span.name > div.focus{

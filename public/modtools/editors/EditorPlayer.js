@@ -7,7 +7,9 @@ import * as EditorWrapper from './EditorWrapper.js';
 import * as EditorAsset from './EditorAsset.js';
 import * as EditorAction from './EditorAction.js';
 import * as EditorRoleplay from './EditorRoleplay.js';
+import * as EditorPlayerIconState from './EditorPlayerIconState.js';
 import Generic from '../../classes/helpers/Generic.js';
+import PlayerIconState from '../../classes/PlayerIconState.js';
 
 const DB = 'players',
 	CONSTRUCTOR = Player;
@@ -42,6 +44,9 @@ export function asset(){
 		html += '<label>Image Upper Body Armor: <input type="text" name="icon_upperBody" class="saveable" value="'+esc(dummy.icon_upperBody)+'" /></label>';
 		html += '<label>Image Lower Body Armor: <input type="text" name="icon_lowerBody" class="saveable" value="'+esc(dummy.icon_lowerBody)+'" /></label>';
 		html += '<label>Image Nude: <input type="text" name="icon_nude" class="saveable" value="'+esc(dummy.icon_nude)+'" /></label>'; 
+		html += '<label title="If all images (including advanced) share the same path, you can set it here to save time. Ex if all your art URLs start with https://i.ibb.co/ then you put that here and you can skip that part in the art fields.">'+
+			'Image base path: <input type="text" name="icon_base" class="saveable" value="'+esc(dummy.icon_base)+'" />'+
+		'</label>'; 
 		html += '<label>RP Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
 		html += '<label title="Check this if you used an AI to generate the art">Art is AI generated: <input type="checkbox" name="icon_ai" '+(dummy.icon_ai ? 'checked' : '')+' class="saveable"  /></label>';
 		html += '<label title="0 = player team">Team: <input type="number" step=1 min=0 name="team" class="saveable" value="'+esc(dummy.team)+'" /></label>';
@@ -83,6 +88,13 @@ export function asset(){
 	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description, true)+'</textarea><br />';
 	html += 'Secret information: <br /><textarea class="saveable" style="min-height:1vmax" name="secret">'+esc(dummy.secret, true)+'</textarea><br />';
 
+	html += 'Advanced icon states: <div class="istates"></div>';
+	html += '<div class="labelFlex">'+
+			'<label>Import JSON <input type="file" class="importAdvancedIcons" accept=".json" /> Replace ALL: <input type="checkbox" class="replaceAll" /></label>'+
+			'<label><input type="button" value="Export JSON" class="exportAdvancedIcons" /></label>'+
+		'</div>'
+	;
+
 	html += 'PlayerClass: <div class="class"></div>';
 	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	html += 'Actions: <div class="actions"></div>';
@@ -90,17 +102,91 @@ export function asset(){
 	html += 'Passives: <div class="passives"></div>';
 	html += 'Follower RP: <div title="If this is a follower, set their roleplay here" class="follower"></div>';
 	
+	
 
 	this.setDom(html);
 
 
 
+	this.dom.querySelector("div.istates").appendChild(EditorPlayerIconState.assetTable(this, asset, "istates"));
 	this.dom.querySelector("div.class").appendChild(EditorPlayerClass.assetTable(this, asset, "class", true));
 	this.dom.querySelector("div.actions").appendChild(EditorAction.assetTable(this, asset, "actions"));
 	this.dom.querySelector("div.assets").appendChild(EditorAsset.assetTable(this, asset, "assets", false));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
 	this.dom.querySelector("div.follower").appendChild(EditorRoleplay.assetTable(this, asset, "follower", true));
 	
+	this.dom.querySelector("input.importAdvancedIcons").onchange = event => {
+
+		if( !event.target.files.length )
+			return;
+		const reader = new FileReader();
+		reader.onload = rEvt => {
+
+			event.target.value = "";
+
+			const data = JSON.parse(rEvt.target.result);
+
+			if( !Array.isArray(data) )
+				throw 'Invalid JSON data. Not an array.';
+			
+			if( this.dom.querySelector("input.replaceAll").checked ){
+				
+				for( let istate of asset.istates ) {
+					window.mod.mod.deleteAsset('playerIconStates', istate);
+				}
+				asset.istates = [];
+
+			}
+
+			if( !Array.isArray(asset.istates) )
+				asset.istates = [];
+
+			const replaceIntoIstates = istate => {
+
+				if( !isNaN(istate.opacity) )
+					istate.opacity = Math.round(istate.opacity*100)/100;
+				window.mod.mod.mergeAsset("playerIconStates", istate.save("mod"));
+				if( !asset.istates.includes(istate.id) )
+					asset.istates.push(istate.id);
+				window.mod.setDirty(true);
+
+			}
+
+			for( let istate of data )
+				replaceIntoIstates(new PlayerIconState(istate));
+
+
+			this.dom.querySelector("div.istates").replaceChildren(EditorPlayerIconState.assetTable(this, asset, "istates"));
+
+
+
+		};
+		reader.readAsText(event.target.files[0]);
+
+	};
+
+	this.dom.querySelector("input.exportAdvancedIcons").onclick = () => {
+
+		if( !Array.isArray(asset.istates) || !asset.istates.length )
+			return;
+		const out = asset.istates.map(el => mod.mod.getAssetById('playerIconStates', el)).filter(el => Boolean(el));
+		const blob = new Blob([JSON.stringify(out, null, 4)], { type: "text/json" });
+		const link = document.createElement("a");
+
+		link.download = asset.label+".json";
+		link.href = window.URL.createObjectURL(blob);
+		link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+
+		const evt = new MouseEvent("click", {
+			view: window,
+			bubbles: true,
+			cancelable: true,
+		});
+
+		link.dispatchEvent(evt);
+		link.remove();
+
+	};
 
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
@@ -291,6 +377,10 @@ export function help(){
 			'<td>URL to the character wearing no clothing.</td>'+
 		'</tr>'+
 		'<tr>'+
+			'<td>Image Base Path</td>'+
+			'<td>If all images (including advanced) share the same path, you can set it here to save time. Ex if all your art URLs start with https://i.ibb.co/ then you put that here and you can skip that part in the art fields.</td>'+
+		'</tr>'+
+		'<tr>'+
 			'<td>RP Portrait</td>'+
 			'<td>URL to a small headshot of the character to be used in RPs, preferably facing right. Not required, but recommended if the character should ever be used in an RP (dialogue).</td>'+
 		'</tr>'+
@@ -369,6 +459,19 @@ export function help(){
 		'<tr>'+
 			'<td>Secret information</td>'+
 			'<td>Information that is revealed when you use clairvoyance.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Advanced icon states</td>'+
+			'<td>Lets you add additional character images, including colorable armor and facial expressions. If multiple states are valid on the same layer at the same time, the first one gets priority. When I made the test fox character I used the following order (all sharing the appropriate layers):<br/>'+
+				'<ol>'+
+					'<li>Sling Bikinis, using the material type and sling bikini conditions</li>'+
+					'<li>Bodysuits, using the bodysuit and material type conditions</li>'+
+					'<li>Cloth Bikini, using material, bikini, and briefs conditions for the relevant slots</li>'+
+					'<li>Shirt / Panties, using the cloth conditions for the relevant slots</li>'+
+					'<li>Breast / Crotchplate, using the hard conditions for the relevant slots</li>'+
+					'<li>Leather Bikini, using only the targetWearsUpperBody and targetWearsLowerBody conditions as a fallback.</li>'+
+				'</ol>'+
+			'</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>PlayerClass</td>'+

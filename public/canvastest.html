@@ -1,0 +1,69 @@
+<html>
+	<head></head>
+	<body onload="run">
+		<canvas id="testCanvas" height="960" width="960"></canvas>
+		<script>
+			const canvas = document.getElementById("testCanvas");
+			const ctx = canvas.getContext("2d");
+
+			
+
+			async function run(){
+
+				const images = await Promise.all([
+					new Promise(res => {
+						const img = new Image();
+						img.onload = () => res(img);
+						img.src = 'media/test/cave_tiger_d.png';
+					}),
+					new Promise(res => {
+						const img = new Image();
+						img.onload = () => res(img);
+						img.src = 'media/test/cave_tiger_d_ubol.png';
+					}),
+					new Promise(res => {
+						const img = new Image();
+						img.onload = () => res(img);
+						img.src = 'media/test/cave_tiger_d_lbol.png';
+					}),
+				]);
+				
+				// returns the canvas
+				const colorize = (img, color) => {
+					
+					const workLayer = document.createElement("canvas");
+					workLayer.width = img.width;
+					workLayer.height = img.height;
+					const wctx = workLayer.getContext("2d");
+
+					// Draw the upper body armor
+					wctx.globalCompositeOperation = 'source-over';
+					wctx.drawImage(img, 0,0);
+					// Draw the color rect on top
+					wctx.globalCompositeOperation = 'source-atop';
+					wctx.fillStyle = color; 
+					wctx.fillRect(0,0, 960,960);
+
+					return workLayer;
+
+				}
+				
+				const or = images[0];
+				const ubol = images[1];
+				const lbol = images[2];
+				
+				
+				ctx.save();
+
+				ctx.drawImage(or, 0,0);
+				ctx.globalCompositeOperation = 'overlay';
+				ctx.drawImage(colorize(ubol, '#FF0000'), 0,0);
+				ctx.drawImage(colorize(lbol, '#FFFFFF'), 0,0); 
+
+				ctx.restore();
+				
+			}
+			run();
+		</script>
+	</body>
+</html>

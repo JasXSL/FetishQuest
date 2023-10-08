@@ -1511,8 +1511,10 @@ export default class StaticModal{
 					}
 					clairvoyance.classList.toggle('hidden', !hasClairvoyance);
 
-					cDivs.image.css('background-image', 'url(\''+esc(player.getActiveIcon())+'\')');
-
+					// No need to block for this, since images can take a while
+					player.getActiveIcon().then(canvas => {
+						cDivs.image[0].replaceChildren(canvas);
+					});
 					// Equipment
 					const slots = [
 						Asset.Slots.lowerBody,
@@ -1582,6 +1584,7 @@ export default class StaticModal{
 
 
 				// DM Tab
+					// note: This tab can't color because it's using dummy outfits
 					const dDivs = this.edit;
 					let tmpPlayer = new Player({
 						icon : player.icon,
@@ -5828,7 +5831,8 @@ export default class StaticModal{
 			icon_nude : player.icon_nude,
 		});
 		tmpChar._cache_tags = tags[slot];	// Uses the cache or pl_ will be auto added
-		$(imageDiv).css('background-image', 'url(\''+esc(tmpChar.getActiveIcon(true))+'\')');
+
+		tmpChar.getActiveIcon(true).then(canvas => imageDiv[0].replaceChildren(canvas));
 
 	}
 

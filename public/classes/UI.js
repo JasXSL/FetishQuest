@@ -19,7 +19,9 @@ const NUM_SUBS = 5;		// Max actions per group
 const playerTemplate = $(
 	'<div class="player">'+
 		'<div class="content">'+
-			'<div class="bg"></div>'+
+			'<div class="bg">'+
+				'<canvas></canvas>'+
+			'</div>'+
 			'<div class="stats">'+
 				'<span class="name" style="color:#DFD">'+
 					'<div class="focus tooltipParent">'+
@@ -1617,19 +1619,8 @@ export default class UI{
 		}
 
 		// Check if image has changed
-		const icon = p.getActiveIcon();
-		if( bgEl.attr('data-image') !== icon && icon ){
-			
-			const image = new Image();
-			image.onload = () => {
-				if( p.getActiveIcon() === icon ){
-					bgEl.css('background-image', 'url('+esc(image.src)+')');
-					bgEl.attr('data-image', icon);
-				}
-			};
-			image.src = icon;
-			
-		}
+		// Todo: Probably need to prevent race conditions here?
+		p.getActiveIcon().then(canvas => bgEl[0].replaceChildren(canvas));
 
 
 		// Update resource buttons

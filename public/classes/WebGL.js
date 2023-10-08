@@ -1385,30 +1385,12 @@ class WebGL{
 
 			// Canvas
 			// Texture URL has changed
-			const url = player.getActiveIcon();
-			if( url !== marker.userData.marker.url ){
+			const iconCanvas = await player.getActiveIcon();
 
-				
-				const canvas = marker.userData.marker.texture;
-				marker.userData.marker.url = url;
-				const context = canvas.getContext('2d');
-				const image = new Image();
-				image.addEventListener('load', e => {
-
-					this.constructor.drawCover(context, image, canvas.height, canvas.width, undefined, undefined, 1.33);
-					marker.material[0].map.needsUpdate = true;
-					marker.userData.marker.loading = false;
-					this.onMarkerLoad(marker);
-
-				}, false);
-				image.crossOrigin = "Anonymous";
-				image.src = '/imgproxy/?image='+encodeURIComponent(url);
-				marker.userData.marker.loading = true;
-				marker.visible = false;
-
-			}
-			else if( !marker.userData.marker.loading )
-				this.onMarkerLoad(marker);
+			const canvas = marker.userData.marker.texture;
+			const context = canvas.getContext('2d');
+			this.constructor.drawCover(context, iconCanvas, canvas.height, canvas.width, undefined, undefined, 1.33);
+			this.onMarkerLoad(marker);
 
 			const ring = marker.material[2];
 			ring.color.set(player.color);

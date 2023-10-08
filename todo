@@ -2,15 +2,6 @@ Incorrect hide condition assets:
 - First room in cave to monk
 - 
 
-Bugs:
-x Crabthalus shielding affects PCs
-? Reroll kinks not working in multiplayer
-x Reduce cost of reroll kinks
-x Advantage needs to be better
-x Lucky strike needs a buff
-x Finish quest trigger not working on looting chest. For some reason GA data is reset to an empty collection
-x Attack desync?
-
 
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks

@@ -25,6 +25,7 @@ import * as EditorActionLearnable from './editors/EditorActionLearnable.js';
 import * as EditorGameAction from './editors/EditorGameAction.js';
 import * as EditorPlayerClass from './editors/EditorPlayerClass.js';
 import * as EditorPlayer from './editors/EditorPlayer.js';
+import * as EditorPlayerIconState from './editors/EditorPlayerIconState.js';
 import * as EditorPlayerTemplate from './editors/EditorPlayerTemplate.js';
 import * as EditorPlayerTemplateLoot from './editors/EditorPlayerTemplateLoot.js';
 import * as EditorRoleplay from './editors/EditorRoleplay.js';
@@ -87,6 +88,7 @@ const DB_MAP = {
 	"gameActions" : { listing : EditorGameAction.list, asset : EditorGameAction.asset, icon : 'joystick', help : EditorGameAction.help },
 	"playerClasses" : { listing : EditorPlayerClass.list, asset : EditorPlayerClass.asset, icon : 'vitruvian-man', help : EditorPlayerClass.help },
 	"players" : { listing : EditorPlayer.list, asset : EditorPlayer.asset, icon : 'mustache', help : EditorPlayer.help },
+	"playerIconStates" : { listing : EditorPlayerIconState.list, asset : EditorPlayerIconState.asset, icon : 'portrait', help : EditorPlayerIconState.help },
 	"playerTemplates" : { listing : EditorPlayerTemplate.list, asset : EditorPlayerTemplate.asset, icon : 'anatomy', help : EditorPlayerTemplate.help },
 	"playerTemplateLoot" : { listing : EditorPlayerTemplateLoot.list, asset : EditorPlayerTemplateLoot.asset, icon : 'open-treasure-chest', help : EditorPlayerTemplateLoot.help },
 	"roleplay" : { listing : EditorRoleplay.list, asset : EditorRoleplay.asset, icon : 'talk', help : EditorRoleplay.help, },
