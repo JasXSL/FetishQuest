@@ -28,11 +28,18 @@ export function asset(){
 			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
 	html += '</div>';
 
+	html += 'Armor Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
+
 	html += 'Player: <div class="player"></div>';
 	
 	this.setDom(html);
 
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
+
+	// Tags
+	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
+		HelperTags.autoHandleAsset('tags', tags, asset);
+	});
 
 	HelperAsset.autoBind( this, asset, DB);
 

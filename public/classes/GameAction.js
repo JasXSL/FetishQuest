@@ -368,6 +368,7 @@ export default class GameAction extends Generic{
 	
 	}
 
+	// note: Use trigger instead externally
 	// Runs the game action
 	// Player is the target, sender is optional
 	async exec( player, mesh, debug, sender ){
@@ -494,7 +495,7 @@ export default class GameAction extends Generic{
 				throw 'Invalid amounts of seconds to add in GameAction';
 			}
 
-			game.addSeconds(seconds);			
+			game.addSeconds(seconds, this.data.force);			
 
 		}
 		else if( this.type === types.exit ){
@@ -1394,7 +1395,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.trade] : '{asset:(str)label, amount:(int)amount=1, from:(str)label/id, to:(str)label/id} - ID is checked first, then label. If either of from/to is unset, they use the event player.',
 	[GameAction.types.learnAction] : '{conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0 with sender being the GameAction player and target being each player. Use conditions to filter. Use targetIsSender condition for only the person who triggered it. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.',
 	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
-	[GameAction.types.addTime] : '{seconds:(int)seconds}',
+	[GameAction.types.addTime] : '{seconds:(int)seconds, force:(bool)force} - Force is only needed if the game story has freeze_time set',
 	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET, dungeon:(str)label=CURRENT_DUNGEON} - Sets a variable in the currently active dungeon. Formulas starting with @@ will be treated as a string (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
 	//[GameAction.types.removeFromDungeonVar] : '{ids:(arr)ids, dungeon:(str)label, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more dvars',
 	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',

@@ -1677,6 +1677,12 @@ div.scroll{
 		top:0; left:0; right:0; bottom:0;
 		background-size:cover;
 	}
+	#newGame form.newGameForm div.galleryEntry > div.bg > canvas,
+	#newGame div.portrait > div.image > canvas{
+		object-fit: cover;
+		width: 100%;
+		height: 100%;
+	}
 	#newGame div.galleryEntry div.name,
 	#newGame form.newGameForm div.galleryEntry > div.bottom{
 		text-transform: uppercase;
@@ -1739,8 +1745,7 @@ div.scroll{
 	#newGame div.portrait > div.image{
 		position: absolute;
 		inset:0;
-		background-size:cover;
-		background-position: center;
+		width: 100%; height:100%;
 	}
 
 	

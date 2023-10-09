@@ -48,6 +48,8 @@ export default class GameEvent extends Generic{
 	rebase(){
 		this.g_rebase();	// Super
 		
+		if( Array.isArray(this.target) )
+			this.target = this.target.slice();
 		for( let i in this.custom ){
 			if( this.custom[i] && typeof this.custom[i].clone === "function" ){
 				this.custom[i] = this.custom[i].clone();

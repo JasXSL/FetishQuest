@@ -37,6 +37,7 @@ import('./VibHub.js').then(v => {
 
 export default class Game extends Generic{
 
+
 	constructor( name, story ){
 		super(name);
 
@@ -171,17 +172,16 @@ export default class Game extends Generic{
 
 			// Route to a special player event for S/T. Used to trigger temporary PlayerIconStates like facial expressions
 			if( event.type === GameEvent.Types.textTrigger ){
-
-				const s = event.sender, t = event.target;
-				const triggerS = s !== t;
-				const active = this.getEnabledPlayers();
-				for( let player of active ){
-
-					if( player === t || (triggerS && player === s) )
-						player.onTextTrigger(event);
-
+				
+				const cl = event.clone();
+				const s = event.sender, t = toArray(event.target);
+				for( let targ of t ){
+					// Don't raise on self
+					if( targ === s )
+						continue;
+					targ.onTextTrigger(cl);
 				}
-
+				
 			}
 
 		});
@@ -190,6 +190,11 @@ export default class Game extends Generic{
 		this.players.map(pl => {
 			pl.addDefaultActions();
 		});
+
+		// Run story game actions
+		for( let ga of this.story.game_actions )
+			ga.trigger( game.players[0], undefined, false, game.players[0], true );
+		this.story.game_actions = []; // Wipe the game actions after running them
 		/*
 		Todo: Uncomment when chrome unfucks their console
 		window.onerror = error => {
@@ -631,7 +636,15 @@ export default class Game extends Generic{
 
 	}
 
+	getMaxLevel(){
+		
+		return this.story.max_level;
 
+	}
+
+	isGearLeveled(){
+		return this.story.leveled_gear;
+	}
 
 
 	/* Custom "events" */
@@ -709,8 +722,6 @@ export default class Game extends Generic{
 		
 		game.ui.addText( "The players wake up at the dungeon's entrance!", undefined, undefined, undefined, 'center' );
 		this.dungeon.goToRoom(losers[0], 0);
-		
-			
 	}
 
 	restoreNonDeadPlayers(){
@@ -958,25 +969,28 @@ export default class Game extends Generic{
 
 
 	/* TIME */
-	addSeconds(seconds){
+	addSeconds( seconds, force ){
+
+		if( this.story.freeze_time && !force )
+			return;
 
 		let pre = this.time;
-		seconds = +seconds||0;
+		seconds = +seconds || 0;
 		this.time += parseInt(seconds);
 		this.onTimeChanged(this.time-pre);
 
 	}
-	addMinutes(minutes){
+	addMinutes(minutes, force){
 		minutes = +minutes || 0;
-		this.addSeconds(minutes*60);
+		this.addSeconds(minutes*60, force);
 	}
-	addHours(hours){
+	addHours(hours, force){
 		hours = +hours || 0;
-		this.addSeconds(hours*3600);
+		this.addSeconds(hours*3600, force);
 	}
-	addDays(days){
+	addDays(days, force){
 		days = +days || 0;
-		this.addSeconds(days*3600*24);
+		this.addSeconds(days*3600*24, force);
 	}
 	
 	// Returns a string like afternoon etc

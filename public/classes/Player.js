@@ -191,6 +191,7 @@ export default class Player extends Generic{
 		this._tmp_actions = [];					// Actions from effects and such bound to a battle
 		this._debug_chat = false;				// Only stored in the session, can be used to test player chat while they're controlled by a player. Since PC controlled characters can't auto speak.
 		
+		this._tTags = [];						// Used in the character selector to emulate tags for the art
 		this._tmp_passives = new Map();
 		this.load(data);
 		
@@ -995,6 +996,8 @@ export default class Player extends Generic{
 	}
 
 	// Returns an array of PlayerIconState objects from lowest Z index to highest
+	// Static layers: Only one image per layer is allowed, and it's always the first viable one in the order of this.istate
+	// Timeout layers: The last triggered one is visible
 	getActiveIconStateLayers(){
 
 		const layers = new Map(); // art_layer : PlayerIconState
@@ -1003,6 +1006,9 @@ export default class Player extends Generic{
 			target : this
 		});
 		for( let layer of this.istates ){
+
+			if( layers.get(layer.layer) )
+				continue;
 			
 			const ct = layer.canTrigger();
 			// Filter active
@@ -1013,8 +1019,11 @@ export default class Player extends Generic{
 
 			// When it comes to triggered on the same layer, use the most recently triggered
 			const cur = layers.get(layer.layer);
-			if( ct && cur && cur._triggered > layer._triggered )
-				continue;
+			if( 
+				(ct && cur && cur._triggered > layer._triggered) ||
+				(!ct && cur)
+			)continue;
+				
 
 			layers.set(layer.layer, layer);
 
@@ -1028,7 +1037,21 @@ export default class Player extends Generic{
 
 	}
 
-	
+	// Fetches a player from glib and replaces our armor state layers with that one
+	replaceIconsByPlayer( label ){
+		
+		const pl = glib.get(label, "Player");
+		if( !pl )
+			throw 'Player not found in glib';
+		this.icon = pl.icon;
+		this.icon_base = pl.icon_base;
+		this.icon_lowerBody = pl.icon_lowerBody;
+		this.icon_upperBody = pl.icon_upperBody;
+		this.icon_nude = pl.icon_nude;
+		this.istates = PlayerIconState.loadThese(pl.istates);
+		game.ui.draw();
+		
+	}
 
 	// ICONS
 	// useCache will use _cache_tags instead of tags. Useful if you're testing against a dummy player.
@@ -1049,6 +1072,7 @@ export default class Player extends Generic{
 		// Get icon state objects
 		const sl = this.getActiveIconStateLayers();
 
+
 		let baseLayer = this.icon;
 		let ub = this.hasTag(stdTag.asUpperBody, undefined, useCache),
 			lb = this.hasTag(stdTag.asLowerBody, undefined, useCache)
@@ -1060,17 +1084,29 @@ export default class Player extends Generic{
 		else if( !ub && lb && this.icon_lowerBody )
 			baseLayer = this.icon_lowerBody;
 
-		if( !baseLayer )
-			baseLayer = this.constructor.MISSING_ART;
+		if( !baseLayer ){
 
+			// Use nude as a fallback. Useful for advanced layers.
+			if( this.icon_nude )
+				baseLayer = this.icon_nude;
+			else
+				baseLayer = this.constructor.MISSING_ART;
+			
+		}
 		sl.unshift(new PlayerIconState({
 			icon : baseLayer
 		}));
 
 		// Fetch all the images from back to front
 		const promises = [];
-		for( let icon of sl )
-			promises.push(this.constructor.fetchCachedImage(this.icon_base + icon.icon));
+		for( let icon of sl ){
+
+			let iBase = this.icon_base;
+			if( baseLayer === this.constructor.MISSING_ART )
+				iBase = '';
+			promises.push(this.constructor.fetchCachedImage(iBase + icon.icon));
+
+		}
 
 		let imgEls = await Promise.all(promises);
 		
@@ -1105,8 +1141,10 @@ export default class Player extends Generic{
 			if( layer.slot !== Asset.Slots.none ){
 				
 				const asset = this.getEquippedAssetsBySlots(layer.slot, false);
+				let color = '#FFF';
 				if( asset.length )
-					img = this.constructor.getColoredImage(img, asset[0].getColor());
+					color = asset[0].getColor();
+				img = this.constructor.getColoredImage(img, color);
 
 			}
 
@@ -1237,6 +1275,9 @@ export default class Player extends Generic{
 			out[tag] = true;
 
 		}
+
+		for( let tag of this._tTags )
+			out[tag] = true;
 
 		// adds a tag to the name map
 		const addTag = tag => out[tag] = true;
@@ -1668,11 +1709,15 @@ export default class Player extends Generic{
 			// Validate against event
 			if( !layer.validate(event) )
 				continue;
-			layer.trigger();
+			layer.trigger(() => {
+				game.ui.drawPlayer(this);
+			});
+			needRedraw = true;
 
 		}
-		if( needRedraw )
-			game.ui.draw();
+		if( needRedraw ){
+			game.ui.drawPlayer(this);			
+		}
 
 	}
 
@@ -2741,14 +2786,14 @@ export default class Player extends Generic{
 		points = Math.floor(points);
 		this.experience += Math.floor(points);
 		
-		if( this.level === Player.MAX_LEVEL )
+		if( this.level === game.getMaxLevel() )
 			this.experience = 0;
 		
 		let startLevel = this.level;
 		while( this.experience >= this.getExperienceUntilNextLevel() ){
 			this.experience -= this.getExperienceUntilNextLevel();
 			++this.level;
-			if( this.level === Player.MAX_LEVEL ){
+			if( this.level === game.getMaxLevel() ){
 				this.experience = 0;
 				break;
 			}
@@ -4866,8 +4911,6 @@ export default class Player extends Generic{
 }
 
 Player.AI_ENABLED = true;	// AI art enabled or not
-
-Player.MAX_LEVEL = 14;
 
 Player.TEAM_PLAYER = 0;
 Player.TEAM_ENEMY = 1;

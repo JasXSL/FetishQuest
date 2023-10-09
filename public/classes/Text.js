@@ -696,9 +696,9 @@ class Text extends Generic{
 			originalText = originalEvent.text,
 			originalCustom = originalEvent.custom
 		;
+		
 		// Make sure to stash the original first
 		originalEvent.custom.original = originalEvent.clone();
-
 		originalEvent.type = GameEvent.Types.textTrigger;
 		originalEvent.text = this;
 		if( !originalEvent.custom )

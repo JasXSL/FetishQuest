@@ -100,9 +100,17 @@ export default class PlayerIconState extends Generic{
 		return this._triggered && Date.now()-this._triggered < this.duration;
 	}
 
-	trigger(){
+	trigger( onEnd ){
 		if( !this.duration )
-			this._triggered = Date.now();
+			return;
+		this._triggered = Date.now();
+
+		if( typeof onEnd === 'function' ){
+			clearTimeout(this.__t_onEnd);
+			this.__t_onEnd = setTimeout(onEnd, this.duration);
+		}
+
+
 	}
 
 	validate( event, debug ){

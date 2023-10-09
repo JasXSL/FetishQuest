@@ -1532,38 +1532,16 @@ export default class UI{
 
 	}
 
+
+	// index is optional, used for keyboard inputs
 	drawPlayer( p, index ){
 
 		const myTurn = game.isTurnPlayer(p),
 			el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
 			myActive = game.getMyActivePlayer(),
-			friendly = p.team === 0
-		;
-
-		el.attr('data-index', index || -1);
-
-		if( isNaN(el.attr('data-team')) )
-			el.attr('data-team', 0);
-		
-		if( myTurn )
-			el.toggleClass("active", true);
-
-
-		const isMine = game.isMyPlayer(p),
-			isMyActive = p === myActive,
-			isNPC = !p.netgame_owner
-		;
-		
-		el.toggleClass('mine', isMine);
-		el.toggleClass('myActive', isMyActive);
-		
-		el.toggleClass('dead', p.isDead());
-		el.toggleClass('incapacitated', p.isIncapacitated());
-		el.toggleClass("hidden", p.isInvisible());
-		el.toggleClass("downedProtect", p.isDownedProtected());
-
-		// Map up needed sub divs
-		const contentEl = $("> div.content", el),
+			friendly = p.team === 0,
+			// Map up needed sub divs
+			contentEl = $("> div.content", el),
 			statsEl = $('> div.stats', contentEl),
 				nameEl = $('> span.name', statsEl),
 					ownerEl = $('> div.owner', nameEl),
@@ -1598,14 +1576,41 @@ export default class UI{
 			topLeftEl = $('> div.topLeft', el),
 			netgameStatus = $('> div.netgameStatus', el)
 		;
+	
+		if( !isNaN(index) ){
+			el.attr('data-index', index || -1);
+			index = +index;
+			if( !index || index > 9 )
+				index = '';
+			topLeftEl.text(index);
+		}
+		
+		if( isNaN(el.attr('data-team')) )
+			el.attr('data-team', 0);
+		
+		if( myTurn )
+			el.toggleClass("active", true);
+
+
+		const isMine = game.isMyPlayer(p),
+			isMyActive = p === myActive,
+			isNPC = !p.netgame_owner
+		;
+		
+		el.toggleClass('mine', isMine);
+		el.toggleClass('myActive', isMyActive);
+		
+		el.toggleClass('dead', p.isDead());
+		el.toggleClass('incapacitated', p.isIncapacitated());
+		el.toggleClass("hidden", p.isInvisible());
+		el.toggleClass("downedProtect", p.isDownedProtected());
+
+		
 
 		netgameStatus.toggleClass('hidden', (!Game.net.isInNetgame() || !p.netgame_owner));
 		
 
-		index = +index;
-		if( !index || index > 9 )
-			index = '';
-		topLeftEl.text(index);
+		
 
 		// Check if elements need to be reordered
 		let cacheFriendly = +el.attr('data-team') === 0;

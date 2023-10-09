@@ -210,6 +210,11 @@ AssetTemplate.generateOutput = function( slot, level, viable_asset_templates, vi
 	if( typeof viable_asset_templates === "string" )
 		viable_asset_templates = [viable_asset_templates];
 
+	if( !viable_asset_templates && Array.isArray(game.story.allowed_templates_armor) )
+		viable_asset_templates = game.story.allowed_templates_armor;
+	if( !viable_asset_materials && Array.isArray(game.story.allowed_templates_material) )
+		viable_asset_materials = game.story.allowed_templates_material;
+
 	const baseSlots = [
 		Asset.Slots.upperBody,
 		Asset.Slots.lowerBody,

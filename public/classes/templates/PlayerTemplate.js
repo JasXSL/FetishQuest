@@ -130,7 +130,7 @@ class PlayerTemplate extends Generic{
 	getMaxLevel(){
 
 		if( this.max_level < 0 )
-			return Player.MAX_LEVEL;
+			return game.getMaxLevel();
 		return this.max_level;
 
 	}

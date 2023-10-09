@@ -14,6 +14,7 @@ export default class PlayerGalleryTemplate extends Generic{
 		super(...args);
 		this.label = '';
 		this.player = null;
+		this.tags = ["as_upperBody", "as_lowerBody"];		// Useful for making them not all be naked initially
 		this.load(...args);
 	}
 
@@ -24,7 +25,8 @@ export default class PlayerGalleryTemplate extends Generic{
 	save( full ){
 		return {
 			label : this.label,
-			player : this.player instanceof Player ? Player.saveThis(this.player, full) : this.player
+			player : this.player instanceof Player ? Player.saveThis(this.player, full) : this.player,
+			tags : this.tags,
 		};
 	}
 

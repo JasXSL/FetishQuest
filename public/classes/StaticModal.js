@@ -1591,11 +1591,12 @@ export default class StaticModal{
 						icon_lowerBody : player.icon_lowerBody,
 						icon_upperBody : player.icon_upperBody,
 						icon_nude : player.icon_nude,
+						icon_base : player.icon_base,
 					});
 					html = '';
 
 					// Handles the preview layers in the editor
-					self.bindPlayerLayerPreviewButtons(dDivs.image, dDivs.layersDiv, tmpPlayer);
+					self.bindPlayerLayerPreviewButtons(dDivs.image[0], dDivs.layersDiv, tmpPlayer);
 
 					
 
@@ -3982,12 +3983,17 @@ export default class StaticModal{
 					// New game screen
 					let viablePlayers = [];
 					await Game.db.chars.each(ch => {
+						ch._tTags = ['as_upperBody', 'as_lowerBody']; // Temporary tags
 						viablePlayers.push(new Player(ch));
 					});
 					viablePlayers = viablePlayers.concat(Player.loadThese(story.player_options));
-					if( story.allow_gallery )
-						viablePlayers = viablePlayers.concat(galleryPlayers.map(el => el.player));
-
+					if( story.allow_gallery ){
+						viablePlayers = viablePlayers.concat(galleryPlayers.map(el => {
+							const out = el.player;
+							out._tTags = el.tags;
+							return out;
+						}));
+					}
 					
 
 					let vpDivs = [];
@@ -4002,9 +4008,8 @@ export default class StaticModal{
 						const bg = document.createElement('div');
 						bg.classList.add("bg", "image");
 
-						let style = "url('"+esc(pl.icon)+"')";
-						bg.style.backgroundImage = style;
-						
+						pl.getActiveIcon().then(cv => bg.append(cv));
+
 						const bottom = document.createElement('div');
 						bottom.classList.add("bottom");
 						d.append(bg, bottom);
@@ -4126,6 +4131,7 @@ export default class StaticModal{
 						icon_nude : this.cData.nude.value,
 						icon_upperBody : this.cData.upperBody.value,
 						icon_lowerBody : this.cData.lowerBody.value,
+						icon_base : this.cData.icon_base,
 					});
 					self.bindPlayerLayerPreviewButtons(cdImage, cdLayers, pl);
 
@@ -5829,10 +5835,10 @@ export default class StaticModal{
 			icon_upperBody : player.icon_upperBody,
 			icon_lowerBody : player.icon_lowerBody,
 			icon_nude : player.icon_nude,
+			icon_base : player.icon_base,
 		});
 		tmpChar._cache_tags = tags[slot];	// Uses the cache or pl_ will be auto added
-
-		tmpChar.getActiveIcon(true).then(canvas => imageDiv[0].replaceChildren(canvas));
+		tmpChar.getActiveIcon(true).then(canvas => imageDiv.replaceChildren(canvas));
 
 	}
 

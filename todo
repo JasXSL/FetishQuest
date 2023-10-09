@@ -2,6 +2,19 @@ Incorrect hide condition assets:
 - First room in cave to monk
 - 
 
+UI Updates:
+- Need to make a character preview for item dyeing.
+
+Test Story features:
+x Limit what asset templates may show up
+x Limit what materials may show up
+x Prevent time from auto passing
+x Alter max level
+x Make equipment leveled
+x Add game actions to run when a story starts
+
+
+
 
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks

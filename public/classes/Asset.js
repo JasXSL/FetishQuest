@@ -478,13 +478,16 @@ export default class Asset extends Generic{
 
 	getLevel(){
 		
-		if( this.level === -2 && this.parent instanceof Player )
+		if( (game.isGearLeveled() || this.level === -2) && this.parent instanceof Player )
 			return this.parent.getLevel();
 		return this.level;
 
 	}
 
 	isLowLevel(){
+
+		if( game.isGearLeveled() )
+			return false;
 
 		let player = game.getMyActivePlayer();
 		if( !player )

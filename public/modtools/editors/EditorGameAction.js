@@ -433,11 +433,13 @@ export function asset(){
 	else if( type == Types.addTime ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {
-				seconds : 1
+				seconds : 1,
+				force : false,
 			};
 
 		html += '<div class="labelFlex">';
 			html += '<label title="Seconds to add">Seconds: <input type="number" step=1 name="data::seconds" class="saveable" value="'+esc(asset.data.seconds || 0)+'" /></label>';
+			html += '<label title="Only used when freeze time is set in the story">Force: <input type="checkbox" name="data::force" class="saveable" '+(asset.data.force ? 'checked' : '')+'" /></label>';
 		html += '</div>';	
 	}
 	else if( type == Types.setRain ){
