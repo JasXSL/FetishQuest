@@ -2313,14 +2313,19 @@ export default class StaticModal{
 						<h3>No broken items.</h3>
 					</div>
 					<div class="dyeOverlay cmContentBlock center hidden">
-						<div class="inventory"></div>
-						<form class="saveDye">
-							<label class="colorName"></label><br />
-							<input type="color" class="colorPicker" /><br />
-							<input type="submit" class="save" value="Dye Armor [1 Gold]" /><br />
-							<input type="button" class="remove hidden" value="Remove Dye" />
-							<input type="button" class="cancel" value="Cancel" />
-						</form>
+						<div class="left">
+							<div class="verticalCenter">
+								<div class="inventory"></div>
+								<form class="saveDye">
+									<label class="colorName"></label><br />
+									<input type="color" class="colorPicker" /><br />
+									<input type="submit" class="save" value="Dye Armor [1 Gold]" /><br />
+									<input type="button" class="remove hidden" value="Remove Dye" />
+									<input type="button" class="cancel" value="Cancel" />
+								</form>
+							</div>
+						</div>
+						<div class="right"></div>
 					</div>
 				`;
 			})
@@ -2334,12 +2339,13 @@ export default class StaticModal{
 
 				this.dyeOverlay = smith.querySelector('div.dyeOverlay');
 				this.dyeForm = smith.querySelector('div.dyeOverlay form.saveDye');
-				this.dyeAssetWrapper = smith.querySelector('div.dyeOverlay > div.inventory');
-				this.dyesColorPicker = smith.querySelector('div.dyeOverlay > form.saveDye > input.colorPicker');
-				this.dyesSaveButton = smith.querySelector('div.dyeOverlay > form.saveDye > input.save');
-				this.dyesRemoveButton = smith.querySelector('div.dyeOverlay > form.saveDye > input.remove');
-				this.dyesCancelButton = smith.querySelector('div.dyeOverlay > form.saveDye > input.cancel');
-				this.dyesColorName = smith.querySelector('div.dyeOverlay > form.saveDye > label.colorName');
+				this.dyeAssetWrapper = smith.querySelector('div.dyeOverlay > div.left div.inventory');
+				this.dyesColorPicker = smith.querySelector('div.dyeOverlay > div.left form.saveDye > input.colorPicker');
+				this.dyesSaveButton = smith.querySelector('div.dyeOverlay > div.left form.saveDye > input.save');
+				this.dyesRemoveButton = smith.querySelector('div.dyeOverlay > div.left form.saveDye > input.remove');
+				this.dyesCancelButton = smith.querySelector('div.dyeOverlay > div.left form.saveDye > input.cancel');
+				this.dyesColorName = smith.querySelector('div.dyeOverlay > div.left form.saveDye > label.colorName');
+				this.dyesPreview = smith.querySelector('div.dyeOverlay > div.right');
 				
 				this.dyesCancelButton.addEventListener('click', () => {
 					this.dyeOverlay.classList.toggle('hidden', true);
@@ -2414,12 +2420,36 @@ export default class StaticModal{
 							this.dyesRemoveButton.classList.toggle("hidden", !asset.color_tag);
 							this.dyesColorPicker.value = dummyAsset.getColor();
 							this.dyesColorName.innerText = dummyAsset.getColorTag();
+
+							const dummyPlayer = new Player();
+							dummyPlayer.replaceIconsByPlayer(myPlayer, false);
+							dummyPlayer.assets = myPlayer.getEquippedAssetsBySlots([
+								Asset.Slots.hands,
+								Asset.Slots.jewelleryCosmetic,
+								Asset.Slots.lowerBody,
+								Asset.Slots.lowerBodyCosmetic,
+								Asset.Slots.upperBodyCosmetic,
+							]).map(el => el.clone());
+							dummyPlayer.unequipAssetsBySlots( dummyAsset.slots, undefined, true, true );
+							dummyPlayer.assets.push( dummyAsset );
+							dummyAsset.equipped = true;
+
+
+							const refreshIcon = () => {
+								dummyPlayer.getActiveIcon().then(canvas => {
+									this.dyesPreview.replaceChildren(canvas);
+								});
+							};
+
 							this.dyesColorPicker.onchange = async () => {
+
 								dummyAsset.color = this.dyesColorPicker.value;
 								dummyAsset.color_tag = ntc.name(dummyAsset.color)[1];
 								this.dyesColorName.innerText = dummyAsset.getColorTag(); 
 								this.dyeAssetWrapper.replaceChildren(await StaticModal.getGenericAssetButton(dummyAsset, 100));
 								game.uiSelectUp(div);
+								refreshIcon();
+
 							};
 
 							this.dyesRemoveButton.onclick = () => {
@@ -2432,6 +2462,8 @@ export default class StaticModal{
 								game.dyeBySmith(smith, myPlayer, assetId, dummyAsset.color);
 								this.dyeOverlay.classList.toggle('hidden', true);
 							};
+
+							refreshIcon();
 
 						}
 

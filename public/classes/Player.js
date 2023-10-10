@@ -1038,18 +1038,27 @@ export default class Player extends Generic{
 	}
 
 	// Fetches a player from glib and replaces our armor state layers with that one
-	replaceIconsByPlayer( label ){
+	// Label can also be a player object
+	replaceIconsByPlayer( label, draw = true ){
 		
-		const pl = glib.get(label, "Player");
-		if( !pl )
+		let pl;
+
+		if( label instanceof Player )
+			pl = label;
+		else
+			pl = glib.get(label, "Player");
+		
+		if( !(pl instanceof Player) )
 			throw 'Player not found in glib';
+
 		this.icon = pl.icon;
 		this.icon_base = pl.icon_base;
 		this.icon_lowerBody = pl.icon_lowerBody;
 		this.icon_upperBody = pl.icon_upperBody;
 		this.icon_nude = pl.icon_nude;
 		this.istates = PlayerIconState.loadThese(pl.istates);
-		game.ui.draw();
+		if( draw )
+			game.ui.draw();
 		
 	}
 
@@ -2228,13 +2237,13 @@ export default class Player extends Generic{
 		return true;
 
 	}
-	unequipAssetsBySlots( slots, byPlayer ){
+	unequipAssetsBySlots( slots, byPlayer, noText, force ){
 
 		let equipped = this.getEquippedAssetsBySlots(slots, true);
 		if(!equipped.length)
 			return true;
 		for( let e of equipped ){
-			if(!this.unequipAsset(e.id, byPlayer))
+			if(!this.unequipAsset(e.id, byPlayer, noText, force))
 				return false;
 		}
 		return true;

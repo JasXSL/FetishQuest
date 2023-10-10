@@ -182,7 +182,12 @@ div.labelFlex > label > *{
 	vertical-align: middle;
 }
 
-
+/* Vertically centers a div */
+div.verticalCenter{
+	position:absolute;
+	top:50%;
+	transform:translateY(-50%);
+}
 
 input[type=range] {
 	-webkit-appearance: none;
@@ -2022,12 +2027,34 @@ div.scroll{
 	#smith > div.modalMain > div.cmTabContent > div.dyeOverlay{
 		position: absolute;
 		background:rgba(0,0,0,.8);
-		padding:5vmax;
-		left:50%;
+		left:-5%; right:-5%;
 		top:50%;
-		transform:translate(-50%, -50%);
-		width:80%;
+		transform:translateY(-50%);
+		display:flex;
+		padding:0;
+		min-height:80%;
 	}
+	#smith > div.modalMain > div.cmTabContent > div.dyeOverlay div.inventory div.item{
+		width:100%;
+		margin:0;
+	}
+	#smith > div.modalMain > div.cmTabContent > div.dyeOverlay > div.left{
+		width:60%;
+	}
+	#smith > div.modalMain > div.cmTabContent > div.dyeOverlay > div.left > div{
+		width:100%;
+		padding:2vmax;
+	}
+	#smith > div.modalMain > div.cmTabContent > div.dyeOverlay > div.right{
+		width:40%;
+	}
+	#smith > div.modalMain > div.cmTabContent > div.dyeOverlay > div.right > canvas{
+		object-fit: cover;
+		width: 100%;
+		height: 100%;
+		border-left: 0.2vmax solid #EEE;
+	}
+	
 
 	#smith div.inventory > div.item.damaged{
 		border-style:groove;

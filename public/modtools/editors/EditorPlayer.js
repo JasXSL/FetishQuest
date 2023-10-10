@@ -145,7 +145,9 @@ export function asset(){
 
 				if( !isNaN(istate.opacity) )
 					istate.opacity = Math.round(istate.opacity*100)/100;
-				window.mod.mod.mergeAsset("playerIconStates", istate.save("mod"));
+				const out = istate.save("mod");
+				out._mParent = {type : DB, label : asset.label};
+				window.mod.mod.mergeAsset("playerIconStates", out);
 				if( !asset.istates.includes(istate.id) )
 					asset.istates.push(istate.id);
 				window.mod.setDirty(true);
