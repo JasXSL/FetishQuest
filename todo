@@ -1,10 +1,3 @@
-Incorrect hide condition assets:
-- First room in cave to monk
-- 
-
-UI Updates:
-- Need to make a character preview for item dyeing.
-
 Test Story features:
 x Limit what asset templates may show up
 x Limit what materials may show up
@@ -12,9 +5,6 @@ x Prevent time from auto passing
 x Alter max level
 x Make equipment leveled
 x Add game actions to run when a story starts
-
-
-
 
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
@@ -30,15 +20,6 @@ Passives:
 - ??? HOW should they work?
 
 -- Random encounters --
-
-x A guard shakes you down and asks for a bribe
-x Find an expensive weather stone. Trying to pick it up may cause it to start raining, making it too slippery to pick up.
-x A blacksmith offers an introductory course. Players can try to forge an item, but it may come out crooked and crap.
-x You get pickpocketed. Roll to catch the crook in the act. If you succeed, you can take the money and optionally punish them, or let them go.
-x A tentacrab is hiding under a rock with something shiny behind it. Players can attempt to lure it out to gain a shiny thong.
-x Imps challenge the players to a card game, if they win, they get money, if they lose, they have to wear a cursed thong for a day.
-x You agitate a nest of insects. You have two options to avoid it. If they fail, they get stung and gain extra arousal for 2 hours.
-x You set off a gas trap, all players roll corruption checks. On fail, get a debuff that lasts 24h or until you cum.
 
 - Bandits surround you. You can try to convince them to pass, try to escape, pay, or attack.
 - A shopkeeper can be convinced to sell a special item

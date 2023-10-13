@@ -2275,6 +2275,7 @@ class Stage{
 	}
 
 	// Updates a mesh transforms by the dungeon asset
+	// lets you add a rotation in radians
 	updatePositionByAsset( asset ){
 		
 		const c = asset._stage_mesh;

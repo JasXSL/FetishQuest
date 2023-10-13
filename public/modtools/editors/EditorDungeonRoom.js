@@ -103,7 +103,13 @@ export function asset(){
 	if( isTemplate )
 		html += '<div class="missingAssets" style="color:#F66"></div>';
 
-	html += '<div class="assetInserter">';
+	html += '<div class="functionFloat" style="float:right; text-align:right">';
+		html += '<input type="button" value="Add Randomish" class="insertRandom" /><br />';
+		html += '<input type="button" value="Add Player" class="insertPlayerMarker" /><br />';
+		html += '<input type="button" value="Add Dir" class="insertDirArrow" />';
+	html += '</div>';
+
+	html += '<div class="assetInserter" style="display:inline-block">';
 		html += '<select id="meshToTest" multiple>';
 		for( let i in libMeshes() )
 			html += '<option value="'+i+'">'+i+'</option>';
@@ -150,10 +156,17 @@ export function asset(){
 		HelperTags.autoHandleAsset('tags', tags, asset);
 	});
 
+	
+
 	HelperAsset.autoBind( this, asset, DB);
 
-	new Editor(this, asset);
+	const editor = new Editor(this, asset);
 
+
+	// Try to use a smart algorithm to add an asset that's previously used to this room
+	this.dom.querySelector('input.insertRandom').onclick = () => { editor.addSmartAsset(); };
+	this.dom.querySelector('input.insertDirArrow').onclick = () => { editor.addMesh('Generic.Shapes.DirArrow'); };
+	this.dom.querySelector('input.insertPlayerMarker').onclick = () => { editor.addMesh('Generic.Marker.Player'); };
 
 };
 
@@ -467,6 +480,7 @@ class Editor{
 
 		const baseAssetSelect = win.dom.querySelector('select.roomBaseAsset');
 		const roomAsset = this.room.getRoomAsset();
+		this.roomAsset = roomAsset;
 		if( roomAsset )
 			baseAssetSelect.value = roomAsset.model;
 		baseAssetSelect.onchange = () => {
@@ -630,6 +644,97 @@ class Editor{
 
 		}
 		return asset;
+
+	}
+
+	// Adds the first best dungeon room asset that matches
+	async addSmartAsset(){
+
+		const asset = this.getSmartAsset();
+		if( !asset )
+			return;
+		
+		const assets = asset.v.slice(); // Array of assets
+		shuffle(assets);
+
+		const stage = this.gl.stage;
+		const baseMesh = await this.gl.getAssetFromCache( new DungeonRoomAsset(assets[0]), true );
+		
+		let baseRot = this.roomAsset.rotY || 0;
+
+		for( let asset of assets ){
+
+			const tmp = new DungeonRoomAsset(asset);
+			tmp.g_resetID();
+			tmp._stage_mesh = baseMesh;
+
+			let rotOffs = (asset.__roomMesh.rotY || 0)-baseRot;
+			const startE = new THREE.Euler(tmp.rotX || 0, tmp.rotY || 0, tmp.rotZ || 0);
+			const startRot = new THREE.Quaternion().setFromEuler(startE);
+			const addE = new THREE.Euler(0, -rotOffs, 0);
+			const add = new THREE.Quaternion().setFromEuler(addE);
+
+			startRot.multiply(add);
+			const euler = new THREE.Euler().setFromQuaternion(startRot);
+			tmp.rotX = euler.x;
+			tmp.rotY = euler.y;
+			tmp.rotZ = euler.z;
+
+			const cos = Math.cos(rotOffs), sin = Math.sin(rotOffs);
+			let x = tmp.x || 0, z = tmp.z || 0;
+			tmp.x = x*cos - z*sin;
+			tmp.z = x*sin + z*cos;
+
+			stage.updatePositionByAsset(tmp);
+			
+			
+			const intersects = this.intersects(baseMesh);
+			if( intersects ){
+				console.log("Skip intersects", intersects);
+				continue;
+			}
+			
+			// Test if it intersects with anything
+			const newAsset = await this.addMesh(asset.model);
+			newAsset.x = tmp.x;
+			newAsset.y = tmp.y;
+			newAsset.z = tmp.z;
+			newAsset.scaleX = tmp.scaleX;
+			newAsset.scaleY = tmp.scaleY;
+			newAsset.scaleZ = tmp.scaleZ;
+			newAsset.rotX = tmp.rotX;
+			newAsset.rotY = tmp.rotY;
+			newAsset.rotZ = tmp.rotZ;
+
+			stage.updatePositionByAsset(newAsset);
+
+			window.st = stage;
+			window.asset = newAsset;
+
+				
+			//stage.addDungeonAsset(tmp);
+			break;
+
+		}
+		
+
+	}
+
+	// Cchecks if a THREE.Mesh intersects any of the assets in this room
+	intersects( mesh ){
+
+		const box = new THREE.Box3().setFromObject(mesh);
+
+		for( let cur of this.gl.stage.group.children ){
+			// Skip room assets
+			if( cur.userData?.dungeonAsset?.room )
+				continue;
+
+			const bb = new THREE.Box3().setFromObject(cur);
+			if( box.intersectsBox(bb) || mesh.position.distanceTo(cur.position) < 1 )
+				return cur;
+
+		}
 
 	}
 
@@ -1195,8 +1300,97 @@ class Editor{
 
 	}
 
+	getSmartAsset(){
+
+		let cur = this.roomAsset;
+		
+		//const s = Date.now();
+	
+		// Don't rebake unless we switch rooms
+		if( this.__fCacheId !== cur.model ){
+		
+			const all = window.mod.mod.dungeonRooms.slice().concat(window.mod.parentMod.dungeonRooms.slice());
+			
+			// Get all meshes that are used with the same room asset
+			// This also attaches a __roomMesh value to them, which is the room mesh object for said asset. Useful for detecting rotation.
+			const stats = new Map();	// meshPath : (arr)uses
+			for( let room of all ){
+	
+				const roomAsset = mod.getAssetById("dungeonRooms", room.label);
+				if( !roomAsset )
+					continue;
+	
+				
+	
+				let subRoomMesh;
+				const sub = new Map(); // same as stats, but we need to check if the room is valid first
+	
+				for( let asset of roomAsset.assets ){
+	
+					// Fetch the asset
+					const ra = mod.getAssetById("dungeonRoomAssets", asset);
+					if( !ra )
+						continue;
+	
+					if( ra.room ){
+	
+						// Not same room asset, gotta end this
+						if( ra.model !== cur.model )
+							break;
+						// Set this as the room mesh
+						else{
+							subRoomMesh = ra;
+							continue;
+						}
+	
+					}
+	
+					// Save this to sub
+					if( !sub.has(ra.model) )
+						sub.set(ra.model, []);
+					sub.get(ra.model).push(ra);
+	
+				}
+	
+				// We can save
+				if( subRoomMesh ){
+	
+					sub.forEach((arr, path) => {
+						
+						let st = stats.get(path);
+						if( !st ){
+							st = [];
+							stats.set(path, st);
+						}
+						for( let asset of arr ){
+							asset.__room = room;
+							asset.__roomMesh = subRoomMesh;
+							st.push(asset);
+						}
+						
+					});
+	
+				}
+	
+			}
+			
+			// Convert to array of objects
+			let flat = [];
+			stats.forEach((val, key) => {
+				flat.push({
+					k : key,
+					v : val
+				});
+			});
+	
+			this.__fCache = flat;
+			this.__fCacheId = cur.model;
+	
+		}
+		
+		//console.log(gsa.fCache, Date.now()-s);
+		return weightedRand(this.__fCache, el => el.v.length);
+	
+	}
 
 }
-
-
-
