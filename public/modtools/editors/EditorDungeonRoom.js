@@ -222,6 +222,9 @@ export function help(){
 	out += '<h3>Asset library:</h3>'+
 		'<p>Below the editor is the asset library, items starting with [M] are meshes, you can double click these to add them to the scene.</p>';
 
+	out += '<h3>Hot buttons:</h3>'+
+		'<p>Add Player/Dir are just hotkeys for common meshes. Add Randomish randomizes an asset based on the probability of it being there. It\'s a very simple algorithm. It compiles a list of all assets that have previously been used on your room mesh. Then picks one based on how commonly used it is. Then places it if it\'s location is not occupied by something else. You\'ll still need to move the assets, but this should help you get started on each cell.</p>';
+
 	const url = 'https://'+window.location.hostname+'/media/audio/ambiance/';
 	out += '<h3>Ambiance:</h3>'+
 		'<p>URL to an ambiance you want to use, preferably ogg. You can find built in ones at <a href="'+url+'">'+url+'</a></p>';
@@ -650,73 +653,77 @@ class Editor{
 	// Adds the first best dungeon room asset that matches
 	async addSmartAsset(){
 
-		const asset = this.getSmartAsset();
-		if( !asset )
-			return;
-		
-		const assets = asset.v.slice(); // Array of assets
-		shuffle(assets);
+		// try 10 times until successful
+		for( let i = 0; i < 10; ++i ){
 
-		const stage = this.gl.stage;
-		const baseMesh = await this.gl.getAssetFromCache( new DungeonRoomAsset(assets[0]), true );
-		
-		let baseRot = this.roomAsset.rotY || 0;
-
-		for( let asset of assets ){
-
-			const tmp = new DungeonRoomAsset(asset);
-			tmp.g_resetID();
-			tmp._stage_mesh = baseMesh;
-
-			let rotOffs = (asset.__roomMesh.rotY || 0)-baseRot;
-			const startE = new THREE.Euler(tmp.rotX || 0, tmp.rotY || 0, tmp.rotZ || 0);
-			const startRot = new THREE.Quaternion().setFromEuler(startE);
-			const addE = new THREE.Euler(0, -rotOffs, 0);
-			const add = new THREE.Quaternion().setFromEuler(addE);
-
-			startRot.multiply(add);
-			const euler = new THREE.Euler().setFromQuaternion(startRot);
-			tmp.rotX = euler.x;
-			tmp.rotY = euler.y;
-			tmp.rotZ = euler.z;
-
-			const cos = Math.cos(rotOffs), sin = Math.sin(rotOffs);
-			let x = tmp.x || 0, z = tmp.z || 0;
-			tmp.x = x*cos - z*sin;
-			tmp.z = x*sin + z*cos;
-
-			stage.updatePositionByAsset(tmp);
+			const asset = this.getSmartAsset();
+			if( !asset )
+				return;
 			
+			const assets = asset.v.slice(); // Array of assets
+			shuffle(assets);
+
+			const stage = this.gl.stage;
+			const baseMesh = await this.gl.getAssetFromCache( new DungeonRoomAsset(assets[0]), true );
 			
-			const intersects = this.intersects(baseMesh);
-			if( intersects ){
-				console.log("Skip intersects", intersects);
-				continue;
-			}
-			
-			// Test if it intersects with anything
-			const newAsset = await this.addMesh(asset.model);
-			newAsset.x = tmp.x;
-			newAsset.y = tmp.y;
-			newAsset.z = tmp.z;
-			newAsset.scaleX = tmp.scaleX;
-			newAsset.scaleY = tmp.scaleY;
-			newAsset.scaleZ = tmp.scaleZ;
-			newAsset.rotX = tmp.rotX;
-			newAsset.rotY = tmp.rotY;
-			newAsset.rotZ = tmp.rotZ;
+			let baseRot = this.roomAsset.rotY || 0;
 
-			stage.updatePositionByAsset(newAsset);
+			for( let asset of assets ){
 
-			window.st = stage;
-			window.asset = newAsset;
+				const tmp = new DungeonRoomAsset(asset);
+				tmp.g_resetID();
+				tmp._stage_mesh = baseMesh;
 
+				let rotOffs = (asset.__roomMesh.rotY || 0)-baseRot;
+				const startE = new THREE.Euler(tmp.rotX || 0, tmp.rotY || 0, tmp.rotZ || 0);
+				const startRot = new THREE.Quaternion().setFromEuler(startE);
+				const addE = new THREE.Euler(0, -rotOffs, 0);
+				const add = new THREE.Quaternion().setFromEuler(addE);
+
+				startRot.multiply(add);
+				const euler = new THREE.Euler().setFromQuaternion(startRot);
+				tmp.rotX = euler.x;
+				tmp.rotY = euler.y;
+				tmp.rotZ = euler.z;
+
+				const cos = Math.cos(rotOffs), sin = Math.sin(rotOffs);
+				let x = tmp.x || 0, z = tmp.z || 0;
+				tmp.x = x*cos - z*sin;
+				tmp.z = x*sin + z*cos;
+
+				stage.updatePositionByAsset(tmp);
 				
-			//stage.addDungeonAsset(tmp);
-			break;
+				
+				const intersects = this.intersects(baseMesh);
+				if( intersects ){
+					console.log("Skip intersects", intersects);
+					continue;
+				}
+				
+				// Test if it intersects with anything
+				const newAsset = await this.addMesh(asset.model);
+				newAsset.x = tmp.x;
+				newAsset.y = tmp.y;
+				newAsset.z = tmp.z;
+				newAsset.scaleX = tmp.scaleX;
+				newAsset.scaleY = tmp.scaleY;
+				newAsset.scaleZ = tmp.scaleZ;
+				newAsset.rotX = tmp.rotX;
+				newAsset.rotY = tmp.rotY;
+				newAsset.rotZ = tmp.rotZ;
 
-		}
+				stage.updatePositionByAsset(newAsset);
+
+				window.st = stage;
+				window.asset = newAsset;
+
+					
+				//stage.addDungeonAsset(tmp);
+				return;
+
+			}
 		
+		}
 
 	}
 
