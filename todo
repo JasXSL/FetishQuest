@@ -7,20 +7,10 @@ x Make equipment leveled
 x Add game actions to run when a story starts
 
 Bugs:
-x Greynose had burt's art on the marker
-x Fire sound got stuck?
-x Derelict house basement goes to the wrong cell
-x Oily ink could recolor clothes?
-x Fensam should only give cake if player is fully naked.
-x Penance needs a rebalance
-x Character art doesn't auto update on dying
-x Particles go super speed?
-x Brutus is visible but not veroniquette when entering her inn during the quest
-x Nerf heal a bit in general
-x \n not working on signs?
-
+t Brutus is visible but not veroniquette when entering her inn during the quest
 t Fox very painful not working? Need testing.
-- Sometimes the hand icon shows up incorrectly
+- Sometimes the hand icon shows up incorrectly when hovering over items
+- Could the loading be made faster by only loading in unique items and ONE of the max item needed in each cell. Then moving the items around and rescaling etc when changing cell?
 
 
 Minor Features:

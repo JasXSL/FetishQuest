@@ -40,8 +40,7 @@ import libParticles from './particles.js';
 import AC from '../classes/AssetCache.js';
 import stdTag from './stdTag.js';
 import {Water} from '../ext/Water.js';
-import Water2 from '../ext/Water2.js';
-import {BufferGeometryUtils} from '../ext/BufferGeometryUtils.js';
+import {Water as Water2} from '../ext/Water2.js';
 import {GLTFLoader} from '../ext/GLTFLoader.js';
 import {SkeletonUtils} from '../ext/SkeletonUtils.js';
 import GameEvent from '../classes/GameEvent.js';
@@ -3194,7 +3193,7 @@ function build(){
 					Ocean2 : new LibMesh({
 						url : function(){
 							const loader = new THREE.TextureLoader();
-							const waterGeometry = new THREE.BoxBufferGeometry( 1000, 1000, 100 );
+							const waterGeometry = new THREE.BoxGeometry( 1000, 1000, 100 );
 							const water = new Water2( waterGeometry, {
 								color: 0xFFAAAA,
 								scale: 1,
@@ -3946,7 +3945,7 @@ function build(){
 				Water : new LibMesh({
 					url : function(){
 						const loader = new THREE.TextureLoader();
-						const waterGeometry = new THREE.BoxBufferGeometry( 1000, 1000, 100 );
+						const waterGeometry = new THREE.BoxGeometry( 1000, 1000, 100 );
 						const water = new Water2( waterGeometry, {
 							color: 0x88AA88,
 							scale: 1,
@@ -3974,7 +3973,7 @@ function build(){
 				WaterFlowing : new LibMesh({
 					url : function(){
 						const loader = new THREE.TextureLoader();
-						const waterGeometry = new THREE.BoxBufferGeometry( 1000, 1000, 100 );
+						const waterGeometry = new THREE.BoxGeometry( 1000, 1000, 100 );
 						const water = new Water2( waterGeometry, {
 							color: 0x88AA88,
 							scale: 1,

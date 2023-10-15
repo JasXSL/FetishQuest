@@ -246,7 +246,7 @@ class WebGL{
 		
 		// Add Sun Helper
 		const sunSphere = new THREE.Mesh(
-			new THREE.SphereBufferGeometry( 1000, 16, 8 ),
+			new THREE.SphereGeometry( 1000, 16, 8 ),
 			new THREE.MeshBasicMaterial( { color: 0xffffff } )
 		);
 		sunSphere.visible = false;
@@ -852,6 +852,7 @@ class WebGL{
 		this.clearPlayerMarkers();
 				
 		this.loading = true;
+		// Move all assets from the current dungeon to main cache
 		this.currentCache.map(asset => this.cacheModel(asset));
 
 		this.stages.map(s => {
