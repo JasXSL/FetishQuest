@@ -1127,7 +1127,7 @@ Asset.Slots = {
 	upperBody : "upperBody",
 	lowerBody : "lowerBody",
 	hands : "hands",
-	action : "action",			// Toolbelt
+	action : "action",			// Potions etc, your toolbelt. You have 3 of these.
 	// These two are primarily cosmetic, but can have durability. Should not cover genitals. Can be things like a belt or gloves.
 	upperBodyCosmetic : "upperBodyCosmetic",	
 	lowerBodyCosmetic : "lowerBodyCosmetic",

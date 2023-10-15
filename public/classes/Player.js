@@ -1062,6 +1062,28 @@ export default class Player extends Generic{
 		
 	}
 
+	// Searches for active effects of colorizeItems type and populates the out list by slot 
+	getColorOverrides(){
+
+		const effects = this.getActiveEffectsByType(Effect.Types.colorizeItems);
+		let out = {};
+		for( let effect of effects ){
+
+			let slots = toArray(effect.data?.slots);
+			let color = effect.data?.color;
+			if( !color )
+				continue;
+			for( let slot of slots ){
+
+				out[slot] = color;
+
+			}
+
+		}
+		return out;
+
+	}
+
 	// ICONS
 	// useCache will use _cache_tags instead of tags. Useful if you're testing against a dummy player.
 	async getActiveIcon( useCache = false ){
@@ -1132,6 +1154,8 @@ export default class Player extends Generic{
 
 		}
 
+		const overrides = this.getColorOverrides();
+
 		// Draw the canvas
 		const canvas = document.createElement('canvas');
 		canvas.width = maxWidth;
@@ -1150,9 +1174,11 @@ export default class Player extends Generic{
 			if( layer.slot !== Asset.Slots.none ){
 				
 				const asset = this.getEquippedAssetsBySlots(layer.slot, false);
-				let color = '#FFF';
-				if( asset.length )
+				let color = overrides[layer.slot];
+				if( !color && asset.length )
 					color = asset[0].getColor();
+				if( !color )
+					color = '#FFF';
 				img = this.constructor.getColoredImage(img, color);
 
 			}

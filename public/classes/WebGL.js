@@ -370,7 +370,9 @@ class WebGL{
 	destructor(){
 
 		$(window).off('resize');
+		this.stage.destructor();
 		this.renderer.dispose();
+		
 
 	}
 
@@ -1337,6 +1339,7 @@ class WebGL{
 	}
 
 	onMarkerLoad( marker ){
+
 		if( marker.userData.marker.tween )
 			marker.userData.marker.tween.stop();
 
@@ -1391,7 +1394,8 @@ class WebGL{
 			const context = canvas.getContext('2d');
 			this.constructor.drawCover(context, iconCanvas, canvas.height, canvas.width, undefined, undefined, 1.33);
 			this.onMarkerLoad(marker);
-
+			marker.material[0].map.needsUpdate = true;
+			
 			const ring = marker.material[2];
 			ring.color.set(player.color);
 			ring.color.r = Math.pow(ring.color.r, 3);
@@ -2019,7 +2023,8 @@ class Stage{
 		this.stopAllSounds();
 		for( let tween of this.tweens )
 			this.removeTween(tween);
-		this.particles = [];
+
+		this.removeAllParticleSystems();
 		this.tweens = [];
 		this.mixers = [];
 
@@ -2450,8 +2455,18 @@ class Stage{
 	removeParticleSystem(sys){
 
 		let index = this.particles.indexOf(sys);
-		if( ~index )
+		if( ~index ){
+
+			this.parent.proton.removeEmitter(sys);
 			this.particles.splice(index,1);
+
+		}
+	}
+	removeAllParticleSystems(){
+
+		for( let sys of this.particles )
+			this.parent.proton.removeEmitter(sys);
+		this.particles = [];
 
 	}
 
@@ -2807,7 +2822,7 @@ Stage.bindGenericHover = function( mesh ){
 
 			game.renderer.renderer.domElement.style.cursor = "pointer";
 			if( tooltip ){
-				game.ui.setTooltipAtCursor(tooltip.data.text);
+				game.ui.setTooltipAtCursor(tooltip.data.text.split('\\n').join('<br />'));
 			}
 
 		}

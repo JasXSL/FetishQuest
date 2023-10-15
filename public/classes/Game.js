@@ -3863,6 +3863,7 @@ export default class Game extends Generic{
 
 		this.playFxAudioKitById("armorDye", player, player, undefined, true);
 		this.ui.addText(player.getColoredName()+text, "dye", player.id, player.id, 'dye');
+		this.ui.draw();
 
 	}
 

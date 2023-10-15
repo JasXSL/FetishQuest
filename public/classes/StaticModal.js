@@ -1523,8 +1523,6 @@ export default class StaticModal{
 						Asset.Slots.lowerBodyCosmetic,
 						Asset.Slots.upperBodyCosmetic,
 						Asset.Slots.jewelleryCosmetic,
-						//Asset.Slots.action,
-						
 					];
 					
 					const existing_assets = {};	// id:true
