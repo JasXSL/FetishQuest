@@ -805,7 +805,7 @@ export default class StaticModal{
 					<div class="option button" data-action="enableAA"><input type="checkbox" /><span> Antialiasing</span></div>
 					<div class="option button" data-action="enableFpsMeter"><input type="checkbox" /><span> FPS Meter</span></div>
 					<div class="option cacheLevel" style="margin-top:1vmax" title="Makes returning to previously visited areas faster, but increases memory use.">
-						<input type="range" style="width:50%; vertical-align:top" min=10 max=100 step=10 /><span></span> Cache Levels
+						<input type="range" style="width:50%; vertical-align:top" min=10 max=200 step=10 /><span></span> Cache Levels
 					</div>
 					<div class="option logLevel" style="margin-top:1vmax" title="Nr of combat texts to log">
 						<input type="range" style="width:50%; vertical-align:top" min=100 max=1000 step=100 /><span></span> Combat Log Size
@@ -975,7 +975,7 @@ export default class StaticModal{
 
 				});
 				this.video.cacheLevel.on('input', event => {
-					const val = parseInt($(event.currentTarget).val()) || 50;
+					const val = parseInt($(event.currentTarget).val()) || 100;
 					localStorage.cache_level = val;
 					this.video.cacheLevelSpan.text(val);
 				});

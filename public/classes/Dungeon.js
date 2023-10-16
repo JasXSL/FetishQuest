@@ -2168,7 +2168,7 @@ class DungeonRoomAsset extends Generic{
 
 	getTags(){
 
-		let meshTags = this?._stage_mesh?.userData?.template?.tags;
+		let meshTags = this._stage_mesh?.userData?.template?.tags;
 		if( !Array.isArray(meshTags) || this.ign_tags )
 			meshTags = [];
 

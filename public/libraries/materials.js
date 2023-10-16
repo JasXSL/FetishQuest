@@ -2,9 +2,16 @@ import * as THREE from '../ext/THREE.js';
 import AC from '../classes/AssetCache.js';
 
 class LibMaterial{
+
+	// These are parameters that shouldn't be cloned since they're expensive
+	static complexParams = ['alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','map','metalnessMap','normalMap','roughnessMap', 'envMap'];
 	
 	// Map properties are relative to /media/textures/
 	constructor( settings, type ){
+
+		this.baseMaterial = new THREE.MeshStandardMaterial();
+		this.maps = {};
+		this.userData = {};
 
 		this.type = type;
 		if( type === "Water" ){
@@ -23,11 +30,7 @@ class LibMaterial{
 		else if( type === "MeshDepthMaterial" ){
 
 			this.material = new THREE.MeshStandardMaterial(settings);
-			this.material.userData.customDepthMaterial = new THREE.MeshDepthMaterial({
-				map : this.getTexture(settings.map),
-				depthPacking : THREE.RGBADepthPacking,
-				alphaTest:0.5
-			});
+			this.userData.customDepthMaterial = settings.map; // Generated in getUserData
 
 		}
 		else{
@@ -36,8 +39,22 @@ class LibMaterial{
 
 		}
 
-		if( this.material.userData )
-			this.material.userData.settings = settings;
+		// Materials causes cloning to take for-fucking ever. We'll need to clone those separately
+		for( let map of LibMaterial.complexParams ){
+
+			if( this.material[map] ){
+				
+				this.maps[map] = this.material[map];
+				this.material[map] = null;
+
+			}
+
+		}
+
+		this.userData.settings = settings;
+
+		this.material.userData = {}; // Need to reset for speed.
+
 		
 	}
 
@@ -68,21 +85,48 @@ class LibMaterial{
 		return this.flatten();
 	}
 
+	// WARNING: This is a SHALLOW CLONE for speed! If you have any issues with that you'll need to make special cloning functions as three.clone is slow af
+	getUserData(){
+		const out = {
+			settings : {},
+		};
+		for( let i in settings )
+			out[i] = settings[i];
+		if( this.userData.customDepthMaterial )
+			out.customDepthMaterial = new THREE.MeshDepthMaterial({
+				map : this.getTexture(this.userData.customDepthMaterial),
+				depthPacking : THREE.RGBADepthPacking,
+				alphaTest:0.5
+			});
+		return out;
+
+	}
+
 	flatten(){
 
 		if( this.type === "Water" || this.type === "Water2" )
 			return this;
 
-		let mat = this.material.clone();
-		mat.userData = this.material.userData;
+		
+		const mat = this.material.clone();
+		
+		mat.userData = this.getUserData();
 		// Scan for materials to replace with loaders
-		let maps = ['alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','map','metalnessMap','normalMap','roughnessMap'];
-		for( let m of maps ){
-			if( !mat[m] )
+		
+		for( let m of LibMaterial.complexParams ){
+
+			const cur = this.maps[m];
+			if( !cur )
 				continue;
-			mat[m] = this.getTexture(this.material[m]);
+
+			// EnvMap is special
+			if( m === 'envMap' )
+				mat[m] = cur;
+			else
+				mat[m] = this.getTexture(cur);
 			if( mat.userData.settings )
 				mat.userData.settings[m] = mat[m];
+
 		}
 
 		return mat;

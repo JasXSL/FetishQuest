@@ -339,11 +339,17 @@ class WebGL{
 		this.dungeonGroup.name = 'DUNGEON';
 		this.scene.add(this.dungeonGroup);
 
-		this.assetCache = new THREE.Group();	// Stores assets here as they load 
+
+		// CACHES
+		// AssetCache is the full cache of items
+		this.assetCache = new THREE.Group(); 
 		this.assetCache.name = 'CACHE';
 		this.assetCache.visible = false;
-		//this.scene.add(this.assetCache);		// 
-		this.currentCache = [];					// Stores the cached assets we're currently using in the active dungeon
+
+		//this.scene.add(this.assetCache);		//
+		
+		// currentCache stores objects used in the current dungeon
+		this.currentCache = [];					// Stores the cached assets we're currently using in the active dungeon. Needed because putting an item from this.assetCache into a scene rips it out of this.assetCache. We use it this to put items back.
 
 		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) in the last cell. 
 											// If this has changed on cell entry, redraw rain.
@@ -739,7 +745,7 @@ class WebGL{
 		const time = Date.now();
 		let delta = this.clock.getDelta();
 		TWEEN.update();
-		if( this.stage )
+		if( this.stage && !this._loadingRoom )
 			this.stage.render(delta);
 
 		this.proton.update();
@@ -832,7 +838,43 @@ class WebGL{
 			this.renderer.render( this.scene, this.camera);
 
 	}
+
+	// User data that sh ould be scrubbed when putting back into global cache
+	scrubUserData( mesh ){
+
+		// They may have a few userdata thigs that must be scrubbed.
+		const ud = mesh.userData;
+		// Hovertexts must be forcefully deleted from memory
+		if( ud.hoverTexts ){
+
+			for( let i in ud.hoverTexts ){
+				
+				const text = ud.hoverTexts[i];
+				this.destroyModel(mesh);
+				mesh.remove(text);
+
+			}
+		}
+
+		delete ud.hoverTexts;
+		delete ud.dungeonAsset;
+
+	}
 	
+	// Returns all items from this.currentCache to this.assetCache
+	returnCurrentCache(){
+
+		// Move all assets from the dungeon cache to full cache
+		this.currentCache.map(mesh => {
+			
+			this.scrubUserData(mesh);
+			this.cacheModel(mesh);
+
+		});
+		this.currentCache = [];
+
+	}
+
 	// Dungeon stage cache
 	async loadActiveDungeon(){
 
@@ -852,38 +894,40 @@ class WebGL{
 		this.clearPlayerMarkers();
 				
 		this.loading = true;
-		// Move all assets from the current dungeon to main cache
-		this.currentCache.map(asset => this.cacheModel(asset));
 
+		// Destroy all items
 		this.stages.map(s => {
 
 			s.destructor();
-			this.destroyUncached(s);
+			this.destroyStageAssets(s); // Note: This makes sure any assets that should be returned to the cache are done so before deleting the rest.
 
 		});
 
-		
 		this.stages = [];
-		this.currentCache = [];
 
 		game.ui.toggleLoadingBar(game.dungeon.rooms.length);
 
+		// Checks the max amount of non-unique meshes needed in each cell.
 		let i = 0;
 		for( let room of game.dungeon.rooms ){
-
+			
 			let stage = new Stage( room, this );
 			this.stages.push(stage);
 			this.dungeonGroup.add(stage.group);
-			
-			await stage.draw();
-			this.execRender( true );
+
+			await stage.preload(true); // Loads meshes
+			//this.execRender( true );
 			stage.toggle(false);
+
 			game.setRoomsLoaded(++i);
 			game.dungeon.onRoomLoaded(room);
 			if( this.load_after_load )
 				break;
 
 		}
+
+		
+
 			
 		this.loading = false;
 		this.cache_active_room = -1;
@@ -916,6 +960,11 @@ class WebGL{
 		let room = game.dungeon.getActiveRoom();
 		let roomChanged = room.id !== this.cache_active_room;
 		let pre = this.stage;
+		this._loadingRoom = true; // Pause the renderer
+
+		// Turn the current room off first, since it returns the cache
+		if( pre && roomChanged )
+			pre.toggle(false);
 
 		for( let r of this.stages ){
 
@@ -944,14 +993,13 @@ class WebGL{
 
 		if( roomChanged ){
 
-			if( pre )
-				pre.toggle(false);
 			this.stage.toggle(true);
 			this.roomEnterCameraTween();
 
 		}
 		this.updateFog( game.getHoursOfDay() );
-
+		
+		this._loadingRoom = false;
 
 	}
 
@@ -1134,7 +1182,9 @@ class WebGL{
 				if( path !== asset.userData._c_path )
 					continue;
 
+				// Put this item on the current dungeon cache
 				this.currentCache.push(asset);
+				// return the cached asset
 				return asset;
 
 			}
@@ -1145,32 +1195,31 @@ class WebGL{
 		const model = asset.getModel();
 		const out = await model.flatten(unique);
 
-		// This temporarily adds to the cache
+		// Add to both caches unless unique
 		// THREE automatically pulls it out of the cache when used
 		if( !unique )
 			this.cacheModel(out, path);
+		else
+			out.userData.__UNIQUE__ = true;
 
 		return out;
 
 	}
 
-	destroyUncached( stage ){
+	destroyStageAssets( stage ){
+
+		this.returnCurrentCache(); // makes sure we don't bust anything that's cached
 
 		if( !(stage instanceof Stage) )
 			throw 'Trying to destroy nonstage';
 
-		for( let asset of stage.group.children ){
-
-			if( !this.currentCache.includes(asset) ){
-				
+		for( let asset of stage.group.children )		
 				this.destroyModel(asset);
 
-			}
-
-		}
 
 	}
 
+	// removes a model entirely from memory
 	destroyModel( model ){
 
 		if( !model )
@@ -1219,7 +1268,7 @@ class WebGL{
 		if( path )
 			model.userData._c_path = path;
 		else if( !model.userData._c_path ){
-			console.log("Path missing from model", model);
+			console.error("Path missing from model", model);
 			return;	// Can't cache items without a path
 		}
 
@@ -1230,7 +1279,7 @@ class WebGL{
 
 	pruneCache(){
 
-		const cache_level = Math.max(10, (parseInt(localStorage.cache_level) || 50))*10;
+		const cache_level = Math.max(10, (parseInt(localStorage.cache_level) || 100))*10;
 		const children = this.assetCache.children;
 		while( children.length > cache_level ){
 			
@@ -1470,7 +1519,7 @@ class WebGL{
 
 				// No free generic markers, skip this. Maybe later add an error for the developer?
 				if( !generics.length ){
-					console.error("No generics free for", player, "did you forget to add player markers here?");
+					console.error("No generics free for", player, "did you forget to add player markers here?", room, room.getGenericMarkers(), room.assets.slice());
 					continue;
 				}
 
@@ -2028,6 +2077,8 @@ class Stage{
 		this.removeAllParticleSystems();
 		this.tweens = [];
 		this.mixers = [];
+		// Return our cached items
+		this.parent.returnCurrentCache();
 
 	}
 
@@ -2210,31 +2261,27 @@ class Stage{
 	}
 
 	// Adds from a dungeon asset
-	async addDungeonAsset( asset ){
+	async addDungeonAsset( asset, fast ){
 
+		const unique = asset.isInteractive() || this.isEditor;
+		const c = await this.addFromMeshLib(asset, unique);
+		// Scrubbing goes first
+		this.parent.scrubUserData(c);
 
-		const c = await this.addFromMeshLib(asset, asset.isInteractive() || this.isEditor);
+		// We always need to set some metadata here. But can skip any generative stuff.
+		asset.setStageMesh(c); // needed for 
 
-		
-		// Wipe hovertexts
-		if( c.userData.hoverTexts ){
-
-			for( let i in c.userData.hoverTexts ){
-				
-				const text = c.userData.hoverTexts[i];
-				this.parent.destroyModel(c);
-				c.remove(text);
-
-			}
-			
-		}
-		
-		c.userData.hoverTexts = {};
-		c.userData.dungeonAsset = asset;
-		
-		asset.setStageMesh(c);
 		if( !c.name )
 			c.name = asset.name || asset.model;
+		c.userData.dungeonAsset = asset;
+
+		// :: PRELOAD END ::
+		// This is used when preloading. We don't need to go byeond here since it gets readded on cell entry
+		if( fast && !unique )
+			return;
+		
+		
+		c.userData.hoverTexts = {};
 
 		
 		// Must be done before labels are created in order for them to take rotation into consideration
@@ -2341,7 +2388,7 @@ class Stage{
 	// Returns a mesh based on DungeonAsset in stage.
 	findAsset( dungeonAsset ){
 		for( let mesh of this.group.children ){
-			if( mesh.userData.dungeonAsset.id === dungeonAsset.id )
+			if( mesh.userData?.dungeonAsset?.id === dungeonAsset.id )
 				return mesh;
 		}
 	}
@@ -2360,14 +2407,10 @@ class Stage{
 	}
 
 
-	// Primary draw method
-	/* STAGE MANAGEMENT  */
-	// Creates or updates a stage with room, then returns that room. If room is unset, it uses the current dungeon room 
-	// Chainable
-	async draw( ){
+	// Fast is used to just make sure it's in cache. 
+	async preload( fast ){
 
 		const room = this.room;
-
 		// Add assets
 		for( let asset of room.assets ){
 
@@ -2390,11 +2433,21 @@ class Stage{
 				continue;
 
 			// Don't try to do this in parallel or you'll freeze the browser
-			await this.addDungeonAsset(asset);
+			await this.addDungeonAsset(asset, fast);
 		
 		}
 
-		
+	}
+
+	// Primary draw method
+	/* STAGE MANAGEMENT  */
+	// Creates or updates a stage with room, then returns that room. If room is unset, it uses the current dungeon room 
+	// Chainable
+	async draw(){
+
+		const room = this.room;
+
+		await this.preload();
 
 		// Remove assets that have been removed from the room
 		for( let ch of this.group.children ){
