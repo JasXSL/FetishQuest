@@ -167,7 +167,7 @@ export default class Modtools{
 		const control = new TransformControls( gl.camera, gl.renderer.domElement, () => {});
 		this.transformControls = control;
 		control.setTranslationSnap(1);
-		control.setRotationSnap(THREE.Math.degToRad(1));
+		control.setRotationSnap(THREE.MathUtils.degToRad(1));
 		control.addEventListener( 'dragging-changed', function( event ){
 			gl.controls.enabled = !event.value;
 		});

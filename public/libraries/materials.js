@@ -90,8 +90,8 @@ class LibMaterial{
 		const out = {
 			settings : {},
 		};
-		for( let i in settings )
-			out[i] = settings[i];
+		for( let i in this.userData.settings )
+			out[i] = this.userData.settings[i];
 		if( this.userData.customDepthMaterial )
 			out.customDepthMaterial = new THREE.MeshDepthMaterial({
 				map : this.getTexture(this.userData.customDepthMaterial),

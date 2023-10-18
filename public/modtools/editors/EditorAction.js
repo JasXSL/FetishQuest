@@ -2,10 +2,7 @@ import HelperAsset from './HelperAsset.js';
 import HelperTags from './HelperTags.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorWrapper from './EditorWrapper.js';
-import * as EditorAudioKit from './EditorAudioKit.js';
-import stdTag from '../../libraries/stdTag.js';
 import Action from '../../classes/Action.js';
-import { TorusBufferGeometry } from '../../ext/THREE.js';
 import Generic from '../../classes/helpers/Generic.js';
 
 

@@ -62,6 +62,12 @@ class Dungeon extends Generic{
 
 		this.dirLight = '';			// If a room doesn't have dirLight, it can use the dungeon one
 		this.fog = 0;				// If a room doesn't have fog, it can use from the dungeon instead
+		this.ambiance = 'media/audio/ambiance/dungeon.ogg';
+		this.ambiance_volume = 0.2;
+		this.lowpass = 0;			// Lowpass filter. Lower value cuts off high frequencies. -1 uses from cell mesh
+		this.reverb = '';			// Reverb. Empty uses from cell mesh.
+		this.reverbWet = 0;		// Reverb mix. Between 0 (no reverb) and 1 (full). -1 uses from cell mesh
+
 		this.passives = [];
 		this.consumables = [];		// Additional items you can find in this dungeon, that aren't marked as generic found items.
 
@@ -115,6 +121,12 @@ class Dungeon extends Generic{
 			dirLight : this.dirLight,
 			fog : this.fog,
 			passives : Wrapper.saveThese(this.passives, full),
+			ambiance : this.ambiance,
+			ambiance_volume : this.ambiance_volume,
+			lowpass : this.lowpass,
+			reverb : this.reverb,
+			reverbWet : this.reverbWet,
+
 		};
 
 		// Full or mod
@@ -195,6 +207,7 @@ class Dungeon extends Generic{
 		game.state_dungeons.set(this.label, this._state);
 		
 	}
+
 
 	setVar( key, val ){
 		this.vars.set(key, val);
@@ -374,6 +387,7 @@ class Dungeon extends Generic{
 		// 500 delay before turning off the renderer for load
 		await delay(800);
 		await game.renderer.drawActiveRoom();
+		game.updateReverb();
 		this.transporting = false;
 		game.ui.modal.closeSelectionBox();
 		
@@ -688,8 +702,12 @@ class DungeonRoom extends Generic{
 
 		this.expEvt = false;		// If true, use an expevt. viableEcnounters is pulled from the encounters list
 
-		this.ambiance = 'media/audio/ambiance/dungeon.ogg';
-		this.ambiance_volume = 0.2;
+		this.ambiance = '';			// if unset, use dungeon
+		this.ambiance_volume = -1;	// if less than 0, use dungeon
+
+		this.lowpass = 0;			// Lowpass of audio. 0 uses parent
+		this.reverb = '';			// Reverb sound. Empty uses parent.
+		this.reverbWet = 0;			// Intensity of reverb. 0 uses parent
 
 		this.fog = 0;				// Lets you override the scene fog level
 		this.dirLight = '';			// can be a hex code if you want to override default #808080
@@ -726,6 +744,9 @@ class DungeonRoom extends Generic{
 			playerMarkers : DungeonRoomMarker.saveThese(this.playerMarkers, full),
 			passives : Wrapper.saveThese(this.passives, full),
 			label : this.label,
+			reverb : this.reverb,
+			reverbWet : this.reverbWet,
+			lowpass : this.lowpass,
 		};
 
 		if( full ){
@@ -897,6 +918,48 @@ class DungeonRoom extends Generic{
 		game.save();
 
 	}
+
+
+	getAmbiance(){
+		if( this.ambiance )
+			return this.ambiance;
+		return this.parent.ambiance;
+	}
+	getAmbianceVol(){
+		if( this.ambiance_volume < 0 )
+			return this.parent.ambiance_volume;
+		return this.ambiance_volume;
+	}
+	getReverb(){
+		// First try this
+		let reverb = this.reverb;
+		// Next try parent
+		if( !this.reverb )
+			reverb = this.parent.reverb;
+		// Finally try room mesh
+		if( !this.reverb )
+			reverb = this.getRoomAsset()?.getModel()?.reverb || '';
+		return reverb;
+	}
+	getReverbWet(){
+		let rw = this.reverbWet;
+		if( this.reverbWet <= 0 )
+			rw = this.parent.reverbWet;
+		if( this.reverbWet <= 0 )
+			rw = this.getRoomAsset()?.getModel()?.reverbWet || 0;
+		return rw;
+	}
+	getLowpass(){
+
+		let lp = this.lowpass;
+		if( this.lowpass <= 0 )
+			lp = this.parent.lowpass;
+		if( this.lowpass <= 0 )
+			lp = this.getRoomAsset()?.getModel()?.lowpass || 0;
+		return lp;
+
+	}
+
 
 	/* ROOM CONNECTIONS */
 	// Returns an array of [X,Y,Z] which is the offset from this bearing
@@ -1335,7 +1398,6 @@ class DungeonRoom extends Generic{
 						//console.log(pEnc, "invalid for", this);
 						continue;
 					}
-					console.log("Added an event encounter", pEnc.label);
 					if( !Dungeon.REPEAT_ENCOUNTERS )
 						procEvtEncounters.splice(procEvtEncounters.indexOf(pEnc), 1);
 					const cl = pEnc.clone();	// remove the template room encounter conditions here, since they'll be validated later otherwise

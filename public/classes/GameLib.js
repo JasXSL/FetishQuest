@@ -234,7 +234,7 @@ export default class GameLib{
 				
 				if( Array.isArray(mod[k]) ){
 
-					this.loadModOnto(mod[k], this[k], Mod.LIB_TYPES[k], Mod.UseID.includes(k));
+					this.loadModOnto(mod[k], this[k], Mod.getLibTypes()[k], Mod.UseID.includes(k));
 
 				}
 
@@ -427,9 +427,10 @@ export default class GameLib{
 
 	getFull( cName ){
 
-		for( let i in Mod.LIB_TYPES ){
+		const lt = Mod.getLibTypes();
+		for( let i in lt ){
 
-			if( cName === Mod.LIB_TYPES[i].name ){
+			if( cName === lt[i].name ){
 
 				if( CACHE_MAP[i] )
 					return this[CACHE_MAP[i]];

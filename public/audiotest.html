@@ -1,0 +1,65 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.1.1/math.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="globalFunctions.js"></script>
+	</head>
+	<body>
+		<input type="button" value="Play" id="play"><br />
+		<select id="reverb">
+			<option value="none">None</option>
+		</select>
+		Lowpass: <input type="range" min="0" max="1" step="0.01" value="1" id="lowpass" /><br />
+		Dry/Wet: <input type="range" min="0" max="1" step="0.01" value="1" id="wet" /><br />
+		<script type="module">
+			import Audio from './classes/Audio.js';
+			
+
+			async function run(){
+
+				Audio.begin();
+
+				const chan = new Audio("fx");
+
+				const re = document.getElementById('reverb');
+				const lp = document.getElementById('lowpass');
+				const wet = document.getElementById('wet');
+				
+				for( let i in Audio.reverbs ){
+					
+					const el = document.createElement("option");
+					re.append(el);
+					el.value = el.innerText = i;
+
+				}
+
+				document.getElementById("play").onclick = async () => {
+				
+					const audio = await chan.play( '/media/audio/questhandin.ogg', undefined, false, 0, 0,1);
+					
+				};
+
+				re.onchange = () => {
+					chan.setReverb(re.value);
+				};
+				lp.oninput = () => {
+					chan.setLowpass(+lp.value);
+				};
+				wet.oninput = () => {
+					chan.setWet(+wet.value);
+				};
+
+
+			}
+
+			run();
+
+		</script>
+
+	</body>
+</html>
+
+

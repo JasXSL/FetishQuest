@@ -70,6 +70,11 @@ class LibMesh{
 		this.door = data.door || LibMesh.DoorTypes.DOOR_NONE;	// used for the procedural generator to figure out where a door can go. Their placement rotation matters. Where 0 = north, pi/2 = west...
 		this.doorRotOffs = data.doorRotOffs || 0;									// Helper for above in order to show which direction is forward
 
+		// Used in room audio. Lets you tie audio properties to a room asset
+		this.reverb = data.reverb || '';
+		this.reverbWet = +data.reverbWet || 0.0;
+		this.lowpass = data.lowpass || 1.0;
+
 		// helper flags
 		this.want_actions = data.want_actions;	// Array of GameAction types that this asset wants. If not, it gets highlighted in the editor. Use sub arrays for OR
 
@@ -514,6 +519,7 @@ function build(){
 						libMat.StoneTile.DungeonWall,
 					],
 					tags : [stdTag.mWall, stdTag.mWallStoneTile, stdTag.mFloorStoneTile],
+					reverb : 'church', reverbWet : 0.4, lowpass : 0,
 				}),
 				R10x10RL : new LibMesh({
 					isRoom : true,
@@ -525,6 +531,7 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.StoneTile.DungeonWall,
 					],
+					reverb : 'church', reverbWet : 0.3, lowpass : 0,
 				}),
 				R6x10 : new LibMesh({
 					isRoom : true,
@@ -536,6 +543,8 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.StoneTile.DungeonWall,
 					],
+					reverb : 'church', reverbWet : 0.3, lowpass : 0,
+
 				}),
 				R6x6 : new LibMesh({
 					isRoom : true,
@@ -547,6 +556,7 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.StoneTile.DungeonWall,
 					],
+					reverb : 'sewer', reverbWet : 0.2, lowpass : 0,
 				}),
 				Necro8x6 : new LibMesh({
 					isRoom : true,
@@ -556,6 +566,7 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
 					],
+					reverb : 'church', reverbWet : 0.4, lowpass : 0,
 				}),
 				Necro6x6 : new LibMesh({
 					isRoom : true,
@@ -565,6 +576,7 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
 					],
+					reverb : 'church', reverbWet : 0.3, lowpass : 0,
 				}),
 				Necro8x6s : new LibMesh({
 					isRoom : true,
@@ -574,6 +586,7 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
 					],
+					reverb : 'church', reverbWet : 0.4, lowpass : 0,
 				}),
 				Necro8x8 : new LibMesh({
 					isRoom : true,
@@ -583,6 +596,7 @@ function build(){
 						libMat.Brick.DungeonBlack,
 						libMat.Brick.Tile,
 					],
+					reverb : 'large_chamber', reverbWet : 0.3, lowpass : 0,
 				}),
 				Shackles : new LibMesh({
 					url : 'doodads/wall_shackles_1x1.JD',
@@ -1431,6 +1445,7 @@ function build(){
 						libMat.Wood.Crate,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'upstairs', reverbWet : 0.4, lowpass : 0,
 				}),
 				R8x4 : new LibMesh({
 					isRoom : true,
@@ -1441,6 +1456,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'upstairs', reverbWet : 0.4, lowpass : 0,
 				}),
 				R6x4 : new LibMesh({
 					isRoom : true,
@@ -1451,6 +1467,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'upstairs', reverbWet : 0.3, lowpass : 0,
 				}),
 				R10x3 : new LibMesh({
 					isRoom : true,
@@ -1461,6 +1478,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'upstairs', reverbWet : 0.4, lowpass : 0,
 				}),
 				Window : new LibMesh({
 					url : 'rooms/cottage_window.JD',
@@ -1477,6 +1495,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.6, lowpass : 0,
 				}),
 				InnB : new LibMesh({
 					isRoom : true,
@@ -1487,6 +1506,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.6, lowpass : 0,
 				}),
 				InnC : new LibMesh({
 					isRoom : true,
@@ -1497,6 +1517,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
 				}),
 				InnD : new LibMesh({
 					isRoom : true,
@@ -1507,6 +1528,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'bathroom', reverbWet : 0.25, lowpass : 0,
 				}),
 				InnE : new LibMesh({
 					isRoom : true,
@@ -1517,6 +1539,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
 				}),
 
 				FarmhouseA : new LibMesh({
@@ -1527,6 +1550,8 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
+
 				}),
 				FarmhouseB : new LibMesh({
 					isRoom : true,
@@ -1536,6 +1561,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
 				}),
 				FarmhouseC : new LibMesh({
 					isRoom : true,
@@ -1545,6 +1571,7 @@ function build(){
 						libMat.Wood.Floor,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
 				}),
 				FarmhouseD : new LibMesh({
 					isRoom : true,
@@ -1554,6 +1581,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
 				}),
 				FarmhouseE : new LibMesh({
 					isRoom : true,
@@ -1563,6 +1591,7 @@ function build(){
 						libMat.Wood.Floor,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
 				}),
 				FarmhouseF : new LibMesh({
 					isRoom : true,
@@ -1572,6 +1601,7 @@ function build(){
 						libMat.Wood.Logs,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
 				}),
 				FarmhouseG : new LibMesh({
 					isRoom : true,
@@ -1581,6 +1611,7 @@ function build(){
 						libMat.Wood.Floor,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorWood],
+					reverb : 'room', reverbWet : 0.4, lowpass : 0,
 				}),
 
 
@@ -3450,7 +3481,7 @@ function build(){
 						],
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
-
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					B : new LibMesh({
 						url : 'land/yuug/beach_b.JD',
@@ -3459,6 +3490,7 @@ function build(){
 						],
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 					C : new LibMesh({
@@ -3470,6 +3502,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 					D : new LibMesh({
@@ -3481,6 +3514,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 					E : new LibMesh({
@@ -3492,6 +3526,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 					F : new LibMesh({
@@ -3503,6 +3538,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 
@@ -3516,7 +3552,8 @@ function build(){
 							libMat.Land.SeafloorA
 						],
 						isRoom : true,
-						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock]
+						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock],
+						reverb : 'chatter', reverbWet : 0.6, lowpass : 0.15,
 					}),
 					B : new LibMesh({
 						url : 'rooms/seafloor_b.JD',
@@ -3524,7 +3561,8 @@ function build(){
 							libMat.Land.SeafloorB
 						],
 						isRoom : true,
-						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock]
+						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock],
+						reverb : 'chatter', reverbWet : 0.6, lowpass : 0.15,
 					}),
 					C : new LibMesh({
 						url : 'rooms/seafloor_c.JD',
@@ -3532,7 +3570,8 @@ function build(){
 							libMat.Land.SeafloorC
 						],
 						isRoom : true,
-						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock]
+						tags : [stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorRock],
+						reverb : 'chatter', reverbWet : 0.6, lowpass : 0.15,
 					}),
 				},
 				
@@ -3546,6 +3585,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 					mainroadB : new LibMesh({
@@ -3557,6 +3597,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 					mainroadC : new LibMesh({
@@ -3568,6 +3609,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 					mainroadD : new LibMesh({
@@ -3579,6 +3621,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 					mainroadE : new LibMesh({
@@ -3590,6 +3633,7 @@ function build(){
 
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 
 					}),
 
@@ -3598,36 +3642,42 @@ function build(){
 						materials : [libMat.Land.GrassGen_000],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					grassgen001 : new LibMesh({
 						url : 'land/yuug/GrassGen_001.JD',
 						materials : [libMat.Land.GrassGen_001],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					grassgen002 : new LibMesh({
 						url : 'land/yuug/GrassGen_002.JD',
 						materials : [libMat.Land.GrassGen_002],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					grassgen003 : new LibMesh({
 						url : 'land/yuug/GrassGen_003.JD',
 						materials : [libMat.Land.GrassGen_003],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					grassgen004 : new LibMesh({
 						url : 'land/yuug/GrassGen_004.JD',
 						materials : [libMat.Land.GrassGen_004],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					grassgen005 : new LibMesh({
 						url : 'land/yuug/GrassGen_005.JD',
 						materials : [libMat.Land.GrassGen_005],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 
 					grasshills000 : new LibMesh({
@@ -3635,18 +3685,21 @@ function build(){
 						materials : [libMat.Land.RiverBridge],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					grasshills000a : new LibMesh({
 						url : 'land/yuug/Hills_000.JD',
 						materials : [libMat.Land.RiverBridgePath],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					grasshills001 : new LibMesh({
 						url : 'land/yuug/Hills_001.JD',
 						materials : [libMat.Land.RiverPlateau],
 						tags : [stdTag.mGrass],
 						isRoom: true,
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					
 					
@@ -3660,6 +3713,7 @@ function build(){
 						],
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.3, lowpass : 0,
 					}),
 					farmpathStraightField : new LibMesh({
 						url : 'land/yuug/farmpath_straight_field.glb',
@@ -3668,6 +3722,7 @@ function build(){
 						],
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.3, lowpass : 0,
 					}),
 					farmpathX : new LibMesh({
 						url : 'land/yuug/farmpath_x.glb',
@@ -3676,6 +3731,7 @@ function build(){
 						],
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.3, lowpass : 0,
 					}),
 					farmpathStraight : new LibMesh({
 						url : 'land/yuug/farmpath_straight.glb',
@@ -3684,6 +3740,7 @@ function build(){
 						],
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.3, lowpass : 0,
 					}),
 					farmpathT : new LibMesh({
 						url : 'land/yuug/farmpath_t.glb',
@@ -3692,6 +3749,7 @@ function build(){
 						],
 						isRoom : true,
 						tags : [stdTag.mGrass, stdTag.mDirt, stdTag.mFloorDirt, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.3, lowpass : 0,
 					}),
 				},
 
@@ -3706,6 +3764,7 @@ function build(){
 						isRoom : true,
 
 						tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorSand, stdTag.mFloorGrass],
+						reverb : 'forest', reverbWet : 0.4, lowpass : 0,
 					}),
 					JettyMid : new LibMesh({
 						url : 'land/yuug/yuug_port_mid_dock.JD',
@@ -3723,37 +3782,43 @@ function build(){
 					url : 'land/yuug/GrassGen_000.JD',
 					materials : [libMat.Land.SnowGen_000],
 					tags : [stdTag.mSnow],
-					isRoom: true,
+					isRoom : true,
+					reverb : 'forest', reverbWet : 0.1, lowpass : 0,
 				}),
 				gen001 : new LibMesh({
 					url : 'land/yuug/GrassGen_001.JD',
 					materials : [libMat.Land.SnowGen_001],
 					tags : [stdTag.mSnow],
-					isRoom: true,
+					isRoom : true,
+					reverb : 'forest', reverbWet : 0.1, lowpass : 0,
 				}),
 				gen002 : new LibMesh({
 					url : 'land/yuug/GrassGen_002.JD',
 					materials : [libMat.Land.SnowGen_002],
 					tags : [stdTag.mSnow],
-					isRoom: true,
+					isRoom : true,
+					reverb : 'forest', reverbWet : 0.1, lowpass : 0,
 				}),
 				gen003 : new LibMesh({
 					url : 'land/yuug/GrassGen_003.JD',
 					materials : [libMat.Land.SnowGen_003],
 					tags : [stdTag.mSnow],
-					isRoom: true,
+					isRoom : true,
+					reverb : 'forest', reverbWet : 0.1, lowpass : 0,
 				}),
 				gen004 : new LibMesh({
 					url : 'land/yuug/GrassGen_004.JD',
 					materials : [libMat.Land.SnowGen_004],
 					tags : [stdTag.mSnow],
-					isRoom: true,
+					isRoom : true,
+					reverb : 'forest', reverbWet : 0.1, lowpass : 0,
 				}),
 				gen005 : new LibMesh({
 					url : 'land/yuug/GrassGen_005.JD',
 					materials : [libMat.Land.SnowGen_005],
 					tags : [stdTag.mSnow],
-					isRoom: true,
+					isRoom : true,
+					reverb : 'forest', reverbWet : 0.1, lowpass : 0,
 				}),
 			},
 			Beach : {
@@ -3861,6 +3926,7 @@ function build(){
 
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					reverb : 'street', reverbWet : 0.25, lowpass : 0,
 
 				}),
 				T : new LibMesh({
@@ -3872,6 +3938,7 @@ function build(){
 
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorDirt, stdTag.mFloorGrass],
+					reverb : 'street', reverbWet : 0.25, lowpass : 0,
 
 				}),
 				Straight : new LibMesh({
@@ -3884,6 +3951,7 @@ function build(){
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
+					reverb : 'street', reverbWet : 0.25, lowpass : 0,
 				}),
 				Bend : new LibMesh({
 					url : 'land/yuug/town_bend.JD',
@@ -3895,6 +3963,7 @@ function build(){
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mSand, stdTag.mFloorDirt, stdTag.mFloorGrass],
 
+					reverb : 'street', reverbWet : 0.25, lowpass : 0,
 				}),
 			},
 			Swamp : {
@@ -3907,6 +3976,7 @@ function build(){
 
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp, stdTag.mFloorMoss, stdTag.mFloorGrass],
+					reverb : 'forest', reverbWet : 0.2, lowpass : 0,
 
 				}),
 				B : new LibMesh({
@@ -3919,6 +3989,7 @@ function build(){
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp, stdTag.mFloorMoss, stdTag.mFloorGrass],
 
+					reverb : 'forest', reverbWet : 0.2, lowpass : 0,
 				}),
 				C : new LibMesh({
 					url : 'land/swamp/bog_ground_c.JD',
@@ -3930,6 +4001,7 @@ function build(){
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp, stdTag.mFloorMoss, stdTag.mFloorGrass],
 
+					reverb : 'forest', reverbWet : 0.2, lowpass : 0,
 				}),
 				D : new LibMesh({
 					url : 'land/swamp/bog_ground_d.JD',
@@ -3941,6 +4013,7 @@ function build(){
 					isRoom : true,
 					tags : [stdTag.mGrass, stdTag.mMoss, stdTag.mSwamp, stdTag.mFloorMoss, stdTag.mFloorGrass],
 
+					reverb : 'forest', reverbWet : 0.2, lowpass : 0,
 				}),
 				Water : new LibMesh({
 					url : function(){
@@ -4010,6 +4083,7 @@ function build(){
 					],
 					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
 
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
 
 
 				}),
@@ -4022,6 +4096,7 @@ function build(){
 					],
 					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
 
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
 				}),
 				R6x6 : new LibMesh({
 					isRoom : true,
@@ -4032,7 +4107,7 @@ function build(){
 					],
 					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
 
-
+					reverb : 'chatter', reverbWet : 0.2, lowpass : 0,
 
 				}),
 				R8x6River : new LibMesh({
@@ -4040,6 +4115,7 @@ function build(){
 					materials : [
 						libMat.Water.River
 					],
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
 				}),
 				R8x6 : new LibMesh({
 					isRoom : true,
@@ -4056,6 +4132,7 @@ function build(){
 
 
 
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
 				}),
 			},
 			Stalagmite : new LibMesh({
@@ -4493,6 +4570,7 @@ function build(){
 					libMat.Wood.Crate,
 				],
 				tags : [stdTag.mWall, stdTag.mFloorWood, stdTag.mWallWood],
+				reverb : 'room', reverbWet : 0.4, lowpass : 0,
 			}),
 
 			Gym : new LibMesh({
@@ -4504,6 +4582,7 @@ function build(){
 				],
 				tags : [stdTag.mWall, stdTag.mFloorStoneTile,],
 
+				reverb : 'church', reverbWet : 0.4, lowpass : 0,
 
 
 			}),
@@ -4516,8 +4595,7 @@ function build(){
 					libMat.Rock.Wall,
 				],
 				tags : [stdTag.mWall, stdTag.mFloorStoneTile],
-
-
+				reverb : 'church', reverbWet : 0.4, lowpass : 0,
 
 			}),
 
@@ -4531,7 +4609,7 @@ function build(){
 				],
 				tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
 
-
+				reverb : 'mausoleum', reverbWet : 0.2, lowpass : 0,
 
 			}),
 
@@ -4548,13 +4626,12 @@ function build(){
 					libMat.StoneTile.ChurchFloor,
 				],
 				tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+				reverb : 'sewer', reverbWet : 0.45, lowpass : 0,
+
 			}),
 
 			Sewer : {
 				bend_6x6 : new LibMesh({
-
-	
-
 					isRoom : true,
 					url : 'rooms/sewer_bend_6x6.JD',
 					materials : [
@@ -4563,6 +4640,7 @@ function build(){
 						libMat.Brick.Small,
 					],
 					tags : [stdTag.mWall],
+					reverb : 'sewer', reverbWet : 0.6, lowpass : 0,
 				}),
 				double_5x8 : new LibMesh({
 					isRoom : true,
@@ -4573,6 +4651,7 @@ function build(){
 						libMat.Brick.Small,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'sewer', reverbWet : 0.6, lowpass : 0,
 				}),
 				x_8x8 : new LibMesh({
 	
@@ -4584,6 +4663,7 @@ function build(){
 						libMat.Brick.Small,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'sewer', reverbWet : 0.6, lowpass : 0,
 				}),
 				bend_8x8 : new LibMesh({
 	
@@ -4595,6 +4675,7 @@ function build(){
 						libMat.Brick.Small,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'sewer', reverbWet : 0.6, lowpass : 0,
 				}),
 				narrow_3x8 : new LibMesh({
 
@@ -4606,6 +4687,7 @@ function build(){
 						libMat.Brick.Small,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'sewer', reverbWet : 0.6, lowpass : 0,
 				}),
 				chamber_8x8 : new LibMesh({
 
@@ -4617,6 +4699,7 @@ function build(){
 						libMat.Brick.Small,
 					],
 					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'large_chamber', reverbWet : 0.35, lowpass : 0,
 				}),
 			},
 

@@ -15,6 +15,7 @@ import Window from '../WindowManager.js';
 import GameAction from '../../classes/GameAction.js';
 import Generic from '../../classes/helpers/Generic.js';
 import stdTag from '../../libraries/stdTag.js';
+import Audio from '../../classes/Audio.js';
 import {GLTFExporter} from '../../ext/GLTFExporter.js';
 const DB = 'dungeonRooms',
 	CONSTRUCTOR = DungeonRoom,
@@ -125,8 +126,8 @@ export function asset(){
 		
 		html += '<label>Outdoors <input type="checkbox" class="saveable" name="outdoors" '+(dummy.outdoors ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Lets you change the loading zoom, 0 for auto">Zoom: <input type="number" min=0 step=1 name="zoom" class="saveable" value="'+esc(dummy.zoom)+'" /></label>';
-		html += '<label>Ambiance: <input type="text" name="ambiance" class="saveable" value="'+esc(dummy.ambiance)+'" /></label>';
-		html += '<label>Ambiance volume <span class="valueExact"></span>: <input type="range" name="ambiance_volume" min=0 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
+		html += '<label title="Leave empty to set to dungeon ambiance">Ambiance: <input type="text" name="ambiance" class="saveable" value="'+esc(dummy.ambiance)+'" /></label>';
+		html += '<label title="Set to -1 to use dungeon ambiance vol">Ambiance volume <span class="valueExact"></span>: <input type="range" name="ambiance_volume" min=-1 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
 		html += '<label title="Use a low value like less than 0.001. Use 0 for default.">Fog override: <input type="number" name="fog" min=0 max=1 class="saveable" value="'+esc(dummy.fog)+'" /></label>';
 		html += '<label title="Indoors only. Hex code such as #AA33AA">Ambient light: <input type="text" name="dirLight" class="saveable" value="'+esc(dummy.dirLight)+'" /></label>';
 
@@ -138,7 +139,20 @@ export function asset(){
 		html += '</select></label>';
 
 
-		html += '<label>Room Asset rotation: <input type="number" step=1 name="roomAssetRotation" />';
+		html += '<label>Room Asset rotation: <input type="number" step=1 name="roomAssetRotation" /></label>';
+
+		html += '<div class="labelFlex" style="flex:1">';
+			html += '<label>Reverb type: <select name="reverb" class="saveable">'+
+				'<option value="none">None</option>'+
+				'<option value="" '+(!dummy.reverb ? 'selected' : '')+'>Use Dungeon</option>'
+			;
+			for( let i in Audio.reverbs )
+				html += '<option value="'+i+'" '+(dummy.reverb === i ? 'selected' : '')+'>'+i+'</option>';
+			html += '</select></label>';
+			html += '<label title="PASS = use dungeon settings">Reverb intensity <span class="valueExact zeroParent"></span>: <input type="range" name="reverbWet" min=0 max=1 step=0.01 class="saveable" value="'+esc(dummy.reverbWet)+'" /></label>';
+			html += '<label title="PASS = use dungeon settings">Lowpass filter <span class="valueExact zeroParent"></span>: <input type="range" name="lowpass" min=0 max=1 step=0.01 class="saveable" value="'+esc(dummy.lowpass)+'" /></label>';
+			html += '<label><input type="button" class="testReverb" value="Test Audio" /></label>';
+		html += '</div>';
 		
 	html += '</div>';
 
@@ -156,7 +170,12 @@ export function asset(){
 		HelperTags.autoHandleAsset('tags', tags, asset);
 	});
 
-	
+	HelperAsset.bindTestReverb(
+		this.dom.querySelector('select[name=reverb]'),
+		this.dom.querySelector('input[name=reverbWet]'),
+		this.dom.querySelector('input[name=lowpass]'),
+		this.dom.querySelector('input.testReverb')
+	);
 
 	HelperAsset.autoBind( this, asset, DB);
 
@@ -227,7 +246,9 @@ export function help(){
 
 	const url = 'https://'+window.location.hostname+'/media/audio/ambiance/';
 	out += '<h3>Ambiance:</h3>'+
-		'<p>URL to an ambiance you want to use, preferably ogg. You can find built in ones at <a href="'+url+'">'+url+'</a></p>';
+		'<p>URL to an ambiance you want to use, preferably ogg. You can find built in ones at <a href="'+url+'">'+url+'</a>. Leave empty to use dungeon ambient.</p>';
+	out += '<h3>Ambiance volume:</h3>'+
+		'<p>Volume of background audio, set to -1 to use dungeon ambiance volume.</p>';
 
 	out += '<h3>Random Event:</h3>'+
 		'<p>Uses a random encounter from random encounters marked as Proc Event. These are the same random roleplays you get in exploration dungeons. Encounters set in this room will contribute to the events you get.</p>';

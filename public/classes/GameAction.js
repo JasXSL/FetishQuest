@@ -37,9 +37,9 @@ export default class GameAction extends Generic{
 	getCollectionRelations( field ){
 
 		if( field === 'data' ){
-			if( !GameAction.TypeRelations[this.type] )
+			if( !GameAction.TypeRelations()[this.type] )
 				console.log("Note: Trying to get GameAction collection relations from type", this.type, "It may work, but if export data is missing, you know why");
-			return GameAction.TypeRelations[this.type] || {};
+			return GameAction.TypeRelations()[this.type] || {};
 		}
 
 	}
@@ -1418,44 +1418,46 @@ GameAction.TypeDescs = {
 	
 };
 
-// type : {[fieldName]:constructor}
-GameAction.TypeRelations = {
-	[GameAction.types.encounters] : {encounter:Encounter},
-	[GameAction.types.resetRoomEncounter] : {},
-	[GameAction.types.wrappers] : {wrappers:Wrapper},
-	[GameAction.types.loot] : {loot:Asset},
-	[GameAction.types.exit] : {dungeon:Dungeon},
-	[GameAction.types.quest] : {quest:Quest},
-	[GameAction.types.questObjective] : {quest:Quest, objective:QuestObjective},
-	[GameAction.types.addInventory] : {player:Player, asset:Asset},
-	[GameAction.types.roleplay] : {rp:Roleplay},
-	[GameAction.types.finishQuest] : {quest:Quest},
-	[GameAction.types.tooltip] : {text:Text},
-	[GameAction.types.shop] : {shop:Shop, player:Player},
-	[GameAction.types.openShop] : {shop:Shop},
-	[GameAction.types.gym] : {player:Player},
-	[GameAction.types.playerAction] : {player:Player, action:Action},
-	[GameAction.types.repairShop] : {player:Player},
-	[GameAction.types.altar] : {player:Player},
-	[GameAction.types.bank] : {player:Player},
-	[GameAction.types.text] : {text:Text},
-	[GameAction.types.hitfx] : {hitfx:HitFX, caster_conds:Condition, target_conds:Condition},
-	[GameAction.types.addPlayer] : {player:Player},
-	[GameAction.types.addPlayerTemplate] : {player:PlayerTemplate},
-	[GameAction.types.rentRoom] :  {player:Player},
-	[GameAction.types.execRentRoom] : {renter:Player},
-	[GameAction.types.sleep] : {actions:GameAction},
-	[GameAction.types.resetRoleplay] : {roleplay:Roleplay},
-	[GameAction.types.setDungeon] : {dungeon:Dungeon},
-	[GameAction.types.addFaction] : {faction:Faction},
-	[GameAction.types.trade] : {asset:Asset, from:Player, to:Player},
-	[GameAction.types.learnAction] : {conditions:Condition, action:Action},
-	[GameAction.types.addCopper] : {player:Player},
-	[GameAction.types.book] : {label:Book},
-	[GameAction.types.transmog] : {player:Player},
-	[GameAction.types.trap] : {action:Action, game_actions:GameAction},
-	[GameAction.types.removePlayer] : {player:Player},
-	[GameAction.types.setPlayerTeam] :  {playerConds:Condition},
+// returns type : {[fieldName]:constructor}
+GameAction.TypeRelations = function(){
+	return {
+		[GameAction.types.encounters] : {encounter:Encounter},
+		[GameAction.types.resetRoomEncounter] : {},
+		[GameAction.types.wrappers] : {wrappers:Wrapper},
+		[GameAction.types.loot] : {loot:Asset},
+		[GameAction.types.exit] : {dungeon:Dungeon},
+		[GameAction.types.quest] : {quest:Quest},
+		[GameAction.types.questObjective] : {quest:Quest, objective:QuestObjective},
+		[GameAction.types.addInventory] : {player:Player, asset:Asset},
+		[GameAction.types.roleplay] : {rp:Roleplay},
+		[GameAction.types.finishQuest] : {quest:Quest},
+		[GameAction.types.tooltip] : {text:Text},
+		[GameAction.types.shop] : {shop:Shop, player:Player},
+		[GameAction.types.openShop] : {shop:Shop},
+		[GameAction.types.gym] : {player:Player},
+		[GameAction.types.playerAction] : {player:Player, action:Action},
+		[GameAction.types.repairShop] : {player:Player},
+		[GameAction.types.altar] : {player:Player},
+		[GameAction.types.bank] : {player:Player},
+		[GameAction.types.text] : {text:Text},
+		[GameAction.types.hitfx] : {hitfx:HitFX, caster_conds:Condition, target_conds:Condition},
+		[GameAction.types.addPlayer] : {player:Player},
+		[GameAction.types.addPlayerTemplate] : {player:PlayerTemplate},
+		[GameAction.types.rentRoom] :  {player:Player},
+		[GameAction.types.execRentRoom] : {renter:Player},
+		[GameAction.types.sleep] : {actions:GameAction},
+		[GameAction.types.resetRoleplay] : {roleplay:Roleplay},
+		[GameAction.types.setDungeon] : {dungeon:Dungeon},
+		[GameAction.types.addFaction] : {faction:Faction},
+		[GameAction.types.trade] : {asset:Asset, from:Player, to:Player},
+		[GameAction.types.learnAction] : {conditions:Condition, action:Action},
+		[GameAction.types.addCopper] : {player:Player},
+		[GameAction.types.book] : {label:Book},
+		[GameAction.types.transmog] : {player:Player},
+		[GameAction.types.trap] : {action:Action, game_actions:GameAction},
+		[GameAction.types.removePlayer] : {player:Player},
+		[GameAction.types.setPlayerTeam] :  {playerConds:Condition},
+	};
 };
 
 // These are types where data should be sent to netgame players

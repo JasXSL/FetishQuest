@@ -1409,7 +1409,7 @@ export default class Mod extends Generic{
 				continue;
 
 			// Table constructor
-			const type = Mod.LIB_TYPES[lib];
+			const type = Mod.getLibTypes()[lib];
 			// No relations
 			if( !type.getRelations )
 				continue;
@@ -1738,15 +1738,16 @@ export default class Mod extends Generic{
 
 		let keyIndex = 0;
 
+		const lt = Mod.getLibTypes();
 		// Clean up the mod on export
 		for( let lib in data ){
 
 			// Needs to have an object mapped for compression
-			if( !Mod.LIB_TYPES[lib] || !Array.isArray(data[lib]) )
+			if( !lt[lib] || !Array.isArray(data[lib]) )
 				continue;
 
 			
-			const defaults = new Mod.LIB_TYPES[lib]();							// Create a new object of the library asset type. Ex dungeonRooms -> DungeonRoom
+			const defaults = new lt[lib]();							// Create a new object of the library asset type. Ex dungeonRooms -> DungeonRoom
 			const keys = Object.keys(defaults).concat(specialSaveFields);		// Filter out keys that shouldn't be saved
 			data[lib] = data[lib].map(asset => {
 
@@ -1872,11 +1873,12 @@ export default class Mod extends Generic{
 
 		}
 
+		const lt = mod.getLibTypes();
 		// Clean up the mod on export
 		for( let lib in data ){
 
 			// Needs to have an object mapped for compression
-			if( !Mod.LIB_TYPES[lib] || !Array.isArray(data[lib]) )
+			if( !lt[lib] || !Array.isArray(data[lib]) )
 				continue;
 
 			data[lib] = data[lib].map(asset => {
@@ -2068,55 +2070,57 @@ export default class Mod extends Generic{
 }
 
 // Stores the constructors bound to the different fields
-Mod.LIB_TYPES = {
-	'fetishes' : Fetish,
-	'conditions' : Condition,
-	'effects' : Effect,
-	'wrappers' : Wrapper,
-	'playerClasses' : PlayerClass,
-	'actions' : Action,
-	'assets' : Asset,
-	'shopAssetTokens' : ShopAssetToken, 
-	'shopAssets' : ShopAsset,
-	'shops' : Shop,
-	'players' : Player,
+Mod.getLibTypes = function(){
+	return {
+		'fetishes' : Fetish,
+		'conditions' : Condition,
+		'effects' : Effect,
+		'wrappers' : Wrapper,
+		'playerClasses' : PlayerClass,
+		'actions' : Action,
+		'assets' : Asset,
+		'shopAssetTokens' : ShopAssetToken, 
+		'shopAssets' : ShopAsset,
+		'shops' : Shop,
+		'players' : Player,
 
-	'dungeons' : Dungeon,
-	'dungeonRooms' : DungeonRoom,
-	'dungeonRoomAssets' : DungeonRoomAsset,
-	'quests' : Quest,
-	'questRewards' : QuestReward,	// Note that this was renamed to questRewards from questReward, not sure if this causes issues
-	'questObjectives' : QuestObjective,
-	'questObjectiveEvents' : QuestObjectiveEvent,
+		'dungeons' : Dungeon,
+		'dungeonRooms' : DungeonRoom,
+		'dungeonRoomAssets' : DungeonRoomAsset,
+		'quests' : Quest,
+		'questRewards' : QuestReward,	// Note that this was renamed to questRewards from questReward, not sure if this causes issues
+		'questObjectives' : QuestObjective,
+		'questObjectiveEvents' : QuestObjectiveEvent,
 
-	'playerTemplates' : PlayerTemplate,
-	'playerTemplateLoot' : PlayerTemplateLoot,
-	'materialTemplates' : MaterialTemplate,
-	'assetTemplates' : AssetTemplate,
-	'actionLearnable' : ActionLearnable,
-	'factions' : Faction,
-	'story' : Story,
-	'playerIconStates' : PlayerIconState,
-	'books' : Book,
-	'bookPages' : BookPage,
-	'audioKits' : AudioKit,
-	'audioTriggers' : AudioTrigger,
-	'hitFX' : HitFX,
-	'dungeonTemplates' : DungeonTemplate,
-	'dungeonSubTemplates' : DungeonTemplateSub,
-	'armorEnchants' : ArmorEnchant,
+		'playerTemplates' : PlayerTemplate,
+		'playerTemplateLoot' : PlayerTemplateLoot,
+		'materialTemplates' : MaterialTemplate,
+		'assetTemplates' : AssetTemplate,
+		'actionLearnable' : ActionLearnable,
+		'factions' : Faction,
+		'story' : Story,
+		'playerIconStates' : PlayerIconState,
+		'books' : Book,
+		'bookPages' : BookPage,
+		'audioKits' : AudioKit,
+		'audioTriggers' : AudioTrigger,
+		'hitFX' : HitFX,
+		'dungeonTemplates' : DungeonTemplate,
+		'dungeonSubTemplates' : DungeonTemplateSub,
+		'armorEnchants' : ArmorEnchant,
 
-	'encounters' : Encounter,
-	'encounterEvents' : EncounterEvent,
-	'roleplay' : Roleplay,
-	'roleplayStage' : RoleplayStage,
-	'roleplayStageOption' : RoleplayStageOption,
-	'roleplayStageOptionGoto' : RoleplayStageOptionGoto,
-	'gameActions' : GameAction,
-	'texts' : Text,
-	'gallery' : PlayerGalleryTemplate,
-	'loadingTip' : LoadingTip,
-};
+		'encounters' : Encounter,
+		'encounterEvents' : EncounterEvent,
+		'roleplay' : Roleplay,
+		'roleplayStage' : RoleplayStage,
+		'roleplayStageOption' : RoleplayStageOption,
+		'roleplayStageOptionGoto' : RoleplayStageOptionGoto,
+		'gameActions' : GameAction,
+		'texts' : Text,
+		'gallery' : PlayerGalleryTemplate,
+		'loadingTip' : LoadingTip,
+	};
+}
 
 
 Mod.db = new Dexie("mod");

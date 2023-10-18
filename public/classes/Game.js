@@ -9,7 +9,7 @@ import {default as Dungeon, DungeonSaveState} from './Dungeon.js';
 import WebGL from './WebGL.js';
 import Text from './Text.js';
 import Quest, { QuestObjective } from './Quest.js';
-import {default as Audio, AudioKit, setMasterVolume}  from './Audio.js';
+import {default as Audio, AudioKit}  from './Audio.js';
 import Roleplay from './Roleplay.js';
 import { Wrapper } from './EffectSys.js';
 import GameAction from './GameAction.js';
@@ -84,11 +84,11 @@ export default class Game extends Generic{
 		// Library of custom items
 		this.libAsset = {};
 
-		this.audio_fx = new Audio("fx");
-		this.audio_ambient = new Audio('ambient', false);
-		this.audio_music = new Audio('music', false);
-		this.audio_ui = new Audio('ui', true);
-		this.audio_voice = new Audio('voice', true);
+		this.audio_fx = null;
+		this.audio_ambient = null;
+		this.audio_music = null;
+		this.audio_ui = null;
+		this.audio_voice = null;
 
 		this.active_music_file = null;
 		this.active_ambient_file = null;
@@ -134,11 +134,12 @@ export default class Game extends Generic{
 
 	}
 
-	initialize(){
+	async initialize(){
 
 		if( this.full_initialized )
 			return;
 
+		
 		this.full_initialized = true;
 		// Bind events
 		GameEvent.on(GameEvent.Types.playerDefeated, event => {
@@ -356,7 +357,7 @@ export default class Game extends Generic{
 		// First insert
 		if( allowInsert ){
 			await this.saveToDB(sd);
-			this.initialize();
+			await this.initialize();
 			this.load();
 		}
 		// Save
@@ -379,8 +380,17 @@ export default class Game extends Generic{
 
 		console.log("Loading game");
 		this.initialized = false;		// prevents text sounds from being played when a netgame loads
+
+		this.audio_fx = new Audio("fx");
+		this.audio_ambient = new Audio('ambient', false);
+		this.audio_music = new Audio('music', false);
+		this.audio_ui = new Audio('ui', true);
+		this.audio_voice = new Audio('voice', true);
+		
 		this.g_autoload(data);
 		console.log("Game save loaded");
+
+		
 
 		// Custom ad-hoc libraries do not need to be rebased
 		for( let i in this.libAsset )
@@ -395,6 +405,7 @@ export default class Game extends Generic{
 
 		
 		
+
 		//await glib.autoloadMods();
 		glib.setCustomAssets(this.libAsset);
 
@@ -430,6 +441,7 @@ export default class Game extends Generic{
 			//this.dungeon.loadState(); -- Shouldn't be done here. Since it'll wipe the completed events.
 			this.renderer.loadActiveDungeon();
 			this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);
+			this.updateReverb();
 			
 		}
 		this.verifyLeader();
@@ -848,10 +860,11 @@ export default class Game extends Generic{
 	}
 	onAfterRoomChange(){
 
+		const room = this.dungeon.getActiveRoom();
 		const evt = new GameEvent({
 			type : GameEvent.Types.roomChanged,
 			dungeon : this.dungeon,
-			room : this.dungeon.getActiveRoom(),
+			room : room,
 			sender : this.getMyActivePlayer(),
 			target : this.getTeamPlayers()
 		});
@@ -1306,7 +1319,7 @@ export default class Game extends Generic{
 	}
 
 	setMasterVolume( volume = 1.0 ){
-		setMasterVolume(volume);
+		Audio.setMasterVolume(volume);
 	}
 	getMasterVolume(){
 		return +localStorage.masterVolume || 0;
@@ -1372,9 +1385,14 @@ export default class Game extends Generic{
 	async updateAmbiance(){
 
 		const rain = this.getRain();
-		let room = this.dungeon.getActiveRoom();
-		if( room && room.ambiance )
-			this.setAmbient(room.ambiance, room.ambiance_volume);
+		const room = this.dungeon.getActiveRoom();
+
+		const ambiance = room.getAmbiance(),
+			vol = room.getAmbianceVol()
+		;
+		
+		if( room && ambiance )
+			this.setAmbient(ambiance, vol);
 
 		if( this.active_ambient )
 			this.active_ambient.setVolume(this.active_ambient.startVolume*(1-(rain-.01)));
@@ -1390,6 +1408,17 @@ export default class Game extends Generic{
 		this.setRainSound(file, 0.01, true);
 		
 
+	}
+
+	updateReverb(){
+		// Update audio
+		const room = this.dungeon.getActiveRoom();
+		this.audio_fx.setReverb(room.getReverb());
+		this.audio_fx.setWet(room.getReverbWet());
+		this.audio_fx.setLowpass(room.getLowpass());
+		this.audio_voice.setReverb(room.getReverb());
+		this.audio_voice.setWet(room.getReverbWet());
+		this.audio_voice.setLowpass(room.getLowpass());
 	}
 
 
@@ -4331,6 +4360,7 @@ Game.init = function(){
 
 	window.addEventListener('hashchange', () => this.onHashChange());
 	Game.net = new NetworkManager();
+	Audio.begin();
 
 };
 

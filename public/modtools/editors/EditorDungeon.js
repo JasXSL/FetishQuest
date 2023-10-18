@@ -6,6 +6,7 @@ import * as EditorWrapper from './EditorWrapper.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../../classes/Dungeon.js';
 import Generic from '../../classes/helpers/Generic.js';
+import Audio from '../../classes/Audio.js';
 
 const DB = 'dungeons',
 	CONSTRUCTOR = Dungeon;
@@ -33,6 +34,22 @@ export function asset(){
 		html += '<label title="Doesn\'t draw the back icon on doors">Free roam <input type="checkbox" class="saveable" name="free_roam" '+(dummy.free_roam ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Use a low value like less than 0.001. Use 0 for default.">Fog override: <input type="number" name="fog" min=0 max=1 class="saveable" value="'+esc(dummy.fog)+'" /></label>';
 		html += '<label title="Indoors only. Hex code such as #AA33AA">Ambient light: <input type="text" name="dirLight" class="saveable" value="'+esc(dummy.dirLight)+'" /></label>';
+		html += '<label>Ambiance: <input type="text" name="ambiance" class="saveable" value="'+esc(dummy.ambiance)+'" /></label>';
+		html += '<label>Ambiance volume <span class="valueExact"></span>: <input type="range" name="ambiance_volume" min=0 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
+		
+		html += '<div class="labelFlex">';
+			html += '<label>Reverb type: <select name="reverb" class="saveable">'+
+				'<option value="none">None</option>'+
+				'<option value="" '+(!dummy.reverb ? 'selected' : '')+'>Room Mesh</option>'
+			;
+			for( let i in Audio.reverbs )
+				html += '<option value="'+i+'" '+(dummy.reverb === i ? 'selected' : '')+'>'+i+'</option>';
+			html += '</select></label>';
+			html += '<label title="PASS = use from room mesh">Reverb intensity <span class="valueExact zeroParent"></span>: <input type="range" name="reverbWet" min=0 max=1 step=0.01 class="saveable" value="'+esc(dummy.reverbWet)+'" /></label>';
+			html += '<label title="PASS = use from room mesh">Lowpass filter <span class="valueExact zeroParent"></span>: <input type="range" name="lowpass" min=0 max=1 step=0.01 class="saveable" value="'+esc(dummy.lowpass)+'" /></label>';
+			html += '<label><input type="button" class="testReverb" value="Test Audio" /></label>';
+		html += '</div>';
+
 	html += '</div>';
 
 	html += 'Vars (this is a key/value object that can be acted upon by game actions and used in conditions):<br />';
@@ -50,6 +67,13 @@ export function asset(){
 	this.setDom(html);
 
 	new DungeonLayoutEditor(this, asset, this.dom.querySelector('div.rooms'));
+
+	HelperAsset.bindTestReverb(
+		this.dom.querySelector('select[name=reverb]'),
+		this.dom.querySelector('input[name=reverbWet]'),
+		this.dom.querySelector('input[name=lowpass]'),
+		this.dom.querySelector('input.testReverb')
+	);
 
 
 	// Bind linked objects
@@ -126,6 +150,18 @@ export function help(){
 
 	out += '<h3>Rooms:</h3>'+
 		'<p>This is where you layout your dungeon rooms. The dropdown in the top right can be used to set the Z level of the dungeon. Click a direction arrow to add a new linked room. Ctrl+click to delete a room. But beware that this deletes any rooms connected to that one.</p>';	
+	
+	out += '<h3>Fog override:</h3>'+
+		'<p>Lets you set a fog override value for all indoor cells. Try it in the dungeon room editor first, then copy the value over to here.</p>';	
+	out += '<h3>Ambient light:</h3>'+
+		'<p>Lets you override the default ambient light of 0x808080</p>';	
+	
+
+	const url = 'https://'+window.location.hostname+'/media/audio/ambiance/';
+	out += '<h3>Ambiance:</h3>'+
+		'<p>URL to an ambiance you want to use, preferably ogg. You can find built in ones at <a href="'+url+'">'+url+'</a>. Leave empty to use dungeon ambient.</p>';
+	out += '<h3>Ambiance volume:</h3>'+
+		'<p>Volume of background audio, set to -1 to use dungeon ambiance volume.</p>';
 
 	return out;
 

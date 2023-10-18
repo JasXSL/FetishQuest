@@ -2,11 +2,12 @@
 import Window from '../WindowManager.js';
 import Condition from '../../classes/Condition.js';
 import Generic from '../../classes/helpers/Generic.js';
+import Audio from '../../classes/Audio.js';
 
 export default{
 
 	PAGINATION_LENGTH : 250,
-
+	TEST_AUDIO : null,
 
 	// Automatically binds all inputs, textareas, and selects with the class saveable and a name attribute indicating the field to to save
 	// win is a windowmanager object
@@ -21,7 +22,7 @@ export default{
 
 		const updateExact = (el, val) => {
 			if( el )
-				el.innerText = '('+val+')';
+				el.innerText = '('+(val <= 0 && el.classList.contains("zeroParent") ? 'PASS' : val)+')';
 		};
 
 		const handleChange = event => {
@@ -1320,6 +1321,27 @@ export default{
 
 	},
 
+	// Shared between editorDungeon and editorDungeonRoom
+	bindTestReverb( typeEl, wetEl, lowpassEl, buttonEl ){
+
+		buttonEl.onclick = async () => {
+
+			if( !this.TEST_AUDIO ){
+				await Audio.begin();
+				this.TEST_AUDIO = new Audio('test');
+			}
+			let wet = +wetEl.value || 1.0;
+			let lp = +lowpassEl.value || 1.0;
+
+			await this.TEST_AUDIO.setReverb(typeEl.value);
+			this.TEST_AUDIO.setWet(wet);
+			this.TEST_AUDIO.setLowpass(lp);
+			const sounds = ["trap_trigger", "tickle", "slap", "pinch", "chest_open"];
+			const audio = await this.TEST_AUDIO.play('/media/audio/'+randElem(sounds)+'.ogg');
+
+		};
+
+	},
 
 	helpLinkedList : 'This is a linked list. Click an item to edit it (provided it belongs to this mod), ctrl+click to remove an item. Use the arrows to move it up/down.',
 

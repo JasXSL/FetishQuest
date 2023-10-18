@@ -1,0 +1,133 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.1.1/math.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="globalFunctions.js"></script>
+	</head>
+	<body>
+		<input type="button" value="Play" id="play"><br />
+		<!--
+		<label><input type="radio" name="reverb" value="basement" checked /> Basement</label> 
+		<label><input type="radio" name="reverb" value="church" /> Church</label> 
+		<label><input type="radio" name="reverb" value="mausoleum" /> Mausoleum</label> 
+		<label><input type="radio" name="reverb" value="factory" /> Factory</label> 
+		<label><input type="radio" name="reverb" value="raw" /> Raw</label><br />
+		-->
+		<select id="reverb">
+			<option value="raw">raw</option>
+		</select><br />
+		<label>Dry/Wet <input id="wet" type="range" min="0" max="1" step="0.01" value="0.8" /></label><br />
+		<label>Lowpass <input id="lowpass" type="range" min="0" max="1" step="0.01" value="1" /></label><br />
+		<!--
+		<label>Knee <input id="knee" type="range" min="0" max="40" step="1" value="40" /></label>
+		<label>Ratio <input id="ratio" type="range" min="1" max="20" step="1" value="12" /></label>
+		<label>Attack <input id="attack" type="range" min="0" max="1" step="0.01" value="0" /></label>
+		<label>Release <input id="release" type="range" min="0" max="1" step="0.01" value="0.25" /></label>
+		-->
+		<script type="module">
+			import Audio from './classes/Audio.js';
+			import reverb from './ext/reverb.min.js';
+
+			let viable = [
+				"Amsterdam living room 1.wav",
+				"Amsterdam living room 2.wav",
+				"Bathroom.wav",
+				"Can stereo.wav",
+				"Dustbin 3 stereo.wav",
+				"Forest 1.wav",
+				"Forest 2.wav",
+				"Forest 3.wav",
+				"Iron Bucket 2 stereo.wav",
+				"Small kitchen.wav",
+				"Upstairs 1 floor.wav",
+				"Upstairs 2 floors.wav",
+				"Vacuum cleaner tube stereo.wav",
+				"Washing machine stereo.wav",
+				"church.m4a",
+				"Basement.m4a",
+				"mausoleum.m4a",
+				"warehouse.wav",
+				"09 Chamber 4.wav",
+				"Fostex 3180.wav",
+				"Transformatorhuis close.wav",
+				"Mode 02.wav",
+				"Mercedes van.wav",
+				"Factory Hall.wav",
+				"Schellingwoude.wav",
+				"Buiksloot Front.wav",
+				"Street 1.wav",
+				"Street 2.wav",
+				"Street 3.wav",
+				"Street 4.wav",
+			];
+			
+			Audio.begin();
+
+			const chan = new Audio('test', true);
+			window.ch = chan;
+
+			window.chan = chan;
+
+			const ctx = chan.getMaster();
+			reverb.extend(ctx);
+
+			const reverbs = {};
+			const sel = document.getElementById("reverb");
+			for( let file of viable ){
+				
+				const el = document.createElement("option");
+				el.value = el.text = file;
+				sel.append(el);
+
+				const wetGain = ctx.createGain();
+				reverbs[file] = ctx.createReverbFromUrl('/media/audio/reverb/test/'+file);
+				reverbs[file].connect(wetGain);
+				reverbs[file]._gain = wetGain;
+				wetGain.connect(chan.gain);
+
+			}
+
+			reverbs.raw = chan.gain; // Prevent recursion
+			const wet = document.getElementById("wet");
+
+			document.getElementById("play").onclick = async () => {
+				
+				const audio = await chan.play( '/media/audio/armor_repair.ogg', undefined, false, 0, 0,1);
+				
+				const w = +wet.value;
+				const dryGain = ctx.createGain();
+				const re = reverbs[sel.value];
+				audio.panner.disconnect();
+				
+				if( re._gain ){
+
+					re._gain.gain.setValueAtTime(w, ctx.currentTime);
+					dryGain.gain.setValueAtTime(1.0-w, ctx.currentTime);
+					audio.panner.connect(re);
+
+				}
+				
+				audio.panner.connect(dryGain);
+				dryGain.connect(chan.gain);
+
+      			//verb.connect(chan.gain);
+
+			};
+
+			const lp = document.getElementById("lowpass");
+			function updateLowpass(){
+				chan.setLowpass(
+					+lp.value
+				);
+			}
+			lp.oninput = updateLowpass;
+
+		</script>
+
+	</body>
+</html>
+
+
