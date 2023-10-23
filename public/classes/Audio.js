@@ -2,6 +2,30 @@ import Condition from "./Condition.js";
 import stdTag from "../libraries/stdTag.js";
 import Generic from "./helpers/Generic.js";
 
+/*
+	Todo: 
+	- Audio channel should be able to deal with music assets too. Holding 3 tracks that can be blended between:
+		- Ambient 	- Set by dungeon, auto loaded when entering a new zone
+		- Combat	- Set by dungeon, auto loaded when entering a new zone
+		- Override	- Loaded on demand. Sticks around until you change zone.
+	- AudioMusic should only be for 1 piece of music, but 3 states:
+		- Intro
+			- url
+			- inPoint
+		- Loop
+			- url
+			- inPoint
+			- outPoint
+		- Outro
+			- url
+			- outPoint
+	- Each piece of music also has:
+		- BPM
+		- volume
+		- author
+		- name
+		- 
+*/
 
 
 // Audio channel
@@ -501,8 +525,8 @@ class AudioKit extends Generic{
 }
 
 
-
-export class AudioMusic extends Generic{
+// Advanced alternative to AudioKit
+class AudioMusic extends Generic{
 
 	static getRelations(){ 
 		return {
@@ -511,144 +535,248 @@ export class AudioMusic extends Generic{
 
 	constructor( data ){
 		super(data);
+
+		this.parent = null;				// set in activate
 		this.label = '';
 		
-		this.loop = true;
-		this.vol = 0.5;
-		this.url = '';
-		this.bpm = 0;
-		this.in = 0;					// nr of bars
-		this.out = -1;
 		this.name = '';
 		this.author = '';
 		
-		// Pair a combat track with this
-		this.name_combat = '';
-		this.author_combat = '';
-		this.url_combat = '';
-		this.vol_combat = 0.5;
-		this.bpm_combat = -1;			// If less than 0, use parent
-		this.in_combat = -1;			// If less than 0, the non combat audio will fade out immediately instead of trying to snap to the out point 
-		this.out_combat = -1;
+		this.loop = '';
+		this.bpm = 0;
+		this.vol = 0.5;
+
+		this.intro = '';
+		this.intro_point = 1;			// nr of bars when the intro "hits"
+
+		this.in = 0;					// nr of bars
+		this.out = 0;					// 0 = use entire length
 		
-		this.chan = null;				// Audio object
-		this._buf_main = null;
-		this._snd_main = null;
-		this._gain_main = null;
-		this._snd_out_main = null;
-		this._snd_in_main = null;
+		this.outro = '';
+		this.outro_point = 0;			// nr of bars when the outro "hits"
+		
+		this._buf_loop = null;
+		this._buf_intro = null;
+		this._buf_outro = null;
+		
+		this._gain_loop = null;
+		this._gain_intro = null;
+		this._gain_outro = null;
 
-		this._buf_combat = null;
-		this._snd_combat = null;
-		this._gain_combat = null;
-		this.combat = false;
+		this._snd_loop = null;
+		this._snd_intro = null;
+		this._snd_outro = null;
 
+		this._loopTimer = null;
+		this._cleanupTimer = null;
+
+		this._started = 0;	// Time when the main loop in point started
+
+		this._stopped = 0;	// time stopped
+		
 		this.load(data);
 	}
 
-	getCurrentTime(){
-		return this.chan.getCurrentTime();
-	}
-
-	deactivate(){
-		this._snd_main?.stop();
-		this._snd_combat?.stop();
-		this._snd_main = null;
-		this._snd_combat = null;
-	}
-
-	async activate( channel, startPos = 0 ){
-
-		this.chan = channel;
-
-		this._gain_main = this.getMaster().createGain();
-		this._gain_combat = this.getMaster().createGain();
-		this._gain_main.gain.setValueAtTime(this.vol, 0);
-		this._gain_combat.gain.setValueAtTime(this.vol_combat, 0);
-		this._gain_main.connect(this.chan.dry);
-		this._gain_combat.connect(this.chan.dry);
-
-		this._buf_main = await AudioSound.getDecodedBuffer(this.url);
-		// Todo
-		/*
-		if( this.url_combat ){
-			this._snd_combat = new AudioSound({
-				volume : this.vol_combat,
-				path : this.url_combat
-			}, channel);
-			await this._snd_combat.load();
-		}
-		*/
-		this.play(startPos);
-
-	}
-
-
-	setAudioLoop(){
-		
-		
-		const dur = this._snd_main._dur, started = this._snd_main._started, cur = this.getCurrentTime();
-		const curLoops = Math.floor((cur-started)/dur);
-
-		let next = (started+curLoops*dur+dur);
-		let ms = (next-cur)*1000; // MS into the future the next trigger is
-
-		this._loop = setTimeout(() => {
-			this.setAudioLoop();
-		}, ms+20);
-
-
-		if( curLoops >= 0 ){
-			
-			const source = this.getMaster().createBufferSource();
-			this._snd_out_main = source;
-			source.connect(this._gain_main);
-			source.buffer = this._buf_main;
-			source.start(next, this.getEndTime());
-			
-		}
-
-	}
-
 	getMaster(){
-		return this.chan.getMaster();
+		return this.parent.getMaster();
 	}
 
-	play( pos = 0 ){
+	getCurrentTime(){
+		return this.parent.getCurrentTime();
+	}
 
-		// Todo: mix combat
-		// Play the audio
-		const cur = this._snd_main;
-		const source = this.getMaster().createBufferSource();
-		source.connect(this._gain_main);
-		source.buffer = this._buf_main;
-		source.loop = this.loop;
-		this._snd_main = source;
+	// Frees up memory
+	deactivate(){
+		console.log("Deactivating");
+		this.reset();
+		this._buf_loop = this._buf_intro = this._buf_outro = this._snd_loop = this._snd_intro = this._snd_outro = null;
+	}
 
-		const startTime = this.getStartTime(), endTime = this.getEndTime();
+	async activate( channel ){
+
+		this.parent = channel;
+
+		// Create gain and hook it up to the music channel
+		if( !this._gain_intro ){
+			this._gain_intro = this.getMaster().createGain();
+			this._gain_intro.connect(this.parent.dry);
+			this._gain_outro = this.getMaster().createGain();
+			this._gain_outro.connect(this.parent.dry);
+			this._gain_loop = this.getMaster().createGain();
+			this._gain_loop.connect(this.parent.dry);
+		}
+
+		const promises = [
+			AudioSound.getDecodedBuffer(this.loop).then(buf => this._buf_loop = buf)
+		];
+		if( this.intro )
+			promises.push(AudioSound.getDecodedBuffer(this.intro).then(buf => this._buf_intro = buf));
+		if( this.outro )
+			promises.push(AudioSound.getDecodedBuffer(this.outro).then(buf => this._buf_outro = buf));
 		
-		const dur = endTime-startTime;
-		const cTime = this.getCurrentTime();
-		console.log("cTime", cTime, "pos", pos);
-		source.start(cTime, pos);
+		// Wait for buffers to load
+		await Promise.all(promises);
+		
+		this.play();
 
-		source._started = cTime-pos+startTime;
-		console.log("cTime ",cTime, "start", pos, "dur", dur, "started", source._started);
-		source._dur = dur;
+	}
 
-		if( source.loop ){
+	getNextBar(){
+
+		const 
+			time = this.getCurrentTime(),
+			delta = time-this._started,
+			barDur = 60*4/this.bpm,
+			bars = Math.floor(delta/barDur)
+		;
+		return this._started+bars*barDur+barDur;
+
+	}
+
+	scheduleLoop(){
+
+		const master = this.getMaster();
+		const 
+			time = this.getCurrentTime(),
+			loopInPoint = this.getLoopStartTime(),
+			loopOutPoint = this.getLoopEndTime(),
+			loopDur = loopOutPoint-loopInPoint,
+			delta = time-this._started,
+			curLoops = Math.floor(delta/loopDur),
+			nextStart = (curLoops+1)*loopDur-loopInPoint+this._started,
+			nextTimer = nextStart+loopDur-time-0.8
+		;
+		
+		// We stop here. 0.1 is a failsafe for float issues
+		if( this._stopped && nextStart+0.1 > this._stopped )
+			return;
+
+
+		const mainLoop = master.createBufferSource();
+		mainLoop.buffer = this._buf_loop;
+		mainLoop.connect(this._gain_loop);
+		mainLoop.start(nextStart);
+		this._snd_loop = mainLoop;
+
+		this._loopTimer = setTimeout(() => this.scheduleLoop(), nextTimer*1000);
+
+	}
+
+	/* Stops playing. StopType can be: 
+		''/'bar' : trigger the outro and stop at the next available bar
+		'fade' : fades out smoothly, extra is the fade time in seconds
+	*/ 
+	stop( stopType = '', fade = 0, deactivateOnComplete = false ){
+		
+		const time = this.getCurrentTime();
+		let stopTime = time;
+		fade = +fade || 0;
+		let deactivateTimeout = 0;
+
+		// If not fade, it's the smart one that plays the outro. Otherwise it just fades out.
+		if( stopType !== 'fade' ){
 			
-			source.loopStart = this.getStartTime();
-			source.loopEnd = this.getEndTime();
-			this.setAudioLoop();
+			const outroTime = AudioMusic.barToTime(this.outro_point, this.bpm),
+				nextBar = this.getNextBar()
+			;
+			stopTime = nextBar+outroTime;
+
+			// Need to play the outro
+			if( this.outro ){
+				
+				
+				const outro = this.getMaster().createBufferSource();
+				outro.connect(this._gain_outro);
+				outro.buffer = this._buf_outro;
+				outro.start(nextBar);
+				this._snd_outro = outro;
+
+				deactivateTimeout = outro.buffer.duration + nextBar - time;
+
+			}
+			else
+				deactivateTimeout = stopTime-time;
+
+			this._gain_loop.gain.setValueAtTime(0, stopTime);
+			this._snd_loop.stop(stopTime+10);
 			
+
+		}
+		// bar fade will auto clean itself, since samples are removed on finish
+		// but if fade is set, we need to manually stop all the samples when we're finished fading
+		else{
+
+			// the deactivate timer handles reset
+			if( !deactivateOnComplete )
+				this._cleanupTimer = setTimeout(() => {
+					this.reset();
+				}, fade*1000+1000);
+
+			deactivateTimeout = fade+1;
+			this._gain_loop.gain.setTargetAtTime(0.0, time, fade*2/10);
+			this._gain_intro.gain.setTargetAtTime(0.0, time, fade*2/10);
+			this._gain_outro.gain.setTargetAtTime(0.0, time, fade*2/10);
+
 		}
 
-		if( cur ){
-			cur.stop(cTime);
+
+		if( deactivateOnComplete ){
+			
+			this._deactivateTimeout = setTimeout(() => {
+				this.deactivate();
+			}, deactivateTimeout*1000);
+
 		}
 
-		console.log("starting");
+		
+		this._stopped = stopTime;
+
+	}
+
+	// Stops all sounds and resets all settings
+	reset(){
+		const time = this.getCurrentTime();
+		this._stopped = false;
+		clearTimeout(this._loopTimer);
+		clearTimeout(this._cleanupTimer);
+		clearTimeout(this._deactivateTimeout);
+		clearTimeout(this._cleanupTimer);
+		this._snd_loop?.stop(time);
+		this._snd_intro?.stop(time);
+		this._snd_outro?.stop(time);
+		this._gain_intro.gain.setValueAtTime(this.vol, time);
+		this._gain_loop.gain.setValueAtTime(this.vol, time);
+		this._gain_outro.gain.setValueAtTime(this.vol, time);
+	}
+
+	play( startTime ){
+
+		const time = this.getCurrentTime();
+		this.reset();
+
+		startTime = +startTime;
+		if( isNaN(startTime) || startTime === 0 )
+			startTime = 0;
+		else
+			startTime = startTime-time;
+
+		const introTime = AudioMusic.barToTime(this.intro_point, this.bpm);
+		const master = this.getMaster();
+
+		this._started = time+startTime+introTime;
+
+		// Play the intro if need be
+		if( this.intro ){
+			
+			const intro = master.createBufferSource();
+			intro.buffer = this._buf_intro;
+			intro.connect(this._gain_intro);
+			intro.start(time+startTime);
+			this._snd_intro = intro;
+
+		}
+
+		this.scheduleLoop();
 
 	}
 
@@ -695,41 +823,63 @@ export class AudioMusic extends Generic{
 		return out;
 	}
 
-	getStartTime(){
+	getLoopStartTime(){
 		if( this.in < 1 )
 			return 0;
 		return AudioMusic.barToTime(this.in, this.bpm);
 	}
-	getEndTime(){
+	getLoopEndTime(){
 		if( this.out < 1 )
 			return this._snd_main.buffer.duration;
 		return AudioMusic.barToTime(this.out, this.bpm);
 	}
 
 	static barToTime( bar, bpm ){
+		if( !bpm )
+			throw new Error("You forgot the BPM again, idiot!");
 		return bar*4*60/bpm;
 	}
 	
 }
 
+
+
 // Debug
-window.testAudio = async () => {
+window.testAudio = async soundKit => {
 	
-	const ch = new Audio('test', false);
-	const ss = new AudioMusic({
-		url : '/media/audio/music/looptest.ogg',
-		loop : true,
+	let sounds = {
+		loop : '/media/audio/music/looptest_loop.ogg',
+		intro : '/media/audio/music/looptest_intro.ogg',
+		outro : '/media/audio/music/looptest_outro.ogg',
 		bpm : 130,
 		in : 1,
-		out : 3
-	});
+		out : 3,
+		intro_point : 1,
+		outro_point : 1
+	};
+	if( soundKit === 1 )
+		sounds = {
+			loop : '/media/audio/music/portswood_loop.ogg',
+			intro : '/media/audio/music/portswood_intro.ogg',
+			outro : '/media/audio/music/portswood_outro.ogg',
+			bpm : 100,
+			in : 0,
+			out : 90,
+			vol : 1,
+			intro_point : 1,
+			outro_point : 1 
+		};
+
+	const ch = new Audio('test', false);
+	ch.setVolume(1);
+	const ss = new AudioMusic(sounds);
 
 	await ss.activate(ch);
-
+	window.music = ss;
 
 };
 
 
-export {AudioSound, AudioKit};
+export {AudioSound, AudioKit, AudioMusic};
 export default Audio;
 
