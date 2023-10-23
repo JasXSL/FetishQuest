@@ -14,6 +14,7 @@ import * as EditorText from './editors/EditorText.js';
 import * as EditorCondition from './editors/EditorCondition.js';
 import * as EditorAudioKit from './editors/EditorAudioKit.js';
 import * as EditorAudioTrigger from './editors/EditorAudioTrigger.js';
+import * as EditorAudioMusic from './editors/EditorAudioMusic.js';
 import * as EditorHitFX from './editors/EditorHitFX.js';
 import * as EditorAsset from './editors/EditorAsset.js';
 import * as EditorAssetTemplate from './editors/EditorAssetTemplate.js';
@@ -75,6 +76,7 @@ const DB_MAP = {
 	"texts" : { listing : EditorText.list, asset : EditorText.asset, help : EditorText.help, icon : '' },
 	"conditions" : { listing : EditorCondition.list, asset : EditorCondition.asset, icon : 'check-mark', help : EditorCondition.help },
 	"audioKits" : { listing : EditorAudioKit.list, asset : EditorAudioKit.asset, icon : 'speaker', help : EditorAudioKit.help },
+	"audioMusic" : { listing : EditorAudioMusic.list, asset : EditorAudioMusic.asset, icon : 'double-quaver', help : EditorAudioMusic.help },
 	"audioTriggers" : { listing : EditorAudioTrigger.list, asset : EditorAudioTrigger.asset, icon : 'screaming', help : EditorAudioTrigger.help },
 	"hitFX" : { listing : EditorHitFX.list, asset : EditorHitFX.asset, icon : 'spiky-explosion', help : EditorHitFX.help },
 	"assets" : { listing : EditorAsset.list, asset : EditorAsset.asset, icon : 'underwear', help : EditorAsset.help },

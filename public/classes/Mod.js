@@ -70,6 +70,7 @@ export default class Mod extends Generic{
 		this.actions = [];		//x mod actions
 		this.assets = [];		//x equipment prefabs
 		this.audioKits = [];	//x AudioKit
+		this.audioMusic = [];
 		this.audioTriggers = [];
 		this.playerClasses = [];	//x Custom player classes
 		this.conditions = [];			//x Condition library
@@ -106,7 +107,7 @@ export default class Mod extends Generic{
 		this.armorEnchants = [];
 		this.story = [];
 		this.playerIconStates = [];
-
+		
 		this.load(data);
 	}
 
@@ -155,6 +156,7 @@ export default class Mod extends Generic{
 			actions : this.actions,
 			assets : this.assets,
 			audioKits : this.audioKits,
+			audioMusic : this.audioMusic,
 			audioTriggers : this.audioTriggers,
 			playerClasses : this.playerClasses,
 			conditions : this.conditions,
@@ -1873,7 +1875,7 @@ export default class Mod extends Generic{
 
 		}
 
-		const lt = mod.getLibTypes();
+		const lt = Mod.getLibTypes();
 		// Clean up the mod on export
 		for( let lib in data ){
 

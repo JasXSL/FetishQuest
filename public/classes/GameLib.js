@@ -34,6 +34,7 @@ const load_order = [
 	'wrappers',
 	'playerClasses',
 	'audioKits',
+	'audioMusic',
 	'audioTriggers',
 	'hitFX',
 	'actions',
@@ -112,6 +113,7 @@ export default class GameLib{
 		this.playerTemplateLoot = {};
 		this.assetTemplates = {};
 		this.audioKits = {};
+		this.audioMusic = {};
 		this.audioTriggers = {};
 		this.materialTemplates = {};	// AssetTemplate Material
 		this.dungeonSubTemplates = {};

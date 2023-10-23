@@ -302,6 +302,8 @@ class AudioSound{
 		this.loaded = false;
 	}
 
+	
+
 	use3d(){
 		return this.parent.use3d;
 	}
@@ -497,6 +499,235 @@ class AudioKit extends Generic{
 	}
 
 }
+
+
+
+export class AudioMusic extends Generic{
+
+	static getRelations(){ 
+		return {
+		};
+	}
+
+	constructor( data ){
+		super(data);
+		this.label = '';
+		
+		this.loop = true;
+		this.vol = 0.5;
+		this.url = '';
+		this.bpm = 0;
+		this.in = 0;					// nr of bars
+		this.out = -1;
+		this.name = '';
+		this.author = '';
+		
+		// Pair a combat track with this
+		this.name_combat = '';
+		this.author_combat = '';
+		this.url_combat = '';
+		this.vol_combat = 0.5;
+		this.bpm_combat = -1;			// If less than 0, use parent
+		this.in_combat = -1;			// If less than 0, the non combat audio will fade out immediately instead of trying to snap to the out point 
+		this.out_combat = -1;
+		
+		this.chan = null;				// Audio object
+		this._buf_main = null;
+		this._snd_main = null;
+		this._gain_main = null;
+		this._snd_out_main = null;
+		this._snd_in_main = null;
+
+		this._buf_combat = null;
+		this._snd_combat = null;
+		this._gain_combat = null;
+		this.combat = false;
+
+		this.load(data);
+	}
+
+	getCurrentTime(){
+		return this.chan.getCurrentTime();
+	}
+
+	deactivate(){
+		this._snd_main?.stop();
+		this._snd_combat?.stop();
+		this._snd_main = null;
+		this._snd_combat = null;
+	}
+
+	async activate( channel, startPos = 0 ){
+
+		this.chan = channel;
+
+		this._gain_main = this.getMaster().createGain();
+		this._gain_combat = this.getMaster().createGain();
+		this._gain_main.gain.setValueAtTime(this.vol, 0);
+		this._gain_combat.gain.setValueAtTime(this.vol_combat, 0);
+		this._gain_main.connect(this.chan.dry);
+		this._gain_combat.connect(this.chan.dry);
+
+		this._buf_main = await AudioSound.getDecodedBuffer(this.url);
+		// Todo
+		/*
+		if( this.url_combat ){
+			this._snd_combat = new AudioSound({
+				volume : this.vol_combat,
+				path : this.url_combat
+			}, channel);
+			await this._snd_combat.load();
+		}
+		*/
+		this.play(startPos);
+
+	}
+
+
+	setAudioLoop(){
+		
+		
+		const dur = this._snd_main._dur, started = this._snd_main._started, cur = this.getCurrentTime();
+		const curLoops = Math.floor((cur-started)/dur);
+
+		let next = (started+curLoops*dur+dur);
+		let ms = (next-cur)*1000; // MS into the future the next trigger is
+
+		this._loop = setTimeout(() => {
+			this.setAudioLoop();
+		}, ms+20);
+
+
+		if( curLoops >= 0 ){
+			
+			const source = this.getMaster().createBufferSource();
+			this._snd_out_main = source;
+			source.connect(this._gain_main);
+			source.buffer = this._buf_main;
+			source.start(next, this.getEndTime());
+			
+		}
+
+	}
+
+	getMaster(){
+		return this.chan.getMaster();
+	}
+
+	play( pos = 0 ){
+
+		// Todo: mix combat
+		// Play the audio
+		const cur = this._snd_main;
+		const source = this.getMaster().createBufferSource();
+		source.connect(this._gain_main);
+		source.buffer = this._buf_main;
+		source.loop = this.loop;
+		this._snd_main = source;
+
+		const startTime = this.getStartTime(), endTime = this.getEndTime();
+		
+		const dur = endTime-startTime;
+		const cTime = this.getCurrentTime();
+		console.log("cTime", cTime, "pos", pos);
+		source.start(cTime, pos);
+
+		source._started = cTime-pos+startTime;
+		console.log("cTime ",cTime, "start", pos, "dur", dur, "started", source._started);
+		source._dur = dur;
+
+		if( source.loop ){
+			
+			source.loopStart = this.getStartTime();
+			source.loopEnd = this.getEndTime();
+			this.setAudioLoop();
+			
+		}
+
+		if( cur ){
+			cur.stop(cTime);
+		}
+
+		console.log("starting");
+
+	}
+
+
+	setCombat( combat ){
+		
+		combat = Boolean(combat);
+		// Detect state change
+		if( this.combat === combat )
+			return;
+
+		this.combat = combat;
+		this.play();
+
+	}
+
+	load(data){
+		this.g_autoload(data);
+	}
+
+	rebase(){
+		this.g_rebase();	// Super
+	}
+
+	save( full ){
+		const out = {
+			label : this.label,
+			loop : this.loop,
+			vol : this.vol,
+			url : this.url,
+			bpm : this.bpm,
+			in : this.in,
+			out : this.out,
+			url_combat : this.url_combat,
+			in_combat : this.in_combat,
+			out_combat : this.out_combat,
+			name : this.name,
+			author : this.author,
+			name_combat : this.name_combat,
+			author_combat : this.author_combat,
+		};
+		if( full ){
+		}
+		return out;
+	}
+
+	getStartTime(){
+		if( this.in < 1 )
+			return 0;
+		return AudioMusic.barToTime(this.in, this.bpm);
+	}
+	getEndTime(){
+		if( this.out < 1 )
+			return this._snd_main.buffer.duration;
+		return AudioMusic.barToTime(this.out, this.bpm);
+	}
+
+	static barToTime( bar, bpm ){
+		return bar*4*60/bpm;
+	}
+	
+}
+
+// Debug
+window.testAudio = async () => {
+	
+	const ch = new Audio('test', false);
+	const ss = new AudioMusic({
+		url : '/media/audio/music/looptest.ogg',
+		loop : true,
+		bpm : 130,
+		in : 1,
+		out : 3
+	});
+
+	await ss.activate(ch);
+
+
+};
 
 
 export {AudioSound, AudioKit};
