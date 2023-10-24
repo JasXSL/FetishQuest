@@ -4,37 +4,36 @@ import Generic from "./helpers/Generic.js";
 
 /*
 	Todo: 
-	- Audio channel should be able to deal with music assets too. Holding 3 tracks that can be blended between:
-		- Ambient 	- Set by dungeon, auto loaded when entering a new zone
-		- Combat	- Set by dungeon, auto loaded when entering a new zone
-		- Override	- Loaded on demand. Sticks around until you change zone.
-	- AudioMusic should only be for 1 piece of music, but 3 states:
-		- Intro
-			- url
-			- inPoint
-		- Loop
-			- url
-			- inPoint
-			- outPoint
-		- Outro
-			- url
-			- outPoint
-	- Each piece of music also has:
-		- BPM
-		- volume
-		- author
-		- name
-		- 
+	- Fade between audio
+	- Connect to game
+	- Setup editor
 */
 
 
 // Audio channel
 class Audio{
 
+	// When utilizing the music subsystem, these are the tracks we can use
+	static Tracks = {
+		ambient : 'ambient',
+		combat : 'combat',
+		encounter : 'encounter',
+		encounterCombat : 'encounterCombat',
+		rp : 'rp',
+	};
+	static TrackOrder = [
+		this.Tracks.rp,
+		this.Tracks.encounterCombat,
+		this.Tracks.encounter,
+		this.Tracks.combat,
+		this.Tracks.ambient,
+	];
+
 	static master;
 	static masterGain;
 	static begun = false;	// Set to true when begin has been called once. Prevents recursion
 	static loading = true; 	// Stores a promise that resolves when it's loaded
+	
 	// Must be ogg, connected to /media/audio/reverb
 	// Stores buffers
 	static reverbs = {
@@ -140,6 +139,12 @@ class Audio{
 		this.lowpass.connect(masterGain); // lowpass -> master
 		this.lowpass._o = masterGain;
 		this.lowpass._n = 'ch_lowpass';
+
+		this.musicActiveTrack = '';
+		this.musicActiveLabel = '';
+		this.musicTracks = {};
+		for( let i in Audio.Tracks )
+			this.musicTracks[i] = null;
 
 		this.hasReverb = false;
 
@@ -257,8 +262,61 @@ class Audio{
 		return Audio.masterGain;
 	}
 
-	
+	async attachMusic( track, audioMusic ){
 
+		if( !this.musicTracks.hasOwnProperty(track) )
+			throw new Error("Music track not found: "+track);
+
+		if( this.musicTracks[track]?.label === audioMusic.label )
+			return;
+
+		this.musicTracks[track] = audioMusic;
+		await audioMusic.activate(this);
+
+	}
+
+	setActiveMusicTrack( track, fadeMethod = 'bar' ){
+
+		if( !this.musicTracks.hasOwnProperty(track) )
+			throw new Error("Music track not found: "+track);
+		
+		if( this.musicActive === track )
+			return;
+		
+		const curTrack = this.musicTracks[this.musicActiveTrack],
+			curLabel = curTrack?.label,
+			nTrack = this.musicTracks[track],
+			nLabel = nTrack?.label
+		;
+
+		// No such track set
+		if( !nTrack )
+			return;
+
+		// Same track is already playing
+		if( curLabel === nLabel )
+			return;
+
+		this.musicActiveTrack = track;
+		this.musicActiveLabel = nTrack.label;
+		const time = this.getCurrentTime();
+
+
+		let timeOffs = 0;
+		if( curTrack ){
+			
+			let minIntroTime = nTrack.getIntroStartTime();
+			const isFade = fadeMethod === 'fade';
+			if( isFade )
+				minIntroTime = 10.0;
+			timeOffs = curTrack.stop(fadeMethod, minIntroTime, false, true)-minIntroTime;
+			if( isFade )
+				timeOffs = this.getCurrentTime()+2;
+
+		}
+		nTrack.play(timeOffs);
+
+	}
 
 };
 
@@ -526,6 +584,7 @@ class AudioKit extends Generic{
 
 
 // Advanced alternative to AudioKit
+// Note: bars set by users are 1-indexed, whereas internally 0 index is used
 class AudioMusic extends Generic{
 
 	static getRelations(){ 
@@ -549,11 +608,12 @@ class AudioMusic extends Generic{
 		this.intro = '';
 		this.intro_point = 1;			// nr of bars when the intro "hits"
 
-		this.in = 0;					// nr of bars
-		this.out = 0;					// 0 = use entire length
+		this.in = 1;					// nr of bars. 1-indexed
+		this.out = 1;					// <2 = use entire length
+		this.transition_points = [];	// bar nrs that make for good transition points. 1-indexed
 		
 		this.outro = '';
-		this.outro_point = 0;			// nr of bars when the outro "hits"
+		this.outro_point = 1;			// nr of bars when the outro "hits". 1-indexed
 		
 		this._buf_loop = null;
 		this._buf_intro = null;
@@ -570,11 +630,32 @@ class AudioMusic extends Generic{
 		this._loopTimer = null;
 		this._cleanupTimer = null;
 
-		this._started = 0;	// Time when the main loop in point started
+		this._started = 0;	// When the first bar of the composition played (including the intro)
 
 		this._stopped = 0;	// time stopped
 		
 		this.load(data);
+	}
+
+	
+	save( full ){
+		const out = {
+			label : this.label,
+			name : this.name,
+			author : this.author,
+			loop : this.loop,
+			bpm : this.bpm,
+			vol : this.vol,
+			intro : this.intro,
+			intro_point : this.intro_point,
+			in : this.in,
+			out : this.out,
+			outro : this.outro,
+			outro_point : this.outro_point,
+		};
+		if( full ){
+		}
+		return out;
 	}
 
 	getMaster(){
@@ -606,67 +687,108 @@ class AudioMusic extends Generic{
 			this._gain_loop.connect(this.parent.dry);
 		}
 
-		const promises = [
-			AudioSound.getDecodedBuffer(this.loop).then(buf => this._buf_loop = buf)
-		];
-		if( this.intro )
+		const promises = [];
+		if( !this._buf_loop )
+			promises.push(AudioSound.getDecodedBuffer(this.loop).then(buf => this._buf_loop = buf));
+		if( this.intro && !this._buf_intro )
 			promises.push(AudioSound.getDecodedBuffer(this.intro).then(buf => this._buf_intro = buf));
-		if( this.outro )
+		if( this.outro && !this._buf_outro )
 			promises.push(AudioSound.getDecodedBuffer(this.outro).then(buf => this._buf_outro = buf));
 		
 		// Wait for buffers to load
 		await Promise.all(promises);
-		
-		this.play();
+
+	}
+
+	// 0-indexed
+	getCurrentBarNumber(){
+
+		const time = this.getCurrentTime(),
+			delta = time-this._started,
+			barDur = this.getBarTime()
+		;
+		return Math.floor(delta/barDur);
+
+	}
+
+	// tries to get a time when it's good to stop and let another track take over. returns an absolute time
+	// if transition_points are set, it uses those
+	// otherwise it falls back to the next bar
+	// minTime can be used to set a minimum time ahead needed for the swap point, in general minTime should be a time that's divisible by our bar length
+	getNextFadePoint( minTime = 0 ){
+
+		if( !this.transition_points.length )
+			return this.getNextBar()+minTime;
+
+		const fullTime = this.getLoopEndTime()-this.getLoopStartTime(),
+			curTime = this.getCurrentTime(),
+			delta = (curTime - this._started)%fullTime	// Where we're at in the current loop
+		;
+
+		// Find the nearest transition point that's greater or equal to minTime
+		let nearest = 0, nearestT = 0;
+		for( let t of this.transition_points ){
+			
+			--t;	// convert to 0 indexed
+			let timeInBlock = AudioMusic.barToTime(t, this.bpm)-delta;
+			if( timeInBlock < 0 ){
+				timeInBlock += fullTime;
+			}
+			if( !nearest || (timeInBlock >= minTime && timeInBlock < nearest) ){
+				nearest = timeInBlock;
+				nearestT = t+1;
+			}
+
+		}
+
+		//console.log("Next transition point in: ", nearest, "seconds, bar #", nearestT, "delta", delta, curTime, this._started);
+
+		return nearest+curTime;
 
 	}
 
 	getNextBar(){
 
-		const 
-			time = this.getCurrentTime(),
-			delta = time-this._started,
-			barDur = 60*4/this.bpm,
-			bars = Math.floor(delta/barDur)
-		;
-		return this._started+bars*barDur+barDur;
+		const barDur = this.getBarTime();
+		return this._started+this.getCurrentBarNumber()*barDur+barDur;
 
 	}
 
+
+	// Triggered just before each loop ends
 	scheduleLoop(){
 
-		const master = this.getMaster();
 		const 
 			time = this.getCurrentTime(),
 			loopInPoint = this.getLoopStartTime(),
 			loopOutPoint = this.getLoopEndTime(),
 			loopDur = loopOutPoint-loopInPoint,
-			delta = time-this._started,
+			stOffs = this._started+loopInPoint, // Makes the first trigger negative, allowing it to play immediately
+			delta = time-stOffs,
 			curLoops = Math.floor(delta/loopDur),
-			nextStart = (curLoops+1)*loopDur-loopInPoint+this._started,
+			nextStart = (curLoops+1)*loopDur-loopInPoint+stOffs,
 			nextTimer = nextStart+loopDur-time-0.8
 		;
-		
+
 		// We stop here. 0.1 is a failsafe for float issues
 		if( this._stopped && nextStart+0.1 > this._stopped )
 			return;
 
-
-		const mainLoop = master.createBufferSource();
+		const mainLoop = this.getMaster().createBufferSource();
 		mainLoop.buffer = this._buf_loop;
 		mainLoop.connect(this._gain_loop);
 		mainLoop.start(nextStart);
 		this._snd_loop = mainLoop;
-
 		this._loopTimer = setTimeout(() => this.scheduleLoop(), nextTimer*1000);
 
 	}
 
 	/* Stops playing. StopType can be: 
-		''/'bar' : trigger the outro and stop at the next available bar
-		'fade' : fades out smoothly, extra is the fade time in seconds
+		''/'bar' : trigger the outro and stop at the next available bar. in this mode, fade can be used to set a min time before stopping
+		'fade' : fades out smoothly, extra is the fade time in seconds.
+		Returns stopTime
 	*/ 
-	stop( stopType = '', fade = 0, deactivateOnComplete = false ){
+	stop( stopType = '', fade = 0, deactivateOnComplete = false, ignoreOutro = false ){
 		
 		const time = this.getCurrentTime();
 		let stopTime = time;
@@ -676,21 +798,22 @@ class AudioMusic extends Generic{
 		// If not fade, it's the smart one that plays the outro. Otherwise it just fades out.
 		if( stopType !== 'fade' ){
 			
-			const outroTime = AudioMusic.barToTime(this.outro_point, this.bpm),
-				nextBar = this.getNextBar()
-			;
-			stopTime = nextBar+outroTime;
+			let outroTime = AudioMusic.barToTime(this.outro_point-1, this.bpm);
+			// The next track has a longer intro, so we have to take care of that
+			if( outroTime < fade )
+				outroTime = this.getBarTime()*Math.ceil(fade/this.getBarTime());
+			
+			stopTime = this.getNextFadePoint(outroTime);
+			//stopTime = nextBar+outroTime;
 
 			// Need to play the outro
-			if( this.outro ){
-				
+			if( this.outro && !ignoreOutro ){
 				
 				const outro = this.getMaster().createBufferSource();
 				outro.connect(this._gain_outro);
 				outro.buffer = this._buf_outro;
-				outro.start(nextBar);
+				outro.start(stopTime-this.getOutroStartTime());
 				this._snd_outro = outro;
-
 				deactivateTimeout = outro.buffer.duration + nextBar - time;
 
 			}
@@ -730,6 +853,7 @@ class AudioMusic extends Generic{
 
 		
 		this._stopped = stopTime;
+		return stopTime;
 
 	}
 
@@ -760,10 +884,9 @@ class AudioMusic extends Generic{
 		else
 			startTime = startTime-time;
 
-		const introTime = AudioMusic.barToTime(this.intro_point, this.bpm);
 		const master = this.getMaster();
 
-		this._started = time+startTime+introTime;
+		this._started = time+startTime;
 
 		// Play the intro if need be
 		if( this.intro ){
@@ -773,6 +896,7 @@ class AudioMusic extends Generic{
 			intro.connect(this._gain_intro);
 			intro.start(time+startTime);
 			this._snd_intro = intro;
+			//console.log("Starting", this.label, "at", time+startTime);
 
 		}
 
@@ -801,37 +925,31 @@ class AudioMusic extends Generic{
 		this.g_rebase();	// Super
 	}
 
-	save( full ){
-		const out = {
-			label : this.label,
-			loop : this.loop,
-			vol : this.vol,
-			url : this.url,
-			bpm : this.bpm,
-			in : this.in,
-			out : this.out,
-			url_combat : this.url_combat,
-			in_combat : this.in_combat,
-			out_combat : this.out_combat,
-			name : this.name,
-			author : this.author,
-			name_combat : this.name_combat,
-			author_combat : this.author_combat,
-		};
-		if( full ){
-		}
-		return out;
+
+	// Gets time of one bar
+	getBarTime(){
+		return 60*4/this.bpm;
+	}
+
+	getIntroStartTime(){
+		return AudioMusic.barToTime(this.intro_point-1, this.bpm);
+	}
+
+	getOutroStartTime(){
+		return AudioMusic.barToTime(this.outro_point-1, this.bpm);
 	}
 
 	getLoopStartTime(){
-		if( this.in < 1 )
+		let thisIn = this.in-1; // DAWs start at 1, so we'll use that for the front end. But the back end needs to start from 0
+		if( thisIn < 1 )
 			return 0;
-		return AudioMusic.barToTime(this.in, this.bpm);
+		return AudioMusic.barToTime(thisIn, this.bpm);
 	}
 	getLoopEndTime(){
-		if( this.out < 1 )
+		let thisOut = this.out-1;
+		if( thisOut < 1 )
 			return this._snd_main.buffer.duration;
-		return AudioMusic.barToTime(this.out, this.bpm);
+		return AudioMusic.barToTime(thisOut, this.bpm);
 	}
 
 	static barToTime( bar, bpm ){
@@ -847,35 +965,60 @@ class AudioMusic extends Generic{
 // Debug
 window.testAudio = async soundKit => {
 	
-	let sounds = {
+	let override = {
 		loop : '/media/audio/music/looptest_loop.ogg',
 		intro : '/media/audio/music/looptest_intro.ogg',
 		outro : '/media/audio/music/looptest_outro.ogg',
 		bpm : 130,
-		in : 1,
-		out : 3,
-		intro_point : 1,
-		outro_point : 1
+		in : 2,
+		out : 4,
+		intro_point : 2,
+		outro_point : 2
 	};
-	if( soundKit === 1 )
-		sounds = {
-			loop : '/media/audio/music/portswood_loop.ogg',
-			intro : '/media/audio/music/portswood_intro.ogg',
-			outro : '/media/audio/music/portswood_outro.ogg',
-			bpm : 100,
-			in : 0,
-			out : 90,
-			vol : 1,
-			intro_point : 1,
-			outro_point : 1 
-		};
+	
+	let idleData = {
+		label : 'ambient',
+		loop : '/media/audio/music/portswood_loop.ogg',
+		intro : '/media/audio/music/portswood_intro.ogg',
+		outro : '/media/audio/music/portswood_outro.ogg',
+		bpm : 100,
+		in : 2,
+		out : 92,
+		vol : 1,
+		intro_point : 2,
+		outro_point : 2,
+		transition_points : [
+			2, 10, 18, 26, 34, 42, 50, 52, 60, 68, 76, 84, 92
+		],
+	};
+	let combatData = {
+		label : 'combat',
+		loop : '/media/audio/music/portswood_hard_loop.ogg',
+		intro : '/media/audio/music/portswood_hard_intro.ogg',
+		outro : '/media/audio/music/portswood_hard_outro.ogg',
+		bpm : 100,
+		in : 2,
+		out : 66,
+		vol : 1,
+		intro_point : 2,
+		outro_point : 2 ,
+		transition_points : [
+			2, 10, 18, 26, 33, 34, 42, 50, 58, 66
+		],
+	};
 
+ 
 	const ch = new Audio('test', false);
 	ch.setVolume(1);
-	const ss = new AudioMusic(sounds);
-
-	await ss.activate(ch);
-	window.music = ss;
+	const ambient = new AudioMusic(idleData);
+	const battle = new AudioMusic(combatData);
+	const audioOverride = new AudioMusic(override);
+	await ch.attachMusic(Audio.Tracks.ambient, ambient);
+	await ch.attachMusic(Audio.Tracks.combat, battle);
+	await ch.attachMusic(Audio.Tracks.rp, audioOverride);
+	ch.setActiveMusicTrack(Audio.Tracks.ambient);
+	//await ss.activate(ch);
+	window.music = ch;
 
 };
 
